@@ -367,6 +367,23 @@ typedef struct
 }
 spawnpoint_t;
 
+// --> Spawnpoint array class
+class spawnpointarray_c : public epi::array_c
+{
+public:
+	spawnpointarray_c() : epi::array_c(sizeof(spawnpoint_t)) {}
+	~spawnpointarray_c() { Clear(); }
+
+private:
+	void CleanupObject(void *obj) { /* ... */ }
+
+public:
+	int Insert(spawnpoint_t* sp) { return InsertObject((void*)sp); }
+	int GetSize() { return array_entries; } 
+	
+	spawnpoint_t* operator[](int idx) { return (spawnpoint_t*)FetchObject(idx); } 
+};
+
 // Map Object definition.
 typedef struct mobj_s mobj_t;
 

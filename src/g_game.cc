@@ -1174,26 +1174,28 @@ static bool G_CheckSpot(player_t *player, const spawnpoint_t *point)
 //
 void G_DeathMatchSpawnPlayer(player_t *p)
 {
+	epi::array_iterator_c it;
+	spawnpoint_t *sp;
+	
 	int i, j;
 	int selections;
 	int begin;
 
-	selections = deathmatch_p - deathmatchstarts;
-
-	if (p->pnum >= selections)
+	if (p->pnum >= dm_starts.GetSize())
 		I_Warning("Few deathmatch spots, %d recommended.\n", p->pnum + 1);
 
-	if (selections)
+	if (dm_starts.GetSize())
 	{
-		begin = P_Random() % selections;
+		begin = P_Random() % dm_starts.GetSize();
 
-		for (j = 0; j < selections; j++)
+		for (j = 0; j < dm_starts.GetSize(); j++)
 		{
-			i = (begin + j) % selections;
+			i = (begin + it.GetPos()) % dm_starts.GetSize();
 
-			if (G_CheckSpot(p, &deathmatchstarts[i]))
+			sp = dm_starts[i];
+			if (G_CheckSpot(p, sp))
 			{
-				P_SpawnPlayer(p, &deathmatchstarts[i]);
+				P_SpawnPlayer(p, sp);
 				return;
 			}
 		}
@@ -1202,7 +1204,7 @@ void G_DeathMatchSpawnPlayer(player_t *p)
 		if (playerstarts[p->pnum].info)
 			P_SpawnPlayer(p, &playerstarts[p->pnum]);
 		else
-			P_SpawnPlayer(p, &deathmatchstarts[begin]);
+			P_SpawnPlayer(p, dm_starts[begin]);
 	}
 	else
 	{

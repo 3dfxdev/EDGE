@@ -153,9 +153,7 @@ extern player_t *displayplayer;
 #define CHEATARMOURTYPE  ARMOUR_Blue
 
 // Player spawn spots for deathmatch.
-extern int max_deathmatch_starts;
-extern spawnpoint_t *deathmatchstarts;
-extern spawnpoint_t *deathmatch_p;
+extern spawnpointarray_c dm_starts;
 
 // Player spawn spots.
 extern spawnpoint_t *playerstarts;
