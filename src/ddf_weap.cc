@@ -178,6 +178,11 @@ const specflags_t ammo_types[] =
     {"TORPEDOES", AM_Torpedo, 0},
     {"CRYSTALS",  AM_Crystal, 0},
 
+    {"GROMMETS",  AM_Grommet,  0},
+    {"BUCKSHOT",  AM_Buckshot, 0},
+    {"TOXIN",     AM_Toxin,    0},
+    {"MANA",      AM_Mana,     0},
+
     {NULL, 0, 0}
 };
 
