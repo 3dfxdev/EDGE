@@ -68,7 +68,7 @@ extern int numwalltiles;
 extern wall_tile_t *walltiles;
 
 extern int numvertgaps;
-extern vgap_t vertgaps;
+extern vgap_t *vertgaps;
 
 //
 // POV data.
