@@ -266,9 +266,9 @@ void R2_GetThingSprite(mobj_t *thing, spritedef_t ** sprite,
 void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing);
 
 void R2_AddDLights(int num, int *level, 
-    float_t *x, float_t *y, float_t *z, mobj_t *dl);
+    float_t *x, float_t *y, float_t *z, mobj_t *mo);
 void R2_AddColourDLights(int num, int *r, int *g, int *b, 
-    float_t *x, float_t *y, float_t *z, mobj_t *dl);
+    float_t *x, float_t *y, float_t *z, mobj_t *mo);
 void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor);
 
 
