@@ -402,8 +402,6 @@ bool I_Access(const char *filename)
 //
 long FAR PASCAL I_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	//  DWORD actflag;
-
 	switch (message)
 	{
 		case WM_CLOSE:
