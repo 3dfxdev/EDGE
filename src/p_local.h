@@ -337,6 +337,9 @@ extern float bmaporgy;  // origin of block map
 extern mobj_t **blocklinks;   // for thing chains
 extern mobj_t **blocklights;  // for dynamic lights
 
+#define BLOCKMAP_GET_X(x)  ((int) ((x) - bmaporgx) / MAPBLOCKUNITS)
+#define BLOCKMAP_GET_Y(y)  ((int) ((y) - bmaporgy) / MAPBLOCKUNITS)
+
 //
 // P_INTER
 //

@@ -1400,8 +1400,8 @@ static void P_UnsetThingPosition(mobj_t * thing)
 		}
 		else
 		{
-			blockx = (int)(thing->x - bmaporgx) / MAPBLOCKUNITS;
-			blocky = (int)(thing->y - bmaporgy) / MAPBLOCKUNITS;
+			blockx = BLOCKMAP_GET_X(thing->x);
+			blocky = BLOCKMAP_GET_Y(thing->y);
 
 			if (blockx >= 0 && blockx < bmapwidth &&
 				blocky >= 0 && blocky < bmapheight)
@@ -1435,8 +1435,8 @@ static void P_UnsetThingPosition(mobj_t * thing)
 		}
 		else
 		{
-			blockx = (int)(thing->x - bmaporgx) / MAPBLOCKUNITS;
-			blocky = (int)(thing->y - bmaporgy) / MAPBLOCKUNITS;
+			blockx = BLOCKMAP_GET_X(thing->x);
+			blocky = BLOCKMAP_GET_Y(thing->y);
 
 			if (blockx >= 0 && blockx < bmapwidth &&
 				blocky >= 0 && blocky < bmapheight)
@@ -1576,8 +1576,8 @@ void P_SetThingPosition(mobj_t * thing)
 	// link into blockmap
 	if (!(thing->flags & MF_NOBLOCKMAP))
 	{
-		blockx = (int)(thing->x - bmaporgx) / MAPBLOCKUNITS;
-		blocky = (int)(thing->y - bmaporgy) / MAPBLOCKUNITS;
+		blockx = BLOCKMAP_GET_X(thing->x);
+		blocky = BLOCKMAP_GET_Y(thing->y);
 
 		if (blockx >= 0 && blockx < bmapwidth &&
 			blocky >= 0 && blocky < bmapheight)
@@ -1602,8 +1602,8 @@ void P_SetThingPosition(mobj_t * thing)
 	// link into dynamic light blockmap
 	if (thing->extendedflags & EF_DLIGHT)
 	{
-		blockx = (int)(thing->x - bmaporgx) / MAPBLOCKUNITS;
-		blocky = (int)(thing->y - bmaporgy) / MAPBLOCKUNITS;
+		blockx = BLOCKMAP_GET_X(thing->x);
+		blocky = BLOCKMAP_GET_Y(thing->y);
 
 		if (blockx >= 0 && blockx < bmapwidth &&
 			blocky >= 0 && blocky < bmapheight)
@@ -1716,9 +1716,7 @@ bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *))
 	mobj_t *mobj;
 
 	if (x < 0 || y < 0 || x >= bmapwidth || y >= bmapheight)
-	{
 		return true;
-	}
 
 	for (mobj = blocklinks[y * bmapwidth + x]; mobj; mobj = mobj->bnext)
 	{

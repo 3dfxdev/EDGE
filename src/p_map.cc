@@ -221,10 +221,11 @@ bool P_TeleportMove(mobj_t * thing, float x, float y, float z)
 	Z_SetArraySize(&spechit_a, numspechit = 0);
 
 	// stomp on any things contacted
-	xl = (int)(tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS) / MAPBLOCKUNITS;
-	xh = (int)(tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS) / MAPBLOCKUNITS;
-	yl = (int)(tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS) / MAPBLOCKUNITS;
-	yh = (int)(tmbbox[BOXTOP] - bmaporgy + MAXRADIUS) / MAPBLOCKUNITS;
+	xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]   - MAXRADIUS);
+	xh = BLOCKMAP_GET_X(tmbbox[BOXRIGHT]  + MAXRADIUS);
+	yl = BLOCKMAP_GET_Y(tmbbox[BOXBOTTOM] - MAXRADIUS);
+	yh = BLOCKMAP_GET_Y(tmbbox[BOXTOP]    + MAXRADIUS);
+
 	for (bx = xl; bx <= xh; bx++)
 		for (by = yl; by <= yh; by++)
 			if (!P_BlockThingsIterator(bx, by, PIT_StompThing))
@@ -405,10 +406,10 @@ bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z)
 	// based on their origin point, and can overlap
 	// into adjacent blocks by up to MAXRADIUS units.
 
-	xl = (int)(tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS) / MAPBLOCKUNITS;
-	xh = (int)(tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS) / MAPBLOCKUNITS;
-	yl = (int)(tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS) / MAPBLOCKUNITS;
-	yh = (int)(tmbbox[BOXTOP] - bmaporgy + MAXRADIUS) / MAPBLOCKUNITS;
+	xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]   - MAXRADIUS);
+	xh = BLOCKMAP_GET_X(tmbbox[BOXRIGHT]  + MAXRADIUS);
+	yl = BLOCKMAP_GET_Y(tmbbox[BOXBOTTOM] - MAXRADIUS);
+	yh = BLOCKMAP_GET_Y(tmbbox[BOXTOP]    + MAXRADIUS);
 
 	for (bx = xl; bx <= xh; bx++)
 		for (by = yl; by <= yh; by++)
@@ -417,10 +418,10 @@ bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z)
 
 	// check lines
 
-	xl = (int)(tmbbox[BOXLEFT] - bmaporgx) / MAPBLOCKUNITS;
-	xh = (int)(tmbbox[BOXRIGHT] - bmaporgx) / MAPBLOCKUNITS;
-	yl = (int)(tmbbox[BOXBOTTOM] - bmaporgy) / MAPBLOCKUNITS;
-	yh = (int)(tmbbox[BOXTOP] - bmaporgy) / MAPBLOCKUNITS;
+	xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]);
+	xh = BLOCKMAP_GET_X(tmbbox[BOXRIGHT]);
+	yl = BLOCKMAP_GET_Y(tmbbox[BOXBOTTOM]);
+	yh = BLOCKMAP_GET_Y(tmbbox[BOXTOP]);
 
 	for (bx = xl; bx <= xh; bx++)
 		for (by = yl; by <= yh; by++)
@@ -794,10 +795,10 @@ static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 		// based on their origin point, and can overlap
 		// into adjacent blocks by up to MAXRADIUS units.
 
-		xl = (int)(tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS) / MAPBLOCKUNITS;
-		xh = (int)(tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS) / MAPBLOCKUNITS;
-		yl = (int)(tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS) / MAPBLOCKUNITS;
-		yh = (int)(tmbbox[BOXTOP] - bmaporgy + MAXRADIUS) / MAPBLOCKUNITS;
+		xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]   - MAXRADIUS);
+		xh = BLOCKMAP_GET_X(tmbbox[BOXRIGHT]  + MAXRADIUS);
+		yl = BLOCKMAP_GET_Y(tmbbox[BOXBOTTOM] - MAXRADIUS);
+		yh = BLOCKMAP_GET_Y(tmbbox[BOXTOP]    + MAXRADIUS);
 
 		for (bx = xl; bx <= xh; bx++)
 			for (by = yl; by <= yh; by++)
@@ -807,10 +808,10 @@ static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 
 	// check lines
 
-	xl = (int)(tmbbox[BOXLEFT] - bmaporgx) / MAPBLOCKUNITS;
-	xh = (int)(tmbbox[BOXRIGHT] - bmaporgx) / MAPBLOCKUNITS;
-	yl = (int)(tmbbox[BOXBOTTOM] - bmaporgy) / MAPBLOCKUNITS;
-	yh = (int)(tmbbox[BOXTOP] - bmaporgy) / MAPBLOCKUNITS;;
+	xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]);
+	xh = BLOCKMAP_GET_X(tmbbox[BOXRIGHT]);
+	yl = BLOCKMAP_GET_Y(tmbbox[BOXBOTTOM]);
+	yh = BLOCKMAP_GET_Y(tmbbox[BOXTOP]);;
 
 	thing->on_ladder = -1;
 
@@ -1957,10 +1958,10 @@ void P_RadiusAttack(mobj_t * spot, mobj_t * source, float radius,
 	int x, y;
 	int xl, xh, yl, yh;
 
-	yh = (int)(spot->y + radius - bmaporgy) / MAPBLOCKUNITS;
-	yl = (int)(spot->y - radius - bmaporgy) / MAPBLOCKUNITS;
-	xh = (int)(spot->x + radius - bmaporgx) / MAPBLOCKUNITS;
-	xl = (int)(spot->x - radius - bmaporgx) / MAPBLOCKUNITS;
+	xl = BLOCKMAP_GET_X(spot->x - radius);
+	xh = BLOCKMAP_GET_X(spot->x + radius);
+	yl = BLOCKMAP_GET_Y(spot->y - radius);
+	yh = BLOCKMAP_GET_Y(spot->y + radius);
 
 	bomb_I.range = radius;
 	bomb_I.spot  = spot;
@@ -2447,8 +2448,6 @@ static bool PIT_CorpseCheck(mobj_t * thing)
 //
 mobj_t *P_MapFindCorpse(mobj_t * thing)
 {
-	int xlow, xhigh, xcount, ylow, yhigh, ycount;
-
 	if (thing->movedir != DI_NODIR)
 	{
 		raiserobj = thing;
@@ -2457,14 +2456,16 @@ mobj_t *P_MapFindCorpse(mobj_t * thing)
 		raisertryx = thing->x + thing->speed * xspeed[thing->movedir];
 		raisertryy = thing->y + thing->speed * yspeed[thing->movedir];
 
-		xlow  = (int)(raisertryx - bmaporgx - MAXRADIUS * 2) / MAPBLOCKUNITS;
-		xhigh = (int)(raisertryx - bmaporgx + MAXRADIUS * 2) / MAPBLOCKUNITS;
-		ylow  = (int)(raisertryy - bmaporgy - MAXRADIUS * 2) / MAPBLOCKUNITS;
-		yhigh = (int)(raisertryy - bmaporgy + MAXRADIUS * 2) / MAPBLOCKUNITS;
+		int xl = BLOCKMAP_GET_X(raisertryx - MAXRADIUS * 2);
+		int xh = BLOCKMAP_GET_X(raisertryx + MAXRADIUS * 2);
+		int yl = BLOCKMAP_GET_Y(raisertryy - MAXRADIUS * 2);
+		int yh = BLOCKMAP_GET_Y(raisertryy + MAXRADIUS * 2);
 
-		for (xcount = xlow; xcount <= xhigh; xcount++)
-			for (ycount = ylow; ycount <= yhigh; ycount++)
-				if (!P_BlockThingsIterator(xcount, ycount, PIT_CorpseCheck))
+		int x, y;
+
+		for (x = xl; x <= xh; x++)
+			for (y = yl; y <= yh; y++)
+				if (!P_BlockThingsIterator(x, y, PIT_CorpseCheck))
 					return corpsehit;  // got one - return it
 	}
 
@@ -2556,8 +2557,6 @@ static bool PIT_CheckBlockingLine(line_t * line)
 //
 bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing)
 {
-	int xlow, xhigh, xcount, ylow, yhigh, ycount;
-
 	mx1 = thing->x;
 	my1 = thing->y;
 	mx2 = spawnthing->x;
@@ -2572,19 +2571,21 @@ bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing)
 	tmbbox[BOXBOTTOM] = my1 < my2 ? my1 : my2;
 	tmbbox[BOXTOP] = my1 > my2 ? my1 : my2;
 
-	xlow  = (int)(tmbbox[BOXLEFT] - bmaporgx) / MAPBLOCKUNITS;
-	xhigh = (int)(tmbbox[BOXRIGHT] - bmaporgx) / MAPBLOCKUNITS;
-	ylow  = (int)(tmbbox[BOXBOTTOM] - bmaporgy) / MAPBLOCKUNITS;
-	yhigh = (int)(tmbbox[BOXTOP] - bmaporgy) / MAPBLOCKUNITS;
+	int xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]);
+	int xh = BLOCKMAP_GET_X(tmbbox[BOXRIGHT]);
+	int yl = BLOCKMAP_GET_Y(tmbbox[BOXBOTTOM]);
+	int yh = BLOCKMAP_GET_Y(tmbbox[BOXTOP]);
 
 	validcount++;
 
 	mobj_hit_sky = false;
 	blockline = NULL;
 
-	for (xcount = xlow; xcount <= xhigh; xcount++)
-		for (ycount = ylow; ycount <= yhigh; ycount++)
-			if (!P_BlockLinesIterator(xcount, ycount, PIT_CheckBlockingLine))
+	int x, y;
+
+	for (x = xl; x <= xh; x++)
+		for (y = yl; y <= yh; y++)
+			if (!P_BlockLinesIterator(x, y, PIT_CheckBlockingLine))
 				return true;
 
 	return false;
