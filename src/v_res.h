@@ -125,6 +125,7 @@ extern void (*R_DrawColumn) (void);
 extern void (*R_DrawColumn_MIP) (void);
 extern void (*R_DrawFuzzColumn) (void);
 extern void (*R_DrawTranslucentColumn) (void);
+extern void (*R_DrawTranslucentColumn_MIP) (void);
 extern void (*R_DrawTranslatedColumn) (void);
 extern void (*R_DrawTranslucentTranslatedColumn) (void);
 extern void (*R_VideoErase) (unsigned ofs, int count); 
@@ -147,6 +148,8 @@ extern const byte *dc_translation;
 extern void (*R_DrawSpan) (void);
 extern void (*R_DrawSpan_MIP) (void);
 extern void (*R_DrawTranslucentSpan) (void);
+extern void (*R_DrawTranslucentSpan_MIP) (void);
+extern void (*R_DrawHoleySpan_MIP) (void);
 extern void V_ClearPageBackground(screen_t * scr);
 
 void R_DrawViewBorder(void);
