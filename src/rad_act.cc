@@ -528,13 +528,17 @@ void RAD_ActArmourPlayers(rad_trigger_t *R, mobj_t *actor, void *param)
 		if (!RAD_WithinRadius(p->mo, R->info))
 			continue;
 
-		if (p->armours[armour->type] >= armour->limit)
+		float slack = armour->limit - p->totalarmour;
+
+		if (slack <= 0)
 			continue;
 
-		if (p->armours[armour->type] + armour->armour_amount > armour->limit)
-			p->armours[armour->type] = armour->limit;
-		else
-			p->armours[armour->type] += armour->armour_amount;
+		p->armours[armour->type] += armour->armour_amount;
+
+		if (p->armours[armour->type] > slack)
+			p->armours[armour->type] = slack;
+
+		P_UpdateTotalArmour(p);
 	}
 }
 
