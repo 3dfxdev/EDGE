@@ -496,7 +496,7 @@ bool P_LookForPlayers(mobj_t * actor, angle_t range)
 //   BOSS-BRAIN HANDLING
 //
 
-shoot_spot_info_t brain_spots = { 0, NULL };
+shoot_spot_info_t brain_spots = { -1, NULL };
 
 //
 // P_LookForShootSpots
@@ -523,8 +523,11 @@ void P_LookForShootSpots(const mobjdef_c *spot_type)
 	}
 
 	if (brain_spots.number == 0)
-		I_Error("No [%s] objects found for BossBrain shooter.\n",
-		spot_type->ddf.name);
+	{
+		I_Warning("No [%s] objects found for BossBrain shooter.\n",
+			spot_type->ddf.name);
+		return;
+	}
 
 	// create the spots
 	brain_spots.targets = Z_New(mobj_t *, brain_spots.number);
@@ -544,14 +547,17 @@ void P_LookForShootSpots(const mobjdef_c *spot_type)
 //
 void P_FreeShootSpots(void)
 {
-	if (brain_spots.number == 0)
+	if (brain_spots.number < 0)
 		return;
 
-	DEV_ASSERT2(brain_spots.targets);
+	if (brain_spots.targets > 0)
+	{
+		DEV_ASSERT2(brain_spots.targets);
 
-	Z_Free(brain_spots.targets);
+		Z_Free(brain_spots.targets);
+	}
 
-	brain_spots.number = 0;
+	brain_spots.number = -1;
 	brain_spots.targets = NULL;
 }
 
