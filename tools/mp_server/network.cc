@@ -279,11 +279,11 @@ void *NetRun(void *data)
 			{
 				PK_vote_to_play(&pk);
 			}
-			else if (pk.CheckType("st"))  // send ticcmd
+			else if (pk.CheckType("tc"))  // send ticcmd
 			{
 				PK_ticcmd(&pk);
 			}
-			else if (pk.CheckType("sm"))  // send message
+			else if (pk.CheckType("ms"))  // send message
 			{
 				PK_message(&pk);
 			}
