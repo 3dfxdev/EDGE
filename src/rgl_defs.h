@@ -34,7 +34,8 @@
 //
 //  RGL_TEX
 //
-// (NOTE: rgl_tex prolly completely redundant by new w_image code).
+// (NOTE: rgl_tex is completely redundant by new w_image code).
+//
 
 typedef struct stored_gl_tex_s
 {
@@ -71,6 +72,9 @@ void RGL_1DOcclusionClear(angle_t low, angle_t high);
 void RGL_1DOcclusionSet(angle_t low, angle_t high);
 boolean_t RGL_1DOcclusionTest(angle_t low, angle_t high);
 
+// EXPERIMENTAL!!
+#define SPR_HALO  9998
+
 
 //
 //  RGL_MAIN
@@ -82,12 +86,10 @@ extern int glmax_tex_size;
 
 extern angle_t oned_side_angle;
 
-extern float_t light_to_gl[256];
-
 void RGL_Init(void);
 void RGL_SetupMatrices2D(void);
 void RGL_SetupMatrices3D(void);
-void RGL_MarkSky(int x1, int x2);
+void RGL_MarkSky(void);
 void RGL_DrawSky(void);
 void RGL_DrawPlayerSprites(player_t * p);
 
@@ -105,12 +107,59 @@ void RGL_DrawPatch(int patch, int sx, int sy);
 //  RGL_BSP
 //
 
+#define M_ROOT2  1.414213562
+
+// save a little room for lighting effects
+#define TOP_LIGHT  (0.9)
+
 void RGL_RenderScene(int x1, int y1, int x2, int y2, vid_view_t *view);
 
 // FIXME: this will be redundant with layer system...
 void RGL_RenderTrueBSP(void);
 
 
-#endif  // __R2_DEFS__
+//
+// RGL_UNIT
+//
+
+// a single vertex to pass to the GL 
+typedef struct local_gl_vert_s
+{
+  GLfloat x, y, z;
+  GLfloat r, g, b, a;
+  GLfloat t_x, t_y;
+  GLfloat n_x, n_y, n_z;
+  GLboolean edge;
+}
+local_gl_vert_t;
+
+void RGL_InitUnits(void);
+void RGL_StartUnits(boolean_t solid);
+void RGL_FinishUnits(void);
+
+local_gl_vert_t *RGL_BeginUnit(GLuint mode, int max_vert, 
+    GLuint tex_id, boolean_t masked, boolean_t blended);
+void RGL_EndUnit(int actual_vert);
+void RGL_DrawUnits(void);
+
+// utility macros
+#define SET_VERTEX(X,Y,Z)  \
+    do { vert->x = (X); vert->y = (Y); vert->z = (Z); } while(0)
+
+#define SET_COLOR(R,G,B,A)  \
+    do { vert->r = (R); vert->g = (G); vert->b = (B);  \
+         vert->a = (A); } while(0)
+
+#define SET_TEXCOORD(X,Y)  \
+    do { vert->t_x = (X); vert->t_y = (Y); } while(0)
+
+#define SET_NORMAL(X,Y,Z)  \
+    do { vert->n_x = (X); vert->n_y = (Y); vert->n_z = (Z); } while(0)
+
+#define SET_EDGE_FLAG(E)  \
+    do { vert->edge = (E); } while(0)
+ 
+
+#endif  // __RGL_DEFS__
 #endif  // USE_GL
 
