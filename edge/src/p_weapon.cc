@@ -156,6 +156,7 @@ void P_BringUpWeapon(player_t * p)
 		p->secondatk_down = false;
 
 		P_SetPsprite(p, ps_weapon, S_NULL);
+		P_SetPsprite(p, ps_flash,  S_NULL);
 		
 		if (viewiszoomed)
 			R_SetFOV(zoomedfov);
@@ -179,6 +180,7 @@ void P_BringUpWeapon(player_t * p)
 		S_StartSound(p->mo, info->start);
 
 	P_SetPsprite(p, ps_weapon, info->up_state);
+	P_SetPsprite(p, ps_flash,  S_NULL);
 
 	p->refire = info->refire_inacc ? 0 : 1;
 
