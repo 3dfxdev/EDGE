@@ -77,10 +77,11 @@ namespace Patch
 			patch_fmt, doom_ver / 10, doom_ver % 10,
 			(doom_ver == 16) ? "66" : "");
 	
-		if (patch_fmt == 2)
+		if (patch_fmt == 2 || patch_fmt == 4)
 			PrintMsg("Note: code-pointer changes not supported.\n");
-		else if (patch_fmt == 2)
-			PrintMsg("Note: text string and code-pointer changes not supported.\n");
+
+		if (patch_fmt == 4 && (doom_ver < 16 || doom_ver > 17))
+			PrintMsg("      text string changes also not supported.\n");
 	}
 
 	int GetRawInt(void)
@@ -99,6 +100,46 @@ namespace Patch
 		       ((int)raw[1] << 8) +
 		       ((int)raw[2] << 16) +
 		       ((int)(char)raw[3] << 24);
+	}
+
+	void GetRawString(char *buf, int max_len)
+	{
+		// luckily for us, DeHackEd ensured that replacement strings
+		// were never truncated short (i.e. the NUL byte appearing
+		// in an earlier 32-bit word).  Hence we don't need to know
+		// the length of the original strings in order to read in
+		// modified strings.
+
+		int len = 0;
+
+		for (;;)
+		{
+			int ch = fgetc(pat_fp);
+
+			if (ch == 0)
+				break;
+
+			if (ch == EOF || ferror(pat_fp))
+				file_error = true;
+
+			if (file_error)
+				break;
+
+			buf[len++] = ch;
+
+			if (len >= max_len)
+			{
+				FatalError("Text string exceeds internal buffer length.\n"
+					"[> %d characters, from binary patch file]\n",
+					MAX_TEXT_STR);
+			}
+		}
+
+		buf[len] = 0;
+
+		// strings are aligned to 4 byte boundaries
+		for (; (len % 4) != 3; len++)
+			fgetc(pat_fp);
 	}
 
 	const char *ObjectName(int o_kind)
@@ -267,6 +308,52 @@ namespace Patch
 		MarkObject(o_kind, o_num);
 	}
 
+	const char *PrettyTextString(const char *t)
+	{
+		static char buf[PRETTY_LEN*2 + 10];
+
+		while (isspace(*t))
+			t++;
+
+		if (! *t)
+			return "<<EMPTY>>";
+
+		int len = 0;
+
+		for (; *t && len < PRETTY_LEN; t++)
+		{
+			if (t[0] == t[1] && t[1] == t[2])
+				continue;
+
+			if (*t == '"')
+			{
+				buf[len++] = '\'';
+			}
+			else if (*t == '\n')
+			{
+				buf[len++] = '\\';
+				buf[len++] = 'n';
+			}
+			else if ((unsigned char)*t < 32 || (unsigned char)*t >= 127)
+			{
+				buf[len++] = '?';
+			}
+			else
+				buf[len++] = *t;
+		}
+
+		if (*t)
+		{
+			buf[len++] = '.';
+			buf[len++] = '.';
+			buf[len++] = '.';
+		}
+
+		buf[len] = 0;
+
+		return buf;
+	}
+
 	void ReadBinaryThing(int mt_num)
 	{
 		Debug_PrintMsg("\n--- ReadBinaryThing %d ---\n", mt_num);
@@ -397,6 +484,22 @@ namespace Patch
 		GetRawInt();  // ignore sprite name pointer
 	}
 
+	void ReadBinaryText(int tx_num)
+	{
+		Debug_PrintMsg("\n--- ReadBinaryText %d ---\n", tx_num);
+
+		if (file_error)
+			FatalError("File error reading binary text table.\n");
+
+		static char text_buf[MAX_TEXT_STR+8];
+
+		GetRawString(text_buf, MAX_TEXT_STR);
+
+		// Debug_PrintMsg("\"%s\"\n", PrettyTextString(text_buf));
+
+		TextStr::ReplaceBinaryString(tx_num, text_buf);
+	}
+
 	void LoadReallyOld(void)
 	{
 		char tempfmt = 0;
@@ -505,7 +608,7 @@ namespace Patch
 		else
 		{
 			/* -AJA- NOTE WELL: we start at one, as DEH patches don't
-			 * include the dummy entry.  More importantly the "- 1" here,
+			 * include the dummy entry.  More important: the "- 1" here,
 			 * the very last sound is "DSRADIO" which is omitted from the
 			 * patch file.  Confirmed through testing.
 			 */
@@ -516,7 +619,12 @@ namespace Patch
 				ReadBinarySprite(j);
 		}
 
-		// Next would be text strings.  Hard to convert.
+		if (doom_ver == 16 || doom_ver == 17)
+		{
+			// -AJA- starts at one simply to match v166_index
+			for (j = 1; j <= TEXTS_1_6; j++)
+				ReadBinaryText(j);
+		}
 	}
 
 	//------------------------------------------------------------------------
@@ -696,9 +804,11 @@ namespace Patch
 		while (len > 0)
 		{
 			if ((dest - begin) >= MAX_TEXT_STR)
+			{
 				FatalError("Text string exceeds internal buffer length.\n"
 					"[> %d characters, starting on line %d]\n",
 					MAX_TEXT_STR, start_line);
+			}
 			
 			if (*cur_txt_ptr)
 			{
@@ -716,52 +826,6 @@ namespace Patch
 		}
 
 		*dest = 0;
-	}
-
-	const char *PrettyTextString(const char *t)
-	{
-		static char buf[PRETTY_LEN*2 + 10];
-
-		while (isspace(*t))
-			t++;
-
-		if (! *t)
-			return "<<EMPTY>>";
-
-		int len = 0;
-
-		for (; *t && len < PRETTY_LEN; t++)
-		{
-			if (t[0] == t[1] && t[1] == t[2])
-				continue;
-
-			if (*t == '"')
-			{
-				buf[len++] = '\'';
-			}
-			else if (*t == '\n')
-			{
-				buf[len++] = '\\';
-				buf[len++] = 'n';
-			}
-			else if ((unsigned char)*t < 32 || (unsigned char)*t >= 127)
-			{
-				buf[len++] = '?';
-			}
-			else
-				buf[len++] = *t;
-		}
-
-		if (*t)
-		{
-			buf[len++] = '.';
-			buf[len++] = '.';
-			buf[len++] = '.';
-		}
-
-		buf[len] = 0;
-
-		return buf;
 	}
 
 	void ProcessTextSection(int len1, int len2)
