@@ -114,7 +114,7 @@ namespace Patch
 
 		for (;;)
 		{
-			int ch = pat_buf->getc();
+			int ch = pat_buf->getch();
 
 			if (ch == 0)
 				break;
@@ -139,7 +139,7 @@ namespace Patch
 
 		// strings are aligned to 4 byte boundaries
 		for (; (len % 4) != 3; len++)
-			pat_buf->getc();
+			pat_buf->getch();
 	}
 
 	const char *ObjectName(int o_kind)
@@ -724,7 +724,7 @@ namespace Patch
 
 		for (;;)
 		{
-			int ch = pat_buf->getc();
+			int ch = pat_buf->getch();
 
 			if (ch == EOF)
 			{
@@ -744,10 +744,10 @@ namespace Patch
 
 			if (ch == '\r')
 			{
-				ch = pat_buf->getc();
+				ch = pat_buf->getch();
 
 				if (ch != EOF && ch != '\n')
-					pat_buf->ungetc(ch);
+					pat_buf->ungetch(ch);
 
 				break;
 			}
