@@ -13,6 +13,9 @@ EDGE DDF 3.9 (15/1/2004):
 6) ATTACKS.DDF: made the PLAYER_PLASMA timing 6 tics instead of 2 tics,
                 to match standard DOOM.
 
+7) THINGS.DDF: added missing METAL sound to cyberdemon's chase frames.
+8) THINGS.DDF: fixed boss-brain's pain sound (MAP30).
+
 EDGE DDF 3.8 (29/11/2003):
 ==========================
 
