@@ -32,9 +32,6 @@
 // Info for the JUMP action
 typedef struct act_jump_info_s
 {
-  // label to jump to.
-  char *label_name;
-
   // chance value 0-255
   int chance; 
 }
@@ -48,6 +45,7 @@ void A_Light2(mobj_t * object);
 void A_WeaponReady(mobj_t * object);
 void A_WeaponShoot(mobj_t * object);
 void A_WeaponEject(mobj_t * object);
+void A_WeaponJump(mobj_t * object);
 void A_Lower(mobj_t * object);
 void A_Raise(mobj_t * object);
 void A_ReFire(mobj_t * object);
@@ -57,6 +55,8 @@ void A_CheckReload(mobj_t * object);
 void A_SFXWeapon1(mobj_t * object);
 void A_SFXWeapon2(mobj_t * object);
 void A_SFXWeapon3(mobj_t * object);
+void A_WeaponTransSet(mobj_t * object);
+void A_WeaponTransFade(mobj_t * object);
 
 void A_SetCrosshair(mobj_t * object);
 void A_GotTarget(mobj_t * object);
@@ -77,10 +77,11 @@ void A_CubeSpawn(mobj_t * object);
 void A_BrainMissileExplode(mobj_t * object);
 
 // Visibility Actions
-void P_ActAlterTransluc(mobj_t * object);
-void P_ActAlterVisibility(mobj_t * object);
-void P_ActBecomeLessVisible(mobj_t * object);
-void P_ActBecomeMoreVisible(mobj_t * object);
+void P_ActTransSet(mobj_t * object);
+void P_ActTransFade(mobj_t * object);
+void P_ActTransMore(mobj_t * object);
+void P_ActTransLess(mobj_t * object);
+void P_ActTransAlternate(mobj_t * object);
 
 // Sound Actions
 void P_ActMakeAmbientSound(mobj_t * object);
@@ -154,9 +155,5 @@ void P_ActCheckMoving(mobj_t * object);
 
 void P_ActJump(mobj_t * object);
 void A_PlayerScream(mobj_t * object);
-
-// FIXME: these two are redundant
-void P_ActRandomJump(mobj_t * object);
-void A_RandomJump(mobj_t * object);
 
 #endif //__P_ACTION_H__

@@ -63,11 +63,19 @@ psprnum_t;
 
 typedef struct
 {
-  state_t *state;  // a NULL state means not active
+  // current state.  NULL state means not active
+  state_t *state;
 
+  // time (in tics) remaining for current state
   int tics;
+  
+  // screen position values
   float_t sx;
   float_t sy;
+
+  // translucency values
+  float_t visibility;
+  float_t vis_target;
 }
 pspdef_t;
 
