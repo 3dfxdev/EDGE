@@ -1,7 +1,7 @@
 // 
 //    EDGE THINGS.DDF -redefine or add new thing entrie(s).
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 4.0
+//    DDF Version 4.2
 //
 
 <THINGS>
@@ -2979,7 +2979,7 @@ SPAWNHEALTH=300;
 MASS=10000;
 SPEED=0;
 REACTION_TIME=8T;
-SPECIAL=SOLID,SHOOTABLE,BOSSMAN;
+SPECIAL=SOLID,SHOOTABLE,ALWAYS_LOUD;
 PAINCHANCE=100%;
 PAIN_SOUND=BOSPN;
 DEATH_SOUND=BOSDTH;

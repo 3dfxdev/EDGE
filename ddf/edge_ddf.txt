@@ -1,4 +1,12 @@
 
+EDGE DDF 4.2:
+=============
+
+1) THINGS.DDF: replaced BOSSMAN special in BOSS_BRAIN with the new
+               ALWAYS_LOUD special.  Means he is no longer immune to
+               explosions (as it was in original Doom).
+
+
 EDGE DDF 4.1 (2004-04-30):
 ==========================
 
