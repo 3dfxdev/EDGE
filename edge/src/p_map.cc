@@ -97,7 +97,6 @@ float float_destz;
 // but don't process them until the move is proven valid
 
 linelist_c spechit;		// List of special lines that have been hit
-mobj_t *linetarget;  	// who got hit (or NULL)
 
 typedef struct shoot_trav_info_s
 {
@@ -115,6 +114,9 @@ typedef struct shoot_trav_info_s
 	const damage_c *damtype;
 	const mobjtype_c *puff;
 	float prev_z;
+
+	// output field:
+	mobj_t *target;
 }
 shoot_trav_info_t;
 
@@ -349,7 +351,7 @@ static bool PIT_CheckAbsThing(mobj_t * thing)
 		if (tm_I.mover->source && tm_I.mover->source == thing)
 			return true;
 
-		P_ActMissileContact(tm_I.mover, thing);
+		P_MissileContact(tm_I.mover, thing);
 		return (tm_I.extflags & EF_TUNNEL) ? true : false;
 	}
 
@@ -661,7 +663,7 @@ static bool PIT_CheckRelThing(mobj_t * thing)
 
 	if ((tm_I.flags & MF_SKULLFLY) && solid)
 	{
-		P_ActSlammedIntoObject(tm_I.mover, thing);
+		P_SlammedIntoObject(tm_I.mover, thing);
 
 		// stop moving
 		return false;
@@ -687,7 +689,7 @@ static bool PIT_CheckRelThing(mobj_t * thing)
 		if (tm_I.mover->source && tm_I.mover->source == thing)
 			return true;
 
-		P_ActMissileContact(tm_I.mover, thing);
+		P_MissileContact(tm_I.mover, thing);
 		return (tm_I.extflags & EF_TUNNEL) ? true : false;
 	}
 
@@ -702,7 +704,7 @@ static bool PIT_CheckRelThing(mobj_t * thing)
 	if ((thing->flags & MF_TOUCHY) && (tm_I.flags & MF_SOLID) &&
 		!(thing->extendedflags & EF_USABLE))
 	{
-		P_ActTouchyContact(thing, tm_I.mover);
+		P_TouchyContact(thing, tm_I.mover);
 		return !solid;
 	}
 
@@ -1190,7 +1192,7 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 //
 // PTR_AimTraverse
 //
-// Sets linetarget and slope when a target is aimed at.
+// Sets aim_I.target and slope when a target is aimed at.
 //
 static bool PTR_AimTraverse(intercept_t * in)
 {
@@ -1270,7 +1272,7 @@ static bool PTR_AimTraverse(intercept_t * in)
 		thingbottomslope = aim_I.bottomslope;
 
 	aim_I.slope = (thingtopslope + thingbottomslope) / 2;
-	linetarget = th;
+	aim_I.target = th;
 
 	return false;  // don't go any farther
 }
@@ -1473,7 +1475,7 @@ static bool PTR_ShootTraverse(intercept_t * in)
 
 	if (th->flags & MF_SHOOTABLE)
 	{
-		if (! P_ActBulletContact(shoot_I.source, th, shoot_I.damage, shoot_I.damtype))
+		if (! P_BulletContact(shoot_I.source, th, shoot_I.damage, shoot_I.damtype))
 			use_puff = true;
 	}
 
@@ -1489,7 +1491,7 @@ static bool PTR_ShootTraverse(intercept_t * in)
 //
 // P_AimLineAttack
 //
-float P_AimLineAttack(mobj_t * t1, angle_t angle, float distance)
+mobj_t * P_AimLineAttack(mobj_t * t1, angle_t angle, float distance, float *slope)
 {
 	float x2 = t1->x + distance * M_Cos(angle);
 	float y2 = t1->y + distance * M_Sin(angle);
@@ -1514,19 +1516,18 @@ float P_AimLineAttack(mobj_t * t1, angle_t angle, float distance)
 		aim_I.bottomslope = -100.0f / 160.0f;
 	}
 
-	linetarget = NULL;
-
 	aim_I.source = t1;
 	aim_I.range = distance;
 	aim_I.angle = angle;
 	aim_I.slope = 0.0f;
+	aim_I.target = NULL;
 
 	P_PathTraverse(t1->x, t1->y, x2, y2, PT_ADDLINES | PT_ADDTHINGS, PTR_AimTraverse);
 
-	if (linetarget)
-		return aim_I.slope;
+	if (slope)
+		(*slope) = aim_I.slope;
 
-	return 0;
+	return aim_I.target;
 }
 
 //
@@ -1647,12 +1648,12 @@ mobj_t *DoMapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 	}
 
 	aim_I.range = distance;
-	linetarget = NULL;
+	aim_I.target = NULL;
 
 	P_PathTraverse(source->x, source->y, x2, y2, PT_ADDLINES | PT_ADDTHINGS, 
 		PTR_AimTraverse);
 
-	if (! linetarget)
+	if (! aim_I.target)
 	{
 		return P_MapTargetTheory(source);
 	}
@@ -1661,8 +1662,8 @@ mobj_t *DoMapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 	//   useful, sometimes annoying :-)
 	if (source->player && level_flags.autoaim == AA_MLOOK)
 	{
-		source->vertangle = M_ATan((linetarget->z - source->z) /
-			P_ApproxDistance(source->x - linetarget->x, source->y - linetarget->y));
+		source->vertangle = M_ATan((aim_I.target->z - source->z) /
+			P_ApproxDistance(source->x - aim_I.target->x, source->y - aim_I.target->y));
 
 		if (source->vertangle > LOOKUPLIMIT && source->vertangle < LOOKDOWNLIMIT)
 		{
@@ -1672,7 +1673,8 @@ mobj_t *DoMapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 				source->vertangle = LOOKDOWNLIMIT;
 		}
 	}
-	return linetarget;
+
+	return aim_I.target;
 }
 
 mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool force_aim)
@@ -1723,7 +1725,7 @@ static bool PTR_UseTraverse(intercept_t * in)
 		if (!(th->extendedflags & EF_USABLE) || ! th->info->touch_state)
 			return true;
 
-		if (!P_ActUseThing(usething, th, use_lower, use_upper))
+		if (!P_UseThing(usething, th, use_lower, use_upper))
 			return true;
 
 		// don't go any farther (thing was usable)

@@ -221,7 +221,7 @@ static const actioncode_t thing_actions[] =
 	{"MAKEDEAD",          P_ActMakeIntoCorpse, NULL},
 	{"MAKEOVERKILLSOUND", P_ActMakeOverKillSound, NULL},
 	{"MAKEPAINSOUND",     P_ActMakePainSound, NULL},
-	{"PLAYER_SCREAM",     A_PlayerScream, NULL},
+	{"PLAYER_SCREAM",     P_ActPlayerScream, NULL},
 	{"CLOSE ATTACK",      P_ActMeleeAttack, DDF_StateGetAttack},
 	{"RANGE ATTACK",      P_ActRangeAttack, DDF_StateGetAttack},
 	{"SPARE ATTACK",      P_ActSpareAttack, DDF_StateGetAttack},
@@ -282,12 +282,12 @@ static const actioncode_t thing_actions[] =
 	{"DIE",               P_ActDie, NULL},
 
 	// bossbrain actions
-	{"BRAINSPIT", A_BrainSpit, NULL},
-	{"CUBESPAWN", A_CubeSpawn, NULL},
+	{"BRAINSPIT", P_ActBrainSpit, NULL},
+	{"CUBESPAWN", P_ActCubeSpawn, NULL},
 	{"CUBETRACER", P_ActHomeToSpot, NULL},
-	{"BRAINSCREAM", A_BrainScream, NULL},
-	{"BRAINMISSILEEXPLODE", A_BrainMissileExplode, NULL},
-	{"BRAINDIE", A_BrainDie, NULL},
+	{"BRAINSCREAM", P_ActBrainScream, NULL},
+	{"BRAINMISSILEEXPLODE", P_ActBrainMissileExplode, NULL},
+	{"BRAINDIE", P_ActBrainDie, NULL},
 
 	// -AJA- backwards compatibility cruft...
 	{"!VARIEDEXPDAMAGE",   P_ActDamageExplosion, NULL},

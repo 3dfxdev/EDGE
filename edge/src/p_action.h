@@ -77,11 +77,11 @@ void A_CheckReloadSA(mobj_t * object);
 void A_GunFlashSA(mobj_t * object);
 
 // Needed for the bossbrain.
-void A_BrainScream(mobj_t * object);
-void A_BrainDie(mobj_t * object);
-void A_BrainSpit(mobj_t * object);
-void A_CubeSpawn(mobj_t * object);
-void A_BrainMissileExplode(mobj_t * object);
+void P_ActBrainScream(mobj_t * object);
+void P_ActBrainDie(mobj_t * object);
+void P_ActBrainSpit(mobj_t * object);
+void P_ActCubeSpawn(mobj_t * object);
+void P_ActBrainMissileExplode(mobj_t * object);
 
 // Visibility Actions
 void P_ActTransSet(mobj_t * object);
@@ -178,6 +178,6 @@ void P_ActCheckBlood(mobj_t * object);
 void P_ActCheckMoving(mobj_t * object);
 
 void P_ActJump(mobj_t * object);
-void A_PlayerScream(mobj_t * object);
+void P_ActPlayerScream(mobj_t * object);
 
 #endif //__P_ACTION_H__

@@ -42,6 +42,9 @@
 static float bot_atkrange;
 static mobj_t *bot_shooter = NULL;
 
+static bot_t *looking_bot;
+static mobj_t *lkbot_target;
+
 static void NewBotChaseDir(bot_t * bot)
 {
 	// FIXME: This is not very intelligent...
@@ -151,8 +154,6 @@ static int EvaluateWeapon(player_t *p, int w_num)
 	value += (M_Random() - 128) * 16;
 	return (int)value;
 }
-
-static bot_t *looking_bot;
 
 static bool PTR_BotLook(intercept_t * in)
 {
@@ -288,7 +289,7 @@ static bool PTR_BotLook(intercept_t * in)
 	}
 #endif
 
-	linetarget = th;
+	lkbot_target = th;
 
 	return false;  // don't go any farther
 }
@@ -305,7 +306,7 @@ static mobj_t *LookForStuff(bot_t *bot, angle_t angle)
 	x2 = bot->pl->mo->x + 1024 * M_Cos(angle);
 	y2 = bot->pl->mo->y + 1024 * M_Sin(angle);
 
-	linetarget = NULL;
+	lkbot_target = NULL;
 	bot_atkrange = 1024.0f;
 
 	P_PathTraverse(bot->pl->mo->x, bot->pl->mo->y, x2, y2, 
@@ -313,7 +314,7 @@ static mobj_t *LookForStuff(bot_t *bot, angle_t angle)
 
 	looking_bot = NULL;
 
-	return linetarget;
+	return lkbot_target;
 }
 
 static void MoveBot(bot_t *bot, angle_t angle)

@@ -93,12 +93,12 @@ extern mobj_t *RandomTarget;
 // P_ACTION
 //
 void P_PlayerAttack(mobj_t * playerobj, const atkdef_c * attack);
-void P_ActSlammedIntoObject(mobj_t * object, mobj_t * objecthit);
-bool P_ActMissileContact(mobj_t * object, mobj_t * objecthit);
-bool P_ActBulletContact(mobj_t * object, mobj_t * objecthit, 
+void P_SlammedIntoObject(mobj_t * object, mobj_t * objecthit);
+bool P_MissileContact(mobj_t * object, mobj_t * objecthit);
+bool P_BulletContact(mobj_t * object, mobj_t * objecthit, 
 							 float damage, const damage_c * damtype);
-void P_ActTouchyContact(mobj_t * touchy, mobj_t * victim);
-bool P_ActUseThing(mobj_t * user, mobj_t * thing, float open_bottom,
+void P_TouchyContact(mobj_t * touchy, mobj_t * victim);
+bool P_UseThing(mobj_t * user, mobj_t * thing, float open_bottom,
 						float open_top);
 void P_BringCorpseToLife(mobj_t * corpse);
 
@@ -306,8 +306,6 @@ public:
 extern bool floatok;
 extern float float_destz;
 
-extern mobj_t *linetarget;  // who got hit (or NULL)
-
 extern bool mobj_hit_sky;
 extern line_t *blockline;
 
@@ -320,7 +318,7 @@ mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 mobj_t *P_MapTargetTheory(mobj_t * source);
 void P_AimTargetTheory(mobj_t * source, float *x, float *y, float *z);
 
-float P_AimLineAttack(mobj_t * t1, angle_t angle, float distance);
+mobj_t *P_AimLineAttack(mobj_t * t1, angle_t angle, float distance, float *slope);
 void P_UpdateMultipleFloors(sector_t * sector);
 bool P_CheckSolidSectorMove(sector_t *sec, bool is_ceiling, float dh);
 bool P_SolidSectorMove(sector_t *sec, bool is_ceiling, float dh, bool crush, bool nocarething);

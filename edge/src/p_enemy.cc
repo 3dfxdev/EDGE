@@ -578,9 +578,9 @@ static void SpawnDeathMissile(mobj_t *source, float x, float y, float z)
 }
 
 //
-// A_BrainScream: The brain and his pain...
+// P_ActBrainScream: The brain and his pain...
 //
-void A_BrainScream(mobj_t * bossbrain)
+void P_ActBrainScream(mobj_t * bossbrain)
 {
 	float x, y, z;
 	float min_x, max_x;
@@ -600,7 +600,7 @@ void A_BrainScream(mobj_t * bossbrain)
 		S_StartSound(NULL, bossbrain->info->deathsound);
 }
 
-void A_BrainMissileExplode(mobj_t * mo)
+void P_ActBrainMissileExplode(mobj_t * mo)
 {
 	float x, y, z;
 
@@ -614,12 +614,12 @@ void A_BrainMissileExplode(mobj_t * mo)
 	SpawnDeathMissile(mo->source, x, y, z);
 }
 
-void A_BrainDie(mobj_t * bossbrain)
+void P_ActBrainDie(mobj_t * bossbrain)
 {
 	G_ExitLevel(TICRATE);
 }
 
-void A_BrainSpit(mobj_t * shooter)
+void P_ActBrainSpit(mobj_t * shooter)
 {
 	static int easy = 0;
 
@@ -635,7 +635,7 @@ void A_BrainSpit(mobj_t * shooter)
 }
 
 
-void A_CubeSpawn(mobj_t * cube)
+void P_ActCubeSpawn(mobj_t * cube)
 {
 	mobj_t *targ;
 	mobj_t *newmobj;
@@ -686,7 +686,7 @@ void A_CubeSpawn(mobj_t * cube)
 	P_TeleportMove(newmobj, newmobj->x, newmobj->y, newmobj->z);
 }
 
-void A_PlayerScream(mobj_t * mo)
+void P_ActPlayerScream(mobj_t * mo)
 {
 	sfx_t *sound;
 
