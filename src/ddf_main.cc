@@ -1664,7 +1664,7 @@ void ddf_base_c::Copy(ddf_base_c &src)
 {
 	name = src.name;
 	number = src.number;
-	crc.crc = src.crc.crc;
+	crc = src.crc;
 }
 
 //
