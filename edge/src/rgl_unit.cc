@@ -27,6 +27,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_search.h"
+#include "m_argv.h"
 #include "m_bbox.h"
 #include "m_random.h"
 #include "p_local.h"
@@ -45,6 +46,9 @@
 #include "w_wad.h"
 #include "v_ctx.h"
 #include "z_zone.h"
+
+
+bool use_vertex_array = true;
 
 
 #define MAX_L_VERT  4096
@@ -90,22 +94,25 @@ static bool solid_mode;
 //
 void RGL_InitUnits(void)
 {
-	// GL client state stuff disabled, due to problems with certain
-	// drivers (in particular, Voodoo3 under Win32).
-#if 0
-	// setup pointers to client state
-	glVertexPointer(3, GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].x);
-	glColorPointer (4, GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].r);
-	glTexCoordPointer(2, GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].t_x);
-	glNormalPointer(GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].n_x);
-	glEdgeFlagPointer(sizeof(local_gl_vert_t), &local_verts[0].edge);
+	M_CheckBooleanParm("vertexarray", &use_vertex_array, true);
 
-	glEnableClientState(GL_EDGE_FLAG_ARRAY);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-#endif
+	if (use_vertex_array)
+	{
+		// setup pointers to client state
+		glVertexPointer(3, GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].x);
+		glColorPointer (4, GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].col);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].t_x);
+		glNormalPointer(GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].n_x);
+		glEdgeFlagPointer(sizeof(local_gl_vert_t), &local_verts[0].edge);
+
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glEnableClientState(GL_NORMAL_ARRAY);
+		glEnableClientState(GL_EDGE_FLAG_ARRAY);
+
+		glClientActiveTexture(GL_TEXTURE0);
+	}
 }
 
 // RGL_StartUnits
@@ -200,7 +207,6 @@ void RGL_DrawUnits(void)
 {
 	int i, j;
 	GLuint cur_tex = 0xABE74C74;
-	GLfloat d_col[4] = { 1.0, 1.0, 1.0, 1.0 };
 
 	bool cur_masking  = false;
 	bool cur_blending = false;
@@ -263,26 +269,29 @@ void RGL_DrawUnits(void)
 			glBindTexture(GL_TEXTURE_2D, cur_tex);
 		}
 
-		// set alpha from first vertex (we never interpolate it)
-		d_col[3] = local_verts[unit->first].col[3];
-
-		glBegin(unit->mode);
-
-		for (j=0; j < unit->count; j++)
+		if (use_vertex_array)
 		{
-			local_gl_vert_t *V = local_verts + unit->first + j;
-
-			glTexCoord2f(V->t_x, V->t_y);
-			glNormal3f(V->n_x, V->n_y, V->n_z);
-			glEdgeFlag(V->edge);
-			glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, V->col);
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, d_col);
-
-			// vertex must be last
-			glVertex3f(V->x, V->y, V->z);
+			glDrawArrays(unit->mode, unit->first, unit->count);
 		}
+		else
+		{
+			glBegin(unit->mode);
 
-		glEnd();
+			for (j=0; j < unit->count; j++)
+			{
+				local_gl_vert_t *V = local_verts + unit->first + j;
+
+				glTexCoord2f(V->t_x, V->t_y);
+				glNormal3f(V->n_x, V->n_y, V->n_z);
+				glEdgeFlag(V->edge);
+				glColor4fv(V->col);
+
+				// vertex must be last
+				glVertex3f(V->x, V->y, V->z);
+			}
+
+			glEnd();
+		}
 	}
 
 	// all done
