@@ -13,8 +13,6 @@
 #ifndef __WAD_HDR__
 #define __WAD_HDR__
 
-#include "i_defs.h"
-
 namespace WAD
 {
 	void Startup(void);

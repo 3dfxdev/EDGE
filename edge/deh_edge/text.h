@@ -13,8 +13,6 @@
 #ifndef __TEXT_HDR__
 #define __TEXT_HDR__
 
-#include "i_defs.h"
-#include "info.h"
 
 namespace TextStr
 {
