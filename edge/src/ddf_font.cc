@@ -168,6 +168,9 @@ void DDF_FontInit(void)
 //
 void DDF_FontCleanUp(void)
 {
+	if (fontdefs.GetSize() == 0)
+		I_Error("There are no fonts defined in DDF !\n");
+
 	fontdefs.Trim();		// <-- Reduce to allocated size
 }
 
@@ -286,7 +289,7 @@ fontdef_c::fontdef_c()
 //
 // fontdef_c Copy constructor
 //
-fontdef_c::fontdef_c(fontdef_c &rhs)
+fontdef_c::fontdef_c(const fontdef_c &rhs)
 {
 	Copy(rhs);
 }
@@ -294,7 +297,7 @@ fontdef_c::fontdef_c(fontdef_c &rhs)
 //
 // fontdef_c::Copy()
 //
-void fontdef_c::Copy(fontdef_c &src)
+void fontdef_c::Copy(const fontdef_c &src)
 {
 	ddf = src.ddf;
 	CopyDetail(src);
@@ -305,7 +308,7 @@ void fontdef_c::Copy(fontdef_c &src)
 //
 // Copies all the detail with the exception of ddf info
 //
-void fontdef_c::CopyDetail(fontdef_c &src)
+void fontdef_c::CopyDetail(const fontdef_c &src)
 {
 	type = src.type;
 	patches = src.patches;  // FIXME: copy list
@@ -332,7 +335,7 @@ void fontdef_c::Default()
 //
 // fontdef_c assignment operator
 //
-fontdef_c& fontdef_c::operator=(fontdef_c &rhs)
+fontdef_c& fontdef_c::operator= (const fontdef_c &rhs)
 {
 	if (&rhs != this)
 		Copy(rhs);
@@ -369,3 +372,18 @@ fontdef_c* fontdef_container_c::Lookup(const char *refname)
 
 	return NULL;
 }
+
+//
+// DDF_MainLookupFont
+//
+void DDF_MainLookupFont(const char *info, void *storage)
+{
+	fontdef_c **dest = (fontdef_c **)storage;
+
+	*dest = fontdefs.Lookup(info);
+
+	// FIXME: throw epi::error_c
+	if (*dest == NULL)
+		DDF_Error("Unknown font: %s\n", info);
+}
+
