@@ -1342,9 +1342,11 @@ void DDF_MobjGetSpecial(const char *info, void *storage)
 static specflags_t dlight_type_names[] =
 {
 	{"NONE",      DLITE_None,      0},
-	{"CONSTANT",  DLITE_Constant,  0},
 	{"LINEAR",    DLITE_Linear,    0},
 	{"QUADRATIC", DLITE_Quadratic, 0},
+
+	// backwards compatibility
+	{"CONSTANT",  DLITE_Quadratic, 0},
 	{NULL, 0, 0}
 };
 
