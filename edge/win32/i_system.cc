@@ -228,7 +228,7 @@ void I_Error(const char *error,...)
 
 	if (logfile)
 	{
-		fprintf(logfile, "ERROR: %s\n", errmsg);
+		fprintf(logfile, "ERROR: %s\n", msgbuf);
 		fflush(logfile);
 	}
 
