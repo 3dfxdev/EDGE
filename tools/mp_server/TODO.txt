@@ -5,6 +5,8 @@ TODO
 NETWORKING
 ----------
 
++ connection: have a protocol version field.
+
 - validate packet lengths and contents.
 
 - send acknowledgements.  Also do logging/error packets.
