@@ -137,8 +137,8 @@ I_Printf("LoadFont [%s] : char %d = %s\n", def->ddf.name.GetString(), ch, pname)
 	if (! Nom)
 		I_Error("Font [%s] has no loaded patches !\n", def->ddf.name.GetString());
 
-	p_cache.width  = IM_WIDTH(Nom);
-	p_cache.height = IM_HEIGHT(Nom);
+	p_cache.width  = I_ROUND(IM_WIDTH(Nom));  // XXX: make fields float???
+	p_cache.height = I_ROUND(IM_HEIGHT(Nom));
 }
 
 //
@@ -209,7 +209,7 @@ const struct image_s *font_c::CharImage(char ch) const
 //
 // Returns the width of the IBM cp437 char in the font.
 //
-int font_c::CharWidth(char ch) const
+int font_c::CharWidth(char ch) const  // XXX: return float ???
 {
 	DEV_ASSERT2(def->type == FNTYP_Patch);
 
@@ -221,7 +221,7 @@ int font_c::CharWidth(char ch) const
 	if (! im)
 		return DUMMY_WIDTH;
 
-	return IM_WIDTH(im);
+	return I_ROUND(IM_WIDTH(im));
 }
 
 //

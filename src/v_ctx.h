@@ -31,9 +31,9 @@
 #include "w_image.h"
 
 // Move to somewhere appropriate later -ACB- 2004/08/19
-void RGL_DrawImage(int x, int y, int w, int h, const image_t *image,
-					   float tx1, float ty1, float tx2, float ty2,
-					   const colourmap_c *colmap, float alpha);
+void RGL_DrawImage(float x, float y, float w, float h, const image_t *image,
+				   float tx1, float ty1, float tx2, float ty2,
+				   const colourmap_c *colmap, float alpha);
  
 void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer);
 

@@ -263,7 +263,7 @@ static void M_DrawMultiPlayer(void);
 static void M_DrawLoad(void);
 static void M_DrawSave(void);
 
-static void M_DrawSaveLoadBorder(int x, int y, int len);
+static void M_DrawSaveLoadBorder(float x, float y, int len);
 static void M_SetupNextMenu(menu_t * menudef);
 static void M_StopMessage(void);
 static void M_ClearMenus(void);
@@ -752,17 +752,15 @@ void M_DrawLoad(void)
 //
 // Draw border for the savegame description
 //
-void M_DrawSaveLoadBorder(int x, int y, int len)
+void M_DrawSaveLoadBorder(float x, float y, int len)
 {
-	int i;
-
 	const image_t *L = W_ImageLookup("M_LSLEFT");
 	const image_t *C = W_ImageLookup("M_LSCNTR");
 	const image_t *R = W_ImageLookup("M_LSRGHT");
 
 	RGL_ImageEasy320(x - IM_WIDTH(L), y + 7, L);
 
-	for (i = 0; i < len; i++, x += IM_WIDTH(C))
+	for (int i = 0; i < len; i++, x += IM_WIDTH(C))
 		RGL_ImageEasy320(x, y + 7, C);
 
 	RGL_ImageEasy320(x, y + 7, R);

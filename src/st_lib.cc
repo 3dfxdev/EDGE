@@ -106,7 +106,7 @@ static void DrawNum(st_number_t * n)
 	// in the special case of 0, you draw 0
 	if (num == 0)
 	{
-		x -= IM_WIDTH(n->digits[0]);
+		x -= I_ROUND(IM_WIDTH(n->digits[0]));
 		DrawDigit(x, n->y, n->digits[0], n->colmap);
 	}
 	else
@@ -116,14 +116,14 @@ static void DrawNum(st_number_t * n)
 		// draw the new number
 		for (; num && (numdigits > 0); num /= 10, numdigits--)
 		{
-			x -= IM_WIDTH(n->digits[num % 10]);
+			x -= I_ROUND(IM_WIDTH(n->digits[num % 10]));  // XXX
 			DrawDigit(x, n->y, n->digits[num % 10], n->colmap);
 		}
 	}
 
 	if (neg && n->minus)
 	{
-		x -= IM_WIDTH(n->minus);
+		x -= I_ROUND(IM_WIDTH(n->minus));
 		DrawDigit(x, n->y, n->minus, n->colmap);
 	}
 }

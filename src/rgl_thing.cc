@@ -87,50 +87,25 @@ void RGL_UpdateTheFuzz(void)
 static void RGL_DrawPSprite(pspdef_t * psp, int which,
 							player_t * player, region_properties_t *props, const state_t *state)
 {
-	const image_t *image;
-	const cached_image_t *cim;
-	bool flip;
-
-	int fuzzy = (player->mo->flags & MF_FUZZY);
-
-	float x1b, y1b, x1t, y1t, x2b, y2b, x2t, y2t;  // screen coords
-	float tx1, ty1, tx2, ty2;  // texture coords
-
-	float tex_x1, tex_x2;
-	float tex_top_h, tex_bot_h;
-	float trans;
-
-	GLuint tex_id;
-	int w, h;
-	float right, bottom;
-
-	int lit_Nom, L_r, L_g, L_b;
-	float c_r, c_g, c_b;
-
-	lit_Nom = (ren_allbright || state->bright) ? 240 :
-		(props->lightlevel * 240 / 255);
-
-	if (effect_infrared)
-		lit_Nom += (int)(effect_strength * 255);
-
-	lit_Nom = GAMMA_CONV(MIN(255,lit_Nom));
-
 	// determine sprite patch
-	image = R2_GetOtherSprite(state->sprite, state->frame, &flip);
+	bool flip;
+	const image_t *image = R2_GetOtherSprite(state->sprite, state->frame, &flip);
 
 	if (!image)
 		return;
 
-	cim = W_ImageCache(image);
+	const cached_image_t *cim = W_ImageCache(image);
 
-	tex_id = W_ImageGetOGL(cim);
+	GLuint tex_id = W_ImageGetOGL(cim);
 
-	w = IM_WIDTH(image);
-	h = IM_HEIGHT(image);
-	right = IM_RIGHT(image);
-	bottom = IM_BOTTOM(image);
+	float w = IM_WIDTH(image);
+	float h = IM_HEIGHT(image);
+	float right = IM_RIGHT(image);
+	float bottom = IM_BOTTOM(image);
 
-	trans = fuzzy ? FUZZY_TRANS : player->mo->visibility;
+	int fuzzy = (player->mo->flags & MF_FUZZY);
+
+	float trans = fuzzy ? FUZZY_TRANS : player->mo->visibility;
 	trans *= psp->visibility;
 
 	// psprites are never totally opaque
@@ -142,11 +117,11 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex_id);
 
-	tex_top_h = 1.00f; // 0.98;
-	tex_bot_h = 1.00f - bottom;  // 1.02 - bottom;
+	float tex_top_h = 1.00f; // 0.98;
+	float tex_bot_h = 1.00f - bottom;  // 1.02 - bottom;
 
-	tex_x1 = 0.01f;
-	tex_x2 = right - 0.01f;
+	float tex_x1 = 0.01f;
+	float tex_x2 = right - 0.01f;
 
 	if (flip)
 	{
@@ -154,13 +129,24 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 		tex_x2 = right - tex_x2;
 	}
 
-	tx1 = psp->sx - BASEXCENTER - IM_OFFSETX(image);
-	tx2 = tx1 + w;
+	float tx1 = psp->sx - BASEXCENTER - IM_OFFSETX(image);
+	float tx2 = tx1 + w;
 
-	ty1 = psp->sy - IM_OFFSETY(image);
-	ty2 = ty1 + h;
+	float ty1 = psp->sy - IM_OFFSETY(image);
+	float ty2 = ty1 + h;
 
 	// compute lighting
+
+	int lit_Nom = (ren_allbright || state->bright) ? 240 :
+		(props->lightlevel * 240 / 255);
+
+	if (effect_infrared)
+		lit_Nom += (int)(effect_strength * 255);
+
+	lit_Nom = GAMMA_CONV(MIN(255, lit_Nom));
+
+	float c_r, c_g, c_b;
+	int L_r, L_g, L_b;
 
 	V_GetColmapRGB(props->colourmap, &c_r, &c_g, &c_b, false);
 
@@ -174,6 +160,8 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	{
 		L_r = L_g = L_b = 255;
 	}
+
+	float x1b, y1b, x1t, y1t, x2b, y2b, x2t, y2t;  // screen coords
 
 	x1b = x1t = (160.0f + tx1) * viewwindowwidth / 320.0f;
 	x2b = x2t = (160.0f + tx2) * viewwindowwidth / 320.0f;
@@ -251,8 +239,6 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 //
 void RGL_DrawPlayerSprites(player_t * p)
 {
-	int i;
-
 	// special handling for zoom: show viewfinder
 	if (viewiszoomed)
 	{
@@ -269,14 +255,13 @@ void RGL_DrawPlayerSprites(player_t * p)
 
 		RGL_DrawPSprite(psp, ps_weapon, p, view_props,
 						states + w->zoom_state);
-    
 		return;
 	}
 
 	// add all active psprites
 	// Note: order is significant
 
-	for (i = 0; i < NUMPSPRITES; i++)
+	for (int i = 0; i < NUMPSPRITES; i++)
 	{
 		pspdef_t *psp = &p->psprites[i];
 
@@ -653,25 +638,6 @@ void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing)
 //
 void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 {
-	drawthing_t *dthing;
-
-	float tr_x;
-	float tr_y;
-
-	float pos1, pos2;
-	float tx, tx1, tx2;
-	float tz;
-
-	float gzb, gzt;
-
-	int clip_vert = 0;
-
-	const image_t *image;
-	int sprite_height;
-	int top_offset;
-
-	bool spr_flip;
-
 	// ignore the player him/herself
 	if (mo == players[displayplayer]->mo)
 		return;
@@ -681,16 +647,16 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 		return;
 
 	// transform the origin point
-	tr_x = mo->x - viewx;
-	tr_y = mo->y - viewy;
+	float tr_x = mo->x - viewx;
+	float tr_y = mo->y - viewy;
 
-	tz = tr_x * viewcos + tr_y * viewsin;
+	float tz = tr_x * viewcos + tr_y * viewsin;
 
 	// thing is behind view plane?
 	if (oned_side_angle != ANG180 && tz <= 0)
 		return;
 
-	tx = tr_x * viewsin - tr_y * viewcos;
+	float tx = tr_x * viewsin - tr_y * viewcos;
 
 	// too far off the side?
 	// -ES- 1999/03/13 Fixed clipping to work with large FOVs (up to 176 deg)
@@ -699,12 +665,15 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 	if (tz >= MINZ && fabs(tx) / 32 > tz)
 		return;
 
-	image = R2_GetThingSprite(mo, &spr_flip);
+	bool spr_flip;
+	const image_t *image = R2_GetThingSprite(mo, &spr_flip);
 
 	if (!image)
 		return;
 
 	// calculate edges of the shape
+	float pos1, pos2;
+
 	if (spr_flip)
 	{
 		pos2 = IM_OFFSETX(image) * mo->info->xscale;
@@ -716,16 +685,17 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 		pos2 = pos1 + IM_WIDTH(image) * mo->info->xscale;
 	}
 
-	tx1 = tx + pos1;
-	tx2 = tx + pos2;
+	float tx1 = tx + pos1;
+	float tx2 = tx + pos2;
 
-	sprite_height = IM_HEIGHT(image);
-	top_offset = IM_OFFSETY(image);
+	float sprite_height = IM_HEIGHT(image);
+	float top_offset = IM_OFFSETY(image);
 
-	gzt = mo->z + top_offset * mo->info->yscale;
-	gzb = gzt - sprite_height * mo->info->yscale;
+	float gzt = mo->z + top_offset * mo->info->yscale;
+	float gzb = gzt - sprite_height * mo->info->yscale;
 
 	// fix for sprites that sit wrongly into the floor/ceiling
+	int clip_vert = 0;
 
 	if (mo->flags & MF_FUZZY)
 	{
@@ -763,7 +733,7 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 
 	// create new draw thing
 
-	dthing = drawthings.GetNew();
+	drawthing_t *dthing = drawthings.GetNew();
 	drawthings.Commit();
 
 	dthing->mo = mo;
@@ -863,35 +833,20 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 //
 void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 {
-	int w, h;
-	float right, bottom;
-
-	float dx, dy;
-	float tex_x1, tex_y1;
-	float tex_x2, tex_y2;
-
-	local_gl_vert_t *vert, *orig;
-
-	float x1b, y1b, z1b, x1t, y1t, z1t;
-	float x2b, y2b, z2b, x2t, y2t, z2t;
-
-	int L_r, L_g, L_b;
-
-	const image_t *image;
-	const cached_image_t *cim;
-	GLuint tex_id;
-
 	int lit_Nom = dthing->bright ? 255 : 
 		RGL_Light(dthing->props->lightlevel);
-	const colourmap_c *colmap = dthing->props->colourmap;
-	float c_r, c_g, c_b;
-
+		
 	int fuzzy = (dthing->mo->flags & MF_FUZZY);
 	float trans = fuzzy ? FUZZY_TRANS : dthing->mo->visibility;
 
+	const colourmap_c *colmap = dthing->props->colourmap;
+
+	float c_r, c_g, c_b;
+	int L_r, L_g, L_b;
+
 	V_GetColmapRGB(colmap, &c_r, &c_g, &c_b, false);
 
-	dx = dy = 0;
+	float dx = 0, dy = 0;
 
 	if (dthing->is_shadow)
 	{
@@ -921,12 +876,15 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		L_b = (int)(lit_Nom * c_b);
 	}
 
-	image = dthing->image;
+	const image_t *image = dthing->image;
 
-	w = IM_WIDTH(image);
-	h = IM_HEIGHT(image);
-	right = IM_RIGHT(image);
-	bottom = IM_BOTTOM(image);
+//	float w = IM_WIDTH(image);
+	float h = IM_HEIGHT(image);
+	float right  = IM_RIGHT(image);
+	float bottom = IM_BOTTOM(image);
+
+	float x1b, y1b, z1b, x1t, y1t, z1t;
+	float x2b, y2b, z2b, x2t, y2t, z2t;
 
 	x1b = x1t = dthing->mo->x + dthing->left_dx;
 	y1b = y1t = dthing->mo->y + dthing->left_dy;
@@ -957,11 +915,11 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		x2b -= bottom_q * dx; y2b -= bottom_q * dy;
 	}
 
-	tex_x1 = 0.01f;
-	tex_x2 = right - 0.01f;
+	float tex_x1 = 0.01f;
+	float tex_x2 = right - 0.01f;
 
-	tex_y1 = dthing->y_offset * dthing->iyscale;
-	tex_y2 = tex_y1 + (z1t - z1b) * dthing->iyscale;
+	float tex_y1 = dthing->y_offset * dthing->iyscale;
+	float tex_y2 = tex_y1 + (z1t - z1b) * dthing->iyscale;
 
 	CHECKVAL(h);
 	tex_y1 = 1.0f - tex_y1 / h * bottom;
@@ -1026,12 +984,14 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		L_r = L_g = L_b = 0;
 	}
 
-	cim = W_ImageCache(image, false, dthing->mo->info->palremap);
+	const cached_image_t *cim = W_ImageCache(image, false, dthing->mo->info->palremap);
 
-	tex_id = W_ImageGetOGL(cim);
+	GLuint tex_id = W_ImageGetOGL(cim);
 
 	// Blended sprites, even if opaque (trans > 0.99), have nicer edges
 	int blending = BL_Masked | BL_Alpha;
+
+	local_gl_vert_t *vert, *orig;
 
 	vert = orig = RGL_BeginUnit(GL_QUADS, 4, tex_id,0, /* pass */ 0, blending);
 

@@ -493,8 +493,6 @@ bool M_LoadDefaults(void)
 //
 void M_DisplayDisk(void)
 {
-	int w, h;
-
 	if (!graphicsmode)
 		return;
 
@@ -507,8 +505,8 @@ void M_DisplayDisk(void)
 	// reset flag
 	display_disk = false;
 
-	w = IM_WIDTH(disk_image);
-	h = IM_HEIGHT(disk_image);
+	float w = IM_WIDTH(disk_image);
+	float h = IM_HEIGHT(disk_image);
 
 	RGL_Image320(314 - w, 164 - h, w, h, disk_image);
 }
