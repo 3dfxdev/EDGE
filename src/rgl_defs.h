@@ -44,6 +44,7 @@ extern int rgl_light_map[256];
 extern angle_t oned_side_angle;
 
 void RGL_Init(void);
+void RGL_SoftInit(void);
 void RGL_SetupMatrices2D(void);
 void RGL_SetupMatrices3D(void);
 void RGL_SetupMatricesSky(void);
