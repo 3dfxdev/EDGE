@@ -41,6 +41,8 @@
 
 #define DUMMY_WIDTH(font)  (4)
 
+#define HU_CHAR(ch)  (islower(ch) ? toupper(ch) : (ch))
+
 //
 // HL_Init
 //
@@ -248,9 +250,6 @@ bool HL_DelCharFromTextLine(hu_textline_t * t)
   t->needsupdate = 4;
   return true;
 }
-
-//#define HU_CHAR(ch)  ((ch) < 128 ? toupper(ch) : (ch))
-#define HU_CHAR(ch)  ((ch) >= 0 ? toupper(ch) : (ch))
 
 //
 // HL_DrawTextLineAlpha
