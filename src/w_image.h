@@ -154,6 +154,7 @@ void W_ImageToString(const image_t *image, char *type, char *namebuf);
 
 extern int use_mipmapping;
 extern boolean_t use_smoothing;
+extern boolean_t use_dithering;
 
 void W_InitImages(void);
 void W_UpdateImageAnims(void);
