@@ -385,15 +385,11 @@ typedef struct rad_script_s
   int min_players;
   int max_players;
 
-  // Trigger size
-  float_t radius;
-
   // Map Coordinates
-  float_t x;
-  float_t y;
-  float_t z1;
-  float_t z2;
-  float_t z_mid;   // M_PI when no Z range
+  float_t x, y, z;
+
+  // Trigger size
+  float_t rad_x, rad_y, rad_z;
 
   // Script name (or NULL)
   char *script_name;
