@@ -29,6 +29,9 @@ private:
 	Fl_Output *address;
 	Fl_Output *port;
 
+	Fl_Counter *max_clients;
+	Fl_Counter *max_games;
+
 
 public:
 };
