@@ -181,6 +181,7 @@ static void DG_GetLevelFlags(const char *info, void *storage)
 	HANDLE_FLAG(dest->halos, MPF_Halos);
 	HANDLE_FLAG(dest->kicking, MPF_Kicking);
 	HANDLE_FLAG(dest->weapon_switch, MPF_WeaponSwitch);
+	HANDLE_FLAG(dest->nomonsters, MPF_NoMonsters);
 
 #undef HANDLE_FLAG
 
@@ -261,6 +262,7 @@ static const char *DG_PutLevelFlags(void *storage)
 	HANDLE_FLAG(src->halos, MPF_Halos);
 	HANDLE_FLAG(src->kicking, MPF_Kicking);
 	HANDLE_FLAG(src->weapon_switch, MPF_WeaponSwitch);
+	HANDLE_FLAG(src->nomonsters, MPF_NoMonsters);
 
 #undef HANDLE_FLAG
 
