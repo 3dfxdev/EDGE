@@ -107,6 +107,7 @@ typedef struct gameflags_s
   boolean_t more_blood;
 
   boolean_t jump;
+  boolean_t crouch;
   boolean_t mlook;
   autoaim_t autoaim;
 

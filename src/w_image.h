@@ -144,7 +144,8 @@ const image_t *W_ImageFromHalo(const char *patch_name);
 //  IMAGE USAGE
 //
 
-extern boolean_t use_mipmapping;
+extern int use_mipmapping;
+extern boolean_t use_filtering;
 
 void W_InitImages(void);
 void W_UpdateImageAnims(void);
