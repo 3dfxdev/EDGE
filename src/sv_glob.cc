@@ -411,13 +411,23 @@ static bool GlobReadVARI(saveglobals_t *globs)
 
 static bool GlobReadWADS(saveglobals_t *glob)
 {
+	if (! SV_PushReadChunk("Wads"))
+		return false;
+
 	//!!! IMPLEMENT THIS
+
+	SV_PopReadChunk();
 	return true;
 }
 
 static bool GlobReadVIEW(saveglobals_t *glob)
 {
+	if (! SV_PushReadChunk("View"))
+		return false;
+
 	//!!! IMPLEMENT THIS
+
+	SV_PopReadChunk();
 	return true;
 }
 
@@ -434,7 +444,7 @@ saveglobals_t *SV_LoadGLOB(void)
 	SV_GetMarker(marker);
 
 	if (strcmp(marker, "Glob") != 0 || ! SV_PushReadChunk("Glob"))
-		return false;
+		return NULL;
 
 	cur_globs = globs = SV_NewGLOB();
 

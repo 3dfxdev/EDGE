@@ -293,6 +293,9 @@ typedef struct
 	// [WADS] info
 	int wad_num;
 	const char ** wad_names;
+
+	// [PLYR] info, for DEMO FILES only!
+	void *players[MAXPLAYERS];
 }
 saveglobals_t;
 
