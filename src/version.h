@@ -16,7 +16,7 @@
 //
 //----------------------------------------------------------------------------
 
-#define EDGEVER    0x124
+#define EDGEVER    0x125
 #define EDGEVERFIX 0x100
 
 // -ES- 2000/03/04 The version of EDGE.WAD we require.
