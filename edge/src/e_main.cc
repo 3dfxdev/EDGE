@@ -1385,6 +1385,13 @@ static void AddSingleCmdLineFile(const char *name)
 {
 	int kind = FLKIND_Lump;
 
+	if (M_CheckExtension("edm", name) == EXT_MATCHING)
+	{
+		singledemo = true;
+		G_DeferredPlayDemo(name);
+		return;
+	}
+
 	// no need to check for GWA (shouldn't be added manually)
 
 	if (M_CheckExtension("wad", name) == EXT_MATCHING)
@@ -1393,8 +1400,6 @@ static void AddSingleCmdLineFile(const char *name)
 		kind = FLKIND_HWad;
 	else if (M_CheckExtension("scr", name) == EXT_MATCHING)
 		kind = FLKIND_Script;
-//	else if (M_CheckExtension("edm", name) == EXT_MATCHING)
-//		kind = FLKIND_Demo;
 	else if (M_CheckExtension("deh", name) == EXT_MATCHING ||
 	         M_CheckExtension("bex", name) == EXT_MATCHING)
 		kind = FLKIND_Deh;
@@ -1665,14 +1670,12 @@ namespace engine
 			// quit after one demo
 			singledemo = true;
 			G_DeferredPlayDemo(ps);
-			return;
 		}
 
 		ps = M_GetParm("-timedemo");
 		if (ps)
 		{
 			G_DeferredTimeDemo(ps);
-			return;
 		}
 
 		ps = M_GetParm("-loadgame");
@@ -1681,7 +1684,7 @@ namespace engine
 			G_DeferredLoadGame(atoi(ps));
 		}
 
-		if (gameaction != ga_loadgame)
+		if (gameaction != ga_loadgame && gameaction != ga_playdemo)
 		{
 			if (! TryAutoStart())
 			{
