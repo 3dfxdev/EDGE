@@ -2,38 +2,24 @@
 DEH-EDGE Todo
 -------------
 
--  option for EDGE version (e.g. -v128, --version 1.27).
+DONE:  option for EDGE version.
+   Done  DEFAULT IS FOR 1.28
+   Done  output a ".hwa" file (if version >= 0x128).
+   Done  don't require a complete sounds.ddf (version >= 0x128).
+   Done  if version < 0x128, disable CAST_TITLE DDF command.
+   Done  disable other 1.27 workarounds.
 
-   -  output a ".hwa" file (if version >= 0x128).
-   -  don't require a complete sounds.ddf (version >= 0x128).
-   -  if version < 0x128, disable CAST_TITLE (etc) DDF commands.
-   -  disable other 1.27 workarounds.
-
-+  support multiple (TEXT) patches.
-
-DONE:  add 'MONSTER' flag to non-count-as-kill but is "monstery".
-DONE:  versions of malloc and strdup that error out on no memory.
-DONE:  frames: remove 'OutputState' (etc) from header file.
+DONE:  support multiple patches.
 
 
 BATMAN BUGS
 -----------
 
-FIXED: guys with flamethrowers: no hurties (attacking action in attack).
-
--  inside of helicopter doesn't work (guys should teleport in, open door).
-   >>> because no MONSTER flag (required by EDGE for teleport lines).
-
 -  clowns: speed is 0, so how can they move in Edge ?
-
-FIXED: suicidal Penguin (doomnum 2028).  See below.
 
 
 MORDETH BUGS
 ------------
-
-FIXED:  suicidal Revenant (doomnum 60).  Doesn't enter MELEE states, since
-   has no closecombat attack (EDGE requires it, original Doom doesn't).
 
 
 FUTURE Plans
