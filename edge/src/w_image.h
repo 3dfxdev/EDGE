@@ -86,8 +86,8 @@ typedef struct image_s
   unsigned short scale_x;
   unsigned short scale_y;
 
-  // whether the image is solid (otherwise it contains transparent
-  // parts).
+  // when true, the image is guaranteed to be solid (i.e. contain no
+  // transparent parts).
   boolean_t solid;
 
   // ...rest of this structure is private...
