@@ -84,6 +84,9 @@ const coltable_t *V_GetColtable
 // translation support
 const byte *V_GetTranslationTable(const colourmap_t * colmap);
 
+const coltable_t *V_GetTranslatedColtable(const coltable_t *src,
+    const byte *trans);
+
 // support for GL
 #ifdef USE_GL
 void V_GetColmapRGB(const colourmap_t *colmap,
