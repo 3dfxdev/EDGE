@@ -74,7 +74,7 @@ public: //!!!!  private:
 
 public:
 	bool CheckAddr(const NLaddress *remote_addr) const;
-	bool Verify(const NLaddress *remote_addr) const;
+	bool Verify(NLsocket SOCK, const NLaddress *remote_addr) const;
 	
 	int CompareName(const char *other) const;
 	void FillClientInfo(client_info_t *info) const;
@@ -97,14 +97,15 @@ extern volatile int total_clients;
 
 void CreateNewClient(NLsocket SOCK);
 
-bool VerifyClient(short idx, const NLaddress *remote_addr);
+bool VerifyClient(short idx, NLsocket SOCK, const NLaddress *remote_addr);
 void ClientTimeouts();
 
-void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr);
+void PK_connect_to_server(packet_c *pk);
 void PK_leave_server(packet_c *pk);
-void PK_broadcast_discovery_UDP(packet_c *pk, NLaddress *remote_addr);
 void PK_keep_alive(packet_c *pk);
 void PK_query_client(packet_c *pk);
 void PK_message(packet_c *pk);
+
+void PK_broadcast_discovery_UDP(packet_c *pk, NLaddress *remote_addr);
 
 #endif /* __CLIENT_H__ */

@@ -361,11 +361,17 @@ static void NormalPacket(NLsocket CUR_SOCK)
 
 ///UDP	nlSetRemoteAddr(socks[0], &remote_addr);
 
+		if (pk.CheckType("cs"))   // connect to server
+		{
+			PK_connect_to_server(&pk);
+			continue;
+		}
+
 		// must validate the client field (the only exceptions are the
 		// connect-to-server and the broadcast-discovery packets).
 
 		// FIXME: CUR_SOCK !!!
-		if (! VerifyClient(pk.hd().client, &remote_addr))
+		if (! VerifyClient(pk.hd().client, CUR_SOCK, &remote_addr))
 		{
 			LogPrintf(2, "Client %d verify failed: packet [%c%c]\n",
 					pk.hd().client, pk.hd().type[0], pk.hd().type[1]);
@@ -377,11 +383,7 @@ static void NormalPacket(NLsocket CUR_SOCK)
 
 		clients[pk.hd().client]->BumpDieTime();
 
-		if (pk.CheckType("cs"))   // connect to server
-		{
-			PK_connect_to_server(&pk, &remote_addr);
-		}
-		else if (pk.CheckType("ls"))   // leave server
+		if (pk.CheckType("ls"))   // leave server
 		{
 			PK_leave_server(&pk);
 		}

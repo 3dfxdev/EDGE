@@ -65,6 +65,8 @@ header_proto_t;
 //   ac : Already Connected
 //   bc : Bad Client info
 //   bg : Bad Game info
+//   bn : Bad Name
+//   en : Existing Name
 //   np : Not Playiing
 //   nq : Not in Queue
 //   ps : Packet too Short (data_len)
