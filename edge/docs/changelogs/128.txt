@@ -12,6 +12,8 @@ Bugs fixed
 + windows version now detects out-of-date GWA files properly.
 + windows version now handles filenames with double quotes.
 + fixed crash when a door closed on a dead player.
++ fixed (potential) crash in GL mode when depth was 8 bits.
++ crash on cast parade with flipped sprites (HellKnight) fixed.
 
 - fixed the FACE() action.
 - fix for MAXFALL when swimming. (UNTESTED)
@@ -40,8 +42,8 @@ Bugs fixed
 - render sprites (S/W mode) with posts exceeding 128 pixels.
 - visibility clipping in GL was broken (causing excessive overdraw).
 - RTS graphical tips were not scaled properly.
-- Flipped sprites now use the X offset correctly.
-- Fixed player sprite, which wasn't walking when you move.
+- flipped sprites now use the X offset correctly.
+- fixed player sprite, which wasn't walking when you move.
 - bugs when changing screensize with +/- and in the menu fixed.
 
 
@@ -128,6 +130,10 @@ New features:
 - CAST_TITLE command for things.ddf.  Refers to an entry in LANGUAGES.DDF,
   and determines the monster's name in the DOOM II cast parade.  We have
   English, French and Spanish translations so far.
+
+- the RTS command GOTOMAP now supports a "SKIP_ALL" keyword, placed after
+  the map name, and causes the intermission stats and any pre/post text
+  screens to be skipped.
 
 
 New console variables:
