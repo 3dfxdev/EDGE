@@ -96,6 +96,7 @@ void P_BringUpWeapon(player_t * player);
 boolean_t P_CheckWeaponSprite(weaponinfo_t *info);
 void P_SelectNewWeapon(player_t * player, int priority, ammotype_t ammo);
 void P_Zoom(player_t * player);
+void P_RefillClips(player_t * player);
 
 //
 // P_USER
