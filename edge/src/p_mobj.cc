@@ -67,8 +67,38 @@
 #include "st_stuff.h"
 #include "z_zone.h"
 
+#include "epi/epiarray.h"
 
 #define DEBUG_MOBJ  0
+
+// The Object Removal Que
+class mobjlist_c : public epi::array_c
+{
+public:
+	mobjlist_c() : epi::array_c(sizeof(mobj_t*)) {}
+	~mobjlist_c() { Clear(); } 
+
+private:
+	void CleanupObject(void *obj) { /* Do Nothing */ }
+
+public:
+	int Insert(mobj_t *mo) 
+	{ 
+		epi::array_iterator_c it;
+		mobj_t *mo2;
+		
+		for (it=GetBaseIterator(); it.IsValid(); it++)
+		{
+			mo2 = ITERATOR_TO_TYPE(it, mobj_t*);
+			if (mo == mo2)
+				return -1;
+		}
+	
+		return InsertObject((void*)&mo); 
+	} 
+};
+
+mobjlist_c removeque;
 
 //
 // Holds the players real Z location, so the missile when teleported to
@@ -81,12 +111,6 @@ mobj_t *mobjlisthead;
 
 // Where objects go to die...
 iteminque_t *itemquehead;
-
-// The Object Removal Que
-static mobj_t **removeque = NULL;
-static int removeque_size = 0;
-
-
 
 // =========================== INTERNALS =========================== 
 
@@ -459,27 +483,6 @@ static void DoRemoveMobj(mobj_t * mo)
 
 	// Sound might still be playing, so use indirect Z_Free.
 	S_AddToFreeQueue(mo, mo);
-}
-
-//
-// AddMobjToRemoveQue
-//
-// Queues a mobj to the removal queue. It will be removed at the end of the
-// frame.
-//
-// -ES- 1999/10/24 Written.
-//
-static void AddMobjToRemoveQue(mobj_t *mo)
-{
-	int i;
-
-	// we don't have to add the mobj if it's already there.
-	for (i = 0; i < removeque_size; i++)
-		if (removeque[i] == mo)
-			return;
-
-	Z_Resize(removeque, mobj_t *, ++removeque_size);
-	removeque[removeque_size-1] = mo;
 }
 
 // ======================== END OF INTERNALS ======================== 
@@ -1429,12 +1432,16 @@ void P_RunMobjThinkers(void)
 //
 void P_RemoveQueuedMobjs(void)
 {
-	int i;
+	epi::array_iterator_c it;
+	mobj_t *mo;
 
-	for (i = 0; i < removeque_size; i++)
-		DoRemoveMobj(removeque[i]);
-
-	removeque_size = 0;
+	for (it = removeque.GetBaseIterator(); it.IsValid(); it++)
+	{
+		mo = ITERATOR_TO_TYPE(it, mobj_t*);
+		DoRemoveMobj(mo);
+	}
+	
+	removeque.ZeroiseCount();
 }
 
 //
@@ -1477,7 +1484,7 @@ void P_RemoveMobj(mobj_t *mo)
 		}
 	}
 
-	AddMobjToRemoveQue(mo);
+	removeque.Insert(mo);
 }
 
 //
@@ -1790,7 +1797,7 @@ void P_MobjRemoveMissile(mobj_t * missile)
 	missile->flags &= ~(MF_MISSILE | MF_TOUCHY);
 	missile->extendedflags &= ~(EF_BOUNCE);
 
-	AddMobjToRemoveQue(missile);
+	removeque.Insert(missile);
 }
 
 //
