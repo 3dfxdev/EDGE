@@ -58,36 +58,34 @@ static const mapstuff_t template_map =
 	LMODEL_Doom,  // lighting
 	WISTYLE_Doom, // wistyle
 
+	// f_pre
 	{
-		// finale[0]
-		{
-			NULL,  // text
-			"",    // text_back
-			"",    // text_flat
-			3,     // text_speed
-			150,   // text_wait
-			0,     // numpics
-			0,     // picwait
-			NULL,  // pics
-			false, // docast
-			false, // dobunny
-			0      // music
-		},
+		NULL,  // text
+		"",    // text_back
+		"",    // text_flat
+		3,     // text_speed
+		150,   // text_wait
+		0,     // numpics
+		0,     // picwait
+		NULL,  // pics
+		false, // docast
+		false, // dobunny
+		0      // music
+	},
 
-		// finale[1]
-		{
-			NULL,  // text
-			"",    // text_back
-			"",    // text_flat
-			3,     // text_speed
-			150,   // text_wait
-			0,     // numpics
-			0,     // picwait
-			NULL,  // pics
-			false, // docast
-			false, // dobunny
-			0      // music
-		}
+	// f_end
+	{
+		NULL,  // text
+		"",    // text_back
+		"",    // text_flat
+		3,     // text_speed
+		150,   // text_wait
+		0,     // numpics
+		0,     // picwait
+		NULL,  // pics
+		false, // docast
+		false, // dobunny
+		0      // music
 	}
 };
 
@@ -109,16 +107,16 @@ static finale_t dummy_finale;
 
 static const commandlist_t finale_commands[] =
 {
-  DF("TEXT", text, DDF_MainGetString),
-  DF("TEXT GRAPHIC", text_back, DDF_MainGetInlineStr10),
-  DF("TEXT FLAT", text_flat, DDF_MainGetInlineStr10),
-  DF("TEXT SPEED", text_speed, DDF_MainGetFloat),
-  DF("TEXT WAIT", text_wait, DDF_MainGetNumeric),
-  DF("GRAPHIC", text, DDF_LevelGetPic),
-  DF("GRAPHIC WAIT", picwait, DDF_MainGetTime),
-  DF("CAST", docast, DDF_MainGetBoolean),
-  DF("BUNNY", dobunny, DDF_MainGetBoolean),
-  DF("MUSIC", music, DDF_MainGetNumeric),
+	DF("TEXT", text, DDF_MainGetString),
+    DF("TEXT GRAPHIC", text_back, DDF_MainGetInlineStr10),
+    DF("TEXT FLAT", text_flat, DDF_MainGetInlineStr10),
+    DF("TEXT SPEED", text_speed, DDF_MainGetFloat),
+    DF("TEXT WAIT", text_wait, DDF_MainGetNumeric),
+    DF("GRAPHIC", text, DDF_LevelGetPic),
+    DF("GRAPHIC WAIT", picwait, DDF_MainGetTime),
+    DF("CAST", docast, DDF_MainGetBoolean),
+    DF("BUNNY", dobunny, DDF_MainGetBoolean),
+    DF("MUSIC", music, DDF_MainGetNumeric),
 
 	DDF_CMD_END
 };
@@ -131,8 +129,8 @@ static const commandlist_t finale_commands[] =
 static const commandlist_t level_commands[] =
 {
 	// sub-commands
-  DDF_SUB_LIST("END", f[0], finale_commands, dummy_finale),
-  DDF_SUB_LIST("PRE", f[1], finale_commands, dummy_finale),
+	DDF_SUB_LIST("PRE", f_pre, finale_commands, dummy_finale),
+	DDF_SUB_LIST("END", f_end, finale_commands, dummy_finale),
 
 	DF("LUMPNAME", lump, DDF_MainGetInlineStr10),
 	DF("DESCRIPTION", description, DDF_MainGetString),
