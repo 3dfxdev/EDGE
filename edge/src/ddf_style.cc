@@ -101,6 +101,7 @@ static const commandlist_t style_commands[] =
 	DDF_SUB_LIST("TITLE", title, text_commands, buffer_textstyle),
 	DDF_SUB_LIST("TEXT",  text,  text_commands, buffer_textstyle),
 	DDF_SUB_LIST("ALT",   alt,   text_commands, buffer_textstyle),
+	DDF_SUB_LIST("HELP",  help,  text_commands, buffer_textstyle),
 	DDF_SUB_LIST("SOUND", sounds, sound_commands, buffer_soundstyle),
 
 	DDF_CMD_END
@@ -476,6 +477,7 @@ void styledef_c::CopyDetail(const styledef_c &src)
 	title = src.title;
 	text  = src.text;
 	alt   = src.alt;
+	help  = src.help;
 
 	sounds = src.sounds;
 }
@@ -492,6 +494,7 @@ void styledef_c::Default()
 	title.Default();
 	text.Default();
 	alt.Default();
+	help.Default();
 
 	sounds.Default();
 }

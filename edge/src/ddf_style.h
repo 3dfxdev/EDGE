@@ -120,6 +120,7 @@ public:
 	textstyle_c title; // title style
 	textstyle_c text;  // main text style
 	textstyle_c alt;   // alternative text style
+	textstyle_c help;  // for help messages
 
 	soundstyle_c sounds;
 };
