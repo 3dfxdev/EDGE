@@ -369,32 +369,27 @@ void PK_query_client(packet_c *pk)
 {
 	query_client_proto_t& qc = pk->qc_p();
 
-	qc.ByteSwap(false);
+	qc.ByteSwap();
 
 	// FIXME: check data_len
 
 	short cur_id = qc.first_client;
-	byte  total  = qc.count;
+	short total  = qc.last_client - qc.first_client + 1;
 
-	if (total == 0) // FIXME: allow zero (just get total field)
+	if (total <= 0) // FIXME: allow zero (just get total field)
 		return;
-
-	// prepare packet header
-	pk->SetType("Qc");
-
-	pk->hd().flags = 0;
-	pk->hd().data_len = sizeof(query_client_proto_t) +
-		(qc.count - 1) * sizeof(client_info_t);
 
 	while (total > 0)
 	{
+		short count = MIN(total, query_client_proto_t::CLIENT_FIT);
+
 		qc.total_clients = clients.size();
 		qc.first_client = cur_id;
-		qc.count = MIN(total, query_client_proto_t::CLIENT_FIT);
-		
-		total -= qc.count;
+		qc.last_client = qc.first_client + count - 1;
 
-		for (byte i = 0; i < qc.count; i++)
+		total -= count;
+
+		for (byte i = 0; i < count; i++)
 		{
 			if (! ClientExists(qc.first_client + i))
 			{
@@ -408,7 +403,15 @@ void PK_query_client(packet_c *pk)
 			CL->FillClientInfo(qc.info + i);
 		}
 
-		qc.ByteSwap(true);
+		qc.ByteSwap();
+		qc.ByteSwapInfo(count);
+
+		// prepare packet header
+		pk->SetType("Qc");
+
+		pk->hd().flags = 0;
+		pk->hd().data_len = sizeof(query_client_proto_t) +
+			(count - 1) * sizeof(client_info_t);
 
 		pk->Write(main_socket);
 
