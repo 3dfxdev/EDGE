@@ -247,7 +247,7 @@ static void DDF_GameGetFrames(const char *info, void *storage)
 			// Strip out the map from the working buffer
 			s.RemoveLeft(pos+1);
 		}
-		else if (s2 == "#END")
+		else if (!s2.CompareNoCase("#END"))
 		{
 			DDF_GameAddAnim();
 			return;
