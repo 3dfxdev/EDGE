@@ -132,6 +132,30 @@ typedef enum
 }
 result_e;
 
+typedef struct slider_move_s
+{
+  const sliding_door_t *info;
+  line_t *line;
+
+  // current distance it has opened
+  float_t opening;
+
+  // target distance (== length of line)
+  float_t target;
+ 
+  // 1 = opening, 0 = waiting, -1 = closing
+  int direction;
+
+  // tics to wait at the top
+  int waited;
+
+  boolean_t sfxstarted;
+  boolean_t final_open;
+
+  struct slider_move_s *next, *prev;
+}
+slider_move_t;
+
 // End-level timer (-TIMER option)
 extern boolean_t levelTimer;
 extern int levelTimeCount;
@@ -187,6 +211,7 @@ void P_AddActiveSector(sec_move_t * sec);
 
 void P_RunActiveSectors(void);
 void P_RemoveAllActiveSectors(void);
+void P_RemoveAllActiveSliders(void);
 void P_RunLights(void);
 light_t *P_NewLight(void);
 void P_DestroyAllLights(void);
@@ -199,6 +224,7 @@ boolean_t EV_Teleport(line_t * line, int tag, int side, mobj_t * thing,
     int delay, int special, const mobjinfo_t * ineffectobj,
     const mobjinfo_t * outeffectobj);
 boolean_t EV_Manual(line_t * line, mobj_t * thing, const moving_plane_t * type);
+boolean_t EV_Slider(line_t * line, mobj_t * thing, const sliding_door_t * s);
 boolean_t EV_DoSector(sector_t * sec, const moving_plane_t * type, sector_t * model);
 
 //

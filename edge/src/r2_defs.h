@@ -149,6 +149,10 @@ typedef struct drawwall_s
   // contains transparent parts ?
   int is_masked;
   
+  // horizontal slider ?
+  slidetype_e slide_type;
+  float_t opening, target;
+
   // TEMP HACK
   int picnum;
 }
