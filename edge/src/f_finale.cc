@@ -147,6 +147,8 @@ bool F_Responder(event_t * event)
 	if (event->type != ev_keydown)
 		return false;
 
+	// FIXME: use WI_CheckAccelerate() in netgames
+
 	if (finalecount > TICRATE)
 	{
 		skip_finale = true;
@@ -613,8 +615,8 @@ static void CastDrawer(void)
 	if (! image)
 		return;
 
-	RGL_DrawImage(FROM_320(160 - IM_OFFSETX(image)),
-			FROM_200(170 - IM_OFFSETY(image)), 
+	RGL_DrawImage(FROM_320(160 - IM_OFFSETX(image) - IM_WIDTH(image)/2.0f),
+			FROM_200(170 - (IM_HEIGHT(image)+IM_OFFSETY(image))),
 			FROM_320(IM_WIDTH(image)), 
 			FROM_200(IM_HEIGHT(image)), image,
 			flip ? IM_RIGHT(image) : 0, 0,
