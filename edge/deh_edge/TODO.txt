@@ -2,9 +2,9 @@
 DEH-EDGE TODO
 -------------
 
-+  handle header-less patch files.
-
 -  create Makefile.osx and Plugin_osx.mak.
+
+DONE: handle header-less patch files.
 
 -  implement these Boom/MBF actions:
 
