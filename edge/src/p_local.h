@@ -222,6 +222,8 @@ boolean_t P_BlockThingsIterator(int x, int y, boolean_t(*func) (mobj_t *));
 boolean_t P_ThingsInArea(float_t *bbox);
 boolean_t P_ThingsOnLine(line_t *ld);
 
+int P_ExtraFloorFits(sector_t *sec, float_t z1, float_t z2);
+
 boolean_t P_PathTraverse(float_t x1, float_t y1, float_t x2, float_t y2, int flags, traverser_t trav);
 
 // -AJA- 1999/07/21: Gap utility functions...
@@ -314,10 +316,5 @@ boolean_t P_GiveBenefitList(player_t *player, mobj_t *special,
 // P_SPEC
 //
 #include "p_spec.h"
-
-//
-// P_SAVEG
-//
-void P_DestroyMovingPlanes(void);
 
 #endif // __P_LOCAL__
