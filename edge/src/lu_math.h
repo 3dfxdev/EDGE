@@ -91,6 +91,7 @@ int SlopeDiv(unsigned num, unsigned den);
 #define ANG_2_FLOAT(a)  ((float) (a) * 360.0 / 4294967296.0)
 #define FLOAT_2_ANG(f)  ((angle_t) ((f) / 360.0 * 4294967296.0))
 
-#define FL_ROUND(f)  ((int) (((f) < 0) ? ((f) - 0.5f) : ((f) + 0.5f)))
+#define I_ROUND(f)  ((int) (((f) < 0) ? ((f) - 0.5f) : ((f) + 0.5f)))
+#define I_FLOOR(f)  ((int) (floor(f) + 0.25))
 
 #endif
