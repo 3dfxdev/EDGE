@@ -112,7 +112,7 @@ char sound12to166[63] =
 };
 
 // Sprite conversion array from 1.2 to 1.666
-char sprite12to166[105] =
+short sprite12to166[105] =
 {
 	 0,   1,   2,   3,   4,   5,   7,   8,   9,  10,
     11,  12,  13,  14,  15,  16,  17,  18,  19,  41,
