@@ -76,7 +76,8 @@ public:
 	void FillGameInfo(game_info_t *info) const;
 
 	void InitGame();
-	void BumpTic();
+	void BumpGameTic();
+	void BumpMinTic();
 
 	int ComputeMinTic() const;
 	int ComputeGroupAvail() const;

@@ -124,9 +124,21 @@ void game_c::InitGame()
 	total_queued_games--;
 }
 
-void game_c::BumpTic()
+void game_c::BumpGameTic()
 {
 	sv_gametic++;
+}
+
+void game_c::BumpMinTic()
+{
+	for (int p = 0; p < num_players; p++)
+	{
+		client_c *CL = clients[players[p]];
+
+		CL->tics->Clear(pl_min_tic);
+	}
+
+	pl_min_tic++;
 }
 
 int game_c::ComputeMinTic() const
@@ -273,7 +285,7 @@ static void BeginGame(game_c *GM)
 	}
 }
 
-static void SV_build_tic_group(game_c *GM, packet_c *pk, int first, int count)
+static void SV_build_tic_group(game_c *GM, packet_c *pk, int tic_num, int first, int count)
 {
 	pk->Clear();  // paranoia
 
@@ -287,7 +299,7 @@ static void SV_build_tic_group(game_c *GM, packet_c *pk, int first, int count)
 	tic_group_proto_t& tg = pk->tg_p();
 
 	tg.gametic = GM->sv_gametic;
-	tg.offset  = 0;
+	tg.offset  = tic_num - tg.gametic;
 
 	tg.first_player = first;
 	tg.count = count;
@@ -312,7 +324,7 @@ static void SV_send_all_tic_groups(game_c *GM, int tic_num, int first_pl, int co
 
 	packet_c pk;
 
-	SV_build_tic_group(GM, &pk, first_pl, count_pl);
+	SV_build_tic_group(GM, &pk, tic_num, first_pl, count_pl);
 
 	// broadcast packet to each client
 
@@ -654,23 +666,30 @@ void PK_ticcmd(packet_c *pk)
 		// FIXME: speed up retransmit timer......
 	}
 
-	int saved_tics = GM->sv_gametic - GM->ComputeMinTic();
+	int min_tic = GM->ComputeMinTic();
+
+	while (GM->pl_min_tic < min_tic)
+		GM->BumpMinTic();
+
+	int saved_tics = GM->sv_gametic - GM->pl_min_tic;
 
 	SYS_ASSERT(saved_tics >= 0);
 	SYS_ASSERT(saved_tics <= MP_SAVETICS);
 
 	int avail_tics = GM->ComputeGroupAvail();
 
-DebugPrintf("=== gametic %d avail %d saved %d\n", GM->sv_gametic, avail_tics, saved_tics);
+	DebugPrintf("=== gametic %d avail %d saved %d\n", GM->sv_gametic,
+		avail_tics, saved_tics);
 
 	// when the save area is full, the server cannot advance
-
-	if (avail_tics < (MP_SAVETICS - saved_tics))
+	if (avail_tics > (MP_SAVETICS - saved_tics))
 		avail_tics = (MP_SAVETICS - saved_tics);
 
-	for (; avail_tics > 0; avail_tics--, GM->sv_gametic++)
+	for (; avail_tics > 0; avail_tics--)
 	{
 		SV_send_all_tic_groups(GM, GM->sv_gametic, 0, GM->num_players);
+
+		GM->BumpGameTic();
 	}
 }
 
