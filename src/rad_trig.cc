@@ -73,8 +73,6 @@ static int rad_memfile_size;
 //
 // RAD_FindScriptByName
 //
-// -AJA- 1999/09/25: written.
-//
 rad_script_t * RAD_FindScriptByName(const char *map_name, const char *name)
 {
   rad_script_t *scr;
@@ -203,8 +201,6 @@ bool RAD_WithinRadius(mobj_t * mo, rad_script_t * r)
 //
 // RAD_CheckBossTrig
 //
-// -AJA- 1999/12/08: written.
-//
 static bool RAD_CheckBossTrig(rad_trigger_t *trig, s_ondeath_t *cond)
 {
   mobj_t *mo;
@@ -243,8 +239,6 @@ static bool RAD_CheckBossTrig(rad_trigger_t *trig, s_ondeath_t *cond)
 
 //
 // RAD_CheckHeightTrig
-//
-// -AJA- 1999/12/08: written.
 //
 static bool RAD_CheckHeightTrig(rad_trigger_t *trig, 
     s_onheight_t *cond)
