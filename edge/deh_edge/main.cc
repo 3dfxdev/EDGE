@@ -1,8 +1,8 @@
 //------------------------------------------------------------------------
-// DEH_EDGE Main Program
+//  MAIN Program
 //------------------------------------------------------------------------
 //
-//  GL-Friendly Node Builder (C) 2000-2004 Andrew Apted
+//  DEH_EDGE  Copyright (C) 2004  The EDGE Team
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -12,22 +12,37 @@
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//  GNU General Public License (in COPYING.txt) for more details.
+//
+//------------------------------------------------------------------------
+//
+//  DEH_EDGE is based on:
+//
+//  +  DeHackEd source code, by Greg Lewis.
+//  -  DOOM source code (C) 1993-1996 id Software, Inc.
+//  -  Linux DOOM Hack Editor, by Sam Lantinga.
+//  -  PrBoom's DEH/BEX code, by Ty Halderman, TeamTNT.
 //
 //------------------------------------------------------------------------
 
 #include "i_defs.h"
 
 #include "attacks.h"
+#include "frames.h"
+#include "sounds.h"
 #include "system.h"
 #include "things.h"
+#include "text.h"
+#include "util.h"
 #include "wad.h"
+#include "weapons.h"
 
 
 //  DEH 1.2 (patch v1) no frames
 //  DEH 1.3 (patch v2) frames, no code pointers
 //  DEH X.X (patch vX) code pointers
 //  DEH Y.Y (patch vY) text format
+//  DEH 3.0 has ^Misc section
 
 
 const char *input_file;
@@ -52,9 +67,12 @@ static void ShowTitle(void)
 static void ShowInfo(void)
 {
   PrintMsg(
-    "USAGE:  deh_edge  (Options...)  input.deh  (output.wad)\n"
+    "USAGE:  deh_edge  (Options...)  input.deh  (-o  output.wad)\n"
 	"\n"
-	"Currently there are no options.\n"
+	"Available options.\n"
+	"    -o  --output    Output filename override.\n"
+	"    -q  --quiet     Quiet mode, suppress warnings.\n"
+	"    -a  --all       Convert all (even if unmodified) into DDF.\n"
 	"\n"
   );
 }
@@ -78,16 +96,17 @@ static void ParseArgs(int argc, char **argv)
 	}
 	else
 	{
-		output_file = strdup("bar_deh.wad");  //!!!! FIXME
+		output_file = strdup("zz_deh.wad");  //!!!! FIXME
 	}
 
 	// !!!! AddMissingExtension(&input_file,  ".deh");
 	// !!!! AddMissingExtension(&output_file, ".wad");
 
-	// !!!! if (StrCaseCmp(input_file, output_file) == 0) FatalError
+	if (StrCaseCmp(input_file, output_file) == 0)
+		FatalError("Output filename is same as input filename.\n");
 
 	if (argc > 0)
-		FatalError("Too many filenames.");
+		FatalError("Too many filenames.\n");
 }
 
 int main(int argc, char **argv)
@@ -115,8 +134,9 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	memset(state_dyn, 0, sizeof(state_dyn));
-	memset(mobj_dyn,  0, sizeof(mobj_dyn));
+	Frames::Startup();
+	Things::Startup();
+	Weapons::Startup();
 
 	WAD::Startup();
 
@@ -125,8 +145,12 @@ int main(int argc, char **argv)
 	PrintMsg("Loading patch file: %s\n", input_file);
 
 	// DO STUFF !!
-		Things::ConvertAll();
-		Attacks::ConvertAll();
+		Things::ConvertTHING();
+		Attacks::ConvertATK();
+		Weapons::ConvertWEAP();
+		Sounds::ConvertSFX();
+		Sounds::ConvertMUS();
+		TextStr::ConvertLDF();
 
 	PrintMsg("Writing WAD file: %s\n", output_file);
 	WAD::WriteFile(output_file);

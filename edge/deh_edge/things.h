@@ -1,36 +1,32 @@
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------
 //  THING conversion
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2004  The EDGE Team.
+//  DEH_EDGE  Copyright (C) 2004  The EDGE Team
 // 
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
+//  This program is under the GNU General Public License.
+//  It comes WITHOUT ANY WARRANTY of any kind.
+//  See COPYING.txt for the full details.
 //
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//----------------------------------------------------------------------------
-//
-#ifndef __THINGS__
-#define __THINGS__
+//------------------------------------------------------------------------
 
-#include "info.h"
+#ifndef __THINGS_HDR__
+#define __THINGS_HDR__
+
+#include "mobj.h"
 
 namespace Things
 {
-	void BeginLump(void);
-	void FinishLump(void);
+	void Startup(void);
 
-	void ConvertAll(void);
+	void MarkThing(int mt_num);  // attacks too
+	void ConvertTHING(void);
 
-	void HandleFlags(mobjinfo_t *info, int mt_num, int player);
+	void HandleFlags(const mobjinfo_t *info, int mt_num, int player);
+
 	const char *GetSound(int sound_id);
+	const char *GetSpeed(int speed);
 }
 
 
-#endif /* __THINGS__ */
+#endif /* __THINGS_HDR__ */

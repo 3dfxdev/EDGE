@@ -1,9 +1,9 @@
-//----------------------------------------------------------------------------
-//  THING conversion
-//----------------------------------------------------------------------------
-// 
-//  Copyright (c) 1999-2004  The EDGE Team.
-// 
+//------------------------------------------------------------------------
+//  THING Conversion
+//------------------------------------------------------------------------
+//
+//  DEH_EDGE  Copyright (C) 2004  The EDGE Team
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -12,14 +12,18 @@
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//  GNU General Public License (in COPYING.txt) for more details.
 //
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------
 //
-//  Based on DeHackEd 2.3 source, by Greg Lewis.
-//  Based on Linux DOOM Hack Editor 0.8a, by Sam Lantinga.
-//  Based on PrBoom's DEH/BEX code, by Ty Halderman, TeamTNT.
+//  DEH_EDGE is based on:
 //
+//  +  DeHackEd source code, by Greg Lewis.
+//  -  DOOM source code (C) 1993-1996 id Software, Inc.
+//  -  Linux DOOM Hack Editor, by Sam Lantinga.
+//  -  PrBoom's DEH/BEX code, by Ty Halderman, TeamTNT.
+//
+//------------------------------------------------------------------------
 
 #include "i_defs.h"
 #include "things.h"
@@ -30,30 +34,43 @@
 #include "mobj.h"
 #include "sounds.h"
 #include "system.h"
+#include "util.h"
 #include "wad.h"
 #include "weapons.h"
 
 
-#define DUMP_ALL  1
+#define EF_DISLOYAL    'D'
+#define EF_TRIG_HAPPY  'H'
+#define EF_BOSSMAN     'B'
+#define EF_NO_RAISE    'R'
+#define EF_NO_GRUDGE   'G'
+#define EF_NO_ITEM_BK  'I'
+#define EF_MONSTER     'M'
 
 
-void Things::BeginLump(void)
+void Things::Startup(void)
 {
-	WAD::NewLump("DDFTHING");
-
-	WAD::Printf(GEN_BY_COMMENT);
-
-	WAD::Printf("<THINGS>\n\n");
-}
-
-void Things::FinishLump(void)
-{
-	WAD::FinishLump();
+	memset(mobj_modified,  0, sizeof(mobj_modified));
 }
 
 namespace Things
 {
-	const int NUMPLAYERS = 8;
+	bool got_one;
+	bool flags_got_one;
+
+	void BeginLump(void)
+	{
+		WAD::NewLump("DDFTHING");
+
+		WAD::Printf(GEN_BY_COMMENT);
+		WAD::Printf("<THINGS>\n\n");
+	}
+
+	void FinishLump(void)
+	{
+		WAD::Printf("\n");
+		WAD::FinishLump();
+	}
 
 	typedef struct 
 	{
@@ -86,12 +103,74 @@ namespace Things
 		{ MF_SPAWNCEILING, "SPAWNCEILING" },
 		{ MF_SPECIAL,      "SPECIAL" },
 		{ MF_TELEPORT,     "TELEPORT" },
-		{ 0, NULL }
+
+		{ 0, NULL }  // End sentinel
 
 		/* Not needed: MF_AMBUSH, MF_INFLOAT, MF_JUSTATTACKED, MF_JUSTHIT */
 	};
 
-	void HandleFlags(mobjinfo_t *info, int mt_num, int player)
+	const flagname_t extflaglist[] =
+	{
+		{ EF_DISLOYAL,    "DISLOYAL,ATTACK_HURTS" },  // Must be first
+		{ EF_TRIG_HAPPY,  "TRIGGER_HAPPY" },
+		{ EF_BOSSMAN,     "BOSSMAN" },
+		{ EF_NO_RAISE,    "NO_RESURRECT" },
+		{ EF_NO_GRUDGE,   "NO_GRUDGE,NEVERTARGETED" },
+		{ EF_NO_ITEM_BK,  "NO_RESPAWN" },
+		{ EF_MONSTER,     "MONSTER" },
+
+		{ 0, NULL }  // End sentinel
+	};
+
+	const char *GetExtFlags(int mt_num, int player)
+	{
+		if (player > 0)
+			return "D";
+
+		switch (mt_num)
+		{
+			case MT_INS:
+			case MT_INV: return "I";
+
+			case MT_POSSESSED:
+			case MT_SHOTGUY:
+			case MT_CHAINGUY: return "D";
+
+			case MT_SKULL: return "DHM";
+			case MT_UNDEAD: return "H";
+
+			case MT_VILE: return "GR";
+			case MT_CYBORG: return "BHR";
+			case MT_SPIDER: return "BHR";
+
+			case MT_BOSSBRAIN:
+			case MT_BOSSSPIT: return "B";
+
+			default:
+				break;
+		}
+
+		return "";
+	}
+
+	void AddOneFlag(const mobjinfo_t *info, const char *name)
+	{
+		if (! flags_got_one)
+		{
+			flags_got_one = true;
+
+			if (info->name[0] == '*')
+				WAD::Printf("PROJECTILE_SPECIAL = ");
+			else
+				WAD::Printf("SPECIAL = ");
+		}
+		else
+			WAD::Printf(",");
+
+		WAD::Printf("%s", name);
+	}
+
+	void HandleFlags(const mobjinfo_t *info, int mt_num, int player)
 	{
 		int i;
 		int cur_f = info->flags;
@@ -104,7 +183,10 @@ namespace Things
 		if (mt_num == MT_TELEPORTMAN)
 			cur_f &= ~MF_NOSECTOR;
 
-		bool got_one = false;
+		bool force_disloyal = (Misc::monster_infight == 221 &&
+			(info->missilestate || info->meleestate));
+
+		flags_got_one = false;
 
 		for (i = 0; flagnamelist[i].name != NULL; i++)
 		{
@@ -113,81 +195,93 @@ namespace Things
 
 			cur_f &= ~flagnamelist[i].flag;
 
-			if (! got_one)
-				WAD::Printf("SPECIAL = ");
-			else
-				WAD::Printf(",");
-
-			got_one = true;
-
-			WAD::Printf("%s", flagnamelist[i].name);
+			AddOneFlag(info, flagnamelist[i].name);
 		}
 
-		if (got_one)
+		const char *eflags = GetExtFlags(mt_num, player);
+
+		for (i = 0; extflaglist[i].name != NULL; i++)
+		{
+			char ch = (char) extflaglist[i].flag;
+
+			if (ch == EF_DISLOYAL)
+				force_disloyal = false;
+
+			if (strchr(eflags, ch))
+				AddOneFlag(info, extflaglist[i].name);
+		}
+
+		if (force_disloyal)
+			AddOneFlag(info, extflaglist[0].name);
+
+		if (flags_got_one)
 			WAD::Printf(";\n");
 
 		if (cur_f != 0)
-			PrintMsg("Warning: unconverted flags 0x%08x in entry %d [%s]\n",
-				cur_f, info - mobjinfo, info->name);
+			PrintWarn("Unconverted flags 0x%08x in entry [%s]\n",
+				cur_f, info->name);
 	}
 
 	const char *GetSound(int sound_id)
 	{
 		assert(sound_id != sfx_None);
-		assert(strlen(S_sfx[sound_id].name) < 16);
+		assert(strlen(S_sfx[sound_id].orig_name) < 16);
 
 		// handle random sounds
-
-		int rnd_base = sfx_None;
-		int rnd_num  = 0;
-
 		switch (sound_id)
 		{
 			case sfx_podth1: case sfx_podth2: case sfx_podth3:
-				rnd_base = sfx_podth1;
-				rnd_num  = 3;
-				break;
+				return "\"PODTH?\"";
 
 			case sfx_posit1: case sfx_posit2: case sfx_posit3:
-				rnd_base = sfx_posit1;
-				rnd_num  = 3;
-				break;
+				return "\"POSIT?\"";
 
 			case sfx_bgdth1: case sfx_bgdth2:
-				rnd_base = sfx_bgdth1;
-				rnd_num  = 2;
-				break;
+				return "\"BGDTH?\"";
 
 			case sfx_bgsit1: case sfx_bgsit2:
-				rnd_base = sfx_bgsit1;
-				rnd_num  = 2;
-				break;
+				return "\"BGSIT?\"";
 
 			default: break;
 		}
 
 		static char name_buf[40];
 
-		sprintf(name_buf, "\"%s\"", StrUpper(S_sfx[sound_id].name));
+		sprintf(name_buf, "\"%s\"", StrUpper(S_sfx[sound_id].orig_name));
 
-		if (rnd_base != sfx_None)
-		{
-			// XXX ideally, check if names differ by a single digit
-
-			for (int j = 0; name_buf[j]; j++)
-			{
-				if (isdigit(name_buf[j]))
-				{
-					name_buf[j] = '?';
-					break;
-				}
-			}
-		}
+///---		if (rnd_base != sfx_None)
+///---		{
+///---			// XXX ideally, check if names differ by a single digit
+///---
+///---			for (int j = 0; name_buf[j]; j++)
+///---			{
+///---				if (isdigit(name_buf[j]))
+///---				{
+///---					name_buf[j] = '?';
+///---					break;
+///---				}
+///---			}
+///---		}
 
 		return name_buf;
 	}
 
-	void HandleSounds(mobjinfo_t *info, int mt_num)
+	const char *GetSpeed(int speed)
+	{
+		// Interestingly, speed is fixed point for attacks, but
+		// plain int for things.  Here we automatically handle both.
+
+		static char num_buf[128];
+
+		if (speed >= 1024)
+			sprintf(num_buf, "%1.2f", F_FIXED(speed));
+		else
+			sprintf(num_buf, "%d", speed);
+
+		return num_buf;
+	}
+
+	void HandleSounds(const mobjinfo_t *info, int mt_num)
 	{
 		if (info->activesound != sfx_None)
 		{
@@ -196,29 +290,28 @@ namespace Things
 			else
 				WAD::Printf("ACTIVE_SOUND = %s;\n", GetSound(info->activesound));
 		}
-
-		if (info->attacksound != sfx_None)
-		{
-			// FIXME: may be associated with attack instead
-			WAD::Printf("STARTCOMBAT_SOUND = %s;\n", GetSound(info->attacksound));
-		}
-
-		if (info->deathsound != sfx_None)
-			WAD::Printf("DEATH_SOUND = %s;\n", GetSound(info->deathsound));
-
-		if (info->painsound != sfx_None)
-			WAD::Printf("PAIN_SOUND = %s;\n", GetSound(info->painsound));
+		else if (mt_num == MT_TELEPORTMAN)
+			WAD::Printf("ACTIVE_SOUND = %s;\n", GetSound(sfx_telept));
 
 		if (info->seesound != sfx_None)
 			WAD::Printf("SIGHTING_SOUND = %s;\n", GetSound(info->seesound));
 		else if (mt_num == MT_BOSSSPIT)
 			WAD::Printf("SIGHTING_SOUND = %s;\n", GetSound(sfx_bossit));
+
+		if (info->attacksound != sfx_None && info->meleestate != S_NULL)
+		{
+			WAD::Printf("STARTCOMBAT_SOUND = %s;\n", GetSound(info->attacksound));
+		}
+
+		if (info->painsound != sfx_None)
+			WAD::Printf("PAIN_SOUND = %s;\n", GetSound(info->painsound));
+
+		if (info->deathsound != sfx_None)
+			WAD::Printf("DEATH_SOUND = %s;\n", GetSound(info->deathsound));
 	}
 
-	void HandleFrames(mobjinfo_t *info, int mt_num)
+	void HandleFrames(const mobjinfo_t *info, int mt_num)
 	{
-		// FIXME: archvile RESURRECT states
-
 		Frames::ResetAll();
 
 		// special cases...
@@ -228,7 +321,7 @@ namespace Things
 			WAD::Printf("TRANSLUCENCY = 50%;\n");
 			WAD::Printf("\n");
 			WAD::Printf("STATES(IDLE) = %s:A:-1:NORMAL:TRANS_SET(0%);\n",
-				sprnames[SPR_CAND]);
+				sprnames[SPR_TFOG]);
 
 			// EDGE doesn't use the TELEPORT_FOG object, instead it uses
 			// the CHASE states of the TELEPORT_FLASH object (i.e. the one
@@ -249,6 +342,9 @@ namespace Things
 		// --- collect states into groups ---
 
 		int count = 0;
+
+		if (mt_num == MT_VILE)
+			count += Frames::BeginGroup(S_VILE_HEAL1,   'H');
 
 		count += Frames::BeginGroup(info->raisestate,   'R');
 		count += Frames::BeginGroup(info->xdeathstate,  'X');
@@ -286,7 +382,17 @@ namespace Things
 		Frames::OutputGroup(info->deathstate,   'D');
 		Frames::OutputGroup(info->xdeathstate,  'X');
 		Frames::OutputGroup(info->raisestate,   'R');
+
+		if (mt_num == MT_VILE)
+			Frames::OutputGroup(S_VILE_HEAL1,   'H');
+
+		if (Frames::act_flags & AF_WEAPON_ST)
+		{
+			PrintWarn("Mobj [%s:%d] uses weapon states.\n", info->name, info->doomednum);
+		}
 	}
+
+	const int NUMPLAYERS = 8;
 
 	typedef struct
 	{
@@ -308,7 +414,7 @@ namespace Things
 		{ "PLAYER8",  4004, "PLAYER_PINK"  }
 	};
 
-	void HandlePlayer(mobjinfo_t *info, int player)
+	void HandlePlayer(const mobjinfo_t *info, int player)
 	{
 		if (player <= 0)
 			return;
@@ -322,10 +428,10 @@ namespace Things
 		WAD::Printf("PALETTE_REMAP = %s;\n", pi->remap);
 
 		WAD::Printf("INITIAL_BENEFIT = \n");
-		WAD::Printf("    BULLETS.LIMIT(%d), ", Ammo::plr_max[Ammo::BULLETS]);
-		WAD::Printf(    "SHELLS.LIMIT(%d), ",  Ammo::plr_max[Ammo::SHELLS]);
-		WAD::Printf(    "ROCKETS.LIMIT(%d), ", Ammo::plr_max[Ammo::ROCKETS]);
-		WAD::Printf(    "CELLS.LIMIT(%d),\n",  Ammo::plr_max[Ammo::CELLS]);
+		WAD::Printf("    BULLETS.LIMIT(%d), ", Ammo::plr_max[am_bullet]);
+		WAD::Printf(    "SHELLS.LIMIT(%d), ",  Ammo::plr_max[am_shell]);
+		WAD::Printf(    "ROCKETS.LIMIT(%d), ", Ammo::plr_max[am_rocket]);
+		WAD::Printf(    "CELLS.LIMIT(%d),\n",  Ammo::plr_max[am_cell]);
 		WAD::Printf("    PELLETS.LIMIT(%d), ", 200);
 		WAD::Printf(    "NAILS.LIMIT(%d), ",   100);
 		WAD::Printf(    "GRENADES.LIMIT(%d), ", 50);
@@ -392,7 +498,7 @@ namespace Things
 		{ -1, NULL, 0,0,0, NULL }
 	};
 
-	void HandleItem(mobjinfo_t *info, int mt_num)
+	void HandleItem(const mobjinfo_t *info, int mt_num)
 	{
 		// special cases:
 
@@ -415,10 +521,10 @@ namespace Things
 		else if (mt_num == MT_MISC24)  // Backpack full of AMMO
 		{
 			WAD::Printf("PICKUP_BENEFIT = \n");
-			WAD::Printf("    BULLETS.LIMIT(%d), ", 2 * Ammo::plr_max[Ammo::BULLETS]);
-			WAD::Printf("    SHELLS.LIMIT(%d),\n", 2 * Ammo::plr_max[Ammo::SHELLS]);
-			WAD::Printf("    ROCKETS.LIMIT(%d), ", 2 * Ammo::plr_max[Ammo::ROCKETS]);
-			WAD::Printf("    CELLS.LIMIT(%d),\n",  2 * Ammo::plr_max[Ammo::CELLS]);
+			WAD::Printf("    BULLETS.LIMIT(%d), ", 2 * Ammo::plr_max[am_bullet]);
+			WAD::Printf("    SHELLS.LIMIT(%d),\n", 2 * Ammo::plr_max[am_shell]);
+			WAD::Printf("    ROCKETS.LIMIT(%d), ", 2 * Ammo::plr_max[am_rocket]);
+			WAD::Printf("    CELLS.LIMIT(%d),\n",  2 * Ammo::plr_max[am_cell]);
 			WAD::Printf("    BULLETS(10), SHELLS(4), ROCKETS(1), CELLS(20);\n");
 			WAD::Printf("PICKUP_MESSAGE = GotBackpack;\n");
 			WAD::Printf("PICKUP_SOUND = %s;\n", GetSound(sfx_itemup));
@@ -472,22 +578,22 @@ namespace Things
 			// Ammo...
 			case MT_CLIP:     // "CLIP"
 			case MT_MISC17:   // "BOX_OF_BULLETS"  
-				amount = Ammo::pickups[Ammo::BULLETS];
+				amount = Ammo::pickups[am_bullet];
 				break;
 
 			case MT_MISC22:   // "SHELLS"  
 			case MT_MISC23:   // "BOX_OF_SHELLS"  
-				amount = Ammo::pickups[Ammo::SHELLS];
-				break;
-
-			case MT_MISC20:   // "CELLS"  
-			case MT_MISC21:   // "CELL_PACK"  
-				amount = Ammo::pickups[Ammo::CELLS];
+				amount = Ammo::pickups[am_shell];
 				break;
 
 			case MT_MISC18:   // "ROCKET"  
 			case MT_MISC19:   // "BOX_OF_ROCKETS"  
-				amount = Ammo::pickups[Ammo::ROCKETS];
+				amount = Ammo::pickups[am_rocket];
+				break;
+
+			case MT_MISC20:   // "CELLS"  
+			case MT_MISC21:   // "CELL_PACK"  
+				amount = Ammo::pickups[am_cell];
 				break;
 
 			default:
@@ -518,7 +624,7 @@ namespace Things
 			WAD::Printf("PICKUP_SOUND = %s;\n", GetSound(pu->sound));
 	}
 
-	void HandleCastOrder(mobjinfo_t *info, int mt_num, int player)
+	void HandleCastOrder(const mobjinfo_t *info, int mt_num, int player)
 	{
 		if (player >= 2)
 			return;
@@ -552,13 +658,64 @@ namespace Things
 		WAD::Printf("CASTORDER = %d;\n", order);
 	}
 
-	void ConvertMobj(mobjinfo_t *info, int player);
+	void HandleDropItem(const mobjinfo_t *info, int mt_num)
+	{
+		const char *item = NULL;
+
+		switch (mt_num)
+		{
+			case MT_WOLFSS:
+			case MT_POSSESSED: item = "CLIP"; break;
+
+			case MT_SHOTGUY:   item = "SHOTGUN"; break;
+			case MT_CHAINGUY:  item = "CHAINGUN"; break;
+
+			default:
+				return;
+		}
+
+		assert(item);
+
+		WAD::Printf("DROPITEM = \"%s\";\n", item);
+	}
+
+	void HandleAttacks(const mobjinfo_t *info, int mt_num)
+	{
+		if (! Frames::attack_slot[0] && ! Frames::attack_slot[1] &&
+			! Frames::attack_slot[2])
+		{
+			return;
+		}
+
+		WAD::Printf("\n");
+
+		if (Frames::attack_slot[Frames::RANGE])
+		{
+			WAD::Printf("RANGE_ATTACK = %s;\n",
+				Frames::attack_slot[Frames::RANGE]);
+			WAD::Printf("MINATTACK_CHANCE = 25%%;\n");
+		}
+
+		if (Frames::attack_slot[Frames::COMBAT])
+			WAD::Printf("CLOSE_ATTACK = %s;\n",
+				Frames::attack_slot[Frames::COMBAT]);
+
+		if (Frames::attack_slot[Frames::SPARE])
+			WAD::Printf("SPARE_ATTACK = %s;\n",
+				Frames::attack_slot[Frames::SPARE]);
+	}
+
+	void ConvertMobj(const mobjinfo_t *info, int mt_num, int player);
 }
 
-void Things::ConvertMobj(mobjinfo_t *info, int player)
+void Things::ConvertMobj(const mobjinfo_t *info, int mt_num, int player)
 {
-	int mt_num = info - mobjinfo;
-
+	if (! got_one)
+	{
+		got_one = true;
+		BeginLump();
+	}
+	
 	if (info->name[0] == '*')  // attack
 		return;
 
@@ -578,7 +735,7 @@ void Things::ConvertMobj(mobjinfo_t *info, int player)
 	if (player > 0)
 		WAD::Printf("SPEED = 1;\n");
 	else if (info->speed != 0)
-		WAD::Printf("SPEED = %d;\n", info->speed);
+		WAD::Printf("SPEED = %s;\n", GetSpeed(info->speed));
 
 	if (info->mass != 100)
 		WAD::Printf("MASS = %d;\n", info->mass);
@@ -590,57 +747,67 @@ void Things::ConvertMobj(mobjinfo_t *info, int player)
 		WAD::Printf("PAINCHANCE = %1.1f%%;\n",
 			(float)info->painchance * 100.0 / 256.0);
 
-	if (mt_num == MT_BARREL && info->damage > 0)
-		WAD::Printf("EXPLODE_DAMAGE.VAL = 128;\n");
-
 	if (mt_num == MT_BOSSSPIT)
 		WAD::Printf("SPIT_SPOT = BRAIN_SPAWNSPOT;\n");
 
 	HandleCastOrder(info, mt_num, player);
+	HandleDropItem(info, mt_num);
 	HandleFlags(info, mt_num, player);
 	HandlePlayer(info, player);
 	HandleItem(info, mt_num);
 	HandleSounds(info, mt_num);
 	HandleFrames(info, mt_num);
+	HandleAttacks(info, mt_num);
 
+	if (Frames::act_flags & AF_EXPLODE)
+		WAD::Printf("\nEXPLODE_DAMAGE.VAL = 128;\n");
+	
 	WAD::Printf("\n");
 }
 
-void Things::ConvertAll(void)
+void Things::ConvertTHING(void)
 {
-	int i;
+	got_one = false;
 
-	bool got_one = false;
-
-	for (i = 0; i < NUMMOBJTYPES; i++)
+	for (int i = 0; i < NUMMOBJTYPES; i++)
 	{
-#ifndef DUMP_ALL
-	    if (! mobj_dyn[i].modified)
+	    if (! all_mode && ! mobj_modified[i])
 			continue;
-#endif
-
-		if (! got_one)
-			BeginLump();
-		
-		got_one = true;
 
 		if (i == MT_PLAYER)
 		{
 			for (int p = 1; p <= NUMPLAYERS; p++)
-				ConvertMobj(mobjinfo + i, p);
+				ConvertMobj(mobjinfo + i, i, p);
 
 			continue;
 		}
 
-		ConvertMobj(mobjinfo + i, 0);
+		ConvertMobj(mobjinfo + i, i, 0);
 	}
-		
+
+	if (true)  // XXX Modified
+		ConvertMobj(&brain_explode_mobj, MT_ROCKET /* dummy */, 0);
+
 	if (got_one)
 		FinishLump();
+}
+
+void Things::MarkThing(int mt_num)
+{
+	assert(1 <= mt_num && mt_num < NUMMOBJTYPES);
+
+	mobj_modified[mt_num] = true;
+
+	// handle merged things/attacks
+
+	if (mt_num == MT_TFOG)
+		mobj_modified[MT_TELEPORTMAN] = true;
+	
+	if (mt_num == MT_SPAWNFIRE)
+		mobj_modified[MT_SPAWNSHOT] = true;
 }
 
 // NOTES
 //
 //   Need to duplicate players
 //   info->damage only used in attacks and LOST_SOUL
-//   random sound groups: PODTH1/2/3, POSIT1/2/3, BGDTH1/2, BGSIT1/2.

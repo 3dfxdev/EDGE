@@ -1,47 +1,64 @@
-//----------------------------------------------------------------------------
-//  WEAPON stuff
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------
+//  WEAPON conversion
+//------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2004  The EDGE Team.
+//  DEH_EDGE  Copyright (C) 2004  The EDGE Team
 // 
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
+//  This program is under the GNU General Public License.
+//  It comes WITHOUT ANY WARRANTY of any kind.
+//  See COPYING.txt for the full details.
 //
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//----------------------------------------------------------------------------
-//
-#ifndef __WEAPONS__
-#define __WEAPONS__
+//------------------------------------------------------------------------
+
+#ifndef __WEAPONS_HDR__
+#define __WEAPONS_HDR__
 
 #include "i_defs.h"
 #include "info.h"
 
+// Ammunition types defined.
+typedef enum
+{
+    am_bullet,    // Pistol / chaingun ammo.
+    am_shell,     // Shotgun / double barreled shotgun.
+    am_cell,      // Plasma rifle, BFG.
+    am_rocket,    // Missile launcher.
+
+    NUMAMMO,
+
+	am_noammo     // Fist / chainsaw
+}
+ammotype_e;
+
 namespace Ammo
 {
-	typedef enum
-	{
-		BULLETS, SHELLS, CELLS, ROCKETS,
-		NUMAMMO 
-	}
-	ammotype_e;
-
 	extern int plr_max[4];
 	extern int pickups[4];
 }
 
+// The defined weapons...
+typedef enum
+{
+    wp_fist,
+    wp_pistol,
+    wp_shotgun,
+    wp_chaingun,
+    wp_missile,
+    wp_plasma,
+    wp_bfg,
+    wp_chainsaw,
+    wp_supershotgun,
+                                                                                            
+    NUMWEAPONS
+}
+weapontype_e;
+
+extern bool weapon_modified[NUMWEAPONS];
+
 namespace Weapons
 {
-	void BeginLump(void);
-	void FinishLump(void);
-
-	void ConvertAll(void);
+	void Startup(void);
+	void ConvertWEAP(void);
 }
 
-
-#endif /* __WEAPONS__ */
+#endif /* __WEAPONS_HDR__ */

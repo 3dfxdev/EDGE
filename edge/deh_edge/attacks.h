@@ -1,34 +1,25 @@
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------
 //  ATTACK conversion
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2004  The EDGE Team.
+//  DEH_EDGE  Copyright (C) 2004  The EDGE Team
 // 
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
+//  This program is under the GNU General Public License.
+//  It comes WITHOUT ANY WARRANTY of any kind.
+//  See COPYING.txt for the full details.
 //
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//----------------------------------------------------------------------------
-//
-#ifndef __ATTACKS__
-#define __ATTACKS__
+//------------------------------------------------------------------------
+
+#ifndef __ATTACKS_HDR__
+#define __ATTACKS_HDR__
 
 #include "i_defs.h"
 #include "info.h"
 
 namespace Attacks
 {
-	void BeginLump(void);
-	void FinishLump(void);
-
-	void ConvertAll(void);
+	void ConvertATK(void);
 }
 
 
-#endif /* __ATTACKS__ */
+#endif /* __ATTACKS_HDR__ */

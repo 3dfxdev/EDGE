@@ -1,23 +1,17 @@
-//----------------------------------------------------------------------------
-//  DEH_EDGE, Patch Conversion tables
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------
+//  Patch Conversion tables
+//------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2004  The EDGE Team.
+//  DEH_EDGE  Copyright (C) 2004  The EDGE Team
 // 
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
+//  This program is under the GNU General Public License.
+//  It comes WITHOUT ANY WARRANTY of any kind.
+//  See COPYING.txt for the full details.
 //
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//----------------------------------------------------------------------------
-//
-#ifndef __CONVERT__
-#define __CONVERT__
+//------------------------------------------------------------------------
+
+#ifndef __CONVERT_HDR__
+#define __CONVERT_HDR__
 
 #include "i_defs.h"
 
@@ -27,4 +21,4 @@ extern short sprite12to166[105];
 extern short pointerToFrame[448];
 
 
-#endif /* __CONVERT__ */
+#endif /* __CONVERT_HDR__ */
