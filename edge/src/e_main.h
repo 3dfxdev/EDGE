@@ -31,6 +31,7 @@
 extern boolean_t redrawsbar;
 extern boolean_t advancedemo;
 extern boolean_t e_display_OK;
+extern boolean_t need_save_screenshot;
 
 void E_AddFile(const char *file);
 void E_EDGEMain(void);
