@@ -71,9 +71,6 @@ bool I_StartupMusic(void *sysinfo)
 	else
 		I_Printf("%s\n", I_MusicReturnError());
 
-	if (I_StartupMusserv())
-		capable |= support_MUS;
-
 #ifdef HOGGIE_OGG_SUPPORT
 	oggplayer = new oggplayer_c;
 	capable |= support_OGG;
@@ -114,21 +111,17 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 
 		case MUS_MIDI:
 		{
-			I_PostMusicError("I_MusicPlayback: Music format MIDI is unsupported.\n");
+			I_PostMusicError("I_MusicPlayback: MIDI not yet supported.\n");
 			handle = -1;
 			break;
 		}
 
 		case MUS_MUS:
 		{
-			if (!I_MusservStartPlayback((const char*)musdat->info.data.ptr, musdat->info.data.size))
-				handle = -1;
-			else
-				handle = MAKEHANDLE(MUS_MUS, looping, 1);
-
+			I_PostMusicError("I_MusicPlayback: MUS not yet supported.\n");
+			handle = -1;
 			break;
 		}
-
 
 #ifdef HOGGIE_OGG_SUPPORT
 		case MUS_OGG:
@@ -180,7 +173,6 @@ void I_MusicPause(int *handle)
 
 		case MUS_MUS:
 		{
-			I_MusservPausePlayback();
 			break;
 		}
 
@@ -217,7 +209,6 @@ void I_MusicResume(int *handle)
 
 		case MUS_MUS:
 		{
-			I_MusservResumePlayback();
 			break;
 		}
 		
@@ -257,7 +248,6 @@ void I_MusicKill(int *handle)
 
 		case MUS_MUS:
 		{
-			I_MusservStopPlayback();
 			break;
 		}
 
@@ -295,7 +285,6 @@ void I_SetMusicVolume(int *handle, int volume)
 
 		case MUS_MUS:
 		{
-			I_MusservSetVolume(volume);
 			break;
 		}
 		
@@ -372,7 +361,6 @@ void I_ShutdownMusic(void)
 #endif
 
 	I_ShutdownCD();
-	I_ShutdownMusserv();
 }
 
 //
