@@ -389,7 +389,7 @@ bool G_Responder(event_t * ev)
 		}
 	}
 
-	if (ev->type == ev_keydown && ev->value.key == 'P') //!!!!!! FIXME KEY_PAUSE
+	if (ev->type == ev_keydown && ev->value.key == KEYD_PAUSE)
 	{
 		if (!netgame)
 		{
