@@ -34,7 +34,6 @@
 // We need globally shared data structures,
 //  for defining the global state variables.
 #include "dm_data.h"
-#include "e_net.h"
 
 // We need the playr data structure as well.
 #include "e_player.h"

@@ -42,7 +42,6 @@
 #include "dstrings.h"
 #include "e_demo.h"
 #include "e_input.h"
-#include "e_net.h"
 #include "f_finale.h"
 #include "g_game.h"
 #include "gui_main.h"
@@ -53,6 +52,7 @@
 #include "m_bbox.h"
 #include "m_misc.h"
 #include "m_menu.h"
+#include "n_network.h"
 #include "p_setup.h"
 #include "p_spec.h"
 #include "r_local.h"
@@ -1781,6 +1781,7 @@ namespace engine
 
 			M_Ticker();
 			GUI_MainTicker();
+
 			G_Ticker();
 			S_SoundTicker();
 			S_MusicTicker();
