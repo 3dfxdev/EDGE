@@ -258,8 +258,16 @@ namespace Things
 
 			assert(mt_num < NUMMOBJTYPES);
 
-			if (mobjinfo[mt_num].height == 16*FRACUNIT)
-				mobjinfo[mt_num].height = height_fixes[i+1]*FRACUNIT;
+			mobjinfo_t *mobj = mobjinfo + mt_num;
+
+			/* Kludge for Aliens TC (and others) that put these thibgs on
+			 * the ceiling -- they need the 16 height for correct display,
+			 */
+			if (mobj->flags & MF_SPAWNCEILING)
+				continue;
+
+			if (mobj->height == 16*FRACUNIT)
+				mobj->height = height_fixes[i+1]*FRACUNIT;
 		}
 	}
 
