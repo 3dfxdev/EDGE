@@ -1401,7 +1401,7 @@ static void AddSingleCmdLineFile(const char *name)
 		kind = FLKIND_Deh;
 
 	epi::string_c fn;
-	
+
 	M_ComposeFileName(fn, gamedir, name);
 	W_AddRawFilename(fn.GetString(), kind);
 }
@@ -1452,6 +1452,7 @@ static void AddCommandLineFiles(void)
 			if (M_CheckExtension("wad", ps) == EXT_MATCHING ||
 			    M_CheckExtension("gwa", ps) == EXT_MATCHING ||
 			    M_CheckExtension("hwa", ps) == EXT_MATCHING ||
+			    M_CheckExtension("ddf", ps) == EXT_MATCHING ||
 			    M_CheckExtension("deh", ps) == EXT_MATCHING ||
 			    M_CheckExtension("bex", ps) == EXT_MATCHING)
 			{
@@ -1481,6 +1482,7 @@ static void AddCommandLineFiles(void)
 			if (M_CheckExtension("wad", ps) == EXT_MATCHING ||
 			    M_CheckExtension("gwa", ps) == EXT_MATCHING ||
 			    M_CheckExtension("hwa", ps) == EXT_MATCHING ||
+			    M_CheckExtension("ddf", ps) == EXT_MATCHING ||
 			    M_CheckExtension("scr", ps) == EXT_MATCHING)
 			{
 				I_Error("Illegal filename for -deh: %s\n", ps);

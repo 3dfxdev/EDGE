@@ -33,7 +33,6 @@
 static sectortype_c buffer_sector;
 static sectortype_c *dynamic_sector;
 
-sectortype_container_c gensectortypes; 	// <-- Generalised
 sectortype_container_c sectortypes; 	// <-- User-defined
 
 void DDF_SectGetSpecialFlags(const char *info, void *storage);
@@ -115,14 +114,9 @@ static bool SectorStartEntry(const char *name)
 	// instantiate the static entry
 	buffer_sector.Default();
 
-	if (boom_conflict && number >= 32 && number < 96)
+	if (boom_conflict && number < 96 && DDF_IsBoomSectorType(number))
 	{
-		int N = number % 32;
-
-		if ((N >= 0 && N <= 4) || N==8 || N==12 || N==13 || N==17)
-		{
-			buffer_sector.boom_conflict = true;
-		}
+		buffer_sector.boom_conflict = true;
 	}
 
 	return (existing != NULL);

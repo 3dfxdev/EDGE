@@ -1484,8 +1484,7 @@ static void M_ChangeCompatMode(int keypressed)
 	level_flags.compat_mode = global_flags.compat_mode;
 
 	// clear line/sector lookup caches
-	genlinetypes.Reset();
-	gensectortypes.Reset();
+	DDF_BoomClearGenTypes();
 }
 
 static void M_ChangeKicking(int keypressed)

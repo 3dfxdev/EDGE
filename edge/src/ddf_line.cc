@@ -57,7 +57,6 @@ linetype_c *dynamic_line;
 static float s_speed;
 static scrolldirs_e s_dir;
 
-linetype_container_c genlinetypes;	// <-- Generalised
 linetype_container_c linetypes;		// <-- User-defined
 
 movplanedef_c buffer_floor;
