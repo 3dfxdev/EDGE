@@ -31,10 +31,10 @@
 #undef  DF
 #define DF  DDF_CMD
 
-static switchlist_t buffer_switch;
-static switchlist_t *dynamic_switch;
+static switchdef_t buffer_switchdef;
+static switchdef_t *dynamic_switchdef;
 
-static const switchlist_t template_switch =
+static const switchdef_t template_switchdef =
 {
 	DDF_BASE_NIL,  // ddf
 	"",    // name1;
@@ -45,13 +45,10 @@ static const switchlist_t template_switch =
 	{{0,0}}  // cache
 };
 
-switchlist_t ** alph_switches = NULL;
-int num_alph_switches = 0;
-
-static stack_array_t alph_switches_a;
+switchdef_container_c switchdefs;
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_switch
+#define DDF_CMD_BASE  buffer_switchdef
 
 static const commandlist_t switch_commands[] =
 {
@@ -74,46 +71,28 @@ static const commandlist_t switch_commands[] =
 
 static bool SwitchStartEntry(const char *name)
 {
-	int i;
-	bool replaces = false;
+	switchdef_t *existing = NULL;
 
 	if (name && name[0])
+		existing = switchdefs.Find(name);
+	
+	if (existing)
 	{
-		for (i=0; i < num_alph_switches; i++)
-		{
-			if (DDF_CompareName(alph_switches[i]->ddf.name, name) == 0)
-			{
-				dynamic_switch = alph_switches[i];
-				replaces = true;
-				break;
-			}
-		}
-
-		// if found, adjust pointer array to keep newest entries at end
-		if (replaces && i < (num_alph_switches-1))
-		{
-			Z_MoveData(alph_switches + i, alph_switches + i + 1, switchlist_t *,
-					num_alph_switches - i);
-			alph_switches[num_alph_switches - 1] = dynamic_switch;
-		}
-	}
-
-	// not found, create a new one
-	if (! replaces)
+		dynamic_switchdef = existing;	
+	}	
+	else
 	{
-		Z_SetArraySize(&alph_switches_a, ++num_alph_switches);
-
-		dynamic_switch = alph_switches[num_alph_switches - 1];
-		dynamic_switch->ddf.name = (name && name[0]) ? Z_StrDup(name) :
-			DDF_MainCreateUniqueName("UNNAMED_SWITCH", num_alph_switches);
+		dynamic_switchdef = new switchdef_t;
+		memset(dynamic_switchdef, 0, sizeof(switchdef_t));
+		switchdefs.Insert(dynamic_switchdef);
 	}
-
-	dynamic_switch->ddf.number = 0;
+	
+	dynamic_switchdef->ddf.number = 0;
 
 	// instantiate the static entry
-	buffer_switch = template_switch;
+	buffer_switchdef = template_switchdef;
 
-	return replaces;
+	return (existing != NULL);
 }
 
 static void SwitchParseField(const char *field, const char *contents,
@@ -131,39 +110,38 @@ static void SwitchFinishEntry(void)
 {
 	ddf_base_t base;
 
-	if (!buffer_switch.name1[0])
+	if (!buffer_switchdef.name1[0])
 		DDF_Error("Missing first name for switch.\n");
 
-	if (!buffer_switch.name2[0])
+	if (!buffer_switchdef.name2[0])
 		DDF_Error("Missing last name for switch.\n");
 
-	if (buffer_switch.time <= 0)
-		DDF_Error("Bad time value for switch: %d\n", buffer_switch.time);
+	if (buffer_switchdef.time <= 0)
+		DDF_Error("Bad time value for switch: %d\n", buffer_switchdef.time);
 
 	// transfer static entry to dynamic entry
 
-	base = dynamic_switch->ddf;
-	dynamic_switch[0] = buffer_switch;
-	dynamic_switch->ddf = base;
+	base = dynamic_switchdef->ddf;
+	dynamic_switchdef[0] = buffer_switchdef;
+	dynamic_switchdef->ddf = base;
 
 	// Compute CRC.  In this case, there is no need, since switch
 	// textures have zero impact on the game simulation.
-	dynamic_switch->ddf.crc = 0;
+	dynamic_switchdef->ddf.crc = 0;
 }
 
 static void SwitchClearAll(void)
 {
 	// safe here to delete all switches
-
-	num_alph_switches = 0;
-	Z_SetArraySize(&alph_switches_a, num_alph_switches);
+	switchdefs.Clear();
 }
 
 
 void DDF_ReadSW(void *data, int size)
 {
 #if (DEBUG_DDF)
-	int i;
+	epi::array_iterator_c it;
+	switchdef_t *sw;
 #endif
 
 	readinfo_t switches;
@@ -196,22 +174,62 @@ void DDF_ReadSW(void *data, int size)
 #if (DEBUG_DDF)
 	L_WriteDebug("DDF_ReadSW: Switch List:\n");
 
-	for (i = 0; i < num_alph_switches; i++)
+	for (it = switchdefs.GetBaseIterator(); it.IsValid(); it++)
 	{
-		L_WriteDebug("  Num: %d  ON: '%s'  OFF: '%s'\n",
-				i, alph_switches[i]->name1, alph_switches[i]->name2);
+		sw = ITERATOR_TO_TYPE(it, switchdef_t*);
+		
+		L_WriteDebug("  Num: %d  ON: '%s'  OFF: '%s'\n", 
+						i, sw->name1, sw->name2);
 	}
 #endif
 }
 
+//
+// DDF_SWInit
+//
 void DDF_SWInit(void)
 {
-	Z_InitStackArray(&alph_switches_a, (void ***)&alph_switches,
-			sizeof(switchlist_t), 0);
+	switchdefs.Clear();
 }
 
+//
+// DDF_SWCleanUp
+//
 void DDF_SWCleanUp(void)
 {
-	// nothing to do
+	switchdefs.Trim();
 }
 
+//
+// switchdef_container_c::CleanupObject()
+//
+void switchdef_container_c::CleanupObject(void *obj)
+{
+	switchdef_t *sw = *(switchdef_t**)obj;
+
+	if (sw)
+	{
+		if (sw->ddf.name) { Z_Free(sw->ddf.name); }
+		delete sw;
+	}
+
+	return;
+}
+
+//
+// switchdef_t* switchdef_container_c::Find()
+//
+switchdef_t* switchdef_container_c::Find(const char *name)
+{
+	epi::array_iterator_c it;
+	switchdef_t *sw;
+
+	for (it = GetBaseIterator(); it.IsValid(); it++)
+	{
+		sw = ITERATOR_TO_TYPE(it, switchdef_t*);
+		if (DDF_CompareName(sw->ddf.name, name) == 0)
+			return sw;
+	}
+
+	return NULL;
+}
