@@ -20,8 +20,8 @@
 #include "includes.h"
 #else
 /* EDGE */
-#include "epi/epitype.h"
-#include "epi/epiendian.h"
+#include "epi/types.h"
+#include "epi/endianess.h"
 
 #define SYS_BE_S16  EPI_BE_S16
 #define SYS_BE_U16  EPI_BE_U16
