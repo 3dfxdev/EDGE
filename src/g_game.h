@@ -67,7 +67,6 @@ public:
 	const gamedef_c *game;
 
 	long random_seed;
-	bool warping;   // needed ???
 
 	int total_players;
 	playerflag_e players[MAXPLAYERS];

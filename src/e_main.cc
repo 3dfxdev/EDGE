@@ -1584,7 +1584,6 @@ namespace engine
 
 		params.skill = startskill;	
 		params.deathmatch = deathmatch;	
-		params.warping = true;
 
 		params.map = G_LookupMap(startmap);
 
