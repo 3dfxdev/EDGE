@@ -79,7 +79,6 @@ extern screen_t *back_scr;
 #define V_DrawPatchShrink V_DrawPatchShrink8
 #define V_DrawBlock V_DrawBlock8
 #define V_GetBlock V_GetBlock8
-#define V_MarkRect V_MarkRect8
 #define V_DarkenScreen V_DarkenScreen8
 #define V_TextureBackScreen V_TextureBackScreen8
 #define V_DrawPixel V_DrawPixel8
@@ -114,7 +113,6 @@ extern void (*V_DrawPatchInDirectTrans) (screen_t * scr, int x, int y, const byt
 extern void (*V_DrawPatchShrink) (screen_t * scr, int x, int y, const patch_t * patch);
 extern void (*V_DrawBlock) (screen_t * dest, int x, int y, int width, int height, byte * src);
 extern void (*V_GetBlock) (screen_t * scr, int x, int y, int width, int height, byte * dest);
-extern void (*V_MarkRect) (int x, int y, int width, int height);
 extern void (*V_DarkenScreen) (screen_t * scr);
 extern void (*V_TextureBackScreen) (screen_t * scr, const char *flatname, int left, int top, int right, int bottom);
 extern void (*V_DrawPixel) (screen_t * scr, int x, int y, int c);
@@ -181,9 +179,12 @@ extern void (*R_DrawTranslucentSpan) (void);
 extern void (*R_FillBackScreen) (void);
 extern void (*R_DrawViewBorder) (void);
 extern void V_ClearPageBackground(screen_t * scr);
-#endif
 
 // Screen Modes
 extern screenmode_t *scrmode;
 extern int numscrmodes;
 
+// FIXME:
+#define V_MarkRect(x,y,w,h)  do {} while (0)
+
+#endif // __MULTIRES_H__
