@@ -21,7 +21,9 @@
 
 #define MPS_DEF_PORT  26710
 
-extern NLsocket main_socket;
+extern NLsocket bcast_socket;
+extern NLsocket conn_socket;
+
 extern NLmutex global_lock;
 
 extern volatile bool net_quit;

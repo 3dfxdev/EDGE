@@ -27,23 +27,28 @@ class packet_c;
 class client_c
 {
 public:
-	client_c(const client_info_t *info, const NLaddress *_addr);
+	client_c(const client_info_t *info, const NLsocket *sock,
+		const NLaddress *_addr);
 	~client_c();
 
 public: //!!!!  private:
+
+	NLsocket sock;
+	NLaddress addr;
+
 	enum
 	{
-		ST_Browsing = 0,
+		ST_Connecting = 0,
+		ST_Browsing,
 		ST_Queueing,
 		ST_Playing,
-		ST_Going,   // still exists in game lists
+		ST_Going,   // still exists in a game list
 		ST_Gone
 	};
 
 	int state;
 
 	char name[client_info_t::NAME_LEN];
-	NLaddress addr;
 
 	int game_id;
 	int pl_index;
@@ -74,7 +79,10 @@ public:
 	void FillClientInfo(client_info_t *info) const;
 
 	bool MatchDest(int dest, int game) const;
+
+	void Write(packet_c *pk);
 	void TransmitMessage(packet_c *pk);
+	void SendError(packet_c *pk, const char *type, const char *str, ...);
 
 	void InitGame(int idx, int bots_each);
 	void TimeoutTic(int cl_idx);
@@ -89,11 +97,9 @@ extern volatile int total_clients;
 bool VerifyClient(short idx, const NLaddress *remote_addr);
 void ClientTimeouts();
 
-void SV_send_error(packet_c *pk, const char *type, const char *str, ...);
-
 void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr);
 void PK_leave_server(packet_c *pk);
-void PK_broadcast_discovery(packet_c *pk, NLaddress *remote_addr);
+void PK_broadcast_discovery_UDP(packet_c *pk, NLaddress *remote_addr);
 void PK_keep_alive(packet_c *pk);
 void PK_query_client(packet_c *pk);
 void PK_message(packet_c *pk);

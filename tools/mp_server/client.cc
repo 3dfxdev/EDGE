@@ -36,12 +36,15 @@ std::vector<client_c *> clients;
 volatile int total_clients = 0;
 
 
-client_c::client_c(const client_info_t *info, const NLaddress *_addr) :
-	state(ST_Browsing),
-	game_id(-1), pl_index(-1), voted(false),
-	tics(NULL), die_time(1 << 30)
+client_c::client_c(const client_info_t *info, const NLsocket *_sock,
+	const NLaddress *_addr) :
+		state(ST_Browsing),
+		game_id(-1), pl_index(-1), voted(false),
+		tics(NULL), die_time(1 << 30)
 {
 	strcpy(name, info->name);
+
+	memcpy(&sock, _sock, sizeof(sock));
 	memcpy(&addr, _addr, sizeof(addr));
 }
 
@@ -124,11 +127,16 @@ bool client_c::MatchDest(int dest, int game) const
 	return false;
 }
 
+void client_c::Write(packet_c *pk)
+{
+	pk->Write(sock);
+}
+
 void client_c::TransmitMessage(packet_c *pk)
 {
-	nlSetRemoteAddr(main_socket, &addr);
+///UDP	nlSetRemoteAddr(sock, &addr);
 
-	pk->Write(main_socket);
+	pk->Write(sock);
 
 	pk->hd().ByteSwap();  // for subsequent usage
 }
@@ -201,9 +209,44 @@ void client_c::TimeoutTic(int cl_idx)
 
 	tr.ByteSwap();
 
-	nlSetRemoteAddr(main_socket, &addr);
+///UDP	nlSetRemoteAddr(main_socket, &addr);
 
-	pk.Write(main_socket);
+	Write(&pk);
+}
+
+void client_c::SendError(packet_c *pk, const char *type, const char *str, ...)
+{
+	SYS_ASSERT(strlen(type) == 2);
+
+	char buffer[2048];
+	
+	va_list args;
+
+	va_start(args, str);
+	vsprintf(buffer, str, args);
+	va_end(args);
+
+	buffer[error_proto_t::ERR_STR_MAX] = 0;  // limit message length
+
+	/* data */
+
+	pk->er_p().type[0] = type[0];
+	pk->er_p().type[1] = type[1];
+
+	strcpy(pk->er_p().message, buffer);
+
+	pk->er_p().ByteSwap();
+
+	/* header */
+
+	int len = strlen(buffer) + sizeof(error_proto_t);
+	SYS_ASSERT(pk->CanHold(len));
+
+	pk->SetType("Er");
+	pk->hd().flags = 0;
+	pk->hd().data_len = len;
+
+	Write(pk);
 }
 
 
@@ -255,41 +298,6 @@ void ClientTimeouts()
 
 //------------------------------------------------------------------------
 
-void SV_send_error(packet_c *pk, const char *type, const char *str, ...)
-{
-	SYS_ASSERT(strlen(type) == 2);
-
-	char buffer[2048];
-	
-	va_list args;
-
-	va_start(args, str);
-	vsprintf(buffer, str, args);
-	va_end(args);
-
-	buffer[error_proto_t::ERR_STR_MAX] = 0;  // limit message length
-
-	/* data */
-
-	pk->er_p().type[0] = type[0];
-	pk->er_p().type[1] = type[1];
-
-	strcpy(pk->er_p().message, buffer);
-
-	pk->er_p().ByteSwap();
-
-	/* header */
-
-	int len = strlen(buffer) + sizeof(error_proto_t);
-	SYS_ASSERT(pk->CanHold(len));
-
-	pk->SetType("Er");
-	pk->hd().flags = 0;
-	pk->hd().data_len = len;
-
-	pk->Write(main_socket);
-}
-
 void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 {
 	// FIXME: check if too many games
@@ -309,7 +317,7 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 
 		if (CL->CheckAddr(remote_addr))
 		{
-			SV_send_error(pk, "ac", "Already connected !");
+			CL->SendError(pk, "ac", "Already connected !");
 			LogPrintf(2, "Client %d was already connected.\n", client_id);
 			return;
 		}
@@ -332,7 +340,7 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 
 	if (! ValidatePlayerName(con.info.name))
 	{
-		SV_send_error(pk, "bn", "Invalid name !");
+///!!!!!	CL->SendError(pk, "bn", "Invalid name !");
 		LogPrintf(1, "Client %d tried to connect with invalid name.\n", client_id);
 		return;
 	}
@@ -347,7 +355,7 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 
 		if (CL->CompareName(con.info.name) == 0)
 		{
-			SV_send_error(pk, "un", "Name already in use !");
+			CL->SendError(pk, "un", "Name already in use !");
 			LogPrintf(2, "Client %d tried to connect, name was already used.\n", client_id);
 			return;
 		}
@@ -357,7 +365,9 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 	{
 		autolock_c LOCK(&global_lock);
 
-		client_c *CL = new client_c(&con.info, remote_addr);
+		NLsocket FOO_BAR; //!!!!!
+
+		client_c *CL = new client_c(&con.info, &FOO_BAR, remote_addr);
 
 		SYS_ASSERT((unsigned)client_id <= clients.size());
 
@@ -383,7 +393,7 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 
 	con.ByteSwap();
 
-	pk->Write(main_socket);
+	clients[client_id]->Write(pk);
 
 	LogPrintf(0, "New client %d: name '%s' addr %s\n", client_id, "Player",
 		GetAddrName(remote_addr));
@@ -404,22 +414,7 @@ void PK_leave_server(packet_c *pk)
 	pk->hd().flags = 0;
 	pk->hd().data_len = 0;
 
-	pk->Write(main_socket);
-}
-
-void PK_broadcast_discovery(packet_c *pk, NLaddress *remote_addr)
-{
-	// very simple: just send it back!
-	// (client will get our address and port)
-
-	LogPrintf(0, "Broadcast discovery from addr %s\n", GetAddrName(remote_addr));
-
-	pk->SetType("Bd");
-	pk->hd().flags = 0;
-	pk->hd().client = 0;
-	pk->hd().data_len = 0;
-
-	pk->Write(main_socket);
+	CL->Write(pk);
 }
 
 void PK_keep_alive(packet_c *pk)
@@ -430,6 +425,8 @@ void PK_keep_alive(packet_c *pk)
 
 void PK_query_client(packet_c *pk)
 {
+	client_c *CL = clients[pk->hd().client];
+
 	query_client_proto_t& qc = pk->qc_p();
 
 	qc.ByteSwap();
@@ -460,10 +457,10 @@ void PK_query_client(packet_c *pk)
 				continue;
 			}
 
-			client_c *CL = clients[qc.first_client + i];
-			SYS_NULL_CHECK(CL);
+			client_c *QCL = clients[qc.first_client + i];
+			SYS_NULL_CHECK(QCL);
 
-			CL->FillClientInfo(qc.info + i);
+			QCL->FillClientInfo(qc.info + i);
 		}
 
 		qc.ByteSwap();
@@ -476,7 +473,7 @@ void PK_query_client(packet_c *pk)
 		pk->hd().data_len = sizeof(query_client_proto_t) +
 			(count - 1) * sizeof(client_info_t);
 
-		pk->Write(main_socket);
+		CL->Write(pk);
 
 		pk->hd().ByteSwap();  // FIXME: rebuild header each time
 	}
@@ -539,5 +536,25 @@ void PK_message(packet_c *pk)
 			// FIXME: log and/or error packet
 			break;
 	}
+}
+
+//------------------------------------------------------------------------
+
+void PK_broadcast_discovery_UDP(packet_c *pk, NLaddress *remote_addr)
+{
+	// very simple: just send it back!
+	// (client will get our address and port)
+
+	LogPrintf(0, "Broadcast discovery from addr %s\n", GetAddrName(remote_addr));
+
+	/* send reply back to originator */
+	nlSetRemoteAddr(bcast_socket, remote_addr);
+
+	pk->SetType("Bd");
+	pk->hd().flags = 0;
+	pk->hd().client = 0;
+	pk->hd().data_len = 0;
+
+	pk->Write(bcast_socket);
 }
 
