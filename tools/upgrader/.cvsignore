@@ -1,0 +1,8 @@
+Makefile.win
+upgrader.ico
+upgrader.layout
+upgrader.ncb
+upgrader_private.h
+upgrader_private.rc
+upgrader_private.res
+Debug
