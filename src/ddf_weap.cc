@@ -419,23 +419,21 @@ void DDF_WeaponInit(void)
 void DDF_WeaponCleanUp(void)
 {
 	// compute the weaponkey array
-	epi::array_iterator_c it;
-	int key;
 	weapondef_container_c tmplist;
-	weapondef_c *wd;
-	weaponkey_c *wk;
 	
-	for (key=0; key < WEAPON_KEYS; key++)
+	for (int key = 0; key < WEAPON_KEYS; key++)
 	{
-		wk = &weaponkey[key];
+		weaponkey_c *wk = &weaponkey[key];
 	
 		// Clear the list without destroying the contents
 		tmplist.ZeroiseCount();	
 
+		epi::array_iterator_c it;
+
 		for (it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
 			it.IsValid(); it++)
 		{
-			wd = ITERATOR_TO_TYPE(it, weapondef_c*);
+			weapondef_c *wd = ITERATOR_TO_TYPE(it, weapondef_c*);
 			if (!wd)
 				continue;
 				
@@ -447,7 +445,7 @@ void DDF_WeaponCleanUp(void)
 		
 		wk->Load(&tmplist);
 	
-#if 1 // (DEBUG_DDF)
+#if 0 // (DEBUG_DDF)
 		L_WriteDebug("DDF_Weap: CHOICES ON KEY %d:\n", key);
 		for (int i=0; i < wk->numchoices; i++)
 		{

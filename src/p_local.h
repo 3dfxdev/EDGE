@@ -112,6 +112,7 @@ void P_MovePsprites(player_t * curplayer);
 void P_SetPsprite(player_t * p, int position, int stnum);
 void P_DropWeapon(player_t * player);
 bool P_CheckWeaponSprite(weapondef_c *info);
+void P_NextPrevWeapon(player_t * p, int dir);
 void P_SelectNewWeapon(player_t * player, int priority, ammotype_e ammo);
 void P_TrySwitchNewWeapon(player_t *p, int new_weap, ammotype_e new_ammo);
 bool P_TryFillNewWeapon(player_t *p, int idx, ammotype_e ammo, int *qty);

@@ -561,6 +561,8 @@ static optmenuitem_t extkeyconfig[] =
 	{OPT_KeyConfig, "Map Toggle", NULL, 0, KEYD_TAB, &key_map, NULL, NULL},
 	{OPT_KeyConfig, "180 degree turn", NULL, 0, 0, &key_180, NULL, NULL},
     {OPT_KeyConfig, "Weapon Reload", NULL, 0, 0, &key_reload, NULL, NULL},
+    {OPT_KeyConfig, "Next Weapon", NULL, 0, 0, &key_nextweapon, NULL, NULL},
+    {OPT_KeyConfig, "Previous Weapon", NULL, 0, 0, &key_prevweapon, NULL, NULL},
 	{OPT_KeyConfig, "Multiplay Talk", NULL, 0, 't', &key_talk, NULL, NULL}
 };
 

@@ -529,7 +529,6 @@ void P_PlayerThink(player_t * player)
 {
 	mobj_t *mo = player->mo;
 	ticcmd_t *cmd;
-	int key;
 
 	DEV_ASSERT2(mo);
 
@@ -598,24 +597,34 @@ void P_PlayerThink(player_t * player)
 
 	if (cmd->buttons & BT_CHANGE)
 	{
-		int i, j;
-		weaponkey_c *wk;
-
 		// The actual changing of the weapon is done when the weapon
 		// psprite can do it (read: not in the middle of an attack).
 
-		key = (cmd->buttons & BT_WEAPONMASK) >> BT_WEAPONSHIFT;
-		wk = &weaponkey[key];
+		int key = (cmd->buttons & BT_WEAPONMASK) >> BT_WEAPONSHIFT;
 
-		for (i=j=player->key_choices[key]; i < (j + wk->numchoices); i++)
+		if (key == BT_NEXT_WEAPON)
 		{
-			weapondef_c *choice = wk->choices[i % wk->numchoices];
+			P_NextPrevWeapon(player, +1);
+		}
+		else if (key == BT_PREV_WEAPON)
+		{
+			P_NextPrevWeapon(player, -1);
+		}
+		else  /* numeric key */
+		{
+			int i, j;
+			weaponkey_c *wk = &weaponkey[key];
 
-			if (! P_PlayerSwitchWeapon(player, choice))
-				continue;
+			for (i=j=player->key_choices[key]; i < (j + wk->numchoices); i++)
+			{
+				weapondef_c *choice = wk->choices[i % wk->numchoices];
 
-			player->key_choices[key] = i % wk->numchoices;
-			break;
+				if (! P_PlayerSwitchWeapon(player, choice))
+					continue;
+
+				player->key_choices[key] = i % wk->numchoices;
+				break;
+			}
 		}
 	}
 
@@ -729,12 +738,12 @@ void P_DestroyAllPlayers(void)
 //
 void P_UpdateAvailWeapons(player_t *p)
 {
-	int i, key;
+	int key;
 
-	for (i=0; i < 10; i++)
-		p->avail_weapons[i] = false;
+	for (key = 0; key < WEAPON_KEYS; key++)
+		p->avail_weapons[key] = false;
 
-	for (i=0; i < MAXWEAPONS; i++)
+	for (int i = 0; i < MAXWEAPONS; i++)
 	{
 		if (! p->weapons[i].owned)
 			continue;
@@ -855,6 +864,8 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 		}
 		else
 			player->weapons[upgrade_slot].info = NULL;
+
+		// !!! FIXME: check and update key_choices[]
 	}
 
 	return true;
@@ -922,12 +933,12 @@ void P_GiveInitialBenefits(player_t *p, const mobjtype_c *info)
 	epi::array_iterator_c it;
 	weapondef_c *w;
 	
-	int i;
-
 	p->ready_wp   = WPSEL_None;
 	p->pending_wp = WPSEL_NoChange;
 
-	for (i=0; i < 10; i++)
+	int i;
+
+	for (i=0; i < WEAPON_KEYS; i++)
 		p->key_choices[i] = 0;
 
 	// clear out ammo & ammo-limits

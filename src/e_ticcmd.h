@@ -89,6 +89,11 @@ typedef enum
 }
 buttoncode_e;
 
+// special weapon numbers
+#define BT_NEXT_WEAPON  14
+#define BT_PREV_WEAPON  15
+
+
 //
 // Extended Buttons: EDGE Specfics
 // -ACB- 1998/07/03
