@@ -1059,12 +1059,12 @@ static void InitDirectories(void)
 	}
 	else
 	{
-//      char *s = Z_New(char, strlen(gamedir) + strlen(EDGECONFIGFILE) + 2);
-//      sprintf(s, "%s%c%s", gamedir, DIRSEPARATOR, EDGECONFIGFILE);
-//      cfgfile = s;
-		char *s = Z_New(char, strlen(EDGECONFIGFILE)+3);
-		sprintf(s, "%c%c%s", '~', DIRSEPARATOR, EDGECONFIGFILE);
+		char *s = Z_New(char, strlen(gamedir) + strlen(EDGECONFIGFILE) + 2);
+	    sprintf(s, "%s%c%s", gamedir, DIRSEPARATOR, EDGECONFIGFILE);
 		cfgfile = s;
+//		char *s = Z_New(char, strlen(EDGECONFIGFILE)+3);
+//		sprintf(s, "%c%c%s", '~', DIRSEPARATOR, EDGECONFIGFILE);
+//		cfgfile = s;
 	}
 
 	// savegame directory

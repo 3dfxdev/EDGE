@@ -58,10 +58,8 @@ int glmax_lights;
 int glmax_clip_planes;
 int glmax_tex_size;
 
-#define LM_INVALID  999
-
 int rgl_light_map[256];
-static lighting_model_e rgl_light_model = LM_INVALID;
+static lighting_model_e rgl_light_model = LMODEL_Invalid;
 
 char *glstr_vendor = NULL;
 char *glstr_renderer = NULL;
@@ -102,7 +100,7 @@ static void SetupLightMap(int model)
 {
 	int i;
   
-	rgl_light_model = model;
+	rgl_light_model = (lighting_model_e)model;
 
 	for (i=0; i < 256; i++)
 	{
