@@ -105,7 +105,6 @@ typedef struct gameflags_s
 {
   // checkparm of -nomonsters
   boolean_t nomonsters;
-
   // checkparm of -fast
   boolean_t fastparm;
 
@@ -115,8 +114,6 @@ typedef struct gameflags_s
 
   boolean_t true3dgameplay;
   int menu_grav;
-
-  // -KM- 1998/07/21 Changed from an int to boolean
   boolean_t more_blood;
 
   boolean_t jump;

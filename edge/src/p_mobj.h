@@ -326,6 +326,22 @@ typedef struct
 }
 shoot_spot_info_t;
 
+// Directions
+typedef enum
+{
+  DI_EAST,
+  DI_NORTHEAST,
+  DI_NORTH,
+  DI_NORTHWEST,
+  DI_WEST,
+  DI_SOUTHWEST,
+  DI_SOUTH,
+  DI_SOUTHEAST,
+  DI_NODIR,
+  NUMDIRS
+}
+dirtype_t;
+
 // Map Object definition.
 struct mobj_s
 {
@@ -383,7 +399,7 @@ struct mobj_s
   int defer_tic_skip;
 
   // Movement direction, movement generation (zig-zagging).
-  int movedir;  // 0-7
+  dirtype_t movedir;  // 0-7
 
   // when 0, select a new dir
   int movecount;
