@@ -269,6 +269,7 @@ void DDF_MainGetTime(const char *info, void *storage, void *priv);
 void DDF_MainGetMType(const char *info, void *storage, void *priv);
 void DDF_MainGetDestRef(const char *info, void *storage, void *priv);
 void DDF_MainGetColourmap(const char *info, void *storage, void *priv);
+void DDF_MainGetRGB(const char *info, void *storage, void *priv);
 void DDF_MainGetWhenAppear(const char *info, void *storage, void *priv);
 
 boolean_t DDF_MainParseField(const commandlist_t *commands,
