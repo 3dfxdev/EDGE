@@ -2,7 +2,7 @@
 DEH_EDGE 0.9
 ============
 
-by Andrew Apted.  24th April 2004.
+by Andrew Apted.  7th May 2004.
 
 
 Introduction
@@ -27,12 +27,15 @@ Usage
 
 Run it like this:
 
-   deh_edge atc2.deh
+   deh_edge batman.deh
 
-which will create the file "atc2_deh.wad".  Then run EDGE using this
+which will create the file "batman_deh.wad".  Then run EDGE using this
 additional file, for example:
 
-   gledge32 -file ... atc2_deh.wad
+   gledge32 -file batman.wad batman_deh.wad
+
+
+NOTE: the original .DEH file is not modified in any way.
 
 
 Options
@@ -44,9 +47,10 @@ Options
 
   -q --quiet     Quiet mode, disable warning messages.
 
-  -a --all       All.  Converts everything into DDF.  Normally only
+  -a --all       All: converts everything into DDF.  Normally only
 				 the stuff which has been modified is converted to DDF.
-				 This option makes the output WAD much bigger.
+				 This option makes the output WAD much bigger.  Mainly
+				 useful for debugging.
 
 
 Limitations
@@ -73,9 +77,9 @@ Limitations
    are also not handled, for the same reason.  Normal code pointers
    are supported, of course.
 
-6. Text replacements only work when ENGLISH language is selected in
-   EDGE.  (The replacements are probably english anyway, so I think
-   this limitation is a minor one).
+6. Text replacements only work in EDGE when the language selected
+   is "ENGLISH".  (The replacements are probably English anyway,
+   so this limitation is a minor one).
 
 
 Acknowledgements

@@ -6,10 +6,10 @@ DEH-EDGE Todo
 
    -  output a ".hwa" file (if version >= 0x128).
    -  don't require a complete sounds.ddf (version >= 0x128).
-   -  disable other 1.27 workarounds.
    -  if version < 0x128, disable CAST_TITLE (etc) DDF commands.
+   -  disable other 1.27 workarounds.
 
-+  support multiple patches.
++  support multiple (TEXT) patches.
 
 DONE:  add 'MONSTER' flag to non-count-as-kill but is "monstery".
 DONE:  versions of malloc and strdup that error out on no memory.
