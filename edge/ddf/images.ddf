@@ -1,7 +1,7 @@
 // 
 //    EDGE IMAGES.DDF -redefine or add new images.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 4.4
+//    DDF Version 4.5
 //
 
 <IMAGES>
@@ -13,6 +13,13 @@ IMAGE_DATA=COLOUR:#000000;
 
 [gfx:SOLID_WHITE]
 IMAGE_DATA=COLOUR:#FFFFFF;
+
+[gfx:EDGETTL]
+IMAGE_DATA=LUMP:PNG:"EDGTTL_P";
+
+[flat:CONSOLE]
+IMAGE_DATA=LUMP:PNG:"CONSOL_P";
+SCALE=0.5;
 
 [gfx:DLIGHT_LINEAR]
 IMAGE_DATA=BUILTIN:LINEAR;
