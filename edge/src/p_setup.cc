@@ -851,7 +851,13 @@ static void SpawnMapThing(const mobjtype_c *info,
 	// check for players specially -jc-
 	if (info->playernum > 0)
 	{
-		if (! coop_starts.FindPlayer(info->playernum))
+		// -AJA- 2004/12/30: for duplicate players, the LAST one must
+		//       be used (so levels with Voodoo dolls work properly).
+		spawnpoint_t *prev = coop_starts.FindPlayer(info->playernum);
+
+		if (prev)
+			memcpy(prev, &point, sizeof(point));
+		else
 			coop_starts.Insert(&point);
 		return;
 	}
