@@ -218,8 +218,6 @@ static void SV_build_play_game(game_c *GM, packet_c *pk)
 
 	play_game_proto_t& gm = pk->pg_p();
 
-	// Fixme: support more players
-
 	gm.real_players = GM->num_players;
 	gm.bots_each    = GM->bots_each;
 
@@ -227,15 +225,16 @@ static void SV_build_play_game(game_c *GM, packet_c *pk)
 	gm.random_seed  = ((rand() & 0xFF) << 24) || ((rand() & 0xFF) << 16) ||
 	                  ((rand() & 0xFF) <<  8) ||  (rand() & 0xFF);
 
-	gm.first_player  = 0;
-	gm.count = GM->num_players;
+	gm.first_player = 0;
+	gm.last_player  = gm.first_player + GM->num_players - 1;
 
-	for (int i = 0; i < gm.count; i++)
+	for (int i = 0; i < GM->num_players; i++)
 	{
 		gm.client_list[i] = GM->players[gm.first_player + i];
 	}
 
 	gm.ByteSwap();
+	gm.ByteSwapPlayers(GM->num_players);
 }
 
 static void BeginGame(game_c *GM)
@@ -301,7 +300,7 @@ static void SV_build_tic_group(game_c *GM, packet_c *pk, int tic_num, int first,
 	tg.offset  = tic_num - tg.gametic;
 
 	tg.first_player = first;
-	tg.count = count;
+	tg.last_player  = tg.first_player + count - 1;
 
 	raw_ticcmd_t *raw_cmds = tg.tic_cmds;
 	int band = 1 + GM->bots_each;
@@ -315,10 +314,11 @@ static void SV_build_tic_group(game_c *GM, packet_c *pk, int tic_num, int first,
 		pk->hd().data_len += band * sizeof(raw_ticcmd_t);
 	}
 
-	tg.ByteSwap(0);
+	tg.ByteSwap();
 }
 
-static void SV_send_all_tic_groups(game_c *GM, int tic_num, int first_pl, int count_pl)
+static void SV_send_all_tic_groups(int one_client, game_c *GM, int tic_num,
+	int first_pl, int count_pl, bool retrans)
 {
 	// !!!! FIXME: handle more than TICCMD_FIT
 	SYS_ASSERT(GM->num_players <= tic_group_proto_t::TICCMD_FIT);
@@ -327,12 +327,18 @@ static void SV_send_all_tic_groups(game_c *GM, int tic_num, int first_pl, int co
 
 	SV_build_tic_group(GM, &pk, tic_num, first_pl, count_pl);
 
+	if (retrans)
+		pk.hd().flags |= header_proto_t::FL_Retransmission;
+
 	// broadcast packet to each client
 
 	for (int p = 0; p < GM->num_players; p++)
 	{
 		int client_id = GM->players[p];
 		client_c *CL = clients[client_id];
+
+		if (one_client >= 0 && client_id != one_client)
+			continue;
 
 		nlSetRemoteAddr(main_socket, &CL->addr);
 
@@ -549,25 +555,27 @@ void PK_query_game(packet_c *pk)
 {
 	query_game_proto_t& qg = pk->qg_p();
 
-	qg.ByteSwap(false);
+	qg.ByteSwap();
 
 	// FIXME: check data_len
 
 	short cur_id = qg.first_game;
-	byte  total  = qg.count;
+	short total  = qg.last_game - qg.first_game + 1;
 
-	if (total == 0)  // FIXME: allow zero (get just the total)
+	if (total <= 0)  // FIXME: allow zero (get just the total)
 		return;
 
 	while (total > 0)
 	{
+		int count = MIN(total, query_game_proto_t::GAME_FIT);
+
 		qg.total_games = games.size();
 		qg.first_game = cur_id;
-		qg.count = MIN(total, query_game_proto_t::GAME_FIT);
+		qg.last_game = qg.first_game + count - 1;
 		
-		total -= qg.count;
+		total -= count;
 
-		for (byte i = 0; i < qg.count; i++)
+		for (byte i = 0; i < count; i++)
 		{
 			if (! GameExists(qg.first_game + i))
 			{
@@ -581,13 +589,14 @@ void PK_query_game(packet_c *pk)
 			GM->FillGameInfo(qg.info + i);
 		}
 
-		qg.ByteSwap(true);
+		qg.ByteSwap();
+		qg.ByteSwapInfo(count);
 
 		pk->SetType("Qg");
 
 		pk->hd().flags = 0;
 		pk->hd().data_len = sizeof(query_game_proto_t) +
-			(qg.count - 1) * sizeof(game_info_t);
+			(count - 1) * sizeof(game_info_t);
 
 		pk->Write(main_socket);
 
@@ -601,7 +610,7 @@ void PK_ticcmd(packet_c *pk)
 
 	ticcmd_proto_t& tc = pk->tc_p();
 
-	tc.ByteSwap(0);
+	tc.ByteSwap();
 
 	// FIXME: check data_len
 
@@ -618,10 +627,15 @@ void PK_ticcmd(packet_c *pk)
 
 	// NOTE: We are not LOCKING since tic-stuff is not touched by UI thread
 
-	int cl_gametic = (int)tc.gametic;
+	int cl_gametic = (int)tc.gametic; // FIXME: validate this
 
 	if (cl_gametic > CL->pl_gametic)
 		CL->pl_gametic = cl_gametic;
+
+	int min_tic = GM->ComputeMinTic();
+
+	while (GM->pl_min_tic < min_tic)
+		GM->BumpMinTic();
 
 	int got_tic = cl_gametic + tc.offset;
 	int count = tc.count;
@@ -667,11 +681,6 @@ void PK_ticcmd(packet_c *pk)
 		// FIXME: speed up retransmit timer......
 	}
 
-	int min_tic = GM->ComputeMinTic();
-
-	while (GM->pl_min_tic < min_tic)
-		GM->BumpMinTic();
-
 	int saved_tics = GM->sv_gametic - GM->pl_min_tic;
 
 	SYS_ASSERT(saved_tics >= 0);
@@ -688,7 +697,7 @@ void PK_ticcmd(packet_c *pk)
 
 	for (; avail_tics > 0; avail_tics--)
 	{
-		SV_send_all_tic_groups(GM, GM->sv_gametic, 0, GM->num_players);
+		SV_send_all_tic_groups(-1, GM, GM->sv_gametic, 0, GM->num_players, false);
 
 		GM->BumpGameTic();
 	}
@@ -715,12 +724,48 @@ void PK_tic_retransmit(packet_c *pk)
 	SYS_ASSERT(0 <= pl_id && pl_id < GM->num_players);
 	SYS_ASSERT(GM->players[pl_id] == client_id);
 
-	// NOTE: We ar not LOCKING since tic-stuff is not touched by UI thread
+	// NOTE: We are not LOCKING since tic-stuff is not touched by UI thread
+
+	int cl_gametic = (int)tr.gametic; // FIXME: validate this
+
+	if (cl_gametic > CL->pl_gametic)
+		CL->pl_gametic = cl_gametic;
+
+	int min_tic = GM->ComputeMinTic();
+
+	while (GM->pl_min_tic < min_tic)
+		GM->BumpMinTic();
+
+	// FIXME: check player range
+	int player_count = tr.last_player - tr.first_player + 1;
 
 	DebugPrintf("Client %d tic retransmit req: tic %u (gametic %d)\n",
-		client_id, tr.gametic + tr.offset, (int)tr.gametic);
+		client_id, tr.gametic + tr.offset, cl_gametic);
 
-	// FIXME !!!!!! tic retransmit
+	int tic_num = tr.gametic + tr.offset;
+	int count   = tr.count;
 
+	for (; count > 0; tic_num++, count--)
+	{
+		// request too far in past ?  shouldn't happen (FIXME: send error)
+		if (tic_num < GM->pl_min_tic)
+		{
+			LogPrintf(1, "Retrans-Req from client %d too far behind (%d < %d)\n",
+				client_id, tic_num, GM->pl_min_tic);
+			continue;
+		}
+
+		// request too far in future ?  FIXME: can this happen legit ???
+		if (tic_num >= GM->sv_gametic)
+		{
+			LogPrintf(1, "Retrans-Req from client %d too far ahead (%d >= %d)\n",
+				client_id, tic_num, GM->sv_gametic);
+			break;
+		}
+
+		SV_send_all_tic_groups(client_id, GM, GM->sv_gametic, tr.first_player, player_count, true);
+	}
+
+	// !!! FIXME: the BumpMinTic above may mean the server can move on
 }
 
