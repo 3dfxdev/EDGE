@@ -28,8 +28,6 @@
 
 #include "e_event.h"
 
-extern int maxwadfiles;
-extern char **wadfiles;
 extern boolean_t redrawsbar;
 extern boolean_t advancedemo;
 
