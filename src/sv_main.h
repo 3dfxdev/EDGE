@@ -244,6 +244,8 @@ void SV_SaveDATA(void);
 //  EXTERNAL DEFS
 //
 
+extern void *sv_current_elem;
+
 extern savestruct_t *sv_known_structs;
 extern savearray_t  *sv_known_arrays;
 
