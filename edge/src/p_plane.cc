@@ -37,11 +37,6 @@
 #include "r_state.h"
 #include "s_sound.h"
 
-#define DIRECTION_UP      1
-#define DIRECTION_WAIT    0
-#define DIRECTION_DOWN   -1
-#define DIRECTION_STASIS -2
-
 typedef enum
 {
 	RES_Ok,
@@ -376,6 +371,11 @@ static void MovePlane(plane_move_t *plane)
 						}
 						break;
 
+					case mov_Toggle:
+						plane->direction = DIRECTION_STASIS;
+						plane->olddirection = DIRECTION_UP;
+						break;
+
 					default:
 					case mov_Stairs:
 					case mov_Once:
@@ -391,7 +391,7 @@ static void MovePlane(plane_move_t *plane)
 				}
 				else if (plane->type->type == mov_MoveWaitReturn)  // Go back up
 				{
-					plane->direction = 1;
+					plane->direction = DIRECTION_UP;
 					plane->sfxstarted = false;
 					plane->waited = 0;
 					plane->speed = plane->type->speed_up;
@@ -413,12 +413,12 @@ static void MovePlane(plane_move_t *plane)
 
 				if (HEIGHT(plane->sector, plane->is_ceiling) > dest)
 				{
-					dir = -1;
+					dir = DIRECTION_DOWN;
 					plane->speed = plane->type->speed_down;
 				}
 				else
 				{
-					dir = 1;
+					dir = DIRECTION_UP;
 					plane->speed = plane->type->speed_up;
 				}
 
@@ -463,7 +463,7 @@ static void MovePlane(plane_move_t *plane)
 				{
 					case mov_Plat:
 					case mov_Continuous:
-						plane->direction = 0;
+						plane->direction = DIRECTION_WAIT;
 						plane->waited = plane->type->wait;
 						plane->speed = plane->type->speed_down;
 						break;
@@ -475,10 +475,15 @@ static void MovePlane(plane_move_t *plane)
 						}
 						else  // assume we reached the destination
 						{
-							plane->direction = 0;
+							plane->direction = DIRECTION_WAIT;
 							plane->speed = plane->type->speed_down;
 							plane->waited = plane->type->wait;
 						}
+						break;
+
+					case mov_Toggle:
+						plane->direction = DIRECTION_STASIS;
+						plane->olddirection = DIRECTION_DOWN;
 						break;
 
 					default:
@@ -497,7 +502,7 @@ static void MovePlane(plane_move_t *plane)
 				}
 				else if (plane->type->type == mov_MoveWaitReturn)  // Go back down
 				{
-					plane->direction = -1;
+					plane->direction = DIRECTION_DOWN;
 					plane->sfxstarted = false;
 					plane->waited = 0;
 					plane->speed = plane->type->speed_down;
@@ -647,12 +652,14 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
 	plane->sector = sector;
 	plane->crush = type->crush;
 	plane->sfxstarted = false;
+
 	start = HEIGHT(sector, type->is_ceiling);
 
 	dest = GetSecHeightReference(type->destref, sector);
 	dest += type->dest;
 
-	if (type->type == mov_Plat || type->type == mov_Continuous)
+	if (type->type == mov_Plat || type->type == mov_Continuous ||
+		type->type == mov_Toggle)
 	{
 		start = GetSecHeightReference(type->otherref, sector);
 		start += type->other;
@@ -751,7 +758,8 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
 			plane->newspecial = model->props.special ?
 				model->props.special->ddf.number : 0;
 		}
-		if (plane->direction == (type->is_ceiling ? -1 : 1))
+
+		if (plane->direction == (type->is_ceiling ? DIRECTION_DOWN : DIRECTION_UP))
 		{
 			SECPIC(sector, type->is_ceiling, plane->new_image);
 			if (plane->newspecial != -1)
@@ -779,7 +787,7 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
 			plane->newspecial = model->props.special ?
 				model->props.special->ddf.number : 0;
 
-			if (plane->direction == (type->is_ceiling ? -1 : 1))
+			if (plane->direction == (type->is_ceiling ? DIRECTION_DOWN : DIRECTION_UP))
 			{
 				SECPIC(sector, type->is_ceiling, plane->new_image);
 
@@ -1076,6 +1084,7 @@ bool EV_DoPlane(sector_t * sec, const movplanedef_c * type, sector_t * model)
 	{
 		case mov_Plat:
 		case mov_Continuous:
+		case mov_Toggle:
 			if (P_ActivateInStasis(sec->tag))
 				return true;
 			break;
@@ -1113,8 +1122,8 @@ bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * type)
 	sector_t *sec;
 	plane_move_t *msec;
 	int side;
-	int dir = 1;
-	int olddir = 1;
+	int dir = DIRECTION_UP;
+	int olddir = DIRECTION_UP;
 
 	side = 0;  // only front sides can be used
 
@@ -1136,10 +1145,10 @@ bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * type)
 				olddir = msec->direction;
 
 				// Only players close doors
-				if ((msec->direction != -1) && thing->player)
-					dir = msec->direction = -1;
+				if ((msec->direction != DIRECTION_DOWN) && thing->player)
+					dir = msec->direction = DIRECTION_DOWN;
 				else
-					dir = msec->direction = 1;
+					dir = msec->direction = DIRECTION_UP;
 				break;
         
 			default:
@@ -1174,7 +1183,7 @@ static bool P_ActivateInStasis(int tag)
 		if (movpart->whatiam == MDT_PLANE)
 		{
 			plane = (plane_move_t*)movpart;
-			if(plane->direction == -2 && plane->tag == tag)
+			if(plane->direction == DIRECTION_STASIS && plane->tag == tag)
 			{
 				plane->direction = plane->olddirection;
 				rtn = true;
@@ -1200,10 +1209,10 @@ static bool P_StasifySector(sector_t * sec)
 		if (movpart->whatiam == MDT_PLANE)
 		{
 			plane = (plane_move_t*)movpart;
-			if(plane->direction != -2 && plane->tag == sec->tag)
+			if(plane->direction != DIRECTION_STASIS && plane->tag == sec->tag)
 			{
 				plane->olddirection = plane->direction;
-				plane->direction = -2;
+				plane->direction = DIRECTION_STASIS;
 				rtn = true;
 			}
 		}
@@ -1314,7 +1323,7 @@ static void MoveSlider(slider_move_t *smov)
 				{
 					S_StartSound((mobj_t *) & sec->soundorg, smov->info->sfx_start);
 					smov->sfxstarted = false;
-					smov->direction = -1;
+					smov->direction = DIRECTION_DOWN;
 				}
 				else
 				{
@@ -1341,7 +1350,7 @@ static void MoveSlider(slider_move_t *smov)
 			{
 				S_StartSound((mobj_t *) & sec->soundorg, smov->info->sfx_stop);
 				smov->opening = smov->target;
-				smov->direction = 0;
+				smov->direction = DIRECTION_WAIT;
 				smov->waited = smov->info->wait;
 
 				if (smov->final_open)
@@ -1410,7 +1419,7 @@ void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_c * s)
 		smov = line->slider_move;
 
 		// only players close doors
-		if (smov->direction == 0 && thing->player)
+		if (smov->direction == DIRECTION_WAIT && thing->player)
 		{
 			smov->waited = 0;
 		}
@@ -1427,7 +1436,7 @@ void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_c * s)
 	smov->line_len = R_PointToDist(0, 0, line->dx, line->dy);
 	smov->target = smov->line_len * PERCENT_2_FLOAT(smov->info->distance);
 
-	smov->direction = 1;
+	smov->direction = DIRECTION_UP;
 	smov->sfxstarted = ! thing->player;
 	smov->final_open = (line->count == 1);
 
