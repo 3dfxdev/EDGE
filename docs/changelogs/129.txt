@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: NOVEMBER 10th 2004)
+(Date: NOVEMBER 15th 2004)
 
 
 Bugs fixed
@@ -160,8 +160,8 @@ New weapon stuff
   (some might apply to the whole weapon).  The following specials are
   available:
 
-    SILENT_TO_MONSTERS : don't wake up those demons (WHOLE)
-    ANIMATED           : UP and DOWN states are animated (WHOLE)
+    SILENT_TO_MONSTERS : don't wake up those demons
+    ANIMATED           : UP and DOWN states are animated
     NO_SWITCH          : don't switch to new weapon if ammo runs out
 
     NO_TRIGGER   : prevent reloading by pressing fire button
@@ -180,7 +180,7 @@ New weapon stuff
 
     STATES(EMPTY) = ABCD:E:1:NORMAL:EMPTY;
 
-  There are also WARMUP and SECWARMUP states.  These will be entered
+- There are also WARMUP and SECWARMUP states.  These will be entered
   when firing the weapon from the READY states (not for refiring).
   These states jump to the ATTACK and SECATTACK states when finished
   (i.e. you don't need #ATTACK at the end).
