@@ -31,13 +31,11 @@
 #include "sounds.h"
 #include "mobj.h"
 
-#define FRACUNIT  65536
-
 
 mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 {
 
-    {		// MT_PLAYER 
+    {		// MT_PLAYER
       "OUR_HERO",       // name
 	-1,		// doomednum
 	S_PLAY,		// spawnstate
@@ -64,7 +62,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_POSSESSED 
+    {		// MT_POSSESSED
       "ZOMBIEMAN",       // name
 	3004,		// doomednum
 	S_POSS_STND,		// spawnstate
@@ -91,7 +89,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_POSS_RAISE1		// raisestate
     },
 
-    {		// MT_SHOTGUY 
+    {		// MT_SHOTGUY
       "SHOTGUN_GUY",       // name
 	9,		// doomednum
 	S_SPOS_STND,		// spawnstate
@@ -118,7 +116,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_SPOS_RAISE1		// raisestate
     },
 
-    {		// MT_VILE 
+    {		// MT_VILE
       "ARCHVILE",       // name
 	64,		// doomednum
 	S_VILE_STND,		// spawnstate
@@ -145,7 +143,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_FIRE 
+    {		// MT_FIRE
       "*ARCHVILE_FIRE",       // (attack) name
 	-1,		// doomednum
 	S_FIRE1,		// spawnstate
@@ -172,7 +170,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_UNDEAD 
+    {		// MT_UNDEAD
       "REVENANT",       // name
 	66,		// doomednum
 	S_SKEL_STND,		// spawnstate
@@ -199,7 +197,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_SKEL_RAISE1		// raisestate
     },
 
-    {		// MT_TRACER 
+    {		// MT_TRACER
       "*REVENANT_MISSILE",       // (attack) name
 	-1,		// doomednum
 	S_TRACER,		// spawnstate
@@ -226,7 +224,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_SMOKE 
+    {		// MT_SMOKE
       "SMOKE",       // name
 	-1,		// doomednum
 	S_SMOKE1,		// spawnstate
@@ -253,7 +251,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_FATSO 
+    {		// MT_FATSO
       "MANCUBUS",       // name
 	67,		// doomednum
 	S_FATT_STND,		// spawnstate
@@ -280,7 +278,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_FATT_RAISE1		// raisestate
     },
 
-    {		// MT_FATSHOT 
+    {		// MT_FATSHOT
       "*MANCUBUS_FIREBALL",       // (attack) name
 	-1,		// doomednum
 	S_FATSHOT1,		// spawnstate
@@ -307,7 +305,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_CHAINGUY 
+    {		// MT_CHAINGUY
       "HEAVY_WEAPON_DUDE",       // name
 	65,		// doomednum
 	S_CPOS_STND,		// spawnstate
@@ -334,7 +332,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_CPOS_RAISE1		// raisestate
     },
 
-    {		// MT_TROOP 
+    {		// MT_TROOP
       "IMP",       // name
 	3001,		// doomednum
 	S_TROO_STND,		// spawnstate
@@ -361,7 +359,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_TROO_RAISE1		// raisestate
     },
 
-    {		// MT_SERGEANT 
+    {		// MT_SERGEANT
       "DEMON",       // name
 	3002,		// doomednum
 	S_SARG_STND,		// spawnstate
@@ -388,7 +386,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_SARG_RAISE1		// raisestate
     },
 
-    {		// MT_SHADOWS 
+    {		// MT_SHADOWS
       "SPECTRE",       // name
 	58,		// doomednum
 	S_SARG_STND,		// spawnstate
@@ -415,7 +413,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_SARG_RAISE1		// raisestate
     },
 
-    {		// MT_HEAD 
+    {		// MT_HEAD
       "CACODEMON",       // name
 	3005,		// doomednum
 	S_HEAD_STND,		// spawnstate
@@ -442,7 +440,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_HEAD_RAISE1		// raisestate
     },
 
-    {		// MT_BRUISER 
+    {		// MT_BRUISER
       "BARON_OF_HELL",       // name
 	3003,		// doomednum
 	S_BOSS_STND,		// spawnstate
@@ -469,7 +467,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_BOSS_RAISE1		// raisestate
     },
 
-    {		// MT_BRUISERSHOT 
+    {		// MT_BRUISERSHOT
       "*BARON_FIREBALL",       // (attack) name
 	-1,		// doomednum
 	S_BRBALL1,		// spawnstate
@@ -496,7 +494,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_KNIGHT 
+    {		// MT_KNIGHT
       "HELL_KNIGHT",       // name
 	69,		// doomednum
 	S_BOS2_STND,		// spawnstate
@@ -523,7 +521,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_BOS2_RAISE1		// raisestate
     },
 
-    {		// MT_SKULL 
+    {		// MT_SKULL
       "LOST_SOUL",       // name
 	3006,		// doomednum
 	S_SKULL_STND,		// spawnstate
@@ -550,7 +548,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_SPIDER 
+    {		// MT_SPIDER
       "THE_SPIDER_MASTERMIND",       // name
 	7,		// doomednum
 	S_SPID_STND,		// spawnstate
@@ -577,7 +575,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_BABY 
+    {		// MT_BABY
       "ARACHNOTRON",       // name
 	68,		// doomednum
 	S_BSPI_STND,		// spawnstate
@@ -604,7 +602,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_BSPI_RAISE1		// raisestate
     },
 
-    {		// MT_CYBORG 
+    {		// MT_CYBORG
       "THE_CYBERDEMON",       // name
 	16,		// doomednum
 	S_CYBER_STND,		// spawnstate
@@ -631,7 +629,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_PAIN 
+    {		// MT_PAIN
       "PAIN_ELEMENTAL",       // name
 	71,		// doomednum
 	S_PAIN_STND,		// spawnstate
@@ -658,7 +656,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_PAIN_RAISE1		// raisestate
     },
 
-    {		// MT_WOLFSS 
+    {		// MT_WOLFSS
       "WOLFENSTEIN_SS",       // name
 	84,		// doomednum
 	S_SSWV_STND,		// spawnstate
@@ -685,7 +683,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_SSWV_RAISE1		// raisestate
     },
 
-    {		// MT_KEEN 
+    {		// MT_KEEN
       "COMMANDER_KEEN",       // name
 	72,		// doomednum
 	S_KEENSTND,		// spawnstate
@@ -712,7 +710,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_BOSSBRAIN 
+    {		// MT_BOSSBRAIN
       "BOSS_BRAIN",       // name
 	88,		// doomednum
 	S_BRAIN,		// spawnstate
@@ -739,7 +737,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_BOSSSPIT 
+    {		// MT_BOSSSPIT
       "BRAIN_SHOOTER",       // name
 	89,		// doomednum
 	S_BRAINEYE,		// spawnstate
@@ -766,7 +764,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_BOSSTARGET 
+    {		// MT_BOSSTARGET
       "BRAIN_SPAWNSPOT",       // name
 	87,		// doomednum
 	S_NULL,		// spawnstate
@@ -793,7 +791,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_SPAWNSHOT 
+    {		// MT_SPAWNSHOT
       "*BRAIN_CUBE",       // (attack) name
 	-1,		// doomednum
 	S_SPAWN1,		// spawnstate
@@ -820,7 +818,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_SPAWNFIRE 
+    {		// MT_SPAWNFIRE
       "*",       // name
 	-1,		// doomednum
 	S_SPAWNFIRE1,		// spawnstate
@@ -847,7 +845,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_BARREL 
+    {		// MT_BARREL
       "BARREL",       // name
 	2035,		// doomednum
 	S_BAR1,		// spawnstate
@@ -874,7 +872,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_TROOPSHOT 
+    {		// MT_TROOPSHOT
       "*IMP_FIREBALL",       // (attack) name
 	-1,		// doomednum
 	S_TBALL1,		// spawnstate
@@ -901,7 +899,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_HEADSHOT 
+    {		// MT_HEADSHOT
       "*CACO_FIREBALL",       // (attack) name
 	-1,		// doomednum
 	S_RBALL1,		// spawnstate
@@ -928,7 +926,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_ROCKET 
+    {		// MT_ROCKET
       "*CYBERDEMON_MISSILE",       // (attack) name
 	-1,		// doomednum
 	S_ROCKET,		// spawnstate
@@ -955,7 +953,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_PLASMA 
+    {		// MT_PLASMA
       "*PLAYER_PLASMA",       // (attack) name
 	-1,		// doomednum
 	S_PLASBALL,		// spawnstate
@@ -982,7 +980,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_BFG 
+    {		// MT_BFG
       "*PLAYER_BFG9000",       // (attack) name
 	-1,		// doomednum
 	S_BFGSHOT,		// spawnstate
@@ -1009,7 +1007,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_ARACHPLAZ 
+    {		// MT_ARACHPLAZ
       "*ARACHNOTRON_PLASMA",       // name
 	-1,		// doomednum
 	S_ARACH_PLAZ,		// spawnstate
@@ -1036,7 +1034,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_PUFF 
+    {		// MT_PUFF
       "PUFF",       // name
 	-1,		// doomednum
 	S_PUFF1,		// spawnstate
@@ -1063,7 +1061,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_BLOOD 
+    {		// MT_BLOOD
       "BLOOD",       // name
 	-1,		// doomednum
 	S_BLOOD1,		// spawnstate
@@ -1090,7 +1088,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_TFOG 
+    {		// MT_TFOG
       "TELEPORT_FOG",       // name
 	-1,		// doomednum
 	S_TFOG,		// spawnstate
@@ -1117,7 +1115,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_IFOG 
+    {		// MT_IFOG
       "RESPAWN_FOG",       // name
 	-1,		// doomednum
 	S_IFOG,		// spawnstate
@@ -1144,7 +1142,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_TELEPORTMAN 
+    {		// MT_TELEPORTMAN
       "TELEPORT_FLASH",       // name
 	14,		// doomednum
 	S_NULL,		// spawnstate
@@ -1171,7 +1169,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_EXTRABFG 
+    {		// MT_EXTRABFG
       "*BFG9000_SPRAY",       // name
 	-1,		// doomednum
 	S_BFGEXP,		// spawnstate
@@ -1198,7 +1196,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC0 
+    {		// MT_MISC0
       "GREEN_ARMOUR",       // name
 	2018,		// doomednum
 	S_ARM1,		// spawnstate
@@ -1225,7 +1223,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC1 
+    {		// MT_MISC1
       "BLUE_ARMOUR",       // name
 	2019,		// doomednum
 	S_ARM2,		// spawnstate
@@ -1252,7 +1250,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC2 
+    {		// MT_MISC2
       "HEALTH_POTION",       // name
 	2014,		// doomednum
 	S_BON1,		// spawnstate
@@ -1279,7 +1277,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC3 
+    {		// MT_MISC3
       "ARMOUR_HELMET",       // name
 	2015,		// doomednum
 	S_BON2,		// spawnstate
@@ -1306,7 +1304,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC4 
+    {		// MT_MISC4
       "BLUE_KEY",       // name
 	5,		// doomednum
 	S_BKEY,		// spawnstate
@@ -1333,7 +1331,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC5 
+    {		// MT_MISC5
       "RED_KEY",       // name
 	13,		// doomednum
 	S_RKEY,		// spawnstate
@@ -1360,7 +1358,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC6 
+    {		// MT_MISC6
       "YELLOW_KEY",       // name
 	6,		// doomednum
 	S_YKEY,		// spawnstate
@@ -1387,7 +1385,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC7 
+    {		// MT_MISC7
       "YELLOW_SKULLKEY",       // name
 	39,		// doomednum
 	S_YSKULL,		// spawnstate
@@ -1414,7 +1412,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC8 
+    {		// MT_MISC8
       "RED_SKULLKEY",       // name
 	38,		// doomednum
 	S_RSKULL,		// spawnstate
@@ -1441,7 +1439,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC9 
+    {		// MT_MISC9
       "BLUE_SKULLKEY",       // name
 	40,		// doomednum
 	S_BSKULL,		// spawnstate
@@ -1468,7 +1466,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC10 
+    {		// MT_MISC10
       "STIMPACK",       // name
 	2011,		// doomednum
 	S_STIM,		// spawnstate
@@ -1495,7 +1493,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC11 
+    {		// MT_MISC11
       "MEDIKIT",       // name
 	2012,		// doomednum
 	S_MEDI,		// spawnstate
@@ -1522,7 +1520,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC12 
+    {		// MT_MISC12
       "SOULSPHERE",       // name
 	2013,		// doomednum
 	S_SOUL,		// spawnstate
@@ -1549,7 +1547,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_INV 
+    {		// MT_INV
       "INVULNERABILITY_SPHERE",       // name
 	2022,		// doomednum
 	S_PINV,		// spawnstate
@@ -1576,7 +1574,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC13 
+    {		// MT_MISC13
       "BERSERKER",       // name
 	2023,		// doomednum
 	S_PSTR,		// spawnstate
@@ -1603,7 +1601,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_INS 
+    {		// MT_INS
       "BLURSPHERE",       // name
 	2024,		// doomednum
 	S_PINS,		// spawnstate
@@ -1630,7 +1628,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC14 
+    {		// MT_MISC14
       "RADIATION_SUIT",       // name
 	2025,		// doomednum
 	S_SUIT,		// spawnstate
@@ -1649,7 +1647,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	20*FRACUNIT,		// radius
-	60*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -1657,7 +1655,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC15 
+    {		// MT_MISC15
       "AUTOMAP",       // name
 	2026,		// doomednum
 	S_PMAP,		// spawnstate
@@ -1684,7 +1682,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC16 
+    {		// MT_MISC16
       "LIGHT_SPECS",       // name
 	2045,		// doomednum
 	S_PVIS,		// spawnstate
@@ -1711,7 +1709,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MEGA 
+    {		// MT_MEGA
       "MEGASPHERE",       // name
 	83,		// doomednum
 	S_MEGA,		// spawnstate
@@ -1738,7 +1736,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_CLIP 
+    {		// MT_CLIP
       "CLIP",       // name
 	2007,		// doomednum
 	S_CLIP,		// spawnstate
@@ -1765,7 +1763,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC17 
+    {		// MT_MISC17
       "BOX_OF_BULLETS",       // name
 	2048,		// doomednum
 	S_AMMO,		// spawnstate
@@ -1792,7 +1790,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC18 
+    {		// MT_MISC18
       "ROCKET",       // name
 	2010,		// doomednum
 	S_ROCK,		// spawnstate
@@ -1819,7 +1817,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC19 
+    {		// MT_MISC19
       "BOX_OF_ROCKETS",       // name
 	2046,		// doomednum
 	S_BROK,		// spawnstate
@@ -1846,7 +1844,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC20 
+    {		// MT_MISC20
       "CELLS",       // name
 	2047,		// doomednum
 	S_CELL,		// spawnstate
@@ -1873,7 +1871,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC21 
+    {		// MT_MISC21
       "CELL_PACK",       // name
 	17,		// doomednum
 	S_CELP,		// spawnstate
@@ -1900,7 +1898,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC22 
+    {		// MT_MISC22
       "SHELLS",       // name
 	2008,		// doomednum
 	S_SHEL,		// spawnstate
@@ -1927,7 +1925,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC23 
+    {		// MT_MISC23
       "BOX_OF_SHELLS",       // name
 	2049,		// doomednum
 	S_SBOX,		// spawnstate
@@ -1954,7 +1952,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC24 
+    {		// MT_MISC24
       "BACKPACK",       // name
 	8,		// doomednum
 	S_BPAK,		// spawnstate
@@ -1981,7 +1979,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC25 
+    {		// MT_MISC25
       "BFG",       // name
 	2006,		// doomednum
 	S_BFUG,		// spawnstate
@@ -2008,7 +2006,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_CHAINGUN 
+    {		// MT_CHAINGUN
       "CHAINGUN",       // name
 	2002,		// doomednum
 	S_MGUN,		// spawnstate
@@ -2035,7 +2033,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC26 
+    {		// MT_MISC26
       "CHAINSAW",       // name
 	2005,		// doomednum
 	S_CSAW,		// spawnstate
@@ -2062,7 +2060,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC27 
+    {		// MT_MISC27
       "MISSILE_LAUNCHER",       // name
 	2003,		// doomednum
 	S_LAUN,		// spawnstate
@@ -2089,7 +2087,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC28 
+    {		// MT_MISC28
       "PLASMA_RIFLE",       // name
 	2004,		// doomednum
 	S_PLAS,		// spawnstate
@@ -2116,7 +2114,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_SHOTGUN 
+    {		// MT_SHOTGUN
       "SHOTGUN",       // name
 	2001,		// doomednum
 	S_SHOT,		// spawnstate
@@ -2143,7 +2141,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_SUPERSHOTGUN 
+    {		// MT_SUPERSHOTGUN
       "SUPER_SHOTGUN",       // name
 	82,		// doomednum
 	S_SHOT2,		// spawnstate
@@ -2170,7 +2168,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC29 
+    {		// MT_MISC29
       "TALL_TECH_LAMP",       // name
 	85,		// doomednum
 	S_TECHLAMP,		// spawnstate
@@ -2189,7 +2187,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	78*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -2197,7 +2195,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC30 
+    {		// MT_MISC30
       "SMALL_TECH_LAMP",       // name
 	86,		// doomednum
 	S_TECH2LAMP,		// spawnstate
@@ -2216,7 +2214,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	58*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -2224,7 +2222,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC31 
+    {		// MT_MISC31
       "SMALL_BOLLARD_LAMP",       // name
 	2028,		// doomednum
 	S_COLU,		// spawnstate
@@ -2243,7 +2241,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	46*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -2251,7 +2249,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC32 
+    {		// MT_MISC32
       "TALL_GREEN_COLUMN",       // name
 	30,		// doomednum
 	S_TALLGRNCOL,		// spawnstate
@@ -2278,7 +2276,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC33 
+    {		// MT_MISC33
       "SHORT_GREEN_COLUMN",       // name
 	31,		// doomednum
 	S_SHRTGRNCOL,		// spawnstate
@@ -2297,7 +2295,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	38*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -2305,7 +2303,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC34 
+    {		// MT_MISC34
       "TALL_RED_COLUMN",       // name
 	32,		// doomednum
 	S_TALLREDCOL,		// spawnstate
@@ -2324,7 +2322,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	50*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -2332,7 +2330,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC35 
+    {		// MT_MISC35
       "SHORT_RED_COLUMN",       // name
 	33,		// doomednum
 	S_SHRTREDCOL,		// spawnstate
@@ -2359,7 +2357,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC36 
+    {		// MT_MISC36
       "SKULL_ON_COLUMN",       // name
 	37,		// doomednum
 	S_SKULLCOL,		// spawnstate
@@ -2386,7 +2384,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC37 
+    {		// MT_MISC37
       "BEATING_HEART_COLUMN",       // name
 	36,		// doomednum
 	S_HEARTCOL,		// spawnstate
@@ -2413,7 +2411,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC38 
+    {		// MT_MISC38
       "EYE_SYMBOL",       // name
 	41,		// doomednum
 	S_EVILEYE,		// spawnstate
@@ -2432,7 +2430,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	56*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -2440,7 +2438,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC39 
+    {		// MT_MISC39
       "FLOATING_SKULLROCK",       // name
 	42,		// doomednum
 	S_FLOATSKULL,		// spawnstate
@@ -2459,7 +2457,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	48*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -2467,7 +2465,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC40 
+    {		// MT_MISC40
       "TORCHED_TREE",       // name
 	43,		// doomednum
 	S_TORCHTREE,		// spawnstate
@@ -2494,7 +2492,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC41 
+    {		// MT_MISC41
       "BRONZE_BLUE_TORCH",       // name
 	44,		// doomednum
 	S_BLUETORCH,		// spawnstate
@@ -2513,7 +2511,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	96*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -2521,7 +2519,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC42 
+    {		// MT_MISC42
       "BRONZE_GREEN_TORCH",       // name
 	45,		// doomednum
 	S_GREENTORCH,		// spawnstate
@@ -2540,7 +2538,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	96*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -2548,7 +2546,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC43 
+    {		// MT_MISC43
       "BRONZE_RED_TORCH",       // name
 	46,		// doomednum
 	S_REDTORCH,		// spawnstate
@@ -2567,7 +2565,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	96*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -2575,7 +2573,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC44 
+    {		// MT_MISC44
       "WOODEN_BLUE_TORCH",       // name
 	55,		// doomednum
 	S_BTORCHSHRT,		// spawnstate
@@ -2594,7 +2592,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	72*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -2602,7 +2600,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC45 
+    {		// MT_MISC45
       "WOODEN_GREEN_TORCH",       // name
 	56,		// doomednum
 	S_GTORCHSHRT,		// spawnstate
@@ -2621,7 +2619,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	72*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -2629,7 +2627,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC46 
+    {		// MT_MISC46
       "WOODEN_RED_TORCH",       // name
 	57,		// doomednum
 	S_RTORCHSHRT,		// spawnstate
@@ -2648,7 +2646,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	72*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -2656,7 +2654,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC47 
+    {		// MT_MISC47
       "SPIKY_STUMP",       // name
 	47,		// doomednum
 	S_STALAGTITE,		// spawnstate
@@ -2683,7 +2681,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC48 
+    {		// MT_MISC48
       "TECHNOCOLUMN",       // name
 	48,		// doomednum
 	S_TECHPILLAR,		// spawnstate
@@ -2710,7 +2708,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC49 
+    {		// MT_MISC49
       "BLACK_CANDLE",       // name
 	34,		// doomednum
 	S_CANDLESTIK,		// spawnstate
@@ -2737,7 +2735,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC50 
+    {		// MT_MISC50
       "CANDELABRA",       // name
 	35,		// doomednum
 	S_CANDELABRA,		// spawnstate
@@ -2764,7 +2762,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC51 
+    {		// MT_MISC51
       "TWITCHING_BLOKE_I",       // name
 	49,		// doomednum
 	S_BLOODYTWITCH,		// spawnstate
@@ -2791,7 +2789,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC52 
+    {		// MT_MISC52
       "HANGING_DEAD_BLOKE_I",       // name
 	50,		// doomednum
 	S_MEAT2,		// spawnstate
@@ -2818,7 +2816,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC53 
+    {		// MT_MISC53
       "HANGING_DEAD_BLOKE_II",       // name
 	51,		// doomednum
 	S_MEAT3,		// spawnstate
@@ -2845,7 +2843,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC54 
+    {		// MT_MISC54
       "HANGING_DEAD_BLOKE_III",       // name
 	52,		// doomednum
 	S_MEAT4,		// spawnstate
@@ -2872,7 +2870,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC55 
+    {		// MT_MISC55
       "HANGING_DEAD_BLOKE_IV",       // name
 	53,		// doomednum
 	S_MEAT5,		// spawnstate
@@ -2899,7 +2897,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC56 
+    {		// MT_MISC56
       "HANGING_DEAD_BLOKE_V",       // name
 	59,		// doomednum
 	S_MEAT2,		// spawnstate
@@ -2926,7 +2924,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC57 
+    {		// MT_MISC57
       "HANGING_DEAD_BLOKE_VI",       // name
 	60,		// doomednum
 	S_MEAT4,		// spawnstate
@@ -2953,7 +2951,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC58 
+    {		// MT_MISC58
       "HANGING_DEAD_BLOKE_VII",       // name
 	61,		// doomednum
 	S_MEAT3,		// spawnstate
@@ -2980,7 +2978,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC59 
+    {		// MT_MISC59
       "HANGING_DEAD_BLOKE_VIII",       // name
 	62,		// doomednum
 	S_MEAT5,		// spawnstate
@@ -3007,7 +3005,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC60 
+    {		// MT_MISC60
       "TWITCHING_BLOKE_II",       // name
 	63,		// doomednum
 	S_BLOODYTWITCH,		// spawnstate
@@ -3034,7 +3032,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC61 
+    {		// MT_MISC61
       "DEAD_CACODEMON",       // name
 	22,		// doomednum
 	S_HEAD_DIE6,		// spawnstate
@@ -3061,7 +3059,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC62 
+    {		// MT_MISC62
       "DEAD_PLAYER",       // name
 	15,		// doomednum
 	S_PLAY_DIE7,		// spawnstate
@@ -3088,7 +3086,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC63 
+    {		// MT_MISC63
       "DEAD_FORMER_HUMAN",       // name
 	18,		// doomednum
 	S_POSS_DIE5,		// spawnstate
@@ -3115,7 +3113,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC64 
+    {		// MT_MISC64
       "DEAD_DEMON",       // name
 	21,		// doomednum
 	S_SARG_DIE6,		// spawnstate
@@ -3142,7 +3140,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC65 
+    {		// MT_MISC65
       "DEAD_LOSTSOUL",       // name
 	23,		// doomednum
 	S_SKULL_DIE6,		// spawnstate
@@ -3169,7 +3167,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC66 
+    {		// MT_MISC66
       "DEAD_IMP",       // name
 	20,		// doomednum
 	S_TROO_DIE5,		// spawnstate
@@ -3196,7 +3194,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC67 
+    {		// MT_MISC67
       "DEAD_FORMER_SARG",       // name
 	19,		// doomednum
 	S_SPOS_DIE5,		// spawnstate
@@ -3223,7 +3221,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC68 
+    {		// MT_MISC68
       "DEAD_GIBBER_PLAYER1",       // name
 	10,		// doomednum
 	S_PLAY_XDIE9,		// spawnstate
@@ -3250,7 +3248,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC69 
+    {		// MT_MISC69
       "DEAD_GIBBED_PLAYER2",       // name
 	12,		// doomednum
 	S_PLAY_XDIE9,		// spawnstate
@@ -3277,7 +3275,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC70 
+    {		// MT_MISC70
       "HEADS_ON_A_STICK",       // name
 	28,		// doomednum
 	S_HEADSONSTICK,		// spawnstate
@@ -3296,7 +3294,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	64*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -3304,7 +3302,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC71 
+    {		// MT_MISC71
       "POOL_OF_BLOOD",       // name
 	24,		// doomednum
 	S_GIBS,		// spawnstate
@@ -3331,7 +3329,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC72 
+    {		// MT_MISC72
       "SKULL_ON_A_STICK",       // name
 	27,		// doomednum
 	S_HEADONASTICK,		// spawnstate
@@ -3350,7 +3348,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	52*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -3358,7 +3356,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC73 
+    {		// MT_MISC73
       "SKULL_CENTREPIECE",       // name
 	29,		// doomednum
 	S_HEADCANDLES,		// spawnstate
@@ -3377,7 +3375,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	40*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -3385,7 +3383,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC74 
+    {		// MT_MISC74
       "SKEWERED_BLOKE",       // name
 	25,		// doomednum
 	S_DEADSTICK,		// spawnstate
@@ -3404,7 +3402,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	64*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -3412,7 +3410,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC75 
+    {		// MT_MISC75
       "DYING_SKEWERED_BLOKE",       // name
 	26,		// doomednum
 	S_LIVESTICK,		// spawnstate
@@ -3431,7 +3429,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	16*FRACUNIT,		// radius
-	64*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -3439,7 +3437,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC76 
+    {		// MT_MISC76
       "BIG_TREE",       // name
 	54,		// doomednum
 	S_BIGTREE,		// spawnstate
@@ -3458,7 +3456,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	sfx_None,		// deathsound
 	0,		// speed
 	32*FRACUNIT,		// radius
-	120*FRACUNIT,		// height  /* WAS: 16 */
+	16*FRACUNIT,		// height
 	100,		// mass
 	0,		// damage
 	sfx_None,		// activesound
@@ -3466,7 +3464,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC77 
+    {		// MT_MISC77
       "BURNING_BARREL",       // name
 	70,		// doomednum
 	S_BBAR1,		// spawnstate
@@ -3493,7 +3491,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC78 
+    {		// MT_MISC78
       "GUTTED_HUNG_BLOKE_I",       // name
 	73,		// doomednum
 	S_HANGNOGUTS,		// spawnstate
@@ -3520,7 +3518,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC79 
+    {		// MT_MISC79
       "GUTTED_HUNG_BLOKE_II",       // name
 	74,		// doomednum
 	S_HANGBNOBRAIN,		// spawnstate
@@ -3547,7 +3545,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC80 
+    {		// MT_MISC80
       "GUTTED_TORSO_I",       // name
 	75,		// doomednum
 	S_HANGTLOOKDN,		// spawnstate
@@ -3574,7 +3572,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC81 
+    {		// MT_MISC81
       "GUTTED_TORSO_II",       // name
 	76,		// doomednum
 	S_HANGTSKULL,		// spawnstate
@@ -3601,7 +3599,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC82 
+    {		// MT_MISC82
       "GUTTED_TORSO_III",       // name
 	77,		// doomednum
 	S_HANGTLOOKUP,		// spawnstate
@@ -3628,7 +3626,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC83 
+    {		// MT_MISC83
       "GUTTED_TORSO_IV",       // name
 	78,		// doomednum
 	S_HANGTNOBRAIN,		// spawnstate
@@ -3655,7 +3653,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC84 
+    {		// MT_MISC84
       "POOL_OF_BLOOD_I",       // name
 	79,		// doomednum
 	S_COLONGIBS,		// spawnstate
@@ -3682,7 +3680,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC85 
+    {		// MT_MISC85
       "POOL_OF_BLOOD_II",       // name
 	80,		// doomednum
 	S_SMALLPOOL,		// spawnstate
@@ -3709,7 +3707,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 	S_NULL		// raisestate
     },
 
-    {		// MT_MISC86 
+    {		// MT_MISC86
       "BRAINSTEM",       // name
 	81,		// doomednum
 	S_BRAINSTEM,		// spawnstate

@@ -13,6 +13,10 @@
 #ifndef __MOBJ_HDR__
 #define __MOBJ_HDR__
 
+
+#define FRACUNIT  65536
+
+
 //
 // Misc. mobj flags
 //
