@@ -123,7 +123,7 @@ musicinfo_t S_music[NUMMUSIC] =
 // Information about all the sfx
 //
 
-sfxinfo_t S_sfx[NUMSFX] =
+sfxinfo_t S_sfx[NUMSFX_BEX] =
 {
 	// S_sfx[0] needs to be a dummy for odd reasons.
 	{ "none", 0,  0, 0, -1, -1, NULL },
@@ -138,7 +138,7 @@ sfxinfo_t S_sfx[NUMSFX] =
 	{ "plasma", 0,  64, 0, -1, -1, NULL },
 	{ "bfg",    0,  64, 0, -1, -1, NULL },
 	{ "sawup",  2,  64, 0, -1, -1, NULL },
-	{ "sawidl", 2,  118, 0, -1, -1, NULL },
+	{ "sawidl", 2, 118, 0, -1, -1, NULL },
 	{ "sawful", 2,  64, 0, -1, -1, NULL },
 	{ "sawhit", 2,  64, 0, -1, -1, NULL },
 	{ "rlaunc", 0,  64, 0, -1, -1, NULL },
@@ -215,9 +215,9 @@ sfxinfo_t S_sfx[NUMSFX] =
 	{ "metal",  0,  70, 0, -1, -1, NULL },
 	{ "chgun",  0,  64, sfx_pistol, 150, 0, NULL },
 	{ "tink",   0,  60, 0, -1, -1, NULL },
-	{ "bdopn",  0,  100, 0, -1, -1, NULL },
-	{ "bdcls",  0,  100, 0, -1, -1, NULL },
-	{ "itmbk",  0,  100, 0, -1, -1, NULL },
+	{ "bdopn",  0, 100, 0, -1, -1, NULL },
+	{ "bdcls",  0, 100, 0, -1, -1, NULL },
+	{ "itmbk",  0, 100, 0, -1, -1, NULL },
 	{ "flame",  0,  32, 0, -1, -1, NULL },
 	{ "flamst", 0,  32, 0, -1, -1, NULL },
 	{ "getpow", 0,  60, 0, -1, -1, NULL },
@@ -235,7 +235,14 @@ sfxinfo_t S_sfx[NUMSFX] =
 	{ "skeact", 0,  70, 0, -1, -1, NULL },
 	{ "skesit", 0,  70, 0, -1, -1, NULL },
 	{ "skeatk", 0,  70, 0, -1, -1, NULL },
-	{ "radio",  0,  60, 0, -1, -1, NULL } 
+	{ "radio",  0,  60, 0, -1, -1, NULL },
+
+	// BOOM and MBF sounds...
+	{ "dgsit",  0,  98, 0, -1, -1, NULL },
+	{ "dgatk",  0,  70, 0, -1, -1, NULL },
+	{ "dgact",  0, 120, 0, -1, -1, NULL },
+	{ "dgdth",  0,  70, 0, -1, -1, NULL },
+	{ "dgpain", 0,  96, 0, -1, -1, NULL }
 };
 
 
@@ -253,7 +260,7 @@ namespace Sounds
 		if (s_num == sfx_None)
 			return;
 
-		assert(1 <= s_num && s_num < NUMSFX);
+		assert(1 <= s_num && s_num < NUMSFX_BEX);
 
 		some_sound_modified = true;
 	}
@@ -263,7 +270,7 @@ namespace Sounds
 		int s_num = Patch::active_obj;
 		const char *deh_field = Patch::line_buf;
 
-		assert(0 <= s_num && s_num < NUMSFX);
+		assert(0 <= s_num && s_num < NUMSFX_BEX);
 
 		if (StrCaseCmpPartial(deh_field, "Zero") == 0 ||
 		    StrCaseCmpPartial(deh_field, "Neg. One") == 0)
@@ -296,6 +303,25 @@ namespace Sounds
 		PrintWarn("UNKNOWN SOUND FIELD: %s\n", deh_field);
 	}
 
+	const char *GetEdgeSfxName(int sound_id)
+	{
+		assert(sound_id != sfx_None);
+
+		switch (sound_id)
+		{
+			// EDGE uses different names for the DOG sounds
+			case sfx_dgsit:  return "DOG_SIGHT";
+			case sfx_dgatk:  return "DOG_BITE";
+			case sfx_dgact:  return "DOG_LOOK";
+			case sfx_dgdth:  return "DOG_DIE";
+			case sfx_dgpain: return "DOG_PAIN";
+
+			default: break;
+		}
+
+		return S_sfx[sound_id].orig_name;
+	}
+
 	const char *GetSound(int sound_id)
 	{
 		assert(sound_id != sfx_None);
@@ -321,7 +347,7 @@ namespace Sounds
 
 		static char name_buf[40];
 
-		sprintf(name_buf, "\"%s\"", StrUpper(S_sfx[sound_id].orig_name));
+		sprintf(name_buf, "\"%s\"", StrUpper(GetEdgeSfxName(sound_id)));
 
 		return name_buf;
 	}
@@ -347,11 +373,6 @@ namespace Sounds
 				"[JPIDLE] LUMP_NAME=\"DSJPIDLE\"; SINGULAR=29;\n"
 				"[JPDOWN] LUMP_NAME=\"DSJPDOWN\"; SINGULAR=29;\n"
 				"[JPFLOW] LUMP_NAME=\"DSJPFLOW\"; SINGULAR=29;\n"
-				"[DOG_SIGHT] LUMP_NAME=\"DSDGSIT\";\n"
-				"[DOG_LOOK] LUMP_NAME=\"DSDGACT\";\n"
-				"[DOG_BITE] LUMP_NAME=\"DSDGATK\";\n"
-				"[DOG_PAIN] LUMP_NAME=\"DSDGPAIN\";\n"
-				"[DOG_DIE] LUMP_NAME=\"DSDGDTH\";\n"
 				"[CRUSH] LUMP_NAME=\"DSCRUSH\"; PRIORITY=100;\n"
 			);
 		}
@@ -384,7 +405,7 @@ namespace Sounds
 			BeginSoundLump();
 		}
 
-		WAD::Printf("[%s]\n", StrUpper(sound->orig_name));
+		WAD::Printf("[%s]\n", StrUpper(GetEdgeSfxName(s_num)));
 
 		const char *lump = sound->new_name ? sound->new_name : sound->orig_name;
 
@@ -392,7 +413,7 @@ namespace Sounds
 		{
 			sfxinfo_t *link = S_sfx + sound->link;
 
-			lump = link->new_name ? link->new_name : link->orig_name;
+			lump = link->new_name ? link->new_name : GetEdgeSfxName(sound->link);
 		}
 
 		WAD::Printf("LUMP_NAME = \"DS%s\";\n", StrUpper(lump));
@@ -432,7 +453,7 @@ void Sounds::ConvertSFX(void)
 
 	got_one = false;
 
-	for (int i = 1; i < NUMSFX; i++)
+	for (int i = 1; i < NUMSFX_BEX; i++)
 	{
 	    if (! EDGE127_BUG && ! all_mode && S_sfx[i].new_name == NULL)
 			continue;
@@ -465,7 +486,7 @@ void Sounds::ConvertMUS(void)
 
 bool Sounds::ReplaceSound(const char *before, const char *after)
 {
-	for (int i = 1; i < NUMSFX; i++)
+	for (int i = 1; i < NUMSFX_BEX; i++)
 	{
 		if (StrCaseCmp(S_sfx[i].orig_name, before) != 0)
 			continue;

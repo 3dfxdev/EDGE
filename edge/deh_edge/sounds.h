@@ -122,12 +122,18 @@ typedef enum
     sfx_sssit,  sfx_ssdth,  sfx_keenpn, sfx_keendt, sfx_skeact,
     sfx_skesit, sfx_skeatk, sfx_radio,
 
-    NUMSFX
+    NUMSFX,
+
+	// BOOM and MBF sounds:
+#define sfx_dgsit  NUMSFX
+	sfx_dgatk, sfx_dgact, sfx_dgdth, sfx_dgpain,
+
+	NUMSFX_BEX
 }
 sfxtype_e;
 
 // the complete set of sound effects
-extern sfxinfo_t S_sfx[NUMSFX];
+extern sfxinfo_t S_sfx[NUMSFX_BEX];
 
 
 namespace Sounds

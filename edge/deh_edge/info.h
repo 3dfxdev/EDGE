@@ -44,7 +44,13 @@ typedef enum
     SPR_HDB4, SPR_HDB5, SPR_HDB6, SPR_POB1, SPR_POB2,
     SPR_BRS1, SPR_TLMP, SPR_TLP2,
 
-    NUMSPRITES
+    NUMSPRITES,
+
+	// BOOM and MBF sprites:
+#define SPR_TNT1  NUMSPRITES
+	SPR_DOGS,
+
+	NUMSPRITES_BEX
 }
 spritenum_t;
 
@@ -127,7 +133,23 @@ typedef enum
     A_BrainExplode,
 	A_CubeSpawn,
 
-	NUMACTIONS
+	NUMACTIONS,
+
+	// BOOM and MBF actions:
+#define A_Die  NUMACTIONS
+	A_Stop,
+	A_Detonate,
+	A_Mushroom,
+
+	A_Spawn,
+	A_Turn,
+	A_Face,
+	A_Scratch,
+	A_PlaySound,
+	A_RandomJump,
+	A_LineEffect,
+
+	NUMACTIONS_BEX
 }
 action_e;
 
@@ -361,7 +383,26 @@ typedef enum
     S_TECHLAMP, S_TECHLAMP2, S_TECHLAMP3, S_TECHLAMP4,
     S_TECH2LAMP, S_TECH2LAMP2, S_TECH2LAMP3, S_TECH2LAMP4,
 
-    NUMSTATES
+    NUMSTATES,
+
+	// BOOM and MBF states:
+#define S_TNT1  NUMSTATES
+
+	S_GRENADE, S_DETONATE, S_DETONATE2, S_DETONATE3,
+
+	S_DOGS_STND, S_DOGS_STND2, S_DOGS_RUN1, S_DOGS_RUN2,
+	S_DOGS_RUN3, S_DOGS_RUN4, S_DOGS_RUN5, S_DOGS_RUN6,
+	S_DOGS_RUN7, S_DOGS_RUN8,
+	S_DOGS_ATK1, S_DOGS_ATK2, S_DOGS_ATK3,
+	S_DOGS_PAIN, S_DOGS_PAIN2,
+	S_DOGS_DIE1, S_DOGS_DIE2, S_DOGS_DIE3, S_DOGS_DIE4,
+	S_DOGS_DIE5, S_DOGS_DIE6,
+	S_DOGS_RAISE1, S_DOGS_RAISE2, S_DOGS_RAISE3,
+	S_DOGS_RAISE4, S_DOGS_RAISE5, S_DOGS_RAISE6,
+                                                                                            
+	S_MUSHROOM,
+
+	NUMSTATES_BEX
 }
 statenum_t;
 
@@ -379,7 +420,7 @@ typedef struct
 }
 state_t;
 
-extern state_t states[NUMSTATES];
+extern state_t states[NUMSTATES_BEX];
 
 typedef struct  // dynamic information
 {
@@ -388,7 +429,7 @@ typedef struct  // dynamic information
 }
 statedyn_t;
 
-extern bool state_modified[NUMSTATES];
-extern statedyn_t state_dyn[NUMSTATES];
+extern bool state_modified[NUMSTATES_BEX];
+extern statedyn_t state_dyn[NUMSTATES_BEX];
 
 #endif  /* __INFO_HDR__ */

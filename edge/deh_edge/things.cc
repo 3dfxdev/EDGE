@@ -56,7 +56,7 @@
 
 
 // XXX needed to get original name (warning message)
-extern spritename_t sprnames[NUMSPRITES];
+extern spritename_t sprnames[NUMSPRITES_BEX];
 
 
 void Things::Startup(void)
@@ -116,6 +116,11 @@ namespace Things
 		{ MF_SPAWNCEILING, "SPAWNCEILING" },
 		{ MF_SPECIAL,      "SPECIAL" },
 		{ MF_TELEPORT,     "TELEPORT" },
+
+		// BOOM and MBF flags...
+		{ MF_BOUNCES,      "BOUNCE" },
+		{ MF_STEALTH,      "STEALTH" },
+		{ MF_TOUCHY,       "TOUCHY" },
 
 		{ 0, NULL }  // End sentinel
 
@@ -305,6 +310,20 @@ namespace Things
 			cur_f &= ~MF_TRANSLATION;
 		}
 
+		if (cur_f & MF_TRANSLUCENT)
+		{
+			WAD::Printf("TRANSLUCENCY = 50%%;\n");
+			cur_f &= ~MF_TRANSLUCENT;
+		}
+
+		if (cur_f & MF_FRIEND)
+		{
+			if (! player)
+				WAD::Printf("SIDE = 16777215;\n");
+
+			cur_f &= ~MF_FRIEND;
+		}
+
 		if (cur_f != 0)
 			PrintWarn("Unconverted flags 0x%08x in entry [%s]\n",
 				cur_f, info->name);
@@ -326,7 +345,7 @@ namespace Things
 		{
 			int mt_num = height_fixes[i];
 
-			assert(mt_num < NUMMOBJTYPES);
+			assert(mt_num < NUMMOBJTYPES_BEX);
 
 			mobjinfo_t *mobj = mobjinfo + mt_num;
 
@@ -903,7 +922,7 @@ void Things::ConvertTHING(void)
 
 	got_one = false;
 
-	for (int i = 0; i < NUMMOBJTYPES; i++)
+	for (int i = 0; i < NUMMOBJTYPES_BEX; i++)
 	{
 	    if (! all_mode && ! mobj_modified[i])
 			continue;
@@ -928,7 +947,7 @@ void Things::ConvertTHING(void)
 
 void Things::MarkThing(int mt_num)
 {
-	assert(0 <= mt_num && mt_num < NUMMOBJTYPES);
+	assert(0 <= mt_num && mt_num < NUMMOBJTYPES_BEX);
 
 	mobj_modified[mt_num] = true;
 
@@ -982,7 +1001,7 @@ void Things::AlterThing(int new_val)
 
 	const char *field_name = Patch::line_buf;
 
-	assert(0 <= mt_num && mt_num < NUMMOBJTYPES);
+	assert(0 <= mt_num && mt_num < NUMMOBJTYPES_BEX);
 
 	int stride = ((char*) (mobjinfo+1)) - ((char*) mobjinfo);
 
@@ -1018,16 +1037,33 @@ namespace Things
 		int min_obj = 0;
 		int max_obj = 0;
 
-		switch (ref->field_type)
+		if (Patch::patch_fmt <= 5)
 		{
-			case FT_FRAME:  max_obj = NUMSTATES -1; break;
-			case FT_SOUND:  max_obj = NUMSFX - 1; break;
-			case FT_SPRITE: max_obj = NUMSPRITES - 1; break;
-			case FT_SUBSPR: max_obj = 31; break;
-			case FT_AMMO:   max_obj = NUMAMMO - 1; break;
+			switch (ref->field_type)
+			{
+				case FT_AMMO:   max_obj = NUMAMMO - 1; break;
+				case FT_FRAME:  max_obj = NUMSTATES - 1; break;
+				case FT_SOUND:  max_obj = NUMSFX - 1; break;
+				case FT_SPRITE: max_obj = NUMSPRITES - 1; break;
+				case FT_SUBSPR: max_obj = 31; break;
 
-			default:
-				InternalError("Bad field type %d\n", ref->field_type);
+				default:
+					InternalError("Bad field type %d\n", ref->field_type);
+			}
+		}
+		else  /* patch_fmt == 6, allow BEX */
+		{
+			switch (ref->field_type)
+			{
+				case FT_AMMO:   max_obj = NUMAMMO - 1; break;
+				case FT_FRAME:  max_obj = NUMSTATES_BEX - 1; break;
+				case FT_SOUND:  max_obj = NUMSFX_BEX - 1; break;
+				case FT_SPRITE: max_obj = NUMSPRITES_BEX - 1; break;
+				case FT_SUBSPR: max_obj = 31; break;
+
+				default:
+					InternalError("Bad field type %d\n", ref->field_type);
+			}
 		}
 
 		if (new_val < min_obj || new_val > max_obj)
@@ -1056,6 +1092,11 @@ bool Things::AlterOneField(const fieldreference_t *refs, const char *deh_field,
 
 		if (ValidateValue(refs, new_val))
 		{
+			// prevent BOOM/MBF specific flags from being set using
+			// numeric notation.  Only settable via AAA+BBB notation.
+			if (refs->field_type == FT_BITS)
+				new_val &= ~ ALL_BEX_FLAGS;
+
 			// Yup, we play a bit dirty here
 			char *dest = ((char *) (refs->var)) + entry_offset;
 

@@ -55,7 +55,7 @@ namespace Patch
 
 	bool file_error;
 
-	int patch_fmt;   /* 1 to 5 */
+	int patch_fmt;   /* 1 to 6 */
 	int dhe_ver;     /* 12, 13, 20-24, 30 */
 	int doom_ver;    /* 12, 16 to 21 */
 
@@ -177,6 +177,24 @@ namespace Patch
 		int temp = GetRawInt();
 
 		Debug_PrintMsg("Int: %d\n", temp);
+
+		if (*dest == temp)
+			return;
+
+		Storage::RememberMod(dest, temp);
+
+		MarkObject(o_kind, o_num);
+	}
+
+	void GetFlags(int o_kind, int o_num, int *dest)
+	{
+		int temp = GetRawInt();
+
+		Debug_PrintMsg("Flags: 0x%08x\n", temp);
+
+		// prevent the BOOM/MBF specific flags from being set
+		// from binary patch files.
+		temp &= ~ ALL_BEX_FLAGS;
 
 		if (*dest == temp)
 			return;
@@ -380,7 +398,7 @@ namespace Patch
 		GetInt  (O_MOBJ, mt_num, &mobj->mass);
 		GetInt  (O_MOBJ, mt_num, &mobj->damage);
 		GetSound(O_MOBJ, mt_num, &mobj->activesound);
-		GetInt  (O_MOBJ, mt_num, &mobj->flags);
+		GetFlags(O_MOBJ, mt_num, &mobj->flags);
 
 		if (doom_ver != 12)
 			GetFrame(O_MOBJ, mt_num, &mobj->raisestate);
@@ -717,24 +735,45 @@ namespace Patch
 		int min_obj = 0;
 		int max_obj = 0;
 
-		switch (active_section)
+		if (active_section == DEH_MISC || active_section == DEH_CHEAT ||
+			active_section == DEH_SPRITE)
 		{
-			case DEH_THING:  min_obj = 1; max_obj = NUMMOBJTYPES; break;
+			return true;  /* don't care */
+		}
 
-			case DEH_SOUND:  max_obj = NUMSFX - 1; break;
-			case DEH_FRAME:  max_obj = NUMSTATES - 1; break;
-			case DEH_AMMO:   max_obj = NUMAMMO - 1; break;
-			case DEH_WEAPON: max_obj = NUMWEAPONS - 1; break;
-			case DEH_PTR:    max_obj = POINTER_NUM - 1; break;
+		if (patch_fmt <= 5)
+		{
+			switch (active_section)
+			{
+				case DEH_THING:  min_obj = 1; max_obj = NUMMOBJTYPES; break;
 
-			case DEH_MISC:   /* don't care */ return true;
-			case DEH_CHEAT:  /* don't care */ return true;
-			case DEH_SPRITE: /* don't care */ return true;
+				case DEH_SOUND:  max_obj = NUMSFX - 1; break;
+				case DEH_FRAME:  max_obj = NUMSTATES - 1; break;
+				case DEH_AMMO:   max_obj = NUMAMMO - 1; break;
+				case DEH_WEAPON: max_obj = NUMWEAPONS - 1; break;
+				case DEH_PTR:    max_obj = POINTER_NUM - 1; break;
 
-			/// XXX BEX....
+				default:
+					InternalError("Bad active_section value %d\n", active_section);
+			}
+		}
+		else /* patch_fmt == 6, allow BEX */
+		{
+			switch (active_section)
+			{
+				case DEH_THING:  min_obj = 1; max_obj = NUMMOBJTYPES_BEX; break;
 
-			default:
-				InternalError("Bad active_section value %d\n", active_section);
+				case DEH_SOUND:  max_obj = NUMSFX_BEX - 1; break;
+				case DEH_FRAME:  max_obj = NUMSTATES_BEX - 1; break;
+				case DEH_AMMO:   max_obj = NUMAMMO - 1; break;
+				case DEH_WEAPON: max_obj = NUMWEAPONS - 1; break;
+				case DEH_PTR:    max_obj = POINTER_NUM_BEX - 1; break;
+
+				/// XXX BEX....
+
+				default:
+					InternalError("Bad active_section value %d\n", active_section);
+			}
 		}
 
 		if (active_obj < min_obj || active_obj > max_obj)
