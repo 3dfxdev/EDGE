@@ -963,7 +963,8 @@ void RAD_FinishMenu(int result)
 	
 	DEV_ASSERT2(rts_curr_menu);
 
-	if (result < 0 || result >= rts_curr_menu->NumChoices())
+	// zero is cancelled, otherwise result is 1..N
+	if (result < 0 || result > rts_curr_menu->NumChoices())
 		return;
 
 	rts_curr_menu->NotifyResult(result);
