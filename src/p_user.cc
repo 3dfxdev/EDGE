@@ -209,7 +209,7 @@ static void MovePlayer(player_t * player)
 	}
 
 	if ((cmd->forwardmove || cmd->sidemove)
-		&& player->mo->state == &states[player->mo->info->spawn_state])
+		&& player->mo->state == &states[player->mo->info->idle_state])
 	{
 		if (player->mo->info->chase_state)
 			P_SetMobjState(player->mo, player->mo->info->chase_state);
