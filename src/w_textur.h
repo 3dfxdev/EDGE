@@ -35,23 +35,12 @@
 #include "r_state.h"
 #include "z_zone.h"
 
-// the transparent pixel value we use
-#define TRANS_PIXEL  247
-
 // Texture cache reference structure, returned by the texture cache system.
 // The actual structure is private.
 typedef byte cached_tex_t;
 
-// FIXME: Texture structure ?
-// typedef struct texture_s
-// {
-// }
-// texture_t;
-
 // Retrieve column data.
 const byte *W_GetColumn(int col, const cached_tex_t *t);
-
-// FIXME: Retrieve block data ??
 
 // Standard cache functions. Call W_CacheTextureNum when you first need
 // the lump, and release it with DoneWithTexture.
