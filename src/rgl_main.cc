@@ -83,17 +83,17 @@ float ren_blu_mul;
 extern int rgl_currtimeval;  // hack..
 
 
-#define RGB_RED(rgbcol)  ((float)((rgbcol >> 16) & 0xFF) / 255.0)
-#define RGB_GRN(rgbcol)  ((float)((rgbcol >>  8) & 0xFF) / 255.0)
-#define RGB_BLU(rgbcol)  ((float)((rgbcol      ) & 0xFF) / 255.0)
+#define RGB_RED(rgbcol)  ((float)((rgbcol >> 16) & 0xFF) / 255.0f)
+#define RGB_GRN(rgbcol)  ((float)((rgbcol >>  8) & 0xFF) / 255.0f)
+#define RGB_BLU(rgbcol)  ((float)((rgbcol      ) & 0xFF) / 255.0f)
 
-#define PAL_RED(pix)  ((float)(playpal_data[0][pix][0]) / 255.0)
-#define PAL_GRN(pix)  ((float)(playpal_data[0][pix][1]) / 255.0)
-#define PAL_BLU(pix)  ((float)(playpal_data[0][pix][2]) / 255.0)
+#define PAL_RED(pix)  ((float)(playpal_data[0][pix][0]) / 255.0f)
+#define PAL_GRN(pix)  ((float)(playpal_data[0][pix][1]) / 255.0f)
+#define PAL_BLU(pix)  ((float)(playpal_data[0][pix][2]) / 255.0f)
 
-#define LT_RED(light)  (MIN(255,light) * ren_red_mul / 255.0)
-#define LT_GRN(light)  (MIN(255,light) * ren_grn_mul / 255.0)
-#define LT_BLU(light)  (MIN(255,light) * ren_blu_mul / 255.0)
+#define LT_RED(light)  (MIN(255,light) * ren_red_mul / 255.0f)
+#define LT_GRN(light)  (MIN(255,light) * ren_grn_mul / 255.0f)
+#define LT_BLU(light)  (MIN(255,light) * ren_blu_mul / 255.0f)
 
 
 static void SetupLightMap(lighting_model_e model)
@@ -178,8 +178,8 @@ void RGL_SetupMatrices3D(void)
 	glMatrixMode(GL_MODELVIEW);
 
 	glLoadIdentity();
-	glRotatef(270.0 - atan(viewvertangle) * 180.0 / M_PI, 1.0, 0.0, 0.0);
-	glRotatef(90.0 - ANG_2_FLOAT(viewangle), 0.0, 0.0, 1.0);
+	glRotatef(270.0f - (float)atan(viewvertangle) * 180.0f / (float)M_PI, 1.0f, 0.0f, 0.0f);
+	glRotatef(90.0f - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
 	glTranslatef(-viewx, -viewy, -viewz);
 
 	// turn on lighting.  Some drivers (e.g. TNT2) don't work properly
@@ -247,7 +247,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	trans *= psp->visibility;
 
 	// psprites are never totally opaque
-	if (trans <= 0.99)
+	if (trans <= 0.99f)
 		glEnable(GL_BLEND);
 	else
 		glEnable(GL_ALPHA_TEST);
@@ -255,11 +255,11 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex_id);
 
-	tex_top_h = 1.00; // 0.98;
-	tex_bot_h = 1.00 - bottom;  // 1.02 - bottom;
+	tex_top_h = 1.00f; // 0.98;
+	tex_bot_h = 1.00f - bottom;  // 1.02 - bottom;
 
-	tex_x1 = 0.01;
-	tex_x2 = right - 0.01;
+	tex_x1 = 0.01f;
+	tex_x2 = right - 0.01f;
 
 	if (flip)
 	{
@@ -288,24 +288,24 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 		L_r = L_g = L_b = 255;
 	}
 
-	x1b = x1t = (160.0 + tx1) * viewwindowwidth / 320.0f;
-	x2b = x2t = (160.0 + tx2) * viewwindowwidth / 320.0f;
+	x1b = x1t = (160.0f + tx1) * viewwindowwidth / 320.0f;
+	x2b = x2t = (160.0f + tx2) * viewwindowwidth / 320.0f;
 
 	y1b = y2b = (ty2) * viewwindowheight / 200.0f;
 	y1t = y2t = (ty1) * viewwindowheight / 200.0f;
 
 	if (fuzzy)
 	{
-		float range_x = fabs(x2b - x1b) / 12.0f;
-		float range_y = fabs(y1t - y1b) / 12.0f;
+		float range_x = (float)fabs(x2b - x1b) / 12.0f;
+		float range_y = (float)fabs(y1t - y1b) / 12.0f;
 
-		float bl_x = sin(rgl_currtimeval / 5.0);
-		float tl_x = sin(rgl_currtimeval / 11.0);
-		float tr_x = sin(rgl_currtimeval / 7.0);
-		float br_x = sin(rgl_currtimeval / 13.0);
+		float bl_x = (float)sin(rgl_currtimeval / 5.0f);
+		float tl_x = (float)sin(rgl_currtimeval / 11.0f);
+		float tr_x = (float)sin(rgl_currtimeval / 7.0f);
+		float br_x = (float)sin(rgl_currtimeval / 13.0f);
 
-		float tl_y = cos(rgl_currtimeval / 11.0);
-		float tr_y = cos(rgl_currtimeval / 7.0);
+		float tl_y = (float)cos(rgl_currtimeval / 11.0f);
+		float tr_y = (float)cos(rgl_currtimeval / 7.0f);
     
 		// don't adjust the bottom Y positions
     
@@ -420,7 +420,7 @@ void RGL_RainbowEffect(player_t *player)
 
 	if (s > 0)
 	{
-		s = MIN(128.0, s);
+		s = MIN(128.0f, s);
 		ren_allbright = true;
 		ren_red_mul = ren_grn_mul = ren_blu_mul = s / 256.0f;
 		return;
@@ -430,8 +430,8 @@ void RGL_RainbowEffect(player_t *player)
 
 	if (s > 0)
 	{
-		s = MIN(128.0, s);
-		ren_red_mul = ren_blu_mul = 1.0 - s / 128.0f;
+		s = MIN(128.0f, s);
+		ren_red_mul = ren_blu_mul = 1.0f - s / 128.0f;
 		return;
 	}
 
@@ -455,16 +455,16 @@ void RGL_ColourmapEffect(player_t *player)
 	{
 		float s = (float) player->powers[PW_Invulnerable];
     
-		s = MIN(128.0, s) / 128.0f;
+		s = MIN(128.0f, s) / 128.0f;
 
 		if (glpar_invuln == 0)
 		{
-			glColor4f(1.0, 1.0, 1.0, 0.0);
+			glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
 			glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
 		}
 		else
 		{
-			glColor4f(0.75 * s, 0.75 * s, 0.75 * s, 0.0);
+			glColor4f(0.75f * s, 0.75f * s, 0.75f * s, 0.0f);
 			glBlendFunc(GL_ONE, GL_ONE);
 		}
 	}
@@ -516,7 +516,7 @@ void RGL_PaletteEffect(player_t *player)
 	glColor4f((float) rgb_data[0] / (float) rgb_max,
 			  (float) rgb_data[1] / (float) rgb_max,
 			  (float) rgb_data[2] / (float) rgb_max,
-			  (float) rgb_max / 255.0);
+			  (float) rgb_max / 255.0f);
 
 	glEnable(GL_BLEND);
 
@@ -592,16 +592,16 @@ void RGL_DrawImage(int x, int y, int w, int h, const image_t *image,
 
 	glBegin(GL_QUADS);
   
-	glTexCoord2f(tx1, 1.0 - ty1);
+	glTexCoord2f(tx1, 1.0f - ty1);
 	glVertex2i(x, SCREENHEIGHT - y);
 
-	glTexCoord2f(tx2, 1.0 - ty1); 
+	glTexCoord2f(tx2, 1.0f - ty1); 
 	glVertex2i(x+w, SCREENHEIGHT - y);
   
-	glTexCoord2f(tx2, 1.0 - ty2);
+	glTexCoord2f(tx2, 1.0f - ty2);
 	glVertex2i(x+w, SCREENHEIGHT - y - h);
   
-	glTexCoord2f(tx1, 1.0 - ty2);
+	glTexCoord2f(tx1, 1.0f - ty2);
 	glVertex2i(x, SCREENHEIGHT - y - h);
   
 	glEnd();

@@ -1505,7 +1505,7 @@ static void RAD_ParseSpawnThing(int pnum, const char **pars)
 		RAD_CheckForInt(angle_str, &val);
 
 		if (ABS(val) <= 360)
-			t->angle = FLOAT_2_ANG((float) val);
+			t->angle = FLOAT_2_ANG((float)val);
 		else
 			t->angle = val << 16;
 	}

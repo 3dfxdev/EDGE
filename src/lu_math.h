@@ -85,7 +85,7 @@ int SlopeDiv(unsigned num, unsigned den);
 #define FIX_2_FLOAT(x)  ((float) (x) / 65536.0)
 #define FLOAT_2_FIX(f)  ((fixed_t) ((f) * 65536.0))
 
-#define ANG_2_FLOAT(a)  ((float) (a) * 360.0 / 4294967296.0)
+#define ANG_2_FLOAT(a)  ((float) (a) * 360.0f / 4294967296.0f)
 #define FLOAT_2_ANG(f)  ((angle_t) ((f) / 360.0 * 4294967296.0))
 
 #endif

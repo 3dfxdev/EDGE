@@ -874,7 +874,7 @@ int L_ConvertToDB(int volume, int min, int max)
 
 	DEV_ASSERT2(0 <= volume && volume <= 255);
 
-	tmp = 1.0f - log(256.0f / (volume + 1.0f)) / log(256.0f);
+	tmp = 1.0f - (float)log(256.0f / (volume + 1.0f)) / (float)log(256.0f);
 
 	result = min + (int) ((max - min) * tmp);
 

@@ -34,7 +34,7 @@
 //  RGL_MAIN
 //
 
-#define FUZZY_TRANS  0.30
+#define FUZZY_TRANS  0.30f
 
 extern int glmax_lights;
 extern int glmax_clip_planes;
