@@ -125,6 +125,8 @@ const image_t *W_ImageFromFont(const char *patch_name);
 //  IMAGE USAGE
 //
 
+extern boolean_t use_mipmapping;
+
 void W_InitImages(void);
 
 const cached_image_t *W_ImageCache(const image_t *image, 
