@@ -96,11 +96,8 @@ float float_destz;
 // keep track of special lines as they are hit,
 // but don't process them until the move is proven valid
 
-stack_array_t spechit_a;
-line_t **spechit = NULL;
-int numspechit;
-
-mobj_t *linetarget;  // who got hit (or NULL)
+linelist_c spechit;		// List of special lines that have been hit
+mobj_t *linetarget;  	// who got hit (or NULL)
 
 typedef struct shoot_trav_info_s
 {
@@ -219,7 +216,9 @@ bool P_TeleportMove(mobj_t * thing, float x, float y, float z)
 	tm_I.below = NULL;
 
 	validcount++;
-	Z_SetArraySize(&spechit_a, numspechit = 0);
+	
+	// -ACB- 2004/08/01 Don't think this is needed
+//	spechit.ZeroiseCount();
 
 	// stomp on any things contacted
 	xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]   - MAXRADIUS);
@@ -525,10 +524,7 @@ static bool PIT_CheckRelLine(line_t * ld)
 
 	// if contacted a special line, add it to the list
 	if (ld->special)
-	{
-		Z_SetArraySize(&spechit_a, ++numspechit);
-		spechit[numspechit - 1] = ld;
-	}
+		spechit.Insert(ld);
 
 	// check for hitting a sky-hack line
 	{
@@ -785,7 +781,7 @@ static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 		return true;
 
 	validcount++;
-	Z_SetArraySize(&spechit_a, numspechit = 0);
+	spechit.ZeroiseCount();
 
 	// -KM- 1998/11/25 Corpses aren't supposed to hang in the air...
 	if (!(tm_I.flags & (MF_NOCLIP | MF_CORPSE)))
@@ -834,8 +830,6 @@ bool P_TryMove(mobj_t * thing, float x, float y)
 {
 	float oldx;
 	float oldy;
-	int side;
-	int oldside;
 	line_t *ld;
 	bool fell_off_thing;
 
@@ -921,40 +915,34 @@ bool P_TryMove(mobj_t * thing, float x, float y)
 	// if any special lines were hit, do the effect
 	if (!(thing->flags & (MF_TELEPORT | MF_NOCLIP)))
 	{
-		line_t **hits;
-		int i;
-
-		// -ES- 2000/02/05 spechit could be changed inside the loop
-		hits = (line_t**)I_TmpMalloc(numspechit * sizeof(line_t *));
-		Z_MoveData(hits, spechit, line_t *, numspechit);
-		i = numspechit;
-		Z_SetArraySize(&spechit_a, numspechit = 0);
-
-		for (i--; i >= 0; i--)
-		{
-			// honour the NO_TRIGGER_LINES attack special
-			if (! thing->player &&
-				! (thing->extendedflags & EF_MONSTER) &&
-				thing->currentattack && 
-				(thing->currentattack->flags & AF_NoTriggerLines))
+		// Thing doesn't change, so we check the notriggerlines flag once..
+		if (thing->player || (thing->extendedflags & EF_MONSTER) ||
+			!(thing->currentattack && 
+			(thing->currentattack->flags & AF_NoTriggerLines)))
+		{		
+			epi::array_iterator_c it;
+			
+			for (it=spechit.GetTailIterator(); it.IsValid(); it--)
 			{
-				continue;
-			}
-
-			// see if the line was crossed
-			ld = hits[i];
-			side = PointOnLineSide(thing->x, thing->y, ld);
-			oldside = PointOnLineSide(oldx, oldy, ld);
-
-			if (side != oldside && ld->special)
-			{
-				if (thing->flags & MF_MISSILE)
-					P_ShootSpecialLine(ld, oldside, thing->source);
-				else
-					P_CrossSpecialLine(ld, oldside, thing);
+				ld = ITERATOR_TO_TYPE(it, line_t*);
+				if (ld->special)	// Shouldn't this always be a special?
+				{
+					int side;
+					int oldside;
+		
+					side = PointOnLineSide(thing->x, thing->y, ld);
+					oldside = PointOnLineSide(oldx, oldy, ld);
+	
+					if (side != oldside)
+					{
+						if (thing->flags & MF_MISSILE)
+							P_ShootSpecialLine(ld, oldside, thing->source);
+						else
+							P_CrossSpecialLine(ld, oldside, thing);
+					}
+				}
 			}
 		}
-		I_TmpFree(hits);
 	}
 
 	return true;
@@ -2610,8 +2598,7 @@ bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing)
 //
 bool P_MapInit(void)
 {
-	Z_InitStackArray(&spechit_a, (void***)&spechit, sizeof(line_t *), -8);
-
+	spechit.Clear();
 	return true;
 }
 

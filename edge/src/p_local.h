@@ -33,6 +33,8 @@
 #include "r_local.h"
 #endif
 
+#include "epi/epiarray.h"
+
 #define DEATHVIEWHEIGHT  6.0f
 #define CROUCH_SLOWDOWN  0.6f
 
@@ -290,6 +292,23 @@ typedef enum
 }
 check_sec_move_e;
 
+// --> Line list class
+class linelist_c : public epi::array_c
+{
+public:
+	linelist_c() : epi::array_c(sizeof(line_t*)) {}
+	~linelist_c() { Clear(); }
+
+private:
+	void CleanupObject(void *obj) { /* ... */ }
+
+public:
+	int GetSize() {	return array_entries; } 
+	int Insert(line_t *l) { return InsertObject((void*)&l); }
+	line_t* operator[](int idx) { return *(line_t**)FetchObject(idx); } 
+	void ZeroiseCount(void) { array_entries = 0; }
+};
+
 // If "floatok" true, move would be OK at float_destz height.
 extern bool floatok;
 extern float float_destz;
@@ -299,9 +318,7 @@ extern mobj_t *linetarget;  // who got hit (or NULL)
 extern bool mobj_hit_sky;
 extern line_t *blockline;
 
-extern stack_array_t spechit_a;
-extern line_t **spechit;
-extern int numspechit;
+extern linelist_c spechit;
 
 bool P_MapInit(void);
 bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing);
@@ -370,6 +387,7 @@ bool P_GiveBenefitList(player_t *player, mobj_t *special,
 //
 #include "p_spec.h"
 
+// playsim namespace
 namespace playsim
 {
 	linetype_c* LookupLineType(int num);

@@ -188,9 +188,9 @@ bool P_Move(mobj_t * actor, bool path)
 
 	if (!try_ok)
 	{
-		line_t **hits;
-		int i;
-
+		epi::array_iterator_c it;
+		line_t* ld;
+		
 		// open any specials
 		if (actor->flags & MF_FLOAT && floatok)
 		{
@@ -204,7 +204,7 @@ bool P_Move(mobj_t * actor, bool path)
 			return true;
 		}
 
-		if (!numspechit)
+		if (spechit.GetSize() == 0)
 			return false;
 
 		actor->movedir = DI_NODIR;
@@ -216,18 +216,10 @@ bool P_Move(mobj_t * actor, bool path)
 		//       was some other line activated.
 
 		any_used = block_used = false;
-
-		// -ES- 2000/02/05 spechit could be changed inside the loop
-		hits = (line_t**)I_TmpMalloc(numspechit * sizeof(line_t *));
-		Z_MoveData(hits, spechit, line_t *, numspechit);
-		i = numspechit;
-
-		Z_SetArraySize(&spechit_a, numspechit = 0);
-
-		while (i)
+					
+		for (it=spechit.GetTailIterator(); it.IsValid(); it--)
 		{
-			line_t *ld = hits[--i];
-
+			ld = ITERATOR_TO_TYPE(it, line_t*);
 			if (P_UseSpecialLine(actor, ld, 0, -FLT_MAX, FLT_MAX))
 			{
 				any_used = true;
@@ -236,8 +228,7 @@ bool P_Move(mobj_t * actor, bool path)
 					block_used = true;
 			}
 		}
-		I_TmpFree(hits);
-
+			
 		return any_used && (P_Random() < 230 ? block_used : !block_used);
 	}
 	else
