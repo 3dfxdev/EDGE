@@ -183,7 +183,7 @@ typedef enum { false, true } boolean_t;
 #define NAME        "EDGE"
 #define OUTPUTNAME  "EDGECONSOLE"
 #define TITLE       "EDGE Engine"
-#define OUTPUTTITLE "EDGE Engine console"
+#define OUTPUTTITLE "EDGE System Console"
 
 // Access() define values. Nicked from DJGPP's <unistd.h>
 #define R_OK    0x02
@@ -251,7 +251,7 @@ typedef enum { false, true } boolean_t;
 #define NAME        "EDGE"
 #define OUTPUTNAME  "EDGECONSOLE"
 #define TITLE       "EDGE Engine"
-#define OUTPUTTITLE "EDGE Engine console"
+#define OUTPUTTITLE "EDGE System Console"
 
 // Access() define values. Nicked from DJGPP's <unistd.h>
 #define R_OK    0x02

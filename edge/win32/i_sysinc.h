@@ -33,7 +33,6 @@
 #include <winnls.h>
 #include <mmsystem.h>
 #include <signal.h>
-#include <shlwapi.h>
 
 #include <ddraw.h>
 #include <dinput.h>
@@ -95,6 +94,10 @@ long FAR PASCAL I_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 extern HWND mainwindow;
 extern HINSTANCE maininstance;
 extern HACCEL accelerator;
+
+// -ACB- 2000/07/04 We want to see this lot from elsewhere in the EPI
+extern HWND conwinhandle;
+extern boolean_t appactive;
 
 #ifdef __cplusplus
 }
