@@ -348,7 +348,7 @@ void DDF_WeaponCleanUp(void)
 {
 	// compute the weaponkey array
 	epi::array_iterator_c it;
-	int i, key;
+	int key;
 	weapondef_container_c tmplist;
 	weapondef_c *wd;
 	weaponkey_c *wk;
