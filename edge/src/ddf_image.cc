@@ -177,32 +177,59 @@ void DDF_ImageCleanUp(void)
 	imagedefs.Trim();		// <-- Reduce to allocated size
 }
 
+static void ImageParseColour(const char *value)
+{
+	buffer_image.type = IMGDT_Colour;
+
+	DDF_MainGetRGB(value, &buffer_image.colour);
+}
+
+static void ImageParseBuiltin(const char *value)
+{
+	buffer_image.type = IMGDT_Builtin;
+
+	if (DDF_CompareName(value, "LINEAR") == 0)
+		buffer_image.builtin = BLTIM_Linear;
+	else if (DDF_CompareName(value, "QUADRATIC") == 0)
+		buffer_image.builtin = BLTIM_Quadratic;
+	else if (DDF_CompareName(value, "SHADOW") == 0)
+		buffer_image.builtin = BLTIM_Shadow;
+	else
+		DDF_Error("Unknown image BUILTIN kind: %s\n", value);
+}
+
 //
 // DDF_ImageGetType
 //
 static void DDF_ImageGetType(const char *info, void *storage)
 {
+	const char *colon = DDF_MainDecodeList(info, ':', true);
 
-	bool *is_tex = (bool *) storage;
+	if (! colon || colon == info || (colon - info) >= 16 || colon[1] == 0)
+		DDF_Error("Malformed image type spec: %s\n", info);
 
-return;	// !!!! FIXME: DDF_ImageGetType
+	char keyword[20];
 
-	if (DDF_CompareName(info, "FLAT") == 0)
-		(*is_tex) = false;
-	else if (DDF_CompareName(info, "TEXTURE") == 0)
-		(*is_tex) = true;
-	else
+	strncpy(keyword, info, colon - info);
+	keyword[colon - info] = 0;
+
+	if (DDF_CompareName(keyword, "COLOUR") == 0)
 	{
-		DDF_WarnError2(0x128, "Unknown images type: %s\n", info);
-		(*is_tex) = false;
+		ImageParseColour(colon + 1);
 	}
+	else if (DDF_CompareName(keyword, "BUILTIN") == 0)
+	{
+		ImageParseBuiltin(colon + 1);
+	}
+	else
+		DDF_Error("Unknown image type: %s\n", keyword);
 }
 
 static specflags_t image_specials[] =
 {
     {"ALPHA", IMGSP_NoAlpha, 1},
-    {"CLAMP X", IMGSP_ClampX, 0},
-    {"CLAMP Y", IMGSP_ClampY, 0},
+    {"MIP",   IMGSP_NoMip,   1},
+    {"CLAMP", IMGSP_Clamp,   0},
     {NULL, 0, 0}
 };
 
@@ -283,7 +310,7 @@ void imagedef_c::Default()
 	ddf.Default();
 
 	type = IMGDT_Colour;
-	colour = 0xff7000;  // black  !!!!!! FIXME
+	colour = 0x000000;  // black
 	builtin = BLTIM_Quadratic;
 
 	special = IMGSP_None;

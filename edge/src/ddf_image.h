@@ -57,8 +57,8 @@ typedef enum
 	IMGSP_None = 0,
 
 	IMGSP_NoAlpha = 0x0001,   // image does not require an alpha channel
-	IMGSP_ClampX  = 0x0010,   // clamp image horizontally
-	IMGSP_ClampY  = 0x0020,   // clamp image vertically
+	IMGSP_NoMip   = 0x0002,   // disable mip-mapping on image
+	IMGSP_Clamp   = 0x0004,   // clamp image
 }
 image_special_e;
 
