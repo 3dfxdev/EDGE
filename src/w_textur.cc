@@ -27,6 +27,7 @@
 #include "e_search.h"
 #include "dm_state.h"
 #include "dm_defs.h"
+#include "e_main.h"
 #include "m_argv.h"
 #include "m_misc.h"
 #include "m_swap.h"
@@ -233,6 +234,8 @@ bool W_InitTextures(void)
 
 	for (file=0; file < max_file; file++)
 	{
+		E_LocalProgress(file, max_file, NULL);
+
 		wadtex_resource_t WT;
 
 		W_GetTextureLumps(file, &WT);

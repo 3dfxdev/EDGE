@@ -955,9 +955,10 @@ bool CON_Responder(gui_t * gui, guievent_t * event)
 	return false;
 }
 
-void CON_InitResolution(void)
+bool CON_InitResolution(void)
 {
 	CON_InitConsole(SCREENWIDTH, (SCREENHEIGHT * 3 / 4) & ~7, true);
+	return true;
 }
 
 void UpdateConback(cvar_t *var, void *user)
@@ -971,7 +972,6 @@ void UpdateConback(cvar_t *var, void *user)
 
 void CON_Start(gui_t ** gui)
 {
-	GUI_Start(gui, &console);
 	CON_CreateCVarEnum("constate", cf_normal, &con_info.visible, "notvisible/visible", NUMVIS);
 	CON_CreateCVarStr("conback", cf_normal, consolebackg, 8);
 	CON_AddCVarCallback(CON_CVarPtrFromName("conback"), UpdateConback, NULL, NULL);
@@ -979,4 +979,7 @@ void CON_Start(gui_t ** gui)
 	CON_CreateCVarEnum("conwipemethod", cf_normal, &conwipemethod, WIPE_EnumStr, WIPE_NUMWIPES);
 	CON_CreateCVarInt("conwipeduration", cf_normal, &conwipeduration);
 	CON_CreateCVarBool("conwipereverse", cf_normal, &conwipereverse);
+
+	GUI_Start(gui, &console);
+	CON_SetVisible(vs_maximal);
 }

@@ -36,7 +36,7 @@ bool CON_Responder(gui_t * gui, guievent_t * event);
 void CON_Drawer(gui_t * gui);
 
 // Re-inits the console after a resolution change.
-void CON_InitResolution(void);
+bool CON_InitResolution(void);
 
 // Inits the console for the given dimensions.
 void CON_InitConsole(int width, int height, int gfxmode);

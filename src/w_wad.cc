@@ -44,10 +44,39 @@
 #include "m_swap.h"
 #include "e_player.h"
 #include "rad_trig.h"
+#include "rgl_defs.h"
 #include "w_textur.h"
 #include "w_image.h"
 #include "z_zone.h"
 
+// -KM- 1999/01/31 Order is important, Languages are loaded before sfx, etc...
+typedef struct ddf_reader_s
+{
+	const char *name;
+	const char *print_name;
+	void (* func)(void *data, int size);
+}
+ddf_reader_t;
+
+static ddf_reader_t DDF_Readers[] =
+{
+	{ "DDFLANG", "Languages",  DDF_ReadLangs },
+	{ "DDFSFX",  "Sounds",     DDF_ReadSFX },
+	{ "DDFCOLM", "ColourMaps", DDF_ReadColourMaps },  // -AJA- 1999/07/09.
+	{ "DDFATK",  "Attacks",    DDF_ReadAtks },
+	{ "DDFWEAP", "Weapons",    DDF_ReadWeapons },
+	{ "DDFTHING","Things",     DDF_ReadThings },
+	{ "DDFPLAY", "Playlists",  DDF_ReadMusicPlaylist },
+	{ "DDFLINE", "Lines",      DDF_ReadLines },
+	{ "DDFSECT", "Sectors",    DDF_ReadSectors },
+	{ "DDFSWTH", "Switches",   DDF_ReadSW },
+	{ "DDFANIM", "Anims",      DDF_ReadAnims },
+	{ "DDFGAME", "Games",      DDF_ReadGames },
+	{ "DDFLEVL", "Levels",     DDF_ReadLevels },
+	{ "RSCRIPT", "Scripts",    RAD_ReadScript }       // -AJA- 2000/04/21.
+};
+
+#define NUM_DDF_READERS  (int)(sizeof(DDF_Readers) / sizeof(ddf_reader_t))
 
 typedef enum 
 {
@@ -78,6 +107,9 @@ typedef struct data_file_s
 	// patch list (yes, 16 at a time)
 	int *patch_lumps;
 	int patch_num;
+
+	// ddf lump list
+	int ddf_lumps[NUM_DDF_READERS];
 
 	// texture information
 	wadtex_resource_t wadtex;
@@ -424,35 +456,6 @@ static void SortSpriteLumps(data_file_t *f)
 //  for the lump name.
 //
 
-// -KM- 1999/01/31 Order is important, Languages are loaded before sfx, etc...
-typedef struct ddf_reader_s
-{
-	char *name;
-	void (* func)(void *data, int size);
-	int lump;
-}
-ddf_reader_t;
-
-static ddf_reader_t DDF_Readers[] =
-{
-	{ "DDFLANG", DDF_ReadLangs, 0 } ,
-	{ "DDFSFX",  DDF_ReadSFX, 0 } ,
-	{ "DDFCOLM", DDF_ReadColourMaps, 0 } ,  // -AJA- 1999/07/09.
-	{ "DDFATK",  DDF_ReadAtks, 0 } ,
-	{ "DDFWEAP", DDF_ReadWeapons, 0 } ,
-	{ "DDFTHING",DDF_ReadThings, 0 } ,
-	{ "DDFPLAY", DDF_ReadMusicPlaylist, 0 } ,
-	{ "DDFLINE", DDF_ReadLines, 0 } ,
-	{ "DDFSECT", DDF_ReadSectors, 0 } ,
-	{ "DDFSWTH", DDF_ReadSW, 0 } ,
-	{ "DDFANIM", DDF_ReadAnims, 0 } ,
-	{ "DDFGAME", DDF_ReadGames, 0 } ,
-	{ "DDFLEVL", DDF_ReadLevels, 0 },
-	{ "RSCRIPT", RAD_LoadLump, 0 }       // -AJA- 2000/04/21.
-};
-
-#define NUM_DDF_READERS  (int)(sizeof(DDF_Readers) / sizeof(ddf_reader_t))
-
 //
 // FreeLump
 //
@@ -559,7 +562,7 @@ static void AddLump(int lump, int pos, int size, int file,
 		{
 			if (!strncmp(name, DDF_Readers[j].name, 8))
 			{
-				DDF_Readers[j].lump = lump;
+				data_files[file].ddf_lumps[j] = lump;
 				return;
 			}
 		}
@@ -650,8 +653,6 @@ static void AddFile(const char *filename, bool allow_ddf,
 	within_sprite_list = within_flat_list = within_patch_list  = false;
 
 	// open the file and add to directory
-	for (j=0; j < NUM_DDF_READERS; j++)
-		DDF_Readers[j].lump = -1;
 
 	if ((handle = open(filename, O_RDONLY | O_BINARY)) == -1)
 	{
@@ -677,6 +678,9 @@ static void AddFile(const char *filename, bool allow_ddf,
 	data_files[datafile].wadtex.pnames = -1;
 	data_files[datafile].wadtex.texture1 = -1;
 	data_files[datafile].wadtex.texture2 = -1;
+
+	for (j = 0; j < NUM_DDF_READERS; j++)
+		data_files[datafile].ddf_lumps[j] = -1;
 
 	if (M_CheckExtension("wad", filename) == EXT_MATCHING ||
 		M_CheckExtension("gwa", filename) == EXT_MATCHING ||
@@ -743,26 +747,6 @@ static void AddFile(const char *filename, bool allow_ddf,
 	Z_Resize(lumplookup, lumpheader_t *, numlumps);
 	for (j=startlump; j < numlumps; j++)
 		lumplookup[j] = NULL;
-
-	// -KM- 1999/01/31 Load lumps in correct order.
-	for (j=0; j < NUM_DDF_READERS; j++)
-	{
-		if (DDF_Readers[j].lump >= 0)
-		{
-			char *data;
-
-			DEV_ASSERT2(dyn_index < 0);
-
-			data = Z_New(char, W_LumpLength(DDF_Readers[j].lump) + 1);
-			W_ReadLump(DDF_Readers[j].lump, data);
-			data[W_LumpLength(DDF_Readers[j].lump)] = 0;
-
-			// call read function
-			(* DDF_Readers[j].func)(data, W_LumpLength(DDF_Readers[j].lump));
-
-			Z_Free(data);
-		}
-	}
 
 	I_Printf("\n");
 
@@ -904,6 +888,53 @@ bool W_InitMultipleFiles(void)
 	return true;
 }
 
+bool W_ReadDDF(void)
+{
+	// -AJA- the order here may look strange.  Since DDF files
+	// have dependencies between them, it makes more sense to
+	// load all lumps of a certain type together (e.g. all
+	// DDFSFX lumps before all the DDFTHING lumps).
+
+	for (int d = 0; d < NUM_DDF_READERS; d++)
+	{
+		if (external_ddf)
+		{
+			// call read function
+			(* DDF_Readers[d].func)(NULL, 0);
+		}
+
+		for (int f = 0; f <= datafile; f++)
+		{
+			int lump = data_files[f].ddf_lumps[d];
+
+			if (lump < 0)
+				continue;
+
+			// FIXME: not using m_misc's M_GetFileData ???
+			char *data;
+			int length = W_LumpLength(lump);
+
+			data = Z_New(char, length + 1);
+			W_ReadLump(lump, data);
+			data[length] = 0;
+
+			// call read function
+			(* DDF_Readers[d].func)(data, length);
+
+			Z_Free(data);
+		}
+
+		char msg_buf[256];
+
+		sprintf(msg_buf, "Parsing %s %s", (d == NUM_DDF_READERS-1) ? "RTS" : "DDF",
+			DDF_Readers[d].print_name);
+
+		E_LocalProgress(d, NUM_DDF_READERS, msg_buf);
+	}
+
+	return true;
+}
+
 //
 // W_GetFileName
 //
@@ -1036,6 +1067,8 @@ int W_GetNumForName2(const char *name)
 // -AJA- 2004/06/24: Patches should be within the P_START/P_END markers,
 //       so we should look there first.  Also we should never return a
 //       flat as a tex-patch.
+//
+// FIXME: Optimise !! (Major source of startup slowdown).
 //
 int W_CheckNumForTexPatch(const char *name)
 {

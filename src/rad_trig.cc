@@ -707,9 +707,6 @@ static void RAD_ParseScript(bool dots)
 
 			RAD_ParseLine(str);
 
-			if (dots && n != rad_itemsread)
-				I_Printf(".");
-
 			n = rad_itemsread;
 		}
 
@@ -717,30 +714,6 @@ static void RAD_ParseScript(bool dots)
 	}
 
 	RAD_ParserDone();
-}
-
-//
-// RAD_LoadLump
-//
-void RAD_LoadLump(void *data, int size)
-{
-	L_WriteDebug("RTS: Loading LUMP (size=%d)\n", size);
-
-	rad_cur_filename = "RSCRIPT LUMP";
-
-	rad_memfile_size = size;
-	rad_memfile = Z_New(byte, size + 1);
-	rad_memfile_end = &rad_memfile[size];
-
-	Z_MoveData(rad_memfile, (byte *)data, byte, size);
-
-	// Null Terminated string.
-	rad_memfile[size] = 0;
-
-	// OK we have the file in memory.  Parse it to death :-)
-	RAD_ParseScript(false);
-
-	Z_Free(rad_memfile);
 }
 
 //
@@ -763,22 +736,43 @@ static void RAD_LoadFile(const char *name, bool dots)
 }
 
 //
+// RAD_ReadScript
+//
+void RAD_ReadScript(void *data, int size)
+{
+	if (data == NULL)
+	{
+		epi::string_c fn;
+		M_ComposeFileName(fn, ddfdir, "edge.scr");
+		RAD_LoadFile(fn.GetString(), true);
+		return;
+	}
+
+	L_WriteDebug("RTS: Loading LUMP (size=%d)\n", size);
+
+	rad_cur_filename = "RSCRIPT LUMP";
+
+	rad_memfile_size = size;
+	rad_memfile = Z_New(byte, size + 1);
+	rad_memfile_end = &rad_memfile[size];
+
+	Z_MoveData(rad_memfile, (byte *)data, byte, size);
+
+	// Null Terminated string.
+	rad_memfile[size] = 0;
+
+	// OK we have the file in memory.  Parse it to death :-)
+	RAD_ParseScript(false);
+
+	Z_Free(rad_memfile);
+}
+
+//
 // RAD_Init
 //
 bool RAD_Init(void)
 {
 	RAD_InitTips();
-
-	I_Printf("Radius Triggers");
-
-	if (external_ddf)
-	{
-		epi::string_c fn;
-		M_ComposeFileName(fn, ddfdir, "edge.scr");
-		RAD_LoadFile(fn.GetString(), true);
-	}
-
-	I_Printf("\n");
 
 	return true;
 }
@@ -786,11 +780,12 @@ bool RAD_Init(void)
 //
 // RAD_LoadParam
 //
+// -KM- 1998/11/25 Check for command line script loading
+//
 bool RAD_LoadParam(void)
 {
 	const char *par;
 
-	// -KM- 1998/11/25 Check for command line script loading
 	par = M_GetParm("-script");
 
 	if (par)
