@@ -50,15 +50,16 @@ extern float_t masked_translucency;
 
 extern int extra_psp_light;
 
-void R_DrawMaskedColumn(const column_t * column);
-void R_SortVisSprites(void);
+int R_AddSpriteName(const char *name);
+void R_InitSprites(void);
 
 void R_AddSprite(mobj_t *thing);
 void R_AddPSprites(void);
 void R_DrawSprites(void);
-void R_InitSprites(char **namelist);
-void R_ClearSprites(void);
 void R_DrawMasked(void);
+
+void R_DrawMaskedColumn(const column_t * column);
+void R_SortVisSprites(void);
 
 // -ES- 1999/05/31 Changed player sprite system.
 void R_DrawPlayerSprites(player_t * p);

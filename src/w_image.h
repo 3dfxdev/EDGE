@@ -107,6 +107,9 @@ typedef byte cached_image_t;
 #define IM_WIDTH(image)  ((image)->actual_w * (image)->scale_x / 0x100)
 #define IM_HEIGHT(image) ((image)->actual_h * (image)->scale_y / 0x100)
 
+#define IM_OFFSETX(image) ((image)->offset_x * (image)->scale_x / 0x100)
+#define IM_OFFSETY(image) ((image)->offset_y * (image)->scale_y / 0x100)
+
 typedef enum
 {
   // Vertical posts.  Each post is essentially the same as in normal

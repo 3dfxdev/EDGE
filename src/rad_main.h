@@ -61,7 +61,7 @@ typedef struct s_tip_prop_s
   const char *colourmap_name;
  
   // translucency value (normally 1.0), or < 0 for no change
-  float_t translucency;
+  percent_t translucency;
 
   // time (in tics) to reach target.
   int time;

@@ -74,7 +74,8 @@ int *W_GetList(char name, int *num);
 const char *W_GetFileName(int lump);
 void W_AddDynamicGWA(const char *filename, int map_lump);
 void W_FindFlatInList(const char *name, int *file, int *offset);
-const int *W_GetListLumps(int file, lumplist_e which);
+const int *W_GetListLumps(int file, lumplist_e which, int *count);
+int W_GetNumFiles(void);
 
 // Define this only in an emergency.  All these debug printfs quickly
 // add up, and it takes only a few seconds to end up with a 40 meg debug file!
