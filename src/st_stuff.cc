@@ -609,10 +609,12 @@ static void DoPaletteStuff(void)
 
 	cnt = consoleplayer->damagecount;
 
-	if (consoleplayer->powers[PW_Berserk] > 0)
+	if (consoleplayer->powers[PW_Berserk] != 0.0f)	// -ACB- 2004/02/04 Only zero is off
 	{
-		// slowly fade the berzerk out
-		bzc = MIN(20, (int) consoleplayer->powers[PW_Berserk]);
+		if (consoleplayer->powers[PW_Berserk] < 0.0f)
+			bzc = 20;												// hard coded setting
+		else
+			bzc = MIN(20, (int) consoleplayer->powers[PW_Berserk]); // slowly fade the berzerk out
 
 		if (bzc > cnt)
 			cnt = bzc;
