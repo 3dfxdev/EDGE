@@ -264,4 +264,23 @@ typedef struct
 }
 mapthing_t;
 
+// Wad header definition
+typedef struct wad_header_s
+{
+  // should be "IWAD" or "PWAD".
+  char identification[4];
+  long numlumps;
+  long infotableofs;
+}
+wad_header_t;
+
+// Wad table entry
+typedef struct wad_entry_s
+{
+  long pos;
+  long size;
+  char name[8];
+}
+wad_entry_t;
+
 #endif // __DOOMDATA__
