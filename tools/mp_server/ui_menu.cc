@@ -131,7 +131,7 @@ static Fl_Menu_Item menu_items[] =
 		{ "&Save Log",         0, FCAL menu_do_save_log },
 #else
 		{ "&Save Log",         0, FCAL menu_do_save_log, 0, FL_MENU_DIVIDER },
-		{ "E&xit",   FL_ALT + 'q', FCAL menu_do_exit },
+		{ "E&xit",  0 /* FL_ALT + 'q' */, FCAL menu_do_exit },
 #endif
 		{ 0 },
 
