@@ -447,11 +447,11 @@ long FAR PASCAL I_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 }
 
 //
-// I_EDGELoop
+// I_Loop
 //
 // Win32 needs to handle messages during its loop...
 //
-void I_EDGELoop(void)
+void I_Loop(void)
 {
 	MSG msg;
 	static bool gameon = true;
@@ -475,7 +475,7 @@ void I_EDGELoop(void)
 		}
 
 		if (appactive)
-			E_EDGELoopRoutine();
+			engine::Tick();
 	}
 
 	return;
@@ -509,7 +509,8 @@ unsigned long I_ReadMicroSeconds(void)
 bool I_GetModifiedTime(const char *filename, i_time_t *t)
 {
 	SYSTEMTIME timeinf;
-	WIN32_FILE_ATTRIBUTE_DATA fileinf;
+	HANDLE handle;
+	WIN32_FIND_DATA fdata;
 
 	// Check the sanity of the coders...
 	if (!filename)
@@ -521,16 +522,15 @@ bool I_GetModifiedTime(const char *filename, i_time_t *t)
 	memset(t,0,sizeof(i_time_t));
 
 	// Get the file info...
-	if (!GetFileAttributesEx(filename, GetFileExInfoStandard, &fileinf))
-	{
+	handle = FindFirstFile(filename, &fdata);
+	if (handle == INVALID_HANDLE_VALUE)
 		return false;
-	}
 
 	// Convert to a time we can actually use...
-	if (!FileTimeToSystemTime(&fileinf.ftLastWriteTime, &timeinf))
-	{
+	if (!FileTimeToSystemTime(&fdata.ftLastWriteTime, &timeinf))
 		return false;
-	}
+
+	FindClose(handle);
 
 	t->secs    = (byte)timeinf.wSecond;
 	t->minutes = (byte)timeinf.wMinute;
