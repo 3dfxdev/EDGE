@@ -4,17 +4,21 @@ EDGE DDF 3.9 (15/1/2004):
 1) THINGS.DDF: fixed respawn states for HEAVY_WEAPONS_DUDE, PAIN_ELEMENTAL,
                and WOLFENSTEIN_SS to match standard DOOM (they were missing
                a few frames).
-2) THINGS.DDF: added dummy entries DEAD_TORSO and DEAD_BOTTOM.
-3) THINGS.DDF: added new [SMOKE] entry.
+2) THINGS.DDF: added new [SMOKE] entry.
 
-4) ATTACKS.DDF: made REVENANT_MISSILE use PUFF=SMOKE.
-5) ATTACKS.DDF: added two extra frames to ARCHVILE_FIRE which existed
+3) ATTACKS.DDF: made REVENANT_MISSILE use PUFF=SMOKE.
+4) ATTACKS.DDF: added two extra frames to ARCHVILE_FIRE which existed
                 in standard DOOM but were missing from EDGE.
-6) ATTACKS.DDF: made the PLAYER_PLASMA timing 6 tics instead of 2 tics,
+5) ATTACKS.DDF: made the PLAYER_PLASMA timing 6 tics instead of 2 tics,
                 to match standard DOOM.
 
-7) THINGS.DDF: added missing METAL sound to cyberdemon's chase frames.
-8) THINGS.DDF: fixed boss-brain's pain sound (MAP30).
+6) THINGS.DDF: added missing METAL sound to cyberdemon's chase frames.
+7) THINGS.DDF: fixed boss-brain's pain sound (MAP30).
+
+8) LANGUAGE.LDF: added monster cast names (ArachnotronName etc) to the
+                 [ENGLISH] and [FRENCH] sections.
+9) LANGUAGE.LDF: added TNT and PLUTONIA level names and finale texts
+                 to the [ENGLISH] section (no french this time).
 
 EDGE DDF 3.8 (29/11/2003):
 ==========================
