@@ -28,8 +28,9 @@
 
 extern bool dh_draw_progress;
 
-bool DH_ConvertFile(const char *filename);
-bool DH_ConvertLump(const byte *data, int length, const char *lumpname);
+bool DH_ConvertFile(const char *filename, const char *outname);
+bool DH_ConvertLump(const byte *data, int length, const char *lumpname,
+	const char *outname);
 
 void DH_DrawProgress(void);
 
