@@ -369,17 +369,16 @@ statenum_t;
 
 typedef struct
 {
-	spritenum_t	sprite;
-	long		frame;
-	long		tics;
-	int			action;
-	statenum_t	nextstate;
-	long		misc1, misc2;
+	int  sprite;
+	int  frame;
+	int  tics;
+	int  action;
+	int  nextstate;
+	int  misc1, misc2;
 }
 state_t;
 
 extern state_t states[NUMSTATES];
-extern char *sprnames[NUMSPRITES];
 
 typedef struct  // dynamic information
 {
@@ -388,7 +387,7 @@ typedef struct  // dynamic information
 }
 statedyn_t;
 
+extern bool state_modified[NUMSTATES];
 extern statedyn_t state_dyn[NUMSTATES];
-
 
 #endif  /* __INFO_HDR__ */
