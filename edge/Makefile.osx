@@ -135,8 +135,7 @@ COMMON_OBJS= \
         hu_lib.o hu_stuff.o   \
 		hu_font.o  hu_style.o \
         lu_math.o  lu_gamma.o \
-        l_mp3.o    l_glbsp.o  \
-		l_deh.o  \
+        l_glbsp.o  l_deh.o  \
         m_argv.o   m_random.o \
         m_bbox.o m_cheat.o    \
         m_fixed.o m_menu.o    \
@@ -169,11 +168,10 @@ COMMON_OBJS= \
         sv_play.o  \
         s_sound.o s_music.o   \
         st_lib.o  st_stuff.o  \
-        v_func.o  \
         v_res.o v_colour.o    \
         w_image.o  \
         w_wad.o wi_stuff.o    \
-        wp_main.o wp_wipe.o   \
+        wp_wipe.o   \
         w_textur.o z_zone.o
 
 
