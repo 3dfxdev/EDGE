@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: JANUARY 29th 2005)
+(Date: FEBRUARY 3rd 2005)
 
 
 Bugs fixed
@@ -54,13 +54,14 @@ Features removed / changed
   usually a lot easier than doing it with software).
 
 + the demo format has changed, and previously recorded demos won't
-  work anymore.  The new format has the ".EDM" extension.
-  
+  work anymore.  The new format has the ".EDM" extension (but omit
+  this when using the -record and -playdemo options).
+
 - using { } comments in DDF files, and ';' comments in RTS scripts
   is now deprecated, since these characters will probably be needed
   in the future when improving DDF/RTS.  Use // comments instead.
 
-- the DDF "CONSTANT" dynamic lighting type was removed.
+- the "CONSTANT" dynamic lighting type (in DDF) was removed.
 
 
 General improvements
@@ -71,9 +72,15 @@ General improvements
   option is considered a filename to add.  This allows you to drag a
   (self-contained) WAD onto the EDGE executable to play it.
 
-(NOT FINISHED) new sound system, using OpenAL (a 3D audio library). 
+(NOT FINISHED) new sound system, using OpenAL (a 3D audio library).  @@@
 
-+ support for OGG Vorbis Music playing.  @@@
++ support for OGG/Vorbis Music playing.  OGG/Vorbis is music format
+  similar to MP3, but is free from patents and does not require any
+  royalty fees.  You can use them as normal files, or as lumps in a
+  WAD file, as these examples (for playlist.ddf) show:
+
+     [01] MUSICINFO=OGG:FILE:"d_runnin.ogg";
+	 [02] MUSICINFO=OGG:LUMP:"OMGITROX";
 
 + native support for DeHackEd and BEX patches, both as normal files
   (with .DEH or .BEX extension), and also as DEHACKED lump in a wad.
@@ -99,9 +106,10 @@ General improvements
   detected when starting a new game, and if it doesn't match the
   current mode (or the result was mixed), then a dialog asks you
   whether to change mode.  When using -warp, the mode is changed
-  automatically (unless the result was mixed).
+  automatically.
 
-  Also added: line-to-line teleporters and platform toggle linetypes.
+  Also two Boom features: line-to-line teleporters and platform
+  toggle linetypes were added.
 
 - source code uses more C++ features, and more of the EPI (Edge Platform
   Interface).  The "Zone" memory manager has mostly been replaced.
@@ -178,20 +186,11 @@ New DDF features:
   The missing patch is optional.  Having a patch for a space (" ")
   is also optional.
 
-+ new STYLES.DDF file.  The equivalent wad lump is DDFSTYLE.  This is
-  used to define styles: these define the background colour/image and
-  the text font/colour/scaling information and also sounds.  Most parts
-  of the EDGE user interface can be changed using styles, e.g. the
-  console has a corresponding style called [CONSOLE].
-
-  Some styles the engine can use but are not defined in our own
-  STYLES.DDF.  E.g. [VIDEO_OPTIONS].  When absent, they fall back to
-  more general styles: [MENU] for menu screens, and [OPTIONS] for
-  option screens.  This allows you to keep these screens consistent,
-  since you can change them all with a single style, but also lets
-  you make them all different.
-
-  @@@
+- new STYLES.DDF file.  THIS IS EXPERIMENTAL !!  The idea is to
+  define the background colour/image and text font/colour/scaling
+  information (and sounds too) for various parts of EDGE's user
+  interface.  It may undergo significant changes (without keeping
+  compatibility), and it might even be scrapped!  USE AT OWN RISK.
 
 - RELOAD states for monsters.  This is controlled by the new command
   RELOAD_SHOTS and the new action RELOAD_CHECK, which tests if the
@@ -204,8 +203,9 @@ New DDF features:
 
     SEQUENCE = TEX1, TEX2, TEX3, TEX5, TEX8;
  
-- PICKUP_EFFECT = SWITCH_WEAPON(xxx) , required for #VERSION 1.29 and
-  higher.  Berserk fist.  Compatibility maintained. @@@
+- PICKUP_EFFECT = SWITCH_WEAPON(xxx)  Required for #VERSION 1.29 and
+  higher to make the Berserk powerup switch to the fist (in earlier
+  versions it will be added for you to maintain compatibility).
 
 - able to specify a colour directly in COLMAP.DDF, without needing any
   lumps.  The command is:
@@ -260,8 +260,7 @@ New RTS features:
   The title can contain newlines (given by "\n"), to make multi-line
   titles.  Newlines don't work in the options however.  The MENU_STYLE
   command gives the style for the next SHOW_MENU command.  If you don't
-  specify a style, the default style is [RTS_MENU] (or just [MENU] if
-  that one doesn't exist).
+  specify a style, the default style is [RTS_MENU].
 
 - lines in RTS scripts can be extended over two (or more) actual lines
   by placing the \ character at the end.  A silly example:
@@ -351,15 +350,18 @@ New weapon stuff
   end with the CHECKRELOAD action to cause the weapon to reload.
 
 
-New command-line options:
--------------------------
+New command-line options | console variables
+--------------------------------------------
 
   -deh     Specify a DeHackEd (or BEX) patch file.  You can have
            multiple patch files after the -deh option.
 
-  -(no)diskicon   Enable/disable the flashing disk icon.  There is
-                  also the "DISKICON" console variable.
+  -(no)diskicon   DISKICON    Turn on/off the flashing disk icon.
 
+  -(no)busywait   BUSYWAIT    Turn on/off the behaviour of hogging
+                              the CPU.  Disabling this can make
+							  gameplay a bit "jerky", but gives
+							  more time for other programs to run.
 
 Hats off to...
 --------------
