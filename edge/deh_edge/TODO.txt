@@ -2,13 +2,9 @@
 DEH-EDGE Todo
 -------------
 
-+  Sprite name replacement (via ^Text section).
-
 -  Mancubus attack busted.
 
 -  versions of malloc and strdup that error out on no memory.
-
--  option for EDGE version (e.g. -v128, --version 1.27).
 
 DONE:  DROPITEM for monsters.
 DONE:  give monsters ATTACKS.
@@ -25,4 +21,13 @@ DONE:  BFG spray : no damage !
 DONE:  util: FileIsBinary
 DONE:  DEBUG_XXX (and other) defines: use #if instead of #ifdef.
 DONE:  Parse options properly.
+DONE:  Sprite name replacement (via ^Text section).
+
+
+FUTURE Plans
+------------
+
+-  option for EDGE version (e.g. -v128, --version 1.27).
+
+-  support multiple (Diff-style) patches.
 
