@@ -470,4 +470,7 @@ void I_ShutdownGraphics(void);
 #define I_WriteDebug  L_WriteDebug
 void L_WriteDebug(const char *message,...) GCCATTR(format(printf, 1, 2));
 
+// TEMP: another temporary "common lib" thing.
+int L_ConvertToDB(int volume, int min, int max);
+
 #endif // __I_SYSTEM__
