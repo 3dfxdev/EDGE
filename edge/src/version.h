@@ -16,7 +16,10 @@
 //
 //----------------------------------------------------------------------------
 
-#define EDGEVER  0x125
+#define EDGEVER    0x125
+
+// patch level (should be 0x00 for full releases)
+#define EDGEPATCH  0x22
 
 #ifdef JUST_A_WIP
 #define EDGEVERSTR  "1.25-WIP-2"
