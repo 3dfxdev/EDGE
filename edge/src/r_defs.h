@@ -77,6 +77,7 @@ vertex_t;
 // Forward of LineDefs, for Sectors.
 struct line_s;
 struct side_s;
+struct region_properties_s;
 
 // Each sector has a degenmobj_t in its center
 //  for sound origin purposes.
@@ -92,13 +93,40 @@ typedef struct
 }
 degenmobj_t;
 
+// Region Properties
+//
+// Stores the properties that affect each vertical region.
+//
+// -AJA- 1999/10/09: added this.
+//
+typedef struct region_properties_s
+{
+  // rendering related
+  int lightlevel;
+  const colourmap_t *colourmap;
+
+  // special type (e.g. damaging)
+  const specialsector_t *special;
+
+  // -KM- 1998/10/29 Added gravity + friction
+  float_t gravity;
+  float_t friction;
+  float_t viscosity;
+
+  // pushing sector information (normally 0)
+  float_t x_push, y_push, z_push;
+
+  // ... thinker stuff (for glowing lights) ...
+}
+region_properties_t;
+
 // Plane Info
 //
 // Stores information about a single plane, and is used for floors and
 // ceilings of sectors.
 //
 // -AJA- 1999/10/09: added this.
-
+//
 typedef struct plane_info_s
 {
   float_t h;
@@ -111,6 +139,19 @@ typedef struct plane_info_s
   float_t x_offset;
   float_t y_offset;
   float_t translucency;
+
+  // current scrolling deltas (normally 0)
+  float_t x_scroll, y_scroll;
+
+  // texture scale.  Normal is 64.0, 32.0 is half the size, 128.0 is
+  // twice the normal size (i.e. alignment on 128x128 blocks).
+  float_t scale;
+ 
+  // texture angle (normally 0)
+  angle_t angle;
+  
+  // lighting override (as in BOOM).  Usually NULL.
+  struct region_properties_s *override_p;
 }
 plane_info_t;
 
@@ -120,7 +161,7 @@ plane_info_t;
 // middle or upper).
 //
 // -AJA- 1999/10/09: added this.
-
+//
 typedef struct sidepart_s
 {
 #ifdef USE_IMAGE
@@ -136,35 +177,18 @@ typedef struct sidepart_s
   // offsets (horizontal and vertical)
   float_t x_offset;
   float_t y_offset;
-  
-  // -AJA- 1999/06/30: Translucency.
   float_t translucency;
+  
+  // current scrolling deltas (normally 0)
+  float_t x_scroll, y_scroll;
+
+  // scaling: 1.0 is normal, 0.5 is half size, 2.0 is twice size.
+  float_t scale;
+
+  // skewing: 0.0 is normal, 1.0 is 45 degrees up, -1.0 is down.
+  float_t skew;
 }
 sidepart_t;
-
-// Region Properties
-//
-// Stores the properties that affect each vertical region.
-//
-// -AJA- 1999/10/09: added this.
-
-typedef struct region_properties_s
-{
-  // rendering related
-  int lightlevel;
-  const colourmap_t *colourmap;
-
-  // special type (e.g. damaging)
-  const specialsector_t *special;
-
-  // -KM- 1998/10/29 Added gravity + friction
-  float_t gravity;
-  float_t friction;
-  float_t viscosity;
-
-  // ... thinker stuff (for glowing lights) ...
-}
-region_properties_t;
 
 // Vertical Region
 //
@@ -172,7 +196,7 @@ region_properties_t;
 // (a single "storey" if you will).
 //
 // -AJA- 1999/10/09: added this.
-
+//
 typedef struct vert_region_s
 {
   // links in chain
@@ -196,9 +220,9 @@ typedef struct vert_region_s
   // (NULL if this region is part of the normal sector)
   const extrafloor_t *extrafloor;
 
-  // nominal extra side 
+  // line for nominal extra side 
   // (between this region's CEILING and the next region's FLOOR)
-  sidepart_t *extraside;
+  struct line_s *extraline;
 }
 vert_region_t;
 
@@ -206,7 +230,7 @@ vert_region_t;
 // Used to construct the region list.
 //
 // -AJA- 1999/11/23: added this.
-
+//
 typedef struct extrafloor_record_s
 {
   // link in list
@@ -241,7 +265,7 @@ typedef struct sector_s
   region_properties_t p;
 
   // tag
-  short tag;
+  int tag;
 
   // -AJA- 1999/10/09: Multiple extrafloor code.
   // There is always at least one region, even when the sector is
@@ -280,7 +304,10 @@ typedef struct sector_s
   // -AJA- 1999/07/29: Keep sectors with same tag in a list.
   struct sector_s *tag_next;
   struct sector_s *tag_prev;
-  
+
+  // Keep animating sectors in a linked list.
+  struct sector_s *animate_next;
+ 
   // -AJA- 2000/03/30: Keep a list of child subsectors.
   struct subsector_s *subsectors;
 }
@@ -337,8 +364,8 @@ typedef struct line_s
   float_t dy;
 
   // Animation related.
-  short flags;
-  short tag;
+  int flags;
+  int tag;
   int count;
 
   const linedeftype_t *special;
@@ -373,6 +400,9 @@ typedef struct line_s
 
   // slider thinker, normally NULL
   void *slider_special;
+
+  // Keep animating lines in a linked list.
+  struct line_s *animate_next;
 }
 line_t;
 
@@ -446,7 +476,7 @@ typedef struct seg_s
 seg_t;
 
 // Partition line.
-typedef struct
+typedef struct divline_s
 {
   float_t x;
   float_t y;
@@ -458,7 +488,7 @@ divline_t;
 //
 // BSP node.
 //
-typedef struct
+typedef struct node_s
 {
   divline_t line;
 
@@ -662,13 +692,6 @@ typedef struct
 }
 spritedef_t;
 
-typedef enum
-{
-  VPF_FLOOR    = 0x0001,
-  VPF_CEILING  = 0x0002
-}
-visplane_flag_e;
-
 //
 // Visplanes.
 //
@@ -689,8 +712,6 @@ typedef struct visplane_s
 
   float_t xoffset;
   float_t yoffset;
-
-  int flags;
 
   int minx;
   int maxx;
