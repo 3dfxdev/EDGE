@@ -356,7 +356,7 @@ static void DeathThink(player_t * player)
 		delta = angle - player->mo->angle;
 
 		slope = P_ApproxSlope(dx, dy, dz);
-		slope = MIN(0.5f, MAX(-0.5f, slope));
+		slope = MIN(1.7f, MAX(-1.7f, slope));
 		delta_s = M_ATan(slope) - player->mo->vertangle;
 
 		if ((delta <= ANG1/2 || delta >= (angle_t)(0 - ANG1/2)) &&
