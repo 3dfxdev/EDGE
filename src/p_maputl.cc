@@ -514,10 +514,10 @@ int P_FindThingGap(vgap_t * gaps, int gap_num, float z1, float z2)
 	int fit_last = -1;
 
 	int fit_closest = -1;
-	float fit_mindist = INT_MAX;
+	float fit_mindist = FLT_MAX;
 
 	int nofit_closest = -1;
-	float nofit_mindist = INT_MAX;
+	float nofit_mindist = FLT_MAX;
 
 	// check for trivial gaps...
 
@@ -1885,7 +1885,7 @@ static bool TraverseIntercepts(traverser_t func, float maxfrac)
 
 	while (count--)
 	{
-		dist = INT_MAX;
+		dist = FLT_MAX;
 		for (scan = 0; scan < intercept_p; scan++)
 		{
 			if (intercepts[scan]->frac < dist)
@@ -1918,7 +1918,7 @@ static bool TraverseIntercepts(traverser_t func, float maxfrac)
 			return false;
 		}
 
-		in->frac = INT_MAX;
+		in->frac = FLT_MAX;
 	}
 
 	// everything was traversed
@@ -1961,7 +1961,7 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 
 	int count;
 
-	earlyout = flags & PT_EARLYOUT;
+	earlyout = (flags & PT_EARLYOUT)?true:false;
 
 	validcount++;
 
