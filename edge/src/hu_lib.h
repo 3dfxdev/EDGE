@@ -177,7 +177,11 @@ void HUlib_drawIText(hu_itext_t * it);
 void HUlib_eraseIText(hu_itext_t * it);
 
 // -ACB- 1998/06/10
-void HUlib_drawTextLineTrans(hu_textline_t * l, boolean_t drawcursor, 
-    const byte *trans);
+void HUlib_drawTextLineAlpha(hu_textline_t * l, boolean_t drawcursor, 
+    const byte *trans, fixed_t alpha);
+
+#define HUlib_drawTextLineTrans(L,DC,TR,AL)  \
+    HUlib_drawTextLineAlpha(L,DC,TR,AL,alpha)
+
 
 #endif
