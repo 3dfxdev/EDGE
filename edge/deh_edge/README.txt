@@ -2,7 +2,7 @@
 DEH_EDGE 0.9
 ============
 
-by Andrew Apted.  23rd February 2004.
+by Andrew Apted.  24th April 2004.
 
 
 Introduction
