@@ -1,0 +1,364 @@
+EDGE DDF 3.8 (17/10/2003):
+==========================
+
+1) THINGS.DDF: added player capacities for pellets, nails, grenades, gas.
+2) THINGS.DDF: gave [SPECTRE] FAST=2 (to match visible counterpart).
+3) PLAYLIST.DDF: added entry [67] for the bunny music (D_BUNNY).
+
+EDGE DDF 3.7 (8/16/2001):
+==========================
+
+1) COLMAP.DDF: changed "[ALLGREEN]" to use "NITEVMAP" instead of "COLORMAP"
+2) THINGS.DDF/ATACKS.DDF: added DLIGHT stuff for dynamic lights!
+
+EDGE DDF 3.6 (7/29/2001):
+==========================
+
+1) THINGS.DDF: added JETPACK (was missing since day 1 for some reason)
+               removed two frames from DOG's respawn (frames M and N don't exist)
+2) LINES.DDF: removed all 'COUNT=0;' entries (unnecessary)
+3) LANGUAGE.LDF: added: NeedAnyForDoor="You need at least one key to open this door";
+                        NeedAllForDoor="You need all keys to open this door";
+                 added: HomDetectOn="HOM Detection ON";
+                        HomDetectOff="HOM Detection OFF";
+                        idhom="idhom";
+                        (and German)
+                        HomDetectOn="HOM Entdeckung AN";
+                        HomDetectOff="HOM Entdeckung AUS";
+4) LINES.DDF: added: [280] // Legacy "3D liquid floor" (same as EDGE line type 405)
+
+EDGE DDF 3.5 (4/28/2001):
+==========================
+
+1) THINGS.DDF: removed "CASTORDER=6;" from MBF DOG entry (unnecessary)
+
+EDGE DDF 3.4 (2/24/2001):
+==========================
+
+1) EDGE.SCR: corrected events for E2M8 and E3M8 when killing the Cyberdemon or
+             Spider Mastermind for RTS exitlevel, added 5, to wait 5 seconds
+             after they are killed
+
+EDGE DDF 3.3 (2/7/2001):
+==========================
+1) LANGUAGE.LDF: added entries for menu options (all start with 'Opt'),
+                 this is to allow menu options to show in different languages
+
+EDGE DDF 3.2 (1/10/2001):
+==========================
+1) LINES.DDF: added line types 281 and 289 to support Legacy "3D floors"
+            NOTE: use -truebsp when loading a Legacy "3D floor" level
+2) THINGS.DDF: added the following to all monsters:
+               STATES(GIB)=POL5:A:-1:NORMAL:PLAYSOUND(CRUSH);
+               which is new for controlling what happens when a monster is
+               crushed or is dead under a door (used to use the [GIB] entry,
+               which is now REMOVED)               
+3) SOUNDS.DDF: added [CRUSH], called when a thing is crushed
+
+EDGE DDF 3.1 (1/1/2001):
+==========================
+
+1) COLMAP.DDF: updated all text entries, minor corrections to that section
+
+EDGE DDF 3.0 (12/12/2000):
+==========================
+
+1) LINES.DDF: corrected line 46, CEILING.DEST_OFFSET=-4 (was 4)
+
+EDGE DDF 2.9 (12/4/2000):
+==========================
+
+1) LINES.DDF: added line type 242, supports BOOM's deep water effect (should work
+              well with the 10 Sectors Contest WADs that use the effect)
+2) Updated various stuff to work with last EDGE internal update, nothing big
+
+EDGE DDF 2.8 (11/23/2000):
+==========================
+
+1) THINGS.DDF, ATTACKS.DDF -corrected new NOSHADOW; as a SPECIAL=NOSHADOW; and not
+                            an independant entry
+2) LANGUAGE.LDF -corrected an error under the FINNISH entry that has "\n";, should
+                 be just "\n" (semi-colon was causing a crash when using -language finnish)
+3) WEAPONS.DDF -changed rocket launcher from PRIORITY=-1; to PRIORITY=7;
+               -changed BFG from PRIORITY=-1; to PRIORITY=8;
+               -added DANGEROUS=TRUE; to rocket launcher and BFG
+
+EDGE DDF 2.7 (11/16/2000):
+==========================
+
+1) THINGS.DDF, LINES.DDF, ATTACKS.DDF -TRANSLUCENCY is now a percentage
+
+
+EDGE DDF 2.6 (10/31/2000):
+==========================
+
+1) THINGS.DDF -renamed:
+                 DAMAGE, DAMAGE_RANGE, DAMAGE_MULTI, and EXPLOD_DAMAGE, 
+               ...to:
+                 DAMAGE.VAL, DAMAGE.MAX, EXPLOD_DAMAGE.VAL, and EXPLOD_DAMAGE.MAX
+              -renamed VARIEDEXPDAMAGE to EXPLOSIONDAMAGE (for unstable barrel)
+              -added CROUCH_HEIGHT=32; to all player entries (WOO!)
+
+2) SECTORS.DDF -renamed DAMAGETIME to DAMAGE.DELAY
+
+3) SOUNDS.DDF -removed BITS and STEREO (obsolete)
+
+4) COLMAP.DDF -removed PRIORITY (obsolete)
+              -renamed [FUZZSHADOW] to [FUZZY]
+              -added [SHADOW] colmap entry (used for shadows, makes then flat colored,
+                                            with no details, like a normal shadow)
+
+NOTE: also make several tweaks with lots of entries, WEAPONS.DDF now has translucent
+      flash frames, ATTACKS.DDF uses TRANS_FADE to fade out explosions, etc.
+
+5) Added a ton of new EDGE default line types, see LINES.DDF for details...
+
+EDGE DDF 2.5 (10/7/2000):
+==========================
+
+1) THINGS.DDF -corrected the heights of the following:
+
+		Num#  Thing name            Height
+		----------------------------------
+		25    SKEWERED_BLOKE        64
+		26    DYING_SKEWERED_BLOKE  64
+		27    SKULL_ON_A_STICK      52
+		28    HEADS_ON_A_STICK      64
+		29    SKULL_CENTREPIECE     40
+		31    SHORT_GREEN_COLUMN    38
+		32    TALL_RED_COLUMN       50
+		41    EYE_SYMBOL            56
+		42    FLOATING_SKULLROCK    48
+		44    BRONZE_BLUE_TORCH     96
+		45    BRONZE_GREEN_TORCH    96
+		46    BRONZE_RED_TORCH      96
+		54    BIG_TREE             120
+		55    WOODEN_BLUE_TORCH     72
+		56    WOODEN_GREEN_TORCH    72
+		57    WOODEN_RED_TORCH      72
+		85    TALL_TECH_LAMP        78
+		86    SMALL_TECH_LAMP       58
+		2025  RADIATION_SUIT        60
+		2028  SMALL_BOLLARD_LAMP    46
+		7010  BURNT_SPIKE_STUMP     46
+
+		The old DOOM heights for these didn't matter
+            because it didn't have true 3D, but with EDGE
+            we could walk uner or over these things without
+            touching them because their heights were all 16.
+
+2) LINES.DDF -added line type 429, scroll down fast lower and mid
+              texture only, for water/lava/slime falls
+             -added line types 430-433, which are thick/liquid/extrafloors that scroll down,
+              used for waterfalls and rivers on the part where they roll over a ledge
+             -added lines 434-439, switch/walk/shoot once/repeat raise floor 2,
+              use with RTS ONHEIGHT events
+
+3) SECTORS.DDF -added types 18-64 for scrolling textures and push sectors:
+                18-25: (water) scrolling/pushing liquid extrafloors (blue hue)
+                26-33: (slime) scrolling/pushing liquid extrafloors (green hue + damage)
+                34-41: (lava)  scrolling/pushing liquid extrafloors (red hue + damage)
+                42-49: push object in sector
+                50-57: regular floor/scrolling floor texture
+                58-65: regular floor/scrolling floor texture + push object in sector
+                66-70: colored light, hues for water, and slime/lava + damage
+
+4) COLMAP.DDF -added colormap entries for WATER, SLIME, and LAVA (used with new SECTORS.DDF entries)
+              -removed NO_SKY from sector special #1 (hard coded as true, no use for it to be false...)
+
+5) WEAPONS.DDF -added TRANS_SET to all weapon attack flash states (makes muzzle flashes translucent)
+
+6) ATTACKS.DDF -added TRANS_FADE to player weapon projectiles that had it missing (makes explosions translucent)
+
+=USE WITH EDGE 1.25 OR HIGHER=
+
+EDGE DDF 2.4 (10/3/2000):
+==========================
+
+=USE WITH EDGE 1.25 OR HIGHER=
+
+1) LINES.DDF -corrected sort order of all lines (were all jumbled)
+             -added a ton of BOOM compatable linetypes
+              (including 40, 78 and 85)
+             -corrected line types to once only versus repeat:
+              47, 31-34, and 118
+             -changed EXIT=EXIT; to EXIT=NORMAL; (more descriptive)
+             -changed LIGHT_PROBABILITY to LIGHT_CHANGE, also uses
+              percentages now (engine change)
+             -changed EXTRAFLOOR_TRANSLUCENCY to TRANSLUCENCY
+             -added EDGE line types 409-417 (thin extrafloors and
+              translucent mid-textures)
+             -added types 418-421 variations of ENABLE_RTS
+             -renumbered linetypes 9000-9006 to 422-428 to be in order
+              with the other EDGE line types
+             -deleted line 9097, since a BOOM linetype 208 does
+              the same thing
+2) SOUNDS.DDF -added MBF entries for the dog sounds
+3) THINGS.DDF -added MBF entries for the dog thing (#888)
+              -updated PALETTE_REMAP for OUR_HERO entry (see below)
+4) COLMAP.DDF -added TEXT_RED and PLAYER_GREEN entries
+
+EDGE DDF 2.3 (8/24/2000):
+==========================
+
+=USE WITH EDGE 1.25 OR HIGHER=
+
+1) THINGS.DDF: -corrected thing # for UNSTABLE_BARREL from 7101 to 7104
+               -corrected OFF_SOUND to OOF_SOUND (type-o)
+               -added ATTACK_HURTS and DISLOYAL to all player entries
+2) LINES.DDF: corrected OFF_SOUND entries from "SWITCHX" to "SWTCHX" (type-o)
+3) ATTACKS.DDF: added missing PUFF=PUFF; entry to "TRACER_MISSILE_L" and
+                "TRACER_MISSILE_R" (caused a crash when MKII monster attacked)
+4) WEAPONS: changed RANDOMJUMP to JUMP for plasma gun flash states (engine change)
+
+EDGE DDF 2.2 (8/16/2000):
+==========================
+
+=USE WITH EDGE 1.25 OR HIGHER=
+
+1) LINES.DDF -added ACTIVATE_SOUND="SWTCHX"; to line types 11 and 51
+2) THINGS.DDF -added NOWAY_SOUND="NOWAY"; and OOF_SOUND="OOF"; to player
+               entries, and renumbered POOL_OF_BLOOD_II from 79 to 80 (oops)
+3) SWITCH.DDF -added OFF_SOUND="SWTCHN"; to all switch entries, renamed
+               SOUND to ON_SOUND
+4) GAMES.DDF -added ACCEL_SOUND="SLOP"; and FRAG_SOUND="PLDETH"; to all
+              entries
+
+	Most of the additions for sounds are for the engine changes,
+	less hard coded sounds!
+
+EDGE DDF 2.1 (7/29/2000):
+==========================
+
+=USE WITH EDGE 1.25 OR HIGHER=
+
+1) LINES.DDF -removed line 243, redundant of the new 400 series
+2) PLAYLIST.DDF -fixed last two entries, added new one for EDGETTL
+3) GAMES.DDF -corrected EDGE title music entry
+4) added FNWHTMAP -new colourmap for fonts
+5) added AUTOMAPS -new colourmap for the automap overlay
+6) updated COLMAP to use the two new colourmap lumps above
+7) ATTACKS.DDF -change "ALTERVISIVILITY" to "TRANS_FADE(x%)"
+8) THINGS.DDF -same as above
+
+EDGE DDF 2.0 (5/29/2000):
+==========================
+
+=USE WITH EDGE 1.24 OR HIGHER=
+
+1) WEAPONS.DDF -corrected attack frames of both SUPERSHOTGUN
+                and ROCKET_LAUNCHER 
+2) THINGS.DDF -removed DEATH_BOT, engine change
+3) THINGS.DDF -renamed MAKEDEATH/OVERKILLSOUND(s) to PLAYER_SCREAM
+               and changed the DEATHSOUND to PLDETH (instead of P??E??)
+4) WEAPONS.DDF -added REFIRE_INACCURATE=TRUE to PISTOL and CHAINGUN
+5) LINES.DDF -removed BOOMTEX entries (unnecessary)
+6) PLAYLIST.DDF -corrected [01] - [04] from CD to MUS entries
+
+EDGE DDF 1.9 (5/7/2000):
+==========================
+
+=USE WITH EDGE 1.23 OR HIGHER=
+
+1) THINGS.DDF -changed players from 15 to 16 radius
+2) LINES.DDF -added 9 new line types for EDGE features
+3) THINGS.DDF -corrected initial cells count from 200 to 300
+               for all player entries
+
+EDGE DDF 1.8 (4/18/2000):
+==========================
+
+=USE WITH EDGE 1.22 OR HIGHER=
+
+1) THINGS.DDF -added #CHASE to DEATH_BOT, and
+   swapped out the IDLE and CHASE states so they are in
+   the correct order
+2) LANGUAGE.LDF -updated German translation, thanks to Tarin!
+3) THINGS.DDF - added COUNT_AS_ITEM to things 83, 2013-2015,
+   2022-2024, 2026, and 2045
+
+EDGE DDF 1.7 (3/29/2000):
+==========================
+
+=USE WITH EDGE 1.21=
+
+1) GAMES.DDF -removed rem'd TITLE_PRIORITY entries
+2) ATTACKS.DDF -fixed ACCURACY entries (were off a bit)
+
+EDGE DDF 1.6 (3/28/2000):
+==========================
+
+=USE WITH EDGE 1.21=
+
+1) SOUNDS.DDF -fixed incorrect SINGULAR bits (can only be
+   digits -not refenced sound names)
+2) GAMES.DDF -added NEXTMAP_SOUND=SGCOCK; to the DOOM2
+   entry (was missing)
+3) ATTACKS.DDF -changed PLAYER_SHOTGUN/ACCURACY_ANGLE=5.6;
+4) ATTACKS.DDF -multiplied all ACCURACY entries x2 (roughly)
+5) LINES.DDF -updated EXTRAFLOOR entries to new format
+6) GAMES.DDF -rem'd TITLE_PRIORITY entries
+
+EDGE DDF 1.5 (3/21/2000):
+==========================
+
+1) ATTACKS.DDF: changed ACCURACY to ACCURACY_ANGLE and
+   ACCURACY_SLOPE, updated the values to the new method
+2) ATTACKS.DDF: changed NO_TRACE_CHANCE and KEEP_FIRING_CHANCE
+   to percentages of 0%-100% versus 0-255 values (divide by 2.55)
+3) THINGS.DDF: changed PAINCHANCE and MINATTACK_CHANCE to 
+   percentages of 0%-100% versus 0-255 values (divide by 2.55)
+
+EDGE DDF 1.4 (3/7/2000):
+==========================
+
+Added the necessary tags (e.g. <ANIMATIONS> for anims.ddf, <THINGS>
+for things.ddf, etc) to the beginning of each DDF file.  Removed some
+stuff in colmap.ddf (NO_BRIGHT special and the [BRIGHT] colourmap).
+Updated anims.ddf for new format.  Updated lines.ddf, sectors.ddf, and
+playlist.ddf to remove the now unneeded `:' from between the [].
+Renamed mission.ddf to games.ddf.  Renamed many many fields ranging
+over all the DDF files (too many to list here).  Added OVERKILL_SOUND
+entries to things.ddf.  -AJA.
+
+EDGE DDF UPDATE (3/6/2000):
+==========================
+
+1) moved RSCRIPT lump from EDGE.WAD to external file as EDGE.SCR
+   now included in the DDF packages
+
+EDGE DDF 1.3 (2/28/2000):
+
+1) renamed DEFAULT.LDF to LANGUAGE.LDF
+2) renamed [DEFAULT] to [ENGLISH] in LANGUAGE.LDF
+
+EDGE DDF 1.2 (2/18/2000):  
+==========================
+
+Changed { } comments to // style.  Fixed state frames to use new
+IDLE_STATES.  Fixed some problems in DEFAULT.LDF.  Changed some
+remaining occurances of `DOSDoom' to `EDGE'.  Added KILL_FAILED_SPAWN
+attack special to player missile/plasma & BFG attacks.  Added DISLOYAL
+and ATTACK_HURT special tags to some monsters that need them now
+(zombieman, shotgun guy, etc).  Changed the headers of things, lines
+and sectors to new format [name:number] (e.g. "[IMP:3001]").  -AJA.
+
+EDGE DDF 1.1 (11/24/1999):
+==========================
+
+Added PLAYLIST.DDF, updated MISSION.DDF and LEVELS.DDF.
+
+PLAYLIST.DDF allows you to customize the music as either 
+a file, like an MP3, a CD track, MUS or MIDI file. You 
+define them by number in PLAYLIST.DDF and reference 
+that number in MISSION.DDF and LEVELS.DDF.
+
+EDGE DDF 1.0 (10/17/1999): 
+==========================
+
+Cleaned usages from header in DDF files, instead redirects 
+the user to our official homepage where the most up to date 
+documentation is. Also gives a specefic version of DDF in 
+the file, so if someone is having problems, we ask what 
+version of DDF they have to see if they are out of date or
+incompatible.

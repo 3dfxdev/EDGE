@@ -1,0 +1,89 @@
+//
+//    EDGE Radius Triggers
+//
+//    These scripts replace hardcoded events for both DOOM 1 and 2.
+//    For documentation, see http://edge.sourceforge.net/
+//    Version 3.8
+//
+
+// *****************
+// * DOOM2 scripts *
+// *****************
+
+start_map map07
+
+// lower the outer walls when all Mancubi are killed
+
+  radiustrigger 0 0 -1
+    ondeath MANCUBUS
+    activate_linetype 38 666
+  end_radiustrigger
+
+// raise inner step when all Aracnotron are killed
+
+  radiustrigger 0 0 -1
+    ondeath ARACHNOTRON
+    activate_linetype 30 667
+  end_radiustrigger
+
+end_map
+
+// open door behind Commander Keen when all KEEN's are killed
+
+start_map map32
+  radiustrigger 0 0 -1
+    ondeath COMMANDER_KEEN
+    activate_linetype 2 666
+  end_radiustrigger
+end_map
+
+// *****************
+// * DOOM1 scripts *
+// *****************
+
+// lower the star shaped wall when all Baron's are killed
+
+start_map e1m8
+  radiustrigger 0 0 -1
+    ondeath BARON_OF_HELL
+    activate_linetype 38 666
+  end_radiustrigger
+end_map
+
+// end the map when the Cyberdemon is killed
+
+start_map e2m8
+  radiustrigger 0 0 -1
+    ondeath THE_CYBERDEMON
+    exitlevel 5
+  end_radiustrigger
+end_map
+
+// end the map when the Spider Demon is killed
+
+start_map e3m8
+  radiustrigger 0 0 -1
+    ondeath THE_SPIDER_MASTERMIND
+    exitlevel 5
+  end_radiustrigger
+end_map
+
+// open the 4 South bars when the Cyberdemon is killed
+
+start_map e4m6
+  radiustrigger 0 0 -1
+    ondeath THE_CYBERDEMON
+    activate_linetype 2 666
+  end_radiustrigger
+end_map
+
+// raise center circular floor when Spider Demon is killed
+
+start_map e4m8
+  radiustrigger 0 0 -1
+    ondeath THE_SPIDER_MASTERMIND
+    activate_linetype 38 666
+  end_radiustrigger
+end_map
+
+// --------EOF-----------
