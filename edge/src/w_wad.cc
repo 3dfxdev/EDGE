@@ -81,20 +81,14 @@ static ddf_reader_t DDF_Readers[] =
 };
 
 #define NUM_DDF_READERS  (int)(sizeof(DDF_Readers) / sizeof(ddf_reader_t))
-
-typedef enum 
-{
-	DATAFILE_TYPE_WAD, 
-	DATAFILE_TYPE_SINGLELUMP
-}
-data_file_type_e;
+#define RTS_READER  (NUM_DDF_READERS-1)
 
 typedef struct data_file_s
 {
 	const char *file_name;
 
 	// type of file
-	data_file_type_e type;
+	int kind;
 
 	// file handle, as returned from open().
 	int handle;
@@ -124,7 +118,7 @@ data_file_t;
 typedef struct raw_filename_s
 {
 	const char *file_name;
-	bool allow_ddf;
+	int kind;
 }
 raw_filename_t;
 
@@ -159,9 +153,9 @@ int numlumps;
 typedef struct lumpheader_s
 {
 #ifdef DEVELOPERS
-#define LUMPID ((int)0xAC45197e)
-	// Should be LUMPID
-	int id;
+	static const int LUMPID = (int)0xAC45197e;
+
+	int id;  // Should be LUMPID
 #endif
 
 	// number of users.
@@ -469,7 +463,7 @@ static void FreeLump(lumpheader_t *h)
 
 	cache_size -= W_LumpLength(lumpnum);
 #ifdef DEVELOPERS
-	if (h->id != LUMPID)
+	if (h->id != lumpheader_s::LUMPID)
 		I_Error("FreeLump: id != LUMPID");
 	h->id = 0;
 	if (h == NULL)
@@ -491,7 +485,7 @@ static void FreeLump(lumpheader_t *h)
 static void MarkAsCached(lumpheader_t *item)
 {
 #ifdef DEVELOPERS
-	if (item->id != LUMPID)
+	if (item->id != lumpheader_s::LUMPID)
 		I_Error("MarkAsCached: id != LUMPID");
 	if (!item)
 		I_Error("MarkAsCached: lump %d is NULL", item->lumpindex);
@@ -642,8 +636,7 @@ static void AddLump(int lump, int pos, int size, int file,
 //       otherwise it is the sort_index for the lumps (typically the
 //       file number of the wad which the GWA is a companion for).
 //
-static void AddFile(const char *filename, bool allow_ddf,
-					int dyn_index)
+static void AddFile(const char *filename, int kind, int dyn_index)
 {
 	int j;
 	int handle;
@@ -671,6 +664,7 @@ static void AddFile(const char *filename, bool allow_ddf,
 	Z_Resize(data_files, data_file_t, datafile + 1);
 
 	data_files[datafile].file_name = Z_StrDup(filename);
+	data_files[datafile].kind = kind;
 	data_files[datafile].handle = handle;
 	data_files[datafile].sprite_lumps = NULL;
 	data_files[datafile].sprite_num = 0;
@@ -686,12 +680,9 @@ static void AddFile(const char *filename, bool allow_ddf,
 	for (j = 0; j < NUM_DDF_READERS; j++)
 		data_files[datafile].ddf_lumps[j] = -1;
 
-	if (M_CheckExtension("wad", filename) == EXT_MATCHING ||
-		M_CheckExtension("gwa", filename) == EXT_MATCHING ||
-		M_CheckExtension("hwa", filename) == EXT_MATCHING)
+	if (kind <= FLKIND_HWad)
 	{
 		// WAD file
-		data_files[datafile].type = DATAFILE_TYPE_WAD;
 		read(handle, &header, sizeof(wad_header_t));
 
 		if (strncmp(header.identification, "IWAD", 4))
@@ -720,7 +711,9 @@ static void AddFile(const char *filename, bool allow_ddf,
 		{
 			AddLump(j, LONG(curinfo->pos), LONG(curinfo->size),
 					datafile, (dyn_index >= 0) ? dyn_index : datafile, 
-					curinfo->name, allow_ddf);
+					curinfo->name,
+					(kind == FLKIND_PWad) || (kind || FLKIND_HWad) ||
+					(kind == FLKIND_EWad && ! external_ddf));
 		}
 
 		Z_Free(fileinfo);
@@ -732,8 +725,6 @@ static void AddFile(const char *filename, bool allow_ddf,
 		DEV_ASSERT2(dyn_index < 0);
 
 		// single lump file
-		data_files[datafile].type = DATAFILE_TYPE_SINGLELUMP;
-
 		ExtractFileBase(filename, lump_name);
 
 		// Fill in lumpinfo
@@ -741,7 +732,7 @@ static void AddFile(const char *filename, bool allow_ddf,
 		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
 
 		AddLump(startlump, 0, FileLength(handle), datafile, datafile, 
-				lump_name, allow_ddf);
+				lump_name, true);
 	}
 
 	SortLumps();
@@ -798,7 +789,7 @@ static void AddFile(const char *filename, bool allow_ddf,
 			// Load it.  This recursion bit is
 			// rather sneaky, hopefully it doesn't break anything...
 			if (L_CompareTimeStamps(&gwa_time, &wad_time) >= 0)
-				AddFile(namebuf, false, datafile);
+				AddFile(namebuf, FLKIND_GWad, datafile);
 		}
 	}
 }
@@ -842,19 +833,20 @@ static void InitCaches(void)
 //
 // W_AddRawFilename
 //
-void W_AddRawFilename(const char *file, bool allow_ddf)
+void W_AddRawFilename(const char *file, int kind)
 {
 	raw_filename_t *r;
 
 	L_WriteDebug("Added: %s\n", file);
 
+	// -AJA- FIXME: remove raw_filename_t, just use data_file_t
 	if (addwadnum == maxwadfiles)
 		Z_Resize(wadfiles, raw_filename_t, ++maxwadfiles + 1);
-  
+
 	r = &wadfiles[addwadnum++];
 
 	r->file_name = Z_StrDup(file);
-	r->allow_ddf = allow_ddf;
+	r->kind = kind;
 }
 
 //
@@ -880,7 +872,7 @@ bool W_InitMultipleFiles(void)
 	lumpinfo = NULL;
 
 	for (r=0; r < addwadnum; r++)
-		AddFile(wadfiles[r].file_name, wadfiles[r].allow_ddf, -1);
+		AddFile(wadfiles[r].file_name, wadfiles[r].kind, -1);
 
 	if (!numlumps)
 	{
@@ -895,7 +887,7 @@ bool W_InitMultipleFiles(void)
 	int length = W_LumpLength(lump);
 	DH_ConvertLump(data, length, "DHBATMAN", "DHBATMAN.hwa");
 	W_DoneWithLump(data);
-	AddFile("DHBATMAN.hwa", true, -1);
+	AddFile("DHBATMAN.hwa", FLKIND_HWad, -1);
 #endif
 
 	return true;
@@ -918,6 +910,15 @@ bool W_ReadDDF(void)
 
 		for (int f = 0; f <= datafile; f++)
 		{
+			if (d == RTS_READER && data_files[f].kind == FLKIND_Script)
+			{
+				RAD_LoadFile(data_files[f].file_name);
+				continue;
+			}
+
+			if (data_files[f].kind >= FLKIND_Demo)
+				continue;
+
 			int lump = data_files[f].ddf_lumps[d];
 
 			if (lump < 0)
@@ -963,7 +964,7 @@ const char *W_GetFileName(int lump)
 	l = lumpinfo + lump;
 	f = data_files + l->file;
 
-	if (f->type != DATAFILE_TYPE_WAD)
+	if (f->kind >= FLKIND_Lump)
 		return NULL;
   
 	return f->file_name;
@@ -996,7 +997,7 @@ int W_GetPaletteForLump(int lump)
 
 	for (; f > (data_files + palette_datafile); f--)
 	{
-		if (f->type != DATAFILE_TYPE_WAD)
+		if (f->kind >= FLKIND_Lump)
 			continue;
 
 		if (f->wadtex.palette >= 0)
@@ -1017,7 +1018,7 @@ void W_AddDynamicGWA(const char *filename, int map_lump)
 {
 	DEV_ASSERT2(0 <= map_lump && map_lump < numlumps);
 
-	AddFile(filename, false, lumpinfo[map_lump].file);
+	AddFile(filename, FLKIND_GWad, lumpinfo[map_lump].file);
 }
 
 //
@@ -1320,7 +1321,7 @@ void W_DoneWithLump(const void *ptr)
 #ifdef DEVELOPERS
 	if (h == NULL)
 		I_Error("W_DoneWithLump: NULL pointer");
-	if (h[-1].id != LUMPID)
+	if (h[-1].id != lumpheader_s::LUMPID)
 		I_Error("W_DoneWithLump: id != LUMPID");
 	if (h[-1].users == 0)
 		I_Error("W_DoneWithLump: lump %d has no users!", h[-1].lumpindex);
@@ -1357,7 +1358,7 @@ void W_DoneWithLump_Flushable(const void *ptr)
 	if (h == NULL)
 		I_Error("W_DoneWithLump: NULL pointer");
 	h--;
-	if (h->id != LUMPID)
+	if (h->id != lumpheader_s::LUMPID)
 		I_Error("W_DoneWithLump: id != LUMPID");
 	if (h->users == 0)
 		I_Error("W_DoneWithLump: lump %d has no users!", h->lumpindex);
@@ -1403,7 +1404,7 @@ const void *W_CacheLumpNum2 (int lump)
 		h = (lumpheader_t *) Z_Malloc(sizeof(lumpheader_t) + W_LumpLength(lump));
 		lumplookup[lump] = h;
 #ifdef DEVELOPERS
-		h->id = LUMPID;
+		h->id = lumpheader_s::LUMPID;
 #endif
 		h->lumpindex = lump;
 		h->users = 1;

@@ -681,7 +681,7 @@ static void RAD_MainCacheFile(const char *filename)
 // -ACB- 1998/07/10 Renamed function and used I_Print for functions,
 //                  Version displayed at all times.
 //
-static void RAD_ParseScript(bool dots)
+static void RAD_ParseScript(void)
 {
 	char str[MAXSTRLEN];
 	int n = 0;
@@ -734,7 +734,7 @@ static void RAD_ParseScript(bool dots)
 //
 // RAD_LoadFile
 //
-static void RAD_LoadFile(const char *name, bool dots)
+void RAD_LoadFile(const char *name)
 {
 	DEV_ASSERT2(name);
 
@@ -745,7 +745,7 @@ static void RAD_LoadFile(const char *name, bool dots)
 	RAD_MainCacheFile(name);
 
 	// OK we have the file in memory.  Parse it to death :-)
-	RAD_ParseScript(dots);
+	RAD_ParseScript();
 
 	Z_Free(rad_memfile);
 }
@@ -759,7 +759,7 @@ void RAD_ReadScript(void *data, int size)
 	{
 		epi::string_c fn;
 		M_ComposeFileName(fn, ddfdir, "edge.scr");
-		RAD_LoadFile(fn.GetString(), true);
+		RAD_LoadFile(fn.GetString());
 		return;
 	}
 
@@ -777,7 +777,7 @@ void RAD_ReadScript(void *data, int size)
 	rad_memfile[size] = 0;
 
 	// OK we have the file in memory.  Parse it to death :-)
-	RAD_ParseScript(false);
+	RAD_ParseScript();
 
 	Z_Free(rad_memfile);
 }
@@ -788,27 +788,6 @@ void RAD_ReadScript(void *data, int size)
 bool RAD_Init(void)
 {
 	RAD_InitTips();
-
-	return true;
-}
-
-//
-// RAD_LoadParam
-//
-// -KM- 1998/11/25 Check for command line script loading
-//
-bool RAD_LoadParam(void)
-{
-	const char *par;
-
-	par = M_GetParm("-script");
-
-	if (par)
-	{
-		epi::string_c fn;
-		M_ComposeFileName(fn, gamedir, par);
-		RAD_LoadFile(fn.GetString(), false);
-	}
 
 	return true;
 }

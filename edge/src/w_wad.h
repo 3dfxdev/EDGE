@@ -28,6 +28,22 @@
 
 #include "dm_defs.h"
 
+typedef enum
+{
+	FLKIND_IWad = 0,  // iwad file
+	FLKIND_PWad,      // normal .wad file
+	FLKIND_EWad,      // EDGE.wad
+	FLKIND_GWad,      // glbsp node wad
+	FLKIND_HWad,      // deHacked wad
+
+	FLKIND_Lump,      // raw lump (no extension)
+
+	FLKIND_Demo,      // .lmp demo file
+	FLKIND_Script,    // .scr (RTS) script
+	FLKIND_Deh        // .deh or .bex file
+}
+filekind_e;
+
 typedef struct wadtex_resource_s
 {
 	// lump numbers, or -1 if nonexistent
@@ -49,7 +65,7 @@ lumplist_e;
 extern int numlumps;
 extern int addwadnum;
 
-void W_AddRawFilename(const char *file, bool allow_ddf);
+void W_AddRawFilename(const char *file, int kind);
 bool W_InitMultipleFiles(void);
 bool W_ReadDDF(void);
 
