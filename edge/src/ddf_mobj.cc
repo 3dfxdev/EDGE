@@ -652,6 +652,12 @@ void ThingParseField(const char *field, const char *contents,
 	L_WriteDebug("THING_PARSE: %s = %s;\n", field, contents);
 #endif
 
+	if (ddf_version < 0x128 &&
+		(DDF_CompareName(field, "RESISTANCE_CLASS") == 0))
+	{
+		DDF_Error("%s is only available with #VERSION 1.28 or higher.\n", field);
+	}
+
 	if (DDF_MainParseField(thing_commands, field, contents))
 		return;
 
