@@ -326,6 +326,10 @@ void *NetRun(void *data)
 			{
 				PK_ticcmd(&pk);
 			}
+			else if (pk.CheckType("tr"))  // tic retransmit
+			{
+				PK_tic_retransmit(&pk);
+			}
 			else if (pk.CheckType("ms"))  // send message
 			{
 				PK_message(&pk);
