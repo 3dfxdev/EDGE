@@ -66,8 +66,11 @@ struct image_s;
 //
 typedef struct
 {
-  float_t x;
-  float_t y;
+  float_t x, y;
+  
+  // vertex lighting info, one for each height used
+  short num, max;
+  int *levels;
 }
 vertex_t;
 
@@ -470,10 +473,11 @@ node_t;
 // posts are runs of non masked source pixels
 typedef struct
 {
-  byte topdelta;  // -1 is the last post in a column
+  // -1 is the last post in a column
+  byte topdelta;
 
+  // length data bytes follows
   byte length;  // length data bytes follows
-
 }
 post_t;
 
@@ -489,7 +493,7 @@ typedef post_t column_t;
 // Each value ranges from 0 to 255, from totally black to fully lighted.
 // The values get scaled to fit the colourmap being used (e.g. divided
 // by 8 for the 32-level COLORMAP lump).
-
+//
 typedef byte lighttable_t;
 
 // Coltables.
@@ -497,17 +501,17 @@ typedef byte lighttable_t;
 // Each coltable is 256 bytes from some colourmap lump, which maps the
 // index colour to a palette colour.  In 16-bit mode however, it is 256
 // shorts which are the pixel values for the screen.
-
+//
 typedef byte coltable_t;
+
+struct visplane_s;
 
 // Drawsegs.
 //
 // These remember where a wall was drawn on the screen, so that sprites
 // can be clipped correctly.  Also stores info for drawing mid-textures
 // on 2S linedefs.
-
-struct visplane_s;
-
+//
 typedef struct drawseg_s
 {
   seg_t *curline;
@@ -534,18 +538,6 @@ typedef struct drawseg_s
   // texture to use for masked mid.
   sidepart_t *part;
  
-  // -AJA- 1999/08/16: Added this for thick extra floors.
-  boolean_t thick_side;
-  float_t thick_x_alignment;
-
-  // -AJA- 1999/08/17: Here lies the crux of drawing extra floors
-  //       properly.  This visplane is (horizontally speaking) only
-  //       the size of the drawseg -- something enforced by
-  //       R_CheckPlane().  When sprites are drawn (and clipped
-  //       against these drawsegs), we also draw these extra planes.
-
-  struct visplane_s *extraplane;
-
   // openings index to lists for sprite clipping,
   //  all three adjusted so [x1] is first value.
   // maskedtexturecol is >=0 when there is a masked mid texture.
@@ -562,6 +554,7 @@ drawseg_t;
 // Patches are used for sprites and all masked pictures,
 // and we compose textures from the TEXTURE1/2 lists
 // of patches.
+//
 typedef struct patch_s
 {
   short width;  // bounding box size 
@@ -625,9 +618,6 @@ typedef struct vissprite_s
 
   // -AJA- 1999/06/21: for clipping against extra floors.
   sector_t *sector;
-
-  // -AJA- 1999/08/24: for correct drawing order with extra floors.
-  int pass_num;
 }
 vissprite_t;
 
@@ -658,7 +648,6 @@ typedef struct
 
   // Flip bit (1 = flip) to use for view angles 0-7.
   byte flip[8];
-
 }
 spriteframe_t;
 
@@ -670,15 +659,13 @@ typedef struct
 {
   int numframes;
   spriteframe_t *spriteframes;
-
 }
 spritedef_t;
 
 typedef enum
 {
   VPF_FLOOR    = 0x0001,
-  VPF_CEILING  = 0x0002,
-  VPF_EXTRA    = 0x0004
+  VPF_CEILING  = 0x0002
 }
 visplane_flag_e;
 
@@ -695,6 +682,7 @@ typedef struct visplane_s
   float_t height;
   int picnum;
   int lightlevel;
+
   // -KM- 1998/09/27 Dynamic colourmaps
   // -AJA- 1999/07/08: Now uses colmap.ddf.
   const colourmap_t *colourmap;
@@ -702,8 +690,6 @@ typedef struct visplane_s
   float_t xoffset;
   float_t yoffset;
 
-  // -AJA- 1999/08/16: Support for extra floors.
-  float_t transp;
   int flags;
 
   int minx;
@@ -711,7 +697,6 @@ typedef struct visplane_s
 
   unsigned short *top;
   unsigned short *bottom;
-
 }
 visplane_t;
 
