@@ -180,7 +180,7 @@ void DDF_Obsolete(const char *err, ...)
 		DDF_Warning("%s", buffer);
 }
 
-void DDF_MainInit(void)
+bool DDF_Init(void)
 {
 	DDF_StateInit();
 	DDF_LanguageInit();
@@ -196,6 +196,8 @@ void DDF_MainInit(void)
 	DDF_GameInit();
 	DDF_LevelInit();
 	DDF_MusicPlaylistInit();
+
+	return true;
 }
 
 // -KM- 1999/01/29 Fixed #define system.
@@ -248,7 +250,7 @@ static const char *DDF_MainGetDefine(const char *name)
 // This goes through the information loaded via DDF and matchs any
 // info stored as references.
 //
-bool DDF_MainCleanUp(void)
+bool DDF_CleanUp(void)
 {
 	DDF_LanguageCleanUp();
 	DDF_MobjCleanUp();
@@ -265,7 +267,7 @@ bool DDF_MainCleanUp(void)
 	DDF_LevelCleanUp();
 	DDF_MusicPlaylistCleanUp();
 	
-	// -AJA- FIXME: all this stuff belongs elsewhere...
+	// -AJA- FIXME: this belongs elsewhere...
 	currmap = mapdefs[0];
     
 	return true;
@@ -365,7 +367,6 @@ static void DDF_ParseVersion(const char *str, int len)
 // When the parser function is called, a pointer to a readinfo_t is passed and
 // contains all the info needed, it contains:
 //
-// * message               - message displayed on the screen, if NULL nothing displayed
 // * filename              - filename to be read, returns error if NULL
 // * DDF_MainCheckName     - function called when a def has been just been started
 // * DDF_MainCheckCmd      - function called when we need to check a command
@@ -478,9 +479,6 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 	firstgo = true;
 
 	cur_ddf_line_num = 1;
-
-	if (readinfo->message)
-		I_Printf("  %s", readinfo->message);
 
 	if (!readinfo->memfile && !readinfo->filename)
 		I_Error("DDF_MainReadFile: No file to read\n");
