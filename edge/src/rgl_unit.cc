@@ -512,6 +512,36 @@ if (rgl_1d_debug)
 	return true;
 }
 
+typedef struct saved_occbuf_s
+{
+	struct saved_occbuf_s *link;
+	unsigned long buffer[ONED_TOTAL];
+}
+saved_occbuf_t;
+
+static saved_occbuf_t *occ_stack = NULL;
+
+void RGL_1DOcclusionPush(void)
+{
+	saved_occbuf_t *cur = new saved_occbuf_t;
+
+	memcpy(cur->buffer, oned_oculus_buffer, sizeof(oned_oculus_buffer));
+
+	cur->link = occ_stack;
+	occ_stack = cur;
+}
+
+void RGL_1DOcclusionPop(void)
+{
+	DEV_ASSERT2(occ_stack != NULL);
+
+	saved_occbuf_t *cur = occ_stack;
+	occ_stack = occ_stack->link;
+
+	memcpy(oned_oculus_buffer, cur->buffer, sizeof(oned_oculus_buffer));
+	delete cur;
+}
+
 
 //----------------------------------------------------------------------------
 //
