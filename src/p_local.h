@@ -238,7 +238,8 @@ int P_PointOnDivlineSide(float x, float y, divline_t *div);
 int P_PointOnDivlineThick(float x, float y, divline_t *div,
 						  float div_len, float thickness);
 float P_InterceptVector(divline_t * v2, divline_t * v1);
-int P_BoxOnLineSide(float * tmbox, line_t * ld);
+int P_BoxOnLineSide(const float * tmbox, line_t * ld);
+int P_BoxOnDivLineSide(const float * tmbox, divline_t *div);
 int P_FindThingGap(vgap_t * gaps, int gap_num, float z1, float z2);
 void P_ComputeGaps(line_t * ld);
 float P_ComputeThingGap(mobj_t * thing, sector_t * sec, float z, float * f, float * c);

@@ -179,7 +179,7 @@ int P_PointOnDivlineThick(float x, float y, divline_t *div,
 // Considers the line to be infinite
 // Returns side 0 or 1, -1 if box crosses the line.
 //
-int P_BoxOnLineSide(float * tmbox, line_t * ld)
+int P_BoxOnLineSide(const float * tmbox, line_t * ld)
 {
 	int p1 = 0;
 	int p2 = 0;
@@ -236,7 +236,7 @@ int P_BoxOnLineSide(float * tmbox, line_t * ld)
 // Considers the line to be infinite
 // Returns side 0 or 1, -1 if box crosses the line.
 //
-static int P_BoxOnDivLineSide(float * tmbox, divline_t *div)
+int P_BoxOnDivLineSide(const float * tmbox, divline_t *div)
 {
 	int p1 = 0;
 	int p2 = 0;
