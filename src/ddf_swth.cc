@@ -23,6 +23,8 @@
 
 #include "ddf_locl.h"
 #include "ddf_main.h"
+#include "ddf_swth.h"
+
 #include "dm_state.h"
 #include "p_local.h"
 #include "p_spec.h"
@@ -125,7 +127,7 @@ static void SwitchClearAll(void)
 }
 
 
-bool DDF_ReadSW(void *data, int size)
+bool DDF_ReadSwitch(void *data, int size)
 {
 #if (DEBUG_DDF)
 	epi::array_iterator_c it;
@@ -176,17 +178,17 @@ bool DDF_ReadSW(void *data, int size)
 }
 
 //
-// DDF_SWInit
+// DDF_SwitchInit
 //
-void DDF_SWInit(void)
+void DDF_SwitchInit(void)
 {
 	switchdefs.Clear();
 }
 
 //
-// DDF_SWCleanUp
+// DDF_SwitchCleanUp
 //
-void DDF_SWCleanUp(void)
+void DDF_SwitchCleanUp(void)
 {
 	switchdefs.Trim();
 }

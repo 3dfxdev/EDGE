@@ -23,6 +23,8 @@
 
 #include "ddf_locl.h"
 #include "ddf_main.h"
+#include "ddf_anim.h"
+
 #include "dm_state.h"
 #include "p_spec.h"
 #include "r_local.h"
@@ -43,7 +45,7 @@ static void DDF_AnimGetPic (const char *info, void *storage);
 
 static const commandlist_t anim_commands[] =
 {
-	DF("TYPE",     istexture, DDF_AnimGetType),
+	DF("TYPE",     type,      DDF_AnimGetType),
 	DF("SEQUENCE", pics,      DDF_AnimGetPic),
 	DF("SPEED",    speed,     DDF_MainGetTime),
 	DF("FIRST",    startname, DDF_MainGetInlineStr10),
@@ -134,6 +136,10 @@ static void AnimFinishEntry(void)
 		{
 			DDF_Error("Missing animation sequence.\n");
 		}
+
+		if (buffer_anim.type == animdef_c::A_User)
+			DDF_Error("TYPE=DDF animations must use the SEQUENCE command.\n");
+
 	}
 
 	// transfer static entry to dynamic entry
@@ -202,18 +208,20 @@ void DDF_AnimCleanUp(void)
 //
 static void DDF_AnimGetType(const char *info, void *storage)
 {
-	bool *is_tex = (bool *) storage;
-
 	DEV_ASSERT2(storage);
 
+	int *type = (int *) storage;
+
 	if (DDF_CompareName(info, "FLAT") == 0)
-		(*is_tex) = false;
+		(*type) = animdef_c::A_Flat;
 	else if (DDF_CompareName(info, "TEXTURE") == 0)
-		(*is_tex) = true;
+		(*type) = animdef_c::A_Texture;
+	else if (DDF_CompareName(info, "DDF") == 0)
+		(*type) = animdef_c::A_User;
 	else
 	{
 		DDF_WarnError2(0x128, "Unknown animation type: %s\n", info);
-		(*is_tex) = false;
+		(*type) = animdef_c::A_Flat;
 	}
 }
 
@@ -260,7 +268,7 @@ void animdef_c::Copy(animdef_c &src)
 //
 void animdef_c::CopyDetail(animdef_c &src)
 {
-	istexture = src.istexture;
+	type = src.type;
 	pics = src.pics;
 	startname = src.startname;
 	endname = src.endname;
@@ -274,7 +282,7 @@ void animdef_c::Default()
 {
 	ddf.Default();
 
-	istexture = true;
+	type = A_Texture;
 
 	pics.Clear();
 	startname.Clear();

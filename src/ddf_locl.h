@@ -384,8 +384,8 @@ void DDF_SFXCleanUp (void);
 
 // DDF_SWTH Code
 // -KM- 1998/07/31 Switch and Anim ddfs.
-void DDF_SWInit (void);
-void DDF_SWCleanUp (void);
+void DDF_SwitchInit (void);
+void DDF_SwitchCleanUp (void);
 
 // DDF_WEAP Code
 void DDF_WeaponInit (void);
