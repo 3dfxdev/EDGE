@@ -294,14 +294,14 @@ float R_PointToDist(float x1, float y1, float x2, float y2)
 // The change will take effect next refresh.
 
 bool setsizeneeded;
-int setblocks;
+int set_hud;
 bool setresfailed = false;
 
-void R_SetViewSize(int blocks)
+void R_SetViewSize(int hud)
 {
 	setsizeneeded = true;
 
-	setblocks = blocks;
+	set_hud = hud;
 }
 
 //
@@ -313,34 +313,21 @@ void R_ExecuteSetViewSize(void)
 	int sbar_height;
 
 	setsizeneeded = false;
-	redrawsbar = true;
 
 	sbar_height = FROM_200(ST_HEIGHT);
 
-	if (setblocks == 11 || background_camera_mo)
-	{
-		viewwidth  = SCREENWIDTH;
-		viewheight = SCREENHEIGHT;
-	}
-	else
-	{
-		viewwidth  = (setblocks * SCREENWIDTH / 10) & ~7;
+	viewwidth  = SCREENWIDTH;
+	viewheight = SCREENHEIGHT;
 
-		// Fixes 400x300 etc.
-		if (setblocks == 10)
-			viewheight = SCREENHEIGHT - sbar_height;
-		else
-			viewheight = (setblocks * (SCREENHEIGHT - sbar_height) / 10) & ~7;
+	if (set_hud == HUD_Full && ! background_camera_mo)
+	{
+		viewheight -= sbar_height;
 	}
 
 	viewwindowwidth  = viewwidth;
 	viewwindowheight = viewheight;
-	viewwindowx = (SCREENWIDTH - viewwindowwidth) / 2;
-
-	if (viewwidth == SCREENWIDTH)
-		viewwindowy = 0;
-	else
-		viewwindowy = (SCREENHEIGHT - sbar_height - viewheight) / 2;
+	viewwindowx = 0;
+	viewwindowy = 0;
 
 	leftslope = M_Tan(leftangle << ANGLETOFINESHIFT);
 	rightslope = M_Tan(rightangle << ANGLETOFINESHIFT);
@@ -602,7 +589,7 @@ void R_ExecuteChangeResolution(void)
 //
 bool R_Init(void)
 {
-	R_SetViewSize(screenblocks);
+	R_SetViewSize(screen_hud);
 	R_SetNormalFOV((angle_t)(cfgnormalfov * (angle_t)((float)ANG45 / 45.0f)));
 	R_SetZoomedFOV((angle_t)(cfgzoomedfov * (angle_t)((float)ANG45 / 45.0f)));
 	R_SetFOV(normalfov);

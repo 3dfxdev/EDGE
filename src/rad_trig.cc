@@ -42,6 +42,7 @@
 #include "hu_stuff.h"
 #include "g_game.h"
 #include "m_argv.h"
+#include "m_inline.h"
 #include "m_misc.h"
 #include "m_random.h"
 #include "m_swap.h"
@@ -49,6 +50,8 @@
 #include "p_spec.h"
 #include "r_defs.h"
 #include "s_sound.h"
+#include "v_colour.h"
+#include "v_ctx.h"
 #include "v_res.h"
 #include "w_wad.h"
 #include "z_zone.h"
@@ -62,6 +65,11 @@ rad_trigger_t *r_triggers = NULL;
 
 // # Triggers
 int rad_itemsread = 0;
+
+// RTS menu active ?
+bool rts_menuactive = false;
+static drawtip_t *rts_menu_tip = NULL;
+static rad_trigger_t *rts_menu_trigger = NULL;
 
 // Current RTS file or lump being parsed.
 static byte *rad_memfile;
@@ -356,6 +364,10 @@ void RAD_DoRadiTrigger(player_t * p)
 	{
 		next = trig->next;
 
+		// stop running all triggers when an RTS menu becomes active
+		if (rts_menuactive)
+			break;
+
 		// Don't process, if disabled
 		if (trig->disabled)
 			continue;
@@ -446,10 +458,13 @@ void RAD_DoRadiTrigger(player_t * p)
 
 			(*state->action)(trig, p->mo, state->param);
 
-			if (trig->state == NULL || trig->disabled)
+			if (trig->state == NULL)
 				break;
 
 			trig->wait_tics += trig->state->tics;
+
+			if (trig->disabled || rts_menuactive)
+				break;
 		}
 
 		if (trig->state)
@@ -798,3 +813,120 @@ bool RAD_LoadParam(void)
 	return true;
 }
 
+static void AddMenuLine(drawtip_t *T, int y, char key, const char *text,
+	bool use_ldf)
+{
+	hu_textline_t *HU = T->hu_lines + T->hu_linenum;
+	T->hu_linenum++;
+
+	HL_InitTextLine(HU, 160, y, &hu_font);
+	HU->centre = true;
+
+	if (use_ldf)
+		text = language[text];
+
+	if (key)
+	{
+		HL_AddCharToTextLine(HU, key);
+		HL_AddCharToTextLine(HU, '.');
+		HL_AddCharToTextLine(HU, ' ');
+	}
+
+	for (; *text && *text != '\n'; text++)
+		HL_AddCharToTextLine(HU, *text);
+}
+
+void RAD_StartMenu(rad_trigger_t *R, s_show_menu_t *menu)
+{
+	DEV_ASSERT2(! rts_menuactive);
+
+	drawtip_t *T = new drawtip_t;
+	memset(T, 0, sizeof(drawtip_t));
+
+	int y = 0;
+	int font_height = hu_font.height + 2;
+
+	AddMenuLine(T, y, 0, menu->title, menu->use_ldf);
+	y += font_height * 2;
+
+	for (int idx = 0; (idx < 9) && menu->options[idx]; idx++)
+	{
+		AddMenuLine(T, y, '1' + idx, menu->options[idx], menu->use_ldf);
+		y += font_height;
+	}
+
+	int adjust_y = (200 - y) / 2;
+
+	// adjust vertical positions
+	for (int j=0; j < T->hu_linenum; j++)
+		T->hu_lines[j].y += adjust_y;
+
+	rts_menu_tip = T;
+	rts_menu_trigger = R;
+	rts_menuactive = true;
+}
+
+void RAD_FinishMenu(int result)
+{
+	if (! rts_menuactive)
+		return;
+	
+	if (result < 0 || result > (rts_menu_tip->hu_linenum-1))
+		return;
+	
+	rts_menu_trigger->menu_result = result;
+
+	delete rts_menu_tip;
+
+	rts_menu_tip = NULL;
+	rts_menu_trigger = NULL;
+	rts_menuactive = false;
+}
+
+static void RAD_MenuDrawer(void)
+{
+	RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, pal_black, 0.6f);
+
+	float alpha = 1.0f;
+
+	for (int i=0; i < rts_menu_tip->hu_linenum; i++)
+	{
+		HL_DrawTextLineAlpha(rts_menu_tip->hu_lines + i, false,
+			(i==0) ? text_yellow_map : rts_menu_tip->colmap,
+			M_FloatToFixed(alpha));
+	}
+}
+
+//
+// RAD_Drawer
+//
+void RAD_Drawer(void)
+{
+	if (! automapactive)
+		RAD_DisplayTips();
+	
+	if (rts_menuactive)
+		RAD_MenuDrawer();
+}
+
+//
+// RAD_Responder
+//
+bool RAD_Responder(event_t * ev)
+{
+	if (! rts_menuactive)
+		return false;
+		
+	if (ev->type != ev_keydown)
+		return false;
+
+	int key = ev->value.key;
+
+	if ('1' <= key && key <= '9')
+	{
+		RAD_FinishMenu(key - '0');
+		return true;
+	}
+
+	return false;
+}

@@ -710,6 +710,7 @@ void G_DoLoadLevel(void)
 	// -KM- 1998/11/25 P_SetupLevel accepts the autotag
 	//
 	RAD_ClearTriggers();
+	RAD_FinishMenu(0);
 
 	P_SetupLevel(gameskill, currmap->autotag);
 
@@ -774,15 +775,15 @@ bool G_Responder(event_t * ev)
 
 	if (gamestate == GS_LEVEL)
 	{
+		if (RAD_Responder(ev))
+			return true;  // RTS system ate it
+
 		if (ST_Responder(ev))
 			return true;  // status window ate it 
 
 		if (AM_Responder(ev))
 			return true;  // automap ate it 
-	}
 
-	if (gamestate == GS_LEVEL)
-	{
 		if (HU_Responder(ev))
 			return true;  // chat ate the event
 
@@ -1337,6 +1338,9 @@ void G_DoCompleted(void)
 
 	if (automapactive)
 		AM_Stop();
+	
+	if (rts_menuactive)
+		RAD_FinishMenu(0);
 
 	// handle "no stat" levels
 	if (currmap->wistyle == WISTYLE_None || exit_skipall)
@@ -1611,9 +1615,6 @@ void G_DoSaveGame(void)
 	savedescription[0] = 0;
 
 	CON_Printf("%s", language["GameSaved"]);
-
-	// draw the pattern into the back screen
-	//   R_FillBackScreen();
 
 	gameaction = ga_nothing;
 }

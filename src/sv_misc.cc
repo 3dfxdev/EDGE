@@ -231,6 +231,7 @@ static savefield_t sv_fields_trigger[] =
 	SR_TriggerGetState, SR_TriggerPutState),
 	SF(wait_tics, "wait_tics", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(tip_slot, "tip_slot", 1, SVT_INT, SR_GetInt, SR_PutInt),
+	SF(menu_result, "menu_result", 1, SVT_INT, SR_GetInt, SR_PutInt),
 
 	// NOT HERE
 	//   - next & prev: can be regenerated.

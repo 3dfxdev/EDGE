@@ -186,6 +186,10 @@ bool M_CheatResponder(event_t * ev)
 	return false;
 #endif
 
+	// disable cheats while in RTS menu
+	if (rts_menuactive)
+		return false;
+
 	// if a user keypress...
 	if (ev->type != ev_keydown)
 		return false;

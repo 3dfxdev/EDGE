@@ -43,8 +43,6 @@
 
 extern bool devparm;  // DEBUG: launched with -devparm
 
-extern bool redrawsbar;
-
 extern gameflags_t level_flags;
 extern gameflags_t global_flags;
 
@@ -79,6 +77,7 @@ extern int deathmatch;
 extern bool statusbaractive;
 extern int automapactive;  // In AutoMap mode?
 extern bool menuactive;  // Menu overlayed?
+extern bool rts_menuactive;
 extern bool paused;  // Game Pause?
 extern bool viewactive;
 extern bool nodrawers;
@@ -197,7 +196,6 @@ extern int mouseSensitivity;
 extern int save_page;
 
 extern bool inhelpscreens;
-extern int setblocks;
 extern int quickSaveSlot;
 extern int darken_screen;
 
@@ -226,15 +224,23 @@ extern int ticdup;
 
 //misc stuff
 extern bool map_overlay;
-extern bool hud_overlay;
 extern bool rotatemap;
 extern bool showstats;
 extern bool swapstereo;
 extern bool infight;
 
+typedef enum
+{
+	HUD_Full = 0,
+	HUD_None,
+	HUD_Overlay,
+
+	NUMHUD
+}
+hud_type_e;
+
 extern int crosshair;
-extern int screen_size;
-extern int screenblocks;
+extern int screen_hud;
 extern int menunormalfov, menuzoomedfov;
 extern int usemouse;
 extern int usejoystick;

@@ -126,7 +126,6 @@ static void M_ChangeRespawn(int keypressed);
 
 //Special function declarations
 int menunormalfov, menuzoomedfov;
-int screen_size;
 
 static void M_ChangeBlood(int keypressed);
 static void M_ChangeJumping(int keypressed);
@@ -172,6 +171,7 @@ static int menusoundvol;
 // -ES- 1998/11/28 Wipe and Faded teleportation options
 //static char FadeT[] = "Off/On, flash/On, no flash";
 static char AAim[] = "Off/On/Mlook";
+static char Huds[] = "Full/None/Overlay";
 static char MipMaps[] = "None/Good/Best";
 static char Details[] = "Low/Medium/High";
 
@@ -246,18 +246,9 @@ typedef struct specialkey_s
 }
 specialkey_t;
 
-static void M_Toggle3dMode(int keypressed)
+static void M_ChangeScreenHud(int keypressed)
 {
-	R_SetViewSize(screenblocks);
-}
-
-static void M_ChangeScreenSize(int keypressed)
-{
-	hud_overlay = false;
-
-	// -ACB- 19/04/2004 Must set screenblocks here
-	screenblocks = screen_size + 3;
-	R_SetViewSize(screenblocks);
+	R_SetViewSize(screen_hud);
 }
 
 //
@@ -383,10 +374,10 @@ static menuinfo_t mainmenuinfo =
 static optmenuitem_t vidoptions[] =
 {
 	{OPT_Slider, "Brightness", NULL, 5, 0, &current_gamma, M_ChangeGamma, NULL},
-	{OPT_Slider, "Screensize", NULL, 9, 7, &screen_size, M_ChangeScreenSize, NULL},
 	{OPT_Slider, "Field Of View", NULL, 35, 17, &menunormalfov, M_ChangeNormalFOV, NULL},
 	{OPT_Slider, "Zoomed FOV", NULL, 35, 1, &menuzoomedfov, M_ChangeZoomedFOV, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Switch, "HUD", Huds, 3, HUD_Full, &screen_hud, M_ChangeScreenHud, NULL},
 	{OPT_Boolean, "Translucency", YesNo, 2, 1, &global_flags.trans, M_ChangeTransluc, NULL},
 	{OPT_Switch, "Mipmapping", MipMaps, 3, 0, &use_mipmapping, M_ChangeMipMap, NULL},
 	{OPT_Boolean, "Smoothing", YesNo, 2, 1, &use_smoothing, M_ChangeMipMap, NULL},
@@ -621,7 +612,6 @@ static specialkey_t specialkeylist[] =  // terminate on -1
 void M_InitOptmenu()
 {
 	optionsmenuon = 0;
-	screen_size = screenblocks - 3;
 	curr_menu = &mainmenuinfo;
 	curr_item = curr_menu->items + curr_menu->pos;
 	keyscan = 0;
