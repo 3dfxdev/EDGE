@@ -272,6 +272,9 @@ static const actioncode_t thing_actions[] =
 	{"MOVE UP",           P_ActMoveUp, DDF_StateGetFloat},
 	{"STOP",              P_ActStopMoving, NULL},
 
+	// Boom/MBF compatibility
+	{"DIE",               P_ActDie, NULL},
+
 	// miscellaneous actions
 	{"NOTHING", NULL, NULL},
 

@@ -142,6 +142,7 @@ void P_ActDropItem(mobj_t * object);
 void P_ActDLightSet(mobj_t * object);
 void P_ActDLightFade(mobj_t * object);
 void P_ActDLightRandom(mobj_t * object);
+void P_ActDie(mobj_t * object);
 
 // Movement actions
 void P_ActFaceDir(mobj_t * object);
