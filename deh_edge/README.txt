@@ -1,8 +1,8 @@
 
-DEH_EDGE
-========
+DEH_EDGE 0.9
+============
 
-by Andrew Apted.  30th January 2004.
+by Andrew Apted.  8th February 2004.
 
 
 Introduction
@@ -13,12 +13,12 @@ that can be loaded into the EDGE engine (http://edge.sourceforge.net).
 The output is a WAD containing a bunch of DDF lumps.
 
 DEH_EDGE is a command line utility, so the Windows version must be run
-from the DOS box -- although dragging a DEH file onto the DEH_EDGE
-executable may work.
+from the DOS box.  Although dragging a DEH file onto the DEH_EDGE
+executable may work, you could miss some important messages.
 
 DEH_EDGE handles all the DeHackEd patch formats (the old binary formats
 and the new text format).  Text strings and code-pointers in the binary
-formats are not supported.  DEH_EDGE does *NOT* support BOOM extensions
+formats are not supported.  DEH_EDGE does __NOT__ support BOOM extensions
 (BEX) at this time.  
 
 
@@ -61,7 +61,16 @@ Limitations
    These can't be changed in EDGE via DDF.  Most (probably all) of them
    have little importance (like what certain cheats give you).
 
-5. Text replacements only work when ENGLISH language is selected in
+5. Text strings, code pointers, and sprite/sound name pointers
+   from binary patch files are not supported.  These are heavily
+   dependent on the exact version of the DOOM EXE.  Even DeHackEd
+   itself can't convert these between 1.2 and 1.666 (etc).
+   
+   Code pointer offsets and sprite/sound offsets in text patch files
+   are also not handled, for the same reason.  Normal code pointers
+   are supported, of course.
+
+6. Text replacements only work when ENGLISH language is selected in
    EDGE.  (The replacements are probably english anyway, so I think
    this limitation is a minor one).
 
@@ -69,9 +78,9 @@ Limitations
 Acknowledgements
 ----------------
 
-DEH_EDGE is based on:
+DEH_EDGE uses source code from:
 
-  +  DeHackEd source code, by Greg Lewis.
+  +  DeHackEd 2.3, by Greg Lewis.
 
   -  DOOM source code (C) 1993-1996 id Software, Inc.
   -  Linux DOOM Hack Editor, by Sam Lantinga.
@@ -86,7 +95,7 @@ DEH_EDGE is Copyright (C) 2004 The EDGE Team.
 All trademarks are the propriety of their owners.
 
 DEH_EDGE is under the GNU General Public License (GPL).  See the file
-COPYING.txt in the source package (or go to http://www.gnu.org) for
+COPYING.txt in the source package (or visit http://www.gnu.org) for
 the full text, but to summarise:
 
 This program is free software; you can redistribute it and/or modify
