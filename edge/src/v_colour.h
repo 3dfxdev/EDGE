@@ -87,7 +87,7 @@ const byte *V_GetTranslationTable(const colourmap_t * colmap);
 // support for GL
 #ifdef USE_GL
 void V_GetColmapRGB(const colourmap_t *colmap,
-    float_t *r, float_t *g, float_t *b);
+    float_t *r, float_t *g, float_t *b, boolean_t font);
 #endif
 
 // general purpose colormaps & coltables
@@ -108,16 +108,6 @@ extern const colourmap_t *text_brown_map;
 extern const colourmap_t *text_blue_map;
 extern const colourmap_t *text_ltblue_map;
 extern const colourmap_t *text_yellow_map;
-
-// FIXME: these eight tables will soon be redundant
-extern const byte *text_colour_red;
-extern const byte *text_colour_white;
-extern const byte *text_colour_grey;
-extern const byte *text_colour_green;
-extern const byte *text_colour_brown;
-extern const byte *text_colour_lt_blue;
-extern const byte *text_colour_blue;
-extern const byte *text_colour_yellow;
 
 // automap translation tables
 extern const byte *am_normal_colmap;
