@@ -1458,6 +1458,19 @@ void P_PlayerInSpecialSector(player_t * player, sector_t * sec)
   } 
 }
 
+static INLINE void ApplyScroll(vec2_t& offset, const vec2_t& delta)
+{
+  Vec2Add(offset, delta);
+
+  // prevent loss of precision (eventually stops the scrolling)
+
+  if (offset.x < -65536) offset.x += 65536;
+  if (offset.x > +65536) offset.x -= 65536;
+
+  if (offset.y < -65536) offset.y += 65536;
+  if (offset.y > +65536) offset.y -= 65536;
+}
+
 //
 // P_UpdateSpecials
 //
@@ -1493,24 +1506,24 @@ void P_UpdateSpecials(void)
     // -AJA- 1999/07/01: Handle both sidedefs.
     if (line->side[0])
     {
-      Vec2Add(line->side[0]->top.offset,    line->side[0]->top.scroll);
-      Vec2Add(line->side[0]->middle.offset, line->side[0]->middle.scroll);
-      Vec2Add(line->side[0]->bottom.offset, line->side[0]->bottom.scroll);
+      ApplyScroll(line->side[0]->top.offset,    line->side[0]->top.scroll);
+      ApplyScroll(line->side[0]->middle.offset, line->side[0]->middle.scroll);
+      ApplyScroll(line->side[0]->bottom.offset, line->side[0]->bottom.scroll);
     }
 
     if (line->side[1])
     {
-      Vec2Add(line->side[1]->top.offset,    line->side[1]->top.scroll);
-      Vec2Add(line->side[1]->middle.offset, line->side[1]->middle.scroll);
-      Vec2Add(line->side[1]->bottom.offset, line->side[1]->bottom.scroll);
+      ApplyScroll(line->side[1]->top.offset,    line->side[1]->top.scroll);
+      ApplyScroll(line->side[1]->middle.offset, line->side[1]->middle.scroll);
+      ApplyScroll(line->side[1]->bottom.offset, line->side[1]->bottom.scroll);
     }
   }
 
   // ANIMATE SECTOR SPECIALS
   for (sec = sect_speciallist; sec; sec = sec->animate_next)
   {
-    Vec2Add(sec->floor.offset, sec->floor.scroll);
-    Vec2Add(sec->ceil.offset,  sec->ceil.scroll);
+    ApplyScroll(sec->floor.offset, sec->floor.scroll);
+    ApplyScroll(sec->ceil.offset,  sec->ceil.scroll);
   }
 
   // DO BUTTONS
