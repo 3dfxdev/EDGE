@@ -46,7 +46,6 @@ static const commandlist_t image_commands[] =
 {
 	DF("IMAGE DATA", type,     DDF_ImageGetType),
 	DF("SPECIAL",    special,  DDF_ImageGetSpecial),
-	DF("SIZE",       builtin_size, DDF_MainGetNumeric),
 	DF("X OFFSET",   x_offset, DDF_MainGetNumeric),
 	DF("Y OFFSET",   y_offset, DDF_MainGetNumeric),
 	DF("SCALE",      scale,    DDF_MainGetFloat),
@@ -316,7 +315,6 @@ void imagedef_c::CopyDetail(const imagedef_c &src)
 	name    = src.name;
 
 	special = src.special;
-	builtin_size = src.builtin_size;
 	x_offset = src.x_offset;
 	y_offset = src.y_offset;
 	scale   = src.scale;
@@ -338,7 +336,6 @@ void imagedef_c::Default()
 
 	special = IMGSP_None;
 
-	builtin_size = 256;
 	x_offset = y_offset = 0;
 	scale  = 1.0f;
 	aspect = 1.0f;
