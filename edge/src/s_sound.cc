@@ -52,11 +52,8 @@
 #define S_CLOSE_DIST2    (S_CLOSE_DIST * S_CLOSE_DIST)
 #define S_CLIPPING_DIST2 (S_CLIPPING_DIST * S_CLIPPING_DIST)
 
-// slider-scale volume control
+// slider-scale volume control (0 to 19)
 static int soundvolume;
-
-// for everything else
-#define MAX_VOLUME 255
 
 // If true, sound system is disabled/not working. Changed to false if sound init ok.
 bool nosound = false;
@@ -94,6 +91,18 @@ static sfxdef_c sfxcachehead;
 
 // number of sounds currently in cache.
 static int numcachedsfx;
+
+// -AJA- 2005/02/26: table to convert slider position to GAIN.
+//       Curve was hand-crafted to give useful distinctions of
+//       volume levels at the quiet end.  Entry zero always
+//       means total silence (in the table for completeness).
+float slider_to_gain[20] =
+{
+	0.00000, 0.00200, 0.00400, 0.00800, 0.01600,
+	0.03196, 0.05620, 0.08886, 0.12894, 0.17584,
+	0.22855, 0.28459, 0.34761, 0.41788, 0.49553,
+	0.58075, 0.67369, 0.77451, 0.88329, 1.00000
+};
 
 // ===================Internal====================
 // HELPER Functions
@@ -329,18 +338,17 @@ static int GetSoundChannel(mobj_t *origin, sfxdef_c *sfxinfo)
 //
 // StartSoundAtVolume
 //
-// Start playing a sound at the given volume (in the range 0 to 255).
+// Start playing a sound.
+// origin can be NULL (no game is active)
 //
 // -ACB- 1998/08/10: Altered Error Messages
 // -KM-  1998/09/01: Looping support
 // -AJA- 1999/09/10: Made static.
 //
-static int StartSoundAtVolume(mobj_t *origin, sfxdef_c *sfx, int volume)
+static int StartSoundAtVolume(mobj_t *origin, sfxdef_c *sfx)
 {
 	int snd_num = sfx->normal.sounds[0];
 	int cnum, orig_vol;
-
-	bool looping = false;
 
 	if (nosound)
 		return -1;
@@ -348,44 +356,44 @@ static int StartSoundAtVolume(mobj_t *origin, sfxdef_c *sfx, int volume)
 	if (! CacheSound(sfx))
 		return -1;
 
-	orig_vol = MIN(255, (int)(volume * sfx->volume));
-    volume = orig_vol;
+	bool looping = false;
 
 	if (origin && sfx->looping)
 		looping = true;
-
-	// can be NULL (no game is active)
-    volume = edgemin(volume, MAX_VOLUME);
 
 	// try to find a channel
 	cnum = GetSoundChannel(origin, sfx);
 	if (cnum < 0)
 		return -1;
 
-    int channel = I_SoundPlayback(snd_num, volume, looping);
+	float gain = slider_to_gain[soundvolume] * PERCENT_2_FLOAT(sfx->volume);
+
+	float pos[NUMCOORDS];
+	float veloc[NUMCOORDS];
+	bool relative;
+
+	if (origin)
+	{
+		pos[CX] = origin->x;
+		pos[CY] = origin->y;
+		pos[CZ] = origin->z;
+		veloc[CX] = origin->mom.x;
+		veloc[CY] = origin->mom.y;
+		veloc[CZ] = origin->mom.z;
+		relative = false;
+	}
+	else
+	{
+		pos[CX] = veloc[CX] = 0.0f;
+		pos[CY] = veloc[CY] = 0.0f;
+		pos[CZ] = veloc[CZ] = 0.0f;
+		relative = true;
+	}
+
+    int channel = I_SoundPlayback(snd_num, gain, looping, relative, pos, veloc);
+
 	if (channel != -1)
     {
-        float pos[NUMCOORDS];
-        bool relative;
-
-        if (origin)
-        {
-            pos[CX] = origin->x;
-            pos[CY] = origin->y;
-            pos[CZ] = origin->z;
-            relative = false;
-        }
-        else
-        {
-            pos[CX] = 0.0f;
-            pos[CY] = 0.0f;
-            pos[CZ] = 0.0f;
-            relative = true;
-        }
-
-        I_SoundSetRelative(channel, relative);
-        I_SoundSetPos(channel, pos);
-
 		playingsfx[cnum].channel  = channel;
         playingsfx[cnum].looping  = looping;
         playingsfx[cnum].sfxinfo  = sfx;
@@ -501,16 +509,12 @@ void S_SoundLevelInit(void)
 //
 int S_StartSound(mobj_t *origin, sfx_t *s)
 {
-	int volume;
-
 	if (nosound)
 		return -1;
 
 	// No volume - don't play any sounds
-	if (!soundvolume)
+	if (soundvolume == 0)
 		return -1;
-
-	volume = (soundvolume-1)*8;
 
 	// -KM- 1998/11/25 Fixed this, added origin check
 	if (!s)
@@ -525,7 +529,7 @@ int S_StartSound(mobj_t *origin, sfx_t *s)
 		return -1;
 	}
 
-	return StartSoundAtVolume(origin, sound::LookupEffect(s), volume);
+	return StartSoundAtVolume(origin, sound::LookupEffect(s));
 }
 
 //
@@ -684,6 +688,7 @@ void S_UpdateSounds(mobj_t *listener)
     if (listener)
     {
 		float listen_pos[NUMCOORDS];
+		float listen_veloc[NUMCOORDS];
         float listen_ori_at[NUMCOORDS];
         float listen_ori_up[NUMCOORDS];
 
@@ -693,7 +698,11 @@ void S_UpdateSounds(mobj_t *listener)
         if (listener->player)
             listen_pos[CZ] = listener->player->viewz;
         else
-            listen_pos[CZ] = listener->z + listener->height; // Best guess !?
+            listen_pos[CZ] = MO_MIDZ(listener);
+
+		listen_veloc[CX] = listener->mom.x;
+		listen_veloc[CY] = listener->mom.y;
+		listen_veloc[CZ] = listener->mom.z;
 
         // Horizontal adjustment
         listen_ori_at[CX] = M_Cos(listener->angle);
@@ -706,7 +715,7 @@ void S_UpdateSounds(mobj_t *listener)
         listen_ori_up[CZ] = 1.0f;
 
         I_SoundSetListenerOrient(listen_ori_at, listen_ori_up);
-        I_SoundSetListenerPos(listen_pos);
+        I_SoundSetListenerPos(listen_pos, listen_veloc);
     }
 
 	for (cnum = 0; cnum < playingsfxnum; cnum++)
@@ -730,12 +739,16 @@ void S_UpdateSounds(mobj_t *listener)
 			// Check for freed origin in intolerant mode
 			//DEV_ASSERT2(*(int *)(&c->origin->x) != -1);
             float pos[NUMCOORDS];
+            float veloc[NUMCOORDS];
 
             pos[CX] = c->origin->x;
             pos[CY] = c->origin->y;
             pos[CZ] = c->origin->z;
+            veloc[CX] = c->origin->mom.x;
+            veloc[CY] = c->origin->mom.y;
+            veloc[CZ] = c->origin->mom.z;
 
-            I_SoundSetPos(c->channel, pos);
+            I_SoundSetPos(c->channel, pos, veloc);
 		}
 	}
 
@@ -803,7 +816,9 @@ int S_GetSfxVolume(void)
 //
 void S_SetSfxVolume(int volume)
 {
-	soundvolume = edgemid(S_MIN_VOLUME, volume, S_MAX_VOLUME);
+	DEV_ASSERT2(volume >= 0 && volume < SND_SLIDER_NUM);
+
+	soundvolume = volume;
 }
 
 //

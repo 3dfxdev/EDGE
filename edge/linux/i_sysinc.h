@@ -29,12 +29,13 @@
 
 // I_CD.C
 bool I_StartupCD(void);
-bool I_CDStartPlayback(int tracknum);
+bool I_CDStartPlayback(int tracknum, bool loop, float gain);
 void I_CDPausePlayback(void);
 void I_CDResumePlayback(void);
 void I_CDStopPlayback(void);
-void I_CDSetVolume(int vol);
+void I_CDSetVolume(float gain);
 bool I_CDFinished(void);
+bool I_CDTicker(void);
 void I_ShutdownCD(void);
 
 // I_MUSIC.C

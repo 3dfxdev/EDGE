@@ -368,8 +368,8 @@ static optmenuitem_t mainmenu[] =
 	{OPT_Function, "Language", NULL, 0, 0, NULL, M_ChangeLanguage, NULL},
 	{OPT_Switch, "Messages", YesNo, 2, 1, &showMessages, NULL, "Messages"},
 	{OPT_Boolean, "Swap Stereo", YesNo, 2, 0, &swapstereo, NULL, "SwapStereo"},
-	{OPT_Slider, "Sound Volume", NULL, 16, 12,  &menusoundvol, M_ChangeSfxVol, NULL},
-	{OPT_Slider, "Music Volume", NULL, 16, 12,  &menumusicvol, M_ChangeMusVol, NULL},
+	{OPT_Slider, "Sound Volume", NULL, SND_SLIDER_NUM, 12,  &menusoundvol, M_ChangeSfxVol, NULL},
+	{OPT_Slider, "Music Volume", NULL, SND_SLIDER_NUM, 12,  &menumusicvol, M_ChangeMusVol, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Reset to Defaults", NULL, 0, 0, NULL, M_ResetToDefaults, "ResetToDefaults"}
 };

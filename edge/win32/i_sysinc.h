@@ -60,12 +60,13 @@ win32_mixer_t;
 
 // I_CD.C - MCI CD Handling
 bool I_StartupCD(void);
-bool I_CDStartPlayback(int tracknum);
+bool I_CDStartPlayback(int tracknum, bool loopy, float gain);
 bool I_CDPausePlayback(void);
 bool I_CDResumePlayback(void);
 void I_CDStopPlayback(void);
-void I_CDSetVolume(int vol);
+void I_CDSetVolume(float gain);
 bool I_CDFinished(void);
+bool I_CDTicker(void);
 void I_ShutdownCD();
 
 // I_CTRL.C
@@ -74,13 +75,13 @@ void I_HandleKeypress(int key, bool keydown); // handle message loop key presses
 
 // I_MUS.C - Win32 MUS Handling
 bool I_StartupMUS();
-int I_MUSPlayTrack(byte *data, int length, bool loopy);
+int I_MUSPlayTrack(byte *data, int length, bool loopy, float gain);
 void I_MUSPause(void);
 void I_MUSResume(void);
 void I_MUSStop(void);
 void I_MUSTicker(void);
 bool I_MUSPlaying(void);
-void I_MUSSetVolume(int vol);
+void I_MUSSetVolume(float gain);
 void I_ShutdownMUS(void);
 
 // I_MUSIC.C
