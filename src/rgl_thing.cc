@@ -121,7 +121,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	if (!image)
 		return;
 
-	cim = W_ImageCache(image, IMG_OGL, 0, true);
+	cim = W_ImageCache(image);
 
 	tex_id = W_ImageGetOGL(cim);
 
@@ -1042,7 +1042,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		L_r = L_g = L_b = 0;
 	}
 
-	cim = W_ImageCache(image, IMG_OGL, 0, true, dthing->mo->info->palremap);
+	cim = W_ImageCache(image, 0, true, dthing->mo->info->palremap);
 
 	tex_id = W_ImageGetOGL(cim);
 

@@ -47,19 +47,25 @@
 
 static bool need_to_draw_sky = false;
 
-static bool sky_box = true;
+int sky_stretch = 0;  // ranges from 0 to 3
 
 
 typedef struct
 {
+	int last_stretch;
+
 	const image_t *base_sky;
+	const image_t *north, *east, *south, *west;
 	const image_t *top, *bottom;
 }
 skybox_info_t;
 
 static skybox_info_t box_info =
 {
-	NULL, NULL, NULL
+	-1,
+	NULL,
+	NULL, NULL, NULL, NULL,
+	NULL, NULL
 };
 
 static void UpdateSkyBoxTextures(void);
@@ -81,16 +87,9 @@ void RGL_SetupSkyMatrices(void)
 
 	glLoadIdentity();
 	
-	if (sky_box)
-	{
-		glRotatef(270.0f - ANG_2_FLOAT(viewvertangle), 1.0f, 0.0f, 0.0f);
-		glRotatef(45.0f  - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
-		glTranslatef(0.0f, 0.0f, 0.0f);
-	}
-	else
-	{
-		glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
-	}
+	glRotatef(270.0f - ANG_2_FLOAT(viewvertangle), 1.0f, 0.0f, 0.0f);
+	glRotatef(45.0f  - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
+//	glTranslatef(0.0f, 0.0f, 0.0f);
 }
 
 //
@@ -137,10 +136,7 @@ void RGL_FinishSky(void)
 
 		glDepthMask(GL_FALSE);
 
-		if (sky_box)
-			RGL_DrawSkyBox();
-		else
-			RGL_DrawSkyBackground();
+		RGL_DrawSkyBox();
 
 		glDepthFunc(GL_LEQUAL);
 		glDepthMask(GL_TRUE);
@@ -151,225 +147,101 @@ void RGL_FinishSky(void)
 
 void RGL_DrawSkyBox(void)
 {
-	/* NOTE: coordinates here are only for the pseudo skybox.
-	 * A real skybox should be a perfect cube.
-	 */
-
 	UpdateSkyBoxTextures();
 
 	RGL_SetupSkyMatrices();
 
 	float dist = Z_FAR / 2.0f;
-	float top  = dist;
-	float bottom = -dist / 2.0f;
 
 	float v0 = 0.0f;
 	float v1 = 1.0f;
 
 	if (! glcap_edgeclamp)
 	{
-		// This relies on knowing the texture in 128x128
-		v0 = 0.5f / 128.0f;
+		// FIXME: assumes textures are 128x128
+		v0 =   0.5f / 128.0f;
 		v1 = 127.5f / 128.0f;
 	}
 
-	const cached_image_t *c_side, *c_top, *c_bottom;
+	const cached_image_t *cim_N, *cim_E, *cim_S, *cim_W;
+	const cached_image_t *cim_T, *cim_B;
 
-	c_side   = W_ImageCache(sky_image,       IMG_OGL, 0, true);
-	c_top    = W_ImageCache(box_info.top,    IMG_OGL, 0, true);
-	c_bottom = W_ImageCache(box_info.bottom, IMG_OGL, 0, true);
-
-	float side_w = 0.50f;
-	float side_b = 0.15f;
-	float side_t = 0.75f;
-
-	if (sky_image->actual_w > 256)
-		side_w = 0.25f;
+	cim_N = W_ImageCache(box_info.north);
+	cim_E = W_ImageCache(box_info.east);
+	cim_S = W_ImageCache(box_info.south);
+	cim_W = W_ImageCache(box_info.west);
+	cim_T = W_ImageCache(box_info.top);
+	cim_B = W_ImageCache(box_info.bottom);
 
 	glEnable(GL_TEXTURE_2D);
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 
 	// top
-	// glColor3f(0, 0, 1);
-	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(c_top));
+	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_T));
 
 	glBegin(GL_QUADS);
-	glTexCoord2f(v0, v0); glVertex3f(-dist,  dist, top);
-	glTexCoord2f(v0, v1); glVertex3f(-dist, -dist, top);
-	glTexCoord2f(v1, v1); glVertex3f( dist, -dist, top);
-	glTexCoord2f(v1, v0); glVertex3f( dist,  dist, top);
+	glTexCoord2f(v0, v0); glVertex3f(-dist, -dist, +dist);
+	glTexCoord2f(v0, v1); glVertex3f(-dist,  dist, +dist);
+	glTexCoord2f(v1, v1); glVertex3f( dist,  dist, +dist);
+	glTexCoord2f(v1, v0); glVertex3f( dist, -dist, +dist);
 	glEnd();
 
 	// bottom
-	// glColor3f(0, 1, 0);
-	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(c_bottom));
+	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_B));
 
 	glBegin(GL_QUADS);
-	glTexCoord2f(v0, v1); glVertex3f(-dist, -dist, bottom);
-	glTexCoord2f(v0, v0); glVertex3f(-dist,  dist, bottom);
-	glTexCoord2f(v1, v0); glVertex3f( dist,  dist, bottom);
-	glTexCoord2f(v1, v1); glVertex3f( dist, -dist, bottom);
+	glTexCoord2f(v0, v0); glVertex3f(-dist, -dist, -dist);
+	glTexCoord2f(v0, v1); glVertex3f(-dist,  dist, -dist);
+	glTexCoord2f(v1, v1); glVertex3f( dist,  dist, -dist);
+	glTexCoord2f(v1, v0); glVertex3f( dist, -dist, -dist);
 	glEnd();
 
-	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(c_side));
-	glBegin(GL_QUAD_STRIP);
-
-	// north-east
-	glTexCoord2f(side_w * 4.0f, side_b); glVertex3f( dist,  dist, bottom);
-	glTexCoord2f(side_w * 4.0f, side_t); glVertex3f( dist,  dist, top);
-
-	// south-east
-	glTexCoord2f(side_w * 3.0f, side_b); glVertex3f( dist, -dist, bottom);
-	glTexCoord2f(side_w * 3.0f, side_t); glVertex3f( dist, -dist, top);
-
-	// south-west
-	glTexCoord2f(side_w * 2.0f, side_b); glVertex3f(-dist, -dist, bottom);
-	glTexCoord2f(side_w * 2.0f, side_t); glVertex3f(-dist, -dist, top);
-
-	// north-west
-	glTexCoord2f(side_w * 1.0f, side_b); glVertex3f(-dist,  dist, bottom);
-	glTexCoord2f(side_w * 1.0f, side_t); glVertex3f(-dist,  dist, top);
-
-	// back to north-east
-	glTexCoord2f(side_w * 0.0f, side_b); glVertex3f( dist,  dist, bottom);
-	glTexCoord2f(side_w * 0.0f, side_t); glVertex3f( dist,  dist, top);
-
-	glEnd();
-
-	W_ImageDone(c_side);
-	W_ImageDone(c_top);
-	W_ImageDone(c_bottom);
-
-	glDisable(GL_TEXTURE_2D);
-
-	RGL_RevertSkyMatrices();
-}
-
-//
-// RGL_DrawSkyBackground
-//
-void RGL_DrawSkyBackground(void)
-{
-	RGL_SetupSkyMatrices();
-
-	int x, y, w, h;
-	float right, bottom;
-
-	const cached_image_t *cim;
-	GLuint tex_id;
-
-	float mlook_rad;
-	float top_L, bottom_L;
-	float base_a = ANG_2_FLOAT(viewangle);
-
-	int sx1, sy1, sx2, sy2;  // screen coords
-	float tx1, tx2, ty, bx1, bx2, by;  // tex coords
-
-	DEV_ASSERT2(sky_image);
-	cim = W_ImageCache(sky_image, IMG_OGL, 0, true);
-	tex_id = W_ImageGetOGL(cim);
-
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, tex_id);
-
-	w = sky_image->actual_w;
-	h = sky_image->actual_h;
-	right  = w / (float)sky_image->total_w;
-	bottom = h / (float)sky_image->total_h;
-
-	// sky is always 100% bright
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-	sx1 = -1; sx2 = +1;
-	sy1 = -1; sy2 = +1;
-
-	// compute sky horizontally tex coords
-	mlook_rad = ANG_2_FLOAT(viewvertangle) * M_PI / 180.0f;
-
-	if (mlook_rad > M_PI)
-		mlook_rad -= M_PI*2;
-
-	top_L = bottom_L = 90;
-
-	top_L /= 2.0f;
-	bottom_L /= 2.0f;
-
-	tx1 = (base_a + top_L) / (w > 256 ? 360.0f : 180.0f);
-	tx2 = (base_a - top_L) / (w > 256 ? 360.0f : 180.0f);
-
-	bx1 = (base_a + bottom_L) / (w > 256 ? 360.0f : 180.0f);
-	bx2 = (base_a - bottom_L) / (w > 256 ? 360.0f : 180.0f);
-
-	// compute sky vertical tex coords
-	{
-		float top_a    = (M_PI/2 - mlook_rad - M_PI/4) / M_PI;
-		float bottom_a = (M_PI/2 - mlook_rad + M_PI/4) / M_PI;
-
-		if (top_a < 0)
-			top_a = 0;
-
-		if (bottom_a > 1.0f)
-			bottom_a = 1.0f;
-
-		DEV_ASSERT2(bottom_a > top_a);
-
-		ty = top_a * bottom;
-		by = bottom_a * bottom;
-	}
+	// north
+	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_N));
 
 	glBegin(GL_QUADS);
-
-	// divide screen into many squares, to reduce distortion
-	for (y=0; y < 8; y++)
-	{
-		for (x=0; x < 8; x++)
-		{
-			float xa = sx1 + (sx2 - sx1) * x     / 8.0f;
-			float xb = sx1 + (sx2 - sx1) * (x+1) / 8.0f;
-
-			float ya = sy1 + (sy2 - sy1) * y     / 8.0f;
-			float yb = sy1 + (sy2 - sy1) * (y+1) / 8.0f;
-
-			float la = tx1 + (bx1 - tx1) * y     / 8.0f;
-			float ra = tx2 + (bx2 - tx2) * y     / 8.0f;
-			float lb = tx1 + (bx1 - tx1) * (y+1) / 8.0f;
-			float rb = tx2 + (bx2 - tx2) * (y+1) / 8.0f;
-
-			float txa = la + (ra - la) * x     / 8.0f;
-			float bxa = lb + (rb - lb) * x     / 8.0f;
-			float txb = la + (ra - la) * (x+1) / 8.0f;
-			float bxb = lb + (rb - lb) * (x+1) / 8.0f;
-
-			float tya = ty + (by - ty) * y     / 8.0f;
-			float bya = ty + (by - ty) * (y+1) / 8.0f;
-
-			// --- handle sky (using depth buffer) ---
-
-			float dist = Z_FAR * 0.99;
-
-			xa *= dist; ya *= dist;
-			xb *= dist; yb *= dist;
-
-			glTexCoord2f(txa, 1.0f - bottom * tya);
-			glVertex3f(xa, ya, dist);
-
-			glTexCoord2f(txb, 1.0f - bottom * tya);
-			glVertex3f(xb, ya, dist);
-
-			glTexCoord2f(bxb, 1.0f - bottom * bya);
-			glVertex3f(xb, yb, dist);
-
-			glTexCoord2f(bxa, 1.0f - bottom * bya);
-			glVertex3f(xa, yb, dist);
-		}
-	}
-
+	glTexCoord2f(v0, v0); glVertex3f(-dist,  dist, -dist);
+	glTexCoord2f(v0, v1); glVertex3f(-dist,  dist, +dist);
+	glTexCoord2f(v1, v1); glVertex3f( dist,  dist, +dist);
+	glTexCoord2f(v1, v0); glVertex3f( dist,  dist, -dist);
 	glEnd();
 
-	glDisable(GL_TEXTURE_2D);
+	// east
+	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_E));
 
-	W_ImageDone(cim);
+	glBegin(GL_QUADS);
+	glTexCoord2f(v0, v0); glVertex3f( dist,  dist, -dist);
+	glTexCoord2f(v0, v1); glVertex3f( dist,  dist, +dist);
+	glTexCoord2f(v1, v1); glVertex3f( dist, -dist, +dist);
+	glTexCoord2f(v1, v0); glVertex3f( dist, -dist, -dist);
+	glEnd();
+
+	// south
+	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_S));
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(v0, v0); glVertex3f( dist, -dist, -dist);
+	glTexCoord2f(v0, v1); glVertex3f( dist, -dist, +dist);
+	glTexCoord2f(v1, v1); glVertex3f(-dist, -dist, +dist);
+	glTexCoord2f(v1, v0); glVertex3f(-dist, -dist, -dist);
+	glEnd();
+
+	// west
+	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_W));
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(v0, v0); glVertex3f(-dist, -dist, -dist);
+	glTexCoord2f(v0, v1); glVertex3f(-dist, -dist, +dist);
+	glTexCoord2f(v1, v1); glVertex3f(-dist,  dist, +dist);
+	glTexCoord2f(v1, v0); glVertex3f(-dist,  dist, -dist);
+	glEnd();
+
+	W_ImageDone(cim_N); W_ImageDone(cim_E);
+	W_ImageDone(cim_S); W_ImageDone(cim_W);
+	W_ImageDone(cim_T); W_ImageDone(cim_B);
+
+	glDisable(GL_TEXTURE_2D);
 
 	RGL_RevertSkyMatrices();
 }
@@ -427,13 +299,60 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 
 //----------------------------------------------------------------------------
 
+static const float stretches[4] = { 0.55f, 0.70f, 0.85f, 1.0f };
+
+void RGL_CalcSkyCoord(float sx, float sy, float sz, int tw, float *tx, float *ty)
+{
+	angle_t H = R_PointToAngle(0, 0, sx, sy);
+	angle_t V = R_PointToAngle(0, 0, sz, R_PointToDist(0, 0, sx, sy));
+
+	H = 0 - H;
+	V = V;
+
+	if (tw <= 256)
+		*tx = (float)(H >> 7) / (float)(1 << 24);
+	else
+		*tx = (float)(H >> 8) / (float)(1 << 24);
+
+	float k = (float)(V >> 7) / (float)(1 << 24);
+
+	// FIXME: optimise
+	k = k * 2.0f - 1.0f;
+
+	if (k < 0)
+		k = -pow(-k, stretches[sky_stretch]);
+	else
+		k =  pow(k,  stretches[sky_stretch]);
+
+	// if (k < -0.99) k = -0.99;
+	// if (k > +0.99) k = +0,99;
+
+	*ty = (k + 1.0f) / 2.0f;
+}
+
 static void UpdateSkyBoxTextures(void)
 {
-	if (box_info.base_sky == sky_image)
+	if (box_info.base_sky == sky_image &&
+		box_info.last_stretch == sky_stretch)
 		return;
 	
 	box_info.base_sky = sky_image;
+	box_info.last_stretch = sky_stretch;
 
-	box_info.top    = W_ImageFromSkyMerge(sky_image, false);
-	box_info.bottom = W_ImageFromSkyMerge(sky_image, true);
+	box_info.north  = W_ImageFromSkyMerge(sky_image, WSKY_North);
+	box_info.east   = W_ImageFromSkyMerge(sky_image, WSKY_East);
+	box_info.top    = W_ImageFromSkyMerge(sky_image, WSKY_Top);
+	box_info.bottom = W_ImageFromSkyMerge(sky_image, WSKY_Bottom);
+
+	// small optimisation for 256 wide skies
+	if (sky_image->actual_w <= 256)
+	{
+		box_info.south = box_info.north;
+		box_info.west  = box_info.east;
+	}
+	else
+	{
+		box_info.south  = W_ImageFromSkyMerge(sky_image, WSKY_South);
+		box_info.west   = W_ImageFromSkyMerge(sky_image, WSKY_West);
+	}
 }
