@@ -147,11 +147,8 @@ int mapthing_NUM;
 const byte *rejectmatrix;
 
 // Maintain single and multi player starting spots.
-int max_deathmatch_starts = 10;
-spawnpoint_t *deathmatchstarts;
-spawnpoint_t *deathmatch_p;
-
-spawnpoint_t *playerstarts;
+spawnpointarray_c dm_starts;
+spawnpoint_t *playerstarts;	// Use spawnpointarray?
 
 static bool hexen_level;
 
@@ -824,16 +821,7 @@ static void SpawnMapThing(const mobjtype_c *info,
 	// count deathmatch start positions
 	if (info->playernum < 0)
 	{
-		if (deathmatch_p == &deathmatchstarts[max_deathmatch_starts])
-		{
-			int length = deathmatch_p - deathmatchstarts;
-
-			Z_Resize(deathmatchstarts, spawnpoint_t, ++max_deathmatch_starts);
-
-			deathmatch_p = deathmatchstarts + length;
-		}
-		*deathmatch_p = point;
-		deathmatch_p++;
+		dm_starts.Insert(&point);
 		return;
 	}
 
@@ -2294,7 +2282,6 @@ void P_SetupLevel(skill_t skill, int autotag)
 		P_RecomputeGapsAroundSector(sectors + j);
 
 	bodyqueslot = 0;
-	deathmatch_p = deathmatchstarts;
 
 	// -AJA- 1999/10/21: Clear out playerstarts.
 	Z_Clear(playerstarts, spawnpoint_t, MAXPLAYERS);
@@ -2361,7 +2348,7 @@ bool P_Init(void)
 	for (i = 0; i < MAXPLAYERS; i++)
 		P_AddPlayer(i);
 	
-	deathmatchstarts = Z_New(spawnpoint_t, max_deathmatch_starts);
+	dm_starts.Clear();
 	playerstarts = Z_New(spawnpoint_t, MAXPLAYERS);
 
 	return true;
