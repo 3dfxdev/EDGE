@@ -310,13 +310,14 @@ void RGL_DrawUnits(void)
 //  SPECIAL 1D OCCLUSION BUFFER
 //
 
-#define ONED_POWER  12  // 8192 angles  !!!!
+#define ONED_POWER  12  // 4096 angles
 #define ONED_SIZE   (1 << ONED_POWER)
+#define ONED_TOTAL  (ONED_SIZE / 32)
 
 // 1 bit per angle, packed into 32 bit values.
 // (NOTE: for speed reasons, 1 is "clear", and 0 is "blocked")
 //
-static unsigned long oned_oculus_buffer[ONED_SIZE / 32];
+static unsigned long oned_oculus_buffer[ONED_TOTAL];
 
 // -AJA- these values could be computed (rather than looked-up)
 // without too much trouble.  For now I want to get the logic correct.
@@ -357,10 +358,10 @@ static unsigned long oned_high_masks[32] =
 //
 void RGL_1DOcclusionClear(void)
 {
-	int low;
+	int i;
 
-	for (low = 0; low < (ONED_SIZE/32); low++)
-		oned_oculus_buffer[low] = 0xFFFFFFFF;
+	for (i = 0; i < ONED_TOTAL; i++)
+		oned_oculus_buffer[i] = 0xFFFFFFFF;
 }
 
 //
@@ -371,26 +372,9 @@ void RGL_1DOcclusionClear(void)
 //
 void RGL_1DOcclusionSet(angle_t low, angle_t high)
 {
-	if ((angle_t)(high - low) >= ANG180)  //!!!!
-	{
-fprintf(stderr, "low = %1.1f\n", ANG_2_FLOAT(low));
-fprintf(stderr, "high = %1.1f\n", ANG_2_FLOAT(high));
-fprintf(stderr, "span = %1.1f\n", ANG_2_FLOAT( (angle_t)(high - low) ));
-	}
-
 	DEV_ASSERT2((angle_t)(high - low) < ANG180);
 
 	unsigned int low_b, high_b;
-
-	low  += ANG90;
-	high += ANG90;
-
-	DEV_ASSERT2(low  <= ANG180);
-	DEV_ASSERT2(high <= ANG180);
-	DEV_ASSERT2(low  <= high);
-
-	if (low  == ANG180) low--;
-	if (high == ANG180) high--;
 
 	low  >>= (ANGLEBITS - ONED_POWER);
 	high >>= (ANGLEBITS - ONED_POWER);
@@ -407,7 +391,9 @@ fprintf(stderr, "span = %1.1f\n", ANG_2_FLOAT( (angle_t)(high - low) ));
 		oned_oculus_buffer[low]  &= ~LOW_MASK(low_b);
 		oned_oculus_buffer[high] &= ~HIGH_MASK(high_b);
 
-		for (low++; low < high; low++)
+		low = (low+1) % ONED_TOTAL;
+
+		for (; low != high; low = (low+1) % ONED_TOTAL)
 			oned_oculus_buffer[low] = 0x00000000;
 	}
 }
@@ -421,26 +407,9 @@ fprintf(stderr, "span = %1.1f\n", ANG_2_FLOAT( (angle_t)(high - low) ));
 //
 bool RGL_1DOcclusionTest(angle_t low, angle_t high)
 {
-	if ((angle_t)(high - low) >= ANG180)  //!!!!
-	{
-fprintf(stderr, "low = %1.1f\n", ANG_2_FLOAT(low));
-fprintf(stderr, "high = %1.1f\n", ANG_2_FLOAT(high));
-fprintf(stderr, "span = %1.1f\n", ANG_2_FLOAT( (angle_t)(high - low) ));
-	}
-
 	DEV_ASSERT2((angle_t)(high - low) < ANG180);
 
 	unsigned int low_b, high_b;
-
-	low  += ANG90;
-	high += ANG90;
-
-	DEV_ASSERT2(low  <= ANG180);
-	DEV_ASSERT2(high <= ANG180);
-	DEV_ASSERT2(low  <= high);
-
-	if (low  == ANG180) low--;
-	if (high == ANG180) high--;
 
 	low  >>= (ANGLEBITS - ONED_POWER);
 	high >>= (ANGLEBITS - ONED_POWER);
@@ -453,8 +422,7 @@ fprintf(stderr, "span = %1.1f\n", ANG_2_FLOAT( (angle_t)(high - low) ));
 	high_b = high & 0x1F;  high >>= 5; 
 
 	if (low == high)
-		return (oned_oculus_buffer[low] & 
-		LOW_MASK(low_b) & HIGH_MASK(high_b)) ? false : true;
+		return ! (oned_oculus_buffer[low] & (LOW_MASK(low_b) & HIGH_MASK(high_b)));
 
 	if (oned_oculus_buffer[low] & LOW_MASK(low_b))
 		return false;
@@ -462,7 +430,9 @@ fprintf(stderr, "span = %1.1f\n", ANG_2_FLOAT( (angle_t)(high - low) ));
 	if (oned_oculus_buffer[high] & HIGH_MASK(high_b))
 		return false;
 
-	for (low++; low < high; low++)
+	low = (low+1) % ONED_TOTAL;
+
+	for (; low != high; low = (low+1) % ONED_TOTAL)
 		if (oned_oculus_buffer[low])
 			return false;
 
