@@ -523,8 +523,8 @@ struct mobj_s
   
   shoot_spot_info_t *spot_info;
 
-  int dlight_qty;
-  const struct image_s *dlight_image;
+  float_t dlight_qty;
+  float_t dlight_target;
 
   // hash values for TUNNEL missiles
   unsigned long tunnel_hash[2];
