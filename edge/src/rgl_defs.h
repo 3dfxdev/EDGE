@@ -93,6 +93,8 @@ void RGL_RenderTrueBSP(void);
 // RGL_UNIT
 //
 
+extern bool use_color_material;
+
 // a single vertex to pass to the GL 
 typedef struct local_gl_vert_s
 {
