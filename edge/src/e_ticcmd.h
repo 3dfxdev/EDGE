@@ -35,7 +35,7 @@
 
 typedef struct
 {
-  // vertical angle for mlook, /256 for angle
+  // vertical angle for mlook, /256 for slope
   signed char vertangle;
 
   // -MH- 1998/08/23 upward movement
