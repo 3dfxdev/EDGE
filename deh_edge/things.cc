@@ -68,7 +68,7 @@ extern spritename_t sprnames[NUMSPRITES_BEX];
 
 void Things::Startup(void)
 {
-	memset(mobj_modified,  0, sizeof(mobj_modified));
+	memset(mobj_modified, 0, sizeof(mobj_modified));
 }
 
 namespace Things
@@ -393,8 +393,15 @@ namespace Things
 			if (mobj->flags & MF_SPAWNCEILING)
 				continue;
 
-			if (mobj->height == 16*FRACUNIT)
-				mobj->height = height_fixes[i+1]*FRACUNIT;
+			if (mobj->height != 16*FRACUNIT)
+				continue;
+
+			mobj->height = height_fixes[i+1] * FRACUNIT;
+
+			// Note: Storage::ApplyAll() has already been called, hence
+			//       we are being a bit sneaky here and using RememberMod
+			//       just to restore the changed heights.
+			Storage::RememberMod(&mobj->height, 16*FRACUNIT);
 		}
 	}
 
@@ -991,7 +998,6 @@ void Things::ConvertMobj(const mobjinfo_t *info, int mt_num, int player)
 
 void Things::ConvertTHING(void)
 {
-	FixHeights();
 	CollectTheCast();
 
 	got_one = false;
