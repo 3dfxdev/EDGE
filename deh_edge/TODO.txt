@@ -6,15 +6,19 @@ DEH-EDGE TODO
 
    - A_Die : needs a new EDGE action.
 
-   - A_Scratch : misc1 is damage, misc2 is optional failure sound.
-                 may need to create custom attack(s).
+   - A_Scratch : misc1 is damage, misc2 is scratch sound (0 for none).
+                 need to a create custom attack for each use.
+				 see [IMP_CLOSECOMBAT] for a guide.
 
    - A_Spawn : misc1 is MT_NUM (0 = NOP, otherwise subtract 1),
                misc2 is height above spawner's foot.
+			   ideally need new EDGE action, otherwise either:
+			   (a) use DROPITEM(xxx), or
+			   (b) create a custom attack for each use (TYPE=SPAWNER).
 
    - A_Mushroom : ideally need new EDGE action (AT LEAST: custom attack(s)).
                   mobjinfo[].damage determines number of FATSO missiles.
 				  doesn't use misc1/misc2.
 
--  warn about ZDoom-specific stuff.
+-  warn about ZDoom-specific actions/strings/etc.
 
