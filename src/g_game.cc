@@ -1117,7 +1117,7 @@ void G_PlayerReborn(player_t *p, const mobjtype_c *info)
 	p->next = next;
 
 	// don't do anything immediately 
-	p->usedown = p->attackdown = false;
+	p->usedown = p->attackdown[0] = p->attackdown[1] = false;
 
 	p->playerstate = PST_LIVE;
 
@@ -2240,7 +2240,7 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 				if (!p)
 					return false;
 
-				temp = p->attackdown || p->secondatk_down;
+				temp = p->attackdown[0] || p->attackdown[1];
 
 				if ((!cond->negate && !temp) || (cond->negate && temp))
 					return false;

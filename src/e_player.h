@@ -184,8 +184,7 @@ typedef struct player_s
 	playerammo_t ammo[NUMAMMO];
 
 	// True if button down last tic.
-	bool attackdown;
-	bool secondatk_down;
+	bool attackdown[2];
 	bool usedown;
 
 	// Bit flags, for cheats and debug.
@@ -248,9 +247,8 @@ typedef struct player_s
 
 	// -AJA- 1999/08/10: This field is the state number which is
 	// remembered for WEAPON_NOFIRE_RETURN when the player lets go of
-	// the button.  -1 if not yet fired or after changing weapons.
-	int remember_atk1;
-	int remember_atk2;
+	// the button.  Holds -1 if not fired or after changing weapons.
+	int remember_atk[2];
 
 	short consistency[BACKUPTICS];
 	ticcmd_t netcmds[BACKUPTICS];

@@ -1183,17 +1183,22 @@ static void CheckForAccelerate(void)
 	{
 		if (player->cmd.buttons & BT_ATTACK)
 		{
-			if (!player->attackdown)
+			if (!player->attackdown[0])
+			{
+				player->attackdown[0] = true;
 				acceleratestage = true;
-			player->attackdown = true;
+			}
 		}
 		else
-			player->attackdown = false;
+			player->attackdown[0] = false;
+
 		if (player->cmd.buttons & BT_USE)
 		{
 			if (!player->usedown)
+			{
+				player->usedown = true;
 				acceleratestage = true;
-			player->usedown = true;
+			}
 		}
 		else
 			player->usedown = false;

@@ -111,7 +111,7 @@ static savefield_t sv_fields_player[] =
 	// NOT HERE:
 	//   in_game: only in-game players are saved.
 	//   key_choices: depends on DDF too much, and not important.
-	//   remember_atk1/2: ditto.
+	//   remember_atk[]: ditto.
 	//   next,prev: links are regenerated.
 	//   avail_weapons, totalarmour: regenerated.
 
@@ -160,8 +160,8 @@ static savefield_t sv_fields_playerweapon[] =
 {
 	SF(info, "info", 1, SVT_STRING, SR_WeaponGetInfo, SR_WeaponPutInfo),
 	SF(owned, "owned", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
-	SF(clip_size, "clip_size", 1, SVT_INT, SR_GetInt, SR_PutInt),
-	SF(sa_clip_size, "sa_clip_size", 1, SVT_INT, SR_GetInt, SR_PutInt),
+	SF(clip_size[0], "clip_size",    1, SVT_INT, SR_GetInt, SR_PutInt),
+	SF(clip_size[1], "sa_clip_size", 1, SVT_INT, SR_GetInt, SR_PutInt),
   
 	SVFIELD_END
 };
@@ -327,7 +327,7 @@ void SV_PlayerCreateElems(int num_elems)
 
 		// initialise defaults
 		p->in_game = true;
-		p->remember_atk1 = p->remember_atk2 = -1;
+		p->remember_atk[0] = p->remember_atk[1] = -1;
 
 		for (j=0; j < NUMPSPRITES; j++)
 		{

@@ -73,8 +73,8 @@ void P_SetPsprite(player_t * p, int position, int stnum)
 //
 // P_SetPspriteDeferred
 //
-// -AJA- 2004/11/05: This is preferred method, doesn't invoke actions,
-//       which (ideally) only occurs during P_MovePsprites().
+// -AJA- 2004/11/05: This is preferred method, doesn't run any actions,
+//       which (ideally) should only happen during P_MovePsprites().
 //
 void P_SetPspriteDeferred(player_t * p, int position, int stnum)
 {
@@ -108,6 +108,14 @@ bool P_CheckWeaponSprite(weapondef_c *info)
 	return DDF_CheckSprites(info->first_state, info->last_state);
 }
 
+static bool ButtonDown(player_t *p, int ATK)
+{
+	if (ATK == 0)
+		return (p->cmd.buttons & BT_ATTACK);
+	else
+		return (p->cmd.extbuttons & EBT_SECONDATK);
+}
+
 // returns true if first attack gets filled
 bool P_FillNewWeapon(player_t *p, int idx)
 {
@@ -115,145 +123,91 @@ bool P_FillNewWeapon(player_t *p, int idx)
 
 	weapondef_c *info = p->weapons[idx].info;
 
-	if (info->ammo != AM_NoAmmo && info->clip_size > 1)
+	if (info->ammo[0] != AM_NoAmmo && info->clip_size[0] != 1)
 	{
-		if (info->clip_size <= p->ammo[info->ammo].num)
+		if (info->clip_size[0] <= p->ammo[info->ammo[0]].num)
 		{
-			p->weapons[idx].clip_size = info->clip_size;
-			p->ammo[info->ammo].num  -= info->clip_size;
+			p->weapons[idx].clip_size[0] = info->clip_size[0];
+			p->ammo[info->ammo[0]].num  -= info->clip_size[0];
 
 			result = true;
 		}
 	}
 
 	// same for second attack
-	if (info->sa_ammo != AM_NoAmmo && info->sa_clip_size > 1)
+	if (info->ammo[1] != AM_NoAmmo && info->clip_size[1] != 1)
 	{
-		if (info->sa_clip_size <= p->ammo[info->sa_ammo].num)
+		if (info->clip_size[1] <= p->ammo[info->ammo[1]].num)
 		{
-			p->weapons[idx].sa_clip_size = info->sa_clip_size;
-			p->ammo[info->sa_ammo].num  -= info->sa_clip_size;
+			p->weapons[idx].clip_size[1] = info->clip_size[1];
+			p->ammo[info->ammo[1]].num  -= info->clip_size[1];
 		}
 	}
 
 	return result;
 }
 
-static void ReloadWeapon(player_t *p, int idx, int attack)
+static void ReloadWeapon(player_t *p, int idx, int ATK)
 {
 	weapondef_c *info = p->weapons[idx].info;
 
-	if (attack == 1)
-	{
-		if (info->ammo != AM_NoAmmo && info->clip_size > 1)
-		{
-			int qty = info->clip_size - p->weapons[idx].clip_size;
+	if (info->ammo[ATK] == AM_NoAmmo || info->clip_size[ATK] == 1)
+		return;
 
-			DEV_ASSERT2(qty > 0);
-			DEV_ASSERT2(qty <= p->ammo[info->ammo].num);
+	int qty = info->clip_size[ATK] - p->weapons[idx].clip_size[ATK];
 
-			p->weapons[idx].clip_size += qty;
-			p->ammo[info->ammo].num -= qty;
-		}
-	}
-	else
-	{
-		if (info->sa_ammo != AM_NoAmmo && info->sa_clip_size > 1)
-		{
-			int qty = info->sa_clip_size - p->weapons[idx].sa_clip_size;
+	DEV_ASSERT2(qty > 0);
+	DEV_ASSERT2(qty <= p->ammo[info->ammo[ATK]].num);
 
-			DEV_ASSERT2(qty > 0);
-			DEV_ASSERT2(qty <= p->ammo[info->sa_ammo].num);
-
-			p->weapons[idx].sa_clip_size += qty;
-			p->ammo[info->sa_ammo].num -= qty;
-		}
-	}
+	p->weapons[idx].clip_size[ATK] += qty;
+	p->ammo[info->ammo[ATK]].num   -= qty;
 }
 
-static bool WeaponCanFire(player_t *p, int idx, int attack)
+static bool WeaponCanFire(player_t *p, int idx, int ATK)
 {
 	weapondef_c *info = p->weapons[idx].info;
 
-	if (attack == 1)
-	{
-		// the order here is important, to allow NoAmmo clip weapons.
-		if (info->clip_size > 1)
-			return (info->ammopershot <= p->weapons[idx].clip_size);
+	// the order here is important, to allow NoAmmo+Clip weapons.
+	if (info->clip_size[ATK] != 1)
+		return (info->ammopershot[ATK] <= p->weapons[idx].clip_size[ATK]);
 
-		if (info->ammo == AM_NoAmmo)
-			return true;
+	if (info->ammo[ATK] == AM_NoAmmo)
+		return true;
 
-		return (info->ammopershot <= p->ammo[info->ammo].num);
-	}
-	else
-	{
-		if (info->sa_clip_size > 1)
-			return (info->sa_ammopershot <= p->weapons[idx].sa_clip_size);
-
-		if (info->sa_ammo == AM_NoAmmo)
-			return true;
-
-		return (info->sa_ammopershot <= p->ammo[info->sa_ammo].num);
-	}
+	return (info->ammopershot[ATK] <= p->ammo[info->ammo[ATK]].num);
 }
 
-static bool WeaponCanReload(player_t *p, int idx, int attack)
+static bool WeaponCanReload(player_t *p, int idx, int ATK)
 {
 	weapondef_c *info = p->weapons[idx].info;
 
-	bool can_fire = WeaponCanFire(p, idx, attack);
+	bool can_fire = WeaponCanFire(p, idx, ATK);
 
-	if (attack == 1)
+	// for non-clip weapon, can reload whenever enough ammo is avail.
+	if (info->clip_size[ATK] == 1)
+		return can_fire;
+
+	// for clip weapons, cannot reload until clip is empty.
+	if (! can_fire)
 	{
-		// for non-clip weapon, can reload whenever enough ammo is avail.
-		if (info->clip_size == 1)
-			return can_fire;
-
-		// for clip weapons, cannot reload until clip is empty.
-		if (! can_fire)
-		{
-			return (info->ammo == AM_NoAmmo) ||
-			       (info->clip_size - p->weapons[idx].clip_size <=
-					p->ammo[info->ammo].num);
-		}
-	}
-	else
-	{
-		if (info->sa_clip_size == 1)
-			return can_fire;
-
-		if (! can_fire)
-		{
-			return (info->sa_ammo == AM_NoAmmo) ||
-			       (info->sa_clip_size - p->weapons[idx].sa_clip_size <=
-					p->ammo[info->sa_ammo].num);
-		}
+		return (info->ammo[ATK] == AM_NoAmmo) ||
+			   (info->clip_size[ATK] - p->weapons[idx].clip_size[ATK] <=
+				p->ammo[info->ammo[ATK]].num);
 	}
 
 	return false;
 }
 
-static bool WeaponCanPartialReload(player_t *p, int idx, int attack)
+static bool WeaponCanPartialReload(player_t *p, int idx, int ATK)
 {
 	weapondef_c *info = p->weapons[idx].info;
 
-	if (attack == 1)
-	{
-		// for non-clip weapons, assumes we lose some ammo.
-		if (info->clip_size == 1)
-			WeaponCanFire(p, idx, attack);
+	// for non-clip weapons, assumes we lose some ammo.
+	if (info->clip_size[ATK] == 1)
+		WeaponCanFire(p, idx, ATK);
 
-		// for clip weapons, cannot reload if clip is full
-		return (p->weapons[idx].clip_size < info->clip_size);
-	}
-	else
-	{
-		if (info->sa_clip_size == 1)
-			WeaponCanFire(p, idx, attack);
-
-		return (p->weapons[idx].sa_clip_size < info->sa_clip_size);
-	}
+	// for clip weapons, cannot reload if clip is full
+	return (p->weapons[idx].clip_size[ATK] < info->clip_size[ATK]);
 }
 
 // FIXME: doesn't handle first/second attack properly
@@ -261,39 +215,47 @@ static bool WeaponTotallyEmpty(player_t *p, int idx, bool no_sec_atk)
 {
 	weapondef_c *info = p->weapons[idx].info;
 
-	if (info->ammo == AM_NoAmmo)
+	if (info->ammo[0] == AM_NoAmmo)
 		return false;
 
-	int total = p->ammo[info->ammo].num;
+	int total = p->ammo[info->ammo[0]].num;
 
-	if (info->clip_size == 1 && info->ammopershot > total)
+	if (info->clip_size[0] == 1 && info->ammopershot[0] > total)
 		return true;
 
 	// for clip weapons, either need a non-empty clip or enough
 	// ammo to fill the clip.
-	if (info->clip_size > 1 &&
-		info->ammopershot > p->weapons[idx].clip_size &&
-		info->clip_size > total)
+	if (info->clip_size[0] != 1 &&
+		info->ammopershot[0] > p->weapons[idx].clip_size[0] &&
+		info->clip_size[0] > total)
 	{
 		return true;
 	}
 
-	if (info->sa_attack && ! no_sec_atk)
+	if (info->attack[1] && ! no_sec_atk)
 	{
-		if (info->sa_clip_size == 1 && info->sa_ammopershot > total)
+		if (info->clip_size[1] == 1 && info->ammopershot[1] > total)
 			return true;
 
 		// for clip weapons, either need a non-empty clip or enough
 		// ammo to fill the clip.
-		if (info->sa_clip_size > 1 &&
-			info->sa_ammopershot > p->weapons[idx].sa_clip_size &&
-			info->sa_clip_size > total)
+		if (info->clip_size[1] != 1 &&
+			info->ammopershot[1] > p->weapons[idx].clip_size[1] &&
+			info->clip_size[1] > total)
 		{
 			return true;
 		}
 	}
 
 	return false;
+}
+
+static void GotoDownState(player_t *p)
+{
+	int newstate = p->weapons[p->ready_wp].info->down_state;
+
+	P_SetPspriteDeferred(p, ps_weapon, newstate);
+	P_SetPsprite(p, ps_crosshair, S_NULL);
 }
 
 static void GotoReadyState(player_t *p)
@@ -307,6 +269,69 @@ static void GotoReadyState(player_t *p)
 	// attack state.
 }
 
+static void GotoEmptyState(player_t *p)
+{
+	int newstate = p->weapons[p->ready_wp].info->empty_state;
+
+	P_SetPspriteDeferred(p, ps_weapon, newstate);
+	P_SetPsprite(p, ps_crosshair, S_NULL);
+
+	// -AJA- FIXME: probably need to take the _player_ thing out of its
+	// attack state.
+}
+
+static void GotoAttackState(player_t * p, int ATK)
+{
+	weapondef_c *info = p->weapons[p->ready_wp].info;
+
+	int newstate = 0;
+
+	if (ATK == 0)
+	{
+		newstate = info->attack_state;
+
+		if (p->remember_atk[0] >= 0)
+		{
+			newstate = p->remember_atk[0];
+			p->remember_atk[0] = -1;
+		}
+	}
+	else
+	{
+		newstate = info->sa_attack_state;
+
+		if (p->remember_atk[1] >= 0)
+		{
+			newstate = p->remember_atk[1];
+			p->remember_atk[1] = -1;
+		}
+	}
+
+	if (newstate)
+		P_SetPspriteDeferred(p, ps_weapon, newstate);
+}
+
+//
+// SwitchAway
+//
+// Not enough ammo to shoot, selects the next weapon to use.
+//
+static void SwitchAway(player_t * p, int ATK)
+{
+	weapondef_c *info = p->weapons[p->ready_wp].info;
+
+//!!!!	@@ can reload && reload states && check flag --> goto reload states
+
+	if (! (info->specials[ATK] & WPSP_SwitchAway))
+	{
+		if (info->empty_state)
+			GotoEmptyState(p);
+		else 
+			GotoReadyState(p);
+	}
+	else
+		P_SelectNewWeapon(p, -100, AM_DontCare);
+}
 
 //
 // P_BringUpWeapon
@@ -324,14 +349,14 @@ static void P_BringUpWeapon(player_t * p)
 	p->pending_wp = WPSEL_NoChange;
 	p->psprites[ps_weapon].sy = WEAPONBOTTOM;
 
-	p->remember_atk1 = -1;
-	p->remember_atk2 = -1;
+	p->remember_atk[0] = -1;
+	p->remember_atk[1] = -1;
 
 I_Printf("New selection = %d\n", sel);
 	if (sel == WPSEL_None)
 	{
-		p->attackdown = false;
-		p->secondatk_down = false;
+		p->attackdown[0] = false;
+		p->attackdown[1] = false;
 
 		P_SetPsprite(p, ps_weapon, S_NULL);
 		P_SetPsprite(p, ps_flash, S_NULL);
@@ -363,9 +388,6 @@ I_Printf("New selection = %d\n", sel);
 	P_SetPsprite(p, ps_crosshair, S_NULL);
 
 	p->refire = info->refire_inacc ? 0 : 1;
-
-///---	// refill clips if necessary
-///---	P_RefillClips(p);
 }
 
 //
@@ -395,7 +417,7 @@ void P_SelectNewWeapon(player_t * p, int priority, ammotype_e ammo)
 		if (info->dangerous || info->priority < priority)
 			continue;
 
-		if (ammo != AM_DontCare && info->ammo != ammo)
+		if (ammo != AM_DontCare && info->ammo[0] != ammo)
 			continue;
 
 		if (WeaponTotallyEmpty(p, i, false))
@@ -440,76 +462,17 @@ void P_SelectNewWeapon(player_t * p, int priority, ammotype_e ammo)
 }
 
 //
-// CheckAmmo
-//
-// Returns true if there is enough ammo to shoot.
-// If not, selects the next weapon to use.
-//
-static bool CheckAmmoSwitch(player_t * p, int attack)
-{
-	weapondef_c *info = p->weapons[p->ready_wp].info;
-
-	if (WeaponCanFire(p, p->ready_wp, attack))
-		return true;
-
-//!!!!	@@ can reload && reload states && check flag --> goto reload states
-
-	weapon_flag_e flags = (attack == 1) ? info->special_flags :
-		info->sa_specials;
-
-	if (info->empty_state)
-		P_SetPspriteDeferred(p, ps_weapon, info->empty_state);
-	else if (! (flags & WPSP_SwitchAway))
-		P_SetPspriteDeferred(p, ps_weapon, info->ready_state);
-	else
-		P_SelectNewWeapon(p, -100, AM_DontCare);
-
-	return false;
-}
-
-static void GotoAttackState(player_t * p, int attack)
-{
-	weapondef_c *info = p->weapons[p->ready_wp].info;
-
-	statenum_t newstate = 0;
-
-	if (attack == 1)
-	{
-		newstate = info->attack_state;
-
-		if (p->remember_atk1 >= 0)
-		{
-			newstate = p->remember_atk1;
-			p->remember_atk1 = -1;
-		}
-	}
-	else
-	{
-		newstate = info->sa_attack_state;
-
-		if (p->remember_atk2 >= 0)
-		{
-			newstate = p->remember_atk2;
-			p->remember_atk2 = -1;
-		}
-	}
-
-	if (newstate)
-		P_SetPspriteDeferred(p, ps_weapon, newstate);
-}
-
-//
 // P_DropWeapon
 //
 // Player died, so put the weapon away.
 //
 void P_DropWeapon(player_t * p)
 {
-	p->remember_atk1 = -1;
-	p->remember_atk2 = -1;
+	p->remember_atk[0] = -1;
+	p->remember_atk[1] = -1;
 
 	if (p->ready_wp != WPSEL_None)
-		P_SetPspriteDeferred(p, ps_weapon, p->weapons[p->ready_wp].info->down_state);
+		GotoDownState(p);
 }
 
 //
@@ -623,6 +586,8 @@ void P_Zoom(player_t *p)
 //----------------------------------------------------------------------------
 
 
+// !!! FIXME: sx/sy are not set when firing (seems weird, also causes a jerk)
+
 static void BobWeapon(player_t *p, weapondef_c *info)
 {
 	bool hasjetpack = p->powers[PW_Jetpack] > 0;
@@ -659,18 +624,12 @@ void A_WeaponReady(mobj_t * mo)
 
 	weapondef_c *info = p->weapons[p->ready_wp].info;
 
-	if (info->empty_state && WeaponTotallyEmpty(p, p->ready_wp, false))
-	{
-		P_SetPspriteDeferred(p, ps_weapon, info->empty_state);
-		return;
-	}
-
 //!!!!!! DEBUGGING
-if ((info->ammo != AM_NoAmmo) && !(leveltime & 0x1F))
+if ((info->ammo[0] != AM_NoAmmo) && !(leveltime & 0x1F))
 {
-I_Printf("ammo %d/%d  clip = %d/%d\n", p->ammo[info->ammo].num,
-p->ammo[info->ammo].max, info->clip_size,
-p->weapons[p->ready_wp].clip_size);
+I_Printf("ammo %d/%d  clip = %d/%d\n", p->ammo[info->ammo[0]].num,
+p->ammo[info->ammo[0]].max, info->clip_size[0],
+p->weapons[p->ready_wp].clip_size[0]);
 }
 
 	if (info->idle && psp->state == &states[info->ready_state])
@@ -680,45 +639,34 @@ p->weapons[p->ready_wp].clip_size);
 	if (p->pending_wp != WPSEL_NoChange || p->health <= 0)
 	{
 		// change weapon (pending weapon should already be validated)
-		statenum_t newstate = p->weapons[p->ready_wp].info->down_state;
-		P_SetPspriteDeferred(p, ps_weapon, newstate);
-		P_SetPsprite(p, ps_crosshair, S_NULL);
+		GotoDownState(p);
 		return;
 	}
 
-	int fire_1 = (p->cmd.buttons & BT_ATTACK);
-	int fire_2 = (p->cmd.extbuttons & EBT_SECONDATK);
-
-	// check for fire: the missile launcher and bfg do not auto fire
-	if (fire_1 && !fire_2)
+	if (ButtonDown(p, 0) != ButtonDown(p, 1))
 	{
-		if (!p->attackdown || info->autofire)
+		for (int ATK = 0; ATK < 2; ATK++)
 		{
-			p->attackdown = true;
-			p->flash = false;
+			if (! ButtonDown(p, ATK))
+			{
+				p->attackdown[ATK] = false;
+				continue;
+			}
 
-			if (CheckAmmoSwitch(p, 1))
-				GotoAttackState(p, 1);
-			return;
+			// check for fire: the missile launcher and bfg do not auto fire
+			if (!p->attackdown[ATK] || info->autofire[ATK])
+			{
+				p->attackdown[ATK] = true;
+				p->flash = false;
+
+				if (WeaponCanFire(p, p->ready_wp, ATK))
+					GotoAttackState(p, ATK);
+				else
+					SwitchAway(p, ATK);
+				return;
+			}
 		}
 	}
-	else
-		p->attackdown = false;
-
-	if (fire_2 && !fire_1)
-	{
-		if (!p->secondatk_down || info->sa_autofire)
-		{
-			p->secondatk_down = true;
-			p->flash = false;
-
-			if (CheckAmmoSwitch(p, 2))
-				GotoAttackState(p, 2);
-			return;
-		}
-	}
-	else
-		p->secondatk_down = false;
 
 	BobWeapon(p, info);
 }
@@ -726,105 +674,59 @@ p->weapons[p->ready_wp].clip_size);
 //
 // A_WeaponEmpty
 //
-// The player cannot fire the weapon.  New ammo could cause a reload,
-// and manual reload also possible.
-//
 void A_WeaponEmpty(mobj_t * mo)
 {
-	player_t *p = mo->player;
-	pspdef_t *psp = &p->psprites[p->action_psp];
-
-	weapondef_c *info = p->weapons[p->ready_wp].info;
-
-	if (info->idle && psp->state == &states[info->empty_state])
-		S_StartSound(mo, info->idle);
-
-	// check for change if player is dead, put the weapon away
-	if (p->pending_wp != WPSEL_NoChange || p->health <= 0)
-	{
-		// change weapon (pending weapon should already be validated)
-		statenum_t newstate = p->weapons[p->ready_wp].info->down_state;
-		P_SetPspriteDeferred(p, ps_weapon, newstate);
-		P_SetPsprite(p, ps_crosshair, S_NULL);
-		return;
-	}
-
-	BobWeapon(p, info);
+	A_WeaponReady(mo);
 }
 
 //
 // A_ReFire
 //
-// The player can re-fire the weapon
-// without lowering it entirely.
+// The player can re-fire the weapon without lowering it entirely.
 //
 // -AJA- 1999/08/10: Reworked for multiple attacks.
 //
-void A_ReFire(mobj_t * mo)
+static void DoReFire(mobj_t * mo, int ATK)
 {
 	player_t *p = mo->player;
 
 	if (p->pending_wp >= 0 || p->health <= 0)
+	{
+		GotoDownState(p);
 		return;
+	}
 
 	weapondef_c *info = p->weapons[p->ready_wp].info;
 
-	p->remember_atk1 = -1;
+	p->remember_atk[ATK] = -1;
 
 	// check for fire
 	// (if a weaponchange is pending, let it go through instead)
 
-	if (p->cmd.buttons & BT_ATTACK)
+	if (ButtonDown(p, ATK))
 	{
 		// -KM- 1999/01/31 Check for semiautomatic weapons.
-		if (!p->attackdown || info->autofire)
+		if (!p->attackdown[ATK] || info->autofire[ATK])
 		{
 			p->refire++;
 			p->flash = false;
 
-			if (CheckAmmoSwitch(p, 1))
-				GotoAttackState(p, 1);
+			if (WeaponCanFire(p, p->ready_wp, ATK))
+				GotoAttackState(p, ATK);
+			else
+				SwitchAway(p, ATK);
 			return;
 		}
 	}
 
 	p->refire = info->refire_inacc ? 0 : 1;
 
-	CheckAmmoSwitch(p, 1);
+	if (! WeaponCanFire(p, p->ready_wp, ATK))
+		SwitchAway(p, ATK);
 }
 
-//
-// A_ReFireSA
-//
-void A_ReFireSA(mobj_t * mo)
-{
-	player_t *p = mo->player;
-
-	if (p->pending_wp >= 0 || p->health <= 0)
-		return;
-
-	weapondef_c *info = p->weapons[p->ready_wp].info;
-
-	p->remember_atk2 = -1;
-
-	// check for fire
-	// (if a weaponchange is pending, let it go through instead)
-
-	if (p->cmd.extbuttons & EBT_SECONDATK)
-	{
-		if (!p->secondatk_down || info->sa_autofire)
-		{
-			p->refire++;
-			p->flash = false;
-
-			if (CheckAmmoSwitch(p, 2))
-				GotoAttackState(p, 2);
-			return;
-		}
-	}
-
-	p->refire = info->refire_inacc ? 0 : 1;
-}
+void A_ReFire  (mobj_t * mo) { DoReFire(mo, 0); }
+void A_ReFireSA(mobj_t * mo) { DoReFire(mo, 1); }
 
 //
 // A_NoFire
@@ -834,147 +736,51 @@ void A_ReFireSA(mobj_t * mo)
 //
 // -AJA- 1999/08/18: written.
 //
-void A_NoFire(mobj_t * mo)
+static void DoNoFire(mobj_t * mo, int ATK, bool does_return)
 {
 	player_t *p = mo->player;
-
-	if (p->pending_wp >= 0 || p->health <= 0)
-		return;
-
-	weapondef_c *info = p->weapons[p->ready_wp].info;
-
-	// check for fire
-	//  (if a weaponchange is pending, let it go through instead)
-
-	if (p->cmd.buttons & BT_ATTACK)
-	{
-		// -KM- 1999/01/31 Check for semiautomatic weapons.
-		if (!p->attackdown || info->autofire)
-		{
-			p->refire++;
-			p->flash = false;
-			CheckAmmoSwitch(p, 1);
-			return;
-		}
-	}
-
-	p->refire = info->refire_inacc ? 0 : 1;
-	p->remember_atk1 = -1;
-
-	if (CheckAmmoSwitch(p, 1))
-		GotoReadyState(p);
-}
-
-//
-// A_NoFireSA
-//
-void A_NoFireSA(mobj_t * mo)
-{
-	player_t *p = mo->player;
-
-	if (p->pending_wp >= 0 || p->health <= 0)
-		return;
-
-	weapondef_c *info = p->weapons[p->ready_wp].info;
-
-	// check for fire
-	// (if a weaponchange is pending, let it go through instead)
-
-	if (p->cmd.extbuttons & EBT_SECONDATK)
-	{
-		if (!p->secondatk_down || info->sa_autofire)
-		{
-			p->refire++;
-			p->flash = false;
-			CheckAmmoSwitch(p, 2);
-			return;
-		}
-	}
-
-	p->refire = info->refire_inacc ? 0 : 1;
-	p->remember_atk2 = -1;
-
-	if (CheckAmmoSwitch(p, 2))
-		GotoReadyState(p);
-}
-
-//
-// A_NoFireReturn
-//
-// Like A_NoFire, but used for multiple attacks.  It remembers the
-// position in the attack states when the player stops firing, and
-// returns to this position when the player starts firing again.
-//
-// -AJA- 1999/08/11: written.
-//
-void A_NoFireReturn(mobj_t * mo)
-{
-	player_t *p = mo->player;
-
-	if (p->pending_wp >= 0 || p->health <= 0)
-		return;
-
 	pspdef_t *psp = &p->psprites[p->action_psp];
-	weapondef_c *info = p->weapons[p->ready_wp].info;
-
-	// check for fire
-	//  (if a weaponchange is pending, let it go through instead)
-
-	if (p->cmd.buttons & BT_ATTACK)
-	{
-		// -KM- 1999/01/31 Check for semiautomatic weapons.
-		if (!p->attackdown || info->autofire)
-		{
-			p->refire++;
-			p->flash = false;
-			CheckAmmoSwitch(p, 1);
-			return;
-		}
-	}
-
-	p->refire = info->refire_inacc ? 0 : 1;
-	p->remember_atk1 = psp->state->nextstate;
-
-	if (CheckAmmoSwitch(p, 1))
-		GotoReadyState(p);
-}
-
-//
-// A_NoFireReturnSA
-//
-// -AJA- 2001/05/14: written.
-//
-void A_NoFireReturnSA(mobj_t * mo)
-{
-	player_t *p = mo->player;
 
 	if (p->pending_wp >= 0 || p->health <= 0)
+	{
+		GotoDownState(p);
 		return;
+	}
 
-	pspdef_t *psp = &p->psprites[p->action_psp];
 	weapondef_c *info = p->weapons[p->ready_wp].info;
+
+	p->remember_atk[ATK] = -1;
 
 	// check for fire
 	//  (if a weaponchange is pending, let it go through instead)
 
-	if (p->cmd.extbuttons & EBT_SECONDATK)
+	if (ButtonDown(p, ATK))
 	{
 		// -KM- 1999/01/31 Check for semiautomatic weapons.
-		if (!p->secondatk_down || info->sa_autofire)
+		if (!p->attackdown[ATK] || info->autofire[ATK])
 		{
 			p->refire++;
 			p->flash = false;
-			CheckAmmoSwitch(p, 2);
+
+			if (! WeaponCanFire(p, p->ready_wp, ATK))
+				SwitchAway(p, ATK);
 			return;
 		}
 	}
 
 	p->refire = info->refire_inacc ? 0 : 1;
-	p->remember_atk2 = psp->state->nextstate;
+	p->remember_atk[0] = does_return ? psp->state->nextstate : -1;
 
-	if (CheckAmmoSwitch(p, 2))
+	if (WeaponCanFire(p, p->ready_wp, ATK))
 		GotoReadyState(p);
+	else
+		SwitchAway(p, ATK);
 }
+
+void A_NoFire  (mobj_t * mo)       { DoNoFire(mo, 0, false); }
+void A_NoFireSA(mobj_t * mo)       { DoNoFire(mo, 1, false); }
+void A_NoFireReturn  (mobj_t * mo) { DoNoFire(mo, 0, true);  }
+void A_NoFireReturnSA(mobj_t * mo) { DoNoFire(mo, 1, true);  }
 
 //
 // A_WeaponKick
@@ -1012,59 +818,45 @@ void A_WeaponKick(mobj_t * mo)
 // -KM- 1999/01/31 Check clip size.
 // -AJA- 1999/08/11: Reworked for new playerweapon_t field.
 //
-void A_CheckReload(mobj_t * mo)
+static void DoCheckReload(mobj_t * mo, int ATK)
 {
 	player_t *p = mo->player;
 
 	if (p->pending_wp >= 0 || p->health <= 0)
-		return;
-
-I_Printf("A_CheckReload: ammo %d  clip %d\n", p->ammo[p->weapons[p->ready_wp].info->ammo].num, p->weapons[p->ready_wp].clip_size);
-	if (WeaponCanFire(p, p->ready_wp, 1))
-		return;
-
-	if (! WeaponCanReload(p, p->ready_wp, 1))
 	{
-		CheckAmmoSwitch(p, 1);
+		GotoDownState(p);
+		return;
+	}
+
+I_Printf("A_CheckReload: ammo %d  clip %d\n", p->ammo[p->weapons[p->ready_wp].info->ammo[0]].num, p->weapons[p->ready_wp].clip_size[0]);
+
+	if (WeaponCanFire(p, p->ready_wp, ATK))
+		return;
+
+	if (! WeaponCanReload(p, p->ready_wp, ATK))
+	{
+		SwitchAway(p, ATK);
 		return;
 	}
 
 	weapondef_c *info = p->weapons[p->ready_wp].info;
 
-	ReloadWeapon(p, p->ready_wp, 1);
+	ReloadWeapon(p, p->ready_wp, ATK);
+
+	if (ATK == 1 && info->sa_reload_state)
+	{
+		P_SetPspriteDeferred(p, ps_weapon, info->sa_reload_state);
+		return;
+	}
+
+	// allow second attack to fall-back on normal reload states.
 
 	if (info->reload_state)
 		P_SetPspriteDeferred(p, ps_weapon, info->reload_state);
 }
 
-//
-// A_CheckReloadSA
-//
-void A_CheckReloadSA(mobj_t * mo)
-{
-	player_t *p = mo->player;
-
-	if (p->pending_wp >= 0 || p->health <= 0)
-		return;
-
-	if (WeaponCanFire(p, p->ready_wp, 2))
-		return;
-
-	if (! WeaponCanReload(p, p->ready_wp, 2))
-	{
-		CheckAmmoSwitch(p, 2);
-		return;
-	}
-
-	weapondef_c *info = p->weapons[p->ready_wp].info;
-
-	ReloadWeapon(p, p->ready_wp, 2);
-
-	if (info->sa_reload_state)
-		P_SetPspriteDeferred(p, ps_weapon, info->sa_reload_state);
-	else if (info->reload_state)
-		P_SetPspriteDeferred(p, ps_weapon, info->reload_state);
-}
+void A_CheckReload  (mobj_t * mo) { DoCheckReload(mo, 0); }
+void A_CheckReloadSA(mobj_t * mo) { DoCheckReload(mo, 1); }
 
 //
 // A_Lower
@@ -1131,8 +923,8 @@ void A_Raise(mobj_t * mo)
 
 	psp->sy = WEAPONTOP;
 
-	p->remember_atk1 = -1;
-	p->remember_atk2 = -1;
+	p->remember_atk[0] = -1;
+	p->remember_atk[1] = -1;
 
 	// The weapon has been raised all the way,
 	//  so change to the ready state.
@@ -1185,80 +977,79 @@ void A_GotTarget(mobj_t * mo)
 //
 // A_GunFlash
 //
-void A_GunFlash(mobj_t * mo)
+static void DoGunFlash(mobj_t * mo, int ATK)
 {
 	player_t *p = mo->player;
+	
+	DEV_ASSERT2(p->ready_wp >= 0);
+
+	weapondef_c *info = p->weapons[p->ready_wp].info;
 
 	if (!p->flash)
 	{
-		if (mo->info->missile_state)
-			P_SetMobjState(mo, mo->info->missile_state);
-
-		P_SetPspriteDeferred(p, ps_flash, p->weapons[p->ready_wp].
-				info->flash_state);
 		p->flash = true;
+
+		P_SetPspriteDeferred(p, ps_flash, ATK ? info->sa_flash_state :
+			info->flash_state);
+
+#if 0  // the SHOOT actions already do this...
+		if (mo->info->missile_state)
+			P_SetMobjStateDeferred(mo, mo->info->missile_state, 0);
+#endif
 	}
 }
 
-//
-// A_GunFlashSA
-//
-void A_GunFlashSA(mobj_t * mo)
-{
-	player_t *p = mo->player;
-
-	if (!p->flash)
-	{
-		if (mo->info->missile_state)
-			P_SetMobjState(mo, mo->info->missile_state);
-
-		P_SetPspriteDeferred(p, ps_flash, p->weapons[p->ready_wp].
-				info->sa_flash_state);
-		p->flash = true;
-	}
-}
+void A_GunFlash  (mobj_t * mo) { DoGunFlash(mo, 0); }
+void A_GunFlashSA(mobj_t * mo) { DoGunFlash(mo, 1); }
 
 //
 // WEAPON ATTACKS
 //
-void A_WeaponShoot(mobj_t * mo)
+static void DoWeaponShoot(mobj_t * mo, int ATK)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
+	DEV_ASSERT2(p->ready_wp >= 0);
+
 	weapondef_c *info = p->weapons[p->ready_wp].info;
-	atkdef_c *attack = info->attack;
-	ammotype_e ammo;
-	int count;
+	atkdef_c *attack = info->attack[ATK];
 
 	// -AJA- 1999/08/10: Multiple attack support.
 	if (psp->state && psp->state->action_par)
 		attack = (atkdef_c *) psp->state->action_par;
 
 	if (! attack)
-		I_Error("Weapon [%s] missing attack.\n", info->ddf.name.GetString());
+		I_Error("Weapon [%s] missing %sattack.\n", info->ddf.name.GetString(),
+			ATK ? "second " : "");
 
-	ammo = info->ammo;
+	ammotype_e ammo = info->ammo[ATK];
 
 	// Minimal amount for one shot varies.
-	count = info->ammopershot;
+	int count = info->ammopershot[ATK];
 
 	// Some do not need ammunition anyway.
 	// Return if current ammunition sufficient.
-	if (! WeaponCanFire(p, p->ready_wp, 1))
+	if (! WeaponCanFire(p, p->ready_wp, ATK))
 		return;
 
 	if (ammo != AM_NoAmmo)
 	{
-		if (info->clip_size > 1)
-			p->weapons[p->ready_wp].clip_size -= count;
+		if (info->clip_size[ATK] != 1)
+		{
+			p->weapons[p->ready_wp].clip_size[ATK] -= count;
+			DEV_ASSERT2(p->weapons[p->ready_wp].clip_size[ATK] >= 0);
+		}
 		else
+		{
 			p->ammo[ammo].num -= count;
+			DEV_ASSERT2(p->ammo[ammo].num >= 0);
+		}
 	}
 
 	P_ActPlayerAttack(mo, attack);
 
-	if (level_flags.kicking)
+	if (level_flags.kicking && ATK == 0)  // FIXME: put in specials
 	{
 		p->deltaviewheight -= info->kick;
 		p->kick_offset = info->kick;
@@ -1279,107 +1070,34 @@ void A_WeaponShoot(mobj_t * mo)
 	}
 
 	// show the player making the shot/attack...
-
 	if (attack && attack->attackstyle == ATK_CLOSECOMBAT &&
 			mo->info->melee_state)
 	{
-		P_SetMobjState(mo, mo->info->melee_state);
+		P_SetMobjStateDeferred(mo, mo->info->melee_state, 0);
 	}
 	else if (mo->info->missile_state)
 	{
-		P_SetMobjState(mo, mo->info->missile_state);
+		P_SetMobjStateDeferred(mo, mo->info->missile_state, 0);
 	}
 
-	if (info->flash_state && !p->flash)
+	int flash_state = ATK ? info->sa_flash_state : info->flash_state;
+
+	if (flash_state && !p->flash)
 	{
-		P_SetPspriteDeferred(p, ps_flash, info->flash_state);
 		p->flash = true;
+		P_SetPspriteDeferred(p, ps_flash, flash_state);
 	}
 
 	// wake up monsters
-	if (! (info->special_flags & WPSP_SilentToMon) &&
-		! (info->attack->flags & AF_SilentToMon))
+	if (! (info->specials[ATK] & WPSP_SilentToMon) &&
+		! (info->attack[ATK]->flags & AF_SilentToMon))
 	{
 		P_NoiseAlert(p);
 	}
 }
 
-void A_WeaponShootSA(mobj_t * mo)
-{
-	player_t *p = mo->player;
-	pspdef_t *psp = &p->psprites[p->action_psp];
-
-	weapondef_c *info = p->weapons[p->ready_wp].info;
-	atkdef_c *attack = info->sa_attack;
-	ammotype_e ammo;
-	int count;
-
-	// -AJA- 1999/08/10: Multiple attack support.
-	if (psp->state && psp->state->action_par)
-		attack = (atkdef_c *) psp->state->action_par;
-
-	if (! attack)
-		I_Error("Weapon [%s] missing second attack.\n", info->ddf.name.GetString());
-
-	ammo = info->sa_ammo;
-
-	// Minimal amount for one shot varies.
-	count = info->sa_ammopershot;
-
-	// Some do not need ammunition anyway.
-	// Return if current ammunition sufficient.
-	if (! WeaponCanFire(p, p->ready_wp, 2))
-		return;
-
-	if (ammo != AM_NoAmmo)
-	{
-		if (info->sa_clip_size > 1)
-			p->weapons[p->ready_wp].sa_clip_size -= count;
-		else
-			p->ammo[ammo].num -= count;
-	}
-
-	P_ActPlayerAttack(mo, attack);
-
-	if (mo->target && !(mo->target->extendedflags & EF_DUMMYMOBJ))
-	{
-		if (info->hit)
-			S_StartSound(mo, info->hit);
-
-		if (info->feedback)
-			mo->flags |= MF_JUSTATTACKED;
-	}
-	else
-	{
-		if (info->engaged)
-			S_StartSound(mo, info->engaged);
-	}
-
-	// show the player making the shot/attack...
-
-	if (attack && attack->attackstyle == ATK_CLOSECOMBAT &&
-			mo->info->melee_state)
-	{
-		P_SetMobjState(mo, mo->info->melee_state);
-	}
-	else if (mo->info->missile_state)
-	{
-		P_SetMobjState(mo, mo->info->missile_state);
-	}
-
-	if (info->sa_flash_state && !p->flash)
-	{
-		P_SetPspriteDeferred(p, ps_flash, info->sa_flash_state);
-		p->flash = true;
-	}
-
-	// wake up monsters
-	if (! (info->sa_specials & WPSP_SilentToMon) &&
-		! (attack->flags & AF_SilentToMon))
-	{
-		P_NoiseAlert(p);
-	}
-}
+void A_WeaponShoot  (mobj_t * mo) { DoWeaponShoot(mo, 0); }
+void A_WeaponShootSA(mobj_t * mo) { DoWeaponShoot(mo, 1); }
 
 //
 // A_WeaponEject
@@ -1482,6 +1200,7 @@ void A_WeaponJump(mobj_t * mo)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
+
 	weapondef_c *info = p->weapons[p->ready_wp].info;
 
 	act_jump_info_t *jump;

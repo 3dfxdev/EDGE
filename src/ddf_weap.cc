@@ -46,16 +46,16 @@ static void DDF_WGetSpecialFlags(const char *info, void *storage);
 
 static const commandlist_t weapon_commands[] =
 {
-	DF("AMMOTYPE", ammo, DDF_WGetAmmo),
-	DF("AMMOPERSHOT", ammopershot, DDF_MainGetNumeric),
-	DF("CLIPSIZE", clip_size, DDF_MainGetNumeric),
-	DF("AUTOMATIC", autofire, DDF_MainGetBoolean),
-	DF("SEC AMMOTYPE", sa_ammo, DDF_WGetAmmo),
-	DF("SEC AMMOPERSHOT", sa_ammopershot, DDF_MainGetNumeric),
-	DF("SEC CLIPSIZE", sa_clip_size, DDF_MainGetNumeric),
-	DF("SEC AUTOMATIC", sa_autofire, DDF_MainGetBoolean),
-	DF("ATTACK", attack, DDF_MainRefAttack),
-	DF("SECOND ATTACK", sa_attack, DDF_MainRefAttack),
+	DF("AMMOTYPE", ammo[0], DDF_WGetAmmo),
+	DF("AMMOPERSHOT", ammopershot[0], DDF_MainGetNumeric),
+	DF("CLIPSIZE", clip_size[0], DDF_MainGetNumeric),
+	DF("AUTOMATIC", autofire[0], DDF_MainGetBoolean),
+	DF("SEC AMMOTYPE", ammo[1], DDF_WGetAmmo),
+	DF("SEC AMMOPERSHOT", ammopershot[1], DDF_MainGetNumeric),
+	DF("SEC CLIPSIZE", clip_size[1], DDF_MainGetNumeric),
+	DF("SEC AUTOMATIC", autofire[1], DDF_MainGetBoolean),
+	DF("ATTACK", attack[0], DDF_MainRefAttack),
+	DF("SECOND ATTACK", attack[1], DDF_MainRefAttack),
 	DF("EJECT ATTACK", eject_attack, DDF_MainRefAttack),
 	DF("FREE", autogive, DDF_MainGetBoolean),
 	DF("BINDKEY", bind_key, DDF_MainGetNumeric),
@@ -69,8 +69,8 @@ static const commandlist_t weapon_commands[] =
 	DF("NOTHRUST", nothrust, DDF_MainGetBoolean),
 	DF("FEEDBACK", feedback, DDF_MainGetBoolean),
 	DF("KICK", kick, DDF_MainGetFloat),
-	DF("SPECIAL", special_flags, DDF_WGetSpecialFlags),
-	DF("SEC SPECIAL", sa_specials, DDF_WGetSpecialFlags),
+	DF("SPECIAL", specials[0], DDF_WGetSpecialFlags),
+	DF("SEC SPECIAL", specials[1], DDF_WGetSpecialFlags),
 	DF("ZOOM FOV", zoom_fov, DDF_MainGetAngle),
 	DF("REFIRE INACCURATE", refire_inacc, DDF_MainGetBoolean),
 	DF("SHOW CLIP", show_clip, DDF_MainGetBoolean),
@@ -147,12 +147,12 @@ static const actioncode_t weapon_actions[] =
 const specflags_t ammo_types[] =
 {
     {"NOAMMO",  AM_NoAmmo, 0},
-    
+
     {"BULLETS", AM_Bullet, 0},
     {"SHELLS",  AM_Shell,  0},
     {"ROCKETS", AM_Rocket, 0},
     {"CELLS",   AM_Cell,   0},
-    
+
     {"PELLETS", AM_Pellet, 0},
     {"NAILS",   AM_Nail,   0},
     {"GRENADES",AM_Grenade,0},
@@ -258,7 +258,7 @@ static void WeaponParseField(const char *field, const char *contents,
 		// handle properties (old piece of crud)
 		if (index == 0 && DDF_CompareName(contents, "TRUE") == 0)
 		{
-			DDF_WGetSpecialFlags(field, &buffer_weapon.special_flags);
+			DDF_WGetSpecialFlags(field, &buffer_weapon.specials[0]);
 			return;
 		}
 	}
@@ -275,39 +275,27 @@ static void WeaponFinishEntry(void)
 	DDF_StateFinishStates(buffer_weapon.first_state, buffer_weapon.last_state);
 
 	// check stuff...
-	if (buffer_weapon.ammopershot < 0)
+	int A;
+	for (A = 0; A < 2; A++)
 	{
-		DDF_WarnError2(0x128, "Bad AMMOPERSHOT value for weapon: %d\n",
-				buffer_weapon.ammopershot);
-		buffer_weapon.ammopershot = 0;
-	}
-	if (buffer_weapon.sa_ammopershot < 0)
-	{
-		DDF_WarnError2(0x129, "Bad SEC_AMMOPERSHOT value for weapon: %d\n",
-				buffer_weapon.sa_ammopershot);
-		buffer_weapon.sa_ammopershot = 0;
-	}
+		if (buffer_weapon.ammopershot[A] < 0)
+		{
+			DDF_WarnError2(0x128, "Bad %sAMMOPERSHOT value for weapon: %d\n",
+					A ? "SEC_" : "", buffer_weapon.ammopershot[A]);
+			buffer_weapon.ammopershot[A] = 0;
+		}
 
-	if (buffer_weapon.clip_size < 1)
-	{
-		DDF_WarnError2(0x129, "Bad CLIPSIZE value for weapon: %d\n",
-				buffer_weapon.clip_size);
-		buffer_weapon.clip_size = 1;
+		if (buffer_weapon.clip_size[A] < 1)
+		{
+			DDF_WarnError2(0x129, "Bad %sCLIPSIZE value for weapon: %d\n",
+					A ? "SEC_" : "", buffer_weapon.clip_size[A]);
+			buffer_weapon.clip_size[A] = 1;
+		}
+
+		// zero values for ammopershot really mean infinite ammo
+		if (buffer_weapon.ammopershot[A] == 0)
+			buffer_weapon.ammo[A] = AM_NoAmmo;
 	}
-	if (buffer_weapon.sa_clip_size < 1)
-	{
-		DDF_WarnError2(0x129, "Bad SEC_CLIPSIZE value for weapon: %d\n",
-				buffer_weapon.sa_clip_size);
-		buffer_weapon.sa_clip_size = 1;
-	}
-
-	// zero values for ammopershot really mean infinite ammo
-
-	if (buffer_weapon.ammopershot == 0)
-		buffer_weapon.ammo = AM_NoAmmo;
-
-	if (buffer_weapon.sa_ammopershot == 0)
-		buffer_weapon.sa_ammo = AM_NoAmmo;
 
 	// backwards compatibility (REMOVE for 1.26)
 	if (buffer_weapon.priority < 0)
@@ -320,17 +308,24 @@ static void WeaponFinishEntry(void)
 
 	// backwards compatibility
 	if (ddf_version < 0x129)
-		buffer_weapon.sa_specials = (weapon_flag_e)
-			(buffer_weapon.special_flags & WPSP_SilentToMon);
+		buffer_weapon.specials[1] = (weapon_flag_e)
+			(buffer_weapon.specials[0] & WPSP_SilentToMon);
 
 	// transfer static entry to dynamic entry
 	dynamic_weapon->CopyDetail(buffer_weapon);
 
 	// compute CRC...
-	dynamic_weapon->ddf.crc += dynamic_weapon->ammo;
-	dynamic_weapon->ddf.crc += dynamic_weapon->ammopershot;
+	for (A = 0; A < 2; A++)
+	{
+		// FIXME: attack name
+		dynamic_weapon->ddf.crc += dynamic_weapon->ammo[A];
+		dynamic_weapon->ddf.crc += dynamic_weapon->ammopershot[A];
+		dynamic_weapon->ddf.crc += dynamic_weapon->clip_size[A];
+		dynamic_weapon->ddf.crc += dynamic_weapon->autofire[A];
+		dynamic_weapon->ddf.crc += dynamic_weapon->specials[A];
+	}
 
-	// FIXME: do more stuff...
+	// FIXME: add more stuff...
 }
 
 static void WeaponClearAll(void)
@@ -549,62 +544,58 @@ void weapondef_c::Copy(weapondef_c &src)
 //
 void weapondef_c::CopyDetail(weapondef_c &src)
 {
-	attack = src.attack;		
-  
-	ammo = src.ammo;		
-	ammopershot = src.ammopershot;	
-	clip_size = src.clip_size;				
-	autofire = src.autofire;		
-	kick = src.kick;				
-  
-	sa_attack = src.sa_attack;	
-	
-	sa_ammo = src.sa_ammo;		
-	sa_ammopershot = src.sa_ammopershot;	
-	sa_clip_size = src.sa_clip_size;			
-	sa_autofire = src.sa_autofire;		
-  
-	first_state = src.first_state;
-	last_state = src.last_state;
-  
-	up_state = src.up_state;			
-	down_state = src.down_state;		
-	ready_state = src.ready_state;		
-	attack_state = src.attack_state;	
-	reload_state = src.reload_state;	
-	flash_state = src.flash_state;		
-	empty_state = src.empty_state;		
+	for (int A = 0; A < 2; A++)
+	{
+		attack[A] = src.attack[A];
+		ammo[A]   = src.ammo[A];
+		ammopershot[A] = src.ammopershot[A];
+		autofire[A]  = src.autofire[A];
+		clip_size[A] = src.clip_size[A];
+		specials[A]  = src.specials[A];
+	}
 
-	sa_attack_state = src.sa_attack_state;	
-	sa_reload_state = src.sa_reload_state;	
-	sa_flash_state = src.sa_flash_state;		
-	crosshair = src.crosshair;			
-	zoom_state = src.zoom_state;			
-	
-	autogive = src.autogive;			
-	feedback = src.feedback;			
+	kick = src.kick;
+
+	first_state = src.first_state;
+	last_state  = src.last_state;
+
+	up_state = src.up_state;
+	down_state  = src.down_state;
+	ready_state = src.ready_state;
+	attack_state = src.attack_state;
+	reload_state = src.reload_state;
+	flash_state  = src.flash_state;
+	empty_state  = src.empty_state;
+
+	sa_attack_state = src.sa_attack_state;
+	sa_reload_state = src.sa_reload_state;
+	sa_flash_state  = src.sa_flash_state;
+
+	crosshair = src.crosshair;
+	zoom_state = src.zoom_state;
+
+	autogive = src.autogive;
+	feedback = src.feedback;
 	upgraded_weap = src.upgraded_weap;
- 
+
 	priority = src.priority;
 	dangerous = src.dangerous;
- 
+
 	eject_attack = src.eject_attack;
-  
+
 	idle = src.idle;
 	engaged = src.engaged;
 	hit = src.hit;
 	start = src.start;
-  
+
 	sound1 = src.sound1;
 	sound2 = src.sound2;
 	sound3 = src.sound3;
 
 	nothrust = src.nothrust;
-  	
+
   	bind_key = src.bind_key;
-  	special_flags = src.special_flags;
-  	sa_specials = src.sa_specials;
-	
+
 	zoom_fov = src.zoom_fov;
 	refire_inacc = src.refire_inacc;
 	show_clip = src.show_clip;
@@ -614,25 +605,24 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 
 //
 // weapondef_c::Default()
-//	
+//
 void weapondef_c::Default(void)
 {
 	ddf.Default();
 
-	attack = NULL;
+	for (int A = 0; A < 2; A++)
+	{
+		attack[A] = NULL;
+		ammo[A]   = AM_NoAmmo;
+		ammopershot[A] = 0;
+		clip_size[A]   = 1;
+		autofire[A]    = false;
+	}
 
-	ammo = AM_NoAmmo;		
-	ammopershot = 0;	
-	clip_size = 1;				
-	autofire = false;		
-	kick = 0.0f;				
+	specials[0] = DEFAULT_WPSP;
+	specials[1] = (weapon_flag_e)(DEFAULT_WPSP & ~WPSP_SwitchAway);
 
-	sa_attack = NULL;	
-	
-	sa_ammo = AM_NoAmmo;		
-	sa_ammopershot = 0;	
-	sa_clip_size = 1;			
-	sa_autofire = false;	
+	kick = 0.0f;
 
 	first_state = 0;
 	last_state = 0;
@@ -642,13 +632,13 @@ void weapondef_c::Default(void)
 	ready_state = 0;
 	attack_state = 0;
 	reload_state = 0;
-	flash_state = 0; 
-	empty_state = 0; 
-	
+	flash_state = 0;
+	empty_state = 0;
+
 	sa_attack_state = 0;
 	sa_reload_state = 0;
 	sa_flash_state = 0;
-	
+
 	crosshair = 0;
 	zoom_state = 0;
 
@@ -659,19 +649,17 @@ void weapondef_c::Default(void)
 	dangerous = false;
 
 	eject_attack = NULL;
-	idle = NULL;   
-	engaged = NULL;   
-	hit = NULL;   
+	idle = NULL;
+	engaged = NULL;
+	hit = NULL;
 	start = NULL;
-	
+
 	sound1 = NULL;
 	sound2 = NULL;
 	sound3 = NULL;
 
 	nothrust = false;
 	bind_key = -1;
-	special_flags = DEFAULT_WPSP;
-	sa_specials = (weapon_flag_e)(DEFAULT_WPSP & ~WPSP_SwitchAway);
 	zoom_fov = 0;
 	refire_inacc = false;
 	show_clip = false;

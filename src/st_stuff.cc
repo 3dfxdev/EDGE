@@ -511,19 +511,19 @@ static void UpdateWidgets(void)
 	{
 		playerweapon_t *pw = &consoleplayer->weapons[consoleplayer->ready_wp];
 
-		if (pw->info->ammo != AM_NoAmmo)
+		if (pw->info->ammo[0] != AM_NoAmmo)
 		{
 			if (pw->info->show_clip)
 			{
-				w_ready.num = &pw->clip_size;
+				w_ready.num = &pw->clip_size[0];
 				w_ready.colmap = text_brown_map;
 			}
 			else
 			{
-				w_ready.num = &consoleplayer->ammo[pw->info->ammo].num;
+				w_ready.num = &consoleplayer->ammo[pw->info->ammo[0]].num;
 
-				if (pw->info->clip_size > 1)
-					w_ready.num += consoleplayer->weapons[consoleplayer->ready_wp].clip_size;
+				if (pw->info->clip_size[0] > 1)
+					w_ready.num += consoleplayer->weapons[consoleplayer->ready_wp].clip_size[0];
 
 				// set ammo colour as in BOOM.  -AJA- Experimental !!
 				if (stbar_colours)
