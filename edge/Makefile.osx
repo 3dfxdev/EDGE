@@ -110,7 +110,6 @@ SYSTEM_OBJS= \
 COMMON_OBJS= \
         am_map.o con_main.o   \
         con_cvar.o con_con.o  \
-		ddf_parser.o \
         ddf_anim.o ddf_atk.o  \
         ddf_boom.o ddf_colm.o \
         ddf_game.o ddf_lang.o \
