@@ -37,7 +37,7 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include "glbsp-2.05/glbsp.h"  // FIXME: Use 2.10
+#include "glbsp-2.10/glbsp.h"
 
 
 #define PROGRESS_STEP  2  // percent
