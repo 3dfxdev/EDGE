@@ -305,6 +305,9 @@ typedef struct drawfloor_s
   // list of things
   // (not sorted until R2_DrawFloor is called).
   drawthing_t *things;
+
+  // list of extra walls
+  drawwall_t *extras;
 }
 drawfloor_t;
 
