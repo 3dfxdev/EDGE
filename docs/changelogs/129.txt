@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: OCTOBER 2nd 2004)
+(Date: OCTOBER 10th 2004)
 
 
 Bugs fixed
@@ -23,8 +23,8 @@ Bugs fixed
 - berserk strength now lasts the whole level.
 
 
-Fixes from 1.28A
-----------------
+Fixes shared with 1.28A
+-----------------------
 
 + Windows 95 support.
 + fix the crouching bug.
@@ -55,7 +55,7 @@ General improvements
 
 (NOT FINISHED) support for OGG Vorbis Music playing.  @@@
 
-(NOT FINISHED) build in support for DeHackEd and BEX patches.  @@@
++ native in support for DeHackEd and BEX patches.  @@@
 
 (NOT FINISHED) new startup.  @@@ - the windows console window.
 
@@ -91,7 +91,7 @@ New features:
   menu is shown.
 
 - PICKUP_EFFECT = SWITCH_WEAPON(xxx) , required for #VERSION 1.29 and
-  higher.  Berserk fist.  Compatibility maintained.
+  higher.  Berserk fist.  Compatibility maintained. @@@
 
 - FORCE_PICKUP thing special.  
 - SIDE_IMMUNE thing special.  @@@
@@ -108,7 +108,7 @@ New features:
 New command-line options:
 -------------------------
 
-(NOT FINISHED)  -deh             Specify a DeHackEd (or BEX) patch file.
+    -deh             Specify a DeHackEd (or BEX) patch file.
 
 
 Hats off to...
