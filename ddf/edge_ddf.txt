@@ -4,7 +4,9 @@ EDGE DDF 4.2:
 
 1) THINGS.DDF: replaced BOSSMAN special in BOSS_BRAIN with the new
                ALWAYS_LOUD special.  Means he is no longer immune to
-               explosions (as it was in original Doom).
+               explosions (to match the original Doom).
+
+2) THINGS.DDF: BERSERK powerup uses new SWITCH_WEAPON effect.
 
 
 EDGE DDF 4.1 (2004-04-30):
