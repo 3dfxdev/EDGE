@@ -63,8 +63,6 @@
 #define HU_INPUTWIDTH	64
 #define HU_INPUTHEIGHT	1
 
-#define HU_CROSSHAIRCOLOUR  RED
-
 bool chat_on;
 static hu_textline_t w_title;
 static hu_itext_t w_chat;
@@ -232,57 +230,8 @@ void HU_Start(void)
 	headsupactive = true;
 }
 
-static void HU_DrawCrossHair(int sbarheight)
-{
-	static int crhcount = 0;
-	static int crhdir = 1;   // -ACB- 1999/09/19 change from ch * to crh *. chdir is a function.
-	static int crhtimer = 0;
-
-	int col, mul;
-	int x, y;
-
-	// -jc- Pulsating
-	if (crhtimer++ % 6)
-	{
-		if (crhcount == 15)
-			crhdir = -1;
-		else if (crhcount == 0)
-			crhdir = 1;
-		crhcount += crhdir;
-	}
-
-	col = HU_CROSSHAIRCOLOUR + crhcount / 2;
-	mul = 1 + (SCREENWIDTH / 300);
-	x = SCREENWIDTH / 2;
-	y = (SCREENHEIGHT - sbarheight) / 2;
-
-	switch (crosshair)
-	{
-		case 1:
-			RGL_SolidLine(x - 3*mul, y, x - 2*mul, y, col);
-			RGL_SolidLine(x + 2*mul, y, x + 3*mul, y, col);
-			RGL_SolidLine(x, y - 3*mul, x, y - 2*mul, col);
-			RGL_SolidLine(x, y + 2*mul, x, y + 3*mul, col);
-			break;
-	
-		case 2:
-			RGL_SolidLine(x, y, x + 1, y, col);
-			break;
-	
-		case 3:
-			RGL_SolidLine(x, y, x + 2*mul, y, col);
-			RGL_SolidLine(x, y + 1, x, y + 2*mul, col);
-			break;
-	
-		default:
-			break;
-	}
-}
-
 void HU_Drawer(void)
 {
-	int sbarheight = FROM_200(ST_HEIGHT);
-
 	if (message_on)
 		HL_DrawSText(&w_message);
 
@@ -291,12 +240,6 @@ void HU_Drawer(void)
 
 	if (automapactive)
 		HL_DrawTextLine(&w_title, false);
-
-	if (screen_hud != HUD_Full && !automapactive)
-		sbarheight = 0;  //-JC- Make sure crosshair works full scr.
-
-	if (!automapactive)
-		HU_DrawCrossHair(sbarheight);
 
 	//now, draw stats
 	// -ACB- 1998/09/11 Used White Colour Scaling.

@@ -41,6 +41,7 @@
 #include "r_things.h"
 #include "r2_defs.h"
 #include "rgl_defs.h"
+#include "st_stuff.h"
 #include "v_colour.h"
 #include "v_res.h"
 #include "w_textur.h"
@@ -106,9 +107,16 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	int fuzzy = (player->mo->flags & MF_FUZZY);
 
 	float trans = fuzzy ? FUZZY_TRANS : player->mo->visibility;
+
+	if (which == ps_crosshair)
+	{
+		fuzzy = false;
+		trans = 1.0f;
+	}
+
 	trans *= psp->visibility;
 
-	// psprites are never totally opaque
+	// psprites are never totally solid and opaque
 	if (trans <= 0.99f)
 		glEnable(GL_BLEND);
 	else
@@ -234,11 +242,56 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	W_ImageDone(cim);
 }
 
+static void DrawStdCrossHair(int sbarheight)
+{
+	static int crhcount = 0;
+	static int crhdir = 1;   // -ACB- 1999/09/19 change from ch * to crh *. chdir is a function.
+
+	// -jc- Pulsating
+	if (crhcount == 31)
+		crhdir = -1;
+	else if (crhcount == 0)
+		crhdir = 1;
+
+	crhcount += crhdir;
+
+	int col = RED + crhcount / 4;  /* FIXME: configurable colour ? */
+	int mul = 1 + (SCREENWIDTH / 300);
+
+	int x = SCREENWIDTH / 2;
+	int y = (SCREENHEIGHT - sbarheight) / 2;
+
+	switch (crosshair)
+	{
+		case 1:
+			RGL_SolidLine(x - 3*mul, y, x - 2*mul, y, col);
+			RGL_SolidLine(x + 2*mul, y, x + 3*mul, y, col);
+			RGL_SolidLine(x, y - 3*mul, x, y - 2*mul, col);
+			RGL_SolidLine(x, y + 2*mul, x, y + 3*mul, col);
+			break;
+	
+		case 2:
+			RGL_SolidLine(x, y, x + 1, y, col);
+			break;
+	
+		case 3:
+			RGL_SolidLine(x, y, x + 2*mul, y, col);
+			RGL_SolidLine(x, y + 1, x, y + 2*mul, col);
+			break;
+	
+		default:
+			break;
+	}
+}
+
+
 //
 // RGL_DrawPlayerSprites
 //
 void RGL_DrawPlayerSprites(player_t * p)
 {
+	bool got_cross = false;
+
 	// special handling for zoom: show viewfinder
 	if (viewiszoomed)
 	{
@@ -255,21 +308,28 @@ void RGL_DrawPlayerSprites(player_t * p)
 
 		RGL_DrawPSprite(psp, ps_weapon, p, view_props,
 						states + w->zoom_state);
-		return;
 	}
-
-	// add all active psprites
-	// Note: order is significant
-
-	for (int i = 0; i < NUMPSPRITES; i++)
+	else
 	{
-		pspdef_t *psp = &p->psprites[i];
+		// add all active psprites
+		// Note: order is significant
 
-		if (psp->state == S_NULL)
-			continue;
+		for (int i = 0; i < NUMPSPRITES; i++)
+		{
+			pspdef_t *psp = &p->psprites[i];
 
-		RGL_DrawPSprite(psp, i, p, view_props, psp->state);
+			if (psp->state == S_NULL)
+				continue;
+
+			RGL_DrawPSprite(psp, i, p, view_props, psp->state);
+
+			if (i == ps_crosshair)
+				got_cross = true;
+		}
 	}
+
+	if (!got_cross && !automapactive)
+		DrawStdCrossHair((screen_hud != HUD_Full) ? 0 : FROM_200(ST_HEIGHT));
 }
 
 void RGL_LightUpPlayerWeapon(player_t *p, drawfloor_t *dfloor)
