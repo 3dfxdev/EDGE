@@ -43,28 +43,28 @@ int leveltime;
 //
 void P_Ticker(void)
 {
-  player_t *p;
+	player_t *p;
 
-  if (paused)
-    return;
+	if (paused)
+		return;
 
-  // pause if in menu and at least one tic has been run
-  if (!netgame && menuactive && !demoplayback && 
-      consoleplayer->viewz != FLO_UNUSED)
-  {
-    return;
-  }
+	// pause if in menu and at least one tic has been run
+	if (!netgame && menuactive && !demoplayback && 
+		consoleplayer->viewz != FLO_UNUSED)
+	{
+		return;
+	}
 
-  for (p = players; p; p = p->next)
-    P_PlayerThink(p);
+	for (p = players; p; p = p->next)
+		P_PlayerThink(p);
 
-  P_RunMobjThinkers();
-  P_RunLights();
-  P_RunActiveSectors();
-  P_RunSectorSFX();
-  P_UpdateSpecials();
-  P_MobjItemRespawn();
+	P_RunMobjThinkers();
+	P_RunLights();
+	P_RunActiveSectors();
+	P_RunSectorSFX();
+	P_UpdateSpecials();
+	P_MobjItemRespawn();
 
-  // for par times
-  leveltime++;
+	// for par times
+	leveltime++;
 }
