@@ -87,69 +87,83 @@ UI_MainWin::UI_MainWin(const char *title) :
 	want_quit = false;
 
 
-	// create contents
 	int cy = 0;
 
-	menu_bar = MenuCreate(0, 0, w(), 28);
-	add(menu_bar);
+	/* ---- Menu bar ---- */
+	{
+		menu_bar = MenuCreate(0, 0, w(), 28);
+		add(menu_bar);
 
 #ifndef MACOSX
-	cy += menu_bar->h();
+		cy += menu_bar->h();
 #endif
+	}
 
-	tabs = new Fl_Tabs(0, cy, w(), h() - cy);
-	tabs->end();
-	tabs->selection_color(FL_YELLOW);
+	/* ---- Tabs ---- */
+	{
+		tabs = new Fl_Tabs(0, cy, w(), h() - cy);
+		tabs->end();
+		tabs->selection_color(FL_YELLOW);
 
-	cy += 22;
+		cy += 26;
+	}
 
-	Fl_Group *ctrl_group = new Fl_Group(0, cy, w(), h() - cy, "Control");
-	ctrl_group->end();
+	/* ---- Setup pane ---- */
+	{
+		Fl_Group *setup_group = new Fl_Group(0, cy, w(), h() - cy, "Setup");
+		setup_group->end();
 
-	tabs->add(ctrl_group);
+		setup_box = new UI_Setup(0, cy, w(), h() - cy);
+		setup_group->add(setup_box);
+		setup_group->resizable(0);
 
-	//...
+		tabs->add(setup_group);
+		tabs->value(setup_group);
+	}
 
-	Fl_Group *client_group = new Fl_Group(0, cy, w(), h() - cy, "Clients");
-	client_group->end();
+	/* ---- Client list ---- */
+	{
+		Fl_Group *client_group = new Fl_Group(0, cy, w(), h() - cy, "Clients");
+		client_group->end();
 
-	tabs->add(client_group);
+		client_list = new UI_ClientList(0, cy, w(), h() - cy);
+		client_group->add(client_list);
 
-	client_list = new UI_ClientList(0, cy, w(), h() - cy);
-	client_group->add(client_list);
+		tabs->add(client_group);
 
-	//...
+	}
 
-	Fl_Group *game_group = new Fl_Group(0, cy, w(), h() - cy, "Games");
-	game_group->end();
+	/* ---- Game list ---- */
+	{
+		Fl_Group *game_group = new Fl_Group(0, cy, w(), h() - cy, "Games");
+		game_group->end();
 
-	tabs->add(game_group);
+		game_list = new UI_GameList(0, cy, w(), h() - cy);
+		game_group->add(game_list);
 
-	game_list = new UI_GameList(0, cy, w(), h() - cy);
-	game_group->add(game_list);
+		tabs->add(game_group);
+	}
 
-	//...
+	/* ---- Log and Statistics pane ---- */
+	{
+		Fl_Group *stat_group = new Fl_Group(0, cy, w(), h() - cy, "Log");
+		stat_group->end();
 
-	Fl_Group *stat_group = new Fl_Group(0, cy, w(), h() - cy, "Log");
-	stat_group->end();
+		stat_box = new UI_Stats(0, cy, w(), 82);
+		stat_group->add(stat_box);
 
-	tabs->add(stat_group);
+		cy += stat_box->h();
 
-	stat_box = new UI_Stats(0, cy, w(), 82);
-	stat_group->add(stat_box);
+		log_box = new UI_LogBox(0, cy, w(), h() - cy);
+		stat_group->add(log_box);
 
-   	cy += stat_box->h();
+		stat_group->resizable(log_box);
 
-	log_box = new UI_LogBox(0, cy, w(), h() - cy);
-	stat_group->add(log_box);
-
-	stat_group->resizable(log_box);
-
-
-   	tabs->value(stat_group);
+		tabs->add(stat_group);
+	}
 
 	add(tabs);
-	resizable(tabs);
+	resizable(client_list);
 
 	// show window (pass some dummy arguments)
 	int argc = 1;
