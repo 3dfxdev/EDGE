@@ -203,18 +203,17 @@ bool M_CheatResponder(event_t * ev)
 #endif
 
 	int i, j;
-	char key;
 	player_t *pl = players[consoleplayer];
 
-	// disable cheats while in RTS menu
-	if (rts_menuactive)
+	// disable cheats while in RTS menu, or demos
+	if (rts_menuactive || demoplayback)
 		return false;
 
 	// if a user keypress...
 	if (ev->type != ev_keydown)
 		return false;
 
-	key = (char) ev->value.key;
+	char key = (char) ev->value.key;
 
 	// no cheating in netgames or if disallowed in levels.ddf
 
