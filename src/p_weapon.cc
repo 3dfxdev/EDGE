@@ -444,7 +444,7 @@ void A_WeaponReady(mobj_t * mo)
   // bob the weapon based on movement speed
   if (hasjetpack)
   {
-    psp->sx = 1.0;
+    psp->sx = 1.0f;
     psp->sy = WEAPONTOP;
   }
   else

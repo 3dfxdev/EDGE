@@ -1976,13 +1976,13 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 	if (fmod(x1 - bmaporgx, MAPBLOCKUNITS) == 0)
 	{
 		// don't side exactly on a line
-		x1 += 1.0;
+		x1 += 1.0f;
 	}
 
 	if (fmod(y1 - bmaporgy, MAPBLOCKUNITS) == 0)
 	{
 		// don't side exactly on a line
-		y1 += 1.0;
+		y1 += 1.0f;
 	}
 
 	trace.x = x1;
@@ -2026,8 +2026,8 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 	else
 	{
 		mapxstep = 0;
-		partial = 1.0;
-		ystep = 256.0;
+		partial = 1.0f;
+		ystep = 256.0f;
 	}
 
 	yintercept = y1 / MAPBLOCKUNITS + partial * ystep;
@@ -2055,8 +2055,8 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 	else
 	{
 		mapystep = 0;
-		partial = 1.0;
-		xstep = 256.0;
+		partial = 1.0f;
+		xstep = 256.0f;
 	}
 	xintercept = x1 / MAPBLOCKUNITS + partial * xstep;
 

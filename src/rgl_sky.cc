@@ -132,8 +132,8 @@ static void RGL_DrawTiledSky(void)
     info = sky_tiles[i].info;
     side = sky_tiles[i].line->side[0];
     trans = side->middle.translucency;
-    dx = side->middle.x_offset * info->number / 1024.0;
-    dy = side->middle.y_offset * info->number / 1024.0;
+    dx = side->middle.x_offset * info->number / 1024.0f;
+    dy = side->middle.y_offset * info->number / 1024.0f;
 
     if (info->type == TILESKY_Flat)
       image = sky_tiles[i].line->frontsector->floor.image;
@@ -272,8 +272,8 @@ void RGL_DrawSky(void)
 
   if (w <= 512)
   {
-    tx1 /= 2.0; tx2 /= 2.0;
-    bx1 /= 2.0; bx2 /= 2.0;
+    tx1 /= 2.0f; tx2 /= 2.0f;
+    bx1 /= 2.0f; bx2 /= 2.0f;
   }
 
   // compute sky vertical tex coords
@@ -285,7 +285,7 @@ void RGL_DrawSky(void)
       top_a = 0;
 
     if (bottom_a > 1.0)
-      bottom_a = 1.0;
+      bottom_a = 1.0f;
     
     DEV_ASSERT2(bottom_a > top_a);
 
@@ -371,7 +371,7 @@ static INLINE void CalcSkyTexCoord(float x, float y, float z,
   if (angle < ANG180)
     angle_val = ANG_2_FLOAT(angle);
   else
-    angle_val = ANG_2_FLOAT(angle) - 360.0;
+    angle_val = ANG_2_FLOAT(angle) - 360.0f;
 
   (*tx) = tile_num * (base_val - angle_val) /
     (sky_image->actual_w > 256 ? 360.0 : 180.0);
@@ -460,7 +460,7 @@ void RGL_DrawSkyPlane(subsector_t *sub, float h)
   
   data.normal.x = 0;
   data.normal.y = 0;
-  data.normal.z = (viewz > h) ? 1.0 : -1.0;
+  data.normal.z = (viewz > h) ? 1.0 : -1.0f;
 
   // create PolyQuad and transfer vertices
   

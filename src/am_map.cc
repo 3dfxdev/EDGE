@@ -405,8 +405,8 @@ static void InitVariables(void)
 	f_oldloc.x = FLT_MAX; // -ACB- 2003/09/21 Max value was FLOAT_MAX; changed it to fall in line with its type
 
 	m_paninc.x = m_paninc.y = 0;
-	ftom_zoommul = 1.0;
-	mtof_zoommul = 1.0;
+	ftom_zoommul = 1.0f;
+	mtof_zoommul = 1.0f;
 
 	m_w = FTOM(f_w);
 	m_h = FTOM(f_h);
@@ -728,8 +728,8 @@ bool AM_Responder(event_t * ev)
 
 		case AM_ZOOMOUTKEY:
 		case AM_ZOOMINKEY:
-			mtof_zoommul = 1.0;
-			ftom_zoommul = 1.0;
+			mtof_zoommul = 1.0f;
+			ftom_zoommul = 1.0f;
 			break;
 		}
 	}

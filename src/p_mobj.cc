@@ -652,7 +652,7 @@ static INLINE void AddRegionProperties(const mobj_t *mo,
   int flags = p->special ? p->special->special_flags : 
       SECSP_PushConstant;
 
-  float factor = 1.0;
+  float factor = 1.0f;
   float push_mul;
 
   DEV_ASSERT2(tz > bz);
@@ -675,7 +675,7 @@ static INLINE void AddRegionProperties(const mobj_t *mo,
   if (! (flags & SECSP_WholeRegion) && bz > f_h + 1)
     return;
 
-  push_mul = 1.0;
+  push_mul = 1.0f;
   
   if (! (flags & SECSP_PushConstant))
   {
@@ -1046,7 +1046,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
       {
         // Squat down. Decrease viewheight for a moment after hitting the
         // ground (hard), and utter appropriate sound.
-        mo->player->deltaviewheight = zmove / 8.0;
+        mo->player->deltaviewheight = zmove / 8.0f;
         S_StartSound(mo, mo->info->oof_sound);
       }
       // -KM- 1998/12/16 If bigger than max fall, take damage.
@@ -1124,7 +1124,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 
       if (mo->player && gravity < 0 && zmove > OOF_SPEED && ! fly_or_swim)
       {
-        mo->player->deltaviewheight = zmove / 8.0;
+        mo->player->deltaviewheight = zmove / 8.0f;
         S_StartSound(mo, mo->info->oof_sound);
       }
       if (mo->info->maxfall && gravity < 0 && mo->mom.z > hurt_momz &&
@@ -1264,7 +1264,7 @@ static void P_MobjThinker(mobj_t * mobj)
       if (!((mobj->flags & MF_NOGRAVITY) || (flags & SECSP_PushAll))  &&
           (mobj->z <= mobj->floorz + 1.0 || (flags & SECSP_WholeRegion)))
       {
-        float push_mul = 1.0;
+        float push_mul = 1.0f;
 
         DEV_ASSERT2(mobj->info->mass > 0);
         if (! (flags & SECSP_PushConstant))

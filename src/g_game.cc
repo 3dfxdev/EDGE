@@ -366,7 +366,7 @@ void G_BuildTiccmd(ticcmd_t * cmd)
 
 	vertangle = 0;
 
-	strafe = CheckKey(key_strafe);
+	strafe = CheckKey(key_strafe)?true:false;
 	speed = CheckKey(key_speed);
 
 	if (autorunning)
@@ -421,11 +421,11 @@ void G_BuildTiccmd(ticcmd_t * cmd)
 
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
 		if (CheckKey(key_lookup))
-			vertangle += (float)mlook_rate / 1024.0;
+			vertangle += (float)mlook_rate / 1024.0f;
 
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
 		if (CheckKey(key_lookdown))
-			vertangle -= (float)mlook_rate / 1024.0;
+			vertangle -= (float)mlook_rate / 1024.0f;
 
 		if (viewiszoomed)
 			mlook_rate /= ZOOM_ANGLE_DIV;
@@ -1483,7 +1483,7 @@ void G_DoLoadGame(void)
 
 	// con_player = globs->console_player;
 	gameskill = (skill_t) globs->skill;
-	netgame = globs->netgame;  /// FIXME: deathmatch var
+	netgame = globs->netgame?true:false;  /// FIXME: deathmatch var
 
 	// clear line/sector lookup caches, in case level_flags.compat_mode
 	// changed (e.g. CM_BOOM -> CM_EDGE).
@@ -1838,7 +1838,7 @@ void G_BeginRecording(void)
 
 	//---------------------------------------------------------
 	// -ACB- 1998/09/03 Record Level Name In Demo
-	i = strlen(currentmap->ddf.name);
+	i = (int)strlen(currentmap->ddf.name);
 	WriteByteToDemo(i);
 	WriteToDemo(currentmap->ddf.name, i);
 	L_WriteDebug("G_BeginRecording: %s\n", currentmap->ddf.name);
@@ -1990,8 +1990,8 @@ void G_DoPlayDemo(void)
 //
 void G_TimeDemo(const char *name)
 {
-	nodrawers = M_CheckParm("-nodraw");
-	noblit = M_CheckParm("-noblit");
+	nodrawers = M_CheckParm("-nodraw")?true:false;
+	noblit = M_CheckParm("-noblit")?true:false;
 	timingdemo = true;
 	singletics = true;
 
@@ -2234,7 +2234,7 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 				if (!p)
 					return false;
 
-				temp = p->usedown;
+				temp = p->usedown?true:false;
 
 				if ((!cond->negate && !temp) || (cond->negate && temp))
 					return false;

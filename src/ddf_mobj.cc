@@ -1024,10 +1024,10 @@ static bool BenefitTryWeapon(const char *name, benefit_t *be,
 		return false;
 
 	be->type = BENEFIT_Weapon;
-	be->limit = 1.0;
+	be->limit = 1.0f;
 
 	if (num_vals < 1)
-		be->amount = 1.0;
+		be->amount = 1.0f;
 	else if (be->amount != 0.0 && be->amount != 1.0)
 	{
 		DDF_WarnError("Weapon benefit used, bad amount value: %1.1f\n", be->amount);
@@ -1053,10 +1053,10 @@ static bool BenefitTryKey(const char *name, benefit_t *be,
 	}
 
 	be->type = BENEFIT_Key;
-	be->limit = 1.0;
+	be->limit = 1.0f;
 
 	if (num_vals < 1)
-		be->amount = 1.0;
+		be->amount = 1.0f;
 	else if (be->amount != 0.0 && be->amount != 1.0)
 	{
 		DDF_WarnError("Key benefit used, bad amount value: %1.1f\n", be->amount);
@@ -1088,7 +1088,7 @@ static bool BenefitTryHealth(const char *name, benefit_t *be,
 	}
 
 	if (num_vals < 2)
-		be->limit = 100.0;
+		be->limit = 100.0f;
 
 	return true;
 }
@@ -1137,10 +1137,10 @@ static bool BenefitTryPowerup(const char *name, benefit_t *be,
 	be->type = BENEFIT_Powerup;
 
 	if (num_vals < 1)
-		be->amount = 99999.0;
+		be->amount = 99999.0f;
 
 	if (num_vals < 2)
-		be->limit = 99999.0;
+		be->limit = 99999.0f;
 
 	return true;
 }

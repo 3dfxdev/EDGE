@@ -288,16 +288,16 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 		L_r = L_g = L_b = 255;
 	}
 
-	x1b = x1t = (160.0 + tx1) * viewwindowwidth / 320.0;
-	x2b = x2t = (160.0 + tx2) * viewwindowwidth / 320.0;
+	x1b = x1t = (160.0 + tx1) * viewwindowwidth / 320.0f;
+	x2b = x2t = (160.0 + tx2) * viewwindowwidth / 320.0f;
 
-	y1b = y2b = (ty2) * viewwindowheight / 200.0;
-	y1t = y2t = (ty1) * viewwindowheight / 200.0;
+	y1b = y2b = (ty2) * viewwindowheight / 200.0f;
+	y1t = y2t = (ty1) * viewwindowheight / 200.0f;
 
 	if (fuzzy)
 	{
-		float range_x = fabs(x2b - x1b) / 12.0;
-		float range_y = fabs(y1t - y1b) / 12.0;
+		float range_x = fabs(x2b - x1b) / 12.0f;
+		float range_y = fabs(y1t - y1b) / 12.0f;
 
 		float bl_x = sin(rgl_currtimeval / 5.0);
 		float tl_x = sin(rgl_currtimeval / 11.0);
@@ -414,7 +414,7 @@ void RGL_RainbowEffect(player_t *player)
 	float s;
   
 	ren_allbright = false;
-	ren_red_mul = ren_grn_mul = ren_blu_mul = 1.0;
+	ren_red_mul = ren_grn_mul = ren_blu_mul = 1.0f;
 
 	s = player->powers[PW_Invulnerable];  
 
@@ -422,7 +422,7 @@ void RGL_RainbowEffect(player_t *player)
 	{
 		s = MIN(128.0, s);
 		ren_allbright = true;
-		ren_red_mul = ren_grn_mul = ren_blu_mul = s / 256.0;
+		ren_red_mul = ren_grn_mul = ren_blu_mul = s / 256.0f;
 		return;
 	}
 
@@ -431,7 +431,7 @@ void RGL_RainbowEffect(player_t *player)
 	if (s > 0)
 	{
 		s = MIN(128.0, s);
-		ren_red_mul = ren_blu_mul = 1.0 - s / 128.0;
+		ren_red_mul = ren_blu_mul = 1.0 - s / 128.0f;
 		return;
 	}
 
@@ -455,7 +455,7 @@ void RGL_ColourmapEffect(player_t *player)
 	{
 		float s = (float) player->powers[PW_Invulnerable];
     
-		s = MIN(128.0, s) / 128.0;
+		s = MIN(128.0, s) / 128.0f;
 
 		if (glpar_invuln == 0)
 		{
@@ -572,7 +572,7 @@ void RGL_DrawImage(int x, int y, int w, int h, const image_t *image,
 				   float tx1, float ty1, float tx2, float ty2,
 				   const colourmap_t *colmap, float alpha)
 {
-	float r = 1.0, g = 1.0, b = 1.0;
+	float r = 1.0, g = 1.0, b = 1.0f;
 
 	const cached_image_t *cim = W_ImageCache(image, IMG_OGL, 0, false);
 

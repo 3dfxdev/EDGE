@@ -329,7 +329,7 @@ void SV_PlayerCreateElems(int num_elems)
 
 		for (j=0; j < NUMPSPRITES; j++)
 		{
-			p->psprites[j].sx = 1.0;
+			p->psprites[j].sx = 1.0f;
 			p->psprites[j].sy = WEAPONTOP;
 		}
 	}

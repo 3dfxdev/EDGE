@@ -285,7 +285,7 @@ static void RAD_CheckForPercent(const char *info, void *storage)
 	if (f < 0.0 || f > 100.0)
 		RAD_Error("Percentage out of range: %s\n", info);
 
-	*(percent_t *)storage = f / 100.0;
+	*(percent_t *)storage = f / 100.0f;
 }
 
 //
@@ -311,7 +311,7 @@ static void RAD_CheckForPercentAny(const char *info, void *storage)
 
 	RAD_CheckForFloat(s, &f);
 
-	*(percent_t *)storage = f / 100.0;
+	*(percent_t *)storage = f / 100.0f;
 }
 
 // -ES- Copied from DDF_MainGetTime.
@@ -1526,7 +1526,7 @@ static void RAD_ParseSpawnThing(int pnum, const char **pars)
 		RAD_CheckForFloat(pars[6], &t->slope);
 
 		// FIXME: Merge with DDF_MainGetSlope someday.
-		t->slope /= 45.0;
+		t->slope /= 45.0f;
 	}
 
 	AddStateToScript(this_rad, 0, RAD_ActSpawnThing, t);

@@ -308,7 +308,7 @@ static mobj_t *LookForStuff(bot_t *bot, angle_t angle)
 	y2 = bot->pl->mo->y + 1024 * M_Sin(angle);
 
 	linetarget = NULL;
-	bot_atkrange = 1024.0;
+	bot_atkrange = 1024.0f;
 
 	P_PathTraverse(bot->pl->mo->x, bot->pl->mo->y, x2, y2, 
 		PT_ADDLINES | PT_ADDTHINGS, PTR_BotLook);
@@ -620,8 +620,10 @@ static void ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 			y = src->faceobj.mo->y - bot->pl->mo->y;
 			new_angle = R_PointToAngle(bot->pl->mo->x, bot->pl->mo->y, src->faceobj.mo->x, src->faceobj.mo->y);
 			s = sqrt(x * x + y * y);
-			if (s < 0.1)
-				s = 0.1;
+			
+			if (s < 0.1f)
+				s = 0.1f;
+
 			s = (src->faceobj.mo->z - bot->pl->mo->z) / s;
 			break;
 
@@ -630,8 +632,10 @@ static void ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 			y = src->faceobj.xyz.y - bot->pl->mo->y;
 			new_angle = R_PointToAngle(bot->pl->mo->x, bot->pl->mo->y, src->faceobj.xyz.x, src->faceobj.xyz.y);
 			s = sqrt(x * x + y * y);
-			if (s < 0.1)
-				s = 0.1;
+
+			if (s < 0.1f)
+				s = 0.1f;
+
 			s = (src->faceobj.xyz.z - bot->pl->mo->z) / s;
 			break;
 
@@ -681,7 +685,7 @@ static void ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 				break;
 
 			default:
-				d = a = 0;
+				d = a = 0.0f;
 				break;
 		}
 

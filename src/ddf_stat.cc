@@ -603,7 +603,7 @@ void DDF_StateGetPercent(const char *arg, state_t * cur_state)
 	if (sscanf(arg, " %f%% ", value) != 1 || (*value) < 0)
 		DDF_Error("DDF_StateGetPercent: Bad percentage: %s\n", arg);
 
-	(* value) /= 100.0;
+	(* value) /= 100.0f;
 
 	cur_state->action_par = value;
 }

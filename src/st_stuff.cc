@@ -604,18 +604,18 @@ static void DoPaletteStuff(void)
 	if (cnt)
 	{
 		palette = PALETTE_PAIN;
-		amount = (cnt + 7) / 64.0;
+		amount = (cnt + 7) / 64.0f;
 	}
 	else if (consoleplayer->bonuscount)
 	{
 		palette = PALETTE_BONUS;
-		amount = (consoleplayer->bonuscount + 7) / 32.0;
+		amount = (consoleplayer->bonuscount + 7) / 32.0f;
 	}
 	else if (consoleplayer->powers[PW_AcidSuit] > 4 * 32 ||
 		fmod(consoleplayer->powers[PW_AcidSuit], 16) >= 8)
 	{
 		palette = PALETTE_SUIT;
-		amount = 1.0;
+		amount = 1.0f;
 	}
 
 	// This routine will limit `amount' to acceptable values, and will

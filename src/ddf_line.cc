@@ -148,8 +148,8 @@ const linedeftype_t template_line =
 		TILESKY_None,  // type
 		1,             // layer
 		10,            // number
-		1.2,           // squish
-		-0.9,          // offset
+		1.2f,           // squish
+		-0.9f,          // offset
 	},
 
 	// Ladders
@@ -531,7 +531,7 @@ static bool LinedefStartEntry(const char *name)
 	dynamic_line->ddf.name   = NULL;
 	dynamic_line->ddf.number = number;
 
-	s_speed = 1.0;
+	s_speed = 1.0f;
 	s_dir = dir_none;
 
 	// instantiate the static entry
@@ -580,6 +580,7 @@ static void LinedefFinishEntry(void)
 		else
 			buffer_line.s_yspeed = -s_speed;
 	}
+
 	if (s_dir & dir_horiz)
 	{
 		if (s_dir & dir_left)
@@ -609,18 +610,18 @@ static void LinedefFinishEntry(void)
 		}
 	}
 
-  if (buffer_line.friction != FLO_UNUSED && buffer_line.friction < 0.01)
+	if (buffer_line.friction != FLO_UNUSED && buffer_line.friction < 0.01)
 	{
 		DDF_WarnError("Friction value too low (%1.2f), it would prevent "
 			"all movement.\n", buffer_line.friction);
-		buffer_line.friction = 0.1;
+		buffer_line.friction = 0.1f;
 	}
 
-  if (buffer_line.viscosity != FLO_UNUSED && buffer_line.viscosity > 0.99)
+	if (buffer_line.viscosity != FLO_UNUSED && buffer_line.viscosity > 0.99)
 	{
 		DDF_WarnError("Viscosity value too high (%1.2f), it would prevent "
 			"all movement.\n", buffer_line.viscosity);
-		buffer_line.viscosity = 0.9;
+		buffer_line.viscosity = 0.9f;
 	}
 
 	// FIXME: check more stuff...

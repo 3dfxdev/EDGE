@@ -281,9 +281,9 @@ float P_FindSurroundingHeight(const heightref_e ref, const sector_t *sec)
   if (ref & REF_INCLUDE)
     height = base;
   else if (ref & REF_HIGHEST)
-    height = -32000.0;  // BOOM compatible value
+    height = -32000.0f;  // BOOM compatible value
   else
-    height = +32000.0;
+    height = +32000.0f;
  
   for (i = count = 0; i < sec->linecount; i++)
   {
@@ -606,8 +606,8 @@ static void P_LineEffect(line_t *target, line_t *source,
     //       suggests that the horizontal speed is proportional to the
     //       tagging line's length.
 
-    float xspeed = source->dx / 32.0;
-    float yspeed = source->dy / 32.0;
+    float xspeed = source->dx / 32.0f;
+    float yspeed = source->dy / 32.0f;
 
     AdjustScrollParts(target->side[0], 0, special->line_parts,
         xspeed, yspeed);
@@ -660,7 +660,7 @@ static void P_LineEffect(line_t *target, line_t *source,
   // experimental: skew wall texture(s) by sidedef Y offset
   if ((special->line_effect & LINEFX_Skew) && source->side[0])
   {
-    float skew = source->side[0]->top.offset.x / 128.0;
+    float skew = source->side[0]->top.offset.x / 128.0f;
 
     AdjustSkewParts(target->side[0], 0, special->line_parts, skew);
     AdjustSkewParts(target->side[1], 1, special->line_parts, skew);
@@ -701,23 +701,23 @@ static void P_SectorEffect(sector_t *target, line_t *source,
 
   if (special->sector_effect & SECTFX_ScrollFloor)
   {
-    target->floor.scroll.x -= source->dx / 32.0;
-    target->floor.scroll.y -= source->dy / 32.0;
+    target->floor.scroll.x -= source->dx / 32.0f;
+    target->floor.scroll.y -= source->dy / 32.0f;
 
     P_AddSpecialSector(target);
   }
   if (special->sector_effect & SECTFX_ScrollCeiling)
   {
-    target->ceil.scroll.x -= source->dx / 32.0;
-    target->ceil.scroll.y -= source->dy / 32.0;
+    target->ceil.scroll.x -= source->dx / 32.0f;
+    target->ceil.scroll.y -= source->dy / 32.0f;
 
     P_AddSpecialSector(target);
   }
 
   if (special->sector_effect & SECTFX_PushThings)
   {
-    target->props.push.x += source->dx / 320.0;
-    target->props.push.y += source->dy / 320.0;
+    target->props.push.x += source->dx / 320.0f;
+    target->props.push.y += source->dy / 320.0f;
   }
 
   if (special->sector_effect & SECTFX_ResetFloor)
@@ -1317,7 +1317,7 @@ static INLINE void PlayerInProperties(player_t *player,
     player->swimming = true;
   }
 
-  factor = 1.0;
+  factor = 1.0f;
 
   if (special->special_flags & SECSP_WholeRegion)
   {
@@ -1666,11 +1666,11 @@ void P_SpawnSpecials(int autotag)
     // compute pushing force
     if (secSpecial->push_speed > 0 || secSpecial->push_zspeed > 0)
     {
-      float mul = secSpecial->push_speed / 100.0;
+      float mul = secSpecial->push_speed / 100.0f;
 
       sector->props.push.x += M_Cos(secSpecial->push_angle) * mul;
       sector->props.push.y += M_Sin(secSpecial->push_angle) * mul;
-      sector->props.push.z += secSpecial->push_zspeed / 100.0;
+      sector->props.push.z += secSpecial->push_zspeed / 100.0f;
     }
 
     // Scrollers
@@ -1679,8 +1679,8 @@ void P_SpawnSpecials(int autotag)
       float dx = M_Cos(secSpecial->f.scroll_angle);
       float dy = M_Sin(secSpecial->f.scroll_angle);
         
-      sector->floor.scroll.x -= dx * secSpecial->f.scroll_speed / 32.0;
-      sector->floor.scroll.y -= dy * secSpecial->f.scroll_speed / 32.0;
+      sector->floor.scroll.x -= dx * secSpecial->f.scroll_speed / 32.0f;
+      sector->floor.scroll.y -= dy * secSpecial->f.scroll_speed / 32.0f;
   
       P_AddSpecialSector(sector);
     }
@@ -1689,8 +1689,8 @@ void P_SpawnSpecials(int autotag)
       float dx = M_Cos(secSpecial->c.scroll_angle);
       float dy = M_Sin(secSpecial->c.scroll_angle);
       
-      sector->ceil.scroll.x -= dx * secSpecial->c.scroll_speed / 32.0;
-      sector->ceil.scroll.y -= dy * secSpecial->c.scroll_speed / 32.0;
+      sector->ceil.scroll.x -= dx * secSpecial->c.scroll_speed / 32.0f;
+      sector->ceil.scroll.y -= dy * secSpecial->c.scroll_speed / 32.0f;
 
       P_AddSpecialSector(sector);
     }
