@@ -68,12 +68,6 @@ void I_CDSetVolume(int vol);
 bool I_CDFinished(void);
 void I_ShutdownCD();
 
-// I_CONWIN.C - For console output when not is graphics mode
-void I_StartWinConsole(void);
-void I_SetConsoleTitle(const char *title);
-void I_WinConPrintf(const char *message, ...);
-void I_ShutdownWinConsole(void);
-
 // I_CTRL.C
 void I_ControlTicker(void);
 void I_HandleKeypress(int key, bool keydown); // handle message loop key presses
@@ -109,7 +103,6 @@ extern HINSTANCE maininstance;
 extern HACCEL accelerator;
 
 // -ACB- 2000/07/04 We want to see this lot from elsewhere in the EPI
-extern HWND conwinhandle;
 extern bool appactive;
 
 #endif /* __SYSTEM_INTERNAL_H__ */

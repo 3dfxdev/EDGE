@@ -27,8 +27,6 @@
 #include "..\m_argv.h"
 #include "..\m_menu.h"
 #include "..\m_misc.h"
-#include "..\r_draw1.h"
-#include "..\r_draw2.h"
 #include "..\s_sound.h"
 #include "..\w_wad.h"
 #include "..\z_zone.h"
@@ -98,8 +96,6 @@ static void HandleFocusChange(HWND window, HWND otherwin, bool gotfocus)
 		else
 		{
 			I_HandleKeypress(KEYD_PAUSE, false);
-			InvalidateRect(conwinhandle, NULL, FALSE);
-			SendMessage(conwinhandle, WM_PAINT, 0, 0);
 			ShowCursor(TRUE);
 			appactive = false;
 		}
@@ -283,10 +279,6 @@ void I_Printf(const char *message,...)
 	// Send the message to the console.
 	CON_Printf(printbuf);
 
-	// And the text screen if in text mode
-	if (!graphicsmode)
-		I_WinConPrintf(printbuf);
-
 	va_end(argptr);
 }
 
@@ -298,9 +290,7 @@ void I_Printf(const char *message,...)
 //
 void I_PutTitle(const char *title)
 {
-	I_StartWinConsole();
 	SetWindowText(mainwindow, title); // Set EDGE Engine Window with this title
-	I_SetConsoleTitle(NULL);
 }
 
 //
@@ -553,10 +543,7 @@ void I_SystemShutdown(void)
 	E_EngineShutdown();
 
 	if (!systemup)
-	{
-		I_ShutdownWinConsole();
 		return;
-	}
 
 	// Pause to allow sounds to finish
 	waittime = timeGetTime() + 2000;
@@ -582,8 +569,6 @@ void I_SystemShutdown(void)
 	if (debugfile != NULL)
 		fclose(debugfile);
 #endif
-
-	I_ShutdownWinConsole();
 }
 
 
