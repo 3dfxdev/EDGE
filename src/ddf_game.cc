@@ -45,27 +45,28 @@ static void DDF_GameGetMap (const char *info, void *storage);
 
 static const commandlist_t gamedef_commands[] = 
 {
-	DF ("INTERMISSION GRAPHIC", background, DDF_MainGetInlineStr10),
-	DF ("INTERMISSION CAMERA", bg_camera, DDF_MainGetInlineStr32),
-	DF ("INTERMISSION MUSIC", music, DDF_MainGetNumeric),
-	DF ("SPLAT GRAPHIC", splatpic, DDF_MainGetInlineStr10),
-	DF ("YAH1 GRAPHIC", yah[0], DDF_MainGetInlineStr10),
-	DF ("YAH2 GRAPHIC", yah[1], DDF_MainGetInlineStr10),
-	DF ("PERCENT SOUND", percent, DDF_MainLookupSound),
-	DF ("DONE SOUND", done, DDF_MainLookupSound),
-	DF ("ENDMAP SOUND", endmap, DDF_MainLookupSound),
-	DF ("NEXTMAP SOUND", nextmap, DDF_MainLookupSound),
-	DF ("ACCEL SOUND", accel_snd, DDF_MainLookupSound),
-	DF ("FRAG SOUND", frag_snd, DDF_MainLookupSound),
-	DF ("FIRSTMAP", firstmap, DDF_MainGetInlineStr10),
-	DF ("NAME GRAPHIC", namegraphic, DDF_MainGetInlineStr10),
-	DF ("TITLE MUSIC", titlemusic, DDF_MainGetNumeric),
-	DF ("TITLE TIME", titletics, DDF_MainGetTime),
-	DF ("SPECIAL MUSIC", special_music, DDF_MainGetNumeric),
+	DF("INTERMISSION GRAPHIC", background, DDF_MainGetInlineStr10),
+	DF("INTERMISSION CAMERA", bg_camera, DDF_MainGetInlineStr32),
+	DF("INTERMISSION MUSIC", music, DDF_MainGetNumeric),
+	DF("SPLAT GRAPHIC", splatpic, DDF_MainGetInlineStr10),
+	DF("YAH1 GRAPHIC", yah[0], DDF_MainGetInlineStr10),
+	DF("YAH2 GRAPHIC", yah[1], DDF_MainGetInlineStr10),
+	DF("PERCENT SOUND", percent, DDF_MainLookupSound),
+	DF("DONE SOUND", done, DDF_MainLookupSound),
+	DF("ENDMAP SOUND", endmap, DDF_MainLookupSound),
+	DF("NEXTMAP SOUND", nextmap, DDF_MainLookupSound),
+	DF("ACCEL SOUND", accel_snd, DDF_MainLookupSound),
+	DF("FRAG SOUND", frag_snd, DDF_MainLookupSound),
+	DF("FIRSTMAP", firstmap, DDF_MainGetInlineStr10),
+	DF("NAME GRAPHIC", namegraphic, DDF_MainGetInlineStr10),
+	DF("TITLE MUSIC", titlemusic, DDF_MainGetNumeric),
+	DF("TITLE TIME", titletics, DDF_MainGetTime),
+	DF("SPECIAL MUSIC", special_music, DDF_MainGetNumeric),
 
 	// these don't quite fit in yet
-	DF ("TITLE GRAPHIC", ddf, DDF_GameGetPic),
-	DF ("MAP", ddf, DDF_GameGetMap),
+	DF("TITLE GRAPHIC", ddf, DDF_GameGetPic),
+	DF("MAP", ddf, DDF_GameGetMap),
+
 	{"ANIM", DDF_GameGetFrames, &buffer_framedef, NULL},
 
 	DDF_CMD_END
