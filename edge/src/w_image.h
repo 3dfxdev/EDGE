@@ -57,14 +57,14 @@ w_post_t;
 typedef struct image_s
 {
   // total image size, must be a power of two on each axis.
-  short total_w;
-  short total_h;
+  unsigned short total_w;
+  unsigned short total_h;
 
   // actual image size.  Images that are smaller than their total size
   // are located in the top left corner, cannot tile, and are padded
   // with black pixels if solid, or transparent pixels otherwise.
-  short actual_w;
-  short actual_h;
+  unsigned short actual_w;
+  unsigned short actual_h;
 
   // whether the image is solid (otherwise it contains transparent
   // parts).
@@ -97,8 +97,8 @@ typedef enum
 
   // OpenGL support.  The image is not read directly, but referred to
   // as a GL texture id number (which can be given to glBindTexture).
-  // The `mip' value is ignored (should be 0).  Transparent parts (if
-  // any) are given an alpha of zero (otherwise alpha is 255).
+  // The `mip' value must be 0).  Transparent parts (if any) are given
+  // an alpha of zero (otherwise alpha is 255).
   IMG_OGL = 2
 }
 image_mode_e;
@@ -115,15 +115,16 @@ const image_t *W_ImageFromPatch(const char *patch_name);
 //  IMAGE USAGE
 //
 
-const cached_image_t *W_ImageCache(image_t *image, int mip,
+const cached_image_t *W_ImageCache(const image_t *image, int mip,
     image_mode_e mode);
-void W_ImageDone(cached_image_t *c);
+void W_ImageDone(const cached_image_t *c);
 
-const w_post_t *W_ImageGetPost(cached_image_t *c, int column);
-const byte *W_ImageGetBlock(cached_image_t *c);
+const w_post_t *W_ImageGetPost(const cached_image_t *c, int column);
+
+const byte *W_ImageGetBlock(const cached_image_t *c);
 
 #ifdef USE_GL
-GLuint W_ImageGetOGL(cached_image_t *c);
+GLuint W_ImageGetOGL(const cached_image_t *c);
 #endif
 
 
