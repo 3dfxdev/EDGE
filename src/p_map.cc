@@ -2000,7 +2000,7 @@ static float crush_damage;
 //
 // PIT_ChangeSector
 //
-static bool PIT_ChangeSector(mobj_t * thing)
+static bool PIT_ChangeSector(mobj_t * thing, bool widening)
 {
 	mobj_t *mo;
 
@@ -2045,7 +2045,12 @@ static bool PIT_ChangeSector(mobj_t * thing)
 	if (!(thing->flags & MF_SHOOTABLE) || (thing->flags & MF_NOCLIP))
 		return true;
 
-	nofit = true;
+	// -AJA- 2003/12/02: if the space is widening, we don't care if something
+	//       doesn't fit (before the move it also didn't fit !).  This is a
+	//       fix for the "MAP06 ceiling not opening" bug.
+
+	if (! widening)
+		nofit = true;
 
 	if (crushchange && !(leveltime % crush_time))
 	{
@@ -2069,7 +2074,7 @@ static bool PIT_ChangeSector(mobj_t * thing)
 // 
 // Checks all things in the given sector which is changing height.
 // The original space is in f_h..c_h, and the f_dh, c_dh parameters
-// give the amount the space is closing.
+// give the amount the floor/ceiling is moving.
 //
 // Things will be moved vertically if they need to.  When
 // "crushchange" is true, things that no longer fit will be crushed
@@ -2085,6 +2090,8 @@ static void ChangeSectorHeights(sector_t *sec, float f_h,
 
 	crush_time   = 4;
 	crush_damage = 10.0f;
+
+	bool widening = (f_dh <= 0) && (c_dh >= 0);
 
 	for (tn=sec->touch_things; tn; tn=next)
 	{
@@ -2105,7 +2112,7 @@ static void ChangeSectorHeights(sector_t *sec, float f_h,
 			continue;
 #endif
 
-		PIT_ChangeSector(mo);
+		PIT_ChangeSector(mo, widening);
 	}
 }
 
@@ -2256,7 +2263,7 @@ bool P_SolidSectorMove(sector_t *sec, bool is_ceiling,
 		if (is_ceiling)
 		{
 			float h = sec->top_ef ? sec->top_ef->top_h : sec->f_h;
-			ChangeSectorHeights(sec, h, sec->c_h, 0, -dh);
+			ChangeSectorHeights(sec, h, sec->c_h, 0, dh);
 		}
 		else 
 		{
@@ -2305,7 +2312,7 @@ bool P_SolidSectorMove(sector_t *sec, bool is_ceiling,
 				else if (dh < 0)
 				{
 					float h = ef->lower ? ef->lower->top_h : ef->sector->f_h;
-					ChangeSectorHeights(ef->sector, h, ef->top_h, 0, -dh);
+					ChangeSectorHeights(ef->sector, h, ef->top_h, 0, dh);
 				}
 				continue;
 			}
@@ -2322,7 +2329,7 @@ bool P_SolidSectorMove(sector_t *sec, bool is_ceiling,
 			if (!is_ceiling && (ef->ef_info->type & EXFL_Thick))
 			{
 				float h = ef->lower ? ef->lower->top_h : ef->sector->f_h;
-				ChangeSectorHeights(ef->sector, h, ef->bottom_h, 0, -dh);
+				ChangeSectorHeights(ef->sector, h, ef->bottom_h, 0, dh);
 				continue;
 			}
 		}
