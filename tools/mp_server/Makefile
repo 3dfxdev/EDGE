@@ -41,6 +41,7 @@ OBJS=$(FLTABLE_OBJS) \
 	 ui_game.o   \
      ui_log.o    \
      ui_menu.o   \
+	 ui_setup.o  \
 	 ui_stats.o  \
 	 ui_window.o
 

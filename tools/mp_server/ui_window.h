@@ -23,12 +23,13 @@
 #include "ui_game.h"
 #include "ui_log.h"
 #include "ui_menu.h"
+#include "ui_setup.h"
 #include "ui_stats.h"
 
 #define MAIN_BG_COLOR  fl_gray_ramp(FL_NUM_GRAY * 9 / 24)
 
 #define MAIN_WINDOW_MIN_W  560
-#define MAIN_WINDOW_MIN_H  400
+#define MAIN_WINDOW_MIN_H  440
 
 class UI_LogBox;
 
@@ -48,11 +49,12 @@ public:
 
 	Fl_Tabs *tabs;
 
-	UI_Stats *stat_box;
-	UI_LogBox *log_box;
-
+	UI_Setup *setup_box;
 	UI_ClientList *client_list;
 	UI_GameList *game_list;
+
+	UI_Stats *stat_box;
+	UI_LogBox *log_box;
 
 	// user closed the window
 	bool want_quit;
