@@ -290,8 +290,10 @@ static bool GivePower(player_t * player, mobj_t * special,
 	if (lose_em)
 	{
 		player->powers[be->subtype] -= duration;
+
 		if (player->powers[be->subtype] < 0)
 			player->powers[be->subtype] = 0;
+
 		return true;
 	}
 
@@ -374,41 +376,56 @@ bool P_GiveBenefitList(player_t *player, mobj_t * special,
 
 	for (; list; list=list->next)
 	{
-		if (list->type == BENEFIT_None || list->amount <= 0.0)
+		if (list->type == BENEFIT_None)
 			continue;
+
+		// Put the checking in for neg amounts at benefit level. Powerups can be neg 
+		// if they last all level. -ACB- 2004/02/04
 
 		switch (list->type)
 		{
-		case BENEFIT_Ammo:
-			pickup |= GiveAmmo(player, special, list, lose_em);
-			break;
+			case BENEFIT_Ammo:
+				if (list->amount >= 0.0)
+					pickup |= GiveAmmo(player, special, list, lose_em);
+				
+				break;
 
-		case BENEFIT_AmmoLimit:
-			pickup |= GiveAmmoLimit(player, special, list, lose_em);
-			break;
+			case BENEFIT_AmmoLimit:
+				if (list->amount >= 0.0)
+					pickup |= GiveAmmoLimit(player, special, list, lose_em);
 
-		case BENEFIT_Weapon:
-			pickup |= GiveWeapon(player, special, list, lose_em);
-			break;
+				break;
 
-		case BENEFIT_Key:
-			pickup |= GiveKey(player, special, list, lose_em);
-			break;
+			case BENEFIT_Weapon:
+				if (list->amount >= 0.0)
+					pickup |= GiveWeapon(player, special, list, lose_em);
 
-		case BENEFIT_Health:
-			pickup |= GiveHealth(player, special, list, lose_em);
-			break;
+				break;
 
-		case BENEFIT_Armour:
-			pickup |= GiveArmour(player, special, list, lose_em);
-			break;
+			case BENEFIT_Key:
+				if (list->amount >= 0.0)
+					pickup |= GiveKey(player, special, list, lose_em);
 
-		case BENEFIT_Powerup:
-			pickup |= GivePower(player, special, list, lose_em);
-			break;
+				break;
 
-		default:
-			break;
+			case BENEFIT_Health:
+				if (list->amount >= 0.0)
+					pickup |= GiveHealth(player, special, list, lose_em);
+
+				break;
+
+			case BENEFIT_Armour:
+				if (list->amount >= 0.0)
+					pickup |= GiveArmour(player, special, list, lose_em);
+
+				break;
+
+			case BENEFIT_Powerup:
+				pickup |= GivePower(player, special, list, lose_em);
+				break;
+
+			default:
+				break;
 		}
 	}
 
