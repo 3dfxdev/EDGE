@@ -190,7 +190,7 @@ static bool WeaponCouldAutoFire(player_t *p, int idx, int ATK)
 {
 	weapondef_c *info = p->weapons[idx].info;
 
-	if (! info->attack[ATK])
+	if (! info->attack_state[ATK])
 		return false;
 
 	if (info->ammo[ATK] == AM_NoAmmo)
@@ -484,7 +484,7 @@ bool P_TryFillNewWeapon(player_t *p, int idx, ammotype_e ammo, int *qty)
 
 	for (int ATK = 0; ATK < 2; ATK++)
 	{
-		if (! info->attack[ATK])
+		if (! info->attack_state[ATK])
 			continue;
 
 		if (info->ammo[ATK] == AM_NoAmmo || info->clip_size[ATK] == 0)
@@ -708,7 +708,7 @@ void A_WeaponReady(mobj_t * mo)
 	{
 		for (int ATK = 0; ATK < 2; ATK++)
 		{
-			if (! info->attack[ATK])
+			if (! info->attack_state[ATK])
 				continue;
 
 			if (! ButtonDown(p, ATK))
@@ -739,7 +739,7 @@ void A_WeaponReady(mobj_t * mo)
 	{
 		for (int ATK = 0; ATK < 2; ATK++)
 		{
-			if (! info->attack[ATK])
+			if (! info->attack_state[ATK])
 				continue;
 
 			bool reload = false;
@@ -977,6 +977,13 @@ void A_Lower(mobj_t * mo)
 
 		P_SetPsprite(p, ps_weapon, S_NULL);
 		return;
+	}
+
+	// handle weapons that were removed/upgraded while in use
+	if (p->weapons[p->ready_wp].flags & PLWEP_Removing)
+	{
+		p->weapons[p->ready_wp].flags &= ~PLWEP_Removing;
+		p->weapons[p->ready_wp].info = NULL;
 	}
 
 	// The old weapon has been lowered off the screen,
