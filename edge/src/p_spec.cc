@@ -1593,14 +1593,14 @@ void P_SpawnSpecials(int autotag)
 	levelTimer = false;
 
 	i = M_CheckParm("-avg");
-	if (i && deathmatch)
+	if (i && DEATHMATCH())
 	{
 		levelTimer = true;
 		levelTimeCount = 20 * 60 * TICRATE;
 	}
 
 	s = M_GetParm("-timer");
-	if (s && deathmatch)
+	if (s && DEATHMATCH())
 	{
 		int time;
 

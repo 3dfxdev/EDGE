@@ -87,7 +87,7 @@ void G_InitNew(newgame_params_c& params);
 //
 // -ACB- 1998/08/10 New DDF Structure, Use map reference name.
 //
-bool G_DeferredInitNew(newgame_params_c& params);
+bool G_DeferredInitNew(newgame_params_c& params, bool compat_check = false);
 
 // Can be called by the startup code or M_Responder,
 // calls P_SetupLevel or W_EnterWorld.

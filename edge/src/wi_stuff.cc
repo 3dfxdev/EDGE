@@ -1024,7 +1024,7 @@ typedef enum
 }
 sp_state_e;
 
-static void InitStats(void)
+static void InitSinglePlayerStats(void)
 {
 	state = StatCount;
 	acceleratestage = false;
@@ -1036,7 +1036,7 @@ static void InitStats(void)
 	//WI_initAnimatedBack()
 }
 
-static void UpdateStats(void)
+static void UpdateSinglePlayerStats(void)
 {
 	//WI_updateAnimatedBack();
 
@@ -1144,7 +1144,7 @@ static void UpdateStats(void)
 
 }
 
-static void DrawStats(void)
+static void DrawSinglePlayerStats(void)
 {
 	// line height
 	float lh = IM_HEIGHT(digits[0]) * 3/2;
@@ -1245,12 +1245,12 @@ void WI_Ticker(void)
 	switch (state)
 	{
 		case StatCount:
-			if (deathmatch)
+			if (SP_MATCH())
+				UpdateSinglePlayerStats();
+			else if (DEATHMATCH())
 				UpdateDeathmatchStats();
-			else if (netgame)
-				UpdateCoopStats();
 			else
-				UpdateStats();
+				UpdateCoopStats();
 			break;
 
 		case ShowNextLoc:
@@ -1381,12 +1381,12 @@ void WI_Drawer(void)
 	switch (state)
 	{
 		case StatCount:
-			if (deathmatch)
+			if (SP_MATCH())
+				DrawSinglePlayerStats();
+			else if (DEATHMATCH())
 				DrawDeathmatchStats();
-			else if (netgame)
-				DrawCoopStats();
 			else
-				DrawStats();
+				DrawCoopStats();
 			break;
 
 		case ShowNextLoc:
@@ -1424,12 +1424,12 @@ void WI_Start(wbstartstruct_t * wbstartstruct)
 	InitVariables(wbstartstruct);
 	LoadData();
 
-	if (deathmatch)
+	if (SP_MATCH())
+		InitSinglePlayerStats();
+	else if (DEATHMATCH())
 		InitDeathmatchStats();
-	else if (netgame)
-		InitCoopStats();
 	else
-		InitStats();
+		InitCoopStats();
 
 	// -AJA- 1999/10/22: background cameras.
 	background_camera_mo = NULL;

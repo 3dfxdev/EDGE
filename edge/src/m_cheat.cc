@@ -170,7 +170,7 @@ static void M_ChangeLevelCheat(const char *string)
 
 	params.random_seed = I_PureRandom();
 
-	if (! G_DeferredInitNew(params))
+	if (! G_DeferredInitNew(params, true /* compat_check */))
 	{
 		CON_MessageLDF("ImpossibleChange");
 		return;
@@ -219,9 +219,11 @@ bool M_CheatResponder(event_t * ev)
 	char key = (char) ev->value.key;
 
 	// no cheating in netgames or if disallowed in levels.ddf
+	if (!level_flags.cheats)
+		return false;
 
 #if 0 //!!!! TEMP DISABLED, NETWORK DEBUGGING
-	if (netgame || !level_flags.cheats)
+	if (netgame)
 		return false;
 #endif
 

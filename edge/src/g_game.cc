@@ -105,18 +105,14 @@ bool viewactive = false;
 
 // GAMEPLAY MODES:
 //
-//   netgame  deathmatch   mode
+//   numplayers  deathmatch   mode
 //   --------------------------------------
-//     N         0         single player
-//     Y         0         coop
-//     -         1         deathmatch
-//     -         2         altdeath
+//     <= 1         0         single player
+//     >  1         0         coop
+//     -            1         deathmatch
+//     -            2         altdeath
 
-// only if started as net death
 int deathmatch;
-
-// only true if packets are broadcast 
-bool netgame;
 
 int gametic;
 
@@ -297,34 +293,31 @@ bool G_Responder(event_t * ev)
 	if (ev->type == ev_keydown && ev->value.key == KEYD_F12)
 	{
 		// 25-6-98 KM Allow spy mode for demos even in deathmatch
-		if (gamestate == GS_LEVEL && (demoplayback || true || !deathmatch)) //!!!! DEBUGGING
+		if (gamestate == GS_LEVEL && (demoplayback || true || !DEATHMATCH())) //!!!! DEBUGGING
 		{
 			G_ToggleDisplayPlayer();
 			return true;
 		}
 	}
 
-	if (ev->type == ev_keydown && ev->value.key == KEYD_PAUSE)
+	if (ev->type == ev_keydown && ev->value.key == KEYD_PAUSE && !netgame)
 	{
-		if (!netgame)
+		paused = !paused;
+
+		if (paused)
 		{
-			paused = !paused;
-
-			if (paused)
-			{
-				S_PauseMusic();
-				S_PauseSounds();
-			}
-			else
-			{
-				S_ResumeMusic();
-				S_ResumeSounds();
-			}
-
-			// explicit as probably killed the initial effect
-			S_StartSound(NULL, sfx_swtchn);
-			return true;
+			S_PauseMusic();
+			S_PauseSounds();
 		}
+		else
+		{
+			S_ResumeMusic();
+			S_ResumeSounds();
+		}
+
+		// explicit as probably killed the initial effect
+		S_StartSound(NULL, sfx_swtchn);
+		return true;
 	}
 
 	if (gamestate == GS_LEVEL)
@@ -417,7 +410,7 @@ bool CheckPlayersReborn(void)
 		if (!p || p->playerstate != PST_REBORN)
 			continue;
 
-		if (! (netgame || deathmatch))  // single player?
+		if (SP_MATCH())
 			return true;
 
 		G_DoReborn(p);
@@ -549,7 +542,7 @@ static void G_DoReborn(player_t *p)
 		p->mo->player = NULL;
 
 	// spawn at random spot if in death match 
-	if (deathmatch)
+	if (DEATHMATCH())
 		G_DeathMatchSpawnPlayer(p);
 	else
 		G_CoopSpawnPlayer(p); // respawn at the start
@@ -568,9 +561,8 @@ void G_SpawnInitialPlayers(void)
 		G_DoReborn(p);
 	}
 
-	// -AJA- 1999/10/21: if not netgame/deathmatch, then check for
-	//       missing player start.
-	if (! (netgame || deathmatch) && players[consoleplayer]->mo == NULL)
+	// check for missing player start.
+	if (players[consoleplayer]->mo == NULL)
 		I_Error("Missing player start !\n");
 
 	G_SetDisplayPlayer(consoleplayer); // view the guy you are playing
@@ -750,7 +742,7 @@ static void G_DoLoadGame(void)
 
 	params.skill      = (skill_t) globs->skill;
 	params.deathmatch = (globs->netgame >= 2) ? (globs->netgame - 1) : 0;
-	
+
 	params.random_seed = globs->p_random;
 
 	// this player is a dummy one, replaced during actual load
@@ -944,13 +936,26 @@ newgame_params_c::~newgame_params_c()
 //
 // Returns true if OK, or false if no such map exists.
 //
-bool G_DeferredInitNew(newgame_params_c& params)
+bool G_DeferredInitNew(newgame_params_c& params, bool compat_check)
 {
 	DEV_ASSERT2(params.map);
 	DEV_ASSERT2(params.game);
 
 	if (W_CheckNumForName(params.map->lump) == -1)
 		return false;
+
+	if (compat_check)
+	{
+		// compatibility check (EDGE vs BOOM)
+		int compat = P_DetectWadGameCompat(params.map);
+
+		if (compat == MAP_CM_Edge)
+			global_flags.compat_mode = CM_EDGE;
+		else if (compat == MAP_CM_Boom)
+			global_flags.compat_mode = CM_BOOM;
+		else if (compat != 0)
+			I_Warning("Detected both EDGE and BOOM features - check compatibility\n");
+	}
 
 	d_params = new newgame_params_c(params);
 
@@ -993,8 +998,6 @@ void G_InitNew(newgame_params_c& params)
 
 	P_DestroyAllPlayers();
 
-	netgame = false;
-
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
 		if (params.players[pnum] == PFL_NOPLAYER)
@@ -1008,8 +1011,8 @@ void G_InitNew(newgame_params_c& params)
 			G_SetConsolePlayer(pnum);
 		}
 
-		if (params.players[pnum] & PFL_Network)
-			netgame = true;
+///---		if (params.players[pnum] & PFL_Network)
+///---			netgame = true;
 	}
 
 	if (numplayers != params.total_players)
@@ -1098,13 +1101,13 @@ bool G_CheckWhenAppear(when_appear_e appear)
 	if (! (appear & (1 << gameskill)))
 		return false;
 
-	if (!netgame && !deathmatch && !(appear & WNAP_Single))
+	if (SP_MATCH() && !(appear & WNAP_Single))
 		return false;
 
-	if (netgame && !deathmatch && !(appear & WNAP_Coop))
+	if (COOP_MATCH() && !(appear & WNAP_Coop))
 		return false;
 
-	if (deathmatch && !(appear & WNAP_DeathMatch))
+	if (DEATHMATCH() && !(appear & WNAP_DeathMatch))
 		return false;
 
 	return true;

@@ -38,6 +38,7 @@
 #include "m_bbox.h"
 #include "m_cheat.h"
 #include "m_misc.h"
+#include "n_network.h"
 #include "p_local.h"
 #include "r_state.h"
 #include "rgl_defs.h"
@@ -659,7 +660,7 @@ bool AM_Responder(event_t * ev)
 			}
 		}
 		// -ACB- 1999/09/28 Proper casting
-		if (!deathmatch && M_CheckCheat(&cheat_amap, (char)ev->value.key))
+		if (!DEATHMATCH() && M_CheckCheat(&cheat_amap, (char)ev->value.key))
 		{
 			rc = false;
 			cheating = (cheating + 1) % 3;
@@ -1097,7 +1098,7 @@ static void AM_DrawPlayer(mobj_t *mo)
 	}
 
 #if 0 //!!!! TEMP DISABLED, NETWORK DEBUGGING
-	if ((deathmatch && !singledemo) && mo->player != p)
+	if ((DEATHMATCH() && !singledemo) && mo->player != p)
 		return;
 #endif
 

@@ -525,8 +525,8 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 
 	if (pickup)
 	{
-		// leave keys in COOP games (FIXME !!! Temporary hack)
-		if (numplayers > 1 && !deathmatch && 
+		// leave keys in COOP games (FIXME !!!! Temporary hack)
+		if (COOP_MATCH() &&
 			! (special->hyperflags & HF_FORCEPICKUP) &&
 			SpecialIsKey(special))
 		{
@@ -610,7 +610,7 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype)
 			}
 		}
 	}
-	else if (!netgame && (target->flags & MF_COUNTKILL))
+	else if (SP_MATCH() && (target->flags & MF_COUNTKILL))
 	{
 		// count all monster deaths,
 		// even those caused by other monsters

@@ -1594,16 +1594,6 @@ namespace engine
 		if (! params.game)
 			return false;
 
-		// compatibility check (EDGE vs BOOM)
-		int compat = P_DetectWadGameCompat(params.map);
-
-		if (compat == MAP_CM_Edge)
-			global_flags.compat_mode = CM_EDGE;
-		else if (compat == MAP_CM_Boom)
-			global_flags.compat_mode = CM_BOOM;
-		else if (compat != 0)
-			I_Warning("Detected both EDGE and BOOM features - check compatibility\n");
-
 		params.total_players = 1;
 		params.players[0] = PFL_Zero;  // i.e. !BOT and !NETWORK
 
@@ -1630,7 +1620,7 @@ namespace engine
 //  		params.players[3] = PFL_Bot;
 #endif
 
-		return G_DeferredInitNew(params);
+		return G_DeferredInitNew(params, true /* compat_check */);
 	}
 
 	//

@@ -415,12 +415,12 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 	P_SetupPsprites(p);
 
 	// give all cards in death match mode
-	if (deathmatch)
+	if (DEATHMATCH())
 		p->cards = KF_MASK;
 
 	// -AJA- in COOP, all players are on the same side
-	if (netgame && !deathmatch)
-		mobj->side = 0x7FFFFFFF;
+	if (COOP_MATCH())
+		mobj->side = ~0;
 
 	// -AJA- FIXME: maybe this belongs elsewhere.
 	if (p->pnum == consoleplayer)
