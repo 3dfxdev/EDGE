@@ -281,12 +281,15 @@ drawthing_t;
 //
 // Stores all the information needed to draw a single on-screen
 // floor of a subsector.
-//
 
 typedef struct drawfloor_s
 {
-  // link for list
+  // link for list, drawing order
   struct drawfloor_s *next;
+
+  // link for height order list
+  struct drawfloor_s *z_next;
+  struct drawfloor_s *z_prev;
 
   // region
   vert_region_t *reg;
@@ -309,7 +312,6 @@ drawfloor_t;
 //
 // Stores all the information needed to draw a single on-screen
 // subsector.
-//
 
 typedef struct drawsub_s
 {
@@ -322,6 +324,9 @@ typedef struct drawsub_s
   // list of floors
   // these are sorted into drawing order.
   drawfloor_t *floors;
+
+  // list of floors, sorted in height order.
+  drawfloor_t *z_floors;
 
   // list of clip segs
   clipseg_t *clippers;
@@ -342,7 +347,6 @@ drawsub_t;
 //
 // Describes an onscreen (but back-facing) seg which is used to mark
 // the edges of planes.
-//
 
 typedef struct planeback_s
 {
@@ -368,11 +372,16 @@ void R2_RenderTrueBSP(void);
 
 void R2_GetThingSprite(mobj_t *thing, spritedef_t ** sprite,
     spriteframe_t ** frame, int *lump, boolean_t *flip, boolean_t *bright);
-void R2_ClipSpritesVertically(drawsub_t *dsub);
+void R2_ClipSpriteVertically(drawsub_t *dsub, drawthing_t *dthing);
 
 #ifdef USE_GL
+extern int glmax_lights;
+extern int glmax_clip_planes;
+extern int glmax_tex_size;
+
 void R2GL_Init(void);
 void R2GL_RenderTrueBSP(void);
+void R2GL_ResetTextures(void);
 #endif
 
 
