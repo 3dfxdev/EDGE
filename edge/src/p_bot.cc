@@ -337,6 +337,7 @@ static bool LookForBotTargets(bot_t *bot)
 		// 3. The target may not have the same supportobj as you.
 		// 4. The target's type must be different from your, if you aren't disloyal.
 		// 5. You must be able to see and shoot the target.
+
 		if ((((currmobj->target == object->supportobj || currmobj->target == object)
 			&& currmobj->target)
 			|| (object->side && !(currmobj->side & object->side)))
@@ -689,27 +690,12 @@ void P_BotPlayerBuilder(const player_t *p, void *data, ticcmd_t *cmd)
 	if (gamestate != GS_LEVEL)
 		return;
 
-	// recalculate , but only if we have a new gametime
-	if (bot->prev_gametime != gametime)
-	{
-		bot->prev_gametime = gametime;
+	Z_Clear(&bot->cmd, botcmd_t, 1);
+	bot->cmd.new_weapon = -1;
 
-		Z_Clear(&bot->cmd, botcmd_t, 1);
-		bot->cmd.new_weapon = -1;
+	BotThink(bot);
 
-		BotThink(bot);
-
-		ConvertToTiccmd(bot, &bot->prev_cmd, &bot->cmd);
-	}
-	else
-	{
-		// Don't turn around more: If we decided to switch angle the first tic,
-		// then that's the angle we prefer, and it's bad to turn around more.
-		bot->prev_cmd.angleturn = 0;
-		bot->prev_cmd.mlookturn = 0;
-	}
-
-	*cmd = bot->prev_cmd;
+	ConvertToTiccmd(bot, cmd, &bot->cmd);
 }
 
 //
@@ -724,7 +710,7 @@ void P_BotCreate(player_t *p, bool recreate)
 	bot_t *bot = Z_ClearNew(bot_t, 1);
 
 	p->builder = P_BotPlayerBuilder;
-	p->data = (void *)bot;
+	p->build_data = (void *)bot;
 	p->playerflags |= PFL_Bot;
 
 	bot->pl = p;

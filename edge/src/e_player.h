@@ -262,11 +262,15 @@ typedef struct player_s
 
 	short consistency[BACKUPTICS];
 	ticcmd_t netcmds[BACKUPTICS];
+
 	int netnode;
 
 	// This function will be called to initialise the ticcmd_t.
 	void (*builder)(const struct player_s *, void *data, ticcmd_t *dest);
-	void *data;
+	void *build_data;
+
+public:
+	void Reborn();
 }
 player_t;
 
@@ -274,21 +278,6 @@ player_t;
 // INTERMISSION
 // Structure passed e.g. to WI_Start(wb)
 //
-#if 0
-typedef struct
-{
-	bool in;  // whether the player is in game
-
-	// Player stats, kills, collected items etc.
-	int skills;
-	int sitems;
-	int ssecret;
-	int stime;
-	int frags;
-	int totalfrags;
-}
-wbplayerstruct_t;
-#endif
 
 typedef struct
 {
@@ -305,11 +294,6 @@ typedef struct
 
 	// the par time
 	int partime;
-
-///---	// index of this player in game
-///---	int me;
-///---
-///---	wbplayerstruct_t *plrs;
 }
 wbstartstruct_t;
 

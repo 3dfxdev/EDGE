@@ -559,12 +559,13 @@ static void SortRanks(int *rank, int *score)
 
 		for (int i = 0; i < MAXPLAYERS - 1; i++)
 		{
-			int score1 = (rank[i]   >= 0) ? score[rank[i]]   : -1;
-			int score2 = (rank[i+1] >= 0) ? score[rank[i+1]] : -1;
-
-			if (score1 < score2)
+			if (score[i] < score[i+1])
 			{
-				int tmp = rank[i];
+				int tmp = score[i];
+				score[i] = score[i + 1];
+				score[i + 1] = tmp;
+
+				tmp = rank[i];
 				rank[i] = rank[i + 1];
 				rank[i + 1] = tmp;
 
@@ -582,7 +583,7 @@ static int DeathmatchScore(int pl)
 		return players[pl]->totalfrags * 2 + players[pl]->frags;
 	}
 
-	return -999999;
+	return -999;
 }
 
 static void InitDeathmatchStats(void)
@@ -727,6 +728,7 @@ static void DrawDeathmatchStats(void)
 		char temp[40];
 
 		sprintf(temp, "%s", players[p]->playername); //FIXME !!!
+I_Printf("Player %d name = [%s]\n", p, players[p]->playername); //DEBUGG
 		HL_WriteText(wi_net_style, t_type, 20, y, temp);
 
 		sprintf(temp, "%5d", dm_frags[i]);
@@ -750,7 +752,7 @@ static int CoopScore(int pl)
 		return kills + items + secret - frags;
 	}
 
-	return -999999;
+	return -999;
 }
 
 static void InitCoopStats(void)

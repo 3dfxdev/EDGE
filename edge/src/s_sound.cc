@@ -435,7 +435,7 @@ static int StartSoundAtVolume(mobj_t *origin, sfxdef_c *sfx, int volume)
 	// Check to see if it is audible,
 	//  and if not, modify the params
 
-	player_t *p = players[displayplayer];
+	player_t *p = players[displayplayer]; //FIXME !!!!! don't require players during initial menu
 
 	if (origin && origin != p->mo)
 	{
@@ -841,7 +841,7 @@ void S_UpdateSounds(mobj_t *listener)
 void S_SoundTicker(void)
 {
 	I_SoundTicker();
-	S_UpdateSounds(players[displayplayer]->mo);
+	S_UpdateSounds(players[displayplayer]->mo); //!!! FIXME: don't require players during initial menu
 }
 
 //

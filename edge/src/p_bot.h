@@ -102,11 +102,6 @@ typedef struct bot_s
 	angle_t angle;
 
 	botcmd_t cmd;
-
-	// remember previous movements, just in case the thinker is run twice the
-	// same gametic.
-	ticcmd_t prev_cmd;
-	int prev_gametime;
 }
 bot_t;
 

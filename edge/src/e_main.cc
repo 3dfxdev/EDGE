@@ -40,6 +40,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dstrings.h"
+#include "e_demo.h"
 #include "e_input.h"
 #include "e_net.h"
 #include "f_finale.h"
@@ -150,7 +151,7 @@ skill_t startskill;
 char *startmap;
 
 bool autostart;
-bool advancedemo;
+bool advance_title;
 
 int newnmrespawn = 0;
 
@@ -805,10 +806,10 @@ void E_PageDrawer(void)
 //
 void E_AdvanceDemo(void)
 {
-	advancedemo = true;
+	advance_title = true;
 }
 
-static void DemoNextPicture(void)
+static void TitleNextPicture(void)
 {
 	int count;
 	gamedef_c *g;
@@ -857,11 +858,11 @@ static void DemoNextPicture(void)
 // This cycles through the demo sequences.
 // -KM- 1998/12/16 Fixed for DDF.
 //
-void E_DoAdvanceDemo(void)
+static void E_DoAdvanceTitle(void)
 {
 //!!!!	consoleplayer->playerstate = PST_LIVE;  // not reborn
 
-	advancedemo = false;
+	advance_title = false;
 	usergame = false;     // no save or end game here
 	paused = false;
 	gameaction = ga_nothing;
@@ -874,7 +875,7 @@ void E_DoAdvanceDemo(void)
 		{
 			gamestate = GS_DEMOSCREEN;
 
-			DemoNextPicture();
+			TitleNextPicture();
 
 			pagetic = gamedefs[page_map]->titletics;
 			break;
@@ -1745,22 +1746,45 @@ namespace engine
 		{
 			I_ControlGetEvents();
 			E_ProcessEvents();
+
 			E_BuildTiccmd(&players[consoleplayer]->netcmds[maketic % BACKUPTICS]);
 
-			if (advancedemo)
-				E_DoAdvanceDemo();
+			if (advance_title)
+				E_DoAdvanceTitle();
 
 			M_Ticker();
 			GUI_MainTicker();
 			G_Ticker();
 			S_SoundTicker();
 			S_MusicTicker();
+
 			gametic++;
 			maketic++;
 		}
 		else
 		{
-			E_TryRunTics();  // will run at least one tic
+			int counts = E_TryRunTics();
+
+			if (counts == 0)  // give the menu a chance to work
+			{
+				GUI_MainTicker();
+				M_Ticker();
+			}
+			else while (counts--)  // run the tics
+			{
+				if (advance_title)
+					E_DoAdvanceTitle();
+
+				GUI_MainTicker();
+				M_Ticker();
+				G_Ticker();
+				S_SoundTicker(); // -ACB- 1999/10/11 Improved sound update routines
+				S_MusicTicker(); // -ACB- 1999/11/13 Improved music update routines
+
+				gametic++;
+
+				E_NetUpdate();  // check for new console commands
+			}
 		}
 
 		// Update display, next frame, with current state.
