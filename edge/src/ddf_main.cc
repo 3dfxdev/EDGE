@@ -1000,7 +1000,10 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
 			}
 			else if (character == '\n')
 			{
+				cur_ddf_line_num--;
 				DDF_WarnError2(0x128, "Unclosed string detected.\n");
+
+				cur_ddf_line_num++;
 				return nothing;
 			}
 			// -KM- 1998/10/29 Removed ascii check, allow foreign characters (?)
