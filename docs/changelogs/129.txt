@@ -123,8 +123,8 @@ New DDF features:
   colours, image files, and built-in types, as follows:
 
      IMAGE_DATA = COLOUR:#FF7F00;
-	 IMAGE_DATA = FILE:"retex\startan3.png";
-	 IMAGE_DATA = BUILTIN:QUADRATIC;
+     IMAGE_DATA = FILE:"retex\startan3.png";
+     IMAGE_DATA = BUILTIN:QUADRATIC;
 
   The built-in types are only used to create special images for
   dynamic lighting and shadows.  The FILE type is the most useful,
@@ -132,11 +132,11 @@ New DDF features:
   future).  The following commands are also available:
 
      X_OFFSET = 10;  // specify the X and Y offset, e.g. sprites.
-	 Y_OFFSET = 30;  //
+     Y_OFFSET = 30;  //
 
      SCALE  = 2.0;   // scaling and aspect.  Bigger scale makes the
-	 ASPECT = 1.0;   // image bigger (cover more space).  Bigger aspect
-	                 // makes the image wider (height is unchanged).
+     ASPECT = 1.0;   // image bigger (cover more space).  Bigger aspect
+                     // makes the image wider (height is unchanged).
 
      SPECIAL = XXX, YYY;
 
@@ -144,8 +144,8 @@ New DDF features:
   images are automatically clamped).  They are:
 
      NOMIP    // force mipmapping to be disabled
-	 SMOOTH   // force smoothing to be enabled
-	 CLAMP    // force clamping (image cannot repeat)
+     SMOOTH   // force smoothing to be enabled
+     CLAMP    // force clamping (image cannot repeat)
 
 + new FONTS.DDF file.  The equivalent wad lump is DDFFONT.  This is used
   to define fonts (the set of character images for drawing text).  The
