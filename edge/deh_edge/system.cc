@@ -31,7 +31,7 @@
 
 #define FATAL_COREDUMP  1
 
-#define DEBUG_ENABLED   0
+#define DEBUG_ENABLED   1
 #define DEBUG_ENDIAN  0
 #define DEBUGGING_FILE  "deh_debug.log"
 
