@@ -408,39 +408,39 @@ long FAR PASCAL I_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 	switch (message)
 	{
-	case WM_CLOSE:
-		return 1L;
+		case WM_CLOSE:
+			return 1L;
 
-	case WM_KEYDOWN:
-		// We don't want to know about a key still being pressed.
-		if ((lParam & 0x40000000) != 0) 
-			break;                        
+		case WM_KEYDOWN:
+			// We don't want to know about a key still being pressed.
+			if ((lParam & 0x40000000) != 0) 
+				break;                        
 
-		if (wParam == VK_PAUSE)
-			I_HandleKeypress(KEYD_PAUSE, true);
+			if (wParam == VK_PAUSE)
+				I_HandleKeypress(KEYD_PAUSE, true);
 
-		return 0L;
-
-	case WM_KEYUP:
-		if (wParam == VK_PAUSE)
-			I_HandleKeypress(KEYD_PAUSE, false);
-
-		return 0L;
-
-	case WM_KILLFOCUS:
-		HandleFocusChange(hWnd, (HWND)(wParam), false);
-		return 0L;
-
-	case WM_SETFOCUS:
-		HandleFocusChange(hWnd, (HWND)(wParam), true);
-		return 0L;
-
-	case WM_SIZE:
-		if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED) 
-		{
-			I_SizeWindow();
 			return 0L;
-		}
+
+		case WM_KEYUP:
+			if (wParam == VK_PAUSE)
+				I_HandleKeypress(KEYD_PAUSE, false);
+
+			return 0L;
+
+		case WM_KILLFOCUS:
+			HandleFocusChange(hWnd, (HWND)(wParam), false);
+			return 0L;
+
+		case WM_SETFOCUS:
+			HandleFocusChange(hWnd, (HWND)(wParam), true);
+			return 0L;
+
+		case WM_SIZE:
+			if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED) 
+			{
+				I_SizeWindow();
+				return 0L;
+			}
 		break;
 
 	default:
@@ -508,11 +508,13 @@ unsigned long I_ReadMicroSeconds(void)
 // true on success.
 //
 // -ACB- 2001/06/14
+// -ACB- 2004/02/15 Use native win32 functions: they should work!
 //
 bool I_GetModifiedTime(const char *filename, i_time_t *t)
 {
-	struct _stat buf;
-	struct tm *timeinf;
+	BOOL ok;
+	SYSTEMTIME timeinf;
+	WIN32_FILE_ATTRIBUTE_DATA fileinf;
 
 	// Check the sanity of the coders...
 	if (!filename)
@@ -523,26 +525,24 @@ bool I_GetModifiedTime(const char *filename, i_time_t *t)
 
 	memset(t,0,sizeof(i_time_t));
 
-#if 1  // FIXME: -AJA- don't know why, but it ain't working
-	return true;
-#endif
-
-	// Check the file is invalid
-	if (_stat(filename, &buf))
+	// Get the file info...
+	if (!GetFileAttributesEx(filename, GetFileExInfoStandard, &fileinf))
+	{
 		return false;
+	}
 
-	// Convert the 'time_t' of the modified time into something more human
-	timeinf = localtime(&buf.st_mtime);
-	if (!timeinf)
+	// Convert to a time we can actually use...
+	if (!FileTimeToSystemTime(&fileinf.ftLastWriteTime, &timeinf))
+	{
 		return false;
+	}
 
-	t->secs    = timeinf->tm_sec;
-	t->minutes = timeinf->tm_min;
-	t->hours   = timeinf->tm_hour;
-	t->day     = timeinf->tm_mday;
-	t->month   = timeinf->tm_mon+1;
-	t->year    = timeinf->tm_year+1900;
-
+	t->secs    = (byte)timeinf.wSecond;
+	t->minutes = (byte)timeinf.wMinute;
+	t->hours   = (byte)timeinf.wHour;
+	t->day     = (byte)timeinf.wDay;
+	t->month   = (byte)timeinf.wMonth;
+	t->year    = (short)timeinf.wYear;
 	return true;
 }
 
