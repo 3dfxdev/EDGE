@@ -232,9 +232,6 @@ intercept_t;
 
 typedef bool(*traverser_t) (intercept_t * in);
 
-extern intercept_t **intercepts;
-extern int intercept_p;
-
 extern divline_t trace;
 
 float P_ApproxDistance(float dx, float dy);
@@ -306,7 +303,6 @@ public:
 	int GetSize() {	return array_entries; } 
 	int Insert(line_t *l) { return InsertObject((void*)&l); }
 	line_t* operator[](int idx) { return *(line_t**)FetchObject(idx); } 
-	void ZeroiseCount(void) { array_entries = 0; }
 };
 
 // If "floatok" true, move would be OK at float_destz height.
