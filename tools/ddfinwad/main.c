@@ -20,7 +20,7 @@
 #include "wad_io.h"
 
 #define DDFINWAD_VER_MAJOR 1
-#define DDFINWAD_VER_MINOR 2
+#define DDFINWAD_VER_MINOR 3
 
 typedef struct
 {
@@ -34,6 +34,9 @@ filelumpconv_t cvtable[] =
   { "DDFLANG",  "language.ldf" },
   { "DDFSFX",   "sounds.ddf" },
   { "DDFCOLM",  "colmap.ddf" },  
+  { "DDFIMAGE", "images.ddf" },
+  { "DDFFONT",  "fonts.ddf"  },
+  { "DDFSTYLE", "styles.ddf" },
   { "DDFATK",   "attacks.ddf" },
   { "DDFWEAP",  "weapons.ddf" },
   { "DDFTHING", "things.ddf" },
