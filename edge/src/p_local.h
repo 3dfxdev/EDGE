@@ -162,12 +162,19 @@ typedef struct
 {
   float_t frac;  // along trace line
 
-  boolean_t isaline;
+  enum
+  {
+    INCPT_Line  = 0,
+    INCPT_Thing = 1,
+    INCPT_Plane = 2
+  }
+  type;
 
   union
   {
     mobj_t *thing;
     line_t *line;
+    plane_info_t *plane;
   }
   d;
 }
@@ -236,11 +243,11 @@ void P_UpdateMultipleFloors(sector_t * sector);
 boolean_t P_ChangeSector(sector_t * sector, boolean_t crunch);
 boolean_t P_CheckAbsPosition(mobj_t * thing, float_t x, float_t y, float_t z);
 boolean_t P_CheckSight(mobj_t * t1, mobj_t * t2);
-void P_SlideMove(mobj_t * mo);
 void P_RadiusAttack(mobj_t * spot, mobj_t * source, float_t damage);
 void P_RadiusThrust(mobj_t * spot, mobj_t * source, float_t thrust);
 boolean_t P_TeleportMove(mobj_t * thing, float_t x, float_t y, float_t z);
 boolean_t P_TryMove(mobj_t * thing, float_t x, float_t y);
+void P_SlideMove(mobj_t * mo, float_t x, float_t y);
 void P_UseLines(player_t * player);
 void P_LineAttack(mobj_t * t1, angle_t angle, float_t distance, 
     float_t slope, float_t damage, const mobjinfo_t *puff);
@@ -251,7 +258,9 @@ void P_LineAttack(mobj_t * t1, angle_t angle, float_t distance,
 // 23-6-98 KM Short*s changed to int*s, for bigger, better blockmaps
 // -AJA- 2000/07/31: line data changed back to shorts.
 //
-extern const byte *rejectmatrix;  // for fast sight rejection
+
+// for fast sight rejection.  Can be NULL
+extern const byte *rejectmatrix;
 
 #define BMAP_END  ((unsigned short) 0xFFFF)
 
