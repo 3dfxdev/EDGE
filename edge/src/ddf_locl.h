@@ -98,6 +98,14 @@ typedef struct
 }
 commandlist_t;
 
+#define FIELD_OFFSET(dummy,field)  \
+    ((char *) & ((dummy).field) - (char *) & (dummy))
+
+#define FIELD_OFF2P(dummy,field)  \
+    ((char *) FIELD_OFFSET(dummy,field))
+
+#define FIELD_P2OFF(ptr)  ((int) ptr)
+
 //
 // This structure passes the information needed to DDF_MainReadFile, so that
 // the reader uses the correct procedures when reading a file.
