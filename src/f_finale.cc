@@ -319,7 +319,7 @@ static void TextWrite(void)
 
 		if (count == 0 || !(*ch))
 		{
-			HL_DrawTextLineTrans(&L, false, finale->text_colmap);
+			HL_DrawTextLineAlpha(&L, false, finale->text_colmap, 1.0f);
 			break;
 		}
 
@@ -329,7 +329,7 @@ static void TextWrite(void)
 		if (c == '\n')
 		{
 			cy += 11;
-			HL_DrawTextLineTrans(&L, false, finale->text_colmap);
+			HL_DrawTextLineAlpha(&L, false, finale->text_colmap, 1.0f);
 			HL_InitTextLine(&L, 10, cy, finale_hack_style, 0);
 			continue;
 		}
