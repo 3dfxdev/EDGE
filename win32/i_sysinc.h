@@ -92,6 +92,9 @@ LPDIRECTSOUND I_SoundReturnObject(void); // for DirectMusic
 // I_SYSTEM.C
 long FAR PASCAL I_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
+// I_VIDEO.C
+void I_SizeWindow(void);
+
 // Window stuff
 extern HWND mainwindow;
 extern HINSTANCE maininstance;
