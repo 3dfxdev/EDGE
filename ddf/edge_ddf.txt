@@ -10,6 +10,9 @@ EDGE DDF 4.3: (XXXX-XX-XX)
                compatibility section, and fixed [FOG] entry to not
                use the "FOGMAP" lump (which isn't in EDGE.WAD).
 
+4) LANGUAGES.DDF: added CompatChange and CompatBoth entries, which
+                  are used for the compatibility check dialogs.
+
 
 EDGE DDF 4.2: (2004-10-31)
 ==========================
