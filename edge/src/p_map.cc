@@ -1884,10 +1884,10 @@ static bool PIT_RadiusAttack(mobj_t * thing)
 	dz = (float)fabs(MO_MIDZ(thing) - MO_MIDZ(bomb_I.spot));
 
 	// dist is the distance to the *edge* of the thing
+	dist = MAX(dx, dy) - thing->radius;
+
 	if (bomb_I.use_3d)
-		dist = MAX(MAX(dx, dy) - thing->radius, dz - thing->height/2);
-	else
-		dist = MAX(dx, dy) - thing->radius;
+		dist = MAX(dist, dz - thing->height/2);
 
 	if (dist < 0)
 		dist = 0;
