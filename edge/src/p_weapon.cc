@@ -389,6 +389,103 @@ static void P_BringUpWeapon(player_t * p)
 	p->refire = info->refire_inacc ? 0 : 1;
 }
 
+static void UpdateWeaponChoice(player_t *p, int key)
+{
+	DEV_ASSERT2(p->pending_wp >= 0);
+
+	weapondef_c *info = p->weapons[p->pending_wp].info;
+
+	for (int j = 0; j < weaponkey[key].numchoices; j++)
+	{
+		if (weaponkey[key].choices[j] == info)
+		{
+			p->key_choices[key] = j;
+			break;
+		}
+	}
+}
+
+//
+// P_NextPrevWeapon
+//
+// Select the next (or previous) weapon which can be fired.
+// The 'dir' parameter is +1 for next (i.e. higher key number)
+// and -1 for previous (lower key number).  When no such
+// weapon exists, nothing happens.
+//
+// -AJA- 2005/02/17: added this.
+//
+void P_NextPrevWeapon(player_t * p, int dir)
+{
+	if (p->pending_wp != WPSEL_NoChange)
+		return;
+
+	int base_pri = 0;
+
+	if (p->ready_wp >= 0)
+		base_pri = p->weapons[p->ready_wp].info->KeyPri() * 100 + p->ready_wp;
+
+	int close_idx = -1;
+	int close_pri = dir * 99999999;
+
+	int wrap_idx = -1;
+	int wrap_pri = close_pri;
+
+	for (int i = 0; i < MAXWEAPONS; i++)
+	{
+		if (i == p->ready_wp)
+			continue;
+
+		if (! p->weapons[i].owned)
+			continue;
+
+		weapondef_c *info = p->weapons[i].info;
+
+		if (info->bind_key < 0)
+			continue;
+
+		if (! WeaponCouldAutoFire(p, i, 0))
+			continue;
+
+		if (! P_CheckWeaponSprite(info))
+			continue;
+
+		// when key & priority are the same, use the index value (+ i)
+		// to break the deadlock.
+		int new_pri = info->KeyPri() * 100 + i;
+
+		if (dir > 0)
+		{
+			if (new_pri > base_pri && new_pri < close_pri)
+				close_idx = i, close_pri = new_pri;
+
+			if (new_pri < wrap_pri)
+				wrap_idx = i, wrap_pri = new_pri;
+		}
+		else  /* dir < 0 */
+		{
+			if (new_pri < base_pri && new_pri > close_pri)
+				close_idx = i, close_pri = new_pri;
+
+			if (new_pri > wrap_pri)
+				wrap_idx = i, wrap_pri = new_pri;
+		}
+	}
+
+	if (close_idx >= 0)
+		p->pending_wp = (weapon_selection_e) close_idx;
+	else if (wrap_idx >= 0)
+		p->pending_wp = (weapon_selection_e) wrap_idx;
+
+	if (p->pending_wp >= 0)
+	{
+		weapondef_c *info = p->weapons[p->pending_wp].info;
+
+		if (info->bind_key >= 0)
+			UpdateWeaponChoice(p, info->bind_key);
+	}
+}
+
 //
 // P_SelectNewWeapon
 //
@@ -445,19 +542,7 @@ void P_SelectNewWeapon(player_t * p, int priority, ammotype_e ammo)
 
 	// update current key choice
 	if (key >= 0)
-	{
-		DEV_ASSERT2(p->pending_wp >= 0);
-		info = p->weapons[p->pending_wp].info;
-
-		for (int j = 0; j < weaponkey[key].numchoices; j++)
-		{
-			if (weaponkey[key].choices[j] == info)
-			{
-				p->key_choices[key] = j;
-				break;
-			}
-		}
-	}
+		UpdateWeaponChoice(p, key);
 }
 
 //

@@ -87,6 +87,7 @@ int key_strafe;
 int key_speed;
 int key_autorun;
 int key_nextweapon;
+int key_prevweapon;
 int key_jump;
 int key_map;
 int key_180;
@@ -385,7 +386,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 		cmd->extbuttons |= EBT_RELOAD;
 
 	// -KM- 1998/11/25 Weapon change key
-	for (int w = 0; w < 10; w++)
+	for (int w = 0; w < WEAPON_KEYS; w++)
 	{
 		if (E_InputCheckKey('0' + w))
 		{
@@ -393,6 +394,17 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 			cmd->buttons |= w << BT_WEAPONSHIFT;
 			break;
 		}
+	}
+
+	if (E_InputCheckKey(key_nextweapon))
+	{
+		cmd->buttons |= BT_CHANGE;
+		cmd->buttons |= (BT_NEXT_WEAPON << BT_WEAPONSHIFT);
+	}
+	else if (E_InputCheckKey(key_prevweapon))
+	{
+		cmd->buttons |= BT_CHANGE;
+		cmd->buttons |= (BT_PREV_WEAPON << BT_WEAPONSHIFT);
 	}
 
 	// -MH- 1998/08/18 Yep. More flying controls...
