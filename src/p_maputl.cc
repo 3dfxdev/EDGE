@@ -791,7 +791,7 @@ void P_AddExtraFloor(sector_t *sec, line_t *line)
 	// -- handle liquid extrafloors --
 	//
 
-	liquid = (ef_info->type & EXFL_Liquid);
+	liquid = (ef_info->type & EXFL_Liquid)?true:false;
 
 	if (liquid)
 	{
@@ -829,23 +829,23 @@ void P_AddExtraFloor(sector_t *sec, line_t *line)
 
 	switch (errcode)
 	{
-	case EXFIT_Ok:
-		break;
+		case EXFIT_Ok:
+			break;
 
-	case EXFIT_StuckInCeiling:
-		I_Error("Extrafloor with z range of %1.0f / %1.0f is stuck "
-			"in sector #%d's ceiling.\n",
-			newbie->bottom_h, newbie->top_h, (int)(sec - sectors));
+		case EXFIT_StuckInCeiling:
+			I_Error("Extrafloor with z range of %1.0f / %1.0f is stuck "
+				"in sector #%d's ceiling.\n",
+				newbie->bottom_h, newbie->top_h, (int)(sec - sectors));
 
-	case EXFIT_StuckInFloor:
-		I_Error("Extrafloor with z range of %1.0f / %1.0f is stuck "
-			"in sector #%d's floor.\n",
-			newbie->bottom_h, newbie->top_h, (int)(sec - sectors));
+		case EXFIT_StuckInFloor:
+			I_Error("Extrafloor with z range of %1.0f / %1.0f is stuck "
+				"in sector #%d's floor.\n",
+				newbie->bottom_h, newbie->top_h, (int)(sec - sectors));
 
-	default:
-		I_Error("Extrafloor with z range of %1.0f / %1.0f is stuck "
-			"in sector #%d in another extrafloor.\n",
-			newbie->bottom_h, newbie->top_h, (int)(sec - sectors));
+		default:
+			I_Error("Extrafloor with z range of %1.0f / %1.0f is stuck "
+				"in sector #%d in another extrafloor.\n",
+				newbie->bottom_h, newbie->top_h, (int)(sec - sectors));
 	}
 
 	// find place to link into.  cur will be the next higher extrafloor,
