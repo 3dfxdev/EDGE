@@ -37,8 +37,8 @@
 //                  into sky-hack walls & ceilings. Also don't explode the
 //                  missile if it hits sky-hack ceiling or floor.
 //
-// -ACB- 1998/08/06 Implemented limitless mobjinfo list, altered/removed all
-//                  mobjinfo[] references.
+// -ACB- 1998/08/06 Implemented limitless mobjdef list, altered/removed all
+//                  mobjdef[] references.
 //
 // -AJA- 1999/07/21: Replaced some non-critical P_Randoms with M_Random.
 //
@@ -260,7 +260,7 @@ static bool CorpseShouldSlide(mobj_t * mo)
 static void TeleportRespawn(mobj_t * mobj)
 {
 	float x, y, z, oldradius, oldheight;
-	const mobjinfo_c *info = mobj->spawnpoint.info;
+	const mobjdef_c *info = mobj->spawnpoint.info;
 	mobj_t *new_mo;
 	int oldflags;
 
@@ -336,7 +336,7 @@ static void TeleportRespawn(mobj_t * mobj)
 static void ResurrectRespawn(mobj_t * mobj)
 {
 	float x, y, z, oldradius, oldheight;
-	const mobjinfo_c *info;
+	const mobjdef_c *info;
 	int oldflags;
 
 	x = mobj->x;
@@ -671,7 +671,7 @@ void P_MobjExplodeMissile(mobj_t * mo)
 	if (mo->info->deathsound)
 		S_StartSound(mo, mo->info->deathsound);
 
-	// mobjinfo used -ACB- 1998/08/06
+	// mobjdef used -ACB- 1998/08/06
 	P_SetMobjStateDeferred(mo, mo->info->death_state, P_Random() & 3);
 }
 
@@ -1642,7 +1642,7 @@ void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 //
 // P_SpawnPuff
 //
-void P_SpawnPuff(float x, float y, float z, const mobjinfo_c * puff)
+void P_SpawnPuff(float x, float y, float z, const mobjdef_c * puff)
 {
 	mobj_t *th;
 
@@ -1667,7 +1667,7 @@ void P_SpawnPuff(float x, float y, float z, const mobjinfo_c * puff)
 // -KM- 1999/01/31 Different blood objects for different mobjs.
 //
 void P_SpawnBlood(float x, float y, float z, float damage,
-				  angle_t angle, const mobjinfo_c * blood)
+				  angle_t angle, const mobjdef_c * blood)
 {
 	int num;
 	mobj_t *th;
@@ -1715,7 +1715,7 @@ void P_MobjItemRespawn(void)
 {
 	float x, y, z;
 	mobj_t *mo;
-	const mobjinfo_c *objtype;
+	const mobjdef_c *objtype;
 
 	iteminque_t *cur, *next;
 
@@ -1812,7 +1812,7 @@ void P_MobjRemoveMissile(mobj_t * missile)
 //
 // -ACB- 1998/08/02 Procedure written.
 //
-mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjinfo_c *type)
+mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjdef_c *type)
 {
 	mobj_t *mobj;
 	state_t *st;

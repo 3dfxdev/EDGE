@@ -113,7 +113,7 @@ typedef struct shoot_trav_info_s
 
 	float damage;
 	const damage_t *damtype;
-	const mobjinfo_c *puff;
+	const mobjdef_c *puff;
 	float prev_z;
 }
 shoot_trav_info_t;
@@ -1600,7 +1600,7 @@ float P_AimLineAttack(mobj_t * t1, angle_t angle, float distance)
 //
 void P_LineAttack(mobj_t * t1, angle_t angle, float distance, 
 				  float slope, float damage, const damage_t * damtype,
-				  const mobjinfo_c *puff)
+				  const mobjdef_c *puff)
 {
 	float x2 = t1->x + distance * M_Cos(angle);
 	float y2 = t1->y + distance * M_Sin(angle);
