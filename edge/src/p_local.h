@@ -35,8 +35,14 @@
 
 #define VIEWHEIGHT       41.0f  // Player Standard View Height
 #define DEATHVIEWHEIGHT   6.0f
-#define LOOKUPLIMIT   0.5f
+
+#ifdef USE_GL
+#define LOOKUPLIMIT    1.0f
+#define LOOKDOWNLIMIT -1.0f
+#else
+#define LOOKUPLIMIT    0.5f
 #define LOOKDOWNLIMIT -0.5f
+#endif
 
 // mapblocks are used to check movement
 // against lines and things
