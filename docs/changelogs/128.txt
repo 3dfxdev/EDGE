@@ -2,7 +2,16 @@
 CHANGELOG FOR 1.28 (since 1.27)
 ===============================
 
-(Date: JUNE 3rd 2004)
+(Date: JUNE 12th 2004)
+
+Bugs fixed in 1.28a
+-------------------
+
+- fixed crouching (unable to stand back up) bug.
+- Attempted: non-power-of-2 textures
+- Attempted: win95 support
+- Attempted: ALT+TAB no-longer registers a TAB keypress in the engine
+- Attempted: Added 12 STEALTH monsters (types 4050 to 4061) into THINGS.DDF
 
 Bugs fixed
 ----------
@@ -48,12 +57,6 @@ Bugs fixed
 - bugs when changing screensize with +/- and in the menu fixed.
 - night vision in GL mode was not lighting things up.
 - fix for console which was drawn behind the menus.
-
-Bugs fixed in 1.28a
--------------------
-
-- fixed crouching (unable to stand back up) bug.
-
 
 Features removed:
 -----------------
