@@ -35,13 +35,8 @@
 #include "w_textur.h"
 #include "z_zone.h"
 
-//
-// CHANGE THE TEXTURE OF A WALL SWITCH TO ITS OPPOSITE
-//
-// -KM- 98/07/31 Move to DDF
 
-int maxbuttons = 0;
-button_t *buttonlist = NULL;
+buttonlist_c buttonlist;
 
 //
 // P_InitSwitchList
@@ -64,50 +59,25 @@ bool P_InitSwitchList(void)
 	return true;
 }
 
-bool P_ButtonCheckPressed(line_t * line)
-{
-	int i;
-
-	for (i = 0; i < maxbuttons; i++)
-	{
-		if (buttonlist[i].btimer && buttonlist[i].line == line)
-			return true;
-	}
-
-	return false;
-}
-
 //
 // Start a button counting down till it turns off.
 //
 static void StartButton(switchdef_c *sw, line_t *line, bwhere_e w,
 		const image_t *image)
 {
-	int index;
-
 	// See if button is already pressed
-	if (P_ButtonCheckPressed(line))
+	if (buttonlist.IsPressed(line))
 		return;
 
-	for (index = 0; index < maxbuttons; index++)
-	{
-		if (!buttonlist[index].btimer)
-			break;
-	}
+	button_t *b;
+	
+	b = buttonlist.GetNew();
 
-	if (index == maxbuttons)
-	{
-		// grow the button list
-		Z_Resize(buttonlist, button_t, ++maxbuttons);
-	}
-
-	DEV_ASSERT2(index < maxbuttons);
-
-	buttonlist[index].line = line;
-	buttonlist[index].where = w;
-	buttonlist[index].btimer = sw->time;
-	buttonlist[index].off_sound = sw->off_sfx;
-	buttonlist[index].bimage = image;
+	b->line = line;
+	b->where = w;
+	b->btimer = sw->time;
+	b->off_sound = sw->off_sfx;
+	b->bimage = image;
 }
 
 //
@@ -205,3 +175,73 @@ void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 #undef SET_SW
 #undef OLD_SW
 
+//
+// int buttonlist_c::Find()
+//
+// FIXME! Optimise!
+//
+int buttonlist_c::Find(button_t *b)
+{
+	epi::array_iterator_c it;
+	button_t *b2;
+	
+	for (it=GetBaseIterator(); it.IsValid(); it++)
+	{
+		b2 = ITERATOR_TO_PTR(it, button_t);
+		
+		if (b == b2)
+			return it.GetPos();
+	}
+	
+	return -1;
+}
+
+//
+// button_t* buttonlist_c::GetNew()
+//
+button_t* buttonlist_c::GetNew()
+{
+	epi::array_iterator_c it;
+	button_t *b;
+	
+	for (it=GetBaseIterator(); it.IsValid(); it++)
+	{
+		b = ITERATOR_TO_PTR(it, button_t);
+		
+		if (!b->btimer)
+			return b;
+	}
+	
+	b = (button_t*)ExpandAtTail();
+	return b;
+}
+
+//
+// bool buttonlist_c::IsPressed()
+//
+bool buttonlist_c::IsPressed(line_t* line)
+{
+	epi::array_iterator_c it;
+	button_t *b;
+	
+	for (it=GetBaseIterator(); it.IsValid(); it++)
+	{
+		b = ITERATOR_TO_PTR(it, button_t);
+		
+		if (b->line == line && b->btimer)
+			return true;
+	}
+	
+	return false;
+}
+
+//
+// buttonlist_c::SetSize()
+//
+void buttonlist_c::SetSize(int count)
+{
+	Size(count);
+	SetCount(count);
+	
+	memset(array, 0, array_entries*array_objsize);
+}

@@ -412,7 +412,7 @@ savearray_t sv_array_plane_move =
 //
 int SV_ButtonCountElems(void)
 {
-	return maxbuttons;
+	return buttonlist.GetSize();
 }
 
 //
@@ -420,13 +420,13 @@ int SV_ButtonCountElems(void)
 //
 void *SV_ButtonGetElem(int index)
 {
-	if (index < 0 || index >= maxbuttons)
+	if (index < 0 || index >= buttonlist.GetSize())
 	{
 		I_Warning("LOADGAME: Invalid Button: %d\n", index);
 		index = 0;
-	}
+	}	
 
-	return buttonlist + index;
+	return buttonlist[index];
 }
 
 //
@@ -434,9 +434,9 @@ void *SV_ButtonGetElem(int index)
 //
 int SV_ButtonFindElem(button_t *elem)
 {
-	DEV_ASSERT2(buttonlist <= elem && elem < (buttonlist + maxbuttons));
-
-	return elem - buttonlist;
+	int idx = buttonlist.Find(elem);
+	DEV_ASSERT2(idx >= 0);
+	return idx;
 }
 
 //
@@ -444,16 +444,7 @@ int SV_ButtonFindElem(button_t *elem)
 //
 void SV_ButtonCreateElems(int num_elems)
 {
-	int i;
-
-	maxbuttons = num_elems;
-	Z_Resize(buttonlist, button_t, maxbuttons);
-
-	// initialise defaults
-	for (i=0; i < maxbuttons; i++)
-	{
-		Z_Clear(buttonlist + i, button_t, 1);
-	}
+	buttonlist.SetSize(num_elems);
 }
 
 //
