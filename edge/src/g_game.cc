@@ -881,39 +881,50 @@ void G_Ticker(void)
 	{
 		switch (gameaction)
 		{
-		case ga_loadlevel:
-			G_DoLoadLevel();
-			break;
-		case ga_newgame:
-			G_DoNewGame();
-			break;
-		case ga_loadgame:
-			G_DoLoadGame();
-			break;
-		case ga_savegame:
-			G_DoSaveGame();
-			break;
-		case ga_playdemo:
-			G_DoPlayDemo();
-			break;
-		case ga_completed:
-			G_DoCompleted();
-			break;
-		case ga_briefing:
-			F_StartFinale(&nextmap->f_pre, ga_loadnext);
-			break;
-		case ga_loadnext:
-			currentmap = nextmap;
-			G_DoLoadLevel();
-			break;
-		case ga_screenshot:
-			m_screenshot_required = true;
-			gameaction = ga_nothing;
-			break;
-		case ga_nothing:
-			break;
-		default:
-			I_Error("G_Ticker: Unknown gameaction %d", gameaction);
+			case ga_loadlevel:
+				G_DoLoadLevel();
+				break;
+				
+			case ga_newgame:
+				G_DoNewGame();
+				break;
+				
+			case ga_loadgame:
+				G_DoLoadGame();
+				break;
+				
+			case ga_savegame:
+				G_DoSaveGame();
+				break;
+				
+			case ga_playdemo:
+				G_DoPlayDemo();
+				break;
+				
+			case ga_completed:
+				G_DoCompleted();
+				break;
+				
+			case ga_briefing:
+				F_StartFinale(&nextmap->f_pre, ga_loadnext);
+				break;
+				
+			case ga_loadnext:
+				currentmap = nextmap;
+				G_DoLoadLevel();
+				break;
+				
+			case ga_screenshot:
+				m_screenshot_required = true;
+				gameaction = ga_nothing;
+				break;
+				
+			case ga_nothing:
+				break;
+				
+			default:
+				I_Error("G_Ticker: Unknown gameaction %d", gameaction);
+				break;
 		}
 	}
 
@@ -963,30 +974,30 @@ void G_Ticker(void)
 
 		switch (p->cmd.buttons & BT_SPECIALMASK)
 		{
-		case BTS_PAUSE:
-			paused = !paused;
-			if (paused)
-			{
-				S_PauseMusic();
-				S_PauseSounds();
-			}
-			else
-			{
-				S_ResumeMusic();
-				S_ResumeSounds();
-			}
-			// explicit as probably killed the initial effect
-			S_StartSound(NULL, sfx_swtchn);
-			break;
+			case BTS_PAUSE:
+				paused = !paused;
+				if (paused)
+				{
+					S_PauseMusic();
+					S_PauseSounds();
+				}
+				else
+				{
+					S_ResumeMusic();
+					S_ResumeSounds();
+				}
+				// explicit as probably killed the initial effect
+				S_StartSound(NULL, sfx_swtchn);
+				break;
 
 #if 0  // -AJA- disabled for now
-		case BTS_SAVEGAME:
-			if (!savedescription[0])
-				strcpy(savedescription, "NET GAME");
-			savegame_slot =
-				(p->cmd.buttons & BTS_SAVEMASK) >> BTS_SAVESHIFT;
-			gameaction = ga_savegame;
-			break;
+			case BTS_SAVEGAME:
+				if (!savedescription[0])
+					strcpy(savedescription, "NET GAME");
+				savegame_slot =
+					(p->cmd.buttons & BTS_SAVEMASK) >> BTS_SAVESHIFT;
+				gameaction = ga_savegame;
+				break;
 #endif
 		}
 	}
@@ -994,28 +1005,28 @@ void G_Ticker(void)
 	// do main actions
 	switch (gamestate)
 	{
-	case GS_LEVEL:
-		P_Ticker();
-		ST_Ticker();
-		AM_Ticker();
-		HU_Ticker();
-		RAD_Ticker();
-		break;
+		case GS_LEVEL:
+			P_Ticker();
+			ST_Ticker();
+			AM_Ticker();
+			HU_Ticker();
+			RAD_Ticker();
+			break;
 
-	case GS_INTERMISSION:
-		WI_Ticker();
-		break;
+		case GS_INTERMISSION:
+			WI_Ticker();
+			break;
 
-	case GS_FINALE:
-		F_Ticker();
-		break;
+		case GS_FINALE:
+			F_Ticker();
+			break;
 
-	case GS_DEMOSCREEN:
-		E_PageTicker();
-		break;
+		case GS_DEMOSCREEN:
+			E_PageTicker();
+			break;
 
-	case GS_NOTHING:
-		break;
+		case GS_NOTHING:
+			break;
 	}
 }
 
