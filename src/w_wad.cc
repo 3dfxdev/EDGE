@@ -997,16 +997,9 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 				lump_name, true);
 	}
 
-#if 0  // DEBUGGING CRUD
-const char *foo;
-switch (df->compat_mode) {
-case 0: foo = "Standard"; break;
-case WAD_CM_Edge: foo = "EDGE"; break;
-case WAD_CM_Boom: foo = "Boom"; break;
-case WAD_CM_Edge|WAD_CM_Boom: foo = "EDGE+Boom"; break;
-default: foo = "Fucked up completely"; break; }
-I_Printf("COMPAT MODE: %s\n", foo);
-#endif
+	L_WriteDebug("Compat mode: %s %s\n",
+		(df->compat_mode & WAD_CM_Edge) ? "EDGE" : "-",
+		(df->compat_mode & WAD_CM_Boom) ? "BOOM" : "-");
 
 	SortLumps();
 	SortSpriteLumps(df);
