@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: OCTOBER 29th 2004)
+(Date: OCTOBER 30th 2004)
 
 
 Bugs fixed
@@ -40,7 +40,11 @@ Fixes shared with 1.28A
 Features removed:
 -----------------
 
-+ software rendering has been removed.  @@@
++ software rendering has been removed.  We don't have the time to
+  maintain the software renderer anymore, and keeping two renderers
+  means that adding new features (like slopes and models) needs
+  twice as much work (at least -- doing things with OpenGL is
+  usually a lot easier than doing it in software).
 
 - using { } comments in DDF files, and ';' comments in RTS scripts
   is now deprecated, since these characters will probably be needed
@@ -55,7 +59,7 @@ General improvements
   option is considered a filename to add.  This allows you to drag a
   simple (self-contained) WAD onto the EDGE executable to play it.
 
-+ new sound system, using OpenAL (a 3D audio library). 
+(FINISHED?)  new sound system, using OpenAL (a 3D audio library). 
 
 (NOT FINISHED) support for OGG Vorbis Music playing.  @@@
 
@@ -78,6 +82,13 @@ General improvements
 - RTS tips are sent to the console.
 - missing wad files (given with -file) now produce an error.
 - monster spawning will keep the parent's AMBUSH status.
+
+- WHEN_APPEAR in DDF and RTS now accepts simpler values.  You can use
+  a range for the skill (e.g. "3-5"), you can omit the skill and/or
+  the netmode part (e.g. "DM" means deathmatch on any skill, and "3"
+  means Hurt-Me-Plenty on any netmode).  Finally, you can add the '!'
+  character to the beginning to negate it, e.g. "!SP" means never in
+  single-player, and "!4:5" means never in skills 4 or 5.
 
 
 New features:
@@ -102,24 +113,31 @@ New features:
 - PICKUP_EFFECT = SWITCH_WEAPON(xxx) , required for #VERSION 1.29 and
   higher.  Berserk fist.  Compatibility maintained. @@@
 
-- FORCE_PICKUP thing special.  
-- SIDE_IMMUNE thing special.  @@@
-- ULTRA_LOYAL thing special.  @@@
-- NO_AUTO_SWITCH weapon special.
-- FIRST_SILENT_TO_MONSTERS and SECOND_SILENT_TO_MONSTERS.  @@@
-- DIE action for things.ddf.
+- ULTRA_LOYAL thing special.  Friendly monsters don't turn into enemies
+  when hurt by your weapon fire.
 
-- WHEN_APPEAR values in DDF and RTS are simpler @@@
+- SIDE_IMMUNE thing special.  Friendly monsters are completely immune
+  from your weapon fire.
+
+(MAY BE REMOVED) - NO_AUTO_SWITCH weapon special.
+
+(MAY BE REMOVED) - FIRST_SILENT_TO_MONSTERS and SECOND_SILENT_TO_MONSTERS weapon specials.
 
 - EXPLODE_RADIUS command for things and attacks.  @@@
 
-- EXPLODE_IMMUNE and ALWAYS_LOUD (BOSSMAN) @@@
+- EXPLODE_IMMUNE and ALWAYS_LOUD thing specials.  These attributes
+  are both set by the BOSSMAN special, but now they can be specified
+  individually.
+
+- FORCE_PICKUP thing special.  
+- DIE action for things and attacks.
 
 
 New command-line options:
 -------------------------
 
-    -deh             Specify a DeHackEd (or BEX) patch file.
+    -deh     Specify a DeHackEd (or BEX) patch file.  You can have
+	         multiple patch files after the -deh option.
 
 
 Hats off to...
