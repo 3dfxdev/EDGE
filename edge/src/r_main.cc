@@ -55,7 +55,7 @@
 
 // -ES- 1999/03/14 Dynamic Field Of View
 // Fineangles in the viewwidth wide window.
-static angle_t FIELDOFVIEW = ANG90;
+angle_t FIELDOFVIEW = ANG90;
 
 // The used aspect ratio. A normal texel will look aspect_ratio*4/3
 // times wider than high on the monitor

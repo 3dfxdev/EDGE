@@ -125,6 +125,7 @@ static void M_ChangeRespawn(int keypressed);
 int menunormalfov, menuzoomedfov;
 
 static void M_ChangeBlood(int keypressed);
+static void M_ChangeMLook(int keypressed);
 static void M_ChangeJumping(int keypressed);
 static void M_ChangeCrouching(int keypressed);
 static void M_ChangeExtra(int keypressed);
@@ -157,7 +158,7 @@ static char CompatSet[] = "EDGE/Boom";
 static char CrosO[] = "None/Cross/Dot/Angle";  // crosshair options
 static char Respw[] = "Teleport/Resurrect";  // monster respawning
 static char Axis[] = "Turn/Forward/Strafe/MLook/Fly/Disable";
-static char SkySq[] = "Small/Medium/Large/Mirror";
+static char SkySq[] = "Small/Medium/Large/Mirror/Original";
 static char DLMode[] = "Off/On/Compat";
 
 // Screen resolution changes
@@ -402,7 +403,7 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch, "Crosshair", CrosO, 4, 0, &crosshair, NULL, NULL},
 	{OPT_Boolean, "Map Overlay", YesNo, 2, 0, &map_overlay, NULL, NULL},
 	{OPT_Boolean, "Map Rotation", YesNo, 2, 0, &rotatemap, NULL, NULL},
-	{OPT_Switch, "Sky stretch", SkySq, 4, 1, &sky_stretch, M_ChangeMipMap, NULL},
+	{OPT_Switch, "Sky stretch", SkySq, 5, 1, &sky_stretch, M_ChangeMipMap, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Switch, "Teleport Flash", YesNo, 2, 1, &telept_flash, NULL, NULL},
 	{OPT_Switch, "Wipe method", WIPE_EnumStr, WIPE_NUMWIPES, 1, &wipe_method, NULL, NULL} 
@@ -490,6 +491,7 @@ static optmenuitem_t playoptions[] =
 {
 	{OPT_Switch, "Compatibility", CompatSet, 2, 0, &global_flags.compat_mode, M_ChangeCompatMode, NULL},
 	{OPT_Switch, "AutoAiming", AAim, 3, 1, &global_flags.autoaim, M_ChangeAutoAim, NULL},
+	{OPT_Boolean, "Mouse Look", YesNo, 2, 0, &global_flags.mlook, M_ChangeMLook, NULL},
 	{OPT_Boolean, "Jumping", YesNo, 2, 0, &global_flags.jump, M_ChangeJumping, NULL},
 	{OPT_Boolean, "Crouching", YesNo, 2, 0, &global_flags.crouch, M_ChangeCrouching, NULL},
 	{OPT_Boolean, "Weapon Kick", YesNo, 2, 1, &global_flags.kicking, M_ChangeKicking, NULL},
@@ -1422,6 +1424,14 @@ static void M_ChangeBlood(int keypressed)
 		return;
 
 	level_flags.more_blood = global_flags.more_blood;
+}
+
+static void M_ChangeMLook(int keypressed)
+{
+	if (currmap && ((currmap->force_on | currmap->force_off) & MPF_Mlook))
+		return;
+
+	level_flags.mlook = global_flags.mlook;
 }
 
 static void M_ChangeJumping(int keypressed)

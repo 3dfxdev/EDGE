@@ -269,7 +269,6 @@ extern int telept_reverse;
 
 //mlook stuff
 extern int mlookspeed;
-extern int mlookon;
 extern bool invertmouse; // -ACB- 1999/09/03 Must be true or false - becomes boolean
 
 // -KM- 1998/09/01 Analogue binding stuff, These hold what axis they bind to.
