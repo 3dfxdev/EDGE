@@ -92,7 +92,6 @@ void P_BringCorpseToLife(mobj_t * corpse);
 // P_WEAPON
 //
 void P_SetupPsprites(player_t * curplayer);
-void P_SetPsprite(player_t * player, int position, int stnum);
 void P_MovePsprites(player_t * curplayer);
 void P_DropWeapon(player_t * player);
 void P_BringUpWeapon(player_t * player);
@@ -105,6 +104,8 @@ void P_RefillClips(player_t * player);
 // P_USER
 //
 void P_PlayerThink(player_t * player);
+void P_UpdateAvailWeapons(player_t *p);
+boolean_t P_AddWeapon(player_t *player, weaponinfo_t *info, int *index);
 void P_GiveInitialBenefits(player_t *player, const mobjinfo_t *info);
 
 //

@@ -107,8 +107,6 @@ extern int totalitems;
 extern int totalsecret;
 
 // Timer, for scores.
-extern int levelstarttic;  // gametic at level start
-
 extern int leveltime;  // tics in game play for par
 
 // --------------------------------------
@@ -140,10 +138,15 @@ extern int gametic;
 
 extern const char **player_names;
 
-// Linked list of all players.
-extern player_t *players;
+#define MAXPLAYERS  256
+
 // Pointer to each player.
 extern player_t **playerlookup;
+extern int numplayers;
+
+// Linked list of all players.
+// -AJA- FIXME: redundant, remove please...
+extern player_t *players;
 
 #define MAXHEALTH 200
 #define MAXARMOUR 200

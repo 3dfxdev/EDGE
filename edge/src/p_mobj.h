@@ -407,7 +407,7 @@ struct mobj_s
   int tic_skip;
 
   const state_t *state;
-  int next_state;
+  const state_t *next_state;
 
   // flags (Old and New)
   int flags;
