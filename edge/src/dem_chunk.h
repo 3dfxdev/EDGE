@@ -82,5 +82,6 @@ void DEM_PutString(const char *str);
 void DEM_PutMarker(const char *id);
 
 void DEM_PutTiccmd(const ticcmd_t *cmd);
+void DEM_PutPlayerSync(const player_t *p);
 
 #endif  // __DEM_CHUNK__
