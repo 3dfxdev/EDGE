@@ -29,7 +29,6 @@
 
 #include "dm_type.h"
 #include "e_main.h"
-#include "hu_lib.h"
 #include "m_menu.h"
 #include "v_ctx.h"
 #include "v_colour.h"
