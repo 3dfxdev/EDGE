@@ -232,7 +232,7 @@ bool M_CheatResponder(event_t * ev)
 		{
 			w = ITERATOR_TO_TYPE(it, weapondef_c*);
 			if (w)
-				P_AddWeapon(pl, w, NULL, false);
+				P_AddWeapon(pl, w, NULL);
 				
 			it++;
 		}
@@ -262,7 +262,7 @@ bool M_CheatResponder(event_t * ev)
 		{
 			w = ITERATOR_TO_TYPE(it, weapondef_c*);
 			if (w)
-				P_AddWeapon(pl, w, NULL, false);
+				P_AddWeapon(pl, w, NULL);
 				
 			it++;
 		}
@@ -391,7 +391,7 @@ bool M_CheatResponder(event_t * ev)
 		{
 			weapondef_c *info = weaponkey[i].choices[j];
 
-			P_AddWeapon(pl, info, NULL, false);
+			P_AddWeapon(pl, info, NULL);
 
 			if (info->ammo[0] != AM_NoAmmo)
 				pl->ammo[info->ammo[0]].num = pl->ammo[info->ammo[0]].max;
@@ -404,7 +404,7 @@ bool M_CheatResponder(event_t * ev)
 		weapondef_c *w = weapondefs.Lookup("CHAINSAW");
 		if (w)
 		{
-			P_AddWeapon(pl, w, NULL, false);
+			P_AddWeapon(pl, w, NULL);
 			pl->powers[PW_Invulnerable] = 1;
 			CON_MessageLDF("CHOPPERSNote");
 		}

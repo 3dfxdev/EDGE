@@ -285,16 +285,27 @@ static void WeaponFinishEntry(void)
 			buffer_weapon.ammopershot[A] = 0;
 		}
 
-		if (buffer_weapon.clip_size[A] < 1)
-		{
-			DDF_WarnError2(0x129, "Bad %sCLIPSIZE value for weapon: %d\n",
-					A ? "SEC_" : "", buffer_weapon.clip_size[A]);
-			buffer_weapon.clip_size[A] = 1;
-		}
-
 		// zero values for ammopershot really mean infinite ammo
 		if (buffer_weapon.ammopershot[A] == 0)
 			buffer_weapon.ammo[A] = AM_NoAmmo;
+
+		if (buffer_weapon.clip_size[A] < 0)
+		{
+			DDF_WarnError2(0x129, "Bad %sCLIPSIZE value for weapon: %d\n",
+					A ? "SEC_" : "", buffer_weapon.clip_size[A]);
+			buffer_weapon.clip_size[A] = 0;
+		}
+
+		// check if clip_size + ammopershot makes sense
+		if (buffer_weapon.clip_size[A] > 0 && buffer_weapon.ammo[A] != AM_NoAmmo &&
+			(buffer_weapon.clip_size[A] < buffer_weapon.ammopershot[A] ||
+			 buffer_weapon.clip_size[A] % buffer_weapon.ammopershot[A] != 0))
+		{
+			DDF_WarnError2(0x129, "%sAMMOPERSHOT=%d incompatible with %sCLIPSIZE=%d\n",
+				A ? "SEC_" : "", buffer_weapon.ammopershot[A],
+				A ? "SEC_" : "", buffer_weapon.clip_size[A]);
+			buffer_weapon.ammopershot[A] = 1;
+		}
 	}
 
 	// backwards compatibility (REMOVE for 1.26)
@@ -544,14 +555,14 @@ void weapondef_c::Copy(weapondef_c &src)
 //
 void weapondef_c::CopyDetail(weapondef_c &src)
 {
-	for (int A = 0; A < 2; A++)
+	for (int ATK = 0; ATK < 2; ATK++)
 	{
-		attack[A] = src.attack[A];
-		ammo[A]   = src.ammo[A];
-		ammopershot[A] = src.ammopershot[A];
-		autofire[A]  = src.autofire[A];
-		clip_size[A] = src.clip_size[A];
-		specials[A]  = src.specials[A];
+		attack[ATK] = src.attack[ATK];
+		ammo[ATK]   = src.ammo[ATK];
+		ammopershot[ATK] = src.ammopershot[ATK];
+		autofire[ATK]  = src.autofire[ATK];
+		clip_size[ATK] = src.clip_size[ATK];
+		specials[ATK]  = src.specials[ATK];
 	}
 
 	kick = src.kick;
@@ -610,13 +621,13 @@ void weapondef_c::Default(void)
 {
 	ddf.Default();
 
-	for (int A = 0; A < 2; A++)
+	for (int ATK = 0; ATK < 2; ATK++)
 	{
-		attack[A] = NULL;
-		ammo[A]   = AM_NoAmmo;
-		ammopershot[A] = 0;
-		clip_size[A]   = 1;
-		autofire[A]    = false;
+		attack[ATK] = NULL;
+		ammo[ATK]   = AM_NoAmmo;
+		ammopershot[ATK] = 0;
+		clip_size[ATK]   = 0;
+		autofire[ATK]    = false;
 	}
 
 	specials[0] = DEFAULT_WPSP;

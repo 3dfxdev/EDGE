@@ -116,38 +116,11 @@ static bool ButtonDown(player_t *p, int ATK)
 		return (p->cmd.extbuttons & EBT_SECONDATK);
 }
 
-// returns true if first attack gets filled
-bool P_FillNewWeapon(player_t *p, int idx)
-{
-	bool result = false;
-
-	weapondef_c *info = p->weapons[idx].info;
-
-	for (int ATK = 0; ATK < 2; ATK++)
-	{
-		if (info->ammo[ATK] == AM_NoAmmo || info->clip_size[ATK] == 1)
-		{
-			if (ATK == 0)
-				result = true;
-		}
-		else if (info->clip_size[ATK] <= p->ammo[info->ammo[ATK]].num)
-		{
-			p->weapons[idx].clip_size[ATK] = info->clip_size[ATK];
-			p->ammo[info->ammo[ATK]].num  -= info->clip_size[ATK];
-
-			if (ATK == 0)
-				result = true;
-		}
-	}
-
-	return result;
-}
-
 static void ReloadWeapon(player_t *p, int idx, int ATK)
 {
 	weapondef_c *info = p->weapons[idx].info;
 
-	if (info->ammo[ATK] == AM_NoAmmo || info->clip_size[ATK] == 1)
+	if (info->ammo[ATK] == AM_NoAmmo || info->clip_size[ATK] == 0)
 		return;
 
 	int qty = info->clip_size[ATK] - p->weapons[idx].clip_size[ATK];
@@ -164,7 +137,7 @@ static bool WeaponCanFire(player_t *p, int idx, int ATK)
 	weapondef_c *info = p->weapons[idx].info;
 
 	// the order here is important, to allow NoAmmo+Clip weapons.
-	if (info->clip_size[ATK] != 1)
+	if (info->clip_size[ATK] > 0)
 		return (info->ammopershot[ATK] <= p->weapons[idx].clip_size[ATK]);
 
 	if (info->ammo[ATK] == AM_NoAmmo)
@@ -180,7 +153,7 @@ static bool WeaponCanReload(player_t *p, int idx, int ATK)
 	bool can_fire = WeaponCanFire(p, idx, ATK);
 
 	// for non-clip weapon, can reload whenever enough ammo is avail.
-	if (info->clip_size[ATK] == 1)
+	if (info->clip_size[ATK] == 0)
 		return can_fire;
 
 	// for clip weapons, cannot reload until clip is empty.
@@ -198,7 +171,7 @@ static bool WeaponCanPartialReload(player_t *p, int idx, int ATK)
 	weapondef_c *info = p->weapons[idx].info;
 
 	// doesn't make any sense for non-clip weapons
-	if (info->clip_size[ATK] == 1)
+	if (info->clip_size[ATK] == 0)
 		return false;
 
 	// clip check (cannot reload if clip is full)
@@ -225,13 +198,13 @@ static bool WeaponCouldAutoFire(player_t *p, int idx, int ATK)
 
 	int total = p->ammo[info->ammo[ATK]].num;
 
-	if (info->clip_size[ATK] == 1 && info->ammopershot[ATK] <= total)
+	if (info->clip_size[ATK] == 0 && info->ammopershot[ATK] <= total)
 		return true;
 
 	// for clip weapons, either need a non-empty clip or enough
 	// ammo to fill the clip (which is able to be filled without the
 	// manual reload key).
-	if (info->clip_size[ATK] != 1 &&
+	if (info->clip_size[ATK] > 0 &&
 		(info->ammopershot[ATK] <= p->weapons[idx].clip_size[ATK] ||
 		 (info->clip_size[ATK] <= total &&
 		  (info->specials[ATK] & (WPSP_Trigger | WPSP_Fresh)) )))
@@ -431,7 +404,7 @@ void P_SelectNewWeapon(player_t * p, int priority, ammotype_e ammo)
 		if (! P_CheckWeaponSprite(info))
 			continue;
 
-		p->pending_wp = (weapon_selection_e)i;
+		p->pending_wp = (weapon_selection_e) i;
 		priority = info->priority;
 		key = info->bind_key;
 	}
@@ -467,6 +440,88 @@ void P_SelectNewWeapon(player_t * p, int priority, ammotype_e ammo)
 }
 
 //
+// P_TrySwitchNewWeapon
+//
+void P_TrySwitchNewWeapon(player_t *p, int new_weap, ammotype_e new_ammo)
+{
+	if (p->pending_wp != WPSEL_NoChange)
+		return;
+
+	if (new_weap >= 0)
+	{
+		if (! WeaponCouldAutoFire(p, new_weap, 0))
+			return;
+
+		p->pending_wp = (weapon_selection_e) new_weap;
+
+		// be cheeky... :-)
+		p->grin_count = GRIN_TIME;
+		return;
+	}
+
+	DEV_ASSERT2(new_ammo >= 0);
+	
+	// We were down to zero ammo, so select a new weapon.
+	// Choose the next highest priority weapon than the current one.
+	// Don't override any weapon change already underway.
+	// Don't change weapon if NO_SWITCH is true.
+
+	int priority = -100;
+
+	if (p->ready_wp >= 0)
+	{
+		weapondef_c *w = p->weapons[p->ready_wp].info;
+
+		if (! (w->specials[0] & WPSP_SwitchAway))
+			return;
+
+		priority = w->priority;
+	}
+
+	P_SelectNewWeapon(p, priority, new_ammo);
+}
+
+//
+// P_TryFillNewWeapon
+//
+// When ammo is AM_DontCare, uses any ammo the player has (qty parameter
+// ignored).  Returns true if uses any of the ammo.
+//
+bool P_TryFillNewWeapon(player_t *p, int idx, ammotype_e ammo, int *qty)
+{
+	bool result = false;
+
+	weapondef_c *info = p->weapons[idx].info;
+
+	for (int ATK = 0; ATK < 2; ATK++)
+	{
+		if (! info->attack[ATK])
+			continue;
+
+		if (info->ammo[ATK] == AM_NoAmmo || info->clip_size[ATK] == 0)
+			continue;
+
+		if (ammo != AM_DontCare && info->ammo[ATK] != ammo)
+			continue;
+
+		if (ammo == AM_DontCare)
+			qty = &p->ammo[info->ammo[ATK]].num;
+
+		DEV_ASSERT2(qty);
+
+		if (info->clip_size[ATK] <= *qty)
+		{
+			p->weapons[idx].clip_size[ATK] = info->clip_size[ATK];
+			*qty -= info->clip_size[ATK];
+
+			result = true;
+		}
+	}
+
+	return result;
+}
+
+//
 // P_DropWeapon
 //
 // Player died, so put the weapon away.
@@ -498,8 +553,11 @@ void P_SetupPsprites(player_t * p)
 		psp->visibility = psp->vis_target = VISIBLE;
 	}
 
-	// spawn the gun
-	p->pending_wp = p->ready_wp;
+	// choose highest priority FREE weapon as the default
+	if (p->ready_wp == WPSEL_None)
+		P_SelectNewWeapon(p, -100, AM_DontCare);
+	else
+		p->pending_wp = p->ready_wp;
 
 	P_BringUpWeapon(p);
 }
@@ -661,6 +719,9 @@ void A_WeaponReady(mobj_t * mo)
 	{
 		for (int ATK = 0; ATK < 2; ATK++)
 		{
+			if (! info->attack[ATK])
+				continue;
+
 			if (! ButtonDown(p, ATK))
 				continue;
 
@@ -688,9 +749,12 @@ void A_WeaponReady(mobj_t * mo)
 	{
 		for (int ATK = 0; ATK < 2; ATK++)
 		{
+			if (! info->attack[ATK])
+				continue;
+
 			bool reload = false;
 
-			if ((info->specials[ATK] & WPSP_Fresh) && info->clip_size[ATK] != 1 &&
+			if ((info->specials[ATK] & WPSP_Fresh) && info->clip_size[ATK] > 0 &&
 				info->ammo[ATK] != AM_NoAmmo)
 			{
 				reload = WeaponCanReload(p, p->ready_wp, ATK);
@@ -706,7 +770,7 @@ void A_WeaponReady(mobj_t * mo)
 				weapondef_c *info = p->weapons[p->ready_wp].info;
 
 				// for non-clip weapons, chew up some ammo
-				if (reload && info->clip_size[ATK] == 1 &&
+				if (reload && info->clip_size[ATK] == 0 &&
 					info->ammo[ATK] != AM_NoAmmo)
 				{
 					p->ammo[info->ammo[ATK]].num -= info->ammopershot[ATK];
@@ -1069,7 +1133,7 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 
 	if (ammo != AM_NoAmmo)
 	{
-		if (info->clip_size[ATK] != 1)
+		if (info->clip_size[ATK] > 0)
 		{
 			p->weapons[p->ready_wp].clip_size[ATK] -= count;
 			DEV_ASSERT2(p->weapons[p->ready_wp].clip_size[ATK] >= 0);
@@ -1083,7 +1147,7 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 
 	P_ActPlayerAttack(mo, attack);
 
-	if (level_flags.kicking && ATK == 0)  // FIXME: put in specials
+	if (level_flags.kicking && ATK == 0)
 	{
 		p->deltaviewheight -= info->kick;
 		p->kick_offset = info->kick;
@@ -1124,7 +1188,7 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 
 	// wake up monsters
 	if (! (info->specials[ATK] & WPSP_SilentToMon) &&
-		! (info->attack[ATK]->flags & AF_SilentToMon))
+		! (attack->flags & AF_SilentToMon))
 	{
 		P_NoiseAlert(p);
 	}
