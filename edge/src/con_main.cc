@@ -581,7 +581,7 @@ void CON_PlayerMessageLDF(player_t *plyr, const char *lookup, ...)
 	Z_Clear(buffer, char, 256);
 
 	va_start(argptr, lookup);
-	vsprintf(buffer, DDF_LanguageLookup(lookup), argptr);
+	vsprintf(buffer, language[lookup], argptr);
 	va_end(argptr);
 
 	CON_Message("%s", buffer);

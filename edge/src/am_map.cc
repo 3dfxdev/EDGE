@@ -438,7 +438,7 @@ static void ClearMarks(void)
 static void LevelInit(void)
 {
 	if (!cheat_amap.sequence)
-		cheat_amap.sequence = DDF_LanguageLookup("iddt");
+		cheat_amap.sequence = language["iddt"];
 
 	leveljuststarted = 0;
 
@@ -641,7 +641,7 @@ bool AM_Responder(event_t * ev)
 		case AM_MARKKEY:
 			// -ACB- 1998/08/10 Use DDF Lang Reference
 			CON_PlayerMessage(consoleplayer, "%s %d",
-				DDF_LanguageLookup("AutoMapMarkedSpot"),
+				language["AutoMapMarkedSpot"],
 				markpointnum);
 			AddMark();
 			break;

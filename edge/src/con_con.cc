@@ -504,7 +504,7 @@ void CON_MessageLDF(const char *lookup,...)
 	va_start(argptr, lookup);
 
 	// Print the message into a text string
-	vsprintf(buffer, DDF_LanguageLookup(lookup), argptr);
+	vsprintf(buffer, language[lookup], argptr);
 
 	HU_StartMessage(buffer);
 
