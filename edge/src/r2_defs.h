@@ -33,49 +33,6 @@
 
 
 //
-//  R2_POLY
-//
-
-//
-// Halfplane
-//
-// These come from nodes or segs.  Points on the right side of the
-// line are considered "in", points on the left are "out".
-
-typedef struct halfplane_s
-{
-  struct halfplane_s *next;
-
-  float_t x1, y1;
-  float_t x2, y2;
-} 
-halfplane_t;
-
-//
-// Cut Point
-//
-// Remembers the point where two halfplanes intersect.
-
-typedef struct cut_point_s
-{
-  struct cut_point_s *next;
-
-  float_t x, y;
-  float_t x2, y2; 
-
-  angle_t angle;
-  angle_t angle2;
-
-  seg_t *what_seg;  // NULL if not a seg
-}
-cut_point_t;
-
-
-void R2_Polygonise(void);
-void R2_FreeAllocatedStuff(void);
-
-
-//
 //  R2_BSP
 //
 
@@ -297,9 +254,7 @@ typedef struct drawfloor_s
 drawfloor_t;
 
 
-extern boolean_t use_true_bsp;
 extern boolean_t use_dlights;
-extern boolean_t force_classic;
 extern int sprite_kludge;
 
 boolean_t R2_CheckBBox(float_t *bspcoord);
@@ -316,12 +271,6 @@ void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing);
 
 extern byte *subsectors_seen;
 extern Y_range_t Screen_clip[2048];
-
-void R2_ClearPoly(void);
-void R2_FreeupPoly(void);
-
-halfplane_t *R2_NewHalfPlane(void);
-cut_point_t *R2_NewCutPoint(void);
 
 void R2_InitUtil(void);
 void R2_ClearBSP(void);
