@@ -287,6 +287,7 @@ Command line options:
   -script  <file>      Load external RTS script from the file.
   -config  <file>      Config file (normally EDGE.CFG).
   -debugfile  <file>   Write messages into the given file.
+  -nolog               Disable creating the log file (EDGE.LOG).
 
   -warp  <map>         Warp to map (use full name e.g. E1M1 or MAP01).
   -loadgame  <slot>    Warp, loading game from slot.
