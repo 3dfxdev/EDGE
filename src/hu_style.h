@@ -39,6 +39,9 @@ public:
 
 public:
 	void Load();
+
+	// Drawing functions
+	void DrawBackground(int x = 0, int y = 0, int w = 0, int h = 0);
 };
 
 class style_container_c : public epi::array_c 

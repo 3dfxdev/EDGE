@@ -27,12 +27,6 @@
 //
 // -AJA- 2004/11/14 Styles.ddf
 //
-typedef enum
-{
-	BKGSP_Tiled = 0x0001   // image should tile (otherwise covers whole area)
-}
-background_special_e;
-
 class backgroundstyle_c
 {
 public:
@@ -47,8 +41,6 @@ public:
 	percent_t translucency;
 
 	epi::strent_c image_name;
-
-	background_special_e special;
 
 	float scale;
 	float aspect;
@@ -97,6 +89,13 @@ public:
 
 };
 
+typedef enum
+{
+	SYLSP_Tiled = 0x0001,  // bg image should tile (otherwise covers whole area)
+	SYLSP_TiledNoScale = 0x0002,  // bg image should tile (1:1 pixels)
+}
+style_special_e;
+
 class styledef_c
 {
 public:
@@ -131,6 +130,8 @@ public:
 	textstyle_c text[NUM_TXST];
 
 	soundstyle_c sounds;
+
+	style_special_e special;
 };
 
 // Our styledefs container
