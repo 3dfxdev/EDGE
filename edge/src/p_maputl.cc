@@ -1735,9 +1735,25 @@ bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *))
 //
 // INTERCEPT ROUTINES
 //
-stack_array_t intercept_a;
-intercept_t **intercepts = NULL;
-int intercept_p;
+
+// --> Intercept list class
+class interceptarray_c : public epi::array_c
+{
+public:
+	interceptarray_c() : epi::array_c(sizeof(intercept_t)) {}
+	~interceptarray_c() { Clear(); }
+
+private:
+	void CleanupObject(void *obj) { /* ... */ }
+
+public:
+	int GetSize() {	return array_entries; } 
+	int Insert(intercept_t *in) { return InsertObject((void*)in); }
+	intercept_t* operator[](int idx) { return (intercept_t*)FetchObject(idx); } 
+	void ZeroiseCount(void) { array_entries = 0; }
+};
+
+interceptarray_c intercepts;
 
 divline_t trace;
 bool earlyout;
@@ -1792,13 +1808,15 @@ static bool PIT_AddLineIntercepts(line_t * ld)
 	if (earlyout && frac < 1.0f && !ld->backsector)
 		return false;  // stop checking
 
-	Z_SetArraySize(&intercept_a, intercept_p + 1);
-
-	intercepts[intercept_p]->frac = frac;
-	intercepts[intercept_p]->type = INCPT_Line;
-	intercepts[intercept_p]->d.line = ld;
-	intercept_p++;
-
+	// Intercept is a simple struct that can be memcpy()'d: Load
+	// up a structure and get into the array
+	intercept_t in;
+	
+	in.frac = frac;
+	in.type = INCPT_Line;
+	in.d.line = ld;
+	
+	intercepts.Insert(&in);
 	return true;  // continue
 
 }
@@ -1860,14 +1878,15 @@ static bool PIT_AddThingIntercepts(mobj_t * thing)
 	if (frac < 0)
 		return true;
 
-	Z_SetArraySize(&intercept_a, intercept_p + 1);
-
-	intercepts[intercept_p]->frac = frac;
-	intercepts[intercept_p]->type = INCPT_Thing;
-	intercepts[intercept_p]->d.thing = thing;
-	intercept_p++;
-
-	// keep going
+	// Intercept is a simple struct that can be memcpy()'d: Load
+	// up a structure and get into the array
+	intercept_t in;
+	
+	in.frac = frac;
+	in.type = INCPT_Thing;
+	in.d.thing = thing;
+	
+	intercepts.Insert(&in);
 	return true;
 }
 
@@ -1879,22 +1898,24 @@ static bool PIT_AddThingIntercepts(mobj_t * thing)
 //
 static bool TraverseIntercepts(traverser_t func, float maxfrac)
 {
+	epi::array_iterator_c it;
 	int count;
 	float dist;
-	int scan;
 	intercept_t *in = NULL;
+	intercept_t *scan_in = NULL;
 
-	count = intercept_p;
-
+	count = intercepts.GetSize();
 	while (count--)
 	{
 		dist = FLT_MAX;
-		for (scan = 0; scan < intercept_p; scan++)
+
+		for (it = intercepts.GetBaseIterator(); it.IsValid(); it++)
 		{
-			if (intercepts[scan]->frac < dist)
+			scan_in = ITERATOR_TO_PTR(it, intercept_t);
+			if (scan_in->frac < dist)
 			{
-				dist = intercepts[scan]->frac;
-				in = intercepts[scan];
+				dist = scan_in->frac;
+				in = scan_in;
 			}
 		}
 
@@ -1903,17 +1924,6 @@ static bool TraverseIntercepts(traverser_t func, float maxfrac)
 			// checked everything in range  
 			return true;
 		}
-#if 0  // UNUSED
-		{
-			// don't check these yet, there may be others inserted
-			in = scan = intercepts;
-			for (scan = intercepts; scan < &intercepts[intercept_p]; scan++)
-				if (scan->frac > maxfrac)
-					*in++ = *scan;
-			intercept_p = in;
-			return false;
-		}
-#endif
 
 		if (!func(in))
 		{
@@ -1939,8 +1949,6 @@ static bool TraverseIntercepts(traverser_t func, float maxfrac)
 bool P_PathTraverse(float x1, float y1, float x2, float y2, 
 						 int flags, traverser_t trav)
 {
-	static bool firsttime = true;
-
 	int xt1;
 	int yt1;
 	int xt2;
@@ -1968,13 +1976,11 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 
 	validcount++;
 
-	if (firsttime)
-	{
-		Z_InitStackArray(&intercept_a, (void ***)&intercepts, sizeof(intercept_t), 0);
-		firsttime = false;
-	}
-
-	intercept_p = 0;
+	//
+	// -ACB- 2004/08/02 We don't clear the array since there is no need
+	// to free the memory
+	//
+	intercepts.ZeroiseCount();
 
 	if (fmod(x1 - bmaporgx, MAPBLOCKUNITS) == 0)
 	{
