@@ -31,6 +31,8 @@
 #undef  DF
 #define DF  DDF_CMD
 
+styledef_c *default_style;
+
 static void DDF_StyleGetBkgSpecials(const char *info, void *storage);
 
 styledef_container_c styledefs;
@@ -212,6 +214,11 @@ void DDF_StyleCleanUp(void)
 {
 	if (styledefs.GetSize() == 0)
 		I_Error("There are no styles defined in DDF !\n");
+	
+	default_style = styledefs.Lookup("DEFAULT");
+
+	if (! default_style)
+		I_Error("Styles.ddf is missing the [DEFAULT] style.\n");
 
 	styledefs.Trim();
 }
@@ -532,6 +539,5 @@ styledef_c* styledef_container_c::Lookup(const char *refname)
 			return m;
 	}
 
-	// FIXME!!! Throw an epi:error_c here
 	return NULL;
 }
