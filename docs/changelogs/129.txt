@@ -20,7 +20,6 @@ Bugs fixed
 - DDF parser will catch angles > 360 degrees.
 - watching a moving monster while dead is now smoother.
 - allow KEY_GREENCARD and KEY_GREENSKULL in DDF.
-- texture vertical mis-alignment in some rare cases fixed.
 - berserk strength now lasts the whole level.
 - night vision wasn't affecting the sky, fixed.
 - damage over 1000 no longer hurts invulnerable players.
@@ -130,13 +129,20 @@ New DDF features:
   colours, image files, and built-in types, as follows:
 
      IMAGE_DATA = COLOUR:#FF7F00;
-     IMAGE_DATA = FILE:"retex\startan3.png";
      IMAGE_DATA = BUILTIN:QUADRATIC;
+     IMAGE_DATA = FILE:"retex/startan3.png";
+     IMAGE_DATA = LUMP:JPEG:"JFLOOR48";
 
   The built-in types are only used to create special images for
-  dynamic lighting and shadows.  The FILE type is the most useful,
-  and currently supports PNG images (JPEG format is planned for the
-  future).  The following commands are also available:
+  dynamic lighting and shadows.  The FILE and LUMP types are the most
+  useful, and supports PNG and JPEG images.
+  
+  NOTE: When using filenames, directories must be separated by / instead
+  of the \ character which is normally used under Windows.  The reason
+  is because the \ character has a special meaning in DDF: it is the
+  escape character, and "\n" is used to put newlines into DDF strings.
+
+  The following commands are also available:
 
      X_OFFSET = 10;  // specify the X and Y offset, e.g. sprites.
      Y_OFFSET = 20;  //
