@@ -26,7 +26,6 @@
 #include "dm_state.h"
 #include "p_local.h"
 #include "p_spec.h"
-#include "z_zone.h"
 
 #undef  DF
 #define DF  DDF_CMD
@@ -72,7 +71,12 @@ static bool SwitchStartEntry(const char *name)
 	else
 	{
 		dynamic_switchdef = new switchdef_c;
-		dynamic_switchdef->ddf.name = Z_StrDup(name);
+		
+		if (name && name[0])
+			dynamic_switchdef->ddf.name.Set(name);
+		else
+			dynamic_switchdef->ddf.SetUniqueName("UNNAMED_SWITCH", switchdefs.GetSize());
+		
 		switchdefs.Insert(dynamic_switchdef);
 	}
 	
@@ -111,7 +115,7 @@ static void SwitchFinishEntry(void)
 
 	// Compute CRC.  In this case, there is no need, since switch
 	// textures have zero impact on the game simulation.
-	dynamic_switchdef->ddf.crc = 0;
+	dynamic_switchdef->ddf.crc.Reset();
 }
 
 static void SwitchClearAll(void)
@@ -232,10 +236,7 @@ void switchdef_c::CopyDetail(switchdef_c &src)
 //
 void switchdef_c::Default()
 {
-	// FIXME: ddf.Default()?
-	ddf.name = NULL;
-	ddf.number = 0;
-	ddf.crc = 0;
+	ddf.Default();
 
 	name1.Clear();
 	name2.Clear();
@@ -267,11 +268,7 @@ void switchdef_container_c::CleanupObject(void *obj)
 	switchdef_c *sw = *(switchdef_c**)obj;
 
 	if (sw)
-	{
-		// FIXME: Move to class and use epi string & proper delete
-		if (sw->ddf.name) { Z_Free(sw->ddf.name); }
 		delete sw;
-	}
 
 	return;
 }
@@ -287,7 +284,7 @@ switchdef_c* switchdef_container_c::Find(const char *name)
 	for (it = GetBaseIterator(); it.IsValid(); it++)
 	{
 		sw = ITERATOR_TO_TYPE(it, switchdef_c*);
-		if (DDF_CompareName(sw->ddf.name, name) == 0)
+		if (DDF_CompareName(sw->ddf.name.GetString(), name) == 0)
 			return sw;
 	}
 

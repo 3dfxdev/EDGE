@@ -62,9 +62,7 @@ int num_states;
 // top 16 bits (minus 1) will be an index into this list of redirector
 // names.  These labels will be looked for in the states when the
 // fixup routine is called.
-
-static char **redirection_names = NULL;
-static int num_redirection_names;
+epi::strlist_c redirs;
 
 static char *stateinfo[NUMSPLIT + 1];
 
@@ -218,25 +216,24 @@ static void DDF_MainSplitActionArg(char *info, char *actname, char *actarg)
 //
 static int StateGetRedirector(const char *redir)
 {
-	int i;
-
-	for (i=0; i < num_redirection_names; i++)
+	epi::array_iterator_c it;
+	const char *s;
+	
+	for (it=redirs.GetBaseIterator(); it.IsValid(); it++)
 	{
-		if (DDF_CompareName(redirection_names[i], redir) == 0)
-			return i;
+		s = ITERATOR_TO_TYPE(it, const char*);
+		if (DDF_CompareName(s, redir) == 0)
+			return it.GetPos();
 	}
-
-	Z_Resize(redirection_names, char *, ++num_redirection_names);
-  
-	redirection_names[num_redirection_names-1] = Z_StrDup(redir);
-
-	return num_redirection_names-1;
+	
+	redirs.Insert(redir);
+	return redirs.GetSize()-1;
 }
 
 //
-// StateFindLabel
+// DDF_StateFindLabel
 //
-int StateFindLabel(int first, int last, const char *label)
+int DDF_StateFindLabel(int first, int last, const char *label)
 {
 	int i;
 
@@ -252,7 +249,7 @@ int StateFindLabel(int first, int last, const char *label)
 	// compatibility hack:
 	if (DDF_CompareName(label, "IDLE") == 0)
 	{
-		return StateFindLabel(first, last, "SPAWN");
+		return DDF_StateFindLabel(first, last, "SPAWN");
 	}
   
 	DDF_Error("Unknown label `%s' (object has no such frames).\n", label);
@@ -474,8 +471,8 @@ void DDF_StateFinishStates(int first, int last)
 		}
 		else
 		{
-			states[i].nextstate = StateFindLabel(first, last,
-												 redirection_names[(states[i].nextstate >> 16) - 1]) +
+			states[i].nextstate = DDF_StateFindLabel(first, last,
+												redirs[(states[i].nextstate >> 16) - 1]) +
 				(states[i].nextstate & 0xFFFF);
 		}
 
@@ -490,13 +487,13 @@ void DDF_StateFinishStates(int first, int last)
 		}
 		else
 		{
-			states[i].jumpstate = StateFindLabel(first, last,
-												 redirection_names[(states[i].jumpstate >> 16) - 1]) +
+			states[i].jumpstate = DDF_StateFindLabel(first, last,
+												 redirs[(states[i].jumpstate >> 16) - 1]) +
 				(states[i].jumpstate & 0xFFFF);
 		}
 	}
   
-	// FIXME: can free the redirection name list here
+	redirs.Clear();
 }
 
 //
@@ -548,7 +545,7 @@ void DDF_StateGetInteger(const char *arg, state_t * cur_state)
 	if (!arg || !arg[0])
 		return;
 
-	value = Z_New(int, 1);
+	value = new int;
 
 	if (sscanf(arg, " %i ", value) != 1)
 		DDF_Error("DDF_StateGetInteger: bad value: %s\n", arg);
@@ -568,7 +565,7 @@ void DDF_StateGetIntPair(const char *arg, state_t * cur_state)
 	if (!arg || !arg[0])
 		return;
 
-	values = Z_New(int, 2);
+	values = new int[2];
 
 	if (sscanf(arg, " %i , %i ", &values[0], &values[1]) != 2)
 		DDF_Error("DDF_StateGetIntPair: bad values: %s\n", arg);
@@ -586,7 +583,7 @@ void DDF_StateGetFloat(const char *arg, state_t * cur_state)
 	if (!arg || !arg[0])
 		return;
 
-	value = Z_New(float, 1);
+	value = new float;
 
 	if (sscanf(arg, " %f ", value) != 1)
 		DDF_Error("DDF_StateGetFloat: bad value: %s\n", arg);
@@ -604,7 +601,7 @@ void DDF_StateGetPercent(const char *arg, state_t * cur_state)
 	if (!arg || !arg[0])
 		return;
 
-	value = Z_New(percent_t, 1);
+	value = new percent_t;
 
 	if (sscanf(arg, " %f%% ", value) != 1 || (*value) < 0)
 		DDF_Error("DDF_StateGetPercent: Bad percentage: %s\n", arg);
@@ -632,7 +629,7 @@ void DDF_StateGetJump(const char *arg, state_t * cur_state)
 	if (!arg || !arg[0])
 		return;
 
-	jump = Z_New(act_jump_info_t, 1);
+	jump = new act_jump_info_t;
 	jump->chance = 1.0f;                  // -ACB- 2001/02/04 tis a precent_t
 
 	s = strchr(arg, ',');
@@ -680,7 +677,7 @@ void DDF_StateGetAngle(const char *arg, state_t * cur_state)
 	if (!arg || !arg[0])
 		return;
 
-	value = Z_New(angle_t, 1);
+	value = new angle_t;
 
 	if (sscanf(arg, " %f ", &tmp) != 1)
 		DDF_Error("DDF_StateGetAngle: bad value: %s\n", arg);
@@ -700,7 +697,7 @@ void DDF_StateGetSlope(const char *arg, state_t * cur_state)
 	if (!arg || !arg[0])
 		return;
 
-	value = Z_New(float, 1);
+	value = new float;
 
 	if (sscanf(arg, " %f ", &tmp) != 1)
 		DDF_Error("DDF_StateGetSlope: bad value: %s\n", arg);

@@ -27,7 +27,6 @@
 #define __W_WAD__
 
 #include "dm_defs.h"
-#include "z_zone.h"
 
 typedef struct wadtex_resource_s
 {

@@ -220,7 +220,7 @@ typedef struct i_music_info_s
 	union
 	{
 		struct { void *ptr; int size; } data;
-		struct { char *name; } file;
+		struct { const char *name; } file;
 		struct { int handle; int pos; int size; } lump;
 		struct { int track; } cd;
 	}

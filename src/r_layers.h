@@ -115,7 +115,7 @@ typedef struct layer_s
 	void (* Resizer)(struct layer_s *layer, int x1, int y1, int x2, int y2);
 
 	// Private pointer, store any layer-specific information here.  Must
-	// be allocated with Z_New() or similiar if not NULL.
+	// be allocated with new or similiar if not NULL.
 
 	void *priv;
 

@@ -41,7 +41,7 @@ void RAD_DisplayTips(void);
 bool RAD_Init(void);
 void RAD_ReadScript(void *data, int size);
 bool RAD_LoadParam(void);
-void RAD_SpawnTriggers(char *map_name);
+void RAD_SpawnTriggers(const char *map_name);
 void RAD_ClearTriggers(void);
 void RAD_GroupTriggerTags(rad_trigger_t *trig);
 

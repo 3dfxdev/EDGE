@@ -713,7 +713,7 @@ void G_DoLoadLevel(void)
 
 	P_SetupLevel(gameskill, currmap->autotag);
 
-	RAD_SpawnTriggers(currmap->ddf.name);
+	RAD_SpawnTriggers(currmap->ddf.name.GetString());
 
 	// -KM- 1998/12/21 If a drone player, the display player is already
 	//   set up.
@@ -728,7 +728,7 @@ void G_DoLoadLevel(void)
 	gameaction = ga_nothing;
 
 	CON_SetVisible( /* !!! showMessages?vs_minimal: */ vs_notvisible);
-	CON_Printf("%s\n", currmap->ddf.name);
+	CON_Printf("%s\n", currmap->ddf.name.GetString());
 
 	// clear cmd building stuff
 	Z_Clear(gamekeydown, bool, NUMKEYS);
@@ -1348,7 +1348,7 @@ void G_DoCompleted(void)
 		return;
 	}
 
-	wminfo.level = currmap->ddf.name;
+	wminfo.level = currmap->ddf.name.GetString();
 	wminfo.last = currmap;
 	wminfo.next = nextmap;
 	wminfo.maxkills = totalkills;
@@ -1862,7 +1862,7 @@ void G_BeginRecording(void)
 	i = (int)strlen(currmap->ddf.name);
 	WriteByteToDemo(i);
 	WriteToDemo(currmap->ddf.name, i);
-	L_WriteDebug("G_BeginRecording: %s\n", currmap->ddf.name);
+	L_WriteDebug("G_BeginRecording: %s\n", currmap->ddf.name.GetString());
 	//---------------------------------------------------------
 
 	WriteByteToDemo(gameskill);

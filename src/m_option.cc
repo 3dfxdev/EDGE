@@ -94,7 +94,6 @@
 #include "w_image.h"
 #include "w_wad.h"
 #include "wp_main.h"
-#include "z_zone.h"
 
 #include "epi/epistring.h"
 

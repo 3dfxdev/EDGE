@@ -40,8 +40,6 @@
 #include "ddf_locl.h"
 #include "ddf_main.h"
 
-#include "z_zone.h"
-
 #include "epi/epistring.h"
 
 // ---> ddf buildinfo for language class
@@ -98,8 +96,8 @@ public:
 	epi::strlist_c langnames;
 	int currlang;
 	
-	epi::strlist_c comp_langrefs;		// Compiled language references
-	epi::strlist_c comp_langvalues;	// Compiled language values (1 per lang)
+	epi::strlist_c comp_langrefs;   // Compiled language references
+	epi::strlist_c comp_langvalues; // Compiled language values (1 per lang)
 	
 	// LANGUAGE ENTRY NODE HANDLING
 	
@@ -282,21 +280,15 @@ public:
 			
 			if (name && name[0])
 			{
-				s = name;
+				langnames.Insert(name);
 			}
 			else
 			{
-				char* s2;
-				
-				// FIXME! Stop using Z_Zone!
-				s2 = DDF_MainCreateUniqueName("UNNAMED_LANGUAGE", 
-									langnames.GetSize());
-							
-				s = s2;
-				Z_Free(s2);
+				ddf_base_c ddf;
+				ddf.SetUniqueName("UNNAMED_LANGUAGE", langnames.GetSize());
+				langnames.Insert(ddf.name.GetString());
 			}
 			
-			langnames.Insert(s.GetString());
 			currlang = langnames.GetSize() - 1;
 		}
 		else

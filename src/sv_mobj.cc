@@ -567,7 +567,7 @@ void SR_MobjPutType(void *storage, int index, void *extra)
 {
 	mobjtype_c *info = ((mobjtype_c **)storage)[index];
 
-	SV_PutString((info == NULL) ? NULL : info->ddf.name);
+	SV_PutString((info == NULL) ? NULL : info->ddf.name.GetString());
 }
 
 //
@@ -616,7 +616,7 @@ void SR_MobjPutAttack(void *storage, int index, void *extra)
 {
 	atkdef_c *info = ((atkdef_c **)storage)[index];
 
-	SV_PutString((info == NULL) ? NULL : info->ddf.name);
+	SV_PutString((info == NULL) ? NULL : info->ddf.name.GetString());
 }
 
 
@@ -762,7 +762,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	if (mo->info->last_state <= 0 || 
 		mo->info->last_state < mo->info->first_state)
 	{
-		I_Warning("SAVEGAME: object [%s] has no states !!\n", mo->info->ddf.name);
+		I_Warning("SAVEGAME: object [%s] has no states !!\n", mo->info->ddf.name.GetString());
 		SV_PutString(NULL);
 		return;
 	}
@@ -773,7 +773,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	if (s_num < 0 || s_num >= num_states)
 	{
 		I_Warning("SAVEGAME: object [%s] is in invalid state %d\n", 
-			mo->info->ddf.name, s_num);
+			mo->info->ddf.name.GetString(), s_num);
 
 		if (mo->info->idle_state)
 			s_num = mo->info->idle_state;
@@ -794,7 +794,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	if (s_num < mo->info->first_state || s_num > mo->info->last_state)
 	{
 		I_Warning("SAVEGAME: object [%s] is in AWOL state %d\n",
-			mo->info->ddf.name, s_num);
+			mo->info->ddf.name.GetString(), s_num);
 
 		epi::array_iterator_c it;
 

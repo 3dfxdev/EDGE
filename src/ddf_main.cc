@@ -39,17 +39,17 @@
 
 int ddf_version;  // global
 
-static readchar_t DDF_MainProcessChar(char character, char *buffer, int status);
+static readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status);
 
 //
 // DDF_Error
 //
 // -AJA- 1999/10/27: written.
-
-static int cur_ddf_line_num;
-static char *cur_ddf_filename = NULL;
-static char *cur_ddf_entryname = NULL;
-static char *cur_ddf_linedata = NULL;
+//
+int cur_ddf_line_num;
+epi::string_c cur_ddf_filename;
+epi::string_c cur_ddf_entryname;
+epi::string_c cur_ddf_linedata;
 
 void DDF_Error(const char *err, ...)
 {
@@ -66,22 +66,27 @@ void DDF_Error(const char *err, ...)
  
 	pos = buffer + strlen(buffer);
 
-	if (cur_ddf_filename)
+	if (!cur_ddf_filename.IsEmpty())
 	{
 		sprintf(pos, "Error occurred near line %d of %s\n", 
-				cur_ddf_line_num, cur_ddf_filename);
+				cur_ddf_line_num, cur_ddf_filename.GetString());
+				
 		pos += strlen(pos);
 	}
 
-	if (cur_ddf_entryname)
+	if (!cur_ddf_entryname.IsEmpty())
 	{
-		sprintf(pos, "Error occurred in entry: %s\n", cur_ddf_entryname);
+		sprintf(pos, "Error occurred in entry: %s\n", 
+				cur_ddf_entryname.GetString());
+				
 		pos += strlen(pos);
 	}
 
-	if (cur_ddf_linedata)
+	if (!cur_ddf_linedata.IsEmpty())
 	{
-		sprintf(pos, "Line contents: %s\n", cur_ddf_linedata);
+		sprintf(pos, "Line contents: %s\n", 
+				cur_ddf_linedata.GetString());
+				
 		pos += strlen(pos);
 	}
 
@@ -109,18 +114,24 @@ void DDF_Warning(const char *err, ...)
 
 	I_Warning("\n");
 
-	if (cur_ddf_filename)
+	if (!cur_ddf_filename.IsEmpty())
 	{
 		I_Warning("Found problem near line %d of %s\n", 
-				  cur_ddf_line_num, cur_ddf_filename);
+				  cur_ddf_line_num, cur_ddf_filename.GetString());
 	}
 
-	if (cur_ddf_entryname)
-		I_Warning("occurred in entry: %s\n", cur_ddf_entryname);
-
-	if (cur_ddf_linedata)
-		I_Warning("with line contents: %s\n", cur_ddf_linedata);
-
+	if (!cur_ddf_entryname.IsEmpty())
+	{
+		I_Warning("occurred in entry: %s\n", 
+				  cur_ddf_entryname.GetString());
+	}
+	
+	if (!cur_ddf_linedata.IsEmpty())
+	{
+		I_Warning("with line contents: %s\n", 
+				  cur_ddf_linedata.GetString());
+	}
+	
 	I_Warning("%s", buffer);
 }
 
@@ -167,83 +178,6 @@ void DDF_Obsolete(const char *err, ...)
 		DDF_Error("%s", buffer);
 	else if (no_obsoletes)
 		DDF_Warning("%s", buffer);
-}
-
-static void DDF_ErrorSetFilename(const char *name)
-{
-	if (cur_ddf_filename)
-		Z_Free(cur_ddf_filename);
-
-	cur_ddf_filename = Z_StrDup(name);
-}
-
-static void DDF_ErrorClearFilename(void)
-{
-	if (cur_ddf_filename)
-	{
-		Z_Free(cur_ddf_filename);
-		cur_ddf_filename = NULL;
-	}
-}
-
-//
-// DDF_ErrorSetEntryName
-//
-// Note: should only be called by external code outside of parsing (in
-// particular: during the Cleanup routines).
-//
-void DDF_ErrorSetEntryName(const char *err, ...)
-{
-	va_list argptr;
-	char buffer[1024];
-
-	if (cur_ddf_entryname)
-		Z_Free(cur_ddf_entryname);
-
-	va_start(argptr, err);
-	vsprintf(buffer, err, argptr);
-	va_end(argptr);
-  
-	cur_ddf_entryname = Z_StrDup(buffer);
-}
-
-//
-// DDF_ErrorClearEntryName
-//
-// Note: should only be called by external code outside of parsing (in
-// particular: during the Cleanup routines).
-//
-void DDF_ErrorClearEntryName(void)
-{
-	if (cur_ddf_entryname)
-	{
-		Z_Free(cur_ddf_entryname);
-		cur_ddf_entryname = NULL;
-	}
-}
-
-static void DDF_ErrorSetLineData(const char *data, int len)
-{
-	char buffer[1024];
-
-	if (cur_ddf_linedata)
-		Z_Free(cur_ddf_linedata);
-
-	if (len > 500)
-		len = 500;
- 
-	Z_StrNCpy(buffer, data, len);
-
-	cur_ddf_linedata = Z_StrDup(buffer);
-}
-
-static void DDF_ErrorClearLineData(void)
-{
-	if (cur_ddf_linedata)
-	{
-		Z_Free(cur_ddf_linedata);
-		cur_ddf_linedata = NULL;
-	}
 }
 
 void DDF_MainInit(void)
@@ -294,7 +228,7 @@ static void DDF_MainAddDefine(char *name, char *value)
 	defines[numDefines++].value = value;
 }
 
-static char *DDF_MainGetDefine(char *name)
+static const char *DDF_MainGetDefine(const char *name)
 {
 	int i;
 
@@ -380,7 +314,7 @@ static void *DDF_MainCacheFile(readinfo_t * readinfo)
 	fseek(file, 0, SEEK_SET);
 
 	// malloc the size
-	memfile = Z_New(char, size + 1);
+	memfile = new char[size + 1];
 
 	fread(memfile, sizeof(char), size, file);
 	memfile[size] = 0;
@@ -515,7 +449,7 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 {
 	char *name;
 	char *value = NULL;
-	char *buffer;
+	epi::string_c buffer;
 	char character;
 	char *memfile;
 	char *memfileptr;
@@ -525,9 +459,10 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 	int comment_level;
 	int bracket_level;
 	bool firstgo;
-	char *current_command = NULL;
+	
+	epi::strent_c current_cmd;
+	
 	int current_index = 0;
-	char namebuf[200];
 	int entry_count = 0;
   
 #if (DEBUG_DDFREAD)
@@ -558,14 +493,12 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 		if (!readinfo->memfile)
 			return;
       
-		DDF_ErrorSetFilename(readinfo->filename);
+		cur_ddf_filename = readinfo->filename;
 	}
 	else
 	{
-		DDF_ErrorSetFilename(readinfo->lumpname);
+		cur_ddf_filename = readinfo->lumpname;
 	}
-
-	buffer = Z_ClearNew(char, BUFFERSIZE);
 
 	memfileptr = memfile = readinfo->memfile;
 	size = readinfo->memsize;
@@ -612,7 +545,7 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 
 			DDF_MainAddDefine(name, value);
 
-			buffer[0] = '\0';
+			buffer.Empty();
 			continue;
 		}
 
@@ -644,8 +577,10 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 					 memfileptr[l_len] != '\n' && memfileptr[l_len] != '\r'; l_len++)
 			{ }
 
-			DDF_ErrorSetLineData(memfileptr, l_len);
 
+			cur_ddf_linedata.Empty();
+			cur_ddf_linedata.AddChars(memfileptr, 0, l_len);
+			
 			// -AJA- 2001/05/21: handle directives (lines beginning with #).
 			// This code is more hackitude -- to be fixed when the whole
 			// parsing code gets the overhaul it needs.
@@ -695,15 +630,16 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 				break;
 
 			case command_read:
-				strupr(buffer);
+				buffer.ToUpper();
 
-				if (current_command)
-					Z_Free(current_command);
-        
-				current_command = Z_StrDup(buffer);
+				if (!buffer.IsEmpty())
+					current_cmd.Set(buffer.GetString());
+				else
+					current_cmd.Clear();
+					
 				DEV_ASSERT2(current_index == 0);
 
-				buffer[0] = '\0';
+				buffer.Empty();
 				status = reading_data;
 				break;
 
@@ -712,11 +648,12 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 				break;
 
 			case tag_stop:
-				if (stricmp(buffer, readinfo->tag))
+				if (buffer.CompareNoCase(readinfo->tag))
 					DDF_Error("Start tag <%s> expected, found <%s>!\n", 
-							  readinfo->tag, buffer);
+							  readinfo->tag, buffer.GetString());
+				
 				status = waiting_newdef;
-				buffer[0] = '\0';
+				buffer.Empty();
 				break;
 
 			case def_start:
@@ -732,27 +669,27 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 				}
 				else
 				{
-					DDF_ErrorClearLineData();
+					cur_ddf_linedata.Empty();
 
 					// finish off previous entry
 					(* readinfo->finish_entry)();
 
-					buffer[0] = '\0';
+					buffer.Empty();
+					
 					status = reading_newdef;
 
-					DDF_ErrorClearEntryName();
+					cur_ddf_entryname.Empty();
 				}
 				break;
 
 			case def_stop:
-				strupr(buffer);
+				buffer.ToUpper();	 // <-- Do we need to do this anymore?
 
-				sprintf(namebuf, "[%s]", buffer);
-				DDF_ErrorSetEntryName(namebuf);
+				cur_ddf_entryname.Format("[%s]", buffer.GetString());
 
-				(* readinfo->start_entry)(buffer);
+				(* readinfo->start_entry)(buffer.GetString());
          
-				buffer[0] = '\0';
+				buffer.Empty();
 				status = reading_command;
 				break;
 
@@ -774,25 +711,23 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 			case separator:
 				if (bracket_level > 0)
 				{
-					int len = strlen(buffer);
-					buffer[len] = SEPARATOR;
-					buffer[len+1] = 0;
+					buffer.AddChar(SEPARATOR);
 					break;
 				}
 
-				if (! current_command)
+				if (current_cmd.IsEmpty())
 					DDF_Error("Unexpected comma `,'.\n");
 
 				if (firstgo)
 					DDF_WarnError2(0x128, "Command %s used outside of any entry\n");
 				else
 				{  
-					(* readinfo->parse_field)(current_command, 
+					(* readinfo->parse_field)(current_cmd.GetString(), 
 											  DDF_MainGetDefine(buffer), current_index, false);
 					current_index++;
 				}
 
-				buffer[0] = '\0';
+				buffer.Empty();
 				break;
 
 				// -ACB- 1998/08/10 String Handling
@@ -806,17 +741,17 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 				break;
 
 			case terminator:
-				if (!current_command)
+				if (current_cmd.IsEmpty())
 					DDF_Error("Unexpected semicolon `;'.\n");
 
 				if (bracket_level > 0)
 					DDF_Error("Missing ')' bracket in ddf command.\n");
 
-				(* readinfo->parse_field)(current_command, 
-										  DDF_MainGetDefine(buffer), current_index, true);
+				(* readinfo->parse_field)(current_cmd.GetString(), 
+										  DDF_MainGetDefine(buffer.GetString()), current_index, true);
 				current_index = 0;
 
-				buffer[0] = '\0';
+				buffer.Empty();
 				status = reading_command;
 				break;
 
@@ -844,10 +779,8 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 		}
 	}
 
-	if (current_command)
-		Z_Free(current_command);
-
-	DDF_ErrorClearLineData();
+	current_cmd.Clear();
+	cur_ddf_linedata.Empty();
 
 	// -AJA- 1999/10/21: check for unclosed comments
 	if (comment_level > 0)
@@ -869,10 +802,8 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 	if (!firstgo)
 		(* readinfo->finish_entry)();
 
-	Z_Free(buffer);
-
-	DDF_ErrorClearEntryName();
-	DDF_ErrorClearFilename();
+	cur_ddf_entryname.Empty();
+	cur_ddf_filename.Empty();
 
 	if (defines)
 	{
@@ -883,7 +814,7 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 
 	if (readinfo->filename)
 	{
-		Z_Free(memfile);
+		delete [] memfile;
 		I_Printf("\n");
 	}
 
@@ -895,17 +826,12 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 //
 // 1998/08/10 Added String reading code.
 //
-readchar_t DDF_MainProcessChar(char character, char *buffer, int status)
+readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status)
 {
 	int len;
 
 	// -ACB- 1998/08/11 Used for detecting formatting in a string
 	static bool formatchar = false;
-
-	len = strlen(buffer);
-
-	if (len >= BUFFERSIZE)
-		DDF_Error("DDF_MainProcessChar: Read Buffer Size Exceeded, Size: %d\n", BUFFERSIZE);
 
 	// With the exception of reading_string, whitespace is ignored and
 	// a SUBSPACE is replaced by a space.
@@ -954,8 +880,7 @@ readchar_t DDF_MainProcessChar(char character, char *buffer, int status)
 				return tag_stop;
 			else
 			{
-				buffer[len] = character;
-				buffer[len+1] = 0;
+				buffer.AddChar(character);
 				return ok_char;
 			}
 
@@ -973,8 +898,7 @@ readchar_t DDF_MainProcessChar(char character, char *buffer, int status)
 			else if ((isalnum(character)) || (character == SPACE) ||
 					 (character == DIVIDE))
 			{
-				buffer[len] = character;
-				buffer[len+1] = 0;
+				buffer.AddChar(character);
 				return ok_char;
 			}
 			return nothing;
@@ -996,8 +920,7 @@ readchar_t DDF_MainProcessChar(char character, char *buffer, int status)
 					 character == '(' || character == ')' ||
 					 character == '.')
 			{
-				buffer[len] = character;
-				buffer[len+1] = 0;
+				buffer.AddChar(character);
 				return ok_char;
 			}
 			return nothing;
@@ -1015,15 +938,13 @@ readchar_t DDF_MainProcessChar(char character, char *buffer, int status)
       
 			if (character == GROUPSTART)
 			{
-				buffer[len] = character;
-				buffer[len+1] = 0;
+				buffer.AddChar(character);
 				return group_start;
 			}
       
 			if (character == GROUPSTOP)
 			{
-				buffer[len] = character;
-				buffer[len+1] = 0;
+				buffer.AddChar(character);
 				return group_stop;
 			}
       
@@ -1035,8 +956,7 @@ readchar_t DDF_MainProcessChar(char character, char *buffer, int status)
 				character == '#' || character == '%' || 
 				character == '@' || character == '?')
 			{
-				buffer[len] = toupper(character);
-				buffer[len+1] = 0;
+				buffer.AddChar(toupper(character));
 				return ok_char;
 			}
 			else if (isprint(character))
@@ -1052,29 +972,25 @@ readchar_t DDF_MainProcessChar(char character, char *buffer, int status)
 				// -ACB- 1998/08/11 Formatting check: Carriage-return.
 				if (character == 'n')
 				{
-					buffer[len] = '\n';
-					buffer[len+1] = 0;
+					buffer.AddChar('\n');
 					formatchar = false;
 					return ok_char;
 				}
 				else if (character == '\"')    // -KM- 1998/10/29 Also recognise quote
 				{
-					buffer[len] = '\"';
-					buffer[len+1] = 0;
+					buffer.AddChar('\"');
 					formatchar = false;
 					return ok_char;
 				}
 				else if (character == '\\') // -ACB- 1999/11/24 Double backslash means directory
 				{
-					buffer[len] = DIRSEPARATOR;
-					buffer[len+1] = 0;
+					buffer.AddChar(DIRSEPARATOR);
 					formatchar = false;
 					return ok_char;
 				}
 				else // -ACB- 1999/11/24 Any other characters are treated in the norm
 				{
-					buffer[len] = character;
-					buffer[len+1] = 0;
+					buffer.AddChar(character);
 					formatchar = false;
 					return ok_char;
 				}
@@ -1093,8 +1009,7 @@ readchar_t DDF_MainProcessChar(char character, char *buffer, int status)
 			// -ES- HEY! Swedish is not foreign!
 			else
 			{
-				buffer[len] = character;
-				buffer[len+1] = 0;
+				buffer.AddChar(character);
 				return ok_char;
 			}
 
@@ -1359,7 +1274,7 @@ void DDF_MainRefAttack(const char *info, void *storage)
 int DDF_MainLookupDirector(const mobjtype_c *info, const char *ref)
 {
 	int i, state, offset;
-	char *director;
+	epi::string_c director;
 	const char *div;
 
 	// find `:'
@@ -1370,10 +1285,10 @@ int DDF_MainLookupDirector(const mobjtype_c *info, const char *ref)
 	if (i <= 0)
 		DDF_Error("Bad Director `%s' : Nothing after divide\n", ref);
 
-	director = Z_New(char, i + 1);
-	Z_StrNCpy(director, ref, i);
+	director.Empty();
+	director.AddChars(ref, 0, i);
 
-	state = StateFindLabel(info->first_state, info->last_state, director);
+	state = DDF_StateFindLabel(info->first_state, info->last_state, director);
 
 	offset = div ? MAX(0, atoi(div + 1) - 1) : 0;
 
@@ -1726,19 +1641,64 @@ checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
 	return CHKF_Positive;
 }
 
+// DDF OBJECTS
+
+// ---> ddf base class
+
 //
-// DDF_MainCreateUniqueName
+// ddf_base_c Constructor
 //
-char *DDF_MainCreateUniqueName(const char *prefix, int num)
+ddf_base_c::ddf_base_c()
 {
-	char buffer[512];
-
-	sprintf(buffer, "_%s_%d\n", prefix, num);
-
-	return Z_StrDup(buffer);
 }
 
-// DDF OBJECTS
+//
+// ddf_base_c Deconstructor
+//
+ddf_base_c::~ddf_base_c()
+{
+}
+
+//
+// ddf_base_c::Copy()
+//
+void ddf_base_c::Copy(ddf_base_c &src)
+{
+	name = src.name;
+	number = src.number;
+	crc.crc = src.crc.crc;
+}
+
+//
+// ddf_base_c::Default()
+//
+void ddf_base_c::Default()
+{
+	name.Clear();
+	number = 0;
+	crc.Reset();
+}
+
+//
+// ddf_base_c::SetUniqueName()
+//
+void ddf_base_c::SetUniqueName(const char *prefix, int num)
+{
+	epi::string_c s;
+	s.Format("_%s_%d\n", prefix, num);
+	name.Set(s.GetString());
+}
+
+//
+// ddf_base_c assignment operator
+//
+ddf_base_c& ddf_base_c::operator=(ddf_base_c &rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+		
+	return *this;
+}
 
 // ---> damage class
 
@@ -1844,7 +1804,6 @@ damage_c& damage_c::operator=(damage_c &rhs)
 //
 label_offset_c::label_offset_c()
 {
-	label = NULL;
 	offset = 0;
 }
 
@@ -1853,7 +1812,6 @@ label_offset_c::label_offset_c()
 //
 label_offset_c::label_offset_c(label_offset_c &rhs)
 {
-	label = NULL;
 	Copy(rhs);
 }
 
@@ -1862,9 +1820,6 @@ label_offset_c::label_offset_c(label_offset_c &rhs)
 //
 label_offset_c::~label_offset_c()
 {
-	// FIXME: Use epi str containter
-	if (label)
-		Z_Free((void*)label);
 }
 
 //
@@ -1872,15 +1827,7 @@ label_offset_c::~label_offset_c()
 //
 void label_offset_c::Copy(label_offset_c &src)
 {
-	// FIXME: Use epi str containter
-	if (label)
-		Z_Free((void*)label);
-		
-	if (src.label)
-		label = Z_StrDup(src.label);
-	else
-		label = NULL;
-		
+	label = src.label;
 	offset = src.offset;
 }
 
@@ -1889,11 +1836,6 @@ void label_offset_c::Copy(label_offset_c &src)
 //
 void label_offset_c::Default()
 {
-	// FIXME: Use epi str containter
-	if (label)
-		Z_Free((void*)label);
-		
-	label = NULL;
 	offset = 0;
 }
 

@@ -37,6 +37,8 @@
 #include "st_stuff.h"
 #include "w_wad.h"
 
+#include "z_zone.h"
+
 static void P_UpdatePowerups(player_t *player);
 
 // 16 pixels of bob
@@ -661,7 +663,8 @@ void P_AddPlayer(int pnum)
 
 	if (language.IsValidRef(namebuf))
 	{
-		Z_StrNCpy(p->playername, language[namebuf], MAX_PLAYNAME-1);
+		strncpy(p->playername, language[namebuf], MAX_PLAYNAME-1);
+		p->playername[MAX_PLAYNAME-1] = '\0';
 	}
 	else
 	{
@@ -867,7 +870,7 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 	if (slot < 0)
 		return false;
 
-	L_WriteDebug("P_AddWeapon: [%s] @ %d\n", info->ddf.name, slot);
+	L_WriteDebug("P_AddWeapon: [%s] @ %d\n", info->ddf.name.GetString(), slot);
 
 	player->weapons[slot].owned = true;
 	player->weapons[slot].info  = info;
@@ -915,7 +918,7 @@ bool P_RemoveWeapon(player_t *player, weapondef_c *info)
 	if (i >= MAXWEAPONS)
 		return false;
 
-	L_WriteDebug("P_RemoveWeapon: [%s] @ %d\n", info->ddf.name, i);
+	L_WriteDebug("P_RemoveWeapon: [%s] @ %d\n", info->ddf.name.GetString(), i);
 
 	player->weapons[i].owned = false;
 	player->weapons[i].info  = NULL;
