@@ -503,8 +503,8 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 
 	glColor4f(cr, cg, cb, alpha);
 	glBegin(GL_POLYGON);
-	glVertex2i(px+3, py+3);  glVertex2i(px+3, py+ph-4);
-	glVertex2i(px+3+x, py+ph-4); glVertex2i(px+3+x, py+3);
+	glVertex2i(px+3, py+3);  glVertex2i(px+3, py+ph-3);
+	glVertex2i(px+3+x, py+ph-3); glVertex2i(px+3+x, py+3);
 	glEnd();
 
 	(*y) = py;
