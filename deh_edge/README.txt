@@ -39,6 +39,9 @@ Then run EDGE using this additional file, for example:
 
 NOTE: the original .DEH file is not modified in any way.
 
+Multiple .DEH files can be given.  They will be merged together,
+the first one is applied first, then the second one, and so on...
+
  
 Usage with EDGE 1.27
 --------------------
@@ -74,7 +77,6 @@ Options
                    This option can make the output WAD much bigger !
                    Mainly useful for trouble-shooting problems.
 
-
 Limitations
 -----------
 
@@ -92,8 +94,6 @@ Limitations
    files use them, and the work required is huge, they will probably
    never be supported.
  
-   Of course normal code pointers are supported.
-
 5. Text replacements only work in EDGE when the language selected is
    "ENGLISH".  This is a nuisance for anyone who usually plays in a
    different language.  The replacements are usually English anyway,
