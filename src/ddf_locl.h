@@ -98,11 +98,12 @@ typedef struct
 }
 commandlist_t;
 
-#define FIELD_OFFSET(dummy,field)  \
+// -ACB- 2000/08/15 - FIELD_OFFSET is defined in Win32 headers
+#define FIELD_OFF(dummy,field)  \
     ((char *) & ((dummy).field) - (char *) & (dummy))
 
 #define FIELD_OFF2P(dummy,field)  \
-    ((char *) FIELD_OFFSET(dummy,field))
+    ((char *) FIELD_OFF(dummy,field))
 
 #define FIELD_P2OFF(ptr)  ((int) ptr)
 
