@@ -179,15 +179,11 @@ void DDF_ImageCleanUp(void)
 
 static void ImageParseColour(const char *value)
 {
-	buffer_image.type = IMGDT_Colour;
-
 	DDF_MainGetRGB(value, &buffer_image.colour);
 }
 
 static void ImageParseBuiltin(const char *value)
 {
-	buffer_image.type = IMGDT_Builtin;
-
 	if (DDF_CompareName(value, "LINEAR") == 0)
 		buffer_image.builtin = BLTIM_Linear;
 	else if (DDF_CompareName(value, "QUADRATIC") == 0)
@@ -196,6 +192,12 @@ static void ImageParseBuiltin(const char *value)
 		buffer_image.builtin = BLTIM_Shadow;
 	else
 		DDF_Error("Unknown image BUILTIN kind: %s\n", value);
+}
+
+static void ImageParseName(const char *value)
+{
+	// ouch, hard work here...
+	buffer_image.name.Set(value);
 }
 
 //
@@ -215,11 +217,18 @@ static void DDF_ImageGetType(const char *info, void *storage)
 
 	if (DDF_CompareName(keyword, "COLOUR") == 0)
 	{
+		buffer_image.type = IMGDT_Colour;
 		ImageParseColour(colon + 1);
 	}
 	else if (DDF_CompareName(keyword, "BUILTIN") == 0)
 	{
+		buffer_image.type = IMGDT_Builtin;
 		ImageParseBuiltin(colon + 1);
+	}
+	else if (DDF_CompareName(keyword, "FILE") == 0)
+	{
+		buffer_image.type = IMGDT_File;
+		ImageParseName(colon + 1);
 	}
 	else
 		DDF_Error("Unknown image type: %s\n", keyword);
@@ -266,7 +275,7 @@ static void DDF_ImageGetSpecial(const char *info, void *storage)
 //
 // imagedef_c constructor
 //
-imagedef_c::imagedef_c()
+imagedef_c::imagedef_c() : name()
 {
 	Default();
 }
@@ -298,6 +307,7 @@ void imagedef_c::CopyDetail(const imagedef_c &src)
 	type    = src.type;
 	colour  = src.colour;
 	builtin = src.builtin;
+	name    = src.name;
 
 	special = src.special;
 }
@@ -312,6 +322,8 @@ void imagedef_c::Default()
 	type = IMGDT_Colour;
 	colour = 0x000000;  // black
 	builtin = BLTIM_Quadratic;
+
+	name.Clear();
 
 	special = IMGSP_None;
 }

@@ -39,7 +39,7 @@ typedef enum
 	// IMGDT_WadPlaySkin
 	// IMGDT_WadTexPatch
 	// IMGDT_Package
-	// IMGDT_File
+	IMGDT_File,          // TEST TEST TEST
 	// IMGDT_Composed
 }
 imagedata_type_e;
@@ -92,7 +92,7 @@ public:
 
 	// --- future: ---
 
-	// epi::strent_c name;  // IMGDT_WadFlat etc, IMGDT_Package, IMGDT_File
+	epi::strent_c name;   // IMGDT_WadXXX, IMGDT_Package, IMGDT_File
 
 	// COMPOSE specifics:
 	//   rgbcol_t base_col;
