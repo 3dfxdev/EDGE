@@ -236,6 +236,9 @@ static void RAD_CheckForInt(const char *value, int *retvalue)
 	int count = 0;
 	int length = strlen(value);
 
+	if (strchr(value, '%'))
+		RAD_Error("Parameter '%s' should not be a percentage.\n", value);
+
 	// Accomodate for "-" as you could have -5 or something like that.
 	if (*pos == '-')
 	{
@@ -247,15 +250,18 @@ static void RAD_CheckForInt(const char *value, int *retvalue)
 
 	// Is the value an integer?
 	if (length != count)
-		RAD_Error("Parameter is not of numeric type: %s\n", value);
+		RAD_Error("Parameter '%s' is not of numeric type.\n", value);
 
 	*retvalue = atoi(value);
 }
 
 static void RAD_CheckForFloat(const char *value, float *retvalue)
 {
+	if (strchr(value, '%'))
+		RAD_Error("Parameter '%s' should not be a percentage.\n", value);
+
 	if (sscanf(value, "%f", retvalue) != 1)
-		RAD_Error("Parameter is not of numeric type: %s\n", value);
+		RAD_Error("Parameter '%s' is not of numeric type.\n", value);
 }
 
 //
@@ -276,7 +282,7 @@ static void RAD_CheckForPercent(const char *info, void *storage)
 
 	// the number must be followed by %
 	if (*p != '%')
-		RAD_Error("Parameter is not of percent type: %s\n", info);
+		RAD_Error("Parameter '%s' is not of percent type.\n", info);
 	*p = 0;
 
 	RAD_CheckForFloat(s, &f);
@@ -304,7 +310,7 @@ static void RAD_CheckForPercentAny(const char *info, void *storage)
 
 	// the number must be followed by %
 	if (*p != '%')
-		RAD_Error("Parameter is not of percent type: %s\n", info);
+		RAD_Error("Parameter '%s' is not of percent type.\n", info);
 	*p = 0;
 
 	RAD_CheckForFloat(s, &f);
@@ -1279,11 +1285,10 @@ static void RAD_ParseTip(int pnum, const char **pars)
 	// Tip "<text>"
 	// Tip "<text>" <time>
 	// Tip "<text>" <time> <has sound>
+	// Tip "<text>" <time> <has sound> <scale>
 	//
 	// (likewise for Tip_LDF)
 	// (likewise for Tip_Graphic)
-	//
-	// NOTE: Tip_Graphic accepts a scale, e.g. M_PAUSE:50%
 
 	s_tip_t *tip;
 
@@ -1295,30 +1300,16 @@ static void RAD_ParseTip(int pnum, const char **pars)
 
 	if (DDF_CompareName(pars[0], "TIP_GRAPHIC") == 0)
 	{
-		const char *div = strchr(pars[1], ':');
-
-		if (div)
-		{
-			int len = div - pars[1];
-
-			if (len == 0 || div[1] == 0)
-				RAD_Error("%s: Bad image spec `%s'.\n", pars[0], pars[1]);
-
-			tip->tip_graphic = Z_New(char, len + 1);
-			Z_StrNCpy(tip->tip_graphic, pars[1], len);
-
-			percent_t perc;
-			RAD_CheckForPercentAny(div + 1, &perc);
-
-			tip->gfx_scale = PERCENT_2_FLOAT(perc);
-		}
-		else
-			tip->tip_graphic = Z_StrDup(pars[1]);
+		tip->tip_graphic = Z_StrDup(pars[1]);
 	}
 	else if (DDF_CompareName(pars[0], "TIP_LDF") == 0)
+	{
 		tip->tip_ldf = Z_StrDup(pars[1]);
+	}
 	else if (pars[1][0] == '"')
+	{
 		tip->tip_text = RAD_UnquoteString(pars[1]);
+	}
 	else
 		RAD_Error("Needed string for TIP command.\n");
 
@@ -1327,6 +1318,14 @@ static void RAD_ParseTip(int pnum, const char **pars)
 
 	if (pnum >= 4)
 		tip->playsound = CheckForBoolean(pars[3]);
+
+	if (pnum >= 5)
+	{
+		if (! tip->tip_graphic)
+			RAD_Error("%s: scale value only works with TIP_GRAPHIC.\n", pars[0]);
+
+		RAD_CheckForFloat(pars[4], &tip->gfx_scale);
+	}
 
 	AddStateToScript(this_rad, 0, RAD_ActTip, tip);
 }
@@ -1973,9 +1972,9 @@ static rts_parser_t radtrig_parsers[] =
 	{2, "LABEL", 2,2, RAD_ParseLabel},
 
 	// actions...
-	{2, "TIP",     2,4, RAD_ParseTip},
-	{2, "TIP_LDF", 2,4, RAD_ParseTip},
-	{2, "TIP_GRAPHIC", 2,4, RAD_ParseTip},
+	{2, "TIP",     2,5, RAD_ParseTip},
+	{2, "TIP_LDF", 2,5, RAD_ParseTip},
+	{2, "TIP_GRAPHIC", 2,5, RAD_ParseTip},
 	{2, "TIP_SLOT",    2,2, RAD_ParseTipSlot},
 	{2, "TIP_SET_POS",    3,4, RAD_ParseTipPos},
 	{2, "TIP_SET_COLOUR", 2,3, RAD_ParseTipColour},
