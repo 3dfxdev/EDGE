@@ -34,6 +34,7 @@
 #include "dm_state.h"
 #include "m_random.h"
 #include "p_local.h"
+#include "r_sky.h"
 #include "r_state.h"
 #include "s_sound.h"
 
@@ -80,6 +81,9 @@ static const image_t * SECPIC(sector_t * sec, bool is_ceiling,
             sec->ceil.image = new_image;
         else
             sec->floor.image = new_image;
+
+		if (new_image == skyflatimage)
+			R_ComputeSkyHeights();
     }
 
     return is_ceiling ? sec->ceil.image : sec->floor.image;

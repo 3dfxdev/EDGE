@@ -738,8 +738,6 @@ void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param)
 {
 	s_changetex_t *ctex = (s_changetex_t *) param;
 
-	int i;
-
 	const image_t *image;
 
 	DEV_ASSERT2(param);
@@ -759,16 +757,18 @@ void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param)
 	// handle the floor/ceiling case
 	if (ctex->what >= CHTEX_Floor)
 	{
+		bool must_recompute_sky = false;
+
 		sector_t *tsec;
 
-		for (tsec = P_FindSectorFromTag(ctex->tag); tsec; 
-			tsec = tsec->tag_next)
+		for (tsec = P_FindSectorFromTag(ctex->tag); tsec != NULL;
+			 tsec = tsec->tag_next)
 		{
 			if (ctex->subtag)
 			{
 				bool valid = false;
 
-				for (i=0; i < tsec->linecount; i++)
+				for (int i=0; i < tsec->linecount; i++)
 				{
 					if (tsec->lines[i]->tag == ctex->subtag)
 					{
@@ -785,14 +785,21 @@ void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param)
 				tsec->floor.image = image;
 			else
 				tsec->ceil.image = image;
+
+			if (image == skyflatimage)
+				must_recompute_sky = true;
 		}
+
+		if (must_recompute_sky)
+			R_ComputeSkyHeights();
+
 		return;
 	}
 
 	// handle the line changers
 	DEV_ASSERT2(ctex->what < CHTEX_Sky);
 
-	for (i=0; i < numlines; i++)
+	for (int i=0; i < numlines; i++)
 	{
 		side_t *side = (ctex->what <= CHTEX_RightLower) ?
 			lines[i].side[0] : lines[i].side[1];
