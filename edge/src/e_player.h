@@ -149,10 +149,9 @@ typedef struct player_s
   // This is only used between levels,
   // mo->health is used during levels.
   float_t health;
-  float_t armourpoints;
 
-  // Armour type
-  armour_type_e armourtype;
+  // Armour points for each type
+  float_t armours[NUMARMOUR];
 
   // Power ups. invinc and invis are tic counters.
   float_t powers[NUMPOWERS];
@@ -225,8 +224,10 @@ typedef struct player_s
   int jumpwait;
 
   // breathing support.  In air-less sectors, this is decremented on
-  // each tic.  If it reaches zero, player drowns.
+  // each tic.  When it reaches zero, the player starts choking (which
+  // hurts), and player drowns when health drops to zero.
   int air_in_lungs;
+  boolean_t underwater;
    
   // how many tics to grin :-)
   int grin_count;
@@ -274,8 +275,6 @@ typedef struct
   int stime;
   int frags;
   int totalfrags;
-  int score;  // current score on entry, modified on return
-
 }
 wbplayerstruct_t;
 
