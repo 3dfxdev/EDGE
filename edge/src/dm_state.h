@@ -121,6 +121,9 @@ extern boolean_t usergame;
 extern boolean_t demoplayback;
 extern boolean_t demorecording;
 
+// -AJA- 2000/12/07: auto quick-load feature
+extern boolean_t autoquickload;
+
 // Quit after playing a demo from cmdline.
 extern boolean_t singledemo;
 
@@ -168,6 +171,7 @@ extern wbstartstruct_t wminfo;
 extern char *iwaddir;
 extern char *homedir;
 extern char *gamedir;
+extern char *savedir;
 extern char *ddfdir;
 extern const char *cfgfile;
 extern FILE *debugfile;

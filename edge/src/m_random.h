@@ -40,6 +40,10 @@ void M_SeedRandom(int seed);
 // Something to do with consistency...
 int P_RandomIndex(void);
 
+// Savegame support
+int P_ReadRandomState(void);
+void P_WriteRandomState(int value);
+
 // This is used in various places:
 extern unsigned char rndtable[256];
 
