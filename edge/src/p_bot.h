@@ -2,7 +2,7 @@
 //  EDGE Play Simulation Action routines: 'DeathBots'
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2000  The EDGE Team.
+//  Copyright (c) 1999-2001  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -39,13 +39,16 @@ typedef struct botcmd_s
     FOLLOW_MOBJ,
     FOLLOW_XY,
     FOLLOW_DIR
-  } followtype;
+  } 
+  followtype;
+  
   union
   {
     struct {float_t x,y;} xyz;
     struct {angle_t angle; float_t distance;} dir;
     mobj_t *mo;
-  } followobj;
+  } 
+  followobj;
 
   // If we want to face someone, do this here.
   // Either face a mobj, a specified map coordinate, or a given angle.
@@ -57,6 +60,7 @@ typedef struct botcmd_s
     FACE_ANGLE
   }
   facetype;
+
   union
   {
     struct {float_t x,y,z;} xyz;
@@ -72,7 +76,8 @@ typedef struct botcmd_s
   boolean_t second_attack;
   boolean_t use;
   boolean_t jump;
-} botcmd_t;
+} 
+botcmd_t;
 
 typedef struct bot_s
 {
@@ -82,6 +87,7 @@ typedef struct bot_s
   int confidence;
   int threshold;
   int movecount;
+
   mobj_t *target;
   mobj_t *supportobj;
   angle_t angle;
