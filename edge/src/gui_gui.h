@@ -20,7 +20,6 @@
 #define __GUI_GUI_H__
 
 #include "dm_type.h"
-#include "v_screen.h"
 
 // This header should be included by all gui apps
 

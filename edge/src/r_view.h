@@ -29,7 +29,6 @@
 #include "e_player.h"
 #include "m_fixed.h"
 #include "m_math.h"
-#include "v_screen.h"
 
 typedef struct camera_s camera_t;
 typedef struct callback_s callback_t;

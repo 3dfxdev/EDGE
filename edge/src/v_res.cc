@@ -34,16 +34,10 @@
 #include "dm_state.h"
 #include "m_argv.h"
 #include "m_fixed.h"
-#include "r_draw1.h"
-#include "r_draw2.h"
-#include "r_plane.h"
 #include "r_state.h"
 #include "r_things.h"
 #include "r_vbinit.h"
 #include "st_stuff.h"
-#include "v_screen.h"
-#include "v_video1.h"
-#include "v_video2.h"
 #include "z_zone.h"
 
 //
