@@ -112,228 +112,228 @@ struct mobj_s;
 //
 typedef enum
 {
-  // Call P_TouchSpecialThing when touched.
-  MF_SPECIAL = 1,
+	// Call P_TouchSpecialThing when touched.
+	MF_SPECIAL = 1,
 
-  // Blocks.
-  MF_SOLID = 2,
+	// Blocks.
+	MF_SOLID = 2,
 
-  // Can be hit.
-  MF_SHOOTABLE = 4,
+	// Can be hit.
+	MF_SHOOTABLE = 4,
 
-  // Don't use the sector links (invisible but touchable).
-  MF_NOSECTOR = 8,
+	// Don't use the sector links (invisible but touchable).
+	MF_NOSECTOR = 8,
 
-  // Don't use the blocklinks (inert but displayable)
-  MF_NOBLOCKMAP = 16,
+	// Don't use the blocklinks (inert but displayable)
+	MF_NOBLOCKMAP = 16,
 
-  // Not to be activated by sound, deaf monster.
-  MF_AMBUSH = 32,
+	// Not to be activated by sound, deaf monster.
+	MF_AMBUSH = 32,
 
-  // Will try to attack right back.
-  MF_JUSTHIT = 64,
+	// Will try to attack right back.
+	MF_JUSTHIT = 64,
 
-  // Will take at least one step before attacking.
-  MF_JUSTATTACKED = 128,
+	// Will take at least one step before attacking.
+	MF_JUSTATTACKED = 128,
 
-  // On level spawning (initial position),
-  // hang from ceiling instead of stand on floor.
-  MF_SPAWNCEILING = 256,
+	// On level spawning (initial position),
+	// hang from ceiling instead of stand on floor.
+	MF_SPAWNCEILING = 256,
 
-  // Don't apply gravity (every tic), that is, object will float,
-  // keeping current height or changing it actively.
-  MF_NOGRAVITY = 512,
+	// Don't apply gravity (every tic), that is, object will float,
+	// keeping current height or changing it actively.
+	MF_NOGRAVITY = 512,
 
-  // Movement flags. This allows jumps from high places.
-  MF_DROPOFF = 0x400,
+	// Movement flags. This allows jumps from high places.
+	MF_DROPOFF = 0x400,
 
-  // For players, will pick up items.
-  MF_PICKUP = 0x800,
+	// For players, will pick up items.
+	MF_PICKUP = 0x800,
 
-  // Object is not checked when moving, no clipping is used.
-  MF_NOCLIP = 0x1000,
+	// Object is not checked when moving, no clipping is used.
+	MF_NOCLIP = 0x1000,
 
-  // Player: keep info about sliding along walls.
-  MF_SLIDE = 0x2000,
+	// Player: keep info about sliding along walls.
+	MF_SLIDE = 0x2000,
 
-  // Allow moves to any height, no gravity.
-  // For active floaters, e.g. cacodemons, pain elementals.
-  MF_FLOAT = 0x4000,
+	// Allow moves to any height, no gravity.
+	// For active floaters, e.g. cacodemons, pain elementals.
+	MF_FLOAT = 0x4000,
 
-  // Instantly cross lines, whatever the height differences may be
-  // (e.g. go from the bottom of a cliff to the top).
-  // Note: nothing to do with teleporters.
-  MF_TELEPORT = 0x8000,
+	// Instantly cross lines, whatever the height differences may be
+	// (e.g. go from the bottom of a cliff to the top).
+	// Note: nothing to do with teleporters.
+	MF_TELEPORT = 0x8000,
 
-  // Don't hit same species, explode on block.
-  // Player missiles as well as fireballs of various kinds.
-  MF_MISSILE = 0x10000,
+	// Don't hit same species, explode on block.
+	// Player missiles as well as fireballs of various kinds.
+	MF_MISSILE = 0x10000,
 
-  // Dropped by a demon, not level spawned.
-  // E.g. ammo clips dropped by dying former humans.
-  MF_DROPPED = 0x20000,
+	// Dropped by a demon, not level spawned.
+	// E.g. ammo clips dropped by dying former humans.
+	MF_DROPPED = 0x20000,
 
-  // Use fuzzy draw (shadow demons or spectres),
-  // temporary player invisibility powerup.
-  MF_FUZZY = 0x40000,
+	// Use fuzzy draw (shadow demons or spectres),
+	// temporary player invisibility powerup.
+	MF_FUZZY = 0x40000,
 
-  // Flag: don't bleed when shot (use puff),
-  // barrels and shootable furniture shall not bleed.
-  MF_NOBLOOD = 0x80000,
+	// Flag: don't bleed when shot (use puff),
+	// barrels and shootable furniture shall not bleed.
+	MF_NOBLOOD = 0x80000,
 
-  // Don't stop moving halfway off a step,
-  // that is, have dead bodies slide down all the way.
-  MF_CORPSE = 0x100000,
+	// Don't stop moving halfway off a step,
+	// that is, have dead bodies slide down all the way.
+	MF_CORPSE = 0x100000,
 
-  // Floating to a height for a move, ???
-  // don't auto float to target's height.
-  MF_INFLOAT = 0x200000,
+	// Floating to a height for a move, ???
+	// don't auto float to target's height.
+	MF_INFLOAT = 0x200000,
 
-  // On kill, count this enemy object
-  // towards intermission kill total.
-  // Happy gathering.
-  MF_COUNTKILL = 0x400000,
+	// On kill, count this enemy object
+	// towards intermission kill total.
+	// Happy gathering.
+	MF_COUNTKILL = 0x400000,
 
-  // On picking up, count this item object
-  // towards intermission item total.
-  MF_COUNTITEM = 0x800000,
+	// On picking up, count this item object
+	// towards intermission item total.
+	MF_COUNTITEM = 0x800000,
 
-  // Special handling: skull in flight.
-  // Neither a cacodemon nor a missile.
-  MF_SKULLFLY = 0x1000000,
+	// Special handling: skull in flight.
+	// Neither a cacodemon nor a missile.
+	MF_SKULLFLY = 0x1000000,
 
-  // Don't spawn this object
-  // in death match mode (e.g. key cards).
-  MF_NOTDMATCH = 0x2000000,
+	// Don't spawn this object
+	// in death match mode (e.g. key cards).
+	MF_NOTDMATCH = 0x2000000,
 
-  // Monster grows (in)visible at certain times.
-  MF_STEALTH = 0x4000000,
+	// Monster grows (in)visible at certain times.
+	MF_STEALTH = 0x4000000,
 
-  // Used so bots know they have picked up their target item.
-  MF_JUSTPICKEDUP = 0x8000000,
+	// Used so bots know they have picked up their target item.
+	MF_JUSTPICKEDUP = 0x8000000,
 
-  // Object reacts to being touched (often violently :->)
-  MF_TOUCHY = 0x10000000
+	// Object reacts to being touched (often violently :->)
+	MF_TOUCHY = 0x10000000
 }
 mobjflag_t;
 
 typedef enum
 {
-  // Act like a big ugly bossman (ignores certain types of damage and
-  // makes start and death sound at full volume regardless of location).
-  EF_BOSSMAN = 1,
+	// Act like a big ugly bossman (ignores certain types of damage and
+	// makes start and death sound at full volume regardless of location).
+	EF_BOSSMAN = 1,
 
-  // Used when varying visibility levels
-  EF_LESSVIS = 2,
+	// Used when varying visibility levels
+	EF_LESSVIS = 2,
 
-  // This thing does not respawn
-  EF_NORESPAWN = 4,
+	// This thing does not respawn
+	EF_NORESPAWN = 4,
 
-  // double the chance of object using range attack
-  EF_NOGRAVKILL = 8,
+	// double the chance of object using range attack
+	EF_NOGRAVKILL = 8,
 
-  // This thing is not loyal to its own type, fights its own
-  EF_DISLOYALTYPE = 16,
+	// This thing is not loyal to its own type, fights its own
+	EF_DISLOYALTYPE = 16,
 
-  // This thing can be hurt by another thing with same attack
-  EF_OWNATTACKHURTS = 32,
+	// This thing can be hurt by another thing with same attack
+	EF_OWNATTACKHURTS = 32,
 
-  // Used for tracing (homing) projectiles, its the first time
-  // this projectile has been checked for tracing if set.
-  EF_FIRSTCHECK = 64,
+	// Used for tracing (homing) projectiles, its the first time
+	// this projectile has been checked for tracing if set.
+	EF_FIRSTCHECK = 64,
 
-  // This projectile can trace, but if this is set it will not.
-  EF_NOTRACE = 128,
+	// This projectile can trace, but if this is set it will not.
+	EF_NOTRACE = 128,
 
-  // double the chance of object using range attack
-  EF_TRIGGERHAPPY = 256,
+	// double the chance of object using range attack
+	EF_TRIGGERHAPPY = 256,
 
-  // not targeted by other monsters for damaging them
-  EF_NEVERTARGET = 512,
+	// not targeted by other monsters for damaging them
+	EF_NEVERTARGET = 512,
 
-  // Normally most monsters will follow a target which caused them
-  // damage for a length of time, even if another object inflicted
-  // pain upon them; with this enabled, they will not hold the grudge
-  // and switch targets to the other object that has caused them the
-  // more recent pain.
-  EF_NOGRUDGE = 1024,
+	// Normally most monsters will follow a target which caused them
+	// damage for a length of time, even if another object inflicted
+	// pain upon them; with this enabled, they will not hold the grudge
+	// and switch targets to the other object that has caused them the
+	// more recent pain.
+	EF_NOGRUDGE = 1024,
 
-  // This object is dummy, used for carring a dummy set of co-ordinates for
-  // use as a target.
-  EF_DUMMYMOBJ = 2048,
+	// This object is dummy, used for carring a dummy set of co-ordinates for
+	// use as a target.
+	EF_DUMMYMOBJ = 2048,
 
-  // Archvile cannot resurrect this monster
-  EF_NORESURRECT = 4096,
+	// Archvile cannot resurrect this monster
+	EF_NORESURRECT = 4096,
 
-  // Object bounces
-  EF_BOUNCE = 8192,
+	// Object bounces
+	EF_BOUNCE = 8192,
 
-  // Thing walks along the edge near large dropoffs. 
-  EF_EDGEWALKER = 0x4000,
+	// Thing walks along the edge near large dropoffs. 
+	EF_EDGEWALKER = 0x4000,
 
-  // Monster falls with gravity when walks over cliff. 
-  EF_GRAVFALL = 0x8000,
+	// Monster falls with gravity when walks over cliff. 
+	EF_GRAVFALL = 0x8000,
 
-  // Thing can be climbed on-top-of or over. 
-  EF_CLIMBABLE = 0x10000,
+	// Thing can be climbed on-top-of or over. 
+	EF_CLIMBABLE = 0x10000,
 
-  // Thing won't penetrate WATER extra floors. 
-  EF_WATERWALKER = 0x20000,
+	// Thing won't penetrate WATER extra floors. 
+	EF_WATERWALKER = 0x20000,
 
-  // Thing is a monster. 
-  EF_MONSTER = 0x40000,
+	// Thing is a monster. 
+	EF_MONSTER = 0x40000,
 
-  // Thing can cross blocking lines.
-  EF_CROSSLINES = 0x80000,
+	// Thing can cross blocking lines.
+	EF_CROSSLINES = 0x80000,
 
-  // Thing is never affected by friction
-  EF_NOFRICTION = 0x100000,
+	// Thing is never affected by friction
+	EF_NOFRICTION = 0x100000,
 
-  // Thing is optional, won't exist when -noextra is used.
-  EF_EXTRA = 0x200000,
+	// Thing is optional, won't exist when -noextra is used.
+	EF_EXTRA = 0x200000,
 
-  // Just bounced, won't enter bounce states until BOUNCE_REARM.
-  EF_JUSTBOUNCED = 0x400000,
+	// Just bounced, won't enter bounce states until BOUNCE_REARM.
+	EF_JUSTBOUNCED = 0x400000,
 
-  // Thing can be "used" (like linedefs) with the spacebar.  Thing
-  // will then enter its TOUCH_STATES (when they exist).
-  EF_USABLE = 0x800000,
+	// Thing can be "used" (like linedefs) with the spacebar.  Thing
+	// will then enter its TOUCH_STATES (when they exist).
+	EF_USABLE = 0x800000,
 
-  // Thing will block bullets and missiles.  -AJA- 2000/09/29
-  EF_BLOCKSHOTS = 0x1000000,
+	// Thing will block bullets and missiles.  -AJA- 2000/09/29
+	EF_BLOCKSHOTS = 0x1000000,
 
-  // Player is currently crouching.  -AJA- 2000/10/19
-  EF_CROUCHING = 0x2000000,
+	// Player is currently crouching.  -AJA- 2000/10/19
+	EF_CROUCHING = 0x2000000,
 
-  // Missile can tunnel through enemies.  -AJA- 2000/10/23
-  EF_TUNNEL = 0x4000000,
+	// Missile can tunnel through enemies.  -AJA- 2000/10/23
+	EF_TUNNEL = 0x4000000,
 
-  // Marks thing as being a dynamic light.
-  EF_DLIGHT = 0x8000000,
+	// Marks thing as being a dynamic light.
+	EF_DLIGHT = 0x8000000,
 
-  // Thing has been gibbed.
-  EF_GIBBED = 0x10000000
+	// Thing has been gibbed.
+	EF_GIBBED = 0x10000000
 }
 mobjextendedflag_t;
 
 // Directions
 typedef enum
 {
-  DI_EAST,
-  DI_NORTHEAST,
-  DI_NORTH,
-  DI_NORTHWEST,
-  DI_WEST,
-  DI_SOUTHWEST,
-  DI_SOUTH,
-  DI_SOUTHEAST,
-  DI_NODIR,
-  NUMDIRS,
+	DI_EAST,
+	DI_NORTHEAST,
+	DI_NORTH,
+	DI_NORTHWEST,
+	DI_WEST,
+	DI_SOUTHWEST,
+	DI_SOUTH,
+	DI_SOUTHEAST,
+	DI_NODIR,
+	NUMDIRS,
 
-  DI_SLOWTURN,
-  DI_FASTTURN,
-  DI_WALKING,
-  DI_EVASIVE
+	DI_SLOWTURN,
+	DI_FASTTURN,
+	DI_WALKING,
+	DI_EVASIVE
 }
 dirtype_e;
 
@@ -341,25 +341,25 @@ dirtype_e;
 // purposes.
 typedef struct
 {
-  float x, y, z;
+	float x, y, z;
 }
 degenmobj_t;
 
 typedef struct
 {
-  // location on the map.  `z' can take the special values ONFLOORZ
-  // and ONCEILINGZ.
-  float x, y, z;
+	// location on the map.  `z' can take the special values ONFLOORZ
+	// and ONCEILINGZ.
+	float x, y, z;
 
-  // direction thing faces
-  angle_t angle;
-  float slope;
+	// direction thing faces
+	angle_t angle;
+	angle_t vertangle;
 
-  // type of thing
-  const mobjinfo_t *info;
+	// type of thing
+	const mobjinfo_t *info;
 
-  // certain flags (mainly MF_AMBUSH).
-  int flags;
+	// certain flags (mainly MF_AMBUSH).
+	int flags;
 }
 spawnpoint_t;
 
@@ -368,168 +368,166 @@ typedef struct mobj_s mobj_t;
 
 struct mobj_s
 {
-  // Info for drawing: position.
-  // NOTE: these three fields must be first, so mobj_t can be used
-  // anywhere that degenmobj_t is expected.
-  float x, y, z;
+	// Info for drawing: position.
+	// NOTE: these three fields must be first, so mobj_t can be used
+	// anywhere that degenmobj_t is expected.
+	float x, y, z;
 
-  // More drawing info: to determine current sprite.
-  angle_t angle;  // orientation
+	// More drawing info: to determine current sprite.
+	angle_t angle;  // orientation
+	angle_t vertangle;  // looking up or down
 
-  // used to find patch_t and flip value
-  spritenum_t sprite;
+	// used to find patch_t and flip value
+	spritenum_t sprite;
 
-  // frame and brightness
-  short frame, bright;
+	// frame and brightness
+	short frame, bright;
 
-  // current subsector
-  struct subsector_s *subsector;
+	// current subsector
+	struct subsector_s *subsector;
 
-  // properties from extrafloor the thing is in
-  struct region_properties_s *props;
+	// properties from extrafloor the thing is in
+	struct region_properties_s *props;
 
-  // The closest interval over all contacted Sectors.
-  float floorz;
-  float ceilingz;
-  float dropoffz;
+	// The closest interval over all contacted Sectors.
+	float floorz;
+	float ceilingz;
+	float dropoffz;
 
-  // For movement checking.
-  float radius;
-  float height;
+	// For movement checking.
+	float radius;
+	float height;
 
-  // Momentum, used to update position.
-  vec3_t mom;
+	// Momentum, used to update position.
+	vec3_t mom;
 
-  // Thing's health level
-  float health;
+	// Thing's health level
+	float health;
 
-  // This is the current speed of the object.
-  // if fastparm, it is already calculated.
-  float speed;
-  int fuse;
+	// This is the current speed of the object.
+	// if fastparm, it is already calculated.
+	float speed;
+	int fuse;
 
-  // If == validcount, already checked.
-  int validcount;
+	// If == validcount, already checked.
+	int validcount;
 
-  const mobjinfo_t *info;
+	const mobjinfo_t *info;
 
-  // state tic counter
-  int tics;
-  int tic_skip;
+	// state tic counter
+	int tics;
+	int tic_skip;
 
-  const state_t *state;
-  const state_t *next_state;
+	const state_t *state;
+	const state_t *next_state;
 
-  // flags (Old and New)
-  int flags;
-  int extendedflags;
+	// flags (Old and New)
+	int flags;
+	int extendedflags;
 
-  // Movement direction, movement generation (zig-zagging).
-  dirtype_e movedir;  // 0-7
+	// Movement direction, movement generation (zig-zagging).
+	dirtype_e movedir;  // 0-7
 
-  // when 0, select a new dir
-  int movecount;
+	// when 0, select a new dir
+	int movecount;
 
-  // Reaction time: if non 0, don't attack yet.
-  // Used by player to freeze a bit after teleporting.
-  int reactiontime;
+	// Reaction time: if non 0, don't attack yet.
+	// Used by player to freeze a bit after teleporting.
+	int reactiontime;
 
-  // If >0, the target will be chased
-  // no matter what (even if shot)
-  int threshold;
+	// If >0, the target will be chased
+	// no matter what (even if shot)
+	int threshold;
 
-  // Additional info record for player avatars only.
-  struct player_s *player;
+	// Additional info record for player avatars only.
+	struct player_s *player;
 
-  // Player number last looked for.
-  int lastlook;
+	// Player number last looked for.
+	int lastlook;
 
-  // For respawning.
-  spawnpoint_t spawnpoint;
+	// For respawning.
+	spawnpoint_t spawnpoint;
 
-  float origheight;
+	float origheight;
 
-  // current visibility and target visibility
-  float visibility;
-  float vis_target;
+	// current visibility and target visibility
+	float visibility;
+	float vis_target;
 
-  // looking up or down.....
-  float vertangle;
+	// current attack to be made
+	const attacktype_t *currentattack;
 
-  // current attack to be made
-  const attacktype_t *currentattack;
+	// spread count for Ordered spreaders
+	int spreadcount;
 
-  // spread count for Ordered spreaders
-  int spreadcount;
+	// -ES- 1999/10/25 Reference Count. DO NOT TOUCH.
+	// All the following mobj references should be set only
+	// through P_MobjSetX, where X is the field name. This is useful because
+	// it sets the pointer to NULL if the mobj is removed, this protects us
+	// from a crash.
+	int refcount;
 
-  // -ES- 1999/10/25 Reference Count. DO NOT TOUCH.
-  // All the following mobj references should be set only
-  // through P_MobjSetX, where X is the field name. This is useful because
-  // it sets the pointer to NULL if the mobj is removed, this protects us
-  // from a crash.
-  int refcount;
+	// source of the mobj, used for projectiles (i.e. the shooter)
+	mobj_t * source;
 
-  // source of the mobj, used for projectiles (i.e. the shooter)
-  mobj_t * source;
+	// target of the mobj
+	mobj_t * target;
 
-  // target of the mobj
-  mobj_t * target;
+	// current spawned fire of the mobj
+	mobj_t * tracer;
 
-  // current spawned fire of the mobj
-  mobj_t * tracer;
+	// if exists, we are supporting/helping this object
+	mobj_t * supportobj;
+	int side;
 
-  // if exists, we are supporting/helping this object
-  mobj_t * supportobj;
-  int side;
+	// objects that is above and below this one.  If there were several,
+	// then the closest one (in Z) is chosen.  We are riding the below
+	// object if the head height == our foot height.  We are being
+	// ridden if our head == the above object's foot height.
+	//
+	mobj_t * above_mo;
+	mobj_t * below_mo;
 
-  // objects that is above and below this one.  If there were several,
-  // then the closest one (in Z) is chosen.  We are riding the below
-  // object if the head height == our foot height.  We are being
-  // ridden if our head == the above object's foot height.
-  //
-  mobj_t * above_mo;
-  mobj_t * below_mo;
+	// these delta values give what position from the ride_em thing's
+	// center that we are sitting on.
+	float ride_dx, ride_dy;
 
-  // these delta values give what position from the ride_em thing's
-  // center that we are sitting on.
-  float ride_dx, ride_dy;
+	// -AJA- 1999/09/25: Path support.
+	struct rad_script_s *path_trigger;
 
-  // -AJA- 1999/09/25: Path support.
-  struct rad_script_s *path_trigger;
+	// if we're on a ladder, this is the linedef #, otherwise -1.
+	int on_ladder;
 
-  // if we're on a ladder, this is the linedef #, otherwise -1.
-  int on_ladder;
-  
-  float dlight_qty;
-  float dlight_target;
+	float dlight_qty;
+	float dlight_target;
 
-  // hash values for TUNNEL missiles
-  unsigned long tunnel_hash[2];
+	// hash values for TUNNEL missiles
+	unsigned long tunnel_hash[2];
 
-  // touch list: sectors this thing is in or touches
-  struct touch_node_s *touch_sectors;
+	// touch list: sectors this thing is in or touches
+	struct touch_node_s *touch_sectors;
 
-  // linked list (mobjlisthead)
-  mobj_t *next, *prev;
+	// linked list (mobjlisthead)
+	mobj_t *next, *prev;
 
-  // Interaction info, by BLOCKMAP.
-  // Links in blocks (if needed).
-  mobj_t *bnext, *bprev;
+	// Interaction info, by BLOCKMAP.
+	// Links in blocks (if needed).
+	mobj_t *bnext, *bprev;
 
-  // More list: links in subsector (if needed)
-  mobj_t *snext, *sprev;
+	// More list: links in subsector (if needed)
+	mobj_t *snext, *sprev;
 
-  // One more: link in dynamic light blockmap
-  mobj_t *dlnext, *dlprev;
+	// One more: link in dynamic light blockmap
+	mobj_t *dlnext, *dlprev;
 };
 
 // Item-in-Respawn-que Structure -ACB- 1998/07/30
 typedef struct iteminque_s
 {
-  spawnpoint_t spawnpoint;
-  int time;
-  struct iteminque_s *next;
-  struct iteminque_s *prev;
+	spawnpoint_t spawnpoint;
+	int time;
+	struct iteminque_s *next;
+	struct iteminque_s *prev;
 }
 iteminque_t;
 

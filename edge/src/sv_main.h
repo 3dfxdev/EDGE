@@ -206,7 +206,8 @@ bool SR_GetBoolean(void *storage, int index, void *extra);
 
 bool SR_GetVec2(void *storage, int index, void *extra);
 bool SR_GetVec3(void *storage, int index, void *extra);
-bool SR_GetIntAsFloat(void *storage, int index, void *extra);
+bool SR_GetFloatFromInt(void *storage, int index, void *extra);
+bool SR_GetAngleFromSlope(void *storage, int index, void *extra);
 
 #define SR_GetEnum     SR_GetInt
 #define SR_GetPercent  SR_GetFloat
@@ -228,6 +229,7 @@ void SR_PutBoolean(void *storage, int index, void *extra);
 
 void SR_PutVec2(void *storage, int index, void *extra);
 void SR_PutVec3(void *storage, int index, void *extra);
+void SR_PutAngleToSlope(void *storage, int index, void *extra);
 
 #define SR_PutEnum     SR_PutInt
 #define SR_PutPercent  SR_PutFloat

@@ -335,7 +335,7 @@ void G_BuildTiccmd(ticcmd_t * cmd)
 {
 	int i;
 	bool strafe;
-	float vertangle;  // -ACB- 1998/07/02 Look angle
+	float vertslope;  // -ACB- 1998/07/02 Look angle
 #ifdef MOUSE_ACC
 	// Define MOUSE_ACC to get smoother movements
 	// These values are first added to the movements, and then
@@ -365,7 +365,7 @@ void G_BuildTiccmd(ticcmd_t * cmd)
 	if (drone)
 		return;
 
-	vertangle = 0;
+	vertslope = 0;
 
 	strafe = CheckKey(key_strafe)?true:false;
 	speed = CheckKey(key_speed);
@@ -422,11 +422,11 @@ void G_BuildTiccmd(ticcmd_t * cmd)
 
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
 		if (CheckKey(key_lookup))
-			vertangle += (float)mlook_rate / 1024.0f;
+			vertslope += (float)mlook_rate / 1024.0f;
 
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
 		if (CheckKey(key_lookdown))
-			vertangle -= (float)mlook_rate / 1024.0f;
+			vertslope -= (float)mlook_rate / 1024.0f;
 
 		if (viewiszoomed)
 			mlook_rate /= ZOOM_ANGLE_DIV;
@@ -436,7 +436,7 @@ void G_BuildTiccmd(ticcmd_t * cmd)
 			cmd->extbuttons |= EBT_CENTER;
 
 		// -KM- 1998/09/01 More analogue binding
-		vertangle += M_FixedToFloat(analogue[AXIS_MLOOK] * mlook_rate);
+		vertslope += M_FixedToFloat(analogue[AXIS_MLOOK] * mlook_rate);
 	}
 
 	// You have to release the 180 deg turn key before you can press it again
@@ -562,11 +562,6 @@ void G_BuildTiccmd(ticcmd_t * cmd)
 	else if (side < -MAXPLMOVE)
 		side = -MAXPLMOVE;
 
-	if (vertangle > 0.5f)
-		vertangle = 0.5f;
-	else if (vertangle < -0.5f)
-		vertangle = -0.5f;
-
 	cmd->upwardmove += upward;
 	cmd->forwardmove += forward;
 	cmd->sidemove += side;
@@ -579,25 +574,24 @@ void G_BuildTiccmd(ticcmd_t * cmd)
 		angle_acc = 0;
 	cmd->angleturn -= angle_acc;
 
-	vertangle += slope_acc;
-	slope_acc = vertangle * 2/3;
+	vertslope += slope_acc;
+	slope_acc = vertslope * 2/3;
 	if (slope_acc < 64 * 2 * M_PI / 65536.0f)
 		// disable acc at very small angles (0.35 deg)
 		slope_acc = 0;
-	vertangle -= slope_acc;
+	vertslope -= slope_acc;
 #endif
 
-	if (vertangle != 0)
+	if (vertslope != 0)
 	{
 		cmd->extbuttons |= EBT_MLOOK;
 
-		if (vertangle > LOOKUPLIMIT)
-			vertangle = LOOKUPLIMIT;
+		if (vertslope > 0.5f)
+			vertslope = 0.5f;
+		else if (vertslope < -0.5f)
+			vertslope = -0.5f;
 
-		if (vertangle < LOOKDOWNLIMIT)
-			vertangle = LOOKDOWNLIMIT;
-
-		cmd->vertangle = (signed char)(vertangle * 254);
+		cmd->vertslope = (signed char)(vertslope * 254);
 	}
 
 	// special buttons

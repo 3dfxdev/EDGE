@@ -183,7 +183,10 @@ void RGL_DrawSkyBackground(void)
 #endif
 
 	// compute sky horizontally tex coords
-	mlook_rad = atan(viewvertangle);
+	mlook_rad = ANG_2_FLOAT(viewvertangle) * M_PI / 180.0f;
+
+	if (mlook_rad > M_PI)
+		mlook_rad -= M_PI*2;
 
 	if (mlook_rad >= M_PI/4)
 		top_L = 90;
@@ -193,6 +196,7 @@ void RGL_DrawSkyBackground(void)
 	{
 		// d is just the distance horizontally forward from the eye to
 		// the top edge of the view rectangle.
+		// FIXME !!! this equation is wrong.
 		float d = M_ROOT2 * sin(M_PI/2 - (mlook_rad + M_PI/4));
 
 		top_L = 90 - ANG_2_FLOAT(M_ATan(d));
@@ -206,6 +210,7 @@ void RGL_DrawSkyBackground(void)
 	{
 		// d is just the distance horizontally forward from the eye to
 		// the bottom edge of the view rectangle.
+		// FIXME !!! this equation is wrong.
 		float d = M_ROOT2 * sin(M_PI/2 - (M_PI/4 - mlook_rad));
 
 		bottom_L = 90 - ANG_2_FLOAT(M_ATan(d));

@@ -837,7 +837,7 @@ static void CameraFrameInit_StdPlayer(void *data)
 	extralight = player->extralight;
 
 	viewsubsector = player->mo->subsector;
-	viewvertangle = player->mo->vertangle + player->kick_offset;
+	viewvertangle = player->mo->vertangle + M_ATan(player->kick_offset);
 	view_props = R_PointGetProps(viewsubsector, viewz);
 
 	effect_colourmap = player->effect_colourmap;

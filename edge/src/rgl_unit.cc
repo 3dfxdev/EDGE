@@ -310,7 +310,7 @@ void RGL_DrawUnits(void)
 //  SPECIAL 1D OCCLUSION BUFFER
 //
 
-#define ONED_POWER  12  // 4096 angles
+#define ONED_POWER  12  // 8192 angles  !!!!
 #define ONED_SIZE   (1 << ONED_POWER)
 
 // 1 bit per angle, packed into 32 bit values.
@@ -324,25 +324,25 @@ static unsigned long oned_oculus_buffer[ONED_SIZE / 32];
 static unsigned long oned_low_masks[32] =
 {
 	0xFFFFFFFF, 0x7FFFFFFF, 0x3FFFFFFF, 0x1FFFFFFF,
-		0x0FFFFFFF, 0x07FFFFFF, 0x03FFFFFF, 0x01FFFFFF,
-		0x00FFFFFF, 0x007FFFFF, 0x003FFFFF, 0x001FFFFF,
-		0x000FFFFF, 0x0007FFFF, 0x0003FFFF, 0x0001FFFF,
-		0x0000FFFF, 0x00007FFF, 0x00003FFF, 0x00001FFF,
-		0x00000FFF, 0x000007FF, 0x000003FF, 0x000001FF,
-		0x000000FF, 0x0000007F, 0x0000003F, 0x0000001F,
-		0x0000000F, 0x00000007, 0x00000003, 0x00000001
+	0x0FFFFFFF, 0x07FFFFFF, 0x03FFFFFF, 0x01FFFFFF,
+	0x00FFFFFF, 0x007FFFFF, 0x003FFFFF, 0x001FFFFF,
+	0x000FFFFF, 0x0007FFFF, 0x0003FFFF, 0x0001FFFF,
+	0x0000FFFF, 0x00007FFF, 0x00003FFF, 0x00001FFF,
+	0x00000FFF, 0x000007FF, 0x000003FF, 0x000001FF,
+	0x000000FF, 0x0000007F, 0x0000003F, 0x0000001F,
+	0x0000000F, 0x00000007, 0x00000003, 0x00000001
 };
 
 static unsigned long oned_high_masks[32] =
 {
 	0x80000000, 0xC0000000, 0xE0000000, 0xF0000000,
-		0xF8000000, 0xFC000000, 0xFE000000, 0xFF000000,
-		0xFF800000, 0xFFC00000, 0xFFE00000, 0xFFF00000,
-		0xFFF80000, 0xFFFC0000, 0xFFFE0000, 0xFFFF0000,
-		0xFFFF8000, 0xFFFFC000, 0xFFFFE000, 0xFFFFF000,
-		0xFFFFF800, 0xFFFFFC00, 0xFFFFFE00, 0xFFFFFF00,
-		0xFFFFFF80, 0xFFFFFFC0, 0xFFFFFFE0, 0xFFFFFFF0,
-		0xFFFFFFF8, 0xFFFFFFFC, 0xFFFFFFFE, 0xFFFFFFFF
+	0xF8000000, 0xFC000000, 0xFE000000, 0xFF000000,
+	0xFF800000, 0xFFC00000, 0xFFE00000, 0xFFF00000,
+	0xFFF80000, 0xFFFC0000, 0xFFFE0000, 0xFFFF0000,
+	0xFFFF8000, 0xFFFFC000, 0xFFFFE000, 0xFFFFF000,
+	0xFFFFF800, 0xFFFFFC00, 0xFFFFFE00, 0xFFFFFF00,
+	0xFFFFFF80, 0xFFFFFFC0, 0xFFFFFFE0, 0xFFFFFFF0,
+	0xFFFFFFF8, 0xFFFFFFFC, 0xFFFFFFFE, 0xFFFFFFFF
 };
 
 #define LOW_MASK(L)   oned_low_masks[L]
@@ -353,52 +353,33 @@ static unsigned long oned_high_masks[32] =
 // RGL_1DOcclusionClear
 //
 // Clear all angles in the given range.  (Clear means open, i.e. not
-// blocked).  The angles are relative to the VIEW angle, and must lie
-// in the range -90 to +90 degrees (inclusive).
+// blocked).  The angles are relative to the VIEW angle.
 //
-void RGL_1DOcclusionClear(angle_t low, angle_t high)
+void RGL_1DOcclusionClear(void)
 {
-	unsigned int low_b, high_b;
+	int low;
 
-	low  += ANG90;
-	high += ANG90;
-
-	DEV_ASSERT2(low  <= ANG180);
-	DEV_ASSERT2(high <= ANG180);
-	DEV_ASSERT2(low  <= high);
-
-	if (low  == ANG180) low--;
-	if (high == ANG180) high--;
-
-	low  >>= (ANGLEBITS - ONED_POWER);
-	high >>= (ANGLEBITS - ONED_POWER);
-
-	low_b  = low  & 0x1F;  low  >>= 5; 
-	high_b = high & 0x1F;  high >>= 5; 
-
-	if (low == high)
-	{
-		oned_oculus_buffer[low] |= (LOW_MASK(low_b) & HIGH_MASK(high_b));
-	}
-	else
-	{
-		oned_oculus_buffer[low]  |= LOW_MASK(low_b);
-		oned_oculus_buffer[high] |= HIGH_MASK(high_b);
-
-		for (low++; low < high; low++)
-			oned_oculus_buffer[low] = 0xFFFFFFFF;
-	}
+	for (low = 0; low < (ONED_SIZE/32); low++)
+		oned_oculus_buffer[low] = 0xFFFFFFFF;
 }
 
 //
 // RGL_1DOcclusionSet
 //
 // Set all angles in the given range, i.e. mark them as blocking.  The
-// angles are relative to the VIEW angle, and must lie in the range
-// -90 to +90 degrees (inclusive).
+// angles are relative to the VIEW angle.
 //
 void RGL_1DOcclusionSet(angle_t low, angle_t high)
 {
+	if ((angle_t)(high - low) >= ANG180)  //!!!!
+	{
+fprintf(stderr, "low = %1.1f\n", ANG_2_FLOAT(low));
+fprintf(stderr, "high = %1.1f\n", ANG_2_FLOAT(high));
+fprintf(stderr, "span = %1.1f\n", ANG_2_FLOAT( (angle_t)(high - low) ));
+	}
+
+	DEV_ASSERT2((angle_t)(high - low) < ANG180);
+
 	unsigned int low_b, high_b;
 
 	low  += ANG90;
@@ -436,11 +417,19 @@ void RGL_1DOcclusionSet(angle_t low, angle_t high)
 //
 // Check whether all angles in the given range are set (i.e. blocked).
 // Returns true if the entire range is blocked, false otherwise.
-// Angles are relative to the VIEW angle, and must lie in the range
-// -90 to +90 degrees (inclusive).
+// Angles are relative to the VIEW angle.
 //
 bool RGL_1DOcclusionTest(angle_t low, angle_t high)
 {
+	if ((angle_t)(high - low) >= ANG180)  //!!!!
+	{
+fprintf(stderr, "low = %1.1f\n", ANG_2_FLOAT(low));
+fprintf(stderr, "high = %1.1f\n", ANG_2_FLOAT(high));
+fprintf(stderr, "span = %1.1f\n", ANG_2_FLOAT( (angle_t)(high - low) ));
+	}
+
+	DEV_ASSERT2((angle_t)(high - low) < ANG180);
+
 	unsigned int low_b, high_b;
 
 	low  += ANG90;

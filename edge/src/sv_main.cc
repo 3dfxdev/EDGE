@@ -95,8 +95,8 @@ extern savearray_t sv_array_plane_move;
 //
 bool SR_GetByte(void *storage, int index, void *extra)
 {
-  ((unsigned char *)storage)[index] = SV_GetByte();
-  return true;
+	((unsigned char *)storage)[index] = SV_GetByte();
+	return true;
 }
 
 //
@@ -104,8 +104,8 @@ bool SR_GetByte(void *storage, int index, void *extra)
 //
 bool SR_GetShort(void *storage, int index, void *extra)
 {
-  ((unsigned short *)storage)[index] = SV_GetShort();
-  return true;
+	((unsigned short *)storage)[index] = SV_GetShort();
+	return true;
 }
 
 //
@@ -113,8 +113,8 @@ bool SR_GetShort(void *storage, int index, void *extra)
 //
 bool SR_GetInt(void *storage, int index, void *extra)
 {
-  ((unsigned int *)storage)[index] = SV_GetInt();
-  return true;
+	((unsigned int *)storage)[index] = SV_GetInt();
+	return true;
 }
 
 //
@@ -122,8 +122,8 @@ bool SR_GetInt(void *storage, int index, void *extra)
 //
 bool SR_GetFixed(void *storage, int index, void *extra)
 {
-  ((fixed_t *)storage)[0] = SV_GetFixed();
-  return true;
+	((fixed_t *)storage)[0] = SV_GetFixed();
+	return true;
 }
 
 //
@@ -131,8 +131,8 @@ bool SR_GetFixed(void *storage, int index, void *extra)
 //
 bool SR_GetAngle(void *storage, int index, void *extra)
 {
-  ((angle_t *)storage)[index] = SV_GetAngle();
-  return true;
+	((angle_t *)storage)[index] = SV_GetAngle();
+	return true;
 }
 
 //
@@ -140,8 +140,8 @@ bool SR_GetAngle(void *storage, int index, void *extra)
 //
 bool SR_GetFloat(void *storage, int index, void *extra)
 {
-  ((float *)storage)[index] = SV_GetFloat();
-  return true;
+	((float *)storage)[index] = SV_GetFloat();
+	return true;
 }
 
 //
@@ -149,8 +149,8 @@ bool SR_GetFloat(void *storage, int index, void *extra)
 //
 bool SR_GetBoolean(void *storage, int index, void *extra)
 {
-  ((bool *)storage)[index] = SV_GetInt() ? true : false;
-  return true;
+	((bool *)storage)[index] = SV_GetInt() ? true : false;
+	return true;
 }
 
 //
@@ -158,9 +158,9 @@ bool SR_GetBoolean(void *storage, int index, void *extra)
 //
 bool SR_GetVec2(void *storage, int index, void *extra)
 {
-  ((vec2_t *)storage)[index].x = SV_GetFloat();
-  ((vec2_t *)storage)[index].y = SV_GetFloat();
-  return true;
+	((vec2_t *)storage)[index].x = SV_GetFloat();
+	((vec2_t *)storage)[index].y = SV_GetFloat();
+	return true;
 }
 
 //
@@ -168,19 +168,32 @@ bool SR_GetVec2(void *storage, int index, void *extra)
 //
 bool SR_GetVec3(void *storage, int index, void *extra)
 {
-  ((vec3_t *)storage)[index].x = SV_GetFloat();
-  ((vec3_t *)storage)[index].y = SV_GetFloat();
-  ((vec3_t *)storage)[index].z = SV_GetFloat();
-  return true;
+	((vec3_t *)storage)[index].x = SV_GetFloat();
+	((vec3_t *)storage)[index].y = SV_GetFloat();
+	((vec3_t *)storage)[index].z = SV_GetFloat();
+	return true;
 }
 
 //
-// SR_GetIntAsFloat
+// SR_GetFloatFromInt
 //
-bool SR_GetIntAsFloat(void *storage, int index, void *extra)
+bool SR_GetFloatFromInt(void *storage, int index, void *extra)
 {
-  ((float *)storage)[index] = (float)SV_GetInt();
-  return true;
+	((float *)storage)[index] = (float)SV_GetInt();
+	return true;
+}
+
+//
+// SR_GetAngleFromSlope
+//
+// For backwards compatibility with old savegames, keep the mlook angle
+// stored in the savegame file as a slope.  Possible because we forbid
+// looking directly up and down.
+//
+bool SR_GetAngleFromSlope(void *storage, int index, void *extra)
+{
+	((angle_t *)storage)[index] = M_ATan(SV_GetFloat());
+	return true;
 }
 
 
@@ -194,7 +207,7 @@ bool SR_GetIntAsFloat(void *storage, int index, void *extra)
 //
 void SR_PutByte(void *storage, int index, void *extra)
 {
-  SV_PutByte(((unsigned char *)storage)[index]);
+	SV_PutByte(((unsigned char *)storage)[index]);
 }
 
 //
@@ -202,7 +215,7 @@ void SR_PutByte(void *storage, int index, void *extra)
 //
 void SR_PutShort(void *storage, int index, void *extra)
 {
-  SV_PutShort(((unsigned short *)storage)[index]);
+	SV_PutShort(((unsigned short *)storage)[index]);
 }
 
 //
@@ -210,7 +223,7 @@ void SR_PutShort(void *storage, int index, void *extra)
 //
 void SR_PutInt(void *storage, int index, void *extra)
 {
-  SV_PutInt(((unsigned int *)storage)[index]);
+	SV_PutInt(((unsigned int *)storage)[index]);
 }
 
 //
@@ -218,7 +231,7 @@ void SR_PutInt(void *storage, int index, void *extra)
 //
 void SR_PutFixed(void *storage, int index, void *extra)
 {
-  SV_PutFixed(((fixed_t *)storage)[index]);
+	SV_PutFixed(((fixed_t *)storage)[index]);
 }
 
 //
@@ -226,7 +239,7 @@ void SR_PutFixed(void *storage, int index, void *extra)
 //
 void SR_PutAngle(void *storage, int index, void *extra)
 {
-  SV_PutAngle(((angle_t *)storage)[index]);
+	SV_PutAngle(((angle_t *)storage)[index]);
 }
 
 //
@@ -234,7 +247,7 @@ void SR_PutAngle(void *storage, int index, void *extra)
 //
 void SR_PutFloat(void *storage, int index, void *extra)
 {
-  SV_PutFloat(((float *)storage)[index]);
+	SV_PutFloat(((float *)storage)[index]);
 }
 
 //
@@ -242,7 +255,7 @@ void SR_PutFloat(void *storage, int index, void *extra)
 //
 void SR_PutBoolean(void *storage, int index, void *extra)
 {
-  SV_PutInt(((bool *)storage)[index] ? 1 : 0);
+	SV_PutInt(((bool *)storage)[index] ? 1 : 0);
 }
 
 //
@@ -250,8 +263,8 @@ void SR_PutBoolean(void *storage, int index, void *extra)
 //
 void SR_PutVec2(void *storage, int index, void *extra)
 {
-  SV_PutFloat(((vec2_t *)storage)[index].x);
-  SV_PutFloat(((vec2_t *)storage)[index].y);
+	SV_PutFloat(((vec2_t *)storage)[index].x);
+	SV_PutFloat(((vec2_t *)storage)[index].y);
 }
 
 //
@@ -259,9 +272,21 @@ void SR_PutVec2(void *storage, int index, void *extra)
 //
 void SR_PutVec3(void *storage, int index, void *extra)
 {
-  SV_PutFloat(((vec3_t *)storage)[index].x);
-  SV_PutFloat(((vec3_t *)storage)[index].y);
-  SV_PutFloat(((vec3_t *)storage)[index].z);
+	SV_PutFloat(((vec3_t *)storage)[index].x);
+	SV_PutFloat(((vec3_t *)storage)[index].y);
+	SV_PutFloat(((vec3_t *)storage)[index].z);
+}
+
+//
+// SR_PutAngleToSlope
+//
+void SR_PutAngleToSlope(void *storage, int index, void *extra)
+{
+	angle_t val = ((angle_t *)storage)[index];
+
+	DEV_ASSERT2(val < ANG90 || val > ANG270);
+
+	SV_PutFloat(M_Tan(val));
 }
 
 

@@ -160,10 +160,12 @@ static void MovePlayer(player_t * player)
 
 	if (canswim)
 	{
-		float hyp = (float)sqrt((double)(1.0f + player->mo->vertangle * player->mo->vertangle));
+		float slope = M_Tan(player->mo->vertangle);
 
-		eh = 1.0f / hyp;
-		ev = player->mo->vertangle / hyp;
+		float hyp = (float)sqrt((double)(1.0f + slope * slope));
+
+		eh = 1.0f  / hyp;
+		ev = slope / hyp;
 	}
 
 	// compute movement vectors
@@ -283,13 +285,15 @@ static void MovePlayer(player_t * player)
 	//
 	if (level_flags.mlook && (cmd->extbuttons & EBT_MLOOK))
 	{
-		player->mo->vertangle += cmd->vertangle / 254.0f;
+		player->mo->vertangle += M_ATan(cmd->vertslope / 254.0f);
 
-		if (player->mo->vertangle > LOOKUPLIMIT)
-			player->mo->vertangle = LOOKUPLIMIT;
-
-		if (player->mo->vertangle < LOOKDOWNLIMIT)
-			player->mo->vertangle = LOOKDOWNLIMIT;
+		if (player->mo->vertangle > LOOKUPLIMIT && player->mo->vertangle < LOOKDOWNLIMIT)
+		{
+			if (player->mo->vertangle <= ANG180)
+				player->mo->vertangle = LOOKUPLIMIT;
+			else
+				player->mo->vertangle = LOOKDOWNLIMIT;
+		}
 	}
 
 	// EDGE Feature: Vertical Centering (Mlook)
@@ -313,8 +317,8 @@ static void DeathThink(player_t * player)
 	float dx, dy, dz;
 
 	angle_t angle;
-	angle_t delta;
-	float slope, delta_s;
+	angle_t delta, delta_s;
+	float slope;
 
 	// -AJA- 1999/12/07: don't die mid-air.
 	player->powers[PW_Jetpack] = 0;
@@ -343,14 +347,13 @@ static void DeathThink(player_t * player)
 		delta = angle - player->mo->angle;
 
 		slope = P_ApproxSlope(dx, dy, dz);
-		slope = MIN(LOOKUPLIMIT, MAX(LOOKDOWNLIMIT, slope));
-		delta_s = slope - player->mo->vertangle;
+		slope = MIN(0.5, MAX(-0.5, slope));
+		delta_s = M_ATan(slope) - player->mo->vertangle;
 
 		if ((delta <= ANG1 || delta >= (angle_t)(0 - ANG1)) &&
-			fabs(delta_s) <= 0.01)
+			(delta_s <= ANG1 || delta_s >= (angle_t)(0 - ANG1)))
 		{
-			// Looking at killer,
-			//  so fade damage flash down.
+			// Looking at killer, so fade damage flash down.
 			player->mo->angle = angle;
 
 			if (player->damagecount)
@@ -361,8 +364,8 @@ static void DeathThink(player_t * player)
 			if (delta > ANG5 && delta < (angle_t)(0 - ANG5))
 				delta = (delta < ANG180) ? ANG5 : (angle_t)(0 - ANG5);
 
-			if (delta_s < -0.03f || delta_s > 0.03f)
-				delta_s = (delta_s < 0.0f) ? -0.03f : 0.03f;
+			if (delta_s > (ANG5/2) && delta_s < (angle_t)(0 - ANG5/2))
+				delta_s = (delta_s < ANG180) ? (ANG5/2) : (angle_t)(0 - ANG5/2);
 
 			player->mo->angle += delta;
 			player->mo->vertangle += delta_s;

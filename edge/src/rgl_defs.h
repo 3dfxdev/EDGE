@@ -176,7 +176,7 @@ void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
 //
 //  1D OCCLUSION STUFF
 //
-void RGL_1DOcclusionClear(angle_t low, angle_t high);
+void RGL_1DOcclusionClear(void);
 void RGL_1DOcclusionSet(angle_t low, angle_t high);
 bool RGL_1DOcclusionTest(angle_t low, angle_t high);
 
