@@ -684,35 +684,6 @@ void Z_DumpLeakInfo(int level)
 #endif
 
 //
-// Z_CheckHeap
-//
-void Z_CheckHeap(void)
-{
-}
-
-//
-// Z_UsedMemory
-//
-// Shows how much memory that is allocated (malloc headers not included).
-// If level is non-negative, any tags with tag>=level are treated as unused.
-
-int Z_UsedMemory(int level)
-{
-	return W_CacheInfo(level);
-}
-
-//
-// Z_FreeMemory
-//
-// Shows the amount of free memory.
-// If level is non-negative, any tags with tag>=level are treated as free.
-
-int Z_FreeMemory(int level)
-{
-	return 0;
-}
-
-//
 // Z_Init
 //
 void Z_Init(void)
@@ -720,19 +691,5 @@ void Z_Init(void)
 	// Register stack array flusher. That system doesn't need any
 	// initialisation first.
 	Z_RegisterCacheFlusher(FlushStackArrays);
-}
-
-//
-// Z_CheckIfZero
-//
-// Return true if the memory is completely clear.
-//
-bool Z_CheckIfZero(const byte *ptr, int size)
-{
-	for (; size > 0; size--, ptr++)
-		if (*ptr)
-			return false;
-
-	return true;
 }
 
