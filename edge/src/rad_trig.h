@@ -79,7 +79,6 @@ extern char *rad_cur_filename;
 void RAD_ActNOP(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActTip(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActTipProps(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActTipFade(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActPlaySound(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActKillSound(rad_trigger_t *R, mobj_t *actor, void *param);
@@ -100,6 +99,5 @@ void RAD_ActThingEvent(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActSkill(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActGotoMap(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActExitLevel(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActSaveGame(rad_trigger_t *R, mobj_t *actor, void *param);
 
 #endif
