@@ -1243,6 +1243,7 @@ void DDF_MobjGetBenefit(const char *info, void *storage)
 
 static const specflags_t normal_specials[] =
 {
+	{"AMBUSH", MF_AMBUSH, 0},
 	{"FUZZY", MF_FUZZY, 0},
 	{"SOLID", MF_SOLID, 0},
 	{"ON CEILING", MF_SPAWNCEILING + MF_NOGRAVITY, 0},
