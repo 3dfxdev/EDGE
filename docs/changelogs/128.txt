@@ -49,6 +49,11 @@ Bugs fixed
 - night vision in GL mode was not lighting things up.
 - fix for console which was drawn behind the menus.
 
+Bugs fixed in 1.28a
+-------------------
+
+- @@@
+
 
 Features removed:
 -----------------
