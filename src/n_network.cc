@@ -29,6 +29,7 @@
 #include "e_player.h"
 #include "g_game.h"
 #include "p_local.h"
+#include "version.h"
 #include "z_zone.h"
 
 
@@ -57,6 +58,8 @@ static void N_Preliminaries(void)
 	nlStringToAddr("192.168.0.197", &local);
 	nlSetLocalAddr(&local);
 #endif
+
+	srand(I_PureRandom());
 }
 
 static bool N_TestServer(NLsocket sock)
@@ -72,15 +75,20 @@ static bool N_TestServer(NLsocket sock)
 
 	for (;;)
 	{
-		sleep(1);
-
 		if (pk.Read(sock))
-			break;
+		{
+			if (pk.CheckType("Bd"))
+				break;
+			else
+				continue;
+		}
 
 		count++;
 
 		if (count == 5)
 			return false;
+
+		sleep(1);
 	}
 
 	nlGetRemoteAddr(sock, &server);
@@ -103,17 +111,24 @@ static void N_FindServer(void)
 
 	nlGetLocalAddr(loc_sock, &loc_addr);
 
-	fprintf(stderr, "Local addr %s\n", N_GetAddrName(&loc_addr));
+	const char *addr_name = N_GetAddrName(&loc_addr);
 
-	nlSetAddrPort(&loc_addr, 26710);
-
-	if (! nlSetRemoteAddr(loc_sock, &loc_addr))
-		I_Error("Set remote address on local socket failed.\n%s", N_GetErrorStr());
-
-	if (N_TestServer(loc_sock))
+	// ignore loopback (127.0.0.1)
+	// FIXME: check other addresses using nlGetAllLocalAddr()
+	if (strncmp(addr_name, "127.", 4) != 0)
 	{
-		nlClose(loc_sock);
-		return;
+		fprintf(stderr, "Local addr %s\n", N_GetAddrName(&loc_addr));
+
+		nlSetAddrPort(&loc_addr, 26710);
+
+		if (! nlSetRemoteAddr(loc_sock, &loc_addr))
+			I_Error("Set remote address on local socket failed.\n%s", N_GetErrorStr());
+
+		if (N_TestServer(loc_sock))
+		{
+			nlClose(loc_sock);
+			return;
+		}
 	}
 
 	fprintf(stderr, "Server not on same computer, trying LAN...\n");
@@ -139,10 +154,25 @@ static void N_FindServer(void)
 
 static void N_ConnectServer(void)
 {
-	socket = nlOpen(0, NL_UNRELIABLE);
+	int port = 0;
+
+	// choose a random socket port
+	for (int tries = 0; tries < 100; tries++)
+	{
+		port = 11000 + (rand() & 0x1FFF);
+
+		socket = nlOpen(port, NL_UNRELIABLE);
+
+		if (socket != NL_INVALID)
+			break;
+
+///		if ((tries % 10) == 9) sleep for 10 ms
+	}
 
     if (socket == NL_INVALID)
 		I_Error("Unable to create main socket:\n%s", N_GetErrorStr());
+
+	fprintf(stderr, "Port %d\n", port);
 
 	nlSetRemoteAddr(socket, &server);
 
@@ -155,13 +185,11 @@ static void N_ConnectServer(void)
 	pk.hd().flags = 0;
 	pk.hd().data_len = sizeof(connect_proto_t);
 
-	connect_proto_t& cs = pk.cs_p();
+	connect_proto_t& con = pk.cs_p();
 
-///!!!	cs.protocol_ver = MP_PROTOCOL_VER;
+	strcpy(con.info.name, "Flynn");
 
-	strcpy(cs.info.name, "Flynn");
-
-	cs.ByteSwap();
+	con.ByteSwap();
 
 	if (! pk.Write(socket))
 		I_Error("Unable to write CS packet:\n%s", N_GetErrorStr());
@@ -178,9 +206,13 @@ static void N_ConnectServer(void)
 	if (! pk.CheckType("Cs"))
 		I_Error("Failed to connect to server: (invalid reply)\n");
 
-	client_id = pk.hd().source;
+	con.ByteSwap();
+
+	client_id = pk.hd().client;
 	
 	fprintf(stderr, "Connected to server: client_id %d\n", client_id);
+	fprintf(stderr, "Server version %3x.  Protocol version %3x.\n",
+		con.server_ver, con.protocol_ver);
 }
 
 static void N_NewGame(void)
@@ -193,14 +225,19 @@ static void N_NewGame(void)
 
 	new_game_proto_t& ng = pk.ng_p();
 
-	strcpy(ng.info.game_name,  "DOOM2");
-	strcpy(ng.info.level_name, "MAP01");
+	sprintf(ng.info.engine_name, "EDGE%3x", EDGEVER);
+	sprintf(ng.info.game_name,   "DOOM2");
+	sprintf(ng.info.level_name,  "MAP01");
 
 	ng.info.mode  = 'D';
-	ng.info.skill = '4';
+	ng.info.skill = 4;  // H.M.P
 
 	ng.info.min_players = 1;
-	ng.info.engine_ver  = 0x129;
+	ng.info.num_bots = 0;
+	ng.info.features = 0x00FF;
+
+	ng.info.wad_checksum = 0;
+	ng.info.def_checksum = 0;
 
 	ng.ByteSwap();
 
@@ -221,7 +258,7 @@ static void N_NewGame(void)
 
 	ng.ByteSwap();
 
-	game_id = pk.hd().game;
+	game_id = ng.game;
 
 	fprintf(stderr, "Created new game: %d\n", game_id);
 }
@@ -246,8 +283,18 @@ static void N_Vote(void)
 	if (pk.CheckType("Er"))
 		I_Error("Failed to vote:\n%s", pk.er_p().message);
 
+	// FIXME: will normally get "Vp" (acknowledge)
+
 	if (! pk.CheckType("Pg"))
 		I_Error("Failed to vote (invalid reply)\n");
+
+	play_game_proto_t& pg = pk.pg_p();
+
+	pg.ByteSwap();
+
+	// FIXME: use pg.random_seed
+
+	// read client list !!!
 
 	fprintf(stderr, "LET THE GAMES BEGIN !!!\n");
 }
@@ -274,6 +321,8 @@ static int last_tryrun_tic;
 void E_CheckNetGame(void)
 {
 	// FIXME: singletics, WTF ???
+
+	DEV_ASSERT2(sizeof(ticcmd_t) == sizeof(raw_ticcmd_t));
 
 #if 0
 	N_InitiateGame();
@@ -340,11 +389,11 @@ I_Printf("GOT PACKET [%c%c]\n", pk.hd().type[0], pk.hd().type[1]);
 
 	tic_group_proto_t& tg = pk.tg_p();
 
-	tg.ByteSwap();
+	tg.ByteSwap(true);
 
 	player_t *p = players[consoleplayer]; //!!!!
 
-	int got_tic = pk.hd().request_id;
+	int got_tic = tg.gametic + tg.offset;
 
 I_Printf("-- Got TG: counter = %d  in_tic = %d\n", got_tic, p->in_tic);
 
@@ -356,7 +405,6 @@ I_Printf("-- Got TG: counter = %d  in_tic = %d\n", got_tic, p->in_tic);
 		return;
 	}
 
-	// !!!! FIXME: MUST SWAP BYTES
 	memcpy(p->in_cmds + (got_tic % BACKUPTICS), tg.tic_cmds, sizeof(ticcmd_t));
 
 	p->in_tic++;
@@ -368,15 +416,20 @@ static void DoSendTiccmd(player_t *p, ticcmd_t *cmd, int tic)
 
 	pk.SetType("tc");
 	pk.hd().flags = 0;
-	pk.hd().source = client_id;
-	pk.hd().request_id = tic;  // FIXME !!!! 16 bits, will run out quickly
+	pk.hd().client = client_id;
 	pk.hd().data_len = sizeof(ticcmd_proto_t);
 
     ticcmd_proto_t& tc = pk.tc_p();
 
-	memcpy(&tc.tic_cmd, p->out_cmds + (tic % BACKUPTICS), sizeof(ticcmd_t));
+	DEV_ASSERT2(tic >= gametic);
 
-    tc.ByteSwap();
+	tc.gametic = gametic;
+	tc.offset  = tic - gametic;
+	tc.count   = 1;
+
+	memcpy(&tc.tic_cmds, p->out_cmds + (tic % BACKUPTICS), sizeof(ticcmd_t));
+
+    tc.ByteSwap(true);
 
 I_Printf("Writing ticcmd for tic %d\n", tic);
 	if (! pk.Write(socket))
