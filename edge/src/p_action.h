@@ -55,6 +55,8 @@ void A_CheckReload(mobj_t * object);
 void A_SFXWeapon1(mobj_t * object);
 void A_SFXWeapon2(mobj_t * object);
 void A_SFXWeapon3(mobj_t * object);
+void A_WeaponPlaySound(mobj_t * object);
+void A_WeaponKillSound(mobj_t * object);
 void A_WeaponTransSet(mobj_t * object);
 void A_WeaponTransFade(mobj_t * object);
 
@@ -84,6 +86,8 @@ void P_ActTransLess(mobj_t * object);
 void P_ActTransAlternate(mobj_t * object);
 
 // Sound Actions
+void P_ActPlaySound(mobj_t * object);
+void P_ActKillSound(mobj_t * object);
 void P_ActMakeAmbientSound(mobj_t * object);
 void P_ActMakeAmbientSoundRandom(mobj_t * object);
 void P_ActMakeCloseAttemptSound(mobj_t * object);

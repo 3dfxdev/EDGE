@@ -79,8 +79,8 @@ extern mobj_t *RandomTarget;
 //
 void P_ActPlayerAttack(mobj_t * playerobj, const attacktype_t * attack);
 void P_ActSlammedIntoObject(mobj_t * object, mobj_t * objecthit);
-void P_ActMissileContact(mobj_t * object, mobj_t * objecthit);
-void P_ActBulletContact(mobj_t * object, mobj_t * objecthit, float_t damage);
+boolean_t P_ActMissileContact(mobj_t * object, mobj_t * objecthit);
+boolean_t P_ActBulletContact(mobj_t * object, mobj_t * objecthit, float_t damage);
 void P_ActTouchyContact(mobj_t * touchy, mobj_t * victim);
 boolean_t P_ActUseThing(mobj_t * user, mobj_t * thing, float_t open_bottom,
     float_t open_top);
