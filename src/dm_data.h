@@ -210,6 +210,15 @@ typedef struct map_glseg_s
 }
 map_glseg_t;
 
+// -AJA- 2000/07/01: New kind of vertex for V2.0 of the "GL Nodes"
+//      specifications.  These vertices are in 16.16 fixed point.
+typedef struct
+{
+  long x;
+  long y;
+}
+map_gl2vertex_t;
+
 // BSP node structure.
 
 // Indicate a leaf.
