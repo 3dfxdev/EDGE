@@ -32,7 +32,7 @@
 #ifndef __P_MOBJ__
 #define __P_MOBJ__
 
-#include "m_fixed.h"
+#include "m_math.h"
 
 #include "dm_data.h"
 #include "ddf_main.h"
@@ -403,9 +403,11 @@ struct mobj_s
   // frame and brightness
   short frame, bright;
 
-  // current subsector and vertical region
+  // current subsector
   struct subsector_s *subsector;
-  struct vert_region_s *region;
+
+  // properties from extrafloor the thing is in
+  struct region_properties_s *props;
 
   // The closest interval over all contacted Sectors.
   float_t floorz;
@@ -416,10 +418,8 @@ struct mobj_s
   float_t radius;
   float_t height;
 
-  // Momentums, used to update position.
-  float_t momx;
-  float_t momy;
-  float_t momz;
+  // Momentum, used to update position.
+  vec3_t mom;
 
   // Thing's health level
   float_t health;

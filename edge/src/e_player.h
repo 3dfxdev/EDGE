@@ -2,7 +2,7 @@
 //  EDGE Player Definition
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2000  The EDGE Team.
+//  Copyright (c) 1999-2001  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -230,6 +230,7 @@ typedef struct player_s
   // hurts), and player drowns when health drops to zero.
   int air_in_lungs;
   boolean_t underwater;
+  boolean_t swimming;
    
   // how many tics to grin :-)
   int grin_count;

@@ -195,8 +195,11 @@ typedef struct slider_move_s
   // current distance it has opened
   float_t opening;
 
-  // target distance (== length of line)
+  // target distance
   float_t target;
+
+  // length of line
+  float_t line_len;
  
   // 1 = opening, 0 = waiting, -1 = closing
   int direction;
