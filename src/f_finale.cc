@@ -126,12 +126,12 @@ void F_StartFinale(const map_finaledef_c * f, gameaction_e newaction)
 
 	if (f->text_flat[0])
 	{
-		finale_textback = W_ImageFromFlat(f->text_flat);
+		finale_textback = W_ImageLookup(f->text_flat, IMSRC_Flat);
 		finale_textbackscale = 5.0f;
 	}
 	else if (f->text_back[0])
 	{
-		finale_textback = W_ImageFromPatch(f->text_back);
+		finale_textback = W_ImageLookup(f->text_back, IMSRC_Patch);
 		finale_textbackscale = 1.0f;
 	}
 	else
@@ -650,8 +650,8 @@ static void BunnyScroll(void)
 	int stage;
 	static int laststage;
 
-	p1 = W_ImageFromPatch("PFUB2");
-	p2 = W_ImageFromPatch("PFUB1");
+	p1 = W_ImageLookup("PFUB2");
+	p2 = W_ImageLookup("PFUB1");
 
 	scrolled = 320 - (finalecount - 230) / 2;
 
@@ -668,7 +668,7 @@ static void BunnyScroll(void)
 
 	if (finalecount < 1180)
 	{
-		p1 = W_ImageFromPatch("END0");
+		p1 = W_ImageLookup("END0");
 
 		RGL_ImageEasy320((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
 		laststage = 0;
@@ -688,7 +688,7 @@ static void BunnyScroll(void)
 
 	sprintf(name, "END%i", stage);
 
-	p1 = W_ImageFromPatch(name);
+	p1 = W_ImageLookup(name);
 
 	RGL_ImageEasy320((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
 }
@@ -706,7 +706,7 @@ void F_Drawer(void)
 
 		case f_pic:
 			{
-				const image_t *image = W_ImageFromPatch(finale->pics[picnum]);
+				const image_t *image = W_ImageLookup(finale->pics[picnum]);
 
 				RGL_Image320(0, 0, 320, 200, image);
 			}

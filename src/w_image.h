@@ -43,7 +43,7 @@ struct texturedef_s;
 #define DL_OUTER_SQRT   8.0f
 
 
-typedef struct image_s
+typedef struct image_s  //FIXME: class image_c (+= real_image_s)
 {
 	// total image size, must be a power of two on each axis.
 	unsigned short total_w;
@@ -90,6 +90,37 @@ typedef byte cached_image_t;
 
 typedef enum
 {
+	// Source was a patch name
+	IMSRC_Patch = 0,
+
+	// INTERNAL ONLY: Source was a raw block of 320x200 bytes (Heretic/Hexen)
+	IMSRC_Raw320x200,
+
+	// Source was a font patch name
+	IMSRC_Font,
+
+	// Source was a sprite name
+	IMSRC_Sprite,
+
+	// Source was a flat name
+	IMSRC_Flat,
+
+	// Source was a texture name
+	IMSRC_Texture,
+
+	// Source is from IMAGE.DDF
+	IMSRC_User,
+
+	// INTERNAL ONLY: Source was a sky texture, merged for a pseudo sky box
+	IMSRC_SkyMerge,
+
+	// INTERNAL ONLY: Source is dummy image
+	IMSRC_Dummy,
+}
+image_source_e;
+
+typedef enum
+{
 	WSKY_North = 0,
 	WSKY_East,
 	WSKY_South,
@@ -102,16 +133,19 @@ sky_box_face_e;
 //
 //  IMAGE LOOKUP
 //
+typedef enum
+{
+	ILF_Null    = 0x0001,  // return NULL rather than a dummy image
+	ILF_Exact   = 0x0002,  // type must be exactly the same
+	ILF_NoNew   = 0x0004,  // image must already exist (don't create it)
+}
+image_lookup_flags_e;
 
-const image_t *W_ImageFromTexture(const char *tex_name, bool allow_null = false);
-const image_t *W_ImageFromFlat(const char *flat_name,   bool allow_null = false);
-const image_t *W_ImageFromPatch(const char *patch_name, bool allow_null = false);
-const image_t *W_ImageFromFont(const char *patch_name,  bool allow_null = false);
+const image_t *W_ImageLookup(const char *name, int type = IMSRC_Patch, int flags = 0);
 const image_t *W_ImageFromSkyMerge(const image_t *sky, int face);
 const image_t *W_ImageForDummySprite(void);
 
-extern image_t *savepic_image;
-
+// savegame code (Only)
 const image_t *W_ImageFromString(char type, const char *name);
 void W_ImageToString(const image_t *image, char *type, char *namebuf);
 
@@ -130,8 +164,8 @@ void W_ResetImages(void);
 
 void W_ImageCreateFlats(int *lumps, int number);
 void W_ImageCreateTextures(struct texturedef_s ** defs, int number);
-const image_t *W_ImageCreateSprite(int lump);
-void W_CreateUserImages(void);
+void W_ImageCreateSprite(const char *name, int lump);
+void W_ImageCreateUser(void);
 void W_AnimateImageSet(const image_t ** images, int number, int speed);
 void W_DrawSavePic(const byte *pixels);
 

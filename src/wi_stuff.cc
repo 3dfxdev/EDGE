@@ -1284,50 +1284,50 @@ static void LoadData(void)
 	}
 
 	// background
-	bg_image = W_ImageFromPatch(worldint.GetGameDef()->background);
+	bg_image = W_ImageLookup(worldint.GetGameDef()->background);
 
-	lnames[0] = W_ImageFromPatch(wbs->last->namegraphic);
+	lnames[0] = W_ImageLookup(wbs->last->namegraphic);
 
 	if (wbs->next)
-		lnames[1] = W_ImageFromPatch(wbs->next->namegraphic);
+		lnames[1] = W_ImageLookup(wbs->next->namegraphic);
 
 	if (worldint.GetGameDef()->yah[0][0])
-		yah[0] = W_ImageFromPatch(worldint.GetGameDef()->yah[0]);
+		yah[0] = W_ImageLookup(worldint.GetGameDef()->yah[0]);
 	if (worldint.GetGameDef()->yah[1][0])
-		yah[1] = W_ImageFromPatch(worldint.GetGameDef()->yah[1]);
+		yah[1] = W_ImageLookup(worldint.GetGameDef()->yah[1]);
 	if (worldint.GetGameDef()->splatpic[0])
-		splat[0] = W_ImageFromPatch(worldint.GetGameDef()->splatpic);
+		splat[0] = W_ImageLookup(worldint.GetGameDef()->splatpic);
 	
-	wiminus = W_ImageFromFont("WIMINUS");
-	percent = W_ImageFromFont("WIPCNT");
-	colon = W_ImageFromFont("WICOLON");
+	wiminus = W_ImageLookup("WIMINUS", IMSRC_Font);
+	percent = W_ImageLookup("WIPCNT", IMSRC_Font);
+	colon = W_ImageLookup("WICOLON", IMSRC_Font);
 
-	finished = W_ImageFromPatch("WIF");
-	entering = W_ImageFromPatch("WIENTER");
-	kills = W_ImageFromPatch("WIOSTK");
-	secret = W_ImageFromPatch("WIOSTS");  // "scrt"
+	finished = W_ImageLookup("WIF");
+	entering = W_ImageLookup("WIENTER");
+	kills = W_ImageLookup("WIOSTK");
+	secret = W_ImageLookup("WIOSTS");  // "scrt"
 
-	sp_secret = W_ImageFromPatch("WISCRT2");  // "secret"
+	sp_secret = W_ImageLookup("WISCRT2");  // "secret"
 
-	items = W_ImageFromPatch("WIOSTI");
-	frags = W_ImageFromPatch("WIFRGS");
-	time_image = W_ImageFromPatch("WITIME");
-	sucks = W_ImageFromPatch("WISUCKS");
-	par = W_ImageFromPatch("WIPAR");
-	killers = W_ImageFromPatch("WIKILRS");  // "killers" (vertical)
+	items = W_ImageLookup("WIOSTI");
+	frags = W_ImageLookup("WIFRGS");
+	time_image = W_ImageLookup("WITIME");
+	sucks = W_ImageLookup("WISUCKS");
+	par = W_ImageLookup("WIPAR");
+	killers = W_ImageLookup("WIKILRS");  // "killers" (vertical)
 
-	victims = W_ImageFromPatch("WIVCTMS");  // "victims" (horiz)
+	victims = W_ImageLookup("WIVCTMS");  // "victims" (horiz)
 
-	total = W_ImageFromPatch("WIMSTT");
-	star = W_ImageFromPatch("STFST01");  // your face
+	total = W_ImageLookup("WIMSTT");
+	star = W_ImageLookup("STFST01");  // your face
 
-	bstar = W_ImageFromPatch("STFDEAD0");  // dead face
+	bstar = W_ImageLookup("STFDEAD0");  // dead face
 
 	for (i = 0; i < 10; i++)
 	{
 		// numbers 0-9
 		name.Format("WINUM%d", i);
-		digits[i] = W_ImageFromFont(name);
+		digits[i] = W_ImageLookup(name, IMSRC_Font);
 	}
 
 	for (i = 0; i < worldint.numanims; i++)
@@ -1339,7 +1339,7 @@ static void LoadData(void)
 				worldint.anims[i].frames[j].info->pic.GetString());
 
 			worldint.anims[i].frames[j].image = 
-				W_ImageFromPatch(worldint.anims[i].frames[j].info->pic);
+				W_ImageLookup(worldint.anims[i].frames[j].info->pic);
 		}
 	}
 }

@@ -215,7 +215,9 @@ static void InstallSpriteLump(spritedef_c *def, int lump,
 		return;
 	}
 
-	def->frames[frame].images[rot] = W_ImageCreateSprite(lump);
+	W_ImageCreateSprite(lumpname, lump);
+
+	def->frames[frame].images[rot] = W_ImageLookup(lumpname, IMSRC_Sprite);
 	def->frames[frame].flip[rot] = flip;
 }
 

@@ -248,7 +248,7 @@ static void SendTip(rad_trigger_t *R, s_tip_t * tip, int slot)
 	}
 
 	current->tip_graphic = tip->tip_graphic ?
-		W_ImageFromPatch(tip->tip_graphic) : NULL;
+		W_ImageLookup(tip->tip_graphic) : NULL;
 	current->playsound   = tip->playsound ? true : false;
 	current->scale       = tip->tip_graphic ? tip->gfx_scale : 1.0f;
 	current->fade_time   = 0;
@@ -742,9 +742,9 @@ void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param)
 
 	// find texture or flat
 	if (ctex->what >= CHTEX_Floor)
-		image = W_ImageFromFlat(ctex->texname);
+		image = W_ImageLookup(ctex->texname, IMSRC_Flat);
 	else
-		image = W_ImageFromTexture(ctex->texname);
+		image = W_ImageLookup(ctex->texname, IMSRC_Texture);
 
 	if (ctex->what == CHTEX_Sky)
 	{
