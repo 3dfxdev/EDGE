@@ -857,7 +857,10 @@ void W_AddRawFilename(const char *file, int kind)
 
 	L_WriteDebug("Added: %s\n", file);
 
-	// -AJA- FIXME: can we remove raw_filename_t, just use data_file_c ?
+	// -AJA- FIXME: eventually remove raw_filename_t in favour of simply
+	//       using data_file_c.  Cannot do this until we detect and build
+	//       GWA files here (during W_InitMultipleFiles) instead of in
+	//       P_LoadLevel (p_setup.cpp).
 	if (addwadnum == maxwadfiles)
 		Z_Resize(wadfiles, raw_filename_t, ++maxwadfiles + 1);
 
