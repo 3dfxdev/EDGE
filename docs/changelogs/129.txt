@@ -22,6 +22,7 @@ Bugs fixed
 - texture vertical mis-alignment in some rare cases fixed.
 - berserk strength now lasts the whole level.
 - night vision wasn't affecting the sky, fixed.
+- damage over 1000 no longer hurts invulnerable players.
 
 
 Fixes shared with 1.28A
@@ -83,6 +84,7 @@ General improvements
 - source code uses more C++ features, and more of the EPI (Edge Platform
   Interface).  The "Zone" memory manager has mostly been replaced.
 
+- gameplay option not to switch weapons automatically.
 - sky looks a bit better, with a stretch option in Video menu.
 - the old "sky flooding" trick is now emulated.
 - emulate the FRIEND bit on things in the map.
@@ -107,6 +109,12 @@ New features:
   menu is shown.  Once the menu is finished, the JUMP_ON command will
   test the result, and jump to the matching label.  It will fail to jump
   if there aren't enough labels, or menu could not be shown (netgame).
+
+- RELOAD states for monsters.  This is controlled by the new command
+  RELOAD_SHOTS and the new action RELOAD_CHECK, which tests if the
+  monster needs to reload, and if yes then enters its RELOAD states.
+  For players, RELOAD states are used whenever the weapon reloads.
+  They are optional though.
 
 - new SEQUENCE command for ANIMS.DDF.  Use it to specify the full
   animation sequence.  Names cannot be used twice.  For example:
