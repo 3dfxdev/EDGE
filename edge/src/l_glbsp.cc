@@ -50,6 +50,8 @@ static char message_buf[1024];
 /// #define MESSAGE1  "EDGE IS NOW CREATING THE GWA FILE..."
 /// #define MESSAGE2  "THIS ONLY HAS TO BE DONE ONCE FOR THIS WAD"
 
+static char wad_name_buf[256];
+
 
 static int display_mode = DIS_INVALID;
 
@@ -130,7 +132,34 @@ void GB_DisplaySetText(const char *str)
 //
 void GB_DisplaySetBarText(int barnum, const char *str)
 {
-	// FIXME: should copy message for progress display
+	if (display_mode != DIS_BUILDPROGRESS)
+	{
+		E_NodeMessage(str);
+		return;
+	}
+
+	if (barnum == 1)
+	{
+		sprintf(message_buf, "%s: %s\n", wad_name_buf, str);
+
+		E_NodeMessage(message_buf);
+	}
+	else
+	{
+		// determine wad filename
+
+		const char *pos = str + strlen(str) - 1;
+
+		for (; pos > str; pos--)
+		{
+			char ch = pos[-1];
+
+			if (ch == '/' || ch == '\\' || ch == ':')
+				break;
+		}
+
+		strcpy(wad_name_buf, (pos > str) ? pos : str);
+	}
 }
 
 //
@@ -167,7 +196,7 @@ void GB_DisplaySetBar(int barnum, int count)
 		if (perc >= build_perc + PROGRESS_STEP)
 		{
 			build_perc = perc;
-			E_NodeProgress(build_perc, "Building GL Nodes...");
+			E_NodeProgress(build_perc);
 		}
 	}
 }
@@ -237,6 +266,8 @@ bool GB_BuildNodes(const char *filename, const char *outname)
 void GB_InitProgress(void)
 {
 	display_mode = DIS_INVALID;
+	
+	wad_name_buf[0] = 0;
 }
 
 void GB_TermProgress(void)
