@@ -513,7 +513,7 @@ bool SR_PlayerGetState(void *storage, int index, void *extra)
 
 	char buffer[256];
 	char *base_p, *off_p;
-	int i, base, offset;
+	int base, offset;
 
 	const char *swizzle;
 	const weapondef_c *actual;
