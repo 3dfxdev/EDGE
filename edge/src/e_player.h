@@ -179,7 +179,7 @@ typedef struct player_s
   // for status bar: which numbers to light up
   boolean_t avail_weapons[10];
   
-  // ammunition, one for each ammotype_t (except AM_NoAmmo)
+  // ammunition, one for each ammotype_e (except AM_NoAmmo)
   playerammo_t ammo[NUMAMMO];
 
   // True if button down last tic.

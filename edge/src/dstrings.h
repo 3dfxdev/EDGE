@@ -38,11 +38,3 @@ extern const char *destination_keys;
 extern const char *gammamsg[5];
 
 #endif
-
-
-
-
-
-
-
-
