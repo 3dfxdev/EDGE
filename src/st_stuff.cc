@@ -478,6 +478,8 @@ static void UpdateWidgets(void)
 {
 	static int largeammo = 1994;  // means "n/a"
 
+	bool is_overlay = hud_overlay && (viewwindowheight == SCREENHEIGHT);
+
 	int i;
 	keys_e cards;
 
@@ -493,6 +495,7 @@ static void UpdateWidgets(void)
 
 	// find ammo amount to show -- or leave it blank
 	w_ready.num = &largeammo;
+	w_ready.colmap = is_overlay ? text_yellow_map : text_red_map;
 
 	if (consoleplayer->ready_wp >= 0)
 	{
@@ -510,31 +513,35 @@ static void UpdateWidgets(void)
 				w_ready.num = &consoleplayer->ammo[pw->info->ammo].num;
 
 				// set ammo colour as in BOOM.  -AJA- Experimental !!
-				if (! stbar_colours || *(w_ready.num) < 20)
-					w_ready.colmap = text_red_map;
-				else if (*(w_ready.num) <= 50)
-					w_ready.colmap = text_green_map;
-				else
-					w_ready.colmap = text_yellow_map;
+				if (stbar_colours)
+				{
+					if (*(w_ready.num) < 20)
+						w_ready.colmap = text_red_map;
+					else if (*(w_ready.num) <= 50)
+						w_ready.colmap = text_green_map;
+					else
+						w_ready.colmap = text_yellow_map;
+				}
 			}
 		}
 	}
 
-	// choose largest armour to show
-	w_armour.f.f = &consoleplayer->armours[0];
-	w_armour.f.num.colmap = stbar_colours ? text_green_map : text_red_map;
+	// show total armour, where colour is the best we've got
 
-	for (i=NUMARMOUR-1; i >= 1; i--)
+	for (i=NUMARMOUR-1; i >= 0; i--)
 	{
 		if (consoleplayer->armours[i] > 0)
 		{
-			w_armour.f.f = &consoleplayer->armours[i];
-			if (stbar_colours)
-				w_armour.f.num.colmap = (i == ARMOUR_Blue) ? text_blue_map :
-			(i == ARMOUR_Yellow) ? text_yellow_map : text_red_map;
+			w_armour.f.num.colmap =
+				(i == ARMOUR_Green)  ? text_green_map :
+				(i == ARMOUR_Blue)   ? text_blue_map :
+				(i == ARMOUR_Yellow) ? text_yellow_map : text_red_map;
 			break;
 		}
 	}
+
+	if (consoleplayer->totalarmour < 1)
+		w_armour.f.num.colmap = is_overlay ? text_green_map : text_red_map;
 
 	cards = consoleplayer->cards;
 
@@ -646,16 +653,6 @@ void ST_Drawer(bool fullscreen, bool refresh)
 {
 	st_statusbaron       = (!fullscreen) || automapactive || hud_overlay;
 	st_baron_not_overlay = (!fullscreen) || automapactive;
-
-	if (fullscreen && hud_overlay)
-	{
-		w_ready.colmap = text_yellow_map;
-		w_armour.f.num.colmap = text_green_map;
-	}
-	else
-	{
-		w_ready.colmap = w_armour.f.num.colmap = text_red_map;
-	}
 
 #if 1 
 	// -AJA- one small hack for GL, one *giant* HACK for software 
@@ -863,8 +860,7 @@ static void CreateWidgets(void)
 
 	// armour percentage - should be coloured later
 	STLIB_InitPercent(&w_armour, ST_ARMOURX, ST_ARMOURY, tallnum, tallpercent,
-		&consoleplayer->armours[0],   //!!! FIXME
-		&st_statusbaron);
+		&consoleplayer->totalarmour, &st_statusbaron);
 
 	// keyboxes 0-2
 	STLIB_InitMultIcon(&w_keyboxes[0], ST_KEY0X, ST_KEY0Y, keys,

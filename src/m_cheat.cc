@@ -231,7 +231,9 @@ bool M_CheatResponder(event_t * ev)
 			pl->ammo[i].num = pl->ammo[i].max;
 
 		stbar_update = true;
+
 		P_UpdateAvailWeapons(pl);
+		P_UpdateTotalArmour(pl);
 
 		CON_MessageLDF("AmmoAdded");
 	}
@@ -255,7 +257,9 @@ bool M_CheatResponder(event_t * ev)
 
 		// refresh to add all stuff to status bar
 		stbar_update = true;
+
 		P_UpdateAvailWeapons(pl);
+		P_UpdateTotalArmour(pl);
 
 		CON_MessageLDF("VeryHappyAmmo");
 	}
