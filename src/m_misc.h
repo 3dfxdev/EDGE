@@ -88,6 +88,7 @@ extern int key_fire;
 extern int key_use;
 extern int key_strafe;
 extern int key_speed;
+extern int key_autorun;
 extern int key_nextweapon;
 extern int key_jump;
 extern int key_map;

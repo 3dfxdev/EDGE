@@ -142,14 +142,18 @@ gameflags_t;
 // Most key data are simple ascii (uppercased).
 //
 #define KEYD_TILDE      ('`')
-#define KEYD_RIGHTARROW 0xae
-#define KEYD_LEFTARROW  0xac
-#define KEYD_UPARROW    0xad
-#define KEYD_DOWNARROW  0xaf
+#define KEYD_RIGHTARROW (0x80+0x2e)
+#define KEYD_LEFTARROW  (0x80+0x2c)
+#define KEYD_UPARROW    (0x80+0x2d)
+#define KEYD_DOWNARROW  (0x80+0x2f)
 #define KEYD_ESCAPE     27
 #define KEYD_ENTER      13
 #define KEYD_TAB        9
 #define KEYD_SPACE      32
+#define KEYD_BACKSPACE  127
+#define KEYD_EQUALS     0x3d
+#define KEYD_MINUS      0x2d
+
 #define KEYD_F1         (0x80+0x3b)
 #define KEYD_F2         (0x80+0x3c)
 #define KEYD_F3         (0x80+0x3d)
@@ -162,22 +166,20 @@ gameflags_t;
 #define KEYD_F10        (0x80+0x44)
 #define KEYD_F11        (0x80+0x57)
 #define KEYD_F12        (0x80+0x58)
-#define KEYD_BACKSPACE  127
-#define KEYD_EQUALS     0x3d
-#define KEYD_MINUS      0x2d
 #define KEYD_RCTRL      (0x80+0x1d)
 #define KEYD_RSHIFT     (0x80+0x36)
 #define KEYD_RALT       (0x80+0x38)
 #define KEYD_LALT       KEYD_RALT
-#define KEYD_NUMLOCK    (0x80+69)
-#define KEYD_SCRLOCK    (0x80+70)
-#define KEYD_HOME       (0x80+71)
-#define KEYD_PGUP       (0x80+73)
-#define KEYD_END        (0x80+79)
-#define KEYD_PGDN       (0x80+81)
-#define KEYD_INSERT     (0x80+82)
-#define KEYD_DELETE     (0x80+83)
-#define KEYD_PRTSCR     (0x80+84)
+#define KEYD_NUMLOCK    (0x80+0x45)
+#define KEYD_SCRLOCK    (0x80+0x46)
+#define KEYD_HOME       (0x80+0x47)
+#define KEYD_PGUP       (0x80+0x49)
+#define KEYD_END        (0x80+0x4f)
+#define KEYD_PGDN       (0x80+0x51)
+#define KEYD_INSERT     (0x80+0x52)
+#define KEYD_DELETE     (0x80+0x53)
+#define KEYD_PRTSCR     (0x80+0x54)
+#define KEYD_CAPSLOCK   0xfe
 #define KEYD_PAUSE      0xff
 
 // All keys greater than this aren't actually keyboard keys, but buttons on
@@ -202,5 +204,4 @@ gameflags_t;
 #define AXIS_MLOOK       3
 
 #endif // __DOOMDEF__
-
 
