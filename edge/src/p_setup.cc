@@ -26,6 +26,7 @@
 #include "i_defs.h"
 #include "p_setup.h"
 
+#include "con_cvar.h"
 #include "ddf_main.h"
 #include "ddf_colm.h"
 #include "dm_defs.h"
@@ -164,6 +165,8 @@ static bool remove_slime_trails;
 // a place to store sidedef numbers of the loaded linedefs.
 // There is two values for every line: side0 and side1.
 static int *temp_line_sides;
+
+static bool wolfy_mode = false;
 
 
 //
@@ -712,6 +715,16 @@ static void LoadSectors(int lump)
 
 		ss->f_h = EPI_LE_S16(ms->floorheight);
 		ss->c_h = EPI_LE_S16(ms->ceilingheight);
+
+		if (wolfy_mode)
+		{
+			ss->f_h = 0;
+
+			if (ms->floorheight == ms->ceilingheight)
+				ss->c_h = 0;
+			else
+				ss->c_h = 128.0f;
+		}
 
 		ss->floor.translucency = VISIBLE;
 		ss->floor.x_mat.x = 1;  ss->floor.x_mat.y = 0;
@@ -2513,6 +2526,9 @@ void P_Init(void)
 
 	dm_starts.Clear();
 	coop_starts.Clear();
+
+	M_CheckBooleanParm("wolfy", &wolfy_mode, false);
+	CON_CreateCVarBool("wolfy", cf_normal, &wolfy_mode);
 }
 
 namespace playsim

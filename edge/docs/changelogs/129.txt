@@ -373,6 +373,9 @@ New command-line options | console variables
                               be smoother, but disabling it gives
 							  more time for other programs to run.
 
+  -(no)wolfy      WOLFY       Just a fun little hack.
+
+
 Hats off to...
 --------------
 
