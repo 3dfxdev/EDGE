@@ -19,6 +19,9 @@
 
 #include "wad_io.h"
 
+#define DDFINWAD_VER_MAJOR 1
+#define DDFINWAD_VER_MINOR 2
+
 typedef struct
 {
   char* lumpname;
@@ -50,15 +53,17 @@ filelumpconv_t cvtable[] =
 //
 void E_PrintHeader(void)
 {
-  printf("\n"                                         \
-         "=========================================\n"\
-         "  DDF->WAD Integrator V1.0\n"               \
-         "\n"                                         \
-         "  The EDGE Team\n"                          \
-         "  http://edge.sourceforge.net\n"            \
-         "\n"                                         \
-         "  Released under the GNU Public License\n"  \
-         "=========================================\n"\
+  printf("\n=================================================\n");
+        
+  printf("  DDF->WAD Integrator V%d.%d\n",
+                DDFINWAD_VER_MAJOR, DDFINWAD_VER_MINOR);
+         
+  printf("\n"
+         "  The EDGE Team\n"
+         "  http://edge.sourceforge.net\n"
+         "\n"
+         "  Released under the GNU General Public License\n"
+         "=================================================\n"
          "\n");
 }
 
@@ -150,7 +155,7 @@ int main(int argc, char** argv)
       if(writeok != 'Y')
       {
         WAD_Shutdown();
-        printf("\nUser Cancelled\n",writeok);
+        printf("\nUser Cancelled\n");
         return 1;
       }
 
@@ -171,7 +176,7 @@ int main(int argc, char** argv)
         if(writeok != 'O')
         {
           WAD_Shutdown();
-          printf("User Cancelled\n",writeok);
+          printf("User Cancelled\n");
           return 1;
         }
 
