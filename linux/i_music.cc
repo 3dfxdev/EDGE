@@ -23,7 +23,6 @@
 #include "../i_defs.h"
 #include "i_sysinc.h"
 #include "../AL/oggplayer.h"
-#include "../epi/mus_2_midi.h"
 
 #ifdef USE_HUMID
 #include "../AL/humdinger.h"
