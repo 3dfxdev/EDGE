@@ -1284,35 +1284,21 @@ QuickLoad = "VOULEZ-VOUS CHARGER LA SAUVEGARDE\n"
 	"\n"
 	"APPUYEZ SUR Y OU N";
 
-AllocScreens = "V_Init: allocate screens.\n"
-	"";
-DefaultLoad = "M_LoadDefaults: Load system defaults.\n"
-	"";
-ZoneMemoryAlloc = "Z_Init: Init zone memory allocation daemon. \n"
-	"";
-WadFileInit = "W_Init: Init WADfiles.\n"
-	"";
-MiscInfo = "M_Init: Init miscellaneous info.\n"
-	"";
+AllocScreens = "V_Init: allocate screens.\n";
+DefaultLoad = "M_LoadDefaults: Load system defaults.\n";
+ZoneMemoryAlloc = "Z_Init: Init zone memory allocation daemon. \n";
+WadFileInit = "W_Init: Init WADfiles.\n";
+MiscInfo = "M_Init: Init miscellaneous info.\n";
 RefreshDaemon = "R_Init: Init DOOM refresh daemon - ";
-PlayState = "\nP_Init: Init Playloop state.\n\n"
-	"";
-InitMachine = "I_Init: Setting up machine state.\n"
-	"";
-CheckNetGame = "D_CheckNetGame: Checking network game status.\n"
-	"";
-SoundInit = "S_Init: Setting up sound.\n"
-	"";
-HeadsUpInit = "HU_Init: Setting up heads up display.\n"
-	"";
-STBarInit = "ST_Init: Init status bar.\n"
-	"";
-ListenNet = "listening for network start info...\n"
-	"";
-SendNet = "sending network start info...\n"
-	"";
-TurboScale = "turbo scale: %i%%\n"
-	"";
+PlayState = "\nP_Init: Init Playloop state.\n\n";
+InitMachine = "I_Init: Setting up machine state.\n";
+CheckNetGame = "D_CheckNetGame: Checking network game status.\n";
+SoundInit = "S_Init: Setting up sound.\n";
+HeadsUpInit = "HU_Init: Setting up heads up display.\n";
+STBarInit = "ST_Init: Init status bar.\n";
+ListenNet = "listening for network start info...\n";
+SendNet = "sending network start info...\n";
+TurboScale = "turbo scale: %i%%\n";
 IsTurbo = "%s is turbo!";
 
 
@@ -1497,12 +1483,10 @@ CDPlayTrack = "Now Playing Track %d";
 
 LevelQ = "Level Change!\n"
 	"Enter Level Name:\n"
-	"\n"
-	"";
+	"\n";
 MusicQ = "Music Change!\n"
 	"Enter Music Name:\n"
-	"\n"
-	"";
+	"\n";
 
 Episode1Text="APRES AVOIR VAINCU LES GROS MECHANTS\n"
      "ET NETTOYE LA BASE LUNAIRE, VOUS AVEZ\n"
@@ -1733,8 +1717,7 @@ ModeSelErr = "Unable to Initialise\n"
 // --------- Spanish Language Definition File --------------
 
 [SPANISH]
-DevelopmentMode = "Modo de Desarrollo ON.\n"
-	"";
+DevelopmentMode = "Modo de Desarrollo ON.\n";
 PressKey = "Presiona una tecla.";
 PressYorN = "Presiona y o n.";
 
@@ -1943,12 +1926,10 @@ CDPlayTrack = "Now Playing Track %d";
 
 LevelQ = "Level Change!\n"
 	"Enter Level Name:\n"
-	"\n"
-	"";
+	"\n";
 MusicQ = "Music Change!\n"
 	"Enter Music Name:\n"
-	"\n"
-	"";
+	"\n";
 
 Episode1Text="Una vez que has vencido a los malos y\n"
      "limpiado la base lunar supones que\n"
@@ -2111,8 +2092,7 @@ EndGameText = "LA HORRENDA VISION DEL DEMONIO MAS GRANDE\n"
 	"MUERAN, AHORA. LIMPIANDOTE EL SUDOR DE TU\n"
 	"FRENTE EMPIEZAS EL LARGO CAMINO DE REGESO A\n"
 	"CASA. RECONSTRUIR LA TIERRA DEBE DE SER MUCHO\n"
-	"MAS DIVERTIDO QUE LO FUE DESTRUIRLA.\n"
-	"";
+	"MAS DIVERTIDO QUE LO FUE DESTRUIRLA.\n";
 Level31Text = "FELICIDADES , ENCONTRASTE EL NIVEL\n"
 	"SECRETO! PARECE COMO SI HUBIERA SIDO CONSTRUIDO POR\n"
 	"HUMANOS, EN LUGAR DE DEMONIOS. PIENSAS QUIENES\n"
@@ -2120,47 +2100,49 @@ Level31Text = "FELICIDADES , ENCONTRASTE EL NIVEL\n"
 	"INFIERNO.";
 Level32Text = "FELICIDADES, HAS ENCONTRADO EL\n"
 	"NIVEL SUPER SECRETO!  MEJOR TE APURAS\n"
-	"A PASAR A TRAVES DE ESTE!\n"
-	"";
+	"A PASAR A TRAVES DE ESTE!\n";
 
-AllocScreens = "V_Init: allocate screens.\n"
-	"";
-DefaultLoad = "M_LoadDefaults: Load system defaults.\n"
-	"";
-ZoneMemoryAlloc = "Z_Init: Init zone memory allocation daemon. \n"
-	"";
-WadFileInit = "W_Init: Init WADfiles.\n"
-	"";
-MiscInfo = "M_Init: Init miscellaneous info.\n"
-	"";
+AllocScreens = "V_Init: allocate screens.\n";
+DefaultLoad = "M_LoadDefaults: Load system defaults.\n";
+ZoneMemoryAlloc = "Z_Init: Init zone memory allocation daemon. \n";
+WadFileInit = "W_Init: Init WADfiles.\n";
+MiscInfo = "M_Init: Init miscellaneous info.\n";
 RefreshDaemon = "R_Init: Init DOOM refresh daemon - ";
-PlayState = "\nP_Init: Init Playloop state.\n\n"
-	"";
-InitMachine = "I_Init: Setting up machine state.\n"
-	"";
-CheckNetGame = "D_CheckNetGame: Checking network game status.\n"
-	"";
-SoundInit = "S_Init: Setting up sound.\n"
-	"";
-HeadsUpInit = "HU_Init: Setting up heads up display.\n"
-	"";
-STBarInit = "ST_Init: Init status bar.\n"
-	"";
-ListenNet = "listening for network start info...\n"
-	"";
-SendNet = "sending network start info...\n"
-	"";
-TurboScale = "turbo scale: %i%%\n"
-	"";
+PlayState = "\nP_Init: Init Playloop state.\n\n";
+InitMachine = "I_Init: Setting up machine state.\n";
+CheckNetGame = "D_CheckNetGame: Checking network game status.\n";
+SoundInit = "S_Init: Setting up sound.\n";
+HeadsUpInit = "HU_Init: Setting up heads up display.\n";
+STBarInit = "ST_Init: Init status bar.\n";
+ListenNet = "listening for network start info...\n";
+SendNet = "sending network start info...\n";
+TurboScale = "turbo scale: %i%%\n";
 IsTurbo = "%s is turbo!";
+
+ArachnotronName=      "ARACHNOTRON";
+ArchVileName=         "ARCH-VILE";
+BaronOfHellName=      "BARON DEL INFIERNO";
+CacodemonName=        "CACODEMONIO";
+CyberdemonName=       "EL CIBERDEMONIO";
+DemonName=            "DEMONIO";
+HeavyWeaponDudeName=  "TIO DE ARMAS PESADAS";
+HellKnightName=       "CABALLERO DEL INFIERNO";
+ImpName=              "DIABLILLO";
+LostSoulName=         "ALMA PERDIDA";
+MancubusName=         "MANCUBUS";
+OurHeroName=          "NUESTRO HEROE";
+PainElementalName=    "ELEMENTAL DE DOLOR";
+RevenantName=         "REVENANT";
+ShotgunGuyName=       "TIO DE ESCOPETA";
+SpiderMastermindName= "LA MAESTRA-MENTE ARANA";
+ZombiemanName=        "HOMBRE ZOMBIE";
 
 Notice = 
 "==============================================================================\n"
 " This is EDGE: a project that is based upon the Doom Source Code released by  \n"
 " John Carmack of Id Software in December 1997. The work on this project is    \n"
 " designed, and implemented by the EDGE Team (http://edge.sourceforge.net/).    \n"
-"==============================================================================\n"
-"";
+"==============================================================================\n";
 
 JoystickCentre = "CENTRE the joystick\n"
 	"\n"
@@ -2400,12 +2382,10 @@ CDPlayTrack = "Spelar nu sp†r %d";
 
 LevelQ = "Byter bana!\n"
 	"Skriv in banans namn:\n"
-	"\n"
-	"";
+	"\n";
 MusicQ = "Byter l†t!\n"
 	"Skriv in namnet p† den nya l†ten:\n"
-	"\n"
-	"";
+	"\n";
 
 Episode1Text="N r du v l har d”dat alla dom stora bovarna\n"
      "och rensat rent p† m†nbasen  r du f”rmodad\n"
@@ -2648,8 +2628,7 @@ ModeSelErr = "Kunte inte „ndra\n"
 // ------ Dutch Language Definition File ---------------
 
 [DUTCH]
-DevelopmentMode = "Ontwikkelingsmodus AAN.\n"
-	"";
+DevelopmentMode = "Ontwikkelingsmodus AAN.\n";
 PressKey = "druk op een toets.";
 PressYorN = "toets y of n.";
 
@@ -2858,12 +2837,10 @@ CDPlayTrack = "Now Playing Track %d";
 
 LevelQ = "Level Change!\n"
 	"Enter Level Name:\n"
-	"\n"
-	"";
+	"\n";
 MusicQ = "Music Change!\n"
 	"Enter Music Name:\n"
-	"\n"
-	"";
+	"\n";
 Episode1Text="Nu je de grote slechterikken verslagen\n"
      "en de maanbasis gereinigd hebt, zou je\n"
      "gewonnen moeten hebben, toch? Waar is\n"
@@ -3040,38 +3017,23 @@ Level31Text = "GEFELICITEERD, JE HEBT HET GEHEIME\n"
 	"DEZE UITHOEK VAN DE HEL ZIJN?";
 Level32Text = "GEFELICITEERD, JE HEBT HET SUPER\n"
 	"GEHEIME LEVEL GEVONDEN!  HIER KAN\n"
-	"JE MAAR BETER DOORHEEN RAZEN!\n"
-	"";
+	"JE MAAR BETER DOORHEEN RAZEN!\n";
 
-AllocScreens = "V_Init: schermen alloceren.\n"
-	"";
-DefaultLoad = "M_LoadDefaults: Systeem defaults laden.\n"
-	"";
-ZoneMemoryAlloc = "Z_Init: Init zone geheugen allocatie daemon. \n"
-	"";
-WadFileInit = "W_Init: Init WADbestanden.\n"
-	"";
-MiscInfo = "M_Init: Init verschillende info.\n"
-	"";
+AllocScreens = "V_Init: schermen alloceren.\n";
+DefaultLoad = "M_LoadDefaults: Systeem defaults laden.\n";
+ZoneMemoryAlloc = "Z_Init: Init zone geheugen allocatie daemon. \n";
+WadFileInit = "W_Init: Init WADbestanden.\n";
+MiscInfo = "M_Init: Init verschillende info.\n";
 RefreshDaemon = "R_Init: Init DOOM ververs daemon - ";
-PlayState = "\nP_Init: Init Playloop status.\n\n"
-	"";
-InitMachine = "I_Init: Setting up machine status.\n"
-	"";
-CheckNetGame = "D_CheckNetGame: Checken netwerk spel status.\n"
-	"";
-SoundInit = "S_Init: Setting up geluid.\n"
-	"";
-HeadsUpInit = "HU_Init: Setting up heads up display.\n"
-	"";
-STBarInit = "ST_Init: Init status balk.\n"
-	"";
-ListenNet = "luisteren naar netwerk start info...\n"
-	"";
-SendNet = "verzenden netwerk start info...\n"
-	"";
-TurboScale = "turbo schaal: %i%%\n"
-	"";
+PlayState = "\nP_Init: Init Playloop status.\n\n";
+InitMachine = "I_Init: Setting up machine status.\n";
+CheckNetGame = "D_CheckNetGame: Checken netwerk spel status.\n";
+SoundInit = "S_Init: Setting up geluid.\n";
+HeadsUpInit = "HU_Init: Setting up heads up display.\n";
+STBarInit = "ST_Init: Init status balk.\n";
+ListenNet = "luisteren naar netwerk start info...\n";
+SendNet = "verzenden netwerk start info...\n";
+TurboScale = "turbo schaal: %i%%\n";
 IsTurbo = "%s is turbo!";
 
 Notice = 
@@ -3079,8 +3041,7 @@ Notice =
 " This is EDGE: a project that is based upon the Doom Source Code released by\n"
 " John Carmack of Id Software in December 1997. The work on this project is\n"
 " designed, and implemented by the EDGE Team (http://edge.sourceforge.net/).\n"
-"==============================================================================\n"
-"";
+"==============================================================================\n";
 
 JoystickCentre = "CENTRE the joystick\n"
 	"\n"
@@ -3326,12 +3287,10 @@ CDPlayTrack = "Abspielen von Track %d";
 
 LevelQ = "Levelwechsel!\n"
 	"Bitte Levelnamen eingeben:\n"
-	"\n"
-	"";
+	"\n";
 MusicQ = "Musikwechsel!\n"
 	"Bitte Levelnamen eingeben:\n"
-	"\n"
-	"";
+	"\n";
 
 Episode1Text="Nun, da du die ganzen Schweine\n"
      "erledigt und die Mondbasis gereinigt\n"
@@ -3490,8 +3449,7 @@ EndGameText = "DIE SCHRECKLICHE VISAGE DES GROESSTEN\n"
 		 "HINKOMMEN,  WENN SIE STERBEN...\n"
 		 "DU WISCHST DIR DEN SCHWEISS VON DER\n"
 		 "STIRN. EIN LANGER RUECKWEG WARTET AUF\n"
-		 "DICH, ABER DAS WAR ES WERT...\n"
-		 "";
+		 "DICH, ABER DAS WAR ES WERT...\n";
 Level31Text = "GRATULATION! DU HAST DEN SECRET LEVEL\n"
 		 "GEFUNDEN! SIEHT SO AUS, ALS WAERE ER\n"
 	        "VON MENSCHEN ERBAUT WORDEN. DU FRAGST\n"
@@ -3499,38 +3457,23 @@ Level31Text = "GRATULATION! DU HAST DEN SECRET LEVEL\n"
 	       "HIER ERWARTEN.";
 Level32Text = "GRATULATION! DU HABST DEN SUPER\n"
 		 "SECRET LEVEL GEFUNDEN! DU HAETTEST\n"
-		 "IHN BESSER AUSLASSEN SOLLEN!\n"
-		 "";
+		 "IHN BESSER AUSLASSEN SOLLEN!\n";
 
-AllocScreens = "V_Init: allocate screens.\n"
-	"";
-DefaultLoad = "M_LoadDefaults: Load system defaults.\n"
-	"";
-ZoneMemoryAlloc = "Z_Init: Init zone memory allocation daemon. \n"
-	"";
-WadFileInit = "W_Init: Init WADfiles.\n"
-	"";
-MiscInfo = "M_Init: Init miscellaneous info.\n"
-	"";
+AllocScreens = "V_Init: allocate screens.\n";
+DefaultLoad = "M_LoadDefaults: Load system defaults.\n";
+ZoneMemoryAlloc = "Z_Init: Init zone memory allocation daemon. \n";
+WadFileInit = "W_Init: Init WADfiles.\n";
+MiscInfo = "M_Init: Init miscellaneous info.\n";
 RefreshDaemon = "R_Init: Init DOOM refresh daemon - ";
-PlayState = "\nP_Init: Init Playloop state.\n\n"
-	"";
-InitMachine = "I_Init: Setting up machine state.\n"
-	"";
-CheckNetGame = "D_CheckNetGame: Checking network game status.\n"
-	"";
-SoundInit = "S_Init: Setting up sound.\n"
-	"";
-HeadsUpInit = "HU_Init: Setting up heads up display.\n"
-	"";
-STBarInit = "ST_Init: Init status bar.\n"
-	"";
-ListenNet = "listening for network start info...\n"
-	"";
-SendNet = "sending network start info...\n"
-	"";
-TurboScale = "Turbo-Skala: %i%%\n"
-	"";
+PlayState = "\nP_Init: Init Playloop state.\n\n";
+InitMachine = "I_Init: Setting up machine state.\n";
+CheckNetGame = "D_CheckNetGame: Checking network game status.\n";
+SoundInit = "S_Init: Setting up sound.\n";
+HeadsUpInit = "HU_Init: Setting up heads up display.\n";
+STBarInit = "ST_Init: Init status bar.\n";
+ListenNet = "listening for network start info...\n";
+SendNet = "sending network start info...\n";
+TurboScale = "Turbo-Skala: %i%%\n";
 IsTurbo = "%s ist turbo!";
 
 Notice = 
@@ -3538,8 +3481,7 @@ Notice =
 " This is EDGE: a project that is based upon the Doom Source Code released by\n"
 " John Carmack of Id Software in December 1997. The work on this project is\n"
 " designed, and implemented by the EDGE Team (http://edge.sourceforge.net/).\n"
-"==============================================================================\n"
-"";
+"==============================================================================\n";
 
 JoystickCentre = "Joystick ZENTRIEREN\n"
 	"\n"
