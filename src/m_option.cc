@@ -81,6 +81,7 @@
 #include "ddf_main.h"
 #include "g_game.h"
 #include "hu_stuff.h"
+#include "hu_style.h"
 #include "m_menu.h"
 #include "m_misc.h"
 #include "p_local.h"
@@ -96,8 +97,6 @@
 #include "wp_main.h"
 
 #include "epi/epistring.h"
-
-#define OPTSHADE  text_white_map
 
 int optionsmenuon = 0;
 
@@ -219,6 +218,8 @@ typedef struct menuinfo_s
 	optmenuitem_t *items;
 	int item_num;
 
+	style_c **style_ref;
+
 	int menu_center;
 
 	// title information
@@ -241,6 +242,14 @@ menuinfo_t;
 static menuinfo_t *curr_menu;
 static optmenuitem_t *curr_item;
 static int keyscan;
+
+static style_c *opt_def_style;
+static style_c *keyboard_style;
+static style_c *mouse_style;
+static style_c *gameplay_style;
+static style_c *video_style;
+static style_c *setres_style;
+
 
 typedef struct specialkey_s
 {
@@ -365,7 +374,7 @@ static optmenuitem_t mainmenu[] =
 static menuinfo_t mainmenuinfo = 
 {
 	mainmenu, sizeof(mainmenu) / sizeof(optmenuitem_t), 
-	164, 108, "M_OPTTTL", NULL, 0, "", NULL, NULL
+	&opt_def_style, 164, 108, "M_OPTTTL", NULL, 0, "", NULL, NULL
 };
 
 //
@@ -405,7 +414,7 @@ static optmenuitem_t vidoptions[] =
 static menuinfo_t vidoptionsinfo = 
 {
 	vidoptions, sizeof(vidoptions) / sizeof(optmenuitem_t),
-	150, 77, "M_VIDEO", NULL, 0, "", NULL, NULL
+	&video_style, 150, 77, "M_VIDEO", NULL, 0, "", NULL, NULL
 };
 
 //
@@ -429,7 +438,7 @@ static optmenuitem_t resoptions[] =
 static menuinfo_t resoptionsinfo = 
 {
 	resoptions, sizeof(resoptions) / sizeof(optmenuitem_t),
-	150, 77, "M_VIDEO", NULL, 3, "", NULL, NULL
+	&setres_style, 150, 77, "M_VIDEO", NULL, 3, "", NULL, NULL
 };
 
 //
@@ -464,7 +473,7 @@ static optmenuitem_t analogueoptions[] =
 static menuinfo_t analogueoptionsinfo = 
 {
 	analogueoptions, sizeof(analogueoptions) / sizeof(optmenuitem_t),
-	150, 75, "M_MSETTL", NULL, 0, "", NULL, NULL
+	&mouse_style, 150, 75, "M_MSETTL", NULL, 0, "", NULL, NULL
 };
 
 //
@@ -496,7 +505,7 @@ optmenuitem_t playoptions[] =
 static menuinfo_t playoptionsinfo = 
 {
 	playoptions, sizeof(playoptions) / sizeof(optmenuitem_t),
-	160, 46, "M_GAMEPL", NULL, 0, "", NULL, NULL
+	&gameplay_style, 160, 46, "M_GAMEPL", NULL, 0, "", NULL, NULL
 };
 
 //
@@ -527,8 +536,7 @@ static optmenuitem_t stdkeyconfig[] =
 static menuinfo_t stdkeyconfiginfo = 
 {
 	stdkeyconfig, sizeof(stdkeyconfig) / sizeof(optmenuitem_t),
-	110, 98, "M_CONTRL", NULL, 0, 
-	"STD", NULL, NULL
+	&keyboard_style, 110, 98, "M_CONTRL", NULL, 0, "STD", NULL, NULL
 };
 
 //
@@ -555,8 +563,7 @@ static optmenuitem_t extkeyconfig[] =
 static menuinfo_t extkeyconfiginfo = 
 {
 	extkeyconfig, sizeof(extkeyconfig) / sizeof(optmenuitem_t),
-	110, 98, "M_CONTRL", NULL, 0, 
-	"EXT", NULL, NULL
+	&keyboard_style, 110, 98, "M_CONTRL", NULL, 0, "EXT", NULL, NULL
 };
 
 static char keystring1[] = "Enter to change, Backspace to Clear";
@@ -623,6 +630,28 @@ void M_InitOptmenu()
 	curr_item = curr_menu->items + curr_menu->pos;
 	keyscan = 0;
 
+	// load styles
+	styledef_c *def;
+
+	def = styledefs.Lookup("OPTIONS");
+	if (! def) def = default_style;
+	opt_def_style = hu_styles.Lookup(def);
+
+	def = styledefs.Lookup("KEYBOARD CONTROLS");
+	keyboard_style = def ? hu_styles.Lookup(def) : opt_def_style;
+
+	def = styledefs.Lookup("MOUSE CONTROLS");
+	mouse_style = def ? hu_styles.Lookup(def) : opt_def_style;
+
+	def = styledefs.Lookup("GAMEPLAY OPTIONS");
+	gameplay_style = def ? hu_styles.Lookup(def) : opt_def_style;
+
+	def = styledefs.Lookup("VIDEO OPTIONS");
+	video_style = def ? hu_styles.Lookup(def) : opt_def_style;
+
+	def = styledefs.Lookup("SET RESOLUTION");
+	setres_style = def ? hu_styles.Lookup(def) : opt_def_style;
+
 	// Needed to handle the circular reference that C++ init doesn't allow
 	stdkeyconfiginfo.sister_next = &extkeyconfiginfo;
 	extkeyconfiginfo.sister_prev = &stdkeyconfiginfo;
@@ -683,12 +712,17 @@ void M_OptDrawer()
 	int i, j;
 	unsigned int k;
 
+	style_c *style = curr_menu->style_ref[0];
+	DEV_ASSERT2(style);
+
 	// make sure the local volume values are kept up-to-date
 	menumusicvol = S_GetMusicVolume();
 	menusoundvol = S_GetSfxVolume();
  
+	int font_h = style->fonts[0]->NominalHeight(); // FIXME: fonts[0] maybe null
+
 	// -ACB- 1998/06/15 Calculate height for menu and then center it.
-	menutop = 68 - ((curr_menu->item_num * hu_font.height) / 2);
+	menutop = 68 - ((curr_menu->item_num * font_h) / 2);
 
 	{
 		const image_t *image;
@@ -702,28 +736,28 @@ void M_OptDrawer()
 	}
 
 	//now, draw all the menuitems
-	deltay = 1 + hu_font.height;
+	deltay = 1 + font_h;
 
 	curry = menutop + 25;
 
 	if (curr_menu->key_page[0])
 	{
 		if (curr_menu->sister_prev)
-			HL_WriteTextTrans(60, 200-deltay*4, text_yellow_map, "< PREV");
+			HL_WriteText(keyboard_style,2, 60, 200-deltay*4, "< PREV");
 
 		if (curr_menu->sister_next)
-			HL_WriteTextTrans(260 - HL_StringWidth("NEXT >"), 200-deltay*4, 
-							  text_yellow_map, "NEXT >");
+			HL_WriteText(keyboard_style,2, 260 - keyboard_style->fonts[2]->StringWidth("NEXT >"), 200-deltay*4, 
+							  "NEXT >");
 
-		HL_WriteTextTrans(160 - HL_StringWidth(curr_menu->key_page)/2, 
-						  200-deltay*4, text_yellow_map, curr_menu->key_page);
+		HL_WriteText(keyboard_style,2, 160 - keyboard_style->fonts[2]->StringWidth(curr_menu->key_page)/2, 
+						  200-deltay*4, curr_menu->key_page);
     
 		if (keyscan)
-			HL_WriteTextTrans(160 - (HL_StringWidth(keystring2) / 2), 
-							  200-deltay*2, text_green_map, keystring2);
+			HL_WriteText(keyboard_style,3, 160 - (keyboard_style->fonts[3]->StringWidth(keystring2) / 2), 
+							  200-deltay*2, keystring2);
 		else
-			HL_WriteTextTrans(160 - (HL_StringWidth(keystring1) / 2), 
-							  200-deltay*2, text_green_map, keystring1);
+			HL_WriteText(keyboard_style,3, 160 - (keyboard_style->fonts[3]->StringWidth(keystring1) / 2), 
+							  200-deltay*2, keystring1);
 	}
 	else if (curr_menu == &resoptionsinfo)
 	{
@@ -737,21 +771,20 @@ void M_OptDrawer()
 
 	for (i = 0; i < curr_menu->item_num; i++)
 	{
-		HL_WriteText((curr_menu->menu_center) - HL_StringWidth(curr_menu->items[i].name),
+		HL_WriteText(style,0, (curr_menu->menu_center) - style->fonts[0]->StringWidth(curr_menu->items[i].name),
 					 curry, curr_menu->items[i].name);
 
 		// -ACB- 1998/07/15 Menu Cursor is colour indexed.
 		if (i == curr_menu->pos)
 		{
-			HL_WriteTextTrans((curr_menu->menu_center + 4), curry, 
-							  text_yellow_map, "*");
+			HL_WriteText(style,2, (curr_menu->menu_center + 4), curry, "*");
 
 			if (curr_menu->items[i].help)
 			{
 				const char *help = language[curr_menu->items[i].help];
 
-				HL_WriteTextTrans(160 - (HL_StringWidth(help) / 2), 200 - deltay*2, 
-								  text_green_map, help);
+				HL_WriteText(style,3, 160 - (style->fonts[3]->StringWidth(help) / 2), 200 - deltay*2, 
+								  help);
 			}
 		}
 
@@ -785,7 +818,7 @@ void M_OptDrawer()
 					sprintf(tempstring, "Invalid");
 				}
 
-				HL_WriteTextTrans((curr_menu->menu_center) + 15, curry, OPTSHADE, tempstring);
+				HL_WriteText(style,1, (curr_menu->menu_center) + 15, curry, tempstring);
 				break;
 			}
 
@@ -802,7 +835,7 @@ void M_OptDrawer()
 
 				k = *(int*)(curr_menu->items[i].switchvar);
 				M_Key2String(k, tempstring);
-				HL_WriteTextTrans((curr_menu->menu_center + 15), curry, OPTSHADE, tempstring);
+				HL_WriteText(style,1, (curr_menu->menu_center + 15), curry, tempstring);
 				break;
 
 			default:
@@ -829,29 +862,29 @@ static void M_ResOptDrawer(int topy, int bottomy, int dy, int centrex)
 	// Draw current resolution
 	y = topy;
 	sprintf(tempstring, "Current Resolution:");
-	HL_WriteText(160 - (HL_StringWidth(tempstring) / 2), y, tempstring);
+	HL_WriteText(setres_style,0, 160 - (setres_style->fonts[0]->StringWidth(tempstring) / 2), y, tempstring);
 
 	y += dy;
 	sprintf(tempstring, "%d x %d in %d-bit mode", SCREENWIDTH, SCREENHEIGHT,
 			SCREENBITS);
-	HL_WriteTextTrans(160 - (HL_StringWidth(tempstring) / 2), y, OPTSHADE, tempstring);
+	HL_WriteText(setres_style,1, 160 - (setres_style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
 
 	// Draw resolution selection option
 	y += (dy*2);
 	sprintf(tempstring, "%dx%d", scrmode[selectedscrmode].width, scrmode[selectedscrmode].height);
-	HL_WriteTextTrans(centrex+15, y, OPTSHADE, tempstring);
+	HL_WriteText(setres_style,1, centrex+15, y, tempstring);
 
 	// Draw depth selection option
 	displaybpp = scrmode[selectedscrmode].depth;
 
 	y += dy;
 	sprintf(tempstring, "%d bit", displaybpp);
-	HL_WriteTextTrans(centrex+15, y, OPTSHADE, tempstring);
+	HL_WriteText(setres_style,1, centrex+15, y, tempstring);
 
 	// Draw selected resolution and mode:
 	y = bottomy;
 	sprintf(tempstring, "Selected Resolution:");
-	HL_WriteText(160 - (HL_StringWidth(tempstring) / 2), y, tempstring);
+	HL_WriteText(setres_style,0, 160 - (setres_style->fonts[0]->StringWidth(tempstring) / 2), y, tempstring);
 
 	y += dy;
 
@@ -860,7 +893,7 @@ static void M_ResOptDrawer(int topy, int bottomy, int dy, int centrex)
 			scrmode[selectedscrmode].height,
 			displaybpp);
 
-	HL_WriteTextTrans(160 - (HL_StringWidth(tempstring) / 2), y, OPTSHADE, tempstring);
+	HL_WriteText(setres_style,1, 160 - (setres_style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
 }
 
 //
@@ -873,11 +906,11 @@ static void M_ResOptDrawer(int topy, int bottomy, int dy, int centrex)
 
 static void M_LanguageDrawer(int x, int y, int deltay)
 {
-	epi::string_c s;
+	epi::string_c buf;
 
-	s.Format("%s", language.GetName());
+	buf.Format("%s", language.GetName());
 
-	HL_WriteTextTrans(x+15, y + deltay * 6, OPTSHADE, s);
+	HL_WriteText(opt_def_style,2, x+15, y + deltay * 6, buf); //!!! ,1,
 }
 
 //

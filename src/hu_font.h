@@ -63,6 +63,9 @@ public:
 	int StringLines(const char *str) const;
 	int MaxFit(int pixel_w, const char *str) const;
 
+	void DrawChar(int x, int y, char ch,
+		const colourmap_c *colmap, float alpha) const;
+
 	// FIXME: maybe shouldn't be public (assumes FNTYP_Patch !!)
 	const struct image_s *CharImage(char ch) const;
 

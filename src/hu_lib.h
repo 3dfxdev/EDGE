@@ -29,35 +29,12 @@
 // We are referring to patches.
 #include "r_defs.h"
 #include "w_image.h"
+#include "hu_font.h"
+#include "hu_style.h"
 
 //
 //  Font stuff
 //
-
-// -AJA- 2000/12/24: new typedef for font.  `H' wart to prevent
-//       clashes with any libraries.
-typedef struct H_font_s
-{
-	// name of font.  Not used yet.
-	char name[32];
-
-	// prefix for patch names, e.g. "STFCN".
-	char prefix[10];
-
-	// nominal width and height.  Characters can be larger or smaller
-	// than this, but these values give a good guess for formatting
-	// purposes.
-	int width, height;
-
-	// range of characters in the font.  Charset is IBM cp437.
-	int first_ch;
-	int last_ch;
-
-	// images for each character.  Missing characters will be filled
-	// with a default image.
-	const image_t ** images;
-}
-H_font_t;
 
 
 #define HU_MAXLINES		4
@@ -74,17 +51,15 @@ typedef struct
 	// position of top/left corner of text
 	int x, y;
 
-	// font
-	const H_font_t *font;
+	// style
+	style_c *style;
+	int text_type;
 
 	// line of text
 	char ch[HU_MAXLINELENGTH + 1];
 
 	// current line length
 	int len;
-
-	// whether this line needs to be udpated
-	int needsupdate;
 
 	// centre text horizontally, around x.
 	bool centre;
@@ -104,10 +79,6 @@ typedef struct
 
 	// current line number
 	int curline;
-
-	// pointer to bool stating whether to update window
-	bool *on;
-	bool laston;  // last value of *->on.
 }
 hu_stext_t;
 
@@ -121,10 +92,6 @@ typedef struct
 
 	// left margin past which I am not to delete characters
 	int margin;
-
-	// pointer to bool stating whether to update window
-	bool *on;
-	bool laston;  // last value of *->on;
 }
 hu_itext_t;
 
@@ -143,7 +110,7 @@ void HL_Init(void);
 void HL_ClearTextLine(hu_textline_t * t);
 
 void HL_InitTextLine(hu_textline_t * t, int x, int y, 
-    const H_font_t *font);
+    style_c *style, int text_type);
 
 // returns success
 bool HL_AddCharToTextLine(hu_textline_t * t, char ch);
@@ -163,7 +130,7 @@ void HL_EraseTextLine(hu_textline_t * l);
 
 // initialise new stext
 void HL_InitSText(hu_stext_t * s, int x, int y, int h, 
-    const H_font_t *font, bool * on);
+    style_c *style, int text_type);
 
 // add a new line
 void HL_AddLineToSText(hu_stext_t * s);
@@ -180,7 +147,7 @@ void HL_EraseSText(hu_stext_t * s);
 
 // Input Text Line widget routines
 void HL_InitIText(hu_itext_t * it, int x, int y, 
-    const H_font_t *font, bool * on);
+    style_c *style, int text_type);
 
 // enforces left margin
 void HL_DelCharFromIText(hu_itext_t * it);
@@ -204,18 +171,13 @@ void HL_EraseIText(hu_itext_t * it);
 
 // -ACB- 1998/06/10
 void HL_DrawTextLineAlpha(hu_textline_t * l, bool drawcursor, 
-    const colourmap_c *colmap, fixed_t alpha);
+    const colourmap_c *colmap, float alpha);
 
 #define HL_DrawTextLineTrans(L,DC,TR)  HL_DrawTextLineAlpha(L,DC,TR,FRACUNIT)
 
 
-// hu_font size routines
-int HL_CharWidth(const H_font_t *font, char c);
-int HL_TextMaxLen(int max_w, const char *str);
-int HL_StringWidth(const char *string);
-int HL_StringHeight(const char *string);
-
-void HL_WriteText(int x, int y, const char *string);
-void HL_WriteTextTrans(int x, int y, const colourmap_c *colmap, const char *string);
+void HL_WriteText(style_c *style, int text_type, int x, int y, const char *str);
+void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
+	const colourmap_c *colmap, const char *str);
 
 #endif  // __HULIB__

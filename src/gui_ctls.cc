@@ -78,8 +78,8 @@ gui_t *GUI_BTStart(gui_t ** g, gui_t * parent, int id, int x, int y, char *strin
 
 	gui->left = x;
 	gui->top = y;
-	gui->right = x + HL_StringWidth(string);
-	gui->bottom = y + HL_StringHeight(string);
+	gui->right = x ; //!!! + HL_StringWidth(string);
+	gui->bottom = y ; ///!!! + HL_StringHeight(string);
 
 	GUI_Start(g, gui);
 	return gui;
@@ -195,7 +195,7 @@ void MSG_Drawer(gui_t * g)
 {
 	msgbox_t *msg = (msgbox_t*)g->process;
 
-	GUI_WriteText((g->left + g->right - HL_StringWidth(msg->string)) / 2, (g->top + 12), msg->string);
+	///!!! GUI_WriteText((g->left + g->right - HL_StringWidth(msg->string)) / 2, (g->top + 12), msg->string);
 	GUI_Drawer(&msg->gui);
 }
 
@@ -262,7 +262,7 @@ void GUI_WriteText(int x, int y, char *string)
 {
 	//!!!!! IGNORES `scr' -- will fix for layer system
 
-	HL_WriteText(x, y, string);
+	///!!! HL_WriteText(x, y, string);
 }
 
 typedef struct

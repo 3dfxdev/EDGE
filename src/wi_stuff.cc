@@ -25,6 +25,9 @@
 //
 // -KM- 1998/12/16 Nuked half of this for DDF. DOOM 1 works now!
 //
+// TODO HERE:
+//    + have proper styles (for text font and sounds).
+//
 
 #include "i_defs.h"
 #include "wi_stuff.h"
@@ -32,6 +35,7 @@
 #include "dm_state.h"
 #include "g_game.h"
 #include "hu_lib.h"
+#include "hu_style.h"
 #include "m_random.h"
 #include "m_menu.h"
 #include "p_local.h"
@@ -115,6 +119,8 @@ static int cnt_secret[10];
 static int cnt_time;
 static int cnt_par;
 static int cnt_pause;
+
+static style_c *wi_hack_style;  // TEMP!!
 
 // GRAPHICS
 
@@ -688,9 +694,10 @@ static void DrawDeathmatchStats(void)
 
 	DrawLevelFinished();
 
-	HL_WriteText(20, 40, "Player");
-	HL_WriteText(100, 40, "Frags");
-	HL_WriteText(200, 40, "Total Frags");
+	HL_WriteText(wi_hack_style, 0, 20, 40, "Player");
+	HL_WriteText(wi_hack_style, 0, 100, 40, "Frags");
+	HL_WriteText(wi_hack_style, 0, 200, 40, "Total Frags");
+
 	y = 40;
 
 	for (i = 0; i < 10; i++)
@@ -702,12 +709,12 @@ static void DrawDeathmatchStats(void)
 			if (p == me && ((bcnt & 31) < 16))
 				continue;
 
-			HL_WriteTextTrans(20, y, text_white_map, 
+			HL_WriteTextTrans(wi_hack_style,0, 20, y, text_white_map, 
 					playerlookup[p]->playername);
 			sprintf(temp, "%5d", dm_frags[i]);
-			HL_WriteTextTrans(100, y, text_white_map, temp);
+			HL_WriteTextTrans(wi_hack_style,0, 100, y, text_white_map, temp);
 			sprintf(temp, "%11d", dm_totals[i]);
-			HL_WriteTextTrans(200, y, text_white_map, temp);
+			HL_WriteTextTrans(wi_hack_style,0, 200, y, text_white_map, temp);
 		}
 	}
 }
@@ -970,14 +977,15 @@ static void DrawNetgameStats(void)
 
 	DrawLevelFinished();
 
-	HL_WriteText(6, 40, "Player");
-	HL_WriteText(56, 40, "Kills");
-	HL_WriteText(98, 40, "Items");
-	HL_WriteText(142, 40, "Secret");
+	HL_WriteText(wi_hack_style,0, 6, 40, "Player");
+	HL_WriteText(wi_hack_style,0, 56, 40, "Kills");
+	HL_WriteText(wi_hack_style,0, 98, 40, "Items");
+	HL_WriteText(wi_hack_style,0, 142, 40, "Secret");
+
 	if (dofrags)
 	{
-		HL_WriteText(190, 40, "Frags");
-		HL_WriteText(232, 40, "Total Frags");
+		HL_WriteText(wi_hack_style,0, 190, 40, "Frags");
+		HL_WriteText(wi_hack_style,0, 232, 40, "Total Frags");
 	}
 
 	y = 40;
@@ -992,20 +1000,20 @@ static void DrawNetgameStats(void)
 
 		sprintf(temp, "%s", (playerlookup[p] && playerlookup[p]->in_game)
 				? playerlookup[p]->playername : "NOBODY");
-		HL_WriteTextTrans(6, y, text_white_map, temp);
+		HL_WriteTextTrans(wi_hack_style,0, 6, y, text_white_map, temp);
 		sprintf(temp, "%%%3d", cnt_kills[i]);
-		HL_WriteTextTrans(64, y, text_white_map, temp);
+		HL_WriteTextTrans(wi_hack_style,0, 64, y, text_white_map, temp);
 		sprintf(temp, "%%%3d", cnt_items[i]);
-		HL_WriteTextTrans(106, y, text_white_map, temp);
+		HL_WriteTextTrans(wi_hack_style,0, 106, y, text_white_map, temp);
 		sprintf(temp, "%%%3d", cnt_secret[i]);
-		HL_WriteTextTrans(158, y, text_white_map, temp);
+		HL_WriteTextTrans(wi_hack_style,0, 158, y, text_white_map, temp);
 
 		if (dofrags)
 		{
 			sprintf(temp, "%5d", cnt_frags[i]);
-			HL_WriteTextTrans(190, y, text_white_map, temp);
+			HL_WriteTextTrans(wi_hack_style,0, 190, y, text_white_map, temp);
 			sprintf(temp, "%11d", cnt_tfrags[i]);
-			HL_WriteTextTrans(232, y, text_white_map, temp);
+			HL_WriteTextTrans(wi_hack_style,0, 232, y, text_white_map, temp);
 		}
 	}
 }
@@ -1261,6 +1269,9 @@ static void LoadData(void)
 {
 	int i, j;
 	epi::string_c name;
+
+	if (! wi_hack_style)
+		wi_hack_style = hu_styles.Lookup(default_style);
 
 	// background
 	bg_image = W_ImageFromPatch(worldint.GetGameDef()->background);

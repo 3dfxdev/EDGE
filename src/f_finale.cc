@@ -37,6 +37,7 @@
 #include "dstrings.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"
+#include "hu_style.h"
 #include "m_random.h"
 #include "p_action.h"
 #include "r2_defs.h"
@@ -88,7 +89,9 @@ static bool CastResponder(event_t * ev);
 
 static const image_t *finale_textback;
 static float finale_textbackscale;
-static const image_t *finale_bossback;
+
+static style_c *cast_style;
+static style_c *finale_hack_style;
 
 //
 // F_StartFinale
@@ -111,6 +114,17 @@ void F_StartFinale(const map_finaledef_c * f, gameaction_e newaction)
 
 	// here is where we lookup the required images
 
+	if (! cast_style)
+	{
+		styledef_c *def = styledefs.Lookup("CAST SCREEN");
+		if (! def)
+			def = default_style;
+		cast_style = hu_styles.Lookup(def);
+	}
+
+	if (! finale_hack_style)
+		finale_hack_style = hu_styles.Lookup(default_style); //???
+
 	if (f->text_flat[0])
 	{
 		finale_textback = W_ImageFromFlat(f->text_flat);
@@ -125,8 +139,6 @@ void F_StartFinale(const map_finaledef_c * f, gameaction_e newaction)
 	{
 		finale_textback = NULL;
 	}
-
-	finale_bossback = W_ImageFromPatch("BOSSBACK");
 
 	F_Ticker();
 }
@@ -298,7 +310,8 @@ static void TextWrite(void)
 	if (count < 0)
 		count = 0;
 
-	HL_InitTextLine(&L, 10, cy, &hu_font);
+	DEV_ASSERT2(finale_hack_style);
+	HL_InitTextLine(&L, 10, cy, finale_hack_style, 0);
 
 	for (;;)
 	{
@@ -317,7 +330,7 @@ static void TextWrite(void)
 		{
 			cy += 11;
 			HL_DrawTextLineTrans(&L, false, finale->text_colmap);
-			HL_InitTextLine(&L, 10, cy, &hu_font);
+			HL_InitTextLine(&L, 10, cy, finale_hack_style, 0);
 			continue;
 		}
 
@@ -590,7 +603,8 @@ static bool CastResponder(event_t * ev)
 
 static void CastPrint(const char *text)
 {
-	HL_WriteText(160 - HL_StringWidth(text)/2, 180, text);
+	HL_WriteText(cast_style, 0, 160 - cast_style->fonts[0]->StringWidth(text)/2,
+		180, text);
 }
 
 //
@@ -603,8 +617,8 @@ static void CastDrawer(void)
 
 	// erase the entire screen to a background
 	// -KM- 1998/07/21 Clear around the pic too.
-	DEV_ASSERT2(finale_bossback);
-	RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, finale_bossback);
+	DEV_ASSERT2(cast_style->bg_image);
+	RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, cast_style->bg_image);
 
 	CastPrint(casttitle);
 

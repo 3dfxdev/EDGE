@@ -30,8 +30,9 @@
 #include "dm_state.h"
 #include "gui_gui.h"
 #include "gui_ctls.h"
-#include "hu_stuff.h"
 #include "hu_lib.h"
+#include "hu_stuff.h"
+#include "hu_style.h"
 #include "m_argv.h"
 #include "m_menu.h"
 #include "v_colour.h"
@@ -41,8 +42,9 @@
 #include "wp_main.h"
 #include "z_zone.h"
 
-typedef struct coninfo_s coninfo_t;
-struct coninfo_s
+
+
+typedef struct coninfo_s 
 {
 	visible_t visible;
 	int cursor;
@@ -53,7 +55,9 @@ struct coninfo_s
 	int page;
 	bool echo;
 }
-con_info;
+coninfo_t;
+
+static coninfo_t con_info;
 
 gui_t console =
 {
@@ -79,6 +83,7 @@ int conwipeduration = 10;
 // the console's screen
 char consolebackg[9] = "CONSOLE";
 static const image_t *console_bg_image = NULL;
+static style_c *console_style;
 
 typedef struct consoleline_s
 {
@@ -190,14 +195,17 @@ scrollstate_e;
 
 scrollstate_e scroll_state;
 
-static int (*MaxTextLen) (char *s);
+static int (*MaxTextLen) (const char *s);
 
-static int MaxTextLen_gfx(char *s)
+static int MaxTextLen_gfx(const char *s)
 {
-	return HL_TextMaxLen(conwidth, s);
+	if (! console_style)
+		return MIN(100, strlen(s));
+
+	return console_style->fonts[0]->MaxFit(conwidth, s);
 }
 
-static int MaxTextLen_text(char *s)
+static int MaxTextLen_text(const char *s)
 {
 	int len = (int)strlen(s);
 
@@ -547,7 +555,7 @@ void CON_Ticker(gui_t * gui)
 }
 
 // writes the text on coords (x,y) of the console
-static void WriteText(int x, int y, char *s, int len, int col)
+static void WriteText(int x, int y, char *s, int len, int text_type)
 {
 	char buffer[1024];
 
@@ -556,7 +564,7 @@ static void WriteText(int x, int y, char *s, int len, int col)
 
 	Z_StrNCpy(buffer, s, len);
 
-	HL_WriteTextTrans(x, y, col ? text_red_map : text_white_map, buffer);
+	HL_WriteText(console_style, text_type, x, y, buffer);
 }
 
 //
@@ -566,6 +574,14 @@ static void WriteText(int x, int y, char *s, int len, int col)
 //
 void CON_Drawer(gui_t * gui)
 {
+	if (! console_style)
+	{
+		styledef_c *def = styledefs.Lookup("CONSOLE");
+		if (! def)
+			def = default_style;
+		console_style = hu_styles.Lookup(def);
+	}
+
 	coninfo_t *info = (coninfo_t *)gui->process;
 	int i;
 	int y;
@@ -577,8 +593,6 @@ void CON_Drawer(gui_t * gui)
 		// Continue fading out console if it isn't already outfaded.
 		return;
 	}
-
-	// OPTIMISE: Only update what we need to update (eg. nothing in most cases...)
 
 	// -AJA- Temp fix for image system:
 	RGL_DrawImage(0, 0, conwidth, conheight, console_bg_image,
@@ -598,6 +612,8 @@ void CON_Drawer(gui_t * gui)
 		y -= i;
 		i = 0;
 	}
+
+	// !!!! FIXME: y * 8 shite
 
 	for (; i < curlinesize && y < conrows; i++, y++)
 	{
@@ -639,7 +655,8 @@ void CON_Drawer(gui_t * gui)
 			c = viscmdline_s[i][len];
 			// temporarily truncate the cmdline to the cursor position.
 			viscmdline_s[i][len] = 0;
-			WriteText(HL_StringWidth(viscmdline_s[i]), y * 8, "_", 1, 1);
+			WriteText(console_style->fonts[1]->StringWidth(viscmdline_s[i]),
+				y * 8, "_", 1, 1);
 			viscmdline_s[i][len] = c;
 		}
 	}

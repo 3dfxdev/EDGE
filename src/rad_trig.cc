@@ -39,6 +39,7 @@
 #include "dm_state.h"
 #include "e_main.h"
 #include "hu_lib.h"
+#include "hu_style.h"
 #include "hu_stuff.h"
 #include "g_game.h"
 #include "m_argv.h"
@@ -75,6 +76,8 @@ static byte *rad_memfile;
 static byte *rad_memfile_end;
 static byte *rad_memptr;
 static int rad_memfile_size;
+
+static style_c *rts_menu_style;
 
 
 //
@@ -801,7 +804,7 @@ static void AddMenuLine(drawtip_t *T, int y, char key, const char *text,
 	hu_textline_t *HU = T->hu_lines + T->hu_linenum;
 	T->hu_linenum++;
 
-	HL_InitTextLine(HU, 160, y, &hu_font);
+	HL_InitTextLine(HU, 160, y, rts_menu_style, 0);
 	HU->centre = true;
 
 	if (use_ldf)
@@ -825,8 +828,16 @@ void RAD_StartMenu(rad_trigger_t *R, s_show_menu_t *menu)
 	drawtip_t *T = new drawtip_t;
 	memset(T, 0, sizeof(drawtip_t));
 
+	if (! rts_menu_style)
+	{
+		styledef_c *def = styledefs.Lookup("RTS MENU");
+		if (! def)
+			def = default_style;
+		rts_menu_style = hu_styles.Lookup(def);
+	}
+
 	int y = 0;
-	int font_height = hu_font.height + 2;
+	int font_height = rts_menu_style->fonts[0]->NominalHeight() + 2; //FIXME: fonts[0] may be NULL
 
 	AddMenuLine(T, y, 0, menu->title, menu->use_ldf);
 	y += font_height * 2;
@@ -874,8 +885,7 @@ static void RAD_MenuDrawer(void)
 	for (int i=0; i < rts_menu_tip->hu_linenum; i++)
 	{
 		HL_DrawTextLineAlpha(rts_menu_tip->hu_lines + i, false,
-			(i==0) ? text_yellow_map : rts_menu_tip->colmap,
-			M_FloatToFixed(alpha));
+			(i==0) ? text_yellow_map : rts_menu_tip->colmap, alpha);
 	}
 }
 

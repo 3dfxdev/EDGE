@@ -70,6 +70,8 @@ static s_tip_prop_t fixed_props[FIXEDSLOTS] =
 	{ 15, 0.20f, 0.75f, 1, "TEXT_GREEN",  1.0f } 
 };
 
+static style_c *rts_hack_style;
+
 //
 // RAD_InitTips
 //
@@ -123,8 +125,12 @@ void RAD_ResetTips(void)
 //
 static void SetupTip(drawtip_t *cur)
 {
+	// FIXME
+	if (! rts_hack_style)
+		rts_hack_style = hu_styles.Lookup(default_style);
+
 	int i;
-	int font_height = hu_font.height + 2;
+	int font_height = rts_hack_style->fonts[0]->NominalHeight() + 2;
 	int base_x, base_y;
 
 	const char *ch_ptr;
@@ -160,7 +166,7 @@ static void SetupTip(drawtip_t *cur)
 			HU = cur->hu_lines + cur->hu_linenum;
 			cur->hu_linenum++;
 
-			HL_InitTextLine(HU, base_x, base_y, &hu_font);
+			HL_InitTextLine(HU, base_x, base_y, rts_hack_style, 0);
 			HU->centre = cur->p.left_just ? false : true;
 
 			need_newbie = false;
@@ -325,7 +331,7 @@ void RAD_DisplayTips(void)
 		for (i=0; i < current->hu_linenum; i++)
 		{
 			HL_DrawTextLineAlpha(current->hu_lines + i, false,
-				current->colmap, M_FloatToFixed(alpha));
+				current->colmap, alpha);
 		}
 	}
 }
