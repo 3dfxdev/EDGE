@@ -29,6 +29,7 @@
 #include "sounds.h"
 
 #include "patch.h"
+#include "storage.h"
 #include "system.h"
 #include "util.h"
 #include "wad.h"
@@ -264,7 +265,35 @@ namespace Sounds
 
 		assert(0 <= s_num && s_num < NUMSFX);
 
-		// FIXME
+		if (StrCaseCmpPartial(deh_field, "Zero") == 0 ||
+		    StrCaseCmpPartial(deh_field, "Neg. One") == 0)
+			return;
+
+		if (StrCaseCmp(deh_field, "Offset") == 0)
+		{
+			PrintWarn("Line %d: raw sound Offset not supported.\n", Patch::line_num);
+			return;
+		}
+
+		if (StrCaseCmp(deh_field, "Value") == 0)  // priority
+		{
+			if (new_val < 0)
+			{
+				PrintWarn("Line %d: bad sound priority value: %d.\n",
+					Patch::line_num, new_val);
+				new_val = 0;
+			}
+
+			Storage::RememberMod(&S_sfx[s_num].priority, new_val);
+
+			MarkSound(s_num);
+			return;
+		}
+
+		if (StrCaseCmp(deh_field, "Zero/One") == 0)  // singularity, ignored
+			return;
+
+		PrintWarn("UNKNOWN SOUND FIELD: %s\n", deh_field);
 	}
 
 	void BeginSoundLump(void)
