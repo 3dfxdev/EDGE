@@ -187,7 +187,6 @@ typedef struct elev_move_s
   float_t startheight;
   float_t destheight;
   float_t speed;
-  boolean_t crush;
 
   // 1 = up, 0 = waiting at top, -1 = down
   int direction;
