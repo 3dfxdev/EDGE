@@ -188,7 +188,8 @@ all: $(EDGELIBS) $(PROGNAME)
 
 clean:
 	rm -f $(PROGNAME) core *.o \
-	    $(LX_DIR)/*.o $(SDL_DIR)/*.o $(EPI_DIR)/*.o $(ASM_DIR)/*.o
+	    $(LX_DIR)/*.o $(SDL_DIR)/*.o $(EPI_DIR)/*.o $(ASM_DIR)/*.o \
+		$(EPI_DIR)/libepi.a $(LZO_DIR)/liblzo.a
 
 epi lzo:
 	$(MAKE) -C $@ -f Makefile.osx
