@@ -28,6 +28,40 @@
 
 #include "m_fixed.h"
 
+typedef struct vec2_s
+{
+  float_t x, y;
+}
+vec2_t;
+
+#define Vec2Add(dest, src)  do {  \
+    (dest).x += (src).x; (dest).y += (src).y; } while(0)
+
+#define Vec2Sub(dest, src)  do {  \
+    (dest).x -= (src).x; (dest).y -= (src).y; } while(0)
+
+#define Vec2Mul(dest, val)  do {  \
+    (dest).x *= (val); (dest).y *= (val); } while(0)
+
+typedef struct vec3_s
+{
+  float_t x, y, z;
+}
+vec3_t;
+
+#define Vec3Add(dest, src)  do {  \
+    (dest).x += (src).x;  (dest).y += (src).y;  \
+    (dest).z += (src).z; } while(0)
+
+#define Vec3Sub(dest, src)  do {  \
+    (dest).x -= (src).x;  (dest).y -= (src).y;  \
+    (dest).z -= (src).z; } while(0)
+
+#define Vec3Mul(dest, val)  do {  \
+    (dest).x *= (val); (dest).y *= (val);  \
+    (dest).z *= (val); } while(0)
+
+
 fixed_t FixedDiv(fixed_t a, fixed_t b) GCCATTR(const);
 fixed_t FixedMul(fixed_t a, fixed_t b) GCCATTR(const);
 float_t M_Tan(angle_t ang)             GCCATTR(const);
@@ -39,7 +73,7 @@ float_t M_Sin(angle_t ang)             GCCATTR(const);
 
 void CRC32_Init(unsigned long *crc);
 void CRC32_ProcessByte(unsigned long *crc, byte data);
-void CRC32_ProcessBlock(unsigned long *crc, byte *data, int len);
+void CRC32_ProcessBlock(unsigned long *crc, const byte *data, int len);
 void CRC32_Done(unsigned long *crc);
 
 void CRC32_ProcessInt(unsigned long *crc, int value);
