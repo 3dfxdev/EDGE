@@ -947,7 +947,7 @@ static void DoNoFire(mobj_t * mo, int ATK, bool does_return)
 	}
 
 	p->refire = info->refire_inacc ? 0 : 1;
-	p->remember_atk[0] = does_return ? psp->state->nextstate : -1;
+	p->remember_atk[ATK] = does_return ? psp->state->nextstate : -1;
 
 	if (WeaponCouldAutoFire(p, p->ready_wp, ATK))
 		GotoReadyState(p);
