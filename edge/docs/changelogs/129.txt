@@ -110,9 +110,9 @@ New features:
   test the result, and jump to the matching label.  It will fail to jump
   if there aren't enough labels, or menu could not be shown (netgame).
 
-- Four new ammo types: DAGGERS, ARROWS, TORPEDOES, MANA (names inspired
-  by Heretic/Hexen/HacX).  That brings the total to twelve.  Limit on
-  holdable weapon was also increased from 32 to 64.
+- Four new ammo types: DAGGERS, ARROWS, TORPEDOES, CRYSTALS (names
+  inspired by Heretic/Hexen/HacX).  That brings the total to twelve.
+  Limit on holdable weapons was also increased from 32 to 64.
 
 - RELOAD states for monsters.  This is controlled by the new command
   RELOAD_SHOTS and the new action RELOAD_CHECK, which tests if the
