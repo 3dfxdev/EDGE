@@ -14,6 +14,7 @@ Affiliated (in snapshots, not in CVS)
 
 glBSP    : GL-Nodes builder
 Deh_Edge : DeHackEd/BEX patch to DDF converter
+Humidity : MIDI playback library
 
 
 External
@@ -41,6 +42,7 @@ LINKS
 
 http://edge.sourceforge.net/
 http://glbsp.sourceforge.net/
+http://humidity.sourceforge.net/
 
 http://www.libsdl.org/
 http://www.microsoft.com/windows/directx/default.aspx
@@ -49,11 +51,11 @@ http://www.opengl.org/
 http://www.openal.org/
 http://www.vorbis.com/
 
-http://www.hawksoft.com/hawknl
 http://www.fltk.org/
+http://www.hawksoft.com/hawknl
+http://www.oberhumer.com/opensource/lzo
 
 http://libpng.org/
-http://www.jpeg.org/
 http://www.gzip.org/zlib
-http://www.oberhumer.com/opensource/lzo
+http://www.jpeg.org/jpeg/index.html
 
