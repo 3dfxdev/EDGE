@@ -301,31 +301,14 @@ bool ST_Responder(event_t * ev)
 	return false;
 }
 
-static int ST_CalcPainOffset(void)
-{
-	float base, health;
-	int index;
-
-	if (! consoleplayer->mo)
-		return 0;
-
-	base = consoleplayer->mo->info->spawnhealth;
-
-	DEV_ASSERT2(base > 0);
-
-	health = (base - MIN(base, consoleplayer->health)) / base;
-	index = MIN(ST_NUMPAINFACES-1, (int)(health * ST_NUMPAINFACES));
-
-	return ST_FACESTRIDE * index;
-}
-
 static void DrawWidgets(void)
 {
 #if 0  // ARMOUR DEBUGGING
-	consoleplayer->ammo[0].max = (int)consoleplayer->armours[0];
-	consoleplayer->ammo[1].max = (int)consoleplayer->armours[1];
-	consoleplayer->ammo[2].max = (int)consoleplayer->armours[2];
-	consoleplayer->ammo[3].max = (int)consoleplayer->armours[3];
+	player_t *pp = players[displayplayer];
+	pp->ammo[0].max = (int)pp->armours[0];
+	pp->ammo[1].max = (int)pp->armours[1];
+	pp->ammo[2].max = (int)pp->armours[2];
+	pp->ammo[3].max = (int)pp->armours[3];
 #endif
 
 	int i;
@@ -368,6 +351,24 @@ static void DrawWidgets(void)
 		STLIB_DrawNum(&w_frags);
 }
 
+static int ST_CalcPainOffset(player_t *p)
+{
+	float base, health;
+	int index;
+
+	if (! p->mo)
+		return 0;
+
+	base = p->mo->info->spawnhealth;
+
+	DEV_ASSERT2(base > 0);
+
+	health = (base - MIN(base, p->health)) / base;
+	index = MIN(ST_NUMPAINFACES-1, (int)(health * ST_NUMPAINFACES));
+
+	return ST_FACESTRIDE * index;
+}
+
 //
 // ST_UpdateFaceWidget
 //
@@ -378,103 +379,105 @@ static void DrawWidgets(void)
 //
 static void ST_UpdateFaceWidget(void)
 {
+	player_t *p = players[displayplayer];
+	DEV_ASSERT2(p);
+
 	angle_t badguyangle;
 	angle_t diffang;
 
-	if (consoleplayer->face_count > 0)
+	if (p->face_count > 0)
 	{
-		consoleplayer->face_count--;
+		p->face_count--;
 		return;
 	}
 
 	// dead ?
-	if (consoleplayer->health <= 0)
+	if (p->health <= 0)
 	{
-		consoleplayer->face_index = ST_DEADFACE;
-		consoleplayer->face_count = TICRATE;
+		p->face_index = ST_DEADFACE;
+		p->face_count = TICRATE;
 		return;
 	}
 
 	// evil grin if just picked up weapon
-	if (consoleplayer->grin_count)
+	if (p->grin_count)
 	{
-		consoleplayer->face_index = ST_CalcPainOffset() + ST_EVILGRINOFFSET;
-		consoleplayer->face_count = ST_SHORT_DELAY;
+		p->face_index = ST_CalcPainOffset(p) + ST_EVILGRINOFFSET;
+		p->face_count = ST_SHORT_DELAY;
 		return;
 	}
 
 	// being attacked ?
-	if (consoleplayer->damagecount && consoleplayer->attacker && consoleplayer->attacker != consoleplayer->mo)
+	if (p->damagecount && p->attacker && p->attacker != p->mo)
 	{
-		if ((consoleplayer->old_health - consoleplayer->health) > ST_MUCHPAIN)
+		if ((p->old_health - p->health) > ST_MUCHPAIN)
 		{
-			consoleplayer->face_index = ST_CalcPainOffset() + ST_OUCHOFFSET;
-			consoleplayer->face_count = ST_TURNCOUNT;
+			p->face_index = ST_CalcPainOffset(p) + ST_OUCHOFFSET;
+			p->face_count = ST_TURNCOUNT;
 			return;
 		}
 
-		badguyangle = R_PointToAngle(consoleplayer->mo->x, consoleplayer->mo->y,
-			consoleplayer->attacker->x, consoleplayer->attacker->y);
+		badguyangle = R_PointToAngle(p->mo->x, p->mo->y,
+			p->attacker->x, p->attacker->y);
 
-		diffang = badguyangle - consoleplayer->mo->angle;
+		diffang = badguyangle - p->mo->angle;
 
-		consoleplayer->face_index = ST_CalcPainOffset();
-		consoleplayer->face_count = ST_TURNCOUNT;
+		p->face_index = ST_CalcPainOffset(p);
+		p->face_count = ST_TURNCOUNT;
 
 		if (diffang < ANG45 || diffang > ANG315 ||
 			(diffang > ANG135 && diffang < ANG225))
 		{
 			// head-on  
-			consoleplayer->face_index += ST_RAMPAGEOFFSET;
+			p->face_index += ST_RAMPAGEOFFSET;
 		}
 		else if (diffang >= ANG45 && diffang <= ANG135)
 		{
 			// turn face left
-			consoleplayer->face_index += ST_TURNOFFSET + 1;
+			p->face_index += ST_TURNOFFSET + 1;
 		}
 		else
 		{
 			// turn face right
-			consoleplayer->face_index += ST_TURNOFFSET;
+			p->face_index += ST_TURNOFFSET;
 		}
 		return;
 	}
 
 	// getting hurt because of your own damn stupidity
-	if (consoleplayer->damagecount)
+	if (p->damagecount)
 	{
-		if ((consoleplayer->old_health - consoleplayer->health) > ST_MUCHPAIN)
+		if ((p->old_health - p->health) > ST_MUCHPAIN)
 		{
-			consoleplayer->face_index = ST_CalcPainOffset() + ST_OUCHOFFSET;
-			consoleplayer->face_count = ST_TURNCOUNT;
+			p->face_index = ST_CalcPainOffset(p) + ST_OUCHOFFSET;
+			p->face_count = ST_TURNCOUNT;
 			return;
 		}
 
-		consoleplayer->face_index = ST_CalcPainOffset() + ST_RAMPAGEOFFSET;
-		consoleplayer->face_count = ST_TURNCOUNT;
+		p->face_index = ST_CalcPainOffset(p) + ST_RAMPAGEOFFSET;
+		p->face_count = ST_TURNCOUNT;
 		return;
 	}
 
 	// rapid firing
-	if (consoleplayer->attackdown_count > ST_RAMPAGEDELAY)
+	if (p->attackdown_count > ST_RAMPAGEDELAY)
 	{
-		consoleplayer->face_index = ST_CalcPainOffset() + ST_RAMPAGEOFFSET;
-		consoleplayer->face_count = ST_SHORT_DELAY;
+		p->face_index = ST_CalcPainOffset(p) + ST_RAMPAGEOFFSET;
+		p->face_count = ST_SHORT_DELAY;
 		return;
 	}
 
 	// invulnerability
-	if ((consoleplayer->cheats & CF_GODMODE)
-		|| consoleplayer->powers[PW_Invulnerable] > 0)
+	if ((p->cheats & CF_GODMODE) || p->powers[PW_Invulnerable] > 0)
 	{
-		consoleplayer->face_index = ST_GODFACE;
-		consoleplayer->face_count = ST_SHORT_DELAY;
+		p->face_index = ST_GODFACE;
+		p->face_count = ST_SHORT_DELAY;
 		return;
 	}
 
 	// default: look about the place...
-	consoleplayer->face_index = ST_CalcPainOffset() + (M_Random() % 3);
-	consoleplayer->face_count = ST_STRAIGHTFACECOUNT;
+	p->face_index = ST_CalcPainOffset(p) + (M_Random() % 3);
+	p->face_count = ST_STRAIGHTFACECOUNT;
 }
 
 static keys_e st_key_list[6] =
@@ -492,14 +495,17 @@ static void UpdateWidgets(void)
 	int i;
 	keys_e cards;
 
+	player_t *p = players[displayplayer];
+	DEV_ASSERT2(p);
+
 	// set health colour, as in BOOM.  -AJA- Experimental !!
 	if (stbar_colours)
 	{
-		if (consoleplayer->health < 25.0f)
+		if (p->health < 25.0f)
 			w_health.f.num.colmap = text_red_map;
-		else if (consoleplayer->health < 60.0f)
+		else if (p->health < 60.0f)
 			w_health.f.num.colmap = text_green_map;
-		else if (consoleplayer->health <= 100.0f)
+		else if (p->health <= 100.0f)
 			w_health.f.num.colmap = text_yellow_map;
 		else
 			w_health.f.num.colmap = text_blue_map;
@@ -515,9 +521,9 @@ static void UpdateWidgets(void)
 	w_ready.num = &largeammo;
 	w_ready.colmap = is_overlay ? text_yellow_map : NULL;
 
-	if (consoleplayer->ready_wp >= 0)
+	if (p->ready_wp >= 0)
 	{
-		playerweapon_t *pw = &consoleplayer->weapons[consoleplayer->ready_wp];
+		playerweapon_t *pw = &p->weapons[p->ready_wp];
 
 		if (pw->info->ammo[0] != AM_NoAmmo)
 		{
@@ -530,7 +536,7 @@ static void UpdateWidgets(void)
 			{
 				w_ready.num = &w_ready_hack;
 
-				w_ready_hack = consoleplayer->ammo[pw->info->ammo[0]].num;
+				w_ready_hack = p->ammo[pw->info->ammo[0]].num;
 
 				if (pw->info->clip_size[0] > 0)
 					w_ready_hack += pw->clip_size[0];
@@ -553,7 +559,7 @@ static void UpdateWidgets(void)
 
 	for (i=NUMARMOUR-1; i >= 0; i--)
 	{
-		if (consoleplayer->armours[i] > 0)
+		if (p->armours[i] > 0)
 		{
 			w_armour.f.num.colmap =
 				(i == ARMOUR_Green)  ? text_green_map :
@@ -563,10 +569,10 @@ static void UpdateWidgets(void)
 		}
 	}
 
-	if (consoleplayer->totalarmour < 1)
+	if (p->totalarmour < 1)
 		w_armour.f.num.colmap = is_overlay ? text_green_map : NULL;
 
-	cards = consoleplayer->cards;
+	cards = p->cards;
 
 	// update keycard multiple widgets
 	// -ACB- 1998/09/11 Include Combo Cards
@@ -595,7 +601,7 @@ static void UpdateWidgets(void)
 	st_fragson = st_baron_not_overlay && deathmatch;
 	st_fragscount = 0;
 
-	st_fragscount = consoleplayer->frags;
+	st_fragscount = p->frags;
 
 	// get rid of chat window if up because of message
 	if (!--st_msgcounter)
@@ -604,7 +610,10 @@ static void UpdateWidgets(void)
 
 void ST_Ticker(void)
 {
-    consoleplayer->old_health = consoleplayer->health;
+	player_t *p = players[displayplayer];
+	DEV_ASSERT2(p);
+
+    p->old_health = p->health;
 }
 
 // -AJA- 1999/07/03: Rewrote this routine, since the palette handling
@@ -619,11 +628,14 @@ static void DoPaletteStuff(void)
 	int cnt;
 	int bzc;
 
-	cnt = consoleplayer->damagecount;
+	player_t *p = players[displayplayer];
+	DEV_ASSERT2(p);
 
-	if (consoleplayer->powers[PW_Berserk] > 0)
+	cnt = p->damagecount;
+
+	if (p->powers[PW_Berserk] > 0)
 	{
-		bzc = MIN(20, (int) consoleplayer->powers[PW_Berserk]); // slowly fade the berzerk out
+		bzc = MIN(20, (int) p->powers[PW_Berserk]); // slowly fade the berzerk out
 
 		if (bzc > cnt)
 			cnt = bzc;
@@ -634,13 +646,13 @@ static void DoPaletteStuff(void)
 		palette = PALETTE_PAIN;
 		amount = (cnt + 7) / 64.0f;
 	}
-	else if (consoleplayer->bonuscount)
+	else if (p->bonuscount)
 	{
 		palette = PALETTE_BONUS;
-		amount = (consoleplayer->bonuscount + 7) / 32.0f;
+		amount = (p->bonuscount + 7) / 32.0f;
 	}
-	else if (consoleplayer->powers[PW_AcidSuit] > 4 * 32 ||
-		fmod(consoleplayer->powers[PW_AcidSuit], 16) >= 8)
+	else if (p->powers[PW_AcidSuit] > 4 * 32 ||
+		fmod(p->powers[PW_AcidSuit], 16) >= 8)
 	{
 		palette = PALETTE_SUIT;
 		amount = 1.0f;
@@ -717,7 +729,7 @@ static void LoadGraphics(void)
 	}
 
 	// face backgrounds for different colour players
-	sprintf(namebuf, "STFB%d", consoleplayer->pnum);
+	sprintf(namebuf, "STFB%d", displayplayer % 8);
 	faceback = W_ImageFromPatch(namebuf);
 
 	// status bar background bits
@@ -812,7 +824,9 @@ static void InitData(void)
 	st_statusbaron = st_baron_not_overlay = true;
 	st_oldchat = st_chat = false;
 	st_cursoron = false;
-	consoleplayer->face_index = 0;
+
+	DEV_ASSERT2(players[displayplayer]);
+	players[displayplayer]->face_index = 0;
 
 	for (i = 0; i < 3; i++)
 		keyboxes[i] = -1;
@@ -822,28 +836,30 @@ static void InitData(void)
 
 static void CreateWidgets(void)
 {
-	int i;
+	player_t *p = players[displayplayer];
+	DEV_ASSERT2(p);
 
 	// ready weapon ammo
 	STLIB_InitNum(&w_ready, ST_AMMOX, ST_AMMOY, tallnum, sttminus,
-		&consoleplayer->ammo[0].num,  // FIXME
+		&p->ammo[0].num,  // FIXME
 		ST_AMMOWIDTH);
 
 	// health percentage
 	STLIB_InitPercent(&w_health, ST_HEALTHX, ST_HEALTHY, tallnum, tallpercent,
-		&consoleplayer->health);
+		&p->health);
 
 	// arms background
 	STLIB_InitBinIcon(&w_armsbg, ST_ARMSBGX, ST_ARMSBGY, armsbg,
 		&st_notdeathmatch);
 
 	// weapons owned
+	int i;
 	for (i = 0; i < 6; i++)
 	{
 		STLIB_InitMultIcon(&w_arms[i],
 			ST_ARMSX + (i % 3) * ST_ARMSXSPACE,
 			ST_ARMSY + (i / 3) * ST_ARMSYSPACE,
-			arms[i], (int *)&consoleplayer->avail_weapons[2 + i]);
+			arms[i], (int *)&p->avail_weapons[2 + i]);
 	}
 
 	// frags sum
@@ -852,11 +868,11 @@ static void CreateWidgets(void)
 
 	// faces
 	STLIB_InitMultIcon(&w_faces, ST_FACESX, ST_FACESY, faces,
-		&consoleplayer->face_index);
+		&p->face_index);
 
 	// armour percentage - should be coloured later
 	STLIB_InitPercent(&w_armour, ST_ARMOURX, ST_ARMOURY, tallnum, tallpercent,
-		&consoleplayer->totalarmour);
+		&p->totalarmour);
 
 	// keyboxes 0-2
 	STLIB_InitMultIcon(&w_keyboxes[0], ST_KEY0X, ST_KEY0Y, keys,
@@ -870,29 +886,29 @@ static void CreateWidgets(void)
 
 	// ammo count (all four kinds)
 	STLIB_InitNum(&w_ammo[0], ST_AMMO0X, ST_AMMO0Y, shortnum, NULL,
-		&consoleplayer->ammo[0].num, ST_AMMO0WIDTH);
+		&p->ammo[0].num, ST_AMMO0WIDTH);
 
 	STLIB_InitNum(&w_ammo[1], ST_AMMO1X, ST_AMMO1Y, shortnum, NULL,
-		&consoleplayer->ammo[1].num, ST_AMMO1WIDTH);
+		&p->ammo[1].num, ST_AMMO1WIDTH);
 
 	STLIB_InitNum(&w_ammo[2], ST_AMMO2X, ST_AMMO2Y, shortnum, NULL,
-		&consoleplayer->ammo[2].num, ST_AMMO2WIDTH);
+		&p->ammo[2].num, ST_AMMO2WIDTH);
 
 	STLIB_InitNum(&w_ammo[3], ST_AMMO3X, ST_AMMO3Y, shortnum, NULL,
-		&consoleplayer->ammo[3].num, ST_AMMO3WIDTH);
+		&p->ammo[3].num, ST_AMMO3WIDTH);
 
 	// max ammo count (all four kinds)
 	STLIB_InitNum(&w_maxammo[0], ST_MAXAMMO0X, ST_MAXAMMO0Y, shortnum, NULL,
-		&consoleplayer->ammo[0].max, ST_MAXAMMO0WIDTH);
+		&p->ammo[0].max, ST_MAXAMMO0WIDTH);
 
 	STLIB_InitNum(&w_maxammo[1], ST_MAXAMMO1X, ST_MAXAMMO1Y, shortnum, NULL,
-		&consoleplayer->ammo[1].max, ST_MAXAMMO1WIDTH);
+		&p->ammo[1].max, ST_MAXAMMO1WIDTH);
 
 	STLIB_InitNum(&w_maxammo[2], ST_MAXAMMO2X, ST_MAXAMMO2Y, shortnum, NULL,
-		&consoleplayer->ammo[2].max, ST_MAXAMMO2WIDTH);
+		&p->ammo[2].max, ST_MAXAMMO2WIDTH);
 
 	STLIB_InitNum(&w_maxammo[3], ST_MAXAMMO3X, ST_MAXAMMO3Y, shortnum, NULL,
-		&consoleplayer->ammo[3].max, ST_MAXAMMO3WIDTH);
+		&p->ammo[3].max, ST_MAXAMMO3WIDTH);
 
 	for (i=0; i < 4; i++)
 		w_ammo[i].colmap = w_maxammo[i].colmap = text_yellow_map;

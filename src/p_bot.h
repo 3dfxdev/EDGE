@@ -29,7 +29,7 @@
 #include "e_player.h"
 
 // This describes what action the bot wants to do.
-// It will be translated to a ticcmd_t by P_BotPlayerThinker.
+// It will be translated to a ticcmd_t by P_BotPlayerBuilder.
 
 //
 // -ACB- 2003/05/15 Moved followtype and face enum outside the structure. This is to fixed 
@@ -87,6 +87,7 @@ typedef struct botcmd_s
 } 
 botcmd_t;
 
+
 typedef struct bot_s
 {
 	const player_t *pl;
@@ -106,8 +107,6 @@ typedef struct bot_s
 	// same gametic.
 	ticcmd_t prev_cmd;
 	int prev_gametime;
-
-	struct bot_s *next;
 }
 bot_t;
 

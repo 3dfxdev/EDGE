@@ -165,11 +165,13 @@ static void DoSectorSFX(sectorsfx_t *sec)
 
 	sec->count = SECSFX_TIME;
 
+	player_t *p = players[displayplayer];
+	DEV_ASSERT2(p);
+
 	if (!sec->sfxstarted)
 	{
-		if (P_ApproxDistance(displayplayer->mo->x - sec->sector->soundorg.x,
-					displayplayer->mo->y - sec->sector->soundorg.y)
-				< S_CLIPPING_DIST)
+		if (P_ApproxDistance(p->mo->x - sec->sector->soundorg.x,
+					p->mo->y - sec->sector->soundorg.y) < S_CLIPPING_DIST)
 		{
 			int channel = S_StartSound((mobj_t *) & sec->sector->soundorg,
 					sec->sfx);
@@ -180,9 +182,8 @@ static void DoSectorSFX(sectorsfx_t *sec)
 	}
 	else
 	{
-		if (P_ApproxDistance(displayplayer->mo->x - sec->sector->soundorg.x,
-					displayplayer->mo->y - sec->sector->soundorg.y)
-				> S_CLIPPING_DIST)
+		if (P_ApproxDistance(p->mo->x - sec->sector->soundorg.x,
+					p->mo->y - sec->sector->soundorg.y) > S_CLIPPING_DIST)
 		{
 			S_StopSound((mobj_t *) &sec->sector->soundorg);
 			sec->sfxstarted = false;
@@ -913,7 +914,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 			if (failedsecurity)
 			{
 				if (special->failedmessage)
-					CON_PlayerMessageLDF(thing->player, special->failedmessage);
+					CON_PlayerMessageLDF(thing->player->pnum, special->failedmessage);
 
 				return false;
 			}

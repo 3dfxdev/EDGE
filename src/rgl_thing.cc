@@ -253,8 +253,6 @@ void RGL_DrawPlayerSprites(player_t * p)
 {
 	int i;
 
-	DEV_ASSERT2(p->in_game);
-
 	// special handling for zoom: show viewfinder
 	if (viewiszoomed)
 	{
@@ -675,7 +673,7 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 	bool spr_flip;
 
 	// ignore the player him/herself
-	if (mo == consoleplayer->mo)
+	if (mo == players[displayplayer]->mo)
 		return;
 
 	// ignore invisible things

@@ -347,22 +347,25 @@ void HU_Drawer(void)
 			HL_ClearTextLine(&textlinepos);
 			HL_ClearTextLine(&textlinestats);
 
+			player_t *p = players[displayplayer];
+			DEV_ASSERT2(p);
+
 			// Convert angle & x,y co-ordinates so they are easier to read.
 			// -KM- 1998/11/25 Added z co-ordinate
 			sprintf(textbuf, "LookDir=%1.0f; x,y,z=( %1.0f, %1.0f, %1.0f );"
-				" sec=%d/%d", ANG_2_FLOAT(consoleplayer->mo->angle),
-				consoleplayer->mo->x, consoleplayer->mo->y,
-				consoleplayer->mo->z,
-				(int) (consoleplayer->mo->subsector->sector - sectors),
-				(int) (consoleplayer->mo->subsector - subsectors));
+				" sec=%d/%d", ANG_2_FLOAT(p->mo->angle),
+				p->mo->x, p->mo->y,
+				p->mo->z,
+				(int) (p->mo->subsector->sector - sectors),
+				(int) (p->mo->subsector - subsectors));
 			s = textbuf;
 			while (*s)
 				HL_AddCharToTextLine(&textlinepos, *(s++));
 
 			sprintf(textbuf, "Kills:%d/%d   Items:%d/%d   Secrets:%d/%d",
-				consoleplayer->killcount, totalkills,
-				consoleplayer->itemcount, totalitems,
-				consoleplayer->secretcount, totalsecret);
+				p->killcount, totalkills,
+				p->itemcount, totalitems,
+				p->secretcount, totalsecret);
 			s = textbuf;
 			while (*s)
 				HL_AddCharToTextLine(&textlinestats, *(s++));
@@ -400,7 +403,6 @@ void HU_Ticker(void)
 {
 	int i,rc;
 	char c;
-	player_t *p;
 
 	// tick down message counter if message is up
 	if (message_counter && !--message_counter)
@@ -413,9 +415,12 @@ void HU_Ticker(void)
 	if (! netgame)
 		return;
 
-	for (p = players; p; p = p->next)
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
-		if (p == consoleplayer)
+		player_t *p = players[pnum];
+		if (! p) continue;
+
+		if (pnum == consoleplayer)
 			continue;
 
 		c = p->cmd.chatchar;
@@ -432,7 +437,7 @@ void HU_Ticker(void)
 				if (rc && c == KEYD_ENTER)
 				{
 					if (w_inputbuffer[i].L.len
-						&& (chat_dest[i] == consoleplayer->pnum + 1
+						&& (chat_dest[i] == consoleplayer + 1
 						|| chat_dest[i] == HU_BROADCAST))
 					{
 						HL_AddMessageToSText(&w_message, p->playername, w_inputbuffer[i].L.ch);
@@ -497,17 +502,11 @@ bool HU_Responder(event_t * ev)
 	static bool shiftdown = false;
 	static bool altdown = false;
 	unsigned char c;
-	player_t *p;
-	int numplayers;
 
 	if (ev->type == ev_analogue)
 		return false;
 
 	c = ev->value.key;
-
-	numplayers = 0;
-	for (p = players; p; p = p->next)
-		numplayers++;
 
 	if (c == KEYD_RSHIFT)
 	{

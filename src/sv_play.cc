@@ -76,6 +76,7 @@ static savefield_t sv_fields_player[] =
 {
 	SF(pnum, "pnum", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(playerstate, "playerstate", 1, SVT_INT, SR_GetInt, SR_PutInt),
+	SF(playerflags, "playerflags", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(playername[0], "playername", 1, SVT_STRING, 
         SR_PlayerGetName, SR_PlayerPutName),
 	SF(mo, "mo", 1, SVT_INDEX("mobjs"), SR_MobjGetMobj, SR_MobjPutMobj),
@@ -256,13 +257,7 @@ savestruct_t sv_struct_psprite =
 //
 int SV_PlayerCountElems(void)
 {
-	player_t *p;
-	int count=0;
-
-	for (p=players; p; p=p->next)
-		count++;
-
-	return count;
+	return num_players;
 }
 
 //
@@ -270,17 +265,12 @@ int SV_PlayerCountElems(void)
 //
 void *SV_PlayerGetElem(int index)
 {
-	player_t *p;
-
-	for (p=players; p && index > 0; p=p->next)
-		index--;
-
-	if (!p)
+	if (index >= num_players)
 		I_Error("LOADGAME: Invalid Player: %d\n", index);
 
-	DEV_ASSERT2(index == 0);
+	DEV_ASSERT2(players[index]);
 
-	return p;
+	return players[index];
 }
 
 //
@@ -288,16 +278,21 @@ void *SV_PlayerGetElem(int index)
 //
 int SV_PlayerFindElem(player_t *elem)
 {
-	player_t *p;
-	int index;
+	int index = 0;
 
-	for (p=players, index=0; p && p != elem; p=p->next)
-		index++;
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+		if (! p) continue;
 
-	if (!p)
-		I_Error("LOADGAME: No such PlayerPtr: %p\n", elem);
+		if (p == elem)
+			return index;
 
-	return index;
+		index++;  // only count non-NULL pointers
+	}
+
+	I_Error("SAVEGAME: No such PlayerPtr: %p\n", elem);
+	return 0;
 }
 
 //
@@ -305,33 +300,31 @@ int SV_PlayerFindElem(player_t *elem)
 //
 void SV_PlayerCreateElems(int num_elems)
 {
-	int j;
+	// free existing players (sets all pointers to NULL)
+	P_DestroyAllPlayers();
 
-	// free existing players
-	P_RemoveAllPlayers();
+	if (num_elems > MAXPLAYERS)
+		I_Error("LOADGAME: too many players (%d)\n", num_elems);
 
-	players = NULL;
+	num_players = num_elems;
 
-	for (; num_elems > 0; num_elems--)
+	for (int pnum = 0; pnum < num_elems; pnum++)
 	{
 		player_t *p = Z_ClearNew(player_t, 1);
 
-		p->pnum = num_elems-1;
-		sprintf(p->playername, "Player%d", 1 + p->pnum);
-
-		p->next = players;
-		p->prev = NULL;
-
-		if (players)
-			players->prev = p;
-
-		players = p;
+		// Note: while loading, we don't follow the normal principle
+		//       where players[p->pnum] == p.  This is fixed in the
+		//       finalisation function.
+		players[pnum] = p;
 
 		// initialise defaults
-		p->in_game = true;
+
+		p->pnum = -1;  // checked during finalisation.
+		sprintf(p->playername, "Player%d", 1 + p->pnum);
+
 		p->remember_atk[0] = p->remember_atk[1] = -1;
 
-		for (j=0; j < NUMPSPRITES; j++)
+		for (int j=0; j < NUMPSPRITES; j++)
 		{
 			p->psprites[j].sx = 1.0f;
 			p->psprites[j].sy = WEAPONTOP;
@@ -344,35 +337,56 @@ void SV_PlayerCreateElems(int num_elems)
 //
 void SV_PlayerFinaliseElems(void)
 {
-	player_t *p;
+	int first = -1;
 
-	// create playerlookup[] array
-	if (! playerlookup)
-		playerlookup = Z_ClearNew(player_t *, MAXPLAYERS);
+	consoleplayer = -1;
+	displayplayer = -1;
 
-	for (p=players; p; p=p->next)
+	player_t *temp[MAXPLAYERS];
+
+	for (int i = 0; i < MAXPLAYERS; i++)
 	{
-		if (p->pnum >= MAXPLAYERS)
-		{
-			// Ouch!!
-			continue;
-		}
+		temp[i] = players[i];
+		players[i] = NULL;
+	}
 
-		if (playerlookup[p->pnum])
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = temp[pnum];
+		if (! p) continue;
+
+		if (p->pnum >= MAXPLAYERS)
+			I_Error("LOADGAME: player with bad index (%d) !\n", p->pnum);
+
+		if (players[p->pnum])
 			I_Error("LOADGAME: Two players with same number !\n");
 
 		if (! p->mo)
 			I_Error("LOADGAME: Player %d has no mobj !\n", p->pnum);
 
-		playerlookup[p->pnum] = p;
+		players[p->pnum] = p;
 
-		p->thinker = P_ConsolePlayerThinker;  //!!!!! FIXME
+		if (first < 0)
+			first = p->pnum;
+
+		if (p->playerflags & PFL_Console)
+			consoleplayer = p->pnum;
+
+		if (p->playerflags & PFL_Display)
+			displayplayer = p->pnum;
+
+		// FIXME: we don't support bots (yet)
+		p->builder = P_ConsolePlayerBuilder;
 
 		P_UpdateAvailWeapons(p);
 		P_UpdateTotalArmour(p);
 	}
 
-	consoleplayer = displayplayer = players;  //!!!! FIXME
+	if (consoleplayer < 0)
+		consoleplayer = first;
+
+	if (displayplayer < 0)
+		displayplayer = consoleplayer;
 }
 
 

@@ -525,11 +525,12 @@ void M_DisplayAir(void)
 	if (!graphicsmode)
 		return;
 
-	if (consoleplayer->playerstate != PST_LIVE)
+	player_t *p = players[displayplayer];
+
+	if (p->playerstate != PST_LIVE || ! p->underwater)
 		return;
 
-	if (! consoleplayer->underwater)
-		return;
+	DEV_ASSERT2(p->mo);
 
 	// load in patches for air indicator
 	if (!air_images[0])
@@ -542,14 +543,12 @@ void M_DisplayAir(void)
 		}
 	}
 
-	DEV_ASSERT2(consoleplayer->mo);
-
 	i = 21;
 
-	if (consoleplayer->air_in_lungs > 0)
+	if (p->air_in_lungs > 0)
 	{
-		int nom = consoleplayer->air_in_lungs;
-		int denom = consoleplayer->mo->info->lung_capacity;
+		int nom   = p->air_in_lungs;
+		int denom = p->mo->info->lung_capacity;
     
 		i = 1 + (20 * (denom - nom) / denom);
 

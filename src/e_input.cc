@@ -200,10 +200,6 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 {
 	Z_Clear(cmd, ticcmd_t, 1);
 
-	// -KM- 1998/12/21 If a drone player, do not accept input.
-	if (drone)
-		return;
-
 	bool strafe = E_InputCheckKey(key_strafe);
 	int speed = E_InputCheckKey(key_speed) ? 1 : 0;
 
@@ -224,7 +220,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 
 	if (E_InputCheckKey(key_right) || E_InputCheckKey(key_left) ||
 		(analogue[AXIS_TURN] && stageturn))
-		turnheld += ticdup;
+		turnheld++;
 	else
 		turnheld = 0;
 
@@ -235,7 +231,7 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	int m_speed = speed;
 
 	if (E_InputCheckKey(key_lookup) || E_InputCheckKey(key_lookdown))
-		mlookheld += ticdup;
+		mlookheld++;
 	else
 		mlookheld = 0;
 

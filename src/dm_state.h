@@ -53,7 +53,6 @@ extern gameflags_t global_flags;
 // Defaults for menu, methinks.
 extern skill_t startskill;
 extern char *startmap;
-extern bool drone;
 
 extern bool autostart;
 
@@ -126,17 +125,15 @@ extern gamestate_e gamestate;
 extern int gametic;
 
 // The maximum number of players, multiplayer/networking.
-#define MAXPLAYERS  32
+#define MAXPLAYERS  30
 
-// Pointer to each player.
-extern player_t **playerlookup;
-
-// Linked list of all players in the game.
-extern player_t *players;
+// Pointer to each player in the game.
+extern player_t *players[MAXPLAYERS];
+extern int num_players;
 
 // Player taking events, and displaying.
-extern player_t *consoleplayer;
-extern player_t *displayplayer;
+extern int consoleplayer;
+extern int displayplayer;
 
 #define MAXHEALTH 200
 #define MAXARMOUR 200
@@ -144,11 +141,9 @@ extern player_t *displayplayer;
 #define CHEATARMOUR      MAXARMOUR
 #define CHEATARMOURTYPE  ARMOUR_Blue
 
-// Player spawn spots for deathmatch.
+// Player spawn spots for deathmatch, coop.
 extern spawnpointarray_c dm_starts;
-
-// Player spawn spots.
-extern spawnpoint_t *playerstarts;
+extern spawnpointarray_c coop_starts;
 
 // Intermission stats.
 // Parameters for world map / intermission.
@@ -217,8 +212,6 @@ extern const struct image_s *skyflatimage;
 extern doomcom_t *doomcom;
 
 extern int maketic;
-
-extern int ticdup;
 
 //misc stuff
 extern bool map_overlay;

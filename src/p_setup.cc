@@ -151,7 +151,7 @@ const byte *rejectmatrix;
 
 // Maintain single and multi player starting spots.
 spawnpointarray_c dm_starts;
-spawnpoint_t *playerstarts;	// Use spawnpointarray?
+spawnpointarray_c coop_starts;
 
 static bool hexen_level;
 
@@ -851,12 +851,8 @@ static void SpawnMapThing(const mobjtype_c *info,
 	// check for players specially -jc-
 	if (info->playernum > 0)
 	{
-		// save spots for respawning in network games
-		playerstarts[info->playernum - 1] = point;
-
-		if (!deathmatch)
-			P_SpawnPlayer(playerlookup[info->playernum - 1], &point);
-
+		if (! coop_starts.FindPlayer(info->playernum))
+			coop_starts.Insert(&point);
 		return;
 	}
 
@@ -2178,7 +2174,6 @@ void P_SetupLevel(skill_t skill, int autotag)
 	int j;
 	int lumpnum;
 	int gl_lumpnum;
-	player_t *p;
 	char gl_lumpname[16];
 
 	if (level_active)
@@ -2188,15 +2183,18 @@ void P_SetupLevel(skill_t skill, int autotag)
 
 	wminfo.partime = currmap->partime;
 
-	for (p = players; p; p = p->next)
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
+		player_t *p = players[pnum];
+		if (! p) continue;
+
 		p->killcount = p->secretcount = p->itemcount = 0;
 		p->mo = NULL;
 	}
 
 	// Initial height of PointOfView
 	// will be set by player think.
-	consoleplayer->viewz = FLO_UNUSED;
+	players[consoleplayer]->viewz = FLO_UNUSED;
 
 	lumpnum = W_GetNumForName(currmap->lump);
 
@@ -2321,8 +2319,9 @@ void P_SetupLevel(skill_t skill, int autotag)
 
 	bodyqueslot = 0;
 
-	// -AJA- 1999/10/21: Clear out playerstarts.
-	Z_Clear(playerstarts, spawnpoint_t, MAXPLAYERS);
+	// -AJA- 1999/10/21: Clear out player starts (ready to load).
+	dm_starts.Clear();
+	coop_starts.Clear();
 
 	if (hexen_level)
 		LoadHexenThings(lumpnum + ML_THINGS);
@@ -2335,20 +2334,24 @@ void P_SetupLevel(skill_t skill, int autotag)
 		mapsector_CRC.crc, mapline_CRC.crc, mapthing_CRC.crc);
 #endif
 
-	// if deathmatch, randomly spawn the active players
-	if (deathmatch)
+	// spawn the active players
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
-		for (p = players; p; p = p->next)
-		{
-			p->mo = NULL;
+		player_t *p = players[pnum];
+		if (! p) continue;
+
+		p->mo = NULL;
+
+		if (deathmatch)
 			G_DeathMatchSpawnPlayer(p);
-		}
+		else
+			G_CoopSpawnPlayer(p);
 	}
 
 	// -AJA- 1999/10/21: if not netgame/deathmatch, then check for
 	//       missing player start.  NOTE: temp fix, player handling
 	//       desperately needs a massive overhaul.
-	if (!(netgame || deathmatch) && consoleplayer->mo == NULL)
+	if (!(netgame || deathmatch) && players[consoleplayer]->mo == NULL)
 		I_Error("Missing player start !\n");
 
 	// set up world state
@@ -2374,16 +2377,10 @@ void P_Init(void)
 	E_ProgressMessage(language["PlayState"]);
 	
 	// There should not yet exist a player
-	DEV_ASSERT2(players == NULL);
+	DEV_ASSERT2(num_players == 0);
 
-	// Create all the players
-	// -ES- FIXME: Do the player system more cleanly
-	// (remove limitations, dynamify)
-	for (int i = 0; i < MAXPLAYERS; i++)
-		P_AddPlayer(i);
-	
 	dm_starts.Clear();
-	playerstarts = Z_New(spawnpoint_t, MAXPLAYERS);
+	coop_starts.Clear();
 }
 
 namespace playsim

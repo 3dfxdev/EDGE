@@ -279,7 +279,7 @@ static void SaveScaleAndLoc(void)
 	old_m_h = m_h;
 }
 
-static void RestoreScaleAndLoc(void)
+static void RestoreScaleAndLoc(player_t *p)
 {
 	m_w = old_m_w;
 	m_h = old_m_h;
@@ -291,8 +291,8 @@ static void RestoreScaleAndLoc(void)
 	}
 	else
 	{
-		m_x = consoleplayer->mo->x - m_w / 2;
-		m_y = consoleplayer->mo->y - m_h / 2;
+		m_x = p->mo->x - m_w / 2;
+		m_y = p->mo->y - m_h / 2;
 	}
 	m_x2 = m_x + m_w;
 	m_y2 = m_y + m_h;
@@ -380,9 +380,9 @@ static void ChangeWindowLoc(void)
 //
 // InitVariables
 //
-static void InitVariables(void)
+static void InitVariables(player_t *p)
 {
-	DEV_ASSERT2(consoleplayer);
+	DEV_ASSERT2(p);
 
 	if (map_overlay == true)
 		automapactive = 1;
@@ -398,8 +398,8 @@ static void InitVariables(void)
 	m_w = FTOM(f_w);
 	m_h = FTOM(f_h);
 
-	m_x = consoleplayer->mo->x - m_w / 2;
-	m_y = consoleplayer->mo->y - m_h / 2;
+	m_x = p->mo->x - m_w / 2;
+	m_y = p->mo->y - m_h / 2;
 
 	ChangeWindowLoc();
 
@@ -483,7 +483,7 @@ static void StartAM(void)
 
 	LevelInit();
 
-	InitVariables();
+	InitVariables(players[displayplayer]);
 	LoadPics();
 
 	stopped = false;
@@ -622,7 +622,7 @@ bool AM_Responder(event_t * ev)
 				MinOutWindowScale();
 			}
 			else
-				RestoreScaleAndLoc();
+				RestoreScaleAndLoc(players[displayplayer]);
 			break;
 
 		case AM_FOLLOWKEY:
@@ -740,17 +740,18 @@ static void ChangeWindowScale(void)
 		ActivateNewScale();
 }
 
-static void DoFollowPlayer(void)
+static void DoFollowPlayer(player_t *p)
 {
-	if (f_oldloc.x != consoleplayer->mo->x || 
-		f_oldloc.y != consoleplayer->mo->y)
+	if (f_oldloc.x != p->mo->x || f_oldloc.y != p->mo->y)
 	{
-		m_x = FTOM(MTOF(consoleplayer->mo->x)) - m_w / 2;
-		m_y = FTOM(MTOF(consoleplayer->mo->y)) - m_h / 2;
+		m_x = FTOM(MTOF(p->mo->x)) - m_w / 2;
+		m_y = FTOM(MTOF(p->mo->y)) - m_h / 2;
+		
 		m_x2 = m_x + m_w;
 		m_y2 = m_y + m_h;
-		f_oldloc.x = consoleplayer->mo->x;
-		f_oldloc.y = consoleplayer->mo->y;
+		
+		f_oldloc.x = p->mo->x;
+		f_oldloc.y = p->mo->y;
 	}
 }
 
@@ -764,7 +765,7 @@ void AM_Ticker(void)
 		return;
 
 	if (followplayer)
-		DoFollowPlayer();
+		DoFollowPlayer(players[displayplayer]);
 
 	// Change the zoom if necessary
 	if (ftom_zoommul != 1.0f)
@@ -790,7 +791,7 @@ static INLINE void Rotate(float * x, float * y, angle_t a)
 	*x = tmpx;
 }
 
-static INLINE void GetRotatedCoords(float sx, float sy,
+static INLINE void GetRotatedCoords(player_t *p, float sx, float sy,
 									float *dx, float *dy)
 {
 	*dx = sx;
@@ -799,20 +800,20 @@ static INLINE void GetRotatedCoords(float sx, float sy,
 	if (rotatemap)
 	{
 		// rotate coordinates so they are on the map correctly
-		*dx -= consoleplayer->mo->x;
-		*dy -= consoleplayer->mo->y;
+		*dx -= p->mo->x;
+		*dy -= p->mo->y;
 
-		Rotate(dx, dy, ANG90 - consoleplayer->mo->angle);
+		Rotate(dx, dy, ANG90 - p->mo->angle);
 
-		*dx += consoleplayer->mo->x;
-		*dy += consoleplayer->mo->y;
+		*dx += p->mo->x;
+		*dy += p->mo->y;
 	}
 }
 
-static INLINE angle_t GetRotatedAngle(angle_t src)
+static INLINE angle_t GetRotatedAngle(player_t *p, angle_t src)
 {
 	if (rotatemap)
-		return src + ANG90 - consoleplayer->mo->angle;
+		return src + ANG90 - p->mo->angle;
 
 	return src;
 }
@@ -924,7 +925,7 @@ static bool CheckSimiliarRegions(sector_t *front, sector_t *back)
 //
 // -AJA- This is now *lineseg* based, not linedef.
 //
-static void AM_WalkSeg(seg_t *seg)
+static void AM_WalkSeg(seg_t *seg, player_t *p)
 {
 	mline_t l;
 	line_t *line;
@@ -937,15 +938,12 @@ static void AM_WalkSeg(seg_t *seg)
 #if (DEBUG_TRUEBSP == 1)
 		if (seg->partner && seg > seg->partner)
 			return;
-#endif
 
-#if (DEBUG_TRUEBSP > 0)
-		GetRotatedCoords(seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
-		GetRotatedCoords(seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
+		GetRotatedCoords(p,seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
+		GetRotatedCoords(p,seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
 
 		DrawMline(&l, MINI_COL);
 #endif
-
 		return;
 	}
 
@@ -953,13 +951,11 @@ static void AM_WalkSeg(seg_t *seg)
 	DEV_ASSERT2(line);
 
 	// only draw segs on the _right_ side of linedefs
-#if (DEBUG_TRUEBSP < 2)
 	if (line->side[1] == seg->sidedef)
 		return;
-#endif
 
-	GetRotatedCoords(seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
-	GetRotatedCoords(seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
+	GetRotatedCoords(p,seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
+	GetRotatedCoords(p,seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
 
 	if (cheating || (line->flags & ML_Mapped))
 	{
@@ -1002,13 +998,13 @@ static void AM_WalkSeg(seg_t *seg)
 				// -AJA- 1999/10/09: extra floor change.
 				DrawMline(&l, REGION_COL);
 			}
-			else if (cheating || (DEBUG_TRUEBSP > 1))
+			else if (cheating)
 			{
 				DrawMline(&l, ALLMAP_COL);
 			}
 		}
 	}
-	else if (consoleplayer->powers[PW_AllMap])
+	else if (p->powers[PW_AllMap])
 	{
 		if (! (line->flags & ML_DontDraw))
 			DrawMline(&l, ALLMAP_COL);
@@ -1016,27 +1012,7 @@ static void AM_WalkSeg(seg_t *seg)
 }
 
 
-// -AJA- for debugging
-#if (DEBUG_TRUEBSP == 4)
-static void DEBUG_ShowSubSecs(void)
-{
-	int x, y;
-
-	for (y=0;     y < f_h; y += 3)
-		for (x=(y&1); x < f_w; x += 3)
-		{
-			float mx = CXFTOM(x);
-			float my = CYFTOM(y);
-
-			int subsec = R_PointInSubsector(mx, my) - subsectors;
-
-			V_DrawPixel(main_scr, x, y, subsec * 17 + (subsec/256) * 11);
-		}
-}
-#endif
-
-
-static void DrawLineCharacter(mline_t *lineguy, int lineguylines, 
+static void DrawLineCharacter(player_t *p,mline_t *lineguy, int lineguylines, 
 							  float radius, angle_t angle, int colour, float x, float y)
 {
 	int i;
@@ -1046,8 +1022,8 @@ static void DrawLineCharacter(mline_t *lineguy, int lineguylines,
 	if (radius < 2)
 		radius = 2;
 
-	GetRotatedCoords(x, y, &ch_x, &ch_y);
-	angle = GetRotatedAngle(angle);
+	GetRotatedCoords(p,x, y, &ch_x, &ch_y);
+	angle = GetRotatedAngle(p,angle);
 
 	for (i = 0; i < lineguylines; i++)
 	{
@@ -1079,21 +1055,21 @@ static void AM_DrawPlayer(mobj_t *mo)
 {
 	int colour;
 
-	DEV_ASSERT2(mo->player->in_game);
+	player_t *p = players[displayplayer];
 
 	if (!netgame)
 	{
 		if (cheating)
-			DrawLineCharacter(cheat_player_arrow, NUMCHEATPLYRLINES, 
-			mo->radius, mo->angle, YOUR_COL, mo->x, mo->y);
+			DrawLineCharacter(p, cheat_player_arrow, NUMCHEATPLYRLINES, 
+				mo->radius, mo->angle, YOUR_COL, mo->x, mo->y);
 		else
-			DrawLineCharacter(player_arrow, NUMPLYRLINES, 
-			mo->radius, mo->angle, YOUR_COL, mo->x, mo->y);
+			DrawLineCharacter(p, player_arrow, NUMPLYRLINES, 
+				mo->radius, mo->angle, YOUR_COL, mo->x, mo->y);
 
 		return;
 	}
 
-	if ((deathmatch && !singledemo) && mo->player != consoleplayer)
+	if ((deathmatch && !singledemo) && mo->player != p)
 		return;
 
 	if (mo->player->powers[PW_PartInvis])
@@ -1101,7 +1077,7 @@ static void AM_DrawPlayer(mobj_t *mo)
 	else
 		colour = player_colours[mo->player->pnum & 0x07];
 
-	DrawLineCharacter(player_arrow, NUMPLYRLINES, 
+	DrawLineCharacter(p, player_arrow, NUMPLYRLINES, 
 		mo->radius, mo->angle, colour, mo->x, mo->y);
 }
 
@@ -1128,7 +1104,8 @@ static void AM_WalkThing(mobj_t *mo)
 	else if (mo->extendedflags & EF_MONSTER)
 		colour = MONST_COL;
 
-	DrawLineCharacter(thintriangle_guy, NUMTHINTRIANGLEGUYLINES,
+	DrawLineCharacter(players[displayplayer],
+		thintriangle_guy, NUMTHINTRIANGLEGUYLINES,
 		mo->radius, mo->angle, colour, mo->x, mo->y);
 }
 
@@ -1147,7 +1124,7 @@ static void AM_WalkSubsector(int num)
 	// handle each seg
 	for (seg=sub->segs; seg; seg=seg->sub_next)
 	{
-		AM_WalkSeg(seg);
+		AM_WalkSeg(seg, players[displayplayer]);
 	}
 
 	// handle each thing
@@ -1197,32 +1174,9 @@ static void AM_WalkBSPNode(int bspnum)
 	node = &nodes[bspnum];
 	side = 0;
 
-#if (DEBUG_TRUEBSP == 2 || DEBUG_TRUEBSP == 3)
-	side = P_PointOnDivlineSide(consoleplayer->mo->x, consoleplayer->mo->y, &node->div);
-#endif
-
 	// Recursively divide right space
 	if (AM_CheckBBox(node->bbox[0]))
 		AM_WalkBSPNode(node->children[side]);
-
-#if (DEBUG_TRUEBSP == 2)
-	return;
-#elif (DEBUG_TRUEBSP == 3)
-	{
-		mline_t l;
-
-		float x1 = node->div.x - node->div.dx * 2;
-		float y1 = node->div.y - node->div.dy * 2;
-		float x2 = node->div.x + node->div.dx * 2;
-		float y2 = node->div.y + node->div.dy * 2;
-
-		GetRotatedCoords(x1+3, y1+3, &l.a.x, &l.a.y);
-		GetRotatedCoords(x2+3, y2+3, &l.b.x, &l.b.y);
-
-		DrawMline(&l, GREEN+GREEN_LEN*4/5);
-		return;
-	}
-#endif
 
 	// Recursively divide back space
 	if (AM_CheckBBox(node->bbox[side ^ 1]))

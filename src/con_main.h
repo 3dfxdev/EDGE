@@ -55,17 +55,17 @@ void CON_Printf(const char *message,...) GCCATTR(format(printf, 1, 2));
 // Like CON_Printf, but appends an extra '\n'. Should be used for player
 // messages that need more than MessageLDF.
 
-void CON_Message(const char *message,...) GCCATTR(format(printf, 1, 2));
+void CON_Message(const char *message, ...) GCCATTR(format(printf, 1, 2));
 
 // Looks up the string in LDF, appends an extra '\n', and then writes it to
 // the console. Should be used for most player messages.
-void CON_MessageLDF(const char *message,...);
+void CON_MessageLDF(const char *lookup, ...);
 
 // -ACB- 1999/09/22
 // Introduced because MSVC and DJGPP handle #defines differently
-void CON_PlayerMessage(player_t *plyr, const char *message, ...) GCCATTR(format(printf, 2, 3));
+void CON_PlayerMessage(int plyr, const char *message, ...) GCCATTR(format(printf, 2, 3));
 // Looks up in LDF.
-void CON_PlayerMessageLDF(player_t *plyr, const char *message, ...);
+void CON_PlayerMessageLDF(int plyr, const char *message, ...);
 
 typedef enum
 {

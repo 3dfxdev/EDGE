@@ -42,20 +42,19 @@ int leveltime;
 //
 void P_Ticker(void)
 {
-	player_t *p;
-
 	if (paused)
 		return;
 
 	// pause if in menu and at least one tic has been run
 	if (!netgame && (menuactive || rts_menuactive) && !demoplayback && 
-		consoleplayer->viewz != FLO_UNUSED)
+		players[consoleplayer]->viewz != FLO_UNUSED)
 	{
 		return;
 	}
 
-	for (p = players; p; p = p->next)
-		P_PlayerThink(p);
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+		if (players[pnum])
+			P_PlayerThink(players[pnum]);
 
 	P_RunMobjThinkers();
 	P_RunLights();
