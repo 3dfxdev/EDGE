@@ -16,6 +16,8 @@
 [DOOM/sp:coop]    // allow specialisation based on netmode
                   // (must be complete: have each of sp,dm,coop SOMEWHERE)
 
+DEFAULT_STYLE = HUD;  // styles are defined in styles.ddf
+
 // for possible regions: TOP, LEFT, RIGHT, BOTTOM
 // when have LEFT and BOTTOM (for example), vertical one is biggest.
 
