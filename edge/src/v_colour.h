@@ -101,9 +101,6 @@ extern const colourmap_c *text_yellow_map;
 extern const byte *am_normal_colmap;
 extern const byte *am_overlay_colmap;
 
-// do-nothing translation table
-extern byte null_tranmap[256];
-
 // halo translation table
 extern byte halo_conv_table[256];
 

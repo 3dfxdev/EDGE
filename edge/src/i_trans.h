@@ -27,25 +27,4 @@
 
 #include "dm_type.h"
 
-typedef struct
-{
-	int mask;
-	int bits;
-	int shift;
-}
-colourshift_t;
-
-// Not really part of this API, but put here as common code 
-// This is the TrueColor palette construction stuff
-
-extern colourshift_t redshift;
-extern colourshift_t greenshift;
-extern colourshift_t blueshift;
-
-void SetColourShift (unsigned long mask, colourshift_t * ps);
-
-#define _rgb_r_shift_16 (redshift.pshift)
-#define _rgb_g_shift_16 (greenshift.pshift)
-#define _rgb_b_shift_16 (blueshift.pshift)
-
 #endif

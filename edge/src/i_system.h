@@ -379,20 +379,6 @@ void I_NetCmd(void);
 //
 // -ACB- 1999/09/20 Moved from I_Video.H
 
-// Truecolor information struct.  The masks are non-shifted values and
-// can be used directly (e.g. 0xF800).  The shifts are right shifts
-// (i.e. use VAL << SHIFT).  The masks are always contiguous (no
-// missing bits).  Grey_mask is the value to AND with a pixel datum to
-// make it pure grey (e.g. 0xFFDF on RGB 5:6:5 mode).
-typedef struct truecol_info_s
-{
-	int red_bits, green_bits, blue_bits;
-	int red_shift, green_shift, blue_shift;
-	long red_mask, green_mask, blue_mask;
-	long grey_mask;
-}
-truecol_info_t;
-
 // Screen mode information.
 typedef struct screenmode_s
 {
@@ -409,12 +395,6 @@ void I_StartupGraphics(void);
 // directly.  This function should determine what video modes are
 // available, and call V_AddAvailableResolution() for them.
 
-void I_SetPalette(byte palette[256][3]);
-// Sets the palette to the given set of colours.  Only called for
-// 8-bit mode.  The order of each triplet is: red, green, blue.  This
-// routine must apply the current gamma level to the colours before
-// setting the hardware palette.
-
 void I_StartFrame(void);
 // Called to prepare the screen for rendering (if necessary).
 
@@ -428,16 +408,6 @@ void I_WaitVBL(int count);
 // parameter is the number of frames to wait for (1 means this very
 // frame).  This function may do nothing if VBL information is not
 // available on the platform.
-
-long I_Colour2Pixel(byte palette[256][3], int col);
-// Converts an indexed colour (0 to 255) into a pixel datum that could
-// be written directly into the framebuffer, and returns it.  On 8-bit
-// mode, it just returns `col'.  On hicolor/truecolor modes, it should
-// look up the colour in the given palette, and convert the RGB colour
-// into the correct pixel datum.  Used for translucency, etc..
-
-void I_GetTruecolInfo(truecol_info_t *info);
-// Returns the truecolor information for the current mode.
 
 bool I_SetScreenSize(screenmode_t *mode);
 // Tries to set the video card to the given mode (or open a window).
