@@ -851,14 +851,126 @@ void Things::MarkThing(int mt_num)
 
 //------------------------------------------------------------------------
 
+namespace Things
+{
+	const fieldreference_t mobj_field[] =
+	{
+		{ "ID #",             &mobjinfo[0].doomednum, FT_ANY },
+		{ "Initial frame",    &mobjinfo[0].spawnstate, FT_FRAME },
+		{ "Hit points",       &mobjinfo[0].spawnhealth, FT_GTEQ1 },
+		{ "First moving frame", &mobjinfo[0].seestate, FT_FRAME },
+		{ "Alert sound",      &mobjinfo[0].seesound, FT_SOUND },
+		{ "Reaction time",    &mobjinfo[0].reactiontime, FT_NONEG },
+		{ "Attack sound",     &mobjinfo[0].attacksound, FT_SOUND },
+		{ "Injury frame",     &mobjinfo[0].painstate, FT_FRAME },
+		{ "Pain chance",      &mobjinfo[0].painchance, FT_NONEG },
+		{ "Pain sound",       &mobjinfo[0].painsound, FT_SOUND },
+		{ "Close attack frame", &mobjinfo[0].meleestate, FT_FRAME },
+		{ "Far attack frame", &mobjinfo[0].missilestate, FT_FRAME },
+		{ "Death frame",      &mobjinfo[0].deathstate, FT_FRAME },
+		{ "Exploding frame",  &mobjinfo[0].xdeathstate, FT_FRAME },
+		{ "Death sound",      &mobjinfo[0].deathsound, FT_SOUND },
+		{ "Speed",            &mobjinfo[0].speed, FT_NONEG },
+		{ "Width",            &mobjinfo[0].radius, FT_GTEQ1 },
+		{ "Height",           &mobjinfo[0].height, FT_GTEQ1 },
+		{ "Mass",             &mobjinfo[0].mass, FT_NONEG },
+		{ "Missile damage",   &mobjinfo[0].damage, FT_NONEG },
+		{ "Action sound",     &mobjinfo[0].activesound, FT_SOUND },
+		{ "Bits",             &mobjinfo[0].flags, FT_BITS },
+		{ "Respawn frame",    &mobjinfo[0].raisestate, FT_FRAME },
+
+		{ NULL, NULL, 0 }   // End sentinel
+	};
+}
+
 void Things::AlterThing(int new_val)
 {
 	int mt_num = Patch::active_obj - 1;  // NOTE WELL
 
-	const char *deh_field = Patch::line_buf;
+	const char *field_name = Patch::line_buf;
 
 	assert(0 <= mt_num && mt_num < NUMMOBJTYPES);
 
-	// FIXME
+	int stride = ((char*) (mobjinfo+1)) - ((char*) mobjinfo);
+
+	if (! Things::AlterOneField(mobj_field, field_name, mt_num * stride, new_val))
+	{
+		PrintWarn("UNKNOWN THING FIELD: %s\n", field_name);
+		return;
+	}
+
+	MarkThing(mt_num);
 }
 
+namespace Things
+{
+	bool ValidateValue(const fieldreference_t *ref, int new_val)
+	{
+		if (ref->field_type == FT_ANY || ref->field_type == FT_BITS)
+			return true;
+
+		if (new_val < 0 || (new_val == 0 && ref->field_type == FT_GTEQ1))
+		{
+			PrintWarn("Line %d: bad value '%d' for %s\n",
+				Patch::line_num, new_val, ref->deh_name);
+			return false;
+		}
+
+		if (ref->field_type == FT_NONEG || ref->field_type == FT_GTEQ1)
+			return true;
+
+		if (ref->field_type == FT_SUBSPR)  // ignore the bright bit
+			new_val &= ~32768;
+
+		int min_obj = 0;
+		int max_obj = 0;
+
+		switch (ref->field_type)
+		{
+			case FT_FRAME:  max_obj = NUMSTATES -1; break;
+			case FT_SOUND:  max_obj = NUMSFX - 1; break;
+			case FT_SPRITE: max_obj = NUMSPRITES - 1; break;
+			case FT_SUBSPR: max_obj = 31; break;
+			case FT_AMMO:   max_obj = NUMAMMO - 1; break;
+
+			default:
+				InternalError("Bad field type %d\n", ref->field_type);
+		}
+
+		if (new_val < min_obj || new_val > max_obj)
+		{
+			PrintWarn("Line %d: bad value '%d' for %s\n",
+				Patch::line_num, new_val, ref->deh_name);
+
+			return false;
+		}
+
+		return true;
+	}
+}
+
+bool Things::AlterOneField(const fieldreference_t *refs, const char *deh_field,
+		int entry_offset, int new_val)
+{
+	assert(entry_offset >= 0);
+
+	for (; refs->deh_name; refs++)
+	{
+		if (StrCaseCmp(refs->deh_name, deh_field) != 0)
+			continue;
+
+		// found it...
+
+		if (ValidateValue(refs, new_val))
+		{
+			// Yup, we play a bit dirty here
+			char *dest = ((char *) (refs->var)) + entry_offset;
+
+			Storage::RememberMod((int *)dest, new_val);
+		}
+
+		return true;
+	}
+
+	return false;
+}

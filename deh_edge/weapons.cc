@@ -271,13 +271,38 @@ void Weapons::ConvertWEAP(void)
 
 //------------------------------------------------------------------------
 
+namespace Weapons
+{
+	const fieldreference_t weapon_field[] =
+	{
+		{ "Ammo type", &weapon_info[0].ammo, FT_AMMO },
+
+		// -AJA- these first two fields have misleading dehacked names
+		{ "Deselect frame", &weapon_info[0].upstate,    FT_FRAME },
+		{ "Select frame",   &weapon_info[0].downstate,  FT_FRAME },
+		{ "Bobbing frame",  &weapon_info[0].readystate, FT_FRAME },
+		{ "Shooting frame", &weapon_info[0].atkstate,   FT_FRAME },
+		{ "Firing frame",   &weapon_info[0].flashstate, FT_FRAME },
+
+		{ NULL, NULL, 0 }   // End sentinel
+	};
+}
+
 void Weapons::AlterWeapon(int new_val)
 {
 	int wp_num = Patch::active_obj;
-	const char *deh_field = Patch::line_buf;
+	const char *field_name = Patch::line_buf;
 
 	assert(0 <= wp_num && wp_num < NUMWEAPONS);
 
-	// FIXME
+	int stride = ((char*) (weapon_info+1)) - ((char*) weapon_info);
+
+	if (! Things::AlterOneField(weapon_field, field_name, wp_num * stride, new_val))
+	{
+		PrintWarn("UNKNOWN WEAPON FIELD: %s\n", field_name);
+		return;
+	}
+
+	MarkWeapon(wp_num);
 }
 

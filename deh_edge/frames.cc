@@ -35,6 +35,7 @@
 #include "system.h"
 #include "text.h"
 #include "things.h"
+#include "util.h"
 #include "wad.h"
 #include "weapons.h"
 
@@ -539,7 +540,7 @@ namespace Frames
 
 			if (attack_slot[N])
 			{
-				// XXX should show the problem thing
+				// FIXME: should show the problem thing
 				// XXX maybe disable the action ?
 				PrintWarn("No free attack slots for action %s.\n", act_name);
 				return;
@@ -678,14 +679,45 @@ void Frames::OutputGroup(int first, char group)
 
 //------------------------------------------------------------------------
 
+namespace Frames
+{
+	const fieldreference_t frame_field[] =
+	{
+		{ "Sprite number",    &states[0].sprite, FT_SPRITE },
+		{ "Sprite subnumber", &states[0].frame,  FT_SUBSPR },
+		{ "Duration",         &states[0].tics, FT_ANY },
+		{ "Next frame",       &states[0].nextstate, FT_FRAME },
+
+		{ NULL, NULL, 0 }   // End sentinel
+	};
+}
+
 void Frames::AlterFrame(int new_val)
 {
 	int st_num = Patch::active_obj;
-	const char *deh_field = Patch::line_buf;
+	const char *field_name = Patch::line_buf;
 
 	assert(0 <= st_num && st_num < NUMSTATES);
 
-	// FIXME
+	if (StrCaseCmpPartial(field_name, "Unknown") == 0)
+		return;
+
+	if (StrCaseCmp(field_name, "Action pointer") == 0)
+	{
+		PrintWarn("Line %d: raw Action pointer not supported.\n",
+			Patch::line_num);
+		return;
+	}
+
+	int stride = ((char*) (states+1)) - ((char*) states);
+
+	if (! Things::AlterOneField(frame_field, field_name, st_num * stride, new_val))
+	{
+		PrintWarn("UNKNOWN FRAME FIELD: %s\n", field_name);
+		return;
+	}
+
+	MarkState(st_num);
 }
 
 void Frames::AlterPointer(int new_val)
@@ -698,7 +730,22 @@ void Frames::AlterPointer(int new_val)
 
 	assert(0 <= st_num && st_num < NUMSTATES);
 
-	// FIXME
+	if (StrCaseCmp(deh_field, "Codep Frame") != 0)
+	{
+		PrintWarn("UNKNOWN POINTER FIELD: %s\n", deh_field);
+		return;
+	}
+
+	if (new_val < 0 || new_val >= NUMSTATES)
+	{
+		PrintWarn("Line %d: Illegal Codep frame number: %d\n",
+			Patch::line_num, new_val);
+		return;
+	}
+
+	Storage::RememberMod(&states[st_num].action, states[new_val].action);
+
+	MarkState(st_num);
 }
 
 
