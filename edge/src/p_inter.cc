@@ -150,7 +150,7 @@ static bool GiveAmmoLimit(player_t * player, mobj_t * special,
 static bool GiveWeapon(player_t * player, mobj_t * special,
 					   benefit_t *be, bool lose_em)
 {
-	weaponinfo_t *info = weaponinfo[be->subtype];
+	weapondef_c *info = weapondefs[be->subtype];
 	int pw_index;
 
 	if (lose_em)

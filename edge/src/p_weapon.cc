@@ -83,7 +83,7 @@ void P_SetPsprite(player_t * p, int position, int stnum)
 // -KM- 1998/12/16 Added check to make sure sprites exist.
 // -AJA- 2000: Made into a separate routine.
 //
-bool P_CheckWeaponSprite(weaponinfo_t *info)
+bool P_CheckWeaponSprite(weapondef_c *info)
 {
 	if (info->up_state == S_NULL)
 		return false;
@@ -97,7 +97,7 @@ bool P_CheckWeaponSprite(weaponinfo_t *info)
 void P_RefillClips(player_t * p)
 {
 	playerweapon_t *pw;
-	weaponinfo_t *info;
+	weapondef_c *info;
 
 	if (p->ready_wp == WPSEL_None)
 		return;
@@ -134,7 +134,7 @@ void P_RefillClips(player_t * p)
 //
 void P_BringUpWeapon(player_t * p)
 {
-	weaponinfo_t *info;
+	weapondef_c *info;
 	weapon_selection_e sel;
 
 	DEV_ASSERT2(p->pending_wp != WPSEL_NoChange);
@@ -199,7 +199,7 @@ void P_SelectNewWeapon(player_t * p, int priority, ammotype_e ammo)
 {
 	int i;
 	int key = -1;
-	weaponinfo_t *info;
+	weapondef_c *info;
 
 	for (i=0; i < MAXWEAPONS; i++)
 	{
@@ -264,7 +264,7 @@ void P_SelectNewWeapon(player_t * p, int priority, ammotype_e ammo)
 //
 static bool CheckAmmo(player_t * p)
 {
-	weaponinfo_t *info;
+	weapondef_c *info;
 
 	if (p->ready_wp == WPSEL_None)
 		return false;
@@ -287,7 +287,7 @@ static bool CheckAmmo(player_t * p)
 //
 static bool CheckAmmoSA(player_t * p)
 {
-	weaponinfo_t *info;
+	weapondef_c *info;
 
 	if (p->ready_wp == WPSEL_None)
 		return false;
@@ -409,7 +409,7 @@ void A_WeaponReady(mobj_t * mo)
 
 	statenum_t newstate;
 	angle_t angle;
-	weaponinfo_t *w = p->weapons[p->ready_wp].info;
+	weapondef_c *w = p->weapons[p->ready_wp].info;
 
 	int fire_1 = (p->cmd.buttons & BT_ATTACK);
 	int fire_2 = (p->cmd.extbuttons & EBT_SECONDATK);
@@ -482,7 +482,7 @@ void A_ReFire(mobj_t * mo)
 {
 	player_t *p = mo->player;
 
-	weaponinfo_t *w = p->weapons[p->ready_wp].info;
+	weapondef_c *w = p->weapons[p->ready_wp].info;
 
 	DEV_ASSERT2(p->ready_wp >= 0);
 
@@ -514,7 +514,7 @@ void A_ReFireSA(mobj_t * mo)
 {
 	player_t *p = mo->player;
 
-	weaponinfo_t *w = p->weapons[p->ready_wp].info;
+	weapondef_c *w = p->weapons[p->ready_wp].info;
 
 	DEV_ASSERT2(p->ready_wp >= 0);
 
@@ -551,7 +551,7 @@ void A_NoFire(mobj_t * mo)
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
-	weaponinfo_t *w = p->weapons[p->ready_wp].info;
+	weapondef_c *w = p->weapons[p->ready_wp].info;
 
 	DEV_ASSERT2(p->ready_wp >= 0);
 
@@ -598,7 +598,7 @@ void A_NoFireSA(mobj_t * mo)
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
-	weaponinfo_t *w = p->weapons[p->ready_wp].info;
+	weapondef_c *w = p->weapons[p->ready_wp].info;
 
 	DEV_ASSERT2(p->ready_wp >= 0);
 
@@ -650,7 +650,7 @@ void A_NoFireReturn(mobj_t * mo)
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
-	weaponinfo_t *w = p->weapons[p->ready_wp].info;
+	weapondef_c *w = p->weapons[p->ready_wp].info;
 
 	DEV_ASSERT2(p->ready_wp >= 0);
 
@@ -698,7 +698,7 @@ void A_NoFireReturnSA(mobj_t * mo)
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
-	weaponinfo_t *w = p->weapons[p->ready_wp].info;
+	weapondef_c *w = p->weapons[p->ready_wp].info;
 
 	DEV_ASSERT2(p->ready_wp >= 0);
 
@@ -773,7 +773,7 @@ void A_CheckReload(mobj_t * mo)
 {
 	player_t *p = mo->player;
 
-	weaponinfo_t *info;
+	weapondef_c *info;
 
 	DEV_ASSERT2(p->ready_wp >= 0);
 
@@ -801,7 +801,7 @@ void A_CheckReloadSA(mobj_t * mo)
 {
 	player_t *p = mo->player;
 
-	weaponinfo_t *info;
+	weapondef_c *info;
 
 	DEV_ASSERT2(p->ready_wp >= 0);
 
@@ -999,7 +999,7 @@ void A_WeaponShoot(mobj_t * mo)
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
-	weaponinfo_t *w = p->weapons[p->ready_wp].info;
+	weapondef_c *w = p->weapons[p->ready_wp].info;
 	atkdef_c *attack = w->attack;
 	ammotype_e ammo;
 	int count;
@@ -1072,7 +1072,7 @@ void A_WeaponShootSA(mobj_t * mo)
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
-	weaponinfo_t *w = p->weapons[p->ready_wp].info;
+	weapondef_c *w = p->weapons[p->ready_wp].info;
 	atkdef_c *attack = w->sa_attack;
 	ammotype_e ammo;
 	int count;
@@ -1146,7 +1146,7 @@ void A_WeaponEject(mobj_t * mo)
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
-	weaponinfo_t *w = p->weapons[p->ready_wp].info;
+	weapondef_c *w = p->weapons[p->ready_wp].info;
 	atkdef_c *attack = w->eject_attack;
 
 	DEV_ASSERT2(p->ready_wp >= 0);
@@ -1254,7 +1254,7 @@ void A_WeaponJump(mobj_t * mo)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
-	weaponinfo_t *w = p->weapons[p->ready_wp].info;
+	weapondef_c *w = p->weapons[p->ready_wp].info;
 
 	act_jump_info_t *jump;
 

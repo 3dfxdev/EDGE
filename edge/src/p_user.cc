@@ -548,7 +548,7 @@ void P_PlayerThink(player_t * player)
 	if (cmd->buttons & BT_CHANGE)
 	{
 		int i, j;
-		weaponkey_t *wk;
+		weaponkey_c *wk;
 
 		// The actual changing of the weapon is done when the weapon
 		// psprite can do it (read: not in the middle of an attack).
@@ -558,7 +558,7 @@ void P_PlayerThink(player_t * player)
 
 		for (i=j=player->key_choices[key]; i < (j + wk->numchoices); i++)
 		{
-			weaponinfo_t *choice = wk->choices[i % wk->numchoices];
+			weapondef_c *choice = wk->choices[i % wk->numchoices];
 			int pw_index;
 
 			// see if player owns this kind of weapon
@@ -818,7 +818,7 @@ void P_UpdateTotalArmour(player_t *p)
 // Returns true if player didn't already have the weapon.  If
 // successful and `index' is non-NULL, it is set to the new index.
 //
-bool P_AddWeapon(player_t *player, weaponinfo_t *info, int *index)
+bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 {
 	int i;
 	int slot = -1;
@@ -826,7 +826,7 @@ bool P_AddWeapon(player_t *player, weaponinfo_t *info, int *index)
 
 	for (i=0; i < MAXWEAPONS; i++)
 	{
-		weaponinfo_t *cur_info = player->weapons[i].info;
+		weapondef_c *cur_info = player->weapons[i].info;
 
 		// find free slot
 		if (! player->weapons[i].owned)
@@ -845,16 +845,16 @@ bool P_AddWeapon(player_t *player, weaponinfo_t *info, int *index)
 
 		// don't downgrade any UPGRADED weapons
 		// NOTE: this cannot detect upgrades of upgrades
-		//
+		// FIXME!! (Above NOTE)
 		if (cur_info->upgraded_weap >= 0 &&
-			weaponinfo[cur_info->upgraded_weap] == info)
+			weapondefs[cur_info->upgraded_weap] == info)
 		{
 			return false;
 		}
 
 		// check for weapon upgrades
 		if (info->upgraded_weap >= 0 &&
-			cur_info == weaponinfo[info->upgraded_weap])
+			cur_info == weapondefs[info->upgraded_weap])
 		{
 			rep_slot = i;
 			continue;
@@ -899,7 +899,7 @@ bool P_AddWeapon(player_t *player, weaponinfo_t *info, int *index)
 //
 // Returns true if player had the weapon.
 //
-bool P_RemoveWeapon(player_t *player, weaponinfo_t *info)
+bool P_RemoveWeapon(player_t *player, weapondef_c *info)
 {
 	int i;
 
@@ -951,6 +951,9 @@ bool P_RemoveWeapon(player_t *player, weaponinfo_t *info)
 //
 void P_GiveInitialBenefits(player_t *p, const mobjtype_c *info)
 {
+	epi::array_iterator_c it;
+	weapondef_c *w;
+	
 	int priority = -100;
 	int pw_index;
 	int i;
@@ -958,18 +961,20 @@ void P_GiveInitialBenefits(player_t *p, const mobjtype_c *info)
 	p->ready_wp   = WPSEL_None;
 	p->pending_wp = WPSEL_NoChange;
 
-	for (i=num_disabled_weapons; i < numweapons; i++)
+	for (it=weapondefs.GetIterator(weapondefs.GetDisabledCount());
+		it.IsValid(); it++)
 	{
-		if (! weaponinfo[i]->autogive)
+		w = ITERATOR_TO_TYPE(it, weapondef_c*);
+		if (!w->autogive)
 			continue;
 
-		if (! P_AddWeapon(p, weaponinfo[i], &pw_index))
+		if (!P_AddWeapon(p, w, &pw_index))
 			continue;
 
 		// choose highest priority FREE weapon as the default
-		if (weaponinfo[i]->priority > priority)
+		if (w->priority > priority)
 		{
-			priority = weaponinfo[i]->priority;
+			priority = w->priority;
 			p->pending_wp = p->ready_wp = (weapon_selection_e)pw_index;
 		}
 	}

@@ -79,7 +79,7 @@ pspdef_t;
 // 
 typedef struct
 {
-	weaponinfo_t *info;
+	weapondef_c *info;
 
 	// player has this weapon.
 	bool owned;

@@ -793,7 +793,7 @@ static bool BenefitTryAmmoLimit(const char *name, benefit_t *be,
 static bool BenefitTryWeapon(const char *name, benefit_t *be,
 								  int num_vals)
 {
-	be->subtype = DDF_WeaponLookup(name);
+	be->subtype = weapondefs.FindFirst(name);
 
 	if (be->subtype < 0)
 		return false;
@@ -1254,7 +1254,7 @@ static bool ConditionTryAmmo(const char *name, const char *sub,
 static bool ConditionTryWeapon(const char *name, const char *sub,
 									condition_check_t *cond)
 {
-	cond->subtype = DDF_WeaponLookup(name);
+	cond->subtype = weapondefs.FindFirst(name);
 
 	if (cond->subtype < 0)
 		return false;

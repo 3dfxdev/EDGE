@@ -225,8 +225,18 @@ bool M_CheatResponder(event_t * ev)
 	{
 		pl->armours[CHEATARMOURTYPE] = CHEATARMOUR;
 
-		for (i=num_disabled_weapons; i < numweapons; i++)
-			P_AddWeapon(pl, weaponinfo[i], NULL);
+		epi::array_iterator_c it;
+		weapondef_c* w;
+		
+		it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
+		while (it.IsValid())
+		{
+			w = ITERATOR_TO_TYPE(it, weapondef_c*);
+			if (w)
+				P_AddWeapon(pl, w, NULL);
+				
+			it++;
+		}
 
 		for (i = 0; i < NUMAMMO; i++)
 			pl->ammo[i].num = pl->ammo[i].max;
@@ -245,8 +255,18 @@ bool M_CheatResponder(event_t * ev)
 	{
 		pl->armours[CHEATARMOURTYPE] = CHEATARMOUR;
 
-		for (i=num_disabled_weapons; i < numweapons; i++)
-			P_AddWeapon(pl, weaponinfo[i], NULL);
+		epi::array_iterator_c it;
+		weapondef_c* w;
+		
+		it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
+		while (it.IsValid())
+		{
+			w = ITERATOR_TO_TYPE(it, weapondef_c*);
+			if (w)
+				P_AddWeapon(pl, w, NULL);
+				
+			it++;
+		}
 
 		for (i = 0; i < NUMAMMO; i++)
 			pl->ammo[i].num = 
@@ -370,7 +390,7 @@ bool M_CheatResponder(event_t * ev)
 
 		for (j=0; j < weaponkey[i].numchoices; j++)
 		{
-			weaponinfo_t *info = weaponkey[i].choices[j];
+			weapondef_c *info = weaponkey[i].choices[j];
 
 			P_AddWeapon(pl, info, NULL);
 
@@ -382,11 +402,10 @@ bool M_CheatResponder(event_t * ev)
 	// 'choppers' invulnerability & chainsaw
 	if (M_CheckCheat(&cheat_choppers, key))
 	{
-		int w_num = DDF_WeaponLookup("CHAINSAW");
-
-		if (w_num >= 0)
+		weapondef_c *w = weapondefs.Lookup("CHAINSAW");
+		if (w)
 		{
-			P_AddWeapon(pl, weaponinfo[w_num], NULL);
+			P_AddWeapon(pl, w, NULL);
 			pl->powers[PW_Invulnerable] = 1;
 			CON_MessageLDF("CHOPPERSNote");
 		}

@@ -25,86 +25,18 @@
 
 #include "ddf_locl.h"
 #include "ddf_main.h"
-#include "dm_state.h"
 #include "e_search.h"
-#include "m_math.h"
-#include "m_fixed.h"
 #include "p_action.h"
-#include "p_mobj.h"
 #include "z_zone.h"
 
 #undef  DF
 #define DF  DDF_CMD
 
-static weaponinfo_t buffer_weapon;
-static weaponinfo_t *dynamic_weapon;
+static weapondef_c buffer_weapon;
+static weapondef_c *dynamic_weapon;
 
-static const weaponinfo_t template_weapon =
-{
-	DDF_BASE_NIL,  // ddf
-
-	NULL,        // attack
-	AM_NoAmmo,   // ammo;
-	0,           // ammopershot;
-	1,           // clip;
-	false,       // autofire;
-	0.0f,        // kick;
-
-	NULL,        // sa_attack;
-	AM_NoAmmo,   // sa_ammo;
-	0,           // sa_ammopershot;
-	1,           // sa_clip;
-	false,       // sa_autofire;
-
-	0,    // first_state
-	0,    // last_state
-
-	0,    // up_state;
-	0,    // down_state;
-	0,    // ready_state;
-	0,    // attack_state;
-	0,    // reload_state;
-	0,    // flash_state;
-	0,    // sa_attack_state;
-	0,    // sa_reload_state;
-	0,    // sa_flash_state;
-	0,    // crosshair;
-	0,    // zoom_state;
-
-	false,  // autogive;
-	false,  // feedback;
-	-1,     // upgraded_weap;
-	0,      // priority;
-	false,  // dangerous;
-
-	NULL,   // eject_attack;
-	NULL,   // idle;
-	NULL,   // engaged;
-	NULL,   // hit;
-	NULL,   // start;
-	NULL,   // sound1;
-	NULL,   // sound2;
-	NULL,   // sound3;
-
-	false,  // nothrust;
-	-1,     // bind_key;
-	WPSP_None, // special_flags;
-	0,      // zoom_fov
-	false,  // refire_inacc
-	false,  // show_clip
-	PERCENT_MAKE(100), // bobbing
-	PERCENT_MAKE(100)  // swaying
-};
-
-weaponinfo_t ** weaponinfo = NULL;
-int numweapons = 0;
-int num_disabled_weapons = 0;
-
-static stack_array_t weaponinfo_a;
-
-
-// -KM- 1998/11/25 Always 10 weapon keys, 1 - 9 and 0
-weaponkey_t weaponkey[10];
+weapondef_container_c weapondefs;
+weaponkey_c weaponkey[WEAPON_KEYS];	// -KM- 1998/11/25 Always 10 weapon keys
 
 static void DDF_WGetAmmo(const char *info, void *storage);
 static void DDF_WGetUpgrade(const char *info, void *storage);
@@ -206,7 +138,7 @@ static const actioncode_t weapon_actions[] =
 	{"!SOUND1",           A_SFXWeapon1, NULL},
 	{"!SOUND2",           A_SFXWeapon2, NULL},
 	{"!SOUND3",           A_SFXWeapon3, NULL},
-	{"!RANDOMJUMP", NULL, NULL},
+	{"!RANDOMJUMP", 	  NULL, NULL},
 	{NULL, NULL, NULL}
 };
 
@@ -275,45 +207,32 @@ static bool WeaponTryParseState(const char *field,
 
 static bool WeaponStartEntry(const char *name)
 {
-	int i;
-	bool replaces = false;
+	weapondef_c *existing = NULL;
 
 	if (name && name[0])
-	{
-		for (i=num_disabled_weapons; i < numweapons; i++)
-		{
-			if (DDF_CompareName(weaponinfo[i]->ddf.name, name) == 0)
-			{
-				dynamic_weapon = weaponinfo[i];
-				replaces = true;
-				break;
-			}
-		}
-
-		// ** NOTE **
-		// Normally we adjust the pointer array here to keep the
-		// newest entries at the end.  For weapons however, there are
-		// integer indices stored in various places (E.g. benefit
-		// system), so we must keep the order one-to-one between
-		// pointer and weaponinfo_t structure.
-	}
+		existing = weapondefs.Lookup(name);
 
 	// not found, create a new one
-	if (! replaces)
+	if (existing)
 	{
-		Z_SetArraySize(&weaponinfo_a, ++numweapons);
+		dynamic_weapon = existing;
+	}
+	else
+	{
+		dynamic_weapon = new weapondef_c;
 
-		dynamic_weapon = weaponinfo[numweapons - 1];
 		dynamic_weapon->ddf.name = (name && name[0]) ? Z_StrDup(name) :
-			DDF_MainCreateUniqueName("UNNAMED_WEAPON", numweapons);
+			DDF_MainCreateUniqueName("UNNAMED_WEAPON", weapondefs.GetSize());
+
+		weapondefs.Insert(dynamic_weapon);
 	}
 
 	dynamic_weapon->ddf.number = 0;
 
-	// instantiate the static entry
-	buffer_weapon = template_weapon;
+	// instantiate the static entries
+	buffer_weapon.Default();
 
-	return replaces;
+	return (existing != NULL);
 }
 
 static void WeaponParseField(const char *field, const char *contents,
@@ -341,8 +260,6 @@ static void WeaponParseField(const char *field, const char *contents,
 
 static void WeaponFinishEntry(void)
 {
-	ddf_base_t base;
-
 	if (! buffer_weapon.first_state)
 		DDF_Error("Weapon `%s' has missing states.\n",
 			dynamic_weapon->ddf.name);
@@ -350,7 +267,6 @@ static void WeaponFinishEntry(void)
 	DDF_StateFinishStates(buffer_weapon.first_state, buffer_weapon.last_state);
 
 	// check stuff...
-
 	if (buffer_weapon.ammopershot < 0)
 	{
 		DDF_WarnError2(0x128, "Bad AMMOPERSHOT value for weapon: %d\n",
@@ -369,10 +285,7 @@ static void WeaponFinishEntry(void)
 	}
 
 	// transfer static entry to dynamic entry
-
-	base = dynamic_weapon->ddf;
-	dynamic_weapon[0] = buffer_weapon;
-	dynamic_weapon->ddf = base;
+	dynamic_weapon->CopyDetail(buffer_weapon);
 
 	// compute CRC...
 	CRC32_Init(&dynamic_weapon->ddf.crc);
@@ -381,6 +294,7 @@ static void WeaponFinishEntry(void)
 	CRC32_ProcessInt(&dynamic_weapon->ddf.crc, dynamic_weapon->ammopershot);
 
 	// FIXME: do more stuff...
+	// FIXME: Use epi::crc class
 
 	CRC32_Done(&dynamic_weapon->ddf.crc);
 }
@@ -388,8 +302,7 @@ static void WeaponFinishEntry(void)
 static void WeaponClearAll(void)
 {
 	// not safe to delete weapons, there are (integer) references
-
-	num_disabled_weapons = numweapons;
+	weapondefs.SetDisabledCount(weapondefs.GetSize());
 }
 
 
@@ -428,48 +341,67 @@ void DDF_ReadWeapons(void *data, int size)
 
 void DDF_WeaponInit(void)
 {
-	Z_InitStackArray(&weaponinfo_a, (void ***)&weaponinfo, sizeof(weaponinfo_t), 0);
+	weapondefs.Clear();
 }
 
 void DDF_WeaponCleanUp(void)
 {
 	// compute the weaponkey array
-
-	int key, i;
-
-	memset(&weaponkey, 0, sizeof(weaponkey));
-
-	for (key=0; key < 10; key++)
+	epi::array_iterator_c it;
+	int i, key;
+	weapondef_container_c tmplist;
+	weapondef_c *wd;
+	weaponkey_c *wk;
+	
+	for (key=0; key < WEAPON_KEYS; key++)
 	{
-		weaponkey_t *w = &weaponkey[key];
+		wk = &weaponkey[key];
+	
+		// Clear the list without destroying the contents
+		tmplist.ZeroiseCount();	
 
-		for (i=num_disabled_weapons; i < numweapons; i++)
+		for (it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
+			it.IsValid(); it++)
 		{
-			if (weaponinfo[i]->bind_key != key)
+			wd = ITERATOR_TO_TYPE(it, weapondef_c*);
+			if (!wd)
 				continue;
-
-			Z_Resize(w->choices, weaponinfo_t *, ++w->numchoices);
-			w->choices[w->numchoices-1] = weaponinfo[i];
+				
+			if (wd->bind_key != key)
+				continue;
+				
+			tmplist.Insert(wd);
 		}
-
+		
+		wk->Load(&tmplist);
+	
 #if (DEBUG_DDF)
 		L_WriteDebug("DDF_Weap: CHOICES ON KEY %d:\n", key);
-		for (i=0; i < w->numchoices; i++)
+		for (i=0; i < wk->numchoices; i++)
 		{
-			L_WriteDebug("  [%s] pri=%d\n", w->choices[i]->ddf.name,
-					w->choices[i]->priority);
+			L_WriteDebug("  [%s] pri=%d\n", wk->choices[i]->ddf.name,
+					wk->choices[i]->priority);
 		}
 #endif
 
-		if (w->numchoices < 2)
+		if (wk->numchoices < 2)
 			continue;
 
 		// sort choices based on weapon priority
 #define CMP(a, b)  ((a)->priority < (b)->priority)
-		QSORT(weaponinfo_t *, w->choices, w->numchoices, CUTOFF);
+		QSORT(weapondef_c *, wk->choices, wk->numchoices, CUTOFF);
 #undef CMP
-
 	}
+	
+	//
+	// Clear the list without destroying the contents
+	// otherwise it'll destroy the weapondefs still
+	// in the tmplist on exit.
+	//
+	tmplist.ZeroiseCount();	
+	
+	// Trim down the required to size
+	weapondefs.Trim();
 }
 
 static void DDF_WGetAmmo(const char *info, void *storage)
@@ -492,24 +424,12 @@ static void DDF_WGetAmmo(const char *info, void *storage)
 	}
 }
 
-int DDF_WeaponLookup(const char *name)
-{
-	int i;
-
-	for (i=num_disabled_weapons; i < numweapons; i++)
-	{
-		if (DDF_CompareName(weaponinfo[i]->ddf.name, name) == 0)
-			return i;
-	}
-
-	return -1;
-}
 
 static void DDF_WGetUpgrade(const char *info, void *storage)
 {
 	int *dest = (int *)storage;
 
-	*dest = DDF_WeaponLookup(info);
+	*dest = weapondefs.FindFirst(info);
 
 	if (*dest < 0)
 		DDF_WarnError2(0x128, "Unknown weapon to upgrade: %s\n", info);
@@ -545,3 +465,280 @@ static void DDF_WGetSpecialFlags(const char *info, void *storage)
 			break;
 	}
 }
+
+// --> Weapon Definition
+
+//
+// weapondef_c Constructor
+//
+weapondef_c::weapondef_c()
+{
+	Default();
+}
+
+//
+// weapondef_c Copy constructor
+//
+weapondef_c::weapondef_c(weapondef_c &rhs)
+{
+	Copy(rhs);
+}
+
+//
+// weapondef_c Destructor
+//
+weapondef_c::~weapondef_c()
+{
+}
+
+//
+// weapondef_c::Copy()
+//
+void weapondef_c::Copy(weapondef_c &src)
+{
+	ddf = src.ddf;
+	CopyDetail(src);
+}
+
+//
+// weapondef_c::CopyDetail()
+//
+void weapondef_c::CopyDetail(weapondef_c &src)
+{
+	attack = src.attack;		
+  
+	ammo = src.ammo;		
+	ammopershot = src.ammopershot;	
+	clip = src.clip;				
+	autofire = src.autofire;		
+	kick = src.kick;				
+  
+	sa_attack = src.sa_attack;	
+	
+	sa_ammo = src.sa_ammo;		
+	sa_ammopershot = src.sa_ammopershot;	
+	sa_clip = src.sa_clip;			
+	sa_autofire = src.sa_autofire;		
+  
+	first_state = src.first_state;
+	last_state = src.last_state;
+  
+	up_state = src.up_state;			
+	down_state = src.down_state;		
+	ready_state = src.ready_state;		
+	attack_state = src.attack_state;	
+	reload_state = src.reload_state;	
+	flash_state = src.flash_state;		
+	
+	sa_attack_state = src.sa_attack_state;	
+	sa_reload_state = src.sa_reload_state;	
+	sa_flash_state = src.sa_flash_state;		
+	crosshair = src.crosshair;			
+	zoom_state = src.zoom_state;			
+	
+	autogive = src.autogive;			
+	feedback = src.feedback;			
+	upgraded_weap = src.upgraded_weap;
+ 
+	priority = src.priority;
+	dangerous = src.dangerous;
+ 
+	eject_attack = src.eject_attack;
+  
+	idle = src.idle;
+	engaged = src.engaged;
+	hit = src.hit;
+	start = src.start;
+  
+	sound1 = src.sound1;
+	sound2 = src.sound2;
+	sound3 = src.sound3;
+
+	nothrust = src.nothrust;
+  	
+  	bind_key = src.bind_key;
+  	special_flags = src.special_flags;
+	
+	zoom_fov = src.zoom_fov;
+	refire_inacc = src.refire_inacc;
+	show_clip = src.show_clip;
+	bobbing = src.bobbing;
+	swaying = src.swaying;
+}
+
+//
+// weapondef_c::Default()
+//	
+void weapondef_c::Default(void)
+{
+	// FIXME: ddf.Clear() ?
+	ddf.name	= "";
+	ddf.number	= 0;	
+	ddf.crc		= 0;	
+
+	attack = NULL;
+
+	ammo = AM_NoAmmo;		
+	ammopershot = 0;	
+	clip = 1;				
+	autofire = false;		
+	kick = 0.0f;				
+
+	sa_attack = NULL;	
+	
+	sa_ammo = AM_NoAmmo;		
+	sa_ammopershot = 0;	
+	sa_clip = 1;			
+	sa_autofire = false;	
+
+	first_state = 0;
+	last_state = 0;
+
+	up_state = 0;
+	down_state= 0;
+	ready_state = 0;
+	attack_state = 0;
+	reload_state = 0;
+	flash_state = 0; 
+	
+	sa_attack_state = 0;
+	sa_reload_state = 0;
+	sa_flash_state = 0;
+	
+	crosshair = 0;
+	zoom_state = 0;
+
+	autogive = false;
+	feedback = false;
+	upgraded_weap = -1;
+	priority = 0;
+	dangerous = false;
+
+	eject_attack = NULL;
+	idle = NULL;   
+	engaged = NULL;   
+	hit = NULL;   
+	start = NULL;
+	
+	sound1 = NULL;
+	sound2 = NULL;
+	sound3 = NULL;
+
+	nothrust = false;
+	bind_key = -1;
+	special_flags = WPSP_None;
+	zoom_fov = 0;
+	refire_inacc = false;
+	show_clip = false;
+	bobbing = PERCENT_MAKE(100);
+	swaying = PERCENT_MAKE(100);
+}
+
+//
+// weapondef_c assignment operator
+//	
+weapondef_c& weapondef_c::operator=(weapondef_c &rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+	
+	return *this;
+}
+
+// --> Weapon Definition Container
+
+//
+// weapondef_container_c Constructor
+//
+weapondef_container_c::weapondef_container_c() 
+	: epi::array_c(sizeof(weapondef_c*))
+{
+	num_disabled = 0;
+}
+
+//
+// weapondef_container_c Destructor
+//
+weapondef_container_c::~weapondef_container_c()
+{
+	Clear();
+}
+
+//
+// weapondef_container_c::CleanupObject()
+//
+void weapondef_container_c::CleanupObject(void *obj)
+{
+	weapondef_c *w = *(weapondef_c**)obj;
+
+	if (w)
+	{
+		// FIXME: Use proper new/transfer name cleanup to ddf_base destructor
+		if (w->ddf.name) { Z_Free(w->ddf.name); }
+		delete w;
+	}
+
+	return;
+}
+
+//
+// weapondef_container_c::FindFirst()
+//
+int weapondef_container_c::FindFirst(const char *name, int startpos)
+{
+	epi::array_iterator_c it;
+	weapondef_c *w;
+
+	if (startpos>0)
+		it = GetIterator(startpos);
+	else
+		it = GetBaseIterator();
+
+	while (it.IsValid())
+	{
+		w = ITERATOR_TO_TYPE(it, weapondef_c*);
+		if (DDF_CompareName(w->ddf.name, name) == 0)
+		{
+			return it.GetPos();
+		}
+
+		it++;
+	}
+
+	return -1;
+}
+
+//
+// weapondef_container_c::Lookup()
+//
+weapondef_c* weapondef_container_c::Lookup(const char* refname)
+{
+	int idx = mobjtypes.FindFirst(refname, num_disabled);
+	if (idx >= 0)
+		return (*this)[idx];
+
+	// FIXME!!! Throw an epi::error_c obj
+	//DDF_Error("Unknown thing type: %s\n", refname);
+	return NULL;
+}
+
+//
+// weaponkey_c::Load()
+//
+void weaponkey_c::Load(weapondef_container_c *wc)
+{
+	epi::array_iterator_c it;
+	weapondef_c *wd;
+	
+	Clear();
+	
+	choices = new weapondef_c*[wc->GetSize()];
+	numchoices = wc->GetSize();
+
+	for (wd = choices[0], it = wc->GetBaseIterator(); it.IsValid(); wd++, it++)
+	{
+		wd = ITERATOR_TO_TYPE(it, weapondef_c*);
+	}
+}
+
+
