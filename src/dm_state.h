@@ -195,7 +195,6 @@ extern gamestate_e wipegamestate;
 extern int mouseSensitivity;
 extern int save_page;
 
-extern bool inhelpscreens;
 extern int quickSaveSlot;
 
 // debug flag to cancel adaptiveness

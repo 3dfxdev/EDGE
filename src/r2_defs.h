@@ -92,7 +92,6 @@ typedef struct drawthing_s
 	// colourmap/lighting
 	region_properties_t *props;
 	bool bright;
-	const byte *trans_table;
 
 	// dynamic lighting
 	int extra_light;

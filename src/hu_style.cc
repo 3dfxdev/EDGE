@@ -77,6 +77,9 @@ void style_c::DrawBackground(int x, int y, int w, int h)
 
 	float alpha = PERCENT_2_FLOAT(def->bg.translucency);
 
+	if (alpha < 0.02)
+		return;
+
 	if (! bg_image)
 	{
 		RGL_SolidBox(x, y, w, h, def->bg.colour, alpha);

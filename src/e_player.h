@@ -300,10 +300,9 @@ typedef struct
 	int partime;
 
 	// index of this player in game
-	int pnum;
+	int me;
 
-	wbplayerstruct_t *plyr;
-
+	wbplayerstruct_t *plrs;
 }
 wbstartstruct_t;
 

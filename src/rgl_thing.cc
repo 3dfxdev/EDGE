@@ -795,12 +795,6 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 	dthing->right_dx = pos2 *  viewsin;
 	dthing->right_dy = pos2 * -viewcos;
 
-	// translation support
-	if (mo->info->palremap)
-		dthing->trans_table = V_GetTranslationTable(mo->info->palremap);
-	else
-		dthing->trans_table = NULL;
-
 	// create shadow
 	if (level_flags.shadows && mo->info->shadow_trans > 0 &&
 		mo->floorz < viewz && ! IS_SKY(mo->subsector->sector->floor))
@@ -812,7 +806,6 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 
 		dshadow->is_shadow = true;
 		dshadow->clip_vert = -1;
-		dshadow->trans_table = NULL;
 		dshadow->tz += 1.5f;
 
 		// shadows are 1/4 the height
@@ -839,7 +832,6 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 		dhalo->is_halo = true;
 		dhalo->image = W_ImageFromHalo(mo->info->halo.graphic);
 		dhalo->clip_vert = -1;
-		dhalo->trans_table = NULL;
 		dhalo->tz -= 7.5f;
 
 		gzb = mo->z + mo->height * 0.75f - mo->info->halo.height / 2;
@@ -1038,7 +1030,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		L_r = L_g = L_b = 0;
 	}
 
-	cim = W_ImageCache(image, 0, true, dthing->mo->info->palremap);
+	cim = W_ImageCache(image, false, dthing->mo->info->palremap);
 
 	tex_id = W_ImageGetOGL(cim);
 
