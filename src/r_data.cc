@@ -284,19 +284,19 @@ static void R_PrecacheSprites(void)
 	byte *sprite_present;
 	mobj_t *mo;
 
-	DEV_ASSERT2(numsprites > 0);
+	DEV_ASSERT2(numsprites > 1);
 
 	sprite_present = Z_ClearNew(byte, numsprites);
 
 	for (mo = mobjlisthead; mo; mo = mo->next)
 	{
-		if (mo->sprite < 0 || mo->sprite >= numsprites)
+		if (mo->sprite < 1 || mo->sprite >= numsprites)
 			continue;
 
 		sprite_present[mo->sprite] = 1;
 	}
 
-	for (i=0; i < numsprites; i++)
+	for (i=1; i < numsprites; i++)  // ignore SPR_NULL
 	{
 		spritedef_t *sp = sprites + i;
 		int fr, rot;
