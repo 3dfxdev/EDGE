@@ -77,8 +77,20 @@ static GLuint SendWipeTexture(byte *rgb_src, int total_w, int total_h,
 	return id;
 }
 
-static GLuint CaptureScreenAsTexture(bool use_alpha)
+static INLINE byte SpookyAlpha(int x, int y)
 {
+	y += (x & 32) / 2;
+
+	x = (x & 31) - 15;
+	y = (y & 31) - 15;
+
+	return (x*x + y * y) / 2;
+}
+
+static GLuint CaptureScreenAsTexture(bool use_alpha, bool spooky)
+{
+	use_alpha = use_alpha || spooky;
+
 	int total_w, total_h;
 	int x, y, id;
 
@@ -125,7 +137,12 @@ static GLuint CaptureScreenAsTexture(bool use_alpha)
 			dest_p[2] = line_buf[px*3 + 2];
 
 			if (use_alpha)
-				dest_p[3] = rndtable[i++];
+			{
+				if (spooky)
+					dest_p[3] = SpookyAlpha(x, y);
+				else
+					dest_p[3] = rndtable[i++];
+			}
 		}
 	}
 
@@ -185,7 +202,8 @@ void RGL_InitWipe(int reverse, wipetype_e effect)
 	cur_wipe_effect  = effect;
 
 	cur_wipe_start = -1;
-	cur_wipe_tex = CaptureScreenAsTexture(effect == WIPE_Pixelfade);
+	cur_wipe_tex = CaptureScreenAsTexture(effect == WIPE_Pixelfade,
+		effect == WIPE_Spooky);
 
 	RGL_Init_Melt();
 }
@@ -432,14 +450,12 @@ bool RGL_DoWipe(void)
 			RGL_Wipe_Slide(how_far, +SCREENWIDTH, 0);
 			break;
 
-		case WIPE_Spooky:  // FIXME: do something better!
-			RGL_Wipe_Slide(how_far, +SCREENWIDTH, +SCREENHEIGHT);
-			break;
 
 		case WIPE_Doors:
 			RGL_Wipe_Doors(how_far);
 			break;
 
+		case WIPE_Spooky:  // difference is in alpha channel
 		case WIPE_Pixelfade:
 			RGL_Wipe_Pixelfade(how_far);
 			break;
