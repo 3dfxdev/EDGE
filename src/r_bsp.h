@@ -62,7 +62,4 @@ void R_ClearDrawSegs(void);
 
 void R_RenderBSPNode(int bspnum);
 
-// -AJA- 1999/06/21: Fake sector function for BOOM's deep water effect.
-sector_t *R_FakeSector(sector_t * cur, sector_t * temp);
-
 #endif
