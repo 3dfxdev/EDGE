@@ -42,7 +42,7 @@ uppercase letter with the rest lowercase, whereas end markers are all
 uppercase.  For example: << Glob .... GLOB >>.
 
 You may think end markers are redundant, and strictly speaking you'd
-be right.  They are they to make debugging easier.
+be right.  They are there to make debugging easier.
 
 The format of the chunk data depends on the type (given by the
 marker).  Some chunks are just containers for a set of sub-chunks.
