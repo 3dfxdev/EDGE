@@ -23,63 +23,62 @@
 // -ACB- 1999/09/22
 //
 #include "..\i_defs.h"
-#include "..\dm_defs.h"
 
 int strcasecmp(const char *s1, const char *s2)
 {
-  int count;
+	int count;
 
-  count = 0;
+	count = 0;
 
-  while(!(s1[count] == '\0' && s2[count] == '\0'))
-  {
-    if ((s1[count]&0xDF) != (s2[count]&0xDF))
-      return ((s1[count]&0xDF)-(s2[count]&0xDF));
+	while(!(s1[count] == '\0' && s2[count] == '\0'))
+	{
+		if ((s1[count]&0xDF) != (s2[count]&0xDF))
+			return ((s1[count]&0xDF)-(s2[count]&0xDF));
 
-    count++;
-  }
+		count++;
+	}
 
-  return 0;
+	return 0;
 }
 
 int strncasecmp(const char *s1, const char *s2, int max)
 {
-  int count;
+	int count;
 
-  count = 0;
+	count = 0;
 
-  while(count < max)
-  {
-    if ((s1[count]&0xDF) != (s2[count]&0xDF))
-      return ((s1[count]&0xDF)-(s2[count]&0xDF));
+	while(count < max)
+	{
+		if ((s1[count]&0xDF) != (s2[count]&0xDF))
+			return ((s1[count]&0xDF)-(s2[count]&0xDF));
 
-    if (s1[count] == '\0' && s2[count] == '\0')
-      return 0;
+		if (s1[count] == '\0' && s2[count] == '\0')
+			return 0;
 
-    count++;
-  }
+		count++;
+	}
 
-  return 0;
+	return 0;
 }
- 
+
 int strncasecmpwild(const char *s1, const char *s2, int n)
 {
-  int i;
+	int i;
 
-  for (i = 0; s1[i] && s2[i] && i < n; i++)
-  {
-    if ((toupper(s1[i]) != toupper(s2[i])) && (s1[i] != '?') && (s2[i] != '?'))
-      break;
-  }
+	for (i = 0; s1[i] && s2[i] && i < n; i++)
+	{
+		if ((toupper(s1[i]) != toupper(s2[i])) && (s1[i] != '?') && (s2[i] != '?'))
+			break;
+	}
 
-  // -KM- 1999/01/29 If strings are equal return equal.
-  if (i == n)
-    return 0;
+	// -KM- 1999/01/29 If strings are equal return equal.
+	if (i == n)
+		return 0;
 
-  if (s1[i] == '?' || s2[i] == '?')
-    return 0;
+	if (s1[i] == '?' || s2[i] == '?')
+		return 0;
 
-  return s1[i] - s2[i];
+	return s1[i] - s2[i];
 }
 
 

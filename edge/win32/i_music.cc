@@ -28,14 +28,14 @@
 #define GETTYPE(_handle)      ((_handle&0xFF00)>>8)
 
 #define MAKEHANDLE(_type,_loopbit,_libhandle) \
-   (((_loopbit&1)<<16)+(((_type)&0xFF)<<8)+(_libhandle))
+	(((_loopbit&1)<<16)+(((_type)&0xFF)<<8)+(_libhandle))
 
 typedef enum
 {
-  support_CD   = 0x01,
-  support_MIDI = 0x02,
-  support_MP3  = 0x04,
-  support_MUS  = 0x08  // MUS Support - ACB- 2000/06/04
+	support_CD   = 0x01,
+	support_MIDI = 0x02,
+	support_MP3  = 0x04,
+	support_MUS  = 0x08  // MUS Support - ACB- 2000/06/04
 }
 mussupport_e;
 
@@ -50,38 +50,38 @@ static char errordesc[MUSICERRLEN];
 //
 boolean_t I_StartupMusic(void *sysinfo)
 {
-  // Clear the error message
-  memset(errordesc, 0, sizeof(char)*MUSICERRLEN);
+	// Clear the error message
+	memset(errordesc, 0, sizeof(char)*MUSICERRLEN);
 
-  // MCI CD Support Assumed
-  capable = support_CD;
+	// MCI CD Support Assumed
+	capable = support_CD;
 
-  // Music is not paused by default
-  musicpaused = false;
+	// Music is not paused by default
+	musicpaused = false;
 
-  // MUS Support -ACB- 2000/06/04
-  if (I_StartupMUS())
-  {
-    capable |= support_MUS;
-    I_Printf("I_StartupMusic: MUS Music Init OK\n");
-  }
-  else
-  {
-    I_Printf("I_StartupMusic: MUS Music Failed OK\n");
-  }
+	// MUS Support -ACB- 2000/06/04
+	if (I_StartupMUS())
+	{
+		capable |= support_MUS;
+		I_Printf("I_StartupMusic: MUS Music Init OK\n");
+	}
+	else
+	{
+		I_Printf("I_StartupMusic: MUS Music Failed OK\n");
+	}
 
-  // MP3 Support -ACB- 2000/08/21
-  if (I_StartupMP3())
-  {
-    capable |= support_MP3;
-    I_Printf("I_StartupMusic: MP3 Music Init OK\n");
-  }
-  else
-  {
-    I_Printf("I_StartupMusic: MP3 Music Failed OK\n");
-  }
+	// MP3 Support -ACB- 2000/08/21
+	if (I_StartupMP3())
+	{
+		capable |= support_MP3;
+		I_Printf("I_StartupMusic: MP3 Music Init OK\n");
+	}
+	else
+	{
+		I_Printf("I_StartupMusic: MP3 Music Failed OK\n");
+	}
 
-  return true;
+	return true;
 }
 
 //
@@ -89,82 +89,82 @@ boolean_t I_StartupMusic(void *sysinfo)
 //
 int I_MusicPlayback(i_music_info_t *musdat, int type, boolean_t looping)
 {
-  int track;
-  int handle;
+	int track;
+	int handle;
 
-  int len;
-  int num;
+	int len;
+	int num;
 
-  if (!(capable & support_CD)   && type == MUS_CD)   return -1;
-  if (!(capable & support_MIDI) && type == MUS_MIDI) return -1;
-  if (!(capable & support_MP3)  && type == MUS_MP3)  return -1;
-  if (!(capable & support_MUS)  && type == MUS_MUS)  return -1;
+	if (!(capable & support_CD)   && type == MUS_CD)   return -1;
+	if (!(capable & support_MIDI) && type == MUS_MIDI) return -1;
+	if (!(capable & support_MP3)  && type == MUS_MP3)  return -1;
+	if (!(capable & support_MUS)  && type == MUS_MUS)  return -1;
 
-  switch (type)
-  {
-    // CD Support...
-    case MUS_CD:
-    {
-      if (!I_CDStartPlayback(musdat->info.cd.track))
-      {
-        handle = -1;
-      }
-      else
-      {
-        L_WriteDebug("CD Track Started\n");
-        handle = MAKEHANDLE(MUS_CD, looping, musdat->info.cd.track);
-      }
-      break;
-    }
+	switch (type)
+	{
+		// CD Support...
+	case MUS_CD:
+		{
+			if (!I_CDStartPlayback(musdat->info.cd.track))
+			{
+				handle = -1;
+			}
+			else
+			{
+				L_WriteDebug("CD Track Started\n");
+				handle = MAKEHANDLE(MUS_CD, looping, musdat->info.cd.track);
+			}
+			break;
+		}
 
-    case MUS_MIDI:
-    {
-      handle = -1;
-      break;
-    }
+	case MUS_MIDI:
+		{
+			handle = -1;
+			break;
+		}
 
-    case MUS_MP3:
-    {
-      track = I_MP3PlayTrack((char*)musdat->info.file.name, looping);
+	case MUS_MP3:
+		{
+			track = I_MP3PlayTrack((char*)musdat->info.file.name, looping);
 
-      if (track == -1)
-        handle = -1;
-      else
-        handle = MAKEHANDLE(MUS_MP3, looping, track);
+			if (track == -1)
+				handle = -1;
+			else
+				handle = MAKEHANDLE(MUS_MP3, looping, track);
 
-      break;
-    }
+			break;
+		}
 
-    case MUS_MUS:
-    {
-      track = I_MUSPlayTrack((byte*)musdat->info.data.ptr,
-                                    musdat->info.data.size,
-                                    looping);
+	case MUS_MUS:
+		{
+			track = I_MUSPlayTrack((byte*)musdat->info.data.ptr,
+				musdat->info.data.size,
+				looping);
 
-      if (track == -1)
-        handle = -1;
-      else
-        handle = MAKEHANDLE(MUS_MUS, looping, track);
+			if (track == -1)
+				handle = -1;
+			else
+				handle = MAKEHANDLE(MUS_MUS, looping, track);
 
-      break;
-    }
+			break;
+		}
 
-    case MUS_UNKNOWN:
-    {
-      L_WriteDebug("I_MusicPlayback: Unknown format type given.\n");
-      handle = -1;
-      break;
-    }
+	case MUS_UNKNOWN:
+		{
+			L_WriteDebug("I_MusicPlayback: Unknown format type given.\n");
+			handle = -1;
+			break;
+		}
 
-    default:
-    {
-      L_WriteDebug("I_MusicPlayback: Weird Format '%d' given.\n", type);
-      handle = -1;
-      break;
-    }
-  }
+	default:
+		{
+			L_WriteDebug("I_MusicPlayback: Weird Format '%d' given.\n", type);
+			handle = -1;
+			break;
+		}
+	}
 
-  return handle;
+	return handle;
 }
 
 //
@@ -172,34 +172,34 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, boolean_t looping)
 //
 void I_MusicPause(int *handle)
 {
-  int type;
-  int libhandle;
+	int type;
+	int libhandle;
 
-  type = GETTYPE(*handle);
+	type = GETTYPE(*handle);
 
-  switch (type)
-  {
-    case MUS_CD:
-    {
-      if(!I_CDPausePlayback())
-      {
-        *handle = -1;
-        return;
-      }
+	switch (type)
+	{
+	case MUS_CD:
+		{
+			if(!I_CDPausePlayback())
+			{
+				*handle = -1;
+				return;
+			}
 
-      break;
-    }
+			break;
+		}
 
-    case MUS_MIDI: { break; }
-    case MUS_MP3:  { I_MP3Pause(); break; }
-    case MUS_MUS:  { I_MUSPause(); break; }
+	case MUS_MIDI: { break; }
+	case MUS_MP3:  { I_MP3Pause(); break; }
+	case MUS_MUS:  { I_MUSPause(); break; }
 
-    default:
-      break;
-  }
+	default:
+		break;
+	}
 
-  musicpaused = true;
-  return;
+	musicpaused = true;
+	return;
 }
 
 //
@@ -207,34 +207,34 @@ void I_MusicPause(int *handle)
 //
 void I_MusicResume(int *handle)
 {
-  int type;
-  int libhandle;
+	int type;
+	int libhandle;
 
-  type = GETTYPE(*handle);
- 
-  switch (type)
-  {
-    case MUS_CD:
-    {
-      if(!I_CDResumePlayback())
-      {
-        *handle = -1;
-        return;
-      }
+	type = GETTYPE(*handle);
 
-      break;
-    }
+	switch (type)
+	{
+	case MUS_CD:
+		{
+			if(!I_CDResumePlayback())
+			{
+				*handle = -1;
+				return;
+			}
 
-    case MUS_MIDI: { break; }
-    case MUS_MP3:  { I_MP3Resume(); break; }
-    case MUS_MUS:  { I_MUSResume(); break; }
+			break;
+		}
 
-    default:
-      break;
-  }
+	case MUS_MIDI: { break; }
+	case MUS_MP3:  { I_MP3Resume(); break; }
+	case MUS_MUS:  { I_MUSResume(); break; }
 
-  musicpaused = false;
-  return;
+	default:
+		break;
+	}
+
+	musicpaused = false;
+	return;
 }
 
 //
@@ -244,23 +244,23 @@ void I_MusicResume(int *handle)
 //
 void I_MusicKill(int *handle)
 {
-  int type;
-  
-  type = GETTYPE(*handle);
+	int type;
 
-  switch (type)
-  {
-    case MUS_CD:   { I_CDStopPlayback(); break; }
-    case MUS_MIDI: { break; }
-    case MUS_MP3:  { I_MP3Stop(); break; }
-    case MUS_MUS:  { I_MUSStop(); break; }
+	type = GETTYPE(*handle);
 
-    default:
-     break;
-  }
+	switch (type)
+	{
+	case MUS_CD:   { I_CDStopPlayback(); break; }
+	case MUS_MIDI: { break; }
+	case MUS_MP3:  { I_MP3Stop(); break; }
+	case MUS_MUS:  { I_MUSStop(); break; }
 
-  *handle = -1;
-  return;
+	default:
+		break;
+	}
+
+	*handle = -1;
+	return;
 }
 
 //
@@ -268,47 +268,47 @@ void I_MusicKill(int *handle)
 //
 void I_MusicTicker(int *handle)
 {
-  boolean_t looping;
-  int type;
-  int libhandle;
+	boolean_t looping;
+	int type;
+	int libhandle;
 
-  libhandle = GETLIBHANDLE(*handle);
-  looping = GETLOOPBIT(*handle);
-  type = GETTYPE(*handle);
+	libhandle = GETLIBHANDLE(*handle);
+	looping = GETLOOPBIT(*handle);
+	type = GETTYPE(*handle);
 
-  if (musicpaused)
-    return;
+	if (musicpaused)
+		return;
 
-  switch (type)
-  {
-    case MUS_CD:
-    {
-      if (!(I_GetTime()%TICRATE))
-      {
-        if (looping && I_CDFinished())
-        {
-          I_CDStopPlayback();
-          if (!I_CDStartPlayback(libhandle))
-            *handle = -1;
-        }
-      }
-      break;
-    }
+	switch (type)
+	{
+	case MUS_CD:
+		{
+			if (!(I_GetTime()%TICRATE))
+			{
+				if (looping && I_CDFinished())
+				{
+					I_CDStopPlayback();
+					if (!I_CDStartPlayback(libhandle))
+						*handle = -1;
+				}
+			}
+			break;
+		}
 
-    // MIDI Not used
-    case MUS_MIDI: { break; }
+		// MIDI Not used
+	case MUS_MIDI: { break; }
 
-    // MUS Ticker is called by a timer
-    case MUS_MUS:  { break; }
+				   // MUS Ticker is called by a timer
+	case MUS_MUS:  { break; }
 
-    // MP3 Ticker is called by a timer
-    case MUS_MP3:  { break; }
+				   // MP3 Ticker is called by a timer
+	case MUS_MP3:  { break; }
 
-    default:
-      break;
-  }
+	default:
+		break;
+	}
 
-  return;
+	return;
 }
 
 //
@@ -316,38 +316,38 @@ void I_MusicTicker(int *handle)
 //
 void I_SetMusicVolume(int *handle, int volume)
 {
-  int type;
-  int handleint;
+	int type;
+	int handleint;
 
-  handleint = *handle;
+	handleint = *handle;
 
-  type = GETTYPE(handleint);
+	type = GETTYPE(handleint);
 
-  switch (type)
-  {
-    // CD Vol not used
-    case MUS_CD:   { break; }
+	switch (type)
+	{
+		// CD Vol not used
+	case MUS_CD:   { break; }
 
-    // MIDI Not Used
-    case MUS_MIDI: { break; }
+				   // MIDI Not Used
+	case MUS_MIDI: { break; }
 
-    case MUS_MP3:
-    {
-      I_MP3SetVolume(volume);
-      break;
-    }
+	case MUS_MP3:
+		{
+			I_MP3SetVolume(volume);
+			break;
+		}
 
-    case MUS_MUS:
-    {
-      I_MUSSetVolume(volume);
-      break;
-    }
+	case MUS_MUS:
+		{
+			I_MUSSetVolume(volume);
+			break;
+		}
 
-    default:
-      break;
-  }
+	default:
+		break;
+	}
 
-  return;
+	return;
 }
 
 //
@@ -355,9 +355,9 @@ void I_SetMusicVolume(int *handle, int volume)
 //
 void I_ShutdownMusic(void)
 {
-  I_CDStopPlayback();
-  I_ShutdownMP3();
-  I_ShutdownMUS();
+	I_CDStopPlayback();
+	I_ShutdownMP3();
+	I_ShutdownMUS();
 }
 
 //
@@ -365,14 +365,14 @@ void I_ShutdownMusic(void)
 //
 void I_PostMusicError(char *message)
 {
-  memset(errordesc, 0, MUSICERRLEN*sizeof(char));
+	memset(errordesc, 0, MUSICERRLEN*sizeof(char));
 
-  if (strlen(message) > MUSICERRLEN)
-    strncpy(errordesc, message, sizeof(char)*MUSICERRLEN);
-  else
-    strcpy(errordesc, message);
+	if (strlen(message) > MUSICERRLEN)
+		strncpy(errordesc, message, sizeof(char)*MUSICERRLEN);
+	else
+		strcpy(errordesc, message);
 
-  return;
+	return;
 }
 
 //
@@ -380,7 +380,7 @@ void I_PostMusicError(char *message)
 //
 char *I_MusicReturnError(void)
 {
-  return errordesc;
+	return errordesc;
 }
 
 
