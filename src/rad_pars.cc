@@ -1071,7 +1071,7 @@ static void RAD_ParseTaggedRepeatable(int pnum, const char **pars)
 	if (pnum >= 2)
 		RAD_CheckForInt(pars[1], &this_rad->repeat_count);
 	else
-		this_rad->repeat_count = 0;
+		this_rad->repeat_count = REPEAT_FOREVER;
 
 	// -ES- 2000/03/03 Changed to RAD_CheckForTime.
 	if (pnum >= 3)

@@ -2156,7 +2156,7 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 				if (!p)
 					return false;
 
-				temp = (p->powers[cond->subtype] > 0);
+				temp = (p->powers[cond->subtype] > (int)cond->amount);
 
 				if ((!cond->negate && !temp) || (cond->negate && temp))
 					return false;
@@ -2233,7 +2233,18 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 				if (!p)
 					return false;
 
-				temp = p->usedown?true:false;
+				temp = p->usedown;
+
+				if ((!cond->negate && !temp) || (cond->negate && temp))
+					return false;
+
+				break;
+
+			case COND_Walking:
+				if (!p)
+					return false;
+
+				temp = (p->bob > 2) && (p->mo->z <= p->mo->floorz);
 
 				if ((!cond->negate && !temp) || (cond->negate && temp))
 					return false;

@@ -494,6 +494,7 @@ const specflags_t simplecond_names[] =
 	{"ATTACKING",   COND_Attacking,  0},
 	{"RAMPAGING",   COND_Rampaging,  0},
 	{"USING",       COND_Using,      0},
+	{"WALKING",     COND_Walking,    0},
 	{NULL, 0, 0}
 };
 
@@ -1556,7 +1557,11 @@ static bool ConditionTryPowerup(const char *name, const char *sub,
 	}
 
 	if (sub[0])
+	{
 		sscanf(sub, " %f ", &cond->amount);
+
+		cond->amount *= (float)TICRATE;
+	}
 
 	cond->cond_type = COND_Powerup;
 	return true;

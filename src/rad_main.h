@@ -518,6 +518,8 @@ typedef struct rad_script_s
 rad_script_t;
 
 
+#define REPEAT_FOREVER  0
+
 // Dynamic Trigger info.
 // Goes away when trigger is finished.
 typedef struct rad_trigger_s
