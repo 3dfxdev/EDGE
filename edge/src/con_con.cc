@@ -76,7 +76,6 @@ gui_t console =
 /// wipeinfo_t *conwipe = NULL;
 static int conwipeactive = 0;
 static int conwipepos = 0;
-static int conwipedir = 0;
 static int conwipemethod = WIPE_Crossfade;
 static bool conwipereverse = 0;
 static int conwipeduration = 10;
