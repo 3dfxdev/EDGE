@@ -1484,11 +1484,11 @@ void G_DoLoadGame(void)
 	// FIXME: ideally we shouldn't bomb out, just display an error box
 
 	if (globs->mapsector.count != numsectors ||
-		globs->mapsector.crc != mapsector_CRC ||
+		globs->mapsector.crc != mapsector_CRC.crc ||
 		globs->mapline.count != numlines ||
-		globs->mapline.crc != mapline_CRC ||
+		globs->mapline.crc != mapline_CRC.crc ||
 		globs->mapthing.count != mapthing_NUM ||
-		globs->mapthing.crc != mapthing_CRC)
+		globs->mapthing.crc != mapthing_CRC.crc)
 	{
 		I_Error("LOAD-GAME: Level data does not match !  Check WADs\n");
 	}
@@ -1594,11 +1594,11 @@ void G_DoSaveGame(void)
 	globs->desc_date   = Z_StrDup(timebuf);
 
 	globs->mapsector.count = numsectors;
-	globs->mapsector.crc = mapsector_CRC;
+	globs->mapsector.crc = mapsector_CRC.crc;
 	globs->mapline.count = numlines;
-	globs->mapline.crc = mapline_CRC;
+	globs->mapline.crc = mapline_CRC.crc;
 	globs->mapthing.count = mapthing_NUM;
-	globs->mapthing.crc = mapthing_CRC;
+	globs->mapthing.crc = mapthing_CRC.crc;
 
 	// FIXME: store DDF CRC values too...
 

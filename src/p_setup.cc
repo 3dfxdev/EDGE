@@ -49,6 +49,7 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+#include "epi/epicrc.h"
 
 // debugging aide:
 #define FORCE_LOCATION  0
@@ -130,9 +131,10 @@ mobj_t **blocklights = NULL;
 // bbox used 
 static float dummy_bbox[4];
 
-unsigned long mapsector_CRC;
-unsigned long mapline_CRC;
-unsigned long mapthing_CRC;
+epi::crc32_c mapsector_CRC;
+epi::crc32_c mapline_CRC;
+epi::crc32_c mapthing_CRC;
+
 int mapthing_NUM;
 
 // REJECT
@@ -679,7 +681,7 @@ static void LoadSectors(int lump)
 	sectors = Z_ClearNew(sector_t, numsectors);
 
 	data = W_CacheLumpNum(lump);
-	CRC32_ProcessBlock(&mapsector_CRC, (const byte*)data, W_LumpLength(lump));
+	mapsector_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 
 	ms = (const mapsector_t *) data;
 	ss = sectors;
@@ -921,7 +923,7 @@ static void LoadThings(int lump)
 				currmap->lump.GetString());
 
 	data = W_CacheLumpNum(lump);
-	CRC32_ProcessBlock(&mapthing_CRC, (const byte*)data, W_LumpLength(lump));
+	mapthing_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 	mapthing_NUM = numthings;
 
 	mt = (const mapthing_t *) data;
@@ -989,7 +991,7 @@ static void LoadHexenThings(int lump)
 				currmap->lump.GetString());
 
 	data = W_CacheLumpNum(lump);
-	CRC32_ProcessBlock(&mapthing_CRC, (const byte*)data, W_LumpLength(lump));
+	mapthing_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 	mapthing_NUM = numthings;
 
 	mt = (const maphexenthing_t *) data;
@@ -1119,7 +1121,7 @@ static void LoadLineDefs(int lump)
 	temp_line_sides = Z_ClearNew(int, numlines * 2);
 
 	data = W_CacheLumpNum(lump);
-	CRC32_ProcessBlock(&mapline_CRC, (const byte*)data, W_LumpLength(lump));
+	mapline_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 
 	mld = (const maplinedef_t *) data;
 	ld = lines;
@@ -1185,7 +1187,7 @@ static void LoadHexenLineDefs(int lump)
 	temp_line_sides = Z_ClearNew(int, numlines * 2);
 
 	data = W_CacheLumpNum(lump);
-	CRC32_ProcessBlock(&mapline_CRC, (const byte*)data, W_LumpLength(lump));
+	mapline_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 
 	mld = (const maphexenlinedef_t *) data;
 	ld = lines;
@@ -2175,9 +2177,9 @@ void P_SetupLevel(skill_t skill, int autotag)
 	}
 
 	// clear CRC values
-	CRC32_Init(&mapsector_CRC);
-	CRC32_Init(&mapline_CRC);
-	CRC32_Init(&mapthing_CRC);
+	mapsector_CRC.Reset();
+	mapline_CRC.Reset();
+	mapthing_CRC.Reset();
 
 #ifdef DEVELOPERS
 
@@ -2289,14 +2291,10 @@ void P_SetupLevel(skill_t skill, int autotag)
 	else
 		LoadThings(lumpnum + ML_THINGS);
 
-	// OK, finish off the computed CRCs
-	CRC32_Done(&mapsector_CRC);
-	CRC32_Done(&mapline_CRC);
-	CRC32_Done(&mapthing_CRC);
-
+	// OK, CRC values have now been computed
 #ifdef DEVELOPERS
-	L_WriteDebug("MAP CRCS: S=%08lx L=%08lx T=%08lx\n",
-		mapsector_CRC, mapline_CRC, mapthing_CRC);
+	L_WriteDebug("MAP CRCS: S=%08x L=%08x T=%08x\n",
+		mapsector_CRC.crc, mapline_CRC.crc, mapthing_CRC.crc);
 #endif
 
 	// if deathmatch, randomly spawn the active players
@@ -2320,10 +2318,12 @@ void P_SetupLevel(skill_t skill, int autotag)
 	// set up world state
 	P_SpawnSpecials(autotag);
 
+	RGL_UpdateSkyBoxTextures();
+
 	// preload graphics
 	if (precache)
 		R_PrecacheLevel();
-
+	
 	S_SoundLevelInit(); // Clear out the playing sounds
 	S_ChangeMusic(currmap->music, true); // start level music
 

@@ -1021,13 +1021,14 @@ bool SR_TriggerGetScript(void *storage, int index, void *extra)
 	crc = strtoul(base_p, NULL, 16);
 
 	// now find the bugger !
+	// FIXME: move into RTS code
 
 	for (temp=r_scripts; temp; temp=temp->next)
 	{
 		if (DDF_CompareName(temp->mapid, map_name) != 0)
 			continue;
 
-		if (temp->crc != crc)
+		if (temp->crc.crc != crc)
 			continue;
 
 		if (idx_val == 1)
@@ -1074,6 +1075,7 @@ void SR_TriggerPutScript(void *storage, int index, void *extra)
 	}
 
 	// determine index idx_val
+	// FIXME: move into RTS code
 	for (temp=r_scripts, idx_val=1; temp; temp=temp->next)
 	{
 		if (DDF_CompareName(src->mapid, temp->mapid) != 0)
@@ -1082,14 +1084,14 @@ void SR_TriggerPutScript(void *storage, int index, void *extra)
 		if (temp == src)
 			break;
 
-		if (temp->crc == src->crc)
+		if (temp->crc.crc == src->crc.crc)
 			idx_val++;
 	}
 
 	if (! temp)
 		I_Error("SR_TriggerPutScript: invalid ScriptPtr %p\n", src);
 
-	sprintf(buffer, "B:%s:%d:%lX", src->mapid, idx_val, src->crc);
+	sprintf(buffer, "B:%s:%d:%X", src->mapid, idx_val, src->crc.crc);
 
 	SV_PutString(buffer);
 }

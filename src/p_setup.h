@@ -28,9 +28,12 @@
 
 #include "dm_defs.h"
 
-extern unsigned long mapsector_CRC;
-extern unsigned long mapline_CRC;
-extern unsigned long mapthing_CRC;
+#include "epi/epicrc.h"
+
+extern epi::crc32_c mapsector_CRC;
+extern epi::crc32_c mapline_CRC;
+extern epi::crc32_c mapthing_CRC;
+
 extern int mapthing_NUM;
 
 // -KM- 1998/11/25 Added autotag.  Linedefs with this tag are automatically

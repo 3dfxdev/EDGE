@@ -35,6 +35,7 @@
 #include "z_zone.h"
 
 #include "lzo/minilzo.h"
+#include "epi/epicrc.h"
 
 #include <math.h>
 
@@ -87,7 +88,7 @@ static chunk_t chunk_stack[MAX_CHUNK_DEPTH];
 static int chunk_stack_size = 0;
 
 static FILE *current_fp = NULL;
-static unsigned long current_crc;
+static epi::crc32_c current_crc;
 
 #if (COMPRESS_ENABLE)
 static long compress_wrkmem[LZO1X_1_MEM_COMPRESS/sizeof(long) + 2];
@@ -174,7 +175,7 @@ bool SV_OpenReadFile(const char *filename)
 	chunk_stack_size = 0;
 	last_error = 0;
 
-	CRC32_Init(&current_crc);
+	current_crc.Reset();
 
 	current_fp = fopen(filename, "rb");
 
@@ -243,8 +244,6 @@ bool SV_VerifyHeader(int *version)
 //
 bool SV_VerifyContents(void)
 {
-	unsigned int final_crc, read_crc;
-
 	DEV_ASSERT2(current_fp);
 	DEV_ASSERT2(chunk_stack_size == 0);
 
@@ -325,15 +324,16 @@ bool SV_VerifyContents(void)
 		return false;
 	}
 
-	CRC32_Done(&current_crc);
+	// CRC is now computed
 
-	final_crc = current_crc;
-	read_crc = SV_GetInt();
+	epi::crc32_c final_crc(current_crc);
 
-	if (read_crc != final_crc)
+	u32_t read_crc = SV_GetInt();
+
+	if (read_crc != final_crc.crc)
 	{
 		I_Warning("LOADGAME: Verify failed: Bad CRC: %08X != %08X\n", 
-			final_crc, read_crc);
+			current_crc.crc, read_crc);
 		return false;
 	}
 
@@ -367,7 +367,7 @@ unsigned char SV_GetByte(void)
 			return 0;
 		}
 
-		CRC32_ProcessByte(&current_crc, c);
+		current_crc += (byte) c;
 
 #if (DEBUG_GETBYTE)
 		{ 
@@ -575,7 +575,7 @@ bool SV_OpenWriteFile(const char *filename, int version)
 	chunk_stack_size = 0;
 	last_error = 0;
 
-	CRC32_Init(&current_crc);
+	current_crc.Reset();
 
 	current_fp = fopen(filename, "wb");
 
@@ -599,8 +599,6 @@ bool SV_OpenWriteFile(const char *filename, int version)
 //
 bool SV_CloseWriteFile(void)
 {
-	unsigned int final_crc;
-
 	DEV_ASSERT2(current_fp);
 
 	DEV_ASSERT(chunk_stack_size == 0,
@@ -611,10 +609,9 @@ bool SV_CloseWriteFile(void)
 	SV_PutMarker(DATA_END_MARKER);
 	PutMagic();
 
-	CRC32_Done(&current_crc);
-	final_crc = current_crc;
+	epi::crc32_c final_crc(current_crc);
 
-	SV_PutInt(final_crc);
+	SV_PutInt(final_crc.crc);
 
 	if (last_error)
 		I_Warning("SAVEGAME: Error(s) occurred during writing.\n");
@@ -774,7 +771,7 @@ void SV_PutByte(unsigned char value)
 			return;
 		}
 
-		CRC32_ProcessByte(&current_crc, value);
+		current_crc += (byte) value;
 		return;
 	}
 

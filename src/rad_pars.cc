@@ -613,27 +613,25 @@ static void ClearAllScripts(void)
 //
 static void RAD_ComputeScriptCRC(rad_script_t *scr)
 {
-	int flags;
-
-	CRC32_Init(&scr->crc);
+	scr->crc.Reset();
 
 	// Note: the mapid doesn't belong in the CRC
 
 	if (scr->script_name)
-		CRC32_ProcessStr(&scr->crc, scr->script_name);
+		scr->crc.AddCStr(scr->script_name);
 
-	CRC32_ProcessInt(&scr->crc, scr->tag);
-	CRC32_ProcessInt(&scr->crc, scr->appear);
-	CRC32_ProcessInt(&scr->crc, scr->min_players);
-	CRC32_ProcessInt(&scr->crc, scr->max_players);
-	CRC32_ProcessInt(&scr->crc, scr->repeat_count);
+	scr->crc += (int) scr->tag;
+	scr->crc += (int) scr->appear;
+	scr->crc += (int) scr->min_players;
+	scr->crc += (int) scr->max_players;
+	scr->crc += (int) scr->repeat_count;
 
-	CRC32_ProcessInt(&scr->crc, I_ROUND(scr->x));
-	CRC32_ProcessInt(&scr->crc, I_ROUND(scr->y));
-	CRC32_ProcessInt(&scr->crc, I_ROUND(scr->z));
-	CRC32_ProcessInt(&scr->crc, I_ROUND(scr->rad_x));
-	CRC32_ProcessInt(&scr->crc, I_ROUND(scr->rad_y));
-	CRC32_ProcessInt(&scr->crc, I_ROUND(scr->rad_z));
+	scr->crc += (int) I_ROUND(scr->x);
+	scr->crc += (int) I_ROUND(scr->y);
+	scr->crc += (int) I_ROUND(scr->z);
+	scr->crc += (int) I_ROUND(scr->rad_x);
+	scr->crc += (int) I_ROUND(scr->rad_y);
+	scr->crc += (int) I_ROUND(scr->rad_z);
 
 	// lastly handle miscellaneous parts
 
@@ -641,7 +639,7 @@ static void RAD_ComputeScriptCRC(rad_script_t *scr)
 #define M_FLAG(bit, cond)  \
 	if cond { flags |= (1 << (bit)); }
 
-	flags = 0;
+	int flags = 0;
 
 	M_FLAG(0, (scr->tagged_disabled));
 	M_FLAG(1, (scr->tagged_use));
@@ -653,12 +651,10 @@ static void RAD_ComputeScriptCRC(rad_script_t *scr)
 	M_FLAG(6, (scr->cond_trig != NULL));
 	M_FLAG(7, (scr->next_in_path != NULL));
 
-	CRC32_ProcessInt(&scr->crc, flags);
+	scr->crc += (int) flags;
 
 	// Q/ add in states ?  
 	// A/ Nah.
-
-	CRC32_Done(&scr->crc);
 }
 
 #undef M_FLAG
