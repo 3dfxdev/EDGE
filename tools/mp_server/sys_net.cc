@@ -20,6 +20,10 @@
 #include <unistd.h>
 #include <string.h>
 
+#ifndef WIN32
+#include <signal.h>
+#endif
+
 #ifdef LINUX
 
 #include <sys/types.h>
@@ -82,4 +86,13 @@ const char * I_LocalIPAddrString(const char *iface_name)
 }
 
 #endif  // LINUX
+
+void I_IgnoreBrokenPipes(void)
+{
+#ifdef WIN32
+	// nothing to do
+#else
+	signal(SIGPIPE, SIG_IGN);
+#endif
+}
 
