@@ -67,9 +67,9 @@ static void Confidence(bot_t * bot)
 	else if (mo->health < mo->info->spawnhealth / 3)
 		bot->confidence = -1;
 	else if (mo->health > 3 * mo->info->spawnhealth / 4 && p->ready_wp >= 0 &&
-		p->weapons[p->ready_wp].info->ammo != AM_NoAmmo)
+		p->weapons[p->ready_wp].info->ammo[0] != AM_NoAmmo)
 	{
-	        ammotype_e ammo = p->weapons[p->ready_wp].info->ammo;
+	        ammotype_e ammo = p->weapons[p->ready_wp].info->ammo[0];
 
 		if (p->ammo[ammo].num > p->ammo[ammo].max / 2)
 			bot->confidence = 1;
@@ -91,15 +91,15 @@ static int EvaluateWeapon(player_t *p, int w_num)
 	weapon = wp->info;
 	DEV_ASSERT2(weapon);
 
-	attack = weapon->attack;
+	attack = weapon->attack[0];
 
 	if (!attack)
 		return INT_MIN;
 
 	// Don't have enough ammo
-	if (weapon->ammo != AM_NoAmmo)
+	if (weapon->ammo[0] != AM_NoAmmo)
 	{
-		if (p->ammo[weapon->ammo].num < weapon->ammopershot)
+		if (p->ammo[weapon->ammo[0]].num < weapon->ammopershot[0])
 			return INT_MIN;
 	}
 
@@ -138,7 +138,7 @@ static int EvaluateWeapon(player_t *p, int w_num)
 	}
 
 	//  value -= (attack->accuracy_angle + attack->x_accuracy_slope + 1) / 2;
-	value -= weapon->ammopershot * 8;
+	value -= weapon->ammopershot[0] * 8;
 
 	if (w_num == p->ready_wp)
 		value += 2048;

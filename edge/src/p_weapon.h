@@ -85,8 +85,7 @@ typedef struct
 	bool owned;
 
 	// current clip sizes
-	int clip_size;
-	int sa_clip_size;
+	int clip_size[2];
 }
 playerweapon_t;
 

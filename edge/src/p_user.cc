@@ -214,7 +214,7 @@ static void MovePlayer(player_t * player)
 		&& player->mo->state == &states[player->mo->info->idle_state])
 	{
 		if (player->mo->info->chase_state)
-			P_SetMobjState(player->mo, player->mo->info->chase_state);
+			P_SetMobjStateDeferred(player->mo, player->mo->info->chase_state, 0);
 	}
 
 	// EDGE Feature: Crouching
@@ -648,7 +648,7 @@ void P_PlayerThink(player_t * player)
 	if (player->grin_count)
 		player->grin_count--;
 
-	if (player->attackdown || player->secondatk_down)
+	if (player->attackdown[0] || player->attackdown[1])
 		player->attackdown_count++;
 	else
 		player->attackdown_count = 0;
@@ -903,8 +903,8 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index, bool switch_to
 
 	player->weapons[slot].owned = true;
 	player->weapons[slot].info  = info;
-	player->weapons[slot].clip_size    = 0;
-	player->weapons[slot].sa_clip_size = 0;
+	player->weapons[slot].clip_size[0] = 0;
+	player->weapons[slot].clip_size[1] = 0;
 
 	P_UpdateAvailWeapons(player);
 

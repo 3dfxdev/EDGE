@@ -393,8 +393,8 @@ bool M_CheatResponder(event_t * ev)
 
 			P_AddWeapon(pl, info, NULL, false);
 
-			if (info->ammo >= 0)
-				pl->ammo[info->ammo].num = pl->ammo[info->ammo].max;
+			if (info->ammo[0] != AM_NoAmmo)
+				pl->ammo[info->ammo[0]].num = pl->ammo[info->ammo[0]].max;
 		}
 	}
 
