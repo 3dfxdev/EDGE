@@ -658,8 +658,6 @@ void DDF_MobjCleanUp(void)
 		//       Now clean it up.
 		m->xscale *= m->yscale;
 
-		L_WriteDebug("Thing %s: %d\n", m->ddf.name, m->ddf.number);
-
 		DDF_ErrorClearEntryName();
 	}
 
@@ -1220,6 +1218,9 @@ mobjdef_c *DDF_MobjMakeAttackObj(mobjdef_c *info, const char *atk_name)
 	result->ddf.number = 0;
 	result->ddf.crc = 0;
 
+	// Add to the list
+	mobjdefs.Insert(result);
+
 	return result;
 }
 
@@ -1414,19 +1415,19 @@ mobjdef_c::mobjdef_c()
 }
 
 //
-// mobjdef_c Destructor
-//
-mobjdef_c::~mobjdef_c()
-{
-}
-
-//
 // mobjdef_c Copy Constructor
 //
 mobjdef_c::mobjdef_c(mobjdef_c &rhs)
 {
 	ddf = rhs.ddf;
 	CopyDetail(rhs);
+}
+
+//
+// mobjdef_c Destructor
+//
+mobjdef_c::~mobjdef_c()
+{
 }
 
 //
