@@ -364,6 +364,7 @@ planeback_t;
 
 
 extern boolean_t use_true_bsp;
+extern boolean_t force_classic;
 
 boolean_t R2_CheckBBox(float_t *bspcoord);
 void R2_RenderTrueBSP(void);
