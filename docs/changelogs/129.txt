@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: DECEMBER 13th 2004)
+(Date: DECEMBER 14th 2004)
 
 
 Bugs fixed
@@ -43,8 +43,8 @@ Old Fixes (from EDGE 1.28A)
 - fix for some memory trashing problems (Darren Salt).
 
 
-Features removed:
------------------
+Features removed / changed
+--------------------------
 
 + software rendering has been removed.  We don't have the time to
   maintain the software renderer anymore, and keeping two renderers
@@ -53,13 +53,14 @@ Features removed:
   usually a lot easier than doing it with software).
 
 + the demo format has changed, and previously recorded demos don't
-  work in this version of EDGE.
+  work in this version of EDGE.  @@@ The current demo code has not
+  been tested and may not work properly.
 
 - using { } comments in DDF files, and ';' comments in RTS scripts
   is now deprecated, since these characters will probably be needed
   in the future when improving DDF/RTS.  Use // comments instead.
 
-- the DDF "CONSTANT" dynamic lighting type is gone.
+- the DDF "CONSTANT" dynamic lighting type was removed.
 
 
 General improvements
@@ -82,7 +83,7 @@ General improvements
   engines).  EDGE converts the patches to DDF, and stores the result
   in files with the .HWA extension, which are loaded automatically.
 
-(NEEDS TESTING) - able to use 24-bit screen modes (16.7 million colours).
+- ability to use 24-bit screen modes (16.7 million colours).
 
 - new startup, with progress bar.  The console window that used to
   appear (Win32) is gone, and under Linux messages are no longer
@@ -102,7 +103,7 @@ General improvements
 - source code uses more C++ features, and more of the EPI (Edge Platform
   Interface).  The "Zone" memory manager has mostly been replaced.
 
-- gameplay option to disable automatic weapon switches.
+- new gameplay option to disable automatic weapon switches.
 - sky looks a bit better, with a stretch option in Video menu.
 - the old "sky flooding" trick is now emulated.
 - emulate the FRIEND bit on things in the map.
@@ -115,7 +116,36 @@ General improvements
 New DDF features:
 -----------------
 
-+ new IMAGES.DDF file.  The corresponding wad lump is DDFIMAGE.  @@@@
++ new IMAGES.DDF file.  The corresponding wad lump is DDFIMAGE.  You
+  can define any type of images in this file (textures, flats, sprites
+  and screen patches), and they will override any from the WAD file
+  with the same name.  There are three supported types so far: solid
+  colours, image files, and built-in types, as follows:
+
+     IMAGE_DATA = COLOUR:#FF7F00;
+	 IMAGE_DATA = FILE:"retex\startan3.png";
+	 IMAGE_DATA = BUILTIN:QUADRATIC;
+
+  The built-in types are only used to create special images for
+  dynamic lighting and shadows.  The FILE type is the most useful,
+  and currently supports PNG images (JPEG format is planned for the
+  future).  The following commands are also available:
+
+     X_OFFSET = 10;  // specify the X and Y offset, e.g. sprites.
+	 Y_OFFSET = 30;  //
+
+     SCALE  = 2.0;   // scaling and aspect.  Bigger scale makes the
+	 ASPECT = 1.0;   // image bigger (cover more space).  Bigger aspect
+	                 // makes the image wider (height is unchanged).
+
+     SPECIAL = XXX, YYY;
+
+  The current specials are not very useful in general (e.g. sprite
+  images are automatically clamped).  They are:
+
+     NOMIP    // force mipmapping to be disabled
+	 SMOOTH   // force smoothing to be enabled
+	 CLAMP    // force clamping (image cannot repeat)
 
 + new FONTS.DDF file.  The equivalent wad lump is DDFFONT.  This is used
   to define fonts (the set of character images for drawing text).  The
@@ -178,7 +208,7 @@ New DDF features:
 
 - SILENT_TO_MONSTERS is now an attack special too.
 - FORCE_PICKUP special for thing.ddf (items).
-- DIE action for things and attacks.
+- DIE action for things and attacks (mainly for BEX compatibility).
 
 - WHEN_APPEAR in DDF and RTS now accepts simpler values.  You can
   use a range for the skill (e.g. "3-5"), you can omit the skill or
