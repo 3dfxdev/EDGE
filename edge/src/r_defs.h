@@ -295,7 +295,6 @@ typedef enum
   ST_VERTICAL,
   ST_POSITIVE,
   ST_NEGATIVE
-
 }
 slopetype_t;
 

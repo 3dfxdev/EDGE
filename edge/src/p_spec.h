@@ -47,7 +47,7 @@
 #define FRICTION    0.9063f
 #define VISCOSITY   0.0f
 #define GRAVITY     8.0f
-#define OOF_SPEED   64.0f
+#define OOF_SPEED   20.0f
 
 #define MENU_GRAV_NORMAL  8
 
