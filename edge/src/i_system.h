@@ -119,7 +119,6 @@ typedef struct i_time_s
   byte hours;
   byte minutes;
   byte secs;
-  int index;
 }
 i_time_t;
 
