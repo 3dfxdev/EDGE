@@ -1,9 +1,9 @@
-//----------------------------------------------------------------------------
-//  EDGE Tool WAD I/O
-//----------------------------------------------------------------------------
-// 
-//  Copyright (c) 1999-2004  The EDGE Team.
-// 
+//------------------------------------------------------------------------
+//  WAD I/O
+//------------------------------------------------------------------------
+//
+//  DEH_EDGE  Copyright (C) 2004  The EDGE Team
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -12,9 +12,18 @@
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//  GNU General Public License (in COPYING.txt) for more details.
 //
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------
+//
+//  DEH_EDGE is based on:
+//
+//  +  DeHackEd source code, by Greg Lewis.
+//  -  DOOM source code (C) 1993-1996 id Software, Inc.
+//  -  Linux DOOM Hack Editor, by Sam Lantinga.
+//  -  PrBoom's DEH/BEX code, by Ty Halderman, TeamTNT.
+//
+//------------------------------------------------------------------------
 
 #include "i_defs.h"
 #include "wad.h"
@@ -26,7 +35,7 @@
 
 #define MAX_LUMPS  2000
 
-#define DEBUG_DDF  1
+#define DEBUG_DDF  0
 
 
 namespace WAD
@@ -176,7 +185,7 @@ void WAD::Printf(const char *str, ...)
 	vsprintf(wad_msg_buf, str, args);
 	va_end(args);
 
-#ifdef DEBUG_DDF
+#if (DEBUG_DDF)
 	printf("%s", wad_msg_buf);
 #else
 	WAD::AddData((byte *) wad_msg_buf, strlen(wad_msg_buf));

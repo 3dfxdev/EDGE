@@ -1,35 +1,41 @@
-// Emacs style mode select   -*- C++ -*- 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------
+//  SOUND Definitions
+//------------------------------------------------------------------------
 //
-// $Id$
+//  DEH_EDGE  Copyright (C) 2004  The EDGE Team
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License (in COPYING.txt) for more details.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//------------------------------------------------------------------------
 //
-// $Log$
-// Revision 1.1  2004/01/16 12:52:05  ajapted
-// Initial importation.
+//  DEH_EDGE is based on:
 //
+//  +  DeHackEd source code, by Greg Lewis.
+//  -  DOOM source code (C) 1993-1996 id Software, Inc.
+//  -  Linux DOOM Hack Editor, by Sam Lantinga.
+//  -  PrBoom's DEH/BEX code, by Ty Halderman, TeamTNT.
 //
-// DESCRIPTION:
-//	Created by a sound utility.
-//	Kept as a sample, DOOM2 sounds.
-//
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------
 
-
-
-
-// #include "doomtype.h"
+#include "i_defs.h"
 #include "sounds.h"
+
+#include "system.h"
+#include "util.h"
+#include "wad.h"
+
+
+// XXX workaround for EDGE 1.27 bug with sound replacements
+#define EDGE127_BUG  1
+
 
 //
 // Information about all the music
@@ -37,76 +43,77 @@
 
 musicinfo_t S_music[NUMMUSIC] =
 {
-    { 0 },
-    { "e1m1", 0 },
-    { "e1m2", 0 },
-    { "e1m3", 0 },
-    { "e1m4", 0 },
-    { "e1m5", 0 },
-    { "e1m6", 0 },
-    { "e1m7", 0 },
-    { "e1m8", 0 },
-    { "e1m9", 0 },
-    { "e2m1", 0 },
-    { "e2m2", 0 },
-    { "e2m3", 0 },
-    { "e2m4", 0 },
-    { "e2m5", 0 },
-    { "e2m6", 0 },
-    { "e2m7", 0 },
-    { "e2m8", 0 },
-    { "e2m9", 0 },
-    { "e3m1", 0 },
-    { "e3m2", 0 },
-    { "e3m3", 0 },
-    { "e3m4", 0 },
-    { "e3m5", 0 },
-    { "e3m6", 0 },
-    { "e3m7", 0 },
-    { "e3m8", 0 },
-    { "e3m9", 0 },
-    { "inter", 0 },
-    { "intro", 0 },
-    { "bunny", 0 },
-    { "victor", 0 },
-    { "introa", 0 },
-    { "runnin", 0 },
-    { "stalks", 0 },
-    { "countd", 0 },
-    { "betwee", 0 },
-    { "doom", 0 },
-    { "the_da", 0 },
-    { "shawn", 0 },
-    { "ddtblu", 0 },
-    { "in_cit", 0 },
-    { "dead", 0 },
-    { "stlks2", 0 },
-    { "theda2", 0 },
-    { "doom2", 0 },
-    { "ddtbl2", 0 },
-    { "runni2", 0 },
-    { "dead2", 0 },
-    { "stlks3", 0 },
-    { "romero", 0 },
-    { "shawn2", 0 },
-    { "messag", 0 },
-    { "count2", 0 },
-    { "ddtbl3", 0 },
-    { "ampie", 0 },
-    { "theda3", 0 },
-    { "adrian", 0 },
-    { "messg2", 0 },
-    { "romer2", 0 },
-    { "tense", 0 },
-    { "shawn3", 0 },
-    { "openin", 0 },
-    { "evil", 0 },
-    { "ultima", 0 },
-    { "read_m", 0 },
-    { "dm2ttl", 0 },
-    { "dm2int", 0 } 
-};
+    { NULL, -1, NULL },  // dummy entry
 
+    { "e1m1", 33, NULL },
+    { "e1m2", 34, NULL },
+    { "e1m3", 35, NULL },
+    { "e1m4", 36, NULL },
+    { "e1m5", 37, NULL },
+    { "e1m6", 38, NULL },
+    { "e1m7", 39, NULL },
+    { "e1m8", 40, NULL },
+    { "e1m9", 41, NULL },
+    { "e2m1", 42, NULL },
+    { "e2m2", 43, NULL },
+    { "e2m3", 44, NULL },
+    { "e2m4", 45, NULL },
+    { "e2m5", 46, NULL },
+    { "e2m6", 47, NULL },
+    { "e2m7", 48, NULL },
+    { "e2m8", 49, NULL },
+    { "e2m9", 50, NULL },
+    { "e3m1", 51, NULL },
+    { "e3m2", 52, NULL },
+    { "e3m3", 53, NULL },
+    { "e3m4", 54, NULL },
+    { "e3m5", 55, NULL },
+    { "e3m6", 56, NULL },
+    { "e3m7", 57, NULL },
+    { "e3m8", 58, NULL },
+    { "e3m9", 59, NULL },
+
+    { "inter",  63, NULL },
+    { "intro",  62, NULL },
+    { "bunny",  67, NULL },
+    { "victor", 61, NULL },
+    { "introa", 68, NULL },
+    { "runnin",  1, NULL },
+    { "stalks",  2, NULL },
+    { "countd",  3, NULL },
+    { "betwee",  4, NULL },
+    { "doom",    5, NULL },
+    { "the_da",  6, NULL },
+    { "shawn",   7, NULL },
+    { "ddtblu",  8, NULL },
+    { "in_cit",  9, NULL },
+    { "dead",   10, NULL },
+    { "stlks2", 11, NULL },
+    { "theda2", 12, NULL },
+    { "doom2",  13, NULL },
+    { "ddtbl2", 14, NULL },
+    { "runni2", 15, NULL },
+    { "dead2",  16, NULL },
+    { "stlks3", 17, NULL },
+    { "romero", 18, NULL },
+    { "shawn2", 19, NULL },
+    { "messag", 20, NULL },
+    { "count2", 21, NULL },
+    { "ddtbl3", 22, NULL },
+    { "ampie",  23, NULL },
+    { "theda3", 24, NULL },
+    { "adrian", 25, NULL },
+    { "messg2", 26, NULL },
+    { "romer2", 27, NULL },
+    { "tense",  28, NULL },
+    { "shawn3", 29, NULL },
+    { "openin", 30, NULL },
+    { "evil",   31, NULL },
+    { "ultima", 32, NULL },
+    { "read_m", 60, NULL },
+    { "dm2ttl", 65, NULL },
+    { "dm2int", 64, NULL } 
+};
 
 //
 // Information about all the sfx
@@ -114,116 +121,300 @@ musicinfo_t S_music[NUMMUSIC] =
 
 sfxinfo_t S_sfx[NUMSFX] =
 {
-  // S_sfx[0] needs to be a dummy for odd reasons.
-  { "none", false,  0, 0, -1, -1, 0 },
+	// S_sfx[0] needs to be a dummy for odd reasons.
+	{ "none", 0,  0, 0, -1, -1, NULL },
 
-  { "pistol", false, 64, 0, -1, -1, 0 },
-  { "shotgn", false, 64, 0, -1, -1, 0 },
-  { "sgcock", false, 64, 0, -1, -1, 0 },
-  { "dshtgn", false, 64, 0, -1, -1, 0 },
-  { "dbopn", false, 64, 0, -1, -1, 0 },
-  { "dbcls", false, 64, 0, -1, -1, 0 },
-  { "dbload", false, 64, 0, -1, -1, 0 },
-  { "plasma", false, 64, 0, -1, -1, 0 },
-  { "bfg", false, 64, 0, -1, -1, 0 },
-  { "sawup", false, 64, 0, -1, -1, 0 },
-  { "sawidl", false, 118, 0, -1, -1, 0 },
-  { "sawful", false, 64, 0, -1, -1, 0 },
-  { "sawhit", false, 64, 0, -1, -1, 0 },
-  { "rlaunc", false, 64, 0, -1, -1, 0 },
-  { "rxplod", false, 70, 0, -1, -1, 0 },
-  { "firsht", false, 70, 0, -1, -1, 0 },
-  { "firxpl", false, 70, 0, -1, -1, 0 },
-  { "pstart", false, 100, 0, -1, -1, 0 },
-  { "pstop", false, 100, 0, -1, -1, 0 },
-  { "doropn", false, 100, 0, -1, -1, 0 },
-  { "dorcls", false, 100, 0, -1, -1, 0 },
-  { "stnmov", false, 119, 0, -1, -1, 0 },
-  { "swtchn", false, 78, 0, -1, -1, 0 },
-  { "swtchx", false, 78, 0, -1, -1, 0 },
-  { "plpain", false, 96, 0, -1, -1, 0 },
-  { "dmpain", false, 96, 0, -1, -1, 0 },
-  { "popain", false, 96, 0, -1, -1, 0 },
-  { "vipain", false, 96, 0, -1, -1, 0 },
-  { "mnpain", false, 96, 0, -1, -1, 0 },
-  { "pepain", false, 96, 0, -1, -1, 0 },
-  { "slop", false, 78, 0, -1, -1, 0 },
-  { "itemup", true, 78, 0, -1, -1, 0 },
-  { "wpnup", true, 78, 0, -1, -1, 0 },
-  { "oof", false, 96, 0, -1, -1, 0 },
-  { "telept", false, 32, 0, -1, -1, 0 },
-  { "posit1", true, 98, 0, -1, -1, 0 },
-  { "posit2", true, 98, 0, -1, -1, 0 },
-  { "posit3", true, 98, 0, -1, -1, 0 },
-  { "bgsit1", true, 98, 0, -1, -1, 0 },
-  { "bgsit2", true, 98, 0, -1, -1, 0 },
-  { "sgtsit", true, 98, 0, -1, -1, 0 },
-  { "cacsit", true, 98, 0, -1, -1, 0 },
-  { "brssit", true, 94, 0, -1, -1, 0 },
-  { "cybsit", true, 92, 0, -1, -1, 0 },
-  { "spisit", true, 90, 0, -1, -1, 0 },
-  { "bspsit", true, 90, 0, -1, -1, 0 },
-  { "kntsit", true, 90, 0, -1, -1, 0 },
-  { "vilsit", true, 90, 0, -1, -1, 0 },
-  { "mansit", true, 90, 0, -1, -1, 0 },
-  { "pesit", true, 90, 0, -1, -1, 0 },
-  { "sklatk", false, 70, 0, -1, -1, 0 },
-  { "sgtatk", false, 70, 0, -1, -1, 0 },
-  { "skepch", false, 70, 0, -1, -1, 0 },
-  { "vilatk", false, 70, 0, -1, -1, 0 },
-  { "claw", false, 70, 0, -1, -1, 0 },
-  { "skeswg", false, 70, 0, -1, -1, 0 },
-  { "pldeth", false, 32, 0, -1, -1, 0 },
-  { "pdiehi", false, 32, 0, -1, -1, 0 },
-  { "podth1", false, 70, 0, -1, -1, 0 },
-  { "podth2", false, 70, 0, -1, -1, 0 },
-  { "podth3", false, 70, 0, -1, -1, 0 },
-  { "bgdth1", false, 70, 0, -1, -1, 0 },
-  { "bgdth2", false, 70, 0, -1, -1, 0 },
-  { "sgtdth", false, 70, 0, -1, -1, 0 },
-  { "cacdth", false, 70, 0, -1, -1, 0 },
-  { "skldth", false, 70, 0, -1, -1, 0 },
-  { "brsdth", false, 32, 0, -1, -1, 0 },
-  { "cybdth", false, 32, 0, -1, -1, 0 },
-  { "spidth", false, 32, 0, -1, -1, 0 },
-  { "bspdth", false, 32, 0, -1, -1, 0 },
-  { "vildth", false, 32, 0, -1, -1, 0 },
-  { "kntdth", false, 32, 0, -1, -1, 0 },
-  { "pedth", false, 32, 0, -1, -1, 0 },
-  { "skedth", false, 32, 0, -1, -1, 0 },
-  { "posact", true, 120, 0, -1, -1, 0 },
-  { "bgact", true, 120, 0, -1, -1, 0 },
-  { "dmact", true, 120, 0, -1, -1, 0 },
-  { "bspact", true, 100, 0, -1, -1, 0 },
-  { "bspwlk", true, 100, 0, -1, -1, 0 },
-  { "vilact", true, 100, 0, -1, -1, 0 },
-  { "noway", false, 78, 0, -1, -1, 0 },
-  { "barexp", false, 60, 0, -1, -1, 0 },
-  { "punch", false, 64, 0, -1, -1, 0 },
-  { "hoof", false, 70, 0, -1, -1, 0 },
-  { "metal", false, 70, 0, -1, -1, 0 },
-  { "chgun", false, 64, &S_sfx[sfx_pistol], 150, 0, 0 },
-  { "tink", false, 60, 0, -1, -1, 0 },
-  { "bdopn", false, 100, 0, -1, -1, 0 },
-  { "bdcls", false, 100, 0, -1, -1, 0 },
-  { "itmbk", false, 100, 0, -1, -1, 0 },
-  { "flame", false, 32, 0, -1, -1, 0 },
-  { "flamst", false, 32, 0, -1, -1, 0 },
-  { "getpow", false, 60, 0, -1, -1, 0 },
-  { "bospit", false, 70, 0, -1, -1, 0 },
-  { "boscub", false, 70, 0, -1, -1, 0 },
-  { "bossit", false, 70, 0, -1, -1, 0 },
-  { "bospn", false, 70, 0, -1, -1, 0 },
-  { "bosdth", false, 70, 0, -1, -1, 0 },
-  { "manatk", false, 70, 0, -1, -1, 0 },
-  { "mandth", false, 70, 0, -1, -1, 0 },
-  { "sssit", false, 70, 0, -1, -1, 0 },
-  { "ssdth", false, 70, 0, -1, -1, 0 },
-  { "keenpn", false, 70, 0, -1, -1, 0 },
-  { "keendt", false, 70, 0, -1, -1, 0 },
-  { "skeact", false, 70, 0, -1, -1, 0 },
-  { "skesit", false, 70, 0, -1, -1, 0 },
-  { "skeatk", false, 70, 0, -1, -1, 0 },
-  { "radio", false, 60, 0, -1, -1, 0 } 
+	{ "pistol", 0,  64, 0, -1, -1, NULL },
+	{ "shotgn", 0,  64, 0, -1, -1, NULL },
+	{ "sgcock", 0,  64, 0, -1, -1, NULL },
+	{ "dshtgn", 0,  64, 0, -1, -1, NULL },
+	{ "dbopn",  0,  64, 0, -1, -1, NULL },
+	{ "dbcls",  0,  64, 0, -1, -1, NULL },
+	{ "dbload", 0,  64, 0, -1, -1, NULL },
+	{ "plasma", 0,  64, 0, -1, -1, NULL },
+	{ "bfg",    0,  64, 0, -1, -1, NULL },
+	{ "sawup",  2,  64, 0, -1, -1, NULL },
+	{ "sawidl", 2,  118, 0, -1, -1, NULL },
+	{ "sawful", 2,  64, 0, -1, -1, NULL },
+	{ "sawhit", 2,  64, 0, -1, -1, NULL },
+	{ "rlaunc", 0,  64, 0, -1, -1, NULL },
+	{ "rxplod", 0,  70, 0, -1, -1, NULL },
+	{ "firsht", 0,  70, 0, -1, -1, NULL },
+	{ "firxpl", 0,  70, 0, -1, -1, NULL },
+	{ "pstart", 18, 100, 0, -1, -1, NULL },
+	{ "pstop",  18, 100, 0, -1, -1, NULL },
+	{ "doropn", 0,  100, 0, -1, -1, NULL },
+	{ "dorcls", 0,  100, 0, -1, -1, NULL },
+	{ "stnmov", 18, 119, 0, -1, -1, NULL },
+	{ "swtchn", 0,  78, 0, -1, -1, NULL },
+	{ "swtchx", 0,  78, 0, -1, -1, NULL },
+	{ "plpain", 0,  96, 0, -1, -1, NULL },
+	{ "dmpain", 0,  96, 0, -1, -1, NULL },
+	{ "popain", 0,  96, 0, -1, -1, NULL },
+	{ "vipain", 0,  96, 0, -1, -1, NULL },
+	{ "mnpain", 0,  96, 0, -1, -1, NULL },
+	{ "pepain", 0,  96, 0, -1, -1, NULL },
+	{ "slop",   0,  78, 0, -1, -1, NULL },
+	{ "itemup", 20, 78, 0, -1, -1, NULL },
+	{ "wpnup",  21, 78, 0, -1, -1, NULL },
+	{ "oof",    0,  96, 0, -1, -1, NULL },
+	{ "telept", 0,  32, 0, -1, -1, NULL },
+	{ "posit1", 3,  98, 0, -1, -1, NULL },
+	{ "posit2", 3,  98, 0, -1, -1, NULL },
+	{ "posit3", 3,  98, 0, -1, -1, NULL },
+	{ "bgsit1", 4,  98, 0, -1, -1, NULL },
+	{ "bgsit2", 4,  98, 0, -1, -1, NULL },
+	{ "sgtsit", 5,  98, 0, -1, -1, NULL },
+	{ "cacsit", 6,  98, 0, -1, -1, NULL },
+	{ "brssit", 7,  94, 0, -1, -1, NULL },
+	{ "cybsit", 8,  92, 0, -1, -1, NULL },
+	{ "spisit", 9,  90, 0, -1, -1, NULL },
+	{ "bspsit", 10, 90, 0, -1, -1, NULL },
+	{ "kntsit", 11, 90, 0, -1, -1, NULL },
+	{ "vilsit", 12, 90, 0, -1, -1, NULL },
+	{ "mansit", 13, 90, 0, -1, -1, NULL },
+	{ "pesit",  14, 90, 0, -1, -1, NULL },
+	{ "sklatk", 0,  70, 0, -1, -1, NULL },
+	{ "sgtatk", 0,  70, 0, -1, -1, NULL },
+	{ "skepch", 0,  70, 0, -1, -1, NULL },
+	{ "vilatk", 0,  70, 0, -1, -1, NULL },
+	{ "claw",   0,  70, 0, -1, -1, NULL },
+	{ "skeswg", 0,  70, 0, -1, -1, NULL },
+	{ "pldeth", 0,  32, 0, -1, -1, NULL },
+	{ "pdiehi", 0,  32, 0, -1, -1, NULL },
+	{ "podth1", 0,  70, 0, -1, -1, NULL },
+	{ "podth2", 0,  70, 0, -1, -1, NULL },
+	{ "podth3", 0,  70, 0, -1, -1, NULL },
+	{ "bgdth1", 0,  70, 0, -1, -1, NULL },
+	{ "bgdth2", 0,  70, 0, -1, -1, NULL },
+	{ "sgtdth", 0,  70, 0, -1, -1, NULL },
+	{ "cacdth", 0,  70, 0, -1, -1, NULL },
+	{ "skldth", 0,  70, 0, -1, -1, NULL },
+	{ "brsdth", 0,  32, 0, -1, -1, NULL },
+	{ "cybdth", 0,  32, 0, -1, -1, NULL },
+	{ "spidth", 0,  32, 0, -1, -1, NULL },
+	{ "bspdth", 0,  32, 0, -1, -1, NULL },
+	{ "vildth", 0,  32, 0, -1, -1, NULL },
+	{ "kntdth", 0,  32, 0, -1, -1, NULL },
+	{ "pedth",  0,  32, 0, -1, -1, NULL },
+	{ "skedth", 0,  32, 0, -1, -1, NULL },
+	{ "posact", 3,  120, 0, -1, -1, NULL },
+	{ "bgact",  4,  120, 0, -1, -1, NULL },
+	{ "dmact",  15, 120, 0, -1, -1, NULL },
+	{ "bspact", 10, 100, 0, -1, -1, NULL },
+	{ "bspwlk", 16, 100, 0, -1, -1, NULL },
+	{ "vilact", 12, 100, 0, -1, -1, NULL },
+	{ "noway",  0,  78, 0, -1, -1, NULL },
+	{ "barexp", 0,  60, 0, -1, -1, NULL },
+	{ "punch",  0,  64, 0, -1, -1, NULL },
+	{ "hoof",   0,  70, 0, -1, -1, NULL },
+	{ "metal",  0,  70, 0, -1, -1, NULL },
+	{ "chgun",  0,  64, sfx_pistol, 150, 0, NULL },
+	{ "tink",   0,  60, 0, -1, -1, NULL },
+	{ "bdopn",  0,  100, 0, -1, -1, NULL },
+	{ "bdcls",  0,  100, 0, -1, -1, NULL },
+	{ "itmbk",  0,  100, 0, -1, -1, NULL },
+	{ "flame",  0,  32, 0, -1, -1, NULL },
+	{ "flamst", 0,  32, 0, -1, -1, NULL },
+	{ "getpow", 0,  60, 0, -1, -1, NULL },
+	{ "bospit", 0,  70, 0, -1, -1, NULL },
+	{ "boscub", 0,  70, 0, -1, -1, NULL },
+	{ "bossit", 0,  70, 0, -1, -1, NULL },
+	{ "bospn",  0,  70, 0, -1, -1, NULL },
+	{ "bosdth", 0,  70, 0, -1, -1, NULL },
+	{ "manatk", 0,  70, 0, -1, -1, NULL },
+	{ "mandth", 0,  70, 0, -1, -1, NULL },
+	{ "sssit",  0,  70, 0, -1, -1, NULL },
+	{ "ssdth",  0,  70, 0, -1, -1, NULL },
+	{ "keenpn", 0,  70, 0, -1, -1, NULL },
+	{ "keendt", 0,  70, 0, -1, -1, NULL },
+	{ "skeact", 0,  70, 0, -1, -1, NULL },
+	{ "skesit", 0,  70, 0, -1, -1, NULL },
+	{ "skeatk", 0,  70, 0, -1, -1, NULL },
+	{ "radio",  0,  60, 0, -1, -1, NULL } 
 };
+
+//------------------------------------------------------------------------
+
+namespace Sounds
+{
+	bool some_sound_modified = false;
+
+	bool got_one;
+
+	void BeginSoundLump(void)
+	{
+		WAD::NewLump("DDFSFX");
+
+		WAD::Printf(GEN_BY_COMMENT);
+		WAD::Printf("<SOUNDS>\n\n");
+
+#if (EDGE127_BUG)
+		WAD::Printf("#CLEARALL\n\n");
+#endif
+	}
+
+	void FinishSoundLump(void)
+	{
+#if (EDGE127_BUG)
+		WAD::Printf(
+			"[JPRISE] LUMP_NAME=\"DSJPRISE\"; SINGULAR=29;\n"
+			"[JPMOVE] LUMP_NAME=\"DSJPMOVE\"; SINGULAR=29;\n"
+			"[JPIDLE] LUMP_NAME=\"DSJPIDLE\"; SINGULAR=29;\n"
+			"[JPDOWN] LUMP_NAME=\"DSJPDOWN\"; SINGULAR=29;\n"
+			"[JPFLOW] LUMP_NAME=\"DSJPFLOW\"; SINGULAR=29;\n"
+			"[DOG_SIGHT] LUMP_NAME=\"DSDGSIT\";\n"
+			"[DOG_LOOK] LUMP_NAME=\"DSDGACT\";\n"
+			"[DOG_BITE] LUMP_NAME=\"DSDGATK\";\n"
+			"[DOG_PAIN] LUMP_NAME=\"DSDGPAIN\";\n"
+			"[DOG_DIE] LUMP_NAME=\"DSDGDTH\";\n"
+			"[CRUSH] LUMP_NAME=\"DSCRUSH\"; PRIORITY=100;\n"
+		);
+#endif
+
+		WAD::Printf("\n");
+		WAD::FinishLump();
+	}
+
+	void BeginMusicLump(void)
+	{
+		WAD::NewLump("DDFPLAY");
+
+		WAD::Printf(GEN_BY_COMMENT);
+		WAD::Printf("<PLAYLISTS>\n\n");
+	}
+
+	void FinishMusicLump(void)
+	{
+		WAD::Printf("\n");
+		WAD::FinishLump();
+	}
+
+	void WriteSound(int s_num)
+	{
+		sfxinfo_t *sound = S_sfx + s_num;
+
+		if (! got_one)
+		{
+			got_one = true;
+			BeginSoundLump();
+		}
+
+		WAD::Printf("[%s]\n", StrUpper(sound->orig_name));
+
+		const char *lump = sound->new_name ? sound->new_name : sound->orig_name;
+
+		if (sound->link)
+		{
+			sfxinfo_t *link = S_sfx + sound->link;
+
+			lump = link->new_name ? link->new_name : link->orig_name;
+		}
+
+		WAD::Printf("LUMP_NAME = \"DS%s\";\n", StrUpper(lump));
+		WAD::Printf("PRIORITY = %d;\n", sound->priority);
+
+		if (sound->singularity != 0)
+			WAD::Printf("SINGULAR = %d;\n", sound->singularity);
+
+		if (s_num == sfx_stnmov)
+			WAD::Printf("LOOP = TRUE;\n");
+
+		WAD::Printf("\n");
+	}
+
+	void WriteMusic(int m_num)
+	{
+		musicinfo_t *mus = S_music + m_num;
+
+		if (! got_one)
+		{
+			got_one = true;
+			BeginMusicLump();
+		}
+
+		WAD::Printf("[%02d] ", mus->ddf_num);
+
+		const char *lump = mus->new_name ? mus->new_name : mus->orig_name;
+
+		WAD::Printf("MUSICINFO = MUS:LUMP:\"D_%s\";\n", StrUpper(lump));
+	}
+}
+
+void Sounds::ConvertSFX(void)
+{
+	if (! all_mode && ! some_sound_modified)
+		return;
+
+	got_one = false;
+
+	for (int i = 1; i < NUMSFX; i++)
+	{
+#if (! EDGE127_BUG)
+	    if (! all_mode && ! S_sfx[i].new_name)
+			continue;
+#endif
+
+		WriteSound(i);
+	}
+		
+	if (got_one)
+		FinishSoundLump();
+}
+
+void Sounds::ConvertMUS(void)
+{
+	got_one = false;
+
+	for (int i = 1; i < NUMMUSIC; i++)
+	{
+	    if (! all_mode && ! S_music[i].new_name)
+			continue;
+
+		WriteMusic(i);
+	}
+		
+	if (got_one)
+		FinishMusicLump();
+}
+
+
+//------------------------------------------------------------------------
+
+bool Sounds::ReplaceString(const char *before, const char *after)
+{
+	if (strlen(before) > 6 || strlen(after) > 8)
+		return false;
+
+	// check sound names...
+	for (int i = 1; i < NUMSFX; i++)
+	{
+		if (StrCaseCmp(S_sfx[i].orig_name, before) != 0)
+			continue;
+
+		if (S_sfx[i].new_name)
+			free(S_sfx[i].new_name);
+
+		S_sfx[i].new_name = strdup(after);
+		some_sound_modified = true;
+
+		return true;
+	}
+
+	// check music names...
+	for (int j = 1; j < NUMMUSIC; j++)
+	{
+		if (StrCaseCmp(S_music[j].orig_name, before) != 0)
+			continue;
+
+		if (S_music[j].new_name)
+			free(S_music[j].new_name);
+
+		S_music[j].new_name = strdup(after);
+
+		return true;
+	}
+
+	return false;
+}
 

@@ -1,23 +1,17 @@
-//----------------------------------------------------------------------------
-//  MISCELLANY
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------
+//  MISCELLANEOUS Definitions
+//------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2004  The EDGE Team.
+//  DEH_EDGE  Copyright (C) 2004  The EDGE Team
 // 
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
+//  This program is under the GNU General Public License.
+//  It comes WITHOUT ANY WARRANTY of any kind.
+//  See COPYING.txt for the full details.
 //
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//----------------------------------------------------------------------------
-//
-#ifndef __MISC__
-#define __MISC__
+//------------------------------------------------------------------------
+
+#ifndef __MISC_HDR__
+#define __MISC_HDR__
 
 #include "i_defs.h"
 #include "info.h"
@@ -25,7 +19,7 @@
 namespace Misc
 {
 	extern int init_ammo;
-	extern int init_health;
+	/* NOTE: initial health is set in mobjinfo[MT_PLAYER] */
 
 	extern int max_armour;
 	extern int max_health;
@@ -38,11 +32,13 @@ namespace Misc
 	extern int soul_limit;
 	extern int mega_health;  // and limit
 
-	extern bool monster_infight;
+	extern int monster_infight;
 
 	// NOTE: we don't support the amounts given by cheats
 	//       (God Mode Health, IDKFA Armor, etc).
+
+	void AlterMisc(const char *misc_name, int value);
 }
 
 
-#endif /* __MISC__ */
+#endif /* __MISC_HDR__ */

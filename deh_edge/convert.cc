@@ -1,9 +1,9 @@
-//----------------------------------------------------------------------------
-//  EDGE DeHackEd support (DATA TABLES)
-//----------------------------------------------------------------------------
-// 
-//  Copyright (c) 1999-2004  The EDGE Team.
-// 
+//------------------------------------------------------------------------
+//  Patch Conversion tables
+//------------------------------------------------------------------------
+//
+//  DEH_EDGE  Copyright (C) 2004  The EDGE Team
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -12,14 +12,18 @@
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//  GNU General Public License (in COPYING.txt) for more details.
 //
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------
 //
-//  Based on DeHackEd 2.3 source, by Greg Lewis.
-//  Based on Linux DOOM Hack Editor 0.8a, by Sam Lantinga.
-//  Based on PrBoom's DEH/BEX code, by Ty Halderman, TeamTNT.
+//  DEH_EDGE is based on:
 //
+//  +  DeHackEd source code, by Greg Lewis.
+//  -  DOOM source code (C) 1993-1996 id Software, Inc.
+//  -  Linux DOOM Hack Editor, by Sam Lantinga.
+//  -  PrBoom's DEH/BEX code, by Ty Halderman, TeamTNT.
+//
+//------------------------------------------------------------------------
 
 
 // Thing conversion array from 1.2 to 1.666
