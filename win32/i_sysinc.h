@@ -33,6 +33,7 @@
 #include <winnls.h>
 #include <mmsystem.h>
 #include <signal.h>
+#include <shlwapi.h>
 
 #include <ddraw.h>
 #include <dinput.h>
