@@ -480,7 +480,7 @@ long I_PureRandom(void)
 {
 	// FIXME: use /dev/random
 
-	return time(NULL);
+	return (long)time(NULL) ^ (long)I_ReadMicroSeconds();
 }
 
 //

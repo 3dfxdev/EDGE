@@ -475,7 +475,7 @@ void I_Loop(void)
 //
 long I_PureRandom(void)
 {
-	return (long)time(NULL);
+	return (long)time(NULL) ^ (long)I_ReadMicroSeconds();
 }
 
 //
