@@ -58,6 +58,7 @@ video_context_t vctx;
 int glmax_lights;
 int glmax_clip_planes;
 int glmax_tex_size;
+int glmax_tex_units;
 
 int rgl_light_map[256];
 static lighting_model_e rgl_light_model = LMODEL_Invalid;
@@ -84,6 +85,12 @@ angle_t fuzz_ang_tl;
 angle_t fuzz_ang_tr;
 angle_t fuzz_ang_bl;
 angle_t fuzz_ang_br;
+
+
+// -AJA- FIXME: temp hack
+#ifndef GL_MAX_TEXTURE_UNITS
+#define GL_MAX_TEXTURE_UNITS  0x84E2
+#endif
 
 
 #define Z_NEAR  1.0f
@@ -817,18 +824,21 @@ void RGL_Init(void)
           GLint max_lights;
           GLint max_clip_planes;
           GLint max_tex_size;
+          GLint max_tex_units;
 
-          glGetIntegerv(GL_MAX_LIGHTS,       &max_lights);
-          glGetIntegerv(GL_MAX_CLIP_PLANES,  &max_clip_planes);
-          glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size);
+          glGetIntegerv(GL_MAX_LIGHTS,        &max_lights);
+          glGetIntegerv(GL_MAX_CLIP_PLANES,   &max_clip_planes);
+          glGetIntegerv(GL_MAX_TEXTURE_SIZE,  &max_tex_size);
+          glGetIntegerv(GL_MAX_TEXTURE_UNITS, &max_tex_units);
 
           glmax_lights = max_lights;
           glmax_clip_planes = max_clip_planes;
           glmax_tex_size = max_tex_size;
+          glmax_tex_units = max_tex_units;
         }
 
-	I_Printf("OpenGL: Lights: %d  Clippers: %d  Max_tex: %d\n",
-			 glmax_lights, glmax_clip_planes, glmax_tex_size);
+	I_Printf("OpenGL: Lights: %d  Clips: %d  Tex: %d  Units: %d\n",
+			 glmax_lights, glmax_clip_planes, glmax_tex_size, glmax_tex_units);
   
 	R2_InitUtil();
 

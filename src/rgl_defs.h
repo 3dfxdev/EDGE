@@ -41,6 +41,7 @@
 extern int glmax_lights;
 extern int glmax_clip_planes;
 extern int glmax_tex_size;
+extern int glmax_tex_units;
 
 extern bool glcap_multitex;
 extern bool glcap_edgeclamp;
