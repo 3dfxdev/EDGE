@@ -39,7 +39,7 @@ void I_PostMusicError(char* message);
 
 // I_MUSSRV.C
 boolean_t I_StartupMusserv(void);
-boolean_t I_MusservStartPlayback(const char *strdata, boolean_t file);
+boolean_t I_MusservStartPlayback(const char *data, int len);
 void I_MusservPausePlayback(void);
 void I_MusservResumePlayback(void);
 void I_MusservStopPlayback(void);
