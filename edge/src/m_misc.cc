@@ -80,11 +80,12 @@ static int cfgmusic;
 
 static default_t defaults[] =
 {
-    {CFGT_Int, "screenwidth",  &SCREENWIDTH, 640},
-    {CFGT_Int, "screenheight", &SCREENHEIGHT, 400},
-    {CFGT_Int, "screendepth",  &SCREENBITS, 8},
-    {CFGT_Boolean,"windowed", &SCREENWINDOW, 0},
-    {CFGT_Enum, "boom_compatility", &global_flags.compat_mode, 0},
+    {CFGT_Int,		"screenwidth",		&SCREENWIDTH,	DEFAULTSCREENWIDTH},
+    {CFGT_Int,		"screenheight",		&SCREENHEIGHT,	DEFAULTSCREENHEIGHT},
+    {CFGT_Int,		"screendepth",		&SCREENBITS,	DEFAULTSCREENBITS},
+    {CFGT_Boolean,	"windowed",			&SCREENWINDOW,	DEFAULTSCREENWINDOW},
+
+    {CFGT_Enum,		"boom_compatility", &global_flags.compat_mode, 0},
  
     {CFGT_Int, "mouse_sensitivity", &mouseSensitivity, 5},
     {CFGT_Int, "sfx_volume",        &cfgsound,         8},
