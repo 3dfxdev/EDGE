@@ -143,6 +143,7 @@ void P_ActCheckMoving(mobj_t * object);
 
 void P_ActRandomJump(mobj_t * object);
 void A_RandomJump(mobj_t * object);
+void A_PlayerScream(mobj_t * object);
 
 void P_BotThink(mobj_t * object);
 void P_BotSpawn(mobj_t * object);
