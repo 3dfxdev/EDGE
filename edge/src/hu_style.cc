@@ -50,7 +50,14 @@ style_c::~style_c()
 //
 void style_c::Load()
 {
-	// FIXME !!!!
+	if (def->bg.image_name)
+		bg_image = W_ImageFromTexture(def->bg.image_name);
+
+	for (int T = 0; T < styledef_c::NUM_TXST; T++)
+	{
+		if (def->text[T].font)
+			fonts[T] = hu_fonts.Lookup(def->text[T].font);
+	}
 }
 
 
