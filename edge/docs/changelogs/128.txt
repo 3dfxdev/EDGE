@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.28 (since 1.27)
 ===============================
 
-(Date: MARCH 30th 2004)
+(Date: APRIL 12th 2004)
 
 Bugs fixed
 ----------
@@ -45,6 +45,8 @@ Bugs fixed
 - flipped sprites now use the X offset correctly.
 - fixed player sprite, which wasn't walking when you move.
 - bugs when changing screensize with +/- and in the menu fixed.
+- night vision in GL mode was not lighting things up.
+- fix for console which was drawn behind the menus.
 
 
 Features removed:
@@ -85,6 +87,7 @@ General improvements
 - the first 9 RTS tip slots are no longer unchangeable.
 - better invulnerability fade-out in GL.
 - Pixelfade wipe has been implemented for OpenGL mode.
+- better default configuration: e.g. 640x400 mode, 16 bit colour.
 
 
 New features:
