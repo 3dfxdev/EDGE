@@ -124,7 +124,7 @@ static void SwitchParseField(const char *field, const char *contents,
 #endif
 
 	if (! DDF_MainParseField(switch_commands, field, contents))
-		DDF_WarnError("Unknown switch.ddf command: %s\n", field);
+		DDF_WarnError2(0x128, "Unknown switch.ddf command: %s\n", field);
 }
 
 static void SwitchFinishEntry(void)

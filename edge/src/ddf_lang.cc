@@ -144,7 +144,7 @@ static void LanguageParseField(const char *field, const char *contents,
 
 	if (! is_last)
 	{
-		DDF_WarnError("Unexpected comma `,' in LANGUAGE.LDF\n");
+		DDF_WarnError2(0x128, "Unexpected comma `,' in LANGUAGE.LDF\n");
 		return;
 	}
 

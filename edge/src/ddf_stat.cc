@@ -394,7 +394,7 @@ void DDF_StateReadState(const char *info, const char *label,
 	if (!strcmp("BRIGHT", stateinfo[3]))
 		cur->bright = 1;
 	else if (strcmp("NORMAL", stateinfo[3]))
-		DDF_WarnError("DDF_MainLoadStates: Lighting is not BRIGHT or NORMAL\n");
+		DDF_WarnError2(0x128, "DDF_MainLoadStates: Lighting is not BRIGHT or NORMAL\n");
 
 	//--------------------------------------------------
 	//------------STATE ACTION CODE HANDLING------------

@@ -665,7 +665,7 @@ void ThingParseField(const char *field, const char *contents,
 		return;
 	}
 
-	DDF_WarnError("Unknown thing/attack command: %s\n", field);
+	DDF_WarnError2(0x128, "Unknown thing/attack command: %s\n", field);
 }
 
 static void ThingFinishEntry(void)
@@ -683,7 +683,7 @@ static void ThingFinishEntry(void)
 
 	if (buffer_mobj.mass < 1)
 	{
-		DDF_WarnError("Bad MASS value %f in DDF.\n", buffer_mobj.mass);
+		DDF_WarnError2(0x128, "Bad MASS value %f in DDF.\n", buffer_mobj.mass);
 		buffer_mobj.mass = 1;
 	}
 
@@ -709,12 +709,12 @@ static void ThingFinishEntry(void)
 	// check DAMAGE stuff
 	if (buffer_mobj.damage.nominal < 0)
 	{
-		DDF_WarnError("Bad DAMAGE.VAL value %f in DDF.\n", buffer_mobj.damage.nominal);
+		DDF_WarnError2(0x128, "Bad DAMAGE.VAL value %f in DDF.\n", buffer_mobj.damage.nominal);
 	}
 
 	if (buffer_mobj.choke_damage.nominal < 0)
 	{
-		DDF_WarnError("Bad CHOKE_DAMAGE.VAL value %f in DDF.\n",
+		DDF_WarnError2(0x128, "Bad CHOKE_DAMAGE.VAL value %f in DDF.\n",
 			buffer_mobj.choke_damage.nominal);
 	}
 
@@ -935,13 +935,13 @@ static int ParseBenefitString(const char *info, char *name,
 			case 2: return 2;
 
 			default:
-				DDF_WarnError("Missing values in benefit string: %s\n", info);
+				DDF_WarnError2(0x128, "Missing values in benefit string: %s\n", info);
 				return -1;
 		}
 	}
 	else if (pos)
 	{
-		DDF_WarnError("Malformed benefit string: %s\n", info);
+		DDF_WarnError2(0x128, "Malformed benefit string: %s\n", info);
 		return -1;
 	}
 
@@ -972,19 +972,19 @@ static bool BenefitTryAmmo(const char *name, benefit_t *be,
 
 	if ((ammotype_e)be->subtype == AM_NoAmmo)
 	{
-		DDF_WarnError("Illegal ammo benefit: %s\n", name);
+		DDF_WarnError2(0x128, "Illegal ammo benefit: %s\n", name);
 		return false;
 	}
 
 	if (num_vals < 1)
 	{
-		DDF_WarnError("Ammo benefit used, but amount is missing.\n");
+		DDF_WarnError2(0x128, "Ammo benefit used, but amount is missing.\n");
 		return false;
 	}
 
 	if (num_vals > 1)
 	{
-		DDF_WarnError("Ammo benefit cannot have a limit value.\n");
+		DDF_WarnError2(0x128, "Ammo benefit cannot have a limit value.\n");
 		return false;
 	}
 
@@ -1016,19 +1016,19 @@ static bool BenefitTryAmmoLimit(const char *name, benefit_t *be,
 
 	if (be->subtype == AM_NoAmmo)
 	{
-		DDF_WarnError("Illegal ammolimit benefit: %s\n", name);
+		DDF_WarnError2(0x128, "Illegal ammolimit benefit: %s\n", name);
 		return false;
 	}
 
 	if (num_vals < 1)
 	{
-		DDF_WarnError("AmmoLimit benefit used, but amount is missing.\n");
+		DDF_WarnError2(0x128, "AmmoLimit benefit used, but amount is missing.\n");
 		return false;
 	}
 
 	if (num_vals > 1)
 	{
-		DDF_WarnError("AmmoLimit benefit cannot have a limit value.\n");
+		DDF_WarnError2(0x128, "AmmoLimit benefit cannot have a limit value.\n");
 		return false;
 	}
 
@@ -1050,13 +1050,13 @@ static bool BenefitTryWeapon(const char *name, benefit_t *be,
 		be->amount = 1.0f;
 	else if (be->amount != 0.0f && be->amount != 1.0f)
 	{
-		DDF_WarnError("Weapon benefit used, bad amount value: %1.1f\n", be->amount);
+		DDF_WarnError2(0x128, "Weapon benefit used, bad amount value: %1.1f\n", be->amount);
 		return false;
 	}
 
 	if (num_vals > 1)
 	{
-		DDF_WarnError("Weapon benefit cannot have a limit value.\n");
+		DDF_WarnError2(0x128, "Weapon benefit cannot have a limit value.\n");
 		return false;
 	}
 
@@ -1079,13 +1079,13 @@ static bool BenefitTryKey(const char *name, benefit_t *be,
 		be->amount = 1.0f;
 	else if (be->amount != 0.0f && be->amount != 1.0f)
 	{
-		DDF_WarnError("Key benefit used, bad amount value: %1.1f\n", be->amount);
+		DDF_WarnError2(0x128, "Key benefit used, bad amount value: %1.1f\n", be->amount);
 		return false;
 	}
 
 	if (num_vals > 1)
 	{
-		DDF_WarnError("Key benefit cannot have a limit value.\n");
+		DDF_WarnError2(0x128, "Key benefit cannot have a limit value.\n");
 		return false;
 	}
 
@@ -1103,7 +1103,7 @@ static bool BenefitTryHealth(const char *name, benefit_t *be,
 
 	if (num_vals < 1)
 	{
-		DDF_WarnError("Health benefit used, but amount is missing.\n");
+		DDF_WarnError2(0x128, "Health benefit used, but amount is missing.\n");
 		return false;
 	}
 
@@ -1126,7 +1126,7 @@ static bool BenefitTryArmour(const char *name, benefit_t *be,
 
 	if (num_vals < 1)
 	{
-		DDF_WarnError("Armour benefit used, but amount is missing.\n");
+		DDF_WarnError2(0x128, "Armour benefit used, but amount is missing.\n");
 		return false;
 	}
 
@@ -1232,7 +1232,7 @@ void DDF_MobjGetBenefit(const char *info, void *storage)
 		return;
 	}
 
-	DDF_WarnError("Unknown/Malformed benefit type: %s\n", namebuf);
+	DDF_WarnError2(0x128, "Unknown/Malformed benefit type: %s\n", namebuf);
 }
 
 // -KM- 1998/11/25 Translucency to fractional.
@@ -1361,7 +1361,7 @@ void DDF_MobjGetSpecial(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError("DDF_MobjGetSpecial: Unknown special '%s'", info);
+			DDF_WarnError2(0x128, "DDF_MobjGetSpecial: Unknown special '%s'", info);
 			break;
 		}
 		break;
@@ -1390,7 +1390,7 @@ void DDF_MobjGetDLight(const char *info, void *storage)
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info, 
 		dlight_type_names, &flag_value, false, false))
 	{
-		DDF_WarnError("Unknown dlight type '%s'", info);
+		DDF_WarnError2(0x128, "Unknown dlight type '%s'", info);
 		return;
 	}
 
@@ -1495,7 +1495,7 @@ static bool ConditionTryAmmo(const char *name, const char *sub,
 
 	if ((ammotype_e)cond->subtype == AM_NoAmmo)
 	{
-		DDF_WarnError("Illegal ammo in condition: %s\n", name);
+		DDF_WarnError2(0x128, "Illegal ammo in condition: %s\n", name);
 		return false;
 	}
 
@@ -1624,7 +1624,7 @@ bool DDF_MainParseCondition(const char *info, condition_check_t *cond)
 	}
 	else if (pos || strchr(info, ')'))
 	{
-		DDF_WarnError("Malformed condition string: %s\n", info);
+		DDF_WarnError2(0x128, "Malformed condition string: %s\n", info);
 		return false;
 	}
 	else
@@ -1652,7 +1652,7 @@ bool DDF_MainParseCondition(const char *info, condition_check_t *cond)
 		return true;
 	}
 
-	DDF_WarnError("Unknown/Malformed condition type: %s\n", typebuf);
+	DDF_WarnError2(0x128, "Unknown/Malformed condition type: %s\n", typebuf);
 	return false;
 }
 

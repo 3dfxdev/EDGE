@@ -298,6 +298,7 @@ extern int ddf_version;  // hexadecimal e.g. 0x128
 void DDF_Error (const char *err, ...);
 void DDF_Warning (const char *err, ...);
 void DDF_WarnError (const char *err, ...);
+void DDF_WarnError2 (int ver, const char *err, ...);
 void DDF_ErrorSetEntryName (const char *err, ...);
 void DDF_ErrorClearEntryName (void);
 

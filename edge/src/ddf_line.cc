@@ -534,7 +534,7 @@ static void LinedefParseField(const char *field, const char *contents,
 		return;
 	}
 
-	DDF_WarnError("Unknown lines.ddf command: %s\n", field);
+	DDF_WarnError2(0x128, "Unknown lines.ddf command: %s\n", field);
 }
 
 //

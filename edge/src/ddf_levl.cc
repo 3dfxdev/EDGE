@@ -241,7 +241,7 @@ static void LevelParseField(const char *field, const char *contents,
 #endif
 
 	if (! DDF_MainParseField(level_commands, field, contents))
-		DDF_WarnError("Unknown levels.ddf command: %s\n", field);
+		DDF_WarnError2(0x128, "Unknown levels.ddf command: %s\n", field);
 }
 
 static void LevelFinishEntry(void)
