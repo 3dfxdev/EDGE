@@ -308,7 +308,10 @@ typedef enum
   EF_USABLE = 0x800000,
 
   // Thing will block bullets and missiles.  -AJA- 2000/09/29
-  EF_BLOCKSHOTS = 0x1000000
+  EF_BLOCKSHOTS = 0x1000000,
+
+  // Thing never casts a shadow.  -AJA- 2000/09/29
+  EF_NOSHADOW = 0x2000000
 }
 mobjextendedflag_t;
 
@@ -359,7 +362,8 @@ struct mobj_s
   // used to find patch_t and flip value
   spritenum_t sprite;
 
-  int frame;  // might be ORed with FF_FULLBRIGHT
+  // frame and brightness
+  short frame, bright;
 
   // current subsector and vertical region
   struct subsector_s *subsector;
@@ -473,6 +477,10 @@ struct mobj_s
   struct rad_script_s *path_trigger;
 
   shoot_spot_info_t *spot_info;
+
+#ifdef USE_IMAGE
+  const struct image_s *halo_image;
+#endif
 
   // linked list (mobjlisthead)
   mobj_t *next;
