@@ -24,8 +24,8 @@
 //----------------------------------------------------------------------------
 //
 // DESCRIPTION:
-//      EDGE main program (E_EDGEMain),
-//      game loop (E_EDGELoop) and startup functions.
+//      EDGE main program (engine::Main),
+//      game loop (engine::Loop) and startup functions.
 //
 // -MH- 1998/07/02 "shootupdown" --> "true3dgameplay"
 // -MH- 1998/08/19 added up/down movement variables
@@ -75,6 +75,8 @@
 #include "w_wad.h"
 #include "wi_stuff.h"
 #include "z_zone.h"
+
+#include "./epi/epierror.h"
 
 // Internals
 static bool SetGlobalVars(void);
@@ -771,82 +773,6 @@ void E_Display(void)
 }
 
 //
-// E_EDGELoopRoutine
-//
-// This Function is called by I_EDGELoop for a single loop in the
-// system.
-//
-// -ACB- 1999/09/24 Written
-//
-void E_EDGELoopRoutine(void)
-{
-
-	// -ES- 1998/09/11 It's a good idea to frequently check the heap
-#ifdef DEVELOPERS
-	Z_CheckHeap();
-#endif
-
-	// process one or more tics
-	if (singletics)
-	{
-		I_ControlGetEvents();
-		E_ProcessEvents();
-		G_BuildTiccmd(&consoleplayer->netcmds[maketic % BACKUPTICS]);
-
-		if (advancedemo)
-			E_DoAdvanceDemo();
-
-		M_Ticker();
-		GUI_MainTicker();
-		G_Ticker();
-		S_SoundTicker();
-		S_MusicTicker();
-		gametic++;
-		maketic++;
-	}
-	else
-	{
-		E_TryRunTics();  // will run at least one tic
-	}
-
-	// Update display, next frame, with current state.
-	E_Display();
-
-	// -AJA- hack to allow other code to know when they can call
-	//       E_Display().
-	e_display_OK = true;
-}
-
-//
-// E_EDGELoop
-//
-// This calls I_EDGELoop which performs the main loop. I_EDGELoop is
-// required because the loop is not always infinite on platforms.
-//
-static void E_EDGELoop(void)
-{
-	// SV_MainTestPrimitives();
-	// RGL_TestPolyQuads();
-
-	// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
-	R_ChangeResolution(SCREENWIDTH, SCREENHEIGHT, SCREENBITS, SCREENWINDOW);
-
-	// -ES- 1999/09/27 This will trap any errors before we have to set gfxmode
-	Z_CheckHeap();
-
-	// -KM- 1998/09/27 Change res now, so music doesn't start before
-	// screen.  Reset clock too.
-	R_ExecuteChangeResolution();
-
-	//
-	// -ACB- 1999/09/24 Call System Specific Looping function. Some systems
-	//                  don't loop forever.
-	//
-	I_EDGELoop();
-	return;
-}
-
-//
 //  DEMO LOOP
 //
 int demosequence;
@@ -1320,318 +1246,6 @@ static void ShowVersion(void)
 	I_Printf("EDGE is based on DOOM by id Software http://www.idsoftware.com/\n");
 }
 
-//
-// E_EDGEMain
-//
-// -ACB- 1998/08/10 Removed all reference to a gamemap, episode and mission
-//                  Used LanguageLookup() for lang specifics.
-//
-// -ACB- 1998/09/06 Removed all the unused code that no longer has
-//                  relevance.    
-//
-// -ACB- 1999/09/04 Removed statcopy parm check - UNUSED
-//
-void E_EDGEMain(void)
-{
-	int p;
-	const char *ps;
-	char *filename;
-	char title[] = "EDGE v" EDGEVERSTR;
-	int turbo_scale = 100;
-	bool success;
-
-	// Start memory allocation system at the very start
-	Z_Init();
-
-	// Version check ?
-	if (M_CheckParm("-version"))
-	{
-		// -AJA- using I_Error here, since I_Printf crashes this early on
-		I_Error("\nEDGE version is " EDGEVERSTR "\n");
-	}
-
-	// -AJA- 2000/02/02: initialise global gameflags to defaults
-	global_flags = default_gameflags;
-
-	// -AJA- 2003/11/08 The log file gets all CON_Printfs, I_Printfs,
-	//                  I_Warnings and I_Errors.
-	if (! M_CheckParm("-nolog"))
-	{
-		char filename[128];
-
-		strcpy(filename, EDGELOGFILE);
-
-		logfile = fopen(filename, "w");
-
-		if (!logfile)
-			I_Error("E_EDGEMain: Unable to create log file");
-	}
-	else
-	{
-		logfile = NULL;
-	}
-	
-	//
-	// -ACB- 1998/09/06 Only used for debugging.
-	//                  Moved here to setup debug file for DDF Parsing...
-	//
-	// -ES- 1999/08/01 Debugfiles can now be used without -DDEVELOPERS, and
-	//                 then logs all the CON_Printfs, I_Printfs and I_Errors.
-	//
-	// -ACB- 1999/10/02 Don't print to console, since we don't have a console yet.
-	//
-	p = M_CheckParm("-debugfile");
-	if (p)
-	{
-		char filename[128];
-		int i = 1;
-
-		// -ES- 1999/03/29 allow -debugfile <file>
-		if (p + 1 < M_GetArgCount() && (ps = M_GetArgument(p + 1))[0] != '-')
-		{
-			Z_StrNCpy(filename, ps, 127);
-		}
-		else
-		{
-			// -KM- 1999/01/29 Consoleplayer is always 0 at this stage.
-			sprintf(filename, "debug0.txt");
-			while (I_Access(filename))
-			{
-				sprintf(filename, "debug%d.txt", i++);
-
-				// give up: File system is probably corrupt. If not, there are 1000
-				// debug files already, and it's about time to delete some of them...
-				if (i >= 1000)
-					I_Error("E_EDGEMain: Couldn't create debug file!");
-			}
-		}
-		debugfile = fopen(filename, "w");
-
-		if (!debugfile)
-			I_Error("E_EDGEMain: Unable to create debugfile");
-    
-		L_WriteDebug("%s\n",title);
-	}
-	else
-	{
-		debugfile = NULL;
-	}
-
-	// Assume that we are using a standard game setup...
-	modifiedgame = false;
-
-	// -ACB- 1999/09/20 defines to be used?
-	CON_InitConsole(79, 25, false);
-
-	// -ES- 1999/10/29 Declare all function lists.
-	R_InitFunctions_Draw1();
-#ifndef NOHICOLOUR
-	R_InitFunctions_Draw2();
-#endif
-	R_InitVBFunctions();
-	I_RegisterAssembler();
-	I_PutTitle(title);
-
-	ShowDate();
-	ShowVersion();
-
-	InitDirectories();
-
-	// check for strict and no-warning options
-	M_CheckBooleanParm("strict", &strict_errors, false);
-	M_CheckBooleanParm("warn", &no_warnings, true);
-	M_CheckBooleanParm("obsolete", &no_obsoletes, true);
-	M_CheckBooleanParm("lax", &lax_errors, false);
-
-	CheckExternal();
-
-	DDF_MainInit();
-
-	IdentifyVersion();
-
-	if (devparm)
-		I_Printf("%s", DDF_LanguageLookup("DevelopmentMode"));
-
-	p = M_CheckParm("-turbo");
-	if (p)
-	{
-		if (p + 1 < M_GetArgCount())
-			turbo_scale = atoi(M_GetArgument(p + 1));
-		else
-			turbo_scale = 200;
-
-		if (turbo_scale < 10)
-			turbo_scale = 10;
-
-		if (turbo_scale > 400)
-			turbo_scale = 400;
-
-		CON_MessageLDF("TurboScale", turbo_scale);
-	}
-
-	G_SetTurboScale(turbo_scale);
-
-	I_CheckCPU();
-
-	ps = M_GetParm("-col8");
-	if (ps)
-		CON_ChooseFunctionFromList(&drawcol8_funcs, ps);
-
-	ps = M_GetParm("-span8");
-	if (ps)
-		CON_ChooseFunctionFromList(&drawspan8_funcs, ps);
-
-	ps = M_GetParm("-col16");
-	if (ps)
-		CON_ChooseFunctionFromList(&drawcol16_funcs, ps);
-
-	ps = M_GetParm("-span16");
-	if (ps)
-		CON_ChooseFunctionFromList(&drawspan16_funcs, ps);
-
-	p = M_CheckNextParm("-file", 0);
-	while (p)
-	{
-		// the parms after p are wadfile/lump names,
-		// until end of parms or another - preceded parm
-		modifiedgame = true;
-
-		p++;
-		while (p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0])
-		{
-			filename = M_ComposeFileName(gamedir, ps);
-			W_AddRawFilename(filename, true);
-			Z_Free(filename);
-			p++;
-		}
-
-		p = M_CheckNextParm("-file", p-1);
-	}
-
-	ps = M_GetParm("-playdemo");
-
-	if (!ps)
-		ps = M_GetParm("-timedemo");
-
-	if (ps)
-	{
-		filename = M_ComposeFileName(gamedir, ps);
-		Z_Resize(filename, char, strlen(filename) + 5);
-		strcat(filename, ".lmp");
-		W_AddRawFilename(filename, false);
-		I_Printf("Playing demo %s.\n", filename);
-		Z_Free(filename);
-	}
-
-	// get skill / episode / map from parms
-	startskill = sk_medium;
-	autostart = false;
-
-  // -KM- 1999/01/29 Use correct skill: 1 is easiest, not 0
-	ps = M_GetParm("-skill");
-	if (ps)
-	{
-		startskill = (skill_t)(atoi(ps) - 1);
-		autostart = true;
-	}
-
-	ps = M_GetParm("-timer");
-	if (ps && deathmatch)
-	{
-		int time;
-
-		time = atoi(ps);
-		I_Printf("Levels will end after %d minute", time);
-
-		if (time > 1)
-			I_Printf("s");
-
-		I_Printf(".\n");
-	}
-
-	ps = M_GetParm("-warp");
-	if (ps)
-	{
-		startmap = Z_StrDup(ps);
-		autostart = true;
-	}
-	else
-	{
-		startmap = Z_StrDup("MAP01"); // MUNDO HACK!!!!
-	}
-
-	// Cycle through all the startup functions, quit on failure.
-	for (p=0; startcode[p].function != NULL; p++)
-	{
-		// Print Message On Screen
-		if (startcode[p].LDFmessage)
-			I_Printf(DDF_LanguageLookup(startcode[p].LDFmessage));
-
-		// if the startup function fails - quit startup
-		success = startcode[p].function();
-		if (!success)
-			return;
-	}
-
-	ps = M_GetParm("-screenshot");
-	if (ps)
-	{
-		screenshot_rate = atoi(ps);
-	}
-  
-	// start the appropriate game based on parms
-	ps = M_GetParm("-record");
-	if (ps)
-	{
-		G_RecordDemo(ps);
-		autostart = true;
-	}
-
-	ps = M_GetParm("-playdemo");
-	if (ps)
-	{
-		// quit after one demo
-		singledemo = true;
-		G_DeferredPlayDemo(ps);
-
-		// never returns
-		E_EDGELoop();
-	}
-
-	ps = M_GetParm("-timedemo");
-	if (ps)
-	{
-		G_TimeDemo(ps);
-
-		// never returns
-		E_EDGELoop();
-	}
-
-	ps = M_GetParm("-loadgame");
-	if (ps)
-	{
-		G_LoadGame(atoi(ps));
-	}
-
-	// -ACB- 1998/09/06 use new mapping system
-	if (gameaction != ga_loadgame)
-	{
-		if (autostart || netgame)
-		{
-			// if startmap is failed, do normal start.
-			if (! G_DeferredInitNew(startskill, startmap, true))
-				E_StartTitle();
-
-			Z_Free(startmap);
-		}
-		else
-		{
-			E_StartTitle();  // start up intro loop
-		}
-	}
-
-	E_EDGELoop();  // never returns
-}
 
 //
 // E_EngineShutdown
@@ -1646,3 +1260,439 @@ void E_EngineShutdown(void)
 	S_StopMusic();
 	E_QuitNetGame();
 }
+
+// The engine namespace
+namespace engine
+{
+	// Local Prototypes
+	bool Startup(void);
+	void Loop(void);
+	void Shutdown(void);
+
+	//
+	// Startup
+	//
+	bool Startup()
+	{
+		int p;
+		const char *ps;
+		char *filename;
+		char title[] = "EDGE v" EDGEVERSTR;
+		int turbo_scale = 100;
+		bool success;
+
+		// Version check ?
+		if (M_CheckParm("-version"))
+		{
+			// -AJA- using I_Error here, since I_Printf crashes this early on
+			I_Error("\nEDGE version is " EDGEVERSTR "\n");
+		}
+
+		// -AJA- 2000/02/02: initialise global gameflags to defaults
+		global_flags = default_gameflags;
+
+		// -AJA- 2003/11/08 The log file gets all CON_Printfs, I_Printfs,
+		//                  I_Warnings and I_Errors.
+		if (! M_CheckParm("-nolog"))
+		{
+			char filename[128];
+
+			strcpy(filename, EDGELOGFILE);
+
+			logfile = fopen(filename, "w");
+
+			if (!logfile)
+				I_Error("[engine::Startup] Unable to create log file");
+		}
+		else
+		{
+			logfile = NULL;
+		}
+		
+		//
+		// -ACB- 1998/09/06 Only used for debugging.
+		//                  Moved here to setup debug file for DDF Parsing...
+		//
+		// -ES- 1999/08/01 Debugfiles can now be used without -DDEVELOPERS, and
+		//                 then logs all the CON_Printfs, I_Printfs and I_Errors.
+		//
+		// -ACB- 1999/10/02 Don't print to console, since we don't have a console yet.
+		//
+		p = M_CheckParm("-debugfile");
+		if (p)
+		{
+			char filename[128];
+			int i = 1;
+
+			// -ES- 1999/03/29 allow -debugfile <file>
+			if (p + 1 < M_GetArgCount() && (ps = M_GetArgument(p + 1))[0] != '-')
+			{
+				Z_StrNCpy(filename, ps, 127);
+			}
+			else
+			{
+				// -KM- 1999/01/29 Consoleplayer is always 0 at this stage.
+				sprintf(filename, "debug0.txt");
+				while (I_Access(filename))
+				{
+					sprintf(filename, "debug%d.txt", i++);
+
+					// give up: File system is probably corrupt. If not, there are 1000
+					// debug files already, and it's about time to delete some of them...
+					if (i >= 1000)
+						I_Error("[engine::Startup] Couldn't create debug file!");
+				}
+			}
+			debugfile = fopen(filename, "w");
+
+			if (!debugfile)
+				I_Error("[engine::Startup] Unable to create debugfile");
+	    
+			L_WriteDebug("%s\n",title);
+		}
+		else
+		{
+			debugfile = NULL;
+		}
+
+		// Assume that we are using a standard game setup...
+		modifiedgame = false;
+
+		// -ACB- 1999/09/20 defines to be used?
+		CON_InitConsole(79, 25, false);
+
+		// -ES- 1999/10/29 Declare all function lists.
+		R_InitFunctions_Draw1();
+#ifndef NOHICOLOUR
+		R_InitFunctions_Draw2();
+#endif
+		R_InitVBFunctions();
+		I_RegisterAssembler();
+		I_PutTitle(title);
+
+		ShowDate();
+		ShowVersion();
+
+		InitDirectories();
+
+		// check for strict and no-warning options
+		M_CheckBooleanParm("strict", &strict_errors, false);
+		M_CheckBooleanParm("warn", &no_warnings, true);
+		M_CheckBooleanParm("obsolete", &no_obsoletes, true);
+		M_CheckBooleanParm("lax", &lax_errors, false);
+
+		CheckExternal();
+
+		DDF_MainInit();
+
+		IdentifyVersion();
+
+		if (devparm)
+			I_Printf("%s", DDF_LanguageLookup("DevelopmentMode"));
+
+		p = M_CheckParm("-turbo");
+		if (p)
+		{
+			if (p + 1 < M_GetArgCount())
+				turbo_scale = atoi(M_GetArgument(p + 1));
+			else
+				turbo_scale = 200;
+
+			if (turbo_scale < 10)
+				turbo_scale = 10;
+
+			if (turbo_scale > 400)
+				turbo_scale = 400;
+
+			CON_MessageLDF("TurboScale", turbo_scale);
+		}
+
+		G_SetTurboScale(turbo_scale);
+
+		I_CheckCPU();
+
+		ps = M_GetParm("-col8");
+		if (ps)
+			CON_ChooseFunctionFromList(&drawcol8_funcs, ps);
+
+		ps = M_GetParm("-span8");
+		if (ps)
+			CON_ChooseFunctionFromList(&drawspan8_funcs, ps);
+
+		ps = M_GetParm("-col16");
+		if (ps)
+			CON_ChooseFunctionFromList(&drawcol16_funcs, ps);
+
+		ps = M_GetParm("-span16");
+		if (ps)
+			CON_ChooseFunctionFromList(&drawspan16_funcs, ps);
+
+		p = M_CheckNextParm("-file", 0);
+		while (p)
+		{
+			// the parms after p are wadfile/lump names,
+			// until end of parms or another - preceded parm
+			modifiedgame = true;
+
+			p++;
+			while (p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0])
+			{
+				filename = M_ComposeFileName(gamedir, ps);
+				W_AddRawFilename(filename, true);
+				Z_Free(filename);
+				p++;
+			}
+
+			p = M_CheckNextParm("-file", p-1);
+		}
+
+		ps = M_GetParm("-playdemo");
+
+		if (!ps)
+			ps = M_GetParm("-timedemo");
+
+		if (ps)
+		{
+			filename = M_ComposeFileName(gamedir, ps);
+			Z_Resize(filename, char, strlen(filename) + 5);
+			strcat(filename, ".lmp");
+			W_AddRawFilename(filename, false);
+			I_Printf("Playing demo %s.\n", filename);
+			Z_Free(filename);
+		}
+
+		// get skill / episode / map from parms
+		startskill = sk_medium;
+		autostart = false;
+
+		// -KM- 1999/01/29 Use correct skill: 1 is easiest, not 0
+		ps = M_GetParm("-skill");
+		if (ps)
+		{
+			startskill = (skill_t)(atoi(ps) - 1);
+			autostart = true;
+		}
+
+		ps = M_GetParm("-timer");
+		if (ps && deathmatch)
+		{
+			int time;
+
+			time = atoi(ps);
+			I_Printf("Levels will end after %d minute", time);
+
+			if (time > 1)
+				I_Printf("s");
+
+			I_Printf(".\n");
+		}
+
+		ps = M_GetParm("-warp");
+		if (ps)
+		{
+			startmap = Z_StrDup(ps);
+			autostart = true;
+		}
+		else
+		{
+			startmap = Z_StrDup("MAP01"); // MUNDO HACK!!!!
+		}
+
+		// Cycle through all the startup functions, quit on failure.
+		for (p=0; startcode[p].function != NULL; p++)
+		{
+			// Print Message On Screen
+			if (startcode[p].LDFmessage)
+				I_Printf(DDF_LanguageLookup(startcode[p].LDFmessage));
+
+			// if the startup function fails - quit startup
+			success = startcode[p].function();
+			if (!success)
+				return false;
+		}
+
+		ps = M_GetParm("-screenshot");
+		if (ps)
+		{
+			screenshot_rate = atoi(ps);
+		}
+	  
+		// start the appropriate game based on parms
+		ps = M_GetParm("-record");
+		if (ps)
+		{
+			G_RecordDemo(ps);
+			autostart = true;
+		}
+
+		ps = M_GetParm("-playdemo");
+		if (ps)
+		{
+			// quit after one demo
+			singledemo = true;
+			G_DeferredPlayDemo(ps);
+			return true;
+		}
+
+		ps = M_GetParm("-timedemo");
+		if (ps)
+		{
+			G_TimeDemo(ps);
+			return true;
+		}
+
+		ps = M_GetParm("-loadgame");
+		if (ps)
+		{
+			G_LoadGame(atoi(ps));
+		}
+
+		// -ACB- 1998/09/06 use new mapping system
+		if (gameaction != ga_loadgame)
+		{
+			if (autostart || netgame)
+			{
+				// if startmap is failed, do normal start.
+				if (! G_DeferredInitNew(startskill, startmap, true))
+					E_StartTitle();
+
+				Z_Free(startmap);
+			}
+			else
+			{
+				E_StartTitle();  // start up intro loop
+			}
+		}
+
+		return true;
+	}
+
+	//
+	// Main
+	//
+	// -ACB- 1998/08/10 Removed all reference to a gamemap, episode and mission
+	//                  Used LanguageLookup() for lang specifics.
+	//
+	// -ACB- 1998/09/06 Removed all the unused code that no longer has
+	//                  relevance.    
+	//
+	// -ACB- 1999/09/04 Removed statcopy parm check - UNUSED
+	//
+	// -ACB- 2004/05/31 Moved into a namespace, the c++ revolution begins....
+	//
+	void Main(int argc, const char **argv)
+	{
+		// Start the EPI Interface 
+		epi::Init();
+
+		// Start memory allocation system at the very start (SCHEDULED FOR REMOVAL)
+		Z_Init();
+
+		// Implemented here - since we need to bring the memory manager up first
+		// -ACB- 2004/05/31
+		M_InitArguments(argc, argv);
+
+		try
+		{
+			// Todo: All Startup functions should throw errors
+			// Startup()
+			if (!Startup())
+			{
+				epi::error_c err(ERR_GENERIC, "Failed Startup!");
+				throw err;
+			}
+				
+			Loop();
+		}
+		catch(epi::error_c err)
+		{
+			//I_Error(err.GetInfo());
+		};
+		Shutdown();								// Shutdown whatever at this point
+
+		// Kill the epi interface
+		epi::Shutdown();
+	}
+
+	//
+	// Loop
+	//
+	// This calls I_Loop which performs the main loop. I_Loop is
+	// required because the loop is not always infinite on platforms.
+	//
+	void Loop(void)
+	{
+		// SV_MainTestPrimitives();
+		// RGL_TestPolyQuads();
+
+		// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
+		R_ChangeResolution(SCREENWIDTH, SCREENHEIGHT, SCREENBITS, SCREENWINDOW);
+
+		// -KM- 1998/09/27 Change res now, so music doesn't start before
+		// screen.  Reset clock too.
+		R_ExecuteChangeResolution();
+
+		//
+		// -ACB- 1999/09/24 Call System Specific Looping function. Some systems
+		//                  don't loop forever.
+		//
+		I_Loop();
+		return;
+	}
+
+	//
+	// Tick
+	//
+	// This Function is called by I_Loop for a single loop in the
+	// system.
+	//
+	// -ACB- 1999/09/24 Written
+	// -ACB- 2004/05/31 Namespace'd
+	//
+	void Tick(void)
+	{
+		// -ES- 1998/09/11 It's a good idea to frequently check the heap
+#ifdef DEVELOPERS
+		//Z_CheckHeap();
+//		L_WriteDebug("[0] Mem size: %ld\n", epi::the_mem_manager->GetAllocatedSize());
+#endif
+
+		// process one or more tics
+		if (singletics)
+		{
+			I_ControlGetEvents();
+			E_ProcessEvents();
+			G_BuildTiccmd(&consoleplayer->netcmds[maketic % BACKUPTICS]);
+
+			if (advancedemo)
+				E_DoAdvanceDemo();
+
+			M_Ticker();
+			GUI_MainTicker();
+			G_Ticker();
+			S_SoundTicker();
+			S_MusicTicker();
+			gametic++;
+			maketic++;
+		}
+		else
+		{
+			E_TryRunTics();  // will run at least one tic
+		}
+
+		// Update display, next frame, with current state.
+		E_Display();
+
+		// -AJA- hack to allow other code to know when they can call
+		//       E_Display().
+		e_display_OK = true;
+	}
+
+	//
+	// Shutdown
+	//
+	void Shutdown()
+	{
+		/* ... */
+	}
+};
