@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: NOVEMBER 3rd 2004)
+(Date: NOVEMBER 10th 2004)
 
 
 Bugs fixed
@@ -44,8 +44,8 @@ Features removed:
 + software rendering has been removed.  We don't have the time to
   maintain the software renderer anymore, and keeping two renderers
   means that adding new features (like slopes and models) needs
-  twice as much work (at least -- doing things with OpenGL is
-  usually a lot easier than doing it in software).
+  twice as much work (maybe more -- doing things with OpenGL is
+  usually easier than doing it in software).
 
 - using { } comments in DDF files, and ';' comments in RTS scripts
   is now deprecated, since these characters will probably be needed
@@ -60,7 +60,7 @@ General improvements
   option is considered a filename to add.  This allows you to drag a
   simple (self-contained) WAD onto the EDGE executable to play it.
 
-(FINISHED?)  new sound system, using OpenAL (a 3D audio library). 
+(FINISHED??)  new sound system, using OpenAL (a 3D audio library). 
 
 (NOT FINISHED) support for OGG Vorbis Music playing.  @@@
 
@@ -70,32 +70,26 @@ General improvements
   engines).  EDGE converts the patches to DDF, and stores the result
   in files with the .HWA extension, which are loaded automatically.
 
-(NOT FINISHED) new startup.  @@@ - the windows console window.
-
-(NEEDS 2.10) support V3 of GL-NODES.  glbsp 2.10, Deus Vult MAP05, BLAH
-
-- source code uses more C++ features, and more of the EPI (Edge Platform
-  Interace).  The "Zone" memory manager has mostly been replaced.
+(NOT FINISHED) new startup.  @@@ no more windows console window.
 
 - Linux: fatal errors produce a pop-up dialog box.  EDGE can now be
-  run by double clicking the executable.
+  run by double clicking the executable.  Support for CD music.
 
-- Linux: support for CD music.
+(NOT FINISHED) support V3 of GL-NODES.  glbsp 2.10, Deus Vult MAP05, BLAH
+
+- a small improvement to Boom compatibility: line-to-line teleporters
+  and the platform toggle linetypes were added.
+
+- source code uses more C++ features, and more of the EPI (Edge Platform
+  Interface).  The "Zone" memory manager has mostly been replaced.
 
 - sky looks a bit better, with a stretch option in Video menu.
 - the old "sky flooding" trick is now emulated.
-- RTS tips are sent to the console.
+- emulate the FRIEND bit on things in the map.
 - missing wad files (given with -file) now produce an error.
 - monster spawning will keep the parent's AMBUSH status.
-- support for Boom line-to-line teleporters and platform toggles.
 - night vision and god-mode effects use colour from colourmap.
-
-- WHEN_APPEAR in DDF and RTS now accepts simpler values.  You can use
-  a range for the skill (e.g. "3-5"), you can omit the skill and/or
-  the netmode part (e.g. "DM" means deathmatch on any skill, and "3"
-  means Hurt-Me-Plenty on any netmode).  Finally, you can add the '!'
-  character to the beginning to negate it, e.g. "!SP" means never in
-  single-player, and "!4:5" means never in skills 4 or 5.
+- RTS tips are sent to the console.
 
 
 New features:
@@ -110,7 +104,30 @@ New features:
 
   The RTS menu will pause the game (including all scripts) until the user
   presses a valid number key.  Savegames are also disabled while the RTS
-  menu is shown.
+  menu is shown.  Once the menu is finished, the JUMP_ON command will
+  test the result, and jump to the matching label.  It will fail to jump
+  if there aren't enough labels, or menu could not be shown (netgame).
+
+- weapon handling has been generally improved (especially the way clips
+  work).  Any weapon with CLIPSIZE larger than 1 is considered as a
+  "clip weapon", and will store ammo inside of its clip, even when not
+  selected.  The following new command is available:
+
+    SEC_SPECIAL = xxx;
+
+  which has a list of specials appling to the secondary attack.  The
+  ones in the plain "SPECIAL" command apply to the primary attack.
+  The following specials are available:
+
+    SILENT_TO_MONSTERS : don't wake up those demons
+	NO_SWITCH          : don't switch to new weapon if ammo runs out
+
+	NO_TRIGGER   : prevent reloading by pressing fire button
+	FRESH        : reload empty weapon when fresh ammo is picked up
+(NOT FINISHED)	NO_MANUAL    : disable manual reloading key
+(NOT FINISHED)	PARTIAL      : for manual reload: allow partial clip refills
+
+  @@@ STATES(EMPTY) and EMPTY command.
 
 - new SEQUENCE command for ANIMS.DDF.  Use it to specify the full
   animation sequence.  Names cannot be used twice.  For example:
@@ -126,8 +143,6 @@ New features:
 - SIDE_IMMUNE thing special.  Friendly monsters are completely immune
   from your weapon fire.
 
-(MAY BE REMOVED) - NO_AUTO_SWITCH weapon special.
-
 - EXPLODE_RADIUS command for things and attacks.  Normally the explosion
   radius is the same as the damage caused, but this command forces the
   explosion radius to a particular value (e.g. 200).  The amount of
@@ -137,9 +152,16 @@ New features:
   are both set by the BOSSMAN special, but now they can be specified
   individually.
 
-- SILENT_TO_MONSTERS now also an attack special.
-- FORCE_PICKUP thing special.  
+- SILENT_TO_MONSTERS is now an attack special too.
+- FORCE_PICKUP special for thing.ddf (items).
 - DIE action for things and attacks.
+
+- WHEN_APPEAR in DDF and RTS now accepts simpler values.  You can
+  use a range for the skill (e.g. "3-5"), you can omit the skill or
+  the netmode part (e.g. "DM" means deathmatch on any skill, and "3"
+  means Hurt-Me-Plenty on any netmode).  Finally, you can add the '!'
+  character to the beginning to negate it, e.g. "!SP" means never in
+  single-player, and "!4:5" means never in skills 4 or 5.
 
 
 New command-line options:
