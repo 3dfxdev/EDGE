@@ -194,8 +194,10 @@ bool M_CheatResponder(event_t * ev)
 	key = (char) ev->value.key;
 
 	// no cheating in netgames or if disallowed in levels.ddf
+#if 0 //!!!!!!
 	if (netgame || !level_flags.cheats)
 		return false;
+#endif
 
 	// 'dqd' cheat for toggleable god mode
 	if (M_CheckCheat(&cheat_god, key))
