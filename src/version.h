@@ -2,7 +2,7 @@
 //  EDGE Version Header
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2000  The EDGE Team.
+//  Copyright (c) 1999-2001  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -25,7 +25,7 @@
 #endif
 
 // patch level (should be 0x00 for full releases)
-#define EDGEPATCH  0x34
+#define EDGEPATCH  0x41
 
 // -ES- 2000/03/04 The version of EDGE.WAD we require.
 #define EDGE_WAD_VERSION 2
