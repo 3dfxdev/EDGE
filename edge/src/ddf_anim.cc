@@ -34,6 +34,7 @@ static animdef_c buffer_anim;
 static animdef_c *dynamic_anim;
 
 static void DDF_AnimGetType(const char *info, void *storage);
+static void DDF_AnimGetPic (const char *info, void *storage);
 
 // -ACB- 1998/08/10 Use DDF_MainGetLumpName for getting the..lump name.
 // -KM- 1998/09/27 Use DDF_MainGetTime for getting tics
@@ -42,10 +43,11 @@ static void DDF_AnimGetType(const char *info, void *storage);
 
 static const commandlist_t anim_commands[] =
 {
-	DF("TYPE",   istexture, DDF_AnimGetType),
-	DF("SPEED",  speed,     DDF_MainGetTime),
-	DF("FIRST",  startname, DDF_MainGetInlineStr10),
-	DF("LAST",   endname,   DDF_MainGetInlineStr10),
+	DF("TYPE",     istexture, DDF_AnimGetType),
+	DF("SEQUENCE", pics,      DDF_AnimGetPic),
+	DF("SPEED",    speed,     DDF_MainGetTime),
+	DF("FIRST",    startname, DDF_MainGetInlineStr10),
+	DF("LAST",     endname,   DDF_MainGetInlineStr10),
 
 	DDF_CMD_END
 };
@@ -110,6 +112,9 @@ static void AnimParseField(const char *field, const char *contents, int index, b
 	L_WriteDebug("ANIM_PARSE: %s = %s;\n", field, contents);
 #endif
 
+	if (DDF_CompareName(field, "SEQUENCE") == 0 && ddf_version < 0x129)
+		DDF_Error("SEQUENCE command requires #VERSION 1.29.\n");
+
 	if (! DDF_MainParseField(anim_commands, field, contents))
 		DDF_WarnError2(0x128, "Unknown anims.ddf command: %s\n", field);
 }
@@ -122,11 +127,14 @@ static void AnimFinishEntry(void)
 		buffer_anim.speed = 8;
 	}
 
-	if (!buffer_anim.startname || !buffer_anim.startname[0])
-		DDF_Error("Missing first name for anim.\n");
-
-	if (!buffer_anim.startname || !buffer_anim.startname[0])
-		DDF_Error("Missing last name for anim.\n");
+	if (buffer_anim.pics.GetSize() == 0)
+	{
+		if (!buffer_anim.startname || !buffer_anim.startname[0] ||
+		    !buffer_anim.endname   || !buffer_anim.endname[0])
+		{
+			DDF_Error("Missing animation sequence.\n");
+		}
+	}
 
 	// transfer static entry to dynamic entry
 	dynamic_anim->CopyDetail(buffer_anim);
@@ -209,6 +217,15 @@ static void DDF_AnimGetType(const char *info, void *storage)
 	}
 }
 
+//
+// DDF_AnimGetPic
+//
+static void DDF_AnimGetPic (const char *info, void *storage)
+{
+	buffer_anim.pics.Insert(info);
+}
+
+
 // ---> animdef_c class
 
 //
@@ -244,6 +261,7 @@ void animdef_c::Copy(animdef_c &src)
 void animdef_c::CopyDetail(animdef_c &src)
 {
 	istexture = src.istexture;
+	pics = src.pics;
 	startname = src.startname;
 	endname = src.endname;
 	speed = src.speed;
@@ -258,6 +276,7 @@ void animdef_c::Default()
 
 	istexture = true;
 
+	pics.Clear();
 	startname.Clear();
 	endname.Clear();
 
