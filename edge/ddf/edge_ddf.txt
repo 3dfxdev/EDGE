@@ -1,5 +1,5 @@
 
-EDGE DDF 4.3: (XXXX-XX-XX)
+EDGE DDF 4.3: (2004-12-23)
 ==========================
 
 1) added new DDF files: FONTS.DDF, STYLES.DDF and IMAGES.DDF.
@@ -11,7 +11,7 @@ EDGE DDF 4.3: (XXXX-XX-XX)
                use the "FOGMAP" lump (which isn't in EDGE.WAD).
 
 4) LANGUAGES.DDF: added CompatChange and CompatBoth entries, which
-                  are used for the compatibility check dialogs.
+                  are used for the Boom compatibility dialogs.
 
 
 EDGE DDF 4.2: (2004-10-31)
