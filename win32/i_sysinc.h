@@ -32,6 +32,7 @@
 #include <winnls.h>
 #include <mmsystem.h>
 #include <signal.h>
+#include <windowsx.h> // -ACB- 2000/07/19 Cracker API
 
 #include <ddraw.h>
 #include <dinput.h>
