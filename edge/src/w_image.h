@@ -190,4 +190,7 @@ GLuint W_ImageGetOGL(const cached_image_t *c);
 const char *W_ImageDebugName(const image_t *image);
 #endif
 
+// internal routines -- only needed by rgl_wipe.c
+int W_MakeValidSize(int value);
+
 #endif  // __W_IMAGE__
