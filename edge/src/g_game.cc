@@ -66,7 +66,7 @@
 #include "wi_stuff.h"
 #include "z_zone.h"
 
-#include "epi/epiendian.h"
+#include "epi/endianess.h"
 
 #define SAVEGAMESIZE    0x50000
 #define SAVESTRINGSIZE  24

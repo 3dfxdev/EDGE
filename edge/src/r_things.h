@@ -29,7 +29,7 @@
 #include "e_player.h"
 #include "r_defs.h"
 
-#include "epi/epiarray.h"
+#include "epi/arrays.h"
 
 //      
 // Sprites are patches with a special naming convention so they can be

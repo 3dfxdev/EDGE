@@ -67,7 +67,7 @@
 #include "st_stuff.h"
 #include "z_zone.h"
 
-#include "epi/epiarray.h"
+#include "epi/arrays.h"
 
 #define DEBUG_MOBJ  0
 

@@ -31,8 +31,8 @@
 
 #include "dm_type.h"
 
-#include "epi/epistring.h"
-#include "epi/epifile.h"
+#include "epi/strings.h"
+#include "epi/files.h"
 
 //
 // MISC

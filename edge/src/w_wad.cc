@@ -61,9 +61,9 @@
 #include "l_deh.h"
 #endif
 
-#include "epi/epiendian.h"
-#include "epi/epistring.h"
-#include "epi/epiutil.h"
+#include "epi/endianess.h"
+#include "epi/strings.h"
+#include "epi/utility.h"
 
 // -KM- 1999/01/31 Order is important, Languages are loaded before sfx, etc...
 typedef struct ddf_reader_s

@@ -97,7 +97,7 @@
 #include "w_wad.h"
 #include "wp_main.h"
 
-#include "epi/epistring.h"
+#include "epi/strings.h"
 
 int optionsmenuon = 0;
 

@@ -68,7 +68,7 @@
 #include "wi_stuff.h"
 #include "z_zone.h"
 
-#include "epi/epiendian.h"
+#include "epi/endianess.h"
 
 #ifdef USE_HAWKNL
 #include "n_network.h"

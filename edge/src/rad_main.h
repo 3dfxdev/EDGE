@@ -25,7 +25,7 @@
 #include "r_defs.h"
 #include "hu_stuff.h"
 
-#include "epi/epicrc.h"
+#include "epi/crc.h"
 
 extern int rts_version;  // hexadecimal, e.g. 0x128
 

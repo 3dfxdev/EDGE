@@ -30,7 +30,7 @@
 #include "z_zone.h"
 #include "m_menu.h"
 
-#include "epi/epicrc.h"
+#include "epi/crc.h"
 
 #define SCREENROWS 100
 #define SCREENCOLS 80

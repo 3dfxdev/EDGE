@@ -26,7 +26,7 @@
 #include "ddf_font.h"
 #include "ddf_style.h"
 
-#include "./epi/epiutil.h"
+#include "./epi/utility.h"
 
 #undef  DF
 #define DF  DDF_CMD

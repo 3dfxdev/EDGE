@@ -38,7 +38,7 @@
 // We need the playr data structure as well.
 #include "e_player.h"
 
-#include "epi/epiutil.h"
+#include "epi/utility.h"
 
 extern bool devparm;  // DEBUG: launched with -devparm
 

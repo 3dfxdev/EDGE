@@ -33,7 +33,7 @@
 #include "r_local.h"
 #endif
 
-#include "epi/epiarray.h"
+#include "epi/arrays.h"
 
 #define DEATHVIEWHEIGHT  6.0f
 #define CROUCH_SLOWDOWN  0.6f

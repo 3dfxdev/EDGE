@@ -49,7 +49,7 @@
 #include "rad_trig.h"
 #include "z_zone.h"
 
-#include "./epi/epistring.h"
+#include "./epi/strings.h"
 
 #undef SF
 #define SF  SVFIELD
