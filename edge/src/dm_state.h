@@ -39,6 +39,8 @@
 // We need the playr data structure as well.
 #include "e_player.h"
 
+#include "epi/epiutil.h"
+
 extern bool devparm;  // DEBUG: launched with -devparm
 
 extern bool redrawsbar;
@@ -172,7 +174,7 @@ extern char *homedir;
 extern char *gamedir;
 extern char *savedir;
 extern char *ddfdir;
-extern const char *cfgfile;
+extern epi::strent_c cfgfile;
 extern FILE *logfile;
 extern FILE *debugfile;
 
