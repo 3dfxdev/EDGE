@@ -23,12 +23,7 @@
 
 #include "ddf_locl.h"
 #include "ddf_main.h"
-#include "dm_state.h"
-#include "g_game.h"
-#include "m_fixed.h"
-#include "m_math.h"
-#include "p_mobj.h"
-#include "w_wad.h"
+
 #include "z_zone.h"
 
 #include "./epi/epiutil.h"
@@ -199,9 +194,6 @@ static void LevelFinishEntry(void)
 	// FIXME: add stuff...
 
 	CRC32_Done(&dynamic_map->ddf.crc);
-
-	// Initial Hack ???
-	//currentmap = dynamic_map;
 }
 
 static void LevelClearAll(void)
@@ -252,12 +244,6 @@ void DDF_LevelCleanUp(void)
 		I_Error("There are no levels defined in DDF !\n");
 
 	mapdefs.Trim();
-	
-	//
-	// FIXME!!! Shocking Hack! Setup an initial currentmap 
-	//          elsewhere or deal with the pointer being NULL
-	//
-	currmap = mapdefs[0];
 }
 
 //
