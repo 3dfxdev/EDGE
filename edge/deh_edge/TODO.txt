@@ -2,22 +2,11 @@
 DEH-EDGE Todo
 -------------
 
-+  fix up the README.
+Mostly:  support for Boom/MBF additional things/frames/etc.
 
-DONE:  option for EDGE version.
-   Done  DEFAULT IS FOR 1.28
-   Done  output a ".hwa" file (if version >= 0x128).
-   Done  don't require a complete sounds.ddf (version >= 0x128).
-   Done  if version < 0x128, disable CAST_TITLE DDF command.
-   Done  disable other 1.27 workarounds.
+   - implement new actions (many using the Misc field).
 
-DONE:  support multiple patches.
++  support for BEX (Boom extensions).
 
-
-FUTURE Plans
-------------
-
--  support for BEX (Boom extensions).
-
--  support for Boom/MBF additional things/frames/etc.
+-  robust cast order screen (renumber when necessary).
 
