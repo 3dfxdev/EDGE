@@ -44,6 +44,11 @@ static const commandlist_t colmap_commands[] =
 	DF("LENGTH",  length,    DDF_MainGetNumeric),
 	DF("SPECIAL", special,   DDF_ColmapGetSpecial),
 
+	DF("GL COLOUR",   gl_colour,   DDF_MainGetRGB),
+	DF("ALT COLOUR",  alt_colour,  DDF_MainGetRGB),
+	DF("WASH COLOUR", wash_colour, DDF_MainGetRGB),
+	DF("WASH TRANSLUCENCY", wash_trans, DDF_MainGetPercent),
+
 	// -AJA- backwards compatibility cruft...
 	DF("!PRIORITY", ddf, DDF_DummyFunction),
 
@@ -109,7 +114,7 @@ static void ColmapParseField(const char *field, const char *contents,
 		if (index == 0 && DDF_CompareName(contents, "TRUE") == 0)
 		{
 			L_WriteDebug("COLMAP PROPERTY CRUD: %s = %s\n", field, contents);
-			DDF_ColmapGetSpecial(field, NULL);  // FIXME FOR OFFSETS
+			DDF_ColmapGetSpecial(field, NULL);
 			return;
 		}
 	}
@@ -131,8 +136,8 @@ static void ColmapFinishEntry(void)
 		buffer_colmap.length = 1;
 	}
 
-	if (!buffer_colmap.lump_name || !buffer_colmap.lump_name[0])
-		DDF_Error("Missing LUMP name for colmap.\n");
+	if (buffer_colmap.lump_name.IsEmpty() && buffer_colmap.gl_colour == RGB_NO_VALUE)
+		DDF_Error("Colourmap entry missing LUMP or GL_COLOUR.\n");
 
 	// transfer static entry to dynamic entry
 	dynamic_colmap->CopyDetail(buffer_colmap);
@@ -266,13 +271,19 @@ void colourmap_c::Copy(colourmap_c &src)
 void colourmap_c::CopyDetail(colourmap_c &src)
 {
 	lump_name = src.lump_name;
-	start = src.start;
-	length = src.length;
+
+	start   = src.start;
+	length  = src.length;
 	special = src.special;
+
+	gl_colour   = src.gl_colour;
+	alt_colour  = src.alt_colour;
+	font_colour = src.font_colour;
+	wash_colour = src.wash_colour;
+	wash_trans  = src.wash_trans;
 	
 	// FIXME!!! Cache struct to class
 	cache.data = src.cache.data;
-	cache.gl_colour = src.cache.gl_colour;
 }
 
 //
@@ -283,13 +294,19 @@ void colourmap_c::Default()
 	ddf.Default();
 	
 	lump_name.Clear();
-	start = 0;
-	length = 0;
+
+	start   = 0;
+	length  = 0;
 	special = COLSP_None;
 	
+	gl_colour   = RGB_NO_VALUE;
+	alt_colour  = RGB_NO_VALUE;
+	font_colour = RGB_NO_VALUE;
+	wash_colour = RGB_NO_VALUE;
+	wash_trans  = PERCENT_MAKE(20);
+
 	// FIXME!!! Cache struct to class
 	cache.data = NULL;
-	cache.gl_colour = 0xFFFFFF;
 }
 
 //

@@ -471,162 +471,96 @@ static int AnalyseColourmap(const byte *table, int alpha,
 }
 
 //
-// V_GetColmapRGB
+// TransformColourmap
 //
-void V_GetColmapRGB(const colourmap_c *colmap,
-					float *r, float *g, float *b, bool font)
+void TransformColourmap(colourmap_c *colmap)
 {
-	if (colmap->cache.data == NULL)
+	const byte *table = colmap->cache.data;
+
+	if (table == NULL && ! colmap->lump_name.IsEmpty())
 	{
-		// Intention Const Override
-		colmapcache_t *cache = (colmapcache_t *) &colmap->cache;
-		byte *table;
+		LoadColourmap(colmap);
+
+		table = (byte *) colmap->cache.data;
+	}
+
+	if (colmap->font_colour == RGB_NO_VALUE)
+	{
+		if (colmap->gl_colour != RGB_NO_VALUE)
+			colmap->font_colour = colmap->gl_colour;
+		else
+		{
+			DEV_ASSERT2(table);
+
+			// for fonts, we only care about the GRAY colour
+			int r = playpal_data[0][table[pal_gray239]][0] * 255 / 239;
+			int g = playpal_data[0][table[pal_gray239]][1] * 255 / 239;
+			int b = playpal_data[0][table[pal_gray239]][2] * 255 / 239;
+
+			r = MIN(255, MAX(0, r));
+			g = MIN(255, MAX(0, g));
+			b = MIN(255, MAX(0, b));
+
+			colmap->font_colour = RGB_MAKE(r, g, b);
+		}
+	}
+
+	if (colmap->gl_colour == RGB_NO_VALUE)
+	{
+		DEV_ASSERT2(table);
 
 		int r, g, b;
 
-		LoadColourmap(colmap);
-
-		table = (byte *) cache->data;
-
-		if (font)
-		{
-			// for fonts, we only care about the GRAY colour
-			r = playpal_data[0][table[pal_gray239]][0];
-			g = playpal_data[0][table[pal_gray239]][1];
-			b = playpal_data[0][table[pal_gray239]][2];
-
-			r = r * 255 / 239;
-			g = g * 255 / 239;
-			b = b * 255 / 239;
-		}
-		else
-		{
-			// int score =
-			AnalyseColourmap(table, 0, &r, &g, &b);
+		// int score =
+		AnalyseColourmap(table, 0, &r, &g, &b);
 
 #if 0  // DEBUGGING
 			I_Printf("COLMAP [%s] alpha %d --> (%d, %d, %d) score %d\n",
 				colmap->ddf.name.GetString(), 0, r, g, b, score);
 #endif
-		}
 
 		r = MIN(255, MAX(0, r));
 		g = MIN(255, MAX(0, g));
 		b = MIN(255, MAX(0, b));
 
-		cache->gl_colour = (r << 16) | (g << 8) | b;
+		colmap->gl_colour = RGB_MAKE(r, g, b);
 	}
 
-	(*r) = GAMMA_CONV((colmap->cache.gl_colour >> 16) & 0xFF) / 255.0f;
-	(*g) = GAMMA_CONV((colmap->cache.gl_colour >>  8) & 0xFF) / 255.0f;
-	(*b) = GAMMA_CONV((colmap->cache.gl_colour      ) & 0xFF) / 255.0f;
+	// FIXME !!!! wash_colour and alt_colour
+	colmap->wash_colour = 0x000000;
+	colmap->wash_trans  = PERCENT_MAKE(0);
+
+	L_WriteDebug("TransformColourmap [%s]\n", colmap->ddf.name.GetString());
+	L_WriteDebug("- gl_colour   = #%06x\n", colmap->gl_colour);
+	L_WriteDebug("- alt_colour  = #%06x\n", colmap->alt_colour);
+	L_WriteDebug("- font_colour = #%06x\n", colmap->font_colour);
+	L_WriteDebug("- wash_colour = #%06x\n", colmap->wash_colour);
 }
 
-#if 0  // OLD CODE, REMOVE SOON
-void V_GetColmapRGB_Orig(const colourmap_c *colmap,
-					float *r, float *g, float *b, bool font)
+//
+// V_GetColmapRGB
+//
+void V_GetColmapRGB(const colourmap_c *colmap,
+					float *r, float *g, float *b,
+					bool font)
 {
-	if (colmap->cache.data == NULL)
+	if (colmap->gl_colour   == RGB_NO_VALUE ||
+		colmap->font_colour == RGB_NO_VALUE ||
+		colmap->wash_colour == RGB_NO_VALUE)
 	{
 		// Intention Const Override
-		colmapcache_t *cache = (colmapcache_t *) &colmap->cache;
-		byte *table;
-
-		int r, g, b;
-
-		LoadColourmap(colmap);
-
-		table = (byte *) cache->data;
-
-		if (font)
-		{
-			// for fonts, we only care about the GRAY colour
-			r = playpal_data[0][table[pal_gray239]][0];
-			g = playpal_data[0][table[pal_gray239]][1];
-			b = playpal_data[0][table[pal_gray239]][2];
-
-			r = r * 255 / 239;
-			g = g * 255 / 239;
-			b = b * 255 / 239;
-		}
-		else
-		{
-			/* analyse whole colourmap */
-			int r_diffs = 0;
-			int g_diffs = 0;
-			int b_diffs = 0;
-			int total   = 0;
-
-			for (int j = 0; j < 256; j++)
-			{
-				int r0 = playpal_data[0][j][0];
-				int g0 = playpal_data[0][j][1];
-				int b0 = playpal_data[0][j][2];
-
-				int r1 = playpal_data[0][table[j]][0];
-				int g1 = playpal_data[0][table[j]][1];
-				int b1 = playpal_data[0][table[j]][2];
-
-				int intensity = MAX(r0, MAX(g0, b0));
-
-				if (intensity < 32)
-				{
-					continue;
-				}
-
-				// give the grey-scales more importance
-				int weight = (r0 == g0 && g0 == b0) ? 3 : 1;
-
-				int r_delta = (r1 - r0) * 255 / intensity;
-				int g_delta = (g1 - g0) * 255 / intensity;
-				int b_delta = (b1 - b0) * 255 / intensity;
-
-				// limit the delta range, since dark colours can produce
-				// very high values (> 1000) which skew the results.
-
-				r_delta = MIN(200, MAX(-250, r_delta));
-				g_delta = MIN(200, MAX(-250, g_delta));
-				b_delta = MIN(200, MAX(-250, b_delta));
-
-				r_diffs += r_delta * weight;
-				g_diffs += g_delta * weight;
-				b_diffs += b_delta * weight;
-				total   += weight;
-			}
-
-			if (total == 0)
-				total = 1;
-
-			// exaggerate the results to give more oomph..
-			r = 255 + r_diffs * 5 / 3 / total;
-			g = 255 + g_diffs * 5 / 3 / total;
-			b = 255 + b_diffs * 5 / 3 / total;
-
-#if 1  // DEBUGGING
-			I_Printf("COLMAP [%s] %d --> (%d, %d)\n",
-				colmap->ddf.name.GetString(), r, g, b);
-#endif
-
-#if 0  // OLD METHOD
-			r = playpal_data[0][table[pal_red]][0];
-			g = playpal_data[0][table[pal_green]][1];
-			b = playpal_data[0][table[pal_blue]][2];
-#endif
-		}
-
-		r = MIN(255, MAX(0, r));
-		g = MIN(255, MAX(0, g));
-		b = MIN(255, MAX(0, b));
-
-		cache->gl_colour = (r << 16) | (g << 8) | b;
+		TransformColourmap((colourmap_c *)colmap);
 	}
 
-	(*r) = GAMMA_CONV((colmap->cache.gl_colour >> 16) & 0xFF) / 255.0f;
-	(*g) = GAMMA_CONV((colmap->cache.gl_colour >>  8) & 0xFF) / 255.0f;
-	(*b) = GAMMA_CONV((colmap->cache.gl_colour      ) & 0xFF) / 255.0f;
-}
-#endif
+	rgbcol_t col = /* alt  ? colmap->alt_colour : */
+	               font ? colmap->font_colour : colmap->gl_colour;
 
+	DEV_ASSERT2(col != RGB_NO_VALUE);
+
+	(*r) = GAMMA_CONV((col >> 16) & 0xFF) / 255.0f;
+	(*g) = GAMMA_CONV((col >>  8) & 0xFF) / 255.0f;
+	(*b) = GAMMA_CONV((col      ) & 0xFF) / 255.0f;
+}
 
 //
 // V_ColourNewFrame
@@ -650,8 +584,6 @@ void V_ColourNewFrame(void)
 		new_palette = 0;
 		usegamma = current_gamma;
 	}
-
-	return;
 }
 
 //

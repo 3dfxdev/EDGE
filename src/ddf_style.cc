@@ -287,7 +287,7 @@ backgroundstyle_c::~backgroundstyle_c()
 //
 void backgroundstyle_c::Default()
 {
-	colour = 0x000000;
+	colour = RGB_NO_VALUE;
 	translucency = PERCENT_MAKE(100);
 
 	image_name.Clear();	
