@@ -57,7 +57,8 @@ imagedef_container_c imagedefs;
 //
 static bool ImageStartEntry(const char *name)
 {
-I_Printf("ImageStartEntry [%s]\n", name);
+	L_WriteDebug("ImageStartEntry [%s]\n", name);
+
 	bool replaces = false;
 
 	if (name && name[0])
@@ -121,8 +122,6 @@ static void ImageFinishEntry(void)
 	// Compute CRC.  In this case, there is no need, since images
 	// have no real impact on the game simulation.
 	dynamic_image->ddf.crc.Reset();
-I_Printf("ImageFinishEntry [%s] size %d\n", dynamic_image->ddf.name.GetString(),
-	imagedefs.GetSize());
 }
 
 static void ImageClearAll(void)
