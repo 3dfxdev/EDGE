@@ -1,0 +1,24 @@
+#
+# Makefile for LZO (Hacked for EDGE) in MacOS X
+#
+
+OUTNAME=liblzo.a
+
+CC=gcc
+CFLAGS=-Wall -O2 -fomit-frame-pointer -fno-strength-reduce
+RANLIB=ranlib
+
+OBJS=minilzo.o
+
+# ----- TARGETS ------------------------------------------------------
+
+all:    $(OUTNAME)
+
+clean:
+	rm -f $(OUTNAME) *.o
+
+$(OUTNAME): $(OBJS)
+	libtool -static -o $(OUTNAME) - $(OBJS)
+	$(RANLIB) $(OUTNAME)
+
+.PHONY: all clean
