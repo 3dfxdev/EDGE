@@ -131,6 +131,7 @@ typedef struct gameflags_s
 
 	compat_mode_t compat_mode;
 	bool kicking;
+	bool weapon_switch;
 }
 gameflags_t;
 

@@ -127,6 +127,7 @@ static default_t defaults[] =
     {CFGT_Boolean, "shadows", &global_flags.shadows, 0},
     {CFGT_Boolean, "halos", &global_flags.halos, 0},
     {CFGT_Boolean, "weaponkick", &global_flags.kicking, 1},
+    {CFGT_Boolean, "weaponswitch", &global_flags.weapon_switch, 1},
     {CFGT_Boolean, "jumping", &global_flags.jump, 1},
     {CFGT_Boolean, "crouching", &global_flags.crouch, 1},
     {CFGT_Boolean, "mipmapping", &use_mipmapping, 1},

@@ -127,7 +127,8 @@ gameflags_t default_gameflags =
 	false,  // halos
 
 	CM_EDGE,  // compat_mode
-	true      // kicking
+	true,     // kicking
+	true      // weapon_switch
 };
 
 // -KM- 1998/12/16 These flags hold everything needed about a level
@@ -369,6 +370,7 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("trans", &global_flags.trans, false);
 	M_CheckBooleanParm("jumping", &global_flags.jump, false);
 	M_CheckBooleanParm("crouching", &global_flags.crouch, false);
+	M_CheckBooleanParm("weaponswitch", &global_flags.weapon_switch, false);
 	M_CheckBooleanParm("dlights", &use_dlights, false);
 	M_CheckBooleanParm("autoload", &autoquickload, false);
 

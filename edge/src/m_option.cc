@@ -136,6 +136,7 @@ static void M_ChangeShadows(int keypressed);
 static void M_ChangeHalos(int keypressed);
 static void M_ChangeCompatMode(int keypressed);
 static void M_ChangeKicking(int keypressed);
+static void M_ChangeWeaponSwitch(int keypressed);
 static void M_ChangeMipMap(int keypressed);
 static void M_ChangeDLights(int keypressed);
 
@@ -478,6 +479,7 @@ optmenuitem_t playoptions[] =
 	{OPT_Boolean, "Jumping", YesNo, 2, 0, &global_flags.jump, M_ChangeJumping, NULL},
 	{OPT_Boolean, "Crouching", YesNo, 2, 0, &global_flags.crouch, M_ChangeCrouching, NULL},
 	{OPT_Boolean, "Weapon Kick", YesNo, 2, 1, &global_flags.kicking, M_ChangeKicking, NULL},
+	{OPT_Boolean, "Weapon Auto-Switch", YesNo, 2, 1, &global_flags.weapon_switch, M_ChangeWeaponSwitch, NULL},
 	{OPT_Boolean, "More Blood", YesNo, 2, 0, &global_flags.more_blood, M_ChangeBlood, "Blood"},
 	{OPT_Boolean, "Extras", YesNo, 2, 1, &global_flags.have_extra, M_ChangeExtra, NULL},
 	{OPT_Boolean, "True 3D Gameplay", YesNo, 2, 1, &global_flags.true3dgameplay, M_ChangeTrue3d, "True3d"},
@@ -545,7 +547,7 @@ static optmenuitem_t extkeyconfig[] =
 	{OPT_KeyConfig, "Jump", NULL, 0, '/', &key_jump, NULL, NULL},
 	{OPT_KeyConfig, "Map Toggle", NULL, 0, KEYD_TAB, &key_map, NULL, NULL},
 	{OPT_KeyConfig, "180 degree turn", NULL, 0, 0, &key_180, NULL, NULL},
-    {OPT_KeyConfig, "Manual Reload", NULL, 0, 0, &key_reload, NULL, NULL},
+    {OPT_KeyConfig, "Weapon Reload", NULL, 0, 0, &key_reload, NULL, NULL},
 	{OPT_KeyConfig, "Multiplay Talk", NULL, 0, 't', &key_talk, NULL, NULL}
 };
 
@@ -1495,6 +1497,14 @@ static void M_ChangeKicking(int keypressed)
 		return;
 
 	level_flags.kicking = global_flags.kicking;
+}
+
+static void M_ChangeWeaponSwitch(int keypressed)
+{
+	if (currmap && ((currmap->force_on | currmap->force_off) & MPF_WeaponSwitch))
+		return;
+
+	level_flags.weapon_switch = global_flags.weapon_switch;
 }
 
 static void M_ChangeDLights(int keypressed)
