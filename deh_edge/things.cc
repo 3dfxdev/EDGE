@@ -337,9 +337,9 @@ namespace Things
 
 		if (mt_num == MT_TELEPORTMAN)
 		{
-			WAD::Printf("TRANSLUCENCY = 50%;\n");
+			WAD::Printf("TRANSLUCENCY = 50%%;\n");
 			WAD::Printf("\n");
-			WAD::Printf("STATES(IDLE) = %s:A:-1:NORMAL:TRANS_SET(0%);\n",
+			WAD::Printf("STATES(IDLE) = %s:A:-1:NORMAL:TRANS_SET(0%%);\n",
 				TextStr::GetSprite(SPR_TFOG));
 
 			// EDGE doesn't use the TELEPORT_FOG object, instead it uses
