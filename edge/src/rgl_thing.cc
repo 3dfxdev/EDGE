@@ -117,6 +117,9 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	trans *= psp->visibility;
 
+	if (trans < 0.04f)
+		return;
+
 	// psprites are never totally solid and opaque
 	glEnable(GL_ALPHA_TEST);
 	if (trans <= 0.99 || use_smoothing)
@@ -909,6 +912,9 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		L_g = (int)(lit_Nom * c_g);
 		L_b = (int)(lit_Nom * c_b);
 	}
+
+	if (trans < 0.04f)
+		return;
 
 	const image_t *image = dthing->image;
 
