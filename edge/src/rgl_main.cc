@@ -743,6 +743,28 @@ void RGL_CheckExtensions(void)
 		I_Printf("OpenGL: EdgeClamp extension found.\n");
 		glcap_edgeclamp = true;
 	}
+
+	// --- Detect buggy drivers, enable workarounds ---
+	// FIXME: put the driver specifics into a table.
+
+	if (strstr(glstr_renderer, "Radeon") != NULL)
+	{
+		I_Printf("OpenGL: Enabling workarounds for Radeon card.\n");
+		use_lighting = false;
+		use_color_material = false;
+	}
+	else if (strstr(glstr_renderer, "TNT2") != NULL)
+	{
+		I_Printf("OpenGL: Enabling workarounds for TNT2 card.\n");
+		use_color_material = false;
+		use_vertex_array = false;
+	}
+	else if (strstr(glstr_renderer, "Voodoo3") != NULL)
+	{
+		I_Printf("OpenGL: Enabling workarounds for Voodoo3 card.\n");
+		use_vertex_array = false;
+		dumb_sky = true;
+	}
 }
 
 
