@@ -371,10 +371,10 @@ static void LoadColourmap(const colourmap_c * colm)
 
 	Z_Resize(cache->data, byte, colm->length * 256);
 
-				if (whiten)
+	if (whiten)
 		for (int j = 0; j < colm->length * 256; j++)
 			cache->data[j] = data_in[font_whitener[j]];
-				else
+	else
 		for (int j = 0; j < colm->length * 256; j++)
 			cache->data[j] = data_in[j];
 
