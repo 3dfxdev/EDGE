@@ -19,7 +19,7 @@
 #ifndef __PROTOCOL_H__
 #define __PROTOCOL_H__
 
-#define MP_PROTOCOL_VER  0x070  /* 0.7.0 */
+#define MP_PROTOCOL_VER  0x072  /* 0.7.2 */
 
 #define MP_PLAYER_MAX  30
 
@@ -45,6 +45,12 @@ typedef struct header_proto_s
 	s16_t reserved;  // (future expansion)
 
 	void ByteSwap();
+
+	// flags:
+	enum
+	{
+		FL_Retransmission = 0x4000,
+	};
 }
 header_proto_t;
 
@@ -303,8 +309,8 @@ typedef struct raw_ticcmd_s
 	u16_t shorts[4];
 	u8_t  bytes [8];
 
-	// only clients need to byte-swap, the server doesn't care
-	// about the contents of ticcmds.
+	// only clients need to byte-swap, the server doesn't care about
+	// the contents of ticcmds.
 	void ByteSwap();
 }
 raw_ticcmd_t;
@@ -374,6 +380,26 @@ typedef struct tic_group_proto_s
 	void ByteSwap(bool do_tics);
 }
 tic_group_proto_t;
+
+
+//
+// TIC-RETRANSMIT REQUEST ("tr")
+//
+typedef struct tic_retransmit_proto_s
+{
+	u32_t gametic;
+	byte  offset;  // tic_num == gametic + offset
+	byte  count;
+
+	// player range
+	byte first_player;
+	byte last_player;
+
+	s16_t reserved[2];
+
+	void ByteSwap();
+}
+tic_retransmit_proto_t;
 
 
 //
