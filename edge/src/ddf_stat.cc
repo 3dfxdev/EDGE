@@ -30,6 +30,7 @@
 #include "m_misc.h"
 #include "p_action.h"
 #include "p_mobj.h"
+#include "r_state.h"
 #include "r_things.h"
 #include "z_zone.h"
 
@@ -70,10 +71,13 @@ static char *stateinfo[NUMSPLIT + 1];
 
 void DDF_StateInit(void)
 {
-	// setup the `S_NULL' state
+	// setup the 'S_NULL' state
 	states = Z_New(state_t, 1);
 	states[0] = template_state;
 	num_states = 1;
+
+	// setup the 'SPR_NULL' sprite
+	R_AddSpriteName("NULL", 1);
 }
 
 void DDF_StateCleanUp(void)
@@ -707,5 +711,24 @@ void DDF_StateGetSlope(const char *arg, state_t * cur_state)
 	*value = M_Tan(FLOAT_2_ANG(tmp));
 
 	cur_state->action_par = value;
+}
+
+bool DDF_CheckSprites(int st_low, int st_high)
+{
+	if (st_low == S_NULL)
+		return true;
+	
+	DEV_ASSERT2(st_low <= st_high);
+
+	while (st_low <= st_high &&	states[st_low].sprite == SPR_NULL)
+		st_low++;
+
+	if (st_low > st_high)
+		return true;
+
+	if (sprites[states[st_low].sprite].frames > 0)
+		return true;	
+
+	return false;
 }
 

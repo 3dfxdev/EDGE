@@ -85,13 +85,10 @@ void P_SetPsprite(player_t * p, int position, int stnum)
 //
 bool P_CheckWeaponSprite(weaponinfo_t *info)
 {
-  if (!info->up_state)
-    return false;
+	if (info->up_state == S_NULL)
+		return false;
 
-  if (sprites[states[info->up_state].sprite].frames == 0)
-    return false;
-
-  return true;
+	return DDF_CheckSprites(info->first_state, info->last_state);
 }
 
 //
