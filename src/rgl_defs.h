@@ -110,6 +110,7 @@ void RGL_MapClear(void);
 // save a little room for lighting effects
 #define TOP_LIGHT  (0.9)
 
+// extra lighting on the player weapon (BL,TL,TR,BR).
 extern int rgl_weapon_r[4];
 extern int rgl_weapon_g[4];
 extern int rgl_weapon_b[4];
