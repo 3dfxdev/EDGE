@@ -21,8 +21,8 @@ OPTIM=-O
 # Video options: SDLGL
 VIDEO=SDLGL
 
-# Sound options: SDL
-SOUND=SDL
+# Sound options: SDL AL
+SOUND=AL
 
 # Assembly options: N Y
 ASSEM=N
@@ -36,6 +36,7 @@ DEBUG=1
 LX_DIR=linux
 EPI_DIR=epi
 SDL_DIR=SDL
+AL_DIR=AL
 LZO_DIR=lzo
 GLBSP_DIR=glbsp-2.05
 JPEG_DIR=libjpeg
@@ -57,6 +58,12 @@ S_SDL_FLAGS=
 S_SDL_LDFLAGS=
 S_SDL_OBJS=$(LX_DIR)/is_sdl.o
 S_SDL_LIBS=
+
+S_AL_FLAGS=
+S_AL_LDFLAGS=
+S_AL_OBJS=$(AL_DIR)/i_sound.o\
+		$(AL_DIR)/oggplayer.o
+S_AL_LIBS=-lopenal -logg -lvorbis -lvorbisfile
 
 ASM_N_DIR=noasm
 ASM_N_FLAGS=
@@ -129,7 +136,7 @@ COMMON_OBJS= \
         m_bbox.o m_cheat.o    \
         m_fixed.o m_menu.o    \
         m_misc.o m_option.o   \
-        m_math.o m_crc32.o    \
+        m_math.o \
         p_action.o p_enemy.o \
         p_inter.o p_lights.o \
         p_map.o   p_maputl.o \
@@ -139,16 +146,15 @@ COMMON_OBJS= \
         p_spec.o p_switch.o  \
         p_tick.o p_user.o    \
         r_bsp.o r_data.o     \
-        r_draw1.o r_draw2.o  \
-        r_main.o r_plane.o   \
-        r_segs.o r_layers.o  \
+        r_main.o r_layers.o  \
         r_sky.o  r_things.o  \
         r_view.o r_vbinit.o  \
-        r2_bsp.o r2_draw.o   \
         r2_util.o  \
         rgl_bsp.o rgl_main.o \
+		rgl_thing.o \
         rgl_sky.o rgl_unit.o \
-        rgl_wipe.o \
+        rgl_wipe.o rgl_tex.o \
+		rgl_fx.o rgl_occ.o \
         rad_act.o rad_pars.o  \
         rad_trig.o sv_chunk.o \
         sv_dump.o  sv_glob.o  \
@@ -158,10 +164,9 @@ COMMON_OBJS= \
         sv_play.o  \
         s_sound.o s_music.o   \
         st_lib.o  st_stuff.o  \
-        v_func.o  v_screen.o  \
+        v_func.o  \
         v_res.o v_colour.o    \
-        v_video1.o v_video2.o \
-        v_toplev.o w_image.o  \
+        w_image.o  \
         w_wad.o wi_stuff.o    \
         wp_main.o wp_wipe.o   \
         w_textur.o z_zone.o
@@ -187,7 +192,7 @@ EDGELIBS = epi glbsp lzo
 all: $(EDGELIBS) $(PROGNAME)
 
 clean:
-	rm -f $(PROGNAME) core *.o \
+	rm -f $(PROGNAME) core *.o $(AL_DIR)/*.o \
 	    $(LX_DIR)/*.o $(SDL_DIR)/*.o $(EPI_DIR)/*.o $(ASM_DIR)/*.o \
 		$(EPI_DIR)/libepi.a $(LZO_DIR)/liblzo.a
 
