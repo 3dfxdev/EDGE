@@ -127,7 +127,12 @@ void RAD_ResetTips(void)
 static void SetupTip(drawtip_t *cur)
 {
 	if (! rts_hack_style) // FIXME !!!!!
-		rts_hack_style = hu_styles.Lookup(default_style);
+	{
+		styledef_c *def = styledefs.Lookup("RTS_TIP");
+		if (! def)
+			def = default_style;
+		rts_hack_style = hu_styles.Lookup(def);
+	}
 
 	int i;
 	int font_height = rts_hack_style->fonts[0]->NominalHeight() + 2;
