@@ -58,7 +58,7 @@
 
 static bool has_drawn_sky = false;
 
-static bool sky_box = false;
+static bool sky_box = true;
 
 
 typedef struct
@@ -94,11 +94,8 @@ void RGL_SetupSkyMatrices(void)
 	
 	if (sky_box)
 	{
-		float side_ang = 0.0f;
-
 		glRotatef(270.0f - ANG_2_FLOAT(viewvertangle), 1.0f, 0.0f, 0.0f);
-		glRotatef(90.0f - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
-		glRotatef(side_ang, 0.0f, 1.0f, 0.0f);
+		glRotatef(45.0f  - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
 		glTranslatef(0.0f, 0.0f, Z_FAR / 5.0f);
 	}
 	else
@@ -167,7 +164,7 @@ void RGL_DrawSkyBox(void)
 
 	RGL_SetupSkyMatrices();
 
-	float dist = Z_FAR * 0.98 / 1.732;  // FIXME: M_ROOT3
+	float dist = Z_FAR / 2.0f;
 
 	const cached_image_t *c_side, *c_top, *c_bottom;
 
@@ -175,7 +172,7 @@ void RGL_DrawSkyBox(void)
 	c_top    = W_ImageCache(box_info.top,    IMG_OGL, 0, true);
 	c_bottom = W_ImageCache(box_info.bottom, IMG_OGL, 0, true);
 
-	float side_w = 1.0f;
+	float side_w = 0.50f;
 	float side_b = 0.25f;
 	float side_t = 0.75f;
 
@@ -183,7 +180,6 @@ void RGL_DrawSkyBox(void)
 		side_w = 0.25f;
 
 	glColor3f(1.0f, 1.0f, 1.0f);
-
 
 	// top
 	// glColor3f(0, 0, 1);
@@ -201,10 +197,10 @@ void RGL_DrawSkyBox(void)
 	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(c_bottom));
 
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(-dist, -dist, -dist);
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(-dist,  dist, -dist);
-	glTexCoord2f(1.0f, 1.0f); glVertex3f( dist,  dist, -dist);
-	glTexCoord2f(1.0f, 0.0f); glVertex3f( dist, -dist, -dist);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-dist, -dist, -dist);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-dist,  dist, -dist);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f( dist,  dist, -dist);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f( dist, -dist, -dist);
 	glEnd();
 
 	// north
@@ -212,31 +208,31 @@ void RGL_DrawSkyBox(void)
 	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(c_side));
 
 	glBegin(GL_QUADS);
-	glTexCoord2f(side_w * 0.0f, side_b); glVertex3f(-dist,  dist, -dist);
-	glTexCoord2f(side_w * 0.0f, side_t); glVertex3f(-dist,  dist,  dist);
-	glTexCoord2f(side_w * 1.0f, side_t); glVertex3f( dist,  dist,  dist);
-	glTexCoord2f(side_w * 1.0f, side_b); glVertex3f( dist,  dist, -dist);
+	glTexCoord2f(side_w * 1.0f, side_b); glVertex3f(-dist,  dist, -dist);
+	glTexCoord2f(side_w * 1.0f, side_t); glVertex3f(-dist,  dist,  dist);
+	glTexCoord2f(side_w * 0.0f, side_t); glVertex3f( dist,  dist,  dist);
+	glTexCoord2f(side_w * 0.0f, side_b); glVertex3f( dist,  dist, -dist);
 
 	// east
 	// glColor3f(1, 0, 1);
-	glTexCoord2f(side_w * 1.0f, side_b); glVertex3f( dist,  dist, -dist);
-	glTexCoord2f(side_w * 1.0f, side_t); glVertex3f( dist,  dist,  dist);
-	glTexCoord2f(side_w * 2.0f, side_t); glVertex3f( dist, -dist,  dist);
-	glTexCoord2f(side_w * 2.0f, side_b); glVertex3f( dist, -dist, -dist);
+	glTexCoord2f(side_w * 4.0f, side_b); glVertex3f( dist,  dist, -dist);
+	glTexCoord2f(side_w * 4.0f, side_t); glVertex3f( dist,  dist,  dist);
+	glTexCoord2f(side_w * 3.0f, side_t); glVertex3f( dist, -dist,  dist);
+	glTexCoord2f(side_w * 3.0f, side_b); glVertex3f( dist, -dist, -dist);
 
 	// south
 	// glColor3f(1, 1, 0);
-	glTexCoord2f(side_w * 2.0f, side_b); glVertex3f( dist, -dist, -dist);
-	glTexCoord2f(side_w * 2.0f, side_t); glVertex3f( dist, -dist,  dist);
-	glTexCoord2f(side_w * 3.0f, side_t); glVertex3f(-dist, -dist,  dist);
-	glTexCoord2f(side_w * 3.0f, side_b); glVertex3f(-dist, -dist, -dist);
+	glTexCoord2f(side_w * 3.0f, side_b); glVertex3f( dist, -dist, -dist);
+	glTexCoord2f(side_w * 3.0f, side_t); glVertex3f( dist, -dist,  dist);
+	glTexCoord2f(side_w * 2.0f, side_t); glVertex3f(-dist, -dist,  dist);
+	glTexCoord2f(side_w * 2.0f, side_b); glVertex3f(-dist, -dist, -dist);
 
 	// west
 	// glColor3f(1, 0.5, 0);
-	glTexCoord2f(side_w * 3.0f, side_b); glVertex3f(-dist, -dist, -dist);
-	glTexCoord2f(side_w * 3.0f, side_t); glVertex3f(-dist, -dist,  dist);
-	glTexCoord2f(side_w * 4.0f, side_t); glVertex3f(-dist,  dist,  dist);
-	glTexCoord2f(side_w * 4.0f, side_b); glVertex3f(-dist,  dist, -dist);
+	glTexCoord2f(side_w * 2.0f, side_b); glVertex3f(-dist, -dist, -dist);
+	glTexCoord2f(side_w * 2.0f, side_t); glVertex3f(-dist, -dist,  dist);
+	glTexCoord2f(side_w * 1.0f, side_t); glVertex3f(-dist,  dist,  dist);
+	glTexCoord2f(side_w * 1.0f, side_b); glVertex3f(-dist,  dist, -dist);
 	glEnd();
 
 	W_ImageDone(c_side);
@@ -307,38 +303,7 @@ void RGL_DrawSkyBackground(void)
 	if (mlook_rad > M_PI)
 		mlook_rad -= M_PI*2;
 
-	if (mlook_rad >= M_PI/4)
-		top_L = 90;
-	else if (mlook_rad <= -M_PI/4)
-		top_L = 45;
-	else
-	{
-		// d is just the distance horizontally forward from the eye to
-		// the top edge of the view rectangle.
-		// FIXME !!! this equation is wrong.
-		float d = M_ROOT2 * sin(M_PI/2 - (mlook_rad + M_PI/4));
-
-		top_L = 90 - ANG_2_FLOAT(M_ATan(d));
-	}
-
-	if (mlook_rad <= -M_PI/4)
-		bottom_L = 90;
-	else if (mlook_rad >= M_PI/4)
-		bottom_L = 45;
-	else
-	{
-		// d is just the distance horizontally forward from the eye to
-		// the bottom edge of the view rectangle.
-		// FIXME !!! this equation is wrong.
-		float d = M_ROOT2 * sin(M_PI/2 - (M_PI/4 - mlook_rad));
-
-		bottom_L = 90 - ANG_2_FLOAT(M_ATan(d));
-	}
-
-	if (true)  /// ! level_flags.stretchsky)
-	{
-		top_L = bottom_L = 90;
-	}
+	top_L = bottom_L = 90;
 
 	top_L /= 2.0f;
 	bottom_L /= 2.0f;
@@ -676,8 +641,8 @@ static void UpdateSkyBoxTextures(void)
 	
 	box_info.base_sky = sky_image;
 
-	box_info.top = W_ImageFromTexture("BIGDOOR2");
-	box_info.bottom = box_info.top;
+	box_info.top    = W_ImageFromSkyMerge(sky_image, false);
+	box_info.bottom = W_ImageFromSkyMerge(sky_image, true);
 }
 
 
