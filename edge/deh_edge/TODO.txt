@@ -14,7 +14,7 @@ DONE:  translation bits: PLAYER_DK_GREY, PLAYER_BROWN, PLAYER_DULL_RED
 FUTURE Ideas
 ------------
 
--  option for EDGE version (e.g. -v128, --version 1.27).
-
 -  support multiple (Diff-style) patches.
+
+-  option for EDGE version (e.g. -v128, --version 1.27).
 
