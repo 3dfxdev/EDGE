@@ -13,6 +13,9 @@
 #ifndef __PATCH_HDR__
 #define __PATCH_HDR__
 
+namespace Deh_Edge
+{
+
 namespace Patch
 {
 	extern char line_buf[];
@@ -21,7 +24,9 @@ namespace Patch
 	extern int active_obj;
 	extern int patch_fmt;
 
-	void Load(const char *filename);
+	void Load(parse_buffer_api *buf);
 }
+
+}  // Deh_Edge
 
 #endif /* __PATCH_HDR__ */

@@ -15,6 +15,9 @@
 
 #include "mobj.h"
 
+namespace Deh_Edge
+{
+
 typedef enum
 {
 	FT_ANY,     // no checking
@@ -64,5 +67,7 @@ namespace Things
 	void AlterThing(int new_val);
 	void AlterBexBits(char *bit_str);
 }
+
+}  // Deh_Edge
 
 #endif /* __THINGS_HDR__ */

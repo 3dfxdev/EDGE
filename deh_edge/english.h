@@ -13,6 +13,9 @@
 #ifndef __ENGLISH_HDR__
 #define __ENGLISH_HDR__
 
+namespace Deh_Edge
+{
+
 //
 //  Printed strings for translation
 //
@@ -728,5 +731,7 @@
 #define SWSTRING      \
 "this is the shareware version of doom.\n\n"\
 "you need to order the entire trilogy.\n\n"PRESSKEY
+
+}  // Deh_Edge
 
 #endif  /* __ENGLISH_HDR__ */

@@ -13,9 +13,10 @@
 #ifndef __MOBJ_HDR__
 #define __MOBJ_HDR__
 
+namespace Deh_Edge
+{
 
 #define FRACUNIT  65536
-
 
 //
 // Misc. mobj flags
@@ -317,5 +318,6 @@ extern const mobjinfo_t brain_explode_mobj;
 
 extern bool mobj_modified[NUMMOBJTYPES_BEX];
 
+}  // Deh_Edge
 
 #endif /* __MOBJ_HDR__ */

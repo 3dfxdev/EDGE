@@ -28,7 +28,9 @@
 #include "i_defs.h"
 #include "frames.h"
 
+#include "buffer.h"
 #include "convert.h"
+#include "dh_embed.h"
 #include "info.h"
 #include "patch.h"
 #include "sounds.h"
@@ -40,6 +42,9 @@
 #include "wad.h"
 #include "weapons.h"
 
+
+namespace Deh_Edge
+{
 
 #define DEBUG_RANGES  0  // must enable one in info.cpp too
 #define DEBUG_FRAMES  0
@@ -89,7 +94,7 @@ typedef struct
 }
 actioninfo_t;
 
-static const actioninfo_t action_info[NUMACTIONS_BEX] =
+const actioninfo_t action_info[NUMACTIONS_BEX] =
 {
     { "NOTHING", 0, NULL, NULL,    "A_NULL" },
 
@@ -173,8 +178,8 @@ static const actioninfo_t action_info[NUMACTIONS_BEX] =
 	// BOOM and MBF:
 	// FIXME !!! Require special treatment for EDGE
 
-	{ "EXPLODE", AF_UNIMPL, NULL, NULL,    "A_Die" },
-	{ "STOP",    0,         NULL, NULL,    "A_Stop" },
+	{ "EXPLODE", AF_SPECIAL, NULL, NULL,    "A_Die" },
+	{ "STOP",    0,          NULL, NULL,    "A_Stop" },
 	{ "EXPLOSIONDAMAGE", AF_DETONATE, NULL, NULL, "A_Detonate" },
 	{ "NOTHING", AF_UNIMPL, NULL, NULL,    "A_Mushroom" },
 
@@ -198,7 +203,7 @@ typedef struct
 }
 staterange_t;
 
-static const staterange_t thing_range[] =
+const staterange_t thing_range[] =
 {
 	// Things...
     { MT_PLAYER, S_PLAY, S_PLAY_XDIE9, -1,-1 },
@@ -363,7 +368,7 @@ static const staterange_t thing_range[] =
     { -1, -1,-1, -1, -1 }  // End sentinel
 };
 
-static const staterange_t weapon_range[] =
+const staterange_t weapon_range[] =
 {
 	// Weapons...
     { wp_fist, S_PUNCH, S_PUNCH5, -1,-1 },
@@ -821,6 +826,16 @@ void Frames::SpecialAction(char *act_name, state_t *st, bool use_spawn)
 {
 	switch (st->action)
 	{
+		case A_Die:
+			if (target_version >= 129)
+				strcpy(act_name, "DIE");
+			else
+			{
+				PrintWarn("Action A_DIE only supported in v1.29 and higher.\n");
+				strcpy(act_name, "EXPLODE");
+			}
+			break;
+
 		case A_RandomJump:
 			if (st->misc1 <= 0 || st->misc1 >= NUMSTATES_BEX)
 				strcpy(act_name, "NOTHING");
@@ -1194,3 +1209,5 @@ void Frames::DebugRange(const char *kind, const char *entry)
 	}
 #endif
 }
+
+}  // Deh_Edge

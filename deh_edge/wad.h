@@ -13,6 +13,9 @@
 #ifndef __WAD_HDR__
 #define __WAD_HDR__
 
+namespace Deh_Edge
+{
+
 namespace WAD
 {
 	void Startup(void);
@@ -25,5 +28,7 @@ namespace WAD
 
 	void WriteFile(const char *name);
 }
+
+}  // Deh_Edge
 
 #endif /* __WAD_HDR__ */

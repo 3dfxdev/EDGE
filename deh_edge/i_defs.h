@@ -15,7 +15,10 @@
 
 // COMMON STUFF...
 #define FLOAT_IEEE_754
-typedef unsigned char byte;
+namespace Deh_Edge
+{
+	typedef unsigned char byte;
+}
 
 #include <stdlib.h>
 #include <stdarg.h>
@@ -36,7 +39,10 @@ typedef unsigned char byte;
 // DOS GCC
 #if defined(DJGPP)
 
-typedef long long Int64;
+namespace Deh_Edge
+{
+	typedef long long Int64;
+}
 
 #include <unistd.h>
 #include <dos.h>
@@ -48,11 +54,14 @@ typedef long long Int64;
 #define _WINDOWS
 #define WIN32_LEAN_AND_MEAN
 
+namespace Deh_Edge
+{
 #ifdef __GNUC__
-typedef long long Int64;
+	typedef long long Int64;
 #else
-typedef __int64 Int64;
+	typedef __int64 Int64;
 #endif
+}
 
 #include <windows.h>
 
@@ -71,14 +80,20 @@ typedef __int64 Int64;
 
 #include <unistd.h>
 
-typedef long long Int64;
+namespace Deh_Edge
+{
+	typedef long long Int64;
+}
 
 // MacOS X
 #elif defined (MACOSX)
 
 #include <unistd.h>
 
-typedef long long Int64;
+namespace Deh_Edge
+{
+	typedef long long Int64;
+}
 
 #else
 #error Unknown System (not DJGPP, WIN32, LINUX or MACOSX)

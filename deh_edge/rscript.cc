@@ -28,6 +28,7 @@
 #include "i_defs.h"
 #include "rscript.h"
 
+#include "dh_embed.h"
 #include "info.h"
 #include "mobj.h"
 #include "storage.h"
@@ -35,6 +36,9 @@
 #include "util.h"
 #include "wad.h"
 
+
+namespace Deh_Edge
+{
 
 #define MAX_KEENS  16
 
@@ -237,3 +241,4 @@ namespace Rscript
 	}
 }
 
+}  // Deh_Edge

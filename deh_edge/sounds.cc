@@ -28,12 +28,17 @@
 #include "i_defs.h"
 #include "sounds.h"
 
+#include "buffer.h"
+#include "dh_embed.h"
 #include "patch.h"
 #include "storage.h"
 #include "system.h"
 #include "util.h"
 #include "wad.h"
 
+
+namespace Deh_Edge
+{
 
 // workaround for EDGE 1.27 bug with sound replacements
 #define EDGE127_BUG  (target_version <= 127)
@@ -563,3 +568,5 @@ void Sounds::AlterBexMusic(const char *new_val)
 		PrintWarn("Line %d: unknown music name '%s'.\n",
 			Patch::line_num, old_val);
 }
+
+}  // Deh_Edge

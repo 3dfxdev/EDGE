@@ -28,6 +28,8 @@
 #include "i_defs.h"
 #include "misc.h"
 
+#include "buffer.h"
+#include "dh_embed.h"
 #include "info.h"
 #include "mobj.h"
 #include "patch.h"
@@ -38,6 +40,9 @@
 #include "util.h"
 #include "weapons.h"
 
+
+namespace Deh_Edge
+{
 
 int Misc::init_ammo   = 50;
 
@@ -211,3 +216,4 @@ void Misc::AlterMisc(int new_val)
 	}
 }
 
+}  // Deh_Edge

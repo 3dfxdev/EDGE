@@ -28,8 +28,12 @@
 #include "i_defs.h"
 #include "util.h"
 
+#include "dh_embed.h"
 #include "system.h"
 
+
+namespace Deh_Edge
+{
 
 //
 // FileExists
@@ -103,6 +107,7 @@ bool CheckExtension(const char *filename, const char *ext)
 // ReplaceExtension
 //
 // When ext is NULL, any existing extension is removed.
+// NOTE: returned string is static storage.
 //
 const char *ReplaceExtension(const char *filename, const char *ext)
 {
@@ -144,6 +149,32 @@ const char *ReplaceExtension(const char *filename, const char *ext)
 	strcat(buffer, ext);
 
 	return buffer;
+}
+
+//
+// FileBaseName
+//
+// Find the base name of the file (i.e. without any path).
+// The result always points within the given string.
+//
+// Example:  "C:\Foo\Bar.wad"  ->  "Bar.wad"
+// 
+const char *FileBaseName(const char *filename)
+{
+	const char *pos = filename + strlen(filename) - 1;
+
+	for (; pos >= filename; pos--)
+	{
+		if (*pos == '/')
+			return pos + 1;
+
+#ifdef WIN32
+		if (*pos == '\\' || *pos == ':')
+			return pos + 1;
+#endif
+	}
+
+	return filename;
 }
 
 //
@@ -273,3 +304,4 @@ char *StringDup(const char *orig)
 	return s;
 }
 
+}  // Deh_Edge

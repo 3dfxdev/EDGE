@@ -28,6 +28,7 @@
 #include "i_defs.h"
 #include "storage.h"
 
+#include "dh_embed.h"
 #include "system.h"
 
 
@@ -44,6 +45,9 @@
 //    until after all patches are read in (i.e. remember what we need to
 //    change).  I've opted for the second way.
 
+
+namespace Deh_Edge
+{
 
 #define ITEMS_PER_BOX  256
 
@@ -130,3 +134,4 @@ void Storage::ApplyAll(void)
 	head = tail = NULL;
 }
 
+}  // Deh_Edge

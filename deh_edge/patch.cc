@@ -26,10 +26,12 @@
 //------------------------------------------------------------------------
 
 #include "i_defs.h"
+#include "buffer.h"
 #include "patch.h"
 
 #include "ammo.h"
 #include "convert.h"
+#include "dh_embed.h"
 #include "frames.h"
 #include "info.h"
 #include "misc.h"
@@ -43,6 +45,9 @@
 #include "weapons.h"
 
 
+namespace Deh_Edge
+{
+
 #define MAX_LINE  512
 #define MAX_TEXT_STR  1200
 
@@ -51,7 +56,7 @@
 
 namespace Patch
 {
-	FILE *pat_fp;
+	parse_buffer_api *pat_buf;
 
 	bool file_error;
 
@@ -80,7 +85,7 @@ namespace Patch
 
 	int GetRawInt(void)
 	{
-		if (feof(pat_fp) || ferror(pat_fp))
+		if (pat_buf->eof() || pat_buf->error())
 			file_error = true;
 
 		if (file_error)
@@ -88,7 +93,7 @@ namespace Patch
 
 		unsigned char raw[4];
 
-		fread(raw, 1, 4, pat_fp);
+		pat_buf->read(raw, 4);
 
 		return ((int)raw[0]) +
 		       ((int)raw[1] << 8) +
@@ -108,12 +113,12 @@ namespace Patch
 
 		for (;;)
 		{
-			int ch = fgetc(pat_fp);
+			int ch = pat_buf->getc();
 
 			if (ch == 0)
 				break;
 
-			if (ch == EOF || ferror(pat_fp))
+			if (ch == EOF || pat_buf->error())
 				file_error = true;
 
 			if (file_error)
@@ -133,7 +138,7 @@ namespace Patch
 
 		// strings are aligned to 4 byte boundaries
 		for (; (len % 4) != 3; len++)
-			fgetc(pat_fp);
+			pat_buf->getc();
 	}
 
 	const char *ObjectName(int o_kind)
@@ -516,7 +521,7 @@ namespace Patch
 	{
 		char tempfmt = 0;
 
-		fread(&tempfmt, 1, 1, pat_fp);
+		pat_buf->read(&tempfmt, 1);
 
 		if (tempfmt < 1 || tempfmt > 2)
 			FatalError("Bad format byte in DeHackEd patch file.\n"
@@ -529,15 +534,21 @@ namespace Patch
 		DetectMsg("really old");
 		VersionMsg();
 	
+		pat_buf->showProgress();
+
 		int j;
 
 		for (j = 0; j < THINGS_1_2; j++)
 			ReadBinaryThing(thing12to166[j]);
 
+		pat_buf->showProgress();
+
 		ReadBinaryAmmo();
 
 		for (j = 0; j < 8; j++)
 			ReadBinaryWeapon(j);  // no need to convert
+
+		pat_buf->showProgress();
 
 		if (patch_fmt == 2)
 		{
@@ -551,8 +562,8 @@ namespace Patch
 		char tempdoom = 0;
 		char tempfmt  = 0;
 
-		fread(&tempdoom, 1, 1, pat_fp);
-		fread(&tempfmt,  1, 1, pat_fp);
+		pat_buf->read(&tempdoom, 1);
+		pat_buf->read(&tempfmt,  1);
 
 		if (tempfmt == 3)
 			FatalError("Doom 1.6 beta patches are not supported.\n");
@@ -571,6 +582,8 @@ namespace Patch
 		DetectMsg("binary");
 		VersionMsg();
 
+		pat_buf->showProgress();
+
 		int j;
 
 		if (doom_ver == 12)
@@ -584,12 +597,16 @@ namespace Patch
 				ReadBinaryThing(j);
 		}
 
+		pat_buf->showProgress();
+
 		ReadBinaryAmmo();
 
 		int num_weap = (doom_ver == 12) ? 8 : 9;
 
 		for (j = 0; j < num_weap; j++)
 			ReadBinaryWeapon(j);
+
+		pat_buf->showProgress();
 
 		if (doom_ver == 12)
 		{
@@ -605,6 +622,8 @@ namespace Patch
 			for (j = 0; j < NUMSTATES - 1; j++)
 				ReadBinaryFrame(j);
 		}
+
+		pat_buf->showProgress();
 
 		if (doom_ver == 12)
 		{
@@ -630,6 +649,8 @@ namespace Patch
 			for (j = 0; j < NUMSPRITES; j++)
 				ReadBinarySprite(j);
 		}
+
+		pat_buf->showProgress();
 
 		if (doom_ver == 16 || doom_ver == 17)
 		{
@@ -686,11 +707,11 @@ namespace Patch
 
 		for (;;)
 		{
-			int ch = fgetc(pat_fp);
+			int ch = pat_buf->getc();
 
 			if (ch == EOF)
 			{
-				if (ferror(pat_fp))
+				if (pat_buf->error())
 					PrintWarn("Read error on input file.\n");
 
 				break;
@@ -706,10 +727,10 @@ namespace Patch
 
 			if (ch == '\r')
 			{
-				ch = fgetc(pat_fp);
+				ch = pat_buf->getc();
 
 				if (ch != EOF && ch != '\n')
-					ungetc(ch, pat_fp); 
+					pat_buf->ungetc(ch);
 
 				break;
 			}
@@ -865,7 +886,7 @@ namespace Patch
 				continue;
 			}
 
-			if (feof(pat_fp))
+			if (pat_buf->eof())
 				FatalError("End of file while reading Text replacement.\n");
 
 			GetNextLine();
@@ -946,7 +967,7 @@ namespace Patch
 			{
 				do  // need a loop to ignore comment lines
 				{
-					if (feof(pat_fp))
+					if (pat_buf->eof())
 						FatalError("End of file while reading Bex String replacement.\n");
 
 					GetNextLine();
@@ -1098,8 +1119,10 @@ namespace Patch
 
 		syncing = true;
 
-		while (! feof(pat_fp))
+		while (! pat_buf->eof())
 		{
+			pat_buf->showProgress();
+
 			GetNextLine();
 
 			if (line_buf[0] == 0 || line_buf[0] == '#')
@@ -1183,14 +1206,14 @@ namespace Patch
 
 		memset(idstr, 0, sizeof(idstr));
 
-		fread(idstr, 1, 24, pat_fp);
+		pat_buf->read(idstr, 24);
 
 		if (StrCaseCmp(idstr, "atch File for DeHackEd v") != 0)
 			FatalError("File is not a DeHackEd patch file !\n");
 
 		memset(idstr, 0, 4);
 
-		fread(idstr, 1, 3, pat_fp);
+		pat_buf->read(idstr, 3);
 
 		if (! isdigit(idstr[0]) || idstr[1] != '.' || ! isdigit(idstr[2]))
 			FatalError("Bad version string in DeHackEd patch file.\n"
@@ -1209,25 +1232,16 @@ namespace Patch
 	}
 }
 
-void Patch::Load(const char *filename)
+void Patch::Load(parse_buffer_api *buf)
 {
-	PrintMsg("Loading patch file: %s\n", filename);
+	pat_buf = buf;
+	assert(pat_buf);
 
-	// Note: always binary - we'll handle CR/LF ourselves
-	pat_fp = fopen(filename, "rb");
-
-	if (! pat_fp)
-	{
-		int err_num = errno;
-
-		FatalError("Could not open file: %s\n[%s]\n", filename, strerror(err_num));
-	}
-	
 	file_error = false;
 
 	char tempver = 0;
 
-	fread(&tempver, 1, 1, pat_fp);
+	pat_buf->read(&tempver, 1);
 
 	if (tempver == 12)
 		LoadReallyOld();
@@ -1236,8 +1250,8 @@ void Patch::Load(const char *filename)
 	else	
 		FatalError("File is not a DeHackEd patch file !\n");
 
-	fclose(pat_fp);
-
 	PrintMsg("\n");
+	pat_buf = NULL;
 }
 
+}  // Deh_Edge

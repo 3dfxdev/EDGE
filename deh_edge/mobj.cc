@@ -28,9 +28,13 @@
 #include "i_defs.h"
 #include "info.h"
 
+#include "dh_embed.h"
 #include "sounds.h"
 #include "mobj.h"
 
+
+namespace Deh_Edge
+{
 
 mobjinfo_t mobjinfo[NUMMOBJTYPES_BEX] =
 {
@@ -4177,3 +4181,4 @@ const mobjinfo_t brain_explode_mobj =
 
 bool mobj_modified[NUMMOBJTYPES_BEX];
 
+}  // Deh_Edge

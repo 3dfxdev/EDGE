@@ -13,6 +13,9 @@
 #ifndef __FRAMES_HDR__
 #define __FRAMES_HDR__
 
+namespace Deh_Edge
+{
+
 typedef enum
 {
 	AF_EXPLODE    = (1 << 0),   // uses A_Explode
@@ -66,5 +69,7 @@ namespace Frames
 	// debugging stuff
 	void DebugRange(const char *kind, const char *entry);
 }
+
+}  // Deh_Edge
 
 #endif /* __FRAMES_HDR__ */

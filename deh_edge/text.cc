@@ -28,6 +28,8 @@
 #include "i_defs.h"
 #include "text.h"
 
+#include "buffer.h"
+#include "dh_embed.h"
 #include "info.h"
 #include "english.h"
 #include "frames.h"
@@ -39,6 +41,9 @@
 #include "util.h"
 #include "wad.h"
 
+
+namespace Deh_Edge
+{
 
 spritename_t sprnames[NUMSPRITES_BEX] =
 {
@@ -727,3 +732,4 @@ void TextStr::ConvertLDF(void)
 		FinishTextLump();
 }
 
+}  // Deh_Edge

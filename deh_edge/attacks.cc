@@ -28,6 +28,7 @@
 #include "i_defs.h"
 #include "attacks.h"
 
+#include "dh_embed.h"
 #include "info.h"
 #include "frames.h"
 #include "misc.h"
@@ -37,6 +38,9 @@
 #include "things.h"
 #include "wad.h"
 
+
+namespace Deh_Edge
+{
 
 #define KF_FACE_TARG  'F'
 #define KF_SIGHT      'S'
@@ -382,3 +386,5 @@ void Attacks::ConvertATK(void)
 //
 //   Handle PLAYER_MISSILE == CYBERDEMON_MISSILE
 //   BRAIN_CUBE is a merger between MT_SPAWNSHOT and MT_SPAWNFIRE
+
+}  // Deh_Edge

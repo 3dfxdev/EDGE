@@ -13,6 +13,9 @@
 #ifndef __CONVERT_HDR__
 #define __CONVERT_HDR__
 
+namespace Deh_Edge
+{
+
 #define THINGS_1_2   103
 #define FRAMES_1_2   512
 #define SPRITES_1_2  105
@@ -28,5 +31,7 @@ extern short frame12to166[FRAMES_1_2];
 extern short sprite12to166[SPRITES_1_2];
 extern short sound12to166[SOUNDS_1_2];
 extern short pointerToFrame[POINTER_NUM_BEX];
+
+}  // Deh_Edge
 
 #endif /* __CONVERT_HDR__ */

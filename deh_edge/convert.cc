@@ -29,6 +29,9 @@
 #include "convert.h"
 
 
+namespace Deh_Edge
+{
+
 // Thing conversion array from 1.2 to 1.666
 short thing12to166[THINGS_1_2] =
 {
@@ -191,3 +194,4 @@ short pointerToFrame[POINTER_NUM_BEX] =
 /* 460 */  981, 982, 983, 984, 986, 988, 990, 999
 };
 
+}  // Deh_Edge
