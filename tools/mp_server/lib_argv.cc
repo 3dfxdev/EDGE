@@ -108,7 +108,7 @@ int ArgvFind(char short_name, const char *long_name, int *num_params)
 		while ((q < arg_count) && ! ArgvIsOption(q))
 			q++;
 
-		*num_params = q - p;
+		*num_params = q - p - 1;
 	}
 
 	return p;
