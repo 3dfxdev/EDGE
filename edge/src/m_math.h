@@ -80,17 +80,6 @@ float M_Cos(angle_t ang)             GCCATTR(const);
 float M_Sin(angle_t ang)             GCCATTR(const);
 void M_Angle2Matrix(angle_t ang, vec2_t *x, vec2_t *y);
 
-/* CRC stuff */
-
-void CRC32_Init(unsigned long *crc);
-void CRC32_ProcessByte(unsigned long *crc, byte data);
-void CRC32_ProcessBlock(unsigned long *crc, const byte *data, int len);
-void CRC32_Done(unsigned long *crc);
-
-void CRC32_ProcessInt(unsigned long *crc, int value);
-void CRC32_ProcessFixed(unsigned long *crc, fixed_t value);
-void CRC32_ProcessFloat(unsigned long *crc, float value);
-void CRC32_ProcessStr(unsigned long *crc, const char *str);
 
 #endif //__M_MATH_H__
 

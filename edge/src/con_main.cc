@@ -30,6 +30,8 @@
 #include "z_zone.h"
 #include "m_menu.h"
 
+#include "epi/epicrc.h"
+
 #define SCREENROWS 100
 #define SCREENCOLS 80
 #define BACKBUFFER 10
@@ -476,8 +478,6 @@ int CON_CMDCrc(const char *args)
 	int lump, length;
 	const byte *data;
 
-	unsigned long crc;
-
 	argc = GetArgs(args, 2, argv);
 
 	if (argc != 2)
@@ -497,13 +497,14 @@ int CON_CMDCrc(const char *args)
 		data = (const byte*)W_CacheLumpNum(lump);
 		length = W_LumpLength(lump);
 
-		CRC32_Init(&crc);
-		CRC32_ProcessBlock(&crc, data, length);
-		CRC32_Done(&crc);
+		epi::crc32_c result;
+
+		result.Reset();
+		result.AddBlock(data, length);
 
 		W_DoneWithLump(data);
 
-		CON_Printf("  %s  %d bytes  crc = %08lx\n", argv[1], length, crc);
+		CON_Printf("  %s  %d bytes  crc = %08x\n", argv[1], length, result.crc);
 	}
 
 	KillArgs(argc, argv);

@@ -25,6 +25,8 @@
 #include "r_defs.h"
 #include "hu_stuff.h"
 
+#include "epi/epicrc.h"
+
 extern int rts_version;  // hexadecimal, e.g. 0x128
 
 struct rts_state_s;
@@ -538,7 +540,7 @@ typedef struct rad_script_s
 	rts_state_t *last_state;
 
 	// CRC of the important parts of this RTS script.
-	unsigned long crc;
+	epi::crc32_c crc;
 }
 rad_script_t;
 
