@@ -38,6 +38,8 @@ namespace Ammo
 	void AmmoDependencies(void);
 
 	const char *GetAmmo(int type);
+
+	void AlterAmmo(int new_val);
 }
 
 #endif /* __AMMO_HDR__ */

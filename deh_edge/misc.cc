@@ -30,7 +30,9 @@
 
 #include "info.h"
 #include "mobj.h"
+#include "patch.h"
 #include "sounds.h"
+#include "storage.h"
 #include "system.h"
 #include "things.h"
 #include "util.h"
@@ -77,7 +79,7 @@ namespace Misc
 
 	const miscinfo_t misc_info[] =
 	{
-		{ "Initial Bullets",   1, &init_ammo, init_ammo_mobj },
+		{ "Initial Bullets",   0, &init_ammo, init_ammo_mobj },
 		{ "Max Health",        1, &max_health, max_heal_mobj },
 		{ "Max Armor",         1, &max_armour, max_arm_mobj },
 		{ "Green Armor Class", 0, &green_armour_class, green_class_mobj },
@@ -115,33 +117,35 @@ namespace Misc
 	}
 }
 
-void Misc::AlterMisc(const char *misc_name, int value)
+void Misc::AlterMisc(int new_val)
 {
+	const char *misc_name = Patch::line_buf;
+
 	// --- special cases ---
 
 	if (StrCaseCmp(misc_name, "Initial Health") == 0)
 	{
-		if (value < 1)
+		if (new_val < 1)
 		{
-			PrintWarn("Bad value %d for MISC field: %s\n", value, misc_name);
+			PrintWarn("Bad value '%d' for MISC field: %s\n", new_val, misc_name);
 			return;
 		}
 
-		mobjinfo[MT_PLAYER].spawnhealth = value;
-		Things::MarkThing(MT_PLAYER);
+		Storage::RememberMod(&mobjinfo[MT_PLAYER].spawnhealth, new_val);
 
+		Things::MarkThing(MT_PLAYER);
 		return;
 	}
 
 	if (StrCaseCmp(misc_name, "BFG Cells/Shot") == 0)
 	{
-		if (value < 1)
+		if (new_val < 1)
 		{
-			PrintWarn("Bad value %d for MISC field: %s\n", value, misc_name);
+			PrintWarn("Bad value '%d' for MISC field: %s\n", new_val, misc_name);
 			return;
 		}
 
-		bfg_cells_per_shot = value;
+		bfg_cells_per_shot = new_val;
 		Weapons::MarkWeapon(wp_bfg);
 
 		return;
@@ -149,13 +153,13 @@ void Misc::AlterMisc(const char *misc_name, int value)
 
 	if (StrCaseCmp(misc_name, "Monsters Infight") == 0)
 	{
-		if (value != 202 && value != 221)
+		if (new_val != 202 && new_val != 221)
 		{
-			PrintWarn("Bad value %d for MISC field: %s\n", value, misc_name);
+			PrintWarn("Bad value '%d' for MISC field: %s\n", new_val, misc_name);
 			return;
 		}
 		
-		monster_infight = value;
+		monster_infight = new_val;
 
 		if (monster_infight == 221)
 			MarkAllMonsters();
@@ -187,13 +191,13 @@ void Misc::AlterMisc(const char *misc_name, int value)
 		return;
 	}
 
-	if (value < info->minimum)  // mainly here to disallow negative values
+	if (new_val < info->minimum)  // mainly here to disallow negative values
 	{
-		PrintWarn("Bad value %d for MISC field: %s\n", value, misc_name);
-		value = info->minimum;
+		PrintWarn("Bad value '%d' for MISC field: %s\n", new_val, misc_name);
+		new_val = info->minimum;
 	}
 
-	info->var[0] = value;
+	Storage::RememberMod(info->var, new_val);
 
 	// mark mobjs that have been modified
 

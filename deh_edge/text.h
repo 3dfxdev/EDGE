@@ -27,6 +27,8 @@ namespace TextStr
 	bool ReplaceSprite(const char *before, const char *after);
 	bool ReplaceCheat(const char *deh_name, const char *str);
 
+	void AlterCheat(const char * new_val);
+
 	const char *GetSprite(int spr_num);
 
 	void SpriteDependencies(void);

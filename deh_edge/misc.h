@@ -31,10 +31,10 @@ namespace Misc
 
 	extern int monster_infight;
 
-	// NOTE: we don't support the amounts given by cheats
+	// NOTE: we don't support changing the amounts given by cheats
 	//       (God Mode Health, IDKFA Armor, etc).
 
-	void AlterMisc(const char *misc_name, int value);
+	void AlterMisc(int new_val);
 }
 
 #endif /* __MISC_HDR__ */

@@ -32,6 +32,8 @@
 #include "english.h"
 #include "frames.h"
 #include "mobj.h"
+#include "patch.h"
+#include "storage.h"
 #include "sounds.h"
 #include "system.h"
 #include "util.h"
@@ -504,6 +506,16 @@ bool TextStr::ReplaceCheat(const char *deh_name, const char *str)
 	return false;
 }
 
+void TextStr::AlterCheat(const char * new_val)
+{
+	const char *deh_field = Patch::line_buf;
+
+	if (! ReplaceCheat(deh_field, new_val))
+	{
+		PrintWarn("UNKNOWN CHEAT FIELD: %s\n", deh_field);
+	}
+}
+
 const char *TextStr::GetSprite(int spr_num)
 {
 	assert(0 <= spr_num && spr_num < NUMSPRITES);
@@ -599,7 +611,3 @@ void TextStr::ConvertLDF(void)
 		FinishTextLump();
 }
 
-
-// ISSUES:
-//    EDGE has no "medikit you really needed" in LDF.
-//    EDGE is lacking Level names and Finale texts for TNT and PLUTONIA.

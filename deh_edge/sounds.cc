@@ -28,6 +28,7 @@
 #include "i_defs.h"
 #include "sounds.h"
 
+#include "patch.h"
 #include "system.h"
 #include "util.h"
 #include "wad.h"
@@ -256,8 +257,13 @@ namespace Sounds
 		some_sound_modified = true;
 	}
 
-	void AlterSound(int s_num, const char *deh_field, int value)
+	void AlterSound(int new_val)
 	{
+		int s_num = Patch::active_obj;
+		const char *deh_field = Patch::line_buf;
+
+		assert(0 <= s_num && s_num < NUMSFX);
+
 		// FIXME
 	}
 
