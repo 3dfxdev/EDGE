@@ -105,6 +105,8 @@ extern int joybstrafe;
 extern int joybuse;
 extern int joybspeed;
 
+extern boolean_t autorunning;
+
 extern default_t defaults[];
 
 #endif
