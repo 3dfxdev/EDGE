@@ -133,6 +133,7 @@ General improvements
 - night vision and god-mode effects use colour from colourmap.
 - intermission text screens can now be skipped.
 - console now slides up/down, smaller font.
+- can disable mouse-look in the gameplay options.
 - RTS tips are sent to the console.
 - smaller savegame files.
 

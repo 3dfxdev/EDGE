@@ -46,9 +46,12 @@
 #define DEBUG  0
 
 
+extern angle_t FIELDOFVIEW;
+
+
 static bool need_to_draw_sky = false;
 
-int sky_stretch = 0;  // ranges from 0 to 3
+int sky_stretch = 0;  // ranges from 0 to 4
 
 
 typedef struct
@@ -91,6 +94,21 @@ void RGL_SetupSkyMatrices(void)
 //	glTranslatef(0.0f, 0.0f, 0.0f);
 }
 
+void RGL_SetupSkyMatrices2D(void)
+{
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+
+	glLoadIdentity();
+	glOrtho(0.0f, (float)SCREENWIDTH, 
+			0.0f, (float)SCREENHEIGHT, -1.0f, 1.0f);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+
+	glLoadIdentity();
+}
+
 //
 // RGL_RevertSkyMatrices
 //
@@ -124,29 +142,37 @@ void RGL_FinishSky(void)
 {
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
+	if (! need_to_draw_sky)
+		return;
+
 	// draw sky picture, but DON'T affect the depth buffering
 
-	if (need_to_draw_sky)
-	{
-		glEnable(GL_TEXTURE_2D);
+	glEnable(GL_TEXTURE_2D);
 
+	glDepthMask(GL_FALSE);
+
+	if (sky_stretch == STRETCH_ORIGINAL)
+	{
+		RGL_DrawSkyOriginal();
+	}
+	else
+	{
 		if (! dumb_sky)
 			glDepthFunc(GL_GREATER);
 
-		glDepthMask(GL_FALSE);
-
 		RGL_DrawSkyBox();
-
-		glDepthFunc(GL_LEQUAL);
-		glDepthMask(GL_TRUE);
-
-		glDisable(GL_TEXTURE_2D);
-#if 0
-		// clear buffer (EXPERIMENTAL) -- render problems (ceiling you
-		//               shouln't be able to see (MAP05, MAP12).
-		glClear(GL_DEPTH_BUFFER_BIT);
-#endif
 	}
+
+	glDepthFunc(GL_LEQUAL);
+	glDepthMask(GL_TRUE);
+
+	glDisable(GL_TEXTURE_2D);
+
+#if 0
+	// clear buffer (EXPERIMENTAL) -- causes render problems: ceilings
+	// you shouldn't be able to see (MAP05, MAP12).
+	glClear(GL_DEPTH_BUFFER_BIT);
+#endif
 }
 
 void RGL_DrawSkyBox(void)
@@ -263,6 +289,62 @@ void RGL_DrawSkyBox(void)
 	RGL_RevertSkyMatrices();
 }
 
+void RGL_DrawSkyOriginal(void)
+{
+	RGL_SetupSkyMatrices2D();
+
+	float white[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	if (use_color_material || ! use_lighting)
+		glColor4fv(white);
+	else
+	{
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, white);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, white);
+	}
+
+	const cached_image_t *cim = W_ImageCache(sky_image);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim));
+ 
+	// divide screen into 32 vertical strips, since mapping is non-linear
+	glBegin(GL_QUAD_STRIP);
+ 
+	float focal_len = M_Tan((FIELDOFVIEW) / 2);
+	float centerxfrac = SCREENWIDTH / 2.0f;
+
+	float ty1 = 200.0f / 128.0f;
+	float ty2 = 0;
+
+	for (int i = 0; i <= 32; i++)
+	{
+		int sx = i * SCREENWIDTH / 32;
+
+		// use formula from original Doom code
+		angle_t ang = ANG180 + M_ATan((1.0f - sx / centerxfrac) * focal_len);
+
+		// some mucking about here to prevent wrap-around
+		float tx = (((viewangle >> 2) + (ang >> 2) + (ANG180 >> 2)) >> 20) / 256.0f;
+
+#if 0  // DEBUGGING
+I_Printf("[%i] --> %1.2f  tx %1.4f\n", i, ANG_2_FLOAT(ang), tx);
+#endif
+		glTexCoord2f(tx, 1.0f - ty1);
+		glVertex2i(sx, 0);
+
+		glTexCoord2f(tx, 1.0f - ty2); 
+		glVertex2i(sx, SCREENHEIGHT);
+ 	}
+
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+
+	W_ImageDone(cim);
+	RGL_RevertSkyMatrices();
+}
+
 //
 // RGL_DrawSkyPlane
 //
@@ -273,13 +355,11 @@ void RGL_DrawSkyPlane(subsector_t *sub, float h)
 	if (dumb_sky)
 		return;
 
-	seg_t *seg;
-
 	glNormal3f(0, 0, (viewz > h) ? 1.0f : -1.0f);
 
 	glBegin(GL_POLYGON);
 
-	for (seg=sub->segs; seg; seg=seg->sub_next)
+	for (seg_t *seg=sub->segs; seg; seg=seg->sub_next)
 	{
 		glVertex3f(seg->v1->x, seg->v1->y, h);
 	}
@@ -318,8 +398,8 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 
 extern void W_ImageClearMergingSky(void);
 
-static const float stretches[4] =
-{ 0.55f, 0.78f, 1.0f, 1.0f /* MIRROR */};
+static const float stretches[5] =
+{ 0.55f, 0.78f, 1.0f, 1.0f /* MIRROR */, 1.0f /* ORIGINAL */};
 
 void RGL_CalcSkyCoord(float sx, float sy, float sz, bool narrow, float *tx, float *ty)
 {
@@ -336,7 +416,7 @@ void RGL_CalcSkyCoord(float sx, float sy, float sz, bool narrow, float *tx, floa
 
 	float k = (float)(V >> 7) / (float)(1 << 24);
 
-	if (sky_stretch == STRETCH_MIRROR)
+	if (sky_stretch >= STRETCH_MIRROR)
 	{
 		k *= 2.0f;
 		*ty = (k > 1.0f) ? 2.0f - k : k;
@@ -349,7 +429,7 @@ void RGL_CalcSkyCoord(float sx, float sy, float sz, bool narrow, float *tx, floa
 		if (k < 0)
 			k = -pow(-k, stretches[sky_stretch]);
 		else
-			k =  pow(k,  stretches[sky_stretch]);
+			k = pow(k, stretches[sky_stretch]);
 
 		// if (k < -0.99) k = -0.99;
 		// if (k > +0.99) k = +0,99;
@@ -371,16 +451,22 @@ void RGL_UpdateSkyBoxTextures(void)
 	box_info.base_sky = sky_image;
 	box_info.last_stretch = sky_stretch;
 
-	box_info.north  = W_ImageFromSkyMerge(sky_image, WSKY_North);
-	box_info.east   = W_ImageFromSkyMerge(sky_image, WSKY_East);
-	box_info.top    = W_ImageFromSkyMerge(sky_image, WSKY_Top);
-	box_info.bottom = W_ImageFromSkyMerge(sky_image, WSKY_Bottom);
-	box_info.south  = W_ImageFromSkyMerge(sky_image, WSKY_South);
-	box_info.west   = W_ImageFromSkyMerge(sky_image, WSKY_West);
+	if (sky_stretch != STRETCH_ORIGINAL)
+	{
+		box_info.north  = W_ImageFromSkyMerge(sky_image, WSKY_North);
+		box_info.east   = W_ImageFromSkyMerge(sky_image, WSKY_East);
+		box_info.top    = W_ImageFromSkyMerge(sky_image, WSKY_Top);
+		box_info.bottom = W_ImageFromSkyMerge(sky_image, WSKY_Bottom);
+		box_info.south  = W_ImageFromSkyMerge(sky_image, WSKY_South);
+		box_info.west   = W_ImageFromSkyMerge(sky_image, WSKY_West);
+	}
 }
 
 void RGL_PreCacheSky(void)
 {
+	if (sky_stretch == STRETCH_ORIGINAL)
+		return;
+
 	W_ImagePreCache(box_info.north);
 	W_ImagePreCache(box_info.east);
 	W_ImagePreCache(box_info.top);

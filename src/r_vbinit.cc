@@ -103,6 +103,9 @@ static void CameraFrameInit_StdPlayer(void *data)
 	viewsubsector = player->mo->subsector;
 	viewvertangle = player->mo->vertangle + M_ATan(player->kick_offset);
 	view_props = R_PointGetProps(viewsubsector, viewz);
+
+	if (! level_flags.mlook)
+		viewvertangle = 0;
 }
 
 

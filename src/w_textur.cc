@@ -201,11 +201,17 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 		mpatch = &mtexture->patches[0];
 		patch = &texture->patches[0];
 
+		bool is_sky = (strncmp("SKY", texture->name, 3) == 0);
+
 		for (j = 0; j < texture->patchcount; j++, mpatch++, patch++)
 		{
 			patch->originx = EPI_LE_S16(mpatch->originx);
 			patch->originy = EPI_LE_S16(mpatch->originy);
 			patch->patch = patchlookup[EPI_LE_S16(mpatch->patch)];
+
+			// work-around for strange Y offset in SKY1 of DOOM 1 
+			if (is_sky && patch->originy < 0)
+				patch->originy = 0;
 
 			if (patch->patch == -1)
 			{
