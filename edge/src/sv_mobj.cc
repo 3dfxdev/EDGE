@@ -79,7 +79,6 @@ static mobj_t sv_dummy_mobj;
 
 static savefield_t sv_fields_mobj[] =
 {
-	/*
 	SF(x, "x", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(y, "y", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(z, "z", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
@@ -103,15 +102,18 @@ static savefield_t sv_fields_mobj[] =
 	SF(movecount, "movecount", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(reactiontime, "reactiontime", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(threshold, "threshold", 1, SVT_INT, SR_GetInt, SR_PutInt),
-	SF(player, "player", 1, SVT_INDEX("players"), SR_MobjGetPlayer, SR_MobjPutPlayer),
-	SF(spawnpoint, "spawnpoint", 1, SVT_STRUCT("spawnpoint_t"), SR_MobjGetSpawnPoint, SR_MobjPutSpawnPoint),
+  SF(player, "player", 1, SVT_INDEX("players"), 
+      SR_MobjGetPlayer, SR_MobjPutPlayer),
+  SF(spawnpoint, "spawnpoint", 1, SVT_STRUCT("spawnpoint_t"), 
+      SR_MobjGetSpawnPoint, SR_MobjPutSpawnPoint),
 	SF(origheight, "origheight", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(visibility, "visibility", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(vis_target, "vis_target", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(vertangle, "vertangle", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(spreadcount, "spreadcount", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(side, "side", 1, SVT_INT, SR_GetInt, SR_PutInt),
-	SF(currentattack, "currentattack", 1, SVT_FLOAT, SR_MobjGetAttack, SR_MobjPutAttack),
+  SF(currentattack, "currentattack", 1, SVT_FLOAT, 
+      SR_MobjGetAttack, SR_MobjPutAttack),
 	SF(source, "source", 1, SVT_INDEX("mobjs"), SR_MobjGetMobj, SR_MobjPutMobj),
 	SF(target, "target", 1, SVT_INDEX("mobjs"), SR_MobjGetMobj, SR_MobjPutMobj),
 	SF(tracer, "tracer", 1, SVT_INDEX("mobjs"), SR_MobjGetMobj, SR_MobjPutMobj),
@@ -121,10 +123,10 @@ static savefield_t sv_fields_mobj[] =
 	SF(ride_dx, "ride_dx", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(ride_dy, "ride_dy", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(on_ladder, "on_ladder", 1, SVT_INT, SR_GetInt, SR_PutInt),
-	SF(path_trigger, "path_trigger", 1, SVT_STRING, SR_TriggerGetScript, SR_TriggerPutScript),
+  SF(path_trigger, "path_trigger", 1, SVT_STRING,
+      SR_TriggerGetScript, SR_TriggerPutScript),
 	SF(dlight_qty, "dlight_qty", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(dlight_target, "dlight_target", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
-	*/
 
 	// NOT HERE:
 	//   subsector & region: these are regenerated.
@@ -137,17 +139,18 @@ static savefield_t sv_fields_mobj[] =
 	SVFIELD_END
 };
 
-#undef SV_F_BASE
-
 savestruct_t sv_struct_mobj =
 {
 	NULL,            // link in list
 	"mobj_t",        // structure name
 	"mobj",          // start marker
 	sv_fields_mobj,  // field descriptions
+  SVDUMMY,         // dummy base
 	true,            // define_me
 	NULL             // pointer to known struct
 };
+
+#undef SV_F_BASE
 
 savearray_t sv_array_mobj =
 {
@@ -176,7 +179,6 @@ static spawnpoint_t sv_dummy_spawnpoint;
 
 static savefield_t sv_fields_spawnpoint[] =
 {
-	/*
 	SF(x, "x", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(y, "y", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(z, "z", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
@@ -184,12 +186,9 @@ static savefield_t sv_fields_spawnpoint[] =
 	SF(slope, "slope", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(info, "info", 1, SVT_STRING, SR_MobjGetType, SR_MobjPutType),
 	SF(flags, "flags", 1, SVT_INT, SR_GetInt, SR_PutInt),
-	*/
 
 	SVFIELD_END
 };
-
-#undef SV_F_BASE
 
 savestruct_t sv_struct_spawnpoint =
 {
@@ -197,9 +196,12 @@ savestruct_t sv_struct_spawnpoint =
 	"spawnpoint_t",       // structure name
 	"spwn",               // start marker
 	sv_fields_spawnpoint, // field descriptions
+  SVDUMMY,              // dummy base
 	true,                 // define_me
 	NULL                  // pointer to known struct
 };
+
+#undef SV_F_BASE
 
 
 //----------------------------------------------------------------------------
@@ -212,8 +214,9 @@ static iteminque_t sv_dummy_iteminque;
 
 static savefield_t sv_fields_iteminque[] =
 {
-	//SF(spawnpoint, "spawnpoint", 1, SVT_STRUCT("spawnpoint_t"), SR_MobjGetSpawnPoint, SR_MobjPutSpawnPoint),
-	//SF(time, "time", 1, SVT_INT, SR_GetInt, SR_PutInt),
+  SF(spawnpoint, "spawnpoint", 1, SVT_STRUCT("spawnpoint_t"), 
+      SR_MobjGetSpawnPoint, SR_MobjPutSpawnPoint),
+  SF(time, "time", 1, SVT_INT, SR_GetInt, SR_PutInt),
 
 	// NOT HERE:
 	//   next,prev: links are regenerated.
@@ -221,17 +224,18 @@ static savefield_t sv_fields_iteminque[] =
 	SVFIELD_END
 };
 
-#undef SV_F_BASE
-
 savestruct_t sv_struct_iteminque =
 {
 	NULL,                 // link in list
 	"iteminque_t",        // structure name
 	"itmq",               // start marker
 	sv_fields_iteminque,  // field descriptions
+  SVDUMMY,              // dummy base
 	true,                 // define_me
 	NULL                  // pointer to known struct
 };
+
+#undef SV_F_BASE
 
 savearray_t sv_array_iteminque =
 {
@@ -492,7 +496,7 @@ boolean_t SR_MobjGetPlayer(void *storage, int index, void *extra)
 
 	int swizzle = SV_GetInt();
 
-	*dest = (player_t*)((swizzle == 0) ? NULL : SV_PlayerGetElem(swizzle - 1));
+  *dest = (swizzle == 0) ? NULL : SV_PlayerGetElem(swizzle - 1);
 	return true;
 }
 
@@ -517,7 +521,7 @@ boolean_t SR_MobjGetMobj(void *storage, int index, void *extra)
 
 	int swizzle = SV_GetInt();
 
-	*dest = (mobj_t*)((swizzle == 0) ? NULL : SV_MobjGetElem(swizzle - 1));
+  *dest = (swizzle == 0) ? NULL : SV_MobjGetElem(swizzle - 1);
 	return true;
 }
 

@@ -62,6 +62,7 @@ void SV_SaveStruct(void *base, savestruct_t *info)
 {
   savefield_t *cur;
   char *storage;
+  int offset;
   int i;
   
   SV_PushWriteChunk(info->marker);
@@ -72,7 +73,9 @@ void SV_SaveStruct(void *base, savestruct_t *info)
     if (! cur->field_put)
       continue;
     
-    storage = ((char *)base) + cur->offset;
+    offset = cur->offset_p - info->dummy_base;
+
+    storage = ((char *)base) + offset;
 
     for (i=0; i < cur->count; i++)
     {

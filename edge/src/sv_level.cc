@@ -99,7 +99,6 @@ static surface_t sv_dummy_surface;
 
 static savefield_t sv_fields_surface[] =
 {
-	/*
 	SF(image, "image", 1, SVT_STRING, SR_LevelGetImage, SR_LevelPutImage),
 	SF(translucency, "translucency", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 
@@ -108,13 +107,11 @@ static savefield_t sv_fields_surface[] =
 	SF(x_mat, "x_mat", 1, SVT_VEC2, SR_GetVec2, SR_PutVec2),
 	SF(y_mat, "y_mat", 1, SVT_VEC2, SR_GetVec2, SR_PutVec2),
 
-	SF(override_p, "override_p", 1, SVT_STRING, SR_SectorGetPropRef, SR_SectorPutPropRef),
-	*/
+  SF(override_p, "override_p", 1, SVT_STRING, 
+      SR_SectorGetPropRef, SR_SectorPutPropRef),
 
 	SVFIELD_END
 };
-
-#undef SV_F_BASE
 
 savestruct_t sv_struct_surface =
 {
@@ -122,9 +119,12 @@ savestruct_t sv_struct_surface =
 	"surface_t",           // structure name
 	"surf",                // start marker
 	sv_fields_surface,     // field descriptions
+  SVDUMMY,               // dummy base
 	true,                  // define_me
 	NULL                   // pointer to known struct
 };
+
+#undef SV_F_BASE
 
 
 //----------------------------------------------------------------------------
@@ -137,11 +137,12 @@ static side_t sv_dummy_side;
 
 static savefield_t sv_fields_side[] =
 {
-	/*
-	SF(top, "top", 1, SVT_STRUCT("surface_t"), SR_LevelGetSurface, SR_LevelPutSurface),
-	SF(middle, "middle", 1, SVT_STRUCT("surface_t"), SR_LevelGetSurface, SR_LevelPutSurface),
-	SF(bottom, "bottom", 1, SVT_STRUCT("surface_t"), SR_LevelGetSurface, SR_LevelPutSurface),
-	*/
+  SF(top, "top", 1, SVT_STRUCT("surface_t"), 
+      SR_LevelGetSurface, SR_LevelPutSurface),
+  SF(middle, "middle", 1, SVT_STRUCT("surface_t"), 
+      SR_LevelGetSurface, SR_LevelPutSurface),
+  SF(bottom, "bottom", 1, SVT_STRUCT("surface_t"), 
+      SR_LevelGetSurface, SR_LevelPutSurface),
 
 	// NOT HERE:
 	//   sector: value is kept from level load.
@@ -149,17 +150,18 @@ static savefield_t sv_fields_side[] =
 	SVFIELD_END
 };
 
-#undef SV_F_BASE
-
 savestruct_t sv_struct_side =
 {
 	NULL,          // link in list
 	"side_t",      // structure name
 	"side",        // start marker
 	sv_fields_side,  // field descriptions
+  SVDUMMY,       // dummy base
 	true,          // define_me
 	NULL           // pointer to known struct
 };
+
+#undef SV_F_BASE
 
 savearray_t sv_array_side =
 {
@@ -188,12 +190,10 @@ static line_t sv_dummy_line;
 
 static savefield_t sv_fields_line[] =
 {
-	/*
 	SF(flags, "flags", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(tag,   "tag",   1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(count, "count", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(special, "special", 1, SVT_STRING, SR_LineGetSpecial, SR_LinePutSpecial),
-	*/
 
 	// NOT HERE:
 	//   (many): values are kept from level load.
@@ -205,17 +205,18 @@ static savefield_t sv_fields_line[] =
 	SVFIELD_END
 };
 
-#undef SV_F_BASE
-
 savestruct_t sv_struct_line =
 {
 	NULL,          // link in list
 	"line_t",      // structure name
 	"line",        // start marker
 	sv_fields_line,  // field descriptions
+  SVDUMMY,       // dummy base
 	true,          // define_me
 	NULL           // pointer to known struct
 };
+
+#undef SV_F_BASE
 
 savearray_t sv_array_line =
 {
@@ -244,7 +245,6 @@ static region_properties_t sv_dummy_regprops;
 
 static savefield_t sv_fields_regprops[] =
 {
-	/*
 	SF(lightlevel, "lightlevel_i", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(colourmap,  "colourmap", 1, SVT_STRING, SR_LevelGetColmap, 
 	SR_LevelPutColmap),
@@ -256,12 +256,9 @@ static savefield_t sv_fields_regprops[] =
 	SF(viscosity, "viscosity", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(drag, "drag", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(push, "push", 1, SVT_VEC3, SR_GetVec3, SR_PutVec3),
-	*/
 
 	SVFIELD_END
 };
-
-#undef SV_F_BASE
 
 savestruct_t sv_struct_regprops =
 {
@@ -269,9 +266,12 @@ savestruct_t sv_struct_regprops =
 	"region_properties_t",  // structure name
 	"rprp",                 // start marker
 	sv_fields_regprops,     // field descriptions
+  SVDUMMY,                // dummy base
 	true,                   // define_me
 	NULL                    // pointer to known struct
 };
+
+#undef SV_F_BASE
 
 
 //----------------------------------------------------------------------------
@@ -284,21 +284,25 @@ static extrafloor_t sv_dummy_exfloor;
 
 static savefield_t sv_fields_exfloor[] =
 {
-	/*
-	SF(higher, "higher", 1, SVT_INDEX("extrafloors"), SR_SectorGetEF, SR_SectorPutEF),
-	SF(lower, "lower", 1, SVT_INDEX("extrafloors"), SR_SectorGetEF, SR_SectorPutEF),
+  SF(higher, "higher", 1, SVT_INDEX("extrafloors"),
+      SR_SectorGetEF, SR_SectorPutEF),
+  SF(lower, "lower", 1, SVT_INDEX("extrafloors"),
+      SR_SectorGetEF, SR_SectorPutEF),
 	SF(sector, "sector", 1, SVT_INDEX("sectors"), 
 	SR_SectorGetSector, SR_SectorPutSector),
 
 	SF(top_h, "top_h", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(bottom_h, "bottom_h", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
-	SF(top, "top", 1, SVT_STRING, SR_LevelGetSurfPtr, SR_LevelPutSurfPtr),
-	SF(bottom, "bottom", 1, SVT_STRING, SR_LevelGetSurfPtr, SR_LevelPutSurfPtr), 
+  SF(top, "top", 1, SVT_STRING, 
+      SR_LevelGetSurfPtr, SR_LevelPutSurfPtr),
+  SF(bottom, "bottom", 1, SVT_STRING, 
+      SR_LevelGetSurfPtr, SR_LevelPutSurfPtr),
 	SF(p, "p", 1, SVT_STRING, SR_SectorGetPropRef, SR_SectorPutPropRef),
 
-	SF(ef_line, "ef_line", 1, SVT_INDEX("lines"), SR_LineGetLine, SR_LinePutLine),
-	SF(ctrl_next, "ctrl_next", 1, SVT_INDEX("extrafloors"),	SR_SectorGetEF, SR_SectorPutEF),
-	*/
+  SF(ef_line, "ef_line", 1, SVT_INDEX("lines"), 
+      SR_LineGetLine, SR_LinePutLine),
+  SF(ctrl_next, "ctrl_next", 1, SVT_INDEX("extrafloors"),
+      SR_SectorGetEF, SR_SectorPutEF),
 
 	// NOT HERE:
 	//   - sector: can be regenerated.
@@ -307,17 +311,18 @@ static savefield_t sv_fields_exfloor[] =
 	SVFIELD_END
 };
 
-#undef SV_F_BASE
-
 savestruct_t sv_struct_exfloor =
 {
 	NULL,              // link in list
 	"extrafloor_t",    // structure name
 	"exfl",            // start marker
 	sv_fields_exfloor, // field descriptions
+  SVDUMMY,           // dummy base
 	true,              // define_me
 	NULL               // pointer to known struct
 };
+
+#undef SV_F_BASE
 
 savearray_t sv_array_exfloor =
 {
@@ -346,24 +351,30 @@ static sector_t sv_dummy_sector;
 
 static savefield_t sv_fields_sector[] =
 {
-	/*
-	SF(floor, "floor", 1, SVT_STRUCT("surface_t"), SR_LevelGetSurface, SR_LevelPutSurface),
-	SF(ceil, "ceil", 1, SVT_STRUCT("surface_t"), SR_LevelGetSurface, SR_LevelPutSurface),
+  SF(floor, "floor", 1, SVT_STRUCT("surface_t"), 
+      SR_LevelGetSurface, SR_LevelPutSurface),
+  SF(ceil, "ceil", 1, SVT_STRUCT("surface_t"), 
+      SR_LevelGetSurface, SR_LevelPutSurface),
 	SF(f_h, "f_h", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(c_h, "c_h", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 
-	SF(props, "props", 1, SVT_STRUCT("region_properties_t"), SR_SectorGetProps, SR_SectorPutProps),
+  SF(props, "props", 1, SVT_STRUCT("region_properties_t"), 
+      SR_SectorGetProps, SR_SectorPutProps),
 	SF(p, "p", 1, SVT_STRING, SR_SectorGetPropRef, SR_SectorPutPropRef),
 
 	SF(exfloor_used, "exfloor_used", 1, SVT_INT, SR_GetInt, SR_PutInt),
-	SF(control_floors, "control_floors", 1, SVT_INDEX("extrafloors"), SR_SectorGetEF, SR_SectorPutEF),
+  SF(control_floors, "control_floors", 1, SVT_INDEX("extrafloors"),
+      SR_SectorGetEF, SR_SectorPutEF),
 	SF(sound_player, "sound_player", 1, SVT_INT, SR_GetInt, SR_PutInt),
 
-	SF(bottom_ef, "bottom_ef", 1, SVT_INDEX("extrafloors"), SR_SectorGetEF, SR_SectorPutEF),
-	SF(top_ef, "top_ef", 1, SVT_INDEX("extrafloors"), SR_SectorGetEF, SR_SectorPutEF),
-	SF(bottom_liq, "bottom_liq", 1, SVT_INDEX("extrafloors"), SR_SectorGetEF, SR_SectorPutEF),
-	SF(top_liq, "top_liq", 1, SVT_INDEX("extrafloors"), SR_SectorGetEF, SR_SectorPutEF),
-	*/
+  SF(bottom_ef, "bottom_ef", 1, SVT_INDEX("extrafloors"),
+      SR_SectorGetEF, SR_SectorPutEF),
+  SF(top_ef, "top_ef", 1, SVT_INDEX("extrafloors"),
+      SR_SectorGetEF, SR_SectorPutEF),
+  SF(bottom_liq, "bottom_liq", 1, SVT_INDEX("extrafloors"),
+      SR_SectorGetEF, SR_SectorPutEF),
+  SF(top_liq, "top_liq", 1, SVT_INDEX("extrafloors"),
+      SR_SectorGetEF, SR_SectorPutEF),
 
 	// NOT HERE:
 	//   - floor_move, ceil_move: can be regenerated
@@ -374,17 +385,18 @@ static savefield_t sv_fields_sector[] =
 	SVFIELD_END
 };
 
-#undef SV_F_BASE
-
 savestruct_t sv_struct_sector =
 {
 	NULL,              // link in list
 	"sector_t",        // structure name
 	"sect",            // start marker
 	sv_fields_sector,  // field descriptions
+  SVDUMMY,           // dummy base
 	true,              // define_me
 	NULL               // pointer to known struct
 };
+
+#undef SV_F_BASE
 
 savearray_t sv_array_sector =
 {
