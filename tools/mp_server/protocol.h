@@ -21,6 +21,8 @@
 
 #define MP_PROTOCOL_VER  0x070  /* 0.7.0 */
 
+#define MP_PLAYER_MAX  30
+
 //
 // common packet header
 //
@@ -171,7 +173,9 @@ typedef struct game_info_s
 		MD_AltDeath = 'A'
 	};
 
-	s16_t min_players;
+	s16_t min_players;  // real players
+	s16_t num_players;  // --> (output field)
+
 	s16_t num_bots;
 
 	u32_t features;
@@ -185,8 +189,8 @@ typedef struct game_info_s
 		FT_VertLook   = (1 << 3),
 		FT_AutoAim    = (1 << 4),
 
-		// compatibility mode:
-		FT_BoomCompat = (1 << 30)
+		FT_BoomCompat = (1 << 16), // compatibility mode
+		FT_HelpBots   = (1 << 17), // bots will help each player
 	};
 
 	u16_t wad_checksum;  // checksum over all loaded wads
@@ -194,7 +198,6 @@ typedef struct game_info_s
 
 	/* --- query output --- */
 
-	s16_t num_players;
 	s16_t num_votes;
 
 	byte state;
@@ -267,8 +270,6 @@ join_queue_proto_t;
 //
 typedef struct play_game_proto_s
 {
-	static const int PLAYER_MAX = 30;
-
 	byte real_players;
 	byte bots_each;  // how many bots handled by each client
 
@@ -278,7 +279,8 @@ typedef struct play_game_proto_s
 	byte first_player;
 	byte count;
 
-	// client IDs for each player (upto PLAYER_MAX).  No bots here.
+	// client IDs for each player (upto MP_PLAYER_MAX).
+	// bots are NOT included here.
 	s16_t client_list[1];
 
 	void ByteSwap();
@@ -309,11 +311,11 @@ raw_ticcmd_t;
 // Holds the ticcmds send from client to server.  'count' is the
 // number of tics (starting at tic_counter).  Bot ticcmds must
 // follow the real player's ticcmds, for example when count is
-// three and have two bots:
+// three and there are two bots:
 //
-//    (tic +0)  Player,Bot0,Bot1,
-//    (tic +1)  Player,Bot0,Bot1,
-//    (tic +2)  Player,Bot0,Bot1.
+//    (tic +0)  Player,Bot1,Bot2,
+//    (tic +1)  Player,Bot1,Bot2,
+//    (tic +2)  Player,Bot1,Bot2.
 //
 typedef struct ticcmd_proto_s
 {
@@ -337,8 +339,8 @@ ticcmd_proto_t;
 // Holds the ticcmds for _ONE_ single tic.  Bot ticcmds must follow
 // each player, for example with two players and three bots each:
 //
-//    Player0, Bot0, Bot1, Bot2,
-//    Player1, Bot3, Bot4, Bot5.
+//    Player0, Bot1, Bot2, Bot3,
+//    Player4, Bot5, Bot6, Bot7.
 //
 typedef struct tic_group_proto_s
 {

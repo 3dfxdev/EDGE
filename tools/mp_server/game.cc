@@ -36,8 +36,10 @@ game_c::game_c(const game_info_t *info) : state(ST_Zombie),
     game_name(info->game_name),
 	level_name(info->level_name),
 	mode(info->mode), skill(info->skill),
-	min_players(info->min_players), num_bots(info->num_bots),
-	queuers(), players(), num_players(0), num_votes(0),
+	min_players(info->min_players),
+	num_bots(info->num_bots),
+	queuers(), players(),
+	num_players(0), bots_each(0), num_votes(0),
 	tic_counter(0), got_cmds(), tic_cmds(NULL),
 	zombie_millies(0)
 {
@@ -114,14 +116,18 @@ void game_c::FillGameInfo(game_info_t *info) const
 			break;
 	}
 
-	strcpy(info->game_name,  game_name.c_str());
-	strcpy(info->level_name, level_name.c_str());
+	strcpy(info->engine_name, engine_name.c_str());
+	strcpy(info->game_name,   game_name.c_str());
+	strcpy(info->level_name,  level_name.c_str());
 
 	info->mode  = mode;
 	info->skill = skill;
 	 
 	info->min_players = min_players;
-	info->num_bots  = num_bots;
+	info->num_bots    = num_bots;
+
+	//!!! FIXME: features
+	//!!! FIXME: wad_checksum, def_checksum
 
 	if (state == ST_Queueing)
 		info->num_players = queuers.size();
@@ -154,6 +160,22 @@ void game_c::BumpTic()
 	got_cmds.reset();
 }
 
+void game_c::CalcBots()
+{
+	SYS_ASSERT(num_players > 0);
+	SYS_ASSERT(num_players <= MP_PLAYER_MAX);
+
+	if (num_bots + num_players >= MP_PLAYER_MAX)
+		num_bots = MP_PLAYER_MAX - num_players;
+	
+	bots_each = num_bots  / num_players;
+
+	if (bots_each > ticcmd_proto_t::TICCMD_FIT - 2)
+		bots_each = ticcmd_proto_t::TICCMD_FIT - 2;
+	
+	num_bots = bots_each * num_players;
+}
+
 //------------------------------------------------------------------------
 
 bool GameExists(short idx)
@@ -179,10 +201,12 @@ static void SV_build_play_game(game_c *GM, packet_c *pk)
 
 	// Fixme: support more players
 
-///???	gm.tic_counter = GM->tic_counter;
-
 	gm.real_players = GM->num_players;
-	gm.bots_each    = GM->num_bots / GM->num_players;
+	gm.bots_each    = GM->bots_each;
+
+	// assume RAND_MAX could be small (e.g. 0x7FFF)
+	gm.random_seed  = ((rand() & 0xFF) << 24) || ((rand() & 0xFF) << 16) ||
+	                  ((rand() & 0xFF) <<  8) || (rand() & 0xFF);
 
 	gm.first_player  = 0;
 	gm.count = GM->num_players;
@@ -228,6 +252,9 @@ static void BeginGame(game_c *GM)
 		GM->InitGame();
 	}
 	// NOW UNLOCKED
+
+	// update number of bots (could end up as zero)
+	GM->CalcBots();
 
 	// send PLAY packets !!
 
@@ -324,6 +351,11 @@ void PK_new_game(packet_c *pk)
 	ng.ByteSwap();
 
 	// !!! FIXME: validate game info
+
+	// ensure names are NUL-terminated
+	ng.info.engine_name[game_info_t::ENGINE_STR_MAX-1] = 0;
+	ng.info.game_name  [game_info_t::GAME_STR_MAX  -1] = 0;
+	ng.info.level_name [game_info_t::LEVEL_STR_MAX -1] = 0;
 
 	game_c *GM;
 
@@ -512,11 +544,12 @@ void PK_query_game(packet_c *pk)
 	short cur_id = qg.first_game;
 	byte  total  = qg.count;
 
-	if (total == 0)
+	if (total == 0)  // FIXME: allow zero (get just the total)
 		return;
 
 	while (total > 0)
 	{
+		qg.total_games = games.size();
 		qg.first_game = cur_id;
 		qg.count = MIN(total, query_game_proto_t::GAME_FIT);
 		
