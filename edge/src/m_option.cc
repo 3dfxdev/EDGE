@@ -757,7 +757,7 @@ void M_OptDrawer()
 		const image_t *image;
 
 		if (! curr_menu->title_image)
-			curr_menu->title_image = W_ImageFromPatch(curr_menu->title_name);
+			curr_menu->title_image = W_ImageLookup(curr_menu->title_name);
 
 		image = curr_menu->title_image;
 

@@ -52,9 +52,12 @@ void style_c::Load()
 {
 	if (def->bg.image_name.GetString())
 	{
-		bg_image = W_ImageFromTexture(def->bg.image_name.GetString(), true);
+		const char *name = def->bg.image_name.GetString();
+
+		bg_image = W_ImageLookup(name, IMSRC_Flat, ILF_Null);
+
 		if (! bg_image)
-			bg_image = W_ImageFromPatch(def->bg.image_name.GetString());
+			bg_image = W_ImageLookup(name, IMSRC_Patch);
 	}
 
 	for (int T = 0; T < styledef_c::NUM_TXST; T++)

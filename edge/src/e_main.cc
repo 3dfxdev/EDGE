@@ -600,7 +600,7 @@ static void M_DisplayPause(void)
 	static const image_t *pause_image = NULL;
 
 	if (! pause_image)
-		pause_image = W_ImageFromPatch("M_PAUSE");
+		pause_image = W_ImageLookup("M_PAUSE");
 
 	// make sure image is centered horizontally
 
@@ -857,7 +857,7 @@ static void TitleNextPicture(void)
 		if (page_pic == 0 && g->titlemusic > 0)
 			S_ChangeMusic(g->titlemusic, false);
 
-		page_image = W_ImageFromPatch(g->titlepics[page_pic]);
+		page_image = W_ImageLookup(g->titlepics[page_pic]);
 		page_pic += 1;
     
 		return;
@@ -1560,7 +1560,7 @@ startuporder_t startcode[] =
 	{  1, SetLanguage,         },
 	{  1, ShowNotice,          },
 	{  1, SV_MainInit,         },
-	{  2, W_CreateUserImages,  },
+	{  2, W_ImageCreateUser,   },
 	{  1, M_Init,              },
 	{ 10, R_Init,              },
 	{  1, P_Init,              },

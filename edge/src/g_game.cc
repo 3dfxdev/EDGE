@@ -204,7 +204,7 @@ void G_DoLoadLevel(void)
 	//
 	// -ACB- 1998/08/09 Reference current map for sky name.
 
-	sky_image = W_ImageFromTexture(currmap->sky);
+	sky_image = W_ImageLookup(currmap->sky, IMSRC_Texture);
 
 	if (wipegamestate == GS_LEVEL)
 		wipegamestate = GS_NOTHING;  // force a wipe

@@ -696,28 +696,28 @@ static void LoadGraphics(void)
 	for (i = 0; i < 10; i++)
 	{
 		sprintf(namebuf, "STTNUM%d", i);
-		tallnum[i] = W_ImageFromFont(namebuf);
+		tallnum[i] = W_ImageLookup(namebuf, IMSRC_Font);
 
 		sprintf(namebuf, "STYSNUM%d", i);
-		shortnum[i] = W_ImageFromFont(namebuf);
+		shortnum[i] = W_ImageLookup(namebuf, IMSRC_Font);
 	}
 
 	// Load percent key.
-	tallpercent = W_ImageFromFont("STTPRCNT");
+	tallpercent = W_ImageLookup("STTPRCNT", IMSRC_Font);
 
 	// Load '-'
-	sttminus = W_ImageFromFont("STTMINUS");
+	sttminus = W_ImageLookup("STTMINUS", IMSRC_Font);
 
 	// key cards
 	// -ACB- 1998/09/11 Include dual card/skull graphics
 	for (i = 0; i < 9; i++)
 	{
 		sprintf(namebuf, "STKEYS%d", i);
-		keys[i] = W_ImageFromPatch(namebuf);
+		keys[i] = W_ImageLookup(namebuf);
 	}
 
 	// arms background
-	armsbg = W_ImageFromPatch("STARMS");
+	armsbg = W_ImageLookup("STARMS");
 
 	// arms ownership widgets
 	for (i = 0; i < 6; i++)
@@ -725,7 +725,7 @@ static void LoadGraphics(void)
 		sprintf(namebuf, "STGNUM%d", i + 2);
 
 		// gray #
-		arms[i][0] = W_ImageFromPatch(namebuf);
+		arms[i][0] = W_ImageLookup(namebuf);
 
 		// yellow #
 		arms[i][1] = shortnum[i + 2];
@@ -735,11 +735,11 @@ static void LoadGraphics(void)
 	for (i = 0; i < 8; i++)
 	{
 		sprintf(namebuf, "STFB%d", i);
-		faceback[i] = W_ImageFromPatch(namebuf);
+		faceback[i] = W_ImageLookup(namebuf);
 	}
 
 	// status bar background bits
-	sbar_image = W_ImageFromPatch("STBAR");
+	sbar_image = W_ImageLookup("STBAR");
 
 	// face states
 	facenum = 0;
@@ -748,32 +748,32 @@ static void LoadGraphics(void)
 		for (j = 0; j < ST_NUMSTRAIGHTFACES; j++)
 		{
 			sprintf(namebuf, "STFST%d%d", i, j);
-			faces[facenum++] = W_ImageFromPatch(namebuf);
+			faces[facenum++] = W_ImageLookup(namebuf);
 		}
 
 		// turn right
 		sprintf(namebuf, "STFTR%d0", i);
-		faces[facenum++] = W_ImageFromPatch(namebuf);
+		faces[facenum++] = W_ImageLookup(namebuf);
 
 		// turn left
 		sprintf(namebuf, "STFTL%d0", i);
-		faces[facenum++] = W_ImageFromPatch(namebuf);
+		faces[facenum++] = W_ImageLookup(namebuf);
 
 		// ouch!
 		sprintf(namebuf, "STFOUCH%d", i);
-		faces[facenum++] = W_ImageFromPatch(namebuf);
+		faces[facenum++] = W_ImageLookup(namebuf);
 
 		// evil grin ;)
 		sprintf(namebuf, "STFEVL%d", i);
-		faces[facenum++] = W_ImageFromPatch(namebuf);
+		faces[facenum++] = W_ImageLookup(namebuf);
 
 		// pissed off
 		sprintf(namebuf, "STFKILL%d", i);
-		faces[facenum++] = W_ImageFromPatch(namebuf);
+		faces[facenum++] = W_ImageLookup(namebuf);
 	}
 
-	faces[facenum++] = W_ImageFromPatch("STFGOD0");
-	faces[facenum]   = W_ImageFromPatch("STFDEAD0");
+	faces[facenum++] = W_ImageLookup("STFGOD0");
+	faces[facenum]   = W_ImageLookup("STFDEAD0");
 }
 
 static void LoadData(void)

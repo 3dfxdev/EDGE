@@ -980,7 +980,7 @@ void UpdateConback(cvar_t *var, void *user)
 
 	flat = (const char *)CON_CVarGetValue(var);
 
-	console_bg_image = W_ImageFromFlat(flat);
+	console_bg_image = W_ImageLookup(flat, IMSRC_Flat);
 }
 
 void CON_Start(gui_t ** gui)
