@@ -236,10 +236,9 @@ typedef struct sector_s
 
   // -AJA- 2001/07/11: New multiple extrafloor code.
   //
-  // Now only the
-  // FLOORS ARE IMPLIED.  Unlike before, the floor below an extrafloor
-  // is NOT stored in each extrafloor_t -- you must scan down to find
-  // them, and use the sector's floor if you hit NULL.
+  // Now the FLOORS ARE IMPLIED.  Unlike before, the floor below an
+  // extrafloor is NOT stored in each extrafloor_t -- you must scan
+  // down to find them, and use the sector's floor if you hit NULL.
   //
   extrafloor_t *bottom_ef;
   extrafloor_t *top_ef;
@@ -262,8 +261,9 @@ typedef struct sector_s
   //
   extrafloor_t *control_floors;
  
-  void *floor_move;
-  void *ceil_move;
+  // movement thinkers, for quick look-up
+  struct gen_move_s *floor_move;
+  struct gen_move_s *ceil_move;
 
   // 0 = untraversed, 1,2 = sndlines-1
   int soundtraversed;
@@ -428,7 +428,7 @@ typedef struct line_s
   vgap_t *gaps;
 
   // slider thinker, normally NULL
-  void *slider_special;
+  struct slider_move_s *slider_move;
 
   // Keep animating lines in a linked list.
   struct line_s *animate_next;
