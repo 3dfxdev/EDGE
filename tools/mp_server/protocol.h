@@ -49,6 +49,7 @@ typedef struct header_proto_s
 	// flags:
 	enum
 	{
+		FL_MeToo = 0x0010,   // for message packets: include sender
 		FL_Retransmission = 0x4000,
 	};
 }
@@ -103,6 +104,7 @@ typedef struct client_info_s
 	/* --- query output --- */
 
 	s16_t game;
+	byte  team;
 
 	char state;
 
@@ -112,7 +114,7 @@ typedef struct client_info_s
 		CS_Browsing = 'B',
 		CS_Queueing = 'Q',
 		CS_Voted    = 'V',  // implies Queueing
-		CS_Playing  = 'P'
+		CS_Playing  = 'P',
 	};
 
 	void ByteSwap();
@@ -171,7 +173,7 @@ typedef struct game_info_s
 	static const int GAME_STR_MAX   = 12;
 	static const int LEVEL_STR_MAX  = 8;
 
-	char engine_name[ENGINE_STR_MAX]; // e.g. EDGE129 (Note: includes version)
+	char engine_name[ENGINE_STR_MAX]; // e.g. EDGE130 (Note: includes version)
 	char game_name[GAME_STR_MAX];     // e.g. DOOM2
 	char level_name[LEVEL_STR_MAX];   // e.g. MAP01
 
@@ -180,30 +182,37 @@ typedef struct game_info_s
 
 	enum  // mode values:
 	{
-		MD_Coop = 'C',
+		MD_Coop       = 'C',
 		MD_DeathMatch = 'D',
-		MD_AltDeath = 'A'
+		MD_AltDeath   = 'A',
+		MD_CatchFlag  = 'F',
+		MD_LastMan    = 'L',
 	};
 
 	byte min_players;  // real players
 	byte num_players;  // --> (output field)
 
+	byte num_teams;  //!!!!
 	byte num_bots;
 	byte num_votes;  // (OUTPUT)
 
+	u32_t gameplay;
 	u32_t features;
 	u32_t reserved;  // (future expansion)
 
+	enum  // gameplay bitflags:
+	{
+		GP_Jumping    = (1 << 0),
+		GP_Crouching  = (1 << 1),
+		GP_Zooming    = (1 << 2),
+		GP_MLook      = (1 << 3),
+		GP_AutoAim    = (1 << 4),
+	};
+
 	enum  // feature bitflags:
 	{
-		FT_Jumping    = (1 << 0),
-		FT_Crouching  = (1 << 1),
-		FT_Zooming    = (1 << 2),
-		FT_VertLook   = (1 << 3),
-		FT_AutoAim    = (1 << 4),
-
-		FT_BoomCompat = (1 << 16), // compatibility mode
-		FT_HelpBots   = (1 << 17), // bots will help each player
+		FT_BoomCompat = (1 << 0), // compatibility mode
+		FT_HelpBots   = (1 << 1), // bots will help each player
 	};
 
 	u16_t wad_checksum;  // checksum over all loaded wads
@@ -217,7 +226,7 @@ typedef struct game_info_s
 	{
 		GS_NotExist = 'N',
 		GS_Queued   = 'Q',
-		GS_Playing  = 'P'
+		GS_Playing  = 'P',
 	};
 
 	void ByteSwap();
@@ -265,7 +274,8 @@ query_game_proto_t;
 typedef struct join_queue_proto_s
 {
 	s16_t game;
-	s16_t reserved;
+	byte  team;
+	byte  reserved;
 
 	void ByteSwap();
 }
