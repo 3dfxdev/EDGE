@@ -1866,7 +1866,7 @@ static bool PIT_RadiusAttack(mobj_t * thing)
 
 	// Boss types take no damage from concussion.
 	// -ACB- 1998/06/14 Changed enum reference to extended flag check.
-	if (thing->info->extendedflags & EF_BOSSMAN)
+	if (thing->info->extendedflags & EF_EXPLODEIMMUNE)
 		return true;
 
 	dx = (float)fabs(thing->x - bomb_I.spot->x);
@@ -1922,7 +1922,7 @@ static bool PIT_SphereAttack(mobj_t * thing)
 	// Boss types take no damage from concussion.
 	// -ACB- 1998/06/14 Changed enum reference to extended flag check.
 	//
-	if (thing->info->extendedflags & EF_BOSSMAN)
+	if (thing->info->extendedflags & EF_EXPLODEIMMUNE)
 		return true;
 
 	// -KM- 1999/01/31 Use thing->height/2

@@ -219,9 +219,9 @@ mobjflag_t;
 
 typedef enum
 {
-	// Act like a big ugly bossman (ignores certain types of damage and
-	// makes start and death sound at full volume regardless of location).
-	EF_BOSSMAN = 1,
+	// -AJA- 2004/07/22: ignore certain types of damage
+	// (previously was the EF_BOSSMAN flag).
+	EF_EXPLODEIMMUNE = 1,
 
 	// Used when varying visibility levels
 	EF_LESSVIS = 2,
@@ -312,7 +312,11 @@ typedef enum
 	EF_DLIGHT = 0x8000000,
 
 	// Thing has been gibbed.
-	EF_GIBBED = 0x10000000
+	EF_GIBBED = 0x10000000,
+
+	// -AJA- 2004/07/22: play the monster sounds at full volume
+	// (separated out from the BOSSMAN flag).
+	EF_ALWAYSLOUD = 0x20000000
 }
 mobjextendedflag_t;
 
