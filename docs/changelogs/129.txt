@@ -46,6 +46,11 @@ Features removed:
 General improvements
 --------------------
 
++ drag and drop support.  You no longer have to use the -file option
+  to specify filenames (wad files etc).  Everything before the first
+  option is considered a filename to add.  This allows you to drag a
+  simple (self-contained) WAD onto the EDGE executable to play it.
+
 + new sound system, using OpenAL (a 3D audio library). 
 
 (NOT FINISHED) support for OGG Vorbis Music playing.  @@@
@@ -100,25 +105,18 @@ New features:
 - EXPLODE_IMMUNE and ALWAYS_LOUD (BOSSMAN) @@@
 
 
-New console variables:
-----------------------
-
-  DUMBSKY            Use a simpler method for OpenGL sky drawing.
-                     (A few drivers have problems, e.g. Voodoo 3).
-
-
 New command-line options:
 -------------------------
 
 (NOT FINISHED)  -deh             Specify a DeHackEd (or BEX) patch file.
 
 
-Hats off
---------
+Hats off to...
+--------------
 
-Special mention to Erik Sandberg's contribution to EDGE. Its worth a
-note he did a shedload of quality work and made a special effort to
-make sure we were GPL legal - something we maintain now - we do this
-since because we have recently removed the software renderer, we
+Special mention to Erik Sandberg's contribution to EDGE. It's worth a
+note that he did a shedload of quality work and made a special effort
+to make sure we were GPL legal - something we maintain now.  We do
+this since because we have recently removed the software renderer, we
 removed about 90% of the work he put into EDGE.
 
