@@ -239,31 +239,21 @@ static void GotoEmptyState(player_t *p)
 	P_SetPsprite(p, ps_crosshair, S_NULL);
 }
 
-static void GotoAttackState(player_t * p, int ATK)
+static void GotoAttackState(player_t * p, int ATK, bool can_warmup)
 {
 	weapondef_c *info = p->weapons[p->ready_wp].info;
 
-	int newstate = 0;
+	int newstate = info->attack_state[ATK];
 
-	if (ATK == 0)
+	if (p->remember_atk[ATK] >= 0)
 	{
-		newstate = info->attack_state;
-
-		if (p->remember_atk[0] >= 0)
-		{
-			newstate = p->remember_atk[0];
-			p->remember_atk[0] = -1;
-		}
+		newstate = p->remember_atk[ATK];
+		p->remember_atk[ATK] = -1;
 	}
-	else
+	else if (can_warmup && info->warmup_state[ATK])
 	{
-		newstate = info->sa_attack_state;
-
-		if (p->remember_atk[1] >= 0)
-		{
-			newstate = p->remember_atk[1];
-			p->remember_atk[1] = -1;
-		}
+		newstate = info->warmup_state[ATK];
+I_Printf("Warmup state %d\n", newstate); //!!
 	}
 
 	if (newstate)
@@ -278,16 +268,12 @@ static void GotoReloadState(player_t *p, int ATK)
 
 	// IDEA: player reload states
 
-	if (ATK == 1 && info->sa_reload_state)
-	{
-		P_SetPspriteDeferred(p, ps_weapon, info->sa_reload_state);
-		return;
-	}
-
 	// second attack will fall-back to using normal reload states.
+	if (ATK == 1 && ! info->reload_state[ATK])
+		ATK = 0;
 
-	if (info->reload_state)
-		P_SetPspriteDeferred(p, ps_weapon, info->reload_state);
+	if (info->reload_state[ATK])
+		P_SetPspriteDeferred(p, ps_weapon, info->reload_state[ATK]);
 }
 
 //
@@ -346,6 +332,9 @@ static void P_BringUpWeapon(player_t * p)
 	}
 
 	weapondef_c *info = p->weapons[sel].info;
+
+	if (info->specials[0] & WPSP_Animated)
+		p->psprites[ps_weapon].sy = WEAPONTOP;
 
 	// we don't need to check level_flags.limit_zoom, as viewiszoomed
 	// should always be false when we get here.
@@ -732,10 +721,11 @@ void A_WeaponReady(mobj_t * mo)
 				p->flash = false;
 
 				if (WeaponCanFire(p, p->ready_wp, ATK))
-					GotoAttackState(p, ATK);
+					GotoAttackState(p, ATK, true);
 				else
 					SwitchAway(p, ATK, info->specials[ATK] & WPSP_Trigger);
-				return;
+
+				return;  // leave now
 			}
 		}
 	}
@@ -761,7 +751,7 @@ void A_WeaponReady(mobj_t * mo)
 			}
 			else if ((p->cmd.extbuttons & EBT_RELOAD) &&
 					 (info->specials[ATK] & WPSP_Manual) &&
-					 (ATK ? info->sa_reload_state : info->reload_state))
+					  info->reload_state[ATK])
 			{
 				reload = (info->specials[ATK] & WPSP_Partial) ?
 					WeaponCanPartialReload(p, p->ready_wp, ATK) :
@@ -826,7 +816,7 @@ static void DoReFire(mobj_t * mo, int ATK)
 			p->flash = false;
 
 			if (WeaponCanFire(p, p->ready_wp, ATK))
-				GotoAttackState(p, ATK);
+				GotoAttackState(p, ATK, false);
 			else
 				SwitchAway(p, ATK, info->specials[ATK] & WPSP_Trigger);
 			return;
@@ -961,6 +951,8 @@ void A_Lower(mobj_t * mo)
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
+	weapondef_c *info = p->weapons[p->ready_wp].info;
+
 	if (level_flags.limit_zoom && viewiszoomed)
 	{
 		// In `LimitZoom' mode, disable any current zoom
@@ -971,26 +963,24 @@ void A_Lower(mobj_t * mo)
 	psp->sy += LOWERSPEED;
 
 	// Is already down.
-	if (psp->sy < WEAPONBOTTOM)
-		return;
+	if (! (info->specials[0] & WPSP_Animated))
+		if (psp->sy < WEAPONBOTTOM)
+			return;
 
-	// Player is dead.
-	if (p->playerstate == PST_DEAD)
+	psp->sy = WEAPONBOTTOM;
+
+	// Player is dead, don't bring weapon back up.
+	if (p->playerstate == PST_DEAD || p->health <= 0)
 	{
-		psp->sy = WEAPONBOTTOM;
+		p->ready_wp   = WPSEL_None;
+		p->pending_wp = WPSEL_NoChange;
 
-		// don't bring weapon back up
+		P_SetPsprite(p, ps_weapon, S_NULL);
 		return;
 	}
 
 	// The old weapon has been lowered off the screen,
 	// so change the weapon and start raising it
-	if (p->health <= 0)
-	{
-		// Player is dead, so keep the weapon off screen.
-		P_SetPsprite(p, ps_weapon, S_NULL);
-		return;
-	}
 
 	if (p->pending_wp == WPSEL_NoChange)
 	{
@@ -1017,9 +1007,6 @@ void A_Raise(mobj_t * mo)
 		return;
 
 	psp->sy = WEAPONTOP;
-
-	p->remember_atk[0] = -1;
-	p->remember_atk[1] = -1;
 
 	// The weapon has been raised all the way,
 	//  so change to the ready state.
@@ -1087,8 +1074,7 @@ static void DoGunFlash(mobj_t * mo, int ATK)
 	{
 		p->flash = true;
 
-		P_SetPspriteDeferred(p, ps_flash, ATK ? info->sa_flash_state :
-			info->flash_state);
+		P_SetPspriteDeferred(p, ps_flash, info->flash_state[ATK]);
 
 #if 0  // the SHOOT actions already do this...
 		if (mo->info->missile_state)
@@ -1178,12 +1164,10 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 		P_SetMobjStateDeferred(mo, mo->info->missile_state, 0);
 	}
 
-	int flash_state = ATK ? info->sa_flash_state : info->flash_state;
-
-	if (flash_state && !p->flash)
+	if (info->flash_state[ATK] && !p->flash)
 	{
 		p->flash = true;
-		P_SetPspriteDeferred(p, ps_flash, flash_state);
+		P_SetPspriteDeferred(p, ps_flash, info->flash_state[ATK]);
 	}
 
 	// wake up monsters
