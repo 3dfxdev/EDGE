@@ -18,5 +18,5 @@ DEH-EDGE TODO
                   mobjinfo[].damage determines number of FATSO missiles.
 				  doesn't use misc1/misc2.
 
--  warn about ZDoom-specific actions/strings/etc.
+-  warn about ZDoom-specific actions/strings/etc, Eternity too.
 
