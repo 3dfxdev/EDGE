@@ -44,6 +44,7 @@
 #include "m_menu.h"
 #include "m_random.h"
 #include "hu_stuff.h"
+#include "n_network.h"
 #include "p_bot.h"
 #include "p_local.h"
 #include "p_setup.h"
@@ -66,10 +67,6 @@
 #include "z_zone.h"
 
 #include "epi/epiendian.h"
-
-#ifdef USE_HAWKNL
-#include "n_network.h"
-#endif
 
 #define SAVEGAMESIZE    0x50000
 #define SAVESTRINGSIZE  24
