@@ -24,31 +24,31 @@
 
 typedef struct
 {
-  char* lumpname;
-  char* filename;
+    char* lumpname;
+    char* filename;
 }
 filelumpconv_t;
 
 filelumpconv_t cvtable[] =
 {
-  { "DDFLANG",  "language.ldf" },
-  { "DDFSFX",   "sounds.ddf" },
-  { "DDFCOLM",  "colmap.ddf" },  
-  { "DDFIMAGE", "images.ddf" },
-  { "DDFFONT",  "fonts.ddf"  },
-  { "DDFSTYLE", "styles.ddf" },
-  { "DDFATK",   "attacks.ddf" },
-  { "DDFWEAP",  "weapons.ddf" },
-  { "DDFTHING", "things.ddf" },
-  { "DDFPLAY",  "playlist.ddf" },
-  { "DDFLINE",  "lines.ddf" },
-  { "DDFSECT",  "sectors.ddf" },
-  { "DDFSWTH",  "switch.ddf" },
-  { "DDFANIM",  "anims.ddf" },
-  { "DDFGAME",  "games.ddf" },
-  { "DDFLEVL",  "levels.ddf" },
-  { "RSCRIPT",  "edge.scr" },       
-  { NULL,       NULL }
+    { "DDFLANG",  "language.ldf" },
+    { "DDFSFX",   "sounds.ddf" },
+    { "DDFCOLM",  "colmap.ddf" },  
+    { "DDFIMAGE", "images.ddf" },
+    { "DDFFONT",  "fonts.ddf"  },
+    { "DDFSTYLE", "styles.ddf" },
+    { "DDFATK",   "attacks.ddf" },
+    { "DDFWEAP",  "weapons.ddf" },
+    { "DDFTHING", "things.ddf" },
+    { "DDFPLAY",  "playlist.ddf" },
+    { "DDFLINE",  "lines.ddf" },
+    { "DDFSECT",  "sectors.ddf" },
+    { "DDFSWTH",  "switch.ddf" },
+    { "DDFANIM",  "anims.ddf" },
+    { "DDFGAME",  "games.ddf" },
+    { "DDFLEVL",  "levels.ddf" },
+    { "RSCRIPT",  "edge.scr" },       
+    { NULL,       NULL }
 };
 
 //
@@ -56,18 +56,18 @@ filelumpconv_t cvtable[] =
 //
 void E_PrintHeader(void)
 {
-  printf("\n=================================================\n");
+    printf("\n=================================================\n");
         
-  printf("  DDF->WAD Integrator V%d.%d\n",
-                DDFINWAD_VER_MAJOR, DDFINWAD_VER_MINOR);
+    printf("  DDF->WAD Integrator V%d.%d\n",
+           DDFINWAD_VER_MAJOR, DDFINWAD_VER_MINOR);
          
-  printf("\n"
-         "  The EDGE Team\n"
-         "  http://edge.sourceforge.net\n"
-         "\n"
-         "  Released under the GNU General Public License\n"
-         "=================================================\n"
-         "\n");
+    printf("\n"
+           "  The EDGE Team\n"
+           "  http://edge.sourceforge.net\n"
+           "\n"
+           "  Released under the GNU General Public License\n"
+           "=================================================\n"
+           "\n");
 }
 
 //
@@ -75,7 +75,7 @@ void E_PrintHeader(void)
 //
 void E_PrintUsage(void)
 {
-  printf("USAGE: ddfinwad <input-wad> <output-wad>\n\n");
+    printf("USAGE: ddfinwad <input-wad> <output-wad>\n\n");
 }
 
 //
@@ -83,34 +83,34 @@ void E_PrintUsage(void)
 //
 byte* GetFileData(char *filename, int *length)
 {
-  FILE *lumpfile;
-  byte *data;
+    FILE *lumpfile;
+    byte *data;
 
-  if (!filename)
-    return NULL;
+    if (!filename)
+        return NULL;
 
-  if (!length)
-    return NULL;
+    if (!length)
+        return NULL;
 
-  lumpfile = fopen(filename, "rb");  
-  if (!lumpfile)
-    return NULL;
+    lumpfile = fopen(filename, "rb");  
+    if (!lumpfile)
+        return NULL;
 
-  fseek(lumpfile, 0, SEEK_END);                   // get the end of the file
-  (*length) = ftell(lumpfile);                    // get the size
-  fseek(lumpfile, 0, SEEK_SET);                   // reset to beginning
+    fseek(lumpfile, 0, SEEK_END);                   // get the end of the file
+    (*length) = ftell(lumpfile);                    // get the size
+    fseek(lumpfile, 0, SEEK_SET);                   // reset to beginning
 
-  data = malloc((*length)*sizeof(byte));          // malloc the size
-  if (!data)
-  {
+    data = malloc((*length)*sizeof(byte));          // malloc the size
+    if (!data)
+    {
+        fclose(lumpfile);                               // close the file
+        return NULL;
+    }
+
+    fread(data, sizeof(char), (*length), lumpfile); // read file
     fclose(lumpfile);                               // close the file
-    return NULL;
-  }
 
-  fread(data, sizeof(char), (*length), lumpfile); // read file
-  fclose(lumpfile);                               // close the file
-
-  return data;
+    return data;
 }
 
 //
@@ -118,126 +118,125 @@ byte* GetFileData(char *filename, int *length)
 //
 int main(int argc, char** argv)
 {
-  boolean_t didsomething;
-  boolean_t overrideresp;
-  int i;
-  byte* data;
-  int length;
-  char writeok;
-  char *inname;
-  char *outname;
+    boolean_t didsomething;
+    boolean_t overrideresp;
+    int i;
+    byte* data;
+    int length;
+    char writeok;
+    char *inname;
+    char *outname;
 
-  didsomething = false;
+    didsomething = false;
 
-  E_PrintHeader();
+    E_PrintHeader();
 
-  // We want two arguments
-  if(argc<2 || argc>3)
-  {
-    E_PrintUsage();
-    return 1;
-  }
-  else
-  {
+    // We want two arguments
+    if(argc<2 || argc>3)
+    {
+        E_PrintUsage();
+        return 1;
+    }
+
     inname = argv[1];
-
+    outname = NULL;
+        
     if (argc==2)
-      outname = argv[1];
+        outname = argv[1];
 
     if (argc==3)
-      outname = argv[2];
+        outname = argv[2];
 
     printf("Attempting to read file...\n\n");
     if(!WAD_ReadFile(inname))
     {
-      printf("Unable to read '%s'\n",argv[1]);
-      printf("\nCreate new file? ");
+        printf("Unable to read '%s'\n",argv[1]);
+        printf("\nCreate new file? ");
 
-      scanf("%c", &writeok);
-      writeok = toupper(writeok); // make uppercase 
-      if(writeok != 'Y')
-      {
-        WAD_Shutdown();
-        printf("\nUser Cancelled\n");
-        return 1;
-      }
+        scanf("%c", &writeok);
+        writeok = toupper(writeok); // make uppercase 
+        if(writeok != 'Y')
+        {
+            WAD_Shutdown();
+            printf("\nUser Cancelled\n");
+            return 1;
+        }
 
-      fflush(stdin);
+        fflush(stdin);
     }
 
     i=0;
     overrideresp = false;
     while(cvtable[i].lumpname && !overrideresp)
     {
-      writeok = 'O';
-      if(WAD_LumpExists(cvtable[i].lumpname)>=0)
-      {
-        printf("[O]verwrite existing DDF lumps or [Q]uit ? ");
-        scanf("%c", &writeok);
-        writeok = toupper(writeok); // make uppercase 
-
-        if(writeok != 'O')
+        writeok = 'O';
+        if(WAD_LumpExists(cvtable[i].lumpname)>=0)
         {
-          WAD_Shutdown();
-          printf("User Cancelled\n");
-          return 1;
+            printf("[O]verwrite existing DDF lumps or [Q]uit ? ");
+            scanf("%c", &writeok);
+            writeok = toupper(writeok); // make uppercase 
+
+            if(writeok != 'O')
+            {
+                WAD_Shutdown();
+                printf("User Cancelled\n");
+                return 1;
+            }
+
+            overrideresp = true; // got response
+            fflush(stdin);
         }
-
-        overrideresp = true; // got response
-        fflush(stdin);
-      }
-
-      i++;
+        
+        i++;
     }
 
     i=0;
     while(cvtable[i].filename)
     {
-      printf("Looking for '%s'...", cvtable[i].filename);
-      if (!access(cvtable[i].filename, R_OK))
-      {
-        printf("FOUND\n");
-        data = GetFileData(cvtable[i].filename, &length);
-        if (!data)
+        printf("Looking for '%s'...", cvtable[i].filename);
+        if (!access(cvtable[i].filename, R_OK))
         {
-          WAD_Shutdown();
-          printf("Malloc failure\n");
-          return 1;
-        }
+            printf("FOUND\n");
+            data = GetFileData(cvtable[i].filename, &length);
+            if (!data)
+            {
+                WAD_Shutdown();
+                printf("Malloc failure\n");
+                return 1;
+            }
+                
+            if (!WAD_AddLump(data, length, cvtable[i].lumpname))
+            {
+                WAD_Shutdown();
+                printf("WAD_AddLump failure\n");
+                return 1;
+            }
 
-        if (!WAD_AddLump(data, length, cvtable[i].lumpname))
+            didsomething = true;
+        }
+        else
         {
-          WAD_Shutdown();
-          printf("WAD_AddLump failure\n");
-          return 1;
+            printf("not found\n");
         }
-
-        didsomething = true;
-      }
-      else
-      {
-        printf("not found\n");
-      }
-      i++;
+        i++;
     }
-  }
 
-  if (didsomething)
-  {
-    printf("\nCreating '%s'...\n",outname);
-    if(!WAD_WriteFile(outname))
+    if (didsomething)
     {
-      printf("\nUnable to write file!!!\n");
-      WAD_Shutdown();
-      return 1;
+        printf("\nCreating '%s'...\n",outname);
+        if(!WAD_WriteFile(outname))
+        {
+            printf("\nUnable to write file!!!\n");
+            WAD_Shutdown();
+            return 1;
+        }
     }
-  }
-  else
-  {
-    printf("\nNothing to do!");
-  }
+    else
+    {
+        printf("\nNothing to do!");
+    }
 
-  WAD_Shutdown();
-  printf("\nFinished OK\n");
-  return 0;
+    WAD_Shutdown();
+    printf("\nFinished OK\n");
+    return 0;
 }
