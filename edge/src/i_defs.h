@@ -186,11 +186,8 @@ typedef enum { false, true } boolean_t;
 #define OUTPUTTITLE "EDGE Engine console"
 
 // Access() define values. Nicked from DJGPP's <unistd.h>
-#define F_OK	0x01
-#define R_OK	0x02
-#define W_OK	0x04
-#define X_OK	0x08
-#define D_OK    0x10
+#define R_OK    0x02
+#define W_OK    0x04
 
 // PI define. Nicked from DJGPP's <math.h>
 #define M_PI 3.14159265358979323846

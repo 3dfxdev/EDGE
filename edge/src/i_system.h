@@ -44,9 +44,14 @@ void I_SystemShutdown(void);
 void I_CloseProgram(int exitnum) GCCATTR(noreturn);
 char *I_PreparePath(const char *path);
 boolean_t I_PathIsAbsolute(const char *path);
+boolean_t I_PathIsDirectory(const char *path);
 void I_Warning(const char *warning,...) GCCATTR(format(printf, 1, 2));
 void I_WriteDebug(const char *message,...) GCCATTR(format(printf, 1, 2));
 void I_TraceBack(void);
+
+// -ES- 1999/10/30 i_asm.c
+void I_RegisterAssembler(void);
+void I_PrepareAssembler(void);
 
 // -ES- 2000/02/07 DEV_ASSERT fails if the condition is false.
 // The second parameter is the entire I_Error argument list, surrounded
@@ -128,10 +133,6 @@ long I_Colour2Pixel(byte palette[256][3], int col);
 void I_GetTruecolInfo(truecol_info_t *info);
 boolean_t I_SetScreenSize(int width, int height, int bpp);
 void I_ShutdownGraphics(void);
-
-// -ES- 1999/10/30 i_asm.c
-void I_RegisterAssembler(void);
-void I_PrepareAssembler(void);
 
 #ifdef DEVELOPERS
 #define CHECKVAL(x) \
