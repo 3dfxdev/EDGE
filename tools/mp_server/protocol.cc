@@ -117,26 +117,20 @@ void raw_ticcmd_t::ByteSwap()
 	shorts[3] = SYS_BE_U16(shorts[3]);
 }
 
-void ticcmd_proto_t::ByteSwap(bool do_tics)
+void ticcmd_proto_t::ByteSwap(int num_cmds)
 {
 	gametic = SYS_BE_U32(gametic);
 	
-	if (do_tics)
-	{
-		for (int t = 0; t < count; t++)
-			tic_cmds[t].ByteSwap();
-	}
+	for (int t = 0; t < num_cmds; t++)
+		tic_cmds[t].ByteSwap();
 }
 
-void tic_group_proto_t::ByteSwap(bool do_tics)
+void tic_group_proto_t::ByteSwap(int num_cmds)
 {
 	gametic = SYS_BE_U32(gametic);
 
-	if (do_tics)
-	{
-		for (int t = 0; t < count; t++)
-			tic_cmds[t].ByteSwap();
-	}
+	for (int t = 0; t < num_cmds; t++)
+		tic_cmds[t].ByteSwap();
 }
 
 void tic_retransmit_proto_t::ByteSwap()

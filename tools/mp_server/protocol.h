@@ -19,7 +19,7 @@
 #ifndef __PROTOCOL_H__
 #define __PROTOCOL_H__
 
-#define MP_PROTOCOL_VER  0x072  /* 0.7.2 */
+#define MP_PROTOCOL_VER  0x073  /* 0.7.3 */
 
 #define MP_PLAYER_MAX  30
 
@@ -343,7 +343,7 @@ typedef struct ticcmd_proto_s
 
 	raw_ticcmd_t tic_cmds[1];  // upto TICCMD_FIT commands
 
-	void ByteSwap(bool do_tics);
+	void ByteSwap(int num_cmds);
 }
 ticcmd_proto_t;
 
@@ -376,7 +376,7 @@ typedef struct tic_group_proto_s
 
 	raw_ticcmd_t tic_cmds[1];  // as big as needed (upto TICCMD_FIT)
 
-	void ByteSwap(bool do_tics);
+	void ByteSwap(int num_cmds);
 }
 tic_group_proto_t;
 
