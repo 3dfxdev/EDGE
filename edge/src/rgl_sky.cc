@@ -58,6 +58,23 @@
 
 static bool has_drawn_sky = false;
 
+static bool sky_box = false;
+
+
+typedef struct
+{
+	const image_t *base_sky;
+	const image_t *top, *bottom;
+}
+skybox_info_t;
+
+static skybox_info_t box_info =
+{
+	NULL, NULL, NULL
+};
+
+static void UpdateSkyBoxTextures(void);
+
 
 //
 // RGL_SetupSkyMatrices
@@ -74,8 +91,20 @@ void RGL_SetupSkyMatrices(void)
 	glPushMatrix();
 
 	glLoadIdentity();
-	glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
-	// glRotatef(0.0f, 0.0f, 0.0f, 1.0f);
+	
+	if (sky_box)
+	{
+		float side_ang = 0.0f;
+
+		glRotatef(270.0f - ANG_2_FLOAT(viewvertangle), 1.0f, 0.0f, 0.0f);
+		glRotatef(90.0f - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
+		glRotatef(side_ang, 0.0f, 1.0f, 0.0f);
+		glTranslatef(0.0f, 0.0f, Z_FAR / 5.0f);
+	}
+	else
+	{
+		glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
+	}
 }
 
 //
@@ -120,13 +149,103 @@ void RGL_FinishSky(void)
 		glDepthFunc(GL_GREATER);
 		glDepthMask(GL_FALSE);
 
-		RGL_DrawSkyBackground();
+		if (sky_box)
+			RGL_DrawSkyBox();
+		else
+			RGL_DrawSkyBackground();
 
 		glDepthFunc(GL_LEQUAL);
 		glDepthMask(GL_TRUE);
 
 		glDisable(GL_TEXTURE_2D);
 	}
+}
+
+void RGL_DrawSkyBox(void)
+{
+	UpdateSkyBoxTextures();
+
+	RGL_SetupSkyMatrices();
+
+	float dist = Z_FAR * 0.98 / 1.732;  // FIXME: M_ROOT3
+
+	const cached_image_t *c_side, *c_top, *c_bottom;
+
+	c_side   = W_ImageCache(sky_image,       IMG_OGL, 0, true);
+	c_top    = W_ImageCache(box_info.top,    IMG_OGL, 0, true);
+	c_bottom = W_ImageCache(box_info.bottom, IMG_OGL, 0, true);
+
+	float side_w = 1.0f;
+	float side_b = 0.25f;
+	float side_t = 0.75f;
+
+	if (sky_image->actual_w > 256)
+		side_w = 0.25f;
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+
+
+	// top
+	// glColor3f(0, 0, 1);
+	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(c_top));
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-dist,  dist,  dist);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-dist, -dist,  dist);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f( dist, -dist,  dist);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f( dist,  dist,  dist);
+	glEnd();
+
+	// bottom
+	// glColor3f(0, 1, 0);
+	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(c_bottom));
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-dist, -dist, -dist);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-dist,  dist, -dist);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f( dist,  dist, -dist);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f( dist, -dist, -dist);
+	glEnd();
+
+	// north
+	// glColor3f(1, 0, 0);
+	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(c_side));
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(side_w * 0.0f, side_b); glVertex3f(-dist,  dist, -dist);
+	glTexCoord2f(side_w * 0.0f, side_t); glVertex3f(-dist,  dist,  dist);
+	glTexCoord2f(side_w * 1.0f, side_t); glVertex3f( dist,  dist,  dist);
+	glTexCoord2f(side_w * 1.0f, side_b); glVertex3f( dist,  dist, -dist);
+
+	// east
+	// glColor3f(1, 0, 1);
+	glTexCoord2f(side_w * 1.0f, side_b); glVertex3f( dist,  dist, -dist);
+	glTexCoord2f(side_w * 1.0f, side_t); glVertex3f( dist,  dist,  dist);
+	glTexCoord2f(side_w * 2.0f, side_t); glVertex3f( dist, -dist,  dist);
+	glTexCoord2f(side_w * 2.0f, side_b); glVertex3f( dist, -dist, -dist);
+
+	// south
+	// glColor3f(1, 1, 0);
+	glTexCoord2f(side_w * 2.0f, side_b); glVertex3f( dist, -dist, -dist);
+	glTexCoord2f(side_w * 2.0f, side_t); glVertex3f( dist, -dist,  dist);
+	glTexCoord2f(side_w * 3.0f, side_t); glVertex3f(-dist, -dist,  dist);
+	glTexCoord2f(side_w * 3.0f, side_b); glVertex3f(-dist, -dist, -dist);
+
+	// west
+	// glColor3f(1, 0.5, 0);
+	glTexCoord2f(side_w * 3.0f, side_b); glVertex3f(-dist, -dist, -dist);
+	glTexCoord2f(side_w * 3.0f, side_t); glVertex3f(-dist, -dist,  dist);
+	glTexCoord2f(side_w * 4.0f, side_t); glVertex3f(-dist,  dist,  dist);
+	glTexCoord2f(side_w * 4.0f, side_b); glVertex3f(-dist,  dist, -dist);
+	glEnd();
+
+	W_ImageDone(c_side);
+	W_ImageDone(c_top);
+	W_ImageDone(c_bottom);
+
+	glDisable(GL_TEXTURE_2D);
+
+	RGL_RevertSkyMatrices();
 }
 
 //
@@ -216,7 +335,7 @@ void RGL_DrawSkyBackground(void)
 		bottom_L = 90 - ANG_2_FLOAT(M_ATan(d));
 	}
 
-	if (! level_flags.stretchsky)
+	if (true)  /// ! level_flags.stretchsky)
 	{
 		top_L = bottom_L = 90;
 	}
@@ -547,5 +666,19 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 	RGL_FreePolyQuad(poly);
 #endif
 }
+
+//----------------------------------------------------------------------------
+
+static void UpdateSkyBoxTextures(void)
+{
+	if (box_info.base_sky == sky_image)
+		return;
+	
+	box_info.base_sky = sky_image;
+
+	box_info.top = W_ImageFromTexture("BIGDOOR2");
+	box_info.bottom = box_info.top;
+}
+
 
 #endif  // USE_GL
