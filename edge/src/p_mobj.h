@@ -38,6 +38,9 @@
 #include "ddf_main.h"
 #include "lu_math.h"
 
+// forward decl.
+struct mobj_s;
+
 //
 // NOTES: mobj_t
 //
@@ -321,8 +324,6 @@ typedef enum
 }
 mobjextendedflag_t;
 
-typedef struct mobj_s mobj_t;
-
 // info for the BossBrain's ShootToSpot code pointer
 // -AJA- 2000/02/21: added to mobj_t, to fix a bug and savegames
 typedef struct 
@@ -331,7 +332,7 @@ typedef struct
   //        X, Y, and Z values.  But the LaunchProjectile() routine in
   //        p_action.c (also the HomeToSpot routine) require the
   //        target to be a MOBJ.
-  mobj_t ** targets;
+  struct mobj_s ** targets;
   
   int number;
   int current;
@@ -354,13 +355,41 @@ typedef enum
 }
 dirtype_t;
 
+// Each sector has a degenmobj_t in its center for sound origin
+// purposes.
+typedef struct
+{
+  float_t x, y, z;
+}
+degenmobj_t;
+
+typedef struct
+{
+  // location on the map.  `z' can take the special values ONFLOORZ
+  // and ONCEILINGZ.
+  float_t x, y, z;
+
+  // direction thing faces
+  angle_t angle;
+  float_t slope;
+
+  // type of thing
+  const mobjinfo_t *info;
+
+  // certain flags (mainly MF_AMBUSH).
+  int flags;
+}
+spawnpoint_t;
+
 // Map Object definition.
+typedef struct mobj_s mobj_t;
+
 struct mobj_s
 {
   // Info for drawing: position.
-  float_t x;
-  float_t y;
-  float_t z;
+  // NOTE: these three fields must be first, so mobj_t can be used
+  // anywhere that degenmobj_t is expected.
+  float_t x, y, z;
 
   // More drawing info: to determine current sprite.
   angle_t angle;  // orientation
@@ -434,7 +463,7 @@ struct mobj_s
   int lastlook;
 
   // For respawning.
-  mapthing_t spawnpoint;
+  spawnpoint_t spawnpoint;
 
   float_t origheight;
 
@@ -512,7 +541,7 @@ struct mobj_s
 // Item-in-Respawn-que Structure -ACB- 1998/07/30
 typedef struct iteminque_s
 {
-  mapthing_t info;
+  spawnpoint_t spawnpoint;
   int time;
   struct iteminque_s *next;
   struct iteminque_s *prev;
