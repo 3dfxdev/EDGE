@@ -1079,7 +1079,7 @@ void A_WeaponShootSA(mobj_t * mo)
 
 	DEV_ASSERT2(p->ready_wp >= 0);
 
-	// -AJA- 1999/08/10: Multible attack support.
+	// -AJA- 1999/08/10: Multiple attack support.
 	if (psp->state && psp->state->action_par)
 		attack = (attacktype_t *) psp->state->action_par;
 
