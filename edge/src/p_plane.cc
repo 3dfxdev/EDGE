@@ -1075,7 +1075,7 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 			fog = P_MobjCreateObject(oldx, oldy, oldz, def->inspawnobj);
 
 			if (fog->info->chase_state)
-				P_SetMobjState(fog, fog->info->chase_state);
+				P_SetMobjStateDeferred(fog, fog->info->chase_state, 0);
 		}
 
 		if (def->outspawnobj)
@@ -1091,7 +1091,7 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 									 new_z, def->outspawnobj);
 
 			if (fog->info->chase_state)
-				P_SetMobjState(fog, fog->info->chase_state);
+				P_SetMobjStateDeferred(fog, fog->info->chase_state, 0);
 
 			if (thing->player && !telept_flash)
 				fog->vis_target = fog->visibility = INVISIBLE;
