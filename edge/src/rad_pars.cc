@@ -123,8 +123,6 @@ int RAD_StringHashFunc(const char *s)
 //
 // RAD_Error
 //
-// -AJA- 2000/01/04: written.
-//
 void RAD_Error(const char *err, ...)
 {
 	va_list argptr;
@@ -448,7 +446,6 @@ static bool CheckForBoolean(const char *s)
 //
 // DoParseWhenAppear
 //
-// -AJA- 1999/09/25: written (rather quickly).
 // -AJA- FIXME: duplicated code, use DDF_MainGetWhenAppear someday.
 //
 static void DoParseWhenAppear(rad_script_t *scr, const char *skill)
@@ -508,8 +505,6 @@ static void DoParsePlayerSet(const char *info, unsigned long *set)
 //
 // Adds a new action state to the tail of the current set of states
 // for the given radius trigger.
-//
-// -AJA- 1999/10/23: written.
 //
 static void AddStateToScript(rad_script_t *R, int tics,
 							 void (* action)(struct rad_trigger_s *R, mobj_t *actor, void *param), 
@@ -583,8 +578,6 @@ static void ClearOneScript(rad_script_t *scr)
 // Thus triggers in later RTS files/lumps replace those in earlier RTS
 // files/lumps in the specified level.
 // 
-// -AJA- 1999/10/05: written.
-//
 static void ClearPreviousScripts(const char *mapid)
 {
 	rad_script_t *scr, *next;
@@ -615,8 +608,6 @@ static void ClearPreviousScripts(const char *mapid)
 //
 // Removes all radius triggers from all maps.
 // 
-// -AJA- 1999/10/05: written.
-//
 static void ClearAllScripts(void)
 {
 	while (r_scripts)
@@ -690,7 +681,6 @@ static void RAD_ComputeScriptCRC(rad_script_t *scr)
 // Collect the parameters from the line into an array of strings
 // `pars', which can hold at most `max' string pointers.
 // 
-// -AJA- 1999/10/23: written.
 // -AJA- 2000/01/02: Moved #define handling to here.
 //
 static void RAD_CollectParameters(const char *line, int *pnum, 
@@ -775,8 +765,6 @@ static void RAD_CollectParameters(const char *line, int *pnum,
 //
 // Free previously collected parameters.
 // 
-// -AJA- 1999/10/23: written.
-//
 static void RAD_FreeParameters(int pnum, char **pars)
 {
 	while (pnum > 0)
@@ -992,8 +980,6 @@ static void RAD_ParseEndMap(int pnum, const char **pars)
 static void RAD_ParseName(int pnum, const char **pars)
 {
 	// Name <name>
-	//
-	// -AJA- 1999/09/25: added this primitive.
 
 	if (this_rad->script_name)
 		RAD_Error("Script already has a name: `%s'\n", this_rad->script_name);
@@ -1004,8 +990,6 @@ static void RAD_ParseName(int pnum, const char **pars)
 static void RAD_ParseTag(int pnum, const char **pars)
 {
 	// Tag <number>
-	//
-	// -AJA- 2000/01/09: added this primitive.
 
 	if (this_rad->tag != 0)
 		RAD_Error("Script already has a tag: `%d'\n", this_rad->tag);
@@ -1137,8 +1121,6 @@ static void RAD_ParseTaggedDisabled(int pnum, const char **pars)
 static void RAD_ParseTaggedPath(int pnum, const char **pars)
 {
 	// Tagged_Path  <next node>
-	//
-	// -AJA- 1999/09/25: added this primitive.
 
 	rts_path_t *path = Z_ClearNew(rts_path_t, 1);
 
@@ -1254,8 +1236,11 @@ static void RAD_ParseLabel(int pnum, const char **pars)
 	// Label <label>
 
 	if (pending_label)
-		RAD_Error("State already has a label: `%s'\n",
-		pending_label);
+		RAD_Error("State already has a label: `%s'\n", pending_label);
+
+	// handle any pending WAIT value
+	if (pending_wait_tics > 0)
+		AddStateToScript(this_rad, 0, RAD_ActNOP, NULL);
 
 	pending_label = Z_StrDup(pars[1]);
 }
@@ -1349,8 +1334,6 @@ static void RAD_ParseTip(int pnum, const char **pars)
 static void RAD_ParseTipSlot(int pnum, const char ** pars)
 {
 	// Tip_Slot <slotnum>
-	//
-	// -AJA- 2000/10/21: added this primitive.
 
 	s_tip_prop_t *tp;
 
@@ -1372,8 +1355,6 @@ static void RAD_ParseTipPos(int pnum, const char ** pars)
 {
 	// Tip_Set_Pos <x> <y>
 	// Tip_Set_Pos <x> <y> <time>
-	//
-	// -AJA- 2000/10/21: added this primitive.
 
 	s_tip_prop_t *tp;
 
@@ -1393,8 +1374,6 @@ static void RAD_ParseTipColour(int pnum, const char ** pars)
 {
 	// Tip_Set_Colour <colmap ref>
 	// Tip_Set_Colour <colmap ref> <time>
-	//
-	// -AJA- 2000/10/21: added this primitive.
 
 	s_tip_prop_t *tp;
 
@@ -1505,7 +1484,7 @@ static void RAD_ParseSpawnThing(int pnum, const char **pars)
 		RAD_CheckForInt(angle_str, &val);
 
 		if (ABS(val) <= 360)
-			t->angle = FLOAT_2_ANG((float)val);
+			t->angle = FLOAT_2_ANG((float) val);
 		else
 			t->angle = val << 16;
 	}
@@ -1857,8 +1836,6 @@ static void RAD_ParseLightSector(int pnum, const char **pars)
 static void RAD_ParseActivateLinetype(int pnum, const char **pars)
 {
 	// Activate_LineType <linetype> <tag>
-	//
-	// -AJA- 1999/10/21: added this primitive.
 
 	s_lineactivator_t *lineact;
 
@@ -1873,9 +1850,6 @@ static void RAD_ParseActivateLinetype(int pnum, const char **pars)
 static void RAD_ParseUnblockLines(int pnum, const char **pars)
 {
 	// Unblock_Lines <tag>
-	//
-	// -AJA- 2001/10/21: added this primitive.
-	// (Woah! Compare date to the one above in Activate_LineType)
 
 	s_lineunblocker_t *lineact;
 
@@ -1889,8 +1863,6 @@ static void RAD_ParseUnblockLines(int pnum, const char **pars)
 static void RAD_ParseWait(int pnum, const char **pars)
 {
 	// Wait <time>
-	//
-	// -AJA- 2000/01/05: added this primitive.
 
 	int tics;
 
@@ -1906,14 +1878,13 @@ static void RAD_ParseJump(int pnum, const char **pars)
 {
 	// Jump <label>
 	// Jump <label> <random chance>
-	//
-	// -AJA- 2000/01/05: added this primitive.
 
 	s_jump_t *jump;
 
 	jump = Z_ClearNew(s_jump_t, 1);
 
 	jump->label = Z_StrDup(pars[1]);
+	jump->random_chance = PERCENT_MAKE(100);
 
 	if (pnum >= 3)
 		RAD_CheckForPercent(pars[2], &jump->random_chance);
@@ -1924,8 +1895,6 @@ static void RAD_ParseJump(int pnum, const char **pars)
 static void RAD_ParseSleep(int pnum, const char **pars)
 {
 	// Sleep
-	//
-	// -AJA- 2000/01/09: added this primitive.
 
 	AddStateToScript(this_rad, 0, RAD_ActSleep, NULL);
 }
@@ -1933,8 +1902,6 @@ static void RAD_ParseSleep(int pnum, const char **pars)
 static void RAD_ParseRetrigger(int pnum, const char **pars)
 {
 	// Retrigger
-	//
-	// -AJA- 2001/07/06: added this primitive.
 
 	if (! this_rad->tagged_independent)
 		RAD_Error("%s can only be used with TAGGED_INDEPENDENT.\n", pars[0]);

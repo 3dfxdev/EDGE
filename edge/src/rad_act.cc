@@ -306,8 +306,6 @@ void RAD_DisplayTips(void)
 //
 // Does any tic-related RTS stuff.  For now, just update the tips.
 //
-// -AJA- 1999/09/07: written.
-//
 void RAD_Ticker(void)
 {
 	int i;

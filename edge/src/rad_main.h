@@ -275,9 +275,8 @@ typedef struct s_jump_s
 	// looking it up at parse time).
 	struct rts_state_s *cache_state;
 
-	// chance (from 0 -> 256 means never -> always) that the jump is
-	// taken.
-	int random_chance;
+	// chance that the jump is taken.
+	percent_t random_chance;
 }
 s_jump_t;
 
