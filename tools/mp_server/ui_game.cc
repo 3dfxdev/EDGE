@@ -39,7 +39,7 @@ UI_GameList::UI_GameList(int x, int y, int w, int h) :
 	col_header(1);
 	col_header_height(20);
 
-	rows(32);
+	rows(2);
 	row_height_all(20);
 
 	row_header(0);
