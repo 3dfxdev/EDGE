@@ -99,6 +99,19 @@ bool FileExists(const char *filename)
 	return false;
 }
 
+const char *StrUpper(const char *name)
+{
+	static char up_buf[512];
+
+	assert(strlen(name) < sizeof(up_buf) - 1);
+
+	char *dest = up_buf;
+
+	while (*name)
+		*dest++ = toupper(*name++);
+
+	return up_buf;
+}
 
 /* -------- text output code ----------------------------- */
 
