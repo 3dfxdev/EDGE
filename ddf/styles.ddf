@@ -100,32 +100,3 @@ TEXT.COLOURMAP="TEXT_YELLOW";
 // [SET_RESOLUTION]
 // [SOUND_VOLUME]
 
-
-//------------------------------------------------------------
-// !!!! Testing / Ideas !!!!
-//------------------------------------------------------------
-
-[FOO_BAR]
-BACKGROUND.COLOUR = #888888;
-BACKGROUND.TRANSLUCENCY = 25%;
-// BACKGROUND.IMAGE = FLAT1;
-// BACKGROUND.SCALE = 0.5;   // ASPECT too
-// SPECIAL = TILED;
-
-// BORDER.COLOUR = #CCCCCC;
-// BORDER.SIZE = 2;
-
-// text styles for title, main text, and alternative (e.g. for option values)
-
-TEXT.COLOURMAP = "TEXT_RED";  // colourmap name, also COLOUR=#AABBCC
-TEXT.FONT   = "DOOM";
-TEXT.SCALE  = 0.5;  // make big or small
-TEXT.ASPECT = 1.0;  // make tall or wide
-TEXT.TRANSLUCENCY = 50%;
-// TEXT.X_ALIGN = LEFT;    // also: CENTER, RIGHT, JUSTIFIED
-// TEXT.Y_ALIGN = BOTTOM;  // also: TOP, MIDDLE
-
-// TITLE.COLOUR = XXX;  // etc etc....
-
-// ALT.COLOUR = YYY;
-
