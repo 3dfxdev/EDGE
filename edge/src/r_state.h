@@ -88,8 +88,6 @@ extern angle_t leftclipangle, rightclipangle;
 extern angle_t clipscope;
 
 // the most extreme angles of the view
-extern angle_t topangle, bottomangle, rightangle, leftangle;
-// tangents for the angles
 extern float topslope, bottomslope, rightslope, leftslope;
 
 #endif

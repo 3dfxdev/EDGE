@@ -118,15 +118,6 @@ bool SR_GetInt(void *storage, int index, void *extra)
 }
 
 //
-// SR_GetFixed
-//
-bool SR_GetFixed(void *storage, int index, void *extra)
-{
-	((fixed_t *)storage)[0] = SV_GetFixed();
-	return true;
-}
-
-//
 // SR_GetAngle
 //
 bool SR_GetAngle(void *storage, int index, void *extra)
@@ -224,14 +215,6 @@ void SR_PutShort(void *storage, int index, void *extra)
 void SR_PutInt(void *storage, int index, void *extra)
 {
 	SV_PutInt(((unsigned int *)storage)[index]);
-}
-
-//
-// SR_PutFixed
-//
-void SR_PutFixed(void *storage, int index, void *extra)
-{
-	SV_PutFixed(((fixed_t *)storage)[index]);
 }
 
 //
@@ -420,12 +403,6 @@ void SV_MainTestPrimitives(void)
 	SV_PutInt(0xbbccddee);
 	SV_PutInt(0xffffffff);
 
-	SV_PutFixed(0);
-	SV_PutFixed(FRACUNIT);
-	SV_PutFixed(M_FloatToFixed(123.456f));
-	SV_PutFixed(-FRACUNIT);
-	SV_PutFixed(-M_FloatToFixed(345.789f));
-
 	SV_PutAngle(ANG1);
 	SV_PutAngle(ANG45);
 	SV_PutAngle(ANG135);
@@ -482,13 +459,6 @@ void SV_MainTestPrimitives(void)
 	{
 		unsigned int val = SV_GetInt();
 		L_WriteDebug("TEST INT: 0x%02x %d\n", val, (int) val);
-	}
-
-	for (i=0; i < 5; i++)
-	{
-		fixed_t val = SV_GetFixed();
-		L_WriteDebug("TEST FIXED: 0x%08x = %1.6f\n", (unsigned int) val,
-				M_FixedToFloat(val));
 	}
 
 	for (i=0; i < 7; i++)

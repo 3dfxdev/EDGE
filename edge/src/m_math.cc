@@ -26,47 +26,6 @@
 #include "i_defs.h"
 #include "m_math.h"
 
-//
-// Fixed Number shit - to be removed.
-//
-static fixed_t FixedDiv2 (fixed_t a, fixed_t b)
-{
-#ifdef USE_INT64
-	return (fixed_t) (((i64_t) a << 16) / ((i64_t) b));
-#else
-	return (fixed_t) (65536 * ((double) a / (double) b));
-#endif
-}
-
-fixed_t FixedDiv (fixed_t a, fixed_t b)
-{
-	if ((abs (a) >> 14) >= abs (b))
-		return (a ^ b) < 0 ? INT_MIN : INT_MAX;
-	
-	return FixedDiv2 (a, b);
-}
-
-fixed_t FixedMul (fixed_t a, fixed_t b)
-{
-	return (fixed_t) ((((i64_t) (a)) * (b)) >> FRACBITS);
-}
-
-
-
-//
-// M_FixedToFloat
-//
-// Converts a fixed point number to float.
-//
-// This has been moved to m_inline.h.
-
-//
-// M_FloatToFixed
-//
-// Converts a float to fixed-point.
-//
-// This has been moved to m_inline.h.
-
 float M_Sin (angle_t ang)
 {
 	return (float) sin ((double) ang * M_PI / (float) ANG180);

@@ -39,22 +39,7 @@
 #ifndef __TABLES__
 #define __TABLES__
 
-#include "m_fixed.h"
 #include "dm_type.h"
-#define FINEANGLES 8192
-#define FINEMASK (FINEANGLES-1)
-
-// 0x100000000 to 0x2000
-#define ANGLETOFINESHIFT 19
-
-// Effective size is 10240.
-extern fixed_t finesine[5 * FINEANGLES / 4];
-
-// Re-use data, is just PI/2 phase shift.
-extern fixed_t *finecosine;
-
-// Effective size is 4096.
-extern fixed_t finetangent[FINEANGLES / 2];
 
 // Binary Angle Measument, BAM.
 #define ANG1   0x00B60B61
@@ -73,20 +58,9 @@ extern fixed_t finetangent[FINEANGLES / 2];
 
 #define SLOPERANGE 2048
 #define SLOPEBITS  11
-#define DBITS      (FRACBITS-SLOPEBITS)
 
-
-// Effective size is 2049;
-// The +1 size is to handle the case when x==y without additional checking.
-extern angle_t tantoangle[SLOPERANGE + 1];
-
-// Utility function, called by R_PointToAngle.
-int SlopeDiv(unsigned num, unsigned den);
 
 // Conversion macros:
-
-#define FIX_2_FLOAT(x)  ((float) (x) / 65536.0f)
-#define FLOAT_2_FIX(n)  ((fixed_t) ((n) * 65536.0f))
 
 #define ANG_2_FLOAT(a)  ((float) (a) * 360.0f / 4294967296.0f)
 #define FLOAT_2_ANG(n)  ((angle_t) ((n) / 360.0f * 4294967296.0f))

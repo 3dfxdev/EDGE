@@ -57,7 +57,6 @@ unsigned char  SV_GetByte(void);
 unsigned short SV_GetShort(void);
 unsigned int   SV_GetInt(void);
 
-fixed_t SV_GetFixed(void);
 angle_t SV_GetAngle(void);
 float SV_GetFloat(void);
 
@@ -78,7 +77,6 @@ void SV_PutByte(unsigned char value);
 void SV_PutShort(unsigned short value);
 void SV_PutInt(unsigned int value);
 
-void SV_PutFixed(fixed_t value);
 void SV_PutAngle(angle_t value);
 void SV_PutFloat(float value);
 

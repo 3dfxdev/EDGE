@@ -56,18 +56,15 @@
 
 // -ES- 1999/03/14 Dynamic Field Of View
 // Fineangles in the viewwidth wide window.
-static angle_t FIELDOFVIEW = 2048;
+static angle_t FIELDOFVIEW = ANG90;
 
 // The used aspect ratio. A normal texel will look aspect_ratio*4/3
 // times wider than high on the monitor
 static const float aspect_ratio = 200.0f / 320.0f;
 
 // the extreme angles of the view
-// -AJA- FIXME: these aren't angle_t (32 bit angles).
-angle_t topangle;
-angle_t bottomangle;
-angle_t rightangle;
-angle_t leftangle;
+static angle_t rightangle;
+static angle_t leftangle;
 
 float leftslope;
 float rightslope;
@@ -330,10 +327,10 @@ void R_ExecuteSetViewSize(void)
 	viewwindowx = 0;
 	viewwindowy = 0;
 
-	leftslope = M_Tan(leftangle << ANGLETOFINESHIFT);
-	rightslope = M_Tan(rightangle << ANGLETOFINESHIFT);
+	leftslope = M_Tan(leftangle);
+	rightslope = M_Tan(rightangle);
 
-	slopeoffset = M_Tan((FIELDOFVIEW / 2) << ANGLETOFINESHIFT) * aspect_ratio;
+	slopeoffset = M_Tan(FIELDOFVIEW / 2) * aspect_ratio;
 	slopeoffset = slopeoffset * viewwindowheight / viewwindowwidth;
 	slopeoffset = slopeoffset * SCREENWIDTH / SCREENHEIGHT;
 
@@ -378,10 +375,8 @@ void R_SetFOV(angle_t fov)
 
 	setsizeneeded = true;
 
-	fov = fov >> ANGLETOFINESHIFT;  // convert to fineangle format
-
-	leftangle = fov / 2;
-	rightangle = (fov/2)*-1; // -ACB- 1999/09/27 Fixed MSVC Compiler Problem
+	leftangle   = fov / 2;
+	rightangle  = (fov/2) * -1; // -ACB- 1999/09/27 Fixed MSVC Compiler Problem
 	FIELDOFVIEW = leftangle - rightangle;
 }
 
