@@ -23,7 +23,9 @@
 #include "../i_defs.h"
 #include "i_sysinc.h"
 
+#ifdef USE_AL
 #define HOGGIE_OGG_SUPPORT
+#endif
 
 // #defines for handle information
 #define GETLIBHANDLE(_handle) (_handle&0xFF)
