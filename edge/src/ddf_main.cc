@@ -1078,6 +1078,10 @@ readchar_t DDF_MainProcessChar(char character, char *buffer, int status)
 			{
 				return string_stop;
 			}
+			else if (character == '\n')
+			{
+				DDF_Error("Unterminated string.\n");
+			}
 			// -KM- 1998/10/29 Removed ascii check, allow foreign characters („)
 			// -ES- HEY! Swedish is not foreign!
 			else
