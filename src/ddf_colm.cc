@@ -237,8 +237,7 @@ colourmap_c::colourmap_c()
 //
 colourmap_c::colourmap_c(colourmap_c &rhs)
 {
-	ddf = rhs.ddf;
-	CopyDetail(rhs);
+	Copy(rhs);
 }
  
 //
@@ -246,6 +245,15 @@ colourmap_c::colourmap_c(colourmap_c &rhs)
 //
 colourmap_c::~colourmap_c()
 {
+}
+
+//
+// colourmap_c::Copy()
+//
+void colourmap_c::Copy(colourmap_c &src)
+{
+	ddf = src.ddf;
+	CopyDetail(src);
 }
 
 //
@@ -287,6 +295,17 @@ void colourmap_c::Default()
 	cache.validcount = -1;
 	cache.bpp = 0;
 	cache.gl_colour = 0xFFFFFF;
+}
+
+//
+// colourmap_c assignment operator
+//
+colourmap_c& colourmap_c::operator=(colourmap_c &rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+		
+	return *this;
 }
 
 // --> colourmap_container_c class

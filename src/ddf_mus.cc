@@ -239,9 +239,8 @@ pl_entry_c::pl_entry_c()
 //
 pl_entry_c::pl_entry_c(pl_entry_c &rhs)
 {
-	ddf = rhs.ddf;
-	info = NULL;			// Ensure this is NULL for a copy constructor
-	CopyDetail(rhs);
+	info = NULL;
+	Copy(rhs);
 }
 
 //
@@ -251,6 +250,15 @@ pl_entry_c::~pl_entry_c()
 {
 	if (info)
 		Z_Free(info);
+}
+
+//
+// pl_entry_c::Copy()
+//
+void pl_entry_c::Copy(pl_entry_c &src)
+{
+	ddf = src.ddf;
+	CopyDetail(src);
 }
 
 //
@@ -286,6 +294,17 @@ void pl_entry_c::Default()
 	type = MUS_UNKNOWN;     
 	infotype = MUSINF_UNKNOWN;
 	info = NULL;             
+}
+
+//
+// pl_entry_c copy constructor
+//
+pl_entry_c& pl_entry_c::operator=(pl_entry_c &rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+	
+	return *this;
 }
 
 // --> pl_entry_containter_c class

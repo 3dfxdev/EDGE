@@ -756,10 +756,27 @@ gamedef_c::gamedef_c()
 }
 
 //
+// gamedef_c Copy constructor
+//
+gamedef_c::gamedef_c(gamedef_c &rhs)
+{
+	Copy(rhs);
+}
+
+//
 // gamedef_c Destructor
 //
 gamedef_c::~gamedef_c()
 {
+}
+
+//
+// gamedef_c::Copy()
+//
+void gamedef_c::Copy(gamedef_c &src)
+{
+	ddf = src.ddf;
+	CopyDetail(src);	
 }
 
 //
@@ -837,6 +854,17 @@ void gamedef_c::Default()
 	special_music = 0;
 }
 
+//
+// gamedef_c assignment operator
+//
+gamedef_c& gamedef_c::operator=(gamedef_c &rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+		
+	return *this;
+}
+
 // --> game definition container class
 
 //
@@ -851,6 +879,7 @@ gamedef_container_c::gamedef_container_c() : epi::array_c(sizeof(gamedef_c*))
 //
 gamedef_container_c::~gamedef_container_c()
 {
+	Clear();
 }
 
 //

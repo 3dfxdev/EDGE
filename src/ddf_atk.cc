@@ -408,8 +408,7 @@ atkdef_c::atkdef_c()
 //
 atkdef_c::atkdef_c(atkdef_c &rhs)
 {
-	ddf = rhs.ddf;
-	CopyDetail(rhs);
+	Copy(rhs);
 }
 
 //
@@ -417,6 +416,15 @@ atkdef_c::atkdef_c(atkdef_c &rhs)
 //
 atkdef_c::~atkdef_c()
 {
+}
+
+//
+// atkdef_c::Copy()
+//
+void atkdef_c::Copy(atkdef_c &src)
+{
+	ddf = src.ddf;
+	CopyDetail(src);
 }
 
 //
@@ -514,6 +522,17 @@ void atkdef_c::Default()
 	spawnedobj_ref = NULL;
 	puff = NULL;
 	puff_ref = NULL;
+}
+
+//
+// atkdef_c assignment operator
+//
+atkdef_c& atkdef_c::operator=(atkdef_c &rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+	
+	return *this;
 }
 
 // --> atkdef_container_c class

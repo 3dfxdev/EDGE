@@ -199,8 +199,16 @@ switchdef_c::switchdef_c()
 //
 switchdef_c::switchdef_c(switchdef_c &rhs)
 {
-	ddf = rhs.ddf;
-	CopyDetail(rhs);
+	Copy(rhs);
+}
+
+//
+// switchdef_c::Copy()
+//
+void switchdef_c::Copy(switchdef_c &src)
+{
+	ddf = src.ddf;
+	CopyDetail(src);
 }
 
 //
@@ -236,6 +244,17 @@ void switchdef_c::Default()
 	off_sfx = sfx_None;
 
 	time = BUTTONTIME;
+}
+
+//
+// switchdef_c assignment operator
+//
+switchdef_c& switchdef_c::operator=(switchdef_c &rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+	
+	return *this;
 }
 
 // --> switchdef_container_c Class

@@ -223,8 +223,16 @@ animdef_c::animdef_c()
 //
 animdef_c::animdef_c(animdef_c &rhs)
 {
-	ddf = rhs.ddf;
-	CopyDetail(rhs);
+	Copy(rhs);
+}
+
+//
+// animdef_c::Copy()
+//
+void animdef_c::Copy(animdef_c &src)
+{
+	ddf = src.ddf;
+	CopyDetail(src);
 }
 
 //
@@ -256,6 +264,17 @@ void animdef_c::Default()
 	endname.Clear();
 
 	speed = 8;
+}
+
+//
+// animdef_c assignment operator
+//
+animdef_c& animdef_c::operator=(animdef_c &rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+	
+	return *this;
 }
 
 // ---> animdef_container_c class
