@@ -335,11 +335,11 @@ static void DDF_ImageGetType(const char *info, void *storage)
 
 static specflags_t image_specials[] =
 {
-    {"CROSSHAIR", IMGSP_Crosshair, 0},
-    {"ALPHA",     IMGSP_NoAlpha,   1},
-    {"MIP",       IMGSP_NoMip,     1},
-    {"CLAMP",     IMGSP_Clamp,     0},
-    {"SMOOTH",    IMGSP_Smooth,    0},
+    {"CROSSHAIR",    IMGSP_Crosshair, 0},
+    {"ALPHA",        IMGSP_NoAlpha,   1},
+    {"FORCE NOMIP",  IMGSP_NoMip,     0},
+    {"FORCE CLAMP",  IMGSP_Clamp,     0},
+    {"FORCE SMOOTH", IMGSP_Smooth,    0},
     {NULL, 0, 0}
 };
 
