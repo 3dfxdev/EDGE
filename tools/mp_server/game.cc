@@ -20,6 +20,7 @@
 
 #include "autolock.h"
 #include "game.h"
+#include "mp_main.h"
 #include "network.h"
 #include "packet.h"
 #include "protocol.h"
@@ -28,7 +29,7 @@
 //
 // Game list
 //
-std::vector<game_c *> games;
+game_c *games[MPS_DEF_MAX_GAME];
 
 volatile int total_queued_games = 0;
 volatile int total_played_games = 0;
@@ -244,7 +245,7 @@ void game_c::TryRunTics()
 
 bool GameExists(short idx)
 {
-	if (idx < 0 || (unsigned)idx >= games.size())
+	if (idx < 0 || (unsigned)idx >= MPS_DEF_MAX_GAME)
 		return false;
 
 	return games[idx] != NULL;
@@ -397,7 +398,7 @@ void GameTimeouts()
 {
 	// lock ??
 
-	for (int game_id = 0; (unsigned)game_id < games.size(); game_id++)
+	for (int game_id = 0; (unsigned)game_id < MPS_DEF_MAX_GAME; game_id++)
 	{
 		game_c *GM = games[game_id];
 
@@ -444,16 +445,13 @@ void PK_new_game(packet_c *pk)
 		// find free slot
 		int game_id;
 
-		for (game_id = 0; (unsigned)game_id < games.size(); game_id++)
+		for (game_id = 0; (unsigned)game_id < MPS_DEF_MAX_GAME; game_id++)
 			if (games[game_id] == NULL)
 				break;
 		
 		GM = new game_c(&ng.info);
 
-		if ((unsigned)game_id == games.size())
-			games.push_back(GM);
-		else
-			games[game_id] = GM;
+		games[game_id] = GM;
 
 		GM->AddPlayer(client_id);
 
@@ -630,7 +628,7 @@ void PK_query_game(packet_c *pk)
 	{
 		int count = MIN(total, query_game_proto_t::GAME_FIT);
 
-		qg.total_games = games.size();
+		qg.total_games = total_queued_games + total_played_games;
 		qg.first_game = cur_id;
 		qg.last_game = qg.first_game + count - 1;
 		

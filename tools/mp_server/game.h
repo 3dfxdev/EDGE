@@ -31,6 +31,8 @@ public:
 	~game_c();
 
 private:
+	int index;
+
 	enum
 	{
 		ST_Queueing,
@@ -84,7 +86,7 @@ public:
 	int ComputeGroupAvail() const;
 };
 
-extern std::vector<game_c *> games;
+extern game_c * games[];
 
 extern volatile int total_queued_games;
 extern volatile int total_played_games;
