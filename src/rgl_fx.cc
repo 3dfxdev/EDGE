@@ -133,14 +133,20 @@ void RGL_PaletteEffect(player_t *player)
 {
 	byte rgb_data[3];
 
+	float s = player->effect_strength;
+
 	if (player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
 	{
-		float s = player->effect_strength;
-
 		if (s < 0.5)
 			glColor4f(1.0f, 1.0f, 1.0f, (0.8f - s) * 0.5f);
 		else
-			glColor4f(0.0f, 0.0f, 0.0f, s * 0.3f);
+			glColor4f(0.0f, 0.0f, 0.0f, s * 0.25f);
+	}
+	else if (player->powers[PW_NightVision] > 0 && player->effect_colourmap)
+	{
+		float r, g, b;
+		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b, false);
+		glColor4f(r, g, b, s * 0.20f);
 	}
 	else
 	{

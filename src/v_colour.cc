@@ -378,11 +378,148 @@ const byte *V_GetTranslationTable(const colourmap_c * colmap)
 	return (const byte*)colmap->cache.data;
 }
 
+static int AnalyseColourmap(const byte *table, int alpha,
+	int *r, int *g, int *b)
+{
+	/* analyse whole colourmap */
+	int r_tot = 0;
+	int g_tot = 0;
+	int b_tot = 0;
+	int total = 0;
+
+	for (int j = 0; j < 256; j++)
+	{
+		int r0 = playpal_data[0][j][0];
+		int g0 = playpal_data[0][j][1];
+		int b0 = playpal_data[0][j][2];
+
+		// give the grey-scales more importance
+		int weight = (r0 == g0 && g0 == b0) ? 3 : 1;
+
+		r0 = (255 * alpha + r0 * (255 - alpha)) / 255;
+		g0 = (255 * alpha + g0 * (255 - alpha)) / 255;
+		b0 = (255 * alpha + b0 * (255 - alpha)) / 255;
+
+		int r1 = playpal_data[0][table[j]][0];
+		int g1 = playpal_data[0][table[j]][1];
+		int b1 = playpal_data[0][table[j]][2];
+
+		int r_div = 255 * MAX(4, r1) / MAX(4, r0);
+		int g_div = 255 * MAX(4, g1) / MAX(4, g0);
+		int b_div = 255 * MAX(4, b1) / MAX(4, b0);
+
+#if 0  // DEBUGGING
+		I_Printf("#%02x%02x%02x / #%02x%02x%02x = (%d,%d,%d)\n",
+				 r1, g1, b1, r0, g0, b0, r_div, g_div, b_div);
+#endif
+		r_tot += r_div * weight;
+		g_tot += g_div * weight;
+		b_tot += b_div * weight;
+		total += weight;
+	}
+
+	(*r) = r_tot / total;
+	(*g) = g_tot / total;
+	(*b) = b_tot / total;
+
+	// scale down when too large to fit
+	int ity = MAX(*r, MAX(*g, *b));
+
+	if (ity > 255)
+	{
+		(*r) = (*r) * 255 / ity;
+		(*g) = (*g) * 255 / ity;
+		(*b) = (*b) * 255 / ity;
+	}
+
+	// compute distance score
+	total = 0;
+
+	for (int k = 0; k < 256; k++)
+	{
+		int r0 = playpal_data[0][k][0];
+		int g0 = playpal_data[0][k][1];
+		int b0 = playpal_data[0][k][2];
+
+		// on-screen colour: c' = c * M * (1 - A) + M * A
+		int sr = (r0 * (*r) / 255 * (255 - alpha) + (*r) * alpha) / 255;
+		int sg = (g0 * (*g) / 255 * (255 - alpha) + (*g) * alpha) / 255;
+		int sb = (b0 * (*b) / 255 * (255 - alpha) + (*b) * alpha) / 255;
+
+		// FIXME: this is the INVULN function
+#if 0
+		sr = (MAX(0, (*r /2 + 128) - r0) * (255 - alpha) + (*r) * alpha) / 255;
+		sg = (MAX(0, (*g /2 + 128) - g0) * (255 - alpha) + (*g) * alpha) / 255;
+		sb = (MAX(0, (*b /2 + 128) - b0) * (255 - alpha) + (*b) * alpha) / 255;
+#endif
+
+		int r1 = playpal_data[0][table[k]][0];
+		int g1 = playpal_data[0][table[k]][1];
+		int b1 = playpal_data[0][table[k]][2];
+
+		// FIXME: use weighting (more for greyscale)
+		total += (sr - r1) * (sr - r1);
+		total += (sg - g1) * (sg - g1);
+		total += (sb - b1) * (sb - b1);
+	}
+
+	return total / 256;
+}
 
 //
 // V_GetColmapRGB
 //
 void V_GetColmapRGB(const colourmap_c *colmap,
+					float *r, float *g, float *b, bool font)
+{
+	if (colmap->cache.data == NULL)
+	{
+		// Intention Const Override
+		colmapcache_t *cache = (colmapcache_t *) &colmap->cache;
+		byte *table;
+
+		int r, g, b;
+
+		LoadColourmap(colmap);
+
+		table = (byte *) cache->data;
+
+		if (font)
+		{
+			// for fonts, we only care about the GRAY colour
+			r = playpal_data[0][table[pal_gray239]][0];
+			g = playpal_data[0][table[pal_gray239]][1];
+			b = playpal_data[0][table[pal_gray239]][2];
+
+			r = r * 255 / 239;
+			g = g * 255 / 239;
+			b = b * 255 / 239;
+		}
+		else
+		{
+			// int score =
+			AnalyseColourmap(table, 0, &r, &g, &b);
+
+#if 0  // DEBUGGING
+			I_Printf("COLMAP [%s] alpha %d --> (%d, %d, %d) score %d\n",
+				colmap->ddf.name.GetString(), 0, r, g, b, score);
+#endif
+		}
+
+		r = MIN(255, MAX(0, r));
+		g = MIN(255, MAX(0, g));
+		b = MIN(255, MAX(0, b));
+
+		cache->gl_colour = (r << 16) | (g << 8) | b;
+	}
+
+	(*r) = GAMMA_CONV((colmap->cache.gl_colour >> 16) & 0xFF) / 255.0f;
+	(*g) = GAMMA_CONV((colmap->cache.gl_colour >>  8) & 0xFF) / 255.0f;
+	(*b) = GAMMA_CONV((colmap->cache.gl_colour      ) & 0xFF) / 255.0f;
+}
+
+#if 0  // OLD CODE, REMOVE SOON
+void V_GetColmapRGB_Orig(const colourmap_c *colmap,
 					float *r, float *g, float *b, bool font)
 {
 	if (colmap->cache.data == NULL)
@@ -453,15 +590,16 @@ void V_GetColmapRGB(const colourmap_c *colmap,
 				total   += weight;
 			}
 
-			// ASSERT(total > 0)
+			if (total == 0)
+				total = 1;
 
 			// exaggerate the results to give more oomph..
-			r = 255 + r_diffs * 4 / 3 / total;
-			g = 255 + g_diffs * 4 / 3 / total;
-			b = 255 + b_diffs * 4 / 3 / total;
+			r = 255 + r_diffs * 5 / 3 / total;
+			g = 255 + g_diffs * 5 / 3 / total;
+			b = 255 + b_diffs * 5 / 3 / total;
 
-#if 0  // DEBUGGING
-			I_Printf("COLMAP [%s] --> (%d, %d, %d)\n",
+#if 1  // DEBUGGING
+			I_Printf("COLMAP [%s] %d --> (%d, %d)\n",
 				colmap->ddf.name.GetString(), r, g, b);
 #endif
 
@@ -483,6 +621,7 @@ void V_GetColmapRGB(const colourmap_c *colmap,
 	(*g) = GAMMA_CONV((colmap->cache.gl_colour >>  8) & 0xFF) / 255.0f;
 	(*b) = GAMMA_CONV((colmap->cache.gl_colour      ) & 0xFF) / 255.0f;
 }
+#endif
 
 
 //
