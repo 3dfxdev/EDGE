@@ -34,10 +34,7 @@
 #include "e_player.h"
 #include "ddf_main.h"
 #include "r_defs.h"
-
-#define MAXSWITCHES 50
-#define MAXBUTTONS  32
-#define BUTTONTIME  35
+#include "w_image.h"
 
 #define GLOWSPEED   8.0f
 #define CEILSPEED   1.0f
@@ -73,6 +70,7 @@ light_t;
 
 typedef enum
 {
+  BWH_None,
   BWH_Top,
   BWH_Middle,
   BWH_Bottom
@@ -83,7 +81,11 @@ typedef struct button_s
 {
   line_t *line;
   bwhere_e where;
+#ifdef USE_IMAGE
+  const image_t *bimage;
+#else
   int btexture;
+#endif
   int btimer;
   mobj_t *soundorg;
 }
@@ -203,8 +205,8 @@ boolean_t EV_DoSector(sector_t * sec, const moving_plane_t * type, sector_t * mo
 //  P_SWITCH
 //
 void P_InitSwitchList(void);
-void P_ChangeSwitchTexture(line_t * line, int useAgain, 
-    line_flag_e specials);
+void P_ChangeSwitchTexture(line_t * line, boolean_t useAgain, 
+    line_flag_e specials, boolean_t noSound);
 boolean_t P_ButtonCheckPressed(line_t * line);
 
 #endif
