@@ -729,7 +729,17 @@ namespace Patch
 		line_buf[len] = 0;
 		line_num++;
 	}
-	
+
+	void StripTrailingSpace(void)
+	{
+		int len = strlen(line_buf);
+
+		while (len > 0 && isspace(line_buf[len - 1]))
+			len--;
+
+		line_buf[len] = 0;
+	}
+
 	bool ValidateObject(void)
 	{
 		int min_obj = 0;
@@ -904,12 +914,84 @@ namespace Patch
 			PrettyTextString(text_1));
 	}
 
+	void ReadBexTextString(char *dest)  // upto MAX_TEXT_STR chars
+	{
+		assert(cur_txt_ptr);
+
+		char *begin = dest;
+
+		int start_line = line_num;
+
+		for (;;)
+		{
+			if ((dest - begin) >= MAX_TEXT_STR)
+			{
+				FatalError("Bex String exceeds internal buffer length.\n"
+					"[> %d characters, starting on line %d]\n",
+					MAX_TEXT_STR, start_line);
+			}
+
+			if (*cur_txt_ptr == 0)
+				break;
+
+			// handle the newline sequence
+			if (cur_txt_ptr[0] == '\\' && tolower(cur_txt_ptr[1]) == 'n')
+			{
+				cur_txt_ptr += 2;
+				*dest += '\n';
+				continue;
+			}
+
+			if (cur_txt_ptr[0] == '\\' && cur_txt_ptr[1] == 0)
+			{
+				do  // need a loop to ignore comment lines
+				{
+					if (feof(pat_fp))
+						FatalError("End of file while reading Bex String replacement.\n");
+
+					GetNextLine();
+					StripTrailingSpace();
+				}
+				while (line_buf[0] == '#');
+
+				cur_txt_ptr = line_buf;
+
+				// strip leading whitespace from continuing lines
+				while (isspace(*cur_txt_ptr))
+					cur_txt_ptr++;
+
+				continue;
+			}
+
+			*dest++ = *cur_txt_ptr++;
+		}
+
+		*dest = 0;
+	}
+
 	void ProcessBexString(void)
 	{
-		const char *bex_field = Patch::line_buf;
+		Debug_PrintMsg("BEX STRING REPLACE: %s\n", line_buf);
 
-		//!!!! FIXME:
-		PrintWarn("BEX Strings not yet supported.\n");
+		if (strlen(line_buf) >= 100)
+			FatalError("Bex string name too long !\nLine %d: %s\n",
+				line_num, line_buf);
+
+		char bex_field[104];
+
+		strcpy(bex_field, line_buf);
+
+		static char text_buf[MAX_TEXT_STR+8];
+
+		cur_txt_ptr = equal_pos;
+
+		ReadBexTextString(text_buf);
+
+		Debug_PrintMsg("- Replacement <%s>\n", text_buf);
+
+		if (! TextStr::ReplaceBexString(bex_field, text_buf))
+			PrintWarn("Line %d: unknown BEX string name: %s\n",
+				line_num, bex_field);
 	}
 
 	void ProcessLine(void)
@@ -926,6 +1008,12 @@ namespace Patch
 		{
 			PrintWarn("Ignoring line: %s\n", line_buf);
 			return;
+		}
+
+		if (active_section == BEX_STRINGS)
+		{
+			// this is needed for compatible handling of trailing '\'
+			StripTrailingSpace();
 		}
 
 		// remove whitespace around '=' sign
@@ -988,10 +1076,9 @@ namespace Patch
 			case BEX_CODEPTR: Frames::AlterBexCodePtr(equal_pos); break;
 			case BEX_STRINGS: ProcessBexString(); break;
 
-			// !!!! FIXME
-			case BEX_SOUNDS:  PrintWarn("[SOUNDS] not yet implemented !\n");  break;
-			case BEX_MUSIC:   PrintWarn("[MUSIC] not yet implemented !\n");   break;
-			case BEX_SPRITES: PrintWarn("[SPRITES] not yet implemented !\n"); break;
+			case BEX_SOUNDS:  Sounds:: AlterBexSound(equal_pos);  break;
+			case BEX_MUSIC:   Sounds:: AlterBexMusic(equal_pos);  break;
+			case BEX_SPRITES: TextStr::AlterBexSprite(equal_pos); break;
 
 			default:
 				InternalError("Bad active_section value %d\n", active_section);
