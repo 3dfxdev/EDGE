@@ -31,7 +31,7 @@ UI_ClientList::UI_ClientList(int x, int y, int w, int h) :
  
 	type(SELECT_SINGLE);
 
-	cols(4);
+	cols(5);
 
 	for (int cc = 0; cc < cols(); cc++)
 		col_width(cc, get_column_width(cc, w));
@@ -90,6 +90,7 @@ const char * UI_ClientList::get_column_name(int col) const
 		case 1: return "Name";
 		case 2: return "IP Address";
 		case 3: return "Status";
+		case 4: return "Game";
 
 		default:
 			break;
@@ -112,7 +113,7 @@ void UI_ClientList::draw_cell(TableContext context, int R, int C,
     switch (context)
     {
 		case CONTEXT_STARTPAGE:
-			fl_font(FL_HELVETICA, 16);
+			// fl_font(FL_HELVETICA, 16);
 			break;
 
 		case CONTEXT_ENDPAGE:
