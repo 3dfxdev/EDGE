@@ -200,15 +200,12 @@ New DDF/RTS features in 1.29:
 
 Known Issues:
   - Multiplayer (networking) does not work yet.  We have made a
-    little bit of progress recently, and hope to get something
-    working soon.
+    little bit of progress recently, and hope to get LAN-based
+    multiplayer working again soon.
 
   - Drag-and-drop does not work in MacOS X and Linux.
 
   - Joysticks do not work.  We haven't done any work in that area.
-
-  - EDGE is still somewhat slow.  Overall this is because we had
-    little time to spend on optimising the code.
 
   - Levels and TCs designed for EDGE 1.24 (or earlier) can produce a
     bucket-load of warnings when starting up.  These warnings are
@@ -219,7 +216,7 @@ Known Issues:
   - Some sprites are designed to look sunk into the floor, typically
     corpses, and can look like they are "floating" in EDGE.  This is a
     limitation of using OpenGL rendering (if the sprites are lowered,
-    the get clipped and this looks much worse).
+    the get clipped and this looks a lot worse).
 
     Certain other DOOM tricks, e.g. flat-flooding, sometimes don't
     work properly with EDGE's renderer.
