@@ -55,8 +55,6 @@
 #include <signal.h>
 
 
-short hicolortransmask1, hicolortransmask2;
-
 // Dummy screen... 
 // mainscreen is a full-size subscreen of this one.
 static SDL_Surface *my_vis;
@@ -75,10 +73,6 @@ bool use_warp_mouse = true;
 #else
 bool use_warp_mouse = false;
 #endif
-
-static SDL_Color my_pal[256];
-
-colourshift_t redshift, greenshift, blueshift;
 
 // Possible Screen Modes
 static screenmode_t possresmode[] =
@@ -108,71 +102,6 @@ static screenmode_t possresmode[] =
 
 
 // ====================== INTERNALS ======================
-
-//
-// MakeCol
-//
-static inline unsigned long MakeCol(long r, long g, long b)
-{
-	r = (r >> (8 - redshift.bits))   << redshift.shift;
-	g = (g >> (8 - greenshift.bits)) << greenshift.shift;
-	b = (b >> (8 - blueshift.bits))  << blueshift.shift;
-
-	return r|g|b;
-}
-
-//
-// CountLeadingZeros
-//
-static const inline unsigned long CountLeadingZeros(unsigned long x)
-{
-	unsigned long r = 0;
-
-	if (x == 0)
-		return 0;
-
-	while (!(x & 1))
-	{
-		x >>= 1;
-		r++;
-	}
-
-	return r;
-}
-
-//
-// CountBitsInMask
-//
-static const inline unsigned long CountBitsInMask(unsigned long x)
-{
-	unsigned long r = 0;
-
-	while (!(x & 1))
-		x >>= 1;
-
-	while (x & 1)
-	{
-		x >>= 1;
-		r++;
-	}
-
-	if (x)
-		I_Error ("X Version: Mask is not contiguous.\n");
-
-	return r;
-}
-
-//
-// SetColourShift
-//
-// Constructs the shifts necessary to set one element of an RGB colour value
-//
-void SetColourShift(unsigned long mask, colourshift_t * ps)
-{
-	ps->mask  = mask;
-	ps->shift = CountLeadingZeros(mask);
-	ps->bits  = CountBitsInMask(mask);
-}
 
 static void VideoModeCommonStuff(void)
 {
@@ -243,33 +172,6 @@ void I_StartupGraphics(void)
 }
 
 //
-// I_GetTruecolInfo
-//
-void I_GetTruecolInfo(truecol_info_t * info)
-{
-	info->red_bits = redshift.bits;
-	info->red_shift = redshift.shift;
-	info->red_mask = redshift.mask;
-
-	info->green_bits = greenshift.bits;
-	info->green_shift = greenshift.shift;
-	info->green_mask = greenshift.mask;
-
-	info->blue_bits = blueshift.bits;
-	info->blue_shift = blueshift.shift;
-	info->blue_mask = blueshift.mask;
-
-	info->grey_mask = 0x7FFFFFFF;
-
-	// check for RGB 5:6:5 mode (should be more general !)
-	if (info->red_bits == 5 && info->green_bits == 6 &&
-			info->blue_bits == 5)
-	{
-		info->grey_mask = 0xFFDF;
-	}
-}
-
-//
 // I_SetScreenSize
 //
 bool I_SetScreenSize(screenmode_t *mode)
@@ -313,43 +215,6 @@ void I_FinishFrame(void)
 
 	if (use_warp_mouse)
 		SDL_WarpMouse(SCREENWIDTH/2, SCREENHEIGHT/2);
-}
-
-//
-// I_SetPalette
-//
-void I_SetPalette(byte palette[256][3])
-{
-	int i;
-
-	const byte *gtable = gammatable[usegamma];
-
-	if (BPP != 1)
-		return;
-
-	for (i = 0; i < 256; i++)
-	{
-		int r = gtable[palette[i][0]];
-		int g = gtable[palette[i][1]];
-		int b = gtable[palette[i][2]];
-
-		my_pal[i].r = (r << 8) + r;
-		my_pal[i].g = (g << 8) + g;
-		my_pal[i].b = (b << 8) + b;
-	}
-
-	SDL_SetColors(my_vis, my_pal, 0, 256);
-}
-
-//
-// I_Colour2Pixel
-//
-long I_Colour2Pixel(byte palette[256][3], int col)
-{
-	if (BPP == 1)
-		return col;
-
-	return MakeCol(palette[col][0], palette[col][1], palette[col][2]);
 }
 
 //

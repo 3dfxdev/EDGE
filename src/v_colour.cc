@@ -81,7 +81,6 @@ const colourmap_c *text_yellow_map = NULL;
 const byte *am_normal_colmap  = NULL;
 const byte *am_overlay_colmap = NULL;
 
-byte null_tranmap[256];
 byte halo_conv_table[256];
 
 
@@ -203,9 +202,6 @@ static void InitTranslationTables(void)
 	text_brown_map  = colourmaps.Lookup("TEXT_BROWN");
 	text_blue_map   = colourmaps.Lookup("TEXT_BLUE");
 	text_yellow_map = colourmaps.Lookup("TEXT_YELLOW");
-
-	for (i=0; i < 256; i++)
-		null_tranmap[i] = i;
 
 	// compute halo table (software mode)
 	for (i=0; i < 256; i++)
@@ -627,96 +623,6 @@ void V_SetPalette(int type, float amount)
 
 	cur_palette = palette;
 }
-
-#if 0
-static INLINE long MakeRGB(truecol_info_t *ti, long r, long g, long b)
-{
-	r = (r >> (8 - ti->red_bits))   << ti->red_shift;
-	g = (g >> (8 - ti->green_bits)) << ti->green_shift;
-	b = (b >> (8 - ti->blue_bits))  << ti->blue_shift;
-
-	return r | g | b;
-}
-
-//
-// MakeColourmapRange
-//
-// Creates a colourmap table in `dest_colmaps' for use by the column &
-// span drawers.  Each colourmap is an array of `num' coltables.  Each
-// coltable in the destination is a lookup table from indexed colour
-// (0-255) to framebuffer pixel.  Each coltable in the source is a
-// lookup table from indexed colour to indexed colour.  Only used for
-// non-8-bit modes.  Note that the current gamma level must also be
-// applied in the conversion.
-//
-static void MakeColourmapRange(void *dest_colmaps, byte palette[256][3],
-							   const byte *src_colmaps, int num, bool whiten)
-{
-	const byte *gtable = gammatable[usegamma];
-	unsigned short *colmap16 = (unsigned short*)dest_colmaps;
-	byte tempr[256], tempg[256], tempb[256];
-	truecol_info_t ti;
-	int i, j;
-
-	DEV_ASSERT2(BPP == 2);
-
-	I_GetTruecolInfo(&ti);
-
-	if (interpolate_colmaps && num >= 2 && ! whiten)
-	{
-		for (j = 0; j < 256; j++)
-		{
-			int c1 = src_colmaps[0 * 256 + j];
-			int c2 = src_colmaps[(num - 1) * 256 + j];
-
-			int r1 = palette[c1][0];
-			int g1 = palette[c1][1];
-			int b1 = palette[c1][2];
-
-			int r2 = palette[c2][0];
-			int g2 = palette[c2][1];
-			int b2 = palette[c2][2];
-
-			for (i = 0; i < num; i++)
-			{
-				int r = gtable[r1 + (r2 - r1) * i / (num - 1)];
-				int g = gtable[g1 + (g2 - g1) * i / (num - 1)];
-				int b = gtable[b1 + (b2 - b1) * i / (num - 1)];
-
-				colmap16[i * 256 + j] = (short)MakeRGB(&ti, r, g, b);
-
-				if (playpal_greys[i])
-					colmap16[i * 256 + j] &= ti.grey_mask;
-			}
-		}
-
-		return;
-	}
-
-	// use the old (but faster) method:
-
-	for (i = 0; i < 256; i++)
-	{
-		tempr[i] = gtable[palette[i][0]];
-		tempg[i] = gtable[palette[i][1]];
-		tempb[i] = gtable[palette[i][2]];
-	}
-
-	for (j = 0; j < 256; j++)
-		for (i = 0; i < num; i++)
-		{
-			int c = src_colmaps[i * 256 + j];
-
-			if (whiten)
-				c = src_colmaps[i * 256 + font_whitener[j]];
-
-			colmap16[i * 256 + j] = (short)MakeRGB(&ti, tempr[c], tempg[c], tempb[c]);
-
-			if (playpal_greys[j])
-				colmap16[i * 256 + j] &= ti.grey_mask;
-		}
-}
-#endif
 
 //
 // LoadColourmap
