@@ -24,6 +24,8 @@
 void System_Startup(void);
 void System_Shutdown(void);
 
+extern int target_version;  // decimal, e.g. 128
+
 extern bool quiet_mode;
 extern bool all_mode;
 

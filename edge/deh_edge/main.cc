@@ -51,10 +51,10 @@ const char *output_file = NULL;
 
 int num_inputs = 0;
 
+int target_version = 128;  // EDGE 1.28
+
 bool quiet_mode = false;
 bool all_mode   = false;
-
-int edge_version = 127;
 
 
 /* ----- user information ----------------------------- */
@@ -77,10 +77,11 @@ static void ShowInfo(void)
   PrintMsg(
     "USAGE:  deh_edge  (Options...)  input.deh (...)  (-o output.wad)\n"
 	"\n"
-	"Available options.\n"
-	"    -o  --output    Output filename override.\n"
-	"    -q  --quiet     Quiet mode, suppress warnings.\n"
-	"    -a  --all       Convert all (even unmodified) DDF.\n"
+	"Available options:\n"
+	"   -o --output      Output filename override.\n"
+	"   -e --edge #.##   Specify EDGE version to target.\n"
+	"   -q --quiet       Quiet mode, suppress warnings.\n"
+	"   -a --all         Convert all DDF (much bigger !).\n"
 	"\n"
   );
 }
@@ -126,6 +127,27 @@ static void ParseArgs(int argc, char **argv)
 			continue;
 		}
 
+		// version number
+		if (StrCaseCmp(opt, "-e") == 0 || StrCaseCmp(opt, "-edge") == 0)
+		{
+			const char *ver = argv[0];
+
+			if (argc == 0 || ver[0] == '-')
+				FatalError("Missing version number !\n");
+
+			if (isdigit(ver[0]) && ver[1] == '.' &&
+				isdigit(ver[2]) && isdigit(ver[3]))
+			{
+				target_version = (ver[0] - '0') * 100 +
+					(ver[2] - '0') * 10 + (ver[3] - '0');
+			}
+			else
+				FatalError("Badly formed version number.\n");
+
+			argv++, argc--;
+			continue;
+		}
+
 		if (StrCaseCmp(opt, "-q") == 0 || StrCaseCmp(opt, "-quiet") == 0)
 		{
 			quiet_mode = true;
@@ -136,7 +158,6 @@ static void ParseArgs(int argc, char **argv)
 			all_mode = true;
 			continue;
 		}
-		// -v -version
 
 		FatalError("Unknown option: %s\n", opt);
 	}
@@ -148,6 +169,10 @@ static void ValidateArgs(void)
 
 	if (num_inputs == 0)
 		FatalError("Missing input filename !\n");
+
+	if (target_version < 123 || target_version >= 300)
+		FatalError("Illegal version number: %d.%02d\n", target_version / 100,
+			target_version % 100);
 
 	for (j = 0; j < num_inputs; j++)
 	{
@@ -161,14 +186,14 @@ static void ValidateArgs(void)
 
 	if (! output_file)
 	{
-		// default output filename, add "_deh.wad" to base
+		// default output filename, add ".hwa" or "_deh.wad" to base
 
 		const char *base_name = ReplaceExtension(input_files[0], NULL);
 		
 		char *new_file = StringNew(strlen(base_name) + 16);
 
 		strcpy(new_file, base_name);
-		strcat(new_file, "_deh.wad");
+		strcat(new_file, (target_version >= 128) ? ".hwa" : "_deh.wad");
 
 		output_file = new_file;
 	}
@@ -238,7 +263,8 @@ int main(int argc, char **argv)
 	Storage::ApplyAll();
 
 	// do conversions into DDF...
-	PrintMsg("Converting data into DDF...\n");
+	PrintMsg("Converting data into EDGE %d.%02d DDF...\n",
+		target_version / 100, target_version % 100);
 
 	TextStr::SpriteDependencies();
 	Frames::StateDependencies();

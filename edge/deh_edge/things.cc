@@ -464,8 +464,8 @@ namespace Things
 		// Workaround for EDGE 1.27, which does not Remove a thing when
 		// it has no see-states but does a successful A_Look().
 
-		if ((Frames::act_flags & AF_LOOK) && info->seestate == S_NULL &&
-			info->spawnstate != S_NULL)
+		if (target_version <= 127 && (Frames::act_flags & AF_LOOK) &&
+			info->seestate == S_NULL && info->spawnstate != S_NULL)
 		{
 			state_t *st = states + info->spawnstate;
 
@@ -773,7 +773,9 @@ namespace Things
 			return;
 
 		WAD::Printf("CASTORDER = %d;\n", order);
-		WAD::Printf("CAST_TITLE = %s;\n", cast_titles[order - 1]);
+
+		if (target_version >= 128)
+			WAD::Printf("CAST_TITLE = %s;\n", cast_titles[order - 1]);
 	}
 
 	void HandleDropItem(const mobjinfo_t *info, int mt_num)
