@@ -1039,8 +1039,10 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
     if (mo->mom.z < 0)
     {
       float hurt_momz = gravity * mo->info->maxfall;
+      bool fly_or_swim = mo->player && (mo->player->swimming ||
+          mo->player->powers[PW_Jetpack] || mo->on_ladder >= 0);
 
-      if (mo->player && gravity > 0 && -zmove > OOF_SPEED)
+      if (mo->player && gravity > 0 && -zmove > OOF_SPEED && ! fly_or_swim)
       {
         // Squat down. Decrease viewheight for a moment after hitting the
         // ground (hard), and utter appropriate sound.
@@ -1048,7 +1050,8 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
         S_StartSound(mo, mo->info->oof_sound);
       }
       // -KM- 1998/12/16 If bigger than max fall, take damage.
-      if (mo->info->maxfall && gravity > 0 && -mo->mom.z > hurt_momz)
+      if (mo->info->maxfall && gravity > 0 && -mo->mom.z > hurt_momz &&
+          (! mo->player || ! fly_or_swim))
       {
         P_DamageMobj(mo, NULL, NULL, (-mo->mom.z - hurt_momz), NULL);
       }
@@ -1116,13 +1119,16 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
     if (mo->mom.z > 0)
     {
       float hurt_momz = gravity * mo->info->maxfall;
+      bool fly_or_swim = mo->player && (mo->player->swimming ||
+          mo->player->powers[PW_Jetpack] || mo->on_ladder >= 0);
 
-      if (mo->player && gravity < 0 && zmove > OOF_SPEED)
+      if (mo->player && gravity < 0 && zmove > OOF_SPEED && ! fly_or_swim)
       {
         mo->player->deltaviewheight = zmove / 8.0;
         S_StartSound(mo, mo->info->oof_sound);
       }
-      if (mo->info->maxfall && gravity < 0 && mo->mom.z > hurt_momz)
+      if (mo->info->maxfall && gravity < 0 && mo->mom.z > hurt_momz &&
+          (! mo->player || ! fly_or_swim))
       {
         P_DamageMobj(mo, NULL, NULL, (mo->mom.z - hurt_momz), NULL);
       }
