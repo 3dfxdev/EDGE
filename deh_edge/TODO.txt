@@ -2,19 +2,32 @@
 DEH-EDGE Todo
 -------------
 
+-  frames:  AlterFrame
+-  sounds:  AlterSound
+-  things:  AlterThing
+-  weapons: AlterWeapon
+
 -  Mancubus attack busted.
 
 -  versions of malloc and strdup that error out on no memory.
+
++  support multiple patches.
 
 DONE:  patch: ReadBinarySound
 DONE:  ELEMENTAL SPAWN attacks: don't work if LOST.SOUL loses missilestates.
 DONE:  translation bits: PLAYER_DK_GREY, PLAYER_BROWN, PLAYER_DULL_RED
 
+DONE: ammo: AlterAmmo
+DONE: misc: AlterMisc
+DONE: text: AlterCheat
 
-FUTURE Ideas
+
+FUTURE Plans
 ------------
 
--  support multiple (Diff-style) patches.
+-  support for BEX (Boom extensions).
+
+-  support for Boom/MBF additional things/frames/etc.
 
 -  option for EDGE version (e.g. -v128, --version 1.27).
 
