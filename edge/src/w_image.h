@@ -174,7 +174,8 @@ void W_LockImagesOGL(void);
 void W_UnlockImagesOGL(void);
 
 const cached_image_t *W_ImageCache(const image_t *image, 
-								   image_mode_e mode, int mip, bool anim);
+								   image_mode_e mode, int mip, bool anim,
+								   const colourmap_t *trans = NULL);
 void W_ImageDone(const cached_image_t *c);
 void W_ImagePreCache(const image_t *image);
 
