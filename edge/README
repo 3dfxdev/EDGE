@@ -254,13 +254,15 @@ Compiling EDGE:
   Quick guide:
   
   First you need to build the GLBSP plugin.  Cd into glbsp/plugin
-  directory and type `make' (or make -f makefile.bcc for windows).
+  directory and type `make' (or make -f makefile.bcc for windows, or
+  make -f makefile.osx for MacOS X).
 
   To make EDGE itself, cd into the platform specific directory
-  (`linux', `win32' or `djgpp'), that's where the Makefile is.  Edit
+  (`linux', `win32' or `djgpp'), that's where the Makefile is.  For MacOS X,
+  cd into the `linux' directory (the code is shared).  Edit
   the Makefile, there are some useful parameters you can change at the
-  top.  Then type `make' (or for windows, `make -f Makefile.bcc').
-
+  top.  Then type `make' (or for windows, `make -f Makefile.bcc', or
+  `make -f Makefile.osx' for MacOS X).
 
 Command line options:
 
