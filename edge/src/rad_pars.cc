@@ -2150,7 +2150,7 @@ static rts_parser_t radtrig_parsers[] =
 	{2, "CHANGE_MUSIC", 2,2, RAD_ParseChangeMusic},
 	{2, "SHOW_MENU", 2,99, RAD_ParseShowMenu},
 	{2, "SHOW_MENU_LDF", 2,99, RAD_ParseShowMenu},
-	{2, "MENU_STYLE", 1,1, RAD_ParseMenuStyle},
+	{2, "MENU_STYLE", 2,2, RAD_ParseMenuStyle},
 	{2, "JUMP_ON", 3,99, RAD_ParseJumpOn},
 
 	// deprecated primitives
