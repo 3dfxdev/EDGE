@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.28 (since 1.27)
 ===============================
 
-(Date: MAY 5th 2004)
+(Date: MAY 17th 2004)
 
 Bugs fixed
 ----------
@@ -75,6 +75,8 @@ General improvements
 + better default configuration: e.g. 640x400 mode, 16 bit colour.
 
 + full Mlook range in GL mode.
+
++ improved handling of music volume under Windows.
 
 + better sky drawing in GL: drawn using a fake skybox (created from
   sky image) to cope with Mlook.  Never wobbles anymore, and is drawn
