@@ -613,7 +613,7 @@ static void SpawnMapThing(const mobjinfo_t *info,
   point.y = y;
   point.z = z;
   point.angle = angle;
-  point.slope = 0;
+  point.vertangle = 0;
   point.info = info;
   point.flags = 0;
 

@@ -90,7 +90,7 @@ int vb_h;
 int vb_pitch;
 
 angle_t viewangle = 0;
-float viewvertangle;
+angle_t viewvertangle = 0;
 
 angle_t normalfov, zoomedfov;
 bool viewiszoomed = false;
@@ -1000,7 +1000,7 @@ void R_RenderViewBitmap(viewbitmap_t * vb)
 
 		SetupFrame(v->camera, v);
 
-		R_AspectChangeY(a, a->y_distunit, viewvertangle);
+		R_AspectChangeY(a, a->y_distunit, M_Tan(viewvertangle));
 
 		R_CallCallbackList(v->frame_start);
 

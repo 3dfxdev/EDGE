@@ -651,7 +651,7 @@ static void ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 	}
 
 	dest->angleturn = (new_angle - bot->pl->mo->angle) >> 16;
-	dest->vertangle = (signed char) (s * 256);
+	dest->vertslope = (signed char) (s * 256);
 
 	if (src->followtype == BOTCMD_FOLLOW_NONE)
 	{
@@ -775,7 +775,7 @@ void P_BotPlayerThinker(const player_t *p, void *data, ticcmd_t *cmd)
 		// Don't turn around more: If we decided to switch angle the first tic,
 		// then that's the angle we prefer, and it's bad to turn around more.
 		bot->prev_cmd.angleturn = 0;
-		bot->prev_cmd.vertangle = 0;
+		bot->prev_cmd.vertslope = 0;
 	}
 
 	*cmd = bot->prev_cmd;

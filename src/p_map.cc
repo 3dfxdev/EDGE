@@ -1567,8 +1567,10 @@ float P_AimLineAttack(mobj_t * t1, angle_t angle, float distance)
 
 	if (t1->player)
 	{
-		aim_I.topslope = (t1->vertangle * 256.0f + 100.0f) / 160.0f;
-		aim_I.bottomslope = (t1->vertangle * 256.0f - 100.0f) / 160.0f;
+		float vertslope = M_Tan(t1->vertangle);
+
+		aim_I.topslope = (vertslope * 256.0f + 100.0f) / 160.0f;
+		aim_I.bottomslope = (vertslope * 256.0f - 100.0f) / 160.0f;
 	}
 	else
 	{
@@ -1651,7 +1653,7 @@ mobj_t *P_MapTargetTheory(mobj_t * source)
 
 	theorytarget.x = source->x + distance * M_Cos(angle);
 	theorytarget.y = source->y + distance * M_Sin(angle);
-	theorytarget.z = start_z   + distance * source->vertangle;
+	theorytarget.z = start_z   + distance * M_Tan(source->vertangle);
 
 	theorytarget.extendedflags |= EF_DUMMYMOBJ;
 	theorytarget.radius = theorytarget.height = 1;
@@ -1691,8 +1693,10 @@ mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 
 	if (source->player)
 	{
-		aim_I.topslope = (100 + source->vertangle * 256) / 160.0f;
-		aim_I.bottomslope = (-100 + source->vertangle * 256) / 160.0f;
+		float vertslope = M_Tan(source->vertangle);
+
+		aim_I.topslope = (100 + vertslope * 256) / 160.0f;
+		aim_I.bottomslope = (-100 + vertslope * 256) / 160.0f;
 	}
 	else
 	{
@@ -1715,12 +1719,16 @@ mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 	//   useful, sometimes annoying :-)
 	if (source->player && level_flags.autoaim == AA_MLOOK)
 	{
-		source->vertangle = (linetarget->z - source->z) /
-			P_ApproxDistance(source->x - linetarget->x, source->y - linetarget->y);
-		if (source->vertangle > LOOKUPLIMIT)
-			source->vertangle = LOOKUPLIMIT;
-		if (source->vertangle < LOOKDOWNLIMIT)
-			source->vertangle = LOOKDOWNLIMIT;
+		source->vertangle = M_ATan((linetarget->z - source->z) /
+			P_ApproxDistance(source->x - linetarget->x, source->y - linetarget->y));
+
+		if (source->vertangle > LOOKUPLIMIT && source->vertangle < LOOKDOWNLIMIT)
+		{
+			if (source->vertangle <= ANG180)
+				source->vertangle = LOOKUPLIMIT;
+			else
+				source->vertangle = LOOKDOWNLIMIT;
+		}
 	}
 	return linetarget;
 }

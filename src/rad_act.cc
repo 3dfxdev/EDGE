@@ -470,7 +470,7 @@ void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param)
 	mo->spawnpoint.y = t->y;
 	mo->spawnpoint.z = t->z;
 	mo->spawnpoint.angle = t->angle;
-	mo->spawnpoint.slope = t->slope;
+	mo->spawnpoint.vertangle = M_ATan(t->slope);
 	mo->spawnpoint.info = minfo;
 	mo->spawnpoint.flags = t->ambush ? MF_AMBUSH : 0;
 

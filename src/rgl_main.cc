@@ -184,7 +184,7 @@ void RGL_SetupMatrices3D(void)
 	glMatrixMode(GL_MODELVIEW);
 
 	glLoadIdentity();
-	glRotatef(270.0f - (float)atan(viewvertangle) * 180.0f / (float)M_PI, 1.0f, 0.0f, 0.0f);
+	glRotatef(270.0f - ANG_2_FLOAT(viewvertangle), 1.0f, 0.0f, 0.0f);
 	glRotatef(90.0f - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
 	glRotatef(side_ang, 0.0f, 1.0f, 0.0f);
 	glTranslatef(-viewx, -viewy, -viewz);

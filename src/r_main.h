@@ -38,7 +38,7 @@
 //
 extern float viewcos;
 extern float viewsin;
-extern float viewvertangle;
+extern angle_t viewvertangle;
 
 extern subsector_t *viewsubsector;
 extern region_properties_t *view_props;

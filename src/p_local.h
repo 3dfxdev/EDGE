@@ -37,11 +37,11 @@
 #define CROUCH_SLOWDOWN  0.6f
 
 #ifdef USE_GL
-#define LOOKUPLIMIT    0.9f
-#define LOOKDOWNLIMIT -0.9f
+#define LOOKUPLIMIT    FLOAT_2_ANG(85.0f)
+#define LOOKDOWNLIMIT  FLOAT_2_ANG(-85.0f)
 #else
-#define LOOKUPLIMIT    0.5f
-#define LOOKDOWNLIMIT -0.5f
+#define LOOKUPLIMIT    ANG45
+#define LOOKDOWNLIMIT  ANG315
 #endif
 
 // mapblocks are used to check movement

@@ -35,27 +35,27 @@
 
 typedef struct
 {
-  // vertical angle for mlook, /256 for slope
-  signed char vertangle;
+	// vertical angle for mlook: tan(delta) * 254
+	signed char vertslope;
 
-  // -MH- 1998/08/23 upward movement
-  signed char upwardmove;
+	// -MH- 1998/08/23 upward movement
+	signed char upwardmove;
 
-  // /32 for move
-  signed char forwardmove;
+	// /32 for move
+	signed char forwardmove;
 
-  // /32 for move
-  signed char sidemove;
+	// /32 for move
+	signed char sidemove;
 
-  // *65536 for angle delta
-  short angleturn;
+	// *65536 for angle delta
+	short angleturn;
 
-  // checks for net game
-  short consistency;
+	// checks for net game
+	short consistency;
 
-  byte chatchar;
-  byte buttons;
-  byte extbuttons;
+	byte chatchar;
+	byte buttons;
+	byte extbuttons;
 }
 ticcmd_t;
 

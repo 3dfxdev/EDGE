@@ -296,7 +296,7 @@ static void TeleportRespawn(mobj_t * mobj)
 
   new_mo->spawnpoint = mobj->spawnpoint;
   new_mo->angle = mobj->spawnpoint.angle;
-  new_mo->vertangle = mobj->spawnpoint.slope;
+  new_mo->vertangle = mobj->spawnpoint.vertangle;
 
   if (mobj->spawnpoint.flags & MF_AMBUSH)
     new_mo->flags |= MF_AMBUSH;
@@ -512,10 +512,10 @@ CREATE_FUNCTION(P_MobjSetBelowMo, below_mo)
 //
 void P_MobjSetRealSource(mobj_t *mo, mobj_t *source)
 {
-  while (source && source->source && (source->flags & MF_MISSILE))
-    source = source->source;
+	while (source && source->source && (source->flags & MF_MISSILE))
+		source = source->source;
 
-  P_MobjSetSource(mo, source);
+	P_MobjSetSource(mo, source);
 }
 
 //
@@ -525,33 +525,33 @@ void P_MobjSetRealSource(mobj_t *mo, mobj_t *source)
 //
 bool P_SetMobjState(mobj_t * mobj, statenum_t state)
 {
-  state_t *st;
+	state_t *st;
 
-  // ignore removed objects
-  if (! mobj->state)
-    return false;
-  
-  if (state == S_NULL)
-  {
-    mobj->state = mobj->next_state = NULL;
-    P_RemoveMobj(mobj);
-    return false;
-  }
+	// ignore removed objects
+	if (! mobj->state)
+		return false;
 
-  st = &states[state];
+	if (state == S_NULL)
+	{
+		mobj->state = mobj->next_state = NULL;
+		P_RemoveMobj(mobj);
+		return false;
+	}
 
-  mobj->state  = st;
-  mobj->tics   = st->tics;
-  mobj->sprite = st->sprite;
-  mobj->frame  = st->frame;
-  mobj->bright = st->bright;
-  mobj->next_state = (st->nextstate == S_NULL) ? NULL :
-      (states + st->nextstate);
+	st = &states[state];
 
-  if (st->action)
-    (* st->action)(mobj);
+	mobj->state  = st;
+	mobj->tics   = st->tics;
+	mobj->sprite = st->sprite;
+	mobj->frame  = st->frame;
+	mobj->bright = st->bright;
+	mobj->next_state = (st->nextstate == S_NULL) ? NULL :
+		(states + st->nextstate);
 
-  return true;
+	if (st->action)
+		(* st->action)(mobj);
+
+	return true;
 }
 
 //
@@ -568,23 +568,23 @@ bool P_SetMobjState(mobj_t * mobj, statenum_t state)
 //
 bool P_SetMobjStateDeferred(mobj_t * mo, statenum_t stnum, int tic_skip)
 {
-  // ignore removed objects
-  if (!mo->state || !mo->next_state)
-    return false;
- 
-  if (stnum == S_NULL)
-  {
-    mo->state = mo->next_state = NULL;
-    P_RemoveMobj(mo);
-    return false;
-  }
+	// ignore removed objects
+	if (!mo->state || !mo->next_state)
+		return false;
 
-  mo->next_state = (stnum == S_NULL) ? NULL : (states + stnum);
+	if (stnum == S_NULL)
+	{
+		mo->state = mo->next_state = NULL;
+		P_RemoveMobj(mo);
+		return false;
+	}
 
-  mo->tics = 0;
-  mo->tic_skip = tic_skip;
+	mo->next_state = (stnum == S_NULL) ? NULL : (states + stnum);
 
-  return true;
+	mo->tics = 0;
+	mo->tic_skip = tic_skip;
+
+	return true;
 }
 
 //
@@ -595,33 +595,33 @@ bool P_SetMobjStateDeferred(mobj_t * mo, statenum_t stnum, int tic_skip)
 //
 statenum_t P_MobjFindLabel(mobj_t * mobj, const char *label)
 {
-  int i;
+	int i;
 
-  for (i=mobj->info->first_state; i <= mobj->info->last_state; i++)
-  {
-    if (! states[i].label)
-      continue;
+	for (i=mobj->info->first_state; i <= mobj->info->last_state; i++)
+	{
+		if (! states[i].label)
+			continue;
 
-    if (DDF_CompareName(states[i].label, label) == 0)
-      return i;
-  }
+		if (DDF_CompareName(states[i].label, label) == 0)
+			return i;
+	}
 
-  return S_NULL;
+	return S_NULL;
 }
 
 //
 // P_SetMobjDirAndSpeed
 //
-// -AJA- 1999/09/11: written.
-//
 void P_SetMobjDirAndSpeed(mobj_t * mo, angle_t angle, float slope, float speed)
 {
-  mo->angle = angle;
-  mo->vertangle = slope;
+	mo->angle = angle;
+	mo->vertangle = M_ATan(slope);
 
-  mo->mom.x = M_Cos(angle) * speed;
-  mo->mom.y = M_Sin(angle) * speed;
-  mo->mom.z = slope * speed;
+	mo->mom.z = M_Sin(mo->vertangle) * speed;
+	speed    *= M_Cos(mo->vertangle);
+
+	mo->mom.x = M_Cos(angle) * speed;
+	mo->mom.y = M_Sin(angle) * speed;
 }
 
 //
@@ -632,16 +632,16 @@ void P_SetMobjDirAndSpeed(mobj_t * mo, angle_t angle, float slope, float speed)
 //
 void P_MobjExplodeMissile(mobj_t * mo)
 {
-  mo->mom.x = mo->mom.y = mo->mom.z = 0;
+	mo->mom.x = mo->mom.y = mo->mom.z = 0;
 
-  mo->flags &= ~(MF_MISSILE | MF_TOUCHY);
-  mo->extendedflags &= ~(EF_BOUNCE | EF_USABLE);
+	mo->flags &= ~(MF_MISSILE | MF_TOUCHY);
+	mo->extendedflags &= ~(EF_BOUNCE | EF_USABLE);
 
-  if (mo->info->deathsound)
-    S_StartSound(mo, mo->info->deathsound);
+	if (mo->info->deathsound)
+		S_StartSound(mo, mo->info->deathsound);
 
-  // mobjinfo used -ACB- 1998/08/06
-  P_SetMobjStateDeferred(mo, mo->info->death_state, P_Random() & 3);
+	// mobjinfo used -ACB- 1998/08/06
+	P_SetMobjStateDeferred(mo, mo->info->death_state, P_Random() & 3);
 }
 
 
@@ -1470,136 +1470,136 @@ void P_RemoveMobj(mobj_t *mo)
 //
 void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 {
-  float x, y, z;
+	float x, y, z;
 
-  mobj_t *mobj;
-  const mobjinfo_t *objtype;
+	mobj_t *mobj;
+	const mobjinfo_t *objtype;
 
-  int i;
+	int i;
 
-  // -ES- FIXME: Move these checks higher up.
-  if (!p)
-    return;
+	// -ES- FIXME: Move these checks higher up.
+	if (!p)
+		return;
 
-  // -jc- not playing?
-  if (!p->in_game)
-    return;
+	// -jc- not playing?
+	if (!p->in_game)
+		return;
 
-  // -KM- 1998/11/25 This is in preparation for skins.  The creatures.ddf
-  //   will hold player start objects, sprite will be taken for skin.
-  objtype = DDF_MobjLookupPlayer(p->pnum+1);
+	// -KM- 1998/11/25 This is in preparation for skins.  The creatures.ddf
+	//   will hold player start objects, sprite will be taken for skin.
+	objtype = DDF_MobjLookupPlayer(p->pnum+1);
 
-  if (p->playerstate == PST_REBORN)
-  {
-    G_PlayerReborn(p);
-  }
+	if (p->playerstate == PST_REBORN)
+	{
+		G_PlayerReborn(p);
+	}
 
-  x = point->x;
-  y = point->y;
-  z = point->z;
+	x = point->x;
+	y = point->y;
+	z = point->z;
 
-  mobj = P_MobjCreateObject(x, y, z, objtype);
+	mobj = P_MobjCreateObject(x, y, z, objtype);
 
-  mobj->angle = point->angle;
-  mobj->vertangle = point->slope;
-  mobj->player = p;
-  mobj->health = p->health;
+	mobj->angle = point->angle;
+	mobj->vertangle = point->vertangle;
+	mobj->player = p;
+	mobj->health = p->health;
 
-  p->mo = mobj;
-  p->playerstate = PST_LIVE;
-  p->refire = 0;
-  p->damagecount = 0;
-  p->bonuscount = 0;
-  p->extralight = 0;
-  p->effect_colourmap = NULL;
-  p->std_viewheight = mobj->height * PERCENT_2_FLOAT(objtype->viewheight);
-  p->viewheight = p->std_viewheight;
-  p->jumpwait = 0;
+	p->mo = mobj;
+	p->playerstate = PST_LIVE;
+	p->refire = 0;
+	p->damagecount = 0;
+	p->bonuscount = 0;
+	p->extralight = 0;
+	p->effect_colourmap = NULL;
+	p->std_viewheight = mobj->height * PERCENT_2_FLOAT(objtype->viewheight);
+	p->viewheight = p->std_viewheight;
+	p->jumpwait = 0;
 
-  // setup gun psprite
-  P_SetupPsprites(p);
+	// setup gun psprite
+	P_SetupPsprites(p);
 
-  // give all cards in death match mode
-  if (deathmatch)
-    p->cards = KF_MASK;
+	// give all cards in death match mode
+	if (deathmatch)
+		p->cards = KF_MASK;
 
-  // -AJA- in COOP, all players are on the same side
-  if (netgame && !deathmatch)
-    mobj->side = 0x7FFFFFFF;
+	// -AJA- in COOP, all players are on the same side
+	if (netgame && !deathmatch)
+		mobj->side = 0x7FFFFFFF;
 
-  // -AJA- FIXME: surely this belongs elsewhere.
-  if (p == consoleplayer)
-  {
-    char buffer[16];
+	// -AJA- FIXME: surely this belongs elsewhere.
+	if (p == consoleplayer)
+	{
+		char buffer[16];
 
-    // wake up the status bar
-    ST_Start();
+		// wake up the status bar
+		ST_Start();
 
-    // wake up the heads up text
-    HU_Start();
+		// wake up the heads up text
+		HU_Start();
 
-    CON_DeleteCVar("health");
-    CON_CreateCVarReal("health", (cflag_t)(cf_read | cf_delete), &mobj->health);
-    CON_DeleteCVar("frags");
-    CON_CreateCVarInt("frags", (cflag_t)(cf_read | cf_delete), &p->frags);
-    CON_DeleteCVar("totalfrags");
-    CON_CreateCVarInt("totalfrags", (cflag_t)(cf_read | cf_delete), &p->totalfrags);
+		CON_DeleteCVar("health");
+		CON_CreateCVarReal("health", (cflag_t)(cf_read | cf_delete), &mobj->health);
+		CON_DeleteCVar("frags");
+		CON_CreateCVarInt("frags", (cflag_t)(cf_read | cf_delete), &p->frags);
+		CON_DeleteCVar("totalfrags");
+		CON_CreateCVarInt("totalfrags", (cflag_t)(cf_read | cf_delete), &p->totalfrags);
 
-    for (i = 0; i < NUMAMMO; i++)
-    {
-      sprintf(buffer, "ammo%d", i);
-      CON_DeleteCVar(buffer);
-      CON_CreateCVarInt(buffer, (cflag_t)(cf_read | cf_delete), &p->ammo[i].num);
+		for (i = 0; i < NUMAMMO; i++)
+		{
+			sprintf(buffer, "ammo%d", i);
+			CON_DeleteCVar(buffer);
+			CON_CreateCVarInt(buffer, (cflag_t)(cf_read | cf_delete), &p->ammo[i].num);
 
-      sprintf(buffer, "maxammo%d", i);
-      CON_DeleteCVar(buffer);
-      CON_CreateCVarInt(buffer, (cflag_t)(cf_read | cf_delete), &p->ammo[i].max);
-    }
-
-#if 0  // FIXME:
-    for (i = num_disabled_weapons; i < numweapons; i++)
-    {
-      sprintf(buffer, "weapon%d", i);
-      CON_DeleteCVar(buffer);
-      CON_CreateCVarBool(buffer, (cflag_t)(cf_read | cf_delete), &p->weapons[i].owned);
-    }
-#endif
-
-    for (i = 0; i < NUMARMOUR; i++)
-    {
-      sprintf(buffer, "armour%d", i);
-      CON_DeleteCVar(buffer);
-      CON_CreateCVarReal(buffer, (cflag_t)(cf_read | cf_delete), &p->armours[i]);
-    }
+			sprintf(buffer, "maxammo%d", i);
+			CON_DeleteCVar(buffer);
+			CON_CreateCVarInt(buffer, (cflag_t)(cf_read | cf_delete), &p->ammo[i].max);
+		}
 
 #if 0  // FIXME:
-    for (i = 0; i < NUMCARDS; i++)
-    {
-      sprintf(buffer, "key%d", i);
-      CON_DeleteCVar(buffer);
-      CON_CreateCVarBool(buffer, cf_read | cf_delete, &p->cards[i]);
-    }
+		for (i = num_disabled_weapons; i < numweapons; i++)
+		{
+			sprintf(buffer, "weapon%d", i);
+			CON_DeleteCVar(buffer);
+			CON_CreateCVarBool(buffer, (cflag_t)(cf_read | cf_delete), &p->weapons[i].owned);
+		}
 #endif
 
-    for (i = 0; i < NUMPOWERS; i++)
-    {
-      sprintf(buffer, "power%d", i);
-      CON_DeleteCVar(buffer);
-      CON_CreateCVarReal(buffer, (cflag_t)(cf_read | cf_delete), &p->powers[i]);
-    }
-  }
+		for (i = 0; i < NUMARMOUR; i++)
+		{
+			sprintf(buffer, "armour%d", i);
+			CON_DeleteCVar(buffer);
+			CON_CreateCVarReal(buffer, (cflag_t)(cf_read | cf_delete), &p->armours[i]);
+		}
 
-  // Heh, make a drone player invisible and no clip
-  if (doomcom->drone & (1 << p->pnum))
-  {
-    mobj->vis_target = mobj->visibility = INVISIBLE;
-    mobj->flags |= MF_NOCLIP;
-    mobj->flags &= ~(MF_SHOOTABLE | MF_SOLID);
-  }
+#if 0  // FIXME:
+		for (i = 0; i < NUMCARDS; i++)
+		{
+			sprintf(buffer, "key%d", i);
+			CON_DeleteCVar(buffer);
+			CON_CreateCVarBool(buffer, cf_read | cf_delete, &p->cards[i]);
+		}
+#endif
 
-  // Don't get stuck spawned in things: telefrag them.
-  if (deathmatch >= 3)
-    P_TeleportMove(mobj, mobj->x, mobj->y, mobj->z);
+		for (i = 0; i < NUMPOWERS; i++)
+		{
+			sprintf(buffer, "power%d", i);
+			CON_DeleteCVar(buffer);
+			CON_CreateCVarReal(buffer, (cflag_t)(cf_read | cf_delete), &p->powers[i]);
+		}
+	}
+
+	// Heh, make a drone player invisible and no clip
+	if (doomcom->drone & (1 << p->pnum))
+	{
+		mobj->vis_target = mobj->visibility = INVISIBLE;
+		mobj->flags |= MF_NOCLIP;
+		mobj->flags &= ~(MF_SHOOTABLE | MF_SOLID);
+	}
+
+	// Don't get stuck spawned in things: telefrag them.
+	if (deathmatch >= 3)
+		P_TeleportMove(mobj, mobj->x, mobj->y, mobj->z);
 }
 
 //
@@ -1680,69 +1680,69 @@ void P_SpawnBlood(float x, float y, float z, float damage,
 //
 void P_MobjItemRespawn(void)
 {
-  float x, y, z;
-  mobj_t *mo;
-  const mobjinfo_t *objtype;
+	float x, y, z;
+	mobj_t *mo;
+	const mobjinfo_t *objtype;
 
-  iteminque_t *cur, *next;
+	iteminque_t *cur, *next;
 
-  // only respawn items in deathmatch or if itemrespawn
-  if (! (deathmatch >= 2 || level_flags.itemrespawn))
-    return;
+	// only respawn items in deathmatch or if itemrespawn
+	if (! (deathmatch >= 2 || level_flags.itemrespawn))
+		return;
 
-  // No item-respawn-que exists, so nothing to process.
-  if (itemquehead == NULL)
-    return;
+	// No item-respawn-que exists, so nothing to process.
+	if (itemquehead == NULL)
+		return;
 
-  // lets start from the beginning....
-  for (cur = itemquehead; cur; cur = next)
-  {
-    next = cur->next;
+	// lets start from the beginning....
+	for (cur = itemquehead; cur; cur = next)
+	{
+		next = cur->next;
 
-    cur->time--;
+		cur->time--;
 
-    if (cur->time > 0)
-      continue;
+		if (cur->time > 0)
+			continue;
 
-    // no time left, so respawn object
+		// no time left, so respawn object
 
-    x = cur->spawnpoint.x;
-    y = cur->spawnpoint.y;
-    z = cur->spawnpoint.z;
+		x = cur->spawnpoint.x;
+		y = cur->spawnpoint.y;
+		z = cur->spawnpoint.z;
 
-    objtype = cur->spawnpoint.info;
+		objtype = cur->spawnpoint.info;
 
-    if (objtype == NULL)
-    {
-      I_Error("P_MobjItemRespawn: No such item type!");
-      return;  // shouldn't happen.
-    }
+		if (objtype == NULL)
+		{
+			I_Error("P_MobjItemRespawn: No such item type!");
+			return;  // shouldn't happen.
+		}
 
-    // spawn a teleport fog at the new spot
-    DEV_ASSERT2(objtype->respawneffect);
-    P_MobjCreateObject(x, y, z, objtype->respawneffect);
+		// spawn a teleport fog at the new spot
+		DEV_ASSERT2(objtype->respawneffect);
+		P_MobjCreateObject(x, y, z, objtype->respawneffect);
 
-    // -ACB- 1998/08/06 Use MobjCreateObject
-    mo = P_MobjCreateObject(x, y, z, objtype);
+		// -ACB- 1998/08/06 Use MobjCreateObject
+		mo = P_MobjCreateObject(x, y, z, objtype);
 
-    mo->angle = cur->spawnpoint.angle;
-    mo->vertangle = cur->spawnpoint.slope;
-    mo->spawnpoint = cur->spawnpoint;
+		mo->angle = cur->spawnpoint.angle;
+		mo->vertangle = cur->spawnpoint.vertangle;
+		mo->spawnpoint = cur->spawnpoint;
 
-    // Taking this item-in-que out of the que, remove
-    // any references by the previous and next items to
-    // the current one.....
+		// Taking this item-in-que out of the que, remove
+		// any references by the previous and next items to
+		// the current one.....
 
-    if (next)
-      next->prev = cur->prev;
+		if (next)
+			next->prev = cur->prev;
 
-    if (cur->prev)
-      cur->prev->next = next;
-    else
-      itemquehead = next;
+		if (cur->prev)
+			cur->prev->next = next;
+		else
+			itemquehead = next;
 
-    Z_Free(cur);
-  }
+		Z_Free(cur);
+	}
 }
 
 //
@@ -1762,12 +1762,12 @@ void P_MobjItemRespawn(void)
 //
 void P_MobjRemoveMissile(mobj_t * missile)
 {
-  missile->mom.x = missile->mom.y = missile->mom.z = 0;
+	missile->mom.x = missile->mom.y = missile->mom.z = 0;
 
-  missile->flags &= ~(MF_MISSILE | MF_TOUCHY);
-  missile->extendedflags &= ~(EF_BOUNCE);
+	missile->flags &= ~(MF_MISSILE | MF_TOUCHY);
+	missile->extendedflags &= ~(EF_BOUNCE);
 
-  AddMobjToRemoveQue(missile);
+	AddMobjToRemoveQue(missile);
 }
 
 //
