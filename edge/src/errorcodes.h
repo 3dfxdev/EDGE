@@ -25,6 +25,7 @@ enum error_e
 {
 	ERR_GENERIC = 0x1,
 	ERR_MUSIC   = 0x2,
+	ERR_VIDEO   = 0x4,
 	ERR_NUMTYPES
 };
 
