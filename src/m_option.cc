@@ -71,13 +71,11 @@
 //                  
 // -AJA- 2001/07/26: Reworked colours, key config, and other code.
 //
-// -ACB- 2002/03/20: Disabled for re-implementation                  
 //
 
 #include "i_defs.h"
 #include "m_option.h"
 
-/*
 #include "dm_state.h"
 
 #include "ddf_main.h"
@@ -98,11 +96,10 @@
 #include "wp_main.h"
 #include "z_zone.h"
 
-*/
 #define OPTSHADE  text_white_map
 
 int optionsmenuon = 0;
-/*
+
 //submenus
 static void M_StandardControlOptions(int keypressed);
 static void M_ExtendedControlOptions(int keypressed);
@@ -112,9 +109,9 @@ static void M_GameplayOptions(int keypressed);
 static void M_AnalogueOptions(int keypressed);
 
 static void M_CalibrateJoystick(int keypressed);
-*/
+
 void M_ResetToDefaults(int keypressed);
-/*
+
 static void M_Key2String(int key, char *deststring);
 
 // -ACB- 1998/08/09 "Does Map allow these changes?" procedures.
@@ -126,11 +123,11 @@ static void M_ChangeTrue3d(int keypressed);
 static void M_ChangeAutoAim(int keypressed);
 static void M_ChangeFastparm(int keypressed);
 static void M_ChangeRespawn(int keypressed);
-*/
+
 //Special function declarations
 int menunormalfov, menuzoomedfov;
 int screen_size;
-/*
+
 static void M_ChangeBlood(int keypressed);
 static void M_ChangeJumping(int keypressed);
 static void M_ChangeCrouching(int keypressed);
@@ -182,6 +179,11 @@ static char Details[] = "Low/Medium/High";
 
 static int scrcomp_o;
 
+
+//
+//  OPTION STRUCTURES
+//
+
 typedef enum
 {
 	OPT_Plain     = 0,  // 0 means plain text,
@@ -190,15 +192,11 @@ typedef enum
 	OPT_Slider    = 3,  // 3 is a slider,
 	OPT_KeyConfig = 4   // 4 is a key config
 }
-opttype_e;
-
-//
-//  OPTION STRUCTURES
-//
+opt_type_e;
 
 typedef struct optmenuitem_s
 {
-	byte type;
+  opt_type_e type;
 
 	char name[48];
 	const char *typenames;
@@ -474,7 +472,7 @@ static menuinfo_t playoptionsinfo =
 static optmenuitem_t stdkeyconfig[] =
 {
 	{4, "Primary Attack", NULL, 0, KEYD_RCTRL + (KEYD_MOUSE1 << 16), &key_fire, NULL, NULL},
-	{4, "Secondary Atk", NULL, 0, 'e', &key_secondatk, NULL, NULL},
+  {4, "Secondary Atk", NULL, 0, 'E', &key_secondatk, NULL, NULL},
 	{4, "Use Item", NULL, 0, ' ', &key_use, NULL, NULL},
 	{4, "Walk Forward", NULL, 0, KEYD_UPARROW, &key_up, NULL, NULL},
 	{4, "Walk Backwards", NULL, 0, KEYD_DOWNARROW, &key_down, NULL, NULL},
@@ -503,7 +501,7 @@ static menuinfo_t stdkeyconfiginfo =
 // -ACB- 1998/07/15 Altered menuinfo struct
 // -ES- 1999/03/28 Added Zoom Key
 //
-optmenuitem_t extkeyconfig[] =
+static optmenuitem_t extkeyconfig[] =
 {
 	{4, "Look Up", NULL, 0, KEYD_PGUP, &key_lookup, NULL, NULL},
 	{4, "Look Down", NULL, 0, KEYD_PGDN, &key_lookdown, NULL, NULL},
@@ -574,7 +572,6 @@ static specialkey_t specialkeylist[] =  // terminate on -1
     {KEYD_MWHEEL_DN, "Wheel Down"},
     {-1, ""}
 };
-*/
 
 //
 // M_InitOptmenu
@@ -584,7 +581,6 @@ static specialkey_t specialkeylist[] =  // terminate on -1
 void M_InitOptmenu()
 {
 	optionsmenuon = 0;
-/*
 	screen_size = screenblocks - 3;
 	curr_menu = &mainmenuinfo;
 	curr_item = curr_menu->items + curr_menu->pos;
@@ -599,7 +595,6 @@ void M_InitOptmenu()
 
 	// Restore the config setting.
 	M_ChangeBlood(-1);
-*/
 }
 
 //
@@ -609,7 +604,6 @@ void M_InitOptmenu()
 //
 void M_OptTicker(void)
 {
-/*
 	int displaybpp = 0;
 
 	if (setresfailed)
@@ -636,7 +630,6 @@ void M_OptTicker(void)
 		testticker--;
 		M_RestoreResSettings(-1);
 	}
-*/
 }
 
 //
@@ -646,7 +639,6 @@ void M_OptTicker(void)
 //
 void M_OptDrawer()
 {
-/*
 	char tempstring[80];
 	int curry, deltay, menutop;
 	int i, j;
@@ -729,11 +721,10 @@ void M_OptDrawer()
 			case OPT_Switch:
 
 				k = 0;
-				for (j = 0; j < (int)(*(int*)(curr_menu->items[i].switchvar)); j++)
+        for (j = 0; j < (*(curr_menu->items[i].switchvar)); j++)
 				{
 					while ((curr_menu->items[i].typenames[k] != '/') && (k < strlen(curr_menu->items[i].typenames)))
 						k++;
-
 					k++;
 				}
 
@@ -776,7 +767,6 @@ void M_OptDrawer()
 		}
 		curry += deltay;
 	}
-*/
 }
 
 //
@@ -789,7 +779,6 @@ void M_OptDrawer()
 //
 static void M_ResOptDrawer(int topy, int bottomy, int dy, int centrex)
 {
-/*
 	char tempstring[80];
 	int y;
 	int displaybpp = 8;
@@ -829,10 +818,8 @@ static void M_ResOptDrawer(int topy, int bottomy, int dy, int centrex)
 			displaybpp);
 
 	HL_WriteTextTrans(160 - (HL_StringWidth(tempstring) / 2), y, OPTSHADE, tempstring);
-*/
 }
 
-/*
 //
 // M_LanguageDrawer
 //
@@ -840,7 +827,7 @@ static void M_ResOptDrawer(int topy, int bottomy, int dy, int centrex)
 // current language name.
 //
 // -AJA- 2000/04/16 Written
-//
+
 static void M_LanguageDrawer(int x, int y, int deltay)
 {
 	char tempstring[80];
@@ -849,14 +836,12 @@ static void M_LanguageDrawer(int x, int y, int deltay)
 
 	HL_WriteTextTrans(x+15, y + deltay * 6, OPTSHADE, tempstring);
 }
-*/
 
 //
 // M_OptResponder
 //
 boolean_t M_OptResponder(event_t * ev, int ch)
 {
-/*
 	if (testticker != -1)
 		return true;
 
@@ -1014,7 +999,7 @@ boolean_t M_OptResponder(event_t * ev, int ch)
 				}
 				return true;
 			}
-			// FALL THROUGH...
+      /* FALL THROUGH... */
      
 		case KEYD_ENTER:
 		{
@@ -1088,12 +1073,8 @@ boolean_t M_OptResponder(event_t * ev, int ch)
 		}
 	}
 	return false;
-*/
-	optionsmenuon = 0;
-	return true;
 }
 
-/*
 // ===== SUB-MENU SETUP ROUTINES =====
 
 //
@@ -1181,13 +1162,12 @@ static void M_ExtendedControlOptions(int keypressed)
 }
 
 // ===== END OF SUB-MENUS =====
-*/
+
 //
 // M_ResetToDefaults
 //
 void M_ResetToDefaults(int keypressed)
 {
-/*
 	int i;
 
 	for (i = 0; i < mainmenuinfo.item_num; i++)
@@ -1241,9 +1221,8 @@ void M_ResetToDefaults(int keypressed)
 			(*(extkeyconfig[i].switchvar)) = extkeyconfig[i].default_val;
 		}
 	}
-*/
 }
-/*
+
 //
 // M_Key2String
 //
@@ -1337,7 +1316,7 @@ static void M_CalibrateJoystick(int keypressed)
 //
 static void M_ChangeGamma(int keypressed)
 {
-	// nothing to do
+  /* nothing to do */
 }
 
 //
@@ -1497,7 +1476,7 @@ static void M_ChangeKicking(int keypressed)
 
 static void M_ChangeDLights(int keypressed)
 {
-	// nothing to do -- change occurs at next level load
+  /* nothing to do -- change occurs at next level load */
 }
 
 
@@ -1660,5 +1639,4 @@ static void M_RestoreResSettings(int keypressed)
 		scrmode[prevscrmode].height,
 		scrmode[prevscrmode].depth, SCREENWINDOW);
 }
-*/
 
