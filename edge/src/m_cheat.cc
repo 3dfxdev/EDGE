@@ -149,6 +149,7 @@ static void M_ChangeLevelCheat(const char *string)
 	newgame_params_c params;
 
 	params.skill = gameskill;	
+	params.deathmatch = 0;
 
 	params.map = G_LookupMap(string);
 	if (! params.map)
@@ -166,6 +167,8 @@ static void M_ChangeLevelCheat(const char *string)
 
 	params.total_players = 1;
 	params.players[0] = PFL_Zero;  // i.e. !BOT and !NETWORK
+
+	params.random_seed = I_PureRandom();
 
 	if (! G_DeferredInitNew(params))
 	{

@@ -383,8 +383,8 @@ static void G_TiccmdTicker(void)
 		{
 			if (gametic > BACKUPTICS && p->consistency[buf] != p->cmd.consistency)
 			{
-/* !!!! DEBUG */	I_Warning("Consistency failure on player %d (%i should be %i)",
-					p->pnum + 1, p->cmd.consistency, p->consistency[buf]);
+// !!!! DEBUG //	I_Warning("Consistency failure on player %d (%i should be %i)",
+//					p->pnum + 1, p->cmd.consistency, p->consistency[buf]);
 			}
 			if (p->mo)
 				p->consistency[buf] = (int)p->mo->x;
@@ -988,8 +988,6 @@ static void G_DoNewGame(void)
 
 	quickSaveSlot = -1;
 
-	d_params->random_seed = I_PureRandom();
-
 	G_InitNew(*d_params);
 
 	// -AJA- 2003/10/09: support for pre-level briefing screen on first map.
@@ -1068,9 +1066,8 @@ void G_InitNew(newgame_params_c& params)
 
 	gameskill = params.skill;
 	deathmatch = params.deathmatch;
-	netgame = false; // FIXME !!!!
 
-L_WriteDebug("G_InitNew: Deathmatch %d Skill %d\n", params.deathmatch, (int)params.skill);
+// L_WriteDebug("G_InitNew: Deathmatch %d Skill %d\n", params.deathmatch, (int)params.skill);
 
 	// copy global flags into the level-specific flags
 	level_flags = global_flags;
