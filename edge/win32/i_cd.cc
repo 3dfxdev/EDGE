@@ -60,6 +60,9 @@ bool I_StartupCD()
 		return false;
 	}
 
+	// Ensure all is quiet when we start
+	I_MusicSetMixerVol(mixer, 0);
+
 	return true;
 }
 
