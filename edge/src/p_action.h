@@ -138,6 +138,17 @@ void P_ActPathFollow(mobj_t * object);
 void P_ActDropItem(mobj_t * object);
 void P_ActDLightSet(mobj_t * object);
 
+// Movement actions
+void P_ActFaceDir(mobj_t * object);
+void P_ActTurnDir(mobj_t * object);
+void P_ActTurnRandom(mobj_t * object);
+void P_ActMlookFace(mobj_t * object);
+void P_ActMlookTurn(mobj_t * object);
+void P_ActMoveFwd(mobj_t * object);
+void P_ActMoveRight(mobj_t * object);
+void P_ActMoveUp(mobj_t * object);
+void P_ActStopMoving(mobj_t * object);
+
 // Projectiles
 void P_ActFixedHomingProjectile(mobj_t * object);
 void P_ActRandomHomingProjectile(mobj_t * object);
