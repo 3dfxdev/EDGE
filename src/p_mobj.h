@@ -2,7 +2,7 @@
 //  EDGE Moving Object Header
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2000  The EDGE Team.
+//  Copyright (c) 1999-2001  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -503,12 +503,17 @@ struct mobj_s
   mobj_t * supportobj;
   int side;
 
-  // -AJA- 1999/07/31: when not NULL, we are sitting on top of it.
-  mobj_t * ride_em;
+  // objects that is above and below this one.  If there were several,
+  // then the closest one (in Z) is chosen.  We are riding the below
+  // object if the head height == our foot height.  We are being
+  // ridden if our head == the above object's foot height.
+  //
+  mobj_t * above_mo;
+  mobj_t * below_mo;
 
-  // these delta values give what position from the ride_em thing's
-  // center we are sitting on it.
-  float_t ride_dx, ride_dy;
+///---  // these delta values give what position from the ride_em thing's
+///---  // center that we are sitting on.
+///---  float_t ride_dx, ride_dy;
 
   // -AJA- 1999/09/25: Path support.
   struct rad_script_s *path_trigger;
@@ -523,6 +528,9 @@ struct mobj_s
 
   // hash values for TUNNEL missiles
   unsigned long tunnel_hash[2];
+
+  // touch list: sectors this thing is in or touches
+  struct touch_node_s *touch_sectors;
 
   // linked list (mobjlisthead)
   mobj_t *next, *prev;
