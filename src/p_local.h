@@ -37,8 +37,8 @@
 #define DEATHVIEWHEIGHT   6.0f
 
 #ifdef USE_GL
-#define LOOKUPLIMIT    1.0f
-#define LOOKDOWNLIMIT -1.0f
+#define LOOKUPLIMIT    0.9f
+#define LOOKDOWNLIMIT -0.9f
 #else
 #define LOOKUPLIMIT    0.5f
 #define LOOKDOWNLIMIT -0.5f
