@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: JANUARY 1st 2005)
+(Date: JANUARY 29th 2005)
 
 
 Bugs fixed
@@ -27,6 +27,7 @@ Bugs fixed
 - problems mlooking up/down while zoomed are fixed.
 - sides of extrafloors would not scroll properly, fixed.
 - autorun is remembered in the config file again.
+- fixed some missing mid-masked textures (Eternal MAP28).
 
 
 Old Fixes (from EDGE 1.28A)
@@ -52,11 +53,9 @@ Features removed / changed
   twice as much work (if not more -- doing things with OpenGL is
   usually a lot easier than doing it with software).
 
-+ the demo format has changed, and previously recorded demos don't
-  work in this version of EDGE.
++ the demo format has changed, and previously recorded demos won't
+  work anymore.  The new format has the ".EDM" extension.
   
-  @@@ NOTE: The demo code is currently broken.
-
 - using { } comments in DDF files, and ';' comments in RTS scripts
   is now deprecated, since these characters will probably be needed
   in the future when improving DDF/RTS.  Use // comments instead.
@@ -117,6 +116,7 @@ General improvements
 - night vision and god-mode effects use colour from colourmap.
 - intermission text screens can now be skipped.
 - RTS tips are sent to the console.
+- smaller savegame files.
 
 
 New DDF features:
@@ -135,7 +135,7 @@ New DDF features:
 
   The built-in types are only used to create special images for
   dynamic lighting and shadows.  The FILE and LUMP types are the most
-  useful, and supports PNG and JPEG images.
+  useful, and support both PNG and JPEG images.
   
   NOTE: When using filenames, directories must be separated by / instead
   of the \ character which is normally used under Windows.  The reason
