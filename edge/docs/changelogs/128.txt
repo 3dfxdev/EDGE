@@ -4,7 +4,7 @@ CHANGELOG FOR 1.28 (since 1.27)
 
 (Date: JUNE 12th 2004)
 
-Bugs fixed in 1.28a
+Bugs fixed in 1.28A
 -------------------
 
 + Windows 95 support.
