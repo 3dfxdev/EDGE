@@ -241,13 +241,13 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 
 	con.ByteSwap();
 
-	if (con.protocol_ver != MP_PROTOCOL_VER)
-	{
-		SV_send_error(pk, "ip", "Invalid protocol !");
-		LogPrintf(1, "Client %d had wrong protocol (%s)", client_id,
-			ProtoVerToString(con.protocol_ver));
-		return;
-	}
+///---	if (con.protocol_ver != MP_PROTOCOL_VER)
+///---	{
+///---		SV_send_error(pk, "ip", "Invalid protocol !");
+///---		LogPrintf(1, "Client %d had wrong protocol (%s)", client_id,
+///---			ProtoVerToString(con.protocol_ver));
+///---		return;
+///---	}
 
 	con.info.name[client_info_t::NAME_LEN-1] = 0;  // ensure NUL-terminated
 
@@ -293,16 +293,16 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 
 	// successful!
 
-	con.info.game = -1;
-	con.info.state = client_info_t::CS_Browsing;
-
-	con.ByteSwap();
-
 	pk->SetType("Cs");
 
 	pk->hd().flags = 0;
-	pk->hd().data_len = 0;
+	pk->hd().data_len = sizeof(connect_proto_t) - sizeof(client_info_t);
 	pk->hd().client = client_id;
+
+	con.server_ver = MPSERVER_VER_HEX;
+	con.protocol_ver = MP_PROTOCOL_VER;
+
+	con.ByteSwap();
 
 	pk->Write(main_socket);
 
