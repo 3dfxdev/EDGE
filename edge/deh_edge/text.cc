@@ -573,8 +573,7 @@ namespace TextStr
 				continue;
 			}
 
-			// FIXME: handle non-english characters (e.g. french accents)
-
+			// XXX may need special handling for non-english chars
 			WAD::Printf("%c", *str);
 		}
 
