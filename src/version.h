@@ -21,7 +21,7 @@
 
 // -ES- 2000/03/04 The version of EDGE.WAD we require.
 #define EDGE_WAD_VERSION 1
-#define EDGE_WAD_VERSION_FRAC 4
+#define EDGE_WAD_VERSION_FRAC 8
 #define EDGE_WAD_SUB_VERSION 0
 
 // Currently this must be one byte.  Should be removed later (and just
