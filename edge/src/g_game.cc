@@ -752,7 +752,6 @@ static void G_DoLoadGame(void)
 	params.deathmatch = (globs->netgame >= 2) ? (globs->netgame - 1) : 0;
 	
 	params.random_seed = globs->p_random;
-	params.warping     = false;
 
 	// this player is a dummy one, replaced during actual load
 	params.total_players = 1;
@@ -910,7 +909,7 @@ static void G_DoSaveGame(void)
 newgame_params_c::newgame_params_c() :
 	skill(sk_medium), deathmatch(0),
 	map(NULL), game(NULL), random_seed(0),
-	warping(false), total_players(0)
+	total_players(0)
 {
 	for (int i = 0; i < MAXPLAYERS; i++)
 		players[i] = PFL_NOPLAYER;
@@ -924,7 +923,6 @@ newgame_params_c::newgame_params_c(const newgame_params_c& src)
 	map  = src.map;
 	game = src.game;
 
-	warping       = src.warping;
 	random_seed   = src.random_seed;
 	total_players = src.total_players;
 
@@ -967,36 +965,17 @@ static void G_DoNewGame(void)
 	DEV_ASSERT2(d_params);
 
 	demoplayback = false;
-
-	if (d_params->warping)
-	{
-#if 0 // CRUD ?
-		if (netdemo)
-		{
-			deathmatch = netdemo = netgame = false;
-			consoleplayer = 0; //???
-
-			// !!! FIXME: this is wrong
-			for (p = players->next; p; p = p->next)
-				p->in_game = false;
-		}
-#endif
-
-		level_flags.fastparm = false;
-		level_flags.nomonsters = false;
-	}
-
 	quickSaveSlot = -1;
 
 	G_InitNew(*d_params);
+
+	delete d_params;
+	d_params = NULL;
 
 	// -AJA- 2003/10/09: support for pre-level briefing screen on first map.
 	//       FIXME: kludgy. All this game logic desperately needs rethinking.
 
 	F_StartFinale(&currmap->f_pre, ga_loadlevel);
-
-	delete d_params;
-	d_params = NULL;
 }
 
 //

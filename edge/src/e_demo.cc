@@ -397,7 +397,6 @@ void G_DoPlayDemo(void)
 	params.deathmatch  = (globs->netgame >= 2) ? (globs->netgame - 1) : 0;
 
 	params.random_seed = globs->p_random;
-	params.warping     = false;
 
 	// this player is a dummy one : FIXME !!!! use info in PLYR chunks
 	params.total_players = 1;
