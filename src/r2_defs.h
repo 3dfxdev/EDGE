@@ -165,8 +165,6 @@ drawfloor_t;
 // array_entries reflects how many items are allocated.
 //
 
-	
-
 // --> Draw thing container class
 class drawthingarray_c : public epi::array_c
 {
@@ -219,8 +217,6 @@ extern int detail_level;
 extern bool use_dlights;
 extern int sprite_kludge;
 
-bool R2_CheckBBox(float *bspcoord);
-
 const image_t * R2_GetThingSprite(mobj_t *mo, bool *flip);
 const image_t * R2_GetOtherSprite(int sprite, int frame, bool *flip);
 void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing);
@@ -246,12 +242,12 @@ int R2_GetWallLOD(float x1, float y1, float z1,
     float x2, float y2, float z2);
 int R2_GetPlaneLOD(subsector_t *sub, float h);
 
+extern drawthingarray_c drawthings;
+extern drawfloorarray_c drawfloors;
 
 //
 //  R2_DRAW
 //
-
-extern video_context_t vctx;
 
 void R2_Init(void);
 

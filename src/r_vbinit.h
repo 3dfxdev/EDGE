@@ -29,8 +29,6 @@
 #include "r_view.h"
 #include "con_cvar.h"
 
-void InitVB_Classic(viewbitmap_t * vb);
-
 void R_InitCamera_StdObject(camera_t * c, mobj_t * mo);
 void R_InitCamera_StdPlayer(camera_t * c);
 void R_InitCamera_ViewOffs(camera_t * c, angle_t offs);

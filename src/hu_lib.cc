@@ -167,7 +167,7 @@ static void HL_WriteChar(int x, int y, const H_font_t *font, char ch,
 	// -AJA- make text look nicer on low resolutions
 	if (SCREENWIDTH < 620)
 	{
-		vctx.DrawImage(FROM_320(x) - image->offset_x, 
+		RGL_DrawImage(FROM_320(x) - image->offset_x, 
 			FROM_200(y) - image->offset_y,
 			IM_WIDTH(image), IM_HEIGHT(image), image,
 			0.0f, 0.0f, IM_RIGHT(image), IM_BOTTOM(image), colmap,
@@ -175,7 +175,7 @@ static void HL_WriteChar(int x, int y, const H_font_t *font, char ch,
 		return;
 	}
 
-	vctx.DrawImage(FROM_320(x - image->offset_x), 
+	RGL_DrawImage(FROM_320(x - image->offset_x), 
 		FROM_200(y - image->offset_y),
 		FROM_320(IM_WIDTH(image)), FROM_200(IM_HEIGHT(image)), image,
 		0.0f, 0.0f, IM_RIGHT(image), IM_BOTTOM(image), colmap,

@@ -54,6 +54,6 @@ gui_t *GUI_DRAGStart(gui_t ** g, gui_t * parent, int id);
 
 // Writes the string to the screen.  Same as M_WriteText, but
 // doesn't scale to 320x200.
-void GUI_WriteText(screen_t * scr, int x, int y, char *string);
+void GUI_WriteText(int x, int y, char *string);
 
 #endif

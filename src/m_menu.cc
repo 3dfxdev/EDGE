@@ -717,7 +717,7 @@ void M_DrawLoad(void)
 {
 	int i;
 
-	VCTX_ImageEasy320(72, 8, menu_loadg);
+	RGL_ImageEasy320(72, 8, menu_loadg);
       
 	for (i = 0; i < SAVE_SLOTS; i++)
 		M_DrawSaveLoadBorder(LoadDef.x + 8, LoadDef.y + LINEHEIGHT * (i), 24);
@@ -742,12 +742,12 @@ void M_DrawSaveLoadBorder(int x, int y, int len)
 	const image_t *C = W_ImageFromPatch("M_LSCNTR");
 	const image_t *R = W_ImageFromPatch("M_LSRGHT");
 
-	VCTX_ImageEasy320(x - IM_WIDTH(L), y + 7, L);
+	RGL_ImageEasy320(x - IM_WIDTH(L), y + 7, L);
 
 	for (i = 0; i < len; i++, x += IM_WIDTH(C))
-		VCTX_ImageEasy320(x, y + 7, C);
+		RGL_ImageEasy320(x, y + 7, C);
 
-	VCTX_ImageEasy320(x, y + 7, R);
+	RGL_ImageEasy320(x, y + 7, R);
 }
 
 //
@@ -791,7 +791,7 @@ void M_DrawSave(void)
 {
 	int i, len;
 
-	VCTX_ImageEasy320(72, 8, menu_saveg);
+	RGL_ImageEasy320(72, 8, menu_saveg);
 
 	for (i = 0; i < SAVE_SLOTS; i++)
 	{
@@ -962,7 +962,7 @@ void M_DrawReadThis1(void)
 {
 	inhelpscreens = true;
   
-	VCTX_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, menu_readthis[0]);
+	RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, menu_readthis[0]);
 }
 
 //
@@ -972,7 +972,7 @@ void M_DrawReadThis2(void)
 {
 	inhelpscreens = true;
 
-	VCTX_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, menu_readthis[1]);
+	RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, menu_readthis[1]);
 }
 
 //
@@ -991,7 +991,7 @@ void M_DrawSound(void)
 	musicvol = S_GetMusicVolume();
 	soundvol = S_GetSfxVolume();
 
-	VCTX_ImageEasy320(60, 38, menu_svol);
+	RGL_ImageEasy320(60, 38, menu_svol);
 
 	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol + 1), 16, soundvol, 1);
 	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), 16, musicvol, 1);
@@ -1068,7 +1068,7 @@ void M_MusicVol(int choice)
 //
 void M_DrawMainMenu(void)
 {
-	VCTX_ImageEasy320(94, 2, menu_doom);
+	RGL_ImageEasy320(94, 2, menu_doom);
 }
 
 //
@@ -1076,8 +1076,8 @@ void M_DrawMainMenu(void)
 //
 void M_DrawNewGame(void)
 {
-	VCTX_ImageEasy320(96, 14, menu_newgame);
-	VCTX_ImageEasy320(54, 38, menu_skill);
+	RGL_ImageEasy320(96, 14, menu_newgame);
+	RGL_ImageEasy320(54, 38, menu_skill);
 }
 
 void M_NewGame(int choice)
@@ -1151,7 +1151,7 @@ void M_DrawEpisode(void)
 	if (!EpisodeMenu)
 		CreateEpisodeMenu();
     
-	VCTX_ImageEasy320(54, 38, menu_episode);
+	RGL_ImageEasy320(54, 38, menu_episode);
 }
 
 static void VerifyNightmare(int ch)
@@ -1493,18 +1493,18 @@ void M_DrawThermo(int x, int y, int thermWidth, int thermDot, int div)
 	// Note: the (step+1) here is for compatibility with the original
 	// code.  It seems required to make the thermo bar tile properly.
 
-	VCTX_Image320(x, y, step+1, IM_HEIGHT(therm_l)/div, therm_l);
+	RGL_Image320(x, y, step+1, IM_HEIGHT(therm_l)/div, therm_l);
 
 	for (i=0, x += step; i < thermWidth; i++, x += step)
 	{
-		VCTX_Image320(x, y, step+1, IM_HEIGHT(therm_m)/div, therm_m);
+		RGL_Image320(x, y, step+1, IM_HEIGHT(therm_m)/div, therm_m);
 	}
 
-	VCTX_Image320(x, y, step+1, IM_HEIGHT(therm_r)/div, therm_r);
+	RGL_Image320(x, y, step+1, IM_HEIGHT(therm_r)/div, therm_r);
 
 	x = basex + step + thermDot * step;
 
-	VCTX_Image320(x, y, step+1, IM_HEIGHT(therm_o)/div, therm_o);
+	RGL_Image320(x, y, step+1, IM_HEIGHT(therm_o)/div, therm_o);
 }
 
 //
@@ -1979,7 +1979,7 @@ void M_Drawer(void)
 
 	if (darken_screen)
 	{
-		vctx.SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, pal_black, 0.5f);
+		RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, pal_black, 0.5f);
 	}
 
 	// Horiz. & Vertically center string and print it.
@@ -2088,7 +2088,7 @@ void M_Drawer(void)
     
 		image = currentMenu->menuitems[i].image;
 
-		VCTX_ImageEasy320(x, y, image);
+		RGL_ImageEasy320(x, y, image);
 	}
 
 	// DRAW SKULL
@@ -2096,7 +2096,7 @@ void M_Drawer(void)
 		int sx = x + SKULLXOFF;
 		int sy = currentMenu->y - 5 + itemOn * LINEHEIGHT;
 
-		VCTX_ImageEasy320(sx, sy, menu_skull[whichSkull]);
+		RGL_ImageEasy320(sx, sy, menu_skull[whichSkull]);
 	}
 }
 

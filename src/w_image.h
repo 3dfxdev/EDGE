@@ -29,7 +29,6 @@
 #include "dm_type.h"
 #include "r_defs.h"
 #include "r_state.h"
-#include "z_zone.h"
 
 struct texturedef_s;
 

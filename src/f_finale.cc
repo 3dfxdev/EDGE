@@ -284,10 +284,12 @@ static void TextWrite(void)
 
 	// 98-7-10 KM erase the entire screen to a tiled background
 	if (finale_textback)
-		vctx.DrawImage(0, 0, SCREENWIDTH, SCREENHEIGHT, finale_textback,
+	{
+		RGL_DrawImage(0, 0, SCREENWIDTH, SCREENHEIGHT, finale_textback,
 				0.0f, 0.0f, IM_RIGHT(finale_textback) * finale_textbackscale,
 				IM_BOTTOM(finale_textback) * finale_textbackscale, NULL, 1.0f);
-
+	}
+	
 	// draw some of the text onto the screen
 	cx = 10;
 	cy = 10;
@@ -602,7 +604,7 @@ static void CastDrawer(void)
 	// erase the entire screen to a background
 	// -KM- 1998/07/21 Clear around the pic too.
 	DEV_ASSERT2(finale_bossback);
-	VCTX_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, finale_bossback);
+	RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, finale_bossback);
 
 	CastPrint(casttitle);
 
@@ -612,7 +614,7 @@ static void CastDrawer(void)
 	if (! image)
 		return;
 
-	vctx.DrawImage(FROM_320(160 - image->offset_x),
+	RGL_DrawImage(FROM_320(160 - image->offset_x),
 			FROM_200(170 - image->offset_y), 
 			FROM_320(IM_WIDTH(image)), 
 			FROM_200(IM_HEIGHT(image)), image,
@@ -646,11 +648,8 @@ static void BunnyScroll(void)
 	if (scrolled < 0)
 		scrolled = 0;
 
-	// 23-6-1998 KM Changed the background colour to black not real dark grey
-	// -KM- 1998/07/21  Replaced SCREENWIDTH*BPP with SCREENPITCH (two places)
-
-	VCTX_Image320(0   - scrolled, 0, 320, 200, p1);
-	VCTX_Image320(320 - scrolled, 0, 320, 200, p2);
+	RGL_Image320(0   - scrolled, 0, 320, 200, p1);
+	RGL_Image320(320 - scrolled, 0, 320, 200, p2);
 
 	if (finalecount < 1130)
 		return;
@@ -659,7 +658,7 @@ static void BunnyScroll(void)
 	{
 		p1 = W_ImageFromPatch("END0");
 
-		VCTX_ImageEasy320((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
+		RGL_ImageEasy320((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
 		laststage = 0;
 		return;
 	}
@@ -679,7 +678,7 @@ static void BunnyScroll(void)
 
 	p1 = W_ImageFromPatch(name);
 
-	VCTX_ImageEasy320((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
+	RGL_ImageEasy320((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
 }
 
 //
@@ -697,7 +696,7 @@ void F_Drawer(void)
 			{
 				const image_t *image = W_ImageFromPatch(finale->pics[picnum]);
 
-				VCTX_Image320(0, 0, 320, 200, image);
+				RGL_Image320(0, 0, 320, 200, image);
 			}
 			break;
 

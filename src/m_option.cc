@@ -702,7 +702,7 @@ void M_OptDrawer()
 
 		image = curr_menu->title_image;
 
-		VCTX_ImageEasy320(curr_menu->title_x, menutop, image);
+		RGL_ImageEasy320(curr_menu->title_x, menutop, image);
 	}
 
 	//now, draw all the menuitems

@@ -54,12 +54,6 @@
 
 #define RESDELAY_MAXLOOP 18081979
 
-viewbitmap_t *rightvb;
-
-// the view and viewbitmap that the rendering system currently is set up for
-view_t *curview = NULL;
-viewbitmap_t *curviewbmp = NULL;
-
 // -ES- 1999/03/14 Dynamic Field Of View
 // Fineangles in the viewwidth wide window.
 static angle_t FIELDOFVIEW = 2048;
@@ -124,8 +118,6 @@ camera_t *camera = NULL;
 camera_t *background_camera = NULL;
 mobj_t *background_camera_mo = NULL;
 
-viewbitmap_t *screenvb;
-
 //
 // precalculated math tables
 //
@@ -140,15 +132,30 @@ int extralight;
 angle_t viewanglebaseoffset;
 angle_t viewangleoffset;
 
-///### wipeinfo_t *telept_wipeinfo = NULL;
 int telept_starttic;
 int telept_active = 0;
-static void R_Render_Standard(void)
+
+//
+// R_Render
+//
+void R_Render(void)
 {
-	R_RenderViewBitmap(screenvb);
-//###	if (telept_active)
-//###		telept_active = !WIPE_DoWipe(&screenvb->screen, &screenvb->screen,
-//###		&screenvb->screen, leveltime - telept_starttic, telept_wipeinfo);
+	// Load the details for the camera
+	// FIXME!! Organise camera handling 
+	if (camera)
+		R_CallCallbackList(camera->frame_start);
+
+	// do some more stuff
+	viewsin = M_Sin(viewangle);
+	viewcos = M_Cos(viewangle);
+
+	// Profiling
+	framecount++;
+	validcount++;
+	
+	E_NetUpdate();	// check for new console commands.
+	RGL_RenderTrueBSP();
+	E_NetUpdate();	// Check for new console commands.
 }
 
 //
@@ -279,10 +286,6 @@ float R_PointToDist(float x1, float y1, float x2, float y2)
 	return dist;
 }
 
-
-// Can currently only be R_Render_Standard.
-void (*R_Render) (void) = R_Render_Standard;
-
 //
 // R_SetViewSize
 //
@@ -300,22 +303,6 @@ void R_SetViewSize(int blocks)
 	setsizeneeded = true;
 
 	setblocks = blocks;
-}
-
-static void InitViews(viewbitmap_t * vb, float xoffset)
-{
-	aspect_t *a;
-
-	a = R_CreateAspect(vb,
-		topslope, bottomslope,
-		viewwidth, viewheight);
-
-	// first of all, create the psprite view, but only if viewanglebaseoffset == 0
-	if (viewanglebaseoffset == 0)
-		R_CreateView(vb, a, 0, 0, camera, VRF_PSPR, 100);
-
-	// now create the "real" views...
-	InitVB_Classic(vb);
 }
 
 //
@@ -385,17 +372,7 @@ void R_ExecuteSetViewSize(void)
 			R_InitCamera_StdPlayer(camera);
 			background_camera = NULL;
 		}
-
-		if (screenvb)
-			R_DestroyViewBitmap(screenvb);
-
-		screenvb = R_CreateViewBitmap(viewwindowwidth, viewwindowheight, BPP, 
-			main_scr, 0, 0); /// viewwindowx, viewwindowy);
-
-		InitViews(screenvb, 0);
 	}
-
-	R_SetActiveViewBitmap(screenvb);
 }
 
 //
@@ -522,7 +499,7 @@ static bool DoExecuteChangeResolution(void)
 	}
 
 
-	vctx.NewScreenSize(SCREENWIDTH, SCREENHEIGHT, BPP);
+	RGL_NewScreenSize(SCREENWIDTH, SCREENHEIGHT, BPP);
 
 	// -ES- 1999/08/29 Fixes the garbage palettes, and the blank 16-bit console
 	V_SetPalette(PALETTE_NORMAL, 0);
@@ -718,125 +695,7 @@ int telept_reverse = 0;
 
 void R_StartFading(int start, int range)
 {
-///###	telept_wipeinfo = WIPE_InitWipe(&screenvb->screen, 0, 0,
-///###		&screenvb->screen, 0, 0, true,
-///###		&screenvb->screen, 0, 0, false,
-///###		viewwindowwidth, viewwindowheight, telept_wipeinfo,
-///###		range, telept_reverse?true:false, (wipetype_e)telept_effect);
-
 	telept_active = true;
 	telept_starttic = start + leveltime;
 }
 
-//
-// R_SetupFrame
-//
-// -ES- 1999/07/21 Exported most of this one to the camera section of
-// r_vbinit.c
-//
-static void SetupFrame(camera_t * camera, view_t * v)
-{
-	// init all the globals
-	R_CallCallbackList(camera->frame_start);
-
-	// do some more stuff
-	viewsin = M_Sin(viewangle);
-	viewcos = M_Cos(viewangle);
-
-	framecount++;
-	validcount++;
-}
-
-//
-// R_RenderView
-//
-void R_RenderViewBitmap(viewbitmap_t * vb)
-{
-	view_t *v;
-	aspect_t *a;
-
-	R_CallCallbackList(vb->frame_start);
-
-	R_SetActiveViewBitmap(vb);
-
-	for (v = vb->views; v; v = v->vbnext)
-	{
-		a = v->aspect;
-
-		SetupFrame(v->camera, v);
-
-
-		R_CallCallbackList(v->frame_start);
-
-		R_SetActiveView(v);
-
-		// we don't need to do anything if the view is invisible
-		// we still have to call frame_end though, in case it would be used for
-		// some sort of cleanup after frame_start, or if it would change something
-		// in the view.
-		if (v->screen.width > 0 && v->screen.height > 0)
-		{
-			if (v->renderflags & VRF_VIEW)
-			{
-				// -ES- FIXME: Clean up renderflags stuff.
-				// Each view should have its own renderer, which can be truebsp,
-				// non-truebsp or psprite. Needs cleanup of code.
-
-				// check for new console commands.
-				E_NetUpdate();
-
-				RGL_RenderTrueBSP();
-
-				// Check for new console commands.
-				E_NetUpdate();
-			}
-		}
-		R_CallCallbackList(v->frame_end);
-		R_CallCallbackList(v->camera->frame_end);
-	}
-
-	R_CallCallbackList(vb->frame_end);
-}
-
-//
-// R_SetActiveViewBitmap
-//
-// Changes the view bitmap to draw to.
-// Currently supports:
-// identically sized viewbmps
-//
-void R_SetActiveViewBitmap(viewbitmap_t * vb)
-{
-	if (curviewbmp == vb)
-		return;
-
-	curviewbmp = vb;
-
-}
-
-//
-// R_SetActiveView
-//
-// Changes the view to draw.
-//
-void R_SetActiveView(view_t * v)
-{
-	aspect_t *a;
-
-	curview = v;
-
-	a = v->aspect;
-
-	// error if not the appropriate vb is used. Could call
-	// R_SetActiveViewBitmap instead, but you should always do that manually
-	// before calling this one.
-	if (v->parent != curviewbmp)
-		I_Error("R_SetActiveView: The wrong viewbitmap is used!");
-
-	viewwidth = v->screen.width;
-	viewheight = v->screen.height;
-
-	topslope = a->topslope - (a->topslope - a->bottomslope) * v->aspect_y / a->maxheight;
-	bottomslope = a->topslope - (a->topslope - a->bottomslope) * (v->aspect_y + viewheight) / a->maxheight;
-
-}

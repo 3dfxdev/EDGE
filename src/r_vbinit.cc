@@ -40,27 +40,6 @@
 #include "v_res.h"
 #include "z_zone.h"
 
-//
-// init_vb_*
-// Helper functions that compose the vb in different ways.
-// All of them assume that vb already is created and that it has
-// one aspect and one view: those that normally are used for psprite.
-// Also, viewwidth and viewheight are set to viewwindowwidth and
-// viewwindowheight.
-// If you want to replace any of those, you can destroy them and create new
-// ones.
-
-//
-// the normal one, with only one view, at full detail
-//
-void InitVB_Classic(viewbitmap_t * vb)
-{
-	aspect_t *a = vb->aspects;
-
-	R_CreateView(vb, a, 0, 0, camera, VRF_VIEW, 0);
-}
-
-
 /***** Camera routines *****/
 typedef struct
 {

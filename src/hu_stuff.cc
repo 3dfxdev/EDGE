@@ -270,24 +270,24 @@ static void HU_DrawCrossHair(int sbarheight)
 
 	switch (crosshair)
 	{
-	case 1:
-		vctx.SolidLine(x - 3*mul, y, x - 2*mul, y, col);
-		vctx.SolidLine(x + 2*mul, y, x + 3*mul, y, col);
-		vctx.SolidLine(x, y - 3*mul, x, y - 2*mul, col);
-		vctx.SolidLine(x, y + 2*mul, x, y + 3*mul, col);
-		break;
-
-	case 2:
-		vctx.SolidLine(x, y, x + 1, y, col);
-		break;
-
-	case 3:
-		vctx.SolidLine(x, y, x + 2*mul, y, col);
-		vctx.SolidLine(x, y + 1, x, y + 2*mul, col);
-		break;
-
-	default:
-		break;
+		case 1:
+			RGL_SolidLine(x - 3*mul, y, x - 2*mul, y, col);
+			RGL_SolidLine(x + 2*mul, y, x + 3*mul, y, col);
+			RGL_SolidLine(x, y - 3*mul, x, y - 2*mul, col);
+			RGL_SolidLine(x, y + 2*mul, x, y + 3*mul, col);
+			break;
+	
+		case 2:
+			RGL_SolidLine(x, y, x + 1, y, col);
+			break;
+	
+		case 3:
+			RGL_SolidLine(x, y, x + 2*mul, y, col);
+			RGL_SolidLine(x, y + 1, x, y + 2*mul, col);
+			break;
+	
+		default:
+			break;
 	}
 }
 

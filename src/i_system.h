@@ -448,17 +448,12 @@ bool I_SetScreenSize(screenmode_t *mode);
 // Tries to set the video card to the given mode (or open a window).
 // If there already was a valid mode (or open window), this call
 // should replace it.  The previous contents (including the palette)
-// is assumed to be lost.  The global variable SCREENPITCH must be set
-// to a valid value (typically by calling the V_GetDepth() routine).
-//
-// This routine must also initialise a screen_t structure (typically
-// static) with valid values and set the global variable `main_scr' to
-// be a sub-screen of this (i.e. via the V_CreateSubScreen() routine).
+// is assumed to be lost. 
 //
 // Returns true if successful, otherwise false.  The platform is free
 // to select a working mode if the given mode was not possible, in
 // which case the values of the global variables SCREENWIDTH,
-// SCREENHEIGHT, SCREENPITCH and SCREENBITS must be updated.
+// SCREENHEIGHT and SCREENBITS must be updated.
 
 void I_ShutdownGraphics(void);
 // Shuts down the graphics system.  This is the companion function to

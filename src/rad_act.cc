@@ -307,7 +307,7 @@ void RAD_DisplayTips(void)
 			if (! current->p.left_just)
 				x -= h / 2;
 
-			vctx.DrawImage(x, y, w, h, image,
+			RGL_DrawImage(x, y, w, h, image,
 				0, 0, IM_RIGHT(image), IM_BOTTOM(image), NULL, alpha);
 
 			continue;

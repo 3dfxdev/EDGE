@@ -77,12 +77,8 @@ int conwipeduration = 10;
 #define KEYREPEATRATE  (TICRATE / 15)
 
 // the console's screen
-screen_t *conscreen;
 char consolebackg[9] = "CONSOLE";
 static const image_t *console_bg_image = NULL;
-
-// the console background. Used to clear conscreen.
-screen_t *conback_scr;
 
 typedef struct consoleline_s
 {
@@ -358,8 +354,6 @@ void CON_InitConsole(int width, int height, int gfxmode)
 		MaxTextLen = MaxTextLen_gfx;
 		conrows = (height * 200 / SCREENHEIGHT) / 8;
 
-		conscreen = V_ResizeScreen(conscreen, conwidth, conheight, BPP);
-		conback_scr = V_ResizeScreen(conback_scr, conwidth, conheight, BPP);
 		UpdateConback(CON_CVarPtrFromName("conback"), NULL);
 	}
 	else
@@ -398,40 +392,6 @@ void CON_SetVisible(visible_t v)
 		GUI_SetFocus(console.gui, &console);
 		cmdhistorypos = -1;
 		TabbedLast = false;
-
-#if 0  //###
-		conwipe = WIPE_InitWipe(main_scr, 0, 0,
-			main_scr, 0, 0, 0,
-			conscreen, 0, 0, 0,
-			conwidth, conheight, conwipe,
-			conwipeduration, conwipereverse, conwipemethod);
-
-		// if already wiping, continue where we started.
-		if (conwipeactive < 0)
-			conwipestart = gametic - conwipeduration + gametic - conwipestart;
-		else
-			conwipestart = gametic;
-
-		conwipeactive = 1;
-#endif //###
-	}
-	else
-	{
-#if 0 //###
-		conwipe = WIPE_InitWipe(main_scr, 0, 0,
-			conscreen, 0, 0, 1,
-			main_scr, 0, 0, 0,
-			conwidth, conheight, conwipe,
-			conwipeduration, !conwipereverse, conwipemethod);
-
-		// if already wiping, continue where we started.
-		if (conwipeactive > 0)
-			conwipestart = gametic - conwipeduration + gametic - conwipestart;
-		else
-			conwipestart = gametic;
-
-		conwipeactive = -1;
-#endif //###
 	}
 }
 
@@ -615,22 +575,13 @@ void CON_Drawer(gui_t * gui)
 	if (info->visible == vs_notvisible)
 	{  // Console is inactive.
 		// Continue fading out console if it isn't already outfaded.
-#if 0  //###
-		if (conwipeactive < 0)
-		{  // console fades out
-
-			if (WIPE_DoWipe(main_scr, conscreen, main_scr, gametic - conwipestart, conwipe))
-				conwipeactive = 0;
-		}
-#endif
 		return;
 	}
 
 	// OPTIMISE: Only update what we need to update (eg. nothing in most cases...)
-	//###  V_CopyScreen(conscreen, conback_scr);
 
 	// -AJA- Temp fix for image system:
-	vctx.DrawImage(0, 0, conwidth, conheight, console_bg_image,
+	RGL_DrawImage(0, 0, conwidth, conheight, console_bg_image,
 		0.0f, 0.0f, IM_RIGHT(console_bg_image) * 5.0f, 
 		IM_BOTTOM(console_bg_image) * 5.0f, NULL, 1.0f);
 
@@ -692,20 +643,6 @@ void CON_Drawer(gui_t * gui)
 			viscmdline_s[i][len] = c;
 		}
 	}
-
-#if 0 //###
-	if (conwipeactive > 0)
-	{  // console fades in
-
-		if (WIPE_DoWipe(main_scr, main_scr, conscreen, gametic - conwipestart, conwipe))
-			conwipeactive = 0;
-	}
-	else
-	{  // fading complete
-
-		V_CopyRect(main_scr, conscreen, 0, 0, conwidth, conheight, 0, 0);
-	}
-#endif //###
 }
 
 static void ToggleConsole(void)
