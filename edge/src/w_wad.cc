@@ -889,11 +889,11 @@ bool W_InitMultipleFiles(void)
 	}
 
 #ifdef DEH_PROTOTYPE
-//DH_ConvertFile("batman.deh");
+//DH_ConvertFile("batman.deh", "batman.hwa");
 	int lump = W_GetNumForName2("DHBATMAN");
 	const byte *data = (const byte *)W_CacheLumpNum(lump);
 	int length = W_LumpLength(lump);
-	DH_ConvertLump(data, length, "DHBATMAN");
+	DH_ConvertLump(data, length, "DHBATMAN", "DHBATMAN.hwa");
 	W_DoneWithLump(data);
 	AddFile("DHBATMAN.hwa", true, -1);
 #endif
