@@ -913,7 +913,7 @@ bool P_TryMove(mobj_t * thing, float x, float y)
 	P_MobjSetBelowMo(thing, tm_I.below);
 
 	// if any special lines were hit, do the effect
-	if (!(thing->flags & (MF_TELEPORT | MF_NOCLIP)))
+	if (spechit.GetSize() && !(thing->flags & (MF_TELEPORT | MF_NOCLIP)))
 	{
 		// Thing doesn't change, so we check the notriggerlines flag once..
 		if (thing->player || (thing->extendedflags & EF_MONSTER) ||
