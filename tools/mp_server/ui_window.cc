@@ -115,7 +115,7 @@ UI_MainWin::UI_MainWin(const char *title) :
 
 		setup_box = new UI_Setup(0, cy, w(), h() - cy);
 		setup_group->add(setup_box);
-		setup_group->resizable(0);
+///---		setup_group->resizable(0);
 
 		tabs->add(setup_group);
 		tabs->value(setup_group);
