@@ -104,14 +104,6 @@ typedef struct button_s
 }
 button_t;
 
-typedef enum
-{
-  RES_Ok,
-  RES_Crushed,
-  RES_PastDest
-}
-result_e;
-
 // -ACB- 2001/01/29 Maybe I'm thinking too OO.
 typedef struct gen_move_s
 {
@@ -159,8 +151,7 @@ typedef struct plane_move_s
   const moving_plane_t *type;
   sector_t *sector;
 
-  // Ceiling is true
-  boolean_t floorOrCeiling;
+  boolean_t is_ceiling;
 
   float_t startheight;
   float_t destheight;

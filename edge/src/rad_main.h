@@ -202,7 +202,7 @@ typedef struct s_movesector_s
   int secnum;
 
   // Ceiling or Floor
-  boolean_t corf;
+  boolean_t is_ceiling;
 
   // when true, add the value to current height.  Otherwise set it.
   boolean_t relative;
