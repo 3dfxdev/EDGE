@@ -10,6 +10,8 @@ EDGE DDF 4.2:
 
 3) ATTACKS.DDF: Player's punch gets a puff (for immune monsters).
 
+4) THINGS.DDF: Use correct key names (BLUECARD, not KEY_BLUECARD).
+
 
 EDGE DDF 4.1 (2004-04-30):
 ==========================
