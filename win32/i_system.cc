@@ -76,7 +76,6 @@ void CALLBACK SysTicker(UINT id, UINT msg, DWORD user, DWORD dw1, DWORD dw2)
 			ticcount++;
 	}
 
-	I_MP3Ticker();         // Called to handle MP3 Code
 	I_MUSTicker();         // Called to handle MUS Code
 	I_ControlTicker();     // Called to buffer input for reading
 
@@ -185,7 +184,6 @@ void I_TraceBack(void)
 {
 	I_CloseProgram(-1);
 }
-
 
 //
 // I_GetTime
@@ -512,7 +510,6 @@ unsigned long I_ReadMicroSeconds(void)
 //
 bool I_GetModifiedTime(const char *filename, i_time_t *t)
 {
-	BOOL ok;
 	SYSTEMTIME timeinf;
 	WIN32_FILE_ATTRIBUTE_DATA fileinf;
 
