@@ -1,8 +1,10 @@
 
-EDGE DDF 4.4: (XXXX-XX-XX)
+EDGE DDF 4.4: (2005-02-05)
 ==========================
 
 1) THINGS.DDF: fix for player entry on cast screen.
+
+2) IMAGES.DDF: added prefixes to every entry.
 
 
 EDGE DDF 4.3: (2004-12-23)

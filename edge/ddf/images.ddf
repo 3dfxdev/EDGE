@@ -1,17 +1,7 @@
 // 
 //    EDGE IMAGES.DDF -redefine or add new images.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 4.3
-//
-
-//  Images defined in this file normally override anything from a WAD/EPK.
-//
-//  Small issue: standard Doom has two textures/flats with the same name:
-//               STEP1 and STEP2.  Other projects may also have conflicting
-//               names (e.g. sprite and flat -- not good).
-//
-//      maybe:   SPECIALISE(sprite) = FOOBA0_SPR;
-//               SPECIALISE(flat)   = USE_NORMAL;   // special keyword
+//    DDF Version 4.4
 //
 
 <IMAGES>

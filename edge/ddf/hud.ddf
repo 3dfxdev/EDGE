@@ -1,6 +1,6 @@
 
 //
-//  ideas for hud definitions
+//  here is just some IDEAS for hud definitions
 //
 //  have a variable name before '=', and method of display it after '='.
 //  (except for some real settings, like BOTTOM.SIZE)
