@@ -86,6 +86,10 @@ const char *GetNLErrorStr(void)
 static void InitNetTime(void)
 {
 	nlTime(&base_time);
+
+	// initialise random-number generator too
+
+	srand(base_time.seconds ^ (base_time.useconds / 3));
 }
 
 //
