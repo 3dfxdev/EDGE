@@ -69,7 +69,7 @@ typedef enum
   ga_savegame,
   ga_playdemo,
   ga_completed,
-  ga_worlddone,
+  ga_loadnext,
   ga_screenshot,
   ga_briefing
 }

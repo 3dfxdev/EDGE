@@ -81,10 +81,9 @@ void G_DoLoadGame(void);
 void G_DoPlayDemo(void);
 void G_DoCompleted(void);
 void G_DoVictory(void);
-void G_DoWorldDone(void);
 void G_DoSaveGame(void);
 
-gameaction_e gameaction;
+gameaction_e gameaction = ga_nothing;
 gamestate_e gamestate = GS_NOTHING;
 skill_t gameskill = sk_invalid;
 const mapstuff_t *currentmap = NULL;  // currentmap
@@ -114,9 +113,9 @@ static int starttime;
 // switch change or the boss die.
 
 int exittime = 0x7fffffff;
-bool secretexit;
+bool secretexit = false;
 
-bool viewactive;
+bool viewactive = false;
 
 // GAMEPLAY MODES:
 //
@@ -628,6 +627,7 @@ void G_BuildTiccmd(ticcmd_t * cmd)
 //
 void G_DoLoadLevel(void)
 {
+fprintf(stderr, "Loading level....\n");
 	player_t *p;
 
 	if (currentmap == NULL)
@@ -741,6 +741,9 @@ void G_DoLoadLevel(void)
 	Z_Clear(gamekeydown, bool, NUMKEYS);
 	Z_Clear(analogue, int, 5);
 	sendpause = sendsave = paused = false;
+
+	viewactive = true;
+	secretexit = false;
 }
 
 //
@@ -903,10 +906,11 @@ void G_Ticker(void)
 			G_DoCompleted();
 			break;
 		case ga_briefing:
-			F_StartFinale(&nextmap->f[1], ga_worlddone);
+			F_StartFinale(&nextmap->f_pre, ga_loadnext);
 			break;
-		case ga_worlddone:
-			G_DoWorldDone();
+		case ga_loadnext:
+			currentmap = nextmap;
+			G_DoLoadLevel();
 			break;
 		case ga_screenshot:
 			M_ScreenShot();
@@ -1231,7 +1235,12 @@ static void G_DoReborn(player_t *p)
 	// single player ?
 	if (!(netgame || deathmatch))
 	{
-		gameaction = ga_loadlevel;
+		// -AJA- 2003/10/09: we should only get here after the player
+		//       died, i.e. not through other uses of PST_REBORN that
+		//       appear in this file.  FIXME: this is confusing !
+
+		if (gamestate == GS_LEVEL)
+			gameaction = ga_loadlevel;
 	}
 	else
 	{
@@ -1368,18 +1377,7 @@ void G_DoCompleted(void)
 //
 void G_WorldDone(void)
 {
-	F_StartFinale(&currentmap->f[0], nextmap ? ga_briefing : ga_nothing);
-}
-
-void G_DoWorldDone(void)
-{
-	gamestate = GS_LEVEL;
-	currentmap = nextmap;
-
-	G_DoLoadLevel();
-	gameaction = ga_nothing;
-	viewactive = true;
-	secretexit = false;
+	F_StartFinale(&currentmap->f_end, nextmap ? ga_briefing : ga_nothing);
 }
 
 //
@@ -1456,6 +1454,8 @@ void G_DoLoadGame(void)
 	random_seed = globs->p_random;
 
 	G_InitNew(gameskill, tempmap, random_seed);
+
+	G_DoLoadLevel();
 
 	// -- Check LEVEL consistency (crc) --
 	//
@@ -1657,6 +1657,11 @@ void G_DoNewGame(void)
 
 	G_InitNew(d_newskill, d_newmap, I_PureRandom());
 	gameaction = ga_nothing;
+
+	// -AJA- 2003/10/09: support for pre-level briefing screen on first map.
+	//       FIXME: kludgy. All this game logic desperately needs rethinking.
+
+	F_StartFinale(&currentmap->f_pre, ga_loadlevel);
 }
 
 //
@@ -1695,6 +1700,8 @@ void G_InitNew(skill_t skill, const mapstuff_t * map, long seed)
 		G_BeginRecording();
 
 	// force players to be initialised upon first level load         
+	// -AJA- 2003/10/09: except that this doesn't do anything, as the
+	//                   playerstate is set to PST_LIVE In P_SpawnPlayer !!
 	for (p = players; p; p = p->next)
 		p->playerstate = PST_REBORN;
 
@@ -1702,10 +1709,7 @@ void G_InitNew(skill_t skill, const mapstuff_t * map, long seed)
 
 	demoplayback = false;
 	automapactive = false;
-	viewactive = true;
 	gameskill = skill;
-
-	viewactive = true;
 
 	// copy global flags into the level-specific flags
 	level_flags = global_flags;
@@ -1718,8 +1722,6 @@ void G_InitNew(skill_t skill, const mapstuff_t * map, long seed)
 		level_flags.cheats = false;
 #endif
 	}
-
-	G_DoLoadLevel();
 }
 
 //
@@ -1974,7 +1976,10 @@ void G_DoPlayDemo(void)
 
 	// don't spend a lot of time in loadlevel
 	precache = false;
+	
 	G_InitNew(skill, newmap, random_seed);
+	G_DoLoadLevel();
+	
 	precache = true;
 	usergame = false;
 	demoplayback = true;
