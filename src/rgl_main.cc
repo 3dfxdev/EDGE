@@ -193,8 +193,13 @@ void RGL_SetupMatrices3D(void)
 
 	// turn on lighting.  Some drivers (e.g. TNT2) don't work properly
 	// without it.
-	glEnable(GL_LIGHTING);
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
+	if (use_lighting)
+	{
+		glEnable(GL_LIGHTING);
+		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
+	}
+	else
+		glDisable(GL_LIGHTING);
 
 	if (use_color_material)
 	{
