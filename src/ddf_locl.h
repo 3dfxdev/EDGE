@@ -400,6 +400,10 @@ extern const specflags_t ammo_types[];
 void DDF_ColmapInit(void);
 void DDF_ColmapCleanUp(void);
 
+// DDF_BOOM Code
+void DDF_BoomMakeGenSector(specialsector_t *sec, int number);
+void DDF_BoomMakeGenLine(linedeftype_t *line, int number);
+
 // Miscellaneous stuff needed here & there
 extern mobjinfo_t buffer_mobj;
 extern const mobjinfo_t template_mobj;
