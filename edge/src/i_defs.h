@@ -81,9 +81,9 @@ typedef enum { false, true } boolean_t;
 #define I_TmpMalloc(size) Z_Malloc(size)
 #define I_TmpFree(ptr) Z_Free(ptr)
 
-// If memcpy is not optimal on your system, you can use your own I_MoveData,
+// If memmove is not optimal on your system, you can use your own I_MoveData,
 // which should have exactly the same type as memcpy, and should declared here.
-#define I_MoveData memcpy
+#define I_MoveData memmove
 
 // include headers to compensate for missing standard functions.
 #include ".\null\i_compen.h"
@@ -136,7 +136,7 @@ typedef enum { false, true } boolean_t;
 #define I_TmpMalloc(size) alloca(size)
 #define I_TmpFree(ptr) do { } while (0)
 
-#define I_MoveData memcpy
+#define I_MoveData memmove
 
 #include ".\djgpp\i_compen.h"
 #include "i_system.h"
@@ -204,7 +204,7 @@ typedef enum { false, true } boolean_t;
 
 #define MAXPATH _MAX_PATH
 
-#define I_MoveData memcpy
+#define I_MoveData memmove
 
 #include ".\win32\i_compen.h"
 #include "i_system.h"
@@ -273,7 +273,7 @@ typedef enum { false, true } boolean_t;
 #define I_TmpMalloc(size) alloca(size)
 #define I_TmpFree(ptr) do { } while (0)
 
-#define I_MoveData memcpy
+#define I_MoveData memmove
 
 #include ".\win32\i_compen.h"
 #include "i_system.h"
@@ -329,7 +329,7 @@ typedef enum { false, true } boolean_t;
 #define I_TmpMalloc(size) alloca(size)
 #define I_TmpFree(ptr) do { } while (0)
 
-#define I_MoveData memcpy
+#define I_MoveData memmove
 
 #include "i_system.h"
 #include "linux/i_compen.h"
@@ -383,7 +383,7 @@ typedef enum { false, true } boolean_t;
 #define I_TmpMalloc(size) alloca(size)
 #define I_TmpFree(ptr) do { } while (0)
 
-#define I_MoveData memcpy
+#define I_MoveData memmove
 
 #include "i_system.h"
 #include "beos/b_compen.h"
