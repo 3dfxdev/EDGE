@@ -694,6 +694,10 @@ namespace Things
 				return;
 		}
 
+		// FIXME: this will fuck up the cast-order screen
+		if (info->seestate == S_NULL)
+			return;
+
 		WAD::Printf("CASTORDER = %d;\n", order);
 	}
 
