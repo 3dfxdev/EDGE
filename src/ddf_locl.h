@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  Data Definition Files (Local Header)
+//  EDGE Data Definition File Code (Local Header)
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2000  The EDGE Team.
