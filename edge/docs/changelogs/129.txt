@@ -372,8 +372,6 @@ New command-line options | console variables
   -deh     Specify a DeHackEd (or BEX) patch file.  You can have
            multiple patch files after the -deh option.
 
-  -wolfy   Just a fun little hack.
-
   -(no)diskicon   DISKICON    Turn on/off the flashing disk icon.
 
   -(no)fadepower  FADEPOWER   Turn on/off fading of powerup effects.
