@@ -750,6 +750,7 @@ void E_Display(void)
 	// normal update
 	if (!wipe && !wipe_gl_active)
 	{
+		RGL_DrawBeta();
 		I_FinishFrame();  // page flip or blit buffer
 		return;
 	}
@@ -764,6 +765,7 @@ void E_Display(void)
 	}
 
 	M_Drawer();  // menu is drawn even on top of wipes
+	RGL_DrawBeta();
 	I_FinishFrame();  // page flip or blit buffer
 }
 

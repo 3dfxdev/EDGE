@@ -224,7 +224,6 @@ void R2_AddDLights(int num, int *level,
     float *x, float *y, float *z, mobj_t *mo);
 void R2_AddColourDLights(int num, int *r, int *g, int *b, 
     float *x, float *y, float *z, mobj_t *mo);
-void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor);
 
 
 //
