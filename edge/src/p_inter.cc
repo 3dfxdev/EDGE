@@ -299,7 +299,6 @@ static bool GivePower(player_t * player, mobj_t * special,
     {
       playerweapon_t *pw = &player->weapons[i];
 
-      // -AJA- FIXME: choose lowest priority close combat.
       if (pw->owned && DDF_CompareName(pw->info->ddf.name, "FIST") == 0)
       {
         if (player->ready_wp != i)
