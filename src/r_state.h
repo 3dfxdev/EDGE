@@ -91,33 +91,8 @@ extern angle_t leftclipangle, rightclipangle;
 extern angle_t clipscope;
 
 // the most extreme angles of the view
-extern angle_t topangle, bottomangle,
- rightangle, leftangle;
+extern angle_t topangle, bottomangle, rightangle, leftangle;
 // tangents for the angles
-extern float topslope, bottomslope,
- rightslope, leftslope;
-
-// -ES- 1999/03/02 Added these.
-extern angle_t FIELDOFVIEW;  // Number of FINEANGLES in viewwidth wide window
-
-// -ES- 1999/06/01 Added these.
-// Mostly used to get the address offset when moving from y to y+1.
-extern int vb_w, vb_h, vb_depth;
-
-#define vb_pitch vb_depth  // transitional wart
-
-// Unit scale is used at distance distunit
-extern float x_distunit;
-extern float y_distunit;
-
-// -ES- 1999/05/22 Made Dynamic
-extern int *viewangletox;
-extern angle_t *xtoviewangle;
-
-extern float rw_distance;
-extern angle_t rw_normalangle;
-
-// angle to line origin
-extern int rw_angle1;
+extern float topslope, bottomslope, rightslope, leftslope;
 
 #endif

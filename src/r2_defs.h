@@ -39,117 +39,6 @@ struct drawfloor_s;
 //  R2_BSP
 //
 
-typedef struct Y_range_s
-{
-	// range is inclusive.  y1 > y2 means the column is empty.
-	short y1, y2;
-}
-Y_range_t;
-
-//
-// ScreenLine
-//
-// Stores the info for one on-screen area of a wall, plane or thing.
-//
-typedef struct screenline_s
-{
-	// horizontal range (inclusive)
-	short x1, x2;
-
-	// vertical columns over x1..x2.
-	Y_range_t *ranges;
-
-	// top line (higher on screen), used only for tex coords.  When the
-	// ranges are unclipped, this should correspond to the top pixel
-	// positions in the ranges.
-	float y, step;
-
-	// vertical offset (in WORLD coordinates, but positive goes down)
-	float y_offset;
-}
-screenline_t;
-
-
-//
-// DrawWall
-//
-// Stores the info about a single visible section of a wall of a
-// subsector.  Not used in GL mode.
-//
-typedef struct drawwall_s
-{
-	// link for list
-	struct drawwall_s *next;
-
-	screenline_t area;
-
-	// seg this belongs to
-	seg_t *seg;
-
-	// texture to use
-	surface_t *part;
-
-	// texture scaling
-	float scale1;
-	float scale_step;
-
-	// colourmap & lighting
-	region_properties_t *props;
-
-	// dynamic lighting
-	int extra_light[2];
-
-	// info for texture mapper
-	float distance;
-	float x_offset;
-	angle_t angle;
-
-	// contains transparent parts ?
-	int is_masked;
-
-	// horizontal slider ?
-	slidetype_e slide_type;
-	float opening, line_len;
-	int side;
-}
-drawwall_t;
-
-
-//
-// DrawPlane
-//
-// Stores the info about a single visible plane (either floor or
-// ceiling) of a subsector.  Not used in GL mode.
-//
-typedef struct drawplane_s
-{
-	// link for list
-	struct drawplane_s *next;
-
-	screenline_t area;
-
-	// when true, this drawplane only marks where a plane ends
-	// (where it starts will be determined by a future drawplane).
-	bool marker_only;
-
-	int face_dir;
-
-	// height
-	float h;
-
-	// texture & offsets to use
-	surface_t *info;
-
-	// colourmap & lighting
-	region_properties_t *props;
-
-	// dynamic lighting
-	int extra_light[2];
-	int min_y, max_y;
-}
-drawplane_t;
-
-
 //
 // DrawThing
 //
@@ -160,12 +49,6 @@ typedef struct drawthing_s
 	// link for list
 	struct drawthing_s *next;
 	struct drawthing_s *prev;
-
-	// Note: the area.ranges field isn't used here, instead the x1..x2
-	// range is looked-up in the the containing subsector, which stores
-	// *empty* areas to clip against.
-	//
-	screenline_t area;
 
 	// actual map object
 	mobj_t *mo;
@@ -196,6 +79,8 @@ typedef struct drawthing_s
 	float yscale;
 	float ixscale;
 	float iyscale;
+
+	float y_offset;
 
 	// distance
 	float dist_scale;
@@ -253,11 +138,13 @@ typedef struct drawfloor_s
 	// properties used herein
 	region_properties_t *props;
 
+#if 0
 	// list of walls (includes midmasked textures)
 	drawwall_t *walls;
 
 	// list of planes (including translucent ones).
 	drawplane_t *planes;
+#endif
 
 	// list of things
 	// (not sorted until R2_DrawFloor is called).
@@ -278,53 +165,7 @@ drawfloor_t;
 // array_entries reflects how many items are allocated.
 //
 
-// --> Draw wall container class
-class drawwallarray_c : public epi::array_c
-{
-public:
-	drawwallarray_c() : epi::array_c(sizeof(drawwall_t*)) 
-	{ 
-		active_trans = false; 
-	}
 	
-	~drawwallarray_c() { Clear(); }
-
-private:
-	bool active_trans;
-	int commited;
-	
-	void CleanupObject(void *obj) { delete *(drawwall_t**)obj; }
-
-public:
-	void Commit(void);
-	drawwall_t* GetNew(void);
-	void Init(void) { commited = 0; }
-	void Rollback(void);
-};
-
-// --> Draw plane container class
-class drawplanearray_c : public epi::array_c
-{
-public:
-	drawplanearray_c() : epi::array_c(sizeof(drawplane_t*)) 
-	{ 
-		active_trans = false; 
-	}
-	
-	~drawplanearray_c() { Clear(); }
-
-private:
-	bool active_trans;
-	int commited;
-	
-	void CleanupObject(void *obj) { delete *(drawplane_t**)obj; }
-	
-public:
-	void Commit(void);
-	drawplane_t* GetNew(void);
-	void Init(void) { commited = 0; }
-	void Rollback(void);
-};
 
 // --> Draw thing container class
 class drawthingarray_c : public epi::array_c
@@ -379,7 +220,6 @@ extern bool use_dlights;
 extern int sprite_kludge;
 
 bool R2_CheckBBox(float *bspcoord);
-void R2_RenderTrueBSP(void);
 
 const image_t * R2_GetThingSprite(mobj_t *mo, bool *flip);
 const image_t * R2_GetOtherSprite(int sprite, int frame, bool *flip);
@@ -396,31 +236,8 @@ void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor);
 //  R2_UTIL
 //
 
-extern byte *subsectors_seen;
-extern Y_range_t Screen_clip[2048];
-
-extern drawwallarray_c  drawwalls;
-extern drawplanearray_c drawplanes;
-extern drawthingarray_c drawthings;
-extern drawfloorarray_c drawfloors;
-
 void R2_InitUtil(void);
 void R2_ClearBSP(void);
-
-//Y_range_t *R2_GetOpenings(int width);
-//void R2_CommitOpenings(int width);
-
-void R2_1DOcclusionClear(int x1, int x2);
-void R2_1DOcclusionSet(int x1, int x2);
-bool R2_1DOcclusionTest(int x1, int x2);
-bool R2_1DOcclusionTestShrink(int *x1, int *x2);
-void R2_1DOcclusionClose(int x1, int x2, Y_range_t *ranges);
-
-void R2_2DOcclusionClear(int x1, int x2);
-void R2_2DOcclusionClose(int x1, int x2, Y_range_t *ranges,
-    bool connect_low, bool connect_high, bool solid);
-void R2_2DOcclusionCopy(int x1, int x2, Y_range_t *ranges);
-void R2_2DUpdate1D(int x1, int x2);
 
 int R2_GetPointLOD(float x, float y, float z);
 int R2_GetBBoxLOD(float x1, float y1, float z1,
@@ -435,16 +252,6 @@ int R2_GetPlaneLOD(subsector_t *sub, float h);
 //
 
 extern video_context_t vctx;
-
-void R2_DrawWall (subsector_t *dsub, drawwall_t  *wall);
-void R2_DrawPlane(subsector_t *dsub, drawplane_t *plane);
-void R2_DrawThing(subsector_t *dsub, drawthing_t *thing);
-void R2_DrawFloor(subsector_t *dsub, drawfloor_t *dfloor);
-void R2_DrawSubsector(subsector_t *dsub);
-void R2_DrawPlayerSprites(player_t * p);
-
-void BOGUS_Clear(void);
-void BOGUS_Line(float x1, float y1, float x2, float y2, int col);
 
 void R2_Init(void);
 

@@ -37,7 +37,7 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include "glbsp-2.05/glbsp.h"
+#include "glbsp-2.05/glbsp.h"  // FIXME: Use 2.10
 
 
 bool gb_draw_progress = false;
@@ -250,7 +250,6 @@ bool GB_BuildNodes(int map_lump)
 
 	nb_info.input_file = GlbspStrDup(W_GetFileName(map_lump));
 	nb_info.quiet = true;
-	nb_info.choose_fresh = true;
 
 	// FIXME: user-controllable build options (factor, fresh, etc).
 

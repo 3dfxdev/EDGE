@@ -34,10 +34,6 @@
 #include "r_things.h"
 #include "z_zone.h"
 
-// internal variables showing the biggest dimensions so far, just to keep some
-// common temp arrays big enough for all the viewbitmaps.
-int max_vb_h = 0;
-int max_vb_w = 0;
 
 //
 // Destroys a list of callbacks
@@ -131,9 +127,6 @@ void R_DestroyViewBitmap(viewbitmap_t * vb)
 
 	V_EmptyScreen(&vb->screen);
 
-	Z_Free(vb->baseylookup);
-	Z_Free(vb->basecolumnofs);
-
 	R_DestroyCallbackList(&vb->frame_start);
 	R_DestroyCallbackList(&vb->frame_end);
 
@@ -154,7 +147,6 @@ void R_DestroyViewBitmap(viewbitmap_t * vb)
 viewbitmap_t *R_CreateViewBitmap(int width, int height, int bytepp, screen_t * p, int x, int y)
 {
 	viewbitmap_t *vb;
-	int i;
 
 	vb = Z_ClearNew(viewbitmap_t, 1);
 
@@ -169,31 +161,8 @@ viewbitmap_t *R_CreateViewBitmap(int width, int height, int bytepp, screen_t * p
 
 	vb->views = NULL;
 	vb->aspects = NULL;
-	vb->baseylookup = Z_New(byte *, SCREENHEIGHT);  /// -AJA- hack !
-	vb->basecolumnofs = Z_New(int, SCREENWIDTH);
 
-	for (i = 0; i < SCREENHEIGHT; i++)
-	{
-		vb->baseylookup[i] = vb->screen.data + i * vb->screen.pitch;
-	}
-	for (i = 0; i < SCREENWIDTH; i++)
-	{
-		vb->basecolumnofs[i] = i * bytepp;
-	}
 
-	// some global arrays have to be as big as the largest viewbitmap.
-	if (width > max_vb_w)
-	{
-		max_vb_w = width;
-	}
-
-	if (height > max_vb_h)
-	{
-		max_vb_h = height;
-
-		Z_Resize(spanstart, int, height);
-		Z_Clear(spanstart, int, height);
-	}
 
 	return vb;
 }
@@ -230,101 +199,7 @@ void R_DestroyAspect(aspect_t * a)
 			}
 	}
 
-	Z_Free(a->basextoviewangle);
-	Z_Free(a->baseviewangletox);
-	Z_Free(a->basedistscale);
-	Z_Free(a->baseyslope);
 	Z_Free(a);
-}
-
-//
-// R_AspectChangeY
-//
-// Changes y_distunit and y angle of an aspect.
-// fakefocusslope is the slope of the angle which would be focus if true 3D
-// would be used.
-void R_AspectChangeY(aspect_t * a, float y_distunit, float fakefocusslope)
-{
-	float dy;
-	int i;
-
-	if (a->y_distunit != y_distunit || a->fakefocusslope != fakefocusslope)
-	{
-		a->fakefocusslope = fakefocusslope;
-
-		a->focusyfrac = ((float)a->maxheight * (fakefocusslope + a->topslope)) /
-			(float)((a->topslope-a->bottomslope))-0.5f;
-
-		a->y_distunit = y_distunit;
-
-		for (i = 0; i < a->maxheight; i++)
-		{
-			dy = (float)fabs((float)i - (a->focusyfrac + 0.5f));
-			// -ES- 1999/10/17 Prevent from crash by using dist*4 as slope instead
-			// of Inf if dy is very small
-			// (gives an angle of 89.9 instead of 90 in normal 320x200).
-			if (dy <= 0.25f)
-				a->baseyslope[i] = y_distunit * 4;
-			else
-				a->baseyslope[i] = y_distunit / dy;
-		}
-	}
-}
-
-void R_AspectChangeX(aspect_t * a, float x_distunit, float focusxfrac)
-{
-	int i;
-	int x;
-	int t;
-	angle_t ang;
-	float maxleftslope, minrightslope;
-	float cosadj;
-
-	a->x_distunit = x_distunit;
-	a->focusxfrac = focusxfrac;
-
-	maxleftslope = focusxfrac / x_distunit;
-	minrightslope = (focusxfrac - (float)a->maxwidth) / x_distunit;
-
-	// Use tangent table to generate viewangletox:
-	//  viewangletox will give the next greatest x
-	//  after the view angle.
-	for (i = 0; i < FINEANGLES / 2; i++)
-	{
-		ang = (i << ANGLETOFINESHIFT) - ANG90;
-
-		if (i == 0 || M_Tan(ang) < minrightslope)
-			t = a->maxwidth + 1;
-		else if (M_Tan(ang) > maxleftslope)
-			t = -1;
-		else
-		{
-			t = (int)(focusxfrac - M_Tan(ang) * x_distunit + 1.0f);
-
-			if (t < -1)
-				t = -1;
-			else if (t > a->maxwidth + 1)
-				t = a->maxwidth + 1;
-		}
-		a->baseviewangletox[i] = t;
-	}
-
-	// Scan viewangletox[] to generate xtoviewangle[]:
-	//  xtoviewangle will give the smallest view angle
-	//  that maps to x. 
-	for (x = 0; x <= a->maxwidth; x++)
-	{
-		i = 0;
-		while (a->baseviewangletox[i] > x)
-			i++;
-		a->basextoviewangle[x] = (i << ANGLETOFINESHIFT) - ANG90;
-	}
-
-	for (i = 0; i < a->maxwidth; i++)
-	{
-		cosadj = (float)fabs(M_Cos(a->basextoviewangle[i]));
-		a->basedistscale[i] =  (float)(1.0f / cosadj);
-	}
 }
 
 //
@@ -332,8 +207,7 @@ void R_AspectChangeX(aspect_t * a, float x_distunit, float focusxfrac)
 //
 // Creates an aspect_t with the given dimensions, and links it into the
 // parent's list.
-aspect_t *R_CreateAspect(viewbitmap_t * parent, float x_distunit,
-						 float y_distunit,float focusxfrac,
+aspect_t *R_CreateAspect(viewbitmap_t * parent,
 						 float topslope,float bottomslope, int maxwidth, int maxheight)
 {
 	aspect_t *a;
@@ -346,21 +220,9 @@ aspect_t *R_CreateAspect(viewbitmap_t * parent, float x_distunit,
 	if (maxwidth > parent->screen.width || maxheight > parent->screen.height)
 		I_Error("R_CreateAspect: aspect's max size larger than parent!");
 
-	// X STUFF
-	a->baseviewangletox = Z_New(int, FINEANGLES / 2);
-	a->basextoviewangle = Z_New(angle_t, maxwidth + 1);
-	a->basedistscale = Z_New(float, maxwidth);
-
-	R_AspectChangeX(a, x_distunit, focusxfrac);
-
 	// Y STUFF
 	a->topslope = topslope;
 	a->bottomslope = bottomslope;
-	a->fakefocusslope = (float)M_PI;  // ChangeY is called w slope==0, so it has to be different.
-
-	a->baseyslope = Z_New(float, a->maxheight);
-
-	R_AspectChangeY(a, y_distunit, 0);
 
 	a->views = NULL;
 
@@ -433,12 +295,6 @@ void R_ViewClearAspect(view_t * v)
 			}
 	}
 
-	// destroy all aspect related stuff
-	v->xtoviewangle = NULL;
-	Z_Free(v->viewangletox);
-	v->viewangletox = NULL;
-	v->yslope = NULL;
-
 	v->aspect = NULL;
 }
 
@@ -473,7 +329,6 @@ void R_DestroyView(view_t * v)
 static void ViewSetVBXPos(view_t * v, int vbx)
 {
 	V_MoveSubScreen(&v->screen, 0, 0); /// vbx, v->screen.y);
-	v->columnofs = v->parent->basecolumnofs + 0; /// vbx;
 }
 
 //
@@ -483,7 +338,6 @@ static void ViewSetVBXPos(view_t * v, int vbx)
 static void ViewSetVBYPos(view_t * v, int vby)
 {
 	V_MoveSubScreen(&v->screen, 0, 0); /// v->screen.x, vby);
-	v->ylookup = v->parent->baseylookup + 0; /// vby;
 }
 
 //
@@ -494,7 +348,6 @@ static void ViewSetVBYPos(view_t * v, int vby)
 void R_ViewSetAspectXPos(view_t * v, int ax, int width)
 {
 	aspect_t *a = v->aspect;
-	int i;
 
 	if (ax + width > a->maxwidth)
 		I_Error("R_ViewSetAspectXPos: aspect width/height overflow!");
@@ -503,27 +356,6 @@ void R_ViewSetAspectXPos(view_t * v, int ax, int width)
 
 	v->aspect_x = ax;
 
-	// Create viewangletox, based on aspect's baseviewangletox
-	i = 0;
-	while (a->baseviewangletox[i] - ax > width)
-	{
-		v->viewangletox[i] = width;
-		i++;
-	}
-	while (a->baseviewangletox[i] - ax > 0)
-	{
-		v->viewangletox[i] = a->baseviewangletox[i] - ax;
-		i++;
-	}
-	while (i < FINEANGLES / 2)
-	{
-		v->viewangletox[i] = 0;
-		i++;
-	}
-	// xtoviewangle is just a part of aspect's basextoviewangle
-	v->xtoviewangle = a->basextoviewangle + ax;
-	// same with distscale
-	v->distscale = a->basedistscale + ax;
 }
 
 //
@@ -543,8 +375,6 @@ static void ViewSetAspectYPos(view_t * v, int ay, int height)
 	{
 		V_ResizeScreen(&v->screen, v->screen.width, height, v->screen.bytepp);
 	}
-
-	v->yslope = v->aspect->baseyslope + ay;
 }
 
 //
@@ -606,8 +436,6 @@ void R_ViewSetAspect(view_t * v, aspect_t * a)
 {
 	if (v->aspect)
 		R_ViewClearAspect(v);
-
-	v->viewangletox = Z_New(int, FINEANGLES / 2);
 
 	v->anext = a->views;
 	a->views = v;

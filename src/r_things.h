@@ -30,23 +30,7 @@
 #include "r_defs.h"
 #include "z_zone.h"
 
-// Constant arrays used for psprite clipping
-//  and initializing clipping.
-extern int negonearray;
-#define screenheightarray 0
-
-extern float pspritescale;
-extern float pspriteiscale;
-extern float pspritescale2;
-extern float pspriteiscale2;
-extern float masked_translucency;
-
-extern int extra_psp_light;
-
 int R_AddSpriteName(const char *name, int frame);
 bool R_InitSprites(void);
-
-// -ES- 1999/05/31 Changed player sprite system.
-void R_DrawPlayerSprites(player_t * p);
 
 #endif

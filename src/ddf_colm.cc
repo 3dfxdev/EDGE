@@ -265,10 +265,7 @@ void colourmap_c::CopyDetail(colourmap_c &src)
 	special = src.special;
 	
 	// FIXME!!! Cache struct to class
-	cache.baseptr = src.cache.baseptr;
 	cache.data = src.cache.data;
-	cache.validcount = src.cache.validcount;
-	cache.bpp = src.cache.bpp;
 	cache.gl_colour = src.cache.gl_colour;
 }
 
@@ -288,10 +285,7 @@ void colourmap_c::Default()
 	special = COLSP_None;
 	
 	// FIXME!!! Cache struct to class
-	cache.baseptr = NULL;
 	cache.data = NULL;
-	cache.validcount = -1;
-	cache.bpp = 0;
 	cache.gl_colour = 0xFFFFFF;
 }
 

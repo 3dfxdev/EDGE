@@ -20,8 +20,6 @@
 //
 
 // this conditional applies to the whole file
-#ifdef USE_GL
-
 #include "i_defs.h"
 
 #include "con_cvar.h"
@@ -1518,5 +1516,3 @@ void RGL_TestPolyQuads(void)
 	RGL_DumpPolyQuad(test, false);
 }
 #endif  // DEBUG
-
-#endif  // USE_GL

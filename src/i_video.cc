@@ -67,11 +67,7 @@ static screen_t dummy_screen;
 static SDL_Surface *my_vis;
 
 // This needs to be global to retain fullscreen options
-#ifdef USE_GL
 static Uint32 my_flags = (SDL_OPENGL | SDL_DOUBLEBUF);
-#else
-static Uint32 my_flags = (SDL_SWSURFACE | SDL_HWPALETTE);
-#endif
 
 unsigned char *thepalette;
 
@@ -93,16 +89,6 @@ colourshift_t redshift, greenshift, blueshift;
 static screenmode_t possresmode[] =
 {
 	// fullscreen modes
-#ifndef USE_GL
-	{ 320, 200,  8, false},
-	{ 320, 240,  8, false},
-	{ 400, 300,  8, false},
-	{ 512, 384,  8, false},
-	{ 640, 400,  8, false},
-	{ 640, 480,  8, false},
-	{ 800, 600,  8, false},
-	{1024, 768,  8, false},
-#endif
 	{ 320, 200, 16, false},
 	{ 320, 240, 16, false},
 	{ 400, 300, 16, false},
@@ -113,16 +99,6 @@ static screenmode_t possresmode[] =
 	{1024, 768, 16, false},
 
 	// windowed modes
-#ifndef USE_GL
-	{ 320, 200,  8, true},
-	{ 320, 240,  8, true},
-	{ 400, 300,  8, true},
-	{ 512, 384,  8, true},
-	{ 640, 400,  8, true},
-	{ 640, 480,  8, true},
-	{ 800, 600,  8, true},
-	{1024, 768,  8, true},
-#endif
 	{ 320, 200, 16, true},
 	{ 320, 240, 16, true},
 	{ 400, 300, 16, true},
@@ -203,26 +179,6 @@ void SetColourShift(unsigned long mask, colourshift_t * ps)
 	ps->bits  = CountBitsInMask(mask);
 }
 
-//
-// BlitToScreen
-//
-static inline void BlitToScreen(void)
-{
-	register int y;
-	register unsigned char *s1, *d1;
-
-	s1 = (unsigned char *) dummy_screen.data;
-	d1 = (unsigned char *) my_vis->pixels;
-
-	for (y=0; y < SCREENHEIGHT; y++)
-	{
-		memcpy(d1, s1, SCREENWIDTH * BPP);
-
-		s1 += SCREENPITCH;
-		d1 += SCREENWIDTH * BPP;
-	}
-}
-
 static void VideoModeCommonStuff(void)
 {
 	// -AJA- turn off cursor -- BIG performance increase.
@@ -264,14 +220,12 @@ void I_StartupGraphics(void)
 	M_CheckBooleanParm("warpmouse", &use_warp_mouse, false);
 	M_CheckBooleanParm("grab", &use_grab, false);
 
-#ifdef USE_GL
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,   5);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,  5);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
-#endif
 
 	// -ACB- 2000/03/16 Detect Possible Resolutions
 	for (i = 0; possresmode[i].width != -1; i++)
@@ -325,10 +279,8 @@ void I_GetTruecolInfo(truecol_info_t * info)
 //
 bool I_SetScreenSize(screenmode_t *mode)
 {
-#ifdef USE_GL
 	if (mode->depth != 16)
 		return false;
-#endif
 
 	my_vis = SDL_SetVideoMode(mode->width, mode->height, mode->depth, 
 			my_flags | (mode->windowed ? 0 : SDL_FULLSCREEN));
@@ -349,7 +301,7 @@ bool I_SetScreenSize(screenmode_t *mode)
 	//       the value of SCREENBITS becomes a value that the main EDGE
 	//       code can't handle. [The "BPP 4 invalid" error].  After 1.28,
 	//       this hack can go away (use SDL's mode query function).
-	SCREENBITS = mode->depth;
+	SCREENBITS = mode->depth;  // FIXME !!!!
 #endif
 
 	SCREENPITCH = V_GetPitch(mode->width, mode->depth / 8);
@@ -361,23 +313,17 @@ bool I_SetScreenSize(screenmode_t *mode)
 		SetColourShift(my_vis->format->Bmask,  &blueshift);
 	}
 
-	if (dummy_screen.data)
-		Z_Free(dummy_screen.data);
-
 	dummy_screen.width  = SCREENWIDTH;
 	dummy_screen.height = SCREENHEIGHT;
 	dummy_screen.pitch  = SCREENPITCH;
 	dummy_screen.bytepp = BPP;
 	dummy_screen.parent = NULL;
-	dummy_screen.data   = Z_New(byte, SCREENPITCH * SCREENHEIGHT);
 
 	main_scr = V_CreateSubScreen (&dummy_screen, 0, 0, SCREENWIDTH, SCREENHEIGHT);
 
 	VideoModeCommonStuff();
 
-#ifdef USE_GL
 	SDL_GL_SwapBuffers();
-#endif
 
 	return true;
 }
@@ -394,13 +340,7 @@ void I_StartFrame(void)
 //
 void I_FinishFrame(void)
 {
-#ifdef USE_GL
 	SDL_GL_SwapBuffers();
-#else
-	BlitToScreen();
-
-	SDL_UpdateRect(my_vis, 0, 0, SCREENWIDTH, SCREENHEIGHT);
-#endif
 
 	if (use_warp_mouse)
 		SDL_WarpMouse(SCREENWIDTH/2, SCREENHEIGHT/2);

@@ -25,39 +25,14 @@
 
 #ifndef __R_VBINIT_H__
 #define __R_VBINIT_H__
+
 #include "r_view.h"
 #include "con_cvar.h"
 
-// vbinit_t: Struct containing info about a screen composition mode
-typedef struct vbinit_s vbinit_t;
-struct vbinit_s
-{
-	// short name of the routine
-	char *name;
-	// pointer to the initialisation routine
-	void (*routine)(viewbitmap_t * vb);
-	// a longer description of it
-	char *description;
-};
-
-// null-terminated list of available viewbitmap initialisers
-extern vbinit_t screencomplist[];
-// the current index in vbinitlist
-extern int screencomposition;
-
-extern funclist_t enlarge8_2_2_funcs;
-extern funclist_t enlarge16_2_2_funcs;
-extern void (*R_DoEnlargeView_2_2) (void);
-
-void R_InitVBFunctions(void);
+void InitVB_Classic(viewbitmap_t * vb);
 
 void R_InitCamera_StdObject(camera_t * c, mobj_t * mo);
 void R_InitCamera_StdPlayer(camera_t * c);
 void R_InitCamera_ViewOffs(camera_t * c, angle_t offs);
-void R_InitCamera_3D_Right(camera_t * c);
-void R_InitCamera_3D_Left(camera_t * c);
-
-void R_InitVB_3D_Right(viewbitmap_t * r, viewbitmap_t * l);
-void R_InitVB_3D_Left(viewbitmap_t * r, viewbitmap_t * l);
 
 #endif

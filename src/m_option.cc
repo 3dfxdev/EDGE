@@ -176,8 +176,6 @@ static char AAim[] = "Off/On/Mlook";
 static char MipMaps[] = "None/Good/Best";
 static char Details[] = "Low/Medium/High";
 
-static int scrcomp_o;
-
 
 //
 //  OPTION STRUCTURES
@@ -298,12 +296,6 @@ static void M_ChangeZoomedFOV(int keypressed)
 	R_SetZoomedFOV((ANG45 / 9) * (menuzoomedfov + 1));
 }
 
-static void M_ChangeScreenComp(int keypressed)
-{
-	screencomposition = scrcomp_o;
-	setsizeneeded = 1;
-}
-
 static int M_GetCurrentSwitchValue(optmenuitem_t *item)
 {
 	int retval = 0;
@@ -388,12 +380,6 @@ static menuinfo_t mainmenuinfo =
 //
 // -ACB- 1998/07/15 Altered menu structure
 
-// screen compostion routines
-// FIXME!!! See -AJA- Comment below
-#if 0 
-static char scrcomps[] = "Classic/Double Y/Low detail/Blur 1/Blur 2/Low detail at edges/Auto Detail/3x FOV/10x FOV";
-#endif
-
 // -ES- 1999/03/29 New fov stuff
 static optmenuitem_t vidoptions[] =
 {
@@ -417,10 +403,8 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch, "Wipe method", WIPE_EnumStr, WIPE_NUMWIPES, 1, &wipe_method, NULL, NULL} 
   
 #if 0  // TEMPORARILY DISABLED (we need an `Advanced Options' menu)
-	{OPT_Switch, "Screen Composition", scrcomps, 9, 0, &scrcomp_o, M_ChangeScreenComp, NULL},
     {OPT_Switch, "Reverse effect", YesNo, 2, 0, &telept_reverse, NULL, NULL},
     {OPT_Switch, "Reversed wipe", YesNo, 2, 0, &wipe_reverse, NULL, NULL},
-    {OPT_Switch, "Cyan/Red 3d effect", YesNo, 2, 0, &use_3d_mode, M_Toggle3dMode, NULL},
 #endif
 };
 

@@ -272,7 +272,6 @@ extern bool SCREENWINDOW;
 
 // transitional macros
 #define BPP  (SCREENBITS / 8)
-#define SCREENDEPTH  SCREENPITCH
 
 // I_Video.c / V_Video*.c Precalc. Stuff
 extern float DX, DY, DXI, DYI, DY2, DYI2;

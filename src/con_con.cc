@@ -66,7 +66,7 @@ gui_t console =
 };
 
 // stores the console toggle effect
-wipeinfo_t *conwipe = NULL;
+/// wipeinfo_t *conwipe = NULL;
 int conwipeactive = 0;
 int conwipestart = 0;
 int conwipemethod = WIPE_Crossfade;

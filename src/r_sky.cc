@@ -32,12 +32,6 @@
 #include "r_main.h"
 #include "z_zone.h"
 
-//
-// sky mapping
-//
-float skytexturemid;
-float skytexturescale;
-
 const struct image_s *sky_image;
 
 typedef struct sec_sky_ring_s
@@ -53,26 +47,6 @@ typedef struct sec_sky_ring_s
 	float max_h;
 }
 sec_sky_ring_t;
-
-//
-// R_InitSkyMap
-//
-// Called every frame to calculate the sky texture's scale.
-//
-// OUT_OF_DATE:
-// When stretchsky is off, the sky looks just like original DOOM's sky.
-// It will tile if you look up or down, or increase the FOV to more than 90.
-// When stretchsky is on, the sky is stretched to 9/5 of the original size.
-// 9/5 is 360/200, where 200 is original screen height and 360 is the number
-// of texels between the lowest and the highest texel you can see
-// when looking maximally up or down in fullscreen and FOV 90.
-// In FOVs bigger than 90, the sky will tile.
-//
-void R_InitSkyMap(void)
-{
-	skytexturemid = 86 - 160 * topslope / 3;
-	skytexturescale = 160 * (topslope - bottomslope) / (viewheight * 3);
-}
 
 //
 // R_ComputeSkyHeights

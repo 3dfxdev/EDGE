@@ -24,8 +24,6 @@
 //----------------------------------------------------------------------------
 
 // this conditional applies to the whole file
-#ifdef USE_GL
-
 #include "i_defs.h"
 
 #include "m_random.h"
@@ -452,6 +450,3 @@ bool RGL_DoWipe(void)
 
 	return false;
 }
-
-
-#endif  // USE_GL

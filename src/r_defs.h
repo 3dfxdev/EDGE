@@ -42,13 +42,6 @@
 
 struct image_s;
 
-// Silhouette, needed for clipping Segs (mainly)
-// and sprites representing things.
-#define SIL_NONE                0
-#define SIL_BOTTOM              1
-#define SIL_TOP                 2
-#define SIL_BOTH                3
-
 
 //
 // INTERNAL MAP TYPES
@@ -537,19 +530,9 @@ typedef struct seg_s
 	bool visible;
 	bool back;
 
-	unsigned short x1, x2;
-	float scale1, scale2;
-	float rw_distance, rw_offset;
-
 	// translated coords
 	float tx1, tz1;
 	float tx2, tz2;
-  
-	// orientation.  (Used for sprite clipping)
-	//    0 : not needed for clipping (e.g. parallel to viewplane)
-	//   +1 : right side (on screen) faces containing subsector
-	//   -1 : left  side (on screen) faces containing subsector
-	int orientation;
 }
 seg_t;
 
@@ -597,22 +580,6 @@ typedef post_t column_t;
 //
 // OTHER TYPES
 //
-
-// Lighttables.
-//
-// Each value ranges from 0 to 255, from totally black to fully lighted.
-// The values get scaled to fit the colourmap being used (e.g. divided
-// by 8 for the 32-level COLORMAP lump).
-//
-typedef byte lighttable_t;
-
-// Coltables.
-//
-// Each coltable is 256 bytes from some colourmap lump, which maps the
-// index colour to a palette colour.  In 16-bit mode however, it is 256
-// shorts which are the pixel values for the screen.
-//
-typedef byte coltable_t;
 
 //      
 // Sprites are patches with a special naming convention so they can be
