@@ -137,6 +137,8 @@ public:
 	buffer_packet_c *begin() const { return (buffer_packet_c *) packets.begin(); }
 	buffer_packet_c *end()   const { return (buffer_packet_c *) packets.end(); }
 
+	inline int IsEmpty() const { return size == 0; }
+
 	void Remove(buffer_packet_c *bp)
 	{
 		buffered_packets--;
@@ -177,11 +179,19 @@ public:
 				Remove(bp);
 		}
 	}
+
+	void ClearAll()
+	{
+		while (! IsEmpty())
+		{
+			Remove(begin());
+		}
+	}
 };
 
 //------------------------------------------------------------------------
 
-static buffer_queue_c buffer_Q;
+static buffer_queue_c buf_Q;
 
 //
 // BufferPacket
@@ -193,13 +203,25 @@ void BufferPacket(NLsocket sock, const char *data, int len)
 	NLaddress remote_addr;
 	nlGetRemoteAddr(sock, &remote_addr);
 
-	buffer_Q.Add(sock, &remote_addr, data, len);
+	buf_Q.Add(sock, &remote_addr, data, len);
 }
 
 //
 // BufferRetryWrites
 //
-void BufferRetryWrites()
+void BufferRetryWrites(void)
 {
-	buffer_Q.RetryWrites(cur_net_time);
+	buf_Q.RetryWrites(cur_net_time);
 }
+
+//
+// BufferClearAll
+//
+void BufferClearAll(void)
+{
+	buf_Q.ClearAll();
+
+	buffered_packets = 0;
+	buffered_bytes = 0;
+}
+
