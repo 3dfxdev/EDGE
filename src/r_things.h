@@ -48,6 +48,8 @@ extern float_t pspritescale2;
 extern float_t pspriteiscale2;
 extern float_t masked_translucency;
 
+extern int extra_psp_light;
+
 void R_DrawMaskedColumn(const column_t * column);
 void R_SortVisSprites(void);
 

@@ -34,18 +34,6 @@
 //
 typedef struct
 {
-  int x, y;
-}
-fpoint_t;
-
-typedef struct
-{
-  fpoint_t a, b;
-}
-fline_t;
-
-typedef struct
-{
   float_t x, y;
 }
 mpoint_t;
@@ -55,12 +43,6 @@ typedef struct
   mpoint_t a, b;
 }
 mline_t;
-
-typedef struct
-{
-  float_t slp, islp;
-}
-islope_t;
 
 void AM_InitResolution(void);
 

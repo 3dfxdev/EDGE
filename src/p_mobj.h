@@ -512,12 +512,8 @@ struct mobj_s
 
   shoot_spot_info_t *spot_info;
 
-#ifdef USE_IMAGE
-  const struct image_s *halo_image;
-
   int dlight_qty;
   const struct image_s *dlight_image;
-#endif
 
   // hash values for TUNNEL missiles
   unsigned long tunnel_hash[2];
@@ -532,10 +528,8 @@ struct mobj_s
   // More list: links in subsector (if needed)
   mobj_t *snext, *sprev;
 
-#ifdef USE_IMAGE
   // One more: link in dynamic light blockmap
   mobj_t *dlnext, *dlprev;
-#endif
 };
 
 // Item-in-Respawn-que Structure -ACB- 1998/07/30

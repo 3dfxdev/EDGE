@@ -32,18 +32,7 @@
 // Global parameters/defines.
 //
 
-//
-// For resize of screen, at start of game.
-// It will not work dynamically, see visplanes.
-//
-#define BASE_WIDTH SCREENWIDTH
-
-// It is educational but futile to change this
-//  scaling e.g. to 2. Drawing of status bar,
-//  menues etc. is tied to the scale implied
-//  by the graphics.
-#define SCREEN_MUL              1
-#define INV_ASPECT_RATIO        0.625  // 0.75, ideally
+#define INV_ASPECT_RATIO  0.625  // 0.75, ideally
 
 // State updates, number of tics / second.
 #define TICRATE         35

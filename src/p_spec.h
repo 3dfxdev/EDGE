@@ -85,11 +85,7 @@ typedef struct button_s
 {
   line_t *line;
   bwhere_e where;
-#ifdef USE_IMAGE
   const image_t *bimage;
-#else
-  int btexture;
-#endif
   int btimer;
   mobj_t *soundorg;
   sfx_t *off_sound;
@@ -123,12 +119,7 @@ typedef struct sec_move_s
   boolean_t completed;
 
   int newspecial;
-
-#ifdef USE_IMAGE
   const image_t *new_image;
-#else
-  int texture;  //!!!
-#endif
 
   struct sec_move_s *next, *prev;
 }

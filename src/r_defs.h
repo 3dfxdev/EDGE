@@ -110,12 +110,7 @@ region_properties_t;
 typedef struct plane_info_s
 {
   float_t h;
-
-#ifdef USE_IMAGE
   const struct image_s *image;
-#else
-  int pic;  // !!! FIXME: redundant
-#endif
 
   float_t x_offset;
   float_t y_offset;
@@ -145,15 +140,9 @@ plane_info_t;
 //
 typedef struct sidepart_s
 {
-#ifdef USE_IMAGE
   // Texture image
   // We do not maintain names here. 
   const struct image_s *image;
-#else
-  // Texture index.
-  // We do not maintain names here. 
-  int tex;  //!!! FIXME: redundant
-#endif
 
   // offsets (horizontal and vertical)
   float_t x_offset;

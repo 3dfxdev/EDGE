@@ -2,7 +2,7 @@
 //  EDGE Generalised Image Handling
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2000  The EDGE Team.
+//  Copyright (c) 1999-2001  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -43,7 +43,7 @@ typedef byte w_post_t;
 
 #define W_SKIP  0
   // number of pixels to skip down from current position.  The initial
-  // position is just the top of the sprite.  Can be P_SENTINEL for
+  // position is just the top of the sprite.  Will be P_SENTINEL for
   // the end-of-post marker.
 
 #define W_LEN  1
@@ -104,6 +104,9 @@ typedef byte cached_image_t;
 #define IM_RIGHT(image)  ((float_t)(image)->actual_w / (image)->total_w)
 #define IM_BOTTOM(image) ((float_t)(image)->actual_h / (image)->total_h)
 
+#define IM_WIDTH(image)  ((image)->actual_w * (image)->scale_x / 0x100)
+#define IM_HEIGHT(image) ((image)->actual_h * (image)->scale_y / 0x100)
+
 typedef enum
 {
   // Vertical posts.  Each post is essentially the same as in normal
@@ -145,6 +148,10 @@ extern boolean_t use_mipmapping;
 
 void W_InitImages(void);
 void W_UpdateImageAnims(void);
+void W_ResetImages(void);
+
+void W_LockImagesOGL(void);
+void W_UnlockImagesOGL(void);
 
 const cached_image_t *W_ImageCache(const image_t *image, 
     image_mode_e mode, int mip, boolean_t anim);

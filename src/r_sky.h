@@ -35,9 +35,7 @@
 extern int skytexture;
 extern float_t skytexturemid;
 
-#ifdef USE_IMAGE
 extern const struct image_s *sky_image;
-#endif
 
 // -ES- 1999-04-11 Added This
 extern float_t skytexturescale;
