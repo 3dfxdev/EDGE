@@ -211,10 +211,10 @@ static bool RAD_CheckBossTrig(rad_trigger_t *trig, s_ondeath_t *cond)
 	if (! cond->cached_info)
 	{
 		if (cond->thing_name)
-			cond->cached_info = mobjinfo.Lookup(cond->thing_name);
+			cond->cached_info = mobjdefs.Lookup(cond->thing_name);
 		else
 		{
-			cond->cached_info = mobjinfo.Lookup(cond->thing_type);
+			cond->cached_info = mobjdefs.Lookup(cond->thing_type);
 
 			if (cond->cached_info == NULL)
 				I_Error("RTS ONDEATH: Unknown thing type %d.\n",

@@ -685,10 +685,10 @@ void DDF_LinedefCleanUp(void)
 		DDF_ErrorSetEntryName("[%d]  (lines.ddf)", line->ddf.number);
 
 		line->t.inspawnobj = line->t.inspawnobj_ref ?
-			mobjinfo.Lookup(line->t.inspawnobj_ref) : NULL;
+			mobjdefs.Lookup(line->t.inspawnobj_ref) : NULL;
 
 		line->t.outspawnobj = line->t.outspawnobj_ref ?
-			mobjinfo.Lookup(line->t.outspawnobj_ref) : NULL;
+			mobjdefs.Lookup(line->t.outspawnobj_ref) : NULL;
 
 		DDF_ErrorClearEntryName();
 	}
