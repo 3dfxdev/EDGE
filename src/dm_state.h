@@ -207,9 +207,20 @@ extern boolean_t singletics;
 extern int bodyqueslot;
 
 // Needed to store the number of the dummy sky flat.
-// Used for rendering,
-//  as well as tracking projectiles etc.
+// Used for rendering, as well as tracking projectiles etc.
 extern int skyflatnum;
+
+#ifdef USE_IMAGE
+extern const struct image_s *skyflatimage;
+#endif
+
+#ifdef USE_IMAGE
+#define IS_SKY(plane)  ((plane).image == skyflatimage)
+#else
+#define IS_SKY(plane)  ((plane).pic == skyflatnum)
+#endif
+
+
 
 //---------------------------------------------------
 // Netgame stuff (buffers and pointers, i.e. indices).
