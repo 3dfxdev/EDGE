@@ -242,7 +242,7 @@ void DDF_SFXCleanUp(void)
 //   Modified to count matches first, then allocate the memory.
 //   Prevents memory fragmentation.
 //
-sfx_t *DDF_SfxLookupSound(const char *name)
+sfx_t *DDF_SfxLookupSound(const char *name, bool error)
 {
 	int i, count;
 	int last_id = -1;
@@ -265,7 +265,7 @@ sfx_t *DDF_SfxLookupSound(const char *name)
 
 	if (count == 0)
 	{
-		if (! lax_errors)
+		if (!lax_errors && !error)
 			DDF_Error("Unknown SFX: '%.8s'\n", name);
 
 		return NULL;
