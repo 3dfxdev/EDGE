@@ -2,7 +2,9 @@
 EDGE DDF 4.3: (XXXX-XX-XX)
 ==========================
 
-1) THINGS.DDF: updated player entries, limits for the new ammo types.
+1) added new DDF files: FONTS.DDF, STYLES.DDF and IMAGES.DDF.
+
+2) THINGS.DDF: updated player entries: limits for the new ammo types.
 
 
 EDGE DDF 4.2: (2004-10-31)
