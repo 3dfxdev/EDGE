@@ -42,6 +42,8 @@
 
 #define DEBUG_RANGES  0  // must enable one in info.cpp too
 
+#define MAX_ACT_NAME  200
+
 
 bool state_modified[NUMSTATES];
 
@@ -102,8 +104,8 @@ static const actioninfo_t action_info[NUMACTIONS] =
     { "W:SHOOT", AF_FLASH, "R:PLAYER_PLASMA", NULL },      // A_FirePlasma
     { "W:PLAYSOUND(BFG)", 0, NULL, NULL },      // A_BFGsound
     { "W:SHOOT", 0, "R:PLAYER_BFG9000", NULL },      // A_FireBFG
-    { "W:SPARE_ATTACK", 0, NULL, NULL },      // A_BFGSpray
 
+    { "SPARE_ATTACK", 0, NULL, NULL },      // A_BFGSpray
     { "EXPLOSIONDAMAGE", AF_EXPLODE, NULL, NULL },      // A_Explode
     { "MAKEPAINSOUND", 0, NULL, NULL },      // A_Pain
     { "PLAYER_SCREAM", 0, NULL, NULL },      // A_PlayerScream
@@ -127,9 +129,9 @@ static const actioninfo_t action_info[NUMACTIONS] =
     { "CLOSE_ATTACK", 0, "C:REVENANT_CLOSECOMBAT", NULL },      // A_SkelFist
     { "RANGE_ATTACK", 0, "R:REVENANT_MISSILE", NULL },      // A_SkelMissile
     { "RANGEATTEMPTSND", 0, NULL, NULL },      // A_FatRaise
-    { "RESET_SPREADER", 0, NULL, NULL },      // A_FatAttack1
-    { "RANGE_ATTACK", 0, "R:MANCUBUS_FIREBALL", NULL },      // A_FatAttack2
-    { "RANGE_ATTACK", 0, "R:MANCUBUS_FIREBALL", NULL },      // A_FatAttack3
+    { "RANGE_ATTACK", AF_SPREAD, "R:MANCUBUS_FIREBALL", NULL }, // A_FatAttack1
+    { "RANGE_ATTACK", AF_SPREAD, "R:MANCUBUS_FIREBALL", NULL }, // A_FatAttack2
+    { "RANGE_ATTACK", AF_SPREAD, "R:MANCUBUS_FIREBALL", NULL }, // A_FatAttack3
     { "NOTHING", 0, NULL, NULL },      // A_BossDeath
     { "RANGE_ATTACK", 0, "R:FORMER_HUMAN_CHAINGUN", NULL },      // A_CPosAttack
     { "REFIRE_CHECK", 0, NULL, NULL },      // A_CPosRefire
@@ -538,44 +540,106 @@ bool Frames::CheckWeaponFlash(int first)
 
 namespace Frames
 {
-	void UpdateAttackSlots(const char *act_name, const char *atk)
+	void UpdateAttacks(char group, char *act_name, int action)
 	{
-		if (! atk)
-			return;
+		const char *atk1 = action_info[action].atk_1;
+		const char *atk2 = action_info[action].atk_2;
 
-		assert(strlen(atk) >= 3);
-		assert(atk[1] == ':');
+		bool free1 = true;
+		bool free2 = true;
 
-		if (atk[0] == 'S')
+		int kind1 = -1;
+		int kind2 = -1;
+
+		if (! atk1)
 		{
-			attack_slot[SPARE] = atk + 2;
+			return;
+		}
+		else if (IS_WEAPON(group))
+		{
+			assert(strlen(atk1) >= 3);
+			assert(atk1[1] == ':');
+			assert(! atk2);
+
+			kind1 = RANGE;
+		}
+		else
+		{
+			assert(strlen(atk1) >= 3);
+			assert(atk1[1] == ':');
+
+			kind1 = (atk1[0] == 'R') ? RANGE : (atk1[0] == 'C') ? COMBAT : SPARE;
+		}
+
+		atk1 += 2;
+
+		free1 = (! attack_slot[kind1] || 
+				 StrCaseCmp(attack_slot[kind1], atk1) == 0);
+
+		if (atk2)
+		{
+			assert(strlen(atk2) >= 3);
+			assert(atk2[1] == ':');
+
+			kind2 = (atk2[0] == 'R') ? RANGE : (atk2[0] == 'C') ? COMBAT : SPARE;
+
+			atk2 += 2;
+
+            free2 = (! attack_slot[kind2] || 
+			         StrCaseCmp(attack_slot[kind2], atk2) == 0);
+		}
+
+		if (free1 && free2)
+		{
+			attack_slot[kind1] = atk1;
+
+			if (atk2)
+				attack_slot[kind2] = atk2;
+
 			return;
 		}
 
-		// try to use spare attack if normal attack is already uses, in
-		// case some mods give a monster two different attacks.
+		WAD::Printf("    // Specialising %s\n", act_name);
 
-		assert(atk[0] == 'R' || atk[0] == 'C');
+		// do some magic to put the attack name into parenthesis,
+		// for example RANGE_ATTACK(IMP_FIREBALL).
 
-		int N = (atk[0] == 'R') ? RANGE : COMBAT;
-
-		if (attack_slot[N])
+		if (StrCaseCmp(act_name, "BRAINSPIT") == 0)
 		{
-			if (strcmp(attack_slot[N], atk + 2) == 0)
-				return;  // no problem, already contains this attack
+			PrintWarn("Multiple range attacks used with A_BrainSpit.\n");
+			return;
+		}
 
-			N = SPARE;
-
-			if (attack_slot[N])
+		// in this case, we have two attacks (must be a COMBOATTACK), but
+		// we don't have the required slots (need both).  Therefore select
+		// one of them based on the group.
+		if (atk1 && atk2)
+		{
+			if (group != 'L' && group != 'M')
 			{
-				// FIXME: should show the problem thing
-				// XXX maybe disable the action ?
-				PrintWarn("No free attack slots for action %s.\n", act_name);
-				return;
+				PrintWarn("Reducing COMBOATTACK outside of attack states.\n");
+			}
+
+			if ((group == 'L' && kind2 == COMBAT) ||
+			    (group == 'M' && kind2 == RANGE))
+			{
+				atk1  = atk2;
+				kind1 = kind2;
+			}
+
+			switch (kind1)
+			{
+				case RANGE:  strcpy(act_name, "RANGE_ATTACK"); break;
+				case COMBAT: strcpy(act_name, "CLOSE_ATTACK"); break;
+				case SPARE:  strcpy(act_name, "SPARE_ATTACK"); break;
+
+				default: InternalError("Bad attack kind %d\n", kind1);
 			}
 		}
 
-		attack_slot[N] = atk + 2;
+		strcat(act_name, "(");
+		strcat(act_name, atk1);
+		strcat(act_name, ")");
 	}
 }
 
@@ -596,12 +660,14 @@ void Frames::OutputState(char group, int cur)
 		if (cur > highest_touched) highest_touched = cur;
 	}
 
-	const char *act_name = action_info[st->action].ddf_name;
+	char act_name[MAX_ACT_NAME];
+
+	strcpy(act_name, action_info[st->action].ddf_name);
 
 	bool weap_act = (act_name[0] == 'W' && act_name[1] == ':');
 
 	if (weap_act)
-		act_name += 2;
+		strcpy(act_name, action_info[st->action].ddf_name + 2);
 
 	if (st->action != S_NULL && weap_act == ! IS_WEAPON(group) &&
 		StrCaseCmp(act_name, "NOTHING") != 0)
@@ -611,17 +677,40 @@ void Frames::OutputState(char group, int cur)
 		else
 			PrintWarn("Frame %d: thing action %s used in weapon.\n", cur, act_name);
 
-		act_name = "NOTHING";
+		strcpy(act_name, "NOTHING");
+	}
+
+	if (st->action == S_NULL || weap_act == (IS_WEAPON(group) ? true : false))
+	{
+		UpdateAttacks(group, act_name, st->action);
 	}
 
 	// If the death states contain A_PainDie or A_KeenDie, then we
 	// need to add an A_Fall action for proper operation in EDGE.
 	if (action_info[st->action].act_flags & AF_MAKEDEAD)
 	{
-		WAD::Printf("    %s:%c:0:%s:MAKEDEAD,\n",
+		WAD::Printf("    %s:%c:0:%s:MAKEDEAD,  // %s\n",
 			TextStr::GetSprite(st->sprite),
 			'A' + ((int) st->frame & 31),
-			(st->frame >= 32768) ? "BRIGHT" : "NORMAL");
+			(st->frame >= 32768) ? "BRIGHT" : "NORMAL",
+			(st->action == A_PainDie) ? "A_PainDie" : "A_KeenDie");
+	}
+
+	// special handling for Mancubus attacks...
+	if (action_info[st->action].act_flags & AF_SPREAD)
+	{
+		if ((act_flags & AF_SPREAD) == 0)
+		{
+			WAD::Printf("    %s:%c:0:%s:RESET_SPREADER,\n",
+				TextStr::GetSprite(st->sprite),
+				'A' + ((int) st->frame & 31),
+				(st->frame >= 32768) ? "BRIGHT" : "NORMAL");
+		}
+
+		WAD::Printf("    %s:%c:0:%s:%s,  // A_FatAttack\n",
+			TextStr::GetSprite(st->sprite),
+			'A' + ((int) st->frame & 31),
+			(st->frame >= 32768) ? "BRIGHT" : "NORMAL", act_name);
 	}
 
 	int tics = (int) st->tics;
@@ -629,9 +718,8 @@ void Frames::OutputState(char group, int cur)
 	// kludge for EDGE and Batman TC.  EDGE waits 35 tics before exiting the
 	// level from A_BrainDie, but standard Doom does it immediately.  Oddly,
 	// Batman TC goes into a loop calling A_BrainDie every tic.
-
-	if (tics >= 0 && tics < 40 && StrCaseCmp(act_name, "BRAINDIE") == 0)
-		tics = 40;
+	if (tics >= 0 && tics < 44 && StrCaseCmp(act_name, "BRAINDIE") == 0)
+		tics = 44;
 
 	WAD::Printf("    %s:%c:%d:%s:%s",
 		TextStr::GetSprite(st->sprite),
@@ -642,9 +730,6 @@ void Frames::OutputState(char group, int cur)
 		return;
 
 	act_flags |= action_info[st->action].act_flags;
-
-	UpdateAttackSlots(act_name, action_info[st->action].atk_1);
-	UpdateAttackSlots(act_name, action_info[st->action].atk_2);
 }
 
 const char *Frames::GroupToName(char group, bool use_spawn)

@@ -282,36 +282,6 @@ namespace Things
 		}
 	}
 
-	const char *GetSound(int sound_id)
-	{
-		assert(sound_id != sfx_None);
-		assert(strlen(S_sfx[sound_id].orig_name) < 16);
-
-		// handle random sounds
-		switch (sound_id)
-		{
-			case sfx_podth1: case sfx_podth2: case sfx_podth3:
-				return "\"PODTH?\"";
-
-			case sfx_posit1: case sfx_posit2: case sfx_posit3:
-				return "\"POSIT?\"";
-
-			case sfx_bgdth1: case sfx_bgdth2:
-				return "\"BGDTH?\"";
-
-			case sfx_bgsit1: case sfx_bgsit2:
-				return "\"BGSIT?\"";
-
-			default: break;
-		}
-
-		static char name_buf[40];
-
-		sprintf(name_buf, "\"%s\"", StrUpper(S_sfx[sound_id].orig_name));
-
-		return name_buf;
-	}
-
 	const char *GetSpeed(int speed)
 	{
 		// Interestingly, speed is fixed point for attacks, but
@@ -332,28 +302,31 @@ namespace Things
 		if (info->activesound != sfx_None)
 		{
 			if (info->flags & MF_PICKUP)
-				WAD::Printf("PICKUP_SOUND = %s;\n", GetSound(info->activesound));
+				WAD::Printf("PICKUP_SOUND = %s;\n",
+					Sounds::GetSound(info->activesound));
 			else
-				WAD::Printf("ACTIVE_SOUND = %s;\n", GetSound(info->activesound));
+				WAD::Printf("ACTIVE_SOUND = %s;\n",
+					Sounds::GetSound(info->activesound));
 		}
 		else if (mt_num == MT_TELEPORTMAN)
-			WAD::Printf("ACTIVE_SOUND = %s;\n", GetSound(sfx_telept));
+			WAD::Printf("ACTIVE_SOUND = %s;\n", Sounds::GetSound(sfx_telept));
 
 		if (info->seesound != sfx_None)
-			WAD::Printf("SIGHTING_SOUND = %s;\n", GetSound(info->seesound));
+			WAD::Printf("SIGHTING_SOUND = %s;\n", Sounds::GetSound(info->seesound));
 		else if (mt_num == MT_BOSSSPIT)
-			WAD::Printf("SIGHTING_SOUND = %s;\n", GetSound(sfx_bossit));
+			WAD::Printf("SIGHTING_SOUND = %s;\n", Sounds::GetSound(sfx_bossit));
 
 		if (info->attacksound != sfx_None && info->meleestate != S_NULL)
 		{
-			WAD::Printf("STARTCOMBAT_SOUND = %s;\n", GetSound(info->attacksound));
+			WAD::Printf("STARTCOMBAT_SOUND = %s;\n",
+				Sounds::GetSound(info->attacksound));
 		}
 
 		if (info->painsound != sfx_None)
-			WAD::Printf("PAIN_SOUND = %s;\n", GetSound(info->painsound));
+			WAD::Printf("PAIN_SOUND = %s;\n", Sounds::GetSound(info->painsound));
 
 		if (info->deathsound != sfx_None)
-			WAD::Printf("DEATH_SOUND = %s;\n", GetSound(info->deathsound));
+			WAD::Printf("DEATH_SOUND = %s;\n", Sounds::GetSound(info->deathsound));
 	}
 
 	void HandleFrames(const mobjinfo_t *info, int mt_num)
@@ -438,6 +411,7 @@ namespace Things
 			state_t *st = states + info->spawnstate;
 
 			WAD::Printf("\n");
+			WAD::Printf("// A_Look with missing seestate workaround\n");
 			WAD::Printf("STATES(CHASE) = %s:%c:1:NORMAL:NOTHING,#REMOVE;\n",
 				TextStr::GetSprite(st->sprite),
 				'A' + ((int) st->frame & 31));
@@ -445,11 +419,6 @@ namespace Things
 
 		if (mt_num == MT_VILE)
 			Frames::OutputGroup(S_VILE_HEAL1,   'H');
-
-		if (Frames::act_flags & AF_WEAPON_ST)
-		{
-			PrintWarn("Mobj [%s:%d] uses weapon states.\n", info->name, info->doomednum);
-		}
 	}
 
 	const int NUMPLAYERS = 8;
@@ -574,7 +543,7 @@ namespace Things
 		{
 			WAD::Printf("PICKUP_BENEFIT = POWERUP_BERSERK(60:60),HEALTH(100:100);\n");
 			WAD::Printf("PICKUP_MESSAGE = GotBerserk;\n");
-			WAD::Printf("PICKUP_SOUND = %s;\n", GetSound(sfx_getpow));
+			WAD::Printf("PICKUP_SOUND = %s;\n", Sounds::GetSound(sfx_getpow));
 			return;
 		}
 		else if (spr_num == SPR_MEGA)  // Megasphere
@@ -583,7 +552,7 @@ namespace Things
 			WAD::Printf("HEALTH(%d:%d),", Misc::mega_health, Misc::mega_health);
 			WAD::Printf("BLUE_ARMOUR(%d:%d);\n", Misc::max_armour, Misc::max_armour);
 			WAD::Printf("PICKUP_MESSAGE = GotMega;\n");
-			WAD::Printf("PICKUP_SOUND = %s;\n", GetSound(sfx_getpow));
+			WAD::Printf("PICKUP_SOUND = %s;\n", Sounds::GetSound(sfx_getpow));
 			return;
 		}
 		else if (spr_num == SPR_BPAK)  // Backpack full of AMMO
@@ -595,7 +564,7 @@ namespace Things
 			WAD::Printf("    CELLS.LIMIT(%d),\n",  2 * Ammo::plr_max[am_cell]);
 			WAD::Printf("    BULLETS(10), SHELLS(4), ROCKETS(1), CELLS(20);\n");
 			WAD::Printf("PICKUP_MESSAGE = GotBackpack;\n");
-			WAD::Printf("PICKUP_SOUND = %s;\n", GetSound(sfx_itemup));
+			WAD::Printf("PICKUP_SOUND = %s;\n", Sounds::GetSound(sfx_itemup));
 			return;
 		}
 
@@ -693,7 +662,7 @@ namespace Things
 		WAD::Printf("PICKUP_MESSAGE = %s;\n", pu->ldf);
 
 		if (info->activesound == sfx_None)
-			WAD::Printf("PICKUP_SOUND = %s;\n", GetSound(pu->sound));
+			WAD::Printf("PICKUP_SOUND = %s;\n", Sounds::GetSound(pu->sound));
 	}
 
 	void HandleCastOrder(const mobjinfo_t *info, int mt_num, int player)
