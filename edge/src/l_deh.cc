@@ -36,7 +36,7 @@
 #include "w_image.h"
 #include "w_wad.h"
 
-#include "dehedge-1.2/dh_embed.h"
+#include "dehedge-1.2/dh_plugin.h"
 
 bool dh_draw_progress = false;
 
@@ -133,7 +133,7 @@ const dehconvfuncs_t edge_dehconv_funcs =
 //
 // DH_ConvertFile
 //
-bool DH_ConvertFile(const char *filename)
+bool DH_ConvertFile(const char *filename, const char *outname)
 {
 	int deci_ver = (EDGEVER % 0x10) +
 		10 * ((EDGEVER / 0x10) % 0x10) +
@@ -149,7 +149,7 @@ bool DH_ConvertFile(const char *filename)
 	ret = DehEdgeAddFile(filename);
 
 	if (ret == DEH_OK)
-		ret = DehEdgeRunConversion("FOO.hwa"); //!!!! FIXME
+		ret = DehEdgeRunConversion(outname);
 
 	DehEdgeShutdown();
 
@@ -159,12 +159,12 @@ bool DH_ConvertFile(const char *filename)
 //
 // DH_ConvertLump
 //
-// !!! FIXME: need to pass output name
-bool DH_ConvertLump(const byte *data, int length, const char *lumpname)
+bool DH_ConvertLump(const byte *data, int length, const char *lumpname,
+	const char *outname)
 {
-	char info_name[20];
+	char info_name[100];
 
-	sprintf(info_name, "%s.hwa", lumpname);  //!!!! FIXME .LMP
+	sprintf(info_name, "%s.LMP", lumpname);
 
 	int deci_ver = (EDGEVER % 0x10) +
 		10 * ((EDGEVER / 0x10) % 0x10) +
@@ -180,7 +180,7 @@ bool DH_ConvertLump(const byte *data, int length, const char *lumpname)
 	ret = DehEdgeAddLump((const char *)data, length, info_name);
 
 	if (ret == DEH_OK)
-		ret = DehEdgeRunConversion(info_name);  // use proper name
+		ret = DehEdgeRunConversion(outname);
 
 	DehEdgeShutdown();
 
