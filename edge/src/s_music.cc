@@ -54,7 +54,7 @@ static INLINE int edgemid(int a, int b, int c)
 //
 void S_ChangeMusic(int entrynum, bool looping)
 {
-	const playlist_t *play;
+	const pl_entry_t *play;
 	byte *data;
 	int datlength;
 	int datnum;
@@ -70,8 +70,7 @@ void S_ChangeMusic(int entrynum, bool looping)
 		return;
 	}
 
-	play = DDF_MusicLookupNum(entrynum);
-
+	play = playlist.Find(entrynum);
 	if (!play)
 		return;
 
