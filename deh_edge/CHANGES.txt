@@ -2,8 +2,8 @@
 CHANGELOG
 =========
 
-Changes in V1.2  (Unreleased)
------------------------------
+Changes in V1.2  (23rd September 2004)
+--------------------------------------
 
  - support for "DIE" action (Boom/MBF), available in Edge 1.29.
 
@@ -12,6 +12,10 @@ Changes in V1.2  (Unreleased)
    support for progress notification.  Added support for parsing
    raw lumps.  Made sure the plugin can be used multiple times
    (without a previous run interfering with a later one).
+
+ - replaced the --all option with something undocumented, since it
+   gave the wrong impression (as if DEH_EDGE was leaving something
+   out of the output file).
 
 
 Changes in V1.1  (11th July 2004)

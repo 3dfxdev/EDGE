@@ -62,20 +62,15 @@ Then run EDGE using this additional file, for example:
 Options
 -------
 
-  -o --output XXX  Output file.  This is optional, the default output
-                   filename will simply replace the DEH extension with
-                   the HWA extension.
-
   -e --edge #.##   EDGE version to target.  The current default is 1.28.
                    This option will cause the output DDF to be optimised
                    for that Edge version, and workaround any known bugs.
 
-  -q --quiet       Quiet mode, disable warning messages.
+  -o --output XXX  Output file.  This is optional, the default output
+                   filename will simply replace the DEH extension with
+                   the HWA extension.
 
-  -a --all         All: converts everything into DDF.  Normally only the
-                   parts which has been modified are converted to DDF.
-                   This option can make the output WAD much bigger !
-                   Mainly useful for trouble-shooting.
+  -q --quiet       Quiet mode, disable warning messages.
 
 
 Limitations
