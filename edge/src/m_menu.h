@@ -65,7 +65,7 @@ void M_StartMessage(const char *string, void (* routine)(int response),
 // or NULL if user pressed escape.
 
 void M_StartMessageInput(const char *string, 
-    void (* routine)(char *response));
+    void (* routine)(const char *response));
 
 void M_DoSave(int page, int slot);
 void M_QuickSave(void);
