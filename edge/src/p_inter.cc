@@ -59,7 +59,7 @@ static bool GiveAmmo(player_t * player, mobj_t * special,
 	int dropped = (special && (special->flags & MF_DROPPED));
 
 	int ammo  = be->subtype;  
-	int num   = (int)floor(be->amount) / (dropped ? 2 : 1);
+	int num   = (int)(be->amount + 0.5f) / (dropped ? 2 : 1);
 
 	bool change_weap;
 	int priority = -100;
@@ -122,7 +122,7 @@ static bool GiveAmmoLimit(player_t * player, mobj_t * special,
 						  benefit_t *be, bool lose_em)
 {
 	int ammo  = be->subtype;  
-	int limit = (int)floor(be->amount);
+	int limit = (int)(be->amount + 0.5f);
 
 	if (ammo == AM_NoAmmo)
 		return false;

@@ -858,9 +858,9 @@ void RAD_ActMoveSector(rad_trigger_t *R, mobj_t *actor, void *param)
 static void LightOneSector(sector_t *sec, s_lightsector_t *t)
 {
 	if (t->relative)
-		sec->props.lightlevel += (int)t->value;
+		sec->props.lightlevel += FL_ROUND(t->value);
 	else
-		sec->props.lightlevel = (int)t->value;
+		sec->props.lightlevel = FL_ROUND(t->value);
 }
 
 void RAD_ActLightSector(rad_trigger_t *R, mobj_t *actor, void *param)
