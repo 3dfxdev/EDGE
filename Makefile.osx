@@ -88,7 +88,8 @@ LDFLAGS=$(V_$(VIDEO)_LDFLAGS)  \
 LIBS=-lm  \
 	$(EPI_DIR)/libepi.a $(LZO_DIR)/liblzo.a \
 	$(GLBSP_DIR)/plugin/libglbsp.a  \
-	$(V_$(VIDEO)_LIBS) $(S_$(SOUND)_LIBS)
+	$(V_$(VIDEO)_LIBS) $(S_$(SOUND)_LIBS) \
+	-lpng
 
 # ----- OBJECTS --------------------------------------------------------
 
