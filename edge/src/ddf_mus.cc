@@ -21,16 +21,8 @@
 #include "ddf_locl.h"
 #include "z_zone.h"
 
-static pl_entry_t buffer_plentry;
-static pl_entry_t *dynamic_plentry;
-
-static const pl_entry_t template_plentry =
-{
-	DDF_BASE_NIL,    // ddf
-	MUS_UNKNOWN,     // type
-	MUSINF_UNKNOWN,  // infotype
-	NULL             // info
-};
+static pl_entry_c buffer_plentry;
+static pl_entry_c *dynamic_plentry;
 
 pl_entry_container_c playlist;
 
@@ -129,7 +121,7 @@ static void DDF_MusicParseInfo(const char *info, void *storage)
 
 static bool PlaylistStartEntry(const char *name)
 {	
-	pl_entry_t* existing = NULL;
+	pl_entry_c* existing = NULL;
 	int number = MAX(0, atoi(name));
 
 	if (number == 0)
@@ -139,18 +131,10 @@ static bool PlaylistStartEntry(const char *name)
 	if (existing)
 	{
 		dynamic_plentry = existing;
-
-		// This will be overwritten, so lets not leak...
-		if (dynamic_plentry->info)
-		{
-			Z_Free(dynamic_plentry->info);
-			dynamic_plentry->info = NULL;
-		}
 	}
 	else
 	{
-		dynamic_plentry = new pl_entry_t;
-		memset(dynamic_plentry, 0, sizeof(pl_entry_t));
+		dynamic_plentry = new pl_entry_c;
 		playlist.Insert(dynamic_plentry);
 	}
 
@@ -158,7 +142,7 @@ static bool PlaylistStartEntry(const char *name)
 	dynamic_plentry->ddf.number = number;
 
 	// instantiate the static entry
-	buffer_plentry = template_plentry;
+	buffer_plentry.Default();
 	return (existing != NULL);
 }
 
@@ -175,13 +159,8 @@ static void PlaylistParseField(const char *field, const char *contents,
 
 static void PlaylistFinishEntry(void)
 {
-	ddf_base_t base;
-
 	// transfer static entry to dynamic entry
-
-	base = dynamic_plentry->ddf;
-	dynamic_plentry[0] = buffer_plentry;
-	dynamic_plentry->ddf = base;
+	dynamic_plentry->CopyDetail(buffer_plentry);
 
 	// Compute CRC.  In this case, there is no need, since the music
 	// playlist has zero impact on the game simulation itself.
@@ -246,36 +225,96 @@ void DDF_MusicPlaylistCleanUp(void)
 	playlist.Trim();
 }
 
+// --> pl_entry_c class
 
-// List Management
+//
+// pl_entry_c constructor
+//
+pl_entry_c::pl_entry_c()
+{
+	Default();
+}
+
+//
+// pl_entry_c Copy constructor
+//
+pl_entry_c::pl_entry_c(pl_entry_c &rhs)
+{
+	ddf = rhs.ddf;
+	info = NULL;			// Ensure this is NULL for a copy constructor
+	CopyDetail(rhs);
+}
+
+//
+// pl_entry_c destructor
+//
+pl_entry_c::~pl_entry_c()
+{
+	if (info)
+		Z_Free(info);
+}
+
+//
+// pl_entry_c::CopyDetail()
+//
+// Copy everything with exception ddf identifier
+//
+void pl_entry_c::CopyDetail(pl_entry_c &src)
+{
+	type = src.type;
+	infotype = src.infotype;
+
+	// Duplicate info
+	if (info)
+		Z_Free(info);				// FIXME: Use proper delete
+
+	if (src.info)
+		info = Z_StrDup(src.info);	// FIXME: Use a epi string?
+	else
+		info = NULL;
+}
+
+//
+// pl_entry_c::Default()
+// 
+void pl_entry_c::Default()
+{
+	// FIXME: ddf.default()?
+	ddf.name = NULL;
+	ddf.number = 0;
+	ddf.crc = 0;
+
+	type = MUS_UNKNOWN;     
+	infotype = MUSINF_UNKNOWN;
+	info = NULL;             
+}
+
+// --> pl_entry_containter_c class
 
 //
 // pl_entry_container_c::CleanupObject()
 //
 void pl_entry_container_c::CleanupObject(void *obj)
 {
-	pl_entry_t *p = *(pl_entry_t**)obj;
+	pl_entry_c *p = *(pl_entry_c**)obj;
 
 	if (p)
-	{
-		if (p->info) { Z_Free(p->info); }
 		delete p;
-	}
 
 	return;
 }
 
 //
-// pl_entry_t* pl_entry_container_c::Find()
+// pl_entry_c* pl_entry_container_c::Find()
 //
-pl_entry_t* pl_entry_container_c::Find(int number)
+pl_entry_c* pl_entry_container_c::Find(int number)
 {
 	epi::array_iterator_c it;
-	pl_entry_t *p;
+	pl_entry_c *p;
 
 	for (it = GetBaseIterator(); it.IsValid(); it++)
 	{
-		p = ITERATOR_TO_TYPE(it, pl_entry_t*);
+		p = ITERATOR_TO_TYPE(it, pl_entry_c*);
 		if (p->ddf.number == number)
 			return p;
 	}
