@@ -32,6 +32,8 @@
 
 #define DEMO_END_MARKER  "ENDE"
 
+extern int demo_version;
+
 int DEM_GetError(void);
 
 //
