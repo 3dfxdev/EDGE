@@ -148,7 +148,7 @@ s_damage_monsters_t;
 typedef struct
 {
 	skill_t skill;
-	int respawn;
+	bool respawn;
 	bool fastmonsters;
 }
 s_skill_t;

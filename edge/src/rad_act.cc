@@ -788,7 +788,7 @@ void RAD_ActSkill(rad_trigger_t *R, mobj_t *actor, void *param)
 	gameskill = skill->skill;
 
 	level_flags.fastparm = skill->fastmonsters;
-	level_flags.respawn = skill->respawn?true:false;
+	level_flags.respawn  = skill->respawn;
 }
 
 static void MoveOneSector(sector_t *sec, s_movesector_t *t)
