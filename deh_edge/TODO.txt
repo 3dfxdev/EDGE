@@ -2,9 +2,6 @@
 DEH-EDGE TODO
 -------------
 
-DONE: create Makefile.osx and Plugin_osx.mak.
-DONE: handle header-less patch files.
-
 -  implement these Boom/MBF actions:
 
    - A_Scratch : misc1 is damage, misc2 is scratch sound (0 for none).
