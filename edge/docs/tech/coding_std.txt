@@ -1,4 +1,4 @@
-EDGE Coding Conventions, v1.1
+EDGE Coding Conventions, v1.11
 
 By the EDGE Team, 1999/09/18.
 
@@ -38,16 +38,19 @@ Types should be named like variables, but with suffixes as follows:
 Structs should end with _s, typedefs should end with _t. Enum typedefs should
 end with _e. For example:
 
-  typedef long fixed_t;
-  typedef struct foo_s
-  {
-    ...
-  } foo_t;
+    typedef long fixed_t;
 
-  typedef enum
-  {
-    ...
-  } bar_e;
+    typedef struct foo_s
+    {
+        ...
+    } 
+    foo_t;
+
+    typedef enum
+    {
+        ...
+    } 
+    bar_e;
 
 Names of static functions should generally be written without underscores,
 words should instead start with capital letters. Like
@@ -78,20 +81,20 @@ Indentation and spaces
 The file indent.pro in the EDGE Source Distribution defines most of our
 spacing conventions. It's a setting file for GNU Indent 1.9.1. A brief
 description of the most important ones:
--i2 -ts0
-Use an indentation of 2 spaces. Don't use tabs in the source files.
+-i4 -ts0
+Use an indentation of 4 spaces. Don't use tabs in the source files.
 -bap
 Always have at least one blank line between functions.
 -nbc -nip -npsl
 Declarations of functions, function parameters, and variables should look
 like in this example:
 
-  int *X_Foo(char *a, int b, bar_t * c, bar_t d, bar_t ** e)
-  {
-    int f, g;
-    char *h, *i, j;
-    bar_t *k, l, **m;
-  }
+    int *X_Foo(char *a, int b, bar_t * c, bar_t d, bar_t ** e)
+    {
+        int f, g;
+        char *h, *i, j;
+        bar_t *k, l, **m;
+    }
 
 The extra space in 'bar_t * c' is there because of a
 limitation in indent: All user defined types should have a space after the *
@@ -100,20 +103,21 @@ in the parameter declarations. This is not the case for builtin types though.
 -bl -bli0 -npcs
 Spacing in blocks and function calls should look like
 
-  if (foo)
-  {
-    X_Bar();
-  }
+    if (foo)
+    {
+        X_Bar();
+    }
 
 -cli2
 Switch statements should look like
 
   switch (foo)
   {
-    case bar1:
-      statement_1;
-      break;
-    default:
+      case bar1:
+        statement_1;
+        break;
+
+      default:
       {
         statement_2;
         statement_3;
@@ -145,38 +149,39 @@ initialisations. However, any comments that are more descriptive should be
 on their own lines.
 For example, if a structure looks like
 
-  typedef struct foo_s
-  {
-    int x;
-    int y;
-    bar_t *bar;
-    struct foo_s *next, *prev;
-  } foo_t;
+    typedef struct foo_s
+    {
+        int x;
+        int y;
+        bar_t *bar;
+        struct foo_s *next, *prev;
+    } 
+    foo_t;
 
 then an initialisation may look like
 
-  foo_t foo =
-  {
-    1, 3, // x,y
-    &bar, // bar
-    // it will be inserted into the list later
-    NULL, NULL // next, prev
-  }
+    foo_t foo =
+    {
+        1, 3, // x,y
+        &bar, // bar
+       // it will be inserted into the list later
+       NULL, NULL // next, prev
+    }
 
 and an array initialisation may look like
 
-  int i[20] =
-  {
-    3234, 54675, 456654, 4564545, 46556, // 0-4
-    54645, 35643, 35434, 534, 35, // 5-9
-    34534, 45343, 5435, 85, 3, // 10-14
-    645, 3453, 0, 234, 2 // 15-19
-  };
+    int i[20] =
+    {
+        3234, 54675, 456654, 4564545, 46556, // 0-4
+        54645, 35643, 35434, 534, 35, // 5-9
+        34534, 45343, 5435, 85, 3, // 10-14
+        645, 3453, 0, 234, 2 // 15-19
+    };
 
 Most big changes in the code should be marked with the contributor's
 initials, the date, and a brief description of what's added. For example,
 
-  // -ES- 1999/09/04 Added signature convention
+    // -ES- 1999/09/04 Added signature convention
 
 The date should be written like YYYY/MM/DD or YYYY-MM-DD.
 
@@ -186,23 +191,23 @@ then another // on a separate line, and finally optionally a description
 of the function followed by another separate // line. After that the function
 is declared. Like:
 
-  //
-  // X_FooBar
-  //
-  // Here's the description of what the function does.
-  //
-  void X_FooBar(void)
-  {
+    //
+    // X_FooBar
+    //
+    // Here's the description of what the function does.
+    //
+    void X_FooBar(void)
+    {
 
 Static functions or callbacks may use a different style, either with no
 comment at all, or with only the comment surrounded by two blank comment
 lines. Like:
 
-  //
-  // Here's the description of the function.
-  //
-  void FooBar(void)
-  {
+    //
+    // Here's the description of the function.
+    //
+    void FooBar(void)
+    {
 
 Comments with FIXME indicate that there is something there that should be
 fixed some time.
@@ -219,13 +224,13 @@ fairly alphabetical order), followed by any library header includes.
 
 E.g., the first lines of foo_bar.c could look like
 
-  #include "i_defs.h"
-  #include "foo_bar.h"
+    #include "i_defs.h"
+    #include "foo_bar.h"
 
-  #include "ddf_main.h"
-  #include "r_main.h"
+    #include "ddf_main.h"
+    #include "r_main.h"
 
-  #include <stdio.h>
+    #include <stdio.h>
 
 Inlines
 ---------
@@ -238,3 +243,10 @@ moved to m_inline.h. E.g.:
 //
 // This has been moved to m_inline.h.
 
+Namespaces
+----------
+<...>
+
+Classes
+-------
+<...>
