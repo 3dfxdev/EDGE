@@ -49,8 +49,10 @@ struct image_s;
 #define SIL_TOP                 2
 #define SIL_BOTH                3
 
-// -AJA- Don't like imposing this limit...
-#define MAXOPENGAPS   12
+// FIXME: temporary limit !
+#define MAX_VERT_REGS  10
+#define MAXOPENGAPS    (MAX_VERT_REGS * 2 + 1)
+
 
 //
 // INTERNAL MAP TYPES
@@ -172,17 +174,27 @@ sidepart_t;
 //
 typedef struct vert_region_s
 {
-  // links in chain
-  // (sorted in order of increasing height)
-  struct vert_region_s *sec_next;
-  struct vert_region_s *sec_prev;
+  // links in chain.  These are sorted by increasing heights, using
+  // ceil->h as the reference.  This is important, especially when a
+  // liquid extrafloor overlaps a solid one: using this rule, the
+  // liquid region will be higher than the solid one.
+  struct vert_region_s *higher;
+  struct vert_region_s *lower;
 
+  // whether this region is "hidden", e.g. a liquid that sits in the
+  // middle of a thick platform.  These regions hardly come into play:
+  // they are never rendered, and objects are never considered to be
+  // in them.  Also used for the (erroneous) condition where the
+  // ceiling is lower than the floor.  Flooders will still flood
+  // though.  
+  boolean_t hidden;
+  
   // floor and ceiling of the region.  When the containing sector is
   // bogus (having floor height >= ceiling height), then there will
   // also be a single bogus region, otherwise all regions have
-  // floor->h <= ceil->h.  NOTE WELL: an empty region is allowed, this
-  // can occur when (for example) a thick extrafloor sits exactly on
-  // the sector's floor.
+  // floor->h <= ceil->h.  NOTE WELL: an empty region (floor ==
+  // ceiling) is allowed, this can occur when (for example) a thick
+  // extrafloor sits exactly on the sector's floor.
 
   plane_info_t *floor;
   plane_info_t *ceil;
@@ -206,6 +218,8 @@ vert_region_t;
 // Used to construct the region list.
 //
 // -AJA- 1999/11/23: added this.
+//
+// -AJA- NOTE: this is going away soon !
 //
 typedef struct extrafloor_record_s
 {
@@ -243,10 +257,19 @@ typedef struct sector_s
   // tag
   int tag;
 
+  // range of vert_regions (in the global `regions' array) that this
+  // sector can use.  At load time we can deduce the maximum number of
+  // regions needed for extrafloors, even if they dynamically come and
+  // go.
+  int region_first;
+  int region_max;
+  int regions_used;
+
   // -AJA- 1999/10/09: Multiple extrafloor code.
   // There is always at least one region, even when the sector is
   // bogus and has floor height >= ceiling height.
-  vert_region_t *regions;
+  vert_region_t *bottom_reg;
+  vert_region_t *top_reg;
 
   // does this sector control extrafloors in other sectors ?
   boolean_t controller;
@@ -261,6 +284,7 @@ typedef struct sector_s
   struct sector_s **exfloorlist;
   int exfloornum;
 
+  // -AJA- NOTE: this list is going away soon !
   extrafloor_record_t *extrafloor_records;
 
   // 0 = untraversed, 1,2 = sndlines-1
