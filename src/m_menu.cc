@@ -67,6 +67,7 @@ int mouseSensitivity;  // has default
 int showMessages;
 
 int screenblocks;  // has default
+bool hud_overlay;  // has default
 
 int darken_screen;
 
@@ -1433,17 +1434,26 @@ void M_SizeDisplay(int choice)
 	switch (choice)
 	{
 		case SLIDERLEFT:
-			if (screen_size > 0)
+			if (screen_size == 8 && hud_overlay)
+			{
+				hud_overlay = false;
+			}
+			else if (screen_size > 0)
 			{
 				screenblocks--;
 				screen_size--;
 			}
 			break;
+
 		case SLIDERRIGHT:
 			if (screen_size < 8)
 			{
 				screenblocks++;
 				screen_size++;
+			}
+			else
+			{
+				hud_overlay = !hud_overlay;
 			}
 			break;
 	}
