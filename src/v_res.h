@@ -36,8 +36,7 @@
 bool V_MultiResInit(void);
 void V_InitResolution(void);
 void V_AddAvailableResolution(screenmode_t *mode);
-int V_FindClosestResolution(screenmode_t *mode,
-    bool samesize, bool samedepth);
+int V_FindClosestResolution(screenmode_t *mode, bool samesize, bool samedepth);
 int V_CompareModes(screenmode_t *A, screenmode_t *B);
 
 //
