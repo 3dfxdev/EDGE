@@ -62,6 +62,6 @@ INCLUDE directive.
 
 [STRINGS] section, with names for text strings.
 
-[SOUNDS] and [MUSIC] sections, undocumented in boomdeh.txt.
-[HELPER] section, undocumented.
+[SPRITES], [SOUNDS] and [MUSIC] sections, undocumented in boomdeh.txt.
+[HELPER] section, undocumented in boomdeh.txt.
 
