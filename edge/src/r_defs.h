@@ -423,9 +423,6 @@ typedef struct subsector_s
 
   // list of mobjs in subsector
   mobj_t *thinglist;
-
-  // extra segs (not normally used)
-  struct seg_s *extra_segs;
 }
 subsector_t;
 
