@@ -2,13 +2,13 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: OCTOBER 27th 2004)
+(Date: OCTOBER 29th 2004)
 
 
 Bugs fixed
 ----------
 
-+ crash loading a game containing dynamic lights when D/L disabled.
++ crash loading a savegame with dynamic lights when D/L disabled.
 
 - Arch-vile no longer resurrects monsters into itself.
 - don't display "Entering" on intermission when map is last one.
@@ -42,6 +42,10 @@ Features removed:
 
 + software rendering has been removed.  @@@
 
+- using { } comments in DDF files, and ';' comments in RTS scripts
+  is now deprecated, since these characters will probably be needed
+  in the future when improving DDF/RTS.  Use // comments instead.
+
 
 General improvements
 --------------------
@@ -55,7 +59,7 @@ General improvements
 
 (NOT FINISHED) support for OGG Vorbis Music playing.  @@@
 
-+ native in support for DeHackEd and BEX patches.  @@@
++ native support for DeHackEd and BEX patches.  @@@
 
 (NOT FINISHED) new startup.  @@@ - the windows console window.
 
@@ -72,7 +76,7 @@ General improvements
 - sky looks a bit better, with a stretch option in Video menu.
 - the old "sky flooding" trick is now emulated.
 - RTS tips are sent to the console.
-- missing files (given with -file) now produce an error.
+- missing wad files (given with -file) now produce an error.
 - monster spawning will keep the parent's AMBUSH status.
 
 
@@ -104,6 +108,8 @@ New features:
 - NO_AUTO_SWITCH weapon special.
 - FIRST_SILENT_TO_MONSTERS and SECOND_SILENT_TO_MONSTERS.  @@@
 - DIE action for things.ddf.
+
+- WHEN_APPEAR values in DDF and RTS are simpler @@@
 
 - EXPLODE_RADIUS command for things and attacks.  @@@
 
