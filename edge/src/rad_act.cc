@@ -432,15 +432,15 @@ void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param)
 	s_thing_t *t = (s_thing_t *) param;
 
 	mobj_t *mo;
-	const mobjdef_c *minfo;
+	const mobjtype_c *minfo;
 
 	// These *MUST* happen to everyone to keep netgames consistent.
 	// Spawn a new map object.
 
 	if (t->thing_name)
-		minfo = mobjdefs.Lookup(t->thing_name);
+		minfo = mobjtypes.Lookup(t->thing_name);
 	else
-		minfo = mobjdefs.Lookup(t->thing_type);
+		minfo = mobjtypes.Lookup(t->thing_type);
 
 	if (minfo == NULL)
 	{
@@ -584,15 +584,15 @@ void RAD_ActDamageMonsters(rad_trigger_t *R, mobj_t *actor, void *param)
 	// -AJA- FIXME: this is _so_ non-optimal...
 
 	mobj_t *mo;
-	const mobjdef_c *info = NULL;
+	const mobjtype_c *info = NULL;
 
 	if (mon->thing_name)
 	{
-		info = mobjdefs.Lookup(mon->thing_name);
+		info = mobjtypes.Lookup(mon->thing_name);
 	}
 	else if (mon->thing_type >= 0)
 	{
-		info = mobjdefs.Lookup(mon->thing_type);
+		info = mobjtypes.Lookup(mon->thing_type);
 
 		if (info == NULL)
 			I_Error("RTS DAMAGE_MONSTERS: Unknown thing type %d.\n",
@@ -622,16 +622,16 @@ void RAD_ActThingEvent(rad_trigger_t *R, mobj_t *actor, void *param)
 	// -AJA- FIXME: this is very sub-optimal...
 
 	mobj_t *mo;
-	const mobjdef_c *info = NULL;
+	const mobjtype_c *info = NULL;
 	statenum_t state;
 
 	if (tev->thing_name)
 	{
-		info = mobjdefs.Lookup(tev->thing_name);
+		info = mobjtypes.Lookup(tev->thing_name);
 	}
 	else
 	{
-		info = mobjdefs.Lookup(tev->thing_type);
+		info = mobjtypes.Lookup(tev->thing_type);
 
 		if (info == NULL)
 			I_Error("RTS THING_EVENT: Unknown thing type %d.\n",
