@@ -100,14 +100,16 @@ static char ctrl_mus2midi[NUM_MUS_CTRLS] =
 };
 
 static HMIDIOUT midioutput;             // OUTPUT port...
-static int originalvol;                 // The original MIDI volume.
+static win32_mixer_t *mixer = NULL;
+
 static musheader_t *song = NULL;        // The song.
 static byte *playpos;                   // The current play position.
-static bool midiavailable = false; // Available?
-static bool playing       = false; // The song is playing.
-static bool looping       = false; // The song is looping.
+static bool midiavailable = false;		// Available?
+static bool playing       = false;		// The song is playing.
+static bool looping       = false;		// The song is looping.
 static int waitticks = 0;
-static byte chanVols[16];      // Last volume for each channel.
+static byte chanVols[16];				// Last volume for each channel.
+
 // ================ INTERNALS =================
 
 //
@@ -130,25 +132,47 @@ static byte *SongStartAddress(void)
 //
 // Returns true if no problems.
 //
-bool I_StartupMUS(void)
+bool I_StartupMUS()
 {
+	MMRESULT res;
+
 	if (midiavailable)
 		return true; // Already initialized.
 
-	// Open the midi stream.
-	if ((midiOutOpen(&midioutput,MIDI_MAPPER,0,0,CALLBACK_NULL)) != MMSYSERR_NOERROR)
+	// Insert code here...
+	mixer = I_MusicLoadMixer(MIXERLINE_COMPONENTTYPE_SRC_SYNTHESIZER);
+	if (!mixer)
 	{
-		I_PostMusicError("I_StartupMUS: midiOutOpen failed");
+		I_PostMusicError("I_StartupMUS: Couldn't open the midi device");
 		return false;
 	}
 
-	// Get the original MIDI volume (restored in shutdown).
-	midiOutGetVolume(midioutput, (DWORD*)&originalvol);
+	// Open the midi stream.
+	res = midiOutOpen(&midioutput, MIDI_MAPPER, 0, 0, CALLBACK_NULL);
+	if (res != MMSYSERR_NOERROR)
+	{
+		I_MusicReleaseMixer(mixer);
+		mixer = NULL;
+		
+		I_PostMusicError("I_StartupMUS: Couldn't open the midi device");
+		return false;
+	}
+
+	if (!I_MusicGetMixerVol(mixer, &mixer->originalvol))
+	{
+		I_MusicReleaseMixer(mixer);
+		mixer = NULL;
+		
+		midiOutClose(midioutput);
+		I_PostMusicError("I_StartupMUS: Unable to get original volume");
+		return false;
+	}
+
+	// Non-mixer defaults
 	midiavailable = true;
 	song          = NULL;
 	playpos       = 0;
 	playing       = false;
-
 	return true;
 }
 
@@ -244,13 +268,24 @@ void I_ShutdownMUS(void)
 	I_MUSStop();
 
 	// Restore the original volume.
-	midiOutSetVolume(midioutput, originalvol);
+
+	// Close all our handled objects
+	if (mixer)
+	{
+		I_MusicSetMixerVol(mixer, mixer->originalvol);
+		I_MusicReleaseMixer(mixer);
+		mixer = NULL;
+	}
+
 	midiOutClose(midioutput);
 
+	// Switch off...
 	midiavailable = false;
 	song          = NULL;
 	playpos       = 0;
 	playing       = false;
+	
+	return;
 }
 
 //
@@ -260,6 +295,9 @@ void I_ShutdownMUS(void)
 //
 void I_MUSSetVolume(int vol)
 {
+	if (!mixer)
+		return;
+
 	DWORD actualvol;
 
 	// Too small...
@@ -270,22 +308,15 @@ void I_MUSSetVolume(int vol)
 	if (vol > 15)
 		vol = 15;
 
-	if (vol)
-	{
-		vol += 1;     // Now a number between 2->16
-		vol *= 16;    // Now a number between 32->256
-		vol -= 1;     // Now a number between 31->255
-
-		vol = vol << 8;
-		vol += 0xFF;
-		actualvol = vol + (vol<<16);
-	}
+	// Calculate a given value in range
+	actualvol = vol * (mixer->maxvol - mixer->minvol);
+	if (actualvol>0)
+		actualvol /= 15;
 	else
-	{
 		actualvol = 0;
-	}
+	actualvol += mixer->minvol;
 
-	midiOutSetVolume(midioutput, actualvol);
+	I_MusicSetMixerVol(mixer, actualvol);
 }
 
 //
