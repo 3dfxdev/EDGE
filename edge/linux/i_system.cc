@@ -515,10 +515,10 @@ bool I_GetModifiedTime(const char *filename, i_time_t *t)
 }
 
 //
-// I_EDGELoop
+// I_Loop
 //
-void I_EDGELoop(void)
+void I_Loop(void)
 {
 	while (1)
-		E_EDGELoopRoutine();
+		engine::Tick();
 }
