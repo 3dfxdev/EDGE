@@ -2350,6 +2350,17 @@ void P_SetupLevel(skill_t skill, int autotag)
 //
 bool P_Init(void)
 {
+	int i;
+	
+	// There should not yet exist a player
+	DEV_ASSERT2(players == NULL);
+
+	// Create all the players
+	// -ES- FIXME: Do the player system more cleanly
+	// (remove limitations, dynamify)
+	for (i = 0; i < MAXPLAYERS; i++)
+		P_AddPlayer(i);
+	
 	deathmatchstarts = Z_New(spawnpoint_t, max_deathmatch_starts);
 	playerstarts = Z_New(spawnpoint_t, MAXPLAYERS);
 
