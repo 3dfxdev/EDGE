@@ -19,6 +19,8 @@
 #ifndef __UI_WINDOW_H__
 #define __UI_WINDOW_H__
 
+#include "ui_client.h"
+#include "ui_game.h"
 #include "ui_log.h"
 #include "ui_menu.h"
 #include "ui_stats.h"
@@ -48,6 +50,9 @@ public:
 
 	UI_Stats *stat_box;
 	UI_LogBox *log_box;
+
+	UI_ClientList *client_list;
+	UI_GameList *game_list;
 
 	// user closed the window
 	bool want_quit;

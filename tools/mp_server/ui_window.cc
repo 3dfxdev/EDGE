@@ -115,12 +115,18 @@ UI_MainWin::UI_MainWin(const char *title) :
 
 	tabs->add(client_group);
 
+	client_list = new UI_ClientList(0, cy, w(), h() - cy);
+	client_group->add(client_list);
+
 	//...
 
 	Fl_Group *game_group = new Fl_Group(0, cy, w(), h() - cy, "Games");
 	game_group->end();
 
 	tabs->add(game_group);
+
+	game_list = new UI_GameList(0, cy, w(), h() - cy);
+	game_group->add(game_list);
 
 	//...
 
@@ -136,6 +142,8 @@ UI_MainWin::UI_MainWin(const char *title) :
 
 	log_box = new UI_LogBox(0, cy, w(), h() - cy);
 	stat_group->add(log_box);
+
+	stat_group->resizable(log_box);
 
 
    	tabs->value(stat_group);

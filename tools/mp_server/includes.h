@@ -74,6 +74,9 @@
 #include <FL/fl_draw.H>
 #include <FL/fl_file_chooser.H>
 
+#include "FL/Fl_Table.H"
+#include "FL/Fl_Table_Row.H"
+
 /* HawkNL - Network Library */
 
 #include "hawknl1.68/include/nl.h"
