@@ -78,7 +78,7 @@ int num_inputs = 0;
 
 const char *output_file = NULL;
 
-#define DEFAULT_TARGET  129
+#define DEFAULT_TARGET  128
 
 int target_version;
 bool quiet_mode;
@@ -110,10 +110,9 @@ void ShowInfo(void)
     "USAGE:  deh_edge  (Options...)  input.deh (...)  (-o output.wad)\n"
 	"\n"
 	"Available options:\n"
-	"   -o --output      Output filename override.\n"
 	"   -e --edge #.##   Specify EDGE version to target.\n"
+	"   -o --output      Output filename override.\n"
 	"   -q --quiet       Quiet mode, suppress warnings.\n"
-	"   -a --all         Convert all DDF (much bigger !).\n"
 	"\n"
   );
 }
@@ -370,7 +369,7 @@ void ParseArgs(int argc, char **argv)
 			quiet_mode = true;
 			continue;
 		}
-		if (StrCaseCmp(opt, "-a") == 0 || StrCaseCmp(opt, "-all") == 0)
+		if (StrCaseCmp(opt, "-full") == 0)
 		{
 			all_mode = true;
 			continue;
