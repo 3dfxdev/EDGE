@@ -235,10 +235,10 @@ static bool CacheSound(sfxinfo_t *sound)
 		lump = (const byte*)W_CacheLumpNum(lumpnum);
 
 		freq   = lump[2] + (lump[3] << 8);
-		length = W_LumpLength(lumpnum) - 8;
+		length = W_LumpLength(lumpnum);
 
 		// Load the sound effect. Jump over the sound header
-		success = I_LoadSfx(lump + 8, length, freq, snd_num);
+		success = I_LoadSfx(lump + 8, length - 8, freq, snd_num);
 
 		// the lump is particularly useless, since it won't be needed until
 		// the sound itself has been flushed. It should be flushed sometime

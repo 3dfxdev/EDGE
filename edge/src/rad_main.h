@@ -349,8 +349,6 @@ s_thing_event_t;
 // A single RTS action, not unlike the ones for DDF things.  (In fact,
 // they may merge at some point in the future).
 //
-// -AJA- 1999/10/23: added this.
-//
 typedef struct rts_state_s
 {
 	// link in list of states

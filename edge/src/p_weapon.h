@@ -77,8 +77,6 @@ pspdef_t;
 //
 // Per-player Weapon Info.
 // 
-// -AJA- 1999/08/11: added this.
-
 typedef struct
 {
   weaponinfo_t *info;

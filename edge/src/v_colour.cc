@@ -256,10 +256,7 @@ static void ColourCallbackFunc(int pos)
 }
 
 /* CreateRGBTable:
-
-* -ES- 1998/10/29: Added this. 
-* -AJA- 1999/06/30: Ditto :).
-* 
+*
 *  This is a modified version of Allegro's create_rgb_table, by Jan
 *  Hubicka. The only difference is that this version will insert colour
 *  0 into the table, and Allegro's version won't (since that's Allegro's

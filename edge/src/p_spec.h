@@ -236,10 +236,7 @@ sector_t *P_GetNextSector(const line_t * line, const sector_t * sec);
 // Info Needs....
 float P_FindSurroundingHeight(const heightref_e ref, const sector_t *sec);
 float P_FindRaiseToTexture(sector_t * sec);  // -KM- 1998/09/01 New func, old inline
-
-// -AJA- 1999/09/29: added this.
 sector_t *P_FindSectorFromTag(int tag);
-
 int P_FindMinSurroundingLight(sector_t * sector, int max);
 
 // start an action...

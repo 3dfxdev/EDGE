@@ -220,7 +220,6 @@ video_func_t video_func[] =
         V_CopyRect8,
         V_CopyScreen8,
 
-    // -AJA- 1999/07/05: Added these three.
         V_DrawPixel8,
         V_DrawLine8,
         V_DrawBox8,
@@ -253,7 +252,6 @@ video_func_t video_func[] =
         V_CopyRect16,
         V_CopyScreen16,
 
-    // -AJA- 1999/07/05: Added these three.
         V_DrawPixel16,
         V_DrawLine16,
         V_DrawBox16,
@@ -341,8 +339,6 @@ static void SetBPP(void)
 //
 // V_InitResolution
 // Inits everything resolution-dependent to SCREENWIDTH x SCREENHEIGHT x BPP
-//
-// -ES- 1998/08/20 Added this
 //
 void V_InitResolution(void)
 {

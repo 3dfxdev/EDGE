@@ -391,7 +391,6 @@ cvartype_t cvar_callback = {GetType_Callback, GetValueStr_Callback, GetValue_Cal
 //
 // Returns a pointer to the console variable with the given name, or -1
 // if it doesn't exist.
-// -ES- 1999/07/25 Added this.
 // 
 static int CON_CVarIndexFromName(const char *name)
 {
@@ -408,7 +407,6 @@ static int CON_CVarIndexFromName(const char *name)
 //
 // Returns a pointer to the console variable with the given name, or NULL if
 // it doesn't exist.
-// -ES- 1999/07/25 Added this.
 //
 cvar_t *CON_CVarPtrFromName(const char *name)
 {

@@ -213,7 +213,6 @@ typedef enum
   MF_JUSTPICKEDUP = 0x8000000,
 
   // Object reacts to being touched (often violently :->)
-  // -AJA- 1999/08/21: added this.
   MF_TOUCHY = 0x10000000
 }
 mobjflag_t;
@@ -270,44 +269,34 @@ typedef enum
   EF_BOUNCE = 8192,
 
   // Thing walks along the edge near large dropoffs. 
-  // -AJA- 1999/07/21: added this.
   EF_EDGEWALKER = 0x4000,
 
   // Monster falls with gravity when walks over cliff. 
-  // -AJA- 1999/07/21: added this.
   EF_GRAVFALL = 0x8000,
 
   // Thing can be climbed on-top-of or over. 
-  // -AJA- 1999/07/21: added this.
   EF_CLIMBABLE = 0x10000,
 
   // Thing won't penetrate WATER extra floors. 
-  // -AJA- 1999/09/25: added this.
   EF_WATERWALKER = 0x20000,
 
   // Thing is a monster. 
-  // -AJA- 1999/10/02: added this (removed 3006 hack).
   EF_MONSTER = 0x40000,
 
   // Thing can cross blocking lines.
-  // -AJA- 1999/10/02: added this.
   EF_CROSSLINES = 0x80000,
 
   // Thing is never affected by friction
-  // -AJA- 1999/10/02: added this.
   EF_NOFRICTION = 0x100000,
 
   // Thing is optional, won't exist when -noextra is used.
-  // -AJA- 1999/10/07: added this.
   EF_EXTRA = 0x200000,
 
   // Just bounced, won't enter bounce states until BOUNCE_REARM.
-  // -AJA- 1999/10/18: added this.
   EF_JUSTBOUNCED = 0x400000,
 
   // Thing can be "used" (like linedefs) with the spacebar.  Thing
   // will then enter its TOUCH_STATES (when they exist).
-  // -AJA- 2000/02/17: added this.
   EF_USABLE = 0x800000,
 
   // Thing will block bullets and missiles.  -AJA- 2000/09/29
