@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: FEBRUARY 3rd 2005)
+(Date: FEBRUARY 12th 2005)
 
 
 Bugs fixed
@@ -74,7 +74,8 @@ General improvements
   option is considered a filename to add.  This allows you to drag a
   (self-contained) WAD onto the EDGE executable to play it.
 
-(NOT FINISHED) new sound system, using OpenAL (a 3D audio library).  @@@
++ OpenAL as the new sound system.  OpenAL is a 3D audio library which
+  can take advantage of hardware sound mixing.
 
 + support for OGG/Vorbis Music playing.  OGG/Vorbis is music format
   similar to MP3, but is free from patents and does not require any
@@ -90,7 +91,8 @@ General improvements
   engines).  EDGE converts the patches to DDF, and stores the result
   in files with the .HWA extension, which are loaded automatically.
 
-- ability to use 32-bit screen modes (16.7 million colours).
+- ability to use 32-bit screen modes (16.7 million colours).  You
+  may have to change your desktop to 32-bit mode for this to work.
 
 - new startup, with progress bar.  The console window that used to
   appear (Win32) is gone, and under Linux messages are no longer
@@ -110,8 +112,8 @@ General improvements
   whether to change mode.  When using -warp, the mode is changed
   automatically.
 
-  Also two Boom features: line-to-line teleporters and platform
-  toggle linetypes were added.
+  Also two Boom features were added: line-to-line teleporters and
+  platform toggle linetypes .
 
 - source code uses more C++ features, and more of the EPI (Edge Platform
   Interface).  The "Zone" memory manager has mostly been replaced.
@@ -362,8 +364,8 @@ New command-line options | console variables
 
   -(no)busywait   BUSYWAIT    Turn on/off the behaviour of hogging
                               the CPU.  Disabling this can make
-                              gameplay not as smooth, but gives
-                              more time for other programs to run.
+                              gameplay less smooth, but gives more
+                              time for other programs to run.
 
 Hats off to...
 --------------
