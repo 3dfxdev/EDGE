@@ -249,9 +249,10 @@ typedef struct drawthing_s
   // moved right.
   int cut_move_dir;
 
-  // true if this sprites should be vertically clipped at a solid
-  // floor or ceiling.
-  boolean_t clip_vert;
+  // +1 if this sprites should be vertically clipped at a solid
+  // floor or ceiling, 0 if just clip at translucent planes, or -1 if
+  // shouldn't be vertically clipped at all.
+  int clip_vert;
   
   // sprite image to use
   int patch;
@@ -283,6 +284,7 @@ typedef struct drawthing_s
   float_t right_x, right_y;
   
   // EXPERIMENTAL
+  boolean_t is_shadow;
   boolean_t is_halo;
   
   // TEMP HACK
