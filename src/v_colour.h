@@ -40,10 +40,6 @@ void V_InitColour(void);
 void V_IndexColourToRGB(int indexcol, byte *returncol);
 void V_IndexNominalToRGB(int indexcol, byte *returncol);
 
-// -ES- 1998/11/29 Added translucency tables
-// -AJA- 1999/06/30: Moved 'em here, from dm_state.h.
-extern byte rgb_32k[32][32][32];  // 32K RGB table, for 8-bit translucency
-
 // -AJA- 1999/07/03: moved here from v_res.h.
 extern byte gammatable[5][256];
 extern int usegamma;
@@ -52,7 +48,6 @@ extern int current_gamma;
 #define GAMMA_CONV(light)  (gammatable[usegamma][light])
 
 // -AJA- 1999/07/03: Some palette stuff.
-
 extern byte playpal_data[14][256][3];
 
 #define PALETTE_NORMAL   0
@@ -105,8 +100,8 @@ extern const byte *am_overlay_colmap;
 extern byte halo_conv_table[256];
 
 // colour indices from palette
-extern int pal_black, pal_white, pal_gray239;
-extern int pal_red, pal_green, pal_blue;
+extern int pal_black,  pal_white,  pal_gray239;
+extern int pal_red,    pal_green,  pal_blue;
 extern int pal_yellow, pal_green1, pal_brown1;
 
 // colour values.  These assume the standard Doom palette.  Maybe
