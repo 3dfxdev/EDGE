@@ -370,12 +370,14 @@ void I_NetCmd(void);
 // Truecolor information struct.  The masks are non-shifted values and
 // can be used directly (e.g. 0xF800).  The shifts are right shifts
 // (i.e. use VAL << SHIFT).  The masks are always contiguous (no
-// missing bits).
+// missing bits).  Grey_mask is the value to AND with a pixel datum to
+// make it pure grey (e.g. 0xFFDF on RGB 5:6:5 mode).
 typedef struct truecol_info_s
 {
   int red_bits, green_bits, blue_bits;
   int red_shift, green_shift, blue_shift;
-  int red_mask, green_mask, blue_mask;
+  long red_mask, green_mask, blue_mask;
+  long grey_mask;
 }
 truecol_info_t;
 
@@ -390,16 +392,6 @@ void I_SetPalette(byte palette[256][3]);
 // 8-bit mode.  The order of each triplet is: red, green, blue.  This
 // routine must apply the current gamma level to the colours before
 // setting the hardware palette.
-
-void I_MakeColourmapRange(void *dest_colmaps, byte palette[256][3], 
-      const byte *src_colmaps, int num);
-// Creates a colourmap table in `dest_colmaps' for use by the column &
-// span drawers.  Each colourmap is an array of `num' coltables.  Each
-// coltable in the destination is a lookup table from indexed colour
-// (0-255) to framebuffer pixel.  Each coltable in the source is a
-// lookup table from indexed colour to indexed colour.  Only used for
-// non-8-bit modes.  Note that the current gamma level must also be
-// applied in the conversion.
 
 void I_StartFrame(void);
 // Called to prepare the screen for rendering (if necessary).

@@ -32,6 +32,8 @@
 #include "ddf_main.h"
 #include "r_defs.h"
 
+void V_InitColour(void);
+
 // -ACB- 1999/10/11 Gets an RGB colour from the current palette
 // -AJA- Added `nominal' version, which gets colour from palette 0.
 void V_IndexColourToRGB(int indexcol, byte *returncol);
@@ -49,12 +51,6 @@ extern unsigned long hicolourtransmask;  // OR mask used for translucency
 extern byte gammatable[5][256];
 extern int usegamma;
 extern int current_gamma;
-extern int interpolate_colmaps;
-
-extern void V_ReadPalette(void);
-extern void V_CalcTranslucencyTables(void);
-
-extern void V_InitColour(void);
 
 // -AJA- 1999/07/03: Some palette stuff. Should be replaced later on with
 // some DDF system (e.g. "palette.ddf").
@@ -66,16 +62,8 @@ extern byte playpal_data[14][256][3];
 #define PALETTE_BONUS    2
 #define PALETTE_SUIT     3
 
-extern void V_SetPalette(int type, float_t amount);
-
-//
-// V_ColourNewFrame
-//
-// Call this at the start of each frame (before any rendering or
-// render-related work has been done).  Will update the palette and/or
-// gamma settings if they have changed since the last call.
-//
-extern void V_ColourNewFrame(void);
+void V_SetPalette(int type, float_t amount);
+void V_ColourNewFrame(void);
 
 // -AJA- 1999/07/05: Added this, to be used instead of the
 // Allegro-specific `palette_color' array.
@@ -96,6 +84,12 @@ const coltable_t *V_GetColtable
 
 // translation support
 const byte *V_GetTranslationTable(const colourmap_t * colmap);
+
+// general purpose colormaps & coltables
+extern const colourmap_t *normal_map;
+extern const colourmap_t *sky_map;
+extern const coltable_t *fuzz_coltable;
+extern const coltable_t *dim_coltable;
 
 // text translation tables
 extern const byte *font_whitener;
@@ -125,7 +119,7 @@ extern const byte *am_overlay_colmap;
 
 // colour values.  These assume the standard Doom palette.  Maybe
 // remove most of these one day -- will take some work though...
-// Note: some of the ranges begin with a bright (if not white) colour.
+// Note: some of the ranges begin with a bright (often white) colour.
 
 #define BLACK   0
 #define WHITE   4
