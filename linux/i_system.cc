@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <errno.h>
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <ctype.h>
@@ -461,7 +462,7 @@ bool I_PathIsDirectory(const char *path)
 {
 	struct stat buf;
 
-	if (!stat(path, &buf))
+	if (stat(path, &buf) != 0)
 		return false;
 
 	return S_ISDIR(buf.st_mode);
