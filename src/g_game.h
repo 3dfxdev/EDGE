@@ -44,10 +44,10 @@ void G_InitNew(skill_t skill, const mapstuff_t * map, long random_seed);
 //
 // -ACB- 1998/08/10 New DDF Structure, Use map reference name.
 //
-bool G_DeferedInitNew(skill_t skill, const char *mapname,
+bool G_DeferredInitNew(skill_t skill, const char *mapname,
     bool warpopt);
 
-void G_DeferedPlayDemo(const char *demo);
+void G_DeferredPlayDemo(const char *demo);
 
 // Can be called by the startup code or M_Responder,
 // calls P_SetupLevel or W_EnterWorld.

@@ -148,7 +148,7 @@ static void M_ChangeLevelCheat(char *string)
 	if (!string)
 		return;
 
-	if (! G_DeferedInitNew(gameskill, string, false))
+	if (! G_DeferredInitNew(gameskill, string, false))
 	{
 		CON_MessageLDF("ImpossibleChange");
 		return;

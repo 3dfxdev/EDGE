@@ -1184,7 +1184,7 @@ static void VerifyNightmare(int ch)
 	for (i = 0; strcmp(wi_maps[i]->namegraphic, EpisodeMenu[chosen_epi].patch_name); i++) 
 	{ /* nothing here */ }
 
-	if (! G_DeferedInitNew(sk_nightmare, wi_maps[i]->firstmap, false))
+	if (! G_DeferredInitNew(sk_nightmare, wi_maps[i]->firstmap, false))
 	{
 		// 23-6-98 KM Fixed this.
 		M_SetupNextMenu(&EpiDef);
@@ -1211,7 +1211,7 @@ void M_ChooseSkill(int choice)
 	for (i = 0; strcmp(wi_maps[i]->namegraphic, EpisodeMenu[chosen_epi].patch_name); i++)
 	{ /* nothing here */ }
 
-	if (! G_DeferedInitNew((skill_t)choice, wi_maps[i]->firstmap, false))
+	if (! G_DeferredInitNew((skill_t)choice, wi_maps[i]->firstmap, false))
 	{
 		// 23-6-98 KM Fixed this.
 		M_SetupNextMenu(&EpiDef);
@@ -1354,7 +1354,10 @@ static void QuitResponse(int ch)
 
 	// -ACB- 1999/09/20 New exit code order
 	// Write the default config file first
+	I_Printf("Saving system defaults...\n");
 	M_SaveDefaults();
+
+	I_Printf("Exiting...\n");
 	I_SystemShutdown();
 	I_DisplayExitScreen();
 	I_CloseProgram(0);
