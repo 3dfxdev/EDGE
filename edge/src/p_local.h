@@ -54,7 +54,7 @@
 #define MAXDLIGHTRADIUS    (112.0f)
 
 #define MAXMOVE      (100.0f)
-#define STEPMOVE     (2.0f)
+#define STEPMOVE     (16.0f)
 #define USERANGE     (64.0f)
 #define USE_Z_RANGE  (32.0f)
 #define MELEERANGE   (64.0f)

@@ -490,7 +490,7 @@ struct mobj_s
   // from a crash.
   int refcount;
 
-  // source of the mobj, used for projectiles
+  // source of the mobj, used for projectiles (i.e. the shooter)
   mobj_t * source;
 
   // target of the mobj
