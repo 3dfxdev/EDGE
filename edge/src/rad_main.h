@@ -163,7 +163,7 @@ s_gotomap_t;
 
 
 // Play Sound function
-enum
+typedef enum
 {
 	PSOUND_Normal = 0,
 	PSOUND_BossMan
@@ -432,7 +432,7 @@ s_onheight_t;
 // Start_Map & Radius_Trigger Declaration
 
 // Multiplayer info
-enum
+typedef enum
 {
 	// spawn a separate trigger for each player
 	RNET_Separate = 0,
