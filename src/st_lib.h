@@ -60,6 +60,9 @@ typedef struct
 
   // minus, or NULL for none.
   const image_t *minus;
+
+  // colourmap
+  const colourmap_t *colmap;
 }
 st_number_t;
 
