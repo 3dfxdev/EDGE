@@ -201,15 +201,15 @@ typedef struct i_music_info_s
 
   union
   {
-    struct { void *data; int size; } data;
-    struct { char *filename; } file;
+    struct { void *ptr; int size; } data;
+    struct { char *name; } file;
     struct { int handle; int pos; int size; } lump;
     struct { int track; } cd;
   }
   info;
 }
 i_music_info_t;
-// Soon to be implemented struct for setting up music playback. This 
+// Struct for setting up music playback. This 
 // is here because it is an interface between engine and EPI Code.
 
 boolean_t I_StartupMusic(void *sysinfo);
@@ -219,12 +219,8 @@ boolean_t I_StartupMusic(void *sysinfo);
 // I_SystemStartup(), and can be passed some platform-specific data
 // via the `sysinfo' parameter.
 
-int I_MusicPlayback(void *data, int datlength, int type, boolean_t looping);
-// 'type' specifies which type of music is to be played (one of the
-// MUS_* types), 'data' is either the music track or the track number
-// in the case of CD's. 'datlength' is only relevant for track data,
-// 'looping' specifies whether the track should loop indefinitly until
-// killed or should only play once.
+int I_MusicPlayback(i_music_info_t* musdat, int type, boolean_t looping);
+// Starts music playing using the 'i_music_info_t' for info.
 //
 // Returns an integer handle that is used to refer to the music (in
 // the other functions below), or -1 if an error occurred.  Note: any
