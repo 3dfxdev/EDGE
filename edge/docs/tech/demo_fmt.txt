@@ -157,7 +157,6 @@ PACK
 
 32 bits for Original length.
 32 bits for CRC32 of original data.
-32 bits for number of [TICK] chunks.
 
 compressed data....
 
