@@ -36,14 +36,11 @@ client_c *clients[MPS_DEF_MAX_CLIENT];
 volatile int total_clients = 0;
 
 
-client_c::client_c(const client_info_t *info, const NLsocket *_sock,
-	const NLaddress *_addr) :
-		state(ST_Connecting),
-		game_id(-1), pl_index(-1), voted(false),
-		tics(NULL), die_time(1 << 30)
+client_c::client_c(const NLsocket *_sock, const NLaddress *_addr) :
+	state(ST_Connecting),
+	game_id(-1), pl_index(-1), voted(false),
+	tics(NULL), die_time(1 << 30)
 {
-	strcpy(name, info->name);
-
 	memcpy(&sock, _sock, sizeof(sock));
 	memcpy(&addr, _addr, sizeof(addr));
 }
@@ -72,6 +69,11 @@ bool client_c::Verify(NLsocket WSOCK, const NLaddress *remote_addr) const
 int client_c::CompareName(const char *other) const
 {
 	return StrCaseCmp(name, other);
+}
+
+void client_c::SetClientInfo(const client_info_t *info)
+{
+	strcpy(name, info->name);
 }
 
 void client_c::FillClientInfo(client_info_t *info) const
@@ -343,6 +345,8 @@ void PK_connect_to_server(packet_c *pk)
 	// successful!
 	CL->state = client_c::ST_Browsing;
 
+	CL->SetClientInfo(&con.info);
+
 	pk->SetType("Cs");
 
 	pk->hd().flags = 0;
@@ -564,7 +568,7 @@ void CreateNewClient(NLsocket SOCK)
 	{
 		autolock_c LOCK(&global_lock);
 
-		clients[client_id] = new client_c(NULL, &SOCK, &remote_addr); //!!!!!!
+		clients[client_id] = new client_c(&SOCK, &remote_addr);
 
 		total_clients++;
 	}

@@ -27,8 +27,7 @@ class packet_c;
 class client_c
 {
 public:
-	client_c(const client_info_t *info, const NLsocket *sock,
-		const NLaddress *_addr);
+	client_c(const NLsocket *sock, const NLaddress *_addr);
 	~client_c();
 
 public: //!!!!  private:
@@ -76,8 +75,9 @@ public:
 	bool CheckAddr(const NLaddress *remote_addr) const;
 	bool Verify(NLsocket SOCK, const NLaddress *remote_addr) const;
 	
-	int CompareName(const char *other) const;
+	void SetClientInfo(const client_info_t *info);
 	void FillClientInfo(client_info_t *info) const;
+	int CompareName(const char *other) const;
 
 	bool MatchDest(int dest, int game) const;
 
