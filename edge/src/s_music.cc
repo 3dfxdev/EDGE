@@ -114,11 +114,17 @@ void S_ChangeMusic(int entrynum, bool looping)
 		else
 		{
 			// -AJA- 2005/01/15: filenames in DDF relative to GAMEDIR
-			epi::string_c fullname;
-			M_ComposeFileName(fullname, gamedir, play->info.GetString());
+			epi::string_c fn;
+			M_ComposeFileName(fn, gamedir, play->info.GetString());
+
+			if (! I_Access(fn.GetString()))
+			{
+				I_Warning("S_ChangeMusic: Can't Load OGG '%s'\n", fn.GetString());
+				return;
+			}
 
 			musdat.format = IMUSSF_FILE;
-			musdat.info.file.name = Z_StrDup(fullname.GetString());
+			musdat.info.file.name = Z_StrDup(fn.GetString());
 		}
 
 		musichandle = I_MusicPlayback(&musdat, play->type, looping);
