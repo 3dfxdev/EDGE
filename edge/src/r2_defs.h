@@ -129,7 +129,7 @@ typedef struct drawwall_s
   // link for list
   struct drawwall_s *next;
 
-  screenline_t *area;
+  screenline_t area;
 
   // seg this belongs to
   seg_t *seg;
@@ -200,7 +200,7 @@ typedef struct drawplane_s
   // link for list
   struct drawplane_s *next;
 
-  screenline_t *area;
+  screenline_t area;
 
   // when true, this drawplane only marks where a plane ends
   // (where it starts will be determined by a future drawplane).
@@ -230,7 +230,7 @@ typedef struct drawthing_s
   struct drawthing_s *next;
   struct drawthing_s *prev;
 
-  screenline_t *area;
+  screenline_t area;
   
   // actual map object
   mobj_t *mo;

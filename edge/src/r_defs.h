@@ -476,6 +476,12 @@ typedef struct seg_s
 
   sector_t *frontsector;
   sector_t *backsector;
+
+  // Rendering stuff -- only used during rendering
+
+  boolean_t visible;
+  angle_t angle1, angle2;
+  float_t dist1, dist2;
 }
 seg_t;
 
