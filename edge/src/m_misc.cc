@@ -717,7 +717,8 @@ void M_MakeSaveScreenShot(void)
 //
 exttype_e M_CheckExtension(const char *ext, const char* filename)
 {
-	char filenameext[4];
+	char filenameext[6];
+
 	int i, ext_len, filename_len, filenameext_len;
 
 	// check extension is valid
@@ -726,7 +727,7 @@ exttype_e M_CheckExtension(const char *ext, const char* filename)
 
 	ext_len = strlen(ext);
 
-	if (ext_len < 1 || ext_len > 3)
+	if (ext_len < 1 || ext_len > 4)
 		return EXT_WEIRD;
 
 	for (i=0; i<ext_len; i++)
@@ -743,10 +744,10 @@ exttype_e M_CheckExtension(const char *ext, const char* filename)
 
 	// Get filename extension
 	i=(filename_len-1);
-	while (i>=0 && filename[i] != '.')
+	while (i>=0 && filename[i] != '.' && filename[i] != DIRSEPARATOR)
 		i--;
 
-	if (i==-1 || i==(filename_len-1))
+	if (i==-1 || i==(filename_len-1) || filename[i] == DIRSEPARATOR)
 		return EXT_NONE;
 
 	filenameext_len = ((filename_len-1)-i);
