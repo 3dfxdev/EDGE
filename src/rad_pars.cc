@@ -1343,6 +1343,9 @@ static void RAD_ParseTip(int pnum, const char **pars)
 
 	if (pnum >= 5)
 	{
+		if (rts_version < 0x128)
+			RAD_Error("%s: Scaling only available with #VERSION 1.28 or higher.\n", pars[0]);
+
 		if (! tip->tip_graphic)
 			RAD_Error("%s: scale value only works with TIP_GRAPHIC.\n", pars[0]);
 
@@ -2033,9 +2036,9 @@ static rts_parser_t radtrig_parsers[] =
 	{2, "CHANGE_TEX", 3,5, RAD_ParseChangeTex},
 	{2, "CHANGE_MUSIC", 2,2, RAD_ParseChangeMusic},
 
-	// somewhat-deprecated primitives
-	{2, "SECTORV", 4,4, RAD_ParseMoveSector},
-	{2, "SECTORL", 3,3, RAD_ParseLightSector},
+	// deprecated primitives
+	{2, "!SECTORV", 4,4, RAD_ParseMoveSector},
+	{2, "!SECTORL", 3,3, RAD_ParseLightSector},
 
 	// that's all, folks.
 	{0, NULL, 0,0, NULL}
@@ -2067,8 +2070,11 @@ void RAD_ParseLine(char *s)
 
 		if (cur_name[0] == '!')
 		{
-			obsolete = true;
 			cur_name++;
+			obsolete = true;
+
+			if (rts_version >= 0x128)
+				RAD_Error("%s: is not supported with #VERSION 1.28 or higher.\n");
 		}
 
 		if (DDF_CompareName(pars[0], cur_name) != 0)
