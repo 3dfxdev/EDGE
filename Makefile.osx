@@ -133,7 +133,7 @@ COMMON_OBJS= \
         f_finale.o g_game.o   \
         gui_main.o gui_ctls.o \
         hu_lib.o hu_stuff.o   \
-		hu_font.o \
+		hu_font.o  hu_style.o \
         lu_math.o  lu_gamma.o \
         l_mp3.o    l_glbsp.o  \
 		l_deh.o  \
