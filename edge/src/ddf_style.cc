@@ -99,7 +99,7 @@ static const commandlist_t style_commands[] =
 	DDF_SUB_LIST("TITLE", title, text_commands, buffer_textstyle),
 	DDF_SUB_LIST("TEXT",  text,  text_commands, buffer_textstyle),
 	DDF_SUB_LIST("ALT",   alt,   text_commands, buffer_textstyle),
-	DDF_SUB_LIST("SOUNDS", sounds, sound_commands, buffer_soundstyle),
+	DDF_SUB_LIST("SOUND", sounds, sound_commands, buffer_soundstyle),
 
 	DDF_CMD_END
 };
