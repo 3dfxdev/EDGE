@@ -870,8 +870,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	float tex_x1, tex_y1;
 	float tex_x2, tex_y2;
 
-	bool blended;
-
 	local_gl_vert_t *vert, *orig;
 
 	float x1b, y1b, z1b, x1t, y1t, z1t;
@@ -1033,9 +1031,9 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	tex_id = W_ImageGetOGL(cim);
 
 	// Blended sprites, even if opaque (trans > 0.99), have nicer edges
-	blended = true;
+	int blending = BL_Masked | BL_Alpha;
 
-	vert = orig = RGL_BeginUnit(GL_QUADS, 4, tex_id, 0, true, blended);
+	vert = orig = RGL_BeginUnit(GL_QUADS, 4, tex_id,0, /* pass */ 0, blending);
 
 	SET_COLOR(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
 	SET_TEXCOORD(tex_x1, tex_y2);

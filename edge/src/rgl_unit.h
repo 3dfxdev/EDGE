@@ -42,6 +42,7 @@ typedef struct local_gl_vert_s
 	GLfloat x, y, z;
 	GLfloat col[4];
 	GLfloat t_x, t_y;
+	GLfloat t2_x, t2_y;
 	GLfloat n_x, n_y, n_z;
 	GLboolean edge;
 }
@@ -53,9 +54,18 @@ void RGL_SoftInitUnits(void);
 void RGL_StartUnits(bool solid);
 void RGL_FinishUnits(void);
 
+typedef enum
+{
+	BL_Masked  = 0x0001,  // drop fragments when (alpha <= 8)
+	BL_Alpha   = 0x0002,  // alpha-blend with the framebuffer
+	BL_Add     = 0x0004,  // additive-blend with the framebuffer
+	BL_Multi   = 0x0010,  // use multi-texturing (second unit MODULATEs)
+}
+blending_mode_e;
+
 local_gl_vert_t *RGL_BeginUnit(GLuint mode, int max_vert, 
-							   GLuint tex_id, int pass,
-							   bool masked, bool blended);
+							   GLuint tex_id, GLuint tex2_id,
+							   int pass, int blending);
 void RGL_EndUnit(int actual_vert);
 void RGL_DrawUnits(void);
 
@@ -68,6 +78,9 @@ void RGL_SendRawVector(const local_gl_vert_t *V);
 
 #define SET_TEXCOORD(X,Y)  \
 	do { vert->t_x = (X); vert->t_y = (Y); } while(0)
+
+#define SET_TEX2COORD(X,Y)  \
+	do { vert->t2_x = (X); vert->t2_y = (Y); } while(0)
 
 #define SET_NORMAL(X,Y,Z)  \
 	do { vert->n_x = (X); vert->n_y = (Y); vert->n_z = (Z); } while(0)
@@ -118,7 +131,7 @@ void RGL_SplitPolyQuadLOD(raw_polyquad_t *poly, int max_lod, int base_div);
 
 void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
 						void (* CoordFunc)(vec3_t *src, local_gl_vert_t *vert, void *data),
-						GLuint tex_id, int pass, bool masked, bool blended);
+						GLuint tex_id, GLuint tex2_id, int pass, int blending);
 
 
 #endif  // __RGL_UNIT__
