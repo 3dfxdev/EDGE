@@ -79,11 +79,11 @@ bool nosound = false;
 typedef struct
 {
 	sfxdef_c *sfxinfo; // sound information (if null, channel avail.)
-	mobj_t *origin;     // origin of sound
-	int orig_vol;       // volume sound was started at (0 to 255).
-	int channel;        // handle of the sound being played
-	bool paused;   // is sound paused?
-	bool looping;  // is sound looping?     -ACB- 2001/01/09 Added
+	mobj_t *origin;    // origin of sound
+	int orig_vol;      // volume sound was started at (0 to 255).
+	int channel;       // handle of the sound being played
+	bool paused;       // is sound paused?
+	bool looping;      // is sound looping?     -ACB- 2001/01/09 Added
 }
 playsfx_t;
 
@@ -96,6 +96,8 @@ typedef struct free_origin_s
 free_origin_t;
 
 static free_origin_t *free_queue = NULL;
+
+typedef enum { CX, CY, CZ, NUMCOORDS } coord_e; 
 
 // playing sfx list
 #define PLAYINGSFXLIMIT 64
@@ -261,69 +263,6 @@ static bool CacheSound(sfxdef_c *sound)
 }
 
 //
-// AdjustSoundParams
-//
-// Changes volume, and stereo-separation
-// from the norm of a sound effect to be played.
-//
-// If the sound is not audible, returns a 0.
-// Otherwise, modifies parameters and returns 1.
-// The 2s here mean squared, eg S_CLOSE_DIST2 is S_CLOSE_DIST squared.
-//
-// -AJA- 1999/09/10: made static, and updated for volume in range
-//       from 0 to 255.
-//
-// -AJA- 2000/04/21: max_distance for sounds.ddf, and 3D distance.
-//
-static int AdjustSoundParams(sfxdef_c *sfx, mobj_t *listener, 
-							 mobj_t *source, int *vol, int *sep)
-{
-	DEV_ASSERT2(listener);
-
-	float approx_dist;
-	float adx, ady, adz;
-	angle_t angle;
-
-	// calculate the distance to sound origin
-	//  and clip it if necessary
-	adx = (float)fabs(listener->x - source->x);
-	ady = (float)fabs(listener->y - source->y);
-	adz = (float)fabs(listener->z - source->z);
-
-	// From _GG1_ p.428. Approx. euclidian distance fast.
-	//    approx_dist = adx + ady - ((adx < ady ? adx : ady)>>1);
-	// Pythagoras.  Results are optimised:
-	// Square Root here cancels with square down there
-
-	approx_dist = adx * adx + ady * ady + adz * adz;
-
-	if (approx_dist > sfx->max_distance * sfx->max_distance)
-		return 0;
-
-	// angle of source to listener
-	angle = R_PointToAngle(listener->x, listener->y, source->x, source->y);
-
-	angle = angle - listener->angle;
-
-	// stereo separation
-	*sep = (int) (128.0f - S_STEREO_SWING * M_Sin(angle));
-
-	// volume calculation
-	if (approx_dist > S_CLOSE_DIST2)
-	{
-		// Kester's Physics Model v1.1
-		// -KM- 1998/07/31 Use Full dynamic range
-		*vol = (int) (*vol * (S_CLIPPING_DIST2 - approx_dist) / 
-			(S_CLIPPING_DIST2 - S_CLOSE_DIST2));
-
-		if (*vol > MAX_VOLUME)
-			*vol = MAX_VOLUME;
-	}
-
-	return (*vol > 0);
-}
-
-//
 // GetSoundChannel
 //
 // if none available, return -1.  Otherwise channel #.
@@ -414,22 +353,18 @@ static int GetSoundChannel(mobj_t *origin, sfxdef_c *sfxinfo)
 static int StartSoundAtVolume(mobj_t *origin, sfxdef_c *sfx, int volume)
 {
 	int snd_num = sfx->normal.sounds[0];
-	int rc, sep;
 	int cnum, orig_vol;
 
-	bool looping;
-	const char *error;
+	bool looping = false;
 
 	if (nosound)
 		return -1;
 
-	looping = false;
-
 	if (! CacheSound(sfx))
 		return -1;
 
-	volume = MIN(255, (int)(volume * sfx->volume));
-	orig_vol = volume;
+	orig_vol = MIN(255, (int)(volume * sfx->volume));
+    volume = orig_vol;
 
 	if (origin && sfx->looping)
 		looping = true;
@@ -438,57 +373,59 @@ static int StartSoundAtVolume(mobj_t *origin, sfxdef_c *sfx, int volume)
 	//  and if not, modify the params
 
 	// can be NULL (no game is active)
-	player_t *p = (numplayers == 0) ? NULL : players[displayplayer];
-
-	if (origin && p && origin != p->mo)
-	{
-		rc = AdjustSoundParams(sfx, p->mo, origin, &volume, &sep);
-
-		if (!rc)
-			return -1;
-
-		if (origin->x == p->mo->x && origin->y == p->mo->y)
-		{
-			sep = NORM_SEP;
-		}
-	}
-	else
-	{
-		sep = NORM_SEP;
-		volume = edgemin(volume, MAX_VOLUME);
-	}
+    volume = edgemin(volume, MAX_VOLUME);
 
 	// try to find a channel
 	cnum = GetSoundChannel(origin, sfx);
-
 	if (cnum < 0)
 		return -1;
 
-	playingsfx[cnum].looping  = looping;
-	playingsfx[cnum].sfxinfo  = sfx;
-	playingsfx[cnum].origin   = origin;
-	playingsfx[cnum].orig_vol = orig_vol;
-	playingsfx[cnum].channel  = I_SoundPlayback(snd_num, sep, volume, looping);
+    int channel = I_SoundPlayback(snd_num, volume, looping);
+	if (channel != -1)
+    {
+        float pos[NUMCOORDS];
+        bool relative;
 
-	// Hardware cannot cope. Channel not allocated
-	if (playingsfx[cnum].channel == -1)
-	{
-		playingsfx[cnum].orig_vol = 0;
-		playingsfx[cnum].origin   = NULL;
-		playingsfx[cnum].sfxinfo  = NULL;
-		playingsfx[cnum].looping  = false;
+        if (origin)
+        {
+            pos[CX] = origin->x;
+            pos[CY] = origin->y;
+            pos[CZ] = origin->z;
+            relative = false;
+        }
+        else
+        {
+            pos[CX] = 0.0f;
+            pos[CY] = 0.0f;
+            pos[CZ] = 0.0f;
+            relative = true;
+        }
 
-		error = I_SoundReturnError();
-		L_WriteDebug("%s\n",error);
-		return -1;
-	}
+        I_SoundSetRelative(channel, relative);
+        I_SoundSetPos(channel, pos);
 
-#if (DEBUG_SOUND)
-	L_WriteDebug("StartSoundAtVolume: playing sound %s vol %d chan %d "
-		"voice %d\n", sfx->ddf.name, volume, cnum, playingsfx[cnum].channel);
-#endif
+		playingsfx[cnum].channel  = channel;
+        playingsfx[cnum].looping  = looping;
+        playingsfx[cnum].sfxinfo  = sfx;
+        playingsfx[cnum].origin   = origin;
+        playingsfx[cnum].orig_vol = orig_vol;
 
-	return cnum;
+        //#if (DEBUG_SOUND)
+        I_Printf("StartSoundAtVolume: playing vol %d chan %d voice %d\n", volume, cnum, playingsfx[cnum].channel);
+        //#endif
+        return cnum;
+    }
+
+    // Hardware cannot cope. Channel not allocated
+    playingsfx[cnum].channel  = -1;
+    playingsfx[cnum].orig_vol = 0;
+    playingsfx[cnum].origin   = NULL;
+    playingsfx[cnum].sfxinfo  = NULL;
+    playingsfx[cnum].looping  = false;
+
+    const char* error = I_SoundReturnError();
+    L_WriteDebug("%s\n",error);
+    return -1;
 }
 
 // ===============End of Internals================
@@ -754,16 +691,41 @@ void S_AddToFreeQueue(mobj_t *origin, void *block)
 //
 void S_UpdateSounds(mobj_t *listener)
 {
-	int audible;
 	int cnum;
-	int volume;
-	int sep;
 	playsfx_t *c;
 	free_origin_t *q, *next, *prev;
 	bool kill;
 
 	if (nosound)
 		return;
+
+    if (listener)
+    {
+		float listen_pos[NUMCOORDS];
+        float listen_ori_at[NUMCOORDS];
+        float listen_ori_up[NUMCOORDS];
+
+        // Position
+		listen_pos[CX] = listener->x;
+		listen_pos[CY] = listener->y;
+        if (listener->player)
+            listen_pos[CZ] = listener->player->viewz;
+        else
+            listen_pos[CZ] = listener->z + listener->height; // Best guess !?
+
+        // Horizontal adjustment
+        listen_ori_at[CX] = M_Cos(listener->angle);
+        listen_ori_at[CY] = M_Sin(listener->angle);
+        listen_ori_at[CZ] = 0.0f;
+
+        // Vertical adjustment (TODOL Proper calc)
+        listen_ori_up[CX] = 0.0f;
+        listen_ori_up[CY] = 0.0f;
+        listen_ori_up[CZ] = 1.0f;
+
+        I_SoundSetListenerOrient(listen_ori_at, listen_ori_up);
+        I_SoundSetListenerPos(listen_pos);
+    }
 
 	for (cnum = 0; cnum < playingsfxnum; cnum++)
 	{
@@ -779,24 +741,19 @@ void S_UpdateSounds(mobj_t *listener)
 			continue;
 		}
 
-		// initialise parameters
-		volume = c->orig_vol;
-		sep = NORM_SEP;
-
 		// check non-local sounds for distance clipping
 		//  or modify their params
-		if (c->origin && listener && (listener != c->origin))
+		if (c->origin && listener)
 		{
 			// Check for freed origin in intolerant mode
-			DEV_ASSERT2(*(int *)(&c->origin->x) != -1);
+			//DEV_ASSERT2(*(int *)(&c->origin->x) != -1);
+            float pos[NUMCOORDS];
 
-			audible = AdjustSoundParams(c->sfxinfo, listener, c->origin, 
-				&volume, &sep);
+            pos[CX] = c->origin->x;
+            pos[CY] = c->origin->y;
+            pos[CZ] = c->origin->z;
 
-			if (!audible)
-				S_StopChannel(cnum);
-			else
-				I_SoundAlter(c->channel, sep, volume);
+            I_SoundSetPos(c->channel, pos);
 		}
 	}
 
@@ -845,10 +802,10 @@ void S_SoundTicker(void)
 {
 	I_SoundTicker();
 
-	if (numplayers == 0)
-		S_UpdateSounds(NULL);
-	else
-		S_UpdateSounds(players[displayplayer]->mo);
+    if (numplayers == 0)
+        S_UpdateSounds(NULL);
+    else
+        S_UpdateSounds(players[displayplayer]->mo);
 }
 
 //
