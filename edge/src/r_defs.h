@@ -226,7 +226,7 @@ typedef struct sector_s
 
   surface_t floor, ceil;
 
-  region_properties_t p;
+  region_properties_t props;
 
   int tag;
 
@@ -255,6 +255,12 @@ typedef struct sector_s
   extrafloor_t *bottom_liq;
   extrafloor_t *top_liq;
 
+  // properties that are active for this sector (top-most extrafloor).
+  // This may be different than the sector's actual properties (the
+  // "props" field) due to flooders.
+  // 
+  region_properties_t *p;
+ 
   // linked list of extrafloors that this sector controls.  NULL means
   // that this sector is not a controller.
   //
