@@ -25,6 +25,7 @@
 #include "network.h"
 #include "packet.h"
 #include "protocol.h"
+#include "ui_exit.h"
 #include "ui_log.h"
 #include "ui_window.h"
 

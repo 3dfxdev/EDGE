@@ -52,6 +52,8 @@ UI_GameList::UI_GameList(int x, int y, int w, int h) :
 	// fits in nicely.
 	has_scrollbar(BOTH_ALWAYS);
 #endif
+
+	selection_color(FL_YELLOW);
 }
 
 //
