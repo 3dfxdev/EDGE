@@ -106,6 +106,8 @@ typedef struct bot_s
 bot_t;
 
 void P_BotCreate(player_t *p, bool recreate);
-void P_RemoveBots(void);
+
+void BOT_BeginLevel(void);
+void BOT_EndLevel(void);
 
 #endif

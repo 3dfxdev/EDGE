@@ -311,8 +311,15 @@ void G_SetConsolePlayer(int pnum)
 	
 	players[pnum]->playerflags |= PFL_Console;
 
-    players[pnum]->builder = P_ConsolePlayerBuilder;
-    players[pnum]->build_data = NULL;
+	if (M_CheckParm("-testbot") > 0)
+	{
+		P_BotCreate(players[pnum], false);
+	}
+	else
+	{
+		players[pnum]->builder = P_ConsolePlayerBuilder;
+		players[pnum]->build_data = NULL;
+	}
 }
 
 //
