@@ -159,7 +159,8 @@ namespace Things
 		NULL
 	};
 
-	bool CheckIsMonster(const mobjinfo_t *info, int mt_num, int player)
+	bool CheckIsMonster(const mobjinfo_t *info, int mt_num, int player,
+		bool use_act_flags)
 	{
 		if (player > 0)
 			return false;
@@ -170,8 +171,10 @@ namespace Things
 		if (info->name[0] == '*')
 			return false;
 
+#if (! DEBUG_MONST)
 		if (info->flags & MF_COUNTKILL)
 			return true;
+#endif
 
 		if (info->flags & (MF_SPECIAL | MF_COUNTITEM))
 			return false;
@@ -189,8 +192,11 @@ namespace Things
 		if (info->deathstate) score += 72;
 		if (info->raisestate) score += 31;
 
-		if (Frames::act_flags & AF_CHASER) score += 78;
-		if (Frames::act_flags & AF_FALLER) score += 61;
+		if (use_act_flags)
+		{
+			if (Frames::act_flags & AF_CHASER) score += 78;
+			if (Frames::act_flags & AF_FALLER) score += 61;
+		}
 
 		if (info->speed > 0) score += 87;
 
@@ -211,7 +217,7 @@ namespace Things
 			info->speed, score);
 #endif
 
-		return (score >= 370);
+		return score >= (use_act_flags ? 370 : 300);
 	}
 
 	const char *GetExtFlags(int mt_num, int player)
@@ -279,7 +285,7 @@ namespace Things
 		if (mt_num == MT_TELEPORTMAN)
 			cur_f &= ~MF_NOSECTOR;
 
-		bool is_monster = CheckIsMonster(info, mt_num, player);
+		bool is_monster = CheckIsMonster(info, mt_num, player, true);
 		bool force_disloyal = (is_monster && Misc::monster_infight == 221);
 
 		flags_got_one = false;
@@ -304,7 +310,10 @@ namespace Things
 				continue;
 
 			if (ch == EF_DISLOYAL)
-				force_disloyal = false;
+			{
+				force_disloyal = true;
+				continue;
+			}
 
 			AddOneFlag(info, extflaglist[i].name);
 		}
@@ -676,7 +685,7 @@ namespace Things
 		if (! (info->flags & MF_SPECIAL))
 			return;
 
-		if (info->spawnstate == S_NULL)  // XXX
+		if (info->spawnstate == S_NULL)
 			return;
 
 		int spr_num = states[info->spawnstate].sprite;

@@ -109,10 +109,11 @@ namespace Misc
 		{
 			mobjinfo_t *mobj = mobjinfo + i;
 
-			if (! mobj->meleestate && ! mobj->missilestate)
+			if (i == MT_PLAYER)
 				continue;
 
-			Things::MarkThing(i);
+			if (Things::CheckIsMonster(mobj, i, 0, false))
+				Things::MarkThing(i);
 		}
 	}
 }
