@@ -17,7 +17,10 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
+
+#ifdef USE_HAWKNL
 #include "nl.h"
+#endif
 
 #include "epi/epitype.h"
 #include "epi/epiendian.h"
@@ -40,6 +43,7 @@ bool var_busywait = true;
 
 extern gameflags_t default_gameflags;
 
+#ifdef USE_HAWKNL
 static int client_id;
 static int game_id;
 static int bots_each;
@@ -49,7 +53,10 @@ static NLsocket  socket;
 static NLint     sk_group;
 
 static packet_c pk;
+#endif
 
+
+#ifdef USE_HAWKNL
 
 static void N_Preliminaries(void)
 {
@@ -320,6 +327,8 @@ void N_InitiateGame(void)
 	N_Vote();
 }
 
+#endif // USE_HAWKNL
+
 //----------------------------------------------------------------------------
 //  TIC HANDLING
 //----------------------------------------------------------------------------
@@ -344,6 +353,8 @@ static void GetPackets(bool do_delay)
 
 		return;
 	}
+
+#ifdef USE_HAWKNL
 
 	NLsocket socks[4];  // only one in the group
 
@@ -404,10 +415,13 @@ static void GetPackets(bool do_delay)
 	}
 
 	DEV_ASSERT2((raw_cmd - tg.tic_cmds) == (1 + bots_each));
+
+#endif  // USE_HAWKNL
 }
 
 static void DoSendTiccmds(int tic)
 {
+#ifdef USE_HAWKNL
 	pk.Clear();  // FIXME: TESTING ONLY
 
 	pk.SetType("tc");
@@ -449,6 +463,8 @@ static void DoSendTiccmds(int tic)
 		L_WriteDebug("Failed to write packet (tic %d)\n", tic);
 	
 	// FIXME: need an 'out_tic' for resends....
+
+#endif  // USE_HAWKNL
 }
 
 bool N_BuildTiccmds(void)
@@ -620,8 +636,7 @@ nowtime, nowtime - realtics, realtics);
 		}
 	}
 
-	if (numplayers > 0)
-		*is_fresh = true;
+	*is_fresh = true;
 
 	return counts;
 }

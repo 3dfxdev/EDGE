@@ -19,6 +19,8 @@
 #ifndef __N_PACKET_H__
 #define __N_PACKET_H__
 
+#ifdef USE_HAWKNL
+
 #include "protocol.h"
 
 const char *N_GetErrorStr(void);
@@ -64,5 +66,7 @@ public:
 	inline tic_group_proto_t&    tg_p() { return *((tic_group_proto_t *)DataPtr()); }
 	inline tic_retransmit_proto_t& tr_p() { return *((tic_retransmit_proto_t *)DataPtr()); }
 };
+
+#endif  // USE_HAWKNL
 
 #endif /* __N_PACKET_H__ */

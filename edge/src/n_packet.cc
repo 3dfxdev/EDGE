@@ -16,6 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
+#ifdef USE_HAWKNL  // applies to whole file
+
 #include "i_defs.h"
 #include "nl.h"
 
@@ -185,3 +187,4 @@ bool packet_c::CheckType(const char *str)
 	return (hd().type[0] == str[0] && hd().type[1] == str[1]);
 }
 
+#endif  // USE_HAWKNL
