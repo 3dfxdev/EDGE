@@ -155,7 +155,7 @@ UI_MainWin::UI_MainWin(const char *title) :
 ///		Fl_Group *stat_group = new Fl_Group(0, cy, w(), h() - cy, "Log");
 ///		stat_group->end();
 
-		stat_box = new UI_Stats(0, cy, w(), 136, "\n Statistics & Log");
+		stat_box = new UI_Stats(0, cy, w(), 136, "\n Statistics and Log");
 		add(stat_box);
 
 		cy += stat_box->h();

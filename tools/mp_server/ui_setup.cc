@@ -86,6 +86,7 @@ UI_Setup::UI_Setup(int x, int y, int w, int h, const char *label) :
 	Fl_Button *stop_but = new Fl_Button(x + 340, cy, 120, 28, "STOP SERVER");
 	stop_but->box(FL_ROUND_UP_BOX);
 	stop_but->color(FL_RED);
+	// stop_but->deactivate();
 	sv_info->add(stop_but);
 
 #if 0	/* ----- Limits panel ----- */
