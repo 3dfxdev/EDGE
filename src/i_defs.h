@@ -109,6 +109,7 @@ typedef enum { false, true } boolean_t;
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 #include <values.h>
 #include <sys\stat.h>
@@ -167,6 +168,7 @@ typedef enum { false, true } boolean_t;
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <sys\stat.h>
 #include <time.h>
 
