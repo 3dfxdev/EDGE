@@ -404,11 +404,11 @@ void DDF_WeaponCleanUp(void)
 		
 		wk->Load(&tmplist);
 	
-#if (DEBUG_DDF)
+#if 1 // (DEBUG_DDF)
 		L_WriteDebug("DDF_Weap: CHOICES ON KEY %d:\n", key);
-		for (i=0; i < wk->numchoices; i++)
+		for (int i=0; i < wk->numchoices; i++)
 		{
-			L_WriteDebug("  [%s] pri=%d\n", wk->choices[i]->ddf.name.GetString(),
+			L_WriteDebug("  %p [%s] pri=%d\n", wk->choices[i], wk->choices[i]->ddf.name.GetString(),
 					wk->choices[i]->priority);
 		}
 #endif
@@ -469,7 +469,7 @@ static specflags_t weapon_specials[] =
     {"SILENT TO MONSTERS", WPSP_SilentToMon, 0},
     {"SWITCH", WPSP_SwitchAway, 0},
 	{"TRIGGER", WPSP_Trigger, 0},
-	{"NEW", WPSP_New, 0},
+	{"FRESH", WPSP_Fresh, 0},
 	{"KEY", WPSP_Key, 0},
 	{"PARTIAL", WPSP_Partial, 0},
     {NULL, WPSP_None, 0}
@@ -756,16 +756,12 @@ weapondef_c* weapondef_container_c::Lookup(const char* refname)
 //
 void weaponkey_c::Load(weapondef_container_c *wc)
 {
-	epi::array_iterator_c it;
-	weapondef_c *wd;
-	int i;
-	
 	Clear();
 	
 	choices = new weapondef_c*[wc->GetSize()];
 	numchoices = wc->GetSize();
 
-	for (wd = choices[0], i = 0; i < numchoices; wd++, i++)
+	for (int i = 0; i < numchoices; i++)
 	{
 		choices[i] = (*wc)[i];
 	}
