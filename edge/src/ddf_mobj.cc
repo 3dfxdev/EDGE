@@ -447,7 +447,7 @@ static bool ThingTryParseState(const char *field,
 		&buffer_mobj.first_state, &buffer_mobj.last_state,
 		starter ? starter->state_num : NULL, index, 
 		is_last ? starter ? starter->last_redir : "IDLE" : NULL, 
-		thing_actions);
+		thing_actions, false);
 
 	return true;
 }

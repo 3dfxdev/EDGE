@@ -218,7 +218,7 @@ static bool WeaponTryParseState(const char *field,
 			&buffer_weapon.first_state, &buffer_weapon.last_state,
 			starter ? starter->state_num : NULL, index, 
 			is_last ? starter ? starter->last_redir : "READY" : NULL, 
-			weapon_actions);
+			weapon_actions, true);
 
 	return true;
 }

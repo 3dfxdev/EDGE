@@ -75,7 +75,7 @@ void DDF_StateInit(void)
 	num_states = 1;
 
 	// setup the 'SPR_NULL' sprite
-	R_AddSpriteName("NULL", 1);
+	R_AddSpriteName("NULL", 1, false);
 }
 
 void DDF_StateCleanUp(void)
@@ -261,7 +261,8 @@ int DDF_StateFindLabel(int first, int last, const char *label)
 //
 void DDF_StateReadState(const char *info, const char *label,
 						int *first, int *last, int *state_num, int index,
-						const char *redir, const actioncode_t *action_list)
+						const char *redir, const actioncode_t *action_list,
+						bool is_weapon)
 {
 	int i, j;
 
@@ -376,7 +377,7 @@ void DDF_StateReadState(const char *info, const char *label,
 		DDF_Error("DDF_MainLoadStates: Illegal sprite index: %s\n", stateinfo[1]);
 
 	cur->frame = (short)(j - 65);
-	cur->sprite = R_AddSpriteName(stateinfo[0], cur->frame);  
+	cur->sprite = R_AddSpriteName(stateinfo[0], cur->frame, is_weapon);
 
 	//--------------------------------------------------
 	//------------STATE TIC COUNT HANDLING--------------

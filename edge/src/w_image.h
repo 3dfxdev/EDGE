@@ -168,7 +168,7 @@ void W_ResetImages(void);
 
 void W_ImageCreateFlats(int *lumps, int number);
 void W_ImageCreateTextures(struct texturedef_s ** defs, int number);
-void W_ImageCreateSprite(const char *name, int lump);
+void W_ImageCreateSprite(const char *name, int lump, bool is_weapon);
 void W_ImageCreateUser(void);
 void W_AnimateImageSet(const image_t ** images, int number, int speed);
 void W_DrawSavePic(const byte *pixels);

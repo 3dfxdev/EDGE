@@ -260,7 +260,6 @@ extern bool SCREENWINDOW;
 // I_Video.c / V_Video*.c Precalc. Stuff
 extern float DX, DY, DXI, DYI, DY2, DYI2;
 extern int SCALEDWIDTH, SCALEDHEIGHT, X_OFFSET, Y_OFFSET;
-extern float BASEYCENTER, BASEXCENTER;
 
 extern bool graphicsmode;
 
