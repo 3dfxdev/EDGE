@@ -193,6 +193,13 @@ typedef struct readinfo_s
   // part into the dynamic part.  It also should compute the CRC.
   //
   void (* finish_entry)(void);
+
+  // this function is called when the #CLEARALL directive is used.
+  // The entries should be deleted if it is safe (i.e. there are no
+  // pointers to them), otherwise they should be marked `disabled' and
+  // ignored in subsequent searches.  Note: The parser ensures that
+  // this is never called in the middle of an entry.
+  void (* clear_all)(void);
 }
 readinfo_t;
 
