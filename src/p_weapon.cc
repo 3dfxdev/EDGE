@@ -1126,7 +1126,7 @@ void A_TargetJump(mobj_t * mo)
 
 	mobj_t *obj = P_MapTargetAutoAim(mo, mo->angle, attack->range, true);
 
-	if (obj->extendedflags & EF_DUMMYMOBJ)
+	if (! obj)
 		return;
 
 	P_SetPspriteDeferred(p, ps_crosshair, psp->state->jumpstate);
@@ -1147,7 +1147,7 @@ void A_FriendJump(mobj_t * mo)
 
 	mobj_t *obj = P_MapTargetAutoAim(mo, mo->angle, attack->range, true);
 
-	if (obj->extendedflags & EF_DUMMYMOBJ)
+	if (! obj)
 		return;
 
 	if ((obj->side & mo->side) == 0 || obj->target == mo)
@@ -1233,7 +1233,7 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 		p->kick_offset = info->kick;
 	}
 
-	if (mo->target && !(mo->target->extendedflags & EF_DUMMYMOBJ))
+	if (mo->target)
 	{
 		if (info->hit)
 			S_StartSound(mo, info->hit);

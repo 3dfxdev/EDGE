@@ -535,13 +535,6 @@ void SR_MobjPutMobj(void *storage, int index, void *extra)
 
 	int swizzle;
 
-	// dummy aim-targets don't need saving
-	if (elem && elem->extendedflags & EF_DUMMYMOBJ)
-	{
-		SV_PutInt(0);
-		return;
-	}
-
 	swizzle = (elem == NULL) ? 0 : SV_MobjFindElem(elem) + 1;
 	SV_PutInt(swizzle);
 }
