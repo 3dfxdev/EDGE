@@ -3,6 +3,7 @@ EDGE DDF 4.0 (2004-02-20):
 
 1) THINGS.DDF: use new NULL sprite in BRAIN_SHOOTER, BRAIN_SPAWNSPOT, and
                TELEPORT_FLASH.
+2) THINGS.DDF: added new CAST_TITLE commands for every cast monster.
 
 
 EDGE DDF 3.9 (2004-01-15):

@@ -330,6 +330,7 @@ static void TextWrite(void)
 //
 
 static const mobjinfo_t *castorder;
+static const char *casttitle;
 static int casttics;
 static state_t *caststate;
 static bool castdeath;
@@ -447,6 +448,21 @@ static void CastPerformAction(void)
 		S_StartSound(NULL, sfx);
 }
 
+static void CastInitNew(int num)
+{
+	castorder = DDF_MobjLookupCast(num);
+	casttitle = castorder->cast_title ?
+		DDF_LanguageLookup(castorder->cast_title) : castorder->ddf.name;
+
+	castdeath = false;
+	castframes = 0;
+	castonmelee = 0;
+	castattacking = false;
+
+	DEV_ASSERT2(castorder->chase_state);  // checked in ddf_mobj.c
+	CastSetState(castorder->chase_state);
+}
+
 //
 // StartCast
 //
@@ -454,13 +470,7 @@ static void StartCast(void)
 {
 	wipegamestate = GS_NOTHING;  // force a screen wipe
 
-	castorder = DDF_MobjLookupCast(2);
-	castdeath = false;
-	castframes = 0;
-	castonmelee = 0;
-	castattacking = false;
-
-	CastSetState(castorder->chase_state);
+	CastInitNew(2);
  
 	S_ChangeMusic(worldmap.special_music, true);
 }
@@ -484,13 +494,7 @@ static void CastTicker(void)
 	if (caststate->tics == -1 || caststate->nextstate == S_NULL ||
 			(castdeath && castframes >= 30))
 	{
-		castorder = DDF_MobjLookupCast(castorder->castorder + 1);
-		castframes = 0;
-		castdeath = false;
-		castattacking = false;
-
-		DEV_ASSERT2(castorder->chase_state);  // checked in ddf_mobj.c
-		CastSetState(castorder->chase_state);
+		CastInitNew(castorder->castorder + 1);
 
 		if (castorder->seesound)
 			S_StartSound(NULL, castorder->seesound);
@@ -576,7 +580,7 @@ static bool CastResponder(event_t * ev)
 	return true;
 }
 
-static void CastPrint(char *text)
+static void CastPrint(const char *text)
 {
 	HL_WriteText(160 - HL_StringWidth(text)/2, 180, text);
 }
@@ -594,7 +598,7 @@ static void CastDrawer(void)
 	DEV_ASSERT2(finale_bossback);
 	VCTX_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, finale_bossback);
 
-	CastPrint(castorder->ddf.name);
+	CastPrint(casttitle);
 
 	// draw the current frame in the middle of the screen
 	image = R2_GetOtherSprite(caststate->sprite, caststate->frame, &flip);

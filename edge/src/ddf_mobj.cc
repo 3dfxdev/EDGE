@@ -98,6 +98,7 @@ const mobjinfo_t template_mobj =
 	NULL,     // initial_benefits
 
 	0,        // castorder
+	NULL,     // cast_title
 	30 * TICRATE,  // respawntime
 	PERCENT_MAKE(100), // translucency
 	PERCENT_MAKE(0), // minatkchance
@@ -267,6 +268,7 @@ const commandlist_t thing_commands[] =
 	DF("SHOT HEIGHT", shotheight, DDF_MainGetPercent),
 	DF("MAX FALL", maxfall, DDF_MainGetFloat),
 	DF("CASTORDER", castorder, DDF_MainGetNumeric),
+	DF("CAST_TITLE", cast_title, DDF_MainGetString),
 	DF("PLAYER", playernum, DDF_MobjGetPlayer),
 	DF("SIDE", side, DDF_MainGetBitSet),
 	DF("CLOSE ATTACK", closecombat, DDF_MainRefAttack),
