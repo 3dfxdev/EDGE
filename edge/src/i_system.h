@@ -183,11 +183,17 @@ extern unsigned long microtimer_granularity;
 //
 // -ACB- 1999/09/19 moved from I_Music.H
 
+extern boolean_t nomusic;
+// This variable enables/disables music.  Initially false, it is set
+// to true by the "-nomusic" option.  Can also be set to true by the
+// platform code when no working music device is found.
+
 boolean_t I_StartupMusic(void *sysinfo);
 // Initialises the music system.  Returns true if successful,
-// otherwise false.  The main code never calls this function, it
-// should be called by I_SystemStartup(), and can be passed some
-// platform-specific data via the `sysinfo' parameter.
+// otherwise false.  (You should set "nomusic" to true if it fails).
+// The main code never calls this function, it should be called by
+// I_SystemStartup(), and can be passed some platform-specific data
+// via the `sysinfo' parameter.
 
 int I_MusicPlayback(char *strdata, int type, boolean_t file, boolean_t looping);
 // This attempts to play music of a given type (one of the MUS_*
