@@ -302,7 +302,9 @@ static bool GivePower(player_t * player, mobj_t * special,
       // -AJA- FIXME: choose lowest priority close combat.
       if (pw->owned && DDF_CompareName(pw->info->ddf.name, "FIST") == 0)
       {
-        player->pending_wp = (weapon_selection_e)i;
+        if (player->ready_wp != i)
+          player->pending_wp = (weapon_selection_e)i;
+
         break;
       }
     }
@@ -600,21 +602,28 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_t *damtype)
 // (doesn't inflict any damage).  Parameters are:
 //
 // * target    - mobj to be thrust.
-// * source    - mobj doing the thrusting.
+// * inflictor - mobj causing the thrusting.
 // * thrust    - amount of thrust done (same values as damage).  Can
 //               be negative to "pull" instead of push.
 //
 // -AJA- 1999/11/06: Wrote this routine.
 //
-void P_ThrustMobj(mobj_t * target, mobj_t * source, float thrust)
+void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust)
 {
   float dx, dy, dz;
   float push, slope;
   angle_t angle;
 
-  dx = target->x - source->x;
-  dy = target->y - source->y;
-  dz = MO_MIDZ(target) - MO_MIDZ(source);
+  // check for immunity against the attack
+  if (inflictor && inflictor->currentattack && BITSET_EMPTY ==
+      (inflictor->currentattack->attack_class & ~target->info->immunity))
+  {
+    return;
+  }
+
+  dx = target->x - inflictor->x;
+  dy = target->y - inflictor->y;
+  dz = MO_MIDZ(target) - MO_MIDZ(inflictor);
   
   angle = R_PointToAngle(0, 0, dx, dy);
 
