@@ -189,11 +189,17 @@ void DDF_ReadAnims(void *data, int size)
 	DDF_MainReadFile(&anims);
 }
 
+//
+// DDF_AnimInit
+//
 void DDF_AnimInit(void)
 {
-	/* nothing to do */
+	animdefs.Clear();			// <-- Consistent with existing behaviour (-ACB- 2004/05/04)
 }
 
+//
+// DDF_AnimCleanUp
+//
 void DDF_AnimCleanUp(void)
 {
 	animdefs.Trim();			// <-- Reduce to allocated size
@@ -224,7 +230,11 @@ void animdef_container_c::CleanupObject(void *obj)
 {
 	animdef_t *a = *(animdef_t**)obj;
 
-	if (a->ddf.name) { Z_Free(a->ddf.name); }
+	if (a)
+	{
+		if (a->ddf.name) { Z_Free(a->ddf.name); }
+		delete a;
+	}
 
 	return;
 }
