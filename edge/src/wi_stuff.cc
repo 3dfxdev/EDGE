@@ -296,16 +296,15 @@ void WI_Clear(void)
 // Draws "<Levelname> Finished!"
 static void DrawLevelFinished(void)
 {
-	int y = WI_TITLEY;
-	int w, w2, h;
+	float y = WI_TITLEY;
 
 	// draw <LevelName> 
 	DEV_ASSERT2(lnames[0]);
 
-	w = IM_WIDTH(lnames[0]);
-	h = IM_HEIGHT(lnames[0]);
+	float w = IM_WIDTH(lnames[0]);
+	float h = IM_HEIGHT(lnames[0]);
 
-	w2 = IM_WIDTH(finished);
+	float w2 = IM_WIDTH(finished);
 
 	RGL_ImageEasy320(160 - w/2,  y, lnames[0]);
 	RGL_ImageEasy320(160 - w2/2, y + h * 5/4, finished);
@@ -314,17 +313,16 @@ static void DrawLevelFinished(void)
 // Draws "Entering <LevelName>"
 static void DrawEnteringLevel(void)
 {
-	int y = WI_TITLEY;
-	int w, w2, h;
+	float y = WI_TITLEY;
 
 	// -KM- 1998/11/25 If there is no level to enter, don't draw it.
 	//      (Stop Map30 from crashing)
 	if (! lnames[1])
 		return;
 
-	h = IM_HEIGHT(entering);
-	w = IM_WIDTH(entering);
-	w2 = IM_WIDTH(lnames[1]);
+	float h = IM_HEIGHT(entering);
+	float w = IM_WIDTH(entering);
+	float w2 = IM_WIDTH(lnames[1]);
 
 	RGL_ImageEasy320(160 - w/2,  y, entering);
 	RGL_ImageEasy320(160 - w2/2, y + h * 5/4, lnames[1]);
@@ -342,11 +340,11 @@ static void DrawOnLnode(wi_mappos_c* mappos, const image_t * images[2])
 		if (images[i] == NULL)
 			continue;
 
-		int left = mappos->info->pos.x - IM_OFFSETX(images[i]);
-		int top  = mappos->info->pos.y - IM_OFFSETY(images[i]);
+		float left = mappos->info->pos.x - IM_OFFSETX(images[i]);
+		float top  = mappos->info->pos.y - IM_OFFSETY(images[i]);
 
-		int right  = left + IM_WIDTH(images[i]);
-		int bottom = top + IM_HEIGHT(images[i]);
+		float right  = left + IM_WIDTH(images[i]);
+		float bottom = top + IM_HEIGHT(images[i]);
 
 		if (left >= 0 && right < 320 && top >= 0 && bottom < 200)
 		{
@@ -373,7 +371,7 @@ static void DrawOnLnode(wi_mappos_c* mappos, const image_t * images[2])
 //  otherwise only use as many as necessary.
 // Returns new x position.
 //
-static int DrawNum(int x, int y, int n, int numdigits)
+static float DrawNum(float x, float y, int n, int numdigits)
 {
 	int neg;
 	int temp;
@@ -425,7 +423,7 @@ static int DrawNum(int x, int y, int n, int numdigits)
 	return x;
 }
 
-static void DrawPercent(int x, int y, int p)
+static void DrawPercent(float x, float y, int p)
 {
 	if (p < 0)
 		return;
@@ -439,7 +437,7 @@ static void DrawPercent(int x, int y, int p)
 // Display level completion time and par,
 //  or "sucks" message if overflow.
 //
-static void DrawTime(int x, int y, int t)
+static void DrawTime(float x, float y, int t)
 {
 	int div;
 	int n;
@@ -1150,9 +1148,7 @@ static void UpdateStats(void)
 static void DrawStats(void)
 {
 	// line height
-	int lh;
-
-	lh = IM_HEIGHT(digits[0]) * 3/2;
+	float lh = IM_HEIGHT(digits[0]) * 3/2;
 
 	// draw animated background
 	//WI_drawAnimatedBack();

@@ -187,10 +187,18 @@ void RGL_NewScreenSize(int width, int height, int bits)
 //
 // RGL_DrawImage
 //
-void RGL_DrawImage(int x, int y, int w, int h, const image_t *image, 
+void RGL_DrawImage(float x, float y, float w, float h, const image_t *image, 
 				   float tx1, float ty1, float tx2, float ty2,
 				   const colourmap_c *colmap, float alpha)
 {
+	int x1 = I_ROUND(x);
+	int y1 = I_ROUND(y);
+	int x2 = I_ROUND(x+w+0.25f);
+	int y2 = I_ROUND(y+h+0.25f);
+
+	if (x1 == x2 || y1 == y2)
+		return;
+
 	float r = 1.0f, g = 1.0f, b = 1.0f;
 
 	const cached_image_t *cim = W_ImageCache(image, false,
@@ -213,16 +221,16 @@ void RGL_DrawImage(int x, int y, int w, int h, const image_t *image,
 	glBegin(GL_QUADS);
   
 	glTexCoord2f(tx1, 1.0f - ty1);
-	glVertex2i(x, SCREENHEIGHT - y);
+	glVertex2i(x1, SCREENHEIGHT - y1);
 
 	glTexCoord2f(tx2, 1.0f - ty1); 
-	glVertex2i(x+w, SCREENHEIGHT - y);
+	glVertex2i(x2, SCREENHEIGHT - y1);
   
 	glTexCoord2f(tx2, 1.0f - ty2);
-	glVertex2i(x+w, SCREENHEIGHT - y - h);
+	glVertex2i(x2, SCREENHEIGHT - y2);
   
 	glTexCoord2f(tx1, 1.0f - ty2);
-	glVertex2i(x, SCREENHEIGHT - y - h);
+	glVertex2i(x1, SCREENHEIGHT - y2);
   
 	glEnd();
 

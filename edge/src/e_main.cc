@@ -604,11 +604,11 @@ static void M_DisplayPause(void)
 
 	// make sure image is centered horizontally
 
-	int w = FROM_320(IM_WIDTH(pause_image));
-	int h = FROM_200(IM_HEIGHT(pause_image));
+	float w = FROM_320(IM_WIDTH(pause_image));
+	float h = FROM_200(IM_HEIGHT(pause_image));
 
-	int x = FROM_320(160) - w / 2;
-	int y = FROM_200(10);
+	float x = FROM_320(160) - w / 2;
+	float y = FROM_200(10);
 
     RGL_DrawImage(x, y, w, h, pause_image, 0, 0,
                    IM_RIGHT(pause_image), IM_BOTTOM(pause_image), NULL, 1.0f);
