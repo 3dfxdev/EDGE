@@ -70,6 +70,9 @@ gamestate_e;
 // -AJA- 2000/07/31: Friend flag, from MBF
 #define MTF_FRIEND      128 
 
+// -AJA- 2004/11/04: This bit should be zero (otherwise old WAD).
+#define MTF_RESERVED    256
+
 typedef enum
 {
 	sk_invalid   = -1,
