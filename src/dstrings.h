@@ -28,12 +28,11 @@
 
 // Misc. other strings.
 // 98-7-10 KM Support for more savegame slots.
-#define SAVEGAMENAME	"save"
+#define SAVEGAMEBASE	"save"
 #define SAVEGAMEDIR	"savegame"
-#define NETSAVEDIR	"savegame.net"
-
+#define SAVEGAMEEXT     "esg"
 #define SAVEGAMEMODE    0755
-#define NETSAVEMODE     0755
+#define SAVE_SLOTS      8
 
 #define DEVMAPS "devmaps"
 #define DEVDATA "devdata"

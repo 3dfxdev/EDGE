@@ -43,8 +43,9 @@ int SV_GetError(void);
 //  READING
 //
 
-boolean_t SV_OpenReadFile(const char *filename, int *version);
+boolean_t SV_OpenReadFile(const char *filename);
 boolean_t SV_CloseReadFile(void);
+boolean_t SV_VerifyHeader(int *version);
 boolean_t SV_VerifyContents(void);
 
 boolean_t SV_PushReadChunk(const char *id);
