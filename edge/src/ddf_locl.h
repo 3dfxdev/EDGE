@@ -35,6 +35,8 @@
 #define REDIRECTOR  '#'
 #define REMARKSTART '{'
 #define REMARKSTOP  '}'
+#define GROUPSTART  '('
+#define GROUPSTOP   ')'
 #define SEPARATOR   ','
 #define SPACE       ' '
 #define STRINGSTART '\"'
@@ -71,6 +73,8 @@ typedef enum
   separator,
   string_start,
   string_stop,
+  group_start,
+  group_stop,
   tag_start,
   tag_stop,
   terminator,
@@ -284,7 +288,7 @@ boolean_t DDF_MainParseField(const commandlist_t *commands,
 void DDF_MainLookupSound(const char *info, void *storage, void *priv);
 void DDF_MainRefAttack(const char *info, void *storage, void *priv);
 
-void DDF_DummyFunction(char *info);
+void DDF_DummyFunction(const char *info, void *storage, void *priv);
 
 checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
   const specflags_t *flag_set, int *flag_value, 
