@@ -50,11 +50,12 @@ button_t *buttonlist = NULL;
 //
 bool P_InitSwitchList(void)
 {
-	int i;
-
-	for (i=0; i < num_alph_switches; i++)
+	epi::array_iterator_c it;
+	switchdef_t *sw;
+	
+	for (it = switchdefs.GetBaseIterator(); it.IsValid(); it++)
 	{
-		switchlist_t *sw = alph_switches[i];
+		sw = ITERATOR_TO_TYPE(it, switchdef_t*);
 
 		sw->cache.image[0] = W_ImageFromTexture(sw->name1, true);
 		sw->cache.image[1] = W_ImageFromTexture(sw->name2, true);
@@ -79,7 +80,7 @@ bool P_ButtonCheckPressed(line_t * line)
 //
 // Start a button counting down till it turns off.
 //
-static void StartButton(switchlist_t *sw, line_t *line, bwhere_e w,
+static void StartButton(switchdef_t *sw, line_t *line, bwhere_e w,
 		const image_t *image)
 {
 	int index;
@@ -110,16 +111,24 @@ static void StartButton(switchlist_t *sw, line_t *line, bwhere_e w,
 }
 
 //
+// P_ChangeSwitchTexture
+//
 // Function that changes wall texture.
 // Tell it if switch is ok to use again.
 //
 // -KM- 1998/09/01 All switches referencing a certain tag are switched
 //
+
+#define CHECK_SW(PART)  (sw->cache.image[k] == side->PART.image)
+#define SET_SW(PART)    side->PART.image = sw->cache.image[k^1] 
+#define OLD_SW          sw->cache.image[k]
+
 void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 		line_special_e specials, bool noSound)
 {
-	int i, j, k;
+	int j, k;
 	int tag = line->tag;
+	epi::array_iterator_c it;
 	const linedeftype_t *type = line->special;
 	mobj_t *soundorg;
 	side_t *side;
@@ -143,9 +152,10 @@ void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 
 		pos = BWH_None;
 
-		for (i=0; (i < num_alph_switches) && (pos == BWH_None); i++)
+		switchdef_t *sw;
+		for (it = switchdefs.GetBaseIterator(); it.IsValid() && (pos == BWH_None); it++)
 		{
-			switchlist_t *sw = alph_switches[i];
+			sw = ITERATOR_TO_TYPE(it, switchdef_t*);
 
 			if (!sw->cache.image[0] && !sw->cache.image[1])
 				continue;
@@ -153,10 +163,6 @@ void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 			// some like it both ways...
 			for (k=0; k < 2; k++)
 			{
-#define CHECK_SW(PART)  (sw->cache.image[k] == side->PART.image)
-#define SET_SW(PART)    side->PART.image = sw->cache.image[k^1] 
-#define OLD_SW          sw->cache.image[k]
-
 				if (CHECK_SW(top))
 				{
 					SET_SW(top);
@@ -191,7 +197,7 @@ void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 
 				break;
 			}
-		}   // i < num_alph_switches
+		}   // it.IsValid() - switchdefs
 	}   // j < numlines
 }
 
