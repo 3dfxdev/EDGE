@@ -260,7 +260,7 @@ void P_DestroyAllLights(void);
 void P_RunSectorSFX(void);
 void P_DestroyAllSectorSFX(void);
 
-void EV_LightTurnOn(line_t * line, int bright);
+void EV_LightTurnOn(int tag, int bright);
 boolean_t EV_DoDonut(sector_t * s1, sfx_t * sfx[4]);
 boolean_t EV_Teleport(line_t * line, int tag, int side, mobj_t * thing, 
     int delay, int special, const mobjinfo_t * ineffectobj,
