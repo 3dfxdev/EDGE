@@ -21,31 +21,14 @@
 
 #include "i_defs.h"
 
-#include "am_map.h"
-#include "dm_defs.h"
-#include "dm_state.h"
-#include "e_search.h"
 #include "g_game.h"
-#include "m_argv.h"
-#include "m_bbox.h"
-#include "m_random.h"
-#include "p_local.h"
-#include "p_mobj.h"
-#include "r_defs.h"
 #include "r_main.h"
-#include "r_plane.h"
-#include "r_sky.h"
-#include "r_state.h"
-#include "r_things.h"
 #include "r2_defs.h"
 #include "rgl_defs.h"
 #include "v_colour.h"
 #include "v_ctx.h"
-#include "v_res.h"
-#include "w_textur.h"
-#include "w_wad.h"
-#include "z_zone.h"
 
+#include "epi/epistring.h"
 
 #define DEBUG  0
 
@@ -63,11 +46,6 @@ int glmax_tex_units;
 
 int rgl_light_map[256];
 static lighting_model_e rgl_light_model = LMODEL_Invalid;
-
-char *glstr_vendor = NULL;
-char *glstr_renderer = NULL;
-char *glstr_version = NULL;
-char *glstr_extensions = NULL;
 
 bool glcap_hardware = true;
 bool glcap_multitex = false;
@@ -704,28 +682,37 @@ void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer)
 //
 void RGL_CheckExtensions(void)
 {
-	const GLubyte *str;
+	// -ACB- 2004/08/11 Made local: these are not yet used elsewhere
+	epi::strent_c glstr_vendor;
+	epi::strent_c glstr_renderer;
+	epi::strent_c glstr_version;
+	epi::strent_c glstr_extensions;
 
-	str = glGetString(GL_VERSION);
-	glstr_version = Z_StrDup((char*)str);
-	I_Printf("OpenGL: Version: %s\n", glstr_version);
+	epi::string_c s;
+	
+	glstr_version.Set((const char*)glGetString(GL_VERSION));
+	I_Printf("OpenGL: Version: %s\n", glstr_version.GetString());
 
-	str = glGetString(GL_VENDOR);
-	glstr_vendor = Z_StrDup((char*)str);
-	I_Printf("OpenGL: Vendor: %s\n", glstr_vendor);
+	glstr_vendor.Set((const char*)glGetString(GL_VENDOR));
+	I_Printf("OpenGL: Vendor: %s\n", glstr_vendor.GetString());
 
-	glstr_renderer = Z_StrDup((char*)glGetString(GL_RENDERER));
-	I_Printf("OpenGL: Renderer: %s\n", glstr_renderer);
+	glstr_renderer.Set((const char*)glGetString(GL_RENDERER));
+	I_Printf("OpenGL: Renderer: %s\n", glstr_renderer.GetString());
 
-	if (DDF_CompareName(glstr_vendor, "Microsoft Corporation") == 0 &&
-		DDF_CompareName(glstr_renderer, "GDI Generic") == 0)
+	// Check for a windows software renderer
+	s = glstr_vendor.GetString();
+	if (s.CompareNoCase("Microsoft Corporation") == 0)
 	{
-		I_Error("OpenGL: SOFTWARE Renderer !\n");
-		//glcap_hardware = false;
+		s = glstr_renderer.GetString();
+		if (s.CompareNoCase("GDI Generic") == 0)
+		{
+			I_Error("OpenGL: SOFTWARE Renderer!\n");
+			//glcap_hardware = false;
+		}		
 	}
-
-	glstr_extensions = Z_StrDup((char*)glGetString(GL_EXTENSIONS));
-
+	
+	glstr_extensions.Set((const char*)glGetString(GL_EXTENSIONS));
+	
 	if ((strstr(glstr_extensions, "ARB_multitexture") != NULL) ||
 		(strstr(glstr_extensions, "EXT_multitexture") != NULL))
 	{
@@ -775,7 +762,6 @@ void RGL_CheckExtensions(void)
 		dumb_sky = true;
 	}
 }
-
 
 //
 // RGL_SoftInit
