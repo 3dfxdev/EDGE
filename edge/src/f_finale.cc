@@ -329,7 +329,7 @@ static void TextWrite(void)
 //   in order of appearance
 //
 
-static const mobjinfo_c *castorder;
+static const mobjdef_c *castorder;
 static const char *casttitle;
 static int casttics;
 static state_t *caststate;
@@ -356,7 +356,7 @@ static void CastSetState(statenum_t st)
 		casttics = 15;
 }
 
-static void CAST_RangeAttack(const attacktype_t *range)
+static void CAST_RangeAttack(const atkdef_c *range)
 {
 	sfx_t *sfx = NULL;
 
@@ -450,11 +450,11 @@ static void CastPerformAction(void)
 
 static void CastInitNew(int num)
 {
-	castorder = mobjinfo.LookupCastMember(num);
+	castorder = mobjdefs.LookupCastMember(num);
 
 	// FIXME!!! Better handling of the finale
 	if (!castorder)
-		castorder = mobjinfo[0];
+		castorder = mobjdefs[0];
 
 	casttitle = castorder->cast_title ?
 		DDF_LanguageLookup(castorder->cast_title) : castorder->ddf.name;
