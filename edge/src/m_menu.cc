@@ -71,19 +71,11 @@ bool hud_overlay;  // has default
 
 int darken_screen;
 
-// 1 = message to be printed
-int messageToPrint;
+epi::strent_c msg_string;
+int msg_lastmenu;
+int msg_mode;
 
-// ...and here is the message string!
-const char *messageString;
-
-// -KM- 1998/07/21  This string holds what the user has typed in
-char *messageInputString;
-
-// message x & y
-int messx;
-int messy;
-int messageLastMenuActive;
+epi::strent_c input_string;		
 
 bool inhelpscreens;
 bool menuactive;
@@ -92,10 +84,10 @@ bool menuactive;
 #define LINEHEIGHT   15
 
 // timed message = no input from user
-static bool messageNeedsInput;
+static bool msg_needsinput;
 
 static void (* message_key_routine)(int response) = NULL;
-static void (* message_input_routine)(char *response) = NULL;
+static void (* message_input_routine)(const char *response) = NULL;
 
 static int chosen_epi;
 
@@ -116,7 +108,6 @@ static const image_t *menu_skill;
 static const image_t *menu_episode;
 static const image_t *menu_skull[2];
 static const image_t *menu_readthis[2];
-
 
 //
 //  SAVE STUFF
@@ -176,12 +167,12 @@ typedef struct
 	// 0 = no cursor here, 1 = ok, 2 = arrows ok
 	int status;
 
-  // image for menu entry
+  	// image for menu entry
 	char patch_name[10];
 	const image_t *image;
 
-  // choice = menu item #.
-  // if status = 2, choice can be SLIDERLEFT or SLIDERRIGHT
+  	// choice = menu item #.
+  	// if status = 2, choice can be SLIDERLEFT or SLIDERRIGHT
 	void (* select_func)(int choice);
 
 	// hotkey in menu
@@ -888,7 +879,6 @@ void M_SaveGame(int choice)
 //
 //   M_QuickSave
 //
-static char tempstring[80];
 
 static void QuickSaveResponse(int ch)
 {
@@ -922,11 +912,10 @@ void M_QuickSave(void)
 		quickSaveSlot = -2;  // means to pick a slot now
 		return;
 	}
-
-	sprintf(tempstring, language["QuickSaveOver"],
-			ex_slots[quickSaveSlot].desc);
-
-	M_StartMessage(tempstring, QuickSaveResponse, true);
+	
+	epi::string_c s;
+	s.Format(language["QuickSaveOver"],	ex_slots[quickSaveSlot].desc);
+	M_StartMessage(s.GetString(), QuickSaveResponse, true);
 }
 
 //
@@ -960,10 +949,9 @@ void M_QuickLoad(void)
 		return;
 	}
 
-	sprintf(tempstring, language["QuickLoad"],
-			ex_slots[quickSaveSlot].desc);
-  
-	M_StartMessage(tempstring, QuickLoadResponse, true);
+	epi::string_c s;
+	s.Format(language["QuickLoad"], ex_slots[quickSaveSlot].desc);
+	M_StartMessage(s.GetString(), QuickLoadResponse, true);
 }
 
 //
@@ -1337,6 +1325,7 @@ static void QuitResponse(int ch)
 {
 	if (ch != 'y')
 		return;
+		
 	if (!netgame)
 	{
 		int numsounds = 0;
@@ -1391,6 +1380,7 @@ static void QuitResponse(int ch)
 //
 // -ACB- 1998/07/19 Removed offensive messages selection (to some people);
 //     Better Random Selection.
+//
 // -KM- 1998/07/21 Reinstated counting quit messages, so adding them to dstrings.c
 //                   is all you have to do.  Using P_Random for the random number
 //                   automatically kills the demo sync...
@@ -1401,39 +1391,42 @@ static void QuitResponse(int ch)
 //
 void M_QuitEDGE(int choice)
 {
-	static char *endstring = NULL;
-	const char *DOSY;
-	const char *chosen_msg;
-	char refname[16];
-
-	int num_quitmessages;
-
-	DOSY = language["PressToQuit"];
-
-	num_quitmessages = 0;
+	epi::string_c ref;
+	epi::string_c msg;
+	
+	int num_quitmessages = 1;
 
 	// Count the quit messages
-	// -ES- 2000/02/04 Cleaned Up.
 	do
 	{
-		sprintf(refname, "QUITMSG%d", num_quitmessages + 1);
-		if (language.IsValidRef(refname))
-			num_quitmessages++;
-		else
+		ref.Format("QUITMSG%d", num_quitmessages);
+		
+		if (!language.IsValidRef(ref.GetString()))
 			break;
+			
+		num_quitmessages++;	// Starts at one not zero
 	}
 	while (true);
-
-	//
-	// We pick index 0 which is language sensitive,
-	// or one at random, between 1 and maximum number.
-	//
-	sprintf(refname, "QUITMSG%d", (M_Random() % num_quitmessages) + 1);
-	chosen_msg = language[refname];
-	Z_Resize(endstring, char, strlen(chosen_msg) + 3 + strlen(DOSY));
-	sprintf(endstring, "%s\n\n%s", chosen_msg, DOSY);
-
-	M_StartMessage(endstring, QuitResponse, true);
+	
+	// We started from one, hence we take go back one
+	num_quitmessages--;
+	
+	// -ACB- 2004/08/14 Allow fallback to just the "PressToQuit" message
+	if (num_quitmessages > 0)
+	{
+		// Pick one at random
+		ref.Format("QUITMSG%d", (M_Random() % num_quitmessages) + 1);
+		
+		// Construct the quit message in full
+		msg.Format("%s\n\n%s", language[ref], language["PressToQuit"]);
+	}
+	else
+	{
+		msg = language["PressToQuit"];
+	}
+	
+	// Trigger the message
+	M_StartMessage(msg.GetString(), QuitResponse, true);
 }
 
 // 98-7-10 KM Use new defines
@@ -1514,15 +1507,18 @@ void M_DrawThermo(int x, int y, int thermWidth, int thermDot, int div)
 	VCTX_Image320(x, y, step+1, IM_HEIGHT(therm_o)/div, therm_o);
 }
 
+//
+// M_StartMessage
+//
 void M_StartMessage(const char *string, void (* routine)(int response), 
 					bool input)
 {
-	messageLastMenuActive = menuactive;
-	messageToPrint = 1;
-	messageString = string;
+	msg_lastmenu = menuactive;
+	msg_mode = 1;
+	msg_string.Set(string);
 	message_key_routine = routine;
 	message_input_routine = NULL;
-	messageNeedsInput = input;
+	msg_needsinput = input;
 	menuactive = true;
 	CON_SetVisible(vs_notvisible);
 	return;
@@ -1534,34 +1530,34 @@ void M_StartMessage(const char *string, void (* routine)(int response),
 // -KM- 1998/07/21 Call M_StartMesageInput to start a message that needs a
 //                 string input. (You can convert it to a number if you want to.)
 //                 
-// string:  The prompt, eg "What is your name\n\n" must be either
-//          static or globally visible.
+// string:  The prompt.
 //
 // routine: Format is void routine(char *s)  Routine will be called
 //          with a pointer to the input in s.  s will be NULL if the user
 //          pressed ESCAPE to cancel the input.
-//  
-//          String is allocated by Z_Malloc, it is your responsibility to
-//          Z_Free it.
 //
 void M_StartMessageInput(const char *string,
-						 void (* routine)(char *response))
+						 void (* routine)(const char *response))
 {
-	messageLastMenuActive = menuactive;
-	messageToPrint = 2;
-	messageString = string;
+	msg_lastmenu = menuactive;
+	msg_mode = 2;
+	msg_string.Set(string);
 	message_input_routine = routine;
 	message_key_routine = NULL;
-	messageNeedsInput = true;
+	msg_needsinput = true;
 	menuactive = true;
 	CON_SetVisible(vs_notvisible);
 	return;
 }
 
+//
+// M_StopMessage
+//
 void M_StopMessage(void)
 {
-	menuactive = messageLastMenuActive?true:false;
-	messageToPrint = 0;
+	menuactive = msg_lastmenu?true:false;
+	msg_string.Clear();
+	msg_mode = 0;
   
 	if (!menuactive)
 		save_screenshot_valid = false;
@@ -1595,15 +1591,15 @@ bool M_Responder(event_t * ev)
 
 	// Take care of any messages that need input
 	// -KM- 1998/07/21 Message Input
-	if (messageToPrint == 1)
+	if (msg_mode == 1)
 	{
-		if (messageNeedsInput == true &&
+		if (msg_needsinput == true &&
 			!(ch == ' ' || ch == 'n' || ch == 'y' || ch == KEYD_ESCAPE))
 			return false;
 
-		messageToPrint = 0;
+		msg_mode = 0;
 		// -KM- 1998/07/31 Moved this up here to fix bugs.
-		menuactive = messageLastMenuActive?true:false;
+		menuactive = msg_lastmenu?true:false;
 
 		if (message_key_routine)
 			(* message_key_routine)(ch);
@@ -1611,27 +1607,18 @@ bool M_Responder(event_t * ev)
 		S_StartSound(NULL, sfx_swtchx);
 		return true;
 	}
-	else if (messageToPrint == 2)
-	{
-		static int messageLength;
-		static int messageP;
-
-		if (!messageInputString)
-		{
-			messageInputString = Z_New(char, 32);
-			messageLength = 32;
-			messageP = 0;
-			Z_Clear(messageInputString, char, messageLength);
-		}
+	else if (msg_mode == 2)
+	{		
 		if (ch == KEYD_ENTER)
 		{
-			menuactive = messageLastMenuActive?true:false;
-			messageToPrint = 0;
+			menuactive = msg_lastmenu?true:false;
+			msg_mode = 0;
 
 			if (message_input_routine)
-				(* message_input_routine)(messageInputString);
+				(* message_input_routine)(input_string.GetString());
 
-			messageInputString = NULL;
+			input_string.Clear();
+			
 			menuactive = false;
 			S_StartSound(NULL, sfx_swtchx);
 			return true;
@@ -1639,8 +1626,8 @@ bool M_Responder(event_t * ev)
 
 		if (ch == KEYD_ESCAPE)
 		{
-			menuactive = messageLastMenuActive?true:false;
-			messageToPrint = 0;
+			menuactive = msg_lastmenu?true:false;
+			msg_mode = 0;
       
 			if (message_input_routine)
 				(* message_input_routine)(NULL);
@@ -1648,34 +1635,48 @@ bool M_Responder(event_t * ev)
 			menuactive = false;
 			save_screenshot_valid = false;
 
-			Z_Free(messageInputString);
-			messageInputString = NULL;
+			input_string.Clear();
+			
 			S_StartSound(NULL, sfx_swtchx);
 			return true;
 		}
-		if (ch == KEYD_BACKSPACE)
+		
+		if (ch == KEYD_BACKSPACE && !input_string.IsEmpty())
 		{
-			if (messageP > 0)
+			epi::string_c s = input_string.GetString();
+			if (s.GetLength() > 0)
 			{
-				messageP--;
-				messageInputString[messageP] = 0;
+				s.RemoveRight(1);
+				input_string.Set(s.GetString());
 			}
+				
 			return true;
 		}
+		
 		ch = toupper(ch);
 		if (ch == '-')
 			ch = '_';
+			
 		if (ch != 32)
+		{
 			if (ch - HU_FONTSTART < 0 || ch - HU_FONTSTART >= HU_FONTSIZE)
 				return true;
-		if ((ch >= 32) && (ch <= 127) &&
-			(HL_StringWidth(messageInputString) < 300))
-		{
-			messageInputString[messageP++] = ch;
-			messageInputString[messageP] = 0;
 		}
-		if (messageP == (messageLength - 1))
-			Z_Resize(messageInputString, char, ++messageLength);
+		
+		if (ch >= 32 && ch <= 127)
+		{
+			epi::string_c s;
+
+			if (!input_string.IsEmpty())
+				s = input_string;
+
+			s += ch;
+			
+			// Set the input_string only if fits
+			if (HL_StringWidth(s.GetString()) < 300)
+				input_string.Set(s.GetString());
+		}
+		
 		return true;
 	}
 
@@ -1747,21 +1748,6 @@ bool M_Responder(event_t * ev)
 				M_SizeDisplay(SLIDERRIGHT);
 				S_StartSound(NULL, sfx_stnmov);
 				return true;
-
-/*
-  case KEYD_F1:  // Help key
-
-  M_StartControlPanel();
-
-  //if ( gamemode == retail )
-  //  currentMenu = &ReadDef2;
-  //else
-  currentMenu = &ReadDef1;
-
-  itemOn = 0;
-  S_StartSound(NULL, sfx_swtchn);
-  return true;
-*/
 
 			case KEYD_F2:  // Save
 
@@ -1980,11 +1966,10 @@ void M_StartControlPanel(void)
 //
 void M_Drawer(void)
 {
-	static short x;
-	static short y;
+	short x;
+	short y;
 	unsigned int i;
 	unsigned int max;
-	int start;
 
 	inhelpscreens = false;
 
@@ -1998,82 +1983,78 @@ void M_Drawer(void)
 	}
 
 	// Horiz. & Vertically center string and print it.
-	if (messageToPrint)
+	if (msg_mode)
 	{
-		// -KM- 1998/06/25 Remove limit.
-		// -KM- 1998/07/21 Add space for input
-		// -ACB- 1998/06/09 More space for message.
-		// -KM- 1998/07/31 User input in different colour.
-		char *string;
-		char *Mstring;
-		int len;
-		int input_start;
+		// FIXME: HU code should support center justification: this
+		// would remove the code duplication below...
+		epi::string_c msg;
+		epi::string_c input;
+		epi::string_c s;
+		int oldpos, pos;
 
-		// Reserve space for prompt
-		len = input_start = strlen(messageString);
-
-		// Reserve space for what the user typed in
-		len += messageInputString ? strlen(messageInputString) : 0;
-
-		// Reserve space for '_' cursor
-		len += (messageToPrint == 2) ? 1 : 0;
-
-		// Reserve space for NULL Terminator
-		len++;
-
-		string = Z_New(char, len);
-		Mstring = Z_New(char, len);
-
-		strcpy(Mstring, messageString);
-
-		if (messageToPrint == 2)
+		if (!msg_string.IsEmpty())
+			msg = msg_string.GetString();
+		
+		if (!input_string.IsEmpty())
+			input = input_string.GetString();
+		
+		if (msg_mode == 2)
+			input += "_";
+		
+		// Calc required height
+		s = msg + input;
+		y = 100 - (HL_StringHeight(s.GetString()) / 2);
+		
+		if (!msg.IsEmpty())
 		{
-			if (messageInputString)
-				strcpy(Mstring + strlen(messageString), messageInputString);
-
-			Mstring[i = strlen(Mstring)] = '_';
-			Mstring[i + 1] = 0;
-		}
-
-		start = 0;
-
-		y = 100 - HL_StringHeight(Mstring) / 2;
-
-		while (*(Mstring + start))
-		{
-			for (i = 0; i < strlen(Mstring + start); i++)
+			oldpos = 0;
+			do
 			{
-				if (*(Mstring + start + i) == '\n')
+				pos = msg.Find('\n', oldpos);
+				
+				s.Empty();
+				if (pos >= 0)
+					msg.GetMiddle(oldpos, pos-oldpos, s);
+				else
+					msg.GetMiddle(oldpos, msg.GetLength(), s);
+			
+				if (s.GetLength())
 				{
-					// copy substring and apply terminator
-					Z_MoveData(string, Mstring + start, char, i);
-					string[i] = 0;
-					start += (i + 1);
-					break;
+					x = 160 - (HL_StringWidth(s.GetString()) / 2);
+					HL_WriteText(x, y, s.GetString());
 				}
+				
+				y += hu_font.height;
+				oldpos = pos + 1;
 			}
-
-			if (i == strlen(Mstring + start))
-			{
-				strcpy(string, Mstring + start);
-				start += i;
-			}
-
-			x = 160 - HL_StringWidth(string) / 2;
-
-			// -KM- 1998/07/31 Colour should be a define or something...
-			// -ACB- 1998/09/01 Colour is now a define
-			if (start > input_start)
-				HL_WriteTextTrans(x, y, text_yellow_map, string);
-			else
-				HL_WriteText(x, y, string);
-
-			y += hu_font.height;
+			while (pos >= 0 && oldpos < (int)msg.GetLength());
 		}
 
-		Z_Free(string);
-		Z_Free(Mstring);
-
+		if (!input.IsEmpty())
+		{
+			oldpos = 0;
+			do
+			{
+				pos = input.Find('\n', oldpos);
+				
+				s.Empty();
+				if (pos >= 0)
+					input.GetMiddle(oldpos, pos-oldpos, s);
+				else
+					input.GetMiddle(oldpos, input.GetLength(), s);
+			
+				if (s.GetLength())
+				{
+					x = 160 - (HL_StringWidth(s.GetString()) / 2);
+					HL_WriteTextTrans(x, y, text_yellow_map, s.GetString());
+				}
+				
+				y += hu_font.height;
+				oldpos = pos + 1;
+			}
+			while (pos >= 0 && oldpos < (int)input.GetLength());
+		}
+		
 		return;
 	}
 
@@ -2166,9 +2147,9 @@ bool M_Init(void)
 	whichSkull = 0;
 	skullAnimCounter = 10;
 	screen_size = screenblocks - 3;
-	messageToPrint = 0;
-	messageString = NULL;
-	messageLastMenuActive = menuactive;
+	msg_mode = 0;
+	msg_string.Clear();
+	msg_lastmenu = menuactive;
 	quickSaveSlot = -1;
 
 	// lookup required images
