@@ -180,6 +180,10 @@ namespace Things
 		// strangely absent from MT_PLAYER
 		if (player)
 			cur_f |= MF_SLIDE;
+		
+		// this can cause EDGE 1.27 to crash
+		if (! player)
+			cur_f &= ~MF_PICKUP;
 
 		// EDGE requires teleportman in sector. (DOOM uses thinker list)
 		if (mt_num == MT_TELEPORTMAN)
@@ -219,12 +223,23 @@ namespace Things
 		if (flags_got_one)
 			WAD::Printf(";\n");
 
+		if (cur_f & MF_TRANSLATION)
+		{
+			if ((cur_f & MF_TRANSLATION) == 0x4000000)
+				WAD::Printf("PALETTE_REMAP = PLAYER_DK_GREY;\n");
+			else if ((cur_f & MF_TRANSLATION) == 0x8000000)
+				WAD::Printf("PALETTE_REMAP = PLAYER_BROWN;\n");
+			else
+				WAD::Printf("PALETTE_REMAP = PLAYER_DULL_RED;\n");
+
+			cur_f &= ~MF_TRANSLATION;
+		}
+
 		if (cur_f != 0)
 			PrintWarn("Unconverted flags 0x%08x in entry [%s]\n",
 				cur_f, info->name);
 	}
 
-	
 	const int height_fixes[] =
 	{
 	   MT_MISC14, 60, MT_MISC29, 78, MT_MISC30, 58, MT_MISC31, 46,
