@@ -79,7 +79,9 @@ void RGL_RainbowEffect(player_t *player)
 
 	if (s > 0 && player->powers[PW_Invulnerable] > 0)
 	{
-		ren_red_mul = 0.85f + 0.15f * (1.0f - s);
+		ren_red_mul = 0.90f - usegamma / 10.0f; 
+		ren_red_mul += (1.0f - ren_red_mul) * (1.0f - s);
+
 		ren_grn_mul = ren_red_mul;
 		ren_blu_mul = ren_red_mul;
 		return;
@@ -170,7 +172,7 @@ void RGL_PaletteEffect(player_t *player)
 		if (! player->effect_colourmap->lump_name.IsEmpty())  // TEMP HACK
 		{
 			// -AJA- this looks good in standard Doom, but messes up HacX:
-			glColor4f(1.0f, 0.5f, 0.0f, 0.20f * s);
+			glColor4f(1.0f, 0.5f, 0.0f, 0.22f * s);
 		}
 	}
 	else if (s > 0 && player->powers[PW_NightVision] > 0 && player->effect_colourmap)
