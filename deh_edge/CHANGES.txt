@@ -12,7 +12,11 @@ Changes in V1.3  (Unreleased)
 
  - added MacOS X support.
 
- - fixed Revenant missiles (no_trace_chance should be 50%).
+ - fix for Revenant missiles (no_trace_chance, trace_angle).
+ - fix for Boss-Brain (should use ALWAYS_LOUD in 1.29 and higher).
+ - support new ammo types (in Edge 1.29) for player things.
+
+ - write #VERSION directive in correct place (after tag in <>).
 
 
 Changes in V1.2  (23rd September 2004)
