@@ -348,39 +348,32 @@ static void RGL_Wipe_Doors(float how_far)
 		float c = column / 10.0f;
 		float e = column / 5.0f;
 
-		// left side
-		glBegin(GL_QUAD_STRIP);
+		for (int side = 0; side < 2; side++)
+		{
+			float t_x1 = (side == 0) ? c : (0.9f - c);
+			float t_x2 = t_x1 + 0.1f;
 
-		glTexCoord2f(0.1f + c, 0.0f);
-		glVertex2f(dx * (e + 0.2f), dy * (e + 0.2f));
+			float v_x1 = (side == 0) ? (dx * e) : (SCREENWIDTH - dx * (e + 0.2f));
+			float v_x2 = v_x1 + dx * 0.2f;
 
-		glTexCoord2f(0.0f + c, 0.0f);
-		glVertex2f(dx * e, dy * e);
+			float v_y1 = (side == 0) ? (dy * e) : (dy * (e + 0.2f));
+			float v_y2 = (side == 1) ? (dy * e) : (dy * (e + 0.2f));
 
-		glTexCoord2f(0.1f + c, 1.0f);
-		glVertex2f(dx * (e + 0.2f), SCREENHEIGHT - dy * (e + 0.2f));
+			glBegin(GL_QUAD_STRIP);
 
-		glTexCoord2f(0.0f + c, 1.0f);
-		glVertex2f(dx * e, SCREENHEIGHT - dy * e);
+			for (int row = 0; row <= 5; row++)
+			{
+				float t_y = row / 5.0f;
 
-		glEnd();
+				float j1 = (SCREENHEIGHT - v_y1 * 2.0f) / 5.0f;
+				float j2 = (SCREENHEIGHT - v_y2 * 2.0f) / 5.0f;
 
-		// right side
-		glBegin(GL_QUAD_STRIP);
+				glTexCoord2f(t_x2, t_y); glVertex2f(v_x2, v_y2 + j2 * row);
+				glTexCoord2f(t_x1, t_y); glVertex2f(v_x1, v_y1 + j1 * row);
+			}
 
-		glTexCoord2f(1.0f - c, 0.0f);
-		glVertex2f(SCREENWIDTH - dx * e, dy * e);
-
-		glTexCoord2f(0.9f - c, 0.0f);
-		glVertex2f(SCREENWIDTH - dx * (e + 0.2f), dy * (e + 0.2f));
-
-		glTexCoord2f(1.0f - c, 1.0f);
-		glVertex2f(SCREENWIDTH - dx * e, SCREENHEIGHT - dy * e);
-
-		glTexCoord2f(0.9f - c, 1.0f);
-		glVertex2f(SCREENWIDTH - dx * (e + 0.2f), SCREENHEIGHT - dy * (e + 0.2f));
-
-		glEnd();
+			glEnd();
+		}
 	}
 
 	glDisable(GL_BLEND);
@@ -410,7 +403,7 @@ bool RGL_DoWipe(void)
 
 	progress = MAX(0, progress - cur_wipe_start);
 
-	if (progress > 40)
+	if (progress > 40)  // FIXME: have option for wipe speed
 		return true;
 
 	how_far = (float) progress / 40.0f;
@@ -435,9 +428,12 @@ bool RGL_DoWipe(void)
 			RGL_Wipe_Slide(how_far, -SCREENWIDTH, 0);
 			break;
 
-		case WIPE_Corners:  // Fixme
 		case WIPE_Right:
 			RGL_Wipe_Slide(how_far, +SCREENWIDTH, 0);
+			break;
+
+		case WIPE_Spooky:  // FIXME: do something better!
+			RGL_Wipe_Slide(how_far, +SCREENWIDTH, +SCREENHEIGHT);
 			break;
 
 		case WIPE_Doors:
