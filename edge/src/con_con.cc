@@ -43,6 +43,9 @@
 #include "z_zone.h"
 
 
+#define CON_WIPE_TICS  12
+
+#define CON_GFX_HT  (SCREENHEIGHT * 3 / 5)
 
 typedef struct coninfo_s 
 {
@@ -71,18 +74,17 @@ gui_t console =
 
 // stores the console toggle effect
 /// wipeinfo_t *conwipe = NULL;
-int conwipeactive = 0;
-int conwipestart = 0;
-int conwipemethod = WIPE_Crossfade;
-bool conwipereverse = 0;
-int conwipeduration = 10;
+static int conwipeactive = 0;
+static int conwipepos = 0;
+static int conwipedir = 0;
+static int conwipemethod = WIPE_Crossfade;
+static bool conwipereverse = 0;
+static int conwipeduration = 10;
 
 #define KEYREPEATDELAY ((250 * TICRATE) / 1000)
 #define KEYREPEATRATE  (TICRATE / 15)
 
 // the console's screen
-char consolebackg[9] = "CONSOLE";
-static const image_t *console_bg_image = NULL;
 static style_c *console_style;
 
 typedef struct consoleline_s
@@ -182,8 +184,6 @@ bool TabbedLast;
 
 bool CON_HandleKey(guievent_t * ev);
 
-void UpdateConback(cvar_t *var, void *user);
-
 typedef enum
 {
 	NOSCROLL,
@@ -192,7 +192,7 @@ typedef enum
 }
 scrollstate_e;
 
-scrollstate_e scroll_state;
+static scrollstate_e scroll_state;
 
 static int (*MaxTextLen) (const char *s);
 
@@ -358,9 +358,7 @@ void CON_InitConsole(int width, int height, int gfxmode)
 	if (gfxmode)
 	{
 		MaxTextLen = MaxTextLen_gfx;
-		conrows = (height * 200 / SCREENHEIGHT) / 8;
-
-		UpdateConback(CON_CVarPtrFromName("conback"), NULL);
+		conrows = (height * 200 / SCREENHEIGHT) / 4;
 	}
 	else
 	{
@@ -389,15 +387,27 @@ void CON_InitConsole(int width, int height, int gfxmode)
 
 void CON_SetVisible(visible_t v)
 {
+	if (v == vs_toggle)
+	{
+		v = (con_info.visible == vs_notvisible) ? vs_maximal : vs_notvisible;
+	}
+
 	if (con_info.visible == v)
 		return;
 
 	con_info.visible = v;
+
 	if (v == vs_maximal)
 	{
 		GUI_SetFocus(console.gui, &console);
 		cmdhistorypos = -1;
 		TabbedLast = false;
+	}
+
+	if (! conwipeactive)
+	{
+		conwipeactive = true;
+		conwipepos = (v == vs_maximal) ? 0 : CON_WIPE_TICS;
 	}
 }
 
@@ -541,6 +551,22 @@ void CON_Ticker(gui_t * gui)
 			break;
 		}
 	}
+
+	if (conwipeactive)
+	{
+		if (info->visible == vs_notvisible)
+		{
+			conwipepos--;
+			if (conwipepos <= 0)
+				conwipeactive = false;
+		}
+		else
+		{
+			conwipepos++;
+			if (conwipepos >= CON_WIPE_TICS)
+				conwipeactive = false;
+		}
+	}
 }
 
 // writes the text on coords (x,y) of the console
@@ -553,7 +579,7 @@ static void WriteText(int x, int y, char *s, int len, int text_type)
 
 	Z_StrNCpy(buffer, s, len);
 
-	HL_WriteText(console_style, text_type, x, y, buffer);
+	HL_WriteText(console_style, text_type, x, y, buffer, 0.5f);
 }
 
 //
@@ -577,17 +603,19 @@ void CON_Drawer(gui_t * gui)
 	int bottom;
 	int len, c;
 
-	if (info->visible == vs_notvisible)
-	{  // Console is inactive.
-		// Continue fading out console if it isn't already outfaded.
+	if (info->visible == vs_notvisible && !conwipeactive)
+	{
 		return;
 	}
 
-	// -AJA- Temp fix for image system:
-	RGL_DrawImage(0, 0, SCREENWIDTH, (SCREENHEIGHT * 3 / 4) & ~7,
-	    console_bg_image,
-		0.0f, 0.0f, IM_RIGHT(console_bg_image) * 5.0f, 
-		IM_BOTTOM(console_bg_image) * 5.0f, NULL, 1.0f);
+	int wiping_y = 0;
+	
+	if (conwipeactive)
+	{
+		wiping_y = CON_GFX_HT * (CON_WIPE_TICS - conwipepos) / CON_WIPE_TICS;
+	}
+
+	console_style->DrawBackground(0, 0, SCREENWIDTH, CON_GFX_HT - wiping_y, 1);
 
 	if (bottomrow == -1)
 		bottom = numvislines;
@@ -603,21 +631,23 @@ void CON_Drawer(gui_t * gui)
 		i = 0;
 	}
 
-	// !!!! FIXME: y * 8 shite
+	// !!!! FIXME: y * 4 shite
+
+	wiping_y = wiping_y * 200 / SCREENHEIGHT;
 
 	for (; i < curlinesize && y < conrows; i++, y++)
 	{
-		WriteText(0, y * 8, curlines[i], curlinelengths[i], 0);
+		WriteText(0, y * 4 - wiping_y, curlines[i], curlinelengths[i], 0);
 	}
 	i -= curlinesize;
 	for (; i < vislastline_n && y < conrows; i++, y++)
 	{
-		WriteText(0, y * 8, vislastline_s[i], vislastline_l[i], 0);
+		WriteText(0, y * 4 - wiping_y, vislastline_s[i], vislastline_l[i], 0);
 	}
 	i -= vislastline_n;
 	for (; i < viscmdline_n && y < conrows; i++, y++)
 	{
-		WriteText(0, y * 8, viscmdline_s[i], viscmdline_l[i], 1);
+		WriteText(0, y * 4 - wiping_y, viscmdline_s[i], viscmdline_l[i], 1);
 	}
 
 	// draw the cursor on the right place of the command line.
@@ -645,22 +675,10 @@ void CON_Drawer(gui_t * gui)
 			c = viscmdline_s[i][len];
 			// temporarily truncate the cmdline to the cursor position.
 			viscmdline_s[i][len] = 0;
-			WriteText(console_style->fonts[1]->StringWidth(viscmdline_s[i]),
-				y * 8, "_", 1, 1);
+			WriteText(console_style->fonts[1]->StringWidth(viscmdline_s[i]) / 2,
+				y * 4 - wiping_y, "_", 1, 1);
 			viscmdline_s[i][len] = c;
 		}
-	}
-}
-
-static void ToggleConsole(void)
-{
-	if (con_info.visible == vs_notvisible)
-	{
-		CON_SetVisible(vs_maximal);
-	}
-	else
-	{
-		CON_SetVisible(vs_notvisible);
 	}
 }
 
@@ -906,11 +924,13 @@ bool CON_Responder(gui_t * gui, guievent_t * event)
 
 	if (info->visible == vs_notvisible)
 	{
+#if 0  // CURRENTLY UNREACHABLE CODE
 		if (event->type == gev_keydown && event->data1 == KEYD_TILDE)
 		{
-			ToggleConsole();
+			CON_SetVisible(vs_toggle);
 			return true;
 		}
+#endif
 		return false;
 	}
 
@@ -964,25 +984,12 @@ bool CON_Responder(gui_t * gui, guievent_t * event)
 
 bool CON_InitResolution(void)
 {
-	CON_InitConsole(SCREENWIDTH, (SCREENHEIGHT * 3 / 4) & ~7, true);
+	CON_InitConsole(SCREENWIDTH, CON_GFX_HT, true);
 	return true;
-}
-
-void UpdateConback(cvar_t *var, void *user)
-{
-	const char *flat;
-
-	flat = (const char *)CON_CVarGetValue(var);
-
-	console_bg_image = W_ImageLookup(flat, INS_Flat);
 }
 
 void CON_Start(gui_t ** gui)
 {
-	CON_CreateCVarEnum("constate", cf_normal, &con_info.visible, "notvisible/visible", NUMVIS);
-	CON_CreateCVarStr("conback", cf_normal, consolebackg, 8);
-	CON_AddCVarCallback(CON_CVarPtrFromName("conback"), UpdateConback, NULL, NULL);
-
 	CON_CreateCVarEnum("conwipemethod", cf_normal, &conwipemethod, WIPE_EnumStr, WIPE_NUMWIPES);
 	CON_CreateCVarInt("conwipeduration", cf_normal, &conwipeduration);
 	CON_CreateCVarBool("conwipereverse", cf_normal, &conwipereverse);

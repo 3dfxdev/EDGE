@@ -71,7 +71,7 @@ typedef enum
 {
 	vs_notvisible,     // invisible
 	vs_maximal,        // fullscreen + a command line
-	NUMVIS
+	vs_toggle
 }
 visible_t;
 

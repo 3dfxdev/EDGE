@@ -63,7 +63,7 @@ public:
 	int StringLines(const char *str) const;
 	int MaxFit(int pixel_w, const char *str) const;
 
-	void DrawChar(float x, float y, char ch,
+	void DrawChar(float x, float y, char ch, float scale, float aspect,
 		const colourmap_c *colmap, float alpha) const;
 
 	// FIXME: maybe shouldn't be public (assumes FNTYP_Patch !!)

@@ -174,8 +174,8 @@ void HL_DrawTextLineAlpha(hu_textline_t * l, bool drawcursor,
     const colourmap_c *colmap, float alpha);
 
 
-void HL_WriteText(style_c *style, int text_type, int x, int y, const char *str);
+void HL_WriteText(style_c *style, int text_type, int x, int y, const char *str, float scale = 1.0f);
 void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
-	const colourmap_c *colmap, const char *str);
+	const colourmap_c *colmap, const char *str, float scale = 1.0f);
 
 #endif  // __HULIB__
