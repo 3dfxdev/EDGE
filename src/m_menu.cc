@@ -1185,6 +1185,7 @@ static void VerifyNightmare(int ch)
   
 	// find episode (???)
 	// FIXME!!!Unify the starting level code
+	g = NULL;
 	for (it = gamedefs.GetBaseIterator(); it.IsValid(); it++) 
 	{ 
 		g = ITERATOR_TO_TYPE(it, gamedef_c*);
@@ -1226,6 +1227,7 @@ void M_ChooseSkill(int choice)
   
 	// find episode (???)
 	// FIXME!!! Unify the starting level code
+	g = NULL;
 	for (it = gamedefs.GetBaseIterator(); it.IsValid(); it++) 
 	{ 
 		g = ITERATOR_TO_TYPE(it, gamedef_c*);

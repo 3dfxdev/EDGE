@@ -29,13 +29,8 @@
 
 #include "ddf_locl.h"
 #include "ddf_main.h"
-#include "dm_state.h"
-#include "e_search.h"
-#include "m_fixed.h"
-#include "m_math.h"
+
 #include "p_action.h"
-#include "p_local.h"
-#include "p_mobj.h"
 #include "z_zone.h"
 
 #include "./epi/epistring.h"
@@ -45,19 +40,19 @@
 
 #define DDF_MobjHashFunc(x)  (((x) + LOOKUP_CACHESIZE) % LOOKUP_CACHESIZE)
 
-mobjdef_c buffer_mobj;
-mobjdef_c *dynamic_mobj;
+mobjtype_c buffer_mobj;
+mobjtype_c *dynamic_mobj;
 
-mobjdef_container_c mobjdefs;
+mobjtype_container_c mobjtypes;
 
 void DDF_MobjGetBenefit(const char *info, void *storage);
 void DDF_MobjGetDLight(const char *info, void *storage);
 
-static dlightinfo_c dummy_dlight;
-static haloinfo_c dummy_halo;
+static dlightinfo_c buffer_dlight;
+static haloinfo_c buffer_halo;
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  dummy_halo
+#define DDF_CMD_BASE  buffer_halo
 
 const commandlist_t halo_commands[] =
 {
@@ -73,7 +68,7 @@ const commandlist_t halo_commands[] =
 };
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  dummy_dlight
+#define DDF_CMD_BASE  buffer_dlight
 
 const commandlist_t dlight_commands[] =
 {
@@ -91,10 +86,10 @@ const commandlist_t dlight_commands[] =
 const commandlist_t thing_commands[] =
 {
 	// sub-commands
-	DDF_SUB_LIST("HALO",   halo,   halo_commands,   dummy_halo),
-	DDF_SUB_LIST("DLIGHT", dlight, dlight_commands, dummy_dlight),
-	DDF_SUB_LIST("EXPLODE DAMAGE", damage, damage_commands, dummy_damage),
-	DDF_SUB_LIST("CHOKE DAMAGE", choke_damage, damage_commands, dummy_damage),
+	DDF_SUB_LIST("HALO",   halo,   halo_commands,   buffer_halo),
+	DDF_SUB_LIST("DLIGHT", dlight, dlight_commands, buffer_dlight),
+	DDF_SUB_LIST("EXPLODE DAMAGE", damage, damage_commands, buffer_damage),
+	DDF_SUB_LIST("CHOKE DAMAGE", choke_damage, damage_commands, buffer_damage),
 
 	DF("SPAWNHEALTH", spawnhealth, DDF_MainGetFloat),
 	DF("RADIUS", radius, DDF_MainGetFloat),
@@ -467,24 +462,24 @@ static bool ThingStartEntry(const char *buffer)
 
 	if (namebuf[0])
 	{
-		idx = mobjdefs.FindFirst(namebuf, mobjdefs.GetDisabledCount());
+		idx = mobjtypes.FindFirst(namebuf, mobjtypes.GetDisabledCount());
 		if (idx>=0)
 		{
-			mobjdefs.MoveToEnd(idx);
-			dynamic_mobj = mobjdefs[mobjdefs.GetSize()-1];
+			mobjtypes.MoveToEnd(idx);
+			dynamic_mobj = mobjtypes[mobjtypes.GetSize()-1];
 		}
 	}
 
 	if (idx < 0)
 	{
-		dynamic_mobj = new mobjdef_c;
+		dynamic_mobj = new mobjtype_c;
 
 		dynamic_mobj->ddf.name = 
 			(namebuf[0]) ? 
 			Z_StrDup(namebuf) :
-			DDF_MainCreateUniqueName("UNNAMED_THING", mobjdefs.GetSize());
+			DDF_MainCreateUniqueName("UNNAMED_THING", mobjtypes.GetSize());
 
-		mobjdefs.Insert(dynamic_mobj);
+		mobjtypes.Insert(dynamic_mobj);
 	}
 
 	dynamic_mobj->ddf.number = number;
@@ -593,7 +588,7 @@ static void ThingClearAll(void)
 	// not safe to delete the thing entries
 
 	// Make all entries disabled
-	mobjdefs.SetDisabledCount(mobjdefs.GetSize());
+	mobjtypes.SetDisabledCount(mobjtypes.GetSize());
 }
 
 void DDF_ReadThings(void *data, int size)
@@ -628,30 +623,30 @@ void DDF_ReadThings(void *data, int size)
 
 void DDF_MobjInit(void)
 {
-	mobjdefs.Clear();
+	mobjtypes.Clear();
 }
 
 void DDF_MobjCleanUp(void)
 {
 	epi::array_iterator_c it;
-	mobjdef_c *m;
+	mobjtype_c *m;
 
 	// lookup references
-	for (it = mobjdefs.GetIterator(mobjdefs.GetDisabledCount()); it.IsValid(); it++)
+	for (it = mobjtypes.GetIterator(mobjtypes.GetDisabledCount()); it.IsValid(); it++)
 	{
-		m = ITERATOR_TO_TYPE(it, mobjdef_c*);
+		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
 
 		DDF_ErrorSetEntryName("[%s]  (things.ddf)", m->ddf.name);
 
-		m->dropitem = m->dropitem_ref ? mobjdefs.Lookup(m->dropitem_ref) : NULL;
-		m->blood = m->blood_ref ? mobjdefs.Lookup(m->blood_ref) : mobjdefs.Lookup("BLOOD");
+		m->dropitem = m->dropitem_ref ? mobjtypes.Lookup(m->dropitem_ref) : NULL;
+		m->blood = m->blood_ref ? mobjtypes.Lookup(m->blood_ref) : mobjtypes.Lookup("BLOOD");
 
 		m->respawneffect = m->respawneffect_ref ? 
-			mobjdefs.Lookup(m->respawneffect_ref) :
-			(m->flags & MF_SPECIAL) ? mobjdefs.Lookup("ITEM RESPAWN") 
-				                    : mobjdefs.Lookup("RESPAWN FLASH");
+			mobjtypes.Lookup(m->respawneffect_ref) :
+			(m->flags & MF_SPECIAL) ? mobjtypes.Lookup("ITEM RESPAWN") 
+				                    : mobjtypes.Lookup("RESPAWN FLASH");
 
-		m->spitspot = m->spitspot_ref ? mobjdefs.Lookup(m->spitspot_ref) : NULL;
+		m->spitspot = m->spitspot_ref ? mobjtypes.Lookup(m->spitspot_ref) : NULL;
 
 		// -AJA- 1999/08/07: New SCALE & ASPECT fields.
 		//       The parser placed ASPECT in xscale and SCALE in yscale.
@@ -661,7 +656,7 @@ void DDF_MobjCleanUp(void)
 		DDF_ErrorClearEntryName();
 	}
 
-	mobjdefs.Trim();
+	mobjtypes.Trim();
 }
 
 //
@@ -1202,15 +1197,15 @@ void DDF_MobjGetPlayer(const char *info, void *storage)
 //
 // -AJA- 2000/02/11: written.
 //
-mobjdef_c *DDF_MobjMakeAttackObj(mobjdef_c *info, const char *atk_name)
+mobjtype_c *DDF_MobjMakeAttackObj(mobjtype_c *info, const char *atk_name)
 {
 	epi::string_c s;
-	mobjdef_c *result;
+	mobjtype_c *result;
 
 	s = "__ATKMOBJ_";
 	s += atk_name;
 
-	result = new mobjdef_c;
+	result = new mobjtype_c;
 	result->CopyDetail(info[0]);
 
 	// FIXME!!! Use ddf constructor
@@ -1219,7 +1214,7 @@ mobjdef_c *DDF_MobjMakeAttackObj(mobjdef_c *info, const char *atk_name)
 	result->ddf.crc = 0;
 
 	// Add to the list
-	mobjdefs.Insert(result);
+	mobjtypes.Insert(result);
 
 	return result;
 }
@@ -1407,41 +1402,41 @@ bool DDF_MainParseCondition(const char *info, condition_check_t *cond)
 // ---> mobjdef class
 
 // 
-// mobjdef_c Constructor
+// mobjtype_c Constructor
 //
-mobjdef_c::mobjdef_c()
+mobjtype_c::mobjtype_c()
 {
 	Default();
 }
 
 //
-// mobjdef_c Copy Constructor
+// mobjtype_c Copy Constructor
 //
-mobjdef_c::mobjdef_c(mobjdef_c &rhs)
+mobjtype_c::mobjtype_c(mobjtype_c &rhs)
 {
 	Copy(rhs);
 }
 
 //
-// mobjdef_c Destructor
+// mobjtype_c Destructor
 //
-mobjdef_c::~mobjdef_c()
+mobjtype_c::~mobjtype_c()
 {
 }
 
 //
-// mobjdef_c::Copy()
+// mobjtype_c::Copy()
 //
-void mobjdef_c::Copy(mobjdef_c &src)
+void mobjtype_c::Copy(mobjtype_c &src)
 {
 	ddf = src.ddf;
 	CopyDetail(src);	
 }
 
 //
-// mobjdef_c::CopyDetail()
+// mobjtype_c::CopyDetail()
 //
-void mobjdef_c::CopyDetail(mobjdef_c &src)
+void mobjtype_c::CopyDetail(mobjtype_c &src)
 {
 	first_state = src.first_state; 
 	last_state = src.last_state; 
@@ -1579,9 +1574,9 @@ void mobjdef_c::CopyDetail(mobjdef_c &src)
 }
 
 //
-// mobjdef_c::Default()
+// mobjtype_c::Default()
 //
-void mobjdef_c::Default()
+void mobjtype_c::Default()
 {
 	// FIXME: ddf.Clear() ?
 	ddf.name	= "";
@@ -1717,9 +1712,9 @@ void mobjdef_c::Default()
 }
 
 //
-// mobjdef_c assignment operator
+// mobjtype_c assignment operator
 //
-mobjdef_c& mobjdef_c::operator=(mobjdef_c &rhs)
+mobjtype_c& mobjtype_c::operator=(mobjtype_c &rhs)
 {
 	if (&rhs != this)
 		Copy(rhs);
@@ -1727,31 +1722,31 @@ mobjdef_c& mobjdef_c::operator=(mobjdef_c &rhs)
 	return *this;
 }
 
-// --> mobjdef_container_c class
+// --> mobjtype_container_c class
 
 //
-// mobjdef_container_c::mobjdef_container_c()
+// mobjtype_container_c::mobjtype_container_c()
 //
-mobjdef_container_c::mobjdef_container_c() : epi::array_c(sizeof(mobjdef_c*))
+mobjtype_container_c::mobjtype_container_c() : epi::array_c(sizeof(mobjtype_c*))
 {
-	memset(lookup_cache, 0, sizeof(mobjdef_c*) * LOOKUP_CACHESIZE);
+	memset(lookup_cache, 0, sizeof(mobjtype_c*) * LOOKUP_CACHESIZE);
 	num_disabled = 0;	
 }
 
 //
-// ~mobjdef_container_c::mobjdef_container_c()
+// ~mobjtype_container_c::mobjtype_container_c()
 //
-mobjdef_container_c::~mobjdef_container_c()
+mobjtype_container_c::~mobjtype_container_c()
 {
 	Clear();					// <-- Destroy self before exiting
 }
 
 //
-// mobjdef_containter_c::CleanupObject
+// mobjtype_containter_c::CleanupObject
 //
-void mobjdef_container_c::CleanupObject(void *obj)
+void mobjtype_container_c::CleanupObject(void *obj)
 {
-	mobjdef_c *m = *(mobjdef_c**)obj;
+	mobjtype_c *m = *(mobjtype_c**)obj;
 
 	if (m)
 	{
@@ -1764,12 +1759,12 @@ void mobjdef_container_c::CleanupObject(void *obj)
 }
 
 //
-// mobjdef_container_c::FindFirst
+// mobjtype_container_c::FindFirst
 //
-int mobjdef_container_c::FindFirst(const char *name, int startpos)
+int mobjtype_container_c::FindFirst(const char *name, int startpos)
 {
 	epi::array_iterator_c it;
-	mobjdef_c *m;
+	mobjtype_c *m;
 
 	if (startpos>0)
 		it = GetIterator(startpos);
@@ -1778,7 +1773,7 @@ int mobjdef_container_c::FindFirst(const char *name, int startpos)
 
 	while (it.IsValid())
 	{
-		m = ITERATOR_TO_TYPE(it, mobjdef_c*);
+		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
 		if (DDF_CompareName(m->ddf.name, name) == 0)
 		{
 			return it.GetPos();
@@ -1791,12 +1786,12 @@ int mobjdef_container_c::FindFirst(const char *name, int startpos)
 }
 
 //
-// mobjdef_container_c::FindLast
+// mobjtype_container_c::FindLast
 //
-int mobjdef_container_c::FindLast(const char *name, int startpos)
+int mobjtype_container_c::FindLast(const char *name, int startpos)
 {
 	epi::array_iterator_c it;
-	mobjdef_c *m;
+	mobjtype_c *m;
 
 	if (startpos>=0 && startpos<array_entries)
 		it = GetIterator(startpos);
@@ -1805,7 +1800,7 @@ int mobjdef_container_c::FindLast(const char *name, int startpos)
 
 	while (it.IsValid())
 	{
-		m = ITERATOR_TO_TYPE(it, mobjdef_c*);
+		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
 		if (DDF_CompareName(m->ddf.name, name) == 0)
 		{
 			return it.GetPos();
@@ -1818,13 +1813,13 @@ int mobjdef_container_c::FindLast(const char *name, int startpos)
 }
 
 //
-// mobjdef_container_c::MoveToEnd
+// mobjtype_container_c::MoveToEnd
 //
 // Moves an entry from its current position to end of the list
 //
-bool mobjdef_container_c::MoveToEnd(int idx)
+bool mobjtype_container_c::MoveToEnd(int idx)
 {
-	mobjdef_c* m;
+	mobjtype_c* m;
 
 	if (idx < 0 || idx >= array_entries)
 		return false;
@@ -1839,20 +1834,20 @@ bool mobjdef_container_c::MoveToEnd(int idx)
 		&array[(idx+1)*array_block_objsize], 
 		(array_entries-(idx+1))*array_objsize);
 
-	memcpy(&array[(array_entries-1)*array_block_objsize], (void*)&m, sizeof(mobjdef_c*));
+	memcpy(&array[(array_entries-1)*array_block_objsize], (void*)&m, sizeof(mobjtype_c*));
 	return true;
 }
 
 //
-// const mobjdef_c* mobjdef_container_c::Lookup()
+// const mobjtype_c* mobjtype_container_c::Lookup()
 //
 // Looks an mobjdef by name, returns a fatal error if it does not exist.
 //
-const mobjdef_c* mobjdef_container_c::Lookup(const char *refname)
+const mobjtype_c* mobjtype_container_c::Lookup(const char *refname)
 {
 	int idx;
 
-	idx = mobjdefs.FindLast(refname);
+	idx = mobjtypes.FindLast(refname);
 
 	// special rule for internal names (beginning with `_'), to allow
 	// savegame files to find attack MOBJs that may have been masked by
@@ -1872,11 +1867,11 @@ const mobjdef_c* mobjdef_container_c::Lookup(const char *refname)
 }
 
 //
-// const mobjdef_c* mobjdef_container_c::Lookup()
+// const mobjtype_c* mobjtype_container_c::Lookup()
 //
 // Looks an mobjdef by number, returns a fatal error if it does not exist.
 //
-const mobjdef_c* mobjdef_container_c::Lookup(int id)
+const mobjtype_c* mobjtype_container_c::Lookup(int id)
 {
 	int slot = DDF_MobjHashFunc(id);
 
@@ -1888,11 +1883,11 @@ const mobjdef_c* mobjdef_container_c::Lookup(int id)
 	}
 
 	epi::array_iterator_c it;
-	mobjdef_c *m = 0;
+	mobjtype_c *m = NULL;
 
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
-		m = ITERATOR_TO_TYPE(it, mobjdef_c*);
+		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
 		if (m->ddf.number == id)
 		{
 			break;
@@ -1915,20 +1910,20 @@ const mobjdef_c* mobjdef_container_c::Lookup(int id)
 }
 
 //
-// mobjdef_c* mobjdef_container_c::LookupCastMember()
+// mobjtype_c* mobjtype_container_c::LookupCastMember()
 //
 // Lookup the cast member of the one with the nearest match to the position given.
 //
-const mobjdef_c* mobjdef_container_c::LookupCastMember(int castpos)
+const mobjtype_c* mobjtype_container_c::LookupCastMember(int castpos)
 {
 	epi::array_iterator_c it;
-	mobjdef_c* best;
-	mobjdef_c* m;
+	mobjtype_c* best;
+	mobjtype_c* m;
 
 	best = NULL;
 	for (it = GetTailIterator(); it.IsValid() && (int)it.GetPos() >= num_disabled; it--)
 	{
-		m = ITERATOR_TO_TYPE(it, mobjdef_c*);
+		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
 		if (m->castorder > 0)
 		{
 			if (m->castorder == castpos)	// Exact match

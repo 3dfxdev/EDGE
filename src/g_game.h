@@ -67,7 +67,7 @@ void G_BeginRecording(void);
 void G_PlayDemo(const char *name);
 void G_TimeDemo(const char *name);
 bool G_CheckDemoStatus(void);
-void G_PlayerReborn(player_t *player, const mobjdef_c *info);
+void G_PlayerReborn(player_t *player, const mobjtype_c *info);
 
 void G_SetTurboScale(int scale);
 

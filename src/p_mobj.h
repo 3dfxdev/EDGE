@@ -356,7 +356,7 @@ typedef struct
 	angle_t vertangle;
 
 	// type of thing
-	const mobjdef_c *info;
+	const mobjtype_c *info;
 
 	// certain flags (mainly MF_AMBUSH).
 	int flags;
@@ -412,7 +412,7 @@ struct mobj_s
 	// If == validcount, already checked.
 	int validcount;
 
-	const mobjdef_c *info;
+	const mobjtype_c *info;
 
 	// state tic counter
 	int tics;
