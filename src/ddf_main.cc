@@ -844,6 +844,15 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 	if (bracket_level > 0)
 		DDF_Error("Unclosed () brackets detected.\n");
 
+	if (status == reading_tag)
+		DDF_Error("Unclosed <> brackets detected.\n");
+
+	if (status == reading_newdef)
+		DDF_Error("Unclosed [] brackets detected.\n");
+	
+	if (status == reading_data || status == reading_string)
+		DDF_WarnError("Unfinished DDF command on last line.\n");
+
 	// if firstgo is true, nothing was defined
 	if (!firstgo)
 		(* readinfo->finish_entry)();
@@ -1065,13 +1074,8 @@ readchar_t DDF_MainProcessChar(char character, char *buffer, int status)
 			}
 			else if (character == '\n')
 			{
-				if (lax_errors)
-				{
-					DDF_Warning("Unterminated string detected.\n");
-					return nothing;
-				}
-
-				DDF_Error("Unterminated string detected.\n");
+				DDF_WarnError("Unclosed string detected.\n");
+				return nothing;
 			}
 			// -KM- 1998/10/29 Removed ascii check, allow foreign characters („)
 			// -ES- HEY! Swedish is not foreign!
@@ -1101,6 +1105,12 @@ void DDF_MainGetNumeric(const char *info, void *storage)
 	int *dest = (int *)storage;
 
 	DEV_ASSERT2(info && storage);
+
+	if (isalpha(info[0]))
+	{
+		DDF_WarnError("Bad numeric value: %s\n", info);
+		return;
+	}
 
 	// -KM- 1999/01/29 strtol accepts hex and decimal.
 	*dest = strtol(info, NULL, 0);  // straight conversion - no messin'
