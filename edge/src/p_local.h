@@ -87,10 +87,10 @@ void P_ActPlayerAttack(mobj_t * playerobj, const attacktype_t * attack);
 void P_ActSlammedIntoObject(mobj_t * object, mobj_t * objecthit);
 boolean_t P_ActMissileContact(mobj_t * object, mobj_t * objecthit);
 boolean_t P_ActBulletContact(mobj_t * object, mobj_t * objecthit, 
-    flo_t damage, const damage_t * damtype);
+							 flo_t damage, const damage_t * damtype);
 void P_ActTouchyContact(mobj_t * touchy, mobj_t * victim);
 boolean_t P_ActUseThing(mobj_t * user, mobj_t * thing, flo_t open_bottom,
-    flo_t open_top);
+						flo_t open_top);
 void P_BringCorpseToLife(mobj_t * corpse);
 
 //
@@ -162,10 +162,10 @@ mobj_t *P_MobjCreateObject(flo_t x, flo_t y, flo_t z, const mobjinfo_t * type);
 
 typedef struct 
 {
-  int number;
+	int number;
 
-  // FIXME: big troubles if one of these objects disappears.
-  struct mobj_s ** targets;
+	// FIXME: big troubles if one of these objects disappears.
+	struct mobj_s ** targets;
 }
 shoot_spot_info_t;
 
@@ -192,23 +192,25 @@ void P_FreeShootSpots(void);
 #define PT_ADDTHINGS 2
 #define PT_EARLYOUT  4
 
+typedef enum
+{
+	INCPT_Line  = 0,
+	INCPT_Thing = 1
+}
+intercept_type_e;
+
 typedef struct intercept_s
 {
-  flo_t frac;  // along trace line
+	flo_t frac;  // along trace line
 
-  enum
-  {
-    INCPT_Line  = 0,
-    INCPT_Thing = 1
-  }
-  type;
+	int type;
 
-  union
-  {
-    mobj_t *thing;
-    line_t *line;
-  }
-  d;
+	union
+	{
+		mobj_t *thing;
+		line_t *line;
+	}
+	d;
 }
 intercept_t;
 
@@ -223,7 +225,7 @@ flo_t P_ApproxDistance(flo_t dx, flo_t dy);
 flo_t P_ApproxSlope(flo_t dx, flo_t dy, flo_t dz);
 int P_PointOnDivlineSide(flo_t x, flo_t y, divline_t *div);
 int P_PointOnDivlineThick(flo_t x, flo_t y, divline_t *div,
-    flo_t div_len, flo_t thickness);
+						  flo_t div_len, flo_t thickness);
 flo_t P_InterceptVector(divline_t * v2, divline_t * v1);
 int P_BoxOnLineSide(flo_t * tmbox, line_t * ld);
 int P_FindThingGap(vgap_t * gaps, int gap_num, flo_t z1, flo_t z2);
@@ -238,7 +240,7 @@ void P_UnsetThingFinally(mobj_t * thing);
 void P_SetThingPosition(mobj_t * thing);
 void P_ChangeThingPosition(mobj_t * thing, flo_t x, flo_t y, flo_t z);
 void P_FreeSectorTouchNodes(sector_t *sec);
-  
+
 boolean_t P_BlockLinesIterator(int x, int y, boolean_t(*func) (line_t *));
 boolean_t P_BlockThingsIterator(int x, int y, boolean_t(*func) (mobj_t *));
 boolean_t P_ThingsInArea(flo_t *bbox);
@@ -246,10 +248,10 @@ boolean_t P_ThingsOnLine(line_t *ld);
 
 typedef enum
 {
-  EXFIT_Ok = 0,
-  EXFIT_StuckInCeiling,
-  EXFIT_StuckInFloor,
-  EXFIT_StuckInExtraFloor
+	EXFIT_Ok = 0,
+	EXFIT_StuckInCeiling,
+	EXFIT_StuckInFloor,
+	EXFIT_StuckInExtraFloor
 }
 exfloor_fit_e;
 
@@ -263,14 +265,14 @@ boolean_t P_PathTraverse(flo_t x1, flo_t y1, flo_t x2, flo_t y2, int flags, trav
 
 typedef enum
 {
-  // sector move is completely OK
-  CHKMOV_Ok = 0,
+	// sector move is completely OK
+	CHKMOV_Ok = 0,
 
-  // sector move would crush something, but OK
-  CHKMOV_Crush = 1,
+	// sector move would crush something, but OK
+	CHKMOV_Crush = 1,
 
-  // sector can't move (solid floor or uncrushable thing)
-  CHKMOV_Nope = 2
+	// sector can't move (solid floor or uncrushable thing)
+	CHKMOV_Nope = 2
 }
 check_sec_move_e;
 
@@ -290,30 +292,24 @@ extern int numspechit;
 boolean_t P_MapInit(void);
 boolean_t P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing);
 mobj_t *P_MapFindCorpse(mobj_t * thing);
-mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle,
-    flo_t distance, boolean_t force_aim);
+mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, flo_t distance, boolean_t force_aim);
 mobj_t *P_MapTargetTheory(mobj_t * source);
 
 flo_t P_AimLineAttack(mobj_t * t1, angle_t angle, flo_t distance);
 void P_UpdateMultipleFloors(sector_t * sector);
-boolean_t P_CheckSolidSectorMove(sector_t *sec, boolean_t is_ceiling,
-        flo_t dh);
-boolean_t P_SolidSectorMove(sector_t *sec, boolean_t is_ceiling,
-        flo_t dh, boolean_t crush, boolean_t nocarething);
+boolean_t P_CheckSolidSectorMove(sector_t *sec, boolean_t is_ceiling, flo_t dh);
+boolean_t P_SolidSectorMove(sector_t *sec, boolean_t is_ceiling, flo_t dh, boolean_t crush, boolean_t nocarething);
 void P_ChangeThingSize(mobj_t *mo);
 boolean_t P_CheckAbsPosition(mobj_t * thing, flo_t x, flo_t y, flo_t z);
 boolean_t P_CheckSight(mobj_t * src, mobj_t * dest);
 boolean_t P_CheckSightApproxVert(mobj_t * src, mobj_t * dest);
-void P_RadiusAttack(mobj_t * spot, mobj_t * source, flo_t radius,
-    flo_t damage, const damage_t * damtype, boolean_t thrust_only);
+void P_RadiusAttack(mobj_t * spot, mobj_t * source, flo_t radius, flo_t damage, const damage_t * damtype, boolean_t thrust_only);
 
 boolean_t P_TeleportMove(mobj_t * thing, flo_t x, flo_t y, flo_t z);
 boolean_t P_TryMove(mobj_t * thing, flo_t x, flo_t y);
 void P_SlideMove(mobj_t * mo, flo_t x, flo_t y);
 void P_UseLines(player_t * player);
-void P_LineAttack(mobj_t * t1, angle_t angle, flo_t distance, 
-    flo_t slope, flo_t damage, const damage_t * damtype,
-    const mobjinfo_t *puff);
+void P_LineAttack(mobj_t * t1, angle_t angle, flo_t distance, flo_t slope, flo_t damage, const damage_t * damtype, const mobjinfo_t *puff);
 
 
 //
@@ -347,10 +343,10 @@ extern mobj_t **blocklights;  // for dynamic lights
 void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher);
 void P_ThrustMobj(mobj_t * target, mobj_t * source, flo_t thrust);
 void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
-    flo_t amount, const damage_t * damtype);
+				  flo_t amount, const damage_t * damtype);
 void P_KillMobj(mobj_t * source, mobj_t * target, const damage_t * damtype);
 boolean_t P_GiveBenefitList(player_t *player, mobj_t *special,
-    benefit_t *list, boolean_t lose_em);
+							benefit_t *list, boolean_t lose_em);
 
 
 //
