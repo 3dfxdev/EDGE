@@ -1849,7 +1849,7 @@ const mobjtype_c* mobjtype_container_c::Lookup(int id)
 	if (!it.IsValid())
 		return NULL;
 
-	if (it.GetPos() < (unsigned int)num_disabled)
+	if (it.GetPos() < num_disabled)
 		return NULL;
 
 	// do a sprite check (like for weapons)
