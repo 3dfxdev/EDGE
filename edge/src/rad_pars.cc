@@ -1563,9 +1563,7 @@ static void RAD_ParsePlaySound(int pnum, const char **pars)
 	// PlaySound <soundid> <x> <y>
 	// PlaySound <soundid> <x> <y> <z>
 	//
-	// PlaySound_BossMan <soundid>
-	// PlaySound_BossMan <soundid> <x> <y>
-	// PlaySound_BossMan <soundid> <x> <y> <z>
+	// (likewise for PlaySound_BossMan)
 	//
 	// -AJA- 1999/09/12: Reworked for playing sound at specific Z.
 
