@@ -31,7 +31,7 @@ System Requirements:
 
   For Linux:
     - SDL (Simple DirectMedia Layer) version 1.2.
-    - Glibc 2.
+    - glibc 2.
 
   For MacOS X:
     - MacOS X version 1.2.8 ("Jaguar") or later.
@@ -222,6 +222,8 @@ Known Issues:
     Certain other DOOM tricks, e.g. flat-flooding, sometimes don't
 	work properly with EDGE's renderer.
 
+  - Bullets can sometimes pass through solid extrafloors.
+
   - Looping sounds tend to stop when you get too far away to hear
     them, e.g. coming back to a flickering torch in QDOOM and it has
     stopped making the flickering sound.  Also looping sounds are not
@@ -320,6 +322,7 @@ Command line options:
   -game  <dir>         Game dir, for PARMS, DDF, RTS, WADs, etc.
   -ddf   <dir>         Load external DDF files from the directory.
   -script  <file>      Load external RTS script from the file.
+  -deh     <file>      Load external DeHackEd/BEX patch file.
   -config  <file>      Config file (normally EDGE.CFG).
   -debugfile  <file>   Write messages into the given file.
   -nolog               Disable creating the log file (EDGE.LOG).
@@ -338,52 +341,55 @@ Command line options:
   -bots  <num>         Number of bots.
   -deathmatch          Deathmatch game (otherwise COOP).
   -altdeath            Alternate deathmatch mode.
-  -singletics          
   -timer  <mins>       Time limited games, and specifies how long.
   -avg                 Andy Virtual Gaming (same as -timer 20).
   -respawn             Monster respawning.
-  -(no)itemrespawn     Item respawning.
   -newnmrespawn        Monsters respawn as if resurrected.
+  -(no)itemrespawn     Item respawning.
 
   -boom                Set compatibility to BOOM mode.
   -edge                Set compatibility to EDGE mode.
-
-  -(no)strict          Errors: be as strict as possible.
-  -(no)lax             Errors: be as lax/forgiving as possible.
-  -(no)warn            Enable/disable all warning messages.
-  -(no)obsolete        Enable/disable warnings about obsolete stuff.
 
   -windowed            Run inside a window.
   -fullscreen          Run fullscreen.
   -(no)sound           Enable/disable sound effects.
   -(no)music           Enable/disable music output.
 
+  -(no)strict          Errors: be as strict as possible.
+  -(no)lax             Errors: be as lax/forgiving as possible.
+  -(no)warn            Enable/disable all warning messages.
+  -(no)obsolete        Enable/disable warnings about obsolete stuff.
+
   -(no)dither          Dither the graphics (in GL).
   -(no)smoothing       Smoothing for graphic images (mainly GL).
   -(no)mipmap          Mipmapping enable/disable.
   -(no)shadows         Shadows are drawn under things.
   -(no)halos           (Unimplemented) Halos/coronas around lights.
-  -(no)dlights         Dynamic lighting (currently GLEDGE only).
+  -(no)dlights         Dynamic lighting enable/disable.
   -(no)trans           Whether translucent stuff is rendered.
   -(no)jumping         Whether player jumping is allowed.
   -(no)crouching       Whether player crouching is allowed.
-  -(no)mlook           Mouse-look up/down.
+  -(no)mlook           Whether Mouse-look up/down is allowed.
+  -(no)blood           More blood which lasts longer.
   -(no)kick            Weapon kick effect.
 
   -(no)monsters        Enable/disable monsters within the game.
   -(no)fast            Fast monsters.
+  -(no)cheats          Cheat codes enabled or disabled.
   -(no)rotatemap       Automap rotation.
+  -(no)smoothmap       Automap anti-aliasing.
   -(no)invertmouse     Invert the mouse Y direction.
   -(no)showstats       Shows on-screen statistics/info.
   -(no)hom             HOM (Hall Of Mirrors) detection.
-  -(no)stretchsky      Whether skies are stretched or tiled.
+
   -(no)extras          Extra items (e.g. rain) appearing in levels.
   -(no)infight         In-fighting between monsters.
   -(no)true3d          Objects can pass above/below other objects.
-  -(no)blood           More blood which lasts longer.
-  -(no)cheats          Cheat codes enabled or disabled.
+  -(no)diskicon        Whether to show the flashing disk icon.
+  -(no)fadepower       Powerup effects smoothly fade out.
+  -(no)hogcpu          Smoother gameplay vs less CPU utilisation.
 
-  -trilinear           Trilinear mipmapping (GLEDGE only).
+  -trilinear           Trilinear mipmapping.
   -nointerp            Video: Don't interpolate colourmaps.
   -nodraw              Disable rendering (for performance testing).
   -nogfxmode           Disable all video (for performance testing).
@@ -393,10 +399,8 @@ Command line options:
   -newmap OR -newhud   Automap overlay.
   -noconhistory        Disable console history (save some memory).
 
-
   Win32 options:
     (none)
-
 
   Linux / MacOS X options:
     -warpmouse           Use special mouse handling code.
