@@ -2,6 +2,8 @@
 DEH-EDGE TODO
 -------------
 
+*  Plugin: first use will modify tables, messing up subsequent uses.
+
 +  Plugin: pass proper error values (and strings) when something
    goes wrong (e.g. wad save problem).
 
