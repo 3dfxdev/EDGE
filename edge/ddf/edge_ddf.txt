@@ -1,9 +1,11 @@
-EDGE DDF 4.0 (2004-02-20):
+EDGE DDF 4.0 (2004-03-07):
 ==========================
 
 1) THINGS.DDF: use new NULL sprite in BRAIN_SHOOTER, BRAIN_SPAWNSPOT, and
                TELEPORT_FLASH.
 2) THINGS.DDF: added new CAST_TITLE commands for every cast monster.
+3) THINGS.DDF: player defs: use CHECKMOVING in all the CHASE frames, and
+               remove #CHASE redirection from PAIN frames.
 
 
 EDGE DDF 3.9 (2004-01-15):
