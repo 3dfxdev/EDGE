@@ -19,7 +19,7 @@
 #ifndef __PROTOCOL_H__
 #define __PROTOCOL_H__
 
-#define MP_PROTOCOL_VER  0x073  /* 0.7.3 */
+#define MP_PROTOCOL_VER  0x075  /* 0.75 */
 
 #define MP_PLAYER_MAX  30
 
@@ -147,7 +147,7 @@ connect_proto_t;
 typedef struct query_client_proto_s 
 {
 	s16_t first_client;
-	byte  count;
+	s16_t last_client;
 
 	s16_t total_clients;  // output value
 	s16_t reserved;
@@ -156,7 +156,8 @@ typedef struct query_client_proto_s
 
 	client_info_t info[1];  // upto CLIENT_FIT structs
 
-	void ByteSwap(bool do_info);
+	void ByteSwap();
+	void ByteSwapInfo(int num_info);
 }
 query_client_proto_t;
 
@@ -243,7 +244,7 @@ new_game_proto_t;
 typedef struct query_game_proto_s
 {
 	s16_t first_game;
-	byte  count;
+	s16_t last_game;
 
 	s16_t total_games;  // out value
 	s16_t reserved;
@@ -252,7 +253,8 @@ typedef struct query_game_proto_s
 
 	game_info_t info[1];  // upto GAME_FIT structures
 
-	void ByteSwap(bool do_info);
+	void ByteSwap();
+	void ByteSwapInfo(int num_info);
 }
 query_game_proto_t;
 
@@ -287,13 +289,14 @@ typedef struct play_game_proto_s
 	u32_t reserved;
 
 	byte first_player;
-	byte count;
+	byte last_player;
 
 	// client IDs for each player (upto MP_PLAYER_MAX).
 	// bots are NOT included here.
 	s16_t client_list[1];
 
 	void ByteSwap();
+	void ByteSwapPlayers(int num_players);
 }
 play_game_proto_t;
 
@@ -343,7 +346,8 @@ typedef struct ticcmd_proto_s
 
 	raw_ticcmd_t tic_cmds[1];  // upto TICCMD_FIT commands
 
-	void ByteSwap(int num_cmds);
+	void ByteSwap();
+	void ByteSwapCmds(int num_cmds);
 }
 ticcmd_proto_t;
 
@@ -368,7 +372,7 @@ typedef struct tic_group_proto_s
 	s8_t  offset;  // tic_num == gametic + offset
 
 	byte first_player;
-	byte count;
+	byte last_player;
 
 	s16_t reserved;
 
@@ -376,7 +380,8 @@ typedef struct tic_group_proto_s
 
 	raw_ticcmd_t tic_cmds[1];  // as big as needed (upto TICCMD_FIT)
 
-	void ByteSwap(int num_cmds);
+	void ByteSwap();
+	void ByteSwapCmds(int num_cmds);
 }
 tic_group_proto_t;
 
