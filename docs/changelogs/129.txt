@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: OCTOBER 30th 2004)
+(Date: NOVEMBER 3rd 2004)
 
 
 Bugs fixed
@@ -21,6 +21,7 @@ Bugs fixed
 - allow KEY_GREENCARD and KEY_GREENSKULL in DDF.
 - texture vertical mis-alignment in some rare cases fixed.
 - berserk strength now lasts the whole level.
+- night vision wasn't affecting the sky, fixed.
 
 
 Fixes shared with 1.28A
@@ -63,7 +64,11 @@ General improvements
 
 (NOT FINISHED) support for OGG Vorbis Music playing.  @@@
 
-+ native support for DeHackEd and BEX patches.  @@@
++ native support for DeHackEd and BEX patches, both as normal files
+  (with .DEH or .BEX extension), and also as DEHACKED lump in a wad.
+  Patch files can be added with the -deh option (like in other Doom
+  engines).  EDGE converts the patches to DDF, and stores the result
+  in files with the .HWA extension, which are loaded automatically.
 
 (NOT FINISHED) new startup.  @@@ - the windows console window.
 
@@ -82,6 +87,8 @@ General improvements
 - RTS tips are sent to the console.
 - missing wad files (given with -file) now produce an error.
 - monster spawning will keep the parent's AMBUSH status.
+- support for Boom line-to-line teleporters and platform toggles.
+- night vision and god-mode effects use colour from colourmap.
 
 - WHEN_APPEAR in DDF and RTS now accepts simpler values.  You can use
   a range for the skill (e.g. "3-5"), you can omit the skill and/or
@@ -106,7 +113,7 @@ New features:
   menu is shown.
 
 - new SEQUENCE command for ANIMS.DDF.  Use it to specify the full
-  animation sequence.  Names cannot be used twice.  Example:
+  animation sequence.  Names cannot be used twice.  For example:
 
     SEQUENCE = TEX1, TEX2, TEX3, TEX5, TEX8;
  
@@ -121,14 +128,16 @@ New features:
 
 (MAY BE REMOVED) - NO_AUTO_SWITCH weapon special.
 
-(MAY BE REMOVED) - FIRST_SILENT_TO_MONSTERS and SECOND_SILENT_TO_MONSTERS weapon specials.
-
-- EXPLODE_RADIUS command for things and attacks.  @@@
+- EXPLODE_RADIUS command for things and attacks.  Normally the explosion
+  radius is the same as the damage caused, but this command forces the
+  explosion radius to a particular value (e.g. 200).  The amount of
+  damage is not affected.
 
 - EXPLODE_IMMUNE and ALWAYS_LOUD thing specials.  These attributes
   are both set by the BOSSMAN special, but now they can be specified
   individually.
 
+- SILENT_TO_MONSTERS now also an attack special.
 - FORCE_PICKUP thing special.  
 - DIE action for things and attacks.
 
