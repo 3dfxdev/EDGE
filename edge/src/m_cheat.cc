@@ -142,7 +142,7 @@ int M_CheckCheat(cheatseq_t * cht, char key)
 	return rc;
 }
 
-static void M_ChangeLevelCheat(char *string)
+static void M_ChangeLevelCheat(const char *string)
 {
 	// User pressed <ESC>
 	if (!string)
@@ -151,18 +151,16 @@ static void M_ChangeLevelCheat(char *string)
 	if (! G_DeferredInitNew(gameskill, string, false))
 	{
 		CON_MessageLDF("ImpossibleChange");
-		Z_Free(string);
 		return;
 	}
 
 	CON_MessageLDF("LevelChange");
-	Z_Free(string);
 }
 
 //
 // M_ChangeMusicCheat
 //
-static void M_ChangeMusicCheat(char *string)
+static void M_ChangeMusicCheat(const char *string)
 {
 	int entry_num;
 
@@ -171,8 +169,6 @@ static void M_ChangeMusicCheat(char *string)
 		return;
 
 	entry_num = atoi(string);
-
-	Z_Free(string);
 
 	if (! entry_num)
 		return;
@@ -418,13 +414,16 @@ bool M_CheatResponder(event_t * ev)
 			ANG_2_FLOAT(pl->mo->angle), pl->mo->x, pl->mo->y);
 	}
 
-	// 'clev' change-level cheat
 	if (M_CheckCheat(&cheat_clev, key))
+	{
+		// 'clev' change-level cheat
 		M_StartMessageInput(language["LevelQ"], M_ChangeLevelCheat);
-
-	// 'mus' cheat for changing music
+	}
 	else if (M_CheckCheat(&cheat_mus, key))
+	{
+		// 'mus' cheat for changing music
 		M_StartMessageInput(language["MusicQ"], M_ChangeMusicCheat);
+	}
 	else if (M_CheckCheat(&cheat_spawnbot, key))
 	{
 		BOT_DMSpawn();
