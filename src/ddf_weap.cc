@@ -96,10 +96,12 @@ static const state_starter_t weapon_starters[] =
 
 	{"ATTACK",    "READY",  &buffer_weapon.attack_state[0]},
 	{"RELOAD",    "READY",  &buffer_weapon.reload_state[0]},
+	{"DISCARD",   "READY",  &buffer_weapon.discard_state[0]},
 	{"WARMUP",    "ATTACK", &buffer_weapon.warmup_state[0]},
 	{"FLASH",     "REMOVE", &buffer_weapon.flash_state[0]},
 	{"SECATTACK", "READY",  &buffer_weapon.attack_state[1]},
 	{"SECRELOAD", "READY",  &buffer_weapon.reload_state[1]},
+	{"SECDISCARD","READY",  &buffer_weapon.discard_state[1]},
 	{"SECWARMUP", "SECATTACK", &buffer_weapon.warmup_state[1]},
 	{"SECFLASH",  "REMOVE", &buffer_weapon.flash_state[1]},
 	{NULL, NULL, NULL}
@@ -590,10 +592,11 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 		clip_size[ATK] = src.clip_size[ATK];
 		specials[ATK]  = src.specials[ATK];
 
-		attack_state[ATK] = src.attack_state[ATK];
-		reload_state[ATK] = src.reload_state[ATK];
-		warmup_state[ATK] = src.warmup_state[ATK];
-		flash_state[ATK]  = src.flash_state[ATK];
+		attack_state[ATK]  = src.attack_state[ATK];
+		reload_state[ATK]  = src.reload_state[ATK];
+		discard_state[ATK] = src.discard_state[ATK];
+		warmup_state[ATK]  = src.warmup_state[ATK];
+		flash_state[ATK]   = src.flash_state[ATK];
 	}
 
 	kick = src.kick;
@@ -652,10 +655,11 @@ void weapondef_c::Default(void)
 		clip_size[ATK]   = 0;
 		autofire[ATK]    = false;
 
-		attack_state[ATK] = 0;
-		reload_state[ATK] = 0;
-		warmup_state[ATK] = 0;
-		flash_state[ATK]  = 0;
+		attack_state[ATK]  = 0;
+		reload_state[ATK]  = 0;
+		discard_state[ATK] = 0;
+		warmup_state[ATK]  = 0;
+		flash_state[ATK]   = 0;
 	}
 
 	specials[0] = DEFAULT_WPSP;
