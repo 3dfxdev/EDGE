@@ -39,7 +39,7 @@
 #include "z_zone.h"
 
 
-bool var_busywait = true;
+bool var_hogcpu = true;
 
 
 extern gameflags_t default_gameflags;
@@ -349,7 +349,7 @@ static void GetPackets(bool do_delay)
 	if (! netgame)
 	{
 		// -AJA- This can make everything a bit "jerky" :-(
-		if (do_delay && ! var_busywait)
+		if (do_delay && ! var_hogcpu)
 			I_Sleep(10 /* millis */);
 
 		return;
@@ -359,7 +359,7 @@ static void GetPackets(bool do_delay)
 
 	NLsocket socks[4];  // only one in the group
 
-	int delay = (do_delay && ! var_busywait) ? 10 /* millis */ : 0;  // FIXME !!!! jerkiness, as above
+	int delay = (do_delay && ! var_hogcpu) ? 10 /* millis */ : 0;
 	int num = nlPollGroup(sk_group, NL_READ_STATUS, socks, 4, delay);
 
 	if (num < 1)

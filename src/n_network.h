@@ -19,7 +19,7 @@
 #ifndef __N_NETWORK_H__
 #define __N_NETWORK_H__
 
-extern bool var_busywait;
+extern bool var_hogcpu;
 
 void N_InitNetwork(void);
 
