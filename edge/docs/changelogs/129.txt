@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: DECEMBER 22nd 2004)
+(Date: JANUARY 1st 2005)
 
 
 Bugs fixed
@@ -24,9 +24,10 @@ Bugs fixed
 - berserk strength now lasts the whole level.
 - night vision wasn't affecting the sky, fixed.
 - damage over 1000 no longer hurts invulnerable players.
-- monsters on different sides now attack each other.  (UNTESTED)
+- monsters on different sides now attack each other.
 - problems mlooking up/down while zoomed are fixed.
 - sides of extrafloors would not scroll properly, fixed.
+- autorun is remembered in the config file once more.
 
 
 Old Fixes (from EDGE 1.28A)
@@ -287,7 +288,7 @@ New weapon stuff
     NO_TRIGGER   : prevent reloading by pressing fire button
     FRESH        : reload empty clip when fresh ammo is picked up
     NO_MANUAL    : disable manual reloading key
-    PARTIAL      : for manual reload: allow partial clip refills
+    NO_PARTIAL   : for manual reload: disable partial clip refills
 
   When using the ANIMATED special, the weapon sprite doesn't raise up
   or lower down.  Instead the UP and DOWN states should show an
