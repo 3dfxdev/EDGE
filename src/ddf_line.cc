@@ -1488,8 +1488,6 @@ sliding_door_c& sliding_door_c::operator=(sliding_door_c &rhs)
 //
 teleportdef_c::teleportdef_c()
 {
-	inspawnobj_ref = NULL;
-	outspawnobj_ref = NULL;
 }
 
 //
@@ -1497,8 +1495,6 @@ teleportdef_c::teleportdef_c()
 //
 teleportdef_c::teleportdef_c(teleportdef_c &rhs)
 {
-	inspawnobj_ref = NULL;
-	outspawnobj_ref = NULL;
 	Copy(rhs);
 }
 
@@ -1507,11 +1503,6 @@ teleportdef_c::teleportdef_c(teleportdef_c &rhs)
 //
 teleportdef_c::~teleportdef_c()
 {
-	if (inspawnobj_ref)
-		Z_Free((void*)inspawnobj_ref);
-
-	if (outspawnobj_ref)
-		Z_Free((void*)outspawnobj_ref);
 }
 
 //
@@ -1520,21 +1511,12 @@ teleportdef_c::~teleportdef_c()
 void teleportdef_c::Copy(teleportdef_c &src)
 {
 	teleport = src.teleport;
-	inspawnobj = src.inspawnobj;	
 	
-	// FIXME!! Use epi str container
-	if (inspawnobj_ref)
-		Z_Free((void*)inspawnobj_ref);
-	if (src.inspawnobj_ref)
-		inspawnobj_ref = Z_StrDup(src.inspawnobj_ref);
-
-  	outspawnobj = src.outspawnobj;	
-
-	// FIXME!! Use epi str container
-	if (outspawnobj_ref)
-		Z_Free((void*)outspawnobj_ref);
-	if (src.outspawnobj_ref)
-		outspawnobj_ref = Z_StrDup(src.outspawnobj_ref);
+	inspawnobj = src.inspawnobj;	
+	inspawnobj_ref = src.inspawnobj_ref;
+	
+	outspawnobj = src.outspawnobj;	
+	outspawnobj_ref = src.outspawnobj_ref;
 
 	delay = src.delay;
 }
@@ -1547,18 +1529,10 @@ void teleportdef_c::Default()
 	teleport = false;
 	
 	inspawnobj = NULL;	
-	
-	// FIXME!! Use epi str container
-	if (inspawnobj_ref)
-		Z_Free((void*)inspawnobj_ref);
-	inspawnobj_ref = NULL;      
+	inspawnobj_ref.Clear();
 	
 	outspawnobj = NULL;      	
-
-	// FIXME!! Use epi str container
-	if (outspawnobj_ref)
-		Z_Free((void*)outspawnobj_ref);
-	outspawnobj_ref = NULL;      
+	outspawnobj_ref.Clear(); 
 
 	delay = 0;
 	special = TELSP_None;
@@ -1582,7 +1556,6 @@ teleportdef_c& teleportdef_c::operator=(teleportdef_c &rhs)
 //
 linetype_c::linetype_c()
 {
-	failedmessage = NULL;
 	Default();
 }
 
@@ -1591,7 +1564,6 @@ linetype_c::linetype_c()
 //
 linetype_c::linetype_c(linetype_c &rhs)
 {
-	failedmessage = NULL;
 	Copy(rhs);
 }
 
@@ -1600,9 +1572,6 @@ linetype_c::linetype_c(linetype_c &rhs)
 //
 linetype_c::~linetype_c()
 {
-	// FIXME!! Use Epi string container
-	if (failedmessage)
-		Z_Free(failedmessage);
 }
 	
 //
@@ -1639,12 +1608,7 @@ void linetype_c::CopyDetail(linetype_c &src)
 	s_yspeed = src.s_yspeed;
 	scroll_parts = src.scroll_parts;
 
-	// -ACB- 2004/07/06 Handle with new epi string container thingy
-	if (failedmessage)
-		Z_Free(failedmessage);
-		
-	if (src.failedmessage)
-		failedmessage = Z_StrDup(src.failedmessage);
+	failedmessage = src.failedmessage;
 
 	use_colourmap = src.use_colourmap;
 	gravity = src.gravity;
@@ -1701,10 +1665,7 @@ void linetype_c::Default(void)
 	s_yspeed = 0.0f;
 	scroll_parts = SCPT_None;
 	
-	if (failedmessage)
-		Z_Free(failedmessage);
-		
-	failedmessage = NULL;
+	failedmessage.Clear();
 	
 	use_colourmap = NULL;
 	gravity = FLO_UNUSED;

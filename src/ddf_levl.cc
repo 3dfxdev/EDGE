@@ -338,7 +338,6 @@ void DDF_LevelGetWistyle(const char *info, void *storage)
 //
 map_finaledef_c::map_finaledef_c()
 {
-	text = NULL;
 	Default();
 }
 
@@ -347,7 +346,6 @@ map_finaledef_c::map_finaledef_c()
 //
 map_finaledef_c::map_finaledef_c(map_finaledef_c &rhs)
 {
-	text = NULL;
 	Copy(rhs);
 }
 
@@ -363,12 +361,7 @@ map_finaledef_c::~map_finaledef_c()
 //
 void map_finaledef_c::Copy(map_finaledef_c &src)
 {
-	if (text)
-	{
-		Z_Free(text);		// FIXME!! Use proper delete	
-		text = NULL;
-	}
-	text = Z_StrDup(src.text);		// FIXME!! Use proper new/delete	
+	text = src.text;
 
 	text_back = src.text_back;
 	text_flat = src.text_flat;
@@ -389,12 +382,7 @@ void map_finaledef_c::Copy(map_finaledef_c &src)
 //
 void map_finaledef_c::Default()
 {
-	if (text)
-	{
-		Z_Free(text);		// FIXME!! Use proper delete	
-		text = NULL;
-	}
-	
+	text.Clear();	
 	text_back.Clear();
 	text_flat.Clear();
 	text_speed = 3.0f;
@@ -427,8 +415,6 @@ map_finaledef_c& map_finaledef_c::operator=(map_finaledef_c &rhs)
 //
 mapdef_c::mapdef_c()
 {
-	description = NULL;
-	episode_name = NULL;
 	Default();
 }
 
@@ -437,8 +423,6 @@ mapdef_c::mapdef_c()
 //
 mapdef_c::mapdef_c(mapdef_c &rhs)
 {
-	description = NULL;
-	episode_name = NULL;
 	Copy(rhs);
 }
 
@@ -447,17 +431,6 @@ mapdef_c::mapdef_c(mapdef_c &rhs)
 //
 mapdef_c::~mapdef_c()
 {
-	if (description)
-	{
-		Z_Free(description);		// FIXME!! Use proper delete	
-		description = NULL;
-	}
-
-	if (episode_name)
-	{
-		Z_Free(episode_name);		// FIXME!! Use proper delete	
-		episode_name = NULL;
-	}
 }
 
 //
@@ -476,13 +449,7 @@ void mapdef_c::CopyDetail(mapdef_c &src)
 {
 	next = src.next;				// FIXME!! Gamestate data
 	
-	if (description)
-	{
-		Z_Free(description);		// FIXME!! Use proper delete	
-		description = NULL;
-	}
-	description = Z_StrDup(src.description);		// FIXME!! Use proper new/delete	
-	
+	description = src.description;	
   	namegraphic = src.namegraphic;
   	lump = src.lump;
    	sky = src.sky;
@@ -491,12 +458,7 @@ void mapdef_c::CopyDetail(mapdef_c &src)
    	music = src.music;
 	partime = src.partime;
 	
-	if (episode_name)
-	{
-		Z_Free(episode_name);		// FIXME!! Use proper delete	
-		episode_name = NULL;
-	}	
-	episode_name = Z_StrDup(src.episode_name);		// FIXME!! Use proper new/delete	
+	episode_name = src.episode_name;
 	
 	force_on = src.force_on;
 	force_off = src.force_off;
@@ -525,12 +487,7 @@ void mapdef_c::Default()
 
 	next = NULL;
 	
-	if (description)
-	{
-		Z_Free(description);		// FIXME!! Use proper delete	
-		description = NULL;
-	}
-	
+	description.Clear();	
   	namegraphic.Clear();
   	lump.Clear();
    	sky.Clear();
@@ -538,13 +495,8 @@ void mapdef_c::Default()
    	
    	music = 0;
 	partime = 0;
-	
-	if (episode_name)
-	{
-		Z_Free(episode_name);		// FIXME!! Use proper delete	
-		episode_name = NULL;
-	}
-	
+
+	episode_name.Clear();	
 	force_on = MPF_None;
 	force_off = MPF_None;
 

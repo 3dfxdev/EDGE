@@ -273,16 +273,18 @@ void DDF_AttackCleanUp(void)
 
 		// lookup thing references
 
-		a->puff = a->puff_ref ? mobjtypes.Lookup(a->puff_ref) : NULL;
+		a->puff = a->puff_ref.IsEmpty() ? 
+				NULL : mobjtypes.Lookup(a->puff_ref);
 
-		a->spawnedobj = a->spawnedobj_ref ? mobjtypes.Lookup(a->spawnedobj_ref) : NULL;
+		a->spawnedobj = a->spawnedobj_ref.IsEmpty() ? 
+						NULL : mobjtypes.Lookup(a->spawnedobj_ref);
       
 		if (a->spawnedobj)
 		{
-			if (a->objinitstate_ref)
-				a->objinitstate = DDF_MainLookupDirector(a->spawnedobj, a->objinitstate_ref);
-			else
+			if (a->objinitstate_ref.IsEmpty())
 				a->objinitstate = a->spawnedobj->spawn_state;
+			else
+				a->objinitstate = DDF_MainLookupDirector(a->spawnedobj, a->objinitstate_ref);
 		}
 
 		DDF_ErrorClearEntryName();
@@ -489,14 +491,14 @@ void atkdef_c::Default()
 
 	attack_class = BITSET_EMPTY; 
 	objinitstate = 0;
-	objinitstate_ref = NULL;
+	objinitstate_ref.Clear();
 	notracechance = PERCENT_MAKE(0); 
 	keepfirechance = PERCENT_MAKE(0);
 	atk_mobj = NULL;
 	spawnedobj = NULL;
-	spawnedobj_ref = NULL;
+	spawnedobj_ref.Clear();
 	puff = NULL;
-	puff_ref = NULL;
+	puff_ref.Clear();
 }
 
 //
