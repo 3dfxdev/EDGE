@@ -621,7 +621,7 @@ void R_ExecuteSetViewSize(void)
 // R_SetFOV
 //
 // Sets the specified field of view
-// -ES- 1999/03/28 Added This
+//
 void R_SetFOV(angle_t fov)
 {
 	// can't change fov to angle below 5 or above 175 deg (approx). Round so
@@ -662,8 +662,6 @@ void R_SetZoomedFOV(angle_t newfov)
 //
 // Makes R_ExecuteChangeResolution execute at start of next refresh.
 //
-// -ES- 1998/08/20 Added this
-//
 bool changeresneeded = false;
 static screenmode_t setMode;
 
@@ -682,8 +680,6 @@ void R_ChangeResolution(int width, int height, int depth, bool windowed)
 // R_ExecuteChangeResolution
 //
 // Do the resolution change
-//
-// -ES- 1998/08/20 Added this
 //
 // -ES- 1999/04/05 Changed this to work with the viewbitmap system
 //

@@ -920,7 +920,6 @@ void ST_Stop(void)
 //
 // ST_ReInit
 // Re-inits status bar after a resolution change.
-// -ES- 1998/08/20 Added this
 // -ES- 1999/03/29 Fixed Low Resolutions
 //
 void ST_ReInit(void)

@@ -107,8 +107,6 @@ touch_node_t;
 //
 // Stores the properties that affect each vertical region.
 //
-// -AJA- 1999/10/09: added this.
-//
 typedef struct region_properties_s
 {
 	// rendering related

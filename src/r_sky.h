@@ -36,7 +36,6 @@ extern float skytexturemid;
 
 extern const struct image_s *sky_image;
 
-// -ES- 1999-04-11 Added This
 extern float skytexturescale;
 
 // Called every frame.

@@ -39,7 +39,6 @@ float skytexturemid;
 
 const struct image_s *sky_image;
 
-// -ES- 1999-04-11 Added This
 float skytexturescale;
 
 typedef struct sec_sky_ring_s

@@ -196,8 +196,8 @@ int key_jump;
 int key_map;
 int key_180;
 int key_talk;
-int key_mlook;  // -AJA- 1999/07/27.
-int key_secondatk;  // -AJA- 2000/02/08.
+int key_mlook;
+int key_secondatk;
 
 // -MH- 1998/07/10 Flying keys
 int key_flyup;
@@ -972,13 +972,13 @@ void G_Ticker(void)
 			paused = !paused;
 			if (paused)
 			{
-				S_PauseMusic();  // -ACB- 1999/10/07 New Music API
-				S_PauseSounds();  // -ACB- 1999/10/17 New Sound API
+				S_PauseMusic();
+				S_PauseSounds();
 			}
 			else
 			{
-				S_ResumeMusic(); // -ACB- 1999/10/07 New Music API
-				S_ResumeSounds();  // -ACB- 1999/10/17 New Sound API
+				S_ResumeMusic();
+				S_ResumeSounds();
 			}
 			// explicit as probably killed the initial effect
 			S_StartSound(NULL, sfx_swtchn);
@@ -1004,7 +1004,7 @@ void G_Ticker(void)
 		ST_Ticker();
 		AM_Ticker();
 		HU_Ticker();
-		RAD_Ticker();  // -AJA- 1999/09/07.
+		RAD_Ticker();
 		break;
 
 	case GS_INTERMISSION:
@@ -2065,8 +2065,6 @@ bool G_CheckDemoStatus(void)
 //
 // G_CheckWhenAppear
 //
-// -AJA- 1999/10/23: written.
-
 bool G_CheckWhenAppear(when_appear_e appear)
 {
 	if (! (appear & (1 << gameskill)))
@@ -2086,8 +2084,6 @@ bool G_CheckWhenAppear(when_appear_e appear)
 
 //
 // G_CheckConditions
-//
-// -AJA- 2000/07/23: written.
 //
 bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 {
