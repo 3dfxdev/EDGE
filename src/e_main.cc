@@ -1266,26 +1266,6 @@ static void CheckTurbo(void)
 	E_SetTurboScale(turbo_scale);
 }
 
-static void CheckPlayDemo(void)
-{
-#if 0  // !!!!! UNNEEDED ?
-	const char *ps = M_GetParm("-playdemo");
-
-	if (!ps)
-		ps = M_GetParm("-timedemo");
-
-	if (ps)
-	{
-		epi::string_c fn;
-		
-		M_ComposeFileName(fn, gamedir, ps);
-		fn += ".edm";	// FIXME!! Check we need to use extension here
-		W_AddRawFilename(fn.GetString(), FLKIND_Demo);
-		I_Printf("Playing demo %s.\n", fn.GetString());
-	}
-#endif
-}
-
 static void CheckSkillEtc(void)
 {
 	// get skill / episode / map from parms
@@ -1543,7 +1523,6 @@ startuporder_t startcode[] =
 	{  1, CheckCPU,            },
 	{  1, AddCommandLineFiles, },
 	{  1, CheckTurbo,          },
-	{  1, CheckPlayDemo,       },
 	{  1, CheckSkillEtc,       },
 	{  1, RAD_Init,            },
 	{  4, W_InitMultipleFiles, },
