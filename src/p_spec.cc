@@ -977,7 +977,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 	//
 	if (special->f.type != mov_undefined)
 	{
-		if (!tag || trig == line_manual)
+		if (!tag || special->type == line_manual)
 		{
 			if (line)
 				texSwitch = EV_ManualPlane(line, thing, &special->f);
@@ -994,7 +994,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 	//
 	if (special->c.type != mov_undefined)
 	{
-		if (!tag || trig == line_manual)
+		if (!tag || special->type == line_manual)
 		{
 			if (line)
 				texSwitch = EV_ManualPlane(line, thing, &special->c);
@@ -1014,7 +1014,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 	//
 	if (special->e.type != mov_undefined)
 	{
-		if (!tag || trig == line_manual)
+		if (!tag || special->type == line_manual)
 		{
 			if (line)
 				texSwitch = EV_ManualElevator(line, thing, &special->e);
