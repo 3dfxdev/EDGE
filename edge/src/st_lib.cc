@@ -66,7 +66,7 @@ void STLIB_InitFloat(st_float * n, int x, int y,
 }
 
 #define DrawDigit(X,Y,Image,Map)  \
-	vctx.DrawImage(FROM_320((X)-(Image)->offset_x), \
+	RGL_DrawImage(FROM_320((X)-(Image)->offset_x), \
 	FROM_200((Y)-(Image)->offset_y), \
 	FROM_320(IM_WIDTH(Image)), FROM_200(IM_HEIGHT(Image)),  \
 	(Image),0,0,IM_RIGHT(Image),IM_BOTTOM(Image),(Map),1.0f)
@@ -192,7 +192,7 @@ void STLIB_UpdateMultIcon(st_multicon_t * mi)
 	{
 		image = mi->icons[*mi->inum];
 
-		VCTX_ImageEasy320(mi->x, mi->y, image);
+		RGL_ImageEasy320(mi->x, mi->y, image);
 
 		mi->oldinum = *mi->inum;
 	}
@@ -215,7 +215,7 @@ void STLIB_UpdateBinIcon(st_binicon_t * bi)
 	{
 		if (*bi->val)
 		{
-			VCTX_ImageEasy320(bi->x, bi->y, bi->icon);
+			RGL_ImageEasy320(bi->x, bi->y, bi->icon);
 		}
 
 		bi->oldval = *bi->val;

@@ -127,7 +127,7 @@ void BT_Drawer(gui_t * g)
 {
 	button_t *bt = (button_t*)g->process;
 
-	GUI_WriteText(main_scr, g->left, g->top, bt->string);
+	GUI_WriteText(g->left, g->top, bt->string);
 }
 
 gui_t *GUI_MSGStart(gui_t ** g, gui_t * parent, int msg_id, int id, char *string)
@@ -196,11 +196,7 @@ void MSG_Drawer(gui_t * g)
 {
 	msgbox_t *msg = (msgbox_t*)g->process;
 
-#if 0
-	V_TextureBackScreen(main_scr, "FLOOR0_1", g->left, g->top, g->right, g->bottom);
-#endif
-
-	GUI_WriteText(main_scr, (g->left + g->right - HL_StringWidth(msg->string)) / 2, (g->top + 12), msg->string);
+	GUI_WriteText((g->left + g->right - HL_StringWidth(msg->string)) / 2, (g->top + 12), msg->string);
 	GUI_Drawer(&msg->gui);
 }
 
@@ -263,7 +259,7 @@ gui_t *GUI_DRAGStart(gui_t ** g, gui_t * parent, int id)
 	return gui;
 }
 
-void GUI_WriteText(screen_t * scr, int x, int y, char *string)
+void GUI_WriteText(int x, int y, char *string)
 {
 	//!!!!! IGNORES `scr' -- will fix for layer system
 
@@ -326,10 +322,6 @@ static void BAR_Drawer(gui_t * gui)
 	unsigned int val;
 	int r, g, b;
 
-	// --UNUSED--
-	//  int left = gui->left, right = gui->right, top = gui->top, bottom = gui->bottom;
-	// char *dest; int x, y;
-
 	if (!CON_GetCVar(bar->watch, (const void **)&valp))
 		return;
 
@@ -350,31 +342,6 @@ static void BAR_Drawer(gui_t * gui)
 		g = 31;
 
 	b = 0;
-
-	// --UNUSED--
-	//  if (left < 0)
-	//    left = 0;
-
-	// --UNUSED--
-	//  if (right >= SCREENWIDTH)
-	//    right = SCREENWIDTH - 1;
-
-	// --UNUSED--
-	//  if (top < 0)
-	//    top = 0;
-
-	// --UNUSED--
-	//  if (bottom >= SCREENHEIGHT)
-	//    bottom = SCREENHEIGHT - 1;
-
-#if 0
-	for (y = (unsigned int)gui->top; y < (unsigned int)gui->bottom; y++)
-	{
-		dest = (char*)(main_scr->data + y * SCREENPITCH + gui->left * BPP);
-		for (x = gui->left; x < (gui->right - gui->left) * val / 100 + gui->left; x++, dest++)
-			*dest = rgb_32k[r][g][b];
-	}
-#endif
 }
 
 gui_t *GUI_BARStart(gui_t ** g, char *watch, int max)

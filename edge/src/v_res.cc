@@ -49,12 +49,9 @@
 //
 //v_video.c stuff
 //
-screen_t *main_scr;
-screen_t *back_scr;
 
 int SCREENWIDTH;
 int SCREENHEIGHT;
-int SCREENPITCH;
 int SCREENBITS;
 bool SCREENWINDOW;
 bool graphicsmode = false;
@@ -117,11 +114,6 @@ static void SetRes(void)
 	DYI = 200.0f / SCALEDHEIGHT;
 	DY2 = DY / 2;
 	DYI2 = DYI * 2;
-
-	if (back_scr)
-		V_DestroyScreen(back_scr);
-
-	back_scr = V_CreateScreen(SCREENWIDTH, SCREENHEIGHT, BPP);
 
 	ST_ReInit();
 

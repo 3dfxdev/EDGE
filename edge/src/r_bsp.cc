@@ -38,7 +38,6 @@
 #include "r_segs.h"
 #include "r_state.h"
 #include "r_things.h"
-#include "z_zone.h"
 
 side_t *sidedef;
 line_t *linedef;

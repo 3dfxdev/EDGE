@@ -82,7 +82,7 @@ region_properties_t *R_PointGetProps(subsector_t *sub, float z);
 //
 
 // Renders the view for the next frame.
-extern void (*R_Render) (void);
+void R_Render(void);
 
 // Called by startup code.
 bool R_Init(void);

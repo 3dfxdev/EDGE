@@ -30,11 +30,6 @@
 
 #define DEBUG  0
 
-
-// OpenGL video context
-video_context_t vctx;
-
-
 // implementation limits
 
 int glmax_lights;
@@ -548,25 +543,6 @@ void RGL_NewScreenSize(int width, int height, int bpp)
 }
 
 //
-// RGL_BeginDraw
-//
-void RGL_BeginDraw(int x1, int y1, int x2, int y2)
-{
-	//!!! set the SCISSORS test (& optimise)
-
-	//!!! optimise: don't setup 2D matrices when already setup
-	RGL_SetupMatrices2D();
-}
-
-//
-// RGL_EndDraw
-//
-void RGL_EndDraw(void)
-{
-	//!!! unset the SCISSORS test
-}
-
-//
 // RGL_DrawImage
 //
 void RGL_DrawImage(int x, int y, int w, int h, const image_t *image, 
@@ -831,18 +807,5 @@ void RGL_Init(void)
 	RGL_InitUnits();
 
 	RGL_SetupMatrices2D();
-
-	// setup video context
-
-	vctx.double_buffered = true;
-
-	vctx.NewScreenSize = RGL_NewScreenSize;
-	vctx.RenderScene = RGL_RenderScene;
-	vctx.BeginDraw = RGL_BeginDraw;
-	vctx.EndDraw = RGL_EndDraw;
-	vctx.DrawImage = RGL_DrawImage;
-	vctx.SolidBox = RGL_SolidBox;
-	vctx.SolidLine = RGL_SolidLine;
-	vctx.ReadScreen = RGL_ReadScreen;
 }
 

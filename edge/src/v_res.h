@@ -50,9 +50,6 @@ int V_CompareModes(screenmode_t *A, screenmode_t *B);
 #define FROM_320(x)  ((x) * SCREENWIDTH  / 320)
 #define FROM_200(y)  ((y) * SCREENHEIGHT / 200)
 
-extern screen_t *main_scr;
-extern screen_t *back_scr;
-
 //
 // now with r_draw.h
 //

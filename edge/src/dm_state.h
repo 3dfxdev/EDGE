@@ -266,7 +266,6 @@ extern int cdcounter;
 //okay, heres the resolution/hicolour:
 extern int SCREENWIDTH;
 extern int SCREENHEIGHT;
-extern int SCREENPITCH;
 extern int SCREENBITS;
 extern bool SCREENWINDOW;
 

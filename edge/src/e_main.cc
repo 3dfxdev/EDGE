@@ -548,7 +548,7 @@ static void M_DisplayPause(void)
 	int x = FROM_320(160) - w / 2;
 	int y = FROM_200(10);
 
-    vctx.DrawImage(x, y, w, h, pause_image, 0, 0,
+    RGL_DrawImage(x, y, w, h, pause_image, 0, 0,
                    IM_RIGHT(pause_image), IM_BOTTOM(pause_image), NULL, 1.0f);
 }
 
@@ -790,9 +790,9 @@ void E_PageTicker(void)
 void E_PageDrawer(void)
 {
 	if (page_image)
-		VCTX_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, page_image);
+		RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, page_image);
 	else
-		vctx.SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, NOPAGE_COLOUR, 1);
+		RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, NOPAGE_COLOUR, 1);
 }
 
 //

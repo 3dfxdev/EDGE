@@ -47,9 +47,6 @@
 drawthingarray_c drawthings;
 drawfloorarray_c drawfloors;
 
-byte *subsectors_seen = NULL;
-static int subsectors_seen_size = -1;
-
 //
 // R2_InitUtil
 //
@@ -65,15 +62,6 @@ void R2_ClearBSP(void)
 {
 	drawfloors.Init();
 	drawthings.Init();
-	
-	if (subsectors_seen_size != numsubsectors)
-	{
-		subsectors_seen_size = numsubsectors;
-
-		Z_Resize(subsectors_seen, byte, subsectors_seen_size);
-	}
-
-	Z_Clear(subsectors_seen, byte, subsectors_seen_size);
 }
 
 void R2_FreeupBSP(void)
@@ -81,9 +69,6 @@ void R2_FreeupBSP(void)
 	drawfloors.Clear();
 	drawthings.Clear();
 }
-
-// ---> Drawwall container class
-
 
 // ---> Draw thing container class
 

@@ -508,7 +508,7 @@ void M_DisplayDisk(void)
 	w = IM_WIDTH(disk_image);
 	h = IM_HEIGHT(disk_image);
 
-	VCTX_Image320(314 - w, 164 - h, w, h, disk_image);
+	RGL_Image320(314 - w, 164 - h, w, h, disk_image);
 }
 
 //
@@ -554,7 +554,7 @@ void M_DisplayAir(void)
 		DEV_ASSERT2(1 <= i && i <= 20);
 	}
   
-	VCTX_ImageEasy320(0, 0, air_images[i - 1]);
+	RGL_ImageEasy320(0, 0, air_images[i - 1]);
 }
 
 #define PIXEL_RED(pix)  (playpal_data[0][pix][0])
@@ -563,8 +563,6 @@ void M_DisplayAir(void)
 
 //
 // M_ScreenShot
-//
-// -ACB- 2002/04/29 Used the ReadScreen() interface to remove #define dependency 
 //
 void M_ScreenShot(void)
 {
@@ -588,7 +586,7 @@ void M_ScreenShot(void)
 
 	buffer = (byte*)Z_Malloc(SCREENWIDTH*SCREENHEIGHT*4);
 
-	vctx.ReadScreen(0, 0, SCREENWIDTH, SCREENHEIGHT, buffer);
+	RGL_ReadScreen(0, 0, SCREENWIDTH, SCREENHEIGHT, buffer);
 	WriteTGAFile(filename, SCREENWIDTH, SCREENHEIGHT, buffer);
 	Z_Free(buffer);
 }

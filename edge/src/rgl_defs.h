@@ -89,7 +89,6 @@ extern int rgl_weapon_r;
 extern int rgl_weapon_g;
 extern int rgl_weapon_b;
 
-void RGL_RenderScene(int x, int y, int w, int h, vid_view_t *view);
 void RGL_RenderTrueBSP(void);
 
 
