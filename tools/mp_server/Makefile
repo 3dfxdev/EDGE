@@ -23,6 +23,7 @@ OBJS=autolock.o  \
      game.o      \
 	 lib_argv.o  \
 	 lib_list.o  \
+	 lib_util.o  \
 	 mp_main.o   \
 	 network.o   \
 	 packet.o    \
