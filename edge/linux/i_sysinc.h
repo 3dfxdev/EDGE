@@ -41,18 +41,6 @@ void I_ShutdownCD(void);
 extern bool musicpaused;
 void I_PostMusicError(const char *message);
 
-// I_MUSSRV.C
-bool I_StartupMusserv(void);
-bool I_MusservStartPlayback(const char *data, int len);
-void I_MusservPausePlayback(void);
-void I_MusservResumePlayback(void);
-void I_MusservStopPlayback(void);
-void I_MusservSetVolume(int vol);
-void I_ShutdownMusserv(void);
-
-// I_FMPAT.C
-void I_CreateGENMIDI(byte *dest);
-
 // I_USER.C
 void I_MessageBox(const char *message, const char *title, int mode);
 
