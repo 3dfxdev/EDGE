@@ -1135,7 +1135,7 @@ static bool EV_BuildOneStair(sector_t * sec, const movplanedef_c * def)
     if (!step)
         return false;
 
-    next_height = stairs->destheight + stairsize;
+    next_height = step->destheight + stairsize;
 
     do
     {
