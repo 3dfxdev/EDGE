@@ -128,8 +128,9 @@ bool singletics = false;  // debug flag to cancel adaptiveness
 // Must be used in conjunction with singletics.
 static int screenshot_rate;
 
-// For savegame screenies...
-bool need_save_screenshot = false;
+// For screenies...
+bool m_screenshot_required = false;
+bool need_save_screenshot  = false;
 
 FILE *logfile = NULL;
 FILE *debugfile = NULL;
@@ -698,15 +699,20 @@ void E_Display(void)
 
 	E_NetUpdate();  // send out any new accumulation
 
-	if (screenshot_rate && gamestate == GS_LEVEL)
+	if (m_screenshot_required)
+	{
+		m_screenshot_required = false;
+		M_ScreenShot();
+	}
+	else if (screenshot_rate && gamestate == GS_LEVEL)
 	{
 		if (!singletics)
 			I_Error("E_Display: -screenshot must be used in conjunction with timedemo or singletics!");
 
 		if (leveltime % screenshot_rate == 0)
-			G_ScreenShot();
+			M_ScreenShot();
 	}
-  
+
 	// normal update
 	if (!wipe && !wipe_gl_active)
 	{

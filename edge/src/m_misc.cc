@@ -39,6 +39,7 @@
 #include "m_argv.h"
 #include "m_menu.h"
 #include "m_option.h"
+#include "m_random.h"
 #include "m_swap.h"
 #include "p_spec.h"
 #include "w_wad.h"
@@ -593,7 +594,7 @@ void M_ScreenShot(void)
 	int i;
 
 	// find a file name to save it to
-	strcpy(filename,"SHOT0000.TGA");
+	strcpy(filename,"SHOT0000.tga");
 
 	for (i = 0; i <= 9999; i++)
 	{
