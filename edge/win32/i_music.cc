@@ -92,9 +92,6 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, boolean_t looping)
 	int track;
 	int handle;
 
-	int len;
-	int num;
-
 	if (!(capable & support_CD)   && type == MUS_CD)   return -1;
 	if (!(capable & support_MIDI) && type == MUS_MIDI) return -1;
 	if (!(capable & support_MP3)  && type == MUS_MP3)  return -1;
@@ -173,29 +170,28 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, boolean_t looping)
 void I_MusicPause(int *handle)
 {
 	int type;
-	int libhandle;
 
 	type = GETTYPE(*handle);
 
 	switch (type)
 	{
-	case MUS_CD:
-		{
-			if(!I_CDPausePlayback())
+		case MUS_CD:
 			{
-				*handle = -1;
-				return;
+				if(!I_CDPausePlayback())
+				{
+					*handle = -1;
+					return;
+				}
+
+				break;
 			}
 
+		case MUS_MIDI: { break; }
+		case MUS_MP3:  { I_MP3Pause(); break; }
+		case MUS_MUS:  { I_MUSPause(); break; }
+
+		default:
 			break;
-		}
-
-	case MUS_MIDI: { break; }
-	case MUS_MP3:  { I_MP3Pause(); break; }
-	case MUS_MUS:  { I_MUSPause(); break; }
-
-	default:
-		break;
 	}
 
 	musicpaused = true;
@@ -208,29 +204,28 @@ void I_MusicPause(int *handle)
 void I_MusicResume(int *handle)
 {
 	int type;
-	int libhandle;
 
 	type = GETTYPE(*handle);
 
 	switch (type)
 	{
-	case MUS_CD:
-		{
-			if(!I_CDResumePlayback())
+		case MUS_CD:
 			{
-				*handle = -1;
-				return;
+				if(!I_CDResumePlayback())
+				{
+					*handle = -1;
+					return;
+				}
+
+				break;
 			}
 
+		case MUS_MIDI: { break; }
+		case MUS_MP3:  { I_MP3Resume(); break; }
+		case MUS_MUS:  { I_MUSResume(); break; }
+
+		default:
 			break;
-		}
-
-	case MUS_MIDI: { break; }
-	case MUS_MP3:  { I_MP3Resume(); break; }
-	case MUS_MUS:  { I_MUSResume(); break; }
-
-	default:
-		break;
 	}
 
 	musicpaused = false;
@@ -273,7 +268,7 @@ void I_MusicTicker(int *handle)
 	int libhandle;
 
 	libhandle = GETLIBHANDLE(*handle);
-	looping = GETLOOPBIT(*handle);
+	looping = GETLOOPBIT(*handle)?true:false;
 	type = GETTYPE(*handle);
 
 	if (musicpaused)
@@ -281,7 +276,7 @@ void I_MusicTicker(int *handle)
 
 	switch (type)
 	{
-	case MUS_CD:
+		case MUS_CD:
 		{
 			if (!(I_GetTime()%TICRATE))
 			{
@@ -295,17 +290,12 @@ void I_MusicTicker(int *handle)
 			break;
 		}
 
-		// MIDI Not used
-	case MUS_MIDI: { break; }
+		case MUS_MIDI: { break; }	// MIDI Not used
+		case MUS_MUS:  { break; }	// MUS Ticker is called by a timer
+		case MUS_MP3:  { break; }	// MP3 Ticker is called by a timer
 
-				   // MUS Ticker is called by a timer
-	case MUS_MUS:  { break; }
-
-				   // MP3 Ticker is called by a timer
-	case MUS_MP3:  { break; }
-
-	default:
-		break;
+		default:
+			break;
 	}
 
 	return;
