@@ -54,15 +54,6 @@ boolean_t M_Init(void);
 // does nothing if menu is already up.
 void M_StartControlPanel(void);
 
-// hu_font size routines
-int M_CharWidth(int c);
-int M_TextMaxLen(int max_w, const char *str);
-int M_StringWidth(const char *string);
-int M_StringHeight(const char *string);
-
-void M_WriteText(int x, int y, const char *string);
-void M_WriteTextTrans(int x, int y, const byte *trans, const char *string);
-
 // 25-6-98 KM
 void M_StartMessage(const char *string, void (* routine)(int response), 
     boolean_t input);
