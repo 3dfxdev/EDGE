@@ -305,6 +305,15 @@ typedef struct sector_s
 sector_t;
 
 
+typedef enum
+{
+	WTILF_ExtraX   = 0x0001,  // side of an extrafloor
+	WTILF_ExtraY   = 0x0002,  //
+
+	WTILF_MidMask  = 0x0010,  // the mid-masked part (gratings etc)
+}
+wall_tile_flag_e;
+
 typedef struct wall_tile_s
 {
 	// vertical extent of this tile.  The seg determines the horizontal
@@ -322,11 +331,6 @@ typedef struct wall_tile_s
 	surface_t *surface;
 }
 wall_tile_t;
-
-#define WTILF_Extra    0x0001
-#define WTILF_MidMask  0x0004
-#define WTILF_Sky      0x0010
-#define WTILF_Slider   0x0020
 
 
 //

@@ -1438,12 +1438,12 @@ static void SetupWallTiles(void)
 			DEV_ASSERT2(ld->frontsector->exfloor_max ==
 				ld->backsector->exfloor_max);
 
-			num_0 = 3;
+			num_0 = 3;  /* lower + middle + upper */
 			num_1 = 3;
 		}
 		else
 		{
-			// FIXME: only count THICK sides for second part.
+			// FIXME: only count THICK sides for extrafloors.
 
 			num_0 = 3 + ld->backsector->exfloor_max;
 			num_1 = 3 + ld->frontsector->exfloor_max;

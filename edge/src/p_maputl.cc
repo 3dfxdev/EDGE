@@ -1077,18 +1077,28 @@ void P_ComputeWallTiles(line_t *ld, int sidenum)
 
 		if (C->ef_info->type & EXFL_Thick)
 		{
+			int flags = 0;
+
 			// -AJA- 1999/09/25: Better DDF control of side texture.
 			if (C->ef_info->type & EXFL_SideUpper)
 				surf = &sd->top;
 			else if (C->ef_info->type & EXFL_SideLower)
 				surf = &sd->bottom;
 			else
+			{
 				surf = &C->ef_line->side[0]->middle;
+
+				if (C->ef_info->type & EXFL_SideMidX)
+					flags |= WTILF_ExtraX;
+
+				if (C->ef_info->type & EXFL_SideMidY)
+					flags |= WTILF_ExtraY;
+			}
 
 			tex_z = (C->ef_line->flags & ML_LowerUnpegged) ?
 				C->bottom_h + IM_HEIGHT(surf->image) : C->top_h;
 
-			AddWallTile(sd, C->bottom_h, C->top_h, tex_z, surf, WTILF_Extra);
+			AddWallTile(sd, C->bottom_h, C->top_h, tex_z, surf, flags);
 		}
 
 		floor_h = C->top_h;
