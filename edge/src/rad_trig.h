@@ -62,8 +62,11 @@ boolean_t RAD_CheckReachedTrigger(mobj_t * thing);
 void RAD_ParserBegin(void);
 void RAD_ParserDone(void);
 void RAD_ParseLine(char *s);
-void RAD_Error(const char *err, ...);
 int RAD_StringHashFunc(const char *s);
+
+void RAD_Error(const char *err, ...);
+void RAD_Warning(const char *err, ...);
+void RAD_WarnError(const char *err, ...);
 
 extern int rad_cur_linenum;
 extern char *rad_cur_filename;
