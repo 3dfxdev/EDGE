@@ -21,89 +21,94 @@
 
 #include "system.h"
 
+
 #define PWAD_HEADER  "PWAD"
 
 #define MAX_LUMPS  2000
 
-//
-// --- TYPES ---
-//
+#define DEBUG_DDF  1
 
-//
-// Wad Info
-//
-typedef struct
+
+namespace WAD
 {
-	char id[4];        // IWAD (whole) or PWAD (part)
-	int numlumps;      // Number of Lumps
-	int infotableofs;  // Info table offset
-}
-wadinfo_t;
+	// --- TYPES ---
 
-//
-// Lump stuff
-//
-typedef struct lump_s
-{
-	byte *data;          // Data
-	int filepos;         // Position in file
-	int size;            // Size
-	char name[8];        // Name
-}
-lump_t;
-
-// Lump list
-static lump_t **lumplist = NULL;
-static int num_lumps;
-
-static lump_t *cur_lump = NULL;
-static int cur_max_size;
-
-static char wad_msg_buf[1024];
-
-//
-// PadFile
-//
-// Pads a file to the nearest 4 bytes.
-//
-static void PadFile(FILE *fp)
-{
-	unsigned char zeros[4] = { 0, 0, 0, 0 };
-	
-	int num = ftell(fp) % 4;
-
-	if (num != 0)
+	//
+	// Wad Info
+	//
+	typedef struct
 	{
-		fwrite(&zeros, 1, 4 - num, fp);
+		char id[4];        // IWAD (whole) or PWAD (part)
+		int numlumps;      // Number of Lumps
+		int infotableofs;  // Info table offset
+	}
+	wadinfo_t;
+
+	//
+	// Lump stuff
+	//
+	typedef struct lump_s
+	{
+		byte *data;          // Data
+		int filepos;         // Position in file
+		int size;            // Size
+		char name[8];        // Name
+	}
+	lump_t;
+
+	// Lump list
+	lump_t **lumplist = NULL;
+	int num_lumps;
+
+	lump_t *cur_lump = NULL;
+	int cur_max_size;
+
+	char wad_msg_buf[1024];
+
+	//
+	// PadFile
+	//
+	// Pads a file to the nearest 4 bytes.
+	//
+	void PadFile(FILE *fp)
+	{
+		unsigned char zeros[4] = { 0, 0, 0, 0 };
+		
+		int num = ftell(fp) % 4;
+
+		if (num != 0)
+		{
+			fwrite(&zeros, 1, 4 - num, fp);
+		}
+	}
+
+	//
+	// LumpExists
+	//
+	int LumpExists(const char *name)
+	{
+		int i;
+
+		for (i = 0; i < num_lumps; i++)
+		{
+			if (strncmp(lumplist[i]->name, name, 8) == 0)
+				return i;
+		}
+
+		return -1;
 	}
 }
 
 //
-// WAD_LumpExists
+// WAD::NewLump
 //
-int WAD_LumpExists(const char *name)
-{
-	int i;
-
-	for (i = 0; i < num_lumps; i++)
-	{
-		if (strncmp(lumplist[i]->name, name, 8) == 0)
-			return i;
-	}
-
-	return -1;
-}
-
-//
-// WAD_NewLump
-//
-void WAD_NewLump(const char *name)
+void WAD::NewLump(const char *name)
 {
 	if (cur_lump)
 		InternalError("WAD_NewLump: current lump not finished");
 
 	// Check for existing lump, overwrite if need be.
-	int i = WAD_LumpExists(name);
+	int i = WAD::LumpExists(name);
 
 	if (i >= 0)
 	{
@@ -137,9 +142,9 @@ void WAD_NewLump(const char *name)
 }
 
 //
-// WAD_AddData
+// WAD::AddData
 //
-void WAD_AddData(const byte *data, int size)
+void WAD::AddData(const byte *data, int size)
 {
 	if (! cur_lump)
 		InternalError("WAD_AddData: no current lump");
@@ -161,9 +166,9 @@ void WAD_AddData(const byte *data, int size)
 }
 
 //
-// WAD_Printf
+// WAD::Printf
 //
-void WAD_Printf(const char *str, ...)
+void WAD::Printf(const char *str, ...)
 {
 	va_list args;
 
@@ -171,13 +176,17 @@ void WAD_Printf(const char *str, ...)
 	vsprintf(wad_msg_buf, str, args);
 	va_end(args);
 
-	WAD_AddData((byte *) wad_msg_buf, strlen(wad_msg_buf));
+#ifdef DEBUG_DDF
+	printf("%s", wad_msg_buf);
+#else
+	WAD::AddData((byte *) wad_msg_buf, strlen(wad_msg_buf));
+#endif
 }
 
 //
-// WAD_FinishLump
+// WAD::FinishLump
 //
-void WAD_FinishLump(void)
+void WAD::FinishLump(void)
 {
 	if (! cur_lump)
 		InternalError("WAD_FinishLump: not started");
@@ -187,9 +196,9 @@ void WAD_FinishLump(void)
 }
 
 //
-// WAD_WriteFile
+// WAD::WriteFile
 //
-void WAD_WriteFile(const char *name)
+void WAD::WriteFile(const char *name)
 {
 	if (cur_lump)
 		InternalError("WAD_WriteFile: lump not finished");
@@ -243,9 +252,9 @@ void WAD_WriteFile(const char *name)
 }
 
 //
-// WAD_Startup
+// WAD::Startup
 //
-void WAD_Startup(void)
+void WAD::Startup(void)
 {
 	lumplist = (lump_t **) calloc(sizeof(lump_t *), MAX_LUMPS);
 
@@ -256,9 +265,9 @@ void WAD_Startup(void)
 }
 
 //
-// WAD_Shutdown
+// WAD::Shutdown
 //
-void WAD_Shutdown(void)
+void WAD::Shutdown(void)
 {
 	int i;
 
