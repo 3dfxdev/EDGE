@@ -14,36 +14,6 @@
 #define __SOUNDS_HDR__
 
 //
-// SoundFX struct.
-//
-
-typedef struct
-{
-    // up to 6-character name
-    const char *orig_name;
-
-    // Sfx singularity (only one at a time)
-    int singularity;
-
-    // Sfx priority
-    int priority;
-
-    // referenced sound if a link
-    int link;
-
-    // pitch if a link
-    int pitch;
-
-    // volume if a link
-    int volume;
-
-	// changed name (NULL if not modified).  Space for 6 non-NUL characters.
-	char *new_name;
-}
-sfxinfo_t;
-
-
-//
 // MusicInfo struct.
 //
 typedef struct
@@ -57,7 +27,6 @@ typedef struct
 	char *new_name;
 }
 musicinfo_t;
-
 
 //
 // Identifiers for all music in game.
@@ -90,6 +59,37 @@ musictype_e;
 // the complete set of music
 extern musicinfo_t S_music[NUMMUSIC];
 
+
+//------------------------------------------------------------------------
+
+//
+// SoundFX struct.
+//
+
+typedef struct
+{
+    // up to 6-character name
+    const char *orig_name;
+
+    // Sfx singularity (only one at a time)
+    int singularity;
+
+    // Sfx priority
+    int priority;
+
+    // referenced sound if a link
+    int link;
+
+    // pitch if a link
+    int pitch;
+
+    // volume if a link
+    int volume;
+
+	// changed name (NULL if not modified).  Space for 6 non-NUL characters.
+	char *new_name;
+}
+sfxinfo_t;
 
 //
 // Identifiers for all sfx in game.
@@ -135,6 +135,7 @@ namespace Sounds
 	// this returns true if the string was found.
 	bool ReplaceString(const char *before, const char *after);
 
+	void MarkSound(int s_num);
 	void AlterSound(int s_num, const char *deh_field, int value);
 
 	void ConvertSFX(void);

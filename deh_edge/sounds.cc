@@ -115,6 +115,8 @@ musicinfo_t S_music[NUMMUSIC] =
     { "dm2int", 64, NULL } 
 };
 
+
+//------------------------------------------------------------------------
 //
 // Information about all the sfx
 //
@@ -234,13 +236,26 @@ sfxinfo_t S_sfx[NUMSFX] =
 	{ "radio",  0,  60, 0, -1, -1, NULL } 
 };
 
+
 //------------------------------------------------------------------------
 
 namespace Sounds
 {
 	bool some_sound_modified = false;
-
 	bool got_one;
+
+	
+	void MarkSound(int s_num)
+	{
+		assert(1 <= s_num && s_num < NUMSFX);
+
+		some_sound_modified = true;
+	}
+
+	void AlterSound(int s_num, const char *deh_field, int value)
+	{
+		// FIXME
+	}
 
 	void BeginSoundLump(void)
 	{
@@ -396,7 +411,8 @@ bool Sounds::ReplaceString(const char *before, const char *after)
 			free(S_sfx[i].new_name);
 
 		S_sfx[i].new_name = strdup(after);
-		some_sound_modified = true;
+
+		MarkSound(i);
 
 		return true;
 	}

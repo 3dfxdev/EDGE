@@ -28,12 +28,14 @@
 #include "i_defs.h"
 #include "things.h"
 
+#include "ammo.h"
 #include "info.h"
 #include "frames.h"
 #include "misc.h"
 #include "mobj.h"
 #include "sounds.h"
 #include "system.h"
+#include "text.h"
 #include "util.h"
 #include "wad.h"
 #include "weapons.h"
@@ -331,7 +333,7 @@ namespace Things
 			WAD::Printf("TRANSLUCENCY = 50%;\n");
 			WAD::Printf("\n");
 			WAD::Printf("STATES(IDLE) = %s:A:-1:NORMAL:TRANS_SET(0%);\n",
-				sprnames[SPR_TFOG]);
+				TextStr::GetSprite(SPR_TFOG));
 
 			// EDGE doesn't use the TELEPORT_FOG object, instead it uses
 			// the CHASE states of the TELEPORT_FLASH object (i.e. the one
@@ -377,7 +379,7 @@ namespace Things
 
 			WAD::Printf("\n");
 			WAD::Printf("STATES(IDLE) = %s:A:-1:NORMAL:NOTHING;\n",
-				sprnames[SPR_CAND]);
+				TextStr::GetSprite(SPR_CAND));
 
 			return;
 		}
@@ -806,7 +808,7 @@ void Things::ConvertTHING(void)
 
 void Things::MarkThing(int mt_num)
 {
-	assert(1 <= mt_num && mt_num < NUMMOBJTYPES);
+	assert(0 <= mt_num && mt_num < NUMMOBJTYPES);
 
 	mobj_modified[mt_num] = true;
 

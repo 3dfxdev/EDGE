@@ -33,7 +33,9 @@ namespace Frames
 	extern int act_flags;
 
 	void Startup(void);
-	void MarkStateUsers(int state);
+
+	void MarkState(int st_num);
+	void StateDependencies(void);
 
 	void ResetAll(void); // also resets the slots and flags
 	int  BeginGroup(int first, char group);

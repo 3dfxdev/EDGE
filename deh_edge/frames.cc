@@ -30,12 +30,18 @@
 
 #include "info.h"
 #include "system.h"
+#include "text.h"
 #include "things.h"
 #include "wad.h"
 #include "weapons.h"
 
 
 #define DEBUG_RANGES  0  // must enable one in info.cpp too
+
+
+bool state_modified[NUMSTATES];
+
+statedyn_t state_dyn[NUMSTATES];
 
 
 const char *Frames::attack_slot[3];
@@ -322,24 +328,51 @@ static const staterange_t weapon_range[] =
 
 namespace Frames
 {
-	void MarkStateUsers(int state)
+	void MarkState(int st_num)
 	{
-		if (state == S_NULL)
+		// this is possible since binary patches store the dummy state
+		if (st_num == S_NULL)
 			return;
 
-		if (state <= S_LAST_WEAPON_STATE)
+		assert(1 <= st_num && st_num < NUMSTATES);
+
+		state_modified[st_num] = true;
+	}
+
+	void StateDependRange(int st_lo, int st_hi)
+	{
+		// Notes:
+		//   While it's possible for weapons to use thing states, and vice
+		//   versa, it can only happen when those weapons/things are
+		//   modified, so they don't need to be marked here.
+
+		assert(st_lo <= st_hi);
+		assert(st_lo >= 0);
+		assert(st_hi < NUMSTATES);
+
+		if (st_lo == S_NULL)
+			return;
+
+		// does range crosses the weapon/thing boundary ?
+		if (st_lo <= S_LAST_WEAPON_STATE && st_hi > S_LAST_WEAPON_STATE)
+		{
+			StateDependRange(st_lo, S_LAST_WEAPON_STATE);
+			StateDependRange(S_LAST_WEAPON_STATE + 1, st_hi);
+			return;
+		}
+
+		if (st_hi <= S_LAST_WEAPON_STATE)
 		{
 			for (int w = 0; weapon_range[w].obj_num >= 0; w++)
 			{
 				const staterange_t *R = weapon_range + w;
 
-				if ((R->start1 <= state && state <= R->end1) ||
-				    (R->start2 <= state && state <= R->end2))
+				if ((st_hi >= R->start1 && st_lo <= R->end1) ||
+				    (st_hi >= R->start2 && st_lo <= R->end2))
 				{
-					weapon_modified[R->obj_num] = true;
+					Weapons::MarkWeapon(R->obj_num);
 				}
 			}
-
 			return;
 		}
 
@@ -349,11 +382,31 @@ namespace Frames
 		{
 			const staterange_t *R = thing_range + t;
 
-			if ((R->start1 <= state && state <= R->end1) ||
-				(R->start2 <= state && state <= R->end2))
+			if ((st_hi >= R->start1 && st_lo <= R->end1) ||
+				(st_hi >= R->start2 && st_lo <= R->end2))
 			{
-				mobj_modified[R->obj_num] = true;
+				Things::MarkThing(R->obj_num);
 			}
+		}
+	}
+
+	void StateDependencies(void)
+	{
+		for (int lo = 1; lo < NUMSTATES; )
+		{
+			if (! state_modified[lo])
+			{
+				lo++; continue;
+			}
+
+			int hi = lo;
+
+			while (hi + 1 < NUMSTATES && state_modified[hi])
+				hi++;
+
+			StateDependRange(lo, hi);
+
+			lo = hi + 1;
 		}
 	}
 }
@@ -363,6 +416,7 @@ namespace Frames
 
 void Frames::Startup(void)
 {
+	memset(state_modified, 0, sizeof(state_modified));
 	memset(state_dyn, 0, sizeof(state_dyn));
 }
 
@@ -415,6 +469,8 @@ void Frames::SpreadGroups(void)
 
 			state_dyn[next].group  = state_dyn[i].group;
 			state_dyn[next].gr_idx = state_dyn[i].gr_idx + 1;
+
+			changes = true;
 		}
 	}
 	while (changes);
@@ -511,7 +567,8 @@ void Frames::OutputState(int cur)
 	const char *act_name = action_info[st->action].ddf_name;
 
 	WAD::Printf("    %s:%c:%d:%s:%s",
-		sprnames[st->sprite], 65 + ((int) st->frame & 63), (int) st->tics,
+		TextStr::GetSprite(st->sprite),
+		'A' + ((int) st->frame & 63), (int) st->tics,
 		(st->frame >= 32768) ? "BRIGHT" : "NORMAL", act_name);
 
 	act_flags |= action_info[st->action].act_flags;
