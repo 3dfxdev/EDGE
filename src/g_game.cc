@@ -854,7 +854,7 @@ bool G_Responder(event_t * ev)
 //
 // Make ticcmd_ts for the players.
 //
-// -ACB- 1998/08/10 Use DDF_LanguageLookup() for language specifics.
+// -ACB- 1998/08/10 Use language object for language specifics.
 //
 void G_Ticker(void)
 {
@@ -948,7 +948,7 @@ void G_Ticker(void)
 		if (cmd->forwardmove > TURBOTHRESHOLD
 			&& !(gametic & 31) && ((gametic >> 5) & 3) == p->pnum)
 		{
-			CON_Printf(DDF_LanguageLookup("IsTurbo"), p->playername);
+			CON_Printf(language["IsTurbo"], p->playername);
 		}
 
 		if (netgame && !netdemo && !(gametic % ticdup))
@@ -1466,7 +1466,8 @@ void G_DoLoadGame(void)
 
 	tempgamedef = gamedefs.Lookup(tempmap->episode_name);
 	if (!tempgamedef)
-		I_Error("LOAD-GAME: No such episode/mod %s !  Check WADS\n", tempmap->episode_name);
+		I_Error("LOAD-GAME: No such episode/mod %s !  Check WADS\n", 
+				tempmap->episode_name.GetString());
 
 	gameskill = (skill_t) globs->skill;
 	random_seed = globs->p_random;
@@ -1611,7 +1612,7 @@ void G_DoSaveGame(void)
 
 	savedescription[0] = 0;
 
-	CON_Printf("%s", DDF_LanguageLookup("GameSaved"));
+	CON_Printf("%s", language["GameSaved"]);
 
 	// draw the pattern into the back screen
 	//   R_FillBackScreen();

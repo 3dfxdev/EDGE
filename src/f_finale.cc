@@ -155,7 +155,7 @@ bool F_Responder(event_t * event)
 	// Skip finale if there either is a next final stage, or if there is a next
 	// sub-stage (for the two-stage text acceleration)
 	if (i > finalestage || (finalestage == f_text &&
-		 (unsigned int)finalecount < (TEXTSPEED * strlen(DDF_LanguageLookup(finale->text)))))
+		 (unsigned int)finalecount < (TEXTSPEED * strlen(language[finale->text]))))
 	{
 		skip_finale = true;
 		return true;
@@ -175,11 +175,11 @@ void F_Ticker(void)
 	{
 		skip_finale = false;
 		if (finalestage == (finalestage_e)f_text &&
-			(unsigned int)finalecount < TEXTSPEED * strlen(DDF_LanguageLookup(finale->text)))
+			(unsigned int)finalecount < TEXTSPEED * strlen(language[finale->text]))
 		{
 			// -ES- 2000/03/08 Two-stage text acceleration. Complete the text the
 			// first time, skip to next finale the second time.
-			finalecount = TEXTSPEED * strlen(DDF_LanguageLookup(finale->text));
+			finalecount = TEXTSPEED * strlen(language[finale->text]);
 		}
 		else
 		{
@@ -196,7 +196,7 @@ void F_Ticker(void)
 				gamestate = GS_FINALE;
 				if (!finalecount)
 				{
-					finaletext = DDF_LanguageLookup(finale->text);
+					finaletext = language[finale->text];
 					S_ChangeMusic(finale->music, true);
 					wipegamestate = GS_NOTHING;
 					break;
@@ -458,7 +458,7 @@ static void CastInitNew(int num)
 		castorder = mobjtypes[0];
 
 	casttitle = castorder->cast_title ?
-		DDF_LanguageLookup(castorder->cast_title) : castorder->ddf.name;
+		language[castorder->cast_title] : castorder->ddf.name;
 
 	castdeath = false;
 	castframes = 0;

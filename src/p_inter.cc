@@ -535,10 +535,10 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 
 		// -AJA- FIXME: OPTIMISE THIS!
 		if (special->info->pickup_message &&
-			DDF_LanguageValidRef(special->info->pickup_message))
+			language.IsValidRef(special->info->pickup_message))
 		{
 			CON_PlayerMessage(player, 
-				DDF_LanguageLookup(special->info->pickup_message));
+				language[special->info->pickup_message]);
 		}
 
 		if (sound)

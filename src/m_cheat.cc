@@ -420,11 +420,11 @@ bool M_CheatResponder(event_t * ev)
 
 	// 'clev' change-level cheat
 	if (M_CheckCheat(&cheat_clev, key))
-		M_StartMessageInput(DDF_LanguageLookup("LevelQ"), M_ChangeLevelCheat);
+		M_StartMessageInput(language["LevelQ"], M_ChangeLevelCheat);
 
 	// 'mus' cheat for changing music
 	else if (M_CheckCheat(&cheat_mus, key))
-		M_StartMessageInput(DDF_LanguageLookup("MusicQ"), M_ChangeMusicCheat);
+		M_StartMessageInput(language["MusicQ"], M_ChangeMusicCheat);
 	else if (M_CheckCheat(&cheat_spawnbot, key))
 	{
 		BOT_DMSpawn();
@@ -445,38 +445,38 @@ void M_CheatInit(void)
 	char temp[16];
 
 	// Now what?
-	cheat_mus.sequence = DDF_LanguageLookup("idmus");
-	cheat_god.sequence = DDF_LanguageLookup("iddqd");
-	cheat_lazarus.sequence = "idlazarus";
-	cheat_ammo.sequence = DDF_LanguageLookup("idkfa");
-	cheat_ammonokey.sequence = DDF_LanguageLookup("idfa");
-	cheat_noclip.sequence = DDF_LanguageLookup("idspispopd");
-	cheat_commercial_noclip.sequence = DDF_LanguageLookup("idclip");
-	cheat_hom.sequence = DDF_LanguageLookup("idhom");
+	cheat_mus.sequence               = language["idmus"];
+	cheat_god.sequence               = language["iddqd"];
+	cheat_lazarus.sequence           = "idlazarus";
+	cheat_ammo.sequence              = language["idkfa"];
+	cheat_ammonokey.sequence         = language["idfa"];
+	cheat_noclip.sequence            = language["idspispopd"];
+	cheat_commercial_noclip.sequence = language["idclip"];
+	cheat_hom.sequence               = language["idhom"];
 
 	for (i=0; i < 9; i++)
 	{
 		sprintf(temp, "idbehold%d", i + 1);
-		cheat_powerup[i].sequence = DDF_LanguageLookup(temp);
+		cheat_powerup[i].sequence = language[temp];
 	}
 
-	cheat_choppers.sequence = DDF_LanguageLookup("idchoppers");
-	cheat_clev.sequence = DDF_LanguageLookup("idclev");
-	cheat_mypos.sequence = DDF_LanguageLookup("idmypos");
+	cheat_choppers.sequence  = language["idchoppers"];
+	cheat_clev.sequence      = language["idclev"];
+	cheat_mypos.sequence     = language["idmypos"];
 
 	//new cheats
-	cheat_killall.sequence = DDF_LanguageLookup("idkillall");
-	cheat_showstats.sequence = DDF_LanguageLookup("idinfo");
-	cheat_suicide.sequence = DDF_LanguageLookup("idsuicide");
-	cheat_keys.sequence = DDF_LanguageLookup("idunlock");
-	cheat_loaded.sequence = DDF_LanguageLookup("idloaded");
-	cheat_takeall.sequence = DDF_LanguageLookup("idtakeall");
+	cheat_killall.sequence   = language["idkillall"];
+	cheat_showstats.sequence = language["idinfo"];
+	cheat_suicide.sequence   = language["idsuicide"];
+	cheat_keys.sequence      = language["idunlock"];
+	cheat_loaded.sequence    = language["idloaded"];
+	cheat_takeall.sequence   = language["idtakeall"];
 
-	cheat_spawnbot.sequence = DDF_LanguageLookup("idbot");
+	cheat_spawnbot.sequence  = language["idbot"];
 
 	for (i = 0; i < 11; i++)
 	{
 		sprintf(temp, "idgive%d", i);
-		cheat_giveweapon[i].sequence = DDF_LanguageLookup(temp);
+		cheat_giveweapon[i].sequence = language[temp];
 	}
 }

@@ -867,8 +867,8 @@ void R_ExecuteChangeResolution(void)
 
 	// Ouch. Nothing worked! Quit.
 
-	I_Error(DDF_LanguageLookup("ModeSelErrT"), SCREENWIDTH, SCREENHEIGHT, 
-		1 << SCREENBITS);
+	I_Error(language["ModeSelErrT"], SCREENWIDTH, SCREENHEIGHT, 
+			1 << SCREENBITS);
 }
 
 //

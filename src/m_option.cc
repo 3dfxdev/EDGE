@@ -96,6 +96,8 @@
 #include "wp_main.h"
 #include "z_zone.h"
 
+#include "epi/epistring.h"
+
 #define OPTSHADE  text_white_map
 
 int optionsmenuon = 0;
@@ -666,7 +668,7 @@ void M_OptTicker(void)
 	{
 		displaybpp = scrmode[selectedscrmode].depth;
 
-		sprintf(setreserror, DDF_LanguageLookup("ModeSelErr"),
+		sprintf(setreserror, language["ModeSelErr"],
 				scrmode[selectedscrmode].width,
 				scrmode[selectedscrmode].height,
 				displaybpp);
@@ -765,7 +767,7 @@ void M_OptDrawer()
 
 			if (curr_menu->items[i].help)
 			{
-				const char *help = DDF_LanguageLookup(curr_menu->items[i].help);
+				const char *help = language[curr_menu->items[i].help];
 
 				HL_WriteTextTrans(160 - (HL_StringWidth(help) / 2), 200 - deltay*2, 
 								  text_green_map, help);
@@ -890,11 +892,11 @@ static void M_ResOptDrawer(int topy, int bottomy, int dy, int centrex)
 
 static void M_LanguageDrawer(int x, int y, int deltay)
 {
-	char tempstring[80];
+	epi::string_c s;
 
-	sprintf(tempstring, "%s", languages[cur_lang_index]->ddf.name);
+	s.Format("%s", language.GetName());
 
-	HL_WriteTextTrans(x+15, y + deltay * 6, OPTSHADE, tempstring);
+	HL_WriteTextTrans(x+15, y + deltay * 6, OPTSHADE, s);
 }
 
 //
@@ -1533,13 +1535,27 @@ static void M_ChangeLanguage(int keypressed)
 {
 	if (keypressed == KEYD_LEFTARROW)
 	{
-		cur_lang_index += num_languages - 1;
-		cur_lang_index %= num_languages;
+		int idx, max;
+		
+		idx = language.GetChoice();
+		max = language.GetChoiceCount();
+
+		idx--;
+		if (idx < 0) { idx += max; }
+			
+		language.Select(idx);
 	}
 	else if (keypressed == KEYD_RIGHTARROW)
 	{
-		cur_lang_index += 1;
-		cur_lang_index %= num_languages;
+		int idx, max;
+		
+		idx = language.GetChoice();
+		max = language.GetChoiceCount();
+
+		idx++;
+		if (idx >= max) { idx = 0; }
+			
+		language.Select(idx);
 	}
 }
 
