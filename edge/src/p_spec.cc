@@ -1032,10 +1032,7 @@ static bool P_ActivateSpecialLine(line_t * line,
     }
   }
 
-  // Note: M_PI means "not changed" for gravity, friction and
-  // viscosity and drag.
-
-  if (special->gravity != (float)M_PI && tag > 0)
+  if (special->gravity != FLO_UNUSED && tag > 0)
   {
     for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
     {
@@ -1044,7 +1041,7 @@ static bool P_ActivateSpecialLine(line_t * line,
     }
   }
 
-  if (special->friction != (float)M_PI && tag > 0)
+  if (special->friction != FLO_UNUSED && tag > 0)
   {
     for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
     {
@@ -1053,7 +1050,7 @@ static bool P_ActivateSpecialLine(line_t * line,
     }
   }
 
-  if (special->viscosity != (float)M_PI && tag > 0)
+  if (special->viscosity != FLO_UNUSED && tag > 0)
   {
     for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
     {
@@ -1062,7 +1059,7 @@ static bool P_ActivateSpecialLine(line_t * line,
     }
   }
 
-  if (special->drag != (float)M_PI && tag > 0)
+  if (special->drag != FLO_UNUSED && tag > 0)
   {
     for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
     {

@@ -128,6 +128,7 @@ typedef struct player_s
 	// Determine POV,
 	//  including viewpoint bobbing during movement.
 	// Focal origin above r.z
+  // will be FLO_UNUSED until the first think.
 	float viewz;
 
 	// Base height above floor for viewz.  Tracks `std_viewheight' but
