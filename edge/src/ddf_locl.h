@@ -2,7 +2,7 @@
 //  EDGE Data Definition File Code (Local Header)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2000  The EDGE Team.
+//  Copyright (c) 1999-2001  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -88,18 +88,19 @@ readchar_t;
 // pointer and sometimes a pointer to a (int) numeric value. (used for info that gets
 // its value directly from the file).
 //
-typedef struct
+typedef struct commandlist_s
 {
   // command name
   const char *name;
 
   // parse function.  `storage' is where the data should go (for
   // routines that don't modify the buffer_xxxx structure directly).
-  // `private' is some routine-specific private data, usually NULL.
-  void (* parse_command)(const char *info, void *storage, void *private);
+  //
+  void (* parse_command)(const char *info, void *storage);
 
-  void *storage;
-  void *private;
+  void *storage;  // FIXME: should be `int offset'
+
+  const struct commandlist_s *sub_comms;
 }
 commandlist_t;
 
@@ -111,6 +112,21 @@ commandlist_t;
     ((char *) FIELD_OFF(dummy,field))
 
 #define FIELD_P2OFF(ptr)  ((int) ptr)
+
+// NOTE: requires DDF_CMD_BASE to be defined as the dummy struct
+
+#define DDF_CMD(name,field,parser)  \
+    { /* ((char *)& (DDF_CMD_BASE . field)) - ((char *)& DDF_CMD_BASE), */  \
+      name, parser, &DDF_CMD_BASE.field, NULL }
+
+#define DDF_CMD_SUB(name,field,parser)  \
+    { name, parser, FIELD_OFF2P(DDF_CMD_BASE,field), NULL }
+ 
+#define DDF_SUB_LIST(name,field,subcomms)  \
+    { "*" name, NULL, &DDF_CMD_BASE.field, subcomms }
+
+#define DDF_CMD_END  { NULL, NULL, NULL, NULL }
+
 
 //
 // This structure passes the information needed to DDF_MainReadFile, so that
@@ -148,34 +164,19 @@ typedef struct readinfo_s
   // things.ddf, it is a name with an optional ":####" number
   // appended.  For everything else it is just a normal name.
   //
+  // this also instantiates the static entry's information (excluding
+  // name and/or number) using the built-in defaults.
+  //
   // if an entry with the given name/number already exists, re-use
   // that entry for the dynamic part, otherwise create a new dynamic
-  // entry and add it to the list.  No fields are initialised yet.
-  // Note that only the name and/or number need to be kept valid in
-  // the dynamic entry.  Returns true if the name already existed,
-  // otherwise false.
+  // entry and add it to the list.  Note that only the name and/or
+  // number need to be kept valid in the dynamic entry.  Returns true
+  // if the name already existed, otherwise false.
   //
   // Note: for things.ddf, only the name is significant when checking
   // if the entry already exists.
   //
   boolean_t (* start_entry)(const char *name);
-
-  // copy the old information from the dynamic part to the static
-  // buffer part.  Only called when "TEMPLATE=OLD" is used, and used
-  // correctly.
-  //
-  void (* copy_old)(void);
-
-  // instantiate the static entry's information (excluding name and/or
-  // number) using the named template.  When `template_name' is NULL,
-  // instantiate using the default (built-in) template.  When it is
-  // non-NULL, then it must exist, otherwise produce an error.
-  //
-  // Note: for number-only ddf files (lines, sectors and playlist),
-  // the parameter will be a number string.  For things.ddf, and the
-  // rest, only a normal name is allowed.
-  //
-  void (* instantiate)(const char *template_name);
 
   // parse a single field for the entry.  Usually it will just call
   // the ddf_main routine to handle the command list.  For
@@ -266,28 +267,28 @@ void DDF_WarnError(const char *err, ...);
 void DDF_ErrorSetEntryName(const char *err, ...);
 void DDF_ErrorClearEntryName(void);
 
-void DDF_MainGetPercent(const char *info, void *storage, void *priv);
-void DDF_MainGetPercentAny(const char *info, void *storage, void *priv);
-void DDF_MainGetBoolean(const char *info, void *storage, void *priv);
-void DDF_MainGetFloat(const char *info, void *storage, void *priv);
-void DDF_MainGetAngle(const char *info, void *storage, void *priv);
-void DDF_MainGetSlope(const char *info, void *storage, void *priv);
-void DDF_MainGetInlineStr10(const char *info, void *storage, void *priv);
-void DDF_MainGetInlineStr32(const char *info, void *storage, void *priv);
-void DDF_MainGetNumeric(const char *info, void *storage, void *priv);
-void DDF_MainGetString(const char *info, void *storage, void *priv);
-void DDF_MainGetTime(const char *info, void *storage, void *priv);
-void DDF_MainGetColourmap(const char *info, void *storage, void *priv);
-void DDF_MainGetRGB(const char *info, void *storage, void *priv);
-void DDF_MainGetWhenAppear(const char *info, void *storage, void *priv);
-void DDF_MainGetBitSet(const char *info, void *storage, void *priv);
+void DDF_MainGetPercent(const char *info, void *storage);
+void DDF_MainGetPercentAny(const char *info, void *storage);
+void DDF_MainGetBoolean(const char *info, void *storage);
+void DDF_MainGetFloat(const char *info, void *storage);
+void DDF_MainGetAngle(const char *info, void *storage);
+void DDF_MainGetSlope(const char *info, void *storage);
+void DDF_MainGetInlineStr10(const char *info, void *storage);
+void DDF_MainGetInlineStr32(const char *info, void *storage);
+void DDF_MainGetNumeric(const char *info, void *storage);
+void DDF_MainGetString(const char *info, void *storage);
+void DDF_MainGetTime(const char *info, void *storage);
+void DDF_MainGetColourmap(const char *info, void *storage);
+void DDF_MainGetRGB(const char *info, void *storage);
+void DDF_MainGetWhenAppear(const char *info, void *storage);
+void DDF_MainGetBitSet(const char *info, void *storage);
 
 boolean_t DDF_MainParseField(const commandlist_t *commands,
     const char *field, const char *contents);
-void DDF_MainLookupSound(const char *info, void *storage, void *priv);
-void DDF_MainRefAttack(const char *info, void *storage, void *priv);
+void DDF_MainLookupSound(const char *info, void *storage);
+void DDF_MainRefAttack(const char *info, void *storage);
 
-void DDF_DummyFunction(const char *info, void *storage, void *priv);
+void DDF_DummyFunction(const char *info, void *storage);
 
 checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
   const specflags_t *flag_set, int *flag_value, 
@@ -327,15 +328,15 @@ void DDF_LinedefCleanUp(void);
 // DDF_MOBJ Code  (Moving Objects)
 void DDF_MobjInit(void);
 void DDF_MobjCleanUp(void);
-void DDF_MobjGetSpecial(const char *info, void *storage, void *priv);
-void DDF_MobjGetExtra(const char *info, void *storage, void *priv);
-void DDF_MobjGetItemType(const char *info, void *storage, void *priv);
-void DDF_MobjGetBpAmmo(const char *info, void *storage, void *priv);
-void DDF_MobjGetBpAmmoLimit(const char *info, void *storage, void *priv);
-void DDF_MobjGetBpArmour(const char *info, void *storage, void *priv);
-void DDF_MobjGetBpKeys(const char *info, void *storage, void *priv);
-void DDF_MobjGetBpWeapon(const char *info, void *storage, void *priv);
-void DDF_MobjGetPlayer(const char *info, void *storage, void *priv);
+void DDF_MobjGetSpecial(const char *info, void *storage);
+void DDF_MobjGetExtra(const char *info, void *storage);
+void DDF_MobjGetItemType(const char *info, void *storage);
+void DDF_MobjGetBpAmmo(const char *info, void *storage);
+void DDF_MobjGetBpAmmoLimit(const char *info, void *storage);
+void DDF_MobjGetBpArmour(const char *info, void *storage);
+void DDF_MobjGetBpKeys(const char *info, void *storage);
+void DDF_MobjGetBpWeapon(const char *info, void *storage);
+void DDF_MobjGetPlayer(const char *info, void *storage);
 mobjinfo_t *DDF_MobjMakeAttackObj(mobjinfo_t *info, const char *atk_name);
 
 void ThingParseField(const char *field, const char *contents,
@@ -368,10 +369,10 @@ int StateFindLabel(int first, int last, const char *label);
 
 // DDF_SECT Code
 void DDF_SectorInit(void);
-void DDF_SectGetDestRef(const char *info, void *storage, void *priv);
-void DDF_SectGetExit(const char *info, void *storage, void *priv);
-void DDF_SectGetLighttype(const char *info, void *storage, void *priv);
-void DDF_SectGetMType(const char *info, void *storage, void *priv);
+void DDF_SectGetDestRef(const char *info, void *storage);
+void DDF_SectGetExit(const char *info, void *storage);
+void DDF_SectGetLighttype(const char *info, void *storage);
+void DDF_SectGetMType(const char *info, void *storage);
 void DDF_SectorCleanUp(void);
 
 // DDF_SFX Code
