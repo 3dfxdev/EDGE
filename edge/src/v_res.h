@@ -183,6 +183,15 @@ extern void (*R_FillBackScreen) (void);
 extern void (*R_DrawViewBorder) (void);
 extern void V_ClearPageBackground(screen_t * scr);
 
+// WPost stuff
+
+extern int dp_x;
+extern int dp_yl, dp_yh;
+
+extern fixed_t dp_yfrac;
+extern fixed_t dp_ystep;
+extern fixed_t dp_yscale;
+
 // Screen Modes
 extern screenmode_t *scrmode;
 extern int numscrmodes;
