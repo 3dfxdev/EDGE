@@ -1178,7 +1178,6 @@ void G_DeathMatchSpawnPlayer(player_t *p)
 	spawnpoint_t *sp;
 	
 	int i, j;
-	int selections;
 	int begin;
 
 	if (p->pnum >= dm_starts.GetSize())
