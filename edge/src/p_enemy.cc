@@ -86,10 +86,7 @@ float yspeed[8] = {0.0f, SQ2, 1.0f, SQ2, 0.0f, -SQ2, -1.0f, -SQ2};
 // Recursively traverse adjacent sectors,
 // sound blocking lines cut off traversal.
 //
-
-static int noise_player;
-
-static void RecursiveSound(sector_t * sec, int soundblocks)
+static void RecursiveSound(sector_t * sec, int soundblocks, int player)
 {
 	int i;
 	line_t *check;
@@ -102,7 +99,7 @@ static void RecursiveSound(sector_t * sec, int soundblocks)
 	// wake up all monsters in this sector
 	sec->validcount = validcount;
 	sec->soundtraversed = soundblocks + 1;
-	sec->sound_player = noise_player;
+	sec->sound_player = player;
 
 	for (i = 0; i < sec->linecount; i++)
 	{
@@ -130,11 +127,11 @@ static void RecursiveSound(sector_t * sec, int soundblocks)
 		if (check->flags & ML_SoundBlock)
 		{
 			if (!soundblocks)
-				RecursiveSound(other, 1);
+				RecursiveSound(other, 1, player);
 		}
 		else
 		{
-			RecursiveSound(other, soundblocks);
+			RecursiveSound(other, soundblocks, player);
 		}
 	}
 }
@@ -144,9 +141,9 @@ static void RecursiveSound(sector_t * sec, int soundblocks)
 //
 void P_NoiseAlert(player_t *p)
 {
-	noise_player = p->pnum;
 	validcount++;
-	RecursiveSound(p->mo->subsector->sector, 0);
+
+	RecursiveSound(p->mo->subsector->sector, 0, p->pnum);
 }
 
 //
