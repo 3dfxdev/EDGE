@@ -437,7 +437,8 @@ static void P_UpdatePowerups(player_t *player)
 	{
 		float s = player->powers[PW_Invulnerable];
 
-		player->effect_colourmap = DDF_ColmapLookup("ALLWHITE");
+		// -ACB- FIXME!!! Catch lookup failure!
+		player->effect_colourmap = colourmaps.Lookup("ALLWHITE");
 		player->effect_strength = ((s >= 128.0f) ? 1.0f : s / 128.0f);
 	}
 	else if (player->powers[PW_Infrared] > 0.0f)
@@ -451,7 +452,8 @@ static void P_UpdatePowerups(player_t *player)
 	{
 		float s = player->powers[PW_NightVision];
 
-		player->effect_colourmap = DDF_ColmapLookup("ALLGREEN");
+		// -ACB- FIXME!!! Catch lookup failure!
+		player->effect_colourmap = colourmaps.Lookup("ALLGREEN");
 		player->effect_strength = ((s >= 128) ? 1.0f : s / 128.0f);
 	}
 }

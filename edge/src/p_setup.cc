@@ -516,7 +516,9 @@ static void LoadSectors(int lump)
 		ss->exfloor_max = 0;
 
 		// -AJA- 1999/07/10: Updated for colmap.ddf.
-		ss->props.colourmap = DDF_ColmapLookup("NORMAL");
+		// -ACB- FIXME!!! Catch lookup failure!
+		ss->props.colourmap = colourmaps.Lookup("NORMAL");
+		
 		ss->props.gravity   = GRAVITY;
 		ss->props.friction  = FRICTION;
 		ss->props.viscosity = VISCOSITY;

@@ -62,7 +62,7 @@ typedef struct
 	const image_t *minus;
 
 	// colourmap
-	const colourmap_t *colmap;
+	const colourmap_c *colmap;
 }
 st_number_t;
 

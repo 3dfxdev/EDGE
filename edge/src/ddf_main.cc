@@ -1147,7 +1147,7 @@ readchar_t DDF_MainProcessChar(char character, char *buffer, int status)
 				DDF_WarnError2(0x128, "Unclosed string detected.\n");
 				return nothing;
 			}
-			// -KM- 1998/10/29 Removed ascii check, allow foreign characters („)
+			// -KM- 1998/10/29 Removed ascii check, allow foreign characters (?)
 			// -ES- HEY! Swedish is not foreign!
 			else
 			{
@@ -1597,9 +1597,12 @@ void DDF_DummyFunction(const char *info, void *storage)
 //
 void DDF_MainGetColourmap(const char *info, void *storage)
 {
-	const colourmap_t **result = (const colourmap_t **)storage;
+	const colourmap_c **result = (const colourmap_c **)storage;
 
-	*result = DDF_ColmapLookup(info);
+	*result = colourmaps.Lookup(info);
+	if (*result == NULL)
+		DDF_Error("DDF_MainGetColourmap: No such colourmap '%s'\n", info);
+	
 }
 
 //

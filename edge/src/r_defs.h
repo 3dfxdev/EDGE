@@ -37,7 +37,7 @@
 // SECTORS do store MObjs anyway.
 #include "p_mobj.h"
 
-// -AJA- 1999/07/10: Need this for colourmap_t.
+// -AJA- 1999/07/10: Need this for colourmap_c.
 #include "ddf_main.h"
 
 struct image_s;
@@ -111,7 +111,7 @@ typedef struct region_properties_s
 {
 	// rendering related
 	int lightlevel;
-	const colourmap_t *colourmap;
+	const colourmap_c *colourmap;
 
 	// special type (e.g. damaging)
 	const specialsector_t *special;
