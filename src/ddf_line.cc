@@ -246,7 +246,6 @@ static void DDF_LineGetTeleportSpecial(const char *info, void *storage);
 static void DDF_LineGetRadTrig(const char *info, void *storage);
 static void DDF_LineGetSpecialFlags(const char *info, void *storage);
 static void DDF_LineGetSlideType(const char *info, void *storage);
-static void DDF_LineGetSkyType(const char *info, void *storage);
 static void DDF_LineGetLineEffect(const char *info, void *storage);
 static void DDF_LineGetSectorEffect(const char *info, void *storage);
 
@@ -254,7 +253,6 @@ moving_plane_t dummy_floor;
 elevator_sector_t dummy_elevator;
 
 static sliding_door_t dummy_slider;
-static tilesky_info_t dummy_tilesky;
 static ladder_info_t dummy_ladder;
 
 #undef  DDF_CMD_BASE
@@ -301,20 +299,6 @@ const commandlist_t elevator_commands[] =
 };
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  dummy_tilesky
-
-const commandlist_t tilesky_commands[] =
-{
-  DF("TYPE",   type,   DDF_LineGetSkyType),
-  DF("LAYER",  layer,  DDF_MainGetNumeric),
-  DF("NUMBER", number, DDF_MainGetNumeric),
-  DF("SQUISH", squish, DDF_MainGetFloat),
-  DF("OFFSET", offset, DDF_MainGetFloat),
-
-	DDF_CMD_END
-};
-
-#undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  dummy_ladder
 
 const commandlist_t ladder_commands[] =
@@ -347,12 +331,11 @@ const commandlist_t slider_commands[] =
 static const commandlist_t linedef_commands[] =
 {
 	// sub-commands
-  DDF_SUB_LIST("FLOOR",    f, floor_commands,    dummy_floor),
-  DDF_SUB_LIST("CEILING",  c, floor_commands,    dummy_floor),
-  DDF_SUB_LIST("ELEVATOR", e, elevator_commands, dummy_elevator),
-  DDF_SUB_LIST("SLIDER",   s, slider_commands,   dummy_slider),
-  DDF_SUB_LIST("TILESKY",  sky, tilesky_commands, dummy_tilesky),
-  DDF_SUB_LIST("LADDER",   ladder, ladder_commands, dummy_ladder),
+	DDF_SUB_LIST("FLOOR",    f, floor_commands,    dummy_floor),
+	DDF_SUB_LIST("CEILING",  c, floor_commands,    dummy_floor),
+	DDF_SUB_LIST("ELEVATOR", e, elevator_commands, dummy_elevator),
+	DDF_SUB_LIST("SLIDER",   s, slider_commands,   dummy_slider),
+	DDF_SUB_LIST("LADDER",   ladder, ladder_commands, dummy_ladder),
 
 	DF("NEWTRIGGER", newtrignum, DDF_MainGetNumeric),
 	DF("ACTIVATORS", obj, DDF_LineGetActivators),
@@ -1164,26 +1147,6 @@ static void DDF_LineGetSlideType(const char *info, void *storage)
 		slidingdoor_names, (int *) storage, false, false))
 	{
 		DDF_WarnError("DDF_LineGetSlideType: Unknown slider: %s\n", info);
-	}
-}
-
-static const specflags_t tilesky_names[] =
-{
-	{"NONE",    TILESKY_None,    0},
-	{"FLAT",    TILESKY_Flat,    0},
-	{"TEXTURE", TILESKY_Texture, 0},
-	{NULL, 0, 0}
-};
-
-//
-// DDF_LineGetSkyType
-//
-static void DDF_LineGetSkyType(const char *info, void *storage)
-{
-	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info,
-		tilesky_names, (int *) storage, false, false))
-	{
-		DDF_WarnError("DDF_LineGetSkyType: Unknown type: %s\n", info);
 	}
 }
 
