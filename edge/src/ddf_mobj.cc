@@ -38,171 +38,29 @@
 #include "p_mobj.h"
 #include "z_zone.h"
 
+#include "./epi/epistring.h"
+
 #undef  DF
 #define DF  DDF_CMD
 
-#define DDF_MobjHashFunc(x)  (((x) + 211) % 211)
+#define DDF_MobjHashFunc(x)  (((x) + LOOKUP_CACHESIZE) % LOOKUP_CACHESIZE)
 
-mobjinfo_t buffer_mobj;
-mobjinfo_t *dynamic_mobj;
+mobjinfo_c buffer_mobj;
+mobjinfo_c *dynamic_mobj;
 
-const mobjinfo_t template_mobj =
-{
-	DDF_BASE_NIL,  // ddf
-
-	0,        // first_state
-	0,        // last_state
-
-	0,        // spawn_state
-	0,        // idle_state
-	0,        // chase_state
-	0,        // pain_state
-	0,        // missile_state
-	0,        // melee_state
-	0,        // death_state
-	0,        // overkill_state
-	0,        // raise_state
-	0,        // res_state
-	0,        // meander_state
-	0,        // bounce_state
-	0,        // touch_state
-	0,        // jump_state
-	0,        // gib_state
-
-	0,        // reactiontime
-	PERCENT_MAKE(0), // painchance
-	1000.0f,  // spawnhealth
-	0,        // speed
-	2.0f,     // float_speed
-	0,        // radius
-	0,        // height
-	24.0f,    // step_size
-	100.0f,   // mass
-
-	0,        // flags
-	0,        // extendedflags
-
-	// damage info
-	{
-		0,      // nominal
-		-1,     // linear_max
-		-1,     // error
-		0,      // delay time
-		NULL_LABEL, NULL_LABEL, NULL_LABEL,  // override labels
-		false   // no_armour
-	},
-
-	NULL,     // lose_benefits
-	NULL,     // pickup_benefits
-	NULL,     // pickup_message
-	NULL,     // initial_benefits
-
-	0,        // castorder
-	NULL,     // cast_title
-	30 * TICRATE,  // respawntime
-	PERCENT_MAKE(100), // translucency
-	PERCENT_MAKE(0), // minatkchance
-	NULL,     // palremap
-
-	1 * TICRATE, // jump_delay
-	0,        // jumpheight
-	0,        // crouchheight
-	PERCENT_MAKE(75), // viewheight
-	PERCENT_MAKE(64), // shotheight
-	0,        // maxfall
-	1.0f,     // fast
-	1.0f,     // xscale
-	1.0f,     // yscale
-	0.5f,     // bounce_speed
-	0.5f,     // bounce_up
-	16.0f,    // sight_slope
-	ANG90,    // sight_angle
-	RIDE_FRICTION,  // ride_friction
-	PERCENT_MAKE(50), // shadow_trans
-
-	sfx_None,  // seesound
-	sfx_None,  // attacksound
-	sfx_None,  // painsound
-	sfx_None,  // deathsound
-	sfx_None,  // overkill_sound
-	sfx_None,  // activesound
-	sfx_None,  // walksound
-	sfx_None,  // jump_sound
-	sfx_None,  // noway_sound
-	sfx_None,  // oof_sound
-	sfx_None,  // gasp_sound
-
-	0,        // fuse
-	BITSET_EMPTY, // side
-	0,        // playernum
-	20 * TICRATE,  // lung_capacity
-	2  * TICRATE,  // gasp_start
-
-	// choke_damage
-	{
-		6,    // nominal
-		14,   // linear_max
-		-1,   // error
-		2 * TICRATE,  // delay time
-		NULL_LABEL, NULL_LABEL, NULL_LABEL,  // override labels
-		true   // no_armour
-	},
-
-	PERCENT_MAKE(100), // bobbing
-	BITSET_EMPTY, // immunity
-	BITSET_EMPTY, // resistance
-
-	NULL,     // closecombat
-	NULL,     // rangeattack
-	NULL,     // spareattack
-
-	// halo info
-	{
-		-1,          // height
-		32, -1, -1,  // normal/min/max size
-		PERCENT_MAKE(50), // translucency
-		0xFFFFFF,    // colour (RGB 8:8:8)
-		""           // graphic name
-	},
-
-	// dynamic light info
-	{
-		DLITE_None,  // type
-		32,          // intensity
-		0xFFFFFF,    // colour (RGB 8:8:8)
-		PERCENT_MAKE(50)  // height
-	},
-
-	NULL,     // dropitem
-	NULL,     // dropitem_ref
-	NULL,     // blood
-	NULL,     // blood_ref
-	NULL,     // respawneffect
-	NULL,     // respawneffect_ref
-	NULL,     // spitspot
-	NULL      // spitspot_ref
-};
-
-mobjinfo_t ** mobjinfo = NULL;
-int num_mobjinfo = 0;
-int num_disabled_mobjinfo = 0;
-
-static stack_array_t mobjinfo_a;
-
-static mobjinfo_t *mobj_lookup_cache[211];
+mobjinfo_container_c mobjinfo;
 
 void DDF_MobjGetBenefit(const char *info, void *storage);
 void DDF_MobjGetDLight(const char *info, void *storage);
 
-static dlightinfo_t dummy_dlight;
-static haloinfo_t dummy_halo;
+static dlightinfo_c dummy_dlight;
+static haloinfo_c dummy_halo;
 
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  dummy_halo
 
 const commandlist_t halo_commands[] =
 {
-
 	DF("HEIGHT", height, DDF_MainGetFloat),
 	DF("SIZE", size,     DDF_MainGetFloat),
 	DF("MINSIZE", minsize, DDF_MainGetFloat),
@@ -589,8 +447,7 @@ static bool ThingTryParseState(const char *field,
 
 static bool ThingStartEntry(const char *buffer)
 {
-	int i;
-	bool replaces = false;
+	int idx;
 
 	char namebuf[200];
 	int number = 0;
@@ -606,43 +463,36 @@ static bool ThingStartEntry(const char *buffer)
 		strcpy(namebuf, buffer);
 	}
 
+	idx = -1;
+
 	if (namebuf[0])
 	{
-		for (i=num_disabled_mobjinfo; i < num_mobjinfo; i++)
+		idx = mobjinfo.FindFirst(namebuf, mobjinfo.GetDisabledCount());
+		if (idx>=0)
 		{
-			if (DDF_CompareName(mobjinfo[i]->ddf.name, namebuf) == 0)
-			{
-				dynamic_mobj = mobjinfo[i];
-				replaces = true;
-				break;
-			}
-		}
-
-		// if found, adjust pointer array to keep newest entries at end
-		if (replaces && i < (num_mobjinfo-1))
-		{
-			Z_MoveData(mobjinfo + i, mobjinfo + i + 1, mobjinfo_t *,
-				num_mobjinfo - i);
-			mobjinfo[num_mobjinfo - 1] = dynamic_mobj;
+			mobjinfo.MoveToEnd(idx);
+			dynamic_mobj = mobjinfo[idx];
 		}
 	}
 
-	// not found, create a new one
-	if (! replaces)
+	if (idx < 0)
 	{
-		Z_SetArraySize(&mobjinfo_a, ++num_mobjinfo);
+		dynamic_mobj = new mobjinfo_c;
 
-		dynamic_mobj = mobjinfo[num_mobjinfo - 1];
-		dynamic_mobj->ddf.name = (namebuf[0]) ? Z_StrDup(namebuf) :
-		DDF_MainCreateUniqueName("UNNAMED_THING", num_mobjinfo);
+		dynamic_mobj->ddf.name = 
+			(namebuf[0]) ? 
+			Z_StrDup(namebuf) :
+			DDF_MainCreateUniqueName("UNNAMED_THING", mobjinfo.GetSize());
+
+		mobjinfo.Insert(dynamic_mobj);
 	}
 
 	dynamic_mobj->ddf.number = number;
 
 	// instantiate the static entry
-	buffer_mobj = template_mobj;
+	buffer_mobj.Default();
 
-	return replaces;
+	return (idx >= 0);
 }
 
 void ThingParseField(const char *field, const char *contents,
@@ -676,8 +526,6 @@ void ThingParseField(const char *field, const char *contents,
 
 static void ThingFinishEntry(void)
 {
-	ddf_base_t base;
-
 	if (buffer_mobj.first_state)
 		DDF_StateFinishStates(buffer_mobj.first_state, buffer_mobj.last_state);
 
@@ -730,10 +578,7 @@ static void ThingFinishEntry(void)
 		buffer_mobj.idle_state = buffer_mobj.spawn_state;
 
 	// transfer static entry to dynamic entry
-
-	base = dynamic_mobj->ddf;
-	dynamic_mobj[0] = buffer_mobj;
-	dynamic_mobj->ddf = base;
+	dynamic_mobj->CopyDetail(buffer_mobj);
 
 	// compute CRC...
 	CRC32_Init(&dynamic_mobj->ddf.crc);
@@ -747,9 +592,9 @@ static void ThingClearAll(void)
 {
 	// not safe to delete the thing entries
 
-	num_disabled_mobjinfo = num_mobjinfo;
+	// Make all entries disabled
+	mobjinfo.SetDisabledCount(mobjinfo.GetSize());
 }
-
 
 void DDF_ReadThings(void *data, int size)
 {
@@ -783,131 +628,40 @@ void DDF_ReadThings(void *data, int size)
 
 void DDF_MobjInit(void)
 {
-	Z_InitStackArray(&mobjinfo_a, (void ***)&mobjinfo, sizeof(mobjinfo_t), 0);
-
-	// clear lookup cache
-	memset(mobj_lookup_cache, 0, sizeof(mobj_lookup_cache));
+	mobjinfo.Clear();
 }
 
 void DDF_MobjCleanUp(void)
 {
-	int i;
-	mobjinfo_t *mo;
+	epi::array_iterator_c it;
+	mobjinfo_c *m;
 
 	// lookup references
-
-	for (i=num_disabled_mobjinfo; i < num_mobjinfo; i++)
+	for (it = mobjinfo.GetIterator(mobjinfo.GetDisabledCount()); it.IsValid(); it++)
 	{
-		mo = mobjinfo[i];
+		m = ITERATOR_TO_TYPE(it, mobjinfo_c*);
 
-		DDF_ErrorSetEntryName("[%s]  (things.ddf)", mo->ddf.name);
+		DDF_ErrorSetEntryName("[%s]  (things.ddf)", m->ddf.name);
 
-		mo->dropitem = mo->dropitem_ref ? DDF_MobjLookup(mo->dropitem_ref) : NULL;
+		m->dropitem = m->dropitem_ref ? mobjinfo.Lookup(m->dropitem_ref) : NULL;
+		m->blood = m->blood_ref ? mobjinfo.Lookup(m->blood_ref) : mobjinfo.Lookup("BLOOD");
 
-		mo->blood = mo->blood_ref ? DDF_MobjLookup(mo->blood_ref) :
-		DDF_MobjLookup("BLOOD");
+		m->respawneffect = m->respawneffect_ref ? 
+			mobjinfo.Lookup(m->respawneffect_ref) :
+			(m->flags & MF_SPECIAL) ? mobjinfo.Lookup("ITEM RESPAWN") 
+				                    : mobjinfo.Lookup("RESPAWN FLASH");
 
-		mo->respawneffect = mo->respawneffect_ref ? 
-			DDF_MobjLookup(mo->respawneffect_ref) :
-		(mo->flags & MF_SPECIAL) ? 
-			DDF_MobjLookup("ITEM RESPAWN") :
-		DDF_MobjLookup("RESPAWN FLASH");
-
-		mo->spitspot = mo->spitspot_ref ? DDF_MobjLookup(mo->spitspot_ref) : NULL;
+		m->spitspot = m->spitspot_ref ? mobjinfo.Lookup(m->spitspot_ref) : NULL;
 
 		// -AJA- 1999/08/07: New SCALE & ASPECT fields.
 		//       The parser placed ASPECT in xscale and SCALE in yscale.
 		//       Now clean it up.
-		mo->xscale *= mo->yscale;
+		m->xscale *= m->yscale;
+
+		L_WriteDebug("Thing %s: %d\n", m->ddf.name, m->ddf.number);
 
 		DDF_ErrorClearEntryName();
 	}
-}
-
-//
-// DDF_MobjLookup
-//
-// Looks an mobjinfo by name, returns a fatal error if it does not exist.
-//
-const mobjinfo_t *DDF_MobjLookup(const char *refname)
-{
-	int i;
-	int downto;
-
-	// special rule for internal names (beginning with `_'), to allow
-	// savegame files to find attack MOBJs that may have been masked by
-	// a #CLEARALL.
-
-	downto = (refname[0] == '_') ? 0 : num_disabled_mobjinfo;
-
-	// NOTE: we go backwards, so that later entries take priority
-	for (i=num_mobjinfo-1; i >= downto; i--)
-	{
-		if (mobjinfo[i]->ddf.name && 
-			DDF_CompareName(mobjinfo[i]->ddf.name, refname) == 0)
-			return mobjinfo[i];
-	}
-
-	if (lax_errors)
-		return mobjinfo[0];
-
-	DDF_Error("Unknown thing type: %s\n", refname);
-	return NULL;
-}
-
-const mobjinfo_t *DDF_MobjLookupNum(const int number)
-{
-	int slot = DDF_MobjHashFunc(number);
-	int i;
-
-	// check the cache
-	if (mobj_lookup_cache[slot] &&
-		mobj_lookup_cache[slot]->ddf.number == number)
-	{
-		return mobj_lookup_cache[slot];
-	}
-
-	// find mobj by number
-	// NOTE: go backwards, so newer entries are found first
-	for (i=num_mobjinfo-1; i >= num_disabled_mobjinfo; i--)
-	{
-		if (mobjinfo[i]->ddf.number == number)
-			break;
-	}
-
-	if (i < num_disabled_mobjinfo)
-		return NULL;
-
-	// do a sprite check (like for weapons)
-	if (! DDF_CheckSprites(mobjinfo[i]->first_state, mobjinfo[i]->last_state))
-		return NULL;
-
-	// update the cache
-	mobj_lookup_cache[slot] = mobjinfo[i];
-
-	return mobjinfo[i];
-}
-
-//
-// DDF_MobjLookupCast
-//
-const mobjinfo_t *DDF_MobjLookupCast(int castnum)
-{
-	int i;
-
-	// search for a matching cast
-	for (i=num_mobjinfo-1; i >= num_disabled_mobjinfo; i--)
-	{
-		if (mobjinfo[i]->castorder == castnum)
-			return mobjinfo[i];
-	}
-
-	// not found, try castnumber #1
-
-	if (castnum == 1)
-		I_Error("Must have thing with castorder of 1 !\n");
-
-	return DDF_MobjLookupCast(1);
 }
 
 //
@@ -1341,36 +1095,37 @@ void DDF_MobjGetSpecial(const char *info, void *storage)
 	switch (DDF_MainCheckSpecialFlag(info, normal_specials,
 		&flag_value, true, false))
 	{
-	case CHKF_Positive:
-		buffer_mobj.flags |= flag_value;
-		break;
-
-	case CHKF_Negative:
-		buffer_mobj.flags &= ~flag_value;
-		break;
-
-	case CHKF_User:
-	case CHKF_Unknown:
-
-		// wasn't a normal special.  Try the extended ones...
-
-		switch (DDF_MainCheckSpecialFlag(info, extended_specials,
-			&flag_value, true, false))
-		{
 		case CHKF_Positive:
-			buffer_mobj.extendedflags |= flag_value;
+			buffer_mobj.flags |= flag_value;
 			break;
 
 		case CHKF_Negative:
-			buffer_mobj.extendedflags &= ~flag_value;
+			buffer_mobj.flags &= ~flag_value;
 			break;
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError2(0x128, "DDF_MobjGetSpecial: Unknown special '%s'", info);
+		{
+			// wasn't a normal special.  Try the extended ones...
+
+			switch (DDF_MainCheckSpecialFlag(info, extended_specials,
+				&flag_value, true, false))
+			{
+				case CHKF_Positive:
+					buffer_mobj.extendedflags |= flag_value;
+					break;
+
+				case CHKF_Negative:
+					buffer_mobj.extendedflags &= ~flag_value;
+					break;
+
+				case CHKF_User:
+				case CHKF_Unknown:
+					DDF_WarnError2(0x128, "DDF_MobjGetSpecial: Unknown special '%s'", info);
+					break;
+			}
 			break;
 		}
-		break;
 	}
 }
 
@@ -1447,39 +1202,23 @@ void DDF_MobjGetPlayer(const char *info, void *storage)
 //
 // -AJA- 2000/02/11: written.
 //
-mobjinfo_t *DDF_MobjMakeAttackObj(mobjinfo_t *info, const char *atk_name)
+mobjinfo_c *DDF_MobjMakeAttackObj(mobjinfo_c *info, const char *atk_name)
 {
-	char namebuf[400];
+	epi::string_c s;
+	mobjinfo_c *result;
 
-	mobjinfo_t *result;
+	s = "__ATKMOBJ_";
+	s += atk_name;
 
-	sprintf(namebuf, "__ATKMOBJ_%s", atk_name);
+	result = new mobjinfo_c;
+	result->CopyDetail(info[0]);
 
-	// add it to array
-	Z_SetArraySize(&mobjinfo_a, ++num_mobjinfo);
-
-	result = mobjinfo[num_mobjinfo-1];
-
-	result[0] = info[0];
-
-	result->ddf.name = Z_StrDup(namebuf);
+	// FIXME!!! Use ddf constructor
+	result->ddf.name = Z_StrDup(s);
 	result->ddf.number = 0;
 	result->ddf.crc = 0;
 
 	return result;
-}
-
-const mobjinfo_t *DDF_MobjLookupPlayer(int playernum)
-{
-	int i;
-
-	for (i=num_mobjinfo-1; i >= num_disabled_mobjinfo; i--)
-		if (mobjinfo[i]->playernum == playernum)
-			return mobjinfo[i];
-
-	I_Error("Player type %d%s missing in DDF !", playernum+1,
-		(playernum <= -2) ? " (DEATHBOT)" : "");
-	return NULL;
 }
 
 //
@@ -1662,3 +1401,547 @@ bool DDF_MainParseCondition(const char *info, condition_check_t *cond)
 	return false;
 }
 
+// ---> mobjinfo class
+
+// 
+// mobjinfo_c Constructor
+//
+mobjinfo_c::mobjinfo_c()
+{
+	Default();
+}
+
+//
+// mobjinfo_c Destructor
+//
+mobjinfo_c::~mobjinfo_c()
+{
+}
+
+//
+// mobjinfo_c Copy Constructor
+//
+mobjinfo_c::mobjinfo_c(mobjinfo_c &rhs)
+{
+	ddf = rhs.ddf;
+	CopyDetail(rhs);
+}
+
+//
+// mobjinfo_c::CopyDetail()
+//
+void mobjinfo_c::CopyDetail(mobjinfo_c &src)
+{
+	first_state = src.first_state; 
+	last_state = src.last_state; 
+
+    spawn_state = src.spawn_state; 
+    idle_state = src.idle_state; 
+    chase_state = src.chase_state; 
+    pain_state = src.pain_state; 
+    missile_state = src.missile_state; 
+    melee_state = src.melee_state; 
+    death_state = src.death_state; 
+    overkill_state = src.overkill_state; 
+    raise_state = src.raise_state; 
+    res_state = src.res_state; 
+    meander_state = src.meander_state; 
+    bounce_state = src.bounce_state; 
+    touch_state = src.touch_state; 
+    jump_state = src.jump_state; 
+    gib_state = src.gib_state; 
+
+    reactiontime = src.reactiontime; 
+	painchance = src.painchance; 
+	spawnhealth = src.spawnhealth; 
+    speed = src.speed; 
+	float_speed = src.float_speed; 
+    radius = src.radius; 
+    height = src.height; 
+	step_size = src.step_size; 
+	mass = src.mass; 
+
+    flags = src.flags; 
+    extendedflags = src.extendedflags; 
+
+	// damage info
+
+	// FIXME! Make damage_t a class with a copy constructor
+	// damage = src.damage;
+	damage.nominal			= src.damage.nominal;	
+	damage.linear_max		= src.damage.linear_max;	
+	damage.error			= src.damage.error;	
+	damage.delay			= src.damage.delay;	
+
+	damage.pain.label		= src.damage.pain.label;
+	damage.pain.offset		= src.damage.pain.offset;
+	damage.death.label		= src.damage.death.label;
+	damage.death.offset		= src.damage.death.offset;
+	damage.overkill.label	= src.damage.overkill.label;
+	damage.overkill.offset	= src.damage.overkill.offset;
+
+	damage.no_armour		= src.damage.no_armour;	
+
+	lose_benefits = src.lose_benefits; 
+	pickup_benefits = src.pickup_benefits; 
+	pickup_message = src.pickup_message; 
+	initial_benefits = src.initial_benefits; 
+
+    castorder = src.castorder; 
+	cast_title = src.cast_title; 
+	respawntime = src.respawntime; 
+	translucency = src.translucency; 
+	minatkchance = src.minatkchance; 
+	palremap = src.palremap; 
+
+	jump_delay = src.jump_delay; 
+    jumpheight = src.jumpheight; 
+    crouchheight = src.crouchheight; 
+	viewheight = src.viewheight; 
+	shotheight = src.shotheight; 
+    maxfall = src.maxfall; 
+	fast = src.fast; 
+	xscale = src.xscale; 
+	yscale = src.yscale; 
+	bounce_speed = src.bounce_speed; 
+	bounce_up = src.bounce_up; 
+	sight_slope = src.sight_slope; 
+	sight_angle = src.sight_angle; 
+	ride_friction = src.ride_friction; 
+	shadow_trans = src.shadow_trans; 
+
+	seesound = src.seesound; 
+	attacksound = src.attacksound; 
+	painsound = src.painsound; 
+	deathsound = src.deathsound; 
+	overkill_sound = src.overkill_sound; 
+	activesound = src.activesound; 
+	walksound = src.walksound; 
+	jump_sound = src.jump_sound; 
+	noway_sound = src.noway_sound; 
+	oof_sound = src.oof_sound; 
+	gasp_sound = src.gasp_sound; 
+
+    fuse = src.fuse; 
+	side = src.side; 
+    playernum = src.playernum; 
+	lung_capacity = src.lung_capacity; 
+	gasp_start = src.gasp_start; 
+
+	// choke_damage
+	choke_damage.nominal			= src.choke_damage.nominal;	
+	choke_damage.linear_max			= src.choke_damage.linear_max; 
+	choke_damage.error				= src.choke_damage.error;	
+	choke_damage.delay				= src.choke_damage.delay;
+	
+	choke_damage.pain.label			= src.choke_damage.pain.label;
+	choke_damage.pain.offset		= src.choke_damage.pain.offset;
+	choke_damage.death.label		= src.choke_damage.death.label;
+	choke_damage.death.offset		= src.choke_damage.death.offset;
+	choke_damage.overkill.label		= src.choke_damage.overkill.label;
+	choke_damage.overkill.offset	= src.choke_damage.overkill.offset;
+
+	choke_damage.no_armour			= src.choke_damage.no_armour;	
+
+	bobbing = src.bobbing; 
+	immunity = src.immunity; 
+	resistance = src.resistance; 
+
+	closecombat = src.closecombat; 
+	rangeattack = src.rangeattack; 
+	spareattack = src.spareattack; 
+
+	// halo info (Handled in constructor)
+	halo = src.halo;
+
+	// dynamic light info
+	dlight = src.dlight;
+
+	dropitem = src.dropitem; 
+	dropitem_ref = src.dropitem_ref; 
+	blood = src.blood; 
+	blood_ref = src.blood_ref; 
+	respawneffect = src.respawneffect; 
+	respawneffect_ref = src.respawneffect_ref; 
+	spitspot = src.spitspot; 
+	spitspot_ref = src.spitspot_ref; 
+}
+
+//
+// mobjinfo_c::Default()
+//
+void mobjinfo_c::Default()
+{
+	// FIXME: ddf.Clear() ?
+	ddf.name	= "";
+	ddf.number	= 0;	
+	ddf.crc		= 0;
+
+	first_state = 0;
+	last_state = 0; 
+
+    spawn_state = 0;
+    idle_state = 0;
+    chase_state = 0;
+    pain_state = 0;
+    missile_state = 0;
+    melee_state = 0;
+    death_state = 0;
+    overkill_state = 0;
+    raise_state = 0;
+    res_state = 0;
+    meander_state = 0;
+    bounce_state = 0;
+    touch_state = 0;
+    jump_state = 0;
+    gib_state = 0;
+
+    reactiontime = 0;
+	painchance = PERCENT_MAKE(0);
+	spawnhealth = 1000.0f;
+    speed = 0;
+	float_speed = 2.0f;
+    radius = 0;
+    height = 0;
+	step_size = 24.0f;
+	mass = 100.0f;
+
+    flags = 0;
+    extendedflags = 0;
+
+	// damage info
+	damage.nominal		= 0.0f;		
+	damage.linear_max	= -1.0f;	
+	damage.error		= -1.0f;			
+	damage.delay		= 0;   
+	damage.no_armour	= false;
+
+	lose_benefits = NULL;
+	pickup_benefits = NULL;
+	pickup_message = NULL;
+	initial_benefits = NULL;
+
+    castorder = 0;
+	cast_title = NULL;
+	respawntime = 30 * TICRATE;
+	translucency = PERCENT_MAKE(100);
+	minatkchance = PERCENT_MAKE(0);
+	palremap = NULL;
+
+	jump_delay = 1 * TICRATE;
+    jumpheight = 0;
+    crouchheight = 0;
+	viewheight = PERCENT_MAKE(75);
+	shotheight = PERCENT_MAKE(64);
+    maxfall = 0;
+	fast = 1.0f;
+	xscale = 1.0f;
+	yscale = 1.0f;
+	bounce_speed = 0.5f;
+	bounce_up = 0.5f;
+	sight_slope = 16.0f;
+	sight_angle = ANG90;
+	ride_friction = RIDE_FRICTION;
+	shadow_trans = PERCENT_MAKE(50);
+
+	seesound = sfx_None;
+	attacksound = sfx_None;
+	painsound = sfx_None;
+	deathsound = sfx_None;
+	overkill_sound = sfx_None;
+	activesound = sfx_None;
+	walksound = sfx_None;
+	jump_sound = sfx_None;
+	noway_sound = sfx_None;
+	oof_sound = sfx_None;
+	gasp_sound = sfx_None;
+
+    fuse = 0;
+	side = BITSET_EMPTY;
+    playernum = 0;
+	lung_capacity = 20 * TICRATE;
+	gasp_start = 2  * TICRATE;
+
+	// choke_damage
+	choke_damage.nominal	= 6.0f;		
+	choke_damage.linear_max = 14.0f;	
+	choke_damage.error		= -1.0f;			
+	choke_damage.delay		= 2 * TICRATE;   
+	choke_damage.no_armour	= true;
+
+	bobbing = PERCENT_MAKE(100);
+	immunity = BITSET_EMPTY;
+	resistance = BITSET_EMPTY;
+
+	closecombat = NULL;
+	rangeattack = NULL;
+	spareattack = NULL;
+
+	// halo info 
+	halo.Default();
+
+	// dynamic light info
+	dlight.Default();
+
+	dropitem = NULL;
+	dropitem_ref = NULL;
+	blood = NULL;
+	blood_ref = NULL;
+	respawneffect = NULL;
+	respawneffect_ref = NULL;
+	spitspot = NULL;
+	spitspot_ref = NULL;
+}
+
+// --> mobjinfo_container_c class
+
+//
+// mobjinfo_container_c::mobjinfo_container_c()
+//
+mobjinfo_container_c::mobjinfo_container_c() : epi::array_c(sizeof(mobjinfo_c*))
+{
+	memset(lookup_cache, 0, sizeof(mobjinfo_c*) * LOOKUP_CACHESIZE);
+	num_disabled = 0;	
+}
+
+//
+// ~mobjinfo_container_c::mobjinfo_container_c()
+//
+mobjinfo_container_c::~mobjinfo_container_c()
+{
+	Clear();					// <-- Destroy self before exiting
+}
+
+//
+// mobjinfo_containter_c::CleanupObject
+//
+void mobjinfo_container_c::CleanupObject(void *obj)
+{
+	mobjinfo_c *m = *(mobjinfo_c**)obj;
+
+	if (m)
+	{
+		// FIXME: Use proper new/transfer name cleanup to ddf_base destructor
+		if (m->ddf.name) { Z_Free(m->ddf.name); }
+		delete m;
+	}
+
+	return;
+}
+
+//
+// mobjinfo_container_c::FindFirst
+//
+int mobjinfo_container_c::FindFirst(const char *name, int startpos)
+{
+	epi::array_iterator_c it;
+	mobjinfo_c *m;
+
+	if (startpos>0)
+		it = GetIterator(startpos);
+	else
+		it = GetBaseIterator();
+
+	while (it.IsValid())
+	{
+		m = ITERATOR_TO_TYPE(it, mobjinfo_c*);
+		if (DDF_CompareName(m->ddf.name, name) == 0)
+		{
+			return it.GetPos();
+		}
+
+		it++;
+	}
+
+	return -1;
+}
+
+//
+// mobjinfo_container_c::FindLast
+//
+int mobjinfo_container_c::FindLast(const char *name, int startpos)
+{
+	epi::array_iterator_c it;
+	mobjinfo_c *m;
+
+	if (startpos>=0 && startpos<array_entries)
+		it = GetIterator(startpos);
+	else
+		it = GetTailIterator();
+
+	while (it.IsValid())
+	{
+		m = ITERATOR_TO_TYPE(it, mobjinfo_c*);
+		if (DDF_CompareName(m->ddf.name, name) == 0)
+		{
+			return it.GetPos();
+		}
+
+		it--;
+	}
+
+	return -1;
+}
+
+//
+// mobjinfo_container_c::MoveToEnd
+//
+// Moves an entry from its current position to end of the list
+//
+bool mobjinfo_container_c::MoveToEnd(int idx)
+{
+	mobjinfo_c* m;
+
+	if (idx < 0 || idx >= array_entries)
+		return false;
+
+	if (idx == (array_entries - 1))
+		return true;					// Already at the end
+
+	// Get a copy of the pointer 
+	m = (*this)[idx];
+
+	I_MoveData((void*)&array[idx*array_block_objsize], 
+		       (void*)&array[idx*(array_block_objsize+1)], 
+			   (array_entries-(idx+1))*array_block_objsize);
+
+	memcpy(&array[(array_entries-1)*array_block_objsize], (void*)&m, sizeof(mobjinfo_c*));
+	return true;
+}
+
+//
+// const mobjinfo_c* mobjinfo_container_c::Lookup()
+//
+// Looks an mobjinfo by name, returns a fatal error if it does not exist.
+//
+const mobjinfo_c* mobjinfo_container_c::Lookup(const char *refname)
+{
+	int idx;
+
+	idx = mobjinfo.FindLast(refname);
+
+	// special rule for internal names (beginning with `_'), to allow
+	// savegame files to find attack MOBJs that may have been masked by
+	// a #CLEARALL.
+	if (idx >= 0 && refname[0] != '_' && idx < num_disabled)
+		idx = -1;
+
+	if (idx >= 0)
+		return (*this)[idx];
+
+	if (lax_errors)
+		return (*this)[0];
+
+	DDF_Error("Unknown thing type: %s\n", refname);
+	return NULL;
+}
+
+//
+// const mobjinfo_c* mobjinfo_container_c::Lookup()
+//
+// Looks an mobjinfo by number, returns a fatal error if it does not exist.
+//
+const mobjinfo_c* mobjinfo_container_c::Lookup(int id)
+{
+	int slot = DDF_MobjHashFunc(id);
+
+	// check the cache
+	if (lookup_cache[slot] &&
+		lookup_cache[slot]->ddf.number == id)
+	{
+		return lookup_cache[slot];
+	}
+
+	epi::array_iterator_c it;
+	mobjinfo_c *m;
+
+	for (it = GetTailIterator(); it.IsValid(); it--)
+	{
+		m = ITERATOR_TO_TYPE(it, mobjinfo_c*);
+		if (m->ddf.number == id)
+		{
+			break;
+		}
+	}
+
+	if (!it.IsValid())
+		return NULL;
+
+	if (it.GetPos() < (unsigned int)num_disabled)
+		return NULL;
+
+	// do a sprite check (like for weapons)
+	if (! DDF_CheckSprites(m->first_state, m->last_state))
+		return NULL;
+
+	// update the cache
+	lookup_cache[slot] = m;
+	return m;
+}
+
+//
+// mobjinfo_c* mobjinfo_container_c::LookupCastMember()
+//
+// Lookup the cast member of the one with the nearest match to the position given.
+//
+const mobjinfo_c* mobjinfo_container_c::LookupCastMember(int castpos)
+{
+	epi::array_iterator_c it;
+	mobjinfo_c* best;
+	mobjinfo_c* m;
+
+	best = NULL;
+	for (it = GetTailIterator(); it.IsValid() && (int)it.GetPos() >= num_disabled; it--)
+	{
+		m = ITERATOR_TO_TYPE(it, mobjinfo_c*);
+		if (m->castorder > 0)
+		{
+			if (m->castorder == castpos)	// Exact match
+				return m;
+
+			if (best)
+			{
+				if (m->castorder > castpos)
+				{
+					if (best->castorder > castpos)
+					{
+						int of1 = m->castorder - castpos;
+						int of2 = best->castorder - castpos;
+
+						if (of2 > of1)
+							best = m;
+					}
+					else
+					{
+						// Our previous was before the requested
+						// entry in the cast order, this is later and
+						// as such always better.
+						best = m;
+					}
+				}
+				else
+				{
+					// We only care about updating this if the
+					// best match was also prior to current 
+					// entry. In this case we are looking for
+					// the first entry to wrap around to.
+					if (best->castorder < castpos)
+					{
+						int of1 = castpos - m->castorder;
+						int of2 = castpos - best->castorder;
+
+						if (of1 > of2)
+							best = m;
+					}
+				}
+			}
+			else
+			{
+				// We don't have a best item, so this has to be our best current match
+				best = m;
+			}
+		}
+	}
+
+	return best;
+}
