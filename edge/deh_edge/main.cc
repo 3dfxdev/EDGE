@@ -239,6 +239,7 @@ void Convert(void)
 	Ammo::AmmoDependencies();
 	ProgressMinor(1, 5);
 
+	Things::FixHeights();
 	Things::ConvertTHING();
 	Attacks::ConvertATK();
 	ProgressMinor(2, 5);
