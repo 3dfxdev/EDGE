@@ -538,7 +538,7 @@ void M_ReadSaveStrings(void)
 {
 	int i, version;
   
-	char *filename;
+	epi::string_c fn;
 	saveglobals_t *globs;
 
 	for (i=0; i < SAVE_SLOTS; i++)
@@ -555,17 +555,14 @@ void M_ReadSaveStrings(void)
 		ex_slots[i].mapname[0] = 0;
 		ex_slots[i].gamename[0] = 0;
     
-		filename = G_FileNameFromSlot(save_page * SAVE_SLOTS + i);
+		G_FileNameFromSlot(fn, save_page * SAVE_SLOTS + i);
 
-		if (! SV_OpenReadFile(filename))
+		if (! SV_OpenReadFile(fn.GetString()))
 		{
 			ex_slots[i].empty = true;
 			ex_slots[i].corrupt = false;
-			Z_Free(filename);
 			continue;
 		}
-
-		Z_Free(filename);
 
 		if (! SV_VerifyHeader(&version))
 		{
