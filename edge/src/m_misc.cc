@@ -771,14 +771,14 @@ void M_ComposeFileName(epi::string_c& fn, const char *dir, const char *file)
 // Loads file into memory. This sets a pointer to the data and
 // the length.
 //
-// NOTE: The data must be freed by Z_Free() when not used.
+// NOTE: The data must be freed by delete[] when not used.
 //
 // Returns NULL on failure.
 //
 // -ACB- 2000/01/08 Written
 // -ES-  2000/06/12 Now returns the allocated pointer, or NULL on failure.
 //
-byte *M_GetFileData(char *filename, int *length)
+byte* M_GetFileData(char *filename, int *length)
 {
 	FILE *lumpfile;
 	byte *data;
@@ -797,7 +797,8 @@ byte *M_GetFileData(char *filename, int *length)
 	fseek(lumpfile, 0, SEEK_END);                   // get the end of the file
 	(*length) = ftell(lumpfile);                    // get the size
 	fseek(lumpfile, 0, SEEK_SET);                   // reset to beginning
-	data = (byte*)Z_New(char, (*length) + 1);       // malloc the size
+
+	data = new byte[*length];						// malloc the size
 	fread(data, sizeof(char), (*length), lumpfile); // read file
 	fclose(lumpfile);                               // close the file
 
