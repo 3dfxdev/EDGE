@@ -121,8 +121,8 @@ const image_t *W_ImageFromPatch(const char *patch_name);
 
 void W_InitImages(void);
 
-const cached_image_t *W_ImageCache(const image_t *image, int mip,
-    image_mode_e mode);
+const cached_image_t *W_ImageCache(const image_t *image, 
+    image_mode_e mode, int mip);
 void W_ImageDone(const cached_image_t *c);
 
 const w_post_t *W_ImageGetPost(const cached_image_t *c, int column);
