@@ -1,5 +1,5 @@
 
-EDGE DDF 4.4: (2005-02-05)
+EDGE DDF 4.4: (2005-02-11)
 ==========================
 
 1) THINGS.DDF: fix for player entry on cast screen.
