@@ -62,8 +62,6 @@
 
 #define HU_CROSSHAIRCOLOUR  RED
 
-const char *chat_macros[10];
-
 H_font_t hu_font;
 
 bool chat_on;
@@ -226,9 +224,9 @@ void HU_Start(void)
 
 	// -ACB- 1998/08/09 Use currmap settings
 	if (currmap->description &&
-		DDF_LanguageValidRef(currmap->description))
+		language.IsValidRef(currmap->description))
 	{
-		string = DDF_LanguageLookup(currmap->description);
+		string = language[currmap->description];
 		I_Printf("Entering %s\n", string);
 
 		for (; *string; string++)
@@ -562,20 +560,15 @@ char HU_DequeueChatChar(void)
 	return c;
 }
 
-const char *destination_keys;
-
 bool HU_Responder(event_t * ev)
 {
 	static char lastmessage[HU_MAXLINELENGTH + 1];
-	const char *macromessage;
 	bool eatkey = false;
 	static bool shiftdown = false;
 	static bool altdown = false;
 	unsigned char c;
 	player_t *p;
 	int numplayers;
-
-	static int num_nobrainers = 0;
 
 	if (ev->type == ev_analogue)
 		return false;
@@ -614,88 +607,31 @@ bool HU_Responder(event_t * ev)
 			HL_ResetIText(&w_chat);
 			HU_QueueChatChar(HU_BROADCAST);
 		}
-		else if (netgame && numplayers > 2)
-		{
-			for (p = players; p; p = p->next)
-			{
-				if (p->pnum < (int)strlen(destination_keys) && c == destination_keys[p->pnum])
-				{
-					if (p != consoleplayer)
-					{
-						eatkey = chat_on = true;
-						HL_ResetIText(&w_chat);
-						HU_QueueChatChar((char)(p->pnum+1));
-						break;
-					}
-					else
-					{
-						num_nobrainers++;
-						if (num_nobrainers < 3)
-							CON_PlayerMessageLDF(consoleplayer, "TALKTOSELF1");
-						else if (num_nobrainers < 6)
-							CON_PlayerMessageLDF(consoleplayer, "TALKTOSELF2");
-						else if (num_nobrainers < 9)
-							CON_PlayerMessageLDF(consoleplayer, "TALKTOSELF3");
-						else if (num_nobrainers < 32)
-							CON_PlayerMessageLDF(consoleplayer, "TALKTOSELF4");
-						else
-							CON_PlayerMessageLDF(consoleplayer, "TALKTOSELF5");
-					}
-				}
-			}
-		}
 	}
 	else
 	{
-		// send a macro
-		if (altdown)
+		if (shiftdown || (c >= 'a' && c <= 'z'))
+			c = shiftxform[c];
+
+		eatkey = HL_KeyInIText(&w_chat, c);
+		if (eatkey)
 		{
-			c = c - '0';
-			if (c > 9)
-				return false;
-			macromessage = chat_macros[c];
-			DEV_ASSERT2(macromessage);
+			// static unsigned char buf[20]; // DEBUG
+			HU_QueueChatChar(c);
 
-			// kill last message with a '\n'
-			HU_QueueChatChar(KEYD_ENTER);  // DEBUG!!!
-
-			// send the macro message
-			while (*macromessage)
-				HU_QueueChatChar(*macromessage++);
-
-			HU_QueueChatChar(KEYD_ENTER);
-
-			// leave chat mode and notify that it was sent
+			// sprintf(buf, "KEY: %d => %d", ev->data1, c);
+			//      consoleplayer->message = buf;
+		}
+		if (c == KEYD_ENTER)
+		{
 			chat_on = false;
-			strcpy(lastmessage, chat_macros[c]);
-			CON_PlayerMessage(consoleplayer, lastmessage);
-			eatkey = true;
-		}
-		else
-		{
-			if (shiftdown || (c >= 'a' && c <= 'z'))
-				c = shiftxform[c];
-
-			eatkey = HL_KeyInIText(&w_chat, c);
-			if (eatkey)
+			if (w_chat.L.len)
 			{
-				// static unsigned char buf[20]; // DEBUG
-				HU_QueueChatChar(c);
-
-				// sprintf(buf, "KEY: %d => %d", ev->data1, c);
-				//      consoleplayer->message = buf;
+				CON_PlayerMessage(consoleplayer, lastmessage, w_chat.L.ch);
 			}
-			if (c == KEYD_ENTER)
-			{
-				chat_on = false;
-				if (w_chat.L.len)
-				{
-					CON_PlayerMessage(consoleplayer, lastmessage, w_chat.L.ch);
-				}
-			}
-			else if (c == KEYD_ESCAPE)
-				chat_on = false;
 		}
+		else if (c == KEYD_ESCAPE)
+			chat_on = false;
 	}
 
 	return eatkey;

@@ -189,17 +189,6 @@ static default_t defaults[] =
     {CFGT_Key, "key_talk",      &key_talk,          0},
     {CFGT_Key, "key_mlook",     &key_mlook,         0},  // -AJA- 1999/07/27.
     {CFGT_Key, "key_secondatk", &key_secondatk,     0},  // -AJA- 2000/02/08.
-
-    {CFGT_ChatMacro, "chatmacro0", NULL, 0},  
-    {CFGT_ChatMacro, "chatmacro1", NULL, 1},  
-    {CFGT_ChatMacro, "chatmacro2", NULL, 2},  
-    {CFGT_ChatMacro, "chatmacro3", NULL, 3},  
-    {CFGT_ChatMacro, "chatmacro4", NULL, 4},  
-    {CFGT_ChatMacro, "chatmacro5", NULL, 5},  
-    {CFGT_ChatMacro, "chatmacro6", NULL, 6},  
-    {CFGT_ChatMacro, "chatmacro7", NULL, 7},  
-    {CFGT_ChatMacro, "chatmacro8", NULL, 8},  
-    {CFGT_ChatMacro, "chatmacro9", NULL, 9}  
 };
 
 int numdefaults;
@@ -344,7 +333,8 @@ void M_SaveDefaults(void)
 	}
 
 	// -AJA- 2004/01/10: this doesn't fit in yet...
-	fprintf(f, "language\t\t\"%s\"\n", languages[cur_lang_index]->ddf.name);
+	fprintf(f, "language\t\t\"%s\"\n", 
+			language.GetName());
 
 	for (i = 0; i < numdefaults; i++)
 	{
@@ -365,11 +355,7 @@ void M_SaveDefaults(void)
 				fprintf(f,  "%s\t\t0x%X\n", defaults[i].name, v);
 				fprintf(f, "o%s\t\t0x%X\n", defaults[i].name, v << 16);
 				break;
-
-			case CFGT_ChatMacro:
-				fprintf(f, "%s\t\t\"%s\"\n", defaults[i].name,
-						chat_macros[defaults[i].defaultvalue]);
-				break;
+				
 		}
 	}
 
@@ -387,10 +373,6 @@ static void SetToBaseValue(default_t *def)
 
 		case CFGT_Boolean:
 			*(bool*)(def->location) = def->defaultvalue?true:false;
-			break;
-
-		case CFGT_ChatMacro:
-			// defaults are loaded by the DDF code
 			break;
 	}
 }
@@ -447,29 +429,23 @@ bool M_LoadDefaults(void)
 			}
 
 			// -AJA- 2004/01/10: this doesn't fit in yet...
+			// -ACB- 2004/07/29: FIXME! (do after LDF Init)
+#if 0
 			if (strcmp(def, "language") == 0)
 			{
 				if (!isstring)
 					continue;  // FIXME: show warning
 				
-				DDF_LanguageChange(newstring, true);
+				language.Select(newstring);
 				continue;
 			}
- 
+#endif
+
 			for (i = 0; i < numdefaults; i++)
 			{
 				if (0 == strcmp(def, defaults[i].name))
 				{
-					bool ischat = (defaults[i].type == CFGT_ChatMacro);
-
-					if (ischat != isstring)
-						continue;  // FIXME: show warning
-					
-					if (ischat)
-					{
-						chat_macros[defaults[i].defaultvalue] = newstring;
-					}
-					else if (defaults[i].type == CFGT_Boolean)
+					if (defaults[i].type == CFGT_Boolean)
 					{
 						*(bool*)defaults[i].location = parm?true:false;
 					}
