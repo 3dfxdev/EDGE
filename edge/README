@@ -1,15 +1,17 @@
 
-EDGE 1.25 README.1ST
+EDGE 1.26 README.1ST
 ====================
 
 Welcome to EDGE, the Enhanced Doom Gaming Engine.
 
 Archive listing:
-  * edge           - Linux Executable, software rendering
-  * gledge         - Linux Executable, OpenGL rendering
-  * edge.cfg       - Default Configuration File
-  * edge.wad       - EDGE WAD Information
-  * readme.1st     - Guess what you reading?
+  * edge              - Linux Executable, software rendering
+  * gledge            - Linux Executable, OpenGL rendering
+  * musserv           - Linux music server 
+  * edge.cfg          - Default Configuration File
+  * edge.wad          - EDGE WAD Information
+  * edge-ddf-3.7.zip  - EDGE DDF files (not required to play)
+  * readme.1st        - Guess what you reading?
 
 System Requirements:
   - Either a DOOM, DOOM II, TNT or PLUTONIA WAD file.
@@ -40,7 +42,8 @@ Useful Parameters:
   * Turn off warnings: -nowarn  (useful for 1.24 wads like QDOOMTST)
 
 New features since 1.24:
-  - Savegames are back.
+  - Savegames are back.  This is brand new code, which works OK in the
+    tests we've made, but may have bugs/issues with it.
 
   - EDGE now has built-in support for building "GL Nodes", which the
     renderers (software and OpenGL) need to draw levels properly.
@@ -54,19 +57,28 @@ New features since 1.24:
     option menu, and must be enabled in the gameplay option menu.
 
   - Shadows under things.  Can be enabled/disabled in the video option
-    menu, or with the -shadows & -noshadows command-line options.
+    menu, or with the -shadows command-line option.
 
   - Support for playing MP3 music.  For now they must be external
-    files, but the full 1.25 release will support lumps too.
+    files, but support for lumps in wads is planned.  NOTE: doesn't
+    work in DOS yet.
 
   - Improved BOOM compatibility: all of the non-generalised linetypes
     are supported, with the exception of line-to-line teleporters
     (which we haven't coded yet) and some scrolling types.  The
-    generalised linetypes will come later (maybe after the full 1.25
-    release).
+    generalised line and sector types are mostly implemented too,
+    though some don't work correctly yet.
+    
+    Since the BOOM generalised types can interfere with TCs, they can
+    be enabled/disabled in the gameplay option menu.
 
-  - Mipmapping in the software and GL renderers.  Use the -nomipmap
-    option to turn it off.  Also changeable in the video options menu.
+  - Mipmapping in the software and GL renderers, which can be
+    enabled/disabled in the video options menu, and also the -mipmap
+    commandline option.
+
+  - Dynamic lighting, only in the OpenGL for now.  It can be
+    enabled/disabled in the video option menu (disabling will give
+    higher framerates and also saves memory).
 
   - Many DDF and RTS enhancements, too many to list in this readme,
     but include: more ammo types, improved tips, thin sliding doors,
@@ -78,13 +90,25 @@ Known Issues:
 
   - Joysticks do not work.  We haven't done any work in that area.
 
-  - There are some visual problems/glitches with the screen,
-    especially when the view window is shrunk down.
+  - Sky in GLEDGE can be wobble/twisted or ripple, most noticeable in
+    maps with a lot of sky, e.g. MAP12.  Selected a higher "Detail
+    Level" in the video option menu can help.
  
+  - There are some visual problems/glitches with the screen,
+    especially when the view window is shrunk down.  Also the fonts
+    can look "chunky" in low resolutions (320x200).
+ 
+  - EDGE is still somewhat slow.  Overall this is because we had
+    little time to spend on optimising the code.  For software mode,
+    part of the reason is that the old hand-crafted assembly routines
+    are no longer used (they need re-writing).  GL mode also has its
+    own speed issues.
+
   - Levels and TCs designed for EDGE 1.24 (or earlier) can produce a
-    ton of warnings when starting up.  These warnings are mostly about
-    DDF features that have been removed or changed.  Use the -nowarn
-    option to turn off these warnings.
+    bucket-load of warnings when starting up.  These warnings are
+    mostly about DDF features that have been removed or changed.
+    Hence some older stuff may not work 100%.  Use the -nowarn option
+    to turn off these warnings.
  
 Troubleshooting:
   - If EDGE crashes, or otherwise misbehaves, please help us by
@@ -95,16 +119,16 @@ Troubleshooting:
   - The debug file can show some useful information (especially for us 
     when trying to track down a problem).  Create it like this:
 
-      edge [normal parameters...] -debugfile debug.txt
+      edge32 [normal parameters...] -debugfile debug.txt
 
   For Windows:
     - Ensure you are running with virtual memory ENABLED.  This will
       cause some real problems if it disabled.
 
     - You can check the DirectX version by running the DirectX
-      diagnostic tool.  Click the Start button, then Run..., and type:
-      dxdiag and press ENTER.  If that doesn't work, try looking for
-      DXDIAG.EXE in the following directories:
+      diagnostic tool.  Click the Start button, then Run..., and 
+      type: dxdiag and press ENTER.  If that doesn't work, try looking
+      for DXDIAG.EXE in the following directories:
 
          C:\windows\system
          C:\program files\directx\setup\
@@ -123,10 +147,12 @@ Troubleshooting:
     
     - 3D support under linux is still a developing thang, e.g. there
       is no support for DRI (Direct Rendering Infrastructure) in
-      Debian 2.2 (potato), as it requires XFree86 4.0.  Also required
-      is a recent kernel (> 2.2.18 or > 2.4.0).  A good guide to
-      whether accelerated 3D is working is to run `glxinfo' in an
-      xterm, and see if it says "direct rendering: Yes".
+      some distributions yet (notably Debian 2.2), as it requires
+      XFree86 4.0.
+      
+      Also required is a recent kernel (> 2.2.18 or > 2.4.0).  A good
+      guide to whether accelerated 3D is working is to run `glxinfo'
+      in an xterm, and see if it says "direct rendering: Yes".
 
 Contact points:
   * For the latest news and developments visit the EDGE Website
@@ -143,10 +169,15 @@ Contact points:
  
 Compiling EDGE:
 
-  You need to cd into the `linux', `win32' or `djgpp' directory, that
-  is where the Makefile is.  Edit the Makefile, you can set some
-  useful parameters at the top of it.  Then type `make' (or for
-  windows, `make -f Makefile.bcc').
+  Quick guide:
+  
+  First you need to build the GLBSP plugin.  Cd into glbsp/plugin
+  directory and type `make' (or make -f makefile.bcc for windows).
+
+  To make EDGE itself, cd into the platform specific directory
+  (`linux', `win32' or `djgpp'), that's where the Makefile is.  Edit
+  the Makefile, there are some useful parameters you can change at the
+  top.  Then type `make' (or for windows, `make -f Makefile.bcc').
 
 
 --- END OF README.1ST ---
