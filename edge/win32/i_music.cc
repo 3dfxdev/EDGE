@@ -21,8 +21,7 @@
 
 #include "..\i_defs.h"
 #include "i_sysinc.h"
-
-#define HOGGIE_OGG_SUPPORT
+#include "../AL/oggplayer.h"
 
 // #defines for handle information
 #define GETLIBHANDLE(_handle) (_handle&0xFF)
@@ -47,11 +46,7 @@ static bool musicpaused;
 #define MUSICERRLEN 256
 static char errordesc[MUSICERRLEN];
 
-#ifdef HOGGIE_OGG_SUPPORT
-#include "../AL/oggplayer.h"
-
 oggplayer_c *oggplayer = NULL;
-#endif
 
 //
 // I_StartupMusic
@@ -86,12 +81,10 @@ bool I_StartupMusic(void *sysinfo)
 		I_Printf("I_StartupMusic: MUS Music Failed OK\n");
 	}
 
-#ifdef HOGGIE_OGG_SUPPORT
 	oggplayer = new oggplayer_c;
 	capable |= support_OGG;
 
 	I_Printf("I_StartupMusic: OGG Music Init OK\n");
-#endif
 
 	return true;
 }
@@ -146,7 +139,6 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 			break;
 		}
 
-#ifdef HOGGIE_OGG_SUPPORT
 		case MUS_OGG:
 		{
 			oggplayer->Open(musdat->info.file.name);
@@ -154,7 +146,6 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 			handle = MAKEHANDLE(MUS_OGG, looping, 1);
 			break;
 		}
-#endif
 
 		case MUS_UNKNOWN:
 		{
@@ -198,17 +189,13 @@ void I_MusicPause(int *handle)
 
 		case MUS_MIDI:	{ break; }
 		case MUS_MUS:	{ I_MUSPause(); break; }
-
-#ifdef HOGGIE_OGG_SUPPORT
 		case MUS_OGG:	{ oggplayer->Pause(); break; }
-#endif
 
 		default:
 			break;
 	}
 
 	musicpaused = true;
-	return;
 }
 
 //
@@ -235,17 +222,13 @@ void I_MusicResume(int *handle)
 
 		case MUS_MIDI: { break; }
 		case MUS_MUS:  { I_MUSResume(); break; }
-
-#ifdef HOGGIE_OGG_SUPPORT
 		case MUS_OGG:  { oggplayer->Resume(); break; }
-#endif
 
 		default:
 			break;
 	}
 
 	musicpaused = false;
-	return;
 }
 
 //
@@ -264,17 +247,13 @@ void I_MusicKill(int *handle)
 		case MUS_CD:   { I_CDStopPlayback(); break; }
 		case MUS_MIDI: { break; }
 		case MUS_MUS:  { I_MUSStop(); break; }
-
-#ifdef HOGGIE_OGG_SUPPORT
 		case MUS_OGG:  { oggplayer->Close(); break; }
-#endif
 
 		default:
 			break;
 	}
 
 	*handle = -1;
-	return;
 }
 
 //
@@ -311,16 +290,11 @@ void I_MusicTicker(int *handle)
 
 		case MUS_MIDI:	{ break; }	// MIDI Not used
 		case MUS_MUS:	{ break; }	// MUS Ticker is called by a timer
-
-#ifdef HOGGIE_OGG_SUPPORT
 		case MUS_OGG:	{ oggplayer->Ticker(); break; }
-#endif
 
 		default:
 			break;
 	}
-
-	return;
 }
 
 //
@@ -352,15 +326,11 @@ void I_SetMusicVolume(int *handle, int volume)
 			break;
 		}
 
-#ifdef HOGGIE_OGG_SUPPORT
-		case MUS_OGG:	{ oggplayer->SetVolume(volume); break; }
-#endif
+		case MUS_OGG: { oggplayer->SetVolume(volume); break; }
 
 		default:
 			break;
 	}
-
-	return;
 }
 
 //
@@ -368,13 +338,11 @@ void I_SetMusicVolume(int *handle, int volume)
 //
 void I_ShutdownMusic(void)
 {
-#ifdef HOGGIE_OGG_SUPPORT
 	if (oggplayer)
 	{
 		delete oggplayer;
 		oggplayer = NULL;
 	}
-#endif
 
 	I_ShutdownMUS();
 	I_ShutdownCD();
@@ -391,8 +359,6 @@ void I_PostMusicError(char *message)
 		strncpy(errordesc, message, sizeof(char)*MUSICERRLEN);
 	else
 		strcpy(errordesc, message);
-
-	return;
 }
 
 //
@@ -509,7 +475,6 @@ void I_MusicReleaseMixer(win32_mixer_t* mixer)
 
 	mixerClose(mixer->handle);
 	delete mixer;
-	return;
 }
 
 //
