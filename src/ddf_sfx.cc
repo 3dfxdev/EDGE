@@ -31,6 +31,8 @@
 static sfxdef_c buffer_sfx;
 static sfxdef_c *dynamic_sfx;
 
+static int buffer_sfx_ID;
+
 sfxdef_container_c sfxdefs;
 
 #undef  DDF_CMD_BASE
@@ -87,6 +89,8 @@ static bool SoundStartEntry(const char *name)
 	if (existing)
 	{
 		dynamic_sfx = existing;
+
+		buffer_sfx_ID = existing->normal.sounds[0];
 	}
 	else
 	{
@@ -98,14 +102,15 @@ static bool SoundStartEntry(const char *name)
 			dynamic_sfx->ddf.SetUniqueName("UNNAMED_SOUND", sfxdefs.GetSize());
 
 		sfxdefs.Insert(dynamic_sfx);
+
+		buffer_sfx_ID = sfxdefs.GetSize()-1; // self reference
 	}
 
 	dynamic_sfx->ddf.number = 0;
 
 	// instantiate the static entries
 	buffer_sfx.Default();
-	buffer_sfx.normal.sounds[0] = sfxdefs.GetSize()-1; // self reference
-	
+
 	return (existing != NULL);
 }
 
@@ -125,10 +130,12 @@ static void SoundFinishEntry(void)
 	if (!buffer_sfx.lump_name[0])
 		DDF_Error("Missing LUMP_NAME for sound.\n");
 
-	// transfer static entry to dynamic entry
-	// Keeps the ID info intact as well.
-
+	// transfer static entry to dynamic entry.
 	dynamic_sfx->CopyDetail(buffer_sfx);
+
+	// Keeps the ID info intact as well.
+	dynamic_sfx->normal.sounds[0] = buffer_sfx_ID;
+	dynamic_sfx->normal.num = 1;
 
 	// Compute CRC.  In this case, there is no need, since sounds have
 	// zero impact on the game simulation itself.
@@ -253,10 +260,10 @@ void sfxdef_c::CopyDetail(sfxdef_c &src)
 {
 	lump_name = src.lump_name;
 
-	// The internal sfx_t is only every a single entry	
-	normal.sounds[0] = src.normal.sounds[0];
-	normal.num = 1;
-	
+	// clear the internal sfx_t (ID would be wrong)
+	normal.sounds[0] = 0;
+	normal.num = 0;
+
 	singularity = src.singularity;      // singularity
 	priority = src.priority;    		// priority (lower is more important)
 	volume = src.volume; 				// volume
@@ -275,8 +282,8 @@ void sfxdef_c::Default()
 	lump_name.Clear();
 	
 	normal.sounds[0] = 0;
-	normal.num = 1;
-	
+	normal.num = 0;
+
 	singularity = 0;      			// singularity
 	priority = 999;    				// priority (lower is more important)
 	volume = PERCENT_MAKE(100); 	// volume
