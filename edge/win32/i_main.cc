@@ -297,8 +297,6 @@ static void ParseParameters(void)
 			delete [] oldargv;
 		}
 	}
-
-	M_InitArguments(edgeargc, edgeargv);
 }
 
 //
@@ -348,7 +346,7 @@ int PASCAL WinMain (HINSTANCE curr, HINSTANCE prev, LPSTR cmdline, int show)
 	ParseParameters();
 
 	// Run Game....
-	E_EDGEMain();
+	engine::Main(edgeargc, edgeargv);
 
 	// Cleanup on exit
 	CleanupParameters();

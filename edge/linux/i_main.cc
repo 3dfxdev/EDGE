@@ -17,7 +17,7 @@
 //----------------------------------------------------------------------------
 //
 // DESCRIPTION:
-//      Main program, simply calls E_EDGEMain high level loop.
+//      Main program, simply calls E_Main high level loop.
 //
 
 #ifdef MACOSX
@@ -99,11 +99,8 @@ int main(int argc, const char **argv)
 	glutInit(&argc, (char **) argv);
 #endif
 
-	// Init Arguments
-	M_InitArguments(argc, (const char **) argv);
-
 	// Run EDGE. it never returns
-	E_EDGEMain();
+	engine::Main(argc, (const char **) argv);
 
 	return 0;
 }
