@@ -97,9 +97,6 @@ void I_MusicReleaseMixer(win32_mixer_t* mixer);
 bool I_MusicGetMixerVol(win32_mixer_t* mixer, DWORD *vol);
 bool I_MusicSetMixerVol(win32_mixer_t* mixer, DWORD vol);
 
-// I_SOUND.C
-LPDIRECTSOUND I_SoundReturnObject(void); // for MP3
-
 // I_SYSTEM.C
 long FAR PASCAL I_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
