@@ -244,6 +244,8 @@ int addwadnum = 0;
 static int maxwadfiles = 0;
 static raw_filename_t *wadfiles = NULL;
 
+static void W_ReadLump(int lump, void *dest);
+
 //
 // Is the name a sprite list start flag?
 // If lax syntax match, fix up to standard syntax.
@@ -1207,6 +1209,9 @@ void W_ReadDDF(void)
 			if (df->kind >= FLKIND_Demo)
 				continue;
 
+			if (external_ddf && df->kind == FLKIND_EWad)
+				continue;
+
 			int lump = df->ddf_lumps[d];
 
 			if (lump < 0)
@@ -1292,19 +1297,6 @@ int W_GetPaletteForLump(int lump)
 
 	// none found
 	return -1;
-}
-
-//
-// W_AddDynamicGWA
-//
-// This is only used to dynamically add a GWA file after being built
-// by the GLBSP plugin.
-// 
-void W_AddDynamicGWA(const char *filename, int map_lump)
-{
-	DEV_ASSERT2(0 <= map_lump && map_lump < numlumps);
-
-	AddFile(filename, FLKIND_GWad, lumpinfo[map_lump].file);
 }
 
 //
@@ -1569,37 +1561,12 @@ int W_GetFileCompatMode(int file)
 }
 
 //
-// W_LumpRawInfo
-//
-// Retrieves the raw information about the lump: file handle, position
-// within file, and size in bytes.  Returns true if successful, or
-// false if (for some reason) the lump cannot be accessed externally.
-// 
-// Note: this call designed to allow MP3 lumps to be accessed by the
-//       L_MP3 code -- it shouldn't otherwise be used.
-//
-bool W_LumpRawInfo(int lump, int *handle, int *pos, int *size)
-{
-	if (lump >= numlumps)
-		I_Error("W_LumpRawInfo: %i >= numlumps", lump);
-
-	lumpinfo_t *L = lumpinfo + lump;
-	data_file_c *df = data_files[L->file];
-
-	(*handle) = df->handle;
-	(*pos)    = L->position;
-	(*size)   = L->size;
-
-	return true;
-}
-
-//
 // W_ReadLump
 //
 // Loads the lump into the given buffer,
 // which must be >= W_LumpLength().
 //
-void W_ReadLump(int lump, void *dest)
+static void W_ReadLump(int lump, void *dest)
 {
 	if (lump >= numlumps)
 		I_Error("W_ReadLump: %i >= numlumps", lump);
