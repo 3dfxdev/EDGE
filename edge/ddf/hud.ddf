@@ -7,8 +7,8 @@
 //
 //  after the display method, extra modifiers can be given, e.g. SCALE(0.5)
 //
-//  coordinate system is based on (320,200) screen.
-//  items are drawn in order given (later one can sit over earlier ones).
+//  coordinate system is based on (320,200) screen, fractional allowed.
+//  items are drawn in order given (later ones will sit over earlier ones).
 //
 
 <HUDS>
