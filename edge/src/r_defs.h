@@ -269,7 +269,10 @@ typedef struct sector_s
   // -AJA- FIXME: ick, clean this up (i.e. move thinkers into
   //       plane_info_t).
   //
-  void *specialdata[2];
+  // -ACB- Increased this to 3 ([2] is used for elevators). Agreed that
+  //       this is not a pleasent hack.
+  //
+  void *specialdata[3];
 
   int linecount;
   struct line_s **lines;  // [linecount] size
