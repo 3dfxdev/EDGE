@@ -102,14 +102,14 @@ damage_t dummy_damage;
 
 const commandlist_t damage_commands[] =
 {
-  DF("VAL", nominal,    DDF_MainGetFloat),
-  DF("MAX", linear_max, DDF_MainGetFloat),
-  DF("ERROR", error, DDF_MainGetFloat),
-  DF("DELAY", delay, DDF_MainGetTime),
+	DF("VAL", nominal,    DDF_MainGetFloat),
+	DF("MAX", linear_max, DDF_MainGetFloat),
+	DF("ERROR", error, DDF_MainGetFloat),
+	DF("DELAY", delay, DDF_MainGetTime),
 
-  DF("PAIN STATE", pain, DDF_AtkGetLabel),
-  DF("DEATH STATE", death, DDF_AtkGetLabel),
-  DF("OVERKILL STATE", overkill, DDF_AtkGetLabel),
+	DF("PAIN STATE", pain, DDF_AtkGetLabel),
+	DF("DEATH STATE", death, DDF_AtkGetLabel),
+	DF("OVERKILL STATE", overkill, DDF_AtkGetLabel),
 
 	DDF_CMD_END
 };
@@ -125,7 +125,7 @@ const commandlist_t damage_commands[] =
 static const commandlist_t attack_commands[] =
 {
 	// sub-commands
-  DDF_SUB_LIST("DAMAGE", damage, damage_commands, dummy_damage),
+	DDF_SUB_LIST("DAMAGE", damage, damage_commands, dummy_damage),
 
 	DF("ATTACKTYPE", ddf, DDF_AtkGetType),
 	DF("ATTACK SPECIAL", ddf, DDF_AtkGetSpecial),
@@ -232,7 +232,13 @@ static void AttackFinishEntry(void)
 {
 	ddf_base_t base;
   
-	// FIXME: check stuff...
+	// check DAMAGE stuff
+	if (buffer_atk.damage.nominal < 0)
+	{
+		DDF_WarnError("Bad DAMAGE.VAL value %f in DDF.\n", buffer_atk.damage.nominal);
+	}
+
+	// FIXME: check more stuff...
 
 	// handle attacks that have mobjs
 	if (attack_has_mobj)

@@ -703,6 +703,18 @@ static void ThingFinishEntry(void)
 			DDF_Error("Cast object must have DEATH states !\n");
 	}
 
+	// check DAMAGE stuff
+	if (buffer_mobj.damage.nominal < 0)
+	{
+		DDF_WarnError("Bad DAMAGE.VAL value %f in DDF.\n", buffer_mobj.damage.nominal);
+	}
+
+	if (buffer_mobj.choke_damage.nominal < 0)
+	{
+		DDF_WarnError("Bad CHOKE_DAMAGE.VAL value %f in DDF.\n",
+			buffer_mobj.choke_damage.nominal);
+	}
+
 	// FIXME: check more stuff
 
 	if (!buffer_mobj.idle_state && buffer_mobj.spawn_state)
