@@ -26,8 +26,18 @@ QuickLoad="do you want to quickload the game named\n\n'%s'?\n\npress y or n.";
 NewNetGame="you can't start a new game\n"
            "while in a network game.\n\npress a key.";
 EpisodeNonExist="You don't have this episode!\n\npress a key.";
-NightmareCheck="are you sure? this skill level\n"
+NightmareCheck="Are you sure ? this skill level\n"
                "isn't even remotely fair.\n\npress y or n.";
+
+CompatChange="These levels were made for: %s.\n"
+             "But the current mode is: %s.\n"
+			 "Do you want to change mode?\n\n"
+			 "press y or n.";
+
+CompatBoth="These levels use both EDGE and BOOM types.\n"
+           "The current mode is: %s.\n"
+		   "Do you want to change mode?\n\n"
+		   "press y or n.";
 
 MessagesOff="Messages OFF";
 MessagesOn="Messages ON";
