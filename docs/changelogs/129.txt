@@ -146,11 +146,11 @@ New DDF features:
      IMAGE_DATA = COLOUR:#FF7F00;
      IMAGE_DATA = BUILTIN:QUADRATIC;
      IMAGE_DATA = FILE:"retex/startan3.png";
-     IMAGE_DATA = LUMP:JPEG:"JFLOOR48";
+     IMAGE_DATA = LUMP:JPG:"JFLOOR48";
 
   The built-in types are only used to create special images for
   dynamic lighting and shadows.  The FILE and LUMP types are the most
-  useful, and support both PNG and JPEG images.
+  useful, and support both PNG and JPG images.
   
   NOTE: When using filenames, directories must be separated by / instead
   of the \ character which is normally used under Windows.  The reason
