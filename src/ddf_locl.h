@@ -283,6 +283,7 @@ void DDF_MainGetTime(const char *info, void *storage, void *priv);
 void DDF_MainGetColourmap(const char *info, void *storage, void *priv);
 void DDF_MainGetRGB(const char *info, void *storage, void *priv);
 void DDF_MainGetWhenAppear(const char *info, void *storage, void *priv);
+void DDF_MainGetBitSet(const char *info, void *storage, void *priv);
 
 boolean_t DDF_MainParseField(const commandlist_t *commands,
     const char *field, const char *contents);
@@ -351,6 +352,7 @@ void DDF_MusicPlaylistCleanUp(void);
 void DDF_StateInit(void);
 void DDF_StateGetAttack(const char *arg, state_t * cur_state);
 void DDF_StateGetMobj(const char *arg, state_t * cur_state);
+void DDF_StateGetSound(const char *arg, state_t * cur_state);
 void DDF_StateGetInteger(const char *arg, state_t * cur_state);
 void DDF_StateGetIntPair(const char *arg, state_t * cur_state);
 void DDF_StateGetFloat(const char *arg, state_t * cur_state);
