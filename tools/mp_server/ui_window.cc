@@ -88,21 +88,24 @@ UI_MainWin::UI_MainWin(const char *title) :
 
 
   // create contents
-  /// int hw = (w() - 8*2 - 4) / 2;
-  int mh = 28;
-
-#ifdef MACOSX
-  mh = 1;
-#endif
+  int cy = 0;
 
   menu_bar = MenuCreate(0, 0, w(), 28);
   add(menu_bar);
 
-  log_box = new UI_LogBox(0, mh, w(), h()-mh);
+#ifndef MACOSX
+  cy += menu_bar->h();
+#endif
+
+  stat_box = new UI_Stats(0, cy, w(), 82);
+  add(stat_box);
+
+  cy += stat_box->h();
+
+  log_box = new UI_LogBox(0, cy, w(), h() - cy);
   add(log_box);
 
   resizable(log_box);
-
 
   // show window (pass some dummy arguments)
   int argc = 1;

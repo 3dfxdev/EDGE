@@ -19,6 +19,10 @@
 #ifndef __UI_WINDOW_H__
 #define __UI_WINDOW_H__
 
+#include "ui_log.h"
+#include "ui_menu.h"
+#include "ui_stats.h"
+
 #define MAIN_BG_COLOR  fl_gray_ramp(FL_NUM_GRAY * 9 / 24)
 
 #define MAIN_WINDOW_MIN_W  540
@@ -40,6 +44,7 @@ public:
 	Fl_Menu_Bar *menu_bar;
 #endif
 
+	UI_Stats *stat_box;
 	UI_LogBox *log_box;
 
 	// user closed the window
