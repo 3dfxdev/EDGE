@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.28 (since 1.27)
 ===============================
 
-(Date: APRIL 29th 2004)
+(Date: MAY 5th 2004)
 
 Bugs fixed
 ----------
@@ -61,6 +61,16 @@ Features removed:
 
 General improvements
 --------------------
+
++ new directories for config file and savegames.  If your machine support
+  multiple users (newer versions of Windows, and Linux), then the config
+  file and savegame directory are now in a user-specific location.  This
+  allows multiple users to have separate configuration and savegames.
+
+  To allow easy upgrading, we have included a tool 'UPGRADER.EXE' with
+  the EDGE binaries, which should be run before running EDGE.  If your
+  version of Windows is single-user, then it will say `Nothing To Do',
+  otherwise it moves the config file and savegames to the new place.
 
 + new HOME directory handling. On multi-user systems, the config file
   and savegame dir are stored in a user-specific location, obtained
