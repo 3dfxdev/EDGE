@@ -98,6 +98,8 @@ const coltable_t *V_GetColtable
 const byte *V_GetTranslationTable(const colourmap_t * colmap);
 
 // text translation tables
+extern const byte *font_whitener;
+
 extern const byte *text_colour_white;
 extern const byte *text_colour_grey;
 extern const byte *text_colour_green;
@@ -108,6 +110,7 @@ extern const byte *text_colour_yellow;
 
 // colour values.  These assume the standard Doom palette.  Maybe
 // remove most of these one day -- will take some work though...
+// Note: some of the ranges begin with a bright (if not white) colour.
 
 #define BLACK   0
 #define WHITE   4
