@@ -67,53 +67,71 @@
 // 
 void R_AddFlatAnim(animdef_c *anim)
 {
-	int start = W_CheckNumForName(anim->startname);
-	int end   = W_CheckNumForName(anim->endname);
-
-	int file;
-	int s_offset, e_offset;
-
-	int i;
-
-	if (start == -1 || end == -1)
+	if (anim->pics.GetSize() == 0)  // old way
 	{
-		// sequence not valid.  Maybe it is the DOOM 1 IWAD.
-		return;
+		int start = W_CheckNumForName(anim->startname);
+		int end   = W_CheckNumForName(anim->endname);
+
+		int file;
+		int s_offset, e_offset;
+
+		int i;
+
+		if (start == -1 || end == -1)
+		{
+			// sequence not valid.  Maybe it is the DOOM 1 IWAD.
+			return;
+		}
+
+		file = W_FindFlatSequence(anim->startname, anim->endname, 
+				&s_offset, &e_offset);
+
+		if (file < 0)
+		{
+			I_Warning("Missing flat animation: %s-%s not in any wad.\n",
+					(const char*)anim->startname, (const char*)anim->endname);
+			return;
+		}
+
+		epi::u32array_c& lumps = W_GetListLumps(file, LMPLST_Flats);
+		int total = lumps.GetSize();
+
+		DEV_ASSERT2(s_offset <= e_offset);
+		DEV_ASSERT2(e_offset < total);
+
+		// determine animation sequence
+		total = e_offset - s_offset + 1;
+
+		const image_t **flats = new const image_t* [total];
+
+		// lookup each flat
+		for (i=0; i < total; i++)
+		{
+			const char *name = W_GetLumpName(lumps[s_offset + i]);
+
+			// Note we use W_ImageFromFlat() here.  It might seem like a good
+			// optimisation to use the lump number directly, but we can't do
+			// that -- the lump list does NOT take overriding flats (in newer
+			// pwads) into account.
+
+			flats[i] = W_ImageFromFlat(name);
+		}
+
+		W_AnimateImageSet(flats, total, anim->speed);
+		delete[] flats;
 	}
 
-	file = W_FindFlatSequence(anim->startname, anim->endname, 
-			&s_offset, &e_offset);
+	// -AJA- 2004/10/27: new SEQUENCE command for anims
 
-	if (file < 0)
-	{
-		I_Warning("Missing flat animation: %s-%s not in any wad.\n",
-				(const char*)anim->startname, (const char*)anim->endname);
+	int total = anim->pics.GetSize();
+
+	if (total == 1)
 		return;
-	}
-
-	epi::u32array_c& lumps = W_GetListLumps(file, LMPLST_Flats);
-	int total = lumps.GetSize();
-
-	DEV_ASSERT2(s_offset <= e_offset);
-	DEV_ASSERT2(e_offset < total);
-
-	// determine animation sequence
-	total = e_offset - s_offset + 1;
 
 	const image_t **flats = new const image_t* [total];
 
-	// lookup each flat
-	for (i=0; i < total; i++)
-	{
-		const char *name = W_GetLumpName(lumps[s_offset + i]);
-
-		// Note we use W_ImageFromFlat() here.  It might seem like a good
-		// optimisation to use the lump number directly, but we can't do
-		// that -- the lump list does NOT take overriding flats (in newer
-		// pwads) into account.
-
-		flats[i] = W_ImageFromFlat(name);
-	}
+	for (int i = 0; i < total; i++)
+		flats[i] = W_ImageFromFlat(anim->pics[i]);
 
 	W_AnimateImageSet(flats, total, anim->speed);
 	delete[] flats;
@@ -145,28 +163,48 @@ void R_AddFlatAnim(animdef_c *anim)
 // 
 void R_AddTextureAnim(animdef_c *anim)
 {
-	int set, s_offset, e_offset;
-
-	set = W_FindTextureSequence(anim->startname, anim->endname,
-			&s_offset, &e_offset);
-
-	if (set < 0)
+	if (anim->pics.GetSize() == 0)  // old way
 	{
-		// sequence not valid.  Maybe it is the DOOM 1 IWAD.
+		int set, s_offset, e_offset;
+
+		set = W_FindTextureSequence(anim->startname, anim->endname,
+				&s_offset, &e_offset);
+
+		if (set < 0)
+		{
+			// sequence not valid.  Maybe it is the DOOM 1 IWAD.
+			return;
+		}
+
+		DEV_ASSERT2(s_offset <= e_offset);
+
+		int total = e_offset - s_offset + 1;
+		const image_t **texs = new const image_t* [total];
+
+		// lookup each texture
+		for (int i = 0; i < total; i++)
+		{
+			const char *name = W_TextureNameInSet(set, s_offset + i);
+			texs[i] = W_ImageFromTexture(name);
+		}
+
+		W_AnimateImageSet(texs, total, anim->speed);
+		delete[] texs;
+
 		return;
 	}
 
-	DEV_ASSERT2(s_offset <= e_offset);
+	// -AJA- 2004/10/27: new SEQUENCE command for anims
 
-	int total = e_offset - s_offset + 1;
+	int total = anim->pics.GetSize();
+
+	if (total == 1)
+		return;
+
 	const image_t **texs = new const image_t* [total];
 
-	// lookup each texture
 	for (int i = 0; i < total; i++)
-	{
-		const char *name = W_TextureNameInSet(set, s_offset + i);
-		texs[i] = W_ImageFromTexture(name);
-	}
+		texs[i] = W_ImageFromTexture(anim->pics[i]);
 
 	W_AnimateImageSet(texs, total, anim->speed);
 	delete[] texs;
