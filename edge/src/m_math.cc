@@ -91,6 +91,8 @@ void M_Angle2Matrix (angle_t ang, vec2_t * x, vec2_t * y)
 {
 	x->x = M_Cos (ang);
 	x->y = M_Sin (ang);
-	y->x = -M_Sin (ang);
-	y->y = M_Cos (ang);
+
+    y->x = -x->y;
+    y->y =  x->x;
 }
+
