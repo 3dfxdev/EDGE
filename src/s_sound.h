@@ -59,7 +59,6 @@ void S_UpdateSounds(mobj_t *listener);
 void S_SoundTicker(void);
 int S_GetSfxVolume(void);
 void S_SetSfxVolume(int volume);
-void S_FlushSoundCaches(z_urgency_e urge);
 
 // S_UTIL.C
 byte *S_UtilConvertMUStoMIDI(byte *data);
