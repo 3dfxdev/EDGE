@@ -58,10 +58,14 @@ void M_SaveDefaults(void);
 int M_ReadFile(char const *name, byte **buffer);
 void M_DisplayDisk(void);
 void M_ScreenShot(void);
+void M_MakeSaveScreenShot(void);
 exttype_e M_CheckExtension(const char *ext, const char* filename);
 byte *M_GetFileData(char *filename, int *length);
 char *M_ComposeFileName(const char *dir, const char *file);
 void M_WarnError(const char *error,...) GCCATTR(format(printf, 1, 2));
+
+extern unsigned short save_screenshot[160][100];
+extern boolean_t save_screenshot_valid;
 
 extern boolean_t display_disk;
 
