@@ -186,6 +186,8 @@ void DDF_Init(void)
 	DDF_LanguageInit();
 	DDF_SFXInit();
 	DDF_ColmapInit();
+	DDF_FontInit();
+	DDF_StyleInit();
 	DDF_AttackInit(); 
 	DDF_WeaponInit();
 	DDF_MobjInit();
@@ -251,6 +253,8 @@ static const char *DDF_MainGetDefine(const char *name)
 void DDF_CleanUp(void)
 {
 	DDF_LanguageCleanUp();
+	DDF_FontCleanUp();
+	DDF_StyleCleanUp();
 	DDF_MobjCleanUp();
 	DDF_AttackCleanUp();
 	DDF_StateCleanUp();
