@@ -882,16 +882,17 @@ namespace Things
 		}
 
 		if (Frames::attack_slot[Frames::COMBAT])
+		{
 			WAD::Printf("CLOSE_ATTACK = %s;\n",
 				Frames::attack_slot[Frames::COMBAT]);
-#if 1  // ADD VERSION < 128 check
-		else if (info->meleestate && info->name[0] != '*')
+		}
+		else if (info->meleestate && info->name[0] != '*' &&
+			     target_version < 129)
 		{
 			PrintWarn("No close attack in melee states of [%s].\n",
 				info->name);
 			WAD::Printf("CLOSE_ATTACK = DEMON_CLOSECOMBAT; // dummy attack\n");
 		}
-#endif
 
 		if (Frames::attack_slot[Frames::SPARE])
 			WAD::Printf("SPARE_ATTACK = %s;\n",
@@ -958,8 +959,10 @@ void Things::ConvertMobj(const mobjinfo_t *info, int mt_num, int player)
 	HandleAttacks(info, mt_num);
 
 	if (Frames::act_flags & AF_EXPLODE)
-		WAD::Printf("\nEXPLODE_DAMAGE.VAL = 128;\n");
-	
+		WAD::Printf("EXPLODE_DAMAGE.VAL = 128;\n");
+	else if (Frames::act_flags & AF_DETONATE)
+		WAD::Printf("EXPLODE_DAMAGE.VAL = %d;\n", info->damage);
+
 	if (Frames::act_flags & AF_KEENDIE)
 		Rscript::MarkKeenDie(mt_num);
 
