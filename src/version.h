@@ -17,7 +17,7 @@
 //----------------------------------------------------------------------------
 
 #define EDGEVER     0x128
-#define EDGEVERSTR  "1.28 Beta 3"
+#define EDGEVERSTR  "1.28 RC1"
 
 // patch level
 #define EDGEPATCH  0x00
