@@ -195,6 +195,8 @@ void P_UnsetThingPosition(mobj_t * thing);
 void P_SetThingPosition(mobj_t * thing);
 boolean_t P_BlockLinesIterator(int x, int y, boolean_t(*func) (line_t *));
 boolean_t P_BlockThingsIterator(int x, int y, boolean_t(*func) (mobj_t *));
+boolean_t P_ThingsInArea(float_t *bbox);
+boolean_t P_ThingsOnLine(line_t *ld);
 
 boolean_t P_PathTraverse(float_t x1, float_t y1, float_t x2, float_t y2, int flags, traverser_t trav);
 
