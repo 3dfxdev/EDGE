@@ -62,8 +62,9 @@
 
 // Conversion macros:
 
+#define F2AX(n)  (((n) < 0) ? (360.0f + (n)) : (n))
 #define ANG_2_FLOAT(a)  ((float) (a) * 360.0f / 4294967296.0f)
-#define FLOAT_2_ANG(n)  ((angle_t) ((n) / 360.0f * 4294967296.0f))
+#define FLOAT_2_ANG(n)  ((angle_t) (F2AX(n) / 360.0f * 4294967296.0f))
 
 #define I_ROUND(n)  ((int) (((n) < 0.0f) ? ((n) - 0.5f) : ((n) + 0.5f)))
 #define I_FLOOR(n)  ((int) (floor(n) + 0.25f))
