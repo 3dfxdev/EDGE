@@ -1582,6 +1582,7 @@ namespace engine
 		newgame_params_c params;
 
 		params.skill = startskill;	
+		params.deathmatch = deathmatch;	
 		params.warping = true;
 
 		params.map = G_LookupMap(startmap);
@@ -1605,6 +1606,12 @@ namespace engine
 
 		params.total_players = 1;
 		params.players[0] = PFL_Zero;  // i.e. !BOT and !NETWORK
+#if 0
+		params.total_players = 4;
+		params.players[1] = PFL_Bot;
+		params.players[2] = PFL_Bot;
+		params.players[3] = PFL_Bot;
+#endif
 
 		return G_DeferredInitNew(params);
 	}
