@@ -121,7 +121,7 @@ static const actioninfo_t action_info[NUMACTIONS] =
     { "RANGE_ATTACK", 0, "R:FORMER_HUMAN_PISTOL", NULL },      // A_PosAttack
     { "MAKEDEATHSOUND", 0, NULL, NULL },      // A_Scream
     { "RANGE_ATTACK", 0, "R:FORMER_HUMAN_SHOTGUN", NULL },      // A_SPosAttack
-    { "RESCHASE", AF_CHASER, NULL, NULL },      // A_VileChase
+    { "RESCHASE", AF_CHASER | AF_RAISER, NULL, NULL },      // A_VileChase
     { "PLAYSOUND(VILATK)", 0, NULL, NULL },      // A_VileStart
     { "RANGE_ATTACK", 0, "R:ARCHVILE_FIRE", NULL },      // A_VileTarget
     { "EFFECTTRACKER", 0, NULL, NULL },      // A_VileAttack
@@ -130,7 +130,7 @@ static const actioninfo_t action_info[NUMACTIONS] =
     { "TRACKERACTIVE", 0, NULL, NULL },      // A_FireCrackle
     { "RANDOM_TRACER", 0, NULL, NULL },      // A_Tracer
     { "PLAYSOUND(SKESWG)", AF_FACE, NULL, NULL },   // A_SkelWhoosh
-    { "CLOSE_ATTACK", 0, "C:REVENANT_CLOSECOMBAT", NULL },      // A_SkelFist
+    { "CLOSE_ATTACK", AF_FACE, "C:REVENANT_CLOSECOMBAT", NULL },      // A_SkelFist
     { "RANGE_ATTACK", 0, "R:REVENANT_MISSILE", NULL },      // A_SkelMissile
     { "PLAYSOUND(MANATK)", AF_FACE, NULL, NULL },   // A_FatRaise
     { "RANGE_ATTACK", AF_SPREAD, "R:MANCUBUS_FIREBALL", NULL }, // A_FatAttack1

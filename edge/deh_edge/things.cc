@@ -421,9 +421,6 @@ namespace Things
 
 		int count = 0;
 
-		if (mt_num == MT_VILE)
-			count += Frames::BeginGroup(S_VILE_HEAL1,   'H');
-
 		count += Frames::BeginGroup(info->raisestate,   'R');
 		count += Frames::BeginGroup(info->xdeathstate,  'X');
 		count += Frames::BeginGroup(info->deathstate,   'D');
@@ -461,6 +458,16 @@ namespace Things
 		Frames::OutputGroup(info->xdeathstate,  'X');
 		Frames::OutputGroup(info->raisestate,   'R');
 
+		// the A_VileChase action is another special case
+		if (Frames::act_flags & AF_RAISER)
+		{
+			if (Frames::BeginGroup(S_VILE_HEAL1, 'H') > 0)
+			{
+				Frames::SpreadGroups();
+				Frames::OutputGroup(S_VILE_HEAL1, 'H');
+			}
+		}
+
 		// Workaround for EDGE 1.27, which does not Remove a thing when
 		// it has no see-states but does a successful A_Look().
 
@@ -475,9 +482,6 @@ namespace Things
 				TextStr::GetSprite(st->sprite),
 				'A' + ((int) st->frame & 31));
 		}
-
-		if (mt_num == MT_VILE)
-			Frames::OutputGroup(S_VILE_HEAL1,   'H');
 	}
 
 	const int NUMPLAYERS = 8;
