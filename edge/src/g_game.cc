@@ -710,7 +710,7 @@ void G_DoLoadLevel(void)
 	// Note: It should be noted that only the gameskill is
 	// passed as the level is already defined in currentmap,
 	// The method for changing currentmap, is using by
-	// G_DeferedInitNew.
+	// G_DeferredInitNew.
 	//
 	// -ACB- 1998/08/09 New P_SetupLevel
 	// -KM- 1998/11/25 P_SetupLevel accepts the autotag
@@ -1605,7 +1605,7 @@ void G_DoSaveGame(void)
 //
 
 //
-// G_DeferedInitNew
+// G_DeferredInitNew
 //
 // This is the procedure that changes the currentmap
 // at the start of the game and outside the normal
@@ -1614,7 +1614,7 @@ void G_DoSaveGame(void)
 //
 // Returns true if OK, or false if no such map exists.
 //
-bool G_DeferedInitNew(skill_t skill, const char *mapname, bool warpopt)
+bool G_DeferredInitNew(skill_t skill, const char *mapname, bool warpopt)
 {
 	d_newmap = DDF_LevelMapLookup(mapname);
 
@@ -1878,7 +1878,7 @@ void G_SetTurboScale(int scale)
 //
 static const char *defdemoname;
 
-void G_DeferedPlayDemo(const char *name)
+void G_DeferredPlayDemo(const char *name)
 {
 	if (defdemoname)
 		Z_Free((char *)defdemoname);
