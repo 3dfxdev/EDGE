@@ -45,4 +45,15 @@ void M_AddToBox(float_t * box, float_t x, float_t y);
 void M_CopyBox(float_t * box, float_t * other);
 void M_UnionBox(float_t * box, float_t * other);
 
+//
+//  DIRTY REGION HANDLING
+// 
+// Each byte represents a 64x64 block of the screen.
+extern byte dirty_region[32][32];
+
+void M_CleanRegion(int x1, int y1, int x2, int y2);
+void M_DirtyRegion(int x1, int y1, int x2, int y2);
+boolean_t M_TestAndClean(int x, int y);
+
+
 #endif
