@@ -450,6 +450,10 @@ win32_mixer_t *I_MusicLoadMixer(DWORD type)
 			mixer.maxvol = mixctrl.Bounds.dwMaximum;
 			break;
 		}
+		else
+		{
+			testmixer++;
+		}
 	}
 
 	if (testmixer == mixercount)
