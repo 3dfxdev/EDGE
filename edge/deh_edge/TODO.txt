@@ -6,25 +6,12 @@ DEH-EDGE Todo
 
 -  versions of malloc and strdup that error out on no memory.
 
-DONE:  DROPITEM for monsters.
-DONE:  give monsters ATTACKS.
-DONE:  fix file headers.
-DONE:  move mobjinfo_t (ETC) from info.h into mobj.h.
-DONE:  attacks.cpp: set ATTACK_SPECIALS
-DONE:  EDGE has 'BOSSMAN' flag.  How to set it ?
-DONE:  sounds and music.
-DONE:  things etc-etc: have ::Init() functions, clear modified tables.
-DONE:  State -> modified MT/WP table
-DONE:  Thing heights, can be wrong e.g. Big-Tree = 120.
-DONE:  lost soul: needs 'MONSTER' special.
-DONE:  BFG spray : no damage !
-DONE:  util: FileIsBinary
-DONE:  DEBUG_XXX (and other) defines: use #if instead of #ifdef.
-DONE:  Parse options properly.
-DONE:  Sprite name replacement (via ^Text section).
+DONE:  patch: ReadBinarySound
+DONE:  ELEMENTAL SPAWN attacks: don't work if LOST.SOUL loses missilestates.
+DONE:  translation bits: PLAYER_DK_GREY, PLAYER_BROWN, PLAYER_DULL_RED
 
 
-FUTURE Plans
+FUTURE Ideas
 ------------
 
 -  option for EDGE version (e.g. -v128, --version 1.27).

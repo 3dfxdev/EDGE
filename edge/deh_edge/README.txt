@@ -2,7 +2,7 @@
 DEH_EDGE
 ========
 
-by Andrew Apted.  23rd January 2004.
+by Andrew Apted.  30th January 2004.
 
 
 Introduction
@@ -16,43 +16,54 @@ DEH_EDGE is a command line utility, so the Windows version must be run
 from the DOS box -- although dragging a DEH file onto the DEH_EDGE
 executable may work.
 
+DEH_EDGE handles all the DeHackEd patch formats (the old binary formats
+and the new text format).  Text strings and code-pointers in the binary
+formats are not supported.  DEH_EDGE does *NOT* support BOOM extensions
+(BEX) at this time.  
+
 
 Usage
 -----
 
 Run it like this:
 
-   deh_edge batman.deh
+   deh_edge atc2.deh
 
-which will create the file "batman_deh.wad". 
+which will create the file "atc2_deh.wad". 
 
 
 Options
 -------
 
-  -o    Output file.  This is optional, the default output filename
-        will be the DEH filename with the extension removed and
-        "_deh.wad" added onto the end.
+  -o --output    Output file.  This is optional, the default output
+				 filename will be the DEH filename with the extension
+				 removed and "_deh.wad" added onto the end.
 
-  -q    Quiet mode, disable warning messages.
+  -q --quiet     Quiet mode, disable warning messages.
 
-  -a    All.  Converts everything into DDF.  Normally only the stuff
-        which has been modified is converted to DDF.
+  -a --all       All.  Converts everything into DDF.  Normally only
+				 the stuff which has been modified is converted to DDF.
+				 This option makes the output WAD much bigger.
 
 
 Limitations
 -----------
 
-1. No support for BOOM extended format (BEX), like [STRINGS] etc.
-2. No support for BOOM/MBF mobjs/states/actions (like the DOG).
+1. Can only handle a single DEH patch files at a time.
 
-(The above two may be added to a future version).
+2. No support for BOOM extended format (BEX), like [STRINGS] etc.
 
-3. No support for a few DEH patchables, e.g. 'God Mode Health'.
-   Most (probably all) of them have little importance (like
-   what certain cheats give you).
+3. No support for BOOM/MBF things/frames/actions (e.g. the DOG).
 
-4. Text replacements only work when ENGLISH language is selected.
+(The above three may be added in a future version).
+
+4. No support for a few DEH patchables, e.g. 'God Mode Health'.
+   These can't be changed in EDGE via DDF.  Most (probably all) of them
+   have little importance (like what certain cheats give you).
+
+5. Text replacements only work when ENGLISH language is selected in
+   EDGE.  (The replacements are probably english anyway, so I think
+   this limitation is a minor one).
 
 
 Acknowledgements
