@@ -91,7 +91,7 @@ class data_file_c
 {
 public:
 	data_file_c(const char *_fname, int _kind, int _handle) :
-		file_name(_fname), kind(_kind), handle(_handle),
+		file_name(_fname), kind(_kind), handle(_handle), compat_mode(0),
 		sprite_lumps(), flat_lumps(), patch_lumps(),
 		colmap_lumps(), level_markers(), skin_markers(),
 		wadtex(), deh_lump(-1), companion_gwa(-1)
@@ -102,11 +102,14 @@ public:
 
 	const char *file_name;
 
-	// type of file
+	// type of file (FLKIND_XXX)
 	int kind;
 
 	// file handle, as returned from open().
 	int handle;
+
+	// any engine-specific features (WAD_CM_XXX)
+	int compat_mode;
 
 	// lists for sprites, flats, patches (stuff between markers)
 	epi::u32array_c sprite_lumps;
@@ -632,6 +635,13 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 		df->deh_lump = lump;
 		return;
 	}
+	
+	if (strncmp(name, "SWITCHES", 8) == 0 ||
+		strncmp(name, "ANIMATED", 8) == 0 ||
+	    strncmp(name, "TRANMAP", 8) == 0)
+	{
+		df->compat_mode |= WAD_CM_Boom;
+	}
 
 	// -KM- 1998/12/16 Load DDF/RSCRIPT file from wad.
 	if (allow_ddf)
@@ -640,6 +650,8 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 		{
 			if (!strncmp(name, DDF_Readers[j].name, 8))
 			{
+				df->compat_mode |= WAD_CM_Edge;
+
 				lump_p->kind = LMKIND_DDFRTS;
 				df->ddf_lumps[j] = lump;
 				return;
@@ -703,6 +715,8 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 	}
 	else if (IsC_START(lump_p->name))
 	{
+		df->compat_mode |= WAD_CM_Boom;
+
 		lump_p->kind = LMKIND_Marker;
 		within_colmap_list = true;
 		return;
@@ -970,6 +984,17 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 				lump_name, true);
 	}
 
+#if 0  // DEBUGGING CRUD
+const char *foo;
+switch (df->compat_mode) {
+case 0: foo = "Standard"; break;
+case WAD_CM_Edge: foo = "EDGE"; break;
+case WAD_CM_Boom: foo = "Boom"; break;
+case WAD_CM_Edge|WAD_CM_Boom: foo = "EDGE+Boom"; break;
+default: foo = "Fucked up completely"; break; }
+I_Printf("COMPAT MODE: %s\n", foo);
+#endif
+
 	SortLumps();
 	SortSpriteLumps(df);
 
@@ -1054,7 +1079,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 			{
 				const char *lump_name = lumpinfo[df->deh_lump].name;
 
-				I_Printf("Converting [%s] lump in: %s", lump_name, filename);
+				I_Printf("Converting [%s] lump in: %s\n", lump_name, filename);
 
 				const byte *data = (const byte *)W_CacheLumpNum(df->deh_lump);
 				int length = W_LumpLength(df->deh_lump);
@@ -1138,8 +1163,6 @@ void W_AddRawFilename(const char *file, int kind)
 //
 void W_InitMultipleFiles(void)
 {
-	int r;
-
 	InitCaches();
 
 	// open all the files, load headers, and count lumps
@@ -1148,7 +1171,7 @@ void W_InitMultipleFiles(void)
 	// will be realloced as lumps are added
 	lumpinfo = NULL;
 
-	for (r=0; r < addwadnum; r++)
+	for (int r = 0; r < addwadnum; r++)
 		AddFile(wadfiles[r].file_name, wadfiles[r].kind, -1);
 
 	if (!numlumps)
@@ -1535,6 +1558,14 @@ epi::u32array_c& W_GetListLumps(int file, lumplist_e which)
 int W_GetNumFiles(void)
 {
 	return data_files.GetSize();
+}
+
+//
+// W_GetFileCompatMode
+//
+int W_GetFileCompatMode(int file)
+{
+	return data_files[file]->compat_mode;
 }
 
 //

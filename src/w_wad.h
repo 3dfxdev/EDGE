@@ -67,6 +67,15 @@ typedef enum
 }
 lumplist_e;
 
+typedef enum
+{
+	WAD_CM_Edge = 0x0001,  // uses EDGE features
+	WAD_CM_Boom = 0x0002,  // uses BOOM features
+
+	WAD_CM_HasAsked = 0x0010  // the user has already been asked
+}
+wadcompat_e;
+
 extern int numlumps;
 extern int addwadnum;
 
@@ -102,6 +111,7 @@ int W_FindFlatSequence(const char *start, const char *end,
 epi::u32array_c& W_GetListLumps(int file, lumplist_e which);
 void W_GetTextureLumps(int file, wadtex_resource_c *res);
 int W_GetNumFiles(void);
+int W_GetFileCompatMode(int file);
 
 // Define this only in an emergency.  All these debug printfs quickly
 // add up, and it takes only a few seconds to end up with a 40 meg debug file!
