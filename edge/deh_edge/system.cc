@@ -35,7 +35,10 @@
 #define DEBUG_ENDIAN  0
 
 
+bool quiet_mode = false;
+
 static int cpu_big_endian = 0;
+
 static bool disable_progress = false;
 static int progress_shown;
 
@@ -115,6 +118,28 @@ void PrintMsg(const char *str, ...)
 
 #if DEBUG_ENABLED
 	Debug_PrintMsg("> %s", message_buf);
+#endif
+}
+
+//
+// PrintWarn
+//
+void PrintWarn(const char *str, ...)
+{
+	va_list args;
+
+	va_start(args, str);
+	vsprintf(message_buf, str, args);
+	va_end(args);
+
+	if (quiet_mode)
+	{
+		printf("Warning: %s", message_buf);
+		fflush(stdout);
+	}
+
+#if DEBUG_ENABLED
+	Debug_PrintMsg("> Warning: %s", message_buf);
 #endif
 }
 
