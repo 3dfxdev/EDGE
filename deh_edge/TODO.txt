@@ -4,17 +4,40 @@ DEH-EDGE Todo
 
 >> support for BEX (Boom extensions).
 
-   TEST IT: handle BEX flag names (BITS = 12345 +FOO +BAR).
+   DONE: handle [CODEPTR] frames
+   DONE: handle [STRINGS]
+   DONE: handle BEX flag names (BITS = 12345 +FOO +BAR).
+   DONE: handle [SPRITES]
+   DONE: handle [SOUNDS]
+   DONE: handle [MUSIC]
 
-   - handle [CODEPTR] frames
-   - handle [STRINGS]
-   - handle [SOUNDS]
-   - handle [MUSIC]
-   - handle [SPRITES]
+>> implement new Boom/MBF actions (many using the Misc field).
 
->> support for Boom/MBF additional things/frames/etc.
+   - A_Die : needs a new EDGE action. NO MISC
 
-   - implement new actions (many using the Misc field).
+   - A_Mushroom : would need new EDGE action (AT LEAST: create custom attack). NO MISC
+                  mobj.damage determines number of FATSO missiles.
+
+   - A_Spawn : misc1 is MT_NUM (0 = NOP, otherwise subtract 1),
+               misc2 is height above spawner's foot.
+
+   - A_Scratch : misc1 is damage, misc2 is optional failure sound.
+
+   DONE: A_Detonate -> EXPLOSIONDAMAGE. If used, set EXPLODE.DAMAGE = info.damage;
+
+   DONE: A_LineEffect : misc1 is special num (0 = NOP), misc2 is tag num.
+                    --> ACTIVATE_LINETYPE(misc1,misc2);
+   DONE: A_PlaySound : misc1 is sound ID.  --> PLAYSOUND(sfx[id].name)
+   DONE: A_Turn : misc1 is angle (full 32 bit range)  --> TURN(###)
+   DONE: A_Face : misc1 is angle (full 32 bit range)  --> FACE(###)
+   DONE: A_RandomJump : misc1 is state num, misc2 is chance (255 is 100%).
+                    --> JUMP(label,%%%)
 
 -  warn about ZDoom-specific stuff.
+
+
+IDEAS
+-----
+
+-  option to allow conversion of the DEHACKED lump in a WAD file.
 
