@@ -42,6 +42,9 @@ extern int glmax_lights;
 extern int glmax_clip_planes;
 extern int glmax_tex_size;
 
+extern bool glcap_multitex;
+extern bool glcap_edgeclamp;
+
 extern int rgl_light_map[256];
 extern angle_t oned_side_angle;  // ANG180 disables polar clipping
 

@@ -36,10 +36,9 @@
 // sky mapping
 //
 float skytexturemid;
+float skytexturescale;
 
 const struct image_s *sky_image;
-
-float skytexturescale;
 
 typedef struct sec_sky_ring_s
 {
@@ -60,6 +59,7 @@ sec_sky_ring_t;
 //
 // Called every frame to calculate the sky texture's scale.
 //
+// OUT_OF_DATE:
 // When stretchsky is off, the sky looks just like original DOOM's sky.
 // It will tile if you look up or down, or increase the FOV to more than 90.
 // When stretchsky is on, the sky is stretched to 9/5 of the original size.
@@ -70,16 +70,14 @@ sec_sky_ring_t;
 //
 void R_InitSkyMap(void)
 {
-	if (level_flags.stretchsky)
-	{
-		skytexturemid = 100 - 160 * topslope * 5 / 9;
-		skytexturescale = 160 * (topslope - bottomslope) * 5 / (viewheight * 9);
-	}
-	else
-	{
-		skytexturemid = 100 - 160 * topslope;
-		skytexturescale = 160 * (topslope - bottomslope) / viewheight;
-	}
+	float mlook_slope = M_Tan(viewvertangle);
+
+	// range of mlook_slope: -1.0 to +1.0
+
+	skytexturemid = (0.75f - mlook_slope) * 56.0f;
+	skytexturescale = 64.0f / viewheight;
+
+	if (skytexturemid < 0) skytexturemid = 0;
 }
 
 //

@@ -156,7 +156,6 @@ gameflags_t default_gameflags =
 	true,   // trans
 	true,   // cheats
      
-	true,   // stretchsky
 	true,   // have_extra
 	false,  // limit_zoom
 	false,  // shadows
@@ -312,7 +311,6 @@ static bool SetGlobalVars(void)
 	M_CheckBooleanParm("music", &nomusic, true);
 	M_CheckBooleanParm("devparm", &devparm, false);
 	M_CheckBooleanParm("itemrespawn", &global_flags.itemrespawn, false);
-	M_CheckBooleanParm("stretchsky", &global_flags.stretchsky, false);
 	M_CheckBooleanParm("mlook", &global_flags.mlook, false);
 	M_CheckBooleanParm("monsters", &global_flags.nomonsters, true);
 	M_CheckBooleanParm("fast", &global_flags.fastparm, false);

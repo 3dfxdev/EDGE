@@ -80,8 +80,8 @@ static int cfgmusic;
 
 static default_t defaults[] =
 {
-    {CFGT_Int, "screenwidth",  &SCREENWIDTH, 320},
-    {CFGT_Int, "screenheight", &SCREENHEIGHT, 200},
+    {CFGT_Int, "screenwidth",  &SCREENWIDTH, 640},
+    {CFGT_Int, "screenheight", &SCREENHEIGHT, 400},
     {CFGT_Int, "screendepth",  &SCREENBITS, 8},
     {CFGT_Boolean,"windowed", &SCREENWINDOW, 0},
     {CFGT_Enum, "boom_compatility", &global_flags.compat_mode, 0},
@@ -105,7 +105,6 @@ static default_t defaults[] =
     {CFGT_Enum, "wipe_method", &wipe_method, WIPE_Melt},
     {CFGT_Int, "wipe_reverse", &wipe_reverse, 0},
     {CFGT_Enum, "crosshair", &crosshair, 0},
-    {CFGT_Int, "stretchsky", &global_flags.stretchsky, 1},
     {CFGT_Boolean, "rotatemap", &rotatemap, 0},
     {CFGT_Boolean, "newhud", &map_overlay, 0},
     {CFGT_Boolean, "respawnsetting", &global_flags.res_respawn, 0},
