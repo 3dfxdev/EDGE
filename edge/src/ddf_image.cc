@@ -25,6 +25,7 @@
 #include "ddf_main.h"
 #include "ddf_image.h"
 #include "dm_state.h"
+#include "m_misc.h"  // M_CheckExtension
 #include "p_spec.h"
 #include "r_local.h"
 
@@ -160,6 +161,22 @@ static void ImageParseField(const char *field, const char *contents, int index, 
 
 static void ImageFinishEntry(void)
 {
+	if (buffer_image.type == IMGDT_File)  //  || buffer_image.type == IMGDT_Package)
+	{
+		// determine format
+		const char *basename = buffer_image.name.GetString();
+
+		if (M_CheckExtension("png", basename) == EXT_MATCHING)
+			buffer_image.format = LIF_PNG;
+		else if (M_CheckExtension("jpg", basename) == EXT_MATCHING ||
+		         M_CheckExtension("jpeg", basename) == EXT_MATCHING)
+		{
+			buffer_image.format = LIF_JPEG;
+		}
+		else
+			DDF_Error("Unknown image extension for '%s'\n", basename);
+	}
+
 	// check stuff...
 
 	// transfer static entry to dynamic entry
@@ -246,6 +263,33 @@ static void ImageParseName(const char *value)
 	buffer_image.name.Set(value);
 }
 
+static void ImageParseLump(const char *spec)
+{
+	const char *colon = DDF_MainDecodeList(spec, ':', true);
+
+	if (! colon || colon == spec || (colon - spec) >= 16 || colon[1] == 0)
+		DDF_Error("Malformed image lump spec: 'LUMP:%s'\n", spec);
+
+	char keyword[20];
+
+	strncpy(keyword, spec, colon - spec);
+	keyword[colon - spec] = 0;
+
+	// store the lump name
+	buffer_image.name.Set(colon + 1);
+
+	if (DDF_CompareName(keyword, "PNG") == 0)
+	{
+		buffer_image.format = LIF_PNG;
+	}
+	else if (DDF_CompareName(keyword, "JPEG") == 0)
+	{
+		buffer_image.format = LIF_JPEG;
+	}
+	else
+		DDF_Error("Unknown image format: %s (use PNG or JPEG)\n", keyword);
+}
+
 //
 // DDF_ImageGetType
 //
@@ -275,6 +319,11 @@ static void DDF_ImageGetType(const char *info, void *storage)
 	{
 		buffer_image.type = IMGDT_File;
 		ImageParseName(colon + 1);
+	}
+	else if (DDF_CompareName(keyword, "LUMP") == 0)
+	{
+		buffer_image.type = IMGDT_Lump;
+		ImageParseLump(colon + 1);
 	}
 	else
 		DDF_Error("Unknown image type: %s\n", keyword);
@@ -357,12 +406,13 @@ void imagedef_c::CopyDetail(const imagedef_c &src)
 	colour  = src.colour;
 	builtin = src.builtin;
 	name    = src.name;
+	format  = src.format;
 
-	special = src.special;
+	special  = src.special;
 	x_offset = src.x_offset;
 	y_offset = src.y_offset;
-	scale   = src.scale;
-	aspect  = src.aspect;
+	scale    = src.scale;
+	aspect   = src.aspect;
 }
 
 //
@@ -372,16 +422,17 @@ void imagedef_c::Default()
 {
 	ddf.Default();
 
-	belong = INS_Graphic;
-	type = IMGDT_Colour;
-	colour = 0x000000;  // black
+	belong  = INS_Graphic;
+	type    = IMGDT_Colour;
+	colour  = 0x000000;  // black
 	builtin = BLTIM_Quadratic;
+	format  = LIF_PNG;
 
 	name.Clear();
 
-	special = IMGSP_None;
-
+	special  = IMGSP_None;
 	x_offset = y_offset = 0;
+
 	scale  = 1.0f;
 	aspect = 1.0f;
 }
