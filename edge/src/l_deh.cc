@@ -36,7 +36,7 @@
 #include "w_image.h"
 #include "w_wad.h"
 
-#include "dehedge-1.2/dh_plugin.h"
+#include "deh_edge_1.2/dh_plugin.h"
 
 bool dh_draw_progress = false;
 
