@@ -185,6 +185,9 @@ void RGL_1DOcclusionClear(void);
 void RGL_1DOcclusionSet(angle_t low, angle_t high);
 bool RGL_1DOcclusionTest(angle_t low, angle_t high);
 
+void RGL_1DOcclusionPush(void);
+void RGL_1DOcclusionPop(void);
+
 
 //
 // RGL_WIPE
