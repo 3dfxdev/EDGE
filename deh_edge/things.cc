@@ -25,10 +25,12 @@
 
 #include "info.h"
 #include "frames.h"
+#include "misc.h"
 #include "mobj.h"
 #include "sounds.h"
 #include "system.h"
 #include "wad.h"
+#include "weapons.h"
 
 
 #define DUMP_ALL  1
@@ -138,11 +140,58 @@ namespace Things
 
 	const char *GetSound(int sound_id)
 	{
-		// !!! FIXME: random groups (PODTH1/2/3 etc)
-
 		assert(sound_id != sfx_None);
+		assert(strlen(S_sfx[sound_id].name) < 16);
 
-		return S_sfx[sound_id].name;
+		// handle random sounds
+
+		int rnd_base = sfx_None;
+		int rnd_num  = 0;
+
+		switch (sound_id)
+		{
+			case sfx_podth1: case sfx_podth2: case sfx_podth3:
+				rnd_base = sfx_podth1;
+				rnd_num  = 3;
+				break;
+
+			case sfx_posit1: case sfx_posit2: case sfx_posit3:
+				rnd_base = sfx_posit1;
+				rnd_num  = 3;
+				break;
+
+			case sfx_bgdth1: case sfx_bgdth2:
+				rnd_base = sfx_bgdth1;
+				rnd_num  = 2;
+				break;
+
+			case sfx_bgsit1: case sfx_bgsit2:
+				rnd_base = sfx_bgsit1;
+				rnd_num  = 2;
+				break;
+
+			default: break;
+		}
+
+		static char name_buf[40];
+
+		sprintf(name_buf, "\"%s\"", StrUpper(S_sfx[sound_id].name));
+
+		if (rnd_base != sfx_None)
+		{
+			// XXX ideally, check if names differ by a single digit
+
+			for (int j = 0; name_buf[j]; j++)
+			{
+				if (isdigit(name_buf[j]))
+				{
+					name_buf[j] = '?';
+					break;
+				}
+			}
+		}
+
+		return name_buf;
 	}
 
 	void HandleSounds(mobjinfo_t *info, int mt_num)
@@ -150,27 +199,27 @@ namespace Things
 		if (info->activesound != sfx_None)
 		{
 			if (info->flags & MF_PICKUP)
-				WAD::Printf("PICKUP_SOUND = \"%s\";\n", GetSound(info->activesound));
+				WAD::Printf("PICKUP_SOUND = %s;\n", GetSound(info->activesound));
 			else
-				WAD::Printf("ACTIVE_SOUND = \"%s\";\n", GetSound(info->activesound));
+				WAD::Printf("ACTIVE_SOUND = %s;\n", GetSound(info->activesound));
 		}
 
 		if (info->attacksound != sfx_None)
 		{
 			// FIXME: may be associated with attack instead
-			WAD::Printf("STARTCOMBAT_SOUND = \"%s\";\n", GetSound(info->attacksound));
+			WAD::Printf("STARTCOMBAT_SOUND = %s;\n", GetSound(info->attacksound));
 		}
 
 		if (info->deathsound != sfx_None)
-			WAD::Printf("DEATH_SOUND = \"%s\";\n", GetSound(info->deathsound));
+			WAD::Printf("DEATH_SOUND = %s;\n", GetSound(info->deathsound));
 
 		if (info->painsound != sfx_None)
-			WAD::Printf("PAIN_SOUND = \"%s\";\n", GetSound(info->painsound));
+			WAD::Printf("PAIN_SOUND = %s;\n", GetSound(info->painsound));
 
 		if (info->seesound != sfx_None)
-			WAD::Printf("SIGHTING_SOUND = \"%s\";\n", GetSound(info->seesound));
+			WAD::Printf("SIGHTING_SOUND = %s;\n", GetSound(info->seesound));
 		else if (mt_num == MT_BOSSSPIT)
-			WAD::Printf("SIGHTING_SOUND = \"%s\";\n", GetSound(sfx_bossit));
+			WAD::Printf("SIGHTING_SOUND = %s;\n", GetSound(sfx_bossit));
 	}
 
 	void HandleFrames(mobjinfo_t *info, int mt_num)
@@ -276,18 +325,16 @@ namespace Things
 		WAD::Printf("SIDE = %d;\n", 1 << (player - 1));
 		WAD::Printf("PALETTE_REMAP = %s;\n", pi->remap);
 
-		// FIXME: info can be patched by ^Ammo and ^Misc sections
-
 		WAD::Printf("INITIAL_BENEFIT = \n");
-		WAD::Printf("    BULLETS.LIMIT(%d), ", 200);
-		WAD::Printf(    "SHELLS.LIMIT(%d), ",   50);
-		WAD::Printf(    "ROCKETS.LIMIT(%d), ",  50);
-		WAD::Printf(    "CELLS.LIMIT(%d),\n",  300);
+		WAD::Printf("    BULLETS.LIMIT(%d), ", Ammo::plr_max[Ammo::BULLETS]);
+		WAD::Printf(    "SHELLS.LIMIT(%d), ",  Ammo::plr_max[Ammo::SHELLS]);
+		WAD::Printf(    "ROCKETS.LIMIT(%d), ", Ammo::plr_max[Ammo::ROCKETS]);
+		WAD::Printf(    "CELLS.LIMIT(%d),\n",  Ammo::plr_max[Ammo::CELLS]);
 		WAD::Printf("    PELLETS.LIMIT(%d), ", 200);
 		WAD::Printf(    "NAILS.LIMIT(%d), ",   100);
 		WAD::Printf(    "GRENADES.LIMIT(%d), ", 50);
 		WAD::Printf(    "GAS.LIMIT(%d),\n",    300);
-		WAD::Printf("    BULLETS(%d);\n",       50);
+		WAD::Printf("    BULLETS(%d);\n",      Misc::init_ammo);
 	}
 
 	typedef struct
@@ -362,7 +409,9 @@ namespace Things
 		}
 		else if (mt_num == MT_MEGA)  // Megasphere
 		{
-			WAD::Printf("PICKUP_BENEFIT = HEALTH(200:200),BLUE_ARMOUR(200:200);\n");
+			WAD::Printf("PICKUP_BENEFIT = ");
+			WAD::Printf("HEALTH(%d:%d),", Misc::mega_health, Misc::mega_health);
+			WAD::Printf("BLUE_ARMOUR(%d:%d);\n", Misc::max_armour, Misc::max_armour);
 			WAD::Printf("PICKUP_MESSAGE = GotMega;\n");
 			WAD::Printf("PICKUP_SOUND = %s;\n", GetSound(sfx_getpow));
 			return;
@@ -370,12 +419,14 @@ namespace Things
 		else if (mt_num == MT_MISC24)  // Backpack full of AMMO
 		{
 			WAD::Printf("PICKUP_BENEFIT = \n");
-			WAD::Printf("    BULLETS.LIMIT(400), SHELLS.LIMIT(100),\n");
-			WAD::Printf("    ROCKETS.LIMIT(100), CELLS.LIMIT(600),\n");
+			WAD::Printf("    BULLETS.LIMIT(%d), ", 2 * Ammo::plr_max[Ammo::BULLETS]);
+			WAD::Printf("    SHELLS.LIMIT(%d),\n", 2 * Ammo::plr_max[Ammo::SHELLS]);
+			WAD::Printf("    ROCKETS.LIMIT(%d), ", 2 * Ammo::plr_max[Ammo::ROCKETS]);
+			WAD::Printf("    CELLS.LIMIT(%d),\n",  2 * Ammo::plr_max[Ammo::CELLS]);
 			WAD::Printf("    BULLETS(10), SHELLS(4), ROCKETS(1), CELLS(20);\n");
 			WAD::Printf("PICKUP_MESSAGE = GotBackpack;\n");
 			WAD::Printf("PICKUP_SOUND = %s;\n", GetSound(sfx_itemup));
-			 return;
+			return;
 		}
 
 		int i;
@@ -394,32 +445,68 @@ namespace Things
 		int amount = pu->amount;
 		int limit  = pu->limit;
 
-		//?? if (amount > limit) amount = limit;
+		// handle patchable amounts
 
-		// FIXME: handle changeable amounts (AMMO especially)
-		//		switch (mt_num)
-		//		{
-		//        case MT_MISC0:   // "GREEN_ARMOUR"    // armor/health
-		//        case MT_MISC1:   // "BLUE_ARMOUR"  
-		//        case MT_MISC2:   // "HEALTH_POTION"  
-		//        case MT_MISC3:   // "ARMOUR_HELMET"  
-		//        case MT_MISC10:   // "STIMPACK"  
-		//        case MT_MISC11:   // "MEDIKIT"  
-		//        case MT_MISC12:   // "SOULSPHERE"  
-		//        case MT_INS:   // "BLURSPHERE"  
-		//        case MT_MEGA:   // "MEGASPHERE"  
-		//
-		//        case MT_CLIP:   // "CLIP"                // ammo
-		//        case MT_MISC17:   // "BOX_OF_BULLETS"  
-		//        case MT_MISC18:   // "ROCKET"  
-		//        case MT_MISC19:   // "BOX_OF_ROCKETS"  
-		//        case MT_MISC20:   // "CELLS"  
-		//        case MT_MISC21:   // "CELL_PACK"  
-		//        case MT_MISC22:   // "SHELLS"  
-		//        case MT_MISC23:   // "BOX_OF_SHELLS"  
-		//		default:
-		//			break;
-		//		}
+		switch (mt_num)
+		{
+			// Armor & health...
+			case MT_MISC3:   // "ARMOUR_HELMET"  
+				limit  = Misc::max_armour;
+				break;
+
+			case MT_MISC0:   // "GREEN_ARMOUR"
+				amount = Misc::green_armour_class * 100;
+				limit  = Misc::max_armour;
+				break;
+
+			case MT_MISC1:   // "BLUE_ARMOUR"  
+				amount = Misc::blue_armour_class * 100;
+				limit  = Misc::max_armour;
+				break;
+
+			case MT_MISC2:    // "HEALTH_POTION"
+				limit  = Misc::max_health;  // Note: *not* MEDIKIT
+				break;
+
+			case MT_MISC12:   // "SOULSPHERE"  
+				amount = Misc::soul_health;
+				limit  = Misc::soul_limit;
+				break;
+
+			// Ammo...
+			case MT_CLIP:     // "CLIP"
+			case MT_MISC17:   // "BOX_OF_BULLETS"  
+				amount = Ammo::pickups[Ammo::BULLETS];
+				break;
+
+			case MT_MISC22:   // "SHELLS"  
+			case MT_MISC23:   // "BOX_OF_SHELLS"  
+				amount = Ammo::pickups[Ammo::SHELLS];
+				break;
+
+			case MT_MISC20:   // "CELLS"  
+			case MT_MISC21:   // "CELL_PACK"  
+				amount = Ammo::pickups[Ammo::CELLS];
+				break;
+
+			case MT_MISC18:   // "ROCKET"  
+			case MT_MISC19:   // "BOX_OF_ROCKETS"  
+				amount = Ammo::pickups[Ammo::ROCKETS];
+				break;
+
+			default:
+				break;
+		}
+
+		// big boxes of ammo
+		if (mt_num == MT_MISC17 || mt_num == MT_MISC19 ||
+			mt_num == MT_MISC21 || mt_num == MT_MISC23)
+		{
+			amount *= 5;
+		}
+
+		if (pu->pars == 2 && amount > limit)
+			amount = limit;
 
 		WAD::Printf("PICKUP_BENEFIT = %s", pu->benefit);
 
