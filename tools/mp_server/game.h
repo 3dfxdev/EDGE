@@ -89,6 +89,8 @@ extern std::vector<game_c *> games;
 extern volatile int total_queued_games;
 extern volatile int total_played_games;
 
+void GameTimeouts();
+
 void PK_new_game(packet_c *pk);
 void PK_join_queue(packet_c *pk);
 void PK_leave_game(packet_c *pk);

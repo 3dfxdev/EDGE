@@ -199,7 +199,7 @@ void BufferPacket(NLsocket sock, const char *data, int len)
 //
 // BufferRetryWrites
 //
-void BufferRetryWrites(int cur_time)
+void BufferRetryWrites()
 {
-	buffer_Q.RetryWrites(cur_time);
+	buffer_Q.RetryWrites(cur_net_time);
 }

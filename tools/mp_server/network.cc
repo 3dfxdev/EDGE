@@ -33,6 +33,8 @@ static NLint main_group;
 
 NLmutex  global_lock;  // lock the client/game structures
 
+int cur_net_time;
+
 volatile bool net_quit = false;
 volatile bool net_failure = false;
 
@@ -110,30 +112,6 @@ int GetNetTime(void)
 	NLlong usec_diff = current.useconds - base_time.useconds;
 
 	return int(sec_diff * 100 + usec_diff / 10000);
-}
-
-//------------------------------------------------------------------------
-
-static void HandleTimeouts()
-{
-	// LOCK STRUCTURES
-	nlMutexLock(&global_lock);
-
-	int cur_time = GetNetTime();
-
-	if (cur_time > last_update_time)
-	{
-		BufferRetryWrites(cur_time);
-
-		// FIXME: remove gone clients
-
-		// FIXME: remove zombie games
-
-		last_update_time = cur_time;
-	}
-
-	// UNLOCK STRUCTURES
-	nlMutexUnlock(&global_lock);
 }
 
 //
@@ -229,9 +207,34 @@ void NetInit(void)
     LogPrintf(0, "Server address: %s\n\n", GetAddrName(&addr));
 }
 
+//------------------------------------------------------------------------
+
+static void HandleTimeouts()
+{
+	// LOCK STRUCTURES
+	nlMutexLock(&global_lock);
+
+	cur_net_time = GetNetTime();
+
+	if (cur_net_time > last_update_time)
+	{
+		last_update_time = cur_net_time;
+
+		BufferRetryWrites();
+		ClientTimeouts();
+		GameTimeouts();
+
+		// FIXME: copy data structures for GUI (every 1 second)
+	}
+
+	// UNLOCK STRUCTURES
+	nlMutexUnlock(&global_lock);
+}
+
 //
 // NetRun
 //
+// Main networking thread is here.
 // Listens to net_quit variable if main program wants to quit.
 // Sets net_failure variable if an exception is caught.
 //
@@ -241,13 +244,9 @@ void *NetRun(void *data)
 
 	try
 	{
-		packet_c pk;
-
 		while (! net_quit)
 		{
 			HandleTimeouts();
-
-			pk.Clear();  // paranoia
 
 			NLsocket socks[4];  // only one in the group
 
@@ -256,89 +255,97 @@ void *NetRun(void *data)
 			if (num < 1)
 				continue;
 
-			if (! pk.Read(socks[0]))
-				continue;
+			packet_c pk; 
+			pk.Clear();  // paranoia
 
-			NLaddress remote_addr;
-			nlGetRemoteAddr(socks[0], &remote_addr);
+			while (pk.Read(socks[0]))
+			{
+				NLaddress remote_addr;
+				nlGetRemoteAddr(socks[0], &remote_addr);
 
-			DebugPrintf("GOT PACKET: type [%c%c] data_len %d addr %s\n",
-				pk.hd().type[0], pk.hd().type[1], pk.hd().data_len,
-				GetAddrName(&remote_addr));
-
-			/* send replies back to originator */
-			nlSetRemoteAddr(socks[0], &remote_addr);
-
-			if (pk.CheckType("cs"))   // connect to server
-			{
-				PK_connect_to_server(&pk, &remote_addr);
-				continue;
-			}
-			else if (pk.CheckType("bd"))   // broadcast discovery
-			{
-				PK_broadcast_discovery(&pk, &remote_addr);
-				continue;
-			}
-
-			// must validate the client field (the only exceptions are the
-			// connect-to-server and the broadcast-discovery packets).
-
-			if (! VerifyClient(pk.hd().client, &remote_addr))
-			{
-				LogPrintf(2, "Client %d verify failed: packet [%c%c]\n",
-					pk.hd().client, pk.hd().type[0], pk.hd().type[1]);
-				continue;
-			}
-
-			if (pk.CheckType("ls"))   // leave server
-			{
-				PK_leave_server(&pk);
-			}
-			else if (pk.CheckType("ka"))  // keep-alive
-			{
-				PK_keep_alive(&pk);
-			}
-			else if (pk.CheckType("qc"))  // query client
-			{
-				PK_query_client(&pk);
-			}
-			else if (pk.CheckType("qg"))  // query game
-			{
-				PK_query_game(&pk);
-			}
-			else if (pk.CheckType("ng"))  // new game
-			{
-				PK_new_game(&pk);
-			}
-			else if (pk.CheckType("jq"))  // join queue
-			{
-				PK_join_queue(&pk);
-			}
-			else if (pk.CheckType("lg"))  // leave game
-			{
-				PK_leave_game(&pk);
-			}
-			else if (pk.CheckType("vp"))  // play game, dammit!
-			{
-				PK_vote_to_play(&pk);
-			}
-			else if (pk.CheckType("tc"))  // send ticcmd
-			{
-				PK_ticcmd(&pk);
-			}
-			else if (pk.CheckType("tr"))  // tic retransmit
-			{
-				PK_tic_retransmit(&pk);
-			}
-			else if (pk.CheckType("ms"))  // send message
-			{
-				PK_message(&pk);
-			}
-			else
-			{
-				LogPrintf(1, "Unknown packet: [%c%c] addr %s\n",
-					pk.hd().type[0], pk.hd().type[1],
+				DebugPrintf("GOT PACKET: type [%c%c] data_len %d addr %s\n",
+					pk.hd().type[0], pk.hd().type[1], pk.hd().data_len,
 					GetAddrName(&remote_addr));
+
+				/* send replies back to originator */
+				nlSetRemoteAddr(socks[0], &remote_addr);
+
+				if (pk.CheckType("cs"))   // connect to server
+				{
+					PK_connect_to_server(&pk, &remote_addr);
+					continue;
+				}
+				else if (pk.CheckType("bd"))   // broadcast discovery
+				{
+					PK_broadcast_discovery(&pk, &remote_addr);
+					continue;
+				}
+
+				// must validate the client field (the only exceptions are the
+				// connect-to-server and the broadcast-discovery packets).
+
+				if (! VerifyClient(pk.hd().client, &remote_addr))
+				{
+					LogPrintf(2, "Client %d verify failed: packet [%c%c]\n",
+						pk.hd().client, pk.hd().type[0], pk.hd().type[1]);
+					continue;
+				}
+
+				cur_net_time = GetNetTime();
+
+				// any traffic from a client proves they still exist
+				clients[pk.hd().client]->BumpDieTime();
+
+				if (pk.CheckType("ls"))   // leave server
+				{
+					PK_leave_server(&pk);
+				}
+				else if (pk.CheckType("ka"))  // keep-alive
+				{
+					PK_keep_alive(&pk);
+				}
+				else if (pk.CheckType("qc"))  // query client
+				{
+					PK_query_client(&pk);
+				}
+				else if (pk.CheckType("qg"))  // query game
+				{
+					PK_query_game(&pk);
+				}
+				else if (pk.CheckType("ng"))  // new game
+				{
+					PK_new_game(&pk);
+				}
+				else if (pk.CheckType("jq"))  // join queue
+				{
+					PK_join_queue(&pk);
+				}
+				else if (pk.CheckType("lg"))  // leave game
+				{
+					PK_leave_game(&pk);
+				}
+				else if (pk.CheckType("vp"))  // play game, dammit!
+				{
+					PK_vote_to_play(&pk);
+				}
+				else if (pk.CheckType("tc"))  // send ticcmd
+				{
+					PK_ticcmd(&pk);
+				}
+				else if (pk.CheckType("tr"))  // tic retransmit
+				{
+					PK_tic_retransmit(&pk);
+				}
+				else if (pk.CheckType("ms"))  // send message
+				{
+					PK_message(&pk);
+				}
+				else
+				{
+					LogPrintf(1, "Unknown packet: [%c%c] addr %s\n",
+						pk.hd().type[0], pk.hd().type[1],
+						GetAddrName(&remote_addr));
+				}
 			}
 		}
 	}
