@@ -79,6 +79,7 @@
 #include "dm_state.h"
 
 #include "ddf_main.h"
+#include "e_input.h"
 #include "g_game.h"
 #include "hu_stuff.h"
 #include "hu_style.h"

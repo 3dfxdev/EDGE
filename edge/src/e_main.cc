@@ -40,6 +40,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dstrings.h"
+#include "e_input.h"
 #include "e_net.h"
 #include "f_finale.h"
 #include "g_game.h"
@@ -344,7 +345,11 @@ static void SetGlobalVars(void)
 	// speed for mouse look
 	s = M_GetParm("-vspeed");
 	if (s)
+	{
 		mlookspeed = atoi(s) / 64;
+		if (mlookspeed >= 20)
+			mlookspeed = 19;
+	}
 
 	// -AJA- 1999/10/18: Reworked these with M_CheckBooleanParm
 	M_CheckBooleanParm("rotatemap", &rotatemap, false);
@@ -1253,7 +1258,7 @@ static void CheckTurbo(void)
 		CON_MessageLDF("TurboScale", turbo_scale);
 	}
 
-	G_SetTurboScale(turbo_scale);
+	E_SetTurboScale(turbo_scale);
 }
 
 static void CheckPlayDemo(void)
@@ -1509,9 +1514,7 @@ static void AddCommandLineFiles(void)
 void E_EngineShutdown(void)
 {
 	if (demorecording)
-	{
-		G_CheckDemoStatus();
-	}
+		G_FinishDemo();
 
 	S_StopMusic();
 	E_QuitNetGame();
@@ -1744,7 +1747,7 @@ namespace engine
 		{
 			I_ControlGetEvents();
 			E_ProcessEvents();
-			G_BuildTiccmd(&consoleplayer->netcmds[maketic % BACKUPTICS]);
+			E_BuildTiccmd(&consoleplayer->netcmds[maketic % BACKUPTICS]);
 
 			if (advancedemo)
 				E_DoAdvanceDemo();

@@ -35,6 +35,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dstrings.h"
+#include "e_input.h"
 #include "hu_stuff.h"  // only for showMessages
 #include "m_argv.h"
 #include "m_menu.h"

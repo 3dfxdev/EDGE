@@ -30,6 +30,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dstrings.h"
+#include "e_input.h"
 #include "e_main.h"
 #include "g_game.h"
 #include "hu_lib.h"

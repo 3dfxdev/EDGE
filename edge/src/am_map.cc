@@ -31,6 +31,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dstrings.h"
+#include "e_input.h"
 #include "hu_lib.h"
 #include "hu_style.h"
 #include "m_argv.h"
@@ -555,7 +556,9 @@ bool AM_Responder(event_t * ev)
 
 	if (!automapactive)
 	{
-		if (ev->type == ev_keydown && ((ev->value.key == (AM_STARTKEY >> 16)) || (ev->value.key == (AM_STARTKEY & 0xffff))))
+		if (ev->type == ev_keydown &&
+			(ev->value.key == (AM_STARTKEY >> 16) ||
+			 ev->value.key == (AM_STARTKEY & 0xffff)))
 		{
 			AM_Show();
 			rc = true;
