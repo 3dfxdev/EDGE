@@ -706,13 +706,15 @@ void M_OptTicker(void)
 	{
 		epi::string_c s;
 		
+		scrmode_t* sm = scrmodelist[selectedscrmode];
+		
 		s.Format(language["ModeSelErr"],
-				scrmode[selectedscrmode].width,
-				scrmode[selectedscrmode].height,
-				scrmode[selectedscrmode].depth);
+				sm->width, sm->height, sm->depth);
 
 		M_StartMessage(s.GetString(), NULL, false);
+		
 		testticker = -1;
+		
 		selectedscrmode = prevscrmode;
 		setresfailed = false;
 	}
@@ -897,20 +899,20 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 			SCREENBITS, SCREENWINDOW ? "Windowed" : "Fullscreen");
 	HL_WriteText(style,1, 160 - (style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
 
-	screenmode_t& cur_mode = scrmode[selectedscrmode];
+	scrmode_t* cur_mode = scrmodelist[selectedscrmode];
 
 	// Draw resolution selection option
 	y += (dy*2);
-	sprintf(tempstring, "%dx%d", cur_mode.width, cur_mode.height);
+	sprintf(tempstring, "%dx%d", cur_mode->width, cur_mode->height);
 	HL_WriteText(style,1, centrex+15, y, tempstring);
 
 	// Draw depth selection option
 	y += dy;
-	sprintf(tempstring, "%d bit", cur_mode.depth);
+	sprintf(tempstring, "%d bit", cur_mode->depth);
 	HL_WriteText(style,1, centrex+15, y, tempstring);
 
 	y += dy;
-	sprintf(tempstring, "%s", cur_mode.windowed ?
+	sprintf(tempstring, "%s", cur_mode->windowed ?
 		 "Windowed" : "Fullscreen");
 	HL_WriteText(style,1, centrex+15, y, tempstring);
 
@@ -922,8 +924,8 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 	y += dy;
 
 	sprintf(tempstring, "%d x %d at %d-bit %s",
-			cur_mode.width, cur_mode.height, cur_mode.depth,
-			cur_mode.windowed ? "Windowed" : "Fullscreen");
+			cur_mode->width, cur_mode->height, cur_mode->depth,
+			cur_mode->windowed ? "Windowed" : "Fullscreen");
 
 	HL_WriteText(style,1, 160 - (style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
 }
@@ -1231,27 +1233,20 @@ static void M_VideoOptions(int keypressed)
 //
 static void M_ResolutionOptions(int keypressed)
 {
-	byte depth = SCREENBITS;
-
 	// Get a depth mask for resolution selection
-	DEV_ASSERT2(depth == 16 || depth == 32);
+	DEV_ASSERT2(SCREENBITS == 16 || SCREENBITS == 32);
 
-	// Find the current mode in the scrmode[] table
-	screenmode_t curMode;
-
-	curMode.width    = SCREENWIDTH;
-	curMode.height   = SCREENHEIGHT;
-	curMode.depth    = SCREENBITS;
-	curMode.windowed = SCREENWINDOW;
-
-	int i = V_FindClosestResolution(&curMode, true, true);
-
-	if (i == -1)
-		I_Error("M_ResolutionOptions: Graphics mode not listed in scrmode[]");
-
+	int i = scrmodelist.Find(SCREENWIDTH, 
+							 SCREENHEIGHT,
+							 SCREENBITS,
+							 SCREENWINDOW);
+							 
+	if (i < 0)
+		I_Error("M_ResolutionOptions: Graphics mode not listed!");
+	
 	selectedscrmode = i;
 	prevscrmode = i;
-
+	
 	curr_menu = &resoptionsinfo;
 	curr_item = curr_menu->items + curr_menu->pos;
 }
@@ -1623,43 +1618,19 @@ static void M_ChangeLanguage(int keypressed)
 //
 static void M_ChangeStoredRes(int keypressed)
 {
-	int i;
+	// Ignore anything but LEFT and RIGHT arrow keys
+	if (keypressed != KEYD_LEFTARROW && keypressed != KEYD_RIGHTARROW)
+		return;
 
 	if (keypressed == KEYD_LEFTARROW)
 	{
-		i=selectedscrmode-1;
-		while (i != selectedscrmode)
-		{
-			// allow for rotation
-			if (i < 0)
-				i = (numscrmodes-1);
-
-			// ignore different windowed-ness
-			if (scrmode[i].windowed == scrmode[selectedscrmode].windowed &&
-				scrmode[i].depth == scrmode[selectedscrmode].depth)
-				break;
-
-			i--;
-		}
-		selectedscrmode = i;
+		int mode = selectedscrmode; 
+		selectedscrmode = scrmodelist.Prev(mode, scrmodelist_c::RES);
 	}
-	else if (keypressed == KEYD_RIGHTARROW)
+	else /* if (keypressed == KEYD_RIGHTARROW) */
 	{
-		i=selectedscrmode+1;
-		while (i != selectedscrmode)
-		{
-			// allow for rotation
-			if (i == numscrmodes)
-				i = 0;
-
-			// ignore different windowed-ness
-			if (scrmode[i].windowed == scrmode[selectedscrmode].windowed &&
-				scrmode[i].depth == scrmode[selectedscrmode].depth)
-				break;
-
-			i++;
-		}
-		selectedscrmode = i;
+		int mode = selectedscrmode; 
+		selectedscrmode = scrmodelist.Next(mode, scrmodelist_c::RES);
 	}
 }
 
@@ -1674,41 +1645,15 @@ static void M_ChangeStoredBpp(int keypressed)
 	if (keypressed != KEYD_LEFTARROW && keypressed != KEYD_RIGHTARROW)
 		return;
 
-	int newdepthbit = scrmode[selectedscrmode].depth;
-
-	bool gotnewdepth = false;
-	while (!gotnewdepth)
+	if (keypressed == KEYD_LEFTARROW)
 	{
-		if (keypressed == KEYD_LEFTARROW)
-		{
-			if (newdepthbit == 16)
-				newdepthbit = 32;
-			else if (newdepthbit == 32)
-				newdepthbit = 16;
-		}
-		else if (keypressed == KEYD_RIGHTARROW)
-		{
-			if (newdepthbit == 32)
-				newdepthbit = 16;
-			else if (newdepthbit == 16)
-				newdepthbit = 32;
-		}
-    
-		screenmode_t newMode;
-
-		newMode.width = scrmode[selectedscrmode].width;
-		newMode.height = scrmode[selectedscrmode].height;
-		newMode.windowed = scrmode[selectedscrmode].height;
-		newMode.depth = newdepthbit;
-
-		int idx = V_FindClosestResolution(&newMode, false, true);
-     
-		// Select res
-		if (idx != -1)
-		{ 
-			selectedscrmode = idx;
-			gotnewdepth = true;
-		}
+		int mode = selectedscrmode; 
+		selectedscrmode = scrmodelist.Prev(mode, scrmodelist_c::DEPTH);
+	}
+	else /* if (keypressed == KEYD_RIGHTARROW) */
+	{
+		int mode = selectedscrmode; 
+		selectedscrmode = scrmodelist.Next(mode, scrmodelist_c::DEPTH);
 	}
 }
 
@@ -1723,18 +1668,16 @@ static void M_ChangeStoredMode(int keypressed)
 	if (keypressed != KEYD_LEFTARROW && keypressed != KEYD_RIGHTARROW)
 		return;
 
-	screenmode_t newMode;
-
-	newMode.width = scrmode[selectedscrmode].width;
-	newMode.height = scrmode[selectedscrmode].height;
-	newMode.depth = scrmode[selectedscrmode].depth;
-	newMode.windowed = ! scrmode[selectedscrmode].windowed;
-
-	int idx = V_FindClosestResolution(&newMode, false, false);
-
-	// Select res
-	if (idx != -1)
-		selectedscrmode = idx;
+	if (keypressed == KEYD_LEFTARROW)
+	{
+		int mode = selectedscrmode; 
+		selectedscrmode = scrmodelist.Prev(mode, scrmodelist_c::WINDOWMODE);
+	}
+	else /* if (keypressed == KEYD_RIGHTARROW) */
+	{
+		int mode = selectedscrmode; 
+		selectedscrmode = scrmodelist.Next(mode, scrmodelist_c::WINDOWMODE);
+	}
 }
 
 //
@@ -1742,10 +1685,7 @@ static void M_ChangeStoredMode(int keypressed)
 //
 static void M_OptionSetResolution(int keypressed)
 {
-	screenmode_t& cur_mode = scrmode[selectedscrmode];
-
-	R_ChangeResolution(cur_mode.width, cur_mode.height, 
-		cur_mode.depth, cur_mode.windowed);
+    R_ChangeResolution(selectedscrmode);
 }
 
 //
@@ -1753,11 +1693,7 @@ static void M_OptionSetResolution(int keypressed)
 //
 static void M_OptionTestResolution(int keypressed)
 {
-	screenmode_t& cur_mode = scrmode[selectedscrmode];
-
-	R_ChangeResolution(cur_mode.width, cur_mode.height, 
-		cur_mode.depth, cur_mode.windowed);
-
+    R_ChangeResolution(selectedscrmode);
 	testticker = TICRATE * 3;
 }
 
@@ -1766,9 +1702,6 @@ static void M_OptionTestResolution(int keypressed)
 //
 static void M_RestoreResSettings(int keypressed)
 {
-	screenmode_t& prev_mode = scrmode[prevscrmode];
-
-	R_ChangeResolution(prev_mode.width, prev_mode.height,
-		prev_mode.depth, prev_mode.windowed);
+    R_ChangeResolution(prevscrmode);
 }
 

@@ -26,32 +26,82 @@
 // Original Author: Chi Hoang
 //
 
-#ifndef __MULTIRES_H__
-#define __MULTIRES_H__
+#ifndef __VIDEORES_H__
+#define __VIDEORES_H__
 
 #include "dm_type.h"
 #include "dm_defs.h"
 #include "r_data.h"
 
-bool V_MultiResInit(void);
+#include "./epi/arrays.h"
+
+// Screen mode information.
+typedef struct scrmode_s
+{
+	int width;
+	int height;
+	int depth;
+	bool windowed;
+	int sysdepth;
+}
+scrmode_t;
+
+// Screen mode list object
+class scrmodelist_c : public epi::array_c
+{
+public:
+	scrmodelist_c() : epi::array_c(sizeof(scrmode_t*)) {}
+	~scrmodelist_c() { Clear(); } 
+
+	enum incrementtype_e { RES, DEPTH, WINDOWMODE };
+
+private:
+	void CleanupObject(void *obj)
+	{
+		scrmode_t* sm = *(scrmode_t**)obj; 
+		
+		if (sm) 
+			delete sm;
+	};
+
+public:
+	int Add(scrmode_t *sm);
+
+    int Compare(scrmode_t *sm1, scrmode_t *sm2);
+
+	void Dump(void);
+
+	int Find(int w, int h, int bpp, bool windowed);
+	int FindNearest(int w, int h, int bpp, bool windowed);
+	int FindWithDepthBias(int w, int h, int bpp, bool windowed);
+	int FindWithWindowModeBias(int w, int h, int bpp, bool windowed);
+
+	scrmode_t* GetAt(int idx) { return *(scrmode_t**)FetchObject(idx); } 
+
+	int GetSize() {	return array_entries; } 
+	
+	int Prev(int idx, incrementtype_e type);
+	int Next(int idx, incrementtype_e type);
+	
+	scrmode_t* operator[](int idx) { return *(scrmode_t**)FetchObject(idx); } 
+};
+
+// Exported Func
 void V_InitResolution(void);
-void V_AddAvailableResolution(screenmode_t *mode);
-int V_FindClosestResolution(screenmode_t *mode, bool samesize, bool samedepth);
-int V_CompareModes(screenmode_t *A, screenmode_t *B);
+void V_AddAvailableResolution(i_scrmode_t *mode);
+void V_GetSysRes(scrmode_t *src, i_scrmode_t *dest);
 
-//
-//start with v_video.h
-//
+// Exported Vars
+extern int SCREENWIDTH;
+extern int SCREENHEIGHT;
+extern int SCREENBITS;
+extern bool SCREENWINDOW;
+extern bool graphicsmode;
 
+extern scrmodelist_c scrmodelist;
+
+// Macros
 #define FROM_320(x)  ((x) * SCREENWIDTH  / 320)
 #define FROM_200(y)  ((y) * SCREENHEIGHT / 200)
 
-//
-// now with r_draw.h
-//
-
-// Screen Modes
-extern screenmode_t *scrmode;
-extern int numscrmodes;
-
-#endif // __MULTIRES_H__
+#endif // __VIDEORES_H__

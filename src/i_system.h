@@ -392,15 +392,15 @@ void I_NetCmd(void);
 //
 // -ACB- 1999/09/20 Moved from I_Video.H
 
-// Screen mode information.
-typedef struct screenmode_s
+// System specific creen mode information.
+typedef struct i_scrmode_s
 {
 	int width;
 	int height;
 	int depth;
 	bool windowed;
 }
-screenmode_t;
+i_scrmode_t;
 
 void I_StartupGraphics(void);
 // Initialises the graphics system.  This should be called by
@@ -422,7 +422,7 @@ void I_WaitVBL(int count);
 // frame).  This function may do nothing if VBL information is not
 // available on the platform.
 
-bool I_SetScreenSize(screenmode_t *mode);
+bool I_SetScreenSize(i_scrmode_t *mode);
 // Tries to set the video card to the given mode (or open a window).
 // If there already was a valid mode (or open window), this call
 // should replace it.  The previous contents (including the palette)

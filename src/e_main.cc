@@ -539,14 +539,19 @@ static void ShowNotice(void)
 static void DoSystemStartup(void)
 {
 	// startup the system now
-	V_MultiResInit();
 	W_InitImages();
 	GUI_MainInit();
 
 	I_SystemStartup();
 
 	// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
-	R_ChangeResolution(SCREENWIDTH, SCREENHEIGHT, SCREENBITS, SCREENWINDOW);
+	int idx = scrmodelist.Find(SCREENWIDTH, 
+	                           SCREENHEIGHT, 
+	                           SCREENBITS, 
+	                           SCREENWINDOW);
+	DEV_ASSERT2(idx>=0); // Must be valid
+	R_ChangeResolution(idx);
+
 	// -KM- 1998/09/27 Change res now, so music doesn't start before
 	// screen.  Reset clock too.
 	R_ExecuteChangeResolution();
@@ -637,8 +642,9 @@ void E_Display(void)
 	if (nodrawers)
 		return;  // for comparative timing / profiling
 
-	// -ES- 1998/08/20 Resolution Change Check
-	if (changeresneeded)
+	// -ES-  1998/08/20: Resolution Change Check
+	// -ACB- 2005/03/06: Now using the new res index
+	if (newres_idx >= 0)
 		R_ExecuteChangeResolution();
 
 	// Start the frame - should we need to.
@@ -1724,6 +1730,9 @@ namespace engine
 		{
 			// Startup function will throw an error if something goes wrong
 			Startup();
+
+			// TEMP!!!
+			scrmodelist.Dump();
 			
 			// -ACB- 1999/09/24 Call System Specific Looping function. Some
 			//                  systems don't loop forever.
