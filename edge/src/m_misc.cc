@@ -381,7 +381,7 @@ static void SetToBaseValue(default_t *def)
 			break;
 
 		case CFGT_Boolean:
-			*(bool*)(def->location) = (bool)def->defaultvalue;
+			*(bool*)(def->location) = def->defaultvalue?true:false;
 			break;
 
 		case CFGT_ChatMacro:
@@ -456,7 +456,7 @@ bool M_LoadDefaults(void)
 					}
 					else if (defaults[i].type == CFGT_Boolean)
 					{
-						*(bool*)defaults[i].location = (bool)parm;
+						*(bool*)defaults[i].location = parm?true:false;
 					}
 					else /* CFGT_Int and CFGT_Key */
 					{
