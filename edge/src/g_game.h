@@ -88,4 +88,6 @@ bool G_CheckWhenAppear(when_appear_e appear);
 bool G_CheckConditions(mobj_t *mo, condition_check_t *cond);
 char *G_FileNameFromSlot(int slot);
 
+extern gamedef_c* currgamedef;
+
 #endif
