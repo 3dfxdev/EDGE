@@ -68,11 +68,11 @@ int showMessages;
 
 int screen_hud;  // has default
 
-epi::strent_c msg_string;
-int msg_lastmenu;
-int msg_mode;
+static epi::strent_c msg_string;
+static int msg_lastmenu;
+static int msg_mode;
 
-epi::strent_c input_string;		
+static epi::strent_c input_string;		
 
 bool menuactive;
 
@@ -90,10 +90,10 @@ static int chosen_epi;
 //
 //  IMAGES USED
 //
-const image_t *therm_l;
-const image_t *therm_m;
-const image_t *therm_r;
-const image_t *therm_o;
+static const image_t *therm_l;
+static const image_t *therm_m;
+static const image_t *therm_r;
+static const image_t *therm_o;
 
 static const image_t *menu_loadg;
 static const image_t *menu_saveg;
@@ -225,50 +225,52 @@ static menu_t *currentMenu;
 //
 // PROTOTYPES
 //
-void M_NewGame(int choice);
-void M_Episode(int choice);
-void M_ChooseSkill(int choice);
-void M_LoadGame(int choice);
-void M_SaveGame(int choice);
+static void M_NewGame(int choice);
+static void M_Episode(int choice);
+static void M_ChooseSkill(int choice);
+static void M_LoadGame(int choice);
+static void M_SaveGame(int choice);
+static void M_NewMultiGame(int choice);
 
 // 25-6-98 KM
-void M_LoadSavePage(int choice);
-void M_Options(int choice);
+static void M_LoadSavePage(int choice);
+static void M_Options(int choice);
+static void M_ReadThis(int choice);
+static void M_ReadThis2(int choice);
 void M_EndGame(int choice);
-void M_ReadThis(int choice);
-void M_ReadThis2(int choice);
 
-void M_ChangeMessages(int choice);
-void M_ChangeSensitivity(int choice);
-void M_SfxVol(int choice);
-void M_MusicVol(int choice);
-void M_SizeDisplay(int choice);
-void M_StartGame(int choice);
-void M_Sound(int choice);
+static void M_ChangeMessages(int choice);
+static void M_ChangeSensitivity(int choice);
+static void M_SfxVol(int choice);
+static void M_MusicVol(int choice);
+static void M_SizeDisplay(int choice);
+static void M_StartGame(int choice);
+static void M_Sound(int choice);
 
-void M_FinishReadThis(int choice);
-void M_LoadSelect(int choice);
-void M_SaveSelect(int choice);
-void M_ReadSaveStrings(void);
-void M_QuickSave(void);
-void M_QuickLoad(void);
+static void M_FinishReadThis(int choice);
+static void M_LoadSelect(int choice);
+static void M_SaveSelect(int choice);
+static void M_ReadSaveStrings(void);
+static void M_QuickSave(void);
+static void M_QuickLoad(void);
 
-void M_DrawMainMenu(void);
-void M_DrawReadThis1(void);
-void M_DrawReadThis2(void);
-void M_DrawNewGame(void);
-void M_DrawEpisode(void);
-void M_DrawSound(void);
-void M_DrawLoad(void);
-void M_DrawSave(void);
+static void M_DrawMainMenu(void);
+static void M_DrawReadThis1(void);
+static void M_DrawReadThis2(void);
+static void M_DrawNewGame(void);
+static void M_DrawEpisode(void);
+static void M_DrawSound(void);
+static void M_DrawMultiPlayer(void);
+static void M_DrawLoad(void);
+static void M_DrawSave(void);
 
-void M_DrawSaveLoadBorder(int x, int y, int len);
-void M_SetupNextMenu(menu_t * menudef);
-void M_DrawEmptyCell(menu_t * menu, int item);
-void M_DrawSelCell(menu_t * menu, int item);
+static void M_DrawSaveLoadBorder(int x, int y, int len);
+static void M_SetupNextMenu(menu_t * menudef);
+static void M_DrawEmptyCell(menu_t * menu, int item);
+static void M_DrawSelCell(menu_t * menu, int item);
+static void M_StopMessage(void);
+static void M_ClearMenus(void);
 void M_StartControlPanel(void);
-void M_StopMessage(void);
-void M_ClearMenus(void);
 
 //
 // DOOM MENU
@@ -435,6 +437,26 @@ static menu_t SoundDef =
 	&sound_vol_style,
 	M_DrawSound,
 	80, 64,
+	0
+};
+
+//
+// MULTIPLAYER MENU
+//
+
+static menuitem_t MultiPlayerMenu[] =
+{
+	{2, "M_NGAME", NULL, M_NewMultiGame, 'n'},
+};
+
+static menu_t MultiPlayerDef =
+{
+	1,
+	&MainDef,
+	MultiPlayerMenu,
+	&dialog_style,
+	M_DrawMultiPlayer,
+	80, 104,
 	0
 };
 
@@ -817,7 +839,7 @@ void M_DrawSave(void)
 //
 // 98-7-10 KM Savegame slots increased
 //
-void M_DoSave(int page, int slot)
+static void M_DoSave(int page, int slot)
 {
 	G_SaveGame(page * SAVE_SLOTS + slot, ex_slots[slot].desc);
 	M_ClearMenus();
@@ -1287,6 +1309,8 @@ void M_EndGame(int choice)
 		return;
 	}
 
+	optionsmenuon = false;
+
 	if (netgame)
 	{
 		M_StartMessage(language["EndNetGame"], NULL, false);
@@ -1463,9 +1487,39 @@ void M_SizeDisplay(int choice)
 	R_SetViewSize(screen_hud);
 }
 
+void M_NewMultiGame(int choice)
+{
+	M_NewGame(choice); //!!!!
+}
+
 //
+// M_DrawMultiPlayer
+//
+void M_DrawMultiPlayer(void)
+{
+	HL_WriteText(dialog_style,0, 80, 10, "MULTIPLAYER SETUP");
+
+	HL_WriteText(dialog_style,1, 40, 40, "(Networking not implemented yet)");
+
+	// @@@
+}
+
+void M_MultiplayerGame(int choice)
+{
+	if (usergame)  // shouldn't happen
+	{
+		S_StartSound(NULL, sfx_oof);
+		return;
+	}
+
+	optionsmenuon = false;
+
+	M_SetupNextMenu(&MultiPlayerDef);
+}
+
+//----------------------------------------------------------------------------
 //   MENU FUNCTIONS
-//
+//----------------------------------------------------------------------------
 
 //
 // M_DrawThermo
@@ -1931,9 +1985,11 @@ void M_StartControlPanel(void)
 
 	menuactive = 1;
 	CON_SetVisible(vs_notvisible);
-	currentMenu = &MainDef;  // JDC
 
+	currentMenu = &MainDef;  // JDC
 	itemOn = currentMenu->lastOn;  // JDC
+
+	M_OptCheckNetgame();
 }
 
 //
