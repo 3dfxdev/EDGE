@@ -46,12 +46,19 @@ public: //!!!!  private:
 	NLaddress addr;
 
 	int game_id;
-	int player_id;
+	int pl_index;
 
 	bool voted;
 
-	int alive_millies;   // countdown for keep-alive check
-	int zombie_millies;  // countdown for deletion
+	// --- tic handling ---
+	// {
+		int pl_gametic;
+
+		tic_store_c *tics;
+
+		int tic_wait;    // units are 1/100 second.
+		int tic_wait_total;
+	// }
 
 public:
 	bool CheckAddr(const NLaddress *remote_addr) const;
@@ -62,6 +69,8 @@ public:
 
 	bool MatchDest(int dest, int game) const;
 	void TransmitMessage(packet_c *pk);
+
+	void InitGame(int idx, int bots_each);
 };
 
 extern std::vector<client_c *> clients;

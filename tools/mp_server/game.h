@@ -48,42 +48,38 @@ public: //FIXME
 	char mode;
 	byte skill;
 
+	int features; // Yada yada
+
 	int min_players;
 	int num_bots;
 
-	std::vector<int> queuers;
-	std::vector<int> players;  // in the game
-
 	int num_players;
 	int bots_each;
+
 	int num_votes;
 
-	int zombie_millies;  // countdown before deletion
+	int players[MP_PLAYER_MAX]; // queued or in the game
 
 	// ---- tic handlig ----
-
-	int gametic;
-
-///---	std::bitset<MP_PLAYER_MAX> got_cmds;
-///---	raw_ticcmd_t *tic_cmds;
-
-	tic_store_c *tics;
+	// {
+		int sv_gametic;
+		int pl_min_tic;  // MIN(all pl_gametic)
+	// }
 
 public:
-	bool InQueue(int client_id) const;
-	bool InGame (int client_id) const;
+	bool HasPlayer(int client_id) const;
 
-	int AddToQueue(int client_id);  // returns player_id
-	int AddToGame (int client_id);  //
-
-	void RemoveFromQueue(int client_id);
-	void RemoveFromGame (int client_id);
+	void AddPlayer(int client_id);
+	void RemovePlayer(int client_id);
 
 	void CalcBots();
 	void FillGameInfo(game_info_t *info) const;
 
 	void InitGame();
 	void BumpTic();
+
+	int ComputeMinTic() const;
+	int ComputeGroupAvail() const;
 };
 
 extern std::vector<game_c *> games;
@@ -98,5 +94,6 @@ void PK_vote_to_play(packet_c *pk);
 
 void PK_query_game(packet_c *pk);
 void PK_ticcmd(packet_c *pk);
+void PK_tic_retransmit(packet_c *pk);
 
 #endif /* __GAME_H__ */
