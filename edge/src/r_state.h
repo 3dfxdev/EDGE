@@ -132,9 +132,6 @@ extern angle_t *xtoviewangle;
 extern float_t rw_distance;
 extern angle_t rw_normalangle;
 
-// Status Bar Height. FIXME: Create a better status bar system (DDF?)
-#define SBARHEIGHT 32
-
 // angle to line origin
 extern int rw_angle1;
 
