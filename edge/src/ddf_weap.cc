@@ -296,36 +296,45 @@ static void WeaponFinishEntry(void)
 	DDF_StateFinishStates(buffer_weapon.first_state, buffer_weapon.last_state);
 
 	// check stuff...
-	int A;
-	for (A = 0; A < 2; A++)
+	int ATK;
+
+	for (ATK = 0; ATK < 2; ATK++)
 	{
-		if (buffer_weapon.ammopershot[A] < 0)
+		if (buffer_weapon.ammopershot[ATK] < 0)
 		{
 			DDF_WarnError2(0x128, "Bad %sAMMOPERSHOT value for weapon: %d\n",
-					A ? "SEC_" : "", buffer_weapon.ammopershot[A]);
-			buffer_weapon.ammopershot[A] = 0;
+					ATK ? "SEC_" : "", buffer_weapon.ammopershot[ATK]);
+			buffer_weapon.ammopershot[ATK] = 0;
 		}
 
 		// zero values for ammopershot really mean infinite ammo
-		if (buffer_weapon.ammopershot[A] == 0)
-			buffer_weapon.ammo[A] = AM_NoAmmo;
+		if (buffer_weapon.ammopershot[ATK] == 0)
+			buffer_weapon.ammo[ATK] = AM_NoAmmo;
 
-		if (buffer_weapon.clip_size[A] < 0)
+		if (buffer_weapon.clip_size[ATK] < 0)
 		{
 			DDF_WarnError2(0x129, "Bad %sCLIPSIZE value for weapon: %d\n",
-					A ? "SEC_" : "", buffer_weapon.clip_size[A]);
-			buffer_weapon.clip_size[A] = 0;
+					ATK ? "SEC_" : "", buffer_weapon.clip_size[ATK]);
+			buffer_weapon.clip_size[ATK] = 0;
 		}
 
 		// check if clip_size + ammopershot makes sense
-		if (buffer_weapon.clip_size[A] > 0 && buffer_weapon.ammo[A] != AM_NoAmmo &&
-			(buffer_weapon.clip_size[A] < buffer_weapon.ammopershot[A] ||
-			 buffer_weapon.clip_size[A] % buffer_weapon.ammopershot[A] != 0))
+		if (buffer_weapon.clip_size[ATK] > 0 && buffer_weapon.ammo[ATK] != AM_NoAmmo &&
+			(buffer_weapon.clip_size[ATK] < buffer_weapon.ammopershot[ATK] ||
+			 buffer_weapon.clip_size[ATK] % buffer_weapon.ammopershot[ATK] != 0))
 		{
 			DDF_WarnError2(0x129, "%sAMMOPERSHOT=%d incompatible with %sCLIPSIZE=%d\n",
-				A ? "SEC_" : "", buffer_weapon.ammopershot[A],
-				A ? "SEC_" : "", buffer_weapon.clip_size[A]);
-			buffer_weapon.ammopershot[A] = 1;
+				ATK ? "SEC_" : "", buffer_weapon.ammopershot[ATK],
+				ATK ? "SEC_" : "", buffer_weapon.clip_size[ATK]);
+			buffer_weapon.ammopershot[ATK] = 1;
+		}
+
+		// DISCARD states require the PARTIAL special
+		if (buffer_weapon.discard_state[ATK] &&
+			! (buffer_weapon.specials[ATK] & WPSP_Partial))
+		{
+			DDF_Error("Cannot use %sDISCARD states with NO_PARTIAL special.\n",
+				ATK ? "SEC_" : "");
 		}
 	}
 
@@ -347,14 +356,14 @@ static void WeaponFinishEntry(void)
 	dynamic_weapon->CopyDetail(buffer_weapon);
 
 	// compute CRC...
-	for (A = 0; A < 2; A++)
+	for (ATK = 0; ATK < 2; ATK++)
 	{
 		// FIXME: attack name
-		dynamic_weapon->ddf.crc += dynamic_weapon->ammo[A];
-		dynamic_weapon->ddf.crc += dynamic_weapon->ammopershot[A];
-		dynamic_weapon->ddf.crc += dynamic_weapon->clip_size[A];
-		dynamic_weapon->ddf.crc += dynamic_weapon->autofire[A];
-		dynamic_weapon->ddf.crc += dynamic_weapon->specials[A];
+		dynamic_weapon->ddf.crc += dynamic_weapon->ammo[ATK];
+		dynamic_weapon->ddf.crc += dynamic_weapon->ammopershot[ATK];
+		dynamic_weapon->ddf.crc += dynamic_weapon->clip_size[ATK];
+		dynamic_weapon->ddf.crc += dynamic_weapon->autofire[ATK];
+		dynamic_weapon->ddf.crc += dynamic_weapon->specials[ATK];
 	}
 
 	// FIXME: add more stuff...

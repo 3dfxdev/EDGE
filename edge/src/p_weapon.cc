@@ -132,8 +132,10 @@ static void ReloadWeapon(player_t *p, int idx, int ATK)
 
 	int qty = info->clip_size[ATK] - p->weapons[idx].clip_size[ATK];
 
+	if (qty < p->ammo[info->ammo[ATK]].num)
+		qty = p->ammo[info->ammo[ATK]].num;
+
 	DEV_ASSERT2(qty > 0);
-	DEV_ASSERT2(qty <= p->ammo[info->ammo[ATK]].num);
 
 	p->weapons[idx].clip_size[ATK] += qty;
 	p->ammo[info->ammo[ATK]].num   -= qty;
@@ -153,9 +155,14 @@ static bool WeaponCanFire(player_t *p, int idx, int ATK)
 	return (info->ammopershot[ATK] <= p->ammo[info->ammo[ATK]].num);
 }
 
-static bool WeaponCanReload(player_t *p, int idx, int ATK)
+static bool WeaponCanReload(player_t *p, int idx, int ATK, bool allow_top_up)
 {
 	weapondef_c *info = p->weapons[idx].info;
+
+	if (! (info->specials[ATK] & WPSP_Partial))
+	{
+		allow_top_up = false;
+	}
 
 	bool can_fire = WeaponCanFire(p, idx, ATK);
 
@@ -163,16 +170,30 @@ static bool WeaponCanReload(player_t *p, int idx, int ATK)
 	if (info->clip_size[ATK] == 0)
 		return can_fire;
 
-	// for clip weapons, cannot reload until clip is empty.
-	if (can_fire)
+	// clip check (cannot reload if clip is full)
+	if (p->weapons[idx].clip_size[ATK] == info->clip_size[ATK])
 		return false;
 
-	// ammo check
-	return (info->ammo[ATK] == AM_NoAmmo) ||
-		   (info->clip_size[ATK] - p->weapons[idx].clip_size[ATK] <=
-			p->ammo[info->ammo[ATK]].num);
+	// for clip weapons, cannot reload until clip is empty.
+	if (can_fire && !allow_top_up)
+		return false;
+
+	// for NoAmmo+Clip weapons, can always refill it
+	if (info->ammo[ATK] == AM_NoAmmo)
+		return true;
+
+	// ammo check...
+	int total = p->ammo[info->ammo[ATK]].num;
+
+	if (info->specials[ATK] & WPSP_Partial)
+	{
+		return (info->ammopershot[ATK] <= total);
+	}
+
+	return (info->clip_size[ATK] - p->weapons[idx].clip_size[ATK] <= total);
 }
 
+#if 0  // OLD FUNCTION
 static bool WeaponCanPartialReload(player_t *p, int idx, int ATK)
 {
 	weapondef_c *info = p->weapons[idx].info;
@@ -181,15 +202,12 @@ static bool WeaponCanPartialReload(player_t *p, int idx, int ATK)
 	if (info->clip_size[ATK] == 0)
 		return WeaponCanFire(p, idx, ATK);
 
-	// clip check (cannot reload if clip is full)
-	if (p->weapons[idx].clip_size[ATK] == info->clip_size[ATK])
-		return false;
-
 	// ammo check
 	return (info->ammo[ATK] == AM_NoAmmo) ||
 		   (info->clip_size[ATK] - p->weapons[idx].clip_size[ATK] <=
 			p->ammo[info->ammo[ATK]].num);
 }
+#endif
 
 // returns true when weapon will either fire or reload
 // (assuming the button is held down).
@@ -205,16 +223,15 @@ static bool WeaponCouldAutoFire(player_t *p, int idx, int ATK)
 
 	int total = p->ammo[info->ammo[ATK]].num;
 
-	if (info->clip_size[ATK] == 0 && info->ammopershot[ATK] <= total)
-		return true;
+	if (info->clip_size[ATK] == 0)
+		return (info->ammopershot[ATK] <= total);
 
 	// for clip weapons, either need a non-empty clip or enough
 	// ammo to fill the clip (which is able to be filled without the
 	// manual reload key).
-	if (info->clip_size[ATK] > 0 &&
-		(info->ammopershot[ATK] <= p->weapons[idx].clip_size[ATK] ||
-		 (info->clip_size[ATK] <= total &&
-		  (info->specials[ATK] & (WPSP_Trigger | WPSP_Fresh)) )))
+	if (info->ammopershot[ATK] <= p->weapons[idx].clip_size[ATK] ||
+		(info->clip_size[ATK] <= total &&
+		 (info->specials[ATK] & (WPSP_Trigger | WPSP_Fresh))))
 	{
 		return true;
 	}
@@ -302,7 +319,7 @@ static void SwitchAway(player_t * p, int ATK, int reload)
 {
 	weapondef_c *info = p->weapons[p->ready_wp].info;
 
-	if (reload && WeaponCanReload(p, p->ready_wp, ATK))
+	if (reload && WeaponCanReload(p, p->ready_wp, ATK, false))
 		GotoReloadState(p, ATK);
 	else if (info->specials[ATK] & WPSP_SwitchAway)
 		P_SelectNewWeapon(p, -100, AM_DontCare);
@@ -795,29 +812,25 @@ void A_WeaponReady(mobj_t * mo)
 			if (! info->attack_state[ATK])
 				continue;
 
-			if ((info->specials[ATK] & WPSP_Fresh) && info->clip_size[ATK] > 0 &&
-				info->ammo[ATK] != AM_NoAmmo)
+			if ((info->specials[ATK] & WPSP_Fresh) &&
+				(info->clip_size[ATK] > 0) &&
+				! WeaponCanFire(p, p->ready_wp, ATK) &&
+				WeaponCanReload(p, p->ready_wp, ATK, true))
 			{
-				if (WeaponCanReload(p, p->ready_wp, ATK))
-				{
-					GotoReloadState(p, ATK);
-					break;
-				}
+				GotoReloadState(p, ATK);
+				break;
 			}
 
 			if ((p->cmd.extbuttons & EBT_RELOAD) &&
-				     (info->clip_size[ATK] > 0) &&
-					 (info->specials[ATK] & WPSP_Manual) &&
-					  info->reload_state[ATK])
+				 (info->clip_size[ATK] > 0) &&
+				 (info->specials[ATK] & WPSP_Manual) &&
+				  info->reload_state[ATK])
 			{
-				bool reload = ((info->specials[ATK] & WPSP_Partial) ||
-						  info->discard_state[ATK]) ?
-					WeaponCanPartialReload(p, p->ready_wp, ATK) :
-					WeaponCanReload(p, p->ready_wp, ATK);
+				bool reload = WeaponCanReload(p, p->ready_wp, ATK, true);
 
 				// for discarding, we require a non-empty clip
 				if (reload && info->discard_state[ATK] &&
-					(info->clip_size == 0 || WeaponCanFire(p, p->ready_wp, ATK)))
+					WeaponCanFire(p, p->ready_wp, ATK))
 				{
 					p->weapons[p->ready_wp].clip_size[ATK] = 0;
 					P_SetPspriteDeferred(p, ps_weapon, info->discard_state[ATK]);
@@ -993,7 +1006,7 @@ static void DoCheckReload(mobj_t * mo, int ATK)
 		return;
 	}
 
-	if (WeaponCanReload(p, p->ready_wp, ATK))
+	if (WeaponCanReload(p, p->ready_wp, ATK, false))
 		GotoReloadState(p, ATK);
 	else if (! WeaponCanFire(p, p->ready_wp, ATK))
 		SwitchAway(p, ATK, 0);
