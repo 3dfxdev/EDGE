@@ -125,10 +125,9 @@ typedef struct player_s
 	// player's name
 	char playername[MAX_PLAYNAME];
 
-	// Determine POV,
-	//  including viewpoint bobbing during movement.
+	// Determine POV, including viewpoint bobbing during movement.
 	// Focal origin above r.z
-  // will be FLO_UNUSED until the first think.
+	// will be FLO_UNUSED until the first think.
 	float viewz;
 
 	// Base height above floor for viewz.  Tracks `std_viewheight' but
@@ -184,9 +183,9 @@ typedef struct player_s
 	playerammo_t ammo[NUMAMMO];
 
 	// True if button down last tic.
-	int attackdown;
-	int secondatk_down;
-	int usedown;
+	bool attackdown;
+	bool secondatk_down;
+	bool usedown;
 
 	// Bit flags, for cheats and debug.
 	// See cheat_t, above.

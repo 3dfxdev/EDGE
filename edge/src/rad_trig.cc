@@ -458,7 +458,8 @@ void RAD_DoRadiTrigger(player_t * p)
     // we've reached the end of the states.  Delete the trigger unless
     // it is Tagged_Repeatable and has some more repeats left.
     //
-    trig->repeats_left--;
+	if (trig->info->repeat_count != REPEAT_FOREVER)
+		trig->repeats_left--;
 
     if (trig->repeats_left > 0)
     {
@@ -554,8 +555,8 @@ void RAD_SpawnTriggers(char *map_name)
 
     trig->info = scr;
     trig->disabled = scr->tagged_disabled;
-    trig->repeats_left = (scr->repeat_count > 0) ? 
-        scr->repeat_count : (scr->repeat_count == 0) ? 1<<30 : 1;
+    trig->repeats_left = (scr->repeat_count < 0 || 
+	                      scr->repeat_count == REPEAT_FOREVER) ? 1 : scr->repeat_count;
     trig->repeat_delay = 0;
     trig->tip_slot = 0;
 
