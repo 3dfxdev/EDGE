@@ -36,9 +36,7 @@ void V_InitPalette(void);
 void V_InitColour(void);
 
 // -ACB- 1999/10/11 Gets an RGB colour from the current palette
-// -AJA- Added `nominal' version, which gets colour from palette 0.
 void V_IndexColourToRGB(int indexcol, byte *returncol);
-void V_IndexNominalToRGB(int indexcol, byte *returncol);
 
 // -AJA- 1999/07/03: moved here from v_res.h.
 extern byte gammatable[5][256];
