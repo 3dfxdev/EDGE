@@ -356,20 +356,31 @@ static void DeathThink(player_t * player)
 		slope = MIN(0.5f, MAX(-0.5f, slope));
 		delta_s = M_ATan(slope) - player->mo->vertangle;
 
-		if ((delta <= ANG1 || delta >= (angle_t)(0 - ANG1)) &&
-			(delta_s <= ANG1 || delta_s >= (angle_t)(0 - ANG1)))
+		if ((delta <= ANG1/2 || delta >= (angle_t)(0 - ANG1/2)) &&
+			(delta_s <= ANG1/2 || delta_s >= (angle_t)(0 - ANG1/2)))
 		{
 			// Looking at killer, so fade damage flash down.
 			player->mo->angle = angle;
+			player->mo->vertangle = M_ATan(slope);
 
 			if (player->damagecount)
 				player->damagecount--;
 		}
 		else 
 		{
+			if (delta < ANG180)
+				delta /= 5;
+			else
+				delta = (angle_t)(0 - (angle_t)(0 - delta) / 5);
+			
 			if (delta > ANG5 && delta < (angle_t)(0 - ANG5))
 				delta = (delta < ANG180) ? ANG5 : (angle_t)(0 - ANG5);
 
+			if (delta_s < ANG180)
+				delta_s /= 5;
+			else
+				delta_s = (angle_t)(0 - (angle_t)(0 - delta_s) / 5);
+			
 			if (delta_s > (ANG5/2) && delta_s < (angle_t)(0 - ANG5/2))
 				delta_s = (delta_s < ANG180) ? (ANG5/2) : (angle_t)(0 - ANG5/2);
 
