@@ -29,8 +29,8 @@
 
 // Misc. other strings.
 #define SAVEGAMEBASE	"save"
-#define SAVEGAMEDIR	    "savegame"
-#define SAVEGAMEEXT     "esg"
-#define SAVEGAMEMODE    0755
+#define SAVEGAMEDIR	"savegame"
+#define SAVEGAMEEXT    "esg"
+#define SAVEGAMEMODE   0755
 
 #endif
