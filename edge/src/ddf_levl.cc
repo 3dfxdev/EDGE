@@ -65,6 +65,7 @@ static const mapstuff_t template_map =
 		"",    // text_flat
 		3,     // text_speed
 		150,   // text_wait
+		NULL,  // text_colmap
 		0,     // numpics
 		0,     // picwait
 		NULL,  // pics
@@ -80,6 +81,7 @@ static const mapstuff_t template_map =
 		"",    // text_flat
 		3,     // text_speed
 		150,   // text_wait
+		NULL,  // text_colmap
 		0,     // numpics
 		0,     // picwait
 		NULL,  // pics
@@ -112,6 +114,7 @@ static const commandlist_t finale_commands[] =
     DF("TEXT FLAT", text_flat, DDF_MainGetInlineStr10),
     DF("TEXT SPEED", text_speed, DDF_MainGetFloat),
     DF("TEXT WAIT", text_wait, DDF_MainGetNumeric),
+    DF("COLOURMAP", text_colmap, DDF_MainGetColourmap),
     DF("GRAPHIC", text, DDF_LevelGetPic),
     DF("GRAPHIC WAIT", picwait, DDF_MainGetTime),
     DF("CAST", docast, DDF_MainGetBoolean),
