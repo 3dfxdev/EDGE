@@ -144,8 +144,6 @@ static INLINE int PointOnLineSide(float x, float y, line_t *ld)
 //
 static bool PIT_StompThing(mobj_t * thing)
 {
-	float blockdist;
-
 	if (!(thing->flags & MF_SHOOTABLE))
 		return true;
 
@@ -153,7 +151,7 @@ static bool PIT_StompThing(mobj_t * thing)
 	if (thing == tm_I.mover)
 		return true;
 
-	blockdist = thing->radius + tm_I.mover->radius;
+	float blockdist = thing->radius + tm_I.mover->radius;
 
 	// check to see we hit it
 	if (fabs(thing->x - tm_I.x) >= blockdist || fabs(thing->y - tm_I.y) >= blockdist)
@@ -253,8 +251,6 @@ bool P_TeleportMove(mobj_t * thing, float x, float y, float z)
 //
 static bool PIT_CheckAbsLine(line_t * ld)
 {
-	int i;
-
 	if (tmbbox[BOXRIGHT] <= ld->bbox[BOXLEFT] ||
 		tmbbox[BOXLEFT] >= ld->bbox[BOXRIGHT] ||
 		tmbbox[BOXTOP] <= ld->bbox[BOXBOTTOM] ||
@@ -293,7 +289,7 @@ static bool PIT_CheckAbsLine(line_t * ld)
 	}
 
 	// does the thing fit in one of the line gaps ?
-	for (i = 0; i < ld->gap_num; i++)
+	for (int i = 0; i < ld->gap_num; i++)
 	{
 		if (ld->gaps[i].f <= tm_I.z &&
 			tm_I.z + tm_I.mover->height <= ld->gaps[i].c)
@@ -1150,9 +1146,7 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 		if (bestslidefrac == 1.0001f)
 		{
 			// the move must have hit the middle, so stairstep
-			if (!P_TryMove(mo, mo->x, mo->y + dy))
-				P_TryMove(mo, mo->x + dx, mo->y);
-			return;
+			break;  // goto stairstep
 		}
 
 		// fudge a bit to make sure it doesn't hit
@@ -1163,11 +1157,7 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 			float newy = dy * bestslidefrac;
 
 			if (!P_TryMove(mo, mo->x + newx, mo->y + newy))
-			{
-				if (!P_TryMove(mo, mo->x, mo->y + dy))
-					P_TryMove(mo, mo->x + dx, mo->y);
-				return;
-			}
+				break;  // goto stairstep
 		}
 
 		// Now continue along the wall.
@@ -1192,7 +1182,7 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 			return;
 	}
 
-	// last ditch attempt
+	// stairstep: last ditch attempt
 	if (! P_TryMove(mo, mo->x, mo->y + dy))
 		P_TryMove(mo, mo->x + dx, mo->y);
 }
@@ -1204,21 +1194,14 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 //
 static bool PTR_AimTraverse(intercept_t * in)
 {
-	line_t *li;
-	mobj_t *th;
-	float slope;
-	float thingtopslope;
-	float thingbottomslope;
-	float dist;
-
-	dist = aim_I.range * in->frac;
+	float dist = aim_I.range * in->frac;
 
 	if (dist < 0.01f)
 		return true;
 
 	if (in->type == INCPT_Line)
 	{
-		li = in->d.line;
+		line_t *li = in->d.line;
 
 		if (!(li->flags & ML_TwoSided) || li->gap_num == 0)
 			return false;  // stop
@@ -1232,8 +1215,7 @@ static bool PTR_AimTraverse(intercept_t * in)
 		if (li->frontsector->f_h != li->backsector->f_h)
 		{
 			float maxfloor = MAX(li->frontsector->f_h, li->backsector->f_h);
-
-			slope = (maxfloor - aim_I.start_z) / dist;
+			float slope = (maxfloor - aim_I.start_z) / dist;
 
 			if (slope > aim_I.bottomslope)
 				aim_I.bottomslope = slope;
@@ -1242,8 +1224,7 @@ static bool PTR_AimTraverse(intercept_t * in)
 		if (li->frontsector->c_h != li->backsector->c_h)
 		{
 			float minceil = MIN(li->frontsector->c_h, li->backsector->c_h);
-
-			slope = (minceil - aim_I.start_z) / dist;
+			float slope = (minceil - aim_I.start_z) / dist;
 
 			if (slope < aim_I.topslope)
 				aim_I.topslope = slope;
@@ -1259,7 +1240,7 @@ static bool PTR_AimTraverse(intercept_t * in)
 	DEV_ASSERT2(in->type == INCPT_Thing);
 
 	// shoot a thing
-	th = in->d.thing;
+	mobj_t *th = in->d.thing;
 
 	if (th == aim_I.source)
 		return true;  // can't shoot self
@@ -1271,12 +1252,12 @@ static bool PTR_AimTraverse(intercept_t * in)
 		return true;  // don't aim at our good friend
 
 	// check angles to see if the thing can be aimed at
-	thingtopslope = (th->z + th->height - aim_I.start_z) / dist;
+	float thingtopslope = (th->z + th->height - aim_I.start_z) / dist;
 
 	if (thingtopslope < aim_I.bottomslope)
 		return true;  // shot over the thing
 
-	thingbottomslope = (th->z - aim_I.start_z) / dist;
+	float thingbottomslope = (th->z - aim_I.start_z) / dist;
 
 	if (thingbottomslope > aim_I.topslope)
 		return true;  // shot under the thing
@@ -1300,11 +1281,8 @@ static bool PTR_AimTraverse(intercept_t * in)
 // Returns true if successfully passed gap.
 //
 static INLINE bool ShootCheckGap(float z,
-									  float f_h, surface_t *floor, float c_h, surface_t *ceil)
+	float f_h, surface_t *floor, float c_h, surface_t *ceil)
 {
-	float x, y;
-	float frac;
-
 	// perfectly horizontal shots cannot hit planes
 	if (shoot_I.slope == 0)
 		return true;
@@ -1327,10 +1305,11 @@ static INLINE bool ShootCheckGap(float z,
 	if (IS_SKY(floor[0]))
 		return false;
 
-	frac = (f_h - shoot_I.start_z) / (shoot_I.slope * shoot_I.range);
+	float frac = (f_h - shoot_I.start_z) / (shoot_I.slope * shoot_I.range);
 
-	x = trace.x + trace.dx * frac;
-	y = trace.y + trace.dy * frac;
+	float x = trace.x + trace.dx * frac;
+	float y = trace.y + trace.dy * frac;
+
 	z = (z < shoot_I.prev_z) ? f_h + 2 : f_h - 2;
 
 	// Spawn bullet puff
@@ -1348,19 +1327,7 @@ static INLINE bool ShootCheckGap(float z,
 //
 static bool PTR_ShootTraverse(intercept_t * in)
 {
-	float x, y, z;
-	float frac;
-	float dist;
-	float thingtopslope;
-	float thingbottomslope;
-	int i, sidenum;
-
-	line_t *li;
-	mobj_t *th;
-	side_t *side;
-	bool use_puff;
-
-	dist = shoot_I.range * in->frac;
+	float dist = shoot_I.range * in->frac;
 
 	if (dist < 0.1f)
 		dist = 0.1f;
@@ -1368,16 +1335,16 @@ static bool PTR_ShootTraverse(intercept_t * in)
 	// Intercept is a line?
 	if (in->type == INCPT_Line)
 	{
-		li = in->d.line;
+		line_t *li = in->d.line;
 
 		// determine coordinates of intersect
-		frac = in->frac;
-		x = trace.x + trace.dx * frac;
-		y = trace.y + trace.dy * frac;
-		z = shoot_I.start_z + frac * shoot_I.slope * shoot_I.range;
+		float frac = in->frac;
+		float x = trace.x + trace.dx * frac;
+		float y = trace.y + trace.dy * frac;
+		float z = shoot_I.start_z + frac * shoot_I.slope * shoot_I.range;
 
-		sidenum = PointOnLineSide(trace.x, trace.y, li);
-		side = li->side[sidenum];
+		int sidenum = PointOnLineSide(trace.x, trace.y, li);
+		side_t *side = li->side[sidenum];
 
 		// Line is a special, Cause action....
 		// -AJA- honour the NO_TRIGGER_LINES attack special too
@@ -1421,7 +1388,7 @@ static bool PTR_ShootTraverse(intercept_t * in)
 			DEV_ASSERT2(li->backsector);
 
 			// check all line gaps
-			for (i=0; i < li->gap_num; i++)
+			for (int i = 0; i < li->gap_num; i++)
 			{
 				if (li->gaps[i].f <= z && z <= li->gaps[i].c)
 				{
@@ -1468,7 +1435,7 @@ static bool PTR_ShootTraverse(intercept_t * in)
 	DEV_ASSERT2(in->type == INCPT_Thing);
 
 	// shoot a thing
-	th = in->d.thing;
+	mobj_t *th = in->d.thing;
 
 	// don't shoot self
 	if (th == shoot_I.source)
@@ -1479,13 +1446,13 @@ static bool PTR_ShootTraverse(intercept_t * in)
 		return true;
 
 	// check angles to see if the thing can be aimed at
-	thingtopslope = (th->z + th->height - shoot_I.start_z) / dist;
+	float thingtopslope = (th->z + th->height - shoot_I.start_z) / dist;
 
 	// shot over the thing ?
 	if (thingtopslope < shoot_I.slope)
 		return true;
 
-	thingbottomslope = (th->z - shoot_I.start_z) / dist;
+	float thingbottomslope = (th->z - shoot_I.start_z) / dist;
 
 	// shot under the thing ?
 	if (thingbottomslope > shoot_I.slope)
@@ -1493,16 +1460,16 @@ static bool PTR_ShootTraverse(intercept_t * in)
 
 	// hit thing
 	// position a bit closer
-	frac = in->frac - 10.0f / shoot_I.range;
+	float frac = in->frac - 10.0f / shoot_I.range;
 
-	x = trace.x + trace.dx * frac;
-	y = trace.y + trace.dy * frac;
-	z = shoot_I.start_z + frac * shoot_I.slope * shoot_I.range;
+	float x = trace.x + trace.dx * frac;
+	float y = trace.y + trace.dy * frac;
+	float z = shoot_I.start_z + frac * shoot_I.slope * shoot_I.range;
 
 	// Spawn bullet puffs or blood spots,
 	// depending on target type.
 
-	use_puff = !(th->flags & MF_SHOOTABLE) || (th->flags & MF_NOBLOOD);
+	bool use_puff = !(th->flags & MF_SHOOTABLE) || (th->flags & MF_NOBLOOD);
 
 	if (th->flags & MF_SHOOTABLE)
 	{
@@ -2444,8 +2411,6 @@ static float mt2;
 
 static bool PIT_CheckBlockingLine(line_t * line)
 {
-	int i;
-
 	// -KM- 1999/01/31 Changed &&s to ||s.  This condition actually does something
 	//  now.
 	if (tmbbox[BOXRIGHT] <= line->bbox[BOXLEFT] ||
@@ -2475,7 +2440,7 @@ static bool PIT_CheckBlockingLine(line_t * line)
 		return false;
 	}
 
-	for (i = 0; i < line->gap_num; i++)
+	for (int i = 0; i < line->gap_num; i++)
 	{
 		// gap with no restriction ?
 		if (line->gaps[i].f <= mb2 && mt2 <= line->gaps[i].c)
