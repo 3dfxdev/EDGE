@@ -239,9 +239,9 @@ extern int teleportdelay;
 //cd-audio stuff
 typedef enum
 {
-  CD_OFF = 0,
-  CD_ON,
-  CD_ATMOS
+    CD_OFF = 0,
+    CD_ON,
+    CD_ATMOS
 }
 cdType_t;
 
@@ -249,18 +249,6 @@ extern cdType_t cdaudio;
 extern int cdtrack;
 extern int cdnumtracks;
 extern int cdcounter;
-
-//okay, heres the resolution/hicolour:
-extern int SCREENWIDTH;
-extern int SCREENHEIGHT;
-extern int SCREENBITS;
-extern bool SCREENWINDOW;
-
-// I_Video.c / V_Video*.c Precalc. Stuff
-extern float DX, DY, DXI, DYI, DY2, DYI2;
-extern int SCALEDWIDTH, SCALEDHEIGHT, X_OFFSET, Y_OFFSET;
-
-extern bool graphicsmode;
 
 // -ES- 1999/08/15 Added teleport effects
 extern int telept_effect;

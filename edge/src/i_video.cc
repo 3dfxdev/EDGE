@@ -23,37 +23,10 @@
 #endif
 
 #include "i_defs.h"
-#include "./i_trans.h"
-
-#include "version.h"
-#include "dm_state.h"
-#include "dm_defs.h"
-#include "dm_type.h"
 #include "m_argv.h"
-#include "st_stuff.h"
 #include "v_res.h"
-#include "v_colour.h"
 
-#include "e_main.h"
-#include "e_event.h"
-#include "w_wad.h"
-
-#include "s_sound.h"
-
-
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-
-#include <stdarg.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-
-#include <netinet/in.h>
 #include <signal.h>
-
 
 static SDL_Surface *my_vis;
 
@@ -68,7 +41,7 @@ bool use_warp_mouse = false;
 #endif
 
 // Possible Screen Modes
-static screenmode_t possresmode[] =
+static i_scrmode_t possresmode[] =
 {
 	// fullscreen modes
 	{ 320, 200, 16, false},
@@ -125,10 +98,8 @@ static void VideoModeCommonStuff(void)
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 	}
 
-	// -DEL- 2001/01/29 SDL_GrabInput doesn't work on beos so try to
-	// stop the mouse leaving the window every frame.
-	if (use_warp_mouse)
-		SDL_WarpMouse(SCREENWIDTH/2, SCREENHEIGHT/2);
+	//if (use_warp_mouse)
+	//	SDL_WarpMouse(SCREENWIDTH/2, SCREENHEIGHT/2);
 
 	SDL_WM_SetCaption("Enhanced Doom Gaming Engine", "EDGE");
 
@@ -162,15 +133,7 @@ void I_StartupGraphics(void)
 	// -ACB- 2000/03/16 Detect Possible Resolutions
 	for (int i = 0; possresmode[i].width != -1; i++)
 	{
-		screenmode_t *mode = possresmode + i;
-
-#if 0
-		if (mode->windowed)
-		{
-			V_AddAvailableResolution(mode);
-			continue;
-		}
-#endif
+		i_scrmode_t *mode = possresmode + i;
 
 		int got_depth = SDL_VideoModeOK(mode->width, mode->height,
 				mode->depth, SDL_OPENGL | SDL_DOUBLEBUF |
@@ -190,7 +153,7 @@ void I_StartupGraphics(void)
 //
 // I_SetScreenSize
 //
-bool I_SetScreenSize(screenmode_t *mode)
+bool I_SetScreenSize(i_scrmode_t *mode)
 {
 	if (mode->depth < 15)
 		return false;
@@ -205,14 +168,13 @@ bool I_SetScreenSize(screenmode_t *mode)
 	if (my_vis->format->BytesPerPixel <= 1)
 		return false;
 
-	SCREENWIDTH  = my_vis->w;
-	SCREENHEIGHT = my_vis->h;
-	SCREENBITS   = (my_vis->format->BytesPerPixel == 2) ? 16 : 32;
+	// -ACB- 2005/03/06 No, the tail doesn't wag the dog....
+	//SCREENWIDTH  = my_vis->w;
+	//SCREENHEIGHT = my_vis->h;
+	//SCREENBITS   = (my_vis->format->BytesPerPixel == 2) ? 16 : 32;
 
 	VideoModeCommonStuff();
-
 	SDL_GL_SwapBuffers();
-
 	return true;
 }
 
@@ -230,6 +192,8 @@ void I_FinishFrame(void)
 {
 	SDL_GL_SwapBuffers();
 
+	// -DEL- 2001/01/29 SDL_GrabInput doesn't work on beos so try to
+	// stop the mouse leaving the window every frame.
 	if (use_warp_mouse)
 		SDL_WarpMouse(SCREENWIDTH/2, SCREENHEIGHT/2);
 }

@@ -77,7 +77,6 @@ int viewwindowy;
 int viewwindowwidth;
 int viewwindowheight;
 
-
 angle_t viewangle = 0;
 angle_t viewvertangle = 0;
 
@@ -240,8 +239,6 @@ angle_t R_PointToAngle(float x1, float y1, float x, float y)
 //
 // R_PointToDist
 //
-//
-//
 float R_PointToDist(float x1, float y1, float x2, float y2)
 {
 	angle_t angle;
@@ -392,25 +389,22 @@ void R_SetZoomedFOV(angle_t newfov)
 //
 // Makes R_ExecuteChangeResolution execute at start of next refresh.
 //
-bool changeresneeded = false;
-static screenmode_t setMode;
+int newres_idx = -1;
 
-void R_ChangeResolution(int width, int height, int depth, bool windowed)
+void R_ChangeResolution(int res_idx)
 {
-	changeresneeded = true;
+	scrmode_t* sm = scrmodelist[res_idx]; 
+
 	setsizeneeded = true;  // need to re-init some stuff
-
-	setMode.width    = width;
-	setMode.height   = height;
-	setMode.depth    = depth;
-	setMode.windowed = windowed;
-
+	newres_idx = res_idx;
+	
 	L_WriteDebug("R_ChangeResolution: Trying %dx%dx%d (%s)\n", 
-		width, height, depth, windowed?"windowed":"fullscreen");
+		         sm->width, sm->height, sm->depth, 
+		         sm->windowed?"windowed":"fullscreen");
 }
 
 //
-// R_ExecuteChangeResolution
+// DoExecuteChangeResolution
 //
 // Do the resolution change
 //
@@ -418,16 +412,21 @@ void R_ChangeResolution(int width, int height, int depth, bool windowed)
 //
 static bool DoExecuteChangeResolution(void)
 {
-	changeresneeded = false;
+	i_scrmode_t sys_sm;
+	scrmode_t* sm;
+	int res_idx = newres_idx;
+	
+	// We now changing the res, so lets clear this
+	newres_idx = -1;
 
-	SCREENWIDTH  = setMode.width;
-	SCREENHEIGHT = setMode.height;
-	SCREENBITS   = setMode.depth;
-	SCREENWINDOW = setMode.windowed;
-
+	// Check for the insane...
+	DEV_ASSERT2(res_idx >= 0 && res_idx < scrmodelist.GetSize());
+	
 	// -ACB- 1999/09/20
 	// parameters needed for I_SetScreenMode - returns false on failure
-	if (! I_SetScreenSize(&setMode))
+	sm = scrmodelist[res_idx];
+	V_GetSysRes(scrmodelist[res_idx], &sys_sm); // Set the system mode struct
+	if (!I_SetScreenSize(&sys_sm))
 	{
 		// wait one second before changing res again, gfx card doesn't like to
 		// switch mode too rapidly.
@@ -453,11 +452,11 @@ static bool DoExecuteChangeResolution(void)
 		return false;
 	}
 
-	// -ES- 2000-08-14 The resolution is obviously available.
-	// In some situations, it might however not yet be available in the
-	// screenmode list.
-	V_AddAvailableResolution(&setMode);
-
+	SCREENWIDTH  = sm->width;
+	SCREENHEIGHT = sm->height;
+	SCREENBITS   = sm->depth;
+	SCREENWINDOW = sm->windowed;
+	
 	V_InitResolution();
 
 	RGL_NewScreenSize(SCREENWIDTH, SCREENHEIGHT, SCREENBITS);
@@ -471,7 +470,7 @@ static bool DoExecuteChangeResolution(void)
 
 	// re-initialise various bits of GL state
 	RGL_SoftInit();
-	RGL_SoftInitUnits();	// -ACB- 2004/02/15 Needed to sort some vars lost in res change
+	RGL_SoftInitUnits();	// -ACB- 2004/02/15 Needed to sort vars lost in res change
 	W_ResetImages();
 
 	graphicsmode = true;
@@ -480,92 +479,73 @@ static bool DoExecuteChangeResolution(void)
 	return true;
 }
 
+//
+// R_ExecuteChangeResolution
+//
 void R_ExecuteChangeResolution(void)
 {
-	int i, j, idx;
-	screenmode_t wantedMode;
-	screenmode_t oldMode;
-	screenmode_t defaultMode = { DEFAULTSCREENWIDTH, DEFAULTSCREENHEIGHT, DEFAULTSCREENBITS, DEFAULTSCREENWINDOW };
+    // First up: try the resolution change as requested
+    setresfailed = !DoExecuteChangeResolution();
+	if (!setresfailed)
+		return; // Everything's fine...
 
-	wantedMode = setMode;
+	int oldres_idx = scrmodelist.Find(SCREENWIDTH, 
+                                      SCREENHEIGHT, 
+                                      SCREENBITS, 
+                                      SCREENWINDOW);
+    if (oldres_idx < 0)
+    {
+        I_Warning("Unable to find exact match for existing screen res...\n");
 
-	oldMode.width    = SCREENWIDTH;
-	oldMode.height   = SCREENHEIGHT;
-	oldMode.depth    = SCREENBITS;
-	oldMode.windowed = SCREENWINDOW;
+        oldres_idx = scrmodelist.FindNearest(SCREENWIDTH,
+                                             SCREENHEIGHT,
+                                             SCREENBITS,
+                                             SCREENWINDOW);
+        if (oldres_idx <= 0)
+        {
+            // Check for the insane...
+            DEV_ASSERT2(scrmodelist.GetSize() == 0);
 
-	// -ACB- 1999/09/21 false on failure - logical.
-	if (DoExecuteChangeResolution())
-	{
-		setresfailed = false;
-		return;
-	}
+            // FindNearest() will always return with something unless we
+            // have no resolutions to pick from...
+            I_Error("R_ExecuteChangeResolution: No possible resolutions!");
+        }
+    }
 
-	setresfailed = true;
-
-	setMode = oldMode;
+    // Now try with the previous resolution or near the previous res
+    newres_idx = oldres_idx;
 	setsizeneeded = true;
 
 	if (DoExecuteChangeResolution())
-		return;
+		return; // Worked, so lets bail.
 
-	// couldn't even reset to old resolution. Perhaps they were the same.
-	// Try the default as second last resort.  Do a major loop over
-	// windowing flag, e.g. so if all fullscreen modes fail we switch to
-	// trying the windowing ones.
+    // This ain't good - current and previous resolutions do not work. Lets
+    // start from the beginning and find a working resolution.
+    bool windowed = SCREENWINDOW;
+    int j;
+    epi::array_iterator_c it;
+    scrmode_t *sm;
 
-	for (j=0; j < 2; j++, SCREENWINDOW = !SCREENWINDOW)
+    // Not pretty, not nice, not recommended. Oh well...
+	for (j=0; j < 2; j++, windowed = !windowed)
 	{
-		defaultMode.windowed = SCREENWINDOW;
-		idx = V_FindClosestResolution(&defaultMode, false, false);
+        for (it = scrmodelist.GetBaseIterator(); it.IsValid(); it++)
+        {
+            sm = ITERATOR_TO_TYPE(it, scrmode_t*);
+            if (sm->windowed == windowed)
+            {
+                newres_idx = it.GetPos();
+                setsizeneeded = true;
 
-		if (idx == -1)
-			continue;
+                if (DoExecuteChangeResolution())
+                    return; // Worked, so lets bail.
+            }
+        }
+    }
 
-		setMode = scrmode[idx];
-		setsizeneeded = true;
-
-		I_Warning("Requested mode not available.  Trying %dx%dx%dc %s...\n",
-			setMode.width, setMode.height, 1 << setMode.depth,
-			setMode.windowed ? "(Windowed)" : "(Fullscreen)");
-
-		if (DoExecuteChangeResolution())
-			return;
-
-		// Should not happen, that mode was in the avail list. 
-		// Last ditch effort: try all other modes in avail list.
-
-		for (i=0; i < numscrmodes; i++)
-		{
-			if (scrmode[i].windowed != SCREENWINDOW)
-				continue;
-
-			setMode = scrmode[i];
-			setsizeneeded = true;
-
-			// ignore ones we've already tried
-			if (i == idx)
-				continue;
-
-			if (V_CompareModes(&setMode, &wantedMode) == 0)
-				continue;
-
-			if (V_CompareModes(&setMode, &oldMode) == 0)
-				continue;
-
-			I_Warning("Requested mode not available.  Trying %dx%dx%dc %s...\n",
-				setMode.width, setMode.height, 1 << setMode.depth,
-				setMode.windowed ? "(Windowed)" : "(Fullscreen)");
-
-			if (DoExecuteChangeResolution())
-				return;
-		}
-	}
-
-	// Ouch. Nothing worked! Quit.
-
-	I_Error(language["ModeSelErrT"], SCREENWIDTH, SCREENHEIGHT, 
-			1 << SCREENBITS);
+    // FOOBAR!
+	I_Error(language["ModeSelErrT"], SCREENWIDTH, SCREENHEIGHT, 1 << SCREENBITS);
+    return;
 }
 
 //

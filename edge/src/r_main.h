@@ -59,7 +59,8 @@ extern angle_t normalfov, zoomedfov;
 extern bool viewiszoomed;
 
 extern bool setsizeneeded;
-extern bool changeresneeded;  // -ES- 1998/08/20
+
+extern int newres_idx;
 
 extern int framecount;
 
@@ -94,7 +95,8 @@ void R_SetNormalFOV(angle_t newfov);
 void R_SetZoomedFOV(angle_t newfov);
 
 // call this to change the resolution before the next frame.
-void R_ChangeResolution(int width, int height, int depth, bool windowed);
+// -ACB- 2005/03/06: Now uses an index in the scrmodelist
+void R_ChangeResolution(int res_idx); 
 
 void R_StartFading(int start, int range);
 

@@ -16,7 +16,6 @@
 //
 //----------------------------------------------------------------------------
 
-// this conditional applies to the whole file
 #include "i_defs.h"
 
 #include "g_game.h"
@@ -25,6 +24,7 @@
 #include "rgl_defs.h"
 #include "v_colour.h"
 #include "v_ctx.h"
+#include "v_res.h"
 
 #include "epi/strings.h"
 

@@ -28,7 +28,7 @@
 #include "m_argv.h"
 #include "e_main.h"
 #include "e_event.h"
-
+#include "v_res.h"
 
 extern bool use_warp_mouse;
 
