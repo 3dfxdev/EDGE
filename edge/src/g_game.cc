@@ -245,7 +245,7 @@ fixed_t mlookspeed = 1000 / 64;
 bool invertmouse = false;
 
 // -ACB- 2004/05/25 We need to store our current gamedef
-gamedef_c* currgamedef = NULL;
+const gamedef_c* currgamedef = NULL;
 
 // -ACB- 2004/05/25 We need to store our current/next mapdefs
 const mapdef_c* currmap = NULL;
@@ -262,9 +262,8 @@ static char savedescription[32];
 mobj_t *bodyque[BODYQUESIZE];
 int bodyqueslot;
 
-void *statcopy;  // for statistics driver
-
 static const mapdef_c *d_newmap = NULL;
+static const gamedef_c *d_gamedef = NULL;
 static skill_t d_newskill;
 static bool d_newwarp;
 
@@ -1426,6 +1425,7 @@ void G_DoLoadGame(void)
 	int version;
 	saveglobals_t *globs;
 	const mapdef_c *tempmap;
+	const gamedef_c *tempgamedef;
 
 	gameaction = ga_nothing;
 
@@ -1461,14 +1461,17 @@ void G_DoLoadGame(void)
 	// --- pull info from global structure ---
 
 	tempmap = game::LookupMap(globs->level);
-
 	if (! tempmap)
 		I_Error("LOAD-GAME: No such map %s !  Check WADS\n", globs->level);
+
+	tempgamedef = gamedefs.Lookup(tempmap->episode_name);
+	if (!tempgamedef)
+		I_Error("LOAD-GAME: No such episode/mod %s !  Check WADS\n", tempmap->episode_name);
 
 	gameskill = (skill_t) globs->skill;
 	random_seed = globs->p_random;
 
-	G_InitNew(gameskill, tempmap, random_seed);
+	G_InitNew(gameskill, tempmap, tempgamedef, random_seed);
 
 	G_DoLoadLevel();
 
@@ -1641,10 +1644,13 @@ bool G_DeferredInitNew(skill_t skill, const char *mapname, bool warpopt)
 	if (!d_newmap)
 		return false;
 
-	d_newskill = skill;
+	// -ACB- 2004/07/01 Added to handle the current game definition changes
+	d_gamedef = gamedefs.Lookup(d_newmap->episode_name);
+	if (!d_gamedef)
+		return false;
 
-	// this is true only when called by -warp option
-	d_newwarp = warpopt;
+	d_newskill = skill;
+	d_newwarp = warpopt;			// this is true only when called by -warp option
 
 	gameaction = ga_newgame;
 	return true;
@@ -1674,7 +1680,7 @@ void G_DoNewGame(void)
 
 	quickSaveSlot = -1;
 
-	G_InitNew(d_newskill, d_newmap, I_PureRandom());
+	G_InitNew(d_newskill, d_newmap, d_gamedef, I_PureRandom());
 	gameaction = ga_nothing;
 
 	// -AJA- 2003/10/09: support for pre-level briefing screen on first map.
@@ -1692,7 +1698,7 @@ void G_DoNewGame(void)
 // -KM- 1998/12/21 Added mapdef param so no need for defered init new
 //   which was conflicting with net games.
 //
-void G_InitNew(skill_t skill, const mapdef_c * map, long seed)
+void G_InitNew(skill_t skill, const mapdef_c *map, const gamedef_c *gamedef, long seed)
 {
 	player_t *p;
 
@@ -1706,6 +1712,7 @@ void G_InitNew(skill_t skill, const mapdef_c * map, long seed)
 		S_ResumeSounds();  // -ACB- 1999/10/17 New Sound API
 	}
 
+	currgamedef = gamedef;
 	currmap = map;
 
 	if (skill > sk_nightmare)
@@ -1922,6 +1929,7 @@ void G_DoPlayDemo(void)
 	int i,j;
 	int demversion;
 	char mapname[30];
+	const gamedef_c *newgamedef;
 	const mapdef_c *newmap;
 	long random_seed;
 	///  player_t *p;
@@ -1984,6 +1992,14 @@ void G_DoPlayDemo(void)
 		return;
 	}
 
+	newgamedef = gamedefs.Lookup(newmap->episode_name);
+	if (newgamedef == NULL)
+	{
+		gameaction = ga_nothing;
+		return;
+	}
+
+
 	//----------------------------------------------------------------
 
 	if (players->next && players->next->in_game)
@@ -1995,7 +2011,7 @@ void G_DoPlayDemo(void)
 	// don't spend a lot of time in loadlevel
 	precache = false;
 	
-	G_InitNew(skill, newmap, random_seed);
+	G_InitNew(skill, newmap, newgamedef, random_seed);
 	G_DoLoadLevel();
 	
 	precache = true;
