@@ -58,6 +58,8 @@ public: //FIXME
 	int bots_each;
 	int num_votes;
 
+	int zombie_millies;  // countdown before deletion
+
 	// ---- tic handlig ----
 
 	int gametic;
@@ -65,7 +67,7 @@ public: //FIXME
 ///---	std::bitset<MP_PLAYER_MAX> got_cmds;
 ///---	raw_ticcmd_t *tic_cmds;
 
-	int zombie_millies;  // countdown before deletion
+	tic_store_c *tics;
 
 public:
 	bool InQueue(int client_id) const;
@@ -85,6 +87,9 @@ public:
 };
 
 extern std::vector<game_c *> games;
+
+extern volatile int total_queued_games;
+extern volatile int total_played_games;
 
 void PK_new_game(packet_c *pk);
 void PK_join_queue(packet_c *pk);

@@ -31,10 +31,12 @@
 //
 std::vector<client_c *> clients;
 
+volatile int total_clients = 0;
+
 
 client_c::client_c(const client_info_t *info, const NLaddress *_addr) :
 	state(ST_Browsing),
-	game_id(-1), player_id(-1), voted(false), tics(8 /* !!!! FIXME */)
+	game_id(-1), player_id(-1), voted(false)
 {
 	strcpy(name, info->name);
 	memcpy(&addr, _addr, sizeof(addr));
@@ -286,6 +288,8 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 			clients[client_id] = CL;
 	}
 	// NOW UNLOCKED
+
+	total_clients++;
 
 	// successful!
 

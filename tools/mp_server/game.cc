@@ -30,6 +30,9 @@
 //
 std::vector<game_c *> games;
 
+volatile int total_queued_games = 0;
+volatile int total_played_games = 0;
+
 
 game_c::game_c(const game_info_t *info) : state(ST_Zombie),
 	mode(info->mode), skill(info->skill),
@@ -37,8 +40,8 @@ game_c::game_c(const game_info_t *info) : state(ST_Zombie),
 	num_bots(info->num_bots),
 	queuers(), players(),
 	num_players(0), bots_each(0), num_votes(0),
-	gametic(0),
-	zombie_millies(0)
+	zombie_millies(0),
+	gametic(0)
 {
 	strcpy(engine_name, info->engine_name);
     strcpy(game_name,   info->game_name);
@@ -142,12 +145,10 @@ void game_c::InitGame()
 
 	gametic = 0;
 
-///!!!	got_cmds.reset();
+	if (tics)
+		delete tics;
 
-///---	if (tic_cmds)
-///---		delete[] tic_cmds;
-///---
-///---	tic_cmds = new raw_ticcmd_t[num_players];
+	tics = new tic_store_c(num_players + num_bots);
 
 	state = ST_Playing;
 }
@@ -155,8 +156,6 @@ void game_c::InitGame()
 void game_c::BumpTic()
 {
 	gametic++;
-
-//!!!!	got_cmds.reset();
 }
 
 void game_c::CalcBots()
@@ -221,6 +220,9 @@ static void SV_build_play_game(game_c *GM, packet_c *pk)
 
 static void BeginGame(game_c *GM)
 {
+	// update number of bots (could end up as zero)
+	GM->CalcBots();
+
 	// LOCK STRUCTURES
 	{
 		autolock_c LOCK(&global_lock);
@@ -245,8 +247,6 @@ static void BeginGame(game_c *GM)
 
 			GM->RemoveFromQueue(client_id);
 			CL->player_id = GM->AddToGame(client_id);
-
-			CL->tics.Reset(0);
 		}
 
 		SYS_ASSERT(GM->queuers.size() == 0);
@@ -255,8 +255,8 @@ static void BeginGame(game_c *GM)
 	}
 	// NOW UNLOCKED
 
-	// update number of bots (could end up as zero)
-	GM->CalcBots();
+	total_played_games++;
+	total_queued_games--;
 
 	// send PLAY packets !!
 
@@ -307,8 +307,8 @@ static void SV_build_tic_group(game_c *GM, packet_c *pk, int first, int count)
 
 		client_c *CL = clients[client_id];
 
-		CL->tics.Read(GM->gametic, tg.tic_cmds + (p * (1 + GM->bots_each)),
-			0, 1 + GM->bots_each);
+//!!!!! FIXME		CL->tics.Read(GM->gametic, tg.tic_cmds + (p * (1 + GM->bots_each)),
+//!!!!!			0, 1 + GM->bots_each);
 	}
 ///---	memcpy(tg.tic_cmds, GM->tic_cmds + first, count * sizeof(raw_ticcmd_t));
 
@@ -396,6 +396,8 @@ void PK_new_game(packet_c *pk)
 		CL->game_id = game_id;
 	}
 	// NOW UNLOCKED
+
+	total_queued_games++;
 
 	LogPrintf(0, "Client %d created new game %d %s %s:%s (%s)\n",
 		client_id, CL->game_id, GM->engine_name,
@@ -631,7 +633,8 @@ void PK_ticcmd(packet_c *pk)
 		return;
 	}
 
-	CL->tics.Write(tc.gametic, tc.tic_cmds, 0, 1 + GM->bots_each);
+//!!!!! FIXME	CL->tics.Write(tc.gametic, tc.tic_cmds, 0, 1 + GM->bots_each);
+
 ///---	memcpy(GM->tic_cmds + plyr_id, tc.tic_cmds, sizeof(raw_ticcmd_t));
 
 //!!!!	GM->got_cmds.set(plyr_id);

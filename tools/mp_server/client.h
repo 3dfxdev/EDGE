@@ -50,8 +50,6 @@ public: //!!!!  private:
 
 	bool voted;
 
-	tic_store_c tics;
-
 	int alive_millies;   // countdown for keep-alive check
 	int zombie_millies;  // countdown for deletion
 
@@ -67,6 +65,7 @@ public:
 };
 
 extern std::vector<client_c *> clients;
+extern volatile int total_clients;
 
 bool VerifyClient(short idx, const NLaddress *remote_addr);
 
