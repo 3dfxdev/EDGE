@@ -1312,11 +1312,11 @@ void E_EDGEMain(void)
 
 	// -AJA- 2003/11/08 The log file gets all CON_Printfs, I_Printfs,
 	//                  I_Warnings and I_Errors.
-	if (true)
+	if (! M_CheckParm("-nolog"))
 	{
 		char filename[128];
 
-		strcpy(filename, "edge.log");  // maybe EPI define ??
+		strcpy(filename, EDGELOGFILE);
 
 		logfile = fopen(filename, "w");
 
