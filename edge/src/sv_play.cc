@@ -74,15 +74,15 @@ static savefield_t sv_fields_player[] =
 {
 	SF(pnum, "pnum", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(playerstate, "playerstate", 1, SVT_INT, SR_GetInt, SR_PutInt),
-  SF(playername[0], "playername", 1, SVT_STRING, 
-      SR_PlayerGetName, SR_PlayerPutName),
+	SF(playername[0], "playername", 1, SVT_STRING, 
+        SR_PlayerGetName, SR_PlayerPutName),
 	SF(mo, "mo", 1, SVT_INDEX("mobjs"), SR_MobjGetMobj, SR_MobjPutMobj),
 	SF(viewz, "viewz", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(viewheight, "viewheight", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
-  SF(deltaviewheight, "deltaviewheight", 1, SVT_FLOAT, 
-      SR_GetFloat, SR_PutFloat),
-  SF(std_viewheight, "std_viewheight", 1, SVT_FLOAT, 
-      SR_GetFloat, SR_PutFloat),
+	SF(deltaviewheight, "deltaviewheight", 1, SVT_FLOAT, 
+		SR_GetFloat, SR_PutFloat),
+	SF(std_viewheight, "std_viewheight", 1, SVT_FLOAT, 
+		SR_GetFloat, SR_PutFloat),
 	SF(health, "health", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(armours[0], "armours", NUMARMOUR, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(powers[0],  "powers",  NUMPOWERS, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
@@ -91,8 +91,8 @@ static savefield_t sv_fields_player[] =
 	SF(totalfrags, "totalfrags", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(ready_wp, "ready_wp", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(pending_wp, "pending_wp", 1, SVT_INT, SR_GetInt, SR_PutInt),
-  SF(weapons[0], "weapons", MAXWEAPONS, SVT_STRUCT("playerweapon_t"), 
-      SR_PlayerGetWeapon, SR_PlayerPutWeapon),
+	SF(weapons[0], "weapons", MAXWEAPONS, SVT_STRUCT("playerweapon_t"), 
+        SR_PlayerGetWeapon, SR_PlayerPutWeapon),
 	SF(ammo[0], "ammo", NUMAMMO, SVT_STRUCT("playerammo_t"), 
 	SR_PlayerGetAmmo, SR_PlayerPutAmmo),
 	SF(cheats, "cheats", 1, SVT_INT, SR_GetInt, SR_PutInt),
@@ -111,8 +111,8 @@ static savefield_t sv_fields_player[] =
 	//   key_choices: depends on DDF too much, and not important.
 	//   remember_atk1/2: ditto.
 	//   next,prev: links are regenerated.
-	//   avail_weapons: regenerated.
-	
+	//   avail_weapons, totalarmour: regenerated.
+
 	SVFIELD_END
 };
 
@@ -122,7 +122,7 @@ savestruct_t sv_struct_player =
 	"player_t",    // structure name
 	"play",        // start marker
 	sv_fields_player,  // field descriptions
-  SVDUMMY,       // dummy base
+	SVDUMMY,       // dummy base
 	true,          // define_me
 	NULL           // pointer to known struct
 };
@@ -170,7 +170,7 @@ savestruct_t sv_struct_playerweapon =
 	"playerweapon_t",    // structure name
 	"weap",        // start marker
 	sv_fields_playerweapon,  // field descriptions
-  SVDUMMY,       // dummy base
+	SVDUMMY,       // dummy base
 	true,          // define_me
 	NULL           // pointer to known struct
 };
@@ -188,8 +188,8 @@ static playerammo_t sv_dummy_playerammo;
 
 static savefield_t sv_fields_playerammo[] =
 {
-  SF(num, "num", 1, SVT_INT, SR_GetInt, SR_PutInt),
-  SF(max, "max", 1, SVT_INT, SR_GetInt, SR_PutInt),
+	SF(num, "num", 1, SVT_INT, SR_GetInt, SR_PutInt),
+	SF(max, "max", 1, SVT_INT, SR_GetInt, SR_PutInt),
 
 	SVFIELD_END
 };
@@ -200,7 +200,7 @@ savestruct_t sv_struct_playerammo =
 	"playerammo_t",    // structure name
 	"ammo",        // start marker
 	sv_fields_playerammo,  // field descriptions
-  SVDUMMY,       // dummy base
+	SVDUMMY,       // dummy base
 	true,          // define_me
 	NULL           // pointer to known struct
 };
@@ -237,7 +237,7 @@ savestruct_t sv_struct_psprite =
 	"pspdef_t",    // structure name
 	"pspr",        // start marker
 	sv_fields_psprite,  // field descriptions
-  SVDUMMY,       // dummy base
+    SVDUMMY,       // dummy base
 	true,          // define_me
 	NULL           // pointer to known struct
 };
@@ -365,6 +365,7 @@ void SV_PlayerFinaliseElems(void)
 		p->thinker = P_ConsolePlayerThinker;  //!!!!! FIXME
 
 		P_UpdateAvailWeapons(p);
+		P_UpdateTotalArmour(p);
 	}
 
 	consoleplayer = displayplayer = players;  //!!!! FIXME
