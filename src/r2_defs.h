@@ -139,6 +139,9 @@ typedef struct drawwall_s
   // colourmap & lighting
   region_properties_t *props;
 
+  // translucency
+  float_t trans;
+
   // info for texture mapper
   float_t distance;
   float_t x_offset;
