@@ -427,11 +427,34 @@ typedef struct subsector_s
 
   // pointer to bounding box (usually in parent node)
   float_t *bbox;
+
+  // -- Rendering stuff (only used during rendering) --
+
+  // link in render list (furthest to closest)
+  struct subsector_s *rend_next, *rend_prev;
+
+  // here we remember the 1D/2D occlusion buffer (for sprite
+  // clipping).
+  short x_min, x_max;
+  struct Y_range_s *ranges;
+
+  // list of floors (sorted into drawing order)
+  struct drawfloor_s *floors;
+
+  // floors sorted in height order.
+  struct drawfloor_s *z_floors;
+
+  // list of sprites to draw (unsorted).  The sprites on this list are
+  // unclipped (both horizontally and vertically).  Later on in the
+  // rendering process they are clipped, whereby they get moved into
+  // the correct drawfloors.
+  struct drawthing_s *raw_things;
 }
 subsector_t;
 
 //
 // The LineSeg.
+//
 // Defines part of a wall that faces inwards on a convex BSP leaf.
 //
 typedef struct seg_s
@@ -474,11 +497,25 @@ typedef struct seg_s
   sector_t *frontsector;
   sector_t *backsector;
 
-  // Rendering stuff -- only used during rendering
+  // -- Rendering stuff (only used during rendering) --
 
   boolean_t visible;
+  boolean_t back;
+
+  unsigned short x1, x2;
   angle_t angle1, angle2;
-  float_t dist1, dist2;
+  float_t scale1, scale2;
+  float_t rw_distance, rw_offset;
+
+  // translated coords
+  float_t tx1, tz1;
+  float_t tx2, tz2;
+  
+  // orientation.  (Used for sprite clipping)
+  //    0 : not needed for clipping (e.g. parallel to viewplane)
+  //   +1 : right side (on screen) faces containing subsector
+  //   -1 : left  side (on screen) faces containing subsector
+  int orientation;
 }
 seg_t;
 
@@ -602,8 +639,8 @@ typedef struct patch_s
   short topoffset;  // pixels below the origin 
 
   int columnofs[8];  // only [width] used
-  // the [0] is &columnofs[width] 
 
+  // the [0] is &columnofs[width] 
 }
 patch_t;
 
