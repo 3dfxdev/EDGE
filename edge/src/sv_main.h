@@ -212,6 +212,75 @@ void SR_PutFloat(void *storage, int index, void *extra);
 #define SR_PutBoolean  SR_PutInt
 #define SR_PutEnum     SR_PutInt
 
+
+//
+//  GLOBAL STUFF
+//
+
+typedef struct
+{
+  // number of items
+  int count;
+
+  // CRC computed over all the items
+  unsigned long crc;
+}
+crc_check_t;
+
+// this structure contains everything for the top-level [GLOB] chunk.
+// Strings are copies and need to be freed.
+typedef struct
+{
+  // [IVAR] stuff:
+  
+  const char *game;
+  const char *level;
+  gameflags_t flags;
+  int gravity;
+  
+  int level_time;
+  int p_random;
+  int total_kills;
+  int total_items;
+  int total_secrets;
+ 
+  int console_player;
+  int skill;
+  int netgame;
+
+  const char *description;
+  const char *desc_date;
+
+  crc_check_t mapsector;
+  crc_check_t mapline;
+  crc_check_t mapthing;
+
+  crc_check_t rscript;
+  crc_check_t ddfatk;
+  crc_check_t ddfgame;
+  crc_check_t ddflevl;
+  crc_check_t ddfline;
+  crc_check_t ddfsect;
+  crc_check_t ddfmobj;
+  crc_check_t ddfweap;
+
+  // [VIEW] info.  Unused if view_pixels is NULL.
+  unsigned short *view_pixels;
+  int view_width;
+  int view_height;
+
+  // [WADS] info
+  int wad_num;
+  const char ** wad_names;
+}
+saveglobals_t;
+
+saveglobals_t *SV_NewGLOB(void);
+saveglobals_t *SV_LoadGLOB(void);
+void SV_SaveGLOB(saveglobals_t *globs);
+void SV_FreeGLOB(saveglobals_t *globs);
+
+
 //
 //  ADMININISTRATION
 //
@@ -225,19 +294,20 @@ void SV_BeginLoad(void);
 void SV_FinishLoad(void);
 
 boolean_t SV_LoadStruct(void *base, savestruct_t *info);
-boolean_t SV_LoadGLOB(char ** mapname);
-boolean_t SV_LoadSTRU(void);
-boolean_t SV_LoadARRY(void);
-boolean_t SV_LoadDATA(void);
+boolean_t SV_LoadEverything(void);
 
 void SV_BeginSave(void);
 void SV_FinishSave(void);
 
 void SV_SaveStruct(void *base, savestruct_t *info);
-void SV_SaveGLOB(const char *description);
-void SV_SaveSTRU(void);
-void SV_SaveARRY(void);
-void SV_SaveDATA(void);
+void SV_SaveEverything(void);
+
+
+//
+//  DEBUGGING
+//
+
+void SV_DumpSaveGame(int slot);
 
 
 //
@@ -261,9 +331,7 @@ extern savearray_t sv_array_player;
 //....
 
 boolean_t SR_MobjGetMobj(void *storage, int index, void *extra);
-boolean_t SR_MobjGetState(void *storage, int index, void *extra);
 void SR_MobjPutMobj(void *storage, int index, void *extra);
-void SR_MobjPutState(void *storage, int index, void *extra);
 
 int SV_MobjFindElem(mobj_t *elem);
 int SV_PlayerFindElem(player_t *elem);
