@@ -403,6 +403,10 @@ void DDF_FontCleanUp (void);
 void DDF_StyleInit (void);
 void DDF_StyleCleanUp (void);
 
+// DDF_FONT Code -AJA- 2004/11/18.
+void DDF_ImageInit (void);
+void DDF_ImageCleanUp (void);
+
 // Miscellaneous stuff needed here & there
 extern mobjtype_c buffer_mobj;
 

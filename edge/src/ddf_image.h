@@ -137,6 +137,6 @@ public:
 extern imagedef_container_c imagedefs;
 
 void DDF_MainLookupImage(const char *info, void *storage);
-bool DDF_ReadImage(void *data, int size);
+bool DDF_ReadImages(void *data, int size);
 
 #endif  /* __DDF_IMAGE__ */
