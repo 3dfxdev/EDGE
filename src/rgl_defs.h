@@ -30,6 +30,8 @@
 
 #include "v_ctx.h"
 
+#include "wp_main.h"  // -AJA- 2003/10/11: ouch, needed for wipetype_e
+
 //
 //  RGL_MAIN
 //
@@ -179,7 +181,7 @@ bool RGL_1DOcclusionTest(angle_t low, angle_t high);
 // RGL_WIPE
 //
 
-void RGL_InitWipe(int reverse, int effect);
+void RGL_InitWipe(int reverse, wipetype_e effect);
 void RGL_StopWipe(void);
 bool RGL_DoWipe(void);
 

@@ -68,6 +68,20 @@ static void DoWipe_Crossfade16(wipeparm_t * wp)
       c1 = s[i];
       c2 = e[i];
 
+#ifdef __BIG_ENDIAN__
+      d1 = s2rgb[(unsigned char)(c1 >> 8)][0] +
+          s2rgb[(unsigned char)c1][1] +
+          e2rgb[(unsigned char)(c2 >> 8)][0] +
+          e2rgb[(unsigned char)c2][1];
+      c1 >>= 16;
+      c2 >>= 16;
+      d2 = s2rgb[(unsigned char)(c1 >> 8)][0] +
+          s2rgb[(unsigned char)c1][1] +
+          e2rgb[(unsigned char)(c2 >> 8)][0] +
+          e2rgb[(unsigned char)c2][1];
+      d1 |= hicolourtransmask;
+      d2 |= hicolourtransmask;
+#else
       d1 = s2rgb[(unsigned char)c1][0] +
           s2rgb[(unsigned char)(c1 >> 8)][1] +
           e2rgb[(unsigned char)c2][0] +
@@ -80,6 +94,7 @@ static void DoWipe_Crossfade16(wipeparm_t * wp)
           e2rgb[(unsigned char)(c2 >> 8)][1];
       d1 |= hicolourtransmask;
       d2 |= hicolourtransmask;
+#endif
 
       d[i] = (d1 & (d1 >> 16)) | (d2 & (d2 << 16));
     }

@@ -47,9 +47,6 @@
 #include "z_zone.h"
 
 
-#define DEBUG  0
-
-
 #define MAX_L_VERT  4096
 #define MAX_L_UNIT  (MAX_L_VERT / 4)
 
@@ -536,51 +533,6 @@ void RGL_BoundPolyQuad(raw_polyquad_t *poly)
 		else if (src->z > cur->max.z) cur->max.z = src->z;
 	}
 }
-
-#ifdef DEVELOPERS
-static void RGL_DumpPolyQuad(raw_polyquad_t *poly, bool single)
-{
-	int j;
-
-	L_WriteDebug("DUMP POLY %p quad=%d num=%d max=%d\n", poly, 
-		poly->quad, poly->num_verts, poly->max_verts);
-
-	while (poly)
-	{
-		raw_polyquad_t *cur = poly;
-		poly = single ? NULL : poly->sisters;
-
-		if (! single)
-			L_WriteDebug("--CUR SISTER: %p\n", cur);
-
-#if 0
-		L_WriteDebug("  BBOX: (%1.0f,%1.0f,%1.0f) -> (%1.0f,%1.0f,%1.0f)\n",
-			cur->min.x, cur->min.y, cur->min.z, 
-			cur->max.x, cur->max.y, cur->max.z);
-#endif
-
-		if (cur->quad)
-		{
-			for (j=0; j < cur->num_verts; j += 2)
-			{
-				L_WriteDebug("  SIDE: (%1.0f,%1.0f,%1.0f) -> (%1.0f,%1.0f,%1.0f)\n",
-					cur->verts[j].x, cur->verts[j].y, cur->verts[j].z,
-					cur->verts[j+1].x, cur->verts[j+1].y, cur->verts[j+1].z);
-			}
-		}
-		else
-		{
-			for (j=0; j < cur->num_verts; j += 1)
-			{
-				L_WriteDebug("  POINT: (%1.0f,%1.0f,%1.0f)\n",
-					cur->verts[j].x, cur->verts[j].y, cur->verts[j].z);
-			}
-		}
-	}
-
-	L_WriteDebug("\n");
-}
-#endif
 
 static void RGL_DoSplitQuadVertSep(raw_polyquad_t *quad, int extras)
 {
@@ -1354,6 +1306,49 @@ void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
 
 
 #if 0  // DEBUG ONLY
+static void RGL_DumpPolyQuad(raw_polyquad_t *poly, bool single)
+{
+	int j;
+
+	L_WriteDebug("DUMP POLY %p quad=%d num=%d max=%d\n", poly, 
+		poly->quad, poly->num_verts, poly->max_verts);
+
+	while (poly)
+	{
+		raw_polyquad_t *cur = poly;
+		poly = single ? NULL : poly->sisters;
+
+		if (! single)
+			L_WriteDebug("--CUR SISTER: %p\n", cur);
+
+#if 0
+		L_WriteDebug("  BBOX: (%1.0f,%1.0f,%1.0f) -> (%1.0f,%1.0f,%1.0f)\n",
+			cur->min.x, cur->min.y, cur->min.z, 
+			cur->max.x, cur->max.y, cur->max.z);
+#endif
+
+		if (cur->quad)
+		{
+			for (j=0; j < cur->num_verts; j += 2)
+			{
+				L_WriteDebug("  SIDE: (%1.0f,%1.0f,%1.0f) -> (%1.0f,%1.0f,%1.0f)\n",
+					cur->verts[j].x, cur->verts[j].y, cur->verts[j].z,
+					cur->verts[j+1].x, cur->verts[j+1].y, cur->verts[j+1].z);
+			}
+		}
+		else
+		{
+			for (j=0; j < cur->num_verts; j += 1)
+			{
+				L_WriteDebug("  POINT: (%1.0f,%1.0f,%1.0f)\n",
+					cur->verts[j].x, cur->verts[j].y, cur->verts[j].z);
+			}
+		}
+	}
+
+	L_WriteDebug("\n");
+}
+
 static raw_polyquad_t * CreateTestQuad(float x1, float y1,
 									   float z1, float x2, float y2, float z2)
 {

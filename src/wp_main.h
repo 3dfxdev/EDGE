@@ -145,6 +145,9 @@ struct wipeinfo_s
 
 extern wipetype_t wipes[WIPE_NUMWIPES];
 
+extern wipetype_e wipe_method;
+extern int wipe_reverse;
+
 // for enum cvars
 extern const char WIPE_EnumStr[];
 
