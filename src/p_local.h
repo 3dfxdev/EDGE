@@ -229,8 +229,7 @@ int P_BoxOnLineSide(float_t * tmbox, line_t * ld);
 int P_FindThingGap(vgap_t * gaps, int gap_num, float_t z1, float_t z2);
 void P_ComputeGaps(line_t * ld);
 float_t P_ComputeThingGap(mobj_t * thing, sector_t * sec, float_t z, float_t * f, float_t * c);
-void P_AddExtraFloor(sector_t *sec, line_t *line,
-        const extrafloor_info_t *ef_info);
+void P_AddExtraFloor(sector_t *sec, line_t *line);
 void P_ComputeWallTiles(line_t *ld, int sidenum);
 void P_RecomputeGapsAroundSector(sector_t *sec);
 void P_RecomputeTilesInSector(sector_t *sec);

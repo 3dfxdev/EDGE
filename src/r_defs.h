@@ -188,10 +188,14 @@ typedef struct extrafloor_s
   // properties used for stuff below us
   region_properties_t *p;
 
-  // type of extrafloor this is.  Never NULL
+  // type of extrafloor this is.  Only NULL for unused extrafloors.
+  // This value is cached pointer to ef_line->special->ef.
+  //
   const extrafloor_info_t *ef_info;
 
-  // extrafloor linedef (frontsector == control sector)
+  // extrafloor linedef (frontsector == control sector).  Only NULL
+  // for unused extrafloors.
+  //
   struct line_s *ef_line;
 
   // link in dummy sector's controlling list
