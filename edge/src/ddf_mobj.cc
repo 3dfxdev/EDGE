@@ -1159,10 +1159,10 @@ static bool BenefitTryPowerup(const char *name, benefit_t *be,
 	be->type = BENEFIT_Powerup;
 
 	if (num_vals < 1)
-		be->amount = 99999.0f;
+		be->amount = 999999.0f;
 
 	if (num_vals < 2)
-		be->limit = 99999.0f;
+		be->limit = 999999.0f;
 
 	return true;
 }
