@@ -69,6 +69,27 @@ static void I_ChangeToExeDir(const char *full_path)
 	if (r == NULL || r == full_path)
 		return;
 
+#ifdef MACOSX
+        // -AJA- It seems argv[0] points directly to the "gledge" binary
+        //       inside of the Edge.app folder (when run from the Finder).
+        //       Hence we need to strip the extra bits off.
+        const char *app = r - 4;
+
+        for (; app > full_path; app--)
+        {
+            if (app[0] == '.' && app[1] == 'a' && app[2] == 'p' &&
+                app[3] == 'p' && app[4] == '/')
+              break;
+        }
+        if (app > full_path)
+        {
+          for (; app > full_path; app--)
+            if (app[0] == '/')
+              break;
+        }
+        if (app > full_path)
+          r = app;
+#endif
 	int length = (r - full_path) + 1;
 
 	char *buf = new char[length];
@@ -80,6 +101,7 @@ static void I_ChangeToExeDir(const char *full_path)
 
 	delete[] buf;
 }
+
 
 #ifdef MACOSX
 int main(int argc, char *argv[])
