@@ -214,7 +214,7 @@ typedef enum { false, true } bool;
 
 #include "epi/epi.h"
 
-#define EDGECONFIGFILE ".edgerc"
+#define EDGECONFIGFILE "edge.cfg"
 #define EDGELOGFILE    "edge.log"
 #define EDGEHOMEDIR    "HOME"
 #define EDGEWADDIR     "EDGEWADDIR"
