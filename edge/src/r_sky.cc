@@ -70,14 +70,8 @@ sec_sky_ring_t;
 //
 void R_InitSkyMap(void)
 {
-	float mlook_slope = M_Tan(viewvertangle);
-
-	// range of mlook_slope: -1.0 to +1.0
-
-	skytexturemid = (0.75f - mlook_slope) * 56.0f;
-	skytexturescale = 64.0f / viewheight;
-
-	if (skytexturemid < 0) skytexturemid = 0;
+	skytexturemid = 86 - 160 * topslope / 3;
+	skytexturescale = 160 * (topslope - bottomslope) / (viewheight * 3);
 }
 
 //
