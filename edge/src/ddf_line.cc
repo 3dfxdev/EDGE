@@ -32,20 +32,13 @@
 
 #include "ddf_locl.h"
 #include "ddf_main.h"
-#include "dm_state.h"
-#include "m_fixed.h"
-#include "p_mobj.h"
-#include "p_local.h"
-#include "z_zone.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "z_zone.h"
 
 #undef  DF
 #define DF  DDF_CMD
 
-#define DDF_LineHashFunc(x)  (((x) + 211) % 211)
+#define DDF_LineHashFunc(x)  (((x) + LOOKUP_CACHESIZE) % LOOKUP_CACHESIZE)
 
 // -KM- 1999/01/29 Improved scrolling.
 // Scrolling
@@ -59,172 +52,20 @@ typedef enum
 }
 scrolldirs_e;
 
-static linedeftype_t buffer_line;
-static linedeftype_t *dynamic_line;
+linetype_c buffer_line;
+linetype_c *dynamic_line;
 
 // these bits logically belong with buffer_line:
 static float s_speed;
 static scrolldirs_e s_dir;
 
-const linedeftype_t template_line =
-{
-	DDF_BASE_NIL,  // ddf
+linetype_container_c genlinetypes;	// <-- Generalised
+linetype_container_c linetypes;		// <-- User-defined
 
-	0,          // newtrignum
-	line_none,  // how triggered (walk/switch/shoot)
-	trig_none,  // things that can trigger it
-	KF_NONE,    // keys needed
-	-1,         // can be activated repeatedly
-	-1,         // special type: don't change.
-	false,      // crushing
-
-	// Floor
-	{
-		mov_undefined,  // type
-		false,          // is_ceiling
-		false,          // crush
-		-1, -1,         // speed up/down
-		REF_Absolute,   // dest ref
-		0,              // dest
-		(heightref_e)(REF_Surrounding | REF_HIGHEST | REF_INCLUDE),  // other ref
-		0,              // other
-		"",             // texture
-		0, 0,           // wait, prewait
-		sfx_None, sfx_None, sfx_None, sfx_None,  // SFX start/up/down/stop
-		0, 0.0f          // scroll_angle, scroll_speed
-	},
-
-	// Ceiling
-	{
-		mov_undefined,  // type
-		true,           // is_ceiling
-		false,          // crush
-		-1, -1,         // speed up/down
-		REF_Absolute,   // dest ref
-		0,              // dest
-		(heightref_e)(REF_Current | REF_CEILING),  // other ref
-		0,              // other
-		"",             // texture
-		0, 0,           // wait, prewait
-		sfx_None, sfx_None, sfx_None, sfx_None,  // SFX start/up/down/stop
-		0, 0.0f          // scroll_angle, scroll_speed
-	},
-
-	// Elevator
-	{
-		mov_undefined,  // type
-		-1,             // speed up
-		-1,             // speed down
-		0,              // wait
-		0,              // prewait
-		sfx_None,       // SFX start
-		sfx_None,       // SFX up
-		sfx_None,       // SFX down
-		sfx_None        // SFX stop
-	},
-
-	// Donut
-	{
-		false,  //  dodonut
-		sfx_None, sfx_None,  // SFX down/stop inner circle
-		sfx_None, sfx_None   // SFX up/stop outer loop
-	},
-
-	// Sliding Door
-	{
-		SLIDE_None,   // sliding type
-		4.0f,          // speed (distance per tic)
-		150,          // wait time
-		false,        // see through ?
-		PERCENT_MAKE(90), // distance
-		sfx_None,     // sfx_start
-		sfx_None,     // sfx_open
-		sfx_None,     // sfx_close
-		sfx_None      // sfx_stop
-	},
-
-	// Ladders
-	{
-		0    // height
-	},
-
-	// Teleport
-	{
-		false,     // is a teleporter
-		NULL,      // effect in object
-		NULL,      // in object's name
-		NULL,      // effect out object
-		NULL,      // out object's name
-		0,         // delay
-		TELSP_None // special
-	},
-
-	// Lights
-	{
-		LITE_None, //  lights action
-		64,        //  set light to this level
-		PERCENT_MAKE(50), //  chance value
-		0,0,0,     //  dark/bright time, sync
-		8          //  step value
-	},
-
-	EXIT_None,   // exit type
-	0, 0,        // scrolling X/Y
-	SCPT_None,   // scroll parts
-	NULL,        // security message
-	NULL,        // colourmap
-	FLO_UNUSED,  // gravity
-	FLO_UNUSED,  // friction
-	FLO_UNUSED,  // viscosity
-	FLO_UNUSED,  // drag
-	sfx_None,    // ambient_sfx
-	sfx_None,    // activate_sfx
-	0,           // music
-	false,       // automatic line
-	false,       // single sided
-
-	// Extra floor:
-	{
-		EXFL_None,   // type
-		EFCTL_None   // control
-	},
-
-	PERCENT_MAKE(100), // translucency
-	DEFAULT_APPEAR,    // appear
-	LINSP_None,        // special_flags
-	0,                 // trigger_effect
-	LINEFX_None,       // line_effect
-	SCPT_None,         // line_parts
-	SECTFX_None        // sector_effect
-};
-
-const moving_plane_t donut_floor =
-{
-	mov_Once,        //  Type
-	false,           //  is_ceiling
-	false,           //  crush
-	FLOORSPEED / 2,  //  speed up
-	FLOORSPEED / 2,  //  speed down
-	REF_Absolute,    //  dest ref
-	(float)INT_MAX,//  dest
-	REF_Absolute,    //  other ref
-	(float)INT_MAX,//  other
-	"",              //  texture
-	0, 0,            //  wait, prewait
-	0, 0, 0, 0,      //  SFX start/up/down/stop
-	0, 0             //  Scroll angle/speed
-};
-
-linedeftype_t ** ddf_linetypes;
-int num_ddf_linetypes;
-
-static stack_array_t ddf_linetypes_a;
-static const linedeftype_t *line_lookup_cache[211];
-
-// BOOM generalised linetype support
-static linedeftype_t ** ddf_gen_lines;
-int num_ddf_gen_lines;
-static stack_array_t ddf_gen_lines_a;
+movplanedef_c buffer_floor;
+elevatordef_c buffer_elevator;
+ladderdef_c buffer_ladder;
+sliding_door_c buffer_slider;
 
 static void DDF_LineGetTrigType(const char *info, void *storage);
 static void DDF_LineGetActivators(const char *info, void *storage);
@@ -240,14 +81,8 @@ static void DDF_LineGetSlideType(const char *info, void *storage);
 static void DDF_LineGetLineEffect(const char *info, void *storage);
 static void DDF_LineGetSectorEffect(const char *info, void *storage);
 
-moving_plane_t dummy_floor;
-elevator_sector_t dummy_elevator;
-
-static sliding_door_t dummy_slider;
-static ladder_info_t dummy_ladder;
-
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  dummy_floor
+#define DDF_CMD_BASE  buffer_floor
 
 const commandlist_t floor_commands[] =
 {
@@ -272,7 +107,7 @@ const commandlist_t floor_commands[] =
 };
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  dummy_elevator
+#define DDF_CMD_BASE  buffer_elevator
 
 const commandlist_t elevator_commands[] =
 {
@@ -290,7 +125,7 @@ const commandlist_t elevator_commands[] =
 };
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  dummy_ladder
+#define DDF_CMD_BASE  buffer_ladder
 
 const commandlist_t ladder_commands[] =
 {
@@ -299,7 +134,7 @@ const commandlist_t ladder_commands[] =
 };
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  dummy_slider
+#define DDF_CMD_BASE  buffer_slider
 
 const commandlist_t slider_commands[] =
 {
@@ -322,11 +157,11 @@ const commandlist_t slider_commands[] =
 static const commandlist_t linedef_commands[] =
 {
 	// sub-commands
-	DDF_SUB_LIST("FLOOR",    f, floor_commands,    dummy_floor),
-	DDF_SUB_LIST("CEILING",  c, floor_commands,    dummy_floor),
-	DDF_SUB_LIST("ELEVATOR", e, elevator_commands, dummy_elevator),
-	DDF_SUB_LIST("SLIDER",   s, slider_commands,   dummy_slider),
-	DDF_SUB_LIST("LADDER",   ladder, ladder_commands, dummy_ladder),
+	DDF_SUB_LIST("FLOOR",    f, floor_commands,    buffer_floor),
+	DDF_SUB_LIST("CEILING",  c, floor_commands,    buffer_floor),
+	DDF_SUB_LIST("ELEVATOR", e, elevator_commands, buffer_elevator),
+	DDF_SUB_LIST("SLIDER",   s, slider_commands,   buffer_slider),
+	DDF_SUB_LIST("LADDER",   ladder, ladder_commands, buffer_ladder),
 
 	DF("NEWTRIGGER", newtrignum, DDF_MainGetNumeric),
 	DF("ACTIVATORS", obj, DDF_LineGetActivators),
@@ -470,49 +305,34 @@ s_activators[] =
 //
 static bool LinedefStartEntry(const char *name)
 {
-	int i;
-	bool replaces = false;
 	int number = MAX(0, atoi(name));
 
 	if (number == 0)
 		DDF_Error("Bad linedef number in lines.ddf: %s\n", name);
 
-	for (i=0; i < num_ddf_linetypes; i++)
+	epi::array_iterator_c it;
+	linetype_c *existing = NULL;
+
+	existing = linetypes.Lookup(number);
+	if (existing)
 	{
-		if (ddf_linetypes[i]->ddf.number == number)
-		{
-			dynamic_line = ddf_linetypes[i];
-			replaces = true;
-			break;
-		}
+		dynamic_line = existing;
+	}
+	else
+	{
+		dynamic_line = new linetype_c;
+		dynamic_line->ddf.number = number;
+		linetypes.Insert(dynamic_line);
 	}
 
-	// if found, adjust pointer array to keep newest entries at end
-	if (replaces && i < (num_ddf_linetypes-1))
-	{
-		Z_MoveData(ddf_linetypes + i, ddf_linetypes + i + 1, linedeftype_t *,
-			num_ddf_linetypes - i);
-		ddf_linetypes[num_ddf_linetypes - 1] = dynamic_line;
-	}
+	dynamic_line->ddf.name = NULL;
 
-	// not found, create a new one
-	if (! replaces)
-	{
-		Z_SetArraySize(&ddf_linetypes_a, ++num_ddf_linetypes);
-
-		dynamic_line = ddf_linetypes[num_ddf_linetypes - 1];
-	}
-
-	dynamic_line->ddf.name   = NULL;
-	dynamic_line->ddf.number = number;
-
+	// instantiate the static entry
+	buffer_line.Default();
 	s_speed = 1.0f;
 	s_dir = dir_none;
 
-	// instantiate the static entry
-	buffer_line = template_line;
-
-	return replaces;
+	return (existing != NULL);
 }
 
 //
@@ -543,8 +363,6 @@ static void LinedefParseField(const char *field, const char *contents,
 //
 static void LinedefFinishEntry(void)
 {
-	ddf_base_t base;
-
 	buffer_line.c.crush = buffer_line.f.crush = buffer_line.crush;
 
 	// -KM- 1999/01/29 Convert old style scroller to new.
@@ -602,12 +420,10 @@ static void LinedefFinishEntry(void)
 	// FIXME: check more stuff...
 
 	// transfer static entry to dynamic entry
-
-	base = dynamic_line->ddf;
-	dynamic_line[0] = buffer_line;
-	dynamic_line->ddf = base;
+	dynamic_line->CopyDetail(buffer_line);
 
 	// compute CRC...
+	// FIXME: Use EPI classes
 	CRC32_Init(&dynamic_line->ddf.crc);
 
 	// FIXME: add stuff...
@@ -621,9 +437,7 @@ static void LinedefFinishEntry(void)
 static void LinedefClearAll(void)
 {
 	// it is safe to just delete all the lines
-
-	num_ddf_linetypes = 0;
-	Z_SetArraySize(&ddf_linetypes_a, num_ddf_linetypes);
+	linetypes.Reset();
 }
 
 //
@@ -664,11 +478,16 @@ void DDF_ReadLines(void *data, int size)
 //
 void DDF_LinedefInit(void)
 {
-	Z_InitStackArray(&ddf_linetypes_a, (void ***)&ddf_linetypes, sizeof(linedeftype_t), 0);
-	Z_InitStackArray(&ddf_gen_lines_a, (void ***)&ddf_gen_lines, sizeof(linedeftype_t), 0);
-
-	// clear lookup cache
-	memset(line_lookup_cache, 0, sizeof(line_lookup_cache));
+	linetypes.Reset();
+	
+	// Insert the template line as the first entry, this is used
+	// should the lookup fail	
+	linetype_c *l;
+	
+	l = new linetype_c;
+	l->Default();
+	l->ddf.number = -1;
+	linetypes.Insert(l);
 }
 
 //
@@ -676,22 +495,26 @@ void DDF_LinedefInit(void)
 //
 void DDF_LinedefCleanUp(void)
 {
-	int i;
-
-	for (i=0; i < num_ddf_linetypes; i++)
+	epi::array_iterator_c it;
+	linetype_c *l;
+	
+	for (it=linetypes.GetBaseIterator(); it.IsValid(); it++)
 	{
-		linedeftype_t *line = ddf_linetypes[i];
+		l = ITERATOR_TO_TYPE(it, linetype_c*);
 
-		DDF_ErrorSetEntryName("[%d]  (lines.ddf)", line->ddf.number);
+		// FIXME!! Use epi::error_c handler here		
+		DDF_ErrorSetEntryName("[%d]  (lines.ddf)", l->ddf.number);
 
-		line->t.inspawnobj = line->t.inspawnobj_ref ?
-			mobjdefs.Lookup(line->t.inspawnobj_ref) : NULL;
+		l->t.inspawnobj = l->t.inspawnobj_ref ?
+			mobjtypes.Lookup(l->t.inspawnobj_ref) : NULL;
 
-		line->t.outspawnobj = line->t.outspawnobj_ref ?
-			mobjdefs.Lookup(line->t.outspawnobj_ref) : NULL;
+		l->t.outspawnobj = l->t.outspawnobj_ref ?
+			mobjtypes.Lookup(l->t.outspawnobj_ref) : NULL;
 
 		DDF_ErrorClearEntryName();
 	}
+
+	linetypes.Trim();
 }
 
 //
@@ -974,97 +797,6 @@ void DDF_LineGetScrollPart(const char *info, void *storage)
 
 //----------------------------------------------------------------------------
 
-//
-// DDF_LineLookupGeneralised
-//
-// Support for BOOM generalised linetypes.
-// 
-static const linedeftype_t *DDF_LineLookupGeneralised(int number)
-{
-	int i;
-	linedeftype_t *line;
-
-	for (i=0; i < num_ddf_gen_lines; i++)
-	{
-		if (ddf_gen_lines[i]->ddf.number == number)
-			return ddf_gen_lines[i];
-	}
-
-	// this linetype does not exist yet in the array of dynamic
-	// linetypes.  Thus we need to create it.
-
-	Z_SetArraySize(&ddf_gen_lines_a, ++num_ddf_gen_lines);
-
-	line = ddf_gen_lines[num_ddf_gen_lines - 1];
-
-	// instantiate it with defaults
-	(*line) = template_line;
-
-	DDF_BoomMakeGenLine(line, number);
-
-	return (const linedeftype_t *) line;
-}
-
-void DDF_LineClearGeneralised(void)
-{
-	num_ddf_gen_lines = 0;
-	Z_SetArraySize(&ddf_gen_lines_a, num_ddf_gen_lines);
-
-	// clear the cache
-	memset(line_lookup_cache, 0, sizeof(line_lookup_cache));
-}
-
-//
-// DDF_LineLookupNum
-//
-// Returns the special linedef properties from given specialtype
-//
-// -KM-  1998/09/01 Wrote Procedure
-// -ACB- 1998/09/06 Remarked and Reformatted....
-//
-const linedeftype_t *DDF_LineLookupNum(int number)
-{
-	int slot = DDF_LineHashFunc(number);
-	int i;
-
-	// check the cache
-	if (line_lookup_cache[slot] &&
-		line_lookup_cache[slot]->ddf.number == number)
-	{
-		return line_lookup_cache[slot];
-	}
-
-	// check for BOOM generalised linetype
-	if ((level_flags.compat_mode == CM_BOOM) && number >= 0x2F80)
-	{
-		line_lookup_cache[slot] = DDF_LineLookupGeneralised(number);
-		return line_lookup_cache[slot];
-	}
-
-	// find line by number
-	// NOTE: go backwards, so newer ones are found first
-	for (i=num_ddf_linetypes-1; i >= 0; i--)
-	{
-		if (ddf_linetypes[i]->ddf.number == number)
-			break;
-	}
-
-	if (i < 0)
-	{
-		// -AJA- 1999/06/19: Don't crash out if the line type is unknown, just
-		// print a message and ignore it (like for unknown thing types).
-
-		I_Warning("Unknown line type %i\n", number);
-
-		return &template_line;
-	}
-
-	// update the cache
-	line_lookup_cache[slot] = ddf_linetypes[i];
-
-	return line_lookup_cache[slot];
-}
-
 static specflags_t line_specials[] =
 {
 	{"MUST REACH", LINSP_MustReach, 0},
@@ -1238,4 +970,865 @@ static void DDF_LineGetSectorEffect(const char *info, void *storage)
 			DDF_WarnError("Unknown sector effect type: %s", info);
 			break;
 	}
+}
+
+// --> Donut definition class
+
+//
+// donutdef_c Constructor
+//
+donutdef_c::donutdef_c()
+{
+}
+
+//
+// donutdef_c Copy constructor
+//
+donutdef_c::donutdef_c(donutdef_c &rhs)
+{
+	Copy(rhs);
+}
+
+//
+// donutdef_c Destructor
+//
+donutdef_c::~donutdef_c()
+{
+}
+
+//
+// donutdef_c::Copy()
+//
+void donutdef_c::Copy(donutdef_c &src)
+{
+	dodonut = src.dodonut;
+
+	// FIXME! Strip out the d_ since we're not trying to
+	// to differentiate them now?
+	d_sfxin = src.d_sfxin; 
+	d_sfxinstop = src.d_sfxinstop;
+	d_sfxout = src.d_sfxout; 
+	d_sfxoutstop = src.d_sfxoutstop;
+}
+
+//
+// donutdef_c::Default()
+//
+void donutdef_c::Default()
+{
+	dodonut = false;
+	d_sfxin = NULL;
+	d_sfxinstop = NULL;
+	d_sfxout = NULL; 
+	d_sfxoutstop = NULL;
+}
+
+//
+// donutdef_c assignment operator
+//
+donutdef_c& donutdef_c::operator=(donutdef_c &rhs)
+{
+	if(&rhs != this)
+		Copy(rhs);
+
+	return *this;
+}
+
+// --> Elevator definition class
+
+//
+// elevatordef_c Constructor
+//
+elevatordef_c::elevatordef_c()
+{
+}
+
+//
+// elevatordef_c Copy constructor
+//
+elevatordef_c::elevatordef_c(elevatordef_c &rhs)
+{
+	Copy(rhs);
+}
+
+//
+// elevatordef_c Destructor
+//
+elevatordef_c::~elevatordef_c()
+{
+}
+
+//
+// elevatordef_c::Copy()
+//
+void elevatordef_c::Copy(elevatordef_c &src)
+{
+	type = src.type;
+  
+	speed_up = src.speed_up;
+	speed_down = src.speed_down;
+
+	wait = src.wait;       
+	prewait = src.prewait;
+
+	sfxstart = src.sfxstart;
+	sfxup = src.sfxup;
+	sfxdown = src.sfxdown;
+	sfxstop = src.sfxstop;
+}
+
+//
+// elevatordef_c::Default()
+//
+void elevatordef_c::Default()
+{
+	type = mov_undefined;
+	speed_up = -1;
+	speed_down = -1;
+	wait = 0;
+	prewait = 0;
+	sfxstart = sfx_None;
+	sfxup = sfx_None;
+	sfxdown = sfx_None;
+	sfxstop = sfx_None;
+}
+
+//
+// elevatordef_c assignment operator
+//
+elevatordef_c& elevatordef_c::operator=(elevatordef_c &rhs)
+{
+	if(&rhs != this)
+		Copy(rhs);
+
+	return *this;
+}
+
+// --> Extrafloor definition class
+
+//
+// extrafloordef_c Constructor
+//
+extrafloordef_c::extrafloordef_c()
+{
+}
+
+//
+// extrafloordef_c Copy constructor
+//
+extrafloordef_c::extrafloordef_c(extrafloordef_c &rhs)
+{
+	Copy(rhs);
+}
+
+//
+// extrafloordef_c Destructor
+//
+extrafloordef_c::~extrafloordef_c()
+{
+}
+
+//
+// extrafloordef_c::Copy()
+//
+void extrafloordef_c::Copy(extrafloordef_c &src)
+{
+	control = src.control;
+	type = src.type;
+}
+
+//
+// extrafloordef_c::Default()
+//
+void extrafloordef_c::Default()
+{
+	control = EFCTL_None;
+	type = EXFL_None;
+}
+
+//
+// extrafloordef_c assignment operator
+//
+extrafloordef_c& extrafloordef_c::operator=(extrafloordef_c &rhs)
+{
+	if(&rhs != this)
+		Copy(rhs);
+
+	return *this;
+}
+
+
+// --> Ladder definition class
+
+//
+// ladderdef_c Constructor
+//
+ladderdef_c::ladderdef_c()
+{
+}
+
+//
+// ladderdef_c Copy constructor
+//
+ladderdef_c::ladderdef_c(ladderdef_c &rhs)
+{
+	Copy(rhs);
+}
+
+//
+// ladderdef_c Destructor
+//
+ladderdef_c::~ladderdef_c()
+{
+}
+
+//
+// ladderdef_c::Copy()
+//
+void ladderdef_c::Copy(ladderdef_c &src)
+{
+	height = src.height;
+}
+
+//
+// ladderdef_c::Default()
+//
+void ladderdef_c::Default()
+{
+	height = 0.0f;
+}
+
+//
+// ladderdef_c assignment operator
+//
+ladderdef_c& ladderdef_c::operator=(ladderdef_c &rhs)
+{
+	if(&rhs != this)
+		Copy(rhs);
+
+	return *this;
+}
+
+// --> Light effect definition class
+
+//
+// lightdef_c Constructor
+//
+lightdef_c::lightdef_c()
+{
+}
+
+//
+// lightdef_c Copy constructor
+//
+lightdef_c::lightdef_c(lightdef_c &rhs)
+{
+	Copy(rhs);
+}
+
+//
+// lightdef_c Destructor
+//
+lightdef_c::~lightdef_c()
+{
+}
+
+//
+// lightdef_c::Copy()
+//
+void lightdef_c::Copy(lightdef_c &src)
+{
+	type = src.type;
+	level = src.level;
+	chance = src.chance;
+	darktime = src.darktime;
+	brighttime = src.brighttime;
+	sync = src.sync;
+	step = src.step;
+}
+
+//
+// lightdef_c::Default()
+//
+void lightdef_c::Default()
+{
+	type = LITE_None;
+	level = 64;
+	chance = PERCENT_MAKE(50);
+	darktime = 0;
+	brighttime = 0;
+	sync = 0;
+	step = 8;
+}
+
+//
+// lightdef_c assignment operator
+//
+lightdef_c& lightdef_c::operator=(lightdef_c &rhs)
+{
+	if(&rhs != this)
+		Copy(rhs);
+
+	return *this;
+}
+
+// --> Moving plane definition class
+
+//
+// movplanedef_c Constructor
+//
+movplanedef_c::movplanedef_c()
+{
+}
+
+//
+// movplanedef_c Copy constructor
+//
+movplanedef_c::movplanedef_c(movplanedef_c &rhs)
+{
+	Copy(rhs);
+}
+
+//
+// movplanedef_c Destructor
+//
+movplanedef_c::~movplanedef_c()
+{
+}
+
+//
+// movplanedef_c::Copy()
+//
+void movplanedef_c::Copy(movplanedef_c &src)
+{
+	type = src.type;
+	is_ceiling = src.is_ceiling;
+	crush = src.crush;
+	speed_up = src.speed_up;
+	speed_down = src.speed_down;
+	destref = src.destref;
+	dest = src.dest;
+	otherref = src.otherref;
+	other = src.other;
+	tex = src.tex;
+	wait = src.wait;
+    prewait = src.prewait;
+	sfxstart = src.sfxstart;
+	sfxup = src.sfxup;
+	sfxdown = src.sfxdown;
+	sfxstop = src.sfxstop;
+	scroll_angle = src.scroll_angle;
+	scroll_speed = src.scroll_speed;
+}
+
+//
+// movplanedef_c::Default()
+//
+void movplanedef_c::Default(movplanedef_c::default_e def)
+{
+	type = mov_undefined;
+
+	if (def == DEFAULT_CeilingLine || def == DEFAULT_CeilingSect)
+		is_ceiling = true;
+	else
+		is_ceiling = false;
+
+	crush = false;
+
+	switch (def)
+	{
+		case DEFAULT_CeilingLine:
+		case DEFAULT_FloorLine:
+		{
+			speed_up = -1;
+			speed_down = -1;
+			break;
+		}
+		
+		case DEFAULT_DonutFloor:
+		{
+			speed_up = FLOORSPEED/2;
+			speed_down = FLOORSPEED/2;
+			break;
+		}
+		
+		default:
+		{
+			speed_up = 0;
+			speed_down = 0;
+			break;
+		}
+	}
+	
+	destref = REF_Absolute;
+
+	// FIXME!!! Why are we using INT_MAX with a fp number?
+	dest = (def != DEFAULT_DonutFloor) ? 0.0f : (float)INT_MAX;
+	
+	switch (def)
+	{
+		case DEFAULT_CeilingLine:
+		{
+			otherref = (heightref_e)(REF_Current|REF_CEILING);
+			break;
+		}
+		
+		case DEFAULT_FloorLine:
+		{
+			otherref = (heightref_e)(REF_Surrounding|REF_HIGHEST|REF_INCLUDE);
+			break;
+		}
+		
+		default:
+		{
+			otherref = REF_Absolute;
+			break;
+		}
+	}
+	
+	// FIXME!!! Why are we using INT_MAX with a fp number?
+	other = (def != DEFAULT_DonutFloor) ? 0.0f : (float)INT_MAX;
+	
+	tex.Clear();
+	
+	wait = 0;
+	prewait = 0;
+	
+	sfxstart = NULL;
+	sfxup = NULL;
+	sfxdown = NULL;
+	sfxstop = NULL;
+	
+	scroll_angle = 0;
+	scroll_speed = 0.0f;
+}
+
+//
+// movplanedef_c assignment operator
+//
+movplanedef_c& movplanedef_c::operator=(movplanedef_c &rhs)
+{
+	if(&rhs != this)
+		Copy(rhs);
+
+	return *this;
+}
+
+// --> Sliding door definition class
+
+//
+// sliding_door_c Constructor
+//
+sliding_door_c::sliding_door_c()
+{
+}
+
+//
+// sliding_door_c Copy constructor
+//
+sliding_door_c::sliding_door_c(sliding_door_c &rhs)
+{
+	Copy(rhs);
+}
+
+//
+// sliding_door_c Destructor
+//
+sliding_door_c::~sliding_door_c()
+{
+}
+
+//
+// sliding_door_c::Copy()
+//
+void sliding_door_c::Copy(sliding_door_c &src)
+{
+	type = src.type;
+	speed = src.speed;
+	wait = src.wait;
+	see_through = src.see_through;
+	distance = src.distance;
+	sfx_start = src.sfx_start;
+	sfx_open = src.sfx_open;	
+	sfx_close = src.sfx_close;
+	sfx_stop = src.sfx_stop;
+}
+
+//
+// sliding_door_c::Default()
+//
+void sliding_door_c::Default()
+{
+	type = SLIDE_None;   
+	speed =4.0f;          
+	wait = 150;          
+	see_through = false;        
+	distance = PERCENT_MAKE(90); 
+	sfx_start =	sfx_None;
+	sfx_open = sfx_None;
+	sfx_close = sfx_None;
+	sfx_stop = sfx_None;
+}
+
+//
+// sliding_door_c assignment operator
+//
+sliding_door_c& sliding_door_c::operator=(sliding_door_c &rhs)
+{
+	if(&rhs != this)
+		Copy(rhs);
+
+	return *this;
+}
+
+// --> Teleport point definition class
+
+//
+// teleportdef_c Constructor
+//
+teleportdef_c::teleportdef_c()
+{
+	inspawnobj_ref = NULL;
+	outspawnobj_ref = NULL;
+}
+
+//
+// teleportdef_c Copy constructor
+//
+teleportdef_c::teleportdef_c(teleportdef_c &rhs)
+{
+	inspawnobj_ref = NULL;
+	outspawnobj_ref = NULL;
+	Copy(rhs);
+}
+
+//
+// teleportdef_c Destructor
+//
+teleportdef_c::~teleportdef_c()
+{
+	if (inspawnobj_ref)
+		Z_Free((void*)inspawnobj_ref);
+
+	if (outspawnobj_ref)
+		Z_Free((void*)outspawnobj_ref);
+}
+
+//
+// teleportdef_c::Copy()
+//
+void teleportdef_c::Copy(teleportdef_c &src)
+{
+	teleport = src.teleport;
+	inspawnobj = src.inspawnobj;	
+	
+	// FIXME!! Use epi str container
+	if (inspawnobj_ref)
+		Z_Free((void*)inspawnobj_ref);
+	if (src.inspawnobj_ref)
+		inspawnobj_ref = Z_StrDup(src.inspawnobj_ref);
+
+  	outspawnobj = src.outspawnobj;	
+
+	// FIXME!! Use epi str container
+	if (outspawnobj_ref)
+		Z_Free((void*)outspawnobj_ref);
+	if (src.outspawnobj_ref)
+		outspawnobj_ref = Z_StrDup(src.outspawnobj_ref);
+
+	delay = src.delay;
+}
+
+//
+// teleportdef_c::Default()
+//
+void teleportdef_c::Default()
+{
+	teleport = false;
+	
+	inspawnobj = NULL;	
+	
+	// FIXME!! Use epi str container
+	if (inspawnobj_ref)
+		Z_Free((void*)inspawnobj_ref);
+	inspawnobj_ref = NULL;      
+	
+	outspawnobj = NULL;      	
+
+	// FIXME!! Use epi str container
+	if (outspawnobj_ref)
+		Z_Free((void*)outspawnobj_ref);
+	outspawnobj_ref = NULL;      
+
+	delay = 0;
+	special = TELSP_None;
+}
+
+//
+// teleportdef_c assignment operator
+//
+teleportdef_c& teleportdef_c::operator=(teleportdef_c &rhs)
+{
+	if(&rhs != this)
+		Copy(rhs);
+
+	return *this;
+}
+
+// --> Line definition type class
+
+//
+// linetype_c constructor
+//
+linetype_c::linetype_c()
+{
+	failedmessage = NULL;
+	Default();
+}
+
+//
+// linetype_c copy constructor
+//
+linetype_c::linetype_c(linetype_c &rhs)
+{
+	failedmessage = NULL;
+	Copy(rhs);
+}
+
+//
+// linetype_c deconstructor
+//
+linetype_c::~linetype_c()
+{
+	// FIXME!! Use Epi string container
+	if (failedmessage)
+		Z_Free(failedmessage);
+}
+	
+//
+// linetype_c::Copy()
+//
+void linetype_c::Copy(linetype_c &src)
+{
+	ddf = src.ddf;
+	CopyDetail(src);
+}
+
+//
+// linetype_c::CopyDetail()
+//
+void linetype_c::CopyDetail(linetype_c &src)
+{
+	newtrignum = src.newtrignum;
+	type = src.type;
+	obj = src.obj;
+	keys = src.keys;
+	count = src.count;
+	specialtype = src.specialtype;
+	crush = src.crush;
+	f = src.f;
+	c = src.c;
+	e = src.e;
+	d = src.d;
+	s = src.s;
+	ladder = src.ladder;
+	t = src.t;
+	l = src.l;
+	e_exit = src.e_exit;
+	s_xspeed = src.s_xspeed;
+	s_yspeed = src.s_yspeed;
+	scroll_parts = src.scroll_parts;
+
+	// -ACB- 2004/07/06 Handle with new epi string container thingy
+	if (failedmessage)
+		Z_Free(failedmessage);
+		
+	if (src.failedmessage)
+		failedmessage = Z_StrDup(src.failedmessage);
+
+	use_colourmap = src.use_colourmap;
+	gravity = src.gravity;
+	friction = src.friction;
+	viscosity = src.viscosity;
+	drag = src.drag;
+	ambient_sfx = src.ambient_sfx;
+	activate_sfx = src.activate_sfx;
+	music = src.music;
+	autoline = src.autoline;
+	singlesided = src.singlesided;
+	ef = src.ef;
+	translucency = src.translucency;
+	appear = src.appear;
+	special_flags = src.special_flags;
+	trigger_effect = src.trigger_effect;
+	line_effect = src.line_effect;
+	line_parts = src.line_parts;
+	sector_effect = src.sector_effect;
+}
+
+//
+// linetype_c::Default()
+//
+void linetype_c::Default(void)
+{
+	// FIXME: ddf.Default()?
+	ddf.name = NULL;
+	ddf.number = 0;
+	ddf.crc = 0;
+
+	newtrignum = 0;
+	type = line_none;
+	obj = trig_none;
+	keys = KF_NONE;
+	count = -1;
+	specialtype = -1;
+	crush = false;
+
+	f.Default(movplanedef_c::DEFAULT_FloorLine);		
+	c.Default(movplanedef_c::DEFAULT_CeilingLine);		
+	
+	e.Default();		// Elevator
+	d.Default();		// Donut
+	s.Default();		// Sliding Door
+	
+	ladder.Default();	// Ladder
+	
+	t.Default();		// Teleport
+	l.Default();		// Light definition
+	
+	e_exit = EXIT_None;
+	s_xspeed = 0.0f;
+	s_yspeed = 0.0f;
+	scroll_parts = SCPT_None;
+	
+	if (failedmessage)
+		Z_Free(failedmessage);
+		
+	failedmessage = NULL;
+	
+	use_colourmap = NULL;
+	gravity = FLO_UNUSED;
+	friction = FLO_UNUSED;
+	viscosity = FLO_UNUSED;
+	drag = FLO_UNUSED;
+	ambient_sfx = sfx_None;
+	activate_sfx = sfx_None;
+	music = 0;
+	autoline = false;
+	singlesided = false;
+
+	ef.Default();
+	
+	translucency = PERCENT_MAKE(100);
+	appear = DEFAULT_APPEAR;    
+	special_flags = LINSP_None;
+	trigger_effect = 0;
+	line_effect = LINEFX_None;
+	line_parts = SCPT_None;
+	sector_effect = SECTFX_None;
+}
+
+//
+// linetype_c assignment operator
+//
+linetype_c& linetype_c::operator=(linetype_c &rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+		
+	return *this;
+}
+
+// --> Line definition type container class
+
+//
+// linetype_container_c Constructor
+//
+linetype_container_c::linetype_container_c() : 
+	epi::array_c(sizeof(linetype_c*))
+{
+	Reset();
+}
+
+//
+// linetype_container_c Destructor
+//
+linetype_container_c::~linetype_container_c()
+{
+	Clear();
+}
+
+//
+// linetype_container_c::CleanupObject
+//
+void linetype_container_c::CleanupObject(void *obj)
+{
+	linetype_c *l = *(linetype_c**)obj;
+
+	if (l)
+	{
+		// FIXME: Use proper new/transfer name cleanup to ddf_base destructor
+		if (l->ddf.name) { Z_Free(l->ddf.name); }
+		delete l;
+	}
+
+	return;
+}
+
+//
+// linetype_c* linetype_container_c::Lookup()
+//
+// Looks an linetype by id, returns NULL if line can't be found.
+//
+linetype_c* linetype_container_c::Lookup(const int id)
+{
+	int slot = DDF_LineHashFunc(id);
+
+	// check the cache
+	if (lookup_cache[slot] &&
+		lookup_cache[slot]->ddf.number == id)
+	{
+		return lookup_cache[slot];
+	}
+
+	// check for BOOM generalised linetype
+	// FIXME!! Handle this BOOM stuff 
+/*
+  	if ((level_flags.compat_mode == CM_BOOM) && number >= 0x2F80)
+	{
+		line_lookup_cache[slot] = DDF_LineLookupGeneralised(number);
+		return line_lookup_cache[slot];
+	}
+*/
+
+	epi::array_iterator_c it;
+	linetype_c *l = 0;
+
+	for (it = GetTailIterator(); it.IsValid(); it--)
+	{
+		l = ITERATOR_TO_TYPE(it, linetype_c*);
+		if (l->ddf.number == id)
+		{
+			break;
+		}
+	}
+
+	// FIXME!! Throw an epi::error here
+	if (!it.IsValid())
+		return NULL;
+
+	// update the cache
+	lookup_cache[slot] = l;
+	return l;
+}
+
+//
+// linetype_container_c::Reset()
+//
+// Clears down both the data and the cache
+//
+void linetype_container_c::Reset()
+{
+	Clear();
+	memset(lookup_cache, 0, sizeof(linetype_c*) * LOOKUP_CACHESIZE);
 }
