@@ -67,10 +67,6 @@ public:
 
 	fontpatch_c *patches;
 	epi::strent_c missing_patch;
-
-///---private:
-///---	patchcache_t p_cache;
-
 };
 
 // Our fontdefs container

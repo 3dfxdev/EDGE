@@ -40,6 +40,7 @@
 #include "e_main.h"
 #include "g_game.h"
 #include "hu_stuff.h"
+#include "hu_style.h"
 #include "m_argv.h"
 #include "m_inline.h"
 #include "m_misc.h"
@@ -78,7 +79,7 @@ bool inhelpscreens;
 bool menuactive;
 
 #define SKULLXOFF   -24
-#define LINEHEIGHT   15
+#define LINEHEIGHT   15  //!!!!
 
 // timed message = no input from user
 static bool msg_needsinput;
@@ -105,6 +106,14 @@ static const image_t *menu_skill;
 static const image_t *menu_episode;
 static const image_t *menu_skull[2];
 static const image_t *menu_readthis[2];
+
+static style_c *menu_def_style;
+static style_c *main_menu_style;
+static style_c *episode_style;
+static style_c *skill_style;
+static style_c *load_style;
+static style_c *save_style;
+static style_c *dialog_style;
 
 //
 //  SAVE STUFF
@@ -622,7 +631,7 @@ void M_ReadSaveStrings(void)
 	}
 }
 
-static void M_DrawSaveLoadCommon(int row, int row2)
+static void M_DrawSaveLoadCommon(int row, int row2, style_c *style)
 {
 	int y = LoadDef.y + LINEHEIGHT * row;
 
@@ -635,14 +644,14 @@ static void M_DrawSaveLoadCommon(int row, int row2)
 
 	// -KM-  1998/06/25 This could quite possibly be replaced by some graphics...
 	if (save_page > 0)
-		HL_WriteTextTrans(LoadDef.x - 4, y, text_white_map, "< PREV");
+		HL_WriteText(style,2, LoadDef.x - 4, y, "< PREV");
 
-	HL_WriteTextTrans(LoadDef.x + 94 - HL_StringWidth(mbuffer) / 2, y,
-					  text_white_map, mbuffer);
+	HL_WriteText(style,2, LoadDef.x + 94 - style->fonts[2]->StringWidth(mbuffer) / 2, y,
+					  mbuffer);
 
 	if (save_page < SAVE_PAGES-1)
-		HL_WriteTextTrans(LoadDef.x + 192 - HL_StringWidth("NEXT >"), y,
-						  text_white_map, "NEXT >");
+		HL_WriteText(style,2, LoadDef.x + 192 - style->fonts[2]->StringWidth("NEXT >"), y,
+						  "NEXT >");
  
 	info = ex_slots + itemOn;
 	DEV_ASSERT2(0 <= itemOn && itemOn < SAVE_SLOTS);
@@ -658,15 +667,14 @@ static void M_DrawSaveLoadCommon(int row, int row2)
 
 	strcat(mbuffer, info->timestr);
 
-	HL_WriteTextTrans(310 - HL_StringWidth(mbuffer), y, 
-					  text_green_map, mbuffer);
+	HL_WriteText(style,3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
 
 
 	y -= LINEHEIGHT;
     
 	mbuffer[0] = 0;
 
-	// FIXME: LDF-itise these
+	// FIXME: use the patches (but shrink them)
 	switch (info->skill)
 	{
 		case 0: strcat(mbuffer, "Too Young To Die"); break;
@@ -676,8 +684,7 @@ static void M_DrawSaveLoadCommon(int row, int row2)
 		default: strcat(mbuffer, "NIGHTMARE"); break;
 	}
 
-	HL_WriteTextTrans(310 - HL_StringWidth(mbuffer), y,
-					  text_green_map, mbuffer);
+	HL_WriteText(style,3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
 
 
 	y -= LINEHEIGHT;
@@ -691,8 +698,7 @@ static void M_DrawSaveLoadCommon(int row, int row2)
 		default: strcat(mbuffer, "DM MODE"); break;
 	}
   
-	HL_WriteTextTrans(310 - HL_StringWidth(mbuffer), y,
-					  text_green_map, mbuffer);
+	HL_WriteText(style,3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
 
 
 	y -= LINEHEIGHT;
@@ -701,8 +707,7 @@ static void M_DrawSaveLoadCommon(int row, int row2)
 
 	strcat(mbuffer, info->mapname);
 
-	HL_WriteTextTrans(310 - HL_StringWidth(mbuffer), y,
-					  text_green_map, mbuffer);
+	HL_WriteText(style,3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
 }
 
 //
@@ -722,9 +727,9 @@ void M_DrawLoad(void)
 	// draw screenshot ?
 
 	for (i = 0; i < SAVE_SLOTS; i++)
-		HL_WriteText(LoadDef.x + 8, LoadDef.y + LINEHEIGHT * (i), ex_slots[i].desc);
+		HL_WriteText(load_style,0, LoadDef.x + 8, LoadDef.y + LINEHEIGHT * (i), ex_slots[i].desc);
 
-	M_DrawSaveLoadCommon(i, i+1);
+	M_DrawSaveLoadCommon(i, i+1, load_style);
 }
 
 
@@ -792,23 +797,22 @@ void M_DrawSave(void)
 
 	for (i = 0; i < SAVE_SLOTS; i++)
 	{
-		M_DrawSaveLoadBorder(LoadDef.x + 8, LoadDef.y + LINEHEIGHT * (i), 24);
+		int y = LoadDef.y + LINEHEIGHT * i;
+
+		M_DrawSaveLoadBorder(LoadDef.x + 8, y, 24);
 
 		if (saveStringEnter && i == save_slot)
 		{
-			len = HL_StringWidth(ex_slots[save_slot].desc);
+			len = save_style->fonts[1]->StringWidth(ex_slots[save_slot].desc);
 
-			HL_WriteTextTrans(LoadDef.x + 8, LoadDef.y + LINEHEIGHT * (i), 
-							  text_yellow_map, ex_slots[i].desc);
-
-			HL_WriteTextTrans(LoadDef.x + len + 8, LoadDef.y + LINEHEIGHT * 
-							  (i), text_yellow_map, "_");
+			HL_WriteText(save_style,1, LoadDef.x + 8, y, ex_slots[i].desc);
+			HL_WriteText(save_style,1, LoadDef.x + len + 8, y, "_");
 		}
 		else
-			HL_WriteText(LoadDef.x + 8, LoadDef.y + LINEHEIGHT * (i), ex_slots[i].desc);
+			HL_WriteText(save_style,0, LoadDef.x + 8, y, ex_slots[i].desc);
 	}
 
-	M_DrawSaveLoadCommon(i, i+1);
+	M_DrawSaveLoadCommon(i, i+1, save_style);
 }
 
 //
@@ -1261,14 +1265,12 @@ void M_ChangeMessages(int choice)
 	// warning: unused parameter `int choice'
 	(void) choice;
 
-	if (!showMessages)
+	showMessages = 1 - showMessages;
+
+	if (showMessages)
 		CON_Printf("%s\n", language["MessagesOn"]);
 	else
 		CON_Printf("%s\n", language["MessagesOff"]);
-
-	showMessages = 1 - showMessages;
-
-	message_dontfuckwithme = true;
 }
 
 //
@@ -1647,13 +1649,7 @@ bool M_Responder(event_t * ev)
 		if (ch == '-')
 			ch = '_';
 			
-		if (ch != 32)
-		{
-			if (ch - HU_FONTSTART < 0 || ch - HU_FONTSTART >= HU_FONTSIZE)
-				return true;
-		}
-		
-		if (ch >= 32 && ch <= 127)
+		if (ch >= 32 && ch <= 127)  // FIXME: international characters ??
 		{
 			epi::string_c s;
 
@@ -1663,7 +1659,8 @@ bool M_Responder(event_t * ev)
 			s += ch;
 			
 			// Set the input_string only if fits
-			if (HL_StringWidth(s.GetString()) < 300)
+			DEV_ASSERT2(dialog_style);
+			if (dialog_style->fonts[1]->StringWidth(s.GetString()) < 300)
 				input_string.Set(s.GetString());
 		}
 		
@@ -1700,12 +1697,10 @@ bool M_Responder(event_t * ev)
 
 			default:
 				ch = toupper(ch);
-				if (ch != 32)
-					if (ch - HU_FONTSTART < 0 || ch - HU_FONTSTART >= HU_FONTSIZE)
-						break;
+				DEV_ASSERT2(save_style);
 				if (ch >= 32 && ch <= 127 &&
 					saveCharIndex < SAVESTRINGSIZE - 1 &&
-					HL_StringWidth(ex_slots[save_slot].desc) <
+					save_style->fonts[1]->StringWidth(ex_slots[save_slot].desc) <
 					(SAVESTRINGSIZE - 2) * 8)
 				{
 					ex_slots[save_slot].desc[saveCharIndex++] = ch;
@@ -1992,8 +1987,10 @@ void M_Drawer(void)
 			input += "_";
 		
 		// Calc required height
+		DEV_ASSERT2(dialog_style);
 		s = msg + input;
-		y = 100 - (HL_StringHeight(s.GetString()) / 2);
+		y = 100 - (dialog_style->fonts[0]->StringLines(s.GetString()) *
+			dialog_style->fonts[0]->NominalHeight()/ 2);
 		
 		if (!msg.IsEmpty())
 		{
@@ -2010,11 +2007,11 @@ void M_Drawer(void)
 			
 				if (s.GetLength())
 				{
-					x = 160 - (HL_StringWidth(s.GetString()) / 2);
-					HL_WriteText(x, y, s.GetString());
+					x = 160 - (dialog_style->fonts[0]->StringWidth(s.GetString()) / 2);
+					HL_WriteText(dialog_style,0, x, y, s.GetString());
 				}
 				
-				y += hu_font.height;
+				y += dialog_style->fonts[0]->NominalHeight();
 				oldpos = pos + 1;
 			}
 			while (pos >= 0 && oldpos < (int)msg.GetLength());
@@ -2035,11 +2032,11 @@ void M_Drawer(void)
 			
 				if (s.GetLength())
 				{
-					x = 160 - (HL_StringWidth(s.GetString()) / 2);
-					HL_WriteTextTrans(x, y, text_yellow_map, s.GetString());
+					x = 160 - (dialog_style->fonts[0]->StringWidth(s.GetString()) / 2);
+					HL_WriteText(dialog_style,0, x, y, s.GetString());
 				}
 				
-				y += hu_font.height;
+				y += dialog_style->fonts[0]->NominalHeight();
 				oldpos = pos + 1;
 			}
 			while (pos >= 0 && oldpos < (int)input.GetLength());
@@ -2143,6 +2140,31 @@ void M_Init(void)
 	msg_lastmenu = menuactive;
 	quickSaveSlot = -1;
 
+	// lookup styles
+	styledef_c *def;
+
+	def = styledefs.Lookup("MENU");
+	if (! def) def = default_style;
+	menu_def_style = hu_styles.Lookup(def);
+
+	def = styledefs.Lookup("MAIN MENU");
+	main_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("CHOOSE EPISODE");
+	episode_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("CHOOSE SKILL");
+	skill_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("LOAD MENU");
+	load_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("SAVE MENU");
+	save_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("DIALOG");
+	dialog_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
 	// lookup required images
 	therm_l = W_ImageFromPatch("M_THERML");
 	therm_m = W_ImageFromPatch("M_THERMM");
@@ -2183,7 +2205,7 @@ void M_Init(void)
 
 		MainMenu[readthis] = MainMenu[quitdoom];
 		MainDef.numitems--;
-		MainDef.y += 8;
+		MainDef.y += 8; // FIXME
 		NewDef.prevMenu = &MainDef;
 		ReadDef1.draw_func = M_DrawReadThis1;
 		ReadDef1.x = 330;

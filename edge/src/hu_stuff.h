@@ -35,11 +35,6 @@ extern int showMessages;
 //
 // Globally visible constants.
 //
-#define HU_FONTSTART	'!'  // the first font characters
-#define HU_FONTEND	255  // the last font characters
-
-// Calculate # of glyphs in font.
-#define HU_FONTSIZE	(HU_FONTEND - HU_FONTSTART + 1)
 
 #define HU_BROADCAST	5
 
@@ -51,9 +46,7 @@ extern int showMessages;
 
 #define HU_MSGTIMEOUT	(4*TICRATE)
 
-extern H_font_t hu_font;
 extern bool chat_on;
-extern bool message_dontfuckwithme;
 
 //
 // HEADS UP TEXT

@@ -33,6 +33,7 @@
 #include "e_main.h"
 #include "g_game.h"
 #include "hu_lib.h"
+#include "hu_style.h"
 #include "m_misc.h"
 #include "r_defs.h"
 #include "r_things.h"
@@ -45,6 +46,8 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+#define FONT_HEIGHT  7  //!!!! FIXME temp hack
+
 //
 // Locally used constants, shortcuts.
 //
@@ -55,25 +58,21 @@
 #define HU_TITLEY	(200 - 32 - 10) 
 #define HU_INPUTTOGGLE	key_talk
 #define HU_INPUTX	HU_MSGX
-#define HU_INPUTY	(HU_MSGY + HU_MSGHEIGHT * (hu_font.height+1))
+#define HU_INPUTY	(HU_MSGY + HU_MSGHEIGHT * (FONT_HEIGHT+1))
 #define HU_INPUTWIDTH	64
 #define HU_INPUTHEIGHT	1
 
 #define HU_CROSSHAIRCOLOUR  RED
 
-H_font_t hu_font;
-
 bool chat_on;
 static hu_textline_t w_title;
 static hu_itext_t w_chat;
-static bool always_off = false;
 
 static char *chat_dest;
 static hu_itext_t *w_inputbuffer;
 
-bool message_dontfuckwithme;
 static bool message_on;
-static bool message_nottobefuckedwith;
+static bool message_no_overwrite;
 
 static hu_stext_t w_message;
 static int message_counter;
@@ -88,6 +87,11 @@ static hu_textline_t textlinefps;
 static hu_textline_t textlinepos;
 static hu_textline_t textlinestats;
 static hu_textline_t textlinememory;
+
+static style_c *message_style;
+       style_c *automap_style;
+static style_c *chat_style;
+
 
 // -ACB- 1999/09/28 was english_shiftxform. Only one used.
 static const unsigned char shiftxform[] =
@@ -150,38 +154,9 @@ void HU_Init(void)
 	// should use language["HeadsUpInit"], but LDF hasn't been loaded yet
 	E_ProgressMessage("HU_Init: Setting up heads up display.\n");
 
-	int i;
-	char buffer[10];
-	const image_t *missing;
-
 	chat_dest = Z_New(char, MAXPLAYERS);
+
 	w_inputbuffer = Z_New(hu_itext_t, MAXPLAYERS);
-
-	// load the heads-up font
-	strcpy(hu_font.name, "HEADS_UP");
-	strcpy(hu_font.prefix, "STCFN");
-	hu_font.first_ch = '!';
-	hu_font.last_ch  = 255;
-
-	hu_font.images = Z_ClearNew(const image_t *, 256 - '!');
-
-	missing = W_ImageFromFont("STCFN000");
-
-	for (i=hu_font.first_ch; i <= hu_font.last_ch; i++)
-	{
-		int j = i - hu_font.first_ch;
-
-		// -KM- 1998/10/29 Chars not found will be replaced by a default.
-		sprintf(buffer, "%s%.3d", hu_font.prefix, i);
-
-		if (W_CheckNumForName(buffer) >= 0)
-			hu_font.images[j] = W_ImageFromFont(buffer);
-		else
-			hu_font.images[j] = missing;
-	}
-
-	hu_font.width  = IM_WIDTH(hu_font.images['M' - '!']);
-	hu_font.height = IM_HEIGHT(hu_font.images['M' - '!']);
 }
 
 static void HU_Stop(void)
@@ -198,29 +173,42 @@ void HU_Start(void)
 	if (headsupactive)
 		HU_Stop();
 
+	// find styles
+	styledef_c *msg_styledef = styledefs.Lookup("MESSAGES");
+	if (! msg_styledef)
+		msg_styledef = default_style;
+	message_style = hu_styles.Lookup(msg_styledef);
+
+	styledef_c *map_styledef = styledefs.Lookup("AUTOMAP");
+	if (! map_styledef)
+		map_styledef = default_style;
+	automap_style = hu_styles.Lookup(map_styledef);
+
+	styledef_c *chat_styledef = styledefs.Lookup("CHAT");
+	if (! chat_styledef)
+		chat_styledef = default_style;
+	chat_style = hu_styles.Lookup(chat_styledef);
+
 	message_on = false;
-	message_dontfuckwithme = false;
-	message_nottobefuckedwith = false;
+	message_no_overwrite = false;
 	chat_on = false;
 
 	// create the message widget
-	HL_InitSText(&w_message,
-		HU_MSGX, HU_MSGY, HU_MSGHEIGHT,
-		&hu_font, &message_on);
+	HL_InitSText(&w_message, HU_MSGX, HU_MSGY, HU_MSGHEIGHT, message_style, 0);
 
 	// create the map title widget
-	HL_InitTextLine(&w_title, HU_TITLEX, HU_TITLEY, &hu_font);
+	HL_InitTextLine(&w_title, HU_TITLEX, HU_TITLEY, automap_style, 0);
 
 	//create stuff for showstats cheat
 	// 23-6-98 KM Limits info added.
 	HL_InitTextLine(&textlinefps,
-		0, 1 * (1 + hu_font.height), &hu_font);
+		0, 1 * (1 + FONT_HEIGHT), message_style, 0);
 	HL_InitTextLine(&textlinestats,
-		0, 2 * (1 + hu_font.height), &hu_font);
+		0, 2 * (1 + FONT_HEIGHT), message_style, 0);
 	HL_InitTextLine(&textlinepos,
-		0, 3 * (1 + hu_font.height), &hu_font);
+		0, 3 * (1 + FONT_HEIGHT), message_style, 0);
 	HL_InitTextLine(&textlinememory,
-		0, 5 * (1 + hu_font.height), &hu_font);
+		0, 5 * (1 + FONT_HEIGHT), message_style, 0);
 
 	// -ACB- 1998/08/09 Use currmap settings
 	if (currmap->description &&
@@ -234,12 +222,11 @@ void HU_Start(void)
 	}
 
 	// create the chat widget
-	HL_InitIText(&w_chat, HU_INPUTX, HU_INPUTY,
-		&hu_font, &chat_on);
+	HL_InitIText(&w_chat, HU_INPUTX, HU_INPUTY, chat_style, 0);
 
 	// create the inputbuffer widgets
 	for (i = 0; i < MAXPLAYERS; i++)
-		HL_InitIText(&w_inputbuffer[i], 0, 0, &hu_font, &always_off);
+		HL_InitIText(&w_inputbuffer[i], 0, 0, NULL, 0);
 
 	headsupactive = true;
 }
@@ -295,8 +282,11 @@ void HU_Drawer(void)
 {
 	int sbarheight = FROM_200(ST_HEIGHT);
 
-	HL_DrawSText(&w_message);
-	HL_DrawIText(&w_chat);
+	if (message_on)
+		HL_DrawSText(&w_message);
+
+	if (chat_on)
+		HL_DrawIText(&w_chat);
 
 	if (automapactive)
 		HL_DrawTextLine(&w_title, false);
@@ -396,14 +386,12 @@ void HU_Erase(void)
 void HU_StartMessage(const char *msg)
 {
 	// only display message if necessary
-	if (!message_nottobefuckedwith
-		|| message_dontfuckwithme)
+	if (! message_no_overwrite)
 	{
 		HL_AddMessageToSText(&w_message, 0, msg);
 		message_on = true;
 		message_counter = HU_MSGTIMEOUT;
-		message_nottobefuckedwith = message_dontfuckwithme;
-		message_dontfuckwithme = 0;
+		message_no_overwrite = false;
 	}
 }
 
@@ -417,7 +405,7 @@ void HU_Ticker(void)
 	if (message_counter && !--message_counter)
 	{
 		message_on = false;
-		message_nottobefuckedwith = false;
+		message_no_overwrite = false;
 	}
 
 	// check for incoming chat characters
@@ -448,8 +436,8 @@ void HU_Ticker(void)
 					{
 						HL_AddMessageToSText(&w_message, p->playername, w_inputbuffer[i].L.ch);
 
-						message_nottobefuckedwith = true;
 						message_on = true;
+						message_no_overwrite = true;
 						message_counter = HU_MSGTIMEOUT;
 
 						if (W_CheckNumForName("DSRADIO") >= 0)

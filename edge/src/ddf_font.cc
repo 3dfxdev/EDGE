@@ -313,9 +313,6 @@ void fontdef_c::CopyDetail(const fontdef_c &src)
 	type = src.type;
 	patches = src.patches;  // FIXME: copy list
 	missing_patch = src.missing_patch;
-
-///---	// no need to copy the cache, just reset it
-///---	p_cache.first = -1;
 }
 
 //
@@ -328,8 +325,6 @@ void fontdef_c::Default()
 	type = FNTYP_Patch;
 	patches = NULL;
 	missing_patch.Clear();
-
-///---	p_cache.first = -1;
 }
 
 //

@@ -21,8 +21,6 @@
 
 #include "dm_defs.h"
 #include "dm_state.h"
-#include "hu_lib.h"
-#include "hu_stuff.h"
 #include "g_game.h"
 #include "lu_math.h"
 #include "m_argv.h"

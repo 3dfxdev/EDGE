@@ -52,149 +52,24 @@ void HL_Init(void)
 }
 
 //
-// HL_CharExists
-//
-bool HL_CharExists(const H_font_t *font, char ch)
-{
-	int idx = HU_INDEX(ch);
-
-	if (idx < font->first_ch || idx > font->last_ch)
-		return false;
-
-	return true;
-}
-
-//
-// HL_CharWidth
-//
-// Returns the width of the IBM cp437 char in the font.
-//
-int HL_CharWidth(const H_font_t *font, char ch)
-{
-	if (! HL_CharExists(font, ch))
-		return DUMMY_WIDTH(font);
-
-	int w = IM_WIDTH(font->images[HU_INDEX(ch) - font->first_ch]);
-
-	// -AJA- make text look nicer on low resolutions
-	if (SCREENWIDTH < 620 && SCREENWIDTH > 320)
-	{
-		w = (w * 320 + SCREENWIDTH - 64) / SCREENWIDTH;
-	}
-
-	return w;
-}
-
-//
-// HL_TextMaxLen
-//
-// Returns the maximum number of characters which can fit within max_w
-// pixels.  The string may not contain any newline characters.
-//
-int HL_TextMaxLen(int max_w, const char *str)
-{
-	int w;
-	const char *s;
-
-	// just add one char at a time until it gets too wide or the string ends.
-	for (w=0, s=str; *s; s++)
-	{
-		w += HL_CharWidth(&hu_font, *s);
-
-		if (w > max_w)
-		{
-			// if no character could fit, an infinite loop would probably start,
-			// so it's better to just imagine that one character fits.
-			if (s == str)
-				s = str + 1;
-
-			break;
-		}
-	}
-
-	// extra spaces at the end of the line can always be added
-	while (*s == ' ')
-		s++;
-
-	return s - str;
-}
-
-//
-// HL_StringWidth
-//
-// Find string width from hu_font chars.  The string may not contain
-// any newline characters.
-//
-int HL_StringWidth(const char *str)
-{
-	int w;
-
-	for (w=0; *str; str++)
-	{
-		w += HL_CharWidth(&hu_font, *str);
-	}
-
-	return w;
-}
-
-//
-// HL_StringHeight
-//
-// Find string height from hu_font chars
-//
-int HL_StringHeight(const char *string)
-{
-	int h = hu_font.height;
-
-	for (; *string; string++)
-		if (*string == '\n')
-			h += hu_font.height;
-
-	return h;
-}
-
-//
-// HL_WriteChar
-//
-static void HL_WriteChar(int x, int y, const H_font_t *font, char ch,
-    const colourmap_c *colmap, fixed_t alpha)
-{
-	DEV_ASSERT2(HL_CharExists(font, ch));
-
-	const image_t *image = font->images[HU_INDEX(ch) - font->first_ch];
-
-	// -AJA- make text look nicer on low resolutions
-	if (SCREENWIDTH < 620)
-	{
-		RGL_DrawImage(FROM_320(x) - image->offset_x, 
-			FROM_200(y) - image->offset_y,
-			IM_WIDTH(image), IM_HEIGHT(image), image,
-			0.0f, 0.0f, IM_RIGHT(image), IM_BOTTOM(image), colmap,
-			M_FixedToFloat(alpha));
-		return;
-	}
-
-	RGL_DrawImage(FROM_320(x - image->offset_x), 
-		FROM_200(y - image->offset_y),
-		FROM_320(IM_WIDTH(image)), FROM_200(IM_HEIGHT(image)), image,
-		0.0f, 0.0f, IM_RIGHT(image), IM_BOTTOM(image), colmap,
-		M_FixedToFloat(alpha));
-}
-
-//
 // HL_WriteTextTrans
 //
 // Write a string using the hu_font and index translator.
 //
-void HL_WriteTextTrans(int x, int y, const colourmap_c *colmap, 
-    const char *string)
+void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
+	const colourmap_c *colmap, const char *str)
 {
 	int cx = x;
 	int cy = y;
 
-	for (; *string; string++)
+	font_c *font = style->fonts[text_type];
+
+	if (! font)
+		I_Error("Style [%s] is missing a font !\n", style->def->ddf.name.GetString());
+
+	for (; *str; str++)
 	{
-		char ch = *string;
+		char ch = *str;
 
 		if (ch == '\n')
 		{
@@ -203,18 +78,12 @@ void HL_WriteTextTrans(int x, int y, const colourmap_c *colmap,
 			continue;
 		}
 
-		if (! HL_CharExists(&hu_font, ch))
-		{
-			cx += DUMMY_WIDTH(&hu_font);
-			continue;
-		}
-
-		int w = HL_CharWidth(&hu_font, ch);
-
-		if (cx + w > 320)
+		if (cx >= 320)
 			continue;
 
-		HL_WriteChar(cx, cy, &hu_font, ch, colmap, FRACUNIT);
+		int w = font->CharWidth(ch);
+
+		font->DrawChar(cx, cy, ch, colmap, 1.0f);
 
 		cx += w;
 	}
@@ -225,9 +94,9 @@ void HL_WriteTextTrans(int x, int y, const colourmap_c *colmap,
 //
 // Write a string using the hu_font.
 //
-void HL_WriteText(int x, int y, const char *string)
+void HL_WriteText(style_c *style, int text_type, int x, int y, const char *str)
 {
-	HL_WriteTextTrans(x, y, NULL, string);
+	HL_WriteTextTrans(style, text_type, x, y, style->def->text[text_type].colmap, str);
 }
 
 //----------------------------------------------------------------------------
@@ -236,16 +105,16 @@ void HL_ClearTextLine(hu_textline_t * t)
 {
 	t->len = 0;
 	t->ch[0] = 0;
-	t->needsupdate = true;
 	t->centre = false;
 }
 
-void HL_InitTextLine(hu_textline_t * t, int x, int y, 
-    const H_font_t *font)
+void HL_InitTextLine(hu_textline_t * t, int x, int y, style_c *style, int text_type)
 {
 	t->x = x;
 	t->y = y;
-	t->font = font;
+	t->style = style;
+	t->text_type = text_type;
+
 	HL_ClearTextLine(t);
 }
 
@@ -256,7 +125,6 @@ bool HL_AddCharToTextLine(hu_textline_t * t, char ch)
 
 	t->ch[t->len++] = ch;
 	t->ch[t->len] = 0;
-	t->needsupdate = 4;
 	return true;
 }
 
@@ -267,7 +135,6 @@ bool HL_DelCharFromTextLine(hu_textline_t * t)
 
 	t->len--;
 	t->ch[t->len] = 0;
-	t->needsupdate = 4;
 	return true;
 }
 
@@ -284,7 +151,8 @@ bool HL_DelCharFromTextLine(hu_textline_t * t)
 // -AJA- 2000/03/05: Index replaced with pointer to trans table.
 // -AJA- 2000/10/22: Renamed for alpha support.
 //
-void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c *colmap, fixed_t alpha)
+void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c *colmap,
+	float alpha)
 {
 	int i, x, y, w;
 
@@ -292,39 +160,44 @@ void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c 
 	x = L->x;
 	y = L->y;
 
+	font_c *font = L->style->fonts[L->text_type];
+
+	if (! font)
+		I_Error("Style [%s] is missing a font !\n", L->style->def->ddf.name.GetString());
+
 	// -AJA- 1999/09/07: centred text.
 	if (L->centre)
 	{
-		x -= HL_StringWidth(L->ch) / 2;
+		x -= font->StringWidth(L->ch) / 2;
 	}
 
-	for (i=0; (i < L->len) && (x < 320); i++, x += w)
+	for (i = 0; (i < L->len) && (x < 320); i++, x += w)
 	{
 		char ch = L->ch[i];
 
-		w = HL_CharWidth(L->font, ch);
-
-		if (! HL_CharExists(L->font, ch))
-			continue;
+		w = font->CharWidth(ch);
 
 		if (x < -w)
 			continue;
 
-		HL_WriteChar(x, y, L->font, ch, colmap, alpha);
+		font->DrawChar(x, y, ch, colmap, alpha);
 	}
 
-	DEV_ASSERT2(HL_CharExists(L->font, '_'));
-
 	// draw the cursor if requested
-	if (drawcursor && x + L->font->width <= 320)
+	if (font->HasChar('_'))
 	{
-		HL_WriteChar(x, y, L->font, '_', colmap, alpha);
+		if (drawcursor && x < 320)
+		{
+			font->DrawChar(x, y, '_', colmap, alpha);
+		}
 	}
 }
 
 void HL_DrawTextLine(hu_textline_t * L, bool drawcursor)
 {
-	HL_DrawTextLineAlpha(L, drawcursor, text_red_map, FRACUNIT);
+	HL_DrawTextLineAlpha(L, drawcursor,
+		L->style->def->text[L->text_type].colmap ?
+		L->style->def->text[L->text_type].colmap : text_red_map, 1.0f);
 }
 
 // sorta called by HU_Erase and just better darn get things straight
@@ -335,35 +208,34 @@ void HL_EraseTextLine(hu_textline_t * l)
 
 //----------------------------------------------------------------------------
 
-void HL_InitSText(hu_stext_t * s, int x, int y, int h, 
-    const H_font_t *font, bool * on)
+void HL_InitSText(hu_stext_t * s, int x, int y, int h, style_c *style, int text_type)
 {
 	int i;
 
 	s->h = h;
-	s->on = on;
-	s->laston = true;
 	s->curline = 0;
+
+	font_c *font = style->fonts[text_type];
+
+	if (! font)
+		I_Error("Style [%s] is missing a font !\n", style->def->ddf.name.GetString());
 
 	for (i = 0; i < h; i++)
 	{
-		HL_InitTextLine(&s->L[i], x, y - i * (font->height+1), font);
+		HL_InitTextLine(&s->L[i], x, y, style, text_type);
+
+		y -= font->NominalHeight() + 1;
 	}
 }
 
 void HL_AddLineToSText(hu_stext_t * s)
 {
-	int i;
-
 	// add a clear line
 	if (++s->curline == s->h)
 		s->curline = 0;
 
 	HL_ClearTextLine(&s->L[s->curline]);
 
-	// everything needs updating
-	for (i=0; i < s->h; i++)
-		s->L[i].needsupdate = 4;
 }
 
 void HL_AddMessageToSText(hu_stext_t * s, const char *prefix, const char *msg)
@@ -381,9 +253,6 @@ void HL_AddMessageToSText(hu_stext_t * s, const char *prefix, const char *msg)
 void HL_DrawSText(hu_stext_t * s)
 {
 	int i, idx;
-
-	if (!*s->on)
-		return;  // if not on, don't draw
 
 	// draw everything
 	for (i=0; i < s->h; i++)
@@ -404,26 +273,18 @@ void HL_EraseSText(hu_stext_t * s)
 
 	for (i=0; i < s->h; i++)
 	{
-		if (s->laston && !*s->on)
-			s->L[i].needsupdate = 4;
-
 		HL_EraseTextLine(&s->L[i]);
 	}
-	s->laston = *s->on;
 }
 
 //----------------------------------------------------------------------------
 
-void HL_InitIText(hu_itext_t * it, int x, int y, 
-    const H_font_t *font, bool * on)
+void HL_InitIText(hu_itext_t * it, int x, int y, style_c *style, int text_type)
 {
 	// default left margin is start of text
 	it->margin = 0;
 
-	it->on = on;
-	it->laston = true;
-
-	HL_InitTextLine(&it->L, x, y, font);
+	HL_InitTextLine(&it->L, x, y, style, text_type);
 }
 
 // The following deletion routines adhere to the left margin restriction
@@ -471,20 +332,12 @@ bool HL_KeyInIText(hu_itext_t * it, const char ch)
 
 void HL_DrawIText(hu_itext_t * it)
 {
-	if (!*it->on)
-		return;
-
 	// draw the line with cursor
 	HL_DrawTextLine(&it->L, true);
 }
 
 void HL_EraseIText(hu_itext_t * it)
 {
-	if (it->laston && !*it->on)
-		it->L.needsupdate = 4;
-
 	HL_EraseTextLine(&it->L);
-
-	it->laston = *it->on;
 }
 

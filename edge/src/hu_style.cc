@@ -50,8 +50,12 @@ style_c::~style_c()
 //
 void style_c::Load()
 {
-	if (def->bg.image_name)
-		bg_image = W_ImageFromTexture(def->bg.image_name);
+	if (def->bg.image_name.GetString())
+	{
+		bg_image = W_ImageFromTexture(def->bg.image_name.GetString(), true);
+		if (! bg_image)
+			bg_image = W_ImageFromPatch(def->bg.image_name.GetString());
+	}
 
 	for (int T = 0; T < styledef_c::NUM_TXST; T++)
 	{

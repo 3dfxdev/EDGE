@@ -60,10 +60,10 @@ void font_c::BumpPatchName(char *name)
 			break;
 
 		if (*s == '9') { *s = '0'; continue; }
-		if (*s == 'z') { *s = 'a'; continue; }
 		if (*s == 'Z') { *s = 'A'; continue; }
+		if (*s == 'z') { *s = 'a'; continue; }
 
-		*s++; break;
+		(*s) += 1; break;
 	}
 }
 
@@ -102,7 +102,7 @@ void font_c::LoadPatches()
 
 		for (int ch = pat->char1; ch <= pat->char2; ch++, BumpPatchName(pname))
 		{
-#if 1  // DEBUG
+#if 0  // DEBUG
 I_Printf("LoadFont [%s] : char %d = %s\n", def->ddf.name.GetString(), ch, pname);
 #endif
 			int idx = ch - p_cache.first;
@@ -188,7 +188,14 @@ const struct image_s *font_c::CharImage(char ch) const
 	DEV_ASSERT2(def->type == FNTYP_Patch);
 
 	if (! HasChar(ch))
-		return p_cache.missing;
+	{
+		if ('a' <= ch && ch <= 'z' && HasChar(toupper(ch)))
+			ch = toupper(ch);
+		else if (ch == ' ')
+			return NULL;
+		else
+			return p_cache.missing;
+	}
 
 	int idx = int(ch) & 0x00FF;
 
@@ -206,20 +213,15 @@ int font_c::CharWidth(char ch) const
 {
 	DEV_ASSERT2(def->type == FNTYP_Patch);
 
+	if (ch == ' ')
+		return p_cache.width * 2 / 3;
+
 	const struct image_s *im = CharImage(ch);
 
 	if (! im)
 		return DUMMY_WIDTH;
 
-	int w = IM_WIDTH(im);
-
-	// -AJA- make text look nicer on low resolutions
-	if (SCREENWIDTH < 620 && SCREENWIDTH > 320)
-	{
-		w = (w * 320 + SCREENWIDTH - 64) / SCREENWIDTH;
-	}
-
-	return w;
+	return IM_WIDTH(im);
 }
 
 //
@@ -288,7 +290,29 @@ int font_c::StringLines(const char *str) const
 	return lines;
 }
 
-// ---> font_container_c class
+//
+// font_c::DrawChar
+//
+void font_c::DrawChar(int x, int y, char ch,   // FIXME: float x, y
+    const colourmap_c *colmap, float alpha) const
+{
+	const image_t *image = CharImage(ch);
+
+	if (! image)
+		return;
+
+	RGL_DrawImage(
+	    FROM_320(x - image->offset_x), FROM_200(y - image->offset_y),
+		FROM_320(IM_WIDTH(image)),     FROM_200(IM_HEIGHT(image)),
+		image, 0.0f, 0.0f,
+		IM_RIGHT(image), IM_BOTTOM(image),
+		colmap, alpha);
+}
+
+
+//----------------------------------------------------------------------------
+//  font_container_c class
+//----------------------------------------------------------------------------
 
 //
 // font_container_c::CleanupObject()
