@@ -159,7 +159,7 @@ void RGL_SetupMatrices3D(void)
 	else
 		glDisable(GL_COLOR_MATERIAL);
 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	/* glBlendFunc(GL_SRC_ALPHA, GL_ONE);  // Additive lighting */
 
 	DEV_ASSERT2(currmap);
 	if (currmap->lighting != rgl_light_model)
@@ -533,5 +533,24 @@ void RGL_DrawProgress(int perc, int glbsp_perc)
 
 	I_FinishFrame();
 	I_StartFrame();
+}
+
+//
+// RGL_DrawBeta
+//
+void RGL_DrawBeta(void)
+{
+	int bw, bh;
+
+	const byte *beta_lum = RGL_BetaImage(&bw, &bh);
+
+	float zoom = SCREENWIDTH / 640.0f;
+
+	int x = SCREENWIDTH  - (int)(bw * zoom);
+	int y = SCREENHEIGHT - (int)(bh * zoom);
+
+	glRasterPos2i(x, y);
+	glPixelZoom(zoom, zoom);
+	glDrawPixels(bw, bh, GL_LUMINANCE, GL_UNSIGNED_BYTE, beta_lum);
 }
 
