@@ -54,7 +54,7 @@
 // -KM- 1998/11/25 Handles weapon change from priority.
 //
 static bool GiveAmmo(player_t * player, mobj_t * special,
-    benefit_t *be, bool lose_em)
+					 benefit_t *be, bool lose_em)
 {
 	int dropped = (special && (special->flags & MF_DROPPED));
 
@@ -119,7 +119,7 @@ static bool GiveAmmo(player_t * player, mobj_t * special,
 // GiveAmmoLimit
 //
 static bool GiveAmmoLimit(player_t * player, mobj_t * special,
-    benefit_t *be, bool lose_em)
+						  benefit_t *be, bool lose_em)
 {
 	int ammo  = be->subtype;  
 	int limit = (int)floor(be->amount);
@@ -131,7 +131,7 @@ static bool GiveAmmoLimit(player_t * player, mobj_t * special,
 		I_Error("GiveAmmoLimit: bad type %i", ammo);
 
 	if ((!lose_em && limit < player->ammo[ammo].max) ||
-			(lose_em && limit > player->ammo[ammo].max))
+		(lose_em && limit > player->ammo[ammo].max))
 	{
 		return false;
 	}
@@ -148,7 +148,7 @@ static bool GiveAmmoLimit(player_t * player, mobj_t * special,
 // -AJA- 2000/03/02: Reworked for new benefit_t stuff.
 //
 static bool GiveWeapon(player_t * player, mobj_t * special,
-    benefit_t *be, bool lose_em)
+					   benefit_t *be, bool lose_em)
 {
 	weaponinfo_t *info = weaponinfo[be->subtype];
 	int pw_index;
@@ -175,7 +175,7 @@ static bool GiveWeapon(player_t * player, mobj_t * special,
 // New Procedure: -ACB- 1998/06/21
 //
 static bool GiveHealth(player_t * player, mobj_t * special,
-    benefit_t *be, bool lose_em)
+					   benefit_t *be, bool lose_em)
 {
 	if (lose_em)
 	{
@@ -202,7 +202,7 @@ static bool GiveHealth(player_t * player, mobj_t * special,
 // Returns false if the new armour would not benefit
 //
 static bool GiveArmour(player_t * player, mobj_t * special,
-    benefit_t *be, bool lose_em)
+					   benefit_t *be, bool lose_em)
 {
 	armour_type_e a_class = (armour_type_e)be->subtype;
 
@@ -223,10 +223,18 @@ static bool GiveArmour(player_t * player, mobj_t * special,
 	if (slack <= 0)
 		return false;
 
+#if 0
 	player->armours[a_class] += be->amount;
 
 	if (player->armours[a_class] > slack)
 		player->armours[a_class] = slack;
+#else
+	// -ACB- 2004/02/01 This appears to make a little more sense, but needs more work
+	if (be->amount > slack)
+		player->armours[a_class] += slack;
+	else
+		player->armours[a_class] += be->amount;
+#endif
 
 	P_UpdateTotalArmour(player);
 	return true;
@@ -271,7 +279,7 @@ static bool GiveKey(player_t * player, mobj_t * special, benefit_t *be, bool los
 // for this item. -ACB- 1998/06/20
 //
 static bool GivePower(player_t * player, mobj_t * special,
-    benefit_t *be, bool lose_em)
+					  benefit_t *be, bool lose_em)
 { 
 	int i;
 
@@ -331,83 +339,83 @@ static bool GivePower(player_t * player, mobj_t * special,
 // benefit was picked up (or lost), or false if none of them were.
 //
 bool P_GiveBenefitList(player_t *player, mobj_t * special, 
-    benefit_t *list, bool lose_em)
+					   benefit_t *list, bool lose_em)
 {
 	bool pickup = false;
 	// is it a weapon that will stay in old deathmatch?
 	bool dm_weapon = false;
 
-  // leave placed weapons forever in old deathmatch mode
-  // but only if we haven't already picked it up.
- 
+	// leave placed weapons forever in old deathmatch mode
+	// but only if we haven't already picked it up.
+
 #if 0  // FIXME
-  // is it a old deathmatch weapon that we have any use for?
-  bool dm_needweapon = false;
-  if (!lose_em && netgame && deathmatch <= 1)
-  {
-    benefit_t *b;
-    for (b = list; b; b=b->next)
-    {
-      if (b->type == BENEFIT_Weapon && (!(special && (special->flags & MF_DROPPED))))
-      {
-        // it is an "old dm" weapon.
-        dm_weapon = true;
-        // minor hack: give the weapon, and see if we needed it.
-        // in that case, the benefit should be picked up
-        if (GiveWeapon(player, special, b))
-          dm_needweapon = true;
-      }
-    }
-    if (dm_weapon && !dm_needweapon)
-      // it was a dm weapon, but we already have it, so don't pick it up again.
-      return false;
-  }
+	// is it a old deathmatch weapon that we have any use for?
+	bool dm_needweapon = false;
+	if (!lose_em && netgame && deathmatch <= 1)
+	{
+		benefit_t *b;
+		for (b = list; b; b=b->next)
+		{
+			if (b->type == BENEFIT_Weapon && (!(special && (special->flags & MF_DROPPED))))
+			{
+				// it is an "old dm" weapon.
+				dm_weapon = true;
+				// minor hack: give the weapon, and see if we needed it.
+				// in that case, the benefit should be picked up
+				if (GiveWeapon(player, special, b))
+					dm_needweapon = true;
+			}
+		}
+		if (dm_weapon && !dm_needweapon)
+			// it was a dm weapon, but we already have it, so don't pick it up again.
+			return false;
+	}
 #endif
 
-  for (; list; list=list->next)
-  {
-	  if (list->type == BENEFIT_None || list->amount <= 0.0)
-		  continue;
+	for (; list; list=list->next)
+	{
+		if (list->type == BENEFIT_None || list->amount <= 0.0)
+			continue;
 
-	  switch (list->type)
-	  {
-		  case BENEFIT_Ammo:
-			  pickup |= GiveAmmo(player, special, list, lose_em);
-			  break;
+		switch (list->type)
+		{
+		case BENEFIT_Ammo:
+			pickup |= GiveAmmo(player, special, list, lose_em);
+			break;
 
-		  case BENEFIT_AmmoLimit:
-			  pickup |= GiveAmmoLimit(player, special, list, lose_em);
-			  break;
+		case BENEFIT_AmmoLimit:
+			pickup |= GiveAmmoLimit(player, special, list, lose_em);
+			break;
 
-		  case BENEFIT_Weapon:
-			  pickup |= GiveWeapon(player, special, list, lose_em);
-			  break;
+		case BENEFIT_Weapon:
+			pickup |= GiveWeapon(player, special, list, lose_em);
+			break;
 
-		  case BENEFIT_Key:
-			  pickup |= GiveKey(player, special, list, lose_em);
-			  break;
+		case BENEFIT_Key:
+			pickup |= GiveKey(player, special, list, lose_em);
+			break;
 
-		  case BENEFIT_Health:
-			  pickup |= GiveHealth(player, special, list, lose_em);
-			  break;
+		case BENEFIT_Health:
+			pickup |= GiveHealth(player, special, list, lose_em);
+			break;
 
-		  case BENEFIT_Armour:
-			  pickup |= GiveArmour(player, special, list, lose_em);
-			  break;
+		case BENEFIT_Armour:
+			pickup |= GiveArmour(player, special, list, lose_em);
+			break;
 
-		  case BENEFIT_Powerup:
-			  pickup |= GivePower(player, special, list, lose_em);
-			  break;
+		case BENEFIT_Powerup:
+			pickup |= GivePower(player, special, list, lose_em);
+			break;
 
-		  default:
-			  break;
-	  }
-  }
+		default:
+			break;
+		}
+	}
 
-  if (dm_weapon)
-	  pickup = false;
+	if (dm_weapon)
+		pickup = false;
 
-  return pickup;
+	return pickup;
 }
 
 
@@ -420,64 +428,64 @@ bool P_GiveBenefitList(player_t *player, mobj_t * special,
 //
 void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 {
-  player_t *player;
-  float delta;
-  sfx_t *sound;
-  bool pickup = false;
+	player_t *player;
+	float delta;
+	sfx_t *sound;
+	bool pickup = false;
 
-  delta = special->z - toucher->z;
+	delta = special->z - toucher->z;
 
-  // out of reach
-  if (delta > toucher->height || delta < -special->height)
-    return;
+	// out of reach
+	if (delta > toucher->height || delta < -special->height)
+		return;
 
-  player = toucher->player;
+	player = toucher->player;
 
-  if (! player)
-	  return;
+	if (! player)
+		return;
 
-  // Dead thing touching. Can happen with a sliding player corpse.
-  if (toucher->health <= 0)
-    return;
+	// Dead thing touching. Can happen with a sliding player corpse.
+	if (toucher->health <= 0)
+		return;
 
-  // -KM- 1998/09/27 Sounds.ddf
-  sound = special->info->activesound;
-  toucher->flags |= MF_JUSTPICKEDUP;
+	// -KM- 1998/09/27 Sounds.ddf
+	sound = special->info->activesound;
+	toucher->flags |= MF_JUSTPICKEDUP;
 
-  // First check for lost benefits
-  pickup |= P_GiveBenefitList(player, special, 
-      special->info->lose_benefits, true);
-  
-  // Run through the list of all pickup benefits...
-  pickup |= P_GiveBenefitList(player, special, 
-      special->info->pickup_benefits, false);
+	// First check for lost benefits
+	pickup |= P_GiveBenefitList(player, special, 
+		special->info->lose_benefits, true);
 
-  if (special->flags & MF_COUNTITEM)
-  {
-    player->itemcount++;
-    pickup = true;
-  }
+	// Run through the list of all pickup benefits...
+	pickup |= P_GiveBenefitList(player, special, 
+		special->info->pickup_benefits, false);
 
-  if (pickup)
-  {
-    special->health = 0;
-    P_KillMobj(player->mo, special, NULL);
+	if (special->flags & MF_COUNTITEM)
+	{
+		player->itemcount++;
+		pickup = true;
+	}
 
-    player->bonuscount += BONUS_ADD;
-    if (player->bonuscount > BONUS_LIMIT)
-      player->bonuscount = BONUS_LIMIT;
+	if (pickup)
+	{
+		special->health = 0;
+		P_KillMobj(player->mo, special, NULL);
 
-    // -AJA- FIXME: OPTIMISE THIS!
-    if (special->info->pickup_message &&
-        DDF_LanguageValidRef(special->info->pickup_message))
-    {
-      CON_PlayerMessage(player, 
-          DDF_LanguageLookup(special->info->pickup_message));
-    }
+		player->bonuscount += BONUS_ADD;
+		if (player->bonuscount > BONUS_LIMIT)
+			player->bonuscount = BONUS_LIMIT;
 
-    if (sound)
-      S_StartSound(player->mo, sound);
-  }
+		// -AJA- FIXME: OPTIMISE THIS!
+		if (special->info->pickup_message &&
+			DDF_LanguageValidRef(special->info->pickup_message))
+		{
+			CON_PlayerMessage(player, 
+				DDF_LanguageLookup(special->info->pickup_message));
+		}
+
+		if (sound)
+			S_StartSound(player->mo, sound);
+	}
 }
 
 //
@@ -495,107 +503,107 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 //
 void P_KillMobj(mobj_t * source, mobj_t * target, const damage_t *damtype)
 {
-  const mobjinfo_t *item;
-  statenum_t state;
-  bool overkill;
+	const mobjinfo_t *item;
+	statenum_t state;
+	bool overkill;
 
-  target->flags &= ~(MF_SPECIAL | MF_SHOOTABLE | MF_FLOAT | 
-      MF_SKULLFLY | MF_TOUCHY);
-  target->extendedflags &= ~(EF_BOUNCE | EF_USABLE | EF_CLIMBABLE);
+	target->flags &= ~(MF_SPECIAL | MF_SHOOTABLE | MF_FLOAT | 
+		MF_SKULLFLY | MF_TOUCHY);
+	target->extendedflags &= ~(EF_BOUNCE | EF_USABLE | EF_CLIMBABLE);
 
-  if (!(target->extendedflags & EF_NOGRAVKILL))
-    target->flags &= ~MF_NOGRAVITY;
+	if (!(target->extendedflags & EF_NOGRAVKILL))
+		target->flags &= ~MF_NOGRAVITY;
 
-  target->flags |= MF_CORPSE | MF_DROPOFF;
-  target->height /= 4;
+	target->flags |= MF_CORPSE | MF_DROPOFF;
+	target->height /= 4;
 
-  if (source && source->player)
-  {
-    // count for intermission
-    if (target->flags & MF_COUNTKILL)
-      source->player->killcount++;
+	if (source && source->player)
+	{
+		// count for intermission
+		if (target->flags & MF_COUNTKILL)
+			source->player->killcount++;
 
-    if (target->player)
-    {
-      // Killed a team mate?
-      if (target->side & source->side)
-      {
-        source->player->frags--;
-        source->player->totalfrags--;
-      }
-      else
-      {
-        source->player->frags++;
-        source->player->totalfrags++;
-      }
-    }
-  }
-  else if (!netgame && (target->flags & MF_COUNTKILL))
-  {
-    // count all monster deaths,
-    // even those caused by other monsters
-    consoleplayer->killcount++;
-  }
+		if (target->player)
+		{
+			// Killed a team mate?
+			if (target->side & source->side)
+			{
+				source->player->frags--;
+				source->player->totalfrags--;
+			}
+			else
+			{
+				source->player->frags++;
+				source->player->totalfrags++;
+			}
+		}
+	}
+	else if (!netgame && (target->flags & MF_COUNTKILL))
+	{
+		// count all monster deaths,
+		// even those caused by other monsters
+		consoleplayer->killcount++;
+	}
 
-  if (target->player)
-  {
-    // count environment kills against you
-    if (!source)
-    {
-      target->player->frags--;
-      target->player->totalfrags--;
-    }
+	if (target->player)
+	{
+		// count environment kills against you
+		if (!source)
+		{
+			target->player->frags--;
+			target->player->totalfrags--;
+		}
 
-    target->flags &= ~MF_SOLID;
-    target->player->playerstate = PST_DEAD;
-    target->player->std_viewheight = MIN(DEATHVIEWHEIGHT,
-        target->height / 3);
+		target->flags &= ~MF_SOLID;
+		target->player->playerstate = PST_DEAD;
+		target->player->std_viewheight = MIN(DEATHVIEWHEIGHT,
+			target->height / 3);
 
-    P_DropWeapon(target->player);
+		P_DropWeapon(target->player);
 
-    // don't die in auto map, switch view prior to dying
-    if (target->player == consoleplayer && automapactive)
-      AM_Stop();
-  }
+		// don't die in auto map, switch view prior to dying
+		if (target->player == consoleplayer && automapactive)
+			AM_Stop();
+	}
 
-  state = S_NULL;
-  overkill = (target->health < -target->info->spawnhealth);
+	state = S_NULL;
+	overkill = (target->health < -target->info->spawnhealth);
 
-  if (overkill && damtype && damtype->overkill.label)
-  {
-    state = P_MobjFindLabel(target, damtype->overkill.label);
-    if (state != S_NULL)
-      state += damtype->overkill.offset;
-  }
-  
-  if (state == S_NULL && overkill && target->info->overkill_state)
-    state = target->info->overkill_state;
+	if (overkill && damtype && damtype->overkill.label)
+	{
+		state = P_MobjFindLabel(target, damtype->overkill.label);
+		if (state != S_NULL)
+			state += damtype->overkill.offset;
+	}
 
-  if (state == S_NULL && damtype && damtype->death.label)
-  {
-    state = P_MobjFindLabel(target, damtype->death.label);
-    if (state != S_NULL)
-      state += damtype->death.offset;
-  }
+	if (state == S_NULL && overkill && target->info->overkill_state)
+		state = target->info->overkill_state;
 
-  if (state == S_NULL)
-    state = target->info->death_state;
+	if (state == S_NULL && damtype && damtype->death.label)
+	{
+		state = P_MobjFindLabel(target, damtype->death.label);
+		if (state != S_NULL)
+			state += damtype->death.offset;
+	}
 
-  P_SetMobjStateDeferred(target, state, P_Random() & 3);
+	if (state == S_NULL)
+		state = target->info->death_state;
 
-  // Drop stuff. This determines the kind of object spawned
-  // during the death frame of a thing.
-  item = target->info->dropitem;
+	P_SetMobjStateDeferred(target, state, P_Random() & 3);
 
-  if (item)
-  {
-    mobj_t *mo = P_MobjCreateObject(target->x, target->y,
-        target->floorz, item);
+	// Drop stuff. This determines the kind of object spawned
+	// during the death frame of a thing.
+	item = target->info->dropitem;
 
-    // -ES- 1998/07/18 NULL check to prevent crashing
-    if (mo)
-      mo->flags |= MF_DROPPED;
-  }
+	if (item)
+	{
+		mobj_t *mo = P_MobjCreateObject(target->x, target->y,
+			target->floorz, item);
+
+		// -ES- 1998/07/18 NULL check to prevent crashing
+		if (mo)
+			mo->flags |= MF_DROPPED;
+	}
 }
 
 //
@@ -613,37 +621,37 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_t *damtype)
 //
 void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust)
 {
-  float dx, dy, dz;
-  float push, slope;
-  angle_t angle;
+	float dx, dy, dz;
+	float push, slope;
+	angle_t angle;
 
-  // check for immunity against the attack
-  if (inflictor && inflictor->currentattack && BITSET_EMPTY ==
-      (inflictor->currentattack->attack_class & ~target->info->immunity))
-  {
-    return;
-  }
+	// check for immunity against the attack
+	if (inflictor && inflictor->currentattack && BITSET_EMPTY ==
+		(inflictor->currentattack->attack_class & ~target->info->immunity))
+	{
+		return;
+	}
 
-  dx = target->x - inflictor->x;
-  dy = target->y - inflictor->y;
-  dz = MO_MIDZ(target) - MO_MIDZ(inflictor);
-  
-  angle = R_PointToAngle(0, 0, dx, dy);
+	dx = target->x - inflictor->x;
+	dy = target->y - inflictor->y;
+	dz = MO_MIDZ(target) - MO_MIDZ(inflictor);
 
-  // -ACB- 2000/03/11 Div-by-zero check...
-  CHECKVAL(target->info->mass);
+	angle = R_PointToAngle(0, 0, dx, dy);
 
-  push = 12.0f * thrust / target->info->mass;
+	// -ACB- 2000/03/11 Div-by-zero check...
+	CHECKVAL(target->info->mass);
 
-  target->mom.x += push * M_Cos(angle);
-  target->mom.y += push * M_Sin(angle);
+	push = 12.0f * thrust / target->info->mass;
 
-  if (level_flags.true3dgameplay)
-  {
-    slope = P_ApproxSlope(dx, dy, dz);
-  
-    target->mom.z += push * slope / 2;
-  }
+	target->mom.x += push * M_Cos(angle);
+	target->mom.y += push * M_Sin(angle);
+
+	if (level_flags.true3dgameplay)
+	{
+		slope = P_ApproxSlope(dx, dy, dz);
+
+		target->mom.z += push * slope / 2;
+	}
 }
 
 //
@@ -666,7 +674,7 @@ void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust)
 //       routine can be called by TryMove/PIT_CheckRelThing/etc.
 //
 void P_DamageMobj(mobj_t * target, mobj_t * inflictor, 
-    mobj_t * source, float damage, const damage_t * damtype)
+				  mobj_t * source, float damage, const damage_t * damtype)
 {
 	player_t *player;
 	statenum_t state;
@@ -681,14 +689,14 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 
 	// check for immunity against the attack
 	if (inflictor && inflictor->currentattack && BITSET_EMPTY ==
-			(inflictor->currentattack->attack_class & ~target->info->immunity))
+		(inflictor->currentattack->attack_class & ~target->info->immunity))
 	{
 		return;
 	}
 
 	// check for partial resistance against the attack
 	if (damage >= 0.1f && inflictor && inflictor->currentattack &&
-			BITSET_EMPTY == (inflictor->currentattack->attack_class & ~target->info->resistance))
+		BITSET_EMPTY == (inflictor->currentattack->attack_class & ~target->info->resistance))
 	{
 		damage = (damage + 0.1f) * 0.4f;
 	}
@@ -715,12 +723,12 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 	// thus kick away unless using the chainsaw.
 
 	if (inflictor && !(target->flags & MF_NOCLIP) &&
-			!(source && source->player && source->player->ready_wp >= 0 &&
-				source->player->weapons[source->player->ready_wp].info->nothrust))
+		!(source && source->player && source->player->ready_wp >= 0 &&
+		source->player->weapons[source->player->ready_wp].info->nothrust))
 	{
 		// make fall forwards sometimes
 		if (damage < 40 && damage > target->health &&
-				target->z - inflictor->z > 64 && (P_Random() & 1))
+			target->z - inflictor->z > 64 && (P_Random() & 1))
 		{
 			P_ThrustMobj(target, inflictor, -damage * 4);
 		}
@@ -733,7 +741,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 	{
 		// Below certain threshold, ignore damage in GOD mode, or with INVUL power
 		if (damage < 1000 &&
-				((player->cheats & CF_GODMODE) || player->powers[PW_Invulnerable]))
+			((player->cheats & CF_GODMODE) || player->powers[PW_Invulnerable]))
 		{
 			return;
 		}
@@ -749,12 +757,12 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 
 			switch (i)
 			{
-				case ARMOUR_Green:  saved = damage * 0.33f; break;
-				case ARMOUR_Blue:   saved = damage * 0.50f; break;
-				case ARMOUR_Yellow: saved = damage * 0.75f; break;
-				case ARMOUR_Red:    saved = damage * 0.90f; break;
-				default: 
-									I_Error("INTERNAL ERROR in P_DamageMobj: bad armour %d\n", i);
+			case ARMOUR_Green:  saved = damage * 0.33f; break;
+			case ARMOUR_Blue:   saved = damage * 0.50f; break;
+			case ARMOUR_Yellow: saved = damage * 0.75f; break;
+			case ARMOUR_Red:    saved = damage * 0.90f; break;
+			default: 
+				I_Error("INTERNAL ERROR in P_DamageMobj: bad armour %d\n", i);
 			}
 
 			if (player->armours[i] <= saved)
@@ -825,14 +833,14 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 	target->reactiontime = 0;
 
 	if ((!target->threshold || target->extendedflags & EF_NOGRUDGE) &&
-			source && source != target && (!(source->extendedflags & EF_NEVERTARGET)))
+		source && source != target && (!(source->extendedflags & EF_NEVERTARGET)))
 	{
 		// if not intent on another player, chase after this one
 		P_MobjSetTarget(target, source);
 		target->threshold = BASETHRESHOLD;
 
 		if (target->state == &states[target->info->idle_state] &&
-				target->info->chase_state)
+			target->info->chase_state)
 		{
 			P_SetMobjStateDeferred(target, target->info->chase_state, 0);
 		}
