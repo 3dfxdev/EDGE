@@ -62,7 +62,7 @@ Then run EDGE using this additional file, for example:
 Options
 -------
 
-  -o --output      Output file.  This is optional, the default output
+  -o --output XXX  Output file.  This is optional, the default output
                    filename will simply replace the DEH extension with
                    the HWA extension.
 
