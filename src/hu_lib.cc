@@ -42,13 +42,27 @@
 #define DUMMY_WIDTH(font)  (4)
 
 #define HU_CHAR(ch)  (islower(ch) ? toupper(ch) : (ch))
+#define HU_INDEX(c)  ((unsigned char) HU_CHAR(c))
 
 //
 // HL_Init
 //
 void HL_Init(void)
 {
-  /* nothing to init */
+	/* nothing to init */
+}
+
+//
+// HL_CharExists
+//
+bool HL_CharExists(const H_font_t *font, char ch)
+{
+	int idx = HU_INDEX(ch);
+
+	if (idx < font->first_ch || idx > font->last_ch)
+		return false;
+
+	return true;
 }
 
 //
@@ -56,18 +70,12 @@ void HL_Init(void)
 //
 // Returns the width of the IBM cp437 char in the font.
 //
-int HL_CharWidth(const H_font_t *font, int ch)
+int HL_CharWidth(const H_font_t *font, char ch)
 {
-  // catch sign extension from (char)
-  DEV_ASSERT2(ch >= 0);
+	if (! HL_CharExists(font, ch))
+		return DUMMY_WIDTH(font);
 
-  if (ch < 128)
-    ch = toupper(ch);
-
-  if (ch < font->first_ch || ch > font->last_ch)
-    return DUMMY_WIDTH(font);
-
-  return IM_WIDTH(HFONT_GET_CH(font, ch));
+	return IM_WIDTH(font->images[HU_INDEX(ch) - font->first_ch]);
 }
 
 //
@@ -78,30 +86,30 @@ int HL_CharWidth(const H_font_t *font, int ch)
 //
 int HL_TextMaxLen(int max_w, const char *str)
 {
-  int w;
-  const char *s;
+	int w;
+	const char *s;
 
-  // just add one char at a time until it gets too wide or the string ends.
-  for (w=0, s=str; *s; s++)
-  {
-    w += HL_CharWidth(&hu_font, *s);
+	// just add one char at a time until it gets too wide or the string ends.
+	for (w=0, s=str; *s; s++)
+	{
+		w += HL_CharWidth(&hu_font, *s);
 
-    if (w > max_w)
-    {
-      // if no character could fit, an infinite loop would probably start,
-      // so it's better to just imagine that one character fits.
-      if (s == str)
-        s = str + 1;
+		if (w > max_w)
+		{
+			// if no character could fit, an infinite loop would probably start,
+			// so it's better to just imagine that one character fits.
+			if (s == str)
+				s = str + 1;
 
-      break;
-    }
-  }
+			break;
+		}
+	}
 
-  // extra spaces at the end of the line can always be added
-  while (*s == ' ')
-    s++;
+	// extra spaces at the end of the line can always be added
+	while (*s == ' ')
+		s++;
 
-  return s - str;
+	return s - str;
 }
 
 //
@@ -112,14 +120,14 @@ int HL_TextMaxLen(int max_w, const char *str)
 //
 int HL_StringWidth(const char *str)
 {
-  int w;
+	int w;
 
-  for (w=0; *str; str++)
-  {
-    w += HL_CharWidth(&hu_font, *str);
-  }
+	for (w=0; *str; str++)
+	{
+		w += HL_CharWidth(&hu_font, *str);
+	}
 
-  return w;
+	return w;
 }
 
 //
@@ -129,31 +137,30 @@ int HL_StringWidth(const char *str)
 //
 int HL_StringHeight(const char *string)
 {
-  int h;
-  int height = hu_font.height;
+	int h = hu_font.height;
 
-  h = height;
+	for (; *string; string++)
+		if (*string == '\n')
+			h += hu_font.height;
 
-  for (; *string; string++)
-    if (*string == '\n')
-      h += height;
-
-  return h;
+	return h;
 }
 
 //
 // HL_WriteChar
 //
-static void HL_WriteChar(int x, int y, const H_font_t *font, int c,
+static void HL_WriteChar(int x, int y, const H_font_t *font, char ch,
     const colourmap_t *colmap, fixed_t alpha)
 {
-  const image_t *image = HFONT_GET_CH(font, c);
-  
-  vctx.DrawImage(FROM_320(x - image->offset_x), 
-      FROM_200(y - image->offset_y),
-      FROM_320(IM_WIDTH(image)), FROM_200(IM_HEIGHT(image)), image,
-      0.0f, 0.0f, IM_RIGHT(image), IM_BOTTOM(image), colmap,
-      M_FixedToFloat(alpha));
+	DEV_ASSERT2(HL_CharExists(font, ch));
+
+	const image_t *image = font->images[HU_INDEX(ch) - font->first_ch];
+
+	vctx.DrawImage(FROM_320(x - image->offset_x), 
+		FROM_200(y - image->offset_y),
+		FROM_320(IM_WIDTH(image)), FROM_200(IM_HEIGHT(image)), image,
+		0.0f, 0.0f, IM_RIGHT(image), IM_BOTTOM(image), colmap,
+		M_FixedToFloat(alpha));
 }
 
 //
@@ -164,40 +171,35 @@ static void HL_WriteChar(int x, int y, const H_font_t *font, int c,
 void HL_WriteTextTrans(int x, int y, const colourmap_t *colmap, 
     const char *string)
 {
-  int w, c, cx, cy;
+	int cx = x;
+	int cy = y;
 
-  cx = x;
-  cy = y;
+	for (; *string; string++)
+	{
+		char ch = *string;
 
-  for (; *string; string++)
-  {
-    c = *string;
+		if (ch == '\n')
+		{
+			cx = x;
+			cy += 12;
+			continue;
+		}
 
-    if (c == '\n')
-    {
-      cx = x;
-      cy += 12;
-      continue;
-    }
+		if (! HL_CharExists(&hu_font, ch))
+		{
+			cx += DUMMY_WIDTH(&hu_font);
+			continue;
+		}
 
-    if (c < 128)
-      c = toupper(c);
+		int w = HL_CharWidth(&hu_font, ch);
 
-    if (c < hu_font.first_ch || c > hu_font.last_ch)
-    {
-      cx += DUMMY_WIDTH(&hu_font);
-      continue;
-    }
+		if (cx + w > 320)
+			continue;
 
-    w = HL_CharWidth(&hu_font, c);
+		HL_WriteChar(cx, cy, &hu_font, ch, colmap, FRACUNIT);
 
-    if (cx + w > 320)
-      continue;
-
-    HL_WriteChar(cx, cy, &hu_font, c, colmap, FRACUNIT);
-
-    cx += w;
-  }
+		cx += w;
+	}
 }
 
 //
@@ -207,48 +209,48 @@ void HL_WriteTextTrans(int x, int y, const colourmap_t *colmap,
 //
 void HL_WriteText(int x, int y, const char *string)
 {
-  HL_WriteTextTrans(x, y, text_red_map, string);
+	HL_WriteTextTrans(x, y, text_red_map, string);
 }
 
 //----------------------------------------------------------------------------
 
 void HL_ClearTextLine(hu_textline_t * t)
 {
-  t->len = 0;
-  t->ch[0] = 0;
-  t->needsupdate = true;
-  t->centre = false;
+	t->len = 0;
+	t->ch[0] = 0;
+	t->needsupdate = true;
+	t->centre = false;
 }
 
 void HL_InitTextLine(hu_textline_t * t, int x, int y, 
     const H_font_t *font)
 {
-  t->x = x;
-  t->y = y;
-  t->font = font;
-  HL_ClearTextLine(t);
+	t->x = x;
+	t->y = y;
+	t->font = font;
+	HL_ClearTextLine(t);
 }
 
 bool HL_AddCharToTextLine(hu_textline_t * t, char ch)
 {
-  if (t->len >= HU_MAXLINELENGTH-1)
-    return false;
+	if (t->len >= HU_MAXLINELENGTH-1)
+		return false;
 
-  t->ch[t->len++] = ch;
-  t->ch[t->len] = 0;
-  t->needsupdate = 4;
-  return true;
+	t->ch[t->len++] = ch;
+	t->ch[t->len] = 0;
+	t->needsupdate = 4;
+	return true;
 }
 
 bool HL_DelCharFromTextLine(hu_textline_t * t)
 {
-  if (!t->len)
-    return false;
+	if (!t->len)
+		return false;
 
-  t->len--;
-  t->ch[t->len] = 0;
-  t->needsupdate = 4;
-  return true;
+	t->len--;
+	t->ch[t->len] = 0;
+	t->needsupdate = 4;
+	return true;
 }
 
 //
@@ -258,8 +260,6 @@ bool HL_DelCharFromTextLine(hu_textline_t * t)
 // colour is passed through the given translation table
 // and scaled if possible.
 //
-// -ACB- 1998/06/10 Procedure Written.
-//
 // -ACB- 1998/09/11 Index changed from JC's Pre-Calculated to using
 //                  the PALREMAP translation maps.
 //
@@ -268,125 +268,51 @@ bool HL_DelCharFromTextLine(hu_textline_t * t)
 //
 void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_t *colmap, fixed_t alpha)
 {
-  int i, w, x, y;
-  char c;
+	int i, x, y, w;
 
-  // draw the new stuff
-  x = L->x;
-  y = L->y;
+	// draw the new stuff
+	x = L->x;
+	y = L->y;
 
-  // -AJA- 1999/09/07: centred text.
-  if (L->centre)
-  {
-    x -= HL_StringWidth(L->ch) / 2;
-  }
+	// -AJA- 1999/09/07: centred text.
+	if (L->centre)
+	{
+		x -= HL_StringWidth(L->ch) / 2;
+	}
 
-  for (i=0; (i < L->len) && (x < 320); i++, x += w)
-  {
-    c = HU_CHAR(L->ch[i]);
-    w = HL_CharWidth(L->font, c);
+	for (i=0; (i < L->len) && (x < 320); i++, x += w)
+	{
+		char ch = L->ch[i];
 
-    if (c < L->font->first_ch || c > L->font->last_ch)
-      continue;
+		w = HL_CharWidth(L->font, ch);
 
-    if (x < 0)
-      continue;
+		if (! HL_CharExists(L->font, ch))
+			continue;
 
-    if (x + w > 320)
-      continue;
+		if (x < -w)
+			continue;
 
-    HL_WriteChar(x, y, L->font, c, colmap, alpha);
-  }
+		HL_WriteChar(x, y, L->font, ch, colmap, alpha);
+	}
 
-  // draw the cursor if requested
-  if (drawcursor && x + L->font->width <= 320)
-  {
-    HL_WriteChar(x, y, L->font, '_', colmap, alpha);
-  }
+	DEV_ASSERT2(HL_CharExists(L->font, '_'));
+
+	// draw the cursor if requested
+	if (drawcursor && x + L->font->width <= 320)
+	{
+		HL_WriteChar(x, y, L->font, '_', colmap, alpha);
+	}
 }
 
 void HL_DrawTextLine(hu_textline_t * L, bool drawcursor)
 {
-  HL_DrawTextLineAlpha(L, drawcursor, text_red_map, FRACUNIT);
-  
-#if 0  // OLD CODE
-  int i, w, x, y;
-  unsigned char c;
-  
-  // draw the new stuff
-  x = L->x;
-  y = L->y;
-
-  // -AJA- 1999/09/07: centred text.
-  if (L->centre)
-  {
-    x -= HL_StringWidth(L->ch) / 2;
-  }
-
-  for (i=0; (i < L->len) && (x < SCREENWIDTH); i++, x += w)
-  {
-    c = HU_CHAR(L->ch[i]);
-    w = HL_CharWidth(L->font, c);
-
-    if (c < L->font->first_ch || c > L->font->last_ch)
-      continue;
-
-    if (x < 0)
-      continue;
-
-    // -ACB- 1998/06/09 was (x+w > 320):
-    //       not displaying all text at high resolutions.
-    if (x + w > SCREENWIDTH)
-      continue;
-
-#ifdef USE_GL
-    /// RGL_DrawPatch(hu_font_nums[c - l->sc], x, l->y);
-#else
-    V_DrawPatchDirect(main_scr, x, y, HFONT_GET_CH(L->font,c));
-#endif
-  }
-
-  // draw the cursor if requested
-  if (drawcursor && x + L->font->width <= SCREENWIDTH)
-    V_DrawPatchDirect(main_scr, x, L->y, HFONT_GET_CH(L->font,'_'));
-#endif
+	HL_DrawTextLineAlpha(L, drawcursor, text_red_map, FRACUNIT);
 }
 
 // sorta called by HU_Erase and just better darn get things straight
 void HL_EraseTextLine(hu_textline_t * l)
 {
-#if 0 // OLD STUFF
-  int lh;
-  int y;
-  int yoffset;
-  static bool lastautomapactive = true;
-
-  // Only erases when NOT in automap and the screen is reduced,
-  // and the text must either need updating or refreshing
-  // (because of a recent change back from the automap)
-
-  if (!automapactive && viewwindowx && l->needsupdate)
-  {
-    lh = SHORT(l->f_end->height) + 1;
-    for (y = l->y, yoffset = y * SCREENWIDTH; y < l->y + lh; y++, yoffset += SCREENWIDTH)
-    {
-      if (y < viewwindowy || y >= viewwindowy + viewwindowheight)
-        R_VideoErase(yoffset, SCREENWIDTH);  // erase entire line
-
-      else
-      {
-        R_VideoErase(yoffset, viewwindowx);  // erase left border
-
-        R_VideoErase(yoffset + viewwindowx + viewwidth, viewwindowx);
-        // erase right border
-      }
-    }
-  }
-
-  lastautomapactive = automapactive;
-  if (l->needsupdate)
-    l->needsupdate--;
-#endif
+	// OBSOLETE
 }
 
 //----------------------------------------------------------------------------
@@ -394,78 +320,78 @@ void HL_EraseTextLine(hu_textline_t * l)
 void HL_InitSText(hu_stext_t * s, int x, int y, int h, 
     const H_font_t *font, bool * on)
 {
-  int i;
+	int i;
 
-  s->h = h;
-  s->on = on;
-  s->laston = true;
-  s->curline = 0;
+	s->h = h;
+	s->on = on;
+	s->laston = true;
+	s->curline = 0;
 
-  for (i = 0; i < h; i++)
-  {
-    HL_InitTextLine(&s->L[i], x, y - i * (font->height+1), font);
-  }
+	for (i = 0; i < h; i++)
+	{
+		HL_InitTextLine(&s->L[i], x, y - i * (font->height+1), font);
+	}
 }
 
 void HL_AddLineToSText(hu_stext_t * s)
 {
-  int i;
+	int i;
 
-  // add a clear line
-  if (++s->curline == s->h)
-    s->curline = 0;
+	// add a clear line
+	if (++s->curline == s->h)
+		s->curline = 0;
 
-  HL_ClearTextLine(&s->L[s->curline]);
+	HL_ClearTextLine(&s->L[s->curline]);
 
-  // everything needs updating
-  for (i=0; i < s->h; i++)
-    s->L[i].needsupdate = 4;
+	// everything needs updating
+	for (i=0; i < s->h; i++)
+		s->L[i].needsupdate = 4;
 }
 
 void HL_AddMessageToSText(hu_stext_t * s, const char *prefix, const char *msg)
 {
-  HL_AddLineToSText(s);
+	HL_AddLineToSText(s);
 
-  if (prefix)
-    for (; *prefix; prefix++)
-      HL_AddCharToTextLine(&s->L[s->curline], *prefix);
+	if (prefix)
+		for (; *prefix; prefix++)
+			HL_AddCharToTextLine(&s->L[s->curline], *prefix);
 
-  for (; *msg; msg++)
-    HL_AddCharToTextLine(&s->L[s->curline], *msg);
+	for (; *msg; msg++)
+		HL_AddCharToTextLine(&s->L[s->curline], *msg);
 }
 
 void HL_DrawSText(hu_stext_t * s)
 {
-  int i, idx;
+	int i, idx;
 
-  if (!*s->on)
-    return;  // if not on, don't draw
+	if (!*s->on)
+		return;  // if not on, don't draw
 
-  // draw everything
-  for (i=0; i < s->h; i++)
-  {
-    idx = s->curline - i;
-    if (idx < 0)
-      idx += s->h;  // handle queue of lines
+	// draw everything
+	for (i=0; i < s->h; i++)
+	{
+		idx = s->curline - i;
+		if (idx < 0)
+			idx += s->h;  // handle queue of lines
 
-    // need a decision made here on whether to skip the draw.
-    // no cursor, please.
-    HL_DrawTextLine(&s->L[idx], false);
-  }
+		// need a decision made here on whether to skip the draw.
+		// no cursor, please.
+		HL_DrawTextLine(&s->L[idx], false);
+	}
 }
 
 void HL_EraseSText(hu_stext_t * s)
 {
-  int i;
+	int i;
 
-  for (i=0; i < s->h; i++)
-  {
-    if (s->laston && !*s->on)
-      s->L[i].needsupdate = 4;
+	for (i=0; i < s->h; i++)
+	{
+		if (s->laston && !*s->on)
+			s->L[i].needsupdate = 4;
 
-    HL_EraseTextLine(&s->L[i]);
-  }
-  s->laston = *s->on;
+		HL_EraseTextLine(&s->L[i]);
+	}
+	s->laston = *s->on;
 }
 
 //----------------------------------------------------------------------------
@@ -473,75 +399,74 @@ void HL_EraseSText(hu_stext_t * s)
 void HL_InitIText(hu_itext_t * it, int x, int y, 
     const H_font_t *font, bool * on)
 {
-  // default left margin is start of text
-  it->margin = 0;
+	// default left margin is start of text
+	it->margin = 0;
 
-  it->on = on;
-  it->laston = true;
+	it->on = on;
+	it->laston = true;
 
-  HL_InitTextLine(&it->L, x, y, font);
+	HL_InitTextLine(&it->L, x, y, font);
 }
 
 // The following deletion routines adhere to the left margin restriction
 void HL_DelCharFromIText(hu_itext_t * it)
 {
-  if (it->L.len != it->margin)
-    HL_DelCharFromTextLine(&it->L);
+	if (it->L.len != it->margin)
+		HL_DelCharFromTextLine(&it->L);
 }
 
 void HL_EraseLineFromIText(hu_itext_t * it)
 {
-  while (it->margin != it->L.len)
-    HL_DelCharFromTextLine(&it->L);
+	while (it->margin != it->L.len)
+		HL_DelCharFromTextLine(&it->L);
 }
 
 // Resets left margin as well
 void HL_ResetIText(hu_itext_t * it)
 {
-  it->margin = 0;
-  HL_ClearTextLine(&it->L);
+	it->margin = 0;
+	HL_ClearTextLine(&it->L);
 }
 
 void HL_AddPrefixToIText(hu_itext_t * it, const char *str)
 {
-  for (; *str; str++)
-    HL_AddCharToTextLine(&it->L, *str);
+	for (; *str; str++)
+		HL_AddCharToTextLine(&it->L, *str);
 
-  it->margin = it->L.len;
+	it->margin = it->L.len;
 }
 
 // wrapper function for handling general keyed input.
 // returns true if it ate the key
 bool HL_KeyInIText(hu_itext_t * it, const char ch)
 {
-  if (ch >= ' ' && ch <= '_')
-    HL_AddCharToTextLine(&it->L, (char)ch);
-  else if (ch == KEYD_BACKSPACE)
-    HL_DelCharFromIText(it);
-  else if (ch != KEYD_ENTER)
-    return false;
+	if (ch >= ' ' && ch <= '_')
+		HL_AddCharToTextLine(&it->L, (char)ch);
+	else if (ch == KEYD_BACKSPACE)
+		HL_DelCharFromIText(it);
+	else if (ch != KEYD_ENTER)
+		return false;
 
-  // ate the key
-  return true;
+	// ate the key
+	return true;
 }
 
 void HL_DrawIText(hu_itext_t * it)
 {
-  if (!*it->on)
-    return;
+	if (!*it->on)
+		return;
 
-  // draw the line with cursor
-  HL_DrawTextLine(&it->L, true);
-
+	// draw the line with cursor
+	HL_DrawTextLine(&it->L, true);
 }
 
 void HL_EraseIText(hu_itext_t * it)
 {
-  if (it->laston && !*it->on)
-    it->L.needsupdate = 4;
-    
-  HL_EraseTextLine(&it->L);
+	if (it->laston && !*it->on)
+		it->L.needsupdate = 4;
 
-  it->laston = *it->on;
+	HL_EraseTextLine(&it->L);
+
+	it->laston = *it->on;
 }
 
