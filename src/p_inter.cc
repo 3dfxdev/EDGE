@@ -682,6 +682,13 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
     return;
   }
 
+  // check for partial resistance against the attack
+  if (damage >= 0.1f && inflictor && inflictor->currentattack &&
+	  BITSET_EMPTY == (inflictor->currentattack->attack_class & ~target->info->resistance))
+  {
+    damage = (damage + 0.1f) * 0.4f;
+  }
+
   // -ACB- 1998/07/12 Use Visibility Enum
   // A Damaged Stealth Creature becomes more visible
   if (target->flags & MF_STEALTH)
@@ -697,7 +704,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 
   // take half damage in trainer mode
   if (player && gameskill == sk_baby)
-    damage /= 2;
+    damage *= 0.5f;
 
   // Some close combat weapons should not
   // inflict thrust and push the victim out of reach,

@@ -149,6 +149,7 @@ const mobjinfo_t template_mobj =
 
 	PERCENT_MAKE(100), // bobbing
 	BITSET_EMPTY, // immunity
+	BITSET_EMPTY, // resistance
 
 	NULL,     // closecombat
 	NULL,     // rangeattack
@@ -303,6 +304,7 @@ const commandlist_t thing_commands[] =
 	DF("RIDE FRICTION", ride_friction, DDF_MainGetFloat),
 	DF("BOBBING", bobbing, DDF_MainGetPercent),
 	DF("IMMUNITY CLASS", immunity, DDF_MainGetBitSet),
+	DF("RESISTANCE CLASS", resistance, DDF_MainGetBitSet),
 	DF("SHADOW TRANSLUCENCY", shadow_trans, DDF_MainGetPercent),
 	DF("LUNG CAPACITY", lung_capacity, DDF_MainGetTime),
 	DF("GASP START", gasp_start, DDF_MainGetTime),
