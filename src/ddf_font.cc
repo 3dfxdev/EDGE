@@ -53,7 +53,6 @@ fontdef_container_c fontdefs;
 //
 static bool FontStartEntry(const char *name)
 {
-L_WriteDebug("Start font [%s]\n", name);
 	bool replaces = false;
 
 	if (name && name[0])
@@ -230,8 +229,6 @@ static void DDF_FontGetPatch(const char *info, void *storage)
 	if (! DDF_MainDecodeBrackets(info, patch_buf, range_buf, 100))
 		DDF_Error("Malformed font patch: %s\n", info);
 
-L_WriteDebug("FontDecode '%s' ( '%s' )\n", patch_buf, range_buf);
-
 	// find dividing colon
 	char *colon = NULL;
 	
@@ -240,8 +237,6 @@ L_WriteDebug("FontDecode '%s' ( '%s' )\n", patch_buf, range_buf);
 
 	if (colon)
 		*colon++ = 0;
-
-L_WriteDebug("FontList '%s' : '%s'\n", range_buf, colon ? colon : "<<none>>");
 
 	int char1, char2;
 
@@ -258,8 +253,6 @@ L_WriteDebug("FontList '%s' : '%s'\n", range_buf, colon ? colon : "<<none>>");
 	}
 	else
 		char2 = char1;
-
-L_WriteDebug("FontRange %d : %d\n", char1, char2);
 
 	fontpatch_c *pat = new fontpatch_c(char1, char2, patch_buf);
 
