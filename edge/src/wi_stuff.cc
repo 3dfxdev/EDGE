@@ -46,6 +46,8 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+#include "./epi/epistring.h"
+
 //
 // Data needed to add patches to full screen intermission pics.
 // Patches are statistics messages, and animations.
@@ -168,30 +170,108 @@ static const image_t *bstar;
 // Name graphics of each level (centered)
 static const image_t *lnames[2];
 
-// -KM- 1998/12/17 Needs access from savegame code
-wi_map_t worldmap;
+//
+// -ACB- 2004/06/25 Short-term containers for
+//                  the world intermission data
+//
+
+class wi_mappos_c
+{
+public:
+	wi_mappos_c() { info = NULL; done = false; }
+	~wi_mappos_c() {}
+
+private:
+	/* ... */
+
+public:
+	wi_mapposdef_c *info;
+	bool done;
+};
+
+class wi_frame_c
+{
+public:
+	wi_frame_c() { info = NULL; image = NULL; }
+	~wi_frame_c() {}
+
+private:
+	/* ... */
+
+public:
+	wi_framedef_c *info;
+	const struct image_s *image; 	// cached image
+};
+
+class wi_anim_c
+{
+public:
+	wi_anim_c();
+	~wi_anim_c();
+
+private:
+	/* ... */
+
+public:
+	void Clear(void);
+	void Load(wi_animdef_c *def);
+	void Reset(void);
+
+	wi_animdef_c *info;
+	
+	// This array doesn't need to built up, so we stick to primitive form
+	wi_frame_c *frames;
+	int numframes;
+
+	int count;
+	int frameon;
+};
+
+class wi_c
+{
+public:
+	wi_c();
+	~wi_c();
+	
+private:
+	gamedef_c *gamedef;
+
+	void Clear(void);
+	void Load(gamedef_c* _gamedef);
+	void Reset(void);
+
+public:
+	// Inliners...
+	gamedef_c* GetGameDef(void) { return gamedef; }
+
+	// 
+	void Init(gamedef_c* _gamedef);
+
+	// This array doesn't need to built up, so we stick to primitive form
+	wi_anim_c *anims;
+	int numanims;
+
+	// This array doesn't need to built up, so we stick to primitive form
+	wi_mappos_c *mappos;
+	int nummappos;
+};
+
+wi_c worldint;
 
 //
 // CODE
 //
 
-// Called everytime the map changes.
-// -KM- 1998/12/17 Beefed up:  if worldmap.name == NULL we haven't
-//   inited yet.  if map == NULL reload the intermission anyway
-//   (we are starting a new game.)
-void WI_MapInit(const wi_map_t * map)
+//
+// WI_Clear
+//
+// Clear Intermission Data
+//
+void WI_Clear(void)
 {
-	if (!map)
-		worldmap.ddf.name = NULL;
-	else
-	{
-		if (!worldmap.ddf.name || strcmp(map->ddf.name, worldmap.ddf.name))
-		{
-			worldmap = *map;
-			Z_Clear(worldmap.mapdone, bool, worldmap.nummaps);
-		}
-	}
+	worldint.Init(NULL);
 }
+
 
 // Draws "<Levelname> Finished!"
 static void DrawLevelFinished(void)
@@ -230,13 +310,12 @@ static void DrawEnteringLevel(void)
 	VCTX_ImageEasy320(160 - w2/2, y + h * 5/4, lnames[1]);
 }
 
-static void DrawOnLnode(int n, const image_t * images[2])
+static void DrawOnLnode(wi_mappos_c* mappos, const image_t * images[2])
 {
 	int i;
 	int left, top, right, bottom;
 
 	bool fits = false;
-	mappos_t *mappos = &worldmap.mappos[n];
 
 	for (i=0; i < 2; i++)
 	{
@@ -248,8 +327,8 @@ static void DrawOnLnode(int n, const image_t * images[2])
 			continue;
 		}
 
-		left = mappos->pos.x - images[i]->offset_x;
-		top  = mappos->pos.y - images[i]->offset_y;
+		left = mappos->info->pos.x - images[i]->offset_x;
+		top  = mappos->info->pos.y - images[i]->offset_y;
 		right  = left + IM_WIDTH(images[i]);
 		bottom = top + IM_HEIGHT(images[i]);
 
@@ -266,11 +345,11 @@ static void DrawOnLnode(int n, const image_t * images[2])
 
 	if (fits && i < 2)
 	{
-		VCTX_ImageEasy320(mappos->pos.x, mappos->pos.y, images[i]);
+		VCTX_ImageEasy320(mappos->info->pos.x, mappos->info->pos.y, images[i]);
 	}
 	else
 	{
-		L_WriteDebug("Could not place patch on level '%s'\n", mappos[n].name);
+		L_WriteDebug("Could not place patch on level '%s'\n", mappos->info->name);
 	}
 }
 
@@ -419,9 +498,10 @@ static void UnloadData(void)
 	for (i = 0; i < 10; i++)
 		W_DoneWithLump(digits[i]);
 
-	for (i = 0; i < worldmap.numanims; i++)
-		for (j = 0; j < worldmap.anims[i].numframes; j++)
-			W_DoneWithLump(worldmap.anims[i].frames[j].p);
+	for (i = 0; i < worldint.numanims; i++)
+		for (j = 0; j < worldint.anims[i].numframes; j++)
+			W_DoneWithLump(worldint.anims[i].frames[j].pic);
+
 #endif
 }
 
@@ -437,6 +517,8 @@ static void InitNoState(void)
 {
 	state = NoState;
 	acceleratestage = false;
+	
+	// -ACB- 2004/06/27 If there is no next map, move on
 	cnt = 10;
 }
 
@@ -447,7 +529,6 @@ static void UpdateNoState(void)
 		WI_End();
 		G_WorldDone();
 	}
-
 }
 
 static bool snl_pointeron = false;
@@ -458,11 +539,14 @@ static void InitShowNextLoc(void)
 
 	state = ShowNextLoc;
 	acceleratestage = false;
-	cnt = SHOWNEXTLOCDELAY * TICRATE;
 
-	for (i = 0; i < worldmap.nummaps; i++)
-		if (!strcmp(worldmap.mappos[i].name, wbs->last->ddf.name))
-			worldmap.mapdone[i] = true;
+	for (i = 0; i < worldint.nummappos; i++)
+	{
+		if (!strcmp(worldint.mappos[i].info->name, wbs->last->ddf.name))
+			worldint.mappos[i].done = true;
+	}
+
+	cnt = SHOWNEXTLOCDELAY * TICRATE;
 }
 
 static void UpdateShowNextLoc(void)
@@ -477,17 +561,18 @@ static void DrawShowNextLoc(void)
 {
 	int i;
 
-	for (i = 0; i < worldmap.nummaps; i++)
+	for (i = 0; i < worldint.nummappos; i++)
 	{
-		if (worldmap.mapdone[i])
-			DrawOnLnode(i, splat);
+		if (worldint.mappos[i].done)
+			DrawOnLnode(&worldint.mappos[i], splat);
 
 		if (wbs->next)
-			if (snl_pointeron && !strcmp(wbs->next->ddf.name, worldmap.mappos[i].name))
-				DrawOnLnode(i, yah);
+			if (snl_pointeron && !strcmp(wbs->next->ddf.name, worldint.mappos[i].info->name))
+				DrawOnLnode(&worldint.mappos[i], yah);
 	}
 
-	DrawEnteringLevel();
+	if (wbs->next)
+		DrawEnteringLevel();
 }
 
 static void DrawNoState(void)
@@ -584,7 +669,7 @@ static void UpdateDeathmatchStats(void)
 			}
 		}
 
-		S_StartSound(NULL, worldmap.done);
+		S_StartSound(NULL, worldint.GetGameDef()->done);
 		dm_state = 4;
 	}
 
@@ -592,7 +677,7 @@ static void UpdateDeathmatchStats(void)
 	{
 		case 2:
 			if (!(bcnt & 3))
-				S_StartSound(NULL, worldmap.percent);
+				S_StartSound(NULL, worldint.GetGameDef()->percent);
 
 			stillticking = false;
 			for (i = 0; i < 10; i++)
@@ -617,7 +702,7 @@ static void UpdateDeathmatchStats(void)
 			}
 			if (!stillticking)
 			{
-				S_StartSound(NULL, worldmap.done);
+				S_StartSound(NULL, worldint.GetGameDef()->done);
 				dm_state++;
 			}
 			break;
@@ -625,9 +710,10 @@ static void UpdateDeathmatchStats(void)
 		case 4:
 			if (acceleratestage)
 			{
-				S_StartSound(NULL, worldmap.accel_snd);
+				S_StartSound(NULL, worldint.GetGameDef()->accel_snd);
 
-				if (!worldmap.nummaps)
+				// Skip next loc on no map -ACB- 2004/05/27
+				if (!worldint.nummappos || !wbs->next)	
 					InitNoState();
 				else
 					InitShowNextLoc();
@@ -782,7 +868,7 @@ static void UpdateNetgameStats(void)
 				cnt_tfrags[i] = plrs[p].totalfrags;
 			}
 		}
-		S_StartSound(NULL, worldmap.done);
+		S_StartSound(NULL, worldint.GetGameDef()->done);
 		ng_state = 10;
 	}
 
@@ -790,7 +876,7 @@ static void UpdateNetgameStats(void)
 	{
 		case 2:
 			if (!(bcnt & 3))
-				S_StartSound(NULL, worldmap.percent);
+				S_StartSound(NULL, worldint.GetGameDef()->percent);
 
 			stillticking = false;
 
@@ -812,14 +898,14 @@ static void UpdateNetgameStats(void)
 
 			if (!stillticking)
 			{
-				S_StartSound(NULL, worldmap.done);
+				S_StartSound(NULL, worldint.GetGameDef()->done);
 				ng_state++;
 			}
 			break;
 
 		case 4:
 			if (!(bcnt & 3))
-				S_StartSound(NULL, worldmap.percent);
+				S_StartSound(NULL, worldint.GetGameDef()->percent);
 
 			stillticking = false;
 
@@ -839,14 +925,14 @@ static void UpdateNetgameStats(void)
 			}
 			if (!stillticking)
 			{
-				S_StartSound(NULL, worldmap.done);
+				S_StartSound(NULL, worldint.GetGameDef()->done);
 				ng_state++;
 			}
 			break;
 
 		case 6:
 			if (!(bcnt & 3))
-				S_StartSound(NULL, worldmap.percent);
+				S_StartSound(NULL, worldint.GetGameDef()->percent);
 
 			stillticking = false;
 
@@ -868,14 +954,14 @@ static void UpdateNetgameStats(void)
 
 			if (!stillticking)
 			{
-				S_StartSound(NULL, worldmap.done);
+				S_StartSound(NULL, worldint.GetGameDef()->done);
 				ng_state += 1 + 2 * !dofrags;
 			}
 			break;
 
 		case 8:
 			if (!(bcnt & 3))
-				S_StartSound(NULL, worldmap.percent);
+				S_StartSound(NULL, worldint.GetGameDef()->percent);
 
 			stillticking = false;
 
@@ -901,7 +987,7 @@ static void UpdateNetgameStats(void)
 
 			if (!stillticking)
 			{
-				S_StartSound(NULL, worldmap.frag_snd);
+				S_StartSound(NULL, worldint.GetGameDef()->frag_snd);
 				ng_state++;
 			}
 			break;
@@ -909,8 +995,10 @@ static void UpdateNetgameStats(void)
 		case 10:
 			if (acceleratestage)
 			{
-				S_StartSound(NULL, worldmap.nextmap);
-				if (!worldmap.nummaps)
+				S_StartSound(NULL, worldint.GetGameDef()->nextmap);
+
+				// Skip next loc on no map -ACB- 2004/05/27
+				if (!worldint.nummappos || !wbs->next)
 					InitNoState();
 				else
 					InitShowNextLoc();
@@ -1012,7 +1100,7 @@ static void UpdateStats(void)
 		cnt_secret[0] = (plrs[me].ssecret * 100) / wbs->maxsecret;
 		cnt_time = plrs[me].stime / TICRATE;
 		cnt_par = wbs->partime / TICRATE;
-		S_StartSound(NULL, worldmap.done);
+		S_StartSound(NULL, worldint.GetGameDef()->done);
 		sp_state = sp_end;
 	}
 
@@ -1021,12 +1109,12 @@ static void UpdateStats(void)
 		cnt_kills[0] += 2;
 
 		if (!(bcnt & 3))
-			S_StartSound(NULL, worldmap.percent);
+			S_StartSound(NULL, worldint.GetGameDef()->percent);
 
 		if (cnt_kills[0] >= (plrs[me].skills * 100) / wbs->maxkills)
 		{
 			cnt_kills[0] = (plrs[me].skills * 100) / wbs->maxkills;
-			S_StartSound(NULL, worldmap.done);
+			S_StartSound(NULL, worldint.GetGameDef()->done);
 			sp_state++;
 		}
 	}
@@ -1035,12 +1123,12 @@ static void UpdateStats(void)
 		cnt_items[0] += 2;
 
 		if (!(bcnt & 3))
-			S_StartSound(NULL, worldmap.percent);
+			S_StartSound(NULL, worldint.GetGameDef()->percent);
 
 		if (cnt_items[0] >= (plrs[me].sitems * 100) / wbs->maxitems)
 		{
 			cnt_items[0] = (plrs[me].sitems * 100) / wbs->maxitems;
-			S_StartSound(NULL, worldmap.done);
+			S_StartSound(NULL, worldint.GetGameDef()->done);
 			sp_state++;
 		}
 	}
@@ -1049,12 +1137,12 @@ static void UpdateStats(void)
 		cnt_secret[0] += 2;
 
 		if (!(bcnt & 3))
-			S_StartSound(NULL, worldmap.percent);
+			S_StartSound(NULL, worldint.GetGameDef()->percent);
 
 		if (cnt_secret[0] >= (plrs[me].ssecret * 100) / wbs->maxsecret)
 		{
 			cnt_secret[0] = (plrs[me].ssecret * 100) / wbs->maxsecret;
-			S_StartSound(NULL, worldmap.done);
+			S_StartSound(NULL, worldint.GetGameDef()->done);
 			sp_state++;
 		}
 	}
@@ -1062,7 +1150,7 @@ static void UpdateStats(void)
 	else if (sp_state == sp_time)
 	{
 		if (!(bcnt & 3))
-			S_StartSound(NULL, worldmap.percent);
+			S_StartSound(NULL, worldint.GetGameDef()->percent);
 
 		cnt_time += 3;
 
@@ -1077,7 +1165,7 @@ static void UpdateStats(void)
 
 			if (cnt_time >= plrs[me].stime / TICRATE)
 			{
-				S_StartSound(NULL, worldmap.done);
+				S_StartSound(NULL, worldint.GetGameDef()->done);
 				sp_state++;
 			}
 		}
@@ -1086,9 +1174,10 @@ static void UpdateStats(void)
 	{
 		if (acceleratestage)
 		{
-			S_StartSound(NULL, worldmap.nextmap);
+			S_StartSound(NULL, worldint.GetGameDef()->nextmap);
 
-			if (!worldmap.nummaps)
+			// Skip next loc on no map -ACB- 2004/05/27
+			if (!worldint.nummappos || !wbs->next)
 				InitNoState();
 			else
 				InitShowNextLoc();
@@ -1174,23 +1263,23 @@ void WI_Ticker(void)
 	if (bcnt == 1)
 	{
 		// intermission music
-		S_ChangeMusic(worldmap.music, true);
+		S_ChangeMusic(worldint.GetGameDef()->music, true);
 	}
 
 	CheckForAccelerate();
 
-	for (i = 0; i < worldmap.numanims; i++)
+	for (i = 0; i < worldint.numanims; i++)
 	{
-		if (worldmap.anims[i].count >= 0)
+		if (worldint.anims[i].count >= 0)
 		{
-			if (!worldmap.anims[i].count)
+			if (!worldint.anims[i].count)
 			{
-				worldmap.anims[i].frameon
-					= (worldmap.anims[i].frameon + 1) % worldmap.anims[i].numframes;
-				worldmap.anims[i].count
-					= worldmap.anims[i].frames[worldmap.anims[i].frameon].tics;
+				worldint.anims[i].frameon
+					= (worldint.anims[i].frameon + 1) % worldint.anims[i].numframes;
+				worldint.anims[i].count
+					= worldint.anims[i].frames[worldint.anims[i].frameon].info->tics;
 			}
-			worldmap.anims[i].count--;
+			worldint.anims[i].count--;
 		}
 	}
 
@@ -1218,23 +1307,23 @@ void WI_Ticker(void)
 static void LoadData(void)
 {
 	int i, j;
-	char name[10];
+	epi::string_c name;
 
 	// background
-	bg_image = W_ImageFromPatch(worldmap.background);
+	bg_image = W_ImageFromPatch(worldint.GetGameDef()->background);
 
 	lnames[0] = W_ImageFromPatch(wbs->last->namegraphic);
 
 	if (wbs->next)
 		lnames[1] = W_ImageFromPatch(wbs->next->namegraphic);
 
-	if (worldmap.yah[0][0])
-		yah[0] = W_ImageFromPatch(worldmap.yah[0]);
-	if (worldmap.yah[1][0])
-		yah[1] = W_ImageFromPatch(worldmap.yah[1]);
-	if (worldmap.splatpic[0])
-		splat[0] = W_ImageFromPatch(worldmap.splatpic);
-
+	if (worldint.GetGameDef()->yah[0][0])
+		yah[0] = W_ImageFromPatch(worldint.GetGameDef()->yah[0]);
+	if (worldint.GetGameDef()->yah[1][0])
+		yah[1] = W_ImageFromPatch(worldint.GetGameDef()->yah[1]);
+	if (worldint.GetGameDef()->splatpic[0])
+		splat[0] = W_ImageFromPatch(worldint.GetGameDef()->splatpic);
+	
 	wiminus = W_ImageFromFont("WIMINUS");
 	percent = W_ImageFromFont("WIPCNT");
 	colon = W_ImageFromFont("WICOLON");
@@ -1263,18 +1352,20 @@ static void LoadData(void)
 	for (i = 0; i < 10; i++)
 	{
 		// numbers 0-9
-		sprintf(name, "WINUM%d", i);
+		name.Format("WINUM%d", i);
 		digits[i] = W_ImageFromFont(name);
 	}
 
-	for (i = 0; i < worldmap.numanims; i++)
+	for (i = 0; i < worldint.numanims; i++)
 	{
-		for (j = 0; j < worldmap.anims[i].numframes; j++)
+		for (j = 0; j < worldint.anims[i].numframes; j++)
 		{
-			L_WriteDebug("WI_LoadData: '%s'\n", worldmap.anims[i].frames[j].pic);
+			// FIXME!!! Shorten :)
+			L_WriteDebug("WI_LoadData: '%s'\n", 
+				worldint.anims[i].frames[j].info->pic.GetString());
 
-			worldmap.anims[i].frames[j].image = 
-				W_ImageFromPatch(worldmap.anims[i].frames[j].pic);
+			worldint.anims[i].frames[j].image = 
+				W_ImageFromPatch(worldint.anims[i].frames[j].info->pic);
 		}
 	}
 }
@@ -1282,8 +1373,8 @@ static void LoadData(void)
 void WI_Drawer(void)
 {
 	int i;
-	wi_anim_t *a;
-	wi_frame_t *f;
+	wi_anim_c *a;
+	wi_frame_c *f;
 
 	if (background_camera_mo)
 	{
@@ -1294,27 +1385,27 @@ void WI_Drawer(void)
 		VCTX_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, bg_image);
 	}
 
-	for (i = 0; i < worldmap.numanims; i++)
+	for (i = 0; i < worldint.numanims; i++)
 	{
-		a = &worldmap.anims[i];
+		a = &worldint.anims[i];
 
 		if (a->frameon == -1)
 			continue;
 
 		f = NULL;
 
-		if (a->type == WI_LEVEL)
+		if (a->info->type == wi_animdef_c::WI_LEVEL)
 		{
 			if (!wbs->next)
 				f = NULL;
-			else if (!strcmp(wbs->next->ddf.name, a->level))
+			else if (!strcmp(wbs->next->ddf.name, a->info->level))
 				f = &a->frames[a->frameon];
 		}
 		else
 			f = &a->frames[a->frameon];
 
 		if (f)
-			VCTX_ImageEasy320(f->pos.x, f->pos.y, f->image);
+			VCTX_ImageEasy320(f->info->pos.x, f->info->pos.y, f->image);
 	}
 
 	switch (state)
@@ -1340,8 +1431,6 @@ void WI_Drawer(void)
 
 static void InitVariables(wbstartstruct_t * wbstartstruct)
 {
-	int i;
-
 	wbs = wbstartstruct;
 
 	acceleratestage = false;
@@ -1359,13 +1448,7 @@ static void InitVariables(wbstartstruct_t * wbstartstruct)
 	if (!wbs->maxsecret)
 		wbs->maxsecret = 1;
 
-	WI_MapInit(DDF_GameLookup(wbs->last->episode_name));
-
-	for (i = 0; i < worldmap.numanims; i++)
-	{
-		worldmap.anims[i].count = 0;
-		worldmap.anims[i].frameon = -1;
-	}
+	worldint.Init(gamedefs.Lookup(wbs->last->episode_name));
 }
 
 void WI_Start(wbstartstruct_t * wbstartstruct)
@@ -1385,13 +1468,13 @@ void WI_Start(wbstartstruct_t * wbstartstruct)
 	// -AJA- 1999/10/22: background cameras.
 	background_camera_mo = NULL;
 
-	if (worldmap.bg_camera[0])
+	if (worldint.GetGameDef()->bg_camera[0])
 	{
 		mobj_t *mo;
 
 		for (mo = mobjlisthead; mo != NULL; mo = mo->next)
 		{
-			if (DDF_CompareName(mo->info->ddf.name, worldmap.bg_camera) != 0)
+			if (DDF_CompareName(mo->info->ddf.name, worldint.GetGameDef()->bg_camera) != 0)
 				continue;
 
 			background_camera_mo = mo;
@@ -1411,3 +1494,181 @@ void WI_Start(wbstartstruct_t * wbstartstruct)
 	}
 }
 
+// --> world intermission class
+
+//
+// wi_c Constructor
+//
+wi_c::wi_c()
+{
+	gamedef = NULL;
+
+	anims = NULL;
+	numanims = 0;
+
+	mappos = NULL;
+	nummappos = 0;
+}
+
+//
+// wi_c Destructor
+//
+wi_c::~wi_c()
+{
+	Clear();
+}
+
+//
+// wi_c::Clear()
+//
+void wi_c::Clear()
+{
+	if (anims)
+	{
+		delete [] anims;
+		anims = NULL;
+
+		numanims = 0;
+	}
+
+	if (mappos)
+	{
+		delete [] mappos;
+		mappos = NULL;
+
+		nummappos = 0;
+	}
+}
+
+// 
+// wi_c::Load()
+//
+void wi_c::Load(gamedef_c* _gamedef)
+{
+	// mappos load
+	int size;
+
+	// Animations
+	size = _gamedef->anims.GetSize();
+	if (size > 0)
+	{
+		int i;
+
+		anims = new wi_anim_c[size];
+
+		for (i=0; i<size; i++)
+			anims[i].Load(_gamedef->anims[i]);
+
+		numanims = size;
+	}
+
+	// Map positions
+	size = _gamedef->mappos.GetSize();
+	if (size > 0)
+	{
+		int i;
+
+		mappos = new wi_mappos_c[size];
+
+		for (i=0; i<size; i++)
+			mappos[i].info = _gamedef->mappos[i];
+
+		nummappos = size;
+	}
+}
+
+//
+// wi_c::Reset()
+//
+void wi_c::Reset()
+{
+	int i;
+
+	for (i=0; i<numanims; i++)
+		anims[i].Reset();
+}
+
+//
+// wi_c::Init()
+//
+void wi_c::Init(gamedef_c* _gamedef)
+{
+	if (_gamedef != gamedef)
+	{
+		// Clear
+		Clear();
+
+		if (_gamedef)
+			Load(_gamedef);
+	}
+
+	if (_gamedef)
+		Reset();
+
+	gamedef = _gamedef;
+	return;
+}
+
+// --> world intermission animation class
+
+//
+// wi_anim_c Constructor
+//
+wi_anim_c::wi_anim_c()
+{
+	frames = NULL;
+	numframes = 0;
+}
+
+//
+// wi_anim_c Destructor
+//
+wi_anim_c::~wi_anim_c()
+{
+	Clear();
+}
+
+//
+// wi_anim_c::Clear()
+//
+void wi_anim_c::Clear()
+{
+	if (frames)
+	{
+		delete [] frames;
+		frames = NULL;
+
+		numframes = 0;
+	}
+}
+
+//
+// wi_anim_c::Load()
+//
+void wi_anim_c::Load(wi_animdef_c *def)
+{
+	int size;
+
+	// Frames...
+	size = def->frames.GetSize();
+	if (size>0)
+	{
+		int i;
+
+		frames = new wi_frame_c[size];
+		for (i=0; i<size; i++)
+			frames[i].info = def->frames[i];
+	}
+
+	info = def;
+	numframes = size;
+}
+
+//
+// wi_anim_c::Reset()
+//
+void wi_anim_c::Reset()
+{
+	count = 0;
+	frameon = -1;
+}
