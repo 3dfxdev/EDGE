@@ -54,25 +54,27 @@ dehconvfuncs_t;
 
 typedef enum
 {
-	// everything was ship-shape
+	// everything was ship-shape.
 	DEH_OK = 0,
 
-	// an unknown error occurred (this is the catch-all value)
+	// an unknown error occurred (this is the catch-all value).
 	DEH_E_Unknown,
 
 	// the arguments were bad/inconsistent.
 	DEH_E_BadArgs,
 
-	// file errors
-	DEH_E_ReadError,
-	DEH_E_WriteError
+	// non-existing input file, or couldn't create output file.
+	DEH_E_NoFile,
+
+	// problem parsing input file (maybe it wasn't a DeHackEd patch).
+	DEH_E_ParseError
 }
 dehret_e;
 
 /* ------------ interface functions ------------ */
 
 // startup: set the interface functions, reset static vars, etc..
-dehret_e DehEdgeStartup(const dehconvfuncs_t *funcs);
+void DehEdgeStartup(const dehconvfuncs_t *funcs);
 
 // return the message for the last error, or an empty string if there
 // was none.  Also clears the current error.  Never returns NULL.
@@ -92,6 +94,6 @@ dehret_e DehEdgeAddLump(const char *data, int length, const char *infoname);
 dehret_e DehEdgeRunConversion(const char *out_name);
 
 // shut down: free all memory, close all files, etc..
-dehret_e DehEdgeShutdown(void);
+void DehEdgeShutdown(void);
 
 #endif /* __DEH_EDGE_PLUGIN_H__ */
