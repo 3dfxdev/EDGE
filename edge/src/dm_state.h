@@ -184,6 +184,9 @@ extern boolean_t precache;
 // if true, prefer to crash out on various errors
 extern boolean_t strict_errors;
 
+// if true, prefer to ignore or fudge various (serious) errors
+extern boolean_t lax_errors;
+
 // if true, disable warning messages
 extern boolean_t no_warnings;
 
