@@ -32,6 +32,7 @@ Bugs fixed
 - revenant missiles fixed to match the original.
 - fixed stair-building bug (e.g. TNT MAP16).
 - some problems handling the mouse-wheel were fixed.
+- rotated automap could omit parts of a map, fixed.
 
 
 Old Fixes (from EDGE 1.28A)
