@@ -32,6 +32,7 @@
 #include "mobj.h"
 #include "sounds.h"
 #include "system.h"
+#include "things.h"
 #include "util.h"
 #include "weapons.h"
 
@@ -109,7 +110,7 @@ namespace Misc
 			if (! mobj->meleestate && ! mobj->missilestate)
 				continue;
 
-			mobj_modified[i] = true;
+			Things::MarkThing(i);
 		}
 	}
 }
@@ -127,7 +128,7 @@ void Misc::AlterMisc(const char *misc_name, int value)
 		}
 
 		mobjinfo[MT_PLAYER].spawnhealth = value;
-		mobj_modified[MT_PLAYER] = true;
+		Things::MarkThing(MT_PLAYER);
 
 		return;
 	}
@@ -141,7 +142,7 @@ void Misc::AlterMisc(const char *misc_name, int value)
 		}
 
 		bfg_cells_per_shot = value;
-		weapon_modified[wp_bfg] = true;
+		Weapons::MarkWeapon(wp_bfg);
 
 		return;
 	}
@@ -201,9 +202,7 @@ void Misc::AlterMisc(const char *misc_name, int value)
 
 	for (; *affect >= 0; affect++)
 	{
-		assert(*affect < NUMMOBJTYPES);
-
-		mobj_modified[*affect] = true;
+		Things::MarkThing(*affect);
 	}
 }
 
