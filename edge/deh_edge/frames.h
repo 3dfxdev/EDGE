@@ -1,0 +1,36 @@
+//----------------------------------------------------------------------------
+//  FRAMES
+//----------------------------------------------------------------------------
+// 
+//  Copyright (c) 1999-2004  The EDGE Team.
+// 
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//----------------------------------------------------------------------------
+//
+#ifndef __FRAMES__
+#define __FRAMES__
+
+#include "i_defs.h"
+#include "info.h"
+
+namespace Frames
+{
+	int InitGroup(int first, char group);
+	bool SpreadGroups(void);
+	bool CheckSpawnRemove(int first);
+	void OutputState(int cur);
+	void OutputGroup(int first, char group, bool use_spawn);
+	const char *GroupToName(char group, bool use_spawn);
+}
+
+
+#endif /* __FRAMES__ */
