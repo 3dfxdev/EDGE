@@ -76,23 +76,17 @@ typedef struct video_context_s
   
   // Draws an image into a rectangular area of the screen.  Screen
   // coordinates are inclusive.  Alpha ranges from 0 (invisible) to
-  // 255 (totally opaque).  If the texture coordinates lie outside of
-  // the [0-1] range, then the image will be tiled.  Proper tiling is
-  // only guaranteed for power-of-two sized images.  The drawing will
-  // be clipped to the current clipping rectangle.
+  // 255 (totally opaque).  The colour parameter is a palette index
+  // (0-255) to shade the image (for font characters).  It is normally
+  // `WHITE'.  If the texture coordinates lie outside of the [0-1]
+  // range, then the image will be tiled.  Proper tiling is only
+  // guaranteed for power-of-two sized images.  The drawing will be
+  // clipped to the current clipping rectangle.
   
   void (* DrawImage)(int x1, int y1, int x2, int y2,
       float_t tx1, float_t ty1, float_t tx2, float_t ty2,
-      const image_t *image, int alpha);
- 
-  // Just like DrawImage above, but draws a font image on the screen.
-  // The extra parameter `colour' is a palette value (0-255) for what
-  // colour to draw the character.
- 
-  void (* DrawFont)(int x1, int y1, int x2, int y2,
-      float_t tx1, float_t ty1, float_t tx2, float_t ty2,
       const image_t *image, int colour, int alpha);
-
+ 
   // Draw a solid colour box (possibly translucent) in the given
   // rectangle.  Coordinates are inclusive.  Alpha ranges from 0
   // (invisible) to 255 (totally opaque).  Colour is a palette index
