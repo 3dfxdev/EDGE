@@ -524,7 +524,7 @@ void RGL_PaletteEffect(player_t *player)
 		if (s < 40.0)
 			glColor4f(1.0f, 1.0f, 1.0f, (40.0f - s) / 80.0f);
 		else
-			glColor4f(0.0f, 0.0f, 0.0f, (s - 40.0f) / 200.0f);
+			glColor4f(0.0f, 0.0f, 0.0f, (s - 40.0f) / 320.0f);
 	}
 	else
 	{
