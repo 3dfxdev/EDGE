@@ -35,7 +35,7 @@
 //
 void G_DeathMatchSpawnPlayer(player_t *p);
 
-void G_InitNew(skill_t skill, const mapdef_c * map, long random_seed);
+void G_InitNew(skill_t skill, const mapdef_c *map, const gamedef_c *gamedef, long seed);
 
 //
 // Called by the Startup code & M_Responder; A normal game
@@ -44,8 +44,9 @@ void G_InitNew(skill_t skill, const mapdef_c * map, long random_seed);
 //
 // -ACB- 1998/08/10 New DDF Structure, Use map reference name.
 //
-bool G_DeferredInitNew(skill_t skill, const char *mapname,
-    bool warpopt);
+bool G_DeferredInitNew(skill_t skill, 
+					   const char *mapname,
+					   bool warpopt);
 
 void G_DeferredPlayDemo(const char *demo);
 
@@ -88,7 +89,7 @@ bool G_CheckWhenAppear(when_appear_e appear);
 bool G_CheckConditions(mobj_t *mo, condition_check_t *cond);
 char *G_FileNameFromSlot(int slot);
 
-extern gamedef_c* currgamedef;
+extern const gamedef_c* currgamedef;
 extern const mapdef_c* currmap;
 extern const mapdef_c* nextmap;
 
