@@ -698,9 +698,11 @@ static void SpawnMapThing(const mobjinfo_t *info,
 		mobj->spawnpoint.flags |= MF_AMBUSH;
 	}
 
+#if 0 // -AJA- 2004/04/29: DISABLED due to junk options in old wads
 	// -AJA- 2000/09/22: MBF compatibility flag
 	if (options & MTF_FRIEND)
 		mobj->side = ~0;
+#endif
 }
 
 //
