@@ -327,7 +327,7 @@ void G_DoLoadLevel(void)
 
 	RAD_SpawnTriggers(currmap->ddf.name.GetString());
 
-	displayplayer = consoleplayer;  // view the guy you are playing
+	G_SetDisplayPlayer(consoleplayer); // view the guy you are playing
 
 	starttime = I_GetTime();
 	exittime = 0x7fffffff;
@@ -346,19 +346,51 @@ void G_DoLoadLevel(void)
 	viewactive = true;
 }
 
+//
+// G_SetConsolePlayer
+//
+// Note: we don't rely on current value being valid, hence can use
+//       these functions during initialisation.
+//
+void G_SetConsolePlayer(int pnum)
+{
+	consoleplayer = pnum;
+
+	DEV_ASSERT2(players[consoleplayer]);
+
+	for (int i = 0; i < MAXPLAYERS; i++)
+		if (players[i])
+			players[i]->playerflags &= ~PFL_Console;
+	
+	players[pnum]->playerflags |= PFL_Console;
+}
+
+//
+// G_SetDisplayPlayer
+//
+void G_SetDisplayPlayer(int pnum)
+{
+	displayplayer = pnum;
+
+	DEV_ASSERT2(players[displayplayer]);
+
+	for (int i = 0; i < MAXPLAYERS; i++)
+		if (players[i])
+			players[i]->playerflags &= ~PFL_Display;
+	
+	players[pnum]->playerflags |= PFL_Display;
+}
+
 static void G_ChangeDisplayPlayer(void)
 {
-	for (int i = 0; i < MAXPLAYERS; i++)
+	for (int i = 1; i <= MAXPLAYERS; i++)
 	{
 		int pnum = (displayplayer + i) % MAXPLAYERS;
 
 		if (players[pnum])
 		{
-			players[displayplayer]->playerflags &= ~PFL_Display;
-			displayplayer = pnum;
-
-			players[displayplayer]->playerflags |= PFL_Display;
-			return;
+			G_SetDisplayPlayer(pnum);
+			break;
 		}
 	}
 }
@@ -1666,7 +1698,7 @@ void G_DoPlayDemo(void)
 
 		skill = (skill_t) playdemobuffer[demo_p++];
 		deathmatch = playdemobuffer[demo_p++];
-		consoleplayer = playdemobuffer[demo_p++];
+		G_SetConsolePlayer(playdemobuffer[demo_p++]);
 
 		level_flags = *(gameflags_t *)&playdemobuffer[demo_p];
 		demo_p += sizeof(level_flags);

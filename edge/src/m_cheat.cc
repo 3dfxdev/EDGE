@@ -75,8 +75,6 @@ static cheatseq_t cheat_powerup[9] =
 static cheatseq_t cheat_mus               = {0, 0};
 static cheatseq_t cheat_mypos             = {0, 0};
 static cheatseq_t cheat_showstats         = {0, 0};
-static cheatseq_t cheat_spawnbot          = {0, 0};
-
 static cheatseq_t cheat_choppers          = {0, 0};
 static cheatseq_t cheat_clev              = {0, 0};
 static cheatseq_t cheat_killall           = {0, 0};
@@ -425,11 +423,6 @@ bool M_CheatResponder(event_t * ev)
 		// 'mus' cheat for changing music
 		M_StartMessageInput(language["MusicQ"], M_ChangeMusicCheat);
 	}
-	else if (M_CheckCheat(&cheat_spawnbot, key))
-	{
-		BOT_DMSpawn();
-		CON_MessageLDF("BotSpawn");
-	}
 	else if (M_CheckCheat(&cheat_showstats, key))
 		showstats = !showstats;
 
@@ -471,8 +464,6 @@ void M_CheatInit(void)
 	cheat_keys.sequence      = language["idunlock"];
 	cheat_loaded.sequence    = language["idloaded"];
 	cheat_takeall.sequence   = language["idtakeall"];
-
-	cheat_spawnbot.sequence  = language["idbot"];
 
 	for (i = 0; i < 11; i++)
 	{

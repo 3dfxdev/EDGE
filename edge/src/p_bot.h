@@ -110,8 +110,7 @@ typedef struct bot_s
 }
 bot_t;
 
-void P_BotCreate(player_t *p);
-void BOT_DMSpawn(void);
+void P_BotCreate(player_t *p, bool recreate);
 void P_RemoveBots(void);
 
 #endif

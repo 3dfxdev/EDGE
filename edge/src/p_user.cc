@@ -667,12 +667,13 @@ void P_CreatePlayer(int pnum)
 {
 	DEV_ASSERT2(0 <= pnum && pnum < MAXPLAYERS);
 
-	DEV_ASSERT(! players[pnum], ("P_AddPlayer: %d already there", pnum));
+	DEV_ASSERT(! players[pnum], ("P_CreatePlayer: %d already there", pnum));
 
 	player_t *p = Z_ClearNew(player_t, 1);
 	p->pnum = pnum;
 
 	players[pnum] = p;
+	num_players++;
 
 	// determine name
 	char namebuf[32];
@@ -704,6 +705,8 @@ void P_DestroyAllPlayers(void)
 
 		players[pnum] = NULL;
 	}
+
+	num_players = 0;
 }
 
 //
