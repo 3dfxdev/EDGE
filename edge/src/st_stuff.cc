@@ -241,6 +241,7 @@ static const image_t *arms[6][2];
 
 // ready-weapon widget
 static st_number_t w_ready;
+static int w_ready_hack;
 
 // in deathmatch only, summary of frags stats
 static st_number_t w_frags;
@@ -520,10 +521,12 @@ static void UpdateWidgets(void)
 			}
 			else
 			{
-				w_ready.num = &consoleplayer->ammo[pw->info->ammo[0]].num;
+				w_ready.num = &w_ready_hack;
 
-				if (pw->info->clip_size[0] > 1)
-					w_ready.num += consoleplayer->weapons[consoleplayer->ready_wp].clip_size[0];
+				w_ready_hack = consoleplayer->ammo[pw->info->ammo[0]].num;
+
+				if (pw->info->clip_size[0] != 1)
+					w_ready_hack += pw->clip_size[0];
 
 				// set ammo colour as in BOOM.  -AJA- Experimental !!
 				if (stbar_colours)
