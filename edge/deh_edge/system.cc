@@ -1,8 +1,8 @@
 //------------------------------------------------------------------------
-// SYSTEM : System specific code
+//  SYSTEM : System specific code
 //------------------------------------------------------------------------
 //
-//  GL-Friendly Node Builder (C) 2000-2004 Andrew Apted
+//  DEH_EDGE  Copyright (C) 2004  The EDGE Team
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -12,30 +12,32 @@
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//  GNU General Public License (in COPYING.txt) for more details.
+//
+//------------------------------------------------------------------------
+//
+//  DEH_EDGE is based on:
+//
+//  +  DeHackEd source code, by Greg Lewis.
+//  -  DOOM source code (C) 1993-1996 id Software, Inc.
+//  -  Linux DOOM Hack Editor, by Sam Lantinga.
+//  -  PrBoom's DEH/BEX code, by Ty Halderman, TeamTNT.
 //
 //------------------------------------------------------------------------
 
+#include "i_defs.h"
 #include "system.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <ctype.h>
-#include <math.h>
-#include <limits.h>
-#include <assert.h>
 
-
-#define FATAL_COREDUMP  0
+#define FATAL_COREDUMP  1
 
 #define DEBUG_ENABLED   0
-#define DEBUGGING_FILE  "deh_debug.log"
 #define DEBUG_ENDIAN  0
+#define DEBUGGING_FILE  "deh_debug.log"
 
 
 bool quiet_mode = false;
+bool all_mode = true;   // !!!!! FIXME
 
 static int cpu_big_endian = 0;
 
@@ -44,7 +46,7 @@ static int progress_shown;
 
 static char message_buf[1024];
 
-#if DEBUG_ENABLED
+#if (DEBUG_ENABLED)
 static FILE *debug_fp = NULL;
 #endif
 
@@ -83,37 +85,6 @@ void System_Shutdown(void)
 	Debug_Shutdown();
 }
 
-//
-// FileExists
-//
-bool FileExists(const char *filename)
-{
-	FILE *fp = fopen(filename, "rb");
-
-	if (fp)
-	{
-		fclose(fp);
-		return true;
-	}
-
-	return false;
-}
-
-const char *StrUpper(const char *name)
-{
-	static char up_buf[512];
-
-	assert(strlen(name) < sizeof(up_buf) - 1);
-
-	char *dest = up_buf;
-
-	while (*name)
-		*dest++ = toupper(*name++);
-
-	*dest = 0;
-
-	return up_buf;
-}
 
 /* -------- text output code ----------------------------- */
 
@@ -131,7 +102,7 @@ void PrintMsg(const char *str, ...)
 	printf("%s", message_buf);
 	fflush(stdout);
 
-#if DEBUG_ENABLED
+#if (DEBUG_ENABLED)
 	Debug_PrintMsg("> %s", message_buf);
 #endif
 }
@@ -147,13 +118,13 @@ void PrintWarn(const char *str, ...)
 	vsprintf(message_buf, str, args);
 	va_end(args);
 
-	if (quiet_mode)
+	if (! quiet_mode)
 	{
-		printf("Warning: %s", message_buf);
+		printf("- Warning: %s", message_buf);
 		fflush(stdout);
 	}
 
-#if DEBUG_ENABLED
+#if (DEBUG_ENABLED)
 	Debug_PrintMsg("> Warning: %s", message_buf);
 #endif
 }
@@ -169,7 +140,7 @@ void FatalError(const char *str, ...)
 	vsprintf(message_buf, str, args);
 	va_end(args);
 
-  	printf("\nError: %s\n\n", message_buf);
+  	printf("\nError: %s\n", message_buf);
 	fflush(stdout);
 
 #if (FATAL_COREDUMP && defined(UNIX))
@@ -190,7 +161,7 @@ void InternalError(const char *str, ...)
 	vsprintf(message_buf, str, args);
 	va_end(args);
 
-  	printf("\nINTERNAL ERROR: %s\n\n", message_buf);
+  	printf("\nINTERNAL ERROR: %s\n", message_buf);
 	fflush(stdout);
 
 #if (FATAL_COREDUMP && defined(UNIX))
@@ -233,7 +204,7 @@ void ShowProgress(int count, int limit)
 
 static void Debug_Startup(void)
 {
-#if DEBUG_ENABLED
+#if (DEBUG_ENABLED)
 	debug_fp = fopen(DEBUGGING_FILE, "w");
 
 	if (! debug_fp)
@@ -245,7 +216,7 @@ static void Debug_Startup(void)
 
 static void Debug_Shutdown(void)
 {
-#if DEBUG_ENABLED
+#if (DEBUG_ENABLED)
 	if (debug_fp)
 	{
 		Debug_PrintMsg("=== END OF DEBUG FILE ===\n");
@@ -261,7 +232,7 @@ static void Debug_Shutdown(void)
 //
 void Debug_PrintMsg(const char *str, ...)
 {
-#if DEBUG_ENABLED
+#if (DEBUG_ENABLED)
   if (debug_fp)
   {
     va_list args;
@@ -316,7 +287,7 @@ static void Endian_Startup(void)
 	u_test.mem[0] = 0x70;  u_test.mem[1] = 0x71;
 	u_test.mem[2] = 0x72;  u_test.mem[3] = 0x73;
 
-#if DEBUG_ENDIAN
+#if (DEBUG_ENDIAN)
 	Debug_PrintMsg("Endianness magic value: 0x%08x\n", u_test.val);
 #endif
 
@@ -327,7 +298,7 @@ static void Endian_Startup(void)
 	else
 		FatalError("Sanity check failed: weird endianness (0x%08x)", u_test.val);
 
-#if DEBUG_ENDIAN
+#if (DEBUG_ENDIAN)
 	Debug_PrintMsg("Endianness = %s\n", cpu_big_endian ? "BIG" : "LITTLE");
 
 	Debug_PrintMsg("Endianness check: 0x1234 --> 0x%04x\n", 
