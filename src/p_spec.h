@@ -118,6 +118,15 @@ typedef struct gen_move_s
 }
 gen_move_t;
 
+typedef enum
+{
+    DIRECTION_UP     = +1,
+    DIRECTION_WAIT   =  0,
+    DIRECTION_DOWN   = -1,
+    DIRECTION_STASIS = -2
+}
+plane_dir_e;
+
 typedef struct elev_move_s
 {
 	movedat_e whatiam;

@@ -343,6 +343,7 @@ static specflags_t movement_types[] =
 	{"PLAT", mov_Plat, 0},
 	{"BUILDSTAIRS", mov_Stairs, 0},
 	{"STOP", mov_Stop, 0},
+	{"TOGGLE", mov_Toggle, 0},
 	{NULL, 0, 0}
 };
 
