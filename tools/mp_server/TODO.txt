@@ -17,8 +17,11 @@ NETWORKING
 USER INTERFACE
 --------------
 
-+ control screen : set port (and addr), limits on clients/games, etc.
-  - ACTIVATE button.  RESET button (boot all, deactivate).
++ control screen : 
+  + set port (and addr)
+  + limits on clients/games, etc.
+  - ACTIVATE button.
+  - RESET button (boot all, deactivate).
 
 - copy the game/client lists for the UI.
 
@@ -26,6 +29,7 @@ USER INTERFACE
 
 - game list.  (allow terminating games).
 
-- exit confirmation if there are clients/games, plus choice to
-  quit immediately or boot-all then quit.
+- exit confirmation if there are clients/games,
+  show a "shutdown" window (4 sec for games, 4 for clients),
+  with a "quit now" button.
 
