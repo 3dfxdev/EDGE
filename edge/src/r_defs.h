@@ -49,10 +49,9 @@ struct image_s;
 #define SIL_TOP                 2
 #define SIL_BOTH                3
 
-// 23-6-98 KM Save all that redundant space...
-#define MAXDRAWSEGS             128
-
-#define MAXOPENGAPS  16
+// -AJA- Don't like imposing this limit...
+#define MAXOPENGAPS   16
+#define MAXSIGHTGAPS  2
 
 //
 // INTERNAL MAP TYPES
@@ -398,6 +397,11 @@ typedef struct line_s
   int gap_num;
   vgap_t gaps[MAXOPENGAPS];
 
+  // -AJA- 2000/10/01: Extra sight gaps, for solid but see-through
+  //       doors and windows.
+  int s_gap_num;
+  vgap_t sight_gaps[MAXSIGHTGAPS];
+
   // slider thinker, normally NULL
   void *slider_special;
 
@@ -490,7 +494,7 @@ divline_t;
 //
 typedef struct node_s
 {
-  divline_t line;
+  divline_t div;
 
   // If NF_SUBSECTOR its a subsector.
   unsigned short children[2];

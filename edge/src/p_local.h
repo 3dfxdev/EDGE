@@ -189,9 +189,9 @@ extern divline_t trace;
 
 float_t P_ApproxDistance(float_t dx, float_t dy);
 float_t P_ApproxSlope(float_t dx, float_t dy, float_t dz);
-int P_PointOnLineSide(float_t x, float_t y, line_t * line);
-int P_PointOnDivlineSide(float_t x, float_t y, divline_t * line);
-void P_MakeDivline(line_t * li, divline_t * dl);
+int P_PointOnDivlineSide(float_t x, float_t y, divline_t *div);
+int P_PointOnDivlineThick(float_t x, float_t y, divline_t *div,
+    float_t div_len, float_t thickness);
 float_t P_InterceptVector(divline_t * v2, divline_t * v1);
 int P_BoxOnLineSide(float_t * tmbox, line_t * ld);
 int P_FindThingGap(vgap_t * gaps, int gap_num, float_t z1, float_t z2);
