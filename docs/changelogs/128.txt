@@ -1,0 +1,144 @@
+
+CHANGELOG FOR 1.28 BETA-3 (since BETA-2)
+========================================
+
+(Date: MARCH 5th 2004)
+
+Bugs fixed
+----------
+
+- RTS graphical tips were not scaled properly.
+- Flipped sprites would use the X offset incorrectly.
+
+
+General improvements
+--------------------
+
+None.
+
+
+New features:
+-------------
+
+- TIP_GRAPHIC supports scaling.  @@@
+
+
+CHANGELOG FOR 1.28 BETA-2 (since 1.27)
+======================================
+
+Bugs fixed
+----------
+
++ serious crash bug loading textures from PWads fixed.
++ savegame problem which could cause crashes fixed.
++ windows version now detects out-of-date GWA files properly.
++ windows version now handles filenames with double quotes.
++ fixed crash when a door closed on a dead player.
+
+- fixed the FACE() action.
+- fixed for MAXFALL when swimming. (UNTESTED)
+- fix for too much bobbing.
+- berserk: if already showing fist, don't lower/raise it.
+- fix for loss of precision when scrolling walls/floor. (UNTESTED)
+- fix for floor textures in GL (wrong scale, no transparency).
+- PRE.TEXT now works on first level (MAP01, E1M1).
+- powerup tints (berserk etc) now fade out after dying.
+- projectiles causing no damage when coming directly down.
+- removed DOOM I warnings about missing sprites/textures.
+- fixed RTS JUMP command which was seriously broken.
+- fixed RTS problems when using WAIT before a LABEL.
+- PALETTE_REMAP now works in GL mode.
+- chat macros in the config file were being overridden by DDF.
+- shot attacks now honour the RANGE setting in DDF.
+- fixed ceilings not opening because of stuck things (MAP06).
+- sky image (changeable in RTS) now saved in savegames.
+- fixed how armour is shown in the status bar.
+- certain fonts are no longer forced red (QDOOM).
+- numerous small fixes to DDF, e.g. Cyberdemon walk sound.
+- pontential crash when subsectors have only 1 or 2 segs (MAP22).
+- fixed transparent doors (again !), both software and GL.
+- fixed the issue with monsters resurrecting into another.
+- screenshots in GL mode now work again.
+- render sprites (S/W mode) with posts > 128 pixels. (UNTESTED)
+- visibility clipping in GL was broken (causing excessive overdraw).
+
+
+Features removed:
+-----------------
+
+* MP3 music support, due to MP3 licensing which is incompatible with
+  open source software.
+
+
+General improvements
+--------------------
+
++ full Mlook range in GL mode.
++ better sky drawing in GL: no more wobblies, much faster.
+
++ windows version prevents more than one instance of EDGE running at
+  the same time.  Also, OpenGL window handling has been reworked.
+
+- the sprite name "NULL" is now hard-coded, and always shows nothing.
+- RTS SPAWNTHING: when thing is unknown, show warning instead of error.
+- better images for when you have both keycard and skullkey.
+- non-terminated strings in DDF cause a warning.
+- zooming: always use current weapon's zoom factor if set in DDF.
+- config file remembers current language and current Save/Load page.
+- the first 9 RTS tip slots are no longer unchangeable.
+- better invulnerability fade-out in GL.
+- pseudo skyboxes for OpenGL (converted from normal sky background).
+- Pixelfade wipe has been implemented for OpenGL mode.
+
+
+New features:
+-------------
+
++ very basic overlay HUD.  (Better one will be made when HUD.DDF is
+  implemented).
+
++ EDGE.log file, automatically remembers all startup messages.
+
+- when a path follower hits an RTS node, the trigger is enabled. (UNTESTED)
+
+- new RTS ON_CONDITION: WALKING.  Requires that the player is walking
+  (moving and on the ground).  Doesn't activate when swimming or flying.
+  A number in () can be used to specify how fast the player is moving.
+
+- ON_CONDITION support for amounts with powerups e.g. POWERUP_PARTINVIS(10)
+
+- RESISTANCE_CLASS for DDF.  Used the same way as IMMUNITY_CLASS, but the
+  monster only suffers 40% of the original damage.
+
+- SPECIAL_MUSIC command for games.ddf.  Specifies the music played during
+  the cast parade and the bunny screen.  (UNTESTED)
+
+- the console background is now a texture or flat called "CONSOLE".
+
+- new PRE.COLOURMAP and END.COLOURMAP commands for levels.ddf, changes the
+  colour of the text in the finale screens.
+
+- new colourmap special WHITEN, used for fonts.  Implied when the
+  colourmap begins with "TEXT_".
+
+
+New console variables:
+----------------------
+
+  LIGHTING       \   Allow debugging OpenGL driver bugs. Each takes
+  COLORMATERIAL   |  a boolean value (TRUE or FALSE).  Some combinations
+  VERTEXARRAYS   /   don't make sense (especially LI + no_CM + VA).
+
+
+New command-line options:
+-------------------------
+
+  -nolog             Disables creation of EDGE.LOG file.
+
+  -(no)vertexarray   Enable/disable using vertex arrays in GL mode.
+                     Default is enabled.  They can cause problems
+                     with some drivers (Voodoo 3).
+
+  -sound16  (Linux)  Force using 16 bit sound.  Default is to only
+                     swtich to 16 bit when 8 bits is unavailable.
+
