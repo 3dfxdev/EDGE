@@ -1768,6 +1768,120 @@ checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
 	return CHKF_Positive;
 }
 
+//
+// DDF_DecodeBrackets
+//
+// Decode a keyword followed by something in () brackets.  Buf_len gives
+// the maximum size of the output buffers.  The outer keyword is required
+// to be non-empty, though the inside can be empty.  Returns false if
+// cannot be parsed (e.g. no brackets).  Handles strings.
+//
+bool DDF_MainDecodeBrackets(const char *info, char *outer, char *inner,
+	int buf_len)
+{
+	const char *pos = info;
+	
+	while (*pos && *pos != '(')
+		pos++;
+	
+	if (*pos == 0 || pos == info)
+		return false;
+	
+	if (pos - info >= buf_len)  // overflow
+		return false;
+
+	strncpy(outer, info, pos - info);
+	outer[pos - info] = 0;
+
+	pos++;  // skip the '('
+
+	info = pos;
+
+	bool in_string = false;
+
+	while (*pos && (in_string || *pos != ')'))
+	{
+		// handle escaped quotes
+		if (pos[0] == '\\' && pos[1] == '"')
+		{
+			pos += 2;
+			continue;
+		}
+
+		if (*pos == '"')
+			in_string = ! in_string;
+
+		pos++;
+	}
+
+	if (*pos == 0)
+		return false;
+
+	if (pos - info >= buf_len)  // overflow
+		return false;
+
+	strncpy(inner, info, pos - info);
+	inner[pos - info] = 0;
+
+	return true;
+}
+
+//
+// DDF_MainDecodeList
+//
+// Find the dividing character.  Returns NULL if not found.
+// Handles strings and brackets unless simple is true.
+//
+const char *DDF_MainDecodeList(const char *info, char divider, bool simple)
+{
+	int  brackets  = 0;
+	bool in_string = false;
+
+	const char *pos = info;
+
+	for (;;)
+	{
+		if (*pos == 0)
+			break;
+
+		if (brackets == 0 && !in_string && *pos == divider)
+			return pos;
+
+		// handle escaped quotes
+		if (! simple)
+		{
+			if (pos[0] == '\\' && pos[1] == '"')
+			{
+				pos += 2;
+				continue;
+			}
+
+			if (*pos == '"')
+				in_string = ! in_string;
+
+			if (!in_string && *pos == '(')
+				brackets++;
+
+			if (!in_string && *pos == ')')
+			{
+				brackets--;
+				if (brackets < 0)
+					DDF_Error("Too many ')' found: %s\n", info);
+			}
+		}
+
+		pos++;
+	}
+
+	if (in_string)
+		DDF_Error("Unterminated string found: %s\n", info);
+
+	if (brackets != 0)
+		DDF_Error("Unclosed brackets found: %s\n", info);
+
+	return NULL;
+}
+
 // DDF OBJECTS
 
 // ---> ddf base class
