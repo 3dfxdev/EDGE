@@ -20,6 +20,7 @@
 
 #include "client.h"
 #include "game.h"
+#include "lib_argv.h"
 #include "mp_main.h"
 #include "network.h"
 #include "packet.h"
@@ -95,16 +96,18 @@ void MainSetDefaults(void)
 
 int main(int argc, char **argv)
 {
-	if (argc > 1 &&
-			(strcmp(argv[1], "/?") == 0 || strcmp(argv[1], "-h") == 0 ||
-			 strcmp(argv[1], "-help") == 0 || strcmp(argv[1], "--help") == 0 ||
-			 strcmp(argv[1], "-HELP") == 0 || strcmp(argv[1], "--HELP") == 0))
+	// skip program name
+	argv++, argc--;
+
+	ArgvInit(argc, (const char **)argv);
+
+	if (ArgvFind('?', NULL) >= 0 || ArgvFind('h', "help") >= 0)
 	{
 		ShowInfo();
 		exit(1);
 	}
 
-	// FIXME: have a -debug option
+	// FIXME (eventually): have a -debug option
 	DebugInit(true);
 
 	/// int first_arg = 1;
@@ -187,6 +190,7 @@ int main(int argc, char **argv)
 	main_win = NULL;
 
 	DebugTerm();
+	ArgvTerm();
 
 	return 0;
 }
