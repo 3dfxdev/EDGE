@@ -28,7 +28,6 @@ namespace Deh_Edge
 #include <errno.h>
 
 #include <limits.h>
-#include <values.h>
 #include <math.h>
 #include <time.h>
 #include <assert.h>
@@ -44,6 +43,7 @@ namespace Deh_Edge
 	typedef long long Int64;
 }
 
+#include <values.h>
 #include <unistd.h>
 #include <dos.h>
 
@@ -63,8 +63,9 @@ namespace Deh_Edge
 #endif
 }
 
-#include <windows.h>
+#include <values.h>
 
+#include <windows.h>
 #include <io.h>
 #include <malloc.h>
 #include <mem.h>
@@ -78,6 +79,7 @@ namespace Deh_Edge
 // LINUX
 #elif defined(LINUX)
 
+#include <values.h>
 #include <unistd.h>
 
 namespace Deh_Edge
