@@ -1,8 +1,8 @@
 
-DEH_EDGE 0.9
+DEH_EDGE 1.0
 ============
 
-by Andrew Apted.  7th May 2004.
+by Andrew Apted.  3rd June 2004.
 
 
 Introduction
@@ -10,16 +10,16 @@ Introduction
 
 DEH_EDGE is a utility for converting DeHackEd (.DEH) files into something
 that can be loaded into the EDGE engine (http://edge.sourceforge.net).
-The output is a WAD containing a bunch of DDF lumps.
+The output is a WAD file containing a bunch of DDF lumps.
 
 DEH_EDGE is a command line utility, so the Windows version must be run
-from the DOS box.  Although dragging a DEH file onto the DEH_EDGE
-executable may work, you could miss some important messages.
+from the DOS box.  Dragging a .DEH file onto the DEH_EDGE executable may
+work, but you could miss some important messages.
 
 DEH_EDGE handles all the DeHackEd patch formats (the old binary formats
-and the new text format).  Text strings and code-pointers in the binary
-formats are not supported.  DEH_EDGE does __NOT__ support BOOM extensions
-(BEX) at this time.  
+and the new text format).  A few obscure bits, like raw action offsets,
+are not supported.  DEH_EDGE does __NOT__ handle BOOM extensions (BEX)
+at this time, but they will be added in the future.
 
 
 Usage
@@ -29,57 +29,75 @@ Run it like this:
 
    deh_edge batman.deh
 
-which will create the file "batman_deh.wad".  Then run EDGE using this
-additional file, for example:
+It will create the file "batman.hwa".  This .HWA file is really
+just a normal WAD file containing the DDF, but the HWA extension
+means that it was created from a DeHackEd file ('H' for 'Hack').
 
-   gledge32 -file batman.wad batman_deh.wad
+Then run EDGE using this additional file, for example:
 
+   gledge32 -file batman.wad batman.hwa
 
 NOTE: the original .DEH file is not modified in any way.
+
+ 
+Usage with EDGE 1.27
+--------------------
+
+You need to specify the EDGE version number.  For example:
+
+   deh_edge --edge 1.27 batman.deh
+
+It will create the file "batman_deh.wad".  (Note that the
+extension is not HWA like above -- .HWA files only work in
+EDGE 1.28 and later).
+
+Then run EDGE using this additional file, for example:
+
+   gledge32 -file batman.wad batman_deh.wad
 
 
 Options
 -------
 
-  -o --output    Output file.  This is optional, the default output
-				 filename will be the DEH filename with the extension
-				 removed and "_deh.wad" added onto the end.
+  -o --output      Output file.  This is optional, the default output
+                   filename will simply replace the DEH extension with
+                   the HWA extension.
 
-  -q --quiet     Quiet mode, disable warning messages.
+  -e --edge #.##   EDGE version to target.  The current default is 1.28.
+                   This option will cause the output DDF to be optimised
+                   for that Edge version, and workaround any known bugs.
 
-  -a --all       All: converts everything into DDF.  Normally only
-				 the stuff which has been modified is converted to DDF.
-				 This option makes the output WAD much bigger.  Mainly
-				 useful for debugging.
+  -q --quiet       Quiet mode, disable warning messages.
+
+  -a --all         All: converts everything into DDF.  Normally only the
+                   parts which has been modified are converted to DDF.
+                   This option can make the output WAD much bigger !
+                   Mainly useful for trouble-shooting problems.
 
 
 Limitations
 -----------
 
-1. Can only handle a single DEH patch file at a time.
+1. Doesn't handle _yet_ the BOOM extended format (BEX), like [STRINGS].
 
-2. No support for BOOM extended format (BEX), like [STRINGS] etc.
+2. Doesn't handle _yet_ BOOM/MBF things/frames/actions (e.g. the DOG).
 
-3. No support for BOOM/MBF things/frames/actions (e.g. the DOG).
-
-(The above three may be added in a future version).
-
-4. No support for a few DEH patchables, e.g. 'God Mode Health'.
+3. No support for a few DEH patchables, e.g. 'God Mode Health'.
    These can't be changed in EDGE via DDF.  Most (probably all) of them
    have little importance (like what certain cheats give you).
 
-5. Text strings, code pointers, and sprite/sound name pointers
-   from binary patch files are not supported.  These are heavily
-   dependent on the exact version of the DOOM EXE.  Even DeHackEd
-   itself can't load these when the EXE version is different.
+4. Raw action offsets and sprite/sound name pointers are unsupported.
+   These are heavily dependent on the exact version of the DOOM EXE,
+   and would require big tables to be compiled.  Since very few .DEH
+   files use them, and the work required is huge, they will probably
+   never be supported.
  
-   Raw action offsets and sprite/sound offsets in text patch files
-   are also not handled, for the same reason.  Normal code pointers
-   are supported, of course.
+   Of course normal code pointers are supported.
 
-6. Text replacements only work in EDGE when the language selected
-   is "ENGLISH".  (The replacements are probably English anyway,
-   so this limitation is a minor one).
+5. Text replacements only work in EDGE when the language selected is
+   "ENGLISH".  This is a nuisance for anyone who usually plays in a
+   different language.  The replacements are usually English anyway,
+   so this limitation is fairly minor.
 
 
 Acknowledgements
