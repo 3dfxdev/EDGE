@@ -515,9 +515,9 @@ static optmenuitem_t stdkeyconfig[] =
 	{OPT_KeyConfig, "Move Down", NULL, 0, KEYD_DELETE, &key_flydown, NULL, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_KeyConfig, "Strafe", NULL, 0, KEYD_RALT + (KEYD_MOUSE2 << 16), &key_strafe, NULL, NULL},
+	{OPT_KeyConfig, "Run", NULL, 0, KEYD_RSHIFT, &key_speed, NULL, NULL},
 	{OPT_KeyConfig, "Strafe Left", NULL, 0, ',', &key_strafeleft, NULL, NULL},
 	{OPT_KeyConfig, "Strafe Right", NULL, 0, '.', &key_straferight, NULL, NULL},
-	{OPT_KeyConfig, "Run", NULL, 0, KEYD_RSHIFT, &key_speed, NULL, NULL},
 	{OPT_KeyConfig, "Toggle Autorun", NULL, 0, KEYD_CAPSLOCK, &key_autorun, NULL, NULL}
 };
 
@@ -543,9 +543,9 @@ static optmenuitem_t extkeyconfig[] =
 	{OPT_KeyConfig, "Zoom in/out", NULL, 0, '\\', &key_zoom, NULL, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_KeyConfig, "Jump", NULL, 0, '/', &key_jump, NULL, NULL},
+	{OPT_KeyConfig, "Map Toggle", NULL, 0, KEYD_TAB, &key_map, NULL, NULL},
 	{OPT_KeyConfig, "180 degree turn", NULL, 0, 0, &key_180, NULL, NULL},
     {OPT_KeyConfig, "Manual Reload", NULL, 0, 0, &key_reload, NULL, NULL},
-	{OPT_KeyConfig, "Map Toggle", NULL, 0, KEYD_TAB, &key_map, NULL, NULL},
 	{OPT_KeyConfig, "Multiplay Talk", NULL, 0, 't', &key_talk, NULL, NULL}
 };
 
