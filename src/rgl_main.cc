@@ -594,7 +594,7 @@ void RGL_EndDraw(void)
 //
 void RGL_DrawImage(int x, int y, int w, int h, const image_t *image, 
 				   float tx1, float ty1, float tx2, float ty2,
-				   const colourmap_t *colmap, float alpha)
+				   const colourmap_c *colmap, float alpha)
 {
 	float r = 1.0f, g = 1.0f, b = 1.0f;
 
@@ -720,7 +720,7 @@ void RGL_CheckExtensions(void)
 		DDF_CompareName(glstr_renderer, "GDI Generic") == 0)
 	{
 		I_Error("OpenGL: SOFTWARE Renderer !\n");
-		// glcap_hardware = false;
+		//glcap_hardware = false;
 	}
 
 	glstr_extensions = Z_StrDup((char*)glGetString(GL_EXTENSIONS));

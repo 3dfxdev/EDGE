@@ -23,7 +23,7 @@
 //
 //----------------------------------------------------------------------------
 //
-// -KM- 1998/10/29 Modified to allow foreign characters like '„'
+// -KM- 1998/10/29 Modified to allow foreign characters like '?'
 //
 
 #include "i_defs.h"
@@ -158,7 +158,7 @@ int HL_StringHeight(const char *string)
 // HL_WriteChar
 //
 static void HL_WriteChar(int x, int y, const H_font_t *font, char ch,
-    const colourmap_t *colmap, fixed_t alpha)
+    const colourmap_c *colmap, fixed_t alpha)
 {
 	DEV_ASSERT2(HL_CharExists(font, ch));
 
@@ -187,7 +187,7 @@ static void HL_WriteChar(int x, int y, const H_font_t *font, char ch,
 //
 // Write a string using the hu_font and index translator.
 //
-void HL_WriteTextTrans(int x, int y, const colourmap_t *colmap, 
+void HL_WriteTextTrans(int x, int y, const colourmap_c *colmap, 
     const char *string)
 {
 	int cx = x;
@@ -285,7 +285,7 @@ bool HL_DelCharFromTextLine(hu_textline_t * t)
 // -AJA- 2000/03/05: Index replaced with pointer to trans table.
 // -AJA- 2000/10/22: Renamed for alpha support.
 //
-void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_t *colmap, fixed_t alpha)
+void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c *colmap, fixed_t alpha)
 {
 	int i, x, y, w;
 

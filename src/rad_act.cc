@@ -136,12 +136,13 @@ static void SetupTip(drawtip_t *cur)
 		return;
 
 	// lookup translation table
+	// FIXME!!! Catch lookup failure 
 	if (! cur->p.colourmap_name)
 		cur->colmap = text_white_map;
 	else if (DDF_CompareName(cur->p.colourmap_name, "NORMAL") == 0)
 		cur->colmap = NULL;
 	else
-		cur->colmap = DDF_ColmapLookup(cur->p.colourmap_name);
+		cur->colmap = colourmaps.Lookup(cur->p.colourmap_name); 
 
 	// build HULIB information
 

@@ -30,18 +30,10 @@
 #undef  DF
 #define DF  DDF_CMD
 
-static colourmap_t buffer_colmap;
-static colourmap_t *dynamic_colmap;
+static colourmap_c buffer_colmap;
+static colourmap_c *dynamic_colmap;
 
-static const colourmap_t template_colmap =
-{
-	DDF_BASE_NIL,  // ddf
-	"",            // lump name
-	0,             // start
-	1,             // length
-	(colourspecial_e) 0,           // special
-	{NULL, NULL, -1, 0, 0xFFFFFF}  // cache
-};
+colourmap_container_c colourmaps;
 
 void DDF_ColmapGetSpecial(const char *info, void *storage);
 
@@ -60,12 +52,6 @@ static const commandlist_t colmap_commands[] =
 	DDF_CMD_END
 };
 
-colourmap_t ** ddf_colmaps;
-int num_ddf_colmaps = 0;
-int num_disabled_colmaps = 0;
-
-static stack_array_t ddf_colmaps_a;
-
 
 //
 //  DDF PARSE ROUTINES
@@ -73,44 +59,26 @@ static stack_array_t ddf_colmaps_a;
 
 static bool ColmapStartEntry(const char *name)
 {
-	int i;
-	bool replaces = false;
+	colourmap_c *existing = NULL;
 
 	if (name && name[0])
-	{
-		for (i=num_disabled_colmaps; i < num_ddf_colmaps; i++)
-		{
-			if (DDF_CompareName(ddf_colmaps[i]->ddf.name, name) == 0)
-			{
-				dynamic_colmap = ddf_colmaps[i];
-				replaces = true;
-				break;
-			}
-		}
-
-		// if found, adjust pointer array to keep newest entries at end
-		if (replaces && i < (num_ddf_colmaps-1))
-		{
-			Z_MoveData(ddf_colmaps + i, ddf_colmaps + i + 1, colourmap_t *,
-					num_ddf_colmaps - i);
-			ddf_colmaps[num_ddf_colmaps - 1] = dynamic_colmap;
-		}
-	}
+		existing = colourmaps.Lookup(name);
 
 	// not found, create a new one
-	if (! replaces)
+	if (! existing)
 	{
-		Z_SetArraySize(&ddf_colmaps_a, ++num_ddf_colmaps);
+		dynamic_colmap = new colourmap_c;
 
-		dynamic_colmap = ddf_colmaps[num_ddf_colmaps-1];
 		dynamic_colmap->ddf.name = (name && name[0]) ? Z_StrDup(name) :
-			DDF_MainCreateUniqueName("UNNAMED_COLMAP", num_ddf_colmaps);
+			DDF_MainCreateUniqueName("UNNAMED_COLMAP", colourmaps.GetSize());
+
+		colourmaps.Insert(dynamic_colmap);
 	}
 
 	dynamic_colmap->ddf.number = 0;
 
 	// instantiate the static entry
-	buffer_colmap = template_colmap;
+	buffer_colmap.Default();
 
 	// make sure fonts get whitened properly (as the default)
 	if (strncasecmp(dynamic_colmap->ddf.name, "TEXT", 4) == 0)
@@ -118,7 +86,7 @@ static bool ColmapStartEntry(const char *name)
 		buffer_colmap.special = COLSP_Whiten;
 	}
 
-	return replaces;
+	return (existing != NULL);
 }
 
 static void ColmapParseField(const char *field, const char *contents,
@@ -143,8 +111,6 @@ static void ColmapParseField(const char *field, const char *contents,
 
 static void ColmapFinishEntry(void)
 {
-	ddf_base_t base;
-
 	if (buffer_colmap.start < 0)
 	{
 		DDF_WarnError2(0x128, "Bad START value for colmap: %d\n", buffer_colmap.start);
@@ -161,10 +127,7 @@ static void ColmapFinishEntry(void)
 		DDF_Error("Missing LUMP name for colmap.\n");
 
 	// transfer static entry to dynamic entry
-
-	base = dynamic_colmap->ddf;
-	dynamic_colmap[0] = buffer_colmap;
-	dynamic_colmap->ddf = base;
+	dynamic_colmap->CopyDetail(buffer_colmap);
 
 	// Compute CRC.  In this case, there is no need, since colourmaps
 	// only affect rendering, they have zero effect on the game
@@ -175,8 +138,7 @@ static void ColmapFinishEntry(void)
 static void ColmapClearAll(void)
 {
 	// not safe to delete colourmaps -- disable them
-
-	num_disabled_colmaps = num_ddf_colmaps;
+	colourmaps.SetDisabledCount(colourmaps.GetSize());
 }
 
 
@@ -212,29 +174,12 @@ void DDF_ReadColourMaps(void *data, int size)
 
 void DDF_ColmapInit(void)
 {
-	Z_InitStackArray(&ddf_colmaps_a, (void ***)&ddf_colmaps, sizeof(colourmap_t), 0);
+	colourmaps.Clear();
 }
 
 void DDF_ColmapCleanUp(void)
 {
-	/* nothing to do */
-}
-
-const colourmap_t *DDF_ColmapLookup(const char *name)
-{
-	int i;
-
-	for (i = num_disabled_colmaps; i < num_ddf_colmaps; i++)
-	{
-		if (DDF_CompareName(ddf_colmaps[i]->ddf.name, name) == 0)
-			return ddf_colmaps[i];
-	}
-
-	if (lax_errors)
-		return ddf_colmaps[0];
-
-	DDF_Error("DDF_ColmapLookup: No such colourmap '%s'\n", name);
-	return NULL;
+	colourmaps.Trim();
 }
 
 specflags_t colmap_specials[] =
@@ -274,3 +219,124 @@ void DDF_ColmapGetSpecial(const char *info, void *storage)
 	}
 }
 
+// --> Colourmap Class
+
+//
+// colourmap_c Constructor
+//
+colourmap_c::colourmap_c()
+{
+}
+
+//
+// colourmap_c Copy Constructor
+//
+colourmap_c::colourmap_c(colourmap_c &rhs)
+{
+	ddf = rhs.ddf;
+	CopyDetail(rhs);
+}
+ 
+//
+// colourmap_c Deconstructor
+//
+colourmap_c::~colourmap_c()
+{
+}
+
+//
+// colourmap_c::CopyDetail()
+//
+void colourmap_c::CopyDetail(colourmap_c &src)
+{
+	lump_name = src.lump_name;
+	start = src.start;
+	length = src.length;
+	special = src.special;
+	
+	// FIXME!!! Cache struct to class
+	cache.baseptr = src.cache.baseptr;
+	cache.data = src.cache.data;
+	cache.validcount = src.cache.validcount;
+	cache.bpp = src.cache.bpp;
+	cache.gl_colour = src.cache.gl_colour;
+}
+
+//
+// colourmap_c::Default()
+//
+void colourmap_c::Default()
+{
+	// FIXME: ddf.Clear() ?
+	ddf.name	= "";
+	ddf.number	= 0;	
+	ddf.crc		= 0;
+	
+	lump_name.Clear();
+	start = 0;
+	length = 0;
+	special = COLSP_None;
+	
+	// FIXME!!! Cache struct to class
+	cache.baseptr = NULL;
+	cache.data = NULL;
+	cache.validcount = -1;
+	cache.bpp = 0;
+	cache.gl_colour = 0xFFFFFF;
+}
+
+// --> colourmap_container_c class
+
+//
+// colourmap_container_c::colourmap_container_c()
+//
+colourmap_container_c::colourmap_container_c() : epi::array_c(sizeof(atkdef_c*))
+{
+	num_disabled = 0;	
+}
+
+//
+// ~colourmap_container_c::colourmap_container_c()
+//
+colourmap_container_c::~colourmap_container_c()
+{
+	Clear();					// <-- Destroy self before exiting
+}
+
+//
+// colourmap_container_c::CleanupObject
+//
+void colourmap_container_c::CleanupObject(void *obj)
+{
+	colourmap_c *c = *(colourmap_c**)obj;
+
+	if (c)
+	{
+		// FIXME: Use proper new/transfer name cleanup to ddf_base destructor
+		if (c->ddf.name) { Z_Free(c->ddf.name); }
+		delete c;
+	}
+
+	return;
+}
+
+//
+// colourmap_c* colourmap_container_c::Lookup()
+//
+colourmap_c* colourmap_container_c::Lookup(const char *refname)
+{
+	epi::array_iterator_c it;
+	colourmap_c *c;
+
+	if (!refname || !refname[0])
+		return NULL;
+
+	for (it = GetIterator(num_disabled); it.IsValid(); it++)
+	{
+		c = ITERATOR_TO_TYPE(it, colourmap_c*);
+		if (DDF_CompareName(c->ddf.name, refname) == 0)
+			return c;
+	}
+
+	return NULL;
+}

@@ -204,7 +204,7 @@ void HL_EraseIText(hu_itext_t * it);
 
 // -ACB- 1998/06/10
 void HL_DrawTextLineAlpha(hu_textline_t * l, bool drawcursor, 
-    const colourmap_t *colmap, fixed_t alpha);
+    const colourmap_c *colmap, fixed_t alpha);
 
 #define HL_DrawTextLineTrans(L,DC,TR)  HL_DrawTextLineAlpha(L,DC,TR,FRACUNIT)
 
@@ -216,6 +216,6 @@ int HL_StringWidth(const char *string);
 int HL_StringHeight(const char *string);
 
 void HL_WriteText(int x, int y, const char *string);
-void HL_WriteTextTrans(int x, int y, const colourmap_t *colmap, const char *string);
+void HL_WriteTextTrans(int x, int y, const colourmap_c *colmap, const char *string);
 
 #endif  // __HULIB__

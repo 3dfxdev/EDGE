@@ -212,7 +212,7 @@ typedef struct player_s
 	bool flash;
 
 	// -AJA- 1999/07/10: changed for colmap.ddf.
-	const colourmap_t *effect_colourmap;
+	const colourmap_c *effect_colourmap;
 	bool effect_infrared;
 	float effect_strength;
 

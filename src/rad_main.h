@@ -598,7 +598,7 @@ typedef struct drawtip_s
 	float scale;
 
 	// current colour
-	const struct colourmap_s *colmap;
+	const colourmap_c *colmap;
 
 	// fading fields
 	int fade_time;
