@@ -30,6 +30,7 @@
 #include "ammo.h"
 #include "attacks.h"
 #include "frames.h"
+#include "info.h"
 #include "patch.h"
 #include "rscript.h"
 #include "sounds.h"
@@ -40,8 +41,6 @@
 #include "util.h"
 #include "wad.h"
 #include "weapons.h"
-
-#include "info.h"  // !!!
 
 
 const char *input_file  = NULL;
@@ -183,8 +182,6 @@ static void ValidateArgs(void)
 
 int main(int argc, char **argv)
 {
-/// printf("%d\n", S_SKEL_RAISE1); exit(1);
-
 	System_Startup();
 
 	ShowTitle();
