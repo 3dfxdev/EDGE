@@ -355,6 +355,39 @@ namespace Patch
 			PrintWarn("frame %d has non-zero misc fields.\n", st_num);
 	}
 
+	void ReadBinarySound(int s_num)
+	{
+		Debug_PrintMsg("\n--- ReadBinarySound %d ---\n", s_num);
+
+		if (file_error)
+			FatalError("File error reading binary sprite table.\n");
+
+		sfxinfo_t *sfx = S_sfx + s_num;
+
+		GetRawInt();  // ignore sound name pointer
+		GetRawInt();  // ignore singularity
+
+		GetInt(O_SOUND, s_num, &sfx->priority);
+
+		GetRawInt();  // ignore link pointer
+		GetRawInt();  // ignore link pitch
+		GetRawInt();  // ignore link volume
+
+		GetRawInt();  // 
+		GetRawInt();  // unused stuff
+		GetRawInt();  // 
+	}
+
+	void ReadBinarySprite(int spr_num)
+	{
+		Debug_PrintMsg("\n--- ReadBinarySprite %d ---\n", spr_num);
+
+		if (file_error)
+			FatalError("File error reading binary sprite table.\n");
+
+		GetRawInt();  // ignore sprite name pointer
+	}
+
 	void LoadReallyOld(void)
 	{
 		char tempfmt = 0;
@@ -441,16 +474,40 @@ namespace Patch
 		}
 		else
 		{
-			/* -AJA- NOTE WELL: the '- 1' here.  Testing confiras that
-			 * the DeHackEd code omits the very last frame in the V1.666+
+			/* -AJA- NOTE WELL: the "- 1" here.  Testing confiras that the
+			 * DeHackEd code omits the very last frame from the V1.666+
 			 * binary format.  The V1.2 binary format is fine though.
 			 */
 			for (j = 0; j < NUMSTATES - 1; j++)
 				ReadBinaryFrame(j);
 		}
 
-		// FIXME: load sounds
-		// FIXME: load sprites
+		if (doom_ver == 12)
+		{
+			// Note: this V1.2 sound/sprite handling UNTESTED.  I'm not even
+			// sure that there exists any such DEH patch files.
+
+			for (j = 1; j < SOUNDS_1_2; j++)
+				ReadBinarySound(sound12to166[j]);
+
+			for (j = 0; j < SPRITES_1_2; j++)
+				ReadBinarySprite(sprite12to166[j]);
+		}
+		else
+		{
+			/* -AJA- NOTE WELL: we start at one, as DEH patches don't
+			 * include the dummy entry.  More importantly the "- 1" here,
+			 * the very last sound is "DSRADIO" which is omitted from the
+			 * patch file.  Confirmed through testing.
+			 */
+			for (j = 1; j < NUMSFX - 1; j++)
+				ReadBinarySound(j);
+
+			for (j = 0; j < NUMSPRITES; j++)
+				ReadBinarySprite(j);
+		}
+
+		// Next would be text strings.  Hard to convert.
 	}
 
 	void LoadDiff(void)
