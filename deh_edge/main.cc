@@ -19,10 +19,18 @@
 #include "i_defs.h"
 
 #include "system.h"
+#include "things.h"
 #include "wad.h"
 
 
-#define VERSION  "0.3"
+//  DEH 1.2 (patch v1) no frames
+//  DEH 1.3 (patch v2) frames, no code pointers
+//  DEH X.X (patch vX) code pointers
+//  DEH Y.Y (patch vY) text format
+
+
+const char *input_file;
+const char *output_file;
 
 
 /* ----- user information ----------------------------- */
@@ -53,6 +61,34 @@ static void ShowInfo(void)
 
 /* ----- main program ----------------------------- */
 
+static void ParseArgs(int argc, char **argv)
+{
+	assert(argc >= 1);
+
+	input_file = strdup(*argv);
+
+	argv++, argc--;
+
+	if (argc >= 1)
+	{
+		output_file = strdup(*argv);
+
+		argv++, argc--;
+	}
+	else
+	{
+		output_file = strdup("test_deh.wad");  //!!!! FIXME
+	}
+
+	// !!!! AddMissingExtension(&input_file,  ".deh");
+	// !!!! AddMissingExtension(&output_file, ".wad");
+
+	// !!!! if (StrCaseCmp(input_file, output_file) == 0) FatalError
+
+	if (argc > 0)
+		FatalError("Too many filenames.");
+}
+
 int main(int argc, char **argv)
 {
 	System_Startup();
@@ -78,13 +114,24 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	WAD_Startup();
+	memset(state_dyn, 0, sizeof(state_dyn));
+	memset(mobj_dyn,  0, sizeof(mobj_dyn));
 
-	// PARSE ARGS
+	WAD::Startup();
+
+	ParseArgs(argc, argv);
+
+	PrintMsg("Loading patch file: %s\n", input_file);
 
 	// DO STUFF !!
+		Things::ConvertAll();
 
-	WAD_Shutdown();
+	PrintMsg("Writing WAD file: %s\n", output_file);
+	WAD::WriteFile(output_file);
+
+	PrintMsg("Finished.\n\n");
+
+	WAD::Shutdown();
 	System_Shutdown();
 
 	return 0;
