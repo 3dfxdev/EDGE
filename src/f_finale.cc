@@ -617,8 +617,7 @@ static void CastDrawer(void)
 
 	// erase the entire screen to a background
 	// -KM- 1998/07/21 Clear around the pic too.
-	DEV_ASSERT2(cast_style->bg_image);
-	RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, cast_style->bg_image);
+	cast_style->DrawBackground();
 
 	CastPrint(casttitle);
 

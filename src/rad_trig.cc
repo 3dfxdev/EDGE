@@ -798,13 +798,13 @@ void RAD_Init(void)
 	RAD_InitTips();
 }
 
-static void AddMenuLine(drawtip_t *T, int y, char key, const char *text,
+static void AddMenuLine(drawtip_t *T, int text_type, int y, char key, const char *text,
 	bool use_ldf)
 {
 	hu_textline_t *HU = T->hu_lines + T->hu_linenum;
 	T->hu_linenum++;
 
-	HL_InitTextLine(HU, 160, y, rts_menu_style, 0);
+	HL_InitTextLine(HU, 160, y, rts_menu_style, text_type);
 	HU->centre = true;
 
 	if (use_ldf)
@@ -839,12 +839,12 @@ void RAD_StartMenu(rad_trigger_t *R, s_show_menu_t *menu)
 	int y = 0;
 	int font_height = rts_menu_style->fonts[0]->NominalHeight() + 2; //FIXME: fonts[0] may be NULL
 
-	AddMenuLine(T, y, 0, menu->title, menu->use_ldf);
+	AddMenuLine(T,2, y, 0, menu->title, menu->use_ldf);
 	y += font_height * 2;
 
 	for (int idx = 0; (idx < 9) && menu->options[idx]; idx++)
 	{
-		AddMenuLine(T, y, '1' + idx, menu->options[idx], menu->use_ldf);
+		AddMenuLine(T,0, y, '1' + idx, menu->options[idx], menu->use_ldf);
 		y += font_height;
 	}
 
@@ -878,14 +878,13 @@ void RAD_FinishMenu(int result)
 
 static void RAD_MenuDrawer(void)
 {
-	RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, pal_black, 0.6f);
-
-	float alpha = 1.0f;
+	rts_menu_style->DrawBackground();
 
 	for (int i=0; i < rts_menu_tip->hu_linenum; i++)
 	{
-		HL_DrawTextLineAlpha(rts_menu_tip->hu_lines + i, false,
-			(i==0) ? text_yellow_map : rts_menu_tip->colmap, alpha);
+		float alpha = 1.0f; //FIXME: use style alpha
+
+		HL_DrawTextLineAlpha(rts_menu_tip->hu_lines + i, false, NULL, alpha);
 	}
 }
 

@@ -197,7 +197,6 @@ extern int save_page;
 
 extern bool inhelpscreens;
 extern int quickSaveSlot;
-extern int darken_screen;
 
 // debug flag to cancel adaptiveness
 extern bool singletics;

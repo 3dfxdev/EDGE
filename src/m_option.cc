@@ -142,7 +142,7 @@ static void M_ChangeDLights(int keypressed);
 // -ES- 1998/08/20 Added resolution options
 // -ACB- 1998/08/29 Moved to top and tried different system
 
-static void M_ResOptDrawer(int topy, int bottomy, int dy, int centrex);
+static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int centrex);
 static void M_ResolutionOptions(int keypressed);
 static void M_OptionSetResolution(int keypressed);
 static void M_OptionTestResolution(int keypressed);
@@ -218,7 +218,7 @@ typedef struct menuinfo_s
 	optmenuitem_t *items;
 	int item_num;
 
-	style_c **style_ref;
+	style_c **style_var;
 
 	int menu_center;
 
@@ -712,8 +712,10 @@ void M_OptDrawer()
 	int i, j;
 	unsigned int k;
 
-	style_c *style = curr_menu->style_ref[0];
+	style_c *style = curr_menu->style_var[0];
 	DEV_ASSERT2(style);
+
+	style->DrawBackground();
 
 	// make sure the local volume values are kept up-to-date
 	menumusicvol = S_GetMusicVolume();
@@ -743,25 +745,25 @@ void M_OptDrawer()
 	if (curr_menu->key_page[0])
 	{
 		if (curr_menu->sister_prev)
-			HL_WriteText(keyboard_style,2, 60, 200-deltay*4, "< PREV");
+			HL_WriteText(style,2, 60, 200-deltay*4, "< PREV");
 
 		if (curr_menu->sister_next)
-			HL_WriteText(keyboard_style,2, 260 - keyboard_style->fonts[2]->StringWidth("NEXT >"), 200-deltay*4, 
+			HL_WriteText(style,2, 260 - style->fonts[2]->StringWidth("NEXT >"), 200-deltay*4, 
 							  "NEXT >");
 
-		HL_WriteText(keyboard_style,2, 160 - keyboard_style->fonts[2]->StringWidth(curr_menu->key_page)/2, 
+		HL_WriteText(style,2, 160 - style->fonts[2]->StringWidth(curr_menu->key_page)/2, 
 						  200-deltay*4, curr_menu->key_page);
     
 		if (keyscan)
-			HL_WriteText(keyboard_style,3, 160 - (keyboard_style->fonts[3]->StringWidth(keystring2) / 2), 
+			HL_WriteText(style,3, 160 - (style->fonts[3]->StringWidth(keystring2) / 2), 
 							  200-deltay*2, keystring2);
 		else
-			HL_WriteText(keyboard_style,3, 160 - (keyboard_style->fonts[3]->StringWidth(keystring1) / 2), 
+			HL_WriteText(style,3, 160 - (style->fonts[3]->StringWidth(keystring1) / 2), 
 							  200-deltay*2, keystring1);
 	}
 	else if (curr_menu == &resoptionsinfo)
 	{
-		M_ResOptDrawer(curry, curry + (deltay * (resoptionsinfo.item_num - 2)), 
+		M_ResOptDrawer(style, curry, curry + (deltay * (resoptionsinfo.item_num - 2)), 
 					   deltay, curr_menu->menu_center);
 	}
 	else if (curr_menu == &mainmenuinfo)
@@ -853,7 +855,7 @@ void M_OptDrawer()
 //
 // -ACB- 1999/10/03 Written
 //
-static void M_ResOptDrawer(int topy, int bottomy, int dy, int centrex)
+static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int centrex)
 {
 	char tempstring[80];
 	int y;
@@ -862,29 +864,29 @@ static void M_ResOptDrawer(int topy, int bottomy, int dy, int centrex)
 	// Draw current resolution
 	y = topy;
 	sprintf(tempstring, "Current Resolution:");
-	HL_WriteText(setres_style,0, 160 - (setres_style->fonts[0]->StringWidth(tempstring) / 2), y, tempstring);
+	HL_WriteText(style,0, 160 - (style->fonts[0]->StringWidth(tempstring) / 2), y, tempstring);
 
 	y += dy;
 	sprintf(tempstring, "%d x %d in %d-bit mode", SCREENWIDTH, SCREENHEIGHT,
 			SCREENBITS);
-	HL_WriteText(setres_style,1, 160 - (setres_style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
+	HL_WriteText(style,1, 160 - (style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
 
 	// Draw resolution selection option
 	y += (dy*2);
 	sprintf(tempstring, "%dx%d", scrmode[selectedscrmode].width, scrmode[selectedscrmode].height);
-	HL_WriteText(setres_style,1, centrex+15, y, tempstring);
+	HL_WriteText(style,1, centrex+15, y, tempstring);
 
 	// Draw depth selection option
 	displaybpp = scrmode[selectedscrmode].depth;
 
 	y += dy;
 	sprintf(tempstring, "%d bit", displaybpp);
-	HL_WriteText(setres_style,1, centrex+15, y, tempstring);
+	HL_WriteText(style,1, centrex+15, y, tempstring);
 
 	// Draw selected resolution and mode:
 	y = bottomy;
 	sprintf(tempstring, "Selected Resolution:");
-	HL_WriteText(setres_style,0, 160 - (setres_style->fonts[0]->StringWidth(tempstring) / 2), y, tempstring);
+	HL_WriteText(style,0, 160 - (style->fonts[0]->StringWidth(tempstring) / 2), y, tempstring);
 
 	y += dy;
 
@@ -893,7 +895,7 @@ static void M_ResOptDrawer(int topy, int bottomy, int dy, int centrex)
 			scrmode[selectedscrmode].height,
 			displaybpp);
 
-	HL_WriteText(setres_style,1, 160 - (setres_style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
+	HL_WriteText(style,1, 160 - (style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
 }
 
 //

@@ -157,7 +157,6 @@ static default_t defaults[] =
     {CFGT_Int, "fieldofview", &cfgnormalfov, 90},
     {CFGT_Int, "zoomedfieldofview", &cfgzoomedfov, 10},
 
-    {CFGT_Int, "darken_screen", &darken_screen, 1},
     {CFGT_Int, "snd_channels",  &dummysndchan, 3},
     {CFGT_Int, "usegamma",      &current_gamma, 2},
     {CFGT_Int, "save_page",     &save_page, 0},
