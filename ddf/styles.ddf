@@ -23,12 +23,19 @@ BACKGROUND.TRANSLUCENCY = 25%;
 // BORDER.COLOUR = #CCCCCC;
 // BORDER.SIZE = 2;
 
-// upto 4 text styles...
+// text styles for title, main text, and alternative (e.g. for option values)
 
-TEXT(1).COLOUR = TEXT_REDS;  // colourmap name or #AABBCC colour
-TEXT(1).FONT   = DMFONT;
-TEXT(1).SCALE  = 0.5;  // make big or small
-TEXT(1).ASPECT = 1.0;  // make tall or wide
+TEXT.COLOUR = TEXT_REDS;  // colourmap name or #AABBCC colour
+TEXT.FONT   = DMFONT;
+TEXT.SCALE  = 0.5;  // make big or small
+TEXT.ASPECT = 1.0;  // make tall or wide
+TEXT.TRANSLUCENCY = 50%;
+TEXT.X_ALIGN = LEFT;    // also: CENTER, RIGHT, JUSTIFIED
+TEXT.Y_ALIGN = BOTTOM;  // also: TOP, MIDDLE
+
+TITLE.COLOUR = XXX;  // etc etc....
+
+ALT.COLOUR = YYY;
 
 // these are based on current menu code:
 SOUND.BEGIN  = SWITCHN;
