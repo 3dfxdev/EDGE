@@ -6,6 +6,8 @@
 
 <LINES>
 
+#VERSION 1.28
+
 // Open Door (closes)
 [1]
 TYPE=PUSH;

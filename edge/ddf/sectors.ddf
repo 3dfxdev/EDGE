@@ -6,6 +6,8 @@
 
 <SECTORS>
 
+#VERSION 1.28
+
 [1]  // Light Random Off
 LIGHT_TYPE=FLASH;
 LIGHT_CHANCE=10%;
