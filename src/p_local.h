@@ -98,6 +98,7 @@ void P_BringCorpseToLife(mobj_t * corpse);
 //
 void P_SetupPsprites(player_t * curplayer);
 void P_MovePsprites(player_t * curplayer);
+void P_SetPsprite(player_t * p, int position, int stnum);
 void P_DropWeapon(player_t * player);
 void P_BringUpWeapon(player_t * player);
 boolean_t P_CheckWeaponSprite(weaponinfo_t *info);
@@ -111,6 +112,7 @@ void P_RefillClips(player_t * player);
 void P_PlayerThink(player_t * player);
 void P_UpdateAvailWeapons(player_t *p);
 boolean_t P_AddWeapon(player_t *player, weaponinfo_t *info, int *index);
+boolean_t P_RemoveWeapon(player_t *player, weaponinfo_t *info);
 void P_GiveInitialBenefits(player_t *player, const mobjinfo_t *info);
 void P_AddPlayerToGame(player_t *p);
 void P_RemovePlayerFromGame(player_t *p);
@@ -138,6 +140,7 @@ void P_RunMobjThinkers(void);
 void P_SpawnPuff(float_t x, float_t y, float_t z, const mobjinfo_t * puff);
 void P_SpawnBlood(float_t x, float_t y, float_t z, float_t damage, angle_t angle, const mobjinfo_t * blood);
 void P_RemoveQueuedMobjs(void);
+void P_CalcFullProperties(const mobj_t *mo, region_properties_t *new);
 
 void P_MobjSetTracer(mobj_t *mo, mobj_t *target);
 void P_MobjSetSource(mobj_t *mo, mobj_t *target);
@@ -161,7 +164,7 @@ extern dirtype_t diags[];
 extern float_t xspeed[8];
 extern float_t yspeed[8];
 
-void P_NoiseAlert(mobj_t * target, mobj_t * emmiter);
+void P_NoiseAlert(player_t *p);
 void P_NewChaseDir(mobj_t * actor);
 boolean_t P_CreateAggression(mobj_t * actor);
 boolean_t P_CheckMeleeRange(mobj_t * actor);
@@ -192,7 +195,7 @@ typedef struct
   {
     mobj_t *thing;
     line_t *line;
-    plane_info_t *plane;
+///    plane_info_t *plane;
   }
   d;
 }
@@ -215,7 +218,11 @@ int P_BoxOnLineSide(float_t * tmbox, line_t * ld);
 int P_FindThingGap(vgap_t * gaps, int gap_num, float_t z1, float_t z2);
 void P_ComputeGaps(line_t * ld);
 float_t P_ComputeThingGap(mobj_t * thing, sector_t * sec, float_t z, float_t * f, float_t * c);
-void P_ComputeSectorRegions(sector_t *sector);
+void P_AddExtraFloor(sector_t *sec, line_t *line,
+        const extrafloor_info_t *ef_info);
+void P_ComputeWallTiles(line_t *ld, int sidenum);
+void P_RecomputeTilesInSector(sector_t *sec);
+void P_FloodExtraFloors(sector_t *sector);
 void P_UnsetThingPosition(mobj_t * thing);
 void P_SetThingPosition(mobj_t * thing);
 boolean_t P_BlockLinesIterator(int x, int y, boolean_t(*func) (line_t *));
@@ -223,7 +230,16 @@ boolean_t P_BlockThingsIterator(int x, int y, boolean_t(*func) (mobj_t *));
 boolean_t P_ThingsInArea(float_t *bbox);
 boolean_t P_ThingsOnLine(line_t *ld);
 
-int P_ExtraFloorFits(sector_t *sec, float_t z1, float_t z2);
+typedef enum
+{
+  EXFIT_Ok = 0,
+  EXFIT_StuckInCeiling,
+  EXFIT_StuckInFloor,
+  EXFIT_StuckInExtraFloor
+}
+exfloor_fit_e;
+
+exfloor_fit_e P_ExtraFloorFits(sector_t *sec, float_t z1, float_t z2);
 
 boolean_t P_PathTraverse(float_t x1, float_t y1, float_t x2, float_t y2, int flags, traverser_t trav);
 
@@ -234,6 +250,19 @@ int GAP_Constrict(vgap_t * dest, int d_num, vgap_t * src, int s_num);
 //
 // P_MAP
 //
+
+typedef enum
+{
+  // sector move is completely OK
+  CHKMOV_Ok = 0,
+
+  // sector move would crush something, but OK
+  CHKMOV_Crush = 1,
+
+  // sector can't move (solid floor or uncrushable thing)
+  CHKMOV_Nope = 2
+}
+check_sec_move_e;
 
 // If "floatok" true, move would be OK at float_destz height.
 extern boolean_t floatok;
@@ -272,9 +301,6 @@ void P_LineAttack(mobj_t * t1, angle_t angle, float_t distance,
     float_t slope, float_t damage, const damage_t * damtype,
     const mobjinfo_t *puff);
 
-void P_AddExtrafloorLink(sector_t *sec, sector_t *linkedsec);
-void P_ClearExtrafloorLinks(sector_t *sec);
-
 
 //
 // P_SETUP
@@ -310,7 +336,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
     float_t amount, const damage_t * damtype);
 void P_KillMobj(mobj_t * source, mobj_t * target, const damage_t * damtype);
 boolean_t P_GiveBenefitList(player_t *player, mobj_t *special,
-    benefit_t *list);
+    benefit_t *list, boolean_t lose_em);
 
 
 //

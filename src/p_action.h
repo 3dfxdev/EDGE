@@ -59,6 +59,7 @@ void A_WeaponPlaySound(mobj_t * object);
 void A_WeaponKillSound(mobj_t * object);
 void A_WeaponTransSet(mobj_t * object);
 void A_WeaponTransFade(mobj_t * object);
+void A_WeaponEnableRadTrig(mobj_t * object);
 
 void A_SetCrosshair(mobj_t * object);
 void A_GotTarget(mobj_t * object);
@@ -129,7 +130,6 @@ void P_ActResetSpreadCount(mobj_t * object);
 void P_ActExplode(mobj_t * object);
 void P_ActActivateLineType(mobj_t * object);
 void P_ActEnableRadTrig(mobj_t * object);
-void P_ActDisableRadTrig(mobj_t * object);
 void P_ActTouchyRearm(mobj_t * object);
 void P_ActTouchyDisarm(mobj_t * object);
 void P_ActBounceRearm(mobj_t * object);

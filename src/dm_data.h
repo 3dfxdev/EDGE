@@ -2,7 +2,7 @@
 //  EDGE Data
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2000  The EDGE Team.
+//  Copyright (c) 1999-2001  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -132,10 +132,10 @@ typedef enum
   // top and bottom textures (use next to windows).
 
   // upper texture unpegged
-  ML_DONTPEGTOP = 0x0008,
+  ML_UpperUnpegged = 0x0008,
 
   // lower texture unpegged
-  ML_DONTPEGBOTTOM = 0x0010,
+  ML_LowerUnpegged = 0x0010,
 
   // In AutoMap: don't map as two sided: IT'S A SECRET!
   ML_Secret = 0x0020,
@@ -157,7 +157,10 @@ typedef enum
   //       anything at present.
   ML_Translucent = 0x0400,
   ML_ShootBlock  = 0x0800,
-  ML_SightBlock  = 0x1000
+  ML_SightBlock  = 0x1000,
+
+  // --- internal flags ---
+
 }
 lineflag_e;
 
