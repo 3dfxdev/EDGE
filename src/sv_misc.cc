@@ -49,6 +49,8 @@
 #include "rad_trig.h"
 #include "z_zone.h"
 
+#include "./epi/epistring.h"
+
 #undef SF
 #define SF  SVFIELD
 
@@ -128,7 +130,7 @@ savestruct_t sv_struct_button =
 	"button_t",        // structure name
 	"butn",            // start marker
 	sv_fields_button,  // field descriptions
-  SVDUMMY,           // dummy base
+  	SVDUMMY,           // dummy base
 	true,              // define_me
 	NULL               // pointer to known struct
 };
@@ -183,7 +185,7 @@ savestruct_t sv_struct_light =
 	"light_t",         // structure name
 	"lite",            // start marker
 	sv_fields_light,   // field descriptions
-  SVDUMMY,           // dummy base
+  	SVDUMMY,           // dummy base
 	true,              // define_me
 	NULL               // pointer to known struct
 };
@@ -244,7 +246,7 @@ savestruct_t sv_struct_trigger =
 	"rad_trigger_t",    // structure name
 	"trig",             // start marker
 	sv_fields_trigger,  // field descriptions
-  SVDUMMY,            // dummy base
+  	SVDUMMY,            // dummy base
 	true,               // define_me
 	NULL                // pointer to known struct
 };
@@ -312,7 +314,7 @@ savestruct_t sv_struct_drawtip =
 	"drawtip_t",       // structure name
 	"dtip",            // start marker
 	sv_fields_drawtip, // field descriptions
-  SVDUMMY,           // dummy base
+  	SVDUMMY,           // dummy base
 	true,              // define_me
 	NULL               // pointer to known struct
 };
@@ -534,7 +536,7 @@ void SV_LightCreateElems(int num_elems)
 		lights = cur;
 
 		// initialise defaults
-		cur->type = &ddf_sectors[0]->l;
+		cur->type = &sectortypes[0]->l;
 		cur->sector = sectors + 0;
 	}
 }
@@ -808,7 +810,7 @@ void SV_PlaneMoveFinaliseElems(void)
 //
 bool SR_LightGetType(void *storage, int index, void *extra)
 {
-	const lighttype_t ** dest = (const lighttype_t **)storage + index;
+	const lightdef_c ** dest = (const lightdef_c **)storage + index;
 
 	int number;
 	const char *str;
@@ -828,12 +830,12 @@ bool SR_LightGetType(void *storage, int index, void *extra)
 
 	if (str[0] == 'S')
 	{
-		const specialsector_t *special = DDF_SectorLookupNum(number);
+		const sectortype_c *special = playsim::LookupSectorType(number);
 		(*dest) = &special->l;
 	}
 	else if (str[0] == 'L')
 	{
-		const linedeftype_t *special = DDF_LineLookupNum(number);
+		const linetype_c *special = playsim::LookupLineType(number);
 		(*dest) = &special->l;
 	}
 	else
@@ -856,10 +858,10 @@ bool SR_LightGetType(void *storage, int index, void *extra)
 //
 void SR_LightPutType(void *storage, int index, void *extra)
 {
-	const lighttype_t *src = ((const lighttype_t **)storage)[index];
-
-	int i;
-	char buffer[64];
+	const lightdef_c *src = ((const lightdef_c **)storage)[index];
+	epi::array_iterator_c it;
+	linetype_c *ln;
+	sectortype_c *sec;
 
 	if (! src)
 	{
@@ -868,30 +870,34 @@ void SR_LightPutType(void *storage, int index, void *extra)
 	}
 
 	// look for it in the line types
-	for (i=0; i < num_ddf_linetypes; i++)
+	for (it=linetypes.GetBaseIterator(); it.IsValid(); it++)
 	{
-		if (src == &ddf_linetypes[i]->l)
+		ln = ITERATOR_TO_TYPE(it, linetype_c*);
+		if (src == &ln->l)
 		{
-			sprintf(buffer, "L:%d", ddf_linetypes[i]->ddf.number);
-			SV_PutString(buffer);
+			epi::string_c s;
+			s.Format("L:%d", ln->ddf.number);
+			SV_PutString(s.GetString());
 			return;
 		}
 	}
 
 	// look for it in the sector types
-	for (i=0; i < num_ddf_sectors; i++)
+	for (it=sectortypes.GetBaseIterator(); it.IsValid(); it++)
 	{
-		if (src == &ddf_sectors[i]->l)
+		sec = ITERATOR_TO_TYPE(it, sectortype_c*);
+		if (src == &sec->l)
 		{
-			sprintf(buffer, "S:%d", ddf_sectors[i]->ddf.number);
-			SV_PutString(buffer);
+			epi::string_c s;
+			s.Format("S:%d", sec->ddf.number);
+			SV_PutString(s.GetString());
 			return;
 		}
 	}
 
 	// not found !
 
-	I_Warning("LOADGAME: could not find lighttype_t %p !\n", src);
+	I_Warning("LOADGAME: could not find lightdef_c %p !\n", src);
 	SV_PutString("S:1");
 }
 
@@ -1130,7 +1136,7 @@ void SR_TipPutString(void *storage, int index, void *extra)
 //
 bool SR_PlaneMoveGetType(void *storage, int index, void *extra)
 {
-	const moving_plane_t ** dest = (const moving_plane_t **)storage + index;
+	const movplanedef_c ** dest = (const movplanedef_c **)storage + index;
 
 	int number;
 	bool is_ceil;
@@ -1160,12 +1166,12 @@ bool SR_PlaneMoveGetType(void *storage, int index, void *extra)
 
 	if (str[0] == 'S')
 	{
-		const specialsector_t *special = DDF_SectorLookupNum(number);
+		const sectortype_c *special = playsim::LookupSectorType(number);
 		(*dest) = is_ceil ? &special->c : &special->f;
 	}
 	else if (str[0] == 'L')
 	{
-		const linedeftype_t *special = DDF_LineLookupNum(number);
+		const linetype_c *special = playsim::LookupLineType(number);
 		(*dest) = is_ceil ? &special->c : &special->f;
 	}
 	else if (str[0] == 'D')
@@ -1187,18 +1193,19 @@ bool SR_PlaneMoveGetType(void *storage, int index, void *extra)
 //
 //   <line/sec>  `:'  <floor/ceil>  `:'  <ddf num>
 //
-// The first field contains `L' if the moving_plane_t is within a
-// linedeftype, `S' for a sectortype, or `D' for the donut (which
+// The first field contains `L' if the movplanedef_c is within a
+// linetype_c, `S' for a sectortype_c, or `D' for the donut (which
 // prolly won't work yet).  The second field is `F' for the floor
 // field in the line/sectortype, or `C' for the ceiling field.  The
 // last value is the line/sector DDF number.
 //
 void SR_PlaneMovePutType(void *storage, int index, void *extra)
 {
-	const moving_plane_t *src = ((const moving_plane_t **)storage)[index];
+	const movplanedef_c *src = ((const movplanedef_c **)storage)[index];
 
-	int i;
-	char buffer[64];
+	epi::array_iterator_c it;
+	linetype_c *ln;
+	sectortype_c *sec;
 
 	if (! src)
 	{
@@ -1207,52 +1214,67 @@ void SR_PlaneMovePutType(void *storage, int index, void *extra)
 	}
 
 	// check for donut
-	for (i=0; i < 2; i++)
 	{
-		if (src == &donut[i].f)
+		int i;
+		for (i=0; i < 2; i++)
 		{
-			sprintf(buffer, "D:F:%d", i);
-			SV_PutString(buffer);
-			return;
-		}
-		else if (src == &donut[i].c)
-		{
-			sprintf(buffer, "D:C:%d", i);
-			SV_PutString(buffer);
-			return;
+			if (src == &donut[i].f)
+			{
+				epi::string_c s;
+				s.Format("D:F:%d", i);
+				SV_PutString(s.GetString());
+				return;
+			}
+			else if (src == &donut[i].c)
+			{
+				epi::string_c s;
+				s.Format("D:C:%d", i);
+				SV_PutString(s.GetString());
+				return;
+			}
 		}
 	}
-
+	
 	// check all the line types
-	for (i=0; i < num_ddf_linetypes; i++)
+	for (it=linetypes.GetBaseIterator(); it.IsValid(); it++)
 	{
-		if (src == &ddf_linetypes[i]->f)
+		ln = ITERATOR_TO_TYPE(it, linetype_c*);
+		
+		if (src == &ln->f)
 		{
-			sprintf(buffer, "L:F:%d", ddf_linetypes[i]->ddf.number);
-			SV_PutString(buffer);
+			epi::string_c s;
+			s.Format("L:F:%d", ln->ddf.number);
+			SV_PutString(s.GetString());
 			return;
 		}
-		else if (src == &ddf_linetypes[i]->c)
+		
+		if (src == &ln->c)
 		{
-			sprintf(buffer, "L:C:%d", ddf_linetypes[i]->ddf.number);
-			SV_PutString(buffer);
+			epi::string_c s;
+			s.Format("L:C:%d", ln->ddf.number);
+			SV_PutString(s.GetString());
 			return;
 		}
 	}
 
 	// check all the sector types
-	for (i=0; i < num_ddf_sectors; i++)
+	for (it=sectortypes.GetBaseIterator(); it.IsValid(); it++)
 	{
-		if (src == &ddf_sectors[i]->f)
+		sec = ITERATOR_TO_TYPE(it, sectortype_c*);
+
+		if (src == &sec->f)
 		{
-			sprintf(buffer, "S:F:%d", ddf_sectors[i]->ddf.number);
-			SV_PutString(buffer);
+			epi::string_c s;
+			s.Format("S:F:%d", sec->ddf.number);
+			SV_PutString(s.GetString());
 			return;
 		}
-		else if (src == &ddf_sectors[i]->c)
+		
+		if (src == &sec->c)
 		{
-			sprintf(buffer, "S:C:%d", ddf_sectors[i]->ddf.number);
-			SV_PutString(buffer);
+			epi::string_c s;
+			s.Format("S:C:%d", sec->ddf.number);
+			SV_PutString(s.GetString());
 			return;
 		}
 	}

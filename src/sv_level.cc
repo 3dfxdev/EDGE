@@ -39,6 +39,8 @@
 #include "r_state.h"
 #include "z_zone.h"
 
+#include "./epi/epistring.h"
+
 #undef SF
 #define SF  SVFIELD
 
@@ -644,7 +646,7 @@ void SV_ExfloorFinaliseElems(void)
 			!(ef->ef_line->special->ef.type & EXFL_Present))
 		{
 			I_Warning("LOADGAME: Missing Extrafloor Special !\n");
-			ef->ef_info = &ddf_linetypes[0]->ef;
+			ef->ef_info = &linetypes[0]->ef;
 			continue;
 		}
 
@@ -958,7 +960,7 @@ void SR_LevelPutColmap(void *storage, int index, void *extra)
 //
 bool SR_LineGetSpecial(void *storage, int index, void *extra)
 {
-	const linedeftype_t ** dest = (const linedeftype_t **)storage + index;
+	const linetype_c ** dest = (const linetype_c **)storage + index;
 	const char *str;
 
 	str = SV_GetString();
@@ -972,7 +974,7 @@ bool SR_LineGetSpecial(void *storage, int index, void *extra)
 	if (str[0] != ':')
 		I_Error("SR_LineGetSpecial: invalid special `%s'\n", str);
 
-	(*dest) = DDF_LineLookupNum(strtol(str+1, NULL, 0));
+	(*dest) = playsim::LookupLineType(strtol(str+1, NULL, 0));
 
 	Z_Free((char *)str);
 	return true;
@@ -988,9 +990,7 @@ bool SR_LineGetSpecial(void *storage, int index, void *extra)
 //
 void SR_LinePutSpecial(void *storage, int index, void *extra)
 {
-	const linedeftype_t *src = ((const linedeftype_t **)storage)[index];
-
-	char buffer[64];
+	const linetype_c *src = ((const linetype_c **)storage)[index];
 
 	if (! src)
 	{
@@ -998,8 +998,9 @@ void SR_LinePutSpecial(void *storage, int index, void *extra)
 		return;
 	}
 
-	sprintf(buffer, ":%d", src->ddf.number);
-	SV_PutString(buffer);
+	epi::string_c s;
+	s.Format(":%d", src->ddf.number);
+	SV_PutString(s.GetString());
 }
 
 
@@ -1008,7 +1009,7 @@ void SR_LinePutSpecial(void *storage, int index, void *extra)
 //
 bool SR_SectorGetSpecial(void *storage, int index, void *extra)
 {
-	const specialsector_t ** dest = (const specialsector_t **)storage + index;
+	const sectortype_c ** dest = (const sectortype_c **)storage + index;
 	const char *str;
 
 	str = SV_GetString();
@@ -1022,7 +1023,7 @@ bool SR_SectorGetSpecial(void *storage, int index, void *extra)
 	if (str[0] != ':')
 		I_Error("SR_SectorGetSpecial: invalid special `%s'\n", str);
 
-	(*dest) = DDF_SectorLookupNum(strtol(str+1, NULL, 0));
+	(*dest) = playsim::LookupSectorType(strtol(str+1, NULL, 0));
 
 	Z_Free((char *)str);
 	return true;
@@ -1038,9 +1039,7 @@ bool SR_SectorGetSpecial(void *storage, int index, void *extra)
 //
 void SR_SectorPutSpecial(void *storage, int index, void *extra)
 {
-	const specialsector_t *src = ((const specialsector_t **)storage)[index];
-
-	char buffer[64];
+	const sectortype_c *src = ((const sectortype_c **)storage)[index];
 
 	if (! src)
 	{
@@ -1048,8 +1047,9 @@ void SR_SectorPutSpecial(void *storage, int index, void *extra)
 		return;
 	}
 
-	sprintf(buffer, ":%d", src->ddf.number);
-	SV_PutString(buffer);
+	epi::string_c s;
+	s.Format(":%d", src->ddf.number);
+	SV_PutString(s.GetString());
 }
 
 
@@ -1231,8 +1231,8 @@ void SR_SectorPutEF(void *storage, int index, void *extra)
 //
 bool SR_ExtrafloorGetInfo(void *storage, int index, void *extra)
 {
-	const extrafloor_info_t ** dest = 
-		(const extrafloor_info_t **)storage + index;
+	const extrafloordef_c ** dest = 
+		(const extrafloordef_c **)storage + index;
 
 	const char *str = SV_GetString();
 
@@ -1245,7 +1245,7 @@ bool SR_ExtrafloorGetInfo(void *storage, int index, void *extra)
 	if (str[0] != ':')
 		I_Error("SR_ExtrafloorGetInfo: invalid string `%s'\n", str);
 
-	(*dest) = &DDF_LineLookupNum(strtol(str+1, NULL, 0))->ef;
+	(*dest) = playsim::LookupLineType(strtol(str+1, NULL, 0))->ef;
 
 	Z_Free((char *)str);
 	return true;
@@ -1259,11 +1259,11 @@ bool SR_ExtrafloorGetInfo(void *storage, int index, void *extra)
 //
 void SR_ExtrafloorPutInfo(void *storage, int index, void *extra)
 {
-	const extrafloor_info_t *src = 
-		((const extrafloor_info_t **)storage)[index];
+	const extrafloordef_c *src = 
+		((const extrafloordef_c **)storage)[index];
 
-	char buffer[64];
-	int i;
+//	char buffer[64];
+//	int i;
 
 	if (! src)
 	{
