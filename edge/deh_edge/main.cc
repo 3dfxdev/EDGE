@@ -111,7 +111,7 @@ void ShowInfo(void)
 	"\n"
 	"Available options:\n"
 	"   -e --edge #.##   Specify EDGE version to target.\n"
-	"   -o --output      Output filename override.\n"
+	"   -o --output      Override output filename.\n"
 	"   -q --quiet       Quiet mode, suppress warnings.\n"
 	"\n"
   );
