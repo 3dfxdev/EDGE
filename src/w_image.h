@@ -38,6 +38,10 @@ struct texturedef_s;
 // Post end marker
 #define P_SENTINEL  0xFF
 
+// dynamic light sizing factor
+#define DL_OUTER       64.0f
+#define DL_OUTER_SQRT   8.0f
+
 
 typedef struct image_s
 {
