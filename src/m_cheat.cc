@@ -144,7 +144,7 @@ static void M_ChangeLevelCheat(const char *string)
 	if (!string)
 		return;
 
-	// NOTE WELL: following assumes single player, no bots
+	// NOTE WELL: following assumes single player
 
 	newgame_params_c params;
 
@@ -165,10 +165,9 @@ static void M_ChangeLevelCheat(const char *string)
 		return;
 	}
 
-	params.total_players = 1;
-	params.players[0] = PFL_Zero;  // i.e. !BOT and !NETWORK
-
 	params.random_seed = I_PureRandom();
+
+	params.SinglePlayer(startbots);
 
 	if (! G_DeferredInitNew(params, true /* compat_check */))
 	{

@@ -244,7 +244,7 @@ static void N_ConnectServer(void)
 		con.protocol_ver >> 8, con.protocol_ver & 0xFF);
 }
 
-static bool N_FindGame(void)
+static bool N_FindGame(game_info_t *gminfo /* out */)
 {
 ///UDP	nlSetRemoteAddr(socket, &server);
 
@@ -283,7 +283,9 @@ static bool N_FindGame(void)
 	}
 
 	game_id = 0;
-	
+
+	memcpy(gminfo, &qg.info, sizeof(game_info_t));
+
 	fprintf(stderr, "Query game #0: QUEUING\n");
 	return true;
 }
@@ -321,7 +323,7 @@ static void N_JoinGame(void)
 	fprintf(stderr, "Joined queue for game #%d\n", game_id);
 }
 
-static void N_NewGame(void)
+static void N_NewGame(game_info_t *gminfo /* out */)
 {
 ///UDP	nlSetRemoteAddr(socket, &server);
 
@@ -333,17 +335,21 @@ static void N_NewGame(void)
 
 	sprintf(ng.info.engine_name, "EDGE%3x", EDGEVER);
 	sprintf(ng.info.game_name,   "DOOM2");
-	sprintf(ng.info.level_name,  "MAP12");
+	sprintf(ng.info.level_name,  startmap);
 
-	ng.info.mode  = 'D';
-	ng.info.skill = 4;  // H.M.P
+	ng.info.mode  = (deathmatch >= 2) ? 'A' :
+	                (deathmatch == 1) ? 'D' : 'C';
+	ng.info.skill = 1 + (byte)startskill;
 
-	ng.info.min_players = 2;
-	ng.info.num_bots = 0;
-	ng.info.features = 0x00FF;
+	ng.info.min_players = startplayers;
+	ng.info.num_bots = startbots * startplayers;
+	ng.info.gameplay = ~0;
+	ng.info.features =  0;
 
 	ng.info.wad_checksum = 0;
 	ng.info.def_checksum = 0;
+
+	memcpy(gminfo, &ng.info, sizeof(game_info_t));
 
 	ng.ByteSwap();
 
@@ -368,7 +374,7 @@ static void N_NewGame(void)
 	fprintf(stderr, "Created new game: %d\n", game_id);
 }
 
-static void N_Vote(void)
+static void N_Vote(const game_info_t *gminfo, newgame_params_c *params)
 {
 ///UDP	nlSetRemoteAddr(socket, &server);
 
@@ -379,30 +385,80 @@ static void N_Vote(void)
 	if (! pk.Write(socket))
 		I_Error("Unable to write VP packet:\n%s", N_GetErrorStr());
 
-	I_Sleep(1000); I_Sleep(1000);
-	I_Sleep(1000); I_Sleep(1000);
-	I_Sleep(1000); I_Sleep(1000);
+	int loop_num;
+	for (loop_num = 60; loop_num > 0; loop_num -= 2)
+	{
+		I_Sleep(1000);
+		I_Sleep(1000);
 
-	if (! pk.Read(socket))
-		I_Error("Failed to vote (no reply)\n");
-	
+		if (pk.Read(socket))
+			break;
+
+		fprintf(stderr, "Waiting for game-start packet (%d)\n", loop_num);
+	}
+
+	if (loop_num <= 0)
+		I_Error("Timeout waiting for game-start packet from server.\n");
+
 	if (pk.CheckType("Er"))
 		I_Error("Failed to vote:\n%s", pk.er_p().message);
 
 	// FIXME: will normally get "Vp" (acknowledge)
 
 	if (! pk.CheckType("Pg"))
-		I_Error("Failed to vote (invalid reply)\n");
+		I_Error("Failed to get game-start packet (different reply)\n");
 
 	play_game_proto_t& pg = pk.pg_p();
 
 	pg.ByteSwap();
+	pg.ByteSwapPlayers(pg.real_players);
+
+	/* ---- decode parameters ---- */
+
+	fprintf(stderr, "Setting up game parameters\n");
 
 	bots_each = pg.bots_each;
 
-	// FIXME: use pg.random_seed
+	params->total_players = pg.real_players * (1 + bots_each);
 
-	// read client list !!!
+	for (int RP = 0; RP < pg.real_players; RP++)
+	{
+		int R_client = pg.client_list[RP];
+
+		fprintf(stderr, "Real player %d --> client %d\n", RP, R_client);
+
+		for (int BT = 0; BT < (1 + bots_each); BT++)
+		{
+			int pnum = RP * (1 + bots_each) + BT;
+
+			params->players[pnum] = (BT == 0) ? PFL_Zero : PFL_Bot;
+
+			if (R_client != client_id)
+				params->players[pnum] = (playerflag_e)
+					(params->players[pnum] | PFL_Network);
+
+			fprintf(stderr, "  Game player %d --> 0x%x\n",
+				pnum, params->players[pnum]);
+		}
+	}
+
+	fprintf(stderr, "Random seed: 0x%lx\n", (long) pg.random_seed);
+	fprintf(stderr, "Skill %d  Game Mode '%c'\n", gminfo->skill, gminfo->mode);
+	fprintf(stderr, "Level: '%s'\n", gminfo->level_name);
+
+	params->random_seed = pg.random_seed;
+
+	params->skill = (skill_t)(gminfo->skill - 1);
+	params->deathmatch = (gminfo->mode == 'D') ? 1 : (gminfo->mode == 'A') ? 2 : 0;
+
+	params->map = G_LookupMap(gminfo->level_name);
+
+	if (! params->map)
+		I_Error("Net_start: no such level '%s'\n", gminfo->level_name);
+
+	params->game = gamedefs.Lookup(params->map->episode_name);
+	if (! params->game)
+		I_Error("Net_start: no gamedef for level '%s'\n", gminfo->level_name);
 
 	fprintf(stderr, "LET THE GAMES BEGIN !!!\n");
 }
@@ -418,17 +474,31 @@ void N_InitiateNetGame(void)
 	N_FindServer();
 	N_ConnectServer();
 
-	if (N_FindGame())
+	bool found_game = false;
+
+	game_info_t gminfo;
+
+	if (N_FindGame(&gminfo))
 	{
-		deathmatch = 3;  //!!!!!! CRAP HACK
+		found_game = true;
 		N_JoinGame();
 	}
 	else
-		N_NewGame();
+		N_NewGame(&gminfo);
 
-	N_Vote();
+	newgame_params_c params;
 
-	netgame = true;
+	N_Vote(&gminfo, &params);
+
+	if (! G_DeferredInitNew(params, true /* compat_check */))
+		I_Error("N_InitiateNetGame: init_new failed\n");
+}
+
+#else // USE_HAWKNL
+
+void N_InitiateNetGame(void)
+{
+	I_Error("Networking not supported (no hawk)\n");
 }
 
 #endif // USE_HAWKNL

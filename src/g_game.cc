@@ -746,8 +746,7 @@ static void G_DoLoadGame(void)
 	params.random_seed = globs->p_random;
 
 	// this player is a dummy one, replaced during actual load
-	params.total_players = 1;
-	params.players[0] = PFL_Zero;  // i.e. !BOT and !NETWORK
+	params.SinglePlayer(0);
 
 	G_InitNew(params);
 
@@ -924,6 +923,15 @@ newgame_params_c::newgame_params_c(const newgame_params_c& src)
 
 newgame_params_c::~newgame_params_c()
 {
+}
+
+void newgame_params_c::SinglePlayer(int num_bots)
+{
+	total_players = 1 + num_bots;
+	players[0] = PFL_Zero;  // i.e. !BOT and !NETWORK
+
+	for (int pnum = 1; pnum < num_bots; pnum++)
+		players[pnum] = PFL_Bot;
 }
 
 //

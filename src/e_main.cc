@@ -151,6 +151,9 @@ gameflags_t global_flags;
 skill_t startskill;
 char *startmap;  // FIXME: make static
 
+int startplayers = 1;
+int startbots = 0;
+
 bool autostart;
 bool advance_title;
 
@@ -1281,7 +1284,6 @@ static void CheckSkillEtc(void)
 
 	// -KM- 1999/01/29 Use correct skill: 1 is easiest, not 0
 	const char *ps = M_GetParm("-skill");
-
 	if (ps)
 	{
 		startskill = (skill_t)(atoi(ps) - 1);
@@ -1304,6 +1306,26 @@ static void CheckSkillEtc(void)
 	{
 		screenshot_rate = atoi(ps);
 		singletics = true;
+	}
+
+	ps = M_GetParm("-players");
+	if (ps)
+	{
+		startplayers = atoi(ps);
+		if (startplayers > 1)
+			netgame = true;
+	}
+
+	ps = M_GetParm("-bots");
+	if (ps)
+	{
+		startbots = atoi(ps);
+	}
+
+	// force a net game
+	if (M_CheckParm("-netgame") > 0)
+	{
+		netgame = true;
 	}
 }
 
@@ -1572,14 +1594,8 @@ namespace engine
 	void Startup();
 	void Shutdown(void);
 
-	bool TryAutoStart()
+	void E_AutoStart()
 	{
-#if 0
-		N_InitiateNetGame();
-#endif
-		if (!autostart && !netgame)  // FIXME: no need for netgames to autostart
-			return false;
-
 		newgame_params_c params;
 
 		params.skill = startskill;	
@@ -1588,39 +1604,18 @@ namespace engine
 		params.map = G_LookupMap(startmap);
 
 		if (! params.map)
-			return false;
+			I_Error("-warp: no such level '%s'\n", startmap);
 
 		params.game = gamedefs.Lookup(params.map->episode_name);
 		if (! params.game)
-			return false;
-
-		params.total_players = 1;
-		params.players[0] = PFL_Zero;  // i.e. !BOT and !NETWORK
+			I_Error("-warp: no gamedef for level '%s'\n", startmap);
 
 		params.random_seed = I_PureRandom();
 
-#if 0
-		params.total_players = 2;
+		params.SinglePlayer(startbots);
 
-		if (deathmatch == 3)
-		{
-			params.players[0] = PFL_Network;
-			params.players[1] = PFL_Zero;
-		}
-		else
-		{
-			params.players[0] = PFL_Zero;
-			params.players[1] = PFL_Network;
-		}
-
-		params.deathmatch = 1;
-		params.random_seed = 0x1234;
-
-//  		params.players[2] = PFL_Bot;
-//  		params.players[3] = PFL_Bot;
-#endif
-
-		return G_DeferredInitNew(params, true /* compat_check */);
+		if (! G_DeferredInitNew(params, true /* compat_check */))
+			I_Error("-warp: cannot init level '%s'\n", startmap);
 	}
 
 	//
@@ -1709,10 +1704,12 @@ namespace engine
 
 		if (gameaction != ga_loadgame && gameaction != ga_playdemo)
 		{
-			if (! TryAutoStart())
-			{
+			if (netgame)
+				N_InitiateNetGame();
+			else if (autostart)
+				E_AutoStart();
+			else
 				E_StartTitle();  // start up intro loop
-			}
 		}
 
 		Z_Free(startmap);

@@ -53,6 +53,9 @@ extern gameflags_t global_flags;
 extern skill_t startskill;
 extern char *startmap;
 
+extern int startplayers;
+extern int startbots;
+
 extern bool autostart;
 
 // Selected by user. 

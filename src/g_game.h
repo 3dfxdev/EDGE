@@ -72,7 +72,10 @@ public:
 	playerflag_e players[MAXPLAYERS];
 
 public:
-	// methods
+	/* methods */
+
+	void SinglePlayer(int num_bots = 0);
+	// setup for single player (no netgame) and possibly some bots.
 };
 
 //
