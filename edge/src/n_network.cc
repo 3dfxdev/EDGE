@@ -547,8 +547,10 @@ int E_TryRunTics(void)
 	else
 		counts = availabletics;
 
+#if 0
 	L_WriteDebug("=== lowtic %d gametic %d | real %d avail %d counts %d\n",
 		lowtic, gametic, realtics, availabletics, counts);
+#endif
 
 	if (counts < 1)
 		counts = 1;
