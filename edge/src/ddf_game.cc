@@ -23,10 +23,7 @@
 
 #include "ddf_locl.h"
 #include "ddf_main.h"
-#include "dm_state.h"
-#include "m_fixed.h"
-#include "m_math.h"
-#include "p_mobj.h"
+
 #include "z_zone.h"
 
 #include "./epi/epistring.h"

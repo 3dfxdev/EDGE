@@ -25,10 +25,7 @@
 
 #include "ddf_locl.h"
 #include "ddf_main.h"
-#include "dm_state.h"
-#include "m_fixed.h"
-#include "m_math.h"
-#include "p_mobj.h"
+
 #include "z_zone.h"
 
 #undef  DF
@@ -48,10 +45,10 @@ static void DDF_AtkGetType(const char *info, void *storage);
 static void DDF_AtkGetSpecial(const char *info, void *storage);
 static void DDF_AtkGetLabel(const char *info, void *storage);
 
-damage_t dummy_damage;
+damage_t buffer_damage;
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  dummy_damage
+#define DDF_CMD_BASE  buffer_damage
 
 const commandlist_t damage_commands[] =
 {
@@ -78,7 +75,7 @@ const commandlist_t damage_commands[] =
 static const commandlist_t attack_commands[] =
 {
 	// sub-commands
-	DDF_SUB_LIST("DAMAGE", damage, damage_commands, dummy_damage),
+	DDF_SUB_LIST("DAMAGE", damage, damage_commands, buffer_damage),
 
 	DF("ATTACKTYPE", ddf, DDF_AtkGetType),
 	DF("ATTACK SPECIAL", ddf, DDF_AtkGetSpecial),
@@ -276,9 +273,9 @@ void DDF_AttackCleanUp(void)
 
 		// lookup thing references
 
-		a->puff = a->puff_ref ? mobjdefs.Lookup(a->puff_ref) : NULL;
+		a->puff = a->puff_ref ? mobjtypes.Lookup(a->puff_ref) : NULL;
 
-		a->spawnedobj = a->spawnedobj_ref ? mobjdefs.Lookup(a->spawnedobj_ref) : NULL;
+		a->spawnedobj = a->spawnedobj_ref ? mobjtypes.Lookup(a->spawnedobj_ref) : NULL;
       
 		if (a->spawnedobj)
 		{
@@ -554,7 +551,7 @@ atkdef_container_c::~atkdef_container_c()
 }
 
 //
-// atkdef_container_c::CleanupObject
+// atkdef_container_c::CleanupObject()
 //
 void atkdef_container_c::CleanupObject(void *obj)
 {
