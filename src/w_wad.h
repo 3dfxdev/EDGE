@@ -31,8 +31,10 @@
 
 typedef struct wadtex_resource_s
 {
+  // lump numbers, or -1 if nonexistent
   int pnames;
-  int texture[2];
+  int texture1;
+  int texture2;
 }
 wadtex_resource_t;
 
@@ -68,13 +70,12 @@ boolean_t W_VerifyLumpName(int lump, const char *name);
 const char *W_GetLumpName(int lump);
 int W_CacheInfo(int level);
 
-wadtex_resource_t *W_GetTextureResources(void);
-int *W_GetList(char name, int *num);
-
 const char *W_GetFileName(int lump);
 void W_AddDynamicGWA(const char *filename, int map_lump);
-void W_FindFlatInList(const char *name, int *file, int *offset);
+int W_FindFlatSequence(const char *start, const char *end, 
+    int *s_offset, int *e_offset);
 const int *W_GetListLumps(int file, lumplist_e which, int *count);
+void W_GetTextureLumps(int file, wadtex_resource_t *res);
 int W_GetNumFiles(void);
 
 // Define this only in an emergency.  All these debug printfs quickly

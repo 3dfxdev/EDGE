@@ -217,9 +217,6 @@ extern int maxbuttons;
 extern button_t *buttonlist;
 extern light_t *lights;
 
-// at game start
-void P_InitPicAnims(void);
-
 // at map load
 void P_SpawnSpecials(int autotag);
 
@@ -244,16 +241,6 @@ sector_t *P_GetNextSector(const line_t * line, const sector_t * sec);
 // Info Needs....
 float_t P_FindSurroundingHeight(const heightref_e ref, const sector_t *sec);
 float_t P_FindRaiseToTexture(sector_t * sec);  // -KM- 1998/09/01 New func, old inline
-#if 0  // OLD CODE
-float_t P_FindLowestFloorSurrounding(sector_t * sec);
-float_t P_FindHighestFloorSurrounding(sector_t * sec);
-float_t P_FindLowestCeilingSurrounding(sector_t * sec);
-float_t P_FindHighestCeilingSurrounding(sector_t * sec);
-float_t P_FindNextHighestFloor(sector_t * sec, float_t height);
-float_t P_FindNextLowestFloor(sector_t * sec, float_t height);
-float_t P_FindNextHighestCeiling(sector_t * sec, float_t height);
-float_t P_FindNextLowestCeiling(sector_t * sec, float_t height);
-#endif  // OLD CODE
 
 // -AJA- 1999/09/29: added this.
 sector_t *P_FindSectorFromTag(int tag);
@@ -288,7 +275,7 @@ boolean_t EV_DoElevator(sector_t * sec, const elevator_sector_t * type, sector_t
 //
 //  P_SWITCH
 //
-void P_InitSwitchList(void);
+boolean_t P_InitSwitchList(void);
 void P_ChangeSwitchTexture(line_t * line, boolean_t useAgain, line_special_e specials, boolean_t noSound);
 boolean_t P_ButtonCheckPressed(line_t * line);
 

@@ -634,80 +634,6 @@ typedef struct drawseg_s
 }
 drawseg_t;
 
-// Patches.
-//
-// A patch holds one or more columns.
-// Patches are used for sprites and all masked pictures,
-// and we compose textures from the TEXTURE1/2 lists
-// of patches.
-//
-typedef struct patch_s
-{
-  short width;  // bounding box size 
-
-  short height;
-  short leftoffset;  // pixels to the left of origin 
-
-  short topoffset;  // pixels below the origin 
-
-  int columnofs[8];  // only [width] used
-
-  // the [0] is &columnofs[width] 
-}
-patch_t;
-
-// A vissprite_t is a thing
-//  that will be drawn during a refresh.
-// I.e. a sprite object that is partly visible.
-// -KM- 1989/10/29 Removed sorting stuff, added colourmap stuff
-//
-typedef struct vissprite_s
-{
-  int x1;
-  int x2;
-
-  // for line side calculation
-  float_t gx;
-  float_t gy;
-
-  // global bottom / top for silhouette clipping
-  float_t gz;
-  float_t gzt;
-
-  // horizontal position of x1
-  float_t startfrac;
-
-  // -ES- 1999/03/22 Renamed to yscale, it is no longer used for anything else
-  float_t yscale;
-
-  // negative if flipped
-  float_t xiscale;
-
-  // -ES- 1999/03/22 Separate distance variable, for zsorting & light calculations
-  float_t distance;
-
-  // -AJA- 1999/08/xx: Scale based on distance, used for clipping against
-  //       drawsegs. Not affected by SPRITE_SCALE settings in mobjinfo_t.
-  float_t dist_scale;
-
-  float_t texturemid;
-  const struct image_s * image;
-
-  // for colour translation and shadow draw,
-  //  maxbright frames as well
-  // -AJA- 1999/07/10: Now uses colmap.ddf.
-  const coltable_t *coltable;
-
-  int mobjflags;
-  const byte *trans_table;
-
-  float_t visibility;
-
-  // -AJA- 1999/06/21: for clipping against extra floors.
-  sector_t *sector;
-}
-vissprite_t;
-
 //      
 // Sprites are patches with a special naming convention so they can be
 // recognized by R_InitSprites.  The base name is NNNNFx or NNNNFxFx,
@@ -722,9 +648,9 @@ vissprite_t;
 typedef struct spriteframe_s
 {
   // whether this frame has been completed.  Completed frames cannot
-  // be updated by sprite lumps in older wad files.
+  // be replaced by sprite lumps in older wad files.
   byte finished;
-   
+  
   // if not rotated, we don't have to determine the angle for the
   // sprite.  This is an optimisation.
   byte rotated;

@@ -248,12 +248,12 @@ extern stack_array_t spechit_a;
 extern line_t **spechit;
 extern int numspechit;
 
+boolean_t P_MapInit(void);
 boolean_t P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing);
 mobj_t *P_MapFindCorpse(mobj_t * thing);
 mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle,
     float_t distance, boolean_t force_aim);
 mobj_t *P_MapTargetTheory(mobj_t * source);
-void P_MapInit(void);
 
 float_t P_AimLineAttack(mobj_t * t1, angle_t angle, float_t distance);
 void P_UpdateMultipleFloors(sector_t * sector);

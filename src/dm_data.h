@@ -283,4 +283,67 @@ typedef struct wad_entry_s
 }
 wad_entry_t;
 
+// Patches.
+//
+// A patch holds one or more columns.
+// Patches are used for sprites and all masked pictures,
+// and we compose textures from the TEXTURE1/2 lists
+// of patches.
+//
+typedef struct patch_s
+{
+  // bounding box size 
+  short width;
+  short height;
+
+  // pixels to the left of origin 
+  short leftoffset;
+
+  // pixels below the origin 
+  short topoffset;
+
+  int columnofs[1];  // only [width] used
+}
+patch_t;
+
+//
+// Texture definition.
+//
+// Each texture is composed of one or more patches,
+// with patches being lumps stored in the WAD.
+//
+// The lumps are referenced by number, and patched into the rectangular
+// texture space using origin and possibly other attributes.
+//
+typedef struct
+{
+  short originx;
+  short originy;
+  short patch;
+  short stepdir;
+  short colourmap;
+}
+mappatch_t;
+
+//
+// Texture definition.
+//
+// A DOOM wall texture is a list of patches which are to be combined in a
+// predefined order.
+//
+// Removing the obsolete columndirectory fails because this defines how a
+// texture is stored in the wad file.
+//
+typedef struct
+{
+  char name[8];
+  int masked;
+  short width;
+  short height;
+  int columndirectory;
+  short patchcount;
+  mappatch_t patches[1];
+}
+maptexture_t;
+
 #endif // __DOOMDATA__

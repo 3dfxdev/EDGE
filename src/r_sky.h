@@ -32,7 +32,6 @@
 // The sky map is 256*4 wide (10 bits), and angles have 32 bits
 #define ANGLETOSKYSHIFT  (32 - 10)
 
-extern int skytexture;
 extern float_t skytexturemid;
 
 extern const struct image_s *sky_image;

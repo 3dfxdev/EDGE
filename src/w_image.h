@@ -31,6 +31,8 @@
 #include "r_state.h"
 #include "z_zone.h"
 
+struct texturedef_s;
+
 // the transparent pixel value we use
 #define TRANS_PIXEL  247
 
@@ -156,11 +158,14 @@ extern int use_mipmapping;
 extern boolean_t use_smoothing;
 extern boolean_t use_dithering;
 
-void W_InitImages(void);
+boolean_t W_InitImages(void);
 void W_UpdateImageAnims(void);
 void W_ResetImages(void);
 
-void W_AnimateFlatRange(const int *lumps, int number, int speed);
+void W_ImageCreateFlats(int *lumps, int number);
+void W_ImageCreateTextures(struct texturedef_s ** defs, int number);
+const image_t *W_ImageCreateSprite(int lump);
+void W_AnimateImageSet(const image_t ** images, int number, int speed);
 void W_DrawSavePic(const byte *pixels);
 
 void W_LockImagesOGL(void);
@@ -169,6 +174,7 @@ void W_UnlockImagesOGL(void);
 const cached_image_t *W_ImageCache(const image_t *image, 
     image_mode_e mode, int mip, boolean_t anim);
 void W_ImageDone(const cached_image_t *c);
+void W_ImagePreCache(const image_t *image);
 
 const w_post_t *W_ImageGetPost(const cached_image_t *c, int column);
 
@@ -177,6 +183,5 @@ const byte *W_ImageGetBlock(const cached_image_t *c);
 #ifdef USE_GL
 GLuint W_ImageGetOGL(const cached_image_t *c);
 #endif
-
 
 #endif  // __W_IMAGE__

@@ -35,13 +35,6 @@
 extern int negonearray;
 #define screenheightarray 0
 
-// vars for R_DrawMaskedColumn
-extern int mfloorclip;
-extern int mceilingclip;
-extern float_t spryscale;
-extern float_t sprtopscreen;
-extern float_t mheightmaximum;  // -AJA- 1999/08/16.
-
 extern float_t pspritescale;
 extern float_t pspriteiscale;
 extern float_t pspritescale2;
@@ -50,20 +43,10 @@ extern float_t masked_translucency;
 
 extern int extra_psp_light;
 
-int R_AddSpriteName(const char *name);
-void R_InitSprites(void);
-
-void R_AddSprite(mobj_t *thing);
-void R_AddPSprites(void);
-void R_DrawSprites(void);
-void R_DrawMasked(void);
-
-void R_DrawMaskedColumn(const column_t * column);
-void R_SortVisSprites(void);
+int R_AddSpriteName(const char *name, int frame);
+boolean_t R_InitSprites(void);
 
 // -ES- 1999/05/31 Changed player sprite system.
 void R_DrawPlayerSprites(player_t * p);
-
-void R_ClipVisSprite(vissprite_t * vis, int xl, int xh);
 
 #endif
