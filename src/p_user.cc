@@ -423,7 +423,7 @@ static void P_UpdatePowerups(player_t *player)
 	int pw;
 
 	if (player->playerstate == PST_DEAD)
-		limit = TICRATE * 5;
+		limit = 1;  // TICRATE * 5;
 
 	for (pw = 0; pw < NUMPOWERS; pw++)
 	{
