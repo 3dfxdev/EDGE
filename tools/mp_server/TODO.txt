@@ -5,9 +5,17 @@ TODO
 NETWORKING
 ----------
 
++ Play-Game packet: random seed for everyone.
+
+  - ALSO: game flags (especially Autoaim/Jump/Crouch).
+
++ ticcmd_proto: multiple from one client (BACKUPTICS).
+
 + have -localaddr cmdline option (remove BIG HACK).
 
 + connection: have a protocol version field.
+
+- bot support: client sends ticcmd_proto for bots, ETC.
 
 - game packets: merge "game" and "level" names --> one string (e.g. DOOM2:MAP01)
 
