@@ -217,7 +217,11 @@ void *Z_ReMalloc2(void *ptr, int size)
 	allocsize = size;
 #endif
 
+#ifdef DEVELOPERS
 	while (NULL == (newp = (mallocheader_t*)realloc(h, allocsize)))
+#else
+	while (NULL == (newp = realloc(h, allocsize)))
+#endif
 	{
 		if (flush_urge == Z_UrgencyExtreme)
 			I_Error("Z_ReMalloc: failed on allocation of %i bytes", size);
@@ -259,7 +263,11 @@ void *Z_Malloc2(int size)
 	allocsize = size;
 #endif
 
+#ifdef DEVELOPERS
 	while (NULL == (p = (mallocheader_t*)malloc(allocsize)))
+#else
+	while (NULL == (p = malloc(allocsize)))
+#endif
 	{
 		if (flush_urge == Z_UrgencyExtreme)
 			I_Error("Z_Malloc: failed on allocation of %i bytes", size);
