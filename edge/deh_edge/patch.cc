@@ -510,20 +510,252 @@ namespace Patch
 		// Next would be text strings.  Hard to convert.
 	}
 
+	//------------------------------------------------------------------------
+
+	typedef enum
+	{
+		// patch format 5:
+		DEH_THING, DEH_SOUND, DEH_FRAME, DEH_SPRITE, DEH_AMMO,
+		DEH_WEAPON,  // DEH_TEXT not needed
+
+		// patch format 6:
+		DEH_PTR, DEH_CHEAT, DEH_MISC
+
+		// boom extensions:
+		// BEX_PAR, BEX_CODEPTR, BEX_STRING,
+		// BEX_SOUND, BEX_MUSIC, BEX_HELPER
+	}
+	sectionkind_e;
+
+	#define MAX_LINE  512
+
+	char line_buf[MAX_LINE+4];
+	int  line_num;
+
+	char *equal_pos;
+
+	int active_section = -1;
+	int active_obj = -1;
+
+	void GetNextLine(void)
+	{
+		int len = 0;
+		equal_pos = NULL;
+
+		for (;;)
+		{
+			int ch = fgetc(pat_fp);
+
+			if (ch == EOF)
+			{
+				if (ferror(pat_fp))
+					PrintWarn("Read error on input file.\n");
+
+				break;
+			}
+
+			// end-of-line detection.  We support the following conventions:
+			//    1. CR LF    (MSDOS/Windows)
+			//    2. LF only  (Unix)
+			//    3. CR only  (Macintosh)
+
+			if (ch == '\n')
+				break;
+
+			if (ch == '\r')
+			{
+				ch = fgetc(pat_fp);
+
+				if (ch != EOF && ch != '\n')
+					ungetc(ch, pat_fp); 
+
+				break;
+			}
+
+			if (len >= MAX_LINE)  // truncation mode
+				continue;
+
+			if (! equal_pos && (char)ch == '=')
+				equal_pos = line_buf + len;
+
+			line_buf[len++] = (char)ch;
+
+			if (len == MAX_LINE)
+				PrintWarn("Truncating very long line (#%d).\n", line_num);
+		}
+
+		line_buf[len] = 0;
+		line_num++;
+	}
+	
+	typedef struct
+	{
+		const char *name;
+		int kind;
+	}
+	sectionname_t;
+
+	const sectionname_t sections[] =
+	{
+		{ "Thing",   DEH_THING },
+		{ "Sound",   DEH_SOUND },
+		{ "Frame",   DEH_FRAME },
+		{ "Sprite",  DEH_SPRITE },
+		{ "Ammo",    DEH_AMMO },
+		{ "Weapon",  DEH_WEAPON },
+		{ "Pointer", DEH_PTR },
+		{ "Cheat",   DEH_CHEAT },
+		{ "Misc",    DEH_MISC },
+
+		// ^Text is given special treatment.
+
+		// boom extensions:
+		//  "[PAR]",     BEX_PAR },
+		//  "[CODEPTR]", BEX_CODEPTR },
+		//  "[STRING]",  BEX_STRING },
+		//  "[SOUND]",   BEX_SOUND },
+		//  "[MUSIC]",   BEX_MUSIC },
+		//  "[HELPER]",  BEX_HELPER },
+
+		{ NULL, -1 }   // End sentinel
+	};
+
+	bool CheckNewSection(void)
+	{
+		if (line_buf[0] == '[')
+			FatalError("BEX (Boom Extension) directives not supported.\n"
+				"Line %d: %s\n", line_num, line_buf);
+
+		int i;
+		int obj_num;
+
+		for (i = 0; sections[i].name; i++)
+		{
+			if (StrCaseCmpPartial(line_buf, sections[i].name) != 0)
+				continue;
+
+			int sec_len = strlen(sections[i].name);
+
+			if (! isspace(line_buf[sec_len]))
+				continue;
+
+			if (sscanf(line_buf + sec_len, " %i ", &obj_num) != 1)
+				continue;
+
+			active_section = sections[i].kind;
+			active_obj = obj_num;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	void ProcessTextSection(int len1, int len2)
+	{
+		// !!!!! FIXME
+		GetNextLine();
+		Debug_PrintMsg("TEXT SECT: %d %d %s\n", len1, len2, line_buf);
+	}
+
+	void ProcessLine(void)
+	{
+		assert(active_section >= 0);
+
+		Debug_PrintMsg("Section %d Object %d : <%s>\n", active_section,
+			active_obj, line_buf);
+
+		//!!! FIXME
+	}
+
 	void LoadDiff(void)
 	{
 		DetectMsg("text-based");
 
-		doom_ver = 16;   // defaults
+		doom_ver = 16;  // defaults
 		patch_fmt = 5;  //
 
-		// FIXME
+		line_num = 0;
 
-		// I don't think the DHE code supports this correctly
-		if (doom_ver == 12)
-			FatalError("Text format patches for DOOM V1.2 are not supported.\n");
+		bool syncing = true;
+		bool got_info = false;
 
-		//...
+		while (! feof(pat_fp))
+		{
+			GetNextLine();
+
+			if (line_buf[0] == 0 || line_buf[0] == '#')
+				continue;
+
+			// Debug_PrintMsg("LINE %d: <%s>\n", line_num, line_buf);
+
+			if (StrCaseCmpPartial(line_buf, "Doom version") == 0)
+			{
+				if (! equal_pos)
+					FatalError("Badly formed directive !\nLine %d: %s\n",
+						line_num, line_buf);
+
+				doom_ver = (int)strtol(equal_pos+1, NULL, 10);
+
+				if (! (doom_ver == 12 ||
+					  (doom_ver >= 16 && doom_ver <= 21)))
+				{
+					FatalError("Unknown doom version found: V%d.%d\n",
+						doom_ver / 10, (doom_ver+1000) % 10);
+				}
+
+				// I don't think the DeHackEd code supports this correctly
+				if (doom_ver == 12)
+					FatalError("Text patches for DOOM V1.2 are not supported.\n");
+			}
+
+			if (StrCaseCmpPartial(line_buf, "Patch format") == 0)
+			{
+				if (got_info)
+					FatalError("Patch format is specified twice.\n");
+
+				got_info = true;
+
+				if (! equal_pos)
+					FatalError("Badly formed directive !\nLine %d: %s\n",
+						line_num, line_buf);
+
+				patch_fmt = (int)strtol(equal_pos+1, NULL, 10);
+
+				if (patch_fmt < 5 || patch_fmt > 6)
+					FatalError("Unknown dehacked patch format found: %d\n",
+						patch_fmt);
+
+				VersionMsg();
+			}
+
+			if (StrCaseCmpPartial(line_buf, "include") == 0)
+				FatalError("BEX (Boom Extension) INCLUDE directive is not supported.\n");
+
+			if (StrCaseCmpPartial(line_buf, "Text") == 0 &&
+				isspace(line_buf[4]))
+			{
+				int len1, len2;
+
+				if (sscanf(line_buf + 4, " %i %i ", &len1, &len2) == 2)
+				{
+					ProcessTextSection(len1, len2);
+					syncing = true;
+					continue;
+				}
+			}
+
+			if (CheckNewSection())
+			{
+				syncing = false;
+				continue;
+			}
+
+			if (! syncing)
+			{
+				ProcessLine();
+			}
+		}
 	}
 
 	void LoadNormal(void)
