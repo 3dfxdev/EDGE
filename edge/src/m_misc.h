@@ -64,6 +64,8 @@ byte *M_GetFileData(char *filename, int *length);
 char *M_ComposeFileName(const char *dir, const char *file);
 void M_WarnError(const char *error,...) GCCATTR(format(printf, 1, 2));
 
+int L_CompareTimeStamps(i_time_t *A, i_time_t *B);
+
 extern unsigned short save_screenshot[160][100];
 extern boolean_t save_screenshot_valid;
 

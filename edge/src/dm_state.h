@@ -264,17 +264,20 @@ extern int cdcounter;
 //okay, heres the resolution/hicolour:
 extern int SCREENWIDTH;
 extern int SCREENHEIGHT;
-extern int SCREENDEPTH;
 extern int SCREENPITCH;
+extern int SCREENBITS;
+extern boolean_t SCREENWINDOW;
+
+// transitional macros
+#define BPP  (SCREENBITS / 8)
+#define SCREENDEPTH  SCREENPITCH
+#define in_a_window  SCREENWINDOW
 
 // I_Video.c / V_Video*.c Precalc. Stuff
 extern float_t DX, DY, DXI, DYI, DY2, DYI2;
 extern int SCALEDWIDTH, SCALEDHEIGHT, X_OFFSET, Y_OFFSET;
 extern float_t BASEYCENTER, BASEXCENTER;
 
-extern int BPP;  //BYTES per pixel, 1=256 colour, 2=hi colour
-
-extern boolean_t in_a_window;
 extern boolean_t graphicsmode;
 
 // -ES- 1999/08/15 Added teleport effects

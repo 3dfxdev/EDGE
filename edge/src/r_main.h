@@ -135,7 +135,7 @@ void R_SetNormalFOV(angle_t newfov);
 void R_SetZoomedFOV(angle_t newfov);
 
 // call this to change the resolution before the next frame.
-void R_ChangeResolution(int width, int height, int bpp);
+void R_ChangeResolution(int width, int height, int depth, boolean_t windowed);
 
 void R_StartFading(int start, int range);
 

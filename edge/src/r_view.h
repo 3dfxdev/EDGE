@@ -223,7 +223,7 @@ extern void R_DestroyCallbackList(callback_t ** list);
 extern void R_CallCallbackList(callback_t * list);
 
 extern void R_DestroyViewBitmap(viewbitmap_t * view);
-extern viewbitmap_t *R_CreateViewBitmap(int width, int height, int bpp, screen_t * p, int x, int y);
+extern viewbitmap_t *R_CreateViewBitmap(int width, int height, int bytepp, screen_t * p, int x, int y);
 
 extern void R_DestroyAspect(aspect_t * a);
 extern aspect_t *R_CreateAspect(viewbitmap_t * parent,
