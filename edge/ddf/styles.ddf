@@ -1,0 +1,39 @@
+
+//
+//  some ideas for defining "styles", something very much like 
+//  CSS (cascading style sheets) for HTML.  For EDGE, they
+//  apply to on-screen elements (text in menus, etc...) and
+//  specify sounds too.
+//
+//  not necessarily limited to one style per screen, e.g. for
+//  keyboard options: one style of key names and values, and
+//  another style for the move-back/foward and help parts.
+//
+
+<STYLES>
+
+[VIDEO_OPTIONS]
+
+BACKGROUND.COLOUR = #888888;
+BACKGROUND.TRANSLUCENCY = 25%;
+// BACKGROUND.IMAGE = FLAT1;
+// BACKGROUND.SCALE = 0.5;
+// BACKGROUND.FLAGS = TILED;
+
+// BORDER.COLOUR = #CCCCCC;
+// BORDER.SIZE = 2;
+
+TEXT.COLOUR = TEXT_REDS;  // colourmap name or #AABBCC colour
+TEXT.FONT   = DMFONT;
+TEXT.SCALE  = 0.5;  // make big or small
+TEXT.ASPECT = 1.0;  // make tall or wide
+
+// these are based on current menu code:
+SOUND.BEGIN  = SWITCHN;
+SOUND.END    = SWITCHX;
+SOUND.SELECT = PISTOL;
+SOUND.BACK   = SWITCHN;
+SOUND.ERROR  = OOF;
+SOUND.MOVE   = P_STOP;
+SOUND.SLIDER = STNMOV;
+
