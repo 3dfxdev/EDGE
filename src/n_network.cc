@@ -28,6 +28,7 @@
 #include "e_main.h"
 #include "e_player.h"
 #include "g_game.h"
+#include "p_bot.h"
 #include "p_local.h"
 #include "version.h"
 #include "z_zone.h"
@@ -37,6 +38,7 @@ extern gameflags_t default_gameflags;
 
 static int client_id;
 static int game_id;
+static int bots_each;
 
 static NLaddress server;
 static NLsocket  socket;
@@ -187,14 +189,13 @@ static void N_ConnectServer(void)
 
 	connect_proto_t& con = pk.cs_p();
 
-	strcpy(con.info.name, "Flynn");
+	sprintf(con.info.name, "Flynn%02d", rand()&63);
 
 	con.ByteSwap();
 
 	if (! pk.Write(socket))
 		I_Error("Unable to write CS packet:\n%s", N_GetErrorStr());
 
-	sleep(1);
 	sleep(1);
 
 	if (! pk.Read(socket))
@@ -211,8 +212,10 @@ static void N_ConnectServer(void)
 	client_id = pk.hd().client;
 	
 	fprintf(stderr, "Connected to server: client_id %d\n", client_id);
-	fprintf(stderr, "Server version %3x.  Protocol version %3x.\n",
-		con.server_ver, con.protocol_ver);
+	fprintf(stderr, "Server version %x.%02x  Protocol version %x.%x.%x\n",
+		con.server_ver >> 8, con.server_ver & 0xFF,
+		con.protocol_ver >> 8, (con.protocol_ver >> 4) & 0xF,
+		con.protocol_ver & 0xF);
 }
 
 static void N_NewGame(void)
@@ -233,7 +236,7 @@ static void N_NewGame(void)
 	ng.info.skill = 4;  // H.M.P
 
 	ng.info.min_players = 1;
-	ng.info.num_bots = 0;
+	ng.info.num_bots = 3;
 	ng.info.features = 0x00FF;
 
 	ng.info.wad_checksum = 0;
@@ -244,7 +247,6 @@ static void N_NewGame(void)
 	if (! pk.Write(socket))
 		I_Error("Unable to write NG packet:\n%s", N_GetErrorStr());
 
-	sleep(1);
 	sleep(1);
 
 	if (! pk.Read(socket))
@@ -275,7 +277,6 @@ static void N_Vote(void)
 		I_Error("Unable to write VP packet:\n%s", N_GetErrorStr());
 
 	sleep(1);
-	sleep(1);
 
 	if (! pk.Read(socket))
 		I_Error("Failed to vote (no reply)\n");
@@ -291,6 +292,8 @@ static void N_Vote(void)
 	play_game_proto_t& pg = pk.pg_p();
 
 	pg.ByteSwap();
+
+	bots_each = pg.bots_each;
 
 	// FIXME: use pg.random_seed
 
@@ -333,7 +336,12 @@ void E_CheckNetGame(void)
 #endif
 
 	for (int i = 0; i < 1; i++)
+	{
 		P_CreatePlayer(i);
+
+		if (i != 0)
+			P_BotCreate(players[i], false);
+	}
 
 	consoleplayer = 0;
 	DEV_ASSERT2(players[consoleplayer]);
@@ -380,7 +388,8 @@ static void GetPackets(bool do_delay)
 	if (! pk.Read(socks[0]))
 		return;
 
-I_Printf("GOT PACKET [%c%c]\n", pk.hd().type[0], pk.hd().type[1]);
+	L_WriteDebug("GOT PACKET [%c%c] len = %d\n", pk.hd().type[0], pk.hd().type[1],
+		pk.hd().data_len);
 
 	if (! pk.CheckType("Tg"))
 		return;
@@ -389,35 +398,51 @@ I_Printf("GOT PACKET [%c%c]\n", pk.hd().type[0], pk.hd().type[1]);
 
 	tic_group_proto_t& tg = pk.tg_p();
 
-	tg.ByteSwap(true);
+	tg.ByteSwap((1 + bots_each) * tg.count);
+
+	// !!! FIXME: handle tg.count
 
 	player_t *p = players[consoleplayer]; //!!!!
 
 	int got_tic = tg.gametic + tg.offset;
 
-I_Printf("-- Got TG: counter = %d  in_tic = %d\n", got_tic, p->in_tic);
+	L_WriteDebug("-- Got TG: counter = %d  in_tic = %d\n", got_tic, p->in_tic);
 
 	if (got_tic != p->in_tic)
 	{
-		I_Printf("GOT TIC %d != EXPECTED %d\n", got_tic, p->in_tic);
+		L_WriteDebug("GOT TIC %d != EXPECTED %d\n", got_tic, p->in_tic);
 
-		// FIXME: handle "future" tics (save them, set bit in mask)
+		// !!! FIXME: handle "future" tics (save them, set bit in mask)
+		//            (send retransmission request for gametic NOW).
 		return;
 	}
 
-	memcpy(p->in_cmds + (got_tic % BACKUPTICS), tg.tic_cmds, sizeof(ticcmd_t));
+	raw_ticcmd_t *raw_cmd = tg.tic_cmds;
 
-	p->in_tic++;
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+
+		if (! p || ! p->builder) continue;
+
+		memcpy(p->in_cmds + (got_tic % (MP_SAVETICS*2)), raw_cmd, sizeof(ticcmd_t));
+
+		raw_cmd++;
+
+		p->in_tic++;
+	}
+
+	DEV_ASSERT2((raw_cmd - tg.tic_cmds) == (1 + bots_each));
 }
 
-static void DoSendTiccmd(player_t *p, ticcmd_t *cmd, int tic)
+static void DoSendTiccmds(int tic)
 {
 	pk.Clear();  // FIXME: TESTING ONLY
 
 	pk.SetType("tc");
 	pk.hd().flags = 0;
 	pk.hd().client = client_id;
-	pk.hd().data_len = sizeof(ticcmd_proto_t);
+	pk.hd().data_len = sizeof(ticcmd_proto_t) - sizeof(raw_ticcmd_t);
 
     ticcmd_proto_t& tc = pk.tc_p();
 
@@ -427,13 +452,29 @@ static void DoSendTiccmd(player_t *p, ticcmd_t *cmd, int tic)
 	tc.offset  = tic - gametic;
 	tc.count   = 1;
 
-	memcpy(&tc.tic_cmds, p->out_cmds + (tic % BACKUPTICS), sizeof(ticcmd_t));
+	raw_ticcmd_t *raw_cmd = tc.tic_cmds;
 
-    tc.ByteSwap(true);
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
 
-I_Printf("Writing ticcmd for tic %d\n", tic);
+		if (! p || ! p->builder) continue;
+
+		memcpy(raw_cmd, p->out_cmds + (tic % (MP_SAVETICS*2)), sizeof(raw_ticcmd_t));
+
+		raw_cmd++;
+
+		pk.hd().data_len += sizeof(raw_ticcmd_t);
+	}
+
+	DEV_ASSERT2((raw_cmd - tc.tic_cmds) == (1 + bots_each));
+
+    tc.ByteSwap((1 + bots_each) * tc.count);
+
+	L_WriteDebug("Writing ticcmd for tic %d\n", tic);
+
 	if (! pk.Write(socket))
-		I_Printf("Failed to write packet (pnum %d tic %d)\n", p->pnum, tic);
+		L_WriteDebug("Failed to write packet (tic %d)\n", tic);
 	
 	// FIXME: need an 'out_tic' for resends....
 }
@@ -443,7 +484,7 @@ static bool DoBuildTiccmds(void)
 	I_ControlGetEvents();
 	E_ProcessEvents();
 
-	if (maketic - gametic >= BACKUPTICS / 2 - 1)
+	if (maketic >= gametic + MP_SAVETICS)
 		return false;  // can't hold any more
 
 	// build ticcmds
@@ -457,18 +498,18 @@ static bool DoBuildTiccmds(void)
 			ticcmd_t *cmd;
 
 			if (netgame)
-				cmd = &p->out_cmds[maketic % BACKUPTICS];
+				cmd = &p->out_cmds[maketic % (MP_SAVETICS*2)];
 			else
-				cmd = &p->in_cmds[maketic % BACKUPTICS];
+				cmd = &p->in_cmds[maketic % (MP_SAVETICS*2)];
 
 			p->builder(p, p->build_data, cmd);
 			
-			cmd->consistency = p->consistency[maketic % BACKUPTICS];
-
-			if (netgame)
-				DoSendTiccmd(p, cmd, maketic);
+			cmd->consistency = p->consistency[maketic % (MP_SAVETICS*2)];
 		}
 	}
+
+	if (netgame)
+		DoSendTiccmds(maketic);
 
 	maketic++;
 	return true;
@@ -514,6 +555,10 @@ int DetermineLowTic(void)
 	{
 		player_t *p = players[pnum];
 		if (! p) continue;
+
+		// ignore bots
+		if (p->playerflags & PFL_Bot)
+			continue;
 
 		lowtic = MIN(lowtic, p->in_tic);
 	}
