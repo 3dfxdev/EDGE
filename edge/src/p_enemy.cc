@@ -67,8 +67,8 @@ dirtype_e diags[] =
 // sqrt(2) / 2: The diagonal speed of creatures
 #define SQ2 0.7071067812
 
-flo_t xspeed[8] = {1.0, SQ2, 0, -SQ2, -1.0, -SQ2, 0, SQ2};
-flo_t yspeed[8] = {0, SQ2, 1.0, SQ2, 0, -SQ2, -1.0, -SQ2};
+float xspeed[8] = {1.0, SQ2, 0, -SQ2, -1.0, -SQ2, 0, SQ2};
+float yspeed[8] = {0, SQ2, 1.0, SQ2, 0, -SQ2, -1.0, -SQ2};
 
 #undef SQ2
 
@@ -152,10 +152,10 @@ void P_NoiseAlert(player_t *p)
 //
 // P_CheckMeleeRange
 //
-boolean_t P_CheckMeleeRange(mobj_t * actor)
+bool P_CheckMeleeRange(mobj_t * actor)
 {
   mobj_t *pl;
-  flo_t dist;
+  float dist;
 
   if (!actor->target)
     return false;
@@ -178,17 +178,17 @@ boolean_t P_CheckMeleeRange(mobj_t * actor)
 // Move in the current direction,
 // returns false if the move is blocked.
 //
-boolean_t P_Move(mobj_t * actor, boolean_t path)
+bool P_Move(mobj_t * actor, bool path)
 {
-  flo_t tryx;
-  flo_t tryy;
+  float tryx;
+  float tryy;
 
   //
   // warning: 'catch', 'throw', and 'try'
   // are all C++ reserved words
   //
-  boolean_t try_ok;
-  boolean_t any_used, block_used;
+  bool try_ok;
+  bool any_used, block_used;
 
   if (path)
   {
@@ -287,7 +287,7 @@ boolean_t P_Move(mobj_t * actor, boolean_t path)
 // If a door is in the way,
 // an OpenDoor call is made to start it opening.
 //
-static boolean_t TryWalk(mobj_t * actor)
+static bool TryWalk(mobj_t * actor)
 {
   if (!P_Move(actor, false))
     return false;
@@ -299,8 +299,8 @@ static boolean_t TryWalk(mobj_t * actor)
 // -ACB- 1998/09/06 actor is now an object; different movement choices.
 void P_NewChaseDir(mobj_t * object)
 {
-  flo_t deltax;
-  flo_t deltay;
+  float deltax;
+  float deltay;
   dirtype_e tdir;
 
   dirtype_e d[3];
@@ -455,13 +455,13 @@ void P_NewChaseDir(mobj_t * object)
 //
 // Returns true if a player is targeted.
 //
-boolean_t P_LookForPlayers(mobj_t * actor, angle_t range)
+bool P_LookForPlayers(mobj_t * actor, angle_t range)
 {
   int c;
   int stop;
   player_t *player;
   angle_t an;
-  flo_t dist;
+  float dist;
 
   c = 0;
   stop = (actor->lastlook - 1) % MAXPLAYERS;
@@ -577,7 +577,7 @@ void P_FreeShootSpots(void)
 //
 // -AJA- 1999/09/14: written.
 //
-static void SpawnDeathMissile(mobj_t *source, flo_t x, flo_t y, flo_t z)
+static void SpawnDeathMissile(mobj_t *source, float x, float y, float z)
 {
   const mobjinfo_t *info;
   mobj_t *th;
@@ -605,8 +605,8 @@ static void SpawnDeathMissile(mobj_t *source, flo_t x, flo_t y, flo_t z)
 //
 void A_BrainScream(mobj_t * bossbrain)
 {
-  flo_t x, y, z;
-  flo_t min_x, max_x;
+  float x, y, z;
+  float min_x, max_x;
 
   min_x = bossbrain->x - 280.0;
   max_x = bossbrain->x + 280.0;
@@ -625,7 +625,7 @@ void A_BrainScream(mobj_t * bossbrain)
 
 void A_BrainMissileExplode(mobj_t * mo)
 {
-  flo_t x, y, z;
+  float x, y, z;
 
   if (! mo->source)
     return;

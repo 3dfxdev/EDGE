@@ -316,7 +316,7 @@ void SV_FreeGLOB(saveglobals_t *globs)
 //  LOADING GLOBALS
 //
 
-static boolean_t GlobReadVARI(saveglobals_t *globs)
+static bool GlobReadVARI(saveglobals_t *globs)
 {
 	const char *var_name;
 	const char *var_data;
@@ -365,13 +365,13 @@ static boolean_t GlobReadVARI(saveglobals_t *globs)
 	return true;
 }
 
-static boolean_t GlobReadWADS(saveglobals_t *glob)
+static bool GlobReadWADS(saveglobals_t *glob)
 {
 	//!!! IMPLEMENT THIS
 	return true;
 }
 
-static boolean_t GlobReadVIEW(saveglobals_t *glob)
+static bool GlobReadVIEW(saveglobals_t *glob)
 {
 	//!!! IMPLEMENT THIS
 	return true;

@@ -40,7 +40,7 @@ typedef enum
 mussupport_e;
 
 static byte capable;
-static boolean_t musicpaused;
+static bool musicpaused;
 
 #define MUSICERRLEN 256
 static char errordesc[MUSICERRLEN];
@@ -48,7 +48,7 @@ static char errordesc[MUSICERRLEN];
 //
 // I_StartupMusic
 //
-boolean_t I_StartupMusic(void *sysinfo)
+bool I_StartupMusic(void *sysinfo)
 {
 	// Clear the error message
 	memset(errordesc, 0, sizeof(char)*MUSICERRLEN);
@@ -87,7 +87,7 @@ boolean_t I_StartupMusic(void *sysinfo)
 //
 // I_MusicPlayback
 //
-int I_MusicPlayback(i_music_info_t *musdat, int type, boolean_t looping)
+int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 {
 	int track;
 	int handle;
@@ -263,7 +263,7 @@ void I_MusicKill(int *handle)
 //
 void I_MusicTicker(int *handle)
 {
-	boolean_t looping;
+	bool looping;
 	int type;
 	int libhandle;
 

@@ -29,7 +29,7 @@
 static int musichandle = -1;
 static int musicvolume;
 
-boolean_t nomusic = false;
+bool nomusic = false;
 
 // =================== INTERNALS ====================
 // HELPER Functions
@@ -52,7 +52,7 @@ static INLINE int edgemid(int a, int b, int c)
 //
 // S_ChangeMusic
 //
-void S_ChangeMusic(int entrynum, boolean_t looping)
+void S_ChangeMusic(int entrynum, bool looping)
 {
 	const playlist_t *play;
 	byte *data;

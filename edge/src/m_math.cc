@@ -67,24 +67,24 @@ fixed_t FixedMul (fixed_t a, fixed_t b)
 //
 // This has been moved to m_inline.h.
 
-flo_t M_Sin (angle_t ang)
+float M_Sin (angle_t ang)
 {
-	return (flo_t) sin ((double) ang * M_PI / (flo_t) ANG180);
+	return (float) sin ((double) ang * M_PI / (float) ANG180);
 }
 
-flo_t M_Cos (angle_t ang)
+float M_Cos (angle_t ang)
 {
-	return (flo_t) cos ((double) ang * M_PI / (flo_t) ANG180);
+	return (float) cos ((double) ang * M_PI / (float) ANG180);
 }
 
-flo_t M_Tan (angle_t ang)
+float M_Tan (angle_t ang)
 {
-	return (flo_t) tan ((double) ang * M_PI / (flo_t) ANG180);
+	return (float) tan ((double) ang * M_PI / (float) ANG180);
 }
 
-angle_t M_ATan (flo_t slope)
+angle_t M_ATan (float slope)
 {
-	return (angle_t) ((flo_t) ANG180 * atan (slope) / M_PI);
+	return (angle_t) ((float) ANG180 * atan (slope) / M_PI);
 }
 
 void M_Angle2Matrix (angle_t ang, vec2_t * x, vec2_t * y)

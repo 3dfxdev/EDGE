@@ -44,7 +44,7 @@
 #include "z_zone.h"
 
 // The minimum distance between player and a visible sprite.
-// FIXME: Decrease value, lower values are valid when flo_t is used.
+// FIXME: Decrease value, lower values are valid when float is used.
 #define MINZ        (4.0)
 
 //
@@ -54,11 +54,11 @@
 //  which increases counter clockwise (protractor).
 // There was a lot of stuff grabbed wrong, so I changed it...
 //
-flo_t pspritescale;
-flo_t pspriteiscale;
-flo_t pspritescale2;
-flo_t pspriteiscale2;
-flo_t masked_translucency;
+float pspritescale;
+float pspriteiscale;
+float pspritescale2;
+float pspriteiscale2;
+float masked_translucency;
 
 lighttable_t *spritezlights;
 
@@ -390,7 +390,7 @@ static void CheckSpriteFrames(spritedef_t *def)
 // 
 // -AJA- 2001/02/01: rewrote this stuff.
 // 
-boolean_t R_InitSprites(void)
+bool R_InitSprites(void)
 {
   int i, file;
 

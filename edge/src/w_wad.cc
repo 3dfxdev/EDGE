@@ -84,7 +84,7 @@ data_file_t;
 typedef struct raw_filename_s
 {
 	const char *file_name;
-	boolean_t allow_ddf;
+	bool allow_ddf;
 }
 raw_filename_t;
 
@@ -147,8 +147,8 @@ static int datafile = -1;
 static int palette_datafile = -1;
 
 // Sprites & Flats
-boolean_t within_sprite_list;
-boolean_t within_flat_list;
+bool within_sprite_list;
+bool within_flat_list;
 
 int addwadnum = 0;
 static int maxwadfiles = 0;
@@ -158,7 +158,7 @@ static raw_filename_t *wadfiles = NULL;
 // Is the name a sprite list start flag?
 // If lax syntax match, fix up to standard syntax.
 //
-static boolean_t IsS_START(char *name)
+static bool IsS_START(char *name)
 {
 	if (strncmp(name, "SS_START", 8) == 0)
 	{
@@ -175,7 +175,7 @@ static boolean_t IsS_START(char *name)
 // Is the name a sprite list end flag?
 // If lax syntax match, fix up to standard syntax.
 //
-static boolean_t IsS_END(char *name)
+static bool IsS_END(char *name)
 {
 	if (strncmp(name, "SS_END", 8) == 0)
 	{
@@ -191,7 +191,7 @@ static boolean_t IsS_END(char *name)
 // Is the name a flat list start flag?
 // If lax syntax match, fix up to standard syntax.
 //
-static boolean_t IsF_START(char *name)
+static bool IsF_START(char *name)
 {
 	if (strncmp(name, "FF_START", 8) == 0)
 	{
@@ -207,7 +207,7 @@ static boolean_t IsF_START(char *name)
 // Is the name a flat list end flag?
 // If lax syntax match, fix up to standard syntax.
 //
-static boolean_t IsF_END(char *name)
+static bool IsF_END(char *name)
 {
 	if (strncmp(name, "FF_END", 8) == 0)
 	{
@@ -222,7 +222,7 @@ static boolean_t IsF_END(char *name)
 //
 // Is the name a dummy sprite/flat flag ?
 //
-static boolean_t IsDummySF(const char *name)
+static bool IsDummySF(const char *name)
 {
 	return (strncmp(name, "S1_START", 8) == 0 ||
 			strncmp(name, "S2_START", 8) == 0 ||
@@ -474,7 +474,7 @@ static INLINE void AddSpriteOrFlat(int **list, int *count, int item)
 // AddLump
 //
 static void AddLump(int lump, int pos, int size, int file, 
-					int sort_index, const char *name, boolean_t allow_ddf)
+					int sort_index, const char *name, bool allow_ddf)
 {
 	int j;
 	lumpinfo_t *lump_p = lumpinfo + lump;
@@ -578,7 +578,7 @@ static void AddLump(int lump, int pos, int size, int file,
 //       otherwise it is the sort_index for the lumps (typically the
 //       file number of the wad which the GWA is a companion for).
 //
-static void AddFile(const char *filename, boolean_t allow_ddf,
+static void AddFile(const char *filename, bool allow_ddf,
 					int dyn_index)
 {
 	int j;
@@ -791,7 +791,7 @@ static void InitCaches(void)
 //
 // W_AddRawFilename
 //
-void W_AddRawFilename(const char *file, boolean_t allow_ddf)
+void W_AddRawFilename(const char *file, bool allow_ddf)
 {
 	raw_filename_t *r;
 
@@ -817,7 +817,7 @@ void W_AddRawFilename(const char *file, boolean_t allow_ddf)
 // The name searcher looks backwards, so a later file
 //   does override all earlier ones.
 //
-boolean_t W_InitMultipleFiles(void)
+bool W_InitMultipleFiles(void)
 {
 	int r;
 
@@ -973,7 +973,7 @@ int W_GetNumForName2(const char *name)
 //
 // -AJA- 1999/11/26: written.
 //
-boolean_t W_VerifyLumpName(int lump, const char *name)
+bool W_VerifyLumpName(int lump, const char *name)
 {
 	if (lump >= numlumps)
 		return false;
@@ -1081,7 +1081,7 @@ int W_GetNumFiles(void)
 // Note: this call designed to allow MP3 lumps to be accessed by the
 //       L_MP3 code -- it shouldn't otherwise be used.
 //
-boolean_t W_LumpRawInfo(int lump, int *handle, int *pos, int *size)
+bool W_LumpRawInfo(int lump, int *handle, int *pos, int *size)
 {
 	lumpinfo_t *l;
 	data_file_t *f;

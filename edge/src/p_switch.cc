@@ -48,7 +48,7 @@ button_t *buttonlist = NULL;
 //
 // Only called at game initialization.
 //
-boolean_t P_InitSwitchList(void)
+bool P_InitSwitchList(void)
 {
   int i;
 
@@ -65,7 +65,7 @@ boolean_t P_InitSwitchList(void)
   return true;
 }
 
-boolean_t P_ButtonCheckPressed(line_t * line)
+bool P_ButtonCheckPressed(line_t * line)
 {
   int i;
 
@@ -117,8 +117,8 @@ static void StartButton(switchlist_t *sw, line_t *line, bwhere_e w,
 //
 // -KM- 1998/09/01 All switches referencing a certain tag are switched
 //
-void P_ChangeSwitchTexture(line_t * line, boolean_t useAgain,
-    line_special_e specials, boolean_t noSound)
+void P_ChangeSwitchTexture(line_t * line, bool useAgain,
+    line_special_e specials, bool noSound)
 {
   int i, j, k;
   int tag = line->tag;

@@ -59,8 +59,8 @@ void RGL_PaletteEffect(player_t *player);
 //  RGL_SKY
 //
 //
-void RGL_DrawSkyPlane(subsector_t *sub, flo_t h);
-void RGL_DrawSkyWall(seg_t *seg, flo_t h1, flo_t h2);
+void RGL_DrawSkyPlane(subsector_t *sub, float h);
+void RGL_DrawSkyWall(seg_t *seg, float h1, float h2);
 
 
 //
@@ -99,11 +99,11 @@ typedef struct local_gl_vert_s
 local_gl_vert_t;
 
 void RGL_InitUnits(void);
-void RGL_StartUnits(boolean_t solid);
+void RGL_StartUnits(bool solid);
 void RGL_FinishUnits(void);
 
 local_gl_vert_t *RGL_BeginUnit(GLuint mode, int max_vert, 
-    GLuint tex_id, boolean_t masked, boolean_t blended);
+    GLuint tex_id, bool masked, bool blended);
 void RGL_EndUnit(int actual_vert);
 void RGL_DrawUnits(void);
 
@@ -132,7 +132,7 @@ typedef struct raw_polyquad_s
   // Quad ?  When true, the number of vertices must be even, and the
   // order must be the same as for glBegin(GL_QUADSTRIP).
   // 
-  boolean_t quad;
+  bool quad;
  
   vec3_t *verts;
   int num_verts;
@@ -154,17 +154,17 @@ raw_polyquad_t;
     (P)->verts[(P)->num_verts].z = (Z);  \
     (P)->num_verts++; } while(0)
 
-raw_polyquad_t *RGL_NewPolyQuad(int maxvert, boolean_t quad);
+raw_polyquad_t *RGL_NewPolyQuad(int maxvert, bool quad);
 void RGL_FreePolyQuad(raw_polyquad_t *poly);
 void RGL_BoundPolyQuad(raw_polyquad_t *poly);
 
 void RGL_SplitPolyQuad(raw_polyquad_t *poly, int division, 
-    boolean_t separate);
+    bool separate);
 void RGL_SplitPolyQuadLOD(raw_polyquad_t *poly, int max_lod, int base_div);
 
 void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
     void (* CoordFunc)(vec3_t *src, local_gl_vert_t *vert, void *data),
-    GLuint tex_id, boolean_t masked, boolean_t blended);
+    GLuint tex_id, bool masked, bool blended);
 
 
 //
@@ -172,7 +172,7 @@ void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
 //
 void RGL_1DOcclusionClear(angle_t low, angle_t high);
 void RGL_1DOcclusionSet(angle_t low, angle_t high);
-boolean_t RGL_1DOcclusionTest(angle_t low, angle_t high);
+bool RGL_1DOcclusionTest(angle_t low, angle_t high);
 
 
 //
@@ -181,7 +181,7 @@ boolean_t RGL_1DOcclusionTest(angle_t low, angle_t high);
 
 void RGL_InitWipe(int reverse, int effect);
 void RGL_StopWipe(void);
-boolean_t RGL_DoWipe(void);
+bool RGL_DoWipe(void);
 
 
 #endif  // __RGL_DEFS__

@@ -122,7 +122,7 @@ int I_GetTime (void)
 extern int autorun;  // Autorun state
 
 
-boolean_t microtimer_installed = 1;
+bool microtimer_installed = 1;
 
 
 static char errmsg[4096];  // buffer of error message -- killough
@@ -336,7 +336,7 @@ void I_TraceBack(void)
 //
 // -ACB- 1998/07/11 Reformatted the code.
 //
-boolean_t I_SystemStartup(void)
+bool I_SystemStartup(void)
 {
   I_StartupControl();
   I_StartupGraphics();
@@ -374,7 +374,7 @@ void I_SystemShutdown(void)
 //
 // -ES- 2000/01/01 Written.
 //
-boolean_t I_PathIsAbsolute(const char *path)
+bool I_PathIsAbsolute(const char *path)
 {
   if (path[0] == '/' || path[0] == '.')
     return true;
@@ -443,7 +443,7 @@ unsigned long I_ReadMicroSeconds(void)
 //
 // I_PathIsDirectory
 //
-boolean_t I_PathIsDirectory(const char *path)
+bool I_PathIsDirectory(const char *path)
 {
   struct stat buf;
 
@@ -456,7 +456,7 @@ boolean_t I_PathIsDirectory(const char *path)
 //
 // I_Access
 //
-boolean_t I_Access(const char *filename)
+bool I_Access(const char *filename)
 {
   return (access(filename, R_OK) == 0) ? true : false;
 }
@@ -467,7 +467,7 @@ boolean_t I_Access(const char *filename)
 //
 // -ACB- 2001/06/14
 //
-boolean_t I_GetModifiedTime(const char *filename, i_time_t *t)
+bool I_GetModifiedTime(const char *filename, i_time_t *t)
 {
   struct stat buf;
   struct tm timeinf;

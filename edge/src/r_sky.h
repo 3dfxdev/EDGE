@@ -32,12 +32,12 @@
 // The sky map is 256*4 wide (10 bits), and angles have 32 bits
 #define ANGLETOSKYSHIFT  (32 - 10)
 
-extern flo_t skytexturemid;
+extern float skytexturemid;
 
 extern const struct image_s *sky_image;
 
 // -ES- 1999-04-11 Added This
-extern flo_t skytexturescale;
+extern float skytexturescale;
 
 // Called every frame.
 void R_InitSkyMap(void);

@@ -537,8 +537,8 @@ int DDF_CompareName(const char *A, const char *B)
 	return toupper(*A) - toupper(*B);
 }
 
-static boolean_t ThingTryParseState(const char *field, 
-									const char *contents, int index, boolean_t is_last)
+static bool ThingTryParseState(const char *field, 
+									const char *contents, int index, bool is_last)
 {
 	int i;
 	const state_starter_t *starter;
@@ -583,10 +583,10 @@ static boolean_t ThingTryParseState(const char *field,
 //  DDF PARSE ROUTINES
 //
 
-static boolean_t ThingStartEntry(const char *buffer)
+static bool ThingStartEntry(const char *buffer)
 {
 	int i;
-	boolean_t replaces = false;
+	bool replaces = false;
 
 	char namebuf[200];
 	int number = 0;
@@ -642,7 +642,7 @@ static boolean_t ThingStartEntry(const char *buffer)
 }
 
 void ThingParseField(const char *field, const char *contents,
-					 int index, boolean_t is_last)
+					 int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	L_WriteDebug("THING_PARSE: %s = %s;\n", field, contents);
@@ -892,7 +892,7 @@ const mobjinfo_t *DDF_MobjLookupCast(int castnum)
 // the string.
 //
 static int ParseBenefitString(const char *info, char *name,
-							  flo_t *value, flo_t *limit)
+							  float *value, float *limit)
 {
 	int len = strlen(info);
 
@@ -938,7 +938,7 @@ static int ParseBenefitString(const char *info, char *name,
 //  false.
 //
 
-static boolean_t BenefitTryAmmo(const char *name, benefit_t *be,
+static bool BenefitTryAmmo(const char *name, benefit_t *be,
 								int num_vals)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, ammo_types, 
@@ -971,7 +971,7 @@ static boolean_t BenefitTryAmmo(const char *name, benefit_t *be,
 	return true;
 }
 
-static boolean_t BenefitTryAmmoLimit(const char *name, benefit_t *be,
+static bool BenefitTryAmmoLimit(const char *name, benefit_t *be,
 									 int num_vals)
 {
 	char namebuf[200];
@@ -1015,7 +1015,7 @@ static boolean_t BenefitTryAmmoLimit(const char *name, benefit_t *be,
 	return true;
 }
 
-static boolean_t BenefitTryWeapon(const char *name, benefit_t *be,
+static bool BenefitTryWeapon(const char *name, benefit_t *be,
 								  int num_vals)
 {
 	be->subtype = DDF_WeaponLookup(name);
@@ -1043,7 +1043,7 @@ static boolean_t BenefitTryWeapon(const char *name, benefit_t *be,
 	return true;
 }
 
-static boolean_t BenefitTryKey(const char *name, benefit_t *be,
+static bool BenefitTryKey(const char *name, benefit_t *be,
 							   int num_vals)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, keytype_names, 
@@ -1072,7 +1072,7 @@ static boolean_t BenefitTryKey(const char *name, benefit_t *be,
 	return true;
 }
 
-static boolean_t BenefitTryHealth(const char *name, benefit_t *be,
+static bool BenefitTryHealth(const char *name, benefit_t *be,
 								  int num_vals)
 {
 	if (DDF_CompareName(name, "HEALTH") != 0)
@@ -1093,7 +1093,7 @@ static boolean_t BenefitTryHealth(const char *name, benefit_t *be,
 	return true;
 }
 
-static boolean_t BenefitTryArmour(const char *name, benefit_t *be,
+static bool BenefitTryArmour(const char *name, benefit_t *be,
 								  int num_vals)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, armourtype_names, 
@@ -1125,7 +1125,7 @@ static boolean_t BenefitTryArmour(const char *name, benefit_t *be,
 	return true;
 }
 
-static boolean_t BenefitTryPowerup(const char *name, benefit_t *be,
+static bool BenefitTryPowerup(const char *name, benefit_t *be,
 								   int num_vals)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, powertype_names, 
@@ -1463,7 +1463,7 @@ const mobjinfo_t *DDF_MobjLookupPlayer(int playernum)
 //  accodingly.  Otherwise returns false.
 //
 
-static boolean_t ConditionTryAmmo(const char *name, const char *sub,
+static bool ConditionTryAmmo(const char *name, const char *sub,
 								  condition_check_t *cond)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, ammo_types, 
@@ -1485,7 +1485,7 @@ static boolean_t ConditionTryAmmo(const char *name, const char *sub,
 	return true;
 }
 
-static boolean_t ConditionTryWeapon(const char *name, const char *sub,
+static bool ConditionTryWeapon(const char *name, const char *sub,
 									condition_check_t *cond)
 {
 	cond->subtype = DDF_WeaponLookup(name);
@@ -1497,7 +1497,7 @@ static boolean_t ConditionTryWeapon(const char *name, const char *sub,
 	return true;
 }
 
-static boolean_t ConditionTryKey(const char *name, const char *sub,
+static bool ConditionTryKey(const char *name, const char *sub,
 								 condition_check_t *cond)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, keytype_names, 
@@ -1510,7 +1510,7 @@ static boolean_t ConditionTryKey(const char *name, const char *sub,
 	return true;
 }
 
-static boolean_t ConditionTryHealth(const char *name, const char *sub,
+static bool ConditionTryHealth(const char *name, const char *sub,
 									condition_check_t *cond)
 {
 	if (DDF_CompareName(name, "HEALTH") != 0)
@@ -1523,7 +1523,7 @@ static boolean_t ConditionTryHealth(const char *name, const char *sub,
 	return true;
 }
 
-static boolean_t ConditionTryArmour(const char *name, const char *sub,
+static bool ConditionTryArmour(const char *name, const char *sub,
 									condition_check_t *cond)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, armourtype_names, 
@@ -1539,7 +1539,7 @@ static boolean_t ConditionTryArmour(const char *name, const char *sub,
 	return true;
 }
 
-static boolean_t ConditionTryPowerup(const char *name, const char *sub,
+static bool ConditionTryPowerup(const char *name, const char *sub,
 									 condition_check_t *cond)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, powertype_names, 
@@ -1555,7 +1555,7 @@ static boolean_t ConditionTryPowerup(const char *name, const char *sub,
 	return true;
 }
 
-static boolean_t ConditionTryPlayerState(const char *name, const char *sub,
+static bool ConditionTryPlayerState(const char *name, const char *sub,
 										 condition_check_t *cond)
 {
 	return (CHKF_Positive == DDF_MainCheckSpecialFlag(name, 
@@ -1567,7 +1567,7 @@ static boolean_t ConditionTryPlayerState(const char *name, const char *sub,
 //
 // Returns `false' if parsing failed.
 //
-boolean_t DDF_MainParseCondition(const char *info, condition_check_t *cond)
+bool DDF_MainParseCondition(const char *info, condition_check_t *cond)
 {
 	char typebuf[100];
 	char sub_buf[100];

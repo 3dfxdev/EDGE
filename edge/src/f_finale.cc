@@ -63,7 +63,7 @@ finalestage_e;
 static int finalestage;
 
 // -ES- 2000/03/11 skip to the next finale stage
-static boolean_t skip_finale;
+static bool skip_finale;
 static int finalecount;
 static int picnum;
 
@@ -76,10 +76,10 @@ static int newgameaction;
 static const finale_t *finale;
 static void StartCast(void);
 static void CastTicker(void);
-static boolean_t CastResponder(event_t * ev);
+static bool CastResponder(event_t * ev);
 
 static const image_t *finale_textback;
-static flo_t finale_textbackscale;
+static float finale_textbackscale;
 static const image_t *finale_bossback;
 
 //
@@ -123,7 +123,7 @@ void F_StartFinale(const finale_t *f, int newaction)
   F_Ticker();
 }
 
-boolean_t F_Responder(event_t * event)
+bool F_Responder(event_t * event)
 {
   int i;
 
@@ -320,10 +320,10 @@ static void TextWrite(void)
 static const mobjinfo_t *castorder;
 static int casttics;
 static state_t *caststate;
-static boolean_t castdeath;
+static bool castdeath;
 static int castframes;
 static int castonmelee;
-static boolean_t castattacking;
+static bool castattacking;
 static int shotsfxchannel = -1;
 
 //
@@ -535,7 +535,7 @@ static void CastTicker(void)
 //
 // CastResponder
 //
-static boolean_t CastResponder(event_t * ev)
+static bool CastResponder(event_t * ev)
 {
   if (ev->type != ev_keydown)
     return false;
@@ -575,7 +575,7 @@ static void CastPrint(char *text)
 static void CastDrawer(void)
 {
   const image_t *image;
-  boolean_t flip;
+  bool flip;
 
   // erase the entire screen to a background
   // -KM- 1998/07/21 Clear around the pic too.

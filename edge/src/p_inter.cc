@@ -53,15 +53,15 @@
 // -ACB- 1998/06/19 DDF Change: Number passed is the exact amount of ammo given.
 // -KM- 1998/11/25 Handles weapon change from priority.
 //
-static boolean_t GiveAmmo(player_t * player, mobj_t * special,
-    benefit_t *be, boolean_t lose_em)
+static bool GiveAmmo(player_t * player, mobj_t * special,
+    benefit_t *be, bool lose_em)
 {
   int dropped = (special && (special->flags & MF_DROPPED));
 
   int ammo  = be->subtype;  
   int num   = floor(be->amount) / (dropped ? 2 : 1);
 
-  boolean_t change_weap;
+  bool change_weap;
   int priority = -100;
 
   if (ammo == AM_NoAmmo || num <= 0)
@@ -118,8 +118,8 @@ static boolean_t GiveAmmo(player_t * player, mobj_t * special,
 //
 // GiveAmmoLimit
 //
-static boolean_t GiveAmmoLimit(player_t * player, mobj_t * special,
-    benefit_t *be, boolean_t lose_em)
+static bool GiveAmmoLimit(player_t * player, mobj_t * special,
+    benefit_t *be, bool lose_em)
 {
   int ammo  = be->subtype;  
   int limit = floor(be->amount);
@@ -147,8 +147,8 @@ static boolean_t GiveAmmoLimit(player_t * player, mobj_t * special,
 //
 // -AJA- 2000/03/02: Reworked for new benefit_t stuff.
 //
-static boolean_t GiveWeapon(player_t * player, mobj_t * special,
-    benefit_t *be, boolean_t lose_em)
+static bool GiveWeapon(player_t * player, mobj_t * special,
+    benefit_t *be, bool lose_em)
 {
   weaponinfo_t *info = weaponinfo[be->subtype];
   int pw_index;
@@ -174,8 +174,8 @@ static boolean_t GiveWeapon(player_t * player, mobj_t * special,
 //
 // New Procedure: -ACB- 1998/06/21
 //
-static boolean_t GiveHealth(player_t * player, mobj_t * special,
-    benefit_t *be, boolean_t lose_em)
+static bool GiveHealth(player_t * player, mobj_t * special,
+    benefit_t *be, bool lose_em)
 {
   if (lose_em)
   {
@@ -203,8 +203,8 @@ static boolean_t GiveHealth(player_t * player, mobj_t * special,
 //
 // -ACB- 1998/06/21
 //
-static boolean_t GiveArmour(player_t * player, mobj_t * special,
-    benefit_t *be, boolean_t lose_em)
+static bool GiveArmour(player_t * player, mobj_t * special,
+    benefit_t *be, bool lose_em)
 {
   armour_type_e a_class = (armour_type_e)be->subtype;
   
@@ -232,7 +232,7 @@ static boolean_t GiveArmour(player_t * player, mobj_t * special,
 //
 // GiveKey
 //
-static boolean_t GiveKey(player_t * player, mobj_t * special, benefit_t *be, boolean_t lose_em)
+static bool GiveKey(player_t * player, mobj_t * special, benefit_t *be, bool lose_em)
 {
   keys_e key = (keys_e)be->subtype;
  
@@ -267,14 +267,14 @@ static boolean_t GiveKey(player_t * player, mobj_t * special, benefit_t *be, boo
 // included is the use of limit, which gives a maxmium amount of protection
 // for this item. -ACB- 1998/06/20
 //
-static boolean_t GivePower(player_t * player, mobj_t * special,
-    benefit_t *be, boolean_t lose_em)
+static bool GivePower(player_t * player, mobj_t * special,
+    benefit_t *be, bool lose_em)
 { 
   int i;
 
   // -ACB- 1998/06/20 - calculate duration in seconds
-  flo_t duration = be->amount * TICRATE;
-  flo_t limit    = be->limit  * TICRATE;
+  float duration = be->amount * TICRATE;
+  float limit    = be->limit  * TICRATE;
 
   if (lose_em)
   {
@@ -326,19 +326,19 @@ static boolean_t GivePower(player_t * player, mobj_t * special,
 // benefits should be taken away instead.  Returns true if _any_
 // benefit was picked up (or lost), or false if none of them were.
 //
-boolean_t P_GiveBenefitList(player_t *player, mobj_t * special, 
-    benefit_t *list, boolean_t lose_em)
+bool P_GiveBenefitList(player_t *player, mobj_t * special, 
+    benefit_t *list, bool lose_em)
 {
-  boolean_t pickup = false;
+  bool pickup = false;
   // is it a weapon that will stay in old deathmatch?
-  boolean_t dm_weapon = false;
+  bool dm_weapon = false;
 
   // leave placed weapons forever in old deathmatch mode
   // but only if we haven't already picked it up.
  
 #if 0  // FIXME
   // is it a old deathmatch weapon that we have any use for?
-  boolean_t dm_needweapon = false;
+  bool dm_needweapon = false;
   if (!lose_em && netgame && deathmatch <= 1)
   {
     benefit_t *b;
@@ -417,9 +417,9 @@ boolean_t P_GiveBenefitList(player_t *player, mobj_t * special,
 void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 {
   player_t *player;
-  flo_t delta;
+  float delta;
   sfx_t *sound;
-  boolean_t pickup = false;
+  bool pickup = false;
 
   delta = special->z - toucher->z;
 
@@ -492,7 +492,7 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_t *damtype)
 {
   const mobjinfo_t *item;
   statenum_t state;
-  boolean_t overkill;
+  bool overkill;
 
   target->flags &= ~(MF_SPECIAL | MF_SHOOTABLE | MF_FLOAT | 
       MF_SKULLFLY | MF_TOUCHY);
@@ -606,10 +606,10 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_t *damtype)
 //
 // -AJA- 1999/11/06: Wrote this routine.
 //
-void P_ThrustMobj(mobj_t * target, mobj_t * source, flo_t thrust)
+void P_ThrustMobj(mobj_t * target, mobj_t * source, float thrust)
 {
-  flo_t dx, dy, dz;
-  flo_t push, slope;
+  float dx, dy, dz;
+  float push, slope;
   angle_t angle;
 
   dx = target->x - source->x;
@@ -654,11 +654,11 @@ void P_ThrustMobj(mobj_t * target, mobj_t * source, flo_t thrust)
 //       routine can be called by TryMove/PIT_CheckRelThing/etc.
 //
 void P_DamageMobj(mobj_t * target, mobj_t * inflictor, 
-    mobj_t * source, flo_t damage, const damage_t * damtype)
+    mobj_t * source, float damage, const damage_t * damtype)
 {
   player_t *player;
   statenum_t state;
-  flo_t saved = 0;
+  float saved = 0;
   int i;
 
   if (!(target->flags & MF_SHOOTABLE))

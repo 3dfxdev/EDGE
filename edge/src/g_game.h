@@ -44,7 +44,7 @@ void G_InitNew(int skill, const mapstuff_t * map, long random_seed);
 //
 // -ACB- 1998/08/10 New DDF Structure, Use map reference name.
 //
-boolean_t G_DeferedInitNew(int skill, const char *mapname, boolean_t warpopt);
+bool G_DeferedInitNew(int skill, const char *mapname, bool warpopt);
 
 void G_DeferedPlayDemo(const char *demo);
 
@@ -64,7 +64,7 @@ void G_BeginRecording(void);
 
 void G_PlayDemo(const char *name);
 void G_TimeDemo(const char *name);
-boolean_t G_CheckDemoStatus(void);
+bool G_CheckDemoStatus(void);
 void G_PlayerReborn(player_t *player);
 
 void G_SetTurboScale(int scale);
@@ -77,14 +77,14 @@ void G_ExitToLevel(char *name, int time);
 void G_WorldDone(void);
 
 void G_Ticker(void);
-boolean_t G_Responder(event_t * ev);
+bool G_Responder(event_t * ev);
 
 void G_BuildTiccmd(ticcmd_t *cmd);
 
 void G_ScreenShot(void);
 
-boolean_t G_CheckWhenAppear(when_appear_e appear);
-boolean_t G_CheckConditions(mobj_t *mo, condition_check_t *cond);
+bool G_CheckWhenAppear(when_appear_e appear);
+bool G_CheckConditions(mobj_t *mo, condition_check_t *cond);
 char *G_FileNameFromSlot(int slot);
 
 #endif

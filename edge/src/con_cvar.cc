@@ -66,7 +66,7 @@ static void GetValue_Enum(const void *val, const void **dest)
   *dest = v->value;
 }
 
-static boolean_t SetValue_Enum(cvar_t * cvar, int argc, const char **argv)
+static bool SetValue_Enum(cvar_t * cvar, int argc, const char **argv)
 {
   cvar_enum_t *v = (cvar_enum_t *)cvar->value;
   long n;
@@ -143,10 +143,10 @@ static int CON_AddValueToEnum(cvar_enum_t *e, const char *name)
 /*** funclist_t type ***/
 
 
-/*** boolean_t type ***/
+/*** bool type ***/
 static void GetValueStr_Bool(void *val, char s[1024])
 {
-  boolean_t *v = (boolean_t *)val;
+  bool *v = (bool *)val;
 
   if (*v)
     strcpy(s, "true");
@@ -155,14 +155,14 @@ static void GetValueStr_Bool(void *val, char s[1024])
 }
 
 
-static boolean_t SetValue_Bool(cvar_t * cvar, int argc, const char **argv)
+static bool SetValue_Bool(cvar_t * cvar, int argc, const char **argv)
 {
   if (0 == stricmp(argv[0], "true") || 0 == stricmp(argv[0], "yes") ||
       0 == strcmp(argv[0], "1"))
-    *(boolean_t *) (cvar->value) = true;
+    *(bool *) (cvar->value) = true;
   else if (0 == stricmp(argv[0], "false") || 0 == stricmp(argv[0], "no") ||
       0 == strcmp(argv[0], "0"))
-    *(boolean_t *) (cvar->value) = false;
+    *(bool *) (cvar->value) = false;
   else
     return false;
   return true;
@@ -176,20 +176,20 @@ static const char *GetType_Bool(cvar_t * cvar)
 /*** Real type ***/
 static void GetValueStr_Real(void *val, char s[1024])
 {
-  flo_t *v = (flo_t *)val;
+  float *v = (float *)val;
 
   sprintf(s, "%f", (double)*v);
 }
 
-static boolean_t SetValue_Real(cvar_t * cvar, int argc, const char **argv)
+static bool SetValue_Real(cvar_t * cvar, int argc, const char **argv)
 {
-  flo_t *v = (flo_t *)cvar->value;
+  float *v = (float *)cvar->value;
   double f;
 
   if (1 != sscanf(argv[0], "%lf", &f))
     return false;
 
-  *v = (flo_t)f;
+  *v = (float)f;
 
   return true;
 }
@@ -221,7 +221,7 @@ static void GetValue_Str(const void *val, const void **dest)
   *dest = v->val;
 }
 
-static boolean_t SetValue_Str(cvar_t * cvar, int argc, const char **argv)
+static bool SetValue_Str(cvar_t * cvar, int argc, const char **argv)
 {
   cvar_str_t *v = (cvar_str_t *)cvar->value;
   char *s;
@@ -288,7 +288,7 @@ static void GetValueStr_Int(void *val, char s[1024])
   sprintf(s, "%d", *v);
 }
 
-static boolean_t SetValue_Int(cvar_t * cvar, int argc, const char **argv)
+static bool SetValue_Int(cvar_t * cvar, int argc, const char **argv)
 {
   int *v = (int*)cvar->value;
 
@@ -345,9 +345,9 @@ static void GetValue_Callback(const void *val, const void **dest)
   v->type->get_value(v->value, dest);
 }
 
-static boolean_t SetValue_Callback(cvar_t * cvar, int argc, const char **argv)
+static bool SetValue_Callback(cvar_t * cvar, int argc, const char **argv)
 {
-  boolean_t ok;
+  bool ok;
   cvar_callback_t *v = (cvar_callback_t *)cvar->value;
   const cvartype_t *type = cvar->type;
 
@@ -430,7 +430,7 @@ const void *CON_CVarGetValue(const cvar_t * var)
   return ret;
 }
 
-boolean_t CON_GetCVar(const char *name, const void **value)
+bool CON_GetCVar(const char *name, const void **value)
 {
   cvar_t *var;
 
@@ -447,7 +447,7 @@ boolean_t CON_GetCVar(const char *name, const void **value)
   return true;
 }
 
-boolean_t CON_CreateCVar(const char *name, cflag_t flags, const cvartype_t * type, void *value)
+bool CON_CreateCVar(const char *name, cflag_t flags, const cvartype_t * type, void *value)
 {
   cvar_t *var = CON_CVarPtrFromName(name);
 
@@ -475,7 +475,7 @@ boolean_t CON_CreateCVar(const char *name, cflag_t flags, const cvartype_t * typ
   return true;
 }
 
-boolean_t CON_SetCVar(const char *name, const char *value)
+bool CON_SetCVar(const char *name, const char *value)
 {
   cvar_t *var;
 
@@ -491,7 +491,7 @@ boolean_t CON_SetCVar(const char *name, const char *value)
   return false;
 }
 
-boolean_t CON_DeleteCVar(const char *name)
+bool CON_DeleteCVar(const char *name)
 {
   int i = CON_CVarIndexFromName(name);
 
@@ -511,11 +511,11 @@ boolean_t CON_DeleteCVar(const char *name)
   return true;
 }
 
-boolean_t CON_CreateCVarBool(const char *name, cflag_t flags, boolean_t * value)
+bool CON_CreateCVarBool(const char *name, cflag_t flags, bool * value)
 {
   if (!value)
   {
-    value = Z_New(boolean_t, 1);
+    value = Z_New(bool, 1);
     flags = (cflag_t)(flags | cf_mem);
     *value = false;
   }
@@ -523,7 +523,7 @@ boolean_t CON_CreateCVarBool(const char *name, cflag_t flags, boolean_t * value)
   return CON_CreateCVar(name, flags, &cvar_bool, value);
 }
 
-boolean_t CON_CreateCVarInt(const char *name, cflag_t flags, int *value)
+bool CON_CreateCVarInt(const char *name, cflag_t flags, int *value)
 {
   if (!value)
   {
@@ -536,11 +536,11 @@ boolean_t CON_CreateCVarInt(const char *name, cflag_t flags, int *value)
   return CON_CreateCVar(name, flags, &cvar_int, value);
 }
 
-boolean_t CON_CreateCVarReal(const char *name, cflag_t flags, flo_t * value)
+bool CON_CreateCVarReal(const char *name, cflag_t flags, float * value)
 {
   if (!value)
   {
-    value = Z_New(flo_t, 1);
+    value = Z_New(float, 1);
     *value = 0;
     flags = (cflag_t)(flags|cf_mem);
   }
@@ -554,7 +554,7 @@ boolean_t CON_CreateCVarReal(const char *name, cflag_t flags, flo_t * value)
 // maxlen shows the maximum string length of value. At least maxlen+1
 // characters must be allocated.
 //
-boolean_t CON_CreateCVarStr(const char *name, cflag_t flags, char *value, int maxlen)
+bool CON_CreateCVarStr(const char *name, cflag_t flags, char *value, int maxlen)
 {
   cvar_str_t *v;
 
@@ -590,7 +590,7 @@ boolean_t CON_CreateCVarStr(const char *name, cflag_t flags, char *value, int ma
 // -ACB- 1999/09/23 Removed alloca() references (not portable).
 //                  Replaced with malloc with Z_New. Don't waste mem.
 //
-boolean_t CON_CreateCVarEnum(const char *name, cflag_t flags, void *value, const char *names, int num)
+bool CON_CreateCVarEnum(const char *name, cflag_t flags, void *value, const char *names, int num)
 {
   cvar_enum_t *v;
   int i;

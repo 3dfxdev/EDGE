@@ -93,7 +93,7 @@ extern savearray_t sv_array_plane_move;
 //
 // SR_GetByte
 //
-boolean_t SR_GetByte(void *storage, int index, void *extra)
+bool SR_GetByte(void *storage, int index, void *extra)
 {
   ((unsigned char *)storage)[index] = SV_GetByte();
   return true;
@@ -102,7 +102,7 @@ boolean_t SR_GetByte(void *storage, int index, void *extra)
 //
 // SR_GetShort
 //
-boolean_t SR_GetShort(void *storage, int index, void *extra)
+bool SR_GetShort(void *storage, int index, void *extra)
 {
   ((unsigned short *)storage)[index] = SV_GetShort();
   return true;
@@ -111,7 +111,7 @@ boolean_t SR_GetShort(void *storage, int index, void *extra)
 //
 // SR_GetInt
 //
-boolean_t SR_GetInt(void *storage, int index, void *extra)
+bool SR_GetInt(void *storage, int index, void *extra)
 {
   ((unsigned int *)storage)[index] = SV_GetInt();
   return true;
@@ -120,7 +120,7 @@ boolean_t SR_GetInt(void *storage, int index, void *extra)
 //
 // SR_GetFixed
 //
-boolean_t SR_GetFixed(void *storage, int index, void *extra)
+bool SR_GetFixed(void *storage, int index, void *extra)
 {
   ((fixed_t *)storage)[0] = SV_GetFixed();
   return true;
@@ -129,7 +129,7 @@ boolean_t SR_GetFixed(void *storage, int index, void *extra)
 //
 // SR_GetAngle
 //
-boolean_t SR_GetAngle(void *storage, int index, void *extra)
+bool SR_GetAngle(void *storage, int index, void *extra)
 {
   ((angle_t *)storage)[index] = SV_GetAngle();
   return true;
@@ -138,16 +138,16 @@ boolean_t SR_GetAngle(void *storage, int index, void *extra)
 //
 // SR_GetFloat
 //
-boolean_t SR_GetFloat(void *storage, int index, void *extra)
+bool SR_GetFloat(void *storage, int index, void *extra)
 {
-  ((flo_t *)storage)[index] = SV_GetFloat();
+  ((float *)storage)[index] = SV_GetFloat();
   return true;
 }
 
 //
 // SR_GetVec2
 //
-boolean_t SR_GetVec2(void *storage, int index, void *extra)
+bool SR_GetVec2(void *storage, int index, void *extra)
 {
   ((vec2_t *)storage)[index].x = SV_GetFloat();
   ((vec2_t *)storage)[index].y = SV_GetFloat();
@@ -157,7 +157,7 @@ boolean_t SR_GetVec2(void *storage, int index, void *extra)
 //
 // SR_GetVec3
 //
-boolean_t SR_GetVec3(void *storage, int index, void *extra)
+bool SR_GetVec3(void *storage, int index, void *extra)
 {
   ((vec3_t *)storage)[index].x = SV_GetFloat();
   ((vec3_t *)storage)[index].y = SV_GetFloat();
@@ -168,9 +168,9 @@ boolean_t SR_GetVec3(void *storage, int index, void *extra)
 //
 // SR_GetIntAsFloat
 //
-boolean_t SR_GetIntAsFloat(void *storage, int index, void *extra)
+bool SR_GetIntAsFloat(void *storage, int index, void *extra)
 {
-  ((flo_t *)storage)[index] = (flo_t)SV_GetInt();
+  ((float *)storage)[index] = (float)SV_GetInt();
   return true;
 }
 
@@ -225,7 +225,7 @@ void SR_PutAngle(void *storage, int index, void *extra)
 //
 void SR_PutFloat(void *storage, int index, void *extra)
 {
-  SV_PutFloat(((flo_t *)storage)[index]);
+  SV_PutFloat(((float *)storage)[index]);
 }
 
 //
@@ -272,7 +272,7 @@ static void AddKnownArray(savearray_t *A)
 // One-time initialisation.  Sets up lists of known structures and
 // arrays.
 //
-boolean_t SV_MainInit(void)
+bool SV_MainInit(void)
 {
   // sv_mobj.c
   AddKnownStruct(&sv_struct_mobj);
@@ -458,7 +458,7 @@ void SV_MainTestPrimitives(void)
   
   for (i=0; i < 17; i++)
   {
-    flo_t val = SV_GetFloat();
+    float val = SV_GetFloat();
     L_WriteDebug("TEST FLOAT: %1.6f\n", val);
   }
   

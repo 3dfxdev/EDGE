@@ -65,22 +65,22 @@ const char *chat_macros[10];
 
 H_font_t hu_font;
 
-boolean_t chat_on;
+bool chat_on;
 static hu_textline_t w_title;
 static hu_itext_t w_chat;
-static boolean_t always_off = false;
+static bool always_off = false;
 
 static char *chat_dest;
 static hu_itext_t *w_inputbuffer;
 
-boolean_t message_dontfuckwithme;
-static boolean_t message_on;
-static boolean_t message_nottobefuckedwith;
+bool message_dontfuckwithme;
+static bool message_on;
+static bool message_nottobefuckedwith;
 
 static hu_stext_t w_message;
 static int message_counter;
 
-static boolean_t headsupactive = false;
+static bool headsupactive = false;
 
 // 23-6-98 KM Added a line showing the current limits in the
 // render code.  Note that these are not really limits,
@@ -147,7 +147,7 @@ static const unsigned char shiftxform[] =
 //
 // Heads-up Init
 //
-boolean_t HU_Init(void)
+bool HU_Init(void)
 {
   int i;
   char buffer[10];
@@ -316,7 +316,7 @@ void HU_Drawer(void)
   if (showstats)
   {
     static int numframes = 0, lasttime = 0;
-    static flo_t fps = 0, mspf = 0;
+    static float fps = 0, mspf = 0;
 
     char textbuf[100];
     char *s;
@@ -328,8 +328,8 @@ void HU_Drawer(void)
 
     if (timediff > 70)
     {
-      fps  = (flo_t) (numframes * TICRATE) / (flo_t) timediff;
-      mspf = (flo_t) timediff * 1000.0 / (flo_t) (numframes * TICRATE);
+      fps  = (float) (numframes * TICRATE) / (float) timediff;
+      mspf = (float) timediff * 1000.0 / (float) (numframes * TICRATE);
 
       lasttime = currtime;
       numframes = 0;
@@ -563,13 +563,13 @@ char HU_DequeueChatChar(void)
 
 const char *destination_keys;
 
-boolean_t HU_Responder(event_t * ev)
+bool HU_Responder(event_t * ev)
 {
   static char lastmessage[HU_MAXLINELENGTH + 1];
   const char *macromessage;
-  boolean_t eatkey = false;
-  static boolean_t shiftdown = false;
-  static boolean_t altdown = false;
+  bool eatkey = false;
+  static bool shiftdown = false;
+  static bool altdown = false;
   unsigned char c;
   player_t *p;
   int numplayers;

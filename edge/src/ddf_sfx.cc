@@ -100,10 +100,10 @@ bastard_sfx_t bastard_sfx[] =
 //  DDF PARSE ROUTINES
 //
 
-static boolean_t SoundStartEntry(const char *name)
+static bool SoundStartEntry(const char *name)
 {
   int i;
-  boolean_t replaces = false;
+  bool replaces = false;
 
   if (name && name[0])
   {
@@ -146,7 +146,7 @@ static boolean_t SoundStartEntry(const char *name)
 }
 
 static void SoundParseField(const char *field, const char *contents,
-    int index, boolean_t is_last)
+    int index, bool is_last)
 {
 #if (DEBUG_DDF)  
   L_WriteDebug("SOUND_PARSE: %s = %s;\n", field, contents);

@@ -51,7 +51,7 @@ typedef struct video_context_s
 	// everything to be re-drawn at each frame.  When true, the dirty
 	// matrix logic cannot be used.
   
-	boolean_t double_buffered;
+	bool double_buffered;
 
 	// This routine should inform the lower level system(s) that the
 	// screen has changed size/depth.  New size/depth is given.  Must be
@@ -85,8 +85,8 @@ typedef struct video_context_s
 	// clipped to the current clipping rectangle.
   
 	void (* DrawImage)(int x, int y, int w, int h, const image_t *image,
-					   flo_t tx1, flo_t ty1, flo_t tx2, flo_t ty2,
-					   const colourmap_t *colmap, flo_t alpha);
+					   float tx1, float ty1, float tx2, float ty2,
+					   const colourmap_t *colmap, float alpha);
  
 	// Draw a solid colour box (possibly translucent) in the given
 	// rectangle.  Coordinates are inclusive.  Alpha ranges from 0
@@ -95,7 +95,7 @@ typedef struct video_context_s
 	// rectangle.
   
 	void (* SolidBox)(int x, int y, int w, int h,
-					  int colour, flo_t alpha);
+					  int colour, float alpha);
  
 	// Draw a solid colour line (possibly translucent) between the two
 	// end points.  Coordinates are inclusive.  Used for the automap.

@@ -119,10 +119,10 @@ typedef struct region_properties_s
 	const specialsector_t *special;
 
 	// -KM- 1998/10/29 Added gravity + friction
-	flo_t gravity;
-	flo_t friction;
-	flo_t viscosity;
-	flo_t drag;
+	float gravity;
+	float friction;
+	float viscosity;
+	float drag;
 
     // pushing sector information (normally all zero)
 	vec3_t push;
@@ -140,7 +140,7 @@ typedef struct surface_s
 {
 	const struct image_s *image;
 
-	flo_t translucency;
+	float translucency;
 
 	// transformation matrix (usually identity)
 	vec2_t x_mat;
@@ -179,7 +179,7 @@ typedef struct extrafloor_s
     // in the dummy sector, EXCEPT during the process of moving the
     // extrafloor.
     //
-	flo_t top_h, bottom_h;
+	float top_h, bottom_h;
 
 	// top/bottom surfaces of the extrafloor
 	surface_t *top;
@@ -208,8 +208,8 @@ extrafloor_t;
 //
 typedef struct
 {
-	flo_t f;  // floor
-	flo_t c;  // ceiling
+	float f;  // floor
+	float c;  // ceiling
 }
 vgap_t;
 
@@ -222,7 +222,7 @@ struct subsector_s;
 typedef struct sector_s
 {
 	// floor and ceiling heights
-	flo_t f_h, c_h;
+	float f_h, c_h;
 
 	surface_t floor, ceil;
 
@@ -288,7 +288,7 @@ typedef struct sector_s
 	touch_node_t *touch_things;
     
 	// sky height for GL renderer
-	flo_t sky_h;
+	float sky_h;
  
 	// keep track of vertical sight gaps within the sector.  This is
 	// just a much more convenient form of the info in the extrafloor
@@ -320,10 +320,10 @@ typedef struct wall_tile_s
 	// vertical extent of this tile.  The seg determines the horizontal
 	// extent.
 	// 
-	flo_t z1, z2;
+	float z1, z2;
 
     // texturing top, in world coordinates
-	flo_t tex_z;
+	float tex_z;
 
 	// various flags
 	int flags;
@@ -357,7 +357,7 @@ typedef struct side_s
 	wall_tile_t *tiles;
 
 	// midmasker Y offset
-	flo_t midmask_offset;
+	float midmask_offset;
 }
 side_t;
 
@@ -383,9 +383,9 @@ typedef struct line_s
 	vertex_t *v2;
 
 	// Precalculated v2 - v1 for side checking.
-	flo_t dx;
-	flo_t dy;
-	flo_t length;
+	float dx;
+	float dy;
+	float length;
 
 	// Animation related.
 	int flags;
@@ -405,7 +405,7 @@ typedef struct line_s
 	sector_t *backsector;
 
     // Neat. Another bounding box, for the extent of the LineDef.
-	flo_t bbox[4];
+	float bbox[4];
 
 	// To aid move clipping.
 	slopetype_t slopetype;
@@ -417,7 +417,7 @@ typedef struct line_s
 	// Always true for 1s lines.  Always false when both sides of the
 	// line reference the same sector.
 	//
-	boolean_t blocked;
+	bool blocked;
 
     // -AJA- 1999/07/19: Extra floor support.  We now keep track of the
     // gaps between the front & back sectors here, instead of computing
@@ -458,7 +458,7 @@ typedef struct subsector_s
 	mobj_t *thinglist;
 
 	// pointer to bounding box (usually in parent node)
-	flo_t *bbox;
+	float *bbox;
 
 	// -- Rendering stuff (only used during rendering) --
 
@@ -496,7 +496,7 @@ typedef struct seg_s
 	vertex_t *v2;
 
 	angle_t angle;
-	flo_t length;
+	float length;
 
 	// link in subsector list.
 	// (NOTE: sorted in clockwise order)
@@ -518,9 +518,9 @@ typedef struct seg_s
 	//       closed convex polygon.  When the `miniseg' field is true,
 	//       all the fields below it are unused.
 	//
-	boolean_t miniseg;
+	bool miniseg;
 
-	flo_t offset;
+	float offset;
 
 	side_t *sidedef;
 	line_t *linedef;
@@ -533,17 +533,17 @@ typedef struct seg_s
 
 	// -- Rendering stuff (only used during rendering) --
 
-	boolean_t visible;
-	boolean_t back;
+	bool visible;
+	bool back;
 
 	unsigned short x1, x2;
 	angle_t angle1, angle2;
-	flo_t scale1, scale2;
-	flo_t rw_distance, rw_offset;
+	float scale1, scale2;
+	float rw_distance, rw_offset;
 
 	// translated coords
-	flo_t tx1, tz1;
-	flo_t tx2, tz2;
+	float tx1, tz1;
+	float tx2, tz2;
   
 	// orientation.  (Used for sprite clipping)
 	//    0 : not needed for clipping (e.g. parallel to viewplane)
@@ -556,10 +556,10 @@ seg_t;
 // Partition line.
 typedef struct divline_s
 {
-	flo_t x;
-	flo_t y;
-	flo_t dx;
-	flo_t dy;
+	float x;
+	float y;
+	float dx;
+	float dy;
 }
 divline_t;
 
@@ -569,13 +569,13 @@ divline_t;
 typedef struct node_s
 {
 	divline_t div;
-	flo_t div_len;
+	float div_len;
 
 	// If NF_SUBSECTOR its a subsector.
 	unsigned short children[2];
 
 	// Bounding boxes for this node.
-	flo_t bbox[2][4];
+	float bbox[2][4];
 }
 node_t;
 

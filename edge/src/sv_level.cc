@@ -68,15 +68,15 @@ void * SV_SectorGetElem(int index);
 void SV_SectorCreateElems(int num_elems);
 void SV_SectorFinaliseElems(void);
 
-boolean_t SR_LevelGetImage(void *storage, int index, void *extra);
-boolean_t SR_LevelGetColmap(void *storage, int index, void *extra);
-boolean_t SR_LevelGetSurface(void *storage, int index, void *extra);
-boolean_t SR_LevelGetSurfPtr(void *storage, int index, void *extra);
-boolean_t SR_LineGetSpecial(void *storage, int index, void *extra);
-boolean_t SR_SectorGetSpecial(void *storage, int index, void *extra);
-boolean_t SR_SectorGetProps(void *storage, int index, void *extra);
-boolean_t SR_SectorGetPropRef(void *storage, int index, void *extra);
-boolean_t SR_SectorGetGenMove(void *storage, int index, void *extra);
+bool SR_LevelGetImage(void *storage, int index, void *extra);
+bool SR_LevelGetColmap(void *storage, int index, void *extra);
+bool SR_LevelGetSurface(void *storage, int index, void *extra);
+bool SR_LevelGetSurfPtr(void *storage, int index, void *extra);
+bool SR_LineGetSpecial(void *storage, int index, void *extra);
+bool SR_SectorGetSpecial(void *storage, int index, void *extra);
+bool SR_SectorGetProps(void *storage, int index, void *extra);
+bool SR_SectorGetPropRef(void *storage, int index, void *extra);
+bool SR_SectorGetGenMove(void *storage, int index, void *extra);
 
 void SR_LevelPutImage(void *storage, int index, void *extra);
 void SR_LevelPutColmap(void *storage, int index, void *extra);
@@ -757,7 +757,7 @@ void SV_SectorFinaliseElems(void)
 //
 // SR_LevelGetSurface
 //
-boolean_t SR_LevelGetSurface(void *storage, int index, void *extra)
+bool SR_LevelGetSurface(void *storage, int index, void *extra)
 {
 	surface_t *dest = (surface_t *)storage + index;
 
@@ -781,7 +781,7 @@ void SR_LevelPutSurface(void *storage, int index, void *extra)
 //
 // SR_LevelGetSurfPtr
 //
-boolean_t SR_LevelGetSurfPtr(void *storage, int index, void *extra)
+bool SR_LevelGetSurfPtr(void *storage, int index, void *extra)
 {
 	surface_t ** dest = (surface_t **)storage + index;
 
@@ -866,7 +866,7 @@ void SR_LevelPutSurfPtr(void *storage, int index, void *extra)
 //
 // SR_LevelGetImage
 //
-boolean_t SR_LevelGetImage(void *storage, int index, void *extra)
+bool SR_LevelGetImage(void *storage, int index, void *extra)
 {
 	const image_t ** dest = (const image_t **)storage + index;
 	const char *str;
@@ -921,7 +921,7 @@ void SR_LevelPutImage(void *storage, int index, void *extra)
 //
 // SR_LevelGetColmap
 //
-boolean_t SR_LevelGetColmap(void *storage, int index, void *extra)
+bool SR_LevelGetColmap(void *storage, int index, void *extra)
 {
 	const colourmap_t ** dest = (const colourmap_t **)storage + index;
 	const char *str;
@@ -956,7 +956,7 @@ void SR_LevelPutColmap(void *storage, int index, void *extra)
 //
 // SR_LineGetSpecial
 //
-boolean_t SR_LineGetSpecial(void *storage, int index, void *extra)
+bool SR_LineGetSpecial(void *storage, int index, void *extra)
 {
 	const linedeftype_t ** dest = (const linedeftype_t **)storage + index;
 	const char *str;
@@ -1006,7 +1006,7 @@ void SR_LinePutSpecial(void *storage, int index, void *extra)
 //
 // SR_SectorGetSpecial
 //
-boolean_t SR_SectorGetSpecial(void *storage, int index, void *extra)
+bool SR_SectorGetSpecial(void *storage, int index, void *extra)
 {
 	const specialsector_t ** dest = (const specialsector_t **)storage + index;
 	const char *str;
@@ -1058,7 +1058,7 @@ void SR_SectorPutSpecial(void *storage, int index, void *extra)
 //
 // SR_SectorGetProps
 //
-boolean_t SR_SectorGetProps(void *storage, int index, void *extra)
+bool SR_SectorGetProps(void *storage, int index, void *extra)
 {
 	region_properties_t *dest = (region_properties_t *)storage + index;
 
@@ -1082,7 +1082,7 @@ void SR_SectorPutProps(void *storage, int index, void *extra)
 //
 // SR_SectorGetPropRef
 //
-boolean_t SR_SectorGetPropRef(void *storage, int index, void *extra)
+bool SR_SectorGetPropRef(void *storage, int index, void *extra)
 {
 	region_properties_t ** dest = (region_properties_t **)storage + index;
 
@@ -1151,7 +1151,7 @@ void SR_SectorPutPropRef(void *storage, int index, void *extra)
 //
 // SR_LineGetLine
 //
-boolean_t SR_LineGetLine(void *storage, int index, void *extra)
+bool SR_LineGetLine(void *storage, int index, void *extra)
 {
 	line_t ** dest = (line_t **)storage + index;
 
@@ -1177,7 +1177,7 @@ void SR_LinePutLine(void *storage, int index, void *extra)
 //
 // SR_SectorGetSector
 //
-boolean_t SR_SectorGetSector(void *storage, int index, void *extra)
+bool SR_SectorGetSector(void *storage, int index, void *extra)
 {
 	sector_t ** dest = (sector_t **)storage + index;
 
@@ -1202,7 +1202,7 @@ void SR_SectorPutSector(void *storage, int index, void *extra)
 //
 // SR_SectorGetEF
 //
-boolean_t SR_SectorGetEF(void *storage, int index, void *extra)
+bool SR_SectorGetEF(void *storage, int index, void *extra)
 {
 	extrafloor_t ** dest = (extrafloor_t **)storage + index;
 
@@ -1229,7 +1229,7 @@ void SR_SectorPutEF(void *storage, int index, void *extra)
 //
 // SR_ExtrafloorGetInfo
 //
-boolean_t SR_ExtrafloorGetInfo(void *storage, int index, void *extra)
+bool SR_ExtrafloorGetInfo(void *storage, int index, void *extra)
 {
 	const extrafloor_info_t ** dest = 
 		(const extrafloor_info_t **)storage + index;
@@ -1290,7 +1290,7 @@ void SR_ExtrafloorPutInfo(void *storage, int index, void *extra)
 //
 // SR_SectorGetGenMove
 //
-boolean_t SR_SectorGetGenMove(void *storage, int index, void *extra)
+bool SR_SectorGetGenMove(void *storage, int index, void *extra)
 {
 	gen_move_t ** dest = (gen_move_t **)storage + index;
 	gen_move_t *cur;

@@ -52,17 +52,17 @@ extern int showMessages;
 #define HU_MSGTIMEOUT	(4*TICRATE)
 
 extern H_font_t hu_font;
-extern boolean_t chat_on;
-extern boolean_t message_dontfuckwithme;
+extern bool chat_on;
+extern bool message_dontfuckwithme;
 
 //
 // HEADS UP TEXT
 //
 
-boolean_t HU_Init(void);
+bool HU_Init(void);
 void HU_Start(void);
 
-boolean_t HU_Responder(event_t * ev);
+bool HU_Responder(event_t * ev);
 
 void HU_StartMessage(const char *msg);
 

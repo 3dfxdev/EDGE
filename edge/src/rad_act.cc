@@ -120,7 +120,7 @@ static void SetupTip(drawtip_t *cur)
 	int base_x, base_y;
 
 	const char *ch_ptr;
-	boolean_t need_newbie;
+	bool need_newbie;
 
 	hu_textline_t *HU;
 
@@ -239,7 +239,7 @@ static void SendTip(s_tip_t * tip, int slot)
 void RAD_DisplayTips(void)
 {
 	int i, slot;
-	flo_t alpha;
+	float alpha;
 
 	for (slot=0; slot < MAXTIPSLOT; slot++)
 	{
@@ -327,7 +327,7 @@ void RAD_Ticker(void)
 		// handle fading
 		if (current->fade_time > 0)
 		{
-			flo_t diff = current->fade_target - current->p.translucency;
+			float diff = current->fade_target - current->p.translucency;
 
 			current->fade_time--;
 
@@ -717,7 +717,7 @@ void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param)
 		{
 			if (ctex->subtag)
 			{
-				boolean_t valid = false;
+				bool valid = false;
 
 				for (i=0; i < tsec->linecount; i++)
 				{
@@ -795,7 +795,7 @@ void RAD_ActSkill(rad_trigger_t *R, mobj_t *actor, void *param)
 
 static void MoveOneSector(sector_t *sec, s_movesector_t *t)
 {
-	flo_t dh;
+	float dh;
 
 	if (t->relative)
 		dh = t->value;

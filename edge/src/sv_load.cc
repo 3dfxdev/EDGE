@@ -212,7 +212,7 @@ static void StructSkipField(savefield_t *field)
 //
 // The savestruct_t here is the "loaded" one.
 //
-boolean_t SV_LoadStruct(void *base, savestruct_t *info)
+bool SV_LoadStruct(void *base, savestruct_t *info)
 {
   char marker[6];
   savefield_t *cur, *actual;
@@ -271,7 +271,7 @@ boolean_t SV_LoadStruct(void *base, savestruct_t *info)
   return true;
 }
 
-static boolean_t SV_LoadSTRU(void)
+static bool SV_LoadSTRU(void)
 {
   savestruct_t *S;
   savefield_t *F;
@@ -332,7 +332,7 @@ static boolean_t SV_LoadSTRU(void)
   return true;
 }
 
-static boolean_t SV_LoadARRY(void)
+static bool SV_LoadARRY(void)
 {
   const char *struct_name;
 
@@ -371,7 +371,7 @@ static boolean_t SV_LoadARRY(void)
   return true;
 }
 
-static boolean_t SV_LoadDATA(void)
+static bool SV_LoadDATA(void)
 {
   const char *array_name;
   savearray_t *A;
@@ -415,10 +415,10 @@ static boolean_t SV_LoadDATA(void)
 //
 // SV_LoadEverything
 //
-boolean_t SV_LoadEverything(void)
+bool SV_LoadEverything(void)
 {
   char marker[6];
-  boolean_t result;
+  bool result;
 
   for (;;)
   {

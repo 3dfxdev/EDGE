@@ -42,7 +42,7 @@ byte playpal_data[14][256][3];
 static byte playpal_greys[256];
 
 // -AJA- 1999/09/18: fixes problem with black text etc.
-static boolean_t loaded_playpal = false;
+static bool loaded_playpal = false;
 
 // -AJA- 1999/06/30: moved here from system-specific code.
 byte rgb_32k[32][32][32];
@@ -64,7 +64,7 @@ unsigned long hicolourtransmask;
 int usegamma;
 int current_gamma;
 
-boolean_t interpolate_colmaps = true;
+bool interpolate_colmaps = true;
 
 // general purpose colormaps
 const colourmap_t *normal_map = NULL;
@@ -107,7 +107,7 @@ static int V_FindPureColour(int which);
 //
 // V_InitPalette
 //
-boolean_t V_InitPalette(void)
+bool V_InitPalette(void)
 {
   int t, i, r, g, b, max_file, pal_lump;
   wadtex_resource_t WT;
@@ -722,7 +722,7 @@ static int V_FindPureColour(int which)
 //
 // V_SetPalette
 //
-void V_SetPalette(int type, flo_t amount)
+void V_SetPalette(int type, float amount)
 {
   int i;
   int palette = 0;
@@ -997,7 +997,7 @@ const coltable_t *V_GetColtable(const colourmap_t * nominal,
 // V_GetColmapRGB
 //
 void V_GetColmapRGB(const colourmap_t *colmap,
-    flo_t *r, flo_t *g, flo_t *b, boolean_t font)
+    float *r, float *g, float *b, bool font)
 {
   if (colmap->cache.data == NULL)
   {

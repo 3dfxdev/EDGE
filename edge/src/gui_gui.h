@@ -85,7 +85,7 @@ typedef struct gui_s
   // events.  Passes a pointer to the structure (see Ticker) and a pointer
   // to the event to process.  (Don't modify the event.) Set to NULL to
   // ignore all events.
-   boolean_t(*Responder) (struct gui_s *gui, guievent_t * event);
+   bool(*Responder) (struct gui_s *gui, guievent_t * event);
   // Should draw the app to the screen.  Once again optional and passed
   // a pointer to the structure.
   void (*Drawer) (struct gui_s * gui);
@@ -129,17 +129,17 @@ void GUI_Ticker(gui_t ** gui);
 
 // Sends an event to the specified gui.  Usually only the foreground
 // application's responder is called.
-boolean_t GUI_Responder(gui_t ** gui, guievent_t * e);
+bool GUI_Responder(gui_t ** gui, guievent_t * e);
 
 // Draws all the windows in the gui, using Painters' Algorithm
 void GUI_Drawer(gui_t ** gui);
 
 // Enables disables the mouse cursor.
-boolean_t GUI_MainGetMouseVisibility(void);
-void GUI_MainSetMouseVisibility(boolean_t visible);
+bool GUI_MainGetMouseVisibility(void);
+void GUI_MainSetMouseVisibility(bool visible);
 
 // Sets the mouse lump
-boolean_t GUI_SetMouse(char *name);
+bool GUI_SetMouse(char *name);
 
 #ifdef CON_MAIN_H
 // include the gui parts of con_main.h if con_main earlier has been included.

@@ -180,7 +180,7 @@ static void M_ChangeMusicCheat(char *string)
   CON_MessageLDF("MusChange");
 }
 
-boolean_t M_CheatResponder(event_t * ev)
+bool M_CheatResponder(event_t * ev)
 {
   int i, j;
   char key;

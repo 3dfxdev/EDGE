@@ -98,7 +98,7 @@ void Z_Free(void *ptr);
 void Z_CheckHeap(void);
 int Z_FreeMemory(int level);
 int Z_UsedMemory(int level);
-boolean_t Z_CheckIfZero(const byte *ptr, int size);
+bool Z_CheckIfZero(const byte *ptr, int size);
 
 // -ES- 1999/12/16 Leak Hunt
 #ifdef LEAK_HUNT

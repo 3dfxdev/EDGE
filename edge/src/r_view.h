@@ -126,22 +126,22 @@ struct aspect_s
   // changes if not maxwidth is used.
   int *baseviewangletox;
   angle_t *basextoviewangle;
-  flo_t *basedistscale;
-  flo_t x_distunit;
-  flo_t focusxfrac;
+  float *basedistscale;
+  float x_distunit;
+  float focusxfrac;
 
   // Y RELATED STUFF
 
-  flo_t *baseyslope;
-  flo_t y_distunit;
-  flo_t focusyfrac;
+  float *baseyslope;
+  float y_distunit;
+  float focusyfrac;
 
   // the slope of the real focus is 0, this is the slope which we pretend to be focus.
   // ie. the slope that normally is in the middle of the screen.
-  flo_t fakefocusslope;
+  float fakefocusslope;
   // topslope & bottomslope show the offset to fakefocusslope.
-  flo_t topslope;
-  flo_t bottomslope;
+  float topslope;
+  float bottomslope;
 
   // GENERAL STUFF
 
@@ -172,11 +172,11 @@ struct view_s
   // aspect related
   int *viewangletox;
   angle_t *xtoviewangle;
-  flo_t *distscale;
+  float *distscale;
   int aspect_x;
 
   int aspect_y;
-  flo_t *yslope;
+  float *yslope;
 
 #define VRF_PSPR (1)
 #define VRF_VIEW (2)
@@ -227,14 +227,14 @@ extern viewbitmap_t *R_CreateViewBitmap(int width, int height, int bytepp, scree
 
 extern void R_DestroyAspect(aspect_t * a);
 extern aspect_t *R_CreateAspect(viewbitmap_t * parent,
-    flo_t x_distunit, flo_t y_distunit,
-    flo_t focusxfrac,
-    flo_t topslope, flo_t bottomslope,
+    float x_distunit, float y_distunit,
+    float focusxfrac,
+    float topslope, float bottomslope,
     int maxwidth, int maxheight);
 
 extern void R_ViewSetAspectXPos(view_t * v, int ax, int width);
-extern void R_AspectChangeX(aspect_t * a, flo_t x_distunit, flo_t focusxslope);
-extern void R_AspectChangeY(aspect_t * a, flo_t y_distunit, flo_t fakefocusslope);
+extern void R_AspectChangeX(aspect_t * a, float x_distunit, float focusxslope);
+extern void R_AspectChangeY(aspect_t * a, float y_distunit, float fakefocusslope);
 extern void R_ViewSetXPosition(view_t * v, int vbx, int ax, int width);
 extern void R_ViewSetYPosition(view_t * v, int vby, int ay, int width);
 extern void R_ViewSetAspect(view_t * v, aspect_t * a);

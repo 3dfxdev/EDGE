@@ -60,7 +60,7 @@ static void ResizeLayerList(layer_t *list, int x1, int y1, int x2, int y2);
 //
 // Initialise the layer system.
 
-boolean_t R_LayerInit(void)
+bool R_LayerInit(void)
 {
   // nothing to do
   return true;
@@ -297,7 +297,7 @@ void R_LayerChangeContents(layer_t *layer)
 // possible.  Returns true if it was totally occluded.  Can only be
 // called by "Drawer" functions or by DL_Query().
 
-boolean_t R_LayerClipRectToSolids(int solid_index, 
+bool R_LayerClipRectToSolids(int solid_index, 
     int *x1, int *y1, int *x2, int *y2)
 {
   DEV_ASSERT2(solid_index >= 0);
@@ -373,7 +373,7 @@ boolean_t R_LayerClipRectToSolids(int solid_index,
 //------------------------------------------------------------------------
 
 
-static boolean_t ListenLayersRecursive(layer_t *list, event_t *ev)
+static bool ListenLayersRecursive(layer_t *list, event_t *ev)
 {
   // move to end
   while (list && list->next)
@@ -412,7 +412,7 @@ static boolean_t ListenLayersRecursive(layer_t *list, event_t *ev)
 // "eats" the event.  Returns true if a layer ate the event, otherwise
 // false.
 
-boolean_t R_ListenLayers(event_t *ev)
+bool R_ListenLayers(event_t *ev)
 {
   return ListenLayersRecursive(layer_list, ev);
 }
@@ -467,7 +467,7 @@ static void DL_CleanUp(void)
 // Returns true if a 100% blocking layer was reached.  Coordinates are
 // the parent clipping rectangle.
 //
-static boolean_t DL_Query(layer_t *list, int x1, int y1, int x2, int y2)
+static bool DL_Query(layer_t *list, int x1, int y1, int x2, int y2)
 {
   // move to end
   while (list && list->next)

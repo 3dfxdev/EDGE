@@ -103,9 +103,9 @@ static HMIDIOUT midioutput;             // OUTPUT port...
 static int originalvol;                 // The original MIDI volume.
 static musheader_t *song = NULL;        // The song.
 static byte *playpos;                   // The current play position.
-static boolean_t midiavailable = false; // Available?
-static boolean_t playing       = false; // The song is playing.
-static boolean_t looping       = false; // The song is looping.
+static bool midiavailable = false; // Available?
+static bool playing       = false; // The song is playing.
+static bool looping       = false; // The song is looping.
 static int waitticks = 0;
 static byte chanVols[16];      // Last volume for each channel.
 // ================ INTERNALS =================
@@ -130,7 +130,7 @@ static byte *SongStartAddress(void)
 //
 // Returns true if no problems.
 //
-boolean_t I_StartupMUS(void)
+bool I_StartupMUS(void)
 {
 	if (midiavailable)
 		return true; // Already initialized.
@@ -155,7 +155,7 @@ boolean_t I_StartupMUS(void)
 //
 // I_MUSPlayTrack
 //
-int I_MUSPlayTrack(byte *data, int length, boolean_t loopy)
+int I_MUSPlayTrack(byte *data, int length, bool loopy)
 {
 	if (!midiavailable)
 		return -1;
@@ -227,7 +227,7 @@ void I_MUSStop(void)
 //
 // I_MUSPlaying
 //
-boolean_t I_MUSPlaying(void)
+bool I_MUSPlaying(void)
 {
 	return playing;
 }

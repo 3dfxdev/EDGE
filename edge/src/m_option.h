@@ -34,7 +34,7 @@ extern int optionsmenuon;
 void M_InitOptmenu(void);
 void M_OptDrawer(void);
 void M_OptTicker(void);
-boolean_t M_OptResponder(event_t * ev, int ch);
+bool M_OptResponder(event_t * ev, int ch);
 void M_ResetToDefaults(int keypressed);
 
 #endif

@@ -47,7 +47,7 @@
 //  DUMP GLOBALS
 //
 
-static boolean_t GlobDumpVARI(void)
+static bool GlobDumpVARI(void)
 {
   const char *var_name;
   const char *var_data;
@@ -74,7 +74,7 @@ static boolean_t GlobDumpVARI(void)
   return true;
 }
 
-static boolean_t GlobDumpWADS(void)
+static bool GlobDumpWADS(void)
 {
   L_WriteDebug("      Wad info\n");
 
@@ -82,7 +82,7 @@ static boolean_t GlobDumpWADS(void)
   return true;
 }
 
-static boolean_t GlobDumpVIEW(void)
+static bool GlobDumpVIEW(void)
 {
   L_WriteDebug("      Screenshot\n");
 
@@ -90,7 +90,7 @@ static boolean_t GlobDumpVIEW(void)
   return true;
 }
 
-static boolean_t SV_DumpGLOB(void)
+static bool SV_DumpGLOB(void)
 {
   char marker[6];
   
@@ -148,7 +148,7 @@ static boolean_t SV_DumpGLOB(void)
 //  DUMP STRUCTURE / ARRAY / DATA
 //
 
-static boolean_t SV_DumpSTRU(void)
+static bool SV_DumpSTRU(void)
 {
   const char *struct_name;
   const char *marker;
@@ -209,7 +209,7 @@ static boolean_t SV_DumpSTRU(void)
   return true;
 }
 
-static boolean_t SV_DumpARRY(void)
+static bool SV_DumpARRY(void)
 {
   const char *array_name;
   const char *struct_name;
@@ -229,7 +229,7 @@ static boolean_t SV_DumpARRY(void)
   return true;
 }
 
-static boolean_t SV_DumpDATA(void)
+static bool SV_DumpDATA(void)
 {
   const char *array_name = SV_GetString();
 
@@ -254,7 +254,7 @@ void SV_DumpSaveGame(int slot)
 {
   char *filename;
   int version;
-//  boolean_t result;
+//  bool result;
   char marker[6];
 
   filename = G_FileNameFromSlot(slot);

@@ -54,12 +54,12 @@ void * SV_ItemqGetElem(int index);
 void SV_ItemqCreateElems(int num_elems);
 void SV_ItemqFinaliseElems(void);
 
-boolean_t SR_MobjGetPlayer(void *storage, int index, void *extra);
-boolean_t SR_MobjGetMobj(void *storage, int index, void *extra);
-boolean_t SR_MobjGetType(void *storage, int index, void *extra);
-boolean_t SR_MobjGetState(void *storage, int index, void *extra);
-boolean_t SR_MobjGetSpawnPoint(void *storage, int index, void *extra);
-boolean_t SR_MobjGetAttack(void *storage, int index, void *extra);
+bool SR_MobjGetPlayer(void *storage, int index, void *extra);
+bool SR_MobjGetMobj(void *storage, int index, void *extra);
+bool SR_MobjGetType(void *storage, int index, void *extra);
+bool SR_MobjGetState(void *storage, int index, void *extra);
+bool SR_MobjGetSpawnPoint(void *storage, int index, void *extra);
+bool SR_MobjGetAttack(void *storage, int index, void *extra);
 
 void SR_MobjPutPlayer(void *storage, int index, void *extra);
 void SR_MobjPutMobj(void *storage, int index, void *extra);
@@ -490,13 +490,13 @@ void SV_ItemqFinaliseElems(void)
 //
 // SR_MobjGetPlayer
 //
-boolean_t SR_MobjGetPlayer(void *storage, int index, void *extra)
+bool SR_MobjGetPlayer(void *storage, int index, void *extra)
 {
 	player_t ** dest = (player_t **)storage + index;
 
 	int swizzle = SV_GetInt();
 
-  *dest = (swizzle == 0) ? NULL : SV_PlayerGetElem(swizzle - 1);
+	*dest = (swizzle == 0) ? NULL : (player_t*)SV_PlayerGetElem(swizzle - 1);
 	return true;
 }
 
@@ -515,13 +515,13 @@ void SR_MobjPutPlayer(void *storage, int index, void *extra)
 //
 // SR_MobjGetMobj
 //
-boolean_t SR_MobjGetMobj(void *storage, int index, void *extra)
+bool SR_MobjGetMobj(void *storage, int index, void *extra)
 {
 	mobj_t ** dest = (mobj_t **)storage + index;
 
 	int swizzle = SV_GetInt();
 
-  *dest = (swizzle == 0) ? NULL : SV_MobjGetElem(swizzle - 1);
+  *dest = (swizzle == 0) ? NULL : (mobj_t*)SV_MobjGetElem(swizzle - 1);
 	return true;
 }
 
@@ -548,7 +548,7 @@ void SR_MobjPutMobj(void *storage, int index, void *extra)
 //
 // SR_MobjGetType
 //
-boolean_t SR_MobjGetType(void *storage, int index, void *extra)
+bool SR_MobjGetType(void *storage, int index, void *extra)
 {
 	mobjinfo_t ** dest = (mobjinfo_t **)storage + index;
 
@@ -574,7 +574,7 @@ void SR_MobjPutType(void *storage, int index, void *extra)
 //
 // SR_MobjGetSpawnPoint
 //
-boolean_t SR_MobjGetSpawnPoint(void *storage, int index, void *extra)
+bool SR_MobjGetSpawnPoint(void *storage, int index, void *extra)
 {
 	spawnpoint_t *dest = (spawnpoint_t *)storage + index;
 
@@ -597,7 +597,7 @@ void SR_MobjPutSpawnPoint(void *storage, int index, void *extra)
 //
 // SR_MobjGetAttack
 //
-boolean_t SR_MobjGetAttack(void *storage, int index, void *extra)
+bool SR_MobjGetAttack(void *storage, int index, void *extra)
 {
 	attacktype_t ** dest = (attacktype_t **)storage + index;
 
@@ -626,7 +626,7 @@ void SR_MobjPutAttack(void *storage, int index, void *extra)
 //
 // SR_MobjGetState
 //
-boolean_t SR_MobjGetState(void *storage, int index, void *extra)
+bool SR_MobjGetState(void *storage, int index, void *extra)
 {
 	state_t ** dest = (state_t **)storage + index;
 
@@ -779,7 +779,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	}
 
 	// get state number, check if valid
-	s_num = S - states;
+	s_num = (int)(S - states);
 
 	if (s_num < 0 || s_num >= num_states)
 	{

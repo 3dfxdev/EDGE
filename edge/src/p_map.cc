@@ -47,7 +47,7 @@
 #include "s_sound.h"
 #include "z_zone.h"
 
-static flo_t tmbbox[4];
+static float tmbbox[4];
 
 typedef struct try_move_info_s
 {
@@ -58,15 +58,15 @@ typedef struct try_move_info_s
 	int flags, extflags;
 
 	// attempted destination
-	flo_t x, y, z;
+	float x, y, z;
 
 	// --- output ---
 
 	subsector_t *sub;
 
 	// vertical space over all contacted lines
-	flo_t floorz, ceilnz;
-	flo_t dropoff;
+	float floorz, ceilnz;
+	float dropoff;
 
 	// objects that end up above and below us
 	mobj_t *above;
@@ -85,12 +85,12 @@ try_move_info_t;
 
 static try_move_info_t tm_I;
 
-boolean_t mobj_hit_sky;
+bool mobj_hit_sky;
 line_t *blockline;
 
 // If "floatok" true, move would be ok if at float_destz.
-boolean_t floatok;
-flo_t float_destz;
+bool floatok;
+float float_destz;
 
 // keep track of special lines as they are hit,
 // but don't process them until the move is proven valid
@@ -104,17 +104,17 @@ mobj_t *linetarget;  // who got hit (or NULL)
 typedef struct shoot_trav_info_s
 {
 	mobj_t *source;
-	flo_t range;
-	flo_t start_z;
-	flo_t angle;
-	flo_t slope;
-	flo_t topslope;
-	flo_t bottomslope;
+	float range;
+	float start_z;
+	float angle;
+	float slope;
+	float topslope;
+	float bottomslope;
 
-	flo_t damage;
+	float damage;
 	const damage_t *damtype;
 	const mobjinfo_t *puff;
-	flo_t prev_z;
+	float prev_z;
 }
 shoot_trav_info_t;
 
@@ -122,7 +122,7 @@ static shoot_trav_info_t shoot_I;
 static shoot_trav_info_t aim_I;
 
 // convenience function
-static INLINE int PointOnLineSide(flo_t x, flo_t y, line_t *ld)
+static INLINE int PointOnLineSide(float x, float y, line_t *ld)
 {
 	divline_t div;
 
@@ -141,9 +141,9 @@ static INLINE int PointOnLineSide(flo_t x, flo_t y, line_t *ld)
 //
 // PIT_StompThing
 //
-static boolean_t PIT_StompThing(mobj_t * thing)
+static bool PIT_StompThing(mobj_t * thing)
 {
-	flo_t blockdist;
+	float blockdist;
 
 	if (!(thing->flags & MF_SHOOTABLE))
 		return true;
@@ -186,7 +186,7 @@ static boolean_t PIT_StompThing(mobj_t * thing)
 //
 // P_TeleportMove
 //
-boolean_t P_TeleportMove(mobj_t * thing, flo_t x, flo_t y, flo_t z)
+bool P_TeleportMove(mobj_t * thing, float x, float y, float z)
 {
 	int xl, xh;
 	int yl, yh;
@@ -247,7 +247,7 @@ boolean_t P_TeleportMove(mobj_t * thing, flo_t x, flo_t y, flo_t z)
 //
 // PIT_CheckAbsLine
 //
-static boolean_t PIT_CheckAbsLine(line_t * ld)
+static bool PIT_CheckAbsLine(line_t * ld)
 {
 	int i;
 
@@ -302,10 +302,10 @@ static boolean_t PIT_CheckAbsLine(line_t * ld)
 //
 // PIT_CheckAbsThing
 //
-static boolean_t PIT_CheckAbsThing(mobj_t * thing)
+static bool PIT_CheckAbsThing(mobj_t * thing)
 {
-	flo_t blockdist;
-	boolean_t solid;
+	float blockdist;
+	bool solid;
 
 	if (thing == tm_I.mover)
 		return true;
@@ -371,7 +371,7 @@ static boolean_t PIT_CheckAbsThing(mobj_t * thing)
 // Only used for checking if an object can be spawned at a
 // particular location.
 //
-boolean_t P_CheckAbsPosition(mobj_t * thing, flo_t x, flo_t y, flo_t z)
+bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z)
 {
 	int xl, xh;
 	int yl, yh;
@@ -438,7 +438,7 @@ boolean_t P_CheckAbsPosition(mobj_t * thing, flo_t x, flo_t y, flo_t z)
 //
 // Adjusts tm_I.floorz & tm_I.ceilnz as lines are contacted
 //
-static boolean_t PIT_CheckRelLine(line_t * ld)
+static bool PIT_CheckRelLine(line_t * ld)
 {
 	int i;
 
@@ -498,8 +498,8 @@ static boolean_t PIT_CheckRelLine(line_t * ld)
 	if (tm_I.mover->player && ld->special && 
 		ld->special->ladder.height > 0)
 	{
-		flo_t z1, z2;
-		flo_t pz1, pz2;
+		float z1, z2;
+		float pz1, pz2;
 
 		z1 = ld->frontsector->f_h + ld->side[0]->middle.offset.y;
 		z2 = z1 + ld->special->ladder.height;
@@ -529,8 +529,8 @@ static boolean_t PIT_CheckRelLine(line_t * ld)
 
 	// check for hitting a sky-hack line
 	{
-		flo_t f1, c1;
-		flo_t f2, c2;
+		float f1, c1;
+		float f2, c2;
 
 		f1 = ld->frontsector->f_h;
 		c1 = ld->frontsector->c_h;
@@ -598,10 +598,10 @@ static boolean_t PIT_CheckRelLine(line_t * ld)
 //
 // PIT_CheckRelThing
 //
-static boolean_t PIT_CheckRelThing(mobj_t * thing)
+static bool PIT_CheckRelThing(mobj_t * thing)
 {
-	flo_t blockdist;
-	boolean_t solid;
+	float blockdist;
+	bool solid;
 
 	if (thing == tm_I.mover)
 		return true;
@@ -618,7 +618,7 @@ static boolean_t PIT_CheckRelThing(mobj_t * thing)
 	// -KM- 1998/9/19 True 3d gameplay checks.
 	if (level_flags.true3dgameplay && !(thing->flags & MF_SPECIAL))
 	{
-		flo_t top_z = thing->z + thing->height;
+		float top_z = thing->z + thing->height;
 
 		// see if we went over
 		if (tm_I.z >= top_z)
@@ -743,7 +743,7 @@ static boolean_t PIT_CheckRelThing(mobj_t * thing)
 //  speciallines[]
 //  numspeciallines
 //
-static boolean_t P_CheckRelPosition(mobj_t * thing, flo_t x, flo_t y)
+static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 {
 	int xl, xh;
 	int yl, yh;
@@ -827,16 +827,16 @@ static boolean_t P_CheckRelPosition(mobj_t * thing, flo_t x, flo_t y)
 // Attempt to move to a new position,
 // crossing special lines unless MF_TELEPORT is set.
 //
-boolean_t P_TryMove(mobj_t * thing, flo_t x, flo_t y)
+bool P_TryMove(mobj_t * thing, float x, float y)
 {
-	flo_t oldx;
-	flo_t oldy;
+	float oldx;
+	float oldy;
 	int side;
 	int oldside;
 	line_t *ld;
-	boolean_t fell_off_thing;
+	bool fell_off_thing;
 
-	flo_t z = thing->z;
+	float z = thing->z;
 
 	floatok = false;
 
@@ -968,9 +968,9 @@ boolean_t P_TryMove(mobj_t * thing, flo_t x, flo_t y)
 // If the thing doesn't fit, the z will be set to the lowest value
 // and false will be returned.
 //
-static boolean_t P_ThingHeightClip(mobj_t * thing)
+static bool P_ThingHeightClip(mobj_t * thing)
 {
-	boolean_t onfloor = (fabs(thing->z - thing->floorz) < 1);
+	bool onfloor = (fabs(thing->z - thing->floorz) < 1);
 
 	P_CheckRelPosition(thing, thing->x, thing->y);
 
@@ -1004,14 +1004,14 @@ static boolean_t P_ThingHeightClip(mobj_t * thing)
 //
 // Allows the player to slide along any angled walls.
 //
-static flo_t bestslidefrac;
-static flo_t secondslidefrac;
+static float bestslidefrac;
+static float secondslidefrac;
 
 static line_t *bestslideline;
 static line_t *secondslideline;
 
-static flo_t tmxmove;
-static flo_t tmymove;
+static float tmxmove;
+static float tmymove;
 
 mobj_t *slidemo;
 
@@ -1029,8 +1029,8 @@ static void HitSlideLine(line_t * ld)
 	angle_t moveangle;
 	angle_t deltaangle;
 
-	flo_t movelen;
-	flo_t newlen;
+	float movelen;
+	float newlen;
 
 	if (ld->slopetype == ST_HORIZONTAL)
 	{
@@ -1068,7 +1068,7 @@ static void HitSlideLine(line_t * ld)
 //
 // PTR_SlideTraverse
 //
-static boolean_t PTR_SlideTraverse(intercept_t * in)
+static bool PTR_SlideTraverse(intercept_t * in)
 {
 	line_t *li;
 	int i;
@@ -1126,18 +1126,18 @@ static boolean_t PTR_SlideTraverse(intercept_t * in)
 //
 // -ACB- 1998/07/28 This is NO LONGER a kludgy mess; removed goto rubbish.
 //
-void P_SlideMove(mobj_t * mo, flo_t x, flo_t y)
+void P_SlideMove(mobj_t * mo, float x, float y)
 {
-	flo_t leadx;
-	flo_t leady;
-	flo_t trailx;
-	flo_t traily;
-	flo_t newx;
-	flo_t newy;
-	flo_t dx = x - mo->x;
-	flo_t dy = y - mo->y;
+	float leadx;
+	float leady;
+	float trailx;
+	float traily;
+	float newx;
+	float newy;
+	float dx = x - mo->x;
+	float dy = y - mo->y;
 	int hitcount;
-	boolean_t retry;
+	bool retry;
 
 	slidemo = mo;
 	hitcount = 0;
@@ -1236,14 +1236,14 @@ void P_SlideMove(mobj_t * mo, flo_t x, flo_t y)
 //
 // Sets linetarget and slope when a target is aimed at.
 //
-static boolean_t PTR_AimTraverse(intercept_t * in)
+static bool PTR_AimTraverse(intercept_t * in)
 {
 	line_t *li;
 	mobj_t *th;
-	flo_t slope;
-	flo_t thingtopslope;
-	flo_t thingbottomslope;
-	flo_t dist;
+	float slope;
+	float thingtopslope;
+	float thingbottomslope;
+	float dist;
 
 	dist = aim_I.range * in->frac;
 
@@ -1265,7 +1265,7 @@ static boolean_t PTR_AimTraverse(intercept_t * in)
 
 		if (li->frontsector->f_h != li->backsector->f_h)
 		{
-			flo_t maxfloor = MAX(li->frontsector->f_h, li->backsector->f_h);
+			float maxfloor = MAX(li->frontsector->f_h, li->backsector->f_h);
 
 			slope = (maxfloor - aim_I.start_z) / dist;
 
@@ -1275,7 +1275,7 @@ static boolean_t PTR_AimTraverse(intercept_t * in)
 
 		if (li->frontsector->c_h != li->backsector->c_h)
 		{
-			flo_t minceil = MIN(li->frontsector->c_h, li->backsector->c_h);
+			float minceil = MIN(li->frontsector->c_h, li->backsector->c_h);
 
 			slope = (minceil - aim_I.start_z) / dist;
 
@@ -1330,11 +1330,11 @@ static boolean_t PTR_AimTraverse(intercept_t * in)
 //
 // Returns true if successfully passed gap.
 //
-static INLINE boolean_t ShootCheckGap(flo_t z,
-									  flo_t f_h, surface_t *floor, flo_t c_h, surface_t *ceil)
+static INLINE bool ShootCheckGap(float z,
+									  float f_h, surface_t *floor, float c_h, surface_t *ceil)
 {
-	flo_t x, y;
-	flo_t frac;
+	float x, y;
+	float frac;
 
 	// perfectly horizontal shots cannot hit planes
 	if (shoot_I.slope == 0)
@@ -1377,19 +1377,19 @@ static INLINE boolean_t ShootCheckGap(flo_t z,
 //
 // -ACB- 1998/07/28 Cleaned up.
 //
-static boolean_t PTR_ShootTraverse(intercept_t * in)
+static bool PTR_ShootTraverse(intercept_t * in)
 {
-	flo_t x, y, z;
-	flo_t frac;
-	flo_t dist;
-	flo_t thingtopslope;
-	flo_t thingbottomslope;
+	float x, y, z;
+	float frac;
+	float dist;
+	float thingtopslope;
+	float thingbottomslope;
 	int i, sidenum;
 
 	line_t *li;
 	mobj_t *th;
 	side_t *side;
-	boolean_t use_puff;
+	bool use_puff;
 
 	dist = shoot_I.range * in->frac;
 
@@ -1424,7 +1424,7 @@ static boolean_t PTR_ShootTraverse(intercept_t * in)
 		{
 			extrafloor_t *ef;
 			surface_t *floor_s = &side->sector->floor;
-			flo_t floor_h = side->sector->f_h;
+			float floor_h = side->sector->f_h;
 
 			// FIXME: must go in correct order
 			for (ef=side->sector->bottom_ef; ef; ef=ef->higher)
@@ -1467,8 +1467,8 @@ static boolean_t PTR_ShootTraverse(intercept_t * in)
 		{
 			if (IS_SKY(li->frontsector->ceil) && IS_SKY(li->backsector->ceil))
 			{
-				flo_t c1 = li->frontsector->c_h;
-				flo_t c2 = li->backsector->c_h;
+				float c1 = li->frontsector->c_h;
+				float c2 = li->backsector->c_h;
 
 				if (MIN(c1,c2) <= z && z <= MAX(c1,c2))
 					return false;
@@ -1476,8 +1476,8 @@ static boolean_t PTR_ShootTraverse(intercept_t * in)
 
 			if (IS_SKY(li->frontsector->floor) && IS_SKY(li->backsector->floor))
 			{
-				flo_t f1 = li->frontsector->f_h;
-				flo_t f2 = li->backsector->f_h;
+				float f1 = li->frontsector->f_h;
+				float f2 = li->backsector->f_h;
 
 				if (MIN(f1,f2) <= z && z <= MAX(f1,f2))
 					return false;
@@ -1554,10 +1554,10 @@ static boolean_t PTR_ShootTraverse(intercept_t * in)
 //
 // P_AimLineAttack
 //
-flo_t P_AimLineAttack(mobj_t * t1, angle_t angle, flo_t distance)
+float P_AimLineAttack(mobj_t * t1, angle_t angle, float distance)
 {
-	flo_t x2 = t1->x + distance * M_Cos(angle);
-	flo_t y2 = t1->y + distance * M_Sin(angle);
+	float x2 = t1->x + distance * M_Cos(angle);
+	float y2 = t1->y + distance * M_Sin(angle);
 
 	if (t1->info)
 		aim_I.start_z = t1->z + t1->height * PERCENT_2_FLOAT(t1->info->shotheight);
@@ -1595,12 +1595,12 @@ flo_t P_AimLineAttack(mobj_t * t1, angle_t angle, flo_t distance)
 //
 // Note: Damtype can be NULL.
 //
-void P_LineAttack(mobj_t * t1, angle_t angle, flo_t distance, 
-				  flo_t slope, flo_t damage, const damage_t * damtype,
+void P_LineAttack(mobj_t * t1, angle_t angle, float distance, 
+				  float slope, float damage, const damage_t * damtype,
 				  const mobjinfo_t *puff)
 {
-	flo_t x2 = t1->x + distance * M_Cos(angle);
-	flo_t y2 = t1->y + distance * M_Sin(angle);
+	float x2 = t1->x + distance * M_Cos(angle);
+	float y2 = t1->y + distance * M_Sin(angle);
 
 	if (t1->info)
 		shoot_I.start_z = t1->z + t1->height * PERCENT_2_FLOAT(t1->info->shotheight);
@@ -1633,8 +1633,8 @@ void P_LineAttack(mobj_t * t1, angle_t angle, flo_t distance,
 mobj_t *P_MapTargetTheory(mobj_t * source)
 {
 	angle_t angle;
-	flo_t distance;
-	flo_t start_z;
+	float distance;
+	float start_z;
 
 	static mobj_t theorytarget;
 
@@ -1668,9 +1668,9 @@ mobj_t *P_MapTargetTheory(mobj_t * source)
 // -ACB- 1998/09/01
 // -AJA- 1999/08/08: Added `force_aim' to fix chainsaw.
 //
-mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, flo_t distance, boolean_t force_aim)
+mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool force_aim)
 {
-	flo_t x2, y2;
+	float x2, y2;
 
 	// -KM- 1999/01/31 Autoaim is an option.
 	if (source->player && !level_flags.autoaim && !force_aim)
@@ -1730,7 +1730,7 @@ mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, flo_t distance, boole
 static mobj_t *usething;
 static float use_lower, use_upper;
 
-static boolean_t PTR_UseTraverse(intercept_t * in)
+static bool PTR_UseTraverse(intercept_t * in)
 {
 	int sidenum;
 	line_t *line;
@@ -1799,10 +1799,10 @@ static boolean_t PTR_UseTraverse(intercept_t * in)
 void P_UseLines(player_t * player)
 {
 	int angle;
-	flo_t x1;
-	flo_t y1;
-	flo_t x2;
-	flo_t y2;
+	float x1;
+	float y1;
+	float x2;
+	float y2;
 
 	usething = player->mo;
 	use_lower = INT_MIN;
@@ -1824,12 +1824,12 @@ void P_UseLines(player_t * player)
 
 typedef struct rds_atk_info_s
 {
-	flo_t range;
+	float range;
 	mobj_t *spot;
 	mobj_t *source;
-	flo_t damage;
+	float damage;
 	const damage_t *damtype;
-	boolean_t thrust;
+	bool thrust;
 }
 rds_atk_info_t;
 
@@ -1840,10 +1840,10 @@ static rds_atk_info_t bomb_I;
 //
 // "bombsource" is the creature that caused the explosion at "bombspot".
 //
-static boolean_t PIT_RadiusAttack(mobj_t * thing)
+static bool PIT_RadiusAttack(mobj_t * thing)
 {
-	flo_t dx, dy;
-	flo_t dist;
+	float dx, dy;
+	float dist;
 
 	// ignore the bomb spot itself
 	if (thing == bomb_I.spot)
@@ -1895,10 +1895,10 @@ static boolean_t PIT_RadiusAttack(mobj_t * thing)
 //
 // -KM-  1998/11/25 Fixed.  Added z movement for rocket jumping.
 //
-static boolean_t PIT_SphereAttack(mobj_t * thing)
+static bool PIT_SphereAttack(mobj_t * thing)
 {
-	flo_t dx, dy, dz;
-	flo_t dist;
+	float dx, dy, dz;
+	float dist;
 
 	// ignore the bomb spot itself
 	if (thing == bomb_I.spot)
@@ -1950,8 +1950,8 @@ static boolean_t PIT_SphereAttack(mobj_t * thing)
 //
 // Note: Damtype can be NULL.
 //
-void P_RadiusAttack(mobj_t * spot, mobj_t * source, flo_t radius,
-					flo_t damage, const damage_t * damtype, boolean_t thrust_only)
+void P_RadiusAttack(mobj_t * spot, mobj_t * source, float radius,
+					float damage, const damage_t * damtype, bool thrust_only)
 {
 	int x, y;
 	int xl, xh, yl, yh;
@@ -1992,8 +1992,8 @@ void P_RadiusAttack(mobj_t * spot, mobj_t * source, flo_t radius,
 //  SECTOR HEIGHT CHANGING
 //
 
-static boolean_t crushchange;
-static boolean_t nofit;
+static bool crushchange;
+static bool nofit;
 static int crush_time;
 static int crush_damage;
 
@@ -2001,7 +2001,7 @@ static int crush_damage;
 //
 // PIT_ChangeSector
 //
-static boolean_t PIT_ChangeSector(mobj_t * thing)
+static bool PIT_ChangeSector(mobj_t * thing)
 {
 	mobj_t *mo;
 
@@ -2072,8 +2072,8 @@ static boolean_t PIT_ChangeSector(mobj_t * thing)
 // 
 // NOTE: the heights (f_h, c_h) currently broken.
 // 
-static void ChangeSectorHeights(sector_t *sec, flo_t f_h,
-								flo_t c_h, flo_t f_dh, flo_t c_dh)
+static void ChangeSectorHeights(sector_t *sec, float f_h,
+								float c_h, float f_dh, float c_dh)
 {
 	touch_node_t *tn, *next;
 	mobj_t *mo;
@@ -2112,8 +2112,8 @@ static void ChangeSectorHeights(sector_t *sec, flo_t f_h,
 // Only checks againgst hitting other solid floors, things are NOT
 // considered here.  Returns true if OK, otherwise false.
 //
-boolean_t P_CheckSolidSectorMove(sector_t *sec, boolean_t is_ceiling,
-								 flo_t dh)
+bool P_CheckSolidSectorMove(sector_t *sec, bool is_ceiling,
+								 float dh)
 {
 	extrafloor_t *ef;
 
@@ -2159,7 +2159,7 @@ boolean_t P_CheckSolidSectorMove(sector_t *sec, boolean_t is_ceiling,
 		// moving a thin extrafloor ?
 		if (!is_ceiling && ! (ef->ef_info->type & EXFL_Thick))
 		{
-			flo_t new_h = ef->top_h + dh;
+			float new_h = ef->top_h + dh;
 
 			if (dh > 0 && new_h > (ef->higher ? ef->higher->bottom_h :
 			ef->sector->c_h))
@@ -2178,7 +2178,7 @@ boolean_t P_CheckSolidSectorMove(sector_t *sec, boolean_t is_ceiling,
 		// moving the top of a thick extrafloor ?
 		if (is_ceiling && (ef->ef_info->type & EXFL_Thick))
 		{
-			flo_t new_h = ef->top_h + dh;
+			float new_h = ef->top_h + dh;
 
 			if (dh < 0 && new_h < ef->bottom_h)
 				return false;
@@ -2194,7 +2194,7 @@ boolean_t P_CheckSolidSectorMove(sector_t *sec, boolean_t is_ceiling,
 		// moving the bottom of a thick extrafloor ?
 		if (!is_ceiling && (ef->ef_info->type & EXFL_Thick))
 		{
-			flo_t new_h = ef->bottom_h + dh;
+			float new_h = ef->bottom_h + dh;
 
 			if (dh > 0 && new_h > ef->top_h)
 				return false;
@@ -2222,8 +2222,8 @@ boolean_t P_CheckSolidSectorMove(sector_t *sec, boolean_t is_ceiling,
 // they will take damage.  Returns true if at least one thing no
 // longers fits, otherwise false.
 //
-boolean_t P_SolidSectorMove(sector_t *sec, boolean_t is_ceiling,
-							flo_t dh, boolean_t crush, boolean_t nocarething)
+bool P_SolidSectorMove(sector_t *sec, bool is_ceiling,
+							float dh, bool crush, bool nocarething)
 {
 	extrafloor_t *ef;
 
@@ -2250,12 +2250,12 @@ boolean_t P_SolidSectorMove(sector_t *sec, boolean_t is_ceiling,
 	{
 		if (is_ceiling)
 		{
-			flo_t h = sec->top_ef ? sec->top_ef->top_h : sec->f_h;
+			float h = sec->top_ef ? sec->top_ef->top_h : sec->f_h;
 			ChangeSectorHeights(sec, h, sec->c_h, 0, -dh);
 		}
 		else 
 		{
-			flo_t h = sec->bottom_ef ? sec->bottom_ef->bottom_h : sec->c_h;
+			float h = sec->bottom_ef ? sec->bottom_ef->bottom_h : sec->c_h;
 			ChangeSectorHeights(sec, sec->f_h, h, dh, 0);
 		}
 	}
@@ -2294,12 +2294,12 @@ boolean_t P_SolidSectorMove(sector_t *sec, boolean_t is_ceiling,
 			{
 				if (dh > 0)
 				{
-					flo_t h = ef->higher ? ef->higher->bottom_h : ef->sector->c_h;
+					float h = ef->higher ? ef->higher->bottom_h : ef->sector->c_h;
 					ChangeSectorHeights(ef->sector, ef->top_h, h, dh, 0);
 				}
 				else if (dh < 0)
 				{
-					flo_t h = ef->lower ? ef->lower->top_h : ef->sector->f_h;
+					float h = ef->lower ? ef->lower->top_h : ef->sector->f_h;
 					ChangeSectorHeights(ef->sector, h, ef->top_h, 0, -dh);
 				}
 				continue;
@@ -2308,7 +2308,7 @@ boolean_t P_SolidSectorMove(sector_t *sec, boolean_t is_ceiling,
 			// moving the top of a thick extrafloor ?
 			if (is_ceiling && (ef->ef_info->type & EXFL_Thick))
 			{
-				flo_t h = ef->higher ? ef->higher->bottom_h : ef->sector->c_h;
+				float h = ef->higher ? ef->higher->bottom_h : ef->sector->c_h;
 				ChangeSectorHeights(ef->sector, ef->top_h, h, dh, 0);
 				continue;
 			}
@@ -2316,7 +2316,7 @@ boolean_t P_SolidSectorMove(sector_t *sec, boolean_t is_ceiling,
 			// moving the bottom of a thick extrafloor ?
 			if (!is_ceiling && (ef->ef_info->type & EXFL_Thick))
 			{
-				flo_t h = ef->lower ? ef->lower->top_h : ef->sector->f_h;
+				float h = ef->lower ? ef->lower->top_h : ef->sector->f_h;
 				ChangeSectorHeights(ef->sector, h, ef->bottom_h, 0, -dh);
 				continue;
 			}
@@ -2359,15 +2359,15 @@ void P_ChangeThingSize(mobj_t *mo)
 //
 static mobj_t *corpsehit;
 static mobj_t *raiserobj;
-static flo_t raisertryx;
-static flo_t raisertryy;
+static float raisertryx;
+static float raisertryy;
 
-static boolean_t PIT_CorpseCheck(mobj_t * thing)
+static bool PIT_CorpseCheck(mobj_t * thing)
 {
-	flo_t maxdist;
-	flo_t oldradius;
-	flo_t oldheight;
-	boolean_t check;
+	float maxdist;
+	float oldradius;
+	float oldheight;
+	bool check;
 
 	if (!(thing->flags & MF_CORPSE))
 		return true;  // not a corpse
@@ -2468,23 +2468,23 @@ mobj_t *P_MapFindCorpse(mobj_t * thing)
 //
 // -AJA- 1999/09/30: Updated for extra floors.
 //
-static boolean_t crosser;
+static bool crosser;
 
 // Moving Object x,y cordinates
 // for object one and object two.
 
-static flo_t mx1;
-static flo_t my1;
-static flo_t mx2;
-static flo_t my2;
+static float mx1;
+static float my1;
+static float mx2;
+static float my2;
 
 // spawn object base
-static flo_t mb2;
+static float mb2;
 
 // spawn object top
-static flo_t mt2;
+static float mt2;
 
-static boolean_t PIT_CheckBlockingLine(line_t * line)
+static bool PIT_CheckBlockingLine(line_t * line)
 {
 	int i;
 
@@ -2538,7 +2538,7 @@ static boolean_t PIT_CheckBlockingLine(line_t * line)
 //
 // -ACB- 1998/08/23
 //
-boolean_t P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing)
+bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing)
 {
 	int xlow, xhigh, xcount, ylow, yhigh, ycount;
 
@@ -2577,7 +2577,7 @@ boolean_t P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing)
 //
 // P_MapInit
 //
-boolean_t P_MapInit(void)
+bool P_MapInit(void)
 {
 	Z_InitStackArray(&spechit_a, (void***)&spechit, sizeof(line_t *), -8);
 

@@ -35,11 +35,11 @@
 #include "v_screen.h"
 #include "v_video1.h"
 
-boolean_t V_MultiResInit(void);
+bool V_MultiResInit(void);
 void V_InitResolution(void);
 void V_AddAvailableResolution(screenmode_t *mode);
 int V_FindClosestResolution(screenmode_t *mode,
-    boolean_t samesize, boolean_t samedepth);
+    bool samesize, bool samedepth);
 int V_CompareModes(screenmode_t *A, screenmode_t *B);
 
 //
@@ -75,8 +75,8 @@ extern fixed_t dc_ystep;
 extern fixed_t dc_translucency;
 
 #ifndef NOSMOOTHING
-extern boolean_t dc_usesmoothing;
-extern boolean_t ds_usesmoothing;
+extern bool dc_usesmoothing;
+extern bool ds_usesmoothing;
 #endif
 
 // first pixel in a column

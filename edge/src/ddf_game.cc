@@ -112,10 +112,10 @@ static const commandlist_t wi_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static boolean_t GameStartEntry (const char *name)
+static bool GameStartEntry (const char *name)
 {
 	int i;
-	boolean_t replaces = false;
+	bool replaces = false;
 
 	if (name && name[0])
 	{
@@ -161,7 +161,7 @@ static boolean_t GameStartEntry (const char *name)
 }
 
 static void GameParseField (const char *field, const char *contents,
-		int index, boolean_t is_last)
+		int index, bool is_last)
 {
 #if (DEBUG_DDF)
 	L_WriteDebug ("GAME_PARSE: %s = %s;\n", field, contents);
@@ -335,7 +335,7 @@ static void DDF_GameGetMap(const char *info, void *storage)
 	int i;
 
 	Z_Resize (buffer_wi.mappos, mappos_t, buffer_wi.nummaps + 1);
-	Z_Resize (buffer_wi.mapdone, boolean_t, buffer_wi.nummaps + 1);
+	Z_Resize (buffer_wi.mapdone, bool, buffer_wi.nummaps + 1);
 
 	dest[0].type = 1;
 	dest[0].dest = buffer_wi.mappos[buffer_wi.nummaps].name;

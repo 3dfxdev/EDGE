@@ -30,7 +30,7 @@
 
 typedef struct vec2_s
 {
-  flo_t x, y;
+  float x, y;
 }
 vec2_t;
 
@@ -45,7 +45,7 @@ vec2_t;
 
 typedef struct vec3_s
 {
-  flo_t x, y, z;
+  float x, y, z;
 }
 vec3_t;
 
@@ -64,10 +64,10 @@ vec3_t;
 
 fixed_t FixedDiv(fixed_t a, fixed_t b) GCCATTR(const);
 fixed_t FixedMul(fixed_t a, fixed_t b) GCCATTR(const);
-flo_t M_Tan(angle_t ang)             GCCATTR(const);
-angle_t M_ATan(flo_t slope)          GCCATTR(const);
-flo_t M_Cos(angle_t ang)             GCCATTR(const);
-flo_t M_Sin(angle_t ang)             GCCATTR(const);
+float M_Tan(angle_t ang)             GCCATTR(const);
+angle_t M_ATan(float slope)          GCCATTR(const);
+float M_Cos(angle_t ang)             GCCATTR(const);
+float M_Sin(angle_t ang)             GCCATTR(const);
 void M_Angle2Matrix(angle_t ang, vec2_t *x, vec2_t *y);
 
 /* CRC stuff */
@@ -79,7 +79,7 @@ void CRC32_Done(unsigned long *crc);
 
 void CRC32_ProcessInt(unsigned long *crc, int value);
 void CRC32_ProcessFixed(unsigned long *crc, fixed_t value);
-void CRC32_ProcessFloat(unsigned long *crc, flo_t value);
+void CRC32_ProcessFloat(unsigned long *crc, float value);
 void CRC32_ProcessStr(unsigned long *crc, const char *str);
 
 #endif //__M_MATH_H__

@@ -36,9 +36,9 @@
 //
 // POV related.
 //
-extern flo_t viewcos;
-extern flo_t viewsin;
-extern flo_t viewvertangle;
+extern float viewcos;
+extern float viewsin;
+extern float viewvertangle;
 
 extern subsector_t *viewsubsector;
 extern region_properties_t *view_props;
@@ -52,8 +52,8 @@ extern int viewwindowheight;
 
 // the x and y coords of the focus
 // -ES- 1999/03/19 Renamed center to focus
-extern flo_t focusxfrac;
-extern flo_t focusyfrac;
+extern float focusxfrac;
+extern float focusyfrac;
 
 extern int validcount;
 
@@ -61,10 +61,10 @@ extern int linecount;
 
 // -ES- 1999/03/29 Added these
 extern angle_t normalfov, zoomedfov;
-extern boolean_t viewiszoomed;
+extern bool viewiszoomed;
 
-extern boolean_t setsizeneeded;
-extern boolean_t changeresneeded;  // -ES- 1998/08/20
+extern bool setsizeneeded;
+extern bool changeresneeded;  // -ES- 1998/08/20
 extern int use_3d_mode;
 
 extern int framecount;
@@ -92,9 +92,9 @@ extern lighttable_t scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
 
 extern int extralight;
 extern const colourmap_t *effect_colourmap;
-extern flo_t effect_strength;
-extern boolean_t effect_infrared;
-extern boolean_t setresfailed;
+extern float effect_strength;
+extern bool effect_infrared;
+extern bool setresfailed;
 
 //
 // Function pointers to switch refresh/drawing functions.
@@ -108,11 +108,11 @@ extern void (*trans_spanfunc) (void);
 
 //
 // Utility functions.
-angle_t R_PointToAngle(flo_t x1, flo_t y1, flo_t x2, flo_t y2);
-flo_t R_PointToDist(flo_t x1, flo_t y1, flo_t x2, flo_t y2);
-flo_t R_ScaleFromGlobalAngle(angle_t visangle);
-subsector_t *R_PointInSubsector(flo_t x, flo_t y);
-region_properties_t *R_PointGetProps(subsector_t *sub, flo_t z);
+angle_t R_PointToAngle(float x1, float y1, float x2, float y2);
+float R_PointToDist(float x1, float y1, float x2, float y2);
+float R_ScaleFromGlobalAngle(angle_t visangle);
+subsector_t *R_PointInSubsector(float x, float y);
+region_properties_t *R_PointGetProps(subsector_t *sub, float z);
 
 //
 // REFRESH - the actual rendering functions.
@@ -122,7 +122,7 @@ region_properties_t *R_PointGetProps(subsector_t *sub, flo_t z);
 extern void (*R_Render) (void);
 
 // Called by startup code.
-boolean_t R_Init(void);
+bool R_Init(void);
 
 // -ES- 1998/09/11 Added these prototypes.
 void R_SetViewSize(int blocks);
@@ -135,7 +135,7 @@ void R_SetNormalFOV(angle_t newfov);
 void R_SetZoomedFOV(angle_t newfov);
 
 // call this to change the resolution before the next frame.
-void R_ChangeResolution(int width, int height, int depth, boolean_t windowed);
+void R_ChangeResolution(int width, int height, int depth, bool windowed);
 
 void R_StartFading(int start, int range);
 

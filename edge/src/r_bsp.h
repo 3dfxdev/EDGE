@@ -38,12 +38,12 @@ extern int root_node;
 extern int rw_x;
 extern int rw_stopx;
 
-extern boolean_t segtextured;
+extern bool segtextured;
 
 // false if the back side is the same plane
-extern boolean_t markfloor;
-extern boolean_t markceiling;
+extern bool markfloor;
+extern bool markceiling;
 
-extern boolean_t skymap;
+extern bool skymap;
 
 #endif

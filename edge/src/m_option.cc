@@ -190,13 +190,15 @@ typedef enum
 	OPT_Switch    = 1,  // 1 is change a switch,
 	OPT_Function  = 2,  // 2 is call a function,
 	OPT_Slider    = 3,  // 3 is a slider,
-	OPT_KeyConfig = 4   // 4 is a key config
+	OPT_KeyConfig = 4,  // 4 is a key config,
+	OPT_Boolean   = 5,  // 5 is change a boolean switch
+	OPT_NumTypes
 }
 opt_type_e;
 
 typedef struct optmenuitem_s
 {
-  opt_type_e type;
+	opt_type_e type;
 
 	char name[48];
 	const char *typenames;
@@ -299,27 +301,84 @@ static void M_ChangeScreenComp(int keypressed)
 	setsizeneeded = 1;
 }
 
+static int M_GetCurrentSwitchValue(optmenuitem_t *item)
+{
+	int retval = 0;
+
+	switch(item->type)
+	{
+		case OPT_Boolean:
+		{
+			bool *boolptr;
+
+			boolptr = (bool*)item->switchvar;
+			retval = (*boolptr)?1:0;
+
+			break;
+		}
+
+		case OPT_Switch:
+		{
+			retval = *(item->switchvar);
+			break;
+		}
+
+		default:
+		{
+			I_Error("M_GetCurrentSwitchValue: Menu item type is not a switch!\n");
+			break;
+		}
+	}
+
+	return retval;
+}
+
+static void M_DefaultMenuItem(optmenuitem_t *item)
+{
+	switch (item->type)
+	{
+		case OPT_Boolean:
+		{
+			bool* boolptr;
+
+			boolptr = (bool*)item->switchvar;
+			*boolptr = (item->default_val)?true:false;
+			break;
+		}
+
+		case OPT_KeyConfig:
+		case OPT_Slider:
+		case OPT_Switch:
+		{
+			*(item->switchvar) = item->default_val;
+			break;
+		}
+
+		default:
+		{
+			break;
+		}
+	}
+}
+
 //
 //  MAIN MENU
 //
-// -ACB- 1998/07/15 Altered menu structure
-// -ACB- 1999/10/07 Removed sound references: New Sound API
-//
 static optmenuitem_t mainmenu[] =
 {
-	{2, "Keyboard Controls", NULL, 0, 0, NULL, M_StandardControlOptions, "Controls"},
-	{2, "Mouse Options", NULL, 0, 0, NULL, M_AnalogueOptions, "AnalogueOptions"},
-	{2, "Gameplay Options", NULL, 0, 0, NULL, M_GameplayOptions, "GameplayOptions"},
-	{2, "Video Options", NULL, 0, 0, NULL, M_VideoOptions, "VideoOptions"},
-	{2, "Set Resolution", NULL, 0, 0, NULL, M_ResolutionOptions, "ChangeRes"},
-	{0, "", NULL, 0, 0, NULL, NULL, NULL},
-	{2, "Language", NULL, 0, 0, NULL, M_ChangeLanguage, NULL},
-	{1, "Messages", YesNo, 2, 1, &showMessages, NULL, "Messages"},
-	{1, "Swap Stereo", YesNo, 2, 0, (int *)&swapstereo, NULL, "SwapStereo"},
-	{3, "Sound Volume", NULL, 16, 12,  &menusoundvol, M_ChangeSfxVol, NULL},
-	{3, "Music Volume", NULL, 16, 12,  &menumusicvol, M_ChangeMusVol, NULL},
-	{0, "", NULL, 0, 0, NULL, NULL, NULL},
-	{2, "Reset to Defaults", NULL, 0, 0, NULL, M_ResetToDefaults, "ResetToDefaults"}
+	{OPT_Function, "Keyboard Controls", NULL, 0, 0, NULL, M_StandardControlOptions, "Controls"},
+	{OPT_Function, "Mouse Options", NULL, 0, 0, NULL, M_AnalogueOptions, "AnalogueOptions"},
+	{OPT_Function, "Gameplay Options", NULL, 0, 0, NULL, M_GameplayOptions, "GameplayOptions"},
+	{OPT_Function, "Video Options", NULL, 0, 0, NULL, M_VideoOptions, "VideoOptions"},
+	{OPT_Function, "Set Resolution", NULL, 0, 0, NULL, M_ResolutionOptions, "ChangeRes"},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Function, "Language", NULL, 0, 0, NULL, M_ChangeLanguage, NULL},
+	{OPT_Switch, "Messages", YesNo, 2, 1, &showMessages, NULL, "Messages"},
+	{OPT_Boolean, "Swap Stereo", YesNo, 2, 0, (int *)&swapstereo, NULL, "SwapStereo"},
+	{OPT_Slider, "Sound Volume", NULL, 16, 12,  &menusoundvol, M_ChangeSfxVol, NULL},
+	{OPT_Slider, "Music Volume", NULL, 16, 12,  &menumusicvol, M_ChangeMusVol, NULL},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Function, "Reset to Defaults", NULL, 0, 0, NULL, M_ResetToDefaults, "ResetToDefaults"}
 };
 
 static menuinfo_t mainmenuinfo = 
@@ -339,31 +398,31 @@ static char scrcomps[] = "Classic/Double Y/Low detail/Blur 1/Blur 2/Low detail a
 // -ES- 1999/03/29 New fov stuff
 static optmenuitem_t vidoptions[] =
 {
-	{3, "Brightness", NULL, 5, 0, &current_gamma, M_ChangeGamma, NULL},
-	{3, "Screensize", NULL, 9, 7, &screen_size, M_ChangeScreenSize, NULL},
-	{3, "Field Of View", NULL, 35, 17, &menunormalfov, M_ChangeNormalFOV, NULL},
-	{3, "Zoomed FOV", NULL, 35, 1, &menuzoomedfov, M_ChangeZoomedFOV, NULL},
-	{0, "", NULL, 0, 0, NULL, NULL, NULL},
-	{1, "Translucency", YesNo, 2, 1, (int *)&global_flags.trans, M_ChangeTransluc, NULL},
-	{1, "Mipmapping", MipMaps, 3, 0, &use_mipmapping, M_ChangeMipMap, NULL},
-	{1, "Smoothing", YesNo, 2, 1, (int *)&use_smoothing, M_ChangeMipMap, NULL},
-	{1, "Shadows", YesNo, 2, 0, (int *)&global_flags.shadows, M_ChangeShadows, NULL},
-	{1, "Dynamic Lighting", DLights, 2, 0, (int *)&use_dlights, M_ChangeDLights, NULL},
-	{1, "Detail Level", Details, 3, 1, (int *)&detail_level, NULL, NULL},
-	{1, "Crosshair", CrosO, 4, 0, &crosshair, NULL, NULL},
-	{1, "Map Rotation", YesNo, 2, 0, (int *)&rotatemap, NULL, NULL},
-	{1, "Map Overlay", YesNo, 2, 0, (int *)&newhud, NULL, NULL},
-	{0, "", NULL, 0, 0, NULL, NULL, NULL},
-	{1, "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 0, &telept_effect, NULL, NULL},
-	{1, "Teleport Flash", YesNo, 2, 1, &telept_flash, NULL, NULL},
-	{1, "Wipe method", WIPE_EnumStr, WIPE_NUMWIPES, 1, &wipe_method, NULL, NULL} 
+	{OPT_Slider, "Brightness", NULL, 5, 0, &current_gamma, M_ChangeGamma, NULL},
+	{OPT_Slider, "Screensize", NULL, 9, 7, &screen_size, M_ChangeScreenSize, NULL},
+	{OPT_Slider, "Field Of View", NULL, 35, 17, &menunormalfov, M_ChangeNormalFOV, NULL},
+	{OPT_Slider, "Zoomed FOV", NULL, 35, 1, &menuzoomedfov, M_ChangeZoomedFOV, NULL},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Boolean, "Translucency", YesNo, 2, 1, (int *)&global_flags.trans, M_ChangeTransluc, NULL},
+	{OPT_Switch, "Mipmapping", MipMaps, 3, 0, &use_mipmapping, M_ChangeMipMap, NULL},
+	{OPT_Boolean, "Smoothing", YesNo, 2, 1, (int *)&use_smoothing, M_ChangeMipMap, NULL},
+	{OPT_Boolean, "Shadows", YesNo, 2, 0, (int *)&global_flags.shadows, M_ChangeShadows, NULL},
+	{OPT_Switch, "Dynamic Lighting", DLights, 2, 0, (int *)&use_dlights, M_ChangeDLights, NULL},
+	{OPT_Switch, "Detail Level", Details, 3, 1, (int *)&detail_level, NULL, NULL},
+	{OPT_Switch, "Crosshair", CrosO, 4, 0, &crosshair, NULL, NULL},
+	{OPT_Boolean, "Map Rotation", YesNo, 2, 0, (int *)&rotatemap, NULL, NULL},
+	{OPT_Boolean, "Map Overlay", YesNo, 2, 0, (int *)&newhud, NULL, NULL},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Switch, "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 0, &telept_effect, NULL, NULL},
+	{OPT_Switch, "Teleport Flash", YesNo, 2, 1, &telept_flash, NULL, NULL},
+	{OPT_Switch, "Wipe method", WIPE_EnumStr, WIPE_NUMWIPES, 1, &wipe_method, NULL, NULL} 
   
 #if 0  // TEMPORARILY DISABLED (we need an `Advanced Options' menu)
-	{1, "Screen Composition", scrcomps, 9, 0, &scrcomp_o, M_ChangeScreenComp, NULL},
-    {1, "Reverse effect", YesNo, 2, 0, &telept_reverse, NULL, NULL},
-    {1, "Reversed wipe", YesNo, 2, 0, &wipe_reverse, NULL, NULL},
-    {1, "Stretch Sky", YesNo, 2, 0, (int *)&global_flags.stretchsky, M_ChangeStretchSky, NULL},
-    {1, "Cyan/Red 3d effect", YesNo, 2, 0, &use_3d_mode, M_Toggle3dMode, NULL},
+	{OPT_Switch, "Screen Composition", scrcomps, 9, 0, &scrcomp_o, M_ChangeScreenComp, NULL},
+    {OPT_Switch, "Reverse effect", YesNo, 2, 0, &telept_reverse, NULL, NULL},
+    {OPT_Switch, "Reversed wipe", YesNo, 2, 0, &wipe_reverse, NULL, NULL},
+    {OPT_Boolean, "Stretch Sky", YesNo, 2, 0, (int *)&global_flags.stretchsky, M_ChangeStretchSky, NULL},
+    {OPT_Switch, "Cyan/Red 3d effect", YesNo, 2, 0, &use_3d_mode, M_Toggle3dMode, NULL},
 #endif
 };
 
@@ -378,17 +437,17 @@ static menuinfo_t vidoptionsinfo =
 //
 static optmenuitem_t resoptions[] =
 {
-	{0, "", NULL, 0, 0, NULL, NULL, NULL},
-	{0, "", NULL, 0, 0, NULL, NULL, NULL},
-	{0, "", NULL, 0, 0, NULL, NULL, NULL},
-	{2, "Change Size", NULL, 0, 0, NULL, M_ChangeStoredRes, NULL},
-	{2, "Change Depth", NULL, 0, 0, NULL, M_ChangeStoredBpp, NULL},
-	{0, "", NULL, 0, 0, NULL, NULL, NULL},
-	{2, "Set Resolution", NULL, 0, 0, NULL, M_OptionSetResolution, NULL},
-	{2, "Test Resolution", NULL, 0, 0, NULL, M_OptionTestResolution, NULL},
-	{0, "", NULL, 0, 0, NULL, NULL, NULL},
-	{0, "", NULL, 0, 0, NULL, NULL, NULL},
-	{0, "", NULL, 0, 0, NULL, NULL, NULL}
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Function, "Change Size", NULL, 0, 0, NULL, M_ChangeStoredRes, NULL},
+	{OPT_Function, "Change Depth", NULL, 0, 0, NULL, M_ChangeStoredBpp, NULL},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Function, "Set Resolution", NULL, 0, 0, NULL, M_OptionSetResolution, NULL},
+	{OPT_Function, "Test Resolution", NULL, 0, 0, NULL, M_OptionTestResolution, NULL},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL}
 };
 
 static menuinfo_t resoptionsinfo = 
@@ -406,23 +465,23 @@ static menuinfo_t resoptionsinfo =
 //
 static optmenuitem_t analogueoptions[] =
 {
-	{1, "Invert Mouse", YesNo, 2, false, (int*)&invertmouse, NULL, NULL},
-	{1, "Mouse X Axis", Axis, 6, AXIS_TURN, &mouse_xaxis, NULL, NULL},
-	{1, "Mouse Y Axis", Axis, 6, AXIS_FORWARD, &mouse_yaxis, NULL, NULL},
-	{3, "MouseSpeed", NULL, 20, 8, &mouseSensitivity, NULL, NULL},
-	{0, "", NULL, 0, 0, NULL, NULL, NULL},
-	{3, "MLook Speed", NULL, 20, 8, &mlookspeed, NULL, NULL},
-	{0, "", NULL, 0, 0, NULL, NULL, NULL},
-	{1, "Two-Stage Turning", YesNo, 2, 0, (int *)&stageturn, NULL, NULL},
-	{3, "Turning Speed", NULL, 9, 0, &angleturnspeed, NULL, NULL},
-	{3, "Side Move Speed", NULL, 9, 0, &sidemovespeed, NULL, NULL},
-	{3, "Forward Move Speed", NULL, 9, 0, &forwardmovespeed, NULL, NULL}
+	{OPT_Boolean, "Invert Mouse", YesNo, 2, false, (int*)&invertmouse, NULL, NULL},
+	{OPT_Switch, "Mouse X Axis", Axis, 6, AXIS_TURN, &mouse_xaxis, NULL, NULL},
+	{OPT_Switch, "Mouse Y Axis", Axis, 6, AXIS_FORWARD, &mouse_yaxis, NULL, NULL},
+	{OPT_Slider, "MouseSpeed", NULL, 20, 8, &mouseSensitivity, NULL, NULL},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Slider, "MLook Speed", NULL, 20, 8, &mlookspeed, NULL, NULL},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Boolean, "Two-Stage Turning", YesNo, 2, 0, (int *)&stageturn, NULL, NULL},
+	{OPT_Slider, "Turning Speed", NULL, 9, 0, &angleturnspeed, NULL, NULL},
+	{OPT_Slider, "Side Move Speed", NULL, 9, 0, &sidemovespeed, NULL, NULL},
+	{OPT_Slider, "Forward Move Speed", NULL, 9, 0, &forwardmovespeed, NULL, NULL}
 
 #if 0  // DISABLED, Because no joystick support yet
-	{0, "", NULL, 0, 0, NULL, NULL, NULL},
-	{1, "Joystick X Axis", Axis, 6, AXIS_TURN, &joy_xaxis, NULL, NULL},
-	{1, "Joystick Y Axis", Axis, 6, AXIS_FORWARD, &joy_yaxis, NULL, NULL},
-	{2, "Calibrate Joystick", NULL, 0, 0, NULL, M_CalibrateJoystick, NULL}
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Switch, "Joystick X Axis", Axis, 6, AXIS_TURN, &joy_xaxis, NULL, NULL},
+	{OPT_Switch, "Joystick Y Axis", Axis, 6, AXIS_FORWARD, &joy_yaxis, NULL, NULL},
+	{OPT_Function, "Calibrate Joystick", NULL, 0, 0, NULL, M_CalibrateJoystick, NULL}
 #endif
 };
 
@@ -440,21 +499,21 @@ static menuinfo_t analogueoptionsinfo =
 //
 optmenuitem_t playoptions[] =
 {
-	{1, "Compatibility", CompatSet, 2, 0, (int *)&global_flags.compat_mode, M_ChangeCompatMode, NULL},
-	{1, "AutoAiming", AAim, 3, 1, (int *)&global_flags.autoaim, M_ChangeAutoAim, NULL},
-	{1, "Jumping", YesNo, 2, 0, (int *)&global_flags.jump, M_ChangeJumping, NULL},
-	{1, "Crouching", YesNo, 2, 0, (int *)&global_flags.crouch, M_ChangeCrouching, NULL},
-	{1, "Weapon Kick", YesNo, 2, 1, (int *)&global_flags.kicking, M_ChangeKicking, NULL},
-	{1, "More Blood", YesNo, 2, 0, (int *)&global_flags.more_blood, M_ChangeBlood, "Blood"},
-	{1, "Extras", YesNo, 2, 1, (int *)&global_flags.have_extra, M_ChangeExtra, NULL},
-	{1, "True 3D Gameplay", YesNo, 2, 1, (int *)&global_flags.true3dgameplay, M_ChangeTrue3d, "True3d"},
-	{0, "", NULL, 0, 0, NULL, NULL, NULL},
-	{3, "Gravity", NULL, 20, 8, &global_flags.menu_grav, NULL, "Gravity"},
-	{0, "", NULL, 0, 0, NULL, NULL, NULL},
-	{1, "Enemy Respawn Mode", Respw, 2, 0, (int *)&global_flags.res_respawn, M_ChangeMonsterRespawn, NULL},
-	{1, "Item Respawn", YesNo, 2, 0, (int *)&global_flags.itemrespawn, M_ChangeItemRespawn, NULL},
-	{1, "Fast Monsters", YesNo, 2, 0, (int *)&global_flags.fastparm, M_ChangeFastparm, NULL},
-	{1, "Respawn", YesNo, 2, 0, (int *)&global_flags.respawn, M_ChangeRespawn, NULL}
+	{OPT_Switch, "Compatibility", CompatSet, 2, 0, &global_flags.compat_mode, M_ChangeCompatMode, NULL},
+	{OPT_Switch, "AutoAiming", AAim, 3, 1, &global_flags.autoaim, M_ChangeAutoAim, NULL},
+	{OPT_Boolean, "Jumping", YesNo, 2, 0, (int *)&global_flags.jump, M_ChangeJumping, NULL},
+	{OPT_Boolean, "Crouching", YesNo, 2, 0, (int *)&global_flags.crouch, M_ChangeCrouching, NULL},
+	{OPT_Boolean, "Weapon Kick", YesNo, 2, 1, (int *)&global_flags.kicking, M_ChangeKicking, NULL},
+	{OPT_Boolean, "More Blood", YesNo, 2, 0, (int *)&global_flags.more_blood, M_ChangeBlood, "Blood"},
+	{OPT_Boolean, "Extras", YesNo, 2, 1, (int *)&global_flags.have_extra, M_ChangeExtra, NULL},
+	{OPT_Boolean, "True 3D Gameplay", YesNo, 2, 1, (int *)&global_flags.true3dgameplay, M_ChangeTrue3d, "True3d"},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Slider, "Gravity", NULL, 20, 8, &global_flags.menu_grav, NULL, "Gravity"},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Boolean, "Enemy Respawn Mode", Respw, 2, 0, (int *)&global_flags.res_respawn, M_ChangeMonsterRespawn, NULL},
+	{OPT_Boolean, "Item Respawn", YesNo, 2, 0, (int *)&global_flags.itemrespawn, M_ChangeItemRespawn, NULL},
+	{OPT_Boolean, "Fast Monsters", YesNo, 2, 0, (int *)&global_flags.fastparm, M_ChangeFastparm, NULL},
+	{OPT_Boolean, "Respawn", YesNo, 2, 0, (int *)&global_flags.respawn, M_ChangeRespawn, NULL}
 };
 
 static menuinfo_t playoptionsinfo = 
@@ -471,21 +530,21 @@ static menuinfo_t playoptionsinfo =
 //
 static optmenuitem_t stdkeyconfig[] =
 {
-	{4, "Primary Attack", NULL, 0, KEYD_RCTRL + (KEYD_MOUSE1 << 16), &key_fire, NULL, NULL},
-  {4, "Secondary Atk", NULL, 0, 'E', &key_secondatk, NULL, NULL},
-	{4, "Use Item", NULL, 0, ' ', &key_use, NULL, NULL},
-	{4, "Walk Forward", NULL, 0, KEYD_UPARROW, &key_up, NULL, NULL},
-	{4, "Walk Backwards", NULL, 0, KEYD_DOWNARROW, &key_down, NULL, NULL},
-	{4, "Turn Left", NULL, 0, KEYD_LEFTARROW, &key_left, NULL, NULL},
-	{4, "Turn Right", NULL, 0, KEYD_RIGHTARROW, &key_right, NULL, NULL},
-	{4, "Move Up", NULL, 0, KEYD_INSERT, &key_flyup, NULL, NULL},
-	{4, "Move Down", NULL, 0, KEYD_DELETE, &key_flydown, NULL, NULL},
-	{4, "Toggle Autorun", NULL, 0, KEYD_CAPSLOCK, &key_autorun, NULL, NULL},
-	{4, "Run", NULL, 0, KEYD_RSHIFT, &key_speed, NULL, NULL},
-	{0, "", NULL, 0, 0, NULL, NULL, NULL},
-	{4, "Strafe Left", NULL, 0, ',', &key_strafeleft, NULL, NULL},
-	{4, "Strafe Right", NULL, 0, '.', &key_straferight, NULL, NULL},
-	{4, "Strafe", NULL, 0, KEYD_RALT + (KEYD_MOUSE2 << 16), &key_strafe, NULL, NULL}
+	{OPT_KeyConfig, "Primary Attack", NULL, 0, KEYD_RCTRL + (KEYD_MOUSE1 << 16), &key_fire, NULL, NULL},
+    {OPT_KeyConfig, "Secondary Atk", NULL, 0, 'E', &key_secondatk, NULL, NULL},
+	{OPT_KeyConfig, "Use Item", NULL, 0, ' ', &key_use, NULL, NULL},
+	{OPT_KeyConfig, "Walk Forward", NULL, 0, KEYD_UPARROW, &key_up, NULL, NULL},
+	{OPT_KeyConfig, "Walk Backwards", NULL, 0, KEYD_DOWNARROW, &key_down, NULL, NULL},
+	{OPT_KeyConfig, "Turn Left", NULL, 0, KEYD_LEFTARROW, &key_left, NULL, NULL},
+	{OPT_KeyConfig, "Turn Right", NULL, 0, KEYD_RIGHTARROW, &key_right, NULL, NULL},
+	{OPT_KeyConfig, "Move Up", NULL, 0, KEYD_INSERT, &key_flyup, NULL, NULL},
+	{OPT_KeyConfig, "Move Down", NULL, 0, KEYD_DELETE, &key_flydown, NULL, NULL},
+	{OPT_KeyConfig, "Toggle Autorun", NULL, 0, KEYD_CAPSLOCK, &key_autorun, NULL, NULL},
+	{OPT_KeyConfig, "Run", NULL, 0, KEYD_RSHIFT, &key_speed, NULL, NULL},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_KeyConfig, "Strafe Left", NULL, 0, ',', &key_strafeleft, NULL, NULL},
+	{OPT_KeyConfig, "Strafe Right", NULL, 0, '.', &key_straferight, NULL, NULL},
+	{OPT_KeyConfig, "Strafe", NULL, 0, KEYD_RALT + (KEYD_MOUSE2 << 16), &key_strafe, NULL, NULL}
 };
 
 static menuinfo_t stdkeyconfiginfo = 
@@ -503,15 +562,15 @@ static menuinfo_t stdkeyconfiginfo =
 //
 static optmenuitem_t extkeyconfig[] =
 {
-	{4, "Look Up", NULL, 0, KEYD_PGUP, &key_lookup, NULL, NULL},
-	{4, "Look Down", NULL, 0, KEYD_PGDN, &key_lookdown, NULL, NULL},
-	{4, "Center View", NULL, 0, KEYD_HOME, &key_lookcenter, NULL, NULL},
-	{4, "Zoom in/out", NULL, 0, '\\', &key_zoom, NULL, NULL},
-	{4, "180 degree turn", NULL, 0, 0, &key_180, NULL, NULL},
-	{4, "Jump", NULL, 0, '/', &key_jump, NULL, NULL},
-	{4, "Mouse Look", NULL, 0, 0, &key_mlook, NULL, NULL},
-	{4, "Map Toggle", NULL, 0, KEYD_TAB, &key_map, NULL, NULL},
-	{4, "Multiplay Talk", NULL, 0, 't', &key_talk, NULL, NULL}
+	{OPT_KeyConfig, "Look Up", NULL, 0, KEYD_PGUP, &key_lookup, NULL, NULL},
+	{OPT_KeyConfig, "Look Down", NULL, 0, KEYD_PGDN, &key_lookdown, NULL, NULL},
+	{OPT_KeyConfig, "Center View", NULL, 0, KEYD_HOME, &key_lookcenter, NULL, NULL},
+	{OPT_KeyConfig, "Zoom in/out", NULL, 0, '\\', &key_zoom, NULL, NULL},
+	{OPT_KeyConfig, "180 degree turn", NULL, 0, 0, &key_180, NULL, NULL},
+	{OPT_KeyConfig, "Jump", NULL, 0, '/', &key_jump, NULL, NULL},
+	{OPT_KeyConfig, "Mouse Look", NULL, 0, 0, &key_mlook, NULL, NULL},
+	{OPT_KeyConfig, "Map Toggle", NULL, 0, KEYD_TAB, &key_map, NULL, NULL},
+	{OPT_KeyConfig, "Multiplay Talk", NULL, 0, 't', &key_talk, NULL, NULL}
 };
 
 static menuinfo_t extkeyconfiginfo = 
@@ -718,13 +777,15 @@ void M_OptDrawer()
 
 		switch (curr_menu->items[i].type)
 		{
+			case OPT_Boolean:
 			case OPT_Switch:
-
+			{
 				k = 0;
-        for (j = 0; j < (*(curr_menu->items[i].switchvar)); j++)
+				for (j = 0; j < M_GetCurrentSwitchValue(&curr_menu->items[i]); j++)
 				{
 					while ((curr_menu->items[i].typenames[k] != '/') && (k < strlen(curr_menu->items[i].typenames)))
 						k++;
+
 					k++;
 				}
 
@@ -746,6 +807,7 @@ void M_OptDrawer()
 
 				HL_WriteTextTrans((curr_menu->menu_center) + 15, curry, OPTSHADE, tempstring);
 				break;
+			}
 
 			case OPT_Slider:
 			{
@@ -840,7 +902,7 @@ static void M_LanguageDrawer(int x, int y, int deltay)
 //
 // M_OptResponder
 //
-boolean_t M_OptResponder(event_t * ev, int ch)
+bool M_OptResponder(event_t * ev, int ch)
 {
 	if (testticker != -1)
 		return true;
@@ -944,6 +1006,21 @@ boolean_t M_OptResponder(event_t * ev, int ch)
 					return false;
 				}
 
+				case OPT_Boolean:
+				{
+					bool *boolptr;
+
+					boolptr = (bool*)curr_item->switchvar;
+					*boolptr = !(*boolptr);
+
+					S_StartSound(NULL, sfx_pistol);
+
+					if (curr_item->routine != NULL)
+						curr_item->routine(ch);
+
+					return true;
+				}
+
 				case OPT_Switch:
 				{
 					(*(curr_item->switchvar))--;
@@ -1007,6 +1084,21 @@ boolean_t M_OptResponder(event_t * ev, int ch)
 			{
 				case OPT_Plain:
 					return false;
+
+				case OPT_Boolean:
+				{
+					bool *boolptr;
+
+					boolptr = (bool*)curr_item->switchvar;
+					*boolptr = !(*boolptr);
+
+					S_StartSound(NULL, sfx_pistol);
+
+					if (curr_item->routine != NULL)
+						curr_item->routine(ch);
+
+					return true;
+				}
 
 				case OPT_Switch:
 				{
@@ -1171,56 +1263,22 @@ void M_ResetToDefaults(int keypressed)
 	int i;
 
 	for (i = 0; i < mainmenuinfo.item_num; i++)
-	{
-		if (mainmenu[i].type == OPT_Switch || 
-			mainmenu[i].type == OPT_Slider)
-		{
-			(*(mainmenu[i].switchvar)) = mainmenu[i].default_val;
-		}
-	}
+		M_DefaultMenuItem(&mainmenu[i]);
 
 	for (i = 0; i < vidoptionsinfo.item_num; i++)
-	{
-		if (vidoptions[i].type == OPT_Switch || 
-			vidoptions[i].type == OPT_Slider)
-		{
-			(*(vidoptions[i].switchvar)) = vidoptions[i].default_val;
-		}
-	}
+		M_DefaultMenuItem(&vidoptions[i]);
 
 	for (i = 0; i < playoptionsinfo.item_num; i++)
-	{
-		if (playoptions[i].type == OPT_Switch || 
-			playoptions[i].type == OPT_Slider)
-		{
-			(*(playoptions[i].switchvar)) = playoptions[i].default_val;
-		}
-	}
+		M_DefaultMenuItem(&playoptions[i]);
 
 	for (i = 0; i < analogueoptionsinfo.item_num; i++)
-	{
-		if (analogueoptions[i].type == OPT_Switch || 
-			analogueoptions[i].type == OPT_Slider)
-		{
-			(*(analogueoptions[i].switchvar)) = analogueoptions[i].default_val;
-		}
-	}
+		M_DefaultMenuItem(&analogueoptions[i]);
 
 	for (i = 0; i < stdkeyconfiginfo.item_num; i++)
-	{
-		if (stdkeyconfig[i].type == OPT_KeyConfig)
-		{
-			(*(stdkeyconfig[i].switchvar)) = stdkeyconfig[i].default_val;
-		}
-	}
+		M_DefaultMenuItem(&stdkeyconfig[i]);
 
 	for (i = 0; i < extkeyconfiginfo.item_num; i++)
-	{
-		if (extkeyconfig[i].type == OPT_KeyConfig)
-		{
-			(*(extkeyconfig[i].switchvar)) = extkeyconfig[i].default_val;
-		}
-	}
+		M_DefaultMenuItem(&extkeyconfig[i]);
 }
 
 //
@@ -1322,7 +1380,7 @@ static void M_ChangeGamma(int keypressed)
 //
 // M_ChangeBlood
 //
-// -KM- 1998/07/21 Change blood to a boolean_t
+// -KM- 1998/07/21 Change blood to a bool
 // -ACB- 1998/08/09 Check map setting allows this
 //
 static void M_ChangeBlood(int keypressed)
@@ -1555,7 +1613,7 @@ static void M_ChangeStoredRes(int keypressed)
 static void M_ChangeStoredBpp(int keypressed)
 {
 	int newdepthbit;
-	boolean_t gotnewdepth;  // Got new resolution setting
+	bool gotnewdepth;  // Got new resolution setting
 	screenmode_t newMode;
 	int idx;
 

@@ -201,7 +201,7 @@ void RGL_StopWipe(void)
 
 //----------------------------------------------------------------------------
 
-static void RGL_Wipe_Fading(flo_t how_far)
+static void RGL_Wipe_Fading(float how_far)
 {
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
@@ -245,9 +245,9 @@ static void RGL_Wipe_Melt(void)
 	{
 		int yoffs = MAX(0, melt_yoffs[x]);
 
-		flo_t tx = (flo_t) x / MELT_DIVS;
-		flo_t sx = (flo_t) x * SCREENWIDTH / MELT_DIVS;
-		flo_t sy = (flo_t) (200 - yoffs) * SCREENHEIGHT / 200.0;
+		float tx = (float) x / MELT_DIVS;
+		float sx = (float) x * SCREENWIDTH / MELT_DIVS;
+		float sy = (float) (200 - yoffs) * SCREENHEIGHT / 200.0;
 
 		glTexCoord2f(tx, 1.0);
 		glVertex2f(sx, sy);
@@ -262,7 +262,7 @@ static void RGL_Wipe_Melt(void)
 	glDisable(GL_TEXTURE_2D);
 }
 
-static void RGL_Wipe_Slide(flo_t how_far, flo_t dx, flo_t dy)
+static void RGL_Wipe_Slide(float how_far, float dx, float dy)
 {
 	dx *= how_far;
 	dy *= how_far;
@@ -293,10 +293,10 @@ static void RGL_Wipe_Slide(flo_t how_far, flo_t dx, flo_t dy)
 	glDisable(GL_TEXTURE_2D);
 }
 
-static void RGL_Wipe_Doors(flo_t how_far)
+static void RGL_Wipe_Doors(float how_far)
 {
-	flo_t dx = cos(how_far * M_PI / 2) * (SCREENWIDTH/2);
-	flo_t dy = sin(how_far * M_PI / 2) * (SCREENHEIGHT/3);
+	float dx = cos(how_far * M_PI / 2) * (SCREENWIDTH/2);
+	float dy = sin(how_far * M_PI / 2) * (SCREENHEIGHT/3);
 
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
@@ -347,10 +347,10 @@ static void RGL_Wipe_Doors(flo_t how_far)
 //
 // NOTE: we assume 2D project matrix is already setup.
 //
-boolean_t RGL_DoWipe(void)
+bool RGL_DoWipe(void)
 {
 	int progress;
-	flo_t how_far;
+	float how_far;
 
 	if (cur_wipe_effect == WIPE_None || cur_wipe_tex == 0)
 		return true;
@@ -368,7 +368,7 @@ boolean_t RGL_DoWipe(void)
 	if (progress > 40)
 		return true;
 
-	how_far = (flo_t) progress / 40.0;
+	how_far = (float) progress / 40.0;
 
 	switch (cur_wipe_effect)
 	{

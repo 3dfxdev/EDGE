@@ -201,10 +201,10 @@ static const commandlist_t sect_commands[] =
 //
 // SectorStartEntry
 //
-static boolean_t SectorStartEntry(const char *name)
+static bool SectorStartEntry(const char *name)
 {
 	int i;
-	boolean_t replaces = false;
+	bool replaces = false;
 	int number = MAX(0, atoi(name));
 
 	if (number == 0)
@@ -248,7 +248,7 @@ static boolean_t SectorStartEntry(const char *name)
 // SectorParseField
 //
 static void SectorParseField(const char *field, const char *contents,
-							 int index, boolean_t is_last)
+							 int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	L_WriteDebug("SECTOR_PARSE: %s = %s;\n", field, contents);

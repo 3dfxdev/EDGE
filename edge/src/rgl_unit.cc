@@ -67,11 +67,11 @@ typedef struct local_gl_unit_s
 
 	// texture contains see-through parts (i.e. significant areas where
 	// alpha = 0, like sprites).
-	boolean_t masked;
+	bool masked;
 
 	// texture/vertices should be alpha blended (e.g. translucent
 	// water).
-	boolean_t blended;
+	bool blended;
 }
 local_gl_unit_t;
 
@@ -83,7 +83,7 @@ static GLuint local_unit_map[MAX_L_UNIT];
 static int cur_vert;
 static int cur_unit;
 
-static boolean_t solid_mode;
+static bool solid_mode;
 
 
 //
@@ -122,7 +122,7 @@ void RGL_InitUnits(void)
 // minimum.  The non-solid batch is drawn in-order (and should be
 // processed from furthest to closest).
 //
-void RGL_StartUnits(boolean_t solid)
+void RGL_StartUnits(bool solid)
 {
 	cur_vert = cur_unit = 0;
 	solid_mode = solid;
@@ -149,7 +149,7 @@ void RGL_FinishUnits(void)
 // texture should be blended (like for translucent water or sprites).
 //
 local_gl_vert_t *RGL_BeginUnit(GLuint mode, int max_vert,
-							   GLuint tex_id, boolean_t masked, boolean_t blended)
+							   GLuint tex_id, bool masked, bool blended)
 {
 	local_gl_unit_t *unit;
 
@@ -205,8 +205,8 @@ void RGL_DrawUnits(void)
 	GLuint cur_tex = 0xABE74C74;
 	GLfloat d_col[4] = { 1.0, 1.0, 1.0, 1.0 };
 
-	boolean_t cur_masking  = false;
-	boolean_t cur_blending = false;
+	bool cur_masking  = false;
+	bool cur_blending = false;
 
 	if (cur_unit == 0)
 		return;
@@ -431,7 +431,7 @@ void RGL_1DOcclusionSet(angle_t low, angle_t high)
 // Angles are relative to the VIEW angle, and must lie in the range
 // -90 to +90 degrees (inclusive).
 //
-boolean_t RGL_1DOcclusionTest(angle_t low, angle_t high)
+bool RGL_1DOcclusionTest(angle_t low, angle_t high)
 {
 	unsigned int low_b, high_b;
 
@@ -483,7 +483,7 @@ boolean_t RGL_1DOcclusionTest(angle_t low, angle_t high)
 //  Note 2: polygons are always horizontal.
 //  
 
-raw_polyquad_t *RGL_NewPolyQuad(int maxvert, boolean_t quad)
+raw_polyquad_t *RGL_NewPolyQuad(int maxvert, bool quad)
 {
 	raw_polyquad_t *poly;
 
@@ -538,7 +538,7 @@ void RGL_BoundPolyQuad(raw_polyquad_t *poly)
 }
 
 #ifdef DEVELOPERS
-static void RGL_DumpPolyQuad(raw_polyquad_t *poly, boolean_t single)
+static void RGL_DumpPolyQuad(raw_polyquad_t *poly, bool single)
 {
 	int j;
 
@@ -585,8 +585,8 @@ static void RGL_DumpPolyQuad(raw_polyquad_t *poly, boolean_t single)
 static void RGL_DoSplitQuadVertSep(raw_polyquad_t *quad, int extras)
 {
 	int j;
-	flo_t h1, h2;
-	flo_t span_z;
+	float h1, h2;
+	float span_z;
 
 	DEV_ASSERT2(extras >= 1);
 
@@ -607,7 +607,7 @@ static void RGL_DoSplitQuadVertSep(raw_polyquad_t *quad, int extras)
 
 		Z_MoveData(N->verts, quad->verts, vec3_t, 4);
 
-		h2 = quad->min.z + span_z * (j+1) / (flo_t)(extras + 1);
+		h2 = quad->min.z + span_z * (j+1) / (float)(extras + 1);
 
 		N->verts[0].z = h1;  N->verts[1].z = h2;
 		N->verts[2].z = h1;  N->verts[3].z = h2;
@@ -653,8 +653,8 @@ static void RGL_DoSplitQuadHorizSep(raw_polyquad_t *quad, int extras)
 
 		Z_MoveData(N->verts, quad->verts, vec3_t, 4);
 
-		p2.x = quad->verts[0].x + span.x * (j+1) / (flo_t)(extras + 1);
-		p2.y = quad->verts[0].y + span.y * (j+1) / (flo_t)(extras + 1);
+		p2.x = quad->verts[0].x + span.x * (j+1) / (float)(extras + 1);
+		p2.y = quad->verts[0].y + span.y * (j+1) / (float)(extras + 1);
 
 		N->verts[0].x = p1.x;  N->verts[0].y = p1.y;
 		N->verts[1].x = p1.x;  N->verts[1].y = p1.y;
@@ -712,8 +712,8 @@ static void RGL_DoSplitQuadHoriz(raw_polyquad_t *quad, int extras)
 	{
 		vec3_t *pair = quad->verts + (j+1) * 2;
 
-		pair[0].x = p1.x + span.x * (j+1) / (flo_t)(extras + 1);
-		pair[0].y = p1.y + span.y * (j+1) / (flo_t)(extras + 1);
+		pair[0].x = p1.x + span.x * (j+1) / (float)(extras + 1);
+		pair[0].y = p1.y + span.y * (j+1) / (float)(extras + 1);
 		pair[0].z = p1.z;
 
 		pair[1].x = pair[0].x;
@@ -725,9 +725,9 @@ static void RGL_DoSplitQuadHoriz(raw_polyquad_t *quad, int extras)
 }
 
 static void RGL_DoSplitQuad(raw_polyquad_t *quad, int division,
-							boolean_t separate)
+							bool separate)
 {
-	flo_t span_xy, span_z;
+	float span_xy, span_z;
 
 	raw_polyquad_t *orig = quad;
 
@@ -768,7 +768,7 @@ static void RGL_DoSplitQuad(raw_polyquad_t *quad, int division,
 
 
 static INLINE void AddPolyDynPoint(raw_polyquad_t *poly,
-								   flo_t x, flo_t y, flo_t z)
+								   float x, float y, float z)
 {
 	DEV_ASSERT2(poly);
 	DEV_ASSERT2(poly->num_verts <= poly->max_verts);
@@ -785,9 +785,9 @@ static INLINE void AddPolyDynPoint(raw_polyquad_t *poly,
 }
 
 static INLINE void AddPolyVertIntercept(raw_polyquad_t *poly,
-										vec3_t *P, vec3_t *S, flo_t y)
+										vec3_t *P, vec3_t *S, float y)
 {
-	flo_t frac;
+	float frac;
 
 	DEV_ASSERT2(P->y != S->y);
 	DEV_ASSERT2(MIN(P->y, S->y)-1 <= y && y <= MAX(P->y, S->y)+1);
@@ -799,9 +799,9 @@ static INLINE void AddPolyVertIntercept(raw_polyquad_t *poly,
 }
 
 static INLINE void AddPolyHorizIntercept(raw_polyquad_t *poly,
-										 vec3_t *P, vec3_t *S, flo_t x)
+										 vec3_t *P, vec3_t *S, float x)
 {
-	flo_t frac;
+	float frac;
 
 	DEV_ASSERT2(P->x != S->x);
 	DEV_ASSERT2(MIN(P->x, S->x)-1 <= x && x <= MAX(P->x, S->x)+1);
@@ -836,9 +836,9 @@ static INLINE void AddPolyHorizIntercept(raw_polyquad_t *poly,
 static void RGL_DoSplitPolyVert(raw_polyquad_t *poly, int extras)
 {
 	int j, k;
-	flo_t y;
-	flo_t span_y = poly->max.y - poly->min.y;
-	flo_t min_y = poly->min.y;
+	float y;
+	float span_y = poly->max.y - poly->min.y;
+	float min_y = poly->min.y;
 
 	vec3_t *orig_verts;
 	int orig_num;
@@ -858,7 +858,7 @@ static void RGL_DoSplitPolyVert(raw_polyquad_t *poly, int extras)
 	for (k=0; k < orig_num; k++)
 	{
 		vec3_t P, S;
-		boolean_t down;
+		bool down;
 
 		P = orig_verts[k];
 		S = orig_verts[(k+1) % orig_num];
@@ -879,7 +879,7 @@ static void RGL_DoSplitPolyVert(raw_polyquad_t *poly, int extras)
 
 		for (j=start; j != end; j += step)
 		{
-			y = min_y + span_y * (j+1) / (flo_t)(extras+1);
+			y = min_y + span_y * (j+1) / (float)(extras+1);
 
 			// no intercept ?
 			if (y <= (down ? S.y : P.y) + 0.01 || 
@@ -898,9 +898,9 @@ static void RGL_DoSplitPolyVert(raw_polyquad_t *poly, int extras)
 static void RGL_DoSplitPolyHoriz(raw_polyquad_t *poly, int extras)
 {
 	int j, k;
-	flo_t x;
-	flo_t span_x= poly->max.x - poly->min.x;
-	flo_t min_x= poly->min.x;
+	float x;
+	float span_x= poly->max.x - poly->min.x;
+	float min_x= poly->min.x;
 
 	vec3_t *orig_verts;
 	int orig_num;
@@ -920,7 +920,7 @@ static void RGL_DoSplitPolyHoriz(raw_polyquad_t *poly, int extras)
 	for (k=0; k < orig_num; k++)
 	{
 		vec3_t P, S;
-		boolean_t left;
+		bool left;
 
 		P = orig_verts[k];
 		S = orig_verts[(k+1) % orig_num];
@@ -941,7 +941,7 @@ static void RGL_DoSplitPolyHoriz(raw_polyquad_t *poly, int extras)
 
 		for (j=start; j != end; j += step)
 		{
-			x = min_x + span_x * (j+1) / (flo_t)(extras+1);
+			x = min_x + span_x * (j+1) / (float)(extras+1);
 
 			// no intercept ?
 			if (x <= (left ? S.x : P.x) + 0.01 || 
@@ -1002,9 +1002,9 @@ static void RGL_DoSplitPolyHoriz(raw_polyquad_t *poly, int extras)
 static void RGL_DoSplitPolyVertSep(raw_polyquad_t *poly, int extras)
 {
 	int j, k;
-	flo_t y1, y2;
-	flo_t span_y = poly->max.y - poly->min.y;
-	flo_t min_y = poly->min.y;
+	float y1, y2;
+	float span_y = poly->max.y - poly->min.y;
+	float min_y = poly->min.y;
 
 	raw_polyquad_t *N;
 	vec3_t *orig_verts;
@@ -1024,7 +1024,7 @@ static void RGL_DoSplitPolyVertSep(raw_polyquad_t *poly, int extras)
 
 	for (j=0; j < extras+1; j++, y1 = y2)
 	{
-		y2 = min_y + span_y * (j+1) / (flo_t)(extras+1);
+		y2 = min_y + span_y * (j+1) / (float)(extras+1);
 
 		if (j == 0)
 		{
@@ -1044,7 +1044,7 @@ static void RGL_DoSplitPolyVertSep(raw_polyquad_t *poly, int extras)
 			vec3_t P, S;
 			int Ppos, Spos;
 			int Pedg, Sedg;
-			flo_t cy, dy;
+			float cy, dy;
 
 			P = orig_verts[k];
 			S = orig_verts[(k+1) % orig_num];
@@ -1107,9 +1107,9 @@ static void RGL_DoSplitPolyVertSep(raw_polyquad_t *poly, int extras)
 static void RGL_DoSplitPolyHorizSep(raw_polyquad_t *poly, int extras)
 {
 	int j, k;
-	flo_t x1, x2;
-	flo_t span_x = poly->max.x - poly->min.x;
-	flo_t min_x = poly->min.x;
+	float x1, x2;
+	float span_x = poly->max.x - poly->min.x;
+	float min_x = poly->min.x;
 
 	raw_polyquad_t *N;
 	vec3_t *orig_verts;
@@ -1129,7 +1129,7 @@ static void RGL_DoSplitPolyHorizSep(raw_polyquad_t *poly, int extras)
 
 	for (j=0; j < extras+1; j++, x1 = x2)
 	{
-		x2 = min_x + span_x * (j+1) / (flo_t)(extras+1);
+		x2 = min_x + span_x * (j+1) / (float)(extras+1);
 
 		if (j == 0)
 		{
@@ -1149,7 +1149,7 @@ static void RGL_DoSplitPolyHorizSep(raw_polyquad_t *poly, int extras)
 			vec3_t P, S;
 			int Ppos, Spos;
 			int Pedg, Sedg;
-			flo_t cx, dx;
+			float cx, dx;
 
 			P = orig_verts[k];
 			S = orig_verts[(k+1) % orig_num];
@@ -1210,7 +1210,7 @@ static void RGL_DoSplitPolyHorizSep(raw_polyquad_t *poly, int extras)
 }
 
 static void RGL_DoSplitPolyListVert(raw_polyquad_t *poly,
-									int extras, boolean_t separate)
+									int extras, bool separate)
 {
 	while (poly)
 	{
@@ -1225,7 +1225,7 @@ static void RGL_DoSplitPolyListVert(raw_polyquad_t *poly,
 }
 
 static void RGL_DoSplitPolyListHoriz(raw_polyquad_t *poly,
-									 int extras, boolean_t separate)
+									 int extras, bool separate)
 {
 	while (poly)
 	{
@@ -1240,10 +1240,10 @@ static void RGL_DoSplitPolyListHoriz(raw_polyquad_t *poly,
 }
 
 static void RGL_DoSplitPolygon(raw_polyquad_t *poly, int division,
-							   boolean_t separate)
+							   bool separate)
 {
-	flo_t span_x = poly->max.x - poly->min.x;
-	flo_t span_y = poly->max.y - poly->min.y;
+	float span_x = poly->max.x - poly->min.x;
+	float span_y = poly->max.y - poly->min.y;
 
 	DEV_ASSERT2(division > 0);
 
@@ -1278,7 +1278,7 @@ static void RGL_DoSplitPolygon(raw_polyquad_t *poly, int division,
 
 
 void RGL_SplitPolyQuad(raw_polyquad_t *poly, int division,
-					   boolean_t separate)
+					   bool separate)
 {
 	if (poly->quad)
 		RGL_DoSplitQuad(poly, division, separate);
@@ -1327,7 +1327,7 @@ void RGL_SplitPolyQuadLOD(raw_polyquad_t *poly, int max_lod, int base_div)
 
 void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
 						void (* CoordFunc)(vec3_t *src, local_gl_vert_t *vert, void *data),
-						GLuint tex_id, boolean_t masked, boolean_t blended)
+						GLuint tex_id, bool masked, bool blended)
 {
 	int j;
 	local_gl_vert_t *vert;
@@ -1354,8 +1354,8 @@ void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
 
 
 #if 0  // DEBUG ONLY
-static raw_polyquad_t * CreateTestQuad(flo_t x1, flo_t y1,
-									   flo_t z1, flo_t x2, flo_t y2, flo_t z2)
+static raw_polyquad_t * CreateTestQuad(float x1, float y1,
+									   float z1, float x2, float y2, float z2)
 {
 	raw_polyquad_t *poly = RGL_NewPolyQuad(4, true);
 

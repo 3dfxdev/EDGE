@@ -39,7 +39,7 @@ static struct cdrom_volctrl volume;	// volume
 //
 // This routine checks attempts to init the CDROM device. Returns true is successful
 //
-boolean_t I_StartupCD(void)
+bool I_StartupCD(void)
 {
   L_WriteDebug("I_StartupCD: Initializing...\n");
 
@@ -73,7 +73,7 @@ boolean_t I_StartupCD(void)
 //
 // Attempts to play CD track 'tracknum', returns true on success.
 //
-boolean_t I_CDStartPlayback(int tracknum)
+bool I_CDStartPlayback(int tracknum)
 {
   struct cdrom_tocentry toc;
 	
@@ -148,7 +148,7 @@ void I_CDSetVolume(int vol)
 //
 // Has the CD Finished
 //
-boolean_t I_CDFinished(void)
+bool I_CDFinished(void)
 {
   static struct cdrom_subchnl subchnl;
 

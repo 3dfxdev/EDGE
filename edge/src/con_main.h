@@ -30,7 +30,7 @@ void CON_Start(gui_t ** gui);
 void CON_Ticker(gui_t * gui);
 
 // Responder obeys events.
-boolean_t CON_Responder(gui_t * gui, guievent_t * event);
+bool CON_Responder(gui_t * gui, guievent_t * event);
 
 // Drawer. Draws the console.
 void CON_Drawer(gui_t * gui);

@@ -227,8 +227,8 @@ const specflags_t ammo_types[] =
     {NULL, 0, 0}
 };
 
-static boolean_t WeaponTryParseState(const char *field, 
-    const char *contents, int index, boolean_t is_last)
+static bool WeaponTryParseState(const char *field, 
+    const char *contents, int index, bool is_last)
 {
   int i;
   const state_starter_t *starter;
@@ -273,10 +273,10 @@ static boolean_t WeaponTryParseState(const char *field,
 //  DDF PARSE ROUTINES
 //
 
-static boolean_t WeaponStartEntry(const char *name)
+static bool WeaponStartEntry(const char *name)
 {
   int i;
-  boolean_t replaces = false;
+  bool replaces = false;
 
   if (name && name[0])
   {
@@ -317,7 +317,7 @@ static boolean_t WeaponStartEntry(const char *name)
 }
 
 static void WeaponParseField(const char *field, const char *contents,
-    int index, boolean_t is_last)
+    int index, bool is_last)
 {
 #if (DEBUG_DDF)  
   L_WriteDebug("WEAPON_PARSE: %s = %s;\n", field, contents);

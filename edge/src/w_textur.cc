@@ -215,7 +215,7 @@ static void InstallTextureLumps(int file, int pnames, int palette,
 //
 // -ACB- 1998/09/09 Fixed the Display routine from display rubbish.
 //
-boolean_t W_InitTextures(void)
+bool W_InitTextures(void)
 {
   int max_file = W_GetNumFiles();
   int j, t, file;

@@ -53,14 +53,14 @@
 //
 typedef enum
 {
-  // Playing or camping.
-  PST_LIVE,
+	// Playing or camping.
+	PST_LIVE,
 
-  // Dead on the ground, view follows killer.
-  PST_DEAD,
+	// Dead on the ground, view follows killer.
+	PST_DEAD,
 
-  // Waiting to be respawned in the level.
-  PST_REBORN
+	// Waiting to be respawned in the level.
+	PST_REBORN
 }
 playerstate_t;
 
@@ -69,31 +69,31 @@ playerstate_t;
 //
 typedef enum
 {
-  // No clipping, walk through barriers.
-  CF_NOCLIP = 1,
+	// No clipping, walk through barriers.
+	CF_NOCLIP = 1,
 
-  // No damage, no health loss.
-  CF_GODMODE = 2,
+	// No damage, no health loss.
+	CF_GODMODE = 2,
 }
 cheat_t;
 
 typedef struct
 {
-  // amount of ammo available
-  int num;
+	// amount of ammo available
+	int num;
 
-  // maximum ammo carryable
-  int max;
+	// maximum ammo carryable
+	int max;
 }
 playerammo_t;
 
 typedef enum
 {
-  // (for pending_wp only) no change is occuring
-  WPSEL_NoChange = -2,
+	// (for pending_wp only) no change is occuring
+	WPSEL_NoChange = -2,
 
-  // absolutely no weapon at all
-  WPSEL_None = -1
+	// absolutely no weapon at all
+	WPSEL_None = -1
 }
 weapon_selection_e;
 
@@ -102,164 +102,164 @@ weapon_selection_e;
 //
 typedef struct player_s
 {
-  // Linked list of in-game players.
-  struct player_s *prev, *next;
+	// Linked list of in-game players.
+	struct player_s *prev, *next;
 
-  // player number.  Starts at 0.
-  int pnum;
+	// player number.  Starts at 0.
+	int pnum;
 
-  // is this player currently playing ?
-  // NOTE: when false, all fields below it are unused.
-  boolean_t in_game;
+	// is this player currently playing ?
+	// NOTE: when false, all fields below it are unused.
+	bool in_game;
 
-  // actions to perform.  Comes either from the local computer or over
-  // the network in multiplayer mode.
-  ticcmd_t cmd;
+	// actions to perform.  Comes either from the local computer or over
+	// the network in multiplayer mode.
+	ticcmd_t cmd;
 
-  playerstate_t playerstate;
-  
-  // map object that this player controls.  Will be NULL outside of a
-  // level (e.g. on the intermission screen).
-  mobj_t *mo;
+	playerstate_t playerstate;
 
-  // player's name
-  char playername[MAX_PLAYNAME];
+	// map object that this player controls.  Will be NULL outside of a
+	// level (e.g. on the intermission screen).
+	mobj_t *mo;
 
-  // Determine POV,
-  //  including viewpoint bobbing during movement.
-  // Focal origin above r.z
-  flo_t viewz;
+	// player's name
+	char playername[MAX_PLAYNAME];
 
-  // Base height above floor for viewz.  Tracks `std_viewheight' but
-  // is different when squatting (i.e. after a fall).
-  flo_t viewheight;
+	// Determine POV,
+	//  including viewpoint bobbing during movement.
+	// Focal origin above r.z
+	float viewz;
 
-  // Bob/squat speed.
-  flo_t deltaviewheight;
+	// Base height above floor for viewz.  Tracks `std_viewheight' but
+	// is different when squatting (i.e. after a fall).
+	float viewheight;
 
-  // standard viewheight, usually 75% of height.
-  flo_t std_viewheight;
+	// Bob/squat speed.
+	float deltaviewheight;
 
-  // bounded/scaled total momentum.
-  flo_t bob;
+	// standard viewheight, usually 75% of height.
+	float std_viewheight;
 
-  // Kick offset for vertangle (in mobj_t)
-  flo_t kick_offset;
-  
-  // This is only used between levels,
-  // mo->health is used during levels.
-  flo_t health;
+	// bounded/scaled total momentum.
+	float bob;
 
-  // Armour points for each type
-  flo_t armours[NUMARMOUR];
+	// Kick offset for vertangle (in mobj_t)
+	float kick_offset;
 
-  // Power ups. invinc and invis are tic counters.
-  flo_t powers[NUMPOWERS];
+	// This is only used between levels,
+	// mo->health is used during levels.
+	float health;
 
-  // Set of keys held
-  keys_e cards;
+	// Armour points for each type
+	float armours[NUMARMOUR];
 
-  // Frags, kills of other players.
-  int frags;
-  int totalfrags;
+	// Power ups. invinc and invis are tic counters.
+	float powers[NUMPOWERS];
 
-  // weapons, either an index into the player->weapons[] array, or one
-  // of the WPSEL_* values.
-  int ready_wp;
-  int pending_wp;
+	// Set of keys held
+	keys_e cards;
 
-  // -AJA- 1999/08/11: Now uses playerweapon_t.
-  playerweapon_t weapons[MAXWEAPONS];
+	// Frags, kills of other players.
+	int frags;
+	int totalfrags;
 
-  // current weapon choice for each key (1..9 and 0).  Note: the
-  // values are indexes into the `choices' array in the corresponding
-  // weaponkey[] structure (i.e. NOT indexes into weaponinfo[]).
-  int key_choices[10];
- 
-  // for status bar: which numbers to light up
-  boolean_t avail_weapons[10];
-  
-  // ammunition, one for each ammotype_e (except AM_NoAmmo)
-  playerammo_t ammo[NUMAMMO];
+	// weapons, either an index into the player->weapons[] array, or one
+	// of the WPSEL_* values.
+	int ready_wp;
+	int pending_wp;
 
-  // True if button down last tic.
-  int attackdown;
-  int secondatk_down;
-  int usedown;
+	// -AJA- 1999/08/11: Now uses playerweapon_t.
+	playerweapon_t weapons[MAXWEAPONS];
 
-  // Bit flags, for cheats and debug.
-  // See cheat_t, above.
-  int cheats;
+	// current weapon choice for each key (1..9 and 0).  Note: the
+	// values are indexes into the `choices' array in the corresponding
+	// weaponkey[] structure (i.e. NOT indexes into weaponinfo[]).
+	int key_choices[10];
 
-  // Refired shots are less accurate.
-  int refire;
+	// for status bar: which numbers to light up
+	int avail_weapons[10];
 
-  // For intermission stats.
-  int killcount;
-  int itemcount;
-  int secretcount;
+	// ammunition, one for each ammotype_e (except AM_NoAmmo)
+	playerammo_t ammo[NUMAMMO];
 
-  // For screen flashing (red or bright).
-  int damagecount;
-  int bonuscount;
+	// True if button down last tic.
+	int attackdown;
+	int secondatk_down;
+	int usedown;
 
-  // Who did damage (NULL for floors/ceilings).
-  mobj_t *attacker;
+	// Bit flags, for cheats and debug.
+	// See cheat_t, above.
+	int cheats;
 
-  // So gun flashes light up the screen.
-  int extralight;
-  boolean_t flash;
+	// Refired shots are less accurate.
+	int refire;
 
-  // -AJA- 1999/07/10: changed for colmap.ddf.
-  const colourmap_t *effect_colourmap;
-  boolean_t effect_infrared;
-  flo_t effect_strength;
+	// For intermission stats.
+	int killcount;
+	int itemcount;
+	int secretcount;
 
-  // Overlay view sprites (gun, etc).
-  pspdef_t psprites[NUMPSPRITES];
+	// For screen flashing (red or bright).
+	int damagecount;
+	int bonuscount;
 
-  // Current PSP for action
-  int action_psp;
+	// Who did damage (NULL for floors/ceilings).
+	mobj_t *attacker;
 
-  // Implements a wait counter to prevent use jumping again
-  // -ACB- 1998/08/09
-  int jumpwait;
+	// So gun flashes light up the screen.
+	int extralight;
+	bool flash;
 
-  // breathing support.  In air-less sectors, this is decremented on
-  // each tic.  When it reaches zero, the player starts choking (which
-  // hurts), and player drowns when health drops to zero.
-  int air_in_lungs;
-  boolean_t underwater;
-  boolean_t swimming;
-   
-  // how many tics to grin :-)
-  int grin_count;
+	// -AJA- 1999/07/10: changed for colmap.ddf.
+	const colourmap_t *effect_colourmap;
+	bool effect_infrared;
+	float effect_strength;
 
-  // used (and updated) by the status bar to gauge amount of pain
-  flo_t old_health;
+	// Overlay view sprites (gun, etc).
+	pspdef_t psprites[NUMPSPRITES];
 
-  // how many tics player has been attacking (for rampage face)
-  int attackdown_count;
-  
-  // status bar: used to choose which face to show
-  int face_index;
-  int face_count;
+	// Current PSP for action
+	int action_psp;
 
-  // -AJA- 1999/08/10: This field is the state number which is
-  // remembered for WEAPON_NOFIRE_RETURN when the player lets go of
-  // the button.  -1 if not yet fired or after changing weapons.
-  int remember_atk1;
-  int remember_atk2;
+	// Implements a wait counter to prevent use jumping again
+	// -ACB- 1998/08/09
+	int jumpwait;
 
-  short consistency[BACKUPTICS];
-  ticcmd_t netcmds[BACKUPTICS];
-  int netnode;
+	// breathing support.  In air-less sectors, this is decremented on
+	// each tic.  When it reaches zero, the player starts choking (which
+	// hurts), and player drowns when health drops to zero.
+	int air_in_lungs;
+	bool underwater;
+	bool swimming;
 
-  // This function will be called by P_PlayerThink to initialise
-  // the ticcmd_t.
-  void (*thinker)(const struct player_s *, void *data, ticcmd_t *dest);
-  void *data;
-  void (*level_init)(const struct player_s *, void *data);
+	// how many tics to grin :-)
+	int grin_count;
+
+	// used (and updated) by the status bar to gauge amount of pain
+	float old_health;
+
+	// how many tics player has been attacking (for rampage face)
+	int attackdown_count;
+
+	// status bar: used to choose which face to show
+	int face_index;
+	int face_count;
+
+	// -AJA- 1999/08/10: This field is the state number which is
+	// remembered for WEAPON_NOFIRE_RETURN when the player lets go of
+	// the button.  -1 if not yet fired or after changing weapons.
+	int remember_atk1;
+	int remember_atk2;
+
+	short consistency[BACKUPTICS];
+	ticcmd_t netcmds[BACKUPTICS];
+	int netnode;
+
+	// This function will be called by P_PlayerThink to initialise
+	// the ticcmd_t.
+	void (*thinker)(const struct player_s *, void *data, ticcmd_t *dest);
+	void *data;
+	void (*level_init)(const struct player_s *, void *data);
 }
 player_t;
 
@@ -269,38 +269,38 @@ player_t;
 //
 typedef struct
 {
-  boolean_t in;  // whether the player is in game
+	bool in;  // whether the player is in game
 
-  // Player stats, kills, collected items etc.
-  int skills;
-  int sitems;
-  int ssecret;
-  int stime;
-  int frags;
-  int totalfrags;
+	// Player stats, kills, collected items etc.
+	int skills;
+	int sitems;
+	int ssecret;
+	int stime;
+	int frags;
+	int totalfrags;
 }
 wbplayerstruct_t;
 
 typedef struct
 {
-  char *level;  // episode # (0-2)
+	char *level;  // episode # (0-2)
 
-  // previous and next levels, origin 0
-  const mapstuff_t *last;
-  const mapstuff_t *next;
+	// previous and next levels, origin 0
+	const mapstuff_t *last;
+	const mapstuff_t *next;
 
-  int maxkills;
-  int maxitems;
-  int maxsecret;
-  int maxfrags;
+	int maxkills;
+	int maxitems;
+	int maxsecret;
+	int maxfrags;
 
-  // the par time
-  int partime;
+	// the par time
+	int partime;
 
-  // index of this player in game
-  int pnum;
+	// index of this player in game
+	int pnum;
 
-  wbplayerstruct_t *plyr;
+	wbplayerstruct_t *plyr;
 
 }
 wbstartstruct_t;

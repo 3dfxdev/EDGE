@@ -36,17 +36,17 @@
 #include "i_sysinc.h"
 
 // Application active?
-boolean_t appactive;
+bool appactive;
 
 // has system been setup?
-boolean_t systemup = false;
+bool systemup = false;
 
 // output string buffer
 #define MSGBUFSIZE 4096
 static char msgbuf[MSGBUFSIZE];
 
 // This annoys me....
-extern boolean_t demorecording;
+extern bool demorecording;
 
 // MicroTimer
 unsigned long microtimer_granularity = 1000;
@@ -86,7 +86,7 @@ void CALLBACK SysTicker(UINT id, UINT msg, DWORD user, DWORD dw1, DWORD dw2)
 //
 // HandleFocusChange
 //
-static void HandleFocusChange(HWND window, HWND otherwin, boolean_t gotfocus)
+static void HandleFocusChange(HWND window, HWND otherwin, bool gotfocus)
 {
 	if (window == mainwindow && otherwin != mainwindow)
 	{
@@ -114,7 +114,7 @@ static void HandleFocusChange(HWND window, HWND otherwin, boolean_t gotfocus)
 //
 // -ACB- 1998/07/11 Reformatted the code.
 //
-boolean_t I_SystemStartup(void)
+bool I_SystemStartup(void)
 {
 	int clockspeed;
 
@@ -303,7 +303,7 @@ void I_PutTitle(const char *title)
 // Returns true if the path should be treated as an absolute path.
 // -ES- 2000/01/01 Written.
 //
-boolean_t I_PathIsAbsolute(const char *path)
+bool I_PathIsAbsolute(const char *path)
 {
 	if (path[0] == '\\' || path[0] == '.' || (path[0] <= 'z' && path[0] >= 'A' && path[1] == ':'))
 		return true;
@@ -314,7 +314,7 @@ boolean_t I_PathIsAbsolute(const char *path)
 //
 // I_PathIsDirectory
 //
-boolean_t I_PathIsDirectory(const char *path)
+bool I_PathIsDirectory(const char *path)
 {
 	char curpath[MAXPATH];
 	int result;
@@ -341,7 +341,7 @@ boolean_t I_PathIsDirectory(const char *path)
 //
 char *I_PreparePath(const char *path)
 {
-	int len = strlen(path);
+	int len = (int)strlen(path);
 	char *s;
 
 	if (len == 0)
@@ -377,7 +377,7 @@ char *I_PreparePath(const char *path)
 //
 // I_Access
 //
-boolean_t I_Access(const char *filename)
+bool I_Access(const char *filename)
 {
 	int handle = open(filename, O_RDONLY | O_BINARY);
 
@@ -439,7 +439,7 @@ long FAR PASCAL I_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		break;
 	}
 
-	return DefWindowProc(hWnd, message, wParam, lParam);
+	return (long)DefWindowProc(hWnd, message, wParam, lParam);
 }
 
 //
@@ -450,7 +450,7 @@ long FAR PASCAL I_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 void I_EDGELoop(void)
 {
 	MSG msg;
-	static boolean_t gameon = true;
+	static bool gameon = true;
 
 	while (gameon)
 	{
@@ -482,7 +482,7 @@ void I_EDGELoop(void)
 //
 long I_PureRandom(void)
 {
-	return time(NULL);
+	return (long)time(NULL);
 }
 
 //
@@ -501,7 +501,7 @@ unsigned long I_ReadMicroSeconds(void)
 //
 // -ACB- 2001/06/14
 //
-boolean_t I_GetModifiedTime(const char *filename, i_time_t *t)
+bool I_GetModifiedTime(const char *filename, i_time_t *t)
 {
 	struct _stat buf;
 	struct tm *timeinf;

@@ -39,9 +39,9 @@
 // We need the playr data structure as well.
 #include "e_player.h"
 
-extern boolean_t devparm;  // DEBUG: launched with -devparm
+extern bool devparm;  // DEBUG: launched with -devparm
 
-extern boolean_t redrawsbar;
+extern bool redrawsbar;
 
 extern gameflags_t level_flags;
 extern gameflags_t global_flags;
@@ -51,7 +51,7 @@ extern gameflags_t global_flags;
 //
 
 // Set if homebrew PWAD stuff has been added.
-extern boolean_t modifiedgame;
+extern bool modifiedgame;
 
 // -------------------------------------------
 // Selected skill type, map etc.
@@ -60,15 +60,15 @@ extern boolean_t modifiedgame;
 // Defaults for menu, methinks.
 extern int startskill;
 extern char *startmap;
-extern boolean_t drone;
+extern bool drone;
 
-extern boolean_t autostart;
+extern bool autostart;
 
 // Selected by user. 
 extern int gameskill;
 
 // Netgame? Only true if >1 player.
-extern boolean_t netgame;
+extern bool netgame;
 
 // Flag: true only if started as net deathmatch.
 // An enum might handle altdeath/cooperative better.
@@ -81,13 +81,13 @@ extern int deathmatch;
 // Depending on view size - no status bar?
 // Note that there is no way to disable the
 //  status bar explicitely.
-extern boolean_t statusbaractive;
+extern bool statusbaractive;
 extern int automapactive;  // In AutoMap mode?
-extern boolean_t menuactive;  // Menu overlayed?
-extern boolean_t paused;  // Game Pause?
-extern boolean_t viewactive;
-extern boolean_t nodrawers;
-extern boolean_t noblit;
+extern bool menuactive;  // Menu overlayed?
+extern bool paused;  // Game Pause?
+extern bool viewactive;
+extern bool nodrawers;
+extern bool noblit;
 
 // This one is related to the 3-screen display mode.
 // ANG90 = left side, ANG270 = right
@@ -108,17 +108,17 @@ extern int leveltime;  // tics in game play for par
 // DEMO playback/recording related stuff.
 // No demo, there is a human player in charge?
 // Disable save/end game?
-extern boolean_t usergame;
+extern bool usergame;
 
 //?
-extern boolean_t demoplayback;
-extern boolean_t demorecording;
+extern bool demoplayback;
+extern bool demorecording;
 
 // -AJA- 2000/12/07: auto quick-load feature
-extern boolean_t autoquickload;
+extern bool autoquickload;
 
 // Quit after playing a demo from cmdline.
-extern boolean_t singledemo;
+extern bool singledemo;
 
 //?
 extern int gamestate;
@@ -176,25 +176,25 @@ extern const char *cfgfile;
 extern FILE *debugfile;
 
 // if true, load DDF/RTS as external files (instead of from EDGE.WAD)
-extern boolean_t external_ddf;
+extern bool external_ddf;
 
 // if true, load all graphics at level load
-extern boolean_t precache;
+extern bool precache;
 
 // if true, prefer to crash out on various errors
-extern boolean_t strict_errors;
+extern bool strict_errors;
 
 // if true, prefer to ignore or fudge various (serious) errors
-extern boolean_t lax_errors;
+extern bool lax_errors;
 
 // if true, disable warning messages
-extern boolean_t no_warnings;
+extern bool no_warnings;
 
 // if true, disable obsolete warning messages
-extern boolean_t no_obsoletes;
+extern bool no_obsoletes;
 
 // if true, enable HOM detection (hall of mirrors effect)
-extern boolean_t hom_detect;
+extern bool hom_detect;
 
 // wipegamestate can be set to -1
 //  to force a wipe on the next draw
@@ -202,13 +202,13 @@ extern int wipegamestate;
 
 extern int mouseSensitivity;
 
-extern boolean_t inhelpscreens;
+extern bool inhelpscreens;
 extern int setblocks;
 extern int quickSaveSlot;
 extern int darken_screen;
 
 // debug flag to cancel adaptiveness
-extern boolean_t singletics;
+extern bool singletics;
 
 extern int bodyqueslot;
 
@@ -231,11 +231,11 @@ extern int maketic;
 extern int ticdup;
 
 //misc stuff
-extern boolean_t newhud;
-extern boolean_t rotatemap;
-extern boolean_t showstats;
-extern boolean_t swapstereo;
-extern boolean_t infight;
+extern bool newhud;
+extern bool rotatemap;
+extern bool showstats;
+extern bool swapstereo;
+extern bool infight;
 
 extern int crosshair;
 extern int screen_size;
@@ -266,7 +266,7 @@ extern int SCREENWIDTH;
 extern int SCREENHEIGHT;
 extern int SCREENPITCH;
 extern int SCREENBITS;
-extern boolean_t SCREENWINDOW;
+extern bool SCREENWINDOW;
 
 // transitional macros
 #define BPP  (SCREENBITS / 8)
@@ -274,11 +274,11 @@ extern boolean_t SCREENWINDOW;
 #define in_a_window  SCREENWINDOW
 
 // I_Video.c / V_Video*.c Precalc. Stuff
-extern flo_t DX, DY, DXI, DYI, DY2, DYI2;
+extern float DX, DY, DXI, DYI, DY2, DYI2;
 extern int SCALEDWIDTH, SCALEDHEIGHT, X_OFFSET, Y_OFFSET;
-extern flo_t BASEYCENTER, BASEXCENTER;
+extern float BASEYCENTER, BASEXCENTER;
 
-extern boolean_t graphicsmode;
+extern bool graphicsmode;
 
 // -ES- 1999/08/15 Added teleport effects
 extern int telept_effect;
@@ -290,7 +290,7 @@ extern int wipe_method;
 //mlook stuff
 extern int mlookspeed;
 extern int mlookon;
-extern boolean_t invertmouse; // -ACB- 1999/09/03 Must be true or false - becomes boolean
+extern bool invertmouse; // -ACB- 1999/09/03 Must be true or false - becomes boolean
 
 // -KM- 1998/09/01 Analogue binding stuff, These hold what axis they bind to.
 extern int joy_xaxis;
@@ -304,7 +304,7 @@ extern int mouse_yaxis;
 //                   horzmovement control, vertmovement control
 //                   strafemovediv;
 //
-extern boolean_t stageturn;
+extern bool stageturn;
 extern int forwardmovespeed;
 extern int angleturnspeed;
 extern int sidemovespeed;

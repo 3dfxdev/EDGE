@@ -47,12 +47,12 @@ void * SV_PlayerGetElem(int index);
 void SV_PlayerCreateElems(int num_elems);
 void SV_PlayerFinaliseElems(void);
 
-boolean_t SR_PlayerGetAmmo(void *storage, int index, void *extra);
-boolean_t SR_PlayerGetWeapon(void *storage, int index, void *extra);
-boolean_t SR_PlayerGetPSprite(void *storage, int index, void *extra);
-boolean_t SR_PlayerGetName(void *storage, int index, void *extra);
-boolean_t SR_PlayerGetState(void *storage, int index, void *extra);
-boolean_t SR_WeaponGetInfo(void *storage, int index, void *extra);
+bool SR_PlayerGetAmmo(void *storage, int index, void *extra);
+bool SR_PlayerGetWeapon(void *storage, int index, void *extra);
+bool SR_PlayerGetPSprite(void *storage, int index, void *extra);
+bool SR_PlayerGetName(void *storage, int index, void *extra);
+bool SR_PlayerGetState(void *storage, int index, void *extra);
+bool SR_WeaponGetInfo(void *storage, int index, void *extra);
 
 void SR_PlayerPutAmmo(void *storage, int index, void *extra);
 void SR_PlayerPutWeapon(void *storage, int index, void *extra);
@@ -375,7 +375,7 @@ void SV_PlayerFinaliseElems(void)
 //
 // SR_PlayerGetAmmo
 //
-boolean_t SR_PlayerGetAmmo(void *storage, int index, void *extra)
+bool SR_PlayerGetAmmo(void *storage, int index, void *extra)
 {
 	playerammo_t *dest = (playerammo_t *)storage + index;
 
@@ -398,7 +398,7 @@ void SR_PlayerPutAmmo(void *storage, int index, void *extra)
 //
 // SR_PlayerGetWeapon
 //
-boolean_t SR_PlayerGetWeapon(void *storage, int index, void *extra)
+bool SR_PlayerGetWeapon(void *storage, int index, void *extra)
 {
 	playerweapon_t *dest = (playerweapon_t *)storage + index;
 
@@ -421,7 +421,7 @@ void SR_PlayerPutWeapon(void *storage, int index, void *extra)
 //
 // SR_PlayerGetPSprite
 //
-boolean_t SR_PlayerGetPSprite(void *storage, int index, void *extra)
+bool SR_PlayerGetPSprite(void *storage, int index, void *extra)
 {
 	pspdef_t *dest = (pspdef_t *)storage + index;
 
@@ -445,7 +445,7 @@ void SR_PlayerPutPSprite(void *storage, int index, void *extra)
 //
 // SR_PlayerGetName
 //
-boolean_t SR_PlayerGetName(void *storage, int index, void *extra)
+bool SR_PlayerGetName(void *storage, int index, void *extra)
 {
 	char *dest = (char *)storage;
 	const char *str;
@@ -474,7 +474,7 @@ void SR_PlayerPutName(void *storage, int index, void *extra)
 //
 // SR_WeaponGetInfo
 //
-boolean_t SR_WeaponGetInfo(void *storage, int index, void *extra)
+bool SR_WeaponGetInfo(void *storage, int index, void *extra)
 {
 	weaponinfo_t ** dest = (weaponinfo_t **)storage + index;
 	const char *name;
@@ -505,7 +505,7 @@ void SR_WeaponPutInfo(void *storage, int index, void *extra)
 //
 // SR_PlayerGetState
 //
-boolean_t SR_PlayerGetState(void *storage, int index, void *extra)
+bool SR_PlayerGetState(void *storage, int index, void *extra)
 {
 	state_t ** dest = (state_t **)storage + index;
 

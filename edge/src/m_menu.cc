@@ -84,14 +84,14 @@ int messx;
 int messy;
 int messageLastMenuActive;
 
-boolean_t inhelpscreens;
-boolean_t menuactive;
+bool inhelpscreens;
+bool menuactive;
 
 #define SKULLXOFF   -24
 #define LINEHEIGHT   15
 
 // timed message = no input from user
-static boolean_t messageNeedsInput;
+static bool messageNeedsInput;
 
 static void (* message_key_routine)(int response) = NULL;
 static void (* message_input_routine)(char *response) = NULL;
@@ -147,8 +147,8 @@ static char saveOldString[SAVESTRINGSIZE];
 
 typedef struct slot_extra_info_s
 {
-	boolean_t empty;
-	boolean_t corrupt;
+	bool empty;
+	bool corrupt;
 
 	char desc[SAVESTRINGSIZE];
 	char timestr[32];
@@ -158,7 +158,7 @@ typedef struct slot_extra_info_s
   
 	int skill;
 	int netgame;
-	boolean_t has_view;
+	bool has_view;
 }
 slot_extra_info_t;
 
@@ -1478,7 +1478,7 @@ void M_DrawThermo(int x, int y, int thermWidth, int thermDot, int div)
 }
 
 void M_StartMessage(const char *string, void (* routine)(int response), 
-					boolean_t input)
+					bool input)
 {
 	messageLastMenuActive = menuactive;
 	messageToPrint = 1;
@@ -1539,7 +1539,7 @@ void M_StopMessage(void)
 //
 // -KM- 1998/09/01 Analogue binding, and hat support
 //
-boolean_t M_Responder(event_t * ev)
+bool M_Responder(event_t * ev)
 {
 	int ch;
 	int i;
@@ -2108,7 +2108,7 @@ void M_Ticker(void)
 //
 // M_Init
 //
-boolean_t M_Init(void)
+bool M_Init(void)
 {
 	currentMenu = &MainDef;
 	menuactive = 0;

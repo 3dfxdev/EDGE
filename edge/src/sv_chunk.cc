@@ -94,7 +94,7 @@ static long compress_wrkmem[LZO1X_1_MEM_COMPRESS/sizeof(long) + 2];
 #endif
 
 
-static boolean_t CheckMagic(void)
+static bool CheckMagic(void)
 {
 	int i;
 	int len = strlen(EDGESAVE_MAGIC);
@@ -123,7 +123,7 @@ static void PutPadding(void)
 	SV_PutByte(0x00);
 }
 
-static INLINE boolean_t VerifyMarker(const char *id)
+static INLINE bool VerifyMarker(const char *id)
 {
 	return isalnum(id[0]) && isalnum(id[1]) &&
 		isalnum(id[2]) && isalnum(id[3]);
@@ -132,7 +132,7 @@ static INLINE boolean_t VerifyMarker(const char *id)
 //
 // SV_ChunkInit
 //
-boolean_t SV_ChunkInit(void)
+bool SV_ChunkInit(void)
 {
 	if (lzo_init() != LZO_E_OK)
 		I_Error("SV_ChunkInit: LZO initialisation error !\n");
@@ -169,7 +169,7 @@ int SV_GetError(void)
 //
 // SV_OpenReadFile
 //
-boolean_t SV_OpenReadFile(const char *filename)
+bool SV_OpenReadFile(const char *filename)
 {
 	chunk_stack_size = 0;
 	last_error = 0;
@@ -190,7 +190,7 @@ boolean_t SV_OpenReadFile(const char *filename)
 //
 // SV_CloseReadFile
 //
-boolean_t SV_CloseReadFile(void)
+bool SV_CloseReadFile(void)
 {
 	DEV_ASSERT2(current_fp);
 
@@ -211,7 +211,7 @@ boolean_t SV_CloseReadFile(void)
 // Sets the version field, which is BCD, with the patch level in the
 // two least significant digits.
 //
-boolean_t SV_VerifyHeader(int *version)
+bool SV_VerifyHeader(int *version)
 {
 	// check header
 
@@ -241,7 +241,7 @@ boolean_t SV_VerifyHeader(int *version)
 //
 // SV_VerifyContents
 //
-boolean_t SV_VerifyContents(void)
+bool SV_VerifyContents(void)
 {
 	unsigned int final_crc, read_crc;
 
@@ -410,7 +410,7 @@ unsigned char SV_GetByte(void)
 //
 // SV_PushReadChunk
 //
-boolean_t SV_PushReadChunk(const char *id)
+bool SV_PushReadChunk(const char *id)
 {
 	chunk_t *cur;
 	unsigned int file_len;
@@ -511,7 +511,7 @@ boolean_t SV_PushReadChunk(const char *id)
 
 // SV_PopReadChunk
 //
-boolean_t SV_PopReadChunk(void)
+bool SV_PopReadChunk(void)
 {
 	chunk_t *cur;
 
@@ -552,7 +552,7 @@ int SV_RemainingChunkSize(void)
 //
 // SV_SkipReadChunk
 //
-boolean_t SV_SkipReadChunk(const char *id)
+bool SV_SkipReadChunk(const char *id)
 {
 	if (! SV_PushReadChunk(id))
 		return false;
@@ -570,7 +570,7 @@ boolean_t SV_SkipReadChunk(const char *id)
 //
 // SV_OpenWriteFile
 //
-boolean_t SV_OpenWriteFile(const char *filename, int version)
+bool SV_OpenWriteFile(const char *filename, int version)
 {
 	chunk_stack_size = 0;
 	last_error = 0;
@@ -597,7 +597,7 @@ boolean_t SV_OpenWriteFile(const char *filename, int version)
 //
 // SV_CloseWriteFile
 //
-boolean_t SV_CloseWriteFile(void)
+bool SV_CloseWriteFile(void)
 {
 	unsigned int final_crc;
 
@@ -627,7 +627,7 @@ boolean_t SV_CloseWriteFile(void)
 //
 // SV_PushWriteChunk
 //
-boolean_t SV_PushWriteChunk(const char *id)
+bool SV_PushWriteChunk(const char *id)
 {
 	chunk_t *cur;
 
@@ -653,7 +653,7 @@ boolean_t SV_PushWriteChunk(const char *id)
 //
 // SV_PopWriteChunk
 //
-boolean_t SV_PopWriteChunk(void)
+bool SV_PopWriteChunk(void)
 {
 	int i;
 	chunk_t *cur;
@@ -867,7 +867,7 @@ void SV_PutFloat(float value)
 { 
 	int exp;
 	int mant;
-	boolean_t neg;
+	bool neg;
 
 	neg = (value < 0.0);
 	value = fabs(value);
@@ -878,7 +878,7 @@ void SV_PutFloat(float value)
 	SV_PutInt((unsigned int) (neg ? -mant : mant));
 }
 
-flo_t SV_GetFloat(void) 
+float SV_GetFloat(void) 
 { 
 	int exp;
 	int mant;
@@ -947,7 +947,7 @@ const char *SV_GetString(void)
 	return (const char *) result;
 }
 
-boolean_t SV_GetMarker(char id[5])
+bool SV_GetMarker(char id[5])
 { 
 	int i;
 

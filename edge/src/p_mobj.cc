@@ -74,7 +74,7 @@
 // Holds the players real Z location, so the missile when teleported to
 // a different height sector stay relative to it.
 //
-flo_t realplayerz = 0;  //-jc-
+float realplayerz = 0;  //-jc-
 
 // List of all objects in map.
 mobj_t *mobjlisthead;
@@ -92,7 +92,7 @@ static int removeque_size = 0;
 
 // convenience function
 // -AJA- FIXME: duplicate code from p_map.c
-static INLINE int PointOnLineSide(flo_t x, flo_t y, line_t *ld)
+static INLINE int PointOnLineSide(float x, float y, line_t *ld)
 {
   divline_t div;
 
@@ -141,7 +141,7 @@ static void BounceOffWall(mobj_t * mo, line_t * wall)
   angle_t diff;
 
   divline_t div;
-  flo_t dest_x, dest_y;
+  float dest_x, dest_y;
 
   angle = R_PointToAngle(0, 0, mo->mom.x, mo->mom.y);
   wall_angle = R_PointToAngle(0, 0, wall->dx, wall->dy);
@@ -191,15 +191,15 @@ static void BounceOffWall(mobj_t * mo, line_t * wall)
 //
 // -AJA- 1999/10/18: written.
 //
-static void BounceOffPlane(mobj_t * mo, flo_t dir)
+static void BounceOffPlane(mobj_t * mo, float dir)
 {
   // calculate new momentum
 
   mo->speed *= mo->info->bounce_speed;
 
-  mo->mom.x = (flo_t)(M_Cos(mo->angle) * mo->speed);
-  mo->mom.y = (flo_t)(M_Sin(mo->angle) * mo->speed);
-  mo->mom.z = (flo_t)(dir * mo->speed * mo->info->bounce_up);
+  mo->mom.x = (float)(M_Cos(mo->angle) * mo->speed);
+  mo->mom.y = (float)(M_Sin(mo->angle) * mo->speed);
+  mo->mom.z = (float)(dir * mo->speed * mo->info->bounce_up);
 
   EnterBounceStates(mo);
 }
@@ -239,9 +239,9 @@ static void MissileHitSpecialLine(mobj_t * mo)
 //
 // -AJA- 1999/09/25: written.
 //
-static boolean_t CorpseShouldSlide(mobj_t * mo)
+static bool CorpseShouldSlide(mobj_t * mo)
 {
-  flo_t floor, ceil;
+  float floor, ceil;
   
   if (-0.25 < mo->mom.x && mo->mom.x < 0.25 &&
       -0.25 < mo->mom.y && mo->mom.y < 0.25)
@@ -259,7 +259,7 @@ static boolean_t CorpseShouldSlide(mobj_t * mo)
 //
 static void TeleportRespawn(mobj_t * mobj)
 {
-  flo_t x, y, z;
+  float x, y, z;
   const mobjinfo_t *info = mobj->spawnpoint.info;
   mobj_t *new_mo;
 
@@ -318,7 +318,7 @@ static void TeleportRespawn(mobj_t * mobj)
 //
 static void ResurrectRespawn(mobj_t * mobj)
 {
-  flo_t x, y, z;
+  float x, y, z;
   const mobjinfo_t *info;
 
   x = mobj->x;
@@ -523,7 +523,7 @@ void P_MobjSetRealSource(mobj_t *mo, mobj_t *source)
 //
 // Returns true if the mobj is still present.
 //
-boolean_t P_SetMobjState(mobj_t * mobj, statenum_t state)
+bool P_SetMobjState(mobj_t * mobj, statenum_t state)
 {
   state_t *st;
 
@@ -566,7 +566,7 @@ boolean_t P_SetMobjState(mobj_t * mobj, statenum_t state)
 //
 // -AJA- 1999/09/12: written.
 //
-boolean_t P_SetMobjStateDeferred(mobj_t * mo, statenum_t stnum, int tic_skip)
+bool P_SetMobjStateDeferred(mobj_t * mo, statenum_t stnum, int tic_skip)
 {
   // ignore removed objects
   if (!mo->state || !mo->next_state)
@@ -614,7 +614,7 @@ statenum_t P_MobjFindLabel(mobj_t * mobj, const char *label)
 //
 // -AJA- 1999/09/11: written.
 //
-void P_SetMobjDirAndSpeed(mobj_t * mo, angle_t angle, flo_t slope, flo_t speed)
+void P_SetMobjDirAndSpeed(mobj_t * mo, angle_t angle, float slope, float speed)
 {
   mo->angle = angle;
   mo->vertangle = slope;
@@ -646,14 +646,14 @@ void P_MobjExplodeMissile(mobj_t * mo)
 
 
 static INLINE void AddRegionProperties(const mobj_t *mo,
-    flo_t bz, flo_t tz, region_properties_t *new_p, 
-    flo_t f_h, flo_t c_h, const region_properties_t *p)
+    float bz, float tz, region_properties_t *new_p, 
+    float f_h, float c_h, const region_properties_t *p)
 {
   int flags = p->special ? p->special->special_flags : 
       SECSP_PushConstant;
 
-  flo_t factor = 1.0;
-  flo_t push_mul;
+  float factor = 1.0;
+  float push_mul;
 
   DEV_ASSERT2(tz > bz);
 
@@ -706,10 +706,10 @@ void P_CalcFullProperties(const mobj_t *mo, region_properties_t *new_p)
   sector_t *sector = mo->subsector->sector;
 
   extrafloor_t *S, *L, *C;
-  flo_t floor_h;
+  float floor_h;
 
-  flo_t bz = mo->z;
-  flo_t tz = bz + mo->height;
+  float bz = mo->z;
+  float tz = bz + mo->height;
 
 
   new_p->gravity = 0;
@@ -761,14 +761,14 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 {
   player_t *player;
 
-  flo_t ptryx;
-  flo_t ptryy;
-  flo_t xmove;
-  flo_t ymove;
-  flo_t xstep;
-  flo_t ystep;
-  flo_t absx,absy;
-  flo_t maxstep;
+  float ptryx;
+  float ptryy;
+  float xmove;
+  float ymove;
+  float xstep;
+  float ystep;
+  float absx,absy;
+  float maxstep;
 
   int did_move;
 
@@ -819,8 +819,8 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
     maxstep = STEPMOVE / 2;
 
   // precalculate these two, they are used frequently
-  absx = (flo_t)fabs(xmove);
-  absy = (flo_t)fabs(ymove);
+  absx = (float)fabs(xmove);
+  absy = (float)fabs(ymove);
 
   if (absx > maxstep || absy > maxstep)
   {
@@ -990,14 +990,14 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 //
 static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 {
-  flo_t dist;
-  flo_t delta;
-  flo_t zmove;
+  float dist;
+  float delta;
+  float zmove;
 
   // -KM- 1998/11/25 Gravity is now not precalculated so that
   //  menu changes affect instantly.
-  flo_t gravity = props->gravity / 8.0 * 
-      (flo_t)level_flags.menu_grav / (flo_t)MENU_GRAV_NORMAL;
+  float gravity = props->gravity / 8.0 * 
+      (float)level_flags.menu_grav / (float)MENU_GRAV_NORMAL;
   
   // check for smooth step up
   if (mo->player && mo->player->mo == mo && mo->z < mo->floorz)
@@ -1038,7 +1038,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 
     if (mo->mom.z < 0)
     {
-      flo_t hurt_momz = gravity * mo->info->maxfall;
+      float hurt_momz = gravity * mo->info->maxfall;
 
       if (mo->player && gravity > 0 && -zmove > OOF_SPEED)
       {
@@ -1115,7 +1115,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
     // hit the ceiling
     if (mo->mom.z > 0)
     {
-      flo_t hurt_momz = gravity * mo->info->maxfall;
+      float hurt_momz = gravity * mo->info->maxfall;
 
       if (mo->player && gravity < 0 && zmove > OOF_SPEED)
       {
@@ -1258,7 +1258,7 @@ static void P_MobjThinker(mobj_t * mobj)
       if (!((mobj->flags & MF_NOGRAVITY) || (flags & SECSP_PushAll))  &&
           (mobj->z <= mobj->floorz + 1.0 || (flags & SECSP_WholeRegion)))
       {
-        flo_t push_mul = 1.0;
+        float push_mul = 1.0;
 
         DEV_ASSERT2(mobj->info->mass > 0);
         if (! (flags & SECSP_PushConstant))
@@ -1445,7 +1445,7 @@ void P_RemoveMobj(mobj_t *mo)
 //
 void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 {
-  flo_t x, y, z;
+  float x, y, z;
 
   mobj_t *mobj;
   const mobjinfo_t *objtype;
@@ -1584,11 +1584,11 @@ void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 //
 // P_SpawnPuff
 //
-void P_SpawnPuff(flo_t x, flo_t y, flo_t z, const mobjinfo_t * puff)
+void P_SpawnPuff(float x, float y, float z, const mobjinfo_t * puff)
 {
   mobj_t *th;
 
-  z += (flo_t) P_RandomNegPos() / 80.0f;
+  z += (float) P_RandomNegPos() / 80.0f;
 
   // -ACB- 1998/08/06 Specials table for non-negotiables....
   th = P_MobjCreateObject(x, y, z, puff);
@@ -1608,7 +1608,7 @@ void P_SpawnPuff(flo_t x, flo_t y, flo_t z, const mobjinfo_t * puff)
 // -KM- 1998/11/25 Made more violent. :-)
 // -KM- 1999/01/31 Different blood objects for different mobjs.
 //
-void P_SpawnBlood(flo_t x, flo_t y, flo_t z, flo_t damage,
+void P_SpawnBlood(float x, float y, float z, float damage,
     angle_t angle, const mobjinfo_t * blood)
 {
   int num;
@@ -1617,18 +1617,18 @@ void P_SpawnBlood(flo_t x, flo_t y, flo_t z, flo_t damage,
   angle += ANG180;
 
   num = (int) (!level_flags.more_blood ? 1.0f : (M_Random() % 7) + 
-      (flo_t)((MAX(damage / 4.0f, 7.0f))));
+      (float)((MAX(damage / 4.0f, 7.0f))));
 
   while (num--)
   {
-    z += (flo_t)(P_RandomNegPos() / 64.0f);
+    z += (float)(P_RandomNegPos() / 64.0f);
 
     angle += (angle_t) (P_RandomNegPos() * (int)(ANG1 / 2));
 
     th = P_MobjCreateObject(x, y, z, blood);
 
-    P_SetMobjDirAndSpeed(th, angle, ((flo_t)num + 12.0f) / 6.0f, 
-        (flo_t)num / 4.0f);
+    P_SetMobjDirAndSpeed(th, angle, ((float)num + 12.0f) / 6.0f, 
+        (float)num / 4.0f);
 
     th->tics -= P_Random() & 3;
 
@@ -1655,7 +1655,7 @@ void P_SpawnBlood(flo_t x, flo_t y, flo_t z, flo_t damage,
 //
 void P_MobjItemRespawn(void)
 {
-  flo_t x, y, z;
+  float x, y, z;
   mobj_t *mo;
   const mobjinfo_t *objtype;
 
@@ -1754,7 +1754,7 @@ void P_MobjRemoveMissile(mobj_t * missile)
 //
 // -ACB- 1998/08/02 Procedure written.
 //
-mobj_t *P_MobjCreateObject(flo_t x, flo_t y, flo_t z, const mobjinfo_t *type)
+mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjinfo_t *type)
 {
   mobj_t *mobj;
   state_t *st;

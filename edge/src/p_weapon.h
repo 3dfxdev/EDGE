@@ -65,12 +65,12 @@ typedef struct
   int tics;
   
   // screen position values
-  flo_t sx;
-  flo_t sy;
+  float sx;
+  float sy;
 
   // translucency values
-  flo_t visibility;
-  flo_t vis_target;
+  float visibility;
+  float vis_target;
 }
 pspdef_t;
 
@@ -84,7 +84,7 @@ typedef struct
   weaponinfo_t *info;
 
   // player has this weapon.
-  boolean_t owned;
+  bool owned;
 
   // current clip sizes
   int clip_size;

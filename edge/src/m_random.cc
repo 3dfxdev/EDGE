@@ -108,7 +108,7 @@ int P_RandomNegPos(void)
 //
 // M_RandomTest
 //
-boolean_t M_RandomTest(percent_t chance)
+bool M_RandomTest(percent_t chance)
 {
   return (chance <= 0) ? false :
          (chance >= 1) ? true :
@@ -118,7 +118,7 @@ boolean_t M_RandomTest(percent_t chance)
 //
 // P_RandomTest
 //
-boolean_t P_RandomTest(percent_t chance)
+bool P_RandomTest(percent_t chance)
 {
   return (chance <= 0) ? false :
          (chance >= 1) ? true :

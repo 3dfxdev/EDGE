@@ -56,7 +56,7 @@ static const language_t template_lang =
 static const char *want_language;
 int cur_lang_index = -1;
 
-static boolean_t read_languages = false;
+static bool read_languages = false;
 
 
 // array of languages
@@ -92,10 +92,10 @@ static langref_t hardcoded_ldfs[] =
 //  DDF PARSING ROUTINES
 //
 
-static boolean_t LanguageStartEntry(const char *name)
+static bool LanguageStartEntry(const char *name)
 {
   int i, index = -1;
-  boolean_t replaces = false;
+  bool replaces = false;
 
   if (name && name[0])
   {
@@ -136,7 +136,7 @@ static boolean_t LanguageStartEntry(const char *name)
 }
 
 static void LanguageParseField(const char *field, const char *contents,
-    int index, boolean_t is_last)
+    int index, bool is_last)
 {
 #if (DEBUG_DDF)  
   L_WriteDebug("LANGUAGE_PARSE: %s = %s;\n", field, contents);
@@ -308,7 +308,7 @@ const char *DDF_LanguageLookup(const char *refname)
 // Returns whether the given ref is valid.
 // -ES- 2000/02/04 Added
 
-boolean_t DDF_LanguageValidRef(const char *refname)
+bool DDF_LanguageValidRef(const char *refname)
 {
   langref_t *entry = FindLanguageRef(refname);
  

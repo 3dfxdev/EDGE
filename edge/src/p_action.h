@@ -161,7 +161,7 @@ void P_ActLaunchOrderedSpread(mobj_t * object);
 void P_ActLaunchRandomSpread(mobj_t * object);
 void P_ActCreateSmokeTrail(mobj_t * object);
 void P_ActHomeToSpot(mobj_t * object);
-boolean_t P_ActLookForTargets(mobj_t * object);
+bool P_ActLookForTargets(mobj_t * object);
 
 // Trackers
 void P_ActEffectTracker(mobj_t * object);

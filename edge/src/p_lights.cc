@@ -261,7 +261,7 @@ light_t *P_NewLight(void)
 //
 // EV_Lights
 //
-boolean_t EV_Lights(sector_t * sec, const lighttype_t * type)
+bool EV_Lights(sector_t * sec, const lighttype_t * type)
 {
   light_t *light;
 

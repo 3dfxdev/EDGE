@@ -72,10 +72,10 @@ static const commandlist_t switch_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static boolean_t SwitchStartEntry(const char *name)
+static bool SwitchStartEntry(const char *name)
 {
   int i;
-  boolean_t replaces = false;
+  bool replaces = false;
 
   if (name && name[0])
   {
@@ -117,7 +117,7 @@ static boolean_t SwitchStartEntry(const char *name)
 }
 
 static void SwitchParseField(const char *field, const char *contents,
-    int index, boolean_t is_last)
+    int index, bool is_last)
 {
 #if (DEBUG_DDF)  
   L_WriteDebug("SWITCH_PARSE: %s = %s;\n", field, contents);

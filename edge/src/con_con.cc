@@ -51,7 +51,7 @@ struct coninfo_s
   int x, y, pos;
   int backbuffer;
   int page;
-  boolean_t echo;
+  bool echo;
 }
 con_info;
 
@@ -69,7 +69,7 @@ wipeinfo_t *conwipe = NULL;
 int conwipeactive = 0;
 int conwipestart = 0;
 int conwipemethod = WIPE_Crossfade;
-boolean_t conwipereverse = 0;
+bool conwipereverse = 0;
 int conwipeduration = 10;
 
 #define KEYREPEATDELAY ((250 * TICRATE) / 1000)
@@ -141,7 +141,7 @@ int cmdhistorysize = 0;
 int cmdhistorypos = -1;
 
 // Tells whether the console text needs to be updated.
-boolean_t updateconsoleneeded = false;
+bool updateconsoleneeded = false;
 
 // The text of the console, with lines split up properly for the current
 // resolution.
@@ -168,18 +168,18 @@ int bottomrow = -1;
 
 // if true, nothing will be displayed in the console, and there will be no
 // command history.
-boolean_t no_con_history = 0;
+bool no_con_history = 0;
 
 // always type ev_keydown
 guievent_t RepeatEvent;
 int RepeatCountdown;
 
 // tells whether shift is pressed, and pgup/dn should scroll to top/bottom of linebuffer.
-boolean_t KeysShifted;
+bool KeysShifted;
 
-boolean_t TabbedLast;
+bool TabbedLast;
 
-boolean_t CON_HandleKey(guievent_t * ev);
+bool CON_HandleKey(guievent_t * ev);
 
 void UpdateConback(cvar_t *var, void *user);
 
@@ -730,7 +730,7 @@ static void RemoveTabCommand(char *name)
 }
 #endif
 
-boolean_t CON_HandleKey(guievent_t * ev)
+bool CON_HandleKey(guievent_t * ev)
 {
   switch (ev->data1)
   {
@@ -953,7 +953,7 @@ boolean_t CON_HandleKey(guievent_t * ev)
   return true;
 }
 
-boolean_t CON_Responder(gui_t * gui, guievent_t * event)
+bool CON_Responder(gui_t * gui, guievent_t * event)
 {
   coninfo_t *info = (coninfo_t *)gui->process;
 

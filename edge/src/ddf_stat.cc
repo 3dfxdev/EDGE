@@ -98,7 +98,7 @@ static int DDF_MainSplitIntoState(const char *info)
 
 	int cur;
 	int brackets=0;
-	boolean_t done=false;
+	bool done=false;
 
 	// use a buffer, since we modify the string
 	char infobuf[512];
@@ -408,7 +408,7 @@ void DDF_StateReadState(const char *info, const char *label,
 		for (i=0; action_list[i].actionname; i++)
 		{
 			const char *current = action_list[i].actionname;
-			boolean_t obsolete = false;
+			bool obsolete = false;
 
 			if (current[0] == '!')
 			{
@@ -575,12 +575,12 @@ void DDF_StateGetIntPair(const char *arg, state_t * cur_state)
 //
 void DDF_StateGetFloat(const char *arg, state_t * cur_state)
 {
-	flo_t *value;
+	float *value;
 
 	if (!arg || !arg[0])
 		return;
 
-	value = Z_New(flo_t, 1);
+	value = Z_New(float, 1);
 
 	if (sscanf(arg, " %f ", value) != 1)
 		DDF_Error("DDF_StateGetFloat: bad value: %s\n", arg);
@@ -669,7 +669,7 @@ void DDF_StateGetJump(const char *arg, state_t * cur_state)
 void DDF_StateGetAngle(const char *arg, state_t * cur_state)
 {
 	angle_t *value;
-	flo_t tmp;
+	float tmp;
 
 	if (!arg || !arg[0])
 		return;
@@ -689,12 +689,12 @@ void DDF_StateGetAngle(const char *arg, state_t * cur_state)
 //
 void DDF_StateGetSlope(const char *arg, state_t * cur_state)
 {
-	flo_t *value, tmp;
+	float *value, tmp;
 
 	if (!arg || !arg[0])
 		return;
 
-	value = Z_New(flo_t, 1);
+	value = Z_New(float, 1);
 
 	if (sscanf(arg, " %f ", &tmp) != 1)
 		DDF_Error("DDF_StateGetSlope: bad value: %s\n", arg);

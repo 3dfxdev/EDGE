@@ -54,8 +54,8 @@ move_result_e;
 // Linked list of moving parts.
 gen_move_t *active_movparts = NULL;
 
-static boolean_t P_StasifySector(sector_t * sec);
-static boolean_t P_ActivateInStasis(int tag);
+static bool P_StasifySector(sector_t * sec);
+static bool P_ActivateInStasis(int tag);
 
 static elev_move_t *P_SetupElevatorAction(sector_t * sector, 
 										  const elevator_sector_t * type, sector_t * model);
@@ -68,7 +68,7 @@ static void MoveSlider(slider_move_t *smov);
 //       than f**king about with the floorOrCeiling stuff all the
 //       time.
 
-static flo_t HEIGHT(sector_t * sec, boolean_t is_ceiling)
+static float HEIGHT(sector_t * sec, bool is_ceiling)
 {
 	if (is_ceiling)
 		return sec->c_h;
@@ -76,7 +76,7 @@ static flo_t HEIGHT(sector_t * sec, boolean_t is_ceiling)
 	return sec->f_h;
 }
 
-static const image_t * SECPIC(sector_t * sec, boolean_t is_ceiling,
+static const image_t * SECPIC(sector_t * sec, bool is_ceiling,
 							  const image_t *new_image)
 {
 	if (new_image)
@@ -106,7 +106,7 @@ static const image_t * SECPIC(sector_t * sec, boolean_t is_ceiling,
 // -ACB- 1998/09/06 Remarked and Reformatted.
 // -ACB- 2001/02/04 Move to p_plane.c
 //
-static flo_t GetSecHeightReference(int ref, sector_t * sec)
+static float GetSecHeightReference(int ref, sector_t * sec)
 {
 	switch (ref & REF_MASK)
 	{
@@ -138,7 +138,7 @@ static flo_t GetSecHeightReference(int ref, sector_t * sec)
 //
 // -ACB- 2001/02/04 Written
 //
-static flo_t GetElevatorHeightReference(int ref, sector_t * sec)
+static float GetElevatorHeightReference(int ref, sector_t * sec)
 {
 	return -1;
 }
@@ -258,11 +258,11 @@ void P_RemoveAllActiveParts(void)
 //    the plane height will remain at its current height.
 //
 static move_result_e AttemptMovePlane(sector_t * sector, 
-									  flo_t speed, flo_t dest, boolean_t crush, 
+									  float speed, float dest, bool crush, 
 									  int is_ceiling, int direction)
 {
-	boolean_t past = false;
-	boolean_t nofit;
+	bool past = false;
+	bool nofit;
 
 	//
 	// check whether we have gone past the destination height
@@ -403,7 +403,7 @@ static void MovePlane(plane_move_t *plane)
 			if (--plane->waited <= 0)
 			{
 				int dir;
-				flo_t dest;
+				float dest;
 
 				if (HEIGHT(plane->sector, plane->is_ceiling) == plane->destheight)
 					dest = plane->startheight;
@@ -552,7 +552,7 @@ void P_RunActiveSectors(void)
 //
 // P_GSS
 //
-static sector_t *P_GSS(sector_t * sec, flo_t dest, boolean_t forc)
+static sector_t *P_GSS(sector_t * sec, float dest, bool forc)
 {
 	int i;
 	int secnum = sec - sectors;
@@ -614,7 +614,7 @@ static sector_t *P_GSS(sector_t * sec, flo_t dest, boolean_t forc)
 //
 // P_GetSectorSurrounding
 //
-static sector_t *P_GetSectorSurrounding(sector_t * sec, flo_t dest, boolean_t forc)
+static sector_t *P_GetSectorSurrounding(sector_t * sec, float dest, bool forc)
 {
 	validcount++;
 	sec->validcount = validcount;
@@ -630,7 +630,7 @@ static sector_t *P_GetSectorSurrounding(sector_t * sec, flo_t dest, boolean_t fo
 static plane_move_t *P_SetupSectorAction(sector_t * sector, const moving_plane_t * type, sector_t * model)
 {
 	plane_move_t *plane;
-	flo_t start, dest;
+	float start, dest;
 
 	// new door thinker
 	plane = Z_New(plane_move_t, 1);
@@ -830,7 +830,7 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector, const moving_plane_t
 // -AJA- 1999/07/30: Updated for extra floor support.
 // -AJA- 1999/10/21: Allow line to be NULL, and added `tag' param.
 //
-boolean_t EV_Teleport
+bool EV_Teleport
 (
 	line_t* line,
 	int tag, 
@@ -845,11 +845,11 @@ boolean_t EV_Teleport
 	int i;
 	angle_t an;
 	mobj_t *currmobj;
-	flo_t oldx;
-	flo_t oldy;
-	flo_t oldz;
-	flo_t centre_x, centre_y;
-	flo_t new_x, new_y, new_z;
+	float oldx;
+	float oldy;
+	float oldz;
+	float centre_x, centre_y;
+	float new_x, new_y, new_z;
 	mobj_t *fog;
 
 	if (!thing)
@@ -974,16 +974,16 @@ boolean_t EV_Teleport
 // things (e.g. skip a whole staircase) when 2 or more stair sectors
 // were tagged.
 //
-static boolean_t EV_BuildOneStair(sector_t * sec, const moving_plane_t * type)
+static bool EV_BuildOneStair(sector_t * sec, const moving_plane_t * type)
 {
 	int i;
-	flo_t next_height;
-	boolean_t more;
-	boolean_t rtn;
+	float next_height;
+	bool more;
+	bool rtn;
 
 	plane_move_t *stairs;
 	sector_t *tsec;
-	flo_t stairsize = type->dest;
+	float stairsize = type->dest;
 
 	const image_t *image = sec->floor.image;
 
@@ -1042,9 +1042,9 @@ static boolean_t EV_BuildOneStair(sector_t * sec, const moving_plane_t * type)
 //
 // EV_BuildStairs
 //
-static boolean_t EV_BuildStairs(sector_t * sec, const moving_plane_t * type)
+static bool EV_BuildStairs(sector_t * sec, const moving_plane_t * type)
 {
-	boolean_t rtn = false;
+	bool rtn = false;
 
 	while (sec->tag_prev)
 		sec = sec->tag_prev;
@@ -1071,7 +1071,7 @@ static boolean_t EV_BuildStairs(sector_t * sec, const moving_plane_t * type)
 //
 // Do Platforms/Floors/Stairs/Ceilings/Doors
 //
-boolean_t EV_DoPlane(sector_t * sec, const moving_plane_t * type, sector_t * model)
+bool EV_DoPlane(sector_t * sec, const moving_plane_t * type, sector_t * model)
 {
 	// Activate all <type> plats that are in_stasis
 	switch (type->type)
@@ -1110,7 +1110,7 @@ boolean_t EV_DoPlane(sector_t * sec, const moving_plane_t * type, sector_t * mod
 //
 // EV_ManualPlane
 //
-boolean_t EV_ManualPlane(line_t * line, mobj_t * thing, const moving_plane_t * type)
+bool EV_ManualPlane(line_t * line, mobj_t * thing, const moving_plane_t * type)
 {
 	sector_t *sec;
 	plane_move_t *msec;
@@ -1164,9 +1164,9 @@ boolean_t EV_ManualPlane(line_t * line, mobj_t * thing, const moving_plane_t * t
 //
 // P_ActivateInStasis
 //
-static boolean_t P_ActivateInStasis(int tag)
+static bool P_ActivateInStasis(int tag)
 {
-	boolean_t rtn;
+	bool rtn;
 	gen_move_t *movpart;
 	plane_move_t *plane;
 
@@ -1190,9 +1190,9 @@ static boolean_t P_ActivateInStasis(int tag)
 //
 // P_StasifySector
 //
-static boolean_t P_StasifySector(sector_t * sec)
+static bool P_StasifySector(sector_t * sec)
 {
-	boolean_t rtn;
+	bool rtn;
 	gen_move_t *movpart;
 	plane_move_t *plane;
 
@@ -1225,11 +1225,11 @@ static int donut_setup = 0;
 // Special Stuff that can not be categorized
 // Mmmmmmm....  Donuts....
 //
-boolean_t EV_DoDonut(sector_t * s1, sfx_t *sfx[4])
+bool EV_DoDonut(sector_t * s1, sfx_t *sfx[4])
 {
 	sector_t *s2;
 	sector_t *s3;
-	boolean_t result = false;
+	bool result = false;
 	int i;
 	plane_move_t *sec;
 
@@ -1294,7 +1294,7 @@ boolean_t EV_DoDonut(sector_t * s1, sfx_t *sfx[4])
 //
 // SliderCanClose
 //
-static INLINE boolean_t SliderCanClose(line_t *line)
+static INLINE bool SliderCanClose(line_t *line)
 {
 	return ! P_ThingsOnLine(line);
 }
@@ -1450,16 +1450,16 @@ void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_t * s)
 //
 // AttemptMoveElevator
 //
-static move_result_e AttemptMoveElevator(sector_t *sec, flo_t speed, 
-										 flo_t dest, int direction)
+static move_result_e AttemptMoveElevator(sector_t *sec, float speed, 
+										 float dest, int direction)
 {
 #if 0  // -AJA- FIXME: exfloorlist[] removed
 	move_result_e res;
-	boolean_t didnotfit;
-	flo_t currdest;
-	flo_t lastfh;
-	flo_t lastch;
-	flo_t diff;
+	bool didnotfit;
+	float currdest;
+	float lastfh;
+	float lastch;
+	float diff;
 	sector_t *parentsec;
 	int i;
 
@@ -1567,7 +1567,7 @@ static move_result_e AttemptMoveElevator(sector_t *sec, flo_t speed,
 static void MoveElevator(elev_move_t *elev)
 {
 	move_result_e res;
-	flo_t num;
+	float num;
 
 	switch (elev->direction)
 	{
@@ -1643,7 +1643,7 @@ static void MoveElevator(elev_move_t *elev)
 //
 // Do Elevators
 //
-boolean_t EV_DoElevator(sector_t * sec, const elevator_sector_t * type, sector_t * model)
+bool EV_DoElevator(sector_t * sec, const elevator_sector_t * type, sector_t * model)
 {
 #if 0
 	if (!sec->controller)
@@ -1660,7 +1660,7 @@ boolean_t EV_DoElevator(sector_t * sec, const elevator_sector_t * type, sector_t
 //
 // EV_ManualElevator
 //
-boolean_t EV_ManualElevator(line_t * line, mobj_t * thing,  const elevator_sector_t * type)
+bool EV_ManualElevator(line_t * line, mobj_t * thing,  const elevator_sector_t * type)
 {
 	return false;
 }
@@ -1672,7 +1672,7 @@ static elev_move_t *P_SetupElevatorAction(sector_t * sector,
 										  const elevator_sector_t * type, sector_t * model)
 {
 	elev_move_t *elev;
-	flo_t start, dest;
+	float start, dest;
 
 	// new door thinker
 	elev = Z_New(elev_move_t, 1);

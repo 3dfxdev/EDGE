@@ -42,11 +42,11 @@
 // the game final animation, or a demo. 
 typedef enum
 {
-  GS_NOTHING = -1,
-  GS_LEVEL,
-  GS_INTERMISSION,
-  GS_FINALE,
-  GS_DEMOSCREEN
+	GS_NOTHING = -1,
+	GS_LEVEL,
+	GS_INTERMISSION,
+	GS_FINALE,
+	GS_DEMOSCREEN
 }
 gamestate_e;
 
@@ -74,63 +74,63 @@ gamestate_e;
 
 typedef enum
 {
-  sk_invalid   = -1,
-  sk_baby      = 0,
-  sk_easy      = 1,
-  sk_medium    = 2,
-  sk_hard      = 3,
-  sk_nightmare = 4,
-  sk_numtypes  = 5
+	sk_invalid   = -1,
+	sk_baby      = 0,
+	sk_easy      = 1,
+	sk_medium    = 2,
+	sk_hard      = 3,
+	sk_nightmare = 4,
+	sk_numtypes  = 5
 }
 skill_t;
 
 // -KM- 1998/12/16 Added gameflags typedef here.
 typedef enum
 {
-  AA_OFF,
-  AA_ON,
-  AA_MLOOK
+	AA_OFF,
+	AA_ON,
+	AA_MLOOK
 }
 autoaim_t;
 
 typedef enum
 {
-  CM_EDGE,
-  CM_BOOM
+	CM_EDGE,
+	CM_BOOM
 }
 compat_mode_t;
 
 typedef struct gameflags_s
 {
-  // checkparm of -nomonsters
-  boolean_t nomonsters;
+	// checkparm of -nomonsters
+	bool nomonsters;
 
-  // checkparm of -fast
-  boolean_t fastparm;
+	// checkparm of -fast
+	bool fastparm;
 
-  boolean_t respawn;
-  boolean_t res_respawn;
-  boolean_t itemrespawn;
+	bool respawn;
+	bool res_respawn;
+	bool itemrespawn;
 
-  boolean_t true3dgameplay;
-  int menu_grav;
-  boolean_t more_blood;
+	bool true3dgameplay;
+	int menu_grav;
+	bool more_blood;
 
-  boolean_t jump;
-  boolean_t crouch;
-  boolean_t mlook;
-  int autoaim;
+	bool jump;
+	bool crouch;
+	bool mlook;
+	int autoaim;
 
-  boolean_t trans;
-  boolean_t cheats;
-  boolean_t stretchsky;
-  boolean_t have_extra;
-  boolean_t limit_zoom;
-  boolean_t shadows;
-  boolean_t halos;
+	bool trans;
+	bool cheats;
+	bool stretchsky;
+	bool have_extra;
+	bool limit_zoom;
+	bool shadows;
+	bool halos;
 
-  int compat_mode;
-  boolean_t kicking;
+	int compat_mode;
+	bool kicking;
 }
 gameflags_t;
 

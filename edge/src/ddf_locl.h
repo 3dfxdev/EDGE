@@ -200,7 +200,7 @@ typedef struct readinfo_s
 	// Note: for things.ddf, only the name is significant when checking
 	// if the entry already exists.
 	//
-	boolean_t (*start_entry) (const char *name);
+	bool (*start_entry) (const char *name);
 
 	// parse a single field for the entry.  Usually it will just call
 	// the ddf_main routine to handle the command list.  For
@@ -209,7 +209,7 @@ typedef struct readinfo_s
 	// used to indicate which element (starting at 0).
 	//
 	void (*parse_field) (const char *field, const char *contents,
-			     int index, boolean_t is_last);
+			     int index, bool is_last);
 
 	// when the entry has finished, this routine can perform any
 	// necessary operations here (such as updating a number -> entry
@@ -241,7 +241,7 @@ typedef struct
 
 	// this is true if the DDF name (e.g. "GRAVITY") is opposite to the
 	// code's flag name (e.g. MF_NoGravity).
-	boolean_t negative;
+	bool negative;
 }
 specflags_t;
 
@@ -315,7 +315,7 @@ void DDF_MainGetRGB (const char *info, void *storage);
 void DDF_MainGetWhenAppear (const char *info, void *storage);
 void DDF_MainGetBitSet (const char *info, void *storage);
 
-boolean_t DDF_MainParseField (const commandlist_t * commands,
+bool DDF_MainParseField (const commandlist_t * commands,
 			      const char *field, const char *contents);
 void DDF_MainLookupSound (const char *info, void *storage);
 void DDF_MainRefAttack (const char *info, void *storage);
@@ -324,7 +324,7 @@ void DDF_DummyFunction (const char *info, void *storage);
 
 int DDF_MainCheckSpecialFlag (const char *name,
 			      const specflags_t * flag_set, int *flag_value,
-			      boolean_t allow_prefixes, boolean_t allow_user);
+			      bool allow_prefixes, bool allow_user);
 
 char *DDF_MainCreateUniqueName (const char *prefix, int num);
 int DDF_MainLookupDirector (const mobjinfo_t * obj, const char *info);
@@ -372,7 +372,7 @@ void DDF_MobjGetPlayer (const char *info, void *storage);
 mobjinfo_t *DDF_MobjMakeAttackObj (mobjinfo_t * info, const char *atk_name);
 
 void ThingParseField (const char *field, const char *contents,
-		      int index, boolean_t is_last);
+		      int index, bool is_last);
 
 // DDF_MUS Code
 void DDF_MusicPlaylistInit (void);

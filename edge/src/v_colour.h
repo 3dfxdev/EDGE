@@ -32,7 +32,7 @@
 #include "ddf_main.h"
 #include "r_defs.h"
 
-boolean_t V_InitPalette(void);
+bool V_InitPalette(void);
 void V_InitColour(void);
 
 // -ACB- 1999/10/11 Gets an RGB colour from the current palette
@@ -65,7 +65,7 @@ extern byte playpal_data[14][256][3];
 #define PALETTE_SUIT     3
 
 int V_FindColour(int r, int g, int b);
-void V_SetPalette(int type, flo_t amount);
+void V_SetPalette(int type, float amount);
 void V_ColourNewFrame(void);
 
 // -AJA- 1999/07/05: Added this, to be used instead of the
@@ -95,7 +95,7 @@ const coltable_t *V_GetTranslatedColtable(const coltable_t *src,
 // support for GL
 #ifdef USE_GL
 void V_GetColmapRGB(const colourmap_t *colmap,
-    flo_t *r, flo_t *g, flo_t *b, boolean_t font);
+    float *r, float *g, float *b, bool font);
 #endif
 
 // general purpose colormaps & coltables

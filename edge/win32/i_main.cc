@@ -154,7 +154,7 @@ void InitSignal(void)
 //
 // -ACB- 1999/01/25
 //
-boolean_t I_InitApp(HINSTANCE hInstance, int nCmdShow)
+bool I_InitApp(HINSTANCE hInstance, int nCmdShow)
 {
 	HWND hWnd;
 	WNDCLASS wc;
@@ -200,6 +200,10 @@ boolean_t I_InitApp(HINSTANCE hInstance, int nCmdShow)
 	return true;
 }
 
+// -ACB- 2003/10/05 We need these outside the function, so we can delete them on exit
+static const char **edgeargv = NULL;
+static int edgeargc = 0;
+
 //
 // ParseParameters
 //
@@ -211,9 +215,6 @@ static void ParseParameters(void)
 	char *s;
 	char *p;
 	char *cmdline;
-	const char **edgeargv;
-	int edgeargc;
-	int i;
 
 	cmdline = GetCommandLine();
 
@@ -249,13 +250,24 @@ static void ParseParameters(void)
 	}
 
 	M_InitArguments(edgeargc, edgeargv);
+}
 
-	// Cleanup the remaining elements
-	for (i=0; i<edgeargc; i++)
+//
+// CleanupParameters
+//
+static void CleanupParameters(void)
+{
+	int i;
+
+	if (edgeargc && edgeargv)
 	{
-		delete [] edgeargv[i];
+		// Cleanup the remaining elements
+		for (i=0; i<edgeargc; i++)
+		{
+			delete [] edgeargv[i];
+		}
+		delete [] edgeargv;
 	}
-	delete [] edgeargv;
 }
 
 //
@@ -274,6 +286,8 @@ int PASCAL WinMain (HINSTANCE curr, HINSTANCE prev, LPSTR cmdline, int show)
 	accelerator = LoadAccelerators(curr,"AppAccel");
 
 	E_EDGEMain();
+
+	CleanupParameters();
 
 	return 0;
 }

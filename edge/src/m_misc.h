@@ -51,8 +51,8 @@ typedef enum
 }
 exttype_e;
 
-boolean_t M_WriteFile(char const *name, void *source, int length);
-boolean_t M_LoadDefaults(void);
+bool M_WriteFile(char const *name, void *source, int length);
+bool M_LoadDefaults(void);
 void M_SaveDefaults(void);
 int M_ReadFile(char const *name, byte **buffer);
 void M_DisplayDisk(void);
@@ -67,9 +67,9 @@ void M_WarnError(const char *error,...) GCCATTR(format(printf, 1, 2));
 int L_CompareTimeStamps(i_time_t *A, i_time_t *B);
 
 extern unsigned short save_screenshot[160][100];
-extern boolean_t save_screenshot_valid;
+extern bool save_screenshot_valid;
 
-extern boolean_t display_disk;
+extern bool display_disk;
 
 extern int cfgnormalfov, cfgzoomedfov;
 
@@ -113,7 +113,7 @@ extern int joybstrafe;
 extern int joybuse;
 extern int joybspeed;
 
-extern boolean_t autorunning;
+extern bool autorunning;
 
 extern default_t defaults[];
 

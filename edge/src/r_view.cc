@@ -243,23 +243,23 @@ void R_DestroyAspect(aspect_t * a)
 // Changes y_distunit and y angle of an aspect.
 // fakefocusslope is the slope of the angle which would be focus if true 3D
 // would be used.
-void R_AspectChangeY(aspect_t * a, flo_t y_distunit, flo_t fakefocusslope)
+void R_AspectChangeY(aspect_t * a, float y_distunit, float fakefocusslope)
 {
-  flo_t dy;
+  float dy;
   int i;
 
   if (a->y_distunit != y_distunit || a->fakefocusslope != fakefocusslope)
   {
     a->fakefocusslope = fakefocusslope;
 
-    a->focusyfrac = ((flo_t)a->maxheight * (fakefocusslope + a->topslope)) /
-                     (flo_t)((a->topslope-a->bottomslope))-(flo_t)0.5;
+    a->focusyfrac = ((float)a->maxheight * (fakefocusslope + a->topslope)) /
+                     (float)((a->topslope-a->bottomslope))-(float)0.5;
 
     a->y_distunit = y_distunit;
 
     for (i = 0; i < a->maxheight; i++)
     {
-      dy = fabs((flo_t)i - (a->focusyfrac + 0.5));
+      dy = fabs((float)i - (a->focusyfrac + 0.5));
       // -ES- 1999/10/17 Prevent from crash by using dist*4 as slope instead
       // of Inf if dy is very small
       // (gives an angle of 89.9 instead of 90 in normal 320x200).
@@ -271,20 +271,20 @@ void R_AspectChangeY(aspect_t * a, flo_t y_distunit, flo_t fakefocusslope)
   }
 }
 
-void R_AspectChangeX(aspect_t * a, flo_t x_distunit, flo_t focusxfrac)
+void R_AspectChangeX(aspect_t * a, float x_distunit, float focusxfrac)
 {
   int i;
   int x;
   int t;
   angle_t ang;
-  flo_t maxleftslope, minrightslope;
-  flo_t cosadj;
+  float maxleftslope, minrightslope;
+  float cosadj;
 
   a->x_distunit = x_distunit;
   a->focusxfrac = focusxfrac;
 
   maxleftslope = focusxfrac / x_distunit;
-  minrightslope = (focusxfrac - (flo_t)a->maxwidth) / x_distunit;
+  minrightslope = (focusxfrac - (float)a->maxwidth) / x_distunit;
 
   // Use tangent table to generate viewangletox:
   //  viewangletox will give the next greatest x
@@ -322,8 +322,8 @@ void R_AspectChangeX(aspect_t * a, flo_t x_distunit, flo_t focusxfrac)
 
   for (i = 0; i < a->maxwidth; i++)
   {
-    cosadj = (flo_t)fabs(M_Cos(a->basextoviewangle[i]));
-    a->basedistscale[i] =  (flo_t)(1.0 / cosadj);
+    cosadj = (float)fabs(M_Cos(a->basextoviewangle[i]));
+    a->basedistscale[i] =  (float)(1.0 / cosadj);
   }
 }
 
@@ -332,9 +332,9 @@ void R_AspectChangeX(aspect_t * a, flo_t x_distunit, flo_t focusxfrac)
 //
 // Creates an aspect_t with the given dimensions, and links it into the
 // parent's list.
-aspect_t *R_CreateAspect(viewbitmap_t * parent, flo_t x_distunit,
-    flo_t y_distunit,flo_t focusxfrac,
-    flo_t topslope,flo_t bottomslope, int maxwidth, int maxheight)
+aspect_t *R_CreateAspect(viewbitmap_t * parent, float x_distunit,
+    float y_distunit,float focusxfrac,
+    float topslope,float bottomslope, int maxwidth, int maxheight)
 {
   aspect_t *a;
 
@@ -349,16 +349,16 @@ aspect_t *R_CreateAspect(viewbitmap_t * parent, flo_t x_distunit,
   // X STUFF
   a->baseviewangletox = Z_New(int, FINEANGLES / 2);
   a->basextoviewangle = Z_New(angle_t, maxwidth + 1);
-  a->basedistscale = Z_New(flo_t, maxwidth);
+  a->basedistscale = Z_New(float, maxwidth);
 
   R_AspectChangeX(a, x_distunit, focusxfrac);
 
   // Y STUFF
   a->topslope = topslope;
   a->bottomslope = bottomslope;
-  a->fakefocusslope = (flo_t)M_PI;  // ChangeY is called w slope==0, so it has to be different.
+  a->fakefocusslope = (float)M_PI;  // ChangeY is called w slope==0, so it has to be different.
 
-  a->baseyslope = Z_New(flo_t, a->maxheight);
+  a->baseyslope = Z_New(float, a->maxheight);
 
   R_AspectChangeY(a, y_distunit, 0);
 
@@ -383,7 +383,7 @@ static void ViewRemoveFromVBList(view_t * v)
     v->parent->views = v->vbnext;
   else
   {
-    boolean_t error = true;
+    bool error = true;
 
     for (v2 = v->parent->views; v2->vbnext; v2 = v2->vbnext)
       if (v2->vbnext == v)
@@ -417,7 +417,7 @@ void R_ViewClearAspect(view_t * v)
     v->aspect->views = v->anext;
   else
   {
-    boolean_t error = true;
+    bool error = true;
 
     for (v2 = v->aspect->views; v2->anext; v2 = v2->anext)
       if (v2->anext == v)

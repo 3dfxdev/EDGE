@@ -38,73 +38,73 @@
 
 typedef struct
 {
-  // upper right-hand corner
-  //  of the number (right-justified)
-  int x, y;
+	// upper right-hand corner
+	//  of the number (right-justified)
+	int x, y;
 
-  // max # of digits in number
-  int width;
+	// max # of digits in number
+	int width;
 
-  // last number value
-  int oldnum;
+	// last number value
+	int oldnum;
 
-  // pointer to current value
-  int *num;
+	// pointer to current value
+	int *num;
 
-  // pointer to boolean stating
-  //  whether to update number
-  boolean_t *on;
+	// pointer to boolean stating
+	//  whether to update number
+	bool *on;
 
-  // list of images for 0-9
-  const image_t ** digits;
+	// list of images for 0-9
+	const image_t ** digits;
 
-  // minus, or NULL for none.
-  const image_t *minus;
+	// minus, or NULL for none.
+	const image_t *minus;
 
-  // colourmap
-  const colourmap_t *colmap;
+	// colourmap
+	const colourmap_t *colmap;
 }
 st_number_t;
 
 // -ES- 1999/11/10 Quick hack to allow floats. FIXME: Rewrite All.
 typedef struct
 {
-  st_number_t num;
-  flo_t *f;
+	st_number_t num;
+	float *f;
 }
-st_flo_t;
+st_float;
 
 
 // Percent widget ("child" of number widget,
 //  or, more precisely, contains a number widget.)
 typedef struct
 {
-  // number information
-  st_flo_t f;
+	// number information
+	st_float f;
 
-  // percent sign graphic
-  const image_t *percsign;
+	// percent sign graphic
+	const image_t *percsign;
 }
 st_percent_t;
 
 // Multiple Icon widget
 typedef struct
 {
-  // center-justified location of icons
-  int x, y;
+	// center-justified location of icons
+	int x, y;
 
-  // last icon number
-  int oldinum;
+	// last icon number
+	int oldinum;
 
-  // pointer to current icon
-  int *inum;
+	// pointer to current icon
+	int *inum;
 
-  // pointer to boolean stating
-  //  whether to update icon
-  boolean_t *on;
+	// pointer to boolean stating
+	//  whether to update icon
+	bool *on;
 
-  // list of icons
-  const image_t ** icons;
+	// list of icons
+	const image_t ** icons;
 }
 st_multicon_t;
 
@@ -112,21 +112,21 @@ st_multicon_t;
 
 typedef struct
 {
-  // center-justified location of icon
-  int x, y;
+	// center-justified location of icon
+	int x, y;
 
-  // last icon value
-  boolean_t oldval;
+	// last icon value
+	bool oldval;
 
-  // pointer to current icon status
-  boolean_t *val;
+	// pointer to current icon status
+	bool *val;
 
-  // pointer to boolean
-  //  stating whether to update icon
-  boolean_t *on;
+	// pointer to boolean
+	//  stating whether to update icon
+	bool *on;
 
-  // icon
-  const image_t *icon;
+	// icon
+	const image_t *icon;
 }
 st_binicon_t;
 
@@ -142,33 +142,33 @@ void STLIB_Init(void);
 
 // Number widget routines
 void STLIB_InitNum(st_number_t * n, int x, int y, 
-    const image_t ** digits, const image_t *minus, int *num, 
-    boolean_t * on, int width);
+				   const image_t ** digits, const image_t *minus, int *num, 
+				   bool * on, int width);
 
-void STLIB_InitFloat(st_flo_t * n, int x, int y, const image_t ** digits, 
-    flo_t *num, boolean_t * on, int width);
+void STLIB_InitFloat(st_float * n, int x, int y, const image_t ** digits, 
+					 float *num, bool * on, int width);
 
-void STLIB_UpdateNum(st_number_t * n, boolean_t refresh);
-void STLIB_UpdateFloat(st_flo_t * n, boolean_t refresh);
+void STLIB_UpdateNum(st_number_t * n, bool refresh);
+void STLIB_UpdateFloat(st_float * n, bool refresh);
 
 // Percent widget routines
 void STLIB_InitPercent(st_percent_t * p, int x, int y, 
-    const image_t ** digits, const image_t *percsign,
-    flo_t *num, boolean_t * on);
+					   const image_t ** digits, const image_t *percsign,
+					   float *num, bool * on);
 
 void STLIB_UpdatePercent(st_percent_t * per, int refresh);
 
 // Multiple Icon widget routines
 void STLIB_InitMultIcon(st_multicon_t * mi, int x, int y, 
-    const image_t ** icons, int *inum, boolean_t * on);
+						const image_t ** icons, int *inum, bool * on);
 
-void STLIB_UpdateMultIcon(st_multicon_t * mi, boolean_t refresh);
+void STLIB_UpdateMultIcon(st_multicon_t * mi, bool refresh);
 
 // Binary Icon widget routines
 
 void STLIB_InitBinIcon(st_binicon_t * b, int x, int y, 
-    const image_t * icon, boolean_t * val, boolean_t * on);
+					   const image_t * icon, bool * val, bool * on);
 
-void STLIB_UpdateBinIcon(st_binicon_t * bi, boolean_t refresh);
+void STLIB_UpdateBinIcon(st_binicon_t * bi, bool refresh);
 
 #endif

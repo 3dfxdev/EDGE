@@ -44,8 +44,8 @@ void RAD_ResetTips(void);
 void RAD_DisplayTips(void);
 
 // RadiusTrigger & Scripting Prototypes
-boolean_t RAD_Init(void);
-boolean_t RAD_LoadParam(void);
+bool RAD_Init(void);
+bool RAD_LoadParam(void);
 void RAD_LoadLump(void *data, int size);
 void RAD_SpawnTriggers(char *map_name);
 void RAD_ClearTriggers(void);
@@ -53,14 +53,14 @@ void RAD_GroupTriggerTags(rad_trigger_t *trig);
 
 void RAD_DoRadiTrigger(player_t * p);
 void RAD_Ticker(void);
-boolean_t RAD_WithinRadius(mobj_t * mo, rad_script_t * r);
+bool RAD_WithinRadius(mobj_t * mo, rad_script_t * r);
 rad_script_t *RAD_FindScriptByName(const char *map_name, const char *name);
 rad_trigger_t *RAD_FindTriggerByName(const char *name);
 rts_state_t *RAD_FindStateByLabel(rad_script_t *scr, char *label);
-void RAD_EnableByTag(mobj_t *actor, int tag, boolean_t disable);
+void RAD_EnableByTag(mobj_t *actor, int tag, bool disable);
 
 // Path support
-boolean_t RAD_CheckReachedTrigger(mobj_t * thing);
+bool RAD_CheckReachedTrigger(mobj_t * thing);
 
 //
 //  PARSING

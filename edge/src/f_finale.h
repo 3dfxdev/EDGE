@@ -31,7 +31,7 @@
 #include "p_mobj.h"
 
 // Called by main loop.
-boolean_t F_Responder(event_t * ev);
+bool F_Responder(event_t * ev);
 
 // Called by main loop.
 void F_Ticker(void);

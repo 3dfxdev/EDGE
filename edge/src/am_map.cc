@@ -109,7 +109,7 @@
 #define M_ZOOMOUT (1/M_ZOOMIN)
 
 // translates between frame-buffer and map distances - moved down with rest of functions
-#define FTOM(x) ((flo_t)((x) * scale_ftom))
+#define FTOM(x) ((float)((x) * scale_ftom))
 #define MTOF(x) ((int)((x) * scale_mtof))
 
 // translates between frame-buffer and map coordinates
@@ -210,46 +210,46 @@ static int f_w, f_h;
 
 static mpoint_t m_paninc;  // how far the window pans each tic (map coords)
 
-static flo_t mtof_zoommul;  // how far the window zooms in each tic (map coords)
-static flo_t ftom_zoommul;  // how far the window zooms in each tic (fb coords)
+static float mtof_zoommul;  // how far the window zooms in each tic (map coords)
+static float ftom_zoommul;  // how far the window zooms in each tic (fb coords)
 
-static flo_t m_x, m_y;  // LL x,y where the window is on the map (map coords)
-static flo_t m_x2, m_y2;  // UR x,y where the window is on the map (map coords)
+static float m_x, m_y;  // LL x,y where the window is on the map (map coords)
+static float m_x2, m_y2;  // UR x,y where the window is on the map (map coords)
 
 //
 // width/height of window on map (map coords)
 //
-static flo_t m_w;
-static flo_t m_h;
+static float m_w;
+static float m_h;
 
 // based on level size
-static flo_t min_x;
-static flo_t min_y;
-static flo_t max_x;
-static flo_t max_y;
+static float min_x;
+static float min_y;
+static float max_x;
+static float max_y;
 
-static flo_t max_w;  // max_x-min_x,
-static flo_t max_h;  // max_y-min_y
+static float max_w;  // max_x-min_x,
+static float max_h;  // max_y-min_y
 
 // based on player size
-static flo_t min_w;
-static flo_t min_h;
+static float min_w;
+static float min_h;
 
-static flo_t min_scale_mtof;  // used to tell when to stop zooming out
-static flo_t max_scale_mtof;  // used to tell when to stop zooming in
+static float min_scale_mtof;  // used to tell when to stop zooming out
+static float max_scale_mtof;  // used to tell when to stop zooming in
 
 // old stuff for recovery later
-static flo_t old_m_w, old_m_h;
-static flo_t old_m_x, old_m_y;
+static float old_m_w, old_m_h;
+static float old_m_x, old_m_y;
 
 // old location used by the Follower routine
 static mpoint_t f_oldloc;
 
 // used by MTOF to scale from map-to-frame-buffer coords
-static flo_t scale_mtof = INITSCALEMTOF;
+static float scale_mtof = INITSCALEMTOF;
 
 // used by FTOM to scale from frame-buffer-to-map coords (=1/scale_mtof)
-static flo_t scale_ftom;
+static float scale_ftom;
 
 // numbers used for marking by the automap
 static const image_t *marknums[10];
@@ -265,9 +265,9 @@ static int followplayer = 1;
 
 cheatseq_t cheat_amap = {0, 0};
 
-static boolean_t stopped = true;
+static bool stopped = true;
 
-boolean_t newhud = false;
+bool newhud = false;
 
 // current am colourmap
 static const byte *am_colmap = NULL;
@@ -311,7 +311,7 @@ static void RestoreScaleAndLoc(void)
 	m_y2 = m_y + m_h;
 
 	// Change the scaling multipliers
-	scale_mtof = (flo_t)f_w / m_w;
+	scale_mtof = (float)f_w / m_w;
 	scale_ftom = 1 / scale_mtof;
 }
 
@@ -332,8 +332,8 @@ static void AddMark(void)
 static void FindMinMaxBoundaries(void)
 {
 	int i;
-	flo_t a;
-	flo_t b;
+	float a;
+	float b;
 
 	min_x = min_y = FLT_MAX; // -ACB- 2003/09/21 Max value was INT_MAX; changed it to fall in line with its type
 	max_x = max_y = FLT_MIN; // -ACB- 2003/09/21 Max value was INT_MIN; changed it to fall in line with its type
@@ -358,11 +358,11 @@ static void FindMinMaxBoundaries(void)
 
 	min_h = 2.0f * PLAYERRADIUS;
 
-	a = (flo_t)f_w / max_w;
-	b = (flo_t)f_h / max_h;
+	a = (float)f_w / max_w;
+	b = (float)f_h / max_h;
 
 	min_scale_mtof = a < b ? a : b;
-	max_scale_mtof = (flo_t)f_h / (2.0f * PLAYERRADIUS);
+	max_scale_mtof = (float)f_h / (2.0f * PLAYERRADIUS);
 }
 
 static void ChangeWindowLoc(void)
@@ -563,7 +563,7 @@ static void MaxOutWindowScale(void)
 //
 // Handle events (user inputs) in automap mode
 //
-boolean_t AM_Responder(event_t * ev)
+bool AM_Responder(event_t * ev)
 {
 	bool rc;
 	static int bigstate = 0;
@@ -794,9 +794,9 @@ void AM_Ticker(void)
 // Rotation in 2D.
 // Used to rotate player arrow line character.
 //
-static INLINE void Rotate(flo_t * x, flo_t * y, angle_t a)
+static INLINE void Rotate(float * x, float * y, angle_t a)
 {
-	flo_t tmpx;
+	float tmpx;
 
 	tmpx = *x * M_Cos(a) - *y * M_Sin(a);
 
@@ -805,8 +805,8 @@ static INLINE void Rotate(flo_t * x, flo_t * y, angle_t a)
 	*x = tmpx;
 }
 
-static INLINE void GetRotatedCoords(flo_t sx, flo_t sy,
-									flo_t *dx, flo_t *dy)
+static INLINE void GetRotatedCoords(float sx, float sy,
+									float *dx, float *dy)
 {
 	*dx = sx;
 	*dy = sy;
@@ -866,12 +866,12 @@ static void DrawMline(mline_t * ml, int colour)
 //
 static void DrawGrid(int colour)
 {
-	flo_t x, y;
-	flo_t start, end;
+	float x, y;
+	float start, end;
 	mline_t ml;
 
 	// Figure out start of vertical gridlines
-	start = m_x + (flo_t)fmod((flo_t)MAPBLOCKUNITS - (m_x - bmaporgx), (flo_t)MAPBLOCKUNITS);
+	start = m_x + (float)fmod((float)MAPBLOCKUNITS - (m_x - bmaporgx), (float)MAPBLOCKUNITS);
 	end = m_x + m_w;
 
 	// draw vertical gridlines
@@ -885,7 +885,7 @@ static void DrawGrid(int colour)
 	}
 
 	// Figure out start of horizontal gridlines
-	start = m_y + (flo_t)fmod((flo_t)MAPBLOCKUNITS - (m_y - bmaporgy), (flo_t)MAPBLOCKUNITS);
+	start = m_y + (float)fmod((float)MAPBLOCKUNITS - (m_y - bmaporgy), (float)MAPBLOCKUNITS);
 	end = m_y + m_h;
 
 	// draw horizontal gridlines
@@ -907,7 +907,7 @@ static void DrawGrid(int colour)
 //
 // -AJA- 1999/12/07: written.
 //
-static boolean_t CheckSimiliarRegions(sector_t *front, sector_t *back)
+static bool CheckSimiliarRegions(sector_t *front, sector_t *back)
 {
 	extrafloor_t *F, *B;
 
@@ -1040,8 +1040,8 @@ static void DEBUG_ShowSubSecs(void)
 	for (y=0;     y < f_h; y += 3)
 		for (x=(y&1); x < f_w; x += 3)
 		{
-			flo_t mx = CXFTOM(x);
-			flo_t my = CYFTOM(y);
+			float mx = CXFTOM(x);
+			float my = CYFTOM(y);
 
 			int subsec = R_PointInSubsector(mx, my) - subsectors;
 
@@ -1052,11 +1052,11 @@ static void DEBUG_ShowSubSecs(void)
 
 
 static void DrawLineCharacter(mline_t *lineguy, int lineguylines, 
-							  flo_t radius, angle_t angle, int colour, flo_t x, flo_t y)
+							  float radius, angle_t angle, int colour, float x, float y)
 {
 	int i;
 	mline_t l;
-	flo_t ch_x, ch_y;
+	float ch_x, ch_y;
 
 	if (radius < 2)
 		radius = 2;
@@ -1178,12 +1178,12 @@ static void AM_WalkSubsector(int num)
 // Checks BSP node/subtree bounding box.
 // Returns true if some part of the bbox might be visible.
 //
-static boolean_t AM_CheckBBox(flo_t *bspcoord)
+static bool AM_CheckBBox(float *bspcoord)
 {
-	flo_t xl = bspcoord[BOXLEFT];
-	flo_t yt = bspcoord[BOXTOP];
-	flo_t xr = bspcoord[BOXRIGHT];
-	flo_t yb = bspcoord[BOXBOTTOM];
+	float xl = bspcoord[BOXLEFT];
+	float yt = bspcoord[BOXTOP];
+	float xr = bspcoord[BOXRIGHT];
+	float yb = bspcoord[BOXBOTTOM];
 
 	if (xr < m_x || xl > m_x2 || yt < m_y || yb > m_y2)
 		return false;
@@ -1226,10 +1226,10 @@ static void AM_WalkBSPNode(int bspnum)
 	{
 		mline_t l;
 
-		flo_t x1 = node->div.x - node->div.dx * 2;
-		flo_t y1 = node->div.y - node->div.dy * 2;
-		flo_t x2 = node->div.x + node->div.dx * 2;
-		flo_t y2 = node->div.y + node->div.dy * 2;
+		float x1 = node->div.x - node->div.dx * 2;
+		float y1 = node->div.y - node->div.dy * 2;
+		float x2 = node->div.x + node->div.dx * 2;
+		float y2 = node->div.y + node->div.dy * 2;
 
 		GetRotatedCoords(x1+3, y1+3, &l.a.x, &l.a.y);
 		GetRotatedCoords(x2+3, y2+3, &l.b.x, &l.b.y);

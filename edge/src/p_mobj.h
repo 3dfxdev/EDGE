@@ -352,7 +352,7 @@ dirtype_e;
 // purposes.
 typedef struct
 {
-  flo_t x, y, z;
+  float x, y, z;
 }
 degenmobj_t;
 
@@ -360,11 +360,11 @@ typedef struct
 {
   // location on the map.  `z' can take the special values ONFLOORZ
   // and ONCEILINGZ.
-  flo_t x, y, z;
+  float x, y, z;
 
   // direction thing faces
   angle_t angle;
-  flo_t slope;
+  float slope;
 
   // type of thing
   const mobjinfo_t *info;
@@ -382,7 +382,7 @@ struct mobj_s
   // Info for drawing: position.
   // NOTE: these three fields must be first, so mobj_t can be used
   // anywhere that degenmobj_t is expected.
-  flo_t x, y, z;
+  float x, y, z;
 
   // More drawing info: to determine current sprite.
   angle_t angle;  // orientation
@@ -400,23 +400,23 @@ struct mobj_s
   struct region_properties_s *props;
 
   // The closest interval over all contacted Sectors.
-  flo_t floorz;
-  flo_t ceilingz;
-  flo_t dropoffz;
+  float floorz;
+  float ceilingz;
+  float dropoffz;
 
   // For movement checking.
-  flo_t radius;
-  flo_t height;
+  float radius;
+  float height;
 
   // Momentum, used to update position.
   vec3_t mom;
 
   // Thing's health level
-  flo_t health;
+  float health;
 
   // This is the current speed of the object.
   // if fastparm, it is already calculated.
-  flo_t speed;
+  float speed;
   int fuse;
 
   // If == validcount, already checked.
@@ -458,14 +458,14 @@ struct mobj_s
   // For respawning.
   spawnpoint_t spawnpoint;
 
-  flo_t origheight;
+  float origheight;
 
   // current visibility and target visibility
-  flo_t visibility;
-  flo_t vis_target;
+  float visibility;
+  float vis_target;
 
   // looking up or down.....
-  flo_t vertangle;
+  float vertangle;
 
   // current attack to be made
   const attacktype_t *currentattack;
@@ -503,7 +503,7 @@ struct mobj_s
 
   // these delta values give what position from the ride_em thing's
   // center that we are sitting on.
-  flo_t ride_dx, ride_dy;
+  float ride_dx, ride_dy;
 
   // -AJA- 1999/09/25: Path support.
   struct rad_script_s *path_trigger;
@@ -511,8 +511,8 @@ struct mobj_s
   // if we're on a ladder, this is the linedef #, otherwise -1.
   int on_ladder;
   
-  flo_t dlight_qty;
-  flo_t dlight_target;
+  float dlight_qty;
+  float dlight_target;
 
   // hash values for TUNNEL missiles
   unsigned long tunnel_hash[2];

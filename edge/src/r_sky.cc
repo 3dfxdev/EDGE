@@ -35,12 +35,12 @@
 //
 // sky mapping
 //
-flo_t skytexturemid;
+float skytexturemid;
 
 const struct image_s *sky_image;
 
 // -ES- 1999-04-11 Added This
-flo_t skytexturescale;
+float skytexturescale;
 
 typedef struct sec_sky_ring_s
 {
@@ -52,7 +52,7 @@ typedef struct sec_sky_ring_s
   struct sec_sky_ring_s *prev;
 
   // maximal sky height of group
-  flo_t max_h;
+  float max_h;
 }
 sec_sky_ring_t;
 

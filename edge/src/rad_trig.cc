@@ -142,7 +142,7 @@ rts_state_t * RAD_FindStateByLabel(rad_script_t *scr, char *label)
 // either enables them or disables them (based on `disable').
 // Actor can be NULL.
 //
-void RAD_EnableByTag(mobj_t *actor, int tag, boolean_t disable)
+void RAD_EnableByTag(mobj_t *actor, int tag, bool disable)
 {
   rad_trigger_t *trig;
 
@@ -168,7 +168,7 @@ void RAD_EnableByTag(mobj_t *actor, int tag, boolean_t disable)
   }
 }
 
-boolean_t RAD_WithinRadius(mobj_t * mo, rad_script_t * r)
+bool RAD_WithinRadius(mobj_t * mo, rad_script_t * r)
 {
   if (r->rad_x >= 0 && fabs(r->x - mo->x) > r->rad_x + mo->radius)
     return false;
@@ -189,7 +189,7 @@ boolean_t RAD_WithinRadius(mobj_t * mo, rad_script_t * r)
 //
 // -AJA- 1999/12/08: written.
 //
-static boolean_t RAD_CheckBossTrig(rad_trigger_t *trig, s_ondeath_t *cond)
+static bool RAD_CheckBossTrig(rad_trigger_t *trig, s_ondeath_t *cond)
 {
   mobj_t *mo;
 
@@ -230,10 +230,10 @@ static boolean_t RAD_CheckBossTrig(rad_trigger_t *trig, s_ondeath_t *cond)
 //
 // -AJA- 1999/12/08: written.
 //
-static boolean_t RAD_CheckHeightTrig(rad_trigger_t *trig, 
+static bool RAD_CheckHeightTrig(rad_trigger_t *trig, 
     s_onheight_t *cond)
 {
-  flo_t h;
+  float h;
 
   // lookup sector if we haven't already done so
   if (! cond->cached_sector)
@@ -257,7 +257,7 @@ static boolean_t RAD_CheckHeightTrig(rad_trigger_t *trig,
   return (cond->z1 <= h && h <= cond->z2);
 }
 
-boolean_t RAD_CheckReachedTrigger(mobj_t * thing)
+bool RAD_CheckReachedTrigger(mobj_t * thing)
 {
   rad_script_t * scr = (rad_script_t *) thing->path_trigger;
 
@@ -648,7 +648,7 @@ static void RAD_MainCacheFile(const char *filename)
 // -ACB- 1998/07/10 Renamed function and used I_Print for functions,
 //                  Version displayed at all times.
 //
-static void RAD_ParseScript(boolean_t dots)
+static void RAD_ParseScript(bool dots)
 {
   char str[MAXSTRLEN];
   int n = 0;
@@ -728,7 +728,7 @@ void RAD_LoadLump(void *data, int size)
 //
 // RAD_LoadFile
 //
-static void RAD_LoadFile(const char *name, boolean_t dots)
+static void RAD_LoadFile(const char *name, bool dots)
 {
   DEV_ASSERT2(name);
   
@@ -747,7 +747,7 @@ static void RAD_LoadFile(const char *name, boolean_t dots)
 //
 // RAD_Init
 //
-boolean_t RAD_Init(void)
+bool RAD_Init(void)
 {
   char *filename;
 
@@ -771,7 +771,7 @@ boolean_t RAD_Init(void)
 //
 // RAD_LoadParam
 //
-boolean_t RAD_LoadParam(void)
+bool RAD_LoadParam(void)
 {
   const char *par;
   char *filename;

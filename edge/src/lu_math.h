@@ -65,7 +65,7 @@ extern fixed_t finetangent[FINEANGLES / 2];
 #define ANG225 0xa0000000
 #define ANG270 0xc0000000
 #define ANG315 0xe0000000
-// Only use this one with flo_t.
+// Only use this one with float.
 #define ANG360  (4294967296.0)
 #define ANGLEBITS  32
 
@@ -82,10 +82,10 @@ int SlopeDiv(unsigned num, unsigned den);
 
 // Conversion macros:
 
-#define FIX_2_FLOAT(x)  ((flo_t) (x) / 65536.0)
+#define FIX_2_FLOAT(x)  ((float) (x) / 65536.0)
 #define FLOAT_2_FIX(f)  ((fixed_t) ((f) * 65536.0))
 
-#define ANG_2_FLOAT(a)  ((flo_t) (a) * 360.0 / 4294967296.0)
+#define ANG_2_FLOAT(a)  ((float) (a) * 360.0 / 4294967296.0)
 #define FLOAT_2_ANG(f)  ((angle_t) ((f) / 360.0 * 4294967296.0))
 
 #endif

@@ -217,7 +217,7 @@ static void RAD_ErrorClearLineData(void)
 
 // Searches through the #defines namespace for a match and returns
 // its value if it exists.
-static boolean_t CheckForDefine(const char *s, char ** val)
+static bool CheckForDefine(const char *s, char ** val)
 {
 	define_t *tempnode = defines;
 
@@ -254,7 +254,7 @@ static void RAD_CheckForInt(const char *value, int *retvalue)
 	*retvalue = atoi(value);
 }
 
-static void RAD_CheckForFloat(const char *value, flo_t *retvalue)
+static void RAD_CheckForFloat(const char *value, float *retvalue)
 {
 	if (sscanf(value, "%f", retvalue) != 1)
 		RAD_Error("Parameter is not of numeric type: %s\n", value);
@@ -269,7 +269,7 @@ static void RAD_CheckForPercent(const char *info, void *storage)
 {
 	char s[101];
 	char *p;
-	flo_t f;
+	float f;
 
 	// just check that the string is valid
 	Z_StrNCpy(s, info, 100);
@@ -297,7 +297,7 @@ static void RAD_CheckForPercentAny(const char *info, void *storage)
 {
 	char s[101];
 	char *p;
-	flo_t f;
+	float f;
 
 	// just check that the string is valid
 	Z_StrNCpy(s, info, 100);
@@ -354,7 +354,7 @@ static void RAD_CheckForTime(const char *info, void *storage)
 		return;
 	}
 
-	*dest = (int)(val * (flo_t)TICRATE);
+	*dest = (int)(val * (float)TICRATE);
 }
 
 static armour_type_e RAD_CheckForArmourType(const char *info)
@@ -432,7 +432,7 @@ static char *RAD_UnquoteString(const char *s)
 	return Z_StrDup(tokenbuf);
 }
 
-static boolean_t CheckForBoolean(const char *s)
+static bool CheckForBoolean(const char *s)
 {
 	if (strcmp(s, "TRUE") == 0 || strcmp(s, "1") == 0)
 		return true;
@@ -697,7 +697,7 @@ static void RAD_CollectParameters(const char *line, int *pnum,
 								  char ** pars, int max)
 {
 	int tokenlen = -1;
-	boolean_t in_string = false;
+	bool in_string = false;
 
 	*pnum = 0;
 
@@ -796,7 +796,7 @@ static void RAD_ParseVersion(int pnum, const char **pars)
 
 	RAD_CheckForFloat(pars[1], &vers);
 
-	if (vers > (flo_t) PARSERV / (flo_t) PARSERVFIX)
+	if (vers > (float) PARSERV / (float) PARSERVFIX)
 		RAD_Error("This version of EDGE cannot handle this script\n");
 }
 
@@ -878,7 +878,7 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 
 	if (DDF_CompareName("RECT_TRIGGER", pars[0]) == 0)
 	{
-		flo_t x1, y1, x2, y2, z1, z2;
+		float x1, y1, x2, y2, z1, z2;
 
 		if (pnum == 6)
 			RAD_Error("%s: Wrong number of parameters.\n", pars[0]);
@@ -924,7 +924,7 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 
 		if (pnum >= 6)
 		{
-			flo_t z1, z2;
+			float z1, z2;
 
 			RAD_CheckForFloat(pars[4], &z1);
 			RAD_CheckForFloat(pars[5], &z2);
@@ -1505,7 +1505,7 @@ static void RAD_ParseSpawnThing(int pnum, const char **pars)
 		RAD_CheckForInt(angle_str, &val);
 
 		if (ABS(val) <= 360)
-			t->angle = FLOAT_2_ANG((flo_t) val);
+			t->angle = FLOAT_2_ANG((float) val);
 		else
 			t->angle = val << 16;
 	}
@@ -2075,7 +2075,7 @@ void RAD_ParseLine(char *s)
 	for (cur = radtrig_parsers; cur->name != NULL; cur++)
 	{
 		const char *cur_name = cur->name;
-		boolean_t obsolete = false;
+		bool obsolete = false;
 
 		if (cur_name[0] == '!')
 		{

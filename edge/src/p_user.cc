@@ -47,8 +47,8 @@
 //
 static void CalcHeight(player_t * player)
 {
-  flo_t bob = 0;
-  boolean_t onground = player->mo->z <= player->mo->floorz;
+  float bob = 0;
+  bool onground = player->mo->z <= player->mo->floorz;
   
   // Regular movement bobbing 
   // (needs to be calculated for gun swing even if not on ground).  
@@ -114,18 +114,18 @@ static void MovePlayer(player_t * player)
   ticcmd_t *cmd;
   mobj_t *mo = player->mo;
 
-  boolean_t onground = player->mo->z <= player->mo->floorz;
-  boolean_t onladder = player->mo->on_ladder >= 0;
-  boolean_t hasjetpack = player->powers[PW_Jetpack] > 0;
-  boolean_t canswim = player->swimming;
+  bool onground = player->mo->z <= player->mo->floorz;
+  bool onladder = player->mo->on_ladder >= 0;
+  bool hasjetpack = player->powers[PW_Jetpack] > 0;
+  bool canswim = player->swimming;
 
-  flo_t dx, dy;
-  flo_t eh, ev;
+  float dx, dy;
+  float eh, ev;
 
-  flo_t base_xy_speed;
-  flo_t base_z_speed;
+  float base_xy_speed;
+  float base_z_speed;
 
-  flo_t F_vec[3], U_vec[3], S_vec[3];
+  float F_vec[3], U_vec[3], S_vec[3];
   
   cmd = &player->cmd;
 
@@ -158,7 +158,7 @@ static void MovePlayer(player_t * player)
 
   if (canswim)
   {
-    flo_t hyp = sqrt(1.0 + player->mo->vertangle * player->mo->vertangle);
+    float hyp = sqrt(1.0 + player->mo->vertangle * player->mo->vertangle);
 
     eh = 1.0 / hyp;
     ev = player->mo->vertangle / hyp;
@@ -308,11 +308,11 @@ static void MovePlayer(player_t * player)
 
 static void DeathThink(player_t * player)
 {
-  flo_t dx, dy, dz;
+  float dx, dy, dz;
 
   angle_t angle;
   angle_t delta;
-  flo_t slope, delta_s;
+  float slope, delta_s;
 
   // -AJA- 1999/12/07: don't die mid-air.
   player->powers[PW_Jetpack] = 0;
@@ -604,14 +604,14 @@ void P_PlayerThink(player_t * player)
     int s = player->powers[PW_Invulnerable];
 
     player->effect_colourmap = DDF_ColmapLookup("ALLWHITE");
-    player->effect_strength = (flo_t)((s >= 128) ? 1.0 : s / 128.0);
+    player->effect_strength = (float)((s >= 128) ? 1.0 : s / 128.0);
   }
   else if (player->powers[PW_Infrared] > 0)
   {
     int s = player->powers[PW_Infrared];
 
     player->effect_infrared = true;
-    player->effect_strength = (flo_t)((s >= 128) ? 1.0 : s / 128.0);
+    player->effect_strength = (float)((s >= 128) ? 1.0 : s / 128.0);
   }
   // -ACB- 1998/07/15 NightVision Code
   else if (player->powers[PW_NightVision] > 0)
@@ -619,7 +619,7 @@ void P_PlayerThink(player_t * player)
     int s = player->powers[PW_NightVision];
 
     player->effect_colourmap = DDF_ColmapLookup("ALLGREEN");
-    player->effect_strength = (flo_t)((s >= 128) ? 1.0 : s / 128.0);
+    player->effect_strength = (float)((s >= 128) ? 1.0 : s / 128.0);
   }
 }
 
@@ -791,7 +791,7 @@ void P_UpdateAvailWeapons(player_t *p)
 // Returns true if player didn't already have the weapon.  If
 // successful and `index' is non-NULL, it is set to the new index.
 //
-boolean_t P_AddWeapon(player_t *player, weaponinfo_t *info, int *index)
+bool P_AddWeapon(player_t *player, weaponinfo_t *info, int *index)
 {
   int i;
   int slot = -1;
@@ -872,7 +872,7 @@ boolean_t P_AddWeapon(player_t *player, weaponinfo_t *info, int *index)
 //
 // Returns true if player had the weapon.
 //
-boolean_t P_RemoveWeapon(player_t *player, weaponinfo_t *info)
+bool P_RemoveWeapon(player_t *player, weaponinfo_t *info)
 {
   int i;
 

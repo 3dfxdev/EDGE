@@ -85,12 +85,12 @@ extern mobj_t *RandomTarget;
 //
 void P_ActPlayerAttack(mobj_t * playerobj, const attacktype_t * attack);
 void P_ActSlammedIntoObject(mobj_t * object, mobj_t * objecthit);
-boolean_t P_ActMissileContact(mobj_t * object, mobj_t * objecthit);
-boolean_t P_ActBulletContact(mobj_t * object, mobj_t * objecthit, 
-							 flo_t damage, const damage_t * damtype);
+bool P_ActMissileContact(mobj_t * object, mobj_t * objecthit);
+bool P_ActBulletContact(mobj_t * object, mobj_t * objecthit, 
+							 float damage, const damage_t * damtype);
 void P_ActTouchyContact(mobj_t * touchy, mobj_t * victim);
-boolean_t P_ActUseThing(mobj_t * user, mobj_t * thing, flo_t open_bottom,
-						flo_t open_top);
+bool P_ActUseThing(mobj_t * user, mobj_t * thing, float open_bottom,
+						float open_top);
 void P_BringCorpseToLife(mobj_t * corpse);
 
 //
@@ -101,7 +101,7 @@ void P_MovePsprites(player_t * curplayer);
 void P_SetPsprite(player_t * p, int position, int stnum);
 void P_DropWeapon(player_t * player);
 void P_BringUpWeapon(player_t * player);
-boolean_t P_CheckWeaponSprite(weaponinfo_t *info);
+bool P_CheckWeaponSprite(weaponinfo_t *info);
 void P_SelectNewWeapon(player_t * player, int priority, ammotype_e ammo);
 void P_Zoom(player_t * player);
 void P_RefillClips(player_t * player);
@@ -111,8 +111,8 @@ void P_RefillClips(player_t * player);
 //
 void P_PlayerThink(player_t * player);
 void P_UpdateAvailWeapons(player_t *p);
-boolean_t P_AddWeapon(player_t *player, weaponinfo_t *info, int *index);
-boolean_t P_RemoveWeapon(player_t *player, weaponinfo_t *info);
+bool P_AddWeapon(player_t *player, weaponinfo_t *info, int *index);
+bool P_RemoveWeapon(player_t *player, weaponinfo_t *info);
 void P_GiveInitialBenefits(player_t *player, const mobjinfo_t *info);
 void P_AddPlayerToGame(player_t *p);
 void P_RemovePlayerFromGame(player_t *p);
@@ -121,8 +121,8 @@ void P_RemoveAllPlayers(void);
 //
 // P_MOBJ
 //
-#define ONFLOORZ   ((flo_t)INT_MIN)
-#define ONCEILINGZ ((flo_t)INT_MAX)
+#define ONFLOORZ   ((float)INT_MIN)
+#define ONCEILINGZ ((float)INT_MAX)
 
 // -ACB- 1998/07/30 Start Pointer the item-respawn-que.
 extern iteminque_t *itemquehead;
@@ -133,12 +133,12 @@ extern mobj_t *mobjlisthead;
 void P_SpawnPlayer(player_t *p, const spawnpoint_t * sthing);
 void P_RemoveMobj(mobj_t * th);
 statenum_t P_MobjFindLabel(mobj_t * mobj, const char *label);
-boolean_t P_SetMobjState(mobj_t * mobj, statenum_t state);
-boolean_t P_SetMobjStateDeferred(mobj_t * mobj, statenum_t state, int tic_skip);
-void P_SetMobjDirAndSpeed(mobj_t * mobj, angle_t angle, flo_t slope, flo_t speed);
+bool P_SetMobjState(mobj_t * mobj, statenum_t state);
+bool P_SetMobjStateDeferred(mobj_t * mobj, statenum_t state, int tic_skip);
+void P_SetMobjDirAndSpeed(mobj_t * mobj, angle_t angle, float slope, float speed);
 void P_RunMobjThinkers(void);
-void P_SpawnPuff(flo_t x, flo_t y, flo_t z, const mobjinfo_t * puff);
-void P_SpawnBlood(flo_t x, flo_t y, flo_t z, flo_t damage, angle_t angle, const mobjinfo_t * blood);
+void P_SpawnPuff(float x, float y, float z, const mobjinfo_t * puff);
+void P_SpawnBlood(float x, float y, float z, float damage, angle_t angle, const mobjinfo_t * blood);
 void P_RemoveQueuedMobjs(void);
 void P_CalcFullProperties(const mobj_t *mo, region_properties_t *newregp);
 
@@ -154,7 +154,7 @@ void P_MobjSetRealSource(mobj_t *mo, mobj_t *source);
 void P_MobjItemRespawn(void);
 void P_MobjRemoveMissile(mobj_t * missile);
 void P_MobjExplodeMissile(mobj_t * missile);
-mobj_t *P_MobjCreateObject(flo_t x, flo_t y, flo_t z, const mobjinfo_t * type);
+mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjinfo_t * type);
 
 //
 // P_ENEMY
@@ -171,17 +171,17 @@ shoot_spot_info_t;
 
 extern dirtype_e opposite[];
 extern dirtype_e diags[];
-extern flo_t xspeed[8];
-extern flo_t yspeed[8];
+extern float xspeed[8];
+extern float yspeed[8];
 extern shoot_spot_info_t brain_spots;
 
 void P_NoiseAlert(player_t *p);
 void P_NewChaseDir(mobj_t * actor);
-boolean_t P_CreateAggression(mobj_t * actor);
-boolean_t P_CheckMeleeRange(mobj_t * actor);
-boolean_t P_CheckMissileRange(mobj_t * actor);
-boolean_t P_Move(mobj_t * actor, boolean_t path);
-boolean_t P_LookForPlayers(mobj_t * actor, angle_t range);
+bool P_CreateAggression(mobj_t * actor);
+bool P_CheckMeleeRange(mobj_t * actor);
+bool P_CheckMissileRange(mobj_t * actor);
+bool P_Move(mobj_t * actor, bool path);
+bool P_LookForPlayers(mobj_t * actor, angle_t range);
 void P_LookForShootSpots(const mobjinfo_t *spot_type);
 void P_FreeShootSpots(void);
 
@@ -201,7 +201,7 @@ intercept_type_e;
 
 typedef struct intercept_s
 {
-	flo_t frac;  // along trace line
+	float frac;  // along trace line
 
 	int type;
 
@@ -214,23 +214,23 @@ typedef struct intercept_s
 }
 intercept_t;
 
-typedef boolean_t(*traverser_t) (intercept_t * in);
+typedef bool(*traverser_t) (intercept_t * in);
 
 extern intercept_t **intercepts;
 extern int intercept_p;
 
 extern divline_t trace;
 
-flo_t P_ApproxDistance(flo_t dx, flo_t dy);
-flo_t P_ApproxSlope(flo_t dx, flo_t dy, flo_t dz);
-int P_PointOnDivlineSide(flo_t x, flo_t y, divline_t *div);
-int P_PointOnDivlineThick(flo_t x, flo_t y, divline_t *div,
-						  flo_t div_len, flo_t thickness);
-flo_t P_InterceptVector(divline_t * v2, divline_t * v1);
-int P_BoxOnLineSide(flo_t * tmbox, line_t * ld);
-int P_FindThingGap(vgap_t * gaps, int gap_num, flo_t z1, flo_t z2);
+float P_ApproxDistance(float dx, float dy);
+float P_ApproxSlope(float dx, float dy, float dz);
+int P_PointOnDivlineSide(float x, float y, divline_t *div);
+int P_PointOnDivlineThick(float x, float y, divline_t *div,
+						  float div_len, float thickness);
+float P_InterceptVector(divline_t * v2, divline_t * v1);
+int P_BoxOnLineSide(float * tmbox, line_t * ld);
+int P_FindThingGap(vgap_t * gaps, int gap_num, float z1, float z2);
 void P_ComputeGaps(line_t * ld);
-flo_t P_ComputeThingGap(mobj_t * thing, sector_t * sec, flo_t z, flo_t * f, flo_t * c);
+float P_ComputeThingGap(mobj_t * thing, sector_t * sec, float z, float * f, float * c);
 void P_AddExtraFloor(sector_t *sec, line_t *line);
 void P_ComputeWallTiles(line_t *ld, int sidenum);
 void P_RecomputeGapsAroundSector(sector_t *sec);
@@ -238,13 +238,13 @@ void P_RecomputeTilesInSector(sector_t *sec);
 void P_FloodExtraFloors(sector_t *sector);
 void P_UnsetThingFinally(mobj_t * thing);
 void P_SetThingPosition(mobj_t * thing);
-void P_ChangeThingPosition(mobj_t * thing, flo_t x, flo_t y, flo_t z);
+void P_ChangeThingPosition(mobj_t * thing, float x, float y, float z);
 void P_FreeSectorTouchNodes(sector_t *sec);
 
-boolean_t P_BlockLinesIterator(int x, int y, boolean_t(*func) (line_t *));
-boolean_t P_BlockThingsIterator(int x, int y, boolean_t(*func) (mobj_t *));
-boolean_t P_ThingsInArea(flo_t *bbox);
-boolean_t P_ThingsOnLine(line_t *ld);
+bool P_BlockLinesIterator(int x, int y, bool(*func) (line_t *));
+bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *));
+bool P_ThingsInArea(float *bbox);
+bool P_ThingsOnLine(line_t *ld);
 
 typedef enum
 {
@@ -255,9 +255,9 @@ typedef enum
 }
 exfloor_fit_e;
 
-exfloor_fit_e P_ExtraFloorFits(sector_t *sec, flo_t z1, flo_t z2);
+exfloor_fit_e P_ExtraFloorFits(sector_t *sec, float z1, float z2);
 
-boolean_t P_PathTraverse(flo_t x1, flo_t y1, flo_t x2, flo_t y2, int flags, traverser_t trav);
+bool P_PathTraverse(float x1, float y1, float x2, float y2, int flags, traverser_t trav);
 
 //
 // P_MAP
@@ -277,39 +277,39 @@ typedef enum
 check_sec_move_e;
 
 // If "floatok" true, move would be OK at float_destz height.
-extern boolean_t floatok;
-extern flo_t float_destz;
+extern bool floatok;
+extern float float_destz;
 
 extern mobj_t *linetarget;  // who got hit (or NULL)
 
-extern boolean_t mobj_hit_sky;
+extern bool mobj_hit_sky;
 extern line_t *blockline;
 
 extern stack_array_t spechit_a;
 extern line_t **spechit;
 extern int numspechit;
 
-boolean_t P_MapInit(void);
-boolean_t P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing);
+bool P_MapInit(void);
+bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing);
 mobj_t *P_MapFindCorpse(mobj_t * thing);
-mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, flo_t distance, boolean_t force_aim);
+mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool force_aim);
 mobj_t *P_MapTargetTheory(mobj_t * source);
 
-flo_t P_AimLineAttack(mobj_t * t1, angle_t angle, flo_t distance);
+float P_AimLineAttack(mobj_t * t1, angle_t angle, float distance);
 void P_UpdateMultipleFloors(sector_t * sector);
-boolean_t P_CheckSolidSectorMove(sector_t *sec, boolean_t is_ceiling, flo_t dh);
-boolean_t P_SolidSectorMove(sector_t *sec, boolean_t is_ceiling, flo_t dh, boolean_t crush, boolean_t nocarething);
+bool P_CheckSolidSectorMove(sector_t *sec, bool is_ceiling, float dh);
+bool P_SolidSectorMove(sector_t *sec, bool is_ceiling, float dh, bool crush, bool nocarething);
 void P_ChangeThingSize(mobj_t *mo);
-boolean_t P_CheckAbsPosition(mobj_t * thing, flo_t x, flo_t y, flo_t z);
-boolean_t P_CheckSight(mobj_t * src, mobj_t * dest);
-boolean_t P_CheckSightApproxVert(mobj_t * src, mobj_t * dest);
-void P_RadiusAttack(mobj_t * spot, mobj_t * source, flo_t radius, flo_t damage, const damage_t * damtype, boolean_t thrust_only);
+bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z);
+bool P_CheckSight(mobj_t * src, mobj_t * dest);
+bool P_CheckSightApproxVert(mobj_t * src, mobj_t * dest);
+void P_RadiusAttack(mobj_t * spot, mobj_t * source, float radius, float damage, const damage_t * damtype, bool thrust_only);
 
-boolean_t P_TeleportMove(mobj_t * thing, flo_t x, flo_t y, flo_t z);
-boolean_t P_TryMove(mobj_t * thing, flo_t x, flo_t y);
-void P_SlideMove(mobj_t * mo, flo_t x, flo_t y);
+bool P_TeleportMove(mobj_t * thing, float x, float y, float z);
+bool P_TryMove(mobj_t * thing, float x, float y);
+void P_SlideMove(mobj_t * mo, float x, float y);
 void P_UseLines(player_t * player);
-void P_LineAttack(mobj_t * t1, angle_t angle, flo_t distance, flo_t slope, flo_t damage, const damage_t * damtype, const mobjinfo_t *puff);
+void P_LineAttack(mobj_t * t1, angle_t angle, float distance, float slope, float damage, const damage_t * damtype, const mobjinfo_t *puff);
 
 
 //
@@ -330,8 +330,8 @@ extern unsigned short ** bmap_pointers;
 extern int bmapwidth;
 extern int bmapheight;  // in mapblocks
 
-extern flo_t bmaporgx;
-extern flo_t bmaporgy;  // origin of block map
+extern float bmaporgx;
+extern float bmaporgy;  // origin of block map
 
 extern mobj_t **blocklinks;   // for thing chains
 extern mobj_t **blocklights;  // for dynamic lights
@@ -341,12 +341,12 @@ extern mobj_t **blocklights;  // for dynamic lights
 //
 
 void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher);
-void P_ThrustMobj(mobj_t * target, mobj_t * source, flo_t thrust);
+void P_ThrustMobj(mobj_t * target, mobj_t * source, float thrust);
 void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
-				  flo_t amount, const damage_t * damtype);
+				  float amount, const damage_t * damtype);
 void P_KillMobj(mobj_t * source, mobj_t * target, const damage_t * damtype);
-boolean_t P_GiveBenefitList(player_t *player, mobj_t *special,
-							benefit_t *list, boolean_t lose_em);
+bool P_GiveBenefitList(player_t *player, mobj_t *special,
+							benefit_t *list, bool lose_em);
 
 
 //

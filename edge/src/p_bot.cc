@@ -42,7 +42,7 @@
 // Linked list of all bots.
 static bot_t *bots = NULL;
 
-static flo_t bot_atkrange;
+static float bot_atkrange;
 static mobj_t *bot_shooter = NULL;
 
 static void NewBotChaseDir(bot_t * bot)
@@ -82,7 +82,7 @@ static int EvaluateWeapon(player_t *p, int w_num)
 	playerweapon_t *wp = p->weapons + w_num;
 	weaponinfo_t *weapon;
 	attacktype_t *attack;
-	flo_t value;
+	float value;
 
 	// Don't have this weapon
 	if (! wp->owned)
@@ -155,7 +155,7 @@ void P_RemoveBots(void)
 
 static bot_t *looking_bot;
 
-static boolean_t PTR_BotLook(intercept_t * in)
+static bool PTR_BotLook(intercept_t * in)
 {
 	line_t *li;
 	mobj_t *th;
@@ -298,8 +298,8 @@ static boolean_t PTR_BotLook(intercept_t * in)
 // Finds items for the bot to get.
 static mobj_t *LookForStuff(bot_t *bot, angle_t angle)
 {
-	flo_t x2;
-	flo_t y2;
+	float x2;
+	float y2;
 
 	bot_shooter = bot->pl->mo;
 	looking_bot = bot;
@@ -326,7 +326,7 @@ static void MoveBot(bot_t *bot, angle_t angle)
 }
 
 // Based on P_LookForTargets from p_enemy.c
-static boolean_t LookForBotTargets(bot_t *bot)
+static bool LookForBotTargets(bot_t *bot)
 {
 	mobj_t *object = bot->pl->mo;
 	mobj_t *currmobj;
@@ -368,8 +368,8 @@ static boolean_t LookForBotTargets(bot_t *bot)
 
 static void BotThink(bot_t * bot)
 {
-	boolean_t move_ok;
-	boolean_t seetarget = false;
+	bool move_ok;
+	bool seetarget = false;
 	int best;
 	int best_val = INT_MIN;
 	unsigned int i, j;
@@ -598,7 +598,7 @@ void P_BotCreate(player_t *p)
 //
 static void ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 {
-	flo_t s,d,x,y;
+	float s,d,x,y;
 	angle_t a, new_angle;
 
 	dest->buttons = dest->extbuttons = 0;

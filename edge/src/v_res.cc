@@ -56,14 +56,14 @@ int SCREENWIDTH;
 int SCREENHEIGHT;
 int SCREENPITCH;
 int SCREENBITS;
-boolean_t SCREENWINDOW;
-boolean_t graphicsmode = false;
+bool SCREENWINDOW;
+bool graphicsmode = false;
 
-flo_t DX, DY, DXI, DYI, DY2, DYI2;
+float DX, DY, DXI, DYI, DY2, DYI2;
 int SCALEDWIDTH, SCALEDHEIGHT, X_OFFSET, Y_OFFSET;
 
-flo_t BASEYCENTER;
-flo_t BASEXCENTER;
+float BASEYCENTER;
+float BASEXCENTER;
 
 //
 //r_draw.c stuff
@@ -86,8 +86,8 @@ fixed_t dc_translucency;
 
 #ifndef NOSMOOTHING
 // -ES- 1999/05/16 True if the drawing primitive uses smoothing.
-boolean_t dc_usesmoothing;
-boolean_t ds_usesmoothing;
+bool dc_usesmoothing;
+bool ds_usesmoothing;
 
 #endif
 
@@ -357,7 +357,7 @@ void V_InitResolution(void)
 //
 // -ACB- 1999/09/19 Removed forcevga reference
 //
-boolean_t V_MultiResInit(void)
+bool V_MultiResInit(void)
 {
   I_Printf("Resolution: %d x %d x %dc\n", SCREENWIDTH, SCREENHEIGHT, 
       1 << SCREENBITS);
@@ -462,7 +462,7 @@ void V_AddAvailableResolution(screenmode_t *mode)
 #define DEPTH_MUL  25  // relative important of depth
 
 int V_FindClosestResolution(screenmode_t *mode,
-    boolean_t samesize, boolean_t samedepth)
+    bool samesize, bool samedepth)
 {
   int i;
 
