@@ -499,8 +499,8 @@ static menuinfo_t analogueoptionsinfo =
 //
 optmenuitem_t playoptions[] =
 {
-	{OPT_Switch, "Compatibility", CompatSet, 2, 0, &global_flags.compat_mode, M_ChangeCompatMode, NULL},
-	{OPT_Switch, "AutoAiming", AAim, 3, 1, &global_flags.autoaim, M_ChangeAutoAim, NULL},
+	{OPT_Switch, "Compatibility", CompatSet, 2, 0, (int *)&global_flags.compat_mode, M_ChangeCompatMode, NULL},
+	{OPT_Switch, "AutoAiming", AAim, 3, 1, (int *)&global_flags.autoaim, M_ChangeAutoAim, NULL},
 	{OPT_Boolean, "Jumping", YesNo, 2, 0, (int *)&global_flags.jump, M_ChangeJumping, NULL},
 	{OPT_Boolean, "Crouching", YesNo, 2, 0, (int *)&global_flags.crouch, M_ChangeCrouching, NULL},
 	{OPT_Boolean, "Weapon Kick", YesNo, 2, 1, (int *)&global_flags.kicking, M_ChangeKicking, NULL},
