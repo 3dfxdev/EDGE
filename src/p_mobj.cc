@@ -1118,7 +1118,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				(mo->below_mo->flags & MF_SHOOTABLE) &&
 				(mo->source != mo->below_mo))
 			{
-				P_ActMissileContact(mo, mo->below_mo);
+				P_MissileContact(mo, mo->below_mo);
 			}
 
 			// if the floor is sky, don't explode missile -ACB- 1998/07/31
@@ -1202,7 +1202,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				(mo->above_mo->flags & MF_SHOOTABLE) &&
 				(mo->source != mo->above_mo))
 			{
-				P_ActMissileContact(mo, mo->above_mo);
+				P_MissileContact(mo, mo->above_mo);
 			}
 
 			// if the ceiling is sky, don't explode missile -ACB- 1998/07/31
