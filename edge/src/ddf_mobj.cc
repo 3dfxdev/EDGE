@@ -1868,7 +1868,7 @@ const mobjdef_c* mobjdef_container_c::Lookup(int id)
 	}
 
 	epi::array_iterator_c it;
-	mobjdef_c *m;
+	mobjdef_c *m = 0;
 
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
