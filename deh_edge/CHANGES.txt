@@ -16,7 +16,7 @@ Changes in V1.0  (Unreleased)
 
  - fixed bug not writing double quotes (") into LDF.
 
- - fixed problem not handling 0xff bytes in cheat strings.
+ - fixed problem not handling 0xFF bytes in cheat strings.
 
 
 Changes in V0.9  (7th February 2004)
