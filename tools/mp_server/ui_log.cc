@@ -27,7 +27,7 @@ UI_LogBox::UI_LogBox(int x, int y, int w, int h) :
     Fl_Multi_Browser(x, y, w, h)
 {
 	// cancel the automatic `begin' in Fl_Group constructor
-	// (it's an ancestor of Fl_Browser).
+	// (Fl_Group is an ancestor of Fl_Browser).
 	end();
  
 	textfont(FL_COURIER);
