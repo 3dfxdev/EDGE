@@ -16,3 +16,5 @@ FUTURE
 .vimrc
 savegame
 update.log
+edge_private.res
+edge_private.h
