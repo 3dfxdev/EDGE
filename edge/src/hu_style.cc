@@ -64,6 +64,54 @@ void style_c::Load()
 	}
 }
 
+//
+// style_c::DrawBackground
+//
+void style_c::DrawBackground(int x, int y, int w, int h)
+{
+	if (w == 0)
+		x = 0, w = SCREENWIDTH;
+
+	if (h == 0)
+		y = 0, h = SCREENHEIGHT;
+
+	float alpha = PERCENT_2_FLOAT(def->bg.translucency);
+
+	if (! bg_image)
+	{
+		RGL_SolidBox(x, y, w, h, def->bg.colour, alpha);
+		return;
+	}
+
+	float right  = IM_RIGHT(bg_image);
+	float bottom = IM_BOTTOM(bg_image);
+
+	if (def->special & SYLSP_Tiled)
+	{
+		float y_scale = def->bg.scale;
+		float x_scale = def->bg.aspect * y_scale;
+
+		x_scale *= (float)SCREENWIDTH  / 320.0f;
+		y_scale *= (float)SCREENHEIGHT / 200.0f;
+
+		RGL_DrawImage(x, y, w, h, bg_image, 0.0f, 0.0f,
+				right  * w / IM_WIDTH(bg_image)  / x_scale,
+				bottom * h / IM_HEIGHT(bg_image) / y_scale,
+				NULL, alpha);
+	}
+	else if (def->special & SYLSP_TiledNoScale)
+	{
+		RGL_DrawImage(x, y, w, h, bg_image, 0.0f, 0.0f,
+				right  * w / IM_WIDTH(bg_image),
+				bottom * h / IM_HEIGHT(bg_image),
+				NULL, alpha);
+	}
+	else
+	{
+		RGL_DrawImage(x, y, w, h, bg_image, 0.0f, 0.0f,
+					  right, bottom, NULL, alpha);
+	}
+}
 
 // ---> style_container_c class
 

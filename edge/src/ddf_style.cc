@@ -33,7 +33,7 @@
 
 styledef_c *default_style;
 
-static void DDF_StyleGetBkgSpecials(const char *info, void *storage);
+static void DDF_StyleGetSpecials(const char *info, void *storage);
 
 styledef_container_c styledefs;
 
@@ -53,7 +53,6 @@ static const commandlist_t background_commands[] =
 	DF("COLOUR", colour, DDF_MainGetRGB),
 	DF("TRANSLUCENCY", translucency, DDF_MainGetPercent),
     DF("IMAGE", image_name, DDF_MainGetString),
-    DF("SPECIAL", special, DDF_StyleGetBkgSpecials),
     DF("SCALE",  scale,  DDF_MainGetFloat),
     DF("ASPECT", aspect, DDF_MainGetFloat),
 
@@ -103,6 +102,8 @@ static const commandlist_t style_commands[] =
 	DDF_SUB_LIST("TITLE", text[2], text_commands, buffer_textstyle),
 	DDF_SUB_LIST("HELP",  text[3], text_commands, buffer_textstyle),
 	DDF_SUB_LIST("SOUND", sounds, sound_commands, buffer_soundstyle),
+
+    DF("SPECIAL", special, DDF_StyleGetSpecials),
 
 	DDF_CMD_END
 };
@@ -226,32 +227,33 @@ void DDF_StyleCleanUp(void)
 	styledefs.Trim();
 }
 
-static specflags_t background_specials[] =
+static specflags_t style_specials[] =
 {
-    {"TILED", BKGSP_Tiled, 0},
+    {"TILED", SYLSP_Tiled, 0},
+    {"TILED NOSCALE", SYLSP_TiledNoScale, 0},
     {NULL, 0, 0}
 };
 
-void DDF_StyleGetBkgSpecials(const char *info, void *storage)
+void DDF_StyleGetSpecials(const char *info, void *storage)
 {
-	background_special_e *dest = (background_special_e *)storage;
+	style_special_e *dest = (style_special_e *)storage;
 
 	int flag_value;
 
-	switch (DDF_MainCheckSpecialFlag(info, background_specials,
+	switch (DDF_MainCheckSpecialFlag(info, style_specials,
 			&flag_value, true, false))
 	{
 		case CHKF_Positive:
-			*dest = (background_special_e)(*dest | flag_value);
+			*dest = (style_special_e)(*dest | flag_value);
 			break;
 
 		case CHKF_Negative:
-			*dest = (background_special_e)(*dest & ~flag_value);
+			*dest = (style_special_e)(*dest & ~flag_value);
 			break;
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError("Unknown background style special: %s", info);
+			DDF_WarnError("Unknown style special: %s", info);
 			break;
 	}
 }
@@ -291,7 +293,6 @@ void backgroundstyle_c::Default()
 
 	image_name.Clear();	
 
-	special = (background_special_e) 0;
 	scale  = 1.0f;
 	aspect = 1.0f;
 }
@@ -308,7 +309,6 @@ backgroundstyle_c& backgroundstyle_c::operator= (const backgroundstyle_c &rhs)
 
 		image_name = rhs.image_name;
 
-		special = rhs.special;
 		scale   = rhs.scale;
 		aspect  = rhs.aspect;
 	}
@@ -477,6 +477,8 @@ void styledef_c::CopyDetail(const styledef_c &src)
 		text[T] = src.text[T];
 
 	sounds = src.sounds;
+
+	special = src.special;
 }
 
 //
@@ -492,6 +494,8 @@ void styledef_c::Default()
 		text[T].Default();
 
 	sounds.Default();
+
+	special = (style_special_e) 0;
 }
 
 //
