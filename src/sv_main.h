@@ -38,31 +38,33 @@
 #include "i_defs.h"
 #include "p_local.h"
 
+struct image_s;
+
 //
 // STRUCTURE TABLE STUFF
 //
 
 typedef enum
 {
-  SFKIND_Invalid = 0,  // invalid values can be helpful
-  SFKIND_Numeric,
-  SFKIND_Index,
-  SFKIND_String,
-  SFKIND_Struct
+	SFKIND_Invalid = 0,  // invalid values can be helpful
+	SFKIND_Numeric,
+	SFKIND_Index,
+	SFKIND_String,
+	SFKIND_Struct
 }
 savefieldkind_e;
 
 typedef struct
 {
-  // basic kind of field (for SDEF chunk)
-  savefieldkind_e kind;
-  
-  // number of bytes for SFKIND_Numeric (1, 2, 4 or 8)
-  int size;
+	// basic kind of field (for SDEF chunk)
+	savefieldkind_e kind;
 
-  // name of structure for SFKIND_Struct, or name of array
-  // for SFKIND_Index.
-  const char *name;
+	// number of bytes for SFKIND_Numeric (1, 2, 4 or 8)
+	int size;
+
+	// name of structure for SFKIND_Struct, or name of array
+	// for SFKIND_Index.
+	const char *name;
 }
 savefieldtype_t;
 
@@ -88,28 +90,28 @@ savefieldtype_t;
 // This describes a single field
 typedef struct savefieldtype_s
 {
-  // offset of field in structure (actually a ptr into dummy struct)
-  const char *offset_p;
+	// offset of field in structure (actually a ptr into dummy struct)
+	const char *offset_p;
 
-  // name of field in savegame system
-  const char *field_name;
+	// name of field in savegame system
+	const char *field_name;
 
-  // number of sequential elements
-  int count;
- 
-  // field type information
-  savefieldtype_t type;
+	// number of sequential elements
+	int count;
 
-  // get & put routines.  The extra parameter depends on the type, for
-  // SFKIND_Struct it is the name of the structure, for SFKIND_Index
-  // it is the name of the array.  When `field_put' is NULL, then this
-  // field is not saved into the output SDEF chunk.
-  bool (* field_get)(void *storage, int index, void *extra);
-  void (* field_put)(void *storage, int index, void *extra);
+	// field type information
+	savefieldtype_t type;
 
-  // for loaded info, this points to the known version of the field,
-  // otherwise NULL if the loaded field is unknown.
-  struct savefieldtype_s *known_field;
+	// get & put routines.  The extra parameter depends on the type, for
+	// SFKIND_Struct it is the name of the structure, for SFKIND_Index
+	// it is the name of the array.  When `field_put' is NULL, then this
+	// field is not saved into the output SDEF chunk.
+	bool (* field_get)(void *storage, int index, void *extra);
+	void (* field_put)(void *storage, int index, void *extra);
+
+	// for loaded info, this points to the known version of the field,
+	// otherwise NULL if the loaded field is unknown.
+	struct savefieldtype_s *known_field;
 }
 savefield_t;
 
@@ -127,29 +129,29 @@ savefield_t;
 // This describes a single structure
 typedef struct savestruct_s
 {
-  // link in list of structure definitions
-  struct savestruct_s *next;
+	// link in list of structure definitions
+	struct savestruct_s *next;
 
-  // structure name (for SDEF/ADEF chunks)
-  const char *struct_name;
+	// structure name (for SDEF/ADEF chunks)
+	const char *struct_name;
 
-  // four letter marker
-  const char *marker;
+	// four letter marker
+	const char *marker;
 
-  // array of field definitions
-  savefield_t *fields;
+	// array of field definitions
+	savefield_t *fields;
 
-  // address of dummy struct (used to compute field offsets)
-  const char *dummy_base;
+	// address of dummy struct (used to compute field offsets)
+	const char *dummy_base;
 
-  // this must be true to put the definition into the savegame file.
-  // Allows compatibility structures that are read-only.
-  bool define_me;
+	// this must be true to put the definition into the savegame file.
+	// Allows compatibility structures that are read-only.
+	bool define_me;
 
-  // only used when loading.  For loaded info, this refers to the
-  // known struct of the same name (or NULL if none).  For known info,
-  // this points to the loaded info (or NULL if absent).
-  struct savestruct_s *counterpart;
+	// only used when loading.  For loaded info, this refers to the
+	// known struct of the same name (or NULL if none).  For known info,
+	// this points to the loaded info (or NULL if absent).
+	struct savestruct_s *counterpart;
 }
 savestruct_t;
 
@@ -157,33 +159,33 @@ savestruct_t;
 // This describes a single array
 typedef struct savearray_s
 {
-  // link in list of array definitions
-  struct savearray_s *next;
+	// link in list of array definitions
+	struct savearray_s *next;
 
-  // array name (for ADEF and STOR chunks)
-  const char *array_name;
+	// array name (for ADEF and STOR chunks)
+	const char *array_name;
 
-  // array type.  For loaded info, this points to the loaded
-  // structure.  Never NULL.
-  savestruct_t *sdef;
+	// array type.  For loaded info, this points to the loaded
+	// structure.  Never NULL.
+	savestruct_t *sdef;
 
-  // this must be true to put the definition into the savegame file.
-  // Allows compatibility arrays that are read-only.
-  bool define_me;
+	// this must be true to put the definition into the savegame file.
+	// Allows compatibility arrays that are read-only.
+	bool define_me;
 
-  // array routines.  Not used for loaded info.
-  int (* count_elems)(void);
-  void * (* get_elem)(int index);
-  void (* create_elems)(int num_elems);
-  void (* finalise_elems)(void);
+	// array routines.  Not used for loaded info.
+	int (* count_elems)(void);
+	void * (* get_elem)(int index);
+	void (* create_elems)(int num_elems);
+	void (* finalise_elems)(void);
 
-  // only used when loading.  For loaded info, this refers to the
-  // known array (or NULL if none).  For known info, this points to
-  // the loaded info (or NULL if absent).
-  struct savearray_s *counterpart;
+	// only used when loading.  For loaded info, this refers to the
+	// known array (or NULL if none).  For known info, this points to
+	// the loaded info (or NULL if absent).
+	struct savearray_s *counterpart;
 
-  // number of elements to be loaded.
-  int loaded_size;
+	// number of elements to be loaded.
+	int loaded_size;
 }
 savearray_t;
 
@@ -237,11 +239,11 @@ void SR_PutVec3(void *storage, int index, void *extra);
 
 typedef struct crc_check_s
 {
-  // number of items
-  int count;
+	// number of items
+	int count;
 
-  // CRC computed over all the items
-  unsigned long crc;
+	// CRC computed over all the items
+	unsigned long crc;
 }
 crc_check_t;
 
@@ -249,47 +251,49 @@ crc_check_t;
 // Strings are copies and need to be freed.
 typedef struct
 {
-  // [IVAR] stuff:
-  
-  const char *game;
-  const char *level;
-  gameflags_t flags;
-  int gravity;
-  
-  int level_time;
-  int p_random;
-  int total_kills;
-  int total_items;
-  int total_secrets;
- 
-  int console_player;
-  int skill;
-  int netgame;
+	// [IVAR] stuff:
 
-  const char *description;
-  const char *desc_date;
+	const char *game;
+	const char *level;
+	gameflags_t flags;
+	int gravity;
 
-  crc_check_t mapsector;
-  crc_check_t mapline;
-  crc_check_t mapthing;
+	int level_time;
+	int p_random;
+	int total_kills;
+	int total_items;
+	int total_secrets;
 
-  crc_check_t rscript;
-  crc_check_t ddfatk;
-  crc_check_t ddfgame;
-  crc_check_t ddflevl;
-  crc_check_t ddfline;
-  crc_check_t ddfsect;
-  crc_check_t ddfmobj;
-  crc_check_t ddfweap;
+	int console_player;
+	int skill;
+	int netgame;
 
-  // [VIEW] info.  Unused if view_pixels is NULL.
-  unsigned short *view_pixels;
-  int view_width;
-  int view_height;
+	const struct image_s *sky_image;  // -AJA- added 2003/12/19
 
-  // [WADS] info
-  int wad_num;
-  const char ** wad_names;
+	const char *description;
+	const char *desc_date;
+
+	crc_check_t mapsector;
+	crc_check_t mapline;
+	crc_check_t mapthing;
+
+	crc_check_t rscript;
+	crc_check_t ddfatk;
+	crc_check_t ddfgame;
+	crc_check_t ddflevl;
+	crc_check_t ddfline;
+	crc_check_t ddfsect;
+	crc_check_t ddfmobj;
+	crc_check_t ddfweap;
+
+	// [VIEW] info.  Unused if view_pixels is NULL.
+	unsigned short *view_pixels;
+	int view_width;
+	int view_height;
+
+	// [WADS] info
+	int wad_num;
+	const char ** wad_names;
 }
 saveglobals_t;
 
