@@ -115,6 +115,7 @@ public:
 		ref.ToUpper();
 		
 		act = CREATE_HEAD;
+		currnode = NULL;
 		node = treehead;
 		while (node && act != REPLACE)
 		{
