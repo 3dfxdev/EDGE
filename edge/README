@@ -1,0 +1,152 @@
+
+EDGE 1.25 README.1ST
+====================
+
+Welcome to EDGE, the Enhanced Doom Gaming Engine.
+
+Archive listing:
+  * edge           - Linux Executable, software rendering
+  * gledge         - Linux Executable, OpenGL rendering
+  * edge.cfg       - Default Configuration File
+  * edge.wad       - EDGE WAD Information
+  * readme.1st     - Guess what you reading?
+
+System Requirements:
+  - Either a DOOM, DOOM II, TNT or PLUTONIA WAD file.
+  - Computer with an FPU (Intel 486DX or higher).
+  - Pentium 133 MHz CPU (233 MHz for 640x480 mode or GLEDGE).
+  - 32MB RAM (64MB RAM recommended).
+  - Hardware accelerated 3D card with OpenGL drivers (GLEDGE only).
+
+  For Win32:
+    - Videocard and Soundcard which is compatible DirectX 7.0.
+    - DirectX 7.0 or higher.
+
+  For Linux:
+    - SDL (Simple DirectMedia Layer) version 1.1.
+    - XFree86 4.0 with DRI 3D hardware acceleration (GLEDGE only).
+    - Glibc 2.
+
+Useful Parameters:
+  * Screen Size: -width [screenwidth] -height [screenheight]
+  * Colour depth: -bpp [depth]  (1 for 8-bit, 2 for 16-bit)
+  * Pick IWAD file: -iwad [main wad file]
+  * Play PWAD file: -file [addon wad file]
+  * Jump to level: -warp [mapname]  (in the form of MAP01 or E2M9 etc..) 
+  * External DDFs: -ddf [dirname]  (use external DDFs in 'dirname')
+  * Show EDGE version: -version
+  * Disable sound: -nosound
+  * Disable music: -nomusic
+  * Turn off warnings: -nowarn  (useful for 1.24 wads like QDOOMTST)
+
+New features since 1.24:
+  - Savegames are back.
+
+  - EDGE now has built-in support for building "GL Nodes", which the
+    renderers (software and OpenGL) need to draw levels properly.
+    Some wads have the GL Nodes in them already -- for the rest EDGE
+    will automatically create a ".GWA" file containing them.  When
+    this happens, a screen will pop up showing some progress bars.
+    This can take a while (especially for huge wads like ETERNAL) but
+    it only has to be done once.
+
+  - Crouching.  Uses the `Move Down' key in the standard controls
+    option menu, and must be enabled in the gameplay option menu.
+
+  - Shadows under things.  Can be enabled/disabled in the video option
+    menu, or with the -shadows & -noshadows command-line options.
+
+  - Support for playing MP3 music.  For now they must be external
+    files, but the full 1.25 release will support lumps too.
+
+  - Improved BOOM compatibility: all of the non-generalised linetypes
+    are supported, with the exception of line-to-line teleporters
+    (which we haven't coded yet) and some scrolling types.  The
+    generalised linetypes will come later (maybe after the full 1.25
+    release).
+
+  - Mipmapping in the software and GL renderers.  Use the -nomipmap
+    option to turn it off.  Also changeable in the video options menu.
+
+  - Many DDF and RTS enhancements, too many to list in this readme,
+    but include: more ammo types, improved tips, thin sliding doors,
+    and better damage control.
+ 
+Known Issues:
+  - Multiplayer (networking) does not work.  We don't have the time to
+    work on this at the moment, unfortunately.
+
+  - Joysticks do not work.  We haven't done any work in that area.
+
+  - There are some visual problems/glitches with the screen,
+    especially when the view window is shrunk down.
+ 
+  - Levels and TCs designed for EDGE 1.24 (or earlier) can produce a
+    ton of warnings when starting up.  These warnings are mostly about
+    DDF features that have been removed or changed.  Use the -nowarn
+    option to turn off these warnings.
+ 
+Troubleshooting:
+  - If EDGE crashes, or otherwise misbehaves, please help us by
+    reporting the problem.  To do this check out the EDGE website at
+    http://edge.sourceforge.net.  We appreciate input because if you
+    don't tell us about a bug, we can't deal with it.
+
+  - The debug file can show some useful information (especially for us 
+    when trying to track down a problem).  Create it like this:
+
+      edge [normal parameters...] -debugfile debug.txt
+
+  For Windows:
+    - Ensure you are running with virtual memory ENABLED.  This will
+      cause some real problems if it disabled.
+
+    - You can check the DirectX version by running the DirectX
+      diagnostic tool.  Click the Start button, then Run..., and type:
+      dxdiag and press ENTER.  If that doesn't work, try looking for
+      DXDIAG.EXE in the following directories:
+
+         C:\windows\system
+         C:\program files\directx\setup\
+         C:\winnt\system32
+ 
+    - For GLEDGE to work, you need a 3D card *plus* OpenGL drivers
+      for it on your computer.  A really low framerate usually
+      indicates that the *software* GL driver is being used (not what
+      we want, of course ;).  Go to the website of your card's
+      manufacture and look for a recent 3D driver.  Another place to
+      look is on Microsoft's site.  Basically, if Quake 3 (or some
+      other OpenGL game) works, then GLEDGE should work too.
+   
+  For Linux:
+    - SDL 1.1 can be found at http://www.libsdl.org/.
+    
+    - 3D support under linux is still a developing thang, e.g. there
+      is no support for DRI (Direct Rendering Infrastructure) in
+      Debian 2.2 (potato), as it requires XFree86 4.0.  Also required
+      is a recent kernel (> 2.2.18 or > 2.4.0).  A good guide to
+      whether accelerated 3D is working is to run `glxinfo' in an
+      xterm, and see if it says "direct rendering: Yes".
+
+Contact points:
+  * For the latest news and developments visit the EDGE Website
+    at http://edge.sourceforge.net.
+
+  * For Forums, Engine Reports and CVS Access visit the EDGE Project
+    site at http://sourceforge.net/projects/edge.
+
+  * Contact the EDGE Team at edge-public@lists.sourceforge.net or via
+    one of the team members (see the team page on the main website).
+
+  * For more information on "GL Nodes", see the glBSP homepage at
+    http://glbsp.sourceforge.net.
+ 
+Compiling EDGE:
+
+  You need to cd into the `linux', `win32' or `djgpp' directory, that
+  is where the Makefile is.  Edit the Makefile, you can set some
+  useful parameters at the top of it.  Then type `make' (or for
+  windows, `make -f Makefile.bcc').
+
+
+--- END OF README.1ST ---
