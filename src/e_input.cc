@@ -46,7 +46,6 @@
 #include "hu_stuff.h"
 #include "p_bot.h"
 #include "p_local.h"
-#include "p_saveg.h"
 #include "p_setup.h"
 #include "p_tick.h"
 #include "r_data.h"
