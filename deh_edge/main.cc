@@ -210,15 +210,19 @@ static void ValidateArgs(void)
 		if (CheckExtension(input_files[j], NULL) &&
 			! FileExists(input_files[j]))
 		{
-			// FIXME: for BEX support, check for BEX here
+			input_files[j] = StringDup(ReplaceExtension(input_files[j], "bex"));
 
-			input_files[j] = StringDup(ReplaceExtension(input_files[j], "deh"));
+			if (! FileExists(input_files[j]))
+			{
+				input_files[j] = StringDup(ReplaceExtension(input_files[j], "deh"));
+			}
 		}
 	}
 
 	if (CheckExtension(output_file, NULL))
 	{
-		output_file = StringDup(ReplaceExtension(output_file, "wad"));
+		output_file = StringDup(ReplaceExtension(output_file,
+			(target_version >= 128) ? "hwa" : "wad"));
 	}
 }
 

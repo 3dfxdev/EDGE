@@ -8,7 +8,7 @@ DEH-EDGE Todo
 
 >> support for BEX (Boom extensions).
 
-   + main.cpp : handle BEX extension
+   DONE: main.cpp : handle BEX extension
 
    - handle [STRINGS]
    - handle [CODEPTR] frames
@@ -18,5 +18,5 @@ DEH-EDGE Todo
 
 DONE:  robust cast order screen (renumber when necessary).
 
-?  warn about ZDoom-specific stuff.
+-  warn about ZDoom-specific stuff.
 
