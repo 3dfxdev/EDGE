@@ -35,6 +35,7 @@ extern line_t *linedef;
 extern sector_t *frontsector;
 extern sector_t *backsector;
 extern region_properties_t *front_properties;
+extern int root_node;
 
 extern int rw_x;
 extern int rw_stopx;
