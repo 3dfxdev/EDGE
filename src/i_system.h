@@ -188,6 +188,30 @@ extern boolean_t nomusic;
 // to true by the "-nomusic" option.  Can also be set to true by the
 // platform code when no working music device is found.
 
+typedef struct i_music_info_s
+{
+  enum
+  {
+    IMUSF_DATA,
+    IMUSF_FILE,
+    IMUSF_LUMP,
+    IMUSF_CD
+  }
+  format;
+
+  union
+  {
+    struct { void *data; int size; } data;
+    struct { char *filename; } file;
+    struct { int handle; int pos; int size; } lump;
+    struct { int track; } cd;
+  }
+  info;
+}
+i_music_info_t;
+// Soon to be implemented struct for setting up music playback. This 
+// is here because it is an interface between engine and EPI Code.
+
 boolean_t I_StartupMusic(void *sysinfo);
 // Initialises the music system.  Returns true if successful,
 // otherwise false.  (You should set "nomusic" to true if it fails).
