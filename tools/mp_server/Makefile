@@ -37,6 +37,7 @@ OBJS=$(FLTABLE_OBJS) \
 	 sys_net.o   \
 	 ticstore.o  \
 	 ui_client.o \
+	 ui_exit.o   \
 	 ui_game.o   \
      ui_log.o    \
      ui_menu.o   \
