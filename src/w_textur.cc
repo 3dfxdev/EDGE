@@ -101,7 +101,7 @@ static void InstallTextureLumps(int file, int pnames, int palette,
 	for (i = 0; i < nummappatches; i++)
 	{
 		Z_StrNCpy(name, name_p + i * 8, 8);
-		patchlookup[i] = W_CheckNumForName(name);
+		patchlookup[i] = W_CheckNumForTexPatch(name);
 	}
 
 	W_DoneWithLump(names);
