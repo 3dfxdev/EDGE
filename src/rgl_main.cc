@@ -680,7 +680,7 @@ void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer)
 	// output needs to be top-down, but GL coords are bottom-up.
 	for (; h > 0; h--, y++)
 	{
-		glReadPixels(x, SCREENHEIGHT-1-y, w, 1, GL_RGB, GL_UNSIGNED_BYTE, rgb_buffer);
+		glReadPixels(x, y, w, 1, GL_RGB, GL_UNSIGNED_BYTE, rgb_buffer);
 
 		rgb_buffer += w * 3;
 	}
