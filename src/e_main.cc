@@ -215,6 +215,7 @@ bool no_warnings = false;
 bool no_obsoletes = false;
 bool autoquickload = false;
 
+// FIXME!! Strbox this lot...
 char *iwaddir;
 char *homedir;
 char *gamedir;
@@ -1657,6 +1658,7 @@ namespace engine
 		}
 		catch(epi::error_c err)
 		{
+			printf("%s\n",err.GetInfo());
 			//I_Error(err.GetInfo());
 		};
 		Shutdown();								// Shutdown whatever at this point
