@@ -440,10 +440,13 @@ void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param)
 
 	if (minfo == NULL)
 	{
-		if (t->thing_name)
-			I_Error("Thing type: %s in RTS trigger not found.\n", t->thing_name);
-		else
-			I_Error("Thing type: %d in RTS trigger not found.\n", t->thing_type);
+		if (!no_warnings)
+		{
+			if (t->thing_name)
+				I_Warning("Unknown thing type: %s in RTS trigger.\n", t->thing_name);
+			else
+				I_Warning("Unknown thing type: %d in RTS trigger.\n", t->thing_type);
+		}
 		return;
 	}
 
