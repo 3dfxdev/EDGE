@@ -31,19 +31,8 @@
 #undef  DF
 #define DF  DDF_CMD
 
-static switchdef_t buffer_switchdef;
-static switchdef_t *dynamic_switchdef;
-
-static const switchdef_t template_switchdef =
-{
-	DDF_BASE_NIL,  // ddf
-	"",    // name1;
-	"",    // name2;
-	sfx_None,  // on_sfx;
-	sfx_None,  // off_sfx;
-	BUTTONTIME, // time
-	{{0,0}}  // cache
-};
+static switchdef_c buffer_switchdef;
+static switchdef_c *dynamic_switchdef;
 
 switchdef_container_c switchdefs;
 
@@ -71,7 +60,7 @@ static const commandlist_t switch_commands[] =
 
 static bool SwitchStartEntry(const char *name)
 {
-	switchdef_t *existing = NULL;
+	switchdef_c *existing = NULL;
 
 	if (name && name[0])
 		existing = switchdefs.Find(name);
@@ -82,8 +71,7 @@ static bool SwitchStartEntry(const char *name)
 	}	
 	else
 	{
-		dynamic_switchdef = new switchdef_t;
-		memset(dynamic_switchdef, 0, sizeof(switchdef_t));
+		dynamic_switchdef = new switchdef_c;
 		switchdefs.Insert(dynamic_switchdef);
 	}
 	
@@ -91,7 +79,7 @@ static bool SwitchStartEntry(const char *name)
 	dynamic_switchdef->ddf.number = 0;
 
 	// instantiate the static entry
-	buffer_switchdef = template_switchdef;
+	buffer_switchdef.Default();
 
 	return (existing != NULL);
 }
@@ -109,8 +97,6 @@ static void SwitchParseField(const char *field, const char *contents,
 
 static void SwitchFinishEntry(void)
 {
-	ddf_base_t base;
-
 	if (!buffer_switchdef.name1[0])
 		DDF_Error("Missing first name for switch.\n");
 
@@ -121,10 +107,7 @@ static void SwitchFinishEntry(void)
 		DDF_Error("Bad time value for switch: %d\n", buffer_switchdef.time);
 
 	// transfer static entry to dynamic entry
-
-	base = dynamic_switchdef->ddf;
-	dynamic_switchdef[0] = buffer_switchdef;
-	dynamic_switchdef->ddf = base;
+	dynamic_switchdef->CopyDetail(buffer_switchdef);
 
 	// Compute CRC.  In this case, there is no need, since switch
 	// textures have zero impact on the game simulation.
@@ -142,7 +125,7 @@ void DDF_ReadSW(void *data, int size)
 {
 #if (DEBUG_DDF)
 	epi::array_iterator_c it;
-	switchdef_t *sw;
+	switchdef_c *sw;
 #endif
 
 	readinfo_t switches;
@@ -177,7 +160,7 @@ void DDF_ReadSW(void *data, int size)
 
 	for (it = switchdefs.GetBaseIterator(); it.IsValid(); it++)
 	{
-		sw = ITERATOR_TO_TYPE(it, switchdef_t*);
+		sw = ITERATOR_TO_TYPE(it, switchdef_c*);
 		
 		L_WriteDebug("  Num: %d  ON: '%s'  OFF: '%s'\n", 
 						i, sw->name1, sw->name2);
@@ -201,15 +184,72 @@ void DDF_SWCleanUp(void)
 	switchdefs.Trim();
 }
 
+// ---> switchdef_c class
+
+//
+// switchdef_c constructor
+//
+switchdef_c::switchdef_c()
+{
+	Default();
+}
+
+//
+// switchdef_c Copy constructor
+//
+switchdef_c::switchdef_c(switchdef_c &rhs)
+{
+	ddf = rhs.ddf;
+	CopyDetail(rhs);
+}
+
+//
+// switchdef_c::CopyDetail()
+//
+// Copies all the detail with the exception of ddf info
+//
+void switchdef_c::CopyDetail(switchdef_c &src)
+{
+	name1 = src.name1;
+	name2 = src.name2;
+
+	on_sfx = src.on_sfx;
+	off_sfx = src.off_sfx;
+
+	time = src.time;
+}
+
+//
+// switchdef_c::Default()
+//
+void switchdef_c::Default()
+{
+	// FIXME: ddf.Default()?
+	ddf.name = NULL;
+	ddf.number = 0;
+	ddf.crc = 0;
+
+	name1.Clear();
+	name2.Clear();
+
+	on_sfx = sfx_None;
+	off_sfx = sfx_None;
+
+	time = BUTTONTIME;
+}
+
+// --> switchdef_container_c Class
+
 //
 // switchdef_container_c::CleanupObject()
 //
 void switchdef_container_c::CleanupObject(void *obj)
 {
-	switchdef_t *sw = *(switchdef_t**)obj;
+	switchdef_c *sw = *(switchdef_c**)obj;
 
 	if (sw)
 	{
+		// FIXME: Move to class and use epi string & proper delete
 		if (sw->ddf.name) { Z_Free(sw->ddf.name); }
 		delete sw;
 	}
@@ -218,16 +258,16 @@ void switchdef_container_c::CleanupObject(void *obj)
 }
 
 //
-// switchdef_t* switchdef_container_c::Find()
+// switchdef_c* switchdef_container_c::Find()
 //
-switchdef_t* switchdef_container_c::Find(const char *name)
+switchdef_c* switchdef_container_c::Find(const char *name)
 {
 	epi::array_iterator_c it;
-	switchdef_t *sw;
+	switchdef_c *sw;
 
 	for (it = GetBaseIterator(); it.IsValid(); it++)
 	{
-		sw = ITERATOR_TO_TYPE(it, switchdef_t*);
+		sw = ITERATOR_TO_TYPE(it, switchdef_c*);
 		if (DDF_CompareName(sw->ddf.name, name) == 0)
 			return sw;
 	}
