@@ -94,7 +94,7 @@ static const state_starter_t weapon_starters[] =
 	{"READY",     "READY",  &buffer_weapon.ready_state},
 	{"EMPTY",     "EMPTY",  &buffer_weapon.empty_state},
 	{"IDLE",      "READY",  &buffer_weapon.idle_state},
-	{"CROSSHAIR", "REMOVE", &buffer_weapon.crosshair},
+	{"CROSSHAIR", "CROSSHAIR", &buffer_weapon.crosshair},
 	{"ZOOM",      "ZOOM",   &buffer_weapon.zoom_state},
 
 	{"ATTACK",    "READY",  &buffer_weapon.attack_state[0]},
@@ -113,6 +113,7 @@ static const state_starter_t weapon_starters[] =
 static const actioncode_t weapon_actions[] =
 {
 	{"NOTHING", NULL, NULL},
+
 	{"RAISE",             A_Raise, NULL},
 	{"LOWER",             A_Lower, NULL},
 	{"READY",             A_WeaponReady, NULL},
@@ -123,32 +124,38 @@ static const actioncode_t weapon_actions[] =
 	{"NOFIRE",            A_NoFire, NULL},
 	{"NOFIRE RETURN",     A_NoFireReturn, NULL},
 	{"KICK",              A_WeaponKick, DDF_StateGetFloat},
-	{"SETCROSS",          A_SetCrosshair, NULL},
-	{"TARGET",            A_GotTarget, NULL},
-	{"LIGHT0",            A_Light0, NULL},
-	{"LIGHT1",            A_Light1, NULL},
-	{"LIGHT2",            A_Light2, NULL},
 	{"CHECKRELOAD",       A_CheckReload, NULL},
-	{"FLASH",             A_GunFlash, NULL},
 	{"PLAYSOUND",         A_WeaponPlaySound, DDF_StateGetSound},
 	{"KILLSOUND",         A_WeaponKillSound, NULL},
 	{"JUMP",              A_WeaponJump, DDF_StateGetJump},
 	{"RTS ENABLE TAGGED", A_WeaponEnableRadTrig,  DDF_StateGetInteger},
 	{"RTS DISABLE TAGGED",A_WeaponDisableRadTrig, DDF_StateGetInteger},
-	{"TRANS SET",         A_WeaponTransSet,  DDF_StateGetPercent},
-	{"TRANS FADE",        A_WeaponTransFade, DDF_StateGetPercent},
 	{"SEC SHOOT",         A_WeaponShootSA, DDF_StateGetAttack},
 	{"SEC REFIRE",        A_ReFireSA, NULL},
 	{"SEC NOFIRE",        A_NoFireSA, NULL},
 	{"SEC NOFIRE RETURN", A_NoFireReturnSA, NULL},
-	{"SEC FLASH",         A_GunFlashSA, NULL},
 	{"SEC CHECKRELOAD",   A_CheckReloadSA, NULL},
+
+	// flash-related actions
+	{"FLASH",             A_GunFlash, NULL},
+	{"SEC FLASH",         A_GunFlashSA, NULL},
+	{"LIGHT0",            A_Light0, NULL},
+	{"LIGHT1",            A_Light1, NULL},
+	{"LIGHT2",            A_Light2, NULL},
+	{"TRANS SET",         A_WeaponTransSet,  DDF_StateGetPercent},
+	{"TRANS FADE",        A_WeaponTransFade, DDF_StateGetPercent},
+
+	// crosshair-related actions
+	{"SETCROSS",          A_SetCrosshair, DDF_StateGetFrame},
+	{"TARGET JUMP",       A_TargetJump, DDF_StateGetFrame},
+	{"FRIEND JUMP",       A_FriendJump, DDF_StateGetFrame},
 
 	// -AJA- backwards compatibility cruft...
 	{"!SOUND1",           A_SFXWeapon1, NULL},
 	{"!SOUND2",           A_SFXWeapon2, NULL},
 	{"!SOUND3",           A_SFXWeapon3, NULL},
 	{"!RANDOMJUMP", 	  NULL, NULL},
+	{"!TARGET",           NULL, NULL},
 	{NULL, NULL, NULL}
 };
 

@@ -1086,27 +1086,31 @@ void A_Raise(mobj_t * mo)
 //
 void A_SetCrosshair(mobj_t * mo)
 {
-#if 0  // !! FIXME
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
-	P_SetPspriteDeferred(p, ps_crosshair,
-			p->weapons[p->ready_wp].info->crosshair + psp->state->misc1);
-#endif
+	if (psp->state->jumpstate == S_NULL)
+		return;  // show warning ??
+
+	P_SetPspriteDeferred(p, ps_crosshair, psp->state->jumpstate);
 }
 
-void A_GotTarget(mobj_t * mo)
+void A_TargetJump(mobj_t * mo)
 {
-#if 0  // !! FIXME
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
-	atkdef_c *attack = p->weapons[p->ready_wp].info->attack;
-	mobj_t *obj;
+	if (psp->state->jumpstate == S_NULL)
+		return;  // show warning ?? error ???
 
-	obj = P_MapTargetAutoAim(mo, mo->angle, attack->range,
-			attack->flags & AF_ForceAim);
+	atkdef_c *attack = p->weapons[p->ready_wp].info->attack[0];
 
+	if (! attack)  // FIXME: allow no attack (use defaults)
+		return;
+
+	mobj_t *obj = P_MapTargetAutoAim(mo, mo->angle, attack->range, true);
+
+#if 0  // FIXME: do this atomicly (in P_MapTargetAutoAim or SOMEWHERE)
 	if (obj->extendedflags & EF_DUMMYMOBJ)
 		obj = P_MapTargetAutoAim(mo, mo->angle + (1 << 26),
 				attack->range, attack->flags & AF_ForceAim);
@@ -1114,14 +1118,36 @@ void A_GotTarget(mobj_t * mo)
 	if (obj->extendedflags & EF_DUMMYMOBJ)
 		obj = P_MapTargetAutoAim(mo, mo->angle - (1 << 26),
 				attack->range, attack->flags & AF_ForceAim);
+#endif
 
 	if (obj->extendedflags & EF_DUMMYMOBJ)
-		P_SetPspriteDeferred(p, ps_crosshair,
-				p->weapons[p->ready_wp].info->crosshair + psp->state->misc1);
-	else
-		P_SetPspriteDeferred(p, ps_crosshair,
-				p->weapons[p->ready_wp].info->crosshair + psp->state->misc2);
-#endif
+		return;
+
+	P_SetPspriteDeferred(p, ps_crosshair, psp->state->jumpstate);
+}
+
+void A_FriendJump(mobj_t * mo)
+{
+	player_t *p = mo->player;
+	pspdef_t *psp = &p->psprites[p->action_psp];
+
+	if (psp->state->jumpstate == S_NULL)
+		return;  // show warning ?? error ???
+
+	atkdef_c *attack = p->weapons[p->ready_wp].info->attack[0];
+
+	if (! attack)
+		return;
+
+	mobj_t *obj = P_MapTargetAutoAim(mo, mo->angle, attack->range, true);
+
+	if (obj->extendedflags & EF_DUMMYMOBJ)
+		return;
+
+	if ((obj->side & mo->side) == 0 || obj->target == mo)
+		return;
+
+	P_SetPspriteDeferred(p, ps_crosshair, psp->state->jumpstate);
 }
 
 //

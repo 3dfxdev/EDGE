@@ -667,6 +667,35 @@ void DDF_StateGetJump(const char *arg, state_t * cur_state)
 }
 
 //
+// DDF_StateGetFrame
+//
+// Sets the jump_state, like DDF_StateGetJump above.
+//
+void DDF_StateGetFrame(const char *arg, state_t * cur_state)
+{
+	// ACTION(label)
+  
+	char buffer[80];
+	int len;
+	int offset = 0;
+
+	if (!arg || !arg[0])
+		return;
+
+	// copy label name
+	for (len = 0; *arg && (*arg != ':'); len++, arg++)
+		buffer[len] = *arg;
+
+	buffer[len] = 0;
+
+	if (*arg == ':')
+		offset = MAX(0, atoi(arg+1) - 1);
+
+	// set the jump state   
+	cur_state->jumpstate = ((StateGetRedirector(buffer) + 1) << 16) + offset;
+}
+
+//
 // DDF_StateGetAngle
 //
 void DDF_StateGetAngle(const char *arg, state_t * cur_state)

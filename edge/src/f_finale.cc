@@ -514,7 +514,8 @@ static void CastTicker(void)
 	// advance to next state in animation
 	// -AJA- if there's a jumpstate, enter it occasionally
 
-	if (caststate->jumpstate && (M_Random() < 64))
+	if (caststate->action == P_ActJump && caststate->jumpstate &&
+		(M_Random() < 64))
 		st = caststate->jumpstate;
 	else
 		st = caststate->nextstate;
