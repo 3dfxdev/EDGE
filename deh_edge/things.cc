@@ -21,6 +21,7 @@
 //  Based on PrBoom's DEH/BEX code, by Ty Halderman, TeamTNT.
 //
 
+#include "i_defs.h"
 #include "things.h"
 
 #include "info.h"
@@ -43,14 +44,6 @@ void Things::BeginLump(void)
 	WAD::Printf(GEN_BY_COMMENT);
 
 	WAD::Printf("<THINGS>\n\n");
-
-#ifdef DUMP_ALL
-	///--- WAD::Printf("[DEATHMATCH_START:11]\n");
-	///--- WAD::Printf("PLAYER = -1;\n");
-	///--- WAD::Printf("SPECIAL = NOBLOCKMAP,NOSECTOR;\n");
-	///--- WAD::Printf("STATES(IDLE) = PLAY:A:-1:NORMAL:NOTHING;\n");
-	///--- WAD::Printf("\n");
-#endif
 }
 
 void Things::FinishLump(void)
@@ -226,70 +219,73 @@ namespace Things
 	{
 		// FIXME: archvile RESURRECT states
 
-		// --- step 1: collect states into groups ---
+		Frames::ResetAll();
 
-		for (int i = 0; i < NUMSTATES; i++)
+		// special cases...
+
+		if (mt_num == MT_TELEPORTMAN)
 		{
-			state_dyn[i].group = state_dyn[i].gr_idx = 0;
-		}
-
-		int count = 0;
-
-		count += Frames::InitGroup(info->raisestate,   'R');
-		count += Frames::InitGroup(info->xdeathstate,  'X');
-		count += Frames::InitGroup(info->deathstate,   'D');
-		count += Frames::InitGroup(info->painstate,    'P');
-		count += Frames::InitGroup(info->missilestate, 'M');
-		count += Frames::InitGroup(info->meleestate,   'L');
-		count += Frames::InitGroup(info->seestate,     'E');
-		count += Frames::InitGroup(info->spawnstate,   'S');
-
-		if (count == 0)
-		{
-			// only occurs with special/invisible objects, in particular the
-			// teleport destination and brain spit targets.
-
-			WAD::Printf("TRANSLUCENCY = 0%%;\n");
+			WAD::Printf("TRANSLUCENCY = 50%;\n");
 			WAD::Printf("\n");
-
-			WAD::Printf("STATES(IDLE) = %s:A:-1:NORMAL:NOTHING;\n",
-				sprnames[SPR_TROO]);
+			WAD::Printf("STATES(IDLE) = %s:A:-1:NORMAL:TRANS_SET(0%);\n",
+				sprnames[SPR_CAND]);
 
 			// EDGE doesn't use the TELEPORT_FOG object, instead it uses
 			// the CHASE states of the TELEPORT_FLASH object (i.e. the one
 			// used to find the destination in the target sector).
 
-			if (mt_num == MT_TELEPORTMAN)
+			if (0 == Frames::BeginGroup(mobjinfo[MT_TFOG].spawnstate, 'E'))
 			{
-				if (0 == Frames::InitGroup(mobjinfo[MT_TFOG].spawnstate, 'E'))
-				{
-					PrintWarn("Teleport fog has no spawn states.\n");
-					return;
-				}
-
-				while (Frames::SpreadGroups())
-				{ }
-
-				Frames::OutputGroup(mobjinfo[MT_TFOG].spawnstate, 'E',
-					Frames::CheckSpawnRemove(mobjinfo[MT_TFOG].spawnstate));
+				PrintWarn("Teleport fog has no spawn states.\n");
+				return;
 			}
+
+			Frames::SpreadGroups();
+			Frames::OutputGroup(mobjinfo[MT_TFOG].spawnstate, 'E');
 
 			return;
 		}
 
-		while (Frames::SpreadGroups())
-		{ }
+		// --- collect states into groups ---
 
-		bool use_spawn = (count == 1) && Frames::CheckSpawnRemove(info->spawnstate);
+		int count = 0;
 
-		Frames::OutputGroup(info->spawnstate,   'S', use_spawn);
-		Frames::OutputGroup(info->seestate,     'E', use_spawn);
-		Frames::OutputGroup(info->meleestate,   'L', use_spawn);
-		Frames::OutputGroup(info->missilestate, 'M', use_spawn);
-		Frames::OutputGroup(info->painstate,    'P', use_spawn);
-		Frames::OutputGroup(info->deathstate,   'D', use_spawn);
-		Frames::OutputGroup(info->xdeathstate,  'X', use_spawn);
-		Frames::OutputGroup(info->raisestate,   'R', use_spawn);
+		count += Frames::BeginGroup(info->raisestate,   'R');
+		count += Frames::BeginGroup(info->xdeathstate,  'X');
+		count += Frames::BeginGroup(info->deathstate,   'D');
+		count += Frames::BeginGroup(info->painstate,    'P');
+		count += Frames::BeginGroup(info->missilestate, 'M');
+		count += Frames::BeginGroup(info->meleestate,   'L');
+		count += Frames::BeginGroup(info->seestate,     'E');
+		count += Frames::BeginGroup(info->spawnstate,   'S');
+
+		if (count == 0)
+		{
+			// only occurs with special/invisible objects, currently only
+			// with teleport target (handled above) and brain spit targets.
+
+			if (mt_num != MT_BOSSTARGET)
+				PrintWarn("Mobj [%s:%d] has no states.\n", info->name, info->doomednum);
+
+			WAD::Printf("TRANSLUCENCY = 0%%;\n");
+
+			WAD::Printf("\n");
+			WAD::Printf("STATES(IDLE) = %s:A:-1:NORMAL:NOTHING;\n",
+				sprnames[SPR_CAND]);
+
+			return;
+		}
+
+		Frames::SpreadGroups();
+
+		Frames::OutputGroup(info->spawnstate,   'S');
+		Frames::OutputGroup(info->seestate,     'E');
+		Frames::OutputGroup(info->meleestate,   'L');
+		Frames::OutputGroup(info->missilestate, 'M');
+		Frames::OutputGroup(info->painstate,    'P');
+		Frames::OutputGroup(info->deathstate,   'D');
+		Frames::OutputGroup(info->xdeathstate,  'X');
+		Frames::OutputGroup(info->raisestate,   'R');
 	}
 
 	typedef struct
@@ -563,7 +559,7 @@ void Things::ConvertMobj(mobjinfo_t *info, int player)
 {
 	int mt_num = info - mobjinfo;
 
-	if (info->name[0] == '*')
+	if (info->name[0] == '*')  // attack
 		return;
 
 	if (player > 0)
