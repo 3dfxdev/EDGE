@@ -375,7 +375,7 @@ static void G_TiccmdTicker(void)
 
 		// check for turbo cheats
 		if (p->cmd.forwardmove > TURBOTHRESHOLD
-			&& !(gametic & 31) && ((gametic >> 5) & 0x1f) == p->pnum)
+			&& !(gametic & 31) && (((gametic >> 5) + p->pnum) & 0x1f) == 0)
 		{
 			CON_Printf(language["IsTurbo"], p->playername);
 		}
