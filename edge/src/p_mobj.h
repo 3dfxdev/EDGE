@@ -242,8 +242,7 @@ typedef enum
 	// this projectile has been checked for tracing if set.
 	EF_FIRSTCHECK = 64,
 
-	// This projectile can trace, but if this is set it will not.
-	EF_NOTRACE = 128,
+	EF_UNUSED_128 = 128,
 
 	// double the chance of object using range attack
 	EF_TRIGGERHAPPY = 256,

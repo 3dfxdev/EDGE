@@ -1121,20 +1121,10 @@ void A_TargetJump(mobj_t * mo)
 
 	atkdef_c *attack = p->weapons[p->ready_wp].info->attack[0];
 
-	if (! attack)  // FIXME: allow no attack (use defaults)
+	if (! attack)
 		return;
 
 	mobj_t *obj = P_MapTargetAutoAim(mo, mo->angle, attack->range, true);
-
-#if 0  // FIXME: do this atomicly (in P_MapTargetAutoAim or SOMEWHERE)
-	if (obj->extendedflags & EF_DUMMYMOBJ)
-		obj = P_MapTargetAutoAim(mo, mo->angle + (1 << 26),
-				attack->range, attack->flags & AF_ForceAim);
-
-	if (obj->extendedflags & EF_DUMMYMOBJ)
-		obj = P_MapTargetAutoAim(mo, mo->angle - (1 << 26),
-				attack->range, attack->flags & AF_ForceAim);
-#endif
 
 	if (obj->extendedflags & EF_DUMMYMOBJ)
 		return;
@@ -1235,7 +1225,7 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 		DEV_ASSERT2(p->ammo[ammo].num >= 0);
 	}
 
-	P_ActPlayerAttack(mo, attack);
+	P_PlayerAttack(mo, attack);
 
 	if (level_flags.kicking && ATK == 0)
 	{
@@ -1305,7 +1295,7 @@ void A_WeaponEject(mobj_t * mo)
 	if (psp->state && psp->state->action_par)
 		attack = (atkdef_c *) psp->state->action_par;
 
-	P_ActPlayerAttack(mo, attack);
+	P_PlayerAttack(mo, attack);
 }
 
 //
