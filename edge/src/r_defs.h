@@ -51,7 +51,6 @@ struct image_s;
 
 // -AJA- Don't like imposing this limit...
 #define MAXOPENGAPS   16
-#define MAXSIGHTGAPS  2
 
 //
 // INTERNAL MAP TYPES
@@ -393,10 +392,9 @@ typedef struct line_s
   int gap_num;
   vgap_t gaps[MAXOPENGAPS];
 
-  // -AJA- 2000/10/01: Extra sight gaps, for solid but see-through
-  //       doors and windows.
+  // -AJA- 2000/10/01: Sight gaps.
   int s_gap_num;
-  vgap_t sight_gaps[MAXSIGHTGAPS];
+  vgap_t sight_gaps[MAXOPENGAPS];
 
   // slider thinker, normally NULL
   void *slider_special;
