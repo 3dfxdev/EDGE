@@ -142,7 +142,7 @@ void S_ChangeMusic(int entrynum, bool looping)
 		if (datnum != -1)
 		{
 			datlength = W_LumpLength(datnum);
-			data = (byte*)W_CacheLumpName(play->info);
+			data = (byte*)W_CacheLumpNum(datnum);
 
 			musdat.format = IMUSSF_DATA;
 			musdat.info.data.ptr = data;
