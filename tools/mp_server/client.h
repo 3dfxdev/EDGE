@@ -20,6 +20,7 @@
 #define __CLIENT_H__
 
 #include "protocol.h"
+#include "ticstore.h"
 
 class packet_c;
 
@@ -48,6 +49,8 @@ public: //!!!!  private:
 	int player_id;
 
 	bool voted;
+
+	tic_store_c tics;
 
 	int alive_millies;   // countdown for keep-alive check
 	int zombie_millies;  // countdown for deletion

@@ -34,7 +34,7 @@ std::vector<client_c *> clients;
 
 client_c::client_c(const client_info_t *info, const NLaddress *_addr) :
 	state(ST_Browsing), name(info->name),
-	game_id(-1), player_id(-1), voted(false)
+	game_id(-1), player_id(-1), voted(false), tics(8 /* !!!! FIXME */)
 {
 	memcpy(&addr, _addr, sizeof(addr));
 }

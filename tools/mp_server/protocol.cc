@@ -119,16 +119,14 @@ void raw_ticcmd_t::ByteSwap()
 
 void ticcmd_proto_t::ByteSwap()
 {
-	tic_counter = SYS_BE_U32(tic_counter);
+	gametic = SYS_BE_U32(gametic);
 	
 	/* TICCMDs are purely the engine's responsibility */
 }
 
 void tic_group_proto_t::ByteSwap()
 {
-	tic_counter = SYS_BE_U32(tic_counter);
-
-	first_player = SYS_BE_S16(first_player);
+	gametic = SYS_BE_U32(gametic);
 
 	/* TICCMDs are the engine's responsibility */
 }

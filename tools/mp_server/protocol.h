@@ -23,6 +23,8 @@
 
 #define MP_PLAYER_MAX  30
 
+#define MP_SAVETICS  6  // past and future
+
 //
 // common packet header
 //
@@ -309,19 +311,24 @@ raw_ticcmd_t;
 // TICCMD ("tc")
 //
 // Holds the ticcmds send from client to server.  'count' is the
-// number of tics (starting at tic_counter).  Bot ticcmds must
-// follow the real player's ticcmds, for example when count is
-// three and there are two bots:
+// number of tics (starting at tic_num).  Bot ticcmds must follow
+// the real player's ticcmds, for example when count is three and
+// there are two bots:
 //
 //    (tic +0)  Player,Bot1,Bot2,
 //    (tic +1)  Player,Bot1,Bot2,
 //    (tic +2)  Player,Bot1,Bot2.
 //
+// The gametic field is where the engine has reached.  The server
+// needs this to know how many packets to keep saved (in case it
+// has to retransmit them).  Packets < gametic don't need saving.
+//
 typedef struct ticcmd_proto_s
 {
-	u32_t tic_counter;
-	byte  count;
+	u32_t gametic;
+	byte  offset;  // tic_num == gametic + offset
 
+	byte  count;
 	s16_t reserved;
 
 	static const int TICCMD_FIT = 24;
@@ -336,15 +343,21 @@ ticcmd_proto_t;
 //
 // TIC-GROUP ("Tg")
 //
-// Holds the ticcmds for _ONE_ single tic.  Bot ticcmds must follow
+// Holds the ticcmds for a SINGLE tic.  Bot ticcmds must follow
 // each player, for example with two players and three bots each:
 //
 //    Player0, Bot1, Bot2, Bot3,
 //    Player4, Bot5, Bot6, Bot7.
 //
+// The gametic field shows where the server thinks the gametic
+// in the engine should be (_before_ the tics in this packet are
+// applied).  When gametic is greater than the engine's gametic,
+// you know that you have missed a TIC-GROUP packet.
+//
 typedef struct tic_group_proto_s
 {
-	u32_t tic_counter;
+	u32_t gametic;
+	byte  offset;  // tic_num == gametic + offset
 
 	byte first_player;
 	byte count;
