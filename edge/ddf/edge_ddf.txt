@@ -14,6 +14,8 @@ EDGE DDF 4.2:
 
 5) LINES.DDF: Added BOOM linetypes 211 and 212 (platform Toggles).
 
+6) LANGUAGES.DDF: removed beginning "\n" from PlayState strings.
+
 
 EDGE DDF 4.1 (2004-04-30):
 ==========================
