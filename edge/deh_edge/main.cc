@@ -152,7 +152,7 @@ static void ValidateArgs(void)
 
 		const char *base_name = ReplaceExtension(input_file, NULL);
 		
-		char *new_file = (char *) malloc(strlen(base_name) + 1 + 16); // FIXME
+		char *new_file = new char[strlen(base_name) + 16];
 		assert(new_file);
 
 		strcpy(new_file, base_name);
