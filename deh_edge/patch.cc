@@ -35,9 +35,16 @@
 #include "mobj.h"
 #include "sounds.h"
 #include "system.h"
+#include "text.h"
 #include "things.h"
 #include "util.h"
 #include "weapons.h"
+
+
+#define MAX_LINE  512
+#define MAX_TEXT_STR  1200
+
+#define PRETTY_LEN  28
 
 
 namespace Patch
@@ -527,8 +534,6 @@ namespace Patch
 	}
 	sectionkind_e;
 
-	#define MAX_LINE  512
-
 	char line_buf[MAX_LINE+4];
 	int  line_num;
 
@@ -536,6 +541,8 @@ namespace Patch
 
 	int active_section = -1;
 	int active_obj = -1;
+
+	const char *cur_txt_ptr;
 
 	void GetNextLine(void)
 	{
@@ -651,11 +658,120 @@ namespace Patch
 		return false;
 	}
 
+	void ReadTextString(char *dest, int len)
+	{
+		assert(cur_txt_ptr);
+
+		char *begin = dest;
+
+		int start_line = line_num;
+
+		while (len > 0)
+		{
+			if ((dest - begin) >= MAX_TEXT_STR)
+				FatalError("Text string exceeds internal buffer length.\n"
+					"[> %d characters, starting on line %d]\n",
+					MAX_TEXT_STR, start_line);
+			
+			if (*cur_txt_ptr)
+			{
+				*dest++ = *cur_txt_ptr++;  len--;
+				continue;
+			}
+
+			if (feof(pat_fp))
+				FatalError("End of file while reading Text replacement.\n");
+
+			GetNextLine();
+			cur_txt_ptr = line_buf;
+
+			*dest++ = '\n';  len--;
+		}
+
+		*dest = 0;
+	}
+
+	const char *PrettyTextString(const char *t)
+	{
+		static char buf[PRETTY_LEN*2 + 10];
+
+		while (isspace(*t))
+			t++;
+
+		if (! *t)
+			return "<<EMPTY>>";
+
+		int len = 0;
+
+		for (; *t && len < PRETTY_LEN; t++)
+		{
+			if (t[0] == t[1] && t[1] == t[2])
+				continue;
+
+			if (*t == '"')
+			{
+				buf[len++] = '\'';
+			}
+			else if (*t == '\n')
+			{
+				buf[len++] = '\\';
+				buf[len++] = 'n';
+			}
+			else if ((unsigned char)*t < 32 || (unsigned char)*t >= 127)
+			{
+				buf[len++] = '?';
+			}
+			else
+				buf[len++] = *t;
+		}
+
+		if (*t)
+		{
+			buf[len++] = '.';
+			buf[len++] = '.';
+			buf[len++] = '.';
+		}
+
+		buf[len] = 0;
+
+		return buf;
+	}
+
 	void ProcessTextSection(int len1, int len2)
 	{
-		// !!!!! FIXME
+		Debug_PrintMsg("TEXT REPLACE: %d %d\n", len1, len2);
+
+		static char text_1[MAX_TEXT_STR+8];
+		static char text_2[MAX_TEXT_STR+8];
+
 		GetNextLine();
-		Debug_PrintMsg("TEXT SECT: %d %d %s\n", len1, len2, line_buf);
+
+		cur_txt_ptr = line_buf;
+
+		ReadTextString(text_1, len1);
+		ReadTextString(text_2, len2);
+
+		Debug_PrintMsg("- Before <%s>\n", text_1);
+		Debug_PrintMsg("- After  <%s>\n", text_2);
+
+		if (len1 == 4 && len2 == 4)
+			if (TextStr::ReplaceSprite(text_1, text_2))
+				return;
+
+		if (len1 < 7 && len2 < 7)
+		{
+			if (Sounds::ReplaceSound(text_1, text_2))
+				return;
+
+			if (Sounds::ReplaceMusic(text_1, text_2))
+				return;
+		}
+
+		if (TextStr::ReplaceString(text_1, text_2))
+			return;
+
+		PrintWarn("Cannot match text: \"%s\"\n",
+			PrettyTextString(text_1));
 	}
 
 	void ProcessLine(void)
@@ -737,7 +853,8 @@ namespace Patch
 			{
 				int len1, len2;
 
-				if (sscanf(line_buf + 4, " %i %i ", &len1, &len2) == 2)
+				if (sscanf(line_buf + 4, " %i %i ", &len1, &len2) == 2 &&
+					len1 > 1)
 				{
 					ProcessTextSection(len1, len2);
 					syncing = true;
