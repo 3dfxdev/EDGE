@@ -2,7 +2,7 @@
 DEH_EDGE
 ========
 
-by Andrew Apted.  16th January 2004.
+by Andrew Apted.  20th January 2004.
 
 
 Introduction
@@ -13,7 +13,8 @@ that can be loaded into the EDGE engine (http://edge.sourceforge.net).
 The output is a WAD containing a bunch of DDF lumps.
 
 DEH_EDGE is a command line utility, so the Windows version must be run
-from the DOS box.
+from the DOS box -- although dragging a DEH file onto the DEH_EDGE
+executable may work.
 
 
 Usage
@@ -36,6 +37,22 @@ Options
   -q    quiet mode, disable warning messages.
 
 
+Limitations
+-----------
+
+1. No support for BOOM extensions (BEX), like [STRINGS] etc.
+2. No support for BOOM/MBF mobjs/states/actions (like the DOG).
+
+(The above two may be added to a future version).
+
+3. No support for a few DEH patchables, e.g. 'God Mode Health'.
+   Most (probably all) of them have little importance (like
+   what certain cheats give you).
+
+4. Text replacements and cheats only work when ENGLISH language
+   is selected in EDGE.
+
+
 Acknowledgements
 ----------------
 
@@ -53,6 +70,8 @@ Copyright/License
 
 DEH_EDGE is Copyright (C) 2004 Andrew Apted.
 
+All trademarks are the propriety of their owners.
+
 DEH_EDGE is under the GNU General Public License (GPL).  See the file
 COPYING.txt in the source package (or go to http://www.gnu.org) for
 the full text, but to summarise:
@@ -66,8 +85,6 @@ This program is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 General Public License for more details.
-
-All trademarks are the propriety of their owners.
 
 
 Contact

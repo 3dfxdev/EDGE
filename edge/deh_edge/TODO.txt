@@ -4,12 +4,7 @@ DEH-EDGE Todo
 
 +  give monsters ATTACKS.
 
--  damn teleport: IDLE does TRANS_SET(0%).
-
-+  misc.[ch] and text.[ch]
-
-DONE:  things.cpp : split into states.cpp.
-DONE:  info.cpp/h : too big, split up.
+-  barrel: causes no damage.
 
 -  read patches, apply them.
 
