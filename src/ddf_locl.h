@@ -395,6 +395,14 @@ extern const specflags_t ammo_types[];
 void DDF_ColmapInit (void);
 void DDF_ColmapCleanUp (void);
 
+// DDF_FONT Code -AJA- 2004/11/13.
+void DDF_FontInit (void);
+void DDF_FontCleanUp (void);
+
+// DDF_STYLE Code -AJA- 2004/11/14.
+void DDF_StyleInit (void);
+void DDF_StyleCleanUp (void);
+
 // Miscellaneous stuff needed here & there
 extern mobjtype_c buffer_mobj;
 

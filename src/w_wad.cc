@@ -36,6 +36,9 @@
 #include "i_defs.h"
 #include "w_wad.h"
 
+#include "ddf_main.h"
+#include "ddf_font.h"
+#include "ddf_style.h"
 #include "dm_type.h"
 #include "e_main.h"
 #include "e_search.h"
@@ -71,6 +74,8 @@ static ddf_reader_t DDF_Readers[] =
 	{ "DDFLANG", "Languages",  DDF_ReadLangs },
 	{ "DDFSFX",  "Sounds",     DDF_ReadSFX },
 	{ "DDFCOLM", "ColourMaps", DDF_ReadColourMaps },  // -AJA- 1999/07/09.
+	{ "DDFFONT", "Fonts",      DDF_ReadFonts },       // -AJA- 2004/11/13
+	{ "DDFSTYLE","Styles",     DDF_ReadStyles },      // -AJA- 2004/11/14
 	{ "DDFATK",  "Attacks",    DDF_ReadAtks },
 	{ "DDFWEAP", "Weapons",    DDF_ReadWeapons },
 	{ "DDFTHING","Things",     DDF_ReadThings },
