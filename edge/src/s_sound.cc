@@ -49,29 +49,14 @@
 
 #define DEBUG_SOUND  0
 
-// -KM- 1999/01/31 VSOUND, the speed of sound. Guessed at 500.
-#define VSOUND  (500<<16)
+#define S_CLOSE_DIST2    (S_CLOSE_DIST * S_CLOSE_DIST)
+#define S_CLIPPING_DIST2 (S_CLIPPING_DIST * S_CLIPPING_DIST)
 
 // slider-scale volume control
 static int soundvolume;
 
 // for everything else
 #define MAX_VOLUME 255
-
-#define SLIDER_TO_VOL(v)  \
-	(((v) - S_MIN_VOLUME) * MAX_VOLUME / (S_MAX_VOLUME-S_MIN_VOLUME))
-
-// when to clip out sounds
-// Does not fit the large outdoor areas. 1600 ** 2
-// Distance to origin when sounds should be maxed out.
-// This should relate to movement clipping resolution
-#define S_CLOSE_DIST2    (S_CLOSE_DIST * S_CLOSE_DIST)
-#define S_CLIPPING_DIST2 (S_CLIPPING_DIST * S_CLIPPING_DIST)
-
-// Adjustable by menu.
-#define NORM_PRIORITY           64
-#define NORM_SEP                128
-#define S_STEREO_SWING          96.0f
 
 // If true, sound system is disabled/not working. Changed to false if sound init ok.
 bool nosound = false;
@@ -369,9 +354,6 @@ static int StartSoundAtVolume(mobj_t *origin, sfxdef_c *sfx, int volume)
 	if (origin && sfx->looping)
 		looping = true;
 
-	// Check to see if it is audible,
-	//  and if not, modify the params
-
 	// can be NULL (no game is active)
     volume = edgemin(volume, MAX_VOLUME);
 
@@ -410,9 +392,9 @@ static int StartSoundAtVolume(mobj_t *origin, sfxdef_c *sfx, int volume)
         playingsfx[cnum].origin   = origin;
         playingsfx[cnum].orig_vol = orig_vol;
 
-        //#if (DEBUG_SOUND)
+#if (DEBUG_SOUND)
         I_Printf("StartSoundAtVolume: playing vol %d chan %d voice %d\n", volume, cnum, playingsfx[cnum].channel);
-        //#endif
+#endif
         return cnum;
     }
 
@@ -528,7 +510,7 @@ int S_StartSound(mobj_t *origin, sfx_t *s)
 	if (!soundvolume)
 		return -1;
 
-	volume = (MAX_VOLUME - (S_MAX_VOLUME*8)) + (soundvolume*8);
+	volume = (soundvolume-1)*8;
 
 	// -KM- 1998/11/25 Fixed this, added origin check
 	if (!s)
@@ -718,7 +700,7 @@ void S_UpdateSounds(mobj_t *listener)
         listen_ori_at[CY] = M_Sin(listener->angle);
         listen_ori_at[CZ] = 0.0f;
 
-        // Vertical adjustment (TODOL Proper calc)
+        // Vertical adjustment (TODO Proper calc)
         listen_ori_up[CX] = 0.0f;
         listen_ori_up[CY] = 0.0f;
         listen_ori_up[CZ] = 1.0f;
