@@ -155,9 +155,9 @@ bool E_InputCheckKey(int keynum)
 		I_Error("Invalid key!");
 #endif
 
-	if (gamekeydown[keynum >> 16])
+	if (gamekeydown[keynum >> 16] & GK_DOWN)
 		return true;
-	else if (gamekeydown[keynum & 0xffff])
+	else if (gamekeydown[keynum & 0xffff] & GK_DOWN)
 		return true;
 	else
 		return false;
