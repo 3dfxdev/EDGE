@@ -137,39 +137,53 @@ void P_RefillClips(player_t * p)
 //
 void P_BringUpWeapon(player_t * p)
 {
-  weaponinfo_t *info;
-  weapon_selection_e sel;
+	weaponinfo_t *info;
+	weapon_selection_e sel;
 
-  DEV_ASSERT2(p->pending_wp != WPSEL_NoChange);
+	DEV_ASSERT2(p->pending_wp != WPSEL_NoChange);
 
-  sel = p->ready_wp = p->pending_wp;
+	sel = p->ready_wp = p->pending_wp;
 
-  p->pending_wp = WPSEL_NoChange;
-  p->psprites[ps_weapon].sy = WEAPONBOTTOM;
+	p->pending_wp = WPSEL_NoChange;
+	p->psprites[ps_weapon].sy = WEAPONBOTTOM;
 
-  p->remember_atk1 = -1;
-  p->remember_atk2 = -1;
+	p->remember_atk1 = -1;
+	p->remember_atk2 = -1;
 
-  if (sel == WPSEL_None)
-  {
-    p->attackdown = false;
-    p->secondatk_down = false;
+	if (sel == WPSEL_None)
+	{
+		p->attackdown = false;
+		p->secondatk_down = false;
 
-    P_SetPsprite(p, ps_weapon, S_NULL);
-    return;
-  }
+		P_SetPsprite(p, ps_weapon, S_NULL);
+		
+		if (viewiszoomed)
+			R_SetFOV(zoomedfov);
+		return;
+	}
 
-  info = p->weapons[sel].info;
+	info = p->weapons[sel].info;
 
-  if (info->start)
-    S_StartSound(p->mo, info->start);
+	// we don't need to check level_flags.limit_zoom, as viewiszoomed
+	// should always be false when we get here.
 
-  P_SetPsprite(p, ps_weapon, info->up_state);
+	if (viewiszoomed)
+	{
+		if (info->zoom_fov > 0)
+			R_SetFOV(info->zoom_fov);
+		else
+			R_SetFOV(zoomedfov);
+	}
 
-  p->refire = info->refire_inacc ? 0 : 1;
+	if (info->start)
+		S_StartSound(p->mo, info->start);
 
-  // refill clips if necessary
-  P_RefillClips(p);
+	P_SetPsprite(p, ps_weapon, info->up_state);
+
+	p->refire = info->refire_inacc ? 0 : 1;
+
+	// refill clips if necessary
+	P_RefillClips(p);
 }
 
 //
@@ -816,49 +830,49 @@ void A_CheckReloadSA(mobj_t * mo)
 //
 void A_Lower(mobj_t * mo)
 {
-  player_t *p = mo->player;
-  pspdef_t *psp = &p->psprites[p->action_psp];
+	player_t *p = mo->player;
+	pspdef_t *psp = &p->psprites[p->action_psp];
 
-  psp->sy += LOWERSPEED;
+	psp->sy += LOWERSPEED;
 
-  DEV_ASSERT2(p->ready_wp >= 0);
+	DEV_ASSERT2(p->ready_wp >= 0);
 
-  // In `LimitZoom' mode, disable any current zoom
-  if (level_flags.limit_zoom && viewiszoomed)
-  {
-    R_SetFOV(normalfov);
-    viewiszoomed = false;
-  }
+	if (level_flags.limit_zoom && viewiszoomed)
+	{
+		// In `LimitZoom' mode, disable any current zoom
+		R_SetFOV(normalfov);
+		viewiszoomed = false;
+	}
 
-  // Is already down.
-  if (psp->sy < WEAPONBOTTOM)
-    return;
+	// Is already down.
+	if (psp->sy < WEAPONBOTTOM)
+		return;
 
-  // Player is dead.
-  if (p->playerstate == PST_DEAD)
-  {
-    psp->sy = WEAPONBOTTOM;
+	// Player is dead.
+	if (p->playerstate == PST_DEAD)
+	{
+		psp->sy = WEAPONBOTTOM;
 
-    // don't bring weapon back up
-    return;
-  }
+		// don't bring weapon back up
+		return;
+	}
 
-  // The old weapon has been lowered off the screen,
-  // so change the weapon and start raising it
-  if (!p->health)
-  {
-    // Player is dead, so keep the weapon off screen.
-    P_SetPsprite(p, ps_weapon, S_NULL);
-    return;
-  }
+	// The old weapon has been lowered off the screen,
+	// so change the weapon and start raising it
+	if (!p->health)
+	{
+		// Player is dead, so keep the weapon off screen.
+		P_SetPsprite(p, ps_weapon, S_NULL);
+		return;
+	}
 
-  if (p->pending_wp == WPSEL_NoChange)
-  {
-    p->ready_wp = WPSEL_None;
-    P_SelectNewWeapon(p, -100, AM_DontCare);
-  }
+	if (p->pending_wp == WPSEL_NoChange)
+	{
+		p->ready_wp = WPSEL_None;
+		P_SelectNewWeapon(p, -100, AM_DontCare);
+	}
 
-  P_BringUpWeapon(p);
+	P_BringUpWeapon(p);
 }
 
 //
@@ -1313,23 +1327,23 @@ void A_WeaponTransFade(mobj_t * mo)
 //
 void P_SetupPsprites(player_t * p)
 {
-  int i;
+	int i;
 
-  // remove all psprites
-  for (i = 0; i < NUMPSPRITES; i++)
-  {
-    pspdef_t *psp = &p->psprites[i];
+	// remove all psprites
+	for (i = 0; i < NUMPSPRITES; i++)
+	{
+		pspdef_t *psp = &p->psprites[i];
 
-    psp->state = NULL;
-    psp->next_state = NULL;
-    psp->sx = psp->sy = 0;
-    psp->visibility = psp->vis_target = VISIBLE;
-  }
+		psp->state = NULL;
+		psp->next_state = NULL;
+		psp->sx = psp->sy = 0;
+		psp->visibility = psp->vis_target = VISIBLE;
+	}
 
-  // spawn the gun
-  p->pending_wp = p->ready_wp;
+	// spawn the gun
+	p->pending_wp = p->ready_wp;
 
-  P_BringUpWeapon(p);
+	P_BringUpWeapon(p);
 }
 
 //
@@ -1341,50 +1355,50 @@ void P_SetupPsprites(player_t * p)
 
 void P_MovePsprites(player_t * p)
 {
-  int i;
-  pspdef_t *psp;
-  int loop_count;
+	int i;
+	pspdef_t *psp;
+	int loop_count;
 
-  // check if player has NO weapon but wants to change
-  if (! p->psprites[ps_weapon].state &&
-      p->pending_wp != WPSEL_NoChange)
-  {
-    P_BringUpWeapon(p);
-  }
-  
-  psp = &p->psprites[0];
+	// check if player has NO weapon but wants to change
+	if (! p->psprites[ps_weapon].state &&
+			p->pending_wp != WPSEL_NoChange)
+	{
+		P_BringUpWeapon(p);
+	}
 
-  for (i = 0; i < NUMPSPRITES; i++, psp++)
-  {
-    // a null state means not active
-    if (! psp->state)
-      continue;
+	psp = &p->psprites[0];
 
-    for (loop_count=0; loop_count < MAX_PSP_LOOP; loop_count++)
-    {
-      // drop tic count and possibly change state
-      // Note: a -1 tic count never changes.
-      if (psp->tics < 0)
-        break;
-      
-      psp->tics--;
+	for (i = 0; i < NUMPSPRITES; i++, psp++)
+	{
+		// a null state means not active
+		if (! psp->state)
+			continue;
 
-      if (psp->tics >= 1)
-        break;
+		for (loop_count=0; loop_count < MAX_PSP_LOOP; loop_count++)
+		{
+			// drop tic count and possibly change state
+			// Note: a -1 tic count never changes.
+			if (psp->tics < 0)
+				break;
 
-      P_SetPsprite(p, i, psp->next_state ?
-          (psp->next_state - states) : S_NULL);
+			psp->tics--;
 
-      if (psp->tics != 0)
-        break;
-    }
+			if (psp->tics >= 1)
+				break;
 
-    // handle translucency fades
-    psp->visibility = (34 * psp->visibility + psp->vis_target) / 35;
-  }
+			P_SetPsprite(p, i, psp->next_state ?
+					(psp->next_state - states) : S_NULL);
 
-  p->psprites[ps_flash].sx = p->psprites[ps_weapon].sx;
-  p->psprites[ps_flash].sy = p->psprites[ps_weapon].sy;
+			if (psp->tics != 0)
+				break;
+		}
+
+		// handle translucency fades
+		psp->visibility = (34 * psp->visibility + psp->vis_target) / 35;
+	}
+
+	p->psprites[ps_flash].sx = p->psprites[ps_weapon].sx;
+	p->psprites[ps_flash].sy = p->psprites[ps_weapon].sy;
 }
 
 //
@@ -1446,28 +1460,28 @@ void A_WeaponDisableRadTrig(mobj_t *mo)
 //
 void P_Zoom(player_t *p)
 {
-  if (viewiszoomed)
-  {
-    R_SetFOV(normalfov);
-    viewiszoomed = false;
-    return;
-  }
-  
-  // In `LimitZoom' mode, only allow zooming if weapon supports it
-  if (level_flags.limit_zoom)
-  {
-    if (p->ready_wp < 0 || p->pending_wp >= 0)
-      return;
-    
-    if (p->weapons[p->ready_wp].info->zoom_fov > 0)
-    {
-      R_SetFOV(p->weapons[p->ready_wp].info->zoom_fov);
-      viewiszoomed = true;
-    }
-    return;
-  }
+	if (viewiszoomed)
+	{
+		R_SetFOV(normalfov);
+		viewiszoomed = false;
+		return;
+	}
 
-  // -ES- 1999/04/03 Oops
-  R_SetFOV(zoomedfov);
-  viewiszoomed = true;
+	int fov = 0;
+
+	if (! (p->ready_wp < 0 || p->pending_wp >= 0))
+		fov = p->weapons[p->ready_wp].info->zoom_fov;
+	
+	// In `LimitZoom' mode, only allow zooming if weapon supports it
+	if (level_flags.limit_zoom)
+	{
+		if (fov <= 0)
+			return;
+	}
+
+	if (fov <= 0)
+		fov = zoomedfov;
+
+	R_SetFOV(fov);
+	viewiszoomed = true;
 }
