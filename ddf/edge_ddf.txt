@@ -1,4 +1,11 @@
 
+EDGE DDF 4.1 (2004-04-30):
+==========================
+
+1) THINGS.DDF: added missing GIB states to MANCUBUS.
+2) THINGS.DDF: added Boom-compat STEALTH monsters: types 4050 to 4061.
+
+
 EDGE DDF 4.0 (2004-04-30):
 ==========================
 
