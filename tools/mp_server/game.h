@@ -60,10 +60,10 @@ public: //FIXME
 
 	// ---- tic handlig ----
 
-	int tic_counter;
+	int gametic;
 
-	std::bitset<MP_PLAYER_MAX> got_cmds;
-	raw_ticcmd_t *tic_cmds;
+///---	std::bitset<MP_PLAYER_MAX> got_cmds;
+///---	raw_ticcmd_t *tic_cmds;
 
 	int zombie_millies;  // countdown before deletion
 

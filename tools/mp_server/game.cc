@@ -40,7 +40,7 @@ game_c::game_c(const game_info_t *info) : state(ST_Zombie),
 	num_bots(info->num_bots),
 	queuers(), players(),
 	num_players(0), bots_each(0), num_votes(0),
-	tic_counter(0), got_cmds(), tic_cmds(NULL),
+	gametic(0),
 	zombie_millies(0)
 {
 	/* nothing needed */
@@ -141,23 +141,23 @@ void game_c::InitGame()
 {
 ///!!!	SYS_ASSERT(num_players >= 2);
 
-	tic_counter = 0;
+	gametic = 0;
 
-	got_cmds.reset();
+///!!!	got_cmds.reset();
 
-	if (tic_cmds)
-		delete[] tic_cmds;
-
-	tic_cmds = new raw_ticcmd_t[num_players];
+///---	if (tic_cmds)
+///---		delete[] tic_cmds;
+///---
+///---	tic_cmds = new raw_ticcmd_t[num_players];
 
 	state = ST_Playing;
 }
 
 void game_c::BumpTic()
 {
-	tic_counter++;
+	gametic++;
 
-	got_cmds.reset();
+//!!!!	got_cmds.reset();
 }
 
 void game_c::CalcBots()
@@ -170,6 +170,7 @@ void game_c::CalcBots()
 	
 	bots_each = num_bots  / num_players;
 
+	// shouldn't happen, but hey.
 	if (bots_each > ticcmd_proto_t::TICCMD_FIT - 2)
 		bots_each = ticcmd_proto_t::TICCMD_FIT - 2;
 	
@@ -206,7 +207,7 @@ static void SV_build_play_game(game_c *GM, packet_c *pk)
 
 	// assume RAND_MAX could be small (e.g. 0x7FFF)
 	gm.random_seed  = ((rand() & 0xFF) << 24) || ((rand() & 0xFF) << 16) ||
-	                  ((rand() & 0xFF) <<  8) || (rand() & 0xFF);
+	                  ((rand() & 0xFF) <<  8) ||  (rand() & 0xFF);
 
 	gm.first_player  = 0;
 	gm.count = GM->num_players;
@@ -245,6 +246,8 @@ static void BeginGame(game_c *GM)
 
 			GM->RemoveFromQueue(client_id);
 			CL->player_id = GM->AddToGame(client_id);
+
+			CL->tics.Reset(0);
 		}
 
 		SYS_ASSERT(GM->queuers.size() == 0);
@@ -293,12 +296,22 @@ static void SV_build_tic_group(game_c *GM, packet_c *pk, int first, int count)
 
 	tic_group_proto_t& tg = pk->tg_p();
 
-	tg.tic_counter = GM->tic_counter;
+	tg.gametic = GM->gametic;
+	tg.offset  = 0;
 
 	tg.first_player = first;
 	tg.count = count;
 
-	memcpy(tg.tic_cmds, GM->tic_cmds + first, count * sizeof(raw_ticcmd_t));
+	for (int p = first; p < first+count; p++)
+	{
+		int client_id = GM->players[p];
+
+		client_c *CL = clients[client_id];
+
+		CL->tics.Read(GM->gametic, tg.tic_cmds + (p * (1 + GM->bots_each)),
+			0, 1 + GM->bots_each);
+	}
+///---	memcpy(tg.tic_cmds, GM->tic_cmds + first, count * sizeof(raw_ticcmd_t));
 
 	tg.ByteSwap();
 }
@@ -606,24 +619,25 @@ void PK_ticcmd(packet_c *pk)
 
 	// NOTE: We ar not LOCKING since tic-stuff is not touched by UI thread
 
-	if ((int)tc.tic_counter != GM->tic_counter)
+	if ((int)tc.gametic != GM->gametic)
 	{
 		LogPrintf(1, "Ticcmd from client %d, bad tic # (%d != %d)\n",
-			client_id, tc.tic_counter, GM->tic_counter);
+			client_id, tc.gametic, GM->gametic);
 		return;
 	}
 
-	if (GM->got_cmds.test(plyr_id))
+	if (0) //!!!!  GM->got_cmds.test(plyr_id))
 	{
 		LogPrintf(1, "Ticcmd from client %d, already received\n", client_id);
 		return;
 	}
 
-	memcpy(GM->tic_cmds + plyr_id, tc.tic_cmds, sizeof(raw_ticcmd_t));
+	CL->tics.Write(tc.gametic, tc.tic_cmds, 0, 1 + GM->bots_each);
+///---	memcpy(GM->tic_cmds + plyr_id, tc.tic_cmds, sizeof(raw_ticcmd_t));
 
-	GM->got_cmds.set(plyr_id);
+//!!!!	GM->got_cmds.set(plyr_id);
 
-	if (GM->got_cmds.count() == (unsigned)GM->num_players)
+	if (0) //!!!! FIXME FIXME GM->got_cmds.count() == (unsigned)GM->num_players)
 	{
 		SV_send_all_tic_groups(GM);
 
