@@ -177,23 +177,24 @@ static bool WeaponCanFire(player_t *p, int idx, int attack)
 
 	if (attack == 1)
 	{
+		// the order here is important, to allow NoAmmo clip weapons.
+		if (info->clip_size > 1)
+			return (info->ammopershot <= p->weapons[idx].clip_size);
+
 		if (info->ammo == AM_NoAmmo)
 			return true;
 
-		if (info->clip_size <= 1)
-			return (info->ammopershot <= p->ammo[info->ammo].num);
-		else
-			return (info->ammopershot <= p->weapons[idx].clip_size);
+		return (info->ammopershot <= p->ammo[info->ammo].num);
 	}
 	else
 	{
+		if (info->sa_clip_size > 1)
+			return (info->sa_ammopershot <= p->weapons[idx].sa_clip_size);
+
 		if (info->sa_ammo == AM_NoAmmo)
 			return true;
 
-		if (info->sa_clip_size <= 1)
-			return (info->sa_ammopershot <= p->ammo[info->sa_ammo].num);
-		else
-			return (info->sa_ammopershot <= p->weapons[idx].clip_size);
+		return (info->sa_ammopershot <= p->ammo[info->sa_ammo].num);
 	}
 }
 
@@ -201,25 +202,61 @@ static bool WeaponCanReload(player_t *p, int idx, int attack)
 {
 	weapondef_c *info = p->weapons[idx].info;
 
+	bool can_fire = WeaponCanFire(p, idx, attack);
+
 	if (attack == 1)
 	{
-		if (info->ammo == AM_NoAmmo || info->clip_size <= 1)
-			return WeaponCanFire(p, idx, attack);
+		// for non-clip weapon, can reload whenever enough ammo is avail.
+		if (info->clip_size == 1)
+			return can_fire;
 
-I_Printf("CAN-RELOAD: ammo %d  clip %d\n", p->ammo[info->ammo].num, p->weapons[idx].clip_size);
-		int qty = info->clip_size - p->weapons[idx].clip_size;
-		return (qty <= p->ammo[info->ammo].num);
+		// for clip weapons, cannot reload until clip is empty.
+		if (! can_fire)
+		{
+			return (info->ammo == AM_NoAmmo) ||
+			       (info->clip_size - p->weapons[idx].clip_size <=
+					p->ammo[info->ammo].num);
+		}
 	}
 	else
 	{
-		if (info->sa_ammo == AM_NoAmmo && info->sa_clip_size <= 1)
-			return WeaponCanFire(p, idx, attack);
+		if (info->sa_clip_size == 1)
+			return can_fire;
 
-		int qty = info->sa_clip_size - p->weapons[idx].sa_clip_size;
-		return (qty <= p->ammo[info->sa_ammo].num);
+		if (! can_fire)
+		{
+			return (info->sa_ammo == AM_NoAmmo) ||
+			       (info->sa_clip_size - p->weapons[idx].sa_clip_size <=
+					p->ammo[info->sa_ammo].num);
+		}
+	}
+
+	return false;
+}
+
+static bool WeaponCanPartialReload(player_t *p, int idx, int attack)
+{
+	weapondef_c *info = p->weapons[idx].info;
+
+	if (attack == 1)
+	{
+		// for non-clip weapons, assumes we lose some ammo.
+		if (info->clip_size == 1)
+			WeaponCanFire(p, idx, attack);
+
+		// for clip weapons, cannot reload if clip is full
+		return (p->weapons[idx].clip_size < info->clip_size);
+	}
+	else
+	{
+		if (info->sa_clip_size == 1)
+			WeaponCanFire(p, idx, attack);
+
+		return (p->weapons[idx].sa_clip_size < info->sa_clip_size);
 	}
 }
 
+// FIXME: doesn't handle first/second attack properly
 static bool WeaponTotallyEmpty(player_t *p, int idx, bool no_sec_atk)
 {
 	weapondef_c *info = p->weapons[idx].info;
@@ -229,7 +266,7 @@ static bool WeaponTotallyEmpty(player_t *p, int idx, bool no_sec_atk)
 
 	int total = p->ammo[info->ammo].num;
 
-	if (info->clip_size <= 1 && info->ammopershot > total)
+	if (info->clip_size == 1 && info->ammopershot > total)
 		return true;
 
 	// for clip weapons, either need a non-empty clip or enough
@@ -243,7 +280,7 @@ static bool WeaponTotallyEmpty(player_t *p, int idx, bool no_sec_atk)
 
 	if (info->sa_attack && ! no_sec_atk)
 	{
-		if (info->sa_clip_size <= 1 && info->sa_ammopershot > total)
+		if (info->sa_clip_size == 1 && info->sa_ammopershot > total)
 			return true;
 
 		// for clip weapons, either need a non-empty clip or enough
@@ -414,6 +451,8 @@ static bool CheckAmmoSwitch(player_t * p, int attack)
 
 	if (WeaponCanFire(p, p->ready_wp, attack))
 		return true;
+
+//!!!!	@@ can reload && reload states && check flag --> goto reload states
 
 	if (info->empty_state)
 		P_SetPspriteDeferred(p, ps_weapon, info->empty_state);
@@ -959,8 +998,13 @@ void A_WeaponKick(mobj_t * mo)
 //
 // A_CheckReload
 //
-// Check whether the player has used up
-// the clip quantity of ammo.  If so, must reload.
+// Check whether the player has used up the clip quantity of ammo.
+// If so, must reload.
+//
+// For weapons with a clip, only reloads when clip_size is 0 (and enough
+// ammo available to fill it).  For non-clip weapons, reloads when
+// enough ammo to fire exists in the "ammo bucket" (for NO_AMMO weapons,
+// it always reloads).
 //
 // -KM- 1999/01/31 Check clip size.
 // -AJA- 1999/08/11: Reworked for new playerweapon_t field.
