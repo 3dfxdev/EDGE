@@ -28,10 +28,13 @@
 #ifndef __RGL_DEFS__
 #define __RGL_DEFS__
 
+#include "v_ctx.h"
+
 
 //
 //  RGL_TEX
 //
+// (NOTE: rgl_tex prolly completely redundant by new w_image code).
 
 typedef struct stored_gl_tex_s
 {
@@ -83,6 +86,7 @@ void RGL_RainbowEffect(player_t *player);
 void RGL_ColourmapEffect(player_t *player);
 void RGL_PaletteEffect(player_t *player);
 
+// FIXME: these three will be redundant with layer system...
 void RGL_MapClear(void);
 void RGL_DrawLine(int x1, int y1, int x2, int y2, int colour);
 void RGL_DrawPatch(int patch, int sx, int sy);
@@ -92,6 +96,9 @@ void RGL_DrawPatch(int patch, int sx, int sy);
 //  RGL_BSP
 //
 
+void RGL_RenderScene(int x1, int y1, int x2, int y2, vid_view_t *view);
+
+// FIXME: this will be redundant with layer system...
 void RGL_RenderTrueBSP(void);
 
 

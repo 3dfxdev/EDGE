@@ -70,7 +70,7 @@ cut_point_t;
 
 
 void R2_Polygonise(void);
-void R2_FreeAllocatedSegs(void);
+void R2_FreeAllocatedStuff(void);
 
 
 //

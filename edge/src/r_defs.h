@@ -40,6 +40,8 @@
 // -AJA- 1999/07/10: Need this for colourmap_t.
 #include "ddf_main.h"
 
+struct image_s;
+
 // Silhouette, needed for clipping Segs (mainly)
 // and sprites representing things.
 #define SIL_NONE                0
@@ -97,7 +99,11 @@ degenmobj_t;
 typedef struct plane_info_s
 {
   float_t h;
-  int pic;
+
+#ifdef USE_IMAGE
+  const struct image_s *image;
+#endif
+  int pic;  // !!! FIXME: redundant
 
   float_t x_offset;
   float_t y_offset;
@@ -114,9 +120,14 @@ plane_info_t;
 
 typedef struct sidepart_s
 {
+#ifdef USE_IMAGE
+  // Texture image
+  // We do not maintain names here. 
+  const struct image_s *image;
+#endif
   // Texture index.
   // We do not maintain names here. 
-  int tex;
+  int tex;  //!!! FIXME: redundant
 
   // offsets (horizontal and vertical)
   float_t x_offset;
@@ -388,8 +399,8 @@ subsector_t;
 //
 typedef struct seg_s
 {
-  float_t x1, y1;
-  float_t x2, y2;
+  vertex_t *v1;
+  vertex_t *v2;
 
   angle_t angle;
   float_t length;
