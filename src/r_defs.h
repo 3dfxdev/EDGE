@@ -59,8 +59,8 @@ struct image_s;
 
 //
 // Your plain vanilla vertex.
-// Note: transformed values not buffered locally,
-//  like some DOOM-alikes ("wt", "WebView") did.
+// Note: transformed values not buffered locally, like some
+// DOOM-alikes ("wt", "WebView") did.
 //
 typedef struct
 {
@@ -72,20 +72,6 @@ vertex_t;
 struct line_s;
 struct side_s;
 struct region_properties_s;
-
-// Each sector has a degenmobj_t in its center
-//  for sound origin purposes.
-// I suppose this does not handle sound from
-//  moving objects (doppler), because
-//  position is prolly just buffered, not
-//  updated.
-typedef struct
-{
-  float_t x;
-  float_t y;
-  float_t z;
-}
-degenmobj_t;
 
 // Region Properties
 //
@@ -127,8 +113,9 @@ typedef struct plane_info_s
 
 #ifdef USE_IMAGE
   const struct image_s *image;
-#endif
+#else
   int pic;  // !!! FIXME: redundant
+#endif
 
   float_t x_offset;
   float_t y_offset;
