@@ -788,6 +788,24 @@ void P_UpdateAvailWeapons(player_t *p)
 }
 
 //
+// P_UpdateTotalArmour
+//
+void P_UpdateTotalArmour(player_t *p)
+{
+	int i;
+
+	p->totalarmour = 0;
+
+	for (i=0; i < NUMARMOUR; i++)
+	{
+		p->totalarmour += p->armours[i];
+	}
+
+	if (p->totalarmour > 999.0f)
+		p->totalarmour = 999.0f;
+}
+
+//
 // P_AddWeapon
 //
 // Returns true if player didn't already have the weapon.  If
@@ -966,6 +984,7 @@ void P_GiveInitialBenefits(player_t *p, const mobjinfo_t *info)
 	for (i = 0; i < NUMARMOUR; i++)
 		p->armours[i] = 0;
 
+	p->totalarmour = 0;
 	p->cards = KF_NONE;
 
 	// give all initial benefits

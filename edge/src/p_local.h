@@ -111,6 +111,7 @@ void P_RefillClips(player_t * player);
 //
 void P_PlayerThink(player_t * player);
 void P_UpdateAvailWeapons(player_t *p);
+void P_UpdateTotalArmour(player_t *p);
 bool P_AddWeapon(player_t *player, weaponinfo_t *info, int *index);
 bool P_RemoveWeapon(player_t *player, weaponinfo_t *info);
 void P_GiveInitialBenefits(player_t *player, const mobjinfo_t *info);

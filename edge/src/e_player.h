@@ -152,6 +152,7 @@ typedef struct player_s
 
 	// Armour points for each type
 	float armours[NUMARMOUR];
+	float totalarmour;  // needed for status bar
 
 	// Power ups. invinc and invis are tic counters.
 	float powers[NUMPOWERS];

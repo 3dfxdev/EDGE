@@ -56,63 +56,63 @@
 static bool GiveAmmo(player_t * player, mobj_t * special,
     benefit_t *be, bool lose_em)
 {
-  int dropped = (special && (special->flags & MF_DROPPED));
+	int dropped = (special && (special->flags & MF_DROPPED));
 
-  int ammo  = be->subtype;  
-  int num   = (int)floor(be->amount) / (dropped ? 2 : 1);
+	int ammo  = be->subtype;  
+	int num   = (int)floor(be->amount) / (dropped ? 2 : 1);
 
-  bool change_weap;
-  int priority = -100;
+	bool change_weap;
+	int priority = -100;
 
-  if (ammo == AM_NoAmmo || num <= 0)
-    return false;
+	if (ammo == AM_NoAmmo || num <= 0)
+		return false;
 
-  if (ammo < 0 || ammo >= NUMAMMO)
-    I_Error("GiveAmmo: bad type %i", ammo);
+	if (ammo < 0 || ammo >= NUMAMMO)
+		I_Error("GiveAmmo: bad type %i", ammo);
 
-  if (lose_em)
-  {
-    player->ammo[ammo].num -= num;
-    if (player->ammo[ammo].num < 0)
-      player->ammo[ammo].num = 0;
-    return true;
-  }
-  
-  if (player->ammo[ammo].num == player->ammo[ammo].max)
-    return false;
+	if (lose_em)
+	{
+		player->ammo[ammo].num -= num;
+		if (player->ammo[ammo].num < 0)
+			player->ammo[ammo].num = 0;
+		return true;
+	}
 
-  // In Nightmare you need the extra ammo, in "baby" you are given double
-  if (special)
-  {
-    if ((gameskill == sk_baby) || (gameskill == sk_nightmare))
-      num <<= 1;
-  }
+	if (player->ammo[ammo].num == player->ammo[ammo].max)
+		return false;
 
-  // if there was some old ammo, we don't need to change weapons 
-  change_weap = (player->ammo[ammo].num == 0);
+	// In Nightmare you need the extra ammo, in "baby" you are given double
+	if (special)
+	{
+		if ((gameskill == sk_baby) || (gameskill == sk_nightmare))
+			num <<= 1;
+	}
 
-  player->ammo[ammo].num += num;
+	// if there was some old ammo, we don't need to change weapons 
+	change_weap = (player->ammo[ammo].num == 0);
 
-  if (player->ammo[ammo].num > player->ammo[ammo].max)
-    player->ammo[ammo].num = player->ammo[ammo].max;
+	player->ammo[ammo].num += num;
 
-  if (! change_weap)
-    return true;
+	if (player->ammo[ammo].num > player->ammo[ammo].max)
+		player->ammo[ammo].num = player->ammo[ammo].max;
 
-  // We were down to zero, so select a new weapon.
-  // Choose the next highest priority weapon than the current one.
-  // Don't override any weapon change already underway.
+	if (! change_weap)
+		return true;
 
-  P_RefillClips(player);
+	// We were down to zero, so select a new weapon.
+	// Choose the next highest priority weapon than the current one.
+	// Don't override any weapon change already underway.
 
-  if (player->pending_wp != WPSEL_NoChange)
-    return true;
+	P_RefillClips(player);
 
-  if (player->ready_wp >= 0)
-    priority = player->weapons[player->ready_wp].info->priority;
+	if (player->pending_wp != WPSEL_NoChange)
+		return true;
 
-  P_SelectNewWeapon(player, priority, (ammotype_e) ammo);
-  return true;
+	if (player->ready_wp >= 0)
+		priority = player->weapons[player->ready_wp].info->priority;
+
+	P_SelectNewWeapon(player, priority, (ammotype_e) ammo);
+	return true;
 }
 
 //
@@ -121,23 +121,23 @@ static bool GiveAmmo(player_t * player, mobj_t * special,
 static bool GiveAmmoLimit(player_t * player, mobj_t * special,
     benefit_t *be, bool lose_em)
 {
-  int ammo  = be->subtype;  
-  int limit = (int)floor(be->amount);
+	int ammo  = be->subtype;  
+	int limit = (int)floor(be->amount);
 
-  if (ammo == AM_NoAmmo)
-    return false;
+	if (ammo == AM_NoAmmo)
+		return false;
 
-  if (ammo < 0 || ammo >= NUMAMMO)
-    I_Error("GiveAmmoLimit: bad type %i", ammo);
+	if (ammo < 0 || ammo >= NUMAMMO)
+		I_Error("GiveAmmoLimit: bad type %i", ammo);
 
-  if ((!lose_em && limit < player->ammo[ammo].max) ||
-      (lose_em && limit > player->ammo[ammo].max))
-  {
-    return false;
-  }
+	if ((!lose_em && limit < player->ammo[ammo].max) ||
+			(lose_em && limit > player->ammo[ammo].max))
+	{
+		return false;
+	}
 
-  player->ammo[ammo].max = limit;
-  return true;
+	player->ammo[ammo].max = limit;
+	return true;
 }
 
 //
@@ -150,21 +150,21 @@ static bool GiveAmmoLimit(player_t * player, mobj_t * special,
 static bool GiveWeapon(player_t * player, mobj_t * special,
     benefit_t *be, bool lose_em)
 {
-  weaponinfo_t *info = weaponinfo[be->subtype];
-  int pw_index;
+	weaponinfo_t *info = weaponinfo[be->subtype];
+	int pw_index;
 
-  if (lose_em)
-    return P_RemoveWeapon(player, info);
+	if (lose_em)
+		return P_RemoveWeapon(player, info);
 
-  if (! P_AddWeapon(player, info, &pw_index))
-    return false;
+	if (! P_AddWeapon(player, info, &pw_index))
+		return false;
 
-  player->pending_wp = (weapon_selection_e) pw_index;
+	player->pending_wp = (weapon_selection_e) pw_index;
 
-  // be cheeky... :-)
-  player->grin_count = GRIN_TIME;
+	// be cheeky... :-)
+	player->grin_count = GRIN_TIME;
 
-  return true;
+	return true;
 }
 
 //
@@ -177,23 +177,23 @@ static bool GiveWeapon(player_t * player, mobj_t * special,
 static bool GiveHealth(player_t * player, mobj_t * special,
     benefit_t *be, bool lose_em)
 {
-  if (lose_em)
-  {
-    P_DamageMobj(player->mo, special, NULL, be->amount, NULL);
-    return true;
-  }
+	if (lose_em)
+	{
+		P_DamageMobj(player->mo, special, NULL, be->amount, NULL);
+		return true;
+	}
 
-  if (player->health >= be->limit)
-    return false;
+	if (player->health >= be->limit)
+		return false;
 
-  player->health += be->amount;
+	player->health += be->amount;
 
-  if (player->health > be->limit)
-    player->health = be->limit;
+	if (player->health > be->limit)
+		player->health = be->limit;
 
-  player->mo->health = player->health;
+	player->mo->health = player->health;
 
-  return true;
+	return true;
 }
 
 //
@@ -201,32 +201,35 @@ static bool GiveHealth(player_t * player, mobj_t * special,
 //
 // Returns false if the new armour would not benefit
 //
-// -ACB- 1998/06/21
-//
 static bool GiveArmour(player_t * player, mobj_t * special,
     benefit_t *be, bool lose_em)
 {
-  armour_type_e a_class = (armour_type_e)be->subtype;
-  
-  DEV_ASSERT2(0 <= a_class && a_class < NUMARMOUR);
+	armour_type_e a_class = (armour_type_e)be->subtype;
 
-  if (lose_em)
-  {
-    player->armours[a_class] -= be->amount;
-    if (player->armours[a_class] < 0)
-      player->armours[a_class] = 0;
-    return true;
-  }
+	DEV_ASSERT2(0 <= a_class && a_class < NUMARMOUR);
 
-  if (player->armours[a_class] >= be->limit)
-    return false;
+	if (lose_em)
+	{
+		player->armours[a_class] -= be->amount;
+		if (player->armours[a_class] < 0)
+			player->armours[a_class] = 0;
 
-  player->armours[a_class] += be->amount;
+		P_UpdateTotalArmour(player);
+		return true;
+	}
 
-  if (player->armours[a_class] > be->limit)
-    player->armours[a_class] = be->limit;
+	float slack = be->limit - player->totalarmour;
 
-  return true;
+	if (slack <= 0)
+		return false;
+
+	player->armours[a_class] += be->amount;
+
+	if (player->armours[a_class] > slack)
+		player->armours[a_class] = slack;
+
+	P_UpdateTotalArmour(player);
+	return true;
 }
 
 //
@@ -234,27 +237,27 @@ static bool GiveArmour(player_t * player, mobj_t * special,
 //
 static bool GiveKey(player_t * player, mobj_t * special, benefit_t *be, bool lose_em)
 {
-  keys_e key = (keys_e)be->subtype;
- 
-  if (lose_em)
-  {
-    if (! (player->cards & key))
-      return false;
+	keys_e key = (keys_e)be->subtype;
 
-    player->cards = (keys_e)(player->cards & ~key);
-  }
-  else
-  {
-    if (player->cards & key)
-      return false;
+	if (lose_em)
+	{
+		if (! (player->cards & key))
+			return false;
 
-    player->cards = (keys_e)(player->cards | key);
-  }
+		player->cards = (keys_e)(player->cards & ~key);
+	}
+	else
+	{
+		if (player->cards & key)
+			return false;
 
-  // -ACB- 1998/06/10 Force redraw of status bar, to update keys.
-  stbar_update = true;
+		player->cards = (keys_e)(player->cards | key);
+	}
 
-  return true;
+	// -ACB- 1998/06/10 Force redraw of status bar, to update keys.
+	stbar_update = true;
+
+	return true;
 }
 
 //
@@ -270,52 +273,52 @@ static bool GiveKey(player_t * player, mobj_t * special, benefit_t *be, bool los
 static bool GivePower(player_t * player, mobj_t * special,
     benefit_t *be, bool lose_em)
 { 
-  int i;
+	int i;
 
-  // -ACB- 1998/06/20 - calculate duration in seconds
-  float duration = be->amount * TICRATE;
-  float limit    = be->limit  * TICRATE;
+	// -ACB- 1998/06/20 - calculate duration in seconds
+	float duration = be->amount * TICRATE;
+	float limit    = be->limit  * TICRATE;
 
-  if (lose_em)
-  {
-    player->powers[be->subtype] -= duration;
-    if (player->powers[be->subtype] < 0)
-      player->powers[be->subtype] = 0;
-    return true;
-  }
- 
-  if (player->powers[be->subtype] >= limit)
-    return false;
+	if (lose_em)
+	{
+		player->powers[be->subtype] -= duration;
+		if (player->powers[be->subtype] < 0)
+			player->powers[be->subtype] = 0;
+		return true;
+	}
 
-  player->powers[be->subtype] += duration;
+	if (player->powers[be->subtype] >= limit)
+		return false;
 
-  if (player->powers[be->subtype] > limit)
-    player->powers[be->subtype] = limit;
+	player->powers[be->subtype] += duration;
 
-  // special handling for berserk...
-  if (be->subtype == PW_Berserk)
-  {
-    for (i=0; i < MAXWEAPONS; i++)
-    {
-      playerweapon_t *pw = &player->weapons[i];
+	if (player->powers[be->subtype] > limit)
+		player->powers[be->subtype] = limit;
 
-      if (pw->owned && DDF_CompareName(pw->info->ddf.name, "FIST") == 0)
-      {
-        if (player->ready_wp != i)
-          player->pending_wp = (weapon_selection_e)i;
+	// special handling for berserk...
+	if (be->subtype == PW_Berserk)
+	{
+		for (i=0; i < MAXWEAPONS; i++)
+		{
+			playerweapon_t *pw = &player->weapons[i];
 
-        break;
-      }
-    }
-  }
+			if (pw->owned && DDF_CompareName(pw->info->ddf.name, "FIST") == 0)
+			{
+				if (player->ready_wp != i)
+					player->pending_wp = (weapon_selection_e)i;
 
-  // special handling for scuba...
-  if (be->subtype == PW_Scuba)
-  {
-     player->air_in_lungs = player->mo->info->lung_capacity;
-  }
-  
-  return true;
+				break;
+			}
+		}
+	}
+
+	// special handling for scuba...
+	if (be->subtype == PW_Scuba)
+	{
+		player->air_in_lungs = player->mo->info->lung_capacity;
+	}
+
+	return true;
 }
 
 //
@@ -330,9 +333,9 @@ static bool GivePower(player_t * player, mobj_t * special,
 bool P_GiveBenefitList(player_t *player, mobj_t * special, 
     benefit_t *list, bool lose_em)
 {
-  bool pickup = false;
-  // is it a weapon that will stay in old deathmatch?
-  bool dm_weapon = false;
+	bool pickup = false;
+	// is it a weapon that will stay in old deathmatch?
+	bool dm_weapon = false;
 
   // leave placed weapons forever in old deathmatch mode
   // but only if we haven't already picked it up.
@@ -363,46 +366,46 @@ bool P_GiveBenefitList(player_t *player, mobj_t * special,
 
   for (; list; list=list->next)
   {
-    if (list->type == BENEFIT_None || list->amount <= 0.0)
-      continue;
-    
-    switch (list->type)
-    {
-      case BENEFIT_Ammo:
-        pickup |= GiveAmmo(player, special, list, lose_em);
-        break;
+	  if (list->type == BENEFIT_None || list->amount <= 0.0)
+		  continue;
 
-      case BENEFIT_AmmoLimit:
-        pickup |= GiveAmmoLimit(player, special, list, lose_em);
-        break;
+	  switch (list->type)
+	  {
+		  case BENEFIT_Ammo:
+			  pickup |= GiveAmmo(player, special, list, lose_em);
+			  break;
 
-      case BENEFIT_Weapon:
-        pickup |= GiveWeapon(player, special, list, lose_em);
-        break;
+		  case BENEFIT_AmmoLimit:
+			  pickup |= GiveAmmoLimit(player, special, list, lose_em);
+			  break;
 
-      case BENEFIT_Key:
-        pickup |= GiveKey(player, special, list, lose_em);
-        break;
+		  case BENEFIT_Weapon:
+			  pickup |= GiveWeapon(player, special, list, lose_em);
+			  break;
 
-      case BENEFIT_Health:
-        pickup |= GiveHealth(player, special, list, lose_em);
-        break;
+		  case BENEFIT_Key:
+			  pickup |= GiveKey(player, special, list, lose_em);
+			  break;
 
-      case BENEFIT_Armour:
-        pickup |= GiveArmour(player, special, list, lose_em);
-        break;
+		  case BENEFIT_Health:
+			  pickup |= GiveHealth(player, special, list, lose_em);
+			  break;
 
-      case BENEFIT_Powerup:
-        pickup |= GivePower(player, special, list, lose_em);
-        break;
+		  case BENEFIT_Armour:
+			  pickup |= GiveArmour(player, special, list, lose_em);
+			  break;
 
-      default:
-        break;
-    }
+		  case BENEFIT_Powerup:
+			  pickup |= GivePower(player, special, list, lose_em);
+			  break;
+
+		  default:
+			  break;
+	  }
   }
 
   if (dm_weapon)
-    pickup = false;
+	  pickup = false;
 
   return pickup;
 }
@@ -664,168 +667,174 @@ void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust)
 void P_DamageMobj(mobj_t * target, mobj_t * inflictor, 
     mobj_t * source, float damage, const damage_t * damtype)
 {
-  player_t *player;
-  statenum_t state;
-  float saved = 0;
-  int i;
+	player_t *player;
+	statenum_t state;
+	float saved = 0;
+	int i;
 
-  if (!(target->flags & MF_SHOOTABLE))
-    return;
+	if (!(target->flags & MF_SHOOTABLE))
+		return;
 
-  if (target->health <= 0)
-    return;
+	if (target->health <= 0)
+		return;
 
-  // check for immunity against the attack
-  if (inflictor && inflictor->currentattack && BITSET_EMPTY ==
-      (inflictor->currentattack->attack_class & ~target->info->immunity))
-  {
-    return;
-  }
+	// check for immunity against the attack
+	if (inflictor && inflictor->currentattack && BITSET_EMPTY ==
+			(inflictor->currentattack->attack_class & ~target->info->immunity))
+	{
+		return;
+	}
 
-  // check for partial resistance against the attack
-  if (damage >= 0.1f && inflictor && inflictor->currentattack &&
-	  BITSET_EMPTY == (inflictor->currentattack->attack_class & ~target->info->resistance))
-  {
-    damage = (damage + 0.1f) * 0.4f;
-  }
+	// check for partial resistance against the attack
+	if (damage >= 0.1f && inflictor && inflictor->currentattack &&
+			BITSET_EMPTY == (inflictor->currentattack->attack_class & ~target->info->resistance))
+	{
+		damage = (damage + 0.1f) * 0.4f;
+	}
 
-  // -ACB- 1998/07/12 Use Visibility Enum
-  // A Damaged Stealth Creature becomes more visible
-  if (target->flags & MF_STEALTH)
-    target->vis_target = VISIBLE;
+	// -ACB- 1998/07/12 Use Visibility Enum
+	// A Damaged Stealth Creature becomes more visible
+	if (target->flags & MF_STEALTH)
+		target->vis_target = VISIBLE;
 
-  if (target->flags & MF_SKULLFLY)
-  {
-    target->mom.x = target->mom.y = target->mom.z = 0;
-    target->flags &= ~MF_SKULLFLY;
-  }
+	if (target->flags & MF_SKULLFLY)
+	{
+		target->mom.x = target->mom.y = target->mom.z = 0;
+		target->flags &= ~MF_SKULLFLY;
+	}
 
-  player = target->player;
+	player = target->player;
 
-  // take half damage in trainer mode
-  if (player && gameskill == sk_baby)
-    damage *= 0.5f;
+	// take half damage in trainer mode
+	if (player && gameskill == sk_baby)
+		damage *= 0.5f;
 
-  // Some close combat weapons should not
-  // inflict thrust and push the victim out of reach,
-  // thus kick away unless using the chainsaw.
+	// Some close combat weapons should not
+	// inflict thrust and push the victim out of reach,
+	// thus kick away unless using the chainsaw.
 
-  if (inflictor && !(target->flags & MF_NOCLIP) &&
-      !(source && source->player && source->player->ready_wp >= 0 &&
-        source->player->weapons[source->player->ready_wp].info->nothrust))
-  {
-    // make fall forwards sometimes
-    if (damage < 40 && damage > target->health &&
-        target->z - inflictor->z > 64 && (P_Random() & 1))
-    {
-      P_ThrustMobj(target, inflictor, -damage * 4);
-    }
-    else
-      P_ThrustMobj(target, inflictor, damage);
-  }
+	if (inflictor && !(target->flags & MF_NOCLIP) &&
+			!(source && source->player && source->player->ready_wp >= 0 &&
+				source->player->weapons[source->player->ready_wp].info->nothrust))
+	{
+		// make fall forwards sometimes
+		if (damage < 40 && damage > target->health &&
+				target->z - inflictor->z > 64 && (P_Random() & 1))
+		{
+			P_ThrustMobj(target, inflictor, -damage * 4);
+		}
+		else
+			P_ThrustMobj(target, inflictor, damage);
+	}
 
-  // player specific
-  if (player)
-  {
-    // Below certain threshold, ignore damage in GOD mode, or with INVUL power
-    if (damage < 1000 &&
-        ((player->cheats & CF_GODMODE) || player->powers[PW_Invulnerable]))
-    {
-      return;
-    }
+	// player specific
+	if (player)
+	{
+		// Below certain threshold, ignore damage in GOD mode, or with INVUL power
+		if (damage < 1000 &&
+				((player->cheats & CF_GODMODE) || player->powers[PW_Invulnerable]))
+		{
+			return;
+		}
 
-    // check which armour can take some damage
-    for (i=ARMOUR_Red; i >= ARMOUR_Green; i--)
-    {
-      if (damtype && damtype->no_armour)
-        continue;
+		// check which armour can take some damage
+		for (i=ARMOUR_Red; i >= ARMOUR_Green; i--)
+		{
+			if (damtype && damtype->no_armour)
+				continue;
 
-      if (player->armours[i] <= 0)
-        continue;
+			if (player->armours[i] <= 0)
+				continue;
 
-      switch (i)
-      {
-        case ARMOUR_Green:  saved = damage * 0.33f; break;
-        case ARMOUR_Blue:   saved = damage * 0.50f; break;
-        case ARMOUR_Yellow: saved = damage * 0.75f; break;
-        case ARMOUR_Red:    saved = damage * 0.90f; break;
-        default: 
-          I_Error("INTERNAL ERROR in P_DamageMobj: bad armour %d\n", i);
-      }
+			switch (i)
+			{
+				case ARMOUR_Green:  saved = damage * 0.33f; break;
+				case ARMOUR_Blue:   saved = damage * 0.50f; break;
+				case ARMOUR_Yellow: saved = damage * 0.75f; break;
+				case ARMOUR_Red:    saved = damage * 0.90f; break;
+				default: 
+									I_Error("INTERNAL ERROR in P_DamageMobj: bad armour %d\n", i);
+			}
 
-      if (player->armours[i] <= saved)
-      {
-        // armour is used up
-        saved = player->armours[i];
-      }
+			if (player->armours[i] <= saved)
+			{
+				// armour is used up
+				saved = player->armours[i];
+			}
 
-      player->armours[i] -= saved;
-      damage -= saved;
-    }
+			player->armours[i] -= saved;
+			damage -= saved;
 
-    // mirror mobj health here for Dave
-    player->health -= damage;
+			// don't apply inner armour unless outer is finished
+			if (player->armours[i] > 0)
+				break;
+		}
 
-    if (player->health < 0)
-      player->health = 0;
+		P_UpdateTotalArmour(player);
 
-    player->attacker = source;
+		// mirror mobj health here for Dave
+		player->health -= damage;
 
-    // add damage after armour / invuln detection
-    if (damage > 0)
-      player->damagecount += (int)MAX(damage, DAMAGE_ADD_MIN);
+		if (player->health < 0)
+			player->health = 0;
 
-    // teleport stomp does 10k points...
-    if (player->damagecount > DAMAGE_LIMIT)
-      player->damagecount = DAMAGE_LIMIT;
-  }
+		player->attacker = source;
 
-  // do the damage
-  target->health -= damage;
+		// add damage after armour / invuln detection
+		if (damage > 0)
+			player->damagecount += (int)MAX(damage, DAMAGE_ADD_MIN);
 
-  if (target->health <= 0)
-  {
-    P_KillMobj(source, target, damtype);
-    return;
-  }
+		// teleport stomp does 10k points...
+		if (player->damagecount > DAMAGE_LIMIT)
+			player->damagecount = DAMAGE_LIMIT;
+	}
 
-  // enter pain states
-  if (!(target->flags & MF_SKULLFLY) && P_RandomTest(target->info->painchance))
-  {
-    // setup to hit back
-    target->flags |= MF_JUSTHIT;
+	// do the damage
+	target->health -= damage;
 
-    state = S_NULL;
+	if (target->health <= 0)
+	{
+		P_KillMobj(source, target, damtype);
+		return;
+	}
 
-    if (damtype && damtype->pain.label)
-    {
-      state = P_MobjFindLabel(target, damtype->pain.label);
-      if (state != S_NULL)
-        state += damtype->pain.offset;
-    }
+	// enter pain states
+	if (!(target->flags & MF_SKULLFLY) && P_RandomTest(target->info->painchance))
+	{
+		// setup to hit back
+		target->flags |= MF_JUSTHIT;
 
-    if (state == S_NULL)
-      state = target->info->pain_state;
+		state = S_NULL;
 
-    if (state != S_NULL)
-      P_SetMobjStateDeferred(target, state, 0);
-  }
+		if (damtype && damtype->pain.label)
+		{
+			state = P_MobjFindLabel(target, damtype->pain.label);
+			if (state != S_NULL)
+				state += damtype->pain.offset;
+		}
 
-  // we're awake now...
-  target->reactiontime = 0;
+		if (state == S_NULL)
+			state = target->info->pain_state;
 
-  if ((!target->threshold || target->extendedflags & EF_NOGRUDGE) &&
-      source && source != target && (!(source->extendedflags & EF_NEVERTARGET)))
-  {
-    // if not intent on another player, chase after this one
-    P_MobjSetTarget(target, source);
-    target->threshold = BASETHRESHOLD;
+		if (state != S_NULL)
+			P_SetMobjStateDeferred(target, state, 0);
+	}
 
-    if (target->state == &states[target->info->idle_state] &&
-        target->info->chase_state)
-    {
-      P_SetMobjStateDeferred(target, target->info->chase_state, 0);
-    }
-  }
+	// we're awake now...
+	target->reactiontime = 0;
+
+	if ((!target->threshold || target->extendedflags & EF_NOGRUDGE) &&
+			source && source != target && (!(source->extendedflags & EF_NEVERTARGET)))
+	{
+		// if not intent on another player, chase after this one
+		P_MobjSetTarget(target, source);
+		target->threshold = BASETHRESHOLD;
+
+		if (target->state == &states[target->info->idle_state] &&
+				target->info->chase_state)
+		{
+			P_SetMobjStateDeferred(target, target->info->chase_state, 0);
+		}
+	}
 }
 
