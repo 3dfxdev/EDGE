@@ -51,7 +51,8 @@ static int melt_yoffs[MELT_DIVS+1];
 static int melt_last_progress;
 
 
-static GLuint SendWipeTexture(byte *rgb_src, int total_w, int total_h)
+static GLuint SendWipeTexture(byte *rgb_src, int total_w, int total_h,
+	bool use_alpha)
 {
 	GLuint id;
 
@@ -70,15 +71,15 @@ static GLuint SendWipeTexture(byte *rgb_src, int total_w, int total_h)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, total_w, total_h,
-		0, GL_RGB, GL_UNSIGNED_BYTE, rgb_src);
+	glTexImage2D(GL_TEXTURE_2D, 0, use_alpha ? 4 : 3, total_w, total_h,
+		0, use_alpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, rgb_src);
 
 	glDisable(GL_TEXTURE_2D);
 
 	return id;
 }
 
-static GLuint CaptureScreenAsTexture(void)
+static GLuint CaptureScreenAsTexture(bool use_alpha)
 {
 	int total_w, total_h;
 	int x, y, id;
@@ -95,9 +96,9 @@ static GLuint CaptureScreenAsTexture(void)
 	while (total_h > glmax_tex_size)
 		total_h /= 2;
 
-	pixels = Z_New(byte, total_w * total_h * 3);
+	pixels = Z_New(byte, total_w * total_h * 4);
 
-	line_buf = Z_New(byte, SCREENWIDTH * 3);
+	line_buf = Z_New(byte, SCREENWIDTH * 4);
 
 	// read pixels from screen, scaling down to target size which must
 	// be both power-of-two and within the GL's tex_size limitation.
@@ -112,19 +113,25 @@ static GLuint CaptureScreenAsTexture(void)
 
 		glReadPixels(0, py, SCREENWIDTH, 1, GL_RGB, GL_UNSIGNED_BYTE, line_buf);
 
+		int bp = use_alpha ? 4 : 3;
+		byte i = rndtable[y & 0xff];
+
 		for (x=0; x < total_w; x++)
 		{
-			byte *dest_p = pixels + ((y * total_w + x) * 3);
+			byte *dest_p = pixels + ((y * total_w + x) * bp);
 
 			px = x * SCREENWIDTH / total_w;
 
 			dest_p[0] = line_buf[px*3 + 0];
 			dest_p[1] = line_buf[px*3 + 1];
 			dest_p[2] = line_buf[px*3 + 2];
+
+			if (use_alpha)
+				dest_p[3] = rndtable[i++];
 		}
 	}
 
-	id = SendWipeTexture(pixels, total_w, total_h);
+	id = SendWipeTexture(pixels, total_w, total_h, use_alpha);
 
 	Z_Free(line_buf);
 	Z_Free(pixels);
@@ -180,7 +187,7 @@ void RGL_InitWipe(int reverse, wipetype_e effect)
 	cur_wipe_effect  = effect;
 
 	cur_wipe_start = -1;
-	cur_wipe_tex = CaptureScreenAsTexture();
+	cur_wipe_tex = CaptureScreenAsTexture(effect == WIPE_Pixelfade);
 
 	RGL_Init_Melt();
 }
@@ -227,6 +234,40 @@ static void RGL_Wipe_Fading(float how_far)
 
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
+}
+
+static void RGL_Wipe_Pixelfade(float how_far)
+{
+	glEnable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);
+	glEnable(GL_ALPHA_TEST);
+
+	glAlphaFunc(GL_GEQUAL, how_far);
+
+	glBindTexture(GL_TEXTURE_2D, cur_wipe_tex);
+	glColor3f(1.0f, 1.0f, 1.0f);
+
+	glBegin(GL_QUADS);
+
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex2i(0, 0);
+
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex2i(0, SCREENHEIGHT);
+
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex2i(SCREENWIDTH, SCREENHEIGHT);
+
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex2i(SCREENWIDTH, 0);
+
+	glEnd();
+
+	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
+
+	glAlphaFunc(GL_GREATER, 1.0f / 32.0f);
 }
 
 static void RGL_Wipe_Melt(void)
@@ -399,8 +440,11 @@ bool RGL_DoWipe(void)
 			RGL_Wipe_Doors(how_far);
 			break;
 
-		case WIPE_Crossfade:
 		case WIPE_Pixelfade:
+			RGL_Wipe_Pixelfade(how_far);
+			break;
+
+		case WIPE_Crossfade:
 		default:
 			RGL_Wipe_Fading(how_far);
 			break;
