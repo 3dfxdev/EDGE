@@ -19,7 +19,7 @@
 #ifndef __MP_MAIN_H__
 #define __MP_MAIN_H__
 
-#define MPSERVER_VERSION  "0.41"
+#define MPSERVER_VERSION  "0.42"
 
 #define MPS_DEF_MAX_CLIENT  16
 #define MPS_DEF_ALIVE_WAIT  60 /* seconds */
