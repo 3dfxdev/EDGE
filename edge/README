@@ -255,6 +255,14 @@ Troubleshooting:
       look is on Microsoft's site.  Basically, if Quake 3 (or some
       other OpenGL game) works, then GLEDGE should work too.
    
+    - SHOULD YOU HAVE ANY PROBLEMS WITH GRAPHICAL PROBLEMS OR WITH THE 
+      ENGINE LOCKING UP PLEASE ENSURE YOU HAVE THE LATEST VIDEO DRIVERS 
+      FOR YOUR MACHINE.
+
+      Users of the ATI Rage series are recommended to upgrade to the 
+      latest drivers since some older drivers (circa 2001) have been 
+      known to cause a lockup during startup.
+      
   For Linux:
     - SDL 1.2 can be found at http://www.libsdl.org/.
     
