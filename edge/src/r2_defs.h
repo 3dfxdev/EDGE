@@ -74,7 +74,7 @@ screenline_t;
 // DrawWall
 //
 // Stores the info about a single visible section of a wall of a
-// subsector.
+// subsector.  Not used in GL mode.
 //
 typedef struct drawwall_s
 {
@@ -119,7 +119,7 @@ drawwall_t;
 // DrawPlane
 //
 // Stores the info about a single visible plane (either floor or
-// ceiling) of a subsector.
+// ceiling) of a subsector.  Not used in GL mode.
 //
 typedef struct drawplane_s
 {
