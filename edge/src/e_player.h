@@ -225,6 +225,9 @@ typedef struct player_s
 	// -ACB- 1998/08/09
 	int jumpwait;
 
+	// counter used to determine when to enter weapon idle states
+	int idlewait;
+
 	// breathing support.  In air-less sectors, this is decremented on
 	// each tic.  When it reaches zero, the player starts choking (which
 	// hurts), and player drowns when health drops to zero.

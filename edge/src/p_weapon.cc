@@ -253,11 +253,13 @@ static void GotoAttackState(player_t * p, int ATK, bool can_warmup)
 	else if (can_warmup && info->warmup_state[ATK])
 	{
 		newstate = info->warmup_state[ATK];
-I_Printf("Warmup state %d\n", newstate); //!!
 	}
 
 	if (newstate)
+	{
 		P_SetPspriteDeferred(p, ps_weapon, newstate);
+		p->idlewait = 0;
+	}
 }
 
 static void GotoReloadState(player_t *p, int ATK)
@@ -273,7 +275,10 @@ static void GotoReloadState(player_t *p, int ATK)
 		ATK = 0;
 
 	if (info->reload_state[ATK])
+	{
 		P_SetPspriteDeferred(p, ps_weapon, info->reload_state[ATK]);
+		p->idlewait = 0;
+	}
 }
 
 //
@@ -316,6 +321,7 @@ static void P_BringUpWeapon(player_t * p)
 
 	p->remember_atk[0] = -1;
 	p->remember_atk[1] = -1;
+	p->idlewait = 0;
 
 	if (sel == WPSEL_None)
 	{
@@ -599,6 +605,8 @@ void P_MovePsprites(player_t * p)
 
 	p->psprites[ps_flash].sx = p->psprites[ps_weapon].sx;
 	p->psprites[ps_flash].sy = p->psprites[ps_weapon].sy;
+
+	p->idlewait++;
 }
 
 //
@@ -699,7 +707,7 @@ void A_WeaponReady(mobj_t * mo)
 	}
 
 	// check for emptiness.  The ready_state check is needed since this
-	// code is currently used by the EMPTY action as well.
+	// code is also used by the EMPTY action (prevent looping).
 	if (info->empty_state && ! WeaponCouldAutoFire(p, p->ready_wp, 0) &&
 		psp->state == &states[info->ready_state])
 	{
@@ -709,8 +717,11 @@ void A_WeaponReady(mobj_t * mo)
 		return;
 	}
 
-	if (info->idle && psp->state == &states[info->ready_state])
+	if (info->idle && (psp->state == &states[info->ready_state] ||
+		(info->empty_state && psp->state == &states[info->empty_state])))
+	{
 		S_StartSound(mo, info->idle);
+	}
 
 	bool fire_0 = ButtonDown(p, 0);
 	bool fire_1 = ButtonDown(p, 1);
@@ -745,7 +756,22 @@ void A_WeaponReady(mobj_t * mo)
 	if (! fire_0) p->attackdown[0] = false;
 	if (! fire_1) p->attackdown[1] = false;
 
-	// handle manual and new-ammo reloads
+	// give that weapon a polish, soldier!
+	if (info->idle_state && p->idlewait >= info->idle_wait)
+	{
+		if (M_RandomTest(info->idle_chance))
+		{
+			p->idlewait = 0;
+			P_SetPspriteDeferred(p, ps_weapon, info->idle_state);
+		}
+		else
+		{
+			// wait another (idle_wait / 10) seconds before trying again
+			p->idlewait = info->idle_wait * 9 / 10;
+		}
+	}
+
+	// handle manual reload and fresh-ammo reload
 	if (! fire_0 && ! fire_1)
 	{
 		for (int ATK = 0; ATK < 2; ATK++)
@@ -793,6 +819,7 @@ void A_WeaponReady(mobj_t * mo)
 				}
 			}
 		}  // for (ATK)
+
 	}  // (! fire_0 && ! fire_1)
 
 	BobWeapon(p, info);
@@ -1206,6 +1233,8 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 	{
 		P_NoiseAlert(p);
 	}
+
+	p->idlewait = 0;
 }
 
 void A_WeaponShoot  (mobj_t * mo) { DoWeaponShoot(mo, 0); }

@@ -112,6 +112,7 @@ static savefield_t sv_fields_player[] =
 	//   in_game: only in-game players are saved.
 	//   key_choices: depends on DDF too much, and not important.
 	//   remember_atk[]: ditto.
+	//   idlewait: not important.
 	//   next,prev: links are regenerated.
 	//   avail_weapons, totalarmour: regenerated.
 
