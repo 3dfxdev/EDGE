@@ -1,10 +1,14 @@
 
-EDGE DDF 4.5: (2005-XX-XX)
+EDGE DDF 4.5: (2005-03-11)
 ==========================
 
 1) LINES.DDF: fix certain teleport types to teleport objects
               (via OTHER keyword in ACTIVATOR line), needed for
               compatibility with Boom teleportation rules.
+
+2) IMAGES.DDF: added PNG image for title screens and console.
+
+3) THINGS.DDF: added new ammo limits to player entries (16 now).
 
 
 EDGE DDF 4.4: (2005-02-11)
@@ -238,34 +242,34 @@ EDGE DDF 2.5 (2000-10-07):
 
 1) THINGS.DDF -corrected the heights of the following:
 
-		Num#  Thing name            Height
-		----------------------------------
-		25    SKEWERED_BLOKE        64
-		26    DYING_SKEWERED_BLOKE  64
-		27    SKULL_ON_A_STICK      52
-		28    HEADS_ON_A_STICK      64
-		29    SKULL_CENTREPIECE     40
-		31    SHORT_GREEN_COLUMN    38
-		32    TALL_RED_COLUMN       50
-		41    EYE_SYMBOL            56
-		42    FLOATING_SKULLROCK    48
-		44    BRONZE_BLUE_TORCH     96
-		45    BRONZE_GREEN_TORCH    96
-		46    BRONZE_RED_TORCH      96
-		54    BIG_TREE             120
-		55    WOODEN_BLUE_TORCH     72
-		56    WOODEN_GREEN_TORCH    72
-		57    WOODEN_RED_TORCH      72
-		85    TALL_TECH_LAMP        78
-		86    SMALL_TECH_LAMP       58
-		2025  RADIATION_SUIT        60
-		2028  SMALL_BOLLARD_LAMP    46
-		7010  BURNT_SPIKE_STUMP     46
+        Num#  Thing name            Height
+        ----------------------------------
+        25    SKEWERED_BLOKE        64
+        26    DYING_SKEWERED_BLOKE  64
+        27    SKULL_ON_A_STICK      52
+        28    HEADS_ON_A_STICK      64
+        29    SKULL_CENTREPIECE     40
+        31    SHORT_GREEN_COLUMN    38
+        32    TALL_RED_COLUMN       50
+        41    EYE_SYMBOL            56
+        42    FLOATING_SKULLROCK    48
+        44    BRONZE_BLUE_TORCH     96
+        45    BRONZE_GREEN_TORCH    96
+        46    BRONZE_RED_TORCH      96
+        54    BIG_TREE             120
+        55    WOODEN_BLUE_TORCH     72
+        56    WOODEN_GREEN_TORCH    72
+        57    WOODEN_RED_TORCH      72
+        85    TALL_TECH_LAMP        78
+        86    SMALL_TECH_LAMP       58
+        2025  RADIATION_SUIT        60
+        2028  SMALL_BOLLARD_LAMP    46
+        7010  BURNT_SPIKE_STUMP     46
 
-		The old DOOM heights for these didn't matter
-            because it didn't have true 3D, but with EDGE
-            we could walk uner or over these things without
-            touching them because their heights were all 16.
+        The old DOOM heights for these didn't matter
+        because it didn't have true 3D, but with EDGE
+        we could walk uner or over these things without
+        touching them because their heights were all 16.
 
 2) LINES.DDF -added line type 429, scroll down fast lower and mid
               texture only, for water/lava/slime falls
@@ -347,8 +351,8 @@ EDGE DDF 2.2 (2000-08-16):
 4) GAMES.DDF -added ACCEL_SOUND="SLOP"; and FRAG_SOUND="PLDETH"; to all
               entries
 
-	Most of the additions for sounds are for the engine changes,
-	less hard coded sounds!
+   Most of the additions for sounds are for the engine changes,
+   less hard coded sounds!
 
 
 EDGE DDF 2.1 (2000-07-29):
