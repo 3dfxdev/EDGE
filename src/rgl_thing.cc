@@ -31,6 +31,7 @@
 #include "e_search.h"
 #include "g_game.h"
 #include "m_bbox.h"
+#include "m_misc.h"
 #include "m_random.h"
 #include "p_local.h"
 #include "p_mobj.h"
@@ -117,10 +118,9 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	trans *= psp->visibility;
 
 	// psprites are never totally solid and opaque
-	if (trans <= 0.99f)
+	glEnable(GL_ALPHA_TEST);
+	if (trans <= 0.99 || use_smoothing)
 		glEnable(GL_BLEND);
-	else
-		glEnable(GL_ALPHA_TEST);
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex_id);
@@ -1023,7 +1023,9 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	GLuint tex_id = W_ImageGetOGL(cim);
 
 	// Blended sprites, even if opaque (trans > 0.99), have nicer edges
-	int blending = BL_Masked | BL_Alpha;
+	int blending = BL_Masked;
+	if (trans <= 0.99 || use_smoothing)
+		blending |= BL_Alpha;
 
 	local_gl_vert_t *vert, *orig;
 
