@@ -55,6 +55,7 @@ bool W_InitMultipleFiles(void);
 
 int W_CheckNumForName2(const char *name);
 int W_GetNumForName2(const char *name);
+int W_CheckNumForTexPatch(const char *name);
 
 int W_LumpLength(int lump);
 void W_ReadLump(int lump, void *dest);

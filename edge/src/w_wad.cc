@@ -1029,6 +1029,76 @@ int W_GetNumForName2(const char *name)
 }
 
 //
+// W_CheckNumForTexPatch
+//
+// Returns -1 if name not found.
+//
+// -AJA- 2004/06/24: Patches should be within the P_START/P_END markers,
+//       so we should look there first.  Also we should never return a
+//       flat as a tex-patch.
+//
+int W_CheckNumForTexPatch(const char *name)
+{
+	int i, file;
+	data_file_t *f;
+  
+	char buf[9];
+
+	for (i = 0; name[i]; i++)
+	{
+#ifdef DEVELOPERS
+		if (i > 8)
+			I_Error("W_CheckNumForTexPatch: '%s' longer than 8 chars!", name);
+#endif
+		buf[i] = toupper(name[i]);
+	}
+	buf[i] = 0;
+
+	for (file=datafile; file >= 0; file--)
+	{
+		f = data_files + file;
+
+		// look for patch name
+		for (i=0; i < f->patch_num; i++)
+		{
+			if (strncmp(buf, W_GetLumpName(f->patch_lumps[i]), 8) == 0)
+				break;
+		}
+
+		if (i < f->patch_num)
+			return f->patch_lumps[i];
+
+		// look for sprite name
+		for (i=0; i < f->sprite_num; i++)
+		{
+			if (strncmp(buf, W_GetLumpName(f->sprite_lumps[i]), 8) == 0)
+				break;
+		}
+
+		if (i < f->sprite_num)
+			return f->sprite_lumps[i];
+
+		// check all other lumps
+		for (i=0; i < numlumps; i++)
+		{
+			lumpinfo_t *l = lumpinfo + i;
+
+			if (l->file != file)
+				continue;
+
+			if (strncmp(buf, W_GetLumpName(i), 8) == 0)
+				break;
+		}
+
+		if (i < numlumps)
+			return i;
+	}
+
+	// not found
+	return -1;
+}
+
+//
 // W_VerifyLumpName
 //
 // Verifies that the given lump number is valid and has the given
