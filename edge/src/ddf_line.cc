@@ -251,22 +251,22 @@ static ladder_info_t dummy_ladder;
 
 const commandlist_t floor_commands[] =
 {
-  DF("TYPE", type, DDF_SectGetMType),
-  DF("SPEED UP",   speed_up,   DDF_MainGetFloat),
-  DF("SPEED DOWN", speed_down, DDF_MainGetFloat),
-  DF("DEST REF",   destref,    DDF_SectGetDestRef),
-  DF("DEST OFFSET", dest, DDF_MainGetFloat),
-  DF("OTHER REF",   otherref,  DDF_SectGetDestRef),
-  DF("OTHER OFFSET", other, DDF_MainGetFloat),
-  DF("TEXTURE", tex, DDF_MainGetInlineStr10),
-  DF("PAUSE TIME", wait,  DDF_MainGetTime),
-  DF("WAIT TIME", prewait,  DDF_MainGetTime),
-  DF("SFX START", sfxstart, DDF_MainLookupSound),
-  DF("SFX UP",    sfxup,    DDF_MainLookupSound),
-  DF("SFX DOWN",  sfxdown,  DDF_MainLookupSound),
-  DF("SFX STOP",  sfxstop,  DDF_MainLookupSound),
-  DF("SCROLL ANGLE", scroll_angle,DDF_MainGetAngle),
-  DF("SCROLL SPEED", scroll_speed,DDF_MainGetFloat),
+	DF("TYPE", type, DDF_SectGetMType),
+	DF("SPEED UP",   speed_up,   DDF_MainGetFloat),
+	DF("SPEED DOWN", speed_down, DDF_MainGetFloat),
+	DF("DEST REF",   destref,    DDF_SectGetDestRef),
+	DF("DEST OFFSET", dest, DDF_MainGetFloat),
+	DF("OTHER REF",   otherref,  DDF_SectGetDestRef),
+	DF("OTHER OFFSET", other, DDF_MainGetFloat),
+	DF("TEXTURE", tex, DDF_MainGetInlineStr10),
+	DF("PAUSE TIME", wait,  DDF_MainGetTime),
+	DF("WAIT TIME", prewait,  DDF_MainGetTime),
+	DF("SFX START", sfxstart, DDF_MainLookupSound),
+	DF("SFX UP",    sfxup,    DDF_MainLookupSound),
+	DF("SFX DOWN",  sfxdown,  DDF_MainLookupSound),
+	DF("SFX STOP",  sfxstop,  DDF_MainLookupSound),
+	DF("SCROLL ANGLE", scroll_angle,DDF_MainGetAngle),
+	DF("SCROLL SPEED", scroll_speed,DDF_MainGetFloat),
 
 	DDF_CMD_END
 };
@@ -276,15 +276,15 @@ const commandlist_t floor_commands[] =
 
 const commandlist_t elevator_commands[] =
 {
-  DF("TYPE", type, DDF_SectGetMType),
-  DF("SPEED UP",   speed_up,   DDF_MainGetFloat),
-  DF("SPEED DOWN", speed_down, DDF_MainGetFloat),
-  DF("PAUSE TIME", wait, DDF_MainGetTime),
-  DF("WAIT TIME", prewait,   DDF_MainGetTime),
-  DF("SFX START", sfxstart,  DDF_MainLookupSound),
-  DF("SFX UP",    sfxup,     DDF_MainLookupSound),
-  DF("SFX DOWN",  sfxdown,   DDF_MainLookupSound),
-  DF("SFX STOP",  sfxstop,   DDF_MainLookupSound),
+	DF("TYPE", type, DDF_SectGetMType),
+	DF("SPEED UP",   speed_up,   DDF_MainGetFloat),
+	DF("SPEED DOWN", speed_down, DDF_MainGetFloat),
+	DF("PAUSE TIME", wait, DDF_MainGetTime),
+	DF("WAIT TIME", prewait,   DDF_MainGetTime),
+	DF("SFX START", sfxstart,  DDF_MainLookupSound),
+	DF("SFX UP",    sfxup,     DDF_MainLookupSound),
+	DF("SFX DOWN",  sfxdown,   DDF_MainLookupSound),
+	DF("SFX STOP",  sfxstop,   DDF_MainLookupSound),
 
 	DDF_CMD_END
 };
@@ -294,7 +294,7 @@ const commandlist_t elevator_commands[] =
 
 const commandlist_t ladder_commands[] =
 {
-  DF("HEIGHT", height, DDF_MainGetFloat),
+	DF("HEIGHT", height, DDF_MainGetFloat),
 	DDF_CMD_END
 };
 
@@ -303,15 +303,15 @@ const commandlist_t ladder_commands[] =
 
 const commandlist_t slider_commands[] =
 {
-  DF("TYPE",  type, DDF_LineGetSlideType),
-  DF("SPEED", speed, DDF_MainGetFloat),
-  DF("PAUSE TIME", wait, DDF_MainGetTime),
-  DF("SEE THROUGH", see_through, DDF_MainGetBoolean),
-  DF("DISTANCE",  distance,  DDF_MainGetPercent),
-  DF("SFX START", sfx_start, DDF_MainLookupSound),
-  DF("SFX OPEN",  sfx_open,  DDF_MainLookupSound),
-  DF("SFX CLOSE", sfx_close, DDF_MainLookupSound),
-  DF("SFX STOP",  sfx_stop,  DDF_MainLookupSound),
+	DF("TYPE",  type, DDF_LineGetSlideType),
+	DF("SPEED", speed, DDF_MainGetFloat),
+	DF("PAUSE TIME", wait, DDF_MainGetTime),
+	DF("SEE THROUGH", see_through, DDF_MainGetBoolean),
+	DF("DISTANCE",  distance,  DDF_MainGetPercent),
+	DF("SFX START", sfx_start, DDF_MainLookupSound),
+	DF("SFX OPEN",  sfx_open,  DDF_MainLookupSound),
+	DF("SFX CLOSE", sfx_close, DDF_MainLookupSound),
+	DF("SFX STOP",  sfx_stop,  DDF_MainLookupSound),
 
 	DDF_CMD_END
 };
