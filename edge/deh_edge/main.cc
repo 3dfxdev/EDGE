@@ -381,15 +381,6 @@ void ValidateArgs(void)
 		output_file = StringDup(ReplaceExtension(output_file,
 			(target_version >= 128) ? "hwa" : "wad"));
 	}
-
-///---	for (j = 0; j < num_inputs; j++)
-///---	{
-///---		if (input_bufs[j]->is_lump)
-///---			continue;
-///---
-///---		if (StrCaseCmp(input_bufs[j]->infoname, output_file) == 0)
-///---			FatalError("Output filename is same as input filename.\n");
-///---	}
 }
 
 }  // Deh_Edge
@@ -454,13 +445,6 @@ const char *DehEdgeGetError(void)
 {
 	return "(Unknown Error)"; //!!!! FIXME
 }
-
-///---dehret_e DehEdgeSetOutName(const char *filename)
-///---{
-///---	Deh_Edge::output_file = Deh_Edge::StringDup(filename);
-///---
-///---	return DEH_OK;
-///---}
 
 dehret_e DehEdgeSetVersion(int version)
 {
