@@ -86,12 +86,12 @@ int SlopeDiv(unsigned num, unsigned den);
 // Conversion macros:
 
 #define FIX_2_FLOAT(x)  ((float) (x) / 65536.0f)
-#define FLOAT_2_FIX(f)  ((fixed_t) ((f) * 65536.0f))
+#define FLOAT_2_FIX(n)  ((fixed_t) ((n) * 65536.0f))
 
-#define ANG_2_FLOAT(a)  ((float) (a) * 360.0 / 4294967296.0)
-#define FLOAT_2_ANG(f)  ((angle_t) ((f) / 360.0 * 4294967296.0))
+#define ANG_2_FLOAT(a)  ((float) (a) * 360.0f / 4294967296.0f)
+#define FLOAT_2_ANG(n)  ((angle_t) ((n) / 360.0f * 4294967296.0f))
 
-#define I_ROUND(f)  ((int) (((f) < 0) ? ((f) - 0.5f) : ((f) + 0.5f)))
-#define I_FLOOR(f)  ((int) (floor(f) + 0.25))
+#define I_ROUND(n)  ((int) (((n) < 0.0f) ? ((n) - 0.5f) : ((n) + 0.5f)))
+#define I_FLOOR(n)  ((int) (floor(n) + 0.25f))
 
 #endif
