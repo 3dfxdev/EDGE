@@ -374,14 +374,16 @@ static void GetPackets(bool do_delay)
 {
 	if (! netgame)
 	{
+#if 0 // -AJA- This makes everything a bit "jerky" :-(
 		if (do_delay)
 			I_Sleep(10 /* millis */);
+#endif
 		return;
 	}
 
 	NLsocket socks[4];  // only one in the group
 
-	int delay = do_delay ? 10 /* millis */ : 0;
+	int delay = do_delay ? 10 /* millis */ : 0;  // FIXME !!!! jerkiness, as above
 	int num = nlPollGroup(sk_group, NL_READ_STATUS, socks, 4, delay);
 
 	if (num < 1)
