@@ -82,7 +82,7 @@ General improvements
   engines).  EDGE converts the patches to DDF, and stores the result
   in files with the .HWA extension, which are loaded automatically.
 
-- ability to use 24-bit screen modes (16.7 million colours).
+- ability to use 32-bit screen modes (16.7 million colours).
 
 - new startup, with progress bar.  The console window that used to
   appear (Win32) is gone, and under Linux messages are no longer
