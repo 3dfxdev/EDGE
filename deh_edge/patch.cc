@@ -645,14 +645,14 @@ namespace Patch
 	{
 		// patch format 5:
 		DEH_THING, DEH_SOUND, DEH_FRAME, DEH_SPRITE, DEH_AMMO, DEH_WEAPON,
-		/* DEH_TEXT not needed */
+		/* DEH_TEXT handled specially */
 
 		// patch format 6:
 		DEH_PTR, DEH_CHEAT, DEH_MISC,
 
 		// boom extensions:
-		// BEX_PAR, BEX_CODEPTR, BEX_STRING,
-		// BEX_SOUND, BEX_MUSIC, BEX_HELPER,
+		BEX_HELPER, BEX_STRINGS, BEX_PARS, BEX_CODEPTR,
+		BEX_SPRITES, BEX_SOUNDS, BEX_MUSIC,
 
 		NUMSECTIONS
 	}
@@ -661,11 +661,11 @@ namespace Patch
 	const char *section_name[] =
 	{
 		"Thing",   "Sound", "Frame", "Sprite", "Ammo", "Weapon",  
-		"Pointer", "Cheat", "Misc"     
+		"Pointer", "Cheat", "Misc",
 
-		// boom extensions:
-		//  "[PAR]", "[CODEPTR]", "[STRING]", 
-		//  "[SOUND]", "[MUSIC]", "[HELPER]", 
+		// Boom extensions:
+		"[HELPER]", "[STRINGS]", "[PARS]", "[CODEPTR]",
+		"[SPRITES]", "[SOUNDS]", "[MUSIC]"
 	};
 
 	char line_buf[MAX_LINE+4];
@@ -757,7 +757,7 @@ namespace Patch
 					InternalError("Bad active_section value %d\n", active_section);
 			}
 		}
-		else /* patch_fmt == 6, allow BEX */
+		else /* patch_fmt == 6, allow BOOM/MBF stuff */
 		{
 			switch (active_section)
 			{
@@ -768,8 +768,6 @@ namespace Patch
 				case DEH_AMMO:   max_obj = NUMAMMO - 1; break;
 				case DEH_WEAPON: max_obj = NUMWEAPONS - 1; break;
 				case DEH_PTR:    max_obj = POINTER_NUM_BEX - 1; break;
-
-				/// XXX BEX....
 
 				default:
 					InternalError("Bad active_section value %d\n", active_section);
@@ -790,17 +788,6 @@ namespace Patch
 
 	bool CheckNewSection(void)
 	{
-		if (StrCaseCmpPartial(line_buf, "[CODEPTR]") == 0)
-		{
-			PrintWarn("BEX directive [CODEPTR] not supported.\n");
-			syncing = true;
-			return false;
-		}
-
-		if (line_buf[0] == '[')
-			FatalError("BEX (Boom Extension) directives not supported.\n"
-				"Line %d: %s\n", line_num, line_buf);
-
 		int i;
 		int obj_num;
 
@@ -808,6 +795,25 @@ namespace Patch
 		{
 			if (StrCaseCmpPartial(line_buf, section_name[i]) != 0)
 				continue;
+
+			// make sure no '=' appears (to prevent a mismatch with
+			// DEH ^Frame sections and BEX CODEPTR ^FRAME lines).
+			for (const char *pos = line_buf; *pos && *pos != '('; pos++)
+				if (*pos == '=')
+					return false;
+
+			if (line_buf[0] == '[')
+			{
+				active_section = i;
+				active_obj = -1;  // unused
+
+				if (active_section == BEX_PARS || active_section == BEX_HELPER)
+				{
+					PrintWarn("Ignoring BEX %s section.\n", section_name[i]);
+				}
+
+				return true;
+			}
 
 			int sec_len = strlen(section_name[i]);
 
@@ -898,12 +904,23 @@ namespace Patch
 			PrettyTextString(text_1));
 	}
 
+	void ProcessBexString(void)
+	{
+		const char *bex_field = Patch::line_buf;
+
+		//!!!! FIXME:
+		PrintWarn("BEX Strings not yet supported.\n");
+	}
+
 	void ProcessLine(void)
 	{
 		assert(active_section >= 0);
 
 		Debug_PrintMsg("Section %d Object %d : <%s>\n", active_section,
 			active_obj, line_buf);
+
+		if (active_section == BEX_PARS || active_section == BEX_HELPER)
+			return;
 
 		if (! equal_pos)
 		{
@@ -938,7 +955,7 @@ namespace Patch
 
 		int num_value = 0;
                                                                                             
-        if (active_section != DEH_CHEAT)  // XXX for BEX
+        if (active_section != DEH_CHEAT && active_section <= BEX_HELPER)
         {
             if (sscanf(equal_pos, " %i ", &num_value) != 1)
             {
@@ -961,7 +978,13 @@ namespace Patch
 			case DEH_CHEAT:  TextStr::AlterCheat(equal_pos);   break;
 			case DEH_SPRITE: /* ignored */ break;
 
-			/// XXX BEX....
+			case BEX_CODEPTR: Frames::AlterBexCodePtr(equal_pos); break;
+			case BEX_STRINGS: ProcessBexString(); break;
+
+			// !!!! FIXME
+			case BEX_SOUNDS:  PrintWarn("[SOUNDS] not yet implemented !\n");  break;
+			case BEX_MUSIC:   PrintWarn("[MUSIC] not yet implemented !\n");   break;
+			case BEX_SPRITES: PrintWarn("[SPRITES] not yet implemented !\n"); break;
 
 			default:
 				InternalError("Bad active_section value %d\n", active_section);
@@ -1031,7 +1054,7 @@ namespace Patch
 			}
 
 			if (StrCaseCmpPartial(line_buf, "include") == 0)
-				FatalError("BEX (Boom Extension) INCLUDE directive is not supported.\n");
+				FatalError("BEX INCLUDE directive is not supported.\n");
 
 			if (StrCaseCmpPartial(line_buf, "Text") == 0 &&
 				isspace(line_buf[4]))
