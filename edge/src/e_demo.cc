@@ -386,9 +386,11 @@ void G_DoPlayDemo(void)
 
 	G_InitNew(params);
 
+	//!!!! FIXME: 'nomonster' demos don't work (flag not saved)
+
 	level_flags = globs->flags;
 	level_flags.menu_grav = globs->gravity;
-	
+
 	G_DoLoadLevel();
 	G_SpawnInitialPlayers();
 
