@@ -54,6 +54,16 @@ typedef struct w_post_s
 }
 w_post_t;
 
+// 16-bit version of the above
+typedef struct w_post16_s
+{
+  byte skip;
+  byte length;
+  
+  unsigned short pad1;
+}
+w_post16_t;
+
 typedef struct image_s
 {
   // total image size, must be a power of two on each axis.
