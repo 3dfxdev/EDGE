@@ -68,7 +68,7 @@ static void ShowInfo(void)
 {
 	printf(
 		"\n"
-		"**** " MY_TITLE " (C) 2005 Andrew Apted ****\n"
+		"** " MY_TITLE " (C) Andrew Apted 2005 **\n"
 		"\n"
 	);
 
@@ -78,7 +78,7 @@ static void ShowInfo(void)
 		"Available options:\n"
 		"  -l  -local [ADDR]      Set local computer's IP address\n"
 		"  -p  -port  [PORT]      Set server's port number\n"
-		"  -d  -debug             Enable debugging log\n"
+		"  -d  -debug             Enable debugging\n"
 		"  -h  -help              Show this help message\n"
 		"\n"
 	);
