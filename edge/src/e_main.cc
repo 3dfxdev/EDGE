@@ -1030,8 +1030,8 @@ static void InitDirectories(void)
 
 			tempdir = I_PreparePath(home);
 
-			homedir = Z_New(char, strlen(tempdir) + strlen(HOMESUBDIR) + 2);
-			sprintf(homedir, "%s%c%s", tempdir, DIRSEPARATOR, HOMESUBDIR);
+			homedir = Z_New(char, strlen(tempdir) + strlen(EDGEHOMESUBDIR) + 2);
+			sprintf(homedir, "%s%c%s", tempdir, DIRSEPARATOR, EDGEHOMESUBDIR);
 
 			Z_Free(tempdir);
 
