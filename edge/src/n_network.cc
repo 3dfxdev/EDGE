@@ -62,16 +62,12 @@ static packet_c pk;
 static void N_Preliminaries(void)
 {
 	nlHint(NL_REUSE_ADDRESS, NL_TRUE);
+	nlHint(NL_TCP_NO_DELAY,  NL_TRUE);
 
     if (nlSelectNetwork(NL_IP) == NL_FALSE)
 		I_Error("nlSelectNetwork failed:\n%s", N_GetErrorStr());
 
 	NLaddress local;
-
-#ifdef LINUX  // !!!! FIXME: TEMP HACK
-	nlStringToAddr("192.168.0.197", &local);
-	nlSetLocalAddr(&local);
-#endif
 
 	srand(I_PureRandom());
 }
@@ -127,22 +123,36 @@ static void N_FindServer(void)
 
 	const char *addr_name = N_GetAddrName(&loc_addr);
 
+	L_WriteDebug("NETWORK: Local addr: %s\n", addr_name);
+
 	// ignore loopback (127.0.0.1)
 	// FIXME: check other addresses using nlGetAllLocalAddr()
-	if (strncmp(addr_name, "127.", 4) != 0)
+	if (strncmp(addr_name, "127.", 4) == 0)
 	{
-		fprintf(stderr, "Local addr %s\n", N_GetAddrName(&loc_addr));
+		addr_name = I_LocalIPAddrString("eth0");
+		
+		L_WriteDebug("NETWORK: eth0 address: %s\n", addr_name);
 
-		nlSetAddrPort(&loc_addr, 26710);
+		if (! addr_name)
+			addr_name = I_LocalIPAddrString("eth1");
 
-		if (! nlSetRemoteAddr(loc_sock, &loc_addr))
-			I_Error("Set remote address on local socket failed.\n%s", N_GetErrorStr());
+		if (! addr_name)
+			I_Error("Couldn't determine IP address of local machine.\n");
 
-		if (N_TestServer(loc_sock))
-		{
-			nlClose(loc_sock);
-			return;
-		}
+		nlStringToAddr(addr_name, &loc_addr);
+	}
+
+	fprintf(stderr, "Local addr %s\n", N_GetAddrName(&loc_addr));
+
+	nlSetAddrPort(&loc_addr, 26710);
+
+	if (! nlSetRemoteAddr(loc_sock, &loc_addr))
+		I_Error("Set remote address on local socket failed.\n%s", N_GetErrorStr());
+
+	if (N_TestServer(loc_sock))
+	{
+		nlClose(loc_sock);
+		return;
 	}
 
 	fprintf(stderr, "Server not on same computer, trying LAN...\n");
@@ -175,7 +185,7 @@ static void N_ConnectServer(void)
 	{
 		port = 11000 + (rand() & 0x1FFF);
 
-		socket = nlOpen(port, NL_UNRELIABLE);
+		socket = nlOpen(port, NL_RELIABLE_PACKETS);
 
 		if (socket != NL_INVALID)
 			break;
@@ -189,7 +199,10 @@ static void N_ConnectServer(void)
 
 	fprintf(stderr, "Port %d\n", port);
 
-	nlSetRemoteAddr(socket, &server);
+	if (nlConnect(socket, &server) != NL_TRUE)
+		I_Error("Failed to connect to server: timed out\n");  // FIXME: retry a few times
+
+///UDP	nlSetRemoteAddr(socket, &server);
 
 	sk_group = nlGroupCreate();
 
@@ -230,9 +243,86 @@ static void N_ConnectServer(void)
 		con.protocol_ver >> 8, con.protocol_ver & 0xFF);
 }
 
+static bool N_FindGame(void)
+{
+///UDP	nlSetRemoteAddr(socket, &server);
+
+	pk.SetType("qg");
+	pk.hd().flags = 0;
+	pk.hd().data_len = sizeof(query_game_proto_t);
+
+	query_game_proto_t& qg = pk.qg_p();
+
+	qg.first_game = 0;
+	qg.last_game = 0;
+
+	qg.ByteSwap();
+
+	if (! pk.Write(socket))
+		I_Error("Unable to write QG packet:\n%s", N_GetErrorStr());
+
+	I_Sleep(1000);
+
+	if (! pk.Read(socket))
+		I_Error("Failed to query game (no reply)\n");
+	
+	if (pk.CheckType("Er"))
+		I_Error("Failed to query game:\n%s", pk.er_p().message);
+
+	if (! pk.CheckType("Qg"))
+		I_Error("Failed to query game (invalid reply)\n");
+
+	qg.ByteSwap();
+	qg.ByteSwapInfo(1);
+
+	if (qg.info[0].state != game_info_t::GS_Queued)
+	{
+		fprintf(stderr, "Query game #0: not queued\n");
+		return false;
+	}
+
+	game_id = 0;
+	
+	fprintf(stderr, "Query game #0: QUEUING\n");
+	return true;
+}
+
+static void N_JoinGame(void)
+{
+///UDP	nlSetRemoteAddr(socket, &server);
+
+	pk.SetType("jq");
+	pk.hd().flags = 0;
+	pk.hd().data_len = sizeof(join_queue_proto_t);
+
+	join_queue_proto_t& jq = pk.jq_p();
+
+	jq.game = game_id;
+
+	jq.ByteSwap();
+
+	if (! pk.Write(socket))
+		I_Error("Unable to write JQ packet:\n%s", N_GetErrorStr());
+
+	I_Sleep(1000);
+#if 0 //!!!!
+
+	if (! pk.Read(socket))
+		I_Error("Failed to join game (no reply)\n");
+	
+	if (pk.CheckType("Er"))
+		I_Error("Failed to join game:\n%s", pk.er_p().message);
+
+	if (! pk.CheckType("Jg"))
+		I_Error("Failed to join game (invalid reply)\n");
+#endif
+
+	fprintf(stderr, "Joined queue for game #%d\n", game_id);
+}
+
 static void N_NewGame(void)
 {
-	nlSetRemoteAddr(socket, &server);
+///UDP	nlSetRemoteAddr(socket, &server);
 
 	pk.SetType("ng");
 	pk.hd().flags = 0;
@@ -247,8 +337,8 @@ static void N_NewGame(void)
 	ng.info.mode  = 'D';
 	ng.info.skill = 4;  // H.M.P
 
-	ng.info.min_players = 1;
-	ng.info.num_bots = 3;
+	ng.info.min_players = 2;
+	ng.info.num_bots = 0;
 	ng.info.features = 0x00FF;
 
 	ng.info.wad_checksum = 0;
@@ -279,7 +369,7 @@ static void N_NewGame(void)
 
 static void N_Vote(void)
 {
-	nlSetRemoteAddr(socket, &server);
+///UDP	nlSetRemoteAddr(socket, &server);
 
 	pk.SetType("vp");
 	pk.hd().flags = 0;
@@ -288,7 +378,9 @@ static void N_Vote(void)
 	if (! pk.Write(socket))
 		I_Error("Unable to write VP packet:\n%s", N_GetErrorStr());
 
-	I_Sleep(1000);
+	I_Sleep(1000); I_Sleep(1000);
+	I_Sleep(1000); I_Sleep(1000);
+	I_Sleep(1000); I_Sleep(1000);
 
 	if (! pk.Read(socket))
 		I_Error("Failed to vote (no reply)\n");
@@ -317,15 +409,25 @@ static void N_Vote(void)
 //
 // N_InitiateGame
 //
-void N_InitiateGame(void)
+void N_InitiateNetGame(void)
 {
 	pk.Clear();
 
 	N_Preliminaries();
 	N_FindServer();
 	N_ConnectServer();
-	N_NewGame();
+
+	if (N_FindGame())
+	{
+		deathmatch = 3;  //!!!!!! CRAP HACK
+		N_JoinGame();
+	}
+	else
+		N_NewGame();
+
 	N_Vote();
+
+	netgame = true;
 }
 
 #endif // USE_HAWKNL
@@ -406,7 +508,7 @@ static void GetPackets(bool do_delay)
 	{
 		player_t *p = players[pnum];
 
-		if (! p || ! p->builder) continue;
+		if (! p) continue;
 
 		memcpy(p->in_cmds + (got_tic % (MP_SAVETICS*2)), raw_cmd, sizeof(ticcmd_t));
 
@@ -415,7 +517,7 @@ static void GetPackets(bool do_delay)
 		p->in_tic++;
 	}
 
-	DEV_ASSERT2((raw_cmd - tg.tic_cmds) == (1 + bots_each));
+//	DEV_ASSERT2((raw_cmd - tg.tic_cmds) == (1 + bots_each));
 
 #endif  // USE_HAWKNL
 }
@@ -495,6 +597,7 @@ bool N_BuildTiccmds(void)
 		{
 			ticcmd_t *cmd;
 
+///--- L_WriteDebug("N_BuildTiccmds: pnum %d netgame %c\n", pnum, netgame ? 'Y' : 'n');
 			if (netgame)
 				cmd = &p->out_cmds[maketic % (MP_SAVETICS*2)];
 			else
@@ -560,6 +663,7 @@ int DetermineLowTic(void)
 		if (p->playerflags & PFL_Bot)
 			continue;
 
+///--- L_WriteDebug("@@ DetermineLowTic: pnum %d in_tic %d\n", pnum, p->in_tic);
 		lowtic = MIN(lowtic, p->in_tic);
 	}
 

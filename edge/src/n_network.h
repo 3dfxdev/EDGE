@@ -23,6 +23,8 @@ extern bool var_hogcpu;
 
 void N_InitNetwork(void);
 
+void N_InitiateNetGame(void);
+
 // Create any new ticcmds and broadcast to other players.
 // returns value of I_GetTime().
 int N_NetUpdate(bool do_delay = false);
