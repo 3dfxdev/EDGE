@@ -90,10 +90,9 @@ static bool ImageStartEntry(const char *name)
 	{
 		char *pos = strchr(name, ':');
 
-#if 0  // FIXME: renable this check when new EDGE.WAD is ready (1.29 Beta #2)
-                if (! pos)
-                  DDF_Error("Missing image prefix.\n");
-#endif
+		if (! pos)
+			DDF_Error("Missing image prefix.\n");
+
 		if (pos)
 		{
 			epi::string_c s;
