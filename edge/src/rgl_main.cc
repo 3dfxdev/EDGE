@@ -386,6 +386,7 @@ void RGL_CheckExtensions(void)
 		I_Printf("OpenGL: Enabling workarounds for Velocity card.\n");
 		use_color_material = false;
 		use_vertex_array = false;
+		dumb_sky = true;
 	}
 	else if (strstr(glstr_renderer, "Voodoo3") != NULL)
 	{
