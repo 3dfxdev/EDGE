@@ -66,58 +66,52 @@ static const commandlist_t anim_commands[] =
 //
 // The full animation sequence is given using all the flats between
 // the start and end entry, in the order found in the WAD file.
+//
 
-animdef_t ** animdefs = NULL;
-int numanimdefs = 0;
-
-static stack_array_t animdefs_a;
-
+// -ACB- 2004/06/03 Replaced array and size with purpose-build class
+animdef_container_c animdefs;
 
 //
 //  DDF PARSE ROUTINES
 //
-
 static bool AnimStartEntry(const char *name)
 {
-	int i;
 	bool replaces = false;
 
 	if (name && name[0])
 	{
-		for (i=0; i < numanimdefs; i++)
+		epi::array_iterator_c it;
+		animdef_t *a;
+
+		for (it = animdefs.GetBaseIterator(); it.IsValid(); it++)
 		{
-			if (DDF_CompareName(animdefs[i]->ddf.name, name) == 0)
+			a = ITERATOR_TO_TYPE(it, animdef_t*);
+			if (DDF_CompareName(a->ddf.name, name) == 0)
 			{
-				dynamic_anim = animdefs[i];
+				dynamic_anim = a;
 				replaces = true;
 				break;
 			}
-		}
-
-		// if found, adjust pointer array to keep newest entries at end
-		if (replaces && i < (numanimdefs-1))
-		{
-			Z_MoveData(animdefs + i, animdefs + i + 1, animdef_t *,
-				numanimdefs - i);
-			animdefs[numanimdefs - 1] = dynamic_anim;
 		}
 	}
 
 	// not found, create a new one
 	if (! replaces)
 	{
-		Z_SetArraySize(&animdefs_a, ++numanimdefs);
+		dynamic_anim = new animdef_t;
 
-		dynamic_anim = animdefs[numanimdefs - 1];
+		memset(dynamic_anim, 0, sizeof(animdef_t));
+
 		dynamic_anim->ddf.name = (name && name[0]) ? Z_StrDup(name) :
-		DDF_MainCreateUniqueName("UNNAMED_ANIM", numanimdefs);
+			DDF_MainCreateUniqueName("UNNAMED_ANIM", animdefs.GetSize());
+
+		animdefs.Insert(dynamic_anim);
 	}
 
 	dynamic_anim->ddf.number = 0;
 
 	// instantiate the static entry
 	buffer_anim = template_anim;
-
 	return replaces;
 }
 
@@ -161,9 +155,7 @@ static void AnimFinishEntry(void)
 static void AnimClearAll(void)
 {
 	// safe to just delete all animations
-
-	numanimdefs = 0;
-	Z_SetArraySize(&animdefs_a, numanimdefs);
+	animdefs.Clear();
 }
 
 
@@ -199,12 +191,12 @@ void DDF_ReadAnims(void *data, int size)
 
 void DDF_AnimInit(void)
 {
-	Z_InitStackArray(&animdefs_a, (void ***)&animdefs, sizeof(animdef_t), 0);
+	/* nothing to do */
 }
 
 void DDF_AnimCleanUp(void)
 {
-	/* nothing to do */
+	animdefs.Trim();			// <-- Reduce to allocated size
 }
 
 //
@@ -225,5 +217,15 @@ static void DDF_AnimGetType(const char *info, void *storage)
 		DDF_WarnError2(0x128, "Unknown animation type: %s\n", info);
 		(*is_tex) = false;
 	}
+}
+
+// List Management
+void animdef_container_c::CleanupObject(void *obj)
+{
+	animdef_t *a = *(animdef_t**)obj;
+
+	if (a->ddf.name) { Z_Free(a->ddf.name); }
+
+	return;
 }
 
