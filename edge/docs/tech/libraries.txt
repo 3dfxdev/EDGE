@@ -1,0 +1,59 @@
+
+Edge Libraries
+==============
+
+Internal (in CVS)
+-----------------
+
+EPI : Edge Platform Interface (utility code)
+LZO : Compression library
+
+
+Affiliated (in snapshots, not in CVS)
+-------------------------------------
+
+glBSP    : GL-Nodes builder
+Deh_Edge : DeHackEd/BEX patch to DDF converter
+
+
+External
+--------
+
+LibSDL  : Linux / MacOSX: Simple DirectMedia Library (video and input)
+DirectX : Windows only: video and input handling
+
+OpenGL  : 3D Graphics library
+OpenAL  : 3D Sound library
+
+OGG + Vorbis + VorbisFile : Compressed sound and music
+
+HawkNL  : Networking library
+
+FLTK    : Linux (MacOSX ?): Fast Light ToolKit (for dialogs)
+
+LibPNG  : PNG image handling (Portable Network Graphics)
+Jpeglib : JPEG image handling
+Zlib    : Compression library (used by LibPNG)
+
+
+LINKS
+=====
+
+http://edge.sourceforge.net/
+http://glbsp.sourceforge.net/
+
+http://www.libsdl.org/
+http://www.microsoft.com/windows/directx/default.aspx
+
+http://www.opengl.org/
+http://www.openal.org/
+http://www.vorbis.com/
+
+http://www.hawksoft.com/hawknl
+http://www.fltk.org/
+
+http://libpng.org/
+http://www.jpeg.org/
+http://www.gzip.org/zlib
+http://www.oberhumer.com/opensource/lzo
+
