@@ -39,10 +39,12 @@ UI_Setup::UI_Setup(int x, int y, int w, int h) :
 	int gy = y;
 
 	Fl_Group *sv_info = new Fl_Group(x, gy, w, 160, "\n Server Panel");
+	sv_info->end();
 	sv_info->box(FL_THIN_UP_BOX);
 	sv_info->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT | FL_ALIGN_TOP);
 	sv_info->labeltype(FL_NORMAL_LABEL);
 	sv_info->labelfont(FL_HELVETICA_BOLD);
+
 	add(sv_info);
 
 	gy += sv_info->h();
@@ -58,8 +60,11 @@ UI_Setup::UI_Setup(int x, int y, int w, int h) :
 
 	port = new Fl_Output(x+100, cy, 60, 24, "Port: ");
 	port->align(FL_ALIGN_LEFT);
-	port->value("20702");
+	port->value("20702");  //!!!!!
 	sv_info->add(port);
+
+	Fl_Button *port_but = new Fl_Button(x+180, cy, 80, 24, "Select...");
+	sv_info->add(port_but);
 
 	cy += 32;
 
@@ -85,10 +90,12 @@ UI_Setup::UI_Setup(int x, int y, int w, int h) :
 	/* ----- Limits panel ----- */
 	
 	Fl_Group *lim_info = new Fl_Group(x, gy, w, 130, "\n Limits Panel");
+	lim_info->end();
 	lim_info->box(FL_THIN_UP_BOX);
 	lim_info->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT | FL_ALIGN_TOP);
 	lim_info->labeltype(FL_NORMAL_LABEL);
 	lim_info->labelfont(FL_HELVETICA_BOLD);
+
 	add(lim_info);
 
 	gy += lim_info->h();
@@ -102,6 +109,7 @@ UI_Setup::UI_Setup(int x, int y, int w, int h) :
 	max_clients->step(32);
 	// max_clients->lstep(50);
 	max_clients->value(16);
+
 	lim_info->add(max_clients);
 
 	max_games = new Fl_Counter(x+380, cy, 140, 24, "Games: ");
@@ -111,6 +119,7 @@ UI_Setup::UI_Setup(int x, int y, int w, int h) :
 	max_games->step(4);
 	// max_games->lstep(10);
 	max_games->value(4);
+
 	lim_info->add(max_games);
 
 	cy += 32;
@@ -121,6 +130,7 @@ UI_Setup::UI_Setup(int x, int y, int w, int h) :
 	max_plyrs->range(2, MP_PLAYER_MAX);
 	max_plyrs->step(2);
 	max_plyrs->value(8);
+
 	lim_info->add(max_plyrs);
 
 	max_bots = new Fl_Counter(x+380, cy, 140, 24, "Bots: ");
@@ -129,15 +139,18 @@ UI_Setup::UI_Setup(int x, int y, int w, int h) :
 	max_bots->range(0,16);
 	max_bots->step(2);
 	max_bots->value(4);
+
 	lim_info->add(max_bots);
 
 	/* ----- Authorisation panel ----- */
 
-	Fl_Group *act_panel = new Fl_Group(x, gy, w, h - gy, "\n Authorisation Panel");
+	Fl_Group *act_panel = new Fl_Group(x, gy, w, y + h - gy, "\n Authorisation Panel");
+	act_panel->end();
 	act_panel->box(FL_THIN_UP_BOX);
 	act_panel->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT | FL_ALIGN_TOP);
 	act_panel->labeltype(FL_NORMAL_LABEL);
 	act_panel->labelfont(FL_HELVETICA_BOLD);
+
 	add(act_panel);
 
 	gy += act_panel->h();
