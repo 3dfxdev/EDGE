@@ -369,7 +369,7 @@ bool M_CheatResponder(event_t * ev)
 		else
 			CON_MessageLDF("HomDetectOff");
 	}
-#ifdef DEVELOPERS
+#if 0
 	else if (M_CheckCheat(&cheat_lazarus, key))
 	{
 		if (pl->playerstate == PST_DEAD && (netgame==0))
