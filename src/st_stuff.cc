@@ -628,17 +628,15 @@ static void DoPaletteStuff(void)
 {
 	int palette = PALETTE_NORMAL;
 	float amount = 0;
-	int cnt;
-	int bzc;
 
 	player_t *p = players[displayplayer];
 	DEV_ASSERT2(p);
 
-	cnt = p->damagecount;
+	int cnt = p->damagecount;
 
 	if (p->powers[PW_Berserk] > 0)
 	{
-		bzc = MIN(20, (int) p->powers[PW_Berserk]); // slowly fade the berzerk out
+		int bzc = MIN(20, (int) p->powers[PW_Berserk]); // slowly fade berzerk out
 
 		if (bzc > cnt)
 			cnt = bzc;
