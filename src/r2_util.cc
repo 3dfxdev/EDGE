@@ -44,38 +44,16 @@
 
 #include "r2_defs.h"
 
-
 // arrays of stuff
+#define DEFAULT_DRAWARRAY_SIZE
 
-typedef struct commit_array_s
-{
-	stack_array_t a;
-
-	// position of current free entry.
-	int pos;
-
-	// whether an item has been gotten, but not yet committed.
-	bool active;
-}
-commit_array_t;
-
-static drawwall_t  ** arr_walls  = NULL;
-static drawplane_t ** arr_planes = NULL;
-static drawthing_t ** arr_things = NULL;
-static drawfloor_t ** arr_floors = NULL;
-
-static commit_array_t cmt_walls;
-static commit_array_t cmt_planes;
-static commit_array_t cmt_things;
-static commit_array_t cmt_floors;
-
+drawwallarray_c  drawwalls;
+drawplanearray_c drawplanes;
+drawthingarray_c drawthings;
+drawfloorarray_c drawfloors;
 
 byte *subsectors_seen = NULL;
 static int subsectors_seen_size = -1;
-
-void R2_InitOpenings(void);
-void R2_StartOpenings(void);
-
 
 //
 // R2_InitUtil
@@ -84,43 +62,17 @@ void R2_StartOpenings(void);
 //
 void R2_InitUtil(void)
 {
-	Z_InitStackArray(&cmt_walls.a, (void ***)&arr_walls, 
-			sizeof(drawwall_t),  64);
-	cmt_walls.pos = 0;
-	cmt_walls.active = false;
-
-	Z_InitStackArray(&cmt_planes.a, (void ***)&arr_planes, 
-			sizeof(drawplane_t), 64);
-	cmt_planes.pos = 0;
-	cmt_planes.active = false;
-
-	Z_InitStackArray(&cmt_things.a, (void ***)&arr_things, 
-			sizeof(drawthing_t), 64);
-	cmt_things.pos = 0;
-	cmt_things.active = false;
-
-	Z_InitStackArray(&cmt_floors.a, (void ***)&arr_floors, 
-			sizeof(drawfloor_t), 64);
-	cmt_floors.pos = 0;
-	cmt_floors.active = false;
-
-	R2_InitOpenings();
 }
 
 // bsp clear function
 
 void R2_ClearBSP(void)
 {
-	Z_SetArraySize(&cmt_walls.a,  0);
-	Z_SetArraySize(&cmt_planes.a, 0);
-	Z_SetArraySize(&cmt_things.a, 0);
-	Z_SetArraySize(&cmt_floors.a, 0);
-
-	cmt_walls.pos  = 0;
-	cmt_planes.pos = 0;
-	cmt_things.pos = 0;
-	cmt_floors.pos = 0;
-
+	drawwalls.Init();
+	drawfloors.Init();
+	drawthings.Init();
+	drawplanes.Init();
+	
 	if (subsectors_seen_size != numsubsectors)
 	{
 		subsectors_seen_size = numsubsectors;
@@ -129,208 +81,214 @@ void R2_ClearBSP(void)
 	}
 
 	Z_Clear(subsectors_seen, byte, subsectors_seen_size);
-
-	R2_StartOpenings();
 }
-
-
-// allocate functions
-
-drawwall_t *R2_GetDrawWall(void)
-{
-	DEV_ASSERT(!cmt_walls.active, ("R2_GetDrawWall: called twice"));
-
-	if (cmt_walls.pos >= cmt_walls.a.num)
-		Z_SetArraySize(&cmt_walls.a, cmt_walls.pos + 1);
-
-	cmt_walls.active = true;
-	return arr_walls[cmt_walls.pos];
-}
-
-drawplane_t *R2_GetDrawPlane(void)
-{
-	DEV_ASSERT(!cmt_planes.active, ("R2_GetDrawPlane: called twice"));
-
-	if (cmt_planes.pos >= cmt_planes.a.num)
-		Z_SetArraySize(&cmt_planes.a, cmt_planes.pos + 1);
-
-	cmt_planes.active = true;
-	return arr_planes[cmt_planes.pos];
-}
-
-drawthing_t *R2_GetDrawThing(void)
-{
-	DEV_ASSERT(!cmt_things.active, ("R2_GetDrawThing: called twice"));
-
-	if (cmt_things.pos >= cmt_things.a.num)
-		Z_SetArraySize(&cmt_things.a, cmt_things.pos + 1);
-
-	cmt_things.active = true;
-	return arr_things[cmt_things.pos];
-}
-
-drawfloor_t *R2_GetDrawFloor(void)
-{
-	DEV_ASSERT(!cmt_floors.active, ("R2_GetDrawFloor: called twice"));
-
-	if (cmt_floors.pos >= cmt_floors.a.num)
-		Z_SetArraySize(&cmt_floors.a, cmt_floors.pos + 1);
-
-	cmt_floors.active = true;
-	return arr_floors[cmt_floors.pos];
-}
-
-void R2_CommitDrawWall(int used)
-{
-	DEV_ASSERT(cmt_walls.active, ("R2_CommitDrawWall: not active"));
-	DEV_ASSERT2(0 <= used && used <= 1);
-
-	cmt_walls.pos += used;
-	cmt_walls.active = false;
-}
-
-void R2_CommitDrawPlane(int used)
-{
-	DEV_ASSERT(cmt_planes.active, ("R2_CommitDrawPlane: not active"));
-	DEV_ASSERT2(0 <= used && used <= 1);
-
-	cmt_planes.pos += used;
-	cmt_planes.active = false;
-}
-
-void R2_CommitDrawThing(int used)
-{
-	DEV_ASSERT(cmt_things.active, ("R2_CommitDrawThing: not active"));
-	DEV_ASSERT2(0 <= used && used <= 1);
-
-	cmt_things.pos += used;
-	cmt_things.active = false;
-}
-
-void R2_CommitDrawFloor(int used)
-{
-	DEV_ASSERT(cmt_floors.active, ("R2_CommitDrawFloor: not active"));
-	DEV_ASSERT2(0 <= used && used <= 1);
-
-	cmt_floors.pos += used;
-	cmt_floors.active = false;
-}
-
 
 void R2_FreeupBSP(void)
 {
-	Z_SetArraySize(&cmt_walls.a,  0);
-	Z_SetArraySize(&cmt_planes.a, 0);
-	Z_SetArraySize(&cmt_things.a, 0);
-	Z_SetArraySize(&cmt_floors.a, 0);
+	drawwalls.Clear();
+	drawfloors.Clear();
+	drawthings.Clear();
+	drawplanes.Clear();
 }
 
-
-//----------------------------------------------------------------------------
-
-//
-//  OPENING CODE
-//
+// ---> Drawwall container class
 
 //
-// The openings are kept in blocks of 64K, allocated when needed (and
-// by using "Stack Arrays" they get freed when no longer needed).
+// drawwallarray_c::GetNew()
 //
-#define OPENING_CHUNK  16384
-
-typedef struct range_array_s
+drawwall_t* drawwallarray_c::GetNew()
 {
-	Y_range_t ranges[OPENING_CHUNK];
-}
-range_array_t;
+	DEV_ASSERT(!active_trans, ("[drawwallarray_c::GetNew] called twice"));	
 
+	drawwall_t *dw;
 
-static stack_array_t range_arrays_a;
-static range_array_t ** range_arrays;
-static int num_range_arrays;
-
-static range_array_t *free_R_array;
-static int free_RA_pos;
-
-static bool RA_active;
-
-//
-// R2_InitOpenings
-//
-// Once-only call to initialise opening system.
-//
-void R2_InitOpenings(void)
-{
-	Z_InitStackArray(&range_arrays_a, (void ***)&range_arrays, 
-			sizeof(range_array_t), 0);
-}
-
-//
-// R2_StartOpenings
-//
-// Called once per frame, before rendering begins.
-//
-void R2_StartOpenings(void)
-{
-	num_range_arrays = 1;
-	Z_SetArraySize(&range_arrays_a, num_range_arrays);
-
-	// setup the free pointer
-	free_R_array = range_arrays[0];
-	free_RA_pos  = 0;
-
-	RA_active = false;
-}
-
-//
-// R2_GetOpenings
-//
-// Get an array of openings for a new wall/plane/thing or whatever,
-// with at most `width' elements.  The returned array is provisional,
-// you must call R2_CommitOpenings() sometime later to ensure that
-// nothing else uses it.  This routine cannot be called again until
-// R2_CommitOpenings is called.  R2_CommitOpenings can be called with
-// a lower width (including 0, if no openings were needed).
-//
-Y_range_t *R2_GetOpenings(int width)
-{
-	DEV_ASSERT(!RA_active, ("R2_GetOpenings: called twice"));
-	DEV_ASSERT2(free_R_array);
-	DEV_ASSERT2(0 < width && width <= OPENING_CHUNK);
-
-	// no more room in current chunk ?
-	if (width > (OPENING_CHUNK - free_RA_pos))
+	// Look for a spare entry
+	if (commited < array_entries)
 	{
-		num_range_arrays++;
-		Z_SetArraySize(&range_arrays_a, num_range_arrays);
-
-		free_R_array = range_arrays[num_range_arrays-1];
-		free_RA_pos  = 0;
+		dw = *(drawwall_t**)FetchObjectDirect(commited);
+		commited++;
+	}
+	else  
+	{
+		dw = new drawwall_t;
+		InsertObject((void*)&dw);				
+		commited = array_entries;
 	}
 
-	RA_active = true;
+	memset(dw, 0, sizeof(drawwall_t));
 
-	return free_R_array->ranges + free_RA_pos;
+	active_trans = true; 	// We now have an active transaction 
+	return NULL;
 }
 
 //
-// R2_CommitOpenings
+// drawwallarray_c::Commit()
 //
-// (see the comment above).
-//
-void R2_CommitOpenings(int width)
+void drawwallarray_c::Commit(void)
 {
-	DEV_ASSERT(RA_active, ("R2_CommitOpenings: not active"));
-	DEV_ASSERT2(free_R_array);
-	DEV_ASSERT2(0 <= width && width <= OPENING_CHUNK);
-	DEV_ASSERT2(width <= (OPENING_CHUNK - free_RA_pos));
-
-	free_RA_pos += width;
-
-	RA_active = false;
+	DEV_ASSERT(active_trans, ("[drawwallarray_c::Commit] no active trans"));
+	active_trans = false;
 }
 
+//
+// drawwallarray_c::Rollback()
+//
+void drawwallarray_c::Rollback(void)
+{
+	DEV_ASSERT(active_trans, ("[drawwallarray_c::Rollback] no active trans"));
+	active_trans = false;
+	commited--;
+}
 
+// ---> Draw plane container class
+
+//
+// drawplanearray_c::GetNew()
+//
+drawplane_t* drawplanearray_c::GetNew()
+{
+	DEV_ASSERT(!active_trans, ("[drawplanearray_c::GetNew] called twice"));	
+
+	drawplane_t *dp;
+
+	// Look for a spare entry
+	if (commited < array_entries)
+	{
+		dp = *(drawplane_t**)FetchObjectDirect(commited);
+		commited++;
+	}
+	else  
+	{
+		dp = new drawplane_t;
+		InsertObject((void*)&dp);				
+		commited = array_entries;
+	}
+	
+	memset(dp, 0, sizeof(drawplane_t));
+
+	active_trans = true; 	// We now have an active transaction 
+	return dp;
+}
+
+//
+// drawplanearray_c::Commit()
+//
+void drawplanearray_c::Commit(void)
+{
+	DEV_ASSERT(active_trans, ("[drawplanearray_c::Commit] no active trans"));
+	active_trans = false;
+}
+
+//
+// drawplanearray_c::Rollback()
+//
+void drawplanearray_c::Rollback(void)
+{
+	DEV_ASSERT(active_trans, ("[drawplanearray_c::Rollback] no active trans"));
+	active_trans = false;
+	commited--;
+}
+
+// ---> Draw thing container class
+
+//
+// drawthingarray_c::GetNew()
+//
+drawthing_t* drawthingarray_c::GetNew()
+{
+	DEV_ASSERT(!active_trans, ("[drawthingarray_c::GetNew] called twice"));	
+
+	drawthing_t *dt;
+
+	// Look for a spare entry
+	if (commited < array_entries)
+	{
+		dt = *(drawthing_t**)FetchObjectDirect(commited);
+		commited++;
+	}
+	else  
+	{
+		dt = new drawthing_t;
+		InsertObject((void*)&dt);				
+		commited = array_entries;
+	}
+	
+	memset(dt, 0, sizeof(drawthing_t));
+	
+	active_trans = true; 	// We now have an active transaction 
+	return dt;
+}
+
+//
+// drawthingarray_c::Commit()
+//
+void drawthingarray_c::Commit(void)
+{
+	DEV_ASSERT(active_trans, ("[drawthingarray_c::Commit] no active trans"));
+	active_trans = false;
+}
+
+//
+// drawthingarray_c::Rollback()
+//
+void drawthingarray_c::Rollback(void)
+{
+	DEV_ASSERT(active_trans, ("[drawthingarray_c::Rollback] no active trans"));
+	active_trans = false;
+	commited--;
+}
+	
+// ---> Draw floor container class
+
+//
+// drawfloorarray_c::GetNew()
+//
+// -ACB- 2004/08/04 
+//
+drawfloor_t* drawfloorarray_c::GetNew()
+{
+	DEV_ASSERT(!active_trans, ("[drawfloorarray_c::GetNew] called twice"));	
+
+	drawfloor_t *df;
+
+	// Look for a spare entry
+	if (commited < array_entries)
+	{
+		df = *(drawfloor_t**)FetchObjectDirect(commited);
+		commited++;
+	}
+	else  
+	{
+		df = new drawfloor_t;
+		InsertObject((void*)&df);				
+		commited = array_entries;
+	}
+	
+	memset(df, 0, sizeof(drawfloor_t));
+
+	active_trans = true; 	// We now have an active transaction 
+	return df;
+}
+
+//
+// drawfloorarray_c::Commit()
+//
+void drawfloorarray_c::Commit(void)
+{
+	DEV_ASSERT(active_trans, ("[drawfloorarray_c::Commit] no active trans"));
+	active_trans = false;
+}
+
+//
+// drawfloorarray_c::Rollback()
+//
+void drawfloorarray_c::Rollback(void)
+{
+	DEV_ASSERT(active_trans, ("[drawfloorarray_c::Rollback] no active trans"));
+	active_trans = false;
+	commited--;
+}
+	
 //----------------------------------------------------------------------------
 //
 //  1D OCCLUSION BUFFER CODE

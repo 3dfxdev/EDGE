@@ -265,6 +265,111 @@ typedef struct drawfloor_s
 }
 drawfloor_t;
 
+// -ACB- 2004/08/04: I could of done some funky inheritence 
+// for the following classes, but felt the duplication was the clear start
+// and we can cleanup later if needs be.
+//
+// In here we use an commited var to determine how many items
+// are actually used and its means we don't spend time reallocated
+// items, when we can reuse previously generated ones. The
+// array_entries reflects how many items are allocated.
+//
+
+// --> Draw wall container class
+class drawwallarray_c : public epi::array_c
+{
+public:
+	drawwallarray_c() : epi::array_c(sizeof(drawwall_t*)) 
+	{ 
+		active_trans = false; 
+	}
+	
+	~drawwallarray_c() { Clear(); }
+
+private:
+	bool active_trans;
+	int commited;
+	
+	void CleanupObject(void *obj) { delete *(drawwall_t**)obj; }
+
+public:
+	void Commit(void);
+	drawwall_t* GetNew(void);
+	void Init(void) { commited = 0; }
+	void Rollback(void);
+};
+
+// --> Draw plane container class
+class drawplanearray_c : public epi::array_c
+{
+public:
+	drawplanearray_c() : epi::array_c(sizeof(drawplane_t*)) 
+	{ 
+		active_trans = false; 
+	}
+	
+	~drawplanearray_c() { Clear(); }
+
+private:
+	bool active_trans;
+	int commited;
+	
+	void CleanupObject(void *obj) { delete *(drawplane_t**)obj; }
+	
+public:
+	void Commit(void);
+	drawplane_t* GetNew(void);
+	void Init(void) { commited = 0; }
+	void Rollback(void);
+};
+
+// --> Draw thing container class
+class drawthingarray_c : public epi::array_c
+{
+public:
+	drawthingarray_c() : epi::array_c(sizeof(drawthing_t*)) 
+	{ 
+		active_trans = false; 
+	}
+	
+	~drawthingarray_c() { Clear(); }
+
+private:
+	bool active_trans;
+	int commited;
+
+	void CleanupObject(void *obj) { delete *(drawthing_t**)obj; }
+
+public:
+	void Commit(void);
+	drawthing_t* GetNew(void);
+	void Init(void) { commited = 0; }
+	void Rollback(void);
+};
+
+// --> Draw floor container class
+class drawfloorarray_c : public epi::array_c
+{
+public:
+	drawfloorarray_c() : epi::array_c(sizeof(drawfloor_t*)) 
+	{ 
+		active_trans = false; 
+	}
+	
+	~drawfloorarray_c() { Clear(); }
+
+private:
+	bool active_trans;
+	int commited;
+	
+	void CleanupObject(void *obj) { delete *(drawfloor_t**)obj; }
+
+public:
+	void Commit(void);
+	drawfloor_t* GetNew(void);
+	void Init(void) { commited = 0; }
+	void Rollback(void);
+};
 
 extern int detail_level;
 extern bool use_dlights;
@@ -291,21 +396,16 @@ void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor);
 extern byte *subsectors_seen;
 extern Y_range_t Screen_clip[2048];
 
+extern drawwallarray_c  drawwalls;
+extern drawplanearray_c drawplanes;
+extern drawthingarray_c drawthings;
+extern drawfloorarray_c drawfloors;
+
 void R2_InitUtil(void);
 void R2_ClearBSP(void);
 
-drawwall_t  *R2_GetDrawWall(void);
-drawplane_t *R2_GetDrawPlane(void);
-drawthing_t *R2_GetDrawThing(void);
-drawfloor_t *R2_GetDrawFloor(void);
-
-void R2_CommitDrawWall(int used);
-void R2_CommitDrawPlane(int used);
-void R2_CommitDrawThing(int used);
-void R2_CommitDrawFloor(int used);
-
-Y_range_t *R2_GetOpenings(int width);
-void R2_CommitOpenings(int width);
+//Y_range_t *R2_GetOpenings(int width);
+//void R2_CommitOpenings(int width);
 
 void R2_1DOcclusionClear(int x1, int x2);
 void R2_1DOcclusionSet(int x1, int x2);
