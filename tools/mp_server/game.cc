@@ -41,7 +41,7 @@ game_c::game_c(const game_info_t *info) : state(ST_Zombie),
 	queuers(), players(),
 	num_players(0), bots_each(0), num_votes(0),
 	zombie_millies(0),
-	gametic(0)
+	gametic(0), tics(NULL)
 {
 	strcpy(engine_name, info->engine_name);
     strcpy(game_name,   info->game_name);
@@ -312,7 +312,7 @@ static void SV_build_tic_group(game_c *GM, packet_c *pk, int first, int count)
 	}
 ///---	memcpy(tg.tic_cmds, GM->tic_cmds + first, count * sizeof(raw_ticcmd_t));
 
-	tg.ByteSwap();
+	tg.ByteSwap(true);
 }
 
 static void SV_send_all_tic_groups(game_c *GM)
@@ -603,7 +603,7 @@ void PK_ticcmd(packet_c *pk)
 
 	ticcmd_proto_t& tc = pk->tc_p();
 
-	tc.ByteSwap();
+	tc.ByteSwap(true);
 
 	// FIXME: check data_len
 
