@@ -24,6 +24,7 @@ extern volatile int buffered_bytes;
 
 void BufferPacket(NLsocket sock, const char *data, int len);
 
-void BufferRetryWrites();
+void BufferRetryWrites(void);
+void BufferClearAll(void);
 
 #endif /* __BUFFER_H__ */
