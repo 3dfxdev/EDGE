@@ -40,9 +40,12 @@
 //
 typedef enum
 {
-  ps_weapon,
+  ps_weapon = 0,
   ps_flash,
   ps_crosshair,
+  ps_NOT_USED,
+
+  // -AJA- Savegame code relies on NUMPSPRITES == 4.
   NUMPSPRITES
 }
 psprnum_t;
