@@ -133,8 +133,6 @@ int main(int argc, char **argv)
 	cookie_status_t cookie_ret = CookieReadAll();
 #endif
 
-	// FIXME: handle arguments
-
 	Fl::scheme(NULL);
 	fl_message_font(FL_HELVETICA /* _BOLD */, 18);
 
