@@ -836,7 +836,7 @@ static void DrawMline(mline_t * ml, int colour)
 		return;
 	}
 
-	vctx.SolidLine(x1, y1, x2, y2, colour);
+	RGL_SolidLine(x1, y1, x2, y2, colour);
 }
 
 //
@@ -1233,7 +1233,7 @@ static void DrawMarks(void)
 			sx = CXMTOF(markpoints[i].x);
 			sy = CYMTOF(markpoints[i].y);
 
-			VCTX_ImageEasy(sx, sy, marknums[i]);
+			RGL_ImageEasy(sx, sy, marknums[i]);
 		}
 	}
 }
@@ -1269,7 +1269,7 @@ void AM_Drawer(void)
 		am_colmap = am_normal_colmap;
 
 		// clear the framebuffer
-		vctx.SolidBox(f_x, f_y, f_w, f_h, BACK_COL, 1.0f);
+		RGL_SolidBox(f_x, f_y, f_w, f_h, BACK_COL, 1.0f);
 	}
 
 	if (grid && !rotatemap)
