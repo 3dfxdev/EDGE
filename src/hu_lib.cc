@@ -33,7 +33,6 @@
 #include "dm_state.h"
 #include "hu_stuff.h"
 #include "m_inline.h"
-#include "m_swap.h"
 #include "r_local.h"
 #include "v_colour.h"
 #include "v_ctx.h"

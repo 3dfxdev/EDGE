@@ -34,7 +34,6 @@
 #include "hu_lib.h"
 #include "m_random.h"
 #include "m_menu.h"
-#include "m_swap.h"
 #include "p_local.h"
 #include "r_local.h"
 #include "r_view.h"

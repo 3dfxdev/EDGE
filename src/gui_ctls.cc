@@ -26,7 +26,6 @@
 #include "hu_stuff.h"
 #include "m_menu.h"
 #include "m_misc.h"
-#include "m_swap.h"
 #include "v_res.h"
 #include "v_colour.h"
 #include "z_zone.h"

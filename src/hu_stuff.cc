@@ -34,7 +34,6 @@
 #include "g_game.h"
 #include "hu_lib.h"
 #include "m_misc.h"
-#include "m_swap.h"
 #include "r_defs.h"
 #include "r_things.h"
 #include "rad_trig.h"
