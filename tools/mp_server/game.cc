@@ -32,9 +32,11 @@ std::vector<game_c *> games;
 
 
 game_c::game_c(const game_info_t *info) : state(ST_Zombie),
-    game_name(info->game_name), level_name(info->level_name),
+	engine_name(info->engine_name),
+    game_name(info->game_name),
+	level_name(info->level_name),
 	mode(info->mode), skill(info->skill),
-	min_players(info->min_players), engine_ver(info->engine_ver),
+	min_players(info->min_players), num_bots(info->num_bots),
 	queuers(), players(), num_players(0), num_votes(0),
 	tic_counter(0), got_cmds(), tic_cmds(NULL),
 	zombie_millies(0)
@@ -119,7 +121,7 @@ void game_c::FillGameInfo(game_info_t *info) const
 	info->skill = skill;
 	 
 	info->min_players = min_players;
-	info->engine_ver  = engine_ver;
+	info->num_bots  = num_bots;
 
 	if (state == ST_Queueing)
 		info->num_players = queuers.size();
@@ -169,7 +171,6 @@ static void SV_build_play_game(game_c *GM, packet_c *pk)
 	pk->SetType("Pg");
 
 	pk->hd().flags = 0;
-	pk->hd().request_id = GM->tic_counter;
 
 	pk->hd().data_len = sizeof(play_game_proto_t) + (GM->num_players - 1) *
 		sizeof(s16_t);
@@ -178,13 +179,17 @@ static void SV_build_play_game(game_c *GM, packet_c *pk)
 
 	// Fixme: support more players
 
-	gm.total_players = GM->num_players;
+///???	gm.tic_counter = GM->tic_counter;
+
+	gm.real_players = GM->num_players;
+	gm.bots_each    = GM->num_bots / GM->num_players;
+
 	gm.first_player  = 0;
 	gm.count = GM->num_players;
 
 	for (int i = 0; i < gm.count; i++)
 	{
-		gm.client_id[i] = GM->players[gm.first_player + i];
+		gm.client_list[i] = GM->players[gm.first_player + i];
 	}
 
 	gm.ByteSwap();
@@ -236,11 +241,9 @@ static void BeginGame(game_c *GM)
 
 		client_c *CL = clients[client_id];
 
-		pk.hd().source = client_id;
-		pk.hd().dest   = client_id;
-		pk.hd().game   = CL->game_id;
-
 		nlSetRemoteAddr(main_socket, &CL->addr);
+
+		pk.hd().client = client_id;
 
 		pk.Write(main_socket);
 
@@ -255,14 +258,15 @@ static void SV_build_tic_group(game_c *GM, packet_c *pk, int first, int count)
 	pk->SetType("Tg");
 
 	pk->hd().flags = 0;
-	pk->hd().request_id = GM->tic_counter;
 
 	pk->hd().data_len = sizeof(tic_group_proto_t) + (count - 1) *
 		sizeof(raw_ticcmd_t);
 
-	// source, dest, and game are set elsewhere
+	// client field is set elsewhere
 
 	tic_group_proto_t& tg = pk->tg_p();
+
+	tg.tic_counter = GM->tic_counter;
 
 	tg.first_player = first;
 	tg.count = count;
@@ -289,11 +293,9 @@ static void SV_send_all_tic_groups(game_c *GM)
 
 		client_c *CL = clients[client_id];
 
-		pk.hd().source = client_id;
-		pk.hd().dest   = client_id;
-		pk.hd().game   = CL->game_id;
-
 		nlSetRemoteAddr(main_socket, &CL->addr);
+
+		pk.hd().client = client_id;
 
 		pk.Write(main_socket);
 
@@ -305,7 +307,7 @@ static void SV_send_all_tic_groups(game_c *GM)
 
 void PK_new_game(packet_c *pk)
 {
-	int client_id = pk->hd().source;
+	int client_id = pk->hd().client;
 
 	client_c *CL = clients[client_id];
 
@@ -351,27 +353,34 @@ void PK_new_game(packet_c *pk)
 	}
 	// NOW UNLOCKED
 
-	LogPrintf(0, "Client %d created new game %d %s:%s (%s)\n",
-		client_id, CL->game_id, GM->game_name.c_str(),
-		GM->level_name.c_str(), (GM->mode == 'C') ? "Coop" : "DM");
+	LogPrintf(0, "Client %d created new game %d %s %s:%s (%s)\n",
+		client_id, CL->game_id, GM->engine_name.c_str(),
+		GM->game_name.c_str(), GM->level_name.c_str(),
+		(GM->mode == 'C') ? "Coop" : "DM");
 
 	// send acknowledgement
 
 	pk->SetType("Ng");
 	pk->hd().flags = 0;
-	pk->hd().data_len = 0;
-	pk->hd().game = CL->game_id;
+	pk->hd().data_len = sizeof(new_game_proto_t) - sizeof(game_info_t);
+
+	ng.game = CL->game_id;
+	ng.ByteSwap();
 
 	pk->Write(main_socket);
 }
 
 void PK_join_queue(packet_c *pk)
 {
-	int client_id = pk->hd().source;
+	int client_id = pk->hd().client;
 
 	client_c *CL = clients[client_id];
 
-	int game_id = pk->hd().game;
+	join_queue_proto_t& jq = pk->jq_p();
+
+	jq.ByteSwap();
+
+	int game_id = jq.game;
 
 	if (! GameExists(game_id))
 	{
@@ -411,7 +420,7 @@ void PK_join_queue(packet_c *pk)
 
 void PK_leave_game(packet_c *pk)
 {
-	int client_id = pk->hd().source;
+	int client_id = pk->hd().client;
 
 	client_c *CL = clients[client_id];
 
@@ -458,7 +467,7 @@ void PK_leave_game(packet_c *pk)
 
 void PK_vote_to_play(packet_c *pk)
 {
-	client_c *CL = clients[pk->hd().source];
+	client_c *CL = clients[pk->hd().client];
 
 	if (CL->state != client_c::ST_Queueing)
 	{
@@ -478,7 +487,7 @@ void PK_vote_to_play(packet_c *pk)
 
 	GM->num_votes++;
 
-	LogPrintf(0, "Client %d voted on game %d's queue (%d/%d).\n", pk->hd().source,
+	LogPrintf(0, "Client %d voted on game %d's queue (%d/%d).\n", pk->hd().client,
 		CL->game_id, GM->num_votes, GM->num_players);
 
 	if (GM->num_votes == GM->num_players &&
@@ -500,7 +509,7 @@ void PK_query_game(packet_c *pk)
 
 	// FIXME: check data_len
 
-	short cur_id = qg.first_id;
+	short cur_id = qg.first_game;
 	byte  total  = qg.count;
 
 	if (total == 0)
@@ -508,20 +517,20 @@ void PK_query_game(packet_c *pk)
 
 	while (total > 0)
 	{
-		qg.first_id = cur_id;
+		qg.first_game = cur_id;
 		qg.count = MIN(total, query_game_proto_t::GAME_FIT);
 		
 		total -= qg.count;
 
 		for (byte i = 0; i < qg.count; i++)
 		{
-			if (! GameExists(qg.first_id + i))
+			if (! GameExists(qg.first_game + i))
 			{
 				qg.info[i].state = game_info_t::GS_NotExist;
 				continue;
 			}
 
-			game_c *GM = games[qg.first_id + i];
+			game_c *GM = games[qg.first_game + i];
 			SYS_NULL_CHECK(GM);
 
 			GM->FillGameInfo(qg.info + i);
@@ -543,40 +552,41 @@ void PK_query_game(packet_c *pk)
 
 void PK_ticcmd(packet_c *pk)
 {
+	int client_id = pk->hd().client;
+
 	ticcmd_proto_t& tc = pk->tc_p();
 
 	tc.ByteSwap();
 
 	// FIXME: check data_len
 
-	client_c *CL = clients[pk->hd().source];
+	client_c *CL = clients[client_id];
 	SYS_ASSERT(GameExists(CL->game_id));
 
 	game_c *GM = games[CL->game_id];
-	SYS_ASSERT(GM->InGame(pk->hd().source));
+	SYS_ASSERT(GM->InGame(client_id));
 
 	int plyr_id = CL->player_id;
 
 	SYS_ASSERT(0 <= plyr_id && plyr_id < GM->num_players);
-	SYS_ASSERT(GM->players[plyr_id] == pk->hd().source);
+	SYS_ASSERT(GM->players[plyr_id] == client_id);
 
-	// NOTE: Not LOCKING since tic-stuff is not touched by UI thread
+	// NOTE: We ar not LOCKING since tic-stuff is not touched by UI thread
 
-	if (pk->hd().request_id != GM->tic_counter)
+	if ((int)tc.tic_counter != GM->tic_counter)
 	{
 		LogPrintf(1, "Ticcmd from client %d, bad tic # (%d != %d)\n",
-			pk->hd().source, pk->hd().request_id, GM->tic_counter);
+			client_id, tc.tic_counter, GM->tic_counter);
 		return;
 	}
 
 	if (GM->got_cmds.test(plyr_id))
 	{
-		LogPrintf(1, "Ticcmd from client %d, already received\n",
-			pk->hd().source);
+		LogPrintf(1, "Ticcmd from client %d, already received\n", client_id);
 		return;
 	}
 
-	memcpy(GM->tic_cmds + plyr_id, &tc.tic_cmd, sizeof(raw_ticcmd_t));
+	memcpy(GM->tic_cmds + plyr_id, tc.tic_cmds, sizeof(raw_ticcmd_t));
 
 	GM->got_cmds.set(plyr_id);
 

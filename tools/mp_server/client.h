@@ -67,7 +67,7 @@ extern std::vector<client_c *> clients;
 
 bool VerifyClient(short idx, const NLaddress *remote_addr);
 
-void SV_send_error(packet_c *pk, short type, const char *str, ...);
+void SV_send_error(packet_c *pk, const char *type, const char *str, ...);
 
 void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr);
 void PK_leave_server(packet_c *pk);

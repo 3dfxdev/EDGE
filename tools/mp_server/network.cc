@@ -240,10 +240,10 @@ void *NetRun(void *data)
 			// must validate the client field (the only exceptions are the
 			// connect-to-server and the broadcast-discovery packets).
 
-			if (! VerifyClient(pk.hd().source, &remote_addr))
+			if (! VerifyClient(pk.hd().client, &remote_addr))
 			{
 				LogPrintf(2, "Client %d verify failed: packet [%c%c]\n",
-					pk.hd().source, pk.hd().type[0], pk.hd().type[1]);
+					pk.hd().client, pk.hd().type[0], pk.hd().type[1]);
 				continue;
 			}
 

@@ -215,9 +215,9 @@ game_info_t;
 //
 typedef struct new_game_proto_s
 {
-	game_info_t info;
-
 	s16_t game;  // output game ID
+
+	game_info_t info;
 
 	void ByteSwap();
 }

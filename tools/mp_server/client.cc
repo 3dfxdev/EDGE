@@ -86,7 +86,7 @@ void client_c::FillClientInfo(client_info_t *info) const
 
 	strcpy(info->name, name.c_str());
 
-	info->game_id = game_id;
+	info->game = game_id;
 }
 
 bool client_c::MatchDest(int dest, int game) const
@@ -95,19 +95,19 @@ bool client_c::MatchDest(int dest, int game) const
 
 	switch (dest)
 	{
-		case header_proto_t::D_ALL_BROWSING:
+		case message_proto_t::D_ALL_BROWSING:
 			return (state == ST_Browsing);
 
-		case header_proto_t::D_ALL_NOT_PLAYING:
+		case message_proto_t::D_ALL_NOT_PLAYING:
 			return (state != ST_Playing);
 
-		case header_proto_t::D_OTHER_QUEUERS:
+		case message_proto_t::D_OTHER_QUEUERS:
 			return (state == ST_Queueing && game_id == game);
 
-		case header_proto_t::D_OTHER_PLAYERS:
+		case message_proto_t::D_OTHER_PLAYERS:
 			return (state == ST_Playing && game_id == game);
 
-		case header_proto_t::D_ABSOLUTELY_EVERYONE:
+		case message_proto_t::D_ABSOLUTELY_EVERYONE:
 			return true;
 
 		default:
@@ -156,8 +156,10 @@ bool ValidatePlayerName(const char *name)
 
 //------------------------------------------------------------------------
 
-void SV_send_error(packet_c *pk, short type, const char *str, ...)
+void SV_send_error(packet_c *pk, const char *type, const char *str, ...)
 {
+	SYS_ASSERT(strlen(type) == 2);
+
 	char buffer[2048];
 	
 	va_list args;
@@ -170,9 +172,8 @@ void SV_send_error(packet_c *pk, short type, const char *str, ...)
 
 	/* data */
 
-	pk->er_p().type = type;
-	pk->er_p().param[0] = 0;
-	pk->er_p().param[1] = 0;
+	pk->er_p().type[0] = type[0];
+	pk->er_p().type[1] = type[1];
 
 	strcpy(pk->er_p().message, buffer);
 
@@ -209,7 +210,7 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 
 		if (CL->CheckAddr(remote_addr))
 		{
-			SV_send_error(pk, error_proto_t::ERR_AlreadyConnected, "Already connected !");
+			SV_send_error(pk, "ac", "Already connected !");
 			LogPrintf(2, "Client %d was already connected.\n", client_id);
 			return;
 		}
@@ -231,7 +232,7 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 
 	if (! ValidatePlayerName(con.info.name))
 	{
-		SV_send_error(pk, error_proto_t::ERR_Unknown, "Invalid name !");
+		SV_send_error(pk, "bn", "Invalid name !");
 		LogPrintf(1, "Client %d tried to connect with invalid name.\n", client_id);
 		return;
 	}
@@ -246,7 +247,7 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 
 		if (CL->CompareName(con.info.name) == 0)
 		{
-			SV_send_error(pk, error_proto_t::ERR_Unknown, "Name already in use !");
+			SV_send_error(pk, "un", "Name already in use !");
 			LogPrintf(2, "Client %d tried to connect, name was already used.\n", client_id);
 			return;
 		}
@@ -269,17 +270,16 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 
 	// successful!
 
-	con.info.game_id = -1;
+	con.info.game = -1;
 	con.info.state = client_info_t::CS_Browsing;
 
 	con.ByteSwap();
 
 	pk->SetType("Cs");
 
-	pk->hd().source = client_id;
 	pk->hd().flags = 0;
 	pk->hd().data_len = 0;
-	pk->hd().game = -1;
+	pk->hd().client = client_id;
 
 	pk->Write(main_socket);
 
@@ -289,19 +289,18 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 
 void PK_leave_server(packet_c *pk)
 {
-	client_c *CL = clients[pk->hd().source];
+	client_c *CL = clients[pk->hd().client];
 
 	// client actually removed during timeout handling
 	CL->state = client_c::ST_Going;
-	LogPrintf(0, "Client %d has disconnected.\n", pk->hd().source);
+	LogPrintf(0, "Client %d has disconnected.\n", pk->hd().client);
 
-	// FIXME: !!! remove from queue/game
+	// FIXME: !!!! remove from queue/game
 
 	pk->SetType("Ls");
 
 	pk->hd().flags = 0;
 	pk->hd().data_len = 0;
-	pk->hd().game = -1;
 
 	pk->Write(main_socket);
 }
@@ -320,7 +319,7 @@ void PK_broadcast_discovery(packet_c *pk, NLaddress *remote_addr)
 
 void PK_keep_alive(packet_c *pk)
 {
-	client_c *CL = clients[pk->hd().source];
+	client_c *CL = clients[pk->hd().client];
 
 	CL->alive_millies = 0;
 }
@@ -333,7 +332,7 @@ void PK_query_client(packet_c *pk)
 
 	// FIXME: check data_len
 
-	short cur_id = qc.first_id;
+	short cur_id = qc.first_client;
 	byte  total  = qc.count;
 
 	if (total == 0)
@@ -348,20 +347,20 @@ void PK_query_client(packet_c *pk)
 
 	while (total > 0)
 	{
-		qc.first_id = cur_id;
+		qc.first_client = cur_id;
 		qc.count = MIN(total, query_client_proto_t::CLIENT_FIT);
 		
 		total -= qc.count;
 
 		for (byte i = 0; i < qc.count; i++)
 		{
-			if (! ClientExists(qc.first_id + i))
+			if (! ClientExists(qc.first_client + i))
 			{
 				qc.info[i].state = client_info_t::CS_NotExist;
 				continue;
 			}
 
-			client_c *CL = clients[qc.first_id + i];
+			client_c *CL = clients[qc.first_client + i];
 			SYS_NULL_CHECK(CL);
 
 			CL->FillClientInfo(qc.info + i);
@@ -377,28 +376,37 @@ void PK_query_client(packet_c *pk)
 
 void PK_message(packet_c *pk)
 {
-	int client_id = pk->hd().source;
-	int dest_id   = pk->hd().dest;
+	int client_id = pk->hd().client;
 
-	int game_id = clients[client_id]->game_id;
+	message_proto_t& mp = pk->ms_p();
+
+	int dest_id = SYS_BE_S16(mp.dest);
 
 	pk->SetType("Ms");
-	pk->hd().game = game_id;
 
-	if (dest_id >= 0 && ClientExists(dest_id))
+	if (dest_id >= 0)
 	{
-		client_c *CL = clients[dest_id];
-		CL->TransmitMessage(pk);
+		if (ClientExists(dest_id))
+		{
+			clients[dest_id]->TransmitMessage(pk);
+			return;
+		}
+		else
+		{
+			// !!! FIXME: no-such-client error
+		}
 		return;
 	}
 
+	int game_id = clients[client_id]->game_id;
+
 	switch (dest_id)
 	{
-		case header_proto_t::D_ALL_BROWSING:
-		case header_proto_t::D_ALL_NOT_PLAYING:
-		case header_proto_t::D_OTHER_QUEUERS:
-		case header_proto_t::D_OTHER_PLAYERS:
-		case header_proto_t::D_ABSOLUTELY_EVERYONE:
+		case message_proto_t::D_ALL_BROWSING:
+		case message_proto_t::D_ALL_NOT_PLAYING:
+		case message_proto_t::D_OTHER_QUEUERS:
+		case message_proto_t::D_OTHER_PLAYERS:
+		case message_proto_t::D_ABSOLUTELY_EVERYONE:
 		{
 			for (int c = 0; (unsigned)c < clients.size(); c++)
 			{
