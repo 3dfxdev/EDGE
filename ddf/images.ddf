@@ -1,0 +1,105 @@
+
+//
+//  sample images.ddf file
+//  massive work in progress !!  lots of ideas here, many of which won't
+//  be needed straight away, and some of which may never get done.
+//
+//  images defined in this file normally override anything from a WAD/EPK.
+//
+//  small issue: standard Doom has two textures/flats with the same name:
+//               STEP1 and STEP2.  Other projects may also have conflicting
+//               names (e.g. sprite and flat -- not good).
+//
+//          -->  SPECIALISE(sprite) = FOOBA0_SPR;
+//          -->  SPECIALISE(flat)   = USE_NORMAL;   // special keyword
+//
+//  really don't want to find textures/flats when looking for a sprite (or font),
+//  and vice versa.  --> TOO BAD.
+//  Graphics (== W_ImageFromPatch) straddle the line, sometimes they
+//  contain a large background image (BOSSBACK, STBAR), sometimes they are
+//  used for on-screen elements (not unlike fonts) e.g. menu patches, player
+//  faces, etc.
+//
+
+<IMAGES>
+
+[DARKROCK]  // image name, found for texture/flat/graphic lookup
+
+SPECIALISE(sprite) = USE_NORMAL;
+
+SOURCE = WAD_TEX:"DARKROCK";
+
+// possible types:
+//    WAD_FLAT, WAD_TEX, WAD_GFX,
+//    WAD_SPRITE, WAD_PLSKIN, WAD_TEXPATCH,
+//    (GFX is anything not a sprite, player-skin or tex-patch)
+//
+//    PACKAGE:/doom/tex/foo.png
+//
+//    FILE:"C:\FOO\BAR.JPEG"
+//
+//    COLOUR:#000000
+//
+//    COMPOSED:256,256;
+// 
+
+// pixel definitions for WAD images:
+
+WAD.PALETTE = YYY;
+WAD.COLOURMAP = XXX;
+
+// compositing feature ??? (names must also come from images.ddf)
+COMPOSE.BASE = #000000;
+COMPOSE.OVERLAY = FOO:12:64, BAR:30:32, ..., BAZ:144,100;
+
+// colour conversions:
+//
+// processing pipeline:
+//     do HSV mapping, clamp, do RGB mapping, clamp, apply overall gamma.
+
+CONVERT.GAMMA = 1.2;
+
+CONVERT.R = 0.2+R*0.5+G*0.2+B*0.1+I*0.3,GAMMA(0.2),MIN(0.2),MAX(0.9);
+// also G, B, and A.
+// also HSV: Do HSV before RGB mapping, GAMMA last.  Clamp each stage.
+CONVERT.H = 200 +/- H;  // nothing else allowed
+
+// rendering properties:
+// (in addition to any enabled elsewhere, STYLES.DDF, in the map, etc)
+
+SCALE=XXX;
+ASPECT=YYY;
+ROTATION=45;  // counter-clockwise, limited to the "tileables" (e.g. not sprites)
+TRANSLUCENCY=50%;
+
+SPECIAL=CLAMP_X,CLAMP_Y;   // needed for halos, dynamic light textures, shadows
+//
+// also can have:
+//   NO_ALPHA (blend with black) 
+
+
+// GL material definitions (shiny surfaces, etc) ???
+
+// Decals:
+DECAL.BULLET = XXX;
+DECAL.EXPLOSION = XXX;
+
+// Sounds:
+FOOTSTEP_SOUND = FTSTEP3;
+
+
+// ---- following probably doesn't belong here ----
+
+
+// scrolling effects:
+SCROLL.XSPEED=0.5;
+SCROLL.YSPEED=3.1;
+
+// lighting effects (not necessarily dynamic lighting)
+
+DLIGHT.XXXX = YYYY;
+
+// sound effects
+
+AMBIENT_SOUND = BLAH;
+
