@@ -673,10 +673,6 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype)
 //
 void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust)
 {
-	float dx, dy, dz;
-	float push, slope;
-	angle_t angle;
-
 	// check for immunity against the attack
 	if (inflictor && inflictor->currentattack && BITSET_EMPTY ==
 		(inflictor->currentattack->attack_class & ~target->info->immunity))
@@ -684,23 +680,31 @@ void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust)
 		return;
 	}
 
-	dx = target->x - inflictor->x;
-	dy = target->y - inflictor->y;
-	dz = MO_MIDZ(target) - MO_MIDZ(inflictor);
+	float dx = target->x - inflictor->x;
+	float dy = target->y - inflictor->y;
 
-	angle = R_PointToAngle(0, 0, dx, dy);
+	// don't thrust if at the same location (no angle)
+	if (fabs(dx) < 1.0f && fabs(dy) < 1.0f)
+		return;
+
+	angle_t angle = R_PointToAngle(0, 0, dx, dy);
 
 	// -ACB- 2000/03/11 Div-by-zero check...
 	CHECKVAL(target->info->mass);
 
-	push = 12.0f * thrust / target->info->mass;
+	float push = 12.0f * thrust / target->info->mass;
+
+	// limit thrust to reasonable values
+	if (push < -40.0f) push = -40.0f;
+	if (push >  40.0f) push =  40.0f;
 
 	target->mom.x += push * M_Cos(angle);
 	target->mom.y += push * M_Sin(angle);
 
 	if (level_flags.true3dgameplay)
 	{
-		slope = P_ApproxSlope(dx, dy, dz);
+		float dz = MO_MIDZ(target) - MO_MIDZ(inflictor);
+		float slope = P_ApproxSlope(dx, dy, dz);
 
 		target->mom.z += push * slope / 2;
 	}
@@ -791,12 +795,9 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 	// player specific
 	if (player)
 	{
-		// Below certain threshold, ignore damage in GOD mode, or with INVUL power
-		if (damage < 1000 &&
-			((player->cheats & CF_GODMODE) || player->powers[PW_Invulnerable]))
-		{
+		// ignore damage in GOD mode, or with INVUL powerup
+		if ((player->cheats & CF_GODMODE) || player->powers[PW_Invulnerable])
 			return;
-		}
 
 		// check which armour can take some damage
 		for (i=ARMOUR_Red; i >= ARMOUR_Green; i--)
@@ -903,3 +904,34 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 	}
 }
 
+//
+// P_TelefragMobj
+//
+// For killing monsters and players when something teleports on top
+// of them.  Even the invulnerability powerup doesn't stop it.  Also
+// used for the kill-all cheat.  Inflictor and damtype can be NULL.
+//
+void P_TelefragMobj(mobj_t * target, mobj_t * inflictor, const damage_c * damtype)
+{
+	if (target->health <= 0)
+		return;
+	
+	target->health = -1000;
+
+	if (target->flags & MF_STEALTH)
+		target->vis_target = VISIBLE;
+
+	if (target->flags & MF_SKULLFLY)
+	{
+		target->mom.x = target->mom.y = target->mom.z = 0;
+		target->flags &= ~MF_SKULLFLY;
+	}
+
+	if (target->player)
+	{
+		target->player->attacker = inflictor;
+		target->player->damagecount = DAMAGE_LIMIT;
+	}
+
+	P_KillMobj(inflictor, target, damtype);
+}
