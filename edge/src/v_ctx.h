@@ -27,6 +27,7 @@
 #define __V_CTX__
 
 #include "dm_type.h"
+#include "ddf_main.h"
 #include "w_image.h"
 
 //
@@ -76,16 +77,16 @@ typedef struct video_context_s
   
   // Draws an image into a rectangular area of the screen.  Screen
   // coordinates are inclusive.  Alpha ranges from 0 (invisible) to
-  // 255 (totally opaque).  The colour parameter is a palette index
-  // (0-255) to shade the image (for font characters).  It is normally
-  // `WHITE'.  If the texture coordinates lie outside of the [0-1]
-  // range, then the image will be tiled.  Proper tiling is only
+  // 255 (totally opaque).  The colmap parameter is a colourmap to use
+  // to shade the image (especially font characters), or NULL to draw
+  // the image as-is.  If the texture coordinates lie outside of the
+  // [0-1] range, then the image will be tiled.  Proper tiling is only
   // guaranteed for power-of-two sized images.  The drawing will be
   // clipped to the current clipping rectangle.
   
   void (* DrawImage)(int x1, int y1, int x2, int y2,
       float_t tx1, float_t ty1, float_t tx2, float_t ty2,
-      const image_t *image, int colour, int alpha);
+      const image_t *image, const colourmap_t *colmap, int alpha);
  
   // Draw a solid colour box (possibly translucent) in the given
   // rectangle.  Coordinates are inclusive.  Alpha ranges from 0
