@@ -506,6 +506,9 @@ static void FlushSoundCaches(z_urgency_e urge)
 		case Z_UrgencyMedium: n = numcachedsfx / 8; break;
 		case Z_UrgencyHigh: n = numcachedsfx / 2; break;
 		case Z_UrgencyExtreme: n = numcachedsfx; break;
+
+    default:
+      I_Error("FlushImageCaches: Invalid urgency level %d\n", urge);
 	}
 
 	for (i = 0, sfx = sfxcachehead.next; i < n; i++)
