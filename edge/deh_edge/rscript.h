@@ -1,0 +1,23 @@
+//------------------------------------------------------------------------
+//  RSCRIPT output
+//------------------------------------------------------------------------
+// 
+//  DEH_EDGE  Copyright (C) 2004  The EDGE Team
+// 
+//  This program is under the GNU General Public License.
+//  It comes WITHOUT ANY WARRANTY of any kind.
+//  See COPYING.txt for the full details.
+//
+//------------------------------------------------------------------------
+
+#ifndef __RSCRIPT_HDR__
+#define __RSCRIPT_HDR__
+
+namespace Rscript
+{
+	void MarkKeenDie(int mt_num);
+
+	void ConvertRAD(void);
+}
+
+#endif /* __RSCRIPT_HDR__ */
