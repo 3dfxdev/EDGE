@@ -355,7 +355,7 @@ static void M_DefaultMenuItem(optmenuitem_t *item)
 //
 //  MAIN MENU
 //
-#define LANGUAGE_POS  8
+#define LANGUAGE_POS  7
 
 static optmenuitem_t mainmenu[] =
 {
