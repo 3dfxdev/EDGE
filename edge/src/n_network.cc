@@ -35,6 +35,9 @@
 #include "z_zone.h"
 
 
+bool var_busywait = true;
+
+
 extern gameflags_t default_gameflags;
 
 static int client_id;
@@ -318,72 +321,33 @@ void N_InitiateGame(void)
 }
 
 //----------------------------------------------------------------------------
+//  TIC HANDLING
+//----------------------------------------------------------------------------
 
 static int last_update_tic;
 static int last_tryrun_tic;
 
-void N_CheckNetGame(void)
+void N_InitNetwork(void)
 {
-	// FIXME: singletics, WTF ???
-
 	DEV_ASSERT2(sizeof(ticcmd_t) == sizeof(raw_ticcmd_t));
 
-#if 0
-	int pl_num = 1;
-
-	N_InitiateGame();
-
-	netgame = true;
-	pl_num = 4;
-#else
-	netgame = false;
-#endif
-
-
-#if 0
-	consoleplayer = 0;
-
-	for (int i = 0; i < pl_num; i++)  // FIXME: get num_players from play_game_proto_t
-	{
-		P_CreatePlayer(i, i != consoleplayer);
-	}
-
-	DEV_ASSERT2(players[consoleplayer]);
-
-	G_SetConsolePlayer(consoleplayer);
-	G_SetDisplayPlayer(consoleplayer);
-#endif
-
-
-#if 0
-	global_flags = default_gameflags;
-	level_flags  = global_flags;
-
-	startskill = (skill_t)3;
-	deathmatch = true;
-
-	startmap = Z_StrDup("MAP12");  // FIXME: get from game_info_t
-
-	autostart = true;
-#endif
-
-	last_update_tic = last_tryrun_tic = I_GetTime();
+	N_ResetTics();
 }
 
 static void GetPackets(bool do_delay)
 {
 	if (! netgame)
 	{
-#if 0 // -AJA- This makes everything a bit "jerky" :-(
-		if (do_delay)
+		// -AJA- This can make everything a bit "jerky" :-(
+		if (do_delay && ! var_busywait)
 			I_Sleep(10 /* millis */);
-#endif
+
 		return;
 	}
 
 	NLsocket socks[4];  // only one in the group
 
-	int delay = do_delay ? 10 /* millis */ : 0;  // FIXME !!!! jerkiness, as above
+	int delay = (do_delay && ! var_busywait) ? 10 /* millis */ : 0;  // FIXME !!!! jerkiness, as above
 	int num = nlPollGroup(sk_group, NL_READ_STATUS, socks, 4, delay);
 
 	if (num < 1)
@@ -487,10 +451,13 @@ static void DoSendTiccmds(int tic)
 	// FIXME: need an 'out_tic' for resends....
 }
 
-bool N_DoBuildTiccmds(void)
+bool N_BuildTiccmds(void)
 {
 	I_ControlGetEvents();
 	E_ProcessEvents();
+
+	if (numplayers == 0)
+		return false;
 
 	if (maketic >= gametic + MP_SAVETICS)
 		return false;  // can't hold any more
@@ -525,12 +492,12 @@ bool N_DoBuildTiccmds(void)
 
 int N_NetUpdate(bool do_delay)
 {
-	if (singletics)  // singletic update is syncronous
-		return 0;
-
 	int nowtime = I_GetTime();
-	int newtics = nowtime - last_update_tic;
 
+	if (singletics)  // singletic update is syncronous
+		return nowtime;
+
+	int newtics = nowtime - last_update_tic;
 	last_update_tic = nowtime;
 
 	if (newtics > 0)
@@ -539,11 +506,11 @@ int N_NetUpdate(bool do_delay)
 		int t;
 		for (t = 0; t < newtics; t++)
 		{
-			if (! N_DoBuildTiccmds())
+			if (! N_BuildTiccmds())
 				break;
 		}
 
-		if (t != newtics)
+		if (t != newtics && numplayers > 0)
 			L_WriteDebug("N_NetUpdate: lost tics: %d\n", newtics - t);
 	}
 
@@ -574,21 +541,44 @@ int DetermineLowTic(void)
 	return lowtic;
 }
 
-int N_TryRunTics(void)
+int N_TryRunTics(bool *is_fresh)
 {
+	*is_fresh = false;
+
 	if (singletics)
 	{
-		if (numplayers == 0)
-			return -1;
+		N_BuildTiccmds();
 
-		N_DoBuildTiccmds();
+		if (numplayers > 0)
+			*is_fresh = true;
+
 		return 1;
 	}
 
 	int nowtime = N_NetUpdate();
 	int realtics = nowtime - last_tryrun_tic;
-
 	last_tryrun_tic = nowtime;
+
+#if 0
+L_WriteDebug("N_TryRunTics: now %d last_tryrun %d --> real %d\n",
+nowtime, nowtime - realtics, realtics);
+#endif
+
+	// simpler handling when no game in progress
+	if (numplayers == 0)
+	{
+		while (realtics <= 0)
+		{
+			nowtime = N_NetUpdate(true);
+			realtics = nowtime - last_tryrun_tic;
+			last_tryrun_tic = nowtime;
+		}
+
+		if (realtics > MP_SAVETICS)
+			realtics = MP_SAVETICS;
+
+		return realtics;
+	}
 
 	int lowtic = DetermineLowTic();
 	int availabletics = lowtic - gametic;
@@ -600,15 +590,13 @@ int N_TryRunTics(void)
 	// decide how many tics to run
 	int counts;
 
-	if (realtics < availabletics - 1)
+	if (realtics + 1 < availabletics)
 		counts = realtics + 1;
-	else if (realtics < availabletics)
-		counts = realtics;
 	else
-		counts = availabletics;
+		counts = MIN(realtics, availabletics);
 
 #if 0
-	L_WriteDebug("=== lowtic %d gametic %d | real %d avail %d counts %d\n",
+	L_WriteDebug("=== lowtic %d gametic %d | real %d avail %d raw-counts %d\n",
 		lowtic, gametic, realtics, availabletics, counts);
 #endif
 
@@ -628,11 +616,21 @@ int N_TryRunTics(void)
 		if (wait_tics > TICRATE/2)
 		{
 			L_WriteDebug("Waited %d tics IN VAIN !\n", wait_tics);
-			return -(TICRATE/4);
+			return 3;
 		}
 	}
 
-	return (numplayers == 0) ? -counts : counts;
+	if (numplayers > 0)
+		*is_fresh = true;
+
+	return counts;
+}
+
+void N_ResetTics(void)
+{
+	maketic = gametic = 0;
+
+	last_update_tic = last_tryrun_tic = I_GetTime();
 }
 
 void N_QuitNetGame(void)

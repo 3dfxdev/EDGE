@@ -375,7 +375,7 @@ static void G_TiccmdTicker(void)
 
 		// check for turbo cheats
 		if (p->cmd.forwardmove > TURBOTHRESHOLD
-			&& !(gametic & 31) && ((gametic >> 5) & 3) == p->pnum)
+			&& !(gametic & 31) && ((gametic >> 5) & 0x1f) == p->pnum)
 		{
 			CON_Printf(language["IsTurbo"], p->playername);
 		}
@@ -1082,6 +1082,8 @@ L_WriteDebug("G_InitNew: Deathmatch %d Skill %d\n", params.deathmatch, (int)para
 		level_flags.cheats = false;
 #endif
 	}
+
+	N_ResetTics();
 }
 
 void G_DeferredEndGame(void)

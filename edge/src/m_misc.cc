@@ -42,6 +42,7 @@
 #include "m_menu.h"
 #include "m_option.h"
 #include "m_random.h"
+#include "n_network.h"
 #include "p_spec.h"
 #include "w_wad.h"
 #include "r_main.h"
@@ -168,6 +169,7 @@ static default_t defaults[] =
 	// -------------------- VARS --------------------
 
 	{CFGT_Boolean, "var_diskicon", &var_diskicon, 1},
+	{CFGT_Boolean, "var_busywait", &var_busywait, 1},
 
 	// -------------------- KEYS --------------------
 
@@ -504,6 +506,9 @@ void M_InitMiscConVars(void)
 {
 	M_CheckBooleanParm("diskicon", &var_diskicon, false);
 	CON_CreateCVarBool("diskicon", cf_normal, &var_diskicon);
+
+	M_CheckBooleanParm("busywait", &var_busywait, false);
+	CON_CreateCVarBool("busywait", cf_normal, &var_busywait);
 }
 
 //

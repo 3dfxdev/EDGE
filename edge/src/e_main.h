@@ -28,7 +28,6 @@
 
 #include "e_event.h"
 
-extern bool e_display_OK;
 extern bool m_screenshot_required;
 extern bool need_save_screenshot;
 

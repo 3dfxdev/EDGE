@@ -19,9 +19,9 @@
 #ifndef __N_NETWORK_H__
 #define __N_NETWORK_H__
 
-void N_InitiateGame(void);
+extern bool var_busywait;
 
-void N_CheckNetGame(void); // needed ???
+void N_InitNetwork(void);
 
 // Create any new ticcmds and broadcast to other players.
 // returns value of I_GetTime().
@@ -31,13 +31,15 @@ int N_NetUpdate(bool do_delay = false);
 //  to notify of game exit
 void N_QuitNetGame(void);
 
-// returns number of ticks to run.
-// negative means no game ticks can be run.
-// zero is not a valid return value.
-int N_TryRunTics(void);
+// returns number of ticks to run (always > 0).
+// is_fresh means that game ticks can be run.
+int N_TryRunTics(bool *is_fresh);
 
 // process input and create player (and robot) ticcmds.
 // returns false if couldn't hold any more.
-bool N_DoBuildTiccmds(void);
+bool N_BuildTiccmds(void);
+
+// restart tic counters (maketic, gametic) at zero.
+void N_ResetTics(void);
 
 #endif /* __N_NETWORK_H__ */
