@@ -251,7 +251,7 @@ bool P_Move(mobj_t * actor, bool path)
 		{
 			line_t *ld = hits[--i];
 
-			if (P_UseSpecialLine(actor, ld, 0, FLT_MIN, FLT_MAX))
+			if (P_UseSpecialLine(actor, ld, 0, -FLT_MAX, FLT_MAX))
 			{
 				any_used = true;
 
