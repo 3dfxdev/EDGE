@@ -292,12 +292,12 @@ float R_PointToDist(float x1, float y1, float x2, float y2)
 	float temp;
 	float dist;
 
-	dx = fabs(x2 - x1);
-	dy = fabs(y2 - y1);
+	dx = (float)fabs(x2 - x1);
+	dy = (float)fabs(y2 - y1);
 
-	if (dx == 0)
+	if (dx == 0.0f)
 		return dy;
-	else if (dy == 0)
+	else if (dy == 0.0f)
 		return dx;
 
 	if (dy > dx)
@@ -700,8 +700,7 @@ static bool DoExecuteChangeResolution(void)
 		// wait one second before changing res again, gfx card doesn't like to
 		// switch mode too rapidly
 		int tics = I_GetTime() + TICRATE;
-		while (tics >= I_GetTime())
-		{ /* nothing */ }
+		while (tics >= I_GetTime()) { /* nothing */ }
 
 		// something was wrong, check if memory is corrupt
 		Z_CheckHeap();
@@ -756,6 +755,7 @@ static bool DoExecuteChangeResolution(void)
 	// re-initialise various bits of GL state
 #ifdef USE_GL
 	RGL_SoftInit();
+	RGL_SoftInitUnits();	// -ACB- 2004/02/15 Needed to sort some vars lost in res change
 	W_ResetImages();
 #endif
 
@@ -951,7 +951,7 @@ void R_StartFading(int start, int range)
 		&screenvb->screen, 0, 0, true,
 		&screenvb->screen, 0, 0, false,
 		viewwindowwidth, viewwindowheight, telept_wipeinfo,
-		range, telept_reverse, (wipetype_e)telept_effect);
+		range, telept_reverse?true:false, (wipetype_e)telept_effect);
 
 	telept_active = true;
 	telept_starttic = start + leveltime;
