@@ -33,10 +33,9 @@
 
 typedef enum
 {
-  NoState = -1,
-  StatCount,
-  ShowNextLoc
-
+	NoState = -1,
+	StatCount,
+	ShowNextLoc
 }
 stateenum_t;
 
@@ -50,7 +49,7 @@ void WI_Drawer(void);
 // Setup for an intermission screen.
 void WI_Start(wbstartstruct_t * wbstartstruct);
 
-extern wi_map_t worldmap;
-void WI_MapInit(const wi_map_t * map);
+// Clear Intermission Data
+void WI_Clear(void);
 
 #endif
