@@ -943,7 +943,7 @@ static void InitDirectories(void)
 
 	// Get the Home Directory from environment if set
 	if (!location)
-		location = getenv(EDGEWADDIR);
+		location = getenv(EDGEWADDIR);  // !!! FIXME: doesn't work! (EDGE.WAD not found in homedir)
 
 	if (location)
 	{

@@ -774,6 +774,17 @@ void M_ComposeFileName(epi::string_c& fn, const char *dir, const char *file)
 		fn.Format("%s%c%s", dir, DIRSEPARATOR, file);
 }
 
+//
+// M_OpenComposedFile
+//
+FILE *M_OpenComposedFile(const char *dir, const char *file)
+{
+	epi::string_c fullname;
+
+	M_ComposeFileName(fullname, dir, file);
+
+	return fopen(fullname.GetString(), "rb");
+}
 
 //
 // M_GetFileData
