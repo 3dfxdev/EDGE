@@ -20,12 +20,11 @@
 //
 
 #include "i_defs.h"
-
 #include "dm_defs.h"
-#include "dm_type.h"
+
 #include "ddf_locl.h"
-#include "m_random.h"
-#include "s_sound.h"
+#include "ddf_main.h"
+
 #include "z_zone.h"
 
 #undef  DF
