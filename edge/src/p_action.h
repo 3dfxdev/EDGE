@@ -159,8 +159,7 @@ void P_ActMoveUp(mobj_t * object);
 void P_ActStopMoving(mobj_t * object);
 
 // Projectiles
-void P_ActFixedHomingProjectile(mobj_t * object);
-void P_ActRandomHomingProjectile(mobj_t * object);
+void P_ActHomingProjectile(mobj_t * object);
 void P_ActLaunchOrderedSpread(mobj_t * object);
 void P_ActLaunchRandomSpread(mobj_t * object);
 void P_ActCreateSmokeTrail(mobj_t * object);
