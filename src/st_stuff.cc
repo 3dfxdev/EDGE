@@ -594,9 +594,7 @@ static void UpdateWidgets(void)
 
 void ST_Ticker(void)
 {
-///---	UpdateWidgets();
-
-	consoleplayer->old_health = consoleplayer->health;
+    consoleplayer->old_health = consoleplayer->health;
 }
 
 // -AJA- 1999/07/03: Rewrote this routine, since the palette handling
