@@ -210,6 +210,9 @@ typedef struct vert_region_s
 
   region_properties_t *p;
 
+  // heights: floor->h, ceil->h, and sec_next->floor->h.
+  float_t f_h, c_h, top_h;
+  
   // extra floor details
   // (NULL if this region is part of the normal sector)
   const extrafloor_t *extrafloor;
