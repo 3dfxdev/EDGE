@@ -6,6 +6,8 @@
 
 # --- variables that can be overridden ---
 
+PROGNAME=gledge
+
 # compiler
 CC=g++
 
@@ -16,15 +18,6 @@ AS=nasm -f elf
 #OPTIM=-O3
 #OPTIM=-g3
 OPTIM=-O
-
-# Video options: SDLGL
-VIDEO=SDLGL
-
-# Sound options: SDL AL
-SOUND=AL
-
-# Assembly options: N Y
-ASSEM=N
 
 DEBUG=1
 #PROFILE=1
@@ -42,36 +35,20 @@ DEH_DIR=deh_edge_1.3
 JPEG_DIR=libjpeg
 PNG_DIR=libpng
 
-###---V_SDL_NAME=edge
-###---V_SDL_FLAGS=$(shell sdl-config --cflags)
-###---V_SDL_LDFLAGS=-L/usr/X11R6/lib
-###---V_SDL_OBJS=$(SDL_DIR)/i_video.o
-###---V_SDL_LIBS=$(shell sdl-config --libs)
+VIDEO_FLAGS=$(shell sdl-config --cflags)
+VIDEO_LDFLAGS=-L/usr/X11R6/lib
+VIDEO_OBJS=$(SDL_DIR)/i_video.o
+VIDEO_LIBS=$(shell sdl-config --libs) -lGL
 
-V_SDLGL_NAME=gledge
-V_SDLGL_FLAGS=$(shell sdl-config --cflags)
-V_SDLGL_LDFLAGS=-L/usr/X11R6/lib
-V_SDLGL_OBJS=$(SDL_DIR)/i_video.o
-V_SDLGL_LIBS=$(shell sdl-config --libs) -lGL
-
-S_SDL_FLAGS=
-S_SDL_LDFLAGS=
-S_SDL_OBJS=$(LX_DIR)/is_sdl.o
-S_SDL_LIBS=
-
-S_AL_FLAGS=-DUSE_AL
-S_AL_LDFLAGS=
-S_AL_OBJS=$(AL_DIR)/i_sound.o\
+SOUND_FLAGS=-DUSE_AL
+SOUND_LDFLAGS=
+SOUND_OBJS=$(AL_DIR)/i_sound.o\
 		$(AL_DIR)/oggplayer.o
-S_AL_LIBS=-lopenal -logg -lvorbis -lvorbisfile
+SOUND_LIBS=-lopenal -logg -lvorbis -lvorbisfile
 
-ASM_N_DIR=noasm
-ASM_N_FLAGS=
-ASM_N_OBJS=$(ASM_NULL_OBJS)
-
-ASM_Y_DIR=i386
-ASM_Y_FLAGS=-DASM_NEED_UNDERSCORES
-ASM_Y_OBJS=$(ASM_I386_OBJS)
+ASM_DIR=noasm
+ASM_FLAGS=
+ASM_OBJS=$(ASM_NULL_OBJS)
 
 # HUM_OBJS=
 # HUM_FLAGS=
@@ -82,28 +59,26 @@ HUM_LIBS=./humidity-0.50/libhumidity.a  # -lpthread
 
 # --- putting it all together ---
 
-PROGNAME=$(V_$(VIDEO)_NAME)
-
-ASM_DIR=$(ASM_$(ASSEM)_DIR)
+ASM_DIR=$(ASM_DIR)
 
 CPPFLAGS=-I$(LX_DIR) -I.
 
 CFLAGS=-Wall $(OPTIM) -DMACOSX -DDEVELOPERS  -D__BIG_ENDIAN__  \
-       $(ASM_$(ASSEM)_FLAGS) $(V_$(VIDEO)_FLAGS)  \
-       $(S_$(SOUND)_FLAGS)
+       $(ASM_FLAGS) $(VIDEO_FLAGS)  \
+       $(SOUND_FLAGS)
 
 CXXFLAGS=-Wall $(OPTIM) -DMACOSX -DDEVELOPERS  -D__BIG_ENDIAN__ \
-       $(ASM_$(ASSEM)_FLAGS) $(V_$(VIDEO)_FLAGS)  \
-       $(S_$(SOUND)_FLAGS)
+       $(ASM_FLAGS) $(VIDEO_FLAGS)  \
+       $(SOUND_FLAGS)
 
-LDFLAGS=$(V_$(VIDEO)_LDFLAGS)  \
-        $(S_$(SOUND)_LDFLAGS)
+LDFLAGS=$(VIDEO_LDFLAGS)  \
+        $(SOUND_LDFLAGS)
 
 LIBS=-lm  \
 	$(EPI_DIR)/libepi.a $(LZO_DIR)/liblzo.a \
 	$(GLBSP_DIR)/libglbsp.a  \
 	$(DEH_DIR)/libdehedge.a  \
-	$(V_$(VIDEO)_LIBS) $(S_$(SOUND)_LIBS) \
+	$(VIDEO_LIBS) $(SOUND_LIBS) \
 	-lpng
 
 # ----- OBJECTS --------------------------------------------------------
@@ -236,18 +211,11 @@ COMMON_OBJS= \
 ASM_NULL_OBJS= \
         noasm/i_asm.o 
 
-ASM_I386_OBJS= \
-        i386/i_asm.o \
-		i386/i_cpu.o \
-        i386/r_column.o \
-		i386/r_resize.o \
-        i386/r_span.o
-
 OBJS=$(SYSTEM_OBJS) \
      $(SDL_OBJS) \
-	 $(ASM_$(ASSEM)_OBJS) \
-     $(V_$(VIDEO)_OBJS) \
-	 $(S_$(SOUND)_OBJS) \
+	 $(ASM_OBJS) \
+     $(VIDEO_OBJS) \
+	 $(SOUND_OBJS) \
 	 $(HUM_OBJS) \
 	 $(COMMON_OBJS)
 
