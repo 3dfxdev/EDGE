@@ -42,12 +42,12 @@ int strncasecmpwild(const char *s1, const char *s2, int n);
 #define loopcount       _loopcount
 #define pixelcount      _pixelcount
 #define dc_colourmap    _dc_colourmap
-#define dc_iscale       _dc_iscale
 #define dc_source       _dc_source
-#define dc_texturemid   _dc_texturemid
 #define dc_x            _dc_x
 #define dc_yl           _dc_yl
 #define dc_yh           _dc_yh
+#define dc_yfrac        _dc_yfrac
+#define dc_ystep        _dc_ystep
 #define ds_colourmap    _ds_colourmap
 #define ds_source       _ds_source
 #define ds_x1           _ds_x1
