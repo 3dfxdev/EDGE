@@ -41,31 +41,31 @@ static struct cdrom_volctrl volume;	// volume
 //
 bool I_StartupCD(void)
 {
-  L_WriteDebug("I_StartupCD: Initializing...\n");
+	L_WriteDebug("I_StartupCD: Initializing...\n");
 
-  // try to open the CD drive
-  if ((fd = open(DRIVE, O_RDONLY)) < 0)
-  {
-    I_PostMusicError("I_StartupCD: Can't oopen CDROM device");
-    return false;
-  }
+	// try to open the CD drive
+	if ((fd = open(DRIVE, O_RDONLY)) < 0)
+	{
+		I_PostMusicError("I_StartupCD: Can't oopen CDROM device");
+		return false;
+	}
 
-  // turn drives motor on, some drives won't work without
-  if (ioctl(fd, CDROMSTART) != 0)
-  {
-    I_PostMusicError("I_StartupCD: Can't start drive motor\n");
-    return false;
-  }
+	// turn drives motor on, some drives won't work without
+	if (ioctl(fd, CDROMSTART) != 0)
+	{
+		I_PostMusicError("I_StartupCD: Can't start drive motor\n");
+		return false;
+	}
 
-  // get the TOC header, so we know how many audio tracks
-  if (ioctl(fd, CDROMREADTOCHDR, &toc_header) != 0)
-  {
-    I_PostMusicError("I_StartupCD: can't read TOC header\n");
-    return false;	
-  }
+	// get the TOC header, so we know how many audio tracks
+	if (ioctl(fd, CDROMREADTOCHDR, &toc_header) != 0)
+	{
+		I_PostMusicError("I_StartupCD: can't read TOC header\n");
+		return false;	
+	}
 
-  L_WriteDebug("I_StartupCD: CD Init OK\n");
-  return true;	
+	L_WriteDebug("I_StartupCD: CD Init OK\n");
+	return true;	
 }
 
 //
@@ -75,27 +75,27 @@ bool I_StartupCD(void)
 //
 bool I_CDStartPlayback(int tracknum)
 {
-  struct cdrom_tocentry toc;
-	
-  // get toc entry for the track
-  toc.cdte_track = tracknum;
-  toc.cdte_format = CDROM_MSF;
-  ioctl(fd, CDROMREADTOCENTRY, &toc);
+	struct cdrom_tocentry toc;
 
-  // is this an audio track?
-  if (toc.cdte_ctrl & CDROM_DATA_TRACK)
-  {
-    L_WriteDebug("I_CDStartPlayback: Cannot play CD track: %d\n", tracknum);
-    return false;
-  }
+	// get toc entry for the track
+	toc.cdte_track = tracknum;
+	toc.cdte_format = CDROM_MSF;
+	ioctl(fd, CDROMREADTOCENTRY, &toc);
 
-  ti.cdti_trk0 = tracknum;
-  ti.cdti_ind0 = 0;
-  ti.cdti_trk1 = tracknum;
-  ti.cdti_ind1 = 0;
-  ioctl(fd, CDROMPLAYTRKIND, &ti);
+	// is this an audio track?
+	if (toc.cdte_ctrl & CDROM_DATA_TRACK)
+	{
+		L_WriteDebug("I_CDStartPlayback: Cannot play CD track: %d\n", tracknum);
+		return false;
+	}
 
-  return true;
+	ti.cdti_trk0 = tracknum;
+	ti.cdti_ind0 = 0;
+	ti.cdti_trk1 = tracknum;
+	ti.cdti_ind1 = 0;
+	ioctl(fd, CDROMPLAYTRKIND, &ti);
+
+	return true;
 }
 
 //
@@ -105,7 +105,7 @@ bool I_CDStartPlayback(int tracknum)
 //
 void I_CDPausePlayback(void)
 {
-  ioctl(fd, CDROMPAUSE);
+	ioctl(fd, CDROMPAUSE);
 }
 
 //
@@ -115,7 +115,7 @@ void I_CDPausePlayback(void)
 //
 void I_CDResumePlayback(void)
 {
-  ioctl(fd, CDROMRESUME);
+	ioctl(fd, CDROMRESUME);
 }
 
 //
@@ -123,7 +123,7 @@ void I_CDResumePlayback(void)
 //
 void I_CDStopPlayback(void)
 {
-  ioctl(fd, CDROMSTOP);
+	ioctl(fd, CDROMSTOP);
 }
 
 //
@@ -133,14 +133,14 @@ void I_CDStopPlayback(void)
 //
 void I_CDSetVolume(int vol)
 {
-  if ((vol >= 0) && (vol <= 15))
-  {
-    volume.channel0 =  vol * 255 / 15;
-    volume.channel1 =  vol * 255 / 15;
-    volume.channel2 =  0;
-    volume.channel3 =  0;
-    ioctl(fd, CDROMVOLCTRL, &volume);
-  }
+	if ((vol >= 0) && (vol <= 15))
+	{
+		volume.channel0 =  vol * 255 / 15;
+		volume.channel1 =  vol * 255 / 15;
+		volume.channel2 =  0;
+		volume.channel3 =  0;
+		ioctl(fd, CDROMVOLCTRL, &volume);
+	}
 }
 
 //
@@ -150,15 +150,15 @@ void I_CDSetVolume(int vol)
 //
 bool I_CDFinished(void)
 {
-  static struct cdrom_subchnl subchnl;
+	static struct cdrom_subchnl subchnl;
 
-  subchnl.cdsc_format = CDROM_MSF;	// get result in MSF format
-  ioctl(fd, CDROMSUBCHNL, &subchnl);
+	subchnl.cdsc_format = CDROM_MSF;	// get result in MSF format
+	ioctl(fd, CDROMSUBCHNL, &subchnl);
 
-  if (subchnl.cdsc_audiostatus == CDROM_AUDIO_COMPLETED)
-    return true;
+	if (subchnl.cdsc_audiostatus == CDROM_AUDIO_COMPLETED)
+		return true;
 
-  return false;
+	return false;
 }
 
 //
@@ -168,6 +168,6 @@ bool I_CDFinished(void)
 //
 void I_ShutdownCD()
 {
-  ioctl(fd, CDROMSTOP);
-  close(fd);
+	ioctl(fd, CDROMSTOP);
+	close(fd);
 }

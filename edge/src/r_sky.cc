@@ -43,15 +43,15 @@ float skytexturescale;
 
 typedef struct sec_sky_ring_s
 {
-  // which group of connected skies (0 if none)
-  int group;
- 
-  // link of sector in RING
-  struct sec_sky_ring_s *next;
-  struct sec_sky_ring_s *prev;
+	// which group of connected skies (0 if none)
+	int group;
 
-  // maximal sky height of group
-  float max_h;
+	// link of sector in RING
+	struct sec_sky_ring_s *next;
+	struct sec_sky_ring_s *prev;
+
+	// maximal sky height of group
+	float max_h;
 }
 sec_sky_ring_t;
 
@@ -70,16 +70,16 @@ sec_sky_ring_t;
 //
 void R_InitSkyMap(void)
 {
-  if (level_flags.stretchsky)
-  {
-    skytexturemid = 100 - 160 * topslope * 5 / 9;
-    skytexturescale = 160 * (topslope - bottomslope) * 5 / (viewheight * 9);
-  }
-  else
-  {
-    skytexturemid = 100 - 160 * topslope;
-    skytexturescale = 160 * (topslope - bottomslope) / viewheight;
-  }
+	if (level_flags.stretchsky)
+	{
+		skytexturemid = 100 - 160 * topslope * 5 / 9;
+		skytexturescale = 160 * (topslope - bottomslope) * 5 / (viewheight * 9);
+	}
+	else
+	{
+		skytexturemid = 100 - 160 * topslope;
+		skytexturescale = 160 * (topslope - bottomslope) / viewheight;
+	}
 }
 
 //
@@ -96,96 +96,96 @@ void R_InitSkyMap(void)
 // 
 void R_ComputeSkyHeights(void)
 {
-  int i;
-  line_t *ld;
-  sector_t *sec;
-  sec_sky_ring_t *rings;
+	int i;
+	line_t *ld;
+	sector_t *sec;
+	sec_sky_ring_t *rings;
 
-  // --- initialise ---
+	// --- initialise ---
 
-  rings = Z_ClearNew(sec_sky_ring_t, numsectors);
+	rings = Z_ClearNew(sec_sky_ring_t, numsectors);
 
-  for (i=0, sec=sectors; i < numsectors; i++, sec++)
-  {
-    if (! IS_SKY(sec->ceil))
-      continue;
+	for (i=0, sec=sectors; i < numsectors; i++, sec++)
+	{
+		if (! IS_SKY(sec->ceil))
+			continue;
 
-    rings[i].group = (i + 1);
-    rings[i].next = rings[i].prev = rings + i;
-    rings[i].max_h = sec->c_h;
-  }
+		rings[i].group = (i + 1);
+		rings[i].next = rings[i].prev = rings + i;
+		rings[i].max_h = sec->c_h;
+	}
 
-  // --- make the pass over linedefs ---
-  
-  for (i=0, ld=lines; i < numlines; i++, ld++)
-  {
-    sector_t *sec1, *sec2;
-    sec_sky_ring_t *ring1, *ring2, *tmp_R;
+	// --- make the pass over linedefs ---
 
-    if (! ld->side[0] || ! ld->side[1])
-      continue;
-    
-    sec1 = ld->frontsector;
-    sec2 = ld->backsector;
-    
-    DEV_ASSERT2(sec1 && sec2);
+	for (i=0, ld=lines; i < numlines; i++, ld++)
+	{
+		sector_t *sec1, *sec2;
+		sec_sky_ring_t *ring1, *ring2, *tmp_R;
 
-    if (sec1 == sec2)
-      continue;
+		if (! ld->side[0] || ! ld->side[1])
+			continue;
 
-    ring1 = rings + (sec1 - sectors);
-    ring2 = rings + (sec2 - sectors);
+		sec1 = ld->frontsector;
+		sec2 = ld->backsector;
 
-    // we require sky on both sides
-    if (ring1->group == 0 || ring2->group == 0)
-      continue;
+		DEV_ASSERT2(sec1 && sec2);
 
-    // already in the same group ?
-    if (ring1->group == ring2->group)
-      continue;
+		if (sec1 == sec2)
+			continue;
 
-    // swap sectors to ensure the lower group is added to the higher
-    // group, since we don't need to update the `max_h' fields of the
-    // highest group.
+		ring1 = rings + (sec1 - sectors);
+		ring2 = rings + (sec2 - sectors);
 
-    if (ring1->max_h < ring2->max_h)
-    {
-      tmp_R = ring1;  ring1 = ring2;  ring2 = tmp_R;
-    }
-    
-    // update the group numbers in the second group
-    
-    ring2->group = ring1->group;
-    ring2->max_h = ring1->max_h;
+		// we require sky on both sides
+		if (ring1->group == 0 || ring2->group == 0)
+			continue;
 
-    for (tmp_R=ring2->next; tmp_R != ring2; tmp_R=tmp_R->next)
-    {
-      tmp_R->group = ring1->group;
-      tmp_R->max_h = ring1->max_h;
-    }
-    
-    // merge 'em baby...
+		// already in the same group ?
+		if (ring1->group == ring2->group)
+			continue;
 
-    ring1->next->prev = ring2;
-    ring2->next->prev = ring1;
+		// swap sectors to ensure the lower group is added to the higher
+		// group, since we don't need to update the `max_h' fields of the
+		// highest group.
 
-    tmp_R = ring1->next; 
-    ring1->next = ring2->next;
-    ring2->next = tmp_R;
-  }
+		if (ring1->max_h < ring2->max_h)
+		{
+			tmp_R = ring1;  ring1 = ring2;  ring2 = tmp_R;
+		}
 
-  // --- now store the results, and free up ---
-  
-  for (i=0, sec=sectors; i < numsectors; i++, sec++)
-  {
-    if (rings[i].group > 0)
-      sec->sky_h = rings[i].max_h;
+		// update the group numbers in the second group
+
+		ring2->group = ring1->group;
+		ring2->max_h = ring1->max_h;
+
+		for (tmp_R=ring2->next; tmp_R != ring2; tmp_R=tmp_R->next)
+		{
+			tmp_R->group = ring1->group;
+			tmp_R->max_h = ring1->max_h;
+		}
+
+		// merge 'em baby...
+
+		ring1->next->prev = ring2;
+		ring2->next->prev = ring1;
+
+		tmp_R = ring1->next; 
+		ring1->next = ring2->next;
+		ring2->next = tmp_R;
+	}
+
+	// --- now store the results, and free up ---
+
+	for (i=0, sec=sectors; i < numsectors; i++, sec++)
+	{
+		if (rings[i].group > 0)
+			sec->sky_h = rings[i].max_h;
 
 #if 0   // DEBUG CODE
-    L_WriteDebug("SKY: sec %d  group %d  max_h %1.1f\n", i,
-        rings[i].group, rings[i].max_h);
+		L_WriteDebug("SKY: sec %d  group %d  max_h %1.1f\n", i,
+				rings[i].group, rings[i].max_h);
 #endif
-  }
+	}
 
-  Z_Free(rings);
+	Z_Free(rings);
 }

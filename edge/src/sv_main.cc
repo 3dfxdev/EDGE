@@ -297,14 +297,14 @@ void SR_PutAngleToSlope(void *storage, int index, void *extra)
 
 static void AddKnownStruct(savestruct_t *S)
 {
-  S->next = sv_known_structs;
-  sv_known_structs = S;
+	S->next = sv_known_structs;
+	sv_known_structs = S;
 }
 
 static void AddKnownArray(savearray_t *A)
 {
-  A->next = sv_known_arrays;
-  sv_known_arrays = A;
+	A->next = sv_known_arrays;
+	sv_known_arrays = A;
 }
 
 
@@ -316,49 +316,49 @@ static void AddKnownArray(savearray_t *A)
 //
 bool SV_MainInit(void)
 {
-  // sv_mobj.c
-  AddKnownStruct(&sv_struct_mobj);
-  AddKnownStruct(&sv_struct_spawnpoint);
-  AddKnownStruct(&sv_struct_iteminque);
-  
-  AddKnownArray(&sv_array_mobj);
-  AddKnownArray(&sv_array_iteminque);
+	// sv_mobj.c
+	AddKnownStruct(&sv_struct_mobj);
+	AddKnownStruct(&sv_struct_spawnpoint);
+	AddKnownStruct(&sv_struct_iteminque);
 
-  // sv_play.c
-  AddKnownStruct(&sv_struct_player);
-  AddKnownStruct(&sv_struct_playerweapon);
-  AddKnownStruct(&sv_struct_playerammo);
-  AddKnownStruct(&sv_struct_psprite);
-  
-  AddKnownArray(&sv_array_player);
+	AddKnownArray(&sv_array_mobj);
+	AddKnownArray(&sv_array_iteminque);
 
-  // sv_level.c
-  AddKnownStruct(&sv_struct_surface);
-  AddKnownStruct(&sv_struct_side);
-  AddKnownStruct(&sv_struct_line);
-  AddKnownStruct(&sv_struct_regprops);
-  AddKnownStruct(&sv_struct_exfloor);
-  AddKnownStruct(&sv_struct_sector);
+	// sv_play.c
+	AddKnownStruct(&sv_struct_player);
+	AddKnownStruct(&sv_struct_playerweapon);
+	AddKnownStruct(&sv_struct_playerammo);
+	AddKnownStruct(&sv_struct_psprite);
 
-  AddKnownArray(&sv_array_side);
-  AddKnownArray(&sv_array_line);
-  AddKnownArray(&sv_array_exfloor);
-  AddKnownArray(&sv_array_sector);
+	AddKnownArray(&sv_array_player);
 
-  // sv_misc.c
-  AddKnownStruct(&sv_struct_button);
-  AddKnownStruct(&sv_struct_light);
-  AddKnownStruct(&sv_struct_trigger);
-  AddKnownStruct(&sv_struct_drawtip);
-  AddKnownStruct(&sv_struct_plane_move);
+	// sv_level.c
+	AddKnownStruct(&sv_struct_surface);
+	AddKnownStruct(&sv_struct_side);
+	AddKnownStruct(&sv_struct_line);
+	AddKnownStruct(&sv_struct_regprops);
+	AddKnownStruct(&sv_struct_exfloor);
+	AddKnownStruct(&sv_struct_sector);
 
-  AddKnownArray(&sv_array_button);
-  AddKnownArray(&sv_array_light);
-  AddKnownArray(&sv_array_trigger);
-  AddKnownArray(&sv_array_drawtip);
-  AddKnownArray(&sv_array_plane_move);
+	AddKnownArray(&sv_array_side);
+	AddKnownArray(&sv_array_line);
+	AddKnownArray(&sv_array_exfloor);
+	AddKnownArray(&sv_array_sector);
 
-  return true;
+	// sv_misc.c
+	AddKnownStruct(&sv_struct_button);
+	AddKnownStruct(&sv_struct_light);
+	AddKnownStruct(&sv_struct_trigger);
+	AddKnownStruct(&sv_struct_drawtip);
+	AddKnownStruct(&sv_struct_plane_move);
+
+	AddKnownArray(&sv_array_button);
+	AddKnownArray(&sv_array_light);
+	AddKnownArray(&sv_array_trigger);
+	AddKnownArray(&sv_array_drawtip);
+	AddKnownArray(&sv_array_plane_move);
+
+	return true;
 }
 
 //
@@ -366,14 +366,14 @@ bool SV_MainInit(void)
 //
 savestruct_t *SV_MainLookupStruct(const char *name)
 {
-  savestruct_t *cur;
+	savestruct_t *cur;
 
-  for (cur=sv_known_structs; cur; cur=cur->next)
-    if (strcmp(cur->struct_name, name) == 0)
-      return cur;
-    
-  // not found
-  return NULL;
+	for (cur=sv_known_structs; cur; cur=cur->next)
+		if (strcmp(cur->struct_name, name) == 0)
+			return cur;
+
+	// not found
+	return NULL;
 }
 
 //
@@ -381,14 +381,14 @@ savestruct_t *SV_MainLookupStruct(const char *name)
 //
 savearray_t *SV_MainLookupArray(const char *name)
 {
-  savearray_t *cur;
+	savearray_t *cur;
 
-  for (cur=sv_known_arrays; cur; cur=cur->next)
-    if (strcmp(cur->array_name, name) == 0)
-      return cur;
+	for (cur=sv_known_arrays; cur; cur=cur->next)
+		if (strcmp(cur->array_name, name) == 0)
+			return cur;
 
-  // not found
-  return NULL;
+	// not found
+	return NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -399,126 +399,126 @@ savearray_t *SV_MainLookupArray(const char *name)
 #if 0
 void SV_MainTestPrimitives(void)
 {
-  int i;
-  int version;
+	int i;
+	int version;
 
-  if (! SV_OpenWriteFile("savegame/prim.tst", 0x7654))
-    I_Error("SV_MainTestPrimitives: couldn't create output\n");
-  
-  SV_PutByte(0x00);
-  SV_PutByte(0x55);
-  SV_PutByte(0xAA);
-  SV_PutByte(0xFF);
+	if (! SV_OpenWriteFile("savegame/prim.tst", 0x7654))
+		I_Error("SV_MainTestPrimitives: couldn't create output\n");
 
-  SV_PutShort(0x0000);
-  SV_PutShort(0x4567);
-  SV_PutShort(0xCDEF);
-  SV_PutShort(0xFFFF);
+	SV_PutByte(0x00);
+	SV_PutByte(0x55);
+	SV_PutByte(0xAA);
+	SV_PutByte(0xFF);
 
-  SV_PutInt(0x00000000);
-  SV_PutInt(0x11223344);
-  SV_PutInt(0xbbccddee);
-  SV_PutInt(0xffffffff);
+	SV_PutShort(0x0000);
+	SV_PutShort(0x4567);
+	SV_PutShort(0xCDEF);
+	SV_PutShort(0xFFFF);
 
-  SV_PutFixed(0);
-  SV_PutFixed(FRACUNIT);
-  SV_PutFixed(M_FloatToFixed(123.456f));
-  SV_PutFixed(-FRACUNIT);
-  SV_PutFixed(-M_FloatToFixed(345.789f));
+	SV_PutInt(0x00000000);
+	SV_PutInt(0x11223344);
+	SV_PutInt(0xbbccddee);
+	SV_PutInt(0xffffffff);
 
-  SV_PutAngle(ANG1);
-  SV_PutAngle(ANG45);
-  SV_PutAngle(ANG135);
-  SV_PutAngle(ANG180);
-  SV_PutAngle(ANG270);
-  SV_PutAngle(ANG315);
-  SV_PutAngle(0 - ANG1);
+	SV_PutFixed(0);
+	SV_PutFixed(FRACUNIT);
+	SV_PutFixed(M_FloatToFixed(123.456f));
+	SV_PutFixed(-FRACUNIT);
+	SV_PutFixed(-M_FloatToFixed(345.789f));
 
-  SV_PutFloat(0.0f);
-  SV_PutFloat(0.001f);   SV_PutFloat(-0.001f);
-  SV_PutFloat(0.1f);     SV_PutFloat(-0.1f);
-  SV_PutFloat(0.25f);    SV_PutFloat(-0.25f);
-  SV_PutFloat(1.0f);     SV_PutFloat(-1.0f);
-  SV_PutFloat(2.0f);     SV_PutFloat(-2.0f);
-  SV_PutFloat(3.1416f);  SV_PutFloat(-3.1416f);
-  SV_PutFloat(1000.0f);  SV_PutFloat(-1000.0f);
-  SV_PutFloat(1234567890.0f);  
-  SV_PutFloat(-1234567890.0f);
-  
-  SV_PutString(NULL);
-  SV_PutString("");
-  SV_PutString("A");
-  SV_PutString("123");
-  SV_PutString("HELLO world !");
+	SV_PutAngle(ANG1);
+	SV_PutAngle(ANG45);
+	SV_PutAngle(ANG135);
+	SV_PutAngle(ANG180);
+	SV_PutAngle(ANG270);
+	SV_PutAngle(ANG315);
+	SV_PutAngle(0 - ANG1);
 
-  SV_PutMarker("ABCD");
-  SV_PutMarker("xyz3");
+	SV_PutFloat(0.0f);
+	SV_PutFloat(0.001f);   SV_PutFloat(-0.001f);
+	SV_PutFloat(0.1f);     SV_PutFloat(-0.1f);
+	SV_PutFloat(0.25f);    SV_PutFloat(-0.25f);
+	SV_PutFloat(1.0f);     SV_PutFloat(-1.0f);
+	SV_PutFloat(2.0f);     SV_PutFloat(-2.0f);
+	SV_PutFloat(3.1416f);  SV_PutFloat(-3.1416f);
+	SV_PutFloat(1000.0f);  SV_PutFloat(-1000.0f);
+	SV_PutFloat(1234567890.0f);  
+	SV_PutFloat(-1234567890.0f);
 
-  SV_CloseWriteFile();
+	SV_PutString(NULL);
+	SV_PutString("");
+	SV_PutString("A");
+	SV_PutString("123");
+	SV_PutString("HELLO world !");
 
-  // ------------------------------------------------------------ //
+	SV_PutMarker("ABCD");
+	SV_PutMarker("xyz3");
 
-  if (! SV_OpenReadFile("savegame/prim.tst"))
-    I_Error("SV_MainTestPrimitives: couldn't open input\n");
-  
-  if (! SV_VerifyHeader(&version))
-    I_Error("SV_MainTestPrimitives: couldn't open input\n");
-  
-  L_WriteDebug("TEST HEADER: version=0x%04x\n", version);
+	SV_CloseWriteFile();
 
-  for (i=0; i < 4; i++)
-  {
-    unsigned int val = SV_GetByte();
-    L_WriteDebug("TEST BYTE: 0x%02x %d\n", val, (char) val);
-  }
+	// ------------------------------------------------------------ //
 
-  for (i=0; i < 4; i++)
-  {
-    unsigned int val = SV_GetShort();
-    L_WriteDebug("TEST SHORT: 0x%02x %d\n", val, (short) val);
-  }
-  
-  for (i=0; i < 4; i++)
-  {
-    unsigned int val = SV_GetInt();
-    L_WriteDebug("TEST INT: 0x%02x %d\n", val, (int) val);
-  }
-  
-  for (i=0; i < 5; i++)
-  {
-    fixed_t val = SV_GetFixed();
-    L_WriteDebug("TEST FIXED: 0x%08x = %1.6f\n", (unsigned int) val,
-        M_FixedToFloat(val));
-  }
-  
-  for (i=0; i < 7; i++)
-  {
-    angle_t val = SV_GetAngle();
-    L_WriteDebug("TEST ANGLE: 0x%08x = %1.6f\n", (unsigned int) val,
-        ANG_2_FLOAT(val));
-  }
-  
-  for (i=0; i < 17; i++)
-  {
-    float val = SV_GetFloat();
-    L_WriteDebug("TEST FLOAT: %1.6f\n", val);
-  }
-  
-  for (i=0; i < 5; i++)
-  {
-    const char *val = SV_GetString();
-    L_WriteDebug("TEST STRING: [%s]\n", val ? val : "--NULL--");
-    Z_Free((char *)val);
-  }
-  
-  for (i=0; i < 2; i++)
-  {
-    char val[6];
-    SV_GetMarker(val);
-    L_WriteDebug("TEST MARKER: [%s]\n", val);
-  }
-  
-  SV_CloseReadFile();
+	if (! SV_OpenReadFile("savegame/prim.tst"))
+		I_Error("SV_MainTestPrimitives: couldn't open input\n");
+
+	if (! SV_VerifyHeader(&version))
+		I_Error("SV_MainTestPrimitives: couldn't open input\n");
+
+	L_WriteDebug("TEST HEADER: version=0x%04x\n", version);
+
+	for (i=0; i < 4; i++)
+	{
+		unsigned int val = SV_GetByte();
+		L_WriteDebug("TEST BYTE: 0x%02x %d\n", val, (char) val);
+	}
+
+	for (i=0; i < 4; i++)
+	{
+		unsigned int val = SV_GetShort();
+		L_WriteDebug("TEST SHORT: 0x%02x %d\n", val, (short) val);
+	}
+
+	for (i=0; i < 4; i++)
+	{
+		unsigned int val = SV_GetInt();
+		L_WriteDebug("TEST INT: 0x%02x %d\n", val, (int) val);
+	}
+
+	for (i=0; i < 5; i++)
+	{
+		fixed_t val = SV_GetFixed();
+		L_WriteDebug("TEST FIXED: 0x%08x = %1.6f\n", (unsigned int) val,
+				M_FixedToFloat(val));
+	}
+
+	for (i=0; i < 7; i++)
+	{
+		angle_t val = SV_GetAngle();
+		L_WriteDebug("TEST ANGLE: 0x%08x = %1.6f\n", (unsigned int) val,
+				ANG_2_FLOAT(val));
+	}
+
+	for (i=0; i < 17; i++)
+	{
+		float val = SV_GetFloat();
+		L_WriteDebug("TEST FLOAT: %1.6f\n", val);
+	}
+
+	for (i=0; i < 5; i++)
+	{
+		const char *val = SV_GetString();
+		L_WriteDebug("TEST STRING: [%s]\n", val ? val : "--NULL--");
+		Z_Free((char *)val);
+	}
+
+	for (i=0; i < 2; i++)
+	{
+		char val[6];
+		SV_GetMarker(val);
+		L_WriteDebug("TEST MARKER: [%s]\n", val);
+	}
+
+	SV_CloseReadFile();
 }
 
 #endif  // TEST CODE

@@ -677,30 +677,30 @@ static void BunnyScroll(void)
 //
 void F_Drawer(void)
 {
-  switch (finalestage)
-  {
-    case f_text:
-      TextWrite();
-      break;
+	switch (finalestage)
+	{
+		case f_text:
+			TextWrite();
+			break;
 
-    case f_pic:
-      {
-        const image_t *image = W_ImageFromPatch(
-            finale->pics + (picnum * 9));
+		case f_pic:
+			{
+				const image_t *image = W_ImageFromPatch(
+						finale->pics + (picnum * 9));
 
-        VCTX_Image320(0, 0, 320, 200, image);
-      }
-      break;
-      
-    case f_bunny:
-      BunnyScroll();
-      break;
-      
-    case f_cast:
-      CastDrawer();
-      break;
+				VCTX_Image320(0, 0, 320, 200, image);
+			}
+			break;
 
-    case f_end:
-      break;
-  }
+		case f_bunny:
+			BunnyScroll();
+			break;
+
+		case f_cast:
+			CastDrawer();
+			break;
+
+		case f_end:
+			break;
+	}
 }

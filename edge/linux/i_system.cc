@@ -218,27 +218,27 @@ void I_Error (const char *error, ...)
 // -AJA- Routine which emulates IBM charset.
 static void PrintString(char *str)
 {
-  for (; *str; str++)
-  {
-    int ch = (unsigned char) *str;
-    
-    if (ch == 0x7F || ch == '\r')
-      continue;
-      
-    if ((0x20 <= ch && ch <= 0x7E) ||
-        ch == '\n' || ch == '\t')
-    {
-      putchar(ch);
-      continue;
-    }
+	for (; *str; str++)
+	{
+		int ch = (unsigned char) *str;
 
-    if (ch >= 0x80)
-      ch -= 0x60;
+		if (ch == 0x7F || ch == '\r')
+			continue;
 
-    putchar(cp437_to_ascii[ch]);
-  }
+		if ((0x20 <= ch && ch <= 0x7E) ||
+				ch == '\n' || ch == '\t')
+		{
+			putchar(ch);
+			continue;
+		}
 
-  fflush(stdout);
+		if (ch >= 0x80)
+			ch -= 0x60;
+
+		putchar(cp437_to_ascii[ch]);
+	}
+
+	fflush(stdout);
 }
 
 void I_Printf (const char *message,...)
@@ -390,10 +390,10 @@ void I_SystemShutdown(void)
 //
 bool I_PathIsAbsolute(const char *path)
 {
-  if (path[0] == '/' || path[0] == '.')
-    return true;
-  else
-    return false;
+	if (path[0] == '/' || path[0] == '.')
+		return true;
+	else
+		return false;
 }
 
 //
@@ -405,26 +405,26 @@ bool I_PathIsAbsolute(const char *path)
 //
 char *I_PreparePath(const char *path)
 {
-  int len = strlen(path);
-  char *s;
+	int len = strlen(path);
+	char *s;
 
-  if (len == 0)
-  {
-    // empty string means "./"
-    return Z_StrDup(".");
-  }
+	if (len == 0)
+	{
+		// empty string means "./"
+		return Z_StrDup(".");
+	}
 
-  if (path[len - 1] == '/')
-  {
-    // cut off the last separator
-    s = (char*)Z_Malloc(len);
-    memcpy(s, path, len - 1);
-    s[len - 1] = 0;
+	if (path[len - 1] == '/')
+	{
+		// cut off the last separator
+		s = (char*)Z_Malloc(len);
+		memcpy(s, path, len - 1);
+		s[len - 1] = 0;
 
-    return s;
-  }
+		return s;
+	}
 
-  return Z_StrDup(path);
+	return Z_StrDup(path);
 }
 
 
@@ -435,9 +435,9 @@ char *I_PreparePath(const char *path)
 //
 long I_PureRandom(void)
 {
-  // FIXME: use /dev/random
+	// FIXME: use /dev/random
 
-  return time(NULL);
+	return time(NULL);
 }
 
 //
@@ -445,13 +445,13 @@ long I_PureRandom(void)
 //
 unsigned long I_ReadMicroSeconds(void)
 {
-  struct timeval tv;
+	struct timeval tv;
 
-  gettimeofday(&tv, NULL);
+	gettimeofday(&tv, NULL);
 
-  // FIXME: this is probably wrong...
+	// FIXME: this is probably wrong...
 
-  return tv.tv_usec;
+	return tv.tv_usec;
 }
 
 //
@@ -459,12 +459,12 @@ unsigned long I_ReadMicroSeconds(void)
 //
 bool I_PathIsDirectory(const char *path)
 {
-  struct stat buf;
+	struct stat buf;
 
-  if (!stat(path, &buf))
-    return false;
+	if (!stat(path, &buf))
+		return false;
 
-  return S_ISDIR(buf.st_mode);
+	return S_ISDIR(buf.st_mode);
 }
 
 //
@@ -472,7 +472,7 @@ bool I_PathIsDirectory(const char *path)
 //
 bool I_Access(const char *filename)
 {
-  return (access(filename, R_OK) == 0) ? true : false;
+	return (access(filename, R_OK) == 0) ? true : false;
 }
 
 
@@ -483,34 +483,34 @@ bool I_Access(const char *filename)
 //
 bool I_GetModifiedTime(const char *filename, i_time_t *t)
 {
-  struct stat buf;
-  struct tm timeinf;
+	struct stat buf;
+	struct tm timeinf;
 
-  // Check the sanity of the coders...
-  if (!filename)
-    return false;
+	// Check the sanity of the coders...
+	if (!filename)
+		return false;
 
-  if (!t)
-    return false;
+	if (!t)
+		return false;
 
-  memset(t,0,sizeof(i_time_t));
+	memset(t,0,sizeof(i_time_t));
 
-  // Check the file is invalid
-  if (stat(filename, &buf))			
-    return false;
+	// Check the file is invalid
+	if (stat(filename, &buf))			
+		return false;
 
-  // Convert the 'time_t' of the modified time into something more human
-  if(!localtime_r(&buf.st_mtime, &timeinf))
-    return false;
+	// Convert the 'time_t' of the modified time into something more human
+	if(!localtime_r(&buf.st_mtime, &timeinf))
+		return false;
 
-  t->secs    = timeinf.tm_sec;
-  t->minutes = timeinf.tm_min;
-  t->hours   = timeinf.tm_hour;
-  t->day     = timeinf.tm_mday;
-  t->month   = timeinf.tm_mon+1;
-  t->year    = timeinf.tm_year+1900;
+	t->secs    = timeinf.tm_sec;
+	t->minutes = timeinf.tm_min;
+	t->hours   = timeinf.tm_hour;
+	t->day     = timeinf.tm_mday;
+	t->month   = timeinf.tm_mon+1;
+	t->year    = timeinf.tm_year+1900;
 
-  return true;
+	return true;
 }
 
 //
@@ -518,6 +518,6 @@ bool I_GetModifiedTime(const char *filename, i_time_t *t)
 //
 void I_EDGELoop(void)
 {
-  while (1)
-    E_EDGELoopRoutine();
+	while (1)
+		E_EDGELoopRoutine();
 }

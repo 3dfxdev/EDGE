@@ -1232,9 +1232,9 @@ bool DDF_MainParseSubField(const commandlist_t *sub_comms,
 
 	DEV_ASSERT2(sub_comms[i].parse_command);
 
-  int offset = ((char *) sub_comms[i].storage) - dummy_base;
+	int offset = ((char *) sub_comms[i].storage) - dummy_base;
 
-  (* sub_comms[i].parse_command)(contents, stor_base + offset);
+	(* sub_comms[i].parse_command)(contents, stor_base + offset);
 
 	return true;
 }

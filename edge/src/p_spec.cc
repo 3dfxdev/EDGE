@@ -65,15 +65,15 @@ sector_t * sect_speciallist;
 
 typedef struct sectorsfx_s
 {
-  sector_t *sector;
-  sfx_t *sfx;
-  bool sfxstarted;
+	sector_t *sector;
+	sfx_t *sfx;
+	bool sfxstarted;
 
-  // tics to go before next update
-  int count;
+	// tics to go before next update
+	int count;
 
-  // link in list
-  struct sectorsfx_s *next;
+	// link in list
+	struct sectorsfx_s *next;
 }
 sectorsfx_t;
 
@@ -82,7 +82,7 @@ sectorsfx_t;
 static sectorsfx_t *sectorsfx_list;
 
 static bool P_DoSectorsFromTag(int tag, const void *p1, void *p2,
-    bool(*func) (sector_t *, const void *, void *));
+		bool(*func) (sector_t *, const void *, void *));
 
 //
 // DoElevator_wrapper
@@ -91,7 +91,7 @@ static bool P_DoSectorsFromTag(int tag, const void *p1, void *p2,
 //
 static bool DoElevator_wrapper(sector_t *s, const void *p1, void *p2) 
 {
-  return EV_DoElevator(s, (const elevator_sector_t*)p1, (sector_t*)p2);
+	return EV_DoElevator(s, (const elevator_sector_t*)p1, (sector_t*)p2);
 }
 
 //
@@ -99,7 +99,7 @@ static bool DoElevator_wrapper(sector_t *s, const void *p1, void *p2)
 //
 static bool DoPlane_wrapper(sector_t *s, const void *p1, void *p2)
 {
-  return EV_DoPlane(s, (const moving_plane_t*)p1, (sector_t*)p2);
+	return EV_DoPlane(s, (const moving_plane_t*)p1, (sector_t*)p2);
 }
 
 //
@@ -107,7 +107,7 @@ static bool DoPlane_wrapper(sector_t *s, const void *p1, void *p2)
 //
 static bool DoLights_wrapper(sector_t *s, const void *p1, void *p2)
 {
-  return EV_Lights(s, (const lighttype_t*)p1);
+	return EV_Lights(s, (const lighttype_t*)p1);
 }
 
 //
@@ -115,7 +115,7 @@ static bool DoLights_wrapper(sector_t *s, const void *p1, void *p2)
 //
 static bool DoDonut_wrapper(sector_t *s, const void *p1, void *p2)
 {
-  return EV_DoDonut(s, (sfx_t**)p2);
+	return EV_DoDonut(s, (sfx_t**)p2);
 }
 
 //
@@ -123,14 +123,14 @@ static bool DoDonut_wrapper(sector_t *s, const void *p1, void *p2)
 //
 static sectorsfx_t *NewSectorSFX(void)
 {
-  sectorsfx_t *sfx;
+	sectorsfx_t *sfx;
 
-  sfx = Z_New(sectorsfx_t, 1);
+	sfx = Z_New(sectorsfx_t, 1);
 
-  sfx->next = sectorsfx_list;
-  sectorsfx_list = sfx;
-  
-  return sfx;
+	sfx->next = sectorsfx_list;
+	sectorsfx_list = sfx;
+
+	return sfx;
 }
 
 //
@@ -138,14 +138,14 @@ static sectorsfx_t *NewSectorSFX(void)
 //
 void P_DestroyAllSectorSFX(void)
 {
-  sectorsfx_t *sfx, *next;
+	sectorsfx_t *sfx, *next;
 
-  for (sfx = sectorsfx_list; sfx; sfx = next)
-  {
-    next = sfx->next;
-    Z_Free(sfx);
-  }
-  sectorsfx_list = NULL;
+	for (sfx = sectorsfx_list; sfx; sfx = next)
+	{
+		next = sfx->next;
+		Z_Free(sfx);
+	}
+	sectorsfx_list = NULL;
 }
 
 //
@@ -158,34 +158,34 @@ void P_DestroyAllSectorSFX(void)
 //
 static void DoSectorSFX(sectorsfx_t *sec)
 {
-  if (--sec->count)
-    return;
+	if (--sec->count)
+		return;
 
-  sec->count = SECSFX_TIME;
+	sec->count = SECSFX_TIME;
 
-  if (!sec->sfxstarted)
-  {
-    if (P_ApproxDistance(displayplayer->mo->x - sec->sector->soundorg.x,
-            displayplayer->mo->y - sec->sector->soundorg.y)
-        < S_CLIPPING_DIST)
-    {
-      int channel = S_StartSound((mobj_t *) & sec->sector->soundorg,
-          sec->sfx);
+	if (!sec->sfxstarted)
+	{
+		if (P_ApproxDistance(displayplayer->mo->x - sec->sector->soundorg.x,
+					displayplayer->mo->y - sec->sector->soundorg.y)
+				< S_CLIPPING_DIST)
+		{
+			int channel = S_StartSound((mobj_t *) & sec->sector->soundorg,
+					sec->sfx);
 
-      if (channel >= 0)
-        sec->sfxstarted = true;
-    }
-  }
-  else
-  {
-    if (P_ApproxDistance(displayplayer->mo->x - sec->sector->soundorg.x,
-            displayplayer->mo->y - sec->sector->soundorg.y)
-        > S_CLIPPING_DIST)
-    {
-      S_StopSound((mobj_t *) &sec->sector->soundorg);
-      sec->sfxstarted = false;
-    }
-  }
+			if (channel >= 0)
+				sec->sfxstarted = true;
+		}
+	}
+	else
+	{
+		if (P_ApproxDistance(displayplayer->mo->x - sec->sector->soundorg.x,
+					displayplayer->mo->y - sec->sector->soundorg.y)
+				> S_CLIPPING_DIST)
+		{
+			S_StopSound((mobj_t *) &sec->sector->soundorg);
+			sec->sfxstarted = false;
+		}
+	}
 }
 
 //
@@ -193,14 +193,14 @@ static void DoSectorSFX(sectorsfx_t *sec)
 //
 void P_RunSectorSFX(void)
 {
-  // -AJA- FIXME: 
+	// -AJA- FIXME: 
 
-  sectorsfx_t *sfx;
+	sectorsfx_t *sfx;
 
-  for (sfx = sectorsfx_list; sfx; sfx = sfx->next)
-  {
-    DoSectorSFX(sfx);
-  }
+	for (sfx = sectorsfx_list; sfx; sfx = sfx->next)
+	{
+		DoSectorSFX(sfx);
+	}
 }
 
 //
@@ -215,9 +215,9 @@ void P_RunSectorSFX(void)
 //
 side_t *P_GetSide(int currentSector, int line, int side)
 {
-  line_t *linedef = sectors[currentSector].lines[line];
+	line_t *linedef = sectors[currentSector].lines[line];
 
-  return linedef->side[side];
+	return linedef->side[side];
 }
 
 //
@@ -229,9 +229,9 @@ side_t *P_GetSide(int currentSector, int line, int side)
 //
 sector_t *P_GetSector(int currentSector, int line, int side)
 {
-  line_t *linedef = sectors[currentSector].lines[line];
+	line_t *linedef = sectors[currentSector].lines[line];
 
-  return side ? linedef->backsector : linedef->frontsector;
+	return side ? linedef->backsector : linedef->frontsector;
 }
 
 //
@@ -242,7 +242,7 @@ sector_t *P_GetSector(int currentSector, int line, int side)
 //
 int P_TwoSided(int sector, int line)
 {
-  return (sectors[sector].lines[line])->flags & ML_TwoSided;
+	return (sectors[sector].lines[line])->flags & ML_TwoSided;
 }
 
 //
@@ -252,13 +252,13 @@ int P_TwoSided(int sector, int line)
 //
 sector_t *P_GetNextSector(const line_t * line, const sector_t * sec)
 {
-  if (!(line->flags & ML_TwoSided))
-    return NULL;
+	if (!(line->flags & ML_TwoSided))
+		return NULL;
 
-  if (line->frontsector == sec)
-    return line->backsector;
+	if (line->frontsector == sec)
+		return line->backsector;
 
-  return line->frontsector;
+	return line->frontsector;
 }
 
 //
@@ -270,56 +270,56 @@ sector_t *P_GetNextSector(const line_t * line, const sector_t * sec)
 //       kick in !
 //
 #define F_C_HEIGHT(sector)  \
-    ((ref & REF_CEILING) ? (sector)->c_h : (sector)->f_h)
-    
+((ref & REF_CEILING) ? (sector)->c_h : (sector)->f_h)
+
 float P_FindSurroundingHeight(const heightref_e ref, const sector_t *sec)
 {
-  int i, count;
-  float height;
-  float base = F_C_HEIGHT(sec);
+	int i, count;
+	float height;
+	float base = F_C_HEIGHT(sec);
 
-  if (ref & REF_INCLUDE)
-    height = base;
-  else if (ref & REF_HIGHEST)
-    height = -32000.0f;  // BOOM compatible value
-  else
-    height = +32000.0f;
- 
-  for (i = count = 0; i < sec->linecount; i++)
-  {
-    sector_t *other = P_GetNextSector(sec->lines[i], sec);
-    bool satisfy;
-    float other_h;
+	if (ref & REF_INCLUDE)
+		height = base;
+	else if (ref & REF_HIGHEST)
+		height = -32000.0f;  // BOOM compatible value
+	else
+		height = +32000.0f;
 
-    if (!other)
-      continue;
+	for (i = count = 0; i < sec->linecount; i++)
+	{
+		sector_t *other = P_GetNextSector(sec->lines[i], sec);
+		bool satisfy;
+		float other_h;
 
-    other_h = F_C_HEIGHT(other);
+		if (!other)
+			continue;
 
-    if (ref & REF_NEXT)
-    {
-      // this may seem reversed, but is OK (see note in ddf_sect.c)
-      if (ref & REF_HIGHEST)
-        satisfy = (other_h < base);  // next lowest
-      else
-        satisfy = (other_h > base);  // next highest
+		other_h = F_C_HEIGHT(other);
 
-      if (! satisfy)
-        continue;
-    }
+		if (ref & REF_NEXT)
+		{
+			// this may seem reversed, but is OK (see note in ddf_sect.c)
+			if (ref & REF_HIGHEST)
+				satisfy = (other_h < base);  // next lowest
+			else
+				satisfy = (other_h > base);  // next highest
 
-    count++;
- 
-    if (ref & REF_HIGHEST)
-      height = MAX(height, other_h);
-    else
-      height = MIN(height, other_h);
-  }
+			if (! satisfy)
+				continue;
+		}
 
-  if ((ref & REF_NEXT) && count == 0)
-    return base;
+		count++;
 
-  return height;
+		if (ref & REF_HIGHEST)
+			height = MAX(height, other_h);
+		else
+			height = MIN(height, other_h);
+	}
+
+	if ((ref & REF_NEXT) && count == 0)
+		return base;
+
+	return height;
 }
 
 //
@@ -332,34 +332,34 @@ float P_FindSurroundingHeight(const heightref_e ref, const sector_t *sec)
 //
 float P_FindRaiseToTexture(sector_t * sec)
 {
-  int i;
-  side_t *side;
-  float minsize = INT_MAX;
-  int secnum = sec - sectors;
+	int i;
+	side_t *side;
+	float minsize = INT_MAX;
+	int secnum = sec - sectors;
 
-  for (i = 0; i < sec->linecount; i++)
-  {
-    if (P_TwoSided(secnum, i))
-    {
-      side = P_GetSide(secnum, i, 0);
+	for (i = 0; i < sec->linecount; i++)
+	{
+		if (P_TwoSided(secnum, i))
+		{
+			side = P_GetSide(secnum, i, 0);
 
-      if (side->bottom.image)
-      {
-        if (IM_HEIGHT(side->bottom.image) < minsize)
-          minsize = IM_HEIGHT(side->bottom.image);
-      }
+			if (side->bottom.image)
+			{
+				if (IM_HEIGHT(side->bottom.image) < minsize)
+					minsize = IM_HEIGHT(side->bottom.image);
+			}
 
-      side = P_GetSide(secnum, i, 1);
+			side = P_GetSide(secnum, i, 1);
 
-      if (side->bottom.image)
-      {
-        if (IM_HEIGHT(side->bottom.image) < minsize)
-          minsize = IM_HEIGHT(side->bottom.image);
-      }
-    }
-  }
+			if (side->bottom.image)
+			{
+				if (IM_HEIGHT(side->bottom.image) < minsize)
+					minsize = IM_HEIGHT(side->bottom.image);
+			}
+		}
+	}
 
-  return sec->f_h + minsize;
+	return sec->f_h + minsize;
 }
 
 //
@@ -372,15 +372,15 @@ float P_FindRaiseToTexture(sector_t * sec)
 //
 sector_t *P_FindSectorFromTag(int tag)
 {
-  int i;
+	int i;
 
-  for (i = 0; i < numsectors; i++)
-  {
-    if (sectors[i].tag == tag)
-      return sectors + i;
-  }
+	for (i = 0; i < numsectors; i++)
+	{
+		if (sectors[i].tag == tag)
+			return sectors + i;
+	}
 
-  return NULL;
+	return NULL;
 }
 
 //
@@ -390,24 +390,24 @@ sector_t *P_FindSectorFromTag(int tag)
 //
 int P_FindMinSurroundingLight(sector_t * sector, int max)
 {
-  int i;
-  int min;
-  line_t *line;
-  sector_t *check;
+	int i;
+	int min;
+	line_t *line;
+	sector_t *check;
 
-  min = max;
-  for (i = 0; i < sector->linecount; i++)
-  {
-    line = sector->lines[i];
-    check = P_GetNextSector(line, sector);
+	min = max;
+	for (i = 0; i < sector->linecount; i++)
+	{
+		line = sector->lines[i];
+		check = P_GetNextSector(line, sector);
 
-    if (!check)
-      continue;
+		if (!check)
+			continue;
 
-    if (check->props.lightlevel < min)
-      min = check->props.lightlevel;
-  }
-  return min;
+		if (check->props.lightlevel < min)
+			min = check->props.lightlevel;
+	}
+	return min;
 }
 
 //
@@ -417,17 +417,17 @@ int P_FindMinSurroundingLight(sector_t * sector, int max)
 //
 void P_AddSpecialLine(line_t *ld)
 {
-  line_t *check;
+	line_t *check;
 
-  // check if already linked
-  for (check=line_speciallist; check; check=check->animate_next)
-  {
-    if (check == ld)
-      return;
-  }
+	// check if already linked
+	for (check=line_speciallist; check; check=check->animate_next)
+	{
+		if (check == ld)
+			return;
+	}
 
-  ld->animate_next = line_speciallist;
-  line_speciallist = ld;
+	ld->animate_next = line_speciallist;
+	line_speciallist = ld;
 }
 
 //
@@ -435,103 +435,103 @@ void P_AddSpecialLine(line_t *ld)
 //
 void P_AddSpecialSector(sector_t *sec)
 {
-  sector_t *check;
+	sector_t *check;
 
-  // check if already linked
-  for (check=sect_speciallist; check; check=check->animate_next)
-  {
-    if (check == sec)
-      return;
-  }
+	// check if already linked
+	for (check=sect_speciallist; check; check=check->animate_next)
+	{
+		if (check == sec)
+			return;
+	}
 
-  sec->animate_next = sect_speciallist;
-  sect_speciallist = sec;
+	sec->animate_next = sect_speciallist;
+	sect_speciallist = sec;
 }
 
 static void AdjustScrollParts(side_t *side, bool left,
-    scroll_part_e parts, float x_speed, float y_speed)
+		scroll_part_e parts, float x_speed, float y_speed)
 {
-  float xmul = (left && (parts & SCPT_LeftRevX)) ? -1 : 1;
-  float ymul = (left && (parts & SCPT_LeftRevY)) ? -1 : 1;
+	float xmul = (left && (parts & SCPT_LeftRevX)) ? -1 : 1;
+	float ymul = (left && (parts & SCPT_LeftRevY)) ? -1 : 1;
 
-  if (! side)
-    return;
+	if (! side)
+		return;
 
-  if (parts == SCPT_None)
-    parts = SCPT_RIGHT;
+	if (parts == SCPT_None)
+		parts = SCPT_RIGHT;
 
-  if (parts & (left ? SCPT_LeftUpper : SCPT_RightUpper))
-  {
-    side->top.scroll.x += x_speed * xmul;
-    side->top.scroll.y += y_speed * ymul;
-  }
-  if (parts & (left ? SCPT_LeftMiddle : SCPT_RightMiddle))
-  {
-    side->middle.scroll.x += x_speed * xmul;
-    side->middle.scroll.y += y_speed * ymul;
-  }
-  if (parts & (left ? SCPT_LeftLower : SCPT_RightLower))
-  {
-    side->bottom.scroll.x += x_speed * xmul;
-    side->bottom.scroll.y += y_speed * ymul;
-  }
+	if (parts & (left ? SCPT_LeftUpper : SCPT_RightUpper))
+	{
+		side->top.scroll.x += x_speed * xmul;
+		side->top.scroll.y += y_speed * ymul;
+	}
+	if (parts & (left ? SCPT_LeftMiddle : SCPT_RightMiddle))
+	{
+		side->middle.scroll.x += x_speed * xmul;
+		side->middle.scroll.y += y_speed * ymul;
+	}
+	if (parts & (left ? SCPT_LeftLower : SCPT_RightLower))
+	{
+		side->bottom.scroll.x += x_speed * xmul;
+		side->bottom.scroll.y += y_speed * ymul;
+	}
 }
 
 static void AdjustScaleParts(side_t *side, bool left,
-    scroll_part_e parts, float scale)
+		scroll_part_e parts, float scale)
 {
-  if (! side)
-    return;
+	if (! side)
+		return;
 
-  if (parts == SCPT_None)
-    parts = (scroll_part_e)(SCPT_LEFT | SCPT_RIGHT);
-    
-  if (parts & (left ? SCPT_LeftUpper : SCPT_RightUpper))
-    side->top.x_mat.x = side->top.y_mat.y = scale;
+	if (parts == SCPT_None)
+		parts = (scroll_part_e)(SCPT_LEFT | SCPT_RIGHT);
 
-  if (parts & (left ? SCPT_LeftMiddle : SCPT_RightMiddle))
-    side->middle.x_mat.x = side->middle.y_mat.y = scale;
+	if (parts & (left ? SCPT_LeftUpper : SCPT_RightUpper))
+		side->top.x_mat.x = side->top.y_mat.y = scale;
 
-  if (parts & (left ? SCPT_LeftLower : SCPT_RightLower))
-    side->bottom.x_mat.x = side->bottom.y_mat.y = scale;
+	if (parts & (left ? SCPT_LeftMiddle : SCPT_RightMiddle))
+		side->middle.x_mat.x = side->middle.y_mat.y = scale;
+
+	if (parts & (left ? SCPT_LeftLower : SCPT_RightLower))
+		side->bottom.x_mat.x = side->bottom.y_mat.y = scale;
 }
 
 static void AdjustSkewParts(side_t *side, bool left,
-    scroll_part_e parts, float skew)
+		scroll_part_e parts, float skew)
 {
-  if (! side)
-    return;
+	if (! side)
+		return;
 
-  if (parts == SCPT_None)
-    parts = (scroll_part_e)(SCPT_LEFT | SCPT_RIGHT);
-   
-  if (parts & (left ? SCPT_LeftUpper : SCPT_RightUpper))
-    side->top.y_mat.x = skew * side->top.y_mat.y;
+	if (parts == SCPT_None)
+		parts = (scroll_part_e)(SCPT_LEFT | SCPT_RIGHT);
 
-  if (parts & (left ? SCPT_LeftMiddle : SCPT_RightMiddle))
-    side->middle.y_mat.x = skew * side->middle.y_mat.y;
+	if (parts & (left ? SCPT_LeftUpper : SCPT_RightUpper))
+		side->top.y_mat.x = skew * side->top.y_mat.y;
 
-  if (parts & (left ? SCPT_LeftLower : SCPT_RightLower))
-    side->bottom.y_mat.x = skew * side->bottom.y_mat.y;
+	if (parts & (left ? SCPT_LeftMiddle : SCPT_RightMiddle))
+		side->middle.y_mat.x = skew * side->middle.y_mat.y;
+
+	if (parts & (left ? SCPT_LeftLower : SCPT_RightLower))
+		side->bottom.y_mat.x = skew * side->bottom.y_mat.y;
 }
 
 static void AdjustLightParts(side_t *side, bool left,
-    scroll_part_e parts, region_properties_t *p)
+		scroll_part_e parts, region_properties_t *p)
 {
-  if (! side)
-    return;
+	if (! side)
+		return;
 
-  if (parts == SCPT_None)
-    parts = (scroll_part_e)(SCPT_LEFT | SCPT_RIGHT);
-   
-  if (parts & (left ? SCPT_LeftUpper : SCPT_RightUpper))
-    side->top.override_p = p;
+	if (parts == SCPT_None)
+		parts = (scroll_part_e)(SCPT_LEFT | SCPT_RIGHT);
 
-  if (parts & (left ? SCPT_LeftMiddle : SCPT_RightMiddle))
-    side->middle.override_p = p;
+	if (parts & (left ? SCPT_LeftUpper : SCPT_RightUpper))
+		side->top.override_p = p;
 
-  if (parts & (left ? SCPT_LeftLower : SCPT_RightLower))
-    side->bottom.override_p = p;
+	if (parts & (left ? SCPT_LeftMiddle : SCPT_RightMiddle))
+		side->middle.override_p = p;
+
+	if (parts & (left ? SCPT_LeftLower : SCPT_RightLower))
+		side->bottom.override_p = p;
 }
 
 
@@ -539,48 +539,48 @@ static void AdjustLightParts(side_t *side, bool left,
 // P_EFTransferTrans
 //
 static void P_EFTransferTrans(sector_t *ctrl, sector_t *sec, line_t *line, 
-    const extrafloor_info_t *ef, float trans)
+		const extrafloor_info_t *ef, float trans)
 {
-  int i;
+	int i;
 
-  // floor and ceiling
+	// floor and ceiling
 
-  if (ctrl->floor.translucency > trans)
-    ctrl->floor.translucency = trans;
+	if (ctrl->floor.translucency > trans)
+		ctrl->floor.translucency = trans;
 
-  if (ctrl->ceil.translucency > trans)
-    ctrl->ceil.translucency = trans;
+	if (ctrl->ceil.translucency > trans)
+		ctrl->ceil.translucency = trans;
 
-  // sides
+	// sides
 
-  if (! (ef->type & EXFL_Thick))
-    return;
+	if (! (ef->type & EXFL_Thick))
+		return;
 
-  if (ef->type & (EXFL_SideUpper | EXFL_SideLower))
-  {
-    for (i=0; i < sec->linecount; i++)
-    {
-      line_t *L = sec->lines[i];
-      side_t *S = NULL;
+	if (ef->type & (EXFL_SideUpper | EXFL_SideLower))
+	{
+		for (i=0; i < sec->linecount; i++)
+		{
+			line_t *L = sec->lines[i];
+			side_t *S = NULL;
 
-      if (L->frontsector == sec)
-        S = L->side[1];
-      else if (L->backsector == sec)
-        S = L->side[0];
+			if (L->frontsector == sec)
+				S = L->side[1];
+			else if (L->backsector == sec)
+				S = L->side[0];
 
-      if (! S)
-        continue;
+			if (! S)
+				continue;
 
-      if (ef->type & EXFL_SideUpper)
-        S->top.translucency = trans;
-      else  // EXFL_SideLower
-        S->bottom.translucency = trans;
-    }
+			if (ef->type & EXFL_SideUpper)
+				S->top.translucency = trans;
+			else  // EXFL_SideLower
+				S->bottom.translucency = trans;
+		}
 
-    return;
-  }
+		return;
+	}
 
-  line->side[0]->middle.translucency = trans;
+	line->side[0]->middle.translucency = trans;
 }
 
 //
@@ -589,97 +589,97 @@ static void P_EFTransferTrans(sector_t *ctrl, sector_t *sec, line_t *line,
 // Handles BOOM's line -> tagged line transfers.
 //
 static void P_LineEffect(line_t *target, line_t *source,
-    const linedeftype_t *special)
+		const linedeftype_t *special)
 {
-  float length = R_PointToDist(0, 0, source->dx, source->dy);
+	float length = R_PointToDist(0, 0, source->dx, source->dy);
 
-  if ((special->line_effect & LINEFX_Translucency) && (target->flags & ML_TwoSided))
-  {
-    target->side[0]->middle.translucency = 0.5f;
-    target->side[1]->middle.translucency = 0.5f;
-  }
+	if ((special->line_effect & LINEFX_Translucency) && (target->flags & ML_TwoSided))
+	{
+		target->side[0]->middle.translucency = 0.5f;
+		target->side[1]->middle.translucency = 0.5f;
+	}
 
-  if (special->line_effect & LINEFX_VectorScroll)
-  {
-    // -AJA- Note: these values are the same as in BOOM, which doesn't
-    //       exactly match the description given in boomref.txt, which
-    //       suggests that the horizontal speed is proportional to the
-    //       tagging line's length.
+	if (special->line_effect & LINEFX_VectorScroll)
+	{
+		// -AJA- Note: these values are the same as in BOOM, which doesn't
+		//       exactly match the description given in boomref.txt, which
+		//       suggests that the horizontal speed is proportional to the
+		//       tagging line's length.
 
-    float xspeed = source->dx / 32.0f;
-    float yspeed = source->dy / 32.0f;
+		float xspeed = source->dx / 32.0f;
+		float yspeed = source->dy / 32.0f;
 
-    AdjustScrollParts(target->side[0], 0, special->line_parts,
-        xspeed, yspeed);
+		AdjustScrollParts(target->side[0], 0, special->line_parts,
+				xspeed, yspeed);
 
-    AdjustScrollParts(target->side[1], 1, special->line_parts,
-        xspeed, yspeed);
+		AdjustScrollParts(target->side[1], 1, special->line_parts,
+				xspeed, yspeed);
 
-    P_AddSpecialLine(target);
-  }
+		P_AddSpecialLine(target);
+	}
 
-  if ((special->line_effect & LINEFX_OffsetScroll) && target->side[0])
-  {
-    float xspeed = -target->side[0]->middle.offset.x;
-    float yspeed =  target->side[0]->middle.offset.y;
+	if ((special->line_effect & LINEFX_OffsetScroll) && target->side[0])
+	{
+		float xspeed = -target->side[0]->middle.offset.x;
+		float yspeed =  target->side[0]->middle.offset.y;
 
-    AdjustScrollParts(target->side[0], 0, special->line_parts,
-        xspeed, yspeed);
+		AdjustScrollParts(target->side[0], 0, special->line_parts,
+				xspeed, yspeed);
 
-    P_AddSpecialLine(target);
-  }
+		P_AddSpecialLine(target);
+	}
 
-  // experimental: unblock line(s)
-  if (special->line_effect & LINEFX_UnblockThings)
-  {
-    if (target->side[0] && target->side[1] && (target != source))
-      target->flags &= ~(ML_Blocking | ML_BlockMonsters);
-  }
+	// experimental: unblock line(s)
+	if (special->line_effect & LINEFX_UnblockThings)
+	{
+		if (target->side[0] && target->side[1] && (target != source))
+			target->flags &= ~(ML_Blocking | ML_BlockMonsters);
+	}
 
-  // experimental: block bullets/missiles
-  if (special->line_effect & LINEFX_BlockShots)
-  {
-    if (target->side[0] && target->side[1])
-      target->flags |= ML_ShootBlock;
-  }
+	// experimental: block bullets/missiles
+	if (special->line_effect & LINEFX_BlockShots)
+	{
+		if (target->side[0] && target->side[1])
+			target->flags |= ML_ShootBlock;
+	}
 
-  // experimental: block monster sight
-  if (special->line_effect & LINEFX_BlockSight)
-  {
-    if (target->side[0] && target->side[1])
-      target->flags |= ML_SightBlock;
-  }
+	// experimental: block monster sight
+	if (special->line_effect & LINEFX_BlockSight)
+	{
+		if (target->side[0] && target->side[1])
+			target->flags |= ML_SightBlock;
+	}
 
-  // experimental: scale wall texture(s) by line length
-  if (special->line_effect & LINEFX_Scale)
-  {
-    AdjustScaleParts(target->side[0], 0, special->line_parts, length/128);
-    AdjustScaleParts(target->side[1], 1, special->line_parts, length/128);
-  }
+	// experimental: scale wall texture(s) by line length
+	if (special->line_effect & LINEFX_Scale)
+	{
+		AdjustScaleParts(target->side[0], 0, special->line_parts, length/128);
+		AdjustScaleParts(target->side[1], 1, special->line_parts, length/128);
+	}
 
-  // experimental: skew wall texture(s) by sidedef Y offset
-  if ((special->line_effect & LINEFX_Skew) && source->side[0])
-  {
-    float skew = source->side[0]->top.offset.x / 128.0f;
+	// experimental: skew wall texture(s) by sidedef Y offset
+	if ((special->line_effect & LINEFX_Skew) && source->side[0])
+	{
+		float skew = source->side[0]->top.offset.x / 128.0f;
 
-    AdjustSkewParts(target->side[0], 0, special->line_parts, skew);
-    AdjustSkewParts(target->side[1], 1, special->line_parts, skew);
+		AdjustSkewParts(target->side[0], 0, special->line_parts, skew);
+		AdjustSkewParts(target->side[1], 1, special->line_parts, skew);
 
-    if (target == source)
-    {
-      source->side[0]->middle.offset.x = 0;
-      source->side[0]->bottom.offset.x = 0;
-    }
-  }
+		if (target == source)
+		{
+			source->side[0]->middle.offset.x = 0;
+			source->side[0]->bottom.offset.x = 0;
+		}
+	}
 
-  // experimental: transfer lighting to wall parts
-  if (special->line_effect & LINEFX_LightWall)
-  {
-    AdjustLightParts(target->side[0], 0, special->line_parts,
-        &source->frontsector->props);
-    AdjustLightParts(target->side[1], 1, special->line_parts,
-        &source->frontsector->props);
-  }
+	// experimental: transfer lighting to wall parts
+	if (special->line_effect & LINEFX_LightWall)
+	{
+		AdjustLightParts(target->side[0], 0, special->line_parts,
+				&source->frontsector->props);
+		AdjustLightParts(target->side[1], 1, special->line_parts,
+				&source->frontsector->props);
+	}
 }
 
 //
@@ -688,72 +688,72 @@ static void P_LineEffect(line_t *target, line_t *source,
 // Handles BOOM's line -> tagged sector transfers.
 //
 static void P_SectorEffect(sector_t *target, line_t *source,
-    const linedeftype_t *special)
+		const linedeftype_t *special)
 {
-  float length = R_PointToDist(0, 0, source->dx, source->dy);
-  angle_t angle = R_PointToAngle(0, 0, source->dx, source->dy);
+	float length = R_PointToDist(0, 0, source->dx, source->dy);
+	angle_t angle = R_PointToAngle(0, 0, source->dx, source->dy);
 
-  if (special->sector_effect & SECTFX_LightFloor)
-    target->floor.override_p = &source->frontsector->props;
+	if (special->sector_effect & SECTFX_LightFloor)
+		target->floor.override_p = &source->frontsector->props;
 
-  if (special->sector_effect & SECTFX_LightCeiling)
-    target->ceil.override_p = &source->frontsector->props;
+	if (special->sector_effect & SECTFX_LightCeiling)
+		target->ceil.override_p = &source->frontsector->props;
 
-  if (special->sector_effect & SECTFX_ScrollFloor)
-  {
-    target->floor.scroll.x -= source->dx / 32.0f;
-    target->floor.scroll.y -= source->dy / 32.0f;
+	if (special->sector_effect & SECTFX_ScrollFloor)
+	{
+		target->floor.scroll.x -= source->dx / 32.0f;
+		target->floor.scroll.y -= source->dy / 32.0f;
 
-    P_AddSpecialSector(target);
-  }
-  if (special->sector_effect & SECTFX_ScrollCeiling)
-  {
-    target->ceil.scroll.x -= source->dx / 32.0f;
-    target->ceil.scroll.y -= source->dy / 32.0f;
+		P_AddSpecialSector(target);
+	}
+	if (special->sector_effect & SECTFX_ScrollCeiling)
+	{
+		target->ceil.scroll.x -= source->dx / 32.0f;
+		target->ceil.scroll.y -= source->dy / 32.0f;
 
-    P_AddSpecialSector(target);
-  }
+		P_AddSpecialSector(target);
+	}
 
-  if (special->sector_effect & SECTFX_PushThings)
-  {
-    target->props.push.x += source->dx / 320.0f;
-    target->props.push.y += source->dy / 320.0f;
-  }
+	if (special->sector_effect & SECTFX_PushThings)
+	{
+		target->props.push.x += source->dx / 320.0f;
+		target->props.push.y += source->dy / 320.0f;
+	}
 
-  if (special->sector_effect & SECTFX_ResetFloor)
-  {
-    target->floor.override_p = NULL;
-    target->floor.scroll.x = target->floor.scroll.y = 0;
-    target->props.push.x = target->props.push.y = target->props.push.z = 0;
-  }
-  if (special->sector_effect & SECTFX_ResetCeiling)
-  {
-    target->ceil.override_p = NULL;
-    target->ceil.scroll.x = target->ceil.scroll.y = 0;
-  }
+	if (special->sector_effect & SECTFX_ResetFloor)
+	{
+		target->floor.override_p = NULL;
+		target->floor.scroll.x = target->floor.scroll.y = 0;
+		target->props.push.x = target->props.push.y = target->props.push.z = 0;
+	}
+	if (special->sector_effect & SECTFX_ResetCeiling)
+	{
+		target->ceil.override_p = NULL;
+		target->ceil.scroll.x = target->ceil.scroll.y = 0;
+	}
 
-  // experimental: set texture scale
-  if (special->sector_effect & SECTFX_ScaleFloor)
-    target->floor.x_mat.x = target->floor.y_mat.y = length;
+	// experimental: set texture scale
+	if (special->sector_effect & SECTFX_ScaleFloor)
+		target->floor.x_mat.x = target->floor.y_mat.y = length;
 
-  if (special->sector_effect & SECTFX_ScaleCeiling)
-    target->ceil.x_mat.x = target->ceil.y_mat.y = length;
+	if (special->sector_effect & SECTFX_ScaleCeiling)
+		target->ceil.x_mat.x = target->ceil.y_mat.y = length;
 
-  // experimental: set texture alignment
-  if (special->sector_effect & SECTFX_AlignFloor)
-  {
-    target->floor.offset.x = -source->v1->x;
-    target->floor.offset.y = -source->v1->y;
+	// experimental: set texture alignment
+	if (special->sector_effect & SECTFX_AlignFloor)
+	{
+		target->floor.offset.x = -source->v1->x;
+		target->floor.offset.y = -source->v1->y;
 
-    M_Angle2Matrix(angle, &target->floor.x_mat, &target->floor.y_mat);
-  }
-  if (special->sector_effect & SECTFX_AlignCeiling)
-  {
-    target->ceil.offset.x = -source->v1->x;
-    target->ceil.offset.y = -source->v1->y;
+		M_Angle2Matrix(angle, &target->floor.x_mat, &target->floor.y_mat);
+	}
+	if (special->sector_effect & SECTFX_AlignCeiling)
+	{
+		target->ceil.offset.x = -source->v1->x;
+		target->ceil.offset.y = -source->v1->y;
 
-    M_Angle2Matrix(angle, &target->ceil.x_mat, &target->ceil.y_mat);
-  }
+		M_Angle2Matrix(angle, &target->ceil.x_mat, &target->ceil.y_mat);
+	}
 }
 
 //
@@ -788,421 +788,421 @@ static void P_SectorEffect(sector_t *target, line_t *source,
 // -ACB- 2001/01/14: Added Elevator Sector Type
 //
 static bool P_ActivateSpecialLine(line_t * line,
-    const linedeftype_t * special, int tag, int side, mobj_t * thing,
-    trigger_e trig, int can_reach, int no_care_who)
+		const linedeftype_t * special, int tag, int side, mobj_t * thing,
+		trigger_e trig, int can_reach, int no_care_who)
 {
-  bool texSwitch = false;
-  bool failedsecurity;  // -ACB- 1998/09/11 Security pass/fail check
-  bool playedSound = false;
-  sfx_t *sfx[4];
-  sector_t *tsec;
+	bool texSwitch = false;
+	bool failedsecurity;  // -ACB- 1998/09/11 Security pass/fail check
+	bool playedSound = false;
+	sfx_t *sfx[4];
+	sector_t *tsec;
 
-  int i;
+	int i;
 
 #ifdef DEVELOPERS
-  if (!special)
-  {
-    if (line == NULL)
-      I_Error("P_ActivateSpecialLine: Special type is 0\n");
-    else
-      I_Error("P_ActivateSpecialLine: Line %d is not Special\n", 
-          (int)(line - lines));
-  }
+	if (!special)
+	{
+		if (line == NULL)
+			I_Error("P_ActivateSpecialLine: Special type is 0\n");
+		else
+			I_Error("P_ActivateSpecialLine: Line %d is not Special\n", 
+					(int)(line - lines));
+	}
 #endif
 
-  if (!G_CheckWhenAppear(special->appear))
-  {
-    if (line)
-      line->special = NULL;
+	if (!G_CheckWhenAppear(special->appear))
+	{
+		if (line)
+			line->special = NULL;
 
-    return true;
-  }
+		return true;
+	}
 
-  if (trig != line_Any && special->type != trig &&
-      !(special->type == line_manual && trig == line_pushable))
-    return false;
+	if (trig != line_Any && special->type != trig &&
+			!(special->type == line_manual && trig == line_pushable))
+		return false;
 
-  // Check for use once.
-  if (line && line->count == 0)
-    return false;
+	// Check for use once.
+	if (line && line->count == 0)
+		return false;
 
-  // Single sided line
-  if (trig != line_Any && special->singlesided && side == 1)
-    return false;
+	// Single sided line
+	if (trig != line_Any && special->singlesided && side == 1)
+		return false;
 
-  // -AJA- 1999/12/07: Height checking.
-  if (line && thing && thing->player && (special->special_flags & LINSP_MustReach) && !can_reach)
-  {
-    S_StartSound(thing, thing->info->noway_sound);
-    return false;
-  }
-  
-  // Check this type of thing can trigger
-  if (!no_care_who)
-  {
-    if (thing && thing->player)
-    {
-      // Players can only trigger if the trig_player is set
-      if (!(special->obj & trig_player))
-        return false;
-    }
-    else if (thing && (thing->info->extendedflags & EF_MONSTER))
-    {
-      // Monsters can only trigger if the trig_monster flag is set
-      if (!(special->obj & trig_monster))
-        return false;
-      
-      // Monsters don't trigger secrets
-      if (line && (line->flags & ML_Secret))
-        return false;
-    }
-    else
-    {
-      // Other stuff can only trigger if trig_other is set
-      if (!(special->obj & trig_other))
-        return false;
+	// -AJA- 1999/12/07: Height checking.
+	if (line && thing && thing->player && (special->special_flags & LINSP_MustReach) && !can_reach)
+	{
+		S_StartSound(thing, thing->info->noway_sound);
+		return false;
+	}
 
-      // Other stuff doesn't trigger secrets
-      if (line && (line->flags & ML_Secret))
-        return false;
-    }
-  }
+	// Check this type of thing can trigger
+	if (!no_care_who)
+	{
+		if (thing && thing->player)
+		{
+			// Players can only trigger if the trig_player is set
+			if (!(special->obj & trig_player))
+				return false;
+		}
+		else if (thing && (thing->info->extendedflags & EF_MONSTER))
+		{
+			// Monsters can only trigger if the trig_monster flag is set
+			if (!(special->obj & trig_monster))
+				return false;
 
-  if (thing && !no_care_who)
-  {
-    // Check for keys
-    // -ACB- 1998/09/11 Key possibilites extended
-    if (special->keys != KF_NONE)
-    {
-      keys_e req = (keys_e)(special->keys & KF_MASK);
-      keys_e cards;
+			// Monsters don't trigger secrets
+			if (line && (line->flags & ML_Secret))
+				return false;
+		}
+		else
+		{
+			// Other stuff can only trigger if trig_other is set
+			if (!(special->obj & trig_other))
+				return false;
 
-      // Monsters/Missiles have no keys
-      if (!thing->player)
-        return false;
+			// Other stuff doesn't trigger secrets
+			if (line && (line->flags & ML_Secret))
+				return false;
+		}
+	}
 
-      //
-      // New Security Checks, allows for any combination of keys in
-      // an AND or OR function. Therefore it extends the possibilities
-      // of security above 3 possible combinations..
-      //
-      // -AJA- Reworked this for the 10 new keys.
-      //
-      cards = thing->player->cards;
-      failedsecurity = false;
+	if (thing && !no_care_who)
+	{
+		// Check for keys
+		// -ACB- 1998/09/11 Key possibilites extended
+		if (special->keys != KF_NONE)
+		{
+			keys_e req = (keys_e)(special->keys & KF_MASK);
+			keys_e cards;
 
-      if (special->keys & KF_BOOM_SKCK)
-      {
-        // Boom compatibility: treat card and skull types the same
-        cards = (keys_e)(EXPAND_KEYS(cards));
-      }
+			// Monsters/Missiles have no keys
+			if (!thing->player)
+				return false;
 
-      if (special->keys & KF_STRICTLY_ALL)
-      {
-        if ((cards & req) != req)
-          failedsecurity = true;
-      }
-      else
-      {
-        if ((cards & req) == 0)
-          failedsecurity = true;
-      }
+			//
+			// New Security Checks, allows for any combination of keys in
+			// an AND or OR function. Therefore it extends the possibilities
+			// of security above 3 possible combinations..
+			//
+			// -AJA- Reworked this for the 10 new keys.
+			//
+			cards = thing->player->cards;
+			failedsecurity = false;
 
-      if (failedsecurity)
-      {
-        if (special->failedmessage)
-          CON_PlayerMessageLDF(thing->player, special->failedmessage);
+			if (special->keys & KF_BOOM_SKCK)
+			{
+				// Boom compatibility: treat card and skull types the same
+				cards = (keys_e)(EXPAND_KEYS(cards));
+			}
 
-        return false;
-      }
-    }
-  }
+			if (special->keys & KF_STRICTLY_ALL)
+			{
+				if ((cards & req) != req)
+					failedsecurity = true;
+			}
+			else
+			{
+				if ((cards & req) == 0)
+					failedsecurity = true;
+			}
 
-  // Check if button already pressed
-  if (line && P_ButtonCheckPressed(line))
-    return false;
-  
-  // Do lights
-  // -KM- 1998/09/27 Generalised light types.
-  switch (special->l.type)
-  {
-    case LITE_Set:
-      EV_LightTurnOn(tag, special->l.level);
-      texSwitch = true;
-      break;
+			if (failedsecurity)
+			{
+				if (special->failedmessage)
+					CON_PlayerMessageLDF(thing->player, special->failedmessage);
 
-    case LITE_None:
-      break;
+				return false;
+			}
+		}
+	}
 
-    default:
-      texSwitch = P_DoSectorsFromTag(tag, &special->l, NULL, DoLights_wrapper);
-      break;
-  }
+	// Check if button already pressed
+	if (line && P_ButtonCheckPressed(line))
+		return false;
 
-  // -ACB- 1998/09/13 Use teleport define..
-  if (special->t.teleport)
-  {
-    texSwitch = EV_Teleport(line, tag, 1, thing, special->t.delay, 
-        special->t.special, special->t.inspawnobj, special->t.outspawnobj);
-  }
+	// Do lights
+	// -KM- 1998/09/27 Generalised light types.
+	switch (special->l.type)
+	{
+		case LITE_Set:
+			EV_LightTurnOn(tag, special->l.level);
+			texSwitch = true;
+			break;
 
-  if (special->e_exit == EXIT_Normal)
-  {
-    G_ExitLevel(5);
-    texSwitch = true;
-  }
-  else if (special->e_exit == EXIT_Secret)
-  {
-    G_SecretExitLevel(5);
-    texSwitch = true;
-  }
+		case LITE_None:
+			break;
 
-  if (special->d.dodonut)
-  {
-    // Proper ANSI C++ Init
-    sfx[0] = special->d.d_sfxout;
-    sfx[1] = special->d.d_sfxoutstop;
-    sfx[2] = special->d.d_sfxin;
-    sfx[3] = special->d.d_sfxinstop;
+		default:
+			texSwitch = P_DoSectorsFromTag(tag, &special->l, NULL, DoLights_wrapper);
+			break;
+	}
 
-    texSwitch = P_DoSectorsFromTag(tag, NULL, sfx, DoDonut_wrapper);
-  }
+	// -ACB- 1998/09/13 Use teleport define..
+	if (special->t.teleport)
+	{
+		texSwitch = EV_Teleport(line, tag, 1, thing, special->t.delay, 
+				special->t.special, special->t.inspawnobj, special->t.outspawnobj);
+	}
 
-  //
-  // - Plats/Floors -
-  //
-  if (special->f.type != mov_undefined)
-  {
-    if (!tag || trig == line_manual)
-    {
-      if (line)
-        texSwitch = EV_ManualPlane(line, thing, &special->f);
-    }
-    else
-    {
-      texSwitch = P_DoSectorsFromTag(tag, &special->f, 
-          line ? line->frontsector : NULL, DoPlane_wrapper);
-    }
-  }
+	if (special->e_exit == EXIT_Normal)
+	{
+		G_ExitLevel(5);
+		texSwitch = true;
+	}
+	else if (special->e_exit == EXIT_Secret)
+	{
+		G_SecretExitLevel(5);
+		texSwitch = true;
+	}
 
-  //
-  // - Doors/Ceilings -
-  //
-  if (special->c.type != mov_undefined)
-  {
-    if (!tag || trig == line_manual)
-    {
-      if (line)
-        texSwitch = EV_ManualPlane(line, thing, &special->c);
-    }
-    else
-    {
-      texSwitch = P_DoSectorsFromTag(tag, &special->c,
-          line ? line->frontsector : NULL, DoPlane_wrapper);
-    }
-  }
+	if (special->d.dodonut)
+	{
+		// Proper ANSI C++ Init
+		sfx[0] = special->d.d_sfxout;
+		sfx[1] = special->d.d_sfxoutstop;
+		sfx[2] = special->d.d_sfxin;
+		sfx[3] = special->d.d_sfxinstop;
+
+		texSwitch = P_DoSectorsFromTag(tag, NULL, sfx, DoDonut_wrapper);
+	}
+
+	//
+	// - Plats/Floors -
+	//
+	if (special->f.type != mov_undefined)
+	{
+		if (!tag || trig == line_manual)
+		{
+			if (line)
+				texSwitch = EV_ManualPlane(line, thing, &special->f);
+		}
+		else
+		{
+			texSwitch = P_DoSectorsFromTag(tag, &special->f, 
+					line ? line->frontsector : NULL, DoPlane_wrapper);
+		}
+	}
+
+	//
+	// - Doors/Ceilings -
+	//
+	if (special->c.type != mov_undefined)
+	{
+		if (!tag || trig == line_manual)
+		{
+			if (line)
+				texSwitch = EV_ManualPlane(line, thing, &special->c);
+		}
+		else
+		{
+			texSwitch = P_DoSectorsFromTag(tag, &special->c,
+					line ? line->frontsector : NULL, DoPlane_wrapper);
+		}
+	}
 
 #if 0  // -AJA- DISABLED (Unfinished)
-  //
-  // - Elevators -
-  //
-  // -ACB- 2001/01/14 Added
-  //
-  if (special->e.type != mov_undefined)
-  {
-    if (!tag || trig == line_manual)
-    {
-      if (line)
-        texSwitch = EV_ManualElevator(line, thing, &special->e);
-    }
-    else
-    {
-      texSwitch = P_DoSectorsFromTag(tag, &special->e,
-          line ? line->frontsector : NULL, DoElevator_wrapper);
-    }
-  }
+	//
+	// - Elevators -
+	//
+	// -ACB- 2001/01/14 Added
+	//
+	if (special->e.type != mov_undefined)
+	{
+		if (!tag || trig == line_manual)
+		{
+			if (line)
+				texSwitch = EV_ManualElevator(line, thing, &special->e);
+		}
+		else
+		{
+			texSwitch = P_DoSectorsFromTag(tag, &special->e,
+					line ? line->frontsector : NULL, DoElevator_wrapper);
+		}
+	}
 #endif
 
-  if (special->use_colourmap && tag > 0)
-  {
-    for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
-    {
-      tsec->props.colourmap = special->use_colourmap;
-      texSwitch = true;
-    }
-  }
+	if (special->use_colourmap && tag > 0)
+	{
+		for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
+		{
+			tsec->props.colourmap = special->use_colourmap;
+			texSwitch = true;
+		}
+	}
 
-  if (special->gravity != FLO_UNUSED && tag > 0)
-  {
-    for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
-    {
-      tsec->props.gravity = special->gravity;
-      texSwitch = true;
-    }
-  }
+	if (special->gravity != FLO_UNUSED && tag > 0)
+	{
+		for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
+		{
+			tsec->props.gravity = special->gravity;
+			texSwitch = true;
+		}
+	}
 
-  if (special->friction != FLO_UNUSED && tag > 0)
-  {
-    for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
-    {
-      tsec->props.friction = special->friction;
-      texSwitch = true;
-    }
-  }
+	if (special->friction != FLO_UNUSED && tag > 0)
+	{
+		for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
+		{
+			tsec->props.friction = special->friction;
+			texSwitch = true;
+		}
+	}
 
-  if (special->viscosity != FLO_UNUSED && tag > 0)
-  {
-    for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
-    {
-      tsec->props.viscosity = special->viscosity;
-      texSwitch = true;
-    }
-  }
+	if (special->viscosity != FLO_UNUSED && tag > 0)
+	{
+		for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
+		{
+			tsec->props.viscosity = special->viscosity;
+			texSwitch = true;
+		}
+	}
 
-  if (special->drag != FLO_UNUSED && tag > 0)
-  {
-    for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
-    {
-      tsec->props.drag = special->drag;
-      texSwitch = true;
-    }
-  }
+	if (special->drag != FLO_UNUSED && tag > 0)
+	{
+		for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
+		{
+			tsec->props.drag = special->drag;
+			texSwitch = true;
+		}
+	}
 
-  // Extrafloor transfers
-  if (line && special->ef.type && tag > 0)
-  {
-    sector_t *ctrl = line->frontsector;
+	// Extrafloor transfers
+	if (line && special->ef.type && tag > 0)
+	{
+		sector_t *ctrl = line->frontsector;
 
-    for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
-    {
-      P_AddExtraFloor(tsec, line);
+		for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
+		{
+			P_AddExtraFloor(tsec, line);
 
-      // Handle the BOOMTEX flag (Boom compatibility)
-      if ((special->ef.type & EXFL_BoomTex) && sp_new_floors)
-      {
-        if (! sp_new_floors[ctrl - sectors])
-          sp_new_floors[ctrl - sectors] = tsec->floor.image;
-        
-        if (! sp_new_floors[tsec - sectors])
-          sp_new_floors[tsec - sectors] = ctrl->floor.image;
-      }
+			// Handle the BOOMTEX flag (Boom compatibility)
+			if ((special->ef.type & EXFL_BoomTex) && sp_new_floors)
+			{
+				if (! sp_new_floors[ctrl - sectors])
+					sp_new_floors[ctrl - sectors] = tsec->floor.image;
 
-      // transfer any translucency
-      if (PERCENT_2_FLOAT(special->translucency) <= 0.99f)
-      {
-        P_EFTransferTrans(ctrl, tsec, line, &special->ef,
-            PERCENT_2_FLOAT(special->translucency));
-      }
+				if (! sp_new_floors[tsec - sectors])
+					sp_new_floors[tsec - sectors] = ctrl->floor.image;
+			}
 
-      // update the line gaps & things:
-      P_RecomputeTilesInSector(tsec);
-      P_RecomputeGapsAroundSector(tsec);
+			// transfer any translucency
+			if (PERCENT_2_FLOAT(special->translucency) <= 0.99f)
+			{
+				P_EFTransferTrans(ctrl, tsec, line, &special->ef,
+						PERCENT_2_FLOAT(special->translucency));
+			}
 
-      // FIXME: tele-frag any things in the way
+			// update the line gaps & things:
+			P_RecomputeTilesInSector(tsec);
+			P_RecomputeGapsAroundSector(tsec);
 
-      P_FloodExtraFloors(tsec);
+			// FIXME: tele-frag any things in the way
 
-      texSwitch = true;
-    }
-  }
+			P_FloodExtraFloors(tsec);
 
-  // Tagged line effects
-  if (line && special->line_effect)
-  {
-    if (!tag)
-    {
-      P_LineEffect(line, line, special);
-      texSwitch = true;
-    }
-    else
-    {
-      for (i=0; i < numlines; i++)
-      {
-        if (lines[i].tag == tag)
-        {
-          P_LineEffect(lines + i, line, special);
-          texSwitch = true;
-        }
-      }
-    }
-  }
+			texSwitch = true;
+		}
+	}
 
-  // Tagged sector effects
-  if (line && special->sector_effect && tag > 0)
-  {
-    for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
-    {
-      P_SectorEffect(tsec, line, special);
-      texSwitch = true;
-    }
-  }
+	// Tagged line effects
+	if (line && special->line_effect)
+	{
+		if (!tag)
+		{
+			P_LineEffect(line, line, special);
+			texSwitch = true;
+		}
+		else
+		{
+			for (i=0; i < numlines; i++)
+			{
+				if (lines[i].tag == tag)
+				{
+					P_LineEffect(lines + i, line, special);
+					texSwitch = true;
+				}
+			}
+		}
+	}
 
-  if (special->trigger_effect && tag > 0)
-  {
-    RAD_EnableByTag(thing, tag, special->trigger_effect < 0);
-    texSwitch = true;
-  }
+	// Tagged sector effects
+	if (line && special->sector_effect && tag > 0)
+	{
+		for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
+		{
+			P_SectorEffect(tsec, line, special);
+			texSwitch = true;
+		}
+	}
 
-  if (special->ambient_sfx && tag > 0)
-  {
-    for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
-    {
-      sectorsfx_t *sfx = NewSectorSFX();
+	if (special->trigger_effect && tag > 0)
+	{
+		RAD_EnableByTag(thing, tag, special->trigger_effect < 0);
+		texSwitch = true;
+	}
 
-      sfx->count = SECSFX_TIME;
-      sfx->sector = tsec;
-      sfx->sfx = special->ambient_sfx;
-      sfx->sfxstarted = false;
+	if (special->ambient_sfx && tag > 0)
+	{
+		for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
+		{
+			sectorsfx_t *sfx = NewSectorSFX();
 
-      texSwitch = true;
-    }
-  }
+			sfx->count = SECSFX_TIME;
+			sfx->sector = tsec;
+			sfx->sfx = special->ambient_sfx;
+			sfx->sfxstarted = false;
 
-  if (special->music)
-  {
-    S_ChangeMusic(special->music, true);
-    texSwitch = true;
-  }
+			texSwitch = true;
+		}
+	}
 
-  if (special->activate_sfx)
-  {
-    if (line)
-      S_StartSound((mobj_t *) &line->frontsector->soundorg, 
-          special->activate_sfx);
-    else if (thing)
-      S_StartSound(thing, special->activate_sfx);
-    
-    playedSound = true;
-  }
+	if (special->music)
+	{
+		S_ChangeMusic(special->music, true);
+		texSwitch = true;
+	}
 
-  if (special->s.type != SLIDE_None && line)
-  {
-    EV_DoSlider(line, thing, &special->s);
-    
-    // Note: sliders need special treatment
-    return true;
-  }
+	if (special->activate_sfx)
+	{
+		if (line)
+			S_StartSound((mobj_t *) &line->frontsector->soundorg, 
+					special->activate_sfx);
+		else if (thing)
+			S_StartSound(thing, special->activate_sfx);
 
-  // reduce count & clear special if necessary
-  if (line && texSwitch)
-  {
-    if (line->count != -1)
-    {
-      line->count--;
+		playedSound = true;
+	}
 
-      if (!line->count)
-        line->special = NULL;
-    }
-    // -KM- 1998/09/27 Reversable linedefs.
-    if (line->special && special->newtrignum)
-      line->special = (special->newtrignum <= 0) ? NULL :
-        DDF_LineLookupNum(special->newtrignum);
+	if (special->s.type != SLIDE_None && line)
+	{
+		EV_DoSlider(line, thing, &special->s);
 
-    P_ChangeSwitchTexture(line, line->special && (special->newtrignum == 0),
-        special->special_flags, playedSound);
-  }
+		// Note: sliders need special treatment
+		return true;
+	}
 
-  return true;
+	// reduce count & clear special if necessary
+	if (line && texSwitch)
+	{
+		if (line->count != -1)
+		{
+			line->count--;
+
+			if (!line->count)
+				line->special = NULL;
+		}
+		// -KM- 1998/09/27 Reversable linedefs.
+		if (line->special && special->newtrignum)
+			line->special = (special->newtrignum <= 0) ? NULL :
+				DDF_LineLookupNum(special->newtrignum);
+
+		P_ChangeSwitchTexture(line, line->special && (special->newtrignum == 0),
+				special->special_flags, playedSound);
+	}
+
+	return true;
 }
 
 //
@@ -1216,8 +1216,8 @@ static bool P_ActivateSpecialLine(line_t * line,
 //
 bool P_CrossSpecialLine(line_t *ld, int side, mobj_t * thing)
 {
-  return P_ActivateSpecialLine(ld, ld->special, ld->tag, 
-      side, thing, line_walkable, 1, 0);
+	return P_ActivateSpecialLine(ld, ld->special, ld->tag, 
+			side, thing, line_walkable, 1, 0);
 }
 
 //
@@ -1227,8 +1227,8 @@ bool P_CrossSpecialLine(line_t *ld, int side, mobj_t * thing)
 //
 void P_ShootSpecialLine(line_t * ld, int side, mobj_t * thing)
 {
-  P_ActivateSpecialLine(ld, ld->special, ld->tag, 
-      side, thing, line_shootable, 1, 0);
+	P_ActivateSpecialLine(ld, ld->special, ld->tag, 
+			side, thing, line_shootable, 1, 0);
 }
 
 //
@@ -1247,13 +1247,13 @@ void P_ShootSpecialLine(line_t * ld, int side, mobj_t * thing)
 //       a lower wall-part which is out of reach (e.g. MAP02).
 //
 bool P_UseSpecialLine(mobj_t * thing, line_t * line, int side,
-    float open_bottom, float open_top)
+		float open_bottom, float open_top)
 {
-  int can_reach = (thing->z < open_top) &&
-      (thing->z + thing->height + USE_Z_RANGE >= open_bottom);
+	int can_reach = (thing->z < open_top) &&
+		(thing->z + thing->height + USE_Z_RANGE >= open_bottom);
 
-  return P_ActivateSpecialLine(line, line->special, line->tag, side,
-      thing, line_pushable, can_reach, 0);
+	return P_ActivateSpecialLine(line, line->special, line->tag, side,
+			thing, line_pushable, can_reach, 0);
 }
 
 //
@@ -1265,131 +1265,131 @@ bool P_UseSpecialLine(mobj_t * thing, line_t * line, int side,
 // -AJA- 1999/10/21: written.
 //
 void P_RemoteActivation(mobj_t * thing, int typenum, int tag, 
-    int side, trigger_e method)
+		int side, trigger_e method)
 {
-  const linedeftype_t *spec = DDF_LineLookupNum(typenum);
+	const linedeftype_t *spec = DDF_LineLookupNum(typenum);
 
-  P_ActivateSpecialLine(NULL, spec, tag, side, thing, method, 1,
-      (thing == NULL));
+	P_ActivateSpecialLine(NULL, spec, tag, side, thing, method, 1,
+			(thing == NULL));
 }
 
 
 static INLINE void PlayerInProperties(player_t *player,
-    float bz, float tz, float f_h, float c_h,
-    region_properties_t *props)
+		float bz, float tz, float f_h, float c_h,
+		region_properties_t *props)
 {
-  const specialsector_t *special = props->special;
-  float damage, factor;
+	const specialsector_t *special = props->special;
+	float damage, factor;
 
-  if (!special || c_h < f_h)
-    return;
+	if (!special || c_h < f_h)
+		return;
 
-  if (!G_CheckWhenAppear(special->appear))
-  {
-    props->special = NULL;
-    return;
-  }
+	if (!G_CheckWhenAppear(special->appear))
+	{
+		props->special = NULL;
+		return;
+	}
 
-  // breathing support
-  // (Mouth is where the eye is !)
-  //
-  if ((special->special_flags & SECSP_AirLess) &&
-      player->viewz >= f_h && player->viewz <= c_h &&
-      player->powers[PW_Scuba] <= 0)
-  {
-    player->air_in_lungs--;
-    player->underwater = true;
+	// breathing support
+	// (Mouth is where the eye is !)
+	//
+	if ((special->special_flags & SECSP_AirLess) &&
+			player->viewz >= f_h && player->viewz <= c_h &&
+			player->powers[PW_Scuba] <= 0)
+	{
+		player->air_in_lungs--;
+		player->underwater = true;
 
-    if (player->air_in_lungs <= 0 &&
-        (leveltime % (1 + player->mo->info->choke_damage.delay)) == 0)
-    {
-      DAMAGE_COMPUTE(damage, &player->mo->info->choke_damage);
+		if (player->air_in_lungs <= 0 &&
+				(leveltime % (1 + player->mo->info->choke_damage.delay)) == 0)
+		{
+			DAMAGE_COMPUTE(damage, &player->mo->info->choke_damage);
 
-      if (damage)
-        P_DamageMobj(player->mo, NULL, NULL, damage,
-            &player->mo->info->choke_damage);
-    }
-  }
+			if (damage)
+				P_DamageMobj(player->mo, NULL, NULL, damage,
+						&player->mo->info->choke_damage);
+		}
+	}
 
-  if ((special->special_flags & SECSP_Swimming) &&
-      player->viewz >= f_h && player->viewz <= c_h)
-  {
-    player->swimming = true;
-  }
+	if ((special->special_flags & SECSP_Swimming) &&
+			player->viewz >= f_h && player->viewz <= c_h)
+	{
+		player->swimming = true;
+	}
 
-  factor = 1.0f;
+	factor = 1.0f;
 
-  if (special->special_flags & SECSP_WholeRegion)
-  {
-    if (special->special_flags & SECSP_Proportional)
-    {
-      // only partially in region -- mitigate damage
+	if (special->special_flags & SECSP_WholeRegion)
+	{
+		if (special->special_flags & SECSP_Proportional)
+		{
+			// only partially in region -- mitigate damage
 
-      if (tz > c_h)
-        factor -= factor * (tz - c_h) / (tz-bz);
-    
-      if (bz < f_h)
-        factor -= factor * (f_h - bz) / (tz-bz);
-    }
-    else
-    {
-      if (bz > c_h || tz < f_h)
-        factor = 0;
-    }
-  }
-  else
-  {
+			if (tz > c_h)
+				factor -= factor * (tz - c_h) / (tz-bz);
 
-    // Not touching the floor ?
-    if (player->mo->z > f_h + 2.0f)
-      return;
-  }
+			if (bz < f_h)
+				factor -= factor * (f_h - bz) / (tz-bz);
+		}
+		else
+		{
+			if (bz > c_h || tz < f_h)
+				factor = 0;
+		}
+	}
+	else
+	{
 
-  if (player->powers[PW_AcidSuit])
-    factor = 0;
-  
-  if (factor > 0 &&
-      (leveltime % (1 + special->damage.delay)) == 0)
-  {
-    DAMAGE_COMPUTE(damage, &special->damage);
+		// Not touching the floor ?
+		if (player->mo->z > f_h + 2.0f)
+			return;
+	}
 
-    if (damage)
-      P_DamageMobj(player->mo, NULL, NULL, damage * factor,
-          &special->damage);
-  }
+	if (player->powers[PW_AcidSuit])
+		factor = 0;
 
-  if (special->secret)
-  {
-    player->secretcount++;
-    props->special = NULL;
-  }
+	if (factor > 0 &&
+			(leveltime % (1 + special->damage.delay)) == 0)
+	{
+		DAMAGE_COMPUTE(damage, &special->damage);
 
-  if (special->e_exit == EXIT_Normal)
-  {
-    player->cheats &= ~CF_GODMODE;
-    if (player->health <= special->damage.nominal)
-    {
-      S_StartSound(player->mo, player->mo->info->deathsound);
-      
-      // -KM- 1998/12/16 We don't want to alter the special type,
-      //   modify the sector's attributes instead.
-      props->special = NULL;
-      G_ExitLevel(1);
-      return;
-    }
-  }
-  else if (special->e_exit == EXIT_Secret)
-  {
-    player->cheats &= ~CF_GODMODE;
-    if (player->health <= special->damage.nominal)
-    {
-      S_StartSound(player->mo, player->mo->info->deathsound);
+		if (damage)
+			P_DamageMobj(player->mo, NULL, NULL, damage * factor,
+					&special->damage);
+	}
 
-      props->special = NULL;
-      G_SecretExitLevel(1);
-      return;
-    }
-  }
+	if (special->secret)
+	{
+		player->secretcount++;
+		props->special = NULL;
+	}
+
+	if (special->e_exit == EXIT_Normal)
+	{
+		player->cheats &= ~CF_GODMODE;
+		if (player->health <= special->damage.nominal)
+		{
+			S_StartSound(player->mo, player->mo->info->deathsound);
+
+			// -KM- 1998/12/16 We don't want to alter the special type,
+			//   modify the sector's attributes instead.
+			props->special = NULL;
+			G_ExitLevel(1);
+			return;
+		}
+	}
+	else if (special->e_exit == EXIT_Secret)
+	{
+		player->cheats &= ~CF_GODMODE;
+		if (player->health <= special->damage.nominal)
+		{
+			S_StartSound(player->mo, player->mo->info->deathsound);
+
+			props->special = NULL;
+			G_SecretExitLevel(1);
+			return;
+		}
+	}
 }
 
 
@@ -1403,72 +1403,72 @@ static INLINE void PlayerInProperties(player_t *player,
 //
 void P_PlayerInSpecialSector(player_t * player, sector_t * sec)
 {
-  extrafloor_t *S, *L, *C;
-  float floor_h;
+	extrafloor_t *S, *L, *C;
+	float floor_h;
 
-  float bz = player->mo->z;
-  float tz = player->mo->z + player->mo->height;
+	float bz = player->mo->z;
+	float tz = player->mo->z + player->mo->height;
 
-  bool was_underwater = player->underwater;
+	bool was_underwater = player->underwater;
 
-  player->swimming = false;
-  player->underwater = false;
+	player->swimming = false;
+	player->underwater = false;
 
-  // traverse extrafloor list
-  floor_h = sec->f_h;
+	// traverse extrafloor list
+	floor_h = sec->f_h;
 
-  S = sec->bottom_ef;
-  L = sec->bottom_liq;
+	S = sec->bottom_ef;
+	L = sec->bottom_liq;
 
-  while (S || L)
-  {
-    if (!L || (S && S->bottom_h < L->bottom_h))
-    {
-      C = S;  S = S->higher;
-    }
-    else
-    {
-      C = L;  L = L->higher;
-    }
+	while (S || L)
+	{
+		if (!L || (S && S->bottom_h < L->bottom_h))
+		{
+			C = S;  S = S->higher;
+		}
+		else
+		{
+			C = L;  L = L->higher;
+		}
 
-    DEV_ASSERT2(C);
+		DEV_ASSERT2(C);
 
-    // ignore "hidden" liquids
-    if (C->bottom_h < floor_h || C->bottom_h > sec->c_h)
-      continue;
-    
-    PlayerInProperties(player, bz, tz, floor_h, C->top_h, C->p);
+		// ignore "hidden" liquids
+		if (C->bottom_h < floor_h || C->bottom_h > sec->c_h)
+			continue;
 
-    floor_h = C->top_h;
-  }
+		PlayerInProperties(player, bz, tz, floor_h, C->top_h, C->p);
 
-  PlayerInProperties(player, bz, tz, floor_h, sec->c_h, sec->p);
+		floor_h = C->top_h;
+	}
 
-  // breathing support: handle gasping when leaving the water
-  if (was_underwater && !player->underwater)
-  {
-    if (player->air_in_lungs <=
-        (player->mo->info->lung_capacity - player->mo->info->gasp_start))
-    {
-      if (player->mo->info->gasp_sound)
-        S_StartSound(player->mo, player->mo->info->gasp_sound);
-    }
+	PlayerInProperties(player, bz, tz, floor_h, sec->c_h, sec->p);
 
-    player->air_in_lungs = player->mo->info->lung_capacity;
-  } 
+	// breathing support: handle gasping when leaving the water
+	if (was_underwater && !player->underwater)
+	{
+		if (player->air_in_lungs <=
+				(player->mo->info->lung_capacity - player->mo->info->gasp_start))
+		{
+			if (player->mo->info->gasp_sound)
+				S_StartSound(player->mo, player->mo->info->gasp_sound);
+		}
+
+		player->air_in_lungs = player->mo->info->lung_capacity;
+	} 
 }
 
 static INLINE void ApplyScroll(vec2_t& offset, const vec2_t& delta)
 {
-  Vec2Add(offset, delta);
+	Vec2Add(offset, delta);
 
-  // prevent loss of precision (eventually stops the scrolling)
+	// prevent loss of precision (eventually stops the scrolling)
 
-  if (offset.x < -65536) offset.x += 65536;
-  if (offset.x > +65536) offset.x -= 65536;
+	if (offset.x < -65536) offset.x += 65536;
+	if (offset.x > +65536) offset.x -= 65536;
 
-  if (offset.y < -65536) offset.y += 65536;
-  if (offset.y > +65536) offset.y -= 65536;
+	if (offset.y < -65536) offset.y += 65536;
+	if (offset.y > +65536) offset.y -= 65536;
 }
 
 //
@@ -1478,89 +1478,89 @@ static INLINE void ApplyScroll(vec2_t& offset, const vec2_t& delta)
 //
 void P_UpdateSpecials(void)
 {
-  int i;
-  line_t *line;
-  sector_t *sec;
-  const linedeftype_t *special;
+	int i;
+	line_t *line;
+	sector_t *sec;
+	const linedeftype_t *special;
 
-  // LEVEL TIMER
-  if (levelTimer == true)
-  {
-    levelTimeCount--;
+	// LEVEL TIMER
+	if (levelTimer == true)
+	{
+		levelTimeCount--;
 
-    if (!levelTimeCount)
-      G_ExitLevel(1);
-  }
+		if (!levelTimeCount)
+			G_ExitLevel(1);
+	}
 
-  // ANIMATE FLATS AND TEXTURES GLOBALLY
+	// ANIMATE FLATS AND TEXTURES GLOBALLY
 
-  W_UpdateImageAnims();
+	W_UpdateImageAnims();
 
-  // ANIMATE LINE SPECIALS
-  // -KM- 1998/09/01 Lines.ddf
-  for (line = line_speciallist; line; line = line->animate_next)
-  {
-    special = line->special;
+	// ANIMATE LINE SPECIALS
+	// -KM- 1998/09/01 Lines.ddf
+	for (line = line_speciallist; line; line = line->animate_next)
+	{
+		special = line->special;
 
-    // -KM- 1999/01/31 Use new method.
-    // -AJA- 1999/07/01: Handle both sidedefs.
-    if (line->side[0])
-    {
-      ApplyScroll(line->side[0]->top.offset,    line->side[0]->top.scroll);
-      ApplyScroll(line->side[0]->middle.offset, line->side[0]->middle.scroll);
-      ApplyScroll(line->side[0]->bottom.offset, line->side[0]->bottom.scroll);
-    }
+		// -KM- 1999/01/31 Use new method.
+		// -AJA- 1999/07/01: Handle both sidedefs.
+		if (line->side[0])
+		{
+			ApplyScroll(line->side[0]->top.offset,    line->side[0]->top.scroll);
+			ApplyScroll(line->side[0]->middle.offset, line->side[0]->middle.scroll);
+			ApplyScroll(line->side[0]->bottom.offset, line->side[0]->bottom.scroll);
+		}
 
-    if (line->side[1])
-    {
-      ApplyScroll(line->side[1]->top.offset,    line->side[1]->top.scroll);
-      ApplyScroll(line->side[1]->middle.offset, line->side[1]->middle.scroll);
-      ApplyScroll(line->side[1]->bottom.offset, line->side[1]->bottom.scroll);
-    }
-  }
+		if (line->side[1])
+		{
+			ApplyScroll(line->side[1]->top.offset,    line->side[1]->top.scroll);
+			ApplyScroll(line->side[1]->middle.offset, line->side[1]->middle.scroll);
+			ApplyScroll(line->side[1]->bottom.offset, line->side[1]->bottom.scroll);
+		}
+	}
 
-  // ANIMATE SECTOR SPECIALS
-  for (sec = sect_speciallist; sec; sec = sec->animate_next)
-  {
-    ApplyScroll(sec->floor.offset, sec->floor.scroll);
-    ApplyScroll(sec->ceil.offset,  sec->ceil.scroll);
-  }
+	// ANIMATE SECTOR SPECIALS
+	for (sec = sect_speciallist; sec; sec = sec->animate_next)
+	{
+		ApplyScroll(sec->floor.offset, sec->floor.scroll);
+		ApplyScroll(sec->ceil.offset,  sec->ceil.scroll);
+	}
 
-  // DO BUTTONS
-  for (i = 0; i < maxbuttons; i++)
-  {
-    if (buttonlist[i].btimer == 0)
-      continue;
+	// DO BUTTONS
+	for (i = 0; i < maxbuttons; i++)
+	{
+		if (buttonlist[i].btimer == 0)
+			continue;
 
-    buttonlist[i].btimer--;
+		buttonlist[i].btimer--;
 
-    if (buttonlist[i].btimer != 0)
-      continue;
+		if (buttonlist[i].btimer != 0)
+			continue;
 
-    switch (buttonlist[i].where)
-    {
-      case BWH_Top:
-        buttonlist[i].line->side[0]->top.image = buttonlist[i].bimage;
-        break;
+		switch (buttonlist[i].where)
+		{
+			case BWH_Top:
+				buttonlist[i].line->side[0]->top.image = buttonlist[i].bimage;
+				break;
 
-      case BWH_Middle:
-        buttonlist[i].line->side[0]->middle.image = buttonlist[i].bimage;
-        break;
+			case BWH_Middle:
+				buttonlist[i].line->side[0]->middle.image = buttonlist[i].bimage;
+				break;
 
-      case BWH_Bottom:
-        buttonlist[i].line->side[0]->bottom.image = buttonlist[i].bimage;
-        break;
+			case BWH_Bottom:
+				buttonlist[i].line->side[0]->bottom.image = buttonlist[i].bimage;
+				break;
 
-      case BWH_None:
-        I_Error("INTERNAL ERROR: bwhere is BWH_None !\n");
-    }
+			case BWH_None:
+				I_Error("INTERNAL ERROR: bwhere is BWH_None !\n");
+		}
 
-    if (buttonlist[i].off_sound)
-      S_StartSound((mobj_t *) &buttonlist[i].line->frontsector->soundorg,
-        buttonlist[i].off_sound);
+		if (buttonlist[i].off_sound)
+			S_StartSound((mobj_t *) &buttonlist[i].line->frontsector->soundorg,
+					buttonlist[i].off_sound);
 
-    Z_Clear(&buttonlist[i], button_t, 1);
-  }
+		Z_Clear(&buttonlist[i], button_t, 1);
+	}
 }
 
 //
@@ -1580,201 +1580,201 @@ void P_UpdateSpecials(void)
 //
 void P_SpawnSpecials(int autotag)
 {
-  sector_t *sector;
-  const specialsector_t *secSpecial;
-  const linedeftype_t *special;
-  const char *s;
+	sector_t *sector;
+	const specialsector_t *secSpecial;
+	const linedeftype_t *special;
+	const char *s;
 
-  int i;
+	int i;
 
-  // See if -TIMER needs to be used.
-  levelTimer = false;
+	// See if -TIMER needs to be used.
+	levelTimer = false;
 
-  i = M_CheckParm("-avg");
-  if (i && deathmatch)
-  {
-    levelTimer = true;
-    levelTimeCount = 20 * 60 * TICRATE;
-  }
+	i = M_CheckParm("-avg");
+	if (i && deathmatch)
+	{
+		levelTimer = true;
+		levelTimeCount = 20 * 60 * TICRATE;
+	}
 
-  s = M_GetParm("-timer");
-  if (s && deathmatch)
-  {
-    int time;
+	s = M_GetParm("-timer");
+	if (s && deathmatch)
+	{
+		int time;
 
-    time = atoi(s) * 60 * TICRATE;
-    levelTimer = true;
-    levelTimeCount = time;
-  }
+		time = atoi(s) * 60 * TICRATE;
+		levelTimer = true;
+		levelTimeCount = time;
+	}
 
-  for (i = 0; i < maxbuttons; i++)
-    Z_Clear(&buttonlist[i], button_t, 1);
+	for (i = 0; i < maxbuttons; i++)
+		Z_Clear(&buttonlist[i], button_t, 1);
 
-  sp_new_floors = Z_ClearNew(const image_t *, numsectors);
+	sp_new_floors = Z_ClearNew(const image_t *, numsectors);
 
-  //
-  // Init special SECTORs.
-  //
-  sect_speciallist = NULL;
+	//
+	// Init special SECTORs.
+	//
+	sect_speciallist = NULL;
 
-  sector = sectors;
-  for (i = 0; i < numsectors; i++, sector++)
-  {
-    if (!sector->props.special)
-      continue;
+	sector = sectors;
+	for (i = 0; i < numsectors; i++, sector++)
+	{
+		if (!sector->props.special)
+			continue;
 
-    secSpecial = sector->props.special;
+		secSpecial = sector->props.special;
 
-    if (! G_CheckWhenAppear(secSpecial->appear))
-    {
-      sector->props.special = NULL;
-      continue;
-    }
+		if (! G_CheckWhenAppear(secSpecial->appear))
+		{
+			sector->props.special = NULL;
+			continue;
+		}
 
-    if (secSpecial->l.type != LITE_None)
-      EV_Lights(sector, &secSpecial->l);
+		if (secSpecial->l.type != LITE_None)
+			EV_Lights(sector, &secSpecial->l);
 
-    if (secSpecial->secret)
-      totalsecret++;
+		if (secSpecial->secret)
+			totalsecret++;
 
-    if (secSpecial->use_colourmap)
-      sector->props.colourmap = secSpecial->use_colourmap;
+		if (secSpecial->use_colourmap)
+			sector->props.colourmap = secSpecial->use_colourmap;
 
-    if (secSpecial->ambient_sfx)
-    {
-      sectorsfx_t *sfx = NewSectorSFX();
+		if (secSpecial->ambient_sfx)
+		{
+			sectorsfx_t *sfx = NewSectorSFX();
 
-      sfx->count = SECSFX_TIME;
-      sfx->sector = sector;
-      sfx->sfx = secSpecial->ambient_sfx;
-      sfx->sfxstarted = false;
-    }
+			sfx->count = SECSFX_TIME;
+			sfx->sector = sector;
+			sfx->sfx = secSpecial->ambient_sfx;
+			sfx->sfxstarted = false;
+		}
 
-    // - Plats/Floors -
-    if (secSpecial->f.type != mov_undefined)
-      EV_DoPlane(sector, &secSpecial->f, sector);
+		// - Plats/Floors -
+		if (secSpecial->f.type != mov_undefined)
+			EV_DoPlane(sector, &secSpecial->f, sector);
 
-    // - Doors/Ceilings -
-    if (secSpecial->c.type != mov_undefined)
-      EV_DoPlane(sector, &secSpecial->c, sector);
+		// - Doors/Ceilings -
+		if (secSpecial->c.type != mov_undefined)
+			EV_DoPlane(sector, &secSpecial->c, sector);
 
-    sector->props.gravity   = secSpecial->gravity;
-    sector->props.friction  = secSpecial->friction;
-    sector->props.viscosity = secSpecial->viscosity;
-    sector->props.drag      = secSpecial->drag;
+		sector->props.gravity   = secSpecial->gravity;
+		sector->props.friction  = secSpecial->friction;
+		sector->props.viscosity = secSpecial->viscosity;
+		sector->props.drag      = secSpecial->drag;
 
-    // compute pushing force
-    if (secSpecial->push_speed > 0 || secSpecial->push_zspeed > 0)
-    {
-      float mul = secSpecial->push_speed / 100.0f;
+		// compute pushing force
+		if (secSpecial->push_speed > 0 || secSpecial->push_zspeed > 0)
+		{
+			float mul = secSpecial->push_speed / 100.0f;
 
-      sector->props.push.x += M_Cos(secSpecial->push_angle) * mul;
-      sector->props.push.y += M_Sin(secSpecial->push_angle) * mul;
-      sector->props.push.z += secSpecial->push_zspeed / 100.0f;
-    }
+			sector->props.push.x += M_Cos(secSpecial->push_angle) * mul;
+			sector->props.push.y += M_Sin(secSpecial->push_angle) * mul;
+			sector->props.push.z += secSpecial->push_zspeed / 100.0f;
+		}
 
-    // Scrollers
-    if (secSpecial->f.scroll_speed > 0)
-    {
-      float dx = M_Cos(secSpecial->f.scroll_angle);
-      float dy = M_Sin(secSpecial->f.scroll_angle);
-        
-      sector->floor.scroll.x -= dx * secSpecial->f.scroll_speed / 32.0f;
-      sector->floor.scroll.y -= dy * secSpecial->f.scroll_speed / 32.0f;
-  
-      P_AddSpecialSector(sector);
-    }
-    if (secSpecial->c.scroll_speed > 0)
-    {
-      float dx = M_Cos(secSpecial->c.scroll_angle);
-      float dy = M_Sin(secSpecial->c.scroll_angle);
-      
-      sector->ceil.scroll.x -= dx * secSpecial->c.scroll_speed / 32.0f;
-      sector->ceil.scroll.y -= dy * secSpecial->c.scroll_speed / 32.0f;
+		// Scrollers
+		if (secSpecial->f.scroll_speed > 0)
+		{
+			float dx = M_Cos(secSpecial->f.scroll_angle);
+			float dy = M_Sin(secSpecial->f.scroll_angle);
 
-      P_AddSpecialSector(sector);
-    }
-  }
+			sector->floor.scroll.x -= dx * secSpecial->f.scroll_speed / 32.0f;
+			sector->floor.scroll.y -= dy * secSpecial->f.scroll_speed / 32.0f;
 
-  //
-  // Init special LINEs.
-  //
-  // -ACB- & -JC- 1998/06/10 Implemented additional scroll effects
-  //
-  // -ACB- Added the code
-  // -JC-  Designed and contributed code
-  // -KM-  Removed Limit
-  // -KM- 1998/09/01 Added lines.ddf support
-  //
-  line_speciallist = NULL;
+			P_AddSpecialSector(sector);
+		}
+		if (secSpecial->c.scroll_speed > 0)
+		{
+			float dx = M_Cos(secSpecial->c.scroll_angle);
+			float dy = M_Sin(secSpecial->c.scroll_angle);
 
-  for (i = 0; i < numlines; i++)
-  {
-    special = lines[i].special;
+			sector->ceil.scroll.x -= dx * secSpecial->c.scroll_speed / 32.0f;
+			sector->ceil.scroll.y -= dy * secSpecial->c.scroll_speed / 32.0f;
 
-    if (! special)
-    {
-      lines[i].count = 0;
-      continue;
-    }
+			P_AddSpecialSector(sector);
+		}
+	}
 
-    // -AJA- 1999/10/23: weed out non-appearing lines.
-    if (! G_CheckWhenAppear(special->appear))
-    {
-      lines[i].special = NULL;
-      continue;
-    }
+	//
+	// Init special LINEs.
+	//
+	// -ACB- & -JC- 1998/06/10 Implemented additional scroll effects
+	//
+	// -ACB- Added the code
+	// -JC-  Designed and contributed code
+	// -KM-  Removed Limit
+	// -KM- 1998/09/01 Added lines.ddf support
+	//
+	line_speciallist = NULL;
 
-    lines[i].count = special->count;
+	for (i = 0; i < numlines; i++)
+	{
+		special = lines[i].special;
 
-    if (special->s_xspeed || special->s_yspeed)
-    {
-      AdjustScrollParts(lines[i].side[0], 0, special->scroll_parts,
-          special->s_xspeed, special->s_yspeed);
+		if (! special)
+		{
+			lines[i].count = 0;
+			continue;
+		}
 
-      AdjustScrollParts(lines[i].side[1], 1, special->scroll_parts,
-          special->s_xspeed, special->s_yspeed);
+		// -AJA- 1999/10/23: weed out non-appearing lines.
+		if (! G_CheckWhenAppear(special->appear))
+		{
+			lines[i].special = NULL;
+			continue;
+		}
 
-      P_AddSpecialLine(lines + i);
-    }
+		lines[i].count = special->count;
 
-    // -AJA- 1999/06/30: Translucency effect.
-    if (PERCENT_2_FLOAT(special->translucency) <= 0.99f && lines[i].side[0])
-      lines[i].side[0]->middle.translucency = PERCENT_2_FLOAT(special->translucency);
+		if (special->s_xspeed || special->s_yspeed)
+		{
+			AdjustScrollParts(lines[i].side[0], 0, special->scroll_parts,
+					special->s_xspeed, special->s_yspeed);
 
-    if (PERCENT_2_FLOAT(special->translucency) <= 0.99f && lines[i].side[1])
-      lines[i].side[1]->middle.translucency = PERCENT_2_FLOAT(special->translucency);
+			AdjustScrollParts(lines[i].side[1], 1, special->scroll_parts,
+					special->s_xspeed, special->s_yspeed);
+
+			P_AddSpecialLine(lines + i);
+		}
+
+		// -AJA- 1999/06/30: Translucency effect.
+		if (PERCENT_2_FLOAT(special->translucency) <= 0.99f && lines[i].side[0])
+			lines[i].side[0]->middle.translucency = PERCENT_2_FLOAT(special->translucency);
+
+		if (PERCENT_2_FLOAT(special->translucency) <= 0.99f && lines[i].side[1])
+			lines[i].side[1]->middle.translucency = PERCENT_2_FLOAT(special->translucency);
 
 #if 0
-    // -AJA- 2001/01/23: Tiling sky support.
-    if (special->sky.type != TILESKY_None)
-    {
-      R2_TileSkyAdd(&special->sky, lines + i);
-    }
+		// -AJA- 2001/01/23: Tiling sky support.
+		if (special->sky.type != TILESKY_None)
+		{
+			R2_TileSkyAdd(&special->sky, lines + i);
+		}
 #endif
 
-    if (special->autoline)
-    {
-      P_ActivateSpecialLine(&lines[i], lines[i].special,
-        lines[i].tag, 0, NULL, line_Any, 1, 1);
-    }
+		if (special->autoline)
+		{
+			P_ActivateSpecialLine(&lines[i], lines[i].special,
+					lines[i].tag, 0, NULL, line_Any, 1, 1);
+		}
 
-    // -KM- 1998/11/25 This line should be pushed automatically
-    if (autotag && lines[i].special && lines[i].tag == autotag)
-    {
-      P_ActivateSpecialLine(&lines[i], lines[i].special,
-        lines[i].tag, 0, NULL, line_pushable, 1, 1);
-    }
-  }
+		// -KM- 1998/11/25 This line should be pushed automatically
+		if (autotag && lines[i].special && lines[i].tag == autotag)
+		{
+			P_ActivateSpecialLine(&lines[i], lines[i].special,
+					lines[i].tag, 0, NULL, line_pushable, 1, 1);
+		}
+	}
 
-  for (i=0; i < numsectors; i++)
-  {
-    if (sp_new_floors[i])
-      sectors[i].floor.image = sp_new_floors[i];
-  }
+	for (i=0; i < numsectors; i++)
+	{
+		if (sp_new_floors[i])
+			sectors[i].floor.image = sp_new_floors[i];
+	}
 
-  Z_Free(sp_new_floors);
-  sp_new_floors = NULL;
+	Z_Free(sp_new_floors);
+	sp_new_floors = NULL;
 }
 
 //
@@ -1786,16 +1786,16 @@ void P_SpawnSpecials(int autotag)
 // -AJA- 1999/09/29: Updated for new tagged sector links.
 //
 static bool P_DoSectorsFromTag(int tag, const void *p1, void *p2,
-    bool(*func) (sector_t *, const void *, void *))
+		bool(*func) (sector_t *, const void *, void *))
 {
-  sector_t *tsec;
-  bool rtn = false;
+	sector_t *tsec;
+	bool rtn = false;
 
-  for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
-  {
-    if ((*func) (tsec, p1, p2))
-      rtn = true;
-  }
+	for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
+	{
+		if ((*func) (tsec, p1, p2))
+			rtn = true;
+	}
 
-  return rtn;
+	return rtn;
 }
