@@ -243,17 +243,6 @@ PlutMap30Desc="level 30: the gateway of hell";
 PlutMap31Desc="level 31: cyberden";
 PlutMap32Desc="level 32: go 2 it";
 
-DefaultCHATMACRO1="I'm ready to kick butt!";
-DefaultCHATMACRO2="I'm OK.";
-DefaultCHATMACRO3="I'm not looking too good!";
-DefaultCHATMACRO4="Help!";
-DefaultCHATMACRO5="You suck!";
-DefaultCHATMACRO6="Next time, scumbag...";
-DefaultCHATMACRO7="Come here!";
-DefaultCHATMACRO8="I'll take care of it.";
-DefaultCHATMACRO9="Yes";
-DefaultCHATMACRO0="No";
-
 TALKTOSELF1="You mumble to yourself";
 TALKTOSELF2="Who's there?";
 TALKTOSELF3="You scare yourself";
@@ -959,17 +948,6 @@ Map30Desc = "level 30: SON BOLUM";
 Map31Desc = "level 31: Sukrustein";
 Map32Desc = "level 32: Babaanne";
 
-DefaultCHATMACRO1 = "Kicini tekmelemeye hazirim!";
-DefaultCHATMACRO2 = "]yiyim.";
-DefaultCHATMACRO3 = "Sapina Kadar Kaf-Sin-Kafliyiz!";
-DefaultCHATMACRO4 = "Abi.. Birak simdi oyunu. televizyonda Tutti Frutti baslad}!";
-DefaultCHATMACRO5 = "5 manyetikli, Super-tremo, Kilitli elektro-gitar 230$!";
-DefaultCHATMACRO6 = "K. S. K.";
-DefaultCHATMACRO7 = "Gel Lan Gavat!";
-DefaultCHATMACRO8 = "By Sukru TUNCA (Hacker).";
-DefaultCHATMACRO9 = "Nevet";
-DefaultCHATMACRO0 = "Hayir";
-
 TALKTOSELF1 = "Hoca..2 kisi bul 2 el okey cevirelim";
 TALKTOSELF2 = "Nirdesin??";
 TALKTOSELF3 = "Hoca gel iki el okey atal}m";
@@ -1028,8 +1006,8 @@ MusicQ = "Music Change!\n"
 
 Episode1Text="Efferin evladim bu harukulade oyunu\n"
      "bitiremedin.Geberdin gittin......\n"
-     "Peki ya simdi noolacak??'Gencligine yazýk\n"
-     "Ama bi dakka.. Olayýmýz burada bitmiyor..Daha\n"
+     "Peki ya simdi noolacak??'Gencligine yazï¿½k\n"
+     "Ama bi dakka.. Olayï¿½mï¿½z burada bitmiyor..Daha\n"
      "bu bir baslangic....Seni daha ne bolumler\n"
      "bekliyor! Yapman gereken tek sey Sukru TUNCA'dan\n"
      "yeni bolumleri istemek\n"
@@ -1039,7 +1017,7 @@ Episode1Text="Efferin evladim bu harukulade oyunu\n"
      "Sunuda unutmaki butun oyunlar TURKCE.\n"
      "Firmamizin bazi oyunlari: Wolfenstein\n"
      "Zork I,Kiro Fighters,Doom II,Descent\n"
-     "BY SUKRU TUNCA (HacX-Zoft©)\n"
+     "BY SUKRU TUNCA (HacX-Zoftï¿½)\n"
      "                 HacX-Zoftware!\n";
 
 Episode2Text="You've done it! The hideous cyber-\n"
@@ -1420,17 +1398,6 @@ Map29Desc = "NIVEAU 29: LA LIMITE ";
 Map30Desc = "NIVEAU 30: L'ICONE DU PECHE ";
 Map31Desc = "NIVEAU 31: WOLFENSTEIN";
 Map32Desc = "NIVEAU 32: LE MASSACRE";
-
-DefaultCHATMACRO1 = "JE SUIS PRET A LEUR EN FAIRE BAVER!";
-DefaultCHATMACRO2 = "JE VAIS BIEN.";
-DefaultCHATMACRO3 = "JE N'AI PAS L'AIR EN FORME!";
-DefaultCHATMACRO4 = "AU SECOURS!";
-DefaultCHATMACRO5 = "TU CRAINS!";
-DefaultCHATMACRO6 = "LA PROCHAINE FOIS, MINABLE...";
-DefaultCHATMACRO7 = "VIENS ICI!";
-DefaultCHATMACRO8 = "JE VAIS M'EN OCCUPER.";
-DefaultCHATMACRO9 = "OUI";
-DefaultCHATMACRO0 = "NON";
 
 TALKTOSELF1 = "VOUS PARLEZ TOUT SEUL ";
 TALKTOSELF2 = "QUI EST LA?";
@@ -1864,17 +1831,6 @@ Map30Desc = "Nivel 30: icono del pecado";
 Map31Desc = "Nivel 31: wolfenstein";
 Map32Desc = "Nivel 32: grosse";
 
-DefaultCHATMACRO1 = "Estoy listo para patear culos!";
-DefaultCHATMACRO2 = "Estoy Bien.";
-DefaultCHATMACRO3 = "No me veo muy bien!";
-DefaultCHATMACRO4 = "Ayuda!";
-DefaultCHATMACRO5 = "Apestas!";
-DefaultCHATMACRO6 = "La proxima vez, escoria...";
-DefaultCHATMACRO7 = "Ven Aqui!";
-DefaultCHATMACRO8 = "Tendre cuidado de eso.";
-DefaultCHATMACRO9 = "Si";
-DefaultCHATMACRO0 = "No";
-
 TALKTOSELF1 = "Te recriminas tu mismo";
 TALKTOSELF2 = "Quien esta ahi?";
 TALKTOSELF3 = "Te asustas tu mismo";
@@ -1947,7 +1903,7 @@ Episode1Text="Una vez que has vencido a los malos y\n"
      "Las Playas del Infierno y su sorprendente\n"
      "sequela, Inferno!\n";
 
-Episode2Text="Lo has hecho! El horrible se¤or\n"
+Episode2Text="Lo has hecho! El horrible seï¿½or\n"
      "cyber-demonio que goberno la perdida base\n"
      "lunar de Deimos ha sido eliminado y tu eres\n"
      "el triunfador! Pero ... Donde estas?\n"
@@ -1965,7 +1921,7 @@ Episode2Text="Lo has hecho! El horrible se¤or\n"
      "Ahora, estas en el capitulo final de\n"
      "DOOM! -- Inferno.";
 
-Episode3Text="La repugnate ara¤a-demonio que\n"
+Episode3Text="La repugnate araï¿½a-demonio que\n"
      "comando la invasion de la bases\n"
      "lunares y causo tanta muerte ha recibido\n"
      "una patada en su culo para siempre.\n"
@@ -1983,7 +1939,7 @@ Episode3Text="La repugnate ara¤a-demonio que\n"
      "reencarnacion infernal haya atravezado\n"
      "la puerta contigo ...";
 
-Episode4Text="la ara¤a mente maestra debe ser enviada delante\n"
+Episode4Text="la araï¿½a mente maestra debe ser enviada delante\n"
      "de sus legiones infernales antes de tu\n"
      "confrontacion final con esa terrible\n"
      "bestia del infierno.  Pero tu das un paso\n"
@@ -2193,90 +2149,90 @@ ModeSelErr = "Unable to Initialise\n"
 
 [SWEDISH]
 DevelopmentMode="Development Mode is enabled.";
-PressKey="Tryck p† valfri tangent.";
+PressKey="Tryck pï¿½ valfri tangent.";
 PressYorN="Tryck Y eller N";
 
-QuickSaveOver="Vill du verkligen skriva ”ver\n\n\"%s\"?\n\ntryck y eller n";
-NoQuickSaveSlot="du har inte valt ett snabbsparsf„lt „nnu!\n\ntryck p† valfri tangent";
-SaveWhenNotPlaying="du kan inte spara om du inte spelar!\n\ntryck p† valfri tangent";
+QuickSaveOver="Vill du verkligen skriva ï¿½ver\n\n\"%s\"?\n\ntryck y eller n";
+NoQuickSaveSlot="du har inte valt ett snabbsparsfï¿½lt ï¿½nnu!\n\ntryck pï¿½ valfri tangent";
+SaveWhenNotPlaying="du kan inte spara om du inte spelar!\n\ntryck pï¿½ valfri tangent";
 
-NoLoadInNetGame="du kan inte ladda i ett n„tverksspel!\n\ntryck p† valfri tangent";
-NoQLoadInNetGame="du kan inte snabbladda i ett n„tverksspel!\n\ntryck p† valfri tangent";
+NoLoadInNetGame="du kan inte ladda i ett nï¿½tverksspel!\n\ntryck pï¿½ valfri tangent";
+NoQLoadInNetGame="du kan inte snabbladda i ett nï¿½tverksspel!\n\ntryck pï¿½ valfri tangent";
 QuickLoad="vill du snabbladda spelet\n\n\"%s\"?\n\ntryck y eller n";
 
 NewNetGame="Du kan inte starta ett nytt spel\n"
-           "i ett n„tverksspel.\n\ntryck p† valfri tangent";
+           "i ett nï¿½tverksspel.\n\ntryck pï¿½ valfri tangent";
 
-NightmareCheck="„r du s„ker? den h„r sv†righetsgraden „r\n"
-               "inte ens n„rap† r„ttvis.\n\ntryck y eller n";
+NightmareCheck="ï¿½r du sï¿½ker? den hï¿½r svï¿½righetsgraden ï¿½r\n"
+               "inte ens nï¿½rapï¿½ rï¿½ttvis.\n\ntryck y eller n";
 
 MessagesOff="Meddelanden AV";
-MessagesOn="Meddelanden P†";
+MessagesOn="Meddelanden Pï¿½";
 
-EndNetGame="Du kan inte avsluta ett n„tverksspel!\n\ntryck p† valfri tangent";
-EndGameCheck="„r du s„ker p† att du vill avsluta spelet?\n\ntryck y eller n";
+EndNetGame="Du kan inte avsluta ett nï¿½tverksspel!\n\ntryck pï¿½ valfri tangent";
+EndGameCheck="ï¿½r du sï¿½ker pï¿½ att du vill avsluta spelet?\n\ntryck y eller n";
 
-PressToQuit="(tryck y f”r att avsluta)";
+PressToQuit="(tryck y fï¿½r att avsluta)";
 
 GammaOff="Gammakorrektion AV";
-GammaLevelOne  ="Gammakorrektion niv† 1";
-GammaLevelTwo  ="Gammakorrektion niv† 2";
-GammaLevelThree="Gammakorrektion niv† 3";
-GammaLevelFour ="Gammakorrektion niv† 4";
+GammaLevelOne  ="Gammakorrektion nivï¿½ 1";
+GammaLevelTwo  ="Gammakorrektion nivï¿½ 2";
+GammaLevelThree="Gammakorrektion nivï¿½ 3";
+GammaLevelFour ="Gammakorrektion nivï¿½ 4";
 
-EmptySlot="Ledigt f„lt";
+EmptySlot="Ledigt fï¿½lt";
 
 GotArmour="Plockade upp pansaret.";
 GotMegaArmour="Plockade upp megapansaret!";
 
-GotHealthPotion="Plockade upp en h„lsobonus.";
+GotHealthPotion="Plockade upp en hï¿½lsobonus.";
 GotArmourHelmet="Plockade upp en pansarbonus.";
 
 GotStim="Plockade upp ett stimpack.";
 GotMedi="Plockade upp en medikit.";
-GotSoul="Sj„lasf„r!";
+GotSoul="Sjï¿½lasfï¿½r!";
 
-GotBlueCard="Plockade upp ett bl†tt nyckelkort.";
+GotBlueCard="Plockade upp ett blï¿½tt nyckelkort.";
 GotYellowCard="Plockade upp ett gult nyckelkort.";
-GotRedCard="Plockade upp ett r”tt nyckelkort.";
-GotBlueSkull="Plockade upp en bl† d”dskallenyckel.";
-GotYellowSkull="Plockade upp en gul d”dskallenyckel.";
-GotRedSkull="Plockade upp en r”d d”dskallenyckel.";
+GotRedCard="Plockade upp ett rï¿½tt nyckelkort.";
+GotBlueSkull="Plockade upp en blï¿½ dï¿½dskallenyckel.";
+GotYellowSkull="Plockade upp en gul dï¿½dskallenyckel.";
+GotRedSkull="Plockade upp en rï¿½d dï¿½dskallenyckel.";
 
-GotInvulner="Od”dlighet!";
-GotBerserk="B„rs„rk!";
+GotInvulner="Odï¿½dlighet!";
+GotBerserk="Bï¿½rsï¿½rk!";
 GotJetPack="JetPack!";
 GotInvis="Osynlighet!";
-GotSuit="Str†lningsskyddsdr„kt";
-GotMap="Karta ”ver banan";
-GotNight="IR-glas”gon";
-GotVisor="ljusf”rst„rkande visir";
-GotMega="Megasf„r!";
+GotSuit="Strï¿½lningsskyddsdrï¿½kt";
+GotMap="Karta ï¿½ver banan";
+GotNight="IR-glasï¿½gon";
+GotVisor="ljusfï¿½rstï¿½rkande visir";
+GotMega="Megasfï¿½r!";
 
 GotClip="Plockade upp ett magasin.";
-GotClipBox="Plockade upp en l†da kulor.";
+GotClipBox="Plockade upp en lï¿½da kulor.";
 GotShells="Plockade upp 4 patroner.";
-GotShellBox="Plockade upp en l†da patroner.";
+GotShellBox="Plockade upp en lï¿½da patroner.";
 GotRocket="Plockade upp en raket.";
-GotRocketBox="Plockade upp en l†da raketer.";
+GotRocketBox="Plockade upp en lï¿½da raketer.";
 GotCell="Plockade upp ett energibatteri.";
-GotCellPack="Plockade upp en l†da energibatterier.";
-GotBackpack="Plockade upp en ryggs„ck full med ammo!";
+GotCellPack="Plockade upp en lï¿½da energibatterier.";
+GotBackpack="Plockade upp en ryggsï¿½ck full med ammo!";
 
 GotBFG="Du fick BFG9000!  Jajemen.";
-GotChainGun="Du fick gatlinggev„ret!";
-GotChainSaw="En motors†g!  K”tta!!";
-GotDoubleBarrel="Du fick det dubbelpipiga hagelgev„ret!";
-GotRocketLauncher="Du fick raketgev„ret!";
-GotPlasmaGun="Du fick plasmagev„ret!";
-GotShotgun="Du fick hagelgev„ret!";
+GotChainGun="Du fick gatlinggevï¿½ret!";
+GotChainSaw="En motorsï¿½g!  Kï¿½tta!!";
+GotDoubleBarrel="Du fick det dubbelpipiga hagelgevï¿½ret!";
+GotRocketLauncher="Du fick raketgevï¿½ret!";
+GotPlasmaGun="Du fick plasmagevï¿½ret!";
+GotShotgun="Du fick hagelgevï¿½ret!";
 
-NeedBlueForObject="Du beh”ver en bl† nyckel f”r att aktivera det h„r objektet";
-NeedYellowForObject="Du beh”ver en gul nyckel f”r att aktivera det h„r objektet";
-NeedRedForObject="Du beh”ver en r”d nyckel f”r att aktivera det h„r objektet";
-NeedBlueForDoor="Du beh”ver en bl† nyckel f”r att ”ppna den h„r d”rren";
-NeedYellowForDoor="Du beh”ver en gul nyckel f”r att ”ppna den h„r d”rren";
-NeedRedForDoor="Du beh”ver en r”d nyckel f”r att ”ppna den h„r d”rren";
+NeedBlueForObject="Du behï¿½ver en blï¿½ nyckel fï¿½r att aktivera det hï¿½r objektet";
+NeedYellowForObject="Du behï¿½ver en gul nyckel fï¿½r att aktivera det hï¿½r objektet";
+NeedRedForObject="Du behï¿½ver en rï¿½d nyckel fï¿½r att aktivera det hï¿½r objektet";
+NeedBlueForDoor="Du behï¿½ver en blï¿½ nyckel fï¿½r att ï¿½ppna den hï¿½r dï¿½rren";
+NeedYellowForDoor="Du behï¿½ver en gul nyckel fï¿½r att ï¿½ppna den hï¿½r dï¿½rren";
+NeedRedForDoor="Du behï¿½ver en rï¿½d nyckel fï¿½r att ï¿½ppna den hï¿½r dï¿½rren";
 
 GameSaved="spelet sparat.";
 
@@ -2284,7 +2240,7 @@ UnsentMsg="(skickade inte meddelandet)";
 Sent="(skickade meddelandet)";
 
 // It would just sound silly with level names translated into Swedish.
-// Made two changes, though: Removed the „ in level 11 and 23 -ES
+// Made two changes, though: Removed the ï¿½ in level 11 and 23 -ES
 
 Map01Desc="level 1: entryway";
 Map02Desc="level 2: underhalls";
@@ -2319,50 +2275,39 @@ Map30Desc="level 30: icon of sin";
 Map31Desc="level 31: wolfenstein";
 Map32Desc="level 32: grosse";
 
-DefaultCHATMACRO1="Jag „r redo att †samka kopi”sa m„ngder fysisk skada!";
-DefaultCHATMACRO2="Jag „r OK.";
-DefaultCHATMACRO3="Jag m†r inte s† bra!";
-DefaultCHATMACRO4="Hj„lp!";
-DefaultCHATMACRO5="Du suger purjol”k!";
-DefaultCHATMACRO6="N„sta g†ng, campar„ckel...";
-DefaultCHATMACRO7="Kom hit!";
-DefaultCHATMACRO8="Jag tar hand om det.";
-DefaultCHATMACRO9="Ja";
-DefaultCHATMACRO0="Nej";
+TALKTOSELF1="du mumlar fï¿½r dig sjï¿½lv";
+TALKTOSELF2="Vem dï¿½r?";
+TALKTOSELF3="Du skrï¿½mmer dig sjï¿½lv";
+TALKTOSELF4="Du bï¿½rjar gorma";
+TALKTOSELF5="Du ï¿½r ju inte riktigt frisk...";
 
-TALKTOSELF1="du mumlar f”r dig sj„lv";
-TALKTOSELF2="Vem d„r?";
-TALKTOSELF3="Du skr„mmer dig sj„lv";
-TALKTOSELF4="Du b”rjar gorma";
-TALKTOSELF5="Du „r ju inte riktigt frisk...";
-
-PlayerOneName="Gr”n: ";
+PlayerOneName="Grï¿½n: ";
 PlayerTwoName="Indigo: ";
 PlayerThreeName="Brun: ";
-PlayerFourName="R”d: ";
+PlayerFourName="Rï¿½d: ";
 PlayerFiveName="Guld: ";
-PlayerSixName="Bl†: ";
-PlayerSevenName="M”rkBl†: ";
+PlayerSixName="Blï¿½: ";
+PlayerSevenName="Mï¿½rkBlï¿½: ";
 PlayerEightName="Rosa: ";
 
-// FIXME: Bad translation "F”ljl„ge"
-AutoMapFollowOn="F”ljl„ge P†";
-AutoMapFollowOff="F”ljl„ge AV";
-AutoMapGridOn="Rutn„t P†";
-AutoMapGridOff="Rutn„t AV";
+// FIXME: Bad translation "Fï¿½ljlï¿½ge"
+AutoMapFollowOn="Fï¿½ljlï¿½ge Pï¿½";
+AutoMapFollowOff="Fï¿½ljlï¿½ge AV";
+AutoMapGridOn="Rutnï¿½t Pï¿½";
+AutoMapGridOff="Rutnï¿½t AV";
 AutoMapMarkedSpot="Markerade position";
 AutoMapMarksClear="Alla markeringar raderade";
 
-MusChange="Musik„ndring";
-ImpossibleChange="OM”JLIGT VAL";
-GodModeON="Od”dlighet p†";
-GodModeOFF="Od”dlighet av";
+MusChange="Musikï¿½ndring";
+ImpossibleChange="OMï¿½JLIGT VAL";
+GodModeON="Odï¿½dlighet pï¿½";
+GodModeOFF="Odï¿½dlighet av";
 
 VeryHappyAmmo="Ammo och nycklar tillkom";
 AmmoAdded="Ammo (inga nycklar) tillkom";
 
-ClipON="G† igenom v„ggar P†";
-ClipOFF="G† igenom v„ggar AV";
+ClipON="Gï¿½ igenom vï¿½ggar Pï¿½";
+ClipOFF="Gï¿½ igenom vï¿½ggar AV";
 
 BEHOLDNote="inVul, Str, Invis, Rad, mAp, Lite-amp, or Jetpack";
 BEHOLDUsed="Power-up Toggled";
@@ -2376,86 +2321,86 @@ PlayerTargetingOff = "Monsters will not target player";
 PlayerTargetingOn = "Monsters will target player";
 UnlockCheat = "Alla nycklar!";
 LoadedCheat = "Full ammunition!";
-MonstersKilled = "D„dade %d monster";
-CDdisabled = "CD Audio „r inaktiverat";
-CDPlayTrack = "Spelar nu sp†r %d";
+MonstersKilled = "Dï¿½dade %d monster";
+CDdisabled = "CD Audio ï¿½r inaktiverat";
+CDPlayTrack = "Spelar nu spï¿½r %d";
 
 LevelQ = "Byter bana!\n"
 	"Skriv in banans namn:\n"
 	"\n";
-MusicQ = "Byter l†t!\n"
-	"Skriv in namnet p† den nya l†ten:\n"
+MusicQ = "Byter lï¿½t!\n"
+	"Skriv in namnet pï¿½ den nya lï¿½ten:\n"
 	"\n";
 
-Episode1Text="N r du v l har d”dat alla dom stora bovarna\n"
-     "och rensat rent p† m†nbasen  r du f”rmodad\n"
-     "att vinna,  r du inte det?  r du inte det? Var\n"
-     " r din feta bel”ning och biljett hem? Vad\n"
-     "i helvete  r det h r? Det  r inte menat att\n"
-     "sluta p† det h r s ttet!\n"
+Episode1Text="Nï¿½r du vï¿½l har dï¿½dat alla dom stora bovarna\n"
+     "och rensat rent pï¿½ mï¿½nbasen ï¿½r du fï¿½rmodad\n"
+     "att vinna, ï¿½r du inte det? ï¿½r du inte det? Var\n"
+     "ï¿½r din feta belï¿½ning och biljett hem? Vad\n"
+     "i helvete ï¿½r det hï¿½r? Det ï¿½r inte menat att\n"
+     "sluta pï¿½ det hï¿½r sï¿½ttet!\n"
      "\n"
-     "Det stinker som ruttet k”tt, men ser ut\n"
-     "som den f”rlorade Deimos basen.  Ser ut som\n"
-     "du  r fast p† helvettets strand.\n"
-     "Den enda v gen ut  r rakt igenom.\n"
+     "Det stinker som ruttet kï¿½tt, men ser ut\n"
+     "som den fï¿½rlorade Deimos basen.  Ser ut som\n"
+     "du ï¿½r fast pï¿½ helvettets strand.\n"
+     "Den enda vï¿½gen ut ï¿½r rakt igenom.\n"
      "\n"
-     "F”r att forts tta DOOM upplevelsen, spela\n"
-     "The Shores of Hell och dess f”rbluffande\n"
-     "forts ttning, Inferno!\n";
+     "Fï¿½r att fortsï¿½tta DOOM upplevelsen, spela\n"
+     "The Shores of Hell och dess fï¿½rbluffande\n"
+     "fortsï¿½ttning, Inferno!\n";
 
-Episode2Text="Du har gjort det! Den ot cka cyber-\n"
-     "demon lorden som styrde p† den f”rlorade\n"
-     "Deimos m†nbasen har blivit dr pt och du\n"
-     "firar! Men ... var  r du?\n"
-     "Du kl ttrar till kanten av m†nen\n"
-     "och ser ner f”r att se den hemska\n"
+Episode2Text="Du har gjort det! Den otï¿½cka cyber-\n"
+     "demon lorden som styrde pï¿½ den fï¿½rlorade\n"
+     "Deimos mï¿½nbasen har blivit drï¿½pt och du\n"
+     "firar! Men ... var ï¿½r du?\n"
+     "Du klï¿½ttrar till kanten av mï¿½nen\n"
+     "och ser ner fï¿½r att se den hemska\n"
      "sanningen.\n"
      "\n"
-     "Deimos sv var ”ver sj lvaste Helvetet!\n"
-     "Du har aldrig h”rt om n†gon som lyckats fly\n"
-     "fr†n Helvetet, men du ska f† dom j vlarna\n"
-     "att †ngra att dom n†gonsin fick h”ra om dig!\n"
+     "Deimos svï¿½var ï¿½ver sjï¿½lvaste Helvetet!\n"
+     "Du har aldrig hï¿½rt om nï¿½gon som lyckats fly\n"
+     "frï¿½n Helvetet, men du ska fï¿½ dom jï¿½vlarna\n"
+     "att ï¿½ngra att dom nï¿½gonsin fick hï¿½ra om dig!\n"
      "Snabbt, kutar du ner till ytan av\n"
      "Helvetet.\n"
      "\n"
-     "Nu,  r det det sista kapitlet av\n"
+     "Nu, ï¿½r det det sista kapitlet av\n"
      "DOOM! -- Inferno.";
 
 Episode3Text="Den vidriga spindeldemonen som\n"
-     "ledde invasionen till m†nbaserna\n"
-     "och orsakade s† mycket d”d har f†tt\n"
-     "sitt arsle sparkat en sista g†ng.\n"
+     "ledde invasionen till mï¿½nbaserna\n"
+     "och orsakade sï¿½ mycket dï¿½d har fï¿½tt\n"
+     "sitt arsle sparkat en sista gï¿½ng.\n"
      "\n"
-     "En g”md port ”ppnas och du kliver in.\n"
-     "Du har bevisat att du  r f”r tuff f”r\n"
-     "helvetet att beh†lla, och nu spelar\n"
-     "Helvetet  ntligen r ttvist -- du dyker\n"
-     "upp ur d”rren f”r att se Jordens gr”na\n"
-     "f lt!  ntligen hemma.\n"
+     "En gï¿½md port ï¿½ppnas och du kliver in.\n"
+     "Du har bevisat att du ï¿½r fï¿½r tuff fï¿½r\n"
+     "helvetet att behï¿½lla, och nu spelar\n"
+     "Helvetet ï¿½ntligen rï¿½ttvist -- du dyker\n"
+     "upp ur dï¿½rren fï¿½r att se Jordens grï¿½na\n"
+     "fï¿½lt! ï¿½ntligen hemma.\n"
      "\n"
-     "Du undrar vad som har h nt p† Jorden\n"
+     "Du undrar vad som har hï¿½nt pï¿½ Jorden\n"
      "undertiden du har slagits mot de onda.\n"
-     "Det  r bra att inget Helvettesyngel\n"
-     "skulle ha kunnat komma igenom d”rren\n"
+     "Det ï¿½r bra att inget Helvettesyngel\n"
+     "skulle ha kunnat komma igenom dï¿½rren\n"
      "tillsammans med dig...";
 
-Episode4Text="Ledar spindeln m†ste ha sent sina\n"
+Episode4Text="Ledar spindeln mï¿½ste ha sent sina\n"
      "trupper av Helvetesavkommor innan din\n"
-     "sista konfrontation med den f”rskr ckliga\n"
-     "besten fr†n Helvetet.  Men du steg fram†t\n"
-     "och tog med dig evig f”rd”melse och\n"
-     "lidande †t horden som en sann hj lte\n"
-     "skulle ha gjort i ansiktet p† n†got s†\n"
+     "sista konfrontation med den fï¿½rskrï¿½ckliga\n"
+     "besten frï¿½n Helvetet.  Men du steg framï¿½t\n"
+     "och tog med dig evig fï¿½rdï¿½melse och\n"
+     "lidande ï¿½t horden som en sann hjï¿½lte\n"
+     "skulle ha gjort i ansiktet pï¿½ nï¿½got sï¿½\n"
      "elakt.\n"
      "\n"
-     " nd†, n†gon skulle f† betala f”r vad\n"
-     "som h nde daisy, din favorit kanin.\n"
+     "ï¿½ndï¿½, nï¿½gon skulle fï¿½ betala fï¿½r vad\n"
+     "som hï¿½nde daisy, din favorit kanin.\n"
      "\n"
-     "men nu, ser du brett framf”r din mer\n"
-     "m”jliga sm rta och gibbitude som en nation\n"
-     "av demoner som l”per amok i v†ra st der.\n"
+     "men nu, ser du brett framfï¿½r din mer\n"
+     "mï¿½jliga smï¿½rta och gibbitude som en nation\n"
+     "av demoner som lï¿½per amok i vï¿½ra stï¿½der.\n"
      "\n"
-     "n sta h†llplats, hell on earth!";
+     "nï¿½sta hï¿½llplats, hell on earth!";
 
 E1M1Desc="E1M1: Hangar";
 E1M2Desc="E1M2: Nuclear Plant";
@@ -2499,75 +2444,75 @@ E4M9Desc="E4M9: Fear";
 
 Level7Text=
 "DU HAR STIGIT DJUPT IN I DEN ANGRIPNA\n"
-"RYMDBASEN. MEN N†GOT „R FEL.\n"
+"RYMDBASEN. MEN Nï¿½GOT ï¿½R FEL.\n"
 "MONSTRENA HAR TAGIT MED SIG SIN EGEN\n"
-"VERKLIGHET, OCH DERAS N„RVARO G”R\n"
-"RYMDBASENS TEKNOLOGI OANV„NDBAR\n"
+"VERKLIGHET, OCH DERAS Nï¿½RVARO Gï¿½R\n"
+"RYMDBASENS TEKNOLOGI OANVï¿½NDBAR\n"
 "\n"
-"FRAMF”R DIG SER DU EN AV HELVETETS UTPOSTER, EN\n"
-"FORTIFIERAD ZON. OM DU KAN KOMMA F”RBI\n"
-"DEN, KAN DU TR„NGA IN I RYMDBASENS HEMS”KTA\n"
-"HJ„RTA OCH HITTA KONTROLLSPAKEN SOM H†LLER\n"
+"FRAMFï¿½R DIG SER DU EN AV HELVETETS UTPOSTER, EN\n"
+"FORTIFIERAD ZON. OM DU KAN KOMMA Fï¿½RBI\n"
+"DEN, KAN DU TRï¿½NGA IN I RYMDBASENS HEMSï¿½KTA\n"
+"HJï¿½RTA OCH HITTA KONTROLLSPAKEN SOM Hï¿½LLER\n"
 "JORDENS BEFOLKNING SOM GISSLAN.";
 
 Level12Text=
 "DU HAR VUNNIT! DIN SEGER HAR GJORT DET\n"
-"M”JLIGT F”R M„NNISKOSL„KTET ATT UTYMMA\n"
-"JORDEN OCH RYMMA FR†N MARDR”MMEN. NU „R\n"
-"DU DEN ENDA M„NNISKAN KVAR P† PLANETENS YTA.\n"
-"KANNIBALMUTATIONER, K”TT„TANDE UTOMJORDINGAR\n"
-"OCH ONDA ANDAR „R DINA ENDA GRANNAR.\n"
-"DU LUTAR DIG BAK†T OCH V„NTAR P† D„DEN,\n"
-"N”JD MED ATT HA R„DDAT DIN ART.\n"
+"Mï¿½JLIGT Fï¿½R Mï¿½NNISKOSLï¿½KTET ATT UTYMMA\n"
+"JORDEN OCH RYMMA FRï¿½N MARDRï¿½MMEN. NU ï¿½R\n"
+"DU DEN ENDA Mï¿½NNISKAN KVAR Pï¿½ PLANETENS YTA.\n"
+"KANNIBALMUTATIONER, Kï¿½TTï¿½TANDE UTOMJORDINGAR\n"
+"OCH ONDA ANDAR ï¿½R DINA ENDA GRANNAR.\n"
+"DU LUTAR DIG BAKï¿½T OCH Vï¿½NTAR Pï¿½ Dï¿½DEN,\n"
+"Nï¿½JD MED ATT HA Rï¿½DDAT DIN ART.\n"
 "\n"
-"MEN D† TAR DU EMOT ETT MEDDELANDE FR†N\n"
-"RYMDEN: \"SENSORER HAR SP†RAT INVASIONENS\n"
-"K„LLA. OM DU †KER DIT, KAN DU KANSKE\n"
-"BLOCKERA DERAS ING†NG. BASEN LIGGER I DIN\n"
-"EGEN HEMSTADS HJ„RTA, INTE L†NGT IFR†N\n"
-"RYMDBASEN.\" L†NGSAMT OCH SM„RTSAMT STIGER\n"
-"DU UPP OCH †TERV„NDER TILL STRIDEN.";
+"MEN Dï¿½ TAR DU EMOT ETT MEDDELANDE FRï¿½N\n"
+"RYMDEN: \"SENSORER HAR SPï¿½RAT INVASIONENS\n"
+"Kï¿½LLA. OM DU ï¿½KER DIT, KAN DU KANSKE\n"
+"BLOCKERA DERAS INGï¿½NG. BASEN LIGGER I DIN\n"
+"EGEN HEMSTADS HJï¿½RTA, INTE Lï¿½NGT IFRï¿½N\n"
+"RYMDBASEN.\" Lï¿½NGSAMT OCH SMï¿½RTSAMT STIGER\n"
+"DU UPP OCH ï¿½TERVï¿½NDER TILL STRIDEN.";
 
 Level21Text=
-"DU BEFINNER DIG I STADENS F”RD„RVADE HJ„RTA,\n"
+"DU BEFINNER DIG I STADENS Fï¿½RDï¿½RVADE HJï¿½RTA,\n"
 "OMRINGAD AV DINA FIENDERS LIK.  DU SER\n"
-"INGET S„TT ATT F”RST”RA VARELSERNAS\n"
-"ING†NG FR†N DEN H„R SIDAN, S† DU BITER\n"
+"INGET Sï¿½TT ATT Fï¿½RSTï¿½RA VARELSERNAS\n"
+"INGï¿½NG FRï¿½N DEN Hï¿½R SIDAN, Sï¿½ DU BITER\n"
 "IHOP OCH HOPPAR IGENOM DEN.\n"
 "\n"
-"DET M†STE FINNAS ETT S„TT ATT ST„NGA DEN\n"
-"FR†N ANDRA SIDAN. VAD BRYR DU DIG OM DU\n"
-"M†STE KORSA HELVETET F”R ATT KOMMA FRAM?";
+"DET Mï¿½STE FINNAS ETT Sï¿½TT ATT STï¿½NGA DEN\n"
+"FRï¿½N ANDRA SIDAN. VAD BRYR DU DIG OM DU\n"
+"Mï¿½STE KORSA HELVETET Fï¿½R ATT KOMMA FRAM?";
 
 EndGameText=
-"DET F”RSKR„CKLIGA ANSIKTET AV DEN\n"\
-"ST”RSTA DEMONEN DU N†GONSIN SETT SMULAS\n"\
-"S”NDER FRAMF”R DIG, EFTER ATT DU PUMPAT\n"\
-"DINA RAKETER IN I HANS BLOTTADE HJ„RNA.\n"\
-"MONSTRET SKRUMPNAR IHOP OCH D”R, DESS\n"\
-"LEMMAR ”DEL„GGER HELVETETS O„NDLIGA YTA.\n"\
+"DET Fï¿½RSKRï¿½CKLIGA ANSIKTET AV DEN\n"\
+"STï¿½RSTA DEMONEN DU Nï¿½GONSIN SETT SMULAS\n"\
+"Sï¿½NDER FRAMFï¿½R DIG, EFTER ATT DU PUMPAT\n"\
+"DINA RAKETER IN I HANS BLOTTADE HJï¿½RNA.\n"\
+"MONSTRET SKRUMPNAR IHOP OCH Dï¿½R, DESS\n"\
+"LEMMAR ï¿½DELï¿½GGER HELVETETS Oï¿½NDLIGA YTA.\n"\
 "\n"\
 "\n"\
-"DU HAR GJORT DET. INVASIONEN „R ”VER.\n"\
-"JORDEN „R R„DDAD. HELVETET „R ”DELAGT.\n"\
-"DU UNDRAR VAR ELAKA M„NNISKOR KOMMER\n"\
-"N„R DOM D”R NU. MEDAN DU TORKAR SVETTEN\n"\
-"FR†N PANNAN B”RJAR DU DEN L†NGA\n"\
-"VANDRINGEN HEM. ATT †TERUPPBYGGA JORDEN\n"\
-"B”R VARA ROLIGARE „N DET VAR ATT\n" \
-"F”RD„RVA DEN.\n";
+"DU HAR GJORT DET. INVASIONEN ï¿½R ï¿½VER.\n"\
+"JORDEN ï¿½R Rï¿½DDAD. HELVETET ï¿½R ï¿½DELAGT.\n"\
+"DU UNDRAR VAR ELAKA Mï¿½NNISKOR KOMMER\n"\
+"Nï¿½R DOM Dï¿½R NU. MEDAN DU TORKAR SVETTEN\n"\
+"FRï¿½N PANNAN Bï¿½RJAR DU DEN Lï¿½NGA\n"\
+"VANDRINGEN HEM. ATT ï¿½TERUPPBYGGA JORDEN\n"\
+"Bï¿½R VARA ROLIGARE ï¿½N DET VAR ATT\n" \
+"Fï¿½RDï¿½RVA DEN.\n";
 
 Level31Text=
 "GRATULERAR, DU HAR HITTAT DEN HEMLIGA\n"\
-"BANAN! DET SER UT SOM OM DEN SNARARE „R\n"\
-"BYGGD AV M„NNISKOR „N AV DEMONER. DU\n"\
-"UNDRAR VILKA SOM HAMNAT I DEN H„R DELEN"\
+"BANAN! DET SER UT SOM OM DEN SNARARE ï¿½R\n"\
+"BYGGD AV Mï¿½NNISKOR ï¿½N AV DEMONER. DU\n"\
+"UNDRAR VILKA SOM HAMNAT I DEN Hï¿½R DELEN"\
 "AV HELVETET.";
 
 Level32Text=
 "GRATULERAR, DU HAR HITTAT DEN SUPER-\n"\
-"HEMLIGA BANAN!  B„ST ATT DU\n"\
-"MOSAR IGENOM DEN H„R!\n";
+"HEMLIGA BANAN!  Bï¿½ST ATT DU\n"\
+"MOSAR IGENOM DEN Hï¿½R!\n";
 
 CheckNetGame=    "D_CheckNetGame: Checking network game status.\n";
 HeadsUpInit=     "HU_Init: Setting up heads up display.\n";
@@ -2588,29 +2533,29 @@ ZoneMemoryAlloc= "Z_Init: Init Zone Memory Allocation. \n";
 
 Notice=
 "==============================================================================\n"
-" Detta „r EDGE: ett projekt baserat p† Dooms k„llkod, sl„ppd av John\n"
-" Carmack fr†n Id Software i december 1997. Allt arbete p† detta projekt har\n"
-" planerats och utf”rts av EDGEteamet (http://edge.sourceforge.net//).\n"
+" Detta ï¿½r EDGE: ett projekt baserat pï¿½ Dooms kï¿½llkod, slï¿½ppd av John\n"
+" Carmack frï¿½n Id Software i december 1997. Allt arbete pï¿½ detta projekt har\n"
+" planerats och utfï¿½rts av EDGEteamet (http://edge.sourceforge.net//).\n"
 "==============================================================================\n";
 
 JoystickCentre = "CENTRERA joysticken\n"
 	"\n"
-	"tryck p† valfri tangent.";
-JoystickTL = "Drag joysticken maximalt UPP†T och †t V„NSTER\n"
+	"tryck pï¿½ valfri tangent.";
+JoystickTL = "Drag joysticken maximalt UPPï¿½T och ï¿½t Vï¿½NSTER\n"
 	"\n"
-	"tryck p† valfri tangent.";
-JoystickBR = "Drag joysticken maximalt NED†T och †t H”GER\n"
+	"tryck pï¿½ valfri tangent.";
+JoystickBR = "Drag joysticken maximalt NEDï¿½T och ï¿½t Hï¿½GER\n"
 	"\n"
-	"tryck p† valfri tangent.";
+	"tryck pï¿½ valfri tangent.";
 JoystickHAT = "Move the hat to the %s position\n"
 	"\n"
-	"tryck p† valfri tangent.";
+	"tryck pï¿½ valfri tangent.";
 JoyThrottleMAX = "Set the throttle to MAXIMUM\n"
 	"\n"
-	"tryck p† valfri tangent.";
+	"tryck pï¿½ valfri tangent.";
 JoyThrottleMIN = "Set the throttle to MINIMUM\n"
 	"\n"
-	"tryck p† valfri tangent.";
+	"tryck pï¿½ valfri tangent.";
 JoystickCentreT = "CENTRE the joystick and press a key:";
 JoystickTLT = "Push the joystick to the UPPER LEFT corner and press a key:";
 JoystickBRT = "Push the joystick to the BOTTOM RIGHT corner and press a key:";
@@ -2618,11 +2563,11 @@ JoystickHATT = "Move the hat to the %s position and press a key:";
 JoyThrottleMAXT = "Set the throttle to MAXIMUM and press a key:";
 JoyThrottleMINT = "Set the throttle to MINIMUM and press a key:";
 
-ModeSelErrT = "Kunde inte s„tta uppl”sningen till %d x %d x %dc!";
-ModeSelErr = "Kunte inte „ndra\n"
-	"uppl”sningen till %d x %d x %dc!\n"
+ModeSelErrT = "Kunde inte sï¿½tta upplï¿½sningen till %d x %d x %dc!";
+ModeSelErr = "Kunte inte ï¿½ndra\n"
+	"upplï¿½sningen till %d x %d x %dc!\n"
 	"\n"
-	"tryck p† valfri tangent.";
+	"tryck pï¿½ valfri tangent.";
 
 
 // ------ Dutch Language Definition File ---------------
@@ -2774,17 +2719,6 @@ Map29Desc = "level 29: the living end";
 Map30Desc = "level 30: icon of sin";
 Map31Desc = "level 31: wolfenstein";
 Map32Desc = "level 32: grosse";
-
-DefaultCHATMACRO1 = "Ik ben er helemaal klaar voor!";
-DefaultCHATMACRO2 = "Ik ben OK.";
-DefaultCHATMACRO3 = "Ik zie er niet zo goed uit!";
-DefaultCHATMACRO4 = "Help!";
-DefaultCHATMACRO5 = "Jij deugt niet!";
-DefaultCHATMACRO6 = "Volgende keer, zak stront...";
-DefaultCHATMACRO7 = "Kom hier!";
-DefaultCHATMACRO8 = "Ik zorg er wel voor.";
-DefaultCHATMACRO9 = "Ja";
-DefaultCHATMACRO0 = "Nee";
 
 TALKTOSELF1 = "Je praat tegen jezelf";
 TALKTOSELF2 = "Wie is daar?";
@@ -3223,17 +3157,6 @@ Map30Desc = "Level 30: icon of sin";
 Map31Desc = "Level 31: wolfenstein";
 Map32Desc = "Level 32: grosse";
 
-DefaultCHATMACRO1 = "Ich bin fertig Alter!";
-DefaultCHATMACRO2 = "Ich bin OK.";
-DefaultCHATMACRO3 = "Ich sehe nicht gerade gut aus!";
-DefaultCHATMACRO4 = "Hilfe!";
-DefaultCHATMACRO5 = "Du Wichser!";
-DefaultCHATMACRO6 = "Naechstes mal, Kleiner...";
-DefaultCHATMACRO7 = "Komm her!";
-DefaultCHATMACRO8 = "Ich werde es mir ansehen.";
-DefaultCHATMACRO9 = "Ja";
-DefaultCHATMACRO0 = "Nein";
-
 TALKTOSELF1 = "Du murmelst zu dirselbst";
 TALKTOSELF2 = "Wer ist da?";
 TALKTOSELF3 = "Du erschrickst dich";
@@ -3306,7 +3229,7 @@ Episode1Text="Nun, da du die ganzen Schweine\n"
      "\n"
      "Um das DOOM Erlebnis fortzusetzen,\n"
      "spiel 'The Shores of Hell' und die\n"
-     "groáartige Folge, 'Inferno'!\n";
+     "groï¿½artige Folge, 'Inferno'!\n";
 
 Episode2Text="Du habst es vollbracht! Der riesige\n"
      "Cyber Demon Lord, der die Lost Deimos\n"
@@ -3325,7 +3248,7 @@ Episode2Text="Du habst es vollbracht! Der riesige\n"
      "Nun liegt es am letzten Kapitel von\n"
      "DOOM -- 'Inferno'.";
 
-Episode3Text="Der verhaáte Spider Demon,\n"
+Episode3Text="Der verhaï¿½te Spider Demon,\n"
      "der die ganze Invasion auf die Erde\n"
      "angefuehrt, und so viel Tod und Zerstoerung zu verantworten hat, ist endlich tot.\n"
      "\n"
@@ -3342,14 +3265,14 @@ Episode3Text="Der verhaáte Spider Demon,\n"
      "Es ist gut, das nichts mit dir\n"
      "durch die Tuer kommen konnte ...";
 
-Episode4Text="Der Spider Demon muá seine Legionen\n"
+Episode4Text="Der Spider Demon muï¿½ seine Legionen\n"
      "der Hoelle vor eurer letzten Konfrontation ausgesendet haben.\n"
      "Aber du bist weitergelaufen, und brachtest\n"
      "ewige Verdammnis und Leiden ueber die\n"
      "Horden, wie es ein Held im Gesicht des Boesen tut...\n"
      "\n"
      "Nebenbei, jemand wird fuer das, was\n"
-     "deinem Hasen Daisy passiert ist, bueáen!\n"
+     "deinem Hasen Daisy passiert ist, bueï¿½en!\n"
      "\n"
      "Aber nun beeil' dich lieber, und\n"
      "vernichte die Horde Daemonen, die in\n"
@@ -3517,48 +3440,48 @@ ModeSelErr = "Fehler beim Starten des\n"
 // -------- Finnish Language Definition File -------------
 
 [FINNISH]
-DevelopmentMode="Rakennus moodi p„„ll„.\n";
+DevelopmentMode="Rakennus moodi pï¿½ï¿½llï¿½.\n";
 PressKey="Paina nappia";
 PressYorN="Paina Y tai N";
 
-QuickSaveOver="pikatallennus nimell„\n\n'%s'?\n\npaina y tai n.";
-NoQuickSaveSlot="et ole valinnut pikatallennuspaikkaa viel„!\n\npaina jotain nappia.";
+QuickSaveOver="pikatallennus nimellï¿½\n\n'%s'?\n\npaina y tai n.";
+NoQuickSaveSlot="et ole valinnut pikatallennuspaikkaa vielï¿½!\n\npaina jotain nappia.";
 SaveWhenNotPlaying="et voi tallentaa jos et pelaa!\n\npaina jotain nappia.";
 
-NoLoadInNetGame="et voi ladata peli„ nettipeliss„!\n\npaina nappia.";
-NoQLoadInNetGame="et voi pika-ladata peli„ nettipeliss„!\n\npaina nappia." ;
-QuickLoad="haluatko pika-ladata pelin nimelt„\n\n'%s'?\n\npaina y tai n.";
+NoLoadInNetGame="et voi ladata peliï¿½ nettipelissï¿½!\n\npaina nappia.";
+NoQLoadInNetGame="et voi pika-ladata peliï¿½ nettipelissï¿½!\n\npaina nappia." ;
+QuickLoad="haluatko pika-ladata pelin nimeltï¿½\n\n'%s'?\n\npaina y tai n.";
 
-NewNetGame="et voi aloittaa uutta peli„\n"
-           "nettipeliss„\n\npaina nappia.";
+NewNetGame="et voi aloittaa uutta peliï¿½\n"
+           "nettipelissï¿½\n\npaina nappia.";
 
-NightmareCheck="oletko varma? t„m„ vaikeusaste\n"
+NightmareCheck="oletko varma? tï¿½mï¿½ vaikeusaste\n"
                "ei ole todellakaan reilu.\n\npaina y tai n.";
 
-MessagesOff="Viestit p„„ll„";
-MessagesOn="Viestit pois p„„lt„";
+MessagesOff="Viestit pï¿½ï¿½llï¿½";
+MessagesOn="Viestit pois pï¿½ï¿½ltï¿½";
 
-EndNetGame="Et voi lopettaa nettipeli„!\n\npaina jotain nappia.";
+EndNetGame="Et voi lopettaa nettipeliï¿½!\n\npaina jotain nappia.";
 EndGameCheck="Haluatko varmasti lopettaa pelin?\n\npaina y tai n.";
 
 PressToQuit="(Paina y lopettaaksesi)";
 
-GammaOff="Gamma korjaus pois p„„lt„";
+GammaOff="Gamma korjaus pois pï¿½ï¿½ltï¿½";
 GammaLevelOne  ="Gamma korjaus taso 1";
 GammaLevelTwo  ="Gamma korjaus taso 2";
 GammaLevelThree="Gamma korjaus taso 3";
 GammaLevelFour ="Gamma korjaus taso 4";
 
-EmptySlot="Tyhj„";
+EmptySlot="Tyhjï¿½";
 
 GotArmour="Poimit panssarin.";
 GotMegaArmour="Poimit Megapanssarin!";
 
-GotHealthPotion="Poimit lis„energiaa";
-GotArmourHelmet="Poimit lis„panssaria";
+GotHealthPotion="Poimit lisï¿½energiaa";
+GotArmourHelmet="Poimit lisï¿½panssaria";
 
 GotStim="Poimit ensiapulaukun.";
-GotMedi="Poimit l„„kepakkauksen.";
+GotMedi="Poimit lï¿½ï¿½kepakkauksen.";
 GotSoul="Superenergia!";
 
 GotBlueCard="Poimit sinisen avainkortin";
@@ -3571,11 +3494,11 @@ GotRedSkull="Poimit punaisen kalloavaimen.";
 GotInvulner="KUOLEMATTOMUUS!";
 GotBerserk="Raivo!";
 GotJetPack="Jettilaukku!";
-GotInvis="Osittainen n„kym„tt”myys";
+GotInvis="Osittainen nï¿½kymï¿½ttï¿½myys";
 GotSuit="Myrkkypuku";
 GotMap="Datakartta";
 GotNight="Infrapunalasit";
-GotVisor="Y”lasit";
+GotVisor="Yï¿½lasit";
 GotMega="Megavoimat!";
 
 GotClip="Poimit lippaan.";
@@ -3589,76 +3512,65 @@ GotCellPack="Poimit energia-akku paketin.";
 GotBackpack="Poimit repullisen ammuksia!";
 
 GotBFG="Poimit BFG9000:n!! Jeah..";
-GotChainGun="Poimit konekiv„„rin!";
+GotChainGun="Poimit konekivï¿½ï¿½rin!";
 GotChainSaw="Moottorisaha! etsi lihaa!";
 GotDoubleBarrel="Poimit kaksipiippuisen haulikon!";
 GotRocketLauncher="Poimit raketinheittimen!";
 GotPlasmaGun="Poimit plasmatykin!";
 GotShotgun="Poimit haulikon!";
 
-NeedBlueForObject="Tarvitset sinisen avaimen aktivoidaksesi t„m„n";
-NeedYellowForObject="Tarvitset keltaisen avaimen aktivoidaksesi t„m„n";
-NeedRedForObject="Tarvitset punaisen avaimen aktivoidaksesi t„m„n";
-NeedBlueForDoor="Tarvitset sinisen avaimen avataksesi t„m„n oven";
-NeedYellowForDoor="Tarvitset keltaisen avaimen avataksesi t„m„n oven";
-NeedRedForDoor="Tarvitset punaisen avaimen avataksesi t„m„n oven";
+NeedBlueForObject="Tarvitset sinisen avaimen aktivoidaksesi tï¿½mï¿½n";
+NeedYellowForObject="Tarvitset keltaisen avaimen aktivoidaksesi tï¿½mï¿½n";
+NeedRedForObject="Tarvitset punaisen avaimen aktivoidaksesi tï¿½mï¿½n";
+NeedBlueForDoor="Tarvitset sinisen avaimen avataksesi tï¿½mï¿½n oven";
+NeedYellowForDoor="Tarvitset keltaisen avaimen avataksesi tï¿½mï¿½n oven";
+NeedRedForDoor="Tarvitset punaisen avaimen avataksesi tï¿½mï¿½n oven";
 
 GameSaved="Peli tallennettu.";
 
-UnsentMsg="[Viesti„ ei l„hetetty]";
-Sent="[Viesti l„hetetty]";
+UnsentMsg="[Viestiï¿½ ei lï¿½hetetty]";
+Sent="[Viesti lï¿½hetetty]";
 
-Map01Desc="kentt„ 1: entryway";
-Map02Desc="kentt„ 2: underhalls";
-Map03Desc="kentt„ 3: the gantlet";
-Map04Desc="kentt„ 4: the focus";
-Map05Desc="kentt„ 5: the waste tunnels";
-Map06Desc="kentt„ 6: the crusher";
-Map07Desc="kentt„ 7: dead simple";
-Map08Desc="kentt„ 8: tricks and traps";
-Map09Desc="kentt„ 9: the pit";
-Map10Desc="kentt„ 10: refueling base";
-Map11Desc="kentt„ 11: 'o' of destruction!";
-Map12Desc="kentt„ 12: the factory";
-Map13Desc="kentt„ 13: downtown";
-Map14Desc="kentt„ 14: the inmost dens";
-Map15Desc="kentt„ 15: industrial zone";
-Map16Desc="kentt„ 16: suburbs";
-Map17Desc="kentt„ 17: tenements";
-Map18Desc="kentt„ 18: the courtyard";
-Map19Desc="kentt„ 19: the citadel";
-Map20Desc="kentt„ 20: gotcha!";
-Map21Desc="kentt„ 21: nirvana";
-Map22Desc="kentt„ 22: the catacombs";
-Map23Desc="kentt„ 23: barrels o' fun";
-Map24Desc="kentt„ 24: the chasm";
-Map25Desc="kentt„ 25: bloodfalls";
-Map26Desc="kentt„ 26: the abandoned mines";
-Map27Desc="kentt„ 27: monster condo";
-Map28Desc="kentt„ 28: the spirit world";
-Map29Desc="kentt„ 29: the living end";
-Map30Desc="kentt„ 30: icon of sin";
-Map31Desc="kentt„ 31: wolfenstein";
-Map32Desc="kentt„ 32: grosse";
-
-DefaultCHATMACRO1="Nyt teurastetaan!";
-DefaultCHATMACRO2="Olen OK.";
-DefaultCHATMACRO3="Ei hirve„sti naurata!";
-DefaultCHATMACRO4="APUA!";
-DefaultCHATMACRO5="Haista vittu!";
-DefaultCHATMACRO6="Odotas kun tuut pimeell„ vastaan..";
-DefaultCHATMACRO7="Tuu t„nne!";
-DefaultCHATMACRO8="M„ hoidan sen.";
-DefaultCHATMACRO9="Joo";
-DefaultCHATMACRO0="Ei";
+Map01Desc="kenttï¿½ 1: entryway";
+Map02Desc="kenttï¿½ 2: underhalls";
+Map03Desc="kenttï¿½ 3: the gantlet";
+Map04Desc="kenttï¿½ 4: the focus";
+Map05Desc="kenttï¿½ 5: the waste tunnels";
+Map06Desc="kenttï¿½ 6: the crusher";
+Map07Desc="kenttï¿½ 7: dead simple";
+Map08Desc="kenttï¿½ 8: tricks and traps";
+Map09Desc="kenttï¿½ 9: the pit";
+Map10Desc="kenttï¿½ 10: refueling base";
+Map11Desc="kenttï¿½ 11: 'o' of destruction!";
+Map12Desc="kenttï¿½ 12: the factory";
+Map13Desc="kenttï¿½ 13: downtown";
+Map14Desc="kenttï¿½ 14: the inmost dens";
+Map15Desc="kenttï¿½ 15: industrial zone";
+Map16Desc="kenttï¿½ 16: suburbs";
+Map17Desc="kenttï¿½ 17: tenements";
+Map18Desc="kenttï¿½ 18: the courtyard";
+Map19Desc="kenttï¿½ 19: the citadel";
+Map20Desc="kenttï¿½ 20: gotcha!";
+Map21Desc="kenttï¿½ 21: nirvana";
+Map22Desc="kenttï¿½ 22: the catacombs";
+Map23Desc="kenttï¿½ 23: barrels o' fun";
+Map24Desc="kenttï¿½ 24: the chasm";
+Map25Desc="kenttï¿½ 25: bloodfalls";
+Map26Desc="kenttï¿½ 26: the abandoned mines";
+Map27Desc="kenttï¿½ 27: monster condo";
+Map28Desc="kenttï¿½ 28: the spirit world";
+Map29Desc="kenttï¿½ 29: the living end";
+Map30Desc="kenttï¿½ 30: icon of sin";
+Map31Desc="kenttï¿½ 31: wolfenstein";
+Map32Desc="kenttï¿½ 32: grosse";
 
 TALKTOSELF1="Puhut itesellesi..";
-TALKTOSELF2="Kuka siell„?";
-TALKTOSELF3="Pelottelet itse„si";
+TALKTOSELF2="Kuka siellï¿½?";
+TALKTOSELF3="Pelottelet itseï¿½si";
 TALKTOSELF4="Miksi puhut itsellesi?";
 TALKTOSELF5="Hullu...";
 
-PlayerOneName="Vihre„: ";
+PlayerOneName="Vihreï¿½: ";
 PlayerTwoName="Harmaa: ";
 PlayerThreeName="Ruskea: ";
 PlayerFourName="Punainen: ";
@@ -3667,103 +3579,103 @@ PlayerSixName="Sininen: ";
 PlayerSevenName="Tumma: ";
 PlayerEightName="Pinkki: ";
 
-AutoMapFollowOn="Seuraus p„„ll„";
-AutoMapFollowOff="Seuraus pois p„„lt„";
-AutoMapGridOn="Ruudukko p„„ll„";
-AutoMapGridOff="Ruudukko pois p„„lt„";
+AutoMapFollowOn="Seuraus pï¿½ï¿½llï¿½";
+AutoMapFollowOff="Seuraus pois pï¿½ï¿½ltï¿½";
+AutoMapGridOn="Ruudukko pï¿½ï¿½llï¿½";
+AutoMapGridOff="Ruudukko pois pï¿½ï¿½ltï¿½";
 AutoMapMarkedSpot="Paikka merkitty";
 AutoMapMarksClear="Kaikki merkit poistettu";
 
 MusChange="Musiikin vaihto";
 ImpossibleChange="MAHDOTON VALINTA";
-GodModeON="Kuolemattomuus p„„ll„";
-GodModeOFF="Kuolemattomuus pois p„„lt„";
+GodModeON="Kuolemattomuus pï¿½ï¿½llï¿½";
+GodModeOFF="Kuolemattomuus pois pï¿½ï¿½ltï¿½";
 
 VeryHappyAmmo="Ihan mukavasti ammuksia";
 AmmoAdded="Ammuksia (ei avaimia)";
 
-ClipON="Haamuk„vely p„„ll„";
-ClipOFF="Haamuk„vely pois p„„lt„";
+ClipON="Haamukï¿½vely pï¿½ï¿½llï¿½";
+ClipOFF="Haamukï¿½vely pois pï¿½ï¿½ltï¿½";
 
 BEHOLDNote="inVul, Str, Invis, Rad, mAp, Lite-amp, tai Jetpack";
-BEHOLDUsed="voiman lis„ys muunnettu";
+BEHOLDUsed="voiman lisï¿½ys muunnettu";
 
 ChoppersNote="... doesn't suck - GM";
-LevelChange="Vaihdetaan kentt„„..";
+LevelChange="Vaihdetaan kenttï¿½ï¿½..";
 
 SuicideCheat="Luuseri!";
 StuffRemoval="Tavarat poistettu";
-PlayerTargetingOff="Hirvi”t eiv„t hy”kk„„";
-PlayerTargetingOn="Hirvi”t hy”kk„„v„t";
+PlayerTargetingOff="Hirviï¿½t eivï¿½t hyï¿½kkï¿½ï¿½";
+PlayerTargetingOn="Hirviï¿½t hyï¿½kkï¿½ï¿½vï¿½t";
 UnlockCheat="Kaikki avaimet!";
-LoadedCheat="T„ydet ammukset!";
-MonstersKilled="%d Hirvi”t„ tapettu.";
-CDdisabled="CD-musiikki ei ole p„„ll„";
+LoadedCheat="Tï¿½ydet ammukset!";
+MonstersKilled="%d Hirviï¿½tï¿½ tapettu.";
+CDdisabled="CD-musiikki ei ole pï¿½ï¿½llï¿½";
 CDPlayTrack="Soitetaan raitaa %d";
 
-LevelQ="Kent„n vaihto!\nAnna kent„n nimi:\n\n";
+LevelQ="Kentï¿½n vaihto!\nAnna kentï¿½n nimi:\n\n";
 MusicQ="Musiikin vaihto!\nAnna musiikin nimi:\n\n";
 
-Level7Text="OLET ASTUNUT SIS„„N AVARUUSPORTISTA.\n" 
-           "JOKIN ON VINOSSA.HIRVI”T OVAT MANIPULOINEET\n" 
-           "AVARUUSASEMAN TEKNOLOGIAN OMAAN K„YTT””NS„.\n" 
+Level7Text="OLET ASTUNUT SISï¿½ï¿½N AVARUUSPORTISTA.\n" 
+           "JOKIN ON VINOSSA.HIRVIï¿½T OVAT MANIPULOINEET\n" 
+           "AVARUUSASEMAN TEKNOLOGIAN OMAAN Kï¿½YTTï¿½ï¿½NSï¿½.\n" 
            "\n"
-           "EDESS„SI N„„T HELVETIN PORTIT, MIEHITETYN\n" 
-           "LINNAKKEEN T„YNN„ DEMONEJA.\n" 
-           "JOS ONNISTUT P„„SEM„„N SEN L„PI, VOIT\n" 
-           "TUNKEUTUA AVARUUSASEMAN SYD„MMEEN JA L”YT„„\n" 
-           "KYTKIMEN JOKA PIT„„ MAIILMAN KANSAA\n" 
+           "EDESSï¿½SI Nï¿½ï¿½T HELVETIN PORTIT, MIEHITETYN\n" 
+           "LINNAKKEEN Tï¿½YNNï¿½ DEMONEJA.\n" 
+           "JOS ONNISTUT Pï¿½ï¿½SEMï¿½ï¿½N SEN Lï¿½PI, VOIT\n" 
+           "TUNKEUTUA AVARUUSASEMAN SYDï¿½MMEEN JA Lï¿½YTï¿½ï¿½\n" 
+           "KYTKIMEN JOKA PITï¿½ï¿½ MAIILMAN KANSAA\n" 
            "PANTTIVAKINAAN.";
 
-Level12Text="SIN„ TEIT SEN! SAAVUTUKSESI MAHDOLLISTI\n" 
+Level12Text="SINï¿½ TEIT SEN! SAAVUTUKSESI MAHDOLLISTI\n" 
             "MAIILMAN KANSAN EVAKUOIMISEN JA\n"
-            "PAKENEMISEN T„LT„ PAINAJAISELTA.\n"
+            "PAKENEMISEN Tï¿½LTï¿½ PAINAJAISELTA.\n"
             "NYT OLET AINOA IHMINEN PLANEETALLA.\n"
-            "KANNIBAALI MUTANTIT, LIHANSY”J„T JA \n"
+            "KANNIBAALI MUTANTIT, LIHANSYï¿½Jï¿½T JA \n"
             "PAHATHENGET OVAT NYT AINOAT SEURALAISESI.\n"
-            "ISTUT ALAS JA ODOTAT KUOLEMAA, TIET„EN\n"
-            "ETT„ OLET PELASTANUT IHMISKUNNAN.\n"
+            "ISTUT ALAS JA ODOTAT KUOLEMAA, TIETï¿½EN\n"
+            "ETTï¿½ OLET PELASTANUT IHMISKUNNAN.\n"
             "\n"
             "MUTTA SITTEN, SAAT VIESTIN AVARUUESTA:\n"
-            "'SENSORIT PAIKANTANEET DEMONIEN L„HTEEN.\n"
-            "JOS P„„SET SINNE, VOIT EHK„ TUKKIA NIIDEN \n"
-            "TIEN.PAIKKA ON OMAN KOTIKAUPUNKISI SYD„MMESS„,\n"
-            "L„HELL„ AVARUUSASEMAA.'\n"
-            "HITAASTI JA TUSKAISESTI NOUSET YL”S JA \n"
+            "'SENSORIT PAIKANTANEET DEMONIEN Lï¿½HTEEN.\n"
+            "JOS Pï¿½ï¿½SET SINNE, VOIT EHKï¿½ TUKKIA NIIDEN \n"
+            "TIEN.PAIKKA ON OMAN KOTIKAUPUNKISI SYDï¿½MMESSï¿½,\n"
+            "Lï¿½HELLï¿½ AVARUUSASEMAA.'\n"
+            "HITAASTI JA TUSKAISESTI NOUSET YLï¿½S JA \n"
             "TARTUT HAULIKKOOSI.";
 
-Level21Text="OLET TURMELTUNEEN KAUPUNGIN SYD„MMESS„,\n"
-            "VIHOLLISIESI RUUMIDEN YMP„R”IM„N„.\n"
-            "ET PYSTY TUKKIMAAN HIRVI”IDEN TIET„\n"
-            "T„LT„ PUOLELTA, JOTEN SY”KSYT PORTIN \n"
-            "L„PI.\n"
+Level21Text="OLET TURMELTUNEEN KAUPUNGIN SYDï¿½MMESSï¿½,\n"
+            "VIHOLLISIESI RUUMIDEN YMPï¿½Rï¿½IMï¿½Nï¿½.\n"
+            "ET PYSTY TUKKIMAAN HIRVIï¿½IDEN TIETï¿½\n"
+            "Tï¿½LTï¿½ PUOLELTA, JOTEN SYï¿½KSYT PORTIN \n"
+            "Lï¿½PI.\n"
             "\n"
-            "T„YTYY OLLA JOKIN KEINO TUKKIA TIE\n"
-            "TOISELTA PUOLELTA.MIT„ V„LI„ VAIKKA SINUN\n"
-            "PIT„ISI KAHLATA L„PI HELVETIN?";
+            "Tï¿½YTYY OLLA JOKIN KEINO TUKKIA TIE\n"
+            "TOISELTA PUOLELTA.MITï¿½ Vï¿½LIï¿½ VAIKKA SINUN\n"
+            "PITï¿½ISI KAHLATA Lï¿½PI HELVETIN?";
 
-EndGameText="SUURIMMAN KOSKAAN N„KEM„SI DEMONIN\n"
+EndGameText="SUURIMMAN KOSKAAN Nï¿½KEMï¿½SI DEMONIN\n"
             "VALTAVAT KASVOT SORTUVAT ETEESI, PUMPATESSASI\n"
             "RAKETTISI SEN SUOJAAMATTOMIIN AIVOIHIN.\n"
-            "HIRVI” KUOLEE, JA SEN J„SENET LENTELEV„T\n"
-            "YMP„RI HELVETTI„\n"
+            "HIRVIï¿½ KUOLEE, JA SEN Jï¿½SENET LENTELEVï¿½T\n"
+            "YMPï¿½RI HELVETTIï¿½\n"
             "\n"
-            "SIN„ TEIT SEN. MAAHAN HY”KK„YS ON OHI.\n"
+            "SINï¿½ TEIT SEN. MAAHAN HYï¿½KKï¿½YS ON OHI.\n"
             "MAAILMA ON PELASTETTU.HELVETTI ON RAUNIOINA.\n"
-            "MIETIT ETT„ MINNE PAHAT TYYPIT NYT\n"
+            "MIETIT ETTï¿½ MINNE PAHAT TYYPIT NYT\n"
             "JOUTUVAT KUOLTUAAN. PYYHIT HIEN OTSALTASI\n"
-            "JA ALOITAT PITK„N MATKAN TAKAISIN KOTIIN.\n"
+            "JA ALOITAT PITKï¿½N MATKAN TAKAISIN KOTIIN.\n"
             "MAAILMAN UUDELLEEN RAKENTAMINEN TULEE OLEMAAN\n"
 	    "PALJON HAUSKEMPAA KUIN SEN TUHOAMINEN\n";
 
-Level31Text="ONNEKSI OLKOON, L”YSIT SALAKENT„N!\n"
-            "SE N„YTT„„ IHMISTEN RAKENTAMALTA, EI\n"
+Level31Text="ONNEKSI OLKOON, Lï¿½YSIT SALAKENTï¿½N!\n"
+            "SE Nï¿½YTTï¿½ï¿½ IHMISTEN RAKENTAMALTA, EI\n"
             "DEMONIEN. MIETIT KUINKA JOKU VOI JOUTUA\n"
-            "VANGIKSI T„H„N HELVETIN KOLKKAAN\n";
+            "VANGIKSI Tï¿½Hï¿½N HELVETIN KOLKKAAN\n";
 
-Level32Text="ONNEKSI OLKOON, L”YSIT ERITT„IN\n"
-            "SALAISEN KENT„N!  SINUN ON PARASTA\n"
-            "L„P„IST„ T„M„!\n";
+Level32Text="ONNEKSI OLKOON, Lï¿½YSIT ERITTï¿½IN\n"
+            "SALAISEN KENTï¿½N!  SINUN ON PARASTA\n"
+            "Lï¿½Pï¿½ISTï¿½ Tï¿½Mï¿½!\n";
 
 
 CheckNetGame=    "D_CheckNetGame: Tarkistetaan verkkopelin tilaa.\n";
@@ -3776,7 +3688,7 @@ RefreshDaemon=   "R_Init: Init DOOM refresh daemon - ";
 PlayState=       "\nP_Init: Init Playloop state.\n";
 SoundInit=       "S_Init: Setting up sound.\n";
 STBarInit=       "ST_Init: Init status bar.\n";
-SendNet=         "L„hetet„„n verkkodataa...\n";
+SendNet=         "Lï¿½hetetï¿½ï¿½n verkkodataa...\n";
 TurboScale=      "turbo scale: %i%%\n";
 IsTurbo=         "%s is turbo!";
 AllocScreens=    "V_Init: allocate screens.\n";
@@ -3785,24 +3697,24 @@ ZoneMemoryAlloc= "Z_Init: Init Zone Memory Allocation. \n";
 
 Notice=
 "==============================================================================\n"
-" T„m„ on EDGE: projekti joka perustuu Doomin l„hdekoodiin jonka\n"
+" Tï¿½mï¿½ on EDGE: projekti joka perustuu Doomin lï¿½hdekoodiin jonka\n"
 " John Carmack Id Softwaresta julkaisi joulukuussa 1997. Projektin suunnittelun\n"
 " ja toteutuksen takana on EDGE Team (http://edge.sourceforge.net/).\n"
 " Finnish Translation by Jari Nevala.\n"
 "==============================================================================\n";
 
-JoystickCentre= "KESKIT„ joystickki\n\npaino jotain nappia.";
-JoystickTL=     "Ty”nn„ joystickki vasempaan yl„kulmaan\n\npaina jotain nappia.";
-JoystickBR=     "Ty”nn„ joystickki oikeaan alakulmaan\n\npaina jotain nappia.";
-JoystickHAT=    "Siirr„ hattu %s paikkaan\n\npaina jotain nappia.";
+JoystickCentre= "KESKITï¿½ joystickki\n\npaino jotain nappia.";
+JoystickTL=     "Tyï¿½nnï¿½ joystickki vasempaan ylï¿½kulmaan\n\npaina jotain nappia.";
+JoystickBR=     "Tyï¿½nnï¿½ joystickki oikeaan alakulmaan\n\npaina jotain nappia.";
+JoystickHAT=    "Siirrï¿½ hattu %s paikkaan\n\npaina jotain nappia.";
 JoyThrottleMAX= "Aseta kuristin MAKSIMIIN\n\npaina jotain nappia.";
 JoyThrottleMIN= "Aseta kuristin MINIMIIN\n\npaina jotain nappia.";
-JoystickCentreT= "KESKIT„ joystickkija paina jotain nappia:";
-JoystickTLT=     "Ty”nn„ joystickki vasempaan yl„kulmaan ja paina jotain nappia:";
-JoystickBRT=     "Ty”nn„ joystickki oikeaan alakulmaan ja paina jotain nappia:";
-JoystickHATT=    "Siirr„ hattu %s paikkaan ja paina jotain nappia:";
+JoystickCentreT= "KESKITï¿½ joystickkija paina jotain nappia:";
+JoystickTLT=     "Tyï¿½nnï¿½ joystickki vasempaan ylï¿½kulmaan ja paina jotain nappia:";
+JoystickBRT=     "Tyï¿½nnï¿½ joystickki oikeaan alakulmaan ja paina jotain nappia:";
+JoystickHATT=    "Siirrï¿½ hattu %s paikkaan ja paina jotain nappia:";
 JoyThrottleMAXT= "Aseta kuristin MAKSIMIIN ja paina jotain nappia:";
 JoyThrottleMINT= "Aseta kuristin MINIMIIN ja paina jotain nappia:";
 
-ModeSelErrT=      "Ei pystyt„ k„ytt„m„„n Grafiikka Moodia %d x %d x %dc!";
-ModeSelErr=       "Ei pystyt„ k„ytt„m„„n\nGrafiikka Moodia %d x %d x %dc!\n\npaina nappia.";
+ModeSelErrT=      "Ei pystytï¿½ kï¿½yttï¿½mï¿½ï¿½n Grafiikka Moodia %d x %d x %dc!";
+ModeSelErr=       "Ei pystytï¿½ kï¿½yttï¿½mï¿½ï¿½n\nGrafiikka Moodia %d x %d x %dc!\n\npaina nappia.";
