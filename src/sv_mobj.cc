@@ -835,9 +835,8 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	{ /* nothing */ }
 
 	sprintf(swizzle, "%s:%s:%d", 
-		actual == mo->info ? "*" : actual->ddf.name, 
-		states[base].label ? states[base].label : "*",
-		1 + s_num - base);
+		actual == mo->info ? "*" : actual->ddf.name.GetString(), 
+		states[base].label ? states[base].label : "*", 1 + s_num - base);
 
 #if 0
 	L_WriteDebug("Swizzled state %d of [%s] -> `%s'\n", 

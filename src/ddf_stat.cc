@@ -521,7 +521,7 @@ void DDF_StateGetMobj(const char *arg, state_t * cur_state)
 	if (!arg || !arg[0])
 		return;
 
-	cur_state->action_par = (void *)mobjtypes.Lookup(arg);
+	cur_state->action_par = new mobj_strref_c(arg);
 }
 
 //

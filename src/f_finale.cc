@@ -459,7 +459,7 @@ static void CastInitNew(int num)
 		castorder = mobjtypes[0];
 
 	casttitle = castorder->cast_title ?
-		language[castorder->cast_title] : castorder->ddf.name;
+		language[castorder->cast_title] : castorder->ddf.name.GetString();
 
 	castdeath = false;
 	castframes = 0;

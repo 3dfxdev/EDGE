@@ -38,6 +38,7 @@
 #define DEBUG_DDFREAD  0
 
 int ddf_version;  // global
+bool boom_conflict;
 
 static readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status);
 
@@ -268,6 +269,11 @@ void DDF_CleanUp(void)
 	currmap = mapdefs[0];
 }
 
+void DDF_SetBoomConflict(bool enabled)
+{
+	boom_conflict = enabled;
+}
+
 // -KM- 1998/12/16 This loads the ddf file into memory for parsing.
 // -AJA- Returns NULL if no such file exists (with a warning).
 
@@ -482,7 +488,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 	{
 		readinfo->memfile = (char*)DDF_MainCacheFile(readinfo);
 
-		// no file ?  No worries, act as if it existed but had no entries
+		// no file ?  No worries, we'll get it from edge.wad...
 		if (!readinfo->memfile)
 			return false;
       
@@ -1819,6 +1825,18 @@ ddf_base_c& ddf_base_c::operator=(ddf_base_c &rhs)
 		Copy(rhs);
 		
 	return *this;
+}
+
+// ---> mobj_strref class
+
+const mobjtype_c *mobj_strref_c::GetRef()
+{
+	if (def)
+		return def;
+
+	def = mobjtypes.Lookup(name.GetString());
+
+	return def;
 }
 
 // ---> damage class
