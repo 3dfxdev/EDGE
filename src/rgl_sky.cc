@@ -197,6 +197,8 @@ void RGL_DrawSkyBox(void)
 	if (sky_image->actual_w > 256)
 		side_w = 0.25f;
 
+	glEnable(GL_TEXTURE_2D);
+
 	glColor3f(1.0f, 1.0f, 1.0f);
 
 	// top
