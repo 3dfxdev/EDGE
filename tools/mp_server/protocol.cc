@@ -145,6 +145,11 @@ void tic_group_proto_t::ByteSwap(bool do_tics)
 	}
 }
 
+void tic_retransmit_proto_t::ByteSwap()
+{
+	gametic = SYS_BE_U32(gametic);
+}
+
 void message_proto_t::ByteSwap()
 {
 	dest = SYS_BE_S16(dest);
