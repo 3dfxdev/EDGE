@@ -216,6 +216,7 @@ static void AttackFinishEntry(void)
 
 static void AttackClearAll(void)
 {
+return; //!!!! -AJA- FIXME: temp hack to get castle.wad working
 	// not safe to delete attacks -- mark as disabled
 	atkdefs.SetDisabledCount(atkdefs.GetSize());
 }
