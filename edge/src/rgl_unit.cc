@@ -784,7 +784,7 @@ static void RGL_DoSplitQuad(raw_polyquad_t *quad, int division,
 
 		if (span_z > division)
 		{
-			RGL_DoSplitQuadVertSep(cur, (int)floor(span_z / division));
+			RGL_DoSplitQuadVertSep(cur, (int)(span_z / division));
 		}
 	}
 
@@ -799,9 +799,9 @@ static void RGL_DoSplitQuad(raw_polyquad_t *quad, int division,
 		if (span_xy > division)
 		{
 			if (separate)
-				RGL_DoSplitQuadHorizSep(cur, (int)floor(span_xy / division));
+				RGL_DoSplitQuadHorizSep(cur, (int)(span_xy / division));
 			else
-				RGL_DoSplitQuadHoriz(cur, (int)floor(span_xy / division));
+				RGL_DoSplitQuadHoriz(cur, (int)(span_xy / division));
 		}
 	}
 }
@@ -1295,24 +1295,24 @@ static void RGL_DoSplitPolygon(raw_polyquad_t *poly, int division,
 		// split the shortest axis before longest one
 		if (span_x < span_y)
 		{
-			RGL_DoSplitPolyListHoriz(poly, (int)floor(span_x / division), true);
+			RGL_DoSplitPolyListHoriz(poly, (int)(span_x / division), true);
 			span_x = 0;
 		}
 		else
 		{
-			RGL_DoSplitPolyListVert(poly, (int)floor(span_y / division), true);
+			RGL_DoSplitPolyListVert(poly, (int)(span_y / division), true);
 			span_y = 0;
 		}
 	}
 
 	if (span_x > division)
 	{
-		RGL_DoSplitPolyListHoriz(poly, (int)floor(span_x / division), separate);
+		RGL_DoSplitPolyListHoriz(poly, (int)(span_x / division), separate);
 	}
 
 	if (span_y > division)
 	{
-		RGL_DoSplitPolyListVert(poly, (int)floor(span_y / division), separate);
+		RGL_DoSplitPolyListVert(poly, (int)(span_y / division), separate);
 	}
 }
 

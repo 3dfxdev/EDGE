@@ -538,7 +538,7 @@ int R2_GetPointLOD(float x, float y, float z)
 
 	x = MAX(x, MAX(y, z));
 
-	return 1 + (int)floor(x / lod_base_cube);
+	return 1 + (int)(x / lod_base_cube);
 }
 
 //
@@ -558,7 +558,7 @@ int R2_GetBBoxLOD(float x1, float y1, float z1,
 
 	x1 = MAX(x1, MAX(y1, z1));
 
-	return 1 + (int)floor(x1 / lod_base_cube);
+	return 1 + (int)(x1 / lod_base_cube);
 }
 
 //
@@ -582,7 +582,7 @@ int R2_GetWallLOD(float x1, float y1, float z1,
 
 	x1 = MAX(x1, MAX(y1, z1));
 
-	return 1 + (int)floor(x1 / lod_base_cube);
+	return 1 + (int)(x1 / lod_base_cube);
 }
 
 //
@@ -601,6 +601,6 @@ int R2_GetPlaneLOD(subsector_t *sub, float h)
 
 	h = MAX(fabs(h - viewz), MAX(x1, y1));
 
-	return 1 + (int)floor(h / lod_base_cube);
+	return 1 + (int)(h / lod_base_cube);
 }
 
