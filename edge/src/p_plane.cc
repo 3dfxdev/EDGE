@@ -838,8 +838,8 @@ bool EV_Teleport
 	mobj_t* thing,
 	int delay,
 	int special,
-	const mobjinfo_c* ineffectobj,
-	const mobjinfo_c * outeffectobj
+	const mobjdef_c* ineffectobj,
+	const mobjdef_c * outeffectobj
 	)
 {
 	int i;
