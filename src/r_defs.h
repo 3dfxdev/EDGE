@@ -535,7 +535,6 @@ typedef struct seg_s
 	bool back;
 
 	unsigned short x1, x2;
-	angle_t angle1, angle2;
 	float scale1, scale2;
 	float rw_distance, rw_offset;
 

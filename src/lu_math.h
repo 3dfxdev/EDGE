@@ -69,9 +69,12 @@ extern fixed_t finetangent[FINEANGLES / 2];
 #define ANG360  (4294967296.0)
 #define ANGLEBITS  32
 
+#define ANG5   (ANG45/9)
+
 #define SLOPERANGE 2048
 #define SLOPEBITS  11
 #define DBITS      (FRACBITS-SLOPEBITS)
+
 
 // Effective size is 2049;
 // The +1 size is to handle the case when x==y without additional checking.
