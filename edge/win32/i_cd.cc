@@ -34,8 +34,51 @@ typedef struct
 }
 cdinfo_t;
 
+static win32_mixer_t *mixer = NULL;
 static cdinfo_t *currcd = NULL;
 static MCIERROR errorcode;
+
+//
+// I_StartupCD
+//
+bool I_StartupCD()
+{
+	// Insert code here...
+	mixer = I_MusicLoadMixer(MIXERLINE_COMPONENTTYPE_SRC_COMPACTDISC);
+	if (!mixer)
+	{
+		I_PostMusicError("I_StartupCD: Couldn't open the midi device");
+		return false;
+	}
+
+	if (!I_MusicGetMixerVol(mixer, &mixer->originalvol))
+	{
+		I_MusicReleaseMixer(mixer);
+		mixer = NULL;
+		
+		I_PostMusicError("I_StartupCD: Unable to get original volume");
+		return false;
+	}
+
+	return true;
+}
+
+//
+// I_ShutdownCD
+//
+void I_ShutdownCD()
+{
+	// Close all our handled objects
+	if (mixer)
+	{
+		I_MusicSetMixerVol(mixer, mixer->originalvol);
+		I_MusicReleaseMixer(mixer);
+		mixer = NULL;
+	}
+
+	I_CDStopPlayback();
+	return;
+}
 
 //
 // I_CDStartPlayback
@@ -326,4 +369,35 @@ bool I_CDFinished(void)
 	}
 
 	return true;
+}
+
+//
+// I_CDSetVolume
+//
+// Vol is from 0 to 255.
+//
+void I_CDSetVolume(int vol)
+{
+	if (!mixer)
+		return;
+
+	DWORD actualvol;
+
+	// Too small...
+	if (vol < 0)
+		vol = 0;
+
+	// Too big...
+	if (vol > 15)
+		vol = 15;
+
+	// Calculate a given value in range
+	actualvol = vol * (mixer->maxvol - mixer->minvol);
+	if (actualvol>0)
+		actualvol /= 15;
+	else
+		actualvol = 0;
+	actualvol += mixer->minvol;
+
+	I_MusicSetMixerVol(mixer, actualvol);
 }
