@@ -47,6 +47,15 @@
 
 #define MENU_GRAV_NORMAL  8
 
+typedef enum
+{
+  MDT_INVALID  = 0,
+  MDT_ELEVATOR = 1,
+  MDT_PLANE    = 2,
+  MDT_SLIDER   = 3,
+  ENDOFMDTTYPES
+}
+movedat_e;
 
 typedef struct light_s
 {
@@ -92,9 +101,20 @@ typedef struct button_s
 }
 button_t;
 
+// -ACB- 2001/01/29 Maybe I'm thinking too OO.
+typedef struct gen_move_s
+{
+  movedat_e whatiam;
+  void *next, *prev;
+}
+gen_move_t;
+
 // -KM- 1998/09/01 lines.ddf
 typedef struct sec_move_s
 {
+  movedat_e whatiam;
+  struct sec_move_s *next, *prev;
+
   const moving_plane_t *type;
   sector_t *sector;
 
@@ -120,8 +140,6 @@ typedef struct sec_move_s
 
   int newspecial;
   const image_t *new_image;
-
-  struct sec_move_s *next, *prev;
 }
 sec_move_t;
 
@@ -135,6 +153,9 @@ result_e;
 
 typedef struct slider_move_s
 {
+  movedat_e whatiam;
+  struct slider_move_s *next, *prev;
+
   const sliding_door_t *info;
   line_t *line;
 
@@ -152,13 +173,14 @@ typedef struct slider_move_s
 
   boolean_t sfxstarted;
   boolean_t final_open;
-
-  struct slider_move_s *next, *prev;
 }
 slider_move_t;
 
 typedef struct elev_move_s
 {
+  movedat_e whatiam;
+  struct elev_move_s *next, *prev;
+
   const elevator_sector_t *type;
   sector_t *sector;
 
@@ -183,8 +205,6 @@ typedef struct elev_move_s
 
   const image_t *new_ceiling_image;
   const image_t *new_floor_image;
-
-  struct elev_move_s *next, *prev;
 }
 elev_move_t;
 
