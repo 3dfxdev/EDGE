@@ -535,7 +535,7 @@ void SR_MobjPutMobj(void *storage, int index, void *extra)
 
 	int swizzle;
 
-	// -AJA- HACK: temp fix for dummy targets.
+	// dummy aim-targets don't need saving
 	if (elem && elem->extendedflags & EF_DUMMYMOBJ)
 	{
 		SV_PutInt(0);

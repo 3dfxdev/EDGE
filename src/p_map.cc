@@ -1571,29 +1571,30 @@ void P_LineAttack(mobj_t * t1, angle_t angle, float distance,
 //
 // -ACB- 1998/09/01
 //
-mobj_t *P_MapTargetTheory(mobj_t * source)
+void P_AimTargetTheory(mobj_t * source, float *x, float *y, float *z)
 {
-	angle_t angle;
-	float distance;
 	float start_z;
-
-	static mobj_t theorytarget;
-
-	angle = source->angle;
-	distance = MISSILERANGE;
 
 	if (source->info)
 		start_z = source->z + source->height * PERCENT_2_FLOAT(source->info->shotheight);
 	else
 		start_z = source->z + source->height / 2 + 8;
 
+	(*x) = source->x + MISSILERANGE * M_Cos(source->angle);
+	(*y) = source->y + MISSILERANGE * M_Sin(source->angle);
+	(*z) = start_z   + MISSILERANGE * M_Tan(source->vertangle);
+}
+
+mobj_t *P_MapTargetTheory(mobj_t * source)
+{
+	static mobj_t theorytarget;
+
 	Z_Clear(&theorytarget, mobj_t, 1);
 
-	theorytarget.x = source->x + distance * M_Cos(angle);
-	theorytarget.y = source->y + distance * M_Sin(angle);
-	theorytarget.z = start_z   + distance * M_Tan(source->vertangle);
+	P_AimTargetTheory(source,
+		&theorytarget.x, &theorytarget.y, &theorytarget.z);
 
-	theorytarget.extendedflags |= EF_DUMMYMOBJ;
+	theorytarget.extendedflags = EF_DUMMYMOBJ;
 	theorytarget.radius = theorytarget.height = 1;
 
 	return &theorytarget;
@@ -1609,7 +1610,7 @@ mobj_t *P_MapTargetTheory(mobj_t * source)
 // -ACB- 1998/09/01
 // -AJA- 1999/08/08: Added `force_aim' to fix chainsaw.
 //
-mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool force_aim)
+mobj_t *DoMapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool force_aim)
 {
 	float x2, y2;
 
@@ -1672,6 +1673,32 @@ mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 		}
 	}
 	return linetarget;
+}
+
+mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool force_aim)
+{
+	mobj_t *target = DoMapTargetAutoAim(source, angle, distance, force_aim);
+
+	// If that is a miss, aim slightly to the left or right
+	if (target->extendedflags & EF_DUMMYMOBJ)
+	{
+		angle_t diff = ANG180 / 32;
+
+		if (leveltime & 1)
+			diff = 0 - diff;
+
+		mobj_t *T2 = DoMapTargetAutoAim(source, angle + diff, distance, force_aim);
+
+		if (T2->extendedflags & EF_DUMMYMOBJ)
+		{
+			T2 = DoMapTargetAutoAim(source, angle - diff, distance, force_aim);
+		}
+
+		if (! (T2->extendedflags & EF_DUMMYMOBJ))
+			return T2;
+	}
+
+	return target;
 }
 
 //

@@ -92,7 +92,7 @@ extern mobj_t *RandomTarget;
 //
 // P_ACTION
 //
-void P_ActPlayerAttack(mobj_t * playerobj, const atkdef_c * attack);
+void P_PlayerAttack(mobj_t * playerobj, const atkdef_c * attack);
 void P_ActSlammedIntoObject(mobj_t * object, mobj_t * objecthit);
 bool P_ActMissileContact(mobj_t * object, mobj_t * objecthit);
 bool P_ActBulletContact(mobj_t * object, mobj_t * objecthit, 
@@ -318,6 +318,7 @@ bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing);
 mobj_t *P_MapFindCorpse(mobj_t * thing);
 mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool force_aim);
 mobj_t *P_MapTargetTheory(mobj_t * source);
+void P_AimTargetTheory(mobj_t * source, float *x, float *y, float *z);
 
 float P_AimLineAttack(mobj_t * t1, angle_t angle, float distance);
 void P_UpdateMultipleFloors(sector_t * sector);
