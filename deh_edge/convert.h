@@ -13,12 +13,17 @@
 #ifndef __CONVERT_HDR__
 #define __CONVERT_HDR__
 
-#include "i_defs.h"
+#define THINGS_1_2   104
+#define FRAMES_1_2   512
+#define SPRITES_1_2  105
+#define SOUNDS_1_2   63
 
-extern short thing12to166[104];
-extern short frame12to166[512];
-extern short sprite12to166[105];
-extern short pointerToFrame[448];
+#define POINTER_NUM  448
 
+extern short thing12to166[THINGS_1_2];
+extern short frame12to166[FRAMES_1_2];
+extern short sprite12to166[SPRITES_1_2];
+extern short sound12to166[SOUNDS_1_2];
+extern short pointerToFrame[POINTER_NUM];
 
 #endif /* __CONVERT_HDR__ */

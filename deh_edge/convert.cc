@@ -25,9 +25,12 @@
 //
 //------------------------------------------------------------------------
 
+#include "i_defs.h"
+#include "convert.h"
+
 
 // Thing conversion array from 1.2 to 1.666
-short thing12to166[104] =
+short thing12to166[THINGS_1_2] =
 {
 	 0,  11,   1,   2,  12,  13,  14,  18,  15,  19,
     21,  30,  31,  32,  16,  33,  34,  35,  37,  38,
@@ -43,7 +46,7 @@ short thing12to166[104] =
 };
 
 // Frame conversion array from 1.2 to 1.666
-short frame12to166[512] =
+short frame12to166[FRAMES_1_2] =
 {
 	 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
     10,  11,  12,  13,  14,  15,  16,  17,  18,  19,
@@ -104,7 +107,7 @@ short frame12to166[512] =
     948, 949};
 
 // Sound conversion array from 1.2 to 1.666
-char sound12to166[63] =
+short sound12to166[SOUNDS_1_2] =
 {
 	 0,  1,  2,  3,  8,  9, 10, 11, 12, 13,
     14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
@@ -116,7 +119,7 @@ char sound12to166[63] =
 };
 
 // Sprite conversion array from 1.2 to 1.666
-short sprite12to166[105] =
+short sprite12to166[SPRITES_1_2] =
 {
 	 0,   1,   2,   3,   4,   5,   7,   8,   9,  10,
     11,  12,  13,  14,  15,  16,  17,  18,  19,  41,
@@ -132,7 +135,7 @@ short sprite12to166[105] =
 };
 
 // code pointer conversion (Pointer number to Frame number)
-short pointerToFrame[448] =
+short pointerToFrame[POINTER_NUM] =
 {
   /* 0 */  1, 2, 3, 4, 6, 9, 10, 11, 12, 14, 
  /* 10 */  16, 17, 18, 19, 20, 22, 29, 30, 31, 32, 
