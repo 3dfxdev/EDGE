@@ -19,6 +19,8 @@
 #ifndef __UI_LOG_H__
 #define __UI_LOG_H__
 
+#include "lib_list.h"
+
 class UI_LogBox : public Fl_Multi_Browser
 {
 public:
@@ -26,25 +28,9 @@ public:
 	virtual ~UI_LogBox();
 
 private:
-	class log_mem_c
-	{
-	public:
-		log_mem_c(const char *_line, Fl_Color _col, bool _bold);
-		log_mem_c(const log_mem_c& other);
-		~log_mem_c();
-	
-		log_mem_c& operator= (const log_mem_c& other);
-
-		// FIXME: timestamp
-
-		const char *line;
-		Fl_Color col;
-		bool bold;
-	};
-
 	NLmutex save_lock;
 
-	std::list<log_mem_c> save_lines;
+	list_c save_lines;
 
 public:
 	void Update();
