@@ -2132,20 +2132,18 @@ ModeSelErr = "Unable to Initialise\n"
 	"press a key.";
 
 // -------- Swedish Language Definition File ------------
-
-{
-=======================================================
-        TRANSLATIONS MADE BY FREDRIK EHNBOM
-            (fredrik.ehnbom@linux.nu)
-
-       Spelling corrections, interpunction,
-       additional translations and overall
-            a nice guy: Anton Berglin
-           (berglin@mbox301.swipnet.se)
-
-  Additional fine-tuning by Team Member Erik Sandberg
-=======================================================
-}
+//
+// =======================================================
+//         TRANSLATIONS MADE BY FREDRIK EHNBOM
+//             (fredrik.ehnbom@linux.nu)
+// 
+//        Spelling corrections, interpunction,
+//        additional translations and overall
+//             a nice guy: Anton Berglin
+//            (berglin@mbox301.swipnet.se)
+// 
+//   Additional fine-tuning by Team Member Erik Sandberg
+// =======================================================
 
 [SWEDISH]
 DevelopmentMode="Development Mode is enabled.";

@@ -17,6 +17,7 @@ EDGE DDF 4.2:
 7) LINES.DDF: Replaced PRESERVE keyword (now obsolete) in teleport types.
 
 8) LANGUAGES.DDF: removed beginning "\n" from PlayState strings.
+9) LANGUAGES.DDF: replace { } comments with // ones.
 
 
 EDGE DDF 4.1 (2004-04-30):
