@@ -265,6 +265,7 @@ typedef struct drawfloor_s
 drawfloor_t;
 
 
+extern int detail_level;
 extern boolean_t use_dlights;
 extern int sprite_kludge;
 
@@ -333,6 +334,13 @@ void R2_2DUpdate1D(int x1, int x2);
 
 void R2_TileSkyClear(void);
 void R2_TileSkyAdd(const tilesky_info_t *info, struct line_s *line);
+
+int R2_GetPointLOD(float_t x, float_t y, float_t z);
+int R2_GetBBoxLOD(float_t x1, float_t y1, float_t z1,
+    float_t x2, float_t y2, float_t z2);
+int R2_GetWallLOD(float_t x1, float_t y1, float_t z1,
+    float_t x2, float_t y2, float_t z2);
+int R2_GetPlaneLOD(subsector_t *sub, float_t h);
 
 
 //

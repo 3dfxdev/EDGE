@@ -53,9 +53,6 @@ void RGL_RainbowEffect(player_t *player);
 void RGL_ColourmapEffect(player_t *player);
 void RGL_PaletteEffect(player_t *player);
 
-// FIXME: these three will be redundant with layer system...
-void RGL_MapClear(void);
-
 
 //
 //  RGL_SKY
@@ -128,6 +125,49 @@ void RGL_DrawUnits(void);
 #define SET_VERTEX(X,Y,Z)  \
     do { vert->x = (X); vert->y = (Y); vert->z = (Z); } while(0)
  
+
+// RAW STUFF
+
+typedef struct raw_polyquad_s
+{
+  // Quad ?  When true, the number of vertices must be even, and the
+  // order must be the same as for glBegin(GL_QUADSTRIP).
+  // 
+  boolean_t quad;
+ 
+  vec3_t *verts;
+  int num_verts;
+  int max_verts;
+
+  // When a polyquad is split, the other pieces are linked from the
+  // original through this pointer.
+  //
+  struct raw_polyquad_s *sisters;
+
+  // 3D bounding box
+  vec3_t min, max;
+}
+raw_polyquad_t;
+
+#define PQ_ADD_VERT(P,X,Y,Z)  do {  \
+    (P)->verts[(P)->num_verts].x = (X);  \
+    (P)->verts[(P)->num_verts].y = (Y);  \
+    (P)->verts[(P)->num_verts].z = (Z);  \
+    (P)->num_verts++; } while(0)
+
+raw_polyquad_t *RGL_NewPolyQuad(int maxvert, boolean_t quad);
+void RGL_FreePolyQuad(raw_polyquad_t *poly);
+void RGL_BoundPolyQuad(raw_polyquad_t *poly);
+
+void RGL_SplitPolyQuad(raw_polyquad_t *poly, int division, 
+    boolean_t separate);
+void RGL_SplitPolyQuadLOD(raw_polyquad_t *poly, int max_lod, int base_div);
+
+void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
+    void (* CoordFunc)(vec3_t *src, local_gl_vert_t *vert, void *data),
+    GLuint tex_id, boolean_t masked, boolean_t blended);
+
+
 //
 //  1D OCCLUSION STUFF
 //
