@@ -108,26 +108,44 @@ New features:
   test the result, and jump to the matching label.  It will fail to jump
   if there aren't enough labels, or menu could not be shown (netgame).
 
-- weapon handling has been generally improved (especially the way clips
-  work).  Any weapon with CLIPSIZE larger than 1 is considered as a
-  "clip weapon", and will store ammo inside of its clip, even when not
-  selected.  The following new command is available:
++ weapon handling has been generally improved (especially the way clips
+  work).  Anything using the CLIPSIZE command is considered a "clip weapon",
+  and will store ammo inside of its clip, even when not selected.  Also
+  there is support for manual reloading (new key in Keyboard Options).
+
+  There are many new specials.  The following new command is used to
+  give specials for the secondary attack:
 
     SEC_SPECIAL = xxx;
 
-  which has a list of specials appling to the secondary attack.  The
-  ones in the plain "SPECIAL" command apply to the primary attack.
-  The following specials are available:
+  The ones in the plain "SPECIAL" command apply to the primary attack
+  (some might apply to the whole weapon).  The following specials are
+  available:
 
-    SILENT_TO_MONSTERS : don't wake up those demons
+    SILENT_TO_MONSTERS : don't wake up those demons (WHOLE)
+	ANIMATED           : UP and DOWN states are animated (WHOLE)
 	NO_SWITCH          : don't switch to new weapon if ammo runs out
 
 	NO_TRIGGER   : prevent reloading by pressing fire button
 	FRESH        : reload empty weapon when fresh ammo is picked up
-(NOT FINISHED)	NO_MANUAL    : disable manual reloading key
-(NOT FINISHED)	PARTIAL      : for manual reload: allow partial clip refills
+	NO_MANUAL    : disable manual reloading key
+	PARTIAL      : for manual reload: allow partial clip refills
 
-  @@@ STATES(EMPTY) and EMPTY command.
+  When using the ANIMATED special, the weapon sprite doesn't raise up
+  or lower down.  Instead the UP and DOWN states should show an
+  animation.  The RAISE and LOWER commands must occur once, in the
+  very last frame.
+
+  There are now empty states.  These are shown (instead of ready
+  states) when the primary attack runs out of ammo.  You must use
+  the "EMPTY" action with the empty states, for example:
+
+    STATES(EMPTY) = ABCD:E:1:NORMAL:EMPTY;
+
+  There are also WARMUP and SECWARMUP states.  These will be entered
+  when firing the weapon from the READY states (not for refiring).
+  These states jump to the ATTACK and SECATTACK states when finished
+  (i.e. you don't need #ATTACK at the end).
 
 - new SEQUENCE command for ANIMS.DDF.  Use it to specify the full
   animation sequence.  Names cannot be used twice.  For example:

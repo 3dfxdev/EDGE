@@ -90,15 +90,18 @@ static const state_starter_t weapon_starters[] =
 	{"UP",        "UP",     &buffer_weapon.up_state},
 	{"DOWN",      "DOWN",   &buffer_weapon.down_state},
 	{"READY",     "READY",  &buffer_weapon.ready_state},
-	{"ATTACK",    "READY",  &buffer_weapon.attack_state},
-	{"RELOAD",    "READY",  &buffer_weapon.reload_state},
-	{"FLASH",     "REMOVE", &buffer_weapon.flash_state},
 	{"EMPTY",     "EMPTY",  &buffer_weapon.empty_state},
-	{"SECATTACK", "READY",  &buffer_weapon.sa_attack_state},
-	{"SECRELOAD", "READY",  &buffer_weapon.sa_reload_state},
-	{"SECFLASH",  "REMOVE", &buffer_weapon.sa_flash_state},
 	{"CROSSHAIR", "REMOVE", &buffer_weapon.crosshair},
 	{"ZOOM",      "ZOOM",   &buffer_weapon.zoom_state},
+
+	{"ATTACK",    "READY",  &buffer_weapon.attack_state[0]},
+	{"RELOAD",    "READY",  &buffer_weapon.reload_state[0]},
+	{"WARMUP",    "ATTACK", &buffer_weapon.warmup_state[0]},
+	{"FLASH",     "REMOVE", &buffer_weapon.flash_state[0]},
+	{"SECATTACK", "READY",  &buffer_weapon.attack_state[1]},
+	{"SECRELOAD", "READY",  &buffer_weapon.reload_state[1]},
+	{"SECWARMUP", "SECATTACK", &buffer_weapon.warmup_state[1]},
+	{"SECFLASH",  "REMOVE", &buffer_weapon.flash_state[1]},
 	{NULL, NULL, NULL}
 };
 
@@ -475,6 +478,7 @@ static void DDF_WGetUpgrade(const char *info, void *storage)
 static specflags_t weapon_specials[] =
 {
     {"SILENT TO MONSTERS", WPSP_SilentToMon, 0},
+    {"ANIMATED",  WPSP_Animated, 0},
     {"SWITCH",  WPSP_SwitchAway, 0},
 	{"TRIGGER", WPSP_Trigger, 0},
 	{"FRESH",   WPSP_Fresh, 0},
@@ -560,6 +564,11 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 		autofire[ATK]  = src.autofire[ATK];
 		clip_size[ATK] = src.clip_size[ATK];
 		specials[ATK]  = src.specials[ATK];
+
+		attack_state[ATK] = src.attack_state[ATK];
+		reload_state[ATK] = src.reload_state[ATK];
+		warmup_state[ATK] = src.warmup_state[ATK];
+		flash_state[ATK]  = src.flash_state[ATK];
 	}
 
 	kick = src.kick;
@@ -567,20 +576,12 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 	first_state = src.first_state;
 	last_state  = src.last_state;
 
-	up_state = src.up_state;
+	up_state    = src.up_state;
 	down_state  = src.down_state;
 	ready_state = src.ready_state;
-	attack_state = src.attack_state;
-	reload_state = src.reload_state;
-	flash_state  = src.flash_state;
-	empty_state  = src.empty_state;
-
-	sa_attack_state = src.sa_attack_state;
-	sa_reload_state = src.sa_reload_state;
-	sa_flash_state  = src.sa_flash_state;
-
-	crosshair = src.crosshair;
-	zoom_state = src.zoom_state;
+	empty_state = src.empty_state;
+	crosshair   = src.crosshair;
+	zoom_state  = src.zoom_state;
 
 	autogive = src.autogive;
 	feedback = src.feedback;
@@ -625,6 +626,11 @@ void weapondef_c::Default(void)
 		ammopershot[ATK] = 0;
 		clip_size[ATK]   = 0;
 		autofire[ATK]    = false;
+
+		attack_state[ATK] = 0;
+		reload_state[ATK] = 0;
+		warmup_state[ATK] = 0;
+		flash_state[ATK]  = 0;
 	}
 
 	specials[0] = DEFAULT_WPSP;
@@ -638,14 +644,7 @@ void weapondef_c::Default(void)
 	up_state = 0;
 	down_state= 0;
 	ready_state = 0;
-	attack_state = 0;
-	reload_state = 0;
-	flash_state = 0;
 	empty_state = 0;
-
-	sa_attack_state = 0;
-	sa_reload_state = 0;
-	sa_flash_state = 0;
 
 	crosshair = 0;
 	zoom_state = 0;
