@@ -146,10 +146,6 @@ static char savedescription[32];
 
 // deferred stuff...
 static newgame_params_c *d_params = NULL;
-///---static const mapdef_c *d_newmap = NULL;
-///---static const gamedef_c *d_gamedef = NULL;
-///---static skill_t d_newskill;
-///---static bool d_newwarp;
 
 #define TURBOTHRESHOLD  0x32
 
@@ -959,21 +955,6 @@ bool G_DeferredInitNew(newgame_params_c& params)
 
 	d_params = new newgame_params_c(params);
 
-///---	d_newmap = G_LookupMap(mapname);
-///---	if (!d_newmap)
-///---		return false;
-///---
-///---	// -ACB- 2004/07/01 Added to handle the current game definition changes
-///---	d_params->game = gamedefs.Lookup(d_newmap->episode_name);
-///---	if (! d_params->game)
-///---	{
-///---		delete d_params;
-///---		return false;
-///---	}
-
-///---	d_newskill = skill;
-///---	d_newwarp = warpopt;			// this is true only when called by -warp option
-
 	gameaction = ga_newgame;
 	return true;
 }
@@ -1078,17 +1059,6 @@ void G_InitNew(newgame_params_c& params)
 	random_seed = params.random_seed;
 
 	P_WriteRandomState(random_seed);
-
-///---	// force players to be initialised upon first level load         
-///---	// -AJA- 2003/10/09: except that this doesn't do anything, as the
-///---	//                   playerstate is set to PST_LIVE In P_SpawnPlayer !!
-///---	for (pnum = 0; pnum < MAXPLAYERS; pnum++)
-///---	{
-///---		player_t *p = players[pnum];
-///---		if (! p) continue;
-///---
-///---		p->playerstate = PST_REBORN;
-///---	}
 
 	usergame = true;  // will be set false if a demo 
 
