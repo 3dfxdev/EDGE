@@ -118,8 +118,10 @@ client_info_t;
 //
 typedef struct connect_proto_s
 {
-	s16_t protocol_ver;  // OUTPUT: three-digit hex (0x025 means 0.2.5)
-	s16_t reserved;
+	s16_t server_ver;    // OUTPUT: three-digit hex (0x025 means 0.2.5)
+	s16_t protocol_ver;  //
+
+	s16_t reserved[2];
 
 	client_info_t info;
 

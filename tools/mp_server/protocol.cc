@@ -46,6 +46,7 @@ void client_info_t::ByteSwap()
 
 void connect_proto_t::ByteSwap()
 {
+	server_ver   = SYS_BE_S16(server_ver);
 	protocol_ver = SYS_BE_S16(protocol_ver);
 
 	info.ByteSwap();
