@@ -29,6 +29,17 @@
 #include "dm_type.h"
 #include "p_mobj.h"
 
+// Info for the JUMP action
+typedef struct act_jump_info_s
+{
+  // label to jump to.
+  char *label_name;
+
+  // chance value 0-255
+  int chance; 
+}
+act_jump_info_t;
+
 // Weapon Action Routine pointers
 void A_Light0(mobj_t * object);
 void A_Light1(mobj_t * object);
@@ -141,8 +152,11 @@ void P_ActTrackerStart(mobj_t * object);
 void P_ActCheckBlood(mobj_t * object);
 void P_ActCheckMoving(mobj_t * object);
 
+void P_ActJump(mobj_t * object);
+void A_PlayerScream(mobj_t * object);
+
+// FIXME: these two are redundant
 void P_ActRandomJump(mobj_t * object);
 void A_RandomJump(mobj_t * object);
-void A_PlayerScream(mobj_t * object);
 
 #endif //__P_ACTION_H__

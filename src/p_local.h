@@ -111,6 +111,7 @@ extern mobj_t *mobjlisthead;
 
 void P_SpawnPlayer(player_t *p, const mapthing_t * mthing);
 void P_RemoveMobj(mobj_t * th);
+statenum_t P_MobjFindLabel(mobj_t * mobj, const char *label);
 boolean_t P_SetMobjState(mobj_t * mobj, statenum_t state);
 boolean_t P_SetMobjStateDeferred(mobj_t * mobj, statenum_t state, int tic_skip);
 void P_SetMobjDirAndSpeed(mobj_t * mobj, angle_t angle, float_t slope, float_t speed);
