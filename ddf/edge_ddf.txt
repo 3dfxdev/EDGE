@@ -6,6 +6,10 @@ EDGE DDF 4.3: (XXXX-XX-XX)
 
 2) THINGS.DDF: updated player entries: limits for the new ammo types.
 
+3) COLMAP.DDF: reorganised, putting unused entries in a backwards
+               compatibility section, and fixed [FOG] entry to not
+               use the "FOGMAP" lump (which isn't in EDGE.WAD).
+
 
 EDGE DDF 4.2: (2004-10-31)
 ==========================
