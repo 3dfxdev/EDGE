@@ -895,7 +895,6 @@ void ST_Start(void)
 
 	InitData();
 	CreateWidgets();
-///---	UpdateWidgets();  // make sure colours are set right
 
 	st_stopped = false;
 }
