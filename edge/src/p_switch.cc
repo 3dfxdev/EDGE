@@ -28,6 +28,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "ddf_main.h"
+#include "ddf_swth.h"
 #include "g_game.h"
 #include "p_local.h"
 #include "r_state.h"

@@ -22,6 +22,7 @@
 
 #include "e_search.h"
 #include "ddf_locl.h"
+#include "ddf_colm.h"
 #include "dm_state.h"
 #include "dstrings.h"
 #include "g_game.h"
@@ -194,7 +195,7 @@ void DDF_Init(void)
 	DDF_MobjInit();
 	DDF_LinedefInit();
 	DDF_SectorInit();
-	DDF_SWInit();
+	DDF_SwitchInit();
 	DDF_AnimInit();
 	DDF_GameInit();
 	DDF_LevelInit();
@@ -265,7 +266,7 @@ void DDF_CleanUp(void)
 	DDF_ColmapCleanUp();
 	DDF_WeaponCleanUp();
 	DDF_SectorCleanUp();
-	DDF_SWCleanUp();
+	DDF_SwitchCleanUp();
 	DDF_AnimCleanUp();
 	DDF_GameCleanUp();
 	DDF_LevelCleanUp();

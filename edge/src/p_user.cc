@@ -25,6 +25,8 @@
 
 #include "i_defs.h"
 
+#include "ddf_main.h"
+#include "ddf_colm.h"
 #include "e_event.h"
 #include "dm_defs.h"
 #include "dm_state.h"

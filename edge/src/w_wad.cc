@@ -37,9 +37,13 @@
 #include "w_wad.h"
 
 #include "ddf_main.h"
-#include "ddf_image.h"
+#include "ddf_anim.h"
+#include "ddf_colm.h"
 #include "ddf_font.h"
+#include "ddf_image.h"
 #include "ddf_style.h"
+#include "ddf_swth.h"
+
 #include "dm_type.h"
 #include "e_main.h"
 #include "e_search.h"
@@ -84,7 +88,7 @@ static ddf_reader_t DDF_Readers[] =
 	{ "DDFPLAY", "Playlists",  DDF_ReadMusicPlaylist },
 	{ "DDFLINE", "Lines",      DDF_ReadLines },
 	{ "DDFSECT", "Sectors",    DDF_ReadSectors },
-	{ "DDFSWTH", "Switches",   DDF_ReadSW },
+	{ "DDFSWTH", "Switches",   DDF_ReadSwitch },
 	{ "DDFANIM", "Anims",      DDF_ReadAnims },
 	{ "DDFGAME", "Games",      DDF_ReadGames },
 	{ "DDFLEVL", "Levels",     DDF_ReadLevels },
