@@ -114,7 +114,7 @@ namespace WAD
 void WAD::NewLump(const char *name)
 {
 	if (cur_lump)
-		InternalError("WAD_NewLump: current lump not finished");
+		InternalError("WAD_NewLump: current lump not finished.\n");
 
 	// Check for existing lump, overwrite if need be.
 	int i = WAD::LumpExists(name);
@@ -130,12 +130,12 @@ void WAD::NewLump(const char *name)
 		num_lumps++;
 
 		if (num_lumps > MAX_LUMPS)
-			FatalError("Too many lumps ! (%d)", MAX_LUMPS);
+			FatalError("Too many lumps ! (%d)\n", MAX_LUMPS);
 
 		lumplist[i] = (lump_t *) calloc(sizeof(lump_t), 1);
 
 		if (! lumplist[i])
-			FatalError("Out of memory (adding %dth lump)", num_lumps);
+			FatalError("Out of memory (adding %dth lump)\n", num_lumps);
 	}
 
 	cur_lump = lumplist[i];
@@ -145,7 +145,7 @@ void WAD::NewLump(const char *name)
 	cur_lump->data = (byte *) malloc(cur_max_size);
 
 	if (! cur_lump->data)
-		FatalError("Out of memory (New lump data)");
+		FatalError("Out of memory (New lump data)\n");
 
 	strncpy(cur_lump->name, name, 8);
 }
@@ -156,7 +156,7 @@ void WAD::NewLump(const char *name)
 void WAD::AddData(const byte *data, int size)
 {
 	if (! cur_lump)
-		InternalError("WAD_AddData: no current lump");
+		InternalError("WAD_AddData: no current lump.\n");
 	
 	if (cur_lump->size + size > cur_max_size)
 	{
@@ -166,7 +166,7 @@ void WAD::AddData(const byte *data, int size)
 		cur_lump->data = (byte *) realloc(cur_lump->data, cur_max_size);
 
 		if (! cur_lump->data)
-			FatalError("Out of memory (adding %d bytes)", size);
+			FatalError("Out of memory (adding %d bytes)\n", size);
 	}
 
 	memcpy(cur_lump->data + cur_lump->size, data, size);
@@ -198,7 +198,7 @@ void WAD::Printf(const char *str, ...)
 void WAD::FinishLump(void)
 {
 	if (! cur_lump)
-		InternalError("WAD_FinishLump: not started");
+		InternalError("WAD_FinishLump: not started.\n");
 
 	cur_lump = NULL;
 	cur_max_size = 0;
@@ -210,7 +210,7 @@ void WAD::FinishLump(void)
 void WAD::WriteFile(const char *name)
 {
 	if (cur_lump)
-		InternalError("WAD_WriteFile: lump not finished");
+		InternalError("WAD_WriteFile: lump not finished.\n");
 
 	FILE *fp;
 	const char *pwadstr = PWAD_HEADER;
@@ -219,7 +219,11 @@ void WAD::WriteFile(const char *name)
 	fp = fopen(name, "wb");
 
 	if (!fp)
-		FatalError("Cannot create output file: %s", name);
+	{
+		int err_num = errno;
+
+		FatalError("Cannot create output file: %s\n[%s]\n", name, strerror(err_num));
+	}
 
 	// Write Header
 	int raw_num = Endian_U32(num_lumps);
@@ -268,7 +272,7 @@ void WAD::Startup(void)
 	lumplist = (lump_t **) calloc(sizeof(lump_t *), MAX_LUMPS);
 
 	if (! lumplist)
-		FatalError("Out of memory (WAD_Startup)");
+		FatalError("Out of memory (WAD_Startup)\n");
 	
 	num_lumps = 0;
 }
