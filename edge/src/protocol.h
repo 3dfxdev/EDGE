@@ -87,7 +87,18 @@ typedef struct error_proto_s
 error_proto_t;
 
 
-/* BROADCAST-DISCOVERY ("bd") has no data */
+//
+// BROADCAST-DISCOVERY-UDP ("bd")
+//
+#if 0
+typedef struct broadcast_discover_s
+{
+	u16_t tcp_port;
+
+	void ByteSwap();
+}
+broadcast_discover_t;
+#endif
 
 
 //
