@@ -71,6 +71,9 @@ typedef struct local_gl_unit_s
 	// texture used
 	GLuint tex_id;
 
+	// pass number (when multiple passes_
+	int pass;
+
 	// texture contains see-through parts (i.e. significant areas where
 	// alpha = 0, like sprites).
 	bool masked;
@@ -183,12 +186,14 @@ void RGL_FinishUnits(void)
 // texture should be blended (like for translucent water or sprites).
 //
 local_gl_vert_t *RGL_BeginUnit(GLuint mode, int max_vert,
-							   GLuint tex_id, bool masked, bool blended)
+							   GLuint tex_id, int pass,
+							   bool masked, bool blended)
 {
 	local_gl_unit_t *unit;
 
 	DEV_ASSERT2(max_vert > 0);
 	DEV_ASSERT2(tex_id != 0);
+	DEV_ASSERT2(pass >= 0);
 
 	// check for out-of-space
 	if (cur_vert + max_vert > MAX_L_VERT || cur_unit >= MAX_L_UNIT)
@@ -200,6 +205,7 @@ local_gl_vert_t *RGL_BeginUnit(GLuint mode, int max_vert,
 
 	unit->mode    = mode;
 	unit->tex_id  = tex_id;
+	unit->pass    = pass;
 	unit->first   = cur_vert;  // count set later
 	unit->masked  = masked;
 	unit->blended = blended;
@@ -254,10 +260,12 @@ void RGL_SendRawVector(const local_gl_vert_t *V)
 void RGL_DrawUnits(void)
 {
 	int i, j;
-	GLuint cur_tex = 0xABE74C47;
+	GLuint cur_tex  = 0xABE74C47;
 
 	bool cur_masking  = false;
 	bool cur_blending = false;
+
+	int cur_pass = -1;
 
 	if (cur_unit == 0)
 		return;
@@ -269,11 +277,13 @@ void RGL_DrawUnits(void)
 	if (solid_mode)
 	{
 #define CMP(a,b)  \
-	(local_units[a].tex_id < local_units[b].tex_id ||        \
-	(local_units[a].tex_id == local_units[b].tex_id &&      \
-	(local_units[a].blended < local_units[b].blended ||    \
-	(local_units[a].blended == local_units[b].blended &&  \
-	local_units[a].masked < local_units[b].masked))))
+	(local_units[a].pass < local_units[b].pass ||   \
+	(local_units[a].pass == local_units[b].pass &&   \
+	(local_units[a].tex_id < local_units[b].tex_id ||   \
+	(local_units[a].tex_id == local_units[b].tex_id &&   \
+	(local_units[a].blended < local_units[b].blended ||   \
+	(local_units[a].blended == local_units[b].blended &&   \
+	local_units[a].masked < local_units[b].masked))))))
 		QSORT(GLuint, local_unit_map, cur_unit, CUTOFF);
 #undef CMP
 	}
@@ -291,6 +301,14 @@ void RGL_DrawUnits(void)
 
 		// detect changes in texture/alpha/blending and change state
 
+		if (cur_pass != unit->pass)
+		{
+#ifdef LINUX //!!!!! FIXME
+			cur_pass = unit->pass;
+			glPolygonOffset(0, -cur_pass);
+#endif
+		}
+		
 		if (cur_masking != unit->masked)
 		{
 			cur_masking = unit->masked;
@@ -334,6 +352,10 @@ void RGL_DrawUnits(void)
 
 	// all done
 	cur_vert = cur_unit = 0;
+
+#ifdef LINUX //!!!!! FIXME
+	glPolygonOffset(0, 0);
+#endif
 
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_ALPHA_TEST);
@@ -1370,7 +1392,7 @@ void RGL_SplitPolyQuadLOD(raw_polyquad_t *poly, int max_lod, int base_div)
 
 void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
 						void (* CoordFunc)(vec3_t *src, local_gl_vert_t *vert, void *data),
-						GLuint tex_id, bool masked, bool blended)
+						GLuint tex_id, int pass, bool masked, bool blended)
 {
 	int j;
 	local_gl_vert_t *vert;
@@ -1384,7 +1406,7 @@ void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
 		DEV_ASSERT2(cur->num_verts <= cur->max_verts);
 
 		vert = RGL_BeginUnit(cur->quad ? GL_QUAD_STRIP : GL_POLYGON,
-			cur->num_verts, tex_id, masked, blended);
+			cur->num_verts, tex_id, pass, masked, blended);
 
 		for (j=0; j < cur->num_verts; j++)
 		{
