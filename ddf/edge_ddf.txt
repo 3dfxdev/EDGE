@@ -1,9 +1,11 @@
-EDGE DDF 3.8 (17/10/2003):
+EDGE DDF 3.8 (29/11/2003):
 ==========================
 
 1) THINGS.DDF: added player capacities for pellets, nails, grenades, gas.
 2) THINGS.DDF: gave [SPECTRE] FAST=2 (to match visible counterpart).
 3) PLAYLIST.DDF: added entry [67] for the bunny music (D_BUNNY).
+4) GAMES.DDF: fixed "read_m" music entries.
+5) GAMES.DDF: added SPECIAL_MUSIC entries for proper cast/bunny music.
 
 EDGE DDF 3.7 (8/16/2001):
 ==========================
