@@ -34,9 +34,19 @@ extern bool e_display_OK;
 extern bool m_screenshot_required;
 extern bool need_save_screenshot;
 
+namespace engine
+{
+	enum error_e
+	{
+		ERR_GENERIC,
+		ERR_NUMTYPES
+	};
+
+	void Main(int argc, const char **argv);
+	void Tick(void);
+};
+
 void E_AddFile(const char *file);
-void E_EDGEMain(void);
-void E_EDGELoopRoutine(void);
 bool E_CheckNetGame(void);
 void E_ProcessEvents(void);
 void E_DoAdvanceDemo(void);
