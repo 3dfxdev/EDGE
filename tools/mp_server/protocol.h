@@ -184,10 +184,11 @@ typedef struct game_info_s
 		MD_AltDeath = 'A'
 	};
 
-	s16_t min_players;  // real players
-	s16_t num_players;  // --> (output field)
+	byte min_players;  // real players
+	byte num_players;  // --> (output field)
 
-	s16_t num_bots;
+	byte num_bots;
+	byte num_votes;  // (OUTPUT)
 
 	u32_t features;
 	u32_t reserved;  // (future expansion)
@@ -208,8 +209,6 @@ typedef struct game_info_s
 	u16_t def_checksum;  // checksum over all definitions
 
 	/* --- query output --- */
-
-	s16_t num_votes;
 
 	char state;
 

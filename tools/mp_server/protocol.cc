@@ -71,16 +71,10 @@ void query_client_proto_t::ByteSwap(bool do_info)
 
 void game_info_t::ByteSwap()
 {
-	min_players = SYS_BE_S16(min_players);
-	num_bots    = SYS_BE_S16(num_bots);
-
 	features = SYS_BE_U32(features);
 
 	wad_checksum = SYS_BE_U16(wad_checksum);
 	def_checksum = SYS_BE_U16(def_checksum);
-
-	num_players = SYS_BE_S16(num_players);
-	num_votes   = SYS_BE_S16(num_votes);
 }
 
 void new_game_proto_t::ByteSwap()
