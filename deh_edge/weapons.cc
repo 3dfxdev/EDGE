@@ -28,6 +28,7 @@
 #include "i_defs.h"
 #include "weapons.h"
 
+#include "ammo.h"
 #include "info.h"
 #include "frames.h"
 #include "misc.h"
@@ -37,16 +38,6 @@
 #include "things.h"
 #include "wad.h"
 
-
-int Ammo::plr_max[4] = 
-{ 
-	200, 50, 300, 50  // doubled for backpack
-};
-
-int Ammo::pickups[4] =
-{
-	10, 4, 20, 1   // multiplied by 5 for boxes
-};
 
 #define WF_FREE       'f'
 #define WF_REF_INACC  'r'
@@ -101,12 +92,19 @@ bool weapon_modified[NUMWEAPONS];
 
 void Weapons::Startup(void)
 {
-	memset(weapon_modified,  0, sizeof(weapon_modified));
+	memset(weapon_modified, 0, sizeof(weapon_modified));
 }
 
 namespace Weapons
 {
 	bool got_one;
+
+	void MarkWeapon(int wp_num)
+	{
+		assert (0 <= wp_num && wp_num < NUMWEAPONS);
+
+		weapon_modified[wp_num] = true;
+	}
 
 	void BeginLump(void)
 	{
@@ -120,21 +118,6 @@ namespace Weapons
 	{
 		WAD::Printf("\n");
 		WAD::FinishLump();
-	}
-
-	const char *GetAmmo(int type)
-	{
-		switch (type)
-		{
-			case am_bullet: return "BULLETS";
-			case am_shell:  return "SHELLS";
-			case am_rocket: return "ROCKETS";
-			case am_cell:   return "CELLS";
-			case am_noammo: return "NOAMMO";
-		}
-
-		InternalError("Bad ammo type %d\n", type);
-		return NULL;
 	}
 
 	void HandleFlags(const weaponinfo_t *info, int w_num)
@@ -226,7 +209,9 @@ namespace Weapons
 		if (! atk)
 			atk = Frames::attack_slot[1];
 
-		assert(Frames::attack_slot[2] == NULL);
+		if (! atk)
+			atk = Frames::attack_slot[2];
+
 		assert(atk != NULL);
 
 		WAD::Printf("ATTACK = %s;\n", atk);
@@ -244,7 +229,7 @@ namespace Weapons
 
 		WAD::Printf("[%s]\n", info->ddf_name);
 
-		WAD::Printf("AMMOTYPE = %s;\n", GetAmmo(info->ammo));
+		WAD::Printf("AMMOTYPE = %s;\n", Ammo::GetAmmo(info->ammo));
 
 		if (w_num == wp_bfg)
 			WAD::Printf("AMMOPERSHOT = %d;\n", Misc::bfg_cells_per_shot);
