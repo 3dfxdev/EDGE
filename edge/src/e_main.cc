@@ -76,8 +76,11 @@
 #include "wi_stuff.h"
 #include "z_zone.h"
 
+#include "errorcodes.h"
+
 #include "./epi/epierror.h"
 #include "./epi/epistring.h"
+
 
 #define DEFAULT_LANGUAGE  "ENGLISH"
 
