@@ -39,8 +39,6 @@ typedef struct
   char *name;
   int *location;
   int defaultvalue;
-  int scantranslate;  // PC scan code hack
-  int untranslated;  // lousy hack
 }
 default_t;
 

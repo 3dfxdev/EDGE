@@ -40,22 +40,22 @@
 
 // mapblocks are used to check movement
 // against lines and things
-#define MAPBLOCKUNITS	128
+#define MAPBLOCKUNITS 128
 
 // MAXRADIUS is for precalculated sector block boxes
 // the spider demon is larger, but we do not have any moving sectors nearby
-#define MAXRADIUS     (32.0f)
+#define MAXRADIUS    (32.0f)
 
-#define MAXMOVE		    (100.0f)
-#define STEPMOVE      (2.0f)
-#define USERANGE	    (64.0f)
-#define USE_Z_RANGE	  (32.0f)
-#define MELEERANGE	  (64.0f)
-#define MISSILERANGE	(32.0f*64.0f)
+#define MAXMOVE      (100.0f)
+#define STEPMOVE     (2.0f)
+#define USERANGE     (64.0f)
+#define USE_Z_RANGE  (32.0f)
+#define MELEERANGE   (64.0f)
+#define MISSILERANGE (32.0f*64.0f)
 
 // Weapon sprite speeds
-#define LOWERSPEED		(6.0f)
-#define RAISESPEED		(6.0f)
+#define LOWERSPEED (6.0f)
+#define RAISESPEED (6.0f)
 
 #define WPNLOWERSPEED (6.0f)
 #define WPNRAISESPEED (6.0f)
@@ -64,7 +64,7 @@
 #define WEAPONTOP        32
 
 // follow a player exlusively for 3 seconds
-#define	BASETHRESHOLD	 	100
+#define BASETHRESHOLD 100
 
 extern mobj_t *RandomTarget;
 
@@ -100,8 +100,8 @@ void P_GiveInitialBenefits(player_t *player, const mobjinfo_t *info);
 //
 // P_MOBJ
 //
-#define ONFLOORZ		((float_t)INT_MIN)
-#define ONCEILINGZ		((float_t)INT_MAX)
+#define ONFLOORZ   ((float_t)INT_MIN)
+#define ONCEILINGZ ((float_t)INT_MAX)
 
 // -ACB- 1998/07/30 Start Pointer the item-respawn-que.
 extern iteminque_t *itemquehead;
@@ -136,21 +136,6 @@ mobj_t *P_MobjCreateObject(float_t x, float_t y, float_t z, const mobjinfo_t * t
 //
 // P_ENEMY
 //
-// Directions
-typedef enum
-{
-  DI_EAST,
-  DI_NORTHEAST,
-  DI_NORTH,
-  DI_NORTHWEST,
-  DI_WEST,
-  DI_SOUTHWEST,
-  DI_SOUTH,
-  DI_SOUTHEAST,
-  DI_NODIR,
-  NUMDIRS
-}
-dirtype_t;
 
 extern dirtype_t opposite[];
 extern dirtype_t diags[];
@@ -168,9 +153,9 @@ boolean_t P_LookForPlayers(mobj_t * actor, angle_t range);
 //
 // P_MAPUTL
 //
-#define PT_ADDLINES	1
-#define PT_ADDTHINGS	2
-#define PT_EARLYOUT	4
+#define PT_ADDLINES  1
+#define PT_ADDTHINGS 2
+#define PT_EARLYOUT  4
 
 typedef struct
 {

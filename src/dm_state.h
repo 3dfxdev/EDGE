@@ -202,9 +202,6 @@ extern int skyflatnum;
 // This is for use in the network communication.
 extern doomcom_t *doomcom;
 
-// This points inside doomcom.
-extern doomdata_t *netbuffer;
-
 extern int maketic;
 
 extern int ticdup;
