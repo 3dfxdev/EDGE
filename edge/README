@@ -106,10 +106,6 @@ New features in 1.26:
   - Shadows under things.  Can be enabled/disabled in the Video Option
     menu, or with the -shadows command-line option.
 
-  - Support for playing MP3 music.  For now they must be external
-    files, but support for lumps in wads is planned.  NOTE: doesn't
-    work in DOS.
-
   - Dynamic lighting, only works in GLEDGE for now.  It can be
     enabled/disabled in the Video Option menu (disabling will give
     higher framerates and also saves memory) -- Note that you need to
@@ -159,10 +155,6 @@ Known Issues:
     mostly about DDF features that have been removed or changed.
     Hence some older stuff may not work 100%.  Use the -nowarn option
     to turn off these warnings.
- 
-  - MP3 playback quality is fairly low, fixed at 11Khz, 8 bits and
-    mono.  Attempts at increasing these didn't work and caused EDGE to
-    crash (even hard-lock the computer in one case).
  
   - Some sprites are designed to look sunk into the floor, typically
     corpses, and can look like they are "floating" in EDGE.  This is a

@@ -35,7 +35,6 @@ typedef enum
 {
   support_CD   = 0x01,
   support_MIDI = 0x02,
-  support_MP3  = 0x04,
   support_MUS  = 0x08
 }
 mussupport_e;
@@ -64,9 +63,6 @@ bool I_StartupMusic(void *sysinfo)
   if (I_StartupMusserv())
     capable |= support_MUS;
 
-  if (I_StartupMP3())
-    capable |= support_MP3;
-
   // Music is not paused by default
   musicpaused = false;
 
@@ -80,11 +76,9 @@ bool I_StartupMusic(void *sysinfo)
 int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 {
   int handle;
-  int track;
 
   if (!(capable & support_CD)   && type == MUS_CD)   return -1;
   if (!(capable & support_MIDI) && type == MUS_MIDI) return -1;
-  if (!(capable & support_MP3)  && type == MUS_MP3)  return -1;
   if (!(capable & support_MUS)  && type == MUS_MUS)  return -1;
 
   switch (type)
@@ -111,18 +105,6 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
     {
       I_PostMusicError("I_MusicPlayback: Music format MIDI is unsupported.\n");
       handle = -1;
-      break;
-    }
-
-    case MUS_MP3:
-    {
-      track = I_MP3PlayTrack(musdat->info.file.name, looping);
-
-      if (track == -1)
-        handle = -1;
-      else
-        handle = MAKEHANDLE(MUS_MP3, looping, track);
-
       break;
     }
 
@@ -174,12 +156,6 @@ void I_MusicPause(int *handle)
       break;
     }
 
-    case MUS_MP3:
-    {
-      // we rely on the `musicpaused' value
-      break;
-    }
-
     case MUS_MUS:
     {
       I_MusservPausePlayback();
@@ -211,12 +187,6 @@ void I_MusicResume(int *handle)
     case MUS_CD:
     {
       I_CDResumePlayback();
-      break;
-    }
-
-    case MUS_MP3:
-    {
-      // we rely on the `musicpaused' value
       break;
     }
 
@@ -256,12 +226,6 @@ void I_MusicKill(int *handle)
       break;
     }
 
-    case MUS_MP3:
-    {
-      I_MP3StopTrack(GETLIBHANDLE(*handle));
-      break;
-    }
-
     case MUS_MUS:
     {
       I_MusservStopPlayback();
@@ -293,12 +257,6 @@ void I_SetMusicVolume(int *handle, int volume)
     case MUS_CD:
     {
       I_CDSetVolume(volume);
-      break;
-    }
-
-    case MUS_MP3:
-    {
-      I_MP3SetVolume(volume);
       break;
     }
 
@@ -366,7 +324,6 @@ void I_ShutdownMusic(void)
 {
   I_ShutdownCD();
   I_ShutdownMusserv();
-  I_ShutdownMP3();
 }
 
 //

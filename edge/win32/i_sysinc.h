@@ -60,18 +60,6 @@ void I_ShutdownWinConsole(void);
 void I_ControlTicker(void);
 void I_HandleKeypress(int key, bool keydown); // handle message loop key presses
 
-// I_MP3.C - Win32 MP3 Handling
-bool I_StartupMP3(void);
-int I_MP3PlayTrack(char *fn, bool loopy);
-void I_MP3BufferFill(void);
-void I_MP3Ticker(void);
-void I_MP3Pause(void);
-void I_MP3Resume(void);
-void I_MP3Stop(void);
-bool I_MP3Playing(void);
-void I_MP3SetVolume(int vol);
-void I_ShutdownMP3(void);
-
 // I_MUS.C - Win32 MUS Handling
 bool I_StartupMUS(void);
 int I_MUSPlayTrack(byte *data, int length, bool loopy);
