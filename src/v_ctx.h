@@ -48,7 +48,7 @@ typedef struct vid_view_s vid_view_t;  //!!! Not yet defined
 typedef struct video_context_s
 {
   // Video output is double buffered, or in some way requires
-  // everything to be re-drawn at each frame.  When "false", the dirty
+  // everything to be re-drawn at each frame.  When true, the dirty
   // matrix logic cannot be used.
   
   boolean_t double_buffered;
