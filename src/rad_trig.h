@@ -50,6 +50,7 @@ boolean_t RAD_LoadParam(void);
 void RAD_LoadLump(void *data, int size);
 void RAD_SpawnTriggers(char *map_name);
 void RAD_ClearTriggers(void);
+void RAD_GroupTriggerTags(rad_trigger_t *trig);
 
 void RAD_DoRadiTrigger(player_t * p);
 void RAD_Ticker(void);
