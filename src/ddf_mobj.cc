@@ -237,8 +237,8 @@ static const actioncode_t thing_actions[] =
 	{"SUPPORT MEANDER",   P_ActPlayerSupportMeander, NULL},
 	{"EXPLOSIONDAMAGE",   P_ActDamageExplosion, NULL},
 	{"THRUST",            P_ActThrust, NULL},
-	{"TRACER",            P_ActFixedHomingProjectile, NULL},
-	{"RANDOM TRACER",     P_ActRandomHomingProjectile, NULL},
+	{"TRACER",            P_ActHomingProjectile, NULL},
+	{"RANDOM TRACER",     P_ActHomingProjectile, NULL},  // same as above
 	{"RESET SPREADER",    P_ActResetSpreadCount, NULL},
 	{"SMOKING",           P_ActCreateSmokeTrail, NULL},
 	{"TRACKERACTIVE",     P_ActTrackerActive, NULL},
