@@ -164,7 +164,7 @@ extern int num_solid_rects;
 // INTERFACE
 //
 
-void R_LayerInit(void);
+boolean_t R_LayerInit(void);
 
 layer_t *R_LayerNew(int depth, int x1, int y1, int x2, int y2,
     layerflags_e flags, void *private);
