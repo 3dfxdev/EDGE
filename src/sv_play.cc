@@ -36,6 +36,8 @@
 #include "r_state.h"
 #include "z_zone.h"
 
+#include "./epi/epistring.h"
+
 #undef SF
 #define SF  SVFIELD
 
@@ -478,16 +480,14 @@ void SR_PlayerPutName(void *storage, int index, void *extra)
 //
 bool SR_WeaponGetInfo(void *storage, int index, void *extra)
 {
-	weaponinfo_t ** dest = (weaponinfo_t **)storage + index;
+	weapondef_c ** dest = (weapondef_c **)storage + index;
 	const char *name;
-	int num;
 
 	name = SV_GetString();
 
-	num = name ? DDF_WeaponLookup(name) : -1;
+	*dest = name ? weapondefs.Lookup(name) : NULL;
 	Z_Free((char *)name);
 
-	*dest = (num < 0) ? NULL : weaponinfo[num];
 	return true;
 }
 
@@ -496,7 +496,7 @@ bool SR_WeaponGetInfo(void *storage, int index, void *extra)
 //
 void SR_WeaponPutInfo(void *storage, int index, void *extra)
 {
-	weaponinfo_t *info = ((weaponinfo_t **)storage)[index];
+	weapondef_c *info = ((weapondef_c **)storage)[index];
 
 	SV_PutString(info ? info->ddf.name : NULL);
 }
@@ -516,7 +516,7 @@ bool SR_PlayerGetState(void *storage, int index, void *extra)
 	int i, base, offset;
 
 	const char *swizzle;
-	const weaponinfo_t *actual;
+	const weapondef_c *actual;
 
 	swizzle = SV_GetString();
 
@@ -549,7 +549,7 @@ bool SR_PlayerGetState(void *storage, int index, void *extra)
 	// Traverses backwards in case #CLEARALL was used.
 	actual = NULL;
 
-	for (i=numweapons-1; i >= 0; i--)
+/*	for (i=numweapons-1; i >= 0; i--)
 	{
 		actual = weaponinfo[i];
 
@@ -559,8 +559,9 @@ bool SR_PlayerGetState(void *storage, int index, void *extra)
 		if (DDF_CompareName(buffer, actual->ddf.name) == 0)
 			break;
 	}
-
-	if (i < 0)
+*/
+	actual = weapondefs.Lookup(buffer);
+	if (!actual)
 		I_Error("LOADGAME: no such weapon %s for state %s:%s\n",
 		buffer, base_p, off_p);
 
@@ -614,10 +615,11 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 {
 	state_t *S = ((state_t **)storage)[index];
 
-	char swizzle[64];
-	int i, s_num, base;
+	epi::array_iterator_c it;
+	epi::string_c buf;
+	int s_num, base;
 
-	const weaponinfo_t *actual;
+	const weapondef_c *actual;
 
 	if (S == NULL)
 	{
@@ -631,13 +633,14 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 	if (s_num < 0 || s_num >= num_states)
 	{
 		I_Warning("SAVEGAME: weapon is in invalid state %d\n", s_num);
-		s_num = weaponinfo[0]->first_state;
+		s_num = weapondefs[0]->first_state;
 	}
 
 	// find the weapon that this state belongs to.
 	// Traverses backwards in case #CLEARALL was used.
 	actual = NULL;
 
+/*
 	for (i=numweapons-1; i >= 0; i--)
 	{
 		actual = weaponinfo[i];
@@ -649,11 +652,25 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 		if (actual->first_state <= s_num && s_num <= actual->last_state)
 			break;
 	}
+*/
+	
+	for (it=weapondefs.GetIterator(weapondefs.GetDisabledCount());
+			it.IsValid(); it++)
+	{
+		actual = ITERATOR_TO_TYPE(it, weapondef_c*);
 
-	if (i < 0)
+		if (actual->last_state <= 0 ||
+			actual->last_state < actual->first_state)
+			continue;
+
+		if (actual->first_state <= s_num && s_num <= actual->last_state)
+			break;
+	}
+
+	if (!it.IsValid())
 	{
 		I_Warning("SAVEGAME: weapon state %d cannot be found !!\n", s_num);
-		actual = weaponinfo[0];
+		actual = weapondefs[0];
 		s_num = actual->first_state;
 	}
 
@@ -664,14 +681,14 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 		base--)
 	{ /* nothing */ }
 
-	sprintf(swizzle, "%s:%s:%d", actual->ddf.name,
+	buf.Format("%s:%s:%d", actual->ddf.name,
 		states[base].label ? states[base].label : "*",
 		1 + s_num - base);
 
 #if 0
-	L_WriteDebug("Swizzled state of weapon %d -> `%s'\n", s_num, swizzle);
+	L_WriteDebug("Swizzled state of weapon %d -> `%s'\n", s_num, buf.GetString());
 #endif
 
-	SV_PutString(swizzle);
+	SV_PutString(buf.GetString());
 }
 

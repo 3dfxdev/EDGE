@@ -80,7 +80,7 @@ static void Confidence(bot_t * bot)
 static int EvaluateWeapon(player_t *p, int w_num)
 {
 	playerweapon_t *wp = p->weapons + w_num;
-	weaponinfo_t *weapon;
+	weapondef_c *weapon;
 	atkdef_c *attack;
 	float value;
 

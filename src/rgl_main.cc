@@ -400,7 +400,7 @@ void RGL_DrawPlayerSprites(player_t * p)
 	// special handling for zoom: show viewfinder
 	if (viewiszoomed)
 	{
-		weaponinfo_t *w;
+		weapondef_c *w;
 		pspdef_t *psp = &p->psprites[ps_weapon];
 
 		if ((p->ready_wp < 0) || (psp->state == S_NULL))
