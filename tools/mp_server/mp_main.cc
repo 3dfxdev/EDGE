@@ -67,16 +67,29 @@ const guix_preferences_t default_guiprefs =
 static void ShowInfo(void)
 {
 	printf(
-		"\n*** " MY_TITLE " (C) 2004 Andrew Apted ***\n\n"
+		"\n"
+		"**** " MY_TITLE " (C) 2005 Andrew Apted ****\n"
+		"\n"
 	);
 
-	printf("Blah blah blah\n"   // !!!! FIXME
-    "\n"
-    "This program is free software, under the terms of the GNU General\n"
-    "Public License, and comes with ABSOLUTELY NO WARRANTY.  See the\n"
-    "accompanying documentation for more details.\n"
-    "\n"
-  );
+	printf(
+		"Usage: mp_server [options...]\n"
+		"\n"
+		"Available options:\n"
+		"  -l  -local [ADDR]      Set local computer's IP address\n"
+		"  -p  -port  [PORT]      Set server's port number\n"
+		"  -d  -debug             Enable debugging log\n"
+		"  -h  -help              Show this help message\n"
+		"\n"
+	);
+
+	printf(
+		"This program is free software, under the terms of the GNU General\n"
+		"Public License, and comes with ABSOLUTELY NO WARRANTY.  See the\n"
+		"documentation for more details, or visit this web page:\n"
+		"    http://www.gnu.org/licenses/licenses.html\n"
+		"\n"
+	);
 }
 
 
@@ -107,15 +120,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	// FIXME (eventually): have a -debug option
-	DebugInit(true);
-
-	/// int first_arg = 1;
-
-#ifdef MACOSX
-	if (first_arg < argc && (strncmp(argv[first_arg], "-psn", 4) == 0))
-		first_arg++;
-#endif
+	DebugInit(ArgvFind('d', "debug") >= 0);
 
 	// set defaults, also initializes the nodebuildxxxx stuff
 	MainSetDefaults();
