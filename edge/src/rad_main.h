@@ -86,7 +86,7 @@ typedef struct s_thing_s
 	float slope;
 
 	// -AJA- 1999/09/11: since the RSCRIPT lump can be loaded before
-	//       DDF* lumps, we can't store a pointer to a mobjinfo_t here
+	//       DDF* lumps, we can't store a pointer to a mobjinfo_c here
 	//       (and the mobjinfos can move about with later additions).
 
 	// thing's DDF name, or if NULL, then thing's mapnumber.
@@ -407,7 +407,7 @@ typedef struct s_ondeath_s
 
 	// mobjinfo pointer, computed the first time this ONDEATH condition
 	// is tested.
-	const mobjinfo_t *cached_info;
+	const mobjinfo_c *cached_info;
 }
 s_ondeath_t;
 

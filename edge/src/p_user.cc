@@ -947,7 +947,7 @@ bool P_RemoveWeapon(player_t *player, weaponinfo_t *info)
 //
 // -AJA- 2000/03/02: written.
 //
-void P_GiveInitialBenefits(player_t *p, const mobjinfo_t *info)
+void P_GiveInitialBenefits(player_t *p, const mobjinfo_c *info)
 {
 	int priority = -100;
 	int pw_index;
