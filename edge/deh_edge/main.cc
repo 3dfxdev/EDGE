@@ -29,6 +29,7 @@
 
 #include "attacks.h"
 #include "frames.h"
+#include "patch.h"
 #include "sounds.h"
 #include "system.h"
 #include "things.h"
@@ -38,13 +39,6 @@
 #include "weapons.h"
 
 
-//  DEH 1.2 (patch v1) no frames
-//  DEH 1.3 (patch v2) frames, no code pointers
-//  DEH X.X (patch vX) code pointers
-//  DEH Y.Y (patch vY) text format
-//  DEH 3.0 has ^Misc section
-
-
 const char *input_file  = NULL;
 const char *output_file = NULL;
 
@@ -52,7 +46,6 @@ bool quiet_mode = false;
 bool all_mode   = true;   // !!!!! FIXME
 
 int edge_version = 127;
-
 
 
 /* ----- user information ----------------------------- */
@@ -219,7 +212,7 @@ int main(int argc, char **argv)
 	// load DEH patch file
 	PrintMsg("Loading patch file: %s\n", input_file);
 
-	// FIXME !!!!
+	Patch::Load(input_file);
 
 	// do conversions into DDF...
 	PrintMsg("Converting data into DDF...\n");
@@ -231,7 +224,9 @@ int main(int argc, char **argv)
 	Sounds::ConvertMUS();
 	TextStr::ConvertLDF();
 
+	PrintMsg("\n");
 	PrintMsg("Writing WAD file: %s\n", output_file);
+
 	WAD::WriteFile(output_file);
 
 	PrintMsg("Finished.\n\n");
