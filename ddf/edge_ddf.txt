@@ -19,6 +19,9 @@ EDGE DDF 4.2:
 8) LANGUAGES.DDF: removed beginning "\n" from PlayState strings.
 9) LANGUAGES.DDF: replace { } comments with // ones.
 
+10) ATTACKS.DDF and WEAPONS.DDF: moved SILENT_TO_MONSTERS from [FIST]
+                                 weapon into [PLAYER_PUNCH] attack.
+
 
 EDGE DDF 4.1 (2004-04-30):
 ==========================

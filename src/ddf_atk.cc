@@ -304,6 +304,7 @@ static const specflags_t attack_specials[] =
     {"ANGLED SPAWN", AF_AngledSpawn, 0},
     {"PLAYER ATTACK", AF_Player, 0},
     {"TRIGGER LINES", AF_NoTriggerLines, 1},
+    {"SILENT TO MONSTERS", AF_SilentToMon, 0},
 
     // -AJA- backwards compatibility cruft...
     {"!NOAMMO", AF_None, 0},
@@ -326,7 +327,7 @@ static void DDF_AtkGetSpecial(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError2(0x128, "DDF_AtkGetSpecials: Unknown Attack Special: %s", info);
+			DDF_WarnError2(0x128, "DDF_AtkGetSpecials: Unknown Attack Special: %s\n", info);
 			break;
 	}
 }

@@ -320,6 +320,8 @@ static void P_FireWeapon(player_t * p)
 
 	DEV_ASSERT2(p->ready_wp >= 0);
 
+	weapondef_c *w = p->weapons[p->ready_wp].info;
+
 	p->flash = false;
 
 	if (p->remember_atk1 >= 0)
@@ -329,12 +331,13 @@ static void P_FireWeapon(player_t * p)
 	}
 	else
 	{
-		newstate = p->weapons[p->ready_wp].info->attack_state;
+		newstate = w->attack_state;
 	}
 
 	P_SetPsprite(p, ps_weapon, newstate);
 
-	if (! (p->weapons[p->ready_wp].info->special_flags & WPSP_FirstSilent))
+	if (! (w->special_flags & WPSP_SilentToMon) &&
+		! (w->attack->flags & AF_SilentToMon))
 	{
 		P_NoiseAlert(p);
 	}
@@ -354,6 +357,8 @@ static void P_FireSecondAttack(player_t * p)
 
 	DEV_ASSERT2(p->ready_wp >= 0);
 
+	weapondef_c *w = p->weapons[p->ready_wp].info;
+
 	p->flash = false;
 
 	if (p->remember_atk2 >= 0)
@@ -363,7 +368,7 @@ static void P_FireSecondAttack(player_t * p)
 	}
 	else
 	{
-		newstate = p->weapons[p->ready_wp].info->sa_attack_state;
+		newstate = w->sa_attack_state;
 	}
 
 	if (!newstate)
@@ -371,7 +376,8 @@ static void P_FireSecondAttack(player_t * p)
 
 	P_SetPsprite(p, ps_weapon, newstate);
 
-	if (! (p->weapons[p->ready_wp].info->special_flags & WPSP_SecondSilent))
+	if (! (w->special_flags & WPSP_SilentToMon) &&
+		! (w->sa_attack->flags & AF_SilentToMon))
 	{
 		P_NoiseAlert(p);
 	}
