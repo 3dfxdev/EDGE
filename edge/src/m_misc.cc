@@ -341,6 +341,9 @@ void M_SaveDefaults(void)
 		return;  // can't write the file, but don't complain
 	}
 
+	// -AJA- 2004/01/10: this doesn't fit in yet...
+	fprintf(f, "language\t\t\"%s\"\n", languages[cur_lang_index]->ddf.name);
+
 	for (i = 0; i < numdefaults; i++)
 	{
 		int v;
@@ -440,7 +443,17 @@ bool M_LoadDefaults(void)
 				SCREENBITS = parm * 8;
 				continue;
 			}
-      
+
+			// -AJA- 2004/01/10: this doesn't fit in yet...
+			if (strcmp(def, "language") == 0)
+			{
+				if (!isstring)
+					continue;  // FIXME: show warning
+				
+				DDF_LanguageChange(newstring, true);
+				continue;
+			}
+ 
 			for (i = 0; i < numdefaults; i++)
 			{
 				if (0 == strcmp(def, defaults[i].name))
