@@ -142,8 +142,74 @@ typedef enum { false, true } boolean_t;
 
 #endif
 
-// Win32
-#ifdef WIN32
+// Microsoft Visual C++ V6.0 for Win32
+#ifdef WIN32 
+#ifdef __MSC_VER__
+
+#define WIN32_LEAN_AND_MEAN
+
+typedef __int64 Int64;
+typedef float float_t;
+#define FLOAT_IEEE_754
+
+typedef enum { false, true } boolean_t;
+
+#include <ctype.h>
+#include <direct.h>
+#include <fcntl.h>
+#include <io.h>
+#include <limits.h>
+#include <math.h>
+#include <malloc.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys\stat.h>
+#include <time.h>
+
+#include <windows.h>
+#include <gl/gl.h>
+
+#define EDGECONFIGFILE "EDGE.CFG"
+#define EDGEHOMEDIR    "EDGE"
+#define EDGEWADDIR     "EDGEWADDIR"
+#define EDGEWADEXT     "wad"
+#define EDGEGWAEXT     "gwa"
+#define REQUIREDWAD    "EDGE"
+
+#define DIRSEPARATOR '\\'
+
+#define NAME        "EDGE"
+#define OUTPUTNAME  "EDGECONSOLE"
+#define TITLE       "EDGE Engine"
+#define OUTPUTTITLE "EDGE Engine console"
+
+// Access() define values. Nicked from DJGPP's <unistd.h>
+#define R_OK    0x02
+#define W_OK    0x04
+
+// PI define. Nicked from DJGPP's <math.h>
+#define M_PI 3.14159265358979323846
+
+#define GCCATTR(a)
+#define INLINE 
+#define EDGE_INLINE(decl, body) extern decl;
+
+#define I_TmpMalloc(size) alloca(size)
+#define I_TmpFree(ptr) do { } while (0)
+
+#define I_MoveData memcpy
+
+#include ".\win32\i_compen.h"
+#include "i_system.h"
+
+#endif
+#endif
+
+// Borland C++ V5.5 for Win32
+#ifdef WIN32 
+#ifdef __BORLANDC__
 
 #define WIN32_LEAN_AND_MEAN
 
@@ -204,6 +270,7 @@ typedef enum { false, true } boolean_t;
 #include ".\win32\i_compen.h"
 #include "i_system.h"
 
+#endif
 #endif
 
 // LINUX GCC
