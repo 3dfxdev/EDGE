@@ -322,6 +322,9 @@ boolean_t I_SoundResume(unsigned int chanid);
 // Resumes the previously paused sound on the specified channel.
 // Returns true on success, otherwise false.
 
+boolean_t I_SoundStopLooping(unsigned int chanid);
+// Stops the sound on this channel looping
+
 boolean_t I_SoundKill(unsigned int chanid);
 // Kills a sound on the specified channel that was started with
 // I_SoundPlayback(), and frees the channel to be used for future
