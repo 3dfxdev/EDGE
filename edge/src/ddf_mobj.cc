@@ -1419,8 +1419,7 @@ mobjdef_c::mobjdef_c()
 //
 mobjdef_c::mobjdef_c(mobjdef_c &rhs)
 {
-	ddf = rhs.ddf;
-	CopyDetail(rhs);
+	Copy(rhs);
 }
 
 //
@@ -1428,6 +1427,15 @@ mobjdef_c::mobjdef_c(mobjdef_c &rhs)
 //
 mobjdef_c::~mobjdef_c()
 {
+}
+
+//
+// mobjdef_c::Copy()
+//
+void mobjdef_c::Copy(mobjdef_c &src)
+{
+	ddf = src.ddf;
+	CopyDetail(src);	
 }
 
 //
@@ -1706,6 +1714,17 @@ void mobjdef_c::Default()
 	respawneffect_ref = NULL;
 	spitspot = NULL;
 	spitspot_ref = NULL;
+}
+
+//
+// mobjdef_c assignment operator
+//
+mobjdef_c& mobjdef_c::operator=(mobjdef_c &rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+		
+	return *this;
 }
 
 // --> mobjdef_container_c class
