@@ -25,7 +25,7 @@
 #endif
 
 // patch level
-#define EDGEPATCH  0x00
+#define EDGEPATCH  0x04
 
 // -ES- 2000/03/04 The version of EDGE.WAD we require.
 #define EDGE_WAD_VERSION 2
