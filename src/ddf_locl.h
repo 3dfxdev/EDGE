@@ -355,6 +355,8 @@ void DDF_StateGetIntPair(const char *arg, state_t * cur_state);
 void DDF_StateGetFloat(const char *arg, state_t * cur_state);
 void DDF_StateGetPercent(const char *arg, state_t * cur_state);
 void DDF_StateGetJump(const char *arg, state_t * cur_state);
+void DDF_StateGetAngle(const char *arg, state_t * cur_state);
+void DDF_StateGetSlope(const char *arg, state_t * cur_state);
 
 void DDF_StateReadState(const char *info, const char *label,
     int *first, int *last, int *state_num, int index, 
