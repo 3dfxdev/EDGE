@@ -67,23 +67,23 @@ int current_gamma;
 bool interpolate_colmaps = true;
 
 // general purpose colormaps
-const colourmap_t *normal_map = NULL;
-const colourmap_t *sky_map  = NULL;
-const colourmap_t *shadow_map  = NULL;
+const colourmap_c *normal_map = NULL;
+const colourmap_c *sky_map  = NULL;
+const colourmap_c *shadow_map  = NULL;
 const coltable_t *fuzz_coltable = NULL;
 const coltable_t *dim_coltable = NULL;
 
 // text translation tables
 const byte *font_whitener = NULL;
-const colourmap_t *font_whiten_map = NULL;
+const colourmap_c *font_whiten_map = NULL;
 
-const colourmap_t *text_red_map    = NULL;
-const colourmap_t *text_white_map  = NULL;
-const colourmap_t *text_grey_map   = NULL;
-const colourmap_t *text_green_map  = NULL;
-const colourmap_t *text_brown_map  = NULL;
-const colourmap_t *text_blue_map   = NULL;
-const colourmap_t *text_yellow_map = NULL;
+const colourmap_c *text_red_map    = NULL;
+const colourmap_c *text_white_map  = NULL;
+const colourmap_c *text_grey_map   = NULL;
+const colourmap_c *text_green_map  = NULL;
+const colourmap_c *text_brown_map  = NULL;
+const colourmap_c *text_blue_map   = NULL;
+const colourmap_c *text_yellow_map = NULL;
 
 // automap translation tables
 const byte *am_normal_colmap  = NULL;
@@ -197,33 +197,33 @@ static void InitTranslationTables(void)
 		return;
 
 	// look up the general colmaps & coltables
-	normal_map = DDF_ColmapLookup("NORMAL");
-	sky_map  = DDF_ColmapLookup("SKY");
-	shadow_map = DDF_ColmapLookup("SHADOW");
+	normal_map = colourmaps.Lookup("NORMAL");
+	sky_map  = colourmaps.Lookup("SKY");
+	shadow_map = colourmaps.Lookup("SHADOW");
 
-	font_whiten_map = DDF_ColmapLookup("FONTWHITEN");
+	font_whiten_map = colourmaps.Lookup("FONTWHITEN");
 	font_whitener = V_GetTranslationTable(font_whiten_map);
 
 	fuzz_coltable = V_GetRawColtable(
-		DDF_ColmapLookup("FUZZY"), 127);
+		colourmaps.Lookup("FUZZY"), 127);
 
 	dim_coltable = V_GetRawColtable(
-		DDF_ColmapLookup("DIMSCREEN"), 127);
+		colourmaps.Lookup("DIMSCREEN"), 127);
 
 	am_normal_colmap = V_GetTranslationTable(
-		DDF_ColmapLookup("AUTOMAP_NORMAL"));
+		colourmaps.Lookup("AUTOMAP_NORMAL"));
 
 	am_overlay_colmap = V_GetTranslationTable(
-		DDF_ColmapLookup("AUTOMAP_OVERLAY"));
+		colourmaps.Lookup("AUTOMAP_OVERLAY"));
 
 	// look up the text maps
-	text_red_map = DDF_ColmapLookup("TEXT_RED");
-	text_white_map  = DDF_ColmapLookup("TEXT_WHITE");
-	text_grey_map   = DDF_ColmapLookup("TEXT_GREY");
-	text_green_map  = DDF_ColmapLookup("TEXT_GREEN");
-	text_brown_map  = DDF_ColmapLookup("TEXT_BROWN");
-	text_blue_map   = DDF_ColmapLookup("TEXT_BLUE");
-	text_yellow_map = DDF_ColmapLookup("TEXT_YELLOW");
+	text_red_map = colourmaps.Lookup("TEXT_RED");
+	text_white_map  = colourmaps.Lookup("TEXT_WHITE");
+	text_grey_map   = colourmaps.Lookup("TEXT_GREY");
+	text_green_map  = colourmaps.Lookup("TEXT_GREEN");
+	text_brown_map  = colourmaps.Lookup("TEXT_BROWN");
+	text_blue_map   = colourmaps.Lookup("TEXT_BLUE");
+	text_yellow_map = colourmaps.Lookup("TEXT_YELLOW");
 
 	for (i=0; i < 256; i++)
 		null_tranmap[i] = i;
@@ -870,7 +870,7 @@ static void MakeColourmapRange(void *dest_colmaps, byte palette[256][3],
 // the dc_colourmap & ds_colourmap variables for use by the column &
 // span drawers.
 //
-static void LoadColourmap(const colourmap_t * colm, int bpp)
+static void LoadColourmap(const colourmap_c * colm, int bpp)
 {
 	int lump;
 	int size;
@@ -930,7 +930,7 @@ static void LoadColourmap(const colourmap_t * colm, int bpp)
 //
 // V_GetRawColtable
 //
-const coltable_t *V_GetRawColtable(const colourmap_t * nominal, int level)
+const coltable_t *V_GetRawColtable(const colourmap_c * nominal, int level)
 {
 	coltable_t *result;
 	int index;
@@ -953,7 +953,7 @@ const coltable_t *V_GetRawColtable(const colourmap_t * nominal, int level)
 //
 // V_GetTranslationTable
 //
-const byte *V_GetTranslationTable(const colourmap_t * colmap)
+const byte *V_GetTranslationTable(const colourmap_c * colmap)
 {
 	// Do we need to load or recompute this colourmap ?
 
@@ -973,7 +973,7 @@ const byte *V_GetTranslationTable(const colourmap_t * colmap)
 // Finds the right coltable for the dc_colourmap & ds_colourmap
 // variables used by the column & span drawers.
 //
-const coltable_t *V_GetColtable(const colourmap_t * nominal, 
+const coltable_t *V_GetColtable(const colourmap_c * nominal, 
 								int lightlevel, vcol_flags_e flags)
 {
 	DEV_ASSERT2(nominal);
@@ -1015,7 +1015,7 @@ const coltable_t *V_GetColtable(const colourmap_t * nominal,
 //
 // V_GetColmapRGB
 //
-void V_GetColmapRGB(const colourmap_t *colmap,
+void V_GetColmapRGB(const colourmap_c *colmap,
 					float *r, float *g, float *b, bool font)
 {
 	if (colmap->cache.data == NULL)

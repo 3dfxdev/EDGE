@@ -86,7 +86,7 @@ typedef struct video_context_s
   
 	void (* DrawImage)(int x, int y, int w, int h, const image_t *image,
 					   float tx1, float ty1, float tx2, float ty2,
-					   const colourmap_t *colmap, float alpha);
+					   const colourmap_c *colmap, float alpha);
  
 	// Draw a solid colour box (possibly translucent) in the given
 	// rectangle.  Coordinates are inclusive.  Alpha ranges from 0

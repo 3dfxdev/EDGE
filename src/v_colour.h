@@ -82,40 +82,40 @@ typedef enum
 }
 vcol_flags_e;
 
-const coltable_t *V_GetRawColtable(const colourmap_t * nominal, int level);
+const coltable_t *V_GetRawColtable(const colourmap_c * nominal, int level);
 const coltable_t *V_GetColtable
- (const colourmap_t * nominal, int lightlevel, vcol_flags_e flags);
+ (const colourmap_c * nominal, int lightlevel, vcol_flags_e flags);
 
 // translation support
-const byte *V_GetTranslationTable(const colourmap_t * colmap);
+const byte *V_GetTranslationTable(const colourmap_c * colmap);
 
 const coltable_t *V_GetTranslatedColtable(const coltable_t *src,
     const byte *trans);
 
 // support for GL
 #ifdef USE_GL
-void V_GetColmapRGB(const colourmap_t *colmap,
+void V_GetColmapRGB(const colourmap_c *colmap,
     float *r, float *g, float *b, bool font);
 #endif
 
 // general purpose colormaps & coltables
-extern const colourmap_t *normal_map;
-extern const colourmap_t *sky_map;
-extern const colourmap_t *shadow_map;
+extern const colourmap_c *normal_map;
+extern const colourmap_c *sky_map;
+extern const colourmap_c *shadow_map;
 extern const coltable_t *fuzz_coltable;
 extern const coltable_t *dim_coltable;
 
 // text translation tables
 extern const byte *font_whitener;
-extern const colourmap_t *font_whiten_map;
+extern const colourmap_c *font_whiten_map;
 
-extern const colourmap_t *text_red_map;
-extern const colourmap_t *text_white_map;
-extern const colourmap_t *text_grey_map;
-extern const colourmap_t *text_green_map;
-extern const colourmap_t *text_brown_map;
-extern const colourmap_t *text_blue_map;
-extern const colourmap_t *text_yellow_map;
+extern const colourmap_c *text_red_map;
+extern const colourmap_c *text_white_map;
+extern const colourmap_c *text_grey_map;
+extern const colourmap_c *text_green_map;
+extern const colourmap_c *text_brown_map;
+extern const colourmap_c *text_blue_map;
+extern const colourmap_c *text_yellow_map;
 
 // automap translation tables
 extern const byte *am_normal_colmap;
