@@ -131,6 +131,9 @@ typedef struct drawwall_s
 
   screenline_t *area;
 
+  // seg this belongs to
+  seg_t *seg;
+
   // texture to use
   sidepart_t *part;
   
