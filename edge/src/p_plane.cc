@@ -801,7 +801,7 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
 	}
 	else if (type->tex[0])
 	{
-		plane->new_image = W_ImageLookup(type->tex, IMSRC_Flat);
+		plane->new_image = W_ImageLookup(type->tex, INS_Flat);
 	}
 
 	P_AddActivePart((gen_move_t*)plane);

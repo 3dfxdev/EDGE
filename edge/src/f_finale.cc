@@ -126,12 +126,12 @@ void F_StartFinale(const map_finaledef_c * f, gameaction_e newaction)
 
 	if (f->text_flat[0])
 	{
-		finale_textback = W_ImageLookup(f->text_flat, IMSRC_Flat);
+		finale_textback = W_ImageLookup(f->text_flat, INS_Flat);
 		finale_textbackscale = 5.0f;
 	}
 	else if (f->text_back[0])
 	{
-		finale_textback = W_ImageLookup(f->text_back, IMSRC_Patch);
+		finale_textback = W_ImageLookup(f->text_back, INS_Graphic);
 		finale_textbackscale = 1.0f;
 	}
 	else

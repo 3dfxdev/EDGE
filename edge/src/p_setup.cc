@@ -720,10 +720,10 @@ static void LoadSectors(int lump)
 		ss->ceil = ss->floor;
 
 		Z_StrNCpy(buffer, ms->floorpic, 8);
-		ss->floor.image = W_ImageLookup(buffer, IMSRC_Flat);
+		ss->floor.image = W_ImageLookup(buffer, INS_Flat);
 
 		Z_StrNCpy(buffer, ms->ceilingpic, 8);
-		ss->ceil.image = W_ImageLookup(buffer, IMSRC_Flat);
+		ss->ceil.image = W_ImageLookup(buffer, INS_Flat);
 
 		// convert negative tags to zero
 		ss->tag = MAX(0, EPI_LE_S16(ms->tag));
@@ -1276,13 +1276,13 @@ static void TransferMapSideDef(const mapsidedef_t *msd, side_t *sd,
 	sd->sector = &sectors[sec_num];
 
 	Z_StrNCpy(buffer, msd->toptexture, 8);
-	sd->top.image = W_ImageLookup(buffer, IMSRC_Texture);
+	sd->top.image = W_ImageLookup(buffer, INS_Texture);
 
 	Z_StrNCpy(buffer, msd->midtexture, 8);
-	sd->middle.image = W_ImageLookup(buffer, IMSRC_Texture);
+	sd->middle.image = W_ImageLookup(buffer, INS_Texture);
 
 	Z_StrNCpy(buffer, msd->bottomtexture, 8);
-	sd->bottom.image = W_ImageLookup(buffer, IMSRC_Texture);
+	sd->bottom.image = W_ImageLookup(buffer, INS_Texture);
 
 	if (sd->middle.image && two_sided)
 	{

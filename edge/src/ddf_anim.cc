@@ -137,8 +137,8 @@ static void AnimFinishEntry(void)
 			DDF_Error("Missing animation sequence.\n");
 		}
 
-		if (buffer_anim.type == animdef_c::A_User)
-			DDF_Error("TYPE=DDF animations must use the SEQUENCE command.\n");
+		if (buffer_anim.type == animdef_c::A_Graphic)
+			DDF_Error("TYPE=GRAPHIC animations must use the SEQUENCE command.\n");
 
 	}
 
@@ -216,8 +216,8 @@ static void DDF_AnimGetType(const char *info, void *storage)
 		(*type) = animdef_c::A_Flat;
 	else if (DDF_CompareName(info, "TEXTURE") == 0)
 		(*type) = animdef_c::A_Texture;
-	else if (DDF_CompareName(info, "USER") == 0)
-		(*type) = animdef_c::A_User;
+	else if (DDF_CompareName(info, "GRAPHIC") == 0)
+		(*type) = animdef_c::A_Graphic;
 	else
 	{
 		DDF_WarnError2(0x128, "Unknown animation type: %s\n", info);

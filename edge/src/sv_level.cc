@@ -886,7 +886,7 @@ bool SR_LevelGetImage(void *storage, int index, void *extra)
 	if (str[1] != ':')
 		I_Warning("SR_LevelGetImage: invalid image string `%s'\n", str);
 
-	(*dest) = W_ImageFromString(str[0], str + 2);
+	(*dest) = W_ImageParseSaveString(str[0], str + 2);
 
 	Z_Free((char *)str);
 	return true;
@@ -915,7 +915,7 @@ void SR_LevelPutImage(void *storage, int index, void *extra)
 		return;
 	}
 
-	W_ImageToString(src, buffer, buffer + 2);
+	W_ImageMakeSaveString(src, buffer, buffer + 2);
 	buffer[1] = ':';
 
 	SV_PutString(buffer);

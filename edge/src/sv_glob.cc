@@ -210,7 +210,7 @@ static void GV_GetImage(const char *info, void *storage)
 	if (info[1] != ':')
 		I_Warning("GV_GetImage: invalid image string `%s'\n", info);
 
-	(*dest) = W_ImageFromString(info[0], info + 2);
+	(*dest) = W_ImageParseSaveString(info[0], info + 2);
 }
 
 
@@ -310,7 +310,7 @@ static const char *GV_PutImage(void *storage)
 	if (*src == NULL)
 		return (const char *) Z_ClearNew(char, 1);
 
-	W_ImageToString(*src, buffer, buffer + 2);
+	W_ImageMakeSaveString(*src, buffer, buffer + 2);
 	buffer[1] = ':';
 
 	return Z_StrDup(buffer);

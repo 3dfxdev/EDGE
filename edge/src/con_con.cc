@@ -160,9 +160,9 @@ int numvislines = 0;
 
 // width of console. Measured in characters if in text mode, and in pixels
 // if in graphics mode.
-int conwidth;
-int conheight;
-int conrows;
+static int conwidth;
+static int conheight;
+static int conrows;
 
 // the console row that is displayed at the bottom of screen, -1 if cmdline
 // is the bottom one.
@@ -980,7 +980,7 @@ void UpdateConback(cvar_t *var, void *user)
 
 	flat = (const char *)CON_CVarGetValue(var);
 
-	console_bg_image = W_ImageLookup(flat, IMSRC_Flat);
+	console_bg_image = W_ImageLookup(flat, INS_Flat);
 }
 
 void CON_Start(gui_t ** gui)

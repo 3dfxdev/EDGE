@@ -23,6 +23,15 @@
 
 #include "./epi/epiutil.h"
 
+typedef enum
+{
+	INS_Graphic = 0,
+	INS_Texture,
+	INS_Flat,
+	INS_Sprite,
+}
+image_namespace_e;
+
 //
 // -AJA- 2004/11/16 Images.ddf
 //
@@ -81,6 +90,8 @@ public:
 
 	// Member vars....
 	ddf_base_c ddf;
+
+	image_namespace_e belong;
 
 	imagedata_type_e type;
 

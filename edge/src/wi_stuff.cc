@@ -1298,9 +1298,9 @@ static void LoadData(void)
 	if (worldint.GetGameDef()->splatpic[0])
 		splat[0] = W_ImageLookup(worldint.GetGameDef()->splatpic);
 	
-	wiminus = W_ImageLookup("WIMINUS", IMSRC_Font);
-	percent = W_ImageLookup("WIPCNT", IMSRC_Font);
-	colon = W_ImageLookup("WICOLON", IMSRC_Font);
+	wiminus = W_ImageLookup("WIMINUS"); //!!! FIXME: use the style!
+	percent = W_ImageLookup("WIPCNT");
+	colon = W_ImageLookup("WICOLON");
 
 	finished = W_ImageLookup("WIF");
 	entering = W_ImageLookup("WIENTER");
@@ -1327,7 +1327,7 @@ static void LoadData(void)
 	{
 		// numbers 0-9
 		name.Format("WINUM%d", i);
-		digits[i] = W_ImageLookup(name, IMSRC_Font);
+		digits[i] = W_ImageLookup(name);
 	}
 
 	for (i = 0; i < worldint.numanims; i++)
