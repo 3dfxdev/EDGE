@@ -826,7 +826,7 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 //
 readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status)
 {
-	int len;
+	//int len;
 
 	// -ACB- 1998/08/11 Used for detecting formatting in a string
 	static bool formatchar = false;

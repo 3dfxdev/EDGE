@@ -92,7 +92,7 @@ const commandlist_t thing_commands[] =
 	// sub-commands
 	DDF_SUB_LIST("HALO",   halo,   halo_commands,   buffer_halo),
 	DDF_SUB_LIST("DLIGHT", dlight, dlight_commands, buffer_dlight),
-	DDF_SUB_LIST("EXPLODE DAMAGE", damage, damage_commands, buffer_damage),
+	DDF_SUB_LIST("EXPLODE DAMAGE", explode_damage, damage_commands, buffer_damage),
 	DDF_SUB_LIST("CHOKE DAMAGE", choke_damage, damage_commands, buffer_damage),
 
 	DF("SPAWNHEALTH", spawnhealth, DDF_MainGetFloat),
@@ -167,11 +167,12 @@ const commandlist_t thing_commands[] =
 	DF("SHADOW TRANSLUCENCY", shadow_trans, DDF_MainGetPercent),
 	DF("LUNG CAPACITY", lung_capacity, DDF_MainGetTime),
 	DF("GASP START", gasp_start, DDF_MainGetTime),
+	DF("EXPLODE RADIUS", explode_radius, DDF_MainGetFloat),
 
 	// -AJA- backwards compatibility cruft...
-	DF("!EXPLOD DAMAGE", damage.nominal, DDF_MainGetFloat),
-	DF("!EXPLOSION DAMAGE", damage.nominal, DDF_MainGetFloat),
-	DF("!EXPLOD DAMAGERANGE", damage.nominal, DDF_MainGetFloat),
+	DF("!EXPLOD DAMAGE", explode_damage.nominal, DDF_MainGetFloat),
+	DF("!EXPLOSION DAMAGE", explode_damage.nominal, DDF_MainGetFloat),
+	DF("!EXPLOD DAMAGERANGE", explode_damage.nominal, DDF_MainGetFloat),
 	DF("!EXPLOD DAMAGEMULTI", ddf, DDF_DummyFunction),
 	DF("!GIB", ddf, DDF_DummyFunction),
 
@@ -583,9 +584,16 @@ static void ThingFinishEntry(void)
 	}
 
 	// check DAMAGE stuff
-	if (buffer_mobj.damage.nominal < 0)
+	if (buffer_mobj.explode_damage.nominal < 0)
 	{
-		DDF_WarnError2(0x128, "Bad DAMAGE.VAL value %f in DDF.\n", buffer_mobj.damage.nominal);
+		DDF_WarnError2(0x128, "Bad EXPLODE_DAMAGE.VAL value %f in DDF.\n",
+			buffer_mobj.explode_damage.nominal);
+	}
+
+	if (buffer_mobj.explode_radius < 0)
+	{
+		DDF_Error("Bad EXPLODE_RADIUS value %f in DDF.\n",
+			buffer_mobj.explode_radius);
 	}
 
 	if (buffer_mobj.choke_damage.nominal < 0)
@@ -1673,7 +1681,8 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
     extendedflags = src.extendedflags; 
     hyperflags = src.hyperflags; 
 
-	damage = src.damage;	
+	explode_damage = src.explode_damage;	
+	explode_radius = src.explode_radius;
 
 	lose_benefits = src.lose_benefits; 
 	pickup_benefits = src.pickup_benefits; 
@@ -1789,7 +1798,8 @@ void mobjtype_c::Default()
     extendedflags = 0;
 	hyperflags = 0;
 
-	damage.Default(damage_c::DEFAULT_Mobj);
+	explode_damage.Default(damage_c::DEFAULT_Mobj);
+	explode_radius = 0;
 
 	lose_benefits = NULL;
 	pickup_benefits = NULL;
