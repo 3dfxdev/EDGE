@@ -3,7 +3,6 @@
 #
 # (Note: requires GNU make)
 #
-# Note 2: Only tested under a Fink enviroment (see http://fink.sf.net)
 
 # --- variables that can be overridden ---
 
@@ -74,6 +73,13 @@ ASM_Y_DIR=i386
 ASM_Y_FLAGS=-DASM_NEED_UNDERSCORES
 ASM_Y_OBJS=$(ASM_I386_OBJS)
 
+# HUM_OBJS=
+# HUM_FLAGS=
+# HUM_LIBS=
+HUM_OBJS=$(AL_DIR)/humdinger.o
+HUM_FLAGS=-I./humidity-0.50 -DUSE_HUMID
+HUM_LIBS=./humidity-0.50/libhumidity.a  # -lpthread
+
 # --- putting it all together ---
 
 PROGNAME=$(V_$(VIDEO)_NAME)
@@ -102,88 +108,148 @@ LIBS=-lm  \
 
 # ----- OBJECTS --------------------------------------------------------
 
-OBJS=$(SYSTEM_OBJS) $(SDL_OBJS) $(ASM_$(ASSEM)_OBJS)  \
-     $(V_$(VIDEO)_OBJS) $(S_$(SOUND)_OBJS) $(COMMON_OBJS)
-
-##   $(PNG_OBJS) $(JPEG_OBJS)
-
 SDL_OBJS= \
-		$(SDL_DIR)/i_ctrl.o  \
-        $(SDL_DIR)/i_cd.o    $(SDL_DIR)/i_net.o
+		$(SDL_DIR)/i_ctrl.o \
+        $(SDL_DIR)/i_cd.o \
+		$(SDL_DIR)/i_net.o
  
 SYSTEM_OBJS= \
-        $(LX_DIR)/i_main.o   $(LX_DIR)/i_music.o  \
-        $(LX_DIR)/i_compen.o $(LX_DIR)/i_system.o
+        $(LX_DIR)/i_main.o \
+		$(LX_DIR)/i_music.o \
+        $(LX_DIR)/i_compen.o \
+		$(LX_DIR)/i_system.o
 
 COMMON_OBJS= \
-        am_map.o con_main.o   \
-        con_cvar.o con_con.o  \
-        ddf_anim.o ddf_atk.o  \
-        ddf_boom.o ddf_colm.o \
-        ddf_game.o ddf_lang.o \
-        ddf_levl.o ddf_line.o \
-        ddf_main.o ddf_mobj.o \
-        ddf_mus.o  ddf_stat.o \
-        ddf_sect.o ddf_sfx.o  \
-        ddf_swth.o ddf_weap.o \
-		ddf_font.o ddf_style.o \
+        am_map.o \
+		con_con.o \
+        con_cvar.o \
+		con_main.o \
+        ddf_anim.o \
+		ddf_atk.o \
+        ddf_boom.o \
+		ddf_colm.o \
+		ddf_font.o \
+        ddf_game.o \
 		ddf_image.o \
-        dm_defs.o  dm_state.o \
-		dem_chunk.o dem_glob.o \
-        e_main.o   e_player.o \
-		e_input.o  e_demo.o  \
-        f_finale.o g_game.o   \
-        gui_main.o gui_ctls.o \
-        hu_lib.o hu_stuff.o   \
-		hu_font.o  hu_style.o \
+		ddf_lang.o \
+        ddf_levl.o \
+		ddf_line.o \
+        ddf_main.o \
+		ddf_mobj.o \
+        ddf_mus.o \
+        ddf_sect.o \
+		ddf_sfx.o \
+		ddf_stat.o \
+		ddf_style.o \
+        ddf_swth.o \
+		ddf_weap.o \
+		dem_chunk.o \
+		dem_glob.o \
+        dm_defs.o \
+		dm_state.o \
+		e_demo.o \
+		e_input.o \
+        e_main.o \
+		e_player.o \
+        f_finale.o \
+		g_game.o \
+		gui_ctls.o \
+        gui_main.o \
+		hu_font.o \
+        hu_lib.o \
+		hu_stuff.o \
+		hu_style.o \
+		l_deh.o \
+        l_glbsp.o \
         lu_gamma.o \
-        l_glbsp.o  l_deh.o  \
-        m_argv.o   m_random.o \
-        m_bbox.o m_cheat.o    \
-        m_menu.o    \
-        m_misc.o m_option.o   \
+        m_argv.o \
+        m_bbox.o \
+		m_cheat.o \
         m_math.o \
-        p_action.o p_enemy.o \
-        p_inter.o p_lights.o \
-        p_map.o   p_maputl.o \
-        p_bot.o   p_mobj.o   \
-        p_plane.o p_weapon.o \
-        p_setup.o p_sight.o  \
-        p_spec.o p_switch.o  \
-        p_tick.o p_user.o    \
-        r_bsp.o r_data.o     \
-        r_main.o r_layers.o  \
-        r_sky.o  r_things.o  \
-        r_view.o r_vbinit.o  \
-        r2_util.o  \
-        rgl_bsp.o rgl_main.o \
-		rgl_thing.o \
-        rgl_sky.o rgl_unit.o \
-        rgl_wipe.o rgl_tex.o \
-		rgl_fx.o rgl_occ.o \
-        rad_act.o rad_pars.o  \
-        rad_trig.o sv_chunk.o \
-        sv_dump.o  sv_glob.o  \
-        sv_main.o  sv_mobj.o  \
-        sv_load.o  sv_save.o  \
-        sv_level.o sv_misc.o  \
-        sv_play.o  \
-        s_sound.o s_music.o   \
-        st_lib.o  st_stuff.o  \
-        v_res.o v_colour.o    \
-        w_image.o  \
-        w_wad.o wi_stuff.o    \
-        wp_wipe.o   \
-        w_textur.o z_zone.o
-
+        m_menu.o \
+        m_misc.o \
+		m_option.o \
+		m_random.o \
+		n_network.o \
+		n_packet.o \
+		n_proto.o \
+        p_action.o \
+        p_bot.o \
+		p_enemy.o \
+        p_inter.o \
+		p_lights.o \
+        p_map.o \
+		p_maputl.o \
+		p_mobj.o \
+        p_plane.o \
+        p_setup.o \
+		p_sight.o \
+        p_spec.o \
+		p_switch.o \
+        p_tick.o \
+		p_user.o \
+		p_weapon.o \
+        r2_util.o \
+        rad_act.o \
+		rad_pars.o \
+        rad_trig.o \
+        r_bsp.o \
+		r_data.o \
+        rgl_bsp.o \
+        rgl_fx.o \
+		rgl_main.o \
+		rgl_occ.o \
+        rgl_sky.o \
+		rgl_tex.o \
+        rgl_thing.o \
+		rgl_unit.o \
+        rgl_wipe.o \
+		r_layers.o \
+        r_main.o \
+        r_sky.o \
+		r_things.o \
+		r_vbinit.o \
+        r_view.o \
+		s_music.o \
+        s_sound.o \
+        st_lib.o \
+		st_stuff.o \
+		sv_chunk.o \
+        sv_dump.o \
+		sv_glob.o \
+        sv_level.o \
+        sv_load.o \
+        sv_main.o \
+		sv_misc.o \
+		sv_mobj.o \
+        sv_play.o \
+		sv_save.o \
+		v_colour.o \
+        v_res.o \
+        w_image.o \
+		wi_stuff.o \
+        wp_wipe.o \
+        w_textur.o \
+        w_wad.o \
+		z_zone.o
 
 ASM_NULL_OBJS= \
         noasm/i_asm.o 
 
 ASM_I386_OBJS= \
-        i386/i_asm.o    i386/i_cpu.o    \
-        i386/r_column.o i386/r_resize.o \
+        i386/i_asm.o \
+		i386/i_cpu.o \
+        i386/r_column.o \
+		i386/r_resize.o \
         i386/r_span.o
+
+OBJS=$(SYSTEM_OBJS) \
+     $(SDL_OBJS) \
+	 $(ASM_$(ASSEM)_OBJS) \
+     $(V_$(VIDEO)_OBJS) \
+	 $(S_$(SOUND)_OBJS) \
+	 $(HUM_OBJS) \
+	 $(COMMON_OBJS)
 
 # ----- RULES --------------------------------------------------------
 
@@ -192,9 +258,9 @@ ASM_I386_OBJS= \
 
 # ----- TARGETS ------------------------------------------------------
 
-EDGELIBS = epi glbsp dehedge lzo
+SUBDIRS = epi glbsp dehedge lzo
 
-all: $(EDGELIBS) $(PROGNAME)
+all: $(SUBDIRS) $(PROGNAME)
 
 clean:
 	rm -f $(PROGNAME) core *.o $(AL_DIR)/*.o \
@@ -210,49 +276,8 @@ glbsp:
 dehedge:
 	$(MAKE) -C $(DEH_DIR) -f Plugin_osx.mak
 
-renderclean:
-	rm -f $(PROGNAME) r*.o
-
 $(PROGNAME): $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $(PROGNAME) $(LIBS)
 
-.PHONY: all clean $(EDGELIBS) renderclean
+.PHONY: all clean $(SUBDIRS)
 
-# ----- RELEASES --------------------------------------------
-
-BIN_FILES=djgpp/edge.* win32/[eE]dge.*
-
-SRC_FILES=*.[ch] djgpp/*.[ch] djgpp/*.bat win32/*.[ch] win32/*.bat  \
-          win32/Debug win32/Release win32/*.bcc win32/edge32.r*  \
-          linux/*.[ch]  linux/Makefile linux/README null/*.[ch]  \
-          noasm/*.[ch] i386/*.[ch]  djgpp/Makefile  README  \
-          i386/*.asm contrib/* docs/* log/*  \
-          djgpp/obj djgpp/obj/i386 win32/obj  \
-          lzo/COPYING lzo/README* lzo/*.[ch]
-
-tar:
-	cd ../..; make -f edge/linux/Makefile do_good_tarball
-
-zip:
-	cd ..; make -f linux/Makefile do_zipball
-
-do_tarball:
-	rm -f /tmp/edge.zip
-	-zip -0 /tmp/edge.zip $(BIN_FILES)
-	zip -0 -l /tmp/edge.zip $(SRC_FILES)
-	mkdir /tmp/edge_temp
-	cd /tmp/edge_temp; unzip /tmp/edge.zip
-	cd /tmp/edge_temp; tar cf /tmp/edge.tar .
-	bzip2 /tmp/edge.tar
-
-do_good_tarball:
-	rm -f /tmp/edge.tgz
-	tar czf /tmp/edge.tgz  \
-        $(patsubst %,edge/%,$(BIN_FILES) $(SRC_FILES))
-
-do_zipball:
-	rm -f /tmp/edge.zip
-	-zip /tmp/edge.zip $(BIN_FILES)
-	zip -l /tmp/edge.zip $(SRC_FILES)
-
-.PHONY: tarball do_tarball do_good_tarball zipball do_zipball
