@@ -5,16 +5,13 @@ MPSERVER TODO
 NETWORKING
 ----------
 
-* FIX TICCMD HANDLING !!
++ implement PK_tic_retransmit.
 
-- ticcmd_proto: multiple from one client (BACKUPTICS).
-- bot support: client sends ticcmd_proto for bots, ETC.
++ send our own retransmit requests. 
 
 - validate packet lengths and contents.
 
 - send acknowledgements.  Also do logging/error packets.
-
-- ticcmd retransmit packet ("tr"), flag for "tc"/"Tg" replies.
 
 - debugging support: Dump packets.
 
