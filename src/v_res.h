@@ -35,25 +35,12 @@
 #include "v_screen.h"
 #include "v_video1.h"
 
-typedef enum
-{
-  VID_DEPTH_8 = 0x01,
-  VID_DEPTH_16 = 0x02,
-  VID_DEPTH_24 = 0x04
-}
-viddepth_t;
-
-typedef struct screenmode_s
-{
-  int width;
-  int height;
-  byte depthbit;
-}
-screenmode_t;
-
 boolean_t V_MultiResInit(void);
 void V_InitResolution(void);
-void V_AddAvailableResolution(int width, int height, int depth);
+void V_AddAvailableResolution(screenmode_t *mode);
+int V_FindClosestResolution(screenmode_t *mode,
+    boolean_t samesize, boolean_t samedepth);
+int V_CompareModes(screenmode_t *A, screenmode_t *B);
 
 //
 //start with v_video.h
@@ -86,6 +73,7 @@ extern void (*V_TextureBackScreen) (screen_t * scr, const char *flatname, int le
 extern void (*V_DrawPixel) (screen_t * scr, int x, int y, int c);
 extern void (*V_DrawLine) (screen_t * scr, int x1, int y1, int x2, int y2, int c);
 extern void (*V_DrawBox) (screen_t * scr, int x, int y, int w, int h, int c);
+extern void (*V_DrawBoxAlpha) (screen_t * scr, int x, int y, int w, int h, int c, fixed_t alpha);
 extern void (*V_DrawPatchClip) (screen_t * scr, int x, int y, int left, int top, int right, int bottom, boolean_t flip, const patch_t * patch);
 
 

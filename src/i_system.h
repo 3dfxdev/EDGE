@@ -93,6 +93,10 @@ void I_TraceBack(void);
 // "-traceback" option, and when present call this routine instead of
 // I_CloseProgram() whenever a fatal error occurs.
 
+boolean_t I_Access(const char *filename);
+// Returns true if the given file or directory exists.  For files it
+// should check if it readable.
+
 char *I_PreparePath(const char *path);
 // Prepares the end of the path name, so it will be possible to
 // concatenate a DIRSEPARATOR and a file name to it.  Allocates and
@@ -392,6 +396,16 @@ typedef struct truecol_info_s
 }
 truecol_info_t;
 
+// Screen mode information.
+typedef struct screenmode_s
+{
+  int width;
+  int height;
+  int depth;
+  boolean_t windowed;
+}
+screenmode_t;
+
 void I_StartupGraphics(void);
 // Initialises the graphics system.  This should be called by
 // I_SystemStartup(), the main code never calls this function
@@ -428,11 +442,11 @@ long I_Colour2Pixel(byte palette[256][3], int col);
 void I_GetTruecolInfo(truecol_info_t *info);
 // Returns the truecolor information for the current mode.
 
-boolean_t I_SetScreenSize(int width, int height, int bpp);
+boolean_t I_SetScreenSize(screenmode_t *mode);
 // Tries to set the video card to the given mode (or open a window).
 // If there already was a valid mode (or open window), this call
 // should replace it.  The previous contents (including the palette)
-// is assumed to be lost.  The global variable SCREENDEPTH must be set
+// is assumed to be lost.  The global variable SCREENPITCH must be set
 // to a valid value (typically by calling the V_GetDepth() routine).
 //
 // This routine must also initialise a screen_t structure (typically
@@ -441,8 +455,8 @@ boolean_t I_SetScreenSize(int width, int height, int bpp);
 //
 // Returns true if successful, otherwise false.  The platform is free
 // to select a working mode if the given mode was not possible, in
-// which case the values of the global variables BPP, SCREENWIDTH,
-// SCREENHEIGHT and SCREENDEPTH must be updated.
+// which case the values of the global variables SCREENWIDTH,
+// SCREENHEIGHT, SCREENPITCH and SCREENBITS must be updated.
 
 void I_ShutdownGraphics(void);
 // Shuts down the graphics system.  This is the companion function to
