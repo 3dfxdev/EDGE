@@ -84,5 +84,6 @@ void G_BuildTiccmd(ticcmd_t *cmd);
 void G_ScreenShot(void);
 
 boolean_t G_CheckWhenAppear(when_appear_e appear);
+boolean_t G_CheckConditions(mobj_t *mo, condition_check_t *cond);
 
 #endif
