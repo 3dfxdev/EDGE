@@ -194,7 +194,8 @@ bool M_CheatResponder(event_t * ev)
 	key = (char) ev->value.key;
 
 	// no cheating in netgames or if disallowed in levels.ddf
-#if 0 //!!!!!!
+
+#if 0 //!!!! TEMP DISABLED, NETWORK DEBUGGING
 	if (netgame || !level_flags.cheats)
 		return false;
 #endif

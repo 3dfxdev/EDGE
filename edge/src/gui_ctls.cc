@@ -260,8 +260,6 @@ gui_t *GUI_DRAGStart(gui_t ** g, gui_t * parent, int id)
 
 void GUI_WriteText(int x, int y, char *string)
 {
-	//!!!!! IGNORES `scr' -- will fix for layer system
-
 	///!!! HL_WriteText(x, y, string);
 }
 
