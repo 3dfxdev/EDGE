@@ -548,5 +548,4 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 #endif
 }
 
-
 #endif  // USE_GL
