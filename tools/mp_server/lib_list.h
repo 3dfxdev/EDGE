@@ -62,7 +62,7 @@ public:
 	list_c(const list_c& other) : head(other.head), tail(other.tail) { }
 	~list_c() { }
 
-	// FIXME: this may f**k things up (two lists sharing the nodes)
+	// NOTE WELL: this can mess things up (two lists sharing the nodes)
 	inline list_c& operator= (const list_c& rhs)
 	{
 		if (this != &rhs)
