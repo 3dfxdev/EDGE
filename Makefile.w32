@@ -58,14 +58,14 @@ CXXFLAGS=$(CXXINCS) $(INCS) $(OPTIM) \
 LIBS= \
 	-L$(DX_DIR)/lib \
 	-mwindows \
-	$(AL_DIR)/lib/libopenal32.a \
+	$(AL_DIR)/libs/OpenAL32.lib \
 	$(DEH_DIR)/libdehedge.a \
 	$(EPI_DIR)/libepi.a \
 	$(GLBSP_DIR)/libglbsp.a \
 	$(LZO_DIR)/liblzo.a \
-	$(OGG_DIR)/lib/ogg.lib \
-	$(OGG_DIR)/lib/vorbis.lib \
 	$(OGG_DIR)/lib/vorbisfile.lib \
+	$(OGG_DIR)/lib/vorbis.lib \
+	$(OGG_DIR)/lib/ogg.lib \
 	$(JPEG_DIR)/lib/libjpeg.a \
 	$(PNG_DIR)/lib/libpng13.a \
 	$(ZLIB_DIR)/lib/libz.a \
