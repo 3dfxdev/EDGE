@@ -2392,6 +2392,7 @@ static bool PIT_CorpseCheck(mobj_t * thing)
 	float maxdist;
 	float oldradius;
 	float oldheight;
+	int oldflags;
 	bool check;
 
 	if (!(thing->flags & MF_CORPSE))
@@ -2408,7 +2409,7 @@ static bool PIT_CorpseCheck(mobj_t * thing)
 		return true;
 
 	// -ACB- 1998/08/06 Use raiserobj for radius info
-	maxdist = thing->info->radius + raiserobj->info->radius;
+	maxdist = thing->info->radius + raiserobj->radius;
 
 	if (fabs(thing->x - raisertryx)>maxdist || fabs(thing->y - raisertryy) > maxdist)
 		return true;  // not actually touching
@@ -2421,26 +2422,30 @@ static bool PIT_CorpseCheck(mobj_t * thing)
 	if (thing->player && (raiserobj->info->side & thing->info->side) == 0)
 		return true;
 
-	corpsehit = thing;
-	corpsehit->mom.x = corpsehit->mom.y = 0;
-
-	oldradius = corpsehit->radius;
-	oldheight = corpsehit->height;
+	oldradius = thing->radius;
+	oldheight = thing->height;
+	oldflags = thing->flags;
 
 	// -ACB- 1998/08/22 Check making sure with have the correct radius & height.
-	corpsehit->radius = corpsehit->info->radius;
-	corpsehit->height = corpsehit->info->height;
+	thing->radius = thing->info->radius;
+	thing->height = thing->info->height;
+	
+	if (thing->info->flags & MF_SOLID)					// Should it be solid?
+		thing->flags |= MF_SOLID;
 
-	check = P_CheckAbsPosition(corpsehit, corpsehit->x, corpsehit->y, corpsehit->z);
+	check = P_CheckAbsPosition(thing, thing->x, thing->y, thing->z);
 
 	// -ACB- 1998/08/22 Restore radius & height: we are only checking.
-	corpsehit->radius = oldradius;
-	corpsehit->height = oldheight;
+	thing->radius = oldradius;
+	thing->height = oldheight;
+	thing->flags = oldflags;
 
+	// got one, so stop checking
 	if (!check)
 		return true;  // doesn't fit here
 
-	// got one, so stop checking
+	corpsehit = thing;
+	corpsehit->mom.x = corpsehit->mom.y = 0;
 	return false;
 }
 
