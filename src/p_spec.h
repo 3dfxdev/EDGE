@@ -226,7 +226,7 @@ void P_UpdateSpecials(void);
 boolean_t P_UseSpecialLine(mobj_t * thing, line_t * line, int side,
     float_t open_bottom, float_t open_top);
 boolean_t P_CrossSpecialLine(line_t *ld, int side, mobj_t * thing);
-void P_ShootSpecialLine(mobj_t * thing, line_t * line);
+void P_ShootSpecialLine(line_t *ld, int side, mobj_t * thing);
 void P_RemoteActivation(mobj_t * thing, int typenum, int tag, 
     int side, trigger_e method);
 void P_PlayerInSpecialSector(player_t * player, sector_t *sec);

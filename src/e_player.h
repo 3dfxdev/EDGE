@@ -224,6 +224,10 @@ typedef struct player_s
   // -ACB- 1998/08/09
   int jumpwait;
 
+  // breathing support.  In air-less sectors, this is decremented on
+  // each tic.  If it reaches zero, player drowns.
+  int air_in_lungs;
+   
   // how many tics to grin :-)
   int grin_count;
 
