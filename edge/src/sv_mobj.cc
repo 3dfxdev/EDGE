@@ -98,6 +98,7 @@ static savefield_t sv_fields_mobj[] =
 	SF(tics, "tics", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(flags, "flags", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(extendedflags, "extendedflags", 1, SVT_INT, SR_GetInt, SR_PutInt),
+	SF(hyperflags, "hyperflags", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(movedir, "movedir", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(movecount, "movecount", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(reactiontime, "reactiontime", 1, SVT_INT, SR_GetInt, SR_PutInt),

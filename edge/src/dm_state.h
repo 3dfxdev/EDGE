@@ -48,13 +48,6 @@ extern bool redrawsbar;
 extern gameflags_t level_flags;
 extern gameflags_t global_flags;
 
-// -----------------------------------------------------
-// Game Mode - identify IWAD as shareware, retail etc.
-//
-
-// Set if homebrew PWAD stuff has been added.
-extern bool modifiedgame;
-
 // -------------------------------------------
 // Selected skill type, map etc.
 //

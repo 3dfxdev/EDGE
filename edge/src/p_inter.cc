@@ -60,7 +60,6 @@ static bool GiveAmmo(player_t * player, mobj_t * special,
 	int ammo  = be->subtype;  
 	int num   = (int)(be->amount + 0.5f) / (dropped ? 2 : 1);
 
-	bool change_weap;
 	int priority = -100;
 
 	if (ammo == AM_NoAmmo || num <= 0)
@@ -88,7 +87,7 @@ static bool GiveAmmo(player_t * player, mobj_t * special,
 	}
 
 	// if there was some old ammo, we don't need to change weapons 
-	change_weap = (player->ammo[ammo].num == 0);
+	bool change_weap = (player->ammo[ammo].num == 0);
 
 	player->ammo[ammo].num += num;
 
@@ -321,8 +320,6 @@ static bool GiveKey(player_t * player, mobj_t * special, benefit_t *be, bool los
 static bool GivePower(player_t * player, mobj_t * special,
 					  benefit_t *be, bool lose_em)
 { 
-	int i;
-
 	// -ACB- 1998/06/20 - calculate duration in seconds
 	float duration = be->amount * TICRATE;
 	float limit    = be->limit  * TICRATE;
@@ -344,23 +341,6 @@ static bool GivePower(player_t * player, mobj_t * special,
 
 	if (player->powers[be->subtype] > limit)
 		player->powers[be->subtype] = limit;
-
-	// special handling for berserk...
-	if (be->subtype == PW_Berserk)
-	{
-		for (i=0; i < MAXWEAPONS; i++)
-		{
-			playerweapon_t *pw = &player->weapons[i];
-
-			if (pw->owned && DDF_CompareName(pw->info->ddf.name, "FIST") == 0)
-			{
-				if (player->ready_wp != i)
-					player->pending_wp = (weapon_selection_e)i;
-
-				break;
-			}
-		}
-	}
 
 	// special handling for scuba...
 	if (be->subtype == PW_Scuba)
@@ -427,37 +407,31 @@ bool P_GiveBenefitList(player_t *player, mobj_t * special,
 			case BENEFIT_Ammo:
 				if (list->amount >= 0.0)
 					pickup |= GiveAmmo(player, special, list, lose_em);
-				
 				break;
 
 			case BENEFIT_AmmoLimit:
 				if (list->amount >= 0.0)
 					pickup |= GiveAmmoLimit(player, special, list, lose_em);
-
 				break;
 
 			case BENEFIT_Weapon:
 				if (list->amount >= 0.0)
 					pickup |= GiveWeapon(player, special, list, lose_em);
-
 				break;
 
 			case BENEFIT_Key:
 				if (list->amount >= 0.0)
 					pickup |= GiveKey(player, special, list, lose_em);
-
 				break;
 
 			case BENEFIT_Health:
 				if (list->amount >= 0.0)
 					pickup |= GiveHealth(player, special, list, lose_em);
-
 				break;
 
 			case BENEFIT_Armour:
 				if (list->amount >= 0.0)
 					pickup |= GiveArmour(player, special, list, lose_em);
-
 				break;
 
 			case BENEFIT_Powerup:
@@ -469,10 +443,34 @@ bool P_GiveBenefitList(player_t *player, mobj_t * special,
 		}
 	}
 
-	if (dm_weapon)
-		pickup = false;
+	return dm_weapon ? false : pickup;
+}
 
-	return pickup;
+//
+// RunPickupEffects
+//
+static void RunPickupEffects(player_t *player, mobj_t *special, 
+		benefit_effect_c *list)
+{
+	for (; list; list=list->next)
+	{
+		switch (list->type)
+		{
+			case BNFX_SwitchWeapon:
+				P_PlayerSwitchWeapon(player, weapondefs[list->subtype]);
+				break;
+
+			case BNFX_PowerupEffect:
+				// FIXME
+				break;
+
+			case BNFX_ScreenEffect:
+				// FIXME
+				break;
+			
+			default: break;
+		}
+	}
 }
 
 
@@ -509,6 +507,9 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 	sound = special->info->activesound;
 	toucher->flags |= MF_JUSTPICKEDUP;
 
+	if (special->hyperflags & HF_FORCEPICKUP)
+		pickup |= true;
+
 	// First check for lost benefits
 	pickup |= P_GiveBenefitList(player, special, 
 		special->info->lose_benefits, true);
@@ -542,6 +543,8 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 
 		if (sound)
 			S_StartSound(player->mo, sound);
+
+		RunPickupEffects(player, special, special->info->pickup_effects);
 	}
 }
 

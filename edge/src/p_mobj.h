@@ -320,6 +320,13 @@ typedef enum
 }
 mobjextendedflag_t;
 
+typedef enum
+{
+	// -AJA- 2004/08/25: always pick up this item
+	HF_FORCEPICKUP = 1
+}
+mobjhyperflag_t;
+
 // Directions
 typedef enum
 {
@@ -445,6 +452,7 @@ struct mobj_s
 	// flags (Old and New)
 	int flags;
 	int extendedflags;
+	int hyperflags;
 
 	// Movement direction, movement generation (zig-zagging).
 	dirtype_e movedir;  // 0-7

@@ -469,6 +469,35 @@ void P_ConsolePlayerThinker(const player_t *p, void *data, ticcmd_t *dest)
 	G_BuildTiccmd(dest);
 }
 
+bool P_PlayerSwitchWeapon(player_t *player, weapondef_c *choice)
+{
+	int pw_index;
+
+	// see if player owns this kind of weapon
+	for (pw_index=0; pw_index < MAXWEAPONS; pw_index++)
+	{
+		if (! player->weapons[pw_index].owned)
+			continue;
+
+		if (player->weapons[pw_index].info == choice)
+			break;
+	}
+
+	if (pw_index == MAXWEAPONS)
+		return false;
+
+	// ignore this choice if it the same as the current weapon
+	if (player->ready_wp >= 0 && choice ==
+		player->weapons[player->ready_wp].info)
+	{
+		return false;
+	}
+
+	player->pending_wp = (weapon_selection_e) pw_index;
+
+	return true;
+}
+
 //
 // P_PlayerThink
 //
@@ -561,32 +590,10 @@ void P_PlayerThink(player_t * player)
 		for (i=j=player->key_choices[key]; i < (j + wk->numchoices); i++)
 		{
 			weapondef_c *choice = wk->choices[i % wk->numchoices];
-			int pw_index;
 
-			// see if player owns this kind of weapon
-			for (pw_index=0; pw_index < MAXWEAPONS; pw_index++)
-			{
-				if (! player->weapons[pw_index].owned)
-					continue;
-
-				if (player->weapons[pw_index].info == choice)
-					break;
-			}
-
-			if (pw_index == MAXWEAPONS)
+			if (! P_PlayerSwitchWeapon(player, choice))
 				continue;
 
-			// ignore this choice if it the same as the current weapon
-			if (player->ready_wp >= 0 && choice ==
-				player->weapons[player->ready_wp].info)
-			{
-				continue;
-			}
-
-			if (! P_CheckWeaponSprite(choice))
-				continue;
-
-			player->pending_wp = (weapon_selection_e) pw_index;
 			player->key_choices[key] = i % wk->numchoices;
 			break;
 		}
@@ -826,6 +833,10 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 	int i;
 	int slot = -1;
 	int rep_slot = -1;
+
+	// cannot own weapons if sprites are missing
+	if (! P_CheckWeaponSprite(info))
+		return false;
 
 	for (i=0; i < MAXWEAPONS; i++)
 	{
