@@ -559,7 +559,7 @@ void I_MessageBox(const char *message, const char *title, int mode)
 {
 #ifdef USE_FLTK
 	Fl::scheme(NULL);
-	fl_message_font(FL_HELVETICA_BOLD, 18);	
+	fl_message_font(FL_HELVETICA /*_BOLD*/, 18);	
 	fl_message("%s", message);
 #else // USE_FLTK
 	fprintf(stderr, "%s", message);
