@@ -907,7 +907,7 @@ void G_Ticker(void)
 			G_DoLoadLevel();
 			break;
 		case ga_screenshot:
-			M_ScreenShot();
+			m_screenshot_required = true;
 			gameaction = ga_nothing;
 			break;
 		case ga_nothing:

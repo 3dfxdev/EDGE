@@ -31,6 +31,7 @@
 extern bool redrawsbar;
 extern bool advancedemo;
 extern bool e_display_OK;
+extern bool m_screenshot_required;
 extern bool need_save_screenshot;
 
 void E_AddFile(const char *file);
