@@ -1,0 +1,271 @@
+#
+# Makefile for EDGE/MacOSX
+#
+# (Note: requires GNU make)
+#
+# Note 2: Only tested under a Fink enviroment (see http://fink.sf.net)
+
+# --- variables that can be overridden ---
+
+# compiler
+CC=g++
+
+# assembler (for the .asm files)
+AS=nasm -f elf
+
+# optimisation
+#OPTIM=-O3
+#OPTIM=-O -g
+OPTIM=-g3
+
+# Video options: SDL SDLGL
+# No longer supported: X GGI GLUT
+VIDEO=SDLGL
+
+# Sound options: SDL
+# Note: SDL sound requires SDL video
+# No longer supported: OSS
+SOUND=SDL
+
+# Assembly options: N Y
+ASSEM=N
+
+DEBUG=1
+#PROFILE=1
+#RELEASE=1
+
+# --- internal stuff from here on ---
+
+LX_DIR=linux
+MAIN_DIR=.
+EPI_DIR=$(MAIN_DIR)/epi
+LZO_DIR=$(MAIN_DIR)/lzo
+XING_DIR=$(MAIN_DIR)/xingmp3
+GLBSP_DIR=$(MAIN_DIR)/glbsp-2.05
+JPEG_DIR=$(MAIN_DIR)/libjpeg
+PNG_DIR=$(MAIN_DIR)/libpng
+
+V_SDL_NAME=edge
+V_SDL_FLAGS=$(shell sdl-config --cflags)
+V_SDL_LDFLAGS=-L/usr/X11R6/lib
+V_SDL_OBJS=$(LX_DIR)/iv_sdl.o
+V_SDL_LIBS=$(shell sdl-config --libs)
+
+V_SDLGL_NAME=gledge
+V_SDLGL_FLAGS=$(shell sdl-config --cflags) -DUSE_GL
+V_SDLGL_LDFLAGS=-L/usr/X11R6/lib
+V_SDLGL_OBJS=$(LX_DIR)/iv_sdl.o
+V_SDLGL_LIBS=$(shell sdl-config --libs) -lGL
+
+V_X_NAME=lxedge
+V_X_FLAGS=
+V_X_LDFLAGS=-L/usr/X11R6/lib
+V_X_OBJS=$(LX_DIR)/iv_x.o
+V_X_LIBS=-lX11 -lXext
+
+V_GGI_NAME=ggiedge
+V_GGI_FLAGS=
+V_GGI_LDFLAGS=
+V_GGI_OBJS=$(LX_DIR)/iv_ggi.o
+V_GGI_LIBS=-lggi -lggiwmh
+
+V_GLUT_NAME=glutedge
+V_GLUT_FLAGS=-DUSE_GL -DUSE_GLUT
+V_GLUT_LDFLAGS=-L/usr/X11R6/lib
+V_GLUT_OBJS=$(LX_DIR)/iv_gl.o
+V_GLUT_LIBS=-lGL -lGLU -lglut  -lX11 -lXext -lXmu -lXt -lXi -lSM -lICE
+
+S_SDL_FLAGS=
+S_SDL_LDFLAGS=
+S_SDL_OBJS=$(LX_DIR)/is_sdl.o
+S_SDL_LIBS=
+
+S_OSS_FLAGS=
+S_OSS_LDFLAGS=
+S_OSS_OBJS=$(LX_DIR)/is_oss.o
+S_OSS_LIBS=
+
+ASM_N_DIR=$(MAIN_DIR)/noasm
+ASM_N_FLAGS=
+ASM_N_OBJS=$(ASM_NULL_OBJS)
+
+ASM_Y_DIR=$(MAIN_DIR)/i386
+ASM_Y_FLAGS=-DASM_NEED_UNDERSCORES
+ASM_Y_OBJS=$(ASM_I386_OBJS)
+
+# --- putting it all together ---
+
+PROGNAME=$(V_$(VIDEO)_NAME)
+
+ASM_DIR=$(ASM_$(ASSEM)_DIR)
+
+CPPFLAGS=-I$(LX_DIR) -I$(MAIN_DIR)
+
+CFLAGS=-Wall $(OPTIM) -DMACOSX -DDEVELOPERS  -D__BIG_ENDIAN__  \
+       $(ASM_$(ASSEM)_FLAGS) $(V_$(VIDEO)_FLAGS)  \
+       $(S_$(SOUND)_FLAGS)
+
+CXXFLAGS=-Wall $(OPTIM) -DMACOSX -DDEVELOPERS  -D__BIG_ENDIAN__ \
+       $(ASM_$(ASSEM)_FLAGS) $(V_$(VIDEO)_FLAGS)  \
+       $(S_$(SOUND)_FLAGS)
+
+LDFLAGS=$(V_$(VIDEO)_LDFLAGS)  \
+        $(S_$(SOUND)_LDFLAGS)
+
+LIBS=-lm  \
+	$(EPI_DIR)/libepi.a $(LZO_DIR)/liblzo.a $(XING_DIR)/libxingmp3.a  \
+	$(GLBSP_DIR)/plugin/libglbsp.a  \
+	$(V_$(VIDEO)_LIBS) $(S_$(SOUND)_LIBS)
+
+# ----- OBJECTS --------------------------------------------------------
+
+OBJS=$(SYSTEM_OBJS) $(ASM_$(ASSEM)_OBJS)  \
+     $(V_$(VIDEO)_OBJS) $(S_$(SOUND)_OBJS) $(COMMON_OBJS)
+
+##   $(PNG_OBJS) $(JPEG_OBJS)
+
+SYSTEM_OBJS= \
+        $(LX_DIR)/i_main.o   $(LX_DIR)/i_music.o  \
+        $(LX_DIR)/i_net.o                         \
+        $(LX_DIR)/i_ctrl.o   $(LX_DIR)/i_compen.o \
+        $(LX_DIR)/i_system.o $(LX_DIR)/i_cd_osx.o \
+        $(LX_DIR)/i_mussrv.o $(LX_DIR)/i_fmpat.o
+
+COMMON_OBJS= \
+        $(MAIN_DIR)/am_map.o $(MAIN_DIR)/con_main.o   \
+        $(MAIN_DIR)/con_cvar.o $(MAIN_DIR)/con_con.o  \
+		$(MAIN_DIR)/ddf_parser.o \
+        $(MAIN_DIR)/ddf_anim.o $(MAIN_DIR)/ddf_atk.o  \
+        $(MAIN_DIR)/ddf_boom.o $(MAIN_DIR)/ddf_colm.o \
+        $(MAIN_DIR)/ddf_game.o $(MAIN_DIR)/ddf_lang.o \
+        $(MAIN_DIR)/ddf_levl.o $(MAIN_DIR)/ddf_line.o \
+        $(MAIN_DIR)/ddf_main.o $(MAIN_DIR)/ddf_mobj.o \
+        $(MAIN_DIR)/ddf_mus.o  $(MAIN_DIR)/ddf_stat.o \
+        $(MAIN_DIR)/ddf_sect.o $(MAIN_DIR)/ddf_sfx.o  \
+        $(MAIN_DIR)/ddf_swth.o $(MAIN_DIR)/ddf_weap.o \
+        $(MAIN_DIR)/dm_defs.o  $(MAIN_DIR)/dm_state.o \
+        $(MAIN_DIR)/e_main.o $(MAIN_DIR)/e_net.o      \
+        $(MAIN_DIR)/f_finale.o $(MAIN_DIR)/g_game.o   \
+        $(MAIN_DIR)/gui_main.o $(MAIN_DIR)/gui_ctls.o \
+        $(MAIN_DIR)/hu_lib.o $(MAIN_DIR)/hu_stuff.o   \
+        $(MAIN_DIR)/lu_math.o  $(MAIN_DIR)/lu_gamma.o \
+        $(MAIN_DIR)/l_mp3.o    $(MAIN_DIR)/l_glbsp.o  \
+        $(MAIN_DIR)/m_argv.o   $(MAIN_DIR)/m_random.o \
+        $(MAIN_DIR)/m_bbox.o $(MAIN_DIR)/m_cheat.o    \
+        $(MAIN_DIR)/m_fixed.o $(MAIN_DIR)/m_menu.o    \
+        $(MAIN_DIR)/m_misc.o $(MAIN_DIR)/m_option.o   \
+        $(MAIN_DIR)/m_math.o $(MAIN_DIR)/m_crc32.o    \
+        $(MAIN_DIR)/p_action.o $(MAIN_DIR)/p_enemy.o \
+        $(MAIN_DIR)/p_inter.o $(MAIN_DIR)/p_lights.o \
+        $(MAIN_DIR)/p_map.o   $(MAIN_DIR)/p_maputl.o \
+        $(MAIN_DIR)/p_bot.o   $(MAIN_DIR)/p_mobj.o   \
+        $(MAIN_DIR)/p_plane.o $(MAIN_DIR)/p_weapon.o \
+        $(MAIN_DIR)/p_setup.o $(MAIN_DIR)/p_sight.o  \
+        $(MAIN_DIR)/p_spec.o $(MAIN_DIR)/p_switch.o  \
+        $(MAIN_DIR)/p_tick.o $(MAIN_DIR)/p_user.o    \
+        $(MAIN_DIR)/r_bsp.o $(MAIN_DIR)/r_data.o     \
+        $(MAIN_DIR)/r_draw1.o $(MAIN_DIR)/r_draw2.o  \
+        $(MAIN_DIR)/r_main.o $(MAIN_DIR)/r_plane.o   \
+        $(MAIN_DIR)/r_segs.o $(MAIN_DIR)/r_layers.o  \
+        $(MAIN_DIR)/r_sky.o  $(MAIN_DIR)/r_things.o  \
+        $(MAIN_DIR)/r_view.o $(MAIN_DIR)/r_vbinit.o  \
+        $(MAIN_DIR)/r2_bsp.o $(MAIN_DIR)/r2_draw.o   \
+        $(MAIN_DIR)/r2_util.o  \
+        $(MAIN_DIR)/rgl_bsp.o $(MAIN_DIR)/rgl_main.o \
+        $(MAIN_DIR)/rgl_sky.o $(MAIN_DIR)/rgl_unit.o \
+        $(MAIN_DIR)/rgl_wipe.o \
+        $(MAIN_DIR)/rad_act.o $(MAIN_DIR)/rad_pars.o  \
+        $(MAIN_DIR)/rad_trig.o $(MAIN_DIR)/sv_chunk.o \
+        $(MAIN_DIR)/sv_dump.o  $(MAIN_DIR)/sv_glob.o  \
+        $(MAIN_DIR)/sv_main.o  $(MAIN_DIR)/sv_mobj.o  \
+        $(MAIN_DIR)/sv_load.o  $(MAIN_DIR)/sv_save.o  \
+        $(MAIN_DIR)/sv_level.o $(MAIN_DIR)/sv_misc.o  \
+        $(MAIN_DIR)/sv_play.o  \
+        $(MAIN_DIR)/s_sound.o $(MAIN_DIR)/s_music.o   \
+        $(MAIN_DIR)/st_lib.o  $(MAIN_DIR)/st_stuff.o  \
+        $(MAIN_DIR)/v_func.o  $(MAIN_DIR)/v_screen.o  \
+        $(MAIN_DIR)/v_res.o $(MAIN_DIR)/v_colour.o    \
+        $(MAIN_DIR)/v_video1.o $(MAIN_DIR)/v_video2.o \
+        $(MAIN_DIR)/v_toplev.o $(MAIN_DIR)/w_image.o  \
+        $(MAIN_DIR)/w_wad.o $(MAIN_DIR)/wi_stuff.o    \
+        $(MAIN_DIR)/wp_main.o $(MAIN_DIR)/wp_wipe.o   \
+        $(MAIN_DIR)/w_textur.o $(MAIN_DIR)/z_zone.o
+
+
+ASM_NULL_OBJS= \
+        $(MAIN_DIR)/noasm/i_asm.o 
+
+ASM_I386_OBJS= \
+        $(MAIN_DIR)/i386/i_asm.o    $(MAIN_DIR)/i386/i_cpu.o    \
+        $(MAIN_DIR)/i386/r_column.o $(MAIN_DIR)/i386/r_resize.o \
+        $(MAIN_DIR)/i386/r_span.o
+
+# ----- RULES --------------------------------------------------------
+
+%.o: %.asm
+	$(AS) $< -o $@
+
+# ----- TARGETS ------------------------------------------------------
+
+EDGELIBS = epi glbsp lzo xingmp3
+
+all: $(EDGELIBS) $(MAIN_DIR)/$(PROGNAME)
+
+clean:
+	rm -f $(MAIN_DIR)/$(PROGNAME) $(LX_DIR)/*.o \
+        $(MAIN_DIR)/*.o $(ASM_DIR)/*.o $(MAIN_DIR)/core
+
+epi lzo xingmp3:
+	$(MAKE) -C $@ -f Makefile.osx
+
+glbsp:
+	$(MAKE) -C $(GLBSP_DIR)/plugin -f makefile.osx
+
+renderclean:
+	rm -f $(MAIN_DIR)/$(PROGNAME) $(MAIN_DIR)/r*.o
+
+$(MAIN_DIR)/$(PROGNAME): $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $(MAIN_DIR)/$(PROGNAME) $(LIBS)
+
+.PHONY: all clean $(EDGELIBS) renderclean
+
+# ----- RELEASES --------------------------------------------
+
+BIN_FILES=djgpp/edge.* win32/[eE]dge.*
+
+SRC_FILES=*.[ch] djgpp/*.[ch] djgpp/*.bat win32/*.[ch] win32/*.bat  \
+          win32/Debug win32/Release win32/*.bcc win32/edge32.r*  \
+          linux/*.[ch]  linux/Makefile linux/README null/*.[ch]  \
+          noasm/*.[ch] i386/*.[ch]  djgpp/Makefile  README  \
+          i386/*.asm contrib/* docs/* log/*  \
+          djgpp/obj djgpp/obj/i386 win32/obj  \
+          lzo/COPYING lzo/README* lzo/*.[ch]  \
+          xingmp3/Makefile xingmp3/makefile.bcc  \
+          xingmp3/*.[chsS] xingmp3/*.asm
+
+tar:
+	cd ../..; make -f edge/linux/Makefile do_good_tarball
+
+zip:
+	cd ..; make -f linux/Makefile do_zipball
+
+do_tarball:
+	rm -f /tmp/edge.zip
+	-zip -0 /tmp/edge.zip $(BIN_FILES)
+	zip -0 -l /tmp/edge.zip $(SRC_FILES)
+	mkdir /tmp/edge_temp
+	cd /tmp/edge_temp; unzip /tmp/edge.zip
+	cd /tmp/edge_temp; tar cf /tmp/edge.tar .
+	bzip2 /tmp/edge.tar
+
+do_good_tarball:
+	rm -f /tmp/edge.tgz
+	tar czf /tmp/edge.tgz  \
+        $(patsubst %,edge/%,$(BIN_FILES) $(SRC_FILES))
+
+do_zipball:
+	rm -f /tmp/edge.zip
+	-zip /tmp/edge.zip $(BIN_FILES)
+	zip -l /tmp/edge.zip $(SRC_FILES)
+
+.PHONY: tarball do_tarball do_good_tarball zipball do_zipball
