@@ -144,6 +144,7 @@ const image_t *W_ImageFromFlat(const char *flat_name,   bool allow_null = false)
 const image_t *W_ImageFromPatch(const char *patch_name, bool allow_null = false);
 const image_t *W_ImageFromFont(const char *patch_name);
 const image_t *W_ImageFromHalo(const char *patch_name);
+const image_t *W_ImageFromSkyMerge(const image_t *sky, bool bottom);
 const image_t *W_ImageForDummySprite(void);
 
 extern image_t *savepic_image;
