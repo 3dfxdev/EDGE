@@ -255,6 +255,15 @@ typedef struct s_lineactivator_s
 s_lineactivator_t;
 
 
+// UnblockLines
+typedef struct s_lineunblocker_s
+{
+  // line tag
+  int tag;
+}
+s_lineunblocker_t;
+
+
 // Jump
 typedef struct s_jump_s
 {
@@ -532,6 +541,7 @@ typedef struct rad_trigger_s
 
   // repeat info
   int repeats_left;
+  int repeat_delay;
 
   // current state info
   rts_state_t *state;

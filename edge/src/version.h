@@ -16,20 +16,15 @@
 //
 //----------------------------------------------------------------------------
 
-#define EDGEVER    0x126
-
-#ifdef JUST_A_WIP
-#define EDGEVERSTR  "1.26b"
-#else
-#define EDGEVERSTR  "1.26"
-#endif
+#define EDGEVER     0x127
+#define EDGEVERSTR  "1.27"
 
 // patch level
-#define EDGEPATCH  0x04
+#define EDGEPATCH  0x00
 
 // -ES- 2000/03/04 The version of EDGE.WAD we require.
 #define EDGE_WAD_VERSION 2
-#define EDGE_WAD_VERSION_FRAC 1
+#define EDGE_WAD_VERSION_FRAC 5
 #define EDGE_WAD_SUB_VERSION 0
 
 // Currently this must be one byte.  Should be removed later (and just

@@ -269,7 +269,7 @@ boolean_t EV_Teleport(line_t * line, int tag, int side, mobj_t * thing,
 boolean_t EV_ManualPlane(line_t * line, mobj_t * thing, const moving_plane_t * type);
 boolean_t EV_ManualElevator(line_t * line, mobj_t * thing, const elevator_sector_t * type);
 
-boolean_t EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_t * s);
+void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_t * s);
 boolean_t EV_DoPlane(sector_t * sec, const moving_plane_t * type, sector_t * model);
 boolean_t EV_DoElevator(sector_t * sec, const elevator_sector_t * type, sector_t * model);
 

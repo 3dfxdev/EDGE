@@ -32,6 +32,7 @@
 typedef struct wadtex_resource_s
 {
   // lump numbers, or -1 if nonexistent
+  int palette;
   int pnames;
   int texture1;
   int texture2;
@@ -71,6 +72,7 @@ const char *W_GetLumpName(int lump);
 int W_CacheInfo(int level);
 
 const char *W_GetFileName(int lump);
+int W_GetPaletteForLump(int lump);
 void W_AddDynamicGWA(const char *filename, int map_lump);
 int W_FindFlatSequence(const char *start, const char *end, 
     int *s_offset, int *e_offset);

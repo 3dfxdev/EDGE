@@ -640,6 +640,9 @@ typedef struct spriteframe_s
   // Flip bits (1 = flip) to use for view angles 0-15.
   byte flip[16];
   
+  // normally zero, will be 1 if the [9ABCDEFG] rotations are used.
+  byte extended;
+    
   // Images for each view angle 0-15.  Never NULL.
   const struct image_s *images[16];
 }

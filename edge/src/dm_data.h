@@ -333,7 +333,7 @@ typedef struct patch_s
 patch_t;
 
 //
-// Texture definition.
+// Texture element.
 //
 // Each texture is composed of one or more patches,
 // with patches being lumps stored in the WAD.
