@@ -266,7 +266,7 @@ void M_CheckBooleanParm(const char *parm, bool *boolval, bool reverse)
 const char *M_GetArgument(int argnum)
 {
 	// this should never happen, so crash out if DEVELOPERS.
-	if (argnum <= 0 || argnum >= myargc)
+	if (argnum < 0 || argnum >= myargc)
 #ifdef DEVELOPERS
 		I_Error("M_GetArgument: Out of range (%d)", argnum);
 #else
