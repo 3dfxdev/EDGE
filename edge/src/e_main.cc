@@ -578,11 +578,6 @@ void E_Display(void)
 	static gamestate_e oldgamestate = GS_NOTHING;
 
 	// for wiping
-#ifndef USE_GL
-	static wipeinfo_t *wipeinfo = NULL;
-	static screen_t *wipeend = NULL;
-#endif
-	static screen_t *wipestart = NULL;
 	bool wipe;
 
 	if (nodrawers)
@@ -618,14 +613,8 @@ void E_Display(void)
 	if (gamestate != wipegamestate)
 	{
 		wipe = true;
-		wipestart = V_ResizeScreen(wipestart, SCREENWIDTH, SCREENHEIGHT, BPP);
-
-#ifdef USE_GL
 		wipe_gl_active = true;
 		RGL_InitWipe(wipe_reverse, wipe_method);
-#else
-		V_CopyScreen(wipestart, main_scr);
-#endif
 	}
 	else
 		wipe = false;
@@ -709,8 +698,6 @@ void E_Display(void)
 			borderdrawcount = 3;
 		if (borderdrawcount)
 		{
-			R_DrawViewBorder();  // erase old menu stuff
-
 			borderdrawcount--;
 		}
 	}
@@ -761,7 +748,6 @@ void E_Display(void)
 		return;
 	}
 
-#ifdef USE_GL
 	// -AJA- Wipe code for GL.  Sorry for all this ugliness, but it just
 	//       didn't fit into the existing wipe framework.
 	//
@@ -773,44 +759,6 @@ void E_Display(void)
 
 	M_Drawer();  // menu is drawn even on top of wipes
 	I_FinishFrame();  // page flip or blit buffer
-      
-#else // USE_GL
-
-	// -ES- 1999/08/10 New wiping system
-	// wipe update
-	wipeend = V_ResizeScreen(wipeend, SCREENWIDTH, SCREENHEIGHT, BPP);
-	V_CopyScreen(wipeend, main_scr);
-
-	wipeinfo = WIPE_InitWipe(main_scr, 0, 0,
-			wipestart, 0, 0, 1,
-			wipeend, 0, 0, 1,
-			SCREENWIDTH, SCREENHEIGHT, wipeinfo,
-			-1, wipe_reverse?true:false, wipe_method);
-
-	int wipestarttime = I_GetTime();
-	int tics = 0;
-	bool done;
-
-	do
-	{
-		int nowtime;
-
-		do
-		{
-			nowtime = I_GetTime();
-		}
-		while (tics == nowtime - wipestarttime);
-		tics = nowtime - wipestarttime;
-		done = WIPE_DoWipe(main_scr, wipestart, wipeend, tics, wipeinfo);
-		M_Drawer();  // menu is drawn even on top of wipes
-
-		I_FinishFrame();  // page flip or blit buffer
-
-	}
-	while (!done);
-	redrawsbar = true;
-
-#endif // USE_GL
 }
 
 //
@@ -1410,12 +1358,6 @@ namespace engine
 		// -ACB- 1999/09/20 defines to be used?
 		CON_InitConsole(79, 25, false);
 
-		// -ES- 1999/10/29 Declare all function lists.
-		R_InitFunctions_Draw1();
-#ifndef NOHICOLOUR
-		R_InitFunctions_Draw2();
-#endif
-		R_InitVBFunctions();
 		I_RegisterAssembler();
 		I_PutTitle(title);
 
@@ -1459,22 +1401,6 @@ namespace engine
 		G_SetTurboScale(turbo_scale);
 
 		I_CheckCPU();
-
-		ps = M_GetParm("-col8");
-		if (ps)
-			CON_ChooseFunctionFromList(&drawcol8_funcs, ps);
-
-		ps = M_GetParm("-span8");
-		if (ps)
-			CON_ChooseFunctionFromList(&drawspan8_funcs, ps);
-
-		ps = M_GetParm("-col16");
-		if (ps)
-			CON_ChooseFunctionFromList(&drawcol16_funcs, ps);
-
-		ps = M_GetParm("-span16");
-		if (ps)
-			CON_ChooseFunctionFromList(&drawspan16_funcs, ps);
 
 		{
 			epi::string_c fn;

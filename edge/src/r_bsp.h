@@ -35,15 +35,4 @@ extern sector_t *frontsector;
 extern sector_t *backsector;
 extern int root_node;
 
-extern int rw_x;
-extern int rw_stopx;
-
-extern bool segtextured;
-
-// false if the back side is the same plane
-extern bool markfloor;
-extern bool markceiling;
-
-extern bool skymap;
-
 #endif

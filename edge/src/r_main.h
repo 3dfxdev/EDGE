@@ -50,11 +50,6 @@ extern int viewwindowy;
 extern int viewwindowwidth;
 extern int viewwindowheight;
 
-// the x and y coords of the focus
-// -ES- 1999/03/19 Renamed center to focus
-extern float focusxfrac;
-extern float focusyfrac;
-
 extern int validcount;
 
 extern int linecount;
@@ -65,46 +60,14 @@ extern bool viewiszoomed;
 
 extern bool setsizeneeded;
 extern bool changeresneeded;  // -ES- 1998/08/20
-extern int use_3d_mode;
 
 extern int framecount;
-
-//
-// Lighting LUT.
-// Used for z-depth cuing per column/row,
-//  and other lighting effects (sector ambient, flash).
-//
-
-// Lighting constants.
-#define LIGHTLEVELS	        32
-#define LIGHTSEGSHIFT	         3
-
-#define MAXLIGHTZ	       512
-#define LIGHTZSHIFT		18
-#define FLAT_LIGHTZ             24
-
-#define MAXLIGHTSCALE		48
-#define LIGHTSCALESHIFT		12
-#define FLAT_LIGHTSCALE         16
-
-extern lighttable_t zlight[LIGHTLEVELS][MAXLIGHTZ];
-extern lighttable_t scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
 
 extern int extralight;
 extern const colourmap_c *effect_colourmap;
 extern float effect_strength;
 extern bool effect_infrared;
 extern bool setresfailed;
-
-//
-// Function pointers to switch refresh/drawing functions.
-// Used to select shadow mode etc.
-//
-extern void (*colfunc) (void);
-extern void (*basecolfunc) (void);
-extern void (*fuzzcolfunc) (void);
-extern void (*spanfunc) (void);
-extern void (*trans_spanfunc) (void);
 
 //
 // Utility functions.

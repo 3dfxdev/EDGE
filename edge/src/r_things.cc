@@ -54,20 +54,6 @@
 //  which increases counter clockwise (protractor).
 // There was a lot of stuff grabbed wrong, so I changed it...
 //
-float pspritescale;
-float pspriteiscale;
-float pspritescale2;
-float pspriteiscale2;
-float masked_translucency;
-
-lighttable_t *spritezlights;
-
-int extra_psp_light;
-
-// constant arrays
-//  used for psprite clipping and initializing clipping
-// -ES- 1998/08/20 init to 0
-int negonearray = 0;
 
 // Sprite defs.  allocated in blocks of 16
 spritedef_t *sprites = NULL;

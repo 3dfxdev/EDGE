@@ -2273,9 +2273,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 
 	DetectDeepWaterTrick();
 
-#ifdef USE_GL
 	R_ComputeSkyHeights();
-#endif
 
 	// compute sector and line gaps
 	for (j=0; j < numsectors; j++)

@@ -23,8 +23,6 @@
 //
 //----------------------------------------------------------------------------
 
-#ifdef USE_GL
-
 #ifndef __RGL_DEFS__
 #define __RGL_DEFS__
 
@@ -210,5 +208,3 @@ bool RGL_DoWipe(void);
 
 
 #endif  // __RGL_DEFS__
-#endif  // USE_GL
-

@@ -286,9 +286,7 @@ typedef enum { false, true } bool;
 #include <sys/stat.h>
 
 
-#ifdef USE_GL
 #include <GL/gl.h>
-#endif
 
 #define EDGECONFIGFILE "edge.cfg"
 #define EDGELOGFILE    "edge.log"

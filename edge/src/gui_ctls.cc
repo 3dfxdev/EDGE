@@ -324,13 +324,11 @@ static void BAR_Drawer(gui_t * gui)
 	bar_t *bar = (bar_t*)gui->process;
 	const int *valp;
 	unsigned int val;
-	unsigned int x, y;
 	int r, g, b;
 
 	// --UNUSED--
 	//  int left = gui->left, right = gui->right, top = gui->top, bottom = gui->bottom;
-
-	char *dest;
+	// char *dest; int x, y;
 
 	if (!CON_GetCVar(bar->watch, (const void **)&valp))
 		return;
@@ -369,12 +367,14 @@ static void BAR_Drawer(gui_t * gui)
 	//  if (bottom >= SCREENHEIGHT)
 	//    bottom = SCREENHEIGHT - 1;
 
+#if 0
 	for (y = (unsigned int)gui->top; y < (unsigned int)gui->bottom; y++)
 	{
-		dest = (char*)(main_scr->data + y * SCREENDEPTH + gui->left * BPP);
+		dest = (char*)(main_scr->data + y * SCREENPITCH + gui->left * BPP);
 		for (x = gui->left; x < (gui->right - gui->left) * val / 100 + gui->left; x++, dest++)
 			*dest = rgb_32k[r][g][b];
 	}
+#endif
 }
 
 gui_t *GUI_BARStart(gui_t ** g, char *watch, int max)

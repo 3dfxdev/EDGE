@@ -46,9 +46,6 @@ static bool loaded_playpal = false;
 
 // -AJA- 1999/06/30: moved here from system-specific code.
 byte rgb_32k[32][32][32];
-unsigned long col2rgb16[65][256][2];
-unsigned long col2rgb8[65][256];
-unsigned long hicolourtransmask;
 
 // -AJA- 1999/07/03: moved these here from st_stuff.c:
 // Palette indices.
@@ -66,12 +63,6 @@ int current_gamma;
 
 bool interpolate_colmaps = true;
 
-// general purpose colormaps
-const colourmap_c *normal_map = NULL;
-const colourmap_c *sky_map  = NULL;
-const colourmap_c *shadow_map  = NULL;
-const coltable_t *fuzz_coltable = NULL;
-const coltable_t *dim_coltable = NULL;
 
 // text translation tables
 const byte *font_whitener = NULL;
@@ -92,11 +83,6 @@ const byte *am_overlay_colmap = NULL;
 byte null_tranmap[256];
 byte halo_conv_table[256];
 
-// -AJA- 1999/07/05: added `pixel_values' array.
-long pixel_values[256];
-
-// -AJA- whenever colourmaps have to be recomputed, we increase this.
-static int colourmap_validcount = 7;
 
 // colour indices from palette
 int pal_black, pal_white, pal_gray239;
@@ -193,22 +179,14 @@ static void InitTranslationTables(void)
 {
 	int i;
 
-	if (normal_map)
+	if (font_whitener)
 		return;
 
 	// look up the general colmaps & coltables
-	normal_map = colourmaps.Lookup("NORMAL");
-	sky_map  = colourmaps.Lookup("SKY");
-	shadow_map = colourmaps.Lookup("SHADOW");
 
 	font_whiten_map = colourmaps.Lookup("FONTWHITEN");
 	font_whitener = V_GetTranslationTable(font_whiten_map);
 
-	fuzz_coltable = V_GetRawColtable(
-		colourmaps.Lookup("FUZZY"), 127);
-
-	dim_coltable = V_GetRawColtable(
-		colourmaps.Lookup("DIMSCREEN"), 127);
 
 	am_normal_colmap = V_GetTranslationTable(
 		colourmaps.Lookup("AUTOMAP_NORMAL"));
@@ -484,94 +462,11 @@ static void CreateRGBTable(byte table[32][32][32],
 #undef BETTER
 }
 
-typedef struct
-{
-	int bits, mask, shift;
-	int frac_bits, up_shift;
-
-}
-rgb16info_t;
-
-static rgb16info_t rgb16info[3];
-
-#define RI rgb16info
-
-static void SwapEm(int a, int b)
-{
-	rgb16info_t tmp;
-	tmp = RI[a];
-	RI[a] = RI[b];
-	RI[b] = tmp;
-}
-
-static void V_ComputeRGBInfo(truecol_info_t * ti)
-{
-	if (BPP != 2)
-		return;
-
-	RI[0].bits = ti->red_bits;
-	RI[1].bits = ti->green_bits;
-	RI[2].bits = ti->blue_bits;
-
-	RI[0].mask = ti->red_mask;
-	RI[1].mask = ti->green_mask;
-	RI[2].mask = ti->blue_mask;
-
-	RI[0].shift = ti->red_shift;
-	RI[1].shift = ti->green_shift;
-	RI[2].shift = ti->blue_shift;
-
-	// sort bitfields from right to left:
-
-	if (RI[0].shift > RI[1].shift)
-		SwapEm(0, 1);
-
-	if (RI[0].shift > RI[2].shift)
-		SwapEm(0, 2);
-
-	if (RI[1].shift > RI[2].shift)
-		SwapEm(1, 2);
-
-	if ((RI[0].shift != 0) || (RI[1].shift != RI[0].bits) ||
-		(RI[2].shift != RI[0].bits + RI[1].bits))
-	{
-		I_Error("Non-contiguous 16 bit mode !");
-	}
-
-	RI[0].frac_bits = 16 - RI[1].bits - RI[0].bits;
-	RI[1].frac_bits = RI[0].bits;
-	RI[2].frac_bits = RI[1].bits;
-
-	RI[0].up_shift = 16 - RI[0].frac_bits;
-	RI[1].up_shift = 0;
-	RI[2].up_shift = 16 + RI[0].bits;
-
-#define MASK(n)  (((1L << RI[n].frac_bits) - 1L) << RI[n].up_shift)
-
-	hicolourtransmask = MASK(0) | MASK(1) | MASK(2);
-
-#undef MASK
-}
-
-static unsigned long V_CalcRGB(int hicol, int level)
-{
-	unsigned long A = (hicol & RI[0].mask) >> RI[0].shift;
-	unsigned long B = (hicol & RI[1].mask) >> RI[1].shift;
-	unsigned long C = (hicol & RI[2].mask) >> RI[2].shift;
-
-	A = ((A * level) >> (6 - RI[0].frac_bits)) << RI[0].up_shift;
-	B = ((B * level) >> (6 - RI[1].frac_bits)) << RI[1].up_shift;
-	C = ((C * level) >> (6 - RI[2].frac_bits)) << RI[2].up_shift;
-
-	return A | B | C;
-}
-
 #undef RI
 
 static void CalcTranslucencyTable(void)
 {
 	int x, y, i;
-	truecol_info_t ti;
 
 	byte palette[256][3];  // Note: 6 bits per colour.
 
@@ -602,38 +497,10 @@ static void CalcTranslucencyTable(void)
 			rgb_32k[0][0][0] = pal_black;
 			rgb_32k[31][31][31] = pal_white;
 
-			I_GetTruecolInfo(&ti);
-			V_ComputeRGBInfo(&ti);
-
-			for (x = 0; x < 65; x++)
-			{
-				for (y = 0; y < 256; y++)
-				{
-					unsigned long rgb_lo;
-					unsigned long rgb_hi;
-
-					col2rgb8[x][y] = ((playpal_data[0][y][0] * x >> 4) << 22) |
-						((playpal_data[0][y][1] * x >> 2) << 10) |
-						(playpal_data[0][y][2] * x >> 4);
-
-					rgb_lo = V_CalcRGB(y, x);
-					rgb_hi = V_CalcRGB(y << 8, x);
-
-#ifdef __BIG_ENDIAN__
-                 col2rgb16[x][y][0] = rgb_hi;
-                 col2rgb16[x][y][1] = rgb_lo;
-#else
-					col2rgb16[x][y][0] = rgb_lo;
-					col2rgb16[x][y][1] = rgb_hi;
-#endif
-				}
-			}
-
 			I_Printf("\n");
 }
 
 static int cur_palette = -1;
-static int cur_pal_bpp = -1;
 static int new_palette = 0;
 
 //
@@ -652,7 +519,6 @@ void V_InitColour(void)
 	//       resolution, hence the problem.
 	//
 	cur_palette = -1;
-	cur_pal_bpp = -1;
 }
 
 //
@@ -729,9 +595,7 @@ static int V_FindPureColour(int which)
 //
 void V_SetPalette(int type, float amount)
 {
-	int i;
 	int palette = 0;
-	truecol_info_t ti;
 
 	// -AJA- 1999/09/17: fixes problems with black text etc.
 	if (!loaded_playpal)
@@ -755,26 +619,16 @@ void V_SetPalette(int type, float amount)
 		break;
 	}
 
-	if (palette == cur_palette && cur_pal_bpp == BPP)
+	if (palette == cur_palette)
 		return;
 
 	// mark the palette change
 	new_palette++;
 
 	cur_palette = palette;
-	cur_pal_bpp = BPP;
-
-	I_GetTruecolInfo(&ti);
-
-	for (i = 0; i < 256; i++)
-	{
-		pixel_values[i] = I_Colour2Pixel(playpal_data[cur_palette], i);
-
-		if (BPP != 1 && playpal_greys[i])
-			pixel_values[i] &= ti.grey_mask;
-	}
 }
 
+#if 0
 static INLINE long MakeRGB(truecol_info_t *ti, long r, long g, long b)
 {
 	r = (r >> (8 - ti->red_bits))   << ti->red_shift;
@@ -862,6 +716,7 @@ static void MakeColourmapRange(void *dest_colmaps, byte palette[256][3],
 				colmap16[i * 256 + j] &= ti.grey_mask;
 		}
 }
+#endif
 
 //
 // LoadColourmap
@@ -870,20 +725,16 @@ static void MakeColourmapRange(void *dest_colmaps, byte palette[256][3],
 // the dc_colourmap & ds_colourmap variables for use by the column &
 // span drawers.
 //
-static void LoadColourmap(const colourmap_c * colm, int bpp)
+static void LoadColourmap(const colourmap_c * colm)
 {
 	int lump;
 	int size;
 	const byte *data;
 	const byte *data_in;
-	byte *data_out;
 
 	// we are writing to const marked memory here. Here is the only place
 	// the cache struct is touched.
 	colmapcache_t *cache = (colmapcache_t *)&colm->cache; // Intentional Const Override
-
-	cache->validcount = colourmap_validcount;
-	cache->bpp = bpp;
 
 	lump = W_GetNumForName(colm->lump_name);
 	size = W_LumpLength(lump);
@@ -895,60 +746,20 @@ static void LoadColourmap(const colourmap_c * colm, int bpp)
 
 	data_in = data + (colm->start * 256);
 
-	int j;
 	bool whiten = (colm->special & COLSP_Whiten) ? true : false;
 
-	switch (bpp)
-	{
-		case 1:
-			Z_Resize(cache->baseptr, char, colm->length * 256 + 255);
-			cache->data = (void *)(((unsigned long)cache->baseptr + 255) & ~255);
-			data_out = (byte *)cache->data;
+	Z_Resize(cache->data, byte, colm->length * 256);
 
-			for (j = 0; j < colm->length * 256; j++)
-			{
 				if (whiten)
-					data_out[j] = data_in[font_whitener[j]];
+		for (int j = 0; j < colm->length * 256; j++)
+			cache->data[j] = data_in[font_whitener[j]];
 				else
-					data_out[j] = data_in[j];
-			}
-			break;
-
-		case 2:
-			Z_Resize(cache->baseptr, char, colm->length * 512 + 511);
-			cache->data = (void *)(((unsigned long)cache->baseptr + 511) & ~511);
-
-			MakeColourmapRange(cache->data, playpal_data[cur_palette],
-				data_in, colm->length,
-				(colm->special & COLSP_Whiten) ? true : false);
-			break;
-	}
+		for (int j = 0; j < colm->length * 256; j++)
+			cache->data[j] = data_in[j];
 
 	W_DoneWithLump(data);
 }
 
-//
-// V_GetRawColtable
-//
-const coltable_t *V_GetRawColtable(const colourmap_c * nominal, int level)
-{
-	coltable_t *result;
-	int index;
-
-	// Do we need to load or recompute this colourmap ?
-
-	if (nominal->cache.data == NULL || 
-		nominal->cache.validcount != colourmap_validcount ||
-		nominal->cache.bpp != BPP)
-	{
-		LoadColourmap(nominal, BPP);
-	}
-
-	result = (coltable_t*)nominal->cache.data;
-	index = (nominal->length * level) >> 8;
-
-	return result + index * 256 * BPP;
-}
 
 //
 // V_GetTranslationTable
@@ -957,61 +768,13 @@ const byte *V_GetTranslationTable(const colourmap_c * colmap)
 {
 	// Do we need to load or recompute this colourmap ?
 
-	if (colmap->cache.data == NULL || 
-		colmap->cache.validcount != colourmap_validcount ||
-		colmap->cache.bpp != 1)
-	{
-		LoadColourmap(colmap, 1);
-	}
+	if (colmap->cache.data == NULL)
+		LoadColourmap(colmap);
 
 	return (const byte*)colmap->cache.data;
 }
 
-//
-// V_GetColtable
-//
-// Finds the right coltable for the dc_colourmap & ds_colourmap
-// variables used by the column & span drawers.
-//
-const coltable_t *V_GetColtable(const colourmap_c * nominal, 
-								int lightlevel, vcol_flags_e flags)
-{
-	DEV_ASSERT2(nominal);
 
-	if (effect_colourmap)
-	{
-		if (effect_colourmap->length > 1)
-		{
-			nominal = effect_colourmap;
-			lightlevel = (int)(255.9 * effect_strength);
-		}
-		else if (effect_strength >= 1.0f || ((int)(effect_strength * 16) & 2))
-		{
-			nominal = effect_colourmap;
-			// doesn't matter
-			lightlevel = 127;
-		}
-	}
-	else if (flags & VCOL_Sky)
-	{
-		nominal = sky_map;
-		lightlevel = 255;
-	}
-	else
-	{ 
-		if (effect_infrared)
-			lightlevel += (int)(effect_strength * 255);
-
-		if (! (nominal->special & COLSP_NoFlash))
-			lightlevel += extralight * 16;
-	}
-
-	lightlevel = MAX(0, MIN(255, lightlevel));
-
-	return V_GetRawColtable(nominal, 255 - lightlevel);
-}
-
-#ifdef USE_GL
 //
 // V_GetColmapRGB
 //
@@ -1022,13 +785,13 @@ void V_GetColmapRGB(const colourmap_c *colmap,
 	{
 		// Intention Const Override
 		colmapcache_t *cache = (colmapcache_t *) &colmap->cache;
-		coltable_t *table;
+		byte *table;
 
 		int r, g, b;
 
-		LoadColourmap(colmap, 1);
+		LoadColourmap(colmap);
 
-		table = (coltable_t *) cache->data;
+		table = (byte *) cache->data;
 
 		if (font)
 		{
@@ -1051,42 +814,6 @@ void V_GetColmapRGB(const colourmap_c *colmap,
 	(*r) = GAMMA_CONV((colmap->cache.gl_colour >> 16) & 0xFF) / 255.0f;
 	(*g) = GAMMA_CONV((colmap->cache.gl_colour >>  8) & 0xFF) / 255.0f;
 	(*b) = GAMMA_CONV((colmap->cache.gl_colour      ) & 0xFF) / 255.0f;
-}
-#endif
-
-//
-// V_GetTranslatedColtable
-//
-// Used for remapped sprites.  Will convert the input coltable into
-// the output coltable (which is static) through the given translation
-// array.
-//
-static byte translated_coltable[1024];
-
-const coltable_t *V_GetTranslatedColtable(const coltable_t *src,
-										  const byte *trans)
-{
-	int i;
-
-	switch (BPP)
-	{
-	case 1:
-		for (i=0; i < 256; i++)
-		{
-			translated_coltable[i] = ((byte *)src)[trans[i]];
-		}
-		break;
-
-	case 2:
-		for (i=0; i < 256; i++)
-		{
-			((unsigned short *)translated_coltable)[i] =
-				((unsigned short *)src)[trans[i]];
-		}
-		break;
-	}
-
-	return (const coltable_t *)translated_coltable;
 }
 
 
@@ -1111,13 +838,6 @@ void V_ColourNewFrame(void)
 	{
 		new_palette = 0;
 		usegamma = current_gamma;
-
-		// -AJA- FIXME: GL doesn't need whole colourmaps recomputed
-
-		if (BPP == 1)
-			I_SetPalette(playpal_data[cur_palette]);
-		else
-			colourmap_validcount++;  // invalidate all colourmaps.
 	}
 
 	return;

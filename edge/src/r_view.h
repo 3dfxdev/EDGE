@@ -93,13 +93,6 @@ struct viewbitmap_s
 	// Linked list of the aspects that can be used with this bitmap.
 	aspect_t *aspects;
 
-	// Array of size (height), containing the addresses of each line.
-	// the views' ylookups will point to one of the elements.
-	byte **baseylookup;
-
-	// Array of size (width), where element x contains x*BPP (currently).
-	// the views' columnoffsets will point to one of these elements.
-	int *basecolumnofs;
 
 	// If these aren't null, they will be called at the start/end of each frame.
 	callback_t *frame_start;
@@ -112,7 +105,6 @@ struct viewbitmap_s
 // Contains the precalculated tables used when rendering a view with the
 // specified aspect ratio etc.
 //
-// FIXME: Split up aspect_s into separate x and y?
 struct aspect_s
 {
 	// the maximal width/height for views using this aspect.
@@ -121,24 +113,10 @@ struct aspect_s
 
 	// X RELATED STUFF
 
-	// These show the tables for maxwidth.
-	// The tables used in view_t are based on these ones, but can do some small
-	// changes if not maxwidth is used.
-	int *baseviewangletox;
-	angle_t *basextoviewangle;
-	float *basedistscale;
-	float x_distunit;
-	float focusxfrac;
-
 	// Y RELATED STUFF
-
-	float *baseyslope;
-	float y_distunit;
-	float focusyfrac;
 
 	// the slope of the real focus is 0, this is the slope which we pretend to be focus.
 	// ie. the slope that normally is in the middle of the screen.
-	float fakefocusslope;
 	// topslope & bottomslope show the offset to fakefocusslope.
 	float topslope;
 	float bottomslope;
@@ -166,17 +144,9 @@ struct view_s
 	// viewbitmap's screen.
 	screen_t screen;
 
-	byte **ylookup;
-	int *columnofs;
-
 	// aspect related
-	int *viewangletox;
-	angle_t *xtoviewangle;
-	float *distscale;
 	int aspect_x;
-
 	int aspect_y;
-	float *yslope;
 
 #define VRF_PSPR (1)
 #define VRF_VIEW (2)
@@ -227,14 +197,10 @@ extern viewbitmap_t *R_CreateViewBitmap(int width, int height, int bytepp, scree
 
 extern void R_DestroyAspect(aspect_t * a);
 extern aspect_t *R_CreateAspect(viewbitmap_t * parent,
-    float x_distunit, float y_distunit,
-    float focusxfrac,
     float topslope, float bottomslope,
     int maxwidth, int maxheight);
 
 extern void R_ViewSetAspectXPos(view_t * v, int ax, int width);
-extern void R_AspectChangeX(aspect_t * a, float x_distunit, float focusxslope);
-extern void R_AspectChangeY(aspect_t * a, float y_distunit, float fakefocusslope);
 extern void R_ViewSetXPosition(view_t * v, int vbx, int ax, int width);
 extern void R_ViewSetYPosition(view_t * v, int vby, int ay, int width);
 extern void R_ViewSetAspect(view_t * v, aspect_t * a);

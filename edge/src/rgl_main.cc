@@ -17,8 +17,6 @@
 //----------------------------------------------------------------------------
 
 // this conditional applies to the whole file
-#ifdef USE_GL
-
 #include "i_defs.h"
 
 #include "g_game.h"
@@ -848,5 +846,3 @@ void RGL_Init(void)
 	vctx.ReadScreen = RGL_ReadScreen;
 }
 
-
-#endif  // USE_GL

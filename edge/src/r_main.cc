@@ -62,7 +62,7 @@ viewbitmap_t *curviewbmp = NULL;
 
 // -ES- 1999/03/14 Dynamic Field Of View
 // Fineangles in the viewwidth wide window.
-angle_t FIELDOFVIEW = 2048;
+static angle_t FIELDOFVIEW = 2048;
 
 // The used aspect ratio. A normal texel will look aspect_ratio*4/3
 // times wider than high on the monitor
@@ -87,9 +87,6 @@ int viewwindowy;
 int viewwindowwidth;
 int viewwindowheight;
 
-int vb_w;
-int vb_h;
-int vb_pitch;
 
 angle_t viewangle = 0;
 angle_t viewvertangle = 0;
@@ -105,14 +102,6 @@ int validcount = 1;
 const colourmap_c *effect_colourmap;
 float effect_strength;
 bool effect_infrared;
-
-// -ES- 1999/03/19 rename from center to focus
-float focusxfrac;
-float focusyfrac;
-
-// -ES- 1999/03/14 Added these. Unit Scale is used for things one distunit away.
-float x_distunit;
-float y_distunit;
 
 // just for profiling purposes
 int framecount;
@@ -145,48 +134,21 @@ viewbitmap_t *screenvb;
 angle_t leftclipangle, rightclipangle;
 angle_t clipscope;
 
-// The viewangletox[viewangle + FINEANGLES/4] lookup
-// maps the visible view angles to screen X coordinates,
-// flattening the arc to a flat projection plane.
-// There will be many angles mapped to the same X. 
-// -ES- 1999/05/22 Made Dynamic
-int *viewangletox;
-
-// The xtoviewangleangle[] table maps a screen pixel
-// to the lowest viewangle that maps back to x ranges
-// from leftangle to rightangle.
-// -ES- 1998/08/20 Explicit init to NULL
-angle_t *xtoviewangle = NULL;
-
-// -KM- 1998/09/27 Dynamic colourmaps
-// -ES- 1999/06/13 BPP-specific colourmaps
-// -AJA- 1999/07/10: Un-BPP-ised the lighting tables, for colmap.ddf.
-
-lighttable_t zlight[LIGHTLEVELS][MAXLIGHTZ];
-lighttable_t scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
-
 // bumped light from gun blasts
 int extralight;
 
 angle_t viewanglebaseoffset;
 angle_t viewangleoffset;
 
-void (*colfunc) (void);
-void (*basecolfunc) (void);
-void (*fuzzcolfunc) (void);
-void (*transcolfunc) (void);
-void (*spanfunc) (void);
-void (*trans_spanfunc) (void);
-
-wipeinfo_t *telept_wipeinfo = NULL;
+///### wipeinfo_t *telept_wipeinfo = NULL;
 int telept_starttic;
 int telept_active = 0;
 static void R_Render_Standard(void)
 {
 	R_RenderViewBitmap(screenvb);
-	if (telept_active)
-		telept_active = !WIPE_DoWipe(&screenvb->screen, &screenvb->screen,
-		&screenvb->screen, leveltime - telept_starttic, telept_wipeinfo);
+//###	if (telept_active)
+//###		telept_active = !WIPE_DoWipe(&screenvb->screen, &screenvb->screen,
+//###		&screenvb->screen, leveltime - telept_starttic, telept_wipeinfo);
 }
 
 //
@@ -317,133 +279,6 @@ float R_PointToDist(float x1, float y1, float x2, float y2)
 	return dist;
 }
 
-//
-// R_ScaleFromGlobalAngle
-//
-// Returns the texture mapping scale
-// for the current line (horizontal span)
-// at the given angle.
-//
-// rw_distance & rw_normalangle must be calculated first.
-//
-float R_ScaleFromGlobalAngle(angle_t visangle)
-{
-	float scale;
-	angle_t anglea;
-	angle_t angleb;
-	float cosa;
-	float cosb;
-	float num;
-	float den;
-
-	// Note: anglea is the difference between the given angle `visangle'
-	// and the view angle.  We calculate the distance from the camera to
-	// the seg line (below), and by triangulating we can determine the
-	// distance from the view plane to the point on the seg (along a line
-	// parallel to the view angle).
-	//
-	// Namely: z = hyp * cos(anglea).
-	//
-	// Thus: scale = 1.0 / z.
-	//
-	// Since the angle lies in the view's cliprange (clipping has
-	// already occurred), the cosine will always be positive.
-
-	anglea = visangle - viewangle;
-	cosa = M_Cos(anglea);
-
-	// Note: angleb is the difference between the given angle `visangle'
-	// and the seg line's normal.  We know the distance along the normal
-	// (rw_distance), thus by triangulating we can calculate the
-	// distance from the camera to the seg line at the given angle,
-	//
-	// Namely: hyp = rw_distance / cos(angleb).
-	//
-	// Since the seg line faces the camera (back faces have already been
-	// culled), the cosine will always be positive.
-
-	angleb = visangle - rw_normalangle;
-	cosb = M_Cos(angleb);
-
-	num = y_distunit * cosb;
-	den = rw_distance * cosa;
-
-	if (den > 0)
-	{
-		scale = num / den;
-
-		if (scale > 64)
-			scale = 64;
-		else if (scale < 1/256.0f)
-			scale = 1/256.0f;
-	}
-	else
-		scale = 64;
-
-	return scale;
-}
-
-//
-// InitTextureMapping
-//
-static void InitTextureMapping(void)
-{
-	// this should be called between each view change (or it could be removed)
-	leftclipangle = xtoviewangle[0];
-	rightclipangle = xtoviewangle[viewwidth];
-	clipscope = leftclipangle - rightclipangle;
-}
-
-//
-// InitLightTables
-//
-// Inits the zlight and scalelight tables. Only done once, at startup.
-// -ES- 1999/06/13 Made separate 8- and 16-bit versions of tables
-// -AJA- 1999/07/10: Unseparated them, for colmap.ddf.
-//
-static void InitLightTables(void)
-{
-	int i;
-	int j;
-	int level;
-	float startmap;
-	float scale;
-
-	// Calculate the light levels to use
-	//  for each level / distance combination &
-	//  for each level / scale combination.
-	// -AJA- 1999/07/10: Reworked for colmap.ddf.
-
-	for (i = 0; i < LIGHTLEVELS; i++)
-	{
-		startmap = ((LIGHTLEVELS - 1 - i) * 2) * 256.0f / LIGHTLEVELS;
-
-		for (j = 0; j < MAXLIGHTZ; j++)
-		{
-			scale = 16 * 160.0f / (j + 1);
-			level = (int)(startmap - scale);
-
-			if (level < 0)
-				level = 0;
-			if (level > 255)
-				level = 255;
-
-			zlight[i][j] = 255 - level;
-		}
-
-		for (j = 0; j < MAXLIGHTSCALE; j++)
-		{
-			level = (int)(startmap - j * 192.0f / MAXLIGHTSCALE);
-
-			if (level < 0)
-				level = 0;
-			if (level > 255)
-				level = 255;
-
-			scalelight[i][j] = 255 - level;
-		}
-	}
-}
 
 // Can currently only be R_Render_Standard.
 void (*R_Render) (void) = R_Render_Standard;
@@ -459,7 +294,6 @@ void (*R_Render) (void) = R_Render_Standard;
 bool setsizeneeded;
 int setblocks;
 bool setresfailed = false;
-int use_3d_mode;
 
 void R_SetViewSize(int blocks)
 {
@@ -470,18 +304,9 @@ void R_SetViewSize(int blocks)
 
 static void InitViews(viewbitmap_t * vb, float xoffset)
 {
-	const char *s;
 	aspect_t *a;
 
-	// -ES- 1999/03/19 Use focusx & focusy, for asymmetric fovs.
-	focusxfrac = leftslope * viewwidth / (leftslope - rightslope) + xoffset;
-
-	// Unit scale at distance distunit.
-	x_distunit = viewwidth / (leftslope - rightslope);
-
 	a = R_CreateAspect(vb,
-		x_distunit, y_distunit,
-		focusxfrac,
 		topslope, bottomslope,
 		viewwidth, viewheight);
 
@@ -489,14 +314,8 @@ static void InitViews(viewbitmap_t * vb, float xoffset)
 	if (viewanglebaseoffset == 0)
 		R_CreateView(vb, a, 0, 0, camera, VRF_PSPR, 100);
 
-	s = M_GetParm("-screencomp");
-	if (s)
-	{
-		screencomposition = atoi(s);
-	}
-
 	// now create the "real" views...
-	screencomplist[screencomposition].routine(vb);
+	InitVB_Classic(vb);
 }
 
 //
@@ -547,40 +366,6 @@ void R_ExecuteSetViewSize(void)
 	topslope = slopeoffset;
 	bottomslope = -slopeoffset;
 
-	y_distunit = viewwindowheight / (topslope - bottomslope);
-	focusyfrac = viewwindowheight * topslope / (topslope - bottomslope);
-
-	if (use_3d_mode && SCREENBITS == 16)
-	{
-		static camera_t *leftc, *rightc;
-
-		if (screenvb)
-			R_DestroyViewBitmap(screenvb);
-
-		if (rightvb)
-			R_DestroyViewBitmap(rightvb);
-
-		rightvb = R_CreateViewBitmap(viewwindowwidth, viewwindowheight, BPP, NULL, 0, 0);
-		screenvb = R_CreateViewBitmap(viewwindowwidth, viewwindowheight, BPP, main_scr, viewwindowx, viewwindowy);
-
-		R_InitVB_3D_Right(rightvb, screenvb);
-
-		if (!leftc)
-		{
-			leftc = R_CreateCamera();
-			R_InitCamera_3D_Left(leftc);
-			rightc = R_CreateCamera();
-			R_InitCamera_3D_Right(rightc);
-		}
-
-		camera = leftc;
-		InitViews(screenvb, 4.0f);
-		camera = rightc;
-		InitViews(rightvb, -4.0f);
-
-		R_InitVB_3D_Left(rightvb, screenvb);
-	}
-	else
 	{
 		// -AJA- FIXME: cameras should be renewed when starting a new
 		//       level (since there will be new mobjs).
@@ -611,12 +396,6 @@ void R_ExecuteSetViewSize(void)
 	}
 
 	R_SetActiveViewBitmap(screenvb);
-
-	pspritescale = (float)(viewwindowwidth / 320.0f);
-	pspriteiscale = (float)(320.0f / viewwindowwidth);
-	pspritescale2 = ((float)SCREENHEIGHT / SCREENWIDTH) * viewwindowwidth / 200.0f;
-	pspriteiscale2 = ((float)SCREENWIDTH / SCREENHEIGHT) * 200.0f / viewwindowwidth;
-
 }
 
 //
@@ -738,28 +517,10 @@ static bool DoExecuteChangeResolution(void)
 
 	if (! init_rend)
 	{
-#ifdef USE_GL
 		RGL_Init();
-#else
-		R2_Init();
-#endif
-
 		init_rend = true;
 	}
 
-	/// -AJA- FIXME: clean up (move into R2_NewScreenSize)
-	{
-		int i;
-
-		Z_Resize(columnofs, int, SCREENWIDTH);
-		Z_Resize(ylookup, byte *, SCREENHEIGHT);
-
-		for (i=0; i < SCREENWIDTH; i++)
-			columnofs[i] = i * BPP;
-
-		for (i=0; i < SCREENHEIGHT; i++)
-			ylookup[i] = main_scr->data + i * main_scr->pitch;
-	}
 
 	vctx.NewScreenSize(SCREENWIDTH, SCREENHEIGHT, BPP);
 
@@ -771,11 +532,9 @@ static bool DoExecuteChangeResolution(void)
 	GUI_InitResolution();
 
 	// re-initialise various bits of GL state
-#ifdef USE_GL
 	RGL_SoftInit();
 	RGL_SoftInitUnits();	// -ACB- 2004/02/15 Needed to sort some vars lost in res change
 	W_ResetImages();
-#endif
 
 	graphicsmode = true;
 
@@ -879,16 +638,10 @@ void R_ExecuteChangeResolution(void)
 bool R_Init(void)
 {
 	R_SetViewSize(screenblocks);
-	I_Printf(".");
-	InitLightTables();
-	I_Printf(".");
-	I_Printf(".");
 	R_SetNormalFOV((angle_t)(cfgnormalfov * (angle_t)((float)ANG45 / 45.0f)));
-	I_Printf(".");
 	R_SetZoomedFOV((angle_t)(cfgzoomedfov * (angle_t)((float)ANG45 / 45.0f)));
-	I_Printf(".");
 	R_SetFOV(normalfov);
-	I_Printf(".");
+
 	framecount = 0;
 
 	return true;
@@ -965,11 +718,11 @@ int telept_reverse = 0;
 
 void R_StartFading(int start, int range)
 {
-	telept_wipeinfo = WIPE_InitWipe(&screenvb->screen, 0, 0,
-		&screenvb->screen, 0, 0, true,
-		&screenvb->screen, 0, 0, false,
-		viewwindowwidth, viewwindowheight, telept_wipeinfo,
-		range, telept_reverse?true:false, (wipetype_e)telept_effect);
+///###	telept_wipeinfo = WIPE_InitWipe(&screenvb->screen, 0, 0,
+///###		&screenvb->screen, 0, 0, true,
+///###		&screenvb->screen, 0, 0, false,
+///###		viewwindowwidth, viewwindowheight, telept_wipeinfo,
+///###		range, telept_reverse?true:false, (wipetype_e)telept_effect);
 
 	telept_active = true;
 	telept_starttic = start + leveltime;
@@ -1002,12 +755,6 @@ void R_RenderViewBitmap(viewbitmap_t * vb)
 	view_t *v;
 	aspect_t *a;
 
-	colfunc = basecolfunc = R_DrawColumn;
-	fuzzcolfunc = R_DrawFuzzColumn;
-	transcolfunc = R_DrawTranslatedColumn;
-	spanfunc = R_DrawSpan;
-	trans_spanfunc = R_DrawTranslucentSpan;
-
 	R_CallCallbackList(vb->frame_start);
 
 	R_SetActiveViewBitmap(vb);
@@ -1018,7 +765,6 @@ void R_RenderViewBitmap(viewbitmap_t * vb)
 
 		SetupFrame(v->camera, v);
 
-		R_AspectChangeY(a, a->y_distunit, M_Tan(viewvertangle));
 
 		R_CallCallbackList(v->frame_start);
 
@@ -1039,24 +785,11 @@ void R_RenderViewBitmap(viewbitmap_t * vb)
 				// check for new console commands.
 				E_NetUpdate();
 
-#ifdef USE_GL
 				RGL_RenderTrueBSP();
-#else
-				R2_RenderTrueBSP();
-#endif
+
 				// Check for new console commands.
 				E_NetUpdate();
 			}
-#ifndef USE_GL
-			if (v->renderflags & VRF_PSPR && v->camera->view_obj->player)
-			{
-				// Draw the player sprites.
-				// -ES- 1999/05/27 Moved psprite code here.
-				focusyfrac = (float)viewheight / 2;
-
-				R2_DrawPlayerSprites(v->camera->view_obj->player);
-			}
-#endif
 		}
 		R_CallCallbackList(v->frame_end);
 		R_CallCallbackList(v->camera->frame_end);
@@ -1079,15 +812,6 @@ void R_SetActiveViewBitmap(viewbitmap_t * vb)
 
 	curviewbmp = vb;
 
-	vb_h = vb->screen.height;
-	vb_w = vb->screen.width;
-
-	// only need to re-init if pitch has changed.
-	if (vb->screen.pitch != vb_pitch)
-	{
-		vb_pitch = vb->screen.pitch;
-		I_PrepareAssembler();
-	}
 }
 
 //
@@ -1109,33 +833,10 @@ void R_SetActiveView(view_t * v)
 	if (v->parent != curviewbmp)
 		I_Error("R_SetActiveView: The wrong viewbitmap is used!");
 
-	///  columnofs = v->columnofs;
-	///  ylookup = v->ylookup;
-
 	viewwidth = v->screen.width;
 	viewheight = v->screen.height;
-
-	focusxfrac = a->focusxfrac - (float)v->aspect_x;
-	focusyfrac = a->focusyfrac - (float)v->aspect_y;
-
-	viewangletox = v->viewangletox;
-	xtoviewangle = v->xtoviewangle;
-
-	distscale = v->distscale;
-
-	yslope = v->yslope;
 
 	topslope = a->topslope - (a->topslope - a->bottomslope) * v->aspect_y / a->maxheight;
 	bottomslope = a->topslope - (a->topslope - a->bottomslope) * (v->aspect_y + viewheight) / a->maxheight;
 
-#ifndef USE_GL
-	topslope += a->fakefocusslope;
-	bottomslope += a->fakefocusslope;
-#endif
-
-	x_distunit = a->x_distunit;
-	y_distunit = a->y_distunit;
-
-	// This is no more time-critical, so it can be called every frame...
-	InitTextureMapping();
 }

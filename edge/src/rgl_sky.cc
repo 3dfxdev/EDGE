@@ -17,8 +17,6 @@
 //----------------------------------------------------------------------------
 
 // this conditional applies to the whole file
-#ifdef USE_GL
-
 #include "i_defs.h"
 
 #include "am_map.h"
@@ -663,6 +661,3 @@ static void UpdateSkyBoxTextures(void)
 	box_info.top    = W_ImageFromSkyMerge(sky_image, false);
 	box_info.bottom = W_ImageFromSkyMerge(sky_image, true);
 }
-
-
-#endif  // USE_GL

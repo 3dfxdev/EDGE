@@ -43,9 +43,6 @@ void V_IndexNominalToRGB(int indexcol, byte *returncol);
 // -ES- 1998/11/29 Added translucency tables
 // -AJA- 1999/06/30: Moved 'em here, from dm_state.h.
 extern byte rgb_32k[32][32][32];  // 32K RGB table, for 8-bit translucency
-extern unsigned long col2rgb16[65][256][2];
-extern unsigned long col2rgb8[65][256];
-extern unsigned long hicolourtransmask;  // OR mask used for translucency
 
 // -AJA- 1999/07/03: moved here from v_res.h.
 extern byte gammatable[5][256];
@@ -54,8 +51,7 @@ extern int current_gamma;
 
 #define GAMMA_CONV(light)  (gammatable[usegamma][light])
 
-// -AJA- 1999/07/03: Some palette stuff. Should be replaced later on with
-// some DDF system (e.g. "palette.ddf").
+// -AJA- 1999/07/03: Some palette stuff.
 
 extern byte playpal_data[14][256][3];
 
@@ -68,11 +64,6 @@ int V_FindColour(int r, int g, int b);
 void V_SetPalette(int type, float amount);
 void V_ColourNewFrame(void);
 
-// -AJA- 1999/07/05: Added this, to be used instead of the
-// Allegro-specific `palette_color' array.
-
-extern long pixel_values[256];
-
 // -AJA- 1999/07/10: Some stuff for colmap.ddf.
 
 typedef enum
@@ -82,28 +73,12 @@ typedef enum
 }
 vcol_flags_e;
 
-const coltable_t *V_GetRawColtable(const colourmap_c * nominal, int level);
-const coltable_t *V_GetColtable
- (const colourmap_c * nominal, int lightlevel, vcol_flags_e flags);
-
 // translation support
 const byte *V_GetTranslationTable(const colourmap_c * colmap);
 
-const coltable_t *V_GetTranslatedColtable(const coltable_t *src,
-    const byte *trans);
-
 // support for GL
-#ifdef USE_GL
 void V_GetColmapRGB(const colourmap_c *colmap,
     float *r, float *g, float *b, bool font);
-#endif
-
-// general purpose colormaps & coltables
-extern const colourmap_c *normal_map;
-extern const colourmap_c *sky_map;
-extern const colourmap_c *shadow_map;
-extern const coltable_t *fuzz_coltable;
-extern const coltable_t *dim_coltable;
 
 // text translation tables
 extern const byte *font_whitener;

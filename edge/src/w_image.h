@@ -184,9 +184,7 @@ const w_post_t *W_ImageGetPost(const cached_image_t *c, int column);
 
 const byte *W_ImageGetBlock(const cached_image_t *c);
 
-#ifdef USE_GL
 GLuint W_ImageGetOGL(const cached_image_t *c);
-#endif
 
 #ifdef DEVELOPERS
 const char *W_ImageDebugName(const image_t *image);
