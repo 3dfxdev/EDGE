@@ -231,7 +231,8 @@ extern int maketic;
 extern int ticdup;
 
 //misc stuff
-extern bool newhud;
+extern bool map_overlay;
+extern bool hud_overlay;
 extern bool rotatemap;
 extern bool showstats;
 extern bool swapstereo;

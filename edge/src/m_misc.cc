@@ -106,7 +106,7 @@ static default_t defaults[] =
     {CFGT_Enum, "crosshair", &crosshair, 0},
     {CFGT_Int, "stretchsky", &global_flags.stretchsky, 1},
     {CFGT_Boolean, "rotatemap", &rotatemap, 0},
-    {CFGT_Boolean, "newhud", &newhud, 0},
+    {CFGT_Boolean, "newhud", &map_overlay, 0},
     {CFGT_Boolean, "respawnsetting", &global_flags.res_respawn, 0},
     {CFGT_Boolean, "itemrespawn", &global_flags.itemrespawn, 0},
     {CFGT_Boolean, "respawn", &global_flags.respawn, 0},
@@ -148,6 +148,7 @@ static default_t defaults[] =
     {CFGT_Int, "joy_yaxis", &joy_yaxis, 0},
 
     {CFGT_Int, "screenblocks", &screenblocks, 10},
+    {CFGT_Boolean, "hud_overlay", &hud_overlay, 0},
     // -ES- 1999/03/30 Added fov stuff.
     {CFGT_Int, "fieldofview", &cfgnormalfov, 90},
     {CFGT_Int, "zoomedfieldofview", &cfgzoomedfov, 10},

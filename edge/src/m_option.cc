@@ -256,6 +256,7 @@ static void M_Toggle3dMode(int keypressed)
 
 static void M_ChangeScreenSize(int keypressed)
 {
+	hud_overlay = false;
 	R_SetViewSize(screen_size + 3);
 }
 
@@ -403,7 +404,7 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch, "Detail Level", Details, 3, 1, &detail_level, NULL, NULL},
 	{OPT_Switch, "Crosshair", CrosO, 4, 0, &crosshair, NULL, NULL},
 	{OPT_Boolean, "Map Rotation", YesNo, 2, 0, &rotatemap, NULL, NULL},
-	{OPT_Boolean, "Map Overlay", YesNo, 2, 0, &newhud, NULL, NULL},
+	{OPT_Boolean, "Map Overlay", YesNo, 2, 0, &map_overlay, NULL, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Switch, "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 0, &telept_effect, NULL, NULL},
 	{OPT_Switch, "Teleport Flash", YesNo, 2, 1, &telept_flash, NULL, NULL},

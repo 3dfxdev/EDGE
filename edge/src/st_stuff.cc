@@ -193,6 +193,7 @@ static st_chatstateenum_t st_chatstate;
 
 // whether left-side main status bar is active
 static bool st_statusbaron;
+static bool st_baron_not_overlay;
 
 // whether status bar chat is active
 static bool st_chat;
@@ -287,7 +288,7 @@ void ST_Stop(void);
 
 static void RefreshBackground(void)
 {
-	if (st_statusbaron)
+	if (st_baron_not_overlay)
 	{
 #ifdef USE_GL  // -AJA- hack fix for red line at bottom of screen
 		VCTX_Image320(ST_X, ST_Y, ST_WIDTH, ST_HEIGHT+1, sbar_image);
@@ -329,10 +330,10 @@ static void DrawWidgets(bool refresh)
 	int i;
 
 	// used by w_arms[] widgets
-	st_armson = st_statusbaron && !deathmatch;
+	st_armson = st_baron_not_overlay && !deathmatch;
 
 	// used by w_frags widget
-	st_fragson = deathmatch && st_statusbaron;
+	st_fragson = st_baron_not_overlay && deathmatch;
 
 	STLIB_UpdateNum(&w_ready, refresh);
 
@@ -558,10 +559,10 @@ static void UpdateWidgets(void)
 	st_notdeathmatch = !deathmatch;
 
 	// used by w_arms[] widgets
-	st_armson = st_statusbaron && !deathmatch;
+	st_armson = st_baron_not_overlay && !deathmatch;
 
 	// used by w_frags widget
-	st_fragson = deathmatch && st_statusbaron;
+	st_fragson = st_baron_not_overlay && deathmatch;
 	st_fragscount = 0;
 
 	st_fragscount = consoleplayer->frags;
@@ -643,7 +644,18 @@ static void DiffDraw(void)
 
 void ST_Drawer(bool fullscreen, bool refresh)
 {
-	st_statusbaron = (!fullscreen) || automapactive;
+	st_statusbaron       = (!fullscreen) || automapactive || hud_overlay;
+	st_baron_not_overlay = (!fullscreen) || automapactive;
+
+	if (fullscreen && hud_overlay)
+	{
+		w_ready.colmap = text_yellow_map;
+		w_armour.f.num.colmap = text_green_map;
+	}
+	else
+	{
+		w_ready.colmap = w_armour.f.num.colmap = text_red_map;
+	}
 
 #if 1 
 	// -AJA- one small hack for GL, one *giant* HACK for software 
@@ -804,7 +816,7 @@ static void InitData(void)
 	int i;
 
 	st_chatstate = StartChatState;
-	st_statusbaron = true;
+	st_statusbaron = st_baron_not_overlay = true;
 	st_oldchat = st_chat = false;
 	st_cursoron = false;
 	consoleplayer->face_index = 0;
@@ -830,7 +842,7 @@ static void CreateWidgets(void)
 
 	// arms background
 	STLIB_InitBinIcon(&w_armsbg, ST_ARMSBGX, ST_ARMSBGY, armsbg,
-		&st_notdeathmatch, &st_statusbaron);
+		&st_notdeathmatch, &st_baron_not_overlay);
 
 	// weapons owned
 	for (i = 0; i < 6; i++)
@@ -847,7 +859,7 @@ static void CreateWidgets(void)
 
 	// faces
 	STLIB_InitMultIcon(&w_faces, ST_FACESX, ST_FACESY, faces,
-		&consoleplayer->face_index, &st_statusbaron);
+		&consoleplayer->face_index, &st_baron_not_overlay);
 
 	// armour percentage - should be coloured later
 	STLIB_InitPercent(&w_armour, ST_ARMOURX, ST_ARMOURY, tallnum, tallpercent,
