@@ -1560,17 +1560,17 @@ startuporder_t startcode[] =
 	{  1, SetLanguage,         },
 	{  1, ShowNotice,          },
 	{  1, SV_MainInit,         },
-	{ 10, W_ImageCreateUser,   },
+	{ 15, W_ImageCreateUser,   },
 	{  1, M_Init,              },
 	{ 10, R_Init,              },
 	{  1, P_Init,              },
 	{  1, P_MapInit,           },
 	{  1, P_InitSwitchList,    },
 	{  1, R_InitPicAnims,      },
-	{  1, R_InitSprites,       },
+	{ 20, R_InitSprites,       },
 	{  1, S_Init,              },
 	{  1, E_CheckNetGame,      },
-	{  1, ST_Init,             },
+	{  2, ST_Init,             },
 	{  0, NULL,                }
 };
 

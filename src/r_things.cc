@@ -34,6 +34,7 @@
 #include "e_search.h"
 #include "dm_defs.h"
 #include "dm_state.h"
+#include "e_main.h"
 #include "m_argv.h"
 #include "m_inline.h"
 #include "p_local.h"
@@ -224,7 +225,7 @@ static void InstallSpriteLump(spritedef_c *def, int lump,
 //
 // FillSpriteFrames
 //
-static void FillSpriteFrames(int file)
+static void FillSpriteFrames(int file, int prog_base, int prog_total)
 {
 	epi::u32array_c& lumps = W_GetListLumps(file, LMPLST_Sprites);
 	int lumpnum = lumps.GetSize();
@@ -270,6 +271,9 @@ static void FillSpriteFrames(int file)
 			InstallSpriteLump(sprite_map[S], lumps[L], lumpname, 6, 1);
 
 		L++;
+
+		// update startup progress bar
+		E_LocalProgress(prog_base + L * 100 / lumpnum, prog_total);
 	}
 }
 
@@ -389,14 +393,13 @@ static void CheckSpriteFrames(spritedef_c *def)
 // 
 void R_InitSprites(void)
 {
-	int i, file;
-
 	if (numsprites <= 1)
 		I_Error("Missing sprite definitions !!\n");
 
 	I_Printf("R_InitSprites: Finding sprite patches\n");
 
 	// allocate frames (ignore NULL sprite, #0)
+	int i;
 	for (i=1; i < numsprites; i++)
 	{
 		spritedef_c *def = sprites[i];
@@ -431,9 +434,11 @@ void R_InitSprites(void)
 	//
 	// NOTE WELL: override granularity is single frames.
 
-	for (file=W_GetNumFiles() - 1; file >= 0; file--)
+	int numfiles = W_GetNumFiles();
+
+	for (int file = numfiles - 1; file >= 0; file--)
 	{
-		FillSpriteFrames(file);
+		FillSpriteFrames(file, (numfiles-1 - file) * 100, numfiles * 100);
 		MarkCompletedFrames();
 	}
 
