@@ -335,7 +335,13 @@ void Attacks::ConvertAttack(const mobjinfo_t *info, int mt_num, bool plr_rocket)
 		WAD::Printf("TOO_CLOSE_RANGE = 196;\n");
 
 	if (strchr(ext->flags, KF_NO_TRACE))
+	{
 		WAD::Printf("NO_TRACE_CHANCE = 50%%;\n");
+
+		// workaround for EDGE's behaviour of A_Tracer
+		if (target_version >= 129)
+			WAD::Printf("TRACE_ANGLE = 9;\n");
+	}
 
 	if (strchr(ext->flags, KF_KEEP_FIRE))
 		WAD::Printf("KEEP_FIRING_CHANCE = 4%%;\n");
