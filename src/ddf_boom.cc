@@ -205,7 +205,7 @@ static void HandleLineTrigger(linetype_c *line, int trigger)
 			line->type = line_shootable; 
 			break;
 
-		case 6:  // D1 and DR
+		case 6:  // P1 and PR
 			line->type = line_manual;
 			break;
 	}
