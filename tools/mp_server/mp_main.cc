@@ -130,7 +130,7 @@ int main(int argc, char **argv)
 	// FIXME: handle arguments
 
 	Fl::scheme(NULL);
-	fl_message_font(FL_HELVETICA_BOLD, 18);
+	fl_message_font(FL_HELVETICA /* _BOLD */, 18);
 
 	// load icons for file chooser
 	Fl_File_Icon::load_system_icons();
