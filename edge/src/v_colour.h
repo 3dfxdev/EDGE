@@ -59,6 +59,8 @@ extern void V_InitColour(void);
 // -AJA- 1999/07/03: Some palette stuff. Should be replaced later on with
 // some DDF system (e.g. "palette.ddf").
 
+extern byte playpal_data[14][256][3];
+
 #define PALETTE_NORMAL   0
 #define PALETTE_PAIN     1
 #define PALETTE_BONUS    2
