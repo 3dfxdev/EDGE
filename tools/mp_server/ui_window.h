@@ -44,6 +44,8 @@ public:
 	Fl_Menu_Bar *menu_bar;
 #endif
 
+	Fl_Tabs *tabs;
+
 	UI_Stats *stat_box;
 	UI_LogBox *log_box;
 

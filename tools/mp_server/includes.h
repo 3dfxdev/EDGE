@@ -47,6 +47,7 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Counter.H>
+// #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Hold_Browser.H>
 #include <FL/Fl_Image.H>
@@ -64,6 +65,7 @@
 #ifdef MACOSX
 #include <FL/Fl_Sys_Menu_Bar.H>
 #endif
+#include <FL/Fl_Tabs.H>
 #include <FL/Fl_Value_Input.H>
 #include <FL/Fl_Widget.H>
 #include <FL/Fl_Window.H>
