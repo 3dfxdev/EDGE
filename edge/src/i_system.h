@@ -117,12 +117,12 @@ void I_Warning(const char *warning,...) GCCATTR(format(printf, 1, 2));
 
 typedef struct i_time_s
 {
-  byte day;
-  byte month;
-  short year;
-  byte hours;
-  byte minutes;
-  byte secs;
+	byte day;
+	byte month;
+	short year;
+	byte hours;
+	byte minutes;
+	byte secs;
 }
 i_time_t;
 
@@ -204,25 +204,27 @@ extern boolean_t nomusic;
 // to true by the "-nomusic" option.  Can also be set to true by the
 // platform code when no working music device is found.
 
+typedef enum 
+{
+	IMUSSF_DATA,
+	IMUSSF_FILE,
+	IMUSSF_LUMP,
+	IMUSSF_CD
+}
+i_music_srcformat_e;
+
 typedef struct i_music_info_s
 {
-  enum
-  {
-    IMUSF_DATA,
-    IMUSF_FILE,
-    IMUSF_LUMP,
-    IMUSF_CD
-  }
-  format;
+	int format;
 
-  union
-  {
-    struct { void *ptr; int size; } data;
-    struct { char *name; } file;
-    struct { int handle; int pos; int size; } lump;
-    struct { int track; } cd;
-  }
-  info;
+	union
+	{
+		struct { void *ptr; int size; } data;
+		struct { char *name; } file;
+		struct { int handle; int pos; int size; } lump;
+		struct { int track; } cd;
+	}
+	info;
 }
 i_music_info_t;
 // Struct for setting up music playback. This 
@@ -290,7 +292,7 @@ boolean_t I_StartupSound(void *sysinfo);
 // platform-specific data via the `sysinfo' parameter.
 
 boolean_t I_LoadSfx(const unsigned char *data, unsigned int length, 
-      unsigned int freq, unsigned int handle);
+					unsigned int freq, unsigned int handle);
 // Loads the given `handle' with the specified sound data.  Handle is
 // a small integer value from 0 onwards.  If no such handle exists
 // then it is created.  The handle must not already contain any sound
@@ -389,20 +391,20 @@ void I_NetCmd(void);
 // make it pure grey (e.g. 0xFFDF on RGB 5:6:5 mode).
 typedef struct truecol_info_s
 {
-  int red_bits, green_bits, blue_bits;
-  int red_shift, green_shift, blue_shift;
-  long red_mask, green_mask, blue_mask;
-  long grey_mask;
+	int red_bits, green_bits, blue_bits;
+	int red_shift, green_shift, blue_shift;
+	long red_mask, green_mask, blue_mask;
+	long grey_mask;
 }
 truecol_info_t;
 
 // Screen mode information.
 typedef struct screenmode_s
 {
-  int width;
-  int height;
-  int depth;
-  boolean_t windowed;
+	int width;
+	int height;
+	int depth;
+	boolean_t windowed;
 }
 screenmode_t;
 
@@ -474,7 +476,7 @@ void I_ShutdownGraphics(void);
 // parameters even without GCC)
 #ifdef DEVELOPERS
 #define DEV_ASSERT(cond, arglist)  \
-    ((cond)?(void) 0 : I_Error arglist)
+	((cond)?(void) 0 : I_Error arglist)
 #else
 #define DEV_ASSERT(cond, arglist)  ((void) 0)
 #endif
@@ -482,15 +484,15 @@ void I_ShutdownGraphics(void);
 // -AJA- 2000/02/13: variation on a theme...
 #ifdef DEVELOPERS
 #define DEV_ASSERT2(cond)  \
-    ((cond)? (void)0:I_Error("Assertion `%s' failed at line %d of %s.\n",  \
-         #cond , __LINE__, __FILE__))
+	((cond)? (void)0:I_Error("Assertion `%s' failed at line %d of %s.\n",  \
+#cond , __LINE__, __FILE__))
 #else
 #define DEV_ASSERT2(cond)  ((void) 0)
 #endif
 
 #ifdef DEVELOPERS
 #define CHECKVAL(x) \
-  (((x)!=0)?(void)0:I_Error("'" #x "' Value Zero in %s, Line: %d",__FILE__,__LINE__))
+	(((x)!=0)?(void)0:I_Error("'" #x "' Value Zero in %s, Line: %d",__FILE__,__LINE__))
 #else
 #define CHECKVAL(x)  do {} while(0)
 #endif
