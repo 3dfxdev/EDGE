@@ -27,6 +27,7 @@
 
 #include "i_defs.h"
 
+#include "ammo.h"
 #include "attacks.h"
 #include "frames.h"
 #include "patch.h"
@@ -181,7 +182,7 @@ int main(int argc, char **argv)
 	System_Startup();
 
 	ShowTitle();
-
+	
 	// skip program name itself
 	argv++, argc--;
 
@@ -217,6 +218,10 @@ int main(int argc, char **argv)
 	// do conversions into DDF...
 	PrintMsg("Converting data into DDF...\n");
 
+	TextStr::SpriteDependencies();
+	Frames::StateDependencies();
+	Ammo::AmmoDependencies();
+
 	Things::ConvertTHING();
 	Attacks::ConvertATK();
 	Weapons::ConvertWEAP();
@@ -228,8 +233,7 @@ int main(int argc, char **argv)
 	PrintMsg("Writing WAD file: %s\n", output_file);
 
 	WAD::WriteFile(output_file);
-
-	PrintMsg("Finished.\n\n");
+	PrintMsg("\n");
 
 	WAD::Shutdown();
 	System_Shutdown();
