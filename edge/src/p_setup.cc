@@ -1249,6 +1249,19 @@ static void TransferMapSideDef(const mapsidedef_t *msd, side_t *sd,
 		sd->midmask_offset = sd->middle.offset.y;
 		sd->middle.offset.y = 0;
 	}
+
+	// -AJA- 2004/09/20: fix texture alignment for some rare cases
+	//       where the texture height is non-POW2 (e.g. 64x72) and
+	//       a negative Y offset was used.
+
+	if (sd->top.offset.y < 0 && sd->top.image)
+		sd->top.offset.y += sd->top.image->actual_h;
+
+	if (sd->middle.offset.y < 0 && sd->middle.image)
+		sd->middle.offset.y += sd->middle.image->actual_h;
+
+	if (sd->bottom.offset.y < 0 && sd->bottom.image)
+		sd->bottom.offset.y += sd->bottom.image->actual_h;
 }
 
 //
