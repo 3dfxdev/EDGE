@@ -900,8 +900,12 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 	// we're awake now...
 	target->reactiontime = 0;
 
+	bool ultra_loyal = (source && (target->hyperflags & HF_ULTRALOYAL) &&
+		(source->side & target->side) != 0);
+
 	if ((!target->threshold || target->extendedflags & EF_NOGRUDGE) &&
-		source && source != target && (!(source->extendedflags & EF_NEVERTARGET)))
+		source && source != target && (!(source->extendedflags & EF_NEVERTARGET)) &&
+		! ultra_loyal)
 	{
 		// if not intent on another player, chase after this one
 		P_MobjSetTarget(target, source);
