@@ -100,7 +100,7 @@ void CreateNewClient(NLsocket SOCK);
 bool VerifyClient(short idx, NLsocket SOCK, const NLaddress *remote_addr);
 void ClientTimeouts();
 
-void PK_connect_to_server(packet_c *pk);
+void PK_connect_to_server(packet_c *pk, NLsocket SOCK);
 void PK_leave_server(packet_c *pk);
 void PK_keep_alive(packet_c *pk);
 void PK_query_client(packet_c *pk);

@@ -368,7 +368,7 @@ static void NormalPacket(NLsocket CUR_SOCK)
 
 		if (pk.CheckType("cs"))   // connect to server
 		{
-			PK_connect_to_server(&pk);
+			PK_connect_to_server(&pk, CUR_SOCK);
 			continue;
 		}
 

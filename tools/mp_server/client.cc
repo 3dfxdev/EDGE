@@ -304,14 +304,27 @@ void ClientTimeouts()
 
 //------------------------------------------------------------------------
 
-void PK_connect_to_server(packet_c *pk)
+void PK_connect_to_server(packet_c *pk, NLsocket SOCK)
 {
-	// FIXME: check if too many games
+	// find client using socket
 
-	int client_id = pk->hd().client;
-	client_c *CL = clients[pk->hd().client];
+	int client_id;
+
+	for (client_id = 0; client_id < MPS_DEF_MAX_CLIENT; client_id++)
+		if (clients[client_id] && clients[client_id]->sock == SOCK)
+			break;
+	
+	if (client_id >= MPS_DEF_MAX_CLIENT)
+	{
+		DebugPrintf("PK_connect_to_server: no such client (SOCK 0x%x)\n", SOCK);
+		return;
+	}
+
+	client_c *CL = clients[client_id];
 
 	connect_proto_t& con = pk->cs_p();
+
+	// FIXME: check if too many games
 
 	// FIXME: check data_len
 
