@@ -28,8 +28,6 @@
 
 
 // Misc. other strings.
-#define HOMESUBDIR		".edge"
-
 #define SAVEGAMEBASE	"save"
 #define SAVEGAMEDIR	    "savegame"
 #define SAVEGAMEEXT     "esg"
