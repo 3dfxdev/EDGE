@@ -16,7 +16,14 @@
 //
 //------------------------------------------------------------------------
 
+#ifdef EDGEVER
+#include "epi/epitype.h"
+#include "epi/epiendian.h"
+#define SYS_BE_S16  EPI_BE_S16
+#else
 #include "includes.h"
+#endif
+
 #include "protocol.h"
 
 void header_proto_t::ByteSwap()
