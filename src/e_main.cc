@@ -1161,7 +1161,7 @@ static bool IdentifyVersion(void)
 
 		if (I_Access(fn.GetString()))
 		{
-			W_AddRawFilename(fn.GetString(), false);
+			W_AddRawFilename(fn.GetString(), FLKIND_IWad);
 		}
 		else
 		{
@@ -1193,7 +1193,7 @@ static bool IdentifyVersion(void)
 
 				if (I_Access(fn.GetString()))
 				{
-					W_AddRawFilename(fn.GetString(), false);
+					W_AddRawFilename(fn.GetString(), FLKIND_IWad);
 					done = true;
 				}
 
@@ -1219,7 +1219,7 @@ static bool IdentifyVersion(void)
 				// Only read the DDF/RTS lumps in EDGE.WAD if we are not in
 				// external-ddf mode.
 
-				W_AddRawFilename(fn.GetString(), external_ddf ? false : true);
+				W_AddRawFilename(fn.GetString(), FLKIND_EWad);
 				done = true;
 			}
 		}
@@ -1277,7 +1277,7 @@ static bool CheckPlayDemo(void)
 		
 		M_ComposeFileName(fn, gamedir, ps);
 		fn += ".lmp";	// FIXME!! Check we need to use extension here
-		W_AddRawFilename(fn.GetString(), false);
+		W_AddRawFilename(fn.GetString(), FLKIND_Demo);
 		I_Printf("Playing demo %s.\n", fn.GetString());
 	}
 
@@ -1404,29 +1404,113 @@ static bool SetupLogAndDebugFiles(void)
 	return true;
 }
 
+static void AddSingleCmdLineFile(const char *name)
+{
+	int kind = FLKIND_Lump;
+
+	// no need to check for GWA (shouldn't be added manually)
+
+	if (M_CheckExtension("wad", name) == EXT_MATCHING)
+		kind = FLKIND_PWad;
+	else if (M_CheckExtension("hwa", name) == EXT_MATCHING)
+		kind = FLKIND_HWad;
+	else if (M_CheckExtension("lmp", name) == EXT_MATCHING)
+		kind = FLKIND_Demo;
+	else if (M_CheckExtension("scr", name) == EXT_MATCHING)
+		kind = FLKIND_Script;
+	else if (M_CheckExtension("deh", name) == EXT_MATCHING ||
+	         M_CheckExtension("bex", name) == EXT_MATCHING)
+		kind = FLKIND_Deh;
+
+	epi::string_c fn;
+	
+	M_ComposeFileName(fn, gamedir, name);
+	W_AddRawFilename(fn.GetString(), kind);
+}
+
 static bool AddCommandLineFiles(void)
 {
 	epi::string_c fn;
-	
-	int p = M_CheckNextParm("-file", 0);
+
+	// first handle "loose" files (arguments before the first option)
+
+	int p;
+	const char *ps;
+
+	for (p = 1; p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0]; p++)
+	{
+		AddSingleCmdLineFile(ps);
+	}
+
+	// next handle the -file option (we allow multiple uses)
+
+	p = M_CheckNextParm("-file", 0);
 	
 	while (p)
 	{
 		// the parms after p are wadfile/lump names,
-		// until end of parms or another - preceded parm
+		// go until end of parms or another '-' preceded parm
 
-		const char *ps;
-
-		p++;
-
-		while (p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0])
+		for (p++; p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0]; p++)
 		{
-			M_ComposeFileName(fn, gamedir, ps);
-			W_AddRawFilename(fn.GetString(), true);
-			p++;
+			AddSingleCmdLineFile(ps);
 		}
 
 		p = M_CheckNextParm("-file", p-1);
+	}
+
+	// scripts....
+
+	p = M_CheckNextParm("-script", 0);
+	
+	while (p)
+	{
+		// the parms after p are script filenames,
+		// go until end of parms or another '-' preceded parm
+
+		for (p++; p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0]; p++)
+		{
+			if (M_CheckExtension("wad", ps) == EXT_MATCHING ||
+			    M_CheckExtension("gwa", ps) == EXT_MATCHING ||
+			    M_CheckExtension("hwa", ps) == EXT_MATCHING ||
+			    M_CheckExtension("deh", ps) == EXT_MATCHING ||
+			    M_CheckExtension("bex", ps) == EXT_MATCHING)
+			{
+				I_Error("Illegal filename for -script: %s\n", ps);
+			}
+
+			M_ComposeFileName(fn, gamedir, ps);
+			W_AddRawFilename(fn.GetString(), FLKIND_Script);
+		}
+
+		p = M_CheckNextParm("-script", p-1);
+	}
+
+
+	// finally handle the -deh option(s)
+
+	p = M_CheckNextParm("-deh", 0);
+	
+	while (p)
+	{
+		// the parms after p are Dehacked/BEX filenames,
+		// go until end of parms or another '-' preceded parm
+
+		for (p++; p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0]; p++)
+		{
+			if (M_CheckExtension("wad", ps) == EXT_MATCHING ||
+			    M_CheckExtension("gwa", ps) == EXT_MATCHING ||
+			    M_CheckExtension("hwa", ps) == EXT_MATCHING ||
+			    M_CheckExtension("scr", ps) == EXT_MATCHING)
+			{
+				I_Error("Illegal filename for -deh: %s\n", ps);
+			}
+
+			M_ComposeFileName(fn, gamedir, ps);
+			W_AddRawFilename(fn.GetString(), FLKIND_Deh);
+		}
+
+		p = M_CheckNextParm("-deh", p-1);
 	}
 
 	return true;
@@ -1475,7 +1559,6 @@ startuporder_t startcode[] =
 	{ SpecialWadVerify,    NULL            ,1 },
 	{ GUI_MouseInit,       NULL            ,1 },
 	{ W_ReadDDF,           NULL            ,20 },
-	{ RAD_LoadParam,       NULL            ,2 },
 	{ DDF_CleanUp,         NULL            ,1 },
 	{ SetLanguage,         NULL            ,1 },
 	{ ShowNotice,          NULL            ,1 },
