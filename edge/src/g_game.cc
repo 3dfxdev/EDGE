@@ -1366,21 +1366,26 @@ void G_DoCompleted(void)
 	wminfo.maxsecret = totalsecret;
 	wminfo.maxfrags = 0;
 	wminfo.partime = currmap->partime;
-	wminfo.pnum = consoleplayer->pnum;
+	wminfo.me = consoleplayer->pnum;
 
-	if (!wminfo.plyr)
-		wminfo.plyr = Z_New(wbplayerstruct_t, MAXPLAYERS);
+	if (!wminfo.plrs)
+		wminfo.plrs = Z_New(wbplayerstruct_t, MAXPLAYERS);
 
-	// FIXME: can overflow ???
+	Z_Clear(wminfo.plrs, wbplayerstruct_t, MAXPLAYERS);
+
 	for (p = players; p; p = p->next)
 	{
-		wminfo.plyr[p->pnum].in = p->in_game;
-		wminfo.plyr[p->pnum].skills = p->killcount;
-		wminfo.plyr[p->pnum].sitems = p->itemcount;
-		wminfo.plyr[p->pnum].ssecret = p->secretcount;
-		wminfo.plyr[p->pnum].stime = leveltime;
-		wminfo.plyr[p->pnum].frags = p->frags;
-		wminfo.plyr[p->pnum].totalfrags = p->totalfrags;
+		DEV_ASSERT2(0 <= p->pnum && p->pnum < MAXPLAYERS);
+
+		wbplayerstruct_t *wp = wminfo.plrs + p->pnum;
+
+		wp->in = p->in_game;
+		wp->skills = p->killcount;
+		wp->sitems = p->itemcount;
+		wp->ssecret = p->secretcount;
+		wp->stime = leveltime;
+		wp->frags = p->frags;
+		wp->totalfrags = p->totalfrags;
 	}
 
 	gamestate = GS_INTERMISSION;
