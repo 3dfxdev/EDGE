@@ -259,6 +259,8 @@ void G_DoLoadLevel(void)
 	exittime = 0x7fffffff;
 	exit_skipall = false;
 
+	BOT_BeginLevel();
+
 	gamestate = GS_LEVEL;
 
 	CON_SetVisible( /* !!! showMessages?vs_minimal: */ vs_notvisible);
@@ -628,6 +630,8 @@ static void G_DoCompleted(void)
 	
 	if (rts_menuactive)
 		RAD_FinishMenu(0);
+
+	BOT_EndLevel();
 
 	// handle "no stat" levels
 	if (currmap->wistyle == WISTYLE_None || exit_skipall)
@@ -1099,7 +1103,12 @@ static void G_DoEndGame(void)
 
 	P_DestroyAllPlayers();
 
-	// if (gamestate == GS_LEVEL) P_ShutdownLevel()
+	if (gamestate == GS_LEVEL)
+	{
+		BOT_EndLevel();
+
+		// FIXME: P_ShutdownLevel()
+	}
 
 	gamestate = GS_NOTHING;
 
