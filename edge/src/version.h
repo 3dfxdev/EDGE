@@ -16,8 +16,13 @@
 //
 //----------------------------------------------------------------------------
 
-#define EDGEVER    0x125
-#define EDGEVERFIX 0x100
+#define EDGEVER  0x125
+
+#ifdef JUST_A_WIP
+#define EDGEVERSTR  "1.25-WIP-2"
+#else
+#define EDGEVERSTR  "1.25"
+#endif
 
 // -ES- 2000/03/04 The version of EDGE.WAD we require.
 #define EDGE_WAD_VERSION 2
