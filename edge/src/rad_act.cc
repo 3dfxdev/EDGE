@@ -662,7 +662,7 @@ void RAD_ActGotoMap(rad_trigger_t *R, mobj_t *actor, void *param)
 	s_gotomap_t *go = (s_gotomap_t *) param;
 
 	// Warp to level n
-	G_ExitToLevel(go->map_name, 5);
+	G_ExitToLevel(go->map_name, 5, go->skip_all);
 }
 
 void RAD_ActExitLevel(rad_trigger_t *R, mobj_t *actor, void *param)

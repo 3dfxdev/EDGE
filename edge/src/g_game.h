@@ -73,7 +73,7 @@ void G_SetTurboScale(int scale);
 // -KM- 1998/11/25 Added Time param
 void G_ExitLevel(int time);
 void G_SecretExitLevel(int time);
-void G_ExitToLevel(char *name, int time);
+void G_ExitToLevel(char *name, int time, bool skip_all);
 
 void G_WorldDone(void);
 
