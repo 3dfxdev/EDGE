@@ -1,38 +1,69 @@
 #
-# Makefile for EDGE/Linux, Win32
+# Makefile for EDGE: < Win32 + MinGW >
 #
 # (Note: requires GNU make)
 # 
 
-SHELL = bash.exe
-CPP  = g++.exe
-CC   = gcc.exe
-WINDRES = windres.exe
+BIN=gledge32.exe
+RES=edge_private.res
 
-BIN  = gledge32.exe
-RES  = edge_private.res
+SHELL=bash.exe
 
-INCS =  -I../DEV-CPP/include  -Iinclude  -Ihawknl1.68/include 
-CFLAGS = $(INCS) -DUSE_DL_PREFIX -DWIN32 -fexceptions -O3
+CC=gcc.exe
+CPP=g++.exe
+WINDRES=windres.exe
 
-CXXINCS = -I../DEV-CPP/include/c++/3.3.1 \
-          -I../DEV-CPP/include/c++/3.3.1/mingw32 \
-          -I../DEV-CPP/include/c++/3.3.1/backward \
-		  -I../DEV-CPP/lib/gcc-lib/mingw32/3.3.1/include
+# External library directories
+DEVCPP_DIR="c:/localbin/devcpp"
+DX_DIR="c:/localbin/dxsdk-gcc"
+OGG_DIR="c:/localbin/oggvorbis-win32sdk-1.0.1"
+JPEG_DIR="c:/localsrc/eclipse/jpeg-6b"
+PNG_DIR="c:/localsrc/eclipse/lpng125"
+ZLIB_DIR="c:/localsrc/eclipse/zlib121"
+## HAWK_DIR="hawknl1.68"
 
-CXXFLAGS = $(CXXINCS) $(INCS) \
-           -DWIN32 -DDEVELOPERS -DUSE_DL_PREFIX -DUSE_HAWKNL -DUSE_DEH \
-           -fno-rtti -fexceptions -O3
+# Generated library directories
+DEH_DIR=./deh_edge_1.3
+GLBSP_DIR=./glbsp-2.10
 
-LIBS = -L../DEV-CPP/lib -Llib -Lhawknl1.68/src -mwindows epi/epi.a \
-        glbsp-2.10/libglbsp.a deh_edge_1.3/libdehedge.a lzo/lzo.a \
-		hawknl1.68/src/NLSTATIC.a lib/libpng13.a lib/libz.a \
-		lib/vorbisfile_static.a lib/vorbis_static.a lib/ogg_static.a \
-		-lwsock32 -lopengl32 -lwinmm -lgdi32 -ldxguid -ldinput -lOpenAL32
+INCS=-I$(DEVCPP_DIR)/include
+        
+CFLAGS=$(INCS) -fexceptions -O2 -Wall -DUSE_DL_PREFIX -DWIN32
+
+CXXINCS=-I$(DEVCPP_DIR)/include/c++ \
+        -I$(DEVCPP_DIR)/include/c++/mingw32 \
+        -I$(DEVCPP_DIR)/include/c++/backward \
+		-I$(DEVCPP_DIR)/lib/gcc-lib/mingw32/3.2/include \
+		-I$(DX_DIR)/include \
+        -I$(OGG_DIR)/include
+
+CXXFLAGS=$(CXXINCS) $(INCS) \
+         -O2 -Wall -fno-rtti -fexceptions \
+         -DWIN32 -DDEVELOPERS -DUSE_DL_PREFIX -DUSE_DEH
+
+# ----- LIBRARIES ------------------------------------------------------
+
+LIBS= \
+	-L$(DX_DIR)/lib \
+	-L$(DEVCPP_DIR)/lib \
+	-mwindows \
+	$(DEH_DIR)/libdehedge.a \
+	$(EPI_DIR)/libepi.a \
+	$(GLBSP_DIR)/libglbsp.a \
+	$(LZO_DIR)/liblzo.a \
+	$(OGG_DIR)/lib/ogg_static.a \
+	$(OGG_DIR)/lib/vorbis_static.a \
+	$(OGG_DIR)/lib/vorbisfile_static.a \
+	$(JPEG_DIR)/libjpeg.a \
+	$(PNG_DIR)/libpng13.a \
+	$(ZLIB_DIR)/libz.a \
+	-lwsock32 -lopengl32 -lwinmm -lgdi32 \
+	-ldxguid -ldinput -lopenal32 
 
 # ----- OBJECTS ------------------------------------------------------
 
-OBJ = \
+OBJS= \
+	$(RES) \
 	AL/i_sound.o \
 	AL/oggplayer.o \
 	am_map.o \
@@ -65,6 +96,7 @@ OBJ = \
 	e_demo.o \
 	e_input.o \
 	e_main.o \
+	e_player.o \
 	f_finale.o \
 	g_game.o \
 	gui_ctls.o \
@@ -156,387 +188,38 @@ OBJ = \
 	wp_wipe.o \
 	w_textur.o \
 	w_wad.o \
-	z_zone.o \
-	$(RES)
+	z_zone.o
 
 # ----- TARGETS ------------------------------------------------------
 
-all: $(BIN)
+SUBDIRS=dehedge epi glbsp lzo
+
+all: $(SUBDIRS) $(BIN)
 
 clean:
-	rm -f $(OBJ) $(BIN)
-
-.PHONY: all clean
-
-$(BIN): $(OBJ)
-	$(CPP) $(OBJ) -o gledge32.exe $(LIBS)
-
-am_map.o: am_map.cpp
-	$(CPP) -c am_map.cpp -o am_map.o $(CXXFLAGS)
-
-con_con.o: con_con.cpp
-	$(CPP) -c con_con.cpp -o con_con.o $(CXXFLAGS)
-
-con_cvar.o: con_cvar.cpp
-	$(CPP) -c con_cvar.cpp -o con_cvar.o $(CXXFLAGS)
-
-con_main.o: con_main.cpp
-	$(CPP) -c con_main.cpp -o con_main.o $(CXXFLAGS)
-
-ddf_anim.o: ddf_anim.cpp
-	$(CPP) -c ddf_anim.cpp -o ddf_anim.o $(CXXFLAGS)
-
-ddf_atk.o: ddf_atk.cpp
-	$(CPP) -c ddf_atk.cpp -o ddf_atk.o $(CXXFLAGS)
-
-ddf_boom.o: ddf_boom.cpp
-	$(CPP) -c ddf_boom.cpp -o ddf_boom.o $(CXXFLAGS)
-
-ddf_colm.o: ddf_colm.cpp
-	$(CPP) -c ddf_colm.cpp -o ddf_colm.o $(CXXFLAGS)
-
-ddf_game.o: ddf_game.cpp
-	$(CPP) -c ddf_game.cpp -o ddf_game.o $(CXXFLAGS)
-
-ddf_lang.o: ddf_lang.cpp
-	$(CPP) -c ddf_lang.cpp -o ddf_lang.o $(CXXFLAGS)
-
-ddf_levl.o: ddf_levl.cpp
-	$(CPP) -c ddf_levl.cpp -o ddf_levl.o $(CXXFLAGS)
-
-ddf_line.o: ddf_line.cpp
-	$(CPP) -c ddf_line.cpp -o ddf_line.o $(CXXFLAGS)
-
-ddf_main.o: ddf_main.cpp
-	$(CPP) -c ddf_main.cpp -o ddf_main.o $(CXXFLAGS)
-
-ddf_mobj.o: ddf_mobj.cpp
-	$(CPP) -c ddf_mobj.cpp -o ddf_mobj.o $(CXXFLAGS)
-
-ddf_mus.o: ddf_mus.cpp
-	$(CPP) -c ddf_mus.cpp -o ddf_mus.o $(CXXFLAGS)
-
-ddf_sect.o: ddf_sect.cpp
-	$(CPP) -c ddf_sect.cpp -o ddf_sect.o $(CXXFLAGS)
-
-ddf_sfx.o: ddf_sfx.cpp
-	$(CPP) -c ddf_sfx.cpp -o ddf_sfx.o $(CXXFLAGS)
-
-ddf_stat.o: ddf_stat.cpp
-	$(CPP) -c ddf_stat.cpp -o ddf_stat.o $(CXXFLAGS)
-
-ddf_swth.o: ddf_swth.cpp
-	$(CPP) -c ddf_swth.cpp -o ddf_swth.o $(CXXFLAGS)
-
-ddf_weap.o: ddf_weap.cpp
-	$(CPP) -c ddf_weap.cpp -o ddf_weap.o $(CXXFLAGS)
-
-dm_defs.o: dm_defs.cpp
-	$(CPP) -c dm_defs.cpp -o dm_defs.o $(CXXFLAGS)
-
-dm_state.o: dm_state.cpp
-	$(CPP) -c dm_state.cpp -o dm_state.o $(CXXFLAGS)
-
-e_main.o: e_main.cpp
-	$(CPP) -c e_main.cpp -o e_main.o $(CXXFLAGS)
-
-f_finale.o: f_finale.cpp
-	$(CPP) -c f_finale.cpp -o f_finale.o $(CXXFLAGS)
-
-g_game.o: g_game.cpp
-	$(CPP) -c g_game.cpp -o g_game.o $(CXXFLAGS)
-
-gui_ctls.o: gui_ctls.cpp
-	$(CPP) -c gui_ctls.cpp -o gui_ctls.o $(CXXFLAGS)
-
-gui_main.o: gui_main.cpp
-	$(CPP) -c gui_main.cpp -o gui_main.o $(CXXFLAGS)
-
-hu_lib.o: hu_lib.cpp
-	$(CPP) -c hu_lib.cpp -o hu_lib.o $(CXXFLAGS)
-
-hu_stuff.o: hu_stuff.cpp
-	$(CPP) -c hu_stuff.cpp -o hu_stuff.o $(CXXFLAGS)
-
-l_glbsp.o: l_glbsp.cpp
-	$(CPP) -c l_glbsp.cpp -o l_glbsp.o $(CXXFLAGS)
-
-lu_gamma.o: lu_gamma.cpp
-	$(CPP) -c lu_gamma.cpp -o lu_gamma.o $(CXXFLAGS)
-
-m_argv.o: m_argv.cpp
-	$(CPP) -c m_argv.cpp -o m_argv.o $(CXXFLAGS)
-
-m_bbox.o: m_bbox.cpp
-	$(CPP) -c m_bbox.cpp -o m_bbox.o $(CXXFLAGS)
-
-m_cheat.o: m_cheat.cpp
-	$(CPP) -c m_cheat.cpp -o m_cheat.o $(CXXFLAGS)
-
-m_inline.o: m_inline.cpp
-	$(CPP) -c m_inline.cpp -o m_inline.o $(CXXFLAGS)
-
-m_math.o: m_math.cpp
-	$(CPP) -c m_math.cpp -o m_math.o $(CXXFLAGS)
-
-m_menu.o: m_menu.cpp
-	$(CPP) -c m_menu.cpp -o m_menu.o $(CXXFLAGS)
-
-m_misc.o: m_misc.cpp
-	$(CPP) -c m_misc.cpp -o m_misc.o $(CXXFLAGS)
-
-m_option.o: m_option.cpp
-	$(CPP) -c m_option.cpp -o m_option.o $(CXXFLAGS)
-
-m_random.o: m_random.cpp
-	$(CPP) -c m_random.cpp -o m_random.o $(CXXFLAGS)
-
-p_action.o: p_action.cpp
-	$(CPP) -c p_action.cpp -o p_action.o $(CXXFLAGS)
-
-p_bot.o: p_bot.cpp
-	$(CPP) -c p_bot.cpp -o p_bot.o $(CXXFLAGS)
-
-p_enemy.o: p_enemy.cpp
-	$(CPP) -c p_enemy.cpp -o p_enemy.o $(CXXFLAGS)
-
-p_inter.o: p_inter.cpp
-	$(CPP) -c p_inter.cpp -o p_inter.o $(CXXFLAGS)
-
-p_lights.o: p_lights.cpp
-	$(CPP) -c p_lights.cpp -o p_lights.o $(CXXFLAGS)
-
-p_map.o: p_map.cpp
-	$(CPP) -c p_map.cpp -o p_map.o $(CXXFLAGS)
-
-p_maputl.o: p_maputl.cpp
-	$(CPP) -c p_maputl.cpp -o p_maputl.o $(CXXFLAGS)
-
-p_mobj.o: p_mobj.cpp
-	$(CPP) -c p_mobj.cpp -o p_mobj.o $(CXXFLAGS)
-
-p_plane.o: p_plane.cpp
-	$(CPP) -c p_plane.cpp -o p_plane.o $(CXXFLAGS)
-
-p_setup.o: p_setup.cpp
-	$(CPP) -c p_setup.cpp -o p_setup.o $(CXXFLAGS)
-
-p_sight.o: p_sight.cpp
-	$(CPP) -c p_sight.cpp -o p_sight.o $(CXXFLAGS)
-
-p_spec.o: p_spec.cpp
-	$(CPP) -c p_spec.cpp -o p_spec.o $(CXXFLAGS)
-
-p_switch.o: p_switch.cpp
-	$(CPP) -c p_switch.cpp -o p_switch.o $(CXXFLAGS)
-
-p_tick.o: p_tick.cpp
-	$(CPP) -c p_tick.cpp -o p_tick.o $(CXXFLAGS)
-
-p_user.o: p_user.cpp
-	$(CPP) -c p_user.cpp -o p_user.o $(CXXFLAGS)
-
-p_weapon.o: p_weapon.cpp
-	$(CPP) -c p_weapon.cpp -o p_weapon.o $(CXXFLAGS)
-
-r_bsp.o: r_bsp.cpp
-	$(CPP) -c r_bsp.cpp -o r_bsp.o $(CXXFLAGS)
-
-r_data.o: r_data.cpp
-	$(CPP) -c r_data.cpp -o r_data.o $(CXXFLAGS)
-
-r_layers.o: r_layers.cpp
-	$(CPP) -c r_layers.cpp -o r_layers.o $(CXXFLAGS)
-
-r_main.o: r_main.cpp
-	$(CPP) -c r_main.cpp -o r_main.o $(CXXFLAGS)
-
-r_sky.o: r_sky.cpp
-	$(CPP) -c r_sky.cpp -o r_sky.o $(CXXFLAGS)
-
-r_things.o: r_things.cpp
-	$(CPP) -c r_things.cpp -o r_things.o $(CXXFLAGS)
-
-r_vbinit.o: r_vbinit.cpp
-	$(CPP) -c r_vbinit.cpp -o r_vbinit.o $(CXXFLAGS)
-
-r_view.o: r_view.cpp
-	$(CPP) -c r_view.cpp -o r_view.o $(CXXFLAGS)
-
-r2_util.o: r2_util.cpp
-	$(CPP) -c r2_util.cpp -o r2_util.o $(CXXFLAGS)
-
-rad_act.o: rad_act.cpp
-	$(CPP) -c rad_act.cpp -o rad_act.o $(CXXFLAGS)
-
-rad_pars.o: rad_pars.cpp
-	$(CPP) -c rad_pars.cpp -o rad_pars.o $(CXXFLAGS)
-
-rad_trig.o: rad_trig.cpp
-	$(CPP) -c rad_trig.cpp -o rad_trig.o $(CXXFLAGS)
-
-rgl_bsp.o: rgl_bsp.cpp
-	$(CPP) -c rgl_bsp.cpp -o rgl_bsp.o $(CXXFLAGS)
-
-rgl_main.o: rgl_main.cpp
-	$(CPP) -c rgl_main.cpp -o rgl_main.o $(CXXFLAGS)
-
-rgl_sky.o: rgl_sky.cpp
-	$(CPP) -c rgl_sky.cpp -o rgl_sky.o $(CXXFLAGS)
-
-rgl_tex.o: rgl_tex.cpp
-	$(CPP) -c rgl_tex.cpp -o rgl_tex.o $(CXXFLAGS)
-
-rgl_unit.o: rgl_unit.cpp
-	$(CPP) -c rgl_unit.cpp -o rgl_unit.o $(CXXFLAGS)
-
-rgl_wipe.o: rgl_wipe.cpp
-	$(CPP) -c rgl_wipe.cpp -o rgl_wipe.o $(CXXFLAGS)
-
-s_music.o: s_music.cpp
-	$(CPP) -c s_music.cpp -o s_music.o $(CXXFLAGS)
-
-s_sound.o: s_sound.cpp
-	$(CPP) -c s_sound.cpp -o s_sound.o $(CXXFLAGS)
-
-st_lib.o: st_lib.cpp
-	$(CPP) -c st_lib.cpp -o st_lib.o $(CXXFLAGS)
-
-st_stuff.o: st_stuff.cpp
-	$(CPP) -c st_stuff.cpp -o st_stuff.o $(CXXFLAGS)
-
-sv_chunk.o: sv_chunk.cpp
-	$(CPP) -c sv_chunk.cpp -o sv_chunk.o $(CXXFLAGS)
-
-sv_dump.o: sv_dump.cpp
-	$(CPP) -c sv_dump.cpp -o sv_dump.o $(CXXFLAGS)
-
-sv_glob.o: sv_glob.cpp
-	$(CPP) -c sv_glob.cpp -o sv_glob.o $(CXXFLAGS)
-
-sv_level.o: sv_level.cpp
-	$(CPP) -c sv_level.cpp -o sv_level.o $(CXXFLAGS)
-
-sv_load.o: sv_load.cpp
-	$(CPP) -c sv_load.cpp -o sv_load.o $(CXXFLAGS)
-
-sv_main.o: sv_main.cpp
-	$(CPP) -c sv_main.cpp -o sv_main.o $(CXXFLAGS)
-
-sv_misc.o: sv_misc.cpp
-	$(CPP) -c sv_misc.cpp -o sv_misc.o $(CXXFLAGS)
-
-sv_mobj.o: sv_mobj.cpp
-	$(CPP) -c sv_mobj.cpp -o sv_mobj.o $(CXXFLAGS)
-
-sv_play.o: sv_play.cpp
-	$(CPP) -c sv_play.cpp -o sv_play.o $(CXXFLAGS)
-
-sv_save.o: sv_save.cpp
-	$(CPP) -c sv_save.cpp -o sv_save.o $(CXXFLAGS)
-
-v_colour.o: v_colour.cpp
-	$(CPP) -c v_colour.cpp -o v_colour.o $(CXXFLAGS)
-
-v_res.o: v_res.cpp
-	$(CPP) -c v_res.cpp -o v_res.o $(CXXFLAGS)
-
-w_image.o: w_image.cpp
-	$(CPP) -c w_image.cpp -o w_image.o $(CXXFLAGS)
-
-w_textur.o: w_textur.cpp
-	$(CPP) -c w_textur.cpp -o w_textur.o $(CXXFLAGS)
-
-w_wad.o: w_wad.cpp
-	$(CPP) -c w_wad.cpp -o w_wad.o $(CXXFLAGS)
-
-wi_stuff.o: wi_stuff.cpp
-	$(CPP) -c wi_stuff.cpp -o wi_stuff.o $(CXXFLAGS)
-
-wp_wipe.o: wp_wipe.cpp
-	$(CPP) -c wp_wipe.cpp -o wp_wipe.o $(CXXFLAGS)
-
-z_zone.o: z_zone.cpp
-	$(CPP) -c z_zone.cpp -o z_zone.o $(CXXFLAGS)
-
-win32/i_compen.o: win32/i_compen.cpp
-	$(CPP) -c win32/i_compen.cpp -o win32/i_compen.o $(CXXFLAGS)
-
-win32/i_ctrl.o: win32/i_ctrl.cpp
-	$(CPP) -c win32/i_ctrl.cpp -o win32/i_ctrl.o $(CXXFLAGS)
-
-win32/i_main.o: win32/i_main.cpp
-	$(CPP) -c win32/i_main.cpp -o win32/i_main.o $(CXXFLAGS)
-
-win32/i_mus.o: win32/i_mus.cpp
-	$(CPP) -c win32/i_mus.cpp -o win32/i_mus.o $(CXXFLAGS)
-
-win32/i_music.o: win32/i_music.cpp
-	$(CPP) -c win32/i_music.cpp -o win32/i_music.o $(CXXFLAGS)
-
-win32/i_net.o: win32/i_net.cpp
-	$(CPP) -c win32/i_net.cpp -o win32/i_net.o $(CXXFLAGS)
-
-win32/i_opengl.o: win32/i_opengl.cpp
-	$(CPP) -c win32/i_opengl.cpp -o win32/i_opengl.o $(CXXFLAGS)
-
-win32/i_system.o: win32/i_system.cpp
-	$(CPP) -c win32/i_system.cpp -o win32/i_system.o $(CXXFLAGS)
-
-win32/i_cd.o: win32/i_cd.cpp
-	$(CPP) -c win32/i_cd.cpp -o win32/i_cd.o $(CXXFLAGS)
-
-noasm/i_asm.o: noasm/i_asm.cpp
-	$(CPP) -c noasm/i_asm.cpp -o noasm/i_asm.o $(CXXFLAGS)
-
-AL/i_sound.o: AL/i_sound.cpp
-	$(CPP) -c AL/i_sound.cpp -o AL/i_sound.o $(CXXFLAGS)
-
-e_input.o: e_input.cpp
-	$(CPP) -c e_input.cpp -o e_input.o $(CXXFLAGS)
-
-e_demo.o: e_demo.cpp
-	$(CPP) -c e_demo.cpp -o e_demo.o $(CXXFLAGS)
-
-rgl_occ.o: rgl_occ.cpp
-	$(CPP) -c rgl_occ.cpp -o rgl_occ.o $(CXXFLAGS)
-
-rgl_fx.o: rgl_fx.cpp
-	$(CPP) -c rgl_fx.cpp -o rgl_fx.o $(CXXFLAGS)
-
-rgl_thing.o: rgl_thing.cpp
-	$(CPP) -c rgl_thing.cpp -o rgl_thing.o $(CXXFLAGS)
-
-ddf_font.o: ddf_font.cpp
-	$(CPP) -c ddf_font.cpp -o ddf_font.o $(CXXFLAGS)
-
-ddf_image.o: ddf_image.cpp
-	$(CPP) -c ddf_image.cpp -o ddf_image.o $(CXXFLAGS)
-
-ddf_style.o: ddf_style.cpp
-	$(CPP) -c ddf_style.cpp -o ddf_style.o $(CXXFLAGS)
-
-hu_style.o: hu_style.cpp
-	$(CPP) -c hu_style.cpp -o hu_style.o $(CXXFLAGS)
-
-n_network.o: n_network.cpp
-	$(CPP) -c n_network.cpp -o n_network.o $(CXXFLAGS)
-
-n_packet.o: n_packet.cpp
-	$(CPP) -c n_packet.cpp -o n_packet.o $(CXXFLAGS)
-
-n_proto.o: n_proto.cpp
-	$(CPP) -c n_proto.cpp -o n_proto.o $(CXXFLAGS)
-
-hu_font.o: hu_font.cpp
-	$(CPP) -c hu_font.cpp -o hu_font.o $(CXXFLAGS)
-
-l_deh.o: l_deh.cpp
-	$(CPP) -c l_deh.cpp -o l_deh.o $(CXXFLAGS)
-
-AL/oggplayer.o: AL/oggplayer.cpp
-	$(CPP) -c AL/oggplayer.cpp -o AL/oggplayer.o $(CXXFLAGS)
+	rm -f $(OBJS) $(BIN)
+	$(MAKE) -C $(DEH_DIR)   -f Plugin_w32.mak clean
+	$(MAKE) -C $(GLBSP_DIR) -f Plugin_w32.mak clean
+	$(MAKE) -C epi -f Makefile.w32 clean
+	$(MAKE) -C lzo -f Makefile.w32 clean
+
+dehedge: 
+	$(MAKE) -C $(DEH_DIR) -f Plugin_w32.mak
+	
+glbsp: 
+	$(MAKE) -C $(GLBSP_DIR) -f Plugin_w32.mak
+	
+epi: 
+	$(MAKE) -C epi -f Makefile.w32
+	
+lzo: 
+	$(MAKE) -C lzo -f Makefile.w32
+	
+$(BIN): $(OBJS)
+	$(CPP) $(OBJS) -o gledge32.exe $(LIBS)
 
 edge_private.res: edge_private.rc win32/edge32.rc 
 	$(WINDRES) -i edge_private.rc --input-format=rc -o edge_private.res -O coff 
+
+.PHONY: all clean $(SUBDIRS)
 
