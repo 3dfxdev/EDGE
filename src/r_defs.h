@@ -50,7 +50,7 @@ struct image_s;
 #define SIL_BOTH                3
 
 // -AJA- Don't like imposing this limit...
-#define MAXOPENGAPS   16
+#define MAXOPENGAPS   12
 
 //
 // INTERNAL MAP TYPES
