@@ -712,4 +712,21 @@
 "                      press enter to continue\n" \
 "===========================================================================\n"
 
+//------------------------------------------------------------------------
+//
+// -AJA- BEX Compatibility
+//
+
+#define D_CDROM       "CD-ROM Version: default.cfg from c:\\doomdata\n"
+
+#define DETAILHI      "High detail"
+#define DETAILLO      "Low detail"
+
+#define QUITMSG       "are you sure you want to\nquit this great game?"
+#define QLOADNET      "you can't quickload during a netgame!\n\n"PRESSKEY
+
+#define SWSTRING      \
+"this is the shareware version of doom.\n\n"\
+"you need to order the entire trilogy.\n\n"PRESSKEY
+
 #endif  /* __ENGLISH_HDR__ */
