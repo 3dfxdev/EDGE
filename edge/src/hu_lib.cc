@@ -199,8 +199,6 @@ void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c 
 void HL_DrawTextLine(hu_textline_t * L, bool drawcursor)
 {
 	HL_DrawTextLineAlpha(L, drawcursor, NULL, 1.0f);
-///---		L->style->def->text[L->text_type].colmap ?
-///---		L->style->def->text[L->text_type].colmap : text_red_map, 1.0f);
 }
 
 // sorta called by HU_Erase and just better darn get things straight
