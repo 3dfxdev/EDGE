@@ -97,7 +97,7 @@ static void ParseArgs(int argc, char **argv)
 			if (input_file)
 				FatalError("Too many filenames (use -o for output).\n");
 
-			input_file = strdup(opt);
+			input_file = StringDup(opt);
 			continue;
 		}
 
@@ -115,7 +115,7 @@ static void ParseArgs(int argc, char **argv)
 			if (output_file)
 				FatalError("Output file already given.\n");
 
-			output_file = strdup(*argv);
+			output_file = StringDup(*argv);
 
 			argv++, argc--;
 			continue;
@@ -154,8 +154,7 @@ static void ValidateArgs(void)
 
 		const char *base_name = ReplaceExtension(input_file, NULL);
 		
-		char *new_file = new char[strlen(base_name) + 16];
-		assert(new_file);
+		char *new_file = StringNew(strlen(base_name) + 16);
 
 		strcpy(new_file, base_name);
 		strcat(new_file, "_deh.wad");
@@ -171,12 +170,12 @@ static void ValidateArgs(void)
 	
 	if (CheckExtension(input_file, NULL) && ! FileExists(input_file))
 	{
-		input_file = strdup(ReplaceExtension(input_file, "deh"));
+		input_file = StringDup(ReplaceExtension(input_file, "deh"));
 	}
 
 	if (CheckExtension(output_file, NULL))
 	{
-		output_file = strdup(ReplaceExtension(output_file, "wad"));
+		output_file = StringDup(ReplaceExtension(output_file, "wad"));
 	}
 }
 
