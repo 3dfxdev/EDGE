@@ -67,9 +67,9 @@ typedef struct
 {
   float_t x, y;
   
-  // vertex lighting info, one for each height used
-  short num, max;
-  int *levels;
+  // vertex lighting info (EXPERIMENTAL !)
+  int f_light, c_light;
+  float_t f_min, c_max;
 }
 vertex_t;
 
