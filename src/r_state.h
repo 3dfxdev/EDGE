@@ -143,9 +143,4 @@ extern int sscount;
 extern visplane_t *floorplane;
 extern visplane_t *ceilingplane;
 
-// -AJA- 1999/08/16.
-extern visplane_t *extraplane;
-
-extern float_t extraheight;
-
 #endif

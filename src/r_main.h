@@ -81,9 +81,11 @@ extern int framecount;
 
 #define MAXLIGHTZ	       512
 #define LIGHTZSHIFT		18
+#define FLAT_LIGHTZ             32
 
 #define MAXLIGHTSCALE		48
 #define LIGHTSCALESHIFT		12
+#define FLAT_LIGHTSCALE         16
 
 extern lighttable_t zlight[LIGHTLEVELS][MAXLIGHTZ];
 extern lighttable_t scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
