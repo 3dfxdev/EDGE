@@ -55,5 +55,6 @@ typedef enum
 mapcompat_e;
 
 int P_DetectMapCompat(const mapdef_c *map);
+int P_DetectWadGameCompat(const mapdef_c *first);
 
 #endif

@@ -1574,6 +1574,16 @@ int W_GetFileCompatMode(int file)
 }
 
 //
+// W_GetFileForLump
+//
+int W_GetFileForLump(int lump)
+{
+	DEV_ASSERT2(lump >= 0 && lump < numlumps);
+
+	return lumpinfo[lump].file;
+}
+
+//
 // W_ReadLump
 //
 // Loads the lump into the given buffer,
