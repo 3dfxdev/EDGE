@@ -621,7 +621,7 @@ static void AddFile(const char *filename, bool allow_ddf,
 
 	if (M_CheckExtension("wad", filename) == EXT_MATCHING ||
 		M_CheckExtension("gwa", filename) == EXT_MATCHING ||
-		M_CheckExtension("dwa", filename) == EXT_MATCHING)
+		M_CheckExtension("hwa", filename) == EXT_MATCHING)
 	{
 		// WAD file
 		data_files[datafile].type = DATAFILE_TYPE_WAD;
