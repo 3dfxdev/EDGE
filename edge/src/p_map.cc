@@ -2026,6 +2026,12 @@ static bool PIT_ChangeSector(mobj_t * thing)
 			P_SetMobjStateDeferred(thing, thing->info->gib_state, 0);
 		}
 
+		if (thing->player)
+		{
+			nofit = true;
+			return true;
+		}
+
 		// just been crushed, isn't solid.
 		thing->flags &= ~MF_SOLID;
 
