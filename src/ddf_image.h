@@ -93,7 +93,6 @@ public:
 
 	epi::strent_c name;   // IMGDT_WadXXX, IMGDT_Package, IMGDT_File
 
-	int builtin_size;
 	int x_offset, y_offset;
 
 	// COMPOSE specifics:
