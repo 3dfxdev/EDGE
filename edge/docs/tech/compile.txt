@@ -82,7 +82,6 @@ NO_NIGHTMARE_CHEATS: Disables cheats in nightmare mode.
 NOCHEATS: Disables the code that checks for cheats.
 NOSMOOTHING: Disables all forms of bilinear texture interpolation (makes
 the game marginally faster).
-USE_GL: Enables the usage of OpenGL rendering.
 
 ============================================================================
 3. System-specific define options
