@@ -264,6 +264,14 @@ static void LoadGLVertexes(int lump)
 		return;
 	}
 
+	// check for non-compliant format
+	if (length >= 4 &&
+		data[0] == 'g' && data[1] == 'N' &&
+		data[2] == 'd' && data[3] == '4')
+	{
+		I_Error("Risen3D Nodes detected, please rebuild nodes with glBSP.\n");
+	}
+
 	// Determine number of vertices:
 	//  total lump length / vertex record length.
 	num_gl_vertexes = length / sizeof(mapvertex_t);
