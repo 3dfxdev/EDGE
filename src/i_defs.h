@@ -287,7 +287,8 @@ typedef enum { false, true } boolean_t;
 typedef long long Int64;
 typedef float float_t;
 #define FLOAT_IEEE_754
-typedef enum { false, true } boolean_t;
+
+typedef bool boolean_t;
 
 #include <ctype.h>
 #include <dirent.h>
@@ -342,7 +343,12 @@ typedef enum { false, true } boolean_t;
 typedef long long Int64;
 typedef float float_t;
 #define FLOAT_IEEE_754
+
+#ifdef _cplusplus
+typedef bool boolean_t;
+#else
 typedef enum { false, true } boolean_t;
+#endif
 
 #include <ctype.h>
 #include <dirent.h>

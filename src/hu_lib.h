@@ -82,7 +82,7 @@ typedef struct
   const H_font_t *font;
 
   // line of text
-  unsigned char ch[HU_MAXLINELENGTH + 1];
+  char ch[HU_MAXLINELENGTH + 1];
 
   // current line length
   int len;
@@ -174,7 +174,7 @@ void HL_AddLineToSText(hu_stext_t * s);
 
 // add message to stext
 void HL_AddMessageToSText(hu_stext_t * s, 
-    const unsigned char *prefix, const unsigned char *msg);
+    const char *prefix, const char *msg);
 
 // draws stext
 void HL_DrawSText(hu_stext_t * s);
@@ -196,10 +196,10 @@ void HL_EraseLineFromIText(hu_itext_t * it);
 void HL_ResetIText(hu_itext_t * it);
 
 // left of left-margin
-void HL_AddPrefixToIText(hu_itext_t * it, const unsigned char *str);
+void HL_AddPrefixToIText(hu_itext_t * it, const char *str);
 
 // whether eaten
-boolean_t HL_KeyInIText(hu_itext_t * it, unsigned char ch);
+boolean_t HL_KeyInIText(hu_itext_t * it, char ch);
 
 void HL_DrawIText(hu_itext_t * it);
 
@@ -216,12 +216,11 @@ void HL_DrawTextLineAlpha(hu_textline_t * l, boolean_t drawcursor,
 
 // hu_font size routines
 int HL_CharWidth(const H_font_t *font, int c);
-int HL_TextMaxLen(int max_w, const unsigned char *str);
-int HL_StringWidth(const unsigned char *string);
-int HL_StringHeight(const unsigned char *string);
+int HL_TextMaxLen(int max_w, const char *str);
+int HL_StringWidth(const char *string);
+int HL_StringHeight(const char *string);
 
-void HL_WriteText(int x, int y, const unsigned char *string);
-void HL_WriteTextTrans(int x, int y, const colourmap_t *colmap, 
-    const unsigned char *string);
+void HL_WriteText(int x, int y, const char *string);
+void HL_WriteTextTrans(int x, int y, const colourmap_t *colmap, const char *string);
 
 #endif  // __HULIB__

@@ -165,8 +165,8 @@ typedef struct player_s
 
   // weapons, either an index into the player->weapons[] array, or one
   // of the WPSEL_* values.
-  weapon_selection_e ready_wp;
-  weapon_selection_e pending_wp;
+  int ready_wp;
+  int pending_wp;
 
   // -AJA- 1999/08/11: Now uses playerweapon_t.
   playerweapon_t weapons[MAXWEAPONS];

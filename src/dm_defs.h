@@ -42,13 +42,13 @@
 // the game final animation, or a demo. 
 typedef enum
 {
+  GS_NOTHING = -1,
   GS_LEVEL,
   GS_INTERMISSION,
   GS_FINALE,
-  GS_DEMOSCREEN,
-  GS_NOTHING
+  GS_DEMOSCREEN
 }
-gamestate_t;
+gamestate_e;
 
 //
 // Difficulty/skill settings/filters.
@@ -74,11 +74,13 @@ gamestate_t;
 
 typedef enum
 {
-  sk_baby,
-  sk_easy,
-  sk_medium,
-  sk_hard,
-  sk_nightmare
+  sk_invalid   = -1,
+  sk_baby      = 0,
+  sk_easy      = 1,
+  sk_medium    = 2,
+  sk_hard      = 3,
+  sk_nightmare = 4,
+  sk_numtypes  = 5
 }
 skill_t;
 
@@ -102,6 +104,7 @@ typedef struct gameflags_s
 {
   // checkparm of -nomonsters
   boolean_t nomonsters;
+
   // checkparm of -fast
   boolean_t fastparm;
 
@@ -116,7 +119,7 @@ typedef struct gameflags_s
   boolean_t jump;
   boolean_t crouch;
   boolean_t mlook;
-  autoaim_t autoaim;
+  int autoaim;
 
   boolean_t trans;
   boolean_t cheats;
@@ -126,7 +129,7 @@ typedef struct gameflags_s
   boolean_t shadows;
   boolean_t halos;
 
-  compat_mode_t compat_mode;
+  int compat_mode;
   boolean_t kicking;
 }
 gameflags_t;

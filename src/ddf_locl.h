@@ -50,6 +50,7 @@
 // enum thats gives the parser's current status
 typedef enum
 {
+  readstatus_invalid = 0,
   waiting_tag,
   reading_tag,
   waiting_newdef,
@@ -59,7 +60,7 @@ typedef enum
   reading_remark,
   reading_string
 }
-readstatus_t;
+readstatus_e;
 
 // enum thats describes the return value from DDF_MainProcessChar
 typedef enum
@@ -298,7 +299,7 @@ void DDF_MainRefAttack(const char *info, void *storage);
 
 void DDF_DummyFunction(const char *info, void *storage);
 
-checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
+int DDF_MainCheckSpecialFlag(const char *name,
   const specflags_t *flag_set, int *flag_value, 
   boolean_t allow_prefixes, boolean_t allow_user);
 

@@ -35,7 +35,7 @@
 //
 void G_DeathMatchSpawnPlayer(player_t *p);
 
-void G_InitNew(skill_t skill, const mapstuff_t * map, long random_seed);
+void G_InitNew(int skill, const mapstuff_t * map, long random_seed);
 
 //
 // Called by the Startup code & M_Responder; A normal game
@@ -44,8 +44,7 @@ void G_InitNew(skill_t skill, const mapstuff_t * map, long random_seed);
 //
 // -ACB- 1998/08/10 New DDF Structure, Use map reference name.
 //
-boolean_t G_DeferedInitNew(skill_t skill, const char *mapname,
-    boolean_t warpopt);
+boolean_t G_DeferedInitNew(int skill, const char *mapname, boolean_t warpopt);
 
 void G_DeferedPlayDemo(const char *demo);
 

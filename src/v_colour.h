@@ -77,7 +77,8 @@ extern long pixel_values[256];
 
 typedef enum
 {
-  VCOL_Sky = 0x0001
+  VCOL_None = 0x0000,
+  VCOL_Sky  = 0x0001
 }
 vcol_flags_e;
 
