@@ -31,6 +31,7 @@
 #include "attacks.h"
 #include "frames.h"
 #include "patch.h"
+#include "rscript.h"
 #include "sounds.h"
 #include "storage.h"
 #include "system.h"
@@ -39,6 +40,8 @@
 #include "util.h"
 #include "wad.h"
 #include "weapons.h"
+
+#include "info.h"  // !!!
 
 
 const char *input_file  = NULL;
@@ -180,6 +183,8 @@ static void ValidateArgs(void)
 
 int main(int argc, char **argv)
 {
+/// printf("%d\n", S_SKEL_RAISE1); exit(1);
+
 	System_Startup();
 
 	ShowTitle();
@@ -232,6 +237,7 @@ int main(int argc, char **argv)
 	Sounds::ConvertSFX();
 	Sounds::ConvertMUS();
 	TextStr::ConvertLDF();
+	Rscript::ConvertRAD();
 
 	PrintMsg("\n");
 	PrintMsg("Writing WAD file: %s\n", output_file);
