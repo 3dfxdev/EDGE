@@ -51,7 +51,7 @@
 #define USERANGE     (64.0f)
 #define USE_Z_RANGE  (32.0f)
 #define MELEERANGE   (64.0f)
-#define MISSILERANGE (32.0f*64.0f)
+#define MISSILERANGE (2000.0f)
 
 // Weapon sprite speeds
 #define LOWERSPEED (6.0f)
