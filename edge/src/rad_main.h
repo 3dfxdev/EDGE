@@ -52,7 +52,7 @@ typedef struct s_tip_prop_s
   int slot_num;
   
   // tip position (as a percentage, 0-255), < 0 for no change
-  int x_pos, y_pos;
+  percent_t x_pos, y_pos;
 
   // left justify.  Can be 1, 0, or < 0 for no change.
   int left_just;
@@ -64,6 +64,17 @@ typedef struct s_tip_prop_s
   float_t translucency;
 }
 s_tip_prop_t;
+
+
+typedef struct s_tip_fade_s
+{
+  // destination translucency
+  float_t target_trans;
+  
+  // time (in tics) to reach target
+  int time;
+}
+s_tip_fade_t;
 
 
 // SpawnThing Function
