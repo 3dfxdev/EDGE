@@ -21,6 +21,7 @@
 #include "buffer.h"
 #include "client.h"
 #include "game.h"
+#include "lib_argv.h"
 #include "network.h"
 #include "packet.h"
 #include "protocol.h"
@@ -70,7 +71,7 @@ const char *GetNLErrorStr(void)
 	}
 	else
 	{
-		sprintf(err_buf, "NL: %s", nlGetErrorStr(err));
+		sprintf(err_buf, "HawkNL: %s", nlGetErrorStr(err));
 	}
 
 	// remove newlines and other rubbish
@@ -151,27 +152,65 @@ void NetInit(void)
  
     if (! nlSelectNetwork(NL_IP))
 	{
-		fl_alert("Hawk network library: unable to select IP networking:\n%s",
+		fl_alert("Hawk network library: unable to select IP networking:\n(%s)",
 				 GetNLErrorStr());
         exit(5); //!!!!
 	}
 
 	DebugPrintf("NL_SOCKET_TYPES: %s\n\n", nlGetString(NL_CONNECTION_TYPES));
 
-#ifdef LINUX
-	if (1) /// !!!!! FIXME: BIG HACK
+	// override local address
+	int p, num_p;
+
+	p = ArgvFind('l', "local", &num_p);
+
+	if (p >= 0)
 	{
+		if (num_p < 1)
+		{
+			fl_alert("-local option: missing address");
+			exit(5);
+	    }
+
 		NLaddress addr;
-		nlStringToAddr("192.168.0.197", &addr);
+
+		if (! nlStringToAddr(arg_list[p+1], &addr))
+		{
+			fl_alert("Bad local address '%s'\n(%s)", arg_list[p+1],
+				GetNLErrorStr());
+			exit(5);
+		}
+
 		nlSetLocalAddr(&addr);
 	}
-#endif
 
-	main_socket = nlOpen(MPS_DEF_PORT, NL_UNRELIABLE);
+	// override default port
+	int port = MPS_DEF_PORT;
+
+	p = ArgvFind('p', "port", &num_p);
+
+	if (p >= 0)
+	{
+		if (num_p < 1)
+		{
+			fl_alert("-port option: missing number");
+			exit(5);
+	    }
+
+		port = atoi(arg_list[p+1]);
+
+		if (port <= 0 || port > 65535)
+		{
+			fl_alert("-port option: invalid value '%s'", arg_list[p+1]);
+			exit(5);
+		}
+	}
+
+	main_socket = nlOpen(port, NL_UNRELIABLE);
 
 	if (main_socket == NL_INVALID)
 	{
-		fl_alert("Unable to create UDP socket on port %d:\n%s", MPS_DEF_PORT,
+		fl_alert("Unable to create UDP socket on port %d:\n(%s)", port,
 				 GetNLErrorStr());
 		exit(5); //!!!!
 	}
