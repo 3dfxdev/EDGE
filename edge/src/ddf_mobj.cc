@@ -471,7 +471,7 @@ static bool ThingStartEntry(const char *buffer)
 		if (idx>=0)
 		{
 			mobjdefs.MoveToEnd(idx);
-			dynamic_mobj = mobjdefs[idx];
+			dynamic_mobj = mobjdefs[mobjdefs.GetSize()-1];
 		}
 	}
 
@@ -1815,9 +1815,9 @@ bool mobjdef_container_c::MoveToEnd(int idx)
 	// Get a copy of the pointer 
 	m = (*this)[idx];
 
-	I_MoveData((void*)&array[idx*array_block_objsize], 
-		       (void*)&array[idx*(array_block_objsize+1)], 
-			   (array_entries-(idx+1))*array_block_objsize);
+	I_MoveData(&array[idx*array_block_objsize], 
+		&array[(idx+1)*array_block_objsize], 
+		(array_entries-(idx+1))*array_objsize);
 
 	memcpy(&array[(array_entries-1)*array_block_objsize], (void*)&m, sizeof(mobjdef_c*));
 	return true;
