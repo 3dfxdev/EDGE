@@ -154,6 +154,8 @@ typedef float float_t;
 
 typedef enum { false, true } boolean_t;
 
+#include <windows.h>
+
 #include <ctype.h>
 #include <direct.h>
 #include <fcntl.h>
@@ -168,7 +170,6 @@ typedef enum { false, true } boolean_t;
 #include <sys\stat.h>
 #include <time.h>
 
-#include <windows.h>
 #include <gl/gl.h>
 
 #define EDGECONFIGFILE "EDGE.CFG"
