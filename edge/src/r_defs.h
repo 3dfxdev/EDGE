@@ -71,6 +71,41 @@ struct line_s;
 struct side_s;
 struct region_properties_s;
 
+
+//
+// Touch Node
+//
+// -AJA- Used for remembering things that are inside or touching
+// sectors.  The idea is blatantly copied from BOOM: there are two
+// lists running through each node, (a) list for things, to remember
+// what sectors they are in/touch, (b) list for sectors, holding what
+// things are in or touch them.
+//
+// NOTE: we use the same optimisation: in P_UnsetThingPos we just
+// clear all the `mo' fields to NULL.  During P_SetThingPos we find
+// the first NULL `mo' field (i.e. as an allocation).  The interesting
+// part is that we only need to unlink the node from the sector list
+// (and relink) if the sector in that node is different.  Thus saving
+// work for the common case where the sector(s) don't change.
+// 
+// CAVEAT: this means that very little should be done in between
+// P_UnsetThingPos and P_SetThingPos calls, ideally just load some new
+// x/y position.  Avoid especially anything that scans the sector
+// touch lists.
+//
+typedef struct touch_node_s
+{
+  struct mobj_s *mo;
+  struct touch_node_s *mo_next;
+  struct touch_node_s *mo_prev;
+
+  struct sector_s *sec;
+  struct touch_node_s *sec_next;
+  struct touch_node_s *sec_prev;
+}
+touch_node_t;
+
+
 //
 // Region Properties
 //
@@ -93,8 +128,8 @@ typedef struct region_properties_s
   float_t viscosity;
   float_t drag;
 
-  // pushing sector information (normally 0)
-  float_t x_push, y_push, z_push;
+  // pushing sector information (normally all zero)
+  vec3_t push;
 }
 region_properties_t;
 
@@ -168,6 +203,16 @@ typedef struct extrafloor_s
 }
 extrafloor_t;
 
+// Vertical gap between a floor & a ceiling.
+// -AJA- 1999/07/19. 
+//
+typedef struct
+{
+  float_t f;  // floor
+  float_t c;  // ceiling
+}
+vgap_t;
+
 
 //
 // The SECTORS record, at runtime.
@@ -215,9 +260,6 @@ typedef struct sector_s
   //
   extrafloor_t *control_floors;
  
-//???  int gap_num;
-//???  vgap_t *gaps;
-
   void *floor_move;
   void *ceil_move;
 
@@ -237,9 +279,21 @@ typedef struct sector_s
   int linecount;
   struct line_s **lines;  // [linecount] size
 
+  // touch list: objects in or touching this sector
+  touch_node_t *touch_things;
+    
   // sky height for GL renderer
   float_t sky_h;
  
+  // keep track of vertical sight gaps within the sector.  This is
+  // just a much more convenient form of the info in the extrafloor
+  // list.
+  // 
+  short max_gaps;
+  short sight_gap_num;
+
+  vgap_t *sight_gaps;
+
   // if == validcount, already checked
   int validcount;
 
@@ -314,16 +368,6 @@ typedef enum
 }
 slopetype_t;
 
-// Vertical gap between a floor & a ceiling.
-// -AJA- 1999/07/19. 
-//
-typedef struct
-{
-  float_t f;  // floor
-  float_t c;  // ceiling
-}
-vgap_t;
-
 //
 // LINEDEF
 //
@@ -374,14 +418,13 @@ typedef struct line_s
   // gaps between the front & back sectors here, instead of computing
   // them each time in P_LineOpening() -- which got a lot more complex
   // due to extra floors.  Now they only need to be recomputed when
-  // one of the sectors changes height.
+  // one of the sectors changes height.  The pointer here points into
+  // the single global array `vertgaps'.
   //
-  int gap_num;
-  vgap_t gaps[MAXOPENGAPS];
+  short max_gaps;
+  short gap_num;
 
-  // -AJA- 2000/10/01: Sight gaps.
-  int sight_gap_num;
-  vgap_t sight_gaps[MAXOPENGAPS];
+  vgap_t *gaps;
 
   // slider thinker, normally NULL
   void *slider_special;
@@ -521,6 +564,7 @@ divline_t;
 typedef struct node_s
 {
   divline_t div;
+  float_t div_len;
 
   // If NF_SUBSECTOR its a subsector.
   unsigned short children[2];
