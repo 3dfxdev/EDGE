@@ -24,6 +24,7 @@
 #include "ddf_locl.h"
 #include "dm_state.h"
 #include "dstrings.h"
+#include "g_game.h"
 #include "m_argv.h"
 #include "m_inline.h"
 #include "m_math.h"
@@ -352,7 +353,10 @@ bool DDF_MainCleanUp(void)
 	DDF_LevelCleanUp();
 	DDF_MusicPlaylistCleanUp();
 
+
+
 	// -AJA- FIXME: all this stuff belongs elsewhere...
+	currmap = mapdefs[0];
   
 	//hu_stuff.c
 	//m_misc.c
