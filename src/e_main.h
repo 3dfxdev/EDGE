@@ -30,6 +30,7 @@
 
 extern boolean_t redrawsbar;
 extern boolean_t advancedemo;
+extern boolean_t e_display_OK;
 
 void E_AddFile(const char *file);
 void E_EDGEMain(void);
@@ -43,5 +44,6 @@ void E_PageDrawer(void);
 void E_AdvanceDemo(void);
 void E_StartTitle(void);
 void E_EngineShutdown(void);
+void E_Display(void);
 
 #endif
