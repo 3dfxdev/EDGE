@@ -53,6 +53,8 @@ bool use_lighting = true;
 bool use_color_material = true;
 bool use_vertex_array = true;
 
+bool dumb_sky = false;
+
 
 #define MAX_L_VERT  4096
 #define MAX_L_UNIT  (MAX_L_VERT / 4)
@@ -102,10 +104,12 @@ void RGL_InitUnits(void)
 	M_CheckBooleanParm("lighting",      &use_lighting, false);
 	M_CheckBooleanParm("vertexarray",   &use_vertex_array, false);
 	M_CheckBooleanParm("colormaterial", &use_color_material, false);
+	M_CheckBooleanParm("dumbsky",       &dumb_sky, false);
 
 	CON_CreateCVarBool("lighting",      cf_normal, &use_lighting);
 	CON_CreateCVarBool("vertexarray",   cf_normal, &use_vertex_array);
 	CON_CreateCVarBool("colormaterial", cf_normal, &use_color_material);
+	CON_CreateCVarBool("dumbsky",       cf_normal, &dumb_sky);
 
 	// Run the soft init code
 	RGL_SoftInitUnits();

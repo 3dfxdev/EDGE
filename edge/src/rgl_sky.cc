@@ -143,7 +143,9 @@ void RGL_FinishSky(void)
 	{
 		glEnable(GL_TEXTURE_2D);
 
-		glDepthFunc(GL_GREATER);
+		if (! dumb_sky)
+			glDepthFunc(GL_GREATER);
+
 		glDepthMask(GL_FALSE);
 
 		if (sky_box)
@@ -518,18 +520,21 @@ void SkyPolyCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 //
 void RGL_DrawSkyPlane(subsector_t *sub, float h)
 {
-	seg_t *seg;
-
-	glNormal3f(0, 0, (viewz > h) ? 1.0f : -1.0f);
-
-	glBegin(GL_POLYGON);
-
-	for (seg=sub->segs; seg; seg=seg->sub_next)
+	if (! dumb_sky)
 	{
-		glVertex3f(seg->v1->x, seg->v1->y, h);
-	}
+		seg_t *seg;
 
-	glEnd();
+		glNormal3f(0, 0, (viewz > h) ? 1.0f : -1.0f);
+
+		glBegin(GL_POLYGON);
+
+		for (seg=sub->segs; seg; seg=seg->sub_next)
+		{
+			glVertex3f(seg->v1->x, seg->v1->y, h);
+		}
+
+		glEnd();
+	}
 
 	has_drawn_sky = true;
 
@@ -588,21 +593,24 @@ void RGL_DrawSkyPlane(subsector_t *sub, float h)
 //
 void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 {
-	float x1 = seg->v1->x;
-	float y1 = seg->v1->y;
-	float x2 = seg->v2->x;
-	float y2 = seg->v2->y;
+	if (! dumb_sky)
+	{
+		float x1 = seg->v1->x;
+		float y1 = seg->v1->y;
+		float x2 = seg->v2->x;
+		float y2 = seg->v2->y;
 
-	glNormal3f(y2 - y1, x1 - x2, 0);
+		glNormal3f(y2 - y1, x1 - x2, 0);
 
-	glBegin(GL_QUADS);
+		glBegin(GL_QUADS);
 
-	glVertex3f(x1, y1, h1);
-	glVertex3f(x1, y1, h2);
-	glVertex3f(x2, y2, h2);
-	glVertex3f(x2, y2, h1);
+		glVertex3f(x1, y1, h1);
+		glVertex3f(x1, y1, h2);
+		glVertex3f(x2, y2, h2);
+		glVertex3f(x2, y2, h1);
 
-	glEnd();
+		glEnd();
+	}
 
 	has_drawn_sky = true;
 
