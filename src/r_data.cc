@@ -256,13 +256,14 @@ bool R_InitFlats(void)
 //
 bool R_InitPicAnims(void)
 {
-	int i;
+	epi::array_iterator_c it;
+	animdef_t *A;
 
 	// loop through animdefs, and add relevant anims.
 	// Note: reverse order, give priority to newer anims.
-	for (i = numanimdefs-1; i >= 0; i--)
+	for (it = animdefs.GetTailIterator(); it.IsValid(); it--)
 	{
-		animdef_t *A = animdefs[i];
+		A = ITERATOR_TO_TYPE(it, animdef_t*);
 
 		DEV_ASSERT2(A);
 
