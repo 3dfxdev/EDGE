@@ -92,8 +92,8 @@ void game_c::FillGameInfo(game_info_t *info) const
 			info->state = game_info_t::GS_NotExist;
 			return;  /* no other info */
 
-		case ST_Queueing: info->state = game_info_t::GS_Queued;  break;
-		case ST_Playing:  info->state = game_info_t::GS_Playing; break;
+		case ST_Queued:  info->state = game_info_t::GS_Queued;  break;
+		case ST_Playing: info->state = game_info_t::GS_Playing; break;
 
 		default:
 			AssertFail("Bad game state %d\n", info->state);
@@ -355,6 +355,10 @@ static void SV_build_tic_group(game_c *GM, packet_c *pk, int tic_num, int first,
 
 		CL->tics->Read(GM->sv_gametic, raw_cmds);
 
+// byte fwdmove = raw_cmds[0].bytes[0];
+// raw_cmds[0].bytes[0] = raw_cmds[0].bytes[1];
+// raw_cmds[0].bytes[1] = fwdmove;
+
 		pk->hd().data_len += band * sizeof(raw_ticcmd_t);
 	}
 
@@ -454,6 +458,7 @@ void PK_new_game(packet_c *pk)
 		games[game_id] = GM;
 
 		GM->AddPlayer(client_id);
+		GM->state = game_c::ST_Queued;
 
 		CL->state = client_c::ST_Queueing;
 		CL->game_id = game_id;
@@ -482,7 +487,6 @@ void PK_new_game(packet_c *pk)
 void PK_join_queue(packet_c *pk)
 {
 	int client_id = pk->hd().client;
-
 	client_c *CL = clients[client_id];
 
 	join_queue_proto_t& jq = pk->jq_p();
@@ -511,7 +515,8 @@ void PK_join_queue(packet_c *pk)
 	{
 		autolock_c LOCK(&global_lock);
 
-		GM = games[CL->game_id];
+		GM = games[game_id];
+		SYS_NULL_CHECK(GM);
 
 		GM->AddPlayer(client_id);
 

@@ -30,12 +30,12 @@ public:
 	game_c(const game_info_t *info);
 	~game_c();
 
-private:
+///!!!!!! private:
 	int index;
 
 	enum
 	{
-		ST_Queueing,
+		ST_Queued,
 		ST_Playing,
 		ST_Zombie  // no players or queuers
 	};
