@@ -796,7 +796,9 @@ void A_WeaponReady(mobj_t * mo)
 					break;
 				}
 			}
-			else if ((p->cmd.extbuttons & EBT_RELOAD) &&
+
+			if ((p->cmd.extbuttons & EBT_RELOAD) &&
+				     (info->clip_size[ATK] > 0) &&
 					 (info->specials[ATK] & WPSP_Manual) &&
 					  info->reload_state[ATK])
 			{
@@ -804,13 +806,6 @@ void A_WeaponReady(mobj_t * mo)
 						  info->discard_state[ATK]) ?
 					WeaponCanPartialReload(p, p->ready_wp, ATK) :
 					WeaponCanReload(p, p->ready_wp, ATK);
-
-				// for non-clip weapons, chew up some ammo
-				if (reload && info->clip_size[ATK] == 0 &&
-					info->ammo[ATK] != AM_NoAmmo)
-				{
-					p->ammo[info->ammo[ATK]].num -= info->ammopershot[ATK];
-				}
 
 				// for discarding, we require a non-empty clip
 				if (reload && info->discard_state[ATK] &&
