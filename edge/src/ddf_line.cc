@@ -343,11 +343,15 @@ static void LinedefParseField(const char *field, const char *contents,
 	if (DDF_MainParseField(linedef_commands, field, contents))
 		return;
 
-	// handle properties
-	if (index == 0 && DDF_CompareName(contents, "TRUE") == 0)
+	if (ddf_version < 0x128)
 	{
-		DDF_LineGetSpecialFlags(field, NULL);  // FIXME FOR OFFSETS
-		return;
+		// handle properties (old crud)
+		if (index == 0 && DDF_CompareName(contents, "TRUE") == 0)
+		{
+			L_WriteDebug("LINE PROPERTY CRUD: %s = %s\n", field, contents);
+			DDF_LineGetSpecialFlags(field, NULL);  // FIXME FOR OFFSETS
+			return;
+		}
 	}
 
 	DDF_WarnError2(0x128, "Unknown lines.ddf command: %s\n", field);
@@ -660,7 +664,7 @@ void DDF_LineGetExtraFloor(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError("Unknown Extrafloor Type: %s", info);
+			DDF_WarnError("Unknown Extrafloor Type: %s\n", info);
 			break;
 	}
 }
@@ -745,7 +749,7 @@ void DDF_LineGetTeleportSpecial(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError("DDF_LineGetTeleportSpecial: Unknown Special: %s", info);
+			DDF_WarnError("DDF_LineGetTeleportSpecial: Unknown Special: %s\n", info);
 			break;
 	}
 }

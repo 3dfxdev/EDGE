@@ -101,11 +101,15 @@ static void ColmapParseField(const char *field, const char *contents,
 	if (DDF_MainParseField(colmap_commands, field, contents))
 		return;
 
-	// handle properties
-	if (index == 0 && DDF_CompareName(contents, "TRUE") == 0)
+	if (ddf_version < 0x128)
 	{
-		DDF_ColmapGetSpecial(field, NULL);  // FIXME FOR OFFSETS
-		return;
+		// handle properties (old crud)
+		if (index == 0 && DDF_CompareName(contents, "TRUE") == 0)
+		{
+			L_WriteDebug("COLMAP PROPERTY CRUD: %s = %s\n", field, contents);
+			DDF_ColmapGetSpecial(field, NULL);  // FIXME FOR OFFSETS
+			return;
+		}
 	}
 
 	DDF_WarnError2(0x128, "Unknown colmap.ddf command: %s\n", field);
