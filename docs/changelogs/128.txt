@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.28 (since 1.27)
 ===============================
 
-(Date: APRIL 27th 2004)
+(Date: APRIL 28th 2004)
 
 Bugs fixed
 ----------
@@ -47,6 +47,7 @@ Bugs fixed
 - bugs when changing screensize with +/- and in the menu fixed.
 - night vision in GL mode was not lighting things up.
 - fix for console which was drawn behind the menus.
+- problems with "friendly fire" from helper monsters fixed.
 
 
 Features removed:
@@ -113,6 +114,7 @@ New features:
   A number in () can be used to specify how fast the player is moving.
 
 - ON_CONDITION support for amounts with powerups e.g. POWERUP_PARTINVIS(10)
+  which means 10 seconds or more remaining.
 
 - RESISTANCE_CLASS for DDF.  Used the same way as IMMUNITY_CLASS, but the
   monster only suffers 40% of the original damage.
