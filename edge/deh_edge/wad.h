@@ -21,14 +21,17 @@
 
 #include "i_defs.h"
 
-void WAD_Startup(void);
-void WAD_Shutdown(void);
+namespace WAD
+{
+	void Startup(void);
+	void Shutdown(void);
 
-void WAD_NewLump(const char *name);
-void WAD_AddData(const byte *data, int len);
-void WAD_Printf(const char *str, ...);
-void WAD_FinishLump(void);
+	void NewLump(const char *name);
+	void AddData(const byte *data, int len);
+	void Printf(const char *str, ...);
+	void FinishLump(void);
 
-void WAD_WriteFile(const char *name);
+	void WriteFile(const char *name);
+}
 
 #endif /* __WAD_IO_HEADER__ */
