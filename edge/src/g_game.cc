@@ -246,6 +246,9 @@ fixed_t mlookspeed = 1000 / 64;
 // -ACB- 1999/09/30 Has to be true or false - bool-ified
 bool invertmouse = false;
 
+// -ACB- 2004/05/25 We need to store our current gamedef
+gamedef_c* currgamedef;
+
 //--------------------------------------------
 
 static int loadgame_slot;
@@ -796,50 +799,50 @@ bool G_Responder(event_t * ev)
 	// -ES- Fixme: Clean up globals gamekeydown and analogue.
 	switch (ev->type)
 	{
-	case ev_keydown:
-		if (ev->value.key == KEYD_PAUSE)
-		{
-			sendpause = true;
-			return true;
-		}
-
-		if (ev->value.key < NUMKEYS)
-			gamekeydown[ev->value.key] = true;
-
-		// eat key down events 
-		return true;
-
-	case ev_keyup:
-		if (ev->value.key < NUMKEYS)
-			gamekeydown[ev->value.key] = false;
-
-		// always let key up events filter down 
-		return false;
-
-		// -KM- 1998/09/01 Change mouse/joystick to analogue
-	case ev_analogue:
-		{
-			// -AJA- 1999/07/27: Mlook key like quake's.
-			if (level_flags.mlook && CheckKey(key_mlook))
+		case ev_keydown:
+			if (ev->value.key == KEYD_PAUSE)
 			{
-				if (ev->value.analogue.axis == mouse_xaxis)
-				{
-					analogue[AXIS_TURN] += ev->value.analogue.amount;
-					return true;
-				}
-				if (ev->value.analogue.axis == mouse_yaxis)
-				{
-					analogue[AXIS_MLOOK] += ev->value.analogue.amount;
-					return true;
-				}
+				sendpause = true;
+				return true;
 			}
 
-			analogue[ev->value.analogue.axis] += ev->value.analogue.amount;
-			return true;  // eat events
-		}
+			if (ev->value.key < NUMKEYS)
+				gamekeydown[ev->value.key] = true;
 
-	default:
-		break;
+			// eat key down events 
+			return true;
+
+		case ev_keyup:
+			if (ev->value.key < NUMKEYS)
+				gamekeydown[ev->value.key] = false;
+
+			// always let key up events filter down 
+			return false;
+
+			// -KM- 1998/09/01 Change mouse/joystick to analogue
+		case ev_analogue:
+			{
+				// -AJA- 1999/07/27: Mlook key like quake's.
+				if (level_flags.mlook && CheckKey(key_mlook))
+				{
+					if (ev->value.analogue.axis == mouse_xaxis)
+					{
+						analogue[AXIS_TURN] += ev->value.analogue.amount;
+						return true;
+					}
+					if (ev->value.analogue.axis == mouse_yaxis)
+					{
+						analogue[AXIS_MLOOK] += ev->value.analogue.amount;
+						return true;
+					}
+				}
+
+				analogue[ev->value.analogue.axis] += ev->value.analogue.amount;
+				return true;  // eat events
+			}
+
+		default:
+			break;
 	}
 
 	return false;
@@ -1064,7 +1067,7 @@ static void G_PlayerFinishLevel(player_t *p)
 //
 // Called after a player dies. 
 // almost everything is cleared and initialised.
-
+//
 void G_PlayerReborn(player_t *p, const mobjdef_c *info)
 {
 	bool in_game;
