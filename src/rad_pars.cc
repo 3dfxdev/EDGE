@@ -794,7 +794,7 @@ static void RAD_ParseVersion(int pnum, const char **pars)
 	if (vers < 0.99f || vers > 9.99f)
 		RAD_Error("Illegal #VERSION number.\n");
 
-	int decimal = (int)(100.0f * vers);
+	int decimal = (int)(100.0f * vers + 0.5f);
 
 	rts_version = ((decimal / 100) << 8) |
 				  (((decimal / 10) % 10) << 4) | (decimal % 10);
