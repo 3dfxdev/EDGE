@@ -51,11 +51,11 @@ button_t *buttonlist = NULL;
 bool P_InitSwitchList(void)
 {
 	epi::array_iterator_c it;
-	switchdef_t *sw;
+	switchdef_c *sw;
 	
 	for (it = switchdefs.GetBaseIterator(); it.IsValid(); it++)
 	{
-		sw = ITERATOR_TO_TYPE(it, switchdef_t*);
+		sw = ITERATOR_TO_TYPE(it, switchdef_c*);
 
 		sw->cache.image[0] = W_ImageFromTexture(sw->name1, true);
 		sw->cache.image[1] = W_ImageFromTexture(sw->name2, true);
@@ -80,7 +80,7 @@ bool P_ButtonCheckPressed(line_t * line)
 //
 // Start a button counting down till it turns off.
 //
-static void StartButton(switchdef_t *sw, line_t *line, bwhere_e w,
+static void StartButton(switchdef_c *sw, line_t *line, bwhere_e w,
 		const image_t *image)
 {
 	int index;
@@ -152,10 +152,10 @@ void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 
 		pos = BWH_None;
 
-		switchdef_t *sw;
+		switchdef_c *sw;
 		for (it = switchdefs.GetBaseIterator(); it.IsValid() && (pos == BWH_None); it++)
 		{
-			sw = ITERATOR_TO_TYPE(it, switchdef_t*);
+			sw = ITERATOR_TO_TYPE(it, switchdef_c*);
 
 			if (!sw->cache.image[0] && !sw->cache.image[1])
 				continue;
