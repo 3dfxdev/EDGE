@@ -196,7 +196,11 @@ typedef struct extrafloor_record_s
 {
   // link in list
   struct extrafloor_record_s *next;
-  struct extrafloor_record_s *prev;
+
+  // priority, higher values occur later.  We need this since the
+  // order that extrafloors get added is significant, for example
+  // liquid floors must be adder after solid floors.
+  int priority;
 
   // type of extra floor
   const extrafloor_t *info;
