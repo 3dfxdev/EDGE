@@ -42,7 +42,7 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2);
 
 void RGL_UpdateSkyBoxTextures(void);
 void RGL_PreCacheSky(void);
-void RGL_CalcSkyCoord(float sx, float sy, float sz, int tw, float *tx, float *ty);
+void RGL_CalcSkyCoord(float sx, float sy, float sz, bool narrow, float *tx, float *ty);
 
 
 #endif  // __RGL_SKY__
