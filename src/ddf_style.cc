@@ -220,6 +220,8 @@ void DDF_StyleCleanUp(void)
 
 	if (! default_style)
 		I_Error("Styles.ddf is missing the [DEFAULT] style.\n");
+	else if (! default_style->text.font)
+		I_Error("The [DEFAULT] style is missing TEXT.FONT\n");
 
 	styledefs.Trim();
 }
