@@ -111,8 +111,7 @@ SDL_OBJS= \
  
 SYSTEM_OBJS= \
         $(LX_DIR)/i_main.o   $(LX_DIR)/i_music.o  \
-        $(LX_DIR)/i_compen.o $(LX_DIR)/i_system.o \
-        $(LX_DIR)/i_mussrv.o $(LX_DIR)/i_fmpat.o
+        $(LX_DIR)/i_compen.o $(LX_DIR)/i_system.o
 
 COMMON_OBJS= \
         am_map.o con_main.o   \
