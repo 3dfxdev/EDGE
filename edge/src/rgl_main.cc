@@ -47,6 +47,8 @@ bool glcap_edgeclamp = false;
 
 angle_t oned_side_angle;
 
+static int glbsp_last_prog_time = 0;
+
 
 // -AJA- FIXME: temp hack
 #ifndef GL_MAX_TEXTURE_UNITS
@@ -468,7 +470,7 @@ void RGL_Init(void)
 static void ProgressSection(const byte *logo_lum, int lw, int lh,
 	const byte *text_lum, int tw, int th,
 	float cr, float cg, float cb,
-	int *y, int perc)
+	int *y, int perc, float alpha)
 {
 	float zoom = 1.0f;
 
@@ -491,14 +493,14 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 
 	int x = (pw-6) * perc / 100;
 
-	glColor3f(1.0f, 1.0f, 1.0f);
+	glColor4f(1.0f, 1.0f, 1.0f, alpha);
 	glBegin(GL_LINE_LOOP);
 	glVertex2i(px, py);  glVertex2i(px, py+ph);
 	glVertex2i(px+pw, py+ph); glVertex2i(px+pw, py);
 	glVertex2i(px, py);
 	glEnd();
 
-	glColor3f(cr, cg, cb);
+	glColor4f(cr, cg, cb, alpha);
 	glBegin(GL_POLYGON);
 	glVertex2i(px+3, py+3);  glVertex2i(px+3, py+ph-4);
 	glVertex2i(px+3+x, py+ph-4); glVertex2i(px+3+x, py+3);
@@ -516,6 +518,7 @@ void RGL_DrawProgress(int perc, int glbsp_perc)
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+	glEnable(GL_BLEND);
 
 	int y = SCREENHEIGHT - 20;
 	
@@ -526,18 +529,39 @@ void RGL_DrawProgress(int perc, int glbsp_perc)
 	text_lum = RGL_InitImage(&tw, &th);
 
 	ProgressSection(logo_lum, lw, lh, text_lum, tw, th,
-		0.4f, 0.6f, 1.0f, &y, perc);
+		0.4f, 0.6f, 1.0f, &y, perc, 1.0f);
 
 	y -= 40;
 
-	if (glbsp_perc >= 0)
+	if (glbsp_perc >= 0 || glbsp_last_prog_time > 0)
 	{
+		// logic here is to avoid the brief flash of progress
+		int tim = I_GetTime();
+		float alpha = 1.0f;
+
+		if (glbsp_perc >= 0)
+			glbsp_last_prog_time = tim;
+		else
+		{
+			alpha = 1.0f - float(tim - glbsp_last_prog_time) / (TICRATE*3/2);
+
+			if (alpha < 0)
+			{
+				alpha = 0;
+				glbsp_last_prog_time = 0;
+			}
+
+			glbsp_perc = 100;
+		}
+
 		logo_lum = RGL_GlbspImage(&lw, &lh);
 		text_lum = RGL_BuildImage(&tw, &th);
 
 		ProgressSection(logo_lum, lw, lh, text_lum, tw, th,
-			1.0f, 0.2f, 0.1f, &y, glbsp_perc);
+			1.0f, 0.2f, 0.1f, &y, glbsp_perc, alpha);
 	}
+
+	glDisable(GL_BLEND);
 
 	I_FinishFrame();
 	I_StartFrame();
