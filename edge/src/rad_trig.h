@@ -40,8 +40,8 @@ void TIP_DisplayTips(int y);
 
 // RadiusTrigger & Scripting Prototypes
 boolean_t RAD_Init(void);
+boolean_t RAD_LoadParam(void);
 void RAD_LoadLump(void *data, int size);
-void RAD_LoadFile(const char *name, boolean_t dots);
 void RAD_SpawnTriggers(char *map_name);
 void RAD_ClearTriggers(void);
 
