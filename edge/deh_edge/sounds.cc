@@ -400,12 +400,8 @@ void Sounds::ConvertMUS(void)
 
 //------------------------------------------------------------------------
 
-bool Sounds::ReplaceString(const char *before, const char *after)
+bool Sounds::ReplaceSound(const char *before, const char *after)
 {
-	if (strlen(before) > 6 || strlen(after) > 8)
-		return false;
-
-	// check sound names...
 	for (int i = 1; i < NUMSFX; i++)
 	{
 		if (StrCaseCmp(S_sfx[i].orig_name, before) != 0)
@@ -421,7 +417,11 @@ bool Sounds::ReplaceString(const char *before, const char *after)
 		return true;
 	}
 
-	// check music names...
+	return false;
+}
+
+bool Sounds::ReplaceMusic(const char *before, const char *after)
+{
 	for (int j = 1; j < NUMMUSIC; j++)
 	{
 		if (StrCaseCmp(S_music[j].orig_name, before) != 0)

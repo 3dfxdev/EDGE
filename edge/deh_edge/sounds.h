@@ -133,7 +133,8 @@ extern sfxinfo_t S_sfx[NUMSFX];
 namespace Sounds
 {
 	// this returns true if the string was found.
-	bool ReplaceString(const char *before, const char *after);
+	bool ReplaceSound(const char *before, const char *after);
+	bool ReplaceMusic(const char *before, const char *after);
 
 	void MarkSound(int s_num);
 	void AlterSound(int s_num, const char *deh_field, int value);
