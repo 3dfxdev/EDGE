@@ -76,6 +76,7 @@ extern screen_t *back_scr;
 #define V_DrawPatchInDirectFlipped V_DrawPatchInDirectFlipped8
 #define V_DrawPatchTrans V_DrawPatchTrans8
 #define V_DrawPatchInDirectTrans V_DrawPatchInDirectTrans8
+#define V_DrawPatchInDirectAlpha V_DrawPatchInDirectAlpha8
 #define V_DrawPatchShrink V_DrawPatchShrink8
 #define V_DrawBlock V_DrawBlock8
 #define V_GetBlock V_GetBlock8
@@ -110,6 +111,7 @@ extern void (*V_DrawPatchInDirect) (screen_t * scr, int x, int y, const patch_t 
 extern void (*V_DrawPatchInDirectFlipped) (screen_t * scr, int x, int y, const patch_t * patch);
 extern void (*V_DrawPatchTrans) (screen_t * scr, int x, int y, const byte *trans, const patch_t * patch);
 extern void (*V_DrawPatchInDirectTrans) (screen_t * scr, int x, int y, const byte *trans, const patch_t * patch);
+extern void (*V_DrawPatchInDirectAlpha) (screen_t * scr, int x, int y, const byte *trans, const patch_t * patch, fixed_t alpha);
 extern void (*V_DrawPatchShrink) (screen_t * scr, int x, int y, const patch_t * patch);
 extern void (*V_DrawBlock) (screen_t * dest, int x, int y, int width, int height, byte * src);
 extern void (*V_GetBlock) (screen_t * scr, int x, int y, int width, int height, byte * dest);
