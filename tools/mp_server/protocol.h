@@ -334,7 +334,7 @@ raw_ticcmd_t;
 typedef struct ticcmd_proto_s
 {
 	u32_t gametic;
-	byte  offset;  // tic_num == gametic + offset
+	s8_t  offset;  // tic_num == gametic + offset
 
 	byte  count;
 	s16_t reserved;
@@ -365,7 +365,7 @@ ticcmd_proto_t;
 typedef struct tic_group_proto_s
 {
 	u32_t gametic;
-	byte  offset;  // tic_num == gametic + offset
+	s8_t  offset;  // tic_num == gametic + offset
 
 	byte first_player;
 	byte count;
@@ -387,7 +387,7 @@ tic_group_proto_t;
 typedef struct tic_retransmit_proto_s
 {
 	u32_t gametic;
-	byte  offset;  // tic_num == gametic + offset
+	s8_t  offset;  // tic_num == gametic + offset
 	byte  count;
 
 	// player range
