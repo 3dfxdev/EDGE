@@ -330,7 +330,7 @@ checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
 			      bool allow_prefixes, bool allow_user);
 
 char *DDF_MainCreateUniqueName (const char *prefix, int num);
-int DDF_MainLookupDirector (const mobjdef_c * obj, const char *info);
+int DDF_MainLookupDirector (const mobjtype_c * obj, const char *info);
 
 // DDF_ANIM Code
 void DDF_AnimInit (void);
@@ -371,7 +371,7 @@ void DDF_MobjGetBpArmour (const char *info, void *storage);
 void DDF_MobjGetBpKeys (const char *info, void *storage);
 void DDF_MobjGetBpWeapon (const char *info, void *storage);
 void DDF_MobjGetPlayer (const char *info, void *storage);
-mobjdef_c *DDF_MobjMakeAttackObj (mobjdef_c * info, const char *atk_name);
+mobjtype_c *DDF_MobjMakeAttackObj (mobjtype_c * info, const char *atk_name);
 
 void ThingParseField (const char *field, const char *contents,
 		      int index, bool is_last);
@@ -427,16 +427,12 @@ extern const specflags_t ammo_types[];
 void DDF_ColmapInit (void);
 void DDF_ColmapCleanUp (void);
 
-// DDF_BOOM Code
-void DDF_BoomMakeGenSector (specialsector_t * sec, int number);
-void DDF_BoomMakeGenLine (linedeftype_t * line, int number);
-
 // Miscellaneous stuff needed here & there
-extern mobjdef_c buffer_mobj;
+extern mobjtype_c buffer_mobj;
 
-extern elevator_sector_t dummy_elevator;
-extern moving_plane_t dummy_floor;
-extern damage_t dummy_damage;
+extern elevatordef_c buffer_elevator;
+extern movplanedef_c buffer_floor;
+extern damage_t buffer_damage;
 
 extern const commandlist_t elevator_commands[];
 extern const commandlist_t floor_commands[];
