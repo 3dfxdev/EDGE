@@ -81,9 +81,13 @@ typedef struct image_s
   short offset_x;
   short offset_y;
 
+  // scale values, where 0x0100 is normal.  Higher values stretch the
+  // image (on the wall/floor), lower values shrink it.
+  unsigned short scale_x;
+  unsigned short scale_y;
+
   // whether the image is solid (otherwise it contains transparent
   // parts).
-  // FIXME !!! make enumeration (solid, transparent, unknown).
   boolean_t solid;
 
   // ...rest of this structure is private...
