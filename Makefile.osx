@@ -6,7 +6,7 @@
 
 # --- variables that can be overridden ---
 
-PROGNAME=gledge
+BIN=gledge
 
 # Prefix for static libraries and their headers
 prefix=/Users/aapted
@@ -243,10 +243,10 @@ OBJS=$(SYSTEM_OBJS) \
 
 SUBDIRS = epi glbsp dehedge lzo
 
-all: $(SUBDIRS) $(PROGNAME)
+all: $(SUBDIRS) $(BIN)
 
 clean:
-	rm -f $(PROGNAME) core *.o $(AL_DIR)/*.o \
+	rm -f $(BIN) core *.o $(AL_DIR)/*.o \
 	    $(LX_DIR)/*.o $(SDL_DIR)/*.o $(EPI_DIR)/*.o $(ASM_DIR)/*.o \
 		$(EPI_DIR)/libepi.a $(LZO_DIR)/liblzo.a
 
@@ -259,8 +259,8 @@ glbsp:
 dehedge:
 	$(MAKE) -C $(DEH_DIR) -f Plugin_osx.mak
 
-$(PROGNAME): $(OBJS)
-	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $(PROGNAME) $(LIBS)
+$(BIN): $(OBJS)
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $(BIN) $(LIBS)
 
 .PHONY: all clean $(SUBDIRS)
 
