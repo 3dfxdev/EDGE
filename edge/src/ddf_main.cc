@@ -1415,7 +1415,7 @@ void DDF_MainRefAttack(const char *info, void *storage)
 //
 // DDF_MainLookupDirector
 //
-int DDF_MainLookupDirector(const mobjinfo_t *info, const char *ref)
+int DDF_MainLookupDirector(const mobjinfo_c *info, const char *ref)
 {
 	int i, state, offset;
 	char *director;
@@ -1792,4 +1792,74 @@ char *DDF_MainCreateUniqueName(const char *prefix, int num)
 	sprintf(buffer, "_%s_%d\n", prefix, num);
 
 	return Z_StrDup(buffer);
+}
+
+// ---> dlightinfo class
+
+//
+// dlightinfo_c() constructor
+//
+dlightinfo_c::dlightinfo_c()
+{
+	Default();
+}
+
+//
+// dlightinfo_c() Copy constructor
+//
+dlightinfo_c::dlightinfo_c(dlightinfo_c &rhs)
+{
+	type = rhs.type;
+	intensity = rhs.intensity;
+	colour = rhs.colour;
+	height = rhs.height;
+}
+
+//
+// dlightinfo::Default()
+//
+void dlightinfo_c::Default()
+{
+	type = DLITE_None;
+	intensity = 32;
+	colour = 0xFFFFFF;			// (RGB 8:8:8)
+	height = PERCENT_MAKE(50);	
+}
+
+// ---> haloinfo class
+
+//
+// haloinfo_c() constructor
+//
+haloinfo_c::haloinfo_c()
+{
+	Default();
+}
+
+//
+// haloinfo_c Copy constructor
+//
+haloinfo_c::haloinfo_c(haloinfo_c &rhs)
+{
+	height = rhs.height;
+	size = rhs.size;
+	minsize = rhs.minsize;
+	maxsize = rhs.maxsize;
+	translucency = rhs.translucency;
+	colour = rhs.colour;					// (RGB 8:8:8)
+	graphic = rhs.graphic;
+}
+
+//
+// haloinfo_c::Default()
+// 
+void haloinfo_c::Default(void)
+{
+	height = -1.0f;
+	size = 32.0f;
+	minsize = -1.0f;
+	maxsize = -1.0f;
+	translucency = PERCENT_MAKE(50);
+	colour = 0xFFFFFF;					// (RGB 8:8:8)
+	graphic.Clear();
 }
