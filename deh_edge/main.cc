@@ -32,6 +32,7 @@
 #include "frames.h"
 #include "patch.h"
 #include "sounds.h"
+#include "storage.h"
 #include "system.h"
 #include "things.h"
 #include "text.h"
@@ -205,6 +206,7 @@ int main(int argc, char **argv)
 	Things::Startup();
 	Weapons::Startup();
 
+	Storage::Startup();
 	WAD::Startup();
 
 	ParseArgs(argc, argv);
@@ -214,6 +216,8 @@ int main(int argc, char **argv)
 	PrintMsg("Loading patch file: %s\n", input_file);
 
 	Patch::Load(input_file);
+
+	Storage::ApplyAll();
 
 	// do conversions into DDF...
 	PrintMsg("Converting data into DDF...\n");
