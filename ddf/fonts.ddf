@@ -1,33 +1,36 @@
-
-//
-//  ideas about fonts...
+// 
+//    EDGE FONTS.DDF -redefine or add new fonts.
+//    For documentation, see http://edge.sourceforge.net/
+//    DDF Version 4.3
 //
 
 <FONTS>
 
+#VERSION 1.28
+
 [DOOM]
 TYPE = PATCH;
-PATCHES = STCFN033("!") - STCFN095("_"), STCFN121("|"),
+PATCHES = STCFN033("!" : "_"), STCFN121("|"),
           STCFN132("ä"), STCFN134("å"), STCFN148("ö");  // FIXME: charset
 MISSING_PATCH = STCFN000;
 
 [BIG_DIGIT]
 TYPE = PATCH;
-PATCHES = STTNUM0("0") - STTNUM9("9"), STTMINUS("-"), STTPRCNT("%");
+PATCHES = STTNUM0("0" : "9"), STTMINUS("-"), STTPRCNT("%");
 
 [WI_DIGIT]
 TYPE = PATCH;
-PATCHES = WINUM0("0") - WINUM9("9"), WIMINUS("-"), WIPCNT("%"), WICOLON(":");
+PATCHES = WINUM0("0" : "9"), WIMINUS("-"), WIPCNT("%"), WICOLON(58);
 
 [GREY_DIGIT]
 TYPE = PATCH;
-PATCHES = STGNUM0("0") - STGNUM9("9");
+PATCHES = STGNUM0("0" : "9");
 
 [YELLOW_DIGIT]
 TYPE = PATCH;
-PATCHES = STYSNUM0("0") - STYSNUM9("9");
+PATCHES = STYSNUM0("0" : "9");
 
-[MARK_DIGIT]  // automap
+[AUTOMAP_DIGIT]
 TYPE = PATCH;
-PATCHES = AMMNUM0("0") - AMMNUM9("9");
+PATCHES = AMMNUM0("0" : "9");
 
