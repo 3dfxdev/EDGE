@@ -46,22 +46,22 @@
 dirtype_e opposite[] =
 {
 	DI_WEST,
-		DI_SOUTHWEST,
-		DI_SOUTH,
-		DI_SOUTHEAST,
-		DI_EAST,
-		DI_NORTHEAST,
-		DI_NORTH,
-		DI_NORTHWEST,
-		DI_NODIR
+	DI_SOUTHWEST,
+	DI_SOUTH,
+	DI_SOUTHEAST,
+	DI_EAST,
+	DI_NORTHEAST,
+	DI_NORTH,
+	DI_NORTHWEST,
+	DI_NODIR
 };
 
 dirtype_e diags[] =
 {
 	DI_NORTHWEST,
-		DI_NORTHEAST,
-		DI_SOUTHWEST,
-		DI_SOUTHEAST
+	DI_NORTHEAST,
+	DI_SOUTHWEST,
+	DI_SOUTHEAST
 };
 
 // sqrt(2) / 2: The diagonal speed of creatures

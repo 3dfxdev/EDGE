@@ -170,7 +170,7 @@ void STLIB_UpdatePercent(st_percent_t * per, int refresh)
 		DrawDigit(num->x, num->y, per->percsign, num->colmap);
 	}
 
-	STLIB_UpdateFloat(&per->f, refresh);
+	STLIB_UpdateFloat(&per->f, refresh?true:false);
 }
 
 void STLIB_InitMultIcon(st_multicon_t * i, int x, int y, 

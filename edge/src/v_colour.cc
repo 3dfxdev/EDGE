@@ -826,7 +826,7 @@ static void MakeColourmapRange(void *dest_colmaps, byte palette[256][3],
 				int g = gtable[g1 + (g2 - g1) * i / (num - 1)];
 				int b = gtable[b1 + (b2 - b1) * i / (num - 1)];
 
-				colmap16[i * 256 + j] = MakeRGB(&ti, r, g, b);
+				colmap16[i * 256 + j] = (short)MakeRGB(&ti, r, g, b);
 
 				if (playpal_greys[i])
 					colmap16[i * 256 + j] &= ti.grey_mask;
@@ -850,7 +850,7 @@ static void MakeColourmapRange(void *dest_colmaps, byte palette[256][3],
 		{
 			int c = src_colmaps[i * 256 + j];
 
-			colmap16[i * 256 + j] = MakeRGB(&ti, tempr[c], tempg[c], tempb[c]);
+			colmap16[i * 256 + j] = (short)MakeRGB(&ti, tempr[c], tempg[c], tempb[c]);
 
 			if (playpal_greys[j])
 				colmap16[i * 256 + j] &= ti.grey_mask;
