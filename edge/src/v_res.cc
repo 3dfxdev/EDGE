@@ -97,16 +97,6 @@ void V_AddAvailableResolution(i_scrmode_t *mode)
     sm.windowed = mode->windowed;
     sm.sysdepth = mode->depth;
 
-	{
-		epi::string_c s;
-		
-	    s.Format("Adding: (%d x %d x %d [%d]) - %s\n", 
-                 sm.width, sm.height, sm.depth, sm.sysdepth, 
-                 sm.windowed ? "Windowed" : "Fullscreen");
-
-        I_Printf(s);
-	}	
-
     scrmodelist.Add(&sm);
 	return;
 }
