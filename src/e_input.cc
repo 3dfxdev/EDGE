@@ -414,28 +414,9 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 	else if (side < -MAXPLMOVE)
 		side = -MAXPLMOVE;
 
-	cmd->upwardmove += upward;
+	cmd->upwardmove  += upward;
 	cmd->forwardmove += forward;
-	cmd->sidemove += side;
-
-///---	// special buttons
-///---	if (sendpause)
-///---	{
-///---		sendpause = false;
-///---		cmd->buttons = BT_SPECIAL | BTS_PAUSE;
-///---	}
-///---
-///---	if (sendsave)
-///---	{
-///---		sendsave = false;
-///---
-///---#if 0  // -AJA- FIXME: doesn't handle save_pages
-///---		if (netgame)
-///---			cmd->buttons = BT_SPECIAL | BTS_SAVEGAME | (savegame_slot << BTS_SAVESHIFT);
-///---		else
-///---#endif
-///---			gameaction = ga_savegame;
-///---	}
+	cmd->sidemove    += side;
 
 	// -KM- 1998/09/01 Analogue binding
 	Z_Clear(analogue, int, 5);

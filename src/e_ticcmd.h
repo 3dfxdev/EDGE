@@ -35,20 +35,7 @@
 
 typedef struct
 {
-	// -MH- 1998/08/23 upward movement
-	signed char upwardmove;
-
-	// /32 for move
-	signed char forwardmove;
-
-	// /32 for move
-	signed char sidemove;
-
-	byte chatchar;
-	byte buttons;
-	byte extbuttons;
-
-	// *65536 for angle delta
+	// horizontal turning, *65536 for angle delta
 	short angleturn;
 
 	// vertical angle for mlook, *65536 for angle delta
@@ -56,6 +43,23 @@ typedef struct
 
 	// checks for net game
 	short consistency;
+
+	short unused1;
+
+	// /32 for move
+	signed char forwardmove;
+
+	// /32 for move
+	signed char sidemove;
+
+	// -MH- 1998/08/23 upward movement
+	signed char upwardmove;
+
+	byte buttons;
+	byte extbuttons;
+
+	byte chatchar;
+	byte special[2];  // currently unused
 }
 ticcmd_t;
 
@@ -70,30 +74,15 @@ typedef enum
 	// Use button, to open doors, activate switches.
 	BT_USE = 2,
 
-	// Flag: game events, not really buttons.
-	BT_SPECIAL = 128,
-	BT_SPECIALMASK = 3,
-
 	// Flag, weapon change pending.
-	// If true, the next 3 bits hold weapon num.
+	// If true, the next 4 bits hold weapon num.
 	BT_CHANGE = 4,
 
 	// The 3bit weapon mask and shift, convenience.
 	BT_WEAPONMASK = (8 + 16 + 32 + 64),
 	BT_WEAPONSHIFT = 3,
-
-	// Pause the game.
-	BTS_PAUSE = 1,
-
-	// Save the game at each console.
-	BTS_SAVEGAME = 2,
-
-	// Savegame slot numbers
-	//  occupy the second byte of buttons.    
-	BTS_SAVEMASK = (4 + 8 + 16),
-	BTS_SAVESHIFT = 2
 }
-buttoncode_t;
+buttoncode_e;
 
 //
 // Extended Buttons: EDGE Specfics
@@ -113,6 +102,6 @@ typedef enum
 	// -AJA- 2004/11/10: manual weapon reload
 	EBT_RELOAD = 32
 }
-extbuttoncode_t;
+extbuttoncode_e;
 
 #endif
