@@ -22,7 +22,6 @@
 #include "..\con_main.h"
 #include "..\dm_defs.h"
 #include "..\e_main.h"
-#include "..\e_net.h"
 #include "..\g_game.h"
 #include "..\m_argv.h"
 #include "..\m_menu.h"
