@@ -23,6 +23,7 @@
 #include "ddf_main.h"
 #include "e_player.h"
 #include "r_defs.h"
+#include "hu_stuff.h"
 
 
 struct rts_state_s;
@@ -543,5 +544,46 @@ typedef struct rad_trigger_s
   degenmobj_t soundorg;
 }
 rad_trigger_t;
+
+
+//
+// Tip Displayer info
+//
+#define MAXTIPSLOT    30
+#define TIP_LINE_MAX  10
+
+typedef struct drawtip_s
+{
+  // current properties
+  s_tip_prop_t p;
+
+  // display time.  When < 0, this slot is not in use (and all of the
+  // fields below this one are unused).
+  int delay;
+
+  // do we need to recompute some stuff (e.g. colmap) ?
+  boolean_t dirty;
+  
+  // tip text DOH!
+  const char *tip_text;
+  const struct image_s *tip_graphic;
+
+  // play a sound ?
+  boolean_t playsound;
+
+  // current colour
+  const struct colourmap_s *colmap;
+
+  // fading fields
+  int fade_time;
+  float_t fade_target;
+
+  // HULIB info
+  int hu_linenum;
+  hu_textline_t hu_lines[TIP_LINE_MAX];
+}
+drawtip_t;
+
+extern drawtip_t tip_slots[MAXTIPSLOT];
 
 #endif

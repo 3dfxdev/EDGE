@@ -42,5 +42,6 @@ boolean_t P_Init(void);
 
 // Needed by savegame code.
 void P_RemoveMobjs(void);
+void P_RemoveItemsInQue(void);
 
 #endif

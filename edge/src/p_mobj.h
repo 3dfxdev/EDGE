@@ -327,21 +327,6 @@ typedef enum
 }
 mobjextendedflag_t;
 
-// info for the BossBrain's ShootToSpot code pointer
-// -AJA- 2000/02/21: added to mobj_t, to fix a bug and savegames
-typedef struct 
-{
-  // FIXME: we should just use a lightweight structure with just the
-  //        X, Y, and Z values.  But the LaunchProjectile() routine in
-  //        p_action.c (also the HomeToSpot routine) require the
-  //        target to be a MOBJ.
-  struct mobj_s ** targets;
-  
-  int number;
-  int current;
-}
-shoot_spot_info_t;
-
 // Directions
 typedef enum
 {
@@ -521,8 +506,6 @@ struct mobj_s
   // if we're on a ladder, this is the linedef #, otherwise -1.
   int on_ladder;
   
-  shoot_spot_info_t *spot_info;
-
   float_t dlight_qty;
   float_t dlight_target;
 
@@ -556,4 +539,4 @@ typedef struct iteminque_s
 }
 iteminque_t;
 
-#endif
+#endif  // __P_MOBJ__

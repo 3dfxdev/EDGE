@@ -208,6 +208,9 @@ extern int levelTimeCount;
 extern int maxbuttons;
 extern button_t *buttonlist;
 extern light_t *lights;
+extern gen_move_t *active_movparts;
+
+extern linedeftype_t donut[2];
 
 // at map load
 void P_SpawnSpecials(int autotag);
@@ -245,6 +248,7 @@ boolean_t EV_Lights(sector_t * sec, const lighttype_t * type);
 void P_RunActiveSectors(void);
 
 void P_RemoveAllActiveParts(void);
+void P_AddActivePart(gen_move_t *movpart);
 
 void P_RunLights(void);
 light_t *P_NewLight(void);

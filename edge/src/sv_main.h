@@ -82,6 +82,7 @@ savefieldtype_t;
 #define SVT_FIXED          SVT_INT
 #define SVT_BOOLEAN        SVT_INT
 #define SVT_ENUM           SVT_INT
+#define SVT_PERCENT        SVT_FLOAT
 
 
 // This describes a single field
@@ -201,6 +202,8 @@ boolean_t SR_GetIntAsFloat(void *storage, int index, void *extra);
 
 #define SR_GetBoolean  SR_GetInt
 #define SR_GetEnum     SR_GetInt
+#define SR_GetPercent  SR_GetFloat
+
 
 //
 //  COMMON PUT ROUTINES
@@ -219,6 +222,7 @@ void SR_PutVec3(void *storage, int index, void *extra);
 
 #define SR_PutBoolean  SR_PutInt
 #define SR_PutEnum     SR_PutInt
+#define SR_PutPercent  SR_PutFloat
 
 
 //
@@ -327,38 +331,6 @@ extern void *sv_current_elem;
 extern savestruct_t *sv_known_structs;
 extern savearray_t  *sv_known_arrays;
 
-// sv_mobj.c
-extern savestruct_t sv_struct_mobj;
-extern savestruct_t sv_struct_spawnpoint;
-extern savearray_t sv_array_mobj;
-
-// sv_play.c
-extern savestruct_t sv_struct_player;
-extern savestruct_t sv_struct_playerweapon;
-extern savestruct_t sv_struct_playerammo;
-extern savestruct_t sv_struct_psprite;
-extern savearray_t sv_array_player;
-
-// sv_level.c
-extern savestruct_t sv_struct_surface;
-extern savestruct_t sv_struct_side;
-extern savestruct_t sv_struct_line;
-extern savestruct_t sv_struct_regprops;
-extern savestruct_t sv_struct_exfloor;
-extern savestruct_t sv_struct_sector;
-extern savearray_t sv_array_side;
-extern savearray_t sv_array_line;
-extern savearray_t sv_array_exfloor;
-extern savearray_t sv_array_sector;
-
-// sv_misc.c
-extern savestruct_t sv_struct_button;
-extern savestruct_t sv_struct_light;
-extern savestruct_t sv_struct_trigger;
-extern savearray_t sv_array_button;
-extern savearray_t sv_array_light;
-extern savearray_t sv_array_trigger;
-
 boolean_t SR_MobjGetMobj(void *storage, int index, void *extra);
 void SR_MobjPutMobj(void *storage, int index, void *extra);
 
@@ -370,6 +342,9 @@ void * SV_PlayerGetElem(int index);
 
 boolean_t SR_LevelGetImage(void *storage, int index, void *extra);
 void SR_LevelPutImage(void *storage, int index, void *extra);
+
+boolean_t SR_LevelGetColmap(void *storage, int index, void *extra);
+void SR_LevelPutColmap(void *storage, int index, void *extra);
 
 boolean_t SR_LineGetLine(void *storage, int index, void *extra);
 void SR_LinePutLine(void *storage, int index, void *extra);
