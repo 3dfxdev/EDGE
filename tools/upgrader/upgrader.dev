@@ -25,7 +25,7 @@ CommandLine=
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=000000000000000000
+CompilerSettings=000000000000100000
 
 [Unit1]
 FileName=main.cpp
