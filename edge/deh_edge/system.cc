@@ -36,9 +36,6 @@
 #define DEBUGGING_FILE  "deh_debug.log"
 
 
-bool quiet_mode = false;
-bool all_mode = true;   // !!!!! FIXME
-
 static int cpu_big_endian = 0;
 
 static bool disable_progress = false;
@@ -272,13 +269,13 @@ static void Endian_Startup(void)
 	int size_32 = sizeof(unsigned int);
 
 	if (size_8 != 1)
-		FatalError("Sanity check failed: sizeof(uint8) = %d", size_8);
+		FatalError("Sanity check failed: sizeof(uint8) = %d\n", size_8);
 
 	if (size_16 != 2)
-		FatalError("Sanity check failed: sizeof(uint16) = %d", size_16);
+		FatalError("Sanity check failed: sizeof(uint16) = %d\n", size_16);
 
 	if (size_32 != 4)
-		FatalError("Sanity check failed: sizeof(uint32) = %d", size_32);
+		FatalError("Sanity check failed: sizeof(uint32) = %d\n", size_32);
 
 	/* check endianness */
 
@@ -296,7 +293,7 @@ static void Endian_Startup(void)
 	else if (u_test.val == 0x73727170)
 		cpu_big_endian = 0;
 	else
-		FatalError("Sanity check failed: weird endianness (0x%08x)", u_test.val);
+		FatalError("Sanity check failed: weird endianness (0x%08x)\n", u_test.val);
 
 #if (DEBUG_ENDIAN)
 	Debug_PrintMsg("Endianness = %s\n", cpu_big_endian ? "BIG" : "LITTLE");

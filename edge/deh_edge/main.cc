@@ -45,8 +45,14 @@
 //  DEH 3.0 has ^Misc section
 
 
-const char *input_file;
-const char *output_file;
+const char *input_file  = NULL;
+const char *output_file = NULL;
+
+bool quiet_mode = false;
+bool all_mode   = true;   // !!!!! FIXME
+
+int edge_version = 127;
+
 
 
 /* ----- user information ----------------------------- */
@@ -72,7 +78,7 @@ static void ShowInfo(void)
 	"Available options.\n"
 	"    -o  --output    Output filename override.\n"
 	"    -q  --quiet     Quiet mode, suppress warnings.\n"
-	"    -a  --all       Convert all (even if unmodified) into DDF.\n"
+	"    -a  --all       Convert all (even unmodified) DDF.\n"
 	"\n"
   );
 }
@@ -82,31 +88,99 @@ static void ShowInfo(void)
 
 static void ParseArgs(int argc, char **argv)
 {
-	assert(argc >= 1);
-
-	input_file = strdup(*argv);
-
-	argv++, argc--;
-
-	if (argc >= 1)
+	while (argc > 0)
 	{
-		output_file = strdup(*argv);
+		const char *opt = *argv;
 
 		argv++, argc--;
+
+		// input filename ?
+		if (*opt != '-')
+		{
+			if (input_file)
+				FatalError("Too many filenames (use -o for output).\n");
+
+			input_file = strdup(opt);
+			continue;
+		}
+
+		if (opt[1] == '-') opt++;
+
+		if (! opt[1])
+			FatalError("Illegal option %s\n", opt);
+
+		// output filename ?
+		if (StrCaseCmp(opt, "-o") == 0 || StrCaseCmp(opt, "-output") == 0)
+		{
+			if (argc == 0 || argv[0][0] == '-')
+				FatalError("Missing output filename !\n");
+
+			if (output_file)
+				FatalError("Output file already given.\n");
+
+			output_file = strdup(*argv);
+
+			argv++, argc--;
+			continue;
+		}
+
+		if (StrCaseCmp(opt, "-q") == 0 || StrCaseCmp(opt, "-quiet") == 0)
+		{
+			quiet_mode = true;
+			continue;
+		}
+		if (StrCaseCmp(opt, "-a") == 0 || StrCaseCmp(opt, "-all") == 0)
+		{
+			all_mode = true;
+			continue;
+		}
+		// -v -version
+
+		FatalError("Unknown option: %s\n", opt);
 	}
-	else
+}
+
+static void ValidateArgs(void)
+{
+	if (! input_file)
+		FatalError("Missing input filename !\n");
+
+	if (strlen(ReplaceExtension(input_file, NULL)) == 0)
+		FatalError("Illegal input filename: %s\n", input_file);
+
+	if (CheckExtension(input_file, "wad"))
+		FatalError("Input filename cannot be a WAD file.\n");
+
+	if (! output_file)
 	{
-		output_file = strdup("zz_deh.wad");  //!!!! FIXME
+		// default output filename, add "_deh.wad" to base
+
+		const char *base_name = ReplaceExtension(input_file, NULL);
+		
+		char *new_file = (char *) malloc(strlen(base_name) + 1 + 16); // FIXME
+		assert(new_file);
+
+		strcpy(new_file, base_name);
+		strcat(new_file, "_deh.wad");
+
+		output_file = new_file;
 	}
 
-	// !!!! AddMissingExtension(&input_file,  ".deh");
-	// !!!! AddMissingExtension(&output_file, ".wad");
+	if (CheckExtension(output_file, "deh"))
+		FatalError("Output filename cannot be a DEH file.\n");
 
 	if (StrCaseCmp(input_file, output_file) == 0)
 		FatalError("Output filename is same as input filename.\n");
+	
+	if (CheckExtension(input_file, NULL) && ! FileExists(input_file))
+	{
+		input_file = strdup(ReplaceExtension(input_file, "deh"));
+	}
 
-	if (argc > 0)
-		FatalError("Too many filenames.\n");
+	if (CheckExtension(output_file, NULL))
+	{
+		output_file = strdup(ReplaceExtension(output_file, "wad"));
+	}
 }
 
 int main(int argc, char **argv)
@@ -125,9 +199,8 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	if (strcmp(argv[0], "/?") == 0 || strcmp(argv[0], "-h") == 0 ||
-			strcmp(argv[0], "-help") == 0 || strcmp(argv[0], "--help") == 0 ||
-			strcmp(argv[0], "-HELP") == 0 || strcmp(argv[0], "--HELP") == 0)
+	if (StrCaseCmp(argv[0], "/?") == 0 || StrCaseCmp(argv[0], "-h") == 0 ||
+		StrCaseCmp(argv[0], "-help") == 0 || StrCaseCmp(argv[0], "--help") == 0)
 	{
 		ShowInfo();
 		System_Shutdown();
@@ -141,16 +214,22 @@ int main(int argc, char **argv)
 	WAD::Startup();
 
 	ParseArgs(argc, argv);
+	ValidateArgs();
 
+	// load DEH patch file
 	PrintMsg("Loading patch file: %s\n", input_file);
 
-	// DO STUFF !!
-		Things::ConvertTHING();
-		Attacks::ConvertATK();
-		Weapons::ConvertWEAP();
-		Sounds::ConvertSFX();
-		Sounds::ConvertMUS();
-		TextStr::ConvertLDF();
+	// FIXME !!!!
+
+	// do conversions into DDF...
+	PrintMsg("Converting data into DDF...\n");
+
+	Things::ConvertTHING();
+	Attacks::ConvertATK();
+	Weapons::ConvertWEAP();
+	Sounds::ConvertSFX();
+	Sounds::ConvertMUS();
+	TextStr::ConvertLDF();
 
 	PrintMsg("Writing WAD file: %s\n", output_file);
 	WAD::WriteFile(output_file);

@@ -4,9 +4,11 @@ DEH-EDGE Todo
 
 +  Parse options properly.
 
++  versions of malloc and strdup that error out on no memory.
+
 -  Mancubus attack busted.
 
-Future: option for EDGE version (e.g. -v128, --version 1.27).
+-  option for EDGE version (e.g. -v128, --version 1.27).
 
 DONE:  DROPITEM for monsters.
 DONE:  give monsters ATTACKS.
