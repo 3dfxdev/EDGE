@@ -716,7 +716,7 @@ static void LoadSectors(int lump)
 		ss->f_h = EPI_LE_S16(ms->floorheight);
 		ss->c_h = EPI_LE_S16(ms->ceilingheight);
 
-		if (wolfy_mode)
+		if (wolfy_mode && !netgame)
 		{
 			ss->f_h = 0;
 
@@ -2528,7 +2528,6 @@ void P_Init(void)
 	coop_starts.Clear();
 
 	M_CheckBooleanParm("wolfy", &wolfy_mode, false);
-	CON_CreateCVarBool("wolfy", cf_normal, &wolfy_mode);
 }
 
 namespace playsim
