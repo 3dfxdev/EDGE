@@ -659,9 +659,9 @@ void P_AddPlayer(int pnum)
 	// determine name
 	sprintf(namebuf, "Player%dName", pnum + 1);
 
-	if (DDF_LanguageValidRef(namebuf))
+	if (language.IsValidRef(namebuf))
 	{
-		Z_StrNCpy(p->playername, DDF_LanguageLookup(namebuf), MAX_PLAYNAME-1);
+		Z_StrNCpy(p->playername, language[namebuf], MAX_PLAYNAME-1);
 	}
 	else
 	{
