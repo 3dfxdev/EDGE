@@ -257,22 +257,23 @@ void G_DeferredPlayDemo(const char *name)
 //
 void G_DoPlayDemo(void)
 {
-	skill_t skill;
 	int i,j;
 	int demversion;
 	char mapname[30];
-	const gamedef_c *newgamedef;
-	const mapdef_c *newmap;
-	long random_seed;
 	///  player_t *p;
 
+	newgame_params_c params;
+
 	gameaction = ga_nothing;
+
 	playdemobuffer = (const byte*)W_CacheLumpName(defdemoname);
+	demo_length = W_LumpLength(W_GetNumForName(defdemoname));
+
 	demo_p = 0;
 	demversion = playdemobuffer[demo_p++];
 
 	// -ES- 1999/10/17 Allow cut off demos: Add a demo marker if it doesn't exist.
-	demo_length = W_LumpLength(W_GetNumForName(defdemoname));
+
 	if (demo_length < 16)
 		// no real demo could be smaller than 16 bytes
 		I_Error("Demo '%s' is too small!", defdemoname.GetString());
@@ -283,55 +284,54 @@ void G_DoPlayDemo(void)
 
 	if (demversion != DEMOVERSION)
 	{
-		gameaction = ga_nothing;
+		I_Warning("demversion != DEMOVERSION\n");  // ugh!!
 		return;
 	}
-	else
-	{
-		//------------------------------------------------------
-		// -ACB- 1998/09/03 Read the Level Name from the demo.
-		i = playdemobuffer[demo_p++];
 
-		for (j = 0; j < i; j++)
-			mapname[j] = playdemobuffer[demo_p + j];
-		mapname[i] = 0;
+	//------------------------------------------------------
+	// -ACB- 1998/09/03 Read the Level Name from the demo.
+	i = playdemobuffer[demo_p++];
 
-		demo_p += i;
-		//------------------------------------------------------
+	for (j = 0; j < i; j++)
+		mapname[j] = playdemobuffer[demo_p + j];
+	mapname[i] = 0;
 
-		skill = (skill_t) playdemobuffer[demo_p++];
-		deathmatch = playdemobuffer[demo_p++];
-		G_SetConsolePlayer(playdemobuffer[demo_p++]);
+	demo_p += i;
+	//------------------------------------------------------
 
-		level_flags = *(gameflags_t *)&playdemobuffer[demo_p];
-		demo_p += sizeof(level_flags);
+	params.skill = (skill_t) playdemobuffer[demo_p++];
+	params.deathmatch = playdemobuffer[demo_p++];
 
-		/// FIXME: !!!
-		///    for (p = players; p; p = p->next)
-		///      p->in_game = playdemobuffer[demo_p++];
+///!!!! FIXME:	G_SetConsolePlayer(playdemobuffer[demo_p++]);
 
-		// -ES- 2000/02/04 Random seed
-		random_seed = EPI_LE_S32(*(long*)&playdemobuffer[demo_p]);
-		demo_p += 4;
-	}
+	level_flags = *(gameflags_t *)&playdemobuffer[demo_p];
+	demo_p += sizeof(level_flags);
+
+	/// FIXME: !!!
+	///    for (p = players; p; p = p->next)
+	///      p->in_game = playdemobuffer[demo_p++];
+
+	// -ES- 2000/02/04 Random seed
+	params.random_seed = EPI_LE_S32(*(long*)&playdemobuffer[demo_p]);
+	demo_p += 4;
 
 	//----------------------------------------------------------------
 	// -ACB- 1998/09/03 Setup the given mapname; fail if map does not
 	// exist.
-	newmap = game::LookupMap(mapname);
-	if (newmap == NULL)
+	params.map = G_LookupMap(mapname);
+	if (params.map == NULL)
 	{
-		gameaction = ga_nothing;
+		I_Warning("No such map for demo\n");
 		return;
 	}
 
-	newgamedef = gamedefs.Lookup(newmap->episode_name);
-	if (newgamedef == NULL)
+	// FIXME: store episode name into demo file
+	params.game = gamedefs.Lookup(params.map->episode_name);
+	if (params.game == NULL)
 	{
-		gameaction = ga_nothing;
+		I_Warning("No such gamedef for demo\n");
 		return;
 	}
-
 
 	//----------------------------------------------------------------
 
@@ -346,8 +346,9 @@ void G_DoPlayDemo(void)
 	// don't spend a lot of time in loadlevel
 	precache = false;
 
-	G_InitNew(skill, newmap, newgamedef, random_seed);
+	G_InitNew(params);
 	G_DoLoadLevel();
+	G_SpawnInitialPlayers();
 
 	precache = true;
 	usergame = false;
@@ -386,6 +387,7 @@ bool G_FinishDemo(void)
 
 		endtime = I_GetTime();
 		fps = ((float)(gametic * TICRATE)) / (endtime - starttime);
+
 		I_Error("timed %i gametics in %i realtics, which equals %f fps", gametic,
 			endtime - starttime, fps);
 	}
@@ -405,15 +407,11 @@ bool G_FinishDemo(void)
 		netgame = false;
 		deathmatch = false;
 
-		//!!! FIXME: this is wrong
-#if 0
-		for (p = players; p; p = p->next)
-			p->in_game = false;
-#endif
-
 		level_flags.fastparm = false;
 		level_flags.nomonsters = false;
-		consoleplayer = 0; //???
+
+		P_DestroyAllPlayers();
+
 		E_AdvanceDemo();
 		return true;
 	}
@@ -425,7 +423,9 @@ bool G_FinishDemo(void)
 		// Finish the demo file:
 		fclose(demofile);
 		demofile = NULL;
+
 		I_Error("Demo recorded");
+		/* NOT REACHED */
 
 		demorecording = false;
 	}

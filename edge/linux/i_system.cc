@@ -498,6 +498,15 @@ unsigned long I_ReadMicroSeconds(void)
 }
 
 //
+// I_Sleep
+//
+void I_Sleep(unsigned long millisecs)
+{
+	//!!!! FIXME: use nanosleep ?
+	usleep(millisecs * 1000);
+}
+
+//
 // I_PathIsDirectory
 //
 bool I_PathIsDirectory(const char *path)

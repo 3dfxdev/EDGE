@@ -28,6 +28,7 @@
 
 #include "dm_type.h"
 #include "e_event.h"
+#include "g_game.h"
 #include "p_mobj.h"
 
 // Called by main loop.

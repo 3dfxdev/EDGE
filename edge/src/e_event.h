@@ -59,22 +59,6 @@ typedef struct
 }
 event_t;
 
-// -KM- 1998/11/25 Added support for finales before levels
-typedef enum
-{
-	ga_nothing,
-	ga_loadlevel,
-	ga_newgame,
-	ga_loadgame,
-	ga_savegame,
-	ga_playdemo,
-	ga_completed,
-	ga_loadnext,
-	ga_screenshot,
-	ga_briefing
-}
-gameaction_e;
-
 //
 // GLOBAL VARIABLES
 //
@@ -83,7 +67,5 @@ gameaction_e;
 extern event_t events[MAXEVENTS];
 extern int eventhead;
 extern int eventtail;
-
-extern gameaction_e gameaction;
 
 #endif

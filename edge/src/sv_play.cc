@@ -259,7 +259,7 @@ savestruct_t sv_struct_psprite =
 //
 int SV_PlayerCountElems(void)
 {
-	return num_players;
+	return numplayers;
 }
 
 //
@@ -267,12 +267,22 @@ int SV_PlayerCountElems(void)
 //
 void *SV_PlayerGetElem(int index)
 {
-	if (index >= num_players)
+	if (index >= numplayers)
 		I_Error("LOADGAME: Invalid player index: %d\n", index);
 
-	DEV_ASSERT2(players[index]);
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+		if (! p) continue;
 
-	return players[index];
+		if (index == 0)
+			return p;
+
+		index--;
+	}
+
+	I_Error("Internal error in SV_PlayerGetElem: index not found.\n");
+	return NULL;
 }
 
 //
@@ -293,7 +303,7 @@ int SV_PlayerFindElem(player_t *elem)
 		index++;  // only count non-NULL pointers
 	}
 
-	I_Error("SAVEGAME: No such PlayerPtr: %p\n", elem);
+	I_Error("Internal error in SV_PlayerFindElem: No such PlayerPtr: %p\n", elem);
 	return 0;
 }
 
@@ -308,7 +318,7 @@ void SV_PlayerCreateElems(int num_elems)
 	if (num_elems > MAXPLAYERS)
 		I_Error("LOADGAME: too many players (%d)\n", num_elems);
 
-	num_players = num_elems;
+	numplayers = num_elems;
 
 	for (int pnum = 0; pnum < num_elems; pnum++)
 	{

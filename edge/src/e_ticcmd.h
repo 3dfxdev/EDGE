@@ -81,6 +81,11 @@ typedef enum
 	// The 3bit weapon mask and shift, convenience.
 	BT_WEAPONMASK = (8 + 16 + 32 + 64),
 	BT_WEAPONSHIFT = 3,
+
+	// This flag will always be set for active players.
+	// An empty (all-zero) ticcmd_t from the server or demo file 
+	// indicates the player dropped out / end of demo.
+	BT_IN_GAME = 0x80
 }
 buttoncode_e;
 

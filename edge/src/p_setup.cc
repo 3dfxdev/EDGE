@@ -2344,25 +2344,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 		mapsector_CRC.crc, mapline_CRC.crc, mapthing_CRC.crc);
 #endif
 
-	// spawn the active players
-	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
-	{
-		player_t *p = players[pnum];
-		if (! p) continue;
-
-		p->mo = NULL;
-
-		if (deathmatch)
-			G_DeathMatchSpawnPlayer(p);
-		else
-			G_CoopSpawnPlayer(p);
-	}
-
-	// -AJA- 1999/10/21: if not netgame/deathmatch, then check for
-	//       missing player start.  NOTE: temp fix, player handling
-	//       desperately needs a massive overhaul.
-	if (!(netgame || deathmatch) && players[consoleplayer]->mo == NULL)
-		I_Error("Missing player start !\n");
+///--- spawn the active players
 
 	// set up world state
 	P_SpawnSpecials(autotag);
@@ -2505,7 +2487,7 @@ int P_DetectWadGameCompat(const mapdef_c *first)
 		result |= P_DetectMapCompat(first);
 
 		// stop when sequence runs out, or WAD file changes
-		first = game::LookupMap(first->nextmapname);
+		first = G_LookupMap(first->nextmapname);
 		if (! first)
 			break;
 
@@ -2526,7 +2508,7 @@ void P_Init(void)
 	E_ProgressMessage(language["PlayState"]);
 	
 	// There should not yet exist a player
-	DEV_ASSERT2(num_players == 0);
+	DEV_ASSERT2(numplayers == 0);
 
 	dm_starts.Clear();
 	coop_starts.Clear();

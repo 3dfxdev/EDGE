@@ -149,9 +149,9 @@ void R_Render(void)
 	framecount++;
 	validcount++;
 	
-	E_NetUpdate();	// check for new console commands.
+	N_NetUpdate();	// check for new console commands.
 	RGL_RenderTrueBSP();
-	E_NetUpdate();	// Check for new console commands.
+	N_NetUpdate();	// Check for new console commands.
 }
 
 //

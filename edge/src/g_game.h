@@ -26,9 +26,10 @@
 #ifndef __G_GAME__
 #define __G_GAME__
 
+#include "ddf_main.h"
 #include "dm_defs.h"
 #include "e_event.h"
-#include "ddf_main.h"
+#include "e_player.h"
 
 #include "epi/epistring.h"
 
@@ -36,10 +37,50 @@ extern long random_seed;  //
 extern int starttime;     // for demo code
 extern bool netdemo;      //
 
+// -KM- 1998/11/25 Added support for finales before levels
+typedef enum
+{
+	ga_nothing = 0,
+	ga_newgame,
+	ga_loadlevel,
+	ga_loadgame,
+	ga_savegame,
+	ga_playdemo,
+	ga_completed,
+	ga_briefing,
+	ga_endgame
+}
+gameaction_e;
+
+extern gameaction_e gameaction;
+
+class newgame_params_c
+{
+public:
+	newgame_params_c();
+	newgame_params_c(const newgame_params_c& src);
+	~newgame_params_c();
+
+	skill_t skill;
+	int deathmatch;
+
+	const mapdef_c *map;
+	const gamedef_c *game;
+
+	long random_seed;
+	bool warping;   // needed ???
+
+	int total_players;
+	playerflag_e players[MAXPLAYERS];
+
+public:
+	// methods
+};
+
 //
 // GAME
 //
-void G_InitNew(skill_t skill, const mapdef_c *map, const gamedef_c *gamedef, long seed);
+void G_InitNew(newgame_params_c& params);
 
 //
 // Called by the Startup code & M_Responder; A normal game
@@ -48,16 +89,14 @@ void G_InitNew(skill_t skill, const mapdef_c *map, const gamedef_c *gamedef, lon
 //
 // -ACB- 1998/08/10 New DDF Structure, Use map reference name.
 //
-bool G_DeferredInitNew(skill_t skill, 
-					   const char *mapname,
-					   bool warpopt);
+bool G_DeferredInitNew(newgame_params_c& params);
 
 // Can be called by the startup code or M_Responder,
 // calls P_SetupLevel or W_EnterWorld.
 void G_DeferredLoadGame(int slot);
-
-// Called by M_Responder.
 void G_DeferredSaveGame(int slot, const char *description);
+void G_DeferredScreenShot(void);
+void G_DeferredEndGame(void);
 
 // -KM- 1998/11/25 Added Time param
 void G_ExitLevel(int time);
@@ -66,10 +105,8 @@ void G_ExitToLevel(char *name, int time, bool skip_all);
 
 void G_WorldDone(void);
 
-void G_Ticker(void);
+void G_Ticker(bool fresh_game_tic);
 bool G_Responder(event_t * ev);
-
-void G_DeferredScreenShot(void);
 
 bool G_CheckWhenAppear(when_appear_e appear);
 void G_FileNameFromSlot(epi::string_c& fn, int slot);
@@ -78,11 +115,9 @@ extern const gamedef_c* currgamedef;
 extern const mapdef_c* currmap;
 extern const mapdef_c* nextmap;
 
-namespace game
-{
-	mapdef_c* LookupMap(const char *refname);
-};
+mapdef_c* G_LookupMap(const char *refname);
 
-void G_DoLoadLevel(void);  // for demo code
+void G_DoLoadLevel(void);         // for demo code
+void G_SpawnInitialPlayers(void); //
 
 #endif  /* __G_GAME__ */

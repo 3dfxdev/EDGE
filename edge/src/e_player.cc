@@ -81,13 +81,13 @@
 // The array only holds players "in game", the remaining fields
 // are NULL.  There may be NULL entries in-between valid entries
 // (e.g. player #2 left the game, so players[2] becomes NULL).
-// This means that num_players is NOT an index to last entry + 1.
+// This means that numplayers is NOT an index to last entry + 1.
 //
 // The consoleplayer and displayplayer variables must be valid
 // indices at all times.
 //
 player_t *players[MAXPLAYERS];
-int num_players;
+int numplayers;
 
 int consoleplayer = -1; // player taking events
 int displayplayer = -1; // view being displayed 
@@ -312,6 +312,9 @@ void G_SetConsolePlayer(int pnum)
 			players[i]->playerflags &= ~PFL_Console;
 	
 	players[pnum]->playerflags |= PFL_Console;
+
+    players[pnum]->builder = P_ConsolePlayerBuilder;
+    players[pnum]->build_data = NULL;
 }
 
 //
@@ -374,6 +377,7 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 	if (p->playerstate == PST_REBORN)
 	{
 		p->Reborn();
+
 		P_GiveInitialBenefits(p, info);
 	}
 

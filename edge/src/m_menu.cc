@@ -1176,7 +1176,17 @@ void M_DrawEpisode(void)
 
 static void ReallyDoStartLevel(skill_t skill, gamedef_c *g)
 {
-	if (!G_DeferredInitNew(skill, g->firstmap, false))
+	newgame_params_c params;
+
+	params.skill = skill;
+	params.game  = g;
+
+	params.total_players = 1;
+	params.players[0] = PFL_Zero;  // i.e. !BOT and !NETWORK
+
+	params.map = G_LookupMap(g->firstmap);
+
+	if (! params.map || ! G_DeferredInitNew(params))
 	{
 		// 23-6-98 KM Fixed this.
 		M_SetupNextMenu(&EpiDef);
@@ -1232,7 +1242,7 @@ static void DoStartLevel(skill_t skill)
 		return;
 	}
 
-	const mapdef_c * map = game::LookupMap(g->firstmap);
+	const mapdef_c * map = G_LookupMap(g->firstmap);
 	if (! map)
 	{
 		I_Warning("Cannot find map for '%s' (episode %s)\n",
@@ -1327,9 +1337,10 @@ static void EndGameResponse(int ch)
 	if (ch != 'y')
 		return;
 
+	G_DeferredEndGame();
+
 	currentMenu->lastOn = itemOn;
 	M_ClearMenus();
-	E_StartTitle();
 }
 
 void M_EndGame(int choice)

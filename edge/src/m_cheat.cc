@@ -144,7 +144,30 @@ static void M_ChangeLevelCheat(const char *string)
 	if (!string)
 		return;
 
-	if (! G_DeferredInitNew(gameskill, string, false))
+	// NOTE WELL: following assumes single player, no bots
+
+	newgame_params_c params;
+
+	params.skill = gameskill;	
+
+	params.map = G_LookupMap(string);
+	if (! params.map)
+	{
+		CON_MessageLDF("ImpossibleChange");
+		return;
+	}
+
+	params.game = gamedefs.Lookup(params.map->episode_name);
+	if (! params.game)
+	{
+		CON_MessageLDF("ImpossibleChange");
+		return;
+	}
+
+	params.total_players = 1;
+	params.players[0] = PFL_Zero;  // i.e. !BOT and !NETWORK
+
+	if (! G_DeferredInitNew(params))
 	{
 		CON_MessageLDF("ImpossibleChange");
 		return;
