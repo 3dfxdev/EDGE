@@ -80,7 +80,10 @@ float ren_red_mul;
 float ren_grn_mul;
 float ren_blu_mul;
 
-extern int rgl_currtimeval;  // hack..
+angle_t fuzz_ang_tl;
+angle_t fuzz_ang_tr;
+angle_t fuzz_ang_bl;
+angle_t fuzz_ang_br;
 
 
 #define Z_NEAR  1.0f
@@ -309,13 +312,13 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 		float range_x = (float)fabs(x2b - x1b) / 12.0f;
 		float range_y = (float)fabs(y1t - y1b) / 12.0f;
 
-		float bl_x = (float)sin(rgl_currtimeval / 5.0f);
-		float tl_x = (float)sin(rgl_currtimeval / 11.0f);
-		float tr_x = (float)sin(rgl_currtimeval / 7.0f);
-		float br_x = (float)sin(rgl_currtimeval / 13.0f);
+		float tl_x = M_Sin(fuzz_ang_tl);
+		float tr_x = M_Sin(fuzz_ang_tr);
+		float bl_x = M_Sin(fuzz_ang_bl);
+		float br_x = M_Sin(fuzz_ang_br);
 
-		float tl_y = (float)cos(rgl_currtimeval / 11.0f);
-		float tr_y = (float)cos(rgl_currtimeval / 7.0f);
+		float tl_y = M_Cos(fuzz_ang_tl);
+		float tr_y = M_Cos(fuzz_ang_tr);
     
 		// don't adjust the bottom Y positions
     
@@ -445,7 +448,12 @@ void RGL_RainbowEffect(player_t *player)
 		return;
 	}
 
-	// do berserk here... (rather than as a palette effect)
+	// fuzzy warping effect
+
+	fuzz_ang_tl += FLOAT_2_ANG(90.0f / 17.0f);
+	fuzz_ang_tr += FLOAT_2_ANG(90.0f / 11.0f);
+	fuzz_ang_bl += FLOAT_2_ANG(90.0f /  8.0f);
+	fuzz_ang_br += FLOAT_2_ANG(90.0f / 21.0f);
 }
 
 
