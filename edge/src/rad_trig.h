@@ -23,6 +23,10 @@
 #include "e_player.h"
 #include "rad_main.h"
 
+
+#define DEBUG_RTS  0
+
+
 // Radius Trigger Parser Version
 #define PARSERV       11
 #define PARSERVFIX    10
