@@ -9,19 +9,18 @@ NETWORKING
 
 - bot support: client sends ticcmd_proto for bots, ETC.
 
+- connection: have a protocol version field (OUTPUT !!)
+
 TEST: Play-Game packet: random seed for everyone.
-TEST: connection: have a protocol version field.
 
 + have -address and -port cmdline options (remove BIG HACK).
-
-+ buffering: use std::list of pointers ?
 
 - validate packet lengths and contents.
 
 - send acknowledgements.  Also do logging/error packets.
 
 - ping packet type ("pn").
-- retransmit request packet ("rt"), flag for "tc"/"Tg" replies.
+- ticcmd retransmit packet ("tr"), flag for "tc"/"Tg" replies.
 
 - debugging support: Dump packets.
 
@@ -30,17 +29,16 @@ TEST: connection: have a protocol version field.
 ? port selection: try port +2, +4, +6, and +8 before giving up.
 
 
-
 USER INTERFACE
 --------------
 
 + copy the game/client lists for the UI.
 
-+ statistic panel: update values from networking info.
+DONE: statistic panel: update values from networking info.
 
-+ control screen : set port, limits on clients/games, etc.
++ control screen : set port (and addr), limits on clients/games, etc.
 
-- client list
+- client list.  (allow booting off)
 
-- game list
+- game list.  (allow terminating games).
 
