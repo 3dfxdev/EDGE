@@ -46,26 +46,19 @@ typedef unsigned char byte;
 
 #endif
 
-// Borland C++ V5.5 for Win32
+// Win32
 #ifdef WIN32
-#ifdef __BORLANDC__
 
 #define STRICT
 #define _WINDOWS
 #define WIN32_LEAN_AND_MEAN
-
-typedef __int64 Int64;
-typedef float float_t;
-#define FLOAT_IEEE_754
-
-typedef enum { false, true } boolean_t;
-typedef unsigned char byte;
 
 #include <windows.h>
 
 #include <ctype.h>
 #include <direct.h>
 #include <fcntl.h>
+#include <float.h>
 #include <io.h>
 #include <limits.h>
 #include <math.h>
@@ -78,11 +71,14 @@ typedef unsigned char byte;
 #include <sys\stat.h>
 #include <time.h>
 
-// Access() define values. Nicked from DJGPP's <unistd.h>
-#define R_OK    0x02
-#define W_OK    0x04
+#define DIRSEPARATOR '\\'
 
-#endif
+#define GCCATTR(a) __attribute__((a))
+#define INLINE inline
+#define EDGE_INLINE(decl, body) extern decl;
+
+#define strcasecmp stricmp
+
 #endif
 
 // LINUX GCC
