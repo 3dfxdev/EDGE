@@ -95,7 +95,7 @@ angle_t fuzz_ang_br;
 
 
 #define Z_NEAR  1.0f
-#define Z_FAR   32000.0f
+#define Z_FAR   200000.0f
 
 #define RGB_RED(rgbcol)  ((float)((rgbcol >> 16) & 0xFF) / 255.0f)
 #define RGB_GRN(rgbcol)  ((float)((rgbcol >>  8) & 0xFF) / 255.0f)
