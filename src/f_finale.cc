@@ -51,18 +51,18 @@
 
 typedef enum
 {
-  f_text,
-  f_pic,
-  f_bunny,
-  f_cast,
-  f_end
+	f_text,
+	f_pic,
+	f_bunny,
+	f_cast,
+	f_end
 }
 finalestage_e;
 
 #ifdef __cplusplus
 void operator++ (finalestage_e& f, int blah)
 {
-  f = (finalestage_e)(f + 1);
+	f = (finalestage_e)(f + 1);
 }
 #endif
 
@@ -95,73 +95,72 @@ static const image_t *finale_bossback;
 //
 void F_StartFinale(const finale_t * f, gameaction_e newaction)
 {
-  player_t *p;
+	player_t *p;
 
-  finalestage = f_text;
-  finalecount = 0;
-  gameaction = ga_nothing;
-  viewactive = false;
-  automapactive = false;
-  finale = f;
-  newgameaction = newaction;
-  picnum = 0;
-  
-  for (p = players; p; p = p->next)
-    p->cmd.buttons = 0;
+	finalestage = f_text;
+	finalecount = 0;
+	gameaction = ga_nothing;
+	viewactive = false;
+	automapactive = false;
+	finale = f;
+	newgameaction = newaction;
+	picnum = 0;
 
-  // here is where we lookup the required images
+	for (p = players; p; p = p->next)
+		p->cmd.buttons = 0;
 
-  if (f->text_flat[0])
-  {
-    finale_textback = W_ImageFromFlat(f->text_flat);
-    finale_textbackscale = 5.0f;
-  }
-  else if (f->text_back[0])
-  {
-    finale_textback = W_ImageFromPatch(f->text_back);
-    finale_textbackscale = 1.0f;
-  }
-  else
-  {
-    finale_textback = NULL;
-  }
+	// here is where we lookup the required images
 
-  finale_bossback = W_ImageFromPatch("BOSSBACK");
+	if (f->text_flat[0])
+	{
+		finale_textback = W_ImageFromFlat(f->text_flat);
+		finale_textbackscale = 5.0f;
+	}
+	else if (f->text_back[0])
+	{
+		finale_textback = W_ImageFromPatch(f->text_back);
+		finale_textbackscale = 1.0f;
+	}
+	else
+	{
+		finale_textback = NULL;
+	}
 
-  F_Ticker();
+	finale_bossback = W_ImageFromPatch("BOSSBACK");
+
+	F_Ticker();
 }
 
 bool F_Responder(event_t * event)
 {
-  int i;
+	int i;
 
-  if (finalestage == f_cast)
-    return CastResponder(event);
+	if (finalestage == f_cast)
+		return CastResponder(event);
 
-  if (event->type != ev_keydown)
-    return false;
-    
-  // -ES- 2000/02/27 Hack: The first parts of the final stage may be
-  // accelerated, but not the last one, so we have to check if there are
-  // any more to do.
-  for (i = f_end-1; i > finalestage; i--)
-  {
-    if ((i == f_cast && finale->docast) || (i == f_bunny && finale->dobunny)
-       || (i == f_pic && finale->pics) || (i == f_text && finale->text))
-      break;
-  }
+	if (event->type != ev_keydown)
+		return false;
 
-  // Skip finale if there either is a next final stage, or if there is a next
-  // sub-stage (for the two-stage text acceleration)
-  if (i > finalestage ||
-      (finalestage == f_text &&
-       (unsigned int)finalecount < (TEXTSPEED * strlen(DDF_LanguageLookup(finale->text)))))
-  {
-    skip_finale = true;
-    return true;
-  }
+	// -ES- 2000/02/27 Hack: The first parts of the final stage may be
+	// accelerated, but not the last one, so we have to check if there are
+	// any more to do.
+	for (i = f_end-1; i > finalestage; i--)
+	{
+		if ((i == f_cast && finale->docast) || (i == f_bunny && finale->dobunny)
+				|| (i == f_pic && finale->pics) || (i == f_text && finale->text))
+			break;
+	}
 
-  return false;
+	// Skip finale if there either is a next final stage, or if there is a next
+	// sub-stage (for the two-stage text acceleration)
+	if (i > finalestage || (finalestage == f_text &&
+		 (unsigned int)finalecount < (TEXTSPEED * strlen(DDF_LanguageLookup(finale->text)))))
+	{
+		skip_finale = true;
+		return true;
+	}
+
+	return false;
 }
 
 //
@@ -174,7 +173,8 @@ void F_Ticker(void)
 	if (skip_finale)
 	{
 		skip_finale = false;
-		if (finalestage == (finalestage_e)f_text && (unsigned int)finalecount < TEXTSPEED * strlen(DDF_LanguageLookup(finale->text)))
+		if (finalestage == (finalestage_e)f_text &&
+			(unsigned int)finalecount < TEXTSPEED * strlen(DDF_LanguageLookup(finale->text)))
 		{
 			// -ES- 2000/03/08 Two-stage text acceleration. Complete the text the
 			// first time, skip to next finale the second time.
@@ -619,57 +619,57 @@ static void CastDrawer(void)
 //
 static void BunnyScroll(void)
 {
-  int scrolled;
-  const image_t *p1;
-  const image_t *p2;
-  char name[10];
-  int stage;
-  static int laststage;
+	int scrolled;
+	const image_t *p1;
+	const image_t *p2;
+	char name[10];
+	int stage;
+	static int laststage;
 
-  p1 = W_ImageFromPatch("PFUB2");
-  p2 = W_ImageFromPatch("PFUB1");
+	p1 = W_ImageFromPatch("PFUB2");
+	p2 = W_ImageFromPatch("PFUB1");
 
-  scrolled = 320 - (finalecount - 230) / 2;
+	scrolled = 320 - (finalecount - 230) / 2;
 
-  if (scrolled > 320)
-    scrolled = 320;
-  if (scrolled < 0)
-    scrolled = 0;
+	if (scrolled > 320)
+		scrolled = 320;
+	if (scrolled < 0)
+		scrolled = 0;
 
-  // 23-6-1998 KM Changed the background colour to black not real dark grey
-  // -KM- 1998/07/21  Replaced SCREENWIDTH*BPP with SCREENPITCH (two places)
- 
-  VCTX_Image320(0   - scrolled, 0, 320, 200, p1);
-  VCTX_Image320(320 - scrolled, 0, 320, 200, p2);
+	// 23-6-1998 KM Changed the background colour to black not real dark grey
+	// -KM- 1998/07/21  Replaced SCREENWIDTH*BPP with SCREENPITCH (two places)
 
-  if (finalecount < 1130)
-    return;
-  
-  if (finalecount < 1180)
-  {
-    p1 = W_ImageFromPatch("END0");
+	VCTX_Image320(0   - scrolled, 0, 320, 200, p1);
+	VCTX_Image320(320 - scrolled, 0, 320, 200, p2);
 
-    VCTX_ImageEasy320((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
-    laststage = 0;
-    return;
-  }
+	if (finalecount < 1130)
+		return;
 
-  stage = (finalecount - 1180) / 5;
-  
-  if (stage > 6)
-    stage = 6;
-  
-  if (stage > laststage)
-  {
-    S_StartSound(NULL, sfx_pistol);
-    laststage = stage;
-  }
+	if (finalecount < 1180)
+	{
+		p1 = W_ImageFromPatch("END0");
 
-  sprintf(name, "END%i", stage);
+		VCTX_ImageEasy320((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
+		laststage = 0;
+		return;
+	}
 
-  p1 = W_ImageFromPatch(name);
+	stage = (finalecount - 1180) / 5;
 
-  VCTX_ImageEasy320((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
+	if (stage > 6)
+		stage = 6;
+
+	if (stage > laststage)
+	{
+		S_StartSound(NULL, sfx_pistol);
+		laststage = stage;
+	}
+
+	sprintf(name, "END%i", stage);
+
+	p1 = W_ImageFromPatch(name);
+
+	VCTX_ImageEasy320((320 - 13 * 8) / 2, (200 - 8 * 8) / 2, p1);
 }
 
 //
