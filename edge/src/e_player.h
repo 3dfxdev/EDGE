@@ -124,6 +124,9 @@ typedef struct player_s
   // bounded/scaled total momentum.
   float_t bob;
 
+  // Kick offset for vertangle (in mobj_t)
+  float_t kick_offset;
+  
   // This is only used between levels,
   // mo->health is used during levels.
   float_t health;
