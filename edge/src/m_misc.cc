@@ -598,17 +598,16 @@ void M_ScreenShot(void)
 //
 void M_MakeSaveScreenShot(void)
 {
-/* !!!!
-#ifdef USE_GL
-	/// FIXME:
+#if 0 /// FIXME:
 	// buffer = (byte*)Z_Malloc(SCREENWIDTH*SCREENHEIGHT*4);
 	// glReadBuffer(GL_FRONT);
 	// glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	// glReadPixels(0, 0, SCREENWIDTH, SCREENHEIGHT, GL_RGB, GL_UNSIGNED_BYTE, buffer);
 	// ...
 	// Z_Free(buffer);
-  
-#else
+#endif
+
+#if 0  // OLD SOFTWARE VERSION
 	int x, y;
 	int ax, ay;
 
@@ -675,7 +674,6 @@ void M_MakeSaveScreenShot(void)
 		break;
 	}
 #endif
-*/
 }
 
 //
