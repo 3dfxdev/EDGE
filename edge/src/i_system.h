@@ -441,8 +441,8 @@ void I_ShutdownGraphics(void);
 // -AJA- 2000/02/13: variation on a theme...
 #ifdef DEVELOPERS
 #define DEV_ASSERT2(cond)  \
-    ((cond)? (void)0:I_Error("Assertion `" #cond "' failed at line %d of %s.\n",  \
-         __LINE__, __FILE__))
+    ((cond)? (void)0:I_Error("Assertion `%s' failed at line %d of %s.\n",  \
+         #cond , __LINE__, __FILE__))
 #else
 #define DEV_ASSERT2(cond)  ((void) 0)
 #endif
