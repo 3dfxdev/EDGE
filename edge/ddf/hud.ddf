@@ -15,24 +15,26 @@
 
 [DOOM]
 
-MODE = PLAYER;  // also MAP and NONE.  multiple OK.  (maybe CHASE for chase-cam view).
+USAGE = PLAYER_VIEW;  // also AUTOMAP and RTS.
 
 // Allow different huds in different netmodes
 SPECIALISE(dm) = DOOM_DM;
 SPECIALISE(coop) = DOOM_COOP;
 
-DEFAULT_STYLE = HUD;  // styles are defined in styles.ddf
+BASE_STYLE = HUD;  // styles are defined in styles.ddf.
+                   // the style's image/colour is drawn as background.
+				   // (with optimisation for HUD images).
 
-// for possible regions: TOP, LEFT, RIGHT, BOTTOM
-// when have LEFT and BOTTOM (for example), vertical one is includes corner.
+// four possible regions: TOP, LEFT, RIGHT, BOTTOM
+// when both LEFT and BOTTOM (for example), vertical one includes corner.
 
 BOTTOM.SIZE = 32;
 
 CONST(0) = IMAGE(STBAR,0,168);  // ,TILE or TILE_NOSCALE
 
-YOU.READY_AMMO   = NUMBER(BIG_DIGIT,44,171,3), PERCENT, COLOUR(#FFFF00);
-YOU.HEALTH       = NUMBER(BIG_DIGIT,90,171,3), PERCENT;
-YOU.TOTAL_ARMOUR = NUMBER(BIG_DIGIT,221,171,3),PERCENT;
+YOU.READY_AMMO   = PERCENT(BIG_DIGIT,44,171,3), COLOUR(#FFFF00);
+YOU.HEALTH       = PERCENT(BIG_DIGIT,90,171,3);
+YOU.TOTAL_ARMOUR = PERCENT(BIG_DIGIT,221,171,3);
 
 // can specify constant components:
 
@@ -114,12 +116,12 @@ HEIGHT = 32;
 // etc...
 
 
-[MAP]         // the "map" specialisation used when you press TAB.
-MODE = MAP;   // can have multiple of them as well (+/- toggles).
-              // omit it to disable Tabbing.
+[AUTOMAP]        // have ones for the automap (when you press TAB).
+USAGE = AUTOMAP; // can have multiple of them as well (+/- toggles).
+                 // omit it to disable Tabbing.
 
 
-[RTS_1]       // maybe have "rts" specialisation: only usable by
-MODE = NONE;  // RTS scripts.  These huds would be _additional_ to
-              // the current one.  E.g. TIP_HUD BLAH 5
+[RTS_1]       // maybe have "rts" ones: only usable by RTS scripts.
+USAGE = RTS;  // These huds would be _additional_ to current one.
+              // E.g. ENABLE_HUD RTS_1
 
