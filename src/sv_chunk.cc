@@ -58,6 +58,8 @@
 #define FIRST_CHUNK_OFS  16L
 
 
+int sv_read_version = 0;
+
 static int last_error = 0;
 
 
@@ -226,6 +228,8 @@ bool SV_VerifyHeader(int *version)
 
 	(*version) = SV_GetInt();
 
+	sv_read_version = (*version);
+
 	if (last_error)
 	{
 		I_Warning("LOADGAME: Bad header in savegame file\n");
@@ -252,7 +256,6 @@ bool SV_VerifyContents(void)
 		unsigned int file_len;
 
 		char start_marker[6];
-		char end_marker[6];
 
 		SV_GetMarker(start_marker);
 
@@ -286,8 +289,6 @@ bool SV_VerifyContents(void)
 		for (; (file_len > 0) && !last_error; file_len--)
 			SV_GetByte();
 
-		SV_GetMarker(end_marker);
-
 		// run out of data ?
 		if (last_error)
 		{
@@ -296,20 +297,26 @@ bool SV_VerifyContents(void)
 			return false;
 		}
 
-		// check for matching markers
+		if (sv_read_version < 0x12901)
+		{
+			// check for matching markers
+			char end_marker[6];
 
-		if (! VerifyMarker(end_marker))
-		{
-			I_Warning("LOADGAME: Verify failed: Invalid end marker: "
-				"%02X %02X %02X %02X\n", end_marker[0], end_marker[1],
-				end_marker[2], end_marker[3]);
-			return false;
-		}
-		else if (stricmp(start_marker, end_marker) != 0)
-		{
-			I_Warning("LOADGAME: Verify failed: Mismatched markers: "
-				"%s != %s\n", start_marker, end_marker);
-			return false;
+			SV_GetMarker(end_marker);
+
+			if (! VerifyMarker(end_marker))
+			{
+				I_Warning("LOADGAME: Verify failed: Invalid end marker: "
+					"%02X %02X %02X %02X\n", end_marker[0], end_marker[1],
+					end_marker[2], end_marker[3]);
+				return false;
+			}
+			else if (stricmp(start_marker, end_marker) != 0)
+			{
+				I_Warning("LOADGAME: Verify failed: Mismatched markers: "
+					"%s != %s\n", start_marker, end_marker);
+				return false;
+			}
 		}
 	}
 
@@ -463,8 +470,11 @@ bool SV_PushReadChunk(const char *id)
 
 		DEV_ASSERT2(decomp_len == orig_len);
 
-		for (i=0; i < decomp_len; i++)
-			cur->start[i] ^= (byte)(XOR_STRING[i % XOR_LEN]);
+		if (sv_read_version < 0x12901)
+		{
+			for (i=0; i < decomp_len; i++)
+				cur->start[i] ^= (byte)(XOR_STRING[i % XOR_LEN]);
+		}
 #else
 		cur->start = Z_New(byte, file_len);
 		cur->end = cur->start + file_len;
@@ -493,11 +503,14 @@ bool SV_PushReadChunk(const char *id)
 
 	// check for matching markers
 
-	SV_GetMarker(marker);
-
-	if (strcmp(cur->e_mark, marker) != 0)
+	if (sv_read_version < 0x12901)
 	{
-		I_Error("LOADGAME: ReadChunk [%s] failed: Bad markers.\n", id);
+		SV_GetMarker(marker);
+
+		if (strcmp(cur->e_mark, marker) != 0)
+		{
+			I_Error("LOADGAME: ReadChunk [%s] failed: Bad markers.\n", id);
+		}
 	}
 
 	// let the SV_GetByte routine (etc) see the new chunk
@@ -679,9 +692,6 @@ bool SV_PopWriteChunk(void)
 		unsigned char *out_buf;
 		unsigned int out_len;   // unsigned due to LZO
 
-		for (i=0; i < len; i++)
-			cur->start[i] ^= (byte)(XOR_STRING[i % XOR_LEN]);
-
 		out_buf = Z_New(byte, MAX_COMP_SIZE(len));
 
 		i = lzo1x_1_compress(cur->start, len, out_buf, &out_len,
@@ -724,9 +734,6 @@ bool SV_PopWriteChunk(void)
 		for (i=0; i < len; i++)
 			SV_PutByte(cur->start[i]);
 	}
-
-	// write end marker
-	SV_PutMarker(cur->e_mark);
 
 	// all done, free stuff
 	Z_Free(cur->start);
