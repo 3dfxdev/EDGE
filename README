@@ -1,24 +1,23 @@
 
-EDGE 1.28 README.1ST
+EDGE 1.29 README.TXT
 ====================
 
 Welcome to EDGE, the Enhanced Doom Gaming Engine.
 
 Archive listing:
-  * edge32.exe        - Windows Executable, software rendering
-  * gledge32.exe      - Windows Executable, OpenGL rendering
-  * upgrader.exe      - Upgrade utility
-  * edge.wad          - EDGE WAD Information
-  * edge-ddf.zip      - EDGE DDF files (not required to play)
-  * readme.1st        - Guess what you reading?
+  * gledge32.exe       - Windows Executable, OpenGL rendering
+  * edge.wad           - EDGE WAD Information
+  * edge-ddf-4.5.zip   - EDGE DDF files (not required to play)
+  * edge-readme.txt    - Guess what you reading?
+  * changelog-129.txt  - Full list of changes for 1.29
 
 
 System Requirements:
-  - Pentium 133 MHz CPU (233 MHz for 640x480 mode or GLEDGE).
-  - 32MB RAM (64MB RAM recommended).
-  - Hardware accelerated 3D card with OpenGL drivers (GLEDGE only).
+  - Pentium 400 MHz CPU or later.
+  - 64MB RAM (128MB RAM recommended).
+  - Hardware accelerated 3D card with OpenGL drivers
   
-  - Either a DOOM, DOOM II, TNT, PLUTONIA or FREEDOOM WAD file.
+  - Either a DOOM, DOOM II, TNT, PLUTONIA or FREEDOOM IWAD file.
     (See "Getting hold of a game data" below).
    
   For Win32:
@@ -27,8 +26,13 @@ System Requirements:
 
   For Linux:
     - SDL (Simple DirectMedia Layer) version 1.2.
-    - XFree86 4.0 with DRI 3D hardware acceleration (GLEDGE only).
+    - XFree86 4.0 with DRI 3D hardware acceleration
     - Glibc 2.
+
+
+@@@ SOFTWARE REMOVED
+
+@@@ OpenAL sound system
 
 
 Getting hold of game data:
@@ -76,112 +80,58 @@ Notable EDGE features:
     certain parts of the map, or performs certain actions, or when
     certain monsters have been killed (to name a few possibilities).
  
-  - Support for high resolutions (640x400 through 1280x1024), plus
-    support for 16-bit rendering.  That's just software mode, there is
-    also GLEDGE which takes advantage of hardware 3D acceleration via
-    the OpenGL library.
+///---  - Support for high resolutions (640x400 through 1280x1024), plus
+///---    support for 16-bit rendering.  That's just software mode, there is
+///---    also GLEDGE which takes advantage of hardware 3D acceleration via
+///---    the OpenGL library.
 
-  - Jumping, Looking up/down, Flying (JetPack), Zooming.
+  - Jumping, Mouse-Look up/down, Flying (JetPack), Zooming.
  
   - Many limits and bugs from original DOOM removed (e.g. no more
     visplane overflow or medusa effect).
  
  
-Important changes:
-  - On multi-user systems (newer versions of Windows, and Linux)
-    the location for the config file (EDGE.CFG) and savegames has
-    moved, and is user-specific.  This allows multiple users to have
-    their own configuration and savegames.
+???  - On multi-user systems (newer versions of Windows, and Linux)
+???    the location for the config file (EDGE.CFG) and savegames has
+???    moved, and is user-specific.  This allows multiple users to have
+???    their own configuration and savegames.
+???
+???    To allow easy upgrading, we have included a tool along with the
+???    EDGE binaries: UPGRADER.EXE.  You must run this first, before
+???    running EDGE -- it will either move the files to the new place,
+???    or spit out a message saying 'Nothing to do'.
+???    
+???    On Linux, the new location is the ~/.edge directory.  You can
+???    either download, compile and run the Upgrader tool, or manually
+???    move the edge.cfg file and savegames directory there.
 
-    To allow easy upgrading, we have included a tool along with the
-    EDGE binaries: UPGRADER.EXE.  You must run this first, before
-    running EDGE -- it will either move the files to the new place,
-    or spit out a message saying 'Nothing to do'.
-    
-    On Linux, the new location is the ~/.edge directory.  You can
-    either download, compile and run the Upgrader tool, or manually
-    move the edge.cfg file and savegames directory there.
-
-  - Support for playing MP3 music has been removed, since the
-    licensing is not compatible with Open Source software.  The
-    next version of EDGE will support OGG Vorbis, a free format
-    which sounds just as good but has no licensing fees.
 
     
-Bugs fixed in 1.28:
-  + serious crash bug loading textures from PWads fixed.
-  + savegame problem which could cause crashes fixed.
-  + windows version now detects out-of-date GWA files properly.
-  + windows version now handles filenames with double quotes.
-  + fixed crash when a door closed on a dead player.
-  + fixed (potential) crash in GL mode when depth was 8 bits.
-  + crash on cast parade with flipped sprites (HellKnight) fixed.
-
-  - fix for too much bobbing.
-  - fix for floor textures in GL (wrong scale, no transparency).
-  - fixed ceilings not opening because of stuck things (MAP06).
-  - certain fonts are no longer forced red (QDOOM).
-  - fixed the issue with monsters resurrecting into another.
-  - render sprites (S/W mode) with posts exceeding 128 pixels.
+Bugs fixed in 1.29:
   
-  * Many more... See the 1.28 ChangeLog for the complete list.
+  * Many more... See the 1.29 ChangeLog for the complete list.
  
 
-General improvements in 1.28:
-  + better default configuration: e.g. 640x400 mode, 16 bit colour.
-                                                                                            
-  + full Mlook range in GL mode.
-                                                                                            
-  + better sky drawing in GL: the fake skybox copes with Mlook, never
-    wobbles anymore, and is drawn a lot faster than before.
-                                                                                            
-  + windows version prevents more than one instance of EDGE running at
-    the same time.  Also, window handling code has been reworked.
-                                                                                            
-  + the GL renderer emulates the flat-flooding and deep-water tricks.
-                                                                                            
-  - better images for when you have both keycard and skullkey.
-  - config file remembers current language and current Save/Load page.
-  - Pixelfade wipe has been implemented for OpenGL mode.
-  - text strings look better in modes smaller than 640x400.
-  - the source code is now written in C++.
+General improvements in 1.29:
 
-  * See the 1.28 ChangeLog for more...
+  * See the 1.29 ChangeLog for more...
 
 
-New features in 1.28:
-  + very basic overlay HUD.  (Better one will be made when HUD.DDF is
-    implemented).
+New features in 1.29:
 
-  + EDGE.log file, automatically remembers all startup messages.
+  - Support for music in Linux and MacOS X.
 
-  + new #VERSION directive for DDF files and RTS scripts.  It is followed by
-    the version of EDGE needed to use the DDF/RTS.  E.g. "#VERSION 1.28".
-    This directive is _required_ to use new features in EDGE 1.28, but it
-    also prevents you using obsolete features (they produce a fatal error).
 
-  - RESISTANCE_CLASS for DDF.  Used the same way as IMMUNITY_CLASS, but the
-    monster only suffers 40% of the original damage.
-
-  - TIP_GRAPHIC supports scaling via the fourth parameter, which is a value
-    like 0.5, 1.0, 2.0.  For example:
-
-      TIP_GRAPHIC  M_PAUSE  3  false  0.5
-
-  * See the 1.28 ChangeLog file for more...
+  * See the 1.29 ChangeLog file for more...
 
 
 Known Issues:
-  - Multiplayer (networking) does not work.  We don't have the time to
-    work on this at the moment, unfortunately.
+  - Multiplayer (networking) does not work.  We have done a little
+    bit of work so far, and expect to have the basics working again
+    in the next release (1.30).
 
   - Joysticks do not work.  We haven't done any work in that area.
 
-  - Music is not implemented for Linux or MacOS X.
-
-  - There are some visual problems/glitches with the screen,
-    especially when the view window is shrunk down.
- 
   - EDGE is still somewhat slow.  Overall this is because we had
     little time to spend on optimising the code.  For software mode,
     part of the reason is that the old hand-crafted assembly routines
@@ -196,7 +146,7 @@ Known Issues:
  
   - Some sprites are designed to look sunk into the floor, typically
     corpses, and can look like they are "floating" in EDGE.  This is a
-    limitation of the way EDGE/GLEDGE renders everything -- it uses a
+    limitation of the way EDGE renders everything -- it uses a
     new rendering technique that allows 3D floors, liquids, etc, but
     cannot duplicate the old renderer which allowed sunk-down sprites.
 
@@ -210,18 +160,18 @@ Known Issues:
     saved in a savegame, so after loading a level there are no looping
     sounds being played at all.
  
-  - Some graphics can be more blurred than they should be in GLEDGE,
+  - Some graphics can be more blurred than they should be,
     such as the title screens and the status bar background.
 
     This happens because many 3D cards (e.g. Voodoo 3) have a texture
     size limitation of 256x256 pixels, but some DOOM graphics are 320
-    pixels wide -- because they don't fit, GLEDGE has to squash them.
+    pixels wide -- because they don't fit, EDGE has to squash them.
  
   - The console has very limited functionality.
  
-  - Certain colourmaps (especially Fog) don't work in GL mode.
+  - Certain colourmaps (especially Fog) don't work.
 
-  - Teleport wipes don't work in GL mode.
+  - Teleport wipes don't work.
 
 
 Troubleshooting:
@@ -436,5 +386,5 @@ Console commands:
     displays the value of that variable.
 
 
---- END OF README.1ST ---
+--- END OF README.TXT ---
 
