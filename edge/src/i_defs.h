@@ -330,6 +330,60 @@ typedef enum { false, true } boolean_t;
 
 #endif // LINUX GCC
 
+// BeOS GCC
+#ifdef BeOS
+
+typedef long long Int64;
+typedef float float_t;
+#define FLOAT_IEEE_754
+typedef enum { false, true } boolean_t;
+
+#include <ctype.h>
+#include <dirent.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <math.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
+#include <sys/stat.h>
+
+
+#ifdef USE_GL
+#include <GL/gl.h>
+#endif
+
+#define EDGECONFIGFILE "edge.cfg"
+#define EDGEHOMEDIR    "HOME"
+#define EDGEWADDIR     "EDGEWADDIR"
+#define EDGEWADEXT     "wad"
+#define EDGEGWAEXT     "gwa"
+#define REQUIREDWAD    "edge"
+
+#define DIRSEPARATOR '/'
+
+#define NAME        "EDGE"
+#define OUTPUTNAME  "EDGECONSOLE"
+#define TITLE       "EDGE Engine"
+#define OUTPUTTITLE "EDGE Engine console"
+
+#define GCCATTR(a) __attribute__((a))
+#define INLINE inline
+#define EDGE_INLINE(decl, body) extern inline decl body
+
+#define I_TmpMalloc(size) alloca(size)
+#define I_TmpFree(ptr) do { } while (0)
+
+#define I_MoveData memcpy
+
+#include "i_system.h"
+#include "BeOS/b_compen.h"
+
+#endif // BeOS GCC
+
 #ifdef LEAK_HUNT
 #undef I_TmpMalloc
 #undef I_TmpFree
