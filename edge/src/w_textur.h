@@ -62,8 +62,6 @@ void W_PreCacheTextureNum(int texnum);
 
 void W_InitTextures(void);
 
-void W_FlushTextureCaches(z_urgency_e urge);
-
 // Called by P_Ticker for switches and animations,
 // returns the texture number for the texture name.
 int W_TextureNumForName(const char *name);
