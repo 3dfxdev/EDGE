@@ -54,8 +54,7 @@ typedef enum
   WIPE_Left,
   WIPE_Right,
 
-  // Scrolls in from all corners
-  WIPE_Corners,
+  WIPE_Spooky,
 
   // Opens like doors
   WIPE_Doors,

@@ -29,4 +29,4 @@
 #include "wp_main.h"
 
 // for CVar enums
-const char WIPE_EnumStr[] = "none/melt/crossfade/pixelfade/top/bottom/left/right/corners/doors";
+const char WIPE_EnumStr[] = "none/melt/crossfade/pixelfade/top/bottom/left/right/spooky/doors";
