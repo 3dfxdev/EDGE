@@ -56,6 +56,8 @@ namespace Weapons
 
 	void MarkWeapon(int wp_num);
 
+	void AlterWeapon(int new_val);
+
 	void ConvertWEAP(void);
 }
 

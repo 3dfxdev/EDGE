@@ -28,7 +28,10 @@
 #include "i_defs.h"
 #include "frames.h"
 
+#include "convert.h"
 #include "info.h"
+#include "patch.h"
+#include "storage.h"
 #include "system.h"
 #include "text.h"
 #include "things.h"
@@ -670,6 +673,32 @@ void Frames::OutputGroup(int first, char group)
 
 		return;
 	}
+}
+
+
+//------------------------------------------------------------------------
+
+void Frames::AlterFrame(int new_val)
+{
+	int st_num = Patch::active_obj;
+	const char *deh_field = Patch::line_buf;
+
+	assert(0 <= st_num && st_num < NUMSTATES);
+
+	// FIXME
+}
+
+void Frames::AlterPointer(int new_val)
+{
+	int ptr_num = Patch::active_obj;
+	assert(0 <= ptr_num && ptr_num < POINTER_NUM);
+
+	int st_num = pointerToFrame[ptr_num];
+	const char *deh_field = Patch::line_buf;
+
+	assert(0 <= st_num && st_num < NUMSTATES);
+
+	// FIXME
 }
 
 

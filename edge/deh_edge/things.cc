@@ -33,6 +33,8 @@
 #include "frames.h"
 #include "misc.h"
 #include "mobj.h"
+#include "patch.h"
+#include "storage.h"
 #include "sounds.h"
 #include "system.h"
 #include "text.h"
@@ -210,11 +212,13 @@ namespace Things
 		{
 			char ch = (char) extflaglist[i].flag;
 
+			if (! strchr(eflags, ch))
+				continue;
+
 			if (ch == EF_DISLOYAL)
 				force_disloyal = false;
 
-			if (strchr(eflags, ch))
-				AddOneFlag(info, extflaglist[i].name);
+			AddOneFlag(info, extflaglist[i].name);
 		}
 
 		if (force_disloyal)
@@ -844,7 +848,17 @@ void Things::MarkThing(int mt_num)
 		mobj_modified[MT_SPAWNSHOT] = true;
 }
 
-// NOTES
-//
-//   Need to duplicate players
-//   info->damage only used in attacks and LOST_SOUL
+
+//------------------------------------------------------------------------
+
+void Things::AlterThing(int new_val)
+{
+	int mt_num = Patch::active_obj - 1;  // NOTE WELL
+
+	const char *deh_field = Patch::line_buf;
+
+	assert(0 <= mt_num && mt_num < NUMMOBJTYPES);
+
+	// FIXME
+}
+

@@ -33,6 +33,8 @@
 #include "frames.h"
 #include "misc.h"
 #include "mobj.h"
+#include "patch.h"
+#include "storage.h"
 #include "sounds.h"
 #include "system.h"
 #include "things.h"
@@ -264,5 +266,18 @@ void Weapons::ConvertWEAP(void)
 		
 	if (got_one)
 		FinishLump();
+}
+
+
+//------------------------------------------------------------------------
+
+void Weapons::AlterWeapon(int new_val)
+{
+	int wp_num = Patch::active_obj;
+	const char *deh_field = Patch::line_buf;
+
+	assert(0 <= wp_num && wp_num < NUMWEAPONS);
+
+	// FIXME
 }
 

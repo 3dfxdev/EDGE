@@ -26,6 +26,8 @@ namespace Things
 
 	const char *GetSound(int sound_id);
 	const char *GetSpeed(int speed);
+
+	void AlterThing(int new_val);
 }
 
 

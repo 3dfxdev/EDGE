@@ -137,7 +137,7 @@ namespace Sounds
 	bool ReplaceMusic(const char *before, const char *after);
 
 	void MarkSound(int s_num);
-	void AlterSound(int s_num, const char *deh_field, int value);
+	void AlterSound(int new_val);
 
 	void ConvertSFX(void);
 	void ConvertMUS(void);

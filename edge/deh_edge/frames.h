@@ -37,6 +37,9 @@ namespace Frames
 	void MarkState(int st_num);
 	void StateDependencies(void);
 
+	void AlterFrame(int new_val);
+	void AlterPointer(int new_val);
+
 	void ResetAll(void); // also resets the slots and flags
 	int  BeginGroup(int first, char group);
 	void SpreadGroups(void);

@@ -30,8 +30,11 @@
 
 #include "info.h"
 #include "mobj.h"
+#include "patch.h"
+#include "storage.h"
 #include "system.h"
 #include "things.h"
+#include "util.h"
 
 
 int Ammo::plr_max[4] = 
@@ -112,6 +115,39 @@ namespace Ammo
 
 		InternalError("Bad ammo type %d\n", type);
 		return NULL;
+	}
+
+	void AlterAmmo(int new_val)
+	{
+		int a_num = Patch::active_obj;
+		const char *deh_field = Patch::line_buf;
+
+		assert(0 <= a_num && a_num < NUMAMMO);
+
+		bool max_m = (0 == StrCaseCmp(deh_field, "Max ammo"));
+		bool per_m = (0 == StrCaseCmp(deh_field, "Per ammo"));
+
+		if (! max_m && ! per_m)
+		{
+			PrintWarn("UNKNOWN AMMO FIELD: %s\n", deh_field);
+			return;
+		}
+
+		if (new_val > 10000)
+			new_val = 10000;
+
+		if (new_val < 0)
+		{
+			PrintWarn("Bad value '%d' for AMMO field: %s\n", new_val, deh_field);
+			return;
+		}
+
+		if (max_m)
+			Storage::RememberMod(plr_max + a_num, new_val);
+		else /* per_m */
+			Storage::RememberMod(pickups + a_num, new_val);
+
+		MarkAmmo(a_num);
 	}
 }
 
