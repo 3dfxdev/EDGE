@@ -486,6 +486,9 @@ bool TextStr::ReplaceCheat(const char *deh_name, const char *str)
 {
 	assert(str[0]);
 
+	// DOOM cheats were terminated with an 0xff byte
+	char eoln = (char) 0xff;
+
 	for (int i = 0; cheat_list[i].orig_text; i++)
 	{
 		langinfo_t *cht = cheat_list + i;
@@ -494,6 +497,16 @@ bool TextStr::ReplaceCheat(const char *deh_name, const char *str)
 			continue;
 
 		int len = strlen(cht->orig_text);
+
+		const char *end_mark = strchr(str, eoln);
+
+		if (end_mark)
+		{
+			int end_pos = end_mark - str;
+
+			if (end_pos > 1 && end_pos < len)
+				len = end_pos;
+		}
 
 		if (! cht->new_text)
 			cht->new_text = new char[len + 1];
