@@ -302,6 +302,9 @@ typedef struct sector_s
   int linecount;
   struct line_s **lines;  // [linecount] size
 
+  // sky height for GL renderer
+  float_t sky_height;
+  
   // if == validcount, already checked
   int validcount;
 

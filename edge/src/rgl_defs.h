@@ -47,8 +47,6 @@ void RGL_Init(void);
 void RGL_SetupMatrices2D(void);
 void RGL_SetupMatrices3D(void);
 void RGL_SetupMatricesSky(void);
-void RGL_MarkSky(void);
-void RGL_DrawSky(void);
 void RGL_DrawPlayerSprites(player_t * p);
 
 void RGL_RainbowEffect(player_t *player);
@@ -60,6 +58,17 @@ void RGL_MapClear(void);
 
 
 //
+//  RGL_SKY
+//
+//
+void RGL_MarkSky(void);
+void RGL_DrawSky(void);
+
+void RGL_DrawSkyPlane(subsector_t *sub, float_t h);
+void RGL_DrawSkyWall(seg_t *seg, float_t h1, float_t h2);
+
+
+//
 //  RGL_BSP
 //
 
@@ -67,6 +76,8 @@ void RGL_MapClear(void);
 
 // save a little room for lighting effects
 #define TOP_LIGHT  (0.9)
+
+#define MAX_PLVERT  64
 
 // extra lighting on the player weapon (BL,TL,TR,BR).
 extern int rgl_weapon_r[4];
