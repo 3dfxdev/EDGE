@@ -97,8 +97,8 @@ typedef struct drawwall_s
   // colourmap & lighting
   region_properties_t *props;
 
-  // !!!! dlight test
-  float_t extra_light, elight_step;
+  // dynamic lighting
+  int extra_light[2];
 
   // info for texture mapper
   float_t distance;
@@ -140,8 +140,9 @@ typedef struct drawplane_s
   // colourmap & lighting
   region_properties_t *props;
 
-  // !!!! dlight test
-  float_t extra_light, elight_step;
+  // dynamic lighting
+  int extra_light[2];
+  int min_y, max_y;
 }
 drawplane_t;
 
@@ -202,8 +203,8 @@ typedef struct drawthing_s
   boolean_t bright;
   const byte *trans_table;
 
-  // !!!! dlight test
-  float_t extra_light;
+  // dynamic lighting
+  int extra_light;
 
   //...
 
@@ -263,6 +264,12 @@ void R2_RenderTrueBSP(void);
 void R2_GetThingSprite(mobj_t *thing, spritedef_t ** sprite,
     spriteframe_t ** frame, int *lump, boolean_t *flip, boolean_t *bright);
 void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing);
+
+void R2_AddDLights(int num, int *level, 
+    float_t *x, float_t *y, float_t *z, mobj_t *dl);
+void R2_AddColourDLights(int num, int *r, int *g, int *b, 
+    float_t *x, float_t *y, float_t *z, mobj_t *dl);
+void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor);
 
 
 //
