@@ -1447,7 +1447,7 @@ void DDF_MainGetPercent(const char *info, void *storage)
   
 	DDF_MainGetFloat(s, &f);
 	if (f < 0.0f || f > 100.0f)
-		DDF_Error("Bad percent value '%s': Must be between 0% and 100%\n");
+		DDF_Error("Bad percent value '%s': Must be between 0%% and 100%%\n", s);
 
 	*dest = f / 100.0f;
 }
