@@ -300,7 +300,7 @@ typedef enum { false, true } boolean_t;
 #include <GL/gl.h>
 #endif
 
-#define EDGECONFIGFILE ".edgerc"
+#define EDGECONFIGFILE "edge.cfg"
 #define EDGEHOMEDIR    "HOME"
 #define EDGEWADDIR     "EDGEWADDIR"
 #define EDGEWADEXT     "wad"
