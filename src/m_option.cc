@@ -102,14 +102,11 @@
 int optionsmenuon = 0;
 
 //submenus
-static void M_StandardControlOptions(int keypressed);
-static void M_ExtendedControlOptions(int keypressed);
-
+static void M_KeyboardOptions(int keypressed);
 static void M_VideoOptions(int keypressed);
 static void M_GameplayOptions(int keypressed);
 static void M_AnalogueOptions(int keypressed);
-
-static void M_CalibrateJoystick(int keypressed);
+// static void M_CalibrateJoystick(int keypressed);
 
 void M_ResetToDefaults(int keypressed);
 
@@ -133,12 +130,12 @@ static void M_ChangeCrouching(int keypressed);
 static void M_ChangeExtra(int keypressed);
 static void M_ChangeGamma(int keypressed);
 static void M_ChangeShadows(int keypressed);
-static void M_ChangeHalos(int keypressed);
 static void M_ChangeCompatMode(int keypressed);
 static void M_ChangeKicking(int keypressed);
 static void M_ChangeWeaponSwitch(int keypressed);
 static void M_ChangeMipMap(int keypressed);
 static void M_ChangeDLights(int keypressed);
+// static void M_ChangeHalos(int keypressed);
 
 // -ES- 1998/08/20 Added resolution options
 // -ACB- 1998/08/29 Moved to top and tried different system
@@ -355,17 +352,17 @@ static void M_DefaultMenuItem(optmenuitem_t *item)
 //
 //  MAIN MENU
 //
+#define LEAVE_POS  5
 #define LANGUAGE_POS  7
 
 static optmenuitem_t mainmenu[] =
 {
-	{OPT_Function, "Leave Game", NULL, 0, 0, NULL, M_EndGame, NULL},
-///	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Function, "Keyboard Controls", NULL, 0, 0, NULL, M_StandardControlOptions, "Controls"},
+	{OPT_Function, "Keyboard Controls", NULL, 0, 0, NULL, M_KeyboardOptions, "Controls"},
 	{OPT_Function, "Mouse Options", NULL, 0, 0, NULL, M_AnalogueOptions, "AnalogueOptions"},
 	{OPT_Function, "Gameplay Options", NULL, 0, 0, NULL, M_GameplayOptions, "GameplayOptions"},
 	{OPT_Function, "Video Options", NULL, 0, 0, NULL, M_VideoOptions, "VideoOptions"},
 	{OPT_Function, "Set Resolution", NULL, 0, 0, NULL, M_ResolutionOptions, "ChangeRes"},
+	{OPT_Function, "Leave Game", NULL, 0, 0, NULL, M_EndGame, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Language", NULL, 0, 0, NULL, M_ChangeLanguage, NULL},
 	{OPT_Switch, "Messages", YesNo, 2, 1, &showMessages, NULL, "Messages"},
@@ -541,7 +538,7 @@ static optmenuitem_t stdkeyconfig[] =
 static menuinfo_t stdkeyconfiginfo = 
 {
 	stdkeyconfig, sizeof(stdkeyconfig) / sizeof(optmenuitem_t),
-	&keyboard_style, 110, 98, "M_CONTRL", NULL, 0, "STD", NULL, NULL
+	&keyboard_style, 110, 98, "M_CONTRL", NULL, 0, "Page 1", NULL, NULL
 };
 
 //
@@ -568,7 +565,7 @@ static optmenuitem_t extkeyconfig[] =
 static menuinfo_t extkeyconfiginfo = 
 {
 	extkeyconfig, sizeof(extkeyconfig) / sizeof(optmenuitem_t),
-	&keyboard_style, 110, 98, "M_CONTRL", NULL, 0, "EXT", NULL, NULL
+	&keyboard_style, 110, 98, "M_CONTRL", NULL, 0, "Page 2", NULL, NULL
 };
 
 static char keystring1[] = "Enter to change, Backspace to Clear";
@@ -631,18 +628,20 @@ static specialkey_t specialkeylist[] =  // terminate on -1
 //
 void M_OptCheckNetgame(void)
 {
+#if 0
 	if (usergame)
 	{
-		strcpy(mainmenu[0].name, "Leave Game");
-		mainmenu[0].routine = &M_EndGame;
-		mainmenu[0].help = NULL;
+		strcpy(mainmenu[LEAVE_POS].name, "Leave Game");
+		mainmenu[LEAVE_POS].routine = &M_EndGame;
+		mainmenu[LEAVE_POS].help = NULL;
 	}
 	else
 	{
-		strcpy(mainmenu[0].name, "Multiplayer Game");
-		mainmenu[0].routine = &M_MultiplayerGame;
-		mainmenu[0].help = NULL;
+		strcpy(mainmenu[LEAVE_POS].name, "Multiplayer Game");
+		mainmenu[LEAVE_POS].routine = &M_MultiplayerGame;
+		mainmenu[LEAVE_POS].help = NULL;
 	}
+#endif
 }
 
 //
@@ -1275,20 +1274,11 @@ static void M_GameplayOptions(int keypressed)
 }
 
 //
-// M_StandardControlOptions
+// M_KeyboardOptions
 //
-static void M_StandardControlOptions(int keypressed)
+static void M_KeyboardOptions(int keypressed)
 {
 	curr_menu = &stdkeyconfiginfo;
-	curr_item = curr_menu->items + curr_menu->pos;
-}
-
-//
-// M_ExtendedControlOptions
-//
-static void M_ExtendedControlOptions(int keypressed)
-{
-	curr_menu = &extkeyconfiginfo;
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
@@ -1395,6 +1385,7 @@ static void M_Key2String(int key, char *deststring)
 	return;
 }
 
+#if 0
 //
 // M_CalibrateJoystick
 //
@@ -1403,8 +1394,9 @@ static void M_Key2String(int key, char *deststring)
 //
 static void M_CalibrateJoystick(int keypressed)
 {
-//  I_CalibrateJoystick(0);
+	I_CalibrateJoystick(0);
 }
+#endif
 
 //
 // M_ChangeGamma
@@ -1535,6 +1527,7 @@ static void M_ChangeShadows(int keypressed)
 	level_flags.shadows = global_flags.shadows;
 }
 
+#if 0
 static void M_ChangeHalos(int keypressed)
 {
 	if (currmap && ((currmap->force_on | currmap->force_off) & MPF_Halos))
@@ -1542,6 +1535,7 @@ static void M_ChangeHalos(int keypressed)
 
 	level_flags.halos = global_flags.halos;
 }
+#endif
 
 static void M_ChangeCompatMode(int keypressed)
 {
