@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.28 (since 1.27)
 ===============================
 
-(Date: APRIL 28th 2004)
+(Date: APRIL 29th 2004)
 
 Bugs fixed
 ----------
@@ -35,7 +35,8 @@ Bugs fixed
 - fixed how armour is shown in the status bar.
 - certain fonts are no longer forced red (QDOOM).
 - numerous small fixes to DDF, e.g. Cyberdemon walk sound.
-- pontential crash when subsectors have only 1 or 2 segs (MAP22).
+- potential crash when subsectors have only 1 or 2 segs (MAP22).
+- sound replacements via DDF no longer jumbles up all sounds.
 - fixed transparent doors (again !), both software and GL.
 - fixed the issue with monsters resurrecting into another.
 - screenshots in GL mode now work again.
@@ -47,7 +48,6 @@ Bugs fixed
 - bugs when changing screensize with +/- and in the menu fixed.
 - night vision in GL mode was not lighting things up.
 - fix for console which was drawn behind the menus.
-- problems with "friendly fire" from helper monsters fixed.
 
 
 Features removed:
@@ -70,6 +70,8 @@ General improvements
   For single-user systems, there is no change (config file and savegame
   dir are in the same directory as the EDGE binary).
 
++ better default configuration: e.g. 640x400 mode, 16 bit colour.
+
 + full Mlook range in GL mode.
 
 + better sky drawing in GL: drawn using a fake skybox (created from
@@ -90,8 +92,8 @@ General improvements
 - the first 9 RTS tip slots are no longer unchangeable.
 - better invulnerability fade-out in GL.
 - Pixelfade wipe has been implemented for OpenGL mode.
-- better default configuration: e.g. 640x400 mode, 16 bit colour.
 - text strings look better in modes smaller than 640x400.
+- friendly monsters now work a bit better.
 
 
 New features:
