@@ -19,10 +19,6 @@
 #ifndef __SYSTEM_INTERNAL_H__
 #define __SYSTEM_INTERNAL_H__
 
-#define DIRECTDRAW_VERSION 0x0300
-#define DIRECTINPUT_VERSION 0x0300
-#define DIRECTSOUND_VERSION 0x0300
-
 #define DUMMYUNIONNAMEN(n)
 
 #include "..\i_defs.h"
