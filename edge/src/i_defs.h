@@ -304,12 +304,11 @@ typedef bool boolean_t;
 #include <values.h>
 #include <sys/stat.h>
 
-
 #ifdef USE_GL
 #include <GL/gl.h>
 #endif
 
-#define EDGECONFIGFILE "edge.cfg"
+#define EDGECONFIGFILE ".edgerc"
 #define EDGEHOMEDIR    "HOME"
 #define EDGEWADDIR     "EDGEWADDIR"
 #define EDGEWADEXT     "wad"
@@ -368,7 +367,7 @@ typedef enum { false, true } boolean_t;
 #include <GL/gl.h>
 #endif
 
-#define EDGECONFIGFILE "edge.cfg"
+#define EDGECONFIGFILE ".edgerc"
 #define EDGEHOMEDIR    "HOME"
 #define EDGEWADDIR     "EDGEWADDIR"
 #define EDGEWADEXT     "wad"
