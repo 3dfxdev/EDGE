@@ -55,6 +55,7 @@ namespace Deh_Edge
 #define EF_DISLOYAL    'D'
 #define EF_TRIG_HAPPY  'H'
 #define EF_BOSSMAN     'B'
+#define EF_LOUD        'L'
 #define EF_NO_RAISE    'R'
 #define EF_NO_GRUDGE   'G'
 #define EF_NO_ITEM_BK  'I'
@@ -84,10 +85,10 @@ namespace Things
 
 		WAD::Printf(GEN_BY_COMMENT);
 
+		WAD::Printf("<THINGS>\n\n");
+
 		if (target_version >= 129)
 			WAD::Printf("#VERSION 1.29\n");
-			
-		WAD::Printf("<THINGS>\n\n");
 	}
 
 	void FinishLump(void)
@@ -153,6 +154,7 @@ namespace Things
 		{ EF_DISLOYAL,    "DISLOYAL,ATTACK_HURTS", NULL },  // Must be first
 		{ EF_TRIG_HAPPY,  "TRIGGER_HAPPY", NULL },
 		{ EF_BOSSMAN,     "BOSSMAN", NULL },
+		{ EF_LOUD,        "ALWAYS_LOUD", NULL },
 		{ EF_NO_RAISE,    "NO_RESURRECT", NULL },
 		{ EF_NO_GRUDGE,   "NO_GRUDGE,NEVERTARGETED", NULL },
 		{ EF_NO_ITEM_BK,  "NO_RESPAWN", NULL },
@@ -250,8 +252,8 @@ namespace Things
 			case MT_CYBORG: return "BHR";
 			case MT_SPIDER: return "BHR";
 
-			case MT_BOSSBRAIN:
 			case MT_BOSSSPIT: return "B";
+			case MT_BOSSBRAIN: return (target_version >= 129) ? "L" : "B";
 
 			default:
 				break;
@@ -638,6 +640,15 @@ namespace Things
 		WAD::Printf(    "NAILS.LIMIT(%d), ",   100);
 		WAD::Printf(    "GRENADES.LIMIT(%d), ", 50);
 		WAD::Printf(    "GAS.LIMIT(%d),\n",    300);
+		
+		if (target_version >= 129)
+		{
+			WAD::Printf("    DAGGERS.LIMIT(%d), ",   100);
+			WAD::Printf(    "ARROWS.LIMIT(%d), ",    200);
+			WAD::Printf(    "TORPEDOES.LIMIT(%d), ",  50);
+			WAD::Printf(    "CRYSTALS.LIMIT(%d),\n", 300);
+		}
+
 		WAD::Printf("    BULLETS(%d);\n",      Misc::init_ammo);
 	}
 
