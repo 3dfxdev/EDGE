@@ -944,8 +944,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 	// -ACB- 1998/09/13 Use teleport define..
 	if (special->t.teleport)
 	{
-		texSwitch = EV_Teleport(line, tag, 1, thing, special->t.delay, 
-				special->t.special, special->t.inspawnobj, special->t.outspawnobj);
+		texSwitch = EV_Teleport(line, tag, thing, &special->t);
 	}
 
 	if (special->e_exit == EXIT_Normal)

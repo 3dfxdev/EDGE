@@ -808,6 +808,40 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
 	return plane;
 }
 
+static mobj_t *FindTeleportMan(int tag, const mobjtype_c *info)
+{
+	for (int i = 0; i < numsectors; i++)
+	{
+		if (sectors[i].tag != tag)
+			continue;
+
+		for (subsector_t *sub = sectors[i].subsectors; sub; sub = sub->sec_next)
+		{
+			for (mobj_t *mo = sub->thinglist; mo; mo = mo->snext)
+				if (mo->info == info)
+					return mo;
+		}
+	}
+
+	return NULL;  // not found
+}
+
+static line_t *FindTeleportLine(int tag, line_t *original)
+{
+	for (int i = 0; i < numlines; i++)
+	{
+		if (lines[i].tag != tag)
+			continue;
+
+		if (lines + i == original)
+			continue;
+
+		return lines + i;
+	}
+
+	return NULL;  // not found
+}
+
 //
 // EV_Teleport
 //
@@ -840,56 +874,56 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
 // -AJA- 1999/07/12: Support for TELEPORT_SPECIAL in lines.ddf.
 // -AJA- 1999/07/30: Updated for extra floor support.
 // -AJA- 1999/10/21: Allow line to be NULL, and added `tag' param.
+// -AJA- 2004/10/08: Reworked for Silent and Line-to-Line teleporters.
 //
-bool EV_Teleport
-(
-	line_t* line,
-	int tag, 
-	int side,
-	mobj_t* thing,
-	int delay,
-	int special,
-	const mobjtype_c* ineffectobj,
-	const mobjtype_c * outeffectobj
-	)
+bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
+				 const teleportdef_c *def)
 {
 	if (!thing)
-		return false;
-
-	mobj_t *currmobj = NULL;
-
-	// find the teleportman
-	for (int i = 0; i < numsectors; i++)
-	{
-		if (sectors[i].tag != tag)
-			continue;
-
-		for (subsector_t *sub=sectors[i].subsectors; sub; sub=sub->sec_next)
-		{
-			for (currmobj=sub->thinglist; currmobj; currmobj=currmobj->snext)
-				if (currmobj->info == outeffectobj)
-					break;
-
-			if (currmobj)
-				break;
-		}
-
-		if (currmobj)
-			break;
-	}
-
-	if (! currmobj)
 		return false;
 
 	float oldx = thing->x;
 	float oldy = thing->y;
 	float oldz = thing->z;
 
-	float new_x = currmobj->x;
-	float new_y = currmobj->y;
-	float new_z = currmobj->z;
+	float new_x;
+	float new_y;
+	float new_z;
 
-	if (line && (special & TELSP_SameOffset))
+	mobj_t *currmobj = NULL;
+
+	if (def->special & TELSP_Line)
+	{
+		if (tag <= 0)
+			return false;
+
+		line_t *dest = FindTeleportLine(tag, line);
+
+		if (! dest)
+			return false;
+
+		//!!!! FIXME: massive big hack crap temp gunk kludge
+		new_x = (dest->v1->x + dest->v2->x) / 2.0f;
+		new_y = (dest->v1->y + dest->v2->y) / 2.0f;
+		new_z = MAX(dest->frontsector ? dest->frontsector->f_h : -32000,
+		            dest->backsector  ? dest->backsector->f_h  : -32000);
+	}
+	else
+	{
+		if (! def->outspawnobj)
+			return false;
+
+		currmobj = FindTeleportMan(tag, def->outspawnobj);
+
+		if (! currmobj)
+			return false;
+
+		new_x = currmobj->x;
+		new_y = currmobj->y;
+		new_z = currmobj->z;
+	}
+
+	if (line && (def->special & TELSP_SameOffset))
 	{
 		float centre_x = (line->v1->x + line->v2->x) / 2;
 		float centre_y = (line->v1->y + line->v2->y) / 2;
@@ -898,7 +932,7 @@ bool EV_Teleport
 		new_y += thing->y - centre_y;
 	}
 
-	if (special & TELSP_SameHeight)
+	if (def->special & TELSP_SameHeight)
 		new_z += (thing->z - thing->floorz);
 	else if (thing->flags & MF_MISSILE)
 		new_z += thing->origheight;
@@ -909,59 +943,70 @@ bool EV_Teleport
 	if (thing->player)
 		thing->player->viewz = thing->z + thing->player->viewheight;
 
-	mobj_t *fog;
-
-	// spawn teleport fog at source and destination
-	if (ineffectobj)
-	{
-		fog = P_MobjCreateObject(oldx, oldy, oldz, ineffectobj);
-
-		if (fog->info->chase_state)
-			P_SetMobjState(fog, fog->info->chase_state);
-	}
-
-	angle_t an = currmobj->angle;
-
-	//
-	// -ACB- 1998/09/06 Switched 40 to 20. This by my records is
-	//                  the original setting.
-	//
-	// -ES- 1998/10/29 When fading, we don't want to see the fog.
-	//
-	fog = P_MobjCreateObject(currmobj->x + 20 * M_Cos(an),
-							 currmobj->y + 20 * M_Sin(an),
-							 currmobj->z, outeffectobj);
-
-	if (fog->info->chase_state)
-		P_SetMobjState(fog, fog->info->chase_state);
-
-	if (thing->player && !telept_flash)
-		fog->vis_target = fog->visibility = INVISIBLE;
-
 	// don't move for a bit
-	if (thing->player && !(special & TELSP_SameSpeed))
+	if (thing->player && !(def->special & TELSP_SameSpeed))
 	{
-		thing->reactiontime = delay;
+		thing->reactiontime = def->delay;
+
 		// -ES- 1998/10/29 Start the fading
 		if (telept_effect && thing->player == displayplayer)
-			R_StartFading(0, (delay * 5) / 2);
+			R_StartFading(0, (def->delay * 5) / 2);
 		thing->mom.x = thing->mom.y = thing->mom.z = 0;
 	}
+ 
+ 	if (def->special & TELSP_Reversing)
+		thing->angle += ANG180;
 
-	if (special & TELSP_Rotate)
+ 	if (currmobj)
 	{
-		thing->angle += currmobj->angle;
-	}
-	else if (!(special & TELSP_SameDir))
-	{
-		thing->angle = currmobj->angle;
-		thing->vertangle = currmobj->vertangle;
+		if (def->special & TELSP_Rotate)
+		{
+			thing->angle += currmobj->angle;
+		}
+		else if (! (def->special & TELSP_SameDir))
+		{
+			thing->angle = currmobj->angle;
+			thing->vertangle = currmobj->vertangle;
+		}
 	}
 
 	if (thing->flags & MF_MISSILE)
 	{
 		thing->mom.x = thing->speed * M_Cos(thing->angle);
 		thing->mom.y = thing->speed * M_Sin(thing->angle);
+	}
+
+	// spawn teleport fog at source and/or destination
+	if (! (def->special & TELSP_Silent))
+	{
+		mobj_t *fog;
+
+		if (def->inspawnobj)
+		{
+			fog = P_MobjCreateObject(oldx, oldy, oldz, def->inspawnobj);
+
+			if (fog->info->chase_state)
+				P_SetMobjState(fog, fog->info->chase_state);
+		}
+
+		if (def->outspawnobj)
+		{
+			//
+			// -ACB- 1998/09/06 Switched 40 to 20. This by my records is
+			//                  the original setting.
+			//
+			// -ES- 1998/10/29 When fading, we don't want to see the fog.
+			//
+			fog = P_MobjCreateObject(new_x + 20.0f * M_Cos(thing->angle),
+									 new_y + 20.0f * M_Sin(thing->angle),
+									 new_z, def->outspawnobj);
+
+			if (fog->info->chase_state)
+				P_SetMobjState(fog, fog->info->chase_state);
+
+			if (thing->player && !telept_flash)
+				fog->vis_target = fog->visibility = INVISIBLE;
+		}
 	}
 
 	return true;
