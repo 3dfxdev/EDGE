@@ -22,6 +22,11 @@
 //    Copyright (C) 1993-1996 by id Software, Inc.
 //
 //----------------------------------------------------------------------------
+//
+// -AJA- 2005/01/27: implemented new demo format
+//
+// See "docs/tech/demo_fmt.txt" for the new demo specs.
+// 
 
 #include "i_defs.h"
 #include "e_demo.h"
@@ -29,6 +34,8 @@
 #include "am_map.h"
 #include "con_cvar.h"
 #include "con_main.h"
+#include "dem_chunk.h"
+#include "dem_glob.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dstrings.h"
@@ -64,110 +71,136 @@
 #include "wi_stuff.h"
 #include "z_zone.h"
 
+#include "epi/epi.h"
 #include "epi/epiendian.h"
+#include "epi/epifile.h"
+#include "epi/epifilesystem.h"
 
 
 // if true, exit with report on completion 
 static bool timingdemo;
 
 bool demorecording;
+bool demo_notbegun;
+
 bool demoplayback;
 bool netdemo;
-bool newdemo;
 
-// 98-7-10 KM Remove maxdemo limit
-static const byte *playdemobuffer = NULL;
-static FILE *demofile = NULL;
-static int demo_p;
-// -ES- 2000/01/28 Added.
-static int demo_length;
-int maxdemo;
+static epi::strent_c defdemoname;
+
+static epi::file_c *demo_in = NULL;
 
 // quit after playing a demo from cmdline 
 bool singledemo;
 
 
-//
-// DEMO RECORDING 
-// 
-#define DEMOMARKER              0x80
-
-//
-// Writes data to the demo
-//
-// -ES- 1999/10/17 Added.
-//
-static void WriteToDemo(const void *src, int length)
+static void DemoReadPCMD(void)
 {
-	fwrite(src,1,length,demofile);
-	// This will make sure that also the last bytes are written at a crash
-	fflush(demofile);
-}
+	DEM_PushReadChunk("Pcmd");
 
-//
-// Stores a single byte to the demo.
-//
-static void WriteByteToDemo(byte c)
-{
-	WriteToDemo(&c, 1);
-}
+	int pnum = 0;
 
-//
-// G_ReadDemoTiccmd
-//
-// A demo file is essentially a stream of ticcmds: every tic,
-// the ticcmd holds all the info for movement for a player on
-// that tic. This means that a demo merely replays the movements
-// and actions of the player.
-//
-// This function gets the actions from the recdemobuffer and gives
-// them to ticcmd to be played out. Its worth a note that this
-// is the reason demos desync when played on two different
-// versions, since any alteration to the gameplay could give
-// a different reaction to a player action and therefore the
-// game is different to the original.
-//  
-void G_ReadDemoTiccmd(ticcmd_t * cmd)
-{
-	// 98-7-10 KM Demolimit removed
-	if (demo_p >= demo_length)
+	for (;;)
 	{
-		// end of demo data stream
+		if (DEM_GetError() != 0)
+			break;  /// set error !!
+
+		if (DEM_RemainingChunkSize() < 16)
+			break;
+
+		// find player
+		while (! players[pnum] && pnum < MAXPLAYERS)
+			pnum++;
+
+		if (pnum >= MAXPLAYERS)
+		{
+			L_WriteDebug("LOAD_DEMO: more players in PCMD than in game\n");
+			break;
+		}
+
+		DEM_GetTiccmd(&players[pnum]->cmd);
+	}
+
+	int remain = DEM_RemainingChunkSize();
+
+	if (remain != 0)
+		I_Warning("LOAD_DEMO: %d unused bytes in PCMD chunk\n", remain);
+
+	DEM_PopReadChunk();
+}
+
+//
+// E_DemoReadTick
+//
+void E_DemoReadTick(void)
+{
+	char marker[6];
+
+	DEM_GetMarker(marker);
+
+	if (strcmp(marker, DEMO_END_MARKER) == 0)
+	{
 		G_FinishDemo();
 		return;
 	}
 
-	// -ACB- 1998/07/11 Added additional ticcmd stuff to demo
-	// -MH-  1998/08/18 Added same for fly up/down
-	//                  Keep all upward stuff before all forward stuff, to
-	//                  keep consistent. Will break existing demos. Damn.
-	*cmd = *(ticcmd_t *)&playdemobuffer[demo_p];
-	demo_p += sizeof(ticcmd_t);
+	if (strcmp(marker, "Pack") == 0)
+		I_Error("Demo is from future version of EDGE (has compression).\n");
+
+	if (strcmp(marker, "Tick") != 0)
+		I_Error("Corrupt demo, missing TICK chunk (got [%s])\n", marker);
+
+	DEM_PushReadChunk(marker);
+
+	for (;;)
+	{
+		if (DEM_GetError() != 0)
+			break;  /// set error !!
+
+		if (DEM_RemainingChunkSize() == 0)
+			break;
+
+		DEM_GetMarker(marker);
+
+		if (strcmp(marker, "Pcmd") == 0)
+		{
+			DemoReadPCMD();
+			continue;
+		}
+
+		// skip chunk
+		I_Warning("LOAD_DEMO: Unknown TICK sub-chunk [%s]\n", marker);
+
+		if (! DEM_SkipReadChunk(marker))
+			break;
+	}
+
+	DEM_PopReadChunk();
 }
 
 //
-// G_WriteDemoTiccmd
+// E_DemoWriteTick
 //
-// A demo file is essentially a stream of ticcmds: every tic,
-// the ticcmd holds all the info for movement for a player on
-// that tic. This means that a demo merely replays the movements
-// and actions of the player.
-//
-// This function writes the ticcmd to the recdemobuffer and
-// then get G_ReadDemoTiccmd to read it, so that whatever is
-// recorded is played out. 
-//
-void G_WriteDemoTiccmd(ticcmd_t * cmd)
+void E_DemoWriteTick(void)
 {
-	// press q to end demo recording
-	if (E_InputCheckKey((int)('q')))
-		G_FinishDemo();
+	DEM_PushWriteChunk("Tick");
+	DEM_PushWriteChunk("Pcmd");
 
-	// -ACB- 1998/07/11 Added additional ticcmd stuff to demo
-	// -MH-  1998/08/18 Added same for fly up/down
-	//                  Keep all upward stuff before all forward stuff, to
-	//                  keep consistent. Will break existing demos. Damn.
-	WriteToDemo(cmd, sizeof(ticcmd_t));
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+		if (! p) continue;
+
+		DEM_PutTiccmd(&p->cmd);
+	}
+
+	DEM_PopWriteChunk();  // Pcmd
+
+	// TODO: SYNC chunks
+
+	// TODO: store game events
+
+	DEM_PopWriteChunk();  // Tick
 }
 
 //
@@ -175,21 +208,22 @@ void G_WriteDemoTiccmd(ticcmd_t * cmd)
 // 
 // 98-7-10 KM Demolimit removed
 //
-void G_RecordDemo(const char *name)
+void G_RecordDemo(const char *filename)
 {
-	// assume demo name is less than 256 chars
 	epi::string_c demoname;
-		
-	M_ComposeFileName(demoname, gamedir, name);
-	demoname += ".lmp";	// FIXME!! Check extension has not been given
-	
+
+	M_ComposeFileName(demoname, gamedir, filename);
+	demoname += ".edm";	// FIXME!! Check extension has not been given
+
 	usergame = false;
-	maxdemo = 0x20000;
 
 	// Write directly to file. Possibly a bit slower without disk cache, but
 	// uses less memory, and the demo can record EDGE crashes.
-	demofile = fopen(demoname.GetString(), "wb");	
+	if (! DEM_OpenWriteFile(demoname.GetString(), (EDGEVER << 8) | EDGEPATCH))
+		I_Error("Unable to create demo file: %s\n", demoname.GetString());
+
 	demorecording = true;
+	demo_notbegun = true;
 }
 
 //
@@ -205,168 +239,174 @@ void G_RecordDemo(const char *name)
 //
 void G_BeginRecording(void)
 {
-	int i;
-	///  player_t *p;
+	demo_notbegun = false;
 
-	demo_p = 0;
+	epi::string_c fn;
 
-	WriteByteToDemo(DEMOVERSION);
+	saveglobals_t *globs = DEM_NewGLOB();
 
-	if ((int)gameskill == -1)
-		gameskill = startskill;
-
-	//---------------------------------------------------------
-	// -ACB- 1998/09/03 Record Level Name In Demo
-	i = (int)strlen(currmap->ddf.name);
-	WriteByteToDemo(i);
-	WriteToDemo(currmap->ddf.name, i);
 	L_WriteDebug("G_BeginRecording: %s\n", currmap->ddf.name.GetString());
-	//---------------------------------------------------------
 
-	WriteByteToDemo(gameskill);
-	WriteByteToDemo(deathmatch);
-	WriteByteToDemo(consoleplayer);
-	WriteToDemo(&level_flags, sizeof(level_flags));
+	// --- fill in global structure ---
 
-	///  for (p = players; p; p = p->next)
-	///    WriteByteToDemo(p->in_game);
+	globs->game = Z_StrDup(currmap->episode_name);
+	globs->level = Z_StrDup(currmap->ddf.name);
+	globs->flags = level_flags;
+	globs->gravity = level_flags.menu_grav;
 
-	i = EPI_LE_S32(random_seed);
-	WriteToDemo(&i, 4);
+	globs->skill = gameskill;
+	globs->netgame = netgame ? (1+deathmatch) : 0;
+	globs->p_random = random_seed;
+	globs->console_player = consoleplayer;
+
+	time_t cur_time;
+	char timebuf[100];
+
+	time(&cur_time);
+	strftime(timebuf, 99, "%I:%M %p  %d/%b/%Y", localtime(&cur_time));
+
+	if (timebuf[0] == '0' && isdigit(timebuf[1]))
+		timebuf[0] = ' ';
+
+	globs->desc_date = Z_StrDup(timebuf);
+
+	globs->mapsector.count = numsectors;
+	globs->mapsector.crc = mapsector_CRC.crc;
+	globs->mapline.count = numlines;
+	globs->mapline.crc = mapline_CRC.crc;
+	globs->mapthing.count = mapthing_NUM;
+	globs->mapthing.crc = mapthing_CRC.crc;
+
+	// FIXME: store DDF CRC values too...
+
+	DEM_SaveGLOB(globs);
+	DEM_FreeGLOB(globs);
 }
 
 //
 // G_DeferredPlayDemo
 //
-epi::strent_c defdemoname;
-
-void G_DeferredPlayDemo(const char *name)
+void G_DeferredPlayDemo(const char *filename)
 {
-	defdemoname.Set(name);
+	epi::string_c demoname;
+
+	M_ComposeFileName(demoname, gamedir, filename);
+	demoname += ".edm";	// FIXME!! Check extension has not been given
+
+	defdemoname.Set(demoname.GetString());
+
 	gameaction = ga_playdemo;
 }
 
 //
+// G_DeferredTimeDemo
+//
+void G_DeferredTimeDemo(const char *filename)
+{
+	nodrawers = M_CheckParm("-nodraw")?true:false;
+	noblit = M_CheckParm("-noblit")?true:false;
+
+	timingdemo = true;
+	singletics = true;
+
+	G_DeferredPlayDemo(filename);
+}
+
+
+//
 // G_DoPlayDemo
+//
 // Sets up the system to play a demo.
 //
-// -ACB- 1998/07/02 Change the code only to play version 0.65 demos.
 // -KM-  1998/07/10 Displayed error message on screen and make demos limitless
 // -ACB- 1998/07/12 Removed Lost Soul/Spectre Ability Check
 // -ACB- 1998/07/12 Removed error message (became bloody annoying...)
 //
 void G_DoPlayDemo(void)
 {
-	int i,j;
-	int demversion;
-	char mapname[30];
-	///  player_t *p;
+	epi::file_c *fp = epi::the_filesystem->Open(defdemoname.GetString(),
+        epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
+
+	if (! fp || ! DEM_OpenReadFile(fp))
+	{
+		I_Printf("LOAD-DEMO: cannot find file: %s\n", defdemoname.GetString());
+		return;
+	}
+
+	int version;
+
+	if (! DEM_VerifyHeader(&version))
+	{
+		I_Printf("LOAD-DEMO: Unknown demo format !\n");
+		DEM_CloseReadFile();
+		return;
+	}
+
+	if (version >= (0x130 << 8))
+		I_Warning("Demo is for future version: EDGE %x.%02x !\n",
+			(version >> 16), (version >> 8) & 0xFF);
+
+	saveglobals_t *globs = DEM_LoadGLOB();
+
+	if (!globs)
+		I_Error("LOAD-DEMO: Bad demo file (missing GLOB)\n");
+
+	// --- pull info from global structure ---
 
 	newgame_params_c params;
 
-	gameaction = ga_nothing;
+	params.map = G_LookupMap(globs->level);
+	if (! params.map)
+		I_Error("LOAD-DEMO: No such map %s !  Check WADS\n", globs->level);
 
-	playdemobuffer = (const byte*)W_CacheLumpName(defdemoname);
-	demo_length = W_LumpLength(W_GetNumForName(defdemoname));
+	params.game = gamedefs.Lookup(globs->game);
+	if (!params.game)
+		I_Error("LOAD-DEMO: No such episode/mod %s !  Check WADS\n", globs->game);
 
-	demo_p = 0;
-	demversion = playdemobuffer[demo_p++];
+	params.skill       = (skill_t) globs->skill;
+	params.deathmatch  = (globs->netgame >= 2) ? (globs->netgame - 1) : 0;
 
-	// -ES- 1999/10/17 Allow cut off demos: Add a demo marker if it doesn't exist.
+	params.random_seed = globs->p_random;
+	params.warping     = false;
 
-	if (demo_length < 16)
-		// no real demo could be smaller than 16 bytes
-		I_Error("Demo '%s' is too small!", defdemoname.GetString());
-	if (playdemobuffer[demo_length-1] != DEMOMARKER)
-		I_Warning("Warning: Demo has no end marker! It might be corrupt.\n");
-	else
-		demo_length--;
+	// this player is a dummy one : FIXME !!!! use info in PLYR chunks
+	params.total_players = 1;
+	params.players[0] = PFL_Demo;
 
-	if (demversion != DEMOVERSION)
-	{
-		I_Warning("demversion != DEMOVERSION\n");  // ugh!!
-		return;
-	}
-
-	//------------------------------------------------------
-	// -ACB- 1998/09/03 Read the Level Name from the demo.
-	i = playdemobuffer[demo_p++];
-
-	for (j = 0; j < i; j++)
-		mapname[j] = playdemobuffer[demo_p + j];
-	mapname[i] = 0;
-
-	demo_p += i;
-	//------------------------------------------------------
-
-	params.skill = (skill_t) playdemobuffer[demo_p++];
-	params.deathmatch = playdemobuffer[demo_p++];
-
-///!!!! FIXME:	G_SetConsolePlayer(playdemobuffer[demo_p++]);
-
-	level_flags = *(gameflags_t *)&playdemobuffer[demo_p];
-	demo_p += sizeof(level_flags);
-
-	/// FIXME: !!!
-	///    for (p = players; p; p = p->next)
-	///      p->in_game = playdemobuffer[demo_p++];
-
-	// -ES- 2000/02/04 Random seed
-	params.random_seed = EPI_LE_S32(*(long*)&playdemobuffer[demo_p]);
-	demo_p += 4;
-
-	//----------------------------------------------------------------
-	// -ACB- 1998/09/03 Setup the given mapname; fail if map does not
-	// exist.
-	params.map = G_LookupMap(mapname);
-	if (params.map == NULL)
-	{
-		I_Warning("No such map for demo\n");
-		return;
-	}
-
-	// FIXME: store episode name into demo file
-	params.game = gamedefs.Lookup(params.map->episode_name);
-	if (params.game == NULL)
-	{
-		I_Warning("No such gamedef for demo\n");
-		return;
-	}
-
-	//----------------------------------------------------------------
-
-#if 0  // WTF???
-	if (players->next && players->next->in_game)
-	{
-		netgame = true;
-		netdemo = true;
-	}
-#endif
+	//!!!! FIXME: compatability FLAG !!!
 
 	// don't spend a lot of time in loadlevel
 	precache = false;
 
 	G_InitNew(params);
+
+	level_flags = globs->flags;
+	level_flags.menu_grav = globs->gravity;
+	
 	G_DoLoadLevel();
 	G_SpawnInitialPlayers();
+
+	// -- Check LEVEL consistency (crc) --
+	//
+	// FIXME: ideally we shouldn't bomb out, just display an error box
+
+	if (globs->mapsector.count != numsectors ||
+		globs->mapsector.crc != mapsector_CRC.crc ||
+		globs->mapline.count != numlines ||
+		globs->mapline.crc != mapline_CRC.crc ||
+		globs->mapthing.count != mapthing_NUM ||
+		globs->mapthing.crc != mapthing_CRC.crc)
+	{
+		I_Error("LOAD-DEMO: Level data does not match !  Check WADs\n");
+	}
+
+	DEM_FreeGLOB(globs);
+
+	//!!! FIXME: Check DDF/RTS consistency (crc), warning only
 
 	precache = true;
 	usergame = false;
 	demoplayback = true;
-}
-
-//
-// G_DeferredTimeDemo
-//
-void G_DeferredTimeDemo(const char *name)
-{
-	nodrawers = M_CheckParm("-nodraw")?true:false;
-	noblit = M_CheckParm("-noblit")?true:false;
-	timingdemo = true;
-	singletics = true;
-
-	defdemoname.Set(name);
-	gameaction = ga_playdemo;
 }
 
 // 
@@ -379,21 +419,22 @@ void G_DeferredTimeDemo(const char *name)
 //
 bool G_FinishDemo(void)
 {
-	int endtime;
-
 	if (timingdemo)
 	{
-		float fps;
+		int endtime = I_GetTime();
 
-		endtime = I_GetTime();
-		fps = ((float)(gametic * TICRATE)) / (endtime - starttime);
+		float fps = float(gametic * TICRATE) / (endtime - starttime);
 
 		I_Error("timed %i gametics in %i realtics, which equals %f fps", gametic,
 			endtime - starttime, fps);
+		/* NOT REACHED */
 	}
 
 	if (demoplayback)
 	{
+		epi::the_filesystem->Close(demo_in);
+		demo_in = NULL;
+
 		if (singledemo)
 		{
 			// -ACB- 1999/09/20 New code order, shutdown system then close program.
@@ -401,8 +442,6 @@ bool G_FinishDemo(void)
 			I_CloseProgram(0);
 		}
 
-		W_DoneWithLump(playdemobuffer);
-		demoplayback = false;
 		netdemo = false;
 		netgame = false;
 		deathmatch = false;
@@ -410,6 +449,7 @@ bool G_FinishDemo(void)
 		level_flags.fastparm = false;
 		level_flags.nomonsters = false;
 
+		// P_ShutdownLevel();
 		P_DestroyAllPlayers();
 
 		E_AdvanceDemo();
@@ -418,16 +458,13 @@ bool G_FinishDemo(void)
 
 	if (demorecording)
 	{
-		// Finish it
-		WriteByteToDemo(DEMOMARKER);
-		// Finish the demo file:
-		fclose(demofile);
-		demofile = NULL;
+		demorecording = false;
+
+		// Finish the demo file
+		DEM_CloseWriteFile();
 
 		I_Error("Demo recorded");
 		/* NOT REACHED */
-
-		demorecording = false;
 	}
 
 	return false;

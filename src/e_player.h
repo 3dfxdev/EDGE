@@ -76,6 +76,7 @@ typedef enum
 	PFL_Display = 0x0002,
 	PFL_Bot     = 0x0004,
 	PFL_Network = 0x0008,
+	PFL_Demo    = 0x0010,
 
 	// this not used in player_t, only in newgame_params_c
 	PFL_NOPLAYER = 0xFFFF

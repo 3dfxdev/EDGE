@@ -903,7 +903,9 @@ static void E_DoAdvanceTitle(void)
 				sprintf(buffer, "DEMO1");
 			}
 
-			G_DeferredPlayDemo(buffer);
+			// -AJA- FIXME: demos in lumps not yet supported
+			// G_DeferredPlayDemo(buffer);
+
 			break;
 		}
 	}
@@ -1271,6 +1273,7 @@ static void CheckTurbo(void)
 
 static void CheckPlayDemo(void)
 {
+#if 0  // !!!!! UNNEEDED ?
 	const char *ps = M_GetParm("-playdemo");
 
 	if (!ps)
@@ -1281,10 +1284,11 @@ static void CheckPlayDemo(void)
 		epi::string_c fn;
 		
 		M_ComposeFileName(fn, gamedir, ps);
-		fn += ".lmp";	// FIXME!! Check we need to use extension here
+		fn += ".edm";	// FIXME!! Check we need to use extension here
 		W_AddRawFilename(fn.GetString(), FLKIND_Demo);
 		I_Printf("Playing demo %s.\n", fn.GetString());
 	}
+#endif
 }
 
 static void CheckSkillEtc(void)

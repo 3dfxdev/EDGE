@@ -253,6 +253,11 @@ void G_DoLoadLevel(void)
 
 	P_SetupLevel(gameskill, currmap->autotag);
 
+	if (demorecording && demo_notbegun)
+	{
+		G_BeginRecording();
+	}
+
 	RAD_SpawnTriggers(currmap->ddf.name.GetString());
 
 	starttime = I_GetTime();
@@ -359,6 +364,9 @@ bool G_Responder(event_t * ev)
 //
 static void G_TiccmdTicker(void)
 {
+	if (demoplayback)
+		E_DemoReadTick();
+
 	int buf = gametic % BACKUPTICS;
 
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
@@ -366,13 +374,8 @@ static void G_TiccmdTicker(void)
 		player_t *p = players[pnum];
 		if (! p) continue;
 
-		memcpy(&p->cmd, p->in_cmds + buf, sizeof(ticcmd_t));
-
-		if (demoplayback)
-			G_ReadDemoTiccmd(&p->cmd);
-
-		if (demorecording)
-			G_WriteDemoTiccmd(&p->cmd);
+		if (! demoplayback)
+			memcpy(&p->cmd, p->in_cmds + buf, sizeof(ticcmd_t));
 
 		// check for turbo cheats
 		if (p->cmd.forwardmove > TURBOTHRESHOLD
@@ -393,6 +396,15 @@ static void G_TiccmdTicker(void)
 			else
 				p->consistency[buf] = P_ReadRandomState() & 0xff;
 		}
+	}
+
+	if (demorecording)
+	{
+		E_DemoWriteTick();
+
+		// press q to end demo recording
+		if (E_InputCheckKey((int)('q')))
+			G_FinishDemo();
 	}
 
 	/* Increment the GAMETIC counter */
@@ -483,17 +495,6 @@ void G_Ticker(bool fresh_game_tic)
 				G_DoEndGame();
 				break;
 
-///---			case ga_loadnext:
-///---				currmap = nextmap;
-///---				G_DoLoadLevel();
-///---				G_SpawnInitialPlayers();
-///---				break;
-
-///---			case ga_screenshot:
-///---				m_screenshot_required = true;
-///---				gameaction = ga_nothing;
-///---				break;
-
 			default:
 				I_Error("G_Ticker: Unknown gameaction %d", gameaction);
 				break;
@@ -573,8 +574,7 @@ void G_SpawnInitialPlayers(void)
 	}
 
 	// -AJA- 1999/10/21: if not netgame/deathmatch, then check for
-	//       missing player start.  NOTE: temp fix, player handling
-	//       desperately needs a massive overhaul.
+	//       missing player start.
 	if (! (netgame || deathmatch) && players[consoleplayer]->mo == NULL)
 		I_Error("Missing player start !\n");
 
@@ -751,14 +751,20 @@ static void G_DoLoadGame(void)
 		I_Error("LOAD-GAME: No such episode/mod %s !  Check WADS\n", 
 				params.map->episode_name.GetString());
 
-	params.skill       = gameskill   = (skill_t) globs->skill;
-	params.random_seed = random_seed = globs->p_random;
+	params.skill      = (skill_t) globs->skill;
+	params.deathmatch = (globs->netgame >= 2) ? (globs->netgame - 1) : 0;
+	
+	params.random_seed = globs->p_random;
+	params.warping     = false;
 
 	// this player is a dummy one, replaced during actual load
 	params.total_players = 1;
 	params.players[0] = PFL_Zero;  // i.e. !BOT and !NETWORK
 
 	G_InitNew(params);
+
+	level_flags = globs->flags;
+	level_flags.menu_grav = globs->gravity;
 
 	G_DoLoadLevel();
 
@@ -778,18 +784,11 @@ static void G_DoLoadGame(void)
 
 	//!!! FIXME: Check DDF/RTS consistency (crc), warning only
 
-	level_flags = globs->flags;
-	level_flags.menu_grav = globs->gravity;
-
 	leveltime   = globs->level_time;
 	totalkills  = globs->total_kills;
 	totalitems  = globs->total_items;
 	totalsecret = globs->total_secrets;
 
-	// con_player = globs->console_player;
-	gameskill = (skill_t) globs->skill;
-	netgame = globs->netgame?true:false;  /// FIXME: deathmatch var
-	
 	if (globs->sky_image)  // backwards compat (sky_image added 2003/12/19)
 		sky_image = globs->sky_image;
 
@@ -834,7 +833,6 @@ void G_DeferredSaveGame(int slot, const char *description)
 static void G_DoSaveGame(void)
 {
 	epi::string_c fn;
-	saveglobals_t *globs;
 	time_t cur_time;
 	char timebuf[100];
 
@@ -846,7 +844,7 @@ static void G_DoSaveGame(void)
 		return; /* NOT REACHED */
 	}
 
-	globs = SV_NewGLOB();
+	saveglobals_t *globs = SV_NewGLOB();
 
 	// --- fill in global structure ---
 
@@ -855,15 +853,17 @@ static void G_DoSaveGame(void)
 	globs->flags = level_flags;
 	globs->gravity = level_flags.menu_grav;
 
-	globs->level_time = leveltime;
+	globs->skill = gameskill;
+	globs->netgame = netgame ? (1+deathmatch) : 0;
 	globs->p_random = P_ReadRandomState();
+
+	globs->console_player = consoleplayer; // NB: not used
+
+	globs->level_time = leveltime;
 	globs->total_kills   = totalkills;
 	globs->total_items   = totalitems;
 	globs->total_secrets = totalsecret;
 
-	globs->console_player = 0; // !!!FIXME CHECK: consoleplayer->pnum;
-	globs->skill = gameskill;
-	globs->netgame = netgame ? (1+deathmatch) : 0;
 	globs->sky_image = sky_image;
 
 	time(&cur_time);
@@ -1043,8 +1043,11 @@ void G_InitNew(newgame_params_c& params)
 
 		P_CreatePlayer(pnum, (params.players[pnum] & PFL_Bot) ? true : false);
 
-		if (consoleplayer < 0 && params.players[pnum] == PFL_Zero)
+		if (consoleplayer < 0 && ! (params.players[pnum] & PFL_Bot) &&
+			! (params.players[pnum] & PFL_Network))
+		{
 			G_SetConsolePlayer(pnum);
+		}
 
 		if (params.players[pnum] & PFL_Network)
 			netgame = true;
@@ -1075,10 +1078,6 @@ void G_InitNew(newgame_params_c& params)
 	random_seed = params.random_seed;
 
 	P_WriteRandomState(random_seed);
-
-	// we can not call this until we have the random seed.
-	if (demorecording)
-		G_BeginRecording();
 
 ///---	// force players to be initialised upon first level load         
 ///---	// -AJA- 2003/10/09: except that this doesn't do anything, as the

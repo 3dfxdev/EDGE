@@ -32,19 +32,21 @@
 
 #include "epi/epistring.h"
 
+extern bool demo_notbegun;
+extern bool netdemo;
 
-void G_DeferredPlayDemo(const char *demo);
-void G_DeferredTimeDemo(const char *name);
+void G_DeferredPlayDemo(const char *filename);
+void G_DeferredTimeDemo(const char *filename);
 
 void G_DoPlayDemo(void);
 
 // Only called by startup code.
-void G_RecordDemo(const char *name);
+void G_RecordDemo(const char *filename);
 
 void G_BeginRecording(void);
 bool G_FinishDemo(void);
 
-void G_ReadDemoTiccmd(ticcmd_t * cmd);
-void G_WriteDemoTiccmd(ticcmd_t * cmd);
+void E_DemoReadTick(void);
+void E_DemoWriteTick(void);
 
 #endif  /* __E_DEMO_H__ */
