@@ -1077,8 +1077,10 @@ static void AM_DrawPlayer(mobj_t *mo)
 		return;
 	}
 
+#if 0 //!!!!!! TEMP, NETWORK DEBUGGING
 	if ((deathmatch && !singledemo) && mo->player != p)
 		return;
+#endif
 
 	if (mo->player->powers[PW_PartInvis])
 		colour = (DBLUE + DBLUE_LEN - 1);  // *close* to black
@@ -1197,13 +1199,13 @@ static void DrawMarks(void)
 	{
 		if (markpoints[i].x != -1)
 		{
-			int sx = CXMTOF(markpoints[i].x);
-			int sy = CYMTOF(markpoints[i].y);
+			float sx = CXMTOF(markpoints[i].x) * 320.0f / SCREENWIDTH;
+			float sy = CYMTOF(markpoints[i].y) * 200.0f / SCREENHEIGHT;
 
 			char buf[20];
 			sprintf(buf, "%d", i);
 
-			HL_WriteText(automap_style,1, sx, sy, buf);
+			HL_WriteText(automap_style,1, (int)sx, (int)sy, buf);
 		}
 	}
 }
