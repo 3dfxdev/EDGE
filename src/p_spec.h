@@ -112,9 +112,6 @@ typedef struct sec_move_s
   // tics to wait at the top
   int waited;
 
-  // (keep in case a door going down is reset)
-  // when it reaches 0, start going down
-  int wait;
   boolean_t sfxstarted;
   boolean_t completed;
 

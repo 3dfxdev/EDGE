@@ -386,9 +386,6 @@ struct mobj_s
   // state tic counter
   int tics;
 
-  // -KM- 1998/12/16 This is tics for fastparm.
-  float_t fasttics;
-
   const state_t *state;
   int flags;
   float_t health;

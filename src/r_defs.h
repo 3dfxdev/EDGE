@@ -262,10 +262,10 @@ typedef struct sector_s
   degenmobj_t soundorg;
 
   // thinker_t for reversable actions
-  // -KM- 1998/10/29 Separate thinkers for lights(misc)/floor + ceiling
+  // -KM- 1998/10/29 Separate thinkers for floor + ceiling
   // -AJA- FIXME: ick, clean this up (i.e. move thinkers into
-  //       plane_info_t and region_properties_t)
-  void *specialdata[3];
+  //       plane_info_t).
+  void *specialdata[2];
 
   int linecount;
   struct line_s **lines;  // [linecount] size
@@ -282,9 +282,8 @@ typedef struct sector_s
 }
 sector_t;
 
-#define FLOOR 0
-#define CEILING 1
-#define LIGHTS 2
+#define FLOOR    0
+#define CEILING  1
 
 //
 // The SideDef.
@@ -358,9 +357,6 @@ typedef struct line_s
 
   // if == validcount, already checked
   int validcount;
-
-  // thinker_t for reversable actions
-  void *specialdata;
 
   // -AJA- 1999/07/19: Extra floor support.  We now keep track of the
   // gaps between the front & back sectors here, instead of computing
