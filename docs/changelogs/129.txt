@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: FEBRUARY 17th 2005)
+(Date: FEBRUARY 24th 2005)
 
 
 Bugs fixed
@@ -115,8 +115,9 @@ General improvements
   whether to change mode.  When using -warp, the mode is changed
   automatically.
 
-  Also two Boom features were added: line-to-line teleporters and
-  platform toggle linetypes .
+  Two Boom features were also added: line-to-line teleporters and
+  platform toggle linetypes.  A couple of Boom-related bugs were
+  fixed (e.g. P1/PR doors with the lighting effect).
 
 - source code uses more C++ features, and more of the EPI (Edge Platform
   Interface).  The "Zone" memory manager has mostly been replaced.
