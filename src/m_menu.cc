@@ -244,7 +244,6 @@ static void M_ChangeSensitivity(int choice);
 static void M_SfxVol(int choice);
 static void M_MusicVol(int choice);
 static void M_SizeDisplay(int choice);
-static void M_StartGame(int choice);
 static void M_Sound(int choice);
 
 static void M_FinishReadThis(int choice);
@@ -266,8 +265,6 @@ static void M_DrawSave(void);
 
 static void M_DrawSaveLoadBorder(int x, int y, int len);
 static void M_SetupNextMenu(menu_t * menudef);
-static void M_DrawEmptyCell(menu_t * menu, int item);
-static void M_DrawSelCell(menu_t * menu, int item);
 static void M_StopMessage(void);
 static void M_ClearMenus(void);
 void M_StartControlPanel(void);
