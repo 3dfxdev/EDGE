@@ -271,11 +271,6 @@ void RGL_DrawSkyBackground(void)
 #if 1
 			// sky way #3, using depth-buffer
 
-///---			float pxa = xa / (float)SCREENWIDTH  * 2.0f - 1.0f;
-///---			float pxb = xb / (float)SCREENWIDTH  * 2.0f - 1.0f;
-///---			float pya = ya / (float)SCREENHEIGHT * 2.0f - 1.0f;
-///---			float pyb = yb / (float)SCREENHEIGHT * 2.0f - 1.0f;
-
 			float dist = Z_FAR * 0.99;
 
 			xa *= dist; ya *= dist;
