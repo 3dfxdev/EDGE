@@ -102,12 +102,14 @@ mobj_t *linetarget;  	// who got hit (or NULL)
 typedef struct shoot_trav_info_s
 {
 	mobj_t *source;
+
 	float range;
 	float start_z;
 	angle_t angle;
 	float slope;
 	float topslope;
 	float bottomslope;
+	bool forced;
 
 	float damage;
 	const damage_c *damtype;
@@ -1289,8 +1291,11 @@ static bool PTR_AimTraverse(intercept_t * in)
 	if (th == aim_I.source)
 		return true;  // can't shoot self
 
-	if (!(th->flags & MF_SHOOTABLE))
+	if (! (th->flags & MF_SHOOTABLE))
 		return true;  // has to be able to be shot
+	
+	if (aim_I.source && !aim_I.forced && (aim_I.source->side && th->side) != 0)
+		return true;  // don't aim at our good friend
 
 	// check angles to see if the thing can be aimed at
 	thingtopslope = (th->z + th->height - aim_I.start_z) / dist;
@@ -1671,6 +1676,7 @@ mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 	}
 
 	aim_I.source = source;
+	aim_I.forced = force_aim;
 
 	x2 = source->x + distance * M_Cos(angle);
 	y2 = source->y + distance * M_Sin(angle);
@@ -1830,19 +1836,26 @@ typedef struct rds_atk_info_s
 	float damage;
 	const damage_c *damtype;
 	bool thrust;
+	bool use_3d;
 }
 rds_atk_info_t;
 
 static rds_atk_info_t bomb_I;
+
 
 //
 // PIT_RadiusAttack
 //
 // "bombsource" is the creature that caused the explosion at "bombspot".
 //
+// -ACB- 1998/07/15 New procedure that differs for RadiusAttack -
+//                  it checks Height, therefore it is a sphere attack.
+//
+// -KM-  1998/11/25 Fixed.  Added z movement for rocket jumping.
+//
 static bool PIT_RadiusAttack(mobj_t * thing)
 {
-	float dx, dy;
+	float dx, dy, dz;
 	float dist;
 
 	// ignore the bomb spot itself
@@ -1852,59 +1865,11 @@ static bool PIT_RadiusAttack(mobj_t * thing)
 	if (! (thing->flags & MF_SHOOTABLE))
 		return true;
 
-	// Boss types take no damage from concussion.
-	// -ACB- 1998/06/14 Changed enum reference to extended flag check.
-	if (thing->info->extendedflags & EF_EXPLODEIMMUNE)
-		return true;
-
-	dx = (float)fabs(thing->x - bomb_I.spot->x);
-	dy = (float)fabs(thing->y - bomb_I.spot->y);
-
-	// dist is the distance to the *edge* of the thing
-	dist = MAX(dx, dy) - thing->radius;
-
-	if (dist < 0)
-		dist = 0;
-
-	if (dist >= bomb_I.range)
-		return true;  // out of range
-
-	// recompute dist to be in range 0.0 (far away) to 1.0 (close)
-	CHECKVAL(bomb_I.range);
-	dist = (bomb_I.range - dist) / bomb_I.range;
-
-	if (P_CheckSight(bomb_I.spot, thing))
+	if ((thing->hyperflags & HF_SIDEIMMUNE) && bomb_I.source &&
+		(thing->side & bomb_I.source->side) != 0)
 	{
-		if (bomb_I.thrust)
-			P_ThrustMobj(thing, bomb_I.spot, bomb_I.damage * dist);
-		else
-			P_DamageMobj(thing, bomb_I.spot, bomb_I.source, 
-			bomb_I.damage * dist, bomb_I.damtype);
+		return true;
 	}
-	return true;
-}
-
-//
-// PIT_SphereAttack
-//
-// "bombsource" is the creature that caused the explosion at "bombspot".
-//
-// -ACB- 1998/07/15 New procedure that differs for RadiusAttack -
-//                  it checks Height, therefore it is a sphere attack.
-//
-// -KM-  1998/11/25 Fixed.  Added z movement for rocket jumping.
-//
-static bool PIT_SphereAttack(mobj_t * thing)
-{
-	float dx, dy, dz;
-	float dist;
-
-	// ignore the bomb spot itself
-	if (thing == bomb_I.spot)
-		return true;
-
-	if (!(thing->flags & MF_SHOOTABLE))
-		return true;
 
 	//
 	// Boss types take no damage from concussion.
@@ -1919,7 +1884,10 @@ static bool PIT_SphereAttack(mobj_t * thing)
 	dz = (float)fabs(MO_MIDZ(thing) - MO_MIDZ(bomb_I.spot));
 
 	// dist is the distance to the *edge* of the thing
-	dist = MAX(MAX(dx, dy) - thing->radius, dz - thing->height/2);
+	if (bomb_I.use_3d)
+		dist = MAX(MAX(dx, dy) - thing->radius, dz - thing->height/2);
+	else
+		dist = MAX(dx, dy) - thing->radius;
 
 	if (dist < 0)
 		dist = 0;
@@ -1965,25 +1933,17 @@ void P_RadiusAttack(mobj_t * spot, mobj_t * source, float radius,
 	bomb_I.source = source;
 	bomb_I.damage = damage;
 	bomb_I.damtype = damtype;
-	bomb_I.thrust  = thrust_only;
+	bomb_I.thrust = thrust_only;
+	bomb_I.use_3d = level_flags.true3dgameplay;
 
 	//
 	// -ACB- 1998/07/15 This normally does damage to everything within
 	//                  a radius regards of height, however true 3D uses
 	//                  a sphere attack, which checks height.
 	//
-	if (level_flags.true3dgameplay)
-	{
-		for (y = yl; y <= yh; y++)
-			for (x = xl; x <= xh; x++)
-				P_BlockThingsIterator(x, y, PIT_SphereAttack);
-	}
-	else
-	{
-		for (y = yl; y <= yh; y++)
-			for (x = xl; x <= xh; x++)
-				P_BlockThingsIterator(x, y, PIT_RadiusAttack);
-	}
+	for (y = yl; y <= yh; y++)
+		for (x = xl; x <= xh; x++)
+			P_BlockThingsIterator(x, y, PIT_RadiusAttack);
 }
 
 
