@@ -75,6 +75,7 @@ const coltable_t *dim_coltable = NULL;
 
 // text translation tables
 const byte *font_whitener = NULL;
+const colourmap_t *font_whiten_map = NULL;
 
 const colourmap_t *text_red_map    = NULL;
 const colourmap_t *text_white_map  = NULL;
@@ -200,14 +201,14 @@ static void InitTranslationTables(void)
 	sky_map  = DDF_ColmapLookup("SKY");
 	shadow_map = DDF_ColmapLookup("SHADOW");
 
+	font_whiten_map = DDF_ColmapLookup("FONTWHITEN");
+	font_whitener = V_GetTranslationTable(font_whiten_map);
+
 	fuzz_coltable = V_GetRawColtable(
 		DDF_ColmapLookup("FUZZY"), 127);
 
 	dim_coltable = V_GetRawColtable(
 		DDF_ColmapLookup("DIMSCREEN"), 127);
-
-	font_whitener = V_GetTranslationTable(
-		DDF_ColmapLookup("FONTWHITEN"));
 
 	am_normal_colmap = V_GetTranslationTable(
 		DDF_ColmapLookup("AUTOMAP_NORMAL"));
@@ -797,7 +798,7 @@ static INLINE long MakeRGB(truecol_info_t *ti, long r, long g, long b)
 // applied in the conversion.
 //
 static void MakeColourmapRange(void *dest_colmaps, byte palette[256][3],
-							   const byte *src_colmaps, int num)
+							   const byte *src_colmaps, int num, bool whiten)
 {
 	const byte *gtable = gammatable[usegamma];
 	unsigned short *colmap16 = (unsigned short*)dest_colmaps;
@@ -809,7 +810,7 @@ static void MakeColourmapRange(void *dest_colmaps, byte palette[256][3],
 
 	I_GetTruecolInfo(&ti);
 
-	if (interpolate_colmaps && num >= 2)
+	if (interpolate_colmaps && num >= 2 && ! whiten)
 	{
 		for (j = 0; j < 256; j++)
 		{
@@ -854,6 +855,9 @@ static void MakeColourmapRange(void *dest_colmaps, byte palette[256][3],
 		{
 			int c = src_colmaps[i * 256 + j];
 
+			if (whiten)
+				c = src_colmaps[i * 256 + font_whitener[j]];
+
 			colmap16[i * 256 + j] = (short)MakeRGB(&ti, tempr[c], tempg[c], tempb[c]);
 
 			if (playpal_greys[j])
@@ -874,6 +878,7 @@ static void LoadColourmap(const colourmap_t * colm, int bpp)
 	int size;
 	const byte *data;
 	const byte *data_in;
+	byte *data_out;
 
 	// we are writing to const marked memory here. Here is the only place
 	// the cache struct is touched.
@@ -892,12 +897,23 @@ static void LoadColourmap(const colourmap_t * colm, int bpp)
 
 	data_in = data + (colm->start * 256);
 
+	int j;
+	bool whiten = (colm->special & COLSP_Whiten) ? true : false;
+
 	switch (bpp)
 	{
 		case 1:
 			Z_Resize(cache->baseptr, char, colm->length * 256 + 255);
 			cache->data = (void *)(((unsigned long)cache->baseptr + 255) & ~255);
-			Z_MoveData((byte *)cache->data, data_in, byte, colm->length * 256);
+			data_out = (byte *)cache->data;
+
+			for (j = 0; j < colm->length * 256; j++)
+			{
+				if (whiten)
+					data_out[j] = data_in[font_whitener[j]];
+				else
+					data_out[j] = data_in[j];
+			}
 			break;
 
 		case 2:
@@ -905,7 +921,8 @@ static void LoadColourmap(const colourmap_t * colm, int bpp)
 			cache->data = (void *)(((unsigned long)cache->baseptr + 511) & ~511);
 
 			MakeColourmapRange(cache->data, playpal_data[cur_palette],
-				data_in, colm->length);
+				data_in, colm->length,
+				(colm->special & COLSP_Whiten) ? true : false);
 			break;
 	}
 

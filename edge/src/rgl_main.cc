@@ -584,7 +584,8 @@ void RGL_DrawImage(int x, int y, int w, int h, const image_t *image,
 {
 	float r = 1.0f, g = 1.0f, b = 1.0f;
 
-	const cached_image_t *cim = W_ImageCache(image, IMG_OGL, 0, false);
+	const cached_image_t *cim = W_ImageCache(image, IMG_OGL, 0, false,
+		(colmap && (colmap->special & COLSP_Whiten)) ? font_whiten_map : NULL);
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim));
@@ -594,7 +595,7 @@ void RGL_DrawImage(int x, int y, int w, int h, const image_t *image,
 
 ///  else if (!image->solid)
 ///    glEnable(GL_ALPHA_TEST);
-  
+ 
 	if (colmap)
 		V_GetColmapRGB(colmap, &r, &g, &b, true);
 

@@ -209,7 +209,7 @@ void HL_WriteTextTrans(int x, int y, const colourmap_t *colmap,
 //
 void HL_WriteText(int x, int y, const char *string)
 {
-	HL_WriteTextTrans(x, y, text_red_map, string);
+	HL_WriteTextTrans(x, y, NULL, string);
 }
 
 //----------------------------------------------------------------------------
