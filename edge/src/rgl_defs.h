@@ -2,7 +2,7 @@
 //  EDGE OpenGL Rendering (Definitions)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2000  The EDGE Team.
+//  Copyright (c) 1999-2001  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -76,10 +76,10 @@ void RGL_DrawSkyWall(seg_t *seg, float_t h1, float_t h2);
 
 #define MAX_PLVERT  64
 
-// extra lighting on the player weapon (BL,TL,TR,BR).
-extern int rgl_weapon_r[4];
-extern int rgl_weapon_g[4];
-extern int rgl_weapon_b[4];
+// extra lighting on the player weapon
+extern int rgl_weapon_r;
+extern int rgl_weapon_g;
+extern int rgl_weapon_b;
 
 void RGL_RenderScene(int x, int y, int w, int h, vid_view_t *view);
 

@@ -2,7 +2,7 @@
 //  EDGE Local Header for play sim functions 
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2000  The EDGE Team.
+//  Copyright (c) 1999-2001  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -146,7 +146,8 @@ void P_MobjSetTracer(mobj_t *mo, mobj_t *target);
 void P_MobjSetSource(mobj_t *mo, mobj_t *target);
 void P_MobjSetTarget(mobj_t *mo, mobj_t *target);
 void P_MobjSetSupportObj(mobj_t *mo, mobj_t *target);
-void P_MobjSetRideEm(mobj_t *mo, mobj_t *target);
+void P_MobjSetAboveMo(mobj_t *mo, mobj_t *target);
+void P_MobjSetBelowMo(mobj_t *mo, mobj_t *target);
 void P_MobjSetRealSource(mobj_t *mo, mobj_t *source);
 
 // -ACB- 1998/08/02 New procedures for DDF etc...
@@ -221,10 +222,14 @@ float_t P_ComputeThingGap(mobj_t * thing, sector_t * sec, float_t z, float_t * f
 void P_AddExtraFloor(sector_t *sec, line_t *line,
         const extrafloor_info_t *ef_info);
 void P_ComputeWallTiles(line_t *ld, int sidenum);
+void P_RecomputeGapsAroundSector(sector_t *sec);
 void P_RecomputeTilesInSector(sector_t *sec);
 void P_FloodExtraFloors(sector_t *sector);
-void P_UnsetThingPosition(mobj_t * thing);
+void P_UnsetThingFinally(mobj_t * thing);
 void P_SetThingPosition(mobj_t * thing);
+void P_ChangeThingPosition(mobj_t * thing, float_t x, float_t y, float_t z);
+void P_FreeSectorTouchNodes(sector_t *sec);
+  
 boolean_t P_BlockLinesIterator(int x, int y, boolean_t(*func) (line_t *));
 boolean_t P_BlockThingsIterator(int x, int y, boolean_t(*func) (mobj_t *));
 boolean_t P_ThingsInArea(float_t *bbox);
@@ -242,10 +247,6 @@ exfloor_fit_e;
 exfloor_fit_e P_ExtraFloorFits(sector_t *sec, float_t z1, float_t z2);
 
 boolean_t P_PathTraverse(float_t x1, float_t y1, float_t x2, float_t y2, int flags, traverser_t trav);
-
-// -AJA- 1999/07/21: Gap utility functions...
-int GAP_Construct(vgap_t * gaps, sector_t * sec, mobj_t * thing);
-int GAP_Constrict(vgap_t * dest, int d_num, vgap_t * src, int s_num);
 
 //
 // P_MAP
@@ -288,8 +289,8 @@ float_t P_AimLineAttack(mobj_t * t1, angle_t angle, float_t distance);
 void P_UpdateMultipleFloors(sector_t * sector);
 boolean_t P_ChangeSector(sector_t * sector, boolean_t crunch);
 boolean_t P_CheckAbsPosition(mobj_t * thing, float_t x, float_t y, float_t z);
-boolean_t P_CheckSight(mobj_t * t1, mobj_t * t2);
-boolean_t P_CheckSightApproxVert(mobj_t * t1, mobj_t * t2);
+boolean_t P_CheckSight(mobj_t * src, mobj_t * dest);
+boolean_t P_CheckSightApproxVert(mobj_t * src, mobj_t * dest);
 void P_RadiusAttack(mobj_t * spot, mobj_t * source, float_t radius,
     float_t damage, const damage_t * damtype, boolean_t thrust_only);
 
