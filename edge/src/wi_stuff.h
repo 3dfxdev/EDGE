@@ -52,4 +52,6 @@ void WI_Start(wbstartstruct_t * wbstartstruct);
 // Clear Intermission Data
 void WI_Clear(void);
 
+bool WI_CheckForAccelerate(void);
+
 #endif

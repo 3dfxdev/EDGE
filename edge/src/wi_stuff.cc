@@ -1174,8 +1174,10 @@ static void DrawStats(void)
 	}
 }
 
-static void CheckForAccelerate(void)
+bool WI_CheckForAccelerate(void)
 {
+	bool do_accel = false;
+
 	// check for button presses to skip delays
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
@@ -1187,7 +1189,7 @@ static void CheckForAccelerate(void)
 			if (!player->attackdown[0])
 			{
 				player->attackdown[0] = true;
-				acceleratestage = true;
+				do_accel = true;
 			}
 		}
 		else
@@ -1198,12 +1200,14 @@ static void CheckForAccelerate(void)
 			if (!player->usedown)
 			{
 				player->usedown = true;
-				acceleratestage = true;
+				do_accel = true;
 			}
 		}
 		else
 			player->usedown = false;
 	}
+
+	return do_accel;
 }
 
 // Updates stuff each tick
@@ -1220,7 +1224,8 @@ void WI_Ticker(void)
 		S_ChangeMusic(worldint.GetGameDef()->music, true);
 	}
 
-	CheckForAccelerate();
+	if (WI_CheckForAccelerate())
+		acceleratestage = true;
 
 	for (i = 0; i < worldint.numanims; i++)
 	{
