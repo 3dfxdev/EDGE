@@ -64,7 +64,7 @@ static int p_step = 1;
 //
 int M_Random(void)
 {
-  return rndtable[++m_index & 0xff];
+	return rndtable[++m_index & 0xff];
 }
 
 // 
@@ -78,13 +78,13 @@ int M_Random(void)
 //
 int P_Random(void)
 {
-  p_index += p_step;
-  p_index &= 0xff;
+	p_index += p_step;
+	p_index &= 0xff;
 
-  if (p_index == 0)
-    p_step += (47 * 2);
+	if (p_index == 0)
+		p_step += (47 * 2);
 
-  return rndtable[p_index];
+	return rndtable[p_index];
 }
 
 // 
@@ -99,10 +99,10 @@ int P_Random(void)
 //
 int P_RandomNegPos(void)
 {
-  int r1 = P_Random();
-  int r2 = P_Random();
+	int r1 = P_Random();
+	int r2 = P_Random();
 
-  return r1 - r2;
+	return r1 - r2;
 }
 
 //
@@ -110,9 +110,9 @@ int P_RandomNegPos(void)
 //
 bool M_RandomTest(percent_t chance)
 {
-  return (chance <= 0) ? false :
-         (chance >= 1) ? true :
-         (M_Random()/255.0f < chance) ? true : false;
+    return (chance <= 0) ? false :
+           (chance >= 1) ? true :
+           (M_Random()/255.0f < chance) ? true : false;
 }
 
 //
@@ -120,9 +120,9 @@ bool M_RandomTest(percent_t chance)
 //
 bool P_RandomTest(percent_t chance)
 {
-  return (chance <= 0) ? false :
-         (chance >= 1) ? true :
-         (P_Random()/255.0f < chance) ? true : false;
+    return (chance <= 0) ? false :
+           (chance >= 1) ? true :
+           (P_Random()/255.0f < chance) ? true : false;
 }
 
 //
@@ -132,7 +132,7 @@ bool P_RandomTest(percent_t chance)
 //
 int P_ReadRandomState(void)
 {
-  return (p_index & 0xff) | ((p_step & 0xff) << 8);
+	return (p_index & 0xff) | ((p_step & 0xff) << 8);
 }
 
 //
@@ -140,7 +140,7 @@ int P_ReadRandomState(void)
 //
 void P_WriteRandomState(int value)
 {
-  p_index = (value & 0xff);
-  p_step  = 1 + ((value >> 8) & 0xfe);
+	p_index = (value & 0xff);
+	p_step  = 1 + ((value >> 8) & 0xfe);
 }
 

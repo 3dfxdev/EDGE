@@ -31,32 +31,32 @@
 
 void strupr(char *str)
 {
-  if (str == NULL)
-    return;
+	if (str == NULL)
+		return;
 
-  while (*str)
-  {
-    *str = toupper(*str);
-    str++;
-  }
+	while (*str)
+	{
+		*str = toupper(*str);
+		str++;
+	}
 }
 
 int strncasecmpwild(const char *s1, const char *s2, int n)
 {
-  int i = 0;
+	int i = 0;
 
-  for (i = 0; s1[i] && s2[i] && i < n; i++)
-  {
-    if ((toupper(s1[i]) != toupper(s2[i])) && (s1[i] != '?') && (s2[i] != '?'))
-      break;
-  }
-  // -KM- 1999/01/29 If strings are equal return equal.
-  if (i == n)
-    return 0;
+	for (i = 0; s1[i] && s2[i] && i < n; i++)
+	{
+		if ((toupper(s1[i]) != toupper(s2[i])) && (s1[i] != '?') && (s2[i] != '?'))
+			break;
+	}
+	// -KM- 1999/01/29 If strings are equal return equal.
+	if (i == n)
+		return 0;
 
-  if (s1[i] == '?' || s2[i] == '?')
-    return 0;
+	if (s1[i] == '?' || s2[i] == '?')
+		return 0;
 
-  return s1[i] - s2[i];
+	return s1[i] - s2[i];
 }
 

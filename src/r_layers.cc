@@ -62,8 +62,8 @@ static void ResizeLayerList(layer_t *list, int x1, int y1, int x2, int y2);
 
 bool R_LayerInit(void)
 {
-  // nothing to do
-  return true;
+	// nothing to do
+	return true;
 }
 
 
@@ -73,28 +73,28 @@ bool R_LayerInit(void)
 // Create a new layer.
 
 layer_t *R_LayerNew(int depth, int x1, int y1, int x2, int y2,
-    layerflags_e flags, void *private)
+		layerflags_e flags, void *private)
 {
-  layer_t *layer;
+	layer_t *layer;
 
-  DEV_ASSERT2(x1 >= 0);
-  DEV_ASSERT2(y1 >= 0);
-  DEV_ASSERT2(x2 >= x1);
-  DEV_ASSERT2(y2 >= y1);
-  DEV_ASSERT2(depth >= 0);
+	DEV_ASSERT2(x1 >= 0);
+	DEV_ASSERT2(y1 >= 0);
+	DEV_ASSERT2(x2 >= x1);
+	DEV_ASSERT2(y2 >= y1);
+	DEV_ASSERT2(depth >= 0);
 
-  layer = Z_ClearNew(layer_t, 1);
+	layer = Z_ClearNew(layer_t, 1);
 
-  layer->x1 = x1;
-  layer->y1 = y1;
-  layer->x2 = x2;
-  layer->y2 = y2;
+	layer->x1 = x1;
+	layer->y1 = y1;
+	layer->x2 = x2;
+	layer->y2 = y2;
 
-  layer->depth = depth;
-  layer->flags = flags;
-  layer->private = private;
+	layer->depth = depth;
+	layer->flags = flags;
+	layer->private = private;
 
-  return layer;
+	return layer;
 }
 
 
@@ -108,18 +108,18 @@ layer_t *R_LayerNew(int depth, int x1, int y1, int x2, int y2,
 
 void R_LayerDestroy(layer_t *layer)
 {
-  if (layer->private)
-    Z_Free(layer->private);
-  
-  while (layer->children)
-  {
-    layer_t *cur = layer->children;
-    layer->children = cur->next;
+	if (layer->private)
+		Z_Free(layer->private);
 
-    R_LayerDestroy(cur);
-  }
+	while (layer->children)
+	{
+		layer_t *cur = layer->children;
+		layer->children = cur->next;
 
-  Z_Free(layer);
+		R_LayerDestroy(cur);
+	}
+
+	Z_Free(layer);
 }
 
 
@@ -132,44 +132,44 @@ void R_LayerDestroy(layer_t *layer)
 
 void R_LayerAdd(layer_t *parent, layer_t *layer)
 {
-  layer_t ** parent_list = &layer_list;
+	layer_t ** parent_list = &layer_list;
 
-  if (layer->parent)
-    parent_list = &layer->parent->children;
+	if (layer->parent)
+		parent_list = &layer->parent->children;
 
-  if (!(*parent_list) || (*parent_list)->depth >= layer->depth)
-  {
-    // add to head
+	if (!(*parent_list) || (*parent_list)->depth >= layer->depth)
+	{
+		// add to head
 
-    layer->next = (*parent_list);
-    layer->prev = NULL;
+		layer->next = (*parent_list);
+		layer->prev = NULL;
 
-    if (*parent_list)
-      (*parent_list)->prev = layer;
-    
-    (*parent_list) = layer;
-  }
-  else
-  {
-    // link in after some other node
+		if (*parent_list)
+			(*parent_list)->prev = layer;
 
-    layer_t *cur = (*parent_list);
+		(*parent_list) = layer;
+	}
+	else
+	{
+		// link in after some other node
 
-    DEV_ASSERT2(cur);
+		layer_t *cur = (*parent_list);
 
-    while (cur && cur->next && cur->next->depth < layer->depth)
-      cur = cur->next;
-    
-    layer->next = cur->next;
-    layer->prev = cur;
+		DEV_ASSERT2(cur);
 
-    if (cur->next)
-      cur->next->prev = layer;
-    
-    cur->next = layer;
-  }
+		while (cur && cur->next && cur->next->depth < layer->depth)
+			cur = cur->next;
 
-  M_DirtyRegion(layer->x1, layer->y1, layer->x2, layer->y2);
+		layer->next = cur->next;
+		layer->prev = cur;
+
+		if (cur->next)
+			cur->next->prev = layer;
+
+		cur->next = layer;
+	}
+
+	M_DirtyRegion(layer->x1, layer->y1, layer->x2, layer->y2);
 }
 
 
@@ -180,23 +180,23 @@ void R_LayerAdd(layer_t *parent, layer_t *layer)
 
 void R_LayerRemove(layer_t *layer)
 {
-  layer_t ** parent_list = &layer_list;
+	layer_t ** parent_list = &layer_list;
 
-  if (layer->parent)
-    parent_list = &layer->parent->children;
+	if (layer->parent)
+		parent_list = &layer->parent->children;
 
-  if (layer->next)
-    layer->next->prev = layer->prev;
-  
-  if (layer->prev)
-    layer->prev->next = layer->next;
-  else
-    (*parent_list) = layer->next;
-  
-  layer->next = NULL;
-  layer->prev = NULL;
+	if (layer->next)
+		layer->next->prev = layer->prev;
 
-  M_DirtyRegion(layer->x1, layer->y1, layer->x2, layer->y2);
+	if (layer->prev)
+		layer->prev->next = layer->next;
+	else
+		(*parent_list) = layer->next;
+
+	layer->next = NULL;
+	layer->prev = NULL;
+
+	M_DirtyRegion(layer->x1, layer->y1, layer->x2, layer->y2);
 }
 
 
@@ -208,9 +208,9 @@ void R_LayerRemove(layer_t *layer)
 
 void R_LayerEnable(layer_t *layer)
 {
-  layer->flags |= LAYF_Active;
+	layer->flags |= LAYF_Active;
 
-  M_DirtyRegion(layer->x1, layer->y1, layer->x2, layer->y2);
+	M_DirtyRegion(layer->x1, layer->y1, layer->x2, layer->y2);
 }
 
 
@@ -223,9 +223,9 @@ void R_LayerEnable(layer_t *layer)
 
 void R_LayerDisable(layer_t *layer)
 {
-  layer->flags &= ~LAYF_Active;
+	layer->flags &= ~LAYF_Active;
 
-  M_DirtyRegion(layer->x1, layer->y1, layer->x2, layer->y2);
+	M_DirtyRegion(layer->x1, layer->y1, layer->x2, layer->y2);
 }
 
 
@@ -238,20 +238,20 @@ void R_LayerDisable(layer_t *layer)
 
 void R_LayerChangeBounds(layer_t *layer, int x1, int y1, int x2, int y2)
 {
-  if (layer->flags & LAYF_Active)
-    M_DirtyRegion(layer->x1, layer->y1, layer->x2, layer->y2);
+	if (layer->flags & LAYF_Active)
+		M_DirtyRegion(layer->x1, layer->y1, layer->x2, layer->y2);
 
-  layer->x1 = x1;
-  layer->y1 = y1;
-  layer->x2 = x2;
-  layer->y2 = y2;
+	layer->x1 = x1;
+	layer->y1 = y1;
+	layer->x2 = x2;
+	layer->y2 = y2;
 
-  if (layer->flags & LAYF_Active)
-    M_DirtyRegion(layer->x1, layer->y1, layer->x2, layer->y2);
+	if (layer->flags & LAYF_Active)
+		M_DirtyRegion(layer->x1, layer->y1, layer->x2, layer->y2);
 
-  // resize children, recursivly
+	// resize children, recursivly
 
-  ResizeLayerList(layer->children, x1, y1, x2, y2);
+	ResizeLayerList(layer->children, x1, y1, x2, y2);
 }
 
 
@@ -264,15 +264,15 @@ void R_LayerChangeBounds(layer_t *layer, int x1, int y1, int x2, int y2)
 
 void R_LayerChangeFlags(layer_t *layer, layerflags_e flags)
 {
-  if (layer->flags & LAYF_Active)
-  {
-    if ((layer->flags ^ flags) & LAYF_Solid)
-    {
-      M_DirtyRegion(layer->x1, layer->y1, layer->x2, layer->y2);
-    }
-  }
+	if (layer->flags & LAYF_Active)
+	{
+		if ((layer->flags ^ flags) & LAYF_Solid)
+		{
+			M_DirtyRegion(layer->x1, layer->y1, layer->x2, layer->y2);
+		}
+	}
 
-  layer->flags = (layer->flags & LAYF_Active) | (flags & ~LAYF_Active);
+	layer->flags = (layer->flags & LAYF_Active) | (flags & ~LAYF_Active);
 }
 
 
@@ -284,8 +284,8 @@ void R_LayerChangeFlags(layer_t *layer, layerflags_e flags)
 
 void R_LayerChangeContents(layer_t *layer)
 {
-  if (layer->flags & LAYF_Active)
-    M_DirtyRegion(layer->x1, layer->y1, layer->x2, layer->y2);
+	if (layer->flags & LAYF_Active)
+		M_DirtyRegion(layer->x1, layer->y1, layer->x2, layer->y2);
 }
 
 
@@ -298,75 +298,75 @@ void R_LayerChangeContents(layer_t *layer)
 // called by "Drawer" functions or by DL_Query().
 
 bool R_LayerClipRectToSolids(int solid_index, 
-    int *x1, int *y1, int *x2, int *y2)
+		int *x1, int *y1, int *x2, int *y2)
 {
-  DEV_ASSERT2(solid_index >= 0);
+	DEV_ASSERT2(solid_index >= 0);
 
-  for (solid_index--; solid_index >= 0; solid_index--)
-  {
-    int sx1 = solid_rects[solid_index]->x1;
-    int sy1 = solid_rects[solid_index]->y1;
-    int sx2 = solid_rects[solid_index]->x2;
-    int sy2 = solid_rects[solid_index]->y2;
-    
-    int ocode = 0;
+	for (solid_index--; solid_index >= 0; solid_index--)
+	{
+		int sx1 = solid_rects[solid_index]->x1;
+		int sy1 = solid_rects[solid_index]->y1;
+		int sx2 = solid_rects[solid_index]->x2;
+		int sy2 = solid_rects[solid_index]->y2;
 
-    // no overlap ?
-    if ((*x2) < sx1 || (*x1) > sx2 || (*y2) < sy1 || (*y1) > sy2)
-      continue;
-    
-    if ((*x1) <= sx1 && (*x2) >= sx2)
-      ocode |= 1;
+		int ocode = 0;
 
-    if ((*y1) <= sy1 && (*y2) >= sy2)
-      ocode |= 2;
+		// no overlap ?
+		if ((*x2) < sx1 || (*x1) > sx2 || (*y2) < sy1 || (*y1) > sy2)
+			continue;
 
-    switch (ocode)
-    {
-      case 0:
-        // only partially covered in X or Y
-        break;
-      
-      case 3:
-        // totally covered
-        return true;
-      
-      case 1:
-        // convered in X, only partially in Y
-        if ((*y1) <= sy1)
-        {
-          (*y1) = sy2 + 1;
-        }
-        else if ((*y2) >= sy2)
-        {
-          (*y2) = sy1 - 1;
-        }
+		if ((*x1) <= sx1 && (*x2) >= sx2)
+			ocode |= 1;
 
-        DEV_ASSERT2((*y2) >= (*y1));
-        break;
-    
-      case 2:
-        // convered in Y, only partially in X
-        if ((*x1) <= sx1)
-        {
-          (*x1) = sx2 + 1;
-        }
-        else if ((*x2) >= sx2)
-        {
-          (*x2) = sx1 - 1;
-        }
+		if ((*y1) <= sy1 && (*y2) >= sy2)
+			ocode |= 2;
 
-        DEV_ASSERT2((*x2) >= (*x1));
-        break;
+		switch (ocode)
+		{
+			case 0:
+				// only partially covered in X or Y
+				break;
+
+			case 3:
+				// totally covered
+				return true;
+
+			case 1:
+				// convered in X, only partially in Y
+				if ((*y1) <= sy1)
+				{
+					(*y1) = sy2 + 1;
+				}
+				else if ((*y2) >= sy2)
+				{
+					(*y2) = sy1 - 1;
+				}
+
+				DEV_ASSERT2((*y2) >= (*y1));
+				break;
+
+			case 2:
+				// convered in Y, only partially in X
+				if ((*x1) <= sx1)
+				{
+					(*x1) = sx2 + 1;
+				}
+				else if ((*x2) >= sx2)
+				{
+					(*x2) = sx1 - 1;
+				}
+
+				DEV_ASSERT2((*x2) >= (*x1));
+				break;
 
 #ifdef DEVELOPERS
-      default:
-        I_Error("Bad ocode (%d) in R_LayerClipRectToSolids\n", ocode);
+			default:
+				I_Error("Bad ocode (%d) in R_LayerClipRectToSolids\n", ocode);
 #endif 
-    }
-  }
+		}
+	}
 
-  return false;
+	return false;
 }
 
 
@@ -375,32 +375,32 @@ bool R_LayerClipRectToSolids(int solid_index,
 
 static bool ListenLayersRecursive(layer_t *list, event_t *ev)
 {
-  // move to end
-  while (list && list->next)
-    list = list->next;
-  
-  for (; list; list = list->prev)
-  {
-    if (! (list->flags & LAYF_Active))
-      continue;
+	// move to end
+	while (list && list->next)
+		list = list->next;
 
-    if (list->children)
-    {
-      if (ListenLayersRecursive(list->children, ev))
-        return true;
-    }
-    
-    // do this layer _after_ children (since conceptually this layer
-    // is underneath all of the children layers).
- 
-    if (list->Listener)
-    {
-      if ((*list->Listener)(list, ev))
-        return true;
-    }
-  }
+	for (; list; list = list->prev)
+	{
+		if (! (list->flags & LAYF_Active))
+			continue;
 
-  return false;
+		if (list->children)
+		{
+			if (ListenLayersRecursive(list->children, ev))
+				return true;
+		}
+
+		// do this layer _after_ children (since conceptually this layer
+		// is underneath all of the children layers).
+
+		if (list->Listener)
+		{
+			if ((*list->Listener)(list, ev))
+				return true;
+		}
+	}
+
+	return false;
 }
 
 
@@ -414,18 +414,18 @@ static bool ListenLayersRecursive(layer_t *list, event_t *ev)
 
 bool R_ListenLayers(event_t *ev)
 {
-  return ListenLayersRecursive(layer_list, ev);
+	return ListenLayersRecursive(layer_list, ev);
 }
 
 
 static void ResizeLayerList(layer_t *list, int x1, int y1, int x2, int y2)
 {
-  for (; list; list = list->next)
-  {
-    DEV_ASSERT2(list->Resizer);
+	for (; list; list = list->next)
+	{
+		DEV_ASSERT2(list->Resizer);
 
-    (* list->Resizer)(list, x1, y1, x2, y2);
-  }
+		(* list->Resizer)(list, x1, y1, x2, y2);
+	}
 }
 
 
@@ -437,10 +437,10 @@ static void ResizeLayerList(layer_t *list, int x1, int y1, int x2, int y2)
 
 void R_ResizeLayers(void)
 {
-  // mark whole screen as dirty
-  M_DirtyMatrix();
+	// mark whole screen as dirty
+	M_DirtyMatrix();
 
-  ResizeLayerList(layer_list, 0, 0, SCREENWIDTH-1, SCREENHEIGHT-1);
+	ResizeLayerList(layer_list, 0, 0, SCREENWIDTH-1, SCREENHEIGHT-1);
 }
 
 
@@ -452,13 +452,13 @@ void R_ResizeLayers(void)
 
 static void DL_Init(void)
 {
-  num_solid_rects = 0;
+	num_solid_rects = 0;
 }
 
 
 static void DL_CleanUp(void)
 {
-  // nothing to do
+	// nothing to do
 }
 
 
@@ -469,129 +469,129 @@ static void DL_CleanUp(void)
 //
 static bool DL_Query(layer_t *list, int x1, int y1, int x2, int y2)
 {
-  // move to end
-  while (list && list->next)
-    list = list->next;
-  
-  // move backward (i.e. downward) through list
+	// move to end
+	while (list && list->next)
+		list = list->next;
 
-  for (; list; list = list->prev)
-  {
-    list->solid_index = -1;
+	// move backward (i.e. downward) through list
 
-    if (! (list->flags & LAYF_Active))
-      continue;
-    
-    // check if this layer totally outside of parent
-    if (list->x2 < x1 || list->x1 > x2 ||
-        list->y2 < y1 || list->y1 > y2)
-    {
-      list->invisible = true;
-      continue;
-    }
+	for (; list; list = list->prev)
+	{
+		list->solid_index = -1;
 
-    // determine intersection between this layer & parent clip
-    list->clip_x1 = MAX(list->x1, x1);
-    list->clip_y1 = MAX(list->y1, y1);
-    list->clip_x2 = MIN(list->x2, x2);
-    list->clip_y2 = MIN(list->y2, y2);
+		if (! (list->flags & LAYF_Active))
+			continue;
 
-    DEV_ASSERT2(list->clip_x2 >= list->clip_x1);
-    DEV_ASSERT2(list->clip_y2 >= list->clip_y1);
+		// check if this layer totally outside of parent
+		if (list->x2 < x1 || list->x1 > x2 ||
+				list->y2 < y1 || list->y1 > y2)
+		{
+			list->invisible = true;
+			continue;
+		}
 
-    list->vis_x1 = list->clip_x1;
-    list->vis_y1 = list->clip_y1;
-    list->vis_x2 = list->clip_x2;
-    list->vis_y2 = list->clip_y2;
+		// determine intersection between this layer & parent clip
+		list->clip_x1 = MAX(list->x1, x1);
+		list->clip_y1 = MAX(list->y1, y1);
+		list->clip_x2 = MIN(list->x2, x2);
+		list->clip_y2 = MIN(list->y2, y2);
 
-    list->invisible = R_LayerClipRectToSolids(num_solid_rects, 
-        &list->vis_x1, &list->vis_y1, &list->vis_x2, &list->vis_y2);
+		DEV_ASSERT2(list->clip_x2 >= list->clip_x1);
+		DEV_ASSERT2(list->clip_y2 >= list->clip_y1);
 
-    if (list->invisible)
-      continue;
+		list->vis_x1 = list->clip_x1;
+		list->vis_y1 = list->clip_y1;
+		list->vis_x2 = list->clip_x2;
+		list->vis_y2 = list->clip_y2;
 
-    // query children layers, recursively
+		list->invisible = R_LayerClipRectToSolids(num_solid_rects, 
+				&list->vis_x1, &list->vis_y1, &list->vis_x2, &list->vis_y2);
 
-    if (DL_Query(list->children, list->clip_x1, list->clip_y1,
-                 list->clip_x2, list->clip_y2))
-    {
-      // early out, mark all lower layers (including this one !) as
-      // invisible.
+		if (list->invisible)
+			continue;
 
-      for (; list; list=list->prev)
-        list->invisible = true;
-      
-      return true;
-    }
+		// query children layers, recursively
 
-    if (list->flags & LAYF_Volatile)
-      M_DirtyRegion(list->x1, list->y1, list->x2, list->y2);
+		if (DL_Query(list->children, list->clip_x1, list->clip_y1,
+					list->clip_x2, list->clip_y2))
+		{
+			// early out, mark all lower layers (including this one !) as
+			// invisible.
 
-    // solid rectangle stuff
+			for (; list; list=list->prev)
+				list->invisible = true;
 
-    list->solid_index = num_solid_rects;
+			return true;
+		}
 
-    if (list->flags & LAYF_Solid)
-    {
-      // check if layer covers whole screen
+		if (list->flags & LAYF_Volatile)
+			M_DirtyRegion(list->x1, list->y1, list->x2, list->y2);
 
-      if (list->x1 <= 0 && list->y1 <= 0 &&
-          list->x2 >= SCREENWIDTH-1 && 
-          list->y2 >= SCREENHEIGHT-1)
-      {
-        // early out, mark all lower layers (but not this one !) as
-        // invisible.
+		// solid rectangle stuff
 
-        for (list=list->prev; list; list=list->prev)
-          list->invisible = true;
-        
-        return true;
-      }
+		list->solid_index = num_solid_rects;
 
-      // add this layer into array of solid rectangles
+		if (list->flags & LAYF_Solid)
+		{
+			// check if layer covers whole screen
 
-      num_solid_rects++;
+			if (list->x1 <= 0 && list->y1 <= 0 &&
+					list->x2 >= SCREENWIDTH-1 && 
+					list->y2 >= SCREENHEIGHT-1)
+			{
+				// early out, mark all lower layers (but not this one !) as
+				// invisible.
 
-      if (num_solid_rects > max_solid_rects)
-      {
-        Z_Resize(solid_rects, layer_t *, num_solid_rects);
+				for (list=list->prev; list; list=list->prev)
+					list->invisible = true;
 
-        while (max_solid_rects < num_solid_rects)
-          solid_rects[max_solid_rects++] = NULL;
-      }
+				return true;
+			}
 
-      solid_rects[num_solid_rects-1] = list;
-    }
-  }
+			// add this layer into array of solid rectangles
 
-  return false;
+			num_solid_rects++;
+
+			if (num_solid_rects > max_solid_rects)
+			{
+				Z_Resize(solid_rects, layer_t *, num_solid_rects);
+
+				while (max_solid_rects < num_solid_rects)
+					solid_rects[max_solid_rects++] = NULL;
+			}
+
+			solid_rects[num_solid_rects-1] = list;
+		}
+	}
+
+	return false;
 }
 
 
 static void DL_Draw(layer_t *list)
 {
-  // move forward (i.e. upward) through list
+	// move forward (i.e. upward) through list
 
-  for (; list; list=list->next)
-  {
-    if (! (list->flags & LAYF_Active))
-      continue;
+	for (; list; list=list->next)
+	{
+		if (! (list->flags & LAYF_Active))
+			continue;
 
-    if (list->invisible)
-      continue;
-    
-    DEV_ASSERT2(list->solid_index >= 0);
+		if (list->invisible)
+			continue;
 
-    if (list->Drawer)
-    {
-      (* list->Drawer)(list);
-    }
+		DEV_ASSERT2(list->solid_index >= 0);
 
-    // draw children layers, recursively.  Called here since
-    // conceptually the children layers are above their parent.
+		if (list->Drawer)
+		{
+			(* list->Drawer)(list);
+		}
 
-    DL_Draw(list->children);
-  }
+		// draw children layers, recursively.  Called here since
+		// conceptually the children layers are above their parent.
+
+		DL_Draw(list->children);
+	}
 }
 
 
@@ -607,10 +607,10 @@ static void DL_Draw(layer_t *list)
 //
 void R_DrawLayers(void)
 {
-  DL_Init();
-  DL_Query(layer_list, 0, 0, SCREENWIDTH-1, SCREENHEIGHT-1);
-  DL_Draw(layer_list);
-  DL_CleanUp();
+	DL_Init();
+	DL_Query(layer_list, 0, 0, SCREENWIDTH-1, SCREENHEIGHT-1);
+	DL_Draw(layer_list);
+	DL_CleanUp();
 }
 
 #endif // USE_LAYERS

@@ -124,93 +124,93 @@ int numscrmodes;
 
 static void SetRes(void)
 {
-  // -ES- 1999/03/04 Removed weird aspect ratio warning - bad ratios don't look awful anymore :-)
-  SCALEDWIDTH = (SCREENWIDTH - (SCREENWIDTH % 320));
-  SCALEDHEIGHT = 200 * (SCALEDWIDTH / 320);
+	// -ES- 1999/03/04 Removed weird aspect ratio warning - bad ratios don't look awful anymore :-)
+	SCALEDWIDTH = (SCREENWIDTH - (SCREENWIDTH % 320));
+	SCALEDHEIGHT = 200 * (SCALEDWIDTH / 320);
 
-  // -KM- 1999/01/31 Add specific check for this: resolutions such as 640x350
-  //  used to fail.
-  if (SCALEDHEIGHT > SCREENHEIGHT)
-  {
-    SCALEDHEIGHT = (SCREENHEIGHT - (SCREENHEIGHT % 200));
-    SCALEDWIDTH = 320 * (SCALEDHEIGHT / 200);
-  }
+	// -KM- 1999/01/31 Add specific check for this: resolutions such as 640x350
+	//  used to fail.
+	if (SCALEDHEIGHT > SCREENHEIGHT)
+	{
+		SCALEDHEIGHT = (SCREENHEIGHT - (SCREENHEIGHT % 200));
+		SCALEDWIDTH = 320 * (SCALEDHEIGHT / 200);
+	}
 
-  // -ES- 1999/03/29 Allow very low resolutions
-  if (SCALEDWIDTH < 320 || SCALEDHEIGHT < 200)
-  {
-    SCALEDWIDTH = SCREENWIDTH;
-    SCALEDHEIGHT = SCREENHEIGHT;
-    X_OFFSET = Y_OFFSET = 0;
-  }
-  else
-  {
-    X_OFFSET = (SCREENWIDTH - SCALEDWIDTH) / 2;
-    Y_OFFSET = (SCREENHEIGHT - SCALEDHEIGHT) / 2;
-  }
+	// -ES- 1999/03/29 Allow very low resolutions
+	if (SCALEDWIDTH < 320 || SCALEDHEIGHT < 200)
+	{
+		SCALEDWIDTH = SCREENWIDTH;
+		SCALEDHEIGHT = SCREENHEIGHT;
+		X_OFFSET = Y_OFFSET = 0;
+	}
+	else
+	{
+		X_OFFSET = (SCREENWIDTH - SCALEDWIDTH) / 2;
+		Y_OFFSET = (SCREENHEIGHT - SCALEDHEIGHT) / 2;
+	}
 
-  //
-  // Weapon Centering
-  // Calculates the weapon height, relative to the aspect ratio.
-  //
-  // Moved here from a #define in r_things.c  -ACB- 1998/08/04
-  //
-  // -ES- 1999/03/04 Better psprite scaling
-  BASEYCENTER = 100;
-  BASEXCENTER = 160;
+	//
+	// Weapon Centering
+	// Calculates the weapon height, relative to the aspect ratio.
+	//
+	// Moved here from a #define in r_things.c  -ACB- 1998/08/04
+	//
+	// -ES- 1999/03/04 Better psprite scaling
+	BASEYCENTER = 100;
+	BASEXCENTER = 160;
 
 #if 0  // -AJA- This message meaningless at the moment
-  // -KM- 1998/07/31 Cosmetic indenting
-  I_Printf("  Scaled Resolution: %d x %d\n", SCALEDWIDTH, SCALEDHEIGHT);
+	// -KM- 1998/07/31 Cosmetic indenting
+	I_Printf("  Scaled Resolution: %d x %d\n", SCALEDWIDTH, SCALEDHEIGHT);
 #endif
 
-  DX = SCALEDWIDTH / 320.0f;
-  DXI = 320.0f / SCALEDWIDTH;
-  DY = SCALEDHEIGHT / 200.0f;
-  DYI = 200.0f / SCALEDHEIGHT;
-  DY2 = DY / 2;
-  DYI2 = DYI * 2;
+	DX = SCALEDWIDTH / 320.0f;
+	DXI = 320.0f / SCALEDWIDTH;
+	DY = SCALEDHEIGHT / 200.0f;
+	DYI = 200.0f / SCALEDHEIGHT;
+	DY2 = DY / 2;
+	DYI2 = DYI * 2;
 
-  if (back_scr)
-    V_DestroyScreen(back_scr);
+	if (back_scr)
+		V_DestroyScreen(back_scr);
 
-  back_scr = V_CreateScreen(SCREENWIDTH, SCREENHEIGHT, BPP);
+	back_scr = V_CreateScreen(SCREENWIDTH, SCREENHEIGHT, BPP);
 
-  ST_ReInit();
+	ST_ReInit();
 
-  AM_InitResolution();
+	AM_InitResolution();
 }
 
 typedef struct video_func_s
 {
-  void (*V_CopyRect) (screen_t * dest, screen_t * src, int srcx, int srcy, int width, int height, int destx, int desty);
-  void (*V_CopyScreen) (screen_t * dest, screen_t * src);
+	void (*V_CopyRect) (screen_t * dest, screen_t * src, int srcx, int srcy, int width, int height, int destx, int desty);
+	void (*V_CopyScreen) (screen_t * dest, screen_t * src);
 
-  void (*V_DrawPixel) (screen_t * scr, int x, int y, int col);
-  void (*V_DrawLine) (screen_t * scr, int x1, int y1, int x2, int y2, int col);
-  void (*V_DrawBox) (screen_t * scr, int x, int y, int w, int h, int col);
-  void (*V_DrawBoxAlpha) (screen_t * scr, int x, int y, int w, int h, int col, fixed_t alpha);
+	void (*V_DrawPixel) (screen_t * scr, int x, int y, int col);
+	void (*V_DrawLine) (screen_t * scr, int x1, int y1, int x2, int y2, int col);
+	void (*V_DrawBox) (screen_t * scr, int x, int y, int w, int h, int col);
+	void (*V_DrawBoxAlpha) (screen_t * scr, int x, int y, int w, int h, int col, fixed_t alpha);
 
-  void (*resinit_r_draw_c) (void);
-  void (*R_DrawColumn) (void);
-  void (*R_DrawColumn_MIP) (void);
-  void (*R_DrawFuzzColumn) (void);
-  void (*R_DrawTranslatedColumn) (void);
-  void (*R_DrawTranslucentTranslatedColumn) (void);
-  void (*R_VideoErase) (unsigned ofs, int count);
-  void (*R_DrawSpan) (void);
-  void (*R_DrawSpan_MIP) (void);
-  void (*R_DrawTranslucentSpan) (void);
-  void (*R_DrawTranslucentSpan_MIP) (void);
-  void (*R_DrawHoleySpan_MIP) (void);
-  void (*R_FillBackScreen) (void);
-  void (*R_DrawViewBorder) (void);
-  void (*R_DrawTranslucentColumn) (void);
-  void (*R_DrawTranslucentColumn_MIP) (void);
+	void (*resinit_r_draw_c) (void);
+	void (*R_DrawColumn) (void);
+	void (*R_DrawColumn_MIP) (void);
+	void (*R_DrawFuzzColumn) (void);
+	void (*R_DrawTranslatedColumn) (void);
+	void (*R_DrawTranslucentTranslatedColumn) (void);
+	void (*R_VideoErase) (unsigned ofs, int count);
+	void (*R_DrawSpan) (void);
+	void (*R_DrawSpan_MIP) (void);
+	void (*R_DrawTranslucentSpan) (void);
+	void (*R_DrawTranslucentSpan_MIP) (void);
+	void (*R_DrawHoleySpan_MIP) (void);
+	void (*R_FillBackScreen) (void);
+	void (*R_DrawViewBorder) (void);
+	void (*R_DrawTranslucentColumn) (void);
+	void (*R_DrawTranslucentColumn_MIP) (void);
 
-  funclist_t *colfuncs;
-  funclist_t *spanfuncs;
-  funclist_t *enlarge_2_2_funcs;
+	funclist_t *colfuncs;
+	funclist_t *spanfuncs;
+	funclist_t *enlarge_2_2_funcs;
 }
 video_func_t;
 
@@ -284,56 +284,56 @@ video_func_t video_func[] =
 // Returns the video_func struct that uses the given BPP
 static video_func_t *BPPToFuncTable(unsigned int bpp)
 {
-  if (bpp > sizeof(video_func) / sizeof(video_func[0]) || bpp < 1)
-    I_Error("Invalid BPP: %d!", bpp);
+	if (bpp > sizeof(video_func) / sizeof(video_func[0]) || bpp < 1)
+		I_Error("Invalid BPP: %d!", bpp);
 
-  return &video_func[bpp - 1];
+	return &video_func[bpp - 1];
 }
 
 static void SetBPP(void)
 {
-  static video_func_t *functable = NULL;
+	static video_func_t *functable = NULL;
 
-  if (functable)
-  {
-    // functable is the previous resolution's table. Undo the
-    // R_Draw* function dependencies that were set for that BPP.
-    CON_SetFunclistDest(functable->colfuncs, NULL);
-    CON_SetFunclistDest(functable->spanfuncs, NULL);
-    CON_SetFunclistDest(functable->enlarge_2_2_funcs, NULL);
-  }
+	if (functable)
+	{
+		// functable is the previous resolution's table. Undo the
+		// R_Draw* function dependencies that were set for that BPP.
+		CON_SetFunclistDest(functable->colfuncs, NULL);
+		CON_SetFunclistDest(functable->spanfuncs, NULL);
+		CON_SetFunclistDest(functable->enlarge_2_2_funcs, NULL);
+	}
 
-  // -ES- 1998/08/20 Moved away BPP autodetect to V_MultiResInit
-  functable = BPPToFuncTable(BPP);
+	// -ES- 1998/08/20 Moved away BPP autodetect to V_MultiResInit
+	functable = BPPToFuncTable(BPP);
 
-  //okay, set all the function pointers
+	//okay, set all the function pointers
 
-  V_CopyRect = functable->V_CopyRect;
-  V_CopyScreen = functable->V_CopyScreen,
+	V_CopyRect = functable->V_CopyRect;
+	V_CopyScreen = functable->V_CopyScreen,
 
-  V_DrawPixel = functable->V_DrawPixel;
-  V_DrawLine = functable->V_DrawLine;
-  V_DrawBox = functable->V_DrawBox;
-  V_DrawBoxAlpha = functable->V_DrawBoxAlpha;
+	V_DrawPixel = functable->V_DrawPixel;
+	V_DrawLine = functable->V_DrawLine;
+	V_DrawBox = functable->V_DrawBox;
+	V_DrawBoxAlpha = functable->V_DrawBoxAlpha;
 
-  resinit_r_draw_c = functable->resinit_r_draw_c;
+	resinit_r_draw_c = functable->resinit_r_draw_c;
 
-  R_DrawFuzzColumn = functable->R_DrawFuzzColumn;
-  R_DrawTranslatedColumn = functable->R_DrawTranslatedColumn;
-  R_DrawTranslucentTranslatedColumn = functable->R_DrawTranslucentTranslatedColumn;
-  R_VideoErase = functable->R_VideoErase;
-  R_DrawSpan = functable->R_DrawSpan;
-  R_DrawSpan_MIP = functable->R_DrawSpan_MIP;
-  R_DrawTranslucentSpan = functable->R_DrawTranslucentSpan;
-  R_DrawTranslucentSpan_MIP = functable->R_DrawTranslucentSpan_MIP;
-  R_DrawHoleySpan_MIP = functable->R_DrawHoleySpan_MIP;
-  R_DrawTranslucentColumn = functable->R_DrawTranslucentColumn;
-  R_DrawTranslucentColumn_MIP = functable->R_DrawTranslucentColumn_MIP;
-  R_DrawColumn_MIP = functable->R_DrawColumn_MIP;
+	R_DrawFuzzColumn = functable->R_DrawFuzzColumn;
+	R_DrawTranslatedColumn = functable->R_DrawTranslatedColumn;
+	R_DrawTranslucentTranslatedColumn = functable->R_DrawTranslucentTranslatedColumn;
+	R_VideoErase = functable->R_VideoErase;
+	R_DrawSpan = functable->R_DrawSpan;
+	R_DrawSpan_MIP = functable->R_DrawSpan_MIP;
+	R_DrawTranslucentSpan = functable->R_DrawTranslucentSpan;
+	R_DrawTranslucentSpan_MIP = functable->R_DrawTranslucentSpan_MIP;
+	R_DrawHoleySpan_MIP = functable->R_DrawHoleySpan_MIP;
+	R_DrawTranslucentColumn = functable->R_DrawTranslucentColumn;
+	R_DrawTranslucentColumn_MIP = functable->R_DrawTranslucentColumn_MIP;
+	R_DrawColumn_MIP = functable->R_DrawColumn_MIP;
 
-  CON_SetFunclistDest(functable->colfuncs, &R_DrawColumn);
-  CON_SetFunclistDest(functable->spanfuncs, &R_DrawSpan);
-  CON_SetFunclistDest(functable->enlarge_2_2_funcs, &R_DoEnlargeView_2_2);
+	CON_SetFunclistDest(functable->colfuncs, &R_DrawColumn);
+	CON_SetFunclistDest(functable->spanfuncs, &R_DrawSpan);
+	CON_SetFunclistDest(functable->enlarge_2_2_funcs, &R_DoEnlargeView_2_2);
 }
 
 //
@@ -342,8 +342,8 @@ static void SetBPP(void)
 //
 void V_InitResolution(void)
 {
-  SetBPP();
-  SetRes();
+	SetBPP();
+	SetRes();
 }
 
 //
@@ -355,9 +355,9 @@ void V_InitResolution(void)
 //
 bool V_MultiResInit(void)
 {
-  I_Printf("Resolution: %d x %d x %dc\n", SCREENWIDTH, SCREENHEIGHT, 
-      1 << SCREENBITS);
-  return true;
+	I_Printf("Resolution: %d x %d x %dc\n", SCREENWIDTH, SCREENHEIGHT, 
+			1 << SCREENBITS);
+	return true;
 }
 
 //
@@ -367,34 +367,34 @@ bool V_MultiResInit(void)
 //
 void V_ClearPageBackground(screen_t * scr)
 {
-  int y;
-  int leftoffset = BPP * (SCREENWIDTH - SCALEDWIDTH) / 2;
-  int topoffset = (SCREENHEIGHT - SCALEDHEIGHT) / 2;
-  byte *dest;
-  
-  dest = scr->data;
+	int y;
+	int leftoffset = BPP * (SCREENWIDTH - SCALEDWIDTH) / 2;
+	int topoffset = (SCREENHEIGHT - SCALEDHEIGHT) / 2;
+	byte *dest;
 
-  if (!V_ScreenHasCurrentRes(scr))
-    I_Error("V_ClearPageBackground: Not supported by the given screen!");
+	dest = scr->data;
 
-  for (y = 0; y < topoffset; y++, dest += SCREENPITCH)
-  {
-    Z_Clear(dest, byte, SCREENWIDTH * BPP);
-  }
+	if (!V_ScreenHasCurrentRes(scr))
+		I_Error("V_ClearPageBackground: Not supported by the given screen!");
 
-  if (SCALEDWIDTH < SCREENWIDTH)
-  {
-    for (; y < (SCREENHEIGHT - topoffset); y++, dest += SCREENPITCH)
-    {
-      Z_Clear(dest, byte, leftoffset);
-      Z_Clear(dest + SCREENWIDTH * BPP - leftoffset, byte, leftoffset);
-    }
-  }
+	for (y = 0; y < topoffset; y++, dest += SCREENPITCH)
+	{
+		Z_Clear(dest, byte, SCREENWIDTH * BPP);
+	}
 
-  for (; y < SCREENHEIGHT; y++, dest += SCREENPITCH)
-  {
-    Z_Clear(dest, byte, SCREENWIDTH * BPP);
-  }
+	if (SCALEDWIDTH < SCREENWIDTH)
+	{
+		for (; y < (SCREENHEIGHT - topoffset); y++, dest += SCREENPITCH)
+		{
+			Z_Clear(dest, byte, leftoffset);
+			Z_Clear(dest + SCREENWIDTH * BPP - leftoffset, byte, leftoffset);
+		}
+	}
+
+	for (; y < SCREENHEIGHT; y++, dest += SCREENPITCH)
+	{
+		Z_Clear(dest, byte, SCREENWIDTH * BPP);
+	}
 }
 
 //
@@ -407,44 +407,44 @@ void V_ClearPageBackground(screen_t * scr)
 //
 void V_AddAvailableResolution(screenmode_t *mode)
 {
-  int i;
+	int i;
 
-  // Unused depth: do not add.
-  if (mode->depth != 8 && mode->depth != 16 && mode->depth != 24)
-    return;
+	// Unused depth: do not add.
+	if (mode->depth != 8 && mode->depth != 16 && mode->depth != 24)
+		return;
 
-  L_WriteDebug("V_AddAvailableResolution: Res %d x %d - %dbpp\n", mode->width,
-      mode->height, mode->depth);
+	L_WriteDebug("V_AddAvailableResolution: Res %d x %d - %dbpp\n", mode->width,
+			mode->height, mode->depth);
 
-  if (!scrmode)
-  {
-    scrmode = Z_New(screenmode_t, 1);
-    scrmode[0] = mode[0];
-    numscrmodes = 1;
-    return;
-  }
+	if (!scrmode)
+	{
+		scrmode = Z_New(screenmode_t, 1);
+		scrmode[0] = mode[0];
+		numscrmodes = 1;
+		return;
+	}
 
-  // Go through existing list and check width and height do not already exist
-  for(i = 0; i < numscrmodes; i++)
-  {
-    if (scrmode[i].width == mode->width && scrmode[i].height == mode->height &&
-        scrmode[i].depth == mode->depth && scrmode[i].windowed == mode->windowed)
-      return;
+	// Go through existing list and check width and height do not already exist
+	for(i = 0; i < numscrmodes; i++)
+	{
+		if (scrmode[i].width == mode->width && scrmode[i].height == mode->height &&
+				scrmode[i].depth == mode->depth && scrmode[i].windowed == mode->windowed)
+			return;
 
-    if ((scrmode[i].width > mode->width || scrmode[i].height > mode->height) &&
-        scrmode[i].depth == mode->depth)
-      break;
-  }
-  
-  Z_Resize(scrmode, screenmode_t, numscrmodes+1);
+		if ((scrmode[i].width > mode->width || scrmode[i].height > mode->height) &&
+				scrmode[i].depth == mode->depth)
+			break;
+	}
 
-  if (i != numscrmodes)
-    Z_MoveData(&scrmode[i+1], &scrmode[i], screenmode_t, numscrmodes - i);
+	Z_Resize(scrmode, screenmode_t, numscrmodes+1);
 
-  scrmode[i] = mode[0];
-  numscrmodes++;
+	if (i != numscrmodes)
+		Z_MoveData(&scrmode[i+1], &scrmode[i], screenmode_t, numscrmodes - i);
 
-  return;
+	scrmode[i] = mode[0];
+	numscrmodes++;
+
+	return;
 }
 
 //
@@ -458,44 +458,44 @@ void V_AddAvailableResolution(screenmode_t *mode)
 #define DEPTH_MUL  25  // relative important of depth
 
 int V_FindClosestResolution(screenmode_t *mode,
-    bool samesize, bool samedepth)
+		bool samesize, bool samedepth)
 {
-  int i;
+	int i;
 
-  int best_idx = -1;
-  int best_dist = INT_MAX;
+	int best_idx = -1;
+	int best_dist = INT_MAX;
 
-  for (i=0; i < numscrmodes; i++)
-  {
-    int dw = ABS(scrmode[i].width  - mode->width);
-    int dh = ABS(scrmode[i].height - mode->height);
-    int dd = ABS(scrmode[i].depth  - mode->depth) * DEPTH_MUL;
-    int dist;
+	for (i=0; i < numscrmodes; i++)
+	{
+		int dw = ABS(scrmode[i].width  - mode->width);
+		int dh = ABS(scrmode[i].height - mode->height);
+		int dd = ABS(scrmode[i].depth  - mode->depth) * DEPTH_MUL;
+		int dist;
 
-    if (scrmode[i].windowed != mode->windowed)
-      continue;
+		if (scrmode[i].windowed != mode->windowed)
+			continue;
 
-    // an exact match is always good...
-    if (dw == 0 && dh == 0 && dd == 0)
-      return i;
+		// an exact match is always good...
+		if (dw == 0 && dh == 0 && dd == 0)
+			return i;
 
-    if (samesize && !(dw == 0 && dh == 0))
-      continue;
+		if (samesize && !(dw == 0 && dh == 0))
+			continue;
 
-    if (samedepth && dd != 0)
-      continue;
+		if (samedepth && dd != 0)
+			continue;
 
-    dist = dw * dw + dh * dh + dd * dd;
+		dist = dw * dw + dh * dh + dd * dd;
 
-    if (dist >= best_dist)
-      continue;
+		if (dist >= best_dist)
+			continue;
 
-    // found a better match
-    best_idx = i;
-    best_dist = dist;
-  }
+		// found a better match
+		best_idx = i;
+		best_dist = dist;
+	}
 
-  return best_idx;
+	return best_idx;
 }
 
 //
@@ -505,26 +505,26 @@ int V_FindClosestResolution(screenmode_t *mode,
 //
 int V_CompareModes(screenmode_t *A, screenmode_t *B)
 {
-  if (A->width < B->width)
-    return -1;
-  else if (A->width > B->width)
-    return +1;
+	if (A->width < B->width)
+		return -1;
+	else if (A->width > B->width)
+		return +1;
 
-  if (A->height < B->height)
-    return -1;
-  else if (A->height > B->height)
-    return +1;
+	if (A->height < B->height)
+		return -1;
+	else if (A->height > B->height)
+		return +1;
 
-  if (A->depth < B->depth)
-    return -1;
-  else if (A->depth > B->depth)
-    return +1;
+	if (A->depth < B->depth)
+		return -1;
+	else if (A->depth > B->depth)
+		return +1;
 
-  if (A->windowed < B->windowed)
-    return -1;
-  else if (A->windowed > B->windowed)
-    return +1;
+	if (A->windowed < B->windowed)
+		return -1;
+	else if (A->windowed > B->windowed)
+		return +1;
 
-  return 0;
+	return 0;
 }
 

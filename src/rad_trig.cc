@@ -75,22 +75,22 @@ static int rad_memfile_size;
 //
 rad_script_t * RAD_FindScriptByName(const char *map_name, const char *name)
 {
-  rad_script_t *scr;
+	rad_script_t *scr;
 
-  for (scr=r_scripts; scr; scr=scr->next)
-  {
-    if (scr->script_name == NULL)
-      continue;
+	for (scr=r_scripts; scr; scr=scr->next)
+	{
+		if (scr->script_name == NULL)
+			continue;
 
-    if (strcmp(scr->mapid, map_name) != 0)
-      continue;
+		if (strcmp(scr->mapid, map_name) != 0)
+			continue;
 
-    if (DDF_CompareName(scr->script_name, name) == 0)
-      return scr;
-  }
+		if (DDF_CompareName(scr->script_name, name) == 0)
+			return scr;
+	}
 
-  I_Error("RTS: No such script `%s' on map %s.\n", name, map_name);
-  return NULL;
+	I_Error("RTS: No such script `%s' on map %s.\n", name, map_name);
+	return NULL;
 }
 
 //
@@ -98,19 +98,19 @@ rad_script_t * RAD_FindScriptByName(const char *map_name, const char *name)
 //
 rad_trigger_t * RAD_FindTriggerByName(const char *name)
 {
-  rad_trigger_t *trig;
+	rad_trigger_t *trig;
 
-  for (trig=r_triggers; trig; trig=trig->next)
-  {
-    if (trig->info->script_name == NULL)
-      continue;
+	for (trig=r_triggers; trig; trig=trig->next)
+	{
+		if (trig->info->script_name == NULL)
+			continue;
 
-    if (DDF_CompareName(trig->info->script_name, name) == 0)
-      return trig;
-  }
+		if (DDF_CompareName(trig->info->script_name, name) == 0)
+			return trig;
+	}
 
-  I_Warning("RTS: No such trigger `%s'.\n", name);
-  return NULL;
+	I_Warning("RTS: No such trigger `%s'.\n", name);
+	return NULL;
 }
 
 //
@@ -118,15 +118,15 @@ rad_trigger_t * RAD_FindTriggerByName(const char *name)
 //
 rad_trigger_t * RAD_FindTriggerByScript(const rad_script_t *scr)
 {
-  rad_trigger_t *trig;
+	rad_trigger_t *trig;
 
-  for (trig=r_triggers; trig; trig=trig->next)
-  {
-    if (trig->info == scr)
-      return trig;
-  }
+	for (trig=r_triggers; trig; trig=trig->next)
+	{
+		if (trig->info == scr)
+			return trig;
+	}
 
-  return NULL;  // no worries if none.
+	return NULL;  // no worries if none.
 }
 
 //
@@ -134,19 +134,19 @@ rad_trigger_t * RAD_FindTriggerByScript(const rad_script_t *scr)
 //
 rts_state_t * RAD_FindStateByLabel(rad_script_t *scr, char *label)
 {
-  rts_state_t *st;
+	rts_state_t *st;
 
-  for (st=scr->first_state; st; st=st->next)
-  {
-    if (st->label == NULL)
-      continue;
+	for (st=scr->first_state; st; st=st->next)
+	{
+		if (st->label == NULL)
+			continue;
 
-    if (DDF_CompareName(st->label, label) == 0)
-      return st;
-  }
+		if (DDF_CompareName(st->label, label) == 0)
+			return st;
+	}
 
-  // NOTE: no error message, unlike the other Find funcs
-  return NULL;
+	// NOTE: no error message, unlike the other Find funcs
+	return NULL;
 }
 
 //
@@ -158,44 +158,44 @@ rts_state_t * RAD_FindStateByLabel(rad_script_t *scr, char *label)
 //
 void RAD_EnableByTag(mobj_t *actor, int tag, bool disable)
 {
-  rad_trigger_t *trig;
+	rad_trigger_t *trig;
 
-  if (tag <= 0)
-    I_Error("INTERNAL ERROR: RAD_EnableByTag: bad tag %d\n", tag);
+	if (tag <= 0)
+		I_Error("INTERNAL ERROR: RAD_EnableByTag: bad tag %d\n", tag);
 
-  for (trig=r_triggers; trig; trig=trig->next)
-  {
-    if (trig->info->tag == tag)
-      break;
-  }
+	for (trig=r_triggers; trig; trig=trig->next)
+	{
+		if (trig->info->tag == tag)
+			break;
+	}
 
-  // were there any ?
-  if (! trig)
-    return;
-  
-  for (; trig; trig=trig->tag_next)
-  {
-    if (disable)
-      trig->disabled = true;
-    else
-      trig->disabled = false;
-  }
+	// were there any ?
+	if (! trig)
+		return;
+
+	for (; trig; trig=trig->tag_next)
+	{
+		if (disable)
+			trig->disabled = true;
+		else
+			trig->disabled = false;
+	}
 }
 
 bool RAD_WithinRadius(mobj_t * mo, rad_script_t * r)
 {
-  if (r->rad_x >= 0 && fabs(r->x - mo->x) > r->rad_x + mo->radius)
-    return false;
+	if (r->rad_x >= 0 && fabs(r->x - mo->x) > r->rad_x + mo->radius)
+		return false;
 
-  if (r->rad_y >= 0 && fabs(r->y - mo->y) > r->rad_y + mo->radius)
-    return false;
+	if (r->rad_y >= 0 && fabs(r->y - mo->y) > r->rad_y + mo->radius)
+		return false;
 
-  if (r->rad_z >= 0 && fabs(r->z - MO_MIDZ(mo)) > r->rad_z + mo->height/2)
-  {
-    return false;
-  }
+	if (r->rad_z >= 0 && fabs(r->z - MO_MIDZ(mo)) > r->rad_z + mo->height/2)
+	{
+		return false;
+	}
 
-  return true;
+	return true;
 }
 
 //
@@ -203,145 +203,145 @@ bool RAD_WithinRadius(mobj_t * mo, rad_script_t * r)
 //
 static bool RAD_CheckBossTrig(rad_trigger_t *trig, s_ondeath_t *cond)
 {
-  mobj_t *mo;
+	mobj_t *mo;
 
-  int count = 0;
+	int count = 0;
 
-  // lookup thing type if we haven't already done so
-  if (! cond->cached_info)
-  {
-    if (cond->thing_name)
-      cond->cached_info = DDF_MobjLookup(cond->thing_name);
-    else
-    {
-      cond->cached_info = DDF_MobjLookupNum(cond->thing_type);
-      
-      if (cond->cached_info == NULL)
-        I_Error("RTS ONDEATH: Unknown thing type %d.\n",
-          cond->thing_type);
-    }
-  }
-  
-  // scan the remaining mobjs to see if all bosses are dead
-  for (mo=mobjlisthead; mo != NULL; mo=mo->next)
-  {
-    if (mo->info == cond->cached_info && mo->health > 0)
-    {
-      count++;
-    
-      if (count > cond->threshhold)
-        return false;
-    }
-  }
+	// lookup thing type if we haven't already done so
+	if (! cond->cached_info)
+	{
+		if (cond->thing_name)
+			cond->cached_info = DDF_MobjLookup(cond->thing_name);
+		else
+		{
+			cond->cached_info = DDF_MobjLookupNum(cond->thing_type);
 
-  return true;
+			if (cond->cached_info == NULL)
+				I_Error("RTS ONDEATH: Unknown thing type %d.\n",
+						cond->thing_type);
+		}
+	}
+
+	// scan the remaining mobjs to see if all bosses are dead
+	for (mo=mobjlisthead; mo != NULL; mo=mo->next)
+	{
+		if (mo->info == cond->cached_info && mo->health > 0)
+		{
+			count++;
+
+			if (count > cond->threshhold)
+				return false;
+		}
+	}
+
+	return true;
 }
 
 //
 // RAD_CheckHeightTrig
 //
 static bool RAD_CheckHeightTrig(rad_trigger_t *trig, 
-    s_onheight_t *cond)
+		s_onheight_t *cond)
 {
-  float h;
+	float h;
 
-  // lookup sector if we haven't already done so
-  if (! cond->cached_sector)
-  {
-    if (cond->sec_num >= 0)
-    {
-      if (cond->sec_num >= numsectors)
-        I_Error("RTS ONHEIGHT: no such sector %d.\n", cond->sec_num);
-      
-      cond->cached_sector = & sectors[cond->sec_num];
-    }
-    else
-    {
-      cond->cached_sector = R_PointInSubsector(trig->info->x, 
-          trig->info->y)->sector;
-    }
-  }
+	// lookup sector if we haven't already done so
+	if (! cond->cached_sector)
+	{
+		if (cond->sec_num >= 0)
+		{
+			if (cond->sec_num >= numsectors)
+				I_Error("RTS ONHEIGHT: no such sector %d.\n", cond->sec_num);
 
-  h = cond->cached_sector->f_h;
+			cond->cached_sector = & sectors[cond->sec_num];
+		}
+		else
+		{
+			cond->cached_sector = R_PointInSubsector(trig->info->x, 
+					trig->info->y)->sector;
+		}
+	}
 
-  return (cond->z1 <= h && h <= cond->z2);
+	h = cond->cached_sector->f_h;
+
+	return (cond->z1 <= h && h <= cond->z2);
 }
 
 bool RAD_CheckReachedTrigger(mobj_t * thing)
 {
-  rad_script_t * scr = (rad_script_t *) thing->path_trigger;
-  rad_trigger_t * trig;
+	rad_script_t * scr = (rad_script_t *) thing->path_trigger;
+	rad_trigger_t * trig;
 
-  rts_path_t *path;
-  int choice;
+	rts_path_t *path;
+	int choice;
 
-  if (! RAD_WithinRadius(thing, scr))
-    return false;
+	if (! RAD_WithinRadius(thing, scr))
+		return false;
 
-  // Thing has reached this path node. Update so it starts following
-  // the next node.  Handle any PATH_EVENT too.  Enable the associated
-  // trigger (could be none if there were no states).
+	// Thing has reached this path node. Update so it starts following
+	// the next node.  Handle any PATH_EVENT too.  Enable the associated
+	// trigger (could be none if there were no states).
 
-  trig = RAD_FindTriggerByScript(scr);
+	trig = RAD_FindTriggerByScript(scr);
 
-  if (trig)
-    trig->disabled = false;
+	if (trig)
+		trig->disabled = false;
 
-  if (scr->path_event_label)
-  {
-    statenum_t state = P_MobjFindLabel(thing, scr->path_event_label);
+	if (scr->path_event_label)
+	{
+		statenum_t state = P_MobjFindLabel(thing, scr->path_event_label);
 
-    if (state)
-      P_SetMobjStateDeferred(thing, state + scr->path_event_offset, 0);
-  }
- 
-  if (scr->next_path_total == 0)
-  {
-    thing->path_trigger = NULL;
-    return true;
-  }
-  else if (scr->next_path_total == 1)
-    choice = 0;
-  else
-    choice = P_Random() % scr->next_path_total;
+		if (state)
+			P_SetMobjStateDeferred(thing, state + scr->path_event_offset, 0);
+	}
 
-  path = scr->next_in_path;
-  DEV_ASSERT2(path);
+	if (scr->next_path_total == 0)
+	{
+		thing->path_trigger = NULL;
+		return true;
+	}
+	else if (scr->next_path_total == 1)
+		choice = 0;
+	else
+		choice = P_Random() % scr->next_path_total;
 
-  for (; choice > 0; choice--)
-  {
-    path = path->next;
-    DEV_ASSERT2(path);
-  }
+	path = scr->next_in_path;
+	DEV_ASSERT2(path);
 
-  if (! path->cached_scr)
-    path->cached_scr = RAD_FindScriptByName(scr->mapid, path->name);
- 
-  DEV_ASSERT2(path->cached_scr);
+	for (; choice > 0; choice--)
+	{
+		path = path->next;
+		DEV_ASSERT2(path);
+	}
 
-  thing->path_trigger = path->cached_scr;
-  return true;
+	if (! path->cached_scr)
+		path->cached_scr = RAD_FindScriptByName(scr->mapid, path->name);
+
+	DEV_ASSERT2(path->cached_scr);
+
+	thing->path_trigger = path->cached_scr;
+	return true;
 }
 
 static void DoRemoveTrigger(rad_trigger_t *trig)
 {
-  // handle tag linkage
-  if (trig->tag_next)
-    trig->tag_next->tag_prev = trig->tag_prev;
+	// handle tag linkage
+	if (trig->tag_next)
+		trig->tag_next->tag_prev = trig->tag_prev;
 
-  if (trig->tag_prev)
-    trig->tag_prev->tag_next = trig->tag_next;
+	if (trig->tag_prev)
+		trig->tag_prev->tag_next = trig->tag_next;
 
-  // unlink and free it
-  if (trig->next)
-    trig->next->prev = trig->prev;
+	// unlink and free it
+	if (trig->next)
+		trig->next->prev = trig->prev;
 
-  if (trig->prev)
-    trig->prev->next = trig->next;
-  else
-    r_triggers = trig->next;
+	if (trig->prev)
+		trig->prev->next = trig->next;
+	else
+		r_triggers = trig->next;
 
-  S_AddToFreeQueue((mobj_t *)&trig->soundorg, (void *)trig);
+	S_AddToFreeQueue((mobj_t *)&trig->soundorg, (void *)trig);
 }
 
 // Called by P_PlayerThink
@@ -349,128 +349,128 @@ static void DoRemoveTrigger(rad_trigger_t *trig)
 //
 void RAD_DoRadiTrigger(player_t * p)
 {
-  rad_trigger_t *trig, *next;
+	rad_trigger_t *trig, *next;
 
-  // Start looking through the trigger list.
-  for (trig=r_triggers; trig; trig=next)
-  {
-    next = trig->next;
+	// Start looking through the trigger list.
+	for (trig=r_triggers; trig; trig=next)
+	{
+		next = trig->next;
 
-    // Don't process, if disabled
-    if (trig->disabled)
-      continue;
+		// Don't process, if disabled
+		if (trig->disabled)
+			continue;
 
-    // Handle repeat delay (from TAGGED_REPEATABLE).  This must be
-    // done *before* all the condition checks, and that's what makes
-    // it different from `wait_tics'.
-    //
-    if (trig->repeat_delay > 0)
-    {
-      trig->repeat_delay--;
-      continue;
-    }
- 
-    // Independent, means you don't have to stay within the trigger
-    // radius for it to operate, It will operate on it's own.
+		// Handle repeat delay (from TAGGED_REPEATABLE).  This must be
+		// done *before* all the condition checks, and that's what makes
+		// it different from `wait_tics'.
+		//
+		if (trig->repeat_delay > 0)
+		{
+			trig->repeat_delay--;
+			continue;
+		}
 
-    if (! (trig->info->tagged_independent && trig->activated))
-    {
-      // Immediate triggers are just that. Immediate.
-      // Not within range so skip it.
-      //
-      if (!trig->info->tagged_immediate && 
-          !RAD_WithinRadius(p->mo, trig->info))
-        continue;
+		// Independent, means you don't have to stay within the trigger
+		// radius for it to operate, It will operate on it's own.
 
-      // Check for use key trigger.
-      if (trig->info->tagged_use && !p->usedown)
-        continue;
-    
-      // height check...
-      if (trig->info->height_trig)
-      {
-        s_onheight_t *cur;
+		if (! (trig->info->tagged_independent && trig->activated))
+		{
+			// Immediate triggers are just that. Immediate.
+			// Not within range so skip it.
+			//
+			if (!trig->info->tagged_immediate && 
+					!RAD_WithinRadius(p->mo, trig->info))
+				continue;
 
-        for (cur=trig->info->height_trig; cur; cur=cur->next)
-          if (! RAD_CheckHeightTrig(trig, cur))
-            break;
-        
-        // if they all succeeded, then cur will be NULL...
-        if (cur)
-          continue;
-      }
+			// Check for use key trigger.
+			if (trig->info->tagged_use && !p->usedown)
+				continue;
 
-      // ondeath check...
-      if (trig->info->boss_trig)
-      {
-        s_ondeath_t *cur;
+			// height check...
+			if (trig->info->height_trig)
+			{
+				s_onheight_t *cur;
 
-        for (cur=trig->info->boss_trig; cur; cur=cur->next)
-          if (! RAD_CheckBossTrig(trig, cur))
-            break;
-        
-        // if they all succeeded, then cur will be NULL...
-        if (cur)
-          continue;
-      }
+				for (cur=trig->info->height_trig; cur; cur=cur->next)
+					if (! RAD_CheckHeightTrig(trig, cur))
+						break;
 
-      // condition check...
-      if (trig->info->cond_trig)
-      {
-        if (! G_CheckConditions(p->mo, trig->info->cond_trig))
-          continue;
-      }
+				// if they all succeeded, then cur will be NULL...
+				if (cur)
+					continue;
+			}
 
-      trig->activated = true;
-    }
+			// ondeath check...
+			if (trig->info->boss_trig)
+			{
+				s_ondeath_t *cur;
 
-    // If we are waiting, decrement count and skip it.
-    // Note that we must do this *after* all the condition checks.
-    //
-    if (trig->wait_tics > 0)
-    {
-      trig->wait_tics--;
-      continue;
-    }
- 
-    // Execute the commands
-    while (trig->wait_tics == 0)
-    {
-      rts_state_t *state = trig->state;
+				for (cur=trig->info->boss_trig; cur; cur=cur->next)
+					if (! RAD_CheckBossTrig(trig, cur))
+						break;
 
-      // move to next state.  We do this NOW since the action itself
-      // may want to change the trigger's state (to support GOTO type
-      // actions and other possibilities).
-      //
-      trig->state = trig->state->next;
+				// if they all succeeded, then cur will be NULL...
+				if (cur)
+					continue;
+			}
 
-      (*state->action)(trig, p->mo, state->param);
+			// condition check...
+			if (trig->info->cond_trig)
+			{
+				if (! G_CheckConditions(p->mo, trig->info->cond_trig))
+					continue;
+			}
 
-      if (trig->state == NULL || trig->disabled)
-        break;
+			trig->activated = true;
+		}
 
-      trig->wait_tics += trig->state->tics;
-    }
+		// If we are waiting, decrement count and skip it.
+		// Note that we must do this *after* all the condition checks.
+		//
+		if (trig->wait_tics > 0)
+		{
+			trig->wait_tics--;
+			continue;
+		}
 
-    if (trig->state)
-      continue;
+		// Execute the commands
+		while (trig->wait_tics == 0)
+		{
+			rts_state_t *state = trig->state;
 
-    // we've reached the end of the states.  Delete the trigger unless
-    // it is Tagged_Repeatable and has some more repeats left.
-    //
-	if (trig->info->repeat_count != REPEAT_FOREVER)
-		trig->repeats_left--;
+			// move to next state.  We do this NOW since the action itself
+			// may want to change the trigger's state (to support GOTO type
+			// actions and other possibilities).
+			//
+			trig->state = trig->state->next;
 
-    if (trig->repeats_left > 0)
-    {
-      trig->state = trig->info->first_state;
-      trig->wait_tics = trig->state->tics;
-      trig->repeat_delay = trig->info->repeat_delay;
-      continue;
-    }
+			(*state->action)(trig, p->mo, state->param);
 
-    DoRemoveTrigger(trig);
-  }
+			if (trig->state == NULL || trig->disabled)
+				break;
+
+			trig->wait_tics += trig->state->tics;
+		}
+
+		if (trig->state)
+			continue;
+
+		// we've reached the end of the states.  Delete the trigger unless
+		// it is Tagged_Repeatable and has some more repeats left.
+		//
+		if (trig->info->repeat_count != REPEAT_FOREVER)
+			trig->repeats_left--;
+
+		if (trig->repeats_left > 0)
+		{
+			trig->state = trig->info->first_state;
+			trig->wait_tics = trig->state->tics;
+			trig->repeat_delay = trig->info->repeat_delay;
+			continue;
+		}
+
+		DoRemoveTrigger(trig);
+	}
 }
 
 //
@@ -484,36 +484,36 @@ void RAD_DoRadiTrigger(player_t * p)
 //
 void RAD_GroupTriggerTags(rad_trigger_t *trig)
 {
-  rad_trigger_t *cur;
+	rad_trigger_t *cur;
 
-  trig->soundorg.x = trig->info->x;
-  trig->soundorg.y = trig->info->y;
-  trig->soundorg.z = 0.0f;
-     
-  trig->tag_next = trig->tag_prev = NULL;
+	trig->soundorg.x = trig->info->x;
+	trig->soundorg.y = trig->info->y;
+	trig->soundorg.z = 0.0f;
 
-  // find first trigger with the same tag #
-  for (cur=r_triggers; cur; cur=cur->next)
-  {
-    if (cur == trig)
-      continue;
+	trig->tag_next = trig->tag_prev = NULL;
 
-    if (cur->info->tag == trig->info->tag)
-      break;
-  }
+	// find first trigger with the same tag #
+	for (cur=r_triggers; cur; cur=cur->next)
+	{
+		if (cur == trig)
+			continue;
 
-  if (! cur)
-    return;
+		if (cur->info->tag == trig->info->tag)
+			break;
+	}
 
-  // link it in
+	if (! cur)
+		return;
 
-  trig->tag_next = cur;
-  trig->tag_prev = cur->tag_prev;
+	// link it in
 
-  if (cur->tag_prev)
-    cur->tag_prev->tag_next = trig;
-  
-  cur->tag_prev = trig;
+	trig->tag_next = cur;
+	trig->tag_prev = cur->tag_prev;
+
+	if (cur->tag_prev)
+		cur->tag_prev->tag_next = trig;
+
+	cur->tag_prev = trig;
 }
 
 //
@@ -521,60 +521,60 @@ void RAD_GroupTriggerTags(rad_trigger_t *trig)
 //
 void RAD_SpawnTriggers(char *map_name)
 {
-  rad_script_t *scr;
-  rad_trigger_t *trig;
+	rad_script_t *scr;
+	rad_trigger_t *trig;
 
 #ifdef DEVELOPERS
-  if (r_triggers)
-    I_Error("RAD_SpawnTriggers without RAD_ClearTriggers\n");
+	if (r_triggers)
+		I_Error("RAD_SpawnTriggers without RAD_ClearTriggers\n");
 #endif
 
-  for (scr=r_scripts; scr; scr=scr->next)
-  {
-    // This is from a different map!
-    if (strcmp(map_name, scr->mapid) != 0)
-      continue;
+	for (scr=r_scripts; scr; scr=scr->next)
+	{
+		// This is from a different map!
+		if (strcmp(map_name, scr->mapid) != 0)
+			continue;
 
-    // -AJA- 1999/09/25: Added skill checks.
-    if (! G_CheckWhenAppear(scr->appear))
-      continue;
+		// -AJA- 1999/09/25: Added skill checks.
+		if (! G_CheckWhenAppear(scr->appear))
+			continue;
 
-    // -AJA- 2000/02/03: Added player num checks.
-    if (doomcom->numplayers < scr->min_players ||
-        doomcom->numplayers > scr->max_players)
-    {
-      continue;
-    }
-    
-    // ignore empty scripts (e.g. path nodes)
-    if (! scr->first_state)
-      continue;
+		// -AJA- 2000/02/03: Added player num checks.
+		if (doomcom->numplayers < scr->min_players ||
+				doomcom->numplayers > scr->max_players)
+		{
+			continue;
+		}
 
-    // OK, spawn new dynamic trigger
-    trig = Z_ClearNew(rad_trigger_t, 1);
+		// ignore empty scripts (e.g. path nodes)
+		if (! scr->first_state)
+			continue;
 
-    trig->info = scr;
-    trig->disabled = scr->tagged_disabled;
-    trig->repeats_left = (scr->repeat_count < 0 || 
-	                      scr->repeat_count == REPEAT_FOREVER) ? 1 : scr->repeat_count;
-    trig->repeat_delay = 0;
-    trig->tip_slot = 0;
+		// OK, spawn new dynamic trigger
+		trig = Z_ClearNew(rad_trigger_t, 1);
 
-    RAD_GroupTriggerTags(trig);
+		trig->info = scr;
+		trig->disabled = scr->tagged_disabled;
+		trig->repeats_left = (scr->repeat_count < 0 || 
+				scr->repeat_count == REPEAT_FOREVER) ? 1 : scr->repeat_count;
+		trig->repeat_delay = 0;
+		trig->tip_slot = 0;
 
-    // initialise state machine
-    trig->state = scr->first_state;
-    trig->wait_tics = scr->first_state->tics;
+		RAD_GroupTriggerTags(trig);
 
-    // link it in
-    trig->next = r_triggers;
-    trig->prev = NULL;
+		// initialise state machine
+		trig->state = scr->first_state;
+		trig->wait_tics = scr->first_state->tics;
 
-    if (r_triggers)
-      r_triggers->prev = trig;
-    
-    r_triggers = trig;
-  }
+		// link it in
+		trig->next = r_triggers;
+		trig->prev = NULL;
+
+		if (r_triggers)
+			r_triggers->prev = trig;
+
+		r_triggers = trig;
+	}
 }
 
 //
@@ -582,24 +582,24 @@ void RAD_SpawnTriggers(char *map_name)
 //
 static void RAD_ClearCachedInfo(void)
 {
-  rad_script_t *scr;
-  s_ondeath_t *d_cur;
-  s_onheight_t *h_cur;
+	rad_script_t *scr;
+	s_ondeath_t *d_cur;
+	s_onheight_t *h_cur;
 
-  for (scr=r_scripts; scr; scr=scr->next)
-  {
-    // clear ONDEATH cached info
-    for (d_cur=scr->boss_trig; d_cur; d_cur=d_cur->next)
-    {
-      d_cur->cached_info = NULL;
-    }
+	for (scr=r_scripts; scr; scr=scr->next)
+	{
+		// clear ONDEATH cached info
+		for (d_cur=scr->boss_trig; d_cur; d_cur=d_cur->next)
+		{
+			d_cur->cached_info = NULL;
+		}
 
-    // clear ONHEIGHT cached info
-    for (h_cur=scr->height_trig; h_cur; h_cur=h_cur->next)
-    {
-      h_cur->cached_sector = NULL;
-    }
-  }
+		// clear ONHEIGHT cached info
+		for (h_cur=scr->height_trig; h_cur; h_cur=h_cur->next)
+		{
+			h_cur->cached_sector = NULL;
+		}
+	}
 }
 
 //
@@ -607,17 +607,17 @@ static void RAD_ClearCachedInfo(void)
 //
 void RAD_ClearTriggers(void)
 {
-  // remove all dynamic triggers
-  while (r_triggers)
-  {
-    rad_trigger_t *trig = r_triggers;
-    r_triggers = trig->next;
+	// remove all dynamic triggers
+	while (r_triggers)
+	{
+		rad_trigger_t *trig = r_triggers;
+		r_triggers = trig->next;
 
-    Z_Free(trig);
-  }
+		Z_Free(trig);
+	}
 
-  RAD_ClearCachedInfo();
-  RAD_ResetTips();
+	RAD_ClearCachedInfo();
+	RAD_ResetTips();
 }
 
 //
@@ -629,35 +629,35 @@ void RAD_ClearTriggers(void)
 //
 static void RAD_MainCacheFile(const char *filename)
 {
-  FILE *file;
+	FILE *file;
 
-  // open the file
-  file = fopen(filename, "rb");
+	// open the file
+	file = fopen(filename, "rb");
 
-  if (file == NULL)
-    I_Error("\nRAD_MainReadFile: Unable to open: '%s'", filename);
+	if (file == NULL)
+		I_Error("\nRAD_MainReadFile: Unable to open: '%s'", filename);
 
-  // get to the end of the file
-  fseek(file, 0, SEEK_END);
+	// get to the end of the file
+	fseek(file, 0, SEEK_END);
 
-  // get the size
-  rad_memfile_size = ftell(file);
+	// get the size
+	rad_memfile_size = ftell(file);
 
-  // reset to beginning
-  fseek(file, 0, SEEK_SET);
+	// reset to beginning
+	fseek(file, 0, SEEK_SET);
 
-  // malloc the size
-  rad_memfile = Z_New(byte, rad_memfile_size + 1);
-  rad_memfile_end = &rad_memfile[rad_memfile_size];
+	// malloc the size
+	rad_memfile = Z_New(byte, rad_memfile_size + 1);
+	rad_memfile_end = &rad_memfile[rad_memfile_size];
 
-  // read the goodies
-  fread(rad_memfile, 1, rad_memfile_size, file);
+	// read the goodies
+	fread(rad_memfile, 1, rad_memfile_size, file);
 
-  // null Terminated string.
-  rad_memfile[rad_memfile_size] = 0;
+	// null Terminated string.
+	rad_memfile[rad_memfile_size] = 0;
 
-  // close the file
-  fclose(file);
+	// close the file
+	fclose(file);
 }
 
 //
@@ -668,55 +668,55 @@ static void RAD_MainCacheFile(const char *filename)
 //
 static void RAD_ParseScript(bool dots)
 {
-  char str[MAXSTRLEN];
-  int n = 0;
+	char str[MAXSTRLEN];
+	int n = 0;
 
-  RAD_ParserBegin();
-  
-  rad_cur_linenum = 1;
-  rad_memptr = rad_memfile;
+	RAD_ParserBegin();
 
-  while (rad_memptr < rad_memfile_end)
-  {
-    int sp;
+	rad_cur_linenum = 1;
+	rad_memptr = rad_memfile;
 
-    for (sp=0; rad_memptr < rad_memfile_end && rad_memptr[0] != '\n'; 
-         rad_memptr++)
-    {
-      // ignore carriage returns
-      if (rad_memptr[0] == '\r')
-        continue;
+	while (rad_memptr < rad_memfile_end)
+	{
+		int sp;
 
-      if (sp < MAXSTRLEN-1)
-        str[sp++] = rad_memptr[0];
-    }
+		for (sp=0; rad_memptr < rad_memfile_end && rad_memptr[0] != '\n'; 
+				rad_memptr++)
+		{
+			// ignore carriage returns
+			if (rad_memptr[0] == '\r')
+				continue;
 
-    // skip trailing EOLN
-    rad_memptr++;
+			if (sp < MAXSTRLEN-1)
+				str[sp++] = rad_memptr[0];
+		}
 
-    str[sp] = 0;
+		// skip trailing EOLN
+		rad_memptr++;
+
+		str[sp] = 0;
 
 #if (DEBUG_RTS)
-    L_WriteDebug("RTS LINE: `%s'\n", str);
+		L_WriteDebug("RTS LINE: `%s'\n", str);
 #endif
 
-    if (sp > 0)
-    {
-      // turn it into upper case
-      strupr(str);
+		if (sp > 0)
+		{
+			// turn it into upper case
+			strupr(str);
 
-      RAD_ParseLine(str);
+			RAD_ParseLine(str);
 
-      if (dots && n != rad_itemsread)
-        I_Printf(".");
+			if (dots && n != rad_itemsread)
+				I_Printf(".");
 
-      n = rad_itemsread;
-    }
+			n = rad_itemsread;
+		}
 
-    rad_cur_linenum++;
-  }
+		rad_cur_linenum++;
+	}
 
-  RAD_ParserDone();
+	RAD_ParserDone();
 }
 
 //
@@ -724,23 +724,23 @@ static void RAD_ParseScript(bool dots)
 //
 void RAD_LoadLump(void *data, int size)
 {
-  L_WriteDebug("RTS: Loading LUMP (size=%d)\n", size);
+	L_WriteDebug("RTS: Loading LUMP (size=%d)\n", size);
 
-  rad_cur_filename = "RSCRIPT LUMP";
-  
-  rad_memfile_size = size;
-  rad_memfile = Z_New(byte, size + 1);
-  rad_memfile_end = &rad_memfile[size];
+	rad_cur_filename = "RSCRIPT LUMP";
 
-  Z_MoveData(rad_memfile, (byte *)data, byte, size);
+	rad_memfile_size = size;
+	rad_memfile = Z_New(byte, size + 1);
+	rad_memfile_end = &rad_memfile[size];
 
-  // Null Terminated string.
-  rad_memfile[size] = 0;
+	Z_MoveData(rad_memfile, (byte *)data, byte, size);
 
-  // OK we have the file in memory.  Parse it to death :-)
-  RAD_ParseScript(false);
+	// Null Terminated string.
+	rad_memfile[size] = 0;
 
-  Z_Free(rad_memfile);
+	// OK we have the file in memory.  Parse it to death :-)
+	RAD_ParseScript(false);
+
+	Z_Free(rad_memfile);
 }
 
 //
@@ -748,18 +748,18 @@ void RAD_LoadLump(void *data, int size)
 //
 static void RAD_LoadFile(const char *name, bool dots)
 {
-  DEV_ASSERT2(name);
-  
-  L_WriteDebug("RTS: Loading File %s\n", name);
+	DEV_ASSERT2(name);
 
-  rad_cur_filename = (char *) name;
+	L_WriteDebug("RTS: Loading File %s\n", name);
 
-  RAD_MainCacheFile(name);
+	rad_cur_filename = (char *) name;
 
-  // OK we have the file in memory.  Parse it to death :-)
-  RAD_ParseScript(dots);
+	RAD_MainCacheFile(name);
 
-  Z_Free(rad_memfile);
+	// OK we have the file in memory.  Parse it to death :-)
+	RAD_ParseScript(dots);
+
+	Z_Free(rad_memfile);
 }
 
 //
@@ -767,23 +767,23 @@ static void RAD_LoadFile(const char *name, bool dots)
 //
 bool RAD_Init(void)
 {
-  char *filename;
+	char *filename;
 
-  RAD_InitTips();
+	RAD_InitTips();
 
-  I_Printf("Radius Triggers v%i.%i", PARSERV / PARSERVFIX, 
-      PARSERV % PARSERVFIX);
+	I_Printf("Radius Triggers v%i.%i", PARSERV / PARSERVFIX, 
+			PARSERV % PARSERVFIX);
 
-  if (external_ddf)
-  {
-    filename = M_ComposeFileName(ddfdir, "edge.scr");
-    RAD_LoadFile(filename, true);
-    Z_Free(filename);
-  }
+	if (external_ddf)
+	{
+		filename = M_ComposeFileName(ddfdir, "edge.scr");
+		RAD_LoadFile(filename, true);
+		Z_Free(filename);
+	}
 
-  I_Printf("\n");
+	I_Printf("\n");
 
-  return true;
+	return true;
 }
 
 //
@@ -791,19 +791,19 @@ bool RAD_Init(void)
 //
 bool RAD_LoadParam(void)
 {
-  const char *par;
-  char *filename;
+	const char *par;
+	char *filename;
 
-  // -KM- 1998/11/25 Check for command line script loading
-  par = M_GetParm("-script");
+	// -KM- 1998/11/25 Check for command line script loading
+	par = M_GetParm("-script");
 
-  if (par)
-  {
-    filename = M_ComposeFileName(gamedir, par);
-    RAD_LoadFile(filename, false);
-    Z_Free(filename);
-  }
+	if (par)
+	{
+		filename = M_ComposeFileName(gamedir, par);
+		RAD_LoadFile(filename, false);
+		Z_Free(filename);
+	}
 
-  return true;
+	return true;
 }
 

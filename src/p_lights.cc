@@ -44,129 +44,129 @@ light_t *lights = NULL;
 //
 static void DoLight(light_t * light)
 {
-  const lighttype_t *type = light->type;
+	const lighttype_t *type = light->type;
 
-  if (type->type == LITE_None || --light->count)
-    return;
+	if (type->type == LITE_None || --light->count)
+		return;
 
-  // Flashing lights
-  switch (type->type)
-  {
-    case LITE_Set:
-      {
-        light->sector->props.lightlevel = light->maxlight;
+	// Flashing lights
+	switch (type->type)
+	{
+		case LITE_Set:
+		{
+			light->sector->props.lightlevel = light->maxlight;
 
-        // count is 0, i.e. this light is now disabled
-        return;
-      }
-     
-    case LITE_Fade:
-      {
-        int diff = light->maxlight - light->minlight;
-        
-        if (ABS(diff) < type->step)
-        {
-          light->sector->props.lightlevel = light->maxlight;
+			// count is 0, i.e. this light is now disabled
+			return;
+		}
 
-          // count is 0, i.e. this light is now disabled
-          return;
-        }
-        
-        // step towards the target light level
-        if (diff < 0)
-          light->minlight -= type->step;
-        else
-          light->minlight += type->step;
+		case LITE_Fade:
+		{
+			int diff = light->maxlight - light->minlight;
 
-        light->sector->props.lightlevel = light->minlight;
-        light->count = type->brighttime;
-        break;
-      }
-     
-    case LITE_Flash:
-      {
-        // Dark
-        if (M_RandomTest(type->chance))
-        {
-          light->sector->props.lightlevel = light->minlight;
-          light->count = type->darktime;
-        }
-        else
-        {
-          light->sector->props.lightlevel = light->maxlight;
-          light->count = type->brighttime;
-        }
-        break;
-      }
+			if (ABS(diff) < type->step)
+			{
+				light->sector->props.lightlevel = light->maxlight;
 
-    case LITE_Strobe:
-      if (light->sector->props.lightlevel == light->maxlight)
-      {
-        // Go dark
-        light->sector->props.lightlevel = light->minlight;
-        light->count = type->darktime;
-      }
-      else
-      {
-        // Go Bright
-        light->sector->props.lightlevel = light->maxlight;
-        light->count = type->brighttime;
-      }
-      break;
+				// count is 0, i.e. this light is now disabled
+				return;
+			}
 
-    case LITE_Glow:
-      if (light->direction == -1)
-      {
-        // Go dark
-        light->sector->props.lightlevel -= type->step;
-        if (light->sector->props.lightlevel <= light->minlight)
-        {
-          light->sector->props.lightlevel = light->minlight;
-          light->count = type->brighttime;
-          light->direction = +1;
-        }
-        else
-        {
-          light->count = type->darktime;
-        }
-      }
-      else
-      {
-        // Go Bright
-        light->sector->props.lightlevel += type->step;
-        if (light->sector->props.lightlevel >= light->maxlight)
-        {
-          light->sector->props.lightlevel = light->maxlight;
-          light->count = type->darktime;
-          light->direction = -1;
-        }
-        else
-        {
-          light->count = type->brighttime;
-        }
-      }
-      break;
+			// step towards the target light level
+			if (diff < 0)
+				light->minlight -= type->step;
+			else
+				light->minlight += type->step;
 
-    case LITE_FireFlicker:
-      {
-        // -ES- 2000/02/13 Changed this to original DOOM style flicker
-        int amount = (M_Random() & 7) * type->step;
-  
-        if (light->sector->props.lightlevel - amount < light->minlight)
-        {
-          light->sector->props.lightlevel = light->minlight;
-          light->count = type->darktime;
-        }
-        else
-        {
-          light->sector->props.lightlevel = light->maxlight - amount;
-          light->count = type->brighttime;
-        }
-      }
+			light->sector->props.lightlevel = light->minlight;
+			light->count = type->brighttime;
+			break;
+		}
 
-    default:
-      break;
-  }
+		case LITE_Flash:
+		{
+			// Dark
+			if (M_RandomTest(type->chance))
+			{
+				light->sector->props.lightlevel = light->minlight;
+				light->count = type->darktime;
+			}
+			else
+			{
+				light->sector->props.lightlevel = light->maxlight;
+				light->count = type->brighttime;
+			}
+			break;
+		}
+
+		case LITE_Strobe:
+			if (light->sector->props.lightlevel == light->maxlight)
+			{
+				// Go dark
+				light->sector->props.lightlevel = light->minlight;
+				light->count = type->darktime;
+			}
+			else
+			{
+				// Go Bright
+				light->sector->props.lightlevel = light->maxlight;
+				light->count = type->brighttime;
+			}
+			break;
+
+		case LITE_Glow:
+			if (light->direction == -1)
+			{
+				// Go dark
+				light->sector->props.lightlevel -= type->step;
+				if (light->sector->props.lightlevel <= light->minlight)
+				{
+					light->sector->props.lightlevel = light->minlight;
+					light->count = type->brighttime;
+					light->direction = +1;
+				}
+				else
+				{
+					light->count = type->darktime;
+				}
+			}
+			else
+			{
+				// Go Bright
+				light->sector->props.lightlevel += type->step;
+				if (light->sector->props.lightlevel >= light->maxlight)
+				{
+					light->sector->props.lightlevel = light->maxlight;
+					light->count = type->darktime;
+					light->direction = -1;
+				}
+				else
+				{
+					light->count = type->brighttime;
+				}
+			}
+			break;
+
+		case LITE_FireFlicker:
+		{
+			// -ES- 2000/02/13 Changed this to original DOOM style flicker
+			int amount = (M_Random() & 7) * type->step;
+
+			if (light->sector->props.lightlevel - amount < light->minlight)
+			{
+				light->sector->props.lightlevel = light->minlight;
+				light->count = type->darktime;
+			}
+			else
+			{
+				light->sector->props.lightlevel = light->maxlight - amount;
+				light->count = type->brighttime;
+			}
+		}
+
+		default:
+			break;
+	}
 }
 
 //
@@ -174,37 +174,37 @@ static void DoLight(light_t * light)
 //
 void EV_LightTurnOn(int tag, int bright)
 {
-  int i;
-  int j;
-  sector_t *sector;
-  sector_t *temp;
-  line_t *templine;
+	int i;
+	int j;
+	sector_t *sector;
+	sector_t *temp;
+	line_t *templine;
 
-  sector = sectors;
+	sector = sectors;
 
-  for (i = 0; i < numsectors; i++, sector++)
-  {
-    if (sector->tag == tag)
-    {
-      // bright == 0 means to search for highest light level
-      // surrounding sector
-      if (!bright)
-      {
-        for (j = 0; j < sector->linecount; j++)
-        {
-          templine = sector->lines[j];
-          temp = P_GetNextSector(templine, sector);
+	for (i = 0; i < numsectors; i++, sector++)
+	{
+		if (sector->tag == tag)
+		{
+			// bright == 0 means to search for highest light level
+			// surrounding sector
+			if (!bright)
+			{
+				for (j = 0; j < sector->linecount; j++)
+				{
+					templine = sector->lines[j];
+					temp = P_GetNextSector(templine, sector);
 
-          if (!temp)
-            continue;
+					if (!temp)
+						continue;
 
-          if (temp->props.lightlevel > bright)
-            bright = temp->props.lightlevel;
-        }
-      }
-      sector->props.lightlevel = bright;
-    }
-  }
+					if (temp->props.lightlevel > bright)
+						bright = temp->props.lightlevel;
+				}
+			}
+			sector->props.lightlevel = bright;
+		}
+	}
 }
 
 #if 0 // Currently unused
@@ -214,13 +214,13 @@ void EV_LightTurnOn(int tag, int bright)
 // Unlink and destroy light.
 void P_DestroyLight(light_t *light)
 {
-  if (light->next)
-    light->next->prev = light->prev;
-  if (light->prev)
-    light->prev->next = light->next;
-  else
-    lights = light->next;
-  Z_Free(light);
+	if (light->next)
+		light->next->prev = light->prev;
+	if (light->prev)
+		light->prev->next = light->next;
+	else
+		lights = light->next;
+	Z_Free(light);
 }
 #endif
 
@@ -229,14 +229,14 @@ void P_DestroyLight(light_t *light)
 //
 void P_DestroyAllLights(void)
 {
-  light_t *l, *next;
+	light_t *l, *next;
 
-  for (l = lights; l; l = next)
-  {
-    next = l->next;
-    Z_Free(l);
-  }
-  lights = NULL;
+	for (l = lights; l; l = next)
+	{
+		next = l->next;
+		Z_Free(l);
+	}
+	lights = NULL;
 }
 
 //
@@ -246,16 +246,16 @@ void P_DestroyAllLights(void)
 //
 light_t *P_NewLight(void)
 {
-  light_t *light;
+	light_t *light;
 
-  light = Z_New(light_t, 1);
-  light->next = lights;
-  light->prev = NULL;
-  if (lights)
-    lights->prev = light;
-  lights = light;
+	light = Z_New(light_t, 1);
+	light->next = lights;
+	light->prev = NULL;
+	if (lights)
+		lights->prev = light;
+	lights = light;
 
-  return light;
+	return light;
 }
 
 //
@@ -263,47 +263,47 @@ light_t *P_NewLight(void)
 //
 bool EV_Lights(sector_t * sec, const lighttype_t * type)
 {
-  light_t *light;
+	light_t *light;
 
-  // check if a light effect already is running on this sector.
-  for (light=lights; light; light=light->next)
-  {
-    if (light->count == 0 || light->sector == sec)
-      break;
-  }
+	// check if a light effect already is running on this sector.
+	for (light=lights; light; light=light->next)
+	{
+		if (light->count == 0 || light->sector == sec)
+			break;
+	}
 
-  if (!light)
-  {
-    // didn't already exist, create a new one
-    light = P_NewLight();
-  }
+	if (!light)
+	{
+		// didn't already exist, create a new one
+		light = P_NewLight();
+	}
 
-  light->type = type;
-  light->sector = sec;
-  light->direction = -1;
+	light->type = type;
+	light->sector = sec;
+	light->direction = -1;
 
-  switch (type->type)
-  {
-    case LITE_Set:
-    case LITE_Fade:
-      {
-        light->minlight = sec->props.lightlevel;
-        light->maxlight = type->level;
-        light->count = type->brighttime;
-        break;
-      }
-    
-    default:
-      {
-        light->minlight = P_FindMinSurroundingLight(sec, sec->props.lightlevel);
-        light->maxlight = sec->props.lightlevel;
-        light->count = type->sync ? (leveltime % type->sync) + 1 : 
-            type->darktime;
-        break;
-      }
-  }
-  
-  return true;
+	switch (type->type)
+	{
+		case LITE_Set:
+		case LITE_Fade:
+		{
+			light->minlight = sec->props.lightlevel;
+			light->maxlight = type->level;
+			light->count = type->brighttime;
+			break;
+		}
+
+		default:
+		{
+			light->minlight = P_FindMinSurroundingLight(sec, sec->props.lightlevel);
+			light->maxlight = sec->props.lightlevel;
+			light->count = type->sync ? (leveltime % type->sync) + 1 : 
+				type->darktime;
+			break;
+		}
+	}
+
+	return true;
 }
 
 //
@@ -316,11 +316,11 @@ bool EV_Lights(sector_t * sec, const lighttype_t * type)
 //
 void P_RunLights(void)
 {
-  light_t *l;
+	light_t *l;
 
-  for (l = lights; l; l = l->next)
-  {
-    if (l->count)
-      DoLight(l);
-  }
+	for (l = lights; l; l = l->next)
+	{
+		if (l->count)
+			DoLight(l);
+	}
 }
