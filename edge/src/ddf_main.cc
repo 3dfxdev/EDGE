@@ -335,9 +335,6 @@ static char *DDF_MainGetDefine(char *name)
 //
 bool DDF_MainCleanUp(void)
 {
-	int i;
-	char *s;
-
 	DDF_LanguageCleanUp();
 	DDF_MobjCleanUp();
 	DDF_AttackCleanUp();
@@ -352,48 +349,10 @@ bool DDF_MainCleanUp(void)
 	DDF_GameCleanUp();
 	DDF_LevelCleanUp();
 	DDF_MusicPlaylistCleanUp();
-
-
-
+	
 	// -AJA- FIXME: all this stuff belongs elsewhere...
 	currmap = mapdefs[0];
-  
-	//hu_stuff.c
-	//m_misc.c
-	// -KM- 1999/01/29 Added chat macro defaults, gamma messages and talk keys back in.
-
-	// -ACB- 1999/09/28 Proper Casting Order
-	for (i = 0; i < 10; i++)
-	{
-		char macro_name[40];
-
-		if (chat_macros[i] == NULL)
-		{
-			sprintf(macro_name, "DefaultCHATMACRO%d", i);
-			chat_macros[i] = DDF_LanguageLookup(macro_name);
-		}
-	}
-
-	// There should not yet exist a player
-	DEV_ASSERT2(players == NULL);
-
-	// Create all the players
-	// -ES- FIXME: Do the player system more cleanly
-	// (remove limitations, dynamify)
-	for (i = 0; i < MAXPLAYERS; i++)
-		P_AddPlayer(i);
-
-	s = Z_New(char, MAXPLAYERS + 1);
-	Z_StrNCpy(s, DDF_LanguageLookup("ChatKeys"), MAXPLAYERS);
-	destination_keys = s;
-  
-	//m_menu.c
-	gammamsg[0] = DDF_LanguageLookup("GammaOff");
-	gammamsg[1] = DDF_LanguageLookup("GammaLevelOne");
-	gammamsg[2] = DDF_LanguageLookup("GammaLevelTwo");
-	gammamsg[3] = DDF_LanguageLookup("GammaLevelThree");
-	gammamsg[4] = DDF_LanguageLookup("GammaLevelFour");
-
+    
 	return true;
 }
 
@@ -1799,6 +1758,8 @@ char *DDF_MainCreateUniqueName(const char *prefix, int num)
 
 	return Z_StrDup(buffer);
 }
+
+// DDF OBJECTS
 
 // ---> damage class
 
