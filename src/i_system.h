@@ -120,6 +120,9 @@ bool I_GetModifiedTime(const char *filename, epi::timestamp_c *time);
 // -ACB- 2000/06/05 The returns the time of when the filename passed
 // was modified.
 
+void I_Sleep(unsigned long millisecs);
+// -AJA- 2005/01/21: sleep for the given number of milliseconds.
+
 //--------------------------------------------------------
 //  ASM functions.
 //--------------------------------------------------------

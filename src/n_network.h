@@ -21,17 +21,23 @@
 
 void N_InitiateGame(void);
 
-void E_CheckNetGame(void);
+void N_CheckNetGame(void); // needed ???
 
 // Create any new ticcmds and broadcast to other players.
 // returns value of I_GetTime().
-int E_NetUpdate(bool do_delay = false);
+int N_NetUpdate(bool do_delay = false);
 
 // Broadcasts special packets to other players
 //  to notify of game exit
-void E_QuitNetGame(void);
+void N_QuitNetGame(void);
 
 // returns number of ticks to run.
-int E_TryRunTics(void);
+// negative means no game ticks can be run.
+// zero is not a valid return value.
+int N_TryRunTics(void);
+
+// process input and create player (and robot) ticcmds.
+// returns false if couldn't hold any more.
+bool N_DoBuildTiccmds(void);
 
 #endif /* __N_NETWORK_H__ */

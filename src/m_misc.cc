@@ -537,7 +537,7 @@ void M_DisplayAir(void)
 {
 	int i;
   
-	if (!graphicsmode || num_players == 0)
+	if (!graphicsmode || numplayers == 0)
 		return;
 
 	player_t *p = players[displayplayer];

@@ -438,7 +438,7 @@ static int StartSoundAtVolume(mobj_t *origin, sfxdef_c *sfx, int volume)
 	//  and if not, modify the params
 
 	// can be NULL (no game is active)
-	player_t *p = (num_players == 0) ? NULL : players[displayplayer];
+	player_t *p = (numplayers == 0) ? NULL : players[displayplayer];
 
 	if (origin && p && origin != p->mo)
 	{
@@ -845,7 +845,7 @@ void S_SoundTicker(void)
 {
 	I_SoundTicker();
 
-	if (num_players == 0)
+	if (numplayers == 0)
 		S_UpdateSounds(NULL);
 	else
 		S_UpdateSounds(players[displayplayer]->mo);

@@ -488,6 +488,14 @@ unsigned long I_ReadMicroSeconds(void)
 }
 
 //
+// I_Sleep
+//
+void I_Sleep(unsigned long millisecs)
+{
+	::Sleep(millisecs);
+}
+
+//
 // I_GetModifiedTime
 //
 // Fills in 'timestamp_c' to match the modified time of 'filename'. Returns

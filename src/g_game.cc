@@ -80,6 +80,7 @@ static void G_DoNewGame(void);
 static void G_DoLoadGame(void);
 static void G_DoCompleted(void);
 static void G_DoSaveGame(void);
+static void G_DoEndGame(void);
 
 gameaction_e gameaction = ga_nothing;
 gamestate_e gamestate = GS_NOTHING;
@@ -144,10 +145,11 @@ static int savegame_slot;
 static char savedescription[32];
 
 // deferred stuff...
-static const mapdef_c *d_newmap = NULL;
-static const gamedef_c *d_gamedef = NULL;
-static skill_t d_newskill;
-static bool d_newwarp;
+static newgame_params_c *d_params = NULL;
+///---static const mapdef_c *d_newmap = NULL;
+///---static const gamedef_c *d_gamedef = NULL;
+///---static skill_t d_newskill;
+///---static bool d_newwarp;
 
 #define TURBOTHRESHOLD  0x32
 
@@ -253,8 +255,6 @@ void G_DoLoadLevel(void)
 
 	RAD_SpawnTriggers(currmap->ddf.name.GetString());
 
-	G_SetDisplayPlayer(consoleplayer); // view the guy you are playing
-
 	starttime = I_GetTime();
 	exittime = 0x7fffffff;
 	exit_skipall = false;
@@ -271,7 +271,6 @@ void G_DoLoadLevel(void)
 	paused = false;
 	viewactive = true;
 }
-
 
 
 //
@@ -367,19 +366,16 @@ static void G_TiccmdTicker(void)
 		player_t *p = players[pnum];
 		if (! p) continue;
 
-		ticcmd_t *cmd = &p->cmd;
-
-		// -ES- FIXME: Change format of player_t->cmd?
-		*cmd = p->in_cmds[buf];
+		memcpy(&p->cmd, p->in_cmds + buf, sizeof(ticcmd_t));
 
 		if (demoplayback)
-			G_ReadDemoTiccmd(cmd);
+			G_ReadDemoTiccmd(&p->cmd);
 
 		if (demorecording)
-			G_WriteDemoTiccmd(cmd);
+			G_WriteDemoTiccmd(&p->cmd);
 
 		// check for turbo cheats
-		if (cmd->forwardmove > TURBOTHRESHOLD
+		if (p->cmd.forwardmove > TURBOTHRESHOLD
 			&& !(gametic & 31) && ((gametic >> 5) & 3) == p->pnum)
 		{
 			CON_Printf(language["IsTurbo"], p->playername);
@@ -387,10 +383,10 @@ static void G_TiccmdTicker(void)
 
 		if (netgame && !netdemo)
 		{
-			if (gametic > BACKUPTICS && p->consistency[buf] != cmd->consistency)
+			if (gametic > BACKUPTICS && p->consistency[buf] != p->cmd.consistency)
 			{
 /* !!!! DEBUG */	I_Warning("Consistency failure on player %d (%i should be %i)",
-					p->pnum + 1, cmd->consistency, p->consistency[buf]);
+					p->pnum + 1, p->cmd.consistency, p->consistency[buf]);
 			}
 			if (p->mo)
 				p->consistency[buf] = (int)p->mo->x;
@@ -398,31 +394,51 @@ static void G_TiccmdTicker(void)
 				p->consistency[buf] = P_ReadRandomState() & 0xff;
 		}
 	}
+
+	/* Increment the GAMETIC counter */
+	gametic++;
+}
+
+bool CheckPlayersReborn(void)
+{
+	// returns TRUE if should reload the level
+
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+
+		if (!p || p->playerstate != PST_REBORN)
+			continue;
+
+		if (! (netgame || deathmatch))  // single player?
+			return true;
+
+		G_DoReborn(p);
+	}
+
+	return false;
 }
 
 //
 // G_Ticker
 //
-// Make ticcmd_ts for the players.
-//
 // -ACB- 1998/08/10 Use language object for language specifics.
 //
-void G_Ticker(void)
+void G_Ticker(bool fresh_game_tic)
 {
 	// do player reborns if needed
-	int pnum;
-	for (pnum = 0; pnum < MAXPLAYERS; pnum++)
+	if (gamestate == GS_LEVEL)
 	{
-		player_t *p = players[pnum];
+		if (CheckPlayersReborn())
+		{
+			gameaction = ga_loadlevel;
+		}
 
-		if (p && p->playerstate == PST_REBORN)
-			G_DoReborn(p);
-	}
-
-	if (exittime == leveltime)
-	{
-		gameaction = ga_completed;
-		exittime = 0x7fffffff;
+		if (exittime == leveltime)
+		{
+			gameaction = ga_completed;
+			exittime = 0x7fffffff;
+		}
 	}
 
 	// do things to change the game state
@@ -430,61 +446,77 @@ void G_Ticker(void)
 	{
 		switch (gameaction)
 		{
-			case ga_loadlevel:
-				G_DoLoadLevel();
+			case ga_nothing:
 				break;
-				
+
 			case ga_newgame:
 				G_DoNewGame();
 				break;
-				
+
+			case ga_loadlevel:
+				G_DoLoadLevel();
+				G_SpawnInitialPlayers();
+				break;
+
 			case ga_loadgame:
 				G_DoLoadGame();
 				break;
-				
+
 			case ga_savegame:
 				G_DoSaveGame();
 				break;
-				
+
 			case ga_playdemo:
 				G_DoPlayDemo();
 				break;
-				
+
 			case ga_completed:
 				G_DoCompleted();
 				break;
-				
+
 			case ga_briefing:
-				F_StartFinale(&nextmap->f_pre, ga_loadnext);
-				break;
-				
-			case ga_loadnext:
 				currmap = nextmap;
-				G_DoLoadLevel();
+				F_StartFinale(&currmap->f_pre, ga_loadlevel);
 				break;
-				
-			case ga_screenshot:
-				m_screenshot_required = true;
-				gameaction = ga_nothing;
+
+			case ga_endgame:
+				G_DoEndGame();
 				break;
-				
-			case ga_nothing:
-				break;
-				
+
+///---			case ga_loadnext:
+///---				currmap = nextmap;
+///---				G_DoLoadLevel();
+///---				G_SpawnInitialPlayers();
+///---				break;
+
+///---			case ga_screenshot:
+///---				m_screenshot_required = true;
+///---				gameaction = ga_nothing;
+///---				break;
+
 			default:
 				I_Error("G_Ticker: Unknown gameaction %d", gameaction);
 				break;
 		}
 	}
 
-	// get commands, check consistency,
-	// and build new consistency check.
-	G_TiccmdTicker();
+	if (gamestate == GS_DEMOSCREEN)
+	{
+		E_PageTicker();
+		return;
+	}
+
+	if (! fresh_game_tic)
+		return;
 
 	// do main actions
 	switch (gamestate)
 	{
 		case GS_LEVEL:
+			// get commands, check consistency,
+			// and build new consistency check.
+			G_TiccmdTicker();
+
 			P_Ticker();
 			ST_Ticker();
 			AM_Ticker();
@@ -493,18 +525,20 @@ void G_Ticker(void)
 			break;
 
 		case GS_INTERMISSION:
+			G_TiccmdTicker();
 			WI_Ticker();
 			break;
 
 		case GS_FINALE:
+			G_TiccmdTicker();
 			F_Ticker();
 			break;
 
-		case GS_DEMOSCREEN:
-			E_PageTicker();
-			break;
+//---		case GS_DEMOSCREEN:
+//---			E_PageTicker();
+//---			break;
 
-		case GS_NOTHING:
+		default:
 			break;
 	}
 }
@@ -514,43 +548,49 @@ void G_Ticker(void)
 // 
 static void G_DoReborn(player_t *p)
 {
-	// single player ?
-	if (!netgame && !deathmatch)
-	{
-		// -AJA- 2003/10/09: we should only get here after the player
-		//       died, i.e. not through other uses of PST_REBORN that
-		//       appear in this file.  FIXME: this is confusing !
-
-		if (gamestate == GS_LEVEL)
-			gameaction = ga_loadlevel;
-		return;
-	}
-
-	// first disassociate the corpse 
-	p->mo->player = NULL;
+	// first disassociate the corpse (if any)
+	if (p->mo)
+		p->mo->player = NULL;
 
 	// spawn at random spot if in death match 
 	if (deathmatch)
-	{
 		G_DeathMatchSpawnPlayer(p);
-		return;
-	}
-
-	// respawn at the start
-	G_CoopSpawnPlayer(p);
+	else
+		G_CoopSpawnPlayer(p); // respawn at the start
 }
 
+void G_SpawnInitialPlayers(void)
+{
+	L_WriteDebug("Deathmatch %d\n", deathmatch);
+
+	// spawn the active players
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+		if (! p) continue;
+
+		G_DoReborn(p);
+	}
+
+	// -AJA- 1999/10/21: if not netgame/deathmatch, then check for
+	//       missing player start.  NOTE: temp fix, player handling
+	//       desperately needs a massive overhaul.
+	if (! (netgame || deathmatch) && players[consoleplayer]->mo == NULL)
+		I_Error("Missing player start !\n");
+
+	G_SetDisplayPlayer(consoleplayer); // view the guy you are playing
+}
 
 void G_DeferredScreenShot(void)
 {
-	gameaction = ga_screenshot;
+	m_screenshot_required = true;
 }
 
 // -KM- 1998/11/25 Added time param which is the time to wait before
 //  actually exiting level.
 void G_ExitLevel(int time)
 {
-	nextmap = game::LookupMap(currmap->nextmapname);
+	nextmap = G_LookupMap(currmap->nextmapname);
 	exittime = leveltime + time;
 	exit_skipall = false;
 }
@@ -559,14 +599,14 @@ void G_ExitLevel(int time)
 //                  removed the check for map31.
 void G_SecretExitLevel(int time)
 {
-	nextmap = game::LookupMap(currmap->secretmapname);
+	nextmap = G_LookupMap(currmap->secretmapname);
 	exittime = leveltime + time;
 	exit_skipall = false;
 }
 
 void G_ExitToLevel(char *name, int time, bool skip_all)
 {
-	nextmap = game::LookupMap(name);
+	nextmap = G_LookupMap(name);
 	exittime = leveltime + time;
 	exit_skipall = skip_all;
 }
@@ -628,7 +668,8 @@ void G_WorldDone(void)
 {
 	if (exit_skipall && nextmap)
 	{
-		gameaction = ga_loadnext;
+		currmap = nextmap;
+		gameaction = ga_loadlevel;
 		return;
 	}
 
@@ -662,8 +703,6 @@ void G_DeferredLoadGame(int slot)
 
 static void G_DoLoadGame(void)
 {
-	const mapdef_c *tempmap;
-	const gamedef_c *tempgamedef;
 	epi::string_c fn;
 	saveglobals_t *globs;
 	int version;
@@ -700,19 +739,26 @@ static void G_DoLoadGame(void)
 
 	// --- pull info from global structure ---
 
-	tempmap = game::LookupMap(globs->level);
-	if (! tempmap)
+	newgame_params_c params;
+
+	params.map = G_LookupMap(globs->level);
+	if (! params.map)
 		I_Error("LOAD-GAME: No such map %s !  Check WADS\n", globs->level);
 
-	tempgamedef = gamedefs.Lookup(tempmap->episode_name);
-	if (!tempgamedef)
+	// FIXME: store episode name into game
+	params.game = gamedefs.Lookup(params.map->episode_name);
+	if (!params.game)
 		I_Error("LOAD-GAME: No such episode/mod %s !  Check WADS\n", 
-				tempmap->episode_name.GetString());
+				params.map->episode_name.GetString());
 
-	gameskill = (skill_t) globs->skill;
-	random_seed = globs->p_random;
+	params.skill       = gameskill   = (skill_t) globs->skill;
+	params.random_seed = random_seed = globs->p_random;
 
-	G_InitNew(gameskill, tempmap, tempgamedef, random_seed);
+	// this player is a dummy one, replaced during actual load
+	params.total_players = 1;
+	params.players[0] = PFL_Zero;  // i.e. !BOT and !NETWORK
+
+	G_InitNew(params);
 
 	G_DoLoadLevel();
 
@@ -859,9 +905,39 @@ static void G_DoSaveGame(void)
 // G_InitNew
 //
 // Can be called by the startup code or the menu task.
-// consoleplayer, displayplayer, playeringame[] should
-// be set.
+// consoleplayer, displayplayer, players[] are setup.
 //
+
+//---> newgame_params_c class
+
+newgame_params_c::newgame_params_c() :
+	skill(sk_medium), deathmatch(0),
+	map(NULL), game(NULL), random_seed(0),
+	warping(false), total_players(0)
+{
+	for (int i = 0; i < MAXPLAYERS; i++)
+		players[i] = PFL_NOPLAYER;
+}
+
+newgame_params_c::newgame_params_c(const newgame_params_c& src)
+{
+	skill = src.skill;
+	deathmatch = src.deathmatch;
+
+	map  = src.map;
+	game = src.game;
+
+	warping       = src.warping;
+	random_seed   = src.random_seed;
+	total_players = src.total_players;
+
+	for (int i = 0; i < MAXPLAYERS; i++)
+		players[i] = src.players[i];
+}
+
+newgame_params_c::~newgame_params_c()
+{
+}
 
 //
 // G_DeferredInitNew
@@ -873,20 +949,30 @@ static void G_DoSaveGame(void)
 //
 // Returns true if OK, or false if no such map exists.
 //
-bool G_DeferredInitNew(skill_t skill, const char *mapname, bool warpopt)
+bool G_DeferredInitNew(newgame_params_c& params)
 {
-	d_newmap = game::LookupMap(mapname);
+	DEV_ASSERT2(params.map);
+	DEV_ASSERT2(params.game);
 
-	if (!d_newmap)
+	if (W_CheckNumForName(params.map->lump) == -1)
 		return false;
 
-	// -ACB- 2004/07/01 Added to handle the current game definition changes
-	d_gamedef = gamedefs.Lookup(d_newmap->episode_name);
-	if (!d_gamedef)
-		return false;
+	d_params = new newgame_params_c(params);
 
-	d_newskill = skill;
-	d_newwarp = warpopt;			// this is true only when called by -warp option
+///---	d_newmap = G_LookupMap(mapname);
+///---	if (!d_newmap)
+///---		return false;
+///---
+///---	// -ACB- 2004/07/01 Added to handle the current game definition changes
+///---	d_params->game = gamedefs.Lookup(d_newmap->episode_name);
+///---	if (! d_params->game)
+///---	{
+///---		delete d_params;
+///---		return false;
+///---	}
+
+///---	d_newskill = skill;
+///---	d_newwarp = warpopt;			// this is true only when called by -warp option
 
 	gameaction = ga_newgame;
 	return true;
@@ -894,21 +980,23 @@ bool G_DeferredInitNew(skill_t skill, const char *mapname, bool warpopt)
 
 static void G_DoNewGame(void)
 {
+	DEV_ASSERT2(d_params);
+
 	demoplayback = false;
 
-	if (d_newwarp)
+	if (d_params->warping)
 	{
+#if 0 // CRUD ?
 		if (netdemo)
 		{
 			deathmatch = netdemo = netgame = false;
 			consoleplayer = 0; //???
 
 			// !!! FIXME: this is wrong
-#if 0
 			for (p = players->next; p; p = p->next)
 				p->in_game = false;
-#endif
 		}
+#endif
 
 		level_flags.fastparm = false;
 		level_flags.nomonsters = false;
@@ -916,13 +1004,19 @@ static void G_DoNewGame(void)
 
 	quickSaveSlot = -1;
 
-	G_InitNew(d_newskill, d_newmap, d_gamedef, I_PureRandom());
+	d_params->random_seed = I_PureRandom();
+
+	G_InitNew(*d_params);
+
 	gameaction = ga_nothing;
 
 	// -AJA- 2003/10/09: support for pre-level briefing screen on first map.
 	//       FIXME: kludgy. All this game logic desperately needs rethinking.
 
 	F_StartFinale(&currmap->f_pre, ga_loadlevel);
+
+	delete d_params;
+	d_params = NULL;
 }
 
 //
@@ -934,17 +1028,36 @@ static void G_DoNewGame(void)
 // -KM- 1998/12/21 Added mapdef param so no need for defered init new
 //   which was conflicting with net games.
 //
-void G_InitNew(skill_t skill, const mapdef_c *map, const gamedef_c *gamedef, long seed)
+void G_InitNew(newgame_params_c& params)
 {
-	int pnum;
+	// --- create players ---
 
-	for (pnum = 0; pnum < MAXPLAYERS; pnum++)
+	P_DestroyAllPlayers();
+
+	netgame = false;
+
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
-		player_t *p = players[pnum];
-		if (! p) continue;
+		if (params.players[pnum] == PFL_NOPLAYER)
+			continue;
 
-		memset(p->consistency, -1, sizeof(p->consistency));
+		P_CreatePlayer(pnum, (params.players[pnum] & PFL_Bot) ? true : false);
+
+		if (consoleplayer < 0 && params.players[pnum] == PFL_Zero)
+			G_SetConsolePlayer(pnum);
+
+		if (params.players[pnum] & PFL_Network)
+			netgame = true;
 	}
+
+	if (numplayers != params.total_players)
+		I_Error("Internal Error: G_InitNew: player miscount (%d != %d\n",
+			numplayers, params.total_players);
+
+	if (consoleplayer < 0)
+		I_Error("Internal Error: G_InitNew: no local players!\n");
+
+	G_SetDisplayPlayer(consoleplayer);
 
 	if (paused)
 	{
@@ -953,40 +1066,46 @@ void G_InitNew(skill_t skill, const mapdef_c *map, const gamedef_c *gamedef, lon
 		S_ResumeSounds();  // -ACB- 1999/10/17 New Sound API
 	}
 
-	currgamedef = gamedef;
-	currmap = map;
+	currgamedef = params.game;
+	currmap = params.map;
 
-	if (skill > sk_nightmare)
-		skill = sk_nightmare;
+	if (params.skill > sk_nightmare)
+		params.skill = sk_nightmare;
 
-	random_seed = seed;
-	P_WriteRandomState(seed);
+	random_seed = params.random_seed;
+
+	P_WriteRandomState(random_seed);
 
 	// we can not call this until we have the random seed.
 	if (demorecording)
 		G_BeginRecording();
 
-	// force players to be initialised upon first level load         
-	// -AJA- 2003/10/09: except that this doesn't do anything, as the
-	//                   playerstate is set to PST_LIVE In P_SpawnPlayer !!
-	for (pnum = 0; pnum < MAXPLAYERS; pnum++)
-	{
-		player_t *p = players[pnum];
-		if (! p) continue;
-
-		p->playerstate = PST_REBORN;
-	}
+///---	// force players to be initialised upon first level load         
+///---	// -AJA- 2003/10/09: except that this doesn't do anything, as the
+///---	//                   playerstate is set to PST_LIVE In P_SpawnPlayer !!
+///---	for (pnum = 0; pnum < MAXPLAYERS; pnum++)
+///---	{
+///---		player_t *p = players[pnum];
+///---		if (! p) continue;
+///---
+///---		p->playerstate = PST_REBORN;
+///---	}
 
 	usergame = true;  // will be set false if a demo 
 
 	demoplayback = false;
 	automapactive = false;
-	gameskill = skill;
+
+	gameskill = params.skill;
+	deathmatch = params.deathmatch;
+	netgame = false; // FIXME !!!!
+
+L_WriteDebug("G_InitNew: Deathmatch %d Skill %d\n", params.deathmatch, (int)params.skill);
 
 	// copy global flags into the level-specific flags
 	level_flags = global_flags;
 
-	if (skill == sk_nightmare)
+	if (params.skill == sk_nightmare)
 	{
 		level_flags.fastparm = true;
 		level_flags.respawn = true;
@@ -994,6 +1113,26 @@ void G_InitNew(skill_t skill, const mapdef_c *map, const gamedef_c *gamedef, lon
 		level_flags.cheats = false;
 #endif
 	}
+}
+
+void G_DeferredEndGame(void)
+{
+	if (gamestate == GS_LEVEL || gamestate == GS_INTERMISSION ||
+	    gamestate == GS_FINALE)
+	{
+		gameaction = ga_endgame;
+	}
+}
+
+static void G_DoEndGame(void)
+{
+	P_DestroyAllPlayers();
+
+	// if (gamestate == GS_LEVEL) P_ShutdownLevel()
+
+	gamestate = GS_NOTHING;
+
+	E_StartTitle();
 }
 
 //
@@ -1016,22 +1155,19 @@ bool G_CheckWhenAppear(when_appear_e appear)
 	return true;
 }
 
-namespace game
+//
+// G_LookupMap()
+//
+mapdef_c* G_LookupMap(const char *refname)
 {
-	//
-	// mapdef_c* LookupMap()
-	//
-	mapdef_c* LookupMap(const char *refname)
+	mapdef_c* m;
+	
+	m = mapdefs.Lookup(refname);
+	if (m)
 	{
-		mapdef_c* m;
-		
-		m = mapdefs.Lookup(refname);
-		if (m)
-		{
-			if (W_CheckNumForName(m->lump) != -1)
-				return m;
-		}
-		
-		return NULL;
+		if (W_CheckNumForName(m->lump) != -1)
+			return m;
 	}
+	
+	return NULL;
 }

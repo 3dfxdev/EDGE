@@ -592,6 +592,8 @@ static void ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 	if (src->new_weapon != -1)
 		dest->buttons |= (src->new_weapon << BT_WEAPONSHIFT) & BT_WEAPONMASK;
 
+	dest->buttons |= BT_IN_GAME;
+
 	switch (src->facetype)
 	{
 		case BOTCMD_FACE_MOBJ:

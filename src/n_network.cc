@@ -24,6 +24,7 @@
 
 #include "protocol.h"
 #include "n_packet.h"
+#include "n_network.h"
 
 #include "e_main.h"
 #include "e_player.h"
@@ -90,7 +91,7 @@ static bool N_TestServer(NLsocket sock)
 		if (count == 5)
 			return false;
 
-		sleep(1);
+		I_Sleep(1000);
 	}
 
 	nlGetRemoteAddr(sock, &server);
@@ -168,7 +169,8 @@ static void N_ConnectServer(void)
 		if (socket != NL_INVALID)
 			break;
 
-///		if ((tries % 10) == 9) sleep for 10 ms
+		if ((tries % 10) == 9)
+			I_Sleep(10 /* millisecs */);
 	}
 
     if (socket == NL_INVALID)
@@ -196,7 +198,7 @@ static void N_ConnectServer(void)
 	if (! pk.Write(socket))
 		I_Error("Unable to write CS packet:\n%s", N_GetErrorStr());
 
-	sleep(1);
+	I_Sleep(1000);
 
 	if (! pk.Read(socket))
 		I_Error("Failed to connect to server (no reply)\n");
@@ -246,7 +248,7 @@ static void N_NewGame(void)
 	if (! pk.Write(socket))
 		I_Error("Unable to write NG packet:\n%s", N_GetErrorStr());
 
-	sleep(1);
+	I_Sleep(1000);
 
 	if (! pk.Read(socket))
 		I_Error("Failed to create new game (no reply)\n");
@@ -275,7 +277,7 @@ static void N_Vote(void)
 	if (! pk.Write(socket))
 		I_Error("Unable to write VP packet:\n%s", N_GetErrorStr());
 
-	sleep(1);
+	I_Sleep(1000);
 
 	if (! pk.Read(socket))
 		I_Error("Failed to vote (no reply)\n");
@@ -320,15 +322,15 @@ void N_InitiateGame(void)
 static int last_update_tic;
 static int last_tryrun_tic;
 
-void E_CheckNetGame(void)
+void N_CheckNetGame(void)
 {
 	// FIXME: singletics, WTF ???
 
 	DEV_ASSERT2(sizeof(ticcmd_t) == sizeof(raw_ticcmd_t));
 
+#if 0
 	int pl_num = 1;
 
-#if 0
 	N_InitiateGame();
 
 	netgame = true;
@@ -337,6 +339,8 @@ void E_CheckNetGame(void)
 	netgame = false;
 #endif
 
+
+#if 0
 	consoleplayer = 0;
 
 	for (int i = 0; i < pl_num; i++)  // FIXME: get num_players from play_game_proto_t
@@ -348,11 +352,8 @@ void E_CheckNetGame(void)
 
 	G_SetConsolePlayer(consoleplayer);
 	G_SetDisplayPlayer(consoleplayer);
+#endif
 
-	// -ES- Fixme: This belongs somewhere else (around G_PlayerReborn).
-	// Needs a big cleanup though.
-	players[consoleplayer]->builder = P_ConsolePlayerBuilder;
-	players[consoleplayer]->build_data = NULL;
 
 #if 0
 	global_flags = default_gameflags;
@@ -373,7 +374,8 @@ static void GetPackets(bool do_delay)
 {
 	if (! netgame)
 	{
-		//!!!! FIXME: sleep for 10 millisec if do_delay true
+		if (do_delay)
+			I_Sleep(10 /* millis */);
 		return;
 	}
 
@@ -483,7 +485,7 @@ static void DoSendTiccmds(int tic)
 	// FIXME: need an 'out_tic' for resends....
 }
 
-static bool DoBuildTiccmds(void)
+bool N_DoBuildTiccmds(void)
 {
 	I_ControlGetEvents();
 	E_ProcessEvents();
@@ -519,7 +521,7 @@ static bool DoBuildTiccmds(void)
 	return true;
 }
 
-int E_NetUpdate(bool do_delay)
+int N_NetUpdate(bool do_delay)
 {
 	if (singletics)  // singletic update is syncronous
 		return 0;
@@ -535,12 +537,12 @@ int E_NetUpdate(bool do_delay)
 		int t;
 		for (t = 0; t < newtics; t++)
 		{
-			if (! DoBuildTiccmds())
+			if (! N_DoBuildTiccmds())
 				break;
 		}
 
 		if (t != newtics)
-			L_WriteDebug("E_NetUpdate: lost tics: %d\n", newtics - t);
+			L_WriteDebug("N_NetUpdate: lost tics: %d\n", newtics - t);
 	}
 
 	GetPackets(do_delay);
@@ -555,7 +557,7 @@ int DetermineLowTic(void)
 
 	int lowtic = INT_MAX;
 
-	for (int pnum = 0; pnum < num_players; pnum++)
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
 		player_t *p = players[pnum];
 		if (! p) continue;
@@ -570,11 +572,18 @@ int DetermineLowTic(void)
 	return lowtic;
 }
 
-int E_TryRunTics(void)
+int N_TryRunTics(void)
 {
-	DEV_ASSERT2(! singletics);
+	if (singletics)
+	{
+		if (numplayers == 0)
+			return -1;
 
-	int nowtime = E_NetUpdate();
+		N_DoBuildTiccmds();
+		return 1;
+	}
+
+	int nowtime = N_NetUpdate();
 	int realtics = nowtime - last_tryrun_tic;
 
 	last_tryrun_tic = nowtime;
@@ -596,7 +605,7 @@ int E_TryRunTics(void)
 	else
 		counts = availabletics;
 
-#if 0
+#if 1
 	L_WriteDebug("=== lowtic %d gametic %d | real %d avail %d counts %d\n",
 		lowtic, gametic, realtics, availabletics, counts);
 #endif
@@ -607,7 +616,7 @@ int E_TryRunTics(void)
 	// wait for new tics if needed
 	while (lowtic < gametic + counts)
 	{
-		int wait_tics = E_NetUpdate(true) - last_tryrun_tic;
+		int wait_tics = N_NetUpdate(true) - last_tryrun_tic;
 
 		lowtic = DetermineLowTic();
 
@@ -617,15 +626,15 @@ int E_TryRunTics(void)
 		if (wait_tics > TICRATE/2)
 		{
 			L_WriteDebug("Waited %d tics IN VAIN !\n", wait_tics);
-			return 0;
+			return -(TICRATE/4);
 		}
 	}
 
-	return counts;
+	return (numplayers == 0) ? -counts : counts;
 }
 
-void E_QuitNetGame(void)
+void N_QuitNetGame(void)
 {
-	// !!!! FIXME: E_QuitNetGame
+	// !!!! FIXME: N_QuitNetGame
 }
 

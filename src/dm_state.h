@@ -128,7 +128,7 @@ extern int gametic;
 
 // Pointer to each player in the game.
 extern player_t *players[MAXPLAYERS];
-extern int num_players;
+extern int numplayers;
 
 // Player taking events, and displaying.
 extern int consoleplayer;

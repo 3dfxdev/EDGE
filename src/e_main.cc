@@ -150,7 +150,7 @@ gameflags_t level_flags;
 gameflags_t global_flags;
 
 skill_t startskill;
-char *startmap;
+char *startmap;  // FIXME: make static
 
 bool autostart;
 bool advance_title;
@@ -738,7 +738,7 @@ void E_Display(void)
 	GUI_MainDrawer();  // 2004/04/12 -AJA- ...EXCEPT the console
 	M_DisplayDisk();
 
-	E_NetUpdate();  // send out any new accumulation
+	N_NetUpdate();  // send out any new accumulation
 
 	if (m_screenshot_required)
 	{
@@ -1526,7 +1526,7 @@ void E_EngineShutdown(void)
 		G_FinishDemo();
 
 	S_StopMusic();
-	E_QuitNetGame();
+	N_QuitNetGame();
 }
 
 typedef struct
@@ -1570,7 +1570,7 @@ startuporder_t startcode[] =
 	{  1, P_InitSwitchList,    },
 	{  1, R_InitPicAnims,      },
 	{  1, S_Init,              },
-	{  1, E_CheckNetGame,      },
+	{  1, N_CheckNetGame,      },
 	{  2, ST_Init,             },
 	{  0, NULL,                }
 };
@@ -1581,6 +1581,41 @@ namespace engine
 	// Local Prototypes
 	void Startup();
 	void Shutdown(void);
+
+	bool TryAutoStart()
+	{
+		if (!autostart && !netgame)  // FIXME: no need for netgames to autostart
+			return false;
+
+		newgame_params_c params;
+
+		params.skill = startskill;	
+		params.warping = true;
+
+		params.map = G_LookupMap(startmap);
+
+		if (! params.map)
+			return false;
+
+		params.game = gamedefs.Lookup(params.map->episode_name);
+		if (! params.game)
+			return false;
+
+		// compatibility check (EDGE vs BOOM)
+		int compat = P_DetectWadGameCompat(params.map);
+
+		if (compat == MAP_CM_Edge)
+			global_flags.compat_mode = CM_EDGE;
+		else if (compat == MAP_CM_Boom)
+			global_flags.compat_mode = CM_BOOM;
+		else if (compat != 0)
+			I_Warning("Detected both EDGE and BOOM features - check compatibility\n");
+
+		params.total_players = 1;
+		params.players[0] = PFL_Zero;  // i.e. !BOT and !NETWORK
+
+		return G_DeferredInitNew(params);
+	}
 
 	//
 	// Startup
@@ -1668,36 +1703,15 @@ namespace engine
 			G_DeferredLoadGame(atoi(ps));
 		}
 
-		// -ACB- 1998/09/06 use new mapping system
 		if (gameaction != ga_loadgame)
 		{
-			if (autostart || netgame)
-			{
-				// compatibility check (EDGE vs BOOM)
-				const mapdef_c * map = game::LookupMap(startmap);
-				if (map)
-				{
-					int compat = P_DetectWadGameCompat(map);
-
-					if (compat == MAP_CM_Edge)
-						global_flags.compat_mode = CM_EDGE;
-					else if (compat == MAP_CM_Boom)
-						global_flags.compat_mode = CM_BOOM;
-					else if (compat != 0)
-						I_Warning("Detected both EDGE and BOOM features - check compatibility\n");
-				}
-
-				// if startmap is failed, do normal start.
-				if (! G_DeferredInitNew(startskill, startmap, true))
-					E_StartTitle();
-
-				Z_Free(startmap);
-			}
-			else
+			if (! TryAutoStart())
 			{
 				E_StartTitle();  // start up intro loop
 			}
 		}
+
+		Z_Free(startmap);
 	}
 
 	//
@@ -1766,28 +1780,55 @@ namespace engine
 //		L_WriteDebug("[0] Mem size: %ld\n", epi::the_mem_manager->GetAllocatedSize());
 #endif
 
+		bool fresh_game_tic = true;
+
+		int counts = N_TryRunTics();
+
+		DEV_ASSERT2(counts != 0);
+
+		if (counts < 0)  // give the menu a chance to work
+		{
+			counts = -counts;
+			fresh_game_tic = false;
+		}	
+
+		for (; counts > 0; counts--)  // run the tics
+		{
+			if (advance_title)
+				E_DoAdvanceTitle();
+
+			GUI_MainTicker();
+			M_Ticker();
+
+			G_Ticker(fresh_game_tic);
+
+			S_SoundTicker(); // -ACB- 1999/10/11 Improved sound update routines
+			S_MusicTicker(); // -ACB- 1999/11/13 Improved music update routines
+
+			N_NetUpdate();  // check for new console commands
+		}
+
+#if 0
 		// process one or more tics
 		if (singletics)
 		{
-			int buf = maketic % BACKUPTICS;
+			N_DoBuildTiccmds();
 
-			I_ControlGetEvents();
-			E_ProcessEvents();
-
-			E_BuildTiccmd(&players[consoleplayer]->in_cmds[buf]);
+///---			int buf = maketic % BACKUPTICS;
+///---
+///---			I_ControlGetEvents();
+///---			E_ProcessEvents();
+///---
+///---			E_BuildTiccmd(&players[consoleplayer]->in_cmds[buf]);
 
 			if (advance_title)
 				E_DoAdvanceTitle();
 
-			M_Ticker();
 			GUI_MainTicker();
-
+			M_Ticker();
 			G_Ticker();
 			S_SoundTicker();
 			S_MusicTicker();
-
-			gametic++;
-			maketic++;
 		}
 		else
 		{
@@ -1809,11 +1850,10 @@ namespace engine
 				S_SoundTicker(); // -ACB- 1999/10/11 Improved sound update routines
 				S_MusicTicker(); // -ACB- 1999/11/13 Improved music update routines
 
-				gametic++;
-
 				E_NetUpdate();  // check for new console commands
 			}
 		}
+#endif
 
 		// Update display, next frame, with current state.
 		E_Display();

@@ -489,6 +489,8 @@ static void P_UpdatePowerups(player_t *player)
 void P_ConsolePlayerBuilder(const player_t *p, void *data, ticcmd_t *dest)
 {
 	E_BuildTiccmd(dest);
+
+	dest->buttons |= BT_IN_GAME;
 }
 
 bool P_PlayerSwitchWeapon(player_t *player, weapondef_c *choice)
@@ -672,10 +674,10 @@ void P_CreatePlayer(int pnum, bool is_bot)
 	player_t *p = Z_ClearNew(player_t, 1);
 
 	p->pnum = pnum;
-	p->playerstate = PST_LIVE;
+	p->playerstate = PST_DEAD;
 
 	players[pnum] = p;
-	num_players++;
+	numplayers++;
 
 	// determine name
 	char namebuf[32];
@@ -694,6 +696,8 @@ void P_CreatePlayer(int pnum, bool is_bot)
 
 	if (is_bot)
 		P_BotCreate(p, false);
+
+	memset(p->consistency, -1, sizeof(p->consistency));
 }
 
 //
@@ -711,7 +715,7 @@ void P_DestroyAllPlayers(void)
 		players[pnum] = NULL;
 	}
 
-	num_players = 0;
+	numplayers = 0;
 
 	consoleplayer = -1;
 	displayplayer = -1;

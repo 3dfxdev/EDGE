@@ -70,9 +70,15 @@ playerstate_e;
 // Player flags
 typedef enum
 {
+	PFL_Zero = 0,
+
 	PFL_Console = 0x0001,
 	PFL_Display = 0x0002,
-	PFL_Bot     = 0x0004
+	PFL_Bot     = 0x0004,
+	PFL_Network = 0x0008,
+
+	// this not used in player_t, only in newgame_params_c
+	PFL_NOPLAYER = 0xFFFF
 }
 playerflag_e;
 
