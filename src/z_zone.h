@@ -2,7 +2,7 @@
 //  EDGE Zone Memory Allocation Code 
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2000  The EDGE Team.
+//  Copyright (c) 1999-2001  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -142,6 +142,7 @@ void Z_DumpLeakInfo(int level);
 // Z_Clear
 //
 // Clears memory to zero.
+//
 #define Z_Clear(ptr, type, num)  \
     memset((void *)(ptr), ((ptr) - ((type *)(ptr))), (num) * sizeof(type))
 
@@ -149,6 +150,7 @@ void Z_DumpLeakInfo(int level);
 // Z_MoveData
 //
 // moves data from src to dest.
+//
 #define Z_MoveData(dest, src, type, num)  \
     I_MoveData((void *)(dest), (void *)(src), (num) * sizeof(type) + ((src) - (type *)(src)) + ((dest) - (type *)(dest)))
 
@@ -158,7 +160,19 @@ void Z_DumpLeakInfo(int level);
 // Copies up to max characters of src into dest, and then applies a
 // terminating zero (so dest must hold at least max+1 characters).
 // The terminating zero is always applied (there is no reason not to)
+//
 #define Z_StrNCpy(dest, src, max) \
      (void)(strncpy((dest), (src), (max)), (dest)[(max)] = 0)
 
+// -AJA- 2001/07/24: New lightweight "Bunches"
+
+#define Z_Bunch(type)  \
+    struct { type *arr; int max; int num; }
+    
+#define Z_BunchNewSize(var, type)  do {  \
+      if ((var).num > (var).max)  \
+      { (var).max = (var).num + 16;  \
+        Z_Resize((var).arr, type, (var).max);  \
+      } } while(0)
+ 
 #endif
