@@ -16,6 +16,11 @@
 [DOOM/sp:coop]    // allow specialisation based on netmode
                   // (must be complete: have each of sp,dm,coop SOMEWHERE)
 
+HUD_MODE = GAMEPLAY;  // also MAPVIEW and NONE
+
+// The *third* idea about specialisation (best one I think)
+SPECIALISE(dm) = DOOM_DM;
+
 DEFAULT_STYLE = HUD;  // styles are defined in styles.ddf
 
 // for possible regions: TOP, LEFT, RIGHT, BOTTOM
@@ -35,21 +40,27 @@ YOU.TOTAL_ARMOUR = BIG_NUM(221,171,3),PERCENT;
 // can specify constant components:
 
 CONST(1) = IMAGE(STFB0,143,169); 
-CONST(2) = IMAGE(STARMS,104,168);
 
 YOU.FACE = FACE(143,168);  // ,SCALE(0.5), ASPECT(2), TRANS(50%)
 
-// off/on image selection.  use "NULL" for no image.
-// when plain IMAGE(...) method is used with booleans, only shown if true.
+SPECIALISE(sp:coop)  // Different idea about specialisation
+{
+  CONST(2) = IMAGE(STARMS,104,168);
 
-YOU.WEAPON(2).OWNED = OFF_ON(STGNUM2,STYSNUM2,111,172);
-YOU.WEAPON(3).OWNED = OFF_ON(STGNUM3,STYSNUM3,111,182);
-YOU.WEAPON(4).OWNED = OFF_ON(STGNUM4,STYSNUM4,111,192);
-YOU.WEAPON(5).OWNED = OFF_ON(STGNUM5,STYSNUM5,123,172);
-YOU.WEAPON(6).OWNED = OFF_ON(STGNUM6,STYSNUM6,123,182);
-YOU.WEAPON(7).OWNED = OFF_ON(STGNUM7,STYSNUM7,123,192);
+  // off/on image selection.  use "NULL" for no image.
+  // when plain IMAGE(...) method is used with booleans, only shown if true.
 
-// YOU.FRAGS = BIG_NUM(128,178,2),MINUS;
+  YOU.WEAPON(2).OWNED = OFF_ON(STGNUM2,STYSNUM2,111,172);
+  YOU.WEAPON(3).OWNED = OFF_ON(STGNUM3,STYSNUM3,111,182);
+  YOU.WEAPON(4).OWNED = OFF_ON(STGNUM4,STYSNUM4,111,192);
+  YOU.WEAPON(5).OWNED = OFF_ON(STGNUM5,STYSNUM5,123,172);
+  YOU.WEAPON(6).OWNED = OFF_ON(STGNUM6,STYSNUM6,123,182);
+  YOU.WEAPON(7).OWNED = OFF_ON(STGNUM7,STYSNUM7,123,192);
+}
+ELSE  // SPECIALISE(dm)
+{
+  YOU.FRAGS = BIG_NUM(128,178,2),MINUS;
+}
 
 // keys need to be special: a pair will override any singles
 
