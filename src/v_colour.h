@@ -94,9 +94,6 @@ extern const colourmap_c *text_yellow_map;
 extern const byte *am_normal_colmap;
 extern const byte *am_overlay_colmap;
 
-// halo translation table
-extern byte halo_conv_table[256];
-
 // colour indices from palette
 extern int pal_black,  pal_white,  pal_gray239;
 extern int pal_red,    pal_green,  pal_blue;

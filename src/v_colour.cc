@@ -78,8 +78,6 @@ const colourmap_c *text_yellow_map = NULL;
 const byte *am_normal_colmap  = NULL;
 const byte *am_overlay_colmap = NULL;
 
-byte halo_conv_table[256];
-
 
 // colour indices from palette
 int pal_black, pal_white, pal_gray239;
@@ -172,8 +170,6 @@ void V_InitPalette(void)
 //
 static void InitTranslationTables(void)
 {
-	int i;
-
 	if (font_whitener)
 		return;
 
@@ -197,17 +193,6 @@ static void InitTranslationTables(void)
 	text_brown_map  = colourmaps.Lookup("TEXT_BROWN");
 	text_blue_map   = colourmaps.Lookup("TEXT_BLUE");
 	text_yellow_map = colourmaps.Lookup("TEXT_YELLOW");
-
-	// compute halo table (software mode)
-	for (i=0; i < 256; i++)
-	{
-		int j = font_whitener[i];
-
-		if (GRAY <= j && j < GRAY+GRAY_LEN)
-			halo_conv_table[i] = 128 - ((j & 0x1F) << 2);
-		else
-			halo_conv_table[i] = 0;
-	}
 }
 
 static int cur_palette = -1;
