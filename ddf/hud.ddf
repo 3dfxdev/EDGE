@@ -1,0 +1,125 @@
+
+//
+//  ideas for hud definitions
+//
+//  have a variable name before '=', and method of display it after '='.
+//  (except for some real settings, like BOTTOM.SIZE)
+//
+//  after the display method, extra modifiers can be given, e.g. SCALE(0.5)
+//
+//  coordinate system is based on (320,200) screen.
+//  items are drawn in order given (later one can sit over earlier ones).
+//
+
+<HUDS>
+
+[DOOM/sp:coop]    // allow specialisation based on netmode
+                  // (must be complete: have each of sp,dm,coop SOMEWHERE)
+
+// for possible regions: TOP, LEFT, RIGHT, BOTTOM
+// when have LEFT and BOTTOM (for example), vertical one is biggest.
+
+BOTTOM.SIZE = 32;
+
+// whole screen: BACKGROUND = COLOUR(#000000)
+// the BACKGROUND commands allows IMAGE to omit coords: stretch to fit
+
+BOTTOM.BACKGROUND = IMAGE(STBAR);  // ,TILE or TILE_NOSCALE
+
+YOU.READY_AMMO   = BIG_NUM(44,171,3), PERCENT, COLOUR(#FFFF00);
+YOU.HEALTH       = BIG_NUM(90,171,3), PERCENT;
+YOU.TOTAL_ARMOUR = BIG_NUM(221,171,3),PERCENT;
+
+// can specify constant components.
+
+1 = IMAGE(STFB0,143,169); 
+
+YOU.FACE = FACE(143,168);  // ,SCALE(0.5), ASPECT(2), TRANS(50%)
+
+2 = IMAGE(STARMS,104,168);
+
+// off/on image selection.  use "NULL" for no image.
+// when plain IMAGE(...) method is used with booleans, only shown if true.
+
+YOU.WEAPON(2).OWNED = OFF_ON(STGNUM2,STYSNUM2,111,172);
+YOU.WEAPON(3).OWNED = OFF_ON(STGNUM3,STYSNUM3,111,182);
+YOU.WEAPON(4).OWNED = OFF_ON(STGNUM4,STYSNUM4,111,192);
+YOU.WEAPON(5).OWNED = OFF_ON(STGNUM5,STYSNUM5,123,172);
+YOU.WEAPON(6).OWNED = OFF_ON(STGNUM6,STYSNUM6,123,182);
+YOU.WEAPON(7).OWNED = OFF_ON(STGNUM7,STYSNUM7,123,192);
+
+// YOU.FRAGS = BIG_NUM(128,178,2),MINUS;
+
+// keys need to be special: a pair will override any singles
+
+YOU.KEY(BLUE_CARD+BLUE_SKULL)  = IMAGE(STKEYS6,239,171);
+YOU.KEY(BLUE_CARD)             = IMAGE(STKEYS0,239,171);
+YOU.KEY(BLUE_SKULL)            = IMAGE(STKEYS3,239,171);
+YOU.KEY(YELLOW_CARD+YELLOW_SKULL) = IMAGE(STKEYS7,239,181);
+YOU.KEY(YELLOW_CARD)           = IMAGE(STKEYS1,239,181);
+YOU.KEY(YELLOW_SKULL)          = IMAGE(STKEYS4,239,181);
+YOU.KEY(RED_CARD+RED_SKULL)    = IMAGE(STKEYS8,239,191);
+YOU.KEY(RED_CARD)              = IMAGE(STKEYS2,239,191);
+YOU.KEY(RED_SKULL)             = IMAGE(STKEYS5,239,191);
+
+YOU.AMMO(0).NUM = SMALL_NUM(288,173,3);
+YOU.AMMO(0).MAX = SMALL_NUM(314,173,3);
+YOU.AMMO(1).NUM = SMALL_NUM(288,179,3);
+YOU.AMMO(1).MAX = SMALL_NUM(314,179,3);
+YOU.AMMO(2).NUM = SMALL_NUM(288,185,3);
+YOU.AMMO(2).MAX = SMALL_NUM(314,185,3);
+YOU.AMMO(3).NUM = SMALL_NUM(288,191,3);
+YOU.AMMO(3).MAX = SMALL_NUM(314,191,3);
+
+// range of images based on percentage of variable
+// using ZERO_HIDE means it's gone when zero.
+
+YOU.AIR = IMAGE_RANGE(AIRBAR01, AIRBAR20, 0, 0), ZERO_HIDE;
+
+//
+// besides YOU, can also have PLAYER(0), PLAYER(1) etc...
+//
+// also possible:
+//    YOU.READY_CLIP, CLIP_MAX
+//    YOU.KILL_COUNT, TOTAL_KILLS, ITEM_COUNT, TOTAL_ITEM, SECRET...
+// 
+//    STATS.FPS, STATS.MSPF, etc...
+//
+//    strings: YOU.NAME = STRING(DMFONT,100,123,10), CLIP;
+//             LEVEL.NAME = ...
+//    
+//             "FOO"    = STRING(DMFONT,X,Y,W);
+//             "FooBar" = LDF_STR(DMFONT,X,Y,W);
+//
+//    bars: YOU.HEALTH = BAR(200,150,80,12), COLOUR(#00FF00);
+//    (automatically vertical if width < height).
+// 
+
+
+[DOOM/dm]
+// etc....  deathmatch version
+// still considered to be [DOOM] entry, but a separate "specialisation".
+
+
+[PLAIN/sp:dm:coop]
+WIDTH = 0;
+HEIGHT = 0;
+
+
+[OVERLAY]
+WIDTH = 200;
+HEIGHT = 32;
+// etc...
+
+
+[TABBED/map]   // the "map" specialisation used when you press TAB.
+               // can have multiple of them as well (+/- toggles).
+               // omit it to disable Tabbing.
+... 
+
+
+[BLAH/rts]    // maybe have "rts" specialisation: only usable by
+              // RTS scripts.  These huds would be _additional_ to
+              // the current one.  E.g. TIP_HUD BLAH 5
+...
+
