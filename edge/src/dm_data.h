@@ -58,7 +58,8 @@ enum
    ML_NODES,     // BSP nodes
    ML_SECTORS,   // Sectors, from editing
    ML_REJECT,    // LUT, sector-sector visibility 
-   ML_BLOCKMAP   // LUT, motion clipping, walls/grid element
+   ML_BLOCKMAP,  // LUT, motion clipping, walls/grid element
+   ML_BEHAVIOR   // Hexen scripting stuff
 };
 
 // -AJA- 1999/12/20: Lump order from "GL-Friendly Nodes" specs.
@@ -160,9 +161,19 @@ typedef enum
   ML_SightBlock  = 0x1000,
 
   // --- internal flags ---
-
 }
 lineflag_e;
+
+// -AJA- 2001/08/04: Hexen linedef
+typedef struct
+{
+  short v1;
+  short v2;
+  short flags;
+  byte special[6];
+  short sidenum[2];
+}
+maphexenlinedef_t;
 
 // Sector definition, from editing.
 typedef struct
@@ -266,6 +277,18 @@ typedef struct
   short options;
 }
 mapthing_t;
+
+// -AJA- 2001/08/04: Hexen thing definition
+typedef struct
+{
+  short tag;
+  short x, y, z;
+  short angle;
+  short type;
+  short options;
+  byte special[6];
+}
+maphexenthing_t;
 
 // Wad header definition
 typedef struct wad_header_s
