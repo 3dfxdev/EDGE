@@ -2176,7 +2176,7 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 					for (i=0; i < MAXWEAPONS; i++)
 					{
 						if (p->weapons[i].owned &&
-							p->weapons[i].info->bind_key == cond->subtype)
+							p->weapons[i].info == weapondefs[i])
 						{
 							temp = true;
 							break;
