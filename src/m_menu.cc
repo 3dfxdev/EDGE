@@ -1116,22 +1116,23 @@ void M_NewGame(int choice)
 // -KM- 1998/12/16 Generates EpiDef menu dynamically.
 static void CreateEpisodeMenu(void)
 {
-	int i, j, k, e;
+	int j, k, e;
 	char alpha;
+	epi::array_iterator_c it;
 
-	EpisodeMenu = Z_ClearNew(menuitem_t, num_wi_maps);
+	EpisodeMenu = Z_ClearNew(menuitem_t, gamedefs.GetSize());
 
-	for (i = 0, e = 0; i < num_wi_maps; i++)
+	for (it = gamedefs.GetBaseIterator(), e = 0; it.IsValid(); it++)
 	{
-		wi_map_t *wi = wi_maps[i];
+		gamedef_c *g = ITERATOR_TO_TYPE(it, gamedef_c*);
 
-		if (W_CheckNumForName(wi->firstmap) == -1)
+		if (W_CheckNumForName(g->firstmap) == -1)
 			continue;
 
 		k = 0;
 		EpisodeMenu[e].status = 1;
 		EpisodeMenu[e].select_func = M_Episode;
-		Z_StrNCpy(EpisodeMenu[e].patch_name, wi->namegraphic, 8);
+		Z_StrNCpy(EpisodeMenu[e].patch_name, g->namegraphic, 8);
 		EpisodeMenu[e].image = NULL;
 		alpha = EpisodeMenu[e].patch_name[0];
 
@@ -1173,19 +1174,32 @@ void M_DrawEpisode(void)
 
 static void VerifyNightmare(int ch)
 {
-	int i;
+	epi::array_iterator_c it;
+	gamedef_c *g;
 
 	if (ch != 'y')
 		return;
 
 	// -KM- 1998/12/17 Clear the intermission.
-	WI_MapInit(NULL);
+	WI_Clear();
   
 	// find episode (???)
-	for (i = 0; strcmp(wi_maps[i]->namegraphic, EpisodeMenu[chosen_epi].patch_name); i++) 
-	{ /* nothing here */ }
-
-	if (! G_DeferredInitNew(sk_nightmare, wi_maps[i]->firstmap, false))
+	// FIXME!!!Unify the starting level code
+	for (it = gamedefs.GetBaseIterator(); it.IsValid(); it++) 
+	{ 
+		g = ITERATOR_TO_TYPE(it, gamedef_c*);
+		if (!strcmp(g->namegraphic, 
+		           EpisodeMenu[chosen_epi].patch_name))
+		{
+			break;
+		}
+	}
+	
+	// Sanity checking...
+	if (!it.IsValid())
+		return;
+		
+	if (!G_DeferredInitNew(sk_nightmare, g->firstmap, false))
 	{
 		// 23-6-98 KM Fixed this.
 		M_SetupNextMenu(&EpiDef);
@@ -1198,21 +1212,35 @@ static void VerifyNightmare(int ch)
 
 void M_ChooseSkill(int choice)
 {
-	int i;
-
 	if (choice == sk_nightmare)
 	{
 		M_StartMessage(DDF_LanguageLookup("NightMareCheck"), VerifyNightmare, true);
 		return;
 	}
-	// -KM- 1998/12/17 Clear the intermission
-	WI_MapInit(NULL);
+	
+	epi::array_iterator_c it;
+	gamedef_c *g;
 
+	// -KM- 1998/12/17 Clear the intermission.
+	WI_Clear();
+  
 	// find episode (???)
-	for (i = 0; strcmp(wi_maps[i]->namegraphic, EpisodeMenu[chosen_epi].patch_name); i++)
-	{ /* nothing here */ }
-
-	if (! G_DeferredInitNew((skill_t)choice, wi_maps[i]->firstmap, false))
+	// FIXME!!! Unify the starting level code
+	for (it = gamedefs.GetBaseIterator(); it.IsValid(); it++) 
+	{ 
+		g = ITERATOR_TO_TYPE(it, gamedef_c*);
+		if (!strcmp(g->namegraphic, 
+		           EpisodeMenu[chosen_epi].patch_name))
+		{
+			break;
+		}
+	}
+	
+	// Sanity checking...
+	if (!it.IsValid())
+		return;
+		
+	if (!G_DeferredInitNew((skill_t)choice, g->firstmap, false))
 	{
 		// 23-6-98 KM Fixed this.
 		M_SetupNextMenu(&EpiDef);
@@ -1220,7 +1248,7 @@ void M_ChooseSkill(int choice)
 		return;
 	}
 
-	M_ClearMenus();
+	M_ClearMenus();	
 }
 
 void M_Episode(int choice)
