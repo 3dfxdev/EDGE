@@ -5,31 +5,30 @@ TODO
 NETWORKING
 ----------
 
-+ Play-Game packet: random seed for everyone.
-
-  - ALSO: game flags (especially Autoaim/Jump/Crouch).
-
 + ticcmd_proto: multiple from one client (BACKUPTICS).
-
-+ have -localaddr cmdline option (remove BIG HACK).
-
-+ connection: have a protocol version field.
 
 - bot support: client sends ticcmd_proto for bots, ETC.
 
-- game packets: merge "game" and "level" names --> one string (e.g. DOOM2:MAP01)
+TEST: Play-Game packet: random seed for everyone.
+TEST: connection: have a protocol version field.
+
++ have -address and -port cmdline options (remove BIG HACK).
+
++ buffering: use std::list of pointers ?
 
 - validate packet lengths and contents.
 
 - send acknowledgements.  Also do logging/error packets.
 
+- ping packet type ("pn").
+- retransmit request packet ("rt"), flag for "tc"/"Tg" replies.
+
 - debugging support: Dump packets.
 
 - improve class access (keep fields private).
 
-- port selection: try port +2, +4, +6, and +8 before giving up.
+? port selection: try port +2, +4, +6, and +8 before giving up.
 
-- maybe remove 'game' and/or 'dest' fields from packet header ?
 
 
 USER INTERFACE
@@ -37,11 +36,11 @@ USER INTERFACE
 
 + copy the game/client lists for the UI.
 
-+ client list
-
-+ game list
++ statistic panel: update values from networking info.
 
 + control screen : set port, limits on clients/games, etc.
 
-- log screen: add statistics (total clients/games, buffered packets, etc).
+- client list
+
+- game list
 
