@@ -103,7 +103,7 @@ void font_c::LoadPatches()
 		for (int ch = pat->char1; ch <= pat->char2; ch++, BumpPatchName(pname))
 		{
 #if 0  // DEBUG
-I_Printf("LoadFont [%s] : char %d = %s\n", def->ddf.name.GetString(), ch, pname);
+			I_Printf("LoadFont [%s] : char %d = %s\n", def->ddf.name.GetString(), ch, pname);
 #endif
 			int idx = ch - p_cache.first;
 			DEV_ASSERT2(0 <= idx && idx < total);
