@@ -43,23 +43,22 @@ void STLIB_Init(void)
 
 void STLIB_InitNum(st_number_t * n, int x, int y, 
 				   const image_t ** digits, const image_t *minus, int *num, 
-				   bool * on, int width)
+				   int width)
 {
 	n->x = x;
 	n->y = y;
 	n->oldnum = 0;
 	n->width = width;
 	n->num = num;
-	n->on = on;
 	n->digits = digits;
 	n->minus = minus;
 	n->colmap = NULL;  // text_red_map;
 }
 
 void STLIB_InitFloat(st_float * n, int x, int y, 
-					 const image_t ** digits, float *num, bool * on, int width)
+					 const image_t ** digits, float *num, int width)
 {
-	STLIB_InitNum(&n->num, x,y, digits,NULL, NULL, on, width);
+	STLIB_InitNum(&n->num, x,y, digits,NULL, NULL, width);
 	n->f = num;
 }
 
@@ -129,13 +128,12 @@ static void DrawNum(st_number_t * n)
 	}
 }
 
-void STLIB_UpdateNum(st_number_t * n)
+void STLIB_DrawNum(st_number_t * n)
 {
-	if (*n->on)
-		DrawNum(n);
+	DrawNum(n);
 }
 
-void STLIB_UpdateFloat(st_float * n)
+void STLIB_DrawFloat(st_float * n)
 {
 	int i = (int) *n->f;
 
@@ -147,46 +145,42 @@ void STLIB_UpdateFloat(st_float * n)
 		i = 1;
 
 	n->num.num = &i;
-	STLIB_UpdateNum(&n->num);
+	STLIB_DrawNum(&n->num);
 	n->num.num = NULL;
 }
 
 void STLIB_InitPercent(st_percent_t * p, int x, int y, 
 					   const image_t ** digits, const image_t *percsign,
-					   float *num, bool * on)
+					   float *num)
 {
-	STLIB_InitFloat(&p->f, x, y, digits, num, on, 3);
+	STLIB_InitFloat(&p->f, x, y, digits, num, 3);
 	p->percsign = percsign;
 }
 
-void STLIB_UpdatePercent(st_percent_t * per)
+void STLIB_DrawPercent(st_percent_t * per)
 {
 	st_number_t *num = &per->f.num;
 
-	if (*num->on)
-	{
-		DrawDigit(num->x, num->y, per->percsign, num->colmap);
-	}
+	DrawDigit(num->x, num->y, per->percsign, num->colmap);
 
-	STLIB_UpdateFloat(&per->f);
+	STLIB_DrawFloat(&per->f);
 }
 
 void STLIB_InitMultIcon(st_multicon_t * i, int x, int y, 
-						const image_t ** icons, int *inum, bool * on)
+						const image_t ** icons, int *inum)
 {
 	i->x = x;
 	i->y = y;
 	i->oldinum = -1;
 	i->inum = inum;
-	i->on = on;
 	i->icons = icons;
 }
 
-void STLIB_UpdateMultIcon(st_multicon_t * mi)
+void STLIB_DrawMultIcon(st_multicon_t * mi)
 {
 	const image_t *image;
 
-	if (*mi->on && (*mi->inum != -1))
+	if (*mi->inum != -1)
 	{
 		image = mi->icons[*mi->inum];
 
@@ -197,25 +191,19 @@ void STLIB_UpdateMultIcon(st_multicon_t * mi)
 }
 
 void STLIB_InitBinIcon(st_binicon_t * b, int x, int y, 
-					   const image_t * icon, bool * val, bool * on)
+					   const image_t * icon, bool * val)
 {
 	b->x = x;
 	b->y = y;
 	b->oldval = 0;
 	b->val = val;
-	b->on = on;
 	b->icon = icon;
 }
 
-void STLIB_UpdateBinIcon(st_binicon_t * bi)
+void STLIB_DrawBinIcon(st_binicon_t * bi)
 {
-	if (*bi->on)
-	{
-		if (*bi->val)
-		{
-			RGL_ImageEasy320(bi->x, bi->y, bi->icon);
-		}
+	if (*bi->val)
+		RGL_ImageEasy320(bi->x, bi->y, bi->icon);
 
-		bi->oldval = *bi->val;
-	}
+	bi->oldval = *bi->val;
 }

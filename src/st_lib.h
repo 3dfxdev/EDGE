@@ -51,10 +51,6 @@ typedef struct
 	// pointer to current value
 	int *num;
 
-	// pointer to boolean stating
-	//  whether to update number
-	bool *on;
-
 	// list of images for 0-9
 	const image_t ** digits;
 
@@ -99,10 +95,6 @@ typedef struct
 	// pointer to current icon
 	int *inum;
 
-	// pointer to boolean stating
-	//  whether to update icon
-	bool *on;
-
 	// list of icons
 	const image_t ** icons;
 }
@@ -120,10 +112,6 @@ typedef struct
 
 	// pointer to current icon status
 	bool *val;
-
-	// pointer to boolean
-	//  stating whether to update icon
-	bool *on;
 
 	// icon
 	const image_t *icon;
@@ -143,32 +131,32 @@ void STLIB_Init(void);
 // Number widget routines
 void STLIB_InitNum(st_number_t * n, int x, int y, 
 				   const image_t ** digits, const image_t *minus, int *num, 
-				   bool * on, int width);
+				   int width);
 
 void STLIB_InitFloat(st_float * n, int x, int y, const image_t ** digits, 
-					 float *num, bool * on, int width);
+					 float *num, int width);
 
-void STLIB_UpdateNum(st_number_t * n);
-void STLIB_UpdateFloat(st_float * n);
+void STLIB_DrawNum(st_number_t * n);
+void STLIB_DrawFloat(st_float * n);
 
 // Percent widget routines
 void STLIB_InitPercent(st_percent_t * p, int x, int y, 
 					   const image_t ** digits, const image_t *percsign,
-					   float *num, bool * on);
+					   float *num);
 
-void STLIB_UpdatePercent(st_percent_t * per);
+void STLIB_DrawPercent(st_percent_t * per);
 
 // Multiple Icon widget routines
 void STLIB_InitMultIcon(st_multicon_t * mi, int x, int y, 
-						const image_t ** icons, int *inum, bool * on);
+						const image_t ** icons, int *inum);
 
-void STLIB_UpdateMultIcon(st_multicon_t * mi);
+void STLIB_DrawMultIcon(st_multicon_t * mi);
 
 // Binary Icon widget routines
 
 void STLIB_InitBinIcon(st_binicon_t * b, int x, int y, 
-					   const image_t * icon, bool * val, bool * on);
+					   const image_t * icon, bool * val);
 
-void STLIB_UpdateBinIcon(st_binicon_t * bi);
+void STLIB_DrawBinIcon(st_binicon_t * bi);
 
-#endif
+#endif  /* __STLIB__ */

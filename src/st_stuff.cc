@@ -337,28 +337,36 @@ static void DrawWidgets(void)
 	// used by w_frags widget
 	st_fragson = st_baron_not_overlay && deathmatch;
 
-	STLIB_UpdateNum(&w_ready);
-
-	for (i = 0; i < 4; i++)
+	if (st_statusbaron)
 	{
-		STLIB_UpdateNum(&w_ammo[i]);
-		STLIB_UpdateNum(&w_maxammo[i]);
+		STLIB_DrawNum(&w_ready);
+
+		for (i = 0; i < 4; i++)
+		{
+			STLIB_DrawNum(&w_ammo[i]);
+			STLIB_DrawNum(&w_maxammo[i]);
+		}
+
+		STLIB_DrawPercent(&w_health);
+		STLIB_DrawPercent(&w_armour);
+
+		for (i = 0; i < 3; i++)
+			STLIB_DrawMultIcon(&w_keyboxes[i]);
 	}
 
-	STLIB_UpdatePercent(&w_health);
-	STLIB_UpdatePercent(&w_armour);
+	if (st_baron_not_overlay)
+	{
+		STLIB_DrawBinIcon(&w_armsbg);
 
-	STLIB_UpdateBinIcon(&w_armsbg);
+		STLIB_DrawMultIcon(&w_faces);
+	}
 
-	for (i = 0; i < 6; i++)
-		STLIB_UpdateMultIcon(&w_arms[i]);
+	if (st_armson)
+		for (i = 0; i < 6; i++)
+			STLIB_DrawMultIcon(&w_arms[i]);
 
-	STLIB_UpdateMultIcon(&w_faces);
-
-	for (i = 0; i < 3; i++)
-		STLIB_UpdateMultIcon(&w_keyboxes[i]);
-
-	STLIB_UpdateNum(&w_frags);
+	if (st_fragson)
+		STLIB_DrawNum(&w_frags);
 }
 
 //
@@ -820,15 +828,15 @@ static void CreateWidgets(void)
 	// ready weapon ammo
 	STLIB_InitNum(&w_ready, ST_AMMOX, ST_AMMOY, tallnum, sttminus,
 		&consoleplayer->ammo[0].num,  // FIXME
-		&st_statusbaron, ST_AMMOWIDTH);
+		ST_AMMOWIDTH);
 
 	// health percentage
 	STLIB_InitPercent(&w_health, ST_HEALTHX, ST_HEALTHY, tallnum, tallpercent,
-		&consoleplayer->health, &st_statusbaron);
+		&consoleplayer->health);
 
 	// arms background
 	STLIB_InitBinIcon(&w_armsbg, ST_ARMSBGX, ST_ARMSBGY, armsbg,
-		&st_notdeathmatch, &st_baron_not_overlay);
+		&st_notdeathmatch);
 
 	// weapons owned
 	for (i = 0; i < 6; i++)
@@ -836,56 +844,56 @@ static void CreateWidgets(void)
 		STLIB_InitMultIcon(&w_arms[i],
 			ST_ARMSX + (i % 3) * ST_ARMSXSPACE,
 			ST_ARMSY + (i / 3) * ST_ARMSYSPACE,
-			arms[i], (int *)&consoleplayer->avail_weapons[2 + i], &st_armson);
+			arms[i], (int *)&consoleplayer->avail_weapons[2 + i]);
 	}
 
 	// frags sum
 	STLIB_InitNum(&w_frags, ST_FRAGSX, ST_FRAGSY, tallnum, sttminus,
-		&st_fragscount, &st_fragson, ST_FRAGSWIDTH);
+		&st_fragscount, ST_FRAGSWIDTH);
 
 	// faces
 	STLIB_InitMultIcon(&w_faces, ST_FACESX, ST_FACESY, faces,
-		&consoleplayer->face_index, &st_baron_not_overlay);
+		&consoleplayer->face_index);
 
 	// armour percentage - should be coloured later
 	STLIB_InitPercent(&w_armour, ST_ARMOURX, ST_ARMOURY, tallnum, tallpercent,
-		&consoleplayer->totalarmour, &st_statusbaron);
+		&consoleplayer->totalarmour);
 
 	// keyboxes 0-2
 	STLIB_InitMultIcon(&w_keyboxes[0], ST_KEY0X, ST_KEY0Y, keys,
-		&keyboxes[0], &st_statusbaron);
+		&keyboxes[0]);
 
 	STLIB_InitMultIcon(&w_keyboxes[1], ST_KEY1X, ST_KEY1Y, keys,
-		&keyboxes[1], &st_statusbaron);
+		&keyboxes[1]);
 
 	STLIB_InitMultIcon(&w_keyboxes[2], ST_KEY2X, ST_KEY2Y, keys,
-		&keyboxes[2], &st_statusbaron);
+		&keyboxes[2]);
 
 	// ammo count (all four kinds)
 	STLIB_InitNum(&w_ammo[0], ST_AMMO0X, ST_AMMO0Y, shortnum, NULL,
-		&consoleplayer->ammo[0].num, &st_statusbaron, ST_AMMO0WIDTH);
+		&consoleplayer->ammo[0].num, ST_AMMO0WIDTH);
 
 	STLIB_InitNum(&w_ammo[1], ST_AMMO1X, ST_AMMO1Y, shortnum, NULL,
-		&consoleplayer->ammo[1].num, &st_statusbaron, ST_AMMO1WIDTH);
+		&consoleplayer->ammo[1].num, ST_AMMO1WIDTH);
 
 	STLIB_InitNum(&w_ammo[2], ST_AMMO2X, ST_AMMO2Y, shortnum, NULL,
-		&consoleplayer->ammo[2].num, &st_statusbaron, ST_AMMO2WIDTH);
+		&consoleplayer->ammo[2].num, ST_AMMO2WIDTH);
 
 	STLIB_InitNum(&w_ammo[3], ST_AMMO3X, ST_AMMO3Y, shortnum, NULL,
-		&consoleplayer->ammo[3].num, &st_statusbaron, ST_AMMO3WIDTH);
+		&consoleplayer->ammo[3].num, ST_AMMO3WIDTH);
 
 	// max ammo count (all four kinds)
 	STLIB_InitNum(&w_maxammo[0], ST_MAXAMMO0X, ST_MAXAMMO0Y, shortnum, NULL,
-		&consoleplayer->ammo[0].max, &st_statusbaron, ST_MAXAMMO0WIDTH);
+		&consoleplayer->ammo[0].max, ST_MAXAMMO0WIDTH);
 
 	STLIB_InitNum(&w_maxammo[1], ST_MAXAMMO1X, ST_MAXAMMO1Y, shortnum, NULL,
-		&consoleplayer->ammo[1].max, &st_statusbaron, ST_MAXAMMO1WIDTH);
+		&consoleplayer->ammo[1].max, ST_MAXAMMO1WIDTH);
 
 	STLIB_InitNum(&w_maxammo[2], ST_MAXAMMO2X, ST_MAXAMMO2Y, shortnum, NULL,
-		&consoleplayer->ammo[2].max, &st_statusbaron, ST_MAXAMMO2WIDTH);
+		&consoleplayer->ammo[2].max, ST_MAXAMMO2WIDTH);
 
 	STLIB_InitNum(&w_maxammo[3], ST_MAXAMMO3X, ST_MAXAMMO3Y, shortnum, NULL,
-		&consoleplayer->ammo[3].max, &st_statusbaron, ST_MAXAMMO3WIDTH);
+		&consoleplayer->ammo[3].max, ST_MAXAMMO3WIDTH);
 
 	for (i=0; i < 4; i++)
 		w_ammo[i].colmap = w_maxammo[i].colmap = text_yellow_map;
