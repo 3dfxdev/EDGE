@@ -431,6 +431,10 @@ static void P_UpdatePowerups(player_t *player)
 		else if (qty_r > 0)  qty_r = 0;
 	}
 
+	// -AJA- 2004/09/29: FIXME: temp kludge to make berserk last a level
+	if (player->powers[PW_Berserk] > 1.0f && player->powers[PW_Berserk] < 2.1f)
+		player->powers[PW_Berserk] = -1.0f;
+
 	if (player->powers[PW_PartInvis] >= 128 ||
 		fmod(player->powers[PW_PartInvis], 16) >= 8)
 		player->mo->flags |=  MF_FUZZY;
