@@ -1125,8 +1125,6 @@ namespace Patch
 
 	dehret_e LoadDiff(bool no_header)
 	{
-		DetectMsg("text-based");
-
 		// set these to defaults
 		doom_ver  = no_header ? 19 : 16;
 		patch_fmt = no_header ? 6 : 5;
@@ -1276,7 +1274,10 @@ namespace Patch
 		if (dhe_ver < 23)
 			return LoadBinary();
 		else
+		{
+			DetectMsg("text-based");
 			return LoadDiff(false);
+		}
 	}
 }
 
@@ -1303,7 +1304,7 @@ dehret_e Patch::Load(parse_buffer_api *buf)
 	{
 		pat_buf->ungetch(tempver);
 
-		PrintMsg("Patch has no header information -- assuming BEX !\n");
+		PrintMsg("Missing header -- assuming text-based BEX patch !\n");
 		dhe_ver = 31;
 		result = LoadDiff(true);
 	}
