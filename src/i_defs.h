@@ -258,8 +258,8 @@ typedef enum { false, true } bool;
 #define DEFAULTSCREENBITS   16
 #define DEFAULTSCREENWINDOW false
 
-#include "i_system.h"
 #include "linux/i_compen.h"
+#include "i_system.h"
 
 #endif // LINUX GCC
 
@@ -354,8 +354,8 @@ typedef enum { false, true } bool;
 #define DEFAULTSCREENBITS   16
 #define DEFAULTSCREENWINDOW false
 
-#include "i_system.h"
 #include "linux/i_compen.h"
+#include "i_system.h"
 
 #endif // MACOSX GCC
 
