@@ -389,13 +389,13 @@ static menuinfo_t mainmenuinfo =
 // -ES- 1999/03/29 New fov stuff
 static optmenuitem_t vidoptions[] =
 {
-	{OPT_Slider, "Brightness", NULL, 5, 0, &current_gamma, M_ChangeGamma, NULL},
+	{OPT_Slider, "Brightness", NULL, 5, 2, &current_gamma, M_ChangeGamma, NULL},
 	{OPT_Slider, "Field Of View", NULL, 35, 17, &menunormalfov, M_ChangeNormalFOV, NULL},
 	{OPT_Slider, "Zoomed FOV", NULL, 35, 1, &menuzoomedfov, M_ChangeZoomedFOV, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Switch, "HUD", Huds, 3, HUD_Full, &screen_hud, M_ChangeScreenHud, NULL},
 	{OPT_Boolean, "Translucency", YesNo, 2, 1, &global_flags.trans, M_ChangeTransluc, NULL},
-	{OPT_Switch, "Mipmapping", MipMaps, 3, 0, &use_mipmapping, M_ChangeMipMap, NULL},
+	{OPT_Switch, "Mipmapping", MipMaps, 3, 1, &use_mipmapping, M_ChangeMipMap, NULL},
 	{OPT_Boolean, "Smoothing", YesNo, 2, 1, &use_smoothing, M_ChangeMipMap, NULL},
 	{OPT_Boolean, "Shadows", YesNo, 2, 0, &global_flags.shadows, M_ChangeShadows, NULL},
 	{OPT_Switch, "Dynamic Lighting", DLMode, 3, 0, &use_dlights, M_ChangeDLights, NULL},
