@@ -38,7 +38,6 @@
 #include "hu_lib.h"
 #include "hu_stuff.h"
 #include "m_random.h"
-#include "m_swap.h"
 #include "p_action.h"
 #include "r2_defs.h"
 #include "r_state.h"

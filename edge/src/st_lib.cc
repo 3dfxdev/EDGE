@@ -28,7 +28,6 @@
 
 #include "dm_defs.h"
 #include "dm_state.h"
-#include "m_swap.h"
 #include "st_stuff.h"
 #include "r_local.h"
 #include "v_colour.h"

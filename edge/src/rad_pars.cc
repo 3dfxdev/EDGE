@@ -26,7 +26,6 @@
 #include "g_game.h"
 #include "lu_math.h"
 #include "m_argv.h"
-#include "m_swap.h"
 #include "p_local.h"
 #include "p_spec.h"
 #include "r_defs.h"

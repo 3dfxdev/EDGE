@@ -44,7 +44,6 @@
 #include "m_inline.h"
 #include "m_misc.h"
 #include "m_option.h"
-#include "m_swap.h"
 #include "m_random.h"
 #include "r_local.h"
 #include "s_sound.h"

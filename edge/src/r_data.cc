@@ -35,7 +35,6 @@
 #include "dm_defs.h"
 #include "m_argv.h"
 #include "m_misc.h"
-#include "m_swap.h"
 #include "p_local.h"
 #include "r_sky.h"
 #include "rgl_sky.h"

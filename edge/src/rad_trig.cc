@@ -45,7 +45,6 @@
 #include "m_inline.h"
 #include "m_misc.h"
 #include "m_random.h"
-#include "m_swap.h"
 #include "p_local.h"
 #include "p_spec.h"
 #include "r_defs.h"

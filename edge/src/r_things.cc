@@ -36,7 +36,6 @@
 #include "dm_state.h"
 #include "m_argv.h"
 #include "m_inline.h"
-#include "m_swap.h"
 #include "p_local.h"
 #include "r_local.h"
 #include "v_colour.h"
