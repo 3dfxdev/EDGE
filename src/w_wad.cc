@@ -93,8 +93,8 @@ public:
 	data_file_c(const char *_fname, int _kind, int _handle) :
 		file_name(_fname), kind(_kind), handle(_handle),
 		sprite_lumps(), flat_lumps(), patch_lumps(),
-		level_lumps(), skin_lumps(), wadtex(),
-		deh_lump(-1), companion_gwa(-1)
+		colmap_lumps(), level_markers(), skin_markers(),
+		wadtex(), deh_lump(-1), companion_gwa(-1)
 	{
 		for (int d = 0; d < NUM_DDF_READERS; d++)
 			ddf_lumps[d] = -1;
@@ -112,10 +112,11 @@ public:
 	epi::u32array_c sprite_lumps;
 	epi::u32array_c flat_lumps;
 	epi::u32array_c patch_lumps;
+	epi::u32array_c colmap_lumps;
 
 	// level markers and skin markers
-	epi::u32array_c level_lumps;
-	epi::u32array_c skin_lumps;
+	epi::u32array_c level_markers;
+	epi::u32array_c skin_markers;
 
 	// ddf lump list
 	int ddf_lumps[NUM_DDF_READERS];
@@ -159,9 +160,10 @@ raw_filename_t;
 typedef enum
 {
 	LMKIND_Normal = 0,  // fallback value
-	LMKIND_Marker = 3,  // X_START, X_END, S_SKIN
+	LMKIND_Marker = 3,  // X_START, X_END, S_SKIN, level name
 	LMKIND_WadTex = 6,  // palette, pnames, texture1/2
 	LMKIND_DDFRTS = 10, // DDF, RTS, DEHACKED lump
+	LMKIND_Colmap = 15,
 	LMKIND_Flat   = 16,
 	LMKIND_Sprite = 17,
 	LMKIND_Patch  = 18
@@ -233,6 +235,7 @@ static int palette_datafile = -1;
 bool within_sprite_list;
 bool within_flat_list;
 bool within_patch_list;
+bool within_colmap_list;
 
 int addwadnum = 0;
 static int maxwadfiles = 0;
@@ -333,6 +336,19 @@ static bool IsP_END(char *name)
 	}
 
 	return (strncmp(name, "P_END", 8) == 0);
+}
+
+//
+// Is the name a colourmap list start/end flag?
+//
+static bool IsC_START(char *name)
+{
+	return (strncmp(name, "C_START", 8) == 0);
+}
+
+static bool IsC_END(char *name)
+{
+	return (strncmp(name, "C_END", 8) == 0);
 }
 
 //
@@ -634,7 +650,7 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 	if (IsSkin(lump_p->name))
 	{
 		lump_p->kind = LMKIND_Marker;
-		df->skin_lumps.Insert(lump);
+		df->skin_markers.Insert(lump);
 		return;
 	}
 
@@ -685,6 +701,21 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 		within_patch_list = false;
 		return;
 	}
+	else if (IsC_START(lump_p->name))
+	{
+		lump_p->kind = LMKIND_Marker;
+		within_colmap_list = true;
+		return;
+	}
+	else if (IsC_END(lump_p->name))
+	{
+		if (!within_colmap_list)
+			I_Warning("Unexpected C_END marker in wad.\n");
+
+		lump_p->kind = LMKIND_Marker;
+		within_colmap_list = false;
+		return;
+	}
 
 	// ignore zero size lumps or dummy markers
 	if (lump_p->size > 0 && !IsDummySF(lump_p->name))
@@ -705,6 +736,12 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 		{
 			lump_p->kind = LMKIND_Patch;
 			df->patch_lumps.Insert(lump);
+		}
+    
+		if (within_colmap_list)
+		{
+			lump_p->kind = LMKIND_Colmap;
+			df->colmap_lumps.Insert(lump);
 		}
 	}
 }
@@ -737,16 +774,16 @@ static void CheckForLevel(data_file_c *df, int lump, const char *name,
 		}
 
 		// check for duplicates (Slige sometimes does this)
-		for (int L = 0; L < df->level_lumps.GetSize(); L++)
+		for (int L = 0; L < df->level_markers.GetSize(); L++)
 		{
-			if (strcmp(lumpinfo[df->level_lumps[L]].name, name) == 0)
+			if (strcmp(lumpinfo[df->level_markers[L]].name, name) == 0)
 			{
 				I_Warning("Duplicate level '%s' ignored.\n", name);
 				return;
 			}
 		}
 
-		df->level_lumps.Insert(lump);
+		df->level_markers.Insert(lump);
 		return;
 	}
 
@@ -757,7 +794,7 @@ static void CheckForLevel(data_file_c *df, int lump, const char *name,
 	    strncmp(raw[3].name, "GL_SSECT", 8) == 0 &&
 	    strncmp(raw[4].name, "GL_NODES", 8) == 0)
 	{
-		df->level_lumps.Insert(lump);
+		df->level_markers.Insert(lump);
 		return;
 	}
 }
@@ -772,9 +809,9 @@ static bool HasInternalGLNodes(data_file_c *df, int datafile)
 	int levels  = 0;
 	int glnodes = 0;
 	
-	for (int L = 0; L < df->level_lumps.GetSize(); L++)
+	for (int L = 0; L < df->level_markers.GetSize(); L++)
 	{
-		int lump = df->level_lumps[L];
+		int lump = df->level_markers[L];
 
 		if (IsGL_Prefix(lumpinfo[lump].name))
 			continue;
@@ -785,9 +822,9 @@ static bool HasInternalGLNodes(data_file_c *df, int datafile)
 
 		sprintf(gl_marker, "GL_%s", lumpinfo[lump].name);
 
-		for (int M = L+1; M < df->level_lumps.GetSize(); M++)
+		for (int M = L+1; M < df->level_markers.GetSize(); M++)
 		{
-			int lump2 = df->level_lumps[M];
+			int lump2 = df->level_markers[M];
 
 			if (strcmp(lumpinfo[lump2].name, gl_marker) == 0)
 			{
@@ -856,7 +893,8 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	wad_entry_t *fileinfo, *curinfo;
 
 	// reset the sprite/flat/patch list stuff
-	within_sprite_list = within_flat_list = within_patch_list  = false;
+	within_sprite_list = within_flat_list = false;
+	within_patch_list  = within_colmap_list = false;
 
 	// open the file and add to directory
 
@@ -951,10 +989,13 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	if (within_patch_list)
 		I_Warning("Missing P_END marker in %s.\n", filename);
    
+	if (within_colmap_list)
+		I_Warning("Missing C_END marker in %s.\n", filename);
+   
 	// -AJA- 1999/12/25: What did Santa bring EDGE ?  Just some support
 	//       for "GWA" files (part of the "GL-Friendly Nodes" specs).
   
-	if (kind <= FLKIND_PWad && df->level_lumps.GetSize() > 0)
+	if (kind <= FLKIND_PWad && df->level_markers.GetSize() > 0)
 	{
 		if (HasInternalGLNodes(df, datafile))
 		{
@@ -1384,7 +1425,7 @@ int W_CheckNumForTexPatch(const char *name)
 		{
 			// allow LMKIND_Normal to support patches outside of the
 			// P_START/END markers.  We especially want to disallow
-			// flat lumps.
+			// flat and colourmap lumps.
 			return lumpmap[i];
 		}
 	}
