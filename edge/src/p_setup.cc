@@ -2440,7 +2440,7 @@ static void DetectLineDefCompat(int lump, int *edge_cnt, int *boom_cnt)
 //
 int P_DetectMapCompat(const mapdef_c *map)
 {
-	int lumpnum = W_CheckNumForName(currmap->lump.GetString());
+	int lumpnum = W_CheckNumForName(map->lump.GetString());
 
 	if (lumpnum < 0)
 		return 0;
@@ -2459,7 +2459,7 @@ int P_DetectMapCompat(const mapdef_c *map)
 	DetectLineDefCompat(lumpnum + ML_LINEDEFS, &edge_cnt, &boom_cnt);
 
 	L_WriteDebug("P_DetectMapCompat: [%s] edge_cnt %d, boom_cnt %d\n",
-		currmap->lump.GetString(), edge_cnt, boom_cnt);
+		map->lump.GetString(), edge_cnt, boom_cnt);
 
 	return ((edge_cnt > 0) ? MAP_CM_Edge : 0) | 
 	       ((boom_cnt > 0) ? MAP_CM_Boom : 0);
