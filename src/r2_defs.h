@@ -374,16 +374,6 @@ void R2_GetThingSprite(mobj_t *thing, spritedef_t ** sprite,
     spriteframe_t ** frame, int *lump, boolean_t *flip, boolean_t *bright);
 void R2_ClipSpriteVertically(drawsub_t *dsub, drawthing_t *dthing);
 
-#ifdef USE_GL
-extern int glmax_lights;
-extern int glmax_clip_planes;
-extern int glmax_tex_size;
-
-void R2GL_Init(void);
-void R2GL_RenderTrueBSP(void);
-void R2GL_ResetTextures(void);
-#endif
-
 
 //
 //  R2_UTIL
