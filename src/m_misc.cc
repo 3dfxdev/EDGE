@@ -57,6 +57,8 @@
 
 #include "epi/epiutil.h"
 #include "epi/epiendian.h"
+#include "epi/epifile.h"
+#include "epi/epifilesystem.h"
 
 //
 // DEFAULTS
@@ -784,6 +786,19 @@ FILE *M_OpenComposedFile(const char *dir, const char *file)
 	M_ComposeFileName(fullname, dir, file);
 
 	return fopen(fullname.GetString(), "rb");
+}
+
+//
+// M_OpenComposedEPIFile
+//
+epi::file_c *M_OpenComposedEPIFile(const char *dir, const char *file)
+{
+	epi::string_c fullname;
+
+	M_ComposeFileName(fullname, dir, file);
+
+	return epi::the_filesystem->Open(fullname.GetString(),
+		epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
 }
 
 //
