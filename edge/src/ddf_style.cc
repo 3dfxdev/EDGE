@@ -2,7 +2,7 @@
 //  EDGE Data Definition File Code (Styles)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004  The EDGE Team.
+//  Copyright (c) 2004-2005  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
