@@ -310,8 +310,6 @@ static void MovePlayer(player_t * player)
 // Fall on your face when dying.
 // Decrease POV height to floor height.
 //
-#define ANG5   	(ANG90/18)
-
 static void DeathThink(player_t * player)
 {
 	float dx, dy, dz;
