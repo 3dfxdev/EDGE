@@ -6,7 +6,7 @@ EDGE DDF 4.0 (2004-03-07):
 2) THINGS.DDF: added new CAST_TITLE commands for every cast monster.
 3) THINGS.DDF: player defs: use CHECKMOVING in all the CHASE frames, and
                remove #CHASE redirection from PAIN frames.
-
+4) ALL: added #VERSION directive to top of file.
 
 EDGE DDF 3.9 (2004-01-15):
 ==========================
