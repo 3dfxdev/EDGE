@@ -29,38 +29,6 @@
 #include "dm_defs.h"
 #include "z_zone.h"
 
-//
-// TYPES
-//
-typedef struct
-{
-  // Should be "IWAD" or "PWAD".
-  char identification[4];
-  int numlumps;
-  int infotableofs;
-}
-wadinfo_t;
-
-typedef struct
-{
-  int filepos;
-  int size;
-  char name[8];
-}
-filelump_t;
-
-//
-// WADFILE I/O related stuff.
-//
-typedef struct
-{
-  char name[8];
-  int position;
-  int size;
-  int file;
-}
-lumpinfo_t;
-
 typedef struct wadtex_resource_s
 {
   int pnames;
@@ -68,13 +36,11 @@ typedef struct wadtex_resource_s
 }
 wadtex_resource_t;
 
-extern lumpinfo_t *lumpinfo;
 extern int numlumps;
 extern int addwadnum;
 
 void W_AddRawFilename(const char *file, boolean_t allow_ddf);
 boolean_t W_InitMultipleFiles(void);
-void W_Reload(void);
 
 int W_CheckNumForName2(const char *name);
 int W_GetNumForName2(const char *name);
@@ -92,11 +58,14 @@ void W_PreCacheLumpName(const char *name);
 void *W_LoadLumpNum(int lump);
 void *W_LoadLumpName(const char *name);
 boolean_t W_VerifyLumpName(int lump, const char *name);
-char *W_GetLumpName(int lump);
+const char *W_GetLumpName(int lump);
 int W_CacheInfo(int level);
 
 wadtex_resource_t *W_GetTextureResources(void);
 int *W_GetList(char name, int *num);
+
+const char *W_GetFileName(int lump);
+void W_AddDynamicGWA(const char *filename, int map_lump);
 
 // Define this only in an emergency.  All these debug printfs quickly
 // add up, and it takes only a few seconds to end up with a 40 meg debug file!
