@@ -86,6 +86,7 @@ void RAD_ActTipProps(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActPlaySound(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActKillSound(rad_trigger_t *R, mobj_t *actor, void *param);
+void RAD_ActChangeMusic(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param);
 
 void RAD_ActSectorMove(rad_trigger_t *R, mobj_t *actor, void *param);
