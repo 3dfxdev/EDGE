@@ -134,10 +134,10 @@ typedef struct commandlist_s
 	//
 	void (*parse_command) (const char *info, void *storage);
 
-  void *storage;
+	void *storage;
 
 	const struct commandlist_s *sub_comms;
-  void *sub_dummy_base;
+	void *sub_dummy_base;
 }
 commandlist_t;
 

@@ -43,34 +43,34 @@
 //
 typedef enum
 {
-  ps_weapon = 0,
-  ps_flash,
-  ps_crosshair,
-  ps_NOT_USED,
+	ps_weapon = 0,
+	ps_flash,
+	ps_crosshair,
+	ps_NOT_USED,
 
-  // -AJA- Savegame code relies on NUMPSPRITES == 4.
-  NUMPSPRITES
+	// -AJA- Savegame code relies on NUMPSPRITES == 4.
+	NUMPSPRITES
 }
 psprnum_t;
 
 typedef struct
 {
-  // current state.  NULL state means not active
-  const state_t *state;
+	// current state.  NULL state means not active
+	const state_t *state;
 
-  // state to enter next.
-  const state_t *next_state;
+	// state to enter next.
+	const state_t *next_state;
 
-  // time (in tics) remaining for current state
-  int tics;
-  
-  // screen position values
-  float sx;
-  float sy;
+	// time (in tics) remaining for current state
+	int tics;
 
-  // translucency values
-  float visibility;
-  float vis_target;
+	// screen position values
+	float sx;
+	float sy;
+
+	// translucency values
+	float visibility;
+	float vis_target;
 }
 pspdef_t;
 
@@ -79,14 +79,14 @@ pspdef_t;
 // 
 typedef struct
 {
-  weaponinfo_t *info;
+	weaponinfo_t *info;
 
-  // player has this weapon.
-  bool owned;
+	// player has this weapon.
+	bool owned;
 
-  // current clip sizes
-  int clip_size;
-  int sa_clip_size;
+	// current clip sizes
+	int clip_size;
+	int sa_clip_size;
 }
 playerweapon_t;
 

@@ -71,76 +71,76 @@ typedef struct wipescr_s wipescr_t;
 
 typedef struct wipetype_s
 {
-  // allow that start or end are equal to dest
-  bool allow_start_dest;
-  bool allow_end_dest;
-  // these should init/destroy the data field of wp
-  void (*init_info) (wipeparm_t * wp);
-  void (*destroy_info) (wipeparm_t * wp);
-  // returns the default duration of the effect.
-  int (*def_duration) (wipeinfo_t * wi);
+	// allow that start or end are equal to dest
+	bool allow_start_dest;
+	bool allow_end_dest;
+	// these should init/destroy the data field of wp
+	void (*init_info) (wipeparm_t * wp);
+	void (*destroy_info) (wipeparm_t * wp);
+	// returns the default duration of the effect.
+	int (*def_duration) (wipeinfo_t * wi);
 
-  // wipe: take in some way (1-progress)*start plus
-  // progress*end and put the result in dest.
-  void (*do_wipe) (wipeparm_t * wp);
+	// wipe: take in some way (1-progress)*start plus
+	// progress*end and put the result in dest.
+	void (*do_wipe) (wipeparm_t * wp);
 }
 wipetype_t;
 
 struct wipescr_s
 {
-  // the id of the screen to be wiped. Wiping is cancelled if
-  // the screen changes before it's finished.
-  long id;
+	// the id of the screen to be wiped. Wiping is cancelled if
+	// the screen changes before it's finished.
+	long id;
 
-  // This is either just a subscreen to the one that was passed to
-  // InitWipe, or it's a standalone copy of it.
-  screen_t *scr;
-  // if this is true, scr is a copy of the actual screen, and should
-  // be updated in every call to WIPE_DoWipe. Used when destination
-  // intersects with start (or end).
-  bool update_scr;
-  // used for positioning if update_scr is set.
-  int update_x, update_y;
+	// This is either just a subscreen to the one that was passed to
+	// InitWipe, or it's a standalone copy of it.
+	screen_t *scr;
+	// if this is true, scr is a copy of the actual screen, and should
+	// be updated in every call to WIPE_DoWipe. Used when destination
+	// intersects with start (or end).
+	bool update_scr;
+	// used for positioning if update_scr is set.
+	int update_x, update_y;
 };
 
 // the parameters to the actual wipe routines
 struct wipeparm_s
 {
-  // the screens the wiping affects. Points to the scr elements of the
-  // wipeinfo's wipescrs, but may be shuffled if the effect is reversed.
-  screen_t *dest;
-  screen_t *start;
-  screen_t *end;
+	// the screens the wiping affects. Points to the scr elements of the
+	// wipeinfo's wipescrs, but may be shuffled if the effect is reversed.
+	screen_t *dest;
+	screen_t *start;
+	screen_t *end;
 
-  // ranges from 0 to 1.0. 0 means 100% start, 1.0 means 100% end.
-  float progress;
+	// ranges from 0 to 1.0. 0 means 100% start, 1.0 means 100% end.
+	float progress;
 
-  // data that is customisable for wipetype
-  void *data;
+	// data that is customisable for wipetype
+	void *data;
 };
 
 struct wipeinfo_s
 {
-  wipescr_t dest, start, end;
+	wipescr_t dest, start, end;
 
-  // the total number of tics this wipe will last.
-  int duration;
+	// the total number of tics this wipe will last.
+	int duration;
 
-  // tells whether this wipeinfo is active or done.
-  bool active;
+	// tells whether this wipeinfo is active or done.
+	bool active;
 
-  // w & h of the area where wiping will take place
-  int width, height;
+	// w & h of the area where wiping will take place
+	int width, height;
 
-  // a reversed wipe does the effect backwards, but it still starts with
-  // start screen and ends with end screen. E.g. a reversed melt means that
-  // the end screen anti-melts (moves upward) until it covers the entire
-  // screen. Crossfading is not affected by revesion.
-  bool reversed;
-  wipetype_t *type;
+	// a reversed wipe does the effect backwards, but it still starts with
+	// start screen and ends with end screen. E.g. a reversed melt means that
+	// the end screen anti-melts (moves upward) until it covers the entire
+	// screen. Crossfading is not affected by revesion.
+	bool reversed;
+	wipetype_t *type;
 
-  // the parameters to the wiper
-  wipeparm_t parms;
+	// the parameters to the wiper
+	wipeparm_t parms;
 };
 
 extern wipetype_t wipes[WIPE_NUMWIPES];

@@ -80,9 +80,9 @@ const char *W_TextureNameInSet(int set, int offset);
 //
 typedef struct
 {
-  int originx;
-  int originy;
-  int patch;  // lump number
+	int originx;
+	int originy;
+	int patch;  // lump number
 }
 texpatch_t;
 
@@ -92,22 +92,22 @@ texpatch_t;
 //
 typedef struct texturedef_s
 {
-  // Keep name for switch changing, etc.  Zero terminated.
-  char name[10];
+	// Keep name for switch changing, etc.  Zero terminated.
+	char name[10];
 
-  short width;
-  short height;
+	short width;
+	short height;
 
-  // which WAD file this texture came from
-  short file;
-  
-  unsigned short *columnofs;
-  int palette_lump;
+	// which WAD file this texture came from
+	short file;
 
-  // All the patches[patchcount] are drawn back to front into the
-  // cached texture.
-  short patchcount;
-  texpatch_t patches[1];
+	unsigned short *columnofs;
+	int palette_lump;
+
+	// All the patches[patchcount] are drawn back to front into the
+	// cached texture.
+	short patchcount;
+	texpatch_t patches[1];
 }
 texturedef_t;
 
