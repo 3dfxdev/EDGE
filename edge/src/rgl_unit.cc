@@ -107,6 +107,17 @@ void RGL_InitUnits(void)
 	CON_CreateCVarBool("vertexarray",   cf_normal, &use_vertex_array);
 	CON_CreateCVarBool("colormaterial", cf_normal, &use_color_material);
 
+	// Run the soft init code
+	RGL_SoftInitUnits();
+}
+
+//
+// RGL_SoftInitUnits
+//
+// -ACB- 2004/02/15 Quickly-hacked routine to reinit stuff lost on res change
+//
+void RGL_SoftInitUnits()
+{
 	if (true)  /// XXX
 	{
 		// setup pointers to client state
@@ -128,6 +139,8 @@ void RGL_InitUnits(void)
 	}
 }
 
+
+//
 // RGL_StartUnits
 //
 // Starts a fresh batch of units.  There should be two batches of
