@@ -19,7 +19,7 @@
 #include "includes.h"
 #include "protocol.h"
 
-void proto_header_t::ByteSwap()
+void header_proto_t::ByteSwap()
 {
 	flags      = SYS_BE_S16(flags);
 	request_id = SYS_BE_S16(request_id);

@@ -22,7 +22,7 @@
 //
 // common packet header
 //
-typedef struct proto_header_s
+typedef struct header_proto_s
 {
 	char type[2];
 
@@ -46,7 +46,7 @@ typedef struct proto_header_s
 
 	void ByteSwap();
 }
-proto_header_t;
+header_proto_t;
 
 
 //

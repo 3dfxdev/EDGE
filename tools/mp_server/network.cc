@@ -191,7 +191,7 @@ void *NetRun(void *data)
 
 			NLsocket socks[4];  // only one in the group
 
-			int num = nlPollGroup(main_group, NL_READ_STATUS, socks, 4, 20 /* millis */);
+			int num = nlPollGroup(main_group, NL_READ_STATUS, socks, 4, 10 /* millis */);
 
 			if (num < 1)
 				continue;

@@ -31,7 +31,7 @@ public:
 private:
 	static const int MAX_PACKET = 512;
 	static const int READ_GAP = 4;   // used to detect too-long packets
-	static const int HEADER_LEN = sizeof(proto_header_t);
+	static const int HEADER_LEN = sizeof(header_proto_t);
 
 	char raw[MAX_PACKET];
 
@@ -39,7 +39,7 @@ public:
 	inline int Capacity() const { return MAX_PACKET - HEADER_LEN; }
 	inline bool CanHold(int length) const { return length <= Capacity(); }
 
-	inline proto_header_t& hd() { return *((proto_header_t *)raw); }
+	inline header_proto_t& hd() { return *((header_proto_t *)raw); }
 	inline char *DataPtr() { return raw + HEADER_LEN; }
 
 	void Clear();
