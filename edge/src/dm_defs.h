@@ -129,7 +129,6 @@ typedef struct gameflags_s
   boolean_t stretchsky;
   boolean_t have_extra;
   boolean_t limit_zoom;
-  boolean_t flat_lighting;
 }
 gameflags_t;
 
