@@ -1747,7 +1747,7 @@ private:
 	void CleanupObject(void *obj) { /* ... */ }
 
 public:
-	int GetSize() {	return array_entries; } 
+	int GetSize() { return array_entries; } 
 	int Insert(intercept_t *in) { return InsertObject((void*)in); }
 	intercept_t* operator[](int idx) { return (intercept_t*)FetchObject(idx); } 
 };

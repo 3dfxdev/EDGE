@@ -44,7 +44,6 @@
 #include "v_colour.h"
 #include "w_image.h"
 #include "w_wad.h"
-#include "z_zone.h"
 
 #define DEBUG_TRUEBSP  0
 

@@ -738,216 +738,216 @@ bool CON_HandleKey(guievent_t * ev)
 	switch (ev->data1)
 	{
 #if 0  // -ES- fixme - implement tab stuff (need commands first, though)
-case KEYD_TAB:
-	// Try to do tab-completion
-	TabComplete();
-	break;
+	case KEYD_TAB:
+		// Try to do tab-completion
+		TabComplete();
+		break;
 #endif
-
-case KEYD_PGUP:
-	if (KeysShifted)
-		// Move to top of console buffer
-		bottomrow = 0;
-	else
-		// Start scrolling console buffer up
-		scroll_state = SCROLLUP;
-	break;
-
-case KEYD_PGDN:
-	if (KeysShifted)
-		// Move to bottom of console buffer
-		bottomrow = -1;
-	else
-		// Start scrolling console buffer down
-		scroll_state = SCROLLDN;
-	break;
-
-case KEYD_HOME:
-	// Move cursor to start of line
-	cmdlinepos = 1;
-	break;
-
-case KEYD_END:
-	// Move cursor to end of line
-	cmdlinepos = cmdlineend;
-	break;
-
-case KEYD_LEFTARROW:
-	// Move cursor left one character
-
-	if (cmdlinepos > 1)
-		cmdlinepos--;
-	break;
-
-case KEYD_RIGHTARROW:
-	// Move cursor right one character
-
-	if (cmdlinepos < cmdlineend)
-		cmdlinepos++;
-	break;
-
-case KEYD_BACKSPACE:
-	// Erase character to left of cursor
-
-	if (cmdlinepos > 1)
-	{
-		char *c, *e;
-
-		e = &cmdline[cmdlineend];
-		c = &cmdline[cmdlinepos];
-
-		for (; c <= e; c++)
-			*(c - 1) = *c;
-
-		cmdlineend--;
-		cmdlinepos--;
-	}
-
-	TabbedLast = false;
-	break;
-
-case KEYD_DELETE:
-	// Erase charater under cursor
-
-	if (cmdlinepos < cmdlineend)
-	{
-		char *c, *e;
-
-		e = &cmdline[cmdlineend];
-		c = &cmdline[cmdlinepos + 1];
-
-		for (; c <= e; c++)
-			*(c - 1) = *c;
-
-		cmdlineend--;
-	}
-
-	TabbedLast = false;
-	break;
-
-case KEYD_RALT:
-case KEYD_RCTRL:
-	// Do nothing
-	break;
-
-case KEYD_RSHIFT:
-	// SHIFT was pressed
-	KeysShifted = true;
-	break;
-
-case KEYD_UPARROW:
-	// Move to previous entry in the command history
-	if (cmdhistorypos == -1)
-	{
-		cmdhistorypos = cmdhistoryend - 1;
-		// backup cmdline temporarily: It can be recovered until the next
-		// command you execute. another command.
-		GrowLine(&cmdlinebkp, &cmdlinebkpsize, cmdlineend + 1);
-		Z_MoveData(cmdlinebkp, cmdline, char, cmdlineend + 1);
-
-		// add to history unofficially, so that it will be overwritten.
-		cmdhistory[cmdhistoryend].s = cmdlinebkp;
-		cmdhistory[cmdhistoryend].len = (int)strlen(cmdlinebkp);
-	}
-	else if (cmdhistorypos)
-	{
-		cmdhistorypos--;
-	}
-
-	// set command line to the history index.
-	cmdlineend = cmdlinepos = cmdhistory[cmdhistorypos].len;
-	GrowLine(&cmdline, &cmdlinesize, cmdlineend + 1);
-	Z_MoveData(cmdline, cmdhistory[cmdhistorypos].s, char, cmdlineend + 1);
-
-	TabbedLast = false;
-	break;
-
-case KEYD_DOWNARROW:
-	// Move to next entry in the command history
-
-	if (cmdhistorypos != -1 && cmdhistorypos < cmdhistoryend)
-	{
-		cmdhistorypos++;
-		// set command line to the history item.
+	
+	case KEYD_PGUP:
+		if (KeysShifted)
+			// Move to top of console buffer
+			bottomrow = 0;
+		else
+			// Start scrolling console buffer up
+			scroll_state = SCROLLUP;
+		break;
+	
+	case KEYD_PGDN:
+		if (KeysShifted)
+			// Move to bottom of console buffer
+			bottomrow = -1;
+		else
+			// Start scrolling console buffer down
+			scroll_state = SCROLLDN;
+		break;
+	
+	case KEYD_HOME:
+		// Move cursor to start of line
+		cmdlinepos = 1;
+		break;
+	
+	case KEYD_END:
+		// Move cursor to end of line
+		cmdlinepos = cmdlineend;
+		break;
+	
+	case KEYD_LEFTARROW:
+		// Move cursor left one character
+	
+		if (cmdlinepos > 1)
+			cmdlinepos--;
+		break;
+	
+	case KEYD_RIGHTARROW:
+		// Move cursor right one character
+	
+		if (cmdlinepos < cmdlineend)
+			cmdlinepos++;
+		break;
+	
+	case KEYD_BACKSPACE:
+		// Erase character to left of cursor
+	
+		if (cmdlinepos > 1)
+		{
+			char *c, *e;
+	
+			e = &cmdline[cmdlineend];
+			c = &cmdline[cmdlinepos];
+	
+			for (; c <= e; c++)
+				*(c - 1) = *c;
+	
+			cmdlineend--;
+			cmdlinepos--;
+		}
+	
+		TabbedLast = false;
+		break;
+	
+	case KEYD_DELETE:
+		// Erase charater under cursor
+	
+		if (cmdlinepos < cmdlineend)
+		{
+			char *c, *e;
+	
+			e = &cmdline[cmdlineend];
+			c = &cmdline[cmdlinepos + 1];
+	
+			for (; c <= e; c++)
+				*(c - 1) = *c;
+	
+			cmdlineend--;
+		}
+	
+		TabbedLast = false;
+		break;
+	
+	case KEYD_RALT:
+	case KEYD_RCTRL:
+		// Do nothing
+		break;
+	
+	case KEYD_RSHIFT:
+		// SHIFT was pressed
+		KeysShifted = true;
+		break;
+	
+	case KEYD_UPARROW:
+		// Move to previous entry in the command history
+		if (cmdhistorypos == -1)
+		{
+			cmdhistorypos = cmdhistoryend - 1;
+			// backup cmdline temporarily: It can be recovered until the next
+			// command you execute. another command.
+			GrowLine(&cmdlinebkp, &cmdlinebkpsize, cmdlineend + 1);
+			Z_MoveData(cmdlinebkp, cmdline, char, cmdlineend + 1);
+	
+			// add to history unofficially, so that it will be overwritten.
+			cmdhistory[cmdhistoryend].s = cmdlinebkp;
+			cmdhistory[cmdhistoryend].len = (int)strlen(cmdlinebkp);
+		}
+		else if (cmdhistorypos)
+		{
+			cmdhistorypos--;
+		}
+	
+		// set command line to the history index.
 		cmdlineend = cmdlinepos = cmdhistory[cmdhistorypos].len;
 		GrowLine(&cmdline, &cmdlinesize, cmdlineend + 1);
 		Z_MoveData(cmdline, cmdhistory[cmdhistorypos].s, char, cmdlineend + 1);
-
-		if (cmdhistorypos == cmdhistoryend)
-		{  // we just restored the cmdline backup, now we aren't browsing history anymore.
-
-			cmdhistorypos = -1;
-		}
-
+	
 		TabbedLast = false;
-	}
-	break;
-case KEYD_ENTER:
-
-	// Execute command line (ENTER)
-
-	// Add it to history & draw it
-	AddCommandToHistory(cmdline);
-	CON_Printf("\n%s\n", cmdline);
-
-	// Run it!
-	CON_TryCommand(cmdline + 1);
-
-	// clear cmdline
-	cmdline[1] = 0;
-	cmdlinepos = 1;
-	cmdlineend = 1;
-	cmdhistorypos = -1;
-	TabbedLast = false;
-	break;
-
-case KEYD_TILDE:
-case KEYD_ESCAPE:
-	// Close console, clear command line, but if we're in the
-	// fullscreen console mode, there's nothing to fall back on
-	// if it's closed.
-	cmdline[1] = 0;
-	cmdlinepos = 1;
-	cmdlineend = 1;
-	cmdhistorypos = -1;
-
-	TabbedLast = false;
-	UpdateCmdLine();
-
-	CON_SetVisible(vs_notvisible);
-	break;
-
-default:
-	if (ev->data1 < 32 || ev->data1 > 126)
-	{
-		// Do nothing
-	}
-	else
-	{
-		// Add keypress to command line
-		char data = ev->data1;
-		char *c, *e;
-
-		GrowLine(&cmdline, &cmdlinesize, cmdlineend + 2);
-
-		// move everything after the cursor, including the 0, one step to the right
-		e = &cmdline[cmdlineend];
-		c = &cmdline[cmdlinepos];
-
-		for (; e >= c; e--)
+		break;
+	
+	case KEYD_DOWNARROW:
+		// Move to next entry in the command history
+	
+		if (cmdhistorypos != -1 && cmdhistorypos < cmdhistoryend)
 		{
-			*(e + 1) = *e;
+			cmdhistorypos++;
+			// set command line to the history item.
+			cmdlineend = cmdlinepos = cmdhistory[cmdhistorypos].len;
+			GrowLine(&cmdline, &cmdlinesize, cmdlineend + 1);
+			Z_MoveData(cmdline, cmdhistory[cmdhistorypos].s, char, cmdlineend + 1);
+	
+			if (cmdhistorypos == cmdhistoryend)
+			{  // we just restored the cmdline backup, now we aren't browsing history anymore.
+	
+				cmdhistorypos = -1;
+			}
+	
+			TabbedLast = false;
 		}
-
-		// insert the character
-		*c = data;
-
-		cmdlinepos++;
-		cmdlineend++;
-	}
-	TabbedLast = false;
-
-	break;
+		break;
+	case KEYD_ENTER:
+	
+		// Execute command line (ENTER)
+	
+		// Add it to history & draw it
+		AddCommandToHistory(cmdline);
+		CON_Printf("\n%s\n", cmdline);
+	
+		// Run it!
+		CON_TryCommand(cmdline + 1);
+	
+		// clear cmdline
+		cmdline[1] = 0;
+		cmdlinepos = 1;
+		cmdlineend = 1;
+		cmdhistorypos = -1;
+		TabbedLast = false;
+		break;
+	
+	case KEYD_TILDE:
+	case KEYD_ESCAPE:
+		// Close console, clear command line, but if we're in the
+		// fullscreen console mode, there's nothing to fall back on
+		// if it's closed.
+		cmdline[1] = 0;
+		cmdlinepos = 1;
+		cmdlineend = 1;
+		cmdhistorypos = -1;
+	
+		TabbedLast = false;
+		UpdateCmdLine();
+	
+		CON_SetVisible(vs_notvisible);
+		break;
+	
+	default:
+		if (ev->data1 < 32 || ev->data1 > 126)
+		{
+			// Do nothing
+		}
+		else
+		{
+			// Add keypress to command line
+			char data = ev->data1;
+			char *c, *e;
+	
+			GrowLine(&cmdline, &cmdlinesize, cmdlineend + 2);
+	
+			// move everything after the cursor, including the 0, one step to the right
+			e = &cmdline[cmdlineend];
+			c = &cmdline[cmdlinepos];
+	
+			for (; e >= c; e--)
+			{
+				*(e + 1) = *e;
+			}
+	
+			// insert the character
+			*c = data;
+	
+			cmdlinepos++;
+			cmdlineend++;
+		}
+		TabbedLast = false;
+	
+		break;
 
 	}
 	// something in the console has probably changed, so we update it
@@ -977,15 +977,15 @@ bool CON_Responder(gui_t * gui, guievent_t * event)
 
 		switch (event->data1)
 		{
-		case KEYD_PGUP:
-		case KEYD_PGDN:
-			scroll_state = NOSCROLL;
-			break;
-		case KEYD_RSHIFT:
-			KeysShifted = false;
-			break;
-		default:
-			return false;
+			case KEYD_PGUP:
+			case KEYD_PGDN:
+				scroll_state = NOSCROLL;
+				break;
+			case KEYD_RSHIFT:
+				KeysShifted = false;
+				break;
+			default:
+				return false;
 		}
 	}
 	else if (event->type == gev_keydown)
@@ -993,18 +993,18 @@ bool CON_Responder(gui_t * gui, guievent_t * event)
 		// Okay, fine. Most keys don't repeat
 		switch (event->data1)
 		{
-		case KEYD_RIGHTARROW:
-		case KEYD_LEFTARROW:
-		case KEYD_UPARROW:
-		case KEYD_DOWNARROW:
-		case KEYD_SPACE:
-		case KEYD_BACKSPACE:
-		case KEYD_DELETE:
-			RepeatCountdown = KEYREPEATDELAY;
-			break;
-		default:
-			RepeatCountdown = 0;
-			break;
+			case KEYD_RIGHTARROW:
+			case KEYD_LEFTARROW:
+			case KEYD_UPARROW:
+			case KEYD_DOWNARROW:
+			case KEYD_SPACE:
+			case KEYD_BACKSPACE:
+			case KEYD_DELETE:
+				RepeatCountdown = KEYREPEATDELAY;
+				break;
+			default:
+				RepeatCountdown = 0;
+				break;
 		}
 
 		RepeatEvent = *event;
