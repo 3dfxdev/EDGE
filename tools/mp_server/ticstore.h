@@ -23,11 +23,11 @@
 
 class tic_band_c
 {
-	// holds the ticcmds for one player and the associated bots.
-	// (e.g. Robin Hood and his merry band of deathbots).
+	// holds the ticcmds for a set of players (e.g. everyone in a game).
+	// you could consider this the horizontal dimension.
 
 public:
-	tic_band_c(int _size /* bots + 1 */);
+	tic_band_c(int _size);
 	~tic_band_c();
 
 private:
@@ -44,6 +44,9 @@ public:
 
 class tic_store_c
 {
+	// holds a history of ticcmds for a band.
+	// you could consider this the vertical dimension.
+	
 public:
 	tic_store_c(int band_size);
 	~tic_store_c();
