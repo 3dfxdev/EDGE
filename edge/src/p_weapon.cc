@@ -132,7 +132,7 @@ static void ReloadWeapon(player_t *p, int idx, int ATK)
 
 	int qty = info->clip_size[ATK] - p->weapons[idx].clip_size[ATK];
 
-	if (qty < p->ammo[info->ammo[ATK]].num)
+	if (qty > p->ammo[info->ammo[ATK]].num)
 		qty = p->ammo[info->ammo[ATK]].num;
 
 	DEV_ASSERT2(qty > 0);
