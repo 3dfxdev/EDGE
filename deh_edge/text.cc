@@ -135,7 +135,7 @@ langinfo_t lang_list[] =
     { GOTLAUNCHER, "GotRocketLauncher", "GOTLAUNCHER", 458, NULL },
     { GOTMAP, "GotMap", "GOTMAP", 444, NULL },
     { GOTMEDIKIT, "GotMedi", "GOTMEDIKIT", 439, NULL },
-    { GOTMEDINEED, "GotMediNeed", "GOTMEDINEED", 438, NULL },   // not yet supported by EDGE
+    { GOTMEDINEED, "GotMediNeed", "GOTMEDINEED", 438, NULL },  // not supported by EDGE
     { GOTMEGA, "GotMegaArmour", "GOTMEGA", 426, NULL },
     { GOTMSPHERE, "GotMega", "GOTMSPHERE", 430, NULL },
     { GOTPLASMA, "GotPlasmaGun", "GOTPLASMA", 459, NULL },
@@ -281,7 +281,7 @@ langinfo_t lang_list[] =
     { HUSTR_7,  "Map07Desc", "HUSTR_7", 659, NULL },
     { HUSTR_8,  "Map08Desc", "HUSTR_8", 660, NULL },
     { HUSTR_9,  "Map09Desc", "HUSTR_9", 661, NULL },
-    { C1TEXT, "Level7Text", "C1TEXT", 114, NULL },
+    { C1TEXT, "Level7Text",  "C1TEXT", 114, NULL },
     { C2TEXT, "Level12Text", "C2TEXT", 115, NULL },
     { C3TEXT, "Level21Text", "C3TEXT", 116, NULL },
     { C4TEXT, "EndGameText", "C4TEXT", 117, NULL },
@@ -486,6 +486,27 @@ bool TextStr::ReplaceSprite(const char *before, const char *after)
 	return false;
 }
 
+void TextStr::AlterBexSprite(const char *new_val)
+{
+	const char *old_val = Patch::line_buf;
+
+	if (strlen(old_val) != 4)
+	{
+		PrintWarn("Bad length for sprite name '%s'.\n", old_val);
+		return;
+	}
+
+	if (strlen(new_val) != 4)
+	{
+		PrintWarn("Bad length for sprite name '%s'.\n", new_val);
+		return;
+	}
+
+	if (! ReplaceSprite(old_val, new_val))
+		PrintWarn("Line %d: unknown sprite name '%s'.\n",
+			Patch::line_num, old_val);
+}
+
 bool TextStr::ReplaceString(const char *before, const char *after)
 {
 	assert(after[0]);
@@ -503,6 +524,28 @@ bool TextStr::ReplaceString(const char *before, const char *after)
 			lang->new_text = StringNew(len + 5);
 
 		StrMaxCopy(lang->new_text, after, len + 4);
+
+		return true;
+	}
+
+	return false;
+}
+
+bool TextStr::ReplaceBexString(const char *bex_name, const char *after)
+{
+	assert(after[0]);
+
+	for (int i = 0; lang_list[i].orig_text; i++)
+	{
+		langinfo_t *lang = lang_list + i;
+
+		if (StrCaseCmp(bex_name, lang->deh_name) != 0)
+			continue;
+
+		if (lang->new_text)
+			free(lang->new_text);
+
+		lang->new_text = StringDup(after);
 
 		return true;
 	}

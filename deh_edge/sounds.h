@@ -142,6 +142,9 @@ namespace Sounds
 	bool ReplaceSound(const char *before, const char *after);
 	bool ReplaceMusic(const char *before, const char *after);
 
+	void AlterBexSound(const char *new_val);
+	void AlterBexMusic(const char *new_val);
+
 	void MarkSound(int s_num);
 	void AlterSound(int new_val);
 

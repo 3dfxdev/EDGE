@@ -26,9 +26,11 @@ namespace TextStr
 	bool ReplaceString(const char *before, const char *after);
 	bool ReplaceSprite(const char *before, const char *after);
 	bool ReplaceCheat(const char *deh_name, const char *str);
+	bool ReplaceBexString(const char *bex_name, const char *after);
 	void ReplaceBinaryString(int v166_index, const char *str);
 
 	void AlterCheat(const char * new_val);
+	void AlterBexSprite(const char * new_val);
 
 	const char *GetSprite(int spr_num);
 

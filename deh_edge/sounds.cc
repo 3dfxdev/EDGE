@@ -522,3 +522,44 @@ bool Sounds::ReplaceMusic(const char *before, const char *after)
 	return false;
 }
 
+void Sounds::AlterBexSound(const char *new_val)
+{
+	const char *old_val = Patch::line_buf;
+
+	if (strlen(old_val) < 1 || strlen(old_val) > 6)
+	{
+		PrintWarn("Bad length for sound name '%s'.\n", old_val);
+		return;
+	}
+
+	if (strlen(new_val) < 1 || strlen(new_val) > 6)
+	{
+		PrintWarn("Bad length for sound name '%s'.\n", new_val);
+		return;
+	}
+
+	if (! ReplaceSound(old_val, new_val))
+		PrintWarn("Line %d: unknown sound name '%s'.\n",
+			Patch::line_num, old_val);
+}
+
+void Sounds::AlterBexMusic(const char *new_val)
+{
+	const char *old_val = Patch::line_buf;
+
+	if (strlen(old_val) < 1 || strlen(old_val) > 6)
+	{
+		PrintWarn("Bad length for music name '%s'.\n", old_val);
+		return;
+	}
+
+	if (strlen(new_val) < 1 || strlen(new_val) > 6)
+	{
+		PrintWarn("Bad length for music name '%s'.\n", new_val);
+		return;
+	}
+
+	if (! ReplaceMusic(old_val, new_val))
+		PrintWarn("Line %d: unknown music name '%s'.\n",
+			Patch::line_num, old_val);
+}
