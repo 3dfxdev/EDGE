@@ -110,14 +110,9 @@ extern void (*trans_spanfunc) (void);
 
 //
 // Utility functions.
-int R_PointOnSide(float_t x, float_t y, node_t * node);
-int R_PointOnSegSide(float_t x, float_t y, seg_t * seg);
-
 angle_t R_PointToAngle(float_t x1, float_t y1, float_t x2, float_t y2);
 float_t R_PointToDist(float_t x1, float_t y1, float_t x2, float_t y2);
-
 float_t R_ScaleFromGlobalAngle(angle_t visangle);
-
 subsector_t *R_PointInSubsector(float_t x, float_t y);
 vert_region_t *R_PointInVertRegion(subsector_t *sub, float_t z);
 
