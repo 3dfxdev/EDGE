@@ -30,7 +30,7 @@
 
 #include "ammo.h"
 #include "buffer.h"
-#include "dh_embed.h"
+#include "dh_plugin.h"
 #include "info.h"
 #include "frames.h"
 #include "misc.h"

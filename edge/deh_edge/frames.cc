@@ -30,7 +30,7 @@
 
 #include "buffer.h"
 #include "convert.h"
-#include "dh_embed.h"
+#include "dh_plugin.h"
 #include "info.h"
 #include "patch.h"
 #include "sounds.h"

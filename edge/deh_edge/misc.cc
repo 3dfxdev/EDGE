@@ -29,7 +29,7 @@
 #include "misc.h"
 
 #include "buffer.h"
-#include "dh_embed.h"
+#include "dh_plugin.h"
 #include "info.h"
 #include "mobj.h"
 #include "patch.h"

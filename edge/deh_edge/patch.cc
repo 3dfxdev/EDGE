@@ -31,7 +31,7 @@
 
 #include "ammo.h"
 #include "convert.h"
-#include "dh_embed.h"
+#include "dh_plugin.h"
 #include "frames.h"
 #include "info.h"
 #include "misc.h"

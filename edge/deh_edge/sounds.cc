@@ -29,7 +29,7 @@
 #include "sounds.h"
 
 #include "buffer.h"
-#include "dh_embed.h"
+#include "dh_plugin.h"
 #include "patch.h"
 #include "storage.h"
 #include "system.h"
