@@ -2,7 +2,7 @@
 DEH_EDGE
 ========
 
-by Andrew Apted.  20th January 2004.
+by Andrew Apted.  23rd January 2004.
 
 
 Introduction
@@ -30,17 +30,20 @@ which will create the file "batman_deh.wad".
 Options
 -------
 
-  -o    gives the output file.  Optional.  The default output
-        filename is the DEH filename with the extension removed
-        and "_deh.wad" added.
+  -o    Output file.  This is optional, the default output filename
+        will be the DEH filename with the extension removed and
+        "_deh.wad" added onto the end.
 
-  -q    quiet mode, disable warning messages.
+  -q    Quiet mode, disable warning messages.
+
+  -a    All.  Converts everything into DDF.  Normally only the stuff
+        which has been modified is converted to DDF.
 
 
 Limitations
 -----------
 
-1. No support for BOOM extensions (BEX), like [STRINGS] etc.
+1. No support for BOOM extended format (BEX), like [STRINGS] etc.
 2. No support for BOOM/MBF mobjs/states/actions (like the DOG).
 
 (The above two may be added to a future version).
@@ -49,8 +52,7 @@ Limitations
    Most (probably all) of them have little importance (like
    what certain cheats give you).
 
-4. Text replacements and cheats only work when ENGLISH language
-   is selected in EDGE.
+4. Text replacements only work when ENGLISH language is selected.
 
 
 Acknowledgements
@@ -68,7 +70,7 @@ DEH_EDGE is based on:
 Copyright/License
 -----------------
 
-DEH_EDGE is Copyright (C) 2004 Andrew Apted.
+DEH_EDGE is Copyright (C) 2004 The EDGE Team.
 
 All trademarks are the propriety of their owners.
 
