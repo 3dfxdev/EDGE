@@ -143,15 +143,6 @@ const linedeftype_t template_line =
 		sfx_None      // sfx_stop
 	},
 
-	// Tile Skies
-	{
-		TILESKY_None,  // type
-		1,             // layer
-		10,            // number
-		1.2f,           // squish
-		-0.9f,          // offset
-	},
-
 	// Ladders
 	{
 		0    // height
