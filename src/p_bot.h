@@ -30,76 +30,84 @@
 
 // This describes what action the bot wants to do.
 // It will be translated to a ticcmd_t by P_BotPlayerThinker.
+
+//
+// -ACB- 2003/05/15 Moved followtype and face enum outside the structure. This is to fixed 
+// issues with declaring enums in structures for GCC3 and VC.NET
+//
+typedef enum
+{
+	BOTCMD_FOLLOW_NONE = 0,
+	BOTCMD_FOLLOW_MOBJ,
+	BOTCMD_FOLLOW_XY,
+	BOTCMD_FOLLOW_DIR
+} 
+botcmd_follow_e;
+
+typedef enum
+{
+	BOTCMD_FACE_NONE = 0,
+	BOTCMD_FACE_MOBJ,
+	BOTCMD_FACE_XYZ,
+	BOTCMD_FACE_ANGLE
+}
+botcmd_face_e;
+	
 typedef struct botcmd_s
 {
-  // The
-  enum
-  {
-    FOLLOW_NONE = 0,
-    FOLLOW_MOBJ,
-    FOLLOW_XY,
-    FOLLOW_DIR
-  } 
-  followtype;
-  
-  union
-  {
-    struct {flo_t x,y;} xyz;
-    struct {angle_t angle; flo_t distance;} dir;
-    mobj_t *mo;
-  } 
-  followobj;
+	int followtype;
 
-  // If we want to face someone, do this here.
-  // Either face a mobj, a specified map coordinate, or a given angle.
-  enum
-  {
-    FACE_NONE = 0,
-    FACE_MOBJ,
-    FACE_XYZ,
-    FACE_ANGLE
-  }
-  facetype;
+	union
+	{
+		struct {flo_t x,y;} xyz;
+		struct {angle_t angle; flo_t distance;} dir;
+		mobj_t *mo;
+	} 
+	followobj;
 
-  union
-  {
-    struct {flo_t x,y,z;} xyz;
-    struct {angle_t angle; flo_t slope;} angle;
-    mobj_t *mo;
-  }
-  faceobj;
+	// If we want to face someone, do this here.
+	// Either face a mobj, a specified map coordinate, or a given angle.
+	int	facetype;
 
-  // The weapon we want to use. -1 if the current one is fine.
-  int new_weapon;
+	union
+	{
+		struct {flo_t x,y,z;} xyz;
+		struct {angle_t angle; flo_t slope;} angle;
+		mobj_t *mo;
+	}
+	faceobj;
 
-  boolean_t attack;
-  boolean_t second_attack;
-  boolean_t use;
-  boolean_t jump;
+	// The weapon we want to use. -1 if the current one is fine.
+	int new_weapon;
+
+	boolean_t attack;
+	boolean_t second_attack;
+	boolean_t use;
+	boolean_t jump;
 } 
 botcmd_t;
 
 typedef struct bot_s
 {
-  const player_t *pl;
+	const player_t *pl;
 
-  boolean_t strafedir;
-  int confidence;
-  int threshold;
-  int movecount;
+	boolean_t strafedir;
+	int confidence;
+	int threshold;
+	int movecount;
 
-  mobj_t *target;
-  mobj_t *supportobj;
-  angle_t angle;
+	mobj_t *target;
+	mobj_t *supportobj;
+	angle_t angle;
 
-  botcmd_t cmd;
+	botcmd_t cmd;
 
-  // remember previous movements, just in case the thinker is run twice the
-  // same gametic.
-  ticcmd_t prev_cmd;
-  int prev_gametime;
+	// remember previous movements, just in case the thinker is run twice the
+	// same gametic.
+	ticcmd_t prev_cmd;
+	int prev_gametime;
 
-  struct bot_s *next;
+	struct bot_s *next;
 }
 bot_t;
 
