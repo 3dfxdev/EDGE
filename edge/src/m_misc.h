@@ -59,7 +59,7 @@ int M_ReadFile(char const *name, byte **buffer);
 void M_DisplayDisk(void);
 void M_ScreenShot(void);
 exttype_e M_CheckExtension(const char *ext, const char* filename);
-boolean_t M_GetFileData(char *filename, byte *data, int *length);
+byte *M_GetFileData(char *filename, int *length);
 char *M_ComposeFileName(const char *dir, const char *file);
 
 extern int cfgnormalfov, cfgzoomedfov;
