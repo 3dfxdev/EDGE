@@ -61,7 +61,7 @@ typedef struct screenline_s
   // positions in the ranges.
   float_t y, step;
 
-  // vertical offset (in texture pixels, not screen pixels)
+  // vertical offset (in WORLD coordinates, but positive goes down)
   float_t y_offset;
 }
 screenline_t;
