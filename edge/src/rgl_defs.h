@@ -30,46 +30,6 @@
 
 #include "v_ctx.h"
 
-
-//
-//  RGL_TEX
-//
-// (NOTE: rgl_tex is completely redundant by new w_image code).
-//
-
-typedef struct stored_gl_tex_s
-{
-  // current status
-  enum
-  { 
-    TEX_EMPTY=0, TEX_OK, TEX_DUMMY
-  } 
-  status;
-
-  // GL identifier,  when TEX_OK
-  // Dummy color (5:5:5), when TEX_DUMMY
-  GLuint id;
-
-  // width & height (in pixels)
-  short width;
-  short height;
-
-  // right & bottom parts
-  float_t right;
-  float_t bottom;
-}
-stored_gl_tex_t;
-
-void RGL_InitTextures(void);
-void RGL_ResetTextures(void);
-
-void RGL_Sprite(int sprite);
-
-
-// EXPERIMENTAL!!
-#define SPR_HALO  9998
-
-
 //
 //  RGL_MAIN
 //

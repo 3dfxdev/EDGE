@@ -40,19 +40,8 @@
 extern float_t *textureheight;
 extern float_t *texturewidth;
 
-// needed for pre rendering (fracs)
-extern float_t *spritewidth;
-extern float_t *spriteheight;
-
-extern float_t *spriteoffset;
-extern float_t *spritetopoffset;
-
 // for global animation
 extern int *texturetranslation;
-
-// Sprite....
-extern int *spritelist;
-extern int numspritelumps;
 
 //
 // Lookup tables for map data.

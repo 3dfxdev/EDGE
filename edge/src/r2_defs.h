@@ -181,7 +181,7 @@ typedef struct drawthing_s
   int clip_vert;
   
   // sprite image to use
-  int patch;
+  const image_t *image;
   boolean_t flip;
 
   // scaling
@@ -261,8 +261,8 @@ extern int sprite_kludge;
 boolean_t R2_CheckBBox(float_t *bspcoord);
 void R2_RenderTrueBSP(void);
 
-void R2_GetThingSprite(mobj_t *thing, spritedef_t ** sprite,
-    spriteframe_t ** frame, int *lump, boolean_t *flip, boolean_t *bright);
+const image_t * R2_GetThingSprite(mobj_t *mo, boolean_t *flip);
+const image_t * R2_GetOtherSprite(int sprite, int frame, boolean_t *flip);
 void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing);
 
 void R2_AddDLights(int num, int *level, 
@@ -336,6 +336,7 @@ void R2_DrawPlane(subsector_t *dsub, drawplane_t *plane);
 void R2_DrawThing(subsector_t *dsub, drawthing_t *thing);
 void R2_DrawFloor(subsector_t *dsub, drawfloor_t *dfloor);
 void R2_DrawSubsector(subsector_t *dsub);
+void R2_DrawPlayerSprites(player_t * p);
 
 void BOGUS_Clear(void);
 void BOGUS_Line(float x1, float y1, float x2, float y2, int col);

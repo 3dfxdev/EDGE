@@ -622,6 +622,7 @@ patch_t;
 //  that will be drawn during a refresh.
 // I.e. a sprite object that is partly visible.
 // -KM- 1989/10/29 Removed sorting stuff, added colourmap stuff
+//
 typedef struct vissprite_s
 {
   int x1;
@@ -652,7 +653,7 @@ typedef struct vissprite_s
   float_t dist_scale;
 
   float_t texturemid;
-  int patch;
+  const struct image_s * image;
 
   // for colour translation and shadow draw,
   //  maxbright frames as well
@@ -670,42 +671,50 @@ typedef struct vissprite_s
 vissprite_t;
 
 //      
-// Sprites are patches with a special naming convention
-//  so they can be recognized by R_InitSprites.
-// The base name is NNNNFx or NNNNFxFx, with
-//  x indicating the rotation, x = 0, 1-7.
-// The sprite and frame specified by a thing_t
-//  is range checked at run time.
-// A sprite is a patch_t that is assumed to represent
-//  a three dimensional object and may have multiple
-//  rotations pre drawn.
-// Horizontal flipping is used to save space,
-//  thus NNNNF2F5 defines a mirrored patch.
-// Some sprites will only have one picture used
-// for all views: NNNNF0
+// Sprites are patches with a special naming convention so they can be
+// recognized by R_InitSprites.  The base name is NNNNFx or NNNNFxFx,
+// with x indicating the rotation, x = 0, 1-15.
 //
-typedef struct
+// Horizontal flipping is used to save space, thus NNNNF2F5 defines a
+// mirrored patch (F5 is the mirrored one).
+//
+// Some sprites will only have one picture used for all views: NNNNF0.
+// In that case, the `rotated' field is false.
+//
+typedef struct spriteframe_s
 {
-  // If false use 0 for any position.
-  // Note: as eight entries are available,
-  //  we might as well insert the same name eight times.
-  boolean_t rotate;
-
-  // Lump to use for view angles 0-7.
-  short lump[8];
-
-  // Flip bit (1 = flip) to use for view angles 0-7.
-  byte flip[8];
+  // whether this frame has been completed.  Completed frames cannot
+  // be updated by sprite lumps in older wad files.
+  byte finished;
+   
+  // if not rotated, we don't have to determine the angle for the
+  // sprite.  This is an optimisation.
+  byte rotated;
+  
+  // Flip bits (1 = flip) to use for view angles 0-15.
+  byte flip[16];
+  
+  // Images for each view angle 0-15.  Never NULL.
+  const struct image_s *images[16];
 }
 spriteframe_t;
+
+// utility macro.
+#define ANG_2_ROT(angle)  ((angle_t)(angle) >> (ANGLEBITS-4))
 
 //
 // A sprite definition: a number of animation frames.
 //
-typedef struct
+typedef struct spritedef_s
 {
+  // four letter sprite name (e.g. "TROO").
+  char name[6];
+  
+  // total number of frames.  Zero for missing sprites.
   int numframes;
-  spriteframe_t *spriteframes;
+
+  // sprite frames.
+  spriteframe_t *frames;
 }
 spritedef_t;
 
@@ -738,4 +747,4 @@ typedef struct visplane_s
 }
 visplane_t;
 
-#endif
+#endif  // __R_DEFS__

@@ -76,8 +76,8 @@ typedef struct video_context_s
   void (* EndDraw)(void);
   
   // Draws an image into a rectangular area of the screen.  Screen
-  // coordinates are inclusive.  Alpha ranges from 0 (invisible) to
-  // 255 (totally opaque).  The colmap parameter is a colourmap to use
+  // coordinates are inclusive.  Alpha ranges from 0.0 (invisible) to
+  // 1.0 (totally opaque).  The colmap parameter is a colourmap to use
   // to shade the image (especially font characters), or NULL to draw
   // the image as-is.  If the texture coordinates lie outside of the
   // [0-1] range, then the image will be tiled.  Proper tiling is only
