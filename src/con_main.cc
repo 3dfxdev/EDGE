@@ -52,9 +52,6 @@ int CON_CMDTypeOf(const char *args);
 int CON_CMDSet(const char *args);
 int CON_CMDWatch(const char *args);
 int CON_CMDQuitEDGE(const char *args);
-#ifdef LEAK_HUNT
-int CON_CMDLeakInfo(const char *args);
-#endif
 int CON_CMDCrc(const char *args);
 int CON_CMDPlaySound(const char *args);
 
@@ -73,9 +70,6 @@ con_cmd_t consolecommands[] =
 	{"playsound", 0, CON_CMDPlaySound},
 	{"eat", 0, CON_CMDEat},
 	{"exec", 0, CON_CMDExec},
-#ifdef LEAK_HUNT
-	{"leakinfo", 0, CON_CMDLeakInfo},
-#endif
 	{"mouse", 0, CON_CMDToggleMouse},
 	{"set", 0, CON_CMDSet},
 	{"test", 0, CON_CMDHelloWorld},
@@ -321,30 +315,6 @@ int CON_CMDEat(const char *args)
 
 	return 0;
 }
-
-#ifdef LEAK_HUNT
-int CON_CMDLeakInfo(const char *args)
-{
-	int argc;
-	char *argv[2];
-	int level;
-
-	argc = GetArgs(args, 2, argv);
-	if (!argc)
-		return 1;
-	if (argc != 2 || 1 != sscanf(argv[1], "%d", &level))
-	{
-		CON_Printf("Usage: leakinfo <level>\n");
-		KillArgs(argc, argv);
-		return 2;
-	}
-
-	Z_DumpLeakInfo(level);
-	I_Printf("Memory leak info written to file 'leakinfo'\n");
-	KillArgs(argc, argv);
-	return 0;
-}
-#endif
 
 int CON_CMDSet(const char *args)
 {
