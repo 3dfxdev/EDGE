@@ -1212,8 +1212,13 @@ static void DrawCrosshair(int colour)
 
 static void AM_RenderScene(void)
 {
+	if (var_smoothmap)
+		glEnable(GL_LINE_SMOOTH);
+
 	// walk the bsp tree
 	AM_WalkBSPNode(root_node);
+
+	glDisable(GL_LINE_SMOOTH);
 }
 
 //

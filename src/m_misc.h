@@ -88,6 +88,7 @@ extern bool save_screenshot_valid;
 extern bool autorunning;
 extern bool display_disk;
 extern bool var_fadepower;
+extern bool var_smoothmap;
 
 extern int cfgnormalfov, cfgzoomedfov;
 

@@ -79,6 +79,7 @@ static const image_t *disk_image = NULL;
 static const image_t *air_images[21] = { NULL, };
 
 bool var_fadepower = true;
+bool var_smoothmap = true;
 
 unsigned short save_screenshot[160][100];
 bool save_screenshot_valid = false;
@@ -173,6 +174,7 @@ static default_t defaults[] =
 	{CFGT_Boolean, "var_diskicon",  &var_diskicon,  1},
 	{CFGT_Boolean, "var_hogcpu",    &var_hogcpu,    1},
 	{CFGT_Boolean, "var_fadepower", &var_fadepower, 1},
+	{CFGT_Boolean, "var_smoothmap", &var_smoothmap, 1},
 
 	// -------------------- KEYS --------------------
 
@@ -516,6 +518,9 @@ void M_InitMiscConVars(void)
 
 	M_CheckBooleanParm("fadepower", &var_fadepower, false);
 	CON_CreateCVarBool("fadepower", cf_normal, &var_fadepower);
+
+	M_CheckBooleanParm("smoothmap", &var_smoothmap, false);
+	CON_CreateCVarBool("smoothmap", cf_normal, &var_smoothmap);
 }
 
 //
