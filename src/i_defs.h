@@ -91,58 +91,6 @@ typedef enum { false, true } boolean_t;
 
 #endif // NULL port
 
-// DOS GCC
-#ifdef DJGPP
-
-typedef long long Int64;
-#define USE_INT64
-typedef float float_t;
-#define FLOAT_IEEE_754
-typedef enum { false, true } boolean_t;
-
-#include <ctype.h>
-#include <dirent.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <math.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <values.h>
-#include <sys\stat.h>
-
-#define EDGECONFIGFILE "EDGE.CFG"
-#define EDGEHOMEDIR    "EDGE"
-#define EDGEWADDIR     "EDGEWADDIR"
-#define EDGEWADEXT     "wad"
-#define EDGEGWAEXT     "gwa"
-#define REQUIREDWAD    "EDGE"
-
-#define DIRSEPARATOR '\\'
-
-#define GCCATTR(a) __attribute__((a))
-#define INLINE inline
-#define EDGE_INLINE(decl, body) extern decl ; extern inline decl body
-
-//
-// TmpMalloc is a memory allocater which can be used for temporary allocations.
-// Memory allocated with TmpMalloc has to be freed with TmpFree before the
-// procedure containing the TmpMalloc call exits. Its advantage is that it
-// gets much faster on all systems that support alloca.
-//
-#define I_TmpMalloc(size) alloca(size)
-#define I_TmpFree(ptr) do { } while (0)
-
-#define I_MoveData memmove
-
-#include ".\djgpp\i_compen.h"
-#include "i_system.h"
-
-#endif
-
 // Microsoft Visual C++ V6.0 for Win32
 #ifdef WIN32 
 #ifdef _GATESY_
