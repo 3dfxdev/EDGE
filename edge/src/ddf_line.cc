@@ -694,17 +694,30 @@ void DDF_LineGetEFControl(const char *info, void *storage)
 	}
 }
 
+#define TELSP_AllSame  \
+    ((teleportspecial_e)(TELSP_Relative | TELSP_SameHeight | \
+	  TELSP_SameSpeed | TELSP_SameOffset))
+
+#define TELSP_Preserve  \
+    ((teleportspecial_e)(TELSP_SameAbsDir | TELSP_SameHeight | TELSP_SameSpeed))
+
 static specflags_t teleport_specials[] =
 {
-	{"SAME DIR",   TELSP_SameDir, 0},
+	{"RELATIVE",   TELSP_Relative, 0},
 	{"SAME HEIGHT",TELSP_SameHeight, 0},
 	{"SAME SPEED", TELSP_SameSpeed, 0},
 	{"SAME OFFSET",TELSP_SameOffset, 0},
-	{"PRESERVE",   TELSP_Preserve, 0},
-	{"ROTATE",     TELSP_Rotate, 0},
+	{"ALL SAME",   TELSP_AllSame, 0},
+
 	{"LINE",       TELSP_Line, 0},
-	{"REVERSING",  TELSP_Reversing, 0},
+	{"FLIPPED",    TELSP_Flipped, 0},
 	{"SILENT",     TELSP_Silent, 0},
+
+	// these modes are deprecated (kept for B.C.)
+	// FIXME: show a warning if used (cannot use "!" prefix)
+	{"SAME DIR",   TELSP_SameAbsDir, 0},
+	{"ROTATE",     TELSP_Rotate, 0},
+	{"PRESERVE",   TELSP_Preserve, 0},
 
 	{NULL, 0, 0}
 };
@@ -1512,6 +1525,7 @@ void teleportdef_c::Copy(teleportdef_c &src)
 	outspawnobj = src.outspawnobj;	
 	outspawnobj_ref = src.outspawnobj_ref;
 
+	special = src.special;
 	delay = src.delay;
 }
 
