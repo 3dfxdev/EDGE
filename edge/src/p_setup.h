@@ -35,4 +35,7 @@ void P_SetupLevel(skill_t skill, int autotag);
 // Called by startup code.
 boolean_t P_Init(void);
 
+// Needed by savegame code.
+void P_RemoveMobjs(void);
+
 #endif
