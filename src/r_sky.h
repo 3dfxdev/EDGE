@@ -43,4 +43,7 @@ extern float_t skytexturescale;
 // Called every frame.
 void R_InitSkyMap(void);
 
+// Used by GL renderer
+void R_ComputeSkyHeights(void);
+
 #endif
