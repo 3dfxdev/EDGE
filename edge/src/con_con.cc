@@ -56,12 +56,13 @@ struct coninfo_s
 con_info;
 
 gui_t console =
-{   0,
-&CON_Ticker,
-&CON_Responder,
-&CON_Drawer,
-(void *)&con_info,
-0, 0, 0, 0, 0, 0, 0
+{
+    0,
+	&CON_Ticker,
+	&CON_Responder,
+	&CON_Drawer,
+	(void *)&con_info,
+	0, 0, 0, 0, 0, 0, 0
 };
 
 // stores the console toggle effect

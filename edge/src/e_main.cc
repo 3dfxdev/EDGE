@@ -691,8 +691,8 @@ void E_Display(void)
 		GB_DrawProgress();
 
 	// menus go directly to the screen
-	GUI_MainDrawer();
-	M_Drawer();  // menu is drawn even on top of everything
+	M_Drawer();  // menu is drawn even on top of everything...
+	GUI_MainDrawer();  // 2004/04/12 -AJA- ...EXCEPT the console
 	M_DisplayDisk();
 
 	E_NetUpdate();  // send out any new accumulation
