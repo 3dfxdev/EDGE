@@ -34,6 +34,7 @@
 #include "misc.h"
 #include "mobj.h"
 #include "patch.h"
+#include "rscript.h"
 #include "storage.h"
 #include "sounds.h"
 #include "system.h"
@@ -50,6 +51,10 @@
 #define EF_NO_GRUDGE   'G'
 #define EF_NO_ITEM_BK  'I'
 #define EF_MONSTER     'M'
+
+
+// XXX needed to get original name (warning message)
+extern spritename_t sprnames[NUMSPRITES];
 
 
 void Things::Startup(void)
@@ -91,6 +96,8 @@ namespace Things
 		{ MF_NOGRAVITY,    "NOGRAVITY" },
 		{ MF_NOSECTOR,     "NOSECTOR" },
 		{ MF_NOTDMATCH,    "NODEATHMATCH" },
+
+		{ MF_AMBUSH,       "AMBUSH" },
 		{ MF_CORPSE,       "CORPSE" },
 		{ MF_COUNTITEM,    "COUNT_AS_ITEM" },
 		{ MF_COUNTKILL,    "COUNT_AS_KILL" },
@@ -110,7 +117,7 @@ namespace Things
 
 		{ 0, NULL }  // End sentinel
 
-		/* Not needed: MF_AMBUSH, MF_INFLOAT, MF_JUSTATTACKED, MF_JUSTHIT */
+		/* Not needed: MF_INFLOAT, MF_JUSTATTACKED, MF_JUSTHIT */
 	};
 
 	const flagname_t extflaglist[] =
@@ -422,6 +429,20 @@ namespace Things
 		Frames::OutputGroup(info->xdeathstate,  'X');
 		Frames::OutputGroup(info->raisestate,   'R');
 
+		// Workaround for EDGE 1.27, which does not Remove a thing when
+		// it has no see-states but does a successful A_Look().
+
+		if ((Frames::act_flags & AF_LOOK) && info->seestate == S_NULL &&
+			info->spawnstate != S_NULL)
+		{
+			state_t *st = states + info->spawnstate;
+
+			WAD::Printf("\n");
+			WAD::Printf("STATES(CHASE) = %s:%c:1:NORMAL:NOTHING,#REMOVE;\n",
+				TextStr::GetSprite(st->sprite),
+				'A' + ((int) st->frame & 31));
+		}
+
 		if (mt_num == MT_VILE)
 			Frames::OutputGroup(S_VILE_HEAL1,   'H');
 
@@ -480,7 +501,7 @@ namespace Things
 
 	typedef struct
 	{
-		int mt_num;
+		int spr_num;
 		const char *benefit;
 		int pars;
 		int amount, limit;
@@ -492,63 +513,71 @@ namespace Things
 	const pickupitem_t pickup_item[] =
 	{
 		// Health & Armor....
-		{ MT_MISC2, "HEALTH", 2, 1,200, "GotHealthPotion", sfx_itemup },  
-		{ MT_MISC10, "HEALTH", 2, 10,100, "GotStim", sfx_itemup },  
-		{ MT_MISC11, "HEALTH", 2, 25,100, "GotMedi", sfx_itemup },  
-		{ MT_MISC3, "GREEN_ARMOUR", 2, 1,200, "GotArmourHelmet", sfx_itemup },  
-		{ MT_MISC0, "GREEN_ARMOUR", 2, 100,100, "GotArmour", sfx_itemup },  
-		{ MT_MISC1, "BLUE_ARMOUR", 2, 200,200, "GotMegaArmour", sfx_itemup },  
+		{ SPR_BON1, "HEALTH", 2, 1,200, "GotHealthPotion", sfx_itemup },  
+		{ SPR_STIM, "HEALTH", 2, 10,100, "GotStim", sfx_itemup },  
+		{ SPR_MEDI, "HEALTH", 2, 25,100, "GotMedi", sfx_itemup },  
+		{ SPR_BON2, "GREEN_ARMOUR", 2, 1,200, "GotArmourHelmet", sfx_itemup },  
+		{ SPR_ARM1, "GREEN_ARMOUR", 2, 100,100, "GotArmour", sfx_itemup },  
+		{ SPR_ARM2, "BLUE_ARMOUR", 2, 200,200, "GotMegaArmour", sfx_itemup },  
 
 		// Keys....
-		{ MT_MISC4, "KEY_BLUECARD", 0, 0,0, "GotBlueCard", sfx_itemup },
-		{ MT_MISC6, "KEY_YELLOWCARD", 0, 0,0, "GotYellowCard", sfx_itemup },
-		{ MT_MISC5, "KEY_REDCARD", 0, 0,0, "GotRedCard", sfx_itemup },
-		{ MT_MISC8, "KEY_REDSKULL", 0, 0,0, "GotRedSkull", sfx_itemup },
-		{ MT_MISC7, "KEY_YELLOWSKULL", 0, 0,0, "GotYellowSkull", sfx_itemup },
-		{ MT_MISC9, "KEY_BLUESKULL", 0, 0,0, "GotBlueSkull", sfx_itemup },
+		{ SPR_BKEY, "KEY_BLUECARD",   0, 0,0, "GotBlueCard", sfx_itemup },
+		{ SPR_YKEY, "KEY_YELLOWCARD", 0, 0,0, "GotYellowCard", sfx_itemup },
+		{ SPR_RKEY, "KEY_REDCARD",    0, 0,0, "GotRedCard", sfx_itemup },
+		{ SPR_BSKU, "KEY_BLUESKULL",  0, 0,0, "GotBlueSkull", sfx_itemup },
+		{ SPR_YSKU, "KEY_YELLOWSKULL",0, 0,0, "GotYellowSkull", sfx_itemup },
+		{ SPR_RSKU, "KEY_REDSKULL",   0, 0,0, "GotRedSkull", sfx_itemup },
 
 		// Ammo....
-		{ MT_CLIP,   "BULLETS", 1, 10,0, "GotClip", sfx_itemup },
-		{ MT_MISC17, "BULLETS", 1, 50,0, "GotClipBox", sfx_itemup },
-		{ MT_MISC22, "SHELLS", 1, 4,0, "GotShells", sfx_itemup },
-		{ MT_MISC23, "SHELLS", 1, 20,0, "GotShellBox", sfx_itemup },
-		{ MT_MISC18, "ROCKETS", 1, 1,0, "GotRocket", sfx_itemup },
-		{ MT_MISC19, "ROCKETS", 1, 5,0, "GotRocketBox", sfx_itemup },
-		{ MT_MISC20, "CELLS", 1, 20,0, "GotCell", sfx_itemup },
-		{ MT_MISC21, "CELLS", 1, 100,0, "GotCellPack", sfx_itemup },
+		{ SPR_CLIP, "BULLETS", 1, 10,0, "GotClip", sfx_itemup },
+		{ SPR_AMMO, "BULLETS", 1, 50,0, "GotClipBox", sfx_itemup },
+		{ SPR_SHEL, "SHELLS",  1, 4,0,  "GotShells", sfx_itemup },
+		{ SPR_SBOX, "SHELLS",  1, 20,0, "GotShellBox", sfx_itemup },
+		{ SPR_ROCK, "ROCKETS", 1, 1,0,  "GotRocket", sfx_itemup },
+		{ SPR_BROK, "ROCKETS", 1, 5,0,  "GotRocketBox", sfx_itemup },
+		{ SPR_CELL, "CELLS",   1, 20,0, "GotCell", sfx_itemup },
+		{ SPR_CELP, "CELLS",   1, 100,0, "GotCellPack", sfx_itemup },
 
 		// Powerups....
-		{ MT_MISC12, "HEALTH", 2, 100,200, "GotSoul", sfx_getpow },  
-		{ MT_MISC15, "POWERUP_AUTOMAP", 0, 0,0, "GotMap", sfx_getpow },
-		{ MT_INS, "POWERUP_PARTINVIS", 2, 100,100, "GotInvis", sfx_getpow },  
-		{ MT_INV, "POWERUP_INVULNERABLE", 2, 30,30, "GotInvulner", sfx_getpow },  
-		{ MT_MISC16, "POWERUP_LIGHTGOGGLES", 2, 120,120, "GotVisor", sfx_getpow },  
-		{ MT_MISC14, "POWERUP_ACIDSUIT", 2, 60,60, "GotSuit", sfx_getpow },  
+		{ SPR_SOUL, "HEALTH", 2, 100,200, "GotSoul", sfx_getpow },  
+		{ SPR_PMAP, "POWERUP_AUTOMAP", 0, 0,0, "GotMap", sfx_getpow },
+		{ SPR_PINS, "POWERUP_PARTINVIS", 2, 100,100, "GotInvis", sfx_getpow },  
+		{ SPR_PINV, "POWERUP_INVULNERABLE", 2, 30,30, "GotInvulner", sfx_getpow },  
+		{ SPR_PVIS, "POWERUP_LIGHTGOGGLES", 2, 120,120, "GotVisor", sfx_getpow },  
+		{ SPR_SUIT, "POWERUP_ACIDSUIT", 2, 60,60, "GotSuit", sfx_getpow },  
 
 		// Weapons....
-		{ MT_SHOTGUN, "SHOTGUN,SHELLS", 1, 8,0, "GotShotGun", sfx_wpnup },
-		{ MT_SUPERSHOTGUN, "SUPERSHOTGUN,SHELLS", 1, 8,0, "GotDoubleBarrel", sfx_wpnup },
-		{ MT_CHAINGUN, "CHAINGUN,BULLETS", 1, 20,0, "GotChainGun", sfx_wpnup },
-		{ MT_MISC27, "ROCKET_LAUNCHER,ROCKETS", 1, 2,0, "GotRocketLauncher", sfx_wpnup },
-		{ MT_MISC28, "PLASMA_RIFLE,CELLS", 1, 40,0, "GotPlasmaGun", sfx_wpnup },
-		{ MT_MISC25, "BFG9000,CELLS", 1, 40,0, "GotBFG", sfx_wpnup },
-		{ MT_MISC26, "CHAINSAW", 0, 0,0, "GotChainSaw", sfx_wpnup },
+		{ SPR_CSAW, "CHAINSAW", 0, 0,0, "GotChainSaw", sfx_wpnup },
+		{ SPR_SHOT, "SHOTGUN,SHELLS", 1, 8,0, "GotShotGun", sfx_wpnup },
+		{ SPR_SGN2, "SUPERSHOTGUN,SHELLS", 1, 8,0, "GotDoubleBarrel", sfx_wpnup },
+		{ SPR_MGUN, "CHAINGUN,BULLETS", 1, 20,0, "GotChainGun", sfx_wpnup },
+		{ SPR_LAUN, "ROCKET_LAUNCHER,ROCKETS", 1, 2,0, "GotRocketLauncher", sfx_wpnup },
+		{ SPR_PLAS, "PLASMA_RIFLE,CELLS", 1, 40,0, "GotPlasmaGun", sfx_wpnup },
+		{ SPR_BFUG, "BFG9000,CELLS", 1, 40,0, "GotBFG", sfx_wpnup },
 		
 		{ -1, NULL, 0,0,0, NULL }
 	};
 
 	void HandleItem(const mobjinfo_t *info, int mt_num)
 	{
+		if (! (info->flags & MF_SPECIAL))
+			return;
+
+		if (info->spawnstate == S_NULL)  // XXX
+			return;
+
+		int spr_num = states[info->spawnstate].sprite;
+
 		// special cases:
 
-		if (mt_num == MT_MISC13) // Berserk
+		if (spr_num == SPR_PSTR) // Berserk
 		{
 			WAD::Printf("PICKUP_BENEFIT = POWERUP_BERSERK(60:60),HEALTH(100:100);\n");
 			WAD::Printf("PICKUP_MESSAGE = GotBerserk;\n");
 			WAD::Printf("PICKUP_SOUND = %s;\n", GetSound(sfx_getpow));
 			return;
 		}
-		else if (mt_num == MT_MEGA)  // Megasphere
+		else if (spr_num == SPR_MEGA)  // Megasphere
 		{
 			WAD::Printf("PICKUP_BENEFIT = ");
 			WAD::Printf("HEALTH(%d:%d),", Misc::mega_health, Misc::mega_health);
@@ -557,7 +586,7 @@ namespace Things
 			WAD::Printf("PICKUP_SOUND = %s;\n", GetSound(sfx_getpow));
 			return;
 		}
-		else if (mt_num == MT_MISC24)  // Backpack full of AMMO
+		else if (spr_num == SPR_BPAK)  // Backpack full of AMMO
 		{
 			WAD::Printf("PICKUP_BENEFIT = \n");
 			WAD::Printf("    BULLETS.LIMIT(%d), ", 2 * Ammo::plr_max[am_bullet]);
@@ -574,64 +603,68 @@ namespace Things
 
 		for (i = 0; pickup_item[i].benefit != NULL; i++)
 		{
-			if (mt_num == pickup_item[i].mt_num)
+			if (spr_num == pickup_item[i].spr_num)
 				break;
 		}
 
 		const pickupitem_t *pu = pickup_item + i;
 
 		if (pu->benefit == NULL)  // not found
+		{
+			PrintWarn("Unknown pickup sprite \"%s\" for item [%s]\n",
+				sprnames[spr_num].orig_name, info->name);
 			return;
+		}
 
 		int amount = pu->amount;
 		int limit  = pu->limit;
 
 		// handle patchable amounts
 
-		switch (mt_num)
+		switch (spr_num)
 		{
 			// Armor & health...
-			case MT_MISC3:   // "ARMOUR_HELMET"  
+			case SPR_BON2:   // "ARMOUR_HELMET"  
 				limit  = Misc::max_armour;
 				break;
 
-			case MT_MISC0:   // "GREEN_ARMOUR"
+			case SPR_ARM1:   // "GREEN_ARMOUR"
 				amount = Misc::green_armour_class * 100;
 				limit  = Misc::max_armour;
 				break;
 
-			case MT_MISC1:   // "BLUE_ARMOUR"  
+			case SPR_ARM2:   // "BLUE_ARMOUR"  
 				amount = Misc::blue_armour_class * 100;
 				limit  = Misc::max_armour;
 				break;
 
-			case MT_MISC2:    // "HEALTH_POTION"
+			case SPR_BON1:    // "HEALTH_POTION"
 				limit  = Misc::max_health;  // Note: *not* MEDIKIT
 				break;
 
-			case MT_MISC12:   // "SOULSPHERE"  
+			case SPR_SOUL:   // "SOULSPHERE"  
 				amount = Misc::soul_health;
 				limit  = Misc::soul_limit;
 				break;
 
 			// Ammo...
-			case MT_CLIP:     // "CLIP"
-			case MT_MISC17:   // "BOX_OF_BULLETS"  
+			case SPR_CLIP:   // "CLIP"
+			case SPR_AMMO:   // "BOX_OF_BULLETS"  
 				amount = Ammo::pickups[am_bullet];
 				break;
 
-			case MT_MISC22:   // "SHELLS"  
-			case MT_MISC23:   // "BOX_OF_SHELLS"  
+			case SPR_SHEL:   // "SHELLS"  
+			case SPR_SBOX:   // "BOX_OF_SHELLS"  
 				amount = Ammo::pickups[am_shell];
 				break;
 
-			case MT_MISC18:   // "ROCKET"  
-			case MT_MISC19:   // "BOX_OF_ROCKETS"  
+			case SPR_ROCK:   // "ROCKET"  
+			case SPR_BROK:   // "BOX_OF_ROCKETS"  
 				amount = Ammo::pickups[am_rocket];
 				break;
 
-			case MT_MISC20:   // "CELLS"  
-			case MT_MISC21:   // "CELL_PACK"  
+			case SPR_CELL:   // "CELLS"  
+			case SPR_CELP:   // "CELL_PACK"  
 				amount = Ammo::pickups[am_cell];
 				break;
 
@@ -640,8 +673,8 @@ namespace Things
 		}
 
 		// big boxes of ammo
-		if (mt_num == MT_MISC17 || mt_num == MT_MISC19 ||
-			mt_num == MT_MISC21 || mt_num == MT_MISC23)
+		if (spr_num == SPR_AMMO || spr_num == SPR_BROK ||
+			spr_num == SPR_CELP || spr_num == SPR_SBOX)
 		{
 			amount *= 5;
 		}
@@ -805,6 +838,9 @@ void Things::ConvertMobj(const mobjinfo_t *info, int mt_num, int player)
 	if (Frames::act_flags & AF_EXPLODE)
 		WAD::Printf("\nEXPLODE_DAMAGE.VAL = 128;\n");
 	
+	if (Frames::act_flags & AF_KEENDIE)
+		Rscript::MarkKeenDie(mt_num);
+
 	WAD::Printf("\n");
 }
 
@@ -875,8 +911,8 @@ namespace Things
 		{ "Exploding frame",  &mobjinfo[0].xdeathstate, FT_FRAME },
 		{ "Death sound",      &mobjinfo[0].deathsound, FT_SOUND },
 		{ "Speed",            &mobjinfo[0].speed, FT_NONEG },
-		{ "Width",            &mobjinfo[0].radius, FT_GTEQ1 },
-		{ "Height",           &mobjinfo[0].height, FT_GTEQ1 },
+		{ "Width",            &mobjinfo[0].radius, FT_NONEG },
+		{ "Height",           &mobjinfo[0].height, FT_NONEG },
 		{ "Mass",             &mobjinfo[0].mass, FT_NONEG },
 		{ "Missile damage",   &mobjinfo[0].damage, FT_NONEG },
 		{ "Action sound",     &mobjinfo[0].activesound, FT_SOUND },
