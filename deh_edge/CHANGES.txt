@@ -5,6 +5,9 @@ CHANGELOG
 Changes in V1.3  (Unreleased)
 -----------------------------
 
+ - support header-less text patch files (BEX), in order to be
+   compatible with BOOM (and probably other source ports).
+
  - workaround for negative mass values (put on the ceiling).
 
 
