@@ -2,7 +2,7 @@
 //  EDGE Video Context
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2000  The EDGE Team.
+//  Copyright (c) 1999-2001  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -98,13 +98,11 @@ typedef struct video_context_s
       int colour, float_t alpha);
  
   // Draw a solid colour line (possibly translucent) between the two
-  // end points.  Coordinates are inclusive.  Alpha ranges from 0
-  // (invisible) to 255 (totally opaque).  Used for the automap.
+  // end points.  Coordinates are inclusive.  Used for the automap.
   // Colour is a palette index (0-255).  Drawing will be clipped to
   // the current clipping rectangle.
   
-  void (* SolidLine)(int x1, int y1, int x2, int y2,
-      int colour, float_t alpha);
+  void (* SolidLine)(int x1, int y1, int x2, int y2, int colour);
   
   // Read the contents of the screen into the given buffer, which is
   // in RGB format (3 bytes per pixel).  Buffer must be large enough
