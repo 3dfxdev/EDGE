@@ -2,11 +2,21 @@
 DEH-EDGE Todo
 -------------
 
-Mostly:  support for Boom/MBF additional things/frames/etc.
+>> support for Boom/MBF additional things/frames/etc.
 
    - implement new actions (many using the Misc field).
 
-+  support for BEX (Boom extensions).
+>> support for BEX (Boom extensions).
 
--  robust cast order screen (renumber when necessary).
+   + main.cpp : handle BEX extension
+
+   - handle [STRINGS]
+   - handle [CODEPTR] frames
+   - handle [SOUNDS]
+   - handle [MUSIC]
+   - handle [SPRITES]
+
+DONE:  robust cast order screen (renumber when necessary).
+
+?  warn about ZDoom-specific stuff.
 
