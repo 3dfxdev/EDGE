@@ -41,6 +41,7 @@ int strcasecmp(const char *s1, const char *s2)
 
 	return 0;
 }
+#endif /* __GNUC__ */
 
 int strncasecmp(const char *s1, const char *s2, int max)
 {
@@ -61,7 +62,6 @@ int strncasecmp(const char *s1, const char *s2, int max)
 
 	return 0;
 }
-#endif /* __GNUC__ */
 
 int strncasecmpwild(const char *s1, const char *s2, int n)
 {
