@@ -907,6 +907,8 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
     mobj_t *currmobj = NULL;
     line_t *currline = NULL;
 
+	bool flipped = (def->special & TELSP_Flipped) ? true : false;
+
     if (def->special & TELSP_Line)
     {
         if (!line || tag <= 0)
@@ -927,6 +929,7 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 
         dest_ang = R_PointToAngle(0, 0, currline->dx, currline->dy) + ANG90;
 
+		flipped = ! flipped;  // match Boom's logic
     }
     else  /* thing-based teleport */
     {
@@ -947,7 +950,7 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 
     /* --- Angle handling --- */
 
-    if (def->special & TELSP_Flipped)
+    if (flipped)
         dest_ang += ANG180;
 
     if (def->special & TELSP_Relative)
@@ -978,7 +981,7 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
             dx = currline->dx * (pos - 0.5f);
             dy = currline->dy * (pos - 0.5f);
 
-            if (def->special & TELSP_Flipped)
+            if (flipped)
             {
                 dx = -dx; dy = -dy;
             }
