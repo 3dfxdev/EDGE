@@ -5,21 +5,26 @@ EDGE 1.29 README.TXT
 Welcome to EDGE, the Enhanced Doom Gaming Engine.
 
 Archive listing:
-  * gledge32.exe       - Windows Executable, OpenGL rendering
+  * gledge32.exe       - Windows Executable (OpenGL rendering)
+  * OpenALwEAX.exe     - Installer for OpenAL sound system
   * edge.wad           - EDGE WAD Information
   * edge-ddf-4.5.zip   - EDGE DDF files (not required to play)
-  * edge-readme.txt    - Guess what you reading?
   * changelog-129.txt  - Full list of changes for 1.29
+  * edge-readme.txt    - Guess what you reading?
+
+  * ogg.dll            -
+  * vorbis.dll         - Libraries for OGG/Vorbis music.
+  * vorbisfile.dll     -
 
 
 System Requirements:
   - Pentium 400 MHz CPU or later.
   - 64MB RAM (128MB RAM recommended).
   - Hardware accelerated 3D card with OpenGL drivers
-  
-  - Either a DOOM, DOOM II, TNT, PLUTONIA or FREEDOOM IWAD file.
+
+  - Either a DOOM, DOOM II, Final DOOM or FreeDoom IWAD file.
     (See "Getting hold of a game data" below).
-   
+
   For Win32:
     - DirectX 7.0 or higher.
     - Videocard and Soundcard which is compatible DirectX 7.0.
@@ -29,10 +34,8 @@ System Requirements:
     - XFree86 4.0 with DRI 3D hardware acceleration
     - Glibc 2.
 
-
-@@@ SOFTWARE REMOVED
-
-@@@ OpenAL sound system
+  For MacOS X:
+    - MacOS X version 1.2.8 ("Jaguar") or later.
 
 
 Getting hold of game data:
@@ -69,7 +72,7 @@ Notable EDGE features:
   - Extrafloors (3D floors), removing the original DOOM limitation
     which didn't allow rooms over rooms.  EDGE supports real 3D
     room-over-room, bridges, and liquids.
- 
+
   - DDF (Data Definition Files), allow Mod/TC/PC creators to
     completely customise monsters, attacks, weapons, pickup and
     scenery items, linetypes, sectortypes, intermissions, ETC...
@@ -79,18 +82,18 @@ Notable EDGE features:
     support, allowing custom scripts to run when the player enters
     certain parts of the map, or performs certain actions, or when
     certain monsters have been killed (to name a few possibilities).
- 
+
 ///---  - Support for high resolutions (640x400 through 1280x1024), plus
 ///---    support for 16-bit rendering.  That's just software mode, there is
 ///---    also GLEDGE which takes advantage of hardware 3D acceleration via
 ///---    the OpenGL library.
 
   - Jumping, Mouse-Look up/down, Flying (JetPack), Zooming.
- 
+
   - Many limits and bugs from original DOOM removed (e.g. no more
     visplane overflow or medusa effect).
- 
- 
+
+
 ???  - On multi-user systems (newer versions of Windows, and Linux)
 ???    the location for the config file (EDGE.CFG) and savegames has
 ???    moved, and is user-specific.  This allows multiple users to have
@@ -106,23 +109,116 @@ Notable EDGE features:
 ???    move the edge.cfg file and savegames directory there.
 
 
-    
+Major changes in 1.29:
+
+  * Software rendering removed.  blah... @@@@
+
+  * MacOS X support.  initial version, blah... @@@@
+
+  * OpenAL as the new sound system.  OpenAL is a 3D audio library which
+    can take advantage of hardware sound mixing.
+
+
 Bugs fixed in 1.29:
-  
+  + crash loading a savegame with dynamic lights when D/L disabled.
+  + fixed crash when starting a level in deathmatch mode.
+  + quotes (") usable in response files (for filenames with spaces).
+
+  - arch-vile no longer resurrects monsters into itself.
+  - fix for teleport on MAP06 (going to wrong place).
+  - berserk strength now lasts the whole level.
+  - night vision wasn't affecting the sky, fixed.
+  - monsters on different sides now attack each other.
+  - autorun is remembered in the config file again.
+  - fixed some missing mid-masked textures (Eternal MAP28).
+  - revenant missiles fixed to match the original.
+
   * Many more... See the 1.29 ChangeLog for the complete list.
- 
+
 
 General improvements in 1.29:
+  + drag and drop support.  You no longer have to use the -file option
+    to specify filenames (wad files etc).  Everything before the first
+    option is considered a filename to add.  This allows you to drag a
+    (self-contained) WAD onto the EDGE executable to play it.
+
+  + support for OGG/Vorbis Music playing.  OGG/Vorbis is music format
+    similar to MP3, but is free from patents and does not require any
+    royalty fees.  You can use normal files, or lumps in a WAD.
+
+  + built-in support for DeHackEd and BEX patches, using normal files
+    (with .DEH or .BEX extension), and also the DEHACKED lump.  Patch
+    files can be added with the -deh option (like in other ports).
+
+  - new startup with progress bar.
+
+  - Linux: fatal errors produce a pop-up dialog box, and EDGE can be
+    run by double clicking the executable.
+
+  - ability to use 32-bit screen modes (16.7 million colours).
+  - support V3 GL-NODES, for very complex levels (Deus Vult MAP05).
+  - detect Boom maps, and ask whether to change compatability mode.
+  - support Boom's line-to-line teleports and platform toggles.
+  - can toggle window/fullscreen mode in set-resolution screen.
+  - sky improvements, including a stretch option in Video menu.
+  - missing wad files (given with -file) now produce an error.
+  - intermission text screens can now be skipped.
+  - can disable mouse-look in the gameplay options.
+  - console now slides up/down, smaller font.
 
   * See the 1.29 ChangeLog for more...
 
 
-New features in 1.29:
+New DDF/RTS features in 1.29:
 
-  - Support for music in Linux and MacOS X.
+  + new IMAGES.DDF file.  The corresponding wad lump is DDFIMAGE.  You
+    can define any type of images in this file (textures, flats, sprites
+    and screen graphics), and they will override any from the WAD file
+    with the same name.  Supports PNG and JPEG formats, either as lumps
+    in a WAD or as external files.  Handles the full range of colours.
 
+  + new FONTS.DDF file.  The equivalent wad lump is DDFFONT.  This is used
+    to define fonts (the set of character images for drawing text).
 
-  * See the 1.29 ChangeLog file for more...
+  - new STYLES.DDF file.  THIS IS EXPERIMENTAL !!  The idea is to
+    define the background colour/image and text font/colour/scaling
+    information (and sounds too) for various parts of EDGE's user
+    interface.  It may undergo significant changes (without keeping
+    compatibility), and it might even be scrapped!  USE AT OWN RISK.
+
+  + new RTS menu system:
+    The RTS menu will pause the game (including all scripts) until the user
+    presses a valid number key.  Savegames are also disabled while the RTS
+    menu is shown.  specific part of script blah @@@@
+
+  + weapon clip handling has been greatly improved (and made sane).
+
+  + support for manual reloading (new key in Keyboard Options), and
+    also next-weapon and previous-weapon keys.
+
+  + Four new ammo types: DAGGERS, ARROWS, TORPEDOES, CRYSTALS.
+
+  - There are new weapon specials, and they can be given to the primary
+    and secondary attack independently (SEC_SPECIAL command).  They
+	include: ANIMATED, NO_SWITCH, NO_TRIGGER, FRESH, NO_MANUAL and
+	NO_PARTIAL.  Many of these control reloading behaviour.
+
+  - Numerous new weapon states: EMPTY states for when the weapon has
+    run out of ammo (primary attack only), IDLE for when the player
+	hasn't used the weapon for a while, WARMUP and SECWARMUP for
+	showing a "spin-up" animation, and finally DISCARD / SECDISCARD
+	states for reloading a weapon which wasn't empty.
+
+  - new support for weapon crosshairs.
+  - new SEQUENCE command for ANIMS.DDF.
+  - RELOAD states for monsters.
+  - able to specify a colour directly in COLMAP.DDF (no lumps needed).
+  - flags for friendly monsters: ULTRA_LOYAL and SIDE_IMMUNE.
+  - better control over explosion damage (EXPLODE_RADIUS command).
+  - FORCE_PICKUP special for thing.ddf (items).
+  - WHEN_APPEAR in DDF and RTS now accepts simpler values.
+
+  * See the 1.29 ChangeLog file for all the details...
 
 
 Known Issues:
@@ -143,7 +239,7 @@ Known Issues:
     mostly about DDF features that have been removed or changed.
     Hence some older stuff will not work 100%.  Use the -nowarn
     option to turn off these warnings.
- 
+
   - Some sprites are designed to look sunk into the floor, typically
     corpses, and can look like they are "floating" in EDGE.  This is a
     limitation of the way EDGE renders everything -- it uses a
@@ -153,22 +249,22 @@ Known Issues:
     Certain other DOOM tricks, e.g. flat-flooding, are also affected
     by the new rendering method, and either work to some degree, or
     not at all.
- 
+
   - Looping sounds tend to stop when you get too far away to hear
     them, e.g. coming back to a flickering torch in QDOOM and it has
     stopped making the flickering sound.  Also looping sounds are not
     saved in a savegame, so after loading a level there are no looping
     sounds being played at all.
- 
+
   - Some graphics can be more blurred than they should be,
     such as the title screens and the status bar background.
 
     This happens because many 3D cards (e.g. Voodoo 3) have a texture
     size limitation of 256x256 pixels, but some DOOM graphics are 320
     pixels wide -- because they don't fit, EDGE has to squash them.
- 
+
   - The console has very limited functionality.
- 
+
   - Certain colourmaps (especially Fog) don't work.
 
   - Teleport wipes don't work.
@@ -196,7 +292,7 @@ Troubleshooting:
          C:\windows\system
          C:\program files\directx\setup\
          C:\winnt\system32
- 
+
     - For GLEDGE to work, you need a 3D card *plus* OpenGL drivers
       for it on your computer.  A really low framerate usually
       indicates that the *software* GL driver is being used (not what
@@ -204,37 +300,37 @@ Troubleshooting:
       manufacturer and look for a recent 3D driver.  Another place to
       look is on Microsoft's site.  Basically, if Quake 3 (or some
       other OpenGL game) works, then GLEDGE should work too.
-   
-    - SHOULD YOU HAVE ANY PROBLEMS WITH GRAPHICAL PROBLEMS OR WITH THE 
-      ENGINE LOCKING UP PLEASE ENSURE YOU HAVE THE LATEST VIDEO DRIVERS 
-      FOR YOUR MACHINE.
+
+    - SHOULD YOU HAVE ANY PROBLEMS WITH GRAPHICAL PROBLEMS OR WITH
+	  THE ENGINE LOCKING UP PLEASE ENSURE YOU HAVE THE LATEST VIDEO
+      AND OPENGL DRIVERS FOR YOUR MACHINE.
 
       Users of the ATI Rage series are recommended to upgrade to the 
       latest drivers since some older drivers (circa 2001) have been 
       known to cause a lockup during startup.
-      
+
   For Linux:
     - SDL 1.2 can be found at http://www.libsdl.org/.
-    
-    - 3D support under linux is still a developing thang, e.g. there
-      is no support for DRI (Direct Rendering Infrastructure) in
-      some distributions yet (notably Debian 2.2), as it requires
-      XFree86 4.0.
-      
-      Also required is a recent kernel (> 2.2.18 or > 2.4.0).  A good
-      guide to whether accelerated 3D is working is to run `glxinfo'
-      in an xterm, and see if it says "direct rendering: Yes".
+
+???    - 3D support under linux is still a developing thang, e.g. there
+???      is no support for DRI (Direct Rendering Infrastructure) in
+???      some distributions yet (notably Debian 2.2), as it requires
+???      XFree86 4.0.
+???      
+???      Also required is a recent kernel (> 2.2.18 or > 2.4.0).  A good
+???      guide to whether accelerated 3D is working is to run `glxinfo'
+???      in an xterm, and see if it says "direct rendering: Yes".
 
 
 Contact points:
   * For the latest news and developments visit the EDGE Website
-    at http://edge.sourceforge.net.
+    at http://edge.sourceforge.net
 
   * For Forums, Bug Reports and CVS Access visit the EDGE Project
-    site at http://sourceforge.net/projects/edge.
+    site at http://sourceforge.net/projects/edge
 
   * For more information on "GL Nodes", see the glBSP homepage at
-    http://glbsp.sourceforge.net.
+    http://glbsp.sourceforge.net
 
 
 Compiling EDGE:
@@ -245,15 +341,15 @@ Compiling EDGE:
       name is in the format glbsp-x.xx - with the x's replaced
       with the version number.
 
-	  DEH_EDGE 1.3 is also required.  The directory name is in the
-	  format deh_edge_x.x - with the x's replaced with the version
-	  number.
+      DEH_EDGE 1.3 is also required.  The directory name is in the
+      format deh_edge_x.x - with the x's replaced with the version
+      number.
 
   For Windows:
-      - use the IDE project files: EDGE.VCPROJ for Microsoft Visual
-      Studio, or EDGE.DEV for Dev C++ (a free C/C++ IDE). Users
-      of the Dev C++ will also need to locate a version of the
-      DirectX libraries for 8.1. 
+!!!!      - use the IDE project files: EDGE.VCPROJ for Microsoft Visual
+!!!!      Studio, or EDGE.DEV for Dev C++ (a free C/C++ IDE). Users
+!!!!      of the Dev C++ will also need to locate a version of the
+!!!!      DirectX libraries for 8.1. 
 
   For Linux:
     - just type 'make' in the top-level dir.  This will create gledge.
@@ -357,25 +453,21 @@ Command line options:
   -noconhistory        Disable console history (save some memory).
 
 
-  Win32 only options:
+  Win32 options:
 
    (none)
 
 
-  Linux only options:
+  Linux / MacOS X options:
 
-  -freq  <freq>        Set sound frequency (sample rate) in Hz.
-  -mono                Disable stereo sound output.
-  -sound16             Force 16 bit sound, if available.
-  -allegfm             Use the allegro FM patches for music.
   -warpmouse           Use special mouse handling code.
-  -nograb              Don't grab the mouse cursor
- 
+  -nograb              Don't grab the mouse cursor.
+
 
 Console commands:
   CRC  <lump>          Computes the CRC value of a wad lump.
   EXEC  <filename>     Executes the console commands in file.
-  PLAYSOUND  <sound>   Plays the sound (fatal error if unknown !).
+  PLAYSOUND  <sound>   Plays the sound.
   QUIT                 Quit EDGE (pops up a query message).
   SET  <cvar> <val>    Set console variable to a new value.
   TYPEOF  <cvar>       Displays the type of a console variable.
