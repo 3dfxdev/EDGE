@@ -161,10 +161,15 @@ const specflags_t ammo_types[] =
     {"ROCKETS", AM_Rocket, 0},
     {"CELLS",   AM_Cell,   0},
 
-    {"PELLETS", AM_Pellet, 0},
-    {"NAILS",   AM_Nail,   0},
-    {"GRENADES",AM_Grenade,0},
-    {"GAS",     AM_Gas,    0},
+    {"PELLETS",  AM_Pellet,  0},
+    {"NAILS",    AM_Nail,    0},
+    {"GRENADES", AM_Grenade, 0},
+    {"GAS",      AM_Gas,     0},
+
+    {"DAGGERS",   AM_Dagger,  0},
+    {"ARROWS",    AM_Arrow,   0},
+    {"TORPEDOES", AM_Torpedo, 0},
+    {"MANA",      AM_Mana,    0},
 
     {NULL, 0, 0}
 };

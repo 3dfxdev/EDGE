@@ -268,8 +268,7 @@ bool M_CheatResponder(event_t * ev)
 		}
 
 		for (i = 0; i < NUMAMMO; i++)
-			pl->ammo[i].num = 
-			pl->ammo[i].max;
+			pl->ammo[i].num = pl->ammo[i].max;
 
 		pl->cards = KF_MASK;
 
