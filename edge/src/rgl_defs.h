@@ -86,6 +86,7 @@ extern int rgl_weapon_g;
 extern int rgl_weapon_b;
 
 int RGL_Light(int nominal);
+void RGL_LoadLights(void);
 void RGL_RenderTrueBSP(void);
 
 extern bool ren_allbright;
