@@ -129,17 +129,18 @@ COMMON_OBJS= \
 		ddf_font.o ddf_style.o \
 		ddf_image.o \
         dm_defs.o  dm_state.o \
-        e_main.o e_net.o      \
-		e_input.o \
+		dem_chunk.o dem_glob.o \
+        e_main.o   e_player.o \
+		e_input.o  e_demo.o  \
         f_finale.o g_game.o   \
         gui_main.o gui_ctls.o \
         hu_lib.o hu_stuff.o   \
 		hu_font.o  hu_style.o \
-        lu_math.o  lu_gamma.o \
+        lu_gamma.o \
         l_glbsp.o  l_deh.o  \
         m_argv.o   m_random.o \
         m_bbox.o m_cheat.o    \
-        m_fixed.o m_menu.o    \
+        m_menu.o    \
         m_misc.o m_option.o   \
         m_math.o \
         p_action.o p_enemy.o \

@@ -60,6 +60,8 @@ OBJ = \
 	ddf_weap.o \
 	dm_defs.o \
 	dm_state.o \
+	dem_chunk.o \
+	dem_glob.o \
 	e_demo.o \
 	e_input.o \
 	e_main.o \
