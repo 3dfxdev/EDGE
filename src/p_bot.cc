@@ -730,10 +730,12 @@ static void ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 
 void P_BotPlayerBuilder(const player_t *p, void *data, ticcmd_t *cmd)
 {
-	bot_t *bot = (bot_t *)data;
-
 	if (gamestate != GS_LEVEL)
 		return;
+
+	bot_t *bot = (bot_t *)data;
+
+	DEV_ASSERT2(bot);
 
 	Z_Clear(&bot->cmd, botcmd_t, 1);
 	bot->cmd.new_weapon = -1;
@@ -765,12 +767,20 @@ void P_BotCreate(player_t *p, bool recreate)
 }
 
 //
-// P_RemoveBots
+// BOT_BeginLevel
+//
+void BOT_BeginLevel(void)
+{
+}
+
+//
+// BOT_EndLevel
 //
 // Done at level shutdown, right after all mobjs have been removed.
 // Erases anything level specific from the bot structs.
 //
-void P_RemoveBots(void)  // FIXME!!! bot data never freed
+void BOT_EndLevel(void)
 {
+	// FIXME bot data never freed
 }
 

@@ -166,7 +166,7 @@ static bool remove_slime_trails;
 // There is two values for every line: side0 and side1.
 static int *temp_line_sides;
 
-static bool wolfy_mode = false;
+static bool wolfy_mode = false;  // TODO: remove this shite
 
 
 //
@@ -2087,7 +2087,6 @@ void P_RemoveMobjs(void)
 		P_RemoveMobj(mo);
 
 	P_RemoveQueuedMobjs();
-	P_RemoveBots();
 }
 
 //
@@ -2135,7 +2134,6 @@ static void ShutdownLevel(void)
 		I_Error("ShutdownLevel: no level to shut down!");
 #endif
 
-	P_RemoveMobjs();
 	P_RemoveItemsInQue();
 
 	if (gl_vertexes)
