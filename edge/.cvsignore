@@ -1,16 +1,6 @@
-Debug
-Release
-"Software Mode Release"
 glbsp-2.10
 deh_edge_1.3
-edge_private.rc
-edge.layout
-edge-software.layout
-edge.prj
 EDGE.LOG
-edge.ncb
-edge.suo
-Makefile.win
 ERRS
 TODO
 FUTURE
@@ -18,8 +8,6 @@ FUTURE
 savegame
 update.log
 edge_private.res
-edge_private.h
-edge_private.aps
 bin
 *.10
 *.68
