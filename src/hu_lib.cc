@@ -368,7 +368,7 @@ void HL_EraseTextLine(hu_textline_t * l)
 
   if (!automapactive && viewwindowx && l->needsupdate)
   {
-    lh = SHORT(l->f[0]->height) + 1;
+    lh = SHORT(l->f_end->height) + 1;
     for (y = l->y, yoffset = y * SCREENWIDTH; y < l->y + lh; y++, yoffset += SCREENWIDTH)
     {
       if (y < viewwindowy || y >= viewwindowy + viewwindowheight)
