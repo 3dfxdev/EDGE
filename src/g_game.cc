@@ -146,7 +146,6 @@ int gametic;
 int totalkills, totalitems, totalsecret;
 
 static long random_seed;
-static char *demoname;
 bool demorecording;
 bool demoplayback;
 bool netdemo;
@@ -1397,15 +1396,15 @@ void G_WorldDone(void)
 //
 // G_FileNameFromSlot
 //
-// Creates a savegame file name.  Z_Free() the returned string.
+// Creates a savegame file name.
 //
-char *G_FileNameFromSlot(int slot)
+void G_FileNameFromSlot(epi::string_c& fn, int slot)
 {
-	char tmpname[64];
+	fn.Format("%s%c%s%04d.%s", 
+				savedir, DIRSEPARATOR, SAVEGAMEBASE, 
+				slot + 1, SAVEGAMEEXT);
 
-	sprintf(tmpname, "%s%04d.%s", SAVEGAMEBASE, slot + 1, SAVEGAMEEXT);
-
-	return M_ComposeFileName(savedir, tmpname);
+	return;
 }
 
 //
@@ -1421,11 +1420,11 @@ void G_LoadGame(int slot)
 
 void G_DoLoadGame(void)
 {
-	char *filename;
-	int version;
-	saveglobals_t *globs;
 	const mapdef_c *tempmap;
 	const gamedef_c *tempgamedef;
+	epi::string_c fn;
+	saveglobals_t *globs;
+	int version;
 
 	gameaction = ga_nothing;
 
@@ -1434,16 +1433,15 @@ void G_DoLoadGame(void)
 	return;
 #endif
 
-	filename = G_FileNameFromSlot(loadgame_slot);
-
-	if (! SV_OpenReadFile(filename))
+	// Try to open		
+	G_FileNameFromSlot(fn, loadgame_slot);
+	
+	if (! SV_OpenReadFile(fn.GetString()))
 	{
-		I_Printf("LOAD-GAME: cannot open %s\n", filename);
-		Z_Free(filename);
+		I_Printf("LOAD-GAME: cannot open %s\n", fn.GetString());
 		return;
 	}
-	Z_Free(filename);
-
+	
 	if (! SV_VerifyHeader(&version) || ! SV_VerifyContents())
 	{
 		I_Printf("LOAD-GAME: Savegame is corrupt !\n");
@@ -1548,19 +1546,18 @@ void G_SaveGame(int slot, const char *description)
 
 void G_DoSaveGame(void)
 {
-	char *filename = G_FileNameFromSlot(savegame_slot);
+	epi::string_c fn;
 	saveglobals_t *globs;
-
 	time_t cur_time;
 	char timebuf[100];
 
-	if (! SV_OpenWriteFile(filename, (EDGEVER << 8) | EDGEPATCH))
+ 	G_FileNameFromSlot(fn, savegame_slot);
+	
+	if (! SV_OpenWriteFile(fn.GetString(), (EDGEVER << 8) | EDGEPATCH))
 	{
 		//!!! do something
-		Z_Free(filename);
 		return;
 	}
-	Z_Free(filename);
 
 	globs = SV_NewGLOB();
 
@@ -1822,21 +1819,17 @@ void G_WriteDemoTiccmd(ticcmd_t * cmd)
 void G_RecordDemo(const char *name)
 {
 	// assume demo name is less than 256 chars
-	char tmp[256];
-
-	if (demoname)
-		Z_Free(demoname);
-	sprintf(tmp, "%s.lmp", name);
-	demoname = M_ComposeFileName(gamedir, tmp);
+	epi::string_c demoname;
+		
+	M_ComposeFileName(demoname, gamedir, name);
+	demoname += ".lmp";	// FIXME!! Check extension has not been given
+	
 	usergame = false;
 	maxdemo = 0x20000;
 
 	// Write directly to file. Possibly a bit slower without disk cache, but
 	// uses less memory, and the demo can record EDGE crashes.
-	if (!demofile)
-		demofile = fopen(demoname, "wb");
-	Z_Free(demoname);
-	demoname = NULL;
+	demofile = fopen(demoname.GetString(), "wb");	
 	demorecording = true;
 }
 
