@@ -1,0 +1,52 @@
+
+CHANGELOG
+=========
+
+Changes in V1.0  (Unreleased)
+-----------------------------
+
+ - support multiple patches (even binary ones !).
+
+ - new option --edge #.## gives EDGE version to target.
+
+ - handle binary patch text replacements for DOOM 1.666 and 1.7.
+
+ - improved things: add MONSTER flag using good statistical test,
+   use FACE_TARGET for certain attacks, add CAST_TITLE if needed.
+
+ - fixed bug not writing double quotes (") into LDF.
+
+ - fixed problem not handling 0xff bytes in cheat strings.
+
+
+Changes in V0.9  (7th February 2004)
+------------------------------------
+
+ - Initial public release !
+
+ - fixed bug not writing percent signs (%) for a few things.
+
+ - improved system definitions in i_defs.h.
+
+ - thing improvements: fixed handling of A_PainDie, A_KeenDie and
+   A_BrainDie.  Support AMBUSH flag.  Handle cases where multiple
+   attacks get used.  Better handling of pick-up items.  Added
+   workaround for A_Look when there are no sight states.
+
+ - general improvements to the weapon flash logic.
+
+
+Changes in earlier versions (Never Released)
+--------------------------------------------
+
+ - new storage module, which remembers changes.
+
+ - thing improvements: fixed monster infighting.  Convert palette
+   translations.  Workaround for LOST_SOUL without missile states.
+
+ - better separation of weapon and thing actions.
+
+ - proper handling of dependencies.
+
+ - fixed WAD code which was broken for big endian CPUs.
+
