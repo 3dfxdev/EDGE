@@ -197,6 +197,55 @@ namespace Attacks
 			WAD::Printf(";\n");
 	}
 
+	void CheckPainElemental(void)
+	{
+		// these two attacks refer to the LOST_SOUL's missile states.
+		// Hence we need to check that they didn't go away.
+
+		mobjinfo_t *skull = mobjinfo + MT_SKULL;
+
+		if (skull->missilestate != S_NULL)
+		{
+			state_t *mis_st = states + skull->missilestate;
+
+			if (mis_st->tics >= 0 && mis_st->nextstate != S_NULL)
+				return;
+		}
+
+		// need to write out new versions
+
+		if (! got_one)
+		{
+			got_one = true;
+			BeginLump();
+		}
+
+		const char *spawn_at = NULL;
+
+		if (skull->seestate != S_NULL)
+			spawn_at = "CHASE:1";
+		else if (skull->missilestate != S_NULL)
+			spawn_at = "MISSILE:1";
+		else if (skull->meleestate != S_NULL)
+			spawn_at = "MELEE:1";
+		else
+			spawn_at = "IDLE:1";
+
+		WAD::Printf("[ELEMENTAL_SPAWNER]\n");
+		WAD::Printf("ATTACKTYPE = SPAWNER;\n");
+		WAD::Printf("ATTACK_HEIGHT = 8;\n");
+		WAD::Printf("ATTACK_SPECIAL = PRESTEP_SPAWN,FACE_TARGET;\n");
+		WAD::Printf("SPAWNED_OBJECT = LOST_SOUL;\n");
+		WAD::Printf("SPAWN_OBJECT_STATE = %s;\n", spawn_at);
+		WAD::Printf("\n");
+		WAD::Printf("[ELEMENTAL_DEATHSPAWN]\n");
+		WAD::Printf("ATTACKTYPE = TRIPLE_SPAWNER;\n");
+		WAD::Printf("ATTACK_HEIGHT = 8;\n");
+		WAD::Printf("ATTACK_SPECIAL = PRESTEP_SPAWN,FACE_TARGET;\n");
+		WAD::Printf("SPAWNED_OBJECT = LOST_SOUL;\n");
+		WAD::Printf("SPAWN_OBJECT_STATE = %s;\n", spawn_at);
+	}
+
 	void ConvertAttack(const mobjinfo_t *info, int mt_num, bool plr_rocket);
 }
 
@@ -319,7 +368,9 @@ void Attacks::ConvertATK(void)
 		if (i == MT_ROCKET)
 			ConvertAttack(mobjinfo + i, i, true);
 	}
-		
+
+	CheckPainElemental();
+
 	if (got_one)
 		FinishLump();
 }
