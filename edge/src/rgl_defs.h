@@ -74,6 +74,11 @@ void RGL_Sprite(int sprite);
 //  RGL_MAIN
 //
 
+#define FUZZY_TRANS  0.4
+#define FUZZY_RED    0.5
+#define FUZZY_GRN    0.2
+#define FUZZY_BLU    0.8
+
 extern int glmax_lights;
 extern int glmax_clip_planes;
 extern int glmax_tex_size;
@@ -93,8 +98,6 @@ void RGL_PaletteEffect(player_t *player);
 
 // FIXME: these three will be redundant with layer system...
 void RGL_MapClear(void);
-void RGL_DrawLine(int x1, int y1, int x2, int y2, int colour);
-void RGL_DrawPatch(int patch, int sx, int sy);
 
 
 //
@@ -106,7 +109,11 @@ void RGL_DrawPatch(int patch, int sx, int sy);
 // save a little room for lighting effects
 #define TOP_LIGHT  (0.9)
 
-void RGL_RenderScene(int x1, int y1, int x2, int y2, vid_view_t *view);
+extern int rgl_weapon_r[4];
+extern int rgl_weapon_g[4];
+extern int rgl_weapon_b[4];
+
+void RGL_RenderScene(int x, int y, int w, int h, vid_view_t *view);
 
 // FIXME: this will be redundant with layer system...
 void RGL_RenderTrueBSP(void);
@@ -120,7 +127,7 @@ void RGL_RenderTrueBSP(void);
 typedef struct local_gl_vert_s
 {
   GLfloat x, y, z;
-  GLfloat r, g, b, a;
+  GLfloat col[4];
   GLfloat t_x, t_y;
   GLfloat n_x, n_y, n_z;
   GLboolean edge;
@@ -137,12 +144,9 @@ void RGL_EndUnit(int actual_vert);
 void RGL_DrawUnits(void);
 
 // utility macros
-#define SET_VERTEX(X,Y,Z)  \
-    do { vert->x = (X); vert->y = (Y); vert->z = (Z); } while(0)
-
 #define SET_COLOR(R,G,B,A)  \
-    do { vert->r = (R); vert->g = (G); vert->b = (B);  \
-         vert->a = (A); } while(0)
+    do { vert->col[0] = (R); vert->col[1] = (G); vert->col[2] = (B);  \
+         vert->col[3] = (A); } while(0)
 
 #define SET_TEXCOORD(X,Y)  \
     do { vert->t_x = (X); vert->t_y = (Y); } while(0)
@@ -152,6 +156,9 @@ void RGL_DrawUnits(void);
 
 #define SET_EDGE_FLAG(E)  \
     do { vert->edge = (E); } while(0)
+
+#define SET_VERTEX(X,Y,Z)  \
+    do { vert->x = (X); vert->y = (Y); vert->z = (Z); } while(0)
  
 //
 //  1D OCCLUSION STUFF
