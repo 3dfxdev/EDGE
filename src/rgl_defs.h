@@ -74,10 +74,7 @@ void RGL_Sprite(int sprite);
 //  RGL_MAIN
 //
 
-#define FUZZY_TRANS  0.4
-#define FUZZY_RED    0.5
-#define FUZZY_GRN    0.2
-#define FUZZY_BLU    0.8
+#define FUZZY_TRANS  0.30
 
 extern int glmax_lights;
 extern int glmax_clip_planes;
@@ -89,6 +86,7 @@ extern angle_t oned_side_angle;
 void RGL_Init(void);
 void RGL_SetupMatrices2D(void);
 void RGL_SetupMatrices3D(void);
+void RGL_SetupMatricesSky(void);
 void RGL_MarkSky(void);
 void RGL_DrawSky(void);
 void RGL_DrawPlayerSprites(player_t * p);
