@@ -2,25 +2,22 @@
 DEH-EDGE Todo
 -------------
 
-TEST: frames:  AlterFrame
-TEST: things:  AlterThing
-TEST: weapons: AlterWeapon
-TEST: frames:  AlterPointer
++  support multiple patches.
 
 -  Mancubus attack busted.
 
 -  versions of malloc and strdup that error out on no memory.
 
-+  support multiple patches.
+-  move GetSound into Sounds.cpp/h
 
-DONE:  patch: ReadBinarySound
-DONE:  ELEMENTAL SPAWN attacks: don't work if LOST.SOUL loses missilestates.
-DONE:  translation bits: PLAYER_DK_GREY, PLAYER_BROWN, PLAYER_DULL_RED
+-  frames: remove 'OutputState' (etc) from header file.
 
-DONE: ammo: AlterAmmo
-DONE: misc: AlterMisc
-DONE: text: AlterCheat
-DONE: sounds: AlterSound
+-  frames: for action warnings, show A_FooBar, not edge name.
+
+DONE:  LOOKOUT with no seestate --> have STATES(CHASE) with #REMOVE.
+DONE:  MF_AMBUSH is actually USED BY DOOM.
+DONE:  A_KeenDie: if used in modified thing, output RSCRIPT lump.
+DONE:  frames/things: A_KeenDie (ETC !) imply a MAKEDEAD.
 
 
 FUTURE Plans
