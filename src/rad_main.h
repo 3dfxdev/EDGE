@@ -172,6 +172,18 @@ typedef struct s_sound_s
 s_sound_t;
 
 
+// Change Music function
+typedef struct s_music_s
+{
+  // playlist entry number
+  int playnum;
+
+  // whether to loop or not
+  boolean_t looping;
+}
+s_music_t;
+
+
 //Sector Vertical movement
 typedef struct s_sectorv_s
 {
