@@ -66,7 +66,7 @@ const guix_preferences_t default_guiprefs =
 static void ShowInfo(void)
 {
 	printf(
-		"\n**** " MY_TITLE " (C) 2004 Andrew Apted ****\n\n"
+		"\n*** " MY_TITLE " (C) 2004 Andrew Apted ***\n\n"
 	);
 
 	printf("Blah blah blah\n"   // !!!! FIXME
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
 	main_win = new UI_MainWin(MY_TITLE);
 
 	LogPrintf(0,
-		"\n**** " MY_TITLE " (C) 2004 Andrew Apted ****\n\n"
+		"\n*** " MY_TITLE " (C) 2004 Andrew Apted ***\n\n"
 	);
 
 	NetInit();
