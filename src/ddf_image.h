@@ -40,6 +40,7 @@ typedef enum
 	IMGDT_Colour = 0,   // solid colour
 	IMGDT_Builtin,      // built-in pre-fab DYI kit
 	IMGDT_File,         // load from an image file
+	IMGDT_Lump,         // load from lump in a WAD
 
 	// future:
 	// IMGDT_WadFlat
@@ -73,6 +74,13 @@ typedef enum
 }
 image_special_e;
 
+typedef enum
+{
+	LIF_PNG = 0,
+	LIF_JPEG,
+}
+L_image_format_e;
+
 class imagedef_c
 {
 public:
@@ -92,18 +100,15 @@ public:
 	ddf_base_c ddf;
 
 	image_namespace_e belong;
-
 	imagedata_type_e type;
-
-	// future:
-	//   image_specialisation_c *specialisations;  // Egads, nomenclature explosion!!
 
 	rgbcol_t colour;          // IMGDT_Colour
 	builtin_image_e builtin;  // IMGDT_Builtin
 
-	image_special_e special;
+	epi::strent_c name;   // IMGDT_WadXXX, IMGDT_Package, IMGDT_File, IMGDT_Lump
+	L_image_format_e format;  // IMGDT_Lump, IMGDT_File (etc)
 
-	epi::strent_c name;   // IMGDT_WadXXX, IMGDT_Package, IMGDT_File
+	image_special_e special;
 
 	int x_offset, y_offset;
 
