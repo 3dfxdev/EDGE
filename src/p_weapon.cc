@@ -441,18 +441,24 @@ void P_SelectNewWeapon(player_t * p, int priority, ammotype_e ammo)
 //
 void P_TrySwitchNewWeapon(player_t *p, int new_weap, ammotype_e new_ammo)
 {
+	// be cheeky... :-)
+	if (new_weap >= 0)
+		p->grin_count = GRIN_TIME;
+
 	if (p->pending_wp != WPSEL_NoChange)
 		return;
 
+	if (! level_flags.weapon_switch && p->ready_wp != WPSEL_None &&
+		(WeaponCouldAutoFire(p, p->ready_wp, 0) ||
+		 WeaponCouldAutoFire(p, p->ready_wp, 1)))
+	{
+		return;
+	}
+
 	if (new_weap >= 0)
 	{
-		if (! WeaponCouldAutoFire(p, new_weap, 0))
-			return;
-
-		p->pending_wp = (weapon_selection_e) new_weap;
-
-		// be cheeky... :-)
-		p->grin_count = GRIN_TIME;
+		if ( WeaponCouldAutoFire(p, new_weap, 0))
+			p->pending_wp = (weapon_selection_e) new_weap;
 		return;
 	}
 

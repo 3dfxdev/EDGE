@@ -687,6 +687,7 @@ void G_DoLoadLevel(void)
 	HANDLE_FLAG(level_flags.shadows, MPF_Shadows);
 	HANDLE_FLAG(level_flags.halos, MPF_Halos);
 	HANDLE_FLAG(level_flags.kicking, MPF_Kicking);
+	HANDLE_FLAG(level_flags.weapon_switch, MPF_WeaponSwitch);
 
 #undef HANDLE_FLAG
 

@@ -183,6 +183,7 @@ static void GV_GetLevelFlags(const char *info, void *storage)
 	HANDLE_FLAG(dest->shadows, MPF_Shadows);
 	HANDLE_FLAG(dest->halos, MPF_Halos);
 	HANDLE_FLAG(dest->kicking, MPF_Kicking);
+	HANDLE_FLAG(dest->weapon_switch, MPF_WeaponSwitch);
 
 #undef HANDLE_FLAG
 
@@ -282,6 +283,7 @@ static const char *GV_PutLevelFlags(void *storage)
 	HANDLE_FLAG(src->shadows, MPF_Shadows);
 	HANDLE_FLAG(src->halos, MPF_Halos);
 	HANDLE_FLAG(src->kicking, MPF_Kicking);
+	HANDLE_FLAG(src->weapon_switch, MPF_WeaponSwitch);
 
 #undef HANDLE_FLAG
 
