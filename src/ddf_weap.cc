@@ -336,7 +336,7 @@ static void WeaponParseField(const char *field, const char *contents,
 		return;
 	}
 
-	DDF_WarnError("Unknown weapons.ddf command: %s\n", field);
+	DDF_WarnError2(0x128, "Unknown weapons.ddf command: %s\n", field);
 }
 
 static void WeaponFinishEntry(void)
@@ -353,7 +353,7 @@ static void WeaponFinishEntry(void)
 
 	if (buffer_weapon.ammopershot < 0)
 	{
-		DDF_WarnError("Bad AMMOPERSHOT value for weapon: %d\n",
+		DDF_WarnError2(0x128, "Bad AMMOPERSHOT value for weapon: %d\n",
 				buffer_weapon.ammopershot);
 		buffer_weapon.ammopershot = 1;
 	}
@@ -487,7 +487,7 @@ static void DDF_WGetAmmo(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError("Unknown Ammo type '%s'\n", info);
+			DDF_WarnError2(0x128, "Unknown Ammo type '%s'\n", info);
 			break;
 	}
 }
@@ -512,7 +512,7 @@ static void DDF_WGetUpgrade(const char *info, void *storage)
 	*dest = DDF_WeaponLookup(info);
 
 	if (*dest < 0)
-		DDF_WarnError("Unknown weapon to upgrade: %s\n", info);
+		DDF_WarnError2(0x128, "Unknown weapon to upgrade: %s\n", info);
 }
 
 static specflags_t weapon_specials[] =
@@ -541,7 +541,7 @@ static void DDF_WGetSpecialFlags(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError("DDF_WGetSpecialFlags: Unknown Special: %s", info);
+			DDF_WarnError2(0x128, "DDF_WGetSpecialFlags: Unknown Special: %s", info);
 			break;
 	}
 }

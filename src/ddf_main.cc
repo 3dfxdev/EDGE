@@ -138,6 +138,36 @@ void DDF_WarnError(const char *err, ...)
 		DDF_Warning("%s", buffer);
 }
 
+void DDF_WarnError2(int ver, const char *err, ...)
+{
+	va_list argptr;
+	char buffer[1024];
+
+	va_start(argptr, err);
+	vsprintf(buffer, err, argptr);
+	va_end(argptr);
+
+	if (strict_errors || (ddf_version >= ver && ! lax_errors))
+		DDF_Error("%s", buffer);
+	else
+		DDF_Warning("%s", buffer);
+}
+
+void DDF_Obsolete(const char *err, ...)
+{
+	va_list argptr;
+	char buffer[1024];
+
+	va_start(argptr, err);
+	vsprintf(buffer, err, argptr);
+	va_end(argptr);
+
+	if (strict_errors || (ddf_version >= 0x128 && ! lax_errors))
+		DDF_Error("%s", buffer);
+	else if (no_obsoletes)
+		DDF_Warning("%s", buffer);
+}
+
 static void DDF_ErrorSetFilename(const char *name)
 {
 	if (cur_ddf_filename)
@@ -812,7 +842,7 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 					DDF_Error("Unexpected comma `,'.\n");
 
 				if (firstgo)
-					DDF_WarnError("Command %s used outside of any entry\n");
+					DDF_WarnError2(0x128, "Command %s used outside of any entry\n");
 				else
 				{  
 					(* readinfo->parse_field)(current_command, 
@@ -849,7 +879,7 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 				break;
 
 			case property_read:
-				DDF_WarnError("Badly formed command: Unexpected semicolon `;'\n");
+				DDF_WarnError2(0x128, "Badly formed command: Unexpected semicolon `;'\n");
 				break;
 
 			case nothing:
@@ -891,7 +921,7 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 		DDF_Error("Unclosed [] brackets detected.\n");
 	
 	if (status == reading_data || status == reading_string)
-		DDF_WarnError("Unfinished DDF command on last line.\n");
+		DDF_WarnError2(0x128, "Unfinished DDF command on last line.\n");
 
 	// if firstgo is true, nothing was defined
 	if (!firstgo)
@@ -1114,7 +1144,7 @@ readchar_t DDF_MainProcessChar(char character, char *buffer, int status)
 			}
 			else if (character == '\n')
 			{
-				DDF_WarnError("Unclosed string detected.\n");
+				DDF_WarnError2(0x128, "Unclosed string detected.\n");
 				return nothing;
 			}
 			// -KM- 1998/10/29 Removed ascii check, allow foreign characters („)
@@ -1148,7 +1178,7 @@ void DDF_MainGetNumeric(const char *info, void *storage)
 
 	if (isalpha(info[0]))
 	{
-		DDF_WarnError("Bad numeric value: %s\n", info);
+		DDF_WarnError2(0x128, "Bad numeric value: %s\n", info);
 		return;
 	}
 
@@ -1262,11 +1292,8 @@ bool DDF_MainParseSubField(const commandlist_t *sub_comms,
 	if (!sub_comms[i].name)
 		return false;
 
-	if (obsolete && !no_obsoletes)
-	{
-		DDF_Warning("The ddf %s.%s command is obsolete !\n",
-					base_command, name);
-	}
+	if (obsolete)
+		DDF_Obsolete("The ddf %s.%s command is obsolete !\n", base_command, name);
 
 	// found it, so call parse routine
 
@@ -1330,8 +1357,8 @@ bool DDF_MainParseField(const commandlist_t *commands,
 	if (!commands[i].name)
 		return false;
 
-	if (obsolete && !no_obsoletes)
-		DDF_Warning("The ddf %s command is obsolete !\n", name);
+	if (obsolete)
+		DDF_Obsolete("The ddf %s command is obsolete !\n", name);
 
 	// found it, so call parse routine
 
@@ -1476,7 +1503,7 @@ void DDF_MainGetPercent(const char *info, void *storage)
 	// the number must be followed by %
 	if (*p != '%')
 	{
-		DDF_WarnError("Bad percent value '%s': Should be a number followed by %%\n", info);
+		DDF_WarnError2(0x128, "Bad percent value '%s': Should be a number followed by %%\n", info);
 		// -AJA- 2001/01/27: backwards compatibility
 		DDF_MainGetFloat(s, &f);
 		*dest = MAX(0, MIN(1, f));
@@ -1513,7 +1540,7 @@ void DDF_MainGetPercentAny(const char *info, void *storage)
 	// the number must be followed by %
 	if (*p != '%')
 	{
-		DDF_WarnError("Bad percent value '%s': Should be a number followed by %%\n", info);
+		DDF_WarnError2(0x128, "Bad percent value '%s': Should be a number followed by %%\n", info);
 		// -AJA- 2001/01/27: backwards compatibility
 		DDF_MainGetFloat(s, dest);
 		return;
@@ -1679,8 +1706,8 @@ static int FindSpecialFlag(const char *prefix, const char *name,
     
 		if (DDF_CompareName(name, try_name) == 0)
 		{
-			if (obsolete && !no_obsoletes)
-				DDF_Warning("The ddf flag `%s' is obsolete !\n", try_name);
+			if (obsolete)
+				DDF_Obsolete("The ddf flag `%s' is obsolete !\n", try_name);
 
 			return i;
 		}

@@ -155,7 +155,7 @@ static void SoundParseField(const char *field, const char *contents,
 #endif
 
 	if (! DDF_MainParseField(sfx_commands, field, contents))
-		DDF_WarnError("Unknown sounds.ddf command: %s\n", field);
+		DDF_WarnError2(0x128, "Unknown sounds.ddf command: %s\n", field);
 }
 
 static void SoundFinishEntry(void)

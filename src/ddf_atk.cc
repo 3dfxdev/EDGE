@@ -235,7 +235,7 @@ static void AttackFinishEntry(void)
 	// check DAMAGE stuff
 	if (buffer_atk.damage.nominal < 0)
 	{
-		DDF_WarnError("Bad DAMAGE.VAL value %f in DDF.\n", buffer_atk.damage.nominal);
+		DDF_WarnError2(0x128, "Bad DAMAGE.VAL value %f in DDF.\n", buffer_atk.damage.nominal);
 	}
 
 	// FIXME: check more stuff...
@@ -394,7 +394,7 @@ static void DDF_AtkGetSpecial(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError("DDF_AtkGetSpecials: Unknown Attack Special: %s", info);
+			DDF_WarnError2(0x128, "DDF_AtkGetSpecials: Unknown Attack Special: %s", info);
 			break;
 	}
 }
@@ -428,7 +428,7 @@ static void DDF_AtkGetType(const char *info, void *storage)
 
 	if (i == NUMATKCLASS)
 	{
-		DDF_WarnError("DDF_AtkGetType: No such attack type '%s'\n", info);
+		DDF_WarnError2(0x128, "DDF_AtkGetType: No such attack type '%s'\n", info);
 		buffer_atk.attackstyle = ATK_SHOT;
 		return;
 	}
@@ -473,6 +473,6 @@ attacktype_t *DDF_AttackLookup(const char *name)
 			return ddf_attacks[i];
 	}
 
-	DDF_WarnError("Unknown Attack: %s\n", name);
+	DDF_WarnError2(0x128, "Unknown Attack: %s\n", name);
 	return NULL;
 }

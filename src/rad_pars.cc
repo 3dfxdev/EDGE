@@ -155,7 +155,7 @@ void RAD_Error(const char *err, ...)
 	}
 
 	// check for buffer overflow
-	DEV_ASSERT(buffer[2047] == 0, ("Buffer overflow in DDF_Error"));
+	DEV_ASSERT(buffer[2047] == 0, ("Buffer overflow in RAD_Error"));
 
 	// add a blank line for readability under DOS/Linux.  Two linefeeds
 	// because the cursor may be at the end of a line with dots.
@@ -196,6 +196,21 @@ void RAD_WarnError(const char *err, ...)
 	va_end(argptr);
 
 	if (strict_errors)
+		RAD_Error("%s", buffer);
+	else
+		RAD_Warning("%s", buffer);
+}
+
+void RAD_WarnError2(int ver, const char *err, ...)
+{
+	va_list argptr;
+	char buffer[1024];
+
+	va_start(argptr, err);
+	vsprintf(buffer, err, argptr);
+	va_end(argptr);
+
+	if (strict_errors || (rts_version >= ver && ! lax_errors))
 		RAD_Error("%s", buffer);
 	else
 		RAD_Warning("%s", buffer);
@@ -882,9 +897,9 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 		RAD_CheckForFloat(pars[4], &y2);
 
 		if (x1 > x2)
-			RAD_WarnError("%s: bad X range %1.1f to %1.1f\n", pars[0], x1, x2);
+			RAD_WarnError2(0x128, "%s: bad X range %1.1f to %1.1f\n", pars[0], x1, x2);
 		if (y1 > y2)
-			RAD_WarnError("%s: bad Y range %1.1f to %1.1f\n", pars[0], y1, y2);
+			RAD_WarnError2(0x128, "%s: bad Y range %1.1f to %1.1f\n", pars[0], y1, y2);
 
 		this_rad->x = (float)(x1 + x2) / 2.0f;
 		this_rad->y = (float)(y1 + y2) / 2.0f;
@@ -897,7 +912,7 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 			RAD_CheckForFloat(pars[6], &z2);
 
 			if (z1 > z2 + 1)
-				RAD_WarnError("%s: bad height range %1.1f to %1.1f\n",
+				RAD_WarnError2(0x128, "%s: bad height range %1.1f to %1.1f\n",
 				pars[0], z1, z2);
 
 			this_rad->z = (z1 + z2) / 2.0f;
@@ -923,7 +938,7 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 			RAD_CheckForFloat(pars[5], &z2);
 
 			if (z1 > z2)
-				RAD_WarnError("%s: bad height range %1.1f to %1.1f\n",
+				RAD_WarnError2(0x128, "%s: bad height range %1.1f to %1.1f\n",
 				pars[0], z1, z2);
 
 			this_rad->z = (z1 + z2) / 2.0f;
@@ -1450,7 +1465,7 @@ static void RAD_ParseTipAlign(int pnum, const char ** pars)
 	}
 	else
 	{
-		RAD_WarnError("TIP_POS: unknown justify method `%s'\n", pars[1]);
+		RAD_WarnError2(0x128, "TIP_POS: unknown justify method `%s'\n", pars[1]);
 	}
 
 	AddStateToScript(this_rad, 0, RAD_ActTipProps, tp);
@@ -1762,12 +1777,22 @@ static void RAD_ParseSkill(int pnum, const char **pars)
 static void RAD_ParseGotoMap(int pnum, const char **pars)
 {
 	// GotoMap <map name>
+	// GotoMap <map name> SKIP_ALL
 
 	s_gotomap_t *go;
 
 	go = Z_ClearNew(s_gotomap_t, 1);
 
 	go->map_name = Z_StrDup(pars[1]);
+
+	if (pnum >= 3)
+	{
+		if (DDF_CompareName(pars[2], "SKIP_ALL") == 0)
+			go->skip_all = true;
+		else
+			RAD_WarnError2(0x128, "%s: expected `SKIP_ALL' but got `%s'.\n",
+			pars[0], pars[2]);
+	}
 
 	AddStateToScript(this_rad, 0, RAD_ActGotoMap, go);
 }
@@ -1810,7 +1835,7 @@ static void RAD_ParseMoveSector(int pnum, const char **pars)
 			if (DDF_CompareName(pars[4], "ABSOLUTE") == 0)
 				secv->relative = false;
 			else
-				RAD_WarnError("%s: expected `ABSOLUTE' but got `%s'.\n",
+				RAD_WarnError2(0x128, "%s: expected `ABSOLUTE' but got `%s'.\n",
 				pars[0], pars[4]);
 		}
 	}
@@ -1849,7 +1874,7 @@ static void RAD_ParseLightSector(int pnum, const char **pars)
 			if (DDF_CompareName(pars[3], "ABSOLUTE") == 0)
 				secl->relative = false;
 			else
-				RAD_WarnError("%s: expected `ABSOLUTE' but got `%s'.\n",
+				RAD_WarnError2(0x128, "%s: expected `ABSOLUTE' but got `%s'.\n",
 				pars[0], pars[3]);
 		}
 	}
@@ -2020,7 +2045,7 @@ static rts_parser_t radtrig_parsers[] =
 	{2, "DAMAGE_MONSTERS", 3,3, RAD_ParseDamageMonsters},
 	{2, "THING_EVENT", 3,3, RAD_ParseThingEvent},
 	{2, "SKILL",   4,4, RAD_ParseSkill},
-	{2, "GOTOMAP", 2,2, RAD_ParseGotoMap},
+	{2, "GOTOMAP", 2,3, RAD_ParseGotoMap},
 	{2, "MOVE_SECTOR", 4,5, RAD_ParseMoveSector},
 	{2, "LIGHT_SECTOR", 3,4, RAD_ParseLightSector},
 	{2, "ENABLE_SCRIPT",  2,2, RAD_ParseEnableScript},
@@ -2073,16 +2098,18 @@ void RAD_ParseLine(char *s)
 			cur_name++;
 			obsolete = true;
 
-			if (rts_version >= 0x128)
-				RAD_Error("%s: is not supported with #VERSION 1.28 or higher.\n");
 		}
 
 		if (DDF_CompareName(pars[0], cur_name) != 0)
 			continue;
 
-		if (obsolete && !no_obsoletes)
+		if (obsolete)
 		{
-			RAD_Warning("The rts %s command is obsolete !\n", cur_name);
+			if (rts_version >= 0x128)
+				RAD_Error("%s: is not supported with #VERSION 1.28 or higher.\n", cur_name);
+
+			if (no_obsoletes)
+				RAD_WarnError("The rts %s command is obsolete !\n", cur_name);
 		}
 
 		// check level
@@ -2120,7 +2147,7 @@ void RAD_ParseLine(char *s)
 		return;
 	}
 
-	RAD_WarnError("Unknown primitive: %s\n", pars[0]);
+	RAD_WarnError2(0x128, "Unknown primitive: %s\n", pars[0]);
 
 	RAD_FreeParameters(pnum, pars);
 	RAD_ErrorClearLineData();

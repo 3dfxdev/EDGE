@@ -182,7 +182,7 @@ static void PlaylistParseField(const char *field, const char *contents,
 #endif
 
 	if (! DDF_MainParseField(musplaylistcmds, field, contents))
-		DDF_WarnError("Unknown playlist.ddf command: %s\n", field);
+		DDF_WarnError2(0x128, "Unknown playlist.ddf command: %s\n", field);
 }
 
 static void PlaylistFinishEntry(void)
