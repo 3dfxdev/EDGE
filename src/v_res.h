@@ -53,10 +53,10 @@ int V_CompareModes(screenmode_t *A, screenmode_t *B);
 extern screen_t *main_scr;
 extern screen_t *back_scr;
 
+#if 0  // OLD STUFF
+
 // Allocates buffer screens, call before R_Init.
 extern void (*V_Init) (void);
-extern void (*V_CopyRect) (screen_t * dest, screen_t * src, int srcx, int srcy, int width, int height, int destx, int desty);
-extern void (*V_CopyScreen) (screen_t * dest, screen_t * src);
 extern void (*V_DrawPatch) (screen_t * scr, int x, int y, const patch_t * patch);
 extern void (*V_DrawPatchFlipped) (screen_t * scr, int x, int y, const patch_t * patch);
 extern void (*V_DrawPatchDirect) (screen_t * scr, int x, int y, const patch_t * patch);
@@ -70,12 +70,18 @@ extern void (*V_DrawBlock) (screen_t * dest, int x, int y, int width, int height
 extern void (*V_GetBlock) (screen_t * scr, int x, int y, int width, int height, byte * dest);
 extern void (*V_DarkenScreen) (screen_t * scr);
 extern void (*V_TextureBackScreen) (screen_t * scr, const char *flatname, int left, int top, int right, int bottom);
+extern void (*V_DrawPatchClip) (screen_t * scr, int x, int y, int left, int top, int right, int bottom, boolean_t flip, const patch_t * patch);
+
+#endif  // OLD STUFF
+
+
+extern void (*V_CopyRect) (screen_t * dest, screen_t * src, int srcx, int srcy, int width, int height, int destx, int desty);
+extern void (*V_CopyScreen) (screen_t * dest, screen_t * src);
+
 extern void (*V_DrawPixel) (screen_t * scr, int x, int y, int c);
 extern void (*V_DrawLine) (screen_t * scr, int x1, int y1, int x2, int y2, int c);
 extern void (*V_DrawBox) (screen_t * scr, int x, int y, int w, int h, int c);
 extern void (*V_DrawBoxAlpha) (screen_t * scr, int x, int y, int w, int h, int c, fixed_t alpha);
-extern void (*V_DrawPatchClip) (screen_t * scr, int x, int y, int left, int top, int right, int bottom, boolean_t flip, const patch_t * patch);
-
 
 //
 // now with r_draw.h
