@@ -16,7 +16,6 @@
 
 // file utilities
 bool FileExists(const char *filename);
-bool HasExtension(const char *filename);
 bool CheckExtension(const char *filename, const char *ext);
 const char *ReplaceExtension(const char *filename, const char *ext);
 bool FileIsBinary(FILE *fp);
