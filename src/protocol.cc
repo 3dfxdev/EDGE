@@ -71,16 +71,10 @@ void query_client_proto_t::ByteSwap(bool do_info)
 
 void game_info_t::ByteSwap()
 {
-	min_players = SYS_BE_S16(min_players);
-	num_bots    = SYS_BE_S16(num_bots);
-
 	features = SYS_BE_U32(features);
 
 	wad_checksum = SYS_BE_U16(wad_checksum);
 	def_checksum = SYS_BE_U16(def_checksum);
-
-	num_players = SYS_BE_S16(num_players);
-	num_votes   = SYS_BE_S16(num_votes);
 }
 
 void new_game_proto_t::ByteSwap()
@@ -123,26 +117,25 @@ void raw_ticcmd_t::ByteSwap()
 	shorts[3] = SYS_BE_U16(shorts[3]);
 }
 
-void ticcmd_proto_t::ByteSwap(bool do_tics)
+void ticcmd_proto_t::ByteSwap(int num_cmds)
 {
 	gametic = SYS_BE_U32(gametic);
 	
-	if (do_tics)
-	{
-		for (int t = 0; t < count; t++)
-			tic_cmds[t].ByteSwap();
-	}
+	for (int t = 0; t < num_cmds; t++)
+		tic_cmds[t].ByteSwap();
 }
 
-void tic_group_proto_t::ByteSwap(bool do_tics)
+void tic_group_proto_t::ByteSwap(int num_cmds)
 {
 	gametic = SYS_BE_U32(gametic);
 
-	if (do_tics)
-	{
-		for (int t = 0; t < count; t++)
-			tic_cmds[t].ByteSwap();
-	}
+	for (int t = 0; t < num_cmds; t++)
+		tic_cmds[t].ByteSwap();
+}
+
+void tic_retransmit_proto_t::ByteSwap()
+{
+	gametic = SYS_BE_U32(gametic);
 }
 
 void message_proto_t::ByteSwap()
