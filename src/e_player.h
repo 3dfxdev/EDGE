@@ -48,6 +48,8 @@
 
 #define MAX_PLAYNAME  32
 
+#define EFFECT_MAX_TIME  (5 * TICRATE)
+
 //
 // Player states.
 //
@@ -220,7 +222,7 @@ typedef struct player_s
 	// -AJA- 1999/07/10: changed for colmap.ddf.
 	const colourmap_c *effect_colourmap;
 	bool effect_infrared;
-	float effect_strength;
+	int effect_left;  // tics remaining, maxed to EFFECT_MAX_TIME
 
 	// Overlay view sprites (gun, etc).
 	pspdef_t psprites[NUMPSPRITES];

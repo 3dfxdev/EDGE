@@ -59,21 +59,29 @@ void RGL_RainbowEffect(player_t *player)
 	ren_allbright = false;
 	ren_red_mul = ren_grn_mul = ren_blu_mul = 1.0f;
 
-	if (player->powers[PW_Invulnerable] > 0)
-		return;
+	bool fx_on = (player->effect_left >= EFFECT_MAX_TIME ||
+				  (player->effect_left & 8));
 
-	if (player->powers[PW_NightVision] > 0 && player->effect_colourmap)
+	if (fx_on && player->powers[PW_Invulnerable] > 0)
+	{
+		ren_red_mul = 0.75;
+		ren_grn_mul = 0.75;
+		ren_blu_mul = 0.75;
+
+		return;
+	}
+
+	if (fx_on && player->powers[PW_NightVision] > 0 && player->effect_colourmap)
 	{
 		float r, g, b;
 
 		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b, false);
 
-		float s = player->effect_strength;
-
-		ren_red_mul = 1.0f - (1.0f - r) * s;
-		ren_grn_mul = 1.0f - (1.0f - g) * s;
-		ren_blu_mul = 1.0f - (1.0f - b) * s;
+		ren_red_mul = 1.0f - (1.0f - r);  // * s;
+		ren_grn_mul = 1.0f - (1.0f - g);  // * s;
+		ren_blu_mul = 1.0f - (1.0f - b);  // * s;
 		ren_allbright = true;
+
 		return;
 	}
 }
@@ -89,7 +97,10 @@ void RGL_ColourmapEffect(player_t *player)
 	int x1, y1;
 	int x2, y2;
 
-	if (player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
+	bool fx_on = (player->effect_left >= EFFECT_MAX_TIME ||
+				  (player->effect_left & 8));
+
+	if (fx_on && player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
 	{
 		float r, g, b;
 
@@ -133,20 +144,21 @@ void RGL_PaletteEffect(player_t *player)
 {
 	byte rgb_data[3];
 
-	float s = player->effect_strength;
+	bool fx_on = (player->effect_left >= EFFECT_MAX_TIME ||
+				  (player->effect_left & 8));
 
-	if (player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
+	if (fx_on && player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
 	{
-		if (s < 0.5)
-			glColor4f(1.0f, 1.0f, 1.0f, (0.8f - s) * 0.5f);
-		else
-			glColor4f(0.0f, 0.0f, 0.0f, s * 0.25f);
+		return;
+		
+		// -AJA- this looks good in standard Doom, but messes up HacX:
+		//	 glColor4f(1.0f, 0.5f, 0.0f, 0.25f);
 	}
-	else if (player->powers[PW_NightVision] > 0 && player->effect_colourmap)
+	else if (fx_on && player->powers[PW_NightVision] > 0 && player->effect_colourmap)
 	{
 		float r, g, b;
 		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b, false);
-		glColor4f(r, g, b, s * 0.20f);
+		glColor4f(r, g, b, 0.20f);
 	}
 	else
 	{

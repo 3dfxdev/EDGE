@@ -65,7 +65,7 @@ extern int framecount;
 
 extern int extralight;
 extern const colourmap_c *effect_colourmap;
-extern float effect_strength;
+extern int effect_left;
 extern bool effect_infrared;
 extern bool setresfailed;
 

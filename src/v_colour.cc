@@ -408,6 +408,10 @@ static int AnalyseColourmap(const byte *table, int alpha,
 		int g_div = 255 * MAX(4, g1) / MAX(4, g0);
 		int b_div = 255 * MAX(4, b1) / MAX(4, b0);
 
+		r_div = MAX(4, MIN(4096, r_div));
+		g_div = MAX(4, MIN(4096, g_div));
+		b_div = MAX(4, MIN(4096, b_div));
+
 #if 0  // DEBUGGING
 		I_Printf("#%02x%02x%02x / #%02x%02x%02x = (%d,%d,%d)\n",
 				 r1, g1, b1, r0, g0, b0, r_div, g_div, b_div);

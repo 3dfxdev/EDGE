@@ -90,7 +90,7 @@ int validcount = 1;
 // -KM- 1998/09/27 Dynamic colourmaps
 // -AJA- 1999/07/10: Updated for colmap.ddf.
 const colourmap_c *effect_colourmap;
-float effect_strength;
+int effect_left;
 bool effect_infrared;
 
 // just for profiling purposes

@@ -662,7 +662,7 @@ void player_s::Reborn()
 
 	effect_colourmap = NULL;
 	effect_infrared = 0;
-	effect_strength = 0;
+	effect_left = 0;
 
 	memset(psprites, 0, sizeof(psprites));
 	

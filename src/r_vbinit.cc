@@ -72,7 +72,7 @@ static void CameraFrameInit_StdObject(void *data)
 
 		extralight = mo->player->extralight;
 		effect_colourmap = mo->player->effect_colourmap;
-		effect_strength = mo->player->effect_strength;
+		effect_left = mo->player->effect_left;
 		effect_infrared = mo->player->effect_infrared;
 	}
 	else
@@ -81,7 +81,7 @@ static void CameraFrameInit_StdObject(void *data)
 
 		extralight = 0;
 		effect_colourmap = NULL;
-		effect_strength = 0;
+		effect_left = 0;
 		effect_infrared = false;
 	}
 
@@ -116,7 +116,7 @@ static void CameraFrameInit_StdPlayer(void *data)
 	view_props = R_PointGetProps(viewsubsector, viewz);
 
 	effect_colourmap = player->effect_colourmap;
-	effect_strength = player->effect_strength;
+	effect_left = player->effect_left;
 	effect_infrared = player->effect_infrared;
 }
 

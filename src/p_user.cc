@@ -462,14 +462,14 @@ static void P_UpdatePowerups(player_t *player)
 
 		// -ACB- FIXME!!! Catch lookup failure!
 		player->effect_colourmap = colourmaps.Lookup("ALLWHITE");
-		player->effect_strength = ((s >= 128.0f) ? 1.0f : s / 128.0f);
+		player->effect_left = (s <= 0) ? 0 : MIN(int(s), EFFECT_MAX_TIME);
 	}
 	else if (player->powers[PW_Infrared] > 0.0f)
 	{
 		float s = player->powers[PW_Infrared];
 
 		player->effect_infrared = true;
-		player->effect_strength = ((s >= 128.0f) ? 1.0f : s / 128.0f);
+		player->effect_left = (s <= 0) ? 0 : MIN(int(s), EFFECT_MAX_TIME);
 	}
 	else if (player->powers[PW_NightVision] > 0.0f)		// -ACB- 1998/07/15 NightVision Code
 	{
@@ -477,7 +477,7 @@ static void P_UpdatePowerups(player_t *player)
 
 		// -ACB- FIXME!!! Catch lookup failure!
 		player->effect_colourmap = colourmaps.Lookup("ALLGREEN");
-		player->effect_strength = ((s >= 128) ? 1.0f : s / 128.0f);
+		player->effect_left = (s <= 0) ? 0 : MIN(int(s), EFFECT_MAX_TIME);
 	}
 }
 
