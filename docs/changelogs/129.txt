@@ -29,6 +29,7 @@ Bugs fixed
 - autorun is remembered in the config file again.
 - fixed some missing mid-masked textures (Eternal MAP28).
 - smoking tracers sometimes wouldn't produce smoke.
+- revenant missiles fixed to match the original.
 
 
 Old Fixes (from EDGE 1.28A)
