@@ -15,6 +15,11 @@
 
 namespace Patch
 {
+	extern char line_buf[];
+	extern int line_num;
+
+	extern int active_obj;
+
 	void Load(const char *filename);
 }
 
