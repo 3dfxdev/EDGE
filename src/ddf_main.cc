@@ -441,7 +441,7 @@ static void DDF_ParseVersion(const char *str, int len)
 // -AJA- 1999/10/02 Recursive { } comments.
 // -ES- 2000/02/29 Added
 //
-void DDF_MainReadFile(readinfo_t * readinfo)
+bool DDF_MainReadFile(readinfo_t * readinfo)
 {
 	char *name;
 	char *value = NULL;
@@ -484,7 +484,7 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 
 		// no file ?  No worries, act as if it existed but had no entries
 		if (!readinfo->memfile)
-			return;
+			return false;
       
 		cur_ddf_filename = readinfo->filename;
 	}
@@ -606,6 +606,9 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 		switch (response)
 		{
 			case remark_start:
+				if (ddf_version >= 0x129)
+					DDF_Warning("Comments in { } deprecated, use // instead.\n");
+
 				if (comment_level == 0)
 				{
 					formerstatus = status;
@@ -810,7 +813,7 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 		delete [] memfile;
 	}
 
-	return;
+	return true;
 }
 
 //
