@@ -32,7 +32,6 @@
 #define PARSERVFIX    10
 
 #define MAXSTRLEN     512
-#define FIXEDSLOTS    9
 
 extern rad_script_t *r_scripts;
 extern rad_trigger_t *r_triggers;

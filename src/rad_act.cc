@@ -49,17 +49,25 @@
 drawtip_t tip_slots[MAXTIPSLOT];
 
 // properties for fixed slots
+#define FIXEDSLOTS  15
+
 static s_tip_prop_t fixed_props[FIXEDSLOTS] =
 {
-	{ 1, 0.50f, 0.50f, 0, "TEXT_WHITE",  1.0f }, 
-	{ 2, 0.20f, 0.25f, 1, "TEXT_WHITE",  1.0f },
-	{ 3, 0.20f, 0.75f, 1, "TEXT_WHITE",  1.0f },
-	{ 4, 0.50f, 0.50f, 0, "TEXT_BLUE",   1.0f },
-	{ 5, 0.20f, 0.25f, 1, "TEXT_BLUE",   1.0f },
-	{ 6, 0.20f, 0.75f, 1, "TEXT_BLUE",   1.0f },
-	{ 7, 0.50f, 0.50f, 0, "TEXT_YELLOW", 1.0f },
-	{ 8, 0.20f, 0.25f, 1, "TEXT_YELLOW", 1.0f },
-	{ 9, 0.20f, 0.75f, 1, "TEXT_YELLOW", 1.0f } 
+	{  1, 0.50f, 0.50f, 0, "TEXT_WHITE",  1.0f }, 
+	{  2, 0.20f, 0.25f, 1, "TEXT_WHITE",  1.0f },
+	{  3, 0.20f, 0.75f, 1, "TEXT_WHITE",  1.0f },
+	{  4, 0.50f, 0.50f, 0, "TEXT_BLUE",   1.0f },
+	{  5, 0.20f, 0.25f, 1, "TEXT_BLUE",   1.0f },
+	{  6, 0.20f, 0.75f, 1, "TEXT_BLUE",   1.0f },
+	{  7, 0.50f, 0.50f, 0, "TEXT_YELLOW", 1.0f },
+	{  8, 0.20f, 0.25f, 1, "TEXT_YELLOW", 1.0f },
+	{  9, 0.20f, 0.75f, 1, "TEXT_YELLOW", 1.0f },
+	{ 10, 0.50f, 0.50f, 0, "NORMAL",      1.0f },  // will be RED
+	{ 11, 0.20f, 0.25f, 1, "NORMAL",      1.0f },  //
+	{ 12, 0.20f, 0.75f, 1, "NORMAL",      1.0f },  //
+	{ 13, 0.50f, 0.50f, 0, "TEXT_GREEN",  1.0f },
+	{ 14, 0.20f, 0.25f, 1, "TEXT_GREEN",  1.0f },
+	{ 15, 0.20f, 0.75f, 1, "TEXT_GREEN",  1.0f } 
 };
 
 //
@@ -74,7 +82,7 @@ void RAD_InitTips(void)
 	for (i=0; i < MAXTIPSLOT; i++)
 	{
 		drawtip_t *current = tip_slots + i;
-		s_tip_prop_t *src = fixed_props + ((i >= FIXEDSLOTS) ? 0 : i);
+		s_tip_prop_t *src = fixed_props + (i % FIXEDSLOTS);
 
 		// initial properties
 		Z_Clear(current, drawtip_t, 1);
@@ -130,6 +138,8 @@ static void SetupTip(drawtip_t *cur)
 	// lookup translation table
 	if (! cur->p.colourmap_name)
 		cur->colmap = text_white_map;
+	else if (DDF_CompareName(cur->p.colourmap_name, "NORMAL") == 0)
+		cur->colmap = NULL;
 	else
 		cur->colmap = DDF_ColmapLookup(cur->p.colourmap_name);
 
@@ -370,10 +380,6 @@ void RAD_ActTipProps(rad_trigger_t *R, mobj_t *actor, void *param)
 		R->tip_slot = tp->slot_num;
 
 	DEV_ASSERT2(0 <= R->tip_slot && R->tip_slot < MAXTIPSLOT);
-
-	// the first few tip slots have fixed properties
-	if (R->tip_slot < FIXEDSLOTS)
-		return;
 
 	current = tip_slots + R->tip_slot;
 
