@@ -20,7 +20,7 @@ LIBS=-lm -lpthread -lNL $(FLTK_LIBS)
 FLTABLE_OBJS=FL/Fl_Table.o \
              FL/Fl_Table_Row.o
 
-OBJS=$(FLTABLE_OBJS) \
+OBJS= \
      autolock.o  \
      buffer.o    \
      client.o    \
@@ -36,9 +36,7 @@ OBJS=$(FLTABLE_OBJS) \
 	 sys_debug.o \
 	 sys_net.o   \
 	 ticstore.o  \
-	 ui_client.o \
 	 ui_exit.o   \
-	 ui_game.o   \
      ui_log.o    \
      ui_menu.o   \
 	 ui_setup.o  \

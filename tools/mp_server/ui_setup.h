@@ -22,18 +22,20 @@
 class UI_Setup : public Fl_Group
 {
 public:
-	UI_Setup(int x, int y, int w, int h);
+	UI_Setup(int x, int y, int w, int h, const char *label = NULL);
 	virtual ~UI_Setup();
 
 private:
 	Fl_Output *address;
 	Fl_Output *port;
 
+#if 0
 	Fl_Counter *max_clients;
 	Fl_Counter *max_games;
 
 	Fl_Counter *max_plyrs;  // per game
 	Fl_Counter *max_bots;   // per game
+#endif
 
 public:
 };

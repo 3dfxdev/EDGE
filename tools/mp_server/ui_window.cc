@@ -96,11 +96,11 @@ UI_MainWin::UI_MainWin(const char *title) :
 
 #ifndef MACOSX
 		cy += menu_bar->h();
-		cy += 8;
+///		cy += 8;
 #endif
 	}
 
-	/* ---- Tabs ---- */
+#if 0	/* ---- Tabs ---- */
 	{
 		tabs = new Fl_Tabs(0, cy, w(), h() - cy);
 		tabs->end();
@@ -109,20 +109,23 @@ UI_MainWin::UI_MainWin(const char *title) :
 
 		cy += 26;
 	}
+#endif
 
-	/* ---- Setup tab ---- */
+	/* ---- Setup panel ---- */
 	{
-		Fl_Group *setup_group = new Fl_Group(0, cy, w(), h() - cy, "Setup");
-		setup_group->end();
+///		Fl_Group *setup_group = new Fl_Group(0, cy, w(), 200, "Server Setup");
+///		setup_group->end();
 
-		setup_box = new UI_Setup(0, cy, w(), h() - cy);
-		setup_group->add(setup_box);
+		setup_box = new UI_Setup(0, cy, w(), 156, "\n Server Setup");
+		add(setup_box);
 
-		tabs->add(setup_group);
-		tabs->value(setup_group);
+		cy += setup_box->h();
+
+///		add(setup_group);
+///		tabs->value(setup_group);
 	}
 
-	/* ---- Client list ---- */
+#if 0	/* ---- Client list ---- */
 	{
 		Fl_Group *client_group = new Fl_Group(0, cy, w(), h() - cy, "Clients");
 		client_group->end();
@@ -133,8 +136,9 @@ UI_MainWin::UI_MainWin(const char *title) :
 		tabs->add(client_group);
 
 	}
+#endif
 
-	/* ---- Game list ---- */
+#if 0	/* ---- Game list ---- */
 	{
 		Fl_Group *game_group = new Fl_Group(0, cy, w(), h() - cy, "Games");
 		game_group->end();
@@ -144,27 +148,28 @@ UI_MainWin::UI_MainWin(const char *title) :
 
 		tabs->add(game_group);
 	}
+#endif
 
 	/* ---- Log and Statistics tab ---- */
 	{
-		Fl_Group *stat_group = new Fl_Group(0, cy, w(), h() - cy, "Log");
-		stat_group->end();
+///		Fl_Group *stat_group = new Fl_Group(0, cy, w(), h() - cy, "Log");
+///		stat_group->end();
 
-		stat_box = new UI_Stats(0, cy, w(), 82);
-		stat_group->add(stat_box);
+		stat_box = new UI_Stats(0, cy, w(), 136, "\n Statistics & Log");
+		add(stat_box);
 
 		cy += stat_box->h();
 
 		log_box = new UI_LogBox(0, cy, w(), h() - cy);
-		stat_group->add(log_box);
+		add(log_box);
 
-		stat_group->resizable(log_box);
-
-		tabs->add(stat_group);
+///		stat_group->resizable(log_box);
+///		add(stat_group);
 	}
 
-	add(tabs);
-	resizable(client_list);
+///	add(tabs);
+///	resizable(client_list);
+	resizable(log_box);
 
 	// show window (pass some dummy arguments)
 	int argc = 1;

@@ -22,7 +22,7 @@
 class UI_Stats : public Fl_Group
 {
 public:
-	UI_Stats(int x, int y, int w, int h);
+	UI_Stats(int x, int y, int w, int h, const char *label = NULL);
 	virtual ~UI_Stats();
 
 private:
