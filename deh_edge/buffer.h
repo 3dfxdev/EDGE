@@ -25,8 +25,8 @@ public:
 	virtual bool eof() = 0;
 	virtual bool error() = 0;
 	virtual int  read(void *buf, int count) = 0; 
-	virtual int  getc() = 0;
-	virtual void ungetc(int c) = 0;
+	virtual int  getch() = 0;
+	virtual void ungetch(int c) = 0;
 
 	virtual void showProgress() = 0;
 };

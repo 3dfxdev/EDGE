@@ -84,7 +84,7 @@ public:
 		return count;
 	}
 
-	int getc()
+	int getch()
 	{
 		if (eof())
 			return EOF;
@@ -92,7 +92,7 @@ public:
 		return *ptr++;
 	}
 
-	void ungetc(int c)  /* NOTE: assumes c == last character read */
+	void ungetch(int c)  /* NOTE: assumes c == last character read */
 	{
 		if (ptr > data)
 			ptr--;
