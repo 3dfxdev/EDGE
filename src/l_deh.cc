@@ -119,8 +119,21 @@ bool DH_ConvertFile(const char *filename, const char *outname)
 
 	dehret_e ret = DehEdgeAddFile(filename);
 
-	if (ret == DEH_OK)
+	if (ret != DEH_OK)
+	{
+		DH_PrintMsg("FAILED to add file:\n");
+		DH_PrintMsg("- %s\n", DehEdgeGetError());
+	}
+	else
+	{
 		ret = DehEdgeRunConversion(outname);
+
+		if (ret != DEH_OK)
+		{
+			DH_PrintMsg("CONVERSION FAILED:\n");
+			DH_PrintMsg("- %s\n", DehEdgeGetError());
+		}
+	}
 
 	DehEdgeShutdown();
 
@@ -146,8 +159,21 @@ bool DH_ConvertLump(const byte *data, int length, const char *lumpname,
 
 	dehret_e ret = DehEdgeAddLump((const char *)data, length, info_name);
 
-	if (ret == DEH_OK)
+	if (ret != DEH_OK)
+	{
+		DH_PrintMsg("FAILED to add lump:\n");
+		DH_PrintMsg("- %s\n", DehEdgeGetError());
+	}
+	else
+	{
 		ret = DehEdgeRunConversion(outname);
+
+		if (ret != DEH_OK)
+		{
+			DH_PrintMsg("CONVERSION FAILED:\n");
+			DH_PrintMsg("- %s\n", DehEdgeGetError());
+		}
+	}
 
 	DehEdgeShutdown();
 
