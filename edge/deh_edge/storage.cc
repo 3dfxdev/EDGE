@@ -134,8 +134,6 @@ void Storage::ApplyAll(void)
 			box->items[i].target[0] = box->items[i].value;
 			box->items[i].value = old_value;
 		}
-
-		delete box;
 	}
 }
 
