@@ -124,10 +124,11 @@ typedef struct sidepart_s
   // Texture image
   // We do not maintain names here. 
   const struct image_s *image;
-#endif
+#else
   // Texture index.
   // We do not maintain names here. 
   int tex;  //!!! FIXME: redundant
+#endif
 
   // offsets (horizontal and vertical)
   float_t x_offset;
@@ -375,7 +376,7 @@ line_t;
 // References a Sector.
 // Basically, this is a list of LineSegs, indicating the visible walls
 // that define all sides of a convex BSP leaf.
-
+//
 typedef struct subsector_s
 {
   // link in sector list
@@ -386,6 +387,9 @@ typedef struct subsector_s
 
   // list of mobjs in subsector
   mobj_t *thinglist;
+
+  // extra segs (not normally used)
+  struct seg_s *extra_segs;
 }
 subsector_t;
 
