@@ -120,8 +120,15 @@ static void ReloadWeapon(player_t *p, int idx, int ATK)
 {
 	weapondef_c *info = p->weapons[idx].info;
 
-	if (info->ammo[ATK] == AM_NoAmmo || info->clip_size[ATK] == 0)
+	if (info->clip_size[ATK] == 0)
 		return;
+
+	// for NoAmmo+Clip weapons, can always refill it
+	if (info->ammo[ATK] == AM_NoAmmo)
+	{
+		p->weapons[idx].clip_size[ATK] = info->clip_size[ATK];
+		return;
+	}
 
 	int qty = info->clip_size[ATK] - p->weapons[idx].clip_size[ATK];
 
@@ -501,6 +508,7 @@ bool P_TryFillNewWeapon(player_t *p, int idx, ammotype_e ammo, int *qty)
 		if (! info->attack_state[ATK])
 			continue;
 
+		// note: NoAmmo+Clip weapons are handled in P_AddWeapon
 		if (info->ammo[ATK] == AM_NoAmmo || info->clip_size[ATK] == 0)
 			continue;
 
@@ -1203,18 +1211,15 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 	if (! WeaponCanFire(p, p->ready_wp, ATK))
 		return;
 
-	if (ammo != AM_NoAmmo)
+	if (info->clip_size[ATK] > 0)
 	{
-		if (info->clip_size[ATK] > 0)
-		{
-			p->weapons[p->ready_wp].clip_size[ATK] -= count;
-			DEV_ASSERT2(p->weapons[p->ready_wp].clip_size[ATK] >= 0);
-		}
-		else
-		{
-			p->ammo[ammo].num -= count;
-			DEV_ASSERT2(p->ammo[ammo].num >= 0);
-		}
+		p->weapons[p->ready_wp].clip_size[ATK] -= count;
+		DEV_ASSERT2(p->weapons[p->ready_wp].clip_size[ATK] >= 0);
+	}
+	else if (ammo != AM_NoAmmo)
+	{
+		p->ammo[ammo].num -= count;
+		DEV_ASSERT2(p->ammo[ammo].num >= 0);
 	}
 
 	P_ActPlayerAttack(mo, attack);

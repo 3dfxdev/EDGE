@@ -819,6 +819,13 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 
 	P_UpdateAvailWeapons(player);
 
+	// for NoAmmo+Clip weapons, always begin with a full clip
+	for (int ATK = 0; ATK < 2; ATK++)
+	{
+		if (info->clip_size[ATK] > 0 && info->ammo[ATK] == AM_NoAmmo)
+			player->weapons[slot].clip_size[ATK] = info->clip_size[ATK];
+	}
+
 	// initial weapons should get a full clip
 	if (info->autogive)
 		P_TryFillNewWeapon(player, slot, AM_DontCare, NULL);
