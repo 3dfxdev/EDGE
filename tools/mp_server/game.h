@@ -40,12 +40,12 @@ private:
 
 	int state;
 
+public: //FIXME
 	std::string game_name;   // DOOM2 (etc)
 	std::string level_name;  // MAP01 (etc)
 
 	char mode;
 	char skill;
-public: //FIXME
 
 	int min_players;
 	int engine_ver;
