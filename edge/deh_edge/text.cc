@@ -38,6 +38,48 @@
 #include "wad.h"
 
 
+spritename_t sprnames[NUMSPRITES] =
+{
+    {"TROO",NULL}, {"SHTG",NULL}, {"PUNG",NULL}, {"PISG",NULL},
+	{"PISF",NULL}, {"SHTF",NULL}, {"SHT2",NULL}, {"CHGG",NULL},
+	{"CHGF",NULL}, {"MISG",NULL}, {"MISF",NULL}, {"SAWG",NULL},
+	{"PLSG",NULL}, {"PLSF",NULL}, {"BFGG",NULL}, {"BFGF",NULL},
+	{"BLUD",NULL}, {"PUFF",NULL}, {"BAL1",NULL}, {"BAL2",NULL},
+	{"PLSS",NULL}, {"PLSE",NULL}, {"MISL",NULL}, {"BFS1",NULL},
+	{"BFE1",NULL}, {"BFE2",NULL}, {"TFOG",NULL}, {"IFOG",NULL},
+	{"PLAY",NULL}, {"POSS",NULL}, {"SPOS",NULL}, {"VILE",NULL},
+	{"FIRE",NULL}, {"FATB",NULL}, {"FBXP",NULL}, {"SKEL",NULL},
+	{"MANF",NULL}, {"FATT",NULL}, {"CPOS",NULL}, {"SARG",NULL},
+	{"HEAD",NULL}, {"BAL7",NULL}, {"BOSS",NULL}, {"BOS2",NULL},
+	{"SKUL",NULL}, {"SPID",NULL}, {"BSPI",NULL}, {"APLS",NULL},
+	{"APBX",NULL}, {"CYBR",NULL}, {"PAIN",NULL}, {"SSWV",NULL},
+	{"KEEN",NULL}, {"BBRN",NULL}, {"BOSF",NULL}, {"ARM1",NULL},
+	{"ARM2",NULL}, {"BAR1",NULL}, {"BEXP",NULL}, {"FCAN",NULL},
+	{"BON1",NULL}, {"BON2",NULL}, {"BKEY",NULL}, {"RKEY",NULL},
+	{"YKEY",NULL}, {"BSKU",NULL}, {"RSKU",NULL}, {"YSKU",NULL},
+	{"STIM",NULL}, {"MEDI",NULL}, {"SOUL",NULL}, {"PINV",NULL},
+	{"PSTR",NULL}, {"PINS",NULL}, {"MEGA",NULL}, {"SUIT",NULL},
+	{"PMAP",NULL}, {"PVIS",NULL}, {"CLIP",NULL}, {"AMMO",NULL},
+	{"ROCK",NULL}, {"BROK",NULL}, {"CELL",NULL}, {"CELP",NULL},
+	{"SHEL",NULL}, {"SBOX",NULL}, {"BPAK",NULL}, {"BFUG",NULL},
+	{"MGUN",NULL}, {"CSAW",NULL}, {"LAUN",NULL}, {"PLAS",NULL},
+	{"SHOT",NULL}, {"SGN2",NULL}, {"COLU",NULL}, {"SMT2",NULL},
+	{"GOR1",NULL}, {"POL2",NULL}, {"POL5",NULL}, {"POL4",NULL},
+	{"POL3",NULL}, {"POL1",NULL}, {"POL6",NULL}, {"GOR2",NULL},
+	{"GOR3",NULL}, {"GOR4",NULL}, {"GOR5",NULL}, {"SMIT",NULL},
+	{"COL1",NULL}, {"COL2",NULL}, {"COL3",NULL}, {"COL4",NULL},
+	{"CAND",NULL}, {"CBRA",NULL}, {"COL6",NULL}, {"TRE1",NULL},
+	{"TRE2",NULL}, {"ELEC",NULL}, {"CEYE",NULL}, {"FSKU",NULL},
+	{"COL5",NULL}, {"TBLU",NULL}, {"TGRN",NULL}, {"TRED",NULL},
+	{"SMBT",NULL}, {"SMGT",NULL}, {"SMRT",NULL}, {"HDB1",NULL},
+	{"HDB2",NULL}, {"HDB3",NULL}, {"HDB4",NULL}, {"HDB5",NULL},
+	{"HDB6",NULL}, {"POB1",NULL}, {"POB2",NULL}, {"BRS1",NULL},
+	{"TLMP",NULL}, {"TLP2",NULL}
+};
+
+
+//------------------------------------------------------------------------
+
 typedef struct
 {
 	const char *orig_text;
@@ -364,6 +406,46 @@ langinfo_t cheat_list[] =
 
 //------------------------------------------------------------------------
 
+namespace TextStr
+{
+	void SpriteDependencies(void)
+	{
+		for (int i = 0; i < NUMSPRITES; i++)
+		{
+			if (! sprnames[i].new_name)
+				continue;
+
+			// find this sprite amongst the states...
+			for (int st = 1; st < NUMSTATES; st++)
+				if (states[st].sprite == i)
+					Frames::MarkState(st);
+		}
+	}
+}
+
+bool TextStr::ReplaceSprite(const char *before, const char *after)
+{
+	assert(strlen(before) == 4);
+	assert(strlen(after)  == 4);
+
+	for (int i = 0; sprnames[i].orig_name; i++)
+	{
+		spritename_t *spr = sprnames + i;
+
+		if (StrCaseCmp(before, spr->orig_name) != 0)
+			continue;
+
+		if (! spr->new_name)
+			spr->new_name = new char[5];
+
+		strcpy(spr->new_name, after);
+
+		return true;
+	}
+
+	return false;
+}
+
 bool TextStr::ReplaceString(const char *before, const char *after)
 {
 	assert(after[0]);
@@ -410,6 +492,15 @@ bool TextStr::ReplaceCheat(const char *deh_name, const char *str)
 	}
 
 	return false;
+}
+
+const char *TextStr::GetSprite(int spr_num)
+{
+	assert(0 <= spr_num && spr_num < NUMSPRITES);
+
+	const spritename_t *spr = sprnames + spr_num;
+
+	return spr->new_name ? spr->new_name : spr->orig_name;
 }
 
 
