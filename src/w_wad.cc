@@ -658,7 +658,7 @@ static void AddFile(const char *filename, bool allow_ddf,
 
 	if ((handle = open(filename, O_RDONLY | O_BINARY)) == -1)
 	{
-		I_Printf(" couldn't open %s\n", filename);
+		I_Error("Couldn't open file %s\n", filename);
 		return;
 	}
 
