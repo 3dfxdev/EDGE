@@ -80,9 +80,9 @@ typedef struct
   // player has this weapon.
   boolean_t owned;
 
-  // how many times the player has fired it.
-  int fire_count;
-  int sa_fire_count;
+  // current clip sizes
+  int clip_size;
+  int sa_clip_size;
 }
 playerweapon_t;
 
