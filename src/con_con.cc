@@ -161,7 +161,6 @@ int numvislines = 0;
 // width of console. Measured in characters if in text mode, and in pixels
 // if in graphics mode.
 static int conwidth;
-static int conheight;
 static int conrows;
 
 // the console row that is displayed at the bottom of screen, -1 if cmdline
@@ -355,7 +354,6 @@ static void NeedConsoleUpdate(void)
 void CON_InitConsole(int width, int height, int gfxmode)
 {
 	conwidth = width;
-	conheight = height;
 
 	if (gfxmode)
 	{
@@ -586,7 +584,8 @@ void CON_Drawer(gui_t * gui)
 	}
 
 	// -AJA- Temp fix for image system:
-	RGL_DrawImage(0, 0, conwidth, conheight, console_bg_image,
+	RGL_DrawImage(0, 0, SCREENWIDTH, (SCREENHEIGHT * 3 / 4) & ~7,
+	    console_bg_image,
 		0.0f, 0.0f, IM_RIGHT(console_bg_image) * 5.0f, 
 		IM_BOTTOM(console_bg_image) * 5.0f, NULL, 1.0f);
 
