@@ -110,6 +110,8 @@ const char *StrUpper(const char *name)
 	while (*name)
 		*dest++ = toupper(*name++);
 
+	*dest = 0;
+
 	return up_buf;
 }
 
