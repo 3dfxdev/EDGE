@@ -19,10 +19,10 @@
 #ifndef __MP_MAIN_H__
 #define __MP_MAIN_H__
 
-#define MPSERVER_VERSION  "0.56"
-#define MPSERVER_VER_HEX  0x056
+#define MPSERVER_VERSION  "0.57"
+#define MPSERVER_VER_HEX  0x057
 
-#define MPS_DEF_MAX_CLIENT  16
+#define MPS_DEF_MAX_CLIENT  32
 #define MPS_DEF_MAX_GAME     8
 
 #define MPS_DEF_ALIVE_WAIT  60 /* seconds */
