@@ -148,8 +148,8 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	int lit_Nom = (ren_allbright || state->bright) ? 240 :
 		(props->lightlevel * 240 / 255);
 
-	if (effect_infrared)
-		lit_Nom += (int)(effect_strength * 255);
+	if (effect_infrared && (effect_left >= EFFECT_MAX_TIME || (effect_left & 8)))
+		lit_Nom = 255;
 
 	lit_Nom = GAMMA_CONV(MIN(255, lit_Nom));
 
