@@ -715,36 +715,7 @@ void E_Display(void)
       
 #else // USE_GL
   
-	// -ES- 1999/08/10 New wiping system
-	// wipe update
-	wipeend = V_ResizeScreen(wipeend, SCREENWIDTH, SCREENHEIGHT, BPP);
-	V_CopyScreen(wipeend, main_scr);
-
-	wipeinfo = WIPE_InitWipe(main_scr, 0, 0,
-							 wipestart, 0, 0, 1,
-							 wipeend, 0, 0, 1,
-							 SCREENWIDTH, SCREENHEIGHT, wipeinfo,
-							 -1, wipe_reverse, (wipetype_e)wipe_method);
-
-	wipestarttime = I_GetTime();
-	tics = 0;
-
-	do
-	{
-		do
-		{
-			nowtime = I_GetTime();
-		}
-		while (tics == nowtime - wipestarttime);
-		tics = nowtime - wipestarttime;
-		done = WIPE_DoWipe(main_scr, wipestart, wipeend, tics, wipeinfo);
-		M_Drawer();  // menu is drawn even on top of wipes
-
-		I_FinishFrame();  // page flip or blit buffer
-
-	}
-	while (!done);
-	redrawsbar = true;
+    // Software mode is obsolete
 
 #endif // USE_GL
 }

@@ -102,6 +102,6 @@ extern HACCEL accelerator;
 extern HWND conwinhandle;
 extern boolean_t appactive;
 
-#endif __SYSTEM_INTERNAL_H__
+#endif /* __SYSTEM_INTERNAL_H__ */
 
 

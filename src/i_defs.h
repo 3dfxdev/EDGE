@@ -91,6 +91,41 @@ typedef enum { false, true } boolean_t;
 
 #endif // NULL port
 
+// MinGW 
+#ifdef WIN32
+#ifdef __GNUC__
+
+#define WIN32_LEAN_AND_MEAN
+
+#include "epi/epi.h"
+
+#define EDGECONFIGFILE "EDGE.CFG"
+#define EDGEHOMEDIR    "EDGE"
+#define EDGEWADDIR     "EDGEWADDIR"
+#define EDGEWADEXT     "wad"
+#define EDGEGWAEXT     "gwa"
+#define REQUIREDWAD    "EDGE"
+
+#define DIRSEPARATOR '\\'
+
+#define NAME        "The EDGE Engine"
+#define OUTPUTNAME  "EDGECONSOLE"
+#define TITLE       "EDGE Engine"
+#define OUTPUTTITLE "EDGE System Console"
+
+#define I_TmpMalloc(size) alloca(size)
+#define I_TmpFree(ptr) do { } while (0)
+
+#define MAXPATH _MAX_PATH
+
+#define I_MoveData memmove
+
+#include ".\win32\i_compen.h"
+#include "i_system.h"
+
+#endif
+#endif
+
 // Microsoft Visual C++ V6.0 for Win32
 #ifdef WIN32 
 #ifdef _GATESY_
@@ -119,10 +154,6 @@ typedef enum { false, true } boolean_t;
 
 // PI define. Nicked from DJGPP's <math.h>
 #define M_PI 3.14159265358979323846
-
-#define GCCATTR(a)
-#define INLINE _inline 
-#define EDGE_INLINE(decl, body) extern decl;
 
 #define I_TmpMalloc(size) alloca(size)
 #define I_TmpFree(ptr) do { } while (0)
@@ -190,10 +221,6 @@ typedef enum { false, true } boolean_t;
 
 // PI define. Nicked from DJGPP's <math.h>
 #define M_PI 3.14159265358979323846
-
-#define GCCATTR(a)
-#define INLINE 
-#define EDGE_INLINE(decl, body) extern decl;
 
 #define I_TmpMalloc(size) alloca(size)
 #define I_TmpFree(ptr) do { } while (0)
