@@ -116,6 +116,22 @@ rad_trigger_t * RAD_FindTriggerByName(const char *name)
 }
 
 //
+// RAD_FindTriggerByScript
+//
+rad_trigger_t * RAD_FindTriggerByScript(const rad_script_t *scr)
+{
+  rad_trigger_t *trig;
+
+  for (trig=r_triggers; trig; trig=trig->next)
+  {
+    if (trig->info == scr)
+      return trig;
+  }
+
+  return NULL;  // no worries if none.
+}
+
+//
 // RAD_FindStateByLabel
 //
 rts_state_t * RAD_FindStateByLabel(rad_script_t *scr, char *label)
@@ -260,15 +276,22 @@ static bool RAD_CheckHeightTrig(rad_trigger_t *trig,
 bool RAD_CheckReachedTrigger(mobj_t * thing)
 {
   rad_script_t * scr = (rad_script_t *) thing->path_trigger;
+  rad_trigger_t * trig;
 
   rts_path_t *path;
   int choice;
-  
+
   if (! RAD_WithinRadius(thing, scr))
     return false;
 
   // Thing has reached this path node. Update so it starts following
-  // the next node.  Handle any PATH_EVENT too.
+  // the next node.  Handle any PATH_EVENT too.  Enable the associated
+  // trigger (could be none if there were no states).
+
+  trig = RAD_FindTriggerByScript(scr);
+
+  if (trig)
+    trig->disabled = false;
 
   if (scr->path_event_label)
   {
