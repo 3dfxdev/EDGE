@@ -2,13 +2,14 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: NOVEMBER 27th 2004)
+(Date: DECEMBER 10th 2004)
 
 
 Bugs fixed
 ----------
 
 + crash loading a savegame with dynamic lights when D/L disabled.
++ fixed crash when starting a level in deathmatch mode.
 + quotes (") usable in response files (for filenames with spaces).
 
 - Arch-vile no longer resurrects monsters into itself.
@@ -47,7 +48,7 @@ Features removed:
 + software rendering has been removed.  We don't have the time to
   maintain the software renderer anymore, and keeping two renderers
   means that adding new features (like slopes and models) needs
-  twice as much work (maybe more -- doing things with OpenGL is
+  twice as much work (if not more -- doing things with OpenGL is
   usually a lot easier than doing it with software).
 
 + the demo format has changed, and previously recorded demos don't
@@ -80,10 +81,12 @@ General improvements
   engines).  EDGE converts the patches to DDF, and stores the result
   in files with the .HWA extension, which are loaded automatically.
 
+(NEEDS TESTING) - able to use 24-bit screen modes (16.7 million colours).
+
 - new startup, with progress bar.  The console window that used to
   appear (Win32) is gone, and under Linux messages are no longer
-  printed to the terminal.  When GL-Nodes need to be built for a wad,
-  this is now done during startup.
+  printed to the terminal.  When GL-Nodes must be built for a wad,
+  this is also done during startup.
 
 - Linux: fatal errors produce a pop-up dialog box.  EDGE can now be
   run by double clicking the executable.  Support for CD music.
@@ -136,12 +139,12 @@ New DDF features:
   Some styles are available for use, but are not defined in our own
   STYLES.DDF.  E.g. [VIDEO_OPTIONS].  When absent, they fall back to
   more general styles: [MENU] for menu screens, and [OPTIONS] for
-  option screens.  That allows you to keep these screens consistent
-  and change them all by only changing one style entry.
+  option screens.  This allows you to keep these screens consistent,
+  since you can change them all by only editing a single style.
 
   @@@
 
-(NOT FINISHED) new IMAGES.DDF file.  PNG.  blah...
+(NOT FINISHED) new IMAGES.DDF file.  blah...
 
 - RELOAD states for monsters.  This is controlled by the new command
   RELOAD_SHOTS and the new action RELOAD_CHECK, which tests if the
@@ -208,7 +211,7 @@ New RTS features:
   specify a style, the default style is [RTS_MENU] (or just [MENU] if
   that one doesn't exist).
 
-- lines in RTS scripts can be split over two (or more) actual lines
+- lines in RTS scripts can be extended over two (or more) actual lines
   by placing the \ character at the end.  A silly example:
 
      SHOW_MENU "title" \
