@@ -1,13 +1,9 @@
 
-TODO
-====
+MPSERVER TODO
+=============
 
 NETWORKING
 ----------
-
-DONE: argument handling (lib_argv), like in edge.
-
-< have -local and -port cmdline options (remove BIG HACK).
 
 * FIX TICCMD HANDLING !!
 
@@ -15,27 +11,28 @@ DONE: argument handling (lib_argv), like in edge.
 - bot support: client sends ticcmd_proto for bots, ETC.
 
 - validate packet lengths and contents.
+
 - send acknowledgements.  Also do logging/error packets.
 
-- ping packet type ("pn").
 - ticcmd retransmit packet ("tr"), flag for "tc"/"Tg" replies.
 
 - debugging support: Dump packets.
 
 - improve class access (keep fields private).
 
-? port selection: try port +2, +4, +6, and +8 before giving up.
-
 
 USER INTERFACE
 --------------
 
-+ copy the game/client lists for the UI.
-
 + control screen : set port (and addr), limits on clients/games, etc.
-  - ACTIVATE button.  RESET button.
+  - ACTIVATE button.  RESET button (boot all, deactivate).
+
+- copy the game/client lists for the UI.
 
 - client list.  (allow booting off)
 
 - game list.  (allow terminating games).
+
+- exit confirmation if there are clients/games, plus choice to
+  quit immediately or boot-all then quit.
 
