@@ -867,8 +867,6 @@ static void TitleNextPicture(void)
 //
 static void E_DoAdvanceTitle(void)
 {
-//!!!!	consoleplayer->playerstate = PST_LIVE;  // not reborn
-
 	advance_title = false;
 	usergame = false;     // no save or end game here
 	paused = false;
