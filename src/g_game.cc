@@ -717,7 +717,6 @@ void G_DoLoadLevel(void)
 	if (!drone)
 		displayplayer = consoleplayer;  // view the guy you are playing
 
-	Z_CheckHeap();
 	starttime = I_GetTime();
 	exittime = 0x7fffffff;
 	exit_skipall = false;
