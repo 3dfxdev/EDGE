@@ -1065,7 +1065,7 @@ static void G_PlayerFinishLevel(player_t *p)
 // Called after a player dies. 
 // almost everything is cleared and initialised.
 
-void G_PlayerReborn(player_t *p, const mobjinfo_t *info)
+void G_PlayerReborn(player_t *p, const mobjinfo_c *info)
 {
 	bool in_game;
 	player_t *next, *prev;
@@ -1158,7 +1158,7 @@ static bool G_CheckSpot(player_t *player, const spawnpoint_t *point)
 	// (temp fix for teleport effect)
 	x += 20 * M_Cos(point->angle);
 	y += 20 * M_Sin(point->angle);
-	P_MobjCreateObject(x, y, z, DDF_MobjLookup("TELEPORT FLASH"));
+	P_MobjCreateObject(x, y, z, mobjinfo.Lookup("TELEPORT FLASH"));
 
 	return true;
 }
