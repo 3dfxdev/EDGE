@@ -334,7 +334,7 @@ static void WeaponFinishEntry(void)
 		// check if clip_size + ammopershot makes sense
 		if (buffer_weapon.clip_size[ATK] > 0 && buffer_weapon.ammo[ATK] != AM_NoAmmo &&
 			(buffer_weapon.clip_size[ATK] < buffer_weapon.ammopershot[ATK] ||
-			 buffer_weapon.clip_size[ATK] % buffer_weapon.ammopershot[ATK] != 0))
+			 (buffer_weapon.clip_size[ATK] % buffer_weapon.ammopershot[ATK] != 0)))
 		{
 			DDF_WarnError2(0x129, "%sAMMOPERSHOT=%d incompatible with %sCLIPSIZE=%d\n",
 				ATK ? "SEC_" : "", buffer_weapon.ammopershot[ATK],
@@ -362,8 +362,11 @@ static void WeaponFinishEntry(void)
 
 	// backwards compatibility
 	if (ddf_version < 0x129)
-		buffer_weapon.specials[1] = (weapon_flag_e)
-			(buffer_weapon.specials[0] & WPSP_SilentToMon);
+	{
+		if (buffer_weapon.specials[0] & WPSP_SilentToMon)
+			buffer_weapon.specials[1] = (weapon_flag_e)
+				(buffer_weapon.specials[1] | WPSP_SilentToMon);
+	}
 
 	// transfer static entry to dynamic entry
 	dynamic_weapon->CopyDetail(buffer_weapon);
