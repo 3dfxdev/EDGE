@@ -71,7 +71,7 @@ void STLIB_InitFloat(st_float * n, int x, int y,
 	FROM_320(IM_WIDTH(Image)), FROM_200(IM_HEIGHT(Image)),  \
 	(Image),0,0,IM_RIGHT(Image),IM_BOTTOM(Image),(Map),1.0f)
 
-static void DrawNum(st_number_t * n, bool refresh)
+static void DrawNum(st_number_t * n)
 {
 	int numdigits = n->width;
 	int num = *n->num;
@@ -131,13 +131,13 @@ static void DrawNum(st_number_t * n, bool refresh)
 	}
 }
 
-void STLIB_UpdateNum(st_number_t * n, bool refresh)
+void STLIB_UpdateNum(st_number_t * n)
 {
 	if (*n->on)
-		DrawNum(n, refresh);
+		DrawNum(n);
 }
 
-void STLIB_UpdateFloat(st_float * n, bool refresh)
+void STLIB_UpdateFloat(st_float * n)
 {
 	int i = (int) *n->f;
 
@@ -149,7 +149,7 @@ void STLIB_UpdateFloat(st_float * n, bool refresh)
 		i = 1;
 
 	n->num.num = &i;
-	STLIB_UpdateNum(&n->num, refresh);
+	STLIB_UpdateNum(&n->num);
 	n->num.num = NULL;
 }
 
@@ -161,16 +161,16 @@ void STLIB_InitPercent(st_percent_t * p, int x, int y,
 	p->percsign = percsign;
 }
 
-void STLIB_UpdatePercent(st_percent_t * per, int refresh)
+void STLIB_UpdatePercent(st_percent_t * per)
 {
 	st_number_t *num = &per->f.num;
 
-	if (refresh && *num->on)
+	if (*num->on)
 	{
 		DrawDigit(num->x, num->y, per->percsign, num->colmap);
 	}
 
-	STLIB_UpdateFloat(&per->f, refresh?true:false);
+	STLIB_UpdateFloat(&per->f);
 }
 
 void STLIB_InitMultIcon(st_multicon_t * i, int x, int y, 
@@ -184,12 +184,11 @@ void STLIB_InitMultIcon(st_multicon_t * i, int x, int y,
 	i->icons = icons;
 }
 
-void STLIB_UpdateMultIcon(st_multicon_t * mi, bool refresh)
+void STLIB_UpdateMultIcon(st_multicon_t * mi)
 {
 	const image_t *image;
 
-	if (*mi->on && (mi->oldinum != *mi->inum || refresh)
-		&& (*mi->inum != -1))
+	if (*mi->on && (*mi->inum != -1))
 	{
 		image = mi->icons[*mi->inum];
 
@@ -210,9 +209,9 @@ void STLIB_InitBinIcon(st_binicon_t * b, int x, int y,
 	b->icon = icon;
 }
 
-void STLIB_UpdateBinIcon(st_binicon_t * bi, bool refresh)
+void STLIB_UpdateBinIcon(st_binicon_t * bi)
 {
-	if (*bi->on && (bi->oldval != *bi->val || refresh))
+	if (*bi->on)
 	{
 		if (*bi->val)
 		{

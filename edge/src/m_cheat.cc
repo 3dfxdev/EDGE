@@ -230,8 +230,6 @@ bool M_CheatResponder(event_t * ev)
 		for (i = 0; i < NUMAMMO; i++)
 			pl->ammo[i].num = pl->ammo[i].max;
 
-		stbar_update = true;
-
 		P_UpdateAvailWeapons(pl);
 		P_UpdateTotalArmour(pl);
 
@@ -255,9 +253,6 @@ bool M_CheatResponder(event_t * ev)
 
 		pl->cards = KF_MASK;
 
-		// refresh to add all stuff to status bar
-		stbar_update = true;
-
 		P_UpdateAvailWeapons(pl);
 		P_UpdateTotalArmour(pl);
 
@@ -266,9 +261,6 @@ bool M_CheatResponder(event_t * ev)
 	else if (M_CheckCheat(&cheat_keys, key))
 	{
 		pl->cards = KF_MASK;
-
-		// refresh to remove all stuff from status bar
-		stbar_update = true;
 
 		CON_MessageLDF("UnlockCheat");
 	}

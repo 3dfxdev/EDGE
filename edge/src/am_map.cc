@@ -404,9 +404,6 @@ static void InitVariables(void)
 	old_m_y = m_y;
 	old_m_w = m_w;
 	old_m_h = m_h;
-
-	// inform the status bar of the change
-	stbar_update = true;
 }
 
 //
@@ -661,7 +658,6 @@ bool AM_Responder(event_t * ev)
 			{
 				if (automapactive == 1)
 				{
-					stbar_update = true;
 					automapactive = 2;
 				}
 				else

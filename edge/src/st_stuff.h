@@ -59,8 +59,6 @@ void ST_ReInit(void);
 // Called by startup code.
 bool ST_Init(void);
 
-extern bool stbar_update;
-
 // States for the chat code.
 typedef enum
 {

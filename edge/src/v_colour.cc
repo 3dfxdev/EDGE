@@ -773,8 +773,6 @@ void V_SetPalette(int type, float amount)
 		if (BPP != 1 && playpal_greys[i])
 			pixel_values[i] &= ti.grey_mask;
 	}
-
-	stbar_update = true;
 }
 
 static INLINE long MakeRGB(truecol_info_t *ti, long r, long g, long b)

@@ -784,7 +784,6 @@ void P_UpdateAvailWeapons(player_t *p)
 		if (0 <= key && key <= 9)
 			p->avail_weapons[key] = true;
 	}
-	stbar_update = true;
 }
 
 //
@@ -992,6 +991,5 @@ void P_GiveInitialBenefits(player_t *p, const mobjinfo_t *info)
 
 	// refresh to remove all stuff from status bar
 	P_UpdateAvailWeapons(p);
-	stbar_update = true;
 }
 
