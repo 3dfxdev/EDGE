@@ -62,6 +62,25 @@ static void I_SignalHandler(int s)
 	I_Error("EDGE: Terminated by signal %d", s);
 }
 
+static void I_ChangeToExeDir(const char *full_path)
+{
+	const char *r = strrchr(full_path, '/');
+
+	if (r == NULL || r == full_path)
+		return;
+
+	int length = (r - full_path) + 1;
+
+	char *buf = new char[length];
+
+	memcpy(buf, full_path, length);
+	buf[length] = 0;
+
+	chdir(buf);
+
+	delete[] buf;
+}
+
 #ifdef MACOSX
 int main(int argc, char *argv[])
 #else
@@ -84,6 +103,9 @@ int main(int argc, const char **argv)
 	signal(SIGINT,  I_SignalHandler);  // killough 3/6/98: allow CTRL-BRK during init
 	signal(SIGABRT, I_SignalHandler);
 #endif
+
+	// -AJA- change current dir to match executable (just like Win32)
+	I_ChangeToExeDir(argv[0]);
 
 	// Run EDGE. it never returns
 	engine::Main(argc, (const char **) argv);

@@ -292,15 +292,6 @@ bool I_SetScreenSize(screenmode_t *mode)
 	SCREENHEIGHT = my_vis->h;
 	SCREENBITS   = my_vis->format->BytesPerPixel * 8;
 
-#ifdef USE_GL
-	// -AJA- 2003/10/21: For OPENGL, SDL does not create a shadow surface
-	//       (so you ask for a 16 bit mode, but get a 32 bit one).  Hence
-	//       the value of SCREENBITS becomes a value that the main EDGE
-	//       code can't handle. [The "BPP 4 invalid" error].  After 1.28,
-	//       this hack can go away (use SDL's mode query function).
-	SCREENBITS = mode->depth;  // FIXME !!!!
-#endif
-
 	VideoModeCommonStuff();
 
 	SDL_GL_SwapBuffers();
@@ -361,6 +352,18 @@ long I_Colour2Pixel(byte palette[256][3], int col)
 		return col;
 
 	return MakeCol(palette[col][0], palette[col][1], palette[col][2]);
+}
+
+//
+// I_RemoveGrab()
+//
+void I_RemoveGrab(void)
+{
+	if (my_vis && ! graphics_shutdown)
+	{
+		SDL_ShowCursor(1);
+		SDL_WM_GrabInput(SDL_GRAB_OFF);
+	}
 }
 
 //
