@@ -37,6 +37,8 @@
 #include <dinput.h>
 #include <dsound.h>
 
+#include "edge32.rh" // Resources
+
 #ifdef __cplusplus
 extern "C"
 {
