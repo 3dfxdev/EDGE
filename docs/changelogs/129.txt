@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: DECEMBER 14th 2004)
+(Date: DECEMBER 22nd 2004)
 
 
 Bugs fixed
@@ -53,8 +53,9 @@ Features removed / changed
   usually a lot easier than doing it with software).
 
 + the demo format has changed, and previously recorded demos don't
-  work in this version of EDGE.  @@@ The current demo code has not
-  been tested and may not work properly.
+  work in this version of EDGE.
+  
+  @@@ NOTE: The demo code is currently broken.
 
 - using { } comments in DDF files, and ';' comments in RTS scripts
   is now deprecated, since these characters will probably be needed
@@ -73,9 +74,7 @@ General improvements
 
 (NOT FINISHED) new sound system, using OpenAL (a 3D audio library). 
 
-(ALMOST FINISHED) support for OGG Vorbis Music playing.  @@@
-
-(NOT FINISHED) good music support under Linux. @@@
++ support for OGG Vorbis Music playing.  @@@
 
 + native support for DeHackEd and BEX patches, both as normal files
   (with .DEH or .BEX extension), and also as DEHACKED lump in a wad.
@@ -97,8 +96,13 @@ General improvements
   handle very complex levels (which overflow the old limits), e.g.
   Deus Vult MAP05.
 
-- a small improvement to Boom compatibility: line-to-line teleporters
-  and the platform toggle linetypes were added.
+- Boom compatibility changes: the type of level (Edge or Boom) is
+  detected when starting a new game, and if it doesn't match the
+  current mode (or the result was mixed), then a dialog asks you
+  whether to change mode.  When using -warp, the mode is changed
+  automatically (unless the result was mixed).
+
+  Also added: line-to-line teleporters and platform toggle linetypes.
 
 - source code uses more C++ features, and more of the EPI (Edge Platform
   Interface).  The "Zone" memory manager has mostly been replaced.
