@@ -35,16 +35,16 @@
 
 typedef struct
 {
-  // vertical angle for mlook, *256 for angle
+  // vertical angle for mlook, /256 for angle
   signed char vertangle;
 
   // -MH- 1998/08/23 upward movement
   signed char upwardmove;
 
-  // *2048 for move
+  // /32 for move
   signed char forwardmove;
 
-  // *2048 for move
+  // /32 for move
   signed char sidemove;
 
   // *65536 for angle delta

@@ -43,6 +43,9 @@
 
 #include "ddf_main.h"  // colmap.ddf stuff
 
+// Networking and tick handling related.
+#define BACKUPTICS 12
+
 //
 // Player states.
 //
@@ -105,6 +108,8 @@ typedef struct player_s
   playerstate_t playerstate;
   ticcmd_t cmd;
 
+  int pnum;
+
   // Determine POV,
   //  including viewpoint bobbing during movement.
   // Focal origin above r.z
@@ -136,7 +141,6 @@ typedef struct player_s
   boolean_t cards[NUMCARDS];
 
   // Frags, kills of other players.
-  //    int   frags[MAXPLAYERS];
   int frags;
   int totalfrags;
 
@@ -196,9 +200,6 @@ typedef struct player_s
   // Current PSP for action
   int action_psp;
 
-  // True if secret level has been done.
-  boolean_t didsecret;
-
   // Implements a wait counter to prevent use jumping again
   // -ACB- 1998/08/09
   int jumpwait;
@@ -224,6 +225,19 @@ typedef struct player_s
   // the button.  -1 if not yet fired or after changing weapons.
   int remember_atk1;
   int remember_atk2;
+
+  short consistency[BACKUPTICS];
+  ticcmd_t netcmds[BACKUPTICS];
+  int netnode;
+
+  // This function will be called by P_PlayerThink to initialise
+  // the ticcmd_t.
+  void (*thinker)(struct player_s *, void *data);
+  void *data;
+
+  // Linked list of in-game players.
+  struct player_s *prev;
+  struct player_s *next;
 }
 player_t;
 
@@ -240,7 +254,6 @@ typedef struct
   int sitems;
   int ssecret;
   int stime;
-//    int  frags[MAXPLAYERS];
   int frags;
   int totalfrags;
   int score;  // current score on entry, modified on return
@@ -251,9 +264,6 @@ wbplayerstruct_t;
 typedef struct
 {
   char *level;  // episode # (0-2)
-
-  // if true, splash the secret level
-  boolean_t didsecret;
 
   // previous and next levels, origin 0
   const mapstuff_t *last;
@@ -270,10 +280,12 @@ typedef struct
   // index of this player in game
   int pnum;
 
-//    wbplayerstruct_t plyr[MAXPLAYERS];
   wbplayerstruct_t *plyr;
 
 }
 wbstartstruct_t;
+
+// This is the only way to create a new player.
+player_t *P_AddPlayer(int pnum);
 
 #endif

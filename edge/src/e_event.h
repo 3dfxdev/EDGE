@@ -43,22 +43,19 @@ typedef enum
 evtype_t;
 
 // Event structure.
-// -KM- 1998/09/01 Added another field
 typedef struct
 {
   evtype_t type;
 
-  // buttons (keys) / data2 axis
-  int data1;
-
-  // analogue axis 1
-  int data2;
-
-  // data4 axis
-  int data3;
-
-  // analogue axis 2
-  int data4;
+  union
+  {
+    int key;
+    struct
+    {
+      int axis;
+      int amount;
+    } analogue;
+  } value;
 }
 event_t;
 

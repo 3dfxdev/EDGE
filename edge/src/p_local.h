@@ -109,7 +109,7 @@ extern iteminque_t *itemquehead;
 // -ACB- 1998/08/27 Start Pointer in the mobj list.
 extern mobj_t *mobjlisthead;
 
-void P_SpawnPlayer(int playernum, const mapthing_t * mthing);
+void P_SpawnPlayer(player_t *p, const mapthing_t * mthing);
 void P_RemoveMobj(mobj_t * th);
 boolean_t P_SetMobjState(mobj_t * mobj, statenum_t state);
 boolean_t P_SetMobjStateDeferred(mobj_t * mobj, statenum_t state, int tic_skip);

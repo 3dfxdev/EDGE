@@ -33,7 +33,7 @@
 //
 // GAME
 //
-void G_DeathMatchSpawnPlayer(int playernum);
+void G_DeathMatchSpawnPlayer(player_t *p);
 
 void G_InitNew(skill_t skill, const mapstuff_t * map, long random_seed);
 
@@ -65,7 +65,7 @@ void G_BeginRecording(void);
 void G_PlayDemo(const char *name);
 void G_TimeDemo(const char *name);
 boolean_t G_CheckDemoStatus(void);
-void G_PlayerReborn(int player);
+void G_PlayerReborn(player_t *player);
 
 void G_SetTurboScale(int scale);
 
@@ -78,6 +78,8 @@ void G_WorldDone(void);
 
 void G_Ticker(void);
 boolean_t G_Responder(event_t * ev);
+
+void G_BuildTiccmd(ticcmd_t *cmd);
 
 void G_ScreenShot(void);
 
