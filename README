@@ -19,7 +19,7 @@ System Requirements:
   - Hardware accelerated 3D card with OpenGL drivers (GLEDGE only).
   
   - Either a DOOM, DOOM II, TNT, PLUTONIA or FREEDOOM WAD file.
-  	(See "Getting hold of a game data" below).
+    (See "Getting hold of a game data" below).
    
   For Win32:
     - DirectX 7.0 or higher.
@@ -32,7 +32,7 @@ System Requirements:
 
 
 Getting hold of game data:
-  	You can get hold of freedoom from freedoom.sourceforge.net which 
+    You can get hold of FreeDoom from freedoom.sourceforge.net which 
     is _free_ and has been produced by fans of the game in their
     spare time, or you can purchase "The Ultimate Doom", "Doom II" or 
     "Final Doom" (Plutonia/TNT) from id software at www.idsoftware.com. 
@@ -48,9 +48,9 @@ Getting hold of game data:
 
 
 Useful Parameters:
-  * Screen Size: -width [screenwidth] -height [screenheight]
+  * Screen size: -width [screenwidth] -height [screenheight]
   * Colour depth: -bpp [depth]  (1 for 8-bit, 2 for 16-bit)
-  * Windowed Mode: -windowed
+  * Windowed mode: -windowed
   * Pick IWAD file: -iwad [main wad file]
   * Play PWAD file: -file [addon wad file]
   * Jump to level: -warp [mapname]  (in the form of MAP01 or E2M9 etc..) 
