@@ -924,6 +924,7 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 			new_z = MAX(new_z, currline->backsector->f_h);
 
 		dest_ang = R_PointToAngle(0, 0, currline->dx, currline->dy) + ANG90;
+
 	}
 	else  /* thing-based teleport */
 	{
@@ -981,7 +982,7 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 			}
 
 			new_x += dx;
-			new_x += dy;
+			new_y += dy;
 
 			// move a little distance away from the line, in case that line
 			// is special (e.g. another teleporter), in order to prevent it
@@ -1055,7 +1056,7 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 		thing->mom.y = my * c + mx * s;
 	}
 
-	thing->angle = dest_ang;
+	thing->angle = new_ang;
 
  	if (currmobj && 0 == (def->special & (TELSP_Relative | TELSP_SameAbsDir |
 		                                  TELSP_Rotate)))
