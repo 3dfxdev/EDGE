@@ -383,12 +383,6 @@ static INLINE void LinkDrawthingIntoDrawfloor(drawthing_t *dthing,
 //
 const image_t * R2_GetThingSprite(mobj_t *mo, bool *flip)
 {
-	spritedef_c *sprite;
-	spriteframe_c *frame;
-
-	angle_t ang;
-	int rot;
-
 	// decide which patch to use for sprite relative to player
 
 	if (mo->sprite == SPR_NULL)
@@ -400,7 +394,7 @@ const image_t * R2_GetThingSprite(mobj_t *mo, bool *flip)
 		I_Error("R2_GetThingSprite: invalid sprite number %i.\n", mo->sprite);
 #endif
 
-	sprite = sprites[mo->sprite];
+	spritedef_c *sprite = sprites[mo->sprite];
 
 	if (mo->frame >= sprite->numframes ||
 		!sprite->frames[mo->frame].finished)
@@ -416,9 +410,9 @@ const image_t * R2_GetThingSprite(mobj_t *mo, bool *flip)
 #endif
 	}
 
-	frame = sprite->frames + mo->frame;
+	spriteframe_c *frame = sprite->frames + mo->frame;
 
-	rot = 0;
+	int rot = 0;
 
 	if (frame->rotated)
 		rot = frame->CalcRot(mo->angle,
