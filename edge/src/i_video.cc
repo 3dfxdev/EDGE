@@ -80,14 +80,14 @@ static screenmode_t possresmode[] =
 	{ 800, 600, 16, false},
 	{1024, 768, 16, false},
 
-	{ 320, 200, 24, false}, // TRUECOLOR
-	{ 320, 240, 24, false},
-	{ 400, 300, 24, false},
-	{ 512, 384, 24, false},
-	{ 640, 400, 24, false},
-	{ 640, 480, 24, false},
-	{ 800, 600, 24, false},
-	{1024, 768, 24, false},
+	{ 320, 200, 32, false}, // TRUECOLOR
+	{ 320, 240, 32, false},
+	{ 400, 300, 32, false},
+	{ 512, 384, 32, false},
+	{ 640, 400, 32, false},
+	{ 640, 480, 32, false},
+	{ 800, 600, 32, false},
+	{1024, 768, 32, false},
 
 	// windowed modes
 	{ 320, 200, 16, true},
@@ -99,14 +99,14 @@ static screenmode_t possresmode[] =
 	{ 800, 600, 16, true},
 	{1024, 768, 16, true},
 
-	{ 320, 200, 24, true},  // TRUECOLOR
-	{ 320, 240, 24, true},
-	{ 400, 300, 24, true},
-	{ 512, 384, 24, true},
-	{ 640, 400, 24, true},
-	{ 640, 480, 24, true},
-	{ 800, 600, 24, true},
-	{1024, 768, 24, true},
+	{ 320, 200, 32, true},  // TRUECOLOR
+	{ 320, 240, 32, true},
+	{ 400, 300, 32, true},
+	{ 512, 384, 32, true},
+	{ 640, 400, 32, true},
+	{ 640, 480, 32, true},
+	{ 800, 600, 32, true},
+	{1024, 768, 32, true},
 
 	{  -1,  -1, -1}
 };
@@ -207,7 +207,7 @@ bool I_SetScreenSize(screenmode_t *mode)
 
 	SCREENWIDTH  = my_vis->w;
 	SCREENHEIGHT = my_vis->h;
-	SCREENBITS   = (my_vis->format->BytesPerPixel == 2) ? 16 : 24;
+	SCREENBITS   = (my_vis->format->BytesPerPixel == 2) ? 16 : 32;
 
 	VideoModeCommonStuff();
 
