@@ -38,8 +38,8 @@
 bool R_InitFlats(void);
 bool R_InitPicAnims(void);
 
-void R_AddFlatAnim(animdef_t *anim);
-void R_AddTextureAnim(animdef_t *anim);
+void R_AddFlatAnim(animdef_c *anim);
+void R_AddTextureAnim(animdef_c *anim);
 void R_PrecacheLevel(void);
 
 #endif
