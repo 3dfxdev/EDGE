@@ -34,62 +34,15 @@
 #undef  DF
 #define DF  DDF_CMD
 
-static attacktype_t buffer_atk;
-static attacktype_t *dynamic_atk;
+static atkdef_c buffer_atk;
+static atkdef_c *dynamic_atk;
 
 // this (and buffer_mobj) logically belongs with buffer_atk:
 static bool attack_has_mobj;
 static float a_damage_range;
 static float a_damage_multi;
 
-static const attacktype_t template_atk =
-{
-	DDF_BASE_NIL,  // ddf
-
-	ATK_NONE, // attackstyle
-	AF_None,  // flags
-	NULL,     // initsound
-	NULL,     // sound
-	0,        // accuracy slope
-	0,        // accuracy angle
-	0,        // xoffset
-	0,        // yoffset
-	0,        // angle_offset
-	0,        // slope_offset
-	0,        // assault_speed
-	0,        // height
-	0,        // range
-	0,        // count
-	0,        // tooclose
-
-	// damage info
-	{
-		0,      // nominal
-		-1,     // linear_max
-		-1,     // error
-		0,      // delay
-		NULL_LABEL, NULL_LABEL, NULL_LABEL,  // override labels
-		false   // no_armour
-	},
-
-	BITSET_EMPTY, // attack_class
-	0,        // objinitstate
-	NULL,     // objinitstate_ref
-	PERCENT_MAKE(0), // notracechance
-	PERCENT_MAKE(0), // keepfirechance
-	NULL,     // atk_mobj
-	NULL,     // spawnedobj
-	NULL,     // spawnedobj_ref
-	NULL,     // puff
-	NULL      // puff_ref
-};
-
-attacktype_t ** ddf_attacks = NULL;
-int num_ddf_attacks = 0;
-int num_disabled_attacks = 0;
-
-static stack_array_t ddf_attacks_a;
-
+atkdef_container_c atkdefs;
 
 static void DDF_AtkGetType(const char *info, void *storage);
 static void DDF_AtkGetSpecial(const char *info, void *storage);
@@ -164,38 +117,32 @@ static const commandlist_t attack_commands[] =
 
 static bool AttackStartEntry(const char *name)
 {
-	int i;
-	bool replaces = false;
+	atkdef_c *existing = NULL;
 
 	if (name && name[0])
 	{
-		for (i=num_disabled_attacks; i < num_ddf_attacks; i++)
+		epi::array_iterator_c it;
+
+		for (it = atkdefs.GetIterator(atkdefs.GetDisabledCount()); it.IsValid(); it++)
 		{
-			if (DDF_CompareName(ddf_attacks[i]->ddf.name, name) == 0)
+			existing = ITERATOR_TO_TYPE(it, atkdef_c*);
+			if (DDF_CompareName(existing->ddf.name, name) == 0)
 			{
-				dynamic_atk = ddf_attacks[i];
-				replaces = true;
+				dynamic_atk = existing;
 				break;
 			}
-		}
-    
-		// if found, adjust pointer array to keep newest entries at end
-		if (replaces && i < (num_ddf_attacks-1))
-		{
-			Z_MoveData(ddf_attacks + i, ddf_attacks + i + 1, attacktype_t *,
-					   num_ddf_attacks - i);
-			ddf_attacks[num_ddf_attacks - 1] = dynamic_atk;
 		}
 	}
 
 	// not found, create a new one
-	if (! replaces)
+	if (! existing)
 	{
-		Z_SetArraySize(&ddf_attacks_a, ++num_ddf_attacks);
-    
-		dynamic_atk = ddf_attacks[num_ddf_attacks - 1];
+		dynamic_atk = new atkdef_c;
+
 		dynamic_atk->ddf.name = (name && name[0]) ? Z_StrDup(name) :
-			DDF_MainCreateUniqueName("UNNAMED_ATTACK", num_ddf_attacks);
+			DDF_MainCreateUniqueName("UNNAMED_ATTACK", atkdefs.GetSize());
+
+		atkdefs.Insert(dynamic_atk);
 	}
 
 	dynamic_atk->ddf.number = 0;
@@ -205,10 +152,10 @@ static bool AttackStartEntry(const char *name)
 	a_damage_multi = -1;
 
 	// instantiate the static entries
-	buffer_atk  = template_atk;
+	buffer_atk.Default();
 	buffer_mobj.Default();
 
-	return replaces;
+	return (existing != NULL);
 }
 
 static void AttackParseField(const char *field, const char *contents,
@@ -230,8 +177,6 @@ static void AttackParseField(const char *field, const char *contents,
 
 static void AttackFinishEntry(void)
 {
-	ddf_base_t base;
-  
 	// check DAMAGE stuff
 	if (buffer_atk.damage.nominal < 0)
 	{
@@ -273,9 +218,7 @@ static void AttackFinishEntry(void)
 
 	// transfer static entry to dynamic entry
   
-	base = dynamic_atk->ddf;
-	dynamic_atk[0] = buffer_atk;
-	dynamic_atk->ddf = base;
+	dynamic_atk->CopyDetail(buffer_atk);
 
 	// compute CRC...
 	CRC32_Init(&dynamic_atk->ddf.crc);
@@ -288,8 +231,7 @@ static void AttackFinishEntry(void)
 static void AttackClearAll(void)
 {
 	// not safe to delete attacks -- mark as disabled
-  
-	num_disabled_attacks = num_ddf_attacks;
+	atkdefs.SetDisabledCount(atkdefs.GetSize());
 }
 
 
@@ -325,37 +267,38 @@ void DDF_ReadAtks(void *data, int size)
 
 void DDF_AttackInit(void)
 {
-	Z_InitStackArray(&ddf_attacks_a, (void ***)&ddf_attacks, sizeof(attacktype_t), 0);
+	atkdefs.Clear();
 }
 
 void DDF_AttackCleanUp(void)
 {
-	int i;
-	attacktype_t *atk;
+	epi::array_iterator_c it;
+	atkdef_c *a;
 
-	for (i=num_disabled_attacks; i < num_ddf_attacks; i++)
+	for (it = atkdefs.GetIterator(atkdefs.GetDisabledCount()); it.IsValid(); it++)
 	{
-		atk = ddf_attacks[i];
-    
-		DDF_ErrorSetEntryName("[%s]  (attacks.ddf)", atk->ddf.name);
+		a = ITERATOR_TO_TYPE(it, atkdef_c*);
+
+		DDF_ErrorSetEntryName("[%s]  (attacks.ddf)", a->ddf.name);
 
 		// lookup thing references
 
-		atk->puff = atk->puff_ref ? mobjinfo.Lookup(atk->puff_ref) : NULL;
+		a->puff = a->puff_ref ? mobjdefs.Lookup(a->puff_ref) : NULL;
 
-		atk->spawnedobj = atk->spawnedobj_ref ? 
-			mobjinfo.Lookup(atk->spawnedobj_ref) : NULL;
+		a->spawnedobj = a->spawnedobj_ref ? mobjdefs.Lookup(a->spawnedobj_ref) : NULL;
       
-		if (atk->spawnedobj)
+		if (a->spawnedobj)
 		{
-			if (atk->objinitstate_ref)
-				atk->objinitstate = DDF_MainLookupDirector(atk->spawnedobj, atk->objinitstate_ref);
+			if (a->objinitstate_ref)
+				a->objinitstate = DDF_MainLookupDirector(a->spawnedobj, a->objinitstate_ref);
 			else
-				atk->objinitstate = atk->spawnedobj->spawn_state;
+				a->objinitstate = a->spawnedobj->spawn_state;
 		}
 
 		DDF_ErrorClearEntryName();
 	}
+
+	atkdefs.Trim();
 }
 
 static const specflags_t attack_specials[] =
@@ -457,22 +400,301 @@ static void DDF_AtkGetLabel(const char *info, void *storage)
 	lab->offset = div ? MAX(0, atoi(div+1) - 1) : 0;
 }
 
+// Attack definition class
+
+// 
+// atkdef_c Constructor
 //
-// DDF_AttackLookup
-//
-attacktype_t *DDF_AttackLookup(const char *name)
+atkdef_c::atkdef_c()
 {
-	int i;
+	Default();
+}
 
-	if (!name || !name[0])
-		DDF_Error("Missing attack name !\n");
+//
+// atkdef_c Destructor
+//
+atkdef_c::~atkdef_c()
+{
+}
 
-	for (i=num_disabled_attacks; i < num_ddf_attacks; i++)
+//
+// atkdef_c Copy Constructor
+//
+atkdef_c::atkdef_c(atkdef_c &rhs)
+{
+	ddf = rhs.ddf;
+	CopyDetail(rhs);
+}
+
+//
+// atkdef_c::CopyDetail()
+//
+void atkdef_c::CopyDetail(atkdef_c &src)
+{
+	attackstyle = src.attackstyle;
+	flags = src.flags;
+	initsound = src.initsound;
+	sound = src.sound;
+	accuracy_slope = src.accuracy_slope;
+	accuracy_angle = src.accuracy_angle;
+	xoffset = src.xoffset;
+	yoffset = src.yoffset;
+	angle_offset = src.angle_offset;
+	slope_offset = src.slope_offset;
+	assault_speed = src.assault_speed;
+	height = src.height;
+	range = src.range;
+	count = src.count;
+	tooclose = src.tooclose;
+
+	// damage info
+	damage.nominal = src.damage.nominal;
+	damage.linear_max = src.damage.linear_max;
+	damage.error = src.damage.error;
+	damage.delay = src.damage.delay;
+	damage.pain.label = src.damage.pain.label;
+	damage.pain.offset = src.damage.pain.offset;
+	damage.death.label = src.damage.death.label;
+	damage.death.offset = src.damage.death.offset;
+	damage.overkill.label = src.damage.overkill.label;
+	damage.overkill.offset = src.damage.overkill.offset;
+	damage.no_armour = src.damage.no_armour;
+
+	attack_class = src.attack_class;
+	objinitstate = src.objinitstate;
+	objinitstate_ref = src.objinitstate_ref;
+	notracechance = src.notracechance;
+	keepfirechance = src.keepfirechance;
+	atk_mobj = src.atk_mobj;
+	spawnedobj = src.spawnedobj;
+	spawnedobj_ref = src.spawnedobj_ref;
+	puff = src.puff;
+	puff_ref = src.puff_ref;
+}
+
+//
+// atkdef_c::Default()
+//
+void atkdef_c::Default()
+{
+	// FIXME: ddf.Clear() ?
+	ddf.name	= "";
+	ddf.number	= 0;	
+	ddf.crc		= 0;
+
+	attackstyle = ATK_NONE;
+	flags = AF_None;
+	initsound = NULL;
+	sound = NULL;
+	accuracy_slope = 0;
+	accuracy_angle = 0;
+	xoffset = 0;
+	yoffset = 0;
+	angle_offset = 0;
+	slope_offset = 0;
+	assault_speed = 0;
+	height = 0;
+	range = 0;
+	count = 0;
+	tooclose = 0;
+
+	// damage info
+	damage.nominal = 0;
+	damage.linear_max = -1;     
+	damage.error = -1;     
+	damage.delay = 0;      
+	damage.pain.label = NULL;
+	damage.pain.offset = 0;
+	damage.death.label = NULL;
+	damage.death.offset = 0;
+	damage.overkill.label = NULL;
+	damage.overkill.offset = 0;
+	damage.no_armour = false;
+
+	attack_class = BITSET_EMPTY; 
+	objinitstate = 0;
+	objinitstate_ref = NULL;
+	notracechance = PERCENT_MAKE(0); 
+	keepfirechance = PERCENT_MAKE(0);
+	atk_mobj = NULL;
+	spawnedobj = NULL;
+	spawnedobj_ref = NULL;
+	puff = NULL;
+	puff_ref = NULL;
+}
+
+// 
+
+// --> atkdef_container_c class
+
+//
+// atkdef_container_c::atkdef_container_c()
+//
+atkdef_container_c::atkdef_container_c() : epi::array_c(sizeof(atkdef_c*))
+{
+	num_disabled = 0;	
+}
+
+//
+// ~atkdef_container_c::atkdef_container_c()
+//
+atkdef_container_c::~atkdef_container_c()
+{
+	Clear();					// <-- Destroy self before exiting
+}
+
+//
+// atkdef_container_c::CleanupObject
+//
+void atkdef_container_c::CleanupObject(void *obj)
+{
+	atkdef_c *a = *(atkdef_c**)obj;
+
+	if (a)
 	{
-		if (DDF_CompareName(ddf_attacks[i]->ddf.name, name) == 0)
-			return ddf_attacks[i];
+		// FIXME: Use proper new/transfer name cleanup to ddf_base destructor
+		if (a->ddf.name) { Z_Free(a->ddf.name); }
+		delete a;
 	}
 
-	DDF_WarnError2(0x128, "Unknown Attack: %s\n", name);
+	return;
+}
+
+//
+// const atkdef_c* atkdef_container_c::Lookup()
+//
+// Looks an mobjdef by name, returns a fatal error if it does not exist.
+//
+const atkdef_c* atkdef_container_c::Lookup(const char *refname)
+{
+	epi::array_iterator_c it;
+	atkdef_c *a;
+
+	if (!refname || !refname[0])
+		return NULL;
+
+	for (it = GetIterator(num_disabled); it.IsValid(); it++)
+	{
+		a = ITERATOR_TO_TYPE(it, atkdef_c*);
+		if (DDF_CompareName(a->ddf.name, refname) == 0)
+			return a;
+	}
+
 	return NULL;
 }
+
+/*
+
+//
+// atkdef_container_c::FindFirst
+//
+int atkdef_container_c::FindFirst(const char *name, int startpos)
+{
+	epi::array_iterator_c it;
+	mobjdef_c *m;
+
+	if (startpos>0)
+		it = GetIterator(startpos);
+	else
+		it = GetBaseIterator();
+
+	while (it.IsValid())
+	{
+		m = ITERATOR_TO_TYPE(it, mobjdef_c*);
+		if (DDF_CompareName(m->ddf.name, name) == 0)
+		{
+			return it.GetPos();
+		}
+
+		it++;
+	}
+
+	return -1;
+}
+
+//
+// atkdef_container_c::FindLast
+//
+int atkdef_container_c::FindLast(const char *name, int startpos)
+{
+	epi::array_iterator_c it;
+	mobjdef_c *m;
+
+	if (startpos>=0 && startpos<array_entries)
+		it = GetIterator(startpos);
+	else
+		it = GetTailIterator();
+
+	while (it.IsValid())
+	{
+		m = ITERATOR_TO_TYPE(it, mobjdef_c*);
+		if (DDF_CompareName(m->ddf.name, name) == 0)
+		{
+			return it.GetPos();
+		}
+
+		it--;
+	}
+
+	return -1;
+}
+
+//
+// atkdef_container_c::MoveToEnd
+//
+// Moves an entry from its current position to end of the list
+//
+bool atkdef_container_c::MoveToEnd(int idx)
+{
+	mobjdef_c* m;
+
+	if (idx < 0 || idx >= array_entries)
+		return false;
+
+	if (idx == (array_entries - 1))
+		return true;					// Already at the end
+
+	// Get a copy of the pointer 
+	m = (*this)[idx];
+
+	I_MoveData((void*)&array[idx*array_block_objsize], 
+		       (void*)&array[idx*(array_block_objsize+1)], 
+			   (array_entries-(idx+1))*array_block_objsize);
+
+	memcpy(&array[(array_entries-1)*array_block_objsize], (void*)&m, sizeof(mobjdef_c*));
+	return true;
+}
+
+//
+// const atkdef_c* atkdef_container_c::Lookup()
+//
+// Looks an atkdef by number, returns a fatal error if it does not exist.
+//
+const atkdef_c* atkdef_container_c::Lookup(int id)
+{
+	epi::array_iterator_c it;
+	mobjdef_c *m;
+
+	for (it = GetTailIterator(); it.IsValid(); it--)
+	{
+		m = ITERATOR_TO_TYPE(it, mobjdef_c*);
+		if (m->ddf.number == id)
+		{
+			break;
+		}
+	}
+
+	if (!it.IsValid())
+		return NULL;
+
+	if (it.GetPos() < (unsigned int)num_disabled)
+		return NULL;
+
+	// do a sprite check (like for weapons)
+	if (! DDF_CheckSprites(m->first_state, m->last_state))
+		return NULL;
+
+	// update the cache
+	return m;
+}
+*/
