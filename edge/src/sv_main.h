@@ -2,7 +2,7 @@
 //  EDGE New SaveGame Handling (Main defs)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2000  The EDGE Team.
+//  Copyright (c) 1999-2001  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -22,6 +22,15 @@
 //    Copyright (C) 1993-1996 by id Software, Inc.
 //
 //----------------------------------------------------------------------------
+//
+// TERMINOLOGY:
+//
+//   - "known" here means an array/structure that is currently built
+//     into EDGE.
+//
+//   - "loaded" here means an array/structure definition that has been
+//     loaded from the savegame file.
+//
 
 #ifndef __SV_MAIN_
 #define __SV_MAIN_
@@ -49,29 +58,28 @@ typedef struct
   savefieldkind_e kind;
   
   // number of bytes for SFKIND_Numeric (1, 2, 4 or 8)
-  int num_size;
+  int size;
 
-  // name of structure for SFKIND_Struct
-  const char *struct_name;
-
-  // used in loaded structures to refer to the loaded SDEF
-  struct savestruct_t *loaded_ptr;
+  // name of structure for SFKIND_Struct, or name of array
+  // for SFKIND_Index.
+  const char *name;
 }
 savefieldtype_t;
 
-#define SVT_INVALID        { SFKIND_Invalid, 0, NULL, NULL }
+#define SVT_INVALID        { SFKIND_Invalid, 0, NULL }
 
-#define SVT_INT            { SFKIND_Numeric, 4, NULL, NULL }
-#define SVT_SHORT          { SFKIND_Numeric, 2, NULL, NULL }
-#define SVT_BYTE           { SFKIND_Numeric, 1, NULL, NULL }
-#define SVT_FLOAT          { SFKIND_Numeric, 4, NULL, NULL }
+#define SVT_INT            { SFKIND_Numeric, 4, NULL }
+#define SVT_SHORT          { SFKIND_Numeric, 2, NULL }
+#define SVT_BYTE           { SFKIND_Numeric, 1, NULL }
+#define SVT_FLOAT          { SFKIND_Numeric, 4, NULL }
+#define SVT_INDEX(name)    { SFKIND_Index,   4, name }
+#define SVT_STRING         { SFKIND_String,  0, NULL }
+#define SVT_STRUCT(name)   { SFKIND_Struct,  0, name }
+
 #define SVT_ANGLE          SVT_INT
 #define SVT_FIXED          SVT_INT
 #define SVT_BOOLEAN        SVT_INT
 #define SVT_ENUM           SVT_INT
-#define SVT_INDEX          { SFKIND_Index,   4, NULL, NULL }
-#define SVT_STRING         { SFKIND_String,  0, NULL, NULL }
-#define SVT_STRUCT(name)   { SFKIND_Struct,  0, name, NULL }
 
 
 // This describes a single field
@@ -83,24 +91,32 @@ typedef struct savefieldtype_s
   // name of field in savegame system
   const char *field_name;
 
+  // number of sequential elements
+  int count;
+ 
   // field type information
   savefieldtype_t type;
 
-  // get & put routines
-  boolean_t (* field_get)(void *storage, const savefieldtype_t *ftype);
-  void (* field_put)(void *storage, const savefieldtype_t *ftype);
+  // get & put routines.  The extra parameter depends on the type, for
+  // SFKIND_Struct it is the name of the structure, for SFKIND_Index
+  // it is the name of the array.  When `field_put' is NULL, then this
+  // field is not saved into the output SDEF chunk.
+  boolean_t (* field_get)(void *storage, int index, void *extra);
+  void (* field_put)(void *storage, int index, void *extra);
+
+  // for loaded info, this points to the known version of the field,
+  // otherwise NULL if the loaded field is unknown.
+  struct savefieldtype_s *known_field;
 }
 savefield_t;
 
-///---  #define SV_FIELD_OFFSET(struct,field)  \
-///---      ((char *)& sv_dummy_##struct . field - (char *)& sv_dummy_##struct )
- 
-// Note well: requires SV_F_BASE to be properly defined
-#define SVFIELD(field,fname,ftype,getter,putter)  \
-    { ((char *)& (SV_F_BASE . field)) - ((char *)& SV_F_BASE),  \
-      fname, ftype, getter, putter }
+// NOTE: requires SV_F_BASE to be defined as the dummy struct
 
-#define SVFIELD_END  { 0, NULL, SVT_INVALID, NULL, NULL }
+#define SVFIELD(field,fname,fnum,ftype,getter,putter)  \
+    { ((char *)& (SV_F_BASE . field)) - ((char *)& SV_F_BASE),  \
+      fname, fnum, ftype, getter, putter, NULL }
+
+#define SVFIELD_END  { 0, NULL, 0, SVT_INVALID, NULL, NULL, NULL }
 
 
 // This describes a single structure
@@ -118,9 +134,14 @@ typedef struct savestruct_s
   // array of field definitions
   savefield_t *fields;
 
-  // this only used for loaded info.  Either the known structure with
-  // the same name, or NULL.
-  struct savestruct_s *known;
+  // this must be true to put the definition into the savegame file.
+  // Allows compatibility structures that are read-only.
+  boolean_t define_me;
+
+  // only used when loading.  For loaded info, this refers to the
+  // known struct of the same name (or NULL if none).  For known info,
+  // this points to the loaded info (or NULL if absent).
+  struct savestruct_s *counterpart;
 }
 savestruct_t;
 
@@ -134,8 +155,13 @@ typedef struct savearray_s
   // array name (for ADEF and STOR chunks)
   const char *array_name;
 
-  // array type
+  // array type.  For loaded info, this points to the loaded
+  // structure.  Never NULL.
   savestruct_t *sdef;
+
+  // this must be true to put the definition into the savegame file.
+  // Allows compatibility arrays that are read-only.
+  boolean_t define_me;
 
   // array routines.  Not used for loaded info.
   int (* count_elems)(void);
@@ -143,9 +169,13 @@ typedef struct savearray_s
   void (* create_elems)(int num_elems);
   void (* finalise_elems)(void);
 
-  // this only used for loaded info.  Either the known array with
-  // the same name, or NULL.
-  struct savearray_s *known;
+  // only used when loading.  For loaded info, this refers to the
+  // known array (or NULL if none).  For known info, this points to
+  // the loaded info (or NULL if absent).
+  struct savearray_s *counterpart;
+
+  // number of elements to be loaded.
+  int loaded_size;
 }
 savearray_t;
 
@@ -155,15 +185,13 @@ savearray_t;
 //
 //  Note the `SR_' prefix.
 //
-boolean_t SR_GetByte(void *storage, const savefieldtype_t *ftype);
-boolean_t SR_GetShort(void *storage, const savefieldtype_t *ftype);
-boolean_t SR_GetInt(void *storage, const savefieldtype_t *ftype);
+boolean_t SR_GetByte(void *storage, int index, void *extra);
+boolean_t SR_GetShort(void *storage, int index, void *extra);
+boolean_t SR_GetInt(void *storage, int index, void *extra);
 
-boolean_t SR_GetFixed(void *storage, const savefieldtype_t *ftype);
-boolean_t SR_GetAngle(void *storage, const savefieldtype_t *ftype);
-boolean_t SR_GetFloat(void *storage, const savefieldtype_t *ftype);
-
-boolean_t SR_GetStruct(void *storage, const savefieldtype_t *ftype);
+boolean_t SR_GetFixed(void *storage, int index, void *extra);
+boolean_t SR_GetAngle(void *storage, int index, void *extra);
+boolean_t SR_GetFloat(void *storage, int index, void *extra);
 
 #define SR_GetBoolean  SR_GetInt
 #define SR_GetEnum     SR_GetInt
@@ -173,15 +201,13 @@ boolean_t SR_GetStruct(void *storage, const savefieldtype_t *ftype);
 //
 //  Note the `SR_' prefix.
 //
-void SR_PutByte(void *storage, const savefieldtype_t *ftype);
-void SR_PutShort(void *storage, const savefieldtype_t *ftype);
-void SR_PutInt(void *storage, const savefieldtype_t *ftype);
+void SR_PutByte(void *storage, int index, void *extra);
+void SR_PutShort(void *storage, int index, void *extra);
+void SR_PutInt(void *storage, int index, void *extra);
 
-void SR_PutFixed(void *storage, const savefieldtype_t *ftype);
-void SR_PutAngle(void *storage, const savefieldtype_t *ftype);
-void SR_PutFloat(void *storage, const savefieldtype_t *ftype);
-
-void SR_PutStruct(void *storage, const savefieldtype_t *ftype);
+void SR_PutFixed(void *storage, int index, void *extra);
+void SR_PutAngle(void *storage, int index, void *extra);
+void SR_PutFloat(void *storage, int index, void *extra);
 
 #define SR_PutBoolean  SR_PutInt
 #define SR_PutEnum     SR_PutInt
@@ -195,32 +221,47 @@ boolean_t SV_MainInit(void);
 const savestruct_t *SV_MainLookupStruct(const char *name);
 const savearray_t  *SV_MainLookupArray(const char *name);
 
-void SV_MainBeginLoad(void);
-void SV_MainFinishLoad(void);
+void SV_BeginLoad(void);
+void SV_FinishLoad(void);
 
-boolean_t SV_MainLoadSTRU(void);
-boolean_t SV_MainLoadARRY(void);
-boolean_t SV_MainLoadSTOR(void);
+boolean_t SV_LoadStruct(void *base, savestruct_t *info);
+boolean_t SV_LoadGLOB(char ** mapname);
+boolean_t SV_LoadSTRU(void);
+boolean_t SV_LoadARRY(void);
+boolean_t SV_LoadDATA(void);
 
-void SV_MainSaveSTRU(void);
-void SV_MainSaveARRY(void);
-void SV_MainSaveDATA(void);
+void SV_BeginSave(void);
+void SV_FinishSave(void);
+
+void SV_SaveStruct(void *base, savestruct_t *info);
+void SV_SaveGLOB(const char *description);
+void SV_SaveSTRU(void);
+void SV_SaveARRY(void);
+void SV_SaveDATA(void);
 
 
 //
 //  EXTERNAL DEFS
 //
 
+extern savestruct_t *sv_known_structs;
+extern savearray_t  *sv_known_arrays;
+
 extern savestruct_t sv_struct_mobj;
 extern savestruct_t sv_struct_player;
+extern savestruct_t sv_struct_playerweapon;
+extern savestruct_t sv_struct_playerammo;
+extern savestruct_t sv_struct_psprite;
 //....
 
 extern savearray_t sv_array_mobj;
 extern savearray_t sv_array_player;
 //....
 
-boolean_t SR_MobjGetMobj(void *storage, const savefieldtype_t *ftype);
-void SR_MobjPutMobj(void *storage, const savefieldtype_t *ftype);
+boolean_t SR_MobjGetMobj(void *storage, int index, void *extra);
+boolean_t SR_MobjGetState(void *storage, int index, void *extra);
+void SR_MobjPutMobj(void *storage, int index, void *extra);
+void SR_MobjPutState(void *storage, int index, void *extra);
 
 int SV_MobjFindElem(mobj_t *elem);
 int SV_PlayerFindElem(player_t *elem);

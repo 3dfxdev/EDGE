@@ -51,6 +51,7 @@ boolean_t SV_VerifyContents(void);
 boolean_t SV_PushReadChunk(const char *id);
 boolean_t SV_PopReadChunk(void);
 int SV_RemainingChunkSize(void);
+boolean_t SV_SkipReadChunk(const char *id);
 
 unsigned char  SV_GetByte(void);
 unsigned short SV_GetShort(void);
