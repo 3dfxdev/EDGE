@@ -20,6 +20,10 @@
 //      Main program, simply calls E_EDGEMain high level loop.
 //
 
+#ifdef MACOSX
+#include <SDL.h>  // needed for proper SDL main linkage
+#endif
+
 #include "i_defs.h"
 
 #include "dm_defs.h"
@@ -67,7 +71,11 @@ static void I_SignalHandler(int s)
   I_Error("EDGE: Terminated by signal %d", s);
 }
 
+#ifdef MACOSX
+int main(int argc, char *argv[])
+#else
 int main(int argc, const char **argv)
+#endif
 {
    signal(SIGPIPE, I_SignalHandler); // CPhipps - add SIGPIPE, as this is fatal
    
@@ -92,7 +100,7 @@ int main(int argc, const char **argv)
 #endif
 
   // Init Arguments
-  M_InitArguments(argc, argv);
+  M_InitArguments(argc, (const char **) argv);
 
   // Run EDGE. it never returns
   E_EDGEMain();
