@@ -218,23 +218,67 @@ static bool GiveArmour(player_t * player, mobj_t * special,
 		return true;
 	}
 
-	float slack = be->limit - player->totalarmour;
+	float amount  = be->amount;
+	float upgrade = 0;
+	float slack;
 
-	if (slack <= 0)
-		return false;
+	if (false)  // if (! Doom_Compat_Armour)
+	{
+		slack = be->limit - player->armours[a_class];
 
-#if 0
-	player->armours[a_class] += be->amount;
-
-	if (player->armours[a_class] > slack)
-		player->armours[a_class] = slack;
-#else
-	// -ACB- 2004/02/01 This appears to make a little more sense, but needs more work
-	if (be->amount > slack)
-		player->armours[a_class] += slack;
+		if (amount > slack)
+			amount = slack;
+		
+		if (amount <= 0)
+			return false;
+	}
 	else
-		player->armours[a_class] += be->amount;
-#endif
+	{
+		slack = be->limit - player->totalarmour;
+
+		if (slack < 0)
+			return false;
+
+		// we try to Upgrade any lower class armour with this armour.
+		for (int cl = a_class - 1; cl >= 0; cl--)
+		{
+			upgrade += player->armours[cl];
+		}
+
+		// cannot upgrade more than the specified amount
+		if (upgrade > amount)
+			upgrade = amount;
+
+		slack += upgrade;
+
+		if (amount > slack)
+			amount = slack;
+		
+		DEV_ASSERT2(amount  >= 0);
+		DEV_ASSERT2(upgrade >= 0);
+
+		if (amount == 0 && upgrade == 0)
+			return false;
+	}
+
+	player->armours[a_class] += amount;
+
+	if (upgrade > 0)
+	{
+		for (int cl = a_class - 1; (cl >= 0) && (upgrade > 0); cl--)
+		{
+			if (player->armours[cl] >= upgrade)
+			{
+				player->armours[cl] -= upgrade;
+				break;
+			}
+			else if (player->armours[cl] > 0)
+			{
+				upgrade -= player->armours[cl];
+				player->armours[cl] = 0;
+			}
+		}
+	}
 
 	P_UpdateTotalArmour(player);
 	return true;
