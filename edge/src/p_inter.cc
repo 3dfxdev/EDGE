@@ -433,7 +433,8 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 
   player = toucher->player;
 
-  DEV_ASSERT2(player);
+  if (! player)
+	  return;
 
   // Dead thing touching. Can happen with a sliding player corpse.
   if (toucher->health <= 0)
