@@ -495,12 +495,7 @@ void sectortype_c::CopyDetail(sectortype_c &src)
 	e = src.e;
 	l = src.l;
 
-	damage.pain.label = src.damage.pain.label;
-	damage.pain.offset = src.damage.pain.offset;
-	damage.death.label = src.damage.death.label;
-	damage.death.offset = src.damage.death.offset;
-	damage.overkill.label = src.damage.overkill.label;
-	damage.overkill.offset = src.damage.overkill.offset;
+	damage = src.damage;
 	
 	special_flags = src.special_flags;
 	e_exit = src.e_exit;
@@ -542,17 +537,7 @@ void sectortype_c::Default()
 	e.Default();
 	l.Default();
 
-	damage.nominal = 0.0f;
-	damage.linear_max = -1.0f;
-	damage.error = -1.0f;
-	damage.delay = 31;
-	damage.pain.label = NULL;
-	damage.pain.offset = 0;
-	damage.death.label = NULL;
-	damage.death.offset = 0;
-	damage.overkill.label = NULL;
-	damage.overkill.offset = 0;
-	damage.no_armour = false;
+	damage.Default(damage_c::DEFAULT_Sector);
 	
 	special_flags = SECSP_None;
 	e_exit = EXIT_None;
@@ -579,7 +564,7 @@ sectortype_c& sectortype_c::operator=(sectortype_c &rhs)
 	return *this;
 }
 
-// --> Line definition type container class
+// --> Sector definition type container class
 
 //
 // sectortype_container_c Constructor

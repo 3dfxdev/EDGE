@@ -113,7 +113,7 @@ typedef struct shoot_trav_info_s
 	float bottomslope;
 
 	float damage;
-	const damage_t *damtype;
+	const damage_c *damtype;
 	const mobjtype_c *puff;
 	float prev_z;
 }
@@ -1600,7 +1600,7 @@ float P_AimLineAttack(mobj_t * t1, angle_t angle, float distance)
 // Note: Damtype can be NULL.
 //
 void P_LineAttack(mobj_t * t1, angle_t angle, float distance, 
-				  float slope, float damage, const damage_t * damtype,
+				  float slope, float damage, const damage_c * damtype,
 				  const mobjtype_c *puff)
 {
 	float x2 = t1->x + distance * M_Cos(angle);
@@ -1840,7 +1840,7 @@ typedef struct rds_atk_info_s
 	mobj_t *spot;
 	mobj_t *source;
 	float damage;
-	const damage_t *damtype;
+	const damage_c *damtype;
 	bool thrust;
 }
 rds_atk_info_t;
@@ -1962,7 +1962,7 @@ static bool PIT_SphereAttack(mobj_t * thing)
 // Note: Damtype can be NULL.
 //
 void P_RadiusAttack(mobj_t * spot, mobj_t * source, float radius,
-					float damage, const damage_t * damtype, bool thrust_only)
+					float damage, const damage_c * damtype, bool thrust_only)
 {
 	int x, y;
 	int xl, xh, yl, yh;

@@ -432,7 +432,7 @@ extern mobjtype_c buffer_mobj;
 
 extern elevatordef_c buffer_elevator;
 extern movplanedef_c buffer_floor;
-extern damage_t buffer_damage;
+extern damage_c buffer_damage;
 
 extern const commandlist_t elevator_commands[];
 extern const commandlist_t floor_commands[];

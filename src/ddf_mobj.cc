@@ -1472,23 +1472,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
     flags = src.flags; 
     extendedflags = src.extendedflags; 
 
-	// damage info
-
-	// FIXME! Make damage_t a class with a copy constructor
-	// damage = src.damage;
-	damage.nominal			= src.damage.nominal;	
-	damage.linear_max		= src.damage.linear_max;	
-	damage.error			= src.damage.error;	
-	damage.delay			= src.damage.delay;	
-
-	damage.pain.label		= src.damage.pain.label;
-	damage.pain.offset		= src.damage.pain.offset;
-	damage.death.label		= src.damage.death.label;
-	damage.death.offset		= src.damage.death.offset;
-	damage.overkill.label	= src.damage.overkill.label;
-	damage.overkill.offset	= src.damage.overkill.offset;
-
-	damage.no_armour		= src.damage.no_armour;	
+	damage = src.damage;	
 
 	lose_benefits = src.lose_benefits; 
 	pickup_benefits = src.pickup_benefits; 
@@ -1537,19 +1521,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	gasp_start = src.gasp_start; 
 
 	// choke_damage
-	choke_damage.nominal			= src.choke_damage.nominal;	
-	choke_damage.linear_max			= src.choke_damage.linear_max; 
-	choke_damage.error				= src.choke_damage.error;	
-	choke_damage.delay				= src.choke_damage.delay;
-	
-	choke_damage.pain.label			= src.choke_damage.pain.label;
-	choke_damage.pain.offset		= src.choke_damage.pain.offset;
-	choke_damage.death.label		= src.choke_damage.death.label;
-	choke_damage.death.offset		= src.choke_damage.death.offset;
-	choke_damage.overkill.label		= src.choke_damage.overkill.label;
-	choke_damage.overkill.offset	= src.choke_damage.overkill.offset;
-
-	choke_damage.no_armour			= src.choke_damage.no_armour;	
+	choke_damage = src.choke_damage;	
 
 	bobbing = src.bobbing; 
 	immunity = src.immunity; 
@@ -1617,18 +1589,7 @@ void mobjtype_c::Default()
     flags = 0;
     extendedflags = 0;
 
-	// damage info
-	damage.nominal			= 0.0f;		
-	damage.linear_max		= -1.0f;	
-	damage.error			= -1.0f;			
-	damage.delay			= 0;   
-	damage.pain.label		= NULL;
-	damage.pain.offset		= 0;
-	damage.death.label		= NULL;
-	damage.death.offset		= 0;
-	damage.overkill.label	= NULL;
-	damage.overkill.offset	= 0;
-	damage.no_armour		= false;
+	damage.Default(damage_c::DEFAULT_Mobj);
 
 	lose_benefits = NULL;
 	pickup_benefits = NULL;
@@ -1676,18 +1637,7 @@ void mobjtype_c::Default()
 	lung_capacity = 20 * TICRATE;
 	gasp_start = 2  * TICRATE;
 
-	// choke_damage
-	choke_damage.nominal			= 6.0f;		
-	choke_damage.linear_max			= 14.0f;	
-	choke_damage.error				= -1.0f;			
-	choke_damage.delay				= 2 * TICRATE;   
-	choke_damage.pain.label			= NULL;
-	choke_damage.pain.offset		= 0;
-	choke_damage.death.label		= NULL;
-	choke_damage.death.offset		= 0;
-	choke_damage.overkill.label		= NULL;
-	choke_damage.overkill.offset	= 0;
-	choke_damage.no_armour			= true;
+	choke_damage.Default(damage_c::DEFAULT_MobjChoke);
 
 	bobbing = PERCENT_MAKE(100);
 	immunity = BITSET_EMPTY;
@@ -1849,7 +1799,7 @@ const mobjtype_c* mobjtype_container_c::Lookup(const char *refname)
 {
 	int idx;
 
-	idx = mobjtypes.FindLast(refname);
+	idx = FindLast(refname);
 
 	// special rule for internal names (beginning with `_'), to allow
 	// savegame files to find attack MOBJs that may have been masked by

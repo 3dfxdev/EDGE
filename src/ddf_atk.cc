@@ -45,7 +45,7 @@ static void DDF_AtkGetType(const char *info, void *storage);
 static void DDF_AtkGetSpecial(const char *info, void *storage);
 static void DDF_AtkGetLabel(const char *info, void *storage);
 
-damage_t buffer_damage;
+damage_c buffer_damage;
 
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  buffer_damage
@@ -374,7 +374,7 @@ static void DDF_AtkGetType(const char *info, void *storage)
 //
 static void DDF_AtkGetLabel(const char *info, void *storage)
 {
-	label_offset_t *lab = (label_offset_t *)storage;
+	label_offset_c *lab = (label_offset_c *)storage;
 
 	// check for `:' in string
 	const char *div = strchr(info, DIVIDE);
@@ -445,18 +445,7 @@ void atkdef_c::CopyDetail(atkdef_c &src)
 	count = src.count;
 	tooclose = src.tooclose;
 
-	// damage info
-	damage.nominal = src.damage.nominal;
-	damage.linear_max = src.damage.linear_max;
-	damage.error = src.damage.error;
-	damage.delay = src.damage.delay;
-	damage.pain.label = src.damage.pain.label;
-	damage.pain.offset = src.damage.pain.offset;
-	damage.death.label = src.damage.death.label;
-	damage.death.offset = src.damage.death.offset;
-	damage.overkill.label = src.damage.overkill.label;
-	damage.overkill.offset = src.damage.overkill.offset;
-	damage.no_armour = src.damage.no_armour;
+	damage = src.damage;
 
 	attack_class = src.attack_class;
 	objinitstate = src.objinitstate;
@@ -496,18 +485,7 @@ void atkdef_c::Default()
 	count = 0;
 	tooclose = 0;
 
-	// damage info
-	damage.nominal = 0;
-	damage.linear_max = -1;     
-	damage.error = -1;     
-	damage.delay = 0;      
-	damage.pain.label = NULL;
-	damage.pain.offset = 0;
-	damage.death.label = NULL;
-	damage.death.offset = 0;
-	damage.overkill.label = NULL;
-	damage.overkill.offset = 0;
-	damage.no_armour = false;
+	damage.Default(damage_c::DEFAULT_Attack);
 
 	attack_class = BITSET_EMPTY; 
 	objinitstate = 0;

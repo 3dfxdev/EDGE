@@ -75,6 +75,19 @@
 // follow a player exlusively for 3 seconds
 #define BASETHRESHOLD 100
 
+// -ACB- 2004/07/22 Moved here since its playsim related
+#define DAMAGE_COMPUTE(var,dam)  \
+    {  \
+      (var) = (dam)->nominal;  \
+      \
+      if ((dam)->error > 0)  \
+        (var) += (dam)->error * P_RandomNegPos() / 255.0f;  \
+      else if ((dam)->linear_max > 0)  \
+        (var) += ((dam)->linear_max - (var)) * P_Random() / 255.0f;  \
+      \
+      if ((var) < 0) (var) = 0;  \
+    }
+
 extern mobj_t *RandomTarget;
 
 // useful macro for the vertical center of an object
@@ -87,7 +100,7 @@ void P_ActPlayerAttack(mobj_t * playerobj, const atkdef_c * attack);
 void P_ActSlammedIntoObject(mobj_t * object, mobj_t * objecthit);
 bool P_ActMissileContact(mobj_t * object, mobj_t * objecthit);
 bool P_ActBulletContact(mobj_t * object, mobj_t * objecthit, 
-							 float damage, const damage_t * damtype);
+							 float damage, const damage_c * damtype);
 void P_ActTouchyContact(mobj_t * touchy, mobj_t * victim);
 bool P_ActUseThing(mobj_t * user, mobj_t * thing, float open_bottom,
 						float open_top);
@@ -304,13 +317,13 @@ void P_ChangeThingSize(mobj_t *mo);
 bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z);
 bool P_CheckSight(mobj_t * src, mobj_t * dest);
 bool P_CheckSightApproxVert(mobj_t * src, mobj_t * dest);
-void P_RadiusAttack(mobj_t * spot, mobj_t * source, float radius, float damage, const damage_t * damtype, bool thrust_only);
+void P_RadiusAttack(mobj_t * spot, mobj_t * source, float radius, float damage, const damage_c * damtype, bool thrust_only);
 
 bool P_TeleportMove(mobj_t * thing, float x, float y, float z);
 bool P_TryMove(mobj_t * thing, float x, float y);
 void P_SlideMove(mobj_t * mo, float x, float y);
 void P_UseLines(player_t * player);
-void P_LineAttack(mobj_t * t1, angle_t angle, float distance, float slope, float damage, const damage_t * damtype, const mobjtype_c *puff);
+void P_LineAttack(mobj_t * t1, angle_t angle, float distance, float slope, float damage, const damage_c * damtype, const mobjtype_c *puff);
 
 
 //
@@ -347,8 +360,8 @@ extern mobj_t **blocklights;  // for dynamic lights
 void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher);
 void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust);
 void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
-				  float amount, const damage_t * damtype);
-void P_KillMobj(mobj_t * source, mobj_t * target, const damage_t * damtype);
+				  float amount, const damage_c * damtype);
+void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c * damtype);
 bool P_GiveBenefitList(player_t *player, mobj_t *special,
 							benefit_t *list, bool lose_em);
 

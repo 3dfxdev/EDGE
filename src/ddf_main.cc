@@ -1803,6 +1803,175 @@ char *DDF_MainCreateUniqueName(const char *prefix, int num)
 	return Z_StrDup(buffer);
 }
 
+// ---> damage class
+
+//
+// damage_c Constructor
+//
+damage_c::damage_c()
+{
+}
+
+//
+// damage_c Copy constructor
+//
+damage_c::damage_c(damage_c &rhs)
+{
+	Copy(rhs);
+}
+
+//
+// damage_c Destructor
+//
+damage_c::~damage_c()
+{
+}
+
+//
+// damage_c::Copy
+//
+void damage_c::Copy(damage_c &src)
+{
+	nominal = src.nominal;
+	linear_max = src.linear_max;
+	error = src.error;
+	delay = src.delay;
+
+	pain = src.pain;
+	death = src.death;
+	overkill = src.overkill;
+	
+	no_armour = src.no_armour;
+}
+
+//
+// damage_c::Default
+//
+void damage_c::Default(damage_c::default_e def)
+{
+	switch (def)
+	{
+		case DEFAULT_MobjChoke:
+		{
+			nominal	= 6.0f;		
+			linear_max = 14.0f;	
+			error = -1.0f;			
+			delay = 2 * TICRATE;   
+			no_armour = true;
+			break;
+		}
+
+		case DEFAULT_Sector:
+		{
+			nominal = 0.0f;
+			linear_max = -1.0f;
+			error = -1.0f;
+			delay = 31;
+			no_armour = false;
+			break;
+		}
+		
+		case DEFAULT_Attack:
+		case DEFAULT_Mobj:
+		default:
+		{
+			nominal = 0.0f;
+			linear_max = -1.0f;     
+			error = -1.0f;     
+			delay = 0;      
+			no_armour = false;
+			break;
+		}
+	}
+
+	pain.Default();
+	death.Default();
+	overkill.Default();
+}
+
+//
+// damage_c assignment operator
+//
+damage_c& damage_c::operator=(damage_c &rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+		
+	return *this;
+}
+
+// ---> label offset class
+
+//
+// label_offset_c Constructor
+//
+label_offset_c::label_offset_c()
+{
+	label = NULL;
+	offset = 0;
+}
+
+//
+// label_offset_c Copy constructor
+//
+label_offset_c::label_offset_c(label_offset_c &rhs)
+{
+	label = NULL;
+	Copy(rhs);
+}
+
+//
+// label_offset_c Destructor
+//
+label_offset_c::~label_offset_c()
+{
+	// FIXME: Use epi str containter
+	if (label)
+		Z_Free((void*)label);
+}
+
+//
+// label_offset_c::Copy
+//
+void label_offset_c::Copy(label_offset_c &src)
+{
+	// FIXME: Use epi str containter
+	if (label)
+		Z_Free((void*)label);
+		
+	if (src.label)
+		label = Z_StrDup(src.label);
+	else
+		label = NULL;
+		
+	offset = src.offset;
+}
+
+//
+// label_offset_c::Default
+//
+void label_offset_c::Default()
+{
+	// FIXME: Use epi str containter
+	if (label)
+		Z_Free((void*)label);
+		
+	label = NULL;
+	offset = 0;
+}
+
+
+//
+// label_offset_c assignment operator
+//
+label_offset_c& label_offset_c::operator=(label_offset_c& rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+		
+	return *this;
+}
+
 // ---> dlightinfo class
 
 //
