@@ -19,7 +19,7 @@
 #ifndef __PROTOCOL_H__
 #define __PROTOCOL_H__
 
-#define MP_PROTOCOL_VER  0x075  /* 0.75 */
+#define MP_PROTOCOL_VER  0x076  /* 0.76 */
 
 #define MP_PLAYER_MAX  30
 
@@ -104,7 +104,6 @@ typedef struct client_info_s
 	/* --- query output --- */
 
 	s16_t game;
-	byte  team;
 
 	char state;
 
@@ -192,7 +191,6 @@ typedef struct game_info_s
 	byte min_players;  // real players
 	byte num_players;  // --> (output field)
 
-	byte num_teams;  //!!!!
 	byte num_bots;
 	byte num_votes;  // (OUTPUT)
 
@@ -274,8 +272,7 @@ query_game_proto_t;
 typedef struct join_queue_proto_s
 {
 	s16_t game;
-	byte  team;
-	byte  reserved;
+	s16_t reserved;
 
 	void ByteSwap();
 }
