@@ -37,7 +37,7 @@
 boolean_t SV_ChunkInit(void);
 void SV_ChunkShutdown(void);
 
-int SV_Error(void);
+int SV_GetError(void);
 
 //
 //  READING
