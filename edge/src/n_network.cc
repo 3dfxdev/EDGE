@@ -122,7 +122,7 @@ static void N_FindServer(void)
 
 	NLsocket bc_sock = nlOpen(26710, NL_BROADCAST);
 
-    if (bc_sock == NL_INVALID)
+    if (bc_sock == NL_INVALID) // FIXME: don't error on this
 		I_Error("Unable to create broadcast socket:\n%s", N_GetErrorStr());
 
 	NLaddress remote;
@@ -157,7 +157,11 @@ static void N_ConnectServer(void)
 
 	connect_proto_t& cs = pk.cs_p();
 
+///!!!	cs.protocol_ver = MP_PROTOCOL_VER;
+
 	strcpy(cs.info.name, "Flynn");
+
+	cs.ByteSwap();
 
 	if (! pk.Write(socket))
 		I_Error("Unable to write CS packet:\n%s", N_GetErrorStr());
@@ -190,7 +194,7 @@ static void N_NewGame(void)
 	new_game_proto_t& ng = pk.ng_p();
 
 	strcpy(ng.info.game_name,  "DOOM2");
-	strcpy(ng.info.level_name, "MAP11");
+	strcpy(ng.info.level_name, "MAP01");
 
 	ng.info.mode  = 'D';
 	ng.info.skill = '4';
@@ -270,9 +274,13 @@ void E_CheckNetGame(void)
 {
 	// FIXME: singletics, WTF ???
 
+#if 0
 	N_InitiateGame();
 
 	netgame = true;
+#else
+	netgame = false;
+#endif
 
 	for (int i = 0; i < 1; i++)
 		P_CreatePlayer(i);
@@ -288,15 +296,17 @@ void E_CheckNetGame(void)
 	players[consoleplayer]->builder = P_ConsolePlayerBuilder;
 	players[consoleplayer]->build_data = NULL;
 
+#if 0
 	global_flags = default_gameflags;
 	level_flags  = global_flags;
 
 	startskill = (skill_t)4;
 	deathmatch = true;
 
-	startmap = Z_StrDup("MAP13");
+	startmap = Z_StrDup("MAP01");
 
 	autostart = true;
+#endif
 
 	update_tic = I_GetTime();
 }
