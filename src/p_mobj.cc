@@ -205,36 +205,6 @@ static void BounceOffPlane(mobj_t * mo, float dir)
 }
 
 //
-// MissileHitSpecialLine
-//
-// -AJA- 1999/08/22: written.
-//
-// -AJA- Seems this is called to handle this situation: P_TryMove is
-// called, but fails because missile would hit solid line.  BUT
-// missile did pass over some special lines.  These special lines were
-// not activated in P_TryMove since it failed.  Ugh !
-//
-static void MissileHitSpecialLine(mobj_t * mo)
-{
-	line_t **hits;
-	int i;
-
-	// -ES- 2000/02/05 spechit could be changed inside the loop
-	hits = (line_t**)I_TmpMalloc(numspechit * sizeof(line_t *));
-	Z_MoveData(hits, spechit, line_t *, numspechit);
-	i = numspechit;
-	Z_SetArraySize(&spechit_a, numspechit = 0);
-
-	while (i)
-	{
-		line_t *ld = hits[--i];
-		P_ShootSpecialLine(ld, PointOnLineSide(mo->x, mo->y, ld), mo->source);
-	}
-
-	I_TmpFree(hits);
-}
-
-//
 // CorpseShouldSlide
 //
 // -AJA- 1999/09/25: written.
@@ -924,12 +894,32 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 				(! mo->currentattack ||
 				! (mo->currentattack->flags & AF_NoTriggerLines)))
 			{
-				if (numspechit > 0)
-					MissileHitSpecialLine(mo);
-
+				//
+				// -AJA- Seems this is called to handle this situation: 
+				// P_TryMove is called, but fails because missile would hit 
+				// solid line.  BUT missile did pass over some special lines.  
+				// These special lines were not activated in P_TryMove since it 
+				// failed.  Ugh !
+				//
+				if (spechit.GetSize() > 0)
+				{
+					epi::array_iterator_c it;
+					line_t* ld;
+					
+					for (it=spechit.GetTailIterator(); it.IsValid(); it--)
+					{
+						ld = ITERATOR_TO_TYPE(it, line_t*);
+						
+						P_ShootSpecialLine(ld, PointOnLineSide(mo->x, mo->y, ld), 
+											mo->source);
+					}	
+				}
+				
 				if (blockline && blockline->special)
+				{
 					P_ShootSpecialLine(blockline, 
-					PointOnLineSide(mo->x, mo->y, blockline), mo->source);
+						PointOnLineSide(mo->x, mo->y, blockline), mo->source);
+				}
 			}
 
 			if (mo->info->flags & MF_SLIDE)
