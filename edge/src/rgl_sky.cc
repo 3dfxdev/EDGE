@@ -359,7 +359,7 @@ void RGL_UpdateSkyBoxTextures(void)
 	box_info.east   = W_ImageFromSkyMerge(sky_image, WSKY_East);
 	box_info.top    = W_ImageFromSkyMerge(sky_image, WSKY_Top);
 	
-	// optimisation for MIRROR mode
+	// optimisation for MIRROR mode (FIXME: doom retex / real skyboxes)
 	if (sky_stretch == STRETCH_MIRROR)
 		box_info.bottom = box_info.top;
 	else
