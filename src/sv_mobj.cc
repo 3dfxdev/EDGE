@@ -127,6 +127,7 @@ static savefield_t sv_fields_mobj[] =
 	    SR_TriggerGetScript, SR_TriggerPutScript),
 	SF(dlight_qty, "dlight_qty", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(dlight_target, "dlight_target", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
+	SF(shot_count, "shot_count", 1, SVT_INT, SR_GetInt, SR_PutInt),
 
 	// NOT HERE:
 	//   subsector & region: these are regenerated.

@@ -536,6 +536,9 @@ struct mobj_s
 	float dlight_qty;
 	float dlight_target;
 
+	// monster reload support: count the number of shots
+	int shot_count;
+
 	// hash values for TUNNEL missiles
 	unsigned long tunnel_hash[2];
 

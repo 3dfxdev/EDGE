@@ -268,8 +268,6 @@ static void GotoReloadState(player_t *p, int ATK)
 
 	ReloadWeapon(p, p->ready_wp, ATK);
 
-	// IDEA: player reload states
-
 	// second attack will fall-back to using normal reload states.
 	if (ATK == 1 && ! info->reload_state[ATK])
 		ATK = 0;
@@ -279,6 +277,10 @@ static void GotoReloadState(player_t *p, int ATK)
 		P_SetPspriteDeferred(p, ps_weapon, info->reload_state[ATK]);
 		p->idlewait = 0;
 	}
+
+	// if player has reload states, use 'em baby
+	if (p->mo->info->reload_state)
+		P_SetMobjStateDeferred(p->mo, p->mo->info->reload_state, 0);
 }
 
 //
