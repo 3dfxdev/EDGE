@@ -137,12 +137,7 @@ bool I_GetModifiedTime(const char *filename, i_time_t *time);
 // -ES- 1999/10/30 i_asm.c
 
 void I_CheckCPU(void);
-// Determines the CPU type that EDGE is running under, and possibly
-// selects some routines (e.g. column drawers) that are better
-// optimised for the detected CPU.
-
-void I_RegisterAssembler(void);
-void I_PrepareAssembler(void);
+// Determines the CPU type that EDGE is running under.
 
 
 //--------------------------------------------------------
