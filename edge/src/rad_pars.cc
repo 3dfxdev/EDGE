@@ -18,6 +18,7 @@
 
 #include "i_defs.h"
 #include "rad_trig.h"
+#include "rad_act.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -984,7 +985,6 @@ static void RAD_ParseEndRadiusTrigger(int pnum, const char **pars)
 	RAD_ComputeScriptCRC(this_rad);
 	this_rad = NULL;
 
-	rad_itemsread++;
 	rad_cur_level--;
 }
 
@@ -2028,6 +2028,23 @@ static void RAD_ParseShowMenu(int pnum, const char **pars)
 	AddStateToScript(this_rad, 0, RAD_ActShowMenu, menu);
 }
 
+static void RAD_ParseMenuStyle(int pnum, const char **pars)
+{
+	// Menu_Style  <style>
+
+	if (rts_version < 0x129)
+		RAD_Error("%s only available with #VERSION 1.29 or higher.\n", pars[0]);
+
+	s_menu_style_t *mm = Z_ClearNew(s_menu_style_t, 1);
+
+	if (pars[1][0] == '"')
+		mm->style = RAD_UnquoteString(pars[1]);
+	else
+		mm->style = Z_StrDup(pars[1]);
+
+	AddStateToScript(this_rad, 0, RAD_ActMenuStyle, mm);
+}
+
 static void RAD_ParseJumpOn(int pnum, const char **pars)
 {
 	// Jump_On <VAR> <label1> <label2> ...
@@ -2133,6 +2150,7 @@ static rts_parser_t radtrig_parsers[] =
 	{2, "CHANGE_MUSIC", 2,2, RAD_ParseChangeMusic},
 	{2, "SHOW_MENU", 2,99, RAD_ParseShowMenu},
 	{2, "SHOW_MENU_LDF", 2,99, RAD_ParseShowMenu},
+	{2, "MENU_STYLE", 1,1, RAD_ParseMenuStyle},
 	{2, "JUMP_ON", 3,99, RAD_ParseJumpOn},
 
 	// deprecated primitives

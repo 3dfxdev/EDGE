@@ -21,6 +21,7 @@
 
 #include "i_defs.h"
 #include "rad_trig.h"
+#include "rad_act.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -998,6 +999,16 @@ void RAD_ActShowMenu(rad_trigger_t *R, mobj_t *actor, void *param)
 	}
 
 	RAD_StartMenu(R, menu);
+}
+
+void RAD_ActMenuStyle(rad_trigger_t *R, mobj_t *actor, void *param)
+{
+	s_menu_style_t *mm = (s_menu_style_t *) param;
+
+	if (R->menu_style_name)
+		Z_Free((void*) R->menu_style_name);
+
+	R->menu_style_name = Z_StrDup(mm->style);
 }
 
 void RAD_ActJumpOn(rad_trigger_t *R, mobj_t *actor, void *param)
