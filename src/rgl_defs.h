@@ -177,6 +177,15 @@ void RGL_1DOcclusionSet(angle_t low, angle_t high);
 boolean_t RGL_1DOcclusionTest(angle_t low, angle_t high);
 
 
+//
+// RGL_WIPE
+//
+
+void RGL_InitWipe(int reverse, int effect);
+void RGL_StopWipe(void);
+boolean_t RGL_DoWipe(void);
+
+
 #endif  // __RGL_DEFS__
 #endif  // USE_GL
 
