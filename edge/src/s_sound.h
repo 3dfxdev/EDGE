@@ -52,6 +52,7 @@ int S_StartSound(mobj_t *origin, sfx_t *sound_id);
 void S_ResumeSounds(void);
 void S_PauseSounds(void);
 void S_RemoveSoundOrigin(mobj_t *origin);
+void S_AddToFreeQueue(mobj_t *origin, void *block);
 void S_StopSound(mobj_t *origin);
 void S_StopChannel(int cnum);
 void S_UpdateSounds(mobj_t *listener);
