@@ -147,12 +147,14 @@ New DDF features:
 
      SPECIAL = XXX, YYY;
 
-  The current specials are not very useful in general (e.g. sprite
-  images are automatically clamped).  They are:
+  Many of the current specials are not very useful in general
+  (e.g. sprite images are automatically clamped).  They are:
 
-     NOMIP    // force mipmapping to be disabled
-     SMOOTH   // force smoothing to be enabled
-     CLAMP    // force clamping (image cannot repeat)
+     CROSSHAIR // for weapon crosshair sprites: center it on screen
+
+     NOMIP     // force mipmapping to be disabled
+     SMOOTH    // force smoothing to be enabled
+     CLAMP     // force clamping (image cannot repeat)
 
 + new FONTS.DDF file.  The equivalent wad lump is DDFFONT.  This is used
   to define fonts (the set of character images for drawing text).  The
@@ -176,11 +178,12 @@ New DDF features:
   of the EDGE user interface can be changed using styles, e.g. the
   console has a corresponding style called [CONSOLE].
 
-  Some styles are available for use, but are not defined in our own
+  Some styles the engine can use but are not defined in our own
   STYLES.DDF.  E.g. [VIDEO_OPTIONS].  When absent, they fall back to
   more general styles: [MENU] for menu screens, and [OPTIONS] for
   option screens.  This allows you to keep these screens consistent,
-  since you can change them all by only editing a single style.
+  since you can change them all with a single style, but also lets
+  you make them all different.
 
   @@@
 
@@ -347,6 +350,9 @@ New command-line options:
 
   -deh     Specify a DeHackEd (or BEX) patch file.  You can have
            multiple patch files after the -deh option.
+
+  -(no)diskicon   Enable/disable the flashing disk icon.  There is
+                  also the "DISKICON" console variable.
 
 
 Hats off to...
