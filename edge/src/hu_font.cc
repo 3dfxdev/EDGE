@@ -28,12 +28,113 @@
 #include "v_res.h"
 #include "w_image.h"
 
-
 #define DUMMY_WIDTH  4
+
+
+font_c::font_c(fontdef_c *_def) : def(_def)
+{
+	p_cache.first = 0;
+	p_cache.last  = -1;
+
+	p_cache.images = NULL;
+	p_cache.missing = NULL;
+}
+
+font_c::~font_c()
+{
+	if (p_cache.images)
+		delete[] p_cache.images;
+}
+
+void font_c::BumpPatchName(char *name)
+{
+	// loops to increment the 10s (100s, etc) digit
+	for (char *s = name + strlen(name) - 1; s >= name; s--)
+	{
+		// only handle digits and letters
+		if (! isalnum(*s))
+			break;
+
+		if (*s == '9') { *s = '0'; continue; }
+		if (*s == 'z') { *s = 'a'; continue; }
+		if (*s == 'Z') { *s = 'A'; continue; }
+
+		*s++; break;
+	}
+}
 
 void font_c::LoadPatches()
 {
-	// !!!!!! FIXME
+	p_cache.first = 9999;
+	p_cache.last  = 0;
+
+	const fontpatch_c *pat;
+
+	// determine full range
+	for (pat = def->patches; pat; pat = pat->next)
+	{
+		if (pat->char1 < p_cache.first)
+			p_cache.first = pat->char1;
+
+		if (pat->char2 > p_cache.last)
+			p_cache.last = pat->char2;
+	}
+
+	int total = p_cache.last - p_cache.first + 1;
+
+	DEV_ASSERT2(def->patches);
+	DEV_ASSERT2(total >= 1);
+
+	p_cache.images = new const image_t *[total];
+	memset(p_cache.images, 0, sizeof(const image_t *) * total);
+
+	for (pat = def->patches; pat; pat = pat->next)
+	{
+		// patch name
+		char pname[40];
+
+		DEV_ASSERT2(strlen(pat->patch1.GetString()) < 36);
+		strcpy(pname, pat->patch1.GetString());
+
+		for (int ch = pat->char1; ch <= pat->char2; ch++, BumpPatchName(pname))
+		{
+#if 1  // DEBUG
+I_Printf("LoadFont [%s] : char %d = %s\n", def->ddf.name.GetString(), ch, pname);
+#endif
+			int idx = ch - p_cache.first;
+			DEV_ASSERT2(0 <= idx && idx < total);
+
+			p_cache.images[idx] = W_ImageFromFont(pname, true);
+		}
+	}
+
+	p_cache.missing = def->missing_patch ?
+		W_ImageFromFont(def->missing_patch, true) : NULL;
+
+	const image_t *Nom = NULL;
+
+	if (HasChar('M'))
+		Nom = CharImage('M');
+	else if (HasChar('m'))
+		Nom = CharImage('m');
+	else if (HasChar('0'))
+		Nom = CharImage('0');
+	else
+	{
+		// backup plan: just use first patch found
+		for (int idx = 0; idx < total; idx++)
+			if (p_cache.images[idx])
+			{
+				Nom = p_cache.images[idx];
+				break;
+			}
+	}
+
+	if (! Nom)
+		I_Error("Font [%s] has no loaded patches !\n", def->ddf.name.GetString());
+
+	p_cache.width  = IM_WIDTH(Nom);
+	p_cache.height = IM_HEIGHT(Nom);
 }
 
 //
