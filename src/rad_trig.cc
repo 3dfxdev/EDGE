@@ -767,8 +767,6 @@ static void RAD_LoadFile(const char *name, bool dots)
 //
 bool RAD_Init(void)
 {
-	char *filename;
-
 	RAD_InitTips();
 
 	I_Printf("Radius Triggers");
@@ -791,7 +789,6 @@ bool RAD_Init(void)
 bool RAD_LoadParam(void)
 {
 	const char *par;
-	char *filename;
 
 	// -KM- 1998/11/25 Check for command line script loading
 	par = M_GetParm("-script");
