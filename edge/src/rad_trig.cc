@@ -771,8 +771,7 @@ bool RAD_Init(void)
 
 	RAD_InitTips();
 
-	I_Printf("Radius Triggers v%i.%i", PARSERV / PARSERVFIX, 
-			PARSERV % PARSERVFIX);
+	I_Printf("Radius Triggers");
 
 	if (external_ddf)
 	{
