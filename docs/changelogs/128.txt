@@ -7,11 +7,16 @@ CHANGELOG FOR 1.28 (since 1.27)
 Bugs fixed in 1.28a
 -------------------
 
-- fixed crouching (unable to stand back up) bug.
-- Attempted: non-power-of-2 textures
-- Attempted: win95 support
-- Attempted: ALT+TAB no-longer registers a TAB keypress in the engine
-- Attempted: Added 12 STEALTH monsters (types 4050 to 4061) into THINGS.DDF
++ Windows 95 support.
++ fix the crouching bug.
+
+- look for patch lumps first in between P_START/P_END.
+- handle ALT+TAB better under Windows.
+- handle non-power-of-two textures in GL mode.
+- allow brain-shooter without any shoot spots (Darren Salt).
+- allow compiling without DEVELOPERS define (Darren Salt).
+- fix for some memory trashing problems (Darren Salt).
+- added 12 STEALTH monsters (types 4050 to 4061) into THINGS.DDF.
 
 Bugs fixed
 ----------
