@@ -36,16 +36,16 @@ File Format
    +  PADDING: 0x0D 0x0A 0x1A 0x00.
    +  EDGE version that wrote the demo file (32 bit BCD, e.g. 0x129).
 
--  Game definition.  [GAME]
+-  Game definition.  [GLOB]
 
    +  variables: multiple lots of [VARI] chunks.
-   +  list of players:  [PLYR]
+   +  player information: multiple [PLYR] chunks.
    +  list of wad files.  [WADS]
 
 -  Tic Area: stream of [TICK] chunks
 
    +  player ticcmds.   [PCMD]
-   +  synchronisation.  [SYNC]  (not every tic)
+   +  synchronisation.  [SYNC]  (often absent)
 
 -  TRAILER (Non-chunked)
 
@@ -76,7 +76,7 @@ Game Variables
 
 The game information consists mainly of VAR = VALUE pairs, for
 example: LEVEL_NAME = MAP05 and SKILL = 3.  These are stored in
-[VARI] chunks in the top-level [GAME] chunk.  The following is
+[VARI] chunks in the top-level [GLOB] chunk.  The following is
 the list of variables needed:
 
 standard info:
@@ -89,6 +89,7 @@ standard info:
   SKILL: numeric, range is 1-5.
   NETGAME: numeric, "0" is SP, "1" is COOP, "2" and up is DM.
   P_RANDOM: numeric.
+  CONSOLE_PLAYER: numeric
 
 level check info:
 
@@ -120,19 +121,22 @@ STRING for value.
 PLYR
 ----
 
-32 bits for number of players.
-32 bits for display player.
+32 bits for player ID (0 to MAXPLAYERS-1).
+32 bits for player flags:
+  0x0004 : player was a bot
+  0x0008 : player was remote (over the network)
 
-8 bits for each player.  Values are a bitmask:
-
-  0x04 : player was a bot
-  0x08 : player was remote (over the network)
+STRING for player name.
+STRING for mobj info type (e.g. "OUR_HERO").
 
 WADS
 ----
 
 32 bits for number of wads.
-STRING for filename of _each_ WAD.
+
+STRING for filename of first WAD.
+STRING for filename of second WAD.
+etc...
 
 PCMD
 ----
@@ -202,7 +206,7 @@ Optionally record:
   -  player uses a certain attack.
   -  monster uses a certain attack.
   -  monster activates a certain linedef (incl. doors).
-  -  player/monster is hurt
+  -  player/monster is hurt.
 
 
 Random numbers
