@@ -22,7 +22,10 @@
 #include "../i_defs.h"
 
 #include <sys/ioctl.h>
+
+#ifndef MACOSX
 #include <linux/cdrom.h>
+#endif
 
 // I_CD.C
 boolean_t I_StartupCD(void);
