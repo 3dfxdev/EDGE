@@ -49,7 +49,6 @@ void RGL_Init(void);
 void RGL_SoftInit(void);
 void RGL_SetupMatrices2D(void);
 void RGL_SetupMatrices3D(void);
-void RGL_SetupMatricesSky(void);
 void RGL_DrawPlayerSprites(player_t * p);
 
 void RGL_RainbowEffect(player_t *player);
@@ -61,8 +60,11 @@ void RGL_PaletteEffect(player_t *player);
 //  RGL_SKY
 //
 //
+void RGL_SetupSkyMatrices(void);
+void RGL_RevertSkyMatrices(void);
 void RGL_BeginSky(void);
-void RGL_DrawSky(void);
+void RGL_FinishSky(void);
+void RGL_DrawSkyBackground(void);
 void RGL_DrawSkyPlane(subsector_t *sub, float h);
 void RGL_DrawSkyWall(seg_t *seg, float h1, float h2);
 

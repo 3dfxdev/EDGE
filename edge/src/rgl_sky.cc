@@ -53,128 +53,42 @@
 #define RGB_BLU(rgbcol)  ((float)((rgbcol      ) & 0xFF) / 255.0f)
 
 
+#define Z_NEAR  1.0f
+#define Z_FAR   32000.0f
+
 static bool has_drawn_sky = false;
 
 
-#if 0  // DISABLED TILING CRUD
-
-static INLINE void DrawSkyTilePoint(const tilesky_info_t *info,
-									const image_t *image, int p, int xmul, int ymul, int zmul, 
-									float dx, float dy)
+//
+// RGL_SetupSkyMatrices
+//
+void RGL_SetupSkyMatrices(void)
 {
-	float x = tilepoints[p].x * xmul;
-	float y = tilepoints[p].y * ymul;
-	float z = tilepoints[p].z * zmul;
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
 
-	float tx = (zmul > 0) ? tilepoints[p].tx : tilepoints[p].bx;
-	float ty = (zmul > 0) ? tilepoints[p].ty : tilepoints[p].by;
+	glLoadIdentity();
+	glFrustum(-1.0f, +1.0f, -1.0f, +1.0f, Z_NEAR, Z_FAR);
 
-	if (xmul < 0)
-	{
-		float tmp = tx; tx = 1 - ty; ty = 1 - tmp;
-	}
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
 
-	if (ymul < 0)
-	{
-		float tmp = tx; tx = ty; ty = tmp;
-	}
-
-	CHECKVAL(info->number);
-	CHECKVAL(info->squish);
-
-	glTexCoord2f(tx * info->number + dx, ty * info->number + dy);
-	glVertex3f(y * 1000, x * 1000, (z + info->offset) * 1000 / 
-		info->squish);
+	glLoadIdentity();
+	glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
+	// glRotatef(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-static void DrawSkyTilePart(const tilesky_info_t *info,
-							const image_t *image, int xmul, int ymul, int zmul, 
-							float dx, float dy)
+//
+// RGL_RevertSkyMatrices
+//
+void RGL_RevertSkyMatrices(void)
 {
-	int s;
-	int len, top, bot;
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
 
-	for (s=0; tilestrips[s].len > 0; s++)
-	{
-		glBegin(GL_TRIANGLE_STRIP);
-
-		len = tilestrips[s].len;
-		top = tilestrips[s].top;
-		bot = tilestrips[s].bottom;
-
-		for (; len > 0; len--, top++, bot++)
-		{
-			DrawSkyTilePoint(info, image, top, xmul, ymul, zmul, dx, dy);
-			DrawSkyTilePoint(info, image, bot, xmul, ymul, zmul, dx, dy);
-		}
-
-		DrawSkyTilePoint(info, image, top, xmul, ymul, zmul, dx, dy);
-
-		glEnd();
-	}
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
 }
-
-static void RGL_DrawTiledSky(void)
-{
-	int i;
-	const image_t *image;
-	const cached_image_t *cim;
-	const tilesky_info_t *info;
-
-	side_t *side;
-	float trans;
-	float dx, dy;
-
-	RGL_SetupMatricesTiledSky();
-
-	for (i=0; i < MAX_TILESKY; i++)
-	{
-		if (! sky_tiles[i].active)
-			continue;
-
-		info = sky_tiles[i].info;
-		side = sky_tiles[i].line->side[0];
-		trans = side->middle.translucency;
-		dx = side->middle.x_offset * info->number / 1024.0f;
-		dy = side->middle.y_offset * info->number / 1024.0f;
-
-		if (info->type == TILESKY_Flat)
-			image = sky_tiles[i].line->frontsector->floor.image;
-		else
-			image = side->middle.image;
-
-		if (!image || trans < 0.01f)
-			continue;
-
-		glEnable(GL_TEXTURE_2D);
-
-		cim = W_ImageCache(image, IMG_OGL, 0, true);
-		glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim));
-
-		if (trans <= 0.99 || !image->solid)
-			glEnable(GL_BLEND);
-
-		// sky is always 100% bright
-		glColor4f(1.0f, 1.0f, 1.0f, trans);
-
-		DrawSkyTilePart(info, image,  1,  1,  1, dx, dy);
-		DrawSkyTilePart(info, image, -1,  1,  1, dx, dy);
-		DrawSkyTilePart(info, image, -1, -1,  1, dx, dy);
-		DrawSkyTilePart(info, image,  1, -1,  1, dx, dy);
-
-		DrawSkyTilePart(info, image,  1,  1, -1, dx, dy);
-		DrawSkyTilePart(info, image, -1,  1, -1, dx, dy);
-		DrawSkyTilePart(info, image, -1, -1, -1, dx, dy);
-		DrawSkyTilePart(info, image,  1, -1, -1, dx, dy);
-
-		W_ImageDone(cim);
-
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_BLEND);
-	}
-}
-
-#endif
 
 //
 // RGL_BeginSky
@@ -182,17 +96,52 @@ static void RGL_DrawTiledSky(void)
 void RGL_BeginSky(void)
 {
 	has_drawn_sky = false;
+
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	glDisable(GL_TEXTURE_2D);
+
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glEdgeFlag(GL_TRUE);
 }
 
 //
-// RGL_DrawSky
+// RGL_FinishSky
 //
-void RGL_DrawSky(void)
+void RGL_FinishSky(void)
 {
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+	// draw sky picture, but DON'T affect the depth buffering
+
+	if (has_drawn_sky)
+	{
+		glEnable(GL_TEXTURE_2D);
+
+		glDepthFunc(GL_GREATER);
+		glDepthMask(GL_FALSE);
+
+		RGL_DrawSkyBackground();
+
+		glDepthFunc(GL_LEQUAL);
+		glDepthMask(GL_TRUE);
+
+		glDisable(GL_TEXTURE_2D);
+	}
+}
+
+//
+// RGL_DrawSkyBackground
+//
+void RGL_DrawSkyBackground(void)
+{
+#if 0  // sky way #1, behind everything
 	if (has_drawn_sky)
 		return;
 
 	has_drawn_sky = true;
+#endif
+
+	RGL_SetupSkyMatrices();
 
 	int x, y, w, h;
 	float right, bottom;
@@ -314,6 +263,35 @@ void RGL_DrawSky(void)
 			float tya = ty + (by - ty) * y     / 8;
 			float bya = ty + (by - ty) * (y+1) / 8;
 
+#if 1
+			// sky way #3, using depth-buffer
+
+			float pxa = xa / (float)SCREENWIDTH  * 2.0f - 1.0f;
+			float pxb = xb / (float)SCREENWIDTH  * 2.0f - 1.0f;
+			float pya = ya / (float)SCREENHEIGHT * 2.0f - 1.0f;
+			float pyb = yb / (float)SCREENHEIGHT * 2.0f - 1.0f;
+
+			float dist = Z_FAR * 0.99;
+
+			pxa *= dist; pya *= dist;
+			pxb *= dist; pyb *= dist;
+
+			glTexCoord2f(txa, 1.0f - bottom * tya);
+			glVertex3f(pxa, pya, dist);
+
+			glTexCoord2f(txb, 1.0f - bottom * tya);
+			glVertex3f(pxb, pya, dist);
+
+			glTexCoord2f(bxb, 1.0f - bottom * bya);
+			glVertex3f(pxb, pyb, dist);
+
+			glTexCoord2f(bxa, 1.0f - bottom * bya);
+			glVertex3f(pxa, pyb, dist);
+#endif
+
+#if 0
+			// sky way #1, behind everything
+		
 			glTexCoord2f(txa, 1.0f - bottom * tya);
 			glVertex2i(xa, SCREENHEIGHT - ya);
 
@@ -325,6 +303,7 @@ void RGL_DrawSky(void)
 
 			glTexCoord2f(bxa, 1.0f - bottom * bya);
 			glVertex2i(xa, SCREENHEIGHT - yb);
+#endif
 		}
 	}
 
@@ -333,8 +312,12 @@ void RGL_DrawSky(void)
 	glDisable(GL_TEXTURE_2D);
 
 	W_ImageDone(cim);
+
+	RGL_RevertSkyMatrices();
 }
 
+
+#if 0  // sky way #2, polygons
 
 static INLINE void CalcSkyTexCoord(float x, float y, float z, 
 								   float *tx, float *ty)
@@ -423,14 +406,29 @@ void SkyPolyCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 	SET_EDGE_FLAG(GL_TRUE);
 	SET_VERTEX(src->x, src->y, src->z);
 }
+#endif
 
 //
 // RGL_DrawSkyPlane
 //
 void RGL_DrawSkyPlane(subsector_t *sub, float h)
 {
-#if 0  // Revert to old sky method. Maybe renable this to set the stencil
-	   // buffer, and draw sky (at end) using the stencil buffer as a mask.
+	seg_t *seg;
+
+	glNormal3f(0, 0, (viewz > h) ? 1.0f : -1.0f);
+
+	glBegin(GL_POLYGON);
+
+	for (seg=sub->segs; seg; seg=seg->sub_next)
+	{
+		glVertex3f(seg->v1->x, seg->v1->y, h);
+	}
+
+	glEnd();
+
+	has_drawn_sky = true;
+
+#if 0  // sky way #2, polygons.
 
 	raw_polyquad_t *poly;
 	sky_data_t data;
@@ -485,8 +483,25 @@ void RGL_DrawSkyPlane(subsector_t *sub, float h)
 //
 void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 {
-#if 0  // Revert to old sky method. Maybe renable this to set the stencil
-	   // buffer, and draw sky (at end) using the stencil buffer as a mask.
+	float x1 = seg->v1->x;
+	float y1 = seg->v1->y;
+	float x2 = seg->v2->x;
+	float y2 = seg->v2->y;
+
+	glNormal3f(y2 - y1, x1 - x2, 0);
+
+	glBegin(GL_QUADS);
+
+	glVertex3f(x1, y1, h1);
+	glVertex3f(x1, y1, h2);
+	glVertex3f(x2, y2, h2);
+	glVertex3f(x2, y2, h1);
+
+	glEnd();
+
+	has_drawn_sky = true;
+
+#if 0  // sky way #2, polygons.
 
 	float x1 = seg->v1->x;
 	float y1 = seg->v1->y;
