@@ -162,9 +162,13 @@ namespace Weapons
 
 		// --- collect states into groups ---
 
+		bool has_flash = Frames::CheckWeaponFlash(info->atkstate);
+
 		int count = 0;
 
-		count += Frames::BeginGroup(info->flashstate,  'f');
+		if (has_flash)
+			count += Frames::BeginGroup(info->flashstate,  'f');
+
 		count += Frames::BeginGroup(info->atkstate,    'a');
 		count += Frames::BeginGroup(info->readystate,  'r');
 		count += Frames::BeginGroup(info->downstate,   'd');
@@ -182,7 +186,9 @@ namespace Weapons
 		Frames::OutputGroup(info->downstate,   'd');
 		Frames::OutputGroup(info->readystate,  'r');
 		Frames::OutputGroup(info->atkstate,    'a');
-		Frames::OutputGroup(info->flashstate,  'f');
+
+		if (has_flash)
+			Frames::OutputGroup(info->flashstate, 'f');
 
 		if (Frames::act_flags & AF_THING_ST)
 		{
