@@ -212,8 +212,8 @@ void game_c::TryRunTics()
 
 	int avail_tics = ComputeGroupAvail();
 
-	DebugPrintf("=== gametic %d avail %d saved %d\n", sv_gametic,
-		avail_tics, saved_tics);
+	DebugPrintf("=== gametic %d avail %d saved %d (min_tic %d)\n", sv_gametic,
+		avail_tics, saved_tics, pl_min_tic);
 
 	// when the save area is full, the server cannot advance
 	if (avail_tics > (MP_SAVETICS - saved_tics))
@@ -599,7 +599,7 @@ void PK_vote_to_play(packet_c *pk)
 	GM->num_votes++;
 
 	LogPrintf(0, "Client %d voted on game %d's queue (%d/%d).\n", pk->hd().client,
-		CL->game_id, GM->num_votes, GM->num_players);
+		CL->game_id, GM->num_votes, GM->min_players);
 
 	if (GM->num_votes == GM->num_players &&
 		GM->num_players >= GM->min_players)
@@ -692,16 +692,20 @@ void PK_ticcmd(packet_c *pk)
 	// NOTE: We are not LOCKING since tic-stuff is not touched by UI thread
 
 	int cl_gametic = (int)tc.gametic; // FIXME: validate this
-
-	if (cl_gametic > CL->pl_gametic)
-		CL->pl_gametic = cl_gametic;
-
-	int min_tic = GM->ComputeMinTic();
-	while (GM->pl_min_tic < min_tic)
-		GM->BumpMinTic();
-
 	int got_tic = cl_gametic + tc.offset;
 	int count = tc.count;
+
+	// FIXME !!!! this logic not quite right!
+	if (got_tic > CL->pl_gametic)
+		CL->pl_gametic = got_tic;
+///--- DebugPrintf("PK_ticcmd: client %d, pl_gametic %d\n", client_id, CL->pl_gametic);
+
+	int min_tic = GM->ComputeMinTic();
+///--- DebugPrintf("PK_ticcmd: min_tic %d:  PACKET base %d offset %d\n", min_tic,
+///--- (int)tc.gametic, tc.offset);
+
+	while (GM->pl_min_tic < min_tic)
+		GM->BumpMinTic();
 
 	const raw_ticcmd_t *raw_cmds = tc.tic_cmds;
 	int band = 1 + GM->bots_each;
