@@ -8,13 +8,6 @@ DEH-EDGE Todo
 
 -  frames: remove 'OutputState' (etc) from header file.
 
-DONE:  LOOKOUT with no seestate --> have STATES(CHASE) with #REMOVE.
-DONE:  MF_AMBUSH is actually USED BY DOOM.
-DONE:  A_KeenDie: if used in modified thing, output RSCRIPT lump.
-DONE:  frames/things: A_KeenDie (ETC !) imply a MAKEDEAD.
-DONE:  move GetSound into Sounds.cpp/h
-DONE:  Mancubus attack busted.
-
 
 FUTURE Plans
 ------------
