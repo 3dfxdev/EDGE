@@ -511,8 +511,6 @@ void atkdef_c::Default()
 	puff_ref = NULL;
 }
 
-// 
-
 // --> atkdef_container_c class
 
 //
