@@ -112,7 +112,10 @@ static int angleturn[3]   = {640, 1280, 320};  // + slow turn
 
 #define NUMKEYS         512
 
-static bool gamekeydown[NUMKEYS];
+#define GK_DOWN  0x01
+#define GK_UP    0x02
+
+static byte gamekeydown[NUMKEYS];
 
 int turnheld;   // for accelerative turning 
 int mlookheld;  // for accelerative mlooking 
@@ -428,14 +431,14 @@ bool INP_Responder(event_t * ev)
 		case ev_keydown:
 
 			if (ev->value.key < NUMKEYS)
-				gamekeydown[ev->value.key] = true;
+				gamekeydown[ev->value.key] |= GK_DOWN;
 
 			// eat key down events 
 			return true;
 
 		case ev_keyup:
 			if (ev->value.key < NUMKEYS)
-				gamekeydown[ev->value.key] = false;
+				gamekeydown[ev->value.key] |= GK_UP;
 
 			// always let key up events filter down 
 			return false;
@@ -493,6 +496,23 @@ void E_SetTurboScale(int scale)
 //
 void E_ClearInput(void)
 {
-	Z_Clear(gamekeydown, bool, NUMKEYS);
+	Z_Clear(gamekeydown, byte, NUMKEYS);
 	Z_Clear(analogue, int, 5);
+}
+
+//
+// E_UpdateKeyState
+//
+// Finds all keys in the gamekeydown[] array which have been released
+// and clears them.  The value is NOT cleared by INP_Responder() since
+// that prevents very fast presses (also the mousewheel) from being
+// down long enough to be noticed by E_BuildTiccmd().
+//
+// -AJA- 2005/02/17: added this.
+//
+void E_UpdateKeyState(void)
+{
+	for (int k = 0; k < NUMKEYS; k++)
+		if (gamekeydown[k] & GK_UP)
+			gamekeydown[k] = 0;
 }

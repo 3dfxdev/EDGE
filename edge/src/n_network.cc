@@ -29,6 +29,7 @@
 #include "n_packet.h"
 #include "n_network.h"
 
+#include "e_input.h"
 #include "e_main.h"
 #include "e_player.h"
 #include "g_game.h"
@@ -473,10 +474,16 @@ bool N_BuildTiccmds(void)
 	E_ProcessEvents();
 
 	if (numplayers == 0)
+	{
+		E_UpdateKeyState();
 		return false;
+	}
 
 	if (maketic >= gametic + MP_SAVETICS)
+	{
+		E_UpdateKeyState();
 		return false;  // can't hold any more
+	}
 
 	// build ticcmds
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
@@ -498,6 +505,8 @@ bool N_BuildTiccmds(void)
 			cmd->consistency = p->consistency[maketic % (MP_SAVETICS*2)];
 		}
 	}
+
+	E_UpdateKeyState();
 
 	if (netgame)
 		DoSendTiccmds(maketic);
