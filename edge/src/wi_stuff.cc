@@ -333,37 +333,29 @@ static void DrawEnteringLevel(void)
 static void DrawOnLnode(wi_mappos_c* mappos, const image_t * images[2])
 {
 	int i;
-	int left, top, right, bottom;
 
-	bool fits = false;
+	// -AJA- this is used to select between Left and Right pointing
+	// arrows (WIURH0 and WIURH1).  Smells like a massive HACK.
 
 	for (i=0; i < 2; i++)
 	{
-		// -AJA- something fishy going on here. The following is just a
-		//       band-aid solution.
 		if (images[i] == NULL)
-		{
-			i++;
 			continue;
-		}
 
-		left = mappos->info->pos.x - images[i]->offset_x;
-		top  = mappos->info->pos.y - images[i]->offset_y;
-		right  = left + IM_WIDTH(images[i]);
-		bottom = top + IM_HEIGHT(images[i]);
+		int left = mappos->info->pos.x - IM_OFFSETX(images[i]);
+		int top  = mappos->info->pos.y - IM_OFFSETY(images[i]);
+
+		int right  = left + IM_WIDTH(images[i]);
+		int bottom = top + IM_HEIGHT(images[i]);
 
 		if (left >= 0 && right < 320 && top >= 0 && bottom < 200)
 		{
-			fits = true;
+			/* this one fits on the screen */
 			break;
-		}
-		else
-		{
-			i++;
 		}
 	}
 
-	if (fits && i < 2)
+	if (i < 2)
 	{
 		RGL_ImageEasy320(mappos->info->pos.x, mappos->info->pos.y, images[i]);
 	}

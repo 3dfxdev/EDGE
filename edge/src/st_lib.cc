@@ -63,8 +63,8 @@ void STLIB_InitFloat(st_float * n, int x, int y,
 }
 
 #define DrawDigit(X,Y,Image,Map)  \
-	RGL_DrawImage(FROM_320((X)-(Image)->offset_x), \
-	FROM_200((Y)-(Image)->offset_y), \
+	RGL_DrawImage(FROM_320((X)-IM_OFFSETX(Image)), \
+	FROM_200((Y)-IM_OFFSETY(Image)), \
 	FROM_320(IM_WIDTH(Image)), FROM_200(IM_HEIGHT(Image)),  \
 	(Image),0,0,IM_RIGHT(Image),IM_BOTTOM(Image),(Map),1.0f)
 
