@@ -433,7 +433,7 @@ win32_mixer_t *I_MusicLoadMixer(DWORD type)
 
 	win32_mixer_t *m;
 
-	m = (win32_mixer_t*)malloc(sizeof(win32_mixer_t));
+	m = new win32_mixer_t;
 	if (!m)
 	{
 		mixerClose(mixer.handle);
@@ -453,7 +453,7 @@ void I_MusicReleaseMixer(win32_mixer_t* mixer)
 		return;
 
 	mixerClose(mixer->handle);
-	free(mixer);
+	delete mixer;
 	return;
 }
 
@@ -468,7 +468,7 @@ bool I_MusicGetMixerVol(win32_mixer_t* mixer, DWORD *vol)
 	MIXERCONTROLDETAILS_UNSIGNED* details;
 	MMRESULT res;
 	
-	details = (MIXERCONTROLDETAILS_UNSIGNED*) malloc(mixer->channels*sizeof(MIXERCONTROLDETAILS_UNSIGNED));
+	details = new MIXERCONTROLDETAILS_UNSIGNED[mixer->channels];
 	if (!details)
 		return false;
 
@@ -484,12 +484,12 @@ bool I_MusicGetMixerVol(win32_mixer_t* mixer, DWORD *vol)
 	res = mixerGetControlDetails((HMIXEROBJ)mixer->handle, &ctrldetails, MIXER_GETCONTROLDETAILSF_VALUE);
 	if (res != MMSYSERR_NOERROR)
 	{
-		free(details);
+		delete [] details;
 		return false;
 	}
 
 	*vol = details[0].dwValue;
-	free(details);
+	delete [] details;
 	return true;
 }
 
@@ -505,7 +505,7 @@ bool I_MusicSetMixerVol(win32_mixer_t* mixer, DWORD vol)
 	MMRESULT res;
 	int i;
 
-	details = (MIXERCONTROLDETAILS_UNSIGNED*)malloc(mixer->channels*sizeof(MIXERCONTROLDETAILS_UNSIGNED));
+	details = new MIXERCONTROLDETAILS_UNSIGNED[mixer->channels];
 	if (!details)
 		return false;
 
@@ -524,11 +524,11 @@ bool I_MusicSetMixerVol(win32_mixer_t* mixer, DWORD vol)
 	res = mixerSetControlDetails((HMIXEROBJ)mixer->handle, &ctrldetails, MIXER_SETCONTROLDETAILSF_VALUE);
 	if (res != MMSYSERR_NOERROR)
 	{
-		free(details);
+		delete [] details;
 		return false;
 	}
 
-	free(details);
+	delete [] details;
 	return true;
 }
 
