@@ -210,53 +210,62 @@ static void LoadVertexes(int lump)
 }
 
 //
+// LoadV2Vertexes
+//
+static void LoadV2Vertexes(const byte *data, int length)
+{
+	int i;
+	const map_gl2vertex_t *ml2;
+	vertex_t *vert;
+
+	num_gl_vertexes = length / sizeof(map_gl2vertex_t);
+	gl_vertexes = Z_ClearNew(vertex_t, num_gl_vertexes);
+
+	ml2 = (const map_gl2vertex_t *) data;
+	vert = gl_vertexes;
+
+	// Copy and convert vertex coordinates,
+	for (i = 0; i < num_gl_vertexes; i++, vert++, ml2++)
+	{
+		vert->x = M_FixedToFloat((fixed_t) LONG(ml2->x));
+		vert->y = M_FixedToFloat((fixed_t) LONG(ml2->y));
+	}
+
+	// these vertices are good -- don't muck with 'em...
+	remove_slime_trails = false;
+}
+
+//
 // LoadGLVertexes
 //
 static void LoadGLVertexes(int lump)
 {
 	const byte *data;
-	int i;
+	int i, length;
 	const mapvertex_t *ml;
 	vertex_t *vert;
 
 	if (!W_VerifyLumpName(lump, "GL_VERT"))
-		I_Error("Bad WAD: level %s missing GL_VERT.\n", 
-				currmap->lump.GetString());
+		I_Error("Bad WAD: level %s missing GL_VERT.\n", currmap->lump.GetString());
 
 	// Load data into cache.
 	data = (byte *) W_CacheLumpNum(lump);
 
-	// Handle v2.0 of "GL Node" specs (fixed point vertices)
+	length = W_LumpLength(lump);
 
-	if (W_LumpLength(lump) >= 4 &&
+	// Handle v2.0 of "GL Node" specs (fixed point vertices)
+	if (length >= 4 &&
 		data[0] == 'g' && data[1] == 'N' &&
 		data[2] == 'd' && data[3] == '2')
 	{
-		const map_gl2vertex_t *ml2;
-
-		num_gl_vertexes = (W_LumpLength(lump) - 4) / sizeof(map_gl2vertex_t);
-		gl_vertexes = Z_ClearNew(vertex_t, num_gl_vertexes);
-
-		ml2 = (const map_gl2vertex_t *) (data + 4);
-		vert = gl_vertexes;
-
-		// Copy and convert vertex coordinates,
-		for (i = 0; i < num_gl_vertexes; i++, vert++, ml2++)
-		{
-			vert->x = M_FixedToFloat((fixed_t) LONG(ml2->x));
-			vert->y = M_FixedToFloat((fixed_t) LONG(ml2->y));
-		}
-
+		LoadV2Vertexes(data + 4, length - 4);
 		W_DoneWithLump(data);
-
-		// these vertices are good -- don't mess with 'em...
-		remove_slime_trails = false;
 		return;
 	}
 
 	// Determine number of vertices:
 	//  total lump length / vertex record length.
-	num_gl_vertexes = W_LumpLength(lump) / sizeof(mapvertex_t);
+	num_gl_vertexes = length / sizeof(mapvertex_t);
 
 	gl_vertexes = Z_ClearNew(vertex_t, num_gl_vertexes);
 
@@ -276,12 +285,100 @@ static void LoadGLVertexes(int lump)
 }
 
 //
+// LoadV3Segs
+//
+static void LoadV3Segs(const byte *data, int length)
+{
+	const map_gl3seg_t *ml;
+	seg_t *seg;
+	int linedef;
+	int flags;
+	int side;
+	int partner;
+
+	numsegs = length / sizeof(map_gl3seg_t);
+
+	if (numsegs == 0)
+		I_Error("Bad WAD: level %s contains 0 gl-segs (v3).\n",
+			currmap->lump.GetString());
+
+	segs = Z_ClearNew(seg_t, numsegs);
+
+	ml = (const map_gl3seg_t *) data;
+	seg = segs;
+
+	for (int i = 0; i < numsegs; i++, seg++, ml++)
+	{
+		unsigned int v1num = ULONG(ml->v1);
+		unsigned int v2num = ULONG(ml->v2);
+
+		// FIXME: check if indices are valid
+		if (v1num & SF_GL_VERTEX_V3)
+			seg->v1 = &gl_vertexes[v1num & ~SF_GL_VERTEX_V3];
+		else
+			seg->v1 = &vertexes[v1num];
+
+		if (v2num & SF_GL_VERTEX_V3)
+			seg->v2 = &gl_vertexes[v2num & ~SF_GL_VERTEX_V3];
+		else
+			seg->v2 = &vertexes[v2num];
+
+		seg->angle  = R_PointToAngle(seg->v1->x, seg->v1->y,
+			seg->v2->x, seg->v2->y);
+
+		seg->length = R_PointToDist(seg->v1->x, seg->v1->y,
+			seg->v2->x, seg->v2->y);
+
+		linedef = USHORT(ml->linedef);
+		flags = USHORT(ml->flags);
+		side = (flags & V3SEG_F_LEFT) ? 1 : 0;
+
+		seg->frontsector = seg->backsector = NULL;
+
+		// FIXME: this chunk of code is duplicated - factor out ?
+		if (linedef == 0xFFFF)
+			seg->miniseg = 1;
+		else
+		{
+			float sx, sy;
+
+			seg->miniseg = 0;
+			seg->linedef = &lines[linedef];
+
+			sx = side ? seg->linedef->v2->x : seg->linedef->v1->x;
+			sy = side ? seg->linedef->v2->y : seg->linedef->v1->y;
+
+			seg->offset = R_PointToDist(sx, sy, seg->v1->x, seg->v1->y);
+
+			seg->sidedef = seg->linedef->side[side];
+			seg->frontsector = seg->sidedef->sector;
+
+			if (seg->linedef->flags & ML_TwoSided)
+				seg->backsector = seg->linedef->side[side^1]->sector;
+		}
+
+		partner = LONG(ml->partner);
+
+		if (partner == -1)
+			seg->partner = NULL;
+		else
+			seg->partner = &segs[partner];
+
+		// The following fields are filled out elsewhere:
+		//     sub_next, front_sub, back_sub, frontsector, backsector.
+
+		seg->sub_next = SEG_INVALID;
+		seg->front_sub = seg->back_sub = SUB_INVALID;
+	}
+}
+
+//
 // LoadGLSegs
 //
 static void LoadGLSegs(int lump)
 {
-	const void *data;
-	int i;
+	const byte *data;
+	int i, length;
 	const map_glseg_t *ml;
 	seg_t *seg;
 	int linedef;
@@ -289,17 +386,28 @@ static void LoadGLSegs(int lump)
 	int partner;
 
 	if (! W_VerifyLumpName(lump, "GL_SEGS"))
-		I_Error("Bad WAD: level %s missing GL_SEGS.\n", 
-				currmap->lump.GetString());
+		I_Error("Bad WAD: level %s missing GL_SEGS.\n", currmap->lump.GetString());
 
-	numsegs = W_LumpLength(lump) / sizeof(map_glseg_t);
+	data = (byte *) W_CacheLumpNum(lump);
+
+	length = W_LumpLength(lump);
+
+	// Handle v3.0 of "GL Node" specs (new GL_SEGS format)
+	if (length >= 4 &&
+		data[0] == 'g' && data[1] == 'N' &&
+		data[2] == 'd' && data[3] == '3')
+	{
+		LoadV3Segs(data + 4, length - 4);
+		W_DoneWithLump(data);
+		return;
+	}
+
+	numsegs = length / sizeof(map_glseg_t);
 
 	if (numsegs == 0)
-		I_Error("Bad WAD: level %s contains 0 gl-segs.\n", 
-				currmap->lump.GetString());
+		I_Error("Bad WAD: level %s contains 0 gl-segs.\n", currmap->lump.GetString());
 
 	segs = Z_ClearNew(seg_t, numsegs);
-	data = W_CacheLumpNum(lump);
 
 	ml = (const map_glseg_t *) data;
 	seg = segs;
@@ -309,6 +417,7 @@ static void LoadGLSegs(int lump)
 		int v1num = USHORT(ml->v1);
 		int v2num = USHORT(ml->v2);
 
+		// FIXME: check if indices are valid
 		if (v1num & SF_GL_VERTEX)
 			seg->v1 = &gl_vertexes[v1num & ~SF_GL_VERTEX];
 		else
@@ -369,43 +478,37 @@ static void LoadGLSegs(int lump)
 }
 
 //
-// LoadSubsectors
+// LoadV3Subsectors
 //
-static void LoadSubsectors(int lump, const char *name)
+static void LoadV3Subsectors(const byte *data, int length)
 {
 	int i, j;
-	const void *data;
-	const mapsubsector_t *ms;
+	const map_gl3subsec_t *ms;
 	subsector_t *ss;
 
-	if (! W_VerifyLumpName(lump, name))
-		I_Error("Bad WAD: level %s missing %s.\n", 
-				currmap->lump.GetString(), name);
-
-	numsubsectors = W_LumpLength(lump) / sizeof(mapsubsector_t);
+	numsubsectors = length / sizeof(map_gl3subsec_t);
 
 	if (numsubsectors == 0)
-		I_Error("Bad WAD: level %s contains 0 ssectors.\n", 
-				currmap->lump.GetString());
+		I_Error("Bad WAD: level %s contains 0 ssectors (v3).\n",
+			currmap->lump.GetString());
 
 	subsectors = Z_ClearNew(subsector_t, numsubsectors);
 
-	data = W_CacheLumpNum(lump);
-	ms = (const mapsubsector_t *) data;
+	ms = (const map_gl3subsec_t *) data;
 	ss = subsectors;
 
 	for (i = 0; i < numsubsectors; i++, ss++, ms++)
 	{
-		int countsegs = USHORT(ms->numsegs);
-		int firstseg = USHORT(ms->firstseg);
+		int countsegs = LONG(ms->numsegs);
+		int firstseg  = LONG(ms->firstseg);
 
 		// -AJA- 1999/09/23: New linked list for the segs of a subsector
 		//       (part of true bsp rendering).
 		seg_t **prevptr = &ss->segs;
 
-		if (countsegs == 0 || firstseg == 0xFFFF || firstseg+countsegs > numsegs)
-			I_Error("Bad WAD: level %s has invalid SSECTORS.\n", 
-					currmap->lump.GetString());
+		if (countsegs == 0 || firstseg == -1 || firstseg+countsegs > numsegs)
+			I_Error("Bad WAD: level %s has invalid SSECTORS (V3).\n",
+				currmap->lump.GetString());
 
 		ss->sector = NULL;
 		ss->thinglist = NULL;
@@ -428,8 +531,93 @@ static void LoadSubsectors(int lump, const char *name)
 		}
 
 		if (ss->sector == NULL)
-			I_Error("Bad WAD: level %s has crazy SSECTORS.\n", 
-					currmap->lump.GetString());
+			I_Error("Bad WAD: level %s has crazy SSECTORS (V3).\n",
+				currmap->lump.GetString());
+
+		*prevptr = NULL;
+
+		// link subsector into parent sector's list.
+		// order is not important, so add it to the head of the list.
+
+		ss->sec_next = ss->sector->subsectors;
+		ss->sector->subsectors = ss;
+	}
+}
+
+//
+// LoadSubsectors
+//
+static void LoadSubsectors(int lump, const char *name)
+{
+	int i, j;
+	int length;
+	const byte *data;
+	const mapsubsector_t *ms;
+	subsector_t *ss;
+
+	if (! W_VerifyLumpName(lump, name))
+		I_Error("Bad WAD: level %s missing %s.\n", currmap->lump.GetString(), name);
+
+	// Load data into cache.
+	data = (byte *) W_CacheLumpNum(lump);
+
+	length = W_LumpLength(lump);
+
+	// Handle v3.0 of "GL Node" specs (new GL_SSECT format)
+	if (W_LumpLength(lump) >= 4 &&
+		data[0] == 'g' && data[1] == 'N' &&
+		data[2] == 'd' && data[3] == '3')
+	{
+		LoadV3Subsectors(data + 4, length - 4);
+		W_DoneWithLump(data);
+		return;
+	}
+
+	numsubsectors = length / sizeof(mapsubsector_t);
+
+	if (numsubsectors == 0)
+		I_Error("Bad WAD: level %s contains 0 ssectors.\n", currmap->lump.GetString());
+
+	subsectors = Z_ClearNew(subsector_t, numsubsectors);
+
+	ms = (const mapsubsector_t *) data;
+	ss = subsectors;
+
+	for (i = 0; i < numsubsectors; i++, ss++, ms++)
+	{
+		int countsegs = USHORT(ms->numsegs);
+		int firstseg  = USHORT(ms->firstseg);
+
+		// -AJA- 1999/09/23: New linked list for the segs of a subsector
+		//       (part of true bsp rendering).
+		seg_t **prevptr = &ss->segs;
+
+		if (countsegs == 0 || firstseg == 0xFFFF || firstseg+countsegs > numsegs)
+			I_Error("Bad WAD: level %s has invalid SSECTORS.\n", currmap->lump.GetString());
+
+		ss->sector = NULL;
+		ss->thinglist = NULL;
+
+		// this is updated when the nodes are loaded
+		ss->bbox = dummy_bbox;
+
+		for (j = 0; j < countsegs; j++)
+		{
+			seg_t *cur = &segs[firstseg + j];
+
+			*prevptr = cur;
+			prevptr = &cur->sub_next;
+
+			cur->front_sub = ss;
+			cur->back_sub = NULL;
+
+			if (!ss->sector && !cur->miniseg)
+				ss->sector = cur->sidedef->sector;
+		}
+
+		if (ss->sector == NULL)
+			I_Error("Bad WAD: level %s has crazy SSECTORS.\n",
+				currmap->lump.GetString());
 
 		*prevptr = NULL;
 
