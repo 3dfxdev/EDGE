@@ -107,30 +107,34 @@ static int EvaluateWeapon(player_t *p, int w_num)
 
 	switch (attack->attackstyle)
 	{
-	case ATK_CLOSECOMBAT:
-		if (p->powers[PW_Berserk])
-			value /= 10;
-		else
-			value /= 20;
-		break;
-	case ATK_SMARTPROJECTILE:
-		value *= 2;
-	case ATK_PROJECTILE:
-		value += 256 * attack->atk_mobj->damage.nominal;
-		value *= attack->atk_mobj->speed / 20;
-		break;
-	case ATK_SPAWNER:
-		value *= 2;
-		break;
-	case ATK_TRIPLESPAWNER:
-		value *= 6;
-		break;
-	case ATK_SHOT:
-		value *= attack->count;
-		break;
+		case ATK_CLOSECOMBAT:
+			if (p->powers[PW_Berserk])
+				value /= 10;
+			else
+				value /= 20;
+			break;
 
-	default:  // do nothing ??
-		break;
+		case ATK_SMARTPROJECTILE:
+			value *= 2;
+		case ATK_PROJECTILE:
+			value += 256 * attack->atk_mobj->damage.nominal;
+			value *= attack->atk_mobj->speed / 20;
+			break;
+
+		case ATK_SPAWNER:
+			value *= 2;
+			break;
+
+		case ATK_TRIPLESPAWNER:
+			value *= 6;
+			break;
+
+		case ATK_SHOT:
+			value *= attack->count;
+			break;
+
+		default:  // do nothing ??
+			break;
 	}
 
 	//  value -= (attack->accuracy_angle + attack->x_accuracy_slope + 1) / 2;
@@ -201,91 +205,90 @@ static bool PTR_BotLook(intercept_t * in)
 	ammotype = th->info->benefitammo;
 	switch (th->info->benefittype)
 	{
-		// -KM- 1998/11/25 New weapon handling
-	case WEAPON:  // WEAPON
-
-		if (!bot_shooter->player->weapons[th->info->benefitweapon].owned)
+			// -KM- 1998/11/25 New weapon handling
+		case WEAPON:  // WEAPON
+			if (!bot_shooter->player->weapons[th->info->benefitweapon].owned)
+				break;
+			ammotype = bot_shooter->player->weapons[th->info->benefitweapon].info->ammo;
+		case AMMO_TYPE:
+			if (bot_shooter->player->ammo[ammotype].num ==
+				bot_shooter->player->ammo[ammotype].max)
+				return true;
 			break;
-		ammotype = bot_shooter->player->weapons[th->info->benefitweapon].info->ammo;
-	case AMMO_TYPE:
-		if (bot_shooter->player->ammo[ammotype].num ==
-			bot_shooter->player->ammo[ammotype].max)
+		case KEY_BLUECARD:
+			if (bot_shooter->player->cards[KEY_BlueCard])
+				return true;
+			break;
+		case KEY_REDCARD:
+			if (bot_shooter->player->cards[KEY_RedCard])
+				return true;
+			break;
+		case KEY_YELLOWCARD:
+			if (bot_shooter->player->cards[KEY_YellowCard])
+				return true;
+			break;
+		case KEY_BLUESKULL:
+			if (bot_shooter->player->cards[KEY_BlueSkull])
+				return true;
+			break;
+		case KEY_REDSKULL:
+			if (bot_shooter->player->cards[KEY_RedSkull])
+				return true;
+			break;
+		case KEY_YELLOWSKULL:
+			if (bot_shooter->player->cards[KEY_YellowSkull])
+				return true;
+			break;
+		case POWERUP_ACIDSUIT:
+			if (bot_shooter->player->powers[PW_AcidSuit] >= th->info->benefitamount * TICRATE / 3)
+				return true;
+			break;
+		case POWERUP_ARMOUR:
+			if (bot_shooter->player->armourpoints >= th->info->limit)
+				return true;
+			break;
+		case POWERUP_AUTOMAP:
 			return true;
-		break;
-	case KEY_BLUECARD:
-		if (bot_shooter->player->cards[KEY_BlueCard])
-			return true;
-		break;
-	case KEY_REDCARD:
-		if (bot_shooter->player->cards[KEY_RedCard])
-			return true;
-		break;
-	case KEY_YELLOWCARD:
-		if (bot_shooter->player->cards[KEY_YellowCard])
-			return true;
-		break;
-	case KEY_BLUESKULL:
-		if (bot_shooter->player->cards[KEY_BlueSkull])
-			return true;
-		break;
-	case KEY_REDSKULL:
-		if (bot_shooter->player->cards[KEY_RedSkull])
-			return true;
-		break;
-	case KEY_YELLOWSKULL:
-		if (bot_shooter->player->cards[KEY_YellowSkull])
-			return true;
-		break;
-	case POWERUP_ACIDSUIT:
-		if (bot_shooter->player->powers[PW_AcidSuit] >= th->info->benefitamount * TICRATE / 3)
-			return true;
-		break;
-	case POWERUP_ARMOUR:
-		if (bot_shooter->player->armourpoints >= th->info->limit)
-			return true;
-		break;
-	case POWERUP_AUTOMAP:
-		return true;
-	case POWERUP_BACKPACK:
-		break;
-	case POWERUP_BERSERK:
-		if (bot_shooter->player->powers[PW_Berserk])
-			return true;
-		break;
+		case POWERUP_BACKPACK:
+			break;
+		case POWERUP_BERSERK:
+			if (bot_shooter->player->powers[PW_Berserk])
+				return true;
+			break;
 
-	case POWERUP_HEALTH:
-		if (bot_shooter->health >= th->info->limit)
-			return true;
-		break;
+		case POWERUP_HEALTH:
+			if (bot_shooter->health >= th->info->limit)
+				return true;
+			break;
 
-	case POWERUP_HEALTHARMOUR:
-		if ((bot_shooter->health >= th->info->limit) &&
-			(bot_shooter->player->armourpoints >= th->info->limit))
-			return true;
-		break;
+		case POWERUP_HEALTHARMOUR:
+			if ((bot_shooter->health >= th->info->limit) &&
+				(bot_shooter->player->armourpoints >= th->info->limit))
+				return true;
+			break;
 
-	case POWERUP_INVULNERABLE:
-		break;
+		case POWERUP_INVULNERABLE:
+			break;
 
-	case POWERUP_JETPACK:
-		if (bot_shooter->player->powers[PW_Jetpack] >= th->info->benefitamount * TICRATE / 3)
-			return true;
-		break;
+		case POWERUP_JETPACK:
+			if (bot_shooter->player->powers[PW_Jetpack] >= th->info->benefitamount * TICRATE / 3)
+				return true;
+			break;
 
-	case POWERUP_LIGHTGOGGLES:
-		if (bot_shooter->player->powers[PW_Infrared] >= th->info->benefitamount * TICRATE / 3)
-			return true;
-		break;
+		case POWERUP_LIGHTGOGGLES:
+			if (bot_shooter->player->powers[PW_Infrared] >= th->info->benefitamount * TICRATE / 3)
+				return true;
+			break;
 
-	case POWERUP_NIGHTVISION:
-		if (bot_shooter->player->powers[PW_NightVision] >= th->info->benefitamount * TICRATE / 3)
-			return true;
-		break;
+		case POWERUP_NIGHTVISION:
+			if (bot_shooter->player->powers[PW_NightVision] >= th->info->benefitamount * TICRATE / 3)
+				return true;
+			break;
 
-	case POWERUP_PARTINVIS:
-		if (bot_shooter->player->powers[PW_PartInvis] >= th->info->benefitamount * TICRATE / 3)
-			return true;
-		break;
+		case POWERUP_PARTINVIS:
+			if (bot_shooter->player->powers[PW_PartInvis] >= th->info->benefitamount * TICRATE / 3)
+				return true;
+			break;
 
 	}
 #endif
