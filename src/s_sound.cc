@@ -435,9 +435,9 @@ static int StartSoundAtVolume(mobj_t *origin, sfxdef_c *sfx, int volume)
 	// Check to see if it is audible,
 	//  and if not, modify the params
 
-	player_t *p = players[displayplayer]; //FIXME !!!!! don't require players during initial menu
+	player_t *p = players[displayplayer]; // can be NULL (no game is active)
 
-	if (origin && origin != p->mo)
+	if (origin && p && origin != p->mo)
 	{
 		rc = AdjustSoundParams(sfx, p->mo, origin, &volume, &sep);
 

@@ -258,7 +258,9 @@ void RGL_DrawUnits(void)
 {
 	int i, j;
 	GLuint cur_tex  = 0x76543210;
+#ifdef USE_GLXTNS
 	GLuint cur_tex2 = 0x76543210;
+#endif
 
 	int cur_pass = -1;
 	int cur_blending = -1;

@@ -62,7 +62,7 @@
 //
 // defaulted values
 //
-int mouseSensitivity;  // has default
+int mouseSensitivity;  // has default.  Note: used only in platform code
 
 // Show messages has default, 0 = off, 1 = on
 int showMessages;
@@ -241,11 +241,10 @@ static void M_ReadThis2(int choice);
 void M_EndGame(int choice);
 
 static void M_ChangeMessages(int choice);
-static void M_ChangeSensitivity(int choice);
 static void M_SfxVol(int choice);
 static void M_MusicVol(int choice);
 static void M_SizeDisplay(int choice);
-static void M_Sound(int choice);
+// static void M_Sound(int choice);
 
 static void M_FinishReadThis(int choice);
 static void M_LoadSelect(int choice);
@@ -266,9 +265,9 @@ static void M_DrawSave(void);
 
 static void M_DrawSaveLoadBorder(float x, float y, int len);
 static void M_SetupNextMenu(menu_t * menudef);
-static void M_StopMessage(void);
 static void M_ClearMenus(void);
 void M_StartControlPanel(void);
+// static void M_StopMessage(void);
 
 //
 // DOOM MENU
@@ -1016,6 +1015,7 @@ void M_DrawSound(void)
 	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), 16, musicvol, 1);
 }
 
+#if 0
 //
 // M_Sound
 //
@@ -1023,6 +1023,7 @@ void M_Sound(int choice)
 {
 	M_SetupNextMenu(&SoundDef);
 }
+#endif
 
 //
 // M_SfxVol
@@ -1483,34 +1484,22 @@ void M_QuitEDGE(int choice)
 }
 
 // 98-7-10 KM Use new defines
-void M_ChangeSensitivity(int choice)
-{
-	switch (choice)
-	{
-		case SLIDERLEFT:
-			if (mouseSensitivity)
-				mouseSensitivity--;
-			break;
-		case SLIDERRIGHT:
-			if (mouseSensitivity < 9)
-				mouseSensitivity++;
-			break;
-	}
-}
-
-// 98-7-10 KM Use new defines
 void M_SizeDisplay(int choice)
 {
 	switch (choice)
 	{
 		case SLIDERLEFT:
-			if (screen_hud > 0)
-				screen_hud--;
+			if (screen_hud <= 0)
+				return;
+
+			screen_hud--;
 			break;
 
 		case SLIDERRIGHT:
-			if (screen_hud+1 < NUMHUD)
-				screen_hud++;
+			if (screen_hud+1 >= NUMHUD)
+				return;
+
+			screen_hud++;
 			break;
 	}
 
@@ -1619,6 +1608,7 @@ void M_StartMessageInput(const char *string,
 	return;
 }
 
+#if 0
 //
 // M_StopMessage
 //
@@ -1631,6 +1621,7 @@ void M_StopMessage(void)
 	if (!menuactive)
 		save_screenshot_valid = false;
 }
+#endif
 
 //
 // CONTROL PANEL
