@@ -274,21 +274,20 @@ bool W_InitTextures(void)
   QSORT(texturedef_t *, textures, numtextures, CUTOFF);
 #undef CMP
 
-  // remove duplicate names.  Because the QSORT took newness into
-  // account, only the last entry in a run of identically named
-  // textures needs to be kept.
+	// remove duplicate names.  Because the QSORT took newness into
+	// account, only the last entry in a run of identically named
+	// textures needs to be kept.
 
-  for (j=1; j < numtextures; j++)
-  {
-    texturedef_t * a = textures[j - 1];
-    texturedef_t * b = textures[j];
+	for (j=1; j < numtextures; j++)
+	{
+		texturedef_t * a = textures[j - 1];
+		texturedef_t * b = textures[j];
 
-    if (strcmp(a->name, b->name) == 0)
-    {
-      Z_Free(a);
-      textures[j - 1] = NULL;
-    }
-  }
+		if (strcmp(a->name, b->name) == 0)
+		{
+			textures[j - 1] = NULL;
+		}
+	}
 
 #if 0  // DEBUGGING
   for (j=0; j < numtextures; j++)
