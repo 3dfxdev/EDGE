@@ -1788,7 +1788,11 @@ static void RAD_ParseGotoMap(int pnum, const char **pars)
 	if (pnum >= 3)
 	{
 		if (DDF_CompareName(pars[2], "SKIP_ALL") == 0)
+		{
+			if (rts_version < 0x128)
+				RAD_Error("%s: SKIP_ALL only available with #VERSION 1.28 or higher.\n", pars[0]);
 			go->skip_all = true;
+		}
 		else
 			RAD_WarnError2(0x128, "%s: expected `SKIP_ALL' but got `%s'.\n",
 			pars[0], pars[2]);

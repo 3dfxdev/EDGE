@@ -240,6 +240,13 @@ static void LevelParseField(const char *field, const char *contents,
 	L_WriteDebug("LEVEL_PARSE: %s = %s;\n", field, contents);
 #endif
 
+	if (ddf_version < 0x128 &&
+		(DDF_CompareName(field, "PRE.COLOURMAP") == 0 ||
+	     DDF_CompareName(field, "END.COLOURMAP") == 0))
+	{
+		DDF_Error("%s is only available with #VERSION 1.28 or higher.\n", field);
+	}
+
 	if (! DDF_MainParseField(level_commands, field, contents))
 		DDF_WarnError2(0x128, "Unknown levels.ddf command: %s\n", field);
 }
