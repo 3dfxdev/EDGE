@@ -458,9 +458,9 @@ void V_GetColmapRGB(const colourmap_c *colmap,
 				// limit the delta range, since dark colours can produce
 				// very high values (> 1000) which skew the results.
 
-				r_delta = MIN(200, MAX(-240, r_delta));
-				g_delta = MIN(200, MAX(-240, g_delta));
-				b_delta = MIN(200, MAX(-240, b_delta));
+				r_delta = MIN(200, MAX(-250, r_delta));
+				g_delta = MIN(200, MAX(-250, g_delta));
+				b_delta = MIN(200, MAX(-250, b_delta));
 
 				r_diffs += r_delta * weight;
 				g_diffs += g_delta * weight;
@@ -470,9 +470,10 @@ void V_GetColmapRGB(const colourmap_c *colmap,
 
 			// ASSERT(total > 0)
 
-			r = 255 + r_diffs / total;
-			g = 255 + g_diffs / total;
-			b = 255 + b_diffs / total;
+			// exaggerate the results to give more oomph..
+			r = 255 + r_diffs * 4 / 3 / total;
+			g = 255 + g_diffs * 4 / 3 / total;
+			b = 255 + b_diffs * 4 / 3 / total;
 
 #if 0  // DEBUGGING
 			I_Printf("COLMAP [%s] --> (%d, %d, %d)\n",
