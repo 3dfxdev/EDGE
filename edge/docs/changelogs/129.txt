@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: NOVEMBER 15th 2004)
+(Date: NOVEMBER 21st 2004)
 
 
 Bugs fixed
@@ -23,6 +23,7 @@ Bugs fixed
 - berserk strength now lasts the whole level.
 - night vision wasn't affecting the sky, fixed.
 - damage over 1000 no longer hurts invulnerable players.
+- monsters on different sides now attack each other (UNTESTED).
 
 
 Fixes shared with 1.28A
@@ -48,6 +49,8 @@ Features removed:
   twice as much work (maybe more -- doing things with OpenGL is
   usually easier than doing it in software).
 
+- the DDF "CONSTANT" dynamic lighting type (was not very useful).
+
 - using { } comments in DDF files, and ';' comments in RTS scripts
   is now deprecated, since these characters will probably be needed
   in the future when improving DDF/RTS.  Use // comments instead.
@@ -61,9 +64,11 @@ General improvements
   option is considered a filename to add.  This allows you to drag a
   simple (self-contained) WAD onto the EDGE executable to play it.
 
-(FINISHED??)  new sound system, using OpenAL (a 3D audio library). 
+(NOT FINISHED) new sound system, using OpenAL (a 3D audio library). 
 
-(NOT FINISHED) support for OGG Vorbis Music playing.  @@@
+(ALMOST FINISHED) support for OGG Vorbis Music playing.  @@@
+
+(NOT STARTED) good music support under Linux. @@@
 
 + native support for DeHackEd and BEX patches, both as normal files
   (with .DEH or .BEX extension), and also as DEHACKED lump in a wad.
@@ -71,12 +76,17 @@ General improvements
   engines).  EDGE converts the patches to DDF, and stores the result
   in files with the .HWA extension, which are loaded automatically.
 
-(NOT FINISHED) new startup.  @@@ no more windows console window.
+- new startup, with progress bar.  The console window that use to
+  appear (Win32) is gone, and under Linux messages are no longer
+  printed to stdout.  When GL Nodes need to be built for a wad,
+  this is now done during startup.
 
 - Linux: fatal errors produce a pop-up dialog box.  EDGE can now be
   run by double clicking the executable.  Support for CD music.
 
-(NOT FINISHED) support V3 of GL-NODES.  glbsp 2.10, Deus Vult MAP05, BLAH
+- support V3 of GL-NODES.  EDGE now includes glBSP 2.10, which can
+  handle very complex levels (which overflow the old limits), e.g.
+  Deus Vult MAP05.
 
 - a small improvement to Boom compatibility: line-to-line teleporters
   and the platform toggle linetypes were added.
@@ -104,15 +114,13 @@ New features:
          
     JUMP_ON  MENU  label1 label2 ...
 
+	@@@  MENU_STYLE  style_name
+
   The RTS menu will pause the game (including all scripts) until the user
   presses a valid number key.  Savegames are also disabled while the RTS
   menu is shown.  Once the menu is finished, the JUMP_ON command will
   test the result, and jump to the matching label.  It will fail to jump
   if there aren't enough labels, or menu could not be shown (netgame).
-
-- Four new ammo types: DAGGERS, ARROWS, TORPEDOES, CRYSTALS (names
-  inspired by Heretic/Hexen/HacX).  That brings the total to twelve.
-  Limit on holdable weapons was also increased from 32 to 64.
 
 - RELOAD states for monsters.  This is controlled by the new command
   RELOAD_SHOTS and the new action RELOAD_CHECK, which tests if the
@@ -163,6 +171,10 @@ New weapon stuff
   and will store ammo inside of its clip, even when not selected.  Also
   there is support for manual reloading (new key in Keyboard Options).
 
++ Four new ammo types: DAGGERS, ARROWS, TORPEDOES, CRYSTALS (names
+  inspired by Heretic/Hexen/HacX).  That brings the total to twelve.
+  The limit on holdable weapons was also increased from 32 to 64.
+
 - There are many new specials.  The following new command is used to
   give specials for the secondary attack:
 
@@ -177,7 +189,7 @@ New weapon stuff
     NO_SWITCH          : don't switch to new weapon if ammo runs out
 
     NO_TRIGGER   : prevent reloading by pressing fire button
-    FRESH        : reload empty weapon when fresh ammo is picked up
+    FRESH        : reload empty clip when fresh ammo is picked up
     NO_MANUAL    : disable manual reloading key
     PARTIAL      : for manual reload: allow partial clip refills
 
@@ -208,6 +220,17 @@ New weapon stuff
   at 20 seconds, 22 seconds, 24 seconds, and so forth, until it
   succeeds.  If the chance is 100%, is succeeds on the first try.
 
+- Crosshair actions have been re-enabled.  The following actions
+  are now available.
+
+    SETCROSS(FRAME)    : crosshair jumps to the given frame
+    TARGET_JUMP(FRAME) : crosshair jumps IF player has a target
+    FRIEND_JUMP(FRAME) : crosshair jumps IF player target is a friend
+
+  SETCROSS can be used anywhere, but TARGET_JUMP and FRIEND_JUMP
+  should be used in the crosshair states.  The old "TARGET" action
+  (disabled for a long time) has been made obsolete.
+
 - Finally there are now DISCARD and SECDISCARD states.  They are
   similar to the PARTIAL special: if you press the reload key with
   a half-empty clip (i.e. neither empty nor full), then the clip is
@@ -218,8 +241,8 @@ New weapon stuff
 New command-line options:
 -------------------------
 
-    -deh     Specify a DeHackEd (or BEX) patch file.  You can have
-             multiple patch files after the -deh option.
+  -deh     Specify a DeHackEd (or BEX) patch file.  You can have
+           multiple patch files after the -deh option.
 
 
 Hats off to...
