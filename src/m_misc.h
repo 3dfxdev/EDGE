@@ -56,6 +56,7 @@ boolean_t M_LoadDefaults(void);
 void M_SaveDefaults(void);
 int M_ReadFile(char const *name, byte **buffer);
 void M_DisplayDisk(void);
+void M_DisplayAir(void);
 void M_ScreenShot(void);
 void M_MakeSaveScreenShot(void);
 exttype_e M_CheckExtension(const char *ext, const char* filename);
