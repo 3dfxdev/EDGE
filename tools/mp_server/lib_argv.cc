@@ -19,6 +19,8 @@
 #include "includes.h"
 
 #include "lib_argv.h"
+#include "lib_util.h"
+
 
 const char **arg_list = NULL;
 int arg_count = 0;
@@ -93,8 +95,7 @@ int ArgvFind(char short_name, const char *long_name, int *num_params)
 		if (short_name && (short_name == tolower(str[1])) && str[2] == 0)
 			break;
 
-		// !!!! FIXME: case insensitive 
-		if (long_name && (strcmp(long_name, str + 1) == 0))
+		if (long_name && (StrCaseCmp(long_name, str + 1) == 0))
 			break;
 	}
 
