@@ -123,6 +123,9 @@ extern const byte *text_colour_yellow;
 extern const byte *am_normal_colmap;
 extern const byte *am_overlay_colmap;
 
+// do-nothing translation table
+extern byte null_tranmap[256];
+
 // colour values.  These assume the standard Doom palette.  Maybe
 // remove most of these one day -- will take some work though...
 // Note: some of the ranges begin with a bright (often white) colour.
