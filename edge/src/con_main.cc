@@ -555,8 +555,7 @@ int CON_CMDPlaySound(const char *args)
 		return 1;
 	}
 
-	sfx = DDF_SfxLookupSound(argv[1]);
-
+	sfx = DDF_SfxLookupSound(argv[1], false);
 	if (! sfx)
 	{
 		CON_Printf("No such sound: %s\n", argv[1]);
