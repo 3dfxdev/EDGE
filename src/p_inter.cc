@@ -100,6 +100,7 @@ static bool GiveAmmo(player_t * player, mobj_t * special,
 	// We were down to zero, so select a new weapon.
 	// Choose the next highest priority weapon than the current one.
 	// Don't override any weapon change already underway.
+	// Don't change weapon if NO_AUTO_SWITCH is true.
 
 	P_RefillClips(player);
 
@@ -107,7 +108,14 @@ static bool GiveAmmo(player_t * player, mobj_t * special,
 		return true;
 
 	if (player->ready_wp >= 0)
-		priority = player->weapons[player->ready_wp].info->priority;
+	{
+		weapondef_c *w = player->weapons[player->ready_wp].info;
+
+		if (w->special_flags & WPSP_NoAutoSwitch)
+			return true;
+
+		priority = w->priority;
+	}
 
 	P_SelectNewWeapon(player, priority, (ammotype_e) ammo);
 	return true;
