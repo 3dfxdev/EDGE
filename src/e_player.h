@@ -152,9 +152,11 @@ typedef struct player_s
   // -AJA- 1999/08/11: Now uses playerweapon_t.
   playerweapon_t *weapons;
 
-  // current weapon choice for each key (1..9 and 0)
+  // current weapon choice for each key (1..9 and 0).  Note: the
+  // values are indexes into the `choices' array in the corresponding
+  // weaponkey[] structure (i.e. NOT indexes into weaponinfo[]).
   int key_choices[10];
-  
+ 
   // for status bar: which numbers (2..7) to light up
   boolean_t avail_weapons[6];
   
@@ -191,6 +193,7 @@ typedef struct player_s
 
   // -AJA- 1999/07/10: changed for colmap.ddf.
   const colourmap_t *effect_colourmap;
+  boolean_t effect_infrared;
   float_t effect_strength;
 
   // Overlay view sprites (gun, etc).
