@@ -23,6 +23,8 @@
 #include "../i_defs.h"
 #include "i_sysinc.h"
 
+#define HOGGIE_OGG_SUPPORT
+
 // #defines for handle information
 #define GETLIBHANDLE(_handle) (_handle&0xFF)
 #define GETLOOPBIT(_handle)   ((_handle&0x10000)>>16)
@@ -35,11 +37,18 @@ typedef enum
 {
 	support_CD   = 0x01,
 	support_MIDI = 0x02,
-	support_MUS  = 0x08
+	support_MUS  = 0x04,
+	support_OGG  = 0x08  // OGG Support - ACB- 2004/08/18
 }
 mussupport_e;
 
 static byte capable;
+
+#ifdef HOGGIE_OGG_SUPPORT
+#include "../AL/oggplayer.h"
+
+oggplayer_c *oggplayer = NULL;
+#endif
 
 #define MUSICERRLEN 256
 static char errordesc[MUSICERRLEN];
@@ -63,6 +72,13 @@ bool I_StartupMusic(void *sysinfo)
 	if (I_StartupMusserv())
 		capable |= support_MUS;
 
+#ifdef HOGGIE_OGG_SUPPORT
+	oggplayer = new oggplayer_c;
+	capable |= support_OGG;
+
+	I_Printf("I_StartupMusic: OGG Music Init OK\n");
+#endif
+
 	// Music is not paused by default
 	musicpaused = false;
 
@@ -80,7 +96,7 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 	if (!(capable & support_CD)   && type == MUS_CD)   return -1;
 	if (!(capable & support_MIDI) && type == MUS_MIDI) return -1;
 	if (!(capable & support_MUS)  && type == MUS_MUS)  return -1;
-
+	if (!(capable & support_OGG)  && type == MUS_OGG)  return -1;
 	switch (type)
 	{
 		// CD Support...
@@ -117,6 +133,17 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 
 			break;
 		}
+
+
+#ifdef HOGGIE_OGG_SUPPORT
+		case MUS_OGG:
+		{
+			oggplayer->Open(musdat->info.file.name);
+			oggplayer->Play(looping);
+			handle = MAKEHANDLE(MUS_OGG, looping, 1);
+			break;
+		}
+#endif
 
 		case MUS_UNKNOWN:
 		{
@@ -162,6 +189,9 @@ void I_MusicPause(int *handle)
 			break;
 		}
 
+#ifdef HOGGIE_OGG_SUPPORT
+		case MUS_OGG:	{ oggplayer->Pause(); break; }
+#endif
 		default:
 			break;
 	}
@@ -195,6 +225,10 @@ void I_MusicResume(int *handle)
 			I_MusservResumePlayback();
 			break;
 		}
+		
+#ifdef HOGGIE_OGG_SUPPORT
+		case MUS_OGG:  { oggplayer->Resume(); break; }
+#endif
 
 		default:
 			break;
@@ -232,6 +266,10 @@ void I_MusicKill(int *handle)
 			break;
 		}
 
+#ifdef HOGGIE_OGG_SUPPORT
+		case MUS_OGG:  { oggplayer->Close(); break; }
+#endif
+
 		default:
 			break;
 	}
@@ -265,6 +303,10 @@ void I_SetMusicVolume(int *handle, int volume)
 			I_MusservSetVolume(volume);
 			break;
 		}
+		
+#ifdef HOGGIE_OGG_SUPPORT
+		case MUS_OGG:  { oggplayer->SetVolume(volume); break; }
+#endif
 
 		default:
 			break;
@@ -310,6 +352,10 @@ void I_MusicTicker(int *handle)
 			break;
 		}
 
+#ifdef HOGGIE_OGG_SUPPORT
+		case MUS_OGG:	{ oggplayer->Ticker(); break; }
+#endif
+
 		default:
 			break;
 	}
@@ -322,6 +368,14 @@ void I_MusicTicker(int *handle)
 //
 void I_ShutdownMusic(void)
 {
+#ifdef HOGGIE_OGG_SUPPORT
+	if (oggplayer)
+	{
+		delete oggplayer;
+		oggplayer = NULL;
+	}
+#endif
+
 	I_ShutdownCD();
 	I_ShutdownMusserv();
 }
