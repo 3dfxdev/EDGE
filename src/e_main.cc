@@ -497,8 +497,16 @@ static void M_DisplayPause(void)
 	if (! pause_image)
 		pause_image = W_ImageFromPatch("M_PAUSE");
 
-	// FIXME: should center image
-	VCTX_ImageEasy320(100, 10, pause_image);
+	// make sure image is centered horizontally
+
+	int w = FROM_320(IM_WIDTH(pause_image));
+	int h = FROM_200(IM_HEIGHT(pause_image));
+
+	int x = FROM_320(160) - w / 2;
+	int y = FROM_200(10);
+
+    vctx.DrawImage(x, y, w, h, pause_image, 0, 0,
+                   IM_RIGHT(pause_image), IM_BOTTOM(pause_image), NULL, 1.0);
 }
 
 //
