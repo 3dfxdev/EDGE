@@ -25,11 +25,9 @@
 #include "r_defs.h"
 #include "hu_stuff.h"
 
-
 struct rts_state_s;
 struct rad_script_s;
 struct rad_trigger_s;
-
 
 typedef struct s_tip_s
 {
@@ -432,6 +430,18 @@ s_onheight_t;
 
 // Trigger Definition (Made up of actions)
 // Start_Map & Radius_Trigger Declaration
+
+// Multiplayer info
+enum
+{
+	// spawn a separate trigger for each player
+	RNET_Separate = 0,
+
+	// spawn only a single trigger, "absolute" semantics
+	RNET_Absolute
+}
+rad_script_netmode_e;
+
 typedef struct rad_script_s
 {
 	// link in list
@@ -447,6 +457,9 @@ typedef struct rad_script_s
 	int min_players;
 	int max_players;
 
+	// Handling for multiple players
+	int netmode;
+
 	// Map Coordinates
 	flo_t x, y, z;
 
@@ -458,17 +471,6 @@ typedef struct rad_script_s
 
 	// Script tag (or 0 for none)
 	int tag;
-
-	// Multiplayer info
-	enum
-	{
-		// spawn a separate trigger for each player
-		RNET_Separate = 0,
-
-		// spawn only a single trigger, "absolute" semantics
-		RNET_Absolute
-	}
-	netmode;
 
 	// for SEPARATE mode, bit field of players to spawn trigger
 	unsigned long what_players;
