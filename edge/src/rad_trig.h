@@ -55,10 +55,10 @@ void RAD_GroupTriggerTags(rad_trigger_t *trig);
 void RAD_DoRadiTrigger(player_t * p);
 void RAD_Ticker(void);
 boolean_t RAD_WithinRadius(mobj_t * mo, rad_script_t * r);
-rad_script_t *RAD_FindScriptByName(char *name);
-rad_trigger_t *RAD_FindTriggerByName(char *name);
+rad_script_t *RAD_FindScriptByName(const char *map_name, const char *name);
+rad_trigger_t *RAD_FindTriggerByName(const char *name);
 rts_state_t *RAD_FindStateByLabel(rad_script_t *scr, char *label);
-void RAD_EnableByTag(int tag, boolean_t disable);
+void RAD_EnableByTag(mobj_t *actor, int tag, boolean_t disable);
 
 // Path support
 boolean_t RAD_CheckReachedTrigger(mobj_t * thing);
@@ -101,6 +101,7 @@ void RAD_ActRetrigger(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActDamagePlayers(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActHealPlayers(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActArmourPlayers(rad_trigger_t *R, mobj_t *actor, void *param);
+void RAD_ActBenefitPlayers(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActDamageMonsters(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActThingEvent(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActSkill(rad_trigger_t *R, mobj_t *actor, void *param);

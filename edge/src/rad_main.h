@@ -122,6 +122,15 @@ typedef struct
 s_armour_t;
 
 
+// Radius Give/Lose Benefit
+typedef struct
+{
+  benefit_t *benefit;
+  boolean_t lose_it;  // or use_it :)
+}
+s_benefit_t;
+
+
 // Radius Damage Monster Trigger
 typedef struct s_damage_monsters_s
 {
@@ -332,7 +341,7 @@ s_thing_event_t;
 // they may merge at some point in the future).
 //
 // -AJA- 1999/10/23: added this.
-
+//
 typedef struct rts_state_s
 {
   // link in list of states
@@ -352,6 +361,20 @@ typedef struct rts_state_s
   char *label;
 }
 rts_state_t;
+
+
+// Destination path name
+typedef struct rts_path_s
+{
+  // next in list, or NULL
+  struct rts_path_s *next;
+  
+  const char *name;
+
+  // cached pointer to script
+  struct rad_script_s *cached_scr;
+}
+rts_path_t;
 
 
 // ONDEATH info
@@ -424,6 +447,23 @@ typedef struct rad_script_s
   // Script tag (or 0 for none)
   int tag;
 
+  // Multiplayer info
+  enum
+  {
+    // spawn a separate trigger for each player
+    RNET_Separate = 0,
+
+    // spawn only a single trigger, "absolute" semantics
+    RNET_Absolute
+  }
+  netmode;
+  
+  // for SEPARATE mode, bit field of players to spawn trigger
+  unsigned long what_players;
+  
+  // ABSOLUTE mode: minimum players needed to trigger, -1 for ALL
+  int absolute_req_players;
+  
   // Initially disabled ?
   boolean_t tagged_disabled;
 
@@ -436,6 +476,9 @@ typedef struct rad_script_s
   // Requires no player intervention ?
   boolean_t tagged_immediate;
 
+  // Should external enables/disables be player specific ?
+  boolean_t tagged_player_specific;
+
   // Tagged_Repeat info (normal if repeat_count < 0)
   int repeat_count;
   int repeat_delay;
@@ -445,7 +488,12 @@ typedef struct rad_script_s
   s_onheight_t *height_trig;
   condition_check_t *cond_trig;
 
-  char *next_in_path;
+  // Path info
+  rts_path_t *next_in_path;
+  int next_path_total;
+
+  const char *path_event_label;
+  int path_event_offset;
 
   // Set of states
   rts_state_t *first_state;
@@ -477,6 +525,9 @@ typedef struct rad_trigger_s
 
   // has it been activated yet?
   boolean_t activated;
+
+  // players who activated it (bit field)
+  unsigned long acti_players;
 
   // repeat info
   int repeats_left;
