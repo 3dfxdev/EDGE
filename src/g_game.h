@@ -86,5 +86,7 @@ void G_ScreenShot(void);
 boolean_t G_CheckWhenAppear(when_appear_e appear);
 boolean_t G_CheckConditions(mobj_t *mo, condition_check_t *cond);
 char *G_FileNameFromSlot(int slot);
+int G_GetLevelFlags(void);
+void G_PutLevelFlags(int flags);
 
 #endif

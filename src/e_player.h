@@ -148,20 +148,19 @@ typedef struct player_s
   weapon_selection_e ready_wp;
   weapon_selection_e pending_wp;
 
-  // -KM- 1998/11/25 Dynamic allocation here.
   // -AJA- 1999/08/11: Now uses playerweapon_t.
-  playerweapon_t *weapons;
+  playerweapon_t weapons[MAXWEAPONS];
 
   // current weapon choice for each key (1..9 and 0).  Note: the
   // values are indexes into the `choices' array in the corresponding
   // weaponkey[] structure (i.e. NOT indexes into weaponinfo[]).
   int key_choices[10];
  
-  // for status bar: which numbers (2..7) to light up
-  boolean_t avail_weapons[6];
+  // for status bar: which numbers to light up
+  boolean_t avail_weapons[10];
   
   // ammunition, one for each ammotype_t (except AM_NoAmmo)
-  playerammo_t *ammo;
+  playerammo_t ammo[NUMAMMO];
 
   // True if button down last tic.
   int attackdown;
