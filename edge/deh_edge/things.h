@@ -52,7 +52,6 @@ namespace Things
 
 	void HandleFlags(const mobjinfo_t *info, int mt_num, int player);
 
-	const char *GetSound(int sound_id);
 	const char *GetSpeed(int speed);
 
 	// returns false if name not found
