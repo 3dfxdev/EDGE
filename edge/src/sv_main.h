@@ -193,6 +193,8 @@ boolean_t SR_GetFixed(void *storage, int index, void *extra);
 boolean_t SR_GetAngle(void *storage, int index, void *extra);
 boolean_t SR_GetFloat(void *storage, int index, void *extra);
 
+boolean_t SR_GetIntAsFloat(void *storage, int index, void *extra);
+
 #define SR_GetBoolean  SR_GetInt
 #define SR_GetEnum     SR_GetInt
 
@@ -319,29 +321,56 @@ extern void *sv_current_elem;
 extern savestruct_t *sv_known_structs;
 extern savearray_t  *sv_known_arrays;
 
+// sv_mobj.c
 extern savestruct_t sv_struct_mobj;
 extern savestruct_t sv_struct_spawnpoint;
+extern savearray_t sv_array_mobj;
+
+// sv_play.c
 extern savestruct_t sv_struct_player;
 extern savestruct_t sv_struct_playerweapon;
 extern savestruct_t sv_struct_playerammo;
 extern savestruct_t sv_struct_psprite;
+extern savearray_t sv_array_player;
+
+// sv_level.c
 extern savestruct_t sv_struct_sidepart;
 extern savestruct_t sv_struct_side;
 extern savestruct_t sv_struct_line;
-
-extern savearray_t sv_array_mobj;
-extern savearray_t sv_array_player;
+extern savestruct_t sv_struct_regprops;
+extern savestruct_t sv_struct_planeinfo;
+extern savestruct_t sv_struct_region;
+extern savestruct_t sv_struct_sector;
 extern savearray_t sv_array_side;
 extern savearray_t sv_array_line;
+extern savearray_t sv_array_region;
+extern savearray_t sv_array_sector;
+
+// sv_misc.c
+extern savestruct_t sv_struct_button;
+extern savestruct_t sv_struct_light;
+extern savestruct_t sv_struct_trigger;
+extern savearray_t sv_array_button;
+extern savearray_t sv_array_light;
+extern savearray_t sv_array_trigger;
 
 boolean_t SR_MobjGetMobj(void *storage, int index, void *extra);
 void SR_MobjPutMobj(void *storage, int index, void *extra);
 
 int SV_MobjFindElem(mobj_t *elem);
-int SV_PlayerFindElem(player_t *elem);
-
 void * SV_MobjGetElem(int index);
+
+int SV_PlayerFindElem(player_t *elem);
 void * SV_PlayerGetElem(int index);
+
+boolean_t SR_LevelGetImage(void *storage, int index, void *extra);
+void SR_LevelPutImage(void *storage, int index, void *extra);
+
+boolean_t SR_LineGetLine(void *storage, int index, void *extra);
+void SR_LinePutLine(void *storage, int index, void *extra);
+
+boolean_t SR_SectorGetSector(void *storage, int index, void *extra);
+void SR_SectorPutSector(void *storage, int index, void *extra);
 
 
 #endif  // __SV_MAIN_
