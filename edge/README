@@ -141,9 +141,8 @@ Known Issues:
 
   - Joysticks do not work.  We haven't done any work in that area.
 
-  - Sky in GLEDGE can be wobble/twisted or ripple, most noticeable in
-    maps with a lot of sky, e.g. MAP12.  Selected a higher "Detail
-    Level" in the Video Option menu can help.
+  - A few issues with the sky in GLEDGE, like certain ceilings drawn
+    which shouldn't be (e.g. MAP14).  The wobblies are gone though.
  
   - There are some visual problems/glitches with the screen,
     especially when the view window is shrunk down.  Also the fonts
@@ -264,6 +263,7 @@ Compiling EDGE:
   top.  Then type `make' (or for windows, `make -f Makefile.bcc', or
   `make -f Makefile.osx' for MacOS X).
 
+
 Command line options:
 
   * Note that "(no)" here means that the option switch can optionally
@@ -377,8 +377,10 @@ Command line options:
 
   -freq  <freq>        Set sound frequency (sample rate) in Hz.
   -mono                Disable stereo sound output.
+  -sound16             Try to enable 16 bit sound.
   -allegfm             Use the allegro FM patches for music.
   -warpmouse           Use special mouse handling code.
+  -nograb              Don't grab the mouse cursor
  
 
 Console commands:
