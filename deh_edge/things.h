@@ -51,6 +51,7 @@ namespace Things
 	void ConvertTHING(void);
 
 	void HandleFlags(const mobjinfo_t *info, int mt_num, int player);
+	void HandleAttacks(const mobjinfo_t *info, int mt_num);
 
 	const char *GetSpeed(int speed);
 

@@ -799,12 +799,6 @@ namespace Things
 
 	void HandleAttacks(const mobjinfo_t *info, int mt_num)
 	{
-		if (! Frames::attack_slot[0] && ! Frames::attack_slot[1] &&
-			! Frames::attack_slot[2])
-		{
-			return;
-		}
-
 		if (Frames::attack_slot[Frames::RANGE])
 		{
 			WAD::Printf("RANGE_ATTACK = %s;\n",
@@ -815,6 +809,14 @@ namespace Things
 		if (Frames::attack_slot[Frames::COMBAT])
 			WAD::Printf("CLOSE_ATTACK = %s;\n",
 				Frames::attack_slot[Frames::COMBAT]);
+#if 1  // ADD VERSION < 128 check
+		else if (info->meleestate && info->name[0] != '*')
+		{
+			PrintWarn("No close attack in melee states of [%s].\n",
+				info->name);
+			WAD::Printf("CLOSE_ATTACK = DEMON_CLOSECOMBAT; // dummy attack\n");
+		}
+#endif
 
 		if (Frames::attack_slot[Frames::SPARE])
 			WAD::Printf("SPARE_ATTACK = %s;\n",
