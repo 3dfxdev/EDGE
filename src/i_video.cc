@@ -93,6 +93,7 @@ colourshift_t redshift, greenshift, blueshift;
 static screenmode_t possresmode[] =
 {
 	// fullscreen modes
+#ifndef USE_GL
 	{ 320, 200,  8, false},
 	{ 320, 240,  8, false},
 	{ 400, 300,  8, false},
@@ -101,6 +102,7 @@ static screenmode_t possresmode[] =
 	{ 640, 480,  8, false},
 	{ 800, 600,  8, false},
 	{1024, 768,  8, false},
+#endif
 	{ 320, 200, 16, false},
 	{ 320, 240, 16, false},
 	{ 400, 300, 16, false},
@@ -111,6 +113,7 @@ static screenmode_t possresmode[] =
 	{1024, 768, 16, false},
 
 	// windowed modes
+#ifndef USE_GL
 	{ 320, 200,  8, true},
 	{ 320, 240,  8, true},
 	{ 400, 300,  8, true},
@@ -119,6 +122,7 @@ static screenmode_t possresmode[] =
 	{ 640, 480,  8, true},
 	{ 800, 600,  8, true},
 	{1024, 768,  8, true},
+#endif
 	{ 320, 200, 16, true},
 	{ 320, 240, 16, true},
 	{ 400, 300, 16, true},
@@ -278,7 +282,7 @@ void I_StartupGraphics(void)
 			continue;
 		}
 
-		got_depth = SDL_VideoModeOK(possresmode[i].width, possresmode[i].width,
+		got_depth = SDL_VideoModeOK(possresmode[i].width, possresmode[i].height,
 				possresmode[i].depth, my_flags | SDL_FULLSCREEN);
 
 		if (got_depth == possresmode[i].depth ||
