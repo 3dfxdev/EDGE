@@ -527,8 +527,10 @@ static void V_ComputeRGBInfo(truecol_info_t * ti)
 
 	if (RI[0].shift > RI[1].shift)
 		SwapEm(0, 1);
+
 	if (RI[0].shift > RI[2].shift)
 		SwapEm(0, 2);
+
 	if (RI[1].shift > RI[2].shift)
 		SwapEm(1, 2);
 
@@ -619,8 +621,13 @@ static void CalcTranslucencyTable(void)
 					rgb_lo = V_CalcRGB(y, x);
 					rgb_hi = V_CalcRGB(y << 8, x);
 
+#ifdef __BIG_ENDIAN__
+                 col2rgb16[x][y][0] = rgb_hi;
+                 col2rgb16[x][y][1] = rgb_lo;
+#else
 					col2rgb16[x][y][0] = rgb_lo;
 					col2rgb16[x][y][1] = rgb_hi;
+#else
 				}
 			}
 
