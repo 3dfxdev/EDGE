@@ -1,0 +1,39 @@
+
+TODO
+====
+
+NETWORKING
+----------
+
++ PK_message handling.
+
++ for "Pg" and "Tg" packets: SET CORRECT REMOTE ADDR.
+
+- validate packet lengths and contents.
+
+- send acknowledgements.  Also do logging/error packets.
+
+- debugging support: Dump packets.
+
+- improve class access (keep fields private).
+
++ handle "bd" (Broadcast-Discovery) packets.
+
+- port selection: try port +2, +4, +6, and +8 before giving up.
+
+- maybe remove 'game' or 'dest' fields from packet header ?
+
+
+USER INTERFACE
+--------------
+
++ copy the game/client lists for the UI.
+
++ client list
+
++ game list
+
++ control screen : set port, limits on clients/games, etc.
+
+- log screen: add statistics (total clients/games, buffered packets, etc).
+
