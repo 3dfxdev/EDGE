@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.28 (since 1.27)
 ===============================
 
-(Date: MARCH 12th 2004)
+(Date: MARCH 30th 2004)
 
 Bugs fixed
 ----------
@@ -37,11 +37,12 @@ Bugs fixed
 - fixed transparent doors (again !), both software and GL.
 - fixed the issue with monsters resurrecting into another.
 - screenshots in GL mode now work again.
-- render sprites (S/W mode) with posts > 128 pixels.
+- render sprites (S/W mode) with posts exceeding 128 pixels.
 - visibility clipping in GL was broken (causing excessive overdraw).
 - RTS graphical tips were not scaled properly.
 - Flipped sprites now use the X offset correctly.
 - Fixed player sprite, which wasn't walking when you move.
+- bugs when changing screensize with +/- and in the menu fixed.
 
 
 Features removed:
@@ -50,24 +51,28 @@ Features removed:
 * MP3 music support, due to MP3 licensing which is incompatible with
   open source software.
 
-- removed -stretchsky option and related code.
+- stretchsky option and related code.
 
 
 General improvements
 --------------------
 
++ new HOME directory handling. On multi-user systems, the config file
+  and savegame dir are stored in a user-specific location, obtained
+  from the HOME environmental variable.  The subdirectory name is
+  "Application Data\Edge" under Windows and ".edge" under Unices.
+
+  For single-user systems, there is no change (config file and savegame
+  dir are in the same directory as the EDGE binary).
+
 + full Mlook range in GL mode.
 
-+ better sky drawing in GL: drawn using a pseudo skybox (created from
++ better sky drawing in GL: drawn using a fake skybox (created from
   sky image) to cope with Mlook.  Never wobbles anymore, and is drawn
   a lot faster than before.
 
 + windows version prevents more than one instance of EDGE running at
   the same time.  Also, S/W and GL window handling has been reworked.
-
-+ new HOME directory handling. The config file and savegame dir are
-  stored in the ".edge" directory (on Linux/MacOS X, this is in your
-  home directory, on Windows it is where the EDGE binary is).
 
 - the sprite name "NULL" is now hard-coded, and always shows nothing.
 - RTS SPAWNTHING: when thing is unknown, show warning instead of error.
@@ -77,7 +82,6 @@ General improvements
 - config file remembers current language and current Save/Load page.
 - the first 9 RTS tip slots are no longer unchangeable.
 - better invulnerability fade-out in GL.
-- pseudo skyboxes for OpenGL (converted from normal sky background).
 - Pixelfade wipe has been implemented for OpenGL mode.
 
 
@@ -106,14 +110,14 @@ New features:
   monster only suffers 40% of the original damage.
 
 - SPECIAL_MUSIC command for games.ddf.  Specifies the music played during
-  the cast parade and the bunny screen.  (UNTESTED)
+  the cast parade and the bunny screen.
 
 - the console background is now a texture or flat called "CONSOLE".
 
 - new PRE.COLOURMAP and END.COLOURMAP commands for levels.ddf, changes the
   colour of the text in the finale screens.
 
-- new colourmap special WHITEN, used for fonts.  Implied when the
+- new colourmap special WHITEN, used for fonts.  Automatic when the
   colourmap begins with "TEXT_".
 
 - TIP_GRAPHIC supports scaling via fourth parameter, which is a value
@@ -122,7 +126,8 @@ New features:
     TIP_GRAPHIC  M_PAUSE  3  false  0.5
 
 - CAST_TITLE command for things.ddf.  Refers to an entry in LANGUAGES.DDF,
-  and determines the monster's name in the DOOM II cast parade.
+  and determines the monster's name in the DOOM II cast parade.  We have
+  English, French and Spanish translations so far.
 
 
 New console variables:
@@ -132,15 +137,14 @@ New console variables:
   COLORMATERIAL   |  a boolean value (TRUE or FALSE).  Some combinations
   VERTEXARRAYS   /   don't make sense (especially LI + no_CM + VA).
 
+  DUMBSKY            Use a simpler method for OpenGL sky drawing.
+                     (A few drivers have problems, e.g. Voodoo 3).
+
 
 New command-line options:
 -------------------------
 
   -nolog             Disables creation of EDGE.LOG file.
-
-  -(no)vertexarray   Enable/disable using vertex arrays in GL mode.
-                     Default is enabled.  They can cause problems
-                     with some drivers (Voodoo 3).
 
   -sound16  (Linux)  Force using 16 bit sound.  Default is to only
                      swtich to 16 bit when 8 bits is unavailable.
