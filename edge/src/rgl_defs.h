@@ -75,6 +75,8 @@ extern int glmax_lights;
 extern int glmax_clip_planes;
 extern int glmax_tex_size;
 
+extern float_t light_to_gl[256];
+
 void RGL_Init(void);
 void RGL_SetupMatrices2D(void);
 void RGL_SetupMatrices3D(void);
