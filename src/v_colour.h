@@ -106,5 +106,33 @@ extern const byte *text_colour_lt_blue;
 extern const byte *text_colour_blue;
 extern const byte *text_colour_yellow;
 
+// colour values.  These assume the standard Doom palette.  Maybe
+// remove most of these one day -- will take some work though...
+
+#define BLACK   0
+#define WHITE   4
+
+#define PINK         0x10
+#define PINK_LEN     32
+#define BROWN        0x30
+#define BROWN_LEN    32
+#define GRAY         0x50
+#define GRAY_LEN     32
+#define GREEN        0x70
+#define GREEN_LEN    16
+#define BEIGE        0x80
+#define BEIGE_LEN    16
+#define RED          0xB0
+#define RED_LEN      16
+#define CYAN         0xC0
+#define CYAN_LEN     8
+#define BLUE         0xC8
+#define BLUE_LEN     8
+#define ORANGE       0xD8
+#define ORANGE_LEN   8
+#define YELLOW       0xE7
+#define YELLOW_LEN   1
+#define DBLUE        0xF0
+#define DBLUE_LEN    8
 
 #endif
