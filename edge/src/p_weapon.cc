@@ -334,8 +334,7 @@ static void P_FireWeapon(player_t * p)
 
 	P_SetPsprite(p, ps_weapon, newstate);
 
-	if (! (p->weapons[p->ready_wp].info->special_flags &
-				WPSP_SilentToMonsters))
+	if (! (p->weapons[p->ready_wp].info->special_flags & WPSP_FirstSilent))
 	{
 		P_NoiseAlert(p);
 	}
@@ -372,8 +371,7 @@ static void P_FireSecondAttack(player_t * p)
 
 	P_SetPsprite(p, ps_weapon, newstate);
 
-	if (! (p->weapons[p->ready_wp].info->special_flags &
-				WPSP_SilentToMonsters))
+	if (! (p->weapons[p->ready_wp].info->special_flags & WPSP_SecondSilent))
 	{
 		P_NoiseAlert(p);
 	}

@@ -434,7 +434,9 @@ static void DDF_WGetUpgrade(const char *info, void *storage)
 
 static specflags_t weapon_specials[] =
 {
-    {"SILENT TO MONSTERS", WPSP_SilentToMonsters, 0},
+    {"FIRST SILENT TO MONSTERS", WPSP_FirstSilent, 0},
+    {"SECOND SILENT TO MONSTERS", WPSP_SecondSilent, 0},
+    {"SILENT TO MONSTERS", (WPSP_FirstSilent | WPSP_SecondSilent), 0},
     {"AUTO SWITCH", WPSP_NoAutoSwitch, 1},
     {NULL, WPSP_None, 0}
 };
