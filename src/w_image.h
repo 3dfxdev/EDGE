@@ -40,7 +40,8 @@
 typedef struct w_post_s
 {
   // number of pixels to skip down from current position.  The initial
-  // position is just the top of the sprite.
+  // position is just the top of the sprite.  Can be P_SENTINEL for
+  // the end-of-post marker.
   byte skip;
 
   // number of real pixels following this, not including the following
@@ -54,7 +55,7 @@ typedef struct w_post_s
 }
 w_post_t;
 
-// 16-bit version of the above
+// 16-bit version of the above (EXPERIMENTAL)
 typedef struct w_post16_s
 {
   byte skip;
@@ -139,9 +140,10 @@ const image_t *W_ImageFromHalo(const char *patch_name);
 extern boolean_t use_mipmapping;
 
 void W_InitImages(void);
+void W_UpdateImageAnims(void);
 
 const cached_image_t *W_ImageCache(const image_t *image, 
-    image_mode_e mode, int mip);
+    image_mode_e mode, int mip, boolean_t anim);
 void W_ImageDone(const cached_image_t *c);
 
 const w_post_t *W_ImageGetPost(const cached_image_t *c, int column);
