@@ -609,18 +609,12 @@ static void M_DisplayPause(void)
 gamestate_e wipegamestate = GS_DEMOSCREEN;
 wipetype_e wipe_method = WIPE_Melt;
 int wipe_reverse = 0;
-bool redrawsbar;
 
 static bool wipe_gl_active = false;
 
 void E_Display(void)
 {
-	static bool viewactivestate = false;
-	static bool menuactivestate = false;
-	static bool inhelpscreensstate = false;
 	static bool fullscreen = false;
-	static int borderdrawcount;
-	static gamestate_e oldgamestate = GS_NOTHING;
 
 	// for wiping
 	bool wipe;
@@ -637,15 +631,10 @@ void E_Display(void)
 
 	// change the view size if needed
 	if (setsizeneeded)
-	{
 		R_ExecuteSetViewSize();
-		oldgamestate = GS_NOTHING;  // force background redraw
-
-		borderdrawcount = 3;
-	}
 
 	// -AJA- 1999/07/03: removed PLAYPAL reference.
-	if (gamestate != oldgamestate && gamestate != GS_LEVEL)
+	if (gamestate != GS_LEVEL)
 	{
 		V_SetPalette(PALETTE_NORMAL, 0);
 	}
@@ -675,13 +664,9 @@ void E_Display(void)
 				break;
 			if (automapactive == 2)
 				AM_Drawer();
-			if (wipe || (viewwindowheight != SCREENHEIGHT && fullscreen))
-				redrawsbar = true;
-			if (inhelpscreensstate && !inhelpscreens)
-				redrawsbar = true;  // just put away the help screen
 
-			ST_Drawer(viewwindowheight == SCREENHEIGHT, redrawsbar);
-			redrawsbar = false;
+			ST_Drawer();
+
 			fullscreen = viewwindowheight == SCREENHEIGHT;
 			break;
 
@@ -718,45 +703,15 @@ void E_Display(void)
 			AM_Drawer();
 	}
 
-	// clean up border stuff
-
-#if 1  // #ifdef USE_GL
-	// -AJA- temp hack for GL
-	oldgamestate = GS_NOTHING;
-#endif
-
-	// see if the border needs to be initially drawn
-	if (gamestate == GS_LEVEL && oldgamestate != GS_LEVEL)
-	{
-		viewactivestate = false;  // view was not active
-
-		R_FillBackScreen();  // draw the pattern into the back screen
-		// fixme hack
-
-		ST_Drawer(viewwindowheight == SCREENHEIGHT, true);
-	}
-
-	// see if the border needs to be updated to the screen
-	if (gamestate == GS_LEVEL && automapactive != 2)
-	{
-		if (menuactive || menuactivestate || !viewactivestate)
-			borderdrawcount = 3;
-		if (borderdrawcount)
-		{
-			borderdrawcount--;
-		}
-	}
-
 	if (gamestate == GS_LEVEL && gametic)
 	{
+		ST_Drawer();
 		HU_Drawer();
+		RAD_Drawer();
 		M_DisplayAir();
 	}
 
-	menuactivestate = menuactive;
-	viewactivestate = viewactive;
-	inhelpscreensstate = inhelpscreens;
-	oldgamestate = wipegamestate = gamestate;
+	wipegamestate = gamestate;
 
 	if (paused)
 		M_DisplayPause();
@@ -1511,15 +1466,15 @@ startuporder_t startcode[] =
 	{ CheckPlayDemo,       NULL            ,1 },
 	{ CheckSkillEtc,       NULL            ,1 },
 	{ RAD_Init,            NULL            ,1 },
-	{ W_InitMultipleFiles, NULL            ,3 },
+	{ W_InitMultipleFiles, NULL            ,4 },
 	{ V_InitPalette,       NULL            ,1 },
 	{ HU_Init,             "HeadsUpInit"   ,2 },
-	{ R_InitFlats,         "InitFlats"     ,5 },
-	{ W_InitTextures,      "InitTextures"  ,5 },
+	{ R_InitFlats,         "InitFlats"     ,3 },
+	{ W_InitTextures,      "InitTextures"  ,10 },
 	{ GUI_ConInit,         "ConInit"       ,1 },
 	{ SpecialWadVerify,    NULL            ,1 },
 	{ GUI_MouseInit,       NULL            ,1 },
-	{ W_ReadDDF,           NULL            ,9 },
+	{ W_ReadDDF,           NULL            ,20 },
 	{ RAD_LoadParam,       NULL            ,2 },
 	{ DDF_CleanUp,         NULL            ,1 },
 	{ SetLanguage,         NULL            ,1 },
@@ -1527,7 +1482,7 @@ startuporder_t startcode[] =
 	{ SV_ChunkInit,        NULL            ,1 },
 	{ SV_MainInit,         NULL            ,1 },
 	{ M_Init,              "MiscInfo"      ,1 },
-	{ R_Init,              "RefreshDaemon" ,5 },
+	{ R_Init,              "RefreshDaemon" ,10 },
 	{ P_Init,              "PlayState"     ,1 },
 	{ P_MapInit,           NULL            ,1 },
 	{ P_InitSwitchList,    NULL            ,1 },

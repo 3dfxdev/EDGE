@@ -1264,7 +1264,7 @@ void A_WeaponJump(mobj_t * mo)
 	if (!psp->state || !psp->state->action_par)
 	{
 		M_WarnError("JUMP used in weapon [%s] without a label !\n",
-				w->ddf.name);
+				w->ddf.name.GetString());
 		return;
 	}
 

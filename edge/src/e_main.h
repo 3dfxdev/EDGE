@@ -28,7 +28,6 @@
 
 #include "e_event.h"
 
-extern bool redrawsbar;
 extern bool advancedemo;
 extern bool e_display_OK;
 extern bool m_screenshot_required;

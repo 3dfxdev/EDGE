@@ -73,6 +73,23 @@ typedef struct s_tip_prop_s
 s_tip_prop_t;
 
 
+typedef struct s_show_menu_s
+{
+	bool use_ldf;
+
+	char *title;
+	char *options[9];
+}
+s_show_menu_t;
+
+typedef struct s_jump_on_s
+{
+	// int vartype;  /* only MENU currently supported */
+
+	char *labels[9];
+}
+s_jump_on_t;
+
 // SpawnThing Function
 typedef struct s_thing_s
 {
@@ -562,6 +579,9 @@ typedef struct rad_trigger_s
 
 	// current tip slot (each tip slot works independently).
 	int tip_slot;
+
+	// result of last SHOW_MENU (1 to 9, or 0 when cancelled)
+	int menu_result;
 
 	// origin for any sounds played by the trigger
 	degenmobj_t soundorg;

@@ -43,7 +43,6 @@ int V_CompareModes(screenmode_t *A, screenmode_t *B);
 //
 //start with v_video.h
 //
-#define CENTERY                 (SCREENHEIGHT/2)
 
 #define FROM_320(x)  ((x) * SCREENWIDTH  / 320)
 #define FROM_200(y)  ((y) * SCREENHEIGHT / 200)
@@ -51,8 +50,6 @@ int V_CompareModes(screenmode_t *A, screenmode_t *B);
 //
 // now with r_draw.h
 //
-
-void R_FillBackScreen(void);
 
 // Screen Modes
 extern screenmode_t *scrmode;

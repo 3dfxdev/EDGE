@@ -675,76 +675,104 @@ static void RAD_CollectParameters(const char *line, int *pnum,
 {
 	int tokenlen = -1;
 	bool in_string = false;
+	int in_expr = 0;  // add one for each open bracket.
 
 	*pnum = 0;
 
 	for (;;)
 	{
-		int ch = *line;
+		int ch = *line++;
+
+		bool comment = (ch == ';' || (ch == '/' && *line == '/'));
 
 		if (in_string)
+			comment = false;
+
+		if (ch == 0 && in_string)
+			RAD_Error("Nonterminated string found.\n");
+
+		if ((ch == 0 || comment) && in_expr)
+			RAD_Error("Nonterminated expression found.\n");
+
+		if (tokenlen < 0)  // looking for a new token
 		{
-			if (ch == 0)
-				RAD_Error("Nonterminated string found.\n");
+			DEV_ASSERT2(!in_expr && !in_string);
 
-			if (ch == '"')
-				in_string = false;
+			// end of line ?
+			if (ch == 0 || comment)
+				return;
 
-			tokenbuf[tokenlen++] = ch;
-			line++;
-			continue;
-		}
-
-		if (tokenlen >= 0)
-		{
-			// end of token ?
-			if (ch == 0 || isspace(ch) ||
-				ch == ';' || (line[0] == '/' && line[1] == '/'))
-			{
-				tokenbuf[tokenlen] = 0;
-				tokenlen = -1;
-
-				if (*pnum >= max)
-					RAD_Error("Too many tokens on line\n");
-
-				// check for defines 
-				if (! CheckForDefine(tokenbuf, &pars[*pnum]))
-					pars[*pnum] = Z_StrDup(tokenbuf);
-
-				*pnum += 1;
-
-				// end of line ?
-				if (ch == 0 || ch == ';' || (line[0] == '/' && line[1] == '/'))
-					break;
-
-				line++;
+			if (isspace(ch))
 				continue;
-			}
 
-			tokenbuf[tokenlen++] = ch;
-			line++;
+			// string ? or expression ?
+			if (ch == '"')
+				in_string = true;
+			else if (ch == '(' && ! in_string)
+				in_expr++;
+			else if (ch == ')' && ! in_string)
+				RAD_Error("Unmatched ')' bracket found\n");
+
+			// begin a new token
+			tokenbuf[0] = ch;
+			tokenlen = 1;
+
 			continue;
 		}
+
+		bool end_token = false;
+
+		if (ch == '"' && in_string)
+		{
+			in_string = false;
+
+			if (! in_expr)
+			{
+				tokenbuf[tokenlen++] = ch;
+				end_token = true;
+			}
+		}
+		else if (ch == '(' && in_expr)
+		{
+			in_expr++;
+		}
+		else if (ch == ')' && in_expr)
+		{
+			in_expr--;
+
+			if (in_expr == 0)
+			{
+				tokenbuf[tokenlen++] = ch;
+				end_token = true;
+			}
+		}
+		else if (!in_expr && !in_string && (ch == 0 || comment || isspace(ch)))
+		{
+			end_token = true;
+		}
+
+		// end of token ?
+		if (! end_token)
+		{
+			tokenbuf[tokenlen++] = ch;
+			continue;
+		}
+
+		tokenbuf[tokenlen] = 0;
+		tokenlen = -1;
+
+		if (*pnum >= max)
+			RAD_Error("Too many tokens on line\n");
+
+		// check for defines 
+		if (! CheckForDefine(tokenbuf, &pars[*pnum]))
+			pars[*pnum] = Z_StrDup(tokenbuf);
+
+		*pnum += 1;
 
 		// end of line ?
-		if (ch == 0 || ch == ';' || (line[0] == '/' && line[1] == '/'))
+		if (ch == 0 || comment)
 			break;
-
-		if (isspace(ch))
-		{
-			line++;
-			continue;
-		}
-
-		// string ?
-		if (ch == '"')
-			in_string = true;
-
-		// must be token
-		tokenbuf[0] = ch;
-		tokenlen = 1;
-		line++;
-		continue;
 	}
 }
 
@@ -1286,7 +1314,7 @@ static void RAD_ParseEnableTagged(int pnum, const char **pars)
 static void RAD_ParseExitLevel(int pnum, const char **pars)
 {
 	// ExitLevel
-	// ExitLevel <wait tics>
+	// ExitLevel <wait time>
 
 	s_exit_t *exit;
 
@@ -1916,9 +1944,7 @@ static void RAD_ParseJump(int pnum, const char **pars)
 	// Jump <label>
 	// Jump <label> <random chance>
 
-	s_jump_t *jump;
-
-	jump = Z_ClearNew(s_jump_t, 1);
+	s_jump_t *jump = Z_ClearNew(s_jump_t, 1);
 
 	jump->label = Z_StrDup(pars[1]);
 	jump->random_chance = PERCENT_MAKE(100);
@@ -1971,6 +1997,68 @@ static void RAD_ParseChangeTex(int pnum, const char **pars)
 		RAD_CheckForInt(pars[4], &ctex->subtag);
 
 	AddStateToScript(this_rad, 0, RAD_ActChangeTex, ctex);
+}
+
+static void RAD_ParseShowMenu(int pnum, const char **pars)
+{
+	// Show_Menu     <title> <option1> ...
+	// Show_Menu_LDF <title> <option1> ...
+
+	if (rts_version < 0x129)
+		RAD_Error("%s only available with #VERSION 1.29 or higher.\n", pars[0]);
+
+	s_show_menu_t *menu = Z_ClearNew(s_show_menu_t, 1);
+
+	if (pnum > 11)
+		RAD_Error("%s: too many option strings (limit is 9)\n", pars[0]);
+
+	if (DDF_CompareName(pars[0], "SHOW_MENU_LDF") == 0)
+		menu->use_ldf = true;
+
+	DEV_ASSERT2(2 <= pnum && pnum <= 11);
+
+	if (pars[1][0] == '"')
+		menu->title = RAD_UnquoteString(pars[1]);
+	else
+		menu->title = Z_StrDup(pars[1]);
+
+	for (int p = 2; p < pnum; p++)
+	{
+		if (pars[p][0] == '"')
+			menu->options[p-2] = RAD_UnquoteString(pars[p]);
+		else
+			menu->options[p-2] = Z_StrDup(pars[p]);
+	}
+
+	AddStateToScript(this_rad, 0, RAD_ActShowMenu, menu);
+}
+
+static void RAD_ParseJumpOn(int pnum, const char **pars)
+{
+	// Jump_On <VAR> <label1> <label2> ...
+	//
+	// "MENU" is the only variable supported so far.
+
+	if (rts_version < 0x129)
+		RAD_Error("%s only available with #VERSION 1.29 or higher.\n", pars[0]);
+
+	s_jump_on_t *jump = Z_ClearNew(s_jump_on_t, 1);
+
+	if (pnum > 11)
+		RAD_Error("%s: too many labels (limit is 9)\n", pars[0]);
+
+	if (DDF_CompareName(pars[1], "MENU") != 0)
+	{
+		RAD_Error("%s: Unknown variable '%s' (should be MENU)\n",
+			pars[0], pars[1]);
+	}
+
+	DEV_ASSERT2(2 <= pnum && pnum <= 11);
+
+	for (int p = 2; p < pnum; p++)
+		jump->labels[p-2] = Z_StrDup(pars[p]);
+
+	AddStateToScript(this_rad, 0, RAD_ActJumpOn, jump);
 }
 
 
@@ -2048,6 +2136,9 @@ static rts_parser_t radtrig_parsers[] =
 	{2, "RETRIGGER", 1,1, RAD_ParseRetrigger},
 	{2, "CHANGE_TEX", 3,5, RAD_ParseChangeTex},
 	{2, "CHANGE_MUSIC", 2,2, RAD_ParseChangeMusic},
+	{2, "SHOW_MENU", 2,99, RAD_ParseShowMenu},
+	{2, "SHOW_MENU_LDF", 2,99, RAD_ParseShowMenu},
+	{2, "JUMP_ON", 3,99, RAD_ParseJumpOn},
 
 	// deprecated primitives
 	{2, "!SECTORV", 4,4, RAD_ParseMoveSector},

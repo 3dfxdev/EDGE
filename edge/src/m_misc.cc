@@ -150,8 +150,7 @@ static default_t defaults[] =
     {CFGT_Int, "joy_xaxis", &joy_xaxis, 0},
     {CFGT_Int, "joy_yaxis", &joy_yaxis, 0},
 
-    {CFGT_Int, "screenblocks", &screenblocks, 10},
-    {CFGT_Boolean, "hud_overlay", &hud_overlay, 0},
+    {CFGT_Int, "screen_hud", &screen_hud, HUD_Full},
     // -ES- 1999/03/30 Added fov stuff.
     {CFGT_Int, "fieldofview", &cfgnormalfov, 90},
     {CFGT_Int, "zoomedfieldofview", &cfgzoomedfov, 10},

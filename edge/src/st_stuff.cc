@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------
+
 //  EDGE Status Bar Code
 //----------------------------------------------------------------------------
 // 
@@ -478,7 +478,7 @@ static void UpdateWidgets(void)
 {
 	static int largeammo = 1994;  // means "n/a"
 
-	bool is_overlay = hud_overlay && (viewwindowheight == SCREENHEIGHT);
+	bool is_overlay = (screen_hud == HUD_Overlay);
 
 	int i;
 	keys_e cards;
@@ -641,10 +641,10 @@ static void DoPaletteStuff(void)
 	V_SetPalette(palette, amount);
 }
 
-void ST_Drawer(bool fullscreen, bool refresh)
+void ST_Drawer()
 {
-	st_statusbaron       = (!fullscreen) || automapactive || hud_overlay;
-	st_baron_not_overlay = (!fullscreen) || automapactive;
+	st_statusbaron       = (screen_hud != HUD_None) || automapactive;
+	st_baron_not_overlay = (screen_hud == HUD_Full) || automapactive;
 
 	UpdateWidgets();
 

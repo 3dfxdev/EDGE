@@ -21,6 +21,7 @@
 
 #include "dm_type.h"
 #include "e_player.h"
+#include "e_event.h"
 #include "rad_main.h"
 
 
@@ -47,11 +48,17 @@ void RAD_GroupTriggerTags(rad_trigger_t *trig);
 
 void RAD_DoRadiTrigger(player_t * p);
 void RAD_Ticker(void);
+void RAD_Drawer(void);
+bool RAD_Responder(event_t * ev);
 bool RAD_WithinRadius(mobj_t * mo, rad_script_t * r);
 rad_script_t *RAD_FindScriptByName(const char *map_name, const char *name);
 rad_trigger_t *RAD_FindTriggerByName(const char *name);
 rts_state_t *RAD_FindStateByLabel(rad_script_t *scr, char *label);
 void RAD_EnableByTag(mobj_t *actor, int tag, bool disable);
+
+// Menu support
+void RAD_StartMenu(rad_trigger_t *R, s_show_menu_t *menu);
+void RAD_FinishMenu(int result);
 
 // Path support
 bool RAD_CheckReachedTrigger(mobj_t * thing);
@@ -102,5 +109,7 @@ void RAD_ActThingEvent(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActSkill(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActGotoMap(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActExitLevel(rad_trigger_t *R, mobj_t *actor, void *param);
+void RAD_ActShowMenu(rad_trigger_t *R, mobj_t *actor, void *param);
+void RAD_ActJumpOn(rad_trigger_t *R, mobj_t *actor, void *param);
 
 #endif

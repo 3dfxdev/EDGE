@@ -38,8 +38,6 @@
 #include "m_argv.h"
 #include "m_misc.h"
 #include "m_random.h"
-#include "r_draw1.h"
-#include "r_draw2.h"
 #include "w_wad.h"
 #include "z_zone.h"
 

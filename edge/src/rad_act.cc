@@ -956,6 +956,7 @@ void RAD_ActJump(rad_trigger_t *R, mobj_t *actor, void *param)
 
 	if (! t->cache_state)
 	{
+		// FIXME: do this in a post-parsing analysis
 		t->cache_state = RAD_FindStateByLabel(R->info, t->label);
 
 		if (! t->cache_state)
@@ -977,5 +978,47 @@ void RAD_ActSleep(rad_trigger_t *R, mobj_t *actor, void *param)
 void RAD_ActRetrigger(rad_trigger_t *R, mobj_t *actor, void *param)
 {
 	R->activated = false;
+}
+
+void RAD_ActShowMenu(rad_trigger_t *R, mobj_t *actor, void *param)
+{
+	s_show_menu_t *menu = (s_show_menu_t *) param;
+
+	if (rts_menuactive)
+	{
+		// this is very unlikely, since RTS triggers do not run while
+		// an RTS menu is active.  This menu simply fails.
+		R->menu_result = 0;
+		return;
+	}
+
+	RAD_StartMenu(R, menu);
+}
+
+void RAD_ActJumpOn(rad_trigger_t *R, mobj_t *actor, void *param)
+{
+	s_jump_on_t *jm = (s_jump_on_t *) param;
+
+	int count = 0;
+
+	while ((count < 9) && jm->labels[count])
+		count++;
+
+	if (R->menu_result < 1 || R->menu_result > count)
+		return;
+
+	char *label = jm->labels[R->menu_result - 1];
+
+	// FIXME: do this in a post-parsing analysis
+	rts_state_t *cache_state = RAD_FindStateByLabel(R->info, label);
+
+	if (! cache_state)
+		I_Error("RTS: No such label `%s' for JUMP_ON primitive.\n", label);
+
+	R->state = cache_state;
+
+	// Jumps have a one tic surcharge, to prevent accidental infinite
+	// loops within radius scripts.
+	R->wait_tics += 1;
 }
 

@@ -66,9 +66,7 @@ int mouseSensitivity;  // has default
 // Show messages has default, 0 = off, 1 = on
 int showMessages;
 
-int screenblocks;  // has default
-bool hud_overlay;  // has default
-
+int screen_hud;  // has default
 int darken_screen;
 
 epi::strent_c msg_string;
@@ -866,6 +864,13 @@ void M_SaveGame(int choice)
 		return;
 	}
 
+	// -AJA- big cop-out here (add RTS menu stuff to savegame ?)
+	if (rts_menuactive)
+	{
+		M_StartMessage("You can't save during an RTS menu.\n\npress a key.", NULL, false);
+		return;
+	}
+
 	if (gamestate != GS_LEVEL)
 		return;
 
@@ -1451,31 +1456,17 @@ void M_SizeDisplay(int choice)
 	switch (choice)
 	{
 		case SLIDERLEFT:
-			if (screen_size == 8 && hud_overlay)
-			{
-				hud_overlay = false;
-			}
-			else if (screen_size > 0)
-			{
-				screenblocks--;
-				screen_size--;
-			}
+			if (screen_hud > 0)
+				screen_hud--;
 			break;
 
 		case SLIDERRIGHT:
-			if (screen_size < 8)
-			{
-				screenblocks++;
-				screen_size++;
-			}
-			else
-			{
-				hud_overlay = !hud_overlay;
-			}
+			if (screen_hud+1 < NUMHUD)
+				screen_hud++;
 			break;
 	}
 
-	R_SetViewSize(screenblocks);
+	R_SetViewSize(screen_hud);
 }
 
 //
@@ -2146,7 +2137,6 @@ bool M_Init(void)
 	itemOn = currentMenu->lastOn;
 	whichSkull = 0;
 	skullAnimCounter = 10;
-	screen_size = screenblocks - 3;
 	msg_mode = 0;
 	msg_string.Clear();
 	msg_lastmenu = menuactive;

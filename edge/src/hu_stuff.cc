@@ -294,16 +294,13 @@ void HU_Drawer(void)
 {
 	int sbarheight = FROM_200(ST_HEIGHT);
 
-	if (!automapactive)
-		RAD_DisplayTips();
-
 	HL_DrawSText(&w_message);
 	HL_DrawIText(&w_chat);
 
 	if (automapactive)
 		HL_DrawTextLine(&w_title, false);
 
-	if (setblocks == 11 && !automapactive)
+	if (screen_hud != HUD_Full && !automapactive)
 		sbarheight = 0;  //-JC- Make sure crosshair works full scr.
 
 	if (!automapactive)

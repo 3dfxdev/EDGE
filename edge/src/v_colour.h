@@ -64,6 +64,11 @@ int V_FindColour(int r, int g, int b);
 void V_SetPalette(int type, float amount);
 void V_ColourNewFrame(void);
 
+#define PAL_RED(pix)  ((float)(playpal_data[0][pix][0]) / 255.0f)
+#define PAL_GRN(pix)  ((float)(playpal_data[0][pix][1]) / 255.0f)
+#define PAL_BLU(pix)  ((float)(playpal_data[0][pix][2]) / 255.0f)
+
+
 // -AJA- 1999/07/10: Some stuff for colmap.ddf.
 
 typedef enum

@@ -31,8 +31,6 @@
 #include "dm_type.h"
 #include "m_argv.h"
 #include "st_stuff.h"
-#include "v_video1.h"
-#include "v_video2.h"
 #include "v_res.h"
 #include "v_colour.h"
 
