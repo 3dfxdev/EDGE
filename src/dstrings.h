@@ -28,7 +28,7 @@
 
 // Misc. other strings.
 #define SAVEGAMEBASE	"save"
-#define SAVEGAMEDIR	"savegame"
+#define SAVEGAMEDIR	    "savegame"
 #define SAVEGAMEEXT     "esg"
 #define SAVEGAMEMODE    0755
 
@@ -38,3 +38,11 @@ extern const char *destination_keys;
 extern const char *gammamsg[5];
 
 #endif
+
+
+
+
+
+
+
+
