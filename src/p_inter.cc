@@ -815,12 +815,12 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 
 			switch (i)
 			{
-			case ARMOUR_Green:  saved = damage * 0.33f; break;
-			case ARMOUR_Blue:   saved = damage * 0.50f; break;
-			case ARMOUR_Yellow: saved = damage * 0.75f; break;
-			case ARMOUR_Red:    saved = damage * 0.90f; break;
-			default: 
-				I_Error("INTERNAL ERROR in P_DamageMobj: bad armour %d\n", i);
+				case ARMOUR_Green:  saved = damage * 0.33f; break;
+				case ARMOUR_Blue:   saved = damage * 0.50f; break;
+				case ARMOUR_Yellow: saved = damage * 0.75f; break;
+				case ARMOUR_Red:    saved = damage * 0.90f; break;
+				default: 
+					I_Error("INTERNAL ERROR in P_DamageMobj: bad armour %d\n", i);
 			}
 
 			if (player->armours[i] <= saved)
