@@ -128,6 +128,47 @@ const char *M_GetParm(const char *check)
 		return NULL;
 }
 
+static int ParseOneFilename(FILE *fp, char *buf)
+{
+	// -AJA- 2004/08/30: added this routine, in order to handle
+	// filenames with spaces (which must be double-quoted).
+
+	int ch;
+
+	// skip whitespace
+	do
+	{
+		ch = fgetc(fp);
+
+		if (ch == EOF)
+			return EOF;
+	}
+	while (isspace(ch));
+
+	bool quoting = false;
+
+	for (;;)
+	{
+		if (ch == '"')
+		{
+			quoting = ! quoting;
+			ch = fgetc(fp);
+			continue;
+		}
+
+		if (ch == EOF || (isspace(ch) && ! quoting))
+			break;
+
+		*buf++ = ch;
+
+		ch = fgetc(fp);
+	}
+
+	*buf++ = 0;
+
+	return 0;
+}
+
 //
 // M_ApplyResponseFile
 //
@@ -156,7 +197,7 @@ void M_ApplyResponseFile(const char *name, int position)
 	if (!f)
 		I_Error("Couldn't open \"%s\" for reading!", name);
 
-	for (; EOF != fscanf(f, "%s", buf); position++)
+	for (; EOF != ParseOneFilename(f, buf); position++)
 		// we must use strdup: Z_Init might not have been called
 		AddArgument(strdup(buf), position);
 
