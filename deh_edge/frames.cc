@@ -78,30 +78,32 @@ actioninfo_t;
 
 static const actioninfo_t action_info[NUMACTIONS] =
 {
-    { "NOTHING", 0, NULL, NULL },     // A_NULL
-    { "LIGHT0", 0, NULL, NULL },      // A_Light0
-    { "READY", 0, NULL, NULL },       // A_WeaponReady
-    { "LOWER", 0, NULL, NULL },       // A_Lower
-    { "RAISE", 0, NULL, NULL },       // A_Raise
-    { "SHOOT", 0, "C:PLAYER_PUNCH", NULL },       // A_Punch
-    { "REFIRE", 0, NULL, NULL },      // A_ReFire
-    { "SHOOT", 0, "R:PLAYER_PISTOL", NULL },       // A_FirePistol
-    { "LIGHT1", 0, NULL, NULL },      // A_Light1
-    { "SHOOT", 0, "R:PLAYER_SHOTGUN", NULL },       // A_FireShotgun
-    { "LIGHT2", 0, NULL, NULL },      // A_Light2
-    { "SHOOT", 0, "R:PLAYER_SHOTGUN2", NULL },       // A_FireShotgun2
-    { "CHECKRELOAD", 0, NULL, NULL }, // A_CheckReload
-    { "PLAYSOUND(DBOPN)", 0, NULL, NULL },  // A_OpenShotgun2
-    { "PLAYSOUND(DBLOAD)", 0, NULL, NULL }, // A_LoadShotgun2
-    { "PLAYSOUND(DBCLS)", 0, NULL, NULL },  // A_CloseShotgun2
-    { "SHOOT", 0, "R:PLAYER_CHAINGUN", NULL },      // A_FireCGun
-    { "FLASH", 0, NULL, NULL },      // A_GunFlash
-    { "SHOOT", 0, "R:PLAYER_MISSILE", NULL },      // A_FireMissile
-    { "SHOOT", 0, "C:PLAYER_SAW", NULL },      // A_Saw
-    { "SHOOT", 0, "R:PLAYER_PLASMA", NULL },      // A_FirePlasma
-    { "PLAYSOUND(BFG)", 0, NULL, NULL },      // A_BFGsound
-    { "SHOOT", 0, "R:PLAYER_BFG9000", NULL },      // A_FireBFG
-    { "SPARE_ATTACK", 0, NULL, NULL },      // A_BFGSpray
+    { "NOTHING", 0, NULL, NULL },  // A_NULL
+
+    { "W:LIGHT0", 0, NULL, NULL },      // A_Light0
+    { "W:READY", 0, NULL, NULL },       // A_WeaponReady
+    { "W:LOWER", 0, NULL, NULL },       // A_Lower
+    { "W:RAISE", 0, NULL, NULL },       // A_Raise
+    { "W:SHOOT", 0, "C:PLAYER_PUNCH", NULL },       // A_Punch
+    { "W:REFIRE", 0, NULL, NULL },      // A_ReFire
+    { "W:SHOOT", 0, "R:PLAYER_PISTOL", NULL },       // A_FirePistol
+    { "W:LIGHT1", 0, NULL, NULL },      // A_Light1
+    { "W:SHOOT", 0, "R:PLAYER_SHOTGUN", NULL },       // A_FireShotgun
+    { "W:LIGHT2", 0, NULL, NULL },      // A_Light2
+    { "W:SHOOT", 0, "R:PLAYER_SHOTGUN2", NULL },       // A_FireShotgun2
+    { "W:CHECKRELOAD", 0, NULL, NULL }, // A_CheckReload
+    { "W:PLAYSOUND(DBOPN)", 0, NULL, NULL },  // A_OpenShotgun2
+    { "W:PLAYSOUND(DBLOAD)", 0, NULL, NULL }, // A_LoadShotgun2
+    { "W:PLAYSOUND(DBCLS)", 0, NULL, NULL },  // A_CloseShotgun2
+    { "W:SHOOT", 0, "R:PLAYER_CHAINGUN", NULL },      // A_FireCGun
+    { "W:FLASH", 0, NULL, NULL },      // A_GunFlash
+    { "W:SHOOT", 0, "R:PLAYER_MISSILE", NULL },      // A_FireMissile
+    { "W:SHOOT", 0, "C:PLAYER_SAW", NULL },      // A_Saw
+    { "W:SHOOT", 0, "R:PLAYER_PLASMA", NULL },      // A_FirePlasma
+    { "W:PLAYSOUND(BFG)", 0, NULL, NULL },      // A_BFGsound
+    { "W:SHOOT", 0, "R:PLAYER_BFG9000", NULL },      // A_FireBFG
+    { "W:SPARE_ATTACK", 0, NULL, NULL },      // A_BFGSpray
+
     { "EXPLOSIONDAMAGE", AF_EXPLODE, NULL, NULL },      // A_Explode
     { "MAKEPAINSOUND", 0, NULL, NULL },      // A_Pain
     { "PLAYER_SCREAM", 0, NULL, NULL },      // A_PlayerScream
@@ -551,7 +553,7 @@ namespace Frames
 	}
 }
 
-void Frames::OutputState(int cur)
+void Frames::OutputState(char group, int cur)
 {
 	assert(cur > 0);
 
@@ -570,10 +572,28 @@ void Frames::OutputState(int cur)
 
 	const char *act_name = action_info[st->action].ddf_name;
 
+	bool weap_act = (act_name[0] == 'W' && act_name[1] == ':');
+
+	if (weap_act)
+		act_name += 2;
+
+	if (st->action != S_NULL && weap_act == ! IS_WEAPON(group))
+	{
+		if (weap_act)
+			PrintWarn("Frame %d: weapon action %s used in thing.\n", cur, act_name);
+		else
+			PrintWarn("Frame %d: thing action %s used in weapon.\n", cur, act_name);
+
+		act_name = "NOTHING";
+	}
+
 	WAD::Printf("    %s:%c:%d:%s:%s",
 		TextStr::GetSprite(st->sprite),
-		'A' + ((int) st->frame & 63), (int) st->tics,
+		'A' + ((int) st->frame & 31), (int) st->tics,
 		(st->frame >= 32768) ? "BRIGHT" : "NORMAL", act_name);
+
+	if (st->action != S_NULL && weap_act == ! IS_WEAPON(group))
+		return;
 
 	act_flags |= action_info[st->action].act_flags;
 
@@ -628,7 +648,7 @@ void Frames::OutputGroup(int first, char group)
 
 	for (;;)
 	{
-		OutputState(cur);
+		OutputState(group, cur);
 
 		if (states[cur].tics < 0)  // go into hibernation
 		{

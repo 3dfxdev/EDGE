@@ -44,7 +44,7 @@ namespace Frames
 	int  BeginGroup(int first, char group);
 	void SpreadGroups(void);
 	bool CheckSpawnRemove(int first);
-	void OutputState(int cur);
+	void OutputState(char group, int cur);
 	void OutputGroup(int first, char group);
 	const char *GroupToName(char group, bool use_spawn);
 
