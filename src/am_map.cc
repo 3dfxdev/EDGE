@@ -1140,6 +1140,10 @@ static bool AM_CheckBBox(float *bspcoord)
 
 	if (rotatemap)
 	{
+		// FIXME: quick'n'dirty hack, removes benefit of BSP render
+		if (! followplayer)
+			return true;
+
 		// HACKITUDE: just make tested area bigger
 		float d = MAX(m_x2 - m_x, m_y2 - m_y) / 2.0f;
 
