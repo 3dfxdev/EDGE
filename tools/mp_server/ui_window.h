@@ -48,11 +48,10 @@ public:
 #endif
 
 ///	Fl_Tabs *tabs;
-
-	UI_Setup *setup_box;
 ///	UI_ClientList *client_list;
 ///	UI_GameList *game_list;
 
+	UI_Setup *setup_box;
 	UI_Stats *stat_box;
 	UI_LogBox *log_box;
 
