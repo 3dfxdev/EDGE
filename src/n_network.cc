@@ -229,7 +229,7 @@ static void N_NewGame(void)
 
 	sprintf(ng.info.engine_name, "EDGE%3x", EDGEVER);
 	sprintf(ng.info.game_name,   "DOOM2");
-	sprintf(ng.info.level_name,  "MAP01");
+	sprintf(ng.info.level_name,  "MAP12");
 
 	ng.info.mode  = 'D';
 	ng.info.skill = 4;  // H.M.P
@@ -326,15 +326,18 @@ void E_CheckNetGame(void)
 
 	DEV_ASSERT2(sizeof(ticcmd_t) == sizeof(raw_ticcmd_t));
 
+	int pl_num = 1;
+
 #if 0
 	N_InitiateGame();
 
 	netgame = true;
+	pl_num = 4;
 #else
 	netgame = false;
 #endif
 
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < pl_num; i++)  // FIXME: get num_players from play_game_proto_t
 	{
 		P_CreatePlayer(i);
 
@@ -357,10 +360,10 @@ void E_CheckNetGame(void)
 	global_flags = default_gameflags;
 	level_flags  = global_flags;
 
-	startskill = (skill_t)4;
+	startskill = (skill_t)3;
 	deathmatch = true;
 
-	startmap = Z_StrDup("MAP01");
+	startmap = Z_StrDup("MAP12");  // FIXME: get from game_info_t
 
 	autostart = true;
 #endif
