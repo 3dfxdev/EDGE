@@ -326,6 +326,7 @@ void DDF_MobjGetBpAmmoLimit(const char *info, void *storage, void *priv);
 void DDF_MobjGetBpArmour(const char *info, void *storage, void *priv);
 void DDF_MobjGetBpKeys(const char *info, void *storage, void *priv);
 void DDF_MobjGetBpWeapon(const char *info, void *storage, void *priv);
+void DDF_MobjGetPlayer(const char *info, void *storage, void *priv);
 mobjinfo_t *DDF_MobjMakeAttackObj(mobjinfo_t *info, const char *atk_name);
 
 void ThingParseField(const char *field, const char *contents,
