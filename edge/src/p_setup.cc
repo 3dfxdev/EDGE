@@ -1931,6 +1931,7 @@ static void DoBlockMap(int lump)
 		currmap->lump.GetString());
 
 	if (M_CheckParm("-blockmap") > 0 ||
+		W_LumpLength(lump) == 0 ||
 		W_LumpLength(lump) > (128 * 1024) ||
 		map_width >= 16000 || map_height >= 16000)
 		GenerateBlockMap(min_x, min_y, max_x, max_y);
@@ -2044,9 +2045,9 @@ static void LoadReject(int lump)
 		I_Error("Bad WAD: level %s missing REJECT.  Build the nodes !\n", 
 		currmap->lump.GetString());
 
-	if (W_LumpLength(lump) == 0)
-		I_Error("Bad WAD: level %s missing REJECT.  Build the nodes !\n", 
-		currmap->lump.GetString());
+///	if (W_LumpLength(lump) == 0)
+///		I_Error("Bad WAD: level %s missing REJECT.  Build the nodes !\n", 
+///		currmap->lump.GetString());
 
 	req_length = (numsectors * numsectors + 7) / 8;
 
