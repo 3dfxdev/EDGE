@@ -577,7 +577,7 @@ void RGL_DrawBeta(void)
 
 	const byte *beta_lum = RGL_BetaImage(&bw, &bh);
 
-	float zoom = SCREENWIDTH / 640.0f;
+	float zoom = SCREENWIDTH / 1024.0f;
 
 	int x = SCREENWIDTH  - (int)(bw * zoom);
 	int y = SCREENHEIGHT - (int)(bh * zoom);
