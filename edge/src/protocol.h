@@ -19,7 +19,7 @@
 #ifndef __PROTOCOL_H__
 #define __PROTOCOL_H__
 
-#define MP_PROTOCOL_VER  0x070  /* 0.7.0 */
+#define MP_PROTOCOL_VER  0x073  /* 0.7.3 */
 
 #define MP_PLAYER_MAX  30
 
@@ -45,6 +45,12 @@ typedef struct header_proto_s
 	s16_t reserved;  // (future expansion)
 
 	void ByteSwap();
+
+	// flags:
+	enum
+	{
+		FL_Retransmission = 0x4000,
+	};
 }
 header_proto_t;
 
@@ -178,10 +184,11 @@ typedef struct game_info_s
 		MD_AltDeath = 'A'
 	};
 
-	s16_t min_players;  // real players
-	s16_t num_players;  // --> (output field)
+	byte min_players;  // real players
+	byte num_players;  // --> (output field)
 
-	s16_t num_bots;
+	byte num_bots;
+	byte num_votes;  // (OUTPUT)
 
 	u32_t features;
 	u32_t reserved;  // (future expansion)
@@ -202,8 +209,6 @@ typedef struct game_info_s
 	u16_t def_checksum;  // checksum over all definitions
 
 	/* --- query output --- */
-
-	s16_t num_votes;
 
 	char state;
 
@@ -303,8 +308,8 @@ typedef struct raw_ticcmd_s
 	u16_t shorts[4];
 	u8_t  bytes [8];
 
-	// only clients need to byte-swap, the server doesn't care
-	// about the contents of ticcmds.
+	// only clients need to byte-swap, the server doesn't care about
+	// the contents of ticcmds.
 	void ByteSwap();
 }
 raw_ticcmd_t;
@@ -329,7 +334,7 @@ raw_ticcmd_t;
 typedef struct ticcmd_proto_s
 {
 	u32_t gametic;
-	byte  offset;  // tic_num == gametic + offset
+	s8_t  offset;  // tic_num == gametic + offset
 
 	byte  count;
 	s16_t reserved;
@@ -338,7 +343,7 @@ typedef struct ticcmd_proto_s
 
 	raw_ticcmd_t tic_cmds[1];  // upto TICCMD_FIT commands
 
-	void ByteSwap(bool do_tics);
+	void ByteSwap(int num_cmds);
 }
 ticcmd_proto_t;
 
@@ -360,7 +365,7 @@ ticcmd_proto_t;
 typedef struct tic_group_proto_s
 {
 	u32_t gametic;
-	byte  offset;  // tic_num == gametic + offset
+	s8_t  offset;  // tic_num == gametic + offset
 
 	byte first_player;
 	byte count;
@@ -371,9 +376,29 @@ typedef struct tic_group_proto_s
 
 	raw_ticcmd_t tic_cmds[1];  // as big as needed (upto TICCMD_FIT)
 
-	void ByteSwap(bool do_tics);
+	void ByteSwap(int num_cmds);
 }
 tic_group_proto_t;
+
+
+//
+// TIC-RETRANSMIT REQUEST ("tr")
+//
+typedef struct tic_retransmit_proto_s
+{
+	u32_t gametic;
+	s8_t  offset;  // tic_num == gametic + offset
+	byte  count;
+
+	// player range
+	byte first_player;
+	byte last_player;
+
+	s16_t reserved[2];
+
+	void ByteSwap();
+}
+tic_retransmit_proto_t;
 
 
 //
