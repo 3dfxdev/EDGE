@@ -85,7 +85,7 @@ region_properties_t *R_PointGetProps(subsector_t *sub, float z);
 void R_Render(void);
 
 // Called by startup code.
-bool R_Init(void);
+void R_Init(void);
 
 // -ES- 1998/09/11 Added these prototypes.
 void R_SetViewSize(int blocks);

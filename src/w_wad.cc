@@ -1095,7 +1095,7 @@ void W_AddRawFilename(const char *file, int kind)
 // The name searcher looks backwards, so a later file
 //   does override all earlier ones.
 //
-bool W_InitMultipleFiles(void)
+void W_InitMultipleFiles(void)
 {
 	int r;
 
@@ -1111,15 +1111,10 @@ bool W_InitMultipleFiles(void)
 		AddFile(wadfiles[r].file_name, wadfiles[r].kind, -1);
 
 	if (!numlumps)
-	{
 		I_Error("W_InitMultipleFiles: no files found");
-		return false;
-	}
-
-	return true;
 }
 
-bool W_ReadDDF(void)
+void W_ReadDDF(void)
 {
 	// -AJA- the order here may look strange.  Since DDF files
 	// have dependencies between them, it makes more sense to
@@ -1138,6 +1133,7 @@ bool W_ReadDDF(void)
 		{
 			data_file_c *df = data_files[f];
 
+			// all script files get parsed here
 			if (d == RTS_READER && df->kind == FLKIND_Script)
 			{
 				RAD_LoadFile(df->file_name);
@@ -1167,13 +1163,13 @@ bool W_ReadDDF(void)
 
 		epi::string_c msg_buf;
 
-		msg_buf.Format("Parsing %s %s", (d == NUM_DDF_READERS-1) ? "RTS" : "DDF",
+		msg_buf.Format("Parsing %s %s\n", (d == NUM_DDF_READERS-1) ? "RTS" : "DDF",
 			DDF_Readers[d].print_name);
 
-		E_LocalProgress(d, NUM_DDF_READERS, msg_buf.GetString());
-	}
+		E_ProgressMessage(msg_buf.GetString());
 
-	return true;
+		E_LocalProgress(d, NUM_DDF_READERS);
+	}
 }
 
 //

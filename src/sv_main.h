@@ -309,7 +309,7 @@ void SV_FreeGLOB(saveglobals_t *globs);
 //  ADMININISTRATION
 //
 
-bool SV_MainInit(void);
+void SV_MainInit(void);
 
 savestruct_t *SV_MainLookupStruct(const char *name);
 savearray_t  *SV_MainLookupArray(const char *name);

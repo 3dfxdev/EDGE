@@ -23,9 +23,9 @@
 #include "e_event.h"
 
 // This function inits the GUI system (&& console)
-bool GUI_MainInit(void);
-bool GUI_MouseInit(void);
-bool GUI_ConInit(void);
+void GUI_MainInit(void);
+void GUI_MouseInit(void);
+void GUI_ConInit(void);
 
 // This function calls the tickers for all gui apps.
 void GUI_MainTicker(void);

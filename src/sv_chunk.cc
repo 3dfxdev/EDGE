@@ -133,12 +133,10 @@ static INLINE bool VerifyMarker(const char *id)
 //
 // SV_ChunkInit
 //
-bool SV_ChunkInit(void)
+void SV_ChunkInit(void)
 {
 	if (lzo_init() != LZO_E_OK)
 		I_Error("SV_ChunkInit: LZO initialisation error !\n");
-
-	return true;
 }
 
 //

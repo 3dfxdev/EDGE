@@ -176,7 +176,7 @@ void R_AddTextureAnim(animdef_c *anim)
 //
 // R_InitFlats
 // 
-bool R_InitFlats(void)
+void R_InitFlats(void)
 {
 	int max_file = W_GetNumFiles();
 	int j, file;
@@ -238,16 +238,12 @@ bool R_InitFlats(void)
 
 	W_ImageCreateFlats(F_lumps, numflats); 
 	Z_Free(F_lumps);
-
-	return true;
 }
 
 //
 // R_InitPicAnims
 //
-// -ACB- 1999/09/25 modified for new bool type
-//
-bool R_InitPicAnims(void)
+void R_InitPicAnims(void)
 {
 	epi::array_iterator_c it;
 	animdef_c *A;
@@ -265,8 +261,6 @@ bool R_InitPicAnims(void)
 		else
 			R_AddFlatAnim(A);
 	}
-
-	return true;
 }
 
 //

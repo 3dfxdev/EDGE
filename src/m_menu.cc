@@ -2130,8 +2130,10 @@ void M_Ticker(void)
 //
 // M_Init
 //
-bool M_Init(void)
+void M_Init(void)
 {
+	E_ProgressMessage(language["MiscInfo"]);
+
 	currentMenu = &MainDef;
 	menuactive = 0;
 	itemOn = currentMenu->lastOn;
@@ -2191,7 +2193,5 @@ bool M_Init(void)
 	}
 
 	M_InitOptmenu();
-
-	return true;
 }
 

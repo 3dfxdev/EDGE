@@ -31,6 +31,7 @@
 
 #include "dm_defs.h"
 #include "dm_state.h"
+#include "e_main.h"
 #include "e_net.h"
 #include "gui_main.h"
 #include "m_argv.h"
@@ -587,8 +588,10 @@ void R_ExecuteChangeResolution(void)
 //
 // Called once at startup, to initialise some rendering stuff.
 //
-bool R_Init(void)
+void R_Init(void)
 {
+	E_ProgressMessage(language["RefreshDaemon"]);
+
 	R_SetViewSize(screen_hud);
 	R_SetNormalFOV((angle_t)(cfgnormalfov * (angle_t)((float)ANG45 / 45.0f)));
 	R_SetZoomedFOV((angle_t)(cfgzoomedfov * (angle_t)((float)ANG45 / 45.0f)));
@@ -598,8 +601,6 @@ bool R_Init(void)
 
 	// -AJA- 1999/07/01: Setup colour tables.
 	V_InitColour();
-
-	return true;
 }
 
 //

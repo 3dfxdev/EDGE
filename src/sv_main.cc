@@ -314,8 +314,10 @@ static void AddKnownArray(savearray_t *A)
 // One-time initialisation.  Sets up lists of known structures and
 // arrays.
 //
-bool SV_MainInit(void)
+void SV_MainInit(void)
 {
+	SV_ChunkInit();
+
 	// sv_mobj.c
 	AddKnownStruct(&sv_struct_mobj);
 	AddKnownStruct(&sv_struct_spawnpoint);
@@ -357,8 +359,6 @@ bool SV_MainInit(void)
 	AddKnownArray(&sv_array_trigger);
 	AddKnownArray(&sv_array_drawtip);
 	AddKnownArray(&sv_array_plane_move);
-
-	return true;
 }
 
 //

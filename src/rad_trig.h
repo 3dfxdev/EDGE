@@ -39,7 +39,7 @@ void RAD_ResetTips(void);
 void RAD_DisplayTips(void);
 
 // RadiusTrigger & Scripting Prototypes
-bool RAD_Init(void);
+void RAD_Init(void);
 void RAD_ReadScript(void *data, int size);
 void RAD_LoadFile(const char *name);
 void RAD_SpawnTriggers(const char *map_name);

@@ -158,9 +158,8 @@ void RAD_Error(const char *err, ...)
 	// check for buffer overflow
 	DEV_ASSERT(buffer[2047] == 0, ("Buffer overflow in RAD_Error"));
 
-	// add a blank line for readability under DOS/Linux.  Two linefeeds
-	// because the cursor may be at the end of a line with dots.
-	I_Printf("\n\n");
+	// add a blank line for readability under DOS/Linux.
+	I_Printf("\n");
 
 	I_Error("%s", buffer);
 }

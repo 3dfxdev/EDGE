@@ -40,6 +40,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dstrings.h"
+#include "e_net.h"
 #include "f_finale.h"
 #include "g_game.h"
 #include "gui_main.h"
@@ -243,33 +244,32 @@ public:
 
 static startup_progress_c s_progress;
 
-void E_LocalProgress(int step, int total, const char *message)
+void E_ProgressMessage(const char *message)
+{
+	// FIXME: show message near progress bar
+	I_Printf("%s", message);
+}
+
+void E_LocalProgress(int step, int total)
 {
 	s_progress.setLocal(step, total);
-
-	// FIXME: show message (2nd line)
-	if (message)
-		I_Printf("%s\n", message);
-
 	s_progress.recomputePercent();
 }
 
-void E_GlobalProgress(int step, int size, int total, const char *message)
+void E_GlobalProgress(int step, int size, int total)
 {
 	s_progress.setGlobal(step, size, total);
 
-	E_LocalProgress(0, 1, NULL);  // clear 2nd line
-
-	// FIXME: show message (1st line)
-	if (message)
-		I_Printf("%s\n", message);
-
-	s_progress.recomputePercent();
+	E_LocalProgress(0, 1);  // recomputes the percentage
 }
 
-void E_NodeProgress(int perc, const char *message)
+void E_NodeMessage(const char *message)
 {
 	// FIXME: show message
+}
+
+void E_NodeProgress(int perc)
+{
 	s_progress.drawIt(perc);
 }
 
@@ -278,7 +278,7 @@ void E_NodeProgress(int perc, const char *message)
 //
 // -ACB- 1999/09/20 Created. Sets Global Stuff.
 //
-static bool SetGlobalVars(void)
+static void SetGlobalVars(void)
 {
 	int p;
 	const char *s;
@@ -394,14 +394,12 @@ static bool SetGlobalVars(void)
 	M_CheckBooleanParm("warn", &no_warnings, true);
 	M_CheckBooleanParm("obsolete", &no_obsoletes, true);
 	M_CheckBooleanParm("lax", &lax_errors, false);
-
-	return true;
 }
 
 //
-// bool SetLanguage
+// SetLanguage
 //
-bool SetLanguage(void)
+void SetLanguage(void)
 {
 	if (M_CheckParm("-lang") > 0)
 	{
@@ -425,14 +423,12 @@ bool SetLanguage(void)
 				I_Error("Unable to select any language!");
 		}
 	}
-	
-	return true;
 }
 
 //
 // SpecialWadVerify
 //
-static bool SpecialWadVerify(void)
+static void SpecialWadVerify(void)
 {
 	int lump;
 
@@ -487,7 +483,6 @@ static bool SpecialWadVerify(void)
 		I_Error("EDGE.WAD version %d.%d found, version %d.%d is required.\n"
 				"Get it at http://edge.sourceforge.net/", wad_ver, wad_ver_frac,
 				EDGE_WAD_VERSION, EDGE_WAD_VERSION_FRAC);
-		return false;
 	}
 
 	if (wad_bc * 1024 + wad_bc_frac > EDGE_WAD_VERSION * 1024 + EDGE_WAD_VERSION_FRAC)
@@ -496,7 +491,6 @@ static bool SpecialWadVerify(void)
 				"which is not backward compatible enough. Get an older EDGE.WAD or\n"
 				"a newer EDGE version at http://edge.sourceforge.net/",
 				EDGE_WAD_VERSION, EDGE_WAD_VERSION_FRAC, wad_ver, wad_ver_frac);
-		return false;
 	}
 
 	if (wad_ver > EDGE_WAD_VERSION)
@@ -515,21 +509,17 @@ static bool SpecialWadVerify(void)
 	}
 
 	I_Printf("EDGE.WAD version %d.%d.%d found.\n", wad_ver, wad_ver_frac, wad_sub_ver);
-
-	return true;
 }
 
 //
 // ShowNotice
 //
-static bool ShowNotice(void)
+static void ShowNotice(void)
 {
 	I_Printf("%s", language["Notice"]);
- 
-	return true;
 }
 
-static bool DoSystemStartup(void)
+static void DoSystemStartup(void)
 {
 	// startup the system now
 	V_MultiResInit();
@@ -545,8 +535,6 @@ static bool DoSystemStartup(void)
 	R_ExecuteChangeResolution();
 
 	RGL_Init();
-
-	return true;
 }
 
 // ===============End of Internals================
@@ -925,7 +913,7 @@ void E_StartTitle(void)
 //
 // -ES- 2000/01/01 Written.
 //
-static bool InitDirectories(void)
+static void InitDirectories(void)
 {
 	const char *location;
 	const char *p;
@@ -1075,8 +1063,6 @@ static bool InitDirectories(void)
 	    mkdir(savedir, SAVEGAMEMODE);
 #endif
 	}
-
-    return true;
 }
 
 //
@@ -1090,7 +1076,7 @@ static bool InitDirectories(void)
 //
 #define EXTERN_FILE  "things.ddf"
 
-static bool CheckExternal(void)
+static void CheckExternal(void)
 {
 	char *testfile;
   
@@ -1103,8 +1089,6 @@ static bool CheckExternal(void)
 		external_ddf = true;
   
 	I_TmpFree(testfile);
-
-	return true;
 }
 
 //
@@ -1114,7 +1098,7 @@ static bool CheckExternal(void)
 //
 const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "freedoom", NULL };
 
-static bool IdentifyVersion(void)
+static void IdentifyVersion(void)
 {
 	bool done;
 	const char *location;
@@ -1236,17 +1220,14 @@ static bool IdentifyVersion(void)
 
 	if (devparm)
 		I_Printf("%s", language["DevelopmentMode"]);
-
-	return true;
 }
 
-static bool CheckCPU(void)
+static void CheckCPU(void)
 {
 	I_CheckCPU();
-	return true;
 }
 
-static bool CheckTurbo(void)
+static void CheckTurbo(void)
 {
 	int turbo_scale = 100;
 
@@ -1266,11 +1247,9 @@ static bool CheckTurbo(void)
 	}
 
 	G_SetTurboScale(turbo_scale);
-
-	return true;
 }
 
-static bool CheckPlayDemo(void)
+static void CheckPlayDemo(void)
 {
 	const char *ps = M_GetParm("-playdemo");
 
@@ -1286,11 +1265,9 @@ static bool CheckPlayDemo(void)
 		W_AddRawFilename(fn.GetString(), FLKIND_Demo);
 		I_Printf("Playing demo %s.\n", fn.GetString());
 	}
-
-	return true;
 }
 
-static bool CheckSkillEtc(void)
+static void CheckSkillEtc(void)
 {
 	// get skill / episode / map from parms
 	startskill = sk_medium;
@@ -1321,11 +1298,9 @@ static bool CheckSkillEtc(void)
 	{
 		screenshot_rate = atoi(ps);
 	}
-
-	return true;
 }
 
-static bool ShowDateAndVersion(void)
+static void ShowDateAndVersion(void)
 {
 	time_t cur_time;
 	char timebuf[100];
@@ -1340,11 +1315,9 @@ static bool ShowDateAndVersion(void)
 	I_Printf("EDGE v" EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
 	I_Printf("EDGE homepage is at http://edge.sourceforge.net/\n");
 	I_Printf("EDGE is based on DOOM by id Software http://www.idsoftware.com/\n");
-
-	return true;
 }
 
-static bool SetupLogAndDebugFiles(void)
+static void SetupLogAndDebugFiles(void)
 {
 	// -AJA- 2003/11/08 The log file gets all CON_Printfs, I_Printfs,
 	//                  I_Warnings and I_Errors.
@@ -1406,8 +1379,6 @@ static bool SetupLogAndDebugFiles(void)
 	{
 		debugfile = NULL;
 	}
-
-	return true;
 }
 
 static void AddSingleCmdLineFile(const char *name)
@@ -1434,7 +1405,7 @@ static void AddSingleCmdLineFile(const char *name)
 	W_AddRawFilename(fn.GetString(), kind);
 }
 
-static bool AddCommandLineFiles(void)
+static void AddCommandLineFiles(void)
 {
 	epi::string_c fn;
 
@@ -1520,8 +1491,6 @@ static bool AddCommandLineFiles(void)
 
 		p = M_CheckNextParm("-deh", p-1);
 	}
-
-	return true;
 }
 
 
@@ -1541,48 +1510,46 @@ void E_EngineShutdown(void)
 
 typedef struct
 {
-	bool (*function)(void);
-	char *LDFmessage;
 	int prog_time;  // rough indication of progress time
+	void (*function)(void);
 }
 startuporder_t;
 
 startuporder_t startcode[] =
 {
-	{ CheckExternal,       NULL            ,1 },
-	{ DDF_Init,            NULL            ,1 },
-	{ IdentifyVersion,     NULL            ,1 },
-	{ CheckCPU,            NULL            ,1 },
-	{ AddCommandLineFiles, NULL            ,1 },
-	{ CheckTurbo,          NULL            ,1 },
-	{ CheckPlayDemo,       NULL            ,1 },
-	{ CheckSkillEtc,       NULL            ,1 },
-	{ RAD_Init,            NULL            ,1 },
-	{ W_InitMultipleFiles, NULL            ,4 },
-	{ V_InitPalette,       NULL            ,1 },
-	{ HU_Init,             "HeadsUpInit"   ,2 },
-	{ R_InitFlats,         "InitFlats"     ,3 },
-	{ W_InitTextures,      "InitTextures"  ,10 },
-	{ GUI_ConInit,         "ConInit"       ,1 },
-	{ SpecialWadVerify,    NULL            ,1 },
-	{ GUI_MouseInit,       NULL            ,1 },
-	{ W_ReadDDF,           NULL            ,20 },
-	{ DDF_CleanUp,         NULL            ,1 },
-	{ SetLanguage,         NULL            ,1 },
-	{ ShowNotice,          NULL            ,1 },
-	{ SV_ChunkInit,        NULL            ,1 },
-	{ SV_MainInit,         NULL            ,1 },
-	{ M_Init,              "MiscInfo"      ,1 },
-	{ R_Init,              "RefreshDaemon" ,10 },
-	{ P_Init,              "PlayState"     ,1 },
-	{ P_MapInit,           NULL            ,1 },
-	{ P_InitSwitchList,    NULL            ,1 },
-	{ R_InitPicAnims,      NULL            ,1 },
-	{ R_InitSprites,       NULL            ,1 },
-	{ S_Init,              "SoundInit"     ,1 },
-	{ E_CheckNetGame,      "CheckNetGame"  ,1 },
-	{ ST_Init,             "STBarInit"     ,1 },
-	{ NULL,                NULL            ,1 }
+	{  1, CheckExternal,       },
+	{  1, DDF_Init,            },
+	{  1, IdentifyVersion,     },
+	{  1, CheckCPU,            },
+	{  1, AddCommandLineFiles, },
+	{  1, CheckTurbo,          },
+	{  1, CheckPlayDemo,       },
+	{  1, CheckSkillEtc,       },
+	{  1, RAD_Init,            },
+	{  4, W_InitMultipleFiles, },
+	{  1, V_InitPalette,       },
+	{  2, HU_Init,             },
+	{  3, R_InitFlats,         },
+	{ 10, W_InitTextures,      },
+	{  1, GUI_ConInit,         },
+	{  1, SpecialWadVerify,    },
+	{  1, GUI_MouseInit,       },
+	{ 20, W_ReadDDF,           },
+	{  1, DDF_CleanUp,         },
+	{  1, SetLanguage,         },
+	{  1, ShowNotice,          },
+	{  1, SV_MainInit,         },
+	{  1, M_Init,              },
+	{ 10, R_Init,              },
+	{  1, P_Init,              },
+	{  1, P_MapInit,           },
+	{  1, P_InitSwitchList,    },
+	{  1, R_InitPicAnims,      },
+	{  1, R_InitSprites,       },
+	{  1, S_Init,              },
+	{  1, E_CheckNetGame,      },
+	{  1, ST_Init,             },
+	{  0, NULL,                }
 };
 
 // The engine namespace
@@ -1599,7 +1566,6 @@ namespace engine
 	{
 		int p;
 		const char *ps;
-		bool success;
 
 		// Version check ?
 		if (M_CheckParm("-version"))
@@ -1627,7 +1593,7 @@ namespace engine
 
 		DoSystemStartup();
 
-		E_GlobalProgress(0, 0, 1, NULL);
+		E_GlobalProgress(0, 0, 1);
 
 		int total=0;
 		int cur=0;
@@ -1635,22 +1601,17 @@ namespace engine
 		for (p=0; startcode[p].function != NULL; p++)
 			total += startcode[p].prog_time;
 
-		// Cycle through all the startup functions, quit on failure.
+		// Cycle through all the startup functions
 		for (p=0; startcode[p].function != NULL; p++)
 		{
-			E_GlobalProgress(cur, startcode[p].prog_time, total,
-				startcode[p].LDFmessage ?  language[startcode[p].LDFmessage] :
-				NULL);
+			E_GlobalProgress(cur, startcode[p].prog_time, total);
 
-			// if the startup function fails - quit startup
-			success = startcode[p].function();
-			if (!success)
-				return false;
+			startcode[p].function();
 
 			cur += startcode[p].prog_time;
 		}
 
-		E_GlobalProgress(100, 0, 100, NULL);
+		E_GlobalProgress(100, 0, 100);
 
 		CON_SetVisible(vs_notvisible);
 

@@ -91,7 +91,7 @@ static int V_FindPureColour(int which);
 //
 // V_InitPalette
 //
-bool V_InitPalette(void)
+void V_InitPalette(void)
 {
 	int t, i, r, g, b, max_file, pal_lump;
 	wadtex_resource_c WT;
@@ -156,8 +156,6 @@ bool V_InitPalette(void)
 	pal_brown1 = V_FindColour(192, 128, 74);
 
 	I_Printf("Loaded global palette.\n");
-
-	return true;
 }
 
 //

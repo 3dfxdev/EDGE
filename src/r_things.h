@@ -118,6 +118,6 @@ extern spritedef_array_c sprites;
 extern int numsprites;  // same as sprites.GetSize()
 
 int R_AddSpriteName(const char *name, int frame);
-bool R_InitSprites(void);
+void R_InitSprites(void);
 
 #endif

@@ -39,7 +39,6 @@ namespace engine
 	void Tick(void);
 };
 
-bool E_CheckNetGame(void);
 void E_ProcessEvents(void);
 void E_DoAdvanceDemo(void);
 void E_PostEvent(event_t * ev);
@@ -49,7 +48,13 @@ void E_AdvanceDemo(void);
 void E_StartTitle(void);
 void E_EngineShutdown(void);
 void E_Display(void);
-void E_LocalProgress(int step, int total, const char *message);
-void E_NodeProgress(int perc, const char *message);
+
+// startup progress stuff
+
+void E_ProgressMessage(const char *message);
+void E_LocalProgress(int step, int total);
+
+void E_NodeMessage(const char *message);
+void E_NodeProgress(int perc);
 
 #endif

@@ -232,7 +232,7 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 //
 // -ACB- 1998/09/09 Fixed the Display routine from display rubbish.
 //
-bool W_InitTextures(void)
+void W_InitTextures(void)
 {
 	int num_files = W_GetNumFiles();
 	int j, t, file;
@@ -250,7 +250,7 @@ bool W_InitTextures(void)
 
 	for (file=0; file < num_files; file++)
 	{
-		E_LocalProgress(file, num_files, NULL);
+		E_LocalProgress(file, num_files);
 
 		wadtex_resource_c WT;
 
@@ -335,8 +335,6 @@ bool W_InitTextures(void)
 	// free pointer array.  We need to keep the definitions in memory
 	// for (a) the image system and (b) texture anims.
 	delete [] textures;
-
-	return true;
 }
 
 //
