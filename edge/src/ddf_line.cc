@@ -173,10 +173,10 @@ const linedeftype_t template_line =
 	SCPT_None,   // scroll parts
 	NULL,        // security message
 	NULL,        // colourmap
-  FLO_UNUSED,  // gravity
-  FLO_UNUSED,  // friction
-  FLO_UNUSED,  // viscosity
-  FLO_UNUSED,  // drag
+	FLO_UNUSED,  // gravity
+	FLO_UNUSED,  // friction
+	FLO_UNUSED,  // viscosity
+	FLO_UNUSED,  // drag
 	sfx_None,    // ambient_sfx
 	sfx_None,    // activate_sfx
 	0,           // music
@@ -409,6 +409,7 @@ s_scroll[] =
 	{ "LEFT", (dir_horiz | dir_left) | ((~dir_none) << 16) } ,
 	{ "RIGHT", (dir_horiz) | ((~dir_left) << 16) }
 }
+
 ,
 
 // FIXME: use keytype_names (in ddf_mobj.c)
@@ -684,10 +685,10 @@ void DDF_LinedefCleanUp(void)
 		DDF_ErrorSetEntryName("[%d]  (lines.ddf)", line->ddf.number);
 
 		line->t.inspawnobj = line->t.inspawnobj_ref ?
-			DDF_MobjLookup(line->t.inspawnobj_ref) : NULL;
+			mobjinfo.Lookup(line->t.inspawnobj_ref) : NULL;
 
 		line->t.outspawnobj = line->t.outspawnobj_ref ?
-			DDF_MobjLookup(line->t.outspawnobj_ref) : NULL;
+			mobjinfo.Lookup(line->t.outspawnobj_ref) : NULL;
 
 		DDF_ErrorClearEntryName();
 	}
