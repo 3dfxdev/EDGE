@@ -434,7 +434,7 @@ static void LinedefClearAll(void)
 //
 // DDF_ReadLines
 //
-void DDF_ReadLines(void *data, int size)
+bool DDF_ReadLines(void *data, int size)
 {
 	readinfo_t lines;
 
@@ -461,7 +461,7 @@ void DDF_ReadLines(void *data, int size)
 	lines.finish_entry = LinedefFinishEntry;
 	lines.clear_all    = LinedefClearAll;
 
-	DDF_MainReadFile(&lines);
+	return DDF_MainReadFile(&lines);
 }
 
 //

@@ -199,7 +199,7 @@ static void LevelClearAll(void)
 }
 
 
-void DDF_ReadLevels(void *data, int size)
+bool DDF_ReadLevels(void *data, int size)
 {
 	readinfo_t levels;
 
@@ -226,7 +226,7 @@ void DDF_ReadLevels(void *data, int size)
 	levels.finish_entry = LevelFinishEntry;
 	levels.clear_all    = LevelClearAll;
 
-	DDF_MainReadFile(&levels);
+	return DDF_MainReadFile(&levels);
 }
 
 void DDF_LevelInit(void)

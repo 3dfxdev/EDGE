@@ -141,7 +141,7 @@ static void SoundClearAll(void)
 	sfxdefs.SetDisabledCount(sfxdefs.GetDisabledCount());
 }
 
-void DDF_ReadSFX(void *data, int size)
+bool DDF_ReadSFX(void *data, int size)
 {
 	readinfo_t sfx_r;
 
@@ -168,7 +168,7 @@ void DDF_ReadSFX(void *data, int size)
 	sfx_r.finish_entry = SoundFinishEntry;
 	sfx_r.clear_all    = SoundClearAll;
 
-	DDF_MainReadFile(&sfx_r);
+	return DDF_MainReadFile(&sfx_r);
 }
 
 void DDF_SFXInit(void)

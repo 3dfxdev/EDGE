@@ -625,7 +625,7 @@ static void ThingClearAll(void)
 	mobjtypes.SetDisabledCount(mobjtypes.GetSize());
 }
 
-void DDF_ReadThings(void *data, int size)
+bool DDF_ReadThings(void *data, int size)
 {
 	readinfo_t things;
 
@@ -652,7 +652,7 @@ void DDF_ReadThings(void *data, int size)
 	things.finish_entry = ThingFinishEntry;
 	things.clear_all    = ThingClearAll;
 
-	DDF_MainReadFile(&things);
+	return DDF_MainReadFile(&things);
 }
 
 void DDF_MobjInit(void)

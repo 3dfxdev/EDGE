@@ -222,7 +222,7 @@ return; //!!!! -AJA- FIXME: temp hack to get castle.wad working
 }
 
 
-void DDF_ReadAtks(void *data, int size)
+bool DDF_ReadAtks(void *data, int size)
 {
 	readinfo_t attacks;
 
@@ -249,7 +249,7 @@ void DDF_ReadAtks(void *data, int size)
 	attacks.finish_entry = AttackFinishEntry;
 	attacks.clear_all    = AttackClearAll;
 
-	DDF_MainReadFile(&attacks);
+	return DDF_MainReadFile(&attacks);
 }
 
 void DDF_AttackInit(void)

@@ -165,7 +165,7 @@ static void SectorClearAll(void)
 //
 // DDF_ReadSectors
 //
-void DDF_ReadSectors(void *data, int size)
+bool DDF_ReadSectors(void *data, int size)
 {
 	readinfo_t sects;
 
@@ -192,7 +192,7 @@ void DDF_ReadSectors(void *data, int size)
 	sects.finish_entry = SectorFinishEntry;
 	sects.clear_all    = SectorClearAll;
 
-	DDF_MainReadFile(&sects);
+	return DDF_MainReadFile(&sects);
 }
 
 //
