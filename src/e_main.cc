@@ -508,7 +508,8 @@ static void M_DisplayPause(void)
 //
 // -ACB- 1998/07/27 Removed doublebufferflag check (unneeded).  
 
-// wipegamestate can be set to -1 to force a wipe on the next draw
+// wipegamestate can be set to GS_NOTHING to force a wipe on the next draw
+
 gamestate_e wipegamestate = GS_DEMOSCREEN;
 int wipe_method = WIPE_Melt;
 int wipe_reverse = 0;
