@@ -55,34 +55,30 @@ UI_LogBox::~UI_LogBox()
 
 //------------------------------------------------------------------------
 
-UI_LogBox::log_mem_c::log_mem_c(const char *_line, Fl_Color _col, bool _bold) :
-	col(_col), bold(_bold)
+class log_mem_c : public node_c
 {
-	line = strdup(_line);
-}
+friend class UI_LogBox;
 
-UI_LogBox::log_mem_c::~log_mem_c()
-{
-	free((void*) line);
-	line = NULL;
-}
+private:
+	// FIXME: timestamp
 
-UI_LogBox::log_mem_c::log_mem_c(const UI_LogBox::log_mem_c& other) :
-	col(other.col), bold(other.bold)
-{
-	line = strdup(other.line);
-}
+	const char *line;
+	Fl_Color col;
+	bool bold;
 
-UI_LogBox::log_mem_c& UI_LogBox::log_mem_c::operator= (const UI_LogBox::log_mem_c& other)
-{
-	if (&other != this)
+public:
+	log_mem_c(const char *_line, Fl_Color _col, bool _bold) :
+		node_c(), col(_col), bold(_bold)
 	{
-		line = strdup(other.line);
-		col  = other.col;
-		bold = other.bold;
+		line = strdup(_line);
 	}
-	return *this;
-}
+
+	~log_mem_c()
+	{
+		free((void*) line);
+		line = NULL;
+	}
+};
 
 void UI_LogBox::AddMsg(const char *msg, Fl_Color col, // = FL_BLACK,
     bool bold) // = FALSE)
@@ -91,7 +87,7 @@ void UI_LogBox::AddMsg(const char *msg, Fl_Color col, // = FL_BLACK,
 
 	// FIXME: have a limit on size
 
-	log_mem_c mem(msg, col, bold);
+	log_mem_c *mem = new log_mem_c(msg, col, bold);
 
 	save_lines.push_back(mem);
 
@@ -148,14 +144,16 @@ void UI_LogBox::Update()
 {
 	nlMutexLock(&save_lock);
 
-	while (save_lines.size() > 0)
+	for (;;)
 	{
-		SYS_NULL_CHECK(save_lines.front().line);
+		log_mem_c *mem = (log_mem_c *) save_lines.pop_front();
 
-		DoAddMsg(save_lines.front().line, save_lines.front().col,
-				 save_lines.front().bold);
+		if (! mem)
+			break;
 
-		save_lines.pop_front();
+		SYS_NULL_CHECK(mem->line);
+
+		DoAddMsg(mem->line, mem->col, mem->bold);
 	}
 
 	nlMutexUnlock(&save_lock);

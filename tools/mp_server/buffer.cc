@@ -19,6 +19,7 @@
 #include "includes.h"
 
 #include "buffer.h"
+#include "lib_list.h"
 #include "network.h"
 #include "packet.h"
 #include "protocol.h"
@@ -27,15 +28,12 @@
 volatile int buffered_packets = 0;
 volatile int buffered_bytes = 0;
 
-class buffer_packet_c
+class buffer_packet_c : public node_c
 {
 friend class buffer_queue_c;
 
 private:
 	static const int OLD_TIME = 30;  /* seconds */
-
-	buffer_packet_c *next;  // link in list
-	buffer_packet_c *prev;
 
 	NLsocket sock;
 	NLaddress addr;
@@ -47,8 +45,8 @@ private:
 
 public:
 	buffer_packet_c(NLsocket _sock, NLaddress *_addr, int _ntime,
-		const char *_data, int _len) :
-			next(NULL), prev(NULL), sock(_sock), ntime(_ntime), len(_len)
+		const char *_data, int _len) : node_c(),
+			sock(_sock), ntime(_ntime), len(_len)
 	{
 		memcpy(&addr, _addr, sizeof(NLaddress));
 
@@ -74,6 +72,9 @@ public:
 		delete[] data;
 		data = NULL;
 	}
+
+	buffer_packet_c *Next() const { return (buffer_packet_c *) NodeNext(); }
+	buffer_packet_c *Prev() const { return (buffer_packet_c *) NodePrev(); }
 
 	bool TooOld(int cur_time) const
 	{
@@ -125,30 +126,23 @@ class buffer_queue_c
 private:
 	static const int QUEUE_MAX = 256;
 
-	buffer_packet_c *head;
-	buffer_packet_c *tail;
+	list_c packets;
 
 	int size;
 
 public:
-	buffer_queue_c() : head(NULL), tail(NULL), size(0) { }
+	buffer_queue_c() : packets(), size(0) { }
 	~buffer_queue_c() { }
+
+	buffer_packet_c *begin() const { return (buffer_packet_c *) packets.begin(); }
+	buffer_packet_c *end()   const { return (buffer_packet_c *) packets.end(); }
 
 	void Remove(buffer_packet_c *bp)
 	{
 		buffered_packets--;
 		buffered_bytes -= bp->len;
 
-		if (bp->next)
-			bp->next->prev = bp->prev;
-		else
-			tail = bp->prev;
-
-		if (bp->prev)
-			bp->prev->next = bp->next;
-		else
-			head = bp->next;
-
+		packets.remove(bp);
 		delete bp;
 
 		size--;
@@ -158,22 +152,14 @@ public:
 	void Add(NLsocket sock, NLaddress *addr, const char *data, int len)
 	{
 		if (size == QUEUE_MAX)
-			Remove(tail);
+			Remove(end());
 
 		buffered_packets++;
 		buffered_bytes += len;
 
 		buffer_packet_c *bp = new buffer_packet_c(sock, addr, GetNetTime(), data, len);
 
-		bp->next = head;
-		bp->prev = NULL;
-
-		if (head)
-			head->prev = bp;
-		else
-			tail = bp;
-
-		head = bp;
+		packets.push_front(bp);
 
 		size++;
 		SYS_ASSERT(size <= QUEUE_MAX);
@@ -183,9 +169,9 @@ public:
 	{
 		buffer_packet_c *next;
 
-		for (buffer_packet_c *bp = head; bp; bp = next)
+		for (buffer_packet_c *bp = begin(); bp; bp = next)
 		{
-			next = bp->next;
+			next = bp->Next();
 
 			if (bp->RetryWrite(cur_time))
 				Remove(bp);
