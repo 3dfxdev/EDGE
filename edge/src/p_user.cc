@@ -37,6 +37,8 @@
 #include "st_stuff.h"
 #include "w_wad.h"
 
+static void P_UpdatePowerups(player_t *player);
+
 // 16 pixels of bob
 #define MAXBOB        16.0f
 
@@ -66,7 +68,7 @@ static void CalcHeight(player_t * player)
   {
     angle_t angle = ANG90 / 5 * leveltime;
 
-    bob = player->bob * player->mo->info->bobbing * M_Sin(angle);
+    bob = player->bob / 2 * player->mo->info->bobbing * M_Sin(angle);
   }
 
   // ----CALCULATE VIEWHEIGHT----
@@ -373,6 +375,8 @@ static void DeathThink(player_t * player)
   if (player->bonuscount)
     player->bonuscount--;
 
+  P_UpdatePowerups(player);
+
   // lose the zoom when dead
   if (viewiszoomed)
   {
@@ -385,6 +389,65 @@ static void DeathThink(player_t * player)
 
   if (player->cmd.buttons & BT_USE)
     player->playerstate = PST_REBORN;
+}
+
+static void P_UpdatePowerups(player_t *player)
+{
+ 	float limit = FLT_MAX;
+	int pw;
+
+	if (player->playerstate == PST_DEAD)
+		limit = TICRATE * 5;
+
+	for (pw = 0; pw < NUMPOWERS; pw++)
+	{
+		if (pw == PW_AllMap)  // kept forever and a day
+			continue;
+
+		float& qty_r = player->powers[pw];
+
+		if (qty_r > limit)   qty_r = limit;
+		else if (qty_r >= 1) qty_r -= 1;
+		else if (qty_r > 0)  qty_r = 0;
+	}
+
+	if (player->powers[PW_PartInvis] >= 128 ||
+			fmod(player->powers[PW_PartInvis], 16) >= 8)
+		player->mo->flags |=  MF_FUZZY;
+	else
+		player->mo->flags &= ~MF_FUZZY;
+
+	// Handling colourmaps.
+	//
+	// -AJA- 1999/07/10: Updated for colmap.ddf. Ideally, the exact
+	// colourmap & palette effects to use would be specifiable somewhere
+	// in DDF -- for now it is hardcoded.
+
+	player->effect_colourmap = NULL;
+	player->effect_infrared = false;
+
+	if (player->powers[PW_Invulnerable] > 0)
+	{
+		float s = player->powers[PW_Invulnerable];
+
+		player->effect_colourmap = DDF_ColmapLookup("ALLWHITE");
+		player->effect_strength = ((s >= 128) ? 1.0 : s / 128.0);
+	}
+	else if (player->powers[PW_Infrared] > 0)
+	{
+		float s = player->powers[PW_Infrared];
+
+		player->effect_infrared = true;
+		player->effect_strength = ((s >= 128) ? 1.0 : s / 128.0);
+	}
+	// -ACB- 1998/07/15 NightVision Code
+	else if (player->powers[PW_NightVision] > 0)
+	{
+		float s = player->powers[PW_NightVision];
+
+		player->effect_colourmap = DDF_ColmapLookup("ALLGREEN");
+		player->effect_strength = ((s >= 128) ? 1.0 : s / 128.0);
+	}
 }
 
 //
@@ -542,37 +605,7 @@ void P_PlayerThink(player_t * player)
 
   // Counters, time dependend power ups.
 
-  if (player->powers[PW_Berserk] > 0)
-    player->powers[PW_Berserk]--;
-
-  // -MH- 1998/06/18  jetpack "fuel" counter
-  if (player->powers[PW_Jetpack] > 0)
-    player->powers[PW_Jetpack]--;
-
-  // -ACB- 1998/07/16  nightvision counter decrementation
-  if (player->powers[PW_NightVision] > 0)
-    player->powers[PW_NightVision]--;
-
-  if (player->powers[PW_Invulnerable] > 0)
-    player->powers[PW_Invulnerable]--;
-
-  if (player->powers[PW_PartInvis] > 0)
-    player->powers[PW_PartInvis]--;
-
-  if (player->powers[PW_PartInvis] >= 128 ||
-      fmod(player->powers[PW_PartInvis], 16) >= 8)
-    player->mo->flags |=  MF_FUZZY;
-  else
-    player->mo->flags &= ~MF_FUZZY;
-
-  if (player->powers[PW_Infrared] > 0)
-    player->powers[PW_Infrared]--;
-
-  if (player->powers[PW_AcidSuit] > 0)
-    player->powers[PW_AcidSuit]--;
-
-  if (player->powers[PW_Scuba] > 0)
-    player->powers[PW_Scuba]--;
+  P_UpdatePowerups(player);
 
   if (player->damagecount)
     player->damagecount--;
@@ -590,37 +623,6 @@ void P_PlayerThink(player_t * player)
    
   player->kick_offset /= 1.6;
 
-  // Handling colourmaps.
-  //
-  // -AJA- 1999/07/10: Updated for colmap.ddf. Ideally, the exact
-  // colourmap & palette effects to use would be specifiable somewhere
-  // in DDF -- for now it is hardcoded.
-
-  player->effect_colourmap = NULL;
-  player->effect_infrared = false;
-
-  if (player->powers[PW_Invulnerable] > 0)
-  {
-    float s = player->powers[PW_Invulnerable];
-
-    player->effect_colourmap = DDF_ColmapLookup("ALLWHITE");
-    player->effect_strength = ((s >= 128) ? 1.0 : s / 128.0);
-  }
-  else if (player->powers[PW_Infrared] > 0)
-  {
-    float s = player->powers[PW_Infrared];
-
-    player->effect_infrared = true;
-    player->effect_strength = ((s >= 128) ? 1.0 : s / 128.0);
-  }
-  // -ACB- 1998/07/15 NightVision Code
-  else if (player->powers[PW_NightVision] > 0)
-  {
-    float s = player->powers[PW_NightVision];
-
-    player->effect_colourmap = DDF_ColmapLookup("ALLGREEN");
-    player->effect_strength = ((s >= 128) ? 1.0 : s / 128.0);
-  }
 }
 
 //
