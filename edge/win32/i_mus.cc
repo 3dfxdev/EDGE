@@ -143,7 +143,7 @@ bool I_StartupMUS()
 	mixer = I_MusicLoadMixer(MIXERLINE_COMPONENTTYPE_SRC_SYNTHESIZER);
 	if (!mixer)
 	{
-		I_PostMusicError("I_StartupMUS: Couldn't open the midi device");
+		I_PostMusicError("I_StartupMUS: Couldn't load the midi mixer");
 		return false;
 	}
 
@@ -168,9 +168,9 @@ bool I_StartupMUS()
 		return false;
 	}
 	
-	// Ensure all is quiet when we start
+	// All is quiet on startup
 	I_MusicSetMixerVol(mixer, 0);
-
+    
 	// Non-mixer defaults
 	midiavailable = true;
 	song          = NULL;

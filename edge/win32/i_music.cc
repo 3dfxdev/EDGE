@@ -64,7 +64,9 @@ bool I_StartupMusic(void *sysinfo)
 	}
 	else
 	{
-		I_Printf("I_StartupMusic: CD Music Failed OK\n");
+		I_Printf("I_StartupMusic: CD Music Failed\n");
+		I_Printf("%s\n",errordesc);
+		errordesc[0] = '\0';
 	}
 
 	// Music is not paused by default
@@ -78,14 +80,15 @@ bool I_StartupMusic(void *sysinfo)
 	}
 	else
 	{
-		I_Printf("I_StartupMusic: MUS Music Failed OK\n");
+		I_Printf("I_StartupMusic: MUS Music Failed\n");
+		I_Printf(errordesc);
+		errordesc[0] = '\0';
 	}
 
 	oggplayer = new oggplayer_c;
 	capable |= support_OGG;
 
 	I_Printf("I_StartupMusic: OGG Music Init OK\n");
-
 	return true;
 }
 
@@ -392,6 +395,8 @@ win32_mixer_t *I_MusicLoadMixer(DWORD type)
 	mixercount = mixerGetNumDevs();
 	while (testmixer < mixercount)
 	{
+		mixer.id = testmixer;
+		
 		res = mixerGetDevCaps((UINT_PTR)mixer.id, &mxcaps, sizeof(MIXERCAPS));
 		if (res == MMSYSERR_NOERROR)
 		{
