@@ -34,11 +34,11 @@
 #include "r_defs.h"
 #include "r_state.h"
 
+#include "ddf_main.h"
+#include "ddf_anim.h"
+
 void R_InitFlats(void);
 void R_InitPicAnims(void);
-
-void R_AddFlatAnim(animdef_c *anim);
-void R_AddTextureAnim(animdef_c *anim);
 void R_PrecacheLevel(void);
 
-#endif
+#endif /* __R_DATA__ */
