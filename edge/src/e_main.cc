@@ -81,57 +81,8 @@
 
 #define DEFAULT_LANGUAGE  "ENGLISH"
 
-// Internals
-static bool SetGlobalVars(void);
-static bool SetLanguage(void); 
-static bool SpecialWadVerify(void);
-static bool ShowNotice(void);
+#define E_TITLE  "EDGE v" EDGEVERSTR
 
-typedef struct
-{
-	bool (*function)(void);
-	char *LDFmessage;
-	int prog_time;  // rough indication of progress time
-}
-startuporder_t;
-
-startuporder_t startcode[] =
-{
-///---	{ M_LoadDefaults,      NULL            ,1 },
-///---	{ M_LoadDefaults,      "DefaultLoad"   ,1 },
-	{ SetGlobalVars,       NULL            ,1 },
-	{ RAD_Init,            NULL            ,1 },
-	{ W_InitMultipleFiles, NULL            ,3 },
-	{ V_InitPalette,       NULL            ,1 },
-///---	{ W_InitImages,        NULL            ,1 },
-	{ HU_Init,             "HeadsUpInit"   ,2 },
-	{ R_InitFlats,         "InitFlats"     ,5 },
-	{ W_InitTextures,      "InitTextures"  ,5 },
-	{ GUI_ConInit,         "ConInit"       ,1 },
-	{ SpecialWadVerify,    NULL            ,1 },
-///---	{ V_MultiResInit,      "AllocScreens"  ,1 },
-///---	{ I_SystemStartup,     "InitMachine"   ,1 },
-	{ GUI_MouseInit,       NULL            ,1 },
-//	{ W_InitMultipleFiles, "WadFileInit"   ,1 },
-	{ W_ReadDDF,           NULL            ,9 },
-	{ RAD_LoadParam,       NULL            ,2 },
-	{ DDF_MainCleanUp,     NULL            ,1 },
-	{ SetLanguage,         NULL            ,1 },
-	{ ShowNotice,          NULL            ,1 },
-	{ SV_ChunkInit,        NULL            ,1 },
-	{ SV_MainInit,         NULL            ,1 },
-	{ M_Init,              "MiscInfo"      ,1 },
-	{ R_Init,              "RefreshDaemon" ,5 },
-	{ P_Init,              "PlayState"     ,1 },
-	{ P_MapInit,           NULL            ,1 },
-	{ P_InitSwitchList,    NULL            ,1 },
-	{ R_InitPicAnims,      NULL            ,1 },
-	{ R_InitSprites,       NULL            ,1 },
-	{ S_Init,              "SoundInit"     ,1 },
-	{ E_CheckNetGame,      "CheckNetGame"  ,1 },
-	{ ST_Init,             "STBarInit"     ,1 },
-	{ NULL,                NULL            ,1 }
-};
 
 bool devparm;  // started game with -devparm
 bool singletics = false;  // debug flag to cancel adaptiveness
@@ -428,6 +379,12 @@ static bool SetGlobalVars(void)
 		}
 	}
 
+	// check for strict and no-warning options
+	M_CheckBooleanParm("strict", &strict_errors, false);
+	M_CheckBooleanParm("warn", &no_warnings, true);
+	M_CheckBooleanParm("obsolete", &no_obsoletes, true);
+	M_CheckBooleanParm("lax", &lax_errors, false);
+
 	return true;
 }
 
@@ -559,6 +516,26 @@ static bool ShowNotice(void)
 {
 	I_Printf("%s", language["Notice"]);
  
+	return true;
+}
+
+static bool DoSystemStartup(void)
+{
+	// startup the system now
+	V_MultiResInit();
+	W_InitImages();
+	GUI_MainInit();
+
+	I_SystemStartup();
+
+	// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
+	R_ChangeResolution(SCREENWIDTH, SCREENHEIGHT, SCREENBITS, SCREENWINDOW);
+	// -KM- 1998/09/27 Change res now, so music doesn't start before
+	// screen.  Reset clock too.
+	R_ExecuteChangeResolution();
+
+	RGL_Init();
+
 	return true;
 }
 
@@ -987,7 +964,7 @@ void E_StartTitle(void)
 //
 // -ES- 2000/01/01 Written.
 //
-static void InitDirectories(void)
+static bool InitDirectories(void)
 {
 	const char *location;
 	const char *p;
@@ -1137,9 +1114,8 @@ static void InitDirectories(void)
 	    mkdir(savedir, SAVEGAMEMODE);
 #endif
 	}
-	
 
-    return;
+    return true;
 }
 
 //
@@ -1153,7 +1129,7 @@ static void InitDirectories(void)
 //
 #define EXTERN_FILE  "things.ddf"
 
-static void CheckExternal(void)
+static bool CheckExternal(void)
 {
 	char *testfile;
   
@@ -1166,6 +1142,8 @@ static void CheckExternal(void)
 		external_ddf = true;
   
 	I_TmpFree(testfile);
+
+	return true;
 }
 
 //
@@ -1175,7 +1153,7 @@ static void CheckExternal(void)
 //
 const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "freedoom", NULL };
 
-static void IdentifyVersion(void)
+static bool IdentifyVersion(void)
 {
 	bool done;
 	const char *location;
@@ -1294,9 +1272,99 @@ static void IdentifyVersion(void)
 
 	if (!done)
 		I_Error("IdentifyVersion: Could not find required %s.%s!\n", REQUIREDWAD, EDGEWADEXT);
+
+	if (devparm)
+		I_Printf("%s", language["DevelopmentMode"]);
+
+	return true;
 }
 
-static void ShowDate(void)
+static bool CheckCPU(void)
+{
+	I_CheckCPU();
+	return true;
+}
+
+static bool CheckTurbo(void)
+{
+	int turbo_scale = 100;
+
+	int p = M_CheckParm("-turbo");
+
+	if (p)
+	{
+		if (p + 1 < M_GetArgCount())
+			turbo_scale = atoi(M_GetArgument(p + 1));
+		else
+			turbo_scale = 200;
+
+		if (turbo_scale < 10)  turbo_scale = 10;
+		if (turbo_scale > 400) turbo_scale = 400;
+
+		CON_MessageLDF("TurboScale", turbo_scale);
+	}
+
+	G_SetTurboScale(turbo_scale);
+
+	return true;
+}
+
+static bool CheckPlayDemo(void)
+{
+	const char *ps = M_GetParm("-playdemo");
+
+	if (!ps)
+		ps = M_GetParm("-timedemo");
+
+	if (ps)
+	{
+		epi::string_c fn;
+		
+		M_ComposeFileName(fn, gamedir, ps);
+		fn += ".lmp";	// FIXME!! Check we need to use extension here
+		W_AddRawFilename(fn.GetString(), false);
+		I_Printf("Playing demo %s.\n", fn.GetString());
+	}
+
+	return true;
+}
+
+static bool CheckSkillEtc(void)
+{
+	// get skill / episode / map from parms
+	startskill = sk_medium;
+	autostart = false;
+
+	// -KM- 1999/01/29 Use correct skill: 1 is easiest, not 0
+	const char *ps = M_GetParm("-skill");
+
+	if (ps)
+	{
+		startskill = (skill_t)(atoi(ps) - 1);
+		autostart = true;
+	}
+
+	ps = M_GetParm("-warp");
+	if (ps)
+	{
+		startmap = Z_StrDup(ps);
+		autostart = true;
+	}
+	else
+	{
+		startmap = Z_StrDup("MAP01"); // MUNDO HACK!!!!
+	}
+
+	ps = M_GetParm("-screenshot");
+	if (ps)
+	{
+		screenshot_rate = atoi(ps);
+	}
+
+	return true;
+}
+
+static bool ShowDateAndVersion(void)
 {
 	time_t cur_time;
 	char timebuf[100];
@@ -1306,14 +1374,107 @@ static void ShowDate(void)
 
 	L_WriteLog("[Log file created at %s]\n\n", timebuf);
 	L_WriteDebug("[Debug file created at %s]\n\n", timebuf);
-}
 
-static void ShowVersion(void)
-{
 	// 23-6-98 KM Changed to hex to allow versions such as 0.65a etc
 	I_Printf("EDGE v" EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
 	I_Printf("EDGE homepage is at http://edge.sourceforge.net/\n");
 	I_Printf("EDGE is based on DOOM by id Software http://www.idsoftware.com/\n");
+
+	return true;
+}
+
+static bool SetupLogAndDebugFiles(void)
+{
+	// -AJA- 2003/11/08 The log file gets all CON_Printfs, I_Printfs,
+	//                  I_Warnings and I_Errors.
+	if (! M_CheckParm("-nolog"))
+	{
+		logfile = fopen(EDGELOGFILE, "w");
+
+		if (!logfile)
+			I_Error("[engine::Startup] Unable to create log file");
+	}
+	else
+	{
+		logfile = NULL;
+	}
+	
+	//
+	// -ACB- 1998/09/06 Only used for debugging.
+	//                  Moved here to setup debug file for DDF Parsing...
+	//
+	// -ES- 1999/08/01 Debugfiles can now be used without -DDEVELOPERS, and
+	//                 then logs all the CON_Printfs, I_Printfs and I_Errors.
+	//
+	// -ACB- 1999/10/02 Don't print to console, since we don't have a console yet.
+	//
+	int p = M_CheckParm("-debugfile");
+	if (p)
+	{
+		epi::string_c fn;
+		int i = 1;
+		const char *ps;
+
+		// -ES- 1999/03/29 allow -debugfile <file>
+		if (p + 1 < M_GetArgCount() && (ps = M_GetArgument(p + 1))[0] != '-')
+		{
+			fn = ps;
+		}
+		else
+		{
+			// -KM- 1999/01/29 Consoleplayer is always 0 at this stage.
+			fn = "debug0.txt";
+			while (I_Access(fn.GetString()))
+			{
+				fn.Format("debug%d.txt", i++);
+
+				// give up: File system is probably corrupt. If not, there are 1000
+				// debug files already, and it's about time to delete some of them...
+				if (i >= 1000)
+					I_Error("[engine::Startup] Couldn't create debug file!");
+			}
+		}
+		debugfile = fopen(fn.GetString(), "w");
+
+		if (!debugfile)
+			I_Error("[engine::Startup] Unable to create debugfile");
+	
+		L_WriteDebug("%s\n", E_TITLE);
+	}
+	else
+	{
+		debugfile = NULL;
+	}
+
+	return true;
+}
+
+static bool AddCommandLineFiles(void)
+{
+	epi::string_c fn;
+	
+	int p = M_CheckNextParm("-file", 0);
+	
+	while (p)
+	{
+		// the parms after p are wadfile/lump names,
+		// until end of parms or another - preceded parm
+
+		const char *ps;
+
+		p++;
+
+		while (p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0])
+		{
+			M_ComposeFileName(fn, gamedir, ps);
+			W_AddRawFilename(fn.GetString(), true);
+			p++;
+		}
+
+		p = M_CheckNextParm("-file", p-1);
+	}
+
+	return true;
 }
 
 
@@ -1331,12 +1492,58 @@ void E_EngineShutdown(void)
 	E_QuitNetGame();
 }
 
+typedef struct
+{
+	bool (*function)(void);
+	char *LDFmessage;
+	int prog_time;  // rough indication of progress time
+}
+startuporder_t;
+
+startuporder_t startcode[] =
+{
+	{ CheckExternal,       NULL            ,1 },
+	{ DDF_Init,            NULL            ,1 },
+	{ IdentifyVersion,     NULL            ,1 },
+	{ CheckCPU,            NULL            ,1 },
+	{ AddCommandLineFiles, NULL            ,1 },
+	{ CheckTurbo,          NULL            ,1 },
+	{ CheckPlayDemo,       NULL            ,1 },
+	{ CheckSkillEtc,       NULL            ,1 },
+	{ RAD_Init,            NULL            ,1 },
+	{ W_InitMultipleFiles, NULL            ,3 },
+	{ V_InitPalette,       NULL            ,1 },
+	{ HU_Init,             "HeadsUpInit"   ,2 },
+	{ R_InitFlats,         "InitFlats"     ,5 },
+	{ W_InitTextures,      "InitTextures"  ,5 },
+	{ GUI_ConInit,         "ConInit"       ,1 },
+	{ SpecialWadVerify,    NULL            ,1 },
+	{ GUI_MouseInit,       NULL            ,1 },
+	{ W_ReadDDF,           NULL            ,9 },
+	{ RAD_LoadParam,       NULL            ,2 },
+	{ DDF_CleanUp,         NULL            ,1 },
+	{ SetLanguage,         NULL            ,1 },
+	{ ShowNotice,          NULL            ,1 },
+	{ SV_ChunkInit,        NULL            ,1 },
+	{ SV_MainInit,         NULL            ,1 },
+	{ M_Init,              "MiscInfo"      ,1 },
+	{ R_Init,              "RefreshDaemon" ,5 },
+	{ P_Init,              "PlayState"     ,1 },
+	{ P_MapInit,           NULL            ,1 },
+	{ P_InitSwitchList,    NULL            ,1 },
+	{ R_InitPicAnims,      NULL            ,1 },
+	{ R_InitSprites,       NULL            ,1 },
+	{ S_Init,              "SoundInit"     ,1 },
+	{ E_CheckNetGame,      "CheckNetGame"  ,1 },
+	{ ST_Init,             "STBarInit"     ,1 },
+	{ NULL,                NULL            ,1 }
+};
+
 // The engine namespace
 namespace engine
 {
 	// Local Prototypes
-	bool Startup(void);
-	void Loop(void);
+	bool Startup();
 	void Shutdown(void);
 
 	//
@@ -1346,8 +1553,6 @@ namespace engine
 	{
 		int p;
 		const char *ps;
-		char title[] = "EDGE v" EDGEVERSTR;
-		int turbo_scale = 100;
 		bool success;
 
 		// Version check ?
@@ -1360,206 +1565,23 @@ namespace engine
 		// -AJA- 2000/02/02: initialise global gameflags to defaults
 		global_flags = default_gameflags;
 
-		// -AJA- 2003/11/08 The log file gets all CON_Printfs, I_Printfs,
-		//                  I_Warnings and I_Errors.
-		if (! M_CheckParm("-nolog"))
-		{
-			logfile = fopen(EDGELOGFILE, "w");
-
-			if (!logfile)
-				I_Error("[engine::Startup] Unable to create log file");
-		}
-		else
-		{
-			logfile = NULL;
-		}
-		
-		//
-		// -ACB- 1998/09/06 Only used for debugging.
-		//                  Moved here to setup debug file for DDF Parsing...
-		//
-		// -ES- 1999/08/01 Debugfiles can now be used without -DDEVELOPERS, and
-		//                 then logs all the CON_Printfs, I_Printfs and I_Errors.
-		//
-		// -ACB- 1999/10/02 Don't print to console, since we don't have a console yet.
-		//
-		p = M_CheckParm("-debugfile");
-		if (p)
-		{
-			epi::string_c fn;
-			int i = 1;
-
-			// -ES- 1999/03/29 allow -debugfile <file>
-			if (p + 1 < M_GetArgCount() && (ps = M_GetArgument(p + 1))[0] != '-')
-			{
-				fn = ps;
-			}
-			else
-			{
-				// -KM- 1999/01/29 Consoleplayer is always 0 at this stage.
-				fn = "debug0.txt";
-				while (I_Access(fn.GetString()))
-				{
-					fn.Format("debug%d.txt", i++);
-
-					// give up: File system is probably corrupt. If not, there are 1000
-					// debug files already, and it's about time to delete some of them...
-					if (i >= 1000)
-						I_Error("[engine::Startup] Couldn't create debug file!");
-				}
-			}
-			debugfile = fopen(fn.GetString(), "w");
-
-			if (!debugfile)
-				I_Error("[engine::Startup] Unable to create debugfile");
-	    
-			L_WriteDebug("%s\n",title);
-		}
-		else
-		{
-			debugfile = NULL;
-		}
-
-		// Assume that we are using a standard game setup...
-		modifiedgame = false;
+		SetupLogAndDebugFiles();
 
 		// -ACB- 1999/09/20 defines to be used?
-		CON_InitConsole(79, 25, false);
+		CON_InitConsole(79, 25, false);  // AJA: FIXME: init later (in startcode[])
 
-		I_RegisterAssembler();
-		I_PutTitle(title);
+		I_PutTitle(E_TITLE);
 
-		ShowDate();
-		ShowVersion();
+		ShowDateAndVersion();
 
 		InitDirectories();
 
-		// check for strict and no-warning options
-		M_CheckBooleanParm("strict", &strict_errors, false);
-		M_CheckBooleanParm("warn", &no_warnings, true);
-		M_CheckBooleanParm("obsolete", &no_obsoletes, true);
-		M_CheckBooleanParm("lax", &lax_errors, false);
-
 		M_LoadDefaults();
+		SetGlobalVars();
 
-		// startup the system now
-		V_MultiResInit();
-		W_InitImages();
-		GUI_MainInit();
+		DoSystemStartup();
 
-		I_SystemStartup();
-
-		// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
-		R_ChangeResolution(SCREENWIDTH, SCREENHEIGHT, SCREENBITS, SCREENWINDOW);
-		// -KM- 1998/09/27 Change res now, so music doesn't start before
-		// screen.  Reset clock too.
-		R_ExecuteChangeResolution();
-
-		RGL_Init();
 		E_GlobalProgress(0, 0, 1, NULL);
-
-		CheckExternal();
-		DDF_MainInit();
-	
-		IdentifyVersion();
-
-		if (devparm)
-			I_Printf("%s", language["DevelopmentMode"]);
-
-		p = M_CheckParm("-turbo");
-		if (p)
-		{
-			if (p + 1 < M_GetArgCount())
-				turbo_scale = atoi(M_GetArgument(p + 1));
-			else
-				turbo_scale = 200;
-
-			if (turbo_scale < 10)
-				turbo_scale = 10;
-
-			if (turbo_scale > 400)
-				turbo_scale = 400;
-
-			CON_MessageLDF("TurboScale", turbo_scale);
-		}
-
-		G_SetTurboScale(turbo_scale);
-
-		I_CheckCPU();
-
-		{
-			epi::string_c fn;
-			p = M_CheckNextParm("-file", 0);
-			while (p)
-			{
-				// the parms after p are wadfile/lump names,
-				// until end of parms or another - preceded parm
-				modifiedgame = true;
-	
-				p++;
-				while (p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0])
-				{
-					
-					M_ComposeFileName(fn, gamedir, ps);
-					W_AddRawFilename(fn.GetString(), true);
-					p++;
-				}
-	
-				p = M_CheckNextParm("-file", p-1);
-			}
-		}
-		
-		ps = M_GetParm("-playdemo");
-
-		if (!ps)
-			ps = M_GetParm("-timedemo");
-
-		if (ps)
-		{
-			epi::string_c fn;
-			
-			M_ComposeFileName(fn, gamedir, ps);
-			fn += ".lmp";	// FIXME!! Check we need to use extension here
-			W_AddRawFilename(fn.GetString(), false);
-			I_Printf("Playing demo %s.\n", fn.GetString());
-		}
-
-		// get skill / episode / map from parms
-		startskill = sk_medium;
-		autostart = false;
-
-		// -KM- 1999/01/29 Use correct skill: 1 is easiest, not 0
-		ps = M_GetParm("-skill");
-		if (ps)
-		{
-			startskill = (skill_t)(atoi(ps) - 1);
-			autostart = true;
-		}
-
-		ps = M_GetParm("-timer");
-		if (ps && deathmatch)
-		{
-			int time;
-
-			time = atoi(ps);
-			I_Printf("Levels will end after %d minute", time);
-
-			if (time > 1)
-				I_Printf("s");
-
-			I_Printf(".\n");
-		}
-
-		ps = M_GetParm("-warp");
-		if (ps)
-		{
-			startmap = Z_StrDup(ps);
-			autostart = true;
-		}
-		else
-		{
-			startmap = Z_StrDup("MAP01"); // MUNDO HACK!!!!
-		}
 
 		int total=0;
 		int cur=0;
@@ -1586,12 +1608,6 @@ namespace engine
 
 		CON_SetVisible(vs_notvisible);
 
-		ps = M_GetParm("-screenshot");
-		if (ps)
-		{
-			screenshot_rate = atoi(ps);
-		}
-	  
 		// start the appropriate game based on parms
 		ps = M_GetParm("-record");
 		if (ps)
@@ -1677,43 +1693,20 @@ namespace engine
 				throw err;
 			}
 				
-			Loop();
+			// -ACB- 1999/09/24 Call System Specific Looping function. Some
+			//                  systems don't loop forever.
+			I_Loop();
 		}
 		catch(epi::error_c err)
 		{
 			printf("%s\n",err.GetInfo());
 			//I_Error(err.GetInfo());
 		};
-		Shutdown();								// Shutdown whatever at this point
+
+		Shutdown();    // Shutdown whatever at this point
 
 		// Kill the epi interface
 		epi::Shutdown();
-	}
-
-	//
-	// Loop
-	//
-	// This calls I_Loop which performs the main loop. I_Loop is
-	// required because the loop is not always infinite on platforms.
-	//
-	void Loop(void)
-	{
-		// SV_MainTestPrimitives();
-		// RGL_TestPolyQuads();
-
-///---		// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
-///---		R_ChangeResolution(SCREENWIDTH, SCREENHEIGHT, SCREENBITS, SCREENWINDOW);
-///---
-///---		// -KM- 1998/09/27 Change res now, so music doesn't start before
-///---		// screen.  Reset clock too.
-///---		R_ExecuteChangeResolution();
-
-		//
-		// -ACB- 1999/09/24 Call System Specific Looping function. Some systems
-		//                  don't loop forever.
-		//
-		I_Loop();
-		return;
 	}
 
 	//
