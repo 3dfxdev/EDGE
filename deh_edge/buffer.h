@@ -34,6 +34,9 @@ public:
 namespace Buffer
 {
 	parse_buffer_api *OpenFile(const char *filename);
+	// returns NULL if could not open the file, and the error
+	// message will have been stored (via SetErrorMsg).
+
 	parse_buffer_api *OpenLump(const char *data, int length);
 }
 
