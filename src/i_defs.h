@@ -97,30 +97,7 @@ typedef enum { false, true } boolean_t;
 
 #define WIN32_LEAN_AND_MEAN
 
-typedef __int64 Int64;
-typedef float flo_t;
-#define FLOAT_IEEE_754
-
-typedef enum { false, true } boolean_t;
-
-#include <windows.h>
-
-#include <ctype.h>
-#include <direct.h>
-#include <fcntl.h>
-#include <io.h>
-#include <limits.h>
-#include <math.h>
-#include <malloc.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <sys\stat.h>
-#include <time.h>
-
-#include <gl/gl.h>
+#include "epi/epi.h"
 
 #define EDGECONFIGFILE "EDGE.CFG"
 #define EDGEHOMEDIR    "EDGE"

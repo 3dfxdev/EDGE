@@ -26,11 +26,11 @@
 
 typedef struct
 {
-  WORD id;
-  int currenttrack;
-  int startpos;
-  int finishpos;
-  int pausedpos;
+	WORD id;
+	int currenttrack;
+	int startpos;
+	int finishpos;
+	int pausedpos;
 }
 cdinfo_t;
 
@@ -44,157 +44,157 @@ static MCIERROR errorcode;
 //
 boolean_t I_CDStartPlayback(int tracknum)
 {
-  MCI_OPEN_PARMS openparm;
-  MCI_PLAY_PARMS playparm;
-  MCI_SET_PARMS setparm;
-  MCI_STATUS_PARMS statusparm;
-  int numoftracks;
-  char errordesc[256];
+	MCI_OPEN_PARMS openparm;
+	MCI_PLAY_PARMS playparm;
+	MCI_SET_PARMS setparm;
+	MCI_STATUS_PARMS statusparm;
+	int numoftracks;
+	char errordesc[256];
 
-  // clear error description
-  memset(errordesc, 0, sizeof(char)*256);
+	// clear error description
+	memset(errordesc, 0, sizeof(char)*256);
 
-  if (currcd)
-    I_CDStopPlayback();
+	if (currcd)
+		I_CDStopPlayback();
 
-  // create cd info object
-  currcd = malloc(sizeof(cdinfo_t));
-  if (!currcd)
-  {
-    I_PostMusicError("I_CDPlayTrack: Unable to open CD-Audio device\n");
-    return false;
-  }
+	// create cd info object
+	currcd = new cdinfo_t;
+	if (!currcd)
+	{
+		I_PostMusicError("I_CDPlayTrack: Unable to open CD-Audio device\n");
+		return false;
+	}
 
-  // open parameters
-  openparm.dwCallback      = (DWORD)mainwindow;
-  openparm.lpstrDeviceType = CDDEVICE;
+	// open parameters
+	openparm.dwCallback      = (DWORD)mainwindow;
+	openparm.lpstrDeviceType = CDDEVICE;
 
-  // Open MCI CD-Audio
-  errorcode = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE, (DWORD)&openparm);
-  if (errorcode)
-  {
-    if (!mciGetErrorString(errorcode, errordesc, 128))
-      I_PostMusicError("Unknown Error");
-    else
-      I_PostMusicError(errordesc);
+	// Open MCI CD-Audio
+	errorcode = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE, (DWORD)&openparm);
+	if (errorcode)
+	{
+		if (!mciGetErrorString(errorcode, errordesc, 128))
+			I_PostMusicError("Unknown Error");
+		else
+			I_PostMusicError(errordesc);
 
-    free(currcd);
-    currcd = NULL;
-    return false;
-  }
+		delete currcd;
+		currcd = NULL;
+		return false;
+	}
 
-  // Set global deviceid
-  currcd->id = openparm.wDeviceID;
+	// Set global deviceid
+	currcd->id = openparm.wDeviceID;
 
-  // Get the status of MCI CD-Audio
-  statusparm.dwCallback = (DWORD)mainwindow;
-  statusparm.dwItem     = MCI_STATUS_MEDIA_PRESENT;
+	// Get the status of MCI CD-Audio
+	statusparm.dwCallback = (DWORD)mainwindow;
+	statusparm.dwItem     = MCI_STATUS_MEDIA_PRESENT;
 
-  errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)&statusparm);
-  if (errorcode || !statusparm.dwReturn)
-  {
-    if (!mciGetErrorString(errorcode, errordesc, 128))
-      I_PostMusicError("Unknown Error");
-    else
-      I_PostMusicError(errordesc);
+	errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)&statusparm);
+	if (errorcode || !statusparm.dwReturn)
+	{
+		if (!mciGetErrorString(errorcode, errordesc, 128))
+			I_PostMusicError("Unknown Error");
+		else
+			I_PostMusicError(errordesc);
 
-    mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
-    free(currcd);
-    currcd = NULL;
-    return false;
-  }
+		mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
+		delete currcd;
+		currcd = NULL;
+		return false;
+	}
 
-  // Get the number of CD Tracks
-  statusparm.dwCallback = (DWORD)mainwindow;
-  statusparm.dwItem     = MCI_STATUS_NUMBER_OF_TRACKS;
+	// Get the number of CD Tracks
+	statusparm.dwCallback = (DWORD)mainwindow;
+	statusparm.dwItem     = MCI_STATUS_NUMBER_OF_TRACKS;
 
-  errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)&statusparm);
-  if (errorcode)
-  {
-    if (!mciGetErrorString(errorcode, errordesc, 128))
-      I_PostMusicError("Unknown Error");
-    else
-      I_PostMusicError(errordesc);
+	errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)&statusparm);
+	if (errorcode)
+	{
+		if (!mciGetErrorString(errorcode, errordesc, 128))
+			I_PostMusicError("Unknown Error");
+		else
+			I_PostMusicError(errordesc);
 
-    mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
-    free(currcd);
-    currcd = NULL;
-    return false;
-  }
+		mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
+		delete currcd;
+		currcd = NULL;
+		return false;
+	}
 
-  numoftracks = statusparm.dwReturn;
-  if (tracknum >= numoftracks)
-  {
-    mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
-    I_PostMusicError("Track exceeds available tracks");
-    free(currcd);
-    currcd = NULL;
-    return false;
-  }
+	numoftracks = statusparm.dwReturn;
+	if (tracknum >= numoftracks)
+	{
+		mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
+		I_PostMusicError("Track exceeds available tracks");
+		delete currcd;
+		currcd = NULL;
+		return false;
+	}
 
-  // Get the status of the CD Track
-  statusparm.dwCallback = (DWORD)mainwindow;
-  statusparm.dwItem     = MCI_CDA_STATUS_TYPE_TRACK;
-  currcd->currenttrack  = statusparm.dwTrack    = tracknum;
+	// Get the status of the CD Track
+	statusparm.dwCallback = (DWORD)mainwindow;
+	statusparm.dwItem     = MCI_CDA_STATUS_TYPE_TRACK;
+	currcd->currenttrack  = statusparm.dwTrack    = tracknum;
 
-  errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM|MCI_TRACK, (DWORD)&statusparm);
-  if (errorcode)
-  {
-    if (!mciGetErrorString(errorcode, errordesc, 128))
-      I_PostMusicError("Unknown Error");
-    else
-      I_PostMusicError(errordesc);
+	errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM|MCI_TRACK, (DWORD)&statusparm);
+	if (errorcode)
+	{
+		if (!mciGetErrorString(errorcode, errordesc, 128))
+			I_PostMusicError("Unknown Error");
+		else
+			I_PostMusicError(errordesc);
 
-    mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
-    free(currcd);
-    currcd = NULL;
-    return false;
-  }
+		mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
+		delete currcd;
+		currcd = NULL;
+		return false;
+	}
 
-  // Check its an audio track....
-  if (statusparm.dwReturn != MCI_CDA_TRACK_AUDIO)
-  {
-    mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
-    I_PostMusicError("Track is not Audio\n");
-    free(currcd);
-    currcd = NULL;
-    return false;
-  }
+	// Check its an audio track....
+	if (statusparm.dwReturn != MCI_CDA_TRACK_AUDIO)
+	{
+		mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
+		I_PostMusicError("Track is not Audio\n");
+		delete currcd;
+		currcd = NULL;
+		return false;
+	}
 
-  // Setup time format
-  setparm.dwTimeFormat = MCI_FORMAT_TMSF;
-  mciSendCommand(currcd->id, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD)(LPVOID)&setparm);
+	// Setup time format
+	setparm.dwTimeFormat = MCI_FORMAT_TMSF;
+	mciSendCommand(currcd->id, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD)(LPVOID)&setparm);
 
-  // Setup play parameters
-  playparm.dwCallback = (DWORD)mainwindow;
-  currcd->startpos = playparm.dwFrom = MCI_MAKE_TMSF(tracknum, 0, 0, 0);
+	// Setup play parameters
+	playparm.dwCallback = (DWORD)mainwindow;
+	currcd->startpos = playparm.dwFrom = MCI_MAKE_TMSF(tracknum, 0, 0, 0);
 
-  // Check if last track...
-  if (tracknum == (numoftracks-1))
-  {
-    currcd->finishpos = playparm.dwTo = 0L;
-    errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM, (DWORD)(LPVOID)&playparm);
-  }
-  else
-  {
-    currcd->finishpos = playparm.dwTo = MCI_MAKE_TMSF(tracknum+1, 0, 0, 0);
-    errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM|MCI_TO, (DWORD)(LPVOID)&playparm);
-  }
+	// Check if last track...
+	if (tracknum == (numoftracks-1))
+	{
+		currcd->finishpos = playparm.dwTo = 0L;
+		errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM, (DWORD)(LPVOID)&playparm);
+	}
+	else
+	{
+		currcd->finishpos = playparm.dwTo = MCI_MAKE_TMSF(tracknum+1, 0, 0, 0);
+		errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM|MCI_TO, (DWORD)(LPVOID)&playparm);
+	}
 
-  if (errorcode)
-  {
-    if (!mciGetErrorString(errorcode, errordesc, 128))
-      I_PostMusicError("Unknown Error");
-    else
-      I_PostMusicError(errordesc);
+	if (errorcode)
+	{
+		if (!mciGetErrorString(errorcode, errordesc, 128))
+			I_PostMusicError("Unknown Error");
+		else
+			I_PostMusicError(errordesc);
 
-    mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
-    free(currcd);
-    currcd = NULL;
-    return false;
-  }
+		mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
+		delete currcd;
+		currcd = NULL;
+		return false;
+	}
 
-  return true;
+	return true;
 }
 
 //
@@ -202,41 +202,41 @@ boolean_t I_CDStartPlayback(int tracknum)
 //
 boolean_t I_CDPausePlayback(void)
 {
-  MCI_SET_PARMS setparm;
-  MCI_STATUS_PARMS statusparm;
-  char errordesc[256];
+	MCI_SET_PARMS setparm;
+	MCI_STATUS_PARMS statusparm;
+	char errordesc[256];
 
-  // clear error description
-  memset(errordesc, 0, sizeof(char)*256);
+	// clear error description
+	memset(errordesc, 0, sizeof(char)*256);
 
-  if (!currcd)
-  {
-    I_PostMusicError("CD has not been started\n");
-    return false;
-  }
+	if (!currcd)
+	{
+		I_PostMusicError("CD has not been started\n");
+		return false;
+	}
 
-  setparm.dwTimeFormat = MCI_FORMAT_TMSF;
-  mciSendCommand(currcd->id, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD)(LPVOID)&setparm);
+	setparm.dwTimeFormat = MCI_FORMAT_TMSF;
+	mciSendCommand(currcd->id, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD)(LPVOID)&setparm);
 
-  statusparm.dwCallback  = (DWORD)mainwindow;
-  statusparm.dwItem = MCI_STATUS_POSITION;
+	statusparm.dwCallback  = (DWORD)mainwindow;
+	statusparm.dwItem = MCI_STATUS_POSITION;
 
-  errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)&statusparm);
-  if (errorcode)
-  {
-    if (!mciGetErrorString(errorcode, errordesc, 128))
-      I_PostMusicError("Unknown Error");
-    else
-      I_PostMusicError(errordesc);
+	errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)&statusparm);
+	if (errorcode)
+	{
+		if (!mciGetErrorString(errorcode, errordesc, 128))
+			I_PostMusicError("Unknown Error");
+		else
+			I_PostMusicError(errordesc);
 
-    return false;
-  }
+		return false;
+	}
 
-  currcd->pausedpos = statusparm.dwReturn;
+	currcd->pausedpos = statusparm.dwReturn;
 
-  mciSendCommand(currcd->id, MCI_STOP, 0, (DWORD)NULL);
+	mciSendCommand(currcd->id, MCI_STOP, 0, (DWORD)NULL);
 
-  return true;
+	return true;
 }
 
 //
@@ -244,44 +244,44 @@ boolean_t I_CDPausePlayback(void)
 //
 boolean_t I_CDResumePlayback(void)
 {
-  MCI_SET_PARMS setparm;
-  MCI_PLAY_PARMS playparm;
-  char errordesc[256];
+	MCI_SET_PARMS setparm;
+	MCI_PLAY_PARMS playparm;
+	char errordesc[256];
 
-  // clear error description
-  memset(errordesc, 0, sizeof(char)*256);
+	// clear error description
+	memset(errordesc, 0, sizeof(char)*256);
 
-  if (!currcd)
-  {
-    I_PostMusicError( "CD has not been started\n");
-    return false;
-  }
+	if (!currcd)
+	{
+		I_PostMusicError( "CD has not been started\n");
+		return false;
+	}
 
-  setparm.dwTimeFormat = MCI_FORMAT_TMSF;
-  mciSendCommand(currcd->id, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD)(LPVOID) &setparm);
+	setparm.dwTimeFormat = MCI_FORMAT_TMSF;
+	mciSendCommand(currcd->id, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD)(LPVOID) &setparm);
 
-  playparm.dwCallback = (DWORD)mainwindow;
-  playparm.dwFrom     = currcd->pausedpos;
-  playparm.dwTo       = currcd->finishpos;
+	playparm.dwCallback = (DWORD)mainwindow;
+	playparm.dwFrom     = currcd->pausedpos;
+	playparm.dwTo       = currcd->finishpos;
 
-  if (!currcd->finishpos)
-    errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM, (DWORD)(LPVOID)&playparm);
-  else
-    errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM|MCI_TO, (DWORD)(LPVOID)&playparm);
+	if (!currcd->finishpos)
+		errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM, (DWORD)(LPVOID)&playparm);
+	else
+		errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM|MCI_TO, (DWORD)(LPVOID)&playparm);
 
-  if (errorcode)
-  {
-    if (!mciGetErrorString(errorcode, errordesc, 128))
-      I_PostMusicError("Unknown Error");
-    else
-      I_PostMusicError(errordesc);
+	if (errorcode)
+	{
+		if (!mciGetErrorString(errorcode, errordesc, 128))
+			I_PostMusicError("Unknown Error");
+		else
+			I_PostMusicError(errordesc);
 
-    free(currcd);
-    currcd = NULL;
-    return false;
-  }
+		delete currcd;
+		currcd = NULL;
+		return false;
+	}
 
-  return true;
+	return true;
 }
 
 //
@@ -289,14 +289,14 @@ boolean_t I_CDResumePlayback(void)
 //
 void I_CDStopPlayback(void)
 {
-  if (!currcd)
-    return;
+	if (!currcd)
+		return;
 
-  mciSendCommand(currcd->id, MCI_STOP, 0, (DWORD)NULL);
-  mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
-  free(currcd);
-  currcd = NULL;
-  return;
+	mciSendCommand(currcd->id, MCI_STOP, 0, (DWORD)NULL);
+	mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
+	delete currcd;
+	currcd = NULL;
+	return;
 }
 
 //
@@ -306,25 +306,25 @@ void I_CDStopPlayback(void)
 //
 boolean_t I_CDFinished(void)
 {
-  MCI_PLAY_PARMS playparm;
-  MCI_STATUS_PARMS statusparm;
+	MCI_PLAY_PARMS playparm;
+	MCI_STATUS_PARMS statusparm;
 
-  if (!currcd)
-    return false;
+	if (!currcd)
+		return false;
 
-  // Get the status of MCI CD-Audio
-  statusparm.dwCallback = (DWORD)mainwindow;
-  statusparm.dwItem     = MCI_STATUS_MODE;
+	// Get the status of MCI CD-Audio
+	statusparm.dwCallback = (DWORD)mainwindow;
+	statusparm.dwItem     = MCI_STATUS_MODE;
 
-  mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)&statusparm);
+	mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)&statusparm);
 
-  switch(statusparm.dwReturn)
-  {
-    case MCI_MODE_NOT_READY:
-    case MCI_MODE_PLAY:
-    case MCI_MODE_SEEK:
-      return false;
-  }
+	switch(statusparm.dwReturn)
+	{
+		case MCI_MODE_NOT_READY:
+		case MCI_MODE_PLAY:
+		case MCI_MODE_SEEK:
+			return false;
+	}
 
-  return true;
+	return true;
 }

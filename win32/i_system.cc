@@ -116,7 +116,6 @@ static void HandleFocusChange(HWND window, HWND otherwin, boolean_t gotfocus)
 //
 boolean_t I_SystemStartup(void)
 {
-	HRESULT result;
 	int clockspeed;
 
 	systemup = true;
@@ -354,7 +353,7 @@ char *I_PreparePath(const char *path)
 	if (path[0] >= 'A' && path[0] <= 'z' && path[1] == ':' && len == 2)
 	{
 		// special case: "c:" turns into "c:."
-		s = Z_Malloc(4);
+		s = (char*)Z_Malloc(4);
 		s[0] = path[0];
 		s[1] = path[1];
 		s[2] = '.';
@@ -365,7 +364,7 @@ char *I_PreparePath(const char *path)
 	if (path[len - 1] == '\\')
 	{
 		// cut off the last separator
-		s = Z_Malloc(len);
+		s = (char*)Z_Malloc(len);
 		memcpy(s, path, len - 1);
 		s[len - 1] = 0;
 
@@ -401,43 +400,43 @@ long FAR PASCAL I_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 	switch (message)
 	{
-		case WM_CLOSE:
-			return 1L;
+	case WM_CLOSE:
+		return 1L;
 
-		case WM_KEYDOWN:
-			// We don't want to know about a key still being pressed.
-			if ((lParam & 0x40000000) != 0) 
-				break;                        
+	case WM_KEYDOWN:
+		// We don't want to know about a key still being pressed.
+		if ((lParam & 0x40000000) != 0) 
+			break;                        
 
-			if (wParam == VK_PAUSE)
-				I_HandleKeypress(KEYD_PAUSE, true);
+		if (wParam == VK_PAUSE)
+			I_HandleKeypress(KEYD_PAUSE, true);
 
+		return 0L;
+
+	case WM_KEYUP:
+		if (wParam == VK_PAUSE)
+			I_HandleKeypress(KEYD_PAUSE, false);
+
+		return 0L;
+
+	case WM_KILLFOCUS:
+		HandleFocusChange(hWnd, (HWND)(wParam), false);
+		return 0L;
+
+	case WM_SETFOCUS:
+		HandleFocusChange(hWnd, (HWND)(wParam), true);
+		return 0L;
+
+	case WM_SIZE:
+		if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED) 
+		{
+			I_SizeWindow();
 			return 0L;
+		}
+		break;
 
-		case WM_KEYUP:
-			if (wParam == VK_PAUSE)
-				I_HandleKeypress(KEYD_PAUSE, false);
-
-			return 0L;
-
-		case WM_KILLFOCUS:
-			HandleFocusChange(hWnd, (HWND)(wParam), false);
-			return 0L;
-
-		case WM_SETFOCUS:
-			HandleFocusChange(hWnd, (HWND)(wParam), true);
-			return 0L;
-
-		case WM_SIZE:
-			if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED) 
-			{
-				I_SizeWindow();
-				return 0L;
-			}
-			break;
-
-		default:
-			break;
+	default:
+		break;
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
