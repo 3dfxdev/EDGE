@@ -51,6 +51,8 @@ extern byte gammatable[5][256];
 extern int usegamma;
 extern int current_gamma;
 
+#define GAMMA_CONV(light)  (gammatable[usegamma][light])
+
 // -AJA- 1999/07/03: Some palette stuff. Should be replaced later on with
 // some DDF system (e.g. "palette.ddf").
 
