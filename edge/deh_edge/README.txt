@@ -12,13 +12,13 @@ DEH_EDGE is a utility for converting DeHackEd (.DEH and .BEX) files into
 something you can use with the EDGE engine (http://edge.sourceforge.net).
 The output is a special WAD file containing a bunch of DDF lumps.
 
-DEH_EDGE is a command line utility, so the Windows version must be run
-from the DOS box.  Dragging a .DEH or .BEX file onto the DEH_EDGE
+DEH_EDGE is a command line utility, so the Windows version should be
+run from the DOS box.  Dragging a .DEH or .BEX file onto the DEH_EDGE
 executable may work, but you could miss some important messages.
 
 DEH_EDGE handles all the DeHackEd patch formats: the old binary formats,
-the new text format, and the BOOM extensions (BEX).  A few obscure bits,
-like raw action offsets, are not supported.
+the newer text format, and the BOOM extensions (BEX).  A few obscure
+things, like raw action offsets, are not supported.
 
 
 Usage
@@ -84,17 +84,16 @@ Limitations
 1. Doesn't yet convert some of the new BOOM/MBF actions (e.g. A_Die
    and A_Mushroom).  These will be added soon.
 
-2. Doesn't handle the BEX "INCLUDE" directives.
+2. Doesn't handle the BEX "INCLUDE" directive.
 
 3. No support for a few DEH patchables, e.g. 'God Mode Health'.
    These can't be changed in EDGE via DDF.  Most (probably all) of
    them have little importance (like what certain cheats give you).
 
 4. Raw action offsets and sprite/sound name pointers are unsupported.
-   These are heavily dependent on the exact version of the DOOM EXE,
-   and would require big tables to be compiled.  Since they are rarely
-   used, and it requires so much work, they they will probably never
-   be supported.
+   These are heavily dependent on the exact version of the DOOM EXE.
+   Since they are rarely used, and it requires so much work, they
+   will probably never be supported.
  
 5. Text replacements only work in EDGE when the language selected is
    "ENGLISH".  This is a nuisance for anyone who usually plays in a
