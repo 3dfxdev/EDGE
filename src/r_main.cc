@@ -791,7 +791,7 @@ void R_ExecuteChangeResolution(void)
 	int i, j, idx;
 	screenmode_t wantedMode;
 	screenmode_t oldMode;
-	screenmode_t mode320 = { 320, 200, 8, false };
+	screenmode_t defaultMode = { DEFAULTSCREENWIDTH, DEFAULTSCREENHEIGHT, DEFAULTSCREENBITS, DEFAULTSCREENWINDOW };
 
 	wantedMode = setMode;
 
@@ -816,14 +816,14 @@ void R_ExecuteChangeResolution(void)
 		return;
 
 	// couldn't even reset to old resolution. Perhaps they were the same.
-	// Try 320x200 as second last resort.  Do a major loop over
+	// Try the default as second last resort.  Do a major loop over
 	// windowing flag, e.g. so if all fullscreen modes fail we switch to
 	// trying the windowing ones.
 
 	for (j=0; j < 2; j++, SCREENWINDOW = !SCREENWINDOW)
 	{
-		mode320.windowed = SCREENWINDOW;
-		idx = V_FindClosestResolution(&mode320, false, false);
+		defaultMode.windowed = SCREENWINDOW;
+		idx = V_FindClosestResolution(&defaultMode, false, false);
 
 		if (idx == -1)
 			continue;
