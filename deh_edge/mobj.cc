@@ -139,7 +139,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
     },
 
     {		// MT_FIRE 
-      "*",       // name
+      "*ARCHVILE_FIRE",       // (attack) name
 	-1,		// doomednum
 	S_FIRE1,		// spawnstate
 	1000,		// spawnhealth
@@ -193,7 +193,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
     },
 
     {		// MT_TRACER 
-      "*",       // name
+      "*REVENANT_MISSILE",       // (attack) name
 	-1,		// doomednum
 	S_TRACER,		// spawnstate
 	1000,		// spawnhealth
@@ -274,7 +274,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
     },
 
     {		// MT_FATSHOT 
-      "*",       // name
+      "*MANCUBUS_FIREBALL",       // (attack) name
 	-1,		// doomednum
 	S_FATSHOT1,		// spawnstate
 	1000,		// spawnhealth
@@ -463,7 +463,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
     },
 
     {		// MT_BRUISERSHOT 
-      "*",       // name
+      "*BARON_FIREBALL",       // (attack) name
 	-1,		// doomednum
 	S_BRBALL1,		// spawnstate
 	1000,		// spawnhealth
@@ -787,7 +787,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
     },
 
     {		// MT_SPAWNSHOT 
-      "*",       // name
+      "*BRAIN_CUBE",       // (attack) name
 	-1,		// doomednum
 	S_SPAWN1,		// spawnstate
 	1000,		// spawnhealth
@@ -868,7 +868,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
     },
 
     {		// MT_TROOPSHOT 
-      "*",       // name
+      "*IMP_FIREBALL",       // (attack) name
 	-1,		// doomednum
 	S_TBALL1,		// spawnstate
 	1000,		// spawnhealth
@@ -895,7 +895,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
     },
 
     {		// MT_HEADSHOT 
-      "*",       // name
+      "*CACO_FIREBALL",       // (attack) name
 	-1,		// doomednum
 	S_RBALL1,		// spawnstate
 	1000,		// spawnhealth
@@ -922,7 +922,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
     },
 
     {		// MT_ROCKET 
-      "*",       // name
+      "*CYBERDEMON_MISSILE",       // (attack) name
 	-1,		// doomednum
 	S_ROCKET,		// spawnstate
 	1000,		// spawnhealth
@@ -949,7 +949,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
     },
 
     {		// MT_PLASMA 
-      "*",       // name
+      "*PLAYER_PLASMA",       // (attack) name
 	-1,		// doomednum
 	S_PLASBALL,		// spawnstate
 	1000,		// spawnhealth
@@ -976,7 +976,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
     },
 
     {		// MT_BFG 
-      "*",       // name
+      "*PLAYER_BFG9000",       // (attack) name
 	-1,		// doomednum
 	S_BFGSHOT,		// spawnstate
 	1000,		// spawnhealth
@@ -1003,7 +1003,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
     },
 
     {		// MT_ARACHPLAZ 
-      "*",       // name
+      "*ARACHNOTRON_PLASMA",       // name
 	-1,		// doomednum
 	S_ARACH_PLAZ,		// spawnstate
 	1000,		// spawnhealth
@@ -1165,7 +1165,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
     },
 
     {		// MT_EXTRABFG 
-      "*",       // name
+      "*BFG9000_SPRAY",       // name
 	-1,		// doomednum
 	S_BFGEXP,		// spawnstate
 	1000,		// spawnhealth
