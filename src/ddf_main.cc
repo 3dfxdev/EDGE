@@ -1405,17 +1405,19 @@ void DDF_MainGetInlineStr32(const char *info, void *storage)
 
 void DDF_MainRefAttack(const char *info, void *storage)
 {
-	attacktype_t **dest = (attacktype_t **)storage;
+	atkdef_c **dest = (atkdef_c **)storage;
 
 	DEV_ASSERT2(info && storage);
 
-	*dest = DDF_AttackLookup(info);
+	*dest = (atkdef_c*)atkdefs.Lookup(info);
+	if (*dest == NULL)
+		DDF_WarnError2(0x128, "Unknown Attack: %s\n", info);
 }
 
 //
 // DDF_MainLookupDirector
 //
-int DDF_MainLookupDirector(const mobjinfo_c *info, const char *ref)
+int DDF_MainLookupDirector(const mobjdef_c *info, const char *ref)
 {
 	int i, state, offset;
 	char *director;
