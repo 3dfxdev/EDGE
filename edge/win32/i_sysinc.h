@@ -70,6 +70,17 @@ void I_DirectMusicStop(void);
 void I_ShutdownDirectMusic(void);
 char* I_DirectMusicReturnError(void);
 
+// I_MUS.C - Win32 MUS Handling
+boolean_t I_StartupMUS(void);
+int I_MUSPlayTrack(byte* data, int length, boolean_t loopy);
+void I_MUSPause(void);
+void I_MUSResume(void);
+void I_MUSStop(void);
+void I_MUSTicker(void);
+boolean_t I_MUSPlaying(void);
+void I_MUSSetVolume(int vol);
+void I_ShutdownMUS(void);
+
 // I_MUSIC.C
 void I_PostMusicError(char* error);
 
