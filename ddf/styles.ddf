@@ -1,13 +1,7 @@
-
-//
-//  some ideas for defining "styles", something very much like 
-//  CSS (cascading style sheets) for HTML.  For EDGE, they
-//  apply to on-screen elements (text in menus, etc...) and
-//  specify sounds too.
-//
-//  not necessarily limited to one style per screen, e.g. for
-//  keyboard options: one style of key names and values, and
-//  another style for the move-back/foward and help parts.
+// 
+//    EDGE STYLES.DDF -redefine or add new styles.
+//    For documentation, see http://edge.sourceforge.net/
+//    DDF Version 4.3
 //
 
 <STYLES>
@@ -59,6 +53,10 @@ SOUND.SLIDER = "STNMOV";
 [MESSAGES]
 TEXT.FONT="DOOM";
 
+[CHAT]
+TEXT.FONT="DOOM";
+TEXT.COLOURMAP="TEXT_GREEN";
+
 [AUTOMAP]
 BACKGROUND.COLOUR=#000080;  // !!!! Testing
 TEXT.FONT="DOOM";
@@ -105,7 +103,7 @@ TEXT.COLOURMAP="TEXT_YELLOW";
 //------------------------------------------------------------
 // !!!! Testing / Ideas !!!!
 //------------------------------------------------------------
-[VIDEO_OPTIONS]
+[FOO_BAR]
 BACKGROUND.COLOUR = #888888;
 BACKGROUND.TRANSLUCENCY = 25%;
 // BACKGROUND.IMAGE = FLAT1;
