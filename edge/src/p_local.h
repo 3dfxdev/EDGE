@@ -160,10 +160,20 @@ mobj_t *P_MobjCreateObject(float_t x, float_t y, float_t z, const mobjinfo_t * t
 // P_ENEMY
 //
 
+typedef struct 
+{
+  int number;
+
+  // FIXME: big troubles if one of these objects disappears.
+  struct mobj_s ** targets;
+}
+shoot_spot_info_t;
+
 extern dirtype_t opposite[];
 extern dirtype_t diags[];
 extern float_t xspeed[8];
 extern float_t yspeed[8];
+extern shoot_spot_info_t brain_spots;
 
 void P_NoiseAlert(player_t *p);
 void P_NewChaseDir(mobj_t * actor);
@@ -172,6 +182,8 @@ boolean_t P_CheckMeleeRange(mobj_t * actor);
 boolean_t P_CheckMissileRange(mobj_t * actor);
 boolean_t P_Move(mobj_t * actor, boolean_t path);
 boolean_t P_LookForPlayers(mobj_t * actor, angle_t range);
+void P_LookForShootSpots(const mobjinfo_t *spot_type);
+void P_FreeShootSpots(void);
 
 //
 // P_MAPUTL
