@@ -33,7 +33,9 @@
 
 #include <sys/types.h> // Required for _stat()
 
-#define DIRECTINPUT_VERSION 0x0800
+#define DIRECTDRAW_VERSION  0x0700
+#define DIRECTINPUT_VERSION 0x0700
+#define DIRECTSOUND_VERSION 0X0700
 
 #include <ddraw.h>
 #include <dinput.h>

@@ -175,7 +175,7 @@ bool I_InitApp(HINSTANCE hInstance, int nCmdShow)
 	// Create a window
 #ifdef USE_GL  // -AJA- fiddle fiddle...  hack hack...
 	hWnd = CreateWindow(NAME, TITLE,
-		WS_POPUP,
+		WS_CAPTION, // WS_POPUP
 		0, 0, 2, 2,
 		NULL, NULL, hInstance, NULL);
 #else
