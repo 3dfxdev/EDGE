@@ -1485,7 +1485,7 @@ static void RAD_ParseSpawnThing(int pnum, const char **pars)
 	// (likewise for SpawnThing_Ambush)
 	// (likewise for SpawnThing_Flash)
 	//
-	// -ACB- 1998/08/06 Use mobjdef_c linked list
+	// -ACB- 1998/08/06 Use mobjtype_c linked list
 	// -AJA- 1999/09/11: Extra fields for Z and slope.
 
 	// -AJA- 1999/09/11: Reworked for spawning things at Z.
