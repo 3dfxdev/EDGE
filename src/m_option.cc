@@ -256,7 +256,10 @@ static void M_Toggle3dMode(int keypressed)
 static void M_ChangeScreenSize(int keypressed)
 {
 	hud_overlay = false;
-	R_SetViewSize(screen_size + 3);
+
+	// -ACB- 19/04/2004 Must set screenblocks here
+	screenblocks = screen_size + 3;
+	R_SetViewSize(screenblocks);
 }
 
 //
@@ -803,7 +806,7 @@ void M_OptDrawer()
 			case OPT_Slider:
 			{
 				M_DrawThermo(curr_menu->menu_center + 15, curry,
-							 curr_menu->items[i].numtypes - 1,
+							 curr_menu->items[i].numtypes,
 							  *(int*)(curr_menu->items[i].switchvar), 2);
               
 				break;
