@@ -2,15 +2,15 @@
 DEH-EDGE TODO
 -------------
 
-*  Plugin: first use will modify tables, messing up subsequent uses.
+* TEST: Plugin: first use will modify tables, messing up subsequent uses.
 
 +  Plugin: pass proper error values (and strings) when something
    goes wrong (e.g. wad save problem).
 
-TEST:  fix the way default output name is determined (for Plugin: don't
-       have a default).
+TEST: fix the way default output name is determined (for Plugin: don't
+      have a default).
 
-TEST:  check that extension stuff (missing for input/output) still works.
+TEST: check that extension stuff (missing for input/output) still works.
 
 -  implement these Boom/MBF actions:
 

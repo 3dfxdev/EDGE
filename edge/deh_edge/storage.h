@@ -21,6 +21,7 @@ namespace Storage
 	void Startup(void);
 	void RememberMod(int *target, int value);
 	void ApplyAll(void);
+	void RestoreAll(void);
 }
 
 }  // Deh_Edge

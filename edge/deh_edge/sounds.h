@@ -141,6 +141,8 @@ extern sfxinfo_t S_sfx[NUMSFX_BEX];
 
 namespace Sounds
 {
+	void Startup(void);
+
 	// this returns true if the string was found.
 	bool ReplaceSound(const char *before, const char *after);
 	bool ReplaceMusic(const char *before, const char *after);

@@ -44,6 +44,10 @@
 //    values for doing the comparisons, or (b) don't modify the values
 //    until after all patches are read in (i.e. remember what we need to
 //    change).  I've opted for the second way.
+//
+//    Addendum: since DEH_EDGE can now be used as a plugin module, it
+//    needs to remember the old values and restore them afterwards.
+//    Luckily this doesn't require any more storage.
 
 
 namespace Deh_Edge
@@ -63,6 +67,7 @@ typedef struct storagebox_s
 {
 	// next in linked-list
 	struct storagebox_s *next;
+	struct storagebox_s *prev;
 
 	int used;
 	
@@ -96,6 +101,8 @@ void Storage::RememberMod(int *target, int value)
 				sizeof(storagebox_t));
 
 		box->next = NULL;
+		box->prev = tail;
+
 		box->used = 0;
 
 		if (tail)
@@ -116,14 +123,34 @@ void Storage::RememberMod(int *target, int value)
 
 void Storage::ApplyAll(void)
 {
-	// also frees the list
-
-	while (head)
+	for (storagebox_t *box = head; box; box = box->next)
 	{
-		storagebox_t *box = head;
-		head = head->next;
-
 		for (int i = 0; i < box->used; i++)
+		{
+			// remembers the old value, so we can restore it
+
+			int old_value = box->items[i].target[0];
+
+			box->items[i].target[0] = box->items[i].value;
+			box->items[i].value = old_value;
+		}
+
+		delete box;
+	}
+}
+
+void Storage::RestoreAll(void)
+{
+	// this also frees the list
+
+	// NOTE: we go backwards (tail -> head), to handle aliases correctly
+
+	while (tail)
+	{
+		storagebox_t *box = tail;
+		tail = tail->prev;
+
+		for (int i = box->used-1; i >= 0; i--)
 		{
 			box->items[i].target[0] = box->items[i].value;
 		}

@@ -10,6 +10,7 @@ Changes in V1.2  (Unreleased)
  - interface for embedding into other programs (especially a DDF
    based Doom game engine).  Just #include "dh_embed.h".  Coded up
    support for progress notification.  Added support for raw lumps.
+   Made sure it can be used multiple times without interference.
 
 
 Changes in V1.1  (11th July 2004)

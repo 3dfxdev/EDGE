@@ -253,6 +253,21 @@ sfxinfo_t S_sfx[NUMSFX_BEX] =
 
 //------------------------------------------------------------------------
 
+void Sounds::Startup(void)
+{
+	for (int s = 0; s < NUMSFX_BEX; s++)
+	{
+		free(S_sfx[s].new_name);
+		S_sfx[s].new_name = NULL;
+	}
+
+	for (int m = 0; m < NUMMUSIC; m++)
+	{
+		free(S_music[m].new_name);
+		S_music[m].new_name = NULL;
+	}
+}
+
 namespace Sounds
 {
 	bool some_sound_modified = false;

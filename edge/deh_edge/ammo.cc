@@ -41,16 +41,8 @@
 namespace Deh_Edge
 {
 
-int Ammo::plr_max[4] = 
-{ 
-	200, 50, 300, 50  // doubled for backpack
-};
-
-int Ammo::pickups[4] =
-{
-	10, 4, 20, 1   // multiplied by 5 for boxes
-};
-
+int Ammo::plr_max[4];
+int Ammo::pickups[4];
 bool ammo_modified[4];
 
 
@@ -58,6 +50,14 @@ bool ammo_modified[4];
 
 void Ammo::Startup(void)
 {
+	// doubled for backpack
+	plr_max[0] = 200; plr_max[1] = 50;
+	plr_max[2] = 300; plr_max[3] = 50;
+
+	// multiplied by 5 for boxes
+	pickups[0] = 10; pickups[1] = 4;
+	pickups[2] = 20; pickups[3] = 1;
+
 	memset(ammo_modified, 0, sizeof(ammo_modified));
 }
 

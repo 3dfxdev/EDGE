@@ -18,6 +18,7 @@ namespace Deh_Edge
 
 namespace Rscript
 {
+	void Startup(void);
 	void MarkKeenDie(int mt_num);
 
 	void ConvertRAD(void);

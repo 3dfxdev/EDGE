@@ -95,12 +95,13 @@ namespace Deh_Edge
 
 namespace Rscript
 {
-	int keen_mobjs[MAX_KEENS] =
-	{
-		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
-	};
+	int keen_mobjs[MAX_KEENS];
+	int keen_count;
 
-	int keen_count = 0;
+	void Startup(void)
+	{
+		keen_count = 0;
+	}
 
 	void MarkKeenDie(int mt_num)
 	{
