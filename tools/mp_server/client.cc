@@ -175,15 +175,6 @@ bool ValidatePlayerName(const char *name)
 	return true;
 }
 
-static const char *ProtoVerToString(int ver)
-{
-	static char buf[40];
-
-	sprintf(buf, "%x.%x.%x", (ver >> 8) & 0xF, (ver >> 4) & 0xF, ver & 0xF);
-
-	return buf;
-}
-
 //------------------------------------------------------------------------
 
 void SV_send_error(packet_c *pk, const char *type, const char *str, ...)
@@ -258,14 +249,6 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 	// FIXME: check data_len
 
 	con.ByteSwap();
-
-///---	if (con.protocol_ver != MP_PROTOCOL_VER)
-///---	{
-///---		SV_send_error(pk, "ip", "Invalid protocol !");
-///---		LogPrintf(1, "Client %d had wrong protocol (%s)", client_id,
-///---			ProtoVerToString(con.protocol_ver));
-///---		return;
-///---	}
 
 	con.info.name[client_info_t::NAME_LEN-1] = 0;  // ensure NUL-terminated
 
