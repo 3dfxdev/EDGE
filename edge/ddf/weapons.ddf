@@ -1,12 +1,12 @@
 // 
 //    EDGE WEAPONS.DDF -redefine or add new weapons.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 4.2
+//    DDF Version 4.3
 //
 
 <WEAPONS>
 
-#VERSION 1.28
+#VERSION 1.29
 
 [CHAINSAW]
 AMMOTYPE=NOAMMO;

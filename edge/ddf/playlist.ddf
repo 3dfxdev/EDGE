@@ -1,12 +1,12 @@
 // 
 //    EDGE PLAYLIST.DDF -redefine music playing information(s)
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 4.2
+//    DDF Version 4.3
 //
 
 <PLAYLISTS>
 
-#VERSION 1.28
+#VERSION 1.29
 
 // DOOM 2
 

@@ -1,12 +1,12 @@
 // 
 //    EDGE SWITCH.DDF -redefine or add new switch textures and sounds.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 4.2
+//    DDF Version 4.3
 //
 
 <SWITCHES>
 
-#VERSION 1.28
+#VERSION 1.29
 
 [SW1BRCOM]
 ON_TEXTURE ="SW1BRCOM";

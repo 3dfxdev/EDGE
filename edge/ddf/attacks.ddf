@@ -1,12 +1,12 @@
 // 
 //    EDGE ATTACKS.DDF -redefine or add new attacks.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 4.2
+//    DDF Version 4.3
 //
 
 <ATTACKS>
 
-#VERSION 1.28
+#VERSION 1.29
 
 [ARACHNOTRON_PLASMA]
 ATTACKTYPE=PROJECTILE;

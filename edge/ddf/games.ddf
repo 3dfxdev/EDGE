@@ -1,12 +1,12 @@
 // 
 //    EDGE GAMES.DDF -redefine game/mission information(s).
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 4.2
+//    DDF Version 4.3
 //
 
 <GAMES>
 
-#VERSION 1.28
+#VERSION 1.29
 
 [EDGE]
 TITLE_GRAPHIC="EDGETTL","CREDIT2";

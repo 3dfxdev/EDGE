@@ -1,12 +1,12 @@
 // 
 //    EDGE LINES.DDF -redefine or add new line triggers.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 4.2
+//    DDF Version 4.3
 //
 
 <LINES>
 
-#VERSION 1.28
+#VERSION 1.29
 
 // Open Door (closes)
 [1]

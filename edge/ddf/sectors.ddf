@@ -1,12 +1,12 @@
 // 
 //    EDGE SECTORS.DDF -redefine or add new sector type(s).
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 4.2
+//    DDF Version 4.3
 //
 
 <SECTORS>
 
-#VERSION 1.28
+#VERSION 1.29
 
 [1]  // Light Random Off
 LIGHT_TYPE=FLASH;
