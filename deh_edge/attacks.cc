@@ -361,7 +361,7 @@ void Attacks::ConvertATK(void)
 {
 	got_one = false;
 
-	for (int i = 0; i < NUMMOBJTYPES; i++)
+	for (int i = 0; i < NUMMOBJTYPES_BEX; i++)
 	{
 	    if (! all_mode && ! mobj_modified[i])
 			continue;

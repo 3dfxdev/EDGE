@@ -102,9 +102,24 @@ typedef enum
     //  using an internal color lookup table for re-indexing.
     // If 0x4 0x8 or 0xc,
     //  use a translation table for player colormaps
-    MF_TRANSLATION = 0xc000000
+    MF_TRANSLATION = 0xc000000,
+
+	// ---- BOOM and MBF flags ----
+
+	// Stealth Mode - Creatures that dissappear and reappear.
+	MF_STEALTH = 0x10000000,
+
+	// Translucent sprite?
+	MF_TRANSLUCENT = 0x40000000,
+
+	MF_TOUCHY  = 0x20000000     // Should be: (0x1 << 32)
+#define MF_BOUNCES  MF_JUSTHIT  // Should be: (0x2 << 32)
+#define MF_FRIEND   MF_INFLOAT  // Should be: (0x4 << 32)
 }
 mobjflag_t;
+
+#define ALL_BEX_FLAGS  \
+	(MF_STEALTH | MF_TRANSLUCENT | MF_TOUCHY | MF_BOUNCES | MF_FRIEND)
 
 
 typedef enum
@@ -247,7 +262,20 @@ typedef enum
     MT_MISC85,
     MT_MISC86,
 
-    NUMMOBJTYPES
+    NUMMOBJTYPES,
+
+	// BOOM and MBF things:
+#define MT_PUSH  NUMMOBJTYPES
+	MT_PULL,
+
+	MT_DOGS,
+
+	MT_STEALTHBABY,   MT_STEALTHVILE,     MT_STEALTHBRUISER,
+	MT_STEALTHHEAD,   MT_STEALTHCHAINGUY, MT_STEALTHSERGEANT,
+	MT_STEALTHKNIGHT, MT_STEALTHIMP,      MT_STEALTHFATSO,
+	MT_STEALTHUNDEAD, MT_STEALTHSHOTGUY,  MT_STEALTHZOMBIE,
+                                                                                            
+	NUMMOBJTYPES_BEX
 }
 mobjtype_t;
 
@@ -281,11 +309,11 @@ typedef struct
 }
 mobjinfo_t;
 
-extern mobjinfo_t mobjinfo[NUMMOBJTYPES];
+extern mobjinfo_t mobjinfo[NUMMOBJTYPES_BEX];
 
 extern const mobjinfo_t brain_explode_mobj;
 
-extern bool mobj_modified[NUMMOBJTYPES];
+extern bool mobj_modified[NUMMOBJTYPES_BEX];
 
 
 #endif /* __MOBJ_HDR__ */

@@ -45,9 +45,9 @@
 #define MAX_ACT_NAME  200
 
 
-bool state_modified[NUMSTATES];
+bool state_modified[NUMSTATES_BEX];
 
-statedyn_t state_dyn[NUMSTATES];
+statedyn_t state_dyn[NUMSTATES_BEX];
 
 
 const char *Frames::attack_slot[3];
@@ -82,7 +82,7 @@ typedef struct
 }
 actioninfo_t;
 
-static const actioninfo_t action_info[NUMACTIONS] =
+static const actioninfo_t action_info[NUMACTIONS_BEX] =
 {
     { "NOTHING", 0, NULL, NULL },  // A_NULL
 
@@ -161,7 +161,23 @@ static const actioninfo_t action_info[NUMACTIONS] =
     { "MAKEACTIVESOUND", 0, NULL, NULL },      // A_SpawnSound
     { "CUBETRACER", 0, NULL, NULL },      // A_SpawnFly
     { "BRAINMISSILEEXPLODE", 0, NULL, NULL },     // A_BrainExplode
-    { "CUBESPAWN", 0, NULL, NULL }      // A_CubeSpawn (NEW)
+    { "CUBESPAWN", 0, NULL, NULL },     // A_CubeSpawn (NEW)
+
+	// BOOM and MBF:
+	// FIXME !!! Require special treatment for EDGE
+
+	{ "EXPLODE", AF_UNIMPL, NULL, NULL },    // A_Die
+	{ "STOP", AF_UNIMPL, NULL, NULL },       // A_Stop
+	{ "NOTHING", AF_UNIMPL, NULL, NULL },    // A_Detonate
+	{ "NOTHING", AF_UNIMPL, NULL, NULL },    // A_Mushroom
+
+	{ "NOTHING", AF_UNIMPL, NULL, NULL },    // A_Spawn
+	{ "NOTHING", AF_UNIMPL, NULL, NULL },    // A_Turn
+	{ "NOTHING", AF_UNIMPL, NULL, NULL },    // A_Face
+	{ "NOTHING", AF_UNIMPL, NULL, NULL },    // A_Scratch
+	{ "NOTHING", AF_UNIMPL, NULL, NULL },    // A_PlaySound
+	{ "NOTHING", AF_UNIMPL, NULL, NULL },    // A_RandomJump
+	{ "NOTHING", AF_UNIMPL, NULL, NULL }     // A_LineEffect
 };
 
 
@@ -346,7 +362,7 @@ namespace Frames
 		if (st_num == S_NULL)
 			return;
 
-		assert(1 <= st_num && st_num < NUMSTATES);
+		assert(1 <= st_num && st_num < NUMSTATES_BEX);
 
 		state_modified[st_num] = true;
 	}
@@ -360,7 +376,7 @@ namespace Frames
 
 		assert(st_lo <= st_hi);
 		assert(st_lo >= 0);
-		assert(st_hi < NUMSTATES);
+		assert(st_hi < NUMSTATES_BEX);
 
 		if (st_lo == S_NULL)
 			return;
@@ -404,7 +420,7 @@ namespace Frames
 
 	void StateDependencies(void)
 	{
-		for (int lo = 1; lo < NUMSTATES; )
+		for (int lo = 1; lo < NUMSTATES_BEX; )
 		{
 			if (! state_modified[lo])
 			{
@@ -413,7 +429,7 @@ namespace Frames
 
 			int hi = lo;
 
-			while (hi + 1 < NUMSTATES && state_modified[hi])
+			while (hi + 1 < NUMSTATES_BEX && state_modified[hi])
 				hi++;
 
 			StateDependRange(lo, hi);
@@ -434,7 +450,7 @@ void Frames::Startup(void)
 
 void Frames::ResetAll(void)
 {
-	for (int i = 0; i < NUMSTATES; i++)
+	for (int i = 0; i < NUMSTATES_BEX; i++)
 	{
 		state_dyn[i].group = state_dyn[i].gr_idx = 0;
 	}
@@ -466,7 +482,7 @@ void Frames::SpreadGroups(void)
 	{
 		changes = false;
 
-		for (int i = 0; i < NUMSTATES; i++)
+		for (int i = 0; i < NUMSTATES_BEX; i++)
 		{
 			if (state_dyn[i].group == 0)
 				continue;
@@ -531,7 +547,7 @@ bool Frames::CheckWeaponFlash(int first)
 
 		int act = states[first].action;
 
-		assert(0 <= act && act < NUMACTIONS);
+		assert(0 <= act && act < NUMACTIONS_BEX);
 
 		if (action_info[act].act_flags & AF_FLASH)
 			return true;
@@ -663,6 +679,9 @@ void Frames::OutputState(char group, int cur)
 		if (cur < lowest_touched)  lowest_touched  = cur;
 		if (cur > highest_touched) highest_touched = cur;
 	}
+
+	if (action_info[st->action].act_flags & AF_UNIMPL)
+		PrintWarn("Frame %d: action used is not yet supported.\n", cur);
 
 	char act_name[MAX_ACT_NAME];
 
@@ -860,7 +879,7 @@ void Frames::AlterFrame(int new_val)
 	int st_num = Patch::active_obj;
 	const char *field_name = Patch::line_buf;
 
-	assert(0 <= st_num && st_num < NUMSTATES);
+	assert(0 <= st_num && st_num < NUMSTATES_BEX);
 
 	if (StrCaseCmpPartial(field_name, "Unknown") == 0)
 		return;
@@ -886,12 +905,12 @@ void Frames::AlterFrame(int new_val)
 void Frames::AlterPointer(int new_val)
 {
 	int ptr_num = Patch::active_obj;
-	assert(0 <= ptr_num && ptr_num < POINTER_NUM);
+	assert(0 <= ptr_num && ptr_num < POINTER_NUM_BEX);
 
 	int st_num = pointerToFrame[ptr_num];
 	const char *deh_field = Patch::line_buf;
 
-	assert(0 <= st_num && st_num < NUMSTATES);
+	assert(0 <= st_num && st_num < NUMSTATES_BEX);
 
 	if (StrCaseCmp(deh_field, "Codep Frame") != 0)
 	{
@@ -899,7 +918,7 @@ void Frames::AlterPointer(int new_val)
 		return;
 	}
 
-	if (new_val < 0 || new_val >= NUMSTATES)
+	if (new_val < 0 || new_val >= NUMSTATES_BEX)
 	{
 		PrintWarn("Line %d: Illegal Codep frame number: %d\n",
 			Patch::line_num, new_val);
@@ -915,7 +934,7 @@ void Frames::AlterPointer(int new_val)
 //------- DEBUGGING ------------------------------------------------------
 
 #if (DEBUG_RANGES)
-extern const char *state_names[NUMSTATES];
+extern const char *state_names[NUMSTATES_BEX];
 #endif
 
 void Frames::DebugRange(const char *kind, const char *entry)
@@ -931,7 +950,7 @@ void Frames::DebugRange(const char *kind, const char *entry)
 	{
 		assert(0 < lowest_touched);
 		assert(lowest_touched <= highest_touched);
-		assert(highest_touched < NUMSTATES);
+		assert(highest_touched < NUMSTATES_BEX);
 
 		fprintf(stderr, "%s -> %s\n", state_names[lowest_touched],
 			state_names[highest_touched]);

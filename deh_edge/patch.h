@@ -19,6 +19,7 @@ namespace Patch
 	extern int line_num;
 
 	extern int active_obj;
+	extern int patch_fmt;
 
 	void Load(const char *filename);
 }

@@ -40,7 +40,7 @@
 #include "wad.h"
 
 
-spritename_t sprnames[NUMSPRITES] =
+spritename_t sprnames[NUMSPRITES_BEX] =
 {
     {"TROO",NULL}, {"SHTG",NULL}, {"PUNG",NULL}, {"PISG",NULL},
 	{"PISF",NULL}, {"SHTF",NULL}, {"SHT2",NULL}, {"CHGG",NULL},
@@ -76,7 +76,9 @@ spritename_t sprnames[NUMSPRITES] =
 	{"SMBT",NULL}, {"SMGT",NULL}, {"SMRT",NULL}, {"HDB1",NULL},
 	{"HDB2",NULL}, {"HDB3",NULL}, {"HDB4",NULL}, {"HDB5",NULL},
 	{"HDB6",NULL}, {"POB1",NULL}, {"POB2",NULL}, {"BRS1",NULL},
-	{"TLMP",NULL}, {"TLP2",NULL}
+	{"TLMP",NULL}, {"TLP2",NULL},
+	// BOOM and MBF:
+	{"TNT1",NULL}, {"DOGS",NULL}
 };
 
 
@@ -448,13 +450,13 @@ namespace TextStr
 {
 	void SpriteDependencies(void)
 	{
-		for (int i = 0; i < NUMSPRITES; i++)
+		for (int i = 0; i < NUMSPRITES_BEX; i++)
 		{
 			if (! sprnames[i].new_name)
 				continue;
 
 			// find this sprite amongst the states...
-			for (int st = 1; st < NUMSTATES; st++)
+			for (int st = 1; st < NUMSTATES_BEX; st++)
 				if (states[st].sprite == i)
 					Frames::MarkState(st);
 		}
@@ -584,11 +586,17 @@ void TextStr::AlterCheat(const char * new_val)
 
 const char *TextStr::GetSprite(int spr_num)
 {
-	assert(0 <= spr_num && spr_num < NUMSPRITES);
+	assert(0 <= spr_num && spr_num < NUMSPRITES_BEX);
 
 	const spritename_t *spr = sprnames + spr_num;
 
-	return spr->new_name ? spr->new_name : spr->orig_name;
+	const char *name = spr->new_name ? spr->new_name : spr->orig_name;
+
+	// Boom support: TNT1 is an invisible sprite
+	if (StrCaseCmp(name, "TNT1") == 0)
+		return "NULL";
+	
+	return name;
 }
 
 

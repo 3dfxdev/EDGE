@@ -27,6 +27,7 @@ typedef enum
 	AF_FLASH      = (1 << 14),  // weapon will go into flash state
 	AF_MAKEDEAD   = (1 << 15),  // action needs an extra MAKEDEAD state
 	AF_FACE       = (1 << 16),  // action needs FACE_TARGET state
+	AF_UNIMPL     = (1 << 17),  // not yet supported
 
 	AF_WEAPON_ST  = (1 << 20),  // uses a weapon state
 	AF_THING_ST   = (1 << 21)   // uses a thing state

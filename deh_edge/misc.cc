@@ -105,7 +105,7 @@ namespace Misc
 {
 	void MarkAllMonsters(void)
 	{
-		for (int i = 0; i < NUMMOBJTYPES; i++)
+		for (int i = 0; i < NUMMOBJTYPES_BEX; i++)
 		{
 			mobjinfo_t *mobj = mobjinfo + i;
 
