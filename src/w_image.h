@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE Generic Image Handling
+//  EDGE Generalised Image Handling
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2000  The EDGE Team.
@@ -41,7 +41,7 @@ typedef struct w_post_s
 {
   // number of pixels to skip down from current position.  The initial
   // position is just the top of the sprite.
-  byte offset;
+  byte skip;
 
   // number of real pixels following this, not including the following
   // pad pixel and another one after the last pixel.
@@ -65,6 +65,10 @@ typedef struct image_s
   // with black pixels if solid, or transparent pixels otherwise.
   unsigned short actual_w;
   unsigned short actual_h;
+
+  // offset values.  Only used for sprites.
+  short offset_x;
+  short offset_y;
 
   // whether the image is solid (otherwise it contains transparent
   // parts).
@@ -114,6 +118,8 @@ const image_t *W_ImageFromPatch(const char *patch_name);
 //
 //  IMAGE USAGE
 //
+
+void W_InitImages(void);
 
 const cached_image_t *W_ImageCache(const image_t *image, int mip,
     image_mode_e mode);
