@@ -155,7 +155,7 @@ buffer_queue_c buffer_Q;
 //
 void BufferPacket(NLsocket sock, const char *data, int len)
 {
-	SYS_ASSERT((unsigned)len >= sizeof(proto_header_t));
+	SYS_ASSERT((unsigned)len >= sizeof(header_proto_t));
 
 	NLaddress remote_addr;
 	nlGetRemoteAddr(sock, &remote_addr);

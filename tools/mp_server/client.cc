@@ -95,19 +95,19 @@ bool client_c::MatchDest(int dest, int game) const
 
 	switch (dest)
 	{
-		case proto_header_t::D_ALL_BROWSING:
+		case header_proto_t::D_ALL_BROWSING:
 			return (state == ST_Browsing);
 
-		case proto_header_t::D_ALL_NOT_PLAYING:
+		case header_proto_t::D_ALL_NOT_PLAYING:
 			return (state != ST_Playing);
 
-		case proto_header_t::D_OTHER_QUEUERS:
+		case header_proto_t::D_OTHER_QUEUERS:
 			return (state == ST_Queueing && game_id == game);
 
-		case proto_header_t::D_OTHER_PLAYERS:
+		case header_proto_t::D_OTHER_PLAYERS:
 			return (state == ST_Playing && game_id == game);
 
-		case proto_header_t::D_ABSOLUTELY_EVERYONE:
+		case header_proto_t::D_ABSOLUTELY_EVERYONE:
 			return true;
 
 		default:
@@ -392,11 +392,11 @@ void PK_message(packet_c *pk)
 
 	switch (dest_id)
 	{
-		case proto_header_t::D_ALL_BROWSING:
-		case proto_header_t::D_ALL_NOT_PLAYING:
-		case proto_header_t::D_OTHER_QUEUERS:
-		case proto_header_t::D_OTHER_PLAYERS:
-		case proto_header_t::D_ABSOLUTELY_EVERYONE:
+		case header_proto_t::D_ALL_BROWSING:
+		case header_proto_t::D_ALL_NOT_PLAYING:
+		case header_proto_t::D_OTHER_QUEUERS:
+		case header_proto_t::D_OTHER_PLAYERS:
+		case header_proto_t::D_ABSOLUTELY_EVERYONE:
 		{
 			for (int c = 0; (unsigned)c < clients.size(); c++)
 			{
