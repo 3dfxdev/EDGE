@@ -45,16 +45,6 @@ public:
 	epi::strent_c patch1;
 };
 
-typedef struct
-{
-	// range of characters
-	int first, last;
-
-	const struct image_s **chars;
-	const struct image_s *missing;
-}
-patchcache_t;
-
 class fontdef_c
 {
 public:
@@ -78,7 +68,9 @@ public:
 	fontpatch_c *patches;
 	epi::strent_c missing_patch;
 
-	patchcache_t p_cache;
+///---private:
+///---	patchcache_t p_cache;
+
 };
 
 // Our fontdefs container
