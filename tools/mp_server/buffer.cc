@@ -141,8 +141,11 @@ public:
 
 	void RetryWrites(int cur_time)
 	{
-		std::remove_if(queue.begin(), queue.end(),
-			buffer_packet_c::retry_write(cur_time));
+		pkt_list::iterator new_end =
+			std::remove_if(queue.begin(), queue.end(),
+				buffer_packet_c::retry_write(cur_time));
+
+		queue.erase(new_end, queue.end());
 	}
 };
 

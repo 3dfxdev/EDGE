@@ -80,12 +80,19 @@ int game_c::AddToGame(int client_id)
 
 void game_c::RemoveFromQueue(int client_id)
 {
-	std::remove(queuers.begin(), queuers.end(), client_id);
+	std::vector<int>::iterator new_end =
+		std::remove(queuers.begin(), queuers.end(), client_id);
+	
+	queuers.erase(new_end, queuers.end());
 }
 
 void game_c::RemoveFromGame(int client_id)
 {
-	std::remove(players.begin(), players.end(), client_id);
+	std::vector<int>::iterator new_end =
+		std::remove(players.begin(), players.end(), client_id);
+	
+	players.erase(new_end, players.end());
+
 	num_players = players.size();
 }
 
@@ -199,6 +206,8 @@ static void BeginGame(game_c *GM)
 		for (int q = 0; q < GM->num_players; q++)
 		{
 			int client_id = GM->queuers[q];
+
+			DebugPrintf("Moving Client %d from Queue to PLAY\n", client_id);
 
 			client_c *CL = clients[client_id];
 			SYS_ASSERT(CL->state == client_c::ST_Queueing);
@@ -314,6 +323,8 @@ void PK_new_game(packet_c *pk)
 
 	// !!! FIXME: validate game info
 
+	game_c *GM;
+
 	// LOCK STRUCTURES
 	{
 		autolock_c LOCK(&global_lock);
@@ -325,7 +336,7 @@ void PK_new_game(packet_c *pk)
 			if (games[game_id] == NULL)
 				break;
 		
-		game_c *GM = new game_c(&ng.info);
+		GM = new game_c(&ng.info);
 
 		if ((unsigned)game_id == games.size())
 			games.push_back(GM);
@@ -340,7 +351,18 @@ void PK_new_game(packet_c *pk)
 	}
 	// NOW UNLOCKED
 
-	// !!! FIXME: send acknowledgement
+	LogPrintf(0, "Client %d created new game %d %s:%s (%s)\n",
+		client_id, CL->game_id, GM->game_name.c_str(),
+		GM->level_name.c_str(), (GM->mode == 'C') ? "Coop" : "DM");
+
+	// send acknowledgement
+
+	pk->SetType("Ng");
+	pk->hd().flags = 0;
+	pk->hd().data_len = 0;
+	pk->hd().game = CL->game_id;
+
+	pk->Write(main_socket);
 }
 
 void PK_join_queue(packet_c *pk)
@@ -365,11 +387,13 @@ void PK_join_queue(packet_c *pk)
 
 	// FIXME: check if queue is FULL
 
+	game_c *GM;
+
 	// LOCK STRUCTURES
 	{
 		autolock_c LOCK(&global_lock);
 
-		game_c *GM = games[CL->game_id];
+		GM = games[CL->game_id];
 
 		GM->AddToQueue(client_id);
 		GM->num_players++;
@@ -378,6 +402,9 @@ void PK_join_queue(packet_c *pk)
 		CL->game_id = game_id;
 	}
 	// NOW UNLOCKED
+
+	LogPrintf(0, "Client %d joined game %d's queue (%d/%d).\n", client_id,
+		game_id, GM->num_players, GM->min_players);
 
 	// FIXME send acknowledgement
 }
@@ -393,6 +420,8 @@ void PK_leave_game(packet_c *pk)
 		// FIXME: log and/or error packet
 		return;
 	}
+
+	LogPrintf(0, "Client %d leaving game %d's queue.\n", client_id, CL->game_id);
 
 	// LOCK STRUCTURES
 	{
@@ -449,9 +478,14 @@ void PK_vote_to_play(packet_c *pk)
 
 	GM->num_votes++;
 
+	LogPrintf(0, "Client %d voted on game %d's queue (%d/%d).\n", pk->hd().source,
+		CL->game_id, GM->num_votes, GM->num_players);
+
 	if (GM->num_votes == GM->num_players &&
 		GM->num_players >= GM->min_players)
 	{
+		LogPrintf(0, "GAME %d HAS BEGUN !!\n", CL->game_id);
+
 		BeginGame(GM);
 	}
 }

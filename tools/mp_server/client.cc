@@ -306,10 +306,12 @@ void PK_leave_server(packet_c *pk)
 	pk->Write(main_socket);
 }
 
-void PK_broadcast_discovery(packet_c *pk)
+void PK_broadcast_discovery(packet_c *pk, NLaddress *remote_addr)
 {
 	// very simple: just send it back!
 	// (client will get our address and port)
+
+	LogPrintf(0, "Broadcast discovery from addr %s\n", GetAddrName(remote_addr));
 
 	pk->SetType("Bd");
 
