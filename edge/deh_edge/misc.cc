@@ -145,9 +145,9 @@ void Misc::AlterMisc(int new_val)
 			return;
 		}
 
-		bfg_cells_per_shot = new_val;
-		Weapons::MarkWeapon(wp_bfg);
+		Storage::RememberMod(&bfg_cells_per_shot, new_val);
 
+		Weapons::MarkWeapon(wp_bfg);
 		return;
 	}
 
@@ -159,7 +159,7 @@ void Misc::AlterMisc(int new_val)
 			return;
 		}
 		
-		monster_infight = new_val;
+		Storage::RememberMod(&monster_infight, new_val);
 
 		if (monster_infight == 221)
 			MarkAllMonsters();
