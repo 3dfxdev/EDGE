@@ -380,7 +380,7 @@ bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z)
 	int bx, by;
 
 	// can go anywhere
-	if (tm_I.flags & MF_NOCLIP)
+	if (thing->flags & MF_NOCLIP)
 		return true;
 
 	tm_I.mover = thing;
