@@ -17,14 +17,16 @@ CXXFLAGS=$(CFLAGS)
 LDFLAGS=-L/usr/X11R6/lib -Lhawknl1.68/src
 LIBS=-lm -lpthread -lNL $(FLTK_LIBS)
 
-OBJS=autolock.o \
-     buffer.o   \
-     client.o   \
-     game.o     \
-	 mp_main.o  \
-	 network.o  \
-	 packet.o   \
-	 protocol.o \
+OBJS=autolock.o  \
+     buffer.o    \
+     client.o    \
+     game.o      \
+	 lib_argv.o  \
+	 lib_list.o  \
+	 mp_main.o   \
+	 network.o   \
+	 packet.o    \
+	 protocol.o  \
 	 sys_assert.o \
 	 sys_debug.o \
 	 ticstore.o  \
