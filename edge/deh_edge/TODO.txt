@@ -19,20 +19,20 @@ DONE:  frames: remove 'OutputState' (etc) from header file.
 BATMAN BUGS
 -----------
 
--  guys with flamethrowers: no hurties (attacking action in attack).
+FIXED: guys with flamethrowers: no hurties (attacking action in attack).
 
 -  inside of helicopter doesn't work (guys should teleport in, open door).
    >>> because no MONSTER flag (required by EDGE for teleport lines).
 
 -  clowns: speed is 0, so how can they move in Edge ?
 
--  suicidal Penguin (doomnum 2028).  See below.
+FIXED: suicidal Penguin (doomnum 2028).  See below.
 
 
 MORDETH BUGS
 ------------
 
--  suicidal Revenant (doomnum 60).  Doesn't enter MELEE states, since
+FIXED:  suicidal Revenant (doomnum 60).  Doesn't enter MELEE states, since
    has no closecombat attack (EDGE requires it, original Doom doesn't).
 
 
