@@ -78,6 +78,15 @@ void R_ComputeSkyHeights(void)
 		rings[i].group = (i + 1);
 		rings[i].next = rings[i].prev = rings + i;
 		rings[i].max_h = sec->c_h;
+
+		// leave some room for tall sprites 
+		static const float SPR_H_MAX = 256.0f;
+
+		if (sec->c_h < 30000.0f && (sec->c_h > sec->f_h) &&
+			(sec->c_h < sec->f_h + SPR_H_MAX))
+		{
+			rings[i].max_h = sec->f_h + SPR_H_MAX;
+		}
 	}
 
 	// --- make the pass over linedefs ---
