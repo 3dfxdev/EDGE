@@ -37,33 +37,33 @@
 // Post end marker
 #define P_SENTINEL  0xFF
 
-typedef struct w_post_s
-{
+// Post structure.  It isn't a C struct to prevent alignment issues,
+// but the W_XXX defines are like structure fields.
+typedef byte w_post_t;
+
+#define W_SKIP  0
   // number of pixels to skip down from current position.  The initial
   // position is just the top of the sprite.  Can be P_SENTINEL for
   // the end-of-post marker.
-  byte skip;
 
+#define W_LEN  1
   // number of real pixels following this, not including the following
   // pad pixel and another one after the last pixel.
-  byte length;
 
+#define W_PAD1  2
   // first pad pixel.  Another pad pixel implicitly follows the last
   // real pixel.  The pad pixels should be the same as the real pixel
   // they are next to, in case the fixed point arithmetic overflows.
-  byte pad1;
-}
-w_post_t;
 
-// 16-bit version of the above (EXPERIMENTAL)
-typedef struct w_post16_s
-{
-  byte skip;
-  byte length;
-  
-  unsigned short pad1;
-}
-w_post16_t;
+#define W_DATA   3  // first data pixel.
+#define W_TOTAL  4  // total of post
+
+// preferred access routines
+#define WPOST_SKIP(wp)  (wp[W_SKIP])
+#define WPOST_LEN(wp)   (wp[W_LEN])
+#define WPOST_DATA(wp)  (wp + W_DATA)
+#define WPOST_NEXT(wp)  (wp + W_TOTAL + WPOST_LEN(wp))
+
 
 typedef struct image_s
 {
