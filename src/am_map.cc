@@ -250,7 +250,7 @@ cheatseq_t cheat_amap = {0, 0};
 
 static bool stopped = true;
 
-bool newhud = false;
+bool map_overlay = false;
 
 // current am colourmap
 static const byte *am_colmap = NULL;
@@ -380,7 +380,7 @@ static void InitVariables(void)
 {
 	DEV_ASSERT2(consoleplayer);
 
-	if (newhud == true)
+	if (map_overlay == true)
 		automapactive = 1;
 	else
 		automapactive = 2;
@@ -495,10 +495,10 @@ void AM_InitResolution(void)
 
 	LevelInit();  // -ES- 1998/08/20
 
-	CON_CreateCVarBool("newhud", cf_normal, &newhud);
+	CON_CreateCVarBool("newhud", cf_normal, &map_overlay);
 
 	if (M_CheckParm("-newmap"))
-		newhud = true;
+		map_overlay = true;
 }
 
 //
@@ -515,7 +515,7 @@ static void AM_Show(void)
 	if (stopped)
 		StartAM();
 
-	if (newhud == true)
+	if (map_overlay == true)
 		automapactive = 1;
 	else
 		automapactive = 2;
