@@ -34,6 +34,7 @@
 
 #include "i_defs.h"
 #include "rad_trig.h"
+#include "rad_act.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -57,27 +58,150 @@
 #include "z_zone.h"
 
 
+#define MAXRTSLINE  1024
+
+
 // Static Scripts.  Never change once all scripts have been read in.
 rad_script_t *r_scripts = NULL;
 
 // Dynamic Triggers.  These only exist for the current level.
 rad_trigger_t *r_triggers = NULL;
 
-// # Triggers
-int rad_itemsread = 0;
+
+class rts_menu_c
+{
+private:
+	static const int MAX_TITLE  = 9;
+	static const int MAX_CHOICE = 9;
+
+	rad_trigger_t *trigger;
+	style_c *style;
+
+	int title_num;
+	hu_textline_t title_lines[MAX_TITLE];
+
+	int choice_num;
+	hu_textline_t choice_lines[MAX_CHOICE];
+
+public:
+	rts_menu_c(s_show_menu_t *menu, rad_trigger_t *_trigger, style_c *_style) :
+		trigger(_trigger), style(_style), title_num(0), choice_num(0)
+	{
+		int y = 0;
+
+		AddTitle(&y, menu->title, menu->use_ldf);
+
+		for (int idx = 0; (idx < 9) && menu->options[idx]; idx++)
+			AddChoice(&y, '1' + idx, menu->options[idx], menu->use_ldf);
+
+		// center the menu vertically
+		int adjust_y = (200 - y) / 2;
+
+		for (int t = 0; t < title_num; t++)
+			title_lines[t].y += adjust_y;
+
+		for (int c = 0; c < choice_num; c++)
+			choice_lines[c].y += adjust_y;
+	}
+
+	~rts_menu_c() { /* nothing to do */ }
+
+private:
+	void AddTitle(int *y, const char *text, bool use_ldf)
+	{
+		if (use_ldf)
+			text = language[text];
+
+		title_num = 0;
+
+		int t_type = styledef_c::T_TITLE;
+
+		// FIXME: take scaling into account !!!
+		int font_h = style->fonts[t_type]->NominalHeight() + 2; //FIXME: fonts[] may be NULL
+
+		for (int t = 0; t < MAX_TITLE; t++)
+		{
+			if (! *text)
+				break;
+
+			title_num = t + 1;
+
+			HL_InitTextLine(title_lines + t, 160, *y, style, t_type);
+			title_lines[t].centre = true;
+
+			for (; *text && *text != '\n'; text++)
+				HL_AddCharToTextLine(title_lines + t, *text);
+
+			if (*text == '\n')
+				*text++;
+
+			(*y) += font_h;
+		}
+
+		// spacing between two halves (make it changeable ???)
+		(*y) += font_h;
+	}
+
+	void AddChoice(int *y, char key, const char *text, bool use_ldf)
+	{
+		if (use_ldf)
+			text = language[text];
+
+		int c = choice_num;
+		choice_num++;
+
+		int t_type = styledef_c::T_TEXT;
+
+		// FIXME: take scaling into account !!!
+		int font_h = style->fonts[t_type]->NominalHeight() + 2; //FIXME: fonts[] may be NULL
+
+		HL_InitTextLine(choice_lines + c, 160, *y, style, t_type);
+		choice_lines[c].centre = true;
+
+		if (key)
+		{
+			HL_AddCharToTextLine(choice_lines + c, key);
+			HL_AddCharToTextLine(choice_lines + c, '.');
+			HL_AddCharToTextLine(choice_lines + c, ' ');
+		}
+
+		for (; *text && *text != '\n'; text++)
+			HL_AddCharToTextLine(choice_lines + c, *text);
+
+		(*y) += font_h;
+	}
+
+public:
+	int NumChoices() const { return choice_num; }
+
+	void NotifyResult(int result)
+	{
+		trigger->menu_result = result;
+	}
+
+	void Drawer()
+	{
+		style->DrawBackground();
+
+		for (int t = 0; t < title_num; t++)
+			HL_DrawTextLine(title_lines + t, false);
+
+		for (int c = 0; c < choice_num; c++)
+			HL_DrawTextLine(choice_lines + c, false);
+	}
+};
 
 // RTS menu active ?
 bool rts_menuactive = false;
-static drawtip_t *rts_menu_tip = NULL;
-static rad_trigger_t *rts_menu_trigger = NULL;
+static rts_menu_c *rts_curr_menu = NULL;
+///--- static rad_trigger_t *rts_menu_trigger = NULL;
+///--- static style_c *rts_menu_style;
 
 // Current RTS file or lump being parsed.
 static byte *rad_memfile;
 static byte *rad_memfile_end;
 static byte *rad_memptr;
 static int rad_memfile_size;
-
-static style_c *rts_menu_style;
 
 
 //
@@ -677,6 +801,49 @@ static void RAD_MainCacheFile(const char *filename)
 	fclose(file);
 }
 
+static int ReadScriptLine(char *buf, int max)
+{
+	int real_num = 1;
+
+	while (rad_memptr < rad_memfile_end)
+	{
+		if (rad_memptr[0] == '\n')
+		{
+			// skip trailing EOLN
+			rad_memptr++;
+			break;
+		}
+
+		// line concatenation
+		if (rad_memptr+2 < rad_memfile_end && rad_memptr[0] == '\\')
+		{
+			if (rad_memptr[1] == '\n' ||
+			    (rad_memptr[1] == '\r' && rad_memptr[2] == '\n'))
+			{
+				real_num++;
+				rad_memptr += (rad_memptr[1] == '\n') ? 2 : 3;
+				continue;
+			}
+		}
+
+		// ignore carriage returns
+		if (rad_memptr[0] == '\r')
+		{
+			rad_memptr++;
+			continue;
+		}
+
+		if (max <= 2)
+			I_Error("RTS script: line %d too long !!\n", rad_cur_linenum);
+
+		*buf++ = *rad_memptr++;  max--;
+	}
+
+	*buf = 0;
+
+	return real_num;
+}
+
 //
 // RAD_ParseScript
 //
@@ -685,49 +852,26 @@ static void RAD_MainCacheFile(const char *filename)
 //
 static void RAD_ParseScript(void)
 {
-	char str[MAXSTRLEN];
-	int n = 0;
-
 	RAD_ParserBegin();
 
 	rad_cur_linenum = 1;
 	rad_memptr = rad_memfile;
 
+	char linebuf[MAXRTSLINE];
+
 	while (rad_memptr < rad_memfile_end)
 	{
-		int sp;
-
-		for (sp=0; rad_memptr < rad_memfile_end && rad_memptr[0] != '\n'; 
-				rad_memptr++)
-		{
-			// ignore carriage returns
-			if (rad_memptr[0] == '\r')
-				continue;
-
-			if (sp < MAXSTRLEN-1)
-				str[sp++] = rad_memptr[0];
-		}
-
-		// skip trailing EOLN
-		rad_memptr++;
-
-		str[sp] = 0;
+		int real_num = ReadScriptLine(linebuf, MAXRTSLINE);
 
 #if (DEBUG_RTS)
-		L_WriteDebug("RTS LINE: `%s'\n", str);
+		L_WriteDebug("RTS LINE: '%s'\n", linebuf);
 #endif
+///---		if (rts_version < 0x129)
+///---		{ } //!!!!!!	strupr(linebuf);  // turn it into upper case
 
-		if (sp > 0)
-		{
-			// turn it into upper case
-			strupr(str);
+		RAD_ParseLine(linebuf);
 
-			RAD_ParseLine(str);
-
-			n = rad_itemsread;
-		}
-
-		rad_cur_linenum++;
+		rad_cur_linenum += real_num;
 	}
 
 	RAD_ParserDone();
@@ -798,64 +942,21 @@ void RAD_Init(void)
 	RAD_InitTips();
 }
 
-static void AddMenuLine(drawtip_t *T, int text_type, int y, char key, const char *text,
-	bool use_ldf)
-{
-	hu_textline_t *HU = T->hu_lines + T->hu_linenum;
-	T->hu_linenum++;
-
-	HL_InitTextLine(HU, 160, y, rts_menu_style, text_type);
-	HU->centre = true;
-
-	if (use_ldf)
-		text = language[text];
-
-	if (key)
-	{
-		HL_AddCharToTextLine(HU, key);
-		HL_AddCharToTextLine(HU, '.');
-		HL_AddCharToTextLine(HU, ' ');
-	}
-
-	for (; *text && *text != '\n'; text++)
-		HL_AddCharToTextLine(HU, *text);
-}
-
 void RAD_StartMenu(rad_trigger_t *R, s_show_menu_t *menu)
 {
 	DEV_ASSERT2(! rts_menuactive);
 
-	drawtip_t *T = new drawtip_t;
-	memset(T, 0, sizeof(drawtip_t));
+	// find the right style
+	styledef_c *def = NULL;
 
-	if (! rts_menu_style)
-	{
-		styledef_c *def = styledefs.Lookup("RTS MENU");
-		if (! def)
-			def = default_style;
-		rts_menu_style = hu_styles.Lookup(def);
-	}
+	if (R->menu_style_name)
+		def = styledefs.Lookup(R->menu_style_name);
 
-	int y = 0;
-	int font_height = rts_menu_style->fonts[0]->NominalHeight() + 2; //FIXME: fonts[0] may be NULL
+	if (! def) def = styledefs.Lookup("RTS MENU");
+	if (! def) def = styledefs.Lookup("MENU");
+	if (! def) def = default_style;
 
-	AddMenuLine(T,2, y, 0, menu->title, menu->use_ldf);
-	y += font_height * 2;
-
-	for (int idx = 0; (idx < 9) && menu->options[idx]; idx++)
-	{
-		AddMenuLine(T,0, y, '1' + idx, menu->options[idx], menu->use_ldf);
-		y += font_height;
-	}
-
-	int adjust_y = (200 - y) / 2;
-
-	// adjust vertical positions
-	for (int j=0; j < T->hu_linenum; j++)
-		T->hu_lines[j].y += adjust_y;
-
-	rts_menu_tip = T;
-	rts_menu_trigger = R;
+	rts_curr_menu = new rts_menu_c(menu, R, hu_styles.Lookup(def));
 	rts_menuactive = true;
 }
 
@@ -864,28 +965,24 @@ void RAD_FinishMenu(int result)
 	if (! rts_menuactive)
 		return;
 	
-	if (result < 0 || result > (rts_menu_tip->hu_linenum-1))
+	DEV_ASSERT2(rts_curr_menu);
+
+	if (result < 0 || result >= rts_curr_menu->NumChoices())
 		return;
-	
-	rts_menu_trigger->menu_result = result;
 
-	delete rts_menu_tip;
+	rts_curr_menu->NotifyResult(result);
 
-	rts_menu_tip = NULL;
-	rts_menu_trigger = NULL;
+	delete rts_curr_menu;
+
+	rts_curr_menu = NULL;
 	rts_menuactive = false;
 }
 
 static void RAD_MenuDrawer(void)
 {
-	rts_menu_style->DrawBackground();
+	DEV_ASSERT2(rts_curr_menu);
 
-	for (int i=0; i < rts_menu_tip->hu_linenum; i++)
-	{
-		float alpha = 1.0f; //FIXME: use style alpha
-
-		HL_DrawTextLineAlpha(rts_menu_tip->hu_lines + i, false, NULL, alpha);
-	}
+	rts_curr_menu->Drawer();
 }
 
 //

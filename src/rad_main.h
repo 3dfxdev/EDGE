@@ -84,6 +84,12 @@ typedef struct s_show_menu_s
 }
 s_show_menu_t;
 
+typedef struct s_menu_style_s
+{
+	char *style;
+}
+s_menu_style_t;
+
 typedef struct s_jump_on_s
 {
 	// int vartype;  /* only MENU currently supported */
@@ -581,6 +587,9 @@ typedef struct rad_trigger_s
 
 	// current tip slot (each tip slot works independently).
 	int tip_slot;
+
+	// menu style name, or NULL if not set
+	const char *menu_style_name;
 
 	// result of last SHOW_MENU (1 to 9, or 0 when cancelled)
 	int menu_result;

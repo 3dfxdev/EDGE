@@ -24,14 +24,10 @@
 #include "e_event.h"
 #include "rad_main.h"
 
-
 #define DEBUG_RTS  0
-
-#define MAXSTRLEN  512
 
 extern rad_script_t *r_scripts;
 extern rad_trigger_t *r_triggers;
-extern int rad_itemsread;
 
 // Tip Prototypes
 void RAD_InitTips(void);
@@ -78,38 +74,4 @@ void RAD_WarnError(const char *err, ...);
 extern int rad_cur_linenum;
 extern char *rad_cur_filename;
 
-//
-//  ACTIONS
-//
-
-void RAD_ActNOP(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActTip(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActTipProps(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActPlaySound(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActKillSound(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActChangeMusic(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param);
-
-void RAD_ActMoveSector(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActLightSector(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActEnableScript(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActActivateLinetype(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActUnblockLines(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActJump(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActSleep(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActRetrigger(rad_trigger_t *R, mobj_t *actor, void *param);
-
-void RAD_ActDamagePlayers(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActHealPlayers(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActArmourPlayers(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActBenefitPlayers(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActDamageMonsters(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActThingEvent(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActSkill(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActGotoMap(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActExitLevel(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActShowMenu(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActJumpOn(rad_trigger_t *R, mobj_t *actor, void *param);
-
-#endif
+#endif  /* __RAD_TRIG__ */

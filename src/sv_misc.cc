@@ -227,16 +227,18 @@ static savefield_t sv_fields_trigger[] =
 	SF(repeats_left, "repeats_left", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(repeat_delay, "repeat_delay", 1, SVT_INT, SR_GetInt, SR_PutInt),
 
-	SF(state, "state", 1, SVT_INT,
-	SR_TriggerGetState, SR_TriggerPutState),
+	SF(state, "state", 1, SVT_INT, SR_TriggerGetState, SR_TriggerPutState),
 	SF(wait_tics, "wait_tics", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(tip_slot, "tip_slot", 1, SVT_INT, SR_GetInt, SR_PutInt),
+	SF(menu_style_name, "menu_style_name", 1, SVT_STRING,
+		SR_TipGetString, SR_TipPutString),
 	SF(menu_result, "menu_result", 1, SVT_INT, SR_GetInt, SR_PutInt),
 
 	// NOT HERE
 	//   - next & prev: can be regenerated.
 	//   - tag_next & tag_prev: ditto
 	//   - soundorg: can be recomputed.
+	//   - last_con_message: doesn't matter.
 
 	SVFIELD_END
 };
@@ -288,15 +290,14 @@ static savefield_t sv_fields_drawtip[] =
 	SF(p.y_pos, "y_pos", 1, SVT_PERCENT, SR_GetPercent, SR_PutPercent),
 	SF(p.left_just, "left_just", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(p.colourmap_name, "colourmap_name", 1, SVT_STRING,
-	SR_TipGetString, SR_TipPutString),
+		SR_TipGetString, SR_TipPutString),
 	SF(p.translucency, "translucency", 1, SVT_PERCENT, 
-	SR_GetPercent, SR_PutPercent),
+		SR_GetPercent, SR_PutPercent),
 
 	SF(delay, "delay", 1, SVT_INT, SR_GetInt, SR_PutInt),
-	SF(tip_text, "tip_text", 1, SVT_STRING,
-	SR_TipGetString, SR_TipPutString),
+	SF(tip_text, "tip_text", 1, SVT_STRING, SR_TipGetString, SR_TipPutString),
 	SF(tip_graphic, "tip_graphic", 1, SVT_STRING,
-	SR_LevelGetImage, SR_LevelPutImage),
+		SR_LevelGetImage, SR_LevelPutImage),
 	SF(playsound, "playsound", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
 	SF(fade_time, "fade_time", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(fade_target, "fade_target", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
