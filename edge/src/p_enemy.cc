@@ -150,29 +150,6 @@ void P_NoiseAlert(player_t *p)
 }
 
 //
-// P_CheckMeleeRange
-//
-bool P_CheckMeleeRange(mobj_t * actor)
-{
-	mobj_t *pl;
-	float dist;
-
-	if (!actor->target)
-		return false;
-
-	pl = actor->target;
-	dist = P_ApproxDistance(pl->x - actor->x, pl->y - actor->y);
-
-	if (dist >= MELEERANGE - 20.0f + pl->info->radius)
-		return false;
-
-	if (!P_CheckSight(actor, actor->target))
-		return false;
-
-	return true;
-}
-
-//
 // P_Move
 //
 // Move in the current direction,
