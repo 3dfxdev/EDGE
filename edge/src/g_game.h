@@ -30,6 +30,8 @@
 #include "e_event.h"
 #include "ddf_main.h"
 
+#include "epi/epistring.h"
+
 //
 // GAME
 //
@@ -87,7 +89,7 @@ void G_ScreenShot(void);
 
 bool G_CheckWhenAppear(when_appear_e appear);
 bool G_CheckConditions(mobj_t *mo, condition_check_t *cond);
-char *G_FileNameFromSlot(int slot);
+void G_FileNameFromSlot(epi::string_c& fn, int slot);
 
 extern const gamedef_c* currgamedef;
 extern const mapdef_c* currmap;
