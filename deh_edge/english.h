@@ -680,4 +680,36 @@
 #define CC_CYBER	"THE CYBERDEMON"
 #define CC_HERO		"OUR HERO"
 
+//------------------------------------------------------------------------
+//
+// -AJA- Other common strings
+//
+
+#define X_COMMERC   "\tcommercial version.\n"
+#define X_REGIST    "\tregistered version.\n"
+
+#define X_TITLE1    "                         The Ultimate DOOM Startup v%i.%i                        "
+#define X_TITLE2    "                          DOOM System Startup v%i.%i                          "
+#define X_TITLE3    "                         DOOM 2: Hell on Earth v%i.%i                           "
+
+#define X_NODIST1  \
+"===========================================================================\n" \
+"             This version is NOT SHAREWARE, do not distribute!\n" \
+"         Please report software piracy to the SPA: 1-800-388-PIR8\n" \
+"===========================================================================\n"
+
+#define X_NODIST2  \
+"===========================================================================\n" \
+"                            Do not distribute!\n" \
+"         Please report software piracy to the SPA: 1-800-388-PIR8\n" \
+"===========================================================================\n"
+
+#define X_MODIFIED  \
+"===========================================================================\n" \
+"ATTENTION:  This version of DOOM has been modified.  If you would like to\n" \
+"get a copy of the original game, call 1-800-IDGAMES or see the readme file.\n" \
+"        You will not receive technical support for modified games.\n" \
+"                      press enter to continue\n" \
+"===========================================================================\n"
+
 #endif  /* __ENGLISH_HDR__ */
