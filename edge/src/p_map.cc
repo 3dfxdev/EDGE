@@ -2028,7 +2028,9 @@ static bool PIT_ChangeSector(mobj_t * thing, bool widening)
 
 		if (thing->player)
 		{
-			nofit = true;
+			if (! widening)
+				nofit = true;
+
 			return true;
 		}
 
