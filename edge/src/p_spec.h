@@ -123,7 +123,12 @@ typedef struct sec_move_s
   boolean_t completed;
 
   int newspecial;
-  int texture;
+
+#ifdef USE_IMAGE
+  struct image_s *new_image;
+#else
+  int texture;  //!!!
+#endif
 
   struct sec_move_s *next, *prev;
 }
