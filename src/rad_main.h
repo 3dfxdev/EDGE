@@ -62,19 +62,11 @@ typedef struct s_tip_prop_s
  
   // translucency value (normally 1.0), or < 0 for no change
   float_t translucency;
-}
-s_tip_prop_t;
 
-
-typedef struct s_tip_fade_s
-{
-  // destination translucency
-  float_t target_trans;
-  
-  // time (in tics) to reach target
+  // time (in tics) to reach target.
   int time;
 }
-s_tip_fade_t;
+s_tip_prop_t;
 
 
 // SpawnThing Function
@@ -165,6 +157,13 @@ s_gotomap_t;
 // Play Sound function
 typedef struct s_sound_s
 {
+  enum
+  {
+    PSOUND_Normal = 0,
+    PSOUND_BossMan
+  }
+  kind;
+  
   // sound location.  z can be ONFLOORZ.
   float_t x, y, z;
 
@@ -245,15 +244,6 @@ typedef struct s_exit_s
   int exittime;
 }
 s_exit_t;
-
-
-// SaveGame
-typedef struct s_savegame_s
-{
-  // slot number, negative for quicksave
-  int slot;
-}
-s_savegame_t;
 
 
 // Texture changing on lines/sectors
