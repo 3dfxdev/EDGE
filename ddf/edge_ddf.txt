@@ -1,6 +1,12 @@
 
-EDGE DDF 4.2:
-=============
+EDGE DDF 4.3: (XXXX-XX-XX)
+==========================
+
+1) THINGS.DDF: updated player entries, limits for the new ammo types.
+
+
+EDGE DDF 4.2: (2004-10-31)
+==========================
 
 1) THINGS.DDF: replaced BOSSMAN special in BOSS_BRAIN with the new
                ALWAYS_LOUD special.  Means he is no longer immune to
@@ -23,7 +29,7 @@ EDGE DDF 4.2:
                                  weapon into [PLAYER_PUNCH] attack.
 
 
-EDGE DDF 4.1 (2004-04-30):
+EDGE DDF 4.1 (2004-06-10):
 ==========================
 
 1) THINGS.DDF: added missing GIB states to MANCUBUS.
