@@ -48,24 +48,6 @@ int Ammo::pickups[4] =
 	10, 4, 20, 1   // multiplied by 5 for boxes
 };
 
-// Weapon info: sprite frames, ammunition use.
-typedef struct
-{
-	const char *ddf_name;
-
-    int ammo, ammo_per_shot;
-	int bind_key, priority;
-	
-	const char *flags;
-
-    int upstate;
-    int downstate;
-    int readystate;
-    int atkstate;
-    int flashstate;
-}
-weaponinfo_t;
-
 #define WF_FREE       'f'
 #define WF_REF_INACC  'r'
 #define WF_DANGEROUS  'd'
