@@ -320,7 +320,10 @@ typedef enum
   EF_TUNNEL = 0x4000000,
 
   // Marks thing as being a dynamic light.
-  EF_DLIGHT = 0x8000000
+  EF_DLIGHT = 0x8000000,
+
+  // Thing has been gibbed.
+  EF_GIBBED = 0x10000000
 }
 mobjextendedflag_t;
 
