@@ -835,7 +835,7 @@ static void DoReFire(mobj_t * mo, int ATK)
 
 	p->refire = info->refire_inacc ? 0 : 1;
 
-	if (! WeaponCanFire(p, p->ready_wp, ATK))
+	if (! WeaponCouldAutoFire(p, p->ready_wp, ATK))
 		SwitchAway(p, ATK, 0);
 }
 
@@ -885,7 +885,7 @@ static void DoNoFire(mobj_t * mo, int ATK, bool does_return)
 	p->refire = info->refire_inacc ? 0 : 1;
 	p->remember_atk[0] = does_return ? psp->state->nextstate : -1;
 
-	if (WeaponCanFire(p, p->ready_wp, ATK))
+	if (WeaponCouldAutoFire(p, p->ready_wp, ATK))
 		GotoReadyState(p);
 	else
 		SwitchAway(p, ATK, 0);
