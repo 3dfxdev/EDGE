@@ -54,6 +54,8 @@ namespace Things
 	void HandleAttacks(const mobjinfo_t *info, int mt_num);
 
 	const char *GetSpeed(int speed);
+	bool CheckIsMonster(const mobjinfo_t *info, int mt_num, int player,
+		bool use_act_flags);
 
 	// returns false if name not found
 	bool AlterOneField(const fieldreference_t *refs, const char *deh_field,
