@@ -618,7 +618,7 @@ static specialkey_t specialkeylist[] =  // terminate on -1
     {KEYD_MOUSE1, "Mouse1"},
     {KEYD_MOUSE2, "Mouse2"},
     {KEYD_MOUSE3, "Mouse3"},
-    {KEYD_MOUSE4, "Mouse3"},
+    {KEYD_MOUSE4, "Mouse4"},
     {KEYD_MWHEEL_UP, "Wheel Up"},
     {KEYD_MWHEEL_DN, "Wheel Down"},
     {-1, ""}
