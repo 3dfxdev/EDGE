@@ -49,9 +49,6 @@
 
 #define DEBUG_SOUND  0
 
-#define S_CLOSE_DIST2    (S_CLOSE_DIST * S_CLOSE_DIST)
-#define S_CLIPPING_DIST2 (S_CLIPPING_DIST * S_CLIPPING_DIST)
-
 // slider-scale volume control (0 to 19)
 static int soundvolume;
 
@@ -82,7 +79,7 @@ static free_origin_t *free_queue = NULL;
 typedef enum { CX, CY, CZ, NUMCOORDS } coord_e; 
 
 // playing sfx list
-#define PLAYINGSFXLIMIT  30
+#define PLAYINGSFXLIMIT  32
 static playsfx_t playingsfx[PLAYINGSFXLIMIT];
 static int playingsfxnum = PLAYINGSFXLIMIT;
 
