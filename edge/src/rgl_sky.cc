@@ -176,7 +176,7 @@ void RGL_DrawSkyBox(void)
 
 	glEnable(GL_TEXTURE_2D);
 
-	glColor3f(1.0f, 1.0f, 1.0f);
+	glColor3f(LT_RED(255), LT_GRN(255), LT_BLU(255));
 
 	// top
 	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_T));
