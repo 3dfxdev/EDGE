@@ -93,7 +93,7 @@ bool I_StartupMusic(void *sysinfo)
 // I_MusicPlayback
 //
 int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping,
-	float gain);
+	float gain)
 {
 	int track;
 	int handle;
