@@ -28,7 +28,11 @@ public:
 private:
 	bool want_quit;
 
-	//
+	int prog_val[2];
+
+	Fl_Light_Button *light_but[2];
+
+	Fl_Progress *prog_bar;
 
 public:
 	void Update(int item, int progress);
