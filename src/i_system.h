@@ -32,6 +32,8 @@
 #include "e_event.h"
 #include "e_ticcmd.h"
 
+#include "epi/epitimestamp.h"
+
 //--------------------------------------------------------
 //  SYSTEM functions.
 //--------------------------------------------------------
@@ -114,19 +116,7 @@ void I_Warning(const char *warning,...) GCCATTR(format(printf, 1, 2));
 // Writes a warning to the console and the debug file (if any).  This
 // function should call CON_Printf().
 
-
-typedef struct i_time_s
-{
-	byte day;      // 1-31
-	byte month;    // 1-12
-	short year;    // 1900-2100
-	byte hours;    // 0-23 (0 is midnight, 12am)
-	byte minutes;  // 0-59
-	byte secs;     // 0-59
-}
-i_time_t;
-
-bool I_GetModifiedTime(const char *filename, i_time_t *time);
+bool I_GetModifiedTime(const char *filename, epi::timestamp_c *time);
 // -ACB- 2000/06/05 The returns the time of when the filename passed
 // was modified.
 

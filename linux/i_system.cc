@@ -508,19 +508,14 @@ bool I_Access(const char *filename)
 //
 // -ACB- 2001/06/14
 //
-bool I_GetModifiedTime(const char *filename, i_time_t *t)
+bool I_GetModifiedTime(const char *filename, epi::timestamp_c *t)
 {
 	struct stat buf;
 	struct tm timeinf;
 
 	// Check the sanity of the coders...
-	if (!filename)
+	if (!filename || !t)
 		return false;
-
-	if (!t)
-		return false;
-
-	memset(t,0,sizeof(i_time_t));
 
 	// Check the file is invalid
 	if (stat(filename, &buf))			
@@ -530,12 +525,8 @@ bool I_GetModifiedTime(const char *filename, i_time_t *t)
 	if(!localtime_r(&buf.st_mtime, &timeinf))
 		return false;
 
-	t->secs    = timeinf.tm_sec;
-	t->minutes = timeinf.tm_min;
-	t->hours   = timeinf.tm_hour;
-	t->day     = timeinf.tm_mday;
-	t->month   = timeinf.tm_mon+1;
-	t->year    = timeinf.tm_year+1900;
+	t->Set(timeinf.tm_mday, timeinf.tm_mon+1, timeinf.tm_year+1900,
+		   timeinf.tm_hour, timeinf.tm_min, timeinf.tm_sec);
 
 	return true;
 }

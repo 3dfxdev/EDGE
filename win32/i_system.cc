@@ -490,26 +490,21 @@ unsigned long I_ReadMicroSeconds(void)
 //
 // I_GetModifiedTime
 //
-// Fills in 'i_time_t' to match the modified time of 'filename'. Returns
+// Fills in 'timestamp_c' to match the modified time of 'filename'. Returns
 // true on success.
 //
 // -ACB- 2001/06/14
 // -ACB- 2004/02/15 Use native win32 functions: they should work!
 //
-bool I_GetModifiedTime(const char *filename, i_time_t *t)
+bool I_GetModifiedTime(const char *filename, epi::timestamp_c *t)
 {
 	SYSTEMTIME timeinf;
 	HANDLE handle;
 	WIN32_FIND_DATA fdata;
 
 	// Check the sanity of the coders...
-	if (!filename)
+	if (!filename || !t)
 		return false;
-
-	if (!t)
-		return false;
-
-	memset(t,0,sizeof(i_time_t));
 
 	// Get the file info...
 	handle = FindFirstFile(filename, &fdata);
@@ -522,12 +517,10 @@ bool I_GetModifiedTime(const char *filename, i_time_t *t)
 
 	FindClose(handle);
 
-	t->secs    = (byte)timeinf.wSecond;
-	t->minutes = (byte)timeinf.wMinute;
-	t->hours   = (byte)timeinf.wHour;
-	t->day     = (byte)timeinf.wDay;
-	t->month   = (byte)timeinf.wMonth;
-	t->year    = (short)timeinf.wYear;
+	t->Set( (byte)timeinf.wDay,    (byte)timeinf.wMonth,
+			(short)timeinf.wYear,  (byte)timeinf.wHour,
+			(byte)timeinf.wMinute, (byte)timeinf.wSecond );
+
 	return true;
 }
 
