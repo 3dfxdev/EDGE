@@ -90,11 +90,6 @@ static const image_t * SECPIC(sector_t * sec, bool is_ceiling,
 	return is_ceiling ? sec->ceil.image : sec->floor.image;
 }
 
-
-//
-// Get
-//
-
 //
 // GetSecHeightReference
 //
@@ -129,6 +124,7 @@ static float GetSecHeightReference(heightref_e ref, sector_t * sec)
 	return 0;
 }
 
+#if 0	// Unfinished
 //
 // GetElevatorHeightReference
 //
@@ -142,6 +138,7 @@ static float GetElevatorHeightReference(heightref_e ref, sector_t * sec)
 {
 	return -1;
 }
+#endif
 
 //
 // P_AddActivePart
@@ -217,6 +214,12 @@ static void P_RemoveActivePart(gen_move_t *movpart)
 //
 // P_RemoveAllActiveParts
 //
+// -ACB- This is a clear-the-decks function: we don't care
+// with tyding up the loose ends inbetween removing active
+// parts - that is pointless since we are nuking the entire
+// thing. Hence the lack of call to P_RemoveActivePart() for
+// each individual part.
+//
 void P_RemoveAllActiveParts(void)
 {
 	gen_move_t *movpart, *next;
@@ -224,13 +227,11 @@ void P_RemoveAllActiveParts(void)
 	for (movpart = active_movparts; movpart; movpart = next)
 	{
 		next = movpart->next;
-		Z_Free(movpart);            // P_RemoveActivePart() ??
+		Z_Free(movpart);            
 	}
   
 	active_movparts = NULL;
 }
-
-
 
 //
 // FLOORS
