@@ -428,7 +428,7 @@ langinfo_t cheat_list[] =
 	{ NULL, NULL, NULL, -1, NULL }  // End sentinel
 };
 
-const char *bex_unsupported[] =
+const char *lang_bex_unsupported[] =
 {
 	"BGCASTCALL", "BGFLAT06", "BGFLAT11", "BGFLAT15",
 	"BGFLAT20", "BGFLAT30", "BGFLAT31",
