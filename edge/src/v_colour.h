@@ -100,6 +100,7 @@ const byte *V_GetTranslationTable(const colourmap_t * colmap);
 // text translation tables
 extern const byte *font_whitener;
 
+extern const byte *text_colour_red;
 extern const byte *text_colour_white;
 extern const byte *text_colour_grey;
 extern const byte *text_colour_green;
@@ -107,6 +108,10 @@ extern const byte *text_colour_brown;
 extern const byte *text_colour_lt_blue;
 extern const byte *text_colour_blue;
 extern const byte *text_colour_yellow;
+
+// automap translation tables
+extern const byte *am_normal_colmap;
+extern const byte *am_overlay_colmap;
 
 // colour values.  These assume the standard Doom palette.  Maybe
 // remove most of these one day -- will take some work though...
