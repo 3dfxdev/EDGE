@@ -168,6 +168,7 @@ const commandlist_t thing_commands[] =
 	DF("LUNG CAPACITY", lung_capacity, DDF_MainGetTime),
 	DF("GASP START", gasp_start, DDF_MainGetTime),
 	DF("EXPLODE RADIUS", explode_radius, DDF_MainGetFloat),
+	DF("RELOAD SHOTS", reload_shots, DDF_MainGetNumeric),  // -AJA- 2004/11/15
 
 	// -AJA- backwards compatibility cruft...
 	DF("!EXPLOD DAMAGE", explode_damage.nominal, DDF_MainGetFloat),
@@ -195,6 +196,7 @@ static const state_starter_t thing_starters[] =
 	{"BOUNCE",     "IDLE",     &buffer_mobj.bounce_state},
 	{"TOUCH",      "IDLE",     &buffer_mobj.touch_state},
 	{"JUMP",       "IDLE",     &buffer_mobj.jump_state},
+	{"RELOAD",     "IDLE",     &buffer_mobj.reload_state},
 	{"GIB",        "REMOVE",   &buffer_mobj.gib_state},
 	{NULL, NULL, NULL}
 };
@@ -223,6 +225,7 @@ static const actioncode_t thing_actions[] =
 	{"SPARE ATTACK",      P_ActSpareAttack, DDF_StateGetAttack},
 	{"RANGEATTEMPTSND",   P_ActMakeRangeAttemptSound, NULL},
 	{"REFIRE CHECK",      P_ActRefireCheck, NULL},
+	{"RELOAD CHECK",      P_ActReloadCheck, NULL},
 	{"LOOKOUT",           P_ActStandardLook, NULL},
 	{"SUPPORT LOOKOUT",   P_ActPlayerSupportLook, NULL},
 	{"CHASE",             P_ActStandardChase, NULL},
@@ -533,11 +536,15 @@ void ThingParseField(const char *field, const char *contents,
 	if (ThingTryParseState(field, contents, index, is_last))
 		return;
 
-	// handle properties
-	if (index == 0 && DDF_CompareName(contents, "TRUE") == 0)
+	if (ddf_version < 0x128)
 	{
-		DDF_MobjGetSpecial(field, NULL);  // FIXME FOR OFFSETS
-		return;
+		// handle properties (old crud)
+		if (index == 0 && DDF_CompareName(contents, "TRUE") == 0)
+		{
+			L_WriteDebug("THING PROPERTY CRUD: %s = %s\n", field, contents);
+			DDF_MobjGetSpecial(field, NULL);  // FIXME FOR OFFSETS
+			return;
+		}
 	}
 
 	DDF_WarnError2(0x128, "Unknown thing/attack command: %s\n", field);
@@ -596,6 +603,12 @@ static void ThingFinishEntry(void)
 			buffer_mobj.explode_radius);
 	}
 
+	if (buffer_mobj.reload_shots <= 0)
+	{
+		DDF_Error("Bad RELOAD_SHOTS value %d in DDF.\n",
+			buffer_mobj.reload_shots);
+	}
+
 	if (buffer_mobj.choke_damage.nominal < 0)
 	{
 		DDF_WarnError2(0x128, "Bad CHOKE_DAMAGE.VAL value %f in DDF.\n",
@@ -614,7 +627,7 @@ static void ThingFinishEntry(void)
 	dynamic_mobj->CopyDetail(buffer_mobj);
 
 	// compute CRC...
-	// FIXME: Do something.
+	// FIXME: Do something. :-)))
 }
 
 static void ThingClearAll(void)
@@ -1674,6 +1687,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
     bounce_state = src.bounce_state; 
     touch_state = src.touch_state; 
     jump_state = src.jump_state; 
+    reload_state = src.reload_state; 
     gib_state = src.gib_state; 
 
     reactiontime = src.reactiontime; 
@@ -1735,6 +1749,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	gasp_sound = src.gasp_sound; 
 
     fuse = src.fuse; 
+	reload_shots = src.reload_shots;
 	side = src.side; 
     playernum = src.playernum; 
 	lung_capacity = src.lung_capacity; 
@@ -1791,6 +1806,7 @@ void mobjtype_c::Default()
     bounce_state = 0;
     touch_state = 0;
     jump_state = 0;
+    reload_state = 0;
     gib_state = 0;
 
     reactiontime = 0;
@@ -1852,6 +1868,7 @@ void mobjtype_c::Default()
 	gasp_sound = sfx_None;
 
     fuse = 0;
+	reload_shots = 5;
 	side = BITSET_EMPTY;
     playernum = 0;
 	lung_capacity = 20 * TICRATE;
