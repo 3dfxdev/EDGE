@@ -44,7 +44,7 @@ const char *input_file  = NULL;
 const char *output_file = NULL;
 
 bool quiet_mode = false;
-bool all_mode   = true;   // !!!!! FIXME
+bool all_mode   = false;
 
 int edge_version = 127;
 

@@ -537,7 +537,7 @@ namespace Frames
 			if (attack_slot[N])
 			{
 				// XXX should show the problem thing
-				// FIXME: maybe disable the action ??
+				// XXX maybe disable the action ?
 				PrintWarn("No free attack slots for action %s.\n", act_name);
 				return;
 			}
