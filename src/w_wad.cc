@@ -598,9 +598,7 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 
 	if (IsSkin(lump_p->name))
 	{
-			df->skin_lumps.Insert(lump);
-///---		AddSpriteOrFlat(&df->skin_lumps,
-///---						&df->skin_num, lump);
+		df->skin_lumps.Insert(lump);
 	}
 
 	// -- handle sprite, flat & patch lists --
@@ -650,18 +648,12 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 	{
 		if (within_sprite_list)
 			df->sprite_lumps.Insert(lump);
-///---			AddSpriteOrFlat(&df->sprite_lumps,
-///---						&df->sprite_num, lump);
     
 		if (within_flat_list)
 			df->flat_lumps.Insert(lump);
-///---			AddSpriteOrFlat(&df->flat_lumps,
-///---							&df->flat_num, lump);
     
 		if (within_patch_list)
 			df->patch_lumps.Insert(lump);
-///---			AddSpriteOrFlat(&data_files[file].patch_lumps,
-///---							&data_files[file].patch_num, lump);
 	}
 }
 
