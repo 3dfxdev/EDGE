@@ -174,7 +174,20 @@ void RGL_DrawSkyBox(void)
 
 	glEnable(GL_TEXTURE_2D);
 
-	glColor3f(LT_RED(255), LT_GRN(255), LT_BLU(255));
+	float col[4];
+
+	col[0] = LT_RED(255);
+	col[1] = LT_GRN(255);
+	col[2] = LT_BLU(255);
+	col[3] = 1.0f;
+
+	if (use_color_material || ! use_lighting)
+		glColor4fv(col);
+	else
+	{
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, col);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, col);
+	}
 
 	// top
 	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_T));
