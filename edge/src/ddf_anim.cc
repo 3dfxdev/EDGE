@@ -216,7 +216,7 @@ static void DDF_AnimGetType(const char *info, void *storage)
 		(*type) = animdef_c::A_Flat;
 	else if (DDF_CompareName(info, "TEXTURE") == 0)
 		(*type) = animdef_c::A_Texture;
-	else if (DDF_CompareName(info, "DDF") == 0)
+	else if (DDF_CompareName(info, "USER") == 0)
 		(*type) = animdef_c::A_User;
 	else
 	{
