@@ -1998,13 +1998,10 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 	x2 -= bmaporgx;
 	y2 -= bmaporgy;
 
-	// -AJA- use floor() here, for more precise behaviour.
-	// FIXME: is this correct though ?
-
-	xt1 = (int)floor(x1 / MAPBLOCKUNITS);
-	yt1 = (int)floor(y1 / MAPBLOCKUNITS);
-	xt2 = (int)floor(x2 / MAPBLOCKUNITS);
-	yt2 = (int)floor(y2 / MAPBLOCKUNITS);
+	xt1 = (int)(x1 / MAPBLOCKUNITS);
+	yt1 = (int)(y1 / MAPBLOCKUNITS);
+	xt2 = (int)(x2 / MAPBLOCKUNITS);
+	yt2 = (int)(y2 / MAPBLOCKUNITS);
 
 	if (xt2 > xt1)
 	{
