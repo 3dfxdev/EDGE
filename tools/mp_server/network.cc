@@ -61,13 +61,26 @@ const char *GetNLErrorStr(void)
 	if (err == NL_NO_ERROR)
 		return "(Unknown Problem)";
 
+	static char err_buf[512];
+
 	if (err == NL_SYSTEM_ERROR)
 	{
 		err = nlGetSystemError();
-		return nlGetSystemErrorStr(err);
+		sprintf(err_buf, "%s", nlGetSystemErrorStr(err));
+	}
+	else
+	{
+		sprintf(err_buf, "NL: %s", nlGetErrorStr(err));
 	}
 
-	return nlGetErrorStr(err);
+	// remove newlines and other rubbish
+	for (int i = 0; err_buf[i] && (unsigned)i < sizeof(err_buf); i++)
+	{
+		if (! isprint(err_buf[i]))
+			err_buf[i] = ' ';
+	}
+
+	return err_buf;
 }
 
 static void InitNetTime(void)
@@ -129,29 +142,33 @@ void NetInit(void)
 
 	InitNetTime();
 
-    LogPrintf(0, "NL_VERSION: %s\n", nlGetString(NL_VERSION));
-    LogPrintf(0, "NL_NETWORK_TYPES: %s\n", nlGetString(NL_NETWORK_TYPES));
+    DebugPrintf("NL_VERSION: %s\n", nlGetString(NL_VERSION));
+  	DebugPrintf("NL_NETWORK_TYPES: %s\n", nlGetString(NL_NETWORK_TYPES));
  
     if (! nlSelectNetwork(NL_IP))
 	{
-		fl_alert("Hawk network library: unable to select IP networking.");
+		fl_alert("Hawk network library: unable to select IP networking:\n%s",
+				 GetNLErrorStr());
         exit(5); //!!!!
 	}
 
-    LogPrintf(0, "NL_SOCKET_TYPES: %s\n\n", nlGetString(NL_CONNECTION_TYPES));
+	DebugPrintf("NL_SOCKET_TYPES: %s\n\n", nlGetString(NL_CONNECTION_TYPES));
 
+#ifdef LINUX
 	if (1) /// !!!!! FIXME: BIG HACK
 	{
 		NLaddress addr;
 		nlStringToAddr("192.168.0.197", &addr);
 		nlSetLocalAddr(&addr);
 	}
+#endif
 
 	main_socket = nlOpen(MPS_DEF_PORT, NL_UNRELIABLE);
 
 	if (main_socket == NL_INVALID)
 	{
-		fl_alert("Unable to create UDP socket on port %d", MPS_DEF_PORT);
+		fl_alert("Unable to create UDP socket on port %d:\n%s", MPS_DEF_PORT,
+				 GetNLErrorStr());
 		exit(5); //!!!!
 	}
 
@@ -216,7 +233,7 @@ void *NetRun(void *data)
 			}
 			else if (pk.CheckType("bd"))   // broadcast discovery
 			{
-				PK_broadcast_discovery(&pk);
+				PK_broadcast_discovery(&pk, &remote_addr);
 				continue;
 			}
 
