@@ -169,10 +169,14 @@ New DDF features:
 
      SPECIAL = XXX, YYY;
 
-  Many of the current specials are not very useful in general
-  (e.g. sprite images are automatically clamped).  They are:
+  The following general purpose specials are available:
 
      CROSSHAIR // for weapon crosshair sprites: center it on screen
+
+  These specials should NOT normally be used, they are only required
+  for very specialized purposes (e.g. dynamic light images).  People
+  will hate you if you use the SMOOTH special to override their
+  preferences (the "Smoothing" option in the Video Options menu).
 
      NOMIP     // force mipmapping to be disabled
      SMOOTH    // force smoothing to be enabled
