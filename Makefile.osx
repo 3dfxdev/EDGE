@@ -50,7 +50,7 @@ PNG_DIR=libpng
 ###---V_SDL_LIBS=$(shell sdl-config --libs)
 
 V_SDLGL_NAME=gledge
-V_SDLGL_FLAGS=$(shell sdl-config --cflags) -DUSE_GL
+V_SDLGL_FLAGS=$(shell sdl-config --cflags)
 V_SDLGL_LDFLAGS=-L/usr/X11R6/lib
 V_SDLGL_OBJS=$(SDL_DIR)/i_video.o
 V_SDLGL_LIBS=$(shell sdl-config --libs) -lGL

@@ -335,68 +335,12 @@ void HU_Drawer(void)
 		sprintf(textbuf, "fps: %1.1f  ms/f:%1.1f   time:%d:%02d", fps, 
 			mspf, (leveltime / TICRATE) / 60, (leveltime / TICRATE) % 60);
 
-#if 0  // DEBUG ONLY (TOUCHNODES)
-		{
-			int total=0;
-			touch_node_t *tn;
-
-			sprintf(textbuf, "sectors (");
-			s = textbuf + strlen(textbuf);
-
-			for (tn=consoleplayer->mo->touch_sectors; 
-				tn && total < 10; tn=tn->mo_next)
-			{
-				if (isdigit(s[-1]))
-				{
-					strcat(textbuf, " ");
-					s++;
-				}
-
-				sprintf(s, "%d", tn->sec - sectors);
-				s = textbuf + strlen(textbuf);
-
-				total++;
-			}
-
-			strcat(textbuf, ")");
-		}
-#endif
-
-#if 0  // DEBUG ONLY (TOUCHNODES)
-		{
-			sector_t *testsec = sectors + 57;
-			int total=0;
-			touch_node_t *tn;
-
-			sprintf(textbuf, "sectors (");
-			s = textbuf + strlen(textbuf);
-
-			for (tn=testsec->touch_things; tn && total < 6; tn=tn->sec_next)
-			{
-				if (s[-1] != ' ' && s[-1] != '(')
-				{
-					strcat(textbuf, " ");
-					s++;
-				}
-
-				sprintf(s, "%5.5s", tn->mo->info->ddf.name);
-				s = textbuf + strlen(textbuf);
-
-				total++;
-			}
-
-			strcat(textbuf, ")");
-		}
-#endif
-
 		s = textbuf;
 		while (*s)
 			HL_AddCharToTextLine(&textlinefps, *(s++));
 		HL_DrawTextLine(&textlinefps, 0);
 
-#ifdef USE_GL
-		return;  // don't want non-FPS info causing extra slowdown
-#endif
+#if 1  // don't want non-FPS info causing extra slowdown
 
 		HL_ClearTextLine(&textlinememory);
 		sprintf(textbuf, "used cache: %d/%d",
@@ -434,8 +378,8 @@ void HU_Drawer(void)
 			HL_DrawTextLine(&textlinepos, 0);
 			HL_DrawTextLine(&textlinestats, 0);
 		}
+#endif
 	}
-
 }
 
 void HU_Erase(void)

@@ -317,10 +317,6 @@ int sprite_kludge = 0;
 static INLINE void LinkDrawthingIntoDrawfloor(drawthing_t *dthing,
 											  drawfloor_t *dfloor)
 {
-#ifndef USE_GL
-	mobj_t *mo = dthing->mo;
-#endif
-
 	dthing->props = dfloor->props;
 	dthing->next  = dfloor->things;
 	dthing->prev  = NULL;

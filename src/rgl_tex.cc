@@ -23,9 +23,6 @@
 //
 //----------------------------------------------------------------------------
 
-// this conditional applies to the whole file
-#ifdef USE_GL
-
 #include "i_defs.h"
 
 /* NOTE: texture handling now done by image system */
@@ -619,4 +616,3 @@ const byte *RGL_BuildImage(int *w, int *h)
 	return unpacked_logo;
 }
 
-#endif  // USE_GL
