@@ -29,7 +29,6 @@
 #include "dm_defs.h"
 #include "m_argv.h"
 #include "e_main.h"
-#include "z_zone.h"
 
 #include <signal.h>
 #include <stdio.h>

@@ -38,7 +38,6 @@
 
 #include "e_main.h"
 #include "e_event.h"
-#include "z_zone.h"
 #include "w_wad.h"
 
 #include "s_sound.h"
