@@ -23,6 +23,11 @@
 #include "../i_defs.h"
 #include "i_sysinc.h"
 #include "../AL/oggplayer.h"
+#include "../epi/mus_2_midi.h"
+
+#ifdef USE_HUMID
+#include "../AL/humdinger.h"
+#endif
 
 // #defines for handle information
 #define GETLIBHANDLE(_handle) (_handle&0xFF)
@@ -44,6 +49,10 @@ mussupport_e;
 static byte capable;
 
 oggplayer_c *oggplayer = NULL;
+
+#ifdef USE_HUMID
+humdinger_c *humdinger = NULL;
+#endif
 
 #define MUSICERRLEN 256
 static char errordesc[MUSICERRLEN];
@@ -70,6 +79,21 @@ bool I_StartupMusic(void *sysinfo)
 	capable |= support_OGG;
 
 	I_Printf("I_StartupMusic: OGG Music Init OK\n");
+
+#ifdef USE_HUMID
+	humdinger = HumDingerInit();
+
+	if (humdinger)
+	{
+		I_Printf("I_StartupMusic: Humidity Init OK\n");
+		capable |= support_MUS | support_MIDI;
+	}
+	else
+	{
+		I_Printf("I_StartupMusic: Humidity Init FAILED: %s\n",
+			HumDingerGetError());
+	}
+#endif  // USE_HUMID
 
 	// Music is not paused by default
 	musicpaused = false;
@@ -103,16 +127,28 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 		}
 
 		case MUS_MIDI:
-		{
-			I_PostMusicError("I_MusicPlayback: MIDI not yet supported.\n");
-			handle = -1;
-			break;
-		}
-
 		case MUS_MUS:
 		{
-			I_PostMusicError("I_MusicPlayback: MUS not yet supported.\n");
+#ifdef USE_HUMID
 			handle = -1;
+
+			if (humdinger)
+			{
+				int track = humdinger->Open((byte*)musdat->info.data.ptr,
+					musdat->info.data.size);
+
+				if (track == -1)
+					handle = -1;
+				else
+				{
+					humdinger->Play(looping);
+					handle = MAKEHANDLE(type, looping, track);
+				}
+			}
+#else
+			I_PostMusicError("I_MusicPlayback: MUS/MIDI not supported.\n");
+			handle = -1;
+#endif
 			break;
 		}
 
@@ -162,13 +198,20 @@ void I_MusicPause(int *handle)
 			break;
 		}
 
+#ifdef USE_HUMID
+		case MUS_MUS:
+		case MUS_MIDI:
+		{
+			if (humdinger) humdinger->Pause();
+			break;
+		}
+#endif
 		case MUS_OGG:
 		{
 			oggplayer->Pause();
 			break;
 		}
 
-		case MUS_MUS:
 		default:
 			break;
 	}
@@ -196,13 +239,20 @@ void I_MusicResume(int *handle)
 			break;
 		}
 
+#ifdef USE_HUMID
+		case MUS_MUS:
+		case MUS_MIDI:
+		{
+			if (humdinger) humdinger->Resume();
+			break;
+		}
+#endif
 		case MUS_OGG:
 		{
 			oggplayer->Resume();
 			break;
 		}
 
-		case MUS_MUS:
 		default:
 			break;
 	}
@@ -232,13 +282,21 @@ void I_MusicKill(int *handle)
 			break;
 		}
 
+#ifdef USE_HUMID
+		case MUS_MUS:
+		case MUS_MIDI:
+		{
+			if (humdinger) humdinger->Close();
+			break;
+		}
+#endif
+
 		case MUS_OGG:
 		{
 			oggplayer->Close();
 			break;
 		}
 
-		case MUS_MUS:
 		default:
 			break;
 	}
@@ -266,13 +324,21 @@ void I_SetMusicVolume(int *handle, int volume)
 			break;
 		}
 
+#ifdef USE_HUMID
+		case MUS_MUS:
+		case MUS_MIDI:
+		{
+			if (humdinger) humdinger->SetVolume(volume);
+			break;
+		}
+#endif
+
 		case MUS_OGG:
 		{
 			oggplayer->SetVolume(volume);
 			break;
 		}
 
-		case MUS_MUS:
 		default:
 			break;
 	}
@@ -315,6 +381,15 @@ void I_MusicTicker(int *handle)
 			break;
 		}
 
+#ifdef USE_HUMID
+		case MUS_MUS:
+		case MUS_MIDI:
+		{
+			if (humdinger) humdinger->Ticker();
+			break;
+		}
+#endif
+
 		case MUS_OGG:
 		{
 			oggplayer->Ticker();
@@ -336,6 +411,16 @@ void I_ShutdownMusic(void)
 		delete oggplayer;
 		oggplayer = NULL;
 	}
+
+#ifdef USE_HUMID
+	if (humdinger)
+	{
+		delete humdinger;
+		humdinger = NULL;
+
+		HumDingerTerm();
+	}
+#endif
 
 	I_ShutdownCD();
 }
