@@ -1485,10 +1485,20 @@ void DDF_MainGetRGB(const char *info, void *storage)
 
 	DEV_ASSERT2(info && storage);
 
+	if (DDF_CompareName(info, "NONE") == 0)
+	{
+		*result = RGB_NO_VALUE;
+		return;
+	}
+
 	if (sscanf(info, " #%2x%2x%2x ", &r, &g, &b) != 3)
 		DDF_Error("Bad RGB colour value: %s\n", info);
-  
+
 	*result = (r << 16) | (g << 8) | b;
+
+	// silently change if matches the "none specified" value
+	if (*result == RGB_NO_VALUE)
+		*result ^= 0x010101;
 }
 
 //
@@ -2147,8 +2157,8 @@ void dlightinfo_c::Default()
 {
 	type = DLITE_None;
 	intensity = 32;
-	colour = 0xFFFFFF;			// (RGB 8:8:8)
-	height = PERCENT_MAKE(50);	
+	colour = 0xFFFFFF;    // White (RGB 8:8:8)
+	height = PERCENT_MAKE(50);
 }
 
 //

@@ -41,9 +41,6 @@ colourspecial_e;
 typedef struct colmapcache_s
 {
 	byte *data;
-  
-	// colour for GL renderer
-	rgbcol_t gl_colour;
 }
 colmapcache_t;
 
@@ -71,6 +68,14 @@ public:
 	int length;
 
 	colourspecial_e special;
+
+	// colours for GL renderer
+	rgbcol_t gl_colour;
+	rgbcol_t alt_colour;
+	rgbcol_t font_colour;  // (computed only, not in DDF)
+
+	rgbcol_t wash_colour;  // solid_box over the top (UNUSED RIGHT NOW)
+	percent_t wash_trans;  //
 
 	colmapcache_t cache;
 };

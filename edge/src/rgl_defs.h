@@ -56,10 +56,6 @@ void RGL_SetupMatrices3D(void);
 #define LT_GRN(light)  (MIN(255,light) * ren_grn_mul / 255.0f)
 #define LT_BLU(light)  (MIN(255,light) * ren_blu_mul / 255.0f)
 
-#define RGB_RED(rgbcol)  ((float)((rgbcol >> 16) & 0xFF) / 255.0f)
-#define RGB_GRN(rgbcol)  ((float)((rgbcol >>  8) & 0xFF) / 255.0f)
-#define RGB_BLU(rgbcol)  ((float)((rgbcol      ) & 0xFF) / 255.0f)
-
 
 //
 // RGL_TEX

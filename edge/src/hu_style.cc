@@ -85,7 +85,8 @@ void style_c::DrawBackground(int x, int y, int w, int h)
 
 	if (! bg_image)
 	{
-		RGL_SolidBox(x, y, w, h, def->bg.colour, alpha);
+		if (def->bg.colour != RGB_NO_VALUE)
+			RGL_SolidBox(x, y, w, h, def->bg.colour, alpha);
 		return;
 	}
 
