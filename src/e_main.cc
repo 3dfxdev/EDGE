@@ -1548,7 +1548,7 @@ startuporder_t startcode[] =
 	{  1, SetLanguage,         },
 	{  1, ShowNotice,          },
 	{  1, SV_MainInit,         },
-	{  2, W_ImageCreateUserImages, },
+	{  2, W_CreateUserImages,  },
 	{  1, M_Init,              },
 	{ 10, R_Init,              },
 	{  1, P_Init,              },

@@ -127,7 +127,7 @@ void W_ResetImages(void);
 void W_ImageCreateFlats(int *lumps, int number);
 void W_ImageCreateTextures(struct texturedef_s ** defs, int number);
 const image_t *W_ImageCreateSprite(int lump);
-void W_ImageCreateUserImages(void);
+void W_CreateUserImages(void);
 void W_AnimateImageSet(const image_t ** images, int number, int speed);
 void W_DrawSavePic(const byte *pixels);
 
