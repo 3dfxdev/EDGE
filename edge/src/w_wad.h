@@ -81,6 +81,7 @@ int W_GetNumForName2(const char *name);
 
 int W_LumpLength(int lump);
 void W_ReadLump(int lump, void *dest);
+boolean_t W_LumpRawInfo(int lump, int *handle, int *pos, int *size);
 
 void W_DoneWithLump(const void *ptr);
 void W_DoneWithLump_Flushable(const void *ptr);
