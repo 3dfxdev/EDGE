@@ -388,7 +388,10 @@ static menuinfo_t mainmenuinfo =
 // -ACB- 1998/07/15 Altered menu structure
 
 // screen compostion routines
+// FIXME!!! See -AJA- Comment below
+#if 0 
 static char scrcomps[] = "Classic/Double Y/Low detail/Blur 1/Blur 2/Low detail at edges/Auto Detail/3x FOV/10x FOV";
+#endif
 
 // -ES- 1999/03/29 New fov stuff
 static optmenuitem_t vidoptions[] =
@@ -1503,8 +1506,8 @@ static void M_ChangeCompatMode(int keypressed)
 	level_flags.compat_mode = global_flags.compat_mode;
 
 	// clear line/sector lookup caches
-	DDF_LineClearGeneralised();
-	DDF_SectorClearGeneralised();
+	genlinetypes.Reset();
+	gensectortypes.Reset();
 }
 
 static void M_ChangeKicking(int keypressed)
