@@ -31,17 +31,9 @@
 #include "e_main.h"
 #include "z_zone.h"
 
-extern const char system_string[];
-
-void I_PreInitGraphics (void);
-
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifdef USE_GLUT
-#include <GL/glut.h>
-#endif
 
 // cleanup handling -- killough:
 
@@ -92,11 +84,6 @@ int main(int argc, const char **argv)
 	signal(SIGILL,  I_SignalHandler);
 	signal(SIGINT,  I_SignalHandler);  // killough 3/6/98: allow CTRL-BRK during init
 	signal(SIGABRT, I_SignalHandler);
-#endif
-
-#ifdef USE_GLUT
-	// Intentional Const Override
-	glutInit(&argc, (char **) argv);
 #endif
 
 	// Run EDGE. it never returns

@@ -63,7 +63,6 @@ short hicolortransmask1, hicolortransmask2;
 
 // Dummy screen... 
 // mainscreen is a full-size subscreen of this one.
-static screen_t dummy_screen;
 static SDL_Surface *my_vis;
 
 // This needs to be global to retain fullscreen options
@@ -303,23 +302,6 @@ bool I_SetScreenSize(screenmode_t *mode)
 	//       this hack can go away (use SDL's mode query function).
 	SCREENBITS = mode->depth;  // FIXME !!!!
 #endif
-
-	SCREENPITCH = V_GetPitch(mode->width, mode->depth / 8);
-
-	if (BPP != 1)
-	{
-		SetColourShift(my_vis->format->Rmask,   &redshift);
-		SetColourShift(my_vis->format->Gmask, &greenshift);
-		SetColourShift(my_vis->format->Bmask,  &blueshift);
-	}
-
-	dummy_screen.width  = SCREENWIDTH;
-	dummy_screen.height = SCREENHEIGHT;
-	dummy_screen.pitch  = SCREENPITCH;
-	dummy_screen.bytepp = BPP;
-	dummy_screen.parent = NULL;
-
-	main_scr = V_CreateSubScreen (&dummy_screen, 0, 0, SCREENWIDTH, SCREENHEIGHT);
 
 	VideoModeCommonStuff();
 
