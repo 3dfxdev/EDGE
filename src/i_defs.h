@@ -292,9 +292,6 @@ typedef enum { false, true } bool;
 
 #include "epi/epi.h"
 
-#define FLT_MAX  INT_MAX  //!!!!!! TEMPORARY
-#define FLT_MIN  INT_MIN
-
 #define EDGECONFIGFILE "edge.cfg"
 #define EDGEHOMEDIR    "HOME"
 #define EDGEWADDIR     "EDGEWADDIR"
