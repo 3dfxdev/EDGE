@@ -297,7 +297,7 @@ bool I_UnloadSfx(unsigned int handle);
 // I_LoadSfx().  This frees the sound data.  Returns true on success,
 // otherwise false.
 
-int I_SoundPlayback(unsigned int handle, int pan, int vol, bool looping);
+int I_SoundPlayback(unsigned int handle, int vol, bool looping);
 // Starts the sound with the given handle playing, using the
 // paramaters for panning, volume and looping.  Pan ranges from 0
 // (hard left) to 128 (middle) to 255 (hard right).  Volume ranges
@@ -307,10 +307,6 @@ int I_SoundPlayback(unsigned int handle, int pan, int vol, bool looping);
 // refer to the sound in the other functions below.  If something goes
 // wrong, especially when there are no free channels, then -1 is
 // returned.
-
-bool I_SoundAlter(unsigned int chanid, int pan, int vol);
-// Alters the parameters of a currently playing sound.  Returns true
-// if successful, otherwise false.
 
 bool I_SoundCheck(unsigned int chanid);
 // Checks that the given sound is still playing (i.e. has not reached
@@ -323,6 +319,26 @@ bool I_SoundPause(unsigned int chanid);
 bool I_SoundResume(unsigned int chanid);
 // Resumes the previously paused sound on the specified channel.
 // Returns true on success, otherwise false.
+
+bool I_SoundSetListenerOrient(float *at, float *up);
+// Sets the listener orientation. The 'at' and 'up' vectors
+// are 3-entry tuples. Returns true if successful, otherwise false.
+
+bool I_SoundSetListenerPos(float *pos);
+// Sets the listener position in (x,y,z) format tuple. Returns true 
+// if successful, otherwise false.
+
+bool I_SoundSetPos(unsigned int chanid, float *pos);
+// Set the sound position in an (x,y,z) format tuple. Returns true if 
+// successful, otherwise false.
+
+bool I_SoundSetRelative(unsigned int chanid, bool relative);
+// Set the "position of sound is relative to listener" flag. Returns true if 
+// successful, otherwise false.
+
+bool I_SoundSetVolume(unsigned int chanid, int vol);
+// Alters the volume of a currently playing sound.  Returns true
+// if successful, otherwise false.
 
 bool I_SoundStopLooping(unsigned int chanid);
 // Stops the sound on this channel looping
