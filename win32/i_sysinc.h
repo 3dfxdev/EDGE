@@ -43,12 +43,30 @@
 
 #include "edge32.rh" // Resources
 
+// Win32 Mixer
+typedef struct
+{
+	HMIXER handle;				// Handle
+	UINT id;					// ID
+
+	int channels;				// Channel count
+	DWORD volctrlid;			// Volume control ID
+	DWORD minvol;				// Min Volume
+	DWORD maxvol;				// Max Volume
+
+	DWORD originalvol;          // Original volume 
+}
+win32_mixer_t;
+
 // I_CD.C - MCI CD Handling
+bool I_StartupCD(void);
 bool I_CDStartPlayback(int tracknum);
 bool I_CDPausePlayback(void);
 bool I_CDResumePlayback(void);
 void I_CDStopPlayback(void);
+void I_CDSetVolume(int vol);
 bool I_CDFinished(void);
+void I_ShutdownCD();
 
 // I_CONWIN.C - For console output when not is graphics mode
 void I_StartWinConsole(void);
@@ -61,7 +79,7 @@ void I_ControlTicker(void);
 void I_HandleKeypress(int key, bool keydown); // handle message loop key presses
 
 // I_MUS.C - Win32 MUS Handling
-bool I_StartupMUS(void);
+bool I_StartupMUS();
 int I_MUSPlayTrack(byte *data, int length, bool loopy);
 void I_MUSPause(void);
 void I_MUSResume(void);
@@ -73,6 +91,11 @@ void I_ShutdownMUS(void);
 
 // I_MUSIC.C
 void I_PostMusicError(char *error);
+
+win32_mixer_t *I_MusicLoadMixer(DWORD type);
+void I_MusicReleaseMixer(win32_mixer_t* mixer);
+bool I_MusicGetMixerVol(win32_mixer_t* mixer, DWORD *vol);
+bool I_MusicSetMixerVol(win32_mixer_t* mixer, DWORD vol);
 
 // I_SOUND.C
 LPDIRECTSOUND I_SoundReturnObject(void); // for MP3
