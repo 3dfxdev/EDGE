@@ -50,8 +50,15 @@ void RGL_SoftInit(void);
 void RGL_DrawProgress(int perc);
 void RGL_SetupMatrices2D(void);
 void RGL_SetupMatrices3D(void);
-void RGL_DrawPlayerSprites(player_t * p);
-void RGL_UpdateTheFuzz(void);
+
+#define LT_RED(light)  (MIN(255,light) * ren_red_mul / 255.0f)
+#define LT_GRN(light)  (MIN(255,light) * ren_grn_mul / 255.0f)
+#define LT_BLU(light)  (MIN(255,light) * ren_blu_mul / 255.0f)
+
+#define RGB_RED(rgbcol)  ((float)((rgbcol >> 16) & 0xFF) / 255.0f)
+#define RGB_GRN(rgbcol)  ((float)((rgbcol >>  8) & 0xFF) / 255.0f)
+#define RGB_BLU(rgbcol)  ((float)((rgbcol      ) & 0xFF) / 255.0f)
+
 
 //
 // RGL_TEX
@@ -74,13 +81,23 @@ extern int rgl_weapon_r;
 extern int rgl_weapon_g;
 extern int rgl_weapon_b;
 
+int RGL_Light(int nominal);
 void RGL_RenderTrueBSP(void);
+
+extern bool ren_allbright;
+extern float ren_red_mul;
+extern float ren_grn_mul;
+extern float ren_blu_mul;
+
+#define Z_NEAR  1.0f
+#define Z_FAR   200000.0f
 
 
 // FIXME: temp hack
 #include "rgl_fx.h"
 #include "rgl_occ.h"
 #include "rgl_sky.h"
+#include "rgl_thing.h"
 #include "rgl_unit.h"
 #include "rgl_wipe.h"
 
