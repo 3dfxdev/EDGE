@@ -775,9 +775,9 @@ bool RAD_Init(void)
 
 	if (external_ddf)
 	{
-		filename = M_ComposeFileName(ddfdir, "edge.scr");
-		RAD_LoadFile(filename, true);
-		Z_Free(filename);
+		epi::string_c fn;
+		M_ComposeFileName(fn, ddfdir, "edge.scr");
+		RAD_LoadFile(fn.GetString(), true);
 	}
 
 	I_Printf("\n");
@@ -798,9 +798,9 @@ bool RAD_LoadParam(void)
 
 	if (par)
 	{
-		filename = M_ComposeFileName(gamedir, par);
-		RAD_LoadFile(filename, false);
-		Z_Free(filename);
+		epi::string_c fn;
+		M_ComposeFileName(fn, gamedir, par);
+		RAD_LoadFile(fn.GetString(), false);
 	}
 
 	return true;
