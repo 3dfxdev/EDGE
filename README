@@ -21,17 +21,16 @@ System Requirements:
   - Pentium 400 MHz CPU or later.
   - 64MB RAM (128MB RAM recommended).
   - Hardware accelerated 3D card with OpenGL drivers
+  - OpenAL audio library with compatible soundcard.
 
-  - Either a DOOM, DOOM II, Final DOOM or FreeDoom IWAD file.
+  - Either a DOOM, DOOM II, or Final DOOM IWAD file.
     (See "Getting hold of a game data" below).
 
   For Win32:
     - DirectX 7.0 or higher.
-    - Videocard and Soundcard which is compatible DirectX 7.0.
 
   For Linux:
     - SDL (Simple DirectMedia Layer) version 1.2.
-    - XFree86 4.0 with DRI 3D hardware acceleration
     - Glibc 2.
 
   For MacOS X:
@@ -44,7 +43,7 @@ Getting hold of game data:
     spare time, or you can purchase "The Ultimate Doom", "Doom II" or 
     "Final Doom" (Plutonia/TNT) from id software at www.idsoftware.com. 
     The shareware data will also work with EDGE. You need to copy the
-    .wad file you want to use into your EDGE directory. The wad names 
+    .WAD file you want to use into your EDGE directory. The wad names 
     and what game they belong to are listed below: 
 
     doom1.wad    -> Shareware Doom.
@@ -56,8 +55,9 @@ Getting hold of game data:
 
 Useful Parameters:
   * Screen size: -width [screenwidth] -height [screenheight]
-  * Colour depth: -bpp [depth]  (1 for 8-bit, 2 for 16-bit)
+  * Colour depth: -bpp [depth]  (2 for 16-bit, 4 for 32-bit)
   * Windowed mode: -windowed
+  * Fullscreen mode: -fullscreen
   * Pick IWAD file: -iwad [main wad file]
   * Play PWAD file: -file [addon wad file]
   * Jump to level: -warp [mapname]  (in the form of MAP01 or E2M9 etc..) 
@@ -65,7 +65,7 @@ Useful Parameters:
   * Show EDGE version: -version
   * Disable sound: -nosound
   * Disable music: -nomusic
-  * Disable warnings: -nowarn  (useful for 1.24 wads like QDOOMTST)
+  * Disable warnings: -nowarn
 
 
 Notable EDGE features:
@@ -83,40 +83,24 @@ Notable EDGE features:
     certain parts of the map, or performs certain actions, or when
     certain monsters have been killed (to name a few possibilities).
 
-///---  - Support for high resolutions (640x400 through 1280x1024), plus
-///---    support for 16-bit rendering.  That's just software mode, there is
-///---    also GLEDGE which takes advantage of hardware 3D acceleration via
-///---    the OpenGL library.
+  - Hardware accelerated 3D rendering (via OpenGL).
 
-  - Jumping, Mouse-Look up/down, Flying (JetPack), Zooming.
+  - Jumping, Look up/down, Flying (JetPack), Zooming.
 
   - Many limits and bugs from original DOOM removed (e.g. no more
     visplane overflow or medusa effect).
 
 
-???  - On multi-user systems (newer versions of Windows, and Linux)
-???    the location for the config file (EDGE.CFG) and savegames has
-???    moved, and is user-specific.  This allows multiple users to have
-???    their own configuration and savegames.
-???
-???    To allow easy upgrading, we have included a tool along with the
-???    EDGE binaries: UPGRADER.EXE.  You must run this first, before
-???    running EDGE -- it will either move the files to the new place,
-???    or spit out a message saying 'Nothing to do'.
-???    
-???    On Linux, the new location is the ~/.edge directory.  You can
-???    either download, compile and run the Upgrader tool, or manually
-???    move the edge.cfg file and savegames directory there.
-
-
 Major changes in 1.29:
-
-  * Software rendering removed.  blah... @@@@
-
-  * MacOS X support.  initial version, blah... @@@@
+  * Software rendering removed.
 
   * OpenAL as the new sound system.  OpenAL is a 3D audio library which
-    can take advantage of hardware sound mixing.
+    can take advantage of hardware sound mixing.  The Windows package
+	comes with an installer for it, and it is available for the other
+	platforms too.
+
+  * MacOS X support.  This is the initial version, and there are some
+    known problems (e.g. drag-and-drop is not working yet).
 
 
 Bugs fixed in 1.29:
@@ -137,29 +121,26 @@ Bugs fixed in 1.29:
 
 
 General improvements in 1.29:
-  + drag and drop support.  You no longer have to use the -file option
-    to specify filenames (wad files etc).  Everything before the first
-    option is considered a filename to add.  This allows you to drag a
-    (self-contained) WAD onto the EDGE executable to play it.
+  + drag and drop support.  You can pass wads, demos, scripts and
+    DeHackEd patches to EDGE by dragging them onto the executable.
+    Everything before the first option is considered a file to add.
 
   + support for OGG/Vorbis Music playing.  OGG/Vorbis is music format
     similar to MP3, but is free from patents and does not require any
-    royalty fees.  You can use normal files, or lumps in a WAD.
+    royalty fees.
 
   + built-in support for DeHackEd and BEX patches, using normal files
     (with .DEH or .BEX extension), and also the DEHACKED lump.  Patch
     files can be added with the -deh option (like in other ports).
 
-  - new startup with progress bar.
-
   - Linux: fatal errors produce a pop-up dialog box, and EDGE can be
     run by double clicking the executable.
 
+  - new startup which shows a progress bar.
   - ability to use 32-bit screen modes (16.7 million colours).
   - support V3 GL-NODES, for very complex levels (Deus Vult MAP05).
   - detect Boom maps, and ask whether to change compatability mode.
   - support Boom's line-to-line teleports and platform toggles.
-  - can toggle window/fullscreen mode in set-resolution screen.
   - sky improvements, including a stretch option in Video menu.
   - missing wad files (given with -file) now produce an error.
   - intermission text screens can now be skipped.
@@ -170,15 +151,14 @@ General improvements in 1.29:
 
 
 New DDF/RTS features in 1.29:
-
   + new IMAGES.DDF file.  The corresponding wad lump is DDFIMAGE.  You
     can define any type of images in this file (textures, flats, sprites
     and screen graphics), and they will override any from the WAD file
     with the same name.  Supports PNG and JPEG formats, either as lumps
-    in a WAD or as external files.  Handles the full range of colours.
+    in a WAD or as external files.  Allows the full range of colours.
 
-  + new FONTS.DDF file.  The equivalent wad lump is DDFFONT.  This is used
-    to define fonts (the set of character images for drawing text).
+  + new FONTS.DDF file.  The equivalent wad lump is DDFFONT.  This is
+    for defining fonts (the set of character images for drawing text).
 
   - new STYLES.DDF file.  THIS IS EXPERIMENTAL !!  The idea is to
     define the background colour/image and text font/colour/scaling
@@ -186,20 +166,19 @@ New DDF/RTS features in 1.29:
     interface.  It may undergo significant changes (without keeping
     compatibility), and it might even be scrapped!  USE AT OWN RISK.
 
-  + new RTS menu system:
-    The RTS menu will pause the game (including all scripts) until the user
-    presses a valid number key.  Savegames are also disabled while the RTS
-    menu is shown.  specific part of script blah @@@@
+  + new RTS menu system.  A script can show a menu, which pauses the
+    game until the user selects an option.  The script can then see
+	what the user selected and perform some specific actions.
 
   + weapon clip handling has been greatly improved (and made sane).
 
   + support for manual reloading (new key in Keyboard Options), and
     also next-weapon and previous-weapon keys.
 
-  + Four new ammo types: DAGGERS, ARROWS, TORPEDOES, CRYSTALS.
+  + Eight new ammo types: AMMO9, AMMO10 ... upto AMMO16.
 
   - There are new weapon specials, and they can be given to the primary
-    and secondary attack independently (SEC_SPECIAL command).  They
+    and secondary attack separately (e.g. SEC_SPECIAL command).  They
 	include: ANIMATED, NO_SWITCH, NO_TRIGGER, FRESH, NO_MANUAL and
 	NO_PARTIAL.  Many of these control reloading behaviour.
 
@@ -209,30 +188,25 @@ New DDF/RTS features in 1.29:
 	showing a "spin-up" animation, and finally DISCARD / SECDISCARD
 	states for reloading a weapon which wasn't empty.
 
-  - new support for weapon crosshairs.
-  - new SEQUENCE command for ANIMS.DDF.
   - RELOAD states for monsters.
-  - able to specify a colour directly in COLMAP.DDF (no lumps needed).
+  - SEQUENCE command for ANIMS.DDF.
+  - can specify a colour directly in COLMAP.DDF (no lumps needed).
   - flags for friendly monsters: ULTRA_LOYAL and SIDE_IMMUNE.
   - better control over explosion damage (EXPLODE_RADIUS command).
-  - FORCE_PICKUP special for thing.ddf (items).
-  - WHEN_APPEAR in DDF and RTS now accepts simpler values.
+  - WHEN_APPEAR in DDF and RTS now accepts simpler syntax.
 
   * See the 1.29 ChangeLog file for all the details...
 
 
 Known Issues:
   - Multiplayer (networking) does not work.  We have done a little
-    bit of work so far, and expect to have the basics working again
-    in the next release (1.30).
+    work on this, and expect to have the basics working again in the
+    next release.
 
   - Joysticks do not work.  We haven't done any work in that area.
 
   - EDGE is still somewhat slow.  Overall this is because we had
-    little time to spend on optimising the code.  For software mode,
-    part of the reason is that the old hand-crafted assembly routines
-    are no longer used (they need re-writing).  GL mode also has its
-    own speed issues, especially when dynamic lighting is used.
+    little time to spend on optimising the code.
 
   - Levels and TCs designed for EDGE 1.24 (or earlier) can produce a
     bucket-load of warnings when starting up.  These warnings are
@@ -242,13 +216,11 @@ Known Issues:
 
   - Some sprites are designed to look sunk into the floor, typically
     corpses, and can look like they are "floating" in EDGE.  This is a
-    limitation of the way EDGE renders everything -- it uses a
-    new rendering technique that allows 3D floors, liquids, etc, but
-    cannot duplicate the old renderer which allowed sunk-down sprites.
+    limitation of using OpenGL rendering (if the sprites are lowered,
+	the get clipped and this looks much worse).
 
-    Certain other DOOM tricks, e.g. flat-flooding, are also affected
-    by the new rendering method, and either work to some degree, or
-    not at all.
+    Certain other DOOM tricks, e.g. flat-flooding, sometimes don't
+	work properly with EDGE's renderer.
 
   - Looping sounds tend to stop when you get too far away to hear
     them, e.g. coming back to a flickering torch in QDOOM and it has
@@ -256,18 +228,9 @@ Known Issues:
     saved in a savegame, so after loading a level there are no looping
     sounds being played at all.
 
-  - Some graphics can be more blurred than they should be,
-    such as the title screens and the status bar background.
-
-    This happens because many 3D cards (e.g. Voodoo 3) have a texture
-    size limitation of 256x256 pixels, but some DOOM graphics are 320
-    pixels wide -- because they don't fit, EDGE has to squash them.
-
   - The console has very limited functionality.
 
   - Certain colourmaps (especially Fog) don't work.
-
-  - Teleport wipes don't work.
 
 
 Troubleshooting:
