@@ -62,7 +62,7 @@ namespace Patch
 	bool file_error;
 
 	int patch_fmt;   /* 1 to 6 */
-	int dhe_ver;     /* 12, 13, 20-24, 30 */
+	int dhe_ver;     /* 12, 13, 20-24, 30-31 */
 	int doom_ver;    /* 12, 16 to 21 */
 
 	typedef enum
@@ -1123,12 +1123,13 @@ namespace Patch
 		}
 	}
 
-	dehret_e LoadDiff(void)
+	dehret_e LoadDiff(bool no_header)
 	{
 		DetectMsg("text-based");
 
-		doom_ver = 16;  // defaults
-		patch_fmt = 5;  //
+		// set these to defaults
+		doom_ver  = no_header ? 19 : 16;
+		patch_fmt = no_header ? 6 : 5;
 
 		line_num = 0;
 
@@ -1240,7 +1241,7 @@ namespace Patch
 
 	dehret_e LoadNormal(void)
 	{
-		char idstr[30];
+		char idstr[32];
 
 		memset(idstr, 0, sizeof(idstr));
 
@@ -1248,7 +1249,7 @@ namespace Patch
 
 		if (StrCaseCmp(idstr, "atch File for DeHackEd v") != 0)
 		{
-			SetErrorMsg("File is not a DeHackEd patch file !\n");
+			SetErrorMsg("Not a DeHackEd patch file !\n");
 			return DEH_E_ParseError;
 		}
 
@@ -1275,7 +1276,7 @@ namespace Patch
 		if (dhe_ver < 23)
 			return LoadBinary();
 		else
-			return LoadDiff();
+			return LoadDiff(false);
 	}
 }
 
@@ -1288,17 +1289,27 @@ dehret_e Patch::Load(parse_buffer_api *buf)
 
 	file_error = false;
 
-	char tempver = 0;
-
-	pat_buf->read(&tempver, 1);
+	char tempver = pat_buf->getch();
 
 	if (tempver == 12)
-		result = LoadReallyOld();
-	else if (tempver == 'P')
-		result = LoadNormal();
-	else	
 	{
-		SetErrorMsg("File is not a DeHackEd patch file !\n");
+		result = LoadReallyOld();
+	}
+	else if (tempver == 'P')
+	{
+		result = LoadNormal();
+	}
+	else if (! pat_buf->isBinary())
+	{
+		pat_buf->ungetch(tempver);
+
+		PrintMsg("Patch has no header information -- assuming BEX !\n");
+		dhe_ver = 31;
+		result = LoadDiff(true);
+	}
+	else /* unknown binary format */
+	{
+		SetErrorMsg("Not a DeHackEd patch file !\n");
 		result = DEH_E_ParseError;
 	}
 
