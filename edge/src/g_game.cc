@@ -71,7 +71,7 @@
 #include "epi/epiendian.h"
 
 #ifdef USE_HAWKNL
-#include "n_network.h"  //!!!!!
+#include "n_network.h"
 #endif
 
 #define SAVEGAMESIZE    0x50000
@@ -93,9 +93,6 @@ void G_DoSaveGame(void);
 gameaction_e gameaction = ga_nothing;
 gamestate_e gamestate = GS_NOTHING;
 skill_t gameskill = sk_invalid;
-
-extern bool sendpause;
-extern bool sendsave;
 
 bool paused = false;
 
@@ -382,7 +379,7 @@ bool G_Responder(event_t * ev)
 	if (ev->type == ev_keydown && ev->value.key == KEYD_F12)
 	{
 		// 25-6-98 KM Allow spy mode for demos even in deathmatch
-		if (gamestate == GS_LEVEL && (demoplayback || true || !deathmatch)) //!!!!!!
+		if (gamestate == GS_LEVEL && (demoplayback || true || !deathmatch)) //!!!! DEBUGGING
 		{
 			G_ChangeDisplayPlayer();
 			return true;
@@ -473,7 +470,7 @@ static void G_TiccmdTicker(void)
 		{
 			if (gametic > BACKUPTICS && p->consistency[buf] != cmd->consistency)
 			{
-/* !!!!!! */		I_Warning("Consistency failure on player %d (%i should be %i)",
+/* !!!! DEBUG */	I_Warning("Consistency failure on player %d (%i should be %i)",
 					p->pnum + 1, cmd->consistency, p->consistency[buf]);
 			}
 			if (p->mo)
@@ -1234,7 +1231,7 @@ void G_SaveGame(int slot, const char *description)
 {
 	savegame_slot = slot;
 	strcpy(savedescription, description);
-	sendsave = true;
+	gameaction = ga_savegame;
 }
 
 void G_DoSaveGame(void)
