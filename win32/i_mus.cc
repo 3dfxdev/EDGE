@@ -167,6 +167,9 @@ bool I_StartupMUS()
 		I_PostMusicError("I_StartupMUS: Unable to get original volume");
 		return false;
 	}
+	
+	// Ensure all is quiet when we start
+	I_MusicSetMixerVol(mixer, 0);
 
 	// Non-mixer defaults
 	midiavailable = true;
