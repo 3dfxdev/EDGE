@@ -267,6 +267,7 @@ void DDF_ErrorSetEntryName(const char *err, ...);
 void DDF_ErrorClearEntryName(void);
 
 void DDF_MainGetPercent(const char *info, void *storage, void *priv);
+void DDF_MainGetPercentAny(const char *info, void *storage, void *priv);
 void DDF_MainGetBoolean(const char *info, void *storage, void *priv);
 void DDF_MainGetFloat(const char *info, void *storage, void *priv);
 void DDF_MainGetAngle(const char *info, void *storage, void *priv);
