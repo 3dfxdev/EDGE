@@ -202,14 +202,13 @@ static haloinfo_t dummy_halo;
 const commandlist_t halo_commands[] =
 {
 
-  DF("HEIGHT", height, DDF_MainGetFloat),
-  DF("SIZE", size,     DDF_MainGetFloat),
-  DF("MINSIZE", minsize, DDF_MainGetFloat),
-  DF("MAXSIZE", maxsize, DDF_MainGetFloat),
-  DF("TRANSLUCENCY", translucency, DDF_MainGetPercent),
-  DF("COLOUR",  colour,  DDF_MainGetRGB),
-  DF("GRAPHIC", graphic, DDF_MainGetInlineStr10),
-
+	DF("HEIGHT", height, DDF_MainGetFloat),
+	DF("SIZE", size,     DDF_MainGetFloat),
+	DF("MINSIZE", minsize, DDF_MainGetFloat),
+	DF("MAXSIZE", maxsize, DDF_MainGetFloat),
+	DF("TRANSLUCENCY", translucency, DDF_MainGetPercent),
+	DF("COLOUR",  colour,  DDF_MainGetRGB),
+	DF("GRAPHIC", graphic, DDF_MainGetInlineStr10),
 
 	DDF_CMD_END
 };
@@ -219,10 +218,10 @@ const commandlist_t halo_commands[] =
 
 const commandlist_t dlight_commands[] =
 {
-  DF("TYPE", type, DDF_MobjGetDLight),
-  DF("INTENSITY", intensity, DDF_MainGetNumeric),
-  DF("COLOUR", colour, DDF_MainGetRGB),
-  DF("HEIGHT", height, DDF_MainGetPercent),
+	DF("TYPE", type, DDF_MobjGetDLight),
+	DF("INTENSITY", intensity, DDF_MainGetNumeric),
+	DF("COLOUR", colour, DDF_MainGetRGB),
+	DF("HEIGHT", height, DDF_MainGetPercent),
   
 	DDF_CMD_END
 };
@@ -233,10 +232,10 @@ const commandlist_t dlight_commands[] =
 const commandlist_t thing_commands[] =
 {
 	// sub-commands
-  DDF_SUB_LIST("HALO",   halo,   halo_commands,   dummy_halo),
-  DDF_SUB_LIST("DLIGHT", dlight, dlight_commands, dummy_dlight),
-  DDF_SUB_LIST("EXPLODE DAMAGE", damage, damage_commands, dummy_damage),
-  DDF_SUB_LIST("CHOKE DAMAGE", choke_damage, damage_commands, dummy_damage),
+	DDF_SUB_LIST("HALO",   halo,   halo_commands,   dummy_halo),
+	DDF_SUB_LIST("DLIGHT", dlight, dlight_commands, dummy_dlight),
+	DDF_SUB_LIST("EXPLODE DAMAGE", damage, damage_commands, dummy_damage),
+	DDF_SUB_LIST("CHOKE DAMAGE", choke_damage, damage_commands, dummy_damage),
 
 	DF("SPAWNHEALTH", spawnhealth, DDF_MainGetFloat),
 	DF("RADIUS", radius, DDF_MainGetFloat),
@@ -933,12 +932,12 @@ static int ParseBenefitString(const char *info, char *name,
 
 		switch (sscanf(buffer, " %f : %f ", value, limit))
 		{
-		case 1: return 1;
-		case 2: return 2;
+			case 1: return 1;
+			case 2: return 2;
 
-		default:
-			DDF_WarnError("Missing values in benefit string: %s\n", info);
-			return -1;
+			default:
+				DDF_WarnError("Missing values in benefit string: %s\n", info);
+				return -1;
 		}
 	}
 	else if (pos)
@@ -1136,11 +1135,11 @@ static bool BenefitTryArmour(const char *name, benefit_t *be,
 	{
 		switch (be->subtype)
 		{
-		case ARMOUR_Green:  be->limit = 100; break;
-		case ARMOUR_Blue:   be->limit = 200; break;
-		case ARMOUR_Yellow: be->limit = 200; break;
-		case ARMOUR_Red:    be->limit = 200; break;
-		default: ;
+			case ARMOUR_Green:  be->limit = 100; break;
+			case ARMOUR_Blue:   be->limit = 200; break;
+			case ARMOUR_Yellow: be->limit = 200; break;
+			case ARMOUR_Red:    be->limit = 200; break;
+			default: ;
 		}
 	}
 
