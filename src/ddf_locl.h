@@ -243,20 +243,14 @@ typedef struct
 }
 actioncode_t;
 
-// This structure used for parsing states
+// This structure is used for parsing states
 typedef struct
 {
-  // field name
-  const char *name;
-
   // state label
   const char *label;
 
-  // redirection label for last state, or NULL
+  // redirection label for last state
   const char *last_redir;
-
-  // pointer to first/last storage
-  int *first_and_last;
 
   // pointer to state_num storage
   int *state_num;
@@ -362,8 +356,8 @@ void DDF_StateGetPercent(const char *arg, state_t * cur_state);
 void DDF_StateGetJump(const char *arg, state_t * cur_state);
 
 void DDF_StateReadState(const char *info, const char *label,
-    int *first, int *last, int *state_num, const char *redir,
-    const actioncode_t *action_list);
+    int *first, int *last, int *state_num, int index, 
+    const char *redir, const actioncode_t *action_list);
 void DDF_StateFinishStates(int first, int last);
 void DDF_StateFixupStates(int first, int last);
 void DDF_StateCleanUp(void);
