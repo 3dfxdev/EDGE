@@ -1085,13 +1085,12 @@ void Things::AlterBexBits(char *bit_str)
 
 	static const char *delims = "+|, \t\f\r";
 
-	char *temp_dat = NULL;
 	int new_flags = 0;
 	int i;
 
-	for (char *token = strtok_r(bit_str, delims, &temp_dat);
+	for (char *token = strtok(bit_str, delims);
 	     token != NULL;
-		 token = strtok_r(NULL, delims, &temp_dat))
+		 token = strtok(NULL, delims))
 	{
 		assert(token[0] != 0);  // tokens should be non-empty
 
