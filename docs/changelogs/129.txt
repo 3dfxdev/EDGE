@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: OCTOBER 10th 2004)
+(Date: OCTOBER 27th 2004)
 
 
 Bugs fixed
@@ -59,7 +59,7 @@ General improvements
 
 (NOT FINISHED) new startup.  @@@ - the windows console window.
 
-(NOT FINISHED) support V3 of GL-NODES.  glbsp 2.10, Deus Vult MAP05, BLAH
+(NEEDS 2.10) support V3 of GL-NODES.  glbsp 2.10, Deus Vult MAP05, BLAH
 
 - source code uses more C++ features, and more of the EPI (Edge Platform
   Interace).  The "Zone" memory manager has mostly been replaced.
@@ -90,6 +90,11 @@ New features:
   presses a valid number key.  Savegames are also disabled while the RTS
   menu is shown.
 
+- new SEQUENCE command for ANIMS.DDF.  Use it to specify the full
+  animation sequence.  Names cannot be used twice.  Example:
+
+    SEQUENCE = TEX1, TEX2, TEX3, TEX5, TEX8;
+ 
 - PICKUP_EFFECT = SWITCH_WEAPON(xxx) , required for #VERSION 1.29 and
   higher.  Berserk fist.  Compatibility maintained. @@@
 
@@ -117,6 +122,6 @@ Hats off to...
 Special mention to Erik Sandberg's contribution to EDGE. It's worth a
 note that he did a shedload of quality work and made a special effort
 to make sure we were GPL legal - something we maintain now.  We do
-this since because we have recently removed the software renderer, we
-removed about 90% of the work he put into EDGE.
+this since because we have recently removed the software renderer,
+we removed about 90% of the work he put into EDGE.
 
