@@ -1200,13 +1200,11 @@ bool DDF_MainParseSubField(const commandlist_t *sub_comms,
 			{
 				// found the sub-field reference, recurse !
 
-				// FIXME: current hack (FIELD_OFF stuff) can't cope !!!
-				//
-				// return DDF_MainParseSubField(
-				//    sub_comms[i].sub_comms, field + len + 1, contents,
-        //    sub_comms[i].storage, sub_comms[i].sub_dummy_base, name);
+				int offset = ((char *) sub_comms[i].storage) - dummy_base;
         
-				I_Error("DDF_MainParseSubField: can't recurse !\n");
+				return DDF_MainParseSubField(sub_comms[i].sub_comms,
+						field + len + 1, contents, stor_base + offset,
+						(char *)sub_comms[i].sub_dummy_base, name);
 			}
 
 			continue;
@@ -1273,8 +1271,7 @@ bool DDF_MainParseField(const commandlist_t *commands,
 			{
 				// found the sub-field reference
 				return DDF_MainParseSubField( commands[i].sub_comms, 
-                        field + len + 1, contents,
-                        (char*)commands[i].storage,
+                        field + len + 1, contents, (char*)commands[i].storage,
                         (char*)commands[i].sub_dummy_base, name);
 			}
       
