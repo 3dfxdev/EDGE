@@ -28,8 +28,9 @@ OBJS=autolock.o \
 	 sys_assert.o \
 	 sys_debug.o \
 	 ticstore.o  \
-     ui_log.o   \
-     ui_menu.o  \
+     ui_log.o    \
+     ui_menu.o   \
+	 ui_stats.o  \
 	 ui_window.o
 
 
