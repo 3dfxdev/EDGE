@@ -93,11 +93,6 @@ extern boolean_t noblit;
 // ANG90 = left side, ANG270 = right
 extern angle_t viewanglebaseoffset;
 
-// Player taking events, and displaying.
-extern player_t *consoleplayer;
-extern player_t *displayplayer;
-extern int maxplayers;
-
 // -------------------------------------
 // Scores, rating.
 // Statistics on a given map, for intermission.
@@ -136,17 +131,18 @@ extern gamestate_t gamestate;
 
 extern int gametic;
 
-extern const char **player_names;
-
-#define MAXPLAYERS  256
+// The maximum number of players, multiplayer/networking.
+#define MAXPLAYERS  32
 
 // Pointer to each player.
 extern player_t **playerlookup;
-extern int numplayers;
 
-// Linked list of all players.
-// -AJA- FIXME: redundant, remove please...
+// Linked list of all players in the game.
 extern player_t *players;
+
+// Player taking events, and displaying.
+extern player_t *consoleplayer;
+extern player_t *displayplayer;
 
 #define MAXHEALTH 200
 #define MAXARMOUR 200
@@ -156,11 +152,11 @@ extern player_t *players;
 
 // Player spawn spots for deathmatch.
 extern int max_deathmatch_starts;
-extern mapthing_t *deathmatchstarts;
-extern mapthing_t *deathmatch_p;
+extern spawnpoint_t *deathmatchstarts;
+extern spawnpoint_t *deathmatch_p;
 
 // Player spawn spots.
-extern mapthing_t *playerstarts;
+extern spawnpoint_t *playerstarts;
 
 // Intermission stats.
 // Parameters for world map / intermission.
