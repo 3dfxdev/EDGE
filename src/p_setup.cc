@@ -49,8 +49,8 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include "epi/epicrc.h"
-#include "epi/epiendian.h"
+#include "epi/crc.h"
+#include "epi/endianess.h"
 
 // debugging aide:
 #define FORCE_LOCATION  0

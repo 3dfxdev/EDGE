@@ -78,9 +78,9 @@
 
 #include "errorcodes.h"
 
-#include "./epi/epiassert.h"
-#include "./epi/epierror.h"
-#include "./epi/epistring.h"
+#include "./epi/asserts.h"
+#include "./epi/errors.h"
+#include "./epi/strings.h"
 
 
 #define DEFAULT_LANGUAGE  "ENGLISH"

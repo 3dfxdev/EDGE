@@ -38,9 +38,9 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include "epi/epiarray.h"
-#include "epi/epiendian.h"
-#include "epi/epiutil.h"
+#include "epi/arrays.h"
+#include "epi/endianess.h"
+#include "epi/utility.h"
 
 class texture_set_c
 {

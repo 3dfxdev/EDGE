@@ -26,7 +26,7 @@
 #include "v_colour.h"
 #include "v_ctx.h"
 
-#include "epi/epistring.h"
+#include "epi/strings.h"
 
 #define DEBUG  0
 

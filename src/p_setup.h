@@ -28,7 +28,7 @@
 
 #include "dm_defs.h"
 
-#include "epi/epicrc.h"
+#include "epi/crc.h"
 
 extern epi::crc32_c mapsector_CRC;
 extern epi::crc32_c mapline_CRC;

@@ -21,7 +21,7 @@
 
 #include "dm_defs.h"
 
-#include "./epi/epiutil.h"
+#include "./epi/utility.h"
 
 // -AJA- 1999/07/09: colmap.ddf structures.
 

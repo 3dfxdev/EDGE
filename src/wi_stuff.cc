@@ -49,7 +49,7 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include "./epi/epistring.h"
+#include "./epi/strings.h"
 
 //
 // Data needed to add patches to full screen intermission pics.

@@ -72,9 +72,9 @@
 #include "z_zone.h"
 
 #include "epi/epi.h"
-#include "epi/epiendian.h"
-#include "epi/epifile.h"
-#include "epi/epifilesystem.h"
+#include "epi/endianess.h"
+#include "epi/files.h"
+#include "epi/filesystem.h"
 
 
 // if true, exit with report on completion 

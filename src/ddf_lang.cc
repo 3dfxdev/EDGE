@@ -40,7 +40,7 @@
 #include "ddf_locl.h"
 #include "ddf_main.h"
 
-#include "epi/epistring.h"
+#include "epi/strings.h"
 
 // ---> ddf buildinfo for language class
 class ddf_bi_lang_c

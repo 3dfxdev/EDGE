@@ -30,7 +30,7 @@
 #include "e_event.h"
 #include "ddf_main.h"
 
-#include "epi/epistring.h"
+#include "epi/strings.h"
 
 extern bool demo_notbegun;
 extern bool netdemo;

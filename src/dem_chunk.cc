@@ -35,7 +35,7 @@
 #include "z_zone.h"
 
 #include "lzo/minilzo.h"
-#include "epi/epicrc.h"
+#include "epi/crc.h"
 
 #include <math.h>
 

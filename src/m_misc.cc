@@ -56,10 +56,10 @@
 #include "wp_main.h"
 #include "z_zone.h"
 
-#include "epi/epiutil.h"
-#include "epi/epiendian.h"
-#include "epi/epifile.h"
-#include "epi/epifilesystem.h"
+#include "epi/utility.h"
+#include "epi/endianess.h"
+#include "epi/files.h"
+#include "epi/filesystem.h"
 
 //
 // DEFAULTS

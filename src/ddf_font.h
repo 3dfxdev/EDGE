@@ -21,7 +21,7 @@
 
 #include "dm_defs.h"
 
-#include "./epi/epiutil.h"
+#include "./epi/utility.h"
 
 //
 // -AJA- 2004/11/13 Fonts.ddf

@@ -21,7 +21,7 @@
 
 #include "dm_defs.h"
 
-#include "./epi/epiutil.h"
+#include "./epi/utility.h"
 
 //
 // SWITCHES

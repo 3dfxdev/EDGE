@@ -21,8 +21,8 @@
 #include "i_defs.h"
 #include "nl.h"
 
-#include "epi/epitype.h"
-#include "epi/epiendian.h"
+#include "epi/types.h"
+#include "epi/endianess.h"
 
 #include "n_packet.h"
 

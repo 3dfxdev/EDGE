@@ -34,7 +34,7 @@
 #include "rgl_fx.h"
 #include "z_zone.h"
 
-#include "./epi/epistring.h"
+#include "./epi/strings.h"
 
 #undef  DF
 #define DF  DDF_CMD
