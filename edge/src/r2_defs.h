@@ -143,6 +143,9 @@ typedef struct drawwall_s
   // colourmap & lighting
   region_properties_t *props;
 
+  // !!!! dlight test
+  float_t extra_light, elight_step;
+
   // info for texture mapper
   float_t distance;
   float_t x_offset;
@@ -207,8 +210,14 @@ typedef struct drawplane_s
 
   int face_dir;
 
+  // texture & offsets to use
   plane_info_t *info;
+
+  // colourmap & lighting
   region_properties_t *props;
+
+  // !!!! dlight test
+  float_t extra_light, elight_step;
 
   //...
 
@@ -277,6 +286,9 @@ typedef struct drawthing_s
   boolean_t bright;
   const byte *trans_table;
 
+  // !!!! dlight test
+  float_t extra_light;
+
   //...
 
   // TEMP for GL
@@ -323,6 +335,9 @@ typedef struct drawfloor_s
 
   // list of extra walls
   drawwall_t *extras;
+
+  // list of dynamic lights
+  drawthing_t *dlights;
 }
 drawfloor_t;
 
@@ -386,6 +401,7 @@ planeback_t;
 
 
 extern boolean_t use_true_bsp;
+extern boolean_t use_dlights;
 extern boolean_t force_classic;
 extern int sprite_kludge;
 
