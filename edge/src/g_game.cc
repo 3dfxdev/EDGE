@@ -208,14 +208,10 @@ int key_flydown;
 
 #define TURBOTHRESHOLD  0x32
 
-static int forwardmove[2] =
-{0x19, 0x32};
-static int upwardmove[2] =
-{0x19, 0x32};  // -MH- 1998/08/18 Up/Down movement
-static int sidemove[2] =
-{0x18, 0x28};
-static int angleturn[3] =
-{640, 1280, 320};  // + slow turn 
+static int forwardmove[2] = {0x19, 0x32};
+static int upwardmove[2]  = {0x19, 0x32};  // -MH- 1998/08/18 Up/Down movement
+static int sidemove[2]    = {0x18, 0x28};
+static int angleturn[3]   = {640, 1280, 320};  // + slow turn 
 
 #define ZOOM_ANGLE_DIV  3
 
