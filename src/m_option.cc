@@ -160,6 +160,7 @@ static char CrosO[] = "None/Cross/Dot/Angle";  // crosshair options
 static char Respw[] = "Teleport/Resurrect";  // monster respawning
 static char Axis[] = "Turn/Forward/Strafe/MLook/Fly/Disable";
 static char SkySq[] = "Small/Medium/Large/Mirror";
+static char DLMode[] = "Off/On/Compat";
 
 // Screen resolution changes
 static int prevscrmode;
@@ -384,7 +385,7 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch, "Mipmapping", MipMaps, 3, 0, &use_mipmapping, M_ChangeMipMap, NULL},
 	{OPT_Boolean, "Smoothing", YesNo, 2, 1, &use_smoothing, M_ChangeMipMap, NULL},
 	{OPT_Boolean, "Shadows", YesNo, 2, 0, &global_flags.shadows, M_ChangeShadows, NULL},
-	{OPT_Boolean, "Dynamic Lighting", YesNo, 2, 0, &use_dlights, M_ChangeDLights, NULL},
+	{OPT_Switch, "Dynamic Lighting", DLMode, 2, 0, &use_dlights, M_ChangeDLights, NULL},
 	{OPT_Switch, "Detail Level", Details, 3, 1, &detail_level, NULL, NULL},
 	{OPT_Switch, "Crosshair", CrosO, 4, 0, &crosshair, NULL, NULL},
 	{OPT_Boolean, "Map Overlay", YesNo, 2, 0, &map_overlay, NULL, NULL},

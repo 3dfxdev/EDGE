@@ -214,7 +214,7 @@ public:
 };
 
 extern int detail_level;
-extern bool use_dlights;
+extern int use_dlights;  // 2 means compat_mode (FIXME: remove for EDGE 1.30)
 extern int sprite_kludge;
 
 const image_t * R2_GetThingSprite(mobj_t *mo, bool *flip);

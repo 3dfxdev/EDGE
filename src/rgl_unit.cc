@@ -1122,7 +1122,6 @@ static void RGL_DoSplitPolygon(raw_polyquad_t *poly, int division,
 void RGL_SplitPolyQuad(raw_polyquad_t *poly, int division,
 					   bool separate)
 {
-// return;
 	if (poly->quad)
 		RGL_DoSplitQuad(poly, division, separate);
 	else

@@ -371,8 +371,12 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("jumping", &global_flags.jump, false);
 	M_CheckBooleanParm("crouching", &global_flags.crouch, false);
 	M_CheckBooleanParm("weaponswitch", &global_flags.weapon_switch, false);
-	M_CheckBooleanParm("dlights", &use_dlights, false);
 	M_CheckBooleanParm("autoload", &autoquickload, false);
+
+	if (M_CheckParm("dlights"))
+		use_dlights = 1;
+	else if (M_CheckParm("nodlights"))
+		use_dlights = 0;
 
 	if (M_CheckParm("-boom"))
 		global_flags.compat_mode = CM_BOOM;
