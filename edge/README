@@ -1,5 +1,5 @@
 
-EDGE 1.26 README.1ST
+EDGE 1.27 README.1ST
 ====================
 
 Welcome to EDGE, the Enhanced Doom Gaming Engine.
@@ -10,8 +10,9 @@ Archive listing:
   * musserv           - Linux music server 
   * edge.cfg          - Default Configuration File
   * edge.wad          - EDGE WAD Information
-  * edge-ddf-3.7.zip  - EDGE DDF files (not required to play)
+  * edge-ddf.zip      - EDGE DDF files (not required to play)
   * readme.1st        - Guess what you reading?
+
 
 System Requirements:
   - Either a DOOM, DOOM II, TNT or PLUTONIA WAD file.
@@ -21,13 +22,14 @@ System Requirements:
   - Hardware accelerated 3D card with OpenGL drivers (GLEDGE only).
 
   For Win32:
-    - Videocard and Soundcard which is compatible DirectX 7.0.
     - DirectX 7.0 or higher.
+    - Videocard and Soundcard which is compatible DirectX 7.0.
 
   For Linux:
     - SDL (Simple DirectMedia Layer) version 1.1.
     - XFree86 4.0 with DRI 3D hardware acceleration (GLEDGE only).
     - Glibc 2.
+
 
 Useful Parameters:
   * Screen Size: -width [screenwidth] -height [screenheight]
@@ -41,7 +43,34 @@ Useful Parameters:
   * Disable music: -nomusic
   * Turn off warnings: -nowarn  (useful for 1.24 wads like QDOOMTST)
 
-New features since 1.24:
+
+Notable EDGE features:
+  - Extrafloors (3D floors), removing the original DOOM limitation
+    which didn't allow rooms over rooms.  EDGE supports real 3D
+    room-over-room, bridges, and liquids.
+ 
+  - DDF (Data Definition Files), allow Mod/TC/PC creators to
+    completely customise monsters, attacks, weapons, pickup and
+    scenery items, linetypes, sectortypes, intermissions, ETC...
+    using fairly simple to understand text files.
+
+  - RTS (Radius Trigger Scripting), provides per-level scripting
+    support, allowing custom scripts to run when the player enters
+    certain parts of the map, or performs certain actions, or when
+    certain monsters have been killed (to name a few possibilities).
+ 
+  - Support for high resolutions (640x400 through 1280x1024), plus
+    support for 16-bit rendering.  That's just software mode, there is
+    also GLEDGE which takes advantage of hardware 3D acceleration via
+    the OpenGL library.
+
+  - Jumping, Looking up/down, Flying (JetPack), Zooming.
+ 
+  - Many limits and bugs from original DOOM removed (e.g. no more
+    visplane overflow or medusa effect).
+ 
+ 
+New features in 1.26:
   - Savegames are back.  This is brand new code, which works OK in the
     tests we've made, but may have bugs/issues with it.
 
@@ -53,36 +82,58 @@ New features since 1.24:
     This can take a while (especially for huge wads like ETERNAL) but
     it only has to be done once.
 
-  - Crouching.  Uses the `Move Down' key in the standard controls
-    option menu, and must be enabled in the gameplay option menu.
-
-  - Shadows under things.  Can be enabled/disabled in the video option
-    menu, or with the -shadows command-line option.
-
-  - Support for playing MP3 music.  For now they must be external
-    files, but support for lumps in wads is planned.  NOTE: doesn't
-    work in DOS yet.
-
   - Improved BOOM compatibility: all of the non-generalised linetypes
     are supported, with the exception of line-to-line teleporters
     (which we haven't coded yet) and some scrolling types.  The
     generalised line and sector types are mostly implemented too,
     though some don't work correctly yet.
     
-    Since the BOOM generalised types can interfere with TCs, they can
-    be enabled/disabled in the gameplay option menu.
+    For EDGE 1.27, there is a `Compatibility' option in the Gameplay
+    menu with two choices: "EDGE" and "BOOM".  This is because the the
+    BOOM generalised types can interfere with TCs/mods which define
+    their own types in DDF.  If a level doesn't seem to be working
+    properly, e.g. doors that won't open, try changing this option and
+    restarting the level.
 
-  - Mipmapping in the software and GL renderers, which can be
-    enabled/disabled in the video options menu, and also the -mipmap
-    commandline option.
+  - Mipmapping in the software and GL renderers.  In software mode,
+    this can make walls/floors/etc look blurry, so it can be disabled
+    in the Video Options menu or with the -nomipmap command-line
+    option (use -mipmap to enable).
 
-  - Dynamic lighting, only in the OpenGL for now.  It can be
-    enabled/disabled in the video option menu (disabling will give
-    higher framerates and also saves memory).
+  - Crouching.  Uses the `Move Down' key in the standard controls
+    option menu, and must be enabled in the gameplay option menu.
+
+  - Shadows under things.  Can be enabled/disabled in the Video Option
+    menu, or with the -shadows command-line option.
+
+  - Support for playing MP3 music.  For now they must be external
+    files, but support for lumps in wads is planned.  NOTE: doesn't
+    work in DOS.
+
+  - Dynamic lighting, only works in GLEDGE for now.  It can be
+    enabled/disabled in the Video Option menu (disabling will give
+    higher framerates and also saves memory) -- Note that you need to
+    restart the level for the change to take effect.
 
   - Many DDF and RTS enhancements, too many to list in this readme,
     but include: more ammo types, improved tips, thin sliding doors,
     and better damage control.
+ 
+
+New features in 1.27:
+  - Wipes and crosshairs now work in GLEDGE.
+
+  - Weapon kick can be disabled in the Gameplay Option menu.
+
+  - Better checking when loading savegame files.  If the level data is
+    detected to be different, e.g. loading a DOOM2 mad when playing
+    PLUTONIA, then the load is aborted.  Unfortunately EDGE also
+    crashes out -- recovering from a partial loadgame is a hard
+    problem to fix.
+
+  - A couple new DDF/RTS features.  See the CHANGELOG(s) for more
+    information. 
+ 
  
 Known Issues:
   - Multiplayer (networking) does not work.  We don't have the time to
@@ -92,7 +143,7 @@ Known Issues:
 
   - Sky in GLEDGE can be wobble/twisted or ripple, most noticeable in
     maps with a lot of sky, e.g. MAP12.  Selected a higher "Detail
-    Level" in the video option menu can help.
+    Level" in the Video Option menu can help.
  
   - There are some visual problems/glitches with the screen,
     especially when the view window is shrunk down.  Also the fonts
@@ -102,13 +153,42 @@ Known Issues:
     little time to spend on optimising the code.  For software mode,
     part of the reason is that the old hand-crafted assembly routines
     are no longer used (they need re-writing).  GL mode also has its
-    own speed issues.
+    own speed issues, especially when dynamic lighting is used.
 
   - Levels and TCs designed for EDGE 1.24 (or earlier) can produce a
     bucket-load of warnings when starting up.  These warnings are
     mostly about DDF features that have been removed or changed.
     Hence some older stuff may not work 100%.  Use the -nowarn option
     to turn off these warnings.
+ 
+  - MP3 playback quality is fairly low, fixed at 11Khz, 8 bits and
+    mono.  Attempts at increasing these didn't work and caused EDGE to
+    crash (even hard-lock the computer in one case).
+ 
+  - Some sprites are designed to look sunk into the floor, typically
+    corpses, and can look like they are "floating" in EDGE.  This is a
+    limitation of the way EDGE/GLEDGE renders everything -- it uses a
+    new rendering technique that allows 3D floors, liquids, etc, but
+    cannot duplicate the old renderer which allowed sunk-down sprites.
+
+    Certain other DOOM tricks, e.g. flat-flooding, are also affected
+    by the new rendering method, and either work to some degree, or
+    not at all.
+ 
+  - Looping sounds tend to stop when you get too far away to hear
+    them, e.g. coming back to a flickering torch in QDOOM and it has
+    stopped making the flickering sound.  Also looping sounds are not
+    saved in a savegame, so after loading a level there are no looping
+    sounds being played at all.
+ 
+  - Some graphics can look fuzzy in GLEDGE, such as the title screens
+    and the status bar background.  This happens because many 3D cards
+    (e.g. Voodoo 3) have a texture size limitation of 256x256 pixels,
+    but some DOOM graphics are 320 pixels wide -- they don't fit, so
+    GLEDGE has to squash them down to half the size.
+ 
+  - The console has very limited functionality.
+ 
  
 Troubleshooting:
   - If EDGE crashes, or otherwise misbehaves, please help us by
@@ -154,6 +234,7 @@ Troubleshooting:
       guide to whether accelerated 3D is working is to run `glxinfo'
       in an xterm, and see if it says "direct rendering: Yes".
 
+
 Contact points:
   * For the latest news and developments visit the EDGE Website
     at http://edge.sourceforge.net.
@@ -166,7 +247,8 @@ Contact points:
 
   * For more information on "GL Nodes", see the glBSP homepage at
     http://glbsp.sourceforge.net.
- 
+
+
 Compiling EDGE:
 
   Quick guide:
@@ -180,4 +262,139 @@ Compiling EDGE:
   top.  Then type `make' (or for windows, `make -f Makefile.bcc').
 
 
+Command line options:
+
+  * Note that "(no)" here means that the option switch can optionally
+    be prefixed with the word "no", e.g. -shadows OR -noshadows.  The
+    plain option enables the feature, and the one with "no" disables
+    that feature.
+
+  -version             Show version of EDGE and exit.
+
+  -width  <wd>         Select video mode's width.
+  -height  <ht>        Select video mode's height.
+  -res  <wd> <ht>      Select video mode (width AND height).
+  -bpp  <depth>        Video depth: 1 for 8-bit, 2 for 16-bit.
+  -lang  <language>    Language for game messages.
+
+  -iwad  <file>        Select IWAD file (e.g. DOOM.WAD or TNT.WAD)
+  -file  <file> ...    Select PWAD (add-on) wad file(s) to play.
+  -home  <dir>         Home dir, can hold IWAD and EDGE.WAD.
+  -game  <dir>         Game dir, for PARMS, DDF, RTS, WADs, etc.
+  -ddf   <dir>         Load external DDF files from the directory.
+  -script  <file>      Load external RTS script from the file.
+  -config  <file>      Config file (normally EDGE.CFG).
+  -debugfile  <file>   Write messages into the given file.
+
+  -warp  <map>         Warp to map (use full name e.g. E1M1 or MAP01).
+  -loadgame  <slot>    Warp, loading game from slot.
+  -record  <file>      Record a demo into the given file.
+  -playdemo  <file>    Play the previously recorded demo.
+  -timedemo  <file>    Play and time the demo (test performance).
+  -skill  <num>        Skill level for warp (1 to 5).
+  -screenshot  <rate>  Movie mode ! Takes regular screenshots.
+  -turbo  <num>        Running speed, 100 is normal.
+  -vspeed  <num>       Look up/down speed, 1000 is normal.
+
+  -players  <num>      Total number of players (includes bots).
+  -bots  <num>         Number of bots.
+  -deathmatch          Deathmatch game (otherwise COOP).
+  -altdeath            Alternate deathmatch mode.
+  -singletics          (Something net related ?)
+  -timer  <mins>       Time limited games, and specifies how long.
+  -avg                 Andy Virtual Gaming (same as -timer 20).
+  -respawn             Monster respawning.
+  -(no)itemrespawn     Item respawning.
+  -newnmrespawn        Monsters respawn as if resurrected.
+  -viewangle  <ang>    (May not work) view angle for drones.
+
+  -boom                Set compatibility to BOOM mode.
+  -edge                Set compatibility to EDGE mode.
+
+  -(no)strict          Errors: be as strict as possible.
+  -(no)lax             Errors: be as lax/forgiving as possible.
+  -(no)warn            Enable/disable warning messages.
+  -(no)obsolete        Enable/disable warnings about obsolete stuff.
+
+  -windowed            Run inside a window.
+  -fullscreen          Run fullscreen.
+  -(no)sound           Enable/disable sound effects.
+  -(no)music           Enable/disable music output.
+
+  -(no)dither          Dither the graphics (in GL).
+  -(no)smoothing       Smoothing for graphic images (mainly GL).
+  -(no)mipmap          Mipmapping enable/disable.
+  -(no)shadows         Shadows are drawn under things.
+  -(no)halos           (Unimplemented) Halos/coronas around lights.
+  -(no)dlights         Dynamic lighting (currently GLEDGE only).
+  -(no)trans           Whether translucent stuff is rendered.
+  -(no)jumping         Whether player jumping is allowed.
+  -(no)crouching       Whether player crouching is allowed.
+  -(no)mlook           Mouse-look up/down.
+  -(no)kick            Weapon kick effect.
+
+  -(no)devparm         (Unused at the moment)
+  -(no)monsters        Enable/disable monsters within the game.
+  -(no)fast            Fast monsters.
+  -(no)rotatemap       Automap rotation.
+  -(no)invertmouse     Invert the mouse Y direction.
+  -(no)showstats       Shows on-screen statistics/info.
+  -(no)hom             HOM (Hall Of Mirrors) detection.
+  -(no)stretchsky      Whether skies are stretched or tiled.
+  -(no)extras          Extra items (e.g. rain) appearing in levels.
+  -(no)infight         In-fighting between monsters.
+  -(no)true3d          Objects can pass above/below other objects.
+  -(no)blood           More blood which lasts longer.
+  -(no)cheats          Cheat codes enabled or disabled.
+
+  -trilinear           Trilinear mipmapping (GLEDGE only).
+  -nointerp            Video: Don't interpolate colourmaps.
+  -nodraw              Disable rendering (for performance testing).
+  -nogfxmode           Disable all video (for performance testing).
+
+  -blockmap            Force EDGE to generate its own blockmap.
+  -fastsprites         Load sprite images at start of level.
+  -newmap OR -newhud   Automap overlay.
+  -noconhistory        Disable console history (save some memory).
+  -noblit              (Unused at the moment)
+  -spritekludge        (Unused at the moment)
+  -screencomp <mode>   (Currently broken) screen composition.
+
+
+  Win32 only options:
+
+   (none)
+
+  DOS only options:
+
+  -forcevga            Limit video mode to VGA 320x200x8.
+  -ihatebill           (Unused at the moment)
+  -bitspp  <depth>     (Unused I think) select video depth.
+
+  Linux only options:
+
+  -freq  <freq>        Set sound frequency (sample rate) in Hz.
+  -mono                Disable stereo sound output.
+  -allegfm             Use the allegro FM patches for music.
+  -warpmouse           Use special mouse handling code.
+ 
+
+Console commands:
+
+  ARGS  <a> <b> ...    Just displays the arguments given to it.
+  CRC  <lump>          Computes the CRC value of a wad lump.
+  EAT  <size>          Eats memory (for debugging purposes).
+  EXEC  <filename>     Executes the console commands in file.
+  PLAYSOUND  <sound>   Plays the sound (fatal error if unknown !).
+  QUIT                 Quit EDGE (pops up a query message).
+  SET  <cvar> <val>    Set console variable to a new value.
+  TYPE  <filename>     Displays the file on the console.
+  TYPEOF  <cvar>       Displays the type of a console variable.
+  WATCH  <cvar> <max>  Show var as a slider (NOTE: doesn't work).
+
+  * The SET command can be used with no options, which displays all
+    known variables (and their values), or just the cvar name, which
+    displays the value of that variable.
+
 --- END OF README.1ST ---
+
