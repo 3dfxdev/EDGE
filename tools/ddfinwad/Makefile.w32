@@ -5,10 +5,9 @@
 PROGRAM=ddfinwad
 
 CC=gcc
-CFLAGS=-g -O -Wall
-LDFLAGS=-Xlinker --warn-common
+CFLAGS=-O3 -Wall
+LDFLAGS=-s -Xlinker --warn-common
 DEFINES=-DWIN32
-LIBS=-lm
 
 OBJS=wad_io.o main.o
 
