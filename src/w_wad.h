@@ -43,6 +43,7 @@ typedef enum
 {
 	LMPLST_Sprites,
 	LMPLST_Flats,
+	LMPLST_Patches
 }
 lumplist_e;
 

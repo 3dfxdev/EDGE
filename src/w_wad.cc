@@ -75,6 +75,10 @@ typedef struct data_file_s
 	int *flat_lumps;
 	int flat_num;
 
+	// patch list (yes, 16 at a time)
+	int *patch_lumps;
+	int patch_num;
+
 	// texture information
 	wadtex_resource_t wadtex;
 }
@@ -149,6 +153,7 @@ static int palette_datafile = -1;
 // Sprites & Flats
 bool within_sprite_list;
 bool within_flat_list;
+bool within_patch_list;
 
 int addwadnum = 0;
 static int maxwadfiles = 0;
@@ -220,7 +225,39 @@ static bool IsF_END(char *name)
 }
 
 //
-// Is the name a dummy sprite/flat flag ?
+// Is the name a patch list start flag?
+// If lax syntax match, fix up to standard syntax.
+//
+static bool IsP_START(char *name)
+{
+	if (strncmp(name, "PP_START", 8) == 0)
+	{
+		// fix up flag to standard syntax
+		strncpy(name, "P_START", 8);
+		return 1;
+	}
+
+	return (strncmp(name, "P_START", 8) == 0);
+}
+
+//
+// Is the name a patch list end flag?
+// If lax syntax match, fix up to standard syntax.
+//
+static bool IsP_END(char *name)
+{
+	if (strncmp(name, "PP_END", 8) == 0)
+	{
+		// fix up flag to standard syntax
+		strncpy(name, "P_END", 8);
+		return 1;
+	}
+
+	return (strncmp(name, "P_END", 8) == 0);
+}
+
+//
+// Is the name a dummy sprite/flat/patch marker ?
 //
 static bool IsDummySF(const char *name)
 {
@@ -229,7 +266,10 @@ static bool IsDummySF(const char *name)
 			strncmp(name, "S3_START", 8) == 0 ||
 			strncmp(name, "F1_START", 8) == 0 ||
 			strncmp(name, "F2_START", 8) == 0 ||
-			strncmp(name, "F3_START", 8) == 0);
+			strncmp(name, "F3_START", 8) == 0 ||
+			strncmp(name, "P1_START", 8) == 0 ||
+			strncmp(name, "P2_START", 8) == 0 ||
+			strncmp(name, "P3_START", 8) == 0);
 }
 
 static int FileLength(int handle)
@@ -525,7 +565,7 @@ static void AddLump(int lump, int pos, int size, int file,
 		}
 	}
 
-	// -- handle sprite & flat lists --
+	// -- handle sprite, flat & patch lists --
   
 	if (IsS_START(lump_p->name))
 	{
@@ -553,6 +593,19 @@ static void AddLump(int lump, int pos, int size, int file,
 		within_flat_list = false;
 		return;
 	}
+	else if (IsP_START(lump_p->name))
+	{
+		within_patch_list = true;
+		return;
+	}
+	else if (IsP_END(lump_p->name))
+	{
+		if (!within_patch_list)
+			I_Warning("Unexpected P_END marker in wad.\n");
+
+		within_patch_list = false;
+		return;
+	}
 
 	// ignore zero size lumps or dummy markers
 	if (lump_p->size > 0 && !IsDummySF(lump_p->name))
@@ -564,6 +617,10 @@ static void AddLump(int lump, int pos, int size, int file,
 		if (within_flat_list)
 			AddSpriteOrFlat(&data_files[file].flat_lumps,
 							&data_files[file].flat_num, lump);
+    
+		if (within_patch_list)
+			AddSpriteOrFlat(&data_files[file].patch_lumps,
+							&data_files[file].patch_num, lump);
 	}
 }
 
@@ -589,8 +646,8 @@ static void AddFile(const char *filename, bool allow_ddf,
 	wad_header_t header;
 	wad_entry_t *fileinfo, *curinfo;
 
-	// reset the sprite/flat list stuff
-	within_sprite_list = within_flat_list = false;
+	// reset the sprite/flat/patch list stuff
+	within_sprite_list = within_flat_list = within_patch_list  = false;
 
 	// open the file and add to directory
 	for (j=0; j < NUM_DDF_READERS; j++)
@@ -614,6 +671,8 @@ static void AddFile(const char *filename, bool allow_ddf,
 	data_files[datafile].sprite_num = 0;
 	data_files[datafile].flat_lumps = NULL;
 	data_files[datafile].flat_num = 0;
+	data_files[datafile].patch_lumps = NULL;
+	data_files[datafile].patch_num = 0;
 	data_files[datafile].wadtex.palette = -1;
 	data_files[datafile].wadtex.pnames = -1;
 	data_files[datafile].wadtex.texture1 = -1;
@@ -707,12 +766,15 @@ static void AddFile(const char *filename, bool allow_ddf,
 
 	I_Printf("\n");
 
-	// check for unclosed sprite/flat lists
+	// check for unclosed sprite/flat/patch lists
 	if (within_sprite_list)
 		I_Warning("Missing S_END marker in %s.\n", filename);
 
 	if (within_flat_list)
 		I_Warning("Missing F_END marker in %s.\n", filename);
+   
+	if (within_patch_list)
+		I_Warning("Missing P_END marker in %s.\n", filename);
    
 	// -AJA- 1999/12/25: What did Santa bring EDGE ?  Just some support
 	//       for "GWA" files (part of the "GL-Friendly Nodes" specs).
@@ -1056,6 +1118,10 @@ const int *W_GetListLumps(int file, lumplist_e which, int *count)
 		case LMPLST_Flats:
 			(*count) = data_files[file].flat_num;
 			return data_files[file].flat_lumps;
+    
+		case LMPLST_Patches:
+			(*count) = data_files[file].patch_num;
+			return data_files[file].patch_lumps;
 	}
 
 #ifdef DEVELOPERS
@@ -1096,7 +1162,7 @@ bool W_LumpRawInfo(int lump, int *handle, int *pos, int *size)
 	(*handle) = f->handle;
 	(*pos)    = l->position;
 	(*size)   = l->size;
-  
+
 	return true;
 }
 
