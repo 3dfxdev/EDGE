@@ -42,7 +42,6 @@
 #include "m_inline.h"
 #include "m_misc.h"
 #include "m_menu.h"
-#include "m_swap.h"
 #include "m_random.h"
 #include "hu_stuff.h"
 #include "p_bot.h"
@@ -66,6 +65,8 @@
 #include "w_wad.h"
 #include "wi_stuff.h"
 #include "z_zone.h"
+
+#include "epi/epiendian.h"
 
 #define SAVEGAMESIZE    0x50000
 #define SAVESTRINGSIZE  24
@@ -1874,7 +1875,7 @@ void G_BeginRecording(void)
 	///  for (p = players; p; p = p->next)
 	///    WriteByteToDemo(p->in_game);
 
-	i = LONG(random_seed);
+	i = EPI_LE_S32(random_seed);
 	WriteToDemo(&i, 4);
 }
 
@@ -1971,7 +1972,7 @@ void G_DoPlayDemo(void)
 		///      p->in_game = playdemobuffer[demo_p++];
 
 		// -ES- 2000/02/04 Random seed
-		random_seed = LONG(*(long*)&playdemobuffer[demo_p]);
+		random_seed = EPI_LE_S32(*(long*)&playdemobuffer[demo_p]);
 		demo_p += 4;
 	}
 
