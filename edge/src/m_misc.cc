@@ -612,11 +612,10 @@ void M_ScreenShot(void)
 			break; // file doesn't exist
 	}
 
-	buffer = (byte*)Z_Malloc(SCREENWIDTH*SCREENHEIGHT*4);
-
+	buffer = new byte[SCREENWIDTH*SCREENHEIGHT*4];
 	RGL_ReadScreen(0, 0, SCREENWIDTH, SCREENHEIGHT, buffer);
 	WriteTGAFile(filename, SCREENWIDTH, SCREENHEIGHT, buffer);
-	Z_Free(buffer);
+	delete [] buffer;
 }
 
 //

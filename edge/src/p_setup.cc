@@ -50,8 +50,8 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include "epi/crc.h"
 #include "epi/endianess.h"
+#include "epi/math_crc.h"
 
 // debugging aide:
 #define FORCE_LOCATION  0
