@@ -320,15 +320,19 @@ extern savestruct_t *sv_known_structs;
 extern savearray_t  *sv_known_arrays;
 
 extern savestruct_t sv_struct_mobj;
+extern savestruct_t sv_struct_spawnpoint;
 extern savestruct_t sv_struct_player;
 extern savestruct_t sv_struct_playerweapon;
 extern savestruct_t sv_struct_playerammo;
 extern savestruct_t sv_struct_psprite;
-//....
+extern savestruct_t sv_struct_sidepart;
+extern savestruct_t sv_struct_side;
+extern savestruct_t sv_struct_line;
 
 extern savearray_t sv_array_mobj;
 extern savearray_t sv_array_player;
-//....
+extern savearray_t sv_array_side;
+extern savearray_t sv_array_line;
 
 boolean_t SR_MobjGetMobj(void *storage, int index, void *extra);
 void SR_MobjPutMobj(void *storage, int index, void *extra);
