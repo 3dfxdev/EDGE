@@ -1,23 +1,14 @@
 //----------------------------------------------------------------------------
-//  EDGE System Specific Header
+//  System Specific Header
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2004  The EDGE Team.
+//  DEH_EDGE  Copyright (C) 2004  The EDGE Team
 // 
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
+//  This program is under the GNU General Public License.
+//  It comes WITHOUT ANY WARRANTY of any kind.
+//  See COPYING.txt for the full details.
 //
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//----------------------------------------------------------------------------
-//
-// -ACB- 1999/09/19 Written
-//
+//------------------------------------------------------------------------
 
 #ifndef __SYSTEM_SPECIFIC_DEFS__
 #define __SYSTEM_SPECIFIC_DEFS__
@@ -41,6 +32,7 @@ typedef unsigned char byte;
 #include <unistd.h>
 #include <values.h>
 #include <assert.h>
+#include <errno.h>
 #include <sys\stat.h>
 #include <dos.h>
 
@@ -74,6 +66,7 @@ typedef unsigned char byte;
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <errno.h>
 #include <sys\stat.h>
 #include <time.h>
 
@@ -100,6 +93,7 @@ typedef unsigned char byte;
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <errno.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -109,5 +103,3 @@ typedef unsigned char byte;
 #endif
 
 #endif /*__SYSTEM_SPECIFIC_DEFS__*/
-
-
