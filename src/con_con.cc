@@ -501,12 +501,8 @@ void CON_Message(const char *message,...)
 void CON_Ticker(gui_t * gui)
 {
 	coninfo_t *info = (coninfo_t *)gui->process;
-	static int lasttic = 0;
 
 	info->cursor = (info->cursor + 1) & 31;
-
-	if (lasttic == 0)
-		lasttic = gametic - 1;
 
 	if (info->visible != vs_notvisible)
 	{
@@ -536,7 +532,8 @@ void CON_Ticker(gui_t * gui)
 		default:
 			if (RepeatCountdown)
 			{
-				RepeatCountdown -= gametic - lasttic;
+				RepeatCountdown -= 1;
+
 				while (RepeatCountdown <= 0)
 				{
 					RepeatCountdown += KEYREPEATRATE;
@@ -546,8 +543,6 @@ void CON_Ticker(gui_t * gui)
 			break;
 		}
 	}
-
-	lasttic = gametic;
 }
 
 // writes the text on coords (x,y) of the console
