@@ -1791,10 +1791,16 @@ static void ShutdownLevel(void)
   Z_Free(subsectors);
 
   if (extrafloors)
+  {
     Z_Free(extrafloors);
+	extrafloors = NULL;
+  }
 
   if (vertgaps)
+  {
     Z_Free(vertgaps);
+	vertgaps = NULL;
+  }
 
   P_RemoveSectors();
 
