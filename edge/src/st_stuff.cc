@@ -525,7 +525,7 @@ static void UpdateWidgets(void)
 
 				w_ready_hack = consoleplayer->ammo[pw->info->ammo[0]].num;
 
-				if (pw->info->clip_size[0] != 1)
+				if (pw->info->clip_size[0] > 0)
 					w_ready_hack += pw->clip_size[0];
 
 				// set ammo colour as in BOOM.  -AJA- Experimental !!

@@ -114,7 +114,8 @@ void P_SetPsprite(player_t * p, int position, int stnum);
 void P_DropWeapon(player_t * player);
 bool P_CheckWeaponSprite(weapondef_c *info);
 void P_SelectNewWeapon(player_t * player, int priority, ammotype_e ammo);
-bool P_FillNewWeapon(player_t *p, int idx);
+void P_TrySwitchNewWeapon(player_t *p, int new_weap, ammotype_e new_ammo);
+bool P_TryFillNewWeapon(player_t *p, int idx, ammotype_e ammo, int *qty);
 void P_Zoom(player_t * player);
 
 //
@@ -123,7 +124,7 @@ void P_Zoom(player_t * player);
 void P_PlayerThink(player_t * player);
 void P_UpdateAvailWeapons(player_t *p);
 void P_UpdateTotalArmour(player_t *p);
-bool P_AddWeapon(player_t *player, weapondef_c *info, int *index, bool switch_to);
+bool P_AddWeapon(player_t *player, weapondef_c *info, int *index);
 bool P_RemoveWeapon(player_t *player, weapondef_c *info);
 void P_GiveInitialBenefits(player_t *player, const mobjtype_c *info);
 void P_AddPlayerToGame(player_t *p);
@@ -371,8 +372,8 @@ void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust);
 void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 				  float amount, const damage_c * damtype);
 void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c * damtype);
-bool P_GiveBenefitList(player_t *player, mobj_t *special,
-							benefit_t *list, bool lose_em);
+bool P_GiveBenefitList(player_t *player, mobj_t *special, benefit_t *list,
+                       bool lose_em, int *new_weap = NULL, int *new_ammo = NULL);
 
 //
 // P_SPEC

@@ -843,7 +843,7 @@ void P_UpdateTotalArmour(player_t *p)
 // Returns true if player didn't already have the weapon.  If
 // successful and `index' is non-NULL, it is set to the new index.
 //
-bool P_AddWeapon(player_t *player, weapondef_c *info, int *index, bool switch_to)
+bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 {
 	int i;
 	int slot = -1;
@@ -860,7 +860,9 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index, bool switch_to
 		// find free slot
 		if (! player->weapons[i].owned)
 		{
-			if (slot < 0)
+			// check ready_wp, to prevent problems with a removed weapon
+			// that is still going through its lowering states.
+			if (slot < 0 && i != player->ready_wp)
 				slot = i;
 
 			continue;
@@ -873,8 +875,7 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index, bool switch_to
 		}
 
 		// don't downgrade any UPGRADED weapons
-		// NOTE: this cannot detect upgrades of upgrades
-		// FIXME!! (Above NOTE)
+		// NOTE: this cannot detect upgrades of upgrades: FIXME!!!
 		if (cur_info->upgraded_weap >= 0 &&
 			weapondefs[cur_info->upgraded_weap] == info)
 		{
@@ -908,21 +909,14 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index, bool switch_to
 
 	P_UpdateAvailWeapons(player);
 
-	// new weapons should fill clip if possible
-	if (switch_to && ! P_FillNewWeapon(player, slot))
-		switch_to = false;
-
-	if (switch_to)
-	{
-		player->pending_wp = (weapon_selection_e) slot;
-
-		// be cheeky... :-)
-		player->grin_count = GRIN_TIME;
-	}
+	// initial weapons should get a full clip
+	if (info->autogive)
+		P_TryFillNewWeapon(player, slot, AM_DontCare, NULL);
 
 	// handle the icky case of holding the weapon which is being
 	// replaced by the new one.  This won't look great, the weapon
 	// should lower rather than just disappear.  Oh well.
+	// FIXME: upgrades probably should be instantaneous (and transfer clip)
 
 	if (rep_slot >= 0 && player->ready_wp == rep_slot)
 	{
@@ -966,6 +960,8 @@ bool P_RemoveWeapon(player_t *player, weapondef_c *info)
 	// handle the icky case of already holding the weapon.  This won't
 	// look great, the weapon should lower rather than just disappear.
 	// Oh well.
+	// FIXME: mark removal as a flag, do actual removal (clear owned)
+	//        when lowered.
 
 	if (player->ready_wp == i)
 	{
@@ -1023,9 +1019,8 @@ void P_GiveInitialBenefits(player_t *p, const mobjtype_c *info)
 	// give all initial benefits
 	P_GiveBenefitList(p, NULL, info->initial_benefits, false);
 
-	int priority = -100;
-
-	// give all free weapons
+	// give all free weapons.  Needs to be after ammo, so that
+	// clip weapons can get their clips filled.
 	for (it=weapondefs.GetIterator(weapondefs.GetDisabledCount());
 		it.IsValid(); it++)
 	{
@@ -1035,20 +1030,8 @@ void P_GiveInitialBenefits(player_t *p, const mobjtype_c *info)
 
 		int pw_index;
 
-		if (!P_AddWeapon(p, w, &pw_index, false))
-			continue;
-
-		// choose highest priority FREE weapon as the default
-		// FIXME: make sure AMMO is avail !!!!!
-		if (w->priority > priority)
-		{
-			priority = w->priority;
-			p->pending_wp = p->ready_wp = (weapon_selection_e)pw_index;
-		}
+		P_AddWeapon(p, w, &pw_index);
 	}
-
-	if (p->ready_wp >= 0)
-		P_FillNewWeapon(p, p->ready_wp);
 
 	// refresh to remove all stuff from status bar
 	P_UpdateAvailWeapons(p);

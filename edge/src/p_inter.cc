@@ -51,14 +51,10 @@
 // -KM- 1998/11/25 Handles weapon change from priority.
 //
 static bool GiveAmmo(player_t * player, mobj_t * special,
-					 benefit_t *be, bool lose_em)
+					 benefit_t *be, bool lose_em, int *new_weap, int *new_ammo)
 {
-	int dropped = (special && (special->flags & MF_DROPPED));
-
 	int ammo  = be->subtype;  
-	int num   = (int)(be->amount + 0.5f) / (dropped ? 2 : 1);
-
-	int priority = -100;
+	int num   = (int)(be->amount + 0.5f);
 
 	if (ammo == AM_NoAmmo || num <= 0)
 		return false;
@@ -68,14 +64,16 @@ static bool GiveAmmo(player_t * player, mobj_t * special,
 
 	if (lose_em)
 	{
+		if (player->ammo[ammo].num == 0)
+			return false;
+
 		player->ammo[ammo].num -= num;
+
 		if (player->ammo[ammo].num < 0)
 			player->ammo[ammo].num = 0;
+
 		return true;
 	}
-
-	if (player->ammo[ammo].num == player->ammo[ammo].max)
-		return false;
 
 	// In Nightmare you need the extra ammo, in "baby" you are given double
 	if (special)
@@ -84,36 +82,36 @@ static bool GiveAmmo(player_t * player, mobj_t * special,
 			num <<= 1;
 	}
 
-	// if there was some old ammo, we don't need to change weapons 
-	bool change_weap = (player->ammo[ammo].num == 0);
+	bool pickup = false;
+
+	// for newly acquired weapons (in the same benefit list) which have
+	// a clip, try to "bundle" this ammo inside that clip.  
+	if (new_weap != NULL && *new_weap >= 0)
+	{
+		pickup = pickup || P_TryFillNewWeapon(player, *new_weap,
+			(ammotype_e)ammo, &num);
+
+		if (num == 0)
+			return true;
+	}
+
+	// divide by two here, means that the ammo for filling a clip
+	// weapons is not affected by the MF_DROPPED flag.
+	if (num > 1 && special && (special->flags & MF_DROPPED))
+		num /= 2;
+
+	if (player->ammo[ammo].num == player->ammo[ammo].max)
+		return pickup;
+
+	// if there is some fresh ammo, we should change weapons 
+	if (new_ammo != NULL && player->ammo[ammo].num == 0)
+		(*new_ammo) = ammo;
 
 	player->ammo[ammo].num += num;
 
 	if (player->ammo[ammo].num > player->ammo[ammo].max)
 		player->ammo[ammo].num = player->ammo[ammo].max;
 
-	if (! change_weap)
-		return true;
-
-	// We were down to zero, so select a new weapon.
-	// Choose the next highest priority weapon than the current one.
-	// Don't override any weapon change already underway.
-	// Don't change weapon if NO_AUTO_SWITCH is true.
-
-	if (player->pending_wp != WPSEL_NoChange)
-		return true;
-
-	if (player->ready_wp >= 0)
-	{
-		weapondef_c *w = player->weapons[player->ready_wp].info;
-
-		if (! (w->specials[0] & WPSP_SwitchAway))
-			return true;
-
-		priority = w->priority;
-	}
-
-	P_SelectNewWeapon(player, priority, (ammotype_e) ammo);
 	return true;
 }
 
@@ -133,7 +131,7 @@ static bool GiveAmmoLimit(player_t * player, mobj_t * special,
 		I_Error("GiveAmmoLimit: bad type %i", ammo);
 
 	if ((!lose_em && limit < player->ammo[ammo].max) ||
-		(lose_em && limit > player->ammo[ammo].max))
+		( lose_em && limit > player->ammo[ammo].max))
 	{
 		return false;
 	}
@@ -150,7 +148,7 @@ static bool GiveAmmoLimit(player_t * player, mobj_t * special,
 // -AJA- 2000/03/02: Reworked for new benefit_t stuff.
 //
 static bool GiveWeapon(player_t * player, mobj_t * special,
-					   benefit_t *be, bool lose_em)
+					   benefit_t *be, bool lose_em, int *new_weap)
 {
 	weapondef_c *info = weapondefs[be->subtype];
 	int pw_index;
@@ -158,8 +156,11 @@ static bool GiveWeapon(player_t * player, mobj_t * special,
 	if (lose_em)
 		return P_RemoveWeapon(player, info);
 
-	if (! P_AddWeapon(player, info, &pw_index, true))
+	if (! P_AddWeapon(player, info, &pw_index))
 		return false;
+
+	if (new_weap != NULL)
+		(*new_weap) = pw_index;
 
 	return true;
 }
@@ -207,6 +208,9 @@ static bool GiveArmour(player_t * player, mobj_t * special,
 
 	if (lose_em)
 	{
+		if (player->armours[a_class] == 0)
+			return false;
+
 		player->armours[a_class] -= be->amount;
 		if (player->armours[a_class] < 0)
 			player->armours[a_class] = 0;
@@ -325,6 +329,9 @@ static bool GivePower(player_t * player, mobj_t * special,
 
 	if (lose_em)
 	{
+		if (player->powers[be->subtype] == 0)
+			return false;
+
 		player->powers[be->subtype] -= duration;
 
 		if (player->powers[be->subtype] < 0)
@@ -360,38 +367,15 @@ static bool GivePower(player_t * player, mobj_t * special,
 // benefit was picked up (or lost), or false if none of them were.
 //
 bool P_GiveBenefitList(player_t *player, mobj_t * special, 
-					   benefit_t *list, bool lose_em)
+					   benefit_t *list, bool lose_em,
+					   int *new_weap, int *new_ammo)
 {
 	bool pickup = false;
 	// is it a weapon that will stay in old deathmatch?
 	bool dm_weapon = false;
 
-	// leave placed weapons forever in old deathmatch mode
-	// but only if we haven't already picked it up.
-
-#if 0  // FIXME
-	// is it a old deathmatch weapon that we have any use for?
-	bool dm_needweapon = false;
-	if (!lose_em && netgame && deathmatch <= 1)
-	{
-		benefit_t *b;
-		for (b = list; b; b=b->next)
-		{
-			if (b->type == BENEFIT_Weapon && (!(special && (special->flags & MF_DROPPED))))
-			{
-				// it is an "old dm" weapon.
-				dm_weapon = true;
-				// minor hack: give the weapon, and see if we needed it.
-				// in that case, the benefit should be picked up
-				if (GiveWeapon(player, special, b))
-					dm_needweapon = true;
-			}
-		}
-		if (dm_weapon && !dm_needweapon)
-			// it was a dm weapon, but we already have it, so don't pick it up again.
-			return false;
-	}
-#endif
+	// FIXME: leave placed weapons forever in old deathmatch mode,
+	//        but only if we haven't already picked it up.
 
 	for (; list; list=list->next)
 	{
@@ -405,7 +389,8 @@ bool P_GiveBenefitList(player_t *player, mobj_t * special,
 		{
 			case BENEFIT_Ammo:
 				if (list->amount >= 0.0)
-					pickup |= GiveAmmo(player, special, list, lose_em);
+					pickup |= GiveAmmo(player, special, list, lose_em,
+						new_weap, new_ammo);
 				break;
 
 			case BENEFIT_AmmoLimit:
@@ -415,7 +400,7 @@ bool P_GiveBenefitList(player_t *player, mobj_t * special,
 
 			case BENEFIT_Weapon:
 				if (list->amount >= 0.0)
-					pickup |= GiveWeapon(player, special, list, lose_em);
+					pickup |= GiveWeapon(player, special, list, lose_em, new_weap);
 				break;
 
 			case BENEFIT_Key:
@@ -509,13 +494,16 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 	if (special->hyperflags & HF_FORCEPICKUP)
 		pickup |= true;
 
+	int new_weap = -1;  // the most recently added weapon (must be new)
+	int new_ammo = -1;  // got fresh ammo (old count was zero).
+
 	// First check for lost benefits
 	pickup |= P_GiveBenefitList(player, special, 
 		special->info->lose_benefits, true);
 
 	// Run through the list of all pickup benefits...
 	pickup |= P_GiveBenefitList(player, special, 
-		special->info->pickup_benefits, false);
+		special->info->pickup_benefits, false, &new_weap, &new_ammo);
 
 	if (special->flags & MF_COUNTITEM)
 	{
@@ -542,6 +530,9 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 
 		if (sound)
 			S_StartSound(player->mo, sound);
+
+		if (new_weap >= 0 || new_ammo >= 0)
+			P_TrySwitchNewWeapon(player, new_weap, (ammotype_e)new_ammo);
 
 		RunPickupEffects(player, special, special->info->pickup_effects);
 	}
