@@ -475,7 +475,7 @@ bool Sounds::ReplaceSound(const char *before, const char *after)
 		if (S_sfx[i].new_name)
 			free(S_sfx[i].new_name);
 
-		S_sfx[i].new_name = strdup(after);
+		S_sfx[i].new_name = StringDup(after);
 
 		MarkSound(i);
 
@@ -495,7 +495,7 @@ bool Sounds::ReplaceMusic(const char *before, const char *after)
 		if (S_music[j].new_name)
 			free(S_music[j].new_name);
 
-		S_music[j].new_name = strdup(after);
+		S_music[j].new_name = StringDup(after);
 
 		return true;
 	}

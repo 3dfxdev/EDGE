@@ -448,7 +448,7 @@ bool TextStr::ReplaceSprite(const char *before, const char *after)
 			continue;
 
 		if (! spr->new_name)
-			spr->new_name = new char[5];
+			spr->new_name = StringNew(5);
 
 		strcpy(spr->new_name, after);
 
@@ -472,7 +472,7 @@ bool TextStr::ReplaceString(const char *before, const char *after)
 		int len = strlen(lang->orig_text);
 
 		if (! lang->new_text)
-			lang->new_text = new char[len + 5];
+			lang->new_text = StringNew(len + 5);
 
 		StrMaxCopy(lang->new_text, after, len + 4);
 
@@ -509,7 +509,7 @@ bool TextStr::ReplaceCheat(const char *deh_name, const char *str)
 		}
 
 		if (! cht->new_text)
-			cht->new_text = new char[len + 1];
+			cht->new_text = StringNew(len + 1);
 
 		StrMaxCopy(cht->new_text, str, len);
 

@@ -247,3 +247,29 @@ const char *StrUpper(const char *name)
 	return up_buf;
 }
 
+//
+// StringNew
+//
+char *StringNew(int length)
+{
+	char *s = (char *) calloc(length, 1);
+
+	if (! s)
+		FatalError("Out of memory (%d bytes for string)\n", length);
+	
+	return s;
+}
+
+//
+// StringDup
+//
+char *StringDup(const char *orig)
+{
+	char *s = strdup(orig);
+
+	if (! s)
+		FatalError("Out of memory (copy string)\n");
+	
+	return s;
+}
+
