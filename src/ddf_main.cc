@@ -324,33 +324,18 @@ bool DDF_MainCleanUp(void)
 	//hu_stuff.c
 	//m_misc.c
 	// -KM- 1999/01/29 Added chat macro defaults, gamma messages and talk keys back in.
-	i = 0;
-
-	while (strcmp(defaults[i].name, "chatmacro0"))
-		i++;
 
 	// -ACB- 1999/09/28 Proper Casting Order
-	chat_macros[0] = DDF_LanguageLookup("DefaultCHATMACRO0");
-	chat_macros[1] = DDF_LanguageLookup("DefaultCHATMACRO1");
-	chat_macros[2] = DDF_LanguageLookup("DefaultCHATMACRO2");
-	chat_macros[3] = DDF_LanguageLookup("DefaultCHATMACRO3");
-	chat_macros[4] = DDF_LanguageLookup("DefaultCHATMACRO4");
-	chat_macros[5] = DDF_LanguageLookup("DefaultCHATMACRO5");
-	chat_macros[6] = DDF_LanguageLookup("DefaultCHATMACRO6");
-	chat_macros[7] = DDF_LanguageLookup("DefaultCHATMACRO7");
-	chat_macros[8] = DDF_LanguageLookup("DefaultCHATMACRO8");
-	chat_macros[9] = DDF_LanguageLookup("DefaultCHATMACRO9");
+	for (i = 0; i < 10; i++)
+	{
+		char macro_name[40];
 
-	defaults[i++].defaultvalue = (int)chat_macros[0];
-	defaults[i++].defaultvalue = (int)chat_macros[1]; 
-	defaults[i++].defaultvalue = (int)chat_macros[2]; 
-	defaults[i++].defaultvalue = (int)chat_macros[3]; 
-	defaults[i++].defaultvalue = (int)chat_macros[4]; 
-	defaults[i++].defaultvalue = (int)chat_macros[5]; 
-	defaults[i++].defaultvalue = (int)chat_macros[6]; 
-	defaults[i++].defaultvalue = (int)chat_macros[7]; 
-	defaults[i++].defaultvalue = (int)chat_macros[8]; 
-	defaults[i].defaultvalue = (int)chat_macros[9];
+		if (chat_macros[i] == NULL)
+		{
+			sprintf(macro_name, "DefaultCHATMACRO%d", i);
+			chat_macros[i] = DDF_LanguageLookup(macro_name);
+		}
+	}
 
 	// There should not yet exist a player
 	DEV_ASSERT2(players == NULL);
@@ -1080,7 +1065,13 @@ readchar_t DDF_MainProcessChar(char character, char *buffer, int status)
 			}
 			else if (character == '\n')
 			{
-				DDF_Error("Unterminated string.\n");
+				if (lax_errors)
+				{
+					DDF_Warning("Unterminated string detected.\n");
+					return nothing;
+				}
+
+				DDF_Error("Unterminated string detected.\n");
 			}
 			// -KM- 1998/10/29 Removed ascii check, allow foreign characters („)
 			// -ES- HEY! Swedish is not foreign!

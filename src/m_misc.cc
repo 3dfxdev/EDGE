@@ -72,147 +72,131 @@ static const image_t *air_images[21] = { NULL, };
 unsigned short save_screenshot[160][100];
 bool save_screenshot_valid = false;
 
-#ifdef LINUX
-char *mousetype;
-char *mousedev;
-char *videoInterface;
-char *vid_path;
-#endif
-
 // -ACB- 1999/09/19 Sound API
 int dummysndchan;
 static int cfgsound;
 static int cfgmusic;
 
-default_t defaults[] =
+static default_t defaults[] =
 {
-    {"screenwidth",  &SCREENWIDTH, 320},
-    {"screenheight", &SCREENHEIGHT, 200},
-    {"screendepth",  &SCREENBITS, 8},
-    {"windowed", (int *)&SCREENWINDOW, 0},
-    {"boom_compatility", (int *)&global_flags.compat_mode, 0},
+    {CFGT_Int, "screenwidth",  &SCREENWIDTH, 320},
+    {CFGT_Int, "screenheight", &SCREENHEIGHT, 200},
+    {CFGT_Int, "screendepth",  &SCREENBITS, 8},
+    {CFGT_Boolean,"windowed", &SCREENWINDOW, 0},
+    {CFGT_Enum, "boom_compatility", &global_flags.compat_mode, 0},
  
-    {"mouse_sensitivity", &mouseSensitivity, 5},
-    {"sfx_volume",        &cfgsound,         8},
-    {"music_volume",      &cfgmusic,         8},
-    {"show_messages",     &showMessages,     1},
+    {CFGT_Int, "mouse_sensitivity", &mouseSensitivity, 5},
+    {CFGT_Int, "sfx_volume",        &cfgsound,         8},
+    {CFGT_Int, "music_volume",      &cfgmusic,         8},
+    {CFGT_Int, "show_messages",     &showMessages,     1},
 
-//    {"autorun", (int *)&autorunning, (int)false},
+//    {"autorun", &autorunning, (int)false},
 
-    {"swapstereo", (int *)&swapstereo, 0},
-    {"invertmouse", (int *)&invertmouse, (int)false},
-    {"mlookspeed", &mlookspeed, 1000 / 64},
-    {"translucency", (int *)&global_flags.trans, 1},
+    {CFGT_Boolean, "swapstereo", &swapstereo, 0},
+    {CFGT_Boolean, "invertmouse", &invertmouse, 0},
+    {CFGT_Int, "mlookspeed", &mlookspeed, 1000 / 64},
+    {CFGT_Boolean, "translucency", &global_flags.trans, 1},
    
     // -ES- 1998/11/28 Save fade settings
-    {"telept_effect", &telept_effect, 0},
-    {"telept_reverse", &telept_reverse, 0},
-    {"telept_flash", &telept_flash, 1},
-    {"wipe_method", (int *)&wipe_method, WIPE_Melt},
-    {"wipe_reverse", &wipe_reverse, 0},
-    {"crosshair", &crosshair, 0},
-    {"stretchsky", (int *)&global_flags.stretchsky, 1},
-    {"rotatemap", (int *)&rotatemap, 0},
-    {"newhud", (int *)&newhud, 0},
-    {"respawnsetting", (int *)&global_flags.res_respawn, 0},
-    {"itemrespawn", (int *)&global_flags.itemrespawn, 0},
-    {"respawn", (int *)&global_flags.respawn, 0},
-    {"fastparm", (int *)&global_flags.fastparm, 0},
-    {"grav", &global_flags.menu_grav, MENU_GRAV_NORMAL},
-    {"true3dgameplay", (int *)&global_flags.true3dgameplay, 0},
-    {"autoaim", (int *)&global_flags.autoaim, 1},
-    {"missileteleport", &missileteleport, 0},
-    {"teleportdelay", &teleportdelay, 0},
+    {CFGT_Enum, "telept_effect", &telept_effect, 0},
+    {CFGT_Int, "telept_reverse", &telept_reverse, 0},
+    {CFGT_Int, "telept_flash", &telept_flash, 1},
+    {CFGT_Enum, "wipe_method", &wipe_method, WIPE_Melt},
+    {CFGT_Int, "wipe_reverse", &wipe_reverse, 0},
+    {CFGT_Enum, "crosshair", &crosshair, 0},
+    {CFGT_Int, "stretchsky", &global_flags.stretchsky, 1},
+    {CFGT_Boolean, "rotatemap", &rotatemap, 0},
+    {CFGT_Boolean, "newhud", &newhud, 0},
+    {CFGT_Boolean, "respawnsetting", &global_flags.res_respawn, 0},
+    {CFGT_Boolean, "itemrespawn", &global_flags.itemrespawn, 0},
+    {CFGT_Boolean, "respawn", &global_flags.respawn, 0},
+    {CFGT_Boolean, "fastparm", &global_flags.fastparm, 0},
+    {CFGT_Int, "grav", &global_flags.menu_grav, MENU_GRAV_NORMAL},
+    {CFGT_Boolean, "true3dgameplay", &global_flags.true3dgameplay, 0},
+    {CFGT_Enum, "autoaim", &global_flags.autoaim, 1},
+    {CFGT_Boolean, "missileteleport", &missileteleport, 0},
+    {CFGT_Int, "teleportdelay", &teleportdelay, 0},
 
     // -KM- 1998/07/21 Save the blood setting
-    {"blood", (int *)&global_flags.more_blood, 0},
-    {"extra", (int *)&global_flags.have_extra, 1},
-    {"shadows", (int *)&global_flags.shadows, 1},
-    {"halos", (int *)&global_flags.halos, 0},
-    {"weaponkick", (int *)&global_flags.kicking, 1},
-    {"jumping", (int *)&global_flags.jump, 1},
-    {"crouching", (int *)&global_flags.crouch, 1},
-    {"mipmapping", &use_mipmapping, 1},
-    {"smoothing", (int *)&use_smoothing, 1},
-    {"dlights", (int *)&use_dlights, 0},
-    {"dither", (int *)&use_dithering, 0},
-    {"detail_level", (int *)&detail_level, 1},
-
-#ifdef LINUX
-    // -AJA- FIXME: gotta be a better way than this...
-    {"mousedev", (int *)&mousedev, (int)"/dev/ttyS0"},
-    {"mousetype", (int *)&mousetype, (int)"microsoft"},
-
-    {"video", (int *)&videoInterface, (int)"x"},
-    {"vid_path", (int *)&vid_path, (int)"/usr/lib/games/doom"},
-#endif
+    {CFGT_Boolean, "blood", &global_flags.more_blood, 0},
+    {CFGT_Boolean, "extra", &global_flags.have_extra, 1},
+    {CFGT_Boolean, "shadows", &global_flags.shadows, 1},
+    {CFGT_Boolean, "halos", &global_flags.halos, 0},
+    {CFGT_Boolean, "weaponkick", &global_flags.kicking, 1},
+    {CFGT_Boolean, "jumping", &global_flags.jump, 1},
+    {CFGT_Boolean, "crouching", &global_flags.crouch, 1},
+    {CFGT_Boolean, "mipmapping", &use_mipmapping, 1},
+    {CFGT_Boolean, "smoothing", &use_smoothing, 1},
+    {CFGT_Boolean, "dlights", &use_dlights, 0},
+    {CFGT_Boolean, "dither", &use_dithering, 0},
+    {CFGT_Int, "detail_level", &detail_level, 1},
 
     // -KM- 1998/09/01 Useless mouse/joy stuff removed,
     //                 analogue binding added
-    {"use_mouse",   &usemouse,    1},
-    {"mouse_xaxis", &mouse_xaxis, 0},
-    {"mouse_yaxis", &mouse_yaxis, 0},
+    {CFGT_Int, "use_mouse",   &usemouse,    1},
+    {CFGT_Int, "mouse_xaxis", &mouse_xaxis, 0},
+    {CFGT_Int, "mouse_yaxis", &mouse_yaxis, 0},
 
     // -ACB- 1998/09/06 Two-stage turning & Speed controls added
-    {"twostage_turning",  (int *)&stageturn, 0},
-    {"forwardmove_speed", &forwardmovespeed, 0},
-    {"angleturn_speed",   &angleturnspeed,   0},
-    {"sidemove_speed",    &sidemovespeed,    0},
+    {CFGT_Boolean, "twostage_turning",  &stageturn, 0},
+    {CFGT_Int, "forwardmove_speed", &forwardmovespeed, 0},
+    {CFGT_Int, "angleturn_speed",   &angleturnspeed,   0},
+    {CFGT_Int, "sidemove_speed",    &sidemovespeed,    0},
 
-    {"use_joystick", &usejoystick, 0},
-    {"joy_xaxis", &joy_xaxis, 0},
-    {"joy_yaxis", &joy_yaxis, 0},
+    {CFGT_Int, "use_joystick", &usejoystick, 0},
+    {CFGT_Int, "joy_xaxis", &joy_xaxis, 0},
+    {CFGT_Int, "joy_yaxis", &joy_yaxis, 0},
 
-    {"screenblocks", &screenblocks, 10},
+    {CFGT_Int, "screenblocks", &screenblocks, 10},
     // -ES- 1999/03/30 Added fov stuff.
-    {"fieldofview", &cfgnormalfov, 90},
-    {"zoomedfieldofview", &cfgzoomedfov, 10},
+    {CFGT_Int, "fieldofview", &cfgnormalfov, 90},
+    {CFGT_Int, "zoomedfieldofview", &cfgzoomedfov, 10},
 
-    {"darken_screen", &darken_screen, 1},
-    {"snd_channels",  &dummysndchan, 3},
-    {"usegamma",      &current_gamma, 0},
+    {CFGT_Int, "darken_screen", &darken_screen, 1},
+    {CFGT_Int, "snd_channels",  &dummysndchan, 3},
+    {CFGT_Int, "usegamma",      &current_gamma, 0},
 
-    {"key_right",      &key_right,      0},
-    {"key_left",       &key_left,       0},
-    {"key_up",         &key_up,         0},
-    {"key_down",       &key_down,       0},
-    {"key_lookup",     &key_lookup,     0},
-    {"key_lookdown",   &key_lookdown,   0},
-    {"key_lookcenter", &key_lookcenter, 0},
+    {CFGT_Key, "key_right",      &key_right,      0},
+    {CFGT_Key, "key_left",       &key_left,       0},
+    {CFGT_Key, "key_up",         &key_up,         0},
+    {CFGT_Key, "key_down",       &key_down,       0},
+    {CFGT_Key, "key_lookup",     &key_lookup,     0},
+    {CFGT_Key, "key_lookdown",   &key_lookdown,   0},
+    {CFGT_Key, "key_lookcenter", &key_lookcenter, 0},
 
     // -ES- 1999/03/28 Zoom Key
-    {"key_zoom",        &key_zoom,        0},
-    {"key_strafeleft",  &key_strafeleft,  0},
-    {"key_straferight", &key_straferight, 0},
+    {CFGT_Key, "key_zoom",        &key_zoom,        0},
+    {CFGT_Key, "key_strafeleft",  &key_strafeleft,  0},
+    {CFGT_Key, "key_straferight", &key_straferight, 0},
 
     // -ACB- for -MH- 1998/07/02 Flying Keys
-    {"key_flyup",   &key_flyup,           0},
-    {"key_flydown", &key_flydown,         0},
+    {CFGT_Key, "key_flyup",   &key_flyup,           0},
+    {CFGT_Key, "key_flydown", &key_flydown,         0},
 
-    {"key_fire",       &key_fire,         0},
-    {"key_use",        &key_use,          0},
-    {"key_strafe",     &key_strafe,       0},
-    {"key_speed",      &key_speed,        0},
-    {"key_autorun",    &key_autorun,      0},
-    {"key_nextweapon", &key_nextweapon,   0},
+    {CFGT_Key, "key_fire",       &key_fire,         0},
+    {CFGT_Key, "key_use",        &key_use,          0},
+    {CFGT_Key, "key_strafe",     &key_strafe,       0},
+    {CFGT_Key, "key_speed",      &key_speed,        0},
+    {CFGT_Key, "key_autorun",    &key_autorun,      0},
+    {CFGT_Key, "key_nextweapon", &key_nextweapon,   0},
 
-    {"key_jump",      &key_jump,          0},
-    {"key_180",       &key_180,           0},
-    {"key_map",       &key_map,           0},
-    {"key_talk",      &key_talk,          0},
-    {"key_mlook",     &key_mlook,         0},  // -AJA- 1999/07/27.
-    {"key_secondatk", &key_secondatk,     0},  // -AJA- 2000/02/08.
+    {CFGT_Key, "key_jump",      &key_jump,          0},
+    {CFGT_Key, "key_180",       &key_180,           0},
+    {CFGT_Key, "key_map",       &key_map,           0},
+    {CFGT_Key, "key_talk",      &key_talk,          0},
+    {CFGT_Key, "key_mlook",     &key_mlook,         0},  // -AJA- 1999/07/27.
+    {CFGT_Key, "key_secondatk", &key_secondatk,     0},  // -AJA- 2000/02/08.
 
-    {"chatmacro0", (int *)&chat_macros[0], 0},  //(int) HUSTR_CHATMACRO0 },
-    {"chatmacro1", (int *)&chat_macros[1], 0},  //(int) HUSTR_CHATMACRO1 },
-    {"chatmacro2", (int *)&chat_macros[2], 0},  //(int) HUSTR_CHATMACRO2 },
-    {"chatmacro3", (int *)&chat_macros[3], 0},  //(int) HUSTR_CHATMACRO3 },
-    {"chatmacro4", (int *)&chat_macros[4], 0},  //(int) HUSTR_CHATMACRO4 },
-    {"chatmacro5", (int *)&chat_macros[5], 0},  //(int) HUSTR_CHATMACRO5 },
-    {"chatmacro6", (int *)&chat_macros[6], 0},  //(int) HUSTR_CHATMACRO6 },
-    {"chatmacro7", (int *)&chat_macros[7], 0},  //(int) HUSTR_CHATMACRO7 },
-    {"chatmacro8", (int *)&chat_macros[8], 0},  //(int) HUSTR_CHATMACRO8 },
-    {"chatmacro9", (int *)&chat_macros[9], 0}  //(int) HUSTR_CHATMACRO9 }
+    {CFGT_ChatMacro, "chatmacro0", NULL, 0},  
+    {CFGT_ChatMacro, "chatmacro1", NULL, 1},  
+    {CFGT_ChatMacro, "chatmacro2", NULL, 2},  
+    {CFGT_ChatMacro, "chatmacro3", NULL, 3},  
+    {CFGT_ChatMacro, "chatmacro4", NULL, 4},  
+    {CFGT_ChatMacro, "chatmacro5", NULL, 5},  
+    {CFGT_ChatMacro, "chatmacro6", NULL, 6},  
+    {CFGT_ChatMacro, "chatmacro7", NULL, 7},  
+    {CFGT_ChatMacro, "chatmacro8", NULL, 8},  
+    {CFGT_ChatMacro, "chatmacro9", NULL, 9}  
 };
 
 int numdefaults;
@@ -257,8 +241,8 @@ static void WriteTGAFile(const char *filename, int width, int height,
 		tgahead[tga_imgtype] = 2;  // Unmapped RGB
 		tgahead[tga_imgbpp] = 24;  // 3 byte colours (B,G,R)
     
-		*((short *) &tgahead[tga_imgwidth])  = width;
-		*((short *) &tgahead[tga_imgheight]) = height;
+		*((short *) &tgahead[tga_imgwidth])  = SHORT(width);
+		*((short *) &tgahead[tga_imgheight]) = SHORT(height);
 
 		// flip the blue and red color components
 
@@ -335,7 +319,6 @@ int M_ReadFile(char const *name, byte ** buffer)
 void M_SaveDefaults(void)
 {
 	int i;
-	int v;
 	FILE *f;
 
 	// Don't want to save settings in a network game: might not
@@ -359,24 +342,51 @@ void M_SaveDefaults(void)
 
 	for (i = 0; i < numdefaults; i++)
 	{
-		if ((defaults[i].defaultvalue > -0xfff
-			 && defaults[i].defaultvalue < 0xfff) || (memcmp(defaults[i].name, "key_", 4) == 0))
-		{
-			v = *defaults[i].location;
+		int v;
 
-			if (memcmp(defaults[i].name, "key_", 4) == 0)
-				fprintf(f, "%s\t\t0x%X\no%s\t\t0x%X\n", defaults[i].name, v, defaults[i].name, v << 16);
-			else
-				fprintf(f, "%s\t\t%i\n", defaults[i].name, v);
-		}
-		else
+		switch (defaults[i].type)
 		{
-			fprintf(f, "%s\t\t\"%s\"\n", defaults[i].name,
-                    *(char **)(defaults[i].location));
+			case CFGT_Int:
+				fprintf(f, "%s\t\t%i\n", defaults[i].name, *(int*)defaults[i].location);
+				break;
+
+			case CFGT_Boolean:
+				fprintf(f, "%s\t\t%i\n", defaults[i].name, *(bool*)defaults[i].location ?1:0);
+				break;
+
+			case CFGT_Key:
+				v = *(int*)defaults[i].location;
+				fprintf(f,  "%s\t\t0x%X\n", defaults[i].name, v);
+				fprintf(f, "o%s\t\t0x%X\n", defaults[i].name, v << 16);
+				break;
+
+			case CFGT_ChatMacro:
+				fprintf(f, "%s\t\t\"%s\"\n", defaults[i].name,
+						chat_macros[defaults[i].defaultvalue]);
+				break;
 		}
 	}
 
 	fclose(f);
+}
+
+static void SetToBaseValue(default_t *def)
+{
+	switch (def->type)
+	{
+		case CFGT_Int:
+		case CFGT_Key:
+			*(int*)(def->location) = def->defaultvalue;
+			break;
+
+		case CFGT_Boolean:
+			*(bool*)(def->location) = (bool)def->defaultvalue;
+			break;
+
+		case CFGT_ChatMacro:
+			// defaults are loaded by the DDF code
+			break;
+	}
 }
 
 //
@@ -395,7 +405,7 @@ bool M_LoadDefaults(void)
 	// set everything to base values
 	numdefaults = sizeof(defaults) / sizeof(defaults[0]);
 	for (i = 0; i < numdefaults; i++)
-		*defaults[i].location = defaults[i].defaultvalue;
+		SetToBaseValue(defaults + i);
 
 	I_Printf("  from %s\n", cfgfile);
 
@@ -432,30 +442,33 @@ bool M_LoadDefaults(void)
       
 			for (i = 0; i < numdefaults; i++)
 			{
-				if (!strcmp(def, defaults[i].name))
+				if (0 == strcmp(def, defaults[i].name))
 				{
-					if (!isstring)
+					bool ischat = (defaults[i].type == CFGT_ChatMacro);
+
+					if (ischat != isstring)
+						continue;  // FIXME: show warning
+					
+					if (ischat)
 					{
-						if (memcmp(defaults[i].name, "key_", 4) != 0)
-						{
-							*defaults[i].location = parm;
-						}
-						else
-						{
-							if (parm != 0)
-								*defaults[i].location = parm;
-						}
+						chat_macros[defaults[i].defaultvalue] = newstring;
 					}
-					else
-						*defaults[i].location = (int)newstring;
+					else if (defaults[i].type == CFGT_Boolean)
+					{
+						*(bool*)defaults[i].location = (bool)parm;
+					}
+					else /* CFGT_Int and CFGT_Key */
+					{
+						*(int*)defaults[i].location = parm;
+					}
 					break;
 				}
-				if (def[0] == 'o')
-					if (!strcmp(def + 1, defaults[i].name))
-						if (!isstring)
-							if (memcmp(defaults[i].name, "key_", 4) == 0)
-								if (parm != 0)
-									*defaults[i].location |= parm << 16;
+				else if (def[0] == 'o')
+				{
+					if (0 == strcmp(def + 1, defaults[i].name))
+						if (memcmp(defaults[i].name, "key_", 4) == 0)
+							*(int*)defaults[i].location |= parm << 16;
+				}
 			}
 		}
 
@@ -590,7 +603,7 @@ void M_ScreenShot(void)
 //
 void M_MakeSaveScreenShot(void)
 {
-/* !!!!!!
+/* !!!!
 #ifdef USE_GL
 	/// FIXME:
 	// buffer = (byte*)Z_Malloc(SCREENWIDTH*SCREENHEIGHT*4);
@@ -846,7 +859,7 @@ void L_WriteDebug(const char *message,...)
 		return;
 
 	// -ACB- 2001/02/08 Clear the message buffer
-	memset(&message_buf, 0, sizeof(char)*4096);
+	memset(message_buf, 0, sizeof(message_buf));
 
 	// Print the message into a text string
 	va_start(argptr, message);
@@ -858,6 +871,33 @@ void L_WriteDebug(const char *message,...)
 
 	fprintf(debugfile, "%s", message_buf);
 	fflush(debugfile);
+}
+
+//
+// L_WriteLog
+//
+// Write into the log file.
+//
+void L_WriteLog(const char *message,...)
+{
+	va_list argptr;
+	char message_buf[4096];
+
+	if (!logfile)
+		return;
+
+	memset(message_buf, 0, sizeof(message_buf));
+
+	// Print the message into a text string
+	va_start(argptr, message);
+	vsprintf(message_buf, message, argptr);
+	va_end(argptr);
+
+	// I hope nobody is printing strings longer than 4096 chars...
+	DEV_ASSERT2(message_buf[4095] == 0);
+
+	fprintf(logfile, "%s", message_buf);
+	fflush(logfile);
 }
 
 //
