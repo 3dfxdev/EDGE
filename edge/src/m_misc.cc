@@ -910,46 +910,14 @@ int L_ConvertToDB(int volume, int min, int max)
 }
 
 //
-// L_CompareTimeStamps
-//
-// Returns -1 for less, 0 for equals, and +1 for greater.
-// I.e. the same values as used by strcmp() and friends.
-//
-int L_CompareTimeStamps(const i_time_t *A, const i_time_t *B)
-{
-	int a_index;
-	int b_index;
-
-	// Form an index to compare the dates
-	a_index = (A->year * 10000) + (A->month * 100) + A->day;
-	b_index = (B->year * 10000) + (B->month * 100) + B->day;
-
-	if (a_index < b_index)
-		return -1;
-	else if (a_index > b_index)
-		return +1;
-
-	// Form an index to compare times
-	a_index = (A->hours * 10000) + (A->minutes * 100) + A->secs;
-	b_index = (B->hours * 10000) + (B->minutes * 100) + B->secs;
-
-	if (a_index < b_index)
-		return -1;
-	else if (a_index > b_index)
-		return +1;
-	else
-		return 0;
-}
-
-//
 // L_CompareFileTimes
 //
 // Just like L_CompareTimeStamps above, but give the filenames.
 //
 int L_CompareFileTimes(const char *A, const char *B)
 {
-	i_time_t A_time;
-	i_time_t B_time;
+	epi::timestamp_c A_time;
+	epi::timestamp_c B_time;
 
 	// FIXME: probably better to throw exceptions rather than I_Error
 
@@ -959,7 +927,6 @@ int L_CompareFileTimes(const char *A, const char *B)
 	if (!I_GetModifiedTime(B, &B_time))
 		I_Error("AddFile: I_GetModifiedTime failed on %s\n", B);
 
-	return L_CompareTimeStamps(&A_time, &B_time);
+	return A_time.Cmp(B_time);
 }
-
 
