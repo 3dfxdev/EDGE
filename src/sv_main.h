@@ -72,6 +72,8 @@ savefieldtype_t;
 #define SVT_SHORT          { SFKIND_Numeric, 2, NULL }
 #define SVT_BYTE           { SFKIND_Numeric, 1, NULL }
 #define SVT_FLOAT          { SFKIND_Numeric, 4, NULL }
+#define SVT_VEC2           { SFKIND_Numeric, 8, NULL }
+#define SVT_VEC3           { SFKIND_Numeric, 12,NULL }
 #define SVT_INDEX(name)    { SFKIND_Index,   4, name }
 #define SVT_STRING         { SFKIND_String,  0, NULL }
 #define SVT_STRUCT(name)   { SFKIND_Struct,  0, name }
@@ -192,6 +194,8 @@ boolean_t SR_GetInt(void *storage, int index, void *extra);
 boolean_t SR_GetFixed(void *storage, int index, void *extra);
 boolean_t SR_GetAngle(void *storage, int index, void *extra);
 boolean_t SR_GetFloat(void *storage, int index, void *extra);
+boolean_t SR_GetVec2(void *storage, int index, void *extra);
+boolean_t SR_GetVec3(void *storage, int index, void *extra);
 
 boolean_t SR_GetIntAsFloat(void *storage, int index, void *extra);
 
@@ -210,6 +214,8 @@ void SR_PutInt(void *storage, int index, void *extra);
 void SR_PutFixed(void *storage, int index, void *extra);
 void SR_PutAngle(void *storage, int index, void *extra);
 void SR_PutFloat(void *storage, int index, void *extra);
+void SR_PutVec2(void *storage, int index, void *extra);
+void SR_PutVec3(void *storage, int index, void *extra);
 
 #define SR_PutBoolean  SR_PutInt
 #define SR_PutEnum     SR_PutInt
@@ -219,7 +225,7 @@ void SR_PutFloat(void *storage, int index, void *extra);
 //  GLOBAL STUFF
 //
 
-typedef struct
+typedef struct crc_check_s
 {
   // number of items
   int count;
@@ -334,16 +340,15 @@ extern savestruct_t sv_struct_psprite;
 extern savearray_t sv_array_player;
 
 // sv_level.c
-extern savestruct_t sv_struct_sidepart;
+extern savestruct_t sv_struct_surface;
 extern savestruct_t sv_struct_side;
 extern savestruct_t sv_struct_line;
 extern savestruct_t sv_struct_regprops;
-extern savestruct_t sv_struct_planeinfo;
-extern savestruct_t sv_struct_region;
+extern savestruct_t sv_struct_exfloor;
 extern savestruct_t sv_struct_sector;
 extern savearray_t sv_array_side;
 extern savearray_t sv_array_line;
-extern savearray_t sv_array_region;
+extern savearray_t sv_array_exfloor;
 extern savearray_t sv_array_sector;
 
 // sv_misc.c
@@ -371,6 +376,12 @@ void SR_LinePutLine(void *storage, int index, void *extra);
 
 boolean_t SR_SectorGetSector(void *storage, int index, void *extra);
 void SR_SectorPutSector(void *storage, int index, void *extra);
+
+boolean_t SR_SectorGetEF(void *storage, int index, void *extra);
+void SR_SectorPutEF(void *storage, int index, void *extra);
+
+boolean_t SR_TriggerGetScript(void *storage, int index, void *extra);
+void SR_TriggerPutScript(void *storage, int index, void *extra);
 
 
 #endif  // __SV_MAIN_
