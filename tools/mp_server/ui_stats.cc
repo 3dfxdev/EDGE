@@ -42,51 +42,51 @@ UI_Stats::UI_Stats(int x, int y, int w, int h) :
 
 	// ---- numbers of clients and games ----
 
-	clients = new Fl_Output(x+120, y+4, 50, 22, "Clients:");
+	clients = new Fl_Output(x+120, y+4, 50, 22, "Clients: ");
 	clients->align(FL_ALIGN_LEFT);
 	clients->value("0");
 	add(clients);
 
-	queued = new Fl_Output(x+120, y+30, 50, 22, "Games Queued:");
+	queued = new Fl_Output(x+120, y+30, 50, 22, "Games Queued: ");
 	queued->align(FL_ALIGN_LEFT);
 	queued->value("0");
 	add(queued);
 
-	played = new Fl_Output(x+120, y+56, 50, 22, "Games Played:");
+	played = new Fl_Output(x+120, y+56, 50, 22, "Games Played: ");
 	played->align(FL_ALIGN_LEFT);
 	played->value("0");
 	add(played);
 
 	// ---- packets read, written and buffered ----
 
-	in_pks = new Fl_Output(x+300, y+4, 70, 22, "Input packets:");
+	in_pks = new Fl_Output(x+300, y+4, 70, 22, "Input packets: ");
 	in_pks->align(FL_ALIGN_LEFT);
 	in_pks->value("0");
 	add(in_pks);
 
-	out_pks = new Fl_Output(x+300, y+30, 70, 22, "Output packets:");
+	out_pks = new Fl_Output(x+300, y+30, 70, 22, "Output packets: ");
 	out_pks->align(FL_ALIGN_LEFT);
 	out_pks->value("0");
 	add(out_pks);
 
-	buf_pks = new Fl_Output(x+300, y+56, 70, 22, "Buffered packets:");
+	buf_pks = new Fl_Output(x+300, y+56, 70, 22, "Buffered packets: ");
 	buf_pks->align(FL_ALIGN_LEFT);
 	buf_pks->value("0");
 	add(buf_pks);
 
 	// ---- number of bytes read, written and buffered ----
 
-	in_bytes = new Fl_Output(x+420, y+4, 110, 22, "bytes:");
+	in_bytes = new Fl_Output(x+430, y+4, 100, 22, "Kbytes: ");
 	in_bytes->align(FL_ALIGN_LEFT);
 	in_bytes->value("0");
 	add(in_bytes);
 
-	out_bytes = new Fl_Output(x+420, y+30, 110, 22, "bytes:");
+	out_bytes = new Fl_Output(x+430, y+30, 100, 22, "Kbytes: ");
 	out_bytes->align(FL_ALIGN_LEFT);
 	out_bytes->value("0");
 	add(out_bytes);
 
-	buf_bytes = new Fl_Output(x+420, y+56, 110, 22, "bytes:");
+	buf_bytes = new Fl_Output(x+430, y+56, 100, 22, "Kbytes: ");
 	buf_bytes->align(FL_ALIGN_LEFT);
 	buf_bytes->value("0");
 	add(buf_bytes);
@@ -124,18 +124,18 @@ void UI_Stats::Update()
 	sprintf(num_str, "%d", total_in_packets);
 	in_pks->value(num_str);
 
-	sprintf(num_str, "%d", total_in_bytes);
+	sprintf(num_str, "%1.1f", total_in_bytes / 1024.0f);
 	in_bytes->value(num_str);
 
 	sprintf(num_str, "%d", total_out_packets);
 	out_pks->value(num_str);
 
-	sprintf(num_str, "%d", total_out_bytes);
+	sprintf(num_str, "%1.1f", total_out_bytes / 1024.0f);
 	out_bytes->value(num_str);
 
 	sprintf(num_str, "%d", buffered_packets);
 	buf_pks->value(num_str);
 
-	sprintf(num_str, "%d", buffered_bytes);
+	sprintf(num_str, "%1.1f", buffered_bytes / 1024.0f);
 	buf_bytes->value(num_str);
 }
