@@ -6,19 +6,11 @@
 
 BIN=liblzo.a
 
-# SHELL = bash.exe
-
-CC=gcc.exe
+CC=mingw32-gcc.exe
 CFLAGS=-Wall -O2 -fomit-frame-pointer -fno-strength-reduce
 
 AR=ar r
 RANLIB=ranlib
-
-## # External library directories
-## DEVCPP_DIR = "c:/localbin/devcpp"
-## 
-## INCS = -I$(DEVCPP_DIR)/include
-## CFLAGS = $(INCS) -fexpensive-optimizations -O3
 
 OBJS = minilzo.o    
     
