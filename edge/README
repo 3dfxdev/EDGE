@@ -160,8 +160,6 @@ Known Issues:
 
   - Music is not implemented for Linux or MacOS X.
 
-  - Music volume slider (under Windows) is broken.
- 
   - There are some visual problems/glitches with the screen,
     especially when the view window is shrunk down.
  
@@ -273,7 +271,7 @@ Compiling EDGE:
 
   For MacOS X:
     - type 'make -f Makefile.osx' in the top-level dir.
-      NOTE: MacOS X support is broken right now (
+      NOTE: MacOS X support is broken right now.
 
 
 Command line options:
