@@ -51,7 +51,7 @@
 typedef struct light_s
 {
   // type of light effect
-  lighttype_t *type;
+  const lighttype_t *type;
 
   sector_t *sector;
 
