@@ -52,7 +52,7 @@ typedef struct channel_s
 {
 	LPDIRECTSOUNDBUFFER buffer; // DirectSound buffer
 	int flags;                  // Behaviour Flags
-	unsigned int sfxhandle;     // Sound Effect Handle
+	int sfxhandle;              // Sound Effect Handle
 	DWORD pausedpos;            // Position for restart
 }
 channel_t;

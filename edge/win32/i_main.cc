@@ -30,7 +30,7 @@ HINSTANCE maininstance;
 HACCEL accelerator;
 
 // Not on MSVC
-#ifndef _GATESY_
+#ifdef __BORLANDC__
 
 void InitSignal(void);
 
@@ -60,46 +60,46 @@ void Catcher(int ExceptionType, int ExceptionError)
 	{
 		switch (ExceptionError)                           
 		{
-		case FPE_INTOVFLOW:       
-			retval = MessageBox(GetFocus(), "80x86 Interrupt on overflow !!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
-			break;
-
-		case FPE_INTDIV0:        
-			retval = MessageBox(GetFocus(), "Integer divide by zero!!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
-			break;
-
-		case FPE_INVALID:         
-			retval = MessageBox(GetFocus(), "80x87 invalid operation!!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
-			break;
-
-		case FPE_ZERODIVIDE:      
-			retval = MessageBox(GetFocus(), "Float divide by zero!!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
-			break;
-
-		case FPE_OVERFLOW:        
-			retval = MessageBox(GetFocus(), "80x87 arithmetic overflow!!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
-			break;
-
-		case FPE_UNDERFLOW:       
-			retval = MessageBox(GetFocus(), "80x87 arithmetic underflow!!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
-			break;
-
-		case FPE_INEXACT:         
-			retval = MessageBox(GetFocus(), "80x87 precision loss!!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
-			break;
-
-		case FPE_STACKFAULT:      
-			retval = MessageBox(GetFocus(), "80x87 stack overflow!!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
-			break;
-
-		case FPE_EXPLICITGEN:     
-			retval = MessageBox(GetFocus(), "SIGFPE raise()'d!!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
-			break;
-
-		default:
-			wsprintf(buf, "unknown exception %d\n\r", ExceptionType);
-			retval = MessageBox(GetFocus(), buf, "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
-			break;
+    		case FPE_INTOVFLOW:       
+    			retval = MessageBox(GetFocus(), "80x86 Interrupt on overflow !!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
+    			break;
+    
+    		case FPE_INTDIV0:        
+    			retval = MessageBox(GetFocus(), "Integer divide by zero!!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
+    			break;
+    
+    		case FPE_INVALID:         
+    			retval = MessageBox(GetFocus(), "80x87 invalid operation!!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
+    			break;
+    
+    		case FPE_ZERODIVIDE:      
+    			retval = MessageBox(GetFocus(), "Float divide by zero!!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
+    			break;
+    
+    		case FPE_OVERFLOW:        
+    			retval = MessageBox(GetFocus(), "80x87 arithmetic overflow!!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
+    			break;
+    
+    		case FPE_UNDERFLOW:       
+    			retval = MessageBox(GetFocus(), "80x87 arithmetic underflow!!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
+    			break;
+    
+    		case FPE_INEXACT:         
+    			retval = MessageBox(GetFocus(), "80x87 precision loss!!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
+    			break;
+    
+    		case FPE_STACKFAULT:      
+    			retval = MessageBox(GetFocus(), "80x87 stack overflow!!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
+    			break;
+    
+    		case FPE_EXPLICITGEN:     
+    			retval = MessageBox(GetFocus(), "SIGFPE raise()'d!!!", "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
+    			break;
+    
+    		default:
+    			wsprintf(buf, "unknown exception %d\n\r", ExceptionType);
+    			retval = MessageBox(GetFocus(), buf, "Catcher", MB_ABORTRETRYIGNORE|MB_ICONWARNING);
+    			break;
 		}
 	}
 	else
