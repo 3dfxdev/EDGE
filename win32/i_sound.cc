@@ -1017,23 +1017,6 @@ void I_ShutdownSound(void)
 }
 
 //
-// I_SoundReturnObject
-//
-// This really goes against the grain. DirectMusic requires
-// that if a DirectSound system exists, we make it known. Trying
-// to make modular code in WIN32 just got harder.
-//
-// -ACB- 2000/01/05
-//
-LPDIRECTSOUND I_SoundReturnObject(void)
-{
-	if (!inited)
-		return NULL;
-
-	return soundobject;
-}
-
-//
 // I_SoundReturnError
 //
 const char *I_SoundReturnError(void)
