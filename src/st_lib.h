@@ -148,27 +148,27 @@ void STLIB_InitNum(st_number_t * n, int x, int y,
 void STLIB_InitFloat(st_float * n, int x, int y, const image_t ** digits, 
 					 float *num, bool * on, int width);
 
-void STLIB_UpdateNum(st_number_t * n, bool refresh);
-void STLIB_UpdateFloat(st_float * n, bool refresh);
+void STLIB_UpdateNum(st_number_t * n);
+void STLIB_UpdateFloat(st_float * n);
 
 // Percent widget routines
 void STLIB_InitPercent(st_percent_t * p, int x, int y, 
 					   const image_t ** digits, const image_t *percsign,
 					   float *num, bool * on);
 
-void STLIB_UpdatePercent(st_percent_t * per, int refresh);
+void STLIB_UpdatePercent(st_percent_t * per);
 
 // Multiple Icon widget routines
 void STLIB_InitMultIcon(st_multicon_t * mi, int x, int y, 
 						const image_t ** icons, int *inum, bool * on);
 
-void STLIB_UpdateMultIcon(st_multicon_t * mi, bool refresh);
+void STLIB_UpdateMultIcon(st_multicon_t * mi);
 
 // Binary Icon widget routines
 
 void STLIB_InitBinIcon(st_binicon_t * b, int x, int y, 
 					   const image_t * icon, bool * val, bool * on);
 
-void STLIB_UpdateBinIcon(st_binicon_t * bi, bool refresh);
+void STLIB_UpdateBinIcon(st_binicon_t * bi);
 
 #endif

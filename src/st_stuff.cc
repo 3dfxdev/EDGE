@@ -176,9 +176,6 @@
 #define ST_MAXAMMO3X            (ST_X+314)
 #define ST_MAXAMMO3Y            ((191))
 
-// used to update the whole status bar
-bool stbar_update = true;
-
 // colorise health/ammo/armour
 bool stbar_colours = false;
 
@@ -325,7 +322,7 @@ static int ST_CalcPainOffset(void)
 	return ST_FACESTRIDE * index;
 }
 
-static void DrawWidgets(bool refresh)
+static void DrawWidgets(void)
 {
 #if 0  // ARMOUR DEBUGGING
 	consoleplayer->ammo[0].max = (int)consoleplayer->armours[0];
@@ -342,28 +339,28 @@ static void DrawWidgets(bool refresh)
 	// used by w_frags widget
 	st_fragson = st_baron_not_overlay && deathmatch;
 
-	STLIB_UpdateNum(&w_ready, refresh);
+	STLIB_UpdateNum(&w_ready);
 
 	for (i = 0; i < 4; i++)
 	{
-		STLIB_UpdateNum(&w_ammo[i], refresh);
-		STLIB_UpdateNum(&w_maxammo[i], refresh);
+		STLIB_UpdateNum(&w_ammo[i]);
+		STLIB_UpdateNum(&w_maxammo[i]);
 	}
 
-	STLIB_UpdatePercent(&w_health, refresh);
-	STLIB_UpdatePercent(&w_armour, refresh);
+	STLIB_UpdatePercent(&w_health);
+	STLIB_UpdatePercent(&w_armour);
 
-	STLIB_UpdateBinIcon(&w_armsbg, refresh);
+	STLIB_UpdateBinIcon(&w_armsbg);
 
 	for (i = 0; i < 6; i++)
-		STLIB_UpdateMultIcon(&w_arms[i], refresh);
+		STLIB_UpdateMultIcon(&w_arms[i]);
 
-	STLIB_UpdateMultIcon(&w_faces, refresh);
+	STLIB_UpdateMultIcon(&w_faces);
 
 	for (i = 0; i < 3; i++)
-		STLIB_UpdateMultIcon(&w_keyboxes[i], refresh);
+		STLIB_UpdateMultIcon(&w_keyboxes[i]);
 
-	STLIB_UpdateNum(&w_frags, refresh);
+	STLIB_UpdateNum(&w_frags);
 }
 
 //
@@ -597,7 +594,7 @@ static void UpdateWidgets(void)
 
 void ST_Ticker(void)
 {
-	UpdateWidgets();
+///---	UpdateWidgets();
 
 	consoleplayer->old_health = consoleplayer->health;
 }
@@ -650,45 +647,21 @@ static void DoPaletteStuff(void)
 	V_SetPalette(palette, amount);
 }
 
-static void DoRefresh(void)
-{
-	// draw status bar background to off-screen buff
-	RefreshBackground();
-
-	// and refresh all widgets
-	DrawWidgets(true);
-
-	stbar_update = false;
-}
-
-static void DiffDraw(void)
-{
-	// update all widgets
-	DrawWidgets(false);
-}
-
 void ST_Drawer(bool fullscreen, bool refresh)
 {
 	st_statusbaron       = (!fullscreen) || automapactive || hud_overlay;
 	st_baron_not_overlay = (!fullscreen) || automapactive;
 
-#if 1 
-	// -AJA- one small hack for GL, one *giant* HACK for software 
-	refresh = true;
-#endif
+	UpdateWidgets();
 
 	// Do red-/gold-shifts from damage/items
 	DoPaletteStuff();
 
-	// If just after ST_Start(), refresh all
-	if (stbar_update || refresh)
-	{
-		DoRefresh();
-		return;
-	}
+	// draw status bar background to off-screen buff
+	RefreshBackground();
 
-	// Otherwise, update as little as possible
-	DiffDraw();
+	// and refresh all widgets
+	DrawWidgets();
 }
 
 static void LoadGraphics(void)
@@ -927,7 +900,7 @@ void ST_Start(void)
 
 	InitData();
 	CreateWidgets();
-	UpdateWidgets();  // make sure colours are set right
+///---	UpdateWidgets();  // make sure colours are set right
 
 	st_stopped = false;
 }

@@ -306,9 +306,6 @@ static bool GiveKey(player_t * player, mobj_t * special, benefit_t *be, bool los
 		player->cards = (keys_e)(player->cards | key);
 	}
 
-	// -ACB- 1998/06/10 Force redraw of status bar, to update keys.
-	stbar_update = true;
-
 	return true;
 }
 
