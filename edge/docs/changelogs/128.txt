@@ -88,6 +88,7 @@ General improvements
 - better invulnerability fade-out in GL.
 - Pixelfade wipe has been implemented for OpenGL mode.
 - better default configuration: e.g. 640x400 mode, 16 bit colour.
+- text strings look better in modes smaller than 640x400.
 
 
 New features:
@@ -156,5 +157,5 @@ New command-line options:
   -nolog             Disables creation of EDGE.LOG file.
 
   -sound16  (Linux)  Force using 16 bit sound.  Default is to only
-                     swtich to 16 bit when 8 bits is unavailable.
+                     switch to 16 bit when 8 bits is unavailable.
 
