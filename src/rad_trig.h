@@ -81,6 +81,7 @@ void RAD_ActTipProps(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActPlaySound(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActKillSound(rad_trigger_t *R, mobj_t *actor, void *param);
+void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param);
 
 void RAD_ActSectorMove(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActSectorLight(rad_trigger_t *R, mobj_t *actor, void *param);
@@ -93,6 +94,7 @@ void RAD_ActDamagePlayers(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActHealPlayers(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActArmourPlayers(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActDamageMonsters(rad_trigger_t *R, mobj_t *actor, void *param);
+void RAD_ActThingEvent(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActSkill(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActGotoMap(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActExitLevel(rad_trigger_t *R, mobj_t *actor, void *param);
