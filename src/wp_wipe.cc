@@ -137,7 +137,7 @@ static void DoWipe_Crossfade8(wipeparm_t * wp)
 static void DoWipe_Crossfade(wipeparm_t * wp)
 {
 #ifndef NOHICOLOUR
-// FIXME: Move to v_res.c?
+// Move to v_res.c?
   if (BPP == 1)
     DoWipe_Crossfade8(wp);
   else

@@ -169,7 +169,7 @@ viewbitmap_t *R_CreateViewBitmap(int width, int height, int bytepp, screen_t * p
 
   vb->views = NULL;
   vb->aspects = NULL;
-  vb->baseylookup = Z_New(byte *, SCREENHEIGHT);  //!!! -AJA- hack !
+  vb->baseylookup = Z_New(byte *, SCREENHEIGHT);  /// -AJA- hack !
   vb->basecolumnofs = Z_New(int, SCREENWIDTH);
 
   for (i = 0; i < SCREENHEIGHT; i++)
@@ -472,8 +472,8 @@ void R_DestroyView(view_t * v)
 // Selects where within the viewbitmap the view should be drawn.
 static void ViewSetVBXPos(view_t * v, int vbx)
 {
-  V_MoveSubScreen(&v->screen, 0, 0); //!!!! vbx, v->screen.y);
-  v->columnofs = v->parent->basecolumnofs + 0; //!!!! vbx;
+  V_MoveSubScreen(&v->screen, 0, 0); /// vbx, v->screen.y);
+  v->columnofs = v->parent->basecolumnofs + 0; /// vbx;
 }
 
 //
@@ -482,8 +482,8 @@ static void ViewSetVBXPos(view_t * v, int vbx)
 // Selects where within the viewbitmap the view should be drawn.
 static void ViewSetVBYPos(view_t * v, int vby)
 {
-  V_MoveSubScreen(&v->screen, 0, 0); //!!!! v->screen.x, vby);
-  v->ylookup = v->parent->baseylookup + 0; //!!!! vby;
+  V_MoveSubScreen(&v->screen, 0, 0); /// v->screen.x, vby);
+  v->ylookup = v->parent->baseylookup + 0; /// vby;
 }
 
 //

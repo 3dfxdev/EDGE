@@ -627,7 +627,7 @@ static void CalcTranslucencyTable(void)
 #else
 					col2rgb16[x][y][0] = rgb_lo;
 					col2rgb16[x][y][1] = rgb_hi;
-#else
+#endif
 				}
 			}
 

@@ -603,7 +603,7 @@ void R_ExecuteSetViewSize(void)
 			R_DestroyViewBitmap(screenvb);
 
 		screenvb = R_CreateViewBitmap(viewwindowwidth, viewwindowheight, BPP, 
-			main_scr, 0, 0); //!!!! viewwindowx, viewwindowy);
+			main_scr, 0, 0); /// viewwindowx, viewwindowy);
 
 		InitViews(screenvb, 0);
 	}
@@ -734,7 +734,7 @@ static bool DoExecuteChangeResolution(void)
 		init_rend = true;
 	}
 
-	///!!!! -AJA- FIXME: clean up (move into R2_NewScreenSize)
+	/// -AJA- FIXME: clean up (move into R2_NewScreenSize)
 	{
 		int i;
 
@@ -1095,8 +1095,8 @@ void R_SetActiveView(view_t * v)
 	if (v->parent != curviewbmp)
 		I_Error("R_SetActiveView: The wrong viewbitmap is used!");
 
-	///!!!!  columnofs = v->columnofs;
-	///!!!!  ylookup = v->ylookup;
+	///  columnofs = v->columnofs;
+	///  ylookup = v->ylookup;
 
 	viewwidth = v->screen.width;
 	viewheight = v->screen.height;

@@ -685,7 +685,8 @@ static void ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 				break;
 
 			default:
-				d = a = 0.0f;
+				a = 0;
+				d = 0.0f;
 				break;
 		}
 
