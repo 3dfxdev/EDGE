@@ -51,7 +51,7 @@ bool I_StartupCD()
 	mixer = I_MusicLoadMixer(MIXERLINE_COMPONENTTYPE_SRC_COMPACTDISC);
 	if (!mixer)
 	{
-		I_PostMusicError("I_StartupCD: Couldn't open the midi device");
+		I_PostMusicError("I_StartupCD: Couldn't load the cd mixer");
 		return false;
 	}
 
@@ -63,10 +63,8 @@ bool I_StartupCD()
 		I_PostMusicError("I_StartupCD: Unable to get original volume");
 		return false;
 	}
-
-	// Ensure all is quiet when we start
+        
 	I_MusicSetMixerVol(mixer, 0);
-
 	return true;
 }
 
@@ -173,7 +171,7 @@ bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
 	}
 
 	numoftracks = (DWORD)statusparm.dwReturn;
-	if (tracknum >= numoftracks)
+	if (tracknum > numoftracks)
 	{
 		mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
 		I_PostMusicError("Track exceeds available tracks");
@@ -220,7 +218,7 @@ bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
 	currcd->startpos = playparm.dwFrom = MCI_MAKE_TMSF(tracknum, 0, 0, 0);
 
 	// Check if last track...
-	if (tracknum == (numoftracks-1))
+	if (tracknum == numoftracks)
 	{
 		currcd->finishpos = playparm.dwTo = 0L;
 		errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM, (DWORD_PTR)&playparm);
