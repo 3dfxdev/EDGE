@@ -33,6 +33,7 @@
 
 #include "ddf_main.h"
 #include "dm_state.h"
+#include "g_game.h"
 #include "dstrings.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"
@@ -236,7 +237,7 @@ void F_Ticker(void)
 
 				if (!finalecount)
 				{
-					S_ChangeMusic(worldmap.special_music, true);
+					S_ChangeMusic(currgamedef->special_music, true);
 					wipegamestate = GS_NOTHING; // force a wipe
 				}
 
@@ -477,7 +478,7 @@ static void StartCast(void)
 
 	CastInitNew(2);
  
-	S_ChangeMusic(worldmap.special_music, true);
+	S_ChangeMusic(currgamedef->special_music, true);
 }
 
 //
