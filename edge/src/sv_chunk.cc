@@ -369,10 +369,11 @@ unsigned char SV_GetByte(void)
 
 		CRC32_ProcessByte(&current_crc, c);
 
-#if DEBUG_GETBYTE
+#ifdef DEBUG_GETBYTE
 		{ 
 			static int pos=0; pos++;
-			L_WriteDebug("0.%02X%s", result, ((pos % 10)==0) ? "\n" : " ");
+			L_WriteDebug("%08X: %02X \n", ftell(current_fp), c);
+//			L_WriteDebug("0.%02X%s", result, ((pos % 10)==0) ? "\n" : " ");
 		}
 #endif
 
@@ -396,11 +397,10 @@ unsigned char SV_GetByte(void)
 	result = cur->pos[0];
 	cur->pos++;
 
-#if DEBUG_GETBYTE
+#ifdef DEBUG_GETBYTE
 	{ 
 		static int pos=0; pos++;
-		L_WriteDebug("%d.%02X%s", chunk_stack_size, result, 
-			((pos % 10)==0) ? "\n" : " ");
+		L_WriteDebug("%d.%02X%s", chunk_stack_size, result, ((pos % 10)==0) ? "\n" : " ");
 	}
 #endif
 
@@ -820,12 +820,20 @@ void SV_PutInt(unsigned int value)
 
 unsigned short SV_GetShort(void) 
 { 
-	return SV_GetByte() | (SV_GetByte() << 8);
+	// -ACB- 2004/02/08 Force the order of execution; otherwise 
+	// compilr optimisations may reverse the order of execution
+	byte b1 = SV_GetByte();
+	byte b2 = SV_GetByte();
+	return b1 | (b2 << 8);
 }
 
 unsigned int SV_GetInt(void) 
 { 
-	return SV_GetShort() | (SV_GetShort() << 16);
+	// -ACB- 2004/02/08 Force the order of execution; otherwise 
+	// compiler optimisations may reverse the order of execution
+	unsigned short s1 = SV_GetShort();
+	unsigned short s2 = SV_GetShort();
+	return s1 | (s2 << 16);
 }
 
 
