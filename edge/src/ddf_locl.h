@@ -269,6 +269,8 @@ void DDF_MainReadFile(readinfo_t * readinfo);
 void DDF_Error(const char *err, ...);
 void DDF_Warning(const char *err, ...);
 void DDF_WarnError(const char *err, ...);
+void DDF_ErrorSetEntryName(const char *err, ...);
+void DDF_ErrorClearEntryName(void);
 
 void DDF_MainGetPercent(const char *info, void *storage, void *priv);
 void DDF_MainGetBoolean(const char *info, void *storage, void *priv);
@@ -396,7 +398,8 @@ void DDF_ColmapCleanUp(void);
 // Miscellaneous stuff needed here & there
 extern mobjinfo_t buffer_mobj;
 extern const mobjinfo_t template_mobj;
+extern const commandlist_t floor_commands[];
 extern const commandlist_t thing_commands[];
-
+extern const commandlist_t damage_commands[];
 
 #endif // __DDF_LOCAL__
