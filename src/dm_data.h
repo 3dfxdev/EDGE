@@ -120,7 +120,7 @@ typedef enum
   ML_BlockMonsters = 0x0002,
 
   // Backside will not be present at all if not two sided.
-  ML_TWOSIDED = 0x0004,
+  ML_TwoSided = 0x0004,
 
   // If a texture is pegged, the texture will have
   // the end exposed to air held constant at the
@@ -141,7 +141,7 @@ typedef enum
   ML_Secret = 0x0020,
 
   // Sound rendering: don't let sound cross two of these.
-  ML_SOUNDBLOCK = 0x0040,
+  ML_SoundBlock = 0x0040,
 
   // Don't draw on the automap at all.
   ML_DontDraw = 0x0080,
@@ -153,8 +153,11 @@ typedef enum
   //       be pushed simultaneously.
   ML_PassThru = 0x0200,
 
-  // -AJA- 2000/09/29: Extended flag: block bullets/missiles.
-  ML_BlockShots = 0x010000
+  // -AJA- These three from XDoom.  Translucent one doesn't do
+  //       anything at present.
+  ML_Translucent = 0x0400,
+  ML_ShootBlock  = 0x0800,
+  ML_SightBlock  = 0x1000
 }
 lineflag_e;
 
