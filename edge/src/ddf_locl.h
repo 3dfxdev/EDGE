@@ -395,6 +395,7 @@ void DDF_ColmapCleanUp(void);
 // Miscellaneous stuff needed here & there
 extern mobjinfo_t buffer_mobj;
 extern const mobjinfo_t template_mobj;
+extern const commandlist_t elevator_commands[];
 extern const commandlist_t floor_commands[];
 extern const commandlist_t thing_commands[];
 extern const commandlist_t damage_commands[];
