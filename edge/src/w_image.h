@@ -145,6 +145,9 @@ const image_t *W_ImageFromHalo(const char *patch_name);
 
 extern image_t *savepic_image;
 
+const image_t *W_ImageFromString(char type, const char *name);
+void W_ImageToString(const image_t *image, char *type, char *namebuf);
+
 //
 //  IMAGE USAGE
 //
