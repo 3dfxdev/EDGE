@@ -626,8 +626,8 @@ static void CastDrawer(void)
 	if (! image)
 		return;
 
-	RGL_DrawImage(FROM_320(160 - image->offset_x),
-			FROM_200(170 - image->offset_y), 
+	RGL_DrawImage(FROM_320(160 - IM_OFFSETX(image)),
+			FROM_200(170 - IM_OFFSETY(image)), 
 			FROM_320(IM_WIDTH(image)), 
 			FROM_200(IM_HEIGHT(image)), image,
 			flip ? IM_RIGHT(image) : 0, 0,

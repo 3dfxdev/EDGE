@@ -58,38 +58,33 @@ void RGL_SolidLine(int x1, int y1, int x2, int y2, int colour);
 
 // Convenience macros
 #define RGL_Image(X,Y,W,H,Image)                                   \
-    RGL_DrawImage((X)-(Image)->offset_x,                           \
-                   (Y)-(Image)->offset_y,                           \
-                   (W),(H),                                         \
-                   (Image), 0, 0,                                   \
+    RGL_DrawImage((X)-IM_OFFSETX(Image),                           \
+                   (Y)-IM_OFFSETY(Image),                          \
+                   (W),(H), (Image), 0, 0,                         \
                    IM_RIGHT(Image),IM_BOTTOM(Image), NULL, 1.0f)
 
 
 #define RGL_Image320(X,Y,W,H,Image)                                \
-    RGL_DrawImage(FROM_320((X)-(Image)->offset_x),                 \
-                   FROM_200((Y)-(Image)->offset_y),                 \
+    RGL_DrawImage(FROM_320((X)-IM_OFFSETX(Image)),                 \
+                   FROM_200((Y)-IM_OFFSETY(Image)),                 \
                    FROM_320(W), FROM_200(H),                        \
                    (Image), 0, 0,                                   \
                    IM_RIGHT(Image), IM_BOTTOM(Image), NULL, 1.0f)
 
 
 #define RGL_ImageEasy(X,Y,Image)                                   \
-    RGL_DrawImage((X)-(Image)->offset_x,                           \
-                   (Y)-(Image)->offset_y,                           \
-                   IM_WIDTH(Image), IM_HEIGHT(Image),               \
-                   (Image), 0, 0,                                   \
+    RGL_DrawImage((X)-IM_OFFSETX(Image),                           \
+                   (Y)-IM_OFFSETY(Image),                          \
+                   IM_WIDTH(Image), IM_HEIGHT(Image),              \
+                   (Image), 0, 0,                                  \
                    IM_RIGHT(Image), IM_BOTTOM(Image), NULL, 1.0f)
 
 #define RGL_ImageEasy320(X,Y,Image)                                       \
-    RGL_DrawImage(FROM_320((X)-(Image)->offset_x),                        \
-                   FROM_200((Y)-(Image)->offset_y),                        \
+    RGL_DrawImage(FROM_320((X)-IM_OFFSETX(Image)),                        \
+                   FROM_200((Y)-IM_OFFSETY(Image)),                        \
                    FROM_320(IM_WIDTH(Image)), FROM_200(IM_HEIGHT(Image)),  \
                    (Image), 0, 0,                                          \
                    IM_RIGHT(Image), IM_BOTTOM(Image), NULL, 1.0f)
 
 #endif  // __V_CTX__
-
-
-
-
 
