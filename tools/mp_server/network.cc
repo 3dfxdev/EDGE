@@ -25,6 +25,7 @@
 #include "network.h"
 #include "packet.h"
 #include "protocol.h"
+#include "sys_net.h"
 #include "ui_log.h"
 
 
@@ -114,6 +115,75 @@ int GetNetTime(void)
 	return int(sec_diff * 100 + usec_diff / 10000);
 }
 
+static void DetermineLocalAddr(void)
+{
+	// explicitly given via command-line option?
+	int p, num_p;
+
+	p = ArgvFind('l', "local", &num_p);
+
+	if (p >= 0)
+	{
+		if (num_p < 1)
+		{
+			fl_alert("-local option: missing address");
+			exit(5);
+	    }
+
+		NLaddress addr;
+
+		if (! nlStringToAddr(arg_list[p+1], &addr))
+		{
+			fl_alert("Bad local address '%s'\n(%s)", arg_list[p+1],
+				GetNLErrorStr());
+			exit(5);
+		}
+
+		nlSetLocalAddr(&addr);
+		return;
+	}
+
+	int count;
+	NLaddress *all_addrs = nlGetAllLocalAddr(&count);
+
+	if (! all_addrs || count <= 0)
+		return;
+
+	for (int i = 0; i < count; i++)
+	{
+		const char *addr_name = GetAddrName(all_addrs +i);
+
+		DebugPrintf("ALL-Local[%d] = %s\n", i, addr_name);
+
+		if (strncmp(addr_name, "127.", 4) == 0 ||
+		    strncmp(addr_name, "0.0.", 4) == 0 ||
+		    strncmp(addr_name, "255.255.", 8) == 0)
+		{
+			continue;
+		}
+
+		// found a valid one
+		nlSetLocalAddr(all_addrs + i);
+		return;
+	}
+
+#ifdef LINUX
+	const char *local_ip = LocalIPAddrString("eth0");
+	if (! local_ip)
+		local_ip = LocalIPAddrString("eth1");
+
+	if (local_ip)
+	{
+		DebugPrintf("LINUX-Local-IP = %s\n", local_ip);
+
+		NLaddress addr;
+		nlStringToAddr(local_ip, &addr);
+		nlSetLocalAddr(&addr);
+		return;
+	}
+#endif
+}
+
 //
 // NetInit
 //
@@ -137,35 +207,13 @@ void NetInit(void)
 
 	DebugPrintf("NL_SOCKET_TYPES: %s\n\n", nlGetString(NL_CONNECTION_TYPES));
 
-	// override local address
-	int p, num_p;
-
-	p = ArgvFind('l', "local", &num_p);
-
-	if (p >= 0)
-	{
-		if (num_p < 1)
-		{
-			fl_alert("-local option: missing address");
-			exit(5);
-	    }
-
-		NLaddress addr;
-
-		if (! nlStringToAddr(arg_list[p+1], &addr))
-		{
-			fl_alert("Bad local address '%s'\n(%s)", arg_list[p+1],
-				GetNLErrorStr());
-			exit(5);
-		}
-
-		nlSetLocalAddr(&addr);
-	}
+	DetermineLocalAddr();
 
 	// override default port
 	int port = MPS_DEF_PORT;
 
-	p = ArgvFind('p', "port", &num_p);
+	int num_p;
+	int p = ArgvFind('p', "port", &num_p);
 
 	if (p >= 0)
 	{
