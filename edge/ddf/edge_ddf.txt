@@ -8,6 +8,8 @@ EDGE DDF 4.2:
 
 2) THINGS.DDF: BERSERK powerup uses new SWITCH_WEAPON effect.
 
+3) ATTACKS.DDF: Player's punch gets a puff (for immune monsters).
+
 
 EDGE DDF 4.1 (2004-04-30):
 ==========================
