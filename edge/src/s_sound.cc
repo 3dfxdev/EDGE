@@ -82,7 +82,7 @@ static free_origin_t *free_queue = NULL;
 typedef enum { CX, CY, CZ, NUMCOORDS } coord_e; 
 
 // playing sfx list
-#define PLAYINGSFXLIMIT 64
+#define PLAYINGSFXLIMIT  30
 static playsfx_t playingsfx[PLAYINGSFXLIMIT];
 static int playingsfxnum = PLAYINGSFXLIMIT;
 
