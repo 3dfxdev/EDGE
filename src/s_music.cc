@@ -82,29 +82,45 @@ void S_ChangeMusic(int entrynum, bool looping)
 		return;
 	}
 
-	if (play->type == MUS_OGG)
+	if (play->type == MUS_OGG && play->infotype != MUSINF_FILE)
 	{
-		I_Warning("S_ChangeMusic: OGG Vorbis music not supported yet.\n");
+		I_Warning("S_ChangeMusic: OGG Vorbis music only supported via file.\n");
 		return;
 	}
 
 	// -ACB- 2000/06/06 This is not system specific
 	if (play->infotype == MUSINF_FILE)
 	{
-		data = M_GetFileData(play->info, &datlength);
-		if (!data)
-		{
-			I_Warning("S_ChangeMusic: Can't Load File '%s'\n", play->info);
-			return;
-		}
+		data = NULL;
 
-		musdat.format = IMUSSF_DATA;
-		musdat.info.data.ptr = data;
-		musdat.info.data.size = datlength;
+		//
+		// -ACB- 2004/08/18 Something of a hack until we revamp this to be
+		//                  a little less platform dependent and a little
+		//                  more object orientated
+		//
+		if (play->type != MUS_OGG)
+		{
+			data = M_GetFileData(play->info, &datlength);
+			if (!data)
+			{
+				I_Warning("S_ChangeMusic: Can't Load File '%s'\n", play->info);
+				return;
+			}
+
+			musdat.format = IMUSSF_DATA;
+			musdat.info.data.ptr = data;
+			musdat.info.data.size = datlength;
+		}
+		else
+		{
+			musdat.format = IMUSSF_FILE;
+			musdat.info.file.name = play->info;
+		}
 
 		musichandle = I_MusicPlayback(&musdat, play->type, looping);
 
-		Z_Free(data);
+		if (data)
+			delete [] data;
 	}
 
 	if (play->infotype == MUSINF_LUMP)
