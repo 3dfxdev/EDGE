@@ -393,7 +393,7 @@ static void LinedefFinishEntry(void)
 
 	// check stuff...
 
-	if ((buffer_line.ef.type & ~EXFL_SideMidX) != 0)
+	if (buffer_line.ef.type != EXFL_None)
 	{
 		if ((buffer_line.ef.type & EXFL_Flooder) && (buffer_line.ef.type & EXFL_NoShade))
 		{
@@ -628,7 +628,6 @@ static specflags_t extrafloor_types[] =
 	{"FLOODER",       EXFL_Flooder,      0},
 	{"SIDE UPPER",    EXFL_SideUpper,    0},
 	{"SIDE LOWER",    EXFL_SideLower,    0},
-	{"SIDE MIDX",     EXFL_SideMidX,     0},
 	{"SIDE MIDY",     EXFL_SideMidY,     0},
 	{"BOOMTEX",       EXFL_BoomTex,      0},
 
@@ -1158,7 +1157,7 @@ void extrafloordef_c::Copy(extrafloordef_c &src)
 void extrafloordef_c::Default()
 {
 	control = EFCTL_None;
-	type = EXFL_SideMidX;
+	type = EXFL_None;
 }
 
 //

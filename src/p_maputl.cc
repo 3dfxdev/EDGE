@@ -1088,8 +1088,7 @@ void P_ComputeWallTiles(line_t *ld, int sidenum)
 			{
 				surf = &C->ef_line->side[0]->middle;
 
-				if (C->ef_info->type & EXFL_SideMidX)
-					flags |= WTILF_ExtraX;
+				flags |= WTILF_ExtraX;
 
 				if (C->ef_info->type & EXFL_SideMidY)
 					flags |= WTILF_ExtraY;
