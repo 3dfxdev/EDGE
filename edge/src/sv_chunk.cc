@@ -369,7 +369,7 @@ unsigned char SV_GetByte(void)
 
 		CRC32_ProcessByte(&current_crc, c);
 
-#ifdef DEBUG_GETBYTE
+#if (DEBUG_GETBYTE)
 		{ 
 			static int pos=0; pos++;
 			L_WriteDebug("%08X: %02X \n", ftell(current_fp), c);
@@ -397,7 +397,7 @@ unsigned char SV_GetByte(void)
 	result = cur->pos[0];
 	cur->pos++;
 
-#ifdef DEBUG_GETBYTE
+#if (DEBUG_GETBYTE)
 	{ 
 		static int pos=0; pos++;
 		L_WriteDebug("%d.%02X%s", chunk_stack_size, result, ((pos % 10)==0) ? "\n" : " ");
@@ -751,7 +751,7 @@ void SV_PutByte(unsigned char value)
 {
 	chunk_t *cur;
 
-#if DEBUG_PUTBYTE
+#if (DEBUG_PUTBYTE)
 	{ 
 		static int pos=0; pos++;
 		L_WriteDebug("%d.%02x%s", chunk_stack_size, value, 
