@@ -79,42 +79,39 @@ void R2_FreeAllocatedStuff(void);
 //  R2_BSP
 //
 
+typedef struct Y_range_s
+{
+  // range is inclusive.  y1 > y2 means the column is empty.
+  short y1, y2;
+}
+Y_range_t;
+
 //
 // ScreenLine
 //
-// Stores the info for one trapezoid shaped area (with vertical sides)
-// on the screen.  For walls and planes, it indicates a solid area.
-// For the empty list, it indicates an area not yet filled in by walls
-// or planes.  Note: yt & yb are inclusive.
+// Stores the info for one on-screen area of a wall, plane or thing.
 //
 typedef struct screenline_s
 {
-  // links for list
-  struct screenline_s *next;
-  struct screenline_s *prev;
+  // horizontal range (inclusive)
+  short x1, x2;
 
-  // inclusive range
-  int x1;
-  int x2;
+  // vertical columns over x1..x2.
+  Y_range_t *ranges;
 
-  // top line (higher on screen)
-  float_t yt;
-  float_t yt_step;
+  // top line (higher on screen), used only for tex coords.  When the
+  // ranges are unclipped, this should correspond to the top pixel
+  // positions in the ranges.
+  float_t y, step;
 
-  // bottom line (lower on screen)
-  float_t yb;
-  float_t yb_step;
-
-  // offset for top (in texture pixels)
-  float_t yp;
-  float_t yp_step;
+  // vertical offset (in texture pixels, not screen pixels)
+  float_t y_offset;
 }
 screenline_t;
 
 
 // forward decls.
 struct drawfloor_s;
-struct drawsub_s;
 
 
 //
@@ -157,38 +154,8 @@ typedef struct drawwall_s
   // horizontal slider ?
   slidetype_e slide_type;
   float_t opening, target;
-
-  // TEMP HACK
-  int picnum;
 }
 drawwall_t;
-
-
-//
-// ClipSeg
-//
-// Used to clip sprites to subsector boundaries.  Every time we visit
-// a subsector, we must compute a list of clipsegs for every seg of
-// the subsector (even ones that are totally off-screen).
-//
-typedef struct clipseg_s
-{
-  // link for list
-  struct clipseg_s *next;
-
-  seg_t *seg;
-  
-  // coordinates translated and rotated about viewpoint
-  float_t tx1, tz1;
-  float_t tx2, tz2;
-
-  // orientation:
-  //   +1 : right side (on screen) faces containing subsector
-  //   -1 : left  side (on screen) faces containing subsector
-  //    0 : seg lies in same direction as viewplane
-  int orientation;
-}
-clipseg_t;
 
 
 //
@@ -218,11 +185,6 @@ typedef struct drawplane_s
 
   // !!!! dlight test
   float_t extra_light, elight_step;
-
-  //...
-
-  // TEMP HACK
-  int picnum;
 }
 drawplane_t;
 
@@ -238,8 +200,11 @@ typedef struct drawthing_s
   struct drawthing_s *next;
   struct drawthing_s *prev;
 
+  // Note: the area.ranges field isn't used here, instead the x1..x2
+  // range is looked-up in the the containing subsector, which stores
+  // *empty* areas to clip against.
   screenline_t area;
-  
+
   // actual map object
   mobj_t *mo;
 
@@ -247,17 +212,11 @@ typedef struct drawthing_s
   float_t top;
   float_t bottom;
 
-  // for non-cut-off pieces of a sprite, this is NULL, otherwise it is
-  // the subsector that the previous (whole, non-split) piece was in.
-  // When clipping the sprite against clipsegs, we can skip clipsegs
-  // bordering on subsectors that the previous piece was in.
-  subsector_t *cut_sub;
-
-  // attempt II at preventing infinite move cycles.  This value is 0
-  // if this drawthing has not moved, -1 if it moved left, +1 if it
-  // moved right.
-  int cut_move_dir;
-
+  // these record whether this piece of a sprite has been clipped on
+  // the left or right side.  We can skip certain clipsegs when one of
+  // these is true (and stop when the both become true).
+  boolean_t clipped_left, clipped_right;
+  
   // +1 if this sprites should be vertically clipped at a solid
   // floor or ceiling, 0 if just clip at translucent planes, or -1 if
   // shouldn't be vertically clipped at all.
@@ -298,9 +257,6 @@ typedef struct drawthing_s
   // EXPERIMENTAL
   boolean_t is_shadow;
   boolean_t is_halo;
-  
-  // TEMP HACK
-  int picnum;
 }
 drawthing_t;
 
@@ -314,11 +270,10 @@ drawthing_t;
 typedef struct drawfloor_s
 {
   // link for list, drawing order
-  struct drawfloor_s *next;
+  struct drawfloor_s *next, *prev;
 
   // link for height order list
-  struct drawfloor_s *z_next;
-  struct drawfloor_s *z_prev;
+  struct drawfloor_s *z_next, *z_prev;
 
   // region
   vert_region_t *reg;
@@ -342,64 +297,6 @@ typedef struct drawfloor_s
 drawfloor_t;
 
 
-//
-// DrawSub
-//
-// Stores all the information needed to draw a single on-screen
-// subsector.
-//
-typedef struct drawsub_s
-{
-  // link in list
-  // (sorted from furthest to closest)
-  struct drawsub_s *next;
-  struct drawsub_s *prev;
-
-  subsector_t *subsec;
-
-  // list of floors
-  // these are sorted into drawing order.
-  drawfloor_t *floors;
-
-  // list of floors, sorted in height order.
-  drawfloor_t *z_floors;
-
-  // list of clip segs
-  clipseg_t *clippers;
-
-  // lists of sprites.  Sprites are initially handled on a
-  // per-subsector basis, only later are they vertically moved (or
-  // split) into the correct drawfloors.  "Good" things are ones that
-  // are known to lie completely within the subsector.  "Raw" things
-  // need to be checked (and maybe clipped) against the clipsegs.
-  drawthing_t *good_things;
-  drawthing_t *raw_things;
-}
-drawsub_t;
-
-
-//
-// PlaneBack
-//
-// Describes an onscreen (but back-facing) seg which is used to mark
-// the edges of planes.
-//
-typedef struct planeback_s
-{
-  // link for list
-  struct planeback_s *next;
-
-  // inclusive range on screen
-  int x1;
-  int x2;
-
-  // scaling info
-  float_t scale1;
-  float_t scale2;
-}
-planeback_t;
-
-
 extern boolean_t use_true_bsp;
 extern boolean_t use_dlights;
 extern boolean_t force_classic;
@@ -410,19 +307,15 @@ void R2_RenderTrueBSP(void);
 
 void R2_GetThingSprite(mobj_t *thing, spritedef_t ** sprite,
     spriteframe_t ** frame, int *lump, boolean_t *flip, boolean_t *bright);
-void R2_ClipSpriteVertically(drawsub_t *dsub, drawthing_t *dthing);
+void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing);
 
 
 //
 //  R2_UTIL
 //
 
-extern drawsub_t **arr_drawsubs;
-extern int num_drawsubs;
-
-extern screenline_t *empty_list;
-extern float_t *sky_clip_top;
-extern float_t *sky_clip_bottom;
+extern byte *subsectors_seen;
+extern Y_range_t Screen_clip[2048];
 
 void R2_ClearPoly(void);
 void R2_FreeupPoly(void);
@@ -430,31 +323,34 @@ void R2_FreeupPoly(void);
 halfplane_t *R2_NewHalfPlane(void);
 cut_point_t *R2_NewCutPoint(void);
 
+void R2_InitUtil(void);
 void R2_ClearBSP(void);
-void R2_AddInitialLines(void);
 
-screenline_t *R2_NewScreenLine(void);
-drawwall_t   *R2_NewDrawWall(void);
-drawplane_t  *R2_NewDrawPlane(void);
-drawthing_t  *R2_NewDrawThing(void);
-drawfloor_t  *R2_NewDrawFloor(void);
-drawsub_t    *R2_NewDrawSub(void);
-clipseg_t    *R2_NewClipSeg(void);
+drawwall_t  *R2_GetDrawWall(void);
+drawplane_t *R2_GetDrawPlane(void);
+drawthing_t *R2_GetDrawThing(void);
+drawfloor_t *R2_GetDrawFloor(void);
 
-drawsub_t *R2_GetDrawsubFromSubsec(subsector_t *subsec);
-void R2_ClearPlanes(void);
-planeback_t * R2_NewPlaneBack(void);
+void R2_CommitDrawWall(int used);
+void R2_CommitDrawPlane(int used);
+void R2_CommitDrawThing(int used);
+void R2_CommitDrawFloor(int used);
 
-boolean_t R2_CheckOccluded(int x1, int x2);
-boolean_t R2_CheckOccludedShrink(int *x1, int *x2);
+Y_range_t *R2_GetOpenings(int width);
+void R2_CommitOpenings(int width);
 
-screenline_t * R2_ClipEmptyHoriz(screenline_t *empty, int x1, int x2);
-boolean_t R2_ClipEmptyArea(screenline_t *empty, screenline_t *solid);
-boolean_t R2_ClipSolidArea(screenline_t *solid, screenline_t *empty);
-void R2_RemoveEmptyArea(screenline_t *empty);
+void R2_1DOcclusionClear(int x1, int x2);
+void R2_1DOcclusionSet(int x1, int x2);
+boolean_t R2_1DOcclusionTest(int x1, int x2);
+boolean_t R2_1DOcclusionTestShrink(int *x1, int *x2);
+void R2_1DOcclusionClose(int x1, int x2, Y_range_t *ranges);
 
-void R2_AddSkyTop(int x1, int x2, float_t y, float_t y_step);
-void R2_AddSkyBottom(int x1, int x2, float_t y, float_t y_step);
+void R2_2DOcclusionClear(int x1, int x2);
+void R2_2DOcclusionClose(int x1, int x2, Y_range_t *ranges,
+    boolean_t connect_low, boolean_t connect_high, boolean_t solid);
+void R2_2DOcclusionCopy(int x1, int x2, Y_range_t *ranges);
+void R2_2DUpdate1D(int x1, int x2);
+
 
 //
 //  R2_DRAW
@@ -462,12 +358,11 @@ void R2_AddSkyBottom(int x1, int x2, float_t y, float_t y_step);
 
 extern video_context_t vctx;
 
-void R2_DrawWall (drawsub_t *sub, drawwall_t  *wall);
-void R2_DrawPlane(drawsub_t *sub, drawplane_t *plane);
-void R2_DrawThing(drawsub_t *sub, drawthing_t *thing);
-void R2_DrawFloor(drawsub_t *sub, drawfloor_t *floor);
-void R2_DrawSubsector(drawsub_t *sub);
-void R2_DrawSky(void);
+void R2_DrawWall (subsector_t *dsub, drawwall_t  *wall);
+void R2_DrawPlane(subsector_t *dsub, drawplane_t *plane);
+void R2_DrawThing(subsector_t *dsub, drawthing_t *thing);
+void R2_DrawFloor(subsector_t *dsub, drawfloor_t *dfloor);
+void R2_DrawSubsector(subsector_t *dsub);
 
 void BOGUS_Clear(void);
 void BOGUS_Line(float x1, float y1, float x2, float y2, int col);
