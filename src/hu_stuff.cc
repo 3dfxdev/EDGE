@@ -653,6 +653,7 @@ bool HU_Responder(event_t * ev)
 			if (c > 9)
 				return false;
 			macromessage = chat_macros[c];
+			DEV_ASSERT2(macromessage);
 
 			// kill last message with a '\n'
 			HU_QueueChatChar(KEYD_ENTER);  // DEBUG!!!
