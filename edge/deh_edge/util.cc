@@ -188,11 +188,31 @@ int StrCaseCmp(const char *A, const char *B)
 {
 	for (; *A || *B; A++, B++)
 	{
+		// this test also catches end-of-string conditions
 		if (toupper(*A) != toupper(*B))
 			return (toupper(*A) - toupper(*B));
 	}
 
-	return (*A) ? 1 : (*B) ? -1 : 0;
+	return 0;
+}
+
+//
+// StrCaseCmpPartial
+//
+// Checks that the string B occurs at the front of string A.
+// NOTE: This function is not symmetric, A can be longer than B and
+// still match, but the match always fails if A is shorter than B.
+//
+int StrCaseCmpPartial(const char *A, const char *B)
+{
+	for (; *B; A++, B++)
+	{
+		// this test also catches end-of-string conditions
+		if (toupper(*A) != toupper(*B))
+			return (toupper(*A) - toupper(*B));
+	}
+
+	return 0;
 }
 
 //
