@@ -53,7 +53,10 @@
 #define RGB_BLU(rgbcol)  ((float)((rgbcol      ) & 0xFF) / 255.0f)
 
 
-#if 0  // TEMPORARILY DISABLED
+static bool has_drawn_sky = false;
+
+
+#if 0  // DISABLED TILING CRUD
 
 static INLINE void DrawSkyTilePoint(const tilesky_info_t *info,
 									const image_t *image, int p, int xmul, int ymul, int zmul, 
@@ -171,11 +174,26 @@ static void RGL_DrawTiledSky(void)
 	}
 }
 
+#endif
+
+//
+// RGL_BeginSky
+//
+void RGL_BeginSky(void)
+{
+	has_drawn_sky = false;
+}
+
 //
 // RGL_DrawSky
 //
 void RGL_DrawSky(void)
 {
+	if (has_drawn_sky)
+		return;
+
+	has_drawn_sky = true;
+
 	int x, y, w, h;
 	float right, bottom;
 
@@ -183,23 +201,11 @@ void RGL_DrawSky(void)
 	GLuint tex_id;
 
 	float mlook_rad;
-	int top_L, bottom_L;
-	int base_a = viewangle >> 6;
+	float top_L, bottom_L;
+	float base_a = ANG_2_FLOAT(viewangle);
 
 	int sx1, sy1, sx2, sy2;  // screen coords
 	float tx1, tx2, ty, bx1, bx2, by;  // tex coords
-
-	if (! draw_sky)
-		return;
-
-	// reset draw-sky flag
-	draw_sky = false;
-
-	if (sky_tiles_active > 0)
-	{
-		RGL_DrawTiledSky();
-		return;
-	}
 
 	DEV_ASSERT2(sky_image);
 	cim = W_ImageCache(sky_image, IMG_OGL, 0, true);
@@ -226,55 +232,44 @@ void RGL_DrawSky(void)
 	mlook_rad = atan(viewvertangle);
 
 	if (mlook_rad >= M_PI/4)
-		top_L = ANG90;
+		top_L = 90;
 	else if (mlook_rad <= -M_PI/4)
-		top_L = ANG45;
+		top_L = 45;
 	else
 	{
 		// d is just the distance horizontally forward from the eye to
 		// the top edge of the view rectangle.
 		float d = M_ROOT2 * sin(M_PI/2 - (mlook_rad + M_PI/4));
 
-		top_L = ANG90 - M_ATan(d);
+		top_L = 90 - ANG_2_FLOAT(M_ATan(d));
 	}
 
 	if (mlook_rad <= -M_PI/4)
-		bottom_L = ANG90;
+		bottom_L = 90;
 	else if (mlook_rad >= M_PI/4)
-		bottom_L = ANG45;
+		bottom_L = 45;
 	else
 	{
 		// d is just the distance horizontally forward from the eye to
 		// the bottom edge of the view rectangle.
 		float d = M_ROOT2 * sin(M_PI/2 - (M_PI/4 - mlook_rad));
 
-		bottom_L = ANG90 - M_ATan(d);
+		bottom_L = 90 - ANG_2_FLOAT(M_ATan(d));
 	}
 
 	if (! level_flags.stretchsky)
 	{
-		top_L = bottom_L = ANG90;
+		top_L = bottom_L = 90;
 	}
 
-#define NEWSKYSHIFT  ((float)(1 << (ANGLEBITS - 16)))
+	top_L /= 2.0f;
+	bottom_L /= 2.0f;
 
-	top_L >>= 6;
-	bottom_L >>= 6;
+	tx1 = (base_a + top_L) / (w > 256 ? 360.0f : 180.0f);
+	tx2 = (base_a - top_L) / (w > 256 ? 360.0f : 180.0f);
 
-	base_a *= 2;
-
-	CHECKVAL(w);
-	tx1 = (float)(base_a + top_L) / NEWSKYSHIFT / (float)w;
-	tx2 = (float)(base_a - top_L) / NEWSKYSHIFT / (float)w;
-
-	bx1 = (float)(base_a + bottom_L) / NEWSKYSHIFT / (float)w;
-	bx2 = (float)(base_a - bottom_L) / NEWSKYSHIFT / (float)w;
-
-	if (w <= 512)
-	{
-		tx1 /= 2.0f; tx2 /= 2.0f;
-		bx1 /= 2.0f; bx2 /= 2.0f;
-	}
+	bx1 = (base_a + bottom_L) / (w > 256 ? 360.0f : 180.0f);
+	bx2 = (base_a - bottom_L) / (w > 256 ? 360.0f : 180.0f);
 
 	// compute sky vertical tex coords
 	{
@@ -297,6 +292,7 @@ void RGL_DrawSky(void)
 
 	// divide screen into many squares, to reduce distortion
 	for (y=0; y < 8; y++)
+	{
 		for (x=0; x < 8; x++)
 		{
 			int xa = sx1 + (sx2 - sx1) * x     / 8;
@@ -330,15 +326,14 @@ void RGL_DrawSky(void)
 			glTexCoord2f(bxa, 1.0f - bottom * bya);
 			glVertex2i(xa, SCREENHEIGHT - yb);
 		}
+	}
 
-		glEnd();
+	glEnd();
 
-		glDisable(GL_TEXTURE_2D);
+	glDisable(GL_TEXTURE_2D);
 
-		W_ImageDone(cim);
+	W_ImageDone(cim);
 }
-
-#endif  // TEMPORARILY DISABLED
 
 
 static INLINE void CalcSkyTexCoord(float x, float y, float z, 
@@ -434,6 +429,9 @@ void SkyPolyCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 //
 void RGL_DrawSkyPlane(subsector_t *sub, float h)
 {
+#if 0  // Revert to old sky method. Maybe renable this to set the stencil
+	   // buffer, and draw sky (at end) using the stencil buffer as a mask.
+
 	raw_polyquad_t *poly;
 	sky_data_t data;
 
@@ -475,10 +473,11 @@ void RGL_DrawSkyPlane(subsector_t *sub, float h)
 	RGL_BoundPolyQuad(poly);
 	RGL_SplitPolyQuadLOD(poly, 1, 128 >> detail_level);
 
-	RGL_RenderPolyQuad(poly, &data, &SkyPolyCoordFunc, tex_id, 
+	RGL_RenderPolyQuad(poly, &data, &SkyPolyCoordFunc, tex_id,
 		false, false);
 
 	RGL_FreePolyQuad(poly);
+#endif
 }
 
 //
@@ -486,6 +485,9 @@ void RGL_DrawSkyPlane(subsector_t *sub, float h)
 //
 void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 {
+#if 0  // Revert to old sky method. Maybe renable this to set the stencil
+	   // buffer, and draw sky (at end) using the stencil buffer as a mask.
+
 	float x1 = seg->v1->x;
 	float y1 = seg->v1->y;
 	float x2 = seg->v2->x;
@@ -519,10 +521,11 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 	RGL_BoundPolyQuad(poly);
 	RGL_SplitPolyQuadLOD(poly, 1, 128 >> detail_level);
 
-	RGL_RenderPolyQuad(poly, &data, &SkyPolyCoordFunc, tex_id, 
+	RGL_RenderPolyQuad(poly, &data, &SkyPolyCoordFunc, tex_id,
 		false, false);
 
 	RGL_FreePolyQuad(poly);
+#endif
 }
 
 

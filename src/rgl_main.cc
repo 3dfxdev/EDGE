@@ -83,6 +83,9 @@ float ren_blu_mul;
 extern int rgl_currtimeval;  // hack..
 
 
+#define Z_NEAR  1.0f
+#define Z_FAR   32000.0f
+
 #define RGB_RED(rgbcol)  ((float)((rgbcol >> 16) & 0xFF) / 255.0f)
 #define RGB_GRN(rgbcol)  ((float)((rgbcol >>  8) & 0xFF) / 255.0f)
 #define RGB_BLU(rgbcol)  ((float)((rgbcol      ) & 0xFF) / 255.0f)
@@ -113,15 +116,17 @@ static void SetupLightMap(lighting_model_e model)
 		// Approximation of standard Doom lighting: 
 		// (based on side-by-side comparison)
 		//    [0,72] --> [0,16]
-		//    [72,112] --> [16,48]
-		//    [112,256] --> [48,240]   (bit of room for DLight)
+		//    [72,112] --> [16,56]
+		//    [112,255] --> [56,255]
 
 		if (i <= 72)
-			rgl_light_map[i] = i * 2 / 9;
+			rgl_light_map[i] = i * 16 / 72;
 		else if (i <= 112)
-			rgl_light_map[i] = 16 + (i - 72) * 32 / 40;
+			rgl_light_map[i] = 16 + (i - 72) * 40 / 40;
+		else if (i < 255)
+			rgl_light_map[i] = 56 + (i - 112) * 200 / 144;
 		else
-			rgl_light_map[i] = 48 + (i - 112) * 192 / 144;
+			rgl_light_map[i] = 255;
 	}
 }
 
@@ -155,11 +160,12 @@ void RGL_SetupMatrices2D(void)
 //
 // Setup the GL matrices for drawing 3D stuff.
 
-#define Z_NEAR  1.0f
-#define Z_FAR   32000.0f
-
 void RGL_SetupMatrices3D(void)
 {
+	float side_ang = 0.0f;
+
+	GLfloat ambient[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
 	glViewport(viewwindowx, SCREENHEIGHT - viewwindowy - viewwindowheight,
 			   viewwindowwidth, viewwindowheight);
 
@@ -180,11 +186,16 @@ void RGL_SetupMatrices3D(void)
 	glLoadIdentity();
 	glRotatef(270.0f - (float)atan(viewvertangle) * 180.0f / (float)M_PI, 1.0f, 0.0f, 0.0f);
 	glRotatef(90.0f - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
+	glRotatef(side_ang, 0.0f, 1.0f, 0.0f);
 	glTranslatef(-viewx, -viewy, -viewz);
 
 	// turn on lighting.  Some drivers (e.g. TNT2) don't work properly
 	// without it.
 	glEnable(GL_LIGHTING);
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
+
+	glEnable(GL_COLOR_MATERIAL);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
