@@ -2,6 +2,8 @@
 DEH-EDGE Todo
 -------------
 
++  fix up the README.
+
 DONE:  option for EDGE version.
    Done  DEFAULT IS FOR 1.28
    Done  output a ".hwa" file (if version >= 0x128).
