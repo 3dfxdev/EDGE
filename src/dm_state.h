@@ -193,6 +193,9 @@ extern boolean_t no_obsoletes;
 // if true, enable HOM detection (hall of mirrors effect)
 extern boolean_t hom_detect;
 
+// if true, enable BOOM compatibility (esp. line/sector types)
+extern boolean_t boom_compat;
+
 // wipegamestate can be set to -1
 //  to force a wipe on the next draw
 extern gamestate_t wipegamestate;
@@ -271,6 +274,7 @@ extern float_t BASEYCENTER, BASEXCENTER;
 
 extern int BPP;  //BYTES per pixel, 1=256 colour, 2=hi colour
 
+extern boolean_t in_a_window;
 extern boolean_t graphicsmode;
 
 // -ES- 1999/08/15 Added teleport effects
