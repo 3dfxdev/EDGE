@@ -63,6 +63,8 @@ byte *M_GetFileData(char *filename, int *length);
 char *M_ComposeFileName(const char *dir, const char *file);
 void M_WarnError(const char *error,...) GCCATTR(format(printf, 1, 2));
 
+extern boolean_t display_disk;
+
 extern int cfgnormalfov, cfgzoomedfov;
 
 extern int key_right;
