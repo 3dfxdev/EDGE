@@ -36,12 +36,6 @@ extern bool need_save_screenshot;
 
 namespace engine
 {
-	enum error_e
-	{
-		ERR_GENERIC,
-		ERR_NUMTYPES
-	};
-
 	void Main(int argc, const char **argv);
 	void Tick(void);
 };
