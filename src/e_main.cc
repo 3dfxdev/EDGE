@@ -1086,23 +1086,38 @@ static void InitDirectories(void)
 	p = M_GetParm("-config");
 	if (p)
 	{
-		cfgfile = M_ComposeFileName(homedir, p);
+		epi::string_c fn;
+		
+		M_ComposeFileName(fn, homedir, p);
+		cfgfile.Set(fn.GetString());
 	}
 	else
 	{
-		char *s = Z_New(char, strlen(homedir) + strlen(EDGECONFIGFILE) + 2);
-	    sprintf(s, "%s%c%s", homedir, DIRSEPARATOR, EDGECONFIGFILE);
-		cfgfile = s;
+		epi::string_c fn;
+
+	    fn.Format("%s%c%s", homedir, DIRSEPARATOR, EDGECONFIGFILE);
+		cfgfile.Set(fn.GetString());
 	}
-
+	
 	// savegame directory
-	savedir = M_ComposeFileName(homedir, SAVEGAMEDIR);
-
+	{
+		epi::string_c dir;
+		
+		dir = homedir;
+		dir += DIRSEPARATOR;
+		dir += SAVEGAMEDIR;
+		
+		// FIXME!! Replace with epi::strent_c
+		savedir = new char[dir.GetLength()+1];
+		strcpy(savedir, dir.GetString());
+		
 #ifdef WIN32
-    mkdir(savedir);
+	    mkdir(savedir);
 #else
-    mkdir(savedir, SAVEGAMEMODE);
+	    mkdir(savedir, SAVEGAMEMODE);
 #endif
+	}
+	
 
     return;
 }
@@ -1142,13 +1157,12 @@ const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "freedoom", NULL }
 
 static void IdentifyVersion(void)
 {
-	int i;
-	char *filename;
 	bool done;
-	int wadnum;
-	int length;
 	const char *location;
 	char *iwad;
+	int i;
+	int wadnum;
+	epi::string_c fn;
 
 	// Check -iwad parameter, find out if we are talking directory or file
 	location = M_GetParm("-iwad");
@@ -1181,24 +1195,27 @@ static void IdentifyVersion(void)
 	// Has an iwad name been specified?
 	if (iwad)
 	{
-		length = strlen(iwad) + strlen(EDGEWADEXT) + 2;
-		filename = (char*)I_TmpMalloc(length);
-
+		epi::string_c fn;
+		
 		if (M_CheckExtension(EDGEWADEXT, iwad) != EXT_MATCHING)
 		{
-			sprintf(filename, "%s.%s", iwad, EDGEWADEXT);
+			fn.Format("%s.%s", iwad, EDGEWADEXT);
 		}
 		else
 		{
-			strcpy(filename, iwad);
+			fn = iwad;
 		}
 
-		if (I_Access(filename))
-			W_AddRawFilename(filename, false);
+		if (I_Access(fn.GetString()))
+		{
+			W_AddRawFilename(fn.GetString(), false);
+		}
 		else
-			I_Error("IdentifyVersion: Unable to add specified '%s'", filename);
-
-		I_TmpFree(filename);
+		{
+			I_Error("IdentifyVersion: Unable to add specified '%s'", 
+					fn.GetString());
+		}
+		
 		Z_Free(iwad);
 	}
 	else // cycle through default wad names and add them if they exist
@@ -1218,20 +1235,14 @@ static void IdentifyVersion(void)
 			wadnum = 0;
 			while (wadname[wadnum] && !done)
 			{
-				length = strlen(location) + strlen(wadname[wadnum]) + strlen(EDGEWADEXT) + 3;
-
-				filename = (char*)I_TmpMalloc(length);
-
-				sprintf(filename, "%s%c%s.%s", location, DIRSEPARATOR, 
+				fn.Format("%s%c%s.%s", location, DIRSEPARATOR, 
 						wadname[wadnum], EDGEWADEXT);
 
-				if (I_Access(filename))
+				if (I_Access(fn.GetString()))
 				{
-					W_AddRawFilename(filename, false);
+					W_AddRawFilename(fn.GetString(), false);
 					done = true;
 				}
-
-				I_TmpFree(filename);
 
 				wadnum++;
 			}
@@ -1241,10 +1252,6 @@ static void IdentifyVersion(void)
 	if (!addwadnum)
 		I_Error("IdentifyVersion: No IWADS found!\n");
 
-	// Add the required WAD file (EDGE.WAD), search in iwaddir and homedir.
-	length = MAX(strlen(gamedir), strlen(iwaddir)) + strlen(REQUIREDWAD) + strlen(EDGEWADEXT) + 3;
-	filename = (char*)I_TmpMalloc(length);
-
 	done = false;
 	for (i = 0; i < 2 && !done; i++)
 	{
@@ -1252,14 +1259,14 @@ static void IdentifyVersion(void)
 
 		if (location)
 		{
-			sprintf(filename, "%s%c%s.%s", location, DIRSEPARATOR, REQUIREDWAD, EDGEWADEXT);
+			fn.Format("%s%c%s.%s", location, DIRSEPARATOR, REQUIREDWAD, EDGEWADEXT);
 
-			if (I_Access(filename))
+			if (I_Access(fn.GetString()))
 			{
 				// Only read the DDF/RTS lumps in EDGE.WAD if we are not in
 				// external-ddf mode.
 
-				W_AddRawFilename(filename, external_ddf ? false : true);
+				W_AddRawFilename(fn.GetString(), external_ddf ? false : true);
 				done = true;
 			}
 		}
@@ -1267,8 +1274,6 @@ static void IdentifyVersion(void)
 
 	if (!done)
 		I_Error("IdentifyVersion: Could not find required %s.%s!\n", REQUIREDWAD, EDGEWADEXT);
-
-	I_TmpFree(filename);
 }
 
 static void ShowDate(void)
@@ -1321,7 +1326,6 @@ namespace engine
 	{
 		int p;
 		const char *ps;
-		char *filename;
 		char title[] = "EDGE v" EDGEVERSTR;
 		int turbo_scale = 100;
 		bool success;
@@ -1340,11 +1344,7 @@ namespace engine
 		//                  I_Warnings and I_Errors.
 		if (! M_CheckParm("-nolog"))
 		{
-			char filename[128];
-
-			strcpy(filename, EDGELOGFILE);
-
-			logfile = fopen(filename, "w");
+			logfile = fopen(EDGELOGFILE, "w");
 
 			if (!logfile)
 				I_Error("[engine::Startup] Unable to create log file");
@@ -1366,21 +1366,21 @@ namespace engine
 		p = M_CheckParm("-debugfile");
 		if (p)
 		{
-			char filename[128];
+			epi::string_c fn;
 			int i = 1;
 
 			// -ES- 1999/03/29 allow -debugfile <file>
 			if (p + 1 < M_GetArgCount() && (ps = M_GetArgument(p + 1))[0] != '-')
 			{
-				Z_StrNCpy(filename, ps, 127);
+				fn = ps;
 			}
 			else
 			{
 				// -KM- 1999/01/29 Consoleplayer is always 0 at this stage.
-				sprintf(filename, "debug0.txt");
-				while (I_Access(filename))
+				fn = "debug0.txt";
+				while (I_Access(fn.GetString()))
 				{
-					sprintf(filename, "debug%d.txt", i++);
+					fn.Format("debug%d.txt", i++);
 
 					// give up: File system is probably corrupt. If not, there are 1000
 					// debug files already, and it's about time to delete some of them...
@@ -1388,7 +1388,7 @@ namespace engine
 						I_Error("[engine::Startup] Couldn't create debug file!");
 				}
 			}
-			debugfile = fopen(filename, "w");
+			debugfile = fopen(fn.GetString(), "w");
 
 			if (!debugfile)
 				I_Error("[engine::Startup] Unable to create debugfile");
@@ -1472,25 +1472,28 @@ namespace engine
 		if (ps)
 			CON_ChooseFunctionFromList(&drawspan16_funcs, ps);
 
-		p = M_CheckNextParm("-file", 0);
-		while (p)
 		{
-			// the parms after p are wadfile/lump names,
-			// until end of parms or another - preceded parm
-			modifiedgame = true;
-
-			p++;
-			while (p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0])
+			epi::string_c fn;
+			p = M_CheckNextParm("-file", 0);
+			while (p)
 			{
-				filename = M_ComposeFileName(gamedir, ps);
-				W_AddRawFilename(filename, true);
-				Z_Free(filename);
+				// the parms after p are wadfile/lump names,
+				// until end of parms or another - preceded parm
+				modifiedgame = true;
+	
 				p++;
+				while (p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0])
+				{
+					
+					M_ComposeFileName(fn, gamedir, ps);
+					W_AddRawFilename(fn.GetString(), true);
+					p++;
+				}
+	
+				p = M_CheckNextParm("-file", p-1);
 			}
-
-			p = M_CheckNextParm("-file", p-1);
 		}
-
+		
 		ps = M_GetParm("-playdemo");
 
 		if (!ps)
@@ -1498,12 +1501,12 @@ namespace engine
 
 		if (ps)
 		{
-			filename = M_ComposeFileName(gamedir, ps);
-			Z_Resize(filename, char, strlen(filename) + 5);
-			strcat(filename, ".lmp");
-			W_AddRawFilename(filename, false);
-			I_Printf("Playing demo %s.\n", filename);
-			Z_Free(filename);
+			epi::string_c fn;
+			
+			M_ComposeFileName(fn, gamedir, ps);
+			fn += ".lmp";	// FIXME!! Check we need to use extension here
+			W_AddRawFilename(fn.GetString(), false);
+			I_Printf("Playing demo %s.\n", fn.GetString());
 		}
 
 		// get skill / episode / map from parms
