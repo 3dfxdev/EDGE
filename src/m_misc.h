@@ -68,6 +68,7 @@ bool M_WriteFile(char const *name, void *source, int length);
 bool M_LoadDefaults(void);
 void M_SaveDefaults(void);
 int M_ReadFile(char const *name, byte **buffer);
+void M_InitMiscConVars(void);
 void M_DisplayDisk(void);
 void M_DisplayAir(void);
 void M_ScreenShot(void);
