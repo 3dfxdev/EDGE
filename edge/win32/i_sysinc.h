@@ -58,6 +58,7 @@ void I_WinConPrintf(const char *message, ...);
 void I_ShutdownWinConsole(void);
 
 // I_CTRL.C
+void I_ControlTicker(void);
 void I_HandleKeypress(int key, boolean_t keydown); // handle message loop key presses
 
 // I_DIGMID.C - DirectMusic MIDI Handler
