@@ -21,6 +21,47 @@
 #include "ddf_main.h"
 #include "ddf_locl.h"
 
+static linetype_container_c   genlinetypes;    // <-- Generalised
+static sectortype_container_c gensectortypes;  // <-- Generalised
+
+//
+// DDF_IsBoomLineType
+//
+bool DDF_IsBoomLineType(int num)
+{
+	return (num >= 0x2F80 && num <= 0x7FFF);
+}
+
+//
+// DDF_IsBoomSectorType
+//
+bool DDF_IsBoomSectorType(int num)
+{
+	if (num < 0x20 || num > 0xFFF)
+		return false;
+	
+	switch (num & 31)
+	{
+		case 0: case 1: case  2: case  3:
+		case 4: case 8: case 12: case 13: case 17:
+			return true;
+	
+		default:
+			return false;
+	}
+}
+
+//
+// DDF_BoomClearGenTypes
+//
+void DDF_BoomClearGenTypes(void)
+{
+	genlinetypes.Reset();
+	gensectortypes.Reset();
+}
+
+//----------------------------------------------------------------------------
+
 //
 // DDF_BoomMakeGenSector
 //
@@ -118,9 +159,30 @@ void DDF_BoomMakeGenSector(sectortype_c *sec, int number)
 	// ignoring bit 9: Wind effect
 }
 
+//
+// DDF_BoomGetGenSector
+// 
+sectortype_c *DDF_BoomGetGenSector(int number)
+{
+	DEV_ASSERT2(DDF_IsBoomSectorType(number));
+
+	sectortype_c *sec = gensectortypes.Lookup(number);
+			
+	// Create if it doesn't exist
+	if (!sec)
+	{
+		sec = new sectortype_c;
+		sec->Default();
+		
+		DDF_BoomMakeGenSector(sec, number);
+		
+		gensectortypes.Insert(sec);
+	}
+
+	return sec;
+}
 
 //----------------------------------------------------------------------------
-
 
 static void HandleLineTrigger(linetype_c *line, int trigger)
 {
@@ -559,5 +621,28 @@ void DDF_BoomMakeGenLine(linetype_c *line, int number)
 
 	else if (number >= 0x2F80)
 		MakeBoomCrusher(line, number);
+}
+
+//
+// DDF_BoomGetGenLine
+//
+linetype_c *DDF_BoomGetGenLine(int number)
+{
+	DEV_ASSERT2(DDF_IsBoomLineType(number));
+
+	linetype_c *line = genlinetypes.Lookup(number);
+	
+	// If this hasn't be found, create it 
+	if (! line)
+	{
+		line = new linetype_c;
+		line->Default();
+		
+		DDF_BoomMakeGenLine(line, number);
+
+		genlinetypes.Insert(line);
+	}
+
+	return line;
 }
 

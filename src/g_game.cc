@@ -1512,9 +1512,8 @@ void G_DoLoadGame(void)
 		sky_image = globs->sky_image;
 
 	// clear line/sector lookup caches, in case level_flags.compat_mode
-	// changed (e.g. CM_BOOM -> CM_EDGE).
-	genlinetypes.Reset();
-	gensectortypes.Reset();
+	// has changed (e.g. CM_BOOM -> CM_EDGE).
+	DDF_BoomClearGenTypes();
 
 	if (SV_LoadEverything() && SV_GetError() == 0)
 	{

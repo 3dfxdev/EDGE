@@ -2122,12 +2122,7 @@ static void ShutdownLevel(void)
 	if (rejectmatrix)
 		W_DoneWithLump(rejectmatrix);
 
-#if 0
-	R2_TileSkyClear();
-#endif
-
-	genlinetypes.Reset();
-	gensectortypes.Reset();
+	DDF_BoomClearGenTypes();
 
 	level_active = false;
 }
@@ -2363,28 +2358,12 @@ namespace playsim
 	//
 	linetype_c* LookupLineType(int num)
 	{
-		linetype_c* l;
-		
-		// FIXME!! Isn't there an upper limit to boom linedef types?
-  		if ((level_flags.compat_mode == CM_BOOM) && num >= 0x2F80)
+  		if (level_flags.compat_mode == CM_BOOM && DDF_IsBoomLineType(num))
 		{
-			l = genlinetypes.Lookup(num);
-			
-			// If this hasn't be found, create it 
-			if (!l)
-			{
-				l = new linetype_c;
-				
-				l->Default();
-				DDF_BoomMakeGenLine(l, num);	// <-- Can this error?
-				
-				genlinetypes.Insert(l);
-			}
-			
-			return l;
+			return DDF_BoomGetGenLine(num);
 		}
 
-		l = linetypes.Lookup(num);
+		linetype_c* l = linetypes.Lookup(num);
 		if (l)
 			return l;
 
@@ -2397,29 +2376,13 @@ namespace playsim
 	//	
 	sectortype_c* LookupSectorType(int num)
 	{
-		sectortype_c* s;
-		
   		// check for BOOM generalised sector types
- 		// FIXME!! Isn't there an upper limit to boom sector types?
-		if ((level_flags.compat_mode == CM_BOOM) && num >= 0x20)
+		if (level_flags.compat_mode == CM_BOOM && DDF_IsBoomSectorType(num))
 		{
-			s = gensectortypes.Lookup(num);
-			
-			// Create if it doesn't exist
-			if (!s)
-			{
-				s = new sectortype_c;
-				
-				s->Default();
-				DDF_BoomMakeGenSector(s, num);	// <-- Can this error?
-				
-				gensectortypes.Insert(s);
-			}
-			
-			return s;
+			return DDF_BoomGetGenSector(num);
 		}
 		
-		s = sectortypes.Lookup(num);
+		sectortype_c* s = sectortypes.Lookup(num);
 		if (s)
 			return s;
 
