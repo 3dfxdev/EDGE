@@ -40,7 +40,7 @@ UI_Setup::UI_Setup(int x, int y, int w, int h) :
 	labeltype(FL_NORMAL_LABEL);
 	align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT | FL_ALIGN_TOP);
 
-	int cy = y + 8;
+	int cy = y + 20;
 
 	address = new Fl_Output(x+140, cy, 160, 24, "Server Address: ");
 	address->align(FL_ALIGN_LEFT);
@@ -53,6 +53,26 @@ UI_Setup::UI_Setup(int x, int y, int w, int h) :
 	port->align(FL_ALIGN_LEFT);
 	port->value("20702");
 	add(port);
+
+	cy += 28 + 14;
+
+	max_clients = new Fl_Counter(x+140, cy, 140, 24, "Maximum Clients: ");
+	max_clients->align(FL_ALIGN_LEFT);
+	max_clients->range(4,1024);
+	max_clients->step(4);
+	max_clients->lstep(50);
+	max_clients->value(32);
+	add(max_clients);
+
+	cy += 28;
+
+	max_games = new Fl_Counter(x+140, cy, 140, 24, "Maximum Games: ");
+	max_games->align(FL_ALIGN_LEFT);
+	max_games->range(2,200);
+	max_games->step(2);
+	max_games->lstep(10);
+	max_games->value(8);
+	add(max_games);
 
 	cy += 28;
 
