@@ -85,7 +85,9 @@ void Storage::RememberMod(int *target, int value)
 {
 	if (! tail || tail->used >= ITEMS_PER_BOX)
 	{
-		storagebox_t *box = (storagebox_t *) malloc(sizeof(storagebox_t));
+///---		storagebox_t *box = (storagebox_t *) malloc(sizeof(storagebox_t));
+
+		storagebox_t *box = new storagebox_t;
 
 		if (! box)
 			FatalError("Out of memory (%d storage bytes)\n",
@@ -124,7 +126,7 @@ void Storage::ApplyAll(void)
 			box->items[i].target[0] = box->items[i].value;
 		}
 
-		free(box);
+		delete box;
 	}
 
 	head = tail = NULL;
