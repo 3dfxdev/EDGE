@@ -5,10 +5,10 @@
 PROGRAM=ddfinwad
 
 CC=gcc
-CFLAGS=-g -O -Wall
-LDFLAGS=-Xlinker --warn-common
+CFLAGS=-O3 -Wall
+LDFLAGS=-s -Xlinker --warn-common
 DEFINES=-DLINUX
-LIBS=-lm
+LIBS=
 
 OBJS=wad_io.o main.o
 
