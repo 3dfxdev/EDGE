@@ -38,7 +38,8 @@ EPI_DIR=epi
 SDL_DIR=SDL
 AL_DIR=AL
 LZO_DIR=lzo
-GLBSP_DIR=glbsp-2.05
+GLBSP_DIR=glbsp-2.10
+DEH_DIR=deh_edge_1.3
 JPEG_DIR=libjpeg
 PNG_DIR=libpng
 
@@ -59,7 +60,7 @@ S_SDL_LDFLAGS=
 S_SDL_OBJS=$(LX_DIR)/is_sdl.o
 S_SDL_LIBS=
 
-S_AL_FLAGS=
+S_AL_FLAGS=-DUSE_AL
 S_AL_LDFLAGS=
 S_AL_OBJS=$(AL_DIR)/i_sound.o\
 		$(AL_DIR)/oggplayer.o
@@ -94,7 +95,8 @@ LDFLAGS=$(V_$(VIDEO)_LDFLAGS)  \
 
 LIBS=-lm  \
 	$(EPI_DIR)/libepi.a $(LZO_DIR)/liblzo.a \
-	$(GLBSP_DIR)/plugin/libglbsp.a  \
+	$(GLBSP_DIR)/libglbsp.a  \
+	$(DEH_DIR)/libdehedge.a  \
 	$(V_$(VIDEO)_LIBS) $(S_$(SOUND)_LIBS) \
 	-lpng
 
@@ -124,6 +126,7 @@ COMMON_OBJS= \
         ddf_mus.o  ddf_stat.o \
         ddf_sect.o ddf_sfx.o  \
         ddf_swth.o ddf_weap.o \
+		ddf_font.o ddf_style.o \
         dm_defs.o  dm_state.o \
         e_main.o e_net.o      \
         f_finale.o g_game.o   \
@@ -131,6 +134,7 @@ COMMON_OBJS= \
         hu_lib.o hu_stuff.o   \
         lu_math.o  lu_gamma.o \
         l_mp3.o    l_glbsp.o  \
+		l_deh.o  \
         m_argv.o   m_random.o \
         m_bbox.o m_cheat.o    \
         m_fixed.o m_menu.o    \
@@ -186,7 +190,7 @@ ASM_I386_OBJS= \
 
 # ----- TARGETS ------------------------------------------------------
 
-EDGELIBS = epi glbsp lzo
+EDGELIBS = epi glbsp dehedge lzo
 
 all: $(EDGELIBS) $(PROGNAME)
 
@@ -199,7 +203,10 @@ epi lzo:
 	$(MAKE) -C $@ -f Makefile.osx
 
 glbsp:
-	$(MAKE) -C $(GLBSP_DIR)/plugin -f makefile.osx
+	$(MAKE) -C $(GLBSP_DIR) -f Plugin_osx.mak
+
+dehedge:
+	$(MAKE) -C $(DEH_DIR) -f Plugin_osx.mak
 
 renderclean:
 	rm -f $(PROGNAME) r*.o
