@@ -1051,7 +1051,7 @@ namespace Things
 					InternalError("Bad field type %d\n", ref->field_type);
 			}
 		}
-		else  /* patch_fmt == 6, allow BEX */
+		else  /* patch_fmt == 6, allow BOOM/MBF stuff */
 		{
 			switch (ref->field_type)
 			{

@@ -930,6 +930,13 @@ void Frames::AlterPointer(int new_val)
 	MarkState(st_num);
 }
 
+void Frames::AlterBexCodePtr(const char * new_action)
+{
+	const char *bex_field = Patch::line_buf;
+
+	PrintWarn("BEX CODEPTRS not yet implemented !\n");
+}
+
 
 //------- DEBUGGING ------------------------------------------------------
 
