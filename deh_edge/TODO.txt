@@ -2,15 +2,12 @@
 DEH-EDGE TODO
 -------------
 
-* TEST: Plugin: first use will modify tables, messing up subsequent uses.
+DONE:  Plugin: pass proper error values (and strings) when something
+       goes wrong (e.g. wad save problem).
 
-+  Plugin: pass proper error values (and strings) when something
-   goes wrong (e.g. wad save problem).
++  create Plugin_win.dev.
 
-TEST: fix the way default output name is determined (for Plugin: don't
-      have a default).
-
-TEST: check that extension stuff (missing for input/output) still works.
+-  create Makefile.osx and Plugin_osx.mak.
 
 -  implement these Boom/MBF actions:
 
@@ -31,7 +28,4 @@ TEST: check that extension stuff (missing for input/output) still works.
    DONE: A_Die : needs a new EDGE action.
 
 -  warn about ZDoom-specific actions/strings/etc.
-
-DONE:  remove ticker() callback.
-DONE:  progress callbacks.
 

@@ -2,7 +2,7 @@
 DEH_EDGE 1.2
 ============
 
-by Andrew Apted.  11th September 2004.
+by Andrew Apted.  22nd September 2004.
 
 
 Introduction
@@ -21,7 +21,7 @@ the newer text format, and the BOOM extensions (BEX).  A few obscure
 things, like raw action offsets, are not supported.
 
 
-Usage
+USAGE
 -----
 
 Run it like this:
@@ -75,14 +75,14 @@ Options
   -a --all         All: converts everything into DDF.  Normally only the
                    parts which has been modified are converted to DDF.
                    This option can make the output WAD much bigger !
-                   Mainly useful when trouble-shooting problems.
+                   Mainly useful for trouble-shooting.
 
 
 Limitations
 -----------
 
-1. Doesn't yet convert some of the new BOOM/MBF actions (e.g. A_Mushroom).
-   These will be added soon.
+1. Doesn't yet convert three of the new BOOM/MBF actions: A_Scratch,
+   A_Spawn and A_Mushroom.
 
 2. Doesn't handle the BEX "INCLUDE" directive.
 
@@ -92,13 +92,12 @@ Limitations
 
 4. Raw action offsets and sprite/sound name pointers are unsupported.
    These are heavily dependent on the exact version of the DOOM EXE.
-   Since they are rarely used, and it requires a lot of much work,
-   they will probably never be supported.
+   Since they are rarely used, and it requires a lot of much work to
+   compile the required tables, they might never be supported.
  
 5. Text replacements only work in EDGE when the language selected is
-   "ENGLISH".  This is a nuisance for anyone who usually plays in a
-   different language.  The replacements are usually English anyway,
-   so this limitation is fairly minor.
+   ENGLISH.  This is a nuisance for anyone who usually plays in a
+   different language.
 
 
 Acknowledgements
