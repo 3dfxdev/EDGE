@@ -14,8 +14,9 @@ EDGE DDF 4.2:
 
 5) LINES.DDF: Added BOOM linetypes 211 and 212 (platform Toggles).
 6) LINES.DDF: Added BOOM line-to-line Teleporters (243-244, 262-267).
+7) LINES.DDF: Replaced PRESERVE keyword (now obsolete) in teleport types.
 
-7) LANGUAGES.DDF: removed beginning "\n" from PlayState strings.
+8) LANGUAGES.DDF: removed beginning "\n" from PlayState strings.
 
 
 EDGE DDF 4.1 (2004-04-30):

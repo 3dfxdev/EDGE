@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE Floor/Elevator/Teleport Action Code
+//  EDGE Floor/Ceiling/Stair/Elevator Action Code
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2004  The EDGE Team.
@@ -808,6 +808,12 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
 	return plane;
 }
 
+//----------------------------------------------------------------------------
+// TELEPORT CODE       (FIXME: move to separate file ?)
+//----------------------------------------------------------------------------
+
+#define TELE_FUDGE  0.1f
+
 static mobj_t *FindTeleportMan(int tag, const mobjtype_c *info)
 {
 	for (int i = 0; i < numsectors; i++)
@@ -874,7 +880,8 @@ static line_t *FindTeleportLine(int tag, line_t *original)
 // -AJA- 1999/07/12: Support for TELEPORT_SPECIAL in lines.ddf.
 // -AJA- 1999/07/30: Updated for extra floor support.
 // -AJA- 1999/10/21: Allow line to be NULL, and added `tag' param.
-// -AJA- 2004/10/08: Reworked for Silent and Line-to-Line teleporters.
+// -AJA- 2004/10/08: Reworked for Silent and Line-to-Line teleporters
+//                   (based on the logic in prBoom's p_telept.c code).
 //
 bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 				 const teleportdef_c *def)
@@ -890,25 +897,35 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 	float new_y;
 	float new_z;
 
+	angle_t new_ang;
+
+	angle_t dest_ang;
+	angle_t source_ang = ANG90 + (line ? R_PointToAngle(0, 0, line->dx, line->dy) : 0);
+
 	mobj_t *currmobj = NULL;
+	line_t *currline = NULL;
 
 	if (def->special & TELSP_Line)
 	{
-		if (tag <= 0)
+		if (!line || tag <= 0)
 			return false;
 
-		line_t *dest = FindTeleportLine(tag, line);
+		currline = FindTeleportLine(tag, line);
 
-		if (! dest)
+		if (! currline)
 			return false;
 
-		//!!!! FIXME: massive big hack crap temp gunk kludge
-		new_x = (dest->v1->x + dest->v2->x) / 2.0f;
-		new_y = (dest->v1->y + dest->v2->y) / 2.0f;
-		new_z = MAX(dest->frontsector ? dest->frontsector->f_h : -32000,
-		            dest->backsector  ? dest->backsector->f_h  : -32000);
+		new_x = currline->v1->x + currline->dx / 2.0f;
+		new_y = currline->v1->y + currline->dy / 2.0f;
+
+		new_z = currline->frontsector ? currline->frontsector->f_h : -32000;
+
+		if (currline->backsector)
+			new_z = MAX(new_z, currline->backsector->f_h);
+
+		dest_ang = R_PointToAngle(0, 0, currline->dx, currline->dy) + ANG90;
 	}
-	else
+	else  /* thing-based teleport */
 	{
 		if (! def->outspawnobj)
 			return false;
@@ -921,62 +938,133 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 		new_x = currmobj->x;
 		new_y = currmobj->y;
 		new_z = currmobj->z;
+
+		dest_ang = currmobj->angle;
 	}
 
-	if (line && (def->special & TELSP_SameOffset))
-	{
-		float centre_x = (line->v1->x + line->v2->x) / 2;
-		float centre_y = (line->v1->y + line->v2->y) / 2;
+	/* --- Angle handling --- */
 
-		new_x += thing->x - centre_x;
-		new_y += thing->y - centre_y;
+	if (def->special & TELSP_Flipped)
+		dest_ang += ANG180;
+
+	if (def->special & TELSP_Relative)
+		new_ang = thing->angle + (dest_ang - source_ang);
+	else if (def->special & TELSP_SameAbsDir)
+		new_ang = thing->angle;
+	else if (def->special & TELSP_Rotate)
+		new_ang = thing->angle + dest_ang;
+	else
+		new_ang = dest_ang;
+
+	/* --- Offset handling --- */
+
+	if (line && def->special & TELSP_SameOffset)
+	{
+		float dx = 0;
+		float dy = 0;
+
+		float pos = 0;
+
+		if (fabs(line->dx) > fabs(line->dy))
+			pos = (oldx - line->v1->x) / line->dx;
+		else
+			pos = (oldy - line->v1->y) / line->dy;
+
+		if (currline)
+		{
+			dx = currline->dx * (pos - 0.5f);
+			dy = currline->dy * (pos - 0.5f);
+
+			if (def->special & TELSP_Flipped)
+			{
+				dx = -dx; dy = -dy;
+			}
+
+			new_x += dx;
+			new_x += dy;
+
+			// move a little distance away from the line, in case that line
+			// is special (e.g. another teleporter), in order to prevent it
+			// from being triggered.
+
+			new_x += TELE_FUDGE * M_Cos(dest_ang);
+			new_y += TELE_FUDGE * M_Sin(dest_ang);
+		}
+		else if (currmobj)
+		{
+			dx = line->dx * (pos - 0.5f);
+			dy = line->dy * (pos - 0.5f);
+
+			// we need to rotate the offset vector
+			angle_t offset_ang = dest_ang - source_ang;
+
+			float s = M_Sin(offset_ang);
+			float c = M_Cos(offset_ang);
+
+			new_x += dx * c - dy * s;
+			new_y += dy * c + dx * s;
+		}
 	}
 
 	if (def->special & TELSP_SameHeight)
+	{
 		new_z += (thing->z - thing->floorz);
+	}
 	else if (thing->flags & MF_MISSILE)
+	{
 		new_z += thing->origheight;
+	}
 
 	if (!P_TeleportMove(thing, new_x, new_y, new_z))
 		return false;
-
+	
+	// FIXME: deltaviewheight may need adjustment
 	if (thing->player)
 		thing->player->viewz = thing->z + thing->player->viewheight;
 
-	// don't move for a bit
+	/* --- Momentum handling --- */
+
 	if (thing->player && !(def->special & TELSP_SameSpeed))
 	{
+		// don't move for a bit
 		thing->reactiontime = def->delay;
 
 		// -ES- 1998/10/29 Start the fading
 		if (telept_effect && thing->player == displayplayer)
 			R_StartFading(0, (def->delay * 5) / 2);
+
 		thing->mom.x = thing->mom.y = thing->mom.z = 0;
 	}
- 
- 	if (def->special & TELSP_Reversing)
-		thing->angle += ANG180;
-
- 	if (currmobj)
+	else if (thing->flags & MF_MISSILE)
 	{
-		if (def->special & TELSP_Rotate)
-		{
-			thing->angle += currmobj->angle;
-		}
-		else if (! (def->special & TELSP_SameDir))
-		{
-			thing->angle = currmobj->angle;
-			thing->vertangle = currmobj->vertangle;
-		}
+		thing->mom.x = thing->speed * M_Cos(new_ang);
+		thing->mom.y = thing->speed * M_Sin(new_ang);
+	}
+	else if (def->special & TELSP_SameSpeed)
+	{
+		// we need to rotate the momentum vector
+		angle_t mom_ang = new_ang - thing->angle;
+
+		float s = M_Sin(mom_ang);
+		float c = M_Cos(mom_ang);
+
+		float mx = thing->mom.x;
+		float my = thing->mom.y;
+
+		thing->mom.x = mx * c - my * s;
+		thing->mom.y = my * c + mx * s;
 	}
 
-	if (thing->flags & MF_MISSILE)
+	thing->angle = dest_ang;
+
+ 	if (currmobj && 0 == (def->special & (TELSP_Relative | TELSP_SameAbsDir |
+		                                  TELSP_Rotate)))
 	{
-		thing->mom.x = thing->speed * M_Cos(thing->angle);
-		thing->mom.y = thing->speed * M_Sin(thing->angle);
+		thing->vertangle = currmobj->vertangle;
 	}
 
-	// spawn teleport fog at source and/or destination
+	/* --- Spawning teleport fog (source and/or dest) --- */
+
 	if (! (def->special & TELSP_Silent))
 	{
 		mobj_t *fog;
@@ -1011,6 +1099,7 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 
 	return true;
 }
+
 
 //
 // EV_BuildOneStair
@@ -1296,7 +1385,7 @@ bool EV_DoDonut(sector_t * s1, sfx_t *sfx[4])
 		donut[1].Default();
 		donut[1].count = 1;
 		donut[1].f.Default(movplanedef_c::DEFAULT_DonutFloor);
-		donut[1].f.dest = (float)INT_MIN;	// FIXME!! INT_MIN on an FP Number?
+		donut[1].f.dest = -32000.0f;
 
 		donut_setup++;
 	}
