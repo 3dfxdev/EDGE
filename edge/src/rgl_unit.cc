@@ -49,8 +49,9 @@
 #include "z_zone.h"
 
 
-bool use_vertex_array = true;
+bool use_lighting = true;
 bool use_color_material = true;
+bool use_vertex_array = true;
 
 
 #define MAX_L_VERT  4096
@@ -98,9 +99,12 @@ bool rgl_1d_debug = false;
 //
 void RGL_InitUnits(void)
 {
-	M_CheckBooleanParm("vertexarray", &use_vertex_array, false);
+	M_CheckBooleanParm("lighting",      &use_lighting, false);
+	M_CheckBooleanParm("vertexarray",   &use_vertex_array, false);
+	M_CheckBooleanParm("colormaterial", &use_color_material, false);
 
-	CON_CreateCVarBool("vertexarray", cf_normal, &use_vertex_array);
+	CON_CreateCVarBool("lighting",      cf_normal, &use_lighting);
+	CON_CreateCVarBool("vertexarray",   cf_normal, &use_vertex_array);
 	CON_CreateCVarBool("colormaterial", cf_normal, &use_color_material);
 
 	if (true)  /// XXX
@@ -290,7 +294,7 @@ void RGL_DrawUnits(void)
 			{
 				local_gl_vert_t *V = local_verts + unit->first + j;
 
-				if (use_color_material)
+				if (use_color_material || ! use_lighting)
 					glColor4fv(V->col);
 				else
 				{
