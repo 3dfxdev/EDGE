@@ -2,6 +2,16 @@
 CHANGELOG
 =========
 
+Changes in V1.2  (Unreleased)
+-----------------------------
+
+ - support for "DIE" action (Boom/MBF), appearing in Edge 1.29.
+
+ - interface for embedding into other programs (especially a DDF
+   based Doom game engine).  Just #include "dh_embed.h".  Coded up
+   support for progress notification.  Added support for raw lumps.
+
+
 Changes in V1.1  (11th July 2004)
 ---------------------------------
 

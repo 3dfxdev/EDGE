@@ -2,9 +2,15 @@
 DEH-EDGE TODO
 -------------
 
--  implement these Boom/MBF actions:
++  Plugin: pass proper error values (and strings) when something
+   goes wrong (e.g. wad save problem).
 
-   - A_Die : needs a new EDGE action.
++  fix the way default output name is determined (for Plugin: don't
+   have a default).
+
+-  check that extension stuff (missing for input/output) still works.
+
+-  implement these Boom/MBF actions:
 
    - A_Scratch : misc1 is damage, misc2 is scratch sound (0 for none).
                  need to a create custom attack for each use.
@@ -13,12 +19,17 @@ DEH-EDGE TODO
    - A_Spawn : misc1 is MT_NUM (0 = NOP, otherwise subtract 1),
                misc2 is height above spawner's foot.
 			   ideally need new EDGE action, otherwise either:
-			   (a) use DROPITEM(xxx), or
+			   (a) use DROPITEM(FOO), or
 			   (b) create a custom attack for each use (TYPE=SPAWNER).
 
    - A_Mushroom : ideally need new EDGE action (AT LEAST: custom attack(s)).
                   mobjinfo[].damage determines number of FATSO missiles.
 				  doesn't use misc1/misc2.
 
+   DONE: A_Die : needs a new EDGE action.
+
 -  warn about ZDoom-specific actions/strings/etc.
+
+DONE:  remove ticker() callback.
+DONE:  progress callbacks.
 

@@ -1,8 +1,8 @@
 
-DEH_EDGE 1.1
+DEH_EDGE 1.2
 ============
 
-by Andrew Apted.  6th July 2004.
+by Andrew Apted.  11th September 2004.
 
 
 Introduction
@@ -81,8 +81,8 @@ Options
 Limitations
 -----------
 
-1. Doesn't yet convert some of the new BOOM/MBF actions (e.g. A_Die
-   and A_Mushroom).  These will be added soon.
+1. Doesn't yet convert some of the new BOOM/MBF actions (e.g. A_Mushroom).
+   These will be added soon.
 
 2. Doesn't handle the BEX "INCLUDE" directive.
 
@@ -92,8 +92,8 @@ Limitations
 
 4. Raw action offsets and sprite/sound name pointers are unsupported.
    These are heavily dependent on the exact version of the DOOM EXE.
-   Since they are rarely used, and it requires so much work, they
-   will probably never be supported.
+   Since they are rarely used, and it requires a lot of much work,
+   they will probably never be supported.
  
 5. Text replacements only work in EDGE when the language selected is
    "ENGLISH".  This is a nuisance for anyone who usually plays in a
