@@ -2096,7 +2096,7 @@ const mobjtype_c* mobjtype_container_c::Lookup(int id)
 }
 
 //
-// mobjtype_c* mobjtype_container_c::LookupCastMember()
+// mobjtype_container_c::LookupCastMember()
 //
 // Lookup the cast member of the one with the nearest match to the position given.
 //
@@ -2160,4 +2160,25 @@ const mobjtype_c* mobjtype_container_c::LookupCastMember(int castpos)
 	}
 
 	return best;
+}
+
+//
+// mobjtype_container_c::LookupCastMember()
+//
+// Find a player thing (needed by deathmatch code).
+//
+const mobjtype_c* mobjtype_container_c::LookupPlayer(int playernum)
+{
+	epi::array_iterator_c it;
+
+	for (it = GetTailIterator(); it.IsValid() && (int)it.GetPos() >= num_disabled; it--)
+	{
+		mobjtype_c *m = ITERATOR_TO_TYPE(it, mobjtype_c*);
+
+		if (m->playernum == playernum)
+			return m;
+	}
+
+	I_Error("Missing DDF entry for player number %d\n", playernum);
+	return NULL; /* NOT REACHED */
 }
