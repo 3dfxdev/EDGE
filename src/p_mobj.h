@@ -203,10 +203,10 @@ typedef enum
   // in death match mode (e.g. key cards).
   MF_NOTDMATCH = 0x2000000,
 
+  // Monster grows (in)visible at certain times.
   MF_STEALTH = 0x4000000,
 
-  // Used so bots know they have picked up their
-  // target item.
+  // Used so bots know they have picked up their target item.
   MF_JUSTPICKEDUP = 0x8000000,
 
   // Object reacts to being touched (often violently :->)
