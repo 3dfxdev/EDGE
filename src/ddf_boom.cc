@@ -19,18 +19,8 @@
 #include "i_defs.h"
 
 #include "ddf_main.h"
-
-#include "e_search.h"
 #include "ddf_locl.h"
-#include "dm_state.h"
-#include "dstrings.h"
-#include "m_argv.h"
-#include "m_inline.h"
-#include "m_math.h"
-#include "m_misc.h"
-#include "p_action.h"
-#include "p_mobj.h"
-#include "r_things.h"
+
 #include "z_zone.h"
 
 //
@@ -44,7 +34,7 @@
 // 
 // -AJA- 2001/06/22: written.
 // 
-void DDF_BoomMakeGenSector(specialsector_t *sec, int number)
+void DDF_BoomMakeGenSector(sectortype_c *sec, int number)
 {
 	// handle lower 5 bits: Lighting
 	switch (number & 0x1F)
@@ -134,7 +124,7 @@ void DDF_BoomMakeGenSector(specialsector_t *sec, int number)
 //----------------------------------------------------------------------------
 
 
-static void HandleLineTrigger(linedeftype_t *line, int trigger)
+static void HandleLineTrigger(linetype_c *line, int trigger)
 {
 	if ((trigger & 0x1) == 0)
 		line->count = 1;
@@ -161,7 +151,7 @@ static void HandleLineTrigger(linedeftype_t *line, int trigger)
 	}
 }
 
-static void MakeBoomFloor(linedeftype_t *line, int number)
+static void MakeBoomFloor(linetype_c *line, int number)
 {
 	int speed   = (number >> 3) & 0x3;
 	int model   = (number >> 5) & 0x1;
@@ -236,11 +226,11 @@ static void MakeBoomFloor(linedeftype_t *line, int number)
 	// handle change + model (pretty dodgy this bit)
 	if (change > 0)
 	{
-		strcpy(line->f.tex, model ? "+" : "-");
+		line->f.tex.Set(model ? "+" : "-");
 	}
 }
 
-static void MakeBoomCeiling(linedeftype_t *line, int number)
+static void MakeBoomCeiling(linetype_c *line, int number)
 {
 	int speed   = (number >> 3) & 0x3;
 	int model   = (number >> 5) & 0x1;
@@ -315,11 +305,11 @@ static void MakeBoomCeiling(linedeftype_t *line, int number)
 	// handle change + model (this logic is pretty dodgy)
 	if (change > 0)
 	{
-		strcpy(line->c.tex, model ? "+" : "-");
+		line->c.tex.Set(model ? "+" : "-");
 	}
 }
 
-static void MakeBoomDoor(linedeftype_t *line, int number)
+static void MakeBoomDoor(linetype_c *line, int number)
 {
 	int speed   = (number >> 3) & 0x3;
 	int kind    = (number >> 5) & 0x3;
@@ -357,7 +347,7 @@ static void MakeBoomDoor(linedeftype_t *line, int number)
 	}
 }
 
-static void MakeBoomLockedDoor(linedeftype_t *line, int number)
+static void MakeBoomLockedDoor(linetype_c *line, int number)
 {
 	int speed = (number >> 3) & 0x3;
 	int kind  = (number >> 5) & 0x1;
@@ -425,7 +415,7 @@ static void MakeBoomLockedDoor(linedeftype_t *line, int number)
 	}
 }
 
-static void MakeBoomLift(linedeftype_t *line, int number)
+static void MakeBoomLift(linetype_c *line, int number)
 {
 	int speed   = (number >> 3) & 0x3;
 	int monster = (number >> 5) & 0x1;
@@ -473,7 +463,7 @@ static void MakeBoomLift(linedeftype_t *line, int number)
 	}
 }
 
-static void MakeBoomStair(linedeftype_t *line, int number)
+static void MakeBoomStair(linetype_c *line, int number)
 {
 	int speed   = (number >> 3) & 0x3;
 	int monster = (number >> 5) & 0x1;
@@ -512,7 +502,7 @@ static void MakeBoomStair(linedeftype_t *line, int number)
 	(void) igntxt;
 }
 
-static void MakeBoomCrusher(linedeftype_t *line, int number)
+static void MakeBoomCrusher(linetype_c *line, int number)
 {
 	int speed   = (number >> 3) & 0x3;
 	int monster = (number >> 5) & 0x1;
@@ -546,7 +536,7 @@ static void MakeBoomCrusher(linedeftype_t *line, int number)
 //
 // -AJA- 2001/06/22: began work on this.
 // 
-void DDF_BoomMakeGenLine(linedeftype_t *line, int number)
+void DDF_BoomMakeGenLine(linetype_c *line, int number)
 {
 	// trigger values are the same for all ranges
 	HandleLineTrigger(line, number & 0x7);
