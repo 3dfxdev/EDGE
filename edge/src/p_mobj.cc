@@ -1265,8 +1265,6 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 
 static void P_MobjThinker(mobj_t * mobj)
 {
-	int loop_count = 0;
-
 	const region_properties_t *props;
 	region_properties_t player_props;
 
@@ -1394,7 +1392,7 @@ static void P_MobjThinker(mobj_t * mobj)
 	// -AJA- 1999/09/12: reworked for deferred states.
 	// -AJA- 2000/10/17: reworked again.
 
-	for (loop_count=0; loop_count < MAX_THINK_LOOP; loop_count++)
+	for (int loop_count=0; loop_count < MAX_THINK_LOOP; loop_count++)
 	{
 		mobj->tics -= (1 + mobj->tic_skip);
 		mobj->tic_skip = 0;

@@ -898,7 +898,7 @@ static void SpawnMapThing(const mobjtype_c *info,
 	mobj->angle = angle;
 	mobj->spawnpoint = point;
 
-	if (mobj->state && mobj->state->tics > 0)
+	if (mobj->state && mobj->state->tics > 1)
 		mobj->tics = 1 + (P_Random() % mobj->state->tics);
 
 	if (options & MTF_AMBUSH)
