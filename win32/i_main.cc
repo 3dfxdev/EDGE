@@ -2,7 +2,7 @@
 //  EDGE Win32 Main Interface Functions
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2001  The EDGE Team.
+//  Copyright (c) 1999-2003  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -205,6 +205,61 @@ static const char **edgeargv = NULL;
 static int edgeargc = 0;
 
 //
+// strtok_quote
+//
+// -AJA- 2003/10/11: like strtok() but handles double quotes (").
+//
+// This is to allow filenames with spaces.  Examples:
+//
+//      "C:\Program Files\Foo"
+//      @"\Temp Stuff\RESPONSE.TXT"
+//      My" "Wads\Good" "Time.wad
+//
+static char *strtok_quote(char *str, const char *sep)
+{
+	static char *cur_pos = NULL;
+
+	if (str)
+	{
+		cur_pos = str;
+
+		// ignore leading spaces
+		while (*cur_pos && strchr(sep, *cur_pos) != NULL)
+			cur_pos++;
+	}
+
+	if (*cur_pos == 0)
+		return NULL;
+
+	char *result = cur_pos;
+	char *dest   = cur_pos;
+
+	bool quoting = false;
+
+	// look for an unquoted space, removing quotes as we go
+	while (*cur_pos && (quoting || strchr(sep, *cur_pos) == NULL))
+	{
+		if (*cur_pos == '"')
+		{
+			quoting = ! quoting;
+			cur_pos++;
+			continue;
+		}
+
+		*dest++ = *cur_pos++;
+	}
+
+	if (dest < cur_pos)
+		*dest = 0;
+
+	// remove trailing spaces from argument
+	while (*cur_pos && strchr(sep, *cur_pos) != NULL)
+		*cur_pos++ = 0;
+	
+	return result;
+}
+
+//
 // ParseParameters
 //
 // Parse the command line for parameters and
@@ -224,14 +279,14 @@ static void ParseParameters(void)
 		I_Error("ParseParameters: FAILED ON PARAMETER POINTER MALLOC");
 
 	edgeargc = 0;
-	s = strtok(cmdline, " ");
+	s = strtok_quote(cmdline, " ");
 	while (s != NULL)
 	{
 		p = new char[strlen(s)+1];
 		strcpy(p, s);
 		edgeargv[edgeargc] = p;
 		edgeargc++;
-		s = strtok(NULL, " ");
+		s = strtok_quote(NULL, " ");
 
 		// grow 32 elements at a time
 		if ((edgeargc & 31) == 0)
