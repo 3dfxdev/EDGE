@@ -208,9 +208,6 @@ extern const struct image_s *skyflatimage;
 //---------------------------------------------------
 // Netgame stuff (buffers and pointers, i.e. indices).
 
-// This is for use in the network communication.
-extern doomcom_t *doomcom;
-
 extern int maketic;
 
 //misc stuff

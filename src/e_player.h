@@ -261,9 +261,13 @@ typedef struct player_s
 	int remember_atk[2];
 
 	short consistency[BACKUPTICS];
-	ticcmd_t netcmds[BACKUPTICS];
 
-	int netnode;
+	ticcmd_t in_cmds [BACKUPTICS];
+	ticcmd_t out_cmds[BACKUPTICS];  //???
+
+	int in_tic;  /* tic number of next input command expected */
+
+	int netnode; // REMOVE
 
 	// This function will be called to initialise the ticcmd_t.
 	void (*builder)(const struct player_s *, void *data, ticcmd_t *dest);

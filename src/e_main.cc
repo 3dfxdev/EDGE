@@ -91,6 +91,8 @@
 bool devparm;  // started game with -devparm
 bool singletics = false;  // debug flag to cancel adaptiveness
 
+int maketic;
+
 // -ES- 2000/02/13 Takes screenshot every screenshot_rate tics.
 // Must be used in conjunction with singletics.
 static int screenshot_rate;
@@ -1744,10 +1746,12 @@ namespace engine
 		// process one or more tics
 		if (singletics)
 		{
+			int buf = maketic % BACKUPTICS;
+
 			I_ControlGetEvents();
 			E_ProcessEvents();
 
-			E_BuildTiccmd(&players[consoleplayer]->netcmds[maketic % BACKUPTICS]);
+			E_BuildTiccmd(&players[consoleplayer]->in_cmds[buf]);
 
 			if (advance_title)
 				E_DoAdvanceTitle();

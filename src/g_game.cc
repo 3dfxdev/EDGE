@@ -365,17 +365,9 @@ static void G_ChangeDisplayPlayer(void)
 // 
 bool G_Responder(event_t * ev)
 {
-	// 25-6-98 KM Allow spy mode for demos even in deathmatch
-	if ((gamestate == GS_LEVEL) && (ev->type == ev_keydown) && 
-		(ev->value.key == KEYD_F12) && (demoplayback || !deathmatch))
-	{
-		// spy mode 
-		G_ChangeDisplayPlayer();
-		return true;
-	}
-
 	// any other key pops up menu if in demos
-	if (gameaction == ga_nothing && !singledemo && (demoplayback || gamestate == GS_DEMOSCREEN))
+	if (gameaction == ga_nothing && !singledemo &&
+		(demoplayback || gamestate == GS_DEMOSCREEN))
 	{
 		if (ev->type == ev_keydown)
 		{
@@ -383,7 +375,41 @@ bool G_Responder(event_t * ev)
 			S_StartSound(NULL, sfx_swtchn);
 			return true;
 		}
+
 		return false;
+	}
+
+	if (ev->type == ev_keydown && ev->value.key == KEYD_F12)
+	{
+		// 25-6-98 KM Allow spy mode for demos even in deathmatch
+		if (gamestate == GS_LEVEL && (demoplayback || !deathmatch))
+		{
+			G_ChangeDisplayPlayer();
+			return true;
+		}
+	}
+
+	if (ev->type == ev_keydown && ev->value.key == 'P') //!!!!!! FIXME KEY_PAUSE
+	{
+		if (!netgame)
+		{
+			paused = !paused;
+
+			if (paused)
+			{
+				S_PauseMusic();
+				S_PauseSounds();
+			}
+			else
+			{
+				S_ResumeMusic();
+				S_ResumeSounds();
+			}
+
+			// explicit as probably killed the initial effect
+			S_StartSound(NULL, sfx_swtchn);
+			return true;
+		}
 	}
 
 	if (gamestate == GS_LEVEL)
@@ -414,6 +440,51 @@ bool G_Responder(event_t * ev)
 }
 
 //
+// G_TiccmdTicker
+//
+static void G_TiccmdTicker(void)
+{
+	int buf = gametic % BACKUPTICS;
+
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+		if (! p) continue;
+
+		ticcmd_t *cmd = &p->cmd;
+
+		// -ES- FIXME: Change format of player_t->cmd?
+		*cmd = p->in_cmds[buf];
+
+		if (demoplayback)
+			G_ReadDemoTiccmd(cmd);
+
+		if (demorecording)
+			G_WriteDemoTiccmd(cmd);
+
+		// check for turbo cheats
+		if (cmd->forwardmove > TURBOTHRESHOLD
+			&& !(gametic & 31) && ((gametic >> 5) & 3) == p->pnum)
+		{
+			CON_Printf(language["IsTurbo"], p->playername);
+		}
+
+		if (netgame && !netdemo)
+		{
+			if (gametic > BACKUPTICS && p->consistency[buf] != cmd->consistency)
+			{
+				I_Error("Consistency failure on player %d (%i should be %i)",
+					p->pnum + 1, cmd->consistency, p->consistency[buf]);
+			}
+			if (p->mo)
+				p->consistency[buf] = (int)p->mo->x;
+			else
+				p->consistency[buf] = P_ReadRandomState() & 0xff;
+		}
+	}
+}
+
+//
 // G_Ticker
 //
 // Make ticcmd_ts for the players.
@@ -422,11 +493,8 @@ bool G_Responder(event_t * ev)
 //
 void G_Ticker(void)
 {
-	int buf;
-	ticcmd_t *cmd;
-	int pnum;
-
 	// do player reborns if needed
+	int pnum;
 	for (pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
 		player_t *p = players[pnum];
@@ -494,84 +562,47 @@ void G_Ticker(void)
 	}
 
 	// get commands, check consistency,
-	// and build new consistency check
-	buf = gametic % BACKUPTICS;
+	// and build new consistency check.
+	G_TiccmdTicker();
 
-	for (pnum = 0; pnum < MAXPLAYERS; pnum++)
-	{
-		player_t *p = players[pnum];
-		if (! p) continue;
-
-		cmd = &p->cmd;
-
-		// -ES- FIXME: Change format of player_t->cmd?
-		*cmd = p->netcmds[buf];
-
-		if (demoplayback)
-			G_ReadDemoTiccmd(cmd);
-
-		if (demorecording)
-			G_WriteDemoTiccmd(cmd);
-
-		// check for turbo cheats
-		if (cmd->forwardmove > TURBOTHRESHOLD
-			&& !(gametic & 31) && ((gametic >> 5) & 3) == p->pnum)
-		{
-			CON_Printf(language["IsTurbo"], p->playername);
-		}
-
-		if (netgame && !netdemo)
-		{
-			if (gametic > BACKUPTICS
-				&& p->consistency[buf] != cmd->consistency)
-			{
-				I_Error("Consistency failure on player %d (%i should be %i)",
-					p->pnum + 1, cmd->consistency, p->consistency[buf]);
-			}
-			if (p->mo)
-				p->consistency[buf] = (int)p->mo->x;
-			else
-				p->consistency[buf] = P_ReadRandomState() & 0xff;
-		}
-	}
-	// check for special buttons
-	for (pnum = 0; pnum < MAXPLAYERS; pnum++)
-	{
-		player_t *p = players[pnum];
-		if (! p) continue;
-
-		if (! (p->cmd.buttons & BT_SPECIAL))
-			continue;
-
-		switch (p->cmd.buttons & BT_SPECIALMASK)
-		{
-			case BTS_PAUSE:
-				paused = !paused;
-				if (paused)
-				{
-					S_PauseMusic();
-					S_PauseSounds();
-				}
-				else
-				{
-					S_ResumeMusic();
-					S_ResumeSounds();
-				}
-				// explicit as probably killed the initial effect
-				S_StartSound(NULL, sfx_swtchn);
-				break;
-
-#if 0  // -AJA- disabled for now
-			case BTS_SAVEGAME:
-				if (!savedescription[0])
-					strcpy(savedescription, "NET GAME");
-				savegame_slot =
-					(p->cmd.buttons & BTS_SAVEMASK) >> BTS_SAVESHIFT;
-				gameaction = ga_savegame;
-				break;
-#endif
-		}
-	}
+///---	// check for special buttons
+///---	for (pnum = 0; pnum < MAXPLAYERS; pnum++)
+///---	{
+///---		player_t *p = players[pnum];
+///---		if (! p) continue;
+///---
+///---		if (! (p->cmd.buttons & BT_SPECIAL))
+///---			continue;
+///---
+///---		switch (p->cmd.buttons & BT_SPECIALMASK)
+///---		{
+///---			case BTS_PAUSE:
+///---				paused = !paused;
+///---				if (paused)
+///---				{
+///---					S_PauseMusic();
+///---					S_PauseSounds();
+///---				}
+///---				else
+///---				{
+///---					S_ResumeMusic();
+///---					S_ResumeSounds();
+///---				}
+///---				// explicit as probably killed the initial effect
+///---				S_StartSound(NULL, sfx_swtchn);
+///---				break;
+///---
+///---#if 0  // -AJA- disabled for now
+///---			case BTS_SAVEGAME:
+///---				if (!savedescription[0])
+///---					strcpy(savedescription, "NET GAME");
+///---				savegame_slot =
+///---					(p->cmd.buttons & BTS_SAVEMASK) >> BTS_SAVESHIFT;
+///---				gameaction = ga_savegame;
+///---				break;
+///---#endif
+///---		}
+///---	}
 
 	// do main actions
 	switch (gamestate)
