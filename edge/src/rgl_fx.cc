@@ -24,6 +24,7 @@
 #include "dm_state.h"
 #include "e_search.h"
 #include "m_bbox.h"
+#include "m_misc.h"
 #include "m_random.h"
 #include "p_local.h"
 #include "p_mobj.h"
@@ -44,10 +45,24 @@
 #define DEBUG  0
 
 
-bool ren_allbright;
+int ren_extralight;
+
 float ren_red_mul;
 float ren_grn_mul;
 float ren_blu_mul;
+
+static INLINE float EffectStrength(player_t *player)
+{
+	if (player->effect_left >= EFFECT_MAX_TIME)
+		return 1.0f;
+
+	if (var_fadepower)
+	{
+		return player->effect_left / (float)EFFECT_MAX_TIME;
+	}
+
+	return (player->effect_left & 8) ? 1.0f : 0.0f;
+}
 
 //
 // RGL_RainbowEffect
@@ -56,32 +71,37 @@ float ren_blu_mul;
 //
 void RGL_RainbowEffect(player_t *player)
 {
-	ren_allbright = false;
+	ren_extralight = player->extralight * 16;
+
 	ren_red_mul = ren_grn_mul = ren_blu_mul = 1.0f;
 
-	bool fx_on = (player->effect_left >= EFFECT_MAX_TIME ||
-				  (player->effect_left & 8));
+	float s = EffectStrength(player);
 
-	if (fx_on && player->powers[PW_Invulnerable] > 0)
+	if (s > 0 && player->powers[PW_Invulnerable] > 0)
 	{
-		ren_red_mul = 0.85;
-		ren_grn_mul = 0.85;
-		ren_blu_mul = 0.85;
-
+		ren_red_mul = 0.85f + 0.15f * (1.0f - s);
+		ren_grn_mul = ren_red_mul;
+		ren_blu_mul = ren_red_mul;
 		return;
 	}
 
-	if (fx_on && player->powers[PW_NightVision] > 0 && player->effect_colourmap)
+	if (s > 0 && player->powers[PW_NightVision] > 0 && player->effect_colourmap)
 	{
 		float r, g, b;
 
 		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b, false);
 
-		ren_red_mul = 1.0f - (1.0f - r);  // * s;
-		ren_grn_mul = 1.0f - (1.0f - g);  // * s;
-		ren_blu_mul = 1.0f - (1.0f - b);  // * s;
-		ren_allbright = true;
+		ren_red_mul = 1.0f - (1.0f - r) * s;
+		ren_grn_mul = 1.0f - (1.0f - g) * s;
+		ren_blu_mul = 1.0f - (1.0f - b) * s;
 
+		ren_extralight = int(s * 255);
+		return;
+	}
+
+	if (s > 0 && player->powers[PW_Infrared] > 0)
+	{
+		ren_extralight = int(s * 255);
 		return;
 	}
 }
@@ -97,18 +117,17 @@ void RGL_ColourmapEffect(player_t *player)
 	int x1, y1;
 	int x2, y2;
 
-	bool fx_on = (player->effect_left >= EFFECT_MAX_TIME ||
-				  (player->effect_left & 8));
+	float s = EffectStrength(player);
 
-	if (fx_on && player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
+	if (s > 0 && player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
 	{
 		float r, g, b;
 
 		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b, false);
 
-		r = MAX(0.5f, r);
-		g = MAX(0.5f, g);
-		b = MAX(0.5f, b);
+		r = MAX(0.5f, r) * (s + 1.0f) / 2.0f;
+		g = MAX(0.5f, g) * (s + 1.0f) / 2.0f;
+		b = MAX(0.5f, b) * (s + 1.0f) / 2.0f;
 
 		glColor4f(r, g, b, 0.0f);
 		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
@@ -144,22 +163,21 @@ void RGL_PaletteEffect(player_t *player)
 {
 	byte rgb_data[3];
 
-	bool fx_on = (player->effect_left >= EFFECT_MAX_TIME ||
-				  (player->effect_left & 8));
+	float s = EffectStrength(player);
 
-	if (fx_on && player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
+	if (s > 0 && player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
 	{
 		if (! player->effect_colourmap->lump_name.IsEmpty())  // TEMP HACK
 		{
 			// -AJA- this looks good in standard Doom, but messes up HacX:
-			glColor4f(1.0f, 0.5f, 0.0f, 0.20f);
+			glColor4f(1.0f, 0.5f, 0.0f, 0.20f * s);
 		}
 	}
-	else if (fx_on && player->powers[PW_NightVision] > 0 && player->effect_colourmap)
+	else if (s > 0 && player->powers[PW_NightVision] > 0 && player->effect_colourmap)
 	{
 		float r, g, b;
 		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b, false);
-		glColor4f(r, g, b, 0.20f);
+		glColor4f(r, g, b, 0.20f * s);
 	}
 	else
 	{

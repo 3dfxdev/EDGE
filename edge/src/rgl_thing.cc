@@ -144,14 +144,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	float ty2 = ty1 + h;
 
 	// compute lighting
-
-	int lit_Nom = (ren_allbright || state->bright) ? 240 :
-		(props->lightlevel * 240 / 255);
-
-	if (effect_infrared && (effect_left >= EFFECT_MAX_TIME || (effect_left & 8)))
-		lit_Nom = 255;
-
-	lit_Nom = GAMMA_CONV(MIN(255, lit_Nom));
+	int lit_Nom = state->bright ? 255 : RGL_Light(props->lightlevel);
 
 	float c_r, c_g, c_b;
 	int L_r, L_g, L_b;
@@ -875,8 +868,7 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 //
 void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 {
-	int lit_Nom = dthing->bright ? 255 : 
-		RGL_Light(dthing->props->lightlevel);
+	int lit_Nom = dthing->bright ? 255 : RGL_Light(dthing->props->lightlevel);
 		
 	int fuzzy = (dthing->mo->flags & MF_FUZZY);
 	float trans = fuzzy ? FUZZY_TRANS : dthing->mo->visibility;

@@ -63,10 +63,6 @@ extern bool changeresneeded;  // -ES- 1998/08/20
 
 extern int framecount;
 
-extern int extralight;
-extern const colourmap_c *effect_colourmap;
-extern int effect_left;
-extern bool effect_infrared;
 extern bool setresfailed;
 
 //
