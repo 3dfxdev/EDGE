@@ -72,6 +72,7 @@ typedef struct image_s
 
   // whether the image is solid (otherwise it contains transparent
   // parts).
+  // FIXME !!! make enumeration (solid, transparent, unknown).
   boolean_t solid;
 
   // ...rest of this structure is private...
