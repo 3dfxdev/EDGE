@@ -52,68 +52,98 @@ bool FileExists(const char *filename)
 //
 bool HasExtension(const char *filename)
 {
-  int A = (int)strlen(filename) - 1;
+	int A = (int)strlen(filename) - 1;
 
-  if (A > 0 && filename[A] == '.')
-    return false;
+	if (A > 0 && filename[A] == '.')
+		return false;
 
-  for (; A >= 0; A--)
-  {
-    if (filename[A] == '.')
-      return true;
+	for (; A >= 0; A--)
+	{
+		if (filename[A] == '.')
+			return true;
 
-    if (filename[A] == '/')
-      break;
- 
+		if (filename[A] == '/')
+			break;
+
 #ifdef WIN32
-    if (filename[A] == '\\' || filename[A] == ':')
-      break;
+		if (filename[A] == '\\' || filename[A] == ':')
+			break;
 #endif
-  }
+	}
 
-  return false;
+	return false;
 }
 
 //
 // CheckExtension
 //
+// When ext is NULL, checks if the file has no extension.
+//
 bool CheckExtension(const char *filename, const char *ext)
 {
-  int A = (int)strlen(filename) - 1;
-  int B = (int)strlen(ext) - 1;
+	if (! ext)
+		return ! HasExtension(filename);
 
-  for (; B >= 0; B--, A--)
-  {
-    if (A < 0)
-      return false;
-    
-    if (toupper(filename[A]) != toupper(ext[B]))
-      return false;
-  }
+	int A = (int)strlen(filename) - 1;
+	int B = (int)strlen(ext) - 1;
 
-  return (A >= 1) && (filename[A] == '.');
+	for (; B >= 0; B--, A--)
+	{
+		if (A < 0)
+			return false;
+
+		if (toupper(filename[A]) != toupper(ext[B]))
+			return false;
+	}
+
+	return (A >= 1) && (filename[A] == '.');
 }
 
 //
 // ReplaceExtension
 //
+// When ext is NULL, any existing extension is removed.
+//
 const char *ReplaceExtension(const char *filename, const char *ext)
 {
-  char *dot_pos;
-  static char buffer[1024];
+	char *dot_pos;
+	static char buffer[1024];
 
-  strcpy(buffer, filename);
-  
-  dot_pos = strrchr(buffer, '.');
+	strcpy(buffer, filename);
+	assert(buffer[0] != 0);
 
-  if (dot_pos)
-    dot_pos[1] = 0;
-  else
-    strcat(buffer, ".");
-  
-  strcat(buffer, ext);
+	dot_pos = buffer + strlen(buffer) - 1;
 
-  return buffer;
+	for (; dot_pos >= buffer && *dot_pos != '.'; dot_pos--)
+	{
+		if (*dot_pos == '/')
+			break;
+
+#ifdef WIN32
+		if (*dot_pos == '\\' || *dot_pos == ':')
+			break;
+#endif
+	}
+
+	if (dot_pos < buffer || *dot_pos != '.')
+		dot_pos = NULL;
+
+	if (! ext)
+	{
+		if (dot_pos)
+			dot_pos[0] = 0;
+
+		return buffer;
+	}
+
+	if (dot_pos)
+		dot_pos[1] = 0;
+	else
+		strcat(buffer, ".");
+
+	strcat(buffer, ext);
+
+	return buffer;
 }
 
 //
@@ -132,7 +162,7 @@ bool FileIsBinary(FILE *fp)
 	{
 		int err_num = errno;
 
-		FatalError("Error reading from patch file: %s\n", strerror(err_num));
+		FatalError("Error reading from patch file.\n[%s]\n", strerror(err_num));
 	}
 
 	assert(len <= 256);
@@ -156,13 +186,13 @@ bool FileIsBinary(FILE *fp)
 //
 int StrCaseCmp(const char *A, const char *B)
 {
-  for (; *A || *B; A++, B++)
-  {
-    if (toupper(*A) != toupper(*B))
-      return (toupper(*A) - toupper(*B));
-  }
+	for (; *A || *B; A++, B++)
+	{
+		if (toupper(*A) != toupper(*B))
+			return (toupper(*A) - toupper(*B));
+	}
 
-  return (*A) ? 1 : (*B) ? -1 : 0;
+	return (*A) ? 1 : (*B) ? -1 : 0;
 }
 
 //
