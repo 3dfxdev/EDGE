@@ -156,6 +156,7 @@ static default_t defaults[] =
     {CFGT_Int, "darken_screen", &darken_screen, 1},
     {CFGT_Int, "snd_channels",  &dummysndchan, 3},
     {CFGT_Int, "usegamma",      &current_gamma, 0},
+    {CFGT_Int, "save_page",     &save_page, 0},
 
     {CFGT_Key, "key_right",      &key_right,      0},
     {CFGT_Key, "key_left",       &key_left,       0},

@@ -134,7 +134,7 @@ int quickSaveSlot;
 int quickSavePage;
 
 // 25-6-98 KM Lots of save games... :-)
-static int save_page = 0;
+int save_page = 0;
 static int save_slot = 0;
 
 // we are going to be entering a savegame string
