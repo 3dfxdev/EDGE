@@ -213,6 +213,8 @@ typedef enum { false, true } boolean_t;
 #ifdef WIN32 
 #ifdef __BORLANDC__
 
+#define STRICT
+#define _WINDOWS
 #define WIN32_LEAN_AND_MEAN
 
 typedef __int64 Int64;
@@ -220,6 +222,8 @@ typedef float float_t;
 #define FLOAT_IEEE_754
 
 typedef enum { false, true } boolean_t;
+
+#include <windows.h>
 
 #include <ctype.h>
 #include <direct.h>
@@ -236,7 +240,6 @@ typedef enum { false, true } boolean_t;
 #include <sys\stat.h>
 #include <time.h>
 
-#include <windows.h>
 #include <gl/gl.h>
 
 #define EDGECONFIGFILE "EDGE.CFG"
