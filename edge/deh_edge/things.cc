@@ -249,20 +249,6 @@ namespace Things
 
 		sprintf(name_buf, "\"%s\"", StrUpper(S_sfx[sound_id].orig_name));
 
-///---		if (rnd_base != sfx_None)
-///---		{
-///---			// XXX ideally, check if names differ by a single digit
-///---
-///---			for (int j = 0; name_buf[j]; j++)
-///---			{
-///---				if (isdigit(name_buf[j]))
-///---				{
-///---					name_buf[j] = '?';
-///---					break;
-///---				}
-///---			}
-///---		}
-
 		return name_buf;
 	}
 
