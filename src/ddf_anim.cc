@@ -31,18 +31,8 @@
 #undef  DF
 #define DF  DDF_CMD
 
-static animdef_t buffer_anim;
-static animdef_t *dynamic_anim;
-
-static const animdef_t template_anim =
-{
-	DDF_BASE_NIL,  // ddf
-
-	true,  // istexture
-	"",    // endname
-	"",    // startname
-	8,     // speed
-};
+static animdef_c buffer_anim;
+static animdef_c *dynamic_anim;
 
 static void DDF_AnimGetType(const char *info, void *storage);
 
@@ -68,7 +58,7 @@ static const commandlist_t anim_commands[] =
 // the start and end entry, in the order found in the WAD file.
 //
 
-// -ACB- 2004/06/03 Replaced array and size with purpose-build class
+// -ACB- 2004/06/03 Replaced array and size with purpose-built class
 animdef_container_c animdefs;
 
 //
@@ -81,11 +71,11 @@ static bool AnimStartEntry(const char *name)
 	if (name && name[0])
 	{
 		epi::array_iterator_c it;
-		animdef_t *a;
+		animdef_c *a;
 
 		for (it = animdefs.GetBaseIterator(); it.IsValid(); it++)
 		{
-			a = ITERATOR_TO_TYPE(it, animdef_t*);
+			a = ITERATOR_TO_TYPE(it, animdef_c*);
 			if (DDF_CompareName(a->ddf.name, name) == 0)
 			{
 				dynamic_anim = a;
@@ -98,9 +88,7 @@ static bool AnimStartEntry(const char *name)
 	// not found, create a new one
 	if (! replaces)
 	{
-		dynamic_anim = new animdef_t;
-
-		memset(dynamic_anim, 0, sizeof(animdef_t));
+		dynamic_anim = new animdef_c;
 
 		dynamic_anim->ddf.name = (name && name[0]) ? Z_StrDup(name) :
 			DDF_MainCreateUniqueName("UNNAMED_ANIM", animdefs.GetSize());
@@ -111,7 +99,7 @@ static bool AnimStartEntry(const char *name)
 	dynamic_anim->ddf.number = 0;
 
 	// instantiate the static entry
-	buffer_anim = template_anim;
+	buffer_anim.Default();
 	return replaces;
 }
 
@@ -127,8 +115,6 @@ static void AnimParseField(const char *field, const char *contents, int index, b
 
 static void AnimFinishEntry(void)
 {
-	ddf_base_t base;
-
 	if (buffer_anim.speed <= 0)
 	{
 		DDF_WarnError2(0x128, "Bad TICS value for anim: %d\n", buffer_anim.speed);
@@ -142,10 +128,7 @@ static void AnimFinishEntry(void)
 		DDF_Error("Missing last name for anim.\n");
 
 	// transfer static entry to dynamic entry
-
-	base = dynamic_anim->ddf;
-	dynamic_anim[0] = buffer_anim;
-	dynamic_anim->ddf = base;
+	dynamic_anim->CopyDetail(buffer_anim);
 
 	// Compute CRC.  In this case, there is no need, since animations
 	// have zero impact on the game simulation.
@@ -225,13 +208,68 @@ static void DDF_AnimGetType(const char *info, void *storage)
 	}
 }
 
-// List Management
+// ---> animdef_c class
+
+//
+// animdef_c constructor
+//
+animdef_c::animdef_c()
+{
+	Default();
+}
+
+//
+// animdef_c Copy constructor
+//
+animdef_c::animdef_c(animdef_c &rhs)
+{
+	ddf = rhs.ddf;
+	CopyDetail(rhs);
+}
+
+//
+// animdef_c::CopyDetail()
+//
+// Copies all the detail with the exception of ddf info
+//
+void animdef_c::CopyDetail(animdef_c &src)
+{
+	istexture = src.istexture;
+	startname = src.startname;
+	endname = src.endname;
+	speed = src.speed;
+}
+
+//
+// animdef_c::Default()
+//
+void animdef_c::Default()
+{
+	// FIXME: ddf.Default()?
+	ddf.name = NULL;
+	ddf.number = 0;
+	ddf.crc = 0;
+
+	istexture = true;
+
+	startname.Clear();
+	endname.Clear();
+
+	speed = 8;
+}
+
+// ---> animdef_container_c class
+
+//
+// animdef_container_c::CleanupObject()
+//
 void animdef_container_c::CleanupObject(void *obj)
 {
-	animdef_t *a = *(animdef_t**)obj;
+	animdef_c *a = *(animdef_c**)obj;
 
 	if (a)
 	{
+		// FIXME: Use proper new/transfer name cleanup to ddf_base destructor
 		if (a->ddf.name) { Z_Free(a->ddf.name); }
 		delete a;
 	}
