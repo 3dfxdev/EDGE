@@ -144,7 +144,7 @@ typedef enum { false, true } boolean_t;
 
 // Microsoft Visual C++ V6.0 for Win32
 #ifdef WIN32 
-#ifdef __MSC_VER__
+#ifdef _GATESY_
 
 #define WIN32_LEAN_AND_MEAN
 
@@ -193,11 +193,13 @@ typedef enum { false, true } boolean_t;
 #define M_PI 3.14159265358979323846
 
 #define GCCATTR(a)
-#define INLINE 
+#define INLINE _inline 
 #define EDGE_INLINE(decl, body) extern decl;
 
 #define I_TmpMalloc(size) alloca(size)
 #define I_TmpFree(ptr) do { } while (0)
+
+#define MAXPATH _MAX_PATH
 
 #define I_MoveData memcpy
 
