@@ -81,7 +81,7 @@ static int EvaluateWeapon(player_t *p, int w_num)
 {
 	playerweapon_t *wp = p->weapons + w_num;
 	weaponinfo_t *weapon;
-	attacktype_t *attack;
+	atkdef_c *attack;
 	float value;
 
 	// Don't have this weapon
@@ -548,7 +548,7 @@ void BOT_DMSpawn(void)
 	int i, j;
 	int selections;
 	mobj_t *bot;
-	const mobjinfo_c *info;
+	const mobjdef_c *info;
 
 	selections = deathmatch_p - deathmatchstarts;
 	if (selections < 4)

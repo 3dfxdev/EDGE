@@ -333,7 +333,7 @@ void SV_MobjCreateElems(int num_elems)
 		mobjlisthead = cur;
 
 		// initialise defaults
-		cur->info = mobjinfo[0];
+		cur->info = mobjdefs[0];
 		cur->state = cur->next_state = states+1;
 	}
 }
@@ -549,12 +549,12 @@ void SR_MobjPutMobj(void *storage, int index, void *extra)
 //
 bool SR_MobjGetType(void *storage, int index, void *extra)
 {
-	mobjinfo_c ** dest = (mobjinfo_c **)storage + index;
+	mobjdef_c ** dest = (mobjdef_c **)storage + index;
 
 	const char *name = SV_GetString();
 
 	// Intentional Const Override
-	*dest = (name == NULL) ? NULL : (mobjinfo_c *)mobjinfo.Lookup(name);
+	*dest = (name == NULL) ? NULL : (mobjdef_c *)mobjdefs.Lookup(name);
 
 	Z_Free((char *)name);
 	return true;
@@ -565,7 +565,7 @@ bool SR_MobjGetType(void *storage, int index, void *extra)
 //
 void SR_MobjPutType(void *storage, int index, void *extra)
 {
-	mobjinfo_c *info = ((mobjinfo_c **)storage)[index];
+	mobjdef_c *info = ((mobjdef_c **)storage)[index];
 
 	SV_PutString((info == NULL) ? NULL : info->ddf.name);
 }
@@ -598,12 +598,12 @@ void SR_MobjPutSpawnPoint(void *storage, int index, void *extra)
 //
 bool SR_MobjGetAttack(void *storage, int index, void *extra)
 {
-	attacktype_t ** dest = (attacktype_t **)storage + index;
+	atkdef_c ** dest = (atkdef_c **)storage + index;
 
 	const char *name = SV_GetString();
 
 	// Intentional Const Override
-	*dest = (name == NULL) ? NULL : (attacktype_t *)DDF_AttackLookup(name);
+	*dest = (name == NULL) ? NULL : (atkdef_c *)atkdefs.Lookup(name);
 
 	Z_Free((char *)name);
 	return true;
@@ -614,7 +614,7 @@ bool SR_MobjGetAttack(void *storage, int index, void *extra)
 //
 void SR_MobjPutAttack(void *storage, int index, void *extra)
 {
-	attacktype_t *info = ((attacktype_t **)storage)[index];
+	atkdef_c *info = ((atkdef_c **)storage)[index];
 
 	SV_PutString((info == NULL) ? NULL : info->ddf.name);
 }
@@ -635,7 +635,7 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 
 	const char *swizzle;
 	const mobj_t *mo = (mobj_t *) sv_current_elem;
-	const mobjinfo_c *actual;
+	const mobjdef_c *actual;
 
 	DEV_ASSERT2(mo);
 	DEV_ASSERT2(mo->info);
@@ -673,7 +673,7 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 	if (buffer[0] != '*')
 	{
 		// Do we care about those in the disabled group?
-		actual = mobjinfo.Lookup(buffer);
+		actual = mobjdefs.Lookup(buffer);
 		if (!actual)
 			I_Error("LOADGAME: no such thing %s for state %s:%s\n",
 			buffer, base_p, off_p);
@@ -747,7 +747,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	int s_num, base;
 
 	const mobj_t *mo = (mobj_t *) sv_current_elem;
-	const mobjinfo_c *actual;
+	const mobjdef_c *actual;
 
 	DEV_ASSERT2(mo);
 	DEV_ASSERT2(mo->info);
@@ -799,9 +799,9 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 		epi::array_iterator_c it;
 
 		// look for real object
-		for (it = mobjinfo.GetBaseIterator(); it.IsValid(); it++)
+		for (it = mobjdefs.GetBaseIterator(); it.IsValid(); it++)
 		{
-			actual = ITERATOR_TO_TYPE(it, mobjinfo_c*);
+			actual = ITERATOR_TO_TYPE(it, mobjdef_c*);
 
 			if (actual->last_state <= 0 ||
 				actual->last_state < actual->first_state)

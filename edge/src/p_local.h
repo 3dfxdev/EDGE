@@ -83,7 +83,7 @@ extern mobj_t *RandomTarget;
 //
 // P_ACTION
 //
-void P_ActPlayerAttack(mobj_t * playerobj, const attacktype_t * attack);
+void P_ActPlayerAttack(mobj_t * playerobj, const atkdef_c * attack);
 void P_ActSlammedIntoObject(mobj_t * object, mobj_t * objecthit);
 bool P_ActMissileContact(mobj_t * object, mobj_t * objecthit);
 bool P_ActBulletContact(mobj_t * object, mobj_t * objecthit, 
@@ -114,7 +114,7 @@ void P_UpdateAvailWeapons(player_t *p);
 void P_UpdateTotalArmour(player_t *p);
 bool P_AddWeapon(player_t *player, weaponinfo_t *info, int *index);
 bool P_RemoveWeapon(player_t *player, weaponinfo_t *info);
-void P_GiveInitialBenefits(player_t *player, const mobjinfo_c *info);
+void P_GiveInitialBenefits(player_t *player, const mobjdef_c *info);
 void P_AddPlayerToGame(player_t *p);
 void P_RemovePlayerFromGame(player_t *p);
 void P_RemoveAllPlayers(void);
@@ -138,8 +138,8 @@ bool P_SetMobjState(mobj_t * mobj, statenum_t state);
 bool P_SetMobjStateDeferred(mobj_t * mobj, statenum_t state, int tic_skip);
 void P_SetMobjDirAndSpeed(mobj_t * mobj, angle_t angle, float slope, float speed);
 void P_RunMobjThinkers(void);
-void P_SpawnPuff(float x, float y, float z, const mobjinfo_c * puff);
-void P_SpawnBlood(float x, float y, float z, float damage, angle_t angle, const mobjinfo_c * blood);
+void P_SpawnPuff(float x, float y, float z, const mobjdef_c * puff);
+void P_SpawnBlood(float x, float y, float z, float damage, angle_t angle, const mobjdef_c * blood);
 void P_RemoveQueuedMobjs(void);
 void P_CalcFullProperties(const mobj_t *mo, region_properties_t *newregp);
 
@@ -155,7 +155,7 @@ void P_MobjSetRealSource(mobj_t *mo, mobj_t *source);
 void P_MobjItemRespawn(void);
 void P_MobjRemoveMissile(mobj_t * missile);
 void P_MobjExplodeMissile(mobj_t * missile);
-mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjinfo_c * type);
+mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjdef_c * type);
 
 //
 // P_ENEMY
@@ -183,7 +183,7 @@ bool P_CheckMeleeRange(mobj_t * actor);
 bool P_CheckMissileRange(mobj_t * actor);
 bool P_Move(mobj_t * actor, bool path);
 bool P_LookForPlayers(mobj_t * actor, angle_t range);
-void P_LookForShootSpots(const mobjinfo_c *spot_type);
+void P_LookForShootSpots(const mobjdef_c *spot_type);
 void P_FreeShootSpots(void);
 
 //
@@ -310,7 +310,7 @@ bool P_TeleportMove(mobj_t * thing, float x, float y, float z);
 bool P_TryMove(mobj_t * thing, float x, float y);
 void P_SlideMove(mobj_t * mo, float x, float y);
 void P_UseLines(player_t * player);
-void P_LineAttack(mobj_t * t1, angle_t angle, float distance, float slope, float damage, const damage_t * damtype, const mobjinfo_c *puff);
+void P_LineAttack(mobj_t * t1, angle_t angle, float distance, float slope, float damage, const damage_t * damtype, const mobjdef_c *puff);
 
 
 //
