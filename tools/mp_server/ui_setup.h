@@ -32,6 +32,8 @@ private:
 	Fl_Counter *max_clients;
 	Fl_Counter *max_games;
 
+	Fl_Counter *max_plyrs;  // per game
+	Fl_Counter *max_bots;   // per game
 
 public:
 };
