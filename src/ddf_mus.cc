@@ -21,10 +21,10 @@
 #include "ddf_locl.h"
 #include "z_zone.h"
 
-static playlist_t buffer_playlist;
-static playlist_t *dynamic_playlist;
+static pl_entry_t buffer_plentry;
+static pl_entry_t *dynamic_plentry;
 
-static const playlist_t template_playlist =
+static const pl_entry_t template_plentry =
 {
 	DDF_BASE_NIL,    // ddf
 	MUS_UNKNOWN,     // type
@@ -32,15 +32,12 @@ static const playlist_t template_playlist =
 	NULL             // info
 };
 
-playlist_t ** playlist = NULL;
-int num_playlist = 0;
-
-static stack_array_t playlist_a;
+pl_entry_container_c playlist;
 
 static void DDF_MusicParseInfo(const char *info, void *storage);
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_playlist
+#define DDF_CMD_BASE  buffer_plentry
 
 static const commandlist_t musplaylistcmds[] =
 {
@@ -87,7 +84,7 @@ static void DDF_MusicParseInfo(const char *info, void *storage)
 	if (i==ENDOFMUSTYPES)
 		DDF_Error("DDF_MusicParseInfo: Unknown music type: '%s'\n", charbuff);
 	else
-		buffer_playlist.type = (musictype_t)i;
+		buffer_plentry.type = (musictype_t)i;
 
 	// Data Type
 	i=0;
@@ -116,11 +113,11 @@ static void DDF_MusicParseInfo(const char *info, void *storage)
 	if (i==ENDOFMUSINFTYPES)
 		DDF_Error("DDF_MusicParseInfo: Unknown music info: '%s'\n", charbuff);
 	else
-		buffer_playlist.infotype = (musicinftype_e)i; // technically speaking this is proper
+		buffer_plentry.infotype = (musicinftype_e)i; // technically speaking this is proper
 
 	// Remained is the string reference: filename/lumpname/track-number
 	pos++;
-	buffer_playlist.info = Z_StrDup(&info[pos]);
+	buffer_plentry.info = Z_StrDup(&info[pos]);
 
 	return;
 }
@@ -131,47 +128,38 @@ static void DDF_MusicParseInfo(const char *info, void *storage)
 //
 
 static bool PlaylistStartEntry(const char *name)
-{
-	int i;
-	bool replaces = false;
+{	
+	pl_entry_t* existing = NULL;
 	int number = MAX(0, atoi(name));
 
 	if (number == 0)
 		DDF_Error("Bad music number in playlist.ddf: %s\n", name);
 
-	for (i=0; i < num_playlist; i++)
+	existing = playlist.Find(number);
+	if (existing)
 	{
-		if (playlist[i]->ddf.number == number)
+		dynamic_plentry = existing;
+
+		// This will be overwritten, so lets not leak...
+		if (dynamic_plentry->info)
 		{
-			dynamic_playlist = playlist[i];
-			replaces = true;
-			break;
+			Z_Free(dynamic_plentry->info);
+			dynamic_plentry->info = NULL;
 		}
 	}
-
-	// if found, adjust pointer array to keep newest entries at end
-	if (replaces && i < (num_playlist-1))
+	else
 	{
-		Z_MoveData(playlist + i, playlist + i + 1, playlist_t *,
-				num_playlist - i);
-		playlist[num_playlist - 1] = dynamic_playlist;
+		dynamic_plentry = new pl_entry_t;
+		memset(dynamic_plentry, 0, sizeof(pl_entry_t));
+		playlist.Insert(dynamic_plentry);
 	}
 
-	// not found, create a new one
-	if (! replaces)
-	{
-		Z_SetArraySize(&playlist_a, ++num_playlist);
-
-		dynamic_playlist = playlist[num_playlist - 1];
-	}
-
-	dynamic_playlist->ddf.name   = NULL;
-	dynamic_playlist->ddf.number = number;
+	dynamic_plentry->ddf.name   = NULL;
+	dynamic_plentry->ddf.number = number;
 
 	// instantiate the static entry
-	buffer_playlist = template_playlist;
-
-	return replaces;
+	buffer_plentry = template_plentry;
+	return (existing != NULL);
 }
 
 static void PlaylistParseField(const char *field, const char *contents,
@@ -191,21 +179,19 @@ static void PlaylistFinishEntry(void)
 
 	// transfer static entry to dynamic entry
 
-	base = dynamic_playlist->ddf;
-	dynamic_playlist[0] = buffer_playlist;
-	dynamic_playlist->ddf = base;
+	base = dynamic_plentry->ddf;
+	dynamic_plentry[0] = buffer_plentry;
+	dynamic_plentry->ddf = base;
 
 	// Compute CRC.  In this case, there is no need, since the music
 	// playlist has zero impact on the game simulation itself.
-	dynamic_playlist->ddf.crc = 0;
+	dynamic_plentry->ddf.crc = 0;
 }
 
 static void PlaylistClearAll(void)
 {
 	// safe to just remove all current entries
-
-	num_playlist = 0;
-	Z_SetArraySize(&playlist_a, num_playlist);
+	playlist.Clear();
 }
 
 
@@ -247,7 +233,8 @@ void DDF_ReadMusicPlaylist(void *data, int size)
 //
 void DDF_MusicPlaylistInit(void)
 {
-	Z_InitStackArray(&playlist_a, (void ***)&playlist, sizeof(playlist_t), 0);
+	// -ACB- 2004/05/04 Use container 
+	playlist.Clear();
 }
 
 //
@@ -255,21 +242,43 @@ void DDF_MusicPlaylistInit(void)
 //
 void DDF_MusicPlaylistCleanUp(void)
 {
-	/* nothing to do */
+	// -ACB- 2004/05/04 Cut our playlist down to size
+	playlist.Trim();
+}
+
+
+// List Management
+
+//
+// pl_entry_container_c::CleanupObject()
+//
+void pl_entry_container_c::CleanupObject(void *obj)
+{
+	pl_entry_t *p = *(pl_entry_t**)obj;
+
+	if (p)
+	{
+		if (p->info) { Z_Free(p->info); }
+		delete p;
+	}
+
+	return;
 }
 
 //
-// DDF_MusicLookupNum
+// pl_entry_t* pl_entry_container_c::Find()
 //
-const playlist_t *DDF_MusicLookupNum(int number)
+pl_entry_t* pl_entry_container_c::Find(int number)
 {
-	int i;
+	epi::array_iterator_c it;
+	pl_entry_t *p;
 
-	for (i=0; i < num_playlist; i++)
-		if (playlist[i]->ddf.number == number)
-			return playlist[i];
+	for (it = GetBaseIterator(); it.IsValid(); it++)
+	{
+		p = ITERATOR_TO_TYPE(it, pl_entry_t*);
+		if (p->ddf.number == number)
+			return p;
+	}
 
-	// not found
 	return NULL;
 }
-
