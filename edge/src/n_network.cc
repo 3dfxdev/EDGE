@@ -268,7 +268,8 @@ void N_InitiateGame(void)
 
 //----------------------------------------------------------------------------
 
-static int update_tic;
+static int last_update_tic;
+static int last_tryrun_tic;
 
 void E_CheckNetGame(void)
 {
@@ -308,7 +309,7 @@ void E_CheckNetGame(void)
 	autostart = true;
 #endif
 
-	update_tic = I_GetTime();
+	last_update_tic = last_tryrun_tic = I_GetTime();
 }
 
 static void GetPackets(bool do_delay)
@@ -330,7 +331,7 @@ static void GetPackets(bool do_delay)
 	if (! pk.Read(socks[0]))
 		return;
 
-	I_Printf("GOT PACKET [%c%c]\n", pk.hd().type[0], pk.hd().type[1]);
+I_Printf("GOT PACKET [%c%c]\n", pk.hd().type[0], pk.hd().type[1]);
 
 	if (! pk.CheckType("Tg"))
 		return;
@@ -426,23 +427,27 @@ int E_NetUpdate(bool do_delay)
 		return 0;
 
 	int nowtime = I_GetTime();
-	int newtics = nowtime - update_tic;
+	int newtics = nowtime - last_update_tic;
 
-	update_tic = nowtime;
+	last_update_tic = nowtime;
 
 	if (newtics > 0)
 	{
 		// build and send new ticcmds for local players
-		for (int t = 0; t < newtics; t++)
+		int t;
+		for (t = 0; t < newtics; t++)
 		{
 			if (! DoBuildTiccmds())
 				break;
 		}
+
+		if (t != newtics)
+			L_WriteDebug("E_NetUpdate: lost tics: %d\n", newtics - t);
 	}
 
 	GetPackets(do_delay);
 
-	return newtics;
+	return nowtime;
 }
 
 int DetermineLowTic(void)
@@ -467,7 +472,10 @@ int E_TryRunTics(void)
 {
 	DEV_ASSERT2(! singletics);
 
-	int realtics = E_NetUpdate();
+	int nowtime = E_NetUpdate();
+	int realtics = nowtime - last_tryrun_tic;
+
+	last_tryrun_tic = nowtime;
 
 	int lowtic = DetermineLowTic();
 	int availabletics = lowtic - gametic;
@@ -486,20 +494,16 @@ int E_TryRunTics(void)
 	else
 		counts = availabletics;
 
-#if 0 // DEBUGGING
-	I_Printf("=== lowtic %d gametic %d | real %d avail %d counts %d\n",
-	lowtic, gametic, realtics, availabletics, counts);
-#endif
+	L_WriteDebug("=== lowtic %d gametic %d | real %d avail %d counts %d\n",
+		lowtic, gametic, realtics, availabletics, counts);
 
 	if (counts < 1)
 		counts = 1;
 
 	// wait for new tics if needed
-	int wait_tics = 0;
-
 	while (lowtic < gametic + counts)
 	{
-		wait_tics += E_NetUpdate(true);
+		int wait_tics = E_NetUpdate(true) - last_tryrun_tic;
 
 		lowtic = DetermineLowTic();
 
@@ -507,7 +511,10 @@ int E_TryRunTics(void)
 
 		// don't stay in here forever -- give the menu a chance to work
 		if (wait_tics > TICRATE/2)
+		{
+			L_WriteDebug("Waited %d tics IN VAIN !\n", wait_tics);
 			return 0;
+		}
 	}
 
 	return counts;
