@@ -133,6 +133,7 @@ void P_ActBounceRearm(mobj_t * object);
 void P_ActBounceDisarm(mobj_t * object);
 void P_ActPathCheck(mobj_t * object);
 void P_ActPathFollow(mobj_t * object);
+void P_ActDropItem(mobj_t * object);
 
 // Projectiles
 void P_ActFixedHomingProjectile(mobj_t * object);
