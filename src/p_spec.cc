@@ -1460,15 +1460,10 @@ void P_PlayerInSpecialSector(player_t * player, sector_t * sec)
 
 static INLINE void ApplyScroll(vec2_t& offset, const vec2_t& delta)
 {
-	Vec2Add(offset, delta);
-
 	// prevent loss of precision (eventually stops the scrolling)
 
-	if (offset.x < -65536) offset.x += 65536;
-	if (offset.x > +65536) offset.x -= 65536;
-
-	if (offset.y < -65536) offset.y += 65536;
-	if (offset.y > +65536) offset.y -= 65536;
+	offset.x = fmod(offset.x + delta.x, 4096.0f);
+	offset.y = fmod(offset.y + delta.y, 4096.0f);
 }
 
 //
