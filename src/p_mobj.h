@@ -311,7 +311,10 @@ typedef enum
   EF_BLOCKSHOTS = 0x1000000,
 
   // Thing never casts a shadow.  -AJA- 2000/09/29
-  EF_NOSHADOW = 0x2000000
+  EF_NOSHADOW = 0x2000000,
+
+  // Player is currently crouching.  -AJA- 2000/10/19
+  EF_CROUCHING = 0x4000000
 }
 mobjextendedflag_t;
 
