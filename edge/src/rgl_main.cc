@@ -48,10 +48,11 @@ bool glcap_edgeclamp = false;
 angle_t oned_side_angle;
 
 
-bool ren_allbright;
-float ren_red_mul;
-float ren_grn_mul;
-float ren_blu_mul;
+// FIXME: !!!
+extern bool ren_allbright;
+extern float ren_red_mul;
+extern float ren_grn_mul;
+extern float ren_blu_mul;
 
 angle_t fuzz_ang_tl;
 angle_t fuzz_ang_tr;
@@ -191,6 +192,16 @@ void RGL_SetupMatrices3D(void)
 	DEV_ASSERT2(currmap);
 	if (currmap->lighting != rgl_light_model)
 		SetupLightMap(currmap->lighting);
+}
+
+void RGL_UpdateTheFuzz(void)
+{
+	// fuzzy warping effect
+
+	fuzz_ang_tl += FLOAT_2_ANG(90.0f / 17.0f);
+	fuzz_ang_tr += FLOAT_2_ANG(90.0f / 11.0f);
+	fuzz_ang_bl += FLOAT_2_ANG(90.0f /  8.0f);
+	fuzz_ang_br += FLOAT_2_ANG(90.0f / 21.0f);
 }
 
 //
@@ -400,132 +411,6 @@ void RGL_DrawPlayerSprites(player_t * p)
 
 		RGL_DrawPSprite(psp, i, p, view_props, psp->state);
 	}
-}
-
-
-//
-// RGL_RainbowEffect
-//
-// Effects that modify all colours, e.g. nightvision green.
-//
-void RGL_RainbowEffect(player_t *player)
-{
-	float s;
-  
-	ren_allbright = false;
-	ren_red_mul = ren_grn_mul = ren_blu_mul = 1.0f;
-
-	s = player->powers[PW_Invulnerable];  
-
-	if (s > 0)
-		return;
-
-	s = player->powers[PW_NightVision];
-
-	if (s > 0)
-	{
-		s = MIN(128.0f, s);
-		ren_red_mul = ren_blu_mul = 1.0f - s / 128.0f;
-		ren_allbright = true;
-		return;
-	}
-
-	// fuzzy warping effect
-
-	fuzz_ang_tl += FLOAT_2_ANG(90.0f / 17.0f);
-	fuzz_ang_tr += FLOAT_2_ANG(90.0f / 11.0f);
-	fuzz_ang_bl += FLOAT_2_ANG(90.0f /  8.0f);
-	fuzz_ang_br += FLOAT_2_ANG(90.0f / 21.0f);
-}
-
-
-//
-// RGL_ColourmapEffect
-//
-// For example: all white for invulnerability.
-//
-void RGL_ColourmapEffect(player_t *player)
-{
-	int x1, y1;
-	int x2, y2;
-
-	if (player->powers[PW_Invulnerable] > 0)
-	{
-		glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
-		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
-
-		glEnable(GL_BLEND);
-
-		glBegin(GL_QUADS);
-	  
-		x1 = viewwindowx;
-		x2 = viewwindowx + viewwindowwidth;
-
-		y1 = SCREENHEIGHT - viewwindowy;
-		y2 = SCREENHEIGHT - viewwindowy - viewwindowheight;
-
-		glVertex2i(x1, y1);
-		glVertex2i(x2, y1);
-		glVertex2i(x2, y2);
-		glVertex2i(x1, y2);
-
-		glEnd();
-	  
-		glDisable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
-}
-
-
-//
-// RGL_PaletteEffect
-//
-// For example: red wash for pain.
-//
-void RGL_PaletteEffect(player_t *player)
-{
-	byte rgb_data[3];
-
-	float s = player->powers[PW_Invulnerable];
-
-	if (s > 0)
-	{
-		s = MIN(128.0f, s);
-
-		if (s < 40.0)
-			glColor4f(1.0f, 1.0f, 1.0f, (40.0f - s) / 80.0f);
-		else
-			glColor4f(0.0f, 0.0f, 0.0f, (s - 40.0f) / 320.0f);
-	}
-	else
-	{
-		V_IndexColourToRGB(pal_black, rgb_data);
-
-		int rgb_max = MAX(rgb_data[0], MAX(rgb_data[1], rgb_data[2]));
-
-		if (rgb_max == 0)
-			return;
-	  
-		rgb_max = MIN(200, rgb_max);
-
-		glColor4f((float) rgb_data[0] / (float) rgb_max,
-				  (float) rgb_data[1] / (float) rgb_max,
-				  (float) rgb_data[2] / (float) rgb_max,
-			      (float) rgb_max / 255.0f);
-	}
-
-	glEnable(GL_BLEND);
-
-	glBegin(GL_QUADS);
-  
-	glVertex2i(0, SCREENHEIGHT);
-	glVertex2i(SCREENWIDTH, SCREENHEIGHT);
-	glVertex2i(SCREENWIDTH, 0);
-	glVertex2i(0, 0);
-
-	glEnd();
-  
-	glDisable(GL_BLEND);
 }
 
 
@@ -826,11 +711,11 @@ void RGL_DrawProgress(int perc)
 	int w, h, y;
 	const byte *logo_lum = RGL_LogoImage(&w, &h);
 
-	y = SCREENHEIGHT - 20;
-	y -= h * 2;
-
 	// don't make logo bigger in 320x200 or 320x240
-	float zoom = (SCREENWIDTH < 600) ? 1.0f : 2.0f;
+	float zoom = 1.0f; // (SCREENWIDTH < 600) ? 1.0f : 2.0f;
+
+	y = SCREENHEIGHT - 20;
+	y -= (int)(h * zoom);
 
 	glRasterPos2i(20, y);
 	glPixelZoom(zoom, zoom);
@@ -857,10 +742,10 @@ void RGL_DrawProgress(int perc)
 	glVertex2i(px, py);
 	glEnd();
 
-	glColor3f(1.0f, 0.0f, 0.0f);
+	glColor3f(0.4f, 0.6f, 1.0f);
 	glBegin(GL_POLYGON);
-	glVertex2i(px+2, py+2);  glVertex2i(px+2, py+ph-2);
-	glVertex2i(px+2+x, py+ph-2); glVertex2i(px+2+x, py+2);
+	glVertex2i(px+2, py+2);  glVertex2i(px+2, py+ph-3);
+	glVertex2i(px+2+x, py+ph-3); glVertex2i(px+2+x, py+2);
 	glEnd();
 
 	I_FinishFrame();
