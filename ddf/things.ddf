@@ -6,6 +6,8 @@
 
 <THINGS>
 
+#VERSION 1.28
+
 // ------------------------ Health Items ------------------------
 
 [HEALTH_POTION:2014]
