@@ -645,12 +645,12 @@ static void RAD_ComputeScriptCRC(rad_script_t *scr)
 	CRC32_ProcessInt(&scr->crc, scr->max_players);
 	CRC32_ProcessInt(&scr->crc, scr->repeat_count);
 
-	CRC32_ProcessInt(&scr->crc, (int)scr->x);
-	CRC32_ProcessInt(&scr->crc, (int)scr->y);
-	CRC32_ProcessInt(&scr->crc, (int)scr->z);
-	CRC32_ProcessInt(&scr->crc, (int)scr->rad_x);
-	CRC32_ProcessInt(&scr->crc, (int)scr->rad_y);
-	CRC32_ProcessInt(&scr->crc, (int)scr->rad_z);
+	CRC32_ProcessInt(&scr->crc, FL_ROUND(scr->x));
+	CRC32_ProcessInt(&scr->crc, FL_ROUND(scr->y));
+	CRC32_ProcessInt(&scr->crc, FL_ROUND(scr->z));
+	CRC32_ProcessInt(&scr->crc, FL_ROUND(scr->rad_x));
+	CRC32_ProcessInt(&scr->crc, FL_ROUND(scr->rad_y));
+	CRC32_ProcessInt(&scr->crc, FL_ROUND(scr->rad_z));
 
 	// lastly handle miscellaneous parts
 
