@@ -84,16 +84,14 @@ static void CalcHeight(player_t * player)
 		else if (player->viewheight < player->std_viewheight / 2)
 		{
 			player->viewheight = player->std_viewheight / 2;
-			player->deltaviewheight = 0;
+
+			if (player->deltaviewheight <= 0)
+				player->deltaviewheight = 0.01f;
 		}
-		else if (player->viewheight < 0.1f)
+
+		if (player->deltaviewheight != 0)
 		{
-			player->viewheight = 0.1f;
-			player->deltaviewheight = 0;
-		}
-		else if (player->viewheight < player->std_viewheight)
-		{
-			player->deltaviewheight += 0.2f;
+			player->deltaviewheight += 0.25f;
 		}
 	}
 
