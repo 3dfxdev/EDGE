@@ -19,16 +19,17 @@ typedef enum
 	AF_KEENDIE    = (1 << 1),   // uses A_KeenDie
 	AF_LOOK       = (1 << 2),   // uses A_Look
 
-	AF_SPREAD     = (1 << 3),   // uses A_FatAttack1/2/3
-	AF_CHASER     = (1 << 4),   // uses A_Chase
-	AF_FALLER     = (1 << 5),   // uses A_Fall
+	AF_SPREAD     = (1 << 6),   // uses A_FatAttack1/2/3
+	AF_CHASER     = (1 << 7),   // uses A_Chase
+	AF_FALLER     = (1 << 8),   // uses A_Fall
+	AF_RAISER     = (1 << 9),   // uses A_ResChase
 
-	AF_FLASH      = (1 << 6),   // weapon will go into flash state
-	AF_MAKEDEAD   = (1 << 7),   // action needs an extra MAKEDEAD state
-	AF_FACE       = (1 << 8),   // action needs FACE_TARGET state
+	AF_FLASH      = (1 << 14),  // weapon will go into flash state
+	AF_MAKEDEAD   = (1 << 15),  // action needs an extra MAKEDEAD state
+	AF_FACE       = (1 << 16),  // action needs FACE_TARGET state
 
-	AF_WEAPON_ST  = (1 << 10),  // uses a weapon state
-	AF_THING_ST   = (1 << 11)   // uses a thing state
+	AF_WEAPON_ST  = (1 << 20),  // uses a weapon state
+	AF_THING_ST   = (1 << 21)   // uses a thing state
 }
 actflags_e;
 
