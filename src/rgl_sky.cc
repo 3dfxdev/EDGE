@@ -325,7 +325,12 @@ void RGL_DrawSkyOriginal(void)
 		angle_t ang = ANG180 + M_ATan((1.0f - sx / centerxfrac) * focal_len);
 
 		// some mucking about here to prevent wrap-around
-		float tx = (((viewangle >> 2) + (ang >> 2) + (ANG180 >> 2)) >> 20) / 256.0f;
+		float tx = (((viewangle >> 2) + (ang >> 2) + (ANG180 >> 2)) >> 20);
+
+		if ((IM_WIDTH(sky_image) / IM_HEIGHT(sky_image)) < 2.28f)
+			tx = tx / 256.0f;
+		else
+			tx = tx / 1024.0f;
 
 #if 0  // DEBUGGING
 I_Printf("[%i] --> %1.2f  tx %1.4f\n", i, ANG_2_FLOAT(ang), tx);
