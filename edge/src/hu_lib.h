@@ -173,8 +173,6 @@ void HL_EraseIText(hu_itext_t * it);
 void HL_DrawTextLineAlpha(hu_textline_t * l, bool drawcursor, 
     const colourmap_c *colmap, float alpha);
 
-#define HL_DrawTextLineTrans(L,DC,TR)  HL_DrawTextLineAlpha(L,DC,TR,FRACUNIT)
-
 
 void HL_WriteText(style_c *style, int text_type, int x, int y, const char *str);
 void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
