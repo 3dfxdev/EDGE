@@ -19,92 +19,80 @@
 // 	      Using SDL's CD functions might be the way to go...
 //
 
+#ifdef MACOSX
+#include <SDL.h>
+#else
+#include <SDL/SDL.h>
+#endif
+
 #include "../i_defs.h"
 #include "i_sysinc.h"
+
+
+static SDL_CD *cd_dev;  // NULL when CD system is inactive
+
+static int cd_num_drives;
+static int cd_drive_idx;
+static bool cd_playing;
+
+static void MusicErrorPrintf(const char *fmt, ...)
+{
+	static char errmsg[1024];
+
+	va_list argptr;
+
+	va_start (argptr, fmt);
+	vsprintf (errmsg, fmt, argptr);
+	va_end (argptr);
+
+	I_PostMusicError(errmsg);
+}
 
 //
 // I_StartupCD
 //
-// This routine checks attempts to init the CDROM device. Returns true is successful
+// This routine checks attempts to init the CDROM device.
+// Returns true is successful
 //
 bool I_StartupCD(void)
 {
-  L_WriteDebug("I_StartupCD: Initializing...\n");
+	I_Printf("I_StartupCD: Initializing...\n");
 
-  // try to open the CD drive
-  if (1)
-  {
-    I_PostMusicError("I_StartupCD: Can't oopen CDROM device");
-    return false;
-  }
+	cd_dev = NULL;
+	cd_playing = false;
 
-  // FIXME
+	// try to open the CD drive
 
-  L_WriteDebug("I_StartupCD: CD Init OK\n");
-  return true;	
-}
+	if (SDL_Init(SDL_INIT_CDROM) != 0)
+	{
+		MusicErrorPrintf("I_StartupCD: Can't init CDROM system in SDL");
+		return false;
+	}
 
-//
-// I_CDStartPlayback
-//
-// Attempts to play CD track 'tracknum', returns true on success.
-//
-bool I_CDStartPlayback(int tracknum)
-{
-  // FIXME
-  return true;
-}
+	cd_num_drives = SDL_CDNumDrives();
 
-//
-// I_CDPausePlayback
-//
-// Paused the playing CD
-//
-void I_CDPausePlayback(void)
-{
-  // FIXME
-}
+	if (cd_num_drives <= 0)
+	{
+		MusicErrorPrintf("I_StartupCD: no CDROM drives found");
+		return false;
+	}
 
-//
-// I_CDresumePlayback
-//
-// Resumes the paused CD
-//
-void I_CDResumePlayback(void)
-{
-  // FIXME
-}
+	I_Printf("I_StartupCD: found %d CDROM drive%s\n", cd_num_drives,
+		(cd_num_drives == 1) ? "" : "s");
 
-//
-// XDoom calls this function to stop playing the current song.
-//
-void I_CDStopPlayback(void)
-{
-  // FIXME
-}
+	cd_drive_idx = 0;  // FIXME: use CheckParm() ?
 
-//
-// I_CDSetVolume
-//
-// Sets the CD Volume
-//
-void I_CDSetVolume(int vol)
-{
-  if ((vol >= 0) && (vol <= 15))
-  {
-    // FIXME
-  }
-}
+	cd_dev = SDL_CDOpen(cd_drive_idx);
 
-//
-// I_CDFinished
-//
-// Has the CD Finished
-//
-bool I_CDFinished(void)
-{
-  // FIXME
-  return false;
+	if (! cd_dev)
+	{
+		MusicErrorPrintf("I_StartupCD: Can't open CDROM drive: %s", SDL_GetError());
+		return false;
+	}
+
+	I_Printf("I_StartupCD: Init OK, using drive #%d: %s\n", cd_drive_idx,
+		SDL_CDName(cd_drive_idx));
+	return true;	
 }
 
 //
@@ -114,5 +102,102 @@ bool I_CDFinished(void)
 //
 void I_ShutdownCD()
 {
-  // FIXME
+	if (cd_dev)
+	{
+		I_CDStopPlayback();
+
+		SDL_CDClose(cd_dev);
+		cd_dev = NULL;
+	}
 }
+
+//
+// I_CDStartPlayback
+//
+// Attempts to play CD track 'tracknum', returns true on success.
+//
+bool I_CDStartPlayback(int tracknum)
+{
+	if (cd_playing)
+		I_CDStopPlayback();
+
+	// this call also updates the SDL_CD information
+	CDstatus st = SDL_CDStatus(cd_dev);
+
+	if (! CD_INDRIVE(st))
+	{
+		MusicErrorPrintf("I_CDStartPlayback: no CD in drive.");
+		return false;
+	}
+
+	if (tracknum >= cd_dev->numtracks)
+	{
+		MusicErrorPrintf("I_CDStartPlayback: no such track #%d.", tracknum);
+		return false;
+	}
+
+	if (SDL_CDPlayTracks(cd_dev, tracknum, 0, 1, 0) < 0)
+	{
+		MusicErrorPrintf("I_CDStartPlayback: unable to play track #%d: %s",
+			tracknum, SDL_GetError());
+		return false;
+	}
+
+	cd_playing = true;
+	return true;
+}
+
+//
+// I_CDPausePlayback
+//
+// Paused the playing CD
+//
+void I_CDPausePlayback(void)
+{
+	SDL_CDPause(cd_dev);
+}
+
+//
+// I_CDresumePlayback
+//
+// Resumes the paused CD
+//
+void I_CDResumePlayback(void)
+{
+	SDL_CDResume(cd_dev);
+}
+
+//
+// XDoom calls this function to stop playing the current song.
+//
+void I_CDStopPlayback(void)
+{
+	SDL_CDStop(cd_dev);
+	cd_playing = false;
+}
+
+//
+// I_CDSetVolume
+//
+// Sets the CD Volume
+//
+void I_CDSetVolume(int vol)
+{
+	if ((vol >= 0) && (vol <= 15))
+	{
+		// FIXME: no SDL function for changing CD volume
+	}
+}
+
+//
+// I_CDFinished
+//
+// Has the CD Finished
+//
+bool I_CDFinished(void)
+{
+	CDstatus st = SDL_CDStatus(cd_dev);
+
+	return (st == CD_STOPPED);  // what about CD_PAUSED ??
+}
+

@@ -156,6 +156,8 @@ void S_ChangeMusic(int entrynum, bool looping)
 	// if the music handle is returned, set the volume.
 	if (musichandle != -1)
 		I_SetMusicVolume(&musichandle, musicvolume);
+	else
+		I_Printf("%s\n", I_MusicReturnError());
 
 	return;
 }

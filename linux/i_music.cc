@@ -66,8 +66,10 @@ bool I_StartupMusic(void *sysinfo)
 	if (nomusic)
 		return true;
 
-	// CD Support Assumed
-	capable = support_CD;
+	if (I_StartupCD())
+		capable = support_CD;
+	else
+		I_Printf("%s\n", I_MusicReturnError());
 
 	if (I_StartupMusserv())
 		capable |= support_MUS;
@@ -97,23 +99,16 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 	if (!(capable & support_MIDI) && type == MUS_MIDI) return -1;
 	if (!(capable & support_MUS)  && type == MUS_MUS)  return -1;
 	if (!(capable & support_OGG)  && type == MUS_OGG)  return -1;
+
 	switch (type)
 	{
 		// CD Support...
 		case MUS_CD:
 		{
-			if (I_StartupCD())
-			{
-				if (!I_CDStartPlayback(musdat->info.cd.track))
-					handle = -1;
-				else
-					handle = MAKEHANDLE(MUS_CD, looping, musdat->info.cd.track);
-			}
-			else
-			{
-				I_PostMusicError("I_MusicPlayback: CD Music is unsupported.\n");
+			if (! I_CDStartPlayback(musdat->info.cd.track))
 				handle = -1;
-			}
+			else
+				handle = MAKEHANDLE(MUS_CD, looping, musdat->info.cd.track);
 			break;
 		}
 
