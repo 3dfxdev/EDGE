@@ -1791,16 +1791,6 @@ linetype_c* linetype_container_c::Lookup(const int id)
 		return lookup_cache[slot];
 	}
 
-	// check for BOOM generalised linetype
-	// FIXME!! Handle this BOOM stuff 
-/*
-  	if ((level_flags.compat_mode == CM_BOOM) && number >= 0x2F80)
-	{
-		line_lookup_cache[slot] = DDF_LineLookupGeneralised(number);
-		return line_lookup_cache[slot];
-	}
-*/
-
 	epi::array_iterator_c it;
 	linetype_c *l = 0;
 
