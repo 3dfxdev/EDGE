@@ -242,9 +242,10 @@ extern boolean_t nosound;
 
 boolean_t I_StartupSound(void *sysinfo);
 // Initialises the sound system.  Returns true if successful,
-// otherwise false if something went wrong.  The main code never calls
-// this function, it should be called by I_SystemStartup(), and can be
-// passed some platform-specific data via the `sysinfo' parameter.
+// otherwise false if something went wrong (NOTE: you must set nosound
+// to false when it fails).   The main code never calls this function,
+// it should be called by I_SystemStartup(), and can be passed some
+// platform-specific data via the `sysinfo' parameter.
 
 boolean_t I_LoadSfx(const unsigned char *data, unsigned int length, 
       unsigned int freq, unsigned int handle);
