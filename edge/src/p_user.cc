@@ -876,15 +876,13 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 
 		// don't downgrade any UPGRADED weapons
 		// NOTE: this cannot detect upgrades of upgrades: FIXME!!!
-		if (cur_info->upgraded_weap >= 0 &&
-			weapondefs[cur_info->upgraded_weap] == info)
+		if (cur_info->upgraded_weap == info)
 		{
 			return false;
 		}
 
 		// check for weapon upgrades
-		if (info->upgraded_weap >= 0 &&
-			cur_info == weapondefs[info->upgraded_weap])
+		if (cur_info == info->upgraded_weap)
 		{
 			rep_slot = i;
 			continue;

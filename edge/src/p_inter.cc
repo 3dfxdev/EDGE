@@ -53,7 +53,7 @@
 static bool GiveAmmo(player_t * player, mobj_t * special,
 					 benefit_t *be, bool lose_em, int *new_weap, int *new_ammo)
 {
-	int ammo  = be->subtype;  
+	int ammo  = be->sub.type;  
 	int num   = (int)(be->amount + 0.5f);
 
 	if (ammo == AM_NoAmmo || num <= 0)
@@ -121,7 +121,7 @@ static bool GiveAmmo(player_t * player, mobj_t * special,
 static bool GiveAmmoLimit(player_t * player, mobj_t * special,
 						  benefit_t *be, bool lose_em)
 {
-	int ammo  = be->subtype;  
+	int ammo  = be->sub.type;  
 	int limit = (int)(be->amount + 0.5f);
 
 	if (ammo == AM_NoAmmo)
@@ -150,8 +150,10 @@ static bool GiveAmmoLimit(player_t * player, mobj_t * special,
 static bool GiveWeapon(player_t * player, mobj_t * special,
 					   benefit_t *be, bool lose_em, int *new_weap)
 {
-	weapondef_c *info = weapondefs[be->subtype];
+	weapondef_c *info = be->sub.weap;
 	int pw_index;
+
+	DEV_ASSERT2(info);
 
 	if (lose_em)
 		return P_RemoveWeapon(player, info);
@@ -202,7 +204,7 @@ static bool GiveHealth(player_t * player, mobj_t * special,
 static bool GiveArmour(player_t * player, mobj_t * special,
 					   benefit_t *be, bool lose_em)
 {
-	armour_type_e a_class = (armour_type_e)be->subtype;
+	armour_type_e a_class = (armour_type_e)be->sub.type;
 
 	DEV_ASSERT2(0 <= a_class && a_class < NUMARMOUR);
 
@@ -290,7 +292,7 @@ static bool GiveArmour(player_t * player, mobj_t * special,
 //
 static bool GiveKey(player_t * player, mobj_t * special, benefit_t *be, bool lose_em)
 {
-	keys_e key = (keys_e)be->subtype;
+	keys_e key = (keys_e)be->sub.type;
 
 	if (lose_em)
 	{
@@ -329,27 +331,27 @@ static bool GivePower(player_t * player, mobj_t * special,
 
 	if (lose_em)
 	{
-		if (player->powers[be->subtype] == 0)
+		if (player->powers[be->sub.type] == 0)
 			return false;
 
-		player->powers[be->subtype] -= duration;
+		player->powers[be->sub.type] -= duration;
 
-		if (player->powers[be->subtype] < 0)
-			player->powers[be->subtype] = 0;
+		if (player->powers[be->sub.type] < 0)
+			player->powers[be->sub.type] = 0;
 
 		return true;
 	}
 
-	if (player->powers[be->subtype] >= limit)
+	if (player->powers[be->sub.type] >= limit)
 		return false;
 
-	player->powers[be->subtype] += duration;
+	player->powers[be->sub.type] += duration;
 
-	if (player->powers[be->subtype] > limit)
-		player->powers[be->subtype] = limit;
+	if (player->powers[be->sub.type] > limit)
+		player->powers[be->sub.type] = limit;
 
 	// special handling for scuba...
-	if (be->subtype == PW_Scuba)
+	if (be->sub.type == PW_Scuba)
 	{
 		player->air_in_lungs = player->mo->info->lung_capacity;
 	}
@@ -434,21 +436,21 @@ bool P_GiveBenefitList(player_t *player, mobj_t * special,
 // RunPickupEffects
 //
 static void RunPickupEffects(player_t *player, mobj_t *special, 
-		benefit_effect_c *list)
+		pickup_effect_c *list)
 {
 	for (; list; list=list->next)
 	{
 		switch (list->type)
 		{
-			case BNFX_SwitchWeapon:
-				P_PlayerSwitchWeapon(player, weapondefs[list->subtype]);
+			case PUFX_SwitchWeapon:
+				P_PlayerSwitchWeapon(player, list->sub.weap);
 				break;
 
-			case BNFX_PowerupEffect:
+			case PUFX_PowerupEffect:
 				// FIXME
 				break;
 
-			case BNFX_ScreenEffect:
+			case PUFX_ScreenEffect:
 				// FIXME
 				break;
 			
