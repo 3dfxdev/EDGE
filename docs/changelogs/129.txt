@@ -27,7 +27,7 @@ Bugs fixed
 - monsters on different sides now attack each other.
 - problems mlooking up/down while zoomed are fixed.
 - sides of extrafloors would not scroll properly, fixed.
-- autorun is remembered in the config file once more.
+- autorun is remembered in the config file again.
 
 
 Old Fixes (from EDGE 1.28A)
@@ -115,6 +115,7 @@ General improvements
 - missing wad files (given with -file) now produce an error.
 - monster spawning will keep the parent's AMBUSH status.
 - night vision and god-mode effects use colour from colourmap.
+- intermission text screens can now be skipped.
 - RTS tips are sent to the console.
 
 
@@ -137,7 +138,7 @@ New DDF features:
   future).  The following commands are also available:
 
      X_OFFSET = 10;  // specify the X and Y offset, e.g. sprites.
-     Y_OFFSET = 30;  //
+     Y_OFFSET = 20;  //
 
      SCALE  = 2.0;   // scaling and aspect.  Bigger scale makes the
      ASPECT = 1.0;   // image bigger (cover more space).  Bigger aspect
@@ -195,6 +196,11 @@ New DDF features:
  
 - PICKUP_EFFECT = SWITCH_WEAPON(xxx) , required for #VERSION 1.29 and
   higher.  Berserk fist.  Compatibility maintained. @@@
+
+- able to specify a colour directly in COLMAP.DDF, without needing any
+  lumps.  The command is:
+
+    GL_COLOUR = #FF9030;   // orange
 
 - ULTRA_LOYAL thing special.  Friendly monsters don't turn into enemies
   when hurt by your weapon fire.
