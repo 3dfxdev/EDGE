@@ -451,42 +451,31 @@ void RGL_Init(void)
 	RGL_SetupMatrices2D();
 }
 
-//
-// RGL_DrawProgress
-//
-// Show EDGE logo and a progress indicator.
-//
-void RGL_DrawProgress(int perc)
+static void ProgressSection(const byte *logo_lum, int lw, int lh,
+	const byte *text_lum, int tw, int th,
+	float cr, float cg, float cb,
+	int *y, int perc)
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	float zoom = 1.0f;
 
-	int w, h, y;
-	const byte *logo_lum = RGL_LogoImage(&w, &h);
+	(*y) -= (int)(lh * zoom);
 
-	// don't make logo bigger in 320x200 or 320x240
-	float zoom = 1.0f; // (SCREENWIDTH < 600) ? 1.0f : 2.0f;
-
-	y = SCREENHEIGHT - 20;
-	y -= (int)(h * zoom);
-
-	glRasterPos2i(20, y);
+	glRasterPos2i(20, *y);
 	glPixelZoom(zoom, zoom);
-	glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, logo_lum);
-	
-	logo_lum = RGL_InitImage(&w, &h);
-	y -= 20 + h;
+	glDrawPixels(lw, lh, GL_LUMINANCE, GL_UNSIGNED_BYTE, logo_lum);
 
-	glRasterPos2i(20, y);
+	(*y) -= th + 20;
+
+	glRasterPos2i(20, *y);
 	glPixelZoom(1.0f, 1.0f);
-	glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, logo_lum);
+	glDrawPixels(tw, th, GL_LUMINANCE, GL_UNSIGNED_BYTE, text_lum);
 
 	int px = 20;
 	int pw = SCREENWIDTH - 80;
-	int py = y - 30 - 20;
 	int ph = 30;
+	int py = *y - ph - 20;
 
-	int x = (pw-4) * perc / 100;
+	int x = (pw-6) * perc / 100;
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glBegin(GL_LINE_LOOP);
@@ -495,11 +484,46 @@ void RGL_DrawProgress(int perc)
 	glVertex2i(px, py);
 	glEnd();
 
-	glColor3f(0.4f, 0.6f, 1.0f);
+	glColor3f(cr, cg, cb);
 	glBegin(GL_POLYGON);
-	glVertex2i(px+2, py+2);  glVertex2i(px+2, py+ph-3);
-	glVertex2i(px+2+x, py+ph-3); glVertex2i(px+2+x, py+2);
+	glVertex2i(px+3, py+3);  glVertex2i(px+3, py+ph-4);
+	glVertex2i(px+3+x, py+ph-4); glVertex2i(px+3+x, py+3);
 	glEnd();
+
+	(*y) = py;
+}
+
+//
+// RGL_DrawProgress
+//
+// Show EDGE logo and a progress indicator.
+//
+void RGL_DrawProgress(int perc, int glbsp_perc)
+{
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	int y = SCREENHEIGHT - 20;
+	
+	const byte *logo_lum; int lw, lh;
+	const byte *text_lum; int tw, th;
+
+	logo_lum = RGL_LogoImage(&lw, &lh);
+	text_lum = RGL_InitImage(&tw, &th);
+
+	ProgressSection(logo_lum, lw, lh, text_lum, tw, th,
+		0.4f, 0.6f, 1.0f, &y, perc);
+
+	y -= 40;
+
+	if (glbsp_perc >= 0)
+	{
+		logo_lum = RGL_GlbspImage(&lw, &lh);
+		text_lum = RGL_BuildImage(&tw, &th);
+
+		ProgressSection(logo_lum, lw, lh, text_lum, tw, th,
+			1.0f, 0.2f, 0.1f, &y, glbsp_perc);
+	}
 
 	I_FinishFrame();
 	I_StartFrame();

@@ -23,6 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
+#ifdef USE_DEH
+
 #include "i_defs.h"
 
 #include "dm_type.h"
@@ -38,15 +40,7 @@
 
 #include "deh_edge_1.2/dh_plugin.h"
 
-bool dh_draw_progress = false;
-
-static bool dh_refresh;
-static int dh_ticker_time;
-
-static char dh_msg_buf[1024];
-
-// time between redrawing screen (bit under 1/11 second)
-#define REDRAW_TICS  3
+static char dh_message[1024];
 
 //
 // DH_PrintMsg
@@ -56,10 +50,10 @@ void DH_PrintMsg(const char *str, ...)
 	va_list args;
 
 	va_start(args, str);
-	vsprintf(dh_msg_buf, str, args);
+	vsprintf(dh_message, str, args);
 	va_end(args);
 
-	I_Printf("DEH_EDGE: %s", dh_msg_buf);
+	I_Printf("DEH_EDGE: %s", dh_message);
 }
 
 //
@@ -72,10 +66,10 @@ void DH_FatalError(const char *str, ...)
 	va_list args;
 
 	va_start(args, str);
-	vsprintf(dh_msg_buf, str, args);
+	vsprintf(dh_message, str, args);
 	va_end(args);
 
-	I_Error("Converting DEH patch failed: %s\n", dh_msg_buf);
+	I_Error("Converting DEH patch failed: %s\n", dh_message);
 }
 
 //
@@ -83,23 +77,7 @@ void DH_FatalError(const char *str, ...)
 //
 void DH_Ticker(void)
 {
-	int cur_time;
-
-	if (! e_display_OK)
-		return;
-
-	cur_time = I_GetTime();
-
-	if (dh_ticker_time != 0 && cur_time < dh_ticker_time + REDRAW_TICS)
-		return;
-
-	///!!! FIXME E_Display();
-
-	// Note: get the time _after_ rendering the frame.  This handles the
-	// situation of very low framerates better, as we can at least
-	// perform REDRAW_TICS amount of work for each frame.
-
-	dh_ticker_time = I_GetTime();
+	/* nothing needed */
 }
 
 //
@@ -107,10 +85,7 @@ void DH_Ticker(void)
 //
 void DH_ProgressText(const char *str)
 {
-	// FIXME: remember text, draw it
-
-	// only need to refresh on text changes (not on bar changes)
-	dh_refresh = true;
+	/* nothing needed */
 }
 
 //
@@ -118,7 +93,7 @@ void DH_ProgressText(const char *str)
 //
 void DH_ProgressBar(int percentage)
 {
-	// FIXME: do progress bar stuff
+	/* nothing needed */
 }
 
 const dehconvfuncs_t edge_dehconv_funcs =
@@ -136,17 +111,13 @@ const dehconvfuncs_t edge_dehconv_funcs =
 bool DH_ConvertFile(const char *filename, const char *outname)
 {
 	int deci_ver = (EDGEVER % 0x10) +
-		10 * ((EDGEVER / 0x10) % 0x10) +
-	    100 * (EDGEVER / 0x100);
-
-	dh_refresh = true;
-
-	dehret_e ret;
+				   ((EDGEVER / 0x10) % 0x10) * 10 +
+				   (EDGEVER / 0x100) * 100;
 
 	DehEdgeStartup(&edge_dehconv_funcs);
 	DehEdgeSetVersion(deci_ver);
 
-	ret = DehEdgeAddFile(filename);
+	dehret_e ret = DehEdgeAddFile(filename);
 
 	if (ret == DEH_OK)
 		ret = DehEdgeRunConversion(outname);
@@ -167,17 +138,13 @@ bool DH_ConvertLump(const byte *data, int length, const char *lumpname,
 	sprintf(info_name, "%s.LMP", lumpname);
 
 	int deci_ver = (EDGEVER % 0x10) +
-		10 * ((EDGEVER / 0x10) % 0x10) +
-	    100 * (EDGEVER / 0x100);
-
-	dh_refresh = true;
-
-	dehret_e ret;
+				   ((EDGEVER / 0x10) % 0x10) * 10 +
+				   (EDGEVER / 0x100) * 100;
 
 	DehEdgeStartup(&edge_dehconv_funcs);
 	DehEdgeSetVersion(deci_ver);
 
-	ret = DehEdgeAddLump((const char *)data, length, info_name);
+	dehret_e ret = DehEdgeAddLump((const char *)data, length, info_name);
 
 	if (ret == DEH_OK)
 		ret = DehEdgeRunConversion(outname);
@@ -187,10 +154,4 @@ bool DH_ConvertLump(const byte *data, int length, const char *lumpname,
 	return (ret == DEH_OK);
 }
 
-//
-// DH_DrawProgress
-//
-void DH_DrawProgress(void)
-{
-	// NOT YET IMPLEMENTED
-}
+#endif  // USE_DEH

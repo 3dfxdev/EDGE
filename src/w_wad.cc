@@ -39,7 +39,6 @@
 #include "dm_type.h"
 #include "e_main.h"
 #include "e_search.h"
-//#include "l_deh.h"
 #include "l_glbsp.h"
 #include "m_argv.h"
 #include "m_misc.h"
@@ -50,6 +49,10 @@
 #include "w_textur.h"
 #include "w_image.h"
 #include "z_zone.h"
+
+#ifdef USE_DEH
+#include "l_deh.h"
+#endif
 
 #include "epi/epistring.h"
 #include "epi/epiutil.h"
@@ -89,8 +92,9 @@ class data_file_c
 public:
 	data_file_c(const char *_fname, int _kind, int _handle) :
 		file_name(_fname), kind(_kind), handle(_handle),
-		sprite_lumps(), flat_lumps(), patch_lumps(), skin_lumps(),
-		wadtex()
+		sprite_lumps(), flat_lumps(), patch_lumps(),
+		level_lumps(), skin_lumps(), wadtex(),
+		deh_lump(-1), companion_gwa(-1)
 	{
 		for (int d = 0; d < NUM_DDF_READERS; d++)
 			ddf_lumps[d] = -1;
@@ -104,10 +108,13 @@ public:
 	// file handle, as returned from open().
 	int handle;
 
-	// lists for sprites, flats, patches and skins
+	// lists for sprites, flats, patches (stuff between markers)
 	epi::u32array_c sprite_lumps;
 	epi::u32array_c flat_lumps;
 	epi::u32array_c patch_lumps;
+
+	// level markers and skin markers
+	epi::u32array_c level_lumps;
 	epi::u32array_c skin_lumps;
 
 	// ddf lump list
@@ -115,6 +122,14 @@ public:
 
 	// texture information
 	wadtex_resource_c wadtex;
+
+	// DeHackEd support
+	int deh_lump;
+
+	// file containing the GL nodes for the levels in this WAD.
+	// -1 when none (usually when this WAD has no levels, but also
+	// temporarily before a new GWA files has been built and added).
+	int companion_gwa;
 };
 
 class datafile_array_c : public epi::array_c
@@ -141,6 +156,18 @@ typedef struct raw_filename_s
 }
 raw_filename_t;
 
+typedef enum
+{
+	LMKIND_Normal = 0,  // fallback value
+	LMKIND_Marker = 3,  // X_START, X_END, S_SKIN
+	LMKIND_WadTex = 6,  // palette, pnames, texture1/2
+	LMKIND_DDFRTS = 10, // DDF, RTS, DEHACKED lump
+	LMKIND_Flat   = 16,
+	LMKIND_Sprite = 17,
+	LMKIND_Patch  = 18
+}
+lump_kind_e;
+
 typedef struct
 {
 	char name[10];
@@ -155,6 +182,10 @@ typedef struct
 	// closely related to the `file' field, with some tweaks for
 	// handling GWA files (especially dynamic ones).
 	short sort_index;
+
+	// one of the LMKIND values.  For sorting, this is the least
+	// significant aspect (but still necessary).
+	short kind;
 }
 lumpinfo_t;
 
@@ -328,6 +359,11 @@ static bool IsSkin(const char *name)
 	return (strncmp(name, "S_SKIN", 6) == 0);
 }
 
+static INLINE bool IsGL_Prefix(const char *name)
+{
+	return name[0] == 'G' && name[1] == 'L' && name[2] == '_';
+}
+
 static int FileLength(int handle)
 {
 	struct stat fileinfo;
@@ -416,13 +452,15 @@ static void SortLumps(void)
 	for (i = 0; i < numlumps; i++)
 		lumpmap[i] = i;
     
-	// sort it, primarily by increasing name, secondarily by decreasing
-	// file number.
+	// sort it, primarily by increasing name, secondly by decreasing
+	// file number, thirdly by the lump type.
 
 #define CMP(a, b)  \
     (strncmp(lumpinfo[a].name, lumpinfo[b].name, 8) < 0 ||    \
      (strncmp(lumpinfo[a].name, lumpinfo[b].name, 8) == 0 &&  \
-      lumpinfo[a].sort_index > lumpinfo[b].sort_index))
+      (lumpinfo[a].sort_index > lumpinfo[b].sort_index ||     \
+	   (lumpinfo[a].sort_index == lumpinfo[b].sort_index &&   \
+        lumpinfo[a].kind > lumpinfo[b].kind))))
 	QSORT(int, lumpmap, numlumps, CUTOFF);
 #undef CMP
 
@@ -526,21 +564,6 @@ static void MarkAsCached(lumpheader_t *item)
 	cache_size += W_LumpLength(item->lumpindex);
 }
 
-#if 0
-static INLINE void AddSpriteOrFlat(int **list, int *count, int item)
-{
-	// no more room ?
-	if (((*count) % 16) == 0)
-	{
-		Z_Resize((*list), int, (*count) + 16);
-	}
-  
-	(*list)[*count] = item;
-
-	(*count) += 1;
-}
-#endif
-
 //
 // AddLump
 //
@@ -554,6 +577,7 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 	lump_p->size = size;
 	lump_p->file = file;
 	lump_p->sort_index = sort_index;
+	lump_p->kind = LMKIND_Normal;
 
 	Z_StrNCpy(lump_p->name, name, 8);
 	strupr(lump_p->name);
@@ -562,6 +586,7 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 
 	if (!strncmp(name, "PLAYPAL", 8))
 	{
+		lump_p->kind = LMKIND_WadTex;
 		df->wadtex.palette = lump;
 		if (palette_datafile < 0)
 			palette_datafile = file;
@@ -569,17 +594,26 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 	}
 	else if (!strncmp(name, "PNAMES", 8))
 	{
+		lump_p->kind = LMKIND_WadTex;
 		df->wadtex.pnames = lump;
 		return;
 	}
 	else if (!strncmp(name, "TEXTURE1", 8))
 	{
+		lump_p->kind = LMKIND_WadTex;
 		df->wadtex.texture1 = lump;
 		return;
 	}
 	else if (!strncmp(name, "TEXTURE2", 8))
 	{
+		lump_p->kind = LMKIND_WadTex;
 		df->wadtex.texture2 = lump;
+		return;
+	}
+	else if (!strncmp(name, "DEHACKED", 8))
+	{
+		lump_p->kind = LMKIND_DDFRTS;
+		df->deh_lump = lump;
 		return;
 	}
 
@@ -590,6 +624,7 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 		{
 			if (!strncmp(name, DDF_Readers[j].name, 8))
 			{
+				lump_p->kind = LMKIND_DDFRTS;
 				df->ddf_lumps[j] = lump;
 				return;
 			}
@@ -598,13 +633,16 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 
 	if (IsSkin(lump_p->name))
 	{
+		lump_p->kind = LMKIND_Marker;
 		df->skin_lumps.Insert(lump);
+		return;
 	}
 
 	// -- handle sprite, flat & patch lists --
   
 	if (IsS_START(lump_p->name))
 	{
+		lump_p->kind = LMKIND_Marker;
 		within_sprite_list = true;
 		return;
 	}
@@ -613,11 +651,13 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 		if (!within_sprite_list)
 			I_Warning("Unexpected S_END marker in wad.\n");
 
+		lump_p->kind = LMKIND_Marker;
 		within_sprite_list = false;
 		return;
 	}
 	else if (IsF_START(lump_p->name))
 	{
+		lump_p->kind = LMKIND_Marker;
 		within_flat_list = true;
 		return;
 	}
@@ -626,11 +666,13 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 		if (!within_flat_list)
 			I_Warning("Unexpected F_END marker in wad.\n");
 
+		lump_p->kind = LMKIND_Marker;
 		within_flat_list = false;
 		return;
 	}
 	else if (IsP_START(lump_p->name))
 	{
+		lump_p->kind = LMKIND_Marker;
 		within_patch_list = true;
 		return;
 	}
@@ -639,6 +681,7 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 		if (!within_patch_list)
 			I_Warning("Unexpected P_END marker in wad.\n");
 
+		lump_p->kind = LMKIND_Marker;
 		within_patch_list = false;
 		return;
 	}
@@ -647,14 +690,148 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 	if (lump_p->size > 0 && !IsDummySF(lump_p->name))
 	{
 		if (within_sprite_list)
+		{
+			lump_p->kind = LMKIND_Sprite;
 			df->sprite_lumps.Insert(lump);
+		}
     
 		if (within_flat_list)
+		{
+			lump_p->kind = LMKIND_Flat;
 			df->flat_lumps.Insert(lump);
+		}
     
 		if (within_patch_list)
+		{
+			lump_p->kind = LMKIND_Patch;
 			df->patch_lumps.Insert(lump);
+		}
 	}
+}
+
+//
+// CheckForLevel
+//
+// Tests whether the current lump is a level marker (MAP03, E1M7, etc).
+// Because EDGE supports arbitrary names (via DDF), we look at the
+// sequence of lumps _after_ this one, which works well since their
+// order is fixed (e.g. THINGS is always first).
+//
+static void CheckForLevel(data_file_c *df, int lump, const char *name,
+	const wad_entry_t *raw, int remaining)
+{
+	// we only test four lumps (it is enough), but fewer definitely
+	// means this is not a level marker.
+	if (remaining < 4)
+		return;
+
+	if (strncmp(raw[1].name, "THINGS",   8) == 0 &&
+	    strncmp(raw[2].name, "LINEDEFS", 8) == 0 &&
+	    strncmp(raw[3].name, "SIDEDEFS", 8) == 0 &&
+	    strncmp(raw[4].name, "VERTEXES", 8) == 0)
+	{
+		if (strlen(name) > 5)
+		{
+			I_Warning("Level name '%s' is too long !!\n", name);
+			return;
+		}
+
+		// check for duplicates (Slige sometimes does this)
+		for (int L = 0; L < df->level_lumps.GetSize(); L++)
+		{
+			if (strcmp(lumpinfo[df->level_lumps[L]].name, name) == 0)
+			{
+				I_Warning("Duplicate level '%s' ignored.\n", name);
+				return;
+			}
+		}
+
+		df->level_lumps.Insert(lump);
+		return;
+	}
+
+	// handle GL nodes here too
+
+	if (strncmp(raw[1].name, "GL_VERT",  8) == 0 &&
+	    strncmp(raw[2].name, "GL_SEGS",  8) == 0 &&
+	    strncmp(raw[3].name, "GL_SSECT", 8) == 0 &&
+	    strncmp(raw[4].name, "GL_NODES", 8) == 0)
+	{
+		df->level_lumps.Insert(lump);
+		return;
+	}
+}
+
+//
+// HasInternalGLNodes
+//
+// Determine if WAD file contains GL nodes for every level.
+//
+static bool HasInternalGLNodes(data_file_c *df, int datafile)
+{
+	int levels  = 0;
+	int glnodes = 0;
+	
+	for (int L = 0; L < df->level_lumps.GetSize(); L++)
+	{
+		int lump = df->level_lumps[L];
+
+		if (IsGL_Prefix(lumpinfo[lump].name))
+			continue;
+
+		levels++;
+
+		char gl_marker[10];
+
+		sprintf(gl_marker, "GL_%s", lumpinfo[lump].name);
+
+		for (int M = L+1; M < df->level_lumps.GetSize(); M++)
+		{
+			int lump2 = df->level_lumps[M];
+
+			if (strcmp(lumpinfo[lump2].name, gl_marker) == 0)
+			{
+				glnodes++;
+				break;
+			}
+		}
+	}
+
+	L_WriteDebug("Levels %d, Internal GL nodes %d\n", levels, glnodes);
+
+	return levels == glnodes;
+}
+
+// add the .hwa extension (FIXME: put filename manipulation into EPI)
+const char *MakeHwaFilename(const char *filename)
+{
+	static char result[1024];
+
+	DEV_ASSERT2(strlen(filename) < 1020);
+
+	strcpy(result, filename);
+
+	int pos = strlen(result) - 1;
+
+	DEV_ASSERT2(pos >= 0);
+
+	for (; pos >= 0; pos--)
+	{
+		// path separator ?
+		if (result[pos] == '/' || result[pos] == '\\' || result[pos] == ':')
+			break;
+
+		// existing extension ?
+		if (result[pos] == '.')
+		{
+			strcpy(result + pos, ".hwa");
+			return result;
+		}
+	}
+
+	// no extension found
+	strcat(result, ".hwa");
+	return result;
 }
 
 //
@@ -689,7 +866,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		return;
 	}
 
-	I_Printf("  adding %s", filename);
+	I_Printf("  Adding %s\n", filename);
 
 	startlump = numlumps;
 
@@ -732,6 +909,9 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 					curinfo->name,
 					(kind == FLKIND_PWad) || (kind || FLKIND_HWad) ||
 					(kind == FLKIND_EWad && ! external_ddf));
+
+			if (kind != FLKIND_HWad)
+				CheckForLevel(df, j, lumpinfo[j].name, curinfo, numlumps-1 - j);
 		}
 
 		Z_Free(fileinfo);
@@ -761,8 +941,6 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	for (j=startlump; j < numlumps; j++)
 		lumplookup[j] = NULL;
 
-	I_Printf("\n");
-
 	// check for unclosed sprite/flat/patch lists
 	if (within_sprite_list)
 		I_Warning("Missing S_END marker in %s.\n", filename);
@@ -776,40 +954,81 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	// -AJA- 1999/12/25: What did Santa bring EDGE ?  Just some support
 	//       for "GWA" files (part of the "GL-Friendly Nodes" specs).
   
-	if (M_CheckExtension("wad", filename) == EXT_MATCHING)
+	if (kind <= FLKIND_PWad && df->level_lumps.GetSize() > 0)
 	{
-		char namebuf[1024];
-
-		int len = strlen(filename);
-
-		DEV_ASSERT2(dyn_index < 0);
-
-		// replace WAD extension with GWA
-		strcpy(namebuf, filename);
-
-		Z_StrNCpy(namebuf + len - 3, EDGEGWAEXT, 3);
-
-		if (I_Access(namebuf))
+		if (HasInternalGLNodes(df, datafile))
 		{
-			i_time_t gwa_time;
-			i_time_t wad_time;
+			df->companion_gwa = datafile;
+		}
+		else
+		{
+			char gwa_file[1024];
 
-			// OK, the GWA file exists. so check the time and date 
-			// against the WAD file to see if we should include this
-			// file or force the recreation of the GWA.
+			int len = strlen(filename);
 
-			if (!I_GetModifiedTime(filename, &wad_time))
-				I_Error("AddFile: I_GetModifiedTime failed on %s\n",filename);
+			DEV_ASSERT2(dyn_index < 0);
 
-			if (!I_GetModifiedTime(namebuf, &gwa_time))
-				I_Error("AddFile: I_GetModifiedTime failed on %s\n",namebuf);
+			// replace WAD extension with GWA
+			strcpy(gwa_file, filename);
 
-			// Load it.  This recursion bit is
-			// rather sneaky, hopefully it doesn't break anything...
-			if (L_CompareTimeStamps(&gwa_time, &wad_time) >= 0)
-				AddFile(namebuf, FLKIND_GWad, datafile);
+			Z_StrNCpy(gwa_file + len - 3, EDGEGWAEXT, 3);
+
+			// create the GWA file if it doesn't exist, or recreate it
+			// if the time and date don't match (the WAD file has been
+			// updated in the meantime).
+
+			if (! I_Access(gwa_file) || L_CompareFileTimes(filename, gwa_file) > 0)
+			{
+				I_Printf("Building GL Nodes for: %s\n", filename);
+
+				if (! GB_BuildNodes(filename, gwa_file))
+					I_Error("Failed to build GL nodes for: %s\n", filename);
+			}
+
+			// Load it.  This recursion bit is rather sneaky,
+			// hopefully it doesn't break anything...
+			AddFile(gwa_file, FLKIND_GWad, datafile);
+
+			df->companion_gwa = datafile + 1;
 		}
 	}
+
+	// handle DeHackEd patch files
+#ifdef USE_DEH
+	if (kind == FLKIND_Deh || df->deh_lump >= 0)
+	{
+		const char *hwa_file = MakeHwaFilename(filename);
+
+		// optimisation: use existing HWA file when possible
+		if (! I_Access(hwa_file) || L_CompareFileTimes(filename, hwa_file) > 0)
+		{
+			if (kind == FLKIND_Deh)
+			{
+				I_Printf("Converting DEH file: %s\n", filename);
+
+				if (! DH_ConvertFile(filename, hwa_file))
+					I_Error("Failed to convert DeHackEd patch: %s\n", filename);
+			}
+			else
+			{
+				const char *lump_name = lumpinfo[df->deh_lump].name;
+
+				I_Printf("Converting [%s] lump in: %s", lump_name, filename);
+
+				const byte *data = (const byte *)W_CacheLumpNum(df->deh_lump);
+				int length = W_LumpLength(df->deh_lump);
+
+				if (! DH_ConvertLump(data, length, lump_name, hwa_file))
+					I_Error("Failed to convert DeHackEd LUMP in: %s\n", filename);
+
+				W_DoneWithLump(data);
+			}
+		}
+
+		// Load it (using good ol' recursion again).
+		AddFile(hwa_file, FLKIND_HWad, -1);
+	}
+#endif // USE_DEH
 }
 
 //
@@ -855,12 +1074,8 @@ void W_AddRawFilename(const char *file, int kind)
 {
 	raw_filename_t *r;
 
-	L_WriteDebug("Added: %s\n", file);
+	L_WriteDebug("Added filename: %s\n", file);
 
-	// -AJA- FIXME: eventually remove raw_filename_t in favour of simply
-	//       using data_file_c.  Cannot do this until we detect and build
-	//       GWA files here (during W_InitMultipleFiles) instead of in
-	//       P_LoadLevel (p_setup.cpp).
 	if (addwadnum == maxwadfiles)
 		Z_Resize(wadfiles, raw_filename_t, ++maxwadfiles + 1);
 
@@ -900,16 +1115,6 @@ bool W_InitMultipleFiles(void)
 		I_Error("W_InitMultipleFiles: no files found");
 		return false;
 	}
-
-#ifdef DEH_PROTOTYPE
-//DH_ConvertFile("batman.deh", "batman.hwa");
-	int lump = W_GetNumForName2("DHBATMAN");
-	const byte *data = (const byte *)W_CacheLumpNum(lump);
-	int length = W_LumpLength(lump);
-	DH_ConvertLump(data, length, "DHBATMAN", "DHBATMAN.hwa");
-	W_DoneWithLump(data);
-	AddFile("DHBATMAN.hwa", FLKIND_HWad, -1);
-#endif
 
 	return true;
 }
@@ -1047,7 +1252,6 @@ void W_AddDynamicGWA(const char *filename, int map_lump)
 //
 // Returns -1 if name not found.
 //
-// -ACB- 1998/08/09 Removed ifdef 0 stuff.
 // -ACB- 1999/09/18 Added name to error message 
 //
 int W_CheckNumForName2(const char *name)
@@ -1102,8 +1306,6 @@ int W_GetNumForName2(const char *name)
 //       so we should look there first.  Also we should never return a
 //       flat as a tex-patch.
 //
-// FIXME: Optimise !!! (Major source of startup slowdown).
-//
 int W_CheckNumForTexPatch(const char *name)
 {
 	int i;
@@ -1119,6 +1321,7 @@ int W_CheckNumForTexPatch(const char *name)
 	}
 	buf[i] = 0;
 
+#if 0  // OLD (VERY SLOW) METHOD
 	for (int file = data_files.GetSize()-1; file >= 0; file--)
 	{
 		data_file_c *df = data_files[file];
@@ -1158,9 +1361,41 @@ int W_CheckNumForTexPatch(const char *name)
 		if (i < numlumps)
 			return i;
 	}
+#endif
 
-	// not found
+#define CMP(a) (strncmp(lumpinfo[lumpmap[a]].name, buf, 8) < 0)
+	BSEARCH(numlumps, i);
+#undef CMP
+
+#define STR_CMP(a) (strncmp(lumpinfo[lumpmap[a]].name, buf, 8))
+
+	if (i < 0 || i >= numlumps || STR_CMP(i) != 0)
+	{
+		// not found (nothing has that name)
+		return -1;
+	}
+
+	// jump to last matching name
+	while (i+1 < numlumps && STR_CMP(i+1) == 0)
+		i++;
+	
+	for (; i >= 0 && STR_CMP(i) == 0; i--)
+	{
+		lumpinfo_t *L = lumpinfo + lumpmap[i];
+
+		if (L->kind == LMKIND_Patch || L->kind == LMKIND_Sprite ||
+			L->kind == LMKIND_Normal)
+		{
+			// allow LMKIND_Normal to support patches outside of the
+			// P_START/END markers.  We especially want to disallow
+			// flat lumps.
+			return lumpmap[i];
+		}
+	}
+
 	return -1;
+
+#undef STR_CMP
 }
 
 //
@@ -1499,22 +1734,4 @@ const char *W_GetLumpName(int lump)
 {
 	return lumpinfo[lump].name;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -40,47 +40,22 @@
 #include "glbsp-2.05/glbsp.h"  // FIXME: Use 2.10
 
 
-bool gb_draw_progress = false;
-
-static char message_buf[1024];
-static int ticker_time;
-
-// time between redrawing screen (bit under 1/11 second)
-#define REDRAW_TICS  3
+#define PROGRESS_STEP  2  // percent
 
 static void GB_InitProgress(void);
 static void GB_TermProgress(void);
 
-static const image_t *gb_background = NULL;
+static char message_buf[1024];
+
+/// #define MESSAGE1  "EDGE IS NOW CREATING THE GWA FILE..."
+/// #define MESSAGE2  "THIS ONLY HAS TO BE DONE ONCE FOR THIS WAD"
 
 
-// -AJA- FIXME: put this in LANGUAGE.LDF sometime
+static int display_mode = DIS_INVALID;
 
-#define MESSAGE1  "EDGE IS NOW CREATING THE GWA FILE..."
-#define MESSAGE2  "THIS ONLY HAS TO BE DONE ONCE FOR THIS WAD"
-
-
-#define MAXBARTEXT  100
-
-typedef struct
-{
-	// current limit
-	int limit;
-
-	// current position (0.0 to 1.0)
-	float pos;
-
-	char text[MAXBARTEXT];
-}
-gb_bar_t;
-
-static const gb_bar_t default_bar = { 0, 0.0f, { 0, }};
-
-static gb_bar_t bars[2];
-static displaytype_e cur_disp = DIS_INVALID;
-
-static bool gb_refresh;
-
+static int build_progress = 0;
+static int build_limit = 0;
+static int build_perc = -999;
 
 //
 // GB_PrintMsg
@@ -117,23 +92,7 @@ void GB_FatalError(const char *str, ...)
 //
 void GB_Ticker(void)
 {
-	int cur_time;
-
-	if (! e_display_OK)
-		return;
-
-	cur_time = I_GetTime();
-
-	if (ticker_time != 0 && cur_time < ticker_time + REDRAW_TICS)
-		return;
-
-	E_Display();
-
-	// Note: get the time _after_ rendering the frame.  This handles the
-	// situation of very low framerates better, as we can at least
-	// perform REDRAW_TICS amount of work for each frame.
-
-	ticker_time = I_GetTime();
+	// Maybe do something here, e.g. check for 'ESCAPE' key press
 }
 
 //
@@ -141,12 +100,11 @@ void GB_Ticker(void)
 //
 boolean_g GB_DisplayOpen(displaytype_e type)
 {
-	cur_disp = type;
+	display_mode = type;
 
-	bars[0] = default_bar;
-	bars[1] = default_bar;
-
-	gb_refresh = true;
+	build_progress = 0;
+	build_limit = 0;
+	build_perc = -999;
 
 	return TRUE;
 }
@@ -172,12 +130,7 @@ void GB_DisplaySetText(const char *str)
 //
 void GB_DisplaySetBarText(int barnum, const char *str)
 {
-	DEV_ASSERT2(1 <= barnum && barnum <= 2);
-
-	Z_StrNCpy(bars[barnum - 1].text, str, MAXBARTEXT-1);
-
-	// only need to refresh on text changes (not on bar changes)
-	gb_refresh = true;
+	// FIXME: should copy message for progress display
 }
 
 //
@@ -187,7 +140,12 @@ void GB_DisplaySetBarLimit(int barnum, int limit)
 {
 	DEV_ASSERT2(1 <= barnum && barnum <= 2);
 
-	bars[barnum - 1].limit = limit;
+	if (display_mode == DIS_BUILDPROGRESS && barnum == 2)
+	{
+		build_limit = limit;
+		build_progress = 0;
+		build_perc = 0;
+	}
 }
 
 //
@@ -197,14 +155,21 @@ void GB_DisplaySetBar(int barnum, int count)
 {
 	DEV_ASSERT2(1 <= barnum && barnum <= 2);
 
-	if (count < 0 || bars[barnum - 1].limit <= 0 ||
-		count > bars[barnum - 1].limit)
+	if (display_mode == DIS_BUILDPROGRESS && barnum == 2)
 	{
-		return;
-	}
+		if (count < 0 || count > build_limit || build_limit <= 0)
+			return;
 
-	// compute fractional position
-	bars[barnum - 1].pos = (float)count / bars[barnum - 1].limit;
+		build_progress = count;
+
+		int perc = build_progress * 100 / build_limit;
+
+		if (perc >= build_perc + PROGRESS_STEP)
+		{
+			build_perc = perc;
+			E_NodeProgress(build_perc, "Building GL Nodes...");
+		}
+	}
 }
 
 //
@@ -234,21 +199,20 @@ const nodebuildfuncs_t edge_build_funcs =
 // GB_BuildNodes
 //
 // Attempt to build nodes for the WAD file containing the given
-// map_lump (a lump number from w_wad for the start marker, e.g.
-// "MAP01").  Returns true if successful, false if it failed.
+// WAD file.  Returns true if successful, otherwise false.
 //
-bool GB_BuildNodes(int map_lump)
+bool GB_BuildNodes(const char *filename, const char *outname)
 {
 	nodebuildinfo_t nb_info;
 	volatile nodebuildcomms_t nb_comms;
-	glbsp_ret_e ret;
 
-	nb_info  = default_buildinfo;
+	nb_info = default_buildinfo;
 
+	// nb_comms = default_buildcomms;
 	memcpy((void *)&nb_comms, (void *)&default_buildcomms, sizeof(nodebuildcomms_t));
-	//  nb_comms = default_buildcomms;
 
-	nb_info.input_file = GlbspStrDup(W_GetFileName(map_lump));
+	nb_info.input_file  = GlbspStrDup(filename);
+	nb_info.output_file = GlbspStrDup(outname);
 	nb_info.quiet = true;
 
 	// FIXME: user-controllable build options (factor, fresh, etc).
@@ -258,50 +222,29 @@ bool GB_BuildNodes(int map_lump)
 
 	GB_InitProgress();
 
-	ret = GlbspBuildNodes(&nb_info, &edge_build_funcs, &nb_comms);
+	glbsp_ret_e ret = GlbspBuildNodes(&nb_info, &edge_build_funcs, &nb_comms);
 
 	GB_TermProgress();
 
 	if (ret != GLBSP_E_OK)
 		return false;
 
-	DEV_ASSERT2(nb_info.output_file);
 	DEV_ASSERT2(nb_info.gwa_mode);
-
-	W_AddDynamicGWA(nb_info.output_file, map_lump);
 
 	return true;
 }
 
-//
-// GB_InitProgress
-//
 void GB_InitProgress(void)
 {
-	ticker_time = 0;
-	cur_disp = DIS_INVALID;
-	gb_draw_progress = true;
-	gb_refresh = true;
-
-	if (! e_display_OK)
-		return;
-
-	//...
+	display_mode = DIS_INVALID;
 }
 
-//
-// GB_TermProgress
-//
 void GB_TermProgress(void)
 {
-	gb_draw_progress = false;
-
-	if (! e_display_OK)
-		return;
-
-	//...
 }
 
+
+#if 0  // OLD CODE
 //
 // GB_DrawProgress
 //
@@ -375,4 +318,5 @@ void GB_DrawProgress(void)
 			RGL_SolidBox(x3, y1, x2-x3, y2-y1, bg, 1.0f);
 	}
 }
+#endif
 

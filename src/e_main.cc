@@ -218,9 +218,13 @@ public:
 
 		if (pp != perc)
 		{
-			perc = pp;
-			RGL_DrawProgress(perc);
+			perc = pp; drawIt();
 		}
+	}
+
+	void drawIt(int glbsp_perc = -1)  // a bit kludgy...
+	{
+		RGL_DrawProgress(perc, glbsp_perc);
 	}
 
 	void setGlobal(int step, int size, int total)
@@ -261,6 +265,12 @@ void E_GlobalProgress(int step, int size, int total, const char *message)
 		I_Printf("%s\n", message);
 
 	s_progress.recomputePercent();
+}
+
+void E_NodeProgress(int perc, const char *message)
+{
+	// FIXME: show message
+	s_progress.drawIt(perc);
 }
 
 //
@@ -715,10 +725,6 @@ void E_Display(void)
 
 	if (paused)
 		M_DisplayPause();
-
-	// -AJA- hack to draw glbsp progress bars
-	if (gb_draw_progress)
-		GB_DrawProgress();
 
 	// menus go directly to the screen
 	M_Drawer();  // menu is drawn even on top of everything...
@@ -1470,6 +1476,7 @@ static bool AddCommandLineFiles(void)
 
 		for (p++; p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0]; p++)
 		{
+			// sanity check...
 			if (M_CheckExtension("wad", ps) == EXT_MATCHING ||
 			    M_CheckExtension("gwa", ps) == EXT_MATCHING ||
 			    M_CheckExtension("hwa", ps) == EXT_MATCHING ||
@@ -1498,6 +1505,7 @@ static bool AddCommandLineFiles(void)
 
 		for (p++; p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0]; p++)
 		{
+			// sanity check...
 			if (M_CheckExtension("wad", ps) == EXT_MATCHING ||
 			    M_CheckExtension("gwa", ps) == EXT_MATCHING ||
 			    M_CheckExtension("hwa", ps) == EXT_MATCHING ||

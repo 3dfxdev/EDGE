@@ -50,5 +50,6 @@ void E_StartTitle(void);
 void E_EngineShutdown(void);
 void E_Display(void);
 void E_LocalProgress(int step, int total, const char *message);
+void E_NodeProgress(int perc, const char *message);
 
 #endif
