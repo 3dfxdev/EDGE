@@ -1412,10 +1412,10 @@ static void AddSingleCmdLineFile(const char *name)
 		kind = FLKIND_PWad;
 	else if (M_CheckExtension("hwa", name) == EXT_MATCHING)
 		kind = FLKIND_HWad;
-	else if (M_CheckExtension("lmp", name) == EXT_MATCHING)
-		kind = FLKIND_Demo;
 	else if (M_CheckExtension("scr", name) == EXT_MATCHING)
 		kind = FLKIND_Script;
+//	else if (M_CheckExtension("edm", name) == EXT_MATCHING)
+//		kind = FLKIND_Demo;
 	else if (M_CheckExtension("deh", name) == EXT_MATCHING ||
 	         M_CheckExtension("bex", name) == EXT_MATCHING)
 		kind = FLKIND_Deh;
@@ -1786,7 +1786,6 @@ namespace engine
 
 		DEV_ASSERT2(counts > 0);
 
-L_WriteDebug("^^^ TIME [%d] : counts %d\n", I_GetTime(), counts); //!!!!!
 		for (; counts > 0; counts--)  // run the tics
 		{
 			if (advance_title)
@@ -1802,53 +1801,6 @@ L_WriteDebug("^^^ TIME [%d] : counts %d\n", I_GetTime(), counts); //!!!!!
 
 			N_NetUpdate();  // check for new console commands
 		}
-
-#if 0
-		// process one or more tics
-		if (singletics)
-		{
-			N_BuildTiccmds();
-
-///---			int buf = maketic % BACKUPTICS;
-///---
-///---			I_ControlGetEvents();
-///---			E_ProcessEvents();
-///---
-///---			E_BuildTiccmd(&players[consoleplayer]->in_cmds[buf]);
-
-			if (advance_title)
-				E_DoAdvanceTitle();
-
-			GUI_MainTicker();
-			M_Ticker();
-			G_Ticker();
-			S_SoundTicker();
-			S_MusicTicker();
-		}
-		else
-		{
-			int counts = E_TryRunTics();
-
-			if (counts == 0)  // give the menu a chance to work
-			{
-				GUI_MainTicker();
-				M_Ticker();
-			}
-			else while (counts--)  // run the tics
-			{
-				if (advance_title)
-					E_DoAdvanceTitle();
-
-				GUI_MainTicker();
-				M_Ticker();
-				G_Ticker();
-				S_SoundTicker(); // -ACB- 1999/10/11 Improved sound update routines
-				S_MusicTicker(); // -ACB- 1999/11/13 Improved music update routines
-
-				E_NetUpdate();  // check for new console commands
-			}
-		}
-#endif
 
 		// Update display, next frame, with current state.
 		E_Display();
