@@ -252,25 +252,21 @@ static bool SV_DumpDATA(void)
 //
 void SV_DumpSaveGame(int slot)
 {
-	char *filename;
-	int version;
-	//  bool result;
+	epi::string_c fn;
 	char marker[6];
+	int version;
 
-	filename = G_FileNameFromSlot(slot);
+	G_FileNameFromSlot(fn, slot);
 
-	L_WriteDebug("DUMPING SAVE GAME: %d  FILE: %s\n", slot, filename);
+	L_WriteDebug("DUMPING SAVE GAME: %d  FILE: %s\n", slot, fn.GetString());
 
-	if (! SV_OpenReadFile(filename))
+	if (! SV_OpenReadFile(fn.GetString()))
 	{
 		L_WriteDebug("*  Unable to open file !\n");
-		Z_Free(filename);
 		return;
 	}
 
 	L_WriteDebug("   File opened OK.\n");
-
-	Z_Free(filename);
 
 	if (! SV_VerifyHeader(&version))
 	{
