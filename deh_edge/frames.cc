@@ -31,6 +31,7 @@
 #include "convert.h"
 #include "info.h"
 #include "patch.h"
+#include "sounds.h"
 #include "storage.h"
 #include "system.h"
 #include "text.h"
@@ -41,8 +42,9 @@
 
 
 #define DEBUG_RANGES  0  // must enable one in info.cpp too
+#define DEBUG_FRAMES  0
 
-#define MAX_ACT_NAME  200
+#define MAX_ACT_NAME  256
 
 
 bool state_modified[NUMSTATES_BEX];
@@ -60,8 +62,11 @@ namespace Frames
 	int highest_touched;
 
 	// forward decls
-	void OutputState(char group, int cur);
+	void InstallRandomJump(int src, int first);
 	const char *GroupToName(char group, bool use_spawn);
+	const char *RedirectorName(int next_st, bool use_spawn);
+	void SpecialAction(char *buf, state_t *st, bool use_spawn);
+	void OutputState(char group, int cur, bool use_spawn);
 }
 
 
@@ -79,105 +84,107 @@ typedef struct
 	// close-combat attacks, and 'S' for spare attacks.
 	const char *atk_1;
 	const char *atk_2;
+
+	const char *bex_name;
 }
 actioninfo_t;
 
 static const actioninfo_t action_info[NUMACTIONS_BEX] =
 {
-    { "NOTHING", 0, NULL, NULL },  // A_NULL
+    { "NOTHING", 0, NULL, NULL,    "A_NULL" },
 
-    { "W:LIGHT0", 0, NULL, NULL },      // A_Light0
-    { "W:READY", 0, NULL, NULL },       // A_WeaponReady
-    { "W:LOWER", 0, NULL, NULL },       // A_Lower
-    { "W:RAISE", 0, NULL, NULL },       // A_Raise
-    { "W:SHOOT", 0, "C:PLAYER_PUNCH", NULL },       // A_Punch
-    { "W:REFIRE", 0, NULL, NULL },      // A_ReFire
-    { "W:SHOOT", AF_FLASH, "R:PLAYER_PISTOL", NULL },       // A_FirePistol
-    { "W:LIGHT1", 0, NULL, NULL },      // A_Light1
-    { "W:SHOOT", AF_FLASH, "R:PLAYER_SHOTGUN", NULL },       // A_FireShotgun
-    { "W:LIGHT2", 0, NULL, NULL },      // A_Light2
-    { "W:SHOOT", AF_FLASH, "R:PLAYER_SHOTGUN2", NULL },       // A_FireShotgun2
-    { "W:CHECKRELOAD", 0, NULL, NULL }, // A_CheckReload
-    { "W:PLAYSOUND(DBOPN)", 0, NULL, NULL },  // A_OpenShotgun2
-    { "W:PLAYSOUND(DBLOAD)", 0, NULL, NULL }, // A_LoadShotgun2
-    { "W:PLAYSOUND(DBCLS)", 0, NULL, NULL },  // A_CloseShotgun2
-    { "W:SHOOT", AF_FLASH, "R:PLAYER_CHAINGUN", NULL },      // A_FireCGun
-    { "W:FLASH", AF_FLASH, NULL, NULL },      // A_GunFlash
-    { "W:SHOOT", 0, "R:PLAYER_MISSILE", NULL },      // A_FireMissile
-    { "W:SHOOT", 0, "C:PLAYER_SAW", NULL },      // A_Saw
-    { "W:SHOOT", AF_FLASH, "R:PLAYER_PLASMA", NULL },      // A_FirePlasma
-    { "W:PLAYSOUND(BFG)", 0, NULL, NULL },      // A_BFGsound
-    { "W:SHOOT", 0, "R:PLAYER_BFG9000", NULL },      // A_FireBFG
+    { "W:LIGHT0", 0, NULL, NULL,   "A_Light0" },
+    { "W:READY", 0, NULL, NULL,    "A_WeaponReady" },
+    { "W:LOWER", 0, NULL, NULL,    "A_Lower" },
+    { "W:RAISE", 0, NULL, NULL,    "A_Raise" },
+    { "W:SHOOT", 0, "C:PLAYER_PUNCH", NULL, "A_Punch" },
+    { "W:REFIRE", 0, NULL, NULL,            "A_ReFire" },
+    { "W:SHOOT", AF_FLASH, "R:PLAYER_PISTOL", NULL,   "A_FirePistol" },
+    { "W:LIGHT1", 0, NULL, NULL,            "A_Light1" },
+    { "W:SHOOT", AF_FLASH, "R:PLAYER_SHOTGUN", NULL,  "A_FireShotgun" },
+    { "W:LIGHT2", 0, NULL, NULL,            "A_Light2" },
+    { "W:SHOOT", AF_FLASH, "R:PLAYER_SHOTGUN2", NULL, "A_FireShotgun2" },
+    { "W:CHECKRELOAD", 0, NULL, NULL,       "A_CheckReload" },
+    { "W:PLAYSOUND(DBOPN)", 0, NULL, NULL,  "A_OpenShotgun2" },
+    { "W:PLAYSOUND(DBLOAD)", 0, NULL, NULL, "A_LoadShotgun2" },
+    { "W:PLAYSOUND(DBCLS)", 0, NULL, NULL,  "A_CloseShotgun2" },
+    { "W:SHOOT", AF_FLASH, "R:PLAYER_CHAINGUN", NULL, "A_FireCGun" },
+    { "W:FLASH", AF_FLASH, NULL, NULL,        "A_GunFlash" },
+    { "W:SHOOT", 0, "R:PLAYER_MISSILE", NULL, "A_FireMissile" },
+    { "W:SHOOT", 0, "C:PLAYER_SAW", NULL,     "A_Saw" },
+    { "W:SHOOT", AF_FLASH, "R:PLAYER_PLASMA", NULL,            "A_FirePlasma" },
+    { "W:PLAYSOUND(BFG)", 0, NULL, NULL,      "A_BFGsound" },
+    { "W:SHOOT", 0, "R:PLAYER_BFG9000", NULL, "A_FireBFG" },
 
-    { "SPARE_ATTACK", 0, NULL, NULL },      // A_BFGSpray
-    { "EXPLOSIONDAMAGE", AF_EXPLODE, NULL, NULL },      // A_Explode
-    { "MAKEPAINSOUND", 0, NULL, NULL },      // A_Pain
-    { "PLAYER_SCREAM", 0, NULL, NULL },      // A_PlayerScream
-    { "MAKEDEAD", AF_FALLER, NULL, NULL },      // A_Fall
-    { "MAKEOVERKILLSOUND", 0, NULL, NULL },      // A_XScream
-    { "LOOKOUT", AF_LOOK, NULL, NULL },      // A_Look
-    { "CHASE", AF_CHASER, NULL, NULL },      // A_Chase
-    { "FACETARGET", 0, NULL, NULL },      // A_FaceTarget
-    { "RANGE_ATTACK", 0, "R:FORMER_HUMAN_PISTOL", NULL },      // A_PosAttack
-    { "MAKEDEATHSOUND", 0, NULL, NULL },      // A_Scream
-    { "RANGE_ATTACK", 0, "R:FORMER_HUMAN_SHOTGUN", NULL },      // A_SPosAttack
-    { "RESCHASE", AF_CHASER | AF_RAISER, NULL, NULL },      // A_VileChase
-    { "PLAYSOUND(VILATK)", 0, NULL, NULL },      // A_VileStart
-    { "RANGE_ATTACK", 0, "R:ARCHVILE_FIRE", NULL },      // A_VileTarget
-    { "EFFECTTRACKER", 0, NULL, NULL },      // A_VileAttack
-    { "TRACKERSTART", 0, NULL, NULL },      // A_StartFire
-    { "TRACKERFOLLOW", 0, NULL, NULL },      // A_Fire
-    { "TRACKERACTIVE", 0, NULL, NULL },      // A_FireCrackle
-    { "RANDOM_TRACER", 0, NULL, NULL },      // A_Tracer
-    { "PLAYSOUND(SKESWG)", AF_FACE, NULL, NULL },   // A_SkelWhoosh
-    { "CLOSE_ATTACK", AF_FACE, "C:REVENANT_CLOSECOMBAT", NULL },      // A_SkelFist
-    { "RANGE_ATTACK", 0, "R:REVENANT_MISSILE", NULL },      // A_SkelMissile
-    { "PLAYSOUND(MANATK)", AF_FACE, NULL, NULL },   // A_FatRaise
-    { "RANGE_ATTACK", AF_SPREAD, "R:MANCUBUS_FIREBALL", NULL }, // A_FatAttack1
-    { "RANGE_ATTACK", AF_SPREAD, "R:MANCUBUS_FIREBALL", NULL }, // A_FatAttack2
-    { "RANGE_ATTACK", AF_SPREAD, "R:MANCUBUS_FIREBALL", NULL }, // A_FatAttack3
-    { "NOTHING", 0, NULL, NULL },      // A_BossDeath
-    { "RANGE_ATTACK", 0, "R:FORMER_HUMAN_CHAINGUN", NULL },      // A_CPosAttack
-    { "REFIRE_CHECK", 0, NULL, NULL },      // A_CPosRefire
-    { "COMBOATTACK", 0, "R:IMP_FIREBALL", "C:IMP_CLOSECOMBAT" }, // A_TroopAttack
-    { "CLOSE_ATTACK", 0, "C:DEMON_CLOSECOMBAT", NULL },      // A_SargAttack
-    { "COMBOATTACK", 0, "R:CACO_FIREBALL", "C:CACO_CLOSECOMBAT" }, // A_HeadAttack
-    { "COMBOATTACK", 0, "R:BARON_FIREBALL", "C:BARON_CLOSECOMBAT" }, // A_BruisAttack
-    { "RANGE_ATTACK", 0, "R:SKULL_ASSAULT", NULL },      // A_SkullAttack
-    { "WALKSOUND_CHASE", 0, NULL, NULL },      // A_Metal
-    { "REFIRE_CHECK", 0, NULL, NULL },      // A_SpidRefire
-    { "WALKSOUND_CHASE", 0, NULL, NULL },      // A_BabyMetal
-    { "RANGE_ATTACK", 0, "R:ARACHNOTRON_PLASMA", NULL },      // A_BspiAttack
-    { "PLAYSOUND(HOOF)", 0, NULL, NULL },      // A_Hoof
-    { "RANGE_ATTACK", 0, "R:CYBERDEMON_MISSILE", NULL },      // A_CyberAttack
-    { "RANGE_ATTACK", 0, "R:ELEMENTAL_SPAWNER", NULL },      // A_PainAttack
-    { "SPARE_ATTACK", AF_MAKEDEAD, "S:ELEMENTAL_DEATHSPAWN", NULL },      // A_PainDie
-    { "NOTHING", AF_KEENDIE | AF_MAKEDEAD, NULL, NULL },      // A_KeenDie
-    { "MAKEPAINSOUND", 0, NULL, NULL },      // A_BrainPain
-    { "BRAINSCREAM", 0, NULL, NULL },      // A_BrainScream
-    { "BRAINDIE", 0, NULL, NULL },      // A_BrainDie
-    { "NOTHING", 0, NULL, NULL },      // A_BrainAwake
-    { "BRAINSPIT", 0, "R:BRAIN_CUBE", NULL },      // A_BrainSpit
-    { "MAKEACTIVESOUND", 0, NULL, NULL },      // A_SpawnSound
-    { "CUBETRACER", 0, NULL, NULL },      // A_SpawnFly
-    { "BRAINMISSILEEXPLODE", 0, NULL, NULL },     // A_BrainExplode
-    { "CUBESPAWN", 0, NULL, NULL },     // A_CubeSpawn (NEW)
+    { "SPARE_ATTACK", 0, NULL, NULL,          "A_BFGSpray" },
+    { "EXPLOSIONDAMAGE", AF_EXPLODE, NULL, NULL, "A_Explode" },
+    { "MAKEPAINSOUND", 0, NULL, NULL,         "A_Pain" },
+    { "PLAYER_SCREAM", 0, NULL, NULL,         "A_PlayerScream" },
+    { "MAKEDEAD", AF_FALLER, NULL, NULL,      "A_Fall" },
+    { "MAKEOVERKILLSOUND", 0, NULL, NULL,     "A_XScream" },
+    { "LOOKOUT", AF_LOOK, NULL, NULL,         "A_Look" },
+    { "CHASE", AF_CHASER, NULL, NULL,         "A_Chase" },
+    { "FACETARGET", 0, NULL, NULL,            "A_FaceTarget" },
+    { "RANGE_ATTACK", 0, "R:FORMER_HUMAN_PISTOL", NULL,   "A_PosAttack" },
+    { "MAKEDEATHSOUND", 0, NULL, NULL,        "A_Scream" },
+    { "RANGE_ATTACK", 0, "R:FORMER_HUMAN_SHOTGUN", NULL,  "A_SPosAttack" },
+    { "RESCHASE", AF_CHASER | AF_RAISER, NULL, NULL,      "A_VileChase" },
+    { "PLAYSOUND(VILATK)", 0, NULL, NULL,     "A_VileStart" },
+    { "RANGE_ATTACK", 0, "R:ARCHVILE_FIRE", NULL,         "A_VileTarget" },
+    { "EFFECTTRACKER", 0, NULL, NULL,         "A_VileAttack" },
+    { "TRACKERSTART", 0, NULL, NULL,          "A_StartFire" },
+    { "TRACKERFOLLOW", 0, NULL, NULL,         "A_Fire" },
+    { "TRACKERACTIVE", 0, NULL, NULL,         "A_FireCrackle" },
+    { "RANDOM_TRACER", 0, NULL, NULL,         "A_Tracer" },
+    { "PLAYSOUND(SKESWG)", AF_FACE, NULL, NULL,                "A_SkelWhoosh" },
+    { "CLOSE_ATTACK", AF_FACE, "C:REVENANT_CLOSECOMBAT", NULL, "A_SkelFist" },
+    { "RANGE_ATTACK", 0, "R:REVENANT_MISSILE", NULL,           "A_SkelMissile" },
+    { "PLAYSOUND(MANATK)", AF_FACE, NULL, NULL,                "A_FatRaise" },
+    { "RANGE_ATTACK", AF_SPREAD, "R:MANCUBUS_FIREBALL", NULL,  "A_FatAttack1" },
+    { "RANGE_ATTACK", AF_SPREAD, "R:MANCUBUS_FIREBALL", NULL,  "A_FatAttack2" },
+    { "RANGE_ATTACK", AF_SPREAD, "R:MANCUBUS_FIREBALL", NULL,  "A_FatAttack3" },
+    { "NOTHING", 0, NULL, NULL,  "A_BossDeath" },
+    { "RANGE_ATTACK", 0, "R:FORMER_HUMAN_CHAINGUN", NULL,      "A_CPosAttack" },
+    { "REFIRE_CHECK", 0, NULL, NULL,  "A_CPosRefire" },
+    { "COMBOATTACK", 0, "R:IMP_FIREBALL", "C:IMP_CLOSECOMBAT", "A_TroopAttack" },
+    { "CLOSE_ATTACK", 0, "C:DEMON_CLOSECOMBAT", NULL,          "A_SargAttack" },
+    { "COMBOATTACK", 0, "R:CACO_FIREBALL", "C:CACO_CLOSECOMBAT","A_HeadAttack" },
+    { "COMBOATTACK", 0, "R:BARON_FIREBALL", "C:BARON_CLOSECOMBAT","A_BruisAttack" },
+    { "RANGE_ATTACK", 0, "R:SKULL_ASSAULT", NULL,  "A_SkullAttack" },
+    { "WALKSOUND_CHASE", 0, NULL, NULL,            "A_Metal" },
+    { "REFIRE_CHECK", 0, NULL, NULL,               "A_SpidRefire" },
+    { "WALKSOUND_CHASE", 0, NULL, NULL,            "A_BabyMetal" },
+    { "RANGE_ATTACK", 0, "R:ARACHNOTRON_PLASMA", NULL, "A_BspiAttack" },
+    { "PLAYSOUND(HOOF)", 0, NULL, NULL,            "A_Hoof" },
+    { "RANGE_ATTACK", 0, "R:CYBERDEMON_MISSILE", NULL, "A_CyberAttack" },
+    { "RANGE_ATTACK", 0, "R:ELEMENTAL_SPAWNER", NULL,  "A_PainAttack" },
+    { "SPARE_ATTACK", AF_MAKEDEAD, "S:ELEMENTAL_DEATHSPAWN", NULL, "A_PainDie" },
+    { "NOTHING", AF_KEENDIE | AF_MAKEDEAD, NULL, NULL, "A_KeenDie" },
+    { "MAKEPAINSOUND", 0, NULL, NULL,       "A_BrainPain" },
+    { "BRAINSCREAM", 0, NULL, NULL,         "A_BrainScream" },
+    { "BRAINDIE", 0, NULL, NULL,            "A_BrainDie" },
+    { "NOTHING", 0, NULL, NULL,             "A_BrainAwake" },
+    { "BRAINSPIT", 0, "R:BRAIN_CUBE", NULL, "A_BrainSpit" },
+    { "MAKEACTIVESOUND", 0, NULL, NULL,     "A_SpawnSound" },
+    { "CUBETRACER", 0, NULL, NULL,          "A_SpawnFly" },
+    { "BRAINMISSILEEXPLODE", 0, NULL, NULL, "A_BrainExplode" },
+    { "CUBESPAWN", 0, NULL, NULL,           "A_CubeSpawn" },  // NEW
 
 	// BOOM and MBF:
 	// FIXME !!! Require special treatment for EDGE
 
-	{ "EXPLODE", AF_UNIMPL, NULL, NULL },    // A_Die
-	{ "STOP", AF_UNIMPL, NULL, NULL },       // A_Stop
-	{ "NOTHING", AF_UNIMPL, NULL, NULL },    // A_Detonate
-	{ "NOTHING", AF_UNIMPL, NULL, NULL },    // A_Mushroom
+	{ "EXPLODE", AF_UNIMPL, NULL, NULL,    "A_Die" },
+	{ "STOP",    0,         NULL, NULL,    "A_Stop" },
+	{ "EXPLOSIONDAMAGE", AF_DETONATE, NULL, NULL, "A_Detonate" },
+	{ "NOTHING", AF_UNIMPL, NULL, NULL,    "A_Mushroom" },
 
-	{ "NOTHING", AF_UNIMPL, NULL, NULL },    // A_Spawn
-	{ "NOTHING", AF_UNIMPL, NULL, NULL },    // A_Turn
-	{ "NOTHING", AF_UNIMPL, NULL, NULL },    // A_Face
-	{ "NOTHING", AF_UNIMPL, NULL, NULL },    // A_Scratch
-	{ "NOTHING", AF_UNIMPL, NULL, NULL },    // A_PlaySound
-	{ "NOTHING", AF_UNIMPL, NULL, NULL },    // A_RandomJump
-	{ "NOTHING", AF_UNIMPL, NULL, NULL }     // A_LineEffect
+	{ "NOTHING", AF_UNIMPL,  NULL, NULL,    "A_Spawn" },
+	{ "NOTHING", AF_SPECIAL, NULL, NULL,    "A_Turn" },
+	{ "NOTHING", AF_SPECIAL, NULL, NULL,    "A_Face" },
+	{ "NOTHING", AF_UNIMPL,  NULL, NULL,    "A_Scratch" },
+	{ "NOTHING", AF_SPECIAL, NULL, NULL,    "A_PlaySound" },
+	{ "NOTHING", AF_SPECIAL, NULL, NULL,    "A_RandomJump" },  // special
+	{ "NOTHING", AF_SPECIAL, NULL, NULL,    "A_LineEffect" }
 };
 
 
@@ -335,6 +342,24 @@ static const staterange_t thing_range[] =
     { MT_BFG, S_BFGSHOT, S_BFGLAND6, -1,-1 },
     { MT_EXTRABFG, S_BFGEXP, S_BFGEXP4, -1,-1 },
 
+	// Boom/MBF stuff...
+	{ MT_PUSH, S_TNT1, S_TNT1, -1,-1 },
+	{ MT_PULL, S_TNT1, S_TNT1, -1,-1 },
+	{ MT_DOGS, S_DOGS_STND, S_DOGS_RAISE6, -1,-1 },
+
+    { MT_STEALTHBABY, S_BSPI_STND, S_BSPI_RAISE7, -1,-1 },
+    { MT_STEALTHVILE, S_VILE_STND, S_VILE_DIE10, -1,-1 },
+    { MT_STEALTHBRUISER, S_BOSS_STND, S_BOSS_RAISE7, -1,-1 },
+    { MT_STEALTHHEAD, S_HEAD_STND, S_HEAD_RAISE6, -1,-1 },
+    { MT_STEALTHCHAINGUY, S_CPOS_STND, S_CPOS_RAISE7, -1,-1 },
+    { MT_STEALTHSERGEANT, S_SARG_STND, S_SARG_RAISE6, -1,-1 },
+    { MT_STEALTHKNIGHT, S_BOS2_STND, S_BOS2_RAISE7, -1,-1 },
+    { MT_STEALTHIMP, S_TROO_STND, S_TROO_RAISE5, -1,-1 },
+    { MT_STEALTHFATSO, S_FATT_STND, S_FATT_RAISE8, -1,-1 },
+    { MT_STEALTHUNDEAD, S_SKEL_STND, S_SKEL_RAISE6, -1,-1 },
+    { MT_STEALTHSHOTGUY, S_SPOS_STND, S_SPOS_RAISE5, -1,-1 },
+    { MT_STEALTHZOMBIE, S_POSS_STND, S_POSS_RAISE4, -1,-1 },
+
     { -1, -1,-1, -1, -1 }  // End sentinel
 };
 
@@ -452,7 +477,9 @@ void Frames::ResetAll(void)
 {
 	for (int i = 0; i < NUMSTATES_BEX; i++)
 	{
-		state_dyn[i].group = state_dyn[i].gr_idx = 0;
+		state_dyn[i].group = 0;
+		state_dyn[i].gr_idx = 0;
+		state_dyn[i].gr_next = S_NULL;
 	}
 
 	attack_slot[0] = attack_slot[1] = attack_slot[2] = NULL;
@@ -468,23 +495,67 @@ int Frames::BeginGroup(int first, char group)
 	if (first == S_NULL)
 		return 0;
 
-	state_dyn[first].group  = group;
+	state_dyn[first].group = group;
 	state_dyn[first].gr_idx = 1;
 
 	return 1;
 }
 
+void Frames::InstallRandomJump(int src, int first)
+{
+	assert(state_dyn[src].gr_idx > 0);
+	assert(state_dyn[first].group == 0);
+
+	char group = state_dyn[src].group;
+
+	// step 1: find the last state in the current group
+	for (int i = 1; i < NUMSTATES_BEX; i++)
+	{
+		if (state_dyn[i].group != group)
+			continue;
+
+		if (state_dyn[i].gr_idx > state_dyn[src].gr_idx)
+			src = i;
+	}
+
+	assert(group != 0);
+	assert(state_dyn[src].gr_next == S_NULL);
+
+	// step 2: follow state chain as far as possible
+
+	for (;;)
+	{
+		state_dyn[src].gr_next = first;
+
+		state_dyn[first].group = group;
+		state_dyn[first].gr_idx = state_dyn[src].gr_idx + 1;
+
+		if (states[first].tics < 0)  // hibernation
+			break;
+
+		src   = first;
+		first = states[first].nextstate;
+
+		if (first == S_NULL)
+			break;
+
+		if (state_dyn[first].group != 0)
+			break;
+	}
+}
+
 void Frames::SpreadGroups(void)
 {
-	bool changes;
-
-	do
+	for (;;)
 	{
-		changes = false;
+		bool changes = false;
 
-		for (int i = 0; i < NUMSTATES_BEX; i++)
+		for (int i = 1; i < NUMSTATES_BEX; i++)
 		{
 			if (state_dyn[i].group == 0)
+				continue;
+
+			if (states[i].tics < 0)  // hibernation
 				continue;
 
 			int next = states[i].nextstate;
@@ -495,13 +566,46 @@ void Frames::SpreadGroups(void)
 			if (state_dyn[next].group != 0)
 				continue;
 
+			state_dyn[i].gr_next = next;
+
 			state_dyn[next].group  = state_dyn[i].group;
 			state_dyn[next].gr_idx = state_dyn[i].gr_idx + 1;
 
 			changes = true;
 		}
+
+		if (! changes)
+			break;
 	}
-	while (changes);
+
+	// now sort out the A_RandomJump targets
+
+	for (;;)
+	{
+		bool changes = false;
+
+		for (int i = 1; i < NUMSTATES_BEX; i++)
+		{
+			if (state_dyn[i].group == 0)
+				continue;
+
+			if (! (states[i].action == A_RandomJump &&
+				   states[i].misc1 > 0 && states[i].misc1 < NUMSTATES_BEX))
+				continue;
+
+			int first = states[i].misc1;
+
+			if (state_dyn[first].group != 0)
+				continue;
+
+			InstallRandomJump(i, first);
+
+			changes = true;
+		}
+
+		if (! changes)
+			break;
+	}
 }
 
 bool Frames::CheckSpawnRemove(int first)
@@ -516,16 +620,16 @@ bool Frames::CheckSpawnRemove(int first)
 		if (states[first].tics < 0)  // hibernation
 			break;
 
-		int prev_idx = state_dyn[first].gr_idx;
-
-		first = states[first].nextstate;
-
-		if (first == S_NULL)
+		if (states[first].nextstate == S_NULL)
 			return true;
 
-		int next_idx = state_dyn[first].gr_idx;
+		// don't look in the random-jump states
+		if (states[first].nextstate != state_dyn[first].gr_next)
+			break;
 
-		if (next_idx != (prev_idx + 1))
+		first = state_dyn[first].gr_next;
+
+		if (first == S_NULL)
 			break;
 	}
 
@@ -663,11 +767,115 @@ namespace Frames
 	}
 }
 
-void Frames::OutputState(char group, int cur)
+const char *Frames::GroupToName(char group, bool use_spawn)
+{
+	assert(group != 0);
+
+	switch (group)
+	{
+		case 'S': return use_spawn ? "SPAWN" : "IDLE";
+		case 'E': return "CHASE";
+		case 'L': return "MELEE";
+		case 'M': return "MISSILE";
+		case 'P': return "PAIN";
+		case 'D': return "DEATH";
+		case 'X': return "OVERKILL";
+		case 'R': return "RESPAWN";
+		case 'H': return "RESURRECT";
+
+		// weapons
+		case 'u': return "UP";
+		case 'd': return "DOWN";
+		case 'r': return "READY";
+		case 'a': return "ATTACK";
+		case 'f': return "FLASH";
+
+		default:
+			InternalError("GroupToName: BAD GROUP '%c'\n", group);
+	}		
+
+	return NULL;
+}
+
+const char *Frames::RedirectorName(int next_st, bool use_spawn)
+{
+	static char name_buf[MAX_ACT_NAME];
+
+	char next_gr = state_dyn[next_st].group;
+	int next_idx = state_dyn[next_st].gr_idx;
+
+	assert(next_gr != 0);
+	assert(next_idx > 0);
+
+	if (next_idx == 1)
+		sprintf(name_buf, "%s", GroupToName(next_gr, use_spawn));
+	else
+		sprintf(name_buf, "%s:%d", GroupToName(next_gr, use_spawn), next_idx);
+
+	return name_buf;
+}
+
+#define MISC_TO_ANGLE(m)  ((int)(m) / 11930465)
+
+void Frames::SpecialAction(char *act_name, state_t *st, bool use_spawn)
+{
+	switch (st->action)
+	{
+		case A_RandomJump:
+			if (st->misc1 <= 0 || st->misc1 >= NUMSTATES_BEX)
+				strcpy(act_name, "NOTHING");
+			else
+			{
+				int perc = (st->misc2 <= 0) ? 0 : (st->misc2 >= 256) ? 100 :
+						   (st->misc2 * 100 / 256);
+
+				sprintf(act_name, "JUMP(%s,%d%%)",
+					RedirectorName(st->misc1, use_spawn), perc);
+			}
+			break;
+
+		  case A_Turn:
+		  	sprintf(act_name, "TURN(%d)", MISC_TO_ANGLE(st->misc1));
+			break;
+
+		  case A_Face:
+		  	sprintf(act_name, "FACE(%d)", MISC_TO_ANGLE(st->misc1));
+			break;
+
+		  case A_PlaySound:
+		  	if (st->misc1 <= 0 || st->misc1 >= NUMSFX_BEX)
+				strcpy(act_name, "NOTHING");
+			else
+			{
+				sprintf(act_name, "PLAYSOUND(%s)",
+					Sounds::GetSound(st->misc1));
+			}
+			break;
+
+		  case A_LineEffect:
+		  	if (st->misc1 <= 0)
+				strcpy(act_name, "NOTHING");
+			else
+			{
+				sprintf(act_name, "ACTIVATE_LINETYPE(%d,%d)",
+					st->misc1, st->misc2);
+			}
+			break;
+
+		default:
+			InternalError("Bad special action %d\n", st->action);
+	}
+}
+
+void Frames::OutputState(char group, int cur, bool use_spawn)
 {
 	assert(cur > 0);
 
 	state_t *st = states + cur;
+
+	assert(st->action >= 0 && st->action < NUMACTIONS_BEX);
+
+	const char *bex_name = action_info[st->action].bex_name;
 
 	if (cur <= S_LAST_WEAPON_STATE)
 		act_flags |= AF_WEAPON_ST;
@@ -681,24 +889,34 @@ void Frames::OutputState(char group, int cur)
 	}
 
 	if (action_info[st->action].act_flags & AF_UNIMPL)
-		PrintWarn("Frame %d: action used is not yet supported.\n", cur);
+		PrintWarn("Frame %d: action %s is not yet supported.\n", cur,
+			bex_name);
 
 	char act_name[MAX_ACT_NAME];
 
-	strcpy(act_name, action_info[st->action].ddf_name);
+	bool weap_act = false;
 
-	bool weap_act = (act_name[0] == 'W' && act_name[1] == ':');
+	if (action_info[st->action].act_flags & AF_SPECIAL)
+	{
+		SpecialAction(act_name, st, use_spawn);
+	}
+	else
+	{
+		strcpy(act_name, action_info[st->action].ddf_name);
 
-	if (weap_act)
-		strcpy(act_name, action_info[st->action].ddf_name + 2);
+		weap_act = (act_name[0] == 'W' && act_name[1] == ':');
+
+		if (weap_act)
+			strcpy(act_name, action_info[st->action].ddf_name + 2);
+	}
 
 	if (st->action != S_NULL && weap_act == ! IS_WEAPON(group) &&
 		StrCaseCmp(act_name, "NOTHING") != 0)
 	{
 		if (weap_act)
-			PrintWarn("Frame %d: weapon action %s used in thing.\n", cur, act_name);
+			PrintWarn("Frame %d: weapon action %s used in thing.\n", cur, bex_name);
 		else
-			PrintWarn("Frame %d: thing action %s used in weapon.\n", cur, act_name);
+			PrintWarn("Frame %d: thing action %s used in weapon.\n", cur, bex_name);
 
 		strcpy(act_name, "NOTHING");
 	}
@@ -763,34 +981,6 @@ void Frames::OutputState(char group, int cur)
 	act_flags |= action_info[st->action].act_flags;
 }
 
-const char *Frames::GroupToName(char group, bool use_spawn)
-{
-	switch (group)
-	{
-		case 'S': return use_spawn ? "SPAWN" : "IDLE";
-		case 'E': return "CHASE";
-		case 'L': return "MELEE";
-		case 'M': return "MISSILE";
-		case 'P': return "PAIN";
-		case 'D': return "DEATH";
-		case 'X': return "OVERKILL";
-		case 'R': return "RESPAWN";
-		case 'H': return "RESURRECT";
-
-		// weapons
-		case 'u': return "UP";
-		case 'd': return "DOWN";
-		case 'r': return "READY";
-		case 'a': return "ATTACK";
-		case 'f': return "FLASH";
-
-		default:
-			InternalError("GroupToName: BAD GROUP '%c'\n", group);
-	}		
-
-	return NULL;
-}
-
 void Frames::OutputGroup(int first, char group)
 {
 	if (first == S_NULL)
@@ -800,9 +990,6 @@ void Frames::OutputGroup(int first, char group)
 
 	bool use_spawn = (group == 'S') && CheckSpawnRemove(first);
 
-	// this allows group sharing (especially MELEE and MISSILE)
-	char first_group = state_dyn[first].group;
-
 	WAD::Printf("\n");
 	WAD::Printf("STATES(%s) =\n", GroupToName(group, use_spawn));
 
@@ -810,51 +997,50 @@ void Frames::OutputGroup(int first, char group)
 
 	for (;;)
 	{
-		OutputState(group, cur);
+		OutputState(group, cur, use_spawn);
 
-		if (states[cur].tics < 0)  // go into hibernation
+		bool is_last = (state_dyn[cur].gr_next == S_NULL);
+
+		int next = states[cur].nextstate;
+
+		if (states[cur].tics < 0)
 		{
+			// go into hibernation (nothing needed)
+		}
+		else if (next == S_NULL)
+		{
+			WAD::Printf(",#REMOVE");
+		}
+		else if (next != state_dyn[cur].gr_next)
+		{
+			// check if finished and DON'T need a redirector
+			if (! (is_last && next == first && 
+				   (group == 'S' || group == 'E' ||
+				    group == 'u' || group == 'd' || group == 'r')))
+			{
+				WAD::Printf(",#%s", RedirectorName(next, use_spawn));
+			}
+		}
+
+		if (is_last)
+		{
+#if (DEBUG_FRAMES)
+			WAD::Printf("; // %d\n", cur);
+#else
 			WAD::Printf(";\n");
+#endif
 			return;
 		}
 
-		int prev_idx = state_dyn[cur].gr_idx;
+#if (DEBUG_FRAMES)
+		WAD::Printf(", // %d\n", cur);
+#else
+		WAD::Printf(",\n");
+#endif
 
-		cur = states[cur].nextstate;
+		cur = state_dyn[cur].gr_next;
 
-		if (cur == S_NULL)
-		{
-			WAD::Printf(",#REMOVE;\n");
-			return;
-		}
-
-		char next_gr = state_dyn[cur].group;
-		int next_idx = state_dyn[cur].gr_idx;
-
-		assert(next_gr != 0);
-
-		// check if finished and DON'T need a redirector
-		if (cur == first && (group == 'S' || group == 'E' ||
-			group == 'u' || group == 'd' || group == 'r'))
-		{
-			WAD::Printf(";\n");
-			return;
-		}
-
-		if (next_gr == first_group && next_idx == (prev_idx + 1))
-		{
-			WAD::Printf(",\n");
-			continue;
-		}
-
-		// we must be finished, and we need redirection
-
-		if (next_idx == 1)
-			WAD::Printf(",#%s;\n", GroupToName(next_gr, use_spawn));
-		else
-			WAD::Printf(",#%s:%d;\n", GroupToName(next_gr, use_spawn), next_idx);
-
-		return;
+		assert(cur != S_NULL);
 	}
 }
 
@@ -869,6 +1055,8 @@ namespace Frames
 		{ "Sprite subnumber", &states[0].frame,  FT_SUBSPR },
 		{ "Duration",         &states[0].tics, FT_ANY },
 		{ "Next frame",       &states[0].nextstate, FT_FRAME },
+		{ "Unknown 1",        &states[0].misc1, FT_ANY },
+		{ "Unknown 2",        &states[0].misc2, FT_ANY },
 
 		{ NULL, NULL, 0 }   // End sentinel
 	};
@@ -880,9 +1068,6 @@ void Frames::AlterFrame(int new_val)
 	const char *field_name = Patch::line_buf;
 
 	assert(0 <= st_num && st_num < NUMSTATES_BEX);
-
-	if (StrCaseCmpPartial(field_name, "Unknown") == 0)
-		return;
 
 	if (StrCaseCmp(field_name, "Action pointer") == 0)
 	{
@@ -934,7 +1119,52 @@ void Frames::AlterBexCodePtr(const char * new_action)
 {
 	const char *bex_field = Patch::line_buf;
 
-	PrintWarn("BEX CODEPTRS not yet implemented !\n");
+	if (StrCaseCmpPartial(bex_field, "FRAME ") != 0)
+	{
+		PrintWarn("Line %d: bad code pointer '%s' - must begin with FRAME.\n",
+			Patch::line_num, bex_field);
+		return;
+	}
+
+	int st_num;
+
+	if (sscanf(bex_field + 6, " %i ", &st_num) != 1)
+	{
+		PrintWarn("Line %d: unreadable FRAME number: %s\n",
+			Patch::line_num, bex_field + 6);
+		return;
+	}
+
+	if (st_num < 0 || st_num >= NUMSTATES_BEX)
+	{
+		PrintWarn("Line %d: illegal FRAME number: %d\n",
+			Patch::line_num, st_num);
+		return;
+	}
+
+	// the S_NULL state is never output, no need to change it
+	if (st_num == S_NULL)
+		return;
+
+	int action;
+
+	for (action = 0; action < NUMACTIONS_BEX; action++)
+	{
+		// use +2 here to ignore the "A_" prefix
+		if (StrCaseCmp(action_info[action].bex_name + 2, new_action) == 0)
+			break;
+	}
+
+	if (action >= NUMACTIONS_BEX)
+	{
+		PrintWarn("Line %d: unknown action %s for CODEPTR.\n",
+			Patch::line_num, new_action);
+		return;
+	}
+
+	Storage::RememberMod(&states[st_num].action, action);
+
+	MarkState(st_num);
 }
 
 

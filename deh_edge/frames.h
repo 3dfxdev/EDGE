@@ -18,6 +18,7 @@ typedef enum
 	AF_EXPLODE    = (1 << 0),   // uses A_Explode
 	AF_KEENDIE    = (1 << 1),   // uses A_KeenDie
 	AF_LOOK       = (1 << 2),   // uses A_Look
+	AF_DETONATE   = (1 << 3),   // uses A_Detonate
 
 	AF_SPREAD     = (1 << 6),   // uses A_FatAttack1/2/3
 	AF_CHASER     = (1 << 7),   // uses A_Chase
@@ -27,7 +28,8 @@ typedef enum
 	AF_FLASH      = (1 << 14),  // weapon will go into flash state
 	AF_MAKEDEAD   = (1 << 15),  // action needs an extra MAKEDEAD state
 	AF_FACE       = (1 << 16),  // action needs FACE_TARGET state
-	AF_UNIMPL     = (1 << 17),  // not yet supported
+	AF_SPECIAL    = (1 << 17),  // special action (uses misc1/2)
+	AF_UNIMPL     = (1 << 18),  // not yet supported
 
 	AF_WEAPON_ST  = (1 << 20),  // uses a weapon state
 	AF_THING_ST   = (1 << 21)   // uses a thing state
