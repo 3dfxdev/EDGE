@@ -66,6 +66,7 @@ typedef enum
 {
   nothing,
   command_read,
+  property_read,
   def_start,
   def_stop,
   remark_start,
@@ -349,6 +350,7 @@ void DDF_MusicPlaylistCleanUp(void);
 // DDF_STAT Code
 void DDF_StateInit(void);
 void DDF_StateGetAttack(const char *arg, state_t * cur_state);
+void DDF_StateGetMobj(const char *arg, state_t * cur_state);
 void DDF_StateGetInteger(const char *arg, state_t * cur_state);
 void DDF_StateGetIntPair(const char *arg, state_t * cur_state);
 void DDF_StateGetFloat(const char *arg, state_t * cur_state);
