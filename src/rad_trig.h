@@ -28,15 +28,16 @@
 #define PARSERVFIX    10
 
 #define MAXSTRLEN     512
+#define MAXTIPSLOT    32
 
 extern rad_script_t *r_scripts;
 extern rad_trigger_t *r_triggers;
 extern int rad_itemsread;
 
-// Tip Prottypes
+// Tip Prototypes
+void RAD_InitTips(void);
 void RAD_ResetTips(void);
-void TIP_SendTip(s_tip_t * tip);
-void TIP_DisplayTips(int y);
+void RAD_DisplayTips(void);
 
 // RadiusTrigger & Scripting Prototypes
 boolean_t RAD_Init(void);
@@ -76,9 +77,11 @@ extern char *rad_cur_filename;
 //
 void RAD_ActNOP(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActTip(rad_trigger_t *R, mobj_t *actor, void *param);
+void RAD_ActTipProps(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActPlaySound(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActKillSound(rad_trigger_t *R, mobj_t *actor, void *param);
+
 void RAD_ActSectorMove(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActSectorLight(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActEnableScript(rad_trigger_t *R, mobj_t *actor, void *param);
