@@ -558,7 +558,7 @@ void PK_ticcmd(packet_c *pk)
 	int plyr_id = CL->player_id;
 
 	SYS_ASSERT(0 <= plyr_id && plyr_id < GM->num_players);
-	SYS_ASSERT(GM->players[plyr_id] = pk->hd().source);
+	SYS_ASSERT(GM->players[plyr_id] == pk->hd().source);
 
 	// NOTE: Not LOCKING since tic-stuff is not touched by UI thread
 
