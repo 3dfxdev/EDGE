@@ -222,7 +222,7 @@ static bool CheckForDefine(const char *s, char ** val)
 
 	for (; tempnode; tempnode = tempnode->next)
 	{
-		if (strcmp(s, tempnode->name) == 0)
+		if (stricmp(s, tempnode->name) == 0)
 		{
 			*val = Z_StrDup(tempnode->value);
 			return true;
@@ -439,10 +439,10 @@ static char *RAD_UnquoteString(const char *s)
 
 static bool CheckForBoolean(const char *s)
 {
-	if (strcmp(s, "TRUE") == 0 || strcmp(s, "1") == 0)
+	if (stricmp(s, "TRUE") == 0 || strcmp(s, "1") == 0)
 		return true;
 
-	if (strcmp(s, "FALSE") == 0 || strcmp(s, "0") == 0)
+	if (stricmp(s, "FALSE") == 0 || strcmp(s, "0") == 0)
 		return false;
 
 	// Nope, it's an error.
@@ -570,7 +570,7 @@ static void ClearPreviousScripts(const char *mapid)
 	{
 		next = scr->next;
 
-		if (strcmp(scr->mapid, mapid) == 0)
+		if (stricmp(scr->mapid, mapid) == 0)
 		{
 			// unlink and free it
 			if (scr->next)

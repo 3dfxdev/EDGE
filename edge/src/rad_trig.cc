@@ -194,8 +194,6 @@ public:
 // RTS menu active ?
 bool rts_menuactive = false;
 static rts_menu_c *rts_curr_menu = NULL;
-///--- static rad_trigger_t *rts_menu_trigger = NULL;
-///--- static style_c *rts_menu_style;
 
 // Current RTS file or lump being parsed.
 static byte *rad_memfile;
@@ -866,8 +864,6 @@ static void RAD_ParseScript(void)
 #if (DEBUG_RTS)
 		L_WriteDebug("RTS LINE: '%s'\n", linebuf);
 #endif
-///---		if (rts_version < 0x129)
-///---		{ } //!!!!!!	strupr(linebuf);  // turn it into upper case
 
 		RAD_ParseLine(linebuf);
 

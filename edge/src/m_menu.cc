@@ -74,7 +74,6 @@ int msg_mode;
 
 epi::strent_c input_string;		
 
-bool inhelpscreens;
 bool menuactive;
 
 #define SKULLXOFF   -24
@@ -113,6 +112,7 @@ static style_c *skill_style;
 static style_c *load_style;
 static style_c *save_style;
 static style_c *dialog_style;
+static style_c *sound_vol_style;
 
 //
 //  SAVE STUFF
@@ -373,12 +373,6 @@ options_e;
 //
 // Read This! MENU 1 & 2
 //
-enum
-{
-	rdthsempty1,
-	read1_end
-}
-read_e;
 
 static menuitem_t ReadMenu1[] =
 {
@@ -387,7 +381,7 @@ static menuitem_t ReadMenu1[] =
 
 static menu_t ReadDef1 =
 {
-	read1_end,
+	1,
 	&MainDef,
 	ReadMenu1,
 	&menu_def_style,  // FIXME: maybe have READ_1 and READ_2 styles ??
@@ -396,13 +390,6 @@ static menu_t ReadDef1 =
 	0
 };
 
-enum
-{
-	rdthsempty2,
-	read2_end
-}
-read_e2;
-
 static menuitem_t ReadMenu2[] =
 {
 	{1, "", NULL, M_FinishReadThis, 0}
@@ -410,7 +397,7 @@ static menuitem_t ReadMenu2[] =
 
 static menu_t ReadDef2 =
 {
-	read2_end,
+	1,
 	&ReadDef1,
 	ReadMenu2,
 	&menu_def_style,  // FIXME: maybe have READ_1 and READ_2 styles ??
@@ -445,7 +432,7 @@ static menu_t SoundDef =
 	sound_end,
 	&MainDef,  ///  &OptionsDef,
 	SoundMenu,
-	&menu_def_style,  // FIXME: maybe have SOUND_MENU style
+	&sound_vol_style,
 	M_DrawSound,
 	80, 64,
 	0
@@ -978,8 +965,6 @@ void M_QuickLoad(void)
 //
 void M_DrawReadThis1(void)
 {
-	inhelpscreens = true;
-  
 	RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, menu_readthis[0]);
 }
 
@@ -988,8 +973,6 @@ void M_DrawReadThis1(void)
 //
 void M_DrawReadThis2(void)
 {
-	inhelpscreens = true;
-
 	RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, menu_readthis[1]);
 }
 
@@ -1966,8 +1949,6 @@ void M_Drawer(void)
 	unsigned int i;
 	unsigned int max;
 
-	inhelpscreens = false;
-
 	if (!menuactive)
 		return;
 
@@ -2175,6 +2156,11 @@ void M_Init(void)
 
 	def = styledefs.Lookup("DIALOG");
 	dialog_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("SOUND VOLUME");
+	if (! def) def = styledefs.Lookup("OPTIONS");
+	if (! def) def = default_style;
+	sound_vol_style = hu_styles.Lookup(def);
 
 	// lookup required images
 	therm_l = W_ImageFromPatch("M_THERML");

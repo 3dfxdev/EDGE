@@ -193,16 +193,16 @@ void RGL_DrawImage(int x, int y, int w, int h, const image_t *image,
 {
 	float r = 1.0f, g = 1.0f, b = 1.0f;
 
-	const cached_image_t *cim = W_ImageCache(image, 0, false,
+	const cached_image_t *cim = W_ImageCache(image, false,
 		(colmap && (colmap->special & COLSP_Whiten)) ? font_whiten_map : NULL);
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim));
  
-	if (alpha < 0.99f || !image->solid)
+	if (alpha < 0.99f || !image->img_solid)
 		glEnable(GL_BLEND);
 
-///  else if (!image->solid)
+///  else if (!image->img_solid)
 ///    glEnable(GL_ALPHA_TEST);
  
 	if (colmap)

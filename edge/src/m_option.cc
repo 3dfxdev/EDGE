@@ -912,7 +912,7 @@ static void M_LanguageDrawer(int x, int y, int deltay)
 
 	buf.Format("%s", language.GetName());
 
-	HL_WriteText(opt_def_style,2, x+15, y + deltay * 6, buf); //!!! ,1,
+	HL_WriteText(opt_def_style,1, x+15, y + deltay * 6, buf);
 }
 
 //
