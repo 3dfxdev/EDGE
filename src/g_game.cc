@@ -151,6 +151,8 @@ static newgame_params_c *d_params = NULL;
 //
 void G_DoLoadLevel(void)
 {
+	gameaction = ga_nothing;
+
 	if (currmap == NULL)
 		I_Error("G_DoLoadLevel: No Current Map selected");
 
@@ -258,7 +260,6 @@ void G_DoLoadLevel(void)
 	exit_skipall = false;
 
 	gamestate = GS_LEVEL;
-	gameaction = ga_nothing;
 
 	CON_SetVisible( /* !!! showMessages?vs_minimal: */ vs_notvisible);
 	CON_Printf("%s\n", currmap->ddf.name.GetString());
@@ -696,11 +697,11 @@ void G_DeferredLoadGame(int slot)
 
 static void G_DoLoadGame(void)
 {
+	gameaction = ga_nothing;
+
 	epi::string_c fn;
 	saveglobals_t *globs;
 	int version;
-
-	gameaction = ga_nothing;
 
 #if 0  // DEBUGGING CODE
 	SV_DumpSaveGame(loadgame_slot);
@@ -825,6 +826,8 @@ void G_DeferredSaveGame(int slot, const char *description)
 
 static void G_DoSaveGame(void)
 {
+	gameaction = ga_nothing;
+
 	epi::string_c fn;
 	time_t cur_time;
 	char timebuf[100];
@@ -890,8 +893,6 @@ static void G_DoSaveGame(void)
 	savedescription[0] = 0;
 
 	CON_Printf("%s", language["GameSaved"]);
-
-	gameaction = ga_nothing;
 }
 
 //
@@ -958,6 +959,8 @@ bool G_DeferredInitNew(newgame_params_c& params)
 
 static void G_DoNewGame(void)
 {
+	gameaction = ga_nothing;
+
 	DEV_ASSERT2(d_params);
 
 	demoplayback = false;
@@ -985,8 +988,6 @@ static void G_DoNewGame(void)
 	d_params->random_seed = I_PureRandom();
 
 	G_InitNew(*d_params);
-
-	gameaction = ga_nothing;
 
 	// -AJA- 2003/10/09: support for pre-level briefing screen on first map.
 	//       FIXME: kludgy. All this game logic desperately needs rethinking.
@@ -1094,6 +1095,8 @@ void G_DeferredEndGame(void)
 
 static void G_DoEndGame(void)
 {
+	gameaction = ga_nothing;
+
 	P_DestroyAllPlayers();
 
 	// if (gamestate == GS_LEVEL) P_ShutdownLevel()

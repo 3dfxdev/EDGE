@@ -98,9 +98,10 @@ static style_c *finale_hack_style;
 //
 void F_StartFinale(const map_finaledef_c * f, gameaction_e newaction)
 {
+	gameaction = ga_nothing;
+
 	finalestage = f_text;
 	finalecount = 0;
-	gameaction = ga_nothing;
 	viewactive = false;
 	automapactive = false;
 	finale = f;
