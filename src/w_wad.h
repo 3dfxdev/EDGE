@@ -70,7 +70,9 @@ wadtex_resource_t;
 
 extern lumpinfo_t *lumpinfo;
 extern int numlumps;
+extern int addwadnum;
 
+void W_AddRawFilename(const char *file, boolean_t allow_ddf);
 boolean_t W_InitMultipleFiles(void);
 void W_Reload(void);
 
