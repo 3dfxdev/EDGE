@@ -2106,6 +2106,7 @@ void label_offset_c::Copy(label_offset_c &src)
 //
 void label_offset_c::Default()
 {
+	label.Clear();
 	offset = 0;
 }
 
