@@ -29,7 +29,9 @@
 #include "ui_log.h"
 
 
-NLsocket main_socket;
+NLsocket bcast_socket;
+NLsocket conn_socket;
+
 static NLint main_group;
 
 NLmutex  global_lock;  // lock the client/game structures
@@ -232,26 +234,38 @@ void NetInit(void)
 		}
 	}
 
-	main_socket = nlOpen(port, NL_UNRELIABLE);
+	bcast_socket = nlOpen(port, NL_UNRELIABLE);
 
-	if (main_socket == NL_INVALID)
+	if (bcast_socket == NL_INVALID)
 	{
 		fl_alert("Unable to create UDP socket on port %d:\n(%s)", port,
 				 GetNLErrorStr());
 		exit(5); //!!!!
 	}
 
+	conn_socket = nlOpen(port, NL_RELIABLE_PACKETS);
+
+	if (conn_socket == NL_INVALID)
+	{
+		fl_alert("Unable to create TCP socket on port %d:\n(%s)", port,
+				 GetNLErrorStr());
+		exit(5); //!!!!
+	}
+
 	main_group = nlGroupCreate();
 
-	if (main_group == NL_INVALID || ! nlGroupAddSocket(main_group, main_socket))
+	if (main_group == NL_INVALID)
 	{
 		fl_alert("Out of memory (cannot create socket group)");
 		exit(5);
 	}
 
+	nlGroupAddSocket(main_group, bcast_socket);
+	nlGroupAddSocket(main_group, conn_socket);
+
 	NLaddress addr;
 
-    nlGetLocalAddr(main_socket, &addr);
+    nlGetLocalAddr(conn_socket, &addr);
     LogPrintf(0, "Server address: %s\n\n", GetAddrName(&addr));
 }
 
@@ -279,6 +293,135 @@ static void HandleTimeouts()
 	nlMutexUnlock(&global_lock);
 }
 
+static void HandleBroadcast(void)
+{
+	packet_c pk; 
+	pk.Clear();
+
+	while (pk.Read(bcast_socket))
+	{
+		NLaddress remote_addr;
+		nlGetRemoteAddr(bcast_socket, &remote_addr);
+
+		DebugPrintf("BROADCAST PACKET: type [%c%c] data_len %d addr %s\n",
+				pk.hd().type[0], pk.hd().type[1], pk.hd().data_len,
+				GetAddrName(&remote_addr));
+
+		if (pk.CheckType("bd"))   // broadcast discovery
+		{
+			PK_broadcast_discovery_UDP(&pk, &remote_addr);
+		}
+		else
+		{
+			LogPrintf(1, "Unknown broadcast packet: [%c%c] addr %s\n",
+				pk.hd().type[0], pk.hd().type[1],
+				GetAddrName(&remote_addr));
+		}
+	}
+}
+
+static void HandleConnection(void)
+{
+	NLsocket NEW_SOCK = nlAcceptConnection(conn_socket);
+
+	if (NEW_SOCK == NL_INVALID)
+	{
+		// @@@
+		return;
+	}
+
+	// FIXME @@@@
+}
+
+static void NormalPacket(NLsocket CUR_SOCK)
+{
+	packet_c pk; 
+	pk.Clear();
+
+	while (pk.Read(CUR_SOCK))
+	{
+		NLaddress remote_addr;
+		nlGetRemoteAddr(CUR_SOCK, &remote_addr);
+
+		DebugPrintf("NORMAL PACKET: type [%c%c] data_len %d addr %s\n",
+				pk.hd().type[0], pk.hd().type[1], pk.hd().data_len,
+				GetAddrName(&remote_addr));
+
+///UDP	nlSetRemoteAddr(socks[0], &remote_addr);
+
+		// must validate the client field (the only exceptions are the
+		// connect-to-server and the broadcast-discovery packets).
+
+		// FIXME: CUR_SOCK !!!
+		if (! VerifyClient(pk.hd().client, &remote_addr))
+		{
+			LogPrintf(2, "Client %d verify failed: packet [%c%c]\n",
+					pk.hd().client, pk.hd().type[0], pk.hd().type[1]);
+			continue;
+		}
+
+		// any traffic from a client proves they still exist
+		cur_net_time = GetNetTime();
+
+		clients[pk.hd().client]->BumpDieTime();
+
+		if (pk.CheckType("cs"))   // connect to server
+		{
+			PK_connect_to_server(&pk, &remote_addr);
+		}
+		else if (pk.CheckType("ls"))   // leave server
+		{
+			PK_leave_server(&pk);
+		}
+		else if (pk.CheckType("ka"))  // keep-alive
+		{
+			PK_keep_alive(&pk);
+		}
+		else if (pk.CheckType("qc"))  // query client
+		{
+			PK_query_client(&pk);
+		}
+		else if (pk.CheckType("qg"))  // query game
+		{
+			PK_query_game(&pk);
+		}
+		else if (pk.CheckType("ng"))  // new game
+		{
+			PK_new_game(&pk);
+		}
+		else if (pk.CheckType("jq"))  // join queue
+		{
+			PK_join_queue(&pk);
+		}
+		else if (pk.CheckType("lg"))  // leave game
+		{
+			PK_leave_game(&pk);
+		}
+		else if (pk.CheckType("vp"))  // play game, dammit!
+		{
+			PK_vote_to_play(&pk);
+		}
+		else if (pk.CheckType("tc"))  // send ticcmd
+		{
+			PK_ticcmd(&pk);
+		}
+		else if (pk.CheckType("tr"))  // tic retransmit
+		{
+			PK_tic_retransmit(&pk);
+		}
+		else if (pk.CheckType("ms"))  // send message
+		{
+			PK_message(&pk);
+		}
+		else
+		{
+			LogPrintf(1, "Unknown packet: [%c%c] addr %s\n",
+					pk.hd().type[0], pk.hd().type[1],
+					GetAddrName(&remote_addr));
+		}
+	}
+}
+
 //
 // NetRun
 //
@@ -292,108 +435,31 @@ void *NetRun(void *data)
 
 	try
 	{
+		const int SOCK_LIM = 256;
+		NLsocket socks[SOCK_LIM];
+
 		while (! net_quit)
 		{
 			HandleTimeouts();
 
-			NLsocket socks[4];  // only one in the group
-
-			int num = nlPollGroup(main_group, NL_READ_STATUS, socks, 4, 10 /* millis */);
+			int num = nlPollGroup(main_group, NL_READ_STATUS, socks, SOCK_LIM, 10 /* millis */);
 
 			if (num < 1)
 				continue;
 
 			packet_c pk; 
-			pk.Clear();  // paranoia
+			pk.Clear();
 
-			while (pk.Read(socks[0]))
+			for (int idx = 0; idx < num; idx++)
 			{
-				NLaddress remote_addr;
-				nlGetRemoteAddr(socks[0], &remote_addr);
+				NLsocket CUR_SOCK = socks[idx];
 
-				DebugPrintf("GOT PACKET: type [%c%c] data_len %d addr %s\n",
-					pk.hd().type[0], pk.hd().type[1], pk.hd().data_len,
-					GetAddrName(&remote_addr));
-
-				/* send replies back to originator */
-				nlSetRemoteAddr(socks[0], &remote_addr);
-
-				if (pk.CheckType("cs"))   // connect to server
-				{
-					PK_connect_to_server(&pk, &remote_addr);
-					continue;
-				}
-				else if (pk.CheckType("bd"))   // broadcast discovery
-				{
-					PK_broadcast_discovery(&pk, &remote_addr);
-					continue;
-				}
-
-				// must validate the client field (the only exceptions are the
-				// connect-to-server and the broadcast-discovery packets).
-
-				if (! VerifyClient(pk.hd().client, &remote_addr))
-				{
-					LogPrintf(2, "Client %d verify failed: packet [%c%c]\n",
-						pk.hd().client, pk.hd().type[0], pk.hd().type[1]);
-					continue;
-				}
-
-				cur_net_time = GetNetTime();
-
-				// any traffic from a client proves they still exist
-				clients[pk.hd().client]->BumpDieTime();
-
-				if (pk.CheckType("ls"))   // leave server
-				{
-					PK_leave_server(&pk);
-				}
-				else if (pk.CheckType("ka"))  // keep-alive
-				{
-					PK_keep_alive(&pk);
-				}
-				else if (pk.CheckType("qc"))  // query client
-				{
-					PK_query_client(&pk);
-				}
-				else if (pk.CheckType("qg"))  // query game
-				{
-					PK_query_game(&pk);
-				}
-				else if (pk.CheckType("ng"))  // new game
-				{
-					PK_new_game(&pk);
-				}
-				else if (pk.CheckType("jq"))  // join queue
-				{
-					PK_join_queue(&pk);
-				}
-				else if (pk.CheckType("lg"))  // leave game
-				{
-					PK_leave_game(&pk);
-				}
-				else if (pk.CheckType("vp"))  // play game, dammit!
-				{
-					PK_vote_to_play(&pk);
-				}
-				else if (pk.CheckType("tc"))  // send ticcmd
-				{
-					PK_ticcmd(&pk);
-				}
-				else if (pk.CheckType("tr"))  // tic retransmit
-				{
-					PK_tic_retransmit(&pk);
-				}
-				else if (pk.CheckType("ms"))  // send message
-				{
-					PK_message(&pk);
-				}
+				if (CUR_SOCK == bcast_socket)
+					HandleBroadcast();
+				else if (CUR_SOCK == conn_socket)
+					HandleConnection();
 				else
-				{
-					LogPrintf(1, "Unknown packet: [%c%c] addr %s\n",
-						pk.hd().type[0], pk.hd().type[1],
-						GetAddrName(&remote_addr));
-				}
+					NormalPacket(CUR_SOCK);
 			}
 		}
 	}

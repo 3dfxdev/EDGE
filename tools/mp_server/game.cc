@@ -317,11 +317,11 @@ static void BeginGame(game_c *GM)
 		int client_id = GM->players[p];
 		client_c *CL = clients[client_id];
 
-		nlSetRemoteAddr(main_socket, &CL->addr);
+///UDP	nlSetRemoteAddr(CL->sock, &CL->addr);
 
 		pk.hd().client = client_id;
 
-		pk.Write(main_socket);
+		CL->Write(&pk);
 
 		pk.hd().ByteSwap();  // FIXME: rebuild header
 	}
@@ -383,11 +383,11 @@ static void SV_send_all_tic_groups(int one_client, game_c *GM, int tic_num,
 		if (one_client >= 0 && client_id != one_client)
 			continue;
 
-		nlSetRemoteAddr(main_socket, &CL->addr);
-
 		pk.hd().client = client_id;
 
-		pk.Write(main_socket);
+///UDP	nlSetRemoteAddr(main_socket, &CL->addr);
+
+		CL->Write(&pk);
 
 		pk.hd().ByteSwap();  // FIXME: rebuild header each time
 	}
@@ -478,7 +478,7 @@ void PK_new_game(packet_c *pk)
 	ng.game = CL->game_id;
 	ng.ByteSwap();
 
-	pk->Write(main_socket);
+	CL->Write(pk);
 }
 
 void PK_join_queue(packet_c *pk)
@@ -611,6 +611,9 @@ void PK_vote_to_play(packet_c *pk)
 
 void PK_query_game(packet_c *pk)
 {
+	int client_id = pk->hd().client;
+	client_c *CL = clients[client_id];
+
 	query_game_proto_t& qg = pk->qg_p();
 
 	qg.ByteSwap();
@@ -656,7 +659,7 @@ void PK_query_game(packet_c *pk)
 		pk->hd().data_len = sizeof(query_game_proto_t) +
 			(count - 1) * sizeof(game_info_t);
 
-		pk->Write(main_socket);
+		CL->Write(pk);
 
 		pk->hd().ByteSwap();  // FIXME: rebuild header each time
 	}
