@@ -565,6 +565,9 @@ typedef struct rad_trigger_s
 
 	// origin for any sounds played by the trigger
 	degenmobj_t soundorg;
+
+	// prevent repeating scripts from clogging the console
+	const char *last_con_message;
 }
 rad_trigger_t;
 

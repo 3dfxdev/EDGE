@@ -24,6 +24,7 @@
 
 #include "dm_defs.h"
 #include "dm_state.h"
+#include "con_main.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"
 #include "g_game.h"
@@ -209,7 +210,7 @@ static void FinishTip(drawtip_t *current)
 //
 // SendTip
 //
-static void SendTip(s_tip_t * tip, int slot)
+static void SendTip(rad_trigger_t *R, s_tip_t * tip, int slot)
 {
 	drawtip_t *current;
 
@@ -232,6 +233,13 @@ static void SendTip(s_tip_t * tip, int slot)
 		current->tip_text = Z_StrDup(tip->tip_text);
 	else
 		current->tip_text = NULL;
+
+	// send message to the console (unless it would clog it up)
+	if (current->tip_text && current->tip_text != R->last_con_message)
+	{
+		CON_Printf("%s\n", current->tip_text);
+		R->last_con_message = current->tip_text;
+	}
 
 	current->tip_graphic = tip->tip_graphic ?
 		W_ImageFromPatch(tip->tip_graphic) : NULL;
@@ -377,7 +385,7 @@ void RAD_ActTip(rad_trigger_t *R, mobj_t *actor, void *param)
 	if (actor->player != consoleplayer)
 		return;
 
-	SendTip(tip, R->tip_slot);
+	SendTip(R, tip, R->tip_slot);
 }
 
 void RAD_ActTipProps(rad_trigger_t *R, mobj_t *actor, void *param)
