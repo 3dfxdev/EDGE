@@ -222,6 +222,30 @@ namespace Things
 				cur_f, info->name);
 	}
 
+	
+	const int height_fixes[] =
+	{
+	   MT_MISC14, 60, MT_MISC29, 78, MT_MISC30, 58, MT_MISC31, 46,
+	   MT_MISC33, 38, MT_MISC34, 50, MT_MISC38, 56, MT_MISC39, 48,
+	   MT_MISC41, 96, MT_MISC42, 96, MT_MISC43, 96, MT_MISC44, 72,
+	   MT_MISC45, 72, MT_MISC46, 72, MT_MISC70, 64, MT_MISC72, 52,
+	   MT_MISC73, 40, MT_MISC74, 64, MT_MISC75, 64, MT_MISC76, 120,
+	   -1 /* the end */
+	};
+
+	void FixHeights(void)
+	{
+		for (int i = 0; height_fixes[i] >= 0; i += 2)
+		{
+			int mt_num = height_fixes[i];
+
+			assert(mt_num < NUMMOBJTYPES);
+
+			if (mobjinfo[mt_num].height == 16*FRACUNIT)
+				mobjinfo[mt_num].height = height_fixes[i+1]*FRACUNIT;
+		}
+	}
+
 	const char *GetSound(int sound_id)
 	{
 		assert(sound_id != sfx_None);
@@ -753,6 +777,8 @@ void Things::ConvertMobj(const mobjinfo_t *info, int mt_num, int player)
 
 void Things::ConvertTHING(void)
 {
+	FixHeights();
+
 	got_one = false;
 
 	for (int i = 0; i < NUMMOBJTYPES; i++)
