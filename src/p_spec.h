@@ -101,48 +101,6 @@ typedef struct button_s
 }
 button_t;
 
-// -ACB- 2001/01/29 Maybe I'm thinking too OO.
-typedef struct gen_move_s
-{
-  movedat_e whatiam;
-  void *next, *prev;
-}
-gen_move_t;
-
-// -KM- 1998/09/01 lines.ddf
-typedef struct sec_move_s
-{
-  movedat_e whatiam;
-  struct sec_move_s *next, *prev;
-
-  const moving_plane_t *type;
-  sector_t *sector;
-
-  // Ceiling is true
-  boolean_t floorOrCeiling;
-
-  float_t startheight;
-  float_t destheight;
-  float_t speed;
-  boolean_t crush;
-
-  // 1 = up, 0 = waiting at top, -1 = down
-  int direction;
-  int olddirection;
-
-  int tag;
-
-  // tics to wait when fully open
-  int waited;
-
-  boolean_t sfxstarted;
-  boolean_t completed;
-
-  int newspecial;
-  const image_t *new_image;
-}
-sec_move_t;
-
 typedef enum
 {
   RES_Ok,
@@ -151,30 +109,13 @@ typedef enum
 }
 result_e;
 
-typedef struct slider_move_s
+// -ACB- 2001/01/29 Maybe I'm thinking too OO.
+typedef struct gen_move_s
 {
   movedat_e whatiam;
-  struct slider_move_s *next, *prev;
-
-  const sliding_door_t *info;
-  line_t *line;
-
-  // current distance it has opened
-  float_t opening;
-
-  // target distance (== length of line)
-  float_t target;
- 
-  // 1 = opening, 0 = waiting, -1 = closing
-  int direction;
-
-  // tics to wait at the top
-  int waited;
-
-  boolean_t sfxstarted;
-  boolean_t final_open;
+  struct gen_move_s *next, *prev;
 }
-slider_move_t;
+gen_move_t;
 
 typedef struct elev_move_s
 {
@@ -206,6 +147,64 @@ typedef struct elev_move_s
   const image_t *new_floor_image;
 }
 elev_move_t;
+
+typedef struct plane_move_s
+{
+  movedat_e whatiam;
+  struct plane_move_s *next, *prev;
+
+  const moving_plane_t *type;
+  sector_t *sector;
+
+  // Ceiling is true
+  boolean_t floorOrCeiling;
+
+  float_t startheight;
+  float_t destheight;
+  float_t speed;
+  boolean_t crush;
+
+  // 1 = up, 0 = waiting at top, -1 = down
+  int direction;
+  int olddirection;
+
+  int tag;
+
+  // tics to wait when fully open
+  int waited;
+
+  boolean_t sfxstarted;
+  boolean_t completed;
+
+  int newspecial;
+  const image_t *new_image;
+}
+plane_move_t;
+
+typedef struct slider_move_s
+{
+  movedat_e whatiam;
+  struct slider_move_s *next, *prev;
+
+  const sliding_door_t *info;
+  line_t *line;
+
+  // current distance it has opened
+  float_t opening;
+
+  // target distance (== length of line)
+  float_t target;
+ 
+  // 1 = opening, 0 = waiting, -1 = closing
+  int direction;
+
+  // tics to wait at the top
+  int waited;
+
+  boolean_t sfxstarted;
+  boolean_t final_open;
+}
+slider_move_t;
 
 // End-level timer (-TIMER option)
 extern boolean_t levelTimer;
@@ -257,11 +256,10 @@ int P_FindMinSurroundingLight(sector_t * sector, int max);
 // start an action...
 boolean_t EV_Lights(sector_t * sec, const lighttype_t * type);
 
-void P_AddActiveSector(sec_move_t * sec);
-
 void P_RunActiveSectors(void);
-void P_RemoveAllActiveSectors(void);
-void P_RemoveAllActiveSliders(void);
+
+void P_RemoveAllActiveParts(void);
+
 void P_RunLights(void);
 light_t *P_NewLight(void);
 void P_DestroyAllLights(void);
@@ -275,16 +273,16 @@ boolean_t EV_Teleport(line_t * line, int tag, int side, mobj_t * thing,
     const mobjinfo_t * outeffectobj);
 boolean_t EV_ManualPlane(line_t * line, mobj_t * thing, const moving_plane_t * type);
 boolean_t EV_ManualElevator(line_t * line, mobj_t * thing, const elevator_sector_t * type);
-boolean_t EV_Slider(line_t * line, mobj_t * thing, const sliding_door_t * s);
-boolean_t EV_DoSector(sector_t * sec, const moving_plane_t * type, sector_t * model);
+
+boolean_t EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_t * s);
+boolean_t EV_DoPlane(sector_t * sec, const moving_plane_t * type, sector_t * model);
 boolean_t EV_DoElevator(sector_t * sec, const elevator_sector_t * type, sector_t * model);
 
 //
 //  P_SWITCH
 //
 void P_InitSwitchList(void);
-void P_ChangeSwitchTexture(line_t * line, boolean_t useAgain, 
-    line_special_e specials, boolean_t noSound);
+void P_ChangeSwitchTexture(line_t * line, boolean_t useAgain, line_special_e specials, boolean_t noSound);
 boolean_t P_ButtonCheckPressed(line_t * line);
 
 #endif
