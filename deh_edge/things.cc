@@ -665,6 +665,19 @@ namespace Things
 			WAD::Printf("PICKUP_SOUND = %s;\n", Sounds::GetSound(pu->sound));
 	}
 
+	const char *cast_titles[17] =
+	{
+	    "OurHeroName",     "ZombiemanName",
+        "ShotgunGuyName",  "HeavyWeaponDudeName",
+        "ImpName",         "DemonName",
+	    "LostSoulName",    "CacodemonName",
+        "HellKnightName",  "BaronOfHellName",
+        "ArachnotronName", "PainElementalName",
+        "RevenantName",    "MancubusName",
+        "ArchVileName",    "SpiderMastermindName",
+        "CyberdemonName"
+	};
+
 	void HandleCastOrder(const mobjinfo_t *info, int mt_num, int player)
 	{
 		if (player >= 2)
@@ -701,6 +714,7 @@ namespace Things
 			return;
 
 		WAD::Printf("CASTORDER = %d;\n", order);
+		WAD::Printf("CAST_TITLE = %s;\n", cast_titles[order - 1]);
 	}
 
 	void HandleDropItem(const mobjinfo_t *info, int mt_num)
@@ -788,7 +802,9 @@ void Things::ConvertMobj(const mobjinfo_t *info, int mt_num, int player)
 	if (info->reactiontime != 0)
 		WAD::Printf("REACTION_TIME = %dT;\n", info->reactiontime);
 
-	if (info->painchance != 0)
+	if (info->painchance >= 256)
+		WAD::Printf("PAINCHANCE = 100%%;\n");
+	else if (info->painchance > 0)
 		WAD::Printf("PAINCHANCE = %1.1f%%;\n",
 			(float)info->painchance * 100.0 / 256.0);
 
