@@ -38,6 +38,7 @@
 
 // needed for texture pegging
 extern float_t *textureheight;
+extern float_t *texturewidth;
 
 // needed for pre rendering (fracs)
 extern float_t *spritewidth;
