@@ -143,13 +143,13 @@ void V_AddAvailableResolution(screenmode_t *mode)
 {
 	int i;
 
-	if (mode->depth == 32)
-		mode->depth = 24;
+	if (mode->depth == 24)
+		mode->depth = 32;
 	else if (mode->depth == 15)
 		mode->depth = 16;
 
 	// Unsupported depth: do not add it.
-	if (mode->depth != 16 && mode->depth != 24)
+	if (mode->depth != 16 && mode->depth != 32)
 		return;
 
 	L_WriteDebug("V_AddAvailableResolution: %d x %d x %d\n", mode->width,

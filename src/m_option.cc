@@ -1230,7 +1230,7 @@ static void M_ResolutionOptions(int keypressed)
 	byte depth = SCREENBITS;
 
 	// Get a depth mask for resolution selection
-	DEV_ASSERT2(depth == 16 || depth == 24 || depth == 32);
+	DEV_ASSERT2(depth == 16 || depth == 32);
 
 	// Find the current mode in the scrmode[] table
 	screenmode_t curMode;
@@ -1676,18 +1676,14 @@ static void M_ChangeStoredBpp(int keypressed)
 		{
 			if (newdepthbit == 16)
 				newdepthbit = 32;
-			else if (newdepthbit == 24)
-				newdepthbit = 16;
 			else if (newdepthbit == 32)
-				newdepthbit = 24;
+				newdepthbit = 16;
 		}
 		else if (keypressed == KEYD_RIGHTARROW)
 		{
 			if (newdepthbit == 32)
 				newdepthbit = 16;
 			else if (newdepthbit == 16)
-				newdepthbit = 24;
-			else if (newdepthbit == 24)
 				newdepthbit = 32;
 		}
     

@@ -312,7 +312,7 @@ static void SetGlobalVars(void)
 	if (SCREENBITS < 15)
 		SCREENBITS = 15;
 	else if (SCREENBITS > 16)
-		SCREENBITS = 24;
+		SCREENBITS = 32;
 
 	M_CheckBooleanParm("windowed",   &SCREENWINDOW, false);
 	M_CheckBooleanParm("fullscreen", &SCREENWINDOW, true);
