@@ -52,6 +52,7 @@
 #include <FL/Fl_Hold_Browser.H>
 #include <FL/Fl_Image.H>
 #include <FL/Fl_Input.H>
+#include <FL/Fl_Int_Input.H>
 #include <FL/Fl_Light_Button.H>
 #include <FL/Fl_Menu_Bar.H>
 #include <FL/Fl_Menu_Item.H>

@@ -96,6 +96,7 @@ UI_MainWin::UI_MainWin(const char *title) :
 
 #ifndef MACOSX
 		cy += menu_bar->h();
+		cy += 8;
 #endif
 	}
 
@@ -104,18 +105,18 @@ UI_MainWin::UI_MainWin(const char *title) :
 		tabs = new Fl_Tabs(0, cy, w(), h() - cy);
 		tabs->end();
 		tabs->selection_color(FL_YELLOW);
+		// tabs->box(FL_NO_BOX);
 
 		cy += 26;
 	}
 
-	/* ---- Setup pane ---- */
+	/* ---- Setup tab ---- */
 	{
 		Fl_Group *setup_group = new Fl_Group(0, cy, w(), h() - cy, "Setup");
 		setup_group->end();
 
 		setup_box = new UI_Setup(0, cy, w(), h() - cy);
 		setup_group->add(setup_box);
-///---		setup_group->resizable(0);
 
 		tabs->add(setup_group);
 		tabs->value(setup_group);
@@ -144,7 +145,7 @@ UI_MainWin::UI_MainWin(const char *title) :
 		tabs->add(game_group);
 	}
 
-	/* ---- Log and Statistics pane ---- */
+	/* ---- Log and Statistics tab ---- */
 	{
 		Fl_Group *stat_group = new Fl_Group(0, cy, w(), h() - cy, "Log");
 		stat_group->end();
