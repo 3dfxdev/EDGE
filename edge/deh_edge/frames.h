@@ -24,11 +24,12 @@
 
 namespace Frames
 {
-	int InitGroup(int first, char group);
-	bool SpreadGroups(void);
+	void ResetAll(void);
+	int  BeginGroup(int first, char group);
+	void SpreadGroups(void);
 	bool CheckSpawnRemove(int first);
 	void OutputState(int cur);
-	void OutputGroup(int first, char group, bool use_spawn);
+	void OutputGroup(int first, char group);
 	const char *GroupToName(char group, bool use_spawn);
 }
 

@@ -87,7 +87,15 @@ actioninfo_t action_info[NUMACTIONS] =
 };
 
 
-int Frames::InitGroup(int first, char group)
+void Frames::ResetAll(void)
+{
+	for (int i = 0; i < NUMSTATES; i++)
+	{
+		state_dyn[i].group = state_dyn[i].gr_idx = 0;
+	}
+}
+
+int Frames::BeginGroup(int first, char group)
 {
 	if (first == S_NULL)
 		return 0;
@@ -98,40 +106,43 @@ int Frames::InitGroup(int first, char group)
 	return 1;
 }
 
-bool Frames::SpreadGroups(void)
+void Frames::SpreadGroups(void)
 {
-	// returns true if something was done
-	bool changes = false;
+	bool changes;
 
-	int i;
-
-	for (i = 0; i < NUMSTATES; i++)
+	do
 	{
-		if (state_dyn[i].group == 0)
-			continue;
+		changes = false;
 
-		int next = states[i].nextstate;
+		for (int i = 0; i < NUMSTATES; i++)
+		{
+			if (state_dyn[i].group == 0)
+				continue;
 
-		if (next == S_NULL)
-			continue;
+			int next = states[i].nextstate;
 
-		if (state_dyn[next].group != 0)
-			continue;
+			if (next == S_NULL)
+				continue;
 
-		state_dyn[next].group  = state_dyn[i].group;
-		state_dyn[next].gr_idx = state_dyn[i].gr_idx + 1;
+			if (state_dyn[next].group != 0)
+				continue;
+
+			state_dyn[next].group  = state_dyn[i].group;
+			state_dyn[next].gr_idx = state_dyn[i].gr_idx + 1;
+		}
 	}
-
-	return changes;
+	while (changes);
 }
 
 bool Frames::CheckSpawnRemove(int first)
 {
-	if (first == S_NULL || state_dyn[first].group != 'S')
-		return false;
+	assert(first != S_NULL);
 
 	for (;;)
 	{
+		if (state_dyn[first].group != 'S')
+			break;
+
 		if (states[first].tics < 0)  // hibernation
 			break;
 
@@ -142,10 +153,9 @@ bool Frames::CheckSpawnRemove(int first)
 		if (first == S_NULL)
 			return true;
 
-		char next_gr = state_dyn[first].group;
 		int next_idx = state_dyn[first].gr_idx;
 
-		if (next_gr != 'S' || next_idx != (prev_idx + 1))
+		if (next_idx != (prev_idx + 1))
 			break;
 	}
 
@@ -184,12 +194,14 @@ const char *Frames::GroupToName(char group, bool use_spawn)
 	return NULL;
 }
 
-void Frames::OutputGroup(int first, char group, bool use_spawn)
+void Frames::OutputGroup(int first, char group)
 {
 	if (first == S_NULL)
 		return;
 
 	assert(state_dyn[first].group != 0);
+
+	bool use_spawn = (group == 'S') && CheckSpawnRemove(first);
 
 	// this allows group sharing (especially MELEE and MISSILE)
 	char first_group = state_dyn[first].group;

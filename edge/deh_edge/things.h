@@ -19,7 +19,6 @@
 #ifndef __THINGS__
 #define __THINGS__
 
-#include "i_defs.h"
 #include "info.h"
 
 namespace Things
@@ -28,6 +27,9 @@ namespace Things
 	void FinishLump(void);
 
 	void ConvertAll(void);
+
+	void HandleFlags(mobjinfo_t *info, int mt_num, int player);
+	const char *GetSound(int sound_id);
 }
 
 
