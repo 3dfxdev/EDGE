@@ -173,22 +173,16 @@ bool I_InitApp(HINSTANCE hInstance, int nCmdShow)
 	RegisterClass(&wc);
 
 	// Create a window
-#ifdef USE_GL  // -AJA- fiddle fiddle...  hack hack...
 	hWnd = CreateWindow(NAME, TITLE,
-		WS_CAPTION, // WS_POPUP
-		0, 0, 2, 2,
+		WS_OVERLAPPEDWINDOW,
+		4, 4, 2, 2,
 		NULL, NULL, hInstance, NULL);
-#else
-	hWnd = CreateWindow(NAME, TITLE,
-		WS_CAPTION,
-		0, 0, 2, 2,
-		NULL, NULL, hInstance, NULL);
-#endif
+
 
 	if (!hWnd)
 		return false;
 
-	ShowWindow(hWnd, nCmdShow);
+	ShowWindow(hWnd, SW_SHOWMINIMIZED); // -ACB- 2004/02/15 Start hidden regardless...
 	UpdateWindow(hWnd);
 	SetFocus(hWnd);
 
@@ -332,18 +326,32 @@ static void CleanupParameters(void)
 //
 int PASCAL WinMain (HINSTANCE curr, HINSTANCE prev, LPSTR cmdline, int show)
 {
+	HANDLE edgemap;
+
+	// Check we've not already running
+	edgemap = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READONLY, 0, 8, TITLE);
+	if (edgemap)
+	{
+		DWORD lasterror = GetLastError();
+		if (lasterror == ERROR_ALREADY_EXISTS)
+		{
+			MessageBox(NULL, "EDGE is already running!", TITLE, MB_ICONSTOP|MB_OK);
+			return -1;
+		}
+	}
+
+	// Setup our windozes bits...
 	if (!I_InitApp(curr, show))
-		return FALSE;
+		return -1;
 
 	// sort command line 
 	ParseParameters();
 
-	accelerator = LoadAccelerators(curr,"AppAccel");
-
+	// Run Game....
 	E_EDGEMain();
 
+	// Cleanup on exit
 	CleanupParameters();
-
 	return 0;
 }
 
