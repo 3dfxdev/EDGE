@@ -1,7 +1,7 @@
 // 
 //    EDGE LINES.DDF -redefine or add new line triggers.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 4.4
+//    DDF Version 4.5
 //
 
 <LINES>
@@ -461,20 +461,19 @@ SINGLESIDED=TRUE;
 // NOTE: line type 40 is defaulted to the following in DOOM and DOOM2 (rem'd out):
 
 /*
-	// RAISE CEILING LOWER FLOOR W1
-	[40]
-	TYPE=WALK;
-	ACTIVATORS=PLAYER;
-	COUNT=1;
-	FLOOR.TYPE=MOVE;
-	FLOOR.SPEED_DOWN=1;
-	FLOOR.DEST_REF=LOSURROUNDINGFLOOR;
-	FLOOR.SFX_DOWN=STNMOV;
-	CEILING.TYPE=MOVE;
-	CEILING.SPEED_UP=1;
-	CEILING.DEST_REF=HISURROUNDINGCEILING;
-	CEILING.SFX_UP=STNMOV;
-	
+    // RAISE CEILING LOWER FLOOR W1
+    [40]
+    TYPE=WALK;
+    ACTIVATORS=PLAYER;
+    COUNT=1;
+    FLOOR.TYPE=MOVE;
+    FLOOR.SPEED_DOWN=1;
+    FLOOR.DEST_REF=LOSURROUNDINGFLOOR;
+    FLOOR.SFX_DOWN=STNMOV;
+    CEILING.TYPE=MOVE;
+    CEILING.SPEED_UP=1;
+    CEILING.DEST_REF=HISURROUNDINGCEILING;
+    CEILING.SFX_UP=STNMOV;
 */
 
 // ...and this is the BOOM/MBF linetype defined (which is the currently active type):
