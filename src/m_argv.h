@@ -37,7 +37,7 @@ int M_CheckParm(const char *check);
 int M_CheckNextParm(const char *check, int prev);
 const char *M_GetParm(const char *check);
 void M_InitArguments(int argc, const char **argv);
-void M_ApplyResponseFile(const char *name);
+void M_ApplyResponseFile(const char *name, int position);
 void M_CheckBooleanParm(const char *parm, boolean_t *bool, boolean_t reverse);
 
 #endif
