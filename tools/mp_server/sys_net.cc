@@ -42,11 +42,11 @@
 #ifdef LINUX
 
 //
-// Determine IP address of local host.  Result will be in
-// dotted notation (like 11.22.33.44) or NULL if something
-// went wrong (invalid interface).
+// Determine IP address of local host via ethernet adapter.
+// Result will be in dotted notation (like 11.22.33.44) or NULL
+// if something went wrong (invalid interface).
 //
-const char * LocalIPAddrString(const char *iface_name)
+const char * I_LocalIPAddrString(const char *iface_name)
 {
 	int fd;
 

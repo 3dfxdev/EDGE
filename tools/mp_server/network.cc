@@ -168,9 +168,9 @@ static void DetermineLocalAddr(void)
 	}
 
 #ifdef LINUX
-	const char *local_ip = LocalIPAddrString("eth0");
+	const char *local_ip = I_LocalIPAddrString("eth0");
 	if (! local_ip)
-		local_ip = LocalIPAddrString("eth1");
+		local_ip = I_LocalIPAddrString("eth1");
 
 	if (local_ip)
 	{
