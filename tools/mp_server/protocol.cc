@@ -16,12 +16,17 @@
 //
 //------------------------------------------------------------------------
 
-#ifdef EDGEVER
+#ifndef EDGEVER
+#include "includes.h"
+#else
+/* EDGE */
 #include "epi/epitype.h"
 #include "epi/epiendian.h"
+
 #define SYS_BE_S16  EPI_BE_S16
-#else
-#include "includes.h"
+#define SYS_BE_U16  EPI_BE_U16
+#define SYS_BE_S32  EPI_BE_S32
+#define SYS_BE_U32  EPI_BE_U32
 #endif
 
 #include "protocol.h"
@@ -118,18 +123,26 @@ void raw_ticcmd_t::ByteSwap()
 	shorts[3] = SYS_BE_U16(shorts[3]);
 }
 
-void ticcmd_proto_t::ByteSwap()
+void ticcmd_proto_t::ByteSwap(bool do_tics)
 {
 	gametic = SYS_BE_U32(gametic);
 	
-	/* TICCMDs are purely the engine's responsibility */
+	if (do_tics)
+	{
+		for (int t = 0; t < count; t++)
+			tic_cmds[t].ByteSwap();
+	}
 }
 
-void tic_group_proto_t::ByteSwap()
+void tic_group_proto_t::ByteSwap(bool do_tics)
 {
 	gametic = SYS_BE_U32(gametic);
 
-	/* TICCMDs are the engine's responsibility */
+	if (do_tics)
+	{
+		for (int t = 0; t < count; t++)
+			tic_cmds[t].ByteSwap();
+	}
 }
 
 void message_proto_t::ByteSwap()

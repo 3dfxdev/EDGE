@@ -338,7 +338,7 @@ typedef struct ticcmd_proto_s
 
 	raw_ticcmd_t tic_cmds[1];  // upto TICCMD_FIT commands
 
-	void ByteSwap();
+	void ByteSwap(bool do_tics);
 }
 ticcmd_proto_t;
 
@@ -371,7 +371,7 @@ typedef struct tic_group_proto_s
 
 	raw_ticcmd_t tic_cmds[1];  // as big as needed (upto TICCMD_FIT)
 
-	void ByteSwap();
+	void ByteSwap(bool do_tics);
 }
 tic_group_proto_t;
 
