@@ -28,6 +28,7 @@ Bugs fixed
 - sides of extrafloors would not scroll properly, fixed.
 - autorun is remembered in the config file again.
 - fixed some missing mid-masked textures (Eternal MAP28).
+- smoking tracers sometimes wouldn't produce smoke.
 
 
 Old Fixes (from EDGE 1.28A)
@@ -80,7 +81,7 @@ General improvements
   WAD file, as these examples (for playlist.ddf) show:
 
      [01] MUSICINFO=OGG:FILE:"d_runnin.ogg";
-	 [02] MUSICINFO=OGG:LUMP:"OMGITROX";
+     [02] MUSICINFO=OGG:LUMP:"OMGITROX";
 
 + native support for DeHackEd and BEX patches, both as normal files
   (with .DEH or .BEX extension), and also as DEHACKED lump in a wad.
@@ -303,7 +304,7 @@ New weapon stuff
     NO_TRIGGER   : prevent reloading by pressing fire button
     FRESH        : reload empty clip when fresh ammo is picked up
     NO_MANUAL    : disable manual reloading key
-    NO_PARTIAL   : for manual reload: disable partial clip refills
+    NO_PARTIAL   : manual reload: clip must be empty to refill it
 
   When using the ANIMATED special, the weapon sprite doesn't raise up
   or lower down.  Instead the UP and DOWN states should show an
@@ -360,8 +361,8 @@ New command-line options | console variables
 
   -(no)busywait   BUSYWAIT    Turn on/off the behaviour of hogging
                               the CPU.  Disabling this can make
-							  gameplay a bit "jerky", but gives
-							  more time for other programs to run.
+                              gameplay not as smooth, but gives
+                              more time for other programs to run.
 
 Hats off to...
 --------------
