@@ -54,6 +54,8 @@
 #include "wp_main.h"
 #include "z_zone.h"
 
+#include "epi/epiutil.h"
+
 //
 // DEFAULTS
 //
@@ -192,7 +194,8 @@ static default_t defaults[] =
 };
 
 int numdefaults;
-const char *cfgfile = NULL;
+
+epi::strent_c cfgfile;
 
 // TGA Graphics Header
 typedef enum
@@ -328,7 +331,7 @@ void M_SaveDefaults(void)
 	f = fopen(cfgfile, "w");
 	if (!f)
 	{
-		I_Warning("Couldn't open config file %s for writing.", cfgfile);
+		I_Warning("Couldn't open config file %s for writing.", cfgfile.GetString());
 		return;  // can't write the file, but don't complain
 	}
 
@@ -395,7 +398,7 @@ bool M_LoadDefaults(void)
 	for (i = 0; i < numdefaults; i++)
 		SetToBaseValue(defaults + i);
 
-	I_Printf("  from %s\n", cfgfile);
+	I_Printf("  from %s\n", cfgfile.GetString());
 
 	// read the file in, overriding any set defaults
 	f = fopen(cfgfile, "r");
@@ -468,7 +471,7 @@ bool M_LoadDefaults(void)
 	}
 	else
 	{
-		I_Warning("Couldn't open config file %s for reading.\n", cfgfile);
+		I_Warning("Couldn't open config file %s for reading.\n", cfgfile.GetString());
 		I_Warning("Resetting config to RECOMMENDED values...\n");
 
 		M_ResetToDefaults(0);
@@ -749,23 +752,16 @@ exttype_e M_CheckExtension(const char *ext, const char* filename)
 //
 // M_ComposeFileName
 //
-// Allocates memory for and creates the file name "dir/file", or
-// just "file" if it was an absolute address.
+// Creates the file name "dir/file", or
+// just "file" in the given string if it 
+// was an absolute address.
 //
-char *M_ComposeFileName(const char *dir, const char *file)
+void M_ComposeFileName(epi::string_c& fn, const char *dir, const char *file)
 {
-	char *path;
-
-	if (I_PathIsAbsolute(file))
-	{
-		path = Z_StrDup(file);
-	}
+	if (I_PathIsAbsolute(fn.GetString()))
+		fn = file;
 	else
-	{
-		path = Z_New(char, strlen(dir) + strlen(file) + 2);
-		sprintf(path, "%s%c%s", dir, DIRSEPARATOR, file);
-	}
-	return path;
+		fn.Format("%s%c%s", dir, DIRSEPARATOR, file);
 }
 
 
