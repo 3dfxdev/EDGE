@@ -1,12 +1,12 @@
 // 
 //    EDGE COLMAP.DDF -redefine or add new color maps.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 4.2
+//    DDF Version 4.3
 //
 
 <COLOURMAPS>
 
-#VERSION 1.28
+#VERSION 1.29
 
 [NORMAL]
 LUMP="COLORMAP";
