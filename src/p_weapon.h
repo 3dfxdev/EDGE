@@ -34,7 +34,7 @@
 #include "ddf_main.h"
 
 // maximum weapons player can hold at once
-#define MAXWEAPONS  32
+#define MAXWEAPONS  64
 
 //
 // Overlay psprites are scaled shapes
