@@ -63,15 +63,15 @@ static unsigned char cheat_xlate_table[256];
 
 static cheatseq_t cheat_powerup[9] =
 {
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},  // -MH- 1998/06/17  added "give jetpack" cheat
-    {0, 0}  // -ACB- 1998/07/15  added "give nightvision" cheat
+	{0, 0},
+	{0, 0},
+	{0, 0},
+	{0, 0},
+	{0, 0},
+	{0, 0},
+	{0, 0},
+	{0, 0},  // -MH- 1998/06/17  added "give jetpack" cheat
+	{0, 0}  // -ACB- 1998/07/15  added "give nightvision" cheat
 };
 
 static cheatseq_t cheat_mus               = {0, 0};
@@ -96,14 +96,14 @@ static cheatseq_t cheat_hom               = {0, 0};
 
 static cheatseq_t cheat_giveweapon[11] =
 {
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
+	{0, 0},
+	{0, 0},
+	{0, 0},
+	{0, 0},
+	{0, 0},
+	{0, 0},
+	{0, 0},
+	{0, 0},
 };
 
 //
@@ -114,48 +114,48 @@ static cheatseq_t cheat_giveweapon[11] =
 //
 int M_CheckCheat(cheatseq_t * cht, char key)
 {
-  int i;
-  int rc = 0;
+	int i;
+	int rc = 0;
 
-  if (firsttime)
-  {
-    firsttime = 0;
-    for (i = 0; i < 256; i++)
-      cheat_xlate_table[i] = SCRAMBLE(i);
-  }
+	if (firsttime)
+	{
+		firsttime = 0;
+		for (i = 0; i < 256; i++)
+			cheat_xlate_table[i] = SCRAMBLE(i);
+	}
 
-  if (!cht->p)
-    cht->p = cht->sequence;  // initialise if first time
+	if (!cht->p)
+		cht->p = cht->sequence;  // initialise if first time
 
-  if (cheat_xlate_table[(unsigned char)key] == *cht->p)
-    cht->p++;
-  else
-    cht->p = cht->sequence;
+	if (cheat_xlate_table[(unsigned char)key] == *cht->p)
+		cht->p++;
+	else
+		cht->p = cht->sequence;
 
-  if (*cht->p == 0)
-  {  // end of sequence character
+	if (*cht->p == 0)
+	{  // end of sequence character
 
-    cht->p = cht->sequence;
-    rc = 1;
-  }
+		cht->p = cht->sequence;
+		rc = 1;
+	}
 
-  return rc;
+	return rc;
 }
 
 static void M_ChangeLevelCheat(char *string)
 {
-  // User pressed <ESC>
-  if (!string)
-    return;
+	// User pressed <ESC>
+	if (!string)
+		return;
 
-  if (! G_DeferedInitNew(gameskill, string, false))
-  {
-    CON_MessageLDF("ImpossibleChange");
-    return;
-  }
+	if (! G_DeferedInitNew(gameskill, string, false))
+	{
+		CON_MessageLDF("ImpossibleChange");
+		return;
+	}
 
-  CON_MessageLDF("LevelChange");
-  Z_Free(string);
+	CON_MessageLDF("LevelChange");
+	Z_Free(string);
 }
 
 //
@@ -163,260 +163,261 @@ static void M_ChangeLevelCheat(char *string)
 //
 static void M_ChangeMusicCheat(char *string)
 {
-  int entry_num;
+	int entry_num;
 
-  // User pressed <ESC>
-  if (! string)
-    return;
-  
-  entry_num = atoi(string);
+	// User pressed <ESC>
+	if (! string)
+		return;
 
-  Z_Free(string);
-  
-  if (! entry_num)
-    return;
+	entry_num = atoi(string);
 
-  S_ChangeMusic(entry_num, true);
-  CON_MessageLDF("MusChange");
+	Z_Free(string);
+
+	if (! entry_num)
+		return;
+
+	S_ChangeMusic(entry_num, true);
+	CON_MessageLDF("MusChange");
 }
 
 bool M_CheatResponder(event_t * ev)
 {
-  int i, j;
-  char key;
-  player_t *pl = consoleplayer;
+	int i, j;
+	char key;
+	player_t *pl = consoleplayer;
 
 #ifdef NOCHEATS
-  return false;
+	return false;
 #endif
 
-  // if a user keypress...
-  if (ev->type != ev_keydown)
-    return false;
-  key = (char) ev->value.key;
-  
-  // no cheating in netgames or if disallowed in levels.ddf
-  if (netgame || !level_flags.cheats)
-    return false;
+	// if a user keypress...
+	if (ev->type != ev_keydown)
+		return false;
 
-  // 'dqd' cheat for toggleable god mode
-  if (M_CheckCheat(&cheat_god, key))
-  {
-    pl->cheats ^= CF_GODMODE;
-    if (pl->cheats & CF_GODMODE)
-    {
-      if (pl->mo)
-      {
-        pl->health = pl->mo->health = pl->mo->info->spawnhealth;
-      }
-      CON_MessageLDF("GodModeOn");
-    }
-    else
-      CON_MessageLDF("GodModeOff");
-  }
+	key = (char) ev->value.key;
 
-  // 'fa' cheat for killer fucking arsenal
-  //
-  // -ACB- 1998/06/26 removed backpack from this as backpack is variable
-  //
-  else if (M_CheckCheat(&cheat_ammonokey, key))
-  {
-    pl->armours[CHEATARMOURTYPE] = CHEATARMOUR;
+	// no cheating in netgames or if disallowed in levels.ddf
+	if (netgame || !level_flags.cheats)
+		return false;
 
-    for (i=num_disabled_weapons; i < numweapons; i++)
-      P_AddWeapon(pl, weaponinfo[i], NULL);
-    
-    for (i = 0; i < NUMAMMO; i++)
-      pl->ammo[i].num = pl->ammo[i].max;
+	// 'dqd' cheat for toggleable god mode
+	if (M_CheckCheat(&cheat_god, key))
+	{
+		pl->cheats ^= CF_GODMODE;
+		if (pl->cheats & CF_GODMODE)
+		{
+			if (pl->mo)
+			{
+				pl->health = pl->mo->health = pl->mo->info->spawnhealth;
+			}
+			CON_MessageLDF("GodModeOn");
+		}
+		else
+			CON_MessageLDF("GodModeOff");
+	}
 
-    stbar_update = true;
-    P_UpdateAvailWeapons(pl);
+	// 'fa' cheat for killer fucking arsenal
+	//
+	// -ACB- 1998/06/26 removed backpack from this as backpack is variable
+	//
+	else if (M_CheckCheat(&cheat_ammonokey, key))
+	{
+		pl->armours[CHEATARMOURTYPE] = CHEATARMOUR;
 
-    CON_MessageLDF("AmmoAdded");
-  }
+		for (i=num_disabled_weapons; i < numweapons; i++)
+			P_AddWeapon(pl, weaponinfo[i], NULL);
 
-  // 'kfa' cheat for key full ammo
-  //
-  // -ACB- 1998/06/26 removed backpack from this as backpack is variable
-  //
-  else if (M_CheckCheat(&cheat_ammo, key))
-  {
-    pl->armours[CHEATARMOURTYPE] = CHEATARMOUR;
+		for (i = 0; i < NUMAMMO; i++)
+			pl->ammo[i].num = pl->ammo[i].max;
 
-    for (i=num_disabled_weapons; i < numweapons; i++)
-      P_AddWeapon(pl, weaponinfo[i], NULL);
+		stbar_update = true;
+		P_UpdateAvailWeapons(pl);
 
-    for (i = 0; i < NUMAMMO; i++)
-      pl->ammo[i].num = 
-        pl->ammo[i].max;
+		CON_MessageLDF("AmmoAdded");
+	}
 
-    pl->cards = KF_MASK;
+	// 'kfa' cheat for key full ammo
+	//
+	// -ACB- 1998/06/26 removed backpack from this as backpack is variable
+	//
+	else if (M_CheckCheat(&cheat_ammo, key))
+	{
+		pl->armours[CHEATARMOURTYPE] = CHEATARMOUR;
 
-    // refresh to add all stuff to status bar
-    stbar_update = true;
-    P_UpdateAvailWeapons(pl);
+		for (i=num_disabled_weapons; i < numweapons; i++)
+			P_AddWeapon(pl, weaponinfo[i], NULL);
 
-    CON_MessageLDF("VeryHappyAmmo");
-  }
-  else if (M_CheckCheat(&cheat_keys, key))
-  {
-    pl->cards = KF_MASK;
+		for (i = 0; i < NUMAMMO; i++)
+			pl->ammo[i].num = 
+			pl->ammo[i].max;
 
-    // refresh to remove all stuff from status bar
-    stbar_update = true;
+		pl->cards = KF_MASK;
 
-    CON_MessageLDF("UnlockCheat");
-  }
-  else if (M_CheckCheat(&cheat_loaded, key))
-  {
-    for (i = 0; i < NUMAMMO; i++)
-      pl->ammo[i].num = pl->ammo[i].max;
+		// refresh to add all stuff to status bar
+		stbar_update = true;
+		P_UpdateAvailWeapons(pl);
 
-    CON_MessageLDF("LoadedCheat");
-  }
+		CON_MessageLDF("VeryHappyAmmo");
+	}
+	else if (M_CheckCheat(&cheat_keys, key))
+	{
+		pl->cards = KF_MASK;
+
+		// refresh to remove all stuff from status bar
+		stbar_update = true;
+
+		CON_MessageLDF("UnlockCheat");
+	}
+	else if (M_CheckCheat(&cheat_loaded, key))
+	{
+		for (i = 0; i < NUMAMMO; i++)
+			pl->ammo[i].num = pl->ammo[i].max;
+
+		CON_MessageLDF("LoadedCheat");
+	}
 #if 0  // FIXME: this crashes ?
-  else if (M_CheckCheat(&cheat_takeall, key))
-  {
-    P_GiveInitialBenefits(pl, pl->mo->info);
+	else if (M_CheckCheat(&cheat_takeall, key))
+	{
+		P_GiveInitialBenefits(pl, pl->mo->info);
 
-    // -ACB- 1998/08/26 Stuff removed language reference
-    CON_MessageLDF("StuffRemoval");
-  }
+		// -ACB- 1998/08/26 Stuff removed language reference
+		CON_MessageLDF("StuffRemoval");
+	}
 #endif
-  else if (M_CheckCheat(&cheat_suicide, key))
-  {
-    P_DamageMobj(pl->mo, NULL, pl->mo, 10000, NULL);
+	else if (M_CheckCheat(&cheat_suicide, key))
+	{
+		P_DamageMobj(pl->mo, NULL, pl->mo, 10000, NULL);
 
-    // -ACB- 1998/08/26 Suicide language reference
-    CON_MessageLDF("SuicideCheat");
-  }
-  // -ACB- 1998/08/27 Used Mobj linked-list code, much cleaner.
-  else if (M_CheckCheat(&cheat_killall, key))
-  {
-    int killcount = 0;
-    mobj_t *currmobj;
+		// -ACB- 1998/08/26 Suicide language reference
+		CON_MessageLDF("SuicideCheat");
+	}
+	// -ACB- 1998/08/27 Used Mobj linked-list code, much cleaner.
+	else if (M_CheckCheat(&cheat_killall, key))
+	{
+		int killcount = 0;
+		mobj_t *currmobj;
 
-    // Note: this may miss monsters spawned during death frames (like
-    // when the Pain Elemental dies).
+		// Note: this may miss monsters spawned during death frames (like
+		// when the Pain Elemental dies).
 
-    for (currmobj=mobjlisthead; currmobj; currmobj=currmobj->next)
-    {
-      if ((currmobj->extendedflags & EF_MONSTER) && (currmobj->health > 0))
-      {
-        P_DamageMobj(currmobj, NULL, NULL, 10000, NULL);
-        killcount++;
-      }
-    }
+		for (currmobj=mobjlisthead; currmobj; currmobj=currmobj->next)
+		{
+			if ((currmobj->extendedflags & EF_MONSTER) && (currmobj->health > 0))
+			{
+				P_DamageMobj(currmobj, NULL, NULL, 10000, NULL);
+				killcount++;
+			}
+		}
 
-    CON_MessageLDF("MonstersKilled", killcount);
-  }
-  // Simplified, accepting both "noclip" and "idspispopd".
-  // no clipping mode cheat
-  else if (M_CheckCheat(&cheat_noclip, key)
-      || M_CheckCheat(&cheat_commercial_noclip, key))
-  {
-    pl->cheats ^= CF_NOCLIP;
+		CON_MessageLDF("MonstersKilled", killcount);
+	}
+	// Simplified, accepting both "noclip" and "idspispopd".
+	// no clipping mode cheat
+	else if (M_CheckCheat(&cheat_noclip, key)
+		|| M_CheckCheat(&cheat_commercial_noclip, key))
+	{
+		pl->cheats ^= CF_NOCLIP;
 
-    if (pl->cheats & CF_NOCLIP)
-      CON_MessageLDF("ClipOn");
-    else
-      CON_MessageLDF("ClipOff");
-  }
-  else if (M_CheckCheat(&cheat_hom, key))
-  {
-    hom_detect = ! hom_detect;
+		if (pl->cheats & CF_NOCLIP)
+			CON_MessageLDF("ClipOn");
+		else
+			CON_MessageLDF("ClipOff");
+	}
+	else if (M_CheckCheat(&cheat_hom, key))
+	{
+		hom_detect = ! hom_detect;
 
-    if (hom_detect)
-      CON_MessageLDF("HomDetectOn");
-    else
-      CON_MessageLDF("HomDetectOff");
-  }
+		if (hom_detect)
+			CON_MessageLDF("HomDetectOn");
+		else
+			CON_MessageLDF("HomDetectOff");
+	}
 #ifdef DEVELOPERS
-  else if (M_CheckCheat(&cheat_lazarus, key))
-  {
-    if (pl->playerstate == PST_DEAD && (netgame==0))
-    {
-      DEV_ASSERT2(pl->mo);
-      P_BringCorpseToLife(pl->mo);
-    }
-  }
+	else if (M_CheckCheat(&cheat_lazarus, key))
+	{
+		if (pl->playerstate == PST_DEAD && (netgame==0))
+		{
+			DEV_ASSERT2(pl->mo);
+			P_BringCorpseToLife(pl->mo);
+		}
+	}
 #endif
 
-  // 'behold?' power-up cheats
-  for (i = 0; i < 9; i++)
-  {
-    if (M_CheckCheat(&cheat_powerup[i], key))
-    {
-      if (!pl->powers[i])
-        pl->powers[i] = 60 * TICRATE;
-      else
-        pl->powers[i] = 0;
+	// 'behold?' power-up cheats
+	for (i = 0; i < 9; i++)
+	{
+		if (M_CheckCheat(&cheat_powerup[i], key))
+		{
+			if (!pl->powers[i])
+				pl->powers[i] = 60 * TICRATE;
+			else
+				pl->powers[i] = 0;
 
-      CON_MessageLDF("BeholdUsed");
-    }
-  }
+			CON_MessageLDF("BeholdUsed");
+		}
+	}
 
 #if 0  // -AJA- eh ?
-  // 'behold' power-up menu
-  if (M_CheckCheat(&cheat_powerup[9], key))
-  {
-    CON_MessageLDF("BeholdNote");
-  }
+	// 'behold' power-up menu
+	if (M_CheckCheat(&cheat_powerup[9], key))
+	{
+		CON_MessageLDF("BeholdNote");
+	}
 #endif
 
-  // 'give#' power-up cheats
-  for (i = 0; i < 10; i++)
-  {
-    if (! M_CheckCheat(&cheat_giveweapon[i + 1], key))
-      continue;
+	// 'give#' power-up cheats
+	for (i = 0; i < 10; i++)
+	{
+		if (! M_CheckCheat(&cheat_giveweapon[i + 1], key))
+			continue;
 
-    for (j=0; j < weaponkey[i].numchoices; j++)
-    {
-      weaponinfo_t *info = weaponkey[i].choices[j];
+		for (j=0; j < weaponkey[i].numchoices; j++)
+		{
+			weaponinfo_t *info = weaponkey[i].choices[j];
 
-      P_AddWeapon(pl, info, NULL);
+			P_AddWeapon(pl, info, NULL);
 
-      if (info->ammo >= 0)
-        pl->ammo[info->ammo].num = pl->ammo[info->ammo].max;
-    }
-  }
+			if (info->ammo >= 0)
+				pl->ammo[info->ammo].num = pl->ammo[info->ammo].max;
+		}
+	}
 
-  // 'choppers' invulnerability & chainsaw
-  if (M_CheckCheat(&cheat_choppers, key))
-  {
-    int w_num = DDF_WeaponLookup("CHAINSAW");
+	// 'choppers' invulnerability & chainsaw
+	if (M_CheckCheat(&cheat_choppers, key))
+	{
+		int w_num = DDF_WeaponLookup("CHAINSAW");
 
-    if (w_num >= 0)
-    {
-      P_AddWeapon(pl, weaponinfo[w_num], NULL);
-      pl->powers[PW_Invulnerable] = 1;
-      CON_MessageLDF("CHOPPERSNote");
-    }
-  }
+		if (w_num >= 0)
+		{
+			P_AddWeapon(pl, weaponinfo[w_num], NULL);
+			pl->powers[PW_Invulnerable] = 1;
+			CON_MessageLDF("CHOPPERSNote");
+		}
+	}
 
-  // 'mypos' for player position
-  else if (M_CheckCheat(&cheat_mypos, key))
-  {
-    CON_Message("ang=%f;x,y=(%f,%f)",
-        pl->mo->angle * 45.0 / ANG45, pl->mo->x, pl->mo->y);
-  }
+	// 'mypos' for player position
+	else if (M_CheckCheat(&cheat_mypos, key))
+	{
+		CON_Message("ang=%f;x,y=(%f,%f)",
+			pl->mo->angle * 45.0 / ANG45, pl->mo->x, pl->mo->y);
+	}
 
-  // 'clev' change-level cheat
-  if (M_CheckCheat(&cheat_clev, key))
-    M_StartMessageInput(DDF_LanguageLookup("LevelQ"), M_ChangeLevelCheat);
+	// 'clev' change-level cheat
+	if (M_CheckCheat(&cheat_clev, key))
+		M_StartMessageInput(DDF_LanguageLookup("LevelQ"), M_ChangeLevelCheat);
 
-  // 'mus' cheat for changing music
-  else if (M_CheckCheat(&cheat_mus, key))
-    M_StartMessageInput(DDF_LanguageLookup("MusicQ"), M_ChangeMusicCheat);
-  else if (M_CheckCheat(&cheat_spawnbot, key))
-  {
-    BOT_DMSpawn();
-    CON_MessageLDF("BotSpawn");
-  }
-  else if (M_CheckCheat(&cheat_showstats, key))
-    showstats = !showstats;
+	// 'mus' cheat for changing music
+	else if (M_CheckCheat(&cheat_mus, key))
+		M_StartMessageInput(DDF_LanguageLookup("MusicQ"), M_ChangeMusicCheat);
+	else if (M_CheckCheat(&cheat_spawnbot, key))
+	{
+		BOT_DMSpawn();
+		CON_MessageLDF("BotSpawn");
+	}
+	else if (M_CheckCheat(&cheat_showstats, key))
+		showstats = !showstats;
 
-  return false;
+	return false;
 }
 
 // -KM- 1999/01/31 Loads cheats from languages file.
@@ -424,42 +425,42 @@ bool M_CheatResponder(event_t * ev)
 //      now just 0.
 void M_CheatInit(void)
 {
-  int i;
-  char temp[16];
+	int i;
+	char temp[16];
 
-  // Now what?
-  cheat_mus.sequence = DDF_LanguageLookup("idmus");
-  cheat_god.sequence = DDF_LanguageLookup("iddqd");
-  cheat_lazarus.sequence = "idlazarus";
-  cheat_ammo.sequence = DDF_LanguageLookup("idkfa");
-  cheat_ammonokey.sequence = DDF_LanguageLookup("idfa");
-  cheat_noclip.sequence = DDF_LanguageLookup("idspispopd");
-  cheat_commercial_noclip.sequence = DDF_LanguageLookup("idclip");
-  cheat_hom.sequence = DDF_LanguageLookup("idhom");
+	// Now what?
+	cheat_mus.sequence = DDF_LanguageLookup("idmus");
+	cheat_god.sequence = DDF_LanguageLookup("iddqd");
+	cheat_lazarus.sequence = "idlazarus";
+	cheat_ammo.sequence = DDF_LanguageLookup("idkfa");
+	cheat_ammonokey.sequence = DDF_LanguageLookup("idfa");
+	cheat_noclip.sequence = DDF_LanguageLookup("idspispopd");
+	cheat_commercial_noclip.sequence = DDF_LanguageLookup("idclip");
+	cheat_hom.sequence = DDF_LanguageLookup("idhom");
 
-  for (i=0; i < 9; i++)
-  {
-    sprintf(temp, "idbehold%d", i + 1);
-    cheat_powerup[i].sequence = DDF_LanguageLookup(temp);
-  }
+	for (i=0; i < 9; i++)
+	{
+		sprintf(temp, "idbehold%d", i + 1);
+		cheat_powerup[i].sequence = DDF_LanguageLookup(temp);
+	}
 
-  cheat_choppers.sequence = DDF_LanguageLookup("idchoppers");
-  cheat_clev.sequence = DDF_LanguageLookup("idclev");
-  cheat_mypos.sequence = DDF_LanguageLookup("idmypos");
+	cheat_choppers.sequence = DDF_LanguageLookup("idchoppers");
+	cheat_clev.sequence = DDF_LanguageLookup("idclev");
+	cheat_mypos.sequence = DDF_LanguageLookup("idmypos");
 
-  //new cheats
-  cheat_killall.sequence = DDF_LanguageLookup("idkillall");
-  cheat_showstats.sequence = DDF_LanguageLookup("idinfo");
-  cheat_suicide.sequence = DDF_LanguageLookup("idsuicide");
-  cheat_keys.sequence = DDF_LanguageLookup("idunlock");
-  cheat_loaded.sequence = DDF_LanguageLookup("idloaded");
-  cheat_takeall.sequence = DDF_LanguageLookup("idtakeall");
+	//new cheats
+	cheat_killall.sequence = DDF_LanguageLookup("idkillall");
+	cheat_showstats.sequence = DDF_LanguageLookup("idinfo");
+	cheat_suicide.sequence = DDF_LanguageLookup("idsuicide");
+	cheat_keys.sequence = DDF_LanguageLookup("idunlock");
+	cheat_loaded.sequence = DDF_LanguageLookup("idloaded");
+	cheat_takeall.sequence = DDF_LanguageLookup("idtakeall");
 
-  cheat_spawnbot.sequence = DDF_LanguageLookup("idbot");
+	cheat_spawnbot.sequence = DDF_LanguageLookup("idbot");
 
-  for (i = 0; i < 11; i++)
-  {
-    sprintf(temp, "idgive%d", i);
-    cheat_giveweapon[i].sequence = DDF_LanguageLookup(temp);
-  }
+	for (i = 0; i < 11; i++)
+	{
+		sprintf(temp, "idgive%d", i);
+		cheat_giveweapon[i].sequence = DDF_LanguageLookup(temp);
+	}
 }
