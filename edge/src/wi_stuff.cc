@@ -458,58 +458,8 @@ static void DrawTime(int x, int y, int t)
 	}
 }
 
-static void UnloadData(void)
-{
-#if 0  // OLD STUFF
-	int i, j;
-
-	W_DoneWithLump(bg);
-
-	for (i = 0; i < 2; i++)
-	{
-		if (lnames[i])
-			W_DoneWithLump(lnames[i]);
-		if (yah[i])
-			W_DoneWithLump(yah[i]);
-		if (splat[i])
-			W_DoneWithLump(splat[i]);
-		lnames[i] = NULL;
-		yah[i] = NULL;
-		splat[i] = NULL;
-	}
-	W_DoneWithLump(wiminus);
-	W_DoneWithLump(percent);
-	W_DoneWithLump(finished);
-	W_DoneWithLump(entering);
-	W_DoneWithLump(kills);
-	W_DoneWithLump(secret);
-	W_DoneWithLump(sp_secret);
-	W_DoneWithLump(items);
-	W_DoneWithLump(frags);
-	W_DoneWithLump(colon);
-	W_DoneWithLump(time_image);
-	W_DoneWithLump(sucks);
-	W_DoneWithLump(par);
-	W_DoneWithLump(killers);
-	W_DoneWithLump(victims);
-	W_DoneWithLump(total);
-	W_DoneWithLump(star);
-	W_DoneWithLump(bstar);
-
-	for (i = 0; i < 10; i++)
-		W_DoneWithLump(digits[i]);
-
-	for (i = 0; i < worldint.numanims; i++)
-		for (j = 0; j < worldint.anims[i].numframes; j++)
-			W_DoneWithLump(worldint.anims[i].frames[j].pic);
-
-#endif
-}
-
 static void WI_End(void)
 {
-	UnloadData();
-
 	background_camera_mo = NULL;
 	R_ExecuteSetViewSize();
 }
