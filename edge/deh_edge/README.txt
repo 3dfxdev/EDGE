@@ -2,7 +2,7 @@
 DEH_EDGE 0.9
 ============
 
-by Andrew Apted.  8th February 2004.
+by Andrew Apted.  23rd February 2004.
 
 
 Introduction
@@ -29,7 +29,10 @@ Run it like this:
 
    deh_edge atc2.deh
 
-which will create the file "atc2_deh.wad". 
+which will create the file "atc2_deh.wad".  Then run EDGE using this
+additional file, for example:
+
+   gledge32 -file ... atc2_deh.wad
 
 
 Options
@@ -49,7 +52,7 @@ Options
 Limitations
 -----------
 
-1. Can only handle a single DEH patch files at a time.
+1. Can only handle a single DEH patch file at a time.
 
 2. No support for BOOM extended format (BEX), like [STRINGS] etc.
 
@@ -64,9 +67,9 @@ Limitations
 5. Text strings, code pointers, and sprite/sound name pointers
    from binary patch files are not supported.  These are heavily
    dependent on the exact version of the DOOM EXE.  Even DeHackEd
-   itself can't convert these between 1.2 and 1.666 (etc).
-   
-   Code pointer offsets and sprite/sound offsets in text patch files
+   itself can't load these when the EXE version is different.
+ 
+   Raw action offsets and sprite/sound offsets in text patch files
    are also not handled, for the same reason.  Normal code pointers
    are supported, of course.
 

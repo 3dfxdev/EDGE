@@ -2,11 +2,21 @@
 DEH-EDGE Todo
 -------------
 
+-  output a ".dwa" file.
+
 +  support multiple patches.
 
 -  versions of malloc and strdup that error out on no memory.
 
 -  frames: remove 'OutputState' (etc) from header file.
+
+
+BATMAN BUGS
+-----------
+
+-  guys with flamethrowers: no hurties (attacking action in attack).
+
+-  inside of helicopter doesn't work (guys should teleport in, open door).
 
 
 FUTURE Plans
