@@ -235,9 +235,12 @@ void P_PlayerInSpecialSector(player_t * player, sector_t *sec);
 int P_TwoSided(int sector, int line);
 side_t *P_GetSide(int currentSector, int line, int side);
 sector_t *P_GetSector(int currentSector, int line, int side);
-sector_t *P_GetNextSector(line_t * line, sector_t * sec);
+sector_t *P_GetNextSector(const line_t * line, const sector_t * sec);
 
 // Info Needs....
+float_t P_FindSurroundingHeight(const heightref_e ref, const sector_t *sec);
+float_t P_FindRaiseToTexture(sector_t * sec);  // -KM- 1998/09/01 New func, old inline
+#if 0  // OLD CODE
 float_t P_FindLowestFloorSurrounding(sector_t * sec);
 float_t P_FindHighestFloorSurrounding(sector_t * sec);
 float_t P_FindLowestCeilingSurrounding(sector_t * sec);
@@ -246,7 +249,7 @@ float_t P_FindNextHighestFloor(sector_t * sec, float_t height);
 float_t P_FindNextLowestFloor(sector_t * sec, float_t height);
 float_t P_FindNextHighestCeiling(sector_t * sec, float_t height);
 float_t P_FindNextLowestCeiling(sector_t * sec, float_t height);
-float_t P_FindRaiseToTexture(sector_t * sec);  // -KM- 1998/09/01 New func, old inline
+#endif  // OLD CODE
 
 // -AJA- 1999/09/29: added this.
 sector_t *P_FindSectorFromTag(int tag);
