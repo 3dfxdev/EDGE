@@ -723,9 +723,6 @@ static bool DoExecuteChangeResolution(void)
 		}
 		while (t2 >= t);
 
-		// something was wrong, check if memory is corrupt
-		Z_CheckHeap();
-
 		return false;
 	}
 
