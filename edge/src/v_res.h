@@ -164,10 +164,9 @@ extern int ds_x2;
 
 extern const coltable_t *ds_colourmap;
 
-extern fixed_t ds_xfrac;
-extern fixed_t ds_yfrac;
-extern fixed_t ds_xstep;
-extern fixed_t ds_ystep;
+extern fixed_t ds_xfrac, ds_yfrac;
+extern fixed_t ds_xstep, ds_ystep;
+extern int ds_width, ds_height;
 
 // start of a 64*64 tile image
 extern const byte *ds_source;
