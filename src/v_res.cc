@@ -2,7 +2,7 @@
 //  EDGE Video Code  
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2001  The EDGE Team.
+//  Copyright (c) 1999-2003  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
