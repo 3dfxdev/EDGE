@@ -93,7 +93,7 @@ void GB_PrintMsg(const char *str, ...)
 	vsprintf(message_buf, str, args);
 	va_end(args);
 
-	I_Printf("GB: %s", message_buf);
+	I_Printf("GLBSP: %s", message_buf);
 }
 
 //
