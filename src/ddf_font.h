@@ -59,16 +59,16 @@ class fontdef_c
 {
 public:
 	fontdef_c();
-	fontdef_c(fontdef_c &rhs);
+	fontdef_c(const fontdef_c &rhs);
 	~fontdef_c() {};
 
 private:
-	void Copy(fontdef_c &src);
+	void Copy(const fontdef_c &src);
 
 public:
-	void CopyDetail(fontdef_c &src);
+	void CopyDetail(const fontdef_c &src);
 	void Default(void);
-	fontdef_c& operator=(fontdef_c &rhs);
+	fontdef_c& operator= (const fontdef_c &rhs);
 
 	// Member vars....
 	ddf_base_c ddf;
@@ -102,6 +102,7 @@ public:
 
 extern fontdef_container_c fontdefs;
 
+void DDF_MainLookupFont(const char *info, void *storage);
 bool DDF_ReadFonts(void *data, int size);
 
 #endif  /* __DDF_FONT__ */
