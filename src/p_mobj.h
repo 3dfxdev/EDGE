@@ -383,6 +383,9 @@ struct mobj_s
   float_t momy;
   float_t momz;
 
+  // Thing's health level
+  float_t health;
+
   // This is the current speed of the object.
   // if fastparm, it is already calculated.
   float_t speed;
@@ -395,15 +398,14 @@ struct mobj_s
 
   // state tic counter
   int tics;
+  int tic_skip;
 
   const state_t *state;
-  int flags;
-  float_t health;
+  int next_state;
 
-  // -AJA- 1999/09/12: Deferred state (-1 if none). This is a fix for
-  //       re-entrancy problems.
-  int deferred_state;
-  int defer_tic_skip;
+  // flags (Old and New)
+  int flags;
+  int extendedflags;
 
   // Movement direction, movement generation (zig-zagging).
   dirtype_t movedir;  // 0-7
@@ -433,9 +435,6 @@ struct mobj_s
   // current visibility and target visibility
   float_t visibility;
   float_t vis_target;
-
-  // New flags
-  int extendedflags;
 
   // looking up or down.....
   float_t vertangle;
