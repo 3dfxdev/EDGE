@@ -498,3 +498,12 @@ bool I_GetModifiedTime(const char *filename, i_time_t *t)
 
   return true;
 }
+
+//
+// I_EDGELoop
+//
+void I_EDGELoop(void)
+{
+  while (1)
+    E_EDGELoopRoutine();
+}
