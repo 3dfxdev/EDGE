@@ -34,12 +34,6 @@ int P_RandomNegPos(void);
 boolean_t M_RandomTest(percent_t chance);
 boolean_t P_RandomTest(percent_t chance);
 
-// Fix randoms for demos.
-void M_SeedRandom(int seed);
-
-// Something to do with consistency...
-int P_RandomIndex(void);
-
 // Savegame support
 int P_ReadRandomState(void);
 void P_WriteRandomState(int value);
