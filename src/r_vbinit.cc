@@ -69,20 +69,10 @@ static void CameraFrameInit_StdObject(void *data)
 		// -AJA- NOTE: CameraFrameInit_StdPlayer is used instead !!
 
 		viewz = mo->player->viewz;
-
-		extralight = mo->player->extralight;
-		effect_colourmap = mo->player->effect_colourmap;
-		effect_left = mo->player->effect_left;
-		effect_infrared = mo->player->effect_infrared;
 	}
 	else
 	{
 		viewz = mo->z + mo->height * 9 / 10;
-
-		extralight = 0;
-		effect_colourmap = NULL;
-		effect_left = 0;
-		effect_infrared = false;
 	}
 
 	view_props = R_PointGetProps(viewsubsector, viewz);
@@ -109,15 +99,10 @@ static void CameraFrameInit_StdPlayer(void *data)
 	viewy = player->mo->y;
 	viewangle = player->mo->angle;
 	viewz = player->viewz;
-	extralight = player->extralight;
 
 	viewsubsector = player->mo->subsector;
 	viewvertangle = player->mo->vertangle + M_ATan(player->kick_offset);
 	view_props = R_PointGetProps(viewsubsector, viewz);
-
-	effect_colourmap = player->effect_colourmap;
-	effect_left = player->effect_left;
-	effect_infrared = player->effect_infrared;
 }
 
 

@@ -228,7 +228,6 @@ typedef struct player_s
 
 	// -AJA- 1999/07/10: changed for colmap.ddf.
 	const colourmap_c *effect_colourmap;
-	bool effect_infrared;
 	int effect_left;  // tics remaining, maxed to EFFECT_MAX_TIME
 
 	// Overlay view sprites (gun, etc).

@@ -85,10 +85,10 @@ int L_CompareFileTimes(const char *wad_file, const char *gwa_file);
 extern unsigned short save_screenshot[160][100];
 extern bool save_screenshot_valid;
 
+extern bool autorunning;
 extern bool display_disk;
+extern bool var_fadepower;
 
 extern int cfgnormalfov, cfgzoomedfov;
-
-extern bool autorunning;
 
 #endif  /* __M_MISC__ */

@@ -121,7 +121,6 @@ void G_PlayerFinishLevel(player_t *p)
 
 	// cancel colourmap effects
 	p->effect_colourmap = NULL;
-	p->effect_infrared = false;
 
 	// no palette changes 
 	p->damagecount = 0;
@@ -167,7 +166,6 @@ void player_s::Reborn()
 	attacker = NULL;
 
 	effect_colourmap = NULL;
-	effect_infrared = 0;
 	effect_left = 0;
 
 	memset(psprites, 0, sizeof(psprites));

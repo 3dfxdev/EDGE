@@ -87,12 +87,6 @@ bool viewiszoomed = false;
 // increment every time a check is made
 int validcount = 1;
 
-// -KM- 1998/09/27 Dynamic colourmaps
-// -AJA- 1999/07/10: Updated for colmap.ddf.
-const colourmap_c *effect_colourmap;
-int effect_left;
-bool effect_infrared;
-
 // just for profiling purposes
 int framecount;
 int linecount;
@@ -121,9 +115,6 @@ mobj_t *background_camera_mo = NULL;
 // -ES- 1999/03/20 Different right & left side clip angles, for asymmetric FOVs.
 angle_t leftclipangle, rightclipangle;
 angle_t clipscope;
-
-// bumped light from gun blasts
-int extralight;
 
 angle_t viewanglebaseoffset;
 angle_t viewangleoffset;

@@ -78,6 +78,8 @@ bool display_disk = false;
 static const image_t *disk_image = NULL;
 static const image_t *air_images[21] = { NULL, };
 
+bool var_fadepower = true;
+
 unsigned short save_screenshot[160][100];
 bool save_screenshot_valid = false;
 
@@ -168,8 +170,9 @@ static default_t defaults[] =
 
 	// -------------------- VARS --------------------
 
-	{CFGT_Boolean, "var_diskicon", &var_diskicon, 1},
-	{CFGT_Boolean, "var_busywait", &var_busywait, 1},
+	{CFGT_Boolean, "var_diskicon",  &var_diskicon,  1},
+	{CFGT_Boolean, "var_hogcpu",    &var_hogcpu,    1},
+	{CFGT_Boolean, "var_fadepower", &var_fadepower, 1},
 
 	// -------------------- KEYS --------------------
 
@@ -508,8 +511,11 @@ void M_InitMiscConVars(void)
 	M_CheckBooleanParm("diskicon", &var_diskicon, false);
 	CON_CreateCVarBool("diskicon", cf_normal, &var_diskicon);
 
-	M_CheckBooleanParm("busywait", &var_busywait, false);
-	CON_CreateCVarBool("busywait", cf_normal, &var_busywait);
+	M_CheckBooleanParm("hogcpu", &var_hogcpu, false);
+	CON_CreateCVarBool("hogcpu", cf_normal, &var_hogcpu);
+
+	M_CheckBooleanParm("fadepower", &var_fadepower, false);
+	CON_CreateCVarBool("fadepower", cf_normal, &var_fadepower);
 }
 
 //

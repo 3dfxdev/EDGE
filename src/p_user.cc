@@ -450,12 +450,12 @@ static void P_UpdatePowerups(player_t *player)
 
 	// Handling colourmaps.
 	//
-	// -AJA- 1999/07/10: Updated for colmap.ddf. Ideally, the exact
-	// colourmap & palette effects to use would be specifiable somewhere
-	// in DDF -- for now it is hardcoded.
+	// -AJA- 1999/07/10: Updated for colmap.ddf.
+	//
+	// !!! FIXME: overlap here with stuff in rgl_fx.cpp.
 
 	player->effect_colourmap = NULL;
-	player->effect_infrared = false;
+	player->effect_left = 0;
 
 	if (player->powers[PW_Invulnerable] > 0.0f)
 	{
@@ -469,7 +469,6 @@ static void P_UpdatePowerups(player_t *player)
 	{
 		float s = player->powers[PW_Infrared];
 
-		player->effect_infrared = true;
 		player->effect_left = (s <= 0) ? 0 : MIN(int(s), EFFECT_MAX_TIME);
 	}
 	else if (player->powers[PW_NightVision] > 0.0f)		// -ACB- 1998/07/15 NightVision Code

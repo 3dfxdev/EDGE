@@ -85,7 +85,8 @@ int RGL_Light(int nominal);
 void RGL_LoadLights(void);
 void RGL_RenderTrueBSP(void);
 
-extern bool ren_allbright;
+extern int ren_extralight;
+
 extern float ren_red_mul;
 extern float ren_grn_mul;
 extern float ren_blu_mul;
