@@ -38,33 +38,6 @@ struct texturedef_s;
 // Post end marker
 #define P_SENTINEL  0xFF
 
-// Post structure.  It isn't a C struct to prevent alignment issues,
-// but the W_XXX defines are like structure fields.
-typedef byte w_post_t;
-
-#define W_SKIP  0
-// number of pixels to skip down from current position.  The initial
-// position is just the top of the sprite.  Will be P_SENTINEL for
-// the end-of-post marker.
-
-#define W_LEN  1
-// number of real pixels following this, not including the following
-// pad pixel and another one after the last pixel.
-
-#define W_PAD1  2
-// first pad pixel.  Another pad pixel implicitly follows the last
-// real pixel.  The pad pixels should be the same as the real pixel
-// they are next to, in case the fixed point arithmetic overflows.
-
-#define W_DATA   3  // first data pixel.
-#define W_TOTAL  4  // total of post
-
-// preferred access routines
-#define WPOST_SKIP(wp)  (wp[W_SKIP])
-#define WPOST_LEN(wp)   (wp[W_LEN])
-#define WPOST_DATA(wp)  (wp + W_DATA)
-#define WPOST_NEXT(wp)  (wp + W_TOTAL + WPOST_LEN(wp))
-
 
 typedef struct image_s
 {
@@ -89,7 +62,7 @@ typedef struct image_s
 
     // when true, the image is guaranteed to be solid (i.e. contain no
     // transparent parts).
-	bool solid;
+	bool img_solid;
 
 	// ...rest of this structure is private...
 }
@@ -162,7 +135,7 @@ void W_LockImagesOGL(void);
 void W_UnlockImagesOGL(void);
 
 const cached_image_t *W_ImageCache(const image_t *image, 
-								   int mip = 0, bool anim = true,
+								   bool anim = true,
 								   const colourmap_c *trans = NULL);
 void W_ImageDone(const cached_image_t *c);
 void W_ImagePreCache(const image_t *image);

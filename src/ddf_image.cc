@@ -236,9 +236,10 @@ static void DDF_ImageGetType(const char *info, void *storage)
 
 static specflags_t image_specials[] =
 {
-    {"ALPHA", IMGSP_NoAlpha, 1},
-    {"MIP",   IMGSP_NoMip,   1},
-    {"CLAMP", IMGSP_Clamp,   0},
+    {"ALPHA",  IMGSP_NoAlpha, 1},
+    {"MIP",    IMGSP_NoMip,   1},
+    {"CLAMP",  IMGSP_Clamp,   0},
+    {"SMOOTH", IMGSP_Smooth,  0},
     {NULL, 0, 0}
 };
 
