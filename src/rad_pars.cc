@@ -33,7 +33,10 @@
 #include "v_res.h"
 #include "w_wad.h"
 #include "z_zone.h"
+#include "version.h"
 
+
+int rts_version;  // global
 
 typedef struct define_s
 {
@@ -80,6 +83,9 @@ static define_t *defines;
 
 // Determine whether the code blocks are started and terminated.
 static int rad_cur_level = 0;
+
+// For checking when #VERSION is used
+static bool rad_has_start_map;
 
 static const char *rad_level_names[3] =
 { "outer area", "map area", "trigger area" };
@@ -763,12 +769,27 @@ static void RAD_ParseVersion(int pnum, const char **pars)
 {
 	// #Version <vers>
 
+	if (rad_has_start_map)
+		RAD_Error("The #VERSION directive must appear before all scripts.\n");
+
 	float vers;
 
 	RAD_CheckForFloat(pars[1], &vers);
 
-	if (vers > (float) PARSERV / (float) PARSERVFIX)
-		RAD_Error("This version of EDGE cannot handle this script\n");
+	if (vers < 0.99f || vers > 9.99f)
+		RAD_Error("Illegal #VERSION number.\n");
+
+	int decimal = (int)(100.0f * vers);
+
+	rts_version = ((decimal / 100) << 8) |
+				  (((decimal / 10) % 10) << 4) | (decimal % 10);
+
+	// backwards compat (old scripts have #VERSION 1.1 in them)
+	if (rts_version < 0x123)
+		return;
+
+	if (rts_version > EDGEVER)
+		RAD_Error("This version of EDGE cannot handle this RTS script\n");
 }
 
 static void RAD_ParseClearAll(int pnum, const char **pars)
@@ -808,6 +829,7 @@ static void RAD_ParseStartMap(int pnum, const char **pars)
 	strupr(this_map);
 
 	rad_cur_level++;
+	rad_has_start_map = true;
 }
 
 static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
@@ -2101,6 +2123,9 @@ void RAD_ParseLine(char *s)
 void RAD_ParserBegin(void)
 {
 	rad_cur_level = 0;
+	rad_has_start_map = false;
+
+	rts_version = 0x127;
 }
 
 void RAD_ParserDone(void)

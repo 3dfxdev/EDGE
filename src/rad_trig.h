@@ -26,12 +26,7 @@
 
 #define DEBUG_RTS  0
 
-
-// Radius Trigger Parser Version
-#define PARSERV       11
-#define PARSERVFIX    10
-
-#define MAXSTRLEN     512
+#define MAXSTRLEN  512
 
 extern rad_script_t *r_scripts;
 extern rad_trigger_t *r_triggers;

@@ -32,8 +32,11 @@
 #include "p_mobj.h"
 #include "r_things.h"
 #include "z_zone.h"
+#include "version.h"
 
 #define DEBUG_DDFREAD  0
+
+int ddf_version;  // global
 
 static readchar_t DDF_MainProcessChar(char character, char *buffer, int status);
 
@@ -415,6 +418,30 @@ static void *DDF_MainCacheFile(readinfo_t * readinfo)
 	return (void *)memfile;
 }
 
+static void DDF_ParseVersion(const char *str, int len)
+{
+	if (len <= 0 || ! isspace(*str))
+		DDF_Error("Badly formed #VERSION directive.\n");
+	
+	for (; isspace(*str) && len > 0; str++, len--)
+	{ }
+
+	if (len < 4 || ! isdigit(str[0]) || str[1] != '.' ||
+		! isdigit(str[2]) || ! isdigit(str[3]))
+	{
+		DDF_Error("Badly formed #VERSION directive.\n");
+	}
+
+	ddf_version = ((str[0] - '0') << 8) |
+	              ((str[2] - '0') << 4) | (str[3] - '0');
+
+	if (ddf_version < 0x123)
+		DDF_Error("Illegal #VERSION number.\n");
+
+	if (ddf_version > EDGEVER)
+		DDF_Error("This version of EDGE cannot handle this DDF.\n");
+}
+
 
 //
 // Description of the DDF Parser:
@@ -532,6 +559,8 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 #if (DEBUG_DDFREAD)
 	char charcount = 0;
 #endif
+
+	ddf_version = 0x127;
 
 	status = waiting_tag;
 	formerstatus = readstatus_invalid;
@@ -653,6 +682,17 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 					DDF_Error("#CLEARALL cannot be used inside an entry !\n");
 
 				(* readinfo->clear_all)();
+
+				memfileptr += l_len;
+				continue;
+			}
+
+			if (strnicmp(memfileptr, "#VERSION", 8) == 0)
+			{
+				if (! firstgo)
+					DDF_Error("#VERSION cannot be used inside an entry !\n");
+
+				DDF_ParseVersion(memfileptr + 8, l_len - 8);
 
 				memfileptr += l_len;
 				continue;

@@ -293,6 +293,8 @@ state_starter_t;
 // DDF_MAIN Code (Reading all files, main init & generic functions).
 void DDF_MainReadFile (readinfo_t * readinfo);
 
+extern int ddf_version;  // hexadecimal e.g. 0x128
+
 void DDF_Error (const char *err, ...);
 void DDF_Warning (const char *err, ...);
 void DDF_WarnError (const char *err, ...);

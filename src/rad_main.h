@@ -25,6 +25,8 @@
 #include "r_defs.h"
 #include "hu_stuff.h"
 
+extern int rts_version;  // hexadecimal, e.g. 0x128
+
 struct rts_state_s;
 struct rad_script_s;
 struct rad_trigger_s;
