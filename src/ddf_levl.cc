@@ -329,7 +329,7 @@ void DDF_LevelCleanUp(void)
 // Changes the current map: this is globally visible to all those who ref
 // ddf_main.h. It will check there is an map with that entry name exists
 // and the map lump name also exists. Returns map if it exists.
-
+//
 const mapstuff_t *DDF_LevelMapLookup(const char *refname)
 {
 	int i;
