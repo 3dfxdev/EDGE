@@ -435,6 +435,7 @@ typedef struct subsector_s
 
   // here we remember the 1D/2D occlusion buffer (for sprite
   // clipping).
+  byte clip_left, clip_right;
   short x_min, x_max;
   struct Y_range_s *ranges;
 
