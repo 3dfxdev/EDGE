@@ -31,6 +31,7 @@
 #include <signal.h>
 #include <windowsx.h> // -ACB- 2000/07/19 Cracker API
 
+#include <sys/types.h> // Required for _stat()
 #include <ddraw.h>
 #include <dinput.h>
 #include <dsound.h>
