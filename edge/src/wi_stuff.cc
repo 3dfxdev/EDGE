@@ -93,16 +93,11 @@
 // used to accelerate or skip a stage
 static bool acceleratestage;
 
-// wbs->pnum
-static int me;
-
  // specifies current state
 static stateenum_t state;
 
 // contains information passed into intermission
 static wbstartstruct_t *wbs;
-
-static wbplayerstruct_t *plrs;  // wbs->plyr[]
 
 // used for general timing
 static int cnt;
@@ -113,14 +108,34 @@ static int bcnt;
 // signals to refresh everything for one frame
 static int firstrefresh;
 
-static int cnt_kills[10];
-static int cnt_items[10];
-static int cnt_secret[10];
+#define NUM_SHOWN  10
+
+static int sp_state;
+
+static int cnt_kills[NUM_SHOWN];
+static int cnt_items[NUM_SHOWN];
+static int cnt_secrets[NUM_SHOWN];
+static int cnt_frags[NUM_SHOWN];
+static int cnt_totals[NUM_SHOWN];
+
 static int cnt_time;
 static int cnt_par;
 static int cnt_pause;
 
-static style_c *wi_hack_style;  // TEMP!!
+static int dm_state;
+
+static int dm_frags[NUM_SHOWN];
+static int dm_totals[NUM_SHOWN];
+static int dm_rank[NUM_SHOWN];
+
+static int dofrags;
+
+static int ng_state;
+
+static bool snl_pointeron = false;
+
+static style_c *wi_sp_style;
+static style_c *wi_net_style;
 
 // GRAPHICS
 
@@ -138,7 +153,7 @@ static const image_t *percent;
 static const image_t *colon;
 
 // 0-9 graphic
-static const image_t *digits[10];
+static const image_t *digits[10];   //FIXME: use FONT/STYLE
 
 // minus sign
 static const image_t *wiminus;
@@ -485,8 +500,6 @@ static void UpdateNoState(void)
 	}
 }
 
-static bool snl_pointeron = false;
-
 static void InitShowNextLoc(void)
 {
 	int i;
@@ -535,92 +548,90 @@ static void DrawNoState(void)
 	DrawShowNextLoc();
 }
 
-static int dm_state;
-static int dm_frags[10];
-static int dm_totals[10];
-static int dm_rank[10];
+static void SortRanks(int *rank, int *score)
+{
+	// bubble sort the rank list
+	bool done = false;
 
-static int WI_DeathmatchScore(int pl)
+	while (!done)
+	{
+		done = true;
+
+		for (int i = 0; i < MAXPLAYERS - 1; i++)
+		{
+			int score1 = (rank[i]   >= 0) ? score[rank[i]]   : -1;
+			int score2 = (rank[i+1] >= 0) ? score[rank[i+1]] : -1;
+
+			if (score1 < score2)
+			{
+				int tmp = rank[i];
+				rank[i] = rank[i + 1];
+				rank[i + 1] = tmp;
+
+				done = false;
+			}
+		}
+	}
+}
+
+
+static int DeathmatchScore(int pl)
 {
 	if (pl >= 0)
 	{
-		return plrs[pl].totalfrags * 2 + plrs[pl].frags;
+		return wbs->plrs[pl].totalfrags * 2 + wbs->plrs[pl].frags;
 	}
+
 	return INT_MIN;
 }
 
 static void InitDeathmatchStats(void)
 {
+	DEV_ASSERT2(NUM_SHOWN <= MAXPLAYERS);
 
-	int i;
-	int j;
-	bool done = false;
-	int *rank;
-
-	rank = Z_New(int, MAXPLAYERS);
 	state = StatCount;
 	acceleratestage = false;
 	dm_state = 1;
 
 	cnt_pause = TICRATE;
 
+	int rank[MAXPLAYERS];
+	int score[MAXPLAYERS];
+
+	int i;
+
 	for (i = 0; i < MAXPLAYERS; i++)
-		rank[i] = plrs[i].in ? i : -1;
-	for (i = 0; i < 10; i++)
-		dm_frags[i] = dm_totals[i] = 0;
-
-	// bubble sort the rank list
-	while (!done)
 	{
-		for (i = 0; i < MAXPLAYERS - 1; i++)
-		{
-			if (WI_DeathmatchScore(rank[i]) < WI_DeathmatchScore(rank[i + 1]))
-			{
-				j = rank[i];
-				rank[i] = rank[i + 1];
-				rank[i + 1] = j;
-			}
-		}
-		done = true;
-		for (i = 0; i < MAXPLAYERS - 1; i++)
-		{
-			if (WI_DeathmatchScore(rank[i]) < WI_DeathmatchScore(rank[i + 1]))
-			{
-				done = false;
-				break;
-			}
-		}
+		rank[i] = wbs->plrs[i].in ? i : -1;
+		score[i] = DeathmatchScore(rank[i]);
 	}
-	for (i = 0; i < (10 > MAXPLAYERS ? MAXPLAYERS : 10); i++)
-		dm_rank[i] = rank[i];
-	for (; i < 10; i++)
-		dm_rank[i] = -1;
 
-	Z_Free(rank);
+	SortRanks(rank, score);
+
+	for (i = 0; i < NUM_SHOWN; i++)
+	{
+		dm_frags[i] = dm_totals[i] = 0;
+		dm_rank[i] = rank[i];
+	}
 }
 
 static void UpdateDeathmatchStats(void)
 {
-	int i;
-	int p;
-
 	bool stillticking;
 
 	if (acceleratestage && dm_state != 4)
 	{
 		acceleratestage = false;
 
-		for (i = 0; i < 10 && i < MAXPLAYERS; i++)
+		for (int i = 0; i < NUM_SHOWN; i++)
 		{
-			p = dm_rank[i];
-			if (p >= 0)
-			{
-				if (playerlookup[p] && playerlookup[p]->in_game)
-				{
-					dm_frags[i] = plrs[p].frags;
-					dm_totals[i] = plrs[p].totalfrags;
-				}
-			}
+			int p = dm_rank[i];
+	
+			if (p < 0)
+				break;
+
+			dm_frags[i] = wbs->plrs[p].frags;
+			dm_totals[i] = wbs->plrs[p].totalfrags;
 		}
 
 		S_StartSound(NULL, worldint.GetGameDef()->done);
@@ -634,24 +645,22 @@ static void UpdateDeathmatchStats(void)
 				S_StartSound(NULL, worldint.GetGameDef()->percent);
 
 			stillticking = false;
-			for (i = 0; i < 10; i++)
+			for (int i = 0; i < NUM_SHOWN; i++)
 			{
-				p = dm_rank[i];
-				if (p >= 0)
+				int p = dm_rank[i];
+
+				if (p < 0)
+					break;
+
+				if (dm_frags[i] < wbs->plrs[p].frags)
 				{
-					if (playerlookup[p] && playerlookup[p]->in_game)
-					{
-						if (dm_frags[i] < plrs[p].frags)
-						{
-							dm_frags[i]++;
-							stillticking = true;
-						}
-						if (dm_totals[i] < plrs[p].totalfrags)
-						{
-							dm_totals[i]++;
-							stillticking = true;
-						}
-					}
+					dm_frags[i]++;
+					stillticking = true;
+				}
+				if (dm_totals[i] < wbs->plrs[p].totalfrags)
+				{
+					dm_totals[i]++;
+					stillticking = true;
 				}
 			}
 			if (!stillticking)
@@ -686,143 +695,128 @@ static void UpdateDeathmatchStats(void)
 
 static void DrawDeathmatchStats(void)
 {
-	int i;
-	int y;
-	int p;
-
-	char temp[16];
-
 	DrawLevelFinished();
 
-	HL_WriteText(wi_hack_style, 0, 20, 40, "Player");
-	HL_WriteText(wi_hack_style, 0, 100, 40, "Frags");
-	HL_WriteText(wi_hack_style, 0, 200, 40, "Total Frags");
+	int t_type = styledef_c::T_TITLE;
+	int y = 40;
 
-	y = 40;
+	HL_WriteText(wi_net_style, t_type,  20, y, "Player");
+	HL_WriteText(wi_net_style, t_type, 100, y, "Frags");
+	HL_WriteText(wi_net_style, t_type, 200, y, "Total");
 
-	for (i = 0; i < 10; i++)
+	for (int i = 0; i < NUM_SHOWN; i++)
 	{
-		p = dm_rank[i];
-		if (p >= 0 && playerlookup[p] && playerlookup[p]->in_game)
-		{
-			y += 12;
-			if (p == me && ((bcnt & 31) < 16))
-				continue;
+		int p = dm_rank[i];
 
-			HL_WriteTextTrans(wi_hack_style,0, 20, y, text_white_map, 
-					playerlookup[p]->playername);
-			sprintf(temp, "%5d", dm_frags[i]);
-			HL_WriteTextTrans(wi_hack_style,0, 100, y, text_white_map, temp);
-			sprintf(temp, "%11d", dm_totals[i]);
-			HL_WriteTextTrans(wi_hack_style,0, 200, y, text_white_map, temp);
-		}
+		if (p < 0)
+			break;
+
+		y += 12;
+
+		t_type = styledef_c::T_TEXT;
+
+		// hightlight the console player
+#if 1
+		if (p == wbs->me)
+			t_type = styledef_c::T_ALT;
+#else
+		if (p == wbs->me && ((bcnt & 31) < 16))
+			continue;
+#endif
+
+		char temp[40];
+
+		sprintf(temp, "%s", playerlookup[p]->playername); //FIXME !!!
+		HL_WriteText(wi_net_style, t_type, 20, y, temp);
+
+		sprintf(temp, "%5d", dm_frags[i]);
+		HL_WriteText(wi_net_style, t_type, 100, y, temp);
+
+		sprintf(temp, "%11d", dm_totals[i]);
+		HL_WriteText(wi_net_style, t_type, 200, y, temp);
 	}
 }
 
-static int cnt_frags[10];
-static int cnt_tfrags[10];
-static int dofrags;
-static int ng_state;
-
 // Calculates value of this player for ranking
-static int NetgameScore(int pl)
+static int CoopScore(int pl)
 {
 	if (pl >= 0)
 	{
-		int kills = plrs[pl].skills * 400 / wbs->maxkills;
-		int items = plrs[pl].sitems * 100 / wbs->maxitems;
-		int secret = plrs[pl].ssecret * 200 / wbs->maxsecret;
-		int frags = (plrs[pl].frags + plrs[pl].totalfrags) * 25;
+		int kills = wbs->plrs[pl].skills * 400 / wbs->maxkills;
+		int items = wbs->plrs[pl].sitems * 100 / wbs->maxitems;
+		int secret = wbs->plrs[pl].ssecret * 200 / wbs->maxsecret;
+		int frags = (wbs->plrs[pl].frags + wbs->plrs[pl].totalfrags) * 25;
 
 		return kills + items + secret - frags;
 	}
+
 	return INT_MIN;
 }
 
-static void InitNetgameStats(void)
+static void InitCoopStats(void)
 {
-	int *rank;
-	int i, j;
-	bool done = false;
+	DEV_ASSERT2(NUM_SHOWN <= MAXPLAYERS);
 
-	rank = Z_New(int, MAXPLAYERS);
 	state = StatCount;
 	acceleratestage = false;
 	ng_state = 1;
 
 	cnt_pause = TICRATE;
 
-	for (i = 0; i < (10 > MAXPLAYERS ? MAXPLAYERS : 10); i++)
-		rank[i] = plrs[i].in ? i : -1;
+	int rank[MAXPLAYERS];
+	int score[MAXPLAYERS];
 
-	while (!done)
+	int i;
+
+	for (i = 0; i < MAXPLAYERS; i++)
 	{
-		for (i = 0; i < MAXPLAYERS - 1; i++)
-		{
-			if (NetgameScore(rank[i]) < NetgameScore(rank[i + 1]))
-			{
-				j = rank[i];
-				rank[i] = rank[i + 1];
-				rank[i + 1] = j;
-			}
-		}
-		done = true;
-		for (i = 0; i < MAXPLAYERS - 1; i++)
-		{
-			if (NetgameScore(rank[i]) < NetgameScore(rank[i + 1]))
-			{
-				done = false;
-				break;
-			}
-		}
+		rank[i] = wbs->plrs[i].in ? i : -1;
+		score[i] = CoopScore(rank[i]);
 	}
-	for (i = 0; i < 10; i++)
-		dm_rank[i] = (i >= MAXPLAYERS) ? -1 : rank[i];
 
-	for (i = 0; i < 10; i++)
+	SortRanks(rank, score);
+
+	dofrags = 0;
+
+	for (i = 0; i < NUM_SHOWN; i++)
 	{
+		dm_rank[i] = rank[i];
+
 		if (dm_rank[i] < 0)
 			continue;
-		if (!playerlookup[dm_rank[i]] || !playerlookup[dm_rank[i]]->in_game)
-			continue;
 
-		cnt_kills[i] = cnt_items[i] = cnt_secret[i] = cnt_frags[i] = cnt_tfrags[i] = 0;
+		cnt_kills[i] = cnt_items[i] = cnt_secrets[i] = cnt_frags[i] = cnt_totals[i] = 0;
 
-		dofrags += plrs[dm_rank[i]].frags + plrs[dm_rank[i]].totalfrags;
+		dofrags += wbs->plrs[dm_rank[i]].frags + wbs->plrs[dm_rank[i]].totalfrags;
 	}
-
-	Z_Free(rank);
 }
 
-static void UpdateNetgameStats(void)
+static void UpdateCoopStats(void)
 {
-	int i;
-	int p;
-
 	bool stillticking;
 
 	if (acceleratestage && ng_state != 10)
 	{
 		acceleratestage = false;
 
-		for (i = 0; i < 10; i++)
+		for (int i = 0; i < NUM_SHOWN; i++)
 		{
-			p = dm_rank[i];
-			if (p < 0)
-				continue;
-			if (!playerlookup[p] || !playerlookup[p]->in_game)
-				continue;
+			int p = dm_rank[i];
 
-			cnt_kills[i] = (plrs[p].skills * 100) / wbs->maxkills;
-			cnt_items[i] = (plrs[p].sitems * 100) / wbs->maxitems;
-			cnt_secret[i] = (plrs[p].ssecret * 100) / wbs->maxsecret;
+			if (p < 0)
+				break;
+
+			cnt_kills[i] = (wbs->plrs[p].skills * 100) / wbs->maxkills;
+			cnt_items[i] = (wbs->plrs[p].sitems * 100) / wbs->maxitems;
+			cnt_secrets[i] = (wbs->plrs[p].ssecret * 100) / wbs->maxsecret;
 
 			if (dofrags)
 			{
-				cnt_frags[i] = plrs[p].frags;
-				cnt_tfrags[i] = plrs[p].totalfrags;
+				cnt_frags[i] = wbs->plrs[p].frags;
+				cnt_totals[i] = wbs->plrs[p].totalfrags;
 			}
 		}
+
 		S_StartSound(NULL, worldint.GetGameDef()->done);
 		ng_state = 10;
 	}
@@ -835,18 +829,17 @@ static void UpdateNetgameStats(void)
 
 			stillticking = false;
 
-			for (i = 0; i < 10; i++)
+			for (int i = 0; i < NUM_SHOWN; i++)
 			{
-				p = dm_rank[i];
+				int p = dm_rank[i];
+
 				if (p < 0)
 					break;
-				if (!playerlookup[p] || playerlookup[p]->in_game)
-					continue;
 
 				cnt_kills[i] += 2;
 
-				if (cnt_kills[i] >= (plrs[p].skills * 100) / wbs->maxkills)
-					cnt_kills[i] = (plrs[p].skills * 100) / wbs->maxkills;
+				if (cnt_kills[i] >= (wbs->plrs[p].skills * 100) / wbs->maxkills)
+					cnt_kills[i] = (wbs->plrs[p].skills * 100) / wbs->maxkills;
 				else
 					stillticking = true;
 			}
@@ -864,17 +857,16 @@ static void UpdateNetgameStats(void)
 
 			stillticking = false;
 
-			for (i = 0; i < 10; i++)
+			for (int i = 0; i < NUM_SHOWN; i++)
 			{
-				p = dm_rank[i];
+				int p = dm_rank[i];
+
 				if (p < 0)
 					break;
-				if (!playerlookup[p] || playerlookup[p]->in_game)
-					continue;
 
 				cnt_items[i] += 2;
-				if (cnt_items[i] >= (plrs[p].sitems * 100) / wbs->maxitems)
-					cnt_items[i] = (plrs[p].sitems * 100) / wbs->maxitems;
+				if (cnt_items[i] >= (wbs->plrs[p].sitems * 100) / wbs->maxitems)
+					cnt_items[i] = (wbs->plrs[p].sitems * 100) / wbs->maxitems;
 				else
 					stillticking = true;
 			}
@@ -891,18 +883,17 @@ static void UpdateNetgameStats(void)
 
 			stillticking = false;
 
-			for (i = 0; i < 10; i++)
+			for (int i = 0; i < NUM_SHOWN; i++)
 			{
-				p = dm_rank[i];
+				int p = dm_rank[i];
+
 				if (p < 0)
 					break;
-				if (!playerlookup[p] || playerlookup[p]->in_game)
-					continue;
 
-				cnt_secret[i] += 2;
+				cnt_secrets[i] += 2;
 
-				if (cnt_secret[i] >= (plrs[p].ssecret * 100) / wbs->maxsecret)
-					cnt_secret[i] = (plrs[p].ssecret * 100) / wbs->maxsecret;
+				if (cnt_secrets[i] >= (wbs->plrs[p].ssecret * 100) / wbs->maxsecret)
+					cnt_secrets[i] = (wbs->plrs[p].ssecret * 100) / wbs->maxsecret;
 				else
 					stillticking = true;
 			}
@@ -920,22 +911,20 @@ static void UpdateNetgameStats(void)
 
 			stillticking = false;
 
-			for (i = 0; i < 10; i++)
+			for (int i = 0; i < NUM_SHOWN; i++)
 			{
-				p = dm_rank[i];
+				int p = dm_rank[i];
+
 				if (p < 0)
 					break;
 
-				if (!playerlookup[p] || playerlookup[p]->in_game)
-					continue;
-
 				cnt_frags[i]++;
-				cnt_tfrags[i]++;
+				cnt_totals[i]++;
 
-				if (cnt_frags[i] >= plrs[p].frags)
-					cnt_frags[i] = plrs[p].frags;
-				else if (cnt_tfrags[i] >= plrs[p].totalfrags)
-					cnt_tfrags[i] = plrs[p].totalfrags;
+				if (cnt_frags[i] >= wbs->plrs[p].frags)
+					cnt_frags[i] = wbs->plrs[p].frags;
+				else if (cnt_totals[i] >= wbs->plrs[p].totalfrags)
+					cnt_totals[i] = wbs->plrs[p].totalfrags;
 				else
 					stillticking = true;
 			}
@@ -968,52 +957,67 @@ static void UpdateNetgameStats(void)
 	}
 }
 
-static void DrawNetgameStats(void)
+static void DrawCoopStats(void)
 {
-	int i;
-	int y;
-	int p;
-	char temp[16];
-
 	DrawLevelFinished();
 
-	HL_WriteText(wi_hack_style,0, 6, 40, "Player");
-	HL_WriteText(wi_hack_style,0, 56, 40, "Kills");
-	HL_WriteText(wi_hack_style,0, 98, 40, "Items");
-	HL_WriteText(wi_hack_style,0, 142, 40, "Secret");
+	int t_type = styledef_c::T_TITLE;
+	int y = 40;
+
+	// FIXME: better alignment
+
+	HL_WriteText(wi_net_style, t_type,   6, y, "Player");
+	HL_WriteText(wi_net_style, t_type,  56, y, "Kills");
+	HL_WriteText(wi_net_style, t_type,  98, y, "Items");
+	HL_WriteText(wi_net_style, t_type, 142, y, "Secret");
 
 	if (dofrags)
 	{
-		HL_WriteText(wi_hack_style,0, 190, 40, "Frags");
-		HL_WriteText(wi_hack_style,0, 232, 40, "Total Frags");
+		HL_WriteText(wi_net_style, t_type, 190, y, "Frags");
+		HL_WriteText(wi_net_style, t_type, 232, y, "Total");
 	}
 
-	y = 40;
-	for (i = 0; i < 10; i++)
+	for (int i = 0; i < NUM_SHOWN; i++)
 	{
-		p = dm_rank[i];
+		int p = dm_rank[i];
+
 		if (p < 0)
 			break;
-		y += 12;
-		if (p == me && ((bcnt & 31) < 16))
-			continue;
 
-		sprintf(temp, "%s", (playerlookup[p] && playerlookup[p]->in_game)
-				? playerlookup[p]->playername : "NOBODY");
-		HL_WriteTextTrans(wi_hack_style,0, 6, y, text_white_map, temp);
-		sprintf(temp, "%%%3d", cnt_kills[i]);
-		HL_WriteTextTrans(wi_hack_style,0, 64, y, text_white_map, temp);
-		sprintf(temp, "%%%3d", cnt_items[i]);
-		HL_WriteTextTrans(wi_hack_style,0, 106, y, text_white_map, temp);
-		sprintf(temp, "%%%3d", cnt_secret[i]);
-		HL_WriteTextTrans(wi_hack_style,0, 158, y, text_white_map, temp);
+		y += 12;
+
+		t_type = styledef_c::T_TEXT;
+
+		// hightlight the console player
+#if 1
+		if (p == wbs->me)
+			t_type = styledef_c::T_ALT;
+#else
+		if (p == wbs->me && ((bcnt & 31) < 16))
+			continue;
+#endif
+
+		char temp[40];
+
+		sprintf(temp, "%s", playerlookup[p]->playername); //FIXME !!!
+		HL_WriteText(wi_net_style, t_type, 6, y, temp);
+
+		sprintf(temp, "%3d%%", cnt_kills[i]);
+		HL_WriteText(wi_net_style, t_type, 64, y, temp);
+
+		sprintf(temp, "%3d%%", cnt_items[i]);
+		HL_WriteText(wi_net_style, t_type, 106, y, temp);
+
+		sprintf(temp, "%3d%%", cnt_secrets[i]);
+		HL_WriteText(wi_net_style, t_type, 158, y, temp);
 
 		if (dofrags)
 		{
 			sprintf(temp, "%5d", cnt_frags[i]);
-			HL_WriteTextTrans(wi_hack_style,0, 190, y, text_white_map, temp);
-			sprintf(temp, "%11d", cnt_tfrags[i]);
-			HL_WriteTextTrans(wi_hack_style,0, 232, y, text_white_map, temp);
+			HL_WriteText(wi_net_style, t_type, 190, y, temp);
+
+			sprintf(temp, "%11d", cnt_totals[i]);
+			HL_WriteText(wi_net_style, t_type, 232, y, temp);
 		}
 	}
 }
@@ -1029,14 +1033,12 @@ typedef enum
 }
 sp_state_e;
 
-static int sp_state;
-
 static void InitStats(void)
 {
 	state = StatCount;
 	acceleratestage = false;
 	sp_state = sp_paused;
-	cnt_kills[0] = cnt_items[0] = cnt_secret[0] = -1;
+	cnt_kills[0] = cnt_items[0] = cnt_secrets[0] = -1;
 	cnt_time = cnt_par = -1;
 	cnt_pause = TICRATE;
 
@@ -1051,10 +1053,10 @@ static void UpdateStats(void)
 	if (acceleratestage && sp_state != sp_end)
 	{
 		acceleratestage = false;
-		cnt_kills[0] = (plrs[me].skills * 100) / wbs->maxkills;
-		cnt_items[0] = (plrs[me].sitems * 100) / wbs->maxitems;
-		cnt_secret[0] = (plrs[me].ssecret * 100) / wbs->maxsecret;
-		cnt_time = plrs[me].stime / TICRATE;
+		cnt_kills[0] = (wbs->plrs[wbs->me].skills * 100) / wbs->maxkills;
+		cnt_items[0] = (wbs->plrs[wbs->me].sitems * 100) / wbs->maxitems;
+		cnt_secrets[0] = (wbs->plrs[wbs->me].ssecret * 100) / wbs->maxsecret;
+		cnt_time = wbs->plrs[wbs->me].stime / TICRATE;
 		cnt_par = wbs->partime / TICRATE;
 		S_StartSound(NULL, worldint.GetGameDef()->done);
 		sp_state = sp_end;
@@ -1067,9 +1069,9 @@ static void UpdateStats(void)
 		if (!(bcnt & 3))
 			S_StartSound(NULL, worldint.GetGameDef()->percent);
 
-		if (cnt_kills[0] >= (plrs[me].skills * 100) / wbs->maxkills)
+		if (cnt_kills[0] >= (wbs->plrs[wbs->me].skills * 100) / wbs->maxkills)
 		{
-			cnt_kills[0] = (plrs[me].skills * 100) / wbs->maxkills;
+			cnt_kills[0] = (wbs->plrs[wbs->me].skills * 100) / wbs->maxkills;
 			S_StartSound(NULL, worldint.GetGameDef()->done);
 			sp_state++;
 		}
@@ -1081,23 +1083,23 @@ static void UpdateStats(void)
 		if (!(bcnt & 3))
 			S_StartSound(NULL, worldint.GetGameDef()->percent);
 
-		if (cnt_items[0] >= (plrs[me].sitems * 100) / wbs->maxitems)
+		if (cnt_items[0] >= (wbs->plrs[wbs->me].sitems * 100) / wbs->maxitems)
 		{
-			cnt_items[0] = (plrs[me].sitems * 100) / wbs->maxitems;
+			cnt_items[0] = (wbs->plrs[wbs->me].sitems * 100) / wbs->maxitems;
 			S_StartSound(NULL, worldint.GetGameDef()->done);
 			sp_state++;
 		}
 	}
 	else if (sp_state == sp_scrt)
 	{
-		cnt_secret[0] += 2;
+		cnt_secrets[0] += 2;
 
 		if (!(bcnt & 3))
 			S_StartSound(NULL, worldint.GetGameDef()->percent);
 
-		if (cnt_secret[0] >= (plrs[me].ssecret * 100) / wbs->maxsecret)
+		if (cnt_secrets[0] >= (wbs->plrs[wbs->me].ssecret * 100) / wbs->maxsecret)
 		{
-			cnt_secret[0] = (plrs[me].ssecret * 100) / wbs->maxsecret;
+			cnt_secrets[0] = (wbs->plrs[wbs->me].ssecret * 100) / wbs->maxsecret;
 			S_StartSound(NULL, worldint.GetGameDef()->done);
 			sp_state++;
 		}
@@ -1110,8 +1112,8 @@ static void UpdateStats(void)
 
 		cnt_time += 3;
 
-		if (cnt_time >= plrs[me].stime / TICRATE)
-			cnt_time = plrs[me].stime / TICRATE;
+		if (cnt_time >= wbs->plrs[wbs->me].stime / TICRATE)
+			cnt_time = wbs->plrs[wbs->me].stime / TICRATE;
 
 		cnt_par += 3;
 
@@ -1119,7 +1121,7 @@ static void UpdateStats(void)
 		{
 			cnt_par = wbs->partime / TICRATE;
 
-			if (cnt_time >= plrs[me].stime / TICRATE)
+			if (cnt_time >= wbs->plrs[wbs->me].stime / TICRATE)
 			{
 				S_StartSound(NULL, worldint.GetGameDef()->done);
 				sp_state++;
@@ -1169,7 +1171,7 @@ static void DrawStats(void)
 	DrawPercent(320 - SP_STATSX, SP_STATSY + lh, cnt_items[0]);
 
 	RGL_ImageEasy320(SP_STATSX, SP_STATSY + 2 * lh, sp_secret);
-	DrawPercent(320 - SP_STATSX, SP_STATSY + 2 * lh, cnt_secret[0]);
+	DrawPercent(320 - SP_STATSX, SP_STATSY + 2 * lh, cnt_secrets[0]);
 
 	RGL_ImageEasy320(SP_TIMEX, SP_TIMEY, time_image);
 	DrawTime(160 - SP_TIMEX, SP_TIMEY, cnt_time);
@@ -1250,7 +1252,7 @@ void WI_Ticker(void)
 			if (deathmatch)
 				UpdateDeathmatchStats();
 			else if (netgame)
-				UpdateNetgameStats();
+				UpdateCoopStats();
 			else
 				UpdateStats();
 			break;
@@ -1270,8 +1272,20 @@ static void LoadData(void)
 	int i, j;
 	epi::string_c name;
 
-	if (! wi_hack_style)
-		wi_hack_style = hu_styles.Lookup(default_style);
+	// find styles
+	if (! wi_sp_style)
+	{
+		styledef_c *def = styledefs.Lookup("STATS");
+		if (! def) def = default_style;
+		wi_sp_style = hu_styles.Lookup(def);
+	}
+
+	if (! wi_net_style)
+	{
+		styledef_c *def = styledefs.Lookup("NET STATS");
+		if (! def) def = default_style;
+		wi_net_style = hu_styles.Lookup(def);
+	}
 
 	// background
 	bg_image = W_ImageFromPatch(worldint.GetGameDef()->background);
@@ -1336,10 +1350,6 @@ static void LoadData(void)
 
 void WI_Drawer(void)
 {
-	int i;
-	wi_anim_c *a;
-	wi_frame_c *f;
-
 	if (background_camera_mo)
 	{
 		R_Render();
@@ -1347,29 +1357,29 @@ void WI_Drawer(void)
 	else
 	{
 		RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, bg_image);
-	}
 
-	for (i = 0; i < worldint.numanims; i++)
-	{
-		a = &worldint.anims[i];
-
-		if (a->frameon == -1)
-			continue;
-
-		f = NULL;
-
-		if (a->info->type == wi_animdef_c::WI_LEVEL)
+		for (int i = 0; i < worldint.numanims; i++)
 		{
-			if (!wbs->next)
-				f = NULL;
-			else if (!strcmp(wbs->next->ddf.name, a->info->level))
-				f = &a->frames[a->frameon];
-		}
-		else
-			f = &a->frames[a->frameon];
+			wi_anim_c *a = &worldint.anims[i];
 
-		if (f)
-			RGL_ImageEasy320(f->info->pos.x, f->info->pos.y, f->image);
+			if (a->frameon == -1)
+				continue;
+
+			wi_frame_c *f = NULL;
+
+			if (a->info->type == wi_animdef_c::WI_LEVEL)
+			{
+				if (!wbs->next)
+					f = NULL;
+				else if (!strcmp(wbs->next->ddf.name, a->info->level))
+					f = &a->frames[a->frameon];
+			}
+			else
+				f = &a->frames[a->frameon];
+
+			if (f)
+				RGL_ImageEasy320(f->info->pos.x, f->info->pos.y, f->image);
+		}
 	}
 
 	switch (state)
@@ -1378,7 +1388,7 @@ void WI_Drawer(void)
 			if (deathmatch)
 				DrawDeathmatchStats();
 			else if (netgame)
-				DrawNetgameStats();
+				DrawCoopStats();
 			else
 				DrawStats();
 			break;
@@ -1400,8 +1410,6 @@ static void InitVariables(wbstartstruct_t * wbstartstruct)
 	acceleratestage = false;
 	cnt = bcnt = 0;
 	firstrefresh = 1;
-	me = wbs->pnum;
-	plrs = wbs->plyr;
 
 	if (!wbs->maxkills)
 		wbs->maxkills = 1;
@@ -1425,7 +1433,7 @@ void WI_Start(wbstartstruct_t * wbstartstruct)
 	if (deathmatch)
 		InitDeathmatchStats();
 	else if (netgame)
-		InitNetgameStats();
+		InitCoopStats();
 	else
 		InitStats();
 
