@@ -18,10 +18,14 @@ typedef enum
 	AF_EXPLODE    = (1 << 0),   // uses A_Explode
 	AF_KEENDIE    = (1 << 1),   // uses A_KeenDie
 	AF_LOOK       = (1 << 2),   // uses A_Look
-	AF_SPREAD     = (1 << 3),   // uses A_FatAttack1/2/3
 
-	AF_FLASH      = (1 << 5),   // weapon will go into flash state
-	AF_MAKEDEAD   = (1 << 6),   // action needs an extra MAKEDEAD state
+	AF_SPREAD     = (1 << 3),   // uses A_FatAttack1/2/3
+	AF_CHASER     = (1 << 4),   // uses A_Chase
+	AF_FALLER     = (1 << 5),   // uses A_Fall
+
+	AF_FLASH      = (1 << 6),   // weapon will go into flash state
+	AF_MAKEDEAD   = (1 << 7),   // action needs an extra MAKEDEAD state
+	AF_FACE       = (1 << 8),   // action needs FACE_TARGET state
 
 	AF_WEAPON_ST  = (1 << 10),  // uses a weapon state
 	AF_THING_ST   = (1 << 11)   // uses a thing state
@@ -52,9 +56,7 @@ namespace Frames
 	void SpreadGroups(void);
 	bool CheckSpawnRemove(int first);
 	bool CheckWeaponFlash(int first);
-	void OutputState(char group, int cur);
 	void OutputGroup(int first, char group);
-	const char *GroupToName(char group, bool use_spawn);
 
 	// debugging stuff
 	void DebugRange(const char *kind, const char *entry);

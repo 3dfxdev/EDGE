@@ -58,6 +58,10 @@ namespace Frames
 {
 	int lowest_touched;
 	int highest_touched;
+
+	// forward decls
+	void OutputState(char group, int cur);
+	const char *GroupToName(char group, bool use_spawn);
 }
 
 
@@ -109,26 +113,26 @@ static const actioninfo_t action_info[NUMACTIONS] =
     { "EXPLOSIONDAMAGE", AF_EXPLODE, NULL, NULL },      // A_Explode
     { "MAKEPAINSOUND", 0, NULL, NULL },      // A_Pain
     { "PLAYER_SCREAM", 0, NULL, NULL },      // A_PlayerScream
-    { "MAKEDEAD", 0, NULL, NULL },      // A_Fall
+    { "MAKEDEAD", AF_FALLER, NULL, NULL },      // A_Fall
     { "MAKEOVERKILLSOUND", 0, NULL, NULL },      // A_XScream
     { "LOOKOUT", AF_LOOK, NULL, NULL },      // A_Look
-    { "CHASE", 0, NULL, NULL },      // A_Chase
+    { "CHASE", AF_CHASER, NULL, NULL },      // A_Chase
     { "FACETARGET", 0, NULL, NULL },      // A_FaceTarget
     { "RANGE_ATTACK", 0, "R:FORMER_HUMAN_PISTOL", NULL },      // A_PosAttack
     { "MAKEDEATHSOUND", 0, NULL, NULL },      // A_Scream
     { "RANGE_ATTACK", 0, "R:FORMER_HUMAN_SHOTGUN", NULL },      // A_SPosAttack
-    { "RESCHASE", 0, NULL, NULL },      // A_VileChase
-    { "RANGEATTEMPTSND", 0, NULL, NULL },      // A_VileStart
+    { "RESCHASE", AF_CHASER, NULL, NULL },      // A_VileChase
+    { "PLAYSOUND(VILATK)", 0, NULL, NULL },      // A_VileStart
     { "RANGE_ATTACK", 0, "R:ARCHVILE_FIRE", NULL },      // A_VileTarget
     { "EFFECTTRACKER", 0, NULL, NULL },      // A_VileAttack
     { "TRACKERSTART", 0, NULL, NULL },      // A_StartFire
     { "TRACKERFOLLOW", 0, NULL, NULL },      // A_Fire
     { "TRACKERACTIVE", 0, NULL, NULL },      // A_FireCrackle
     { "RANDOM_TRACER", 0, NULL, NULL },      // A_Tracer
-    { "CLOSEATTEMPTSND", 0, NULL, NULL },      // A_SkelWhoosh
+    { "PLAYSOUND(SKESWG)", AF_FACE, NULL, NULL },   // A_SkelWhoosh
     { "CLOSE_ATTACK", 0, "C:REVENANT_CLOSECOMBAT", NULL },      // A_SkelFist
     { "RANGE_ATTACK", 0, "R:REVENANT_MISSILE", NULL },      // A_SkelMissile
-    { "RANGEATTEMPTSND", 0, NULL, NULL },      // A_FatRaise
+    { "PLAYSOUND(MANATK)", AF_FACE, NULL, NULL },   // A_FatRaise
     { "RANGE_ATTACK", AF_SPREAD, "R:MANCUBUS_FIREBALL", NULL }, // A_FatAttack1
     { "RANGE_ATTACK", AF_SPREAD, "R:MANCUBUS_FIREBALL", NULL }, // A_FatAttack2
     { "RANGE_ATTACK", AF_SPREAD, "R:MANCUBUS_FIREBALL", NULL }, // A_FatAttack3
@@ -617,7 +621,7 @@ namespace Frames
 		{
 			if (group != 'L' && group != 'M')
 			{
-				PrintWarn("Reducing COMBOATTACK outside of attack states.\n");
+				PrintWarn("Not enough attack slots for COMBOATTACK.\n");
 			}
 
 			if ((group == 'L' && kind2 == COMBAT) ||
@@ -694,6 +698,14 @@ void Frames::OutputState(char group, int cur)
 			'A' + ((int) st->frame & 31),
 			(st->frame >= 32768) ? "BRIGHT" : "NORMAL",
 			(st->action == A_PainDie) ? "A_PainDie" : "A_KeenDie");
+	}
+	
+	if (action_info[st->action].act_flags & AF_FACE)
+	{
+		WAD::Printf("    %s:%c:0:%s:FACE_TARGET,\n",
+			TextStr::GetSprite(st->sprite),
+			'A' + ((int) st->frame & 31),
+			(st->frame >= 32768) ? "BRIGHT" : "NORMAL");
 	}
 
 	// special handling for Mancubus attacks...

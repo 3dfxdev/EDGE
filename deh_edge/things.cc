@@ -44,13 +44,15 @@
 #include "weapons.h"
 
 
+#define DEBUG_MONST  0
+
+
 #define EF_DISLOYAL    'D'
 #define EF_TRIG_HAPPY  'H'
 #define EF_BOSSMAN     'B'
 #define EF_NO_RAISE    'R'
 #define EF_NO_GRUDGE   'G'
 #define EF_NO_ITEM_BK  'I'
-#define EF_MONSTER     'M'
 
 
 // XXX needed to get original name (warning message)
@@ -128,10 +130,64 @@ namespace Things
 		{ EF_NO_RAISE,    "NO_RESURRECT" },
 		{ EF_NO_GRUDGE,   "NO_GRUDGE,NEVERTARGETED" },
 		{ EF_NO_ITEM_BK,  "NO_RESPAWN" },
-		{ EF_MONSTER,     "MONSTER" },
 
 		{ 0, NULL }  // End sentinel
 	};
+
+	bool CheckIsMonster(const mobjinfo_t *info, int mt_num, int player)
+	{
+		if (player > 0)
+			return false;
+
+		if (info->doomednum <= 0)
+			return false;
+
+		if (info->name[0] == '*')
+			return false;
+
+		if (info->flags & MF_COUNTKILL)
+			return true;
+
+		if (info->flags & (MF_SPECIAL | MF_COUNTITEM))
+			return false;
+
+		int score = 0;
+
+		// values determined by statistical analysis of major DEH patches
+		// (Standard DOOM, Batman, Mordeth, Wheel-of-Time, Osiris). 
+
+		if (info->flags & MF_SOLID) score += 25;
+		if (info->flags & MF_SHOOTABLE) score += 72;
+
+		if (info->painstate) score += 91;
+		if (info->missilestate || info->meleestate) score += 91;
+		if (info->deathstate) score += 72;
+		if (info->raisestate) score += 31;
+
+		if (Frames::act_flags & AF_CHASER) score += 78;
+		if (Frames::act_flags & AF_FALLER) score += 61;
+
+		if (info->speed > 0) score += 87;
+
+#if (DEBUG_MONST)
+		Debug_PrintMsg("[%20.20s:%-4d] %c%c%c%c%c %c%c%c%c %c%c %d = %d\n",
+			info->name, info->doomednum,
+			(info->flags & MF_SOLID) ? 'S' : '-',
+			(info->flags & MF_SHOOTABLE) ? 'H' : '-',
+			(info->flags & MF_FLOAT) ? 'F' : '-',
+			(info->flags & MF_MISSILE) ? 'M' : '-',
+			(info->flags & MF_NOBLOOD) ? 'B' : '-',
+			(info->painstate) ? 'p' : '-',
+			(info->deathstate) ? 'd' : '-',
+			(info->raisestate) ? 'r' : '-',
+			(info->missilestate || info->meleestate) ? 'm' : '-',
+			(Frames::act_flags & AF_CHASER) ? 'C' : '-',
+			(Frames::act_flags & AF_FALLER) ? 'F' : '-',
+			info->speed, score);
+#endif
+
+		return (score >= 370);
+	}
 
 	const char *GetExtFlags(int mt_num, int player)
 	{
@@ -198,8 +254,8 @@ namespace Things
 		if (mt_num == MT_TELEPORTMAN)
 			cur_f &= ~MF_NOSECTOR;
 
-		bool force_disloyal = (Misc::monster_infight == 221 &&
-			(info->missilestate || info->meleestate));
+		bool is_monster = CheckIsMonster(info, mt_num, player);
+		bool force_disloyal = (is_monster && Misc::monster_infight == 221);
 
 		flags_got_one = false;
 
@@ -230,6 +286,9 @@ namespace Things
 
 		if (force_disloyal)
 			AddOneFlag(info, extflaglist[0].name);
+
+		if (is_monster)
+			AddOneFlag(info, "MONSTER");
 
 		if (flags_got_one)
 			WAD::Printf(";\n");
@@ -746,8 +805,6 @@ namespace Things
 			return;
 		}
 
-		WAD::Printf("\n");
-
 		if (Frames::attack_slot[Frames::RANGE])
 		{
 			WAD::Printf("RANGE_ATTACK = %s;\n",
@@ -813,11 +870,14 @@ void Things::ConvertMobj(const mobjinfo_t *info, int mt_num, int player)
 
 	HandleCastOrder(info, mt_num, player);
 	HandleDropItem(info, mt_num);
-	HandleFlags(info, mt_num, player);
 	HandlePlayer(info, player);
 	HandleItem(info, mt_num);
 	HandleSounds(info, mt_num);
 	HandleFrames(info, mt_num);
+
+	WAD::Printf("\n");
+
+	HandleFlags(info, mt_num, player);
 	HandleAttacks(info, mt_num);
 
 	if (Frames::act_flags & AF_EXPLODE)
