@@ -135,8 +135,6 @@ static INLINE void InsertAtTail(sfxdef_c *sound)
 	sound->prev = sfxcachehead.prev;
 	sound->next->prev = sound;
 	sound->prev->next = sound;
-
-	L_WriteDebug("Cached[1]: %s\n", sound->ddf.name);
 }
 
 //
@@ -148,8 +146,6 @@ static INLINE void InsertAtHead(sfxdef_c *sound)
 	sound->prev = &sfxcachehead;
 	sound->next->prev = sound;
 	sound->prev->next = sound;
-
-	L_WriteDebug("Cached[2]: %s\n", sound->ddf.name);
 }
 
 //
@@ -161,8 +157,6 @@ static INLINE void UnlinkSound(sfxdef_c *sound)
 	sound->prev->next = sound->next;
 	sound->next = NULL;
 	sound->prev = NULL;
-
-	L_WriteDebug("Unlinked: %s\n", sound->ddf.name);
 }
 
 //
