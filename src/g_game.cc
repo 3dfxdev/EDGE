@@ -2108,6 +2108,8 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 
 	for (; cond; cond = cond->next)
 	{
+		int i_amount = (int)(cond->amount + 0.5f);
+
 		switch (cond->cond_type)
 		{
 			case COND_Health:
@@ -2123,9 +2125,9 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 					return false;
 
 				if (cond->subtype == ARMOUR_Total)
-					temp = (p->totalarmour >= cond->amount);
+					temp = (p->totalarmour >= i_amount);
 				else
-					temp = (p->armours[cond->subtype] >= cond->amount);
+					temp = (p->armours[cond->subtype] >= i_amount);
 
 				if ((!cond->negate && !temp) || (cond->negate && temp))
 					return false;
@@ -2171,7 +2173,7 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 				if (!p)
 					return false;
 
-				temp = (p->powers[cond->subtype] > (int)cond->amount);
+				temp = (p->powers[cond->subtype] > cond->amount);
 
 				if ((!cond->negate && !temp) || (cond->negate && temp))
 					return false;
@@ -2182,7 +2184,7 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 				if (!p)
 					return false;
 
-				temp = (p->ammo[cond->subtype].num >= cond->amount);
+				temp = (p->ammo[cond->subtype].num >= i_amount);
 
 				if ((!cond->negate && !temp) || (cond->negate && temp))
 					return false;

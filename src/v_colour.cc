@@ -737,17 +737,17 @@ void V_SetPalette(int type, float amount)
 	if (!loaded_playpal)
 		return;
 
-	if (amount >= 1.0f)
-		amount = 1.0f;
+	if (amount >= 0.95f)
+		amount = 0.95f;
 
 	switch (type)
 	{
 	case PALETTE_PAIN:
-		palette = (int)(PAIN_PALS + amount * (NUM_PAIN_PALS-1));
+		palette = (int)(PAIN_PALS + amount * NUM_PAIN_PALS);
 		break;
 
 	case PALETTE_BONUS:
-		palette = (int)(BONUS_PALS + amount * (NUM_BONUS_PALS-1));
+		palette = (int)(BONUS_PALS + amount * NUM_BONUS_PALS);
 		break;
 
 	case PALETTE_SUIT:
@@ -983,7 +983,7 @@ const coltable_t *V_GetColtable(const colourmap_t * nominal,
 		if (effect_colourmap->length > 1)
 		{
 			nominal = effect_colourmap;
-			lightlevel = (int)(255 * effect_strength);
+			lightlevel = (int)(255.9 * effect_strength);
 		}
 		else if (effect_strength >= 1.0f || ((int)(effect_strength * 16) & 2))
 		{
