@@ -65,7 +65,7 @@
 // 
 // -AJA- 2001/01/28: reworked flat animations.
 // 
-void R_AddFlatAnim(animdef_t *anim)
+void R_AddFlatAnim(animdef_c *anim)
 {
 	int start = W_CheckNumForName(anim->startname);
 	int end   = W_CheckNumForName(anim->endname);
@@ -90,7 +90,7 @@ void R_AddFlatAnim(animdef_t *anim)
 	if (file < 0)
 	{
 		I_Warning("Missing flat animation: %s-%s not in any wad.\n",
-				anim->startname, anim->endname);
+				(const char*)anim->startname, (const char*)anim->endname);
 		return;
 	}
 
@@ -145,7 +145,7 @@ void R_AddFlatAnim(animdef_t *anim)
 // 
 // -AJA- 2001/06/17: reworked texture animations.
 // 
-void R_AddTextureAnim(animdef_t *anim)
+void R_AddTextureAnim(animdef_c *anim)
 {
 	int set, s_offset, e_offset;
 
@@ -257,13 +257,13 @@ bool R_InitFlats(void)
 bool R_InitPicAnims(void)
 {
 	epi::array_iterator_c it;
-	animdef_t *A;
+	animdef_c *A;
 
 	// loop through animdefs, and add relevant anims.
 	// Note: reverse order, give priority to newer anims.
 	for (it = animdefs.GetTailIterator(); it.IsValid(); it--)
 	{
-		A = ITERATOR_TO_TYPE(it, animdef_t*);
+		A = ITERATOR_TO_TYPE(it, animdef_c*);
 
 		DEV_ASSERT2(A);
 
