@@ -696,14 +696,16 @@ void DDF_LineGetEFControl(const char *info, void *storage)
 
 static specflags_t teleport_specials[] =
 {
-	{"SAME DIR", TELSP_SameDir, 0},
-	{"SAME HEIGHT", TELSP_SameHeight, 0},
+	{"SAME DIR",   TELSP_SameDir, 0},
+	{"SAME HEIGHT",TELSP_SameHeight, 0},
 	{"SAME SPEED", TELSP_SameSpeed, 0},
-	{"SAME OFFSET", TELSP_SameOffset, 0},
-	{"PRESERVE", TELSP_Preserve, 0},
-	{"ROTATE", TELSP_Rotate, 0},
-	{"LINE", TELSP_Line, 0},
-	{"REVERSING", TELSP_Reversing, 0},
+	{"SAME OFFSET",TELSP_SameOffset, 0},
+	{"PRESERVE",   TELSP_Preserve, 0},
+	{"ROTATE",     TELSP_Rotate, 0},
+	{"LINE",       TELSP_Line, 0},
+	{"REVERSING",  TELSP_Reversing, 0},
+	{"SILENT",     TELSP_Silent, 0},
+
 	{NULL, 0, 0}
 };
 
