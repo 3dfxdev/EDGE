@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: FEBRUARY 24th 2005)
+(Date: MARCH 3rd 2005)
 
 
 Bugs fixed
@@ -33,6 +33,7 @@ Bugs fixed
 - fixed stair-building bug (e.g. TNT MAP16).
 - some problems handling the mouse-wheel were fixed.
 - rotated automap could omit parts of a map, fixed.
+- fixed an issue with window positioning on Win32.
 
 
 Old Fixes (from EDGE 1.28A)
@@ -131,6 +132,7 @@ General improvements
 - monster spawning will keep the parent's AMBUSH status.
 - night vision and god-mode effects use colour from colourmap.
 - intermission text screens can now be skipped.
+- console now slides up/down, smaller font.
 - RTS tips are sent to the console.
 - smaller savegame files.
 
