@@ -31,6 +31,8 @@
 
 #include "dm_type.h"
 
+#include "epi/epistring.h"
+
 //
 // MISC
 //
@@ -72,7 +74,7 @@ void M_ScreenShot(void);
 void M_MakeSaveScreenShot(void);
 exttype_e M_CheckExtension(const char *ext, const char* filename);
 byte *M_GetFileData(char *filename, int *length);
-char *M_ComposeFileName(const char *dir, const char *file);
+void M_ComposeFileName(epi::string_c& fn, const char *dir, const char *file);
 void M_WarnError(const char *error,...) GCCATTR(format(printf, 1, 2));
 
 int L_CompareTimeStamps(i_time_t *A, i_time_t *B);
