@@ -363,7 +363,9 @@ static void WeaponFinishEntry(void)
 static void WeaponClearAll(void)
 {
 	// not safe to delete weapons, there are (integer) references
-	weapondefs.SetDisabledCount(weapondefs.GetSize());
+
+//!!!!!! FIXME: disabled since it breaks castle.wad
+//	weapondefs.SetDisabledCount(weapondefs.GetSize());
 }
 
 
