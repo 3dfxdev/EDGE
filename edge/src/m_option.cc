@@ -117,7 +117,6 @@ static void M_Key2String(int key, char *deststring);
 // -ACB- 1998/08/09 "Does Map allow these changes?" procedures.
 static void M_ChangeMonsterRespawn(int keypressed);
 static void M_ChangeItemRespawn(int keypressed);
-static void M_ChangeStretchSky(int keypressed);
 static void M_ChangeTransluc(int keypressed);
 static void M_ChangeTrue3d(int keypressed);
 static void M_ChangeAutoAim(int keypressed);
@@ -414,7 +413,6 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch, "Screen Composition", scrcomps, 9, 0, &scrcomp_o, M_ChangeScreenComp, NULL},
     {OPT_Switch, "Reverse effect", YesNo, 2, 0, &telept_reverse, NULL, NULL},
     {OPT_Switch, "Reversed wipe", YesNo, 2, 0, &wipe_reverse, NULL, NULL},
-    {OPT_Boolean, "Stretch Sky", YesNo, 2, 0, &global_flags.stretchsky, M_ChangeStretchSky, NULL},
     {OPT_Switch, "Cyan/Red 3d effect", YesNo, 2, 0, &use_3d_mode, M_Toggle3dMode, NULL},
 #endif
 };
@@ -1424,14 +1422,6 @@ static void M_ChangeItemRespawn(int keypressed)
 		return;
 
 	level_flags.itemrespawn = global_flags.itemrespawn;
-}
-
-static void M_ChangeStretchSky(int keypressed)
-{
-	if ((currentmap->force_on | currentmap->force_off) & MPF_StretchSky)
-		return;
-
-	level_flags.stretchsky = global_flags.stretchsky;
 }
 
 static void M_ChangeTransluc(int keypressed)

@@ -70,6 +70,7 @@ char *glstr_extensions = NULL;
 bool glcap_hardware = true;
 bool glcap_multitex = false;
 bool glcap_paletted = false;
+bool glcap_edgeclamp = false;
 
 angle_t oned_side_angle;
 
@@ -727,6 +728,20 @@ void RGL_CheckExtensions(void)
 	{
 		I_Printf("OpenGL: Paletted texture extension found.\n");
 		glcap_paletted = true;
+	}
+
+	// -AJA- FIXME: temp hack, improve extension handling after 1.28
+	if (glstr_version[0] >= '2' ||
+	    glstr_version[0] == '1' && glstr_version[1] == '.' &&
+		glstr_version[2] >= '2')
+	{
+		glcap_edgeclamp = true;
+	}
+	else if (strstr(glstr_extensions, "GL_EXT_texture_edge_clamp") != NULL ||
+	         strstr(glstr_extensions, "GL_SGIS_texture_edge_clamp") != NULL)
+	{
+		I_Printf("OpenGL: EdgeClamp extension found.\n");
+		glcap_edgeclamp = true;
 	}
 }
 

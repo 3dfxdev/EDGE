@@ -121,7 +121,6 @@ typedef struct gameflags_s
 
 	bool trans;
 	bool cheats;
-	bool stretchsky;
 	bool have_extra;
 	bool limit_zoom;
 	bool shadows;
