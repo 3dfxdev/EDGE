@@ -367,6 +367,9 @@ typedef struct line_s
 
   int gap_num;
   vgap_t gaps[MAXOPENGAPS];
+
+  // slider thinker, normally NULL
+  void *slider_special;
 }
 line_t;
 
