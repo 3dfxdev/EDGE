@@ -122,7 +122,8 @@ void RGL_StartUnits(bool solid);
 void RGL_FinishUnits(void);
 
 local_gl_vert_t *RGL_BeginUnit(GLuint mode, int max_vert, 
-							   GLuint tex_id, bool masked, bool blended);
+							   GLuint tex_id, int pass,
+							   bool masked, bool blended);
 void RGL_EndUnit(int actual_vert);
 void RGL_DrawUnits(void);
 
@@ -185,7 +186,7 @@ void RGL_SplitPolyQuadLOD(raw_polyquad_t *poly, int max_lod, int base_div);
 
 void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
 						void (* CoordFunc)(vec3_t *src, local_gl_vert_t *vert, void *data),
-						GLuint tex_id, bool masked, bool blended);
+						GLuint tex_id, int pass, bool masked, bool blended);
 
 
 //
