@@ -245,6 +245,62 @@ typedef struct s_savegame_s
 s_savegame_t;
 
 
+// Texture changing on lines/sectors
+typedef enum
+{
+  // right side of the line
+  CHTEX_RightUpper  = 0,
+  CHTEX_RightMiddle = 1,
+  CHTEX_RightLower  = 2,
+
+  // left side of the line
+  CHTEX_LeftUpper  = 3,
+  CHTEX_LeftMiddle = 4,
+  CHTEX_LeftLower  = 5,
+
+  // the sky texture
+  CHTEX_Sky = 6,
+
+  // sector floor or ceiling
+  CHTEX_Floor   = 7,
+  CHTEX_Ceiling = 8,
+}
+changetex_type_e;
+
+typedef struct s_changetex_s
+{
+  // what to change
+  changetex_type_e what;
+
+  // texture/flat name
+  char texname[10];
+
+  // tags used to find lines/sectors to change.  The `tag' value must
+  // match sector.tag for sector changers and line.tag for line
+  // changers.  The `subtag' value, if not 0, acts as a restriction:
+  // for sector changers, a line in the sector must match subtag, and
+  // for line changers, the sector on the given side must match the
+  // subtag.  Both are ignored for sky changers.
+  int tag, subtag;
+}
+s_changetex_t;
+
+
+// Thing Event
+typedef struct s_thing_event_s
+{
+  // DDF type name of thing to cause the event.  If NULL, then the
+  // thing map number is used instead.
+  const char *thing_name;
+  int thing_type;
+
+  // label to jump to
+  const char *label;
+  int offset;
+}
+s_thing_event_t;
+
+
 // A single RTS action, not unlike the ones for DDF things.  (In fact,
 // they may merge at some point in the future).
 //
