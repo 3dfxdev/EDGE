@@ -195,12 +195,12 @@ boolean_t I_StartupMusic(void *sysinfo);
 // I_SystemStartup(), and can be passed some platform-specific data
 // via the `sysinfo' parameter.
 
-int I_MusicPlayback(char *strdata, int type, boolean_t file, boolean_t looping);
-// This attempts to play music of a given type (one of the MUS_*
-// values).  The strdata parameter depends on the type and the `file'
-// parameter, and can be a track number, filename or lumpname.  When
-// `looping' is true, the music should play continuously (looping if
-// necessary), otherwise the music should play once only.
+int I_MusicPlayback(void *data, int datlength, int type, boolean_t looping);
+// 'type' specifies which type of music is to be played (one of the
+// MUS_* types), 'data' is either the music track or the track number
+// in the case of CD's. 'datlength' is only relevant for track data,
+// 'looping' specifies whether the track should loop indefinitly until
+// killed or should only play once.
 //
 // Returns an integer handle that is used to refer to the music (in
 // the other functions below), or -1 if an error occurred.  Note: any
