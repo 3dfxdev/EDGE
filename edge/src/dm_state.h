@@ -196,8 +196,7 @@ extern bool no_obsoletes;
 // if true, enable HOM detection (hall of mirrors effect)
 extern bool hom_detect;
 
-// wipegamestate can be set to -1
-//  to force a wipe on the next draw
+// wipegamestate can be set to GS_NOTHING to force a wipe on the next draw
 extern gamestate_e wipegamestate;
 
 extern int mouseSensitivity;
