@@ -20,6 +20,6 @@
 #define __SYS_NET__
 
 // LINUX
-const char * LocalIPAddrString(const char *iface_name)
+const char * LocalIPAddrString(const char *iface_name);
 
 #endif  /* __SYS_NET__ */
