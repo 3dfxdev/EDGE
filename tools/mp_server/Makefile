@@ -2,17 +2,17 @@
 # MP_SERVER
 #------------------------------------------------------------------------
 #
-# Makefile for Unix/FLTK.
+# Makefile for Linux/FLTK.
 #
 
-PROGNAME=edge-mpserv
+PROGNAME=mp-server
 
 FLTK_CFLAGS=-I/usr/local/lib
 FLTK_LIBS=-lfltk_images -lfltk -lX11 -lXext -lpng -ljpeg
 
 CC=gcc
 CXX=g++
-CFLAGS=-O -g -Wall -DUNIX $(FLTK_CFLAGS)
+CFLAGS=-O -g -Wall -DLINUX $(FLTK_CFLAGS)
 CXXFLAGS=$(CFLAGS)
 LDFLAGS=-L/usr/X11R6/lib -Lhawknl1.68/src
 LIBS=-lm -lpthread -lNL $(FLTK_LIBS)
