@@ -172,7 +172,7 @@ typedef enum
 
   // Use fuzzy draw (shadow demons or spectres),
   // temporary player invisibility powerup.
-  MF_SHADOW = 0x40000,
+  MF_FUZZY = 0x40000,
 
   // Flag: don't bleed when shot (use puff),
   // barrels and shootable furniture shall not bleed.
@@ -310,17 +310,14 @@ typedef enum
   // Thing will block bullets and missiles.  -AJA- 2000/09/29
   EF_BLOCKSHOTS = 0x1000000,
 
-  // Thing never casts a shadow.  -AJA- 2000/09/29
-  EF_NOSHADOW = 0x2000000,
-
   // Player is currently crouching.  -AJA- 2000/10/19
-  EF_CROUCHING = 0x4000000,
+  EF_CROUCHING = 0x2000000,
 
   // Missile can tunnel through enemies.  -AJA- 2000/10/23
-  EF_TUNNEL = 0x8000000,
+  EF_TUNNEL = 0x4000000,
 
   // Marks thing as being a dynamic light.
-  EF_DLIGHT = 0x10000000
+  EF_DLIGHT = 0x8000000
 }
 mobjextendedflag_t;
 
