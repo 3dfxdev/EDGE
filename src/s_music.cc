@@ -77,22 +77,15 @@ void S_ChangeMusic(int entrynum, bool looping)
 
 	S_StopMusic();
 
-	// Exception one...
 	if (play->type == MUS_MP3)
 	{
-		if (play->infotype != MUSINF_FILE)
-		{
-			I_Warning("S_ChangeMusic: MP3's only in file format\n");
-			return;
-		} 
+		I_Warning("S_ChangeMusic: MP3 music no longer supported.\n");
+		return;
+	}
 
-		musdat.format = IMUSSF_FILE;
-		musdat.info.file.name = (char*) play->info;
-
-		musichandle = I_MusicPlayback(&musdat, play->type, looping);
-		if (musichandle != -1)
-			I_SetMusicVolume(&musichandle, musicvolume);
-
+	if (play->type == MUS_OGG)
+	{
+		I_Warning("S_ChangeMusic: OGG Vorbis music not supported yet.\n");
 		return;
 	}
 

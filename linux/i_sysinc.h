@@ -50,13 +50,6 @@ void I_MusservStopPlayback(void);
 void I_MusservSetVolume(int vol);
 void I_ShutdownMusserv(void);
 
-// MP3 stuff
-bool I_StartupMP3(void);
-int I_MP3PlayTrack(const char *filename, bool looping);
-void I_MP3StopTrack(int track);
-void I_MP3SetVolume(int vol);
-void I_ShutdownMP3(void);
-
 // I_FMPAT.C
 void I_CreateGENMIDI(byte *dest);
 

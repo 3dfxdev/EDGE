@@ -34,7 +34,6 @@ typedef enum
 {
 	support_CD   = 0x01,
 	support_MIDI = 0x02,
-	support_MP3  = 0x04,
 	support_MUS  = 0x08  // MUS Support - ACB- 2000/06/04
 }
 mussupport_e;
@@ -70,17 +69,6 @@ bool I_StartupMusic(void *sysinfo)
 		I_Printf("I_StartupMusic: MUS Music Failed OK\n");
 	}
 
-	// MP3 Support -ACB- 2000/08/21
-	if (I_StartupMP3())
-	{
-		capable |= support_MP3;
-		I_Printf("I_StartupMusic: MP3 Music Init OK\n");
-	}
-	else
-	{
-		I_Printf("I_StartupMusic: MP3 Music Failed OK\n");
-	}
-
 	return true;
 }
 
@@ -94,7 +82,6 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 
 	if (!(capable & support_CD)   && type == MUS_CD)   return -1;
 	if (!(capable & support_MIDI) && type == MUS_MIDI) return -1;
-	if (!(capable & support_MP3)  && type == MUS_MP3)  return -1;
 	if (!(capable & support_MUS)  && type == MUS_MUS)  return -1;
 
 	switch (type)
@@ -117,18 +104,6 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 	case MUS_MIDI:
 		{
 			handle = -1;
-			break;
-		}
-
-	case MUS_MP3:
-		{
-			track = I_MP3PlayTrack((char*)musdat->info.file.name, looping);
-
-			if (track == -1)
-				handle = -1;
-			else
-				handle = MAKEHANDLE(MUS_MP3, looping, track);
-
 			break;
 		}
 
@@ -187,7 +162,6 @@ void I_MusicPause(int *handle)
 			}
 
 		case MUS_MIDI: { break; }
-		case MUS_MP3:  { I_MP3Pause(); break; }
 		case MUS_MUS:  { I_MUSPause(); break; }
 
 		default:
@@ -221,7 +195,6 @@ void I_MusicResume(int *handle)
 			}
 
 		case MUS_MIDI: { break; }
-		case MUS_MP3:  { I_MP3Resume(); break; }
 		case MUS_MUS:  { I_MUSResume(); break; }
 
 		default:
@@ -247,7 +220,6 @@ void I_MusicKill(int *handle)
 	{
 	case MUS_CD:   { I_CDStopPlayback(); break; }
 	case MUS_MIDI: { break; }
-	case MUS_MP3:  { I_MP3Stop(); break; }
 	case MUS_MUS:  { I_MUSStop(); break; }
 
 	default:
@@ -292,7 +264,6 @@ void I_MusicTicker(int *handle)
 
 		case MUS_MIDI: { break; }	// MIDI Not used
 		case MUS_MUS:  { break; }	// MUS Ticker is called by a timer
-		case MUS_MP3:  { break; }	// MP3 Ticker is called by a timer
 
 		default:
 			break;
@@ -321,12 +292,6 @@ void I_SetMusicVolume(int *handle, int volume)
 				   // MIDI Not Used
 	case MUS_MIDI: { break; }
 
-	case MUS_MP3:
-		{
-			I_MP3SetVolume(volume);
-			break;
-		}
-
 	case MUS_MUS:
 		{
 			I_MUSSetVolume(volume);
@@ -346,7 +311,6 @@ void I_SetMusicVolume(int *handle, int volume)
 void I_ShutdownMusic(void)
 {
 	I_CDStopPlayback();
-	I_ShutdownMP3();
 	I_ShutdownMUS();
 }
 

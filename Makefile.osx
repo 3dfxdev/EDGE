@@ -37,7 +37,6 @@ LX_DIR=linux
 EPI_DIR=epi
 SDL_DIR=SDL
 LZO_DIR=lzo
-XING_DIR=xingmp3
 GLBSP_DIR=glbsp-2.05
 JPEG_DIR=libjpeg
 PNG_DIR=libpng
@@ -87,7 +86,7 @@ LDFLAGS=$(V_$(VIDEO)_LDFLAGS)  \
         $(S_$(SOUND)_LDFLAGS)
 
 LIBS=-lm  \
-	$(EPI_DIR)/libepi.a $(LZO_DIR)/liblzo.a $(XING_DIR)/libxingmp3.a  \
+	$(EPI_DIR)/libepi.a $(LZO_DIR)/liblzo.a \
 	$(GLBSP_DIR)/plugin/libglbsp.a  \
 	$(V_$(VIDEO)_LIBS) $(S_$(SOUND)_LIBS)
 
@@ -183,7 +182,7 @@ ASM_I386_OBJS= \
 
 # ----- TARGETS ------------------------------------------------------
 
-EDGELIBS = epi glbsp lzo xingmp3
+EDGELIBS = epi glbsp lzo
 
 all: $(EDGELIBS) $(PROGNAME)
 
@@ -191,7 +190,7 @@ clean:
 	rm -f $(PROGNAME) core *.o \
 	    $(LX_DIR)/*.o $(SDL_DIR)/*.o $(EPI_DIR)/*.o $(ASM_DIR)/*.o
 
-epi lzo xingmp3:
+epi lzo:
 	$(MAKE) -C $@ -f Makefile.osx
 
 glbsp:
@@ -215,9 +214,7 @@ SRC_FILES=*.[ch] djgpp/*.[ch] djgpp/*.bat win32/*.[ch] win32/*.bat  \
           noasm/*.[ch] i386/*.[ch]  djgpp/Makefile  README  \
           i386/*.asm contrib/* docs/* log/*  \
           djgpp/obj djgpp/obj/i386 win32/obj  \
-          lzo/COPYING lzo/README* lzo/*.[ch]  \
-          xingmp3/Makefile xingmp3/makefile.bcc  \
-          xingmp3/*.[chsS] xingmp3/*.asm
+          lzo/COPYING lzo/README* lzo/*.[ch]
 
 tar:
 	cd ../..; make -f edge/linux/Makefile do_good_tarball
