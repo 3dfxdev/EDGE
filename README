@@ -180,6 +180,8 @@ Known Issues:
  
   - The console has very limited functionality.
  
+  - Certain colourmaps (especially Fog) don't work in GL mode.
+
  
 Troubleshooting:
   - If EDGE crashes, or otherwise misbehaves, please help us by

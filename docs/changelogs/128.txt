@@ -2,13 +2,14 @@
 CHANGELOG FOR 1.28 BETA-3 (since BETA-2)
 ========================================
 
-(Date: MARCH 5th 2004)
+(Date: MARCH 8th 2004)
 
 Bugs fixed
 ----------
 
 - RTS graphical tips were not scaled properly.
-- Flipped sprites would use the X offset incorrectly.
+- Flipped sprites now use the X offset correctly.
+- Fixed player sprite, which wasn't walking when you move.
 
 
 General improvements
@@ -20,7 +21,13 @@ None.
 New features:
 -------------
 
-- TIP_GRAPHIC supports scaling.  @@@
+- TIP_GRAPHIC supports scaling via fourth parameter, which is a value
+  like 0.5, 1.0, 2.0.  For example:
+
+    TIP_GRAPHIC  M_PAUSE  3  false  0.5
+
+- CAST_TITLE command for things.ddf.  Refers to an entry in LANGUAGES.DDF,
+  and determines the monster's name in the DOOM II cast parade.
 
 
 CHANGELOG FOR 1.28 BETA-2 (since 1.27)
@@ -36,7 +43,7 @@ Bugs fixed
 + fixed crash when a door closed on a dead player.
 
 - fixed the FACE() action.
-- fixed for MAXFALL when swimming. (UNTESTED)
+- fix for MAXFALL when swimming. (UNTESTED)
 - fix for too much bobbing.
 - berserk: if already showing fist, don't lower/raise it.
 - fix for loss of precision when scrolling walls/floor. (UNTESTED)
@@ -59,7 +66,7 @@ Bugs fixed
 - fixed transparent doors (again !), both software and GL.
 - fixed the issue with monsters resurrecting into another.
 - screenshots in GL mode now work again.
-- render sprites (S/W mode) with posts > 128 pixels. (UNTESTED)
+- render sprites (S/W mode) with posts > 128 pixels.
 - visibility clipping in GL was broken (causing excessive overdraw).
 
 
