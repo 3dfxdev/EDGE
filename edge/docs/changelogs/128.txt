@@ -69,16 +69,8 @@ General improvements
 
   To allow easy upgrading, we have included a tool 'UPGRADER.EXE' with
   the EDGE binaries, which should be run before running EDGE.  If your
-  version of Windows is single-user, then it will say `Nothing To Do',
+  version of Windows is single-user, then it will say `Nothing to do',
   otherwise it moves the config file and savegames to the new place.
-
-+ new HOME directory handling. On multi-user systems, the config file
-  and savegame dir are stored in a user-specific location, obtained
-  from the HOME environmental variable.  The subdirectory name is
-  "Application Data\Edge" under Windows and ".edge" under Unices.
-
-  For single-user systems, there is no change (config file and savegame
-  dir are in the same directory as the EDGE binary).
 
 + better default configuration: e.g. 640x400 mode, 16 bit colour.
 
