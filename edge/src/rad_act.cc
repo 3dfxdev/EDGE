@@ -275,7 +275,7 @@ void RAD_DisplayTips(void)
 
 		alpha = current->p.translucency;
 
-		if (alpha < 0.02)
+		if (alpha < 0.02f)
 			continue;
 
 		if (current->tip_graphic)

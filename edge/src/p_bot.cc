@@ -177,7 +177,7 @@ static bool PTR_BotLook(intercept_t * in)
 
 		if (li->frontsector->f_h != li->backsector->f_h)
 		{
-			if (fabs(li->frontsector->f_h - li->backsector->f_h) > 24.0)
+			if (fabs(li->frontsector->f_h - li->backsector->f_h) > 24.0f)
 				return false;
 		}
 

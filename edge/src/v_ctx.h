@@ -124,7 +124,7 @@ extern video_context_t vctx;
                    (Y)-(Image)->offset_y,                           \
                    (W),(H),                                         \
                    (Image), 0, 0,                                   \
-                   IM_RIGHT(Image),IM_BOTTOM(Image), NULL, 1.0)
+                   IM_RIGHT(Image),IM_BOTTOM(Image), NULL, 1.0f)
 
 
 #define VCTX_Image320(X,Y,W,H,Image)                                \
@@ -132,7 +132,7 @@ extern video_context_t vctx;
                    FROM_200((Y)-(Image)->offset_y),                 \
                    FROM_320(W), FROM_200(H),                        \
                    (Image), 0, 0,                                   \
-                   IM_RIGHT(Image), IM_BOTTOM(Image), NULL, 1.0)
+                   IM_RIGHT(Image), IM_BOTTOM(Image), NULL, 1.0f)
 
 
 #define VCTX_ImageEasy(X,Y,Image)                                   \
@@ -140,14 +140,14 @@ extern video_context_t vctx;
                    (Y)-(Image)->offset_y,                           \
                    IM_WIDTH(Image), IM_HEIGHT(Image),               \
                    (Image), 0, 0,                                   \
-                   IM_RIGHT(Image), IM_BOTTOM(Image), NULL, 1.0)
+                   IM_RIGHT(Image), IM_BOTTOM(Image), NULL, 1.0f)
 
 #define VCTX_ImageEasy320(X,Y,Image)                                       \
     vctx.DrawImage(FROM_320((X)-(Image)->offset_x),                        \
                    FROM_200((Y)-(Image)->offset_y),                        \
                    FROM_320(IM_WIDTH(Image)), FROM_200(IM_HEIGHT(Image)),  \
                    (Image), 0, 0,                                          \
-                   IM_RIGHT(Image), IM_BOTTOM(Image), NULL, 1.0)
+                   IM_RIGHT(Image), IM_BOTTOM(Image), NULL, 1.0f)
 
 #endif  // __V_CTX__
 

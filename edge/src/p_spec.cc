@@ -595,8 +595,8 @@ static void P_LineEffect(line_t *target, line_t *source,
 
   if ((special->line_effect & LINEFX_Translucency) && (target->flags & ML_TwoSided))
   {
-    target->side[0]->middle.translucency = 0.5;
-    target->side[1]->middle.translucency = 0.5;
+    target->side[0]->middle.translucency = 0.5f;
+    target->side[1]->middle.translucency = 0.5f;
   }
 
   if (special->line_effect & LINEFX_VectorScroll)
@@ -1088,7 +1088,7 @@ static bool P_ActivateSpecialLine(line_t * line,
       }
 
       // transfer any translucency
-      if (PERCENT_2_FLOAT(special->translucency) <= 0.99)
+      if (PERCENT_2_FLOAT(special->translucency) <= 0.99f)
       {
         P_EFTransferTrans(ctrl, tsec, line, &special->ef,
             PERCENT_2_FLOAT(special->translucency));
@@ -1341,7 +1341,7 @@ static INLINE void PlayerInProperties(player_t *player,
   {
 
     // Not touching the floor ?
-    if (player->mo->z > f_h + 2.0)
+    if (player->mo->z > f_h + 2.0f)
       return;
   }
 
@@ -1739,10 +1739,10 @@ void P_SpawnSpecials(int autotag)
     }
 
     // -AJA- 1999/06/30: Translucency effect.
-    if (PERCENT_2_FLOAT(special->translucency) <= 0.99 && lines[i].side[0])
+    if (PERCENT_2_FLOAT(special->translucency) <= 0.99f && lines[i].side[0])
       lines[i].side[0]->middle.translucency = PERCENT_2_FLOAT(special->translucency);
 
-    if (PERCENT_2_FLOAT(special->translucency) <= 0.99 && lines[i].side[1])
+    if (PERCENT_2_FLOAT(special->translucency) <= 0.99f && lines[i].side[1])
       lines[i].side[1]->middle.translucency = PERCENT_2_FLOAT(special->translucency);
 
     // -AJA- 2001/01/23: Tiling sky support.

@@ -48,7 +48,7 @@ static const weaponinfo_t template_weapon =
   0,           // ammopershot;
   1,           // clip;
   false,       // autofire;
-  0.0,         // kick;
+  0.0f,        // kick;
 
   NULL,        // sa_attack;
   AM_NoAmmo,   // sa_ammo;

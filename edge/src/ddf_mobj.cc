@@ -71,13 +71,13 @@ const mobjinfo_t template_mobj =
 
 	0,        // reactiontime
 	PERCENT_MAKE(0), // painchance
-	1000.0,   // spawnhealth
+	1000.0f,  // spawnhealth
 	0,        // speed
-	2.0,      // float_speed
+	2.0f,     // float_speed
 	0,        // radius
 	0,        // height
-	24.0,     // step_size
-	100.0,    // mass
+	24.0f,    // step_size
+	100.0f,   // mass
 
 	0,        // flags
 	0,        // extendedflags
@@ -109,12 +109,12 @@ const mobjinfo_t template_mobj =
 	PERCENT_MAKE(75), // viewheight
 	PERCENT_MAKE(64), // shotheight
 	0,        // maxfall
-	1.0,      // fast
-	1.0,      // xscale
-	1.0,      // yscale
-	0.5,      // bounce_speed
-	0.5,      // bounce_up
-	16.0,     // sight_slope
+	1.0f,     // fast
+	1.0f,     // xscale
+	1.0f,     // yscale
+	0.5f,     // bounce_speed
+	0.5f,     // bounce_up
+	16.0f,    // sight_slope
 	ANG90,    // sight_angle
 	RIDE_FRICTION,  // ride_friction
 	PERCENT_MAKE(50), // shadow_trans
@@ -1036,7 +1036,7 @@ static bool BenefitTryWeapon(const char *name, benefit_t *be,
 
 	if (num_vals < 1)
 		be->amount = 1.0f;
-	else if (be->amount != 0.0 && be->amount != 1.0)
+	else if (be->amount != 0.0f && be->amount != 1.0f)
 	{
 		DDF_WarnError("Weapon benefit used, bad amount value: %1.1f\n", be->amount);
 		return false;
@@ -1065,7 +1065,7 @@ static bool BenefitTryKey(const char *name, benefit_t *be,
 
 	if (num_vals < 1)
 		be->amount = 1.0f;
-	else if (be->amount != 0.0 && be->amount != 1.0)
+	else if (be->amount != 0.0f && be->amount != 1.0f)
 	{
 		DDF_WarnError("Key benefit used, bad amount value: %1.1f\n", be->amount);
 		return false;

@@ -1407,10 +1407,10 @@ void DDF_MainGetSlope(const char *info, void *storage)
 	if (sscanf(info, "%f", &val) != 1)
 		DDF_Error("Bad slope value: %s\n", info);
 
-	if (val > +89.5)
-		val = +89.5;
-	if (val < -89.5)
-		val = -89.5;
+	if (val > +89.5f)
+		val = +89.5f;
+	if (val < -89.5f)
+		val = -89.5f;
 
 	*dest = M_Tan(FLOAT_2_ANG(val));
 }
@@ -1445,7 +1445,7 @@ void DDF_MainGetPercent(const char *info, void *storage)
 	*p = 0;
   
 	DDF_MainGetFloat(s, &f);
-	if (f < 0.0 || f > 100.0)
+	if (f < 0.0f || f > 100.0f)
 		DDF_Error("Bad percent value '%s': Must be between 0% and 100%\n");
 
 	*dest = f / 100.0f;

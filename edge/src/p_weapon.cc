@@ -450,7 +450,7 @@ void A_WeaponReady(mobj_t * mo)
   else
   {
     angle = (128 * leveltime) << ANGLETOFINESHIFT;
-    psp->sx = 1.0 + p->bob * PERCENT_2_FLOAT(w->swaying) * M_Cos(angle);
+    psp->sx = 1.0f + p->bob * PERCENT_2_FLOAT(w->swaying) * M_Cos(angle);
 
     angle &= (ANG180 - 1);
     psp->sy = WEAPONTOP + p->bob * PERCENT_2_FLOAT(w->bobbing) * M_Sin(angle);
@@ -733,7 +733,7 @@ void A_WeaponKick(mobj_t * mo)
   player_t *p = mo->player;
   pspdef_t *psp = &p->psprites[p->action_psp];
 
-  float kick = 0.05;
+  float kick = 0.05f;
   
   if (! level_flags.kicking)
     return;
@@ -1280,7 +1280,7 @@ void A_WeaponTransSet(mobj_t * mo)
   if (psp->state && psp->state->action_par)
   {
     value = ((percent_t *) psp->state->action_par)[0];
-    value = MAX(0.0, MIN(1.0, value));
+    value = MAX(0.0f, MIN(1.0f, value));
   }
 
   psp->visibility = psp->vis_target = value;
@@ -1300,7 +1300,7 @@ void A_WeaponTransFade(mobj_t * mo)
   if (psp->state && psp->state->action_par)
   {
     value = ((percent_t *) psp->state->action_par)[0];
-    value = MAX(0.0, MIN(1.0, value));
+    value = MAX(0.0f, MIN(1.0f, value));
   }
 
   psp->vis_target = value;

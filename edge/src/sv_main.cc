@@ -397,9 +397,9 @@ void SV_MainTestPrimitives(void)
 
   SV_PutFixed(0);
   SV_PutFixed(FRACUNIT);
-  SV_PutFixed(M_FloatToFixed(123.456));
+  SV_PutFixed(M_FloatToFixed(123.456f));
   SV_PutFixed(-FRACUNIT);
-  SV_PutFixed(-M_FloatToFixed(345.789));
+  SV_PutFixed(-M_FloatToFixed(345.789f));
 
   SV_PutAngle(ANG1);
   SV_PutAngle(ANG45);
@@ -409,16 +409,16 @@ void SV_MainTestPrimitives(void)
   SV_PutAngle(ANG315);
   SV_PutAngle(0 - ANG1);
 
-  SV_PutFloat(0.0);
-  SV_PutFloat(0.001);   SV_PutFloat(-0.001);
-  SV_PutFloat(0.1);     SV_PutFloat(-0.1);
-  SV_PutFloat(0.25);    SV_PutFloat(-0.25);
-  SV_PutFloat(1.0);     SV_PutFloat(-1.0);
-  SV_PutFloat(2.0);     SV_PutFloat(-2.0);
-  SV_PutFloat(3.1416);  SV_PutFloat(-3.1416);
-  SV_PutFloat(1000.0);  SV_PutFloat(-1000.0);
-  SV_PutFloat(1234567890.0);  
-  SV_PutFloat(-1234567890.0);
+  SV_PutFloat(0.0f);
+  SV_PutFloat(0.001f);   SV_PutFloat(-0.001f);
+  SV_PutFloat(0.1f);     SV_PutFloat(-0.1f);
+  SV_PutFloat(0.25f);    SV_PutFloat(-0.25f);
+  SV_PutFloat(1.0f);     SV_PutFloat(-1.0f);
+  SV_PutFloat(2.0f);     SV_PutFloat(-2.0f);
+  SV_PutFloat(3.1416f);  SV_PutFloat(-3.1416f);
+  SV_PutFloat(1000.0f);  SV_PutFloat(-1000.0f);
+  SV_PutFloat(1234567890.0f);  
+  SV_PutFloat(-1234567890.0f);
   
   SV_PutString(NULL);
   SV_PutString("");

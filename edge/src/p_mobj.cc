@@ -243,8 +243,8 @@ static bool CorpseShouldSlide(mobj_t * mo)
 {
   float floor, ceil;
   
-  if (-0.25 < mo->mom.x && mo->mom.x < 0.25 &&
-      -0.25 < mo->mom.y && mo->mom.y < 0.25)
+  if (-0.25f < mo->mom.x && mo->mom.x < 0.25f &&
+      -0.25f < mo->mom.y && mo->mom.y < 0.25f)
   {
     return false;
   }
@@ -680,7 +680,7 @@ static INLINE void AddRegionProperties(const mobj_t *mo,
   if (! (flags & SECSP_PushConstant))
   {
     DEV_ASSERT2(mo->info->mass > 0);
-    push_mul = 100.0 / mo->info->mass;
+    push_mul = 100.0f / mo->info->mass;
   }
 
   if (flags & SECSP_Proportional)
@@ -996,7 +996,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 
   // -KM- 1998/11/25 Gravity is now not precalculated so that
   //  menu changes affect instantly.
-  float gravity = props->gravity / 8.0 * 
+  float gravity = props->gravity / 8.0f * 
       (float)level_flags.menu_grav / (float)MENU_GRAV_NORMAL;
   
   // check for smooth step up
@@ -1059,7 +1059,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
       // -KM- 1999/01/31 Bouncy bouncy...
       if (mo->extendedflags & EF_BOUNCE)
       {
-        BounceOffPlane(mo, +1.0);
+        BounceOffPlane(mo, +1.0f);
 
         // don't bounce forever on the floor
         if (! (mo->flags & MF_NOGRAVITY) &&
@@ -1102,7 +1102,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
       return;
     }
   }
-  else if (gravity > 0.0)
+  else if (gravity > 0.0f)
   {
     // thing is above the ground, therefore apply gravity
 
@@ -1148,7 +1148,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
       // -KM- 1999/01/31 More bouncing.
       if (mo->extendedflags & EF_BOUNCE)
       {
-        BounceOffPlane(mo, -1.0);
+        BounceOffPlane(mo, -1.0f);
         
         // don't bounce forever on the ceiling
         if (! (mo->flags & MF_NOGRAVITY) &&
@@ -1186,7 +1186,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
       return;
     }
   }
-  else if (gravity < 0.0)
+  else if (gravity < 0.0f)
   {
     // thing is below ceiling, therefore apply any negative gravity
 
@@ -1281,13 +1281,13 @@ static void P_MobjThinker(mobj_t * mobj)
           props->special->special_flags : SECSP_PushConstant;
 
       if (!((mobj->flags & MF_NOGRAVITY) || (flags & SECSP_PushAll))  &&
-          (mobj->z <= mobj->floorz + 1.0 || (flags & SECSP_WholeRegion)))
+          (mobj->z <= mobj->floorz + 1.0f || (flags & SECSP_WholeRegion)))
       {
         float push_mul = 1.0f;
 
         DEV_ASSERT2(mobj->info->mass > 0);
         if (! (flags & SECSP_PushConstant))
-          push_mul = 100.0 / mobj->info->mass;
+          push_mul = 100.0f / mobj->info->mass;
 
         mobj->mom.x += push_mul * props->push.x;
         mobj->mom.y += push_mul * props->push.y;

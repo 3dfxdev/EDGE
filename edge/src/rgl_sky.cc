@@ -48,9 +48,9 @@
 #define DEBUG  0
 
 
-#define RGB_RED(rgbcol)  ((float)((rgbcol >> 16) & 0xFF) / 255.0)
-#define RGB_GRN(rgbcol)  ((float)((rgbcol >>  8) & 0xFF) / 255.0)
-#define RGB_BLU(rgbcol)  ((float)((rgbcol      ) & 0xFF) / 255.0)
+#define RGB_RED(rgbcol)  ((float)((rgbcol >> 16) & 0xFF) / 255.0f)
+#define RGB_GRN(rgbcol)  ((float)((rgbcol >>  8) & 0xFF) / 255.0f)
+#define RGB_BLU(rgbcol)  ((float)((rgbcol      ) & 0xFF) / 255.0f)
 
 
 #if 0  // TEMPORARILY DISABLED
@@ -140,7 +140,7 @@ static void RGL_DrawTiledSky(void)
 		else
 			image = side->middle.image;
 
-		if (!image || trans < 0.01)
+		if (!image || trans < 0.01f)
 			continue;
 
 		glEnable(GL_TEXTURE_2D);
@@ -152,7 +152,7 @@ static void RGL_DrawTiledSky(void)
 			glEnable(GL_BLEND);
 
 		// sky is always 100% bright
-		glColor4f(1.0, 1.0, 1.0, trans);
+		glColor4f(1.0f, 1.0f, 1.0f, trans);
 
 		DrawSkyTilePart(info, image,  1,  1,  1, dx, dy);
 		DrawSkyTilePart(info, image, -1,  1,  1, dx, dy);
@@ -214,7 +214,7 @@ void RGL_DrawSky(void)
 	bottom = h / (float)sky_image->total_h;
 
 	// sky is always 100% bright
-	glColor4f(1.0, 1.0, 1.0, 1.0);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	sx1 = viewwindowx;
 	sx2 = viewwindowx + viewwindowwidth;
@@ -284,7 +284,7 @@ void RGL_DrawSky(void)
 		if (top_a < 0)
 			top_a = 0;
 
-		if (bottom_a > 1.0)
+		if (bottom_a > 1.0f)
 			bottom_a = 1.0f;
 
 		DEV_ASSERT2(bottom_a > top_a);
@@ -318,16 +318,16 @@ void RGL_DrawSky(void)
 			float tya = ty + (by - ty) * y     / 8;
 			float bya = ty + (by - ty) * (y+1) / 8;
 
-			glTexCoord2f(txa, 1.0 - bottom * tya);
+			glTexCoord2f(txa, 1.0f - bottom * tya);
 			glVertex2i(xa, SCREENHEIGHT - ya);
 
-			glTexCoord2f(txb, 1.0 - bottom * tya);
+			glTexCoord2f(txb, 1.0f - bottom * tya);
 			glVertex2i(xb, SCREENHEIGHT - ya);
 
-			glTexCoord2f(bxb, 1.0 - bottom * bya);
+			glTexCoord2f(bxb, 1.0f - bottom * bya);
 			glVertex2i(xb, SCREENHEIGHT - yb);
 
-			glTexCoord2f(bxa, 1.0 - bottom * bya);
+			glTexCoord2f(bxa, 1.0f - bottom * bya);
 			glVertex2i(xa, SCREENHEIGHT - yb);
 		}
 
@@ -381,7 +381,7 @@ static INLINE void CalcSkyTexCoord(float x, float y, float z,
 #if 0  // EXPERIMENTAL
 	dist = sqrt(x*x + z*z);
 
-	if (dist > 0.01)
+	if (dist > 0.01f)
 	{
 		x /= dist;
 		z /= dist;
@@ -395,7 +395,7 @@ static INLINE void CalcSkyTexCoord(float x, float y, float z,
 		x /= 2;
 
 		if (y < 0)
-			x = 1.0 - x;
+			x = 1.0f - x;
 	}
 	else
 	{
@@ -422,7 +422,7 @@ void SkyPolyCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 
 	CalcSkyTexCoord(src->x, src->y, src->z, &tx, &ty);
 
-	SET_COLOR(1.0, 1.0, 1.0, 1.0);
+	SET_COLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	SET_TEXCOORD(tx, ty);
 	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
 	SET_EDGE_FLAG(GL_TRUE);

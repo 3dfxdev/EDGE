@@ -834,8 +834,8 @@ static void RGL_DoSplitPolyVert(raw_polyquad_t *poly, int extras)
 			y = min_y + span_y * (j+1) / (float)(extras+1);
 
 			// no intercept ?
-			if (y <= (down ? S.y : P.y) + 0.01 || 
-				y >= (down ? P.y : S.y) - 0.01)
+			if (y <= (down ? S.y : P.y) + 0.01f || 
+				y >= (down ? P.y : S.y) - 0.01f)
 				continue;
 
 			AddPolyVertIntercept(poly, &P, &S, y);
@@ -896,8 +896,8 @@ static void RGL_DoSplitPolyHoriz(raw_polyquad_t *poly, int extras)
 			x = min_x + span_x * (j+1) / (float)(extras+1);
 
 			// no intercept ?
-			if (x <= (left ? S.x : P.x) + 0.01 || 
-				x >= (left ? P.x : S.x) - 0.01)
+			if (x <= (left ? S.x : P.x) + 0.01f || 
+				x >= (left ? P.x : S.x) - 0.01f)
 				continue;
 
 			AddPolyHorizIntercept(poly, &P, &S, x);

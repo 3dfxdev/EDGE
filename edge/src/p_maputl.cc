@@ -88,8 +88,8 @@ float P_ApproxSlope(float dx, float dy, float dz)
 	float dist = P_ApproxDistance(dx, dy);
 
 	// kludge to prevent overflow or division by zero.
-	if (dist < 1.0 / 32)
-		dist = 1.0 / 32;
+	if (dist < 1.0f / 32.0f)
+		dist = 1.0f / 32.0f;
 
 	return dz / dist;
 }
@@ -651,10 +651,10 @@ void P_ComputeGaps(line_t * ld)
 			return;
 
 		// these semantics copied from XDoom
-		if (smov->direction > 0 && smov->opening < smov->target * 0.5)
+		if (smov->direction > 0 && smov->opening < smov->target * 0.5f)
 			return;
 
-		if (smov->direction < 0 && smov->opening < smov->target * 0.75)
+		if (smov->direction < 0 && smov->opening < smov->target * 0.75f)
 			return;
 	}
 
@@ -1786,7 +1786,7 @@ static bool PIT_AddLineIntercepts(line_t * ld)
 		return true;  // behind source
 
 	// try to early out the check
-	if (earlyout && frac < 1.0 && !ld->backsector)
+	if (earlyout && frac < 1.0f && !ld->backsector)
 		return false;  // stop checking
 
 	Z_SetArraySize(&intercept_a, intercept_p + 1);
@@ -2006,7 +2006,7 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 	if (xt2 > xt1)
 	{
 		mapxstep = 1;
-		partial = 1.0 - modf(x1 / MAPBLOCKUNITS, &tmp);
+		partial = 1.0f - modf(x1 / MAPBLOCKUNITS, &tmp);
 
 		// -ACB- 2000/03/11 Div-by-zero check...
 		CHECKVAL(x2-x1);
@@ -2035,7 +2035,7 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 	if (yt2 > yt1)
 	{
 		mapystep = 1;
-		partial = 1.0 - modf(y1 / MAPBLOCKUNITS, &tmp);
+		partial = 1.0f - modf(y1 / MAPBLOCKUNITS, &tmp);
 
 		// -ACB- 2000/03/11 Div-by-zero check...
 		CHECKVAL(y2-y1);
@@ -2096,7 +2096,7 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 	}
 
 	// go through the sorted list
-	return TraverseIntercepts(trav, 1.0);
+	return TraverseIntercepts(trav, 1.0f);
 }
 
 static INLINE bool PST_CheckBBox(float *bspcoord, float *test)

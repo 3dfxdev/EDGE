@@ -1943,7 +1943,7 @@ void M_Drawer(void)
 
 	if (darken_screen)
 	{
-		vctx.SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, pal_black, 0.5);
+		vctx.SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, pal_black, 0.5f);
 		stbar_update = true;
 	}
 

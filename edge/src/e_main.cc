@@ -506,7 +506,7 @@ static void M_DisplayPause(void)
 	int y = FROM_200(10);
 
     vctx.DrawImage(x, y, w, h, pause_image, 0, 0,
-                   IM_RIGHT(pause_image), IM_BOTTOM(pause_image), NULL, 1.0);
+                   IM_RIGHT(pause_image), IM_BOTTOM(pause_image), NULL, 1.0f);
 }
 
 //

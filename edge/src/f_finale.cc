@@ -281,8 +281,8 @@ static void TextWrite(void)
   // 98-7-10 KM erase the entire screen to a tiled background
   if (finale_textback)
     vctx.DrawImage(0, 0, SCREENWIDTH, SCREENHEIGHT, finale_textback,
-         0.0, 0.0, IM_RIGHT(finale_textback) * finale_textbackscale,
-         IM_BOTTOM(finale_textback) * finale_textbackscale, NULL, 1.0);
+         0.0f, 0.0f, IM_RIGHT(finale_textback) * finale_textbackscale,
+         IM_BOTTOM(finale_textback) * finale_textbackscale, NULL, 1.0f);
    
   // draw some of the text onto the screen
   cx = 10;
@@ -603,7 +603,7 @@ static void CastDrawer(void)
                  FROM_200(IM_HEIGHT(image)), image,
                  flip ? IM_RIGHT(image) : 0, 0,
                  flip ? 0 : IM_RIGHT(image), IM_BOTTOM(image),
-                 NULL, 1.0);
+                 NULL, 1.0f);
 }
 
 //

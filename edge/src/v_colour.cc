@@ -739,7 +739,7 @@ void V_SetPalette(int type, float amount)
 	if (!loaded_playpal)
 		return;
 
-	if (amount >= 1.0)
+	if (amount >= 1.0f)
 		amount = 1.0f;
 
 	switch (type)
@@ -973,7 +973,7 @@ const coltable_t *V_GetColtable(const colourmap_t * nominal,
 			nominal = effect_colourmap;
 			lightlevel = (int)(255 * effect_strength);
 		}
-		else if (effect_strength >= 1.0 || ((int)(effect_strength * 16) & 2))
+		else if (effect_strength >= 1.0f || ((int)(effect_strength * 16) & 2))
 		{
 			nominal = effect_colourmap;
 			// doesn't matter

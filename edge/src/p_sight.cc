@@ -220,7 +220,7 @@ static bool CrossSubsector(subsector_t *sub)
       frac = num / den;
 
       // too close to source ?
-      if (frac < 0.0001)
+      if (frac < 0.0001f)
         continue;
     }
 
@@ -316,7 +316,7 @@ static bool CheckSightBSP(int bspnum)
     if (sub != sight_I.dest_sub)
       return CrossSubsector(sub);
 
-    AddSightIntercept(1.0, sub->sector);
+    AddSightIntercept(1.0f, sub->sector);
   }
 
   return true;
@@ -567,22 +567,22 @@ bool P_CheckSight(mobj_t * src, mobj_t * dest)
   {
     num_div = 5;
     dest_heights[0] = dest->z;
-    dest_heights[1] = dest->z + dest->height * 0.25;
-    dest_heights[2] = dest->z + dest->height * 0.50;
-    dest_heights[3] = dest->z + dest->height * 0.75;
+    dest_heights[1] = dest->z + dest->height * 0.25f;
+    dest_heights[2] = dest->z + dest->height * 0.50f;
+    dest_heights[3] = dest->z + dest->height * 0.75f;
     dest_heights[4] = dest->z + dest->height;
   }
   else if (dest->extendedflags & EF_MONSTER)
   {
     num_div = 3;
     dest_heights[0] = dest->z;
-    dest_heights[1] = dest->z + dest->height * 0.5;
+    dest_heights[1] = dest->z + dest->height * 0.5f;
     dest_heights[2] = dest->z + dest->height;
   }
   else
   {
     num_div = 1;
-    dest_heights[0] = dest->z + dest->height * 0.5;
+    dest_heights[0] = dest->z + dest->height * 0.5f;
   }
  
   // use intercepts to check extrafloor heights

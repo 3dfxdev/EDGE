@@ -33,8 +33,8 @@
 #define S_MIN_VOLUME 0
 #define S_MAX_VOLUME 15
 
-#define S_CLOSE_DIST    160.0
-#define S_CLIPPING_DIST 1600.0
+#define S_CLOSE_DIST    160.0f
+#define S_CLIPPING_DIST 1600.0f
 
 // S_MUSIC.C
 void S_ChangeMusic(int entrynum, bool looping);

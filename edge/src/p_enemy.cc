@@ -163,7 +163,7 @@ bool P_CheckMeleeRange(mobj_t * actor)
 	pl = actor->target;
 	dist = P_ApproxDistance(pl->x - actor->x, pl->y - actor->y);
 
-	if (dist >= MELEERANGE - 20.0 + pl->info->radius)
+	if (dist >= MELEERANGE - 20.0f + pl->info->radius)
 		return false;
 
 	if (!P_CheckSight(actor, actor->target))
@@ -591,7 +591,7 @@ static void SpawnDeathMissile(mobj_t *source, float x, float y, float z)
 	P_MobjSetRealSource(th, source);
 
 	th->mom.x = (x - source->x) / 50.0f;
-	th->mom.y = -0.25;
+	th->mom.y = -0.25f;
 	th->mom.z = (z - source->z) / 50.0f;
 
 	th->tics -= M_Random() & 7;

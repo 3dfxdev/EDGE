@@ -69,7 +69,7 @@ void STLIB_InitFloat(st_float * n, int x, int y,
 	vctx.DrawImage(FROM_320((X)-(Image)->offset_x), \
 	FROM_200((Y)-(Image)->offset_y), \
 	FROM_320(IM_WIDTH(Image)), FROM_200(IM_HEIGHT(Image)),  \
-	(Image),0,0,IM_RIGHT(Image),IM_BOTTOM(Image),(Map),1.0)
+	(Image),0,0,IM_RIGHT(Image),IM_BOTTOM(Image),(Map),1.0f)
 
 static void DrawNum(st_number_t * n, bool refresh)
 {
@@ -145,7 +145,7 @@ void STLIB_UpdateFloat(st_float * n, bool refresh)
 	// health of 0.3 otherwise would be displayed as 0%, which would make it
 	// seem like you were a living dead.
 
-	if (*n->f > 0 && *n->f < 1.0)
+	if (*n->f > 0 && *n->f < 1.0f)
 		i = 1;
 
 	n->num.num = &i;

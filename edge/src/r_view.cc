@@ -253,7 +253,7 @@ void R_AspectChangeY(aspect_t * a, float y_distunit, float fakefocusslope)
 		a->fakefocusslope = fakefocusslope;
 
 		a->focusyfrac = ((float)a->maxheight * (fakefocusslope + a->topslope)) /
-			(float)((a->topslope-a->bottomslope))-(float)0.5;
+			(float)((a->topslope-a->bottomslope))-0.5f;
 
 		a->y_distunit = y_distunit;
 
@@ -299,7 +299,7 @@ void R_AspectChangeX(aspect_t * a, float x_distunit, float focusxfrac)
 			t = -1;
 		else
 		{
-			t = (int)(focusxfrac - M_Tan(ang) * x_distunit + 1.0);
+			t = (int)(focusxfrac - M_Tan(ang) * x_distunit + 1.0f);
 
 			if (t < -1)
 				t = -1;
@@ -323,7 +323,7 @@ void R_AspectChangeX(aspect_t * a, float x_distunit, float focusxfrac)
 	for (i = 0; i < a->maxwidth; i++)
 	{
 		cosadj = (float)fabs(M_Cos(a->basextoviewangle[i]));
-		a->basedistscale[i] =  (float)(1.0 / cosadj);
+		a->basedistscale[i] =  (float)(1.0f / cosadj);
 	}
 }
 
