@@ -1425,7 +1425,7 @@ void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_t * s)
 	smov->whatiam = MDT_SLIDER;
 	smov->info = &line->special->s;
 	smov->line = line;
-	smov->opening = 0.0;
+	smov->opening = 0.0f;
 	smov->line_len = R_PointToDist(0, 0, line->dx, line->dy);
 	smov->target = smov->line_len * PERCENT_2_FLOAT(smov->info->distance);
 

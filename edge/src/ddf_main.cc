@@ -1447,7 +1447,7 @@ void DDF_MainGetPercent(const char *info, void *storage)
 	if (f < 0.0 || f > 100.0)
 		DDF_Error("Bad percent value '%s': Must be between 0% and 100%\n");
 
-	*dest = f / 100.0;
+	*dest = f / 100.0f;
 }
 
 //
@@ -1481,7 +1481,7 @@ void DDF_MainGetPercentAny(const char *info, void *storage)
   
 	DDF_MainGetFloat(s, &f);
 
-	*dest = f / 100.0;
+	*dest = f / 100.0f;
 }
 
 // -KM- 1998/09/27 You can end a number with T to specify tics; ie 35T

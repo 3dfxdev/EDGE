@@ -1523,7 +1523,7 @@ void M_StartMessageInput(const char *string,
 
 void M_StopMessage(void)
 {
-	menuactive = messageLastMenuActive;
+	menuactive = messageLastMenuActive?true:false;
 	messageToPrint = 0;
   
 	if (!menuactive)
@@ -1566,7 +1566,7 @@ bool M_Responder(event_t * ev)
 
 		messageToPrint = 0;
 		// -KM- 1998/07/31 Moved this up here to fix bugs.
-		menuactive = messageLastMenuActive;
+		menuactive = messageLastMenuActive?true:false;
 
 		if (message_key_routine)
 			(* message_key_routine)(ch);
@@ -1588,7 +1588,7 @@ bool M_Responder(event_t * ev)
 		}
 		if (ch == KEYD_ENTER)
 		{
-			menuactive = messageLastMenuActive;
+			menuactive = messageLastMenuActive?true:false;
 			messageToPrint = 0;
 
 			if (message_input_routine)
@@ -1602,7 +1602,7 @@ bool M_Responder(event_t * ev)
 
 		if (ch == KEYD_ESCAPE)
 		{
-			menuactive = messageLastMenuActive;
+			menuactive = messageLastMenuActive?true:false;
 			messageToPrint = 0;
       
 			if (message_input_routine)

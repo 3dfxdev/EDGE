@@ -247,7 +247,7 @@ static void RGL_Wipe_Melt(void)
 
 		float tx = (float) x / MELT_DIVS;
 		float sx = (float) x * SCREENWIDTH / MELT_DIVS;
-		float sy = (float) (200 - yoffs) * SCREENHEIGHT / 200.0;
+		float sy = (float) (200 - yoffs) * SCREENHEIGHT / 200.0f;
 
 		glTexCoord2f(tx, 1.0);
 		glVertex2f(sx, sy);
@@ -368,7 +368,7 @@ bool RGL_DoWipe(void)
 	if (progress > 40)
 		return true;
 
-	how_far = (float) progress / 40.0;
+	how_far = (float) progress / 40.0f;
 
 	switch (cur_wipe_effect)
 	{

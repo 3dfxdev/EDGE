@@ -440,7 +440,7 @@ static void DDF_AtkGetLabel(const char *info, void *storage)
 	// check for `:' in string
 	const char *div = strchr(info, DIVIDE);
 
-	int i = div ? (div - info) : strlen(info);
+	int i = div ? (div - info) : (int)strlen(info);
 
 	if (i <= 0)
 		DDF_Error("Bad State `%s'.\n", info);

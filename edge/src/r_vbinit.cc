@@ -876,7 +876,7 @@ void R_InitCamera_ViewOffs(camera_t * c, angle_t offs)
   R_AddStartCallback(&c->frame_start, CameraFrameInit_ViewOffs, data, Z_Free);
 }
 
-float camera_3d_offset = 4.0;
+float camera_3d_offset = 4.0f;
 
 static void CameraFrameInit_3D_Left(void *data)
 {

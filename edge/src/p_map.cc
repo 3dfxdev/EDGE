@@ -1214,7 +1214,7 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 		bestslidefrac = 1.0 - (bestslidefrac + 0.01);
 
 		if (bestslidefrac > 1.0)
-			bestslidefrac = 1.0;
+			bestslidefrac = 1.0f;
 
 		if (bestslidefrac <= 0)
 			return;
@@ -1567,13 +1567,13 @@ float P_AimLineAttack(mobj_t * t1, angle_t angle, float distance)
 
 	if (t1->player)
 	{
-		aim_I.topslope = (t1->vertangle * 256 + 100.0) / 160.0;
-		aim_I.bottomslope = (t1->vertangle * 256 - 100.0) / 160.0;
+		aim_I.topslope = (t1->vertangle * 256 + 100.0) / 160.0f;
+		aim_I.bottomslope = (t1->vertangle * 256 - 100.0) / 160.0f;
 	}
 	else
 	{
-		aim_I.topslope = 100.0 / 160.0;
-		aim_I.bottomslope = -100.0 / 160.0;
+		aim_I.topslope = 100.0 / 160.0f;
+		aim_I.bottomslope = -100.0 / 160.0f;
 	}
 
 	linetarget = NULL;
@@ -1691,13 +1691,13 @@ mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 
 	if (source->player)
 	{
-		aim_I.topslope = (100 + source->vertangle * 256) / 160.0;
-		aim_I.bottomslope = (-100 + source->vertangle * 256) / 160.0;
+		aim_I.topslope = (100 + source->vertangle * 256) / 160.0f;
+		aim_I.bottomslope = (-100 + source->vertangle * 256) / 160.0f;
 	}
 	else
 	{
-		aim_I.topslope = 100.0 / 160.0;
-		aim_I.bottomslope = -100.0 / 160.0;
+		aim_I.topslope = 100.0 / 160.0f;
+		aim_I.bottomslope = -100.0 / 160.0f;
 	}
 
 	aim_I.range = distance;
@@ -2050,8 +2050,8 @@ static bool PIT_ChangeSector(mobj_t * thing)
 		mo = P_MobjCreateObject(thing->x, thing->y, MO_MIDZ(thing),
 			thing->info->blood);
 
-		mo->mom.x = (M_Random() - 128) / 4.0;
-		mo->mom.y = (M_Random() - 128) / 4.0;
+		mo->mom.x = (M_Random() - 128) / 4.0f;
+		mo->mom.y = (M_Random() - 128) / 4.0f;
 	}
 
 	// keep checking (crush other things) 

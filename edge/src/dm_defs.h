@@ -134,9 +134,9 @@ typedef struct gameflags_s
 }
 gameflags_t;
 
-#define  VISIBLE (1.0)
-#define  VISSTEP (1.0/256)
-#define  INVISIBLE (0)
+#define  VISIBLE (1.0f)
+#define  VISSTEP (1.0f/256.0f)
+#define  INVISIBLE (0.0f)
 
 //
 // DOOM keyboard definition.

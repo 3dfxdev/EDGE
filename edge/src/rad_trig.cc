@@ -493,7 +493,7 @@ void RAD_GroupTriggerTags(rad_trigger_t *trig)
 
   trig->soundorg.x = trig->info->x;
   trig->soundorg.y = trig->info->y;
-  trig->soundorg.z = 0.0;
+  trig->soundorg.z = 0.0f;
      
   trig->tag_next = trig->tag_prev = NULL;
 

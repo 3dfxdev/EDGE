@@ -64,7 +64,7 @@ angle_t FIELDOFVIEW = 2048;
 
 // The used aspect ratio. A normal texel will look aspect_ratio*4/3
 // times wider than high on the monitor
-static const float aspect_ratio = 200.0 / 320.0;
+static const float aspect_ratio = 200.0 / 320.0f;
 
 // the extreme angles of the view
 // -AJA- FIXME: these aren't angle_t (32 bit angles).
@@ -373,7 +373,7 @@ float R_ScaleFromGlobalAngle(angle_t visangle)
 		if (scale > 64)
 			scale = 64;
 		else if (scale < 1/256.0)
-			scale = 1/256.0;
+			scale = 1/256.0f;
 	}
 	else
 		scale = 64;

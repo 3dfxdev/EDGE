@@ -113,12 +113,12 @@ void F_StartFinale(const finale_t * f, gameaction_e newaction)
   if (f->text_flat[0])
   {
     finale_textback = W_ImageFromFlat(f->text_flat);
-    finale_textbackscale = 5.0;
+    finale_textbackscale = 5.0f;
   }
   else if (f->text_back[0])
   {
     finale_textback = W_ImageFromPatch(f->text_back);
-    finale_textbackscale = 1.0;
+    finale_textbackscale = 1.0f;
   }
   else
   {
