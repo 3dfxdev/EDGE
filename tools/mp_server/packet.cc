@@ -24,6 +24,13 @@
 #include "ui_log.h"
 
 
+int volatile total_in_packets = 0;
+int volatile total_in_bytes = 0;
+
+int volatile total_out_packets = 0;
+int volatile total_out_bytes = 0;
+
+
 packet_c::packet_c()
 {
 	Clear();
@@ -69,6 +76,9 @@ bool packet_c::Read(NLsocket sock)
 		LogPrintf(2, "PacketRead failed: %s\n", GetNLErrorStr());
 		return false;
 	}
+
+	total_in_packets++;
+	total_in_bytes += len;
 
 	if (len < HEADER_LEN)
 	{
@@ -122,12 +132,18 @@ void packet_c::Write(NLsocket sock)
 	{
 		// unable to write now, need to buffer it and try later
 		BufferPacket(sock, raw, len);
+		return;
 	}
 	else if (wrote < 0)
 	{
 		LogPrintf(2, "PacketWrite failed: %s\n", GetNLErrorStr());
+		return;
 	}
-	else if (wrote != len)
+
+	total_out_packets++;
+	total_out_bytes += len;
+
+	if (wrote != len)
 	{
 		LogPrintf(1, "PacketWrite: wrote less data (%d < %d)\n", wrote, len);
 	}

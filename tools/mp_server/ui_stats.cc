@@ -19,6 +19,9 @@
 #include "includes.h"
 
 #include "buffer.h"
+#include "client.h"
+#include "game.h"
+#include "packet.h"
 #include "ui_stats.h"
 #include "ui_window.h"
 
@@ -103,13 +106,36 @@ UI_Stats::~UI_Stats()
 //
 void UI_Stats::Update()
 {
-	char num_buf[40];
+	char num_str[40];
 
-	// FIXME: others....
+	// clients and games
 
-	sprintf(num_buf, "%d", buffered_packets);
-	buf_pks->value(num_buf);
+	sprintf(num_str, "%d", total_clients);
+	clients->value(num_str);
+	
+	sprintf(num_str, "%d", total_queued_games);
+	queued->value(num_str);
 
-	sprintf(num_buf, "%d", buffered_bytes);
-	buf_bytes->value(num_buf);
+	sprintf(num_str, "%d", total_played_games);
+	played->value(num_str);
+
+	// packet statistics
+
+	sprintf(num_str, "%d", total_in_packets);
+	in_pks->value(num_str);
+
+	sprintf(num_str, "%d", total_in_bytes);
+	in_bytes->value(num_str);
+
+	sprintf(num_str, "%d", total_out_packets);
+	out_pks->value(num_str);
+
+	sprintf(num_str, "%d", total_out_bytes);
+	out_bytes->value(num_str);
+
+	sprintf(num_str, "%d", buffered_packets);
+	buf_pks->value(num_str);
+
+	sprintf(num_str, "%d", buffered_bytes);
+	buf_bytes->value(num_str);
 }

@@ -85,12 +85,19 @@ public:
 		int wrote = nlWrite(sock, data, len); 
 
 		if (wrote == 0)
+		{
 			return false;
-
+		}
 		else if (wrote < 0)
+		{
 			LogPrintf(2, "BufferWrite failed: %s\n", GetNLErrorStr());
+			return true;
+		}
 
-		else if (wrote != len)
+		total_out_packets++;
+		total_out_bytes += len;
+
+		if (wrote != len)
 			LogPrintf(1, "BufferWrite: wrote less data (%d < %d)\n", wrote, len);
 
 		return true;
@@ -129,8 +136,8 @@ public:
 
 	void Remove(buffer_packet_c *bp)
 	{
-		buffered_bytes -= bp->len;
 		buffered_packets--;
+		buffered_bytes -= bp->len;
 
 		if (bp->next)
 			bp->next->prev = bp->prev;
@@ -153,8 +160,8 @@ public:
 		if (size == QUEUE_MAX)
 			Remove(tail);
 
-		buffered_bytes += len;
 		buffered_packets++;
+		buffered_bytes += len;
 
 		buffer_packet_c *bp = new buffer_packet_c(sock, addr, GetNetTime(), data, len);
 

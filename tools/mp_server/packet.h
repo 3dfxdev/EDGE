@@ -64,4 +64,10 @@ public:
 	inline message_proto_t&      ms_p() { return *((message_proto_t *)DataPtr()); }
 };
 
+extern int volatile total_in_packets;
+extern int volatile total_in_bytes;
+
+extern int volatile total_out_packets;
+extern int volatile total_out_bytes;
+
 #endif /* __PACKET_H__ */
