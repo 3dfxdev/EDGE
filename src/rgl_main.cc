@@ -159,7 +159,7 @@ void RGL_SetupMatrices2D(void)
 // RGL_SetupMatrices3D
 //
 // Setup the GL matrices for drawing 3D stuff.
-
+//
 void RGL_SetupMatrices3D(void)
 {
 	float side_ang = 0.0f;
@@ -203,7 +203,6 @@ void RGL_SetupMatrices3D(void)
 	if (currentmap->lighting != rgl_light_model)
 		SetupLightMap(currentmap->lighting);
 }
-
 
 //
 // RGL_DrawPSprite

@@ -206,7 +206,7 @@ void RGL_EndUnit(int actual_vert)
 void RGL_DrawUnits(void)
 {
 	int i, j;
-	GLuint cur_tex = 0xABE74C74;
+	GLuint cur_tex = 0xABE74C47;
 
 	bool cur_masking  = false;
 	bool cur_blending = false;
