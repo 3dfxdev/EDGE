@@ -74,8 +74,6 @@ bool glcap_paletted = false;
 angle_t oned_side_angle;
 
 
-int glpar_invuln = 0;
-
 bool ren_allbright;
 float ren_red_mul;
 float ren_grn_mul;
@@ -433,12 +431,7 @@ void RGL_RainbowEffect(player_t *player)
 	s = player->powers[PW_Invulnerable];  
 
 	if (s > 0)
-	{
-		s = MIN(128.0f, s);
-		ren_allbright = true;
-		ren_red_mul = ren_grn_mul = ren_blu_mul = s / 256.0f;
 		return;
-	}
 
 	s = player->powers[PW_NightVision];
 
@@ -468,45 +461,31 @@ void RGL_ColourmapEffect(player_t *player)
 	int x1, y1;
 	int x2, y2;
 
-	if (player->powers[PW_Invulnerable] <= 0)
-		return;
-
+	if (player->powers[PW_Invulnerable] > 0)
 	{
-		float s = (float) player->powers[PW_Invulnerable];
-    
-		s = MIN(128.0f, s) / 128.0f;
+		glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
+		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
 
-		if (glpar_invuln == 0)
-		{
-			glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
-			glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
-		}
-		else
-		{
-			glColor4f(0.75f * s, 0.75f * s, 0.75f * s, 0.0f);
-			glBlendFunc(GL_ONE, GL_ONE);
-		}
+		glEnable(GL_BLEND);
+
+		glBegin(GL_QUADS);
+	  
+		x1 = viewwindowx;
+		x2 = viewwindowx + viewwindowwidth;
+
+		y1 = SCREENHEIGHT - viewwindowy;
+		y2 = SCREENHEIGHT - viewwindowy - viewwindowheight;
+
+		glVertex2i(x1, y1);
+		glVertex2i(x2, y1);
+		glVertex2i(x2, y2);
+		glVertex2i(x1, y2);
+
+		glEnd();
+	  
+		glDisable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
-
-	glEnable(GL_BLEND);
-
-	glBegin(GL_QUADS);
-  
-	x1 = viewwindowx;
-	x2 = viewwindowx + viewwindowwidth;
-
-	y1 = SCREENHEIGHT - viewwindowy;
-	y2 = SCREENHEIGHT - viewwindowy - viewwindowheight;
-
-	glVertex2i(x1, y1);
-	glVertex2i(x2, y1);
-	glVertex2i(x2, y2);
-	glVertex2i(x1, y2);
-
-	glEnd();
-  
-	glDisable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 
@@ -518,24 +497,34 @@ void RGL_ColourmapEffect(player_t *player)
 void RGL_PaletteEffect(player_t *player)
 {
 	byte rgb_data[3];
-	int rgb_max;
 
-	if (player->powers[PW_Invulnerable] > 0)
-		return;
+	float s = player->powers[PW_Invulnerable];
 
-	V_IndexColourToRGB(pal_black, rgb_data);
+	if (s > 0)
+	{
+		s = MIN(128.0f, s);
 
-	rgb_max = MAX(rgb_data[0], MAX(rgb_data[1], rgb_data[2]));
+		if (s < 40.0)
+			glColor4f(1.0f, 1.0f, 1.0f, (40.0f - s) / 80.0f);
+		else
+			glColor4f(0.0f, 0.0f, 0.0f, (s - 40.0f) / 200.0f);
+	}
+	else
+	{
+		V_IndexColourToRGB(pal_black, rgb_data);
 
-	if (rgb_max == 0)
-		return;
-  
-	rgb_max = MIN(200, rgb_max);
+		int rgb_max = MAX(rgb_data[0], MAX(rgb_data[1], rgb_data[2]));
 
-	glColor4f((float) rgb_data[0] / (float) rgb_max,
-			  (float) rgb_data[1] / (float) rgb_max,
-			  (float) rgb_data[2] / (float) rgb_max,
-			  (float) rgb_max / 255.0f);
+		if (rgb_max == 0)
+			return;
+	  
+		rgb_max = MIN(200, rgb_max);
+
+		glColor4f((float) rgb_data[0] / (float) rgb_max,
+				  (float) rgb_data[1] / (float) rgb_max,
+				  (float) rgb_data[2] / (float) rgb_max,
+			      (float) rgb_max / 255.0f);
+	}
 
 	glEnable(GL_BLEND);
 
