@@ -50,6 +50,8 @@ void DDF_MobjGetBenefit(const char *info, void *storage);
 void DDF_MobjGetPickupEffect(const char *info, void *storage);
 void DDF_MobjGetDLight(const char *info, void *storage);
 
+static void CheckPowerupCompatibility(void);
+
 static dlightinfo_c buffer_dlight;
 static haloinfo_c buffer_halo;
 
@@ -510,6 +512,12 @@ void ThingParseField(const char *field, const char *contents,
 		DDF_Error("%s is only available with #VERSION 1.28 or higher.\n", field);
 	}
 
+	if (ddf_version < 0x129 &&
+		(DDF_CompareName(field, "PICKUP_EFFECT") == 0))
+	{
+		DDF_Error("%s is only available with #VERSION 1.29 or higher.\n", field);
+	}
+
 	if (DDF_MainParseField(thing_commands, field, contents))
 		return;
 
@@ -577,6 +585,9 @@ static void ThingFinishEntry(void)
 		DDF_WarnError2(0x128, "Bad CHOKE_DAMAGE.VAL value %f in DDF.\n",
 			buffer_mobj.choke_damage.nominal);
 	}
+
+	if (ddf_version < 0x129)
+		CheckPowerupCompatibility();
 
 	// FIXME: check more stuff
 
@@ -1214,6 +1225,8 @@ static specflags_t extended_specials[] =
 static specflags_t hyper_specials[] =
 {
 	{"FORCE PICKUP", HF_FORCEPICKUP, 0},
+	{"SIDE IMMUNE", HF_SIDEIMMUNE, 0},
+	{"ULTRA LOYAL", HF_ULTRALOYAL, 0},
 	{NULL, 0, 0}
 };
 
@@ -1495,6 +1508,24 @@ static bool ConditionTryPlayerState(const char *name, const char *sub,
 {
 	return (CHKF_Positive == DDF_MainCheckSpecialFlag(name, 
 		simplecond_names, (int *)&cond->cond_type, false, false));
+}
+
+static void CheckPowerupCompatibility(void)
+{
+	// when using BERSERK, need to switch to the FIST
+
+	for (benefit_t *b = buffer_mobj.pickup_benefits; b; b = b->next)
+	{
+		if (b->type == BENEFIT_Powerup && b->subtype == PW_Berserk)
+		{
+			int subtype = weapondefs.FindFirst("FIST");
+
+			if (subtype >= 0)
+				AddPickupEffect(&buffer_mobj.pickup_effects,
+					BNFX_SwitchWeapon, subtype, 0, 0);
+			break;
+		}
+	}
 }
 
 //
