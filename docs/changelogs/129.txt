@@ -108,6 +108,7 @@ General improvements
 - source code uses more C++ features, and more of the EPI (Edge Platform
   Interface).  The "Zone" memory manager has mostly been replaced.
 
+- can toggle window/fullscreen mode in set-resolution screen.
 - new gameplay option to disable automatic weapon switches.
 - sky looks a bit better, with a stretch option in Video menu.
 - the old "sky flooding" trick is now emulated.
