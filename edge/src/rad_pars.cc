@@ -682,6 +682,9 @@ static void RAD_CollectParameters(const char *line, int *pnum,
 		if (in_string)
 			comment = false;
 
+		if (comment && ch == ';' && rts_version >= 0x129)
+			RAD_Warning("Comments with ';' deprecated, use // instead.\n");
+
 		if (ch == 0 && in_string)
 			RAD_Error("Nonterminated string found.\n");
 
