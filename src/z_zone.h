@@ -131,7 +131,8 @@ void Z_DumpLeakInfo(int level);
 //
 // Clears memory to zero.
 #define Z_Clear(ptr, type, num)  \
-    memset((void *)(ptr), (ptr) - (type *)(ptr), (num) * sizeof(type))
+  memset((void*)(ptr), 0, (num)*sizeof(type))
+//    memset((void *)(ptr), (void *)(ptr) - (type *)(ptr), (num) * sizeof(type))
 
 //
 // Z_MoveData
