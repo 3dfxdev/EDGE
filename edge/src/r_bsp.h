@@ -29,12 +29,10 @@
 #include "r_defs.h"
 #include "z_zone.h"
 
-extern seg_t *curline;
 extern side_t *sidedef;
 extern line_t *linedef;
 extern sector_t *frontsector;
 extern sector_t *backsector;
-extern region_properties_t *front_properties;
 extern int root_node;
 
 extern int rw_x;
@@ -51,16 +49,5 @@ extern boolean_t skymap;
 extern stack_array_t drawsegs_a;
 extern drawseg_t **drawsegs;
 extern int ds_p;
-
-// -AJA- 1999/07/25: Need this for moving deep water.
-extern float_t extrafl_offset;
-
-typedef void (*drawfunc_t) (int start, int stop);
-
-// BSP?
-void R_ClearClipSegs(void);
-void R_ClearDrawSegs(void);
-
-void R_RenderBSPNode(int bspnum);
 
 #endif
