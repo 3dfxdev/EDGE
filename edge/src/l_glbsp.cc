@@ -45,8 +45,8 @@ bool gb_draw_progress = false;
 static char message_buf[1024];
 static int ticker_time;
 
-// time between redrawing screen (bit under 1/6 second)
-#define REDRAW_TICS  6
+// time between redrawing screen (bit under 1/11 second)
+#define REDRAW_TICS  3
 
 static void GB_InitProgress(void);
 static void GB_TermProgress(void);
