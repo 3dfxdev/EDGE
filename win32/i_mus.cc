@@ -82,21 +82,21 @@ musctrl_e;
 static char ctrl_mus2midi[NUM_MUS_CTRLS] =
 {
 	0,              // Not used.
-		0,              // Bank select.
-		1,              // Modulation.
-		7,              // Volume.
-		10,             // Pan.
-		11,             // Expression.
-		91,             // Reverb.
-		93,             // Chorus.
-		64,             // Sustain pedal.
-		67,             // Soft pedal.
+	0,              // Bank select.
+	1,              // Modulation.
+	7,              // Volume.
+	10,             // Pan.
+	11,             // Expression.
+	91,             // Reverb.
+	93,             // Chorus.
+	64,             // Sustain pedal.
+	67,             // Soft pedal.
 
-		120,            // All sounds off.
-		123,            // All notes off.
-		126,            // Mono.
-		127,            // Poly.
-		121             // Reset all controllers.
+	120,            // All sounds off.
+	123,            // All notes off.
+	126,            // Mono.
+	127,            // Poly.
+	121             // Reset all controllers.
 };
 
 static HMIDIOUT midioutput;             // OUTPUT port...
@@ -326,7 +326,7 @@ void I_MUSTicker(void)
 		// Construct the MIDI event.
 		switch(evDesc->event)
 		{
-		case MUS_EV_RELEASE_NOTE:
+			case MUS_EV_RELEASE_NOTE:
 			{
 				midiStatus = 0x80;
 				midiParm1  = *playpos++; // Note
@@ -334,7 +334,7 @@ void I_MUSTicker(void)
 				break;
 			}
 
-		case MUS_EV_PLAY_NOTE:
+			case MUS_EV_PLAY_NOTE:
 			{
 				midiStatus = 0x90;
 				midiParm1 = *playpos++;
@@ -348,7 +348,7 @@ void I_MUSTicker(void)
 				break;                   
 			}
 
-		case MUS_EV_PITCH_WHEEL:
+			case MUS_EV_PITCH_WHEEL:
 			{
 				int scratch;
 
@@ -364,7 +364,7 @@ void I_MUSTicker(void)
 				break;
 			}
 
-		case MUS_EV_SYSTEM:
+			case MUS_EV_SYSTEM:
 			{
 				midiStatus = 0xb0;
 				scratch = *playpos++;
@@ -373,7 +373,7 @@ void I_MUSTicker(void)
 				break;
 			}
 
-		case MUS_EV_CONTROLLER:
+			case MUS_EV_CONTROLLER:
 			{
 				midiStatus = 0xb0;
 				midiParm1 = *playpos++;
@@ -394,14 +394,14 @@ void I_MUSTicker(void)
 				break;
 			}
 
-		case MUS_EV_SCORE_END:
+			case MUS_EV_SCORE_END:
 			{
 				// We're done.
 				scoreEnd = 1;
 				break;
 			}
 
-		default:
+			default:
 			{
 				I_Warning("MUS_SongPlayer: Unhandled MUS event %d.\n",evDesc->event);
 				break;
