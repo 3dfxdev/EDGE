@@ -418,14 +418,77 @@ void V_GetColmapRGB(const colourmap_c *colmap,
 			r = playpal_data[0][table[pal_gray239]][0];
 			g = playpal_data[0][table[pal_gray239]][1];
 			b = playpal_data[0][table[pal_gray239]][2];
+
+			r = r * 255 / 239;
+			g = g * 255 / 239;
+			b = b * 255 / 239;
 		}
 		else
 		{
-			// use the RED,GREEN,BLUE colours, see how they change
+			/* analyse whole colourmap */
+			int r_diffs = 0;
+			int g_diffs = 0;
+			int b_diffs = 0;
+			int total   = 0;
+
+			for (int j = 0; j < 256; j++)
+			{
+				int r0 = playpal_data[0][j][0];
+				int g0 = playpal_data[0][j][1];
+				int b0 = playpal_data[0][j][2];
+
+				int r1 = playpal_data[0][table[j]][0];
+				int g1 = playpal_data[0][table[j]][1];
+				int b1 = playpal_data[0][table[j]][2];
+
+				int intensity = MAX(r0, MAX(g0, b0));
+
+				if (intensity < 32)
+				{
+					continue;
+				}
+
+				// give the grey-scales more importance
+				int weight = (r0 == g0 && g0 == b0) ? 3 : 1;
+
+				int r_delta = (r1 - r0) * 255 / intensity;
+				int g_delta = (g1 - g0) * 255 / intensity;
+				int b_delta = (b1 - b0) * 255 / intensity;
+
+				// limit the delta range, since dark colours can produce
+				// very high values (> 1000) which skew the results.
+
+				r_delta = MIN(200, MAX(-240, r_delta));
+				g_delta = MIN(200, MAX(-240, g_delta));
+				b_delta = MIN(200, MAX(-240, b_delta));
+
+				r_diffs += r_delta * weight;
+				g_diffs += g_delta * weight;
+				b_diffs += b_delta * weight;
+				total   += weight;
+			}
+
+			// ASSERT(total > 0)
+
+			r = 255 + r_diffs / total;
+			g = 255 + g_diffs / total;
+			b = 255 + b_diffs / total;
+
+#if 0  // DEBUGGING
+			I_Printf("COLMAP [%s] --> (%d, %d, %d)\n",
+				colmap->ddf.name.GetString(), r, g, b);
+#endif
+
+#if 0  // OLD METHOD
 			r = playpal_data[0][table[pal_red]][0];
 			g = playpal_data[0][table[pal_green]][1];
 			b = playpal_data[0][table[pal_blue]][2];
+#endif
 		}
+
+		r = MIN(255, MAX(0, r));
+		g = MIN(255, MAX(0, g));
+		b = MIN(255, MAX(0, b));
 
 		cache->gl_colour = (r << 16) | (g << 8) | b;
 	}
@@ -473,12 +536,5 @@ void V_IndexColourToRGB(int indexcol, byte *returncol)
 	returncol[0] = playpal_data[cur_palette][indexcol][0];
 	returncol[1] = playpal_data[cur_palette][indexcol][1];
 	returncol[2] = playpal_data[cur_palette][indexcol][2];
-}
-
-void V_IndexNominalToRGB(int indexcol, byte *returncol)
-{
-	returncol[0] = playpal_data[0][indexcol][0];
-	returncol[1] = playpal_data[0][indexcol][1];
-	returncol[2] = playpal_data[0][indexcol][2];
 }
 

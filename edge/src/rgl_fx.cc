@@ -56,22 +56,23 @@ float ren_blu_mul;
 //
 void RGL_RainbowEffect(player_t *player)
 {
-	float s;
-  
 	ren_allbright = false;
 	ren_red_mul = ren_grn_mul = ren_blu_mul = 1.0f;
 
-	s = player->powers[PW_Invulnerable];  
-
-	if (s > 0)
+	if (player->powers[PW_Invulnerable] > 0)
 		return;
 
-	s = player->powers[PW_NightVision];
-
-	if (s > 0)
+	if (player->powers[PW_NightVision] > 0 && player->effect_colourmap)
 	{
-		s = MIN(128.0f, s);
-		ren_red_mul = ren_blu_mul = 1.0f - s / 128.0f;
+		float r, g, b;
+
+		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b, false);
+
+		float s = player->effect_strength;
+
+		ren_red_mul = 1.0f - (1.0f - r) * s;
+		ren_grn_mul = 1.0f - (1.0f - g) * s;
+		ren_blu_mul = 1.0f - (1.0f - b) * s;
 		ren_allbright = true;
 		return;
 	}
@@ -88,9 +89,17 @@ void RGL_ColourmapEffect(player_t *player)
 	int x1, y1;
 	int x2, y2;
 
-	if (player->powers[PW_Invulnerable] > 0)
+	if (player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
 	{
-		glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
+		float r, g, b;
+
+		V_GetColmapRGB(player->effect_colourmap, &r, &g, &b, false);
+
+		r = MAX(0.5f, r);
+		g = MAX(0.5f, g);
+		b = MAX(0.5f, b);
+
+		glColor4f(r, g, b, 0.0f);
 		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
 
 		glEnable(GL_BLEND);
@@ -124,16 +133,14 @@ void RGL_PaletteEffect(player_t *player)
 {
 	byte rgb_data[3];
 
-	float s = player->powers[PW_Invulnerable];
-
-	if (s > 0)
+	if (player->powers[PW_Invulnerable] > 0 && player->effect_colourmap)
 	{
-		s = MIN(128.0f, s);
+		float s = player->effect_strength;
 
-		if (s < 40.0)
-			glColor4f(1.0f, 1.0f, 1.0f, (40.0f - s) / 80.0f);
+		if (s < 0.5)
+			glColor4f(1.0f, 1.0f, 1.0f, (0.8f - s) * 0.5f);
 		else
-			glColor4f(0.0f, 0.0f, 0.0f, (s - 40.0f) / 320.0f);
+			glColor4f(0.0f, 0.0f, 0.0f, s * 0.3f);
 	}
 	else
 	{
