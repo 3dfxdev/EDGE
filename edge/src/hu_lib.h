@@ -59,10 +59,6 @@ typedef struct H_font_s
 }
 H_font_t;
 
-#define HFONT_GET_CH(font,ch)  \
-    ((font)->images[MAX((font)->first_ch, MIN((font)->last_ch, (ch))) -  \
-     (font)->first_ch])
-
 
 #define HU_MAXLINES		4
 #define HU_MAXLINELENGTH	80
@@ -210,12 +206,11 @@ void HL_EraseIText(hu_itext_t * it);
 void HL_DrawTextLineAlpha(hu_textline_t * l, bool drawcursor, 
     const colourmap_t *colmap, fixed_t alpha);
 
-#define HL_DrawTextLineTrans(L,DC,TR)  \
-    HL_DrawTextLineAlpha(L,DC,TR,FRACUNIT)
+#define HL_DrawTextLineTrans(L,DC,TR)  HL_DrawTextLineAlpha(L,DC,TR,FRACUNIT)
 
 
 // hu_font size routines
-int HL_CharWidth(const H_font_t *font, int c);
+int HL_CharWidth(const H_font_t *font, char c);
 int HL_TextMaxLen(int max_w, const char *str);
 int HL_StringWidth(const char *string);
 int HL_StringHeight(const char *string);
