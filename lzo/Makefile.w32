@@ -1,0 +1,37 @@
+#
+# MiniLZO Win32 + MinGW MAKEFILE
+#
+# (Note: requires GNU make)
+# 
+
+BIN=liblzo.a
+
+# SHELL = bash.exe
+
+CC=gcc.exe
+CFLAGS=-Wall -O2 -fomit-frame-pointer -fno-strength-reduce
+
+AR=ar r
+RANLIB=ranlib
+
+## # External library directories
+## DEVCPP_DIR = "c:/localbin/devcpp"
+## 
+## INCS = -I$(DEVCPP_DIR)/include
+## CFLAGS = $(INCS) -fexpensive-optimizations -O3
+
+OBJS = minilzo.o    
+    
+# ----- TARGETS ------------------------------------------------------
+
+all: $(BIN)
+
+clean:
+	rm -f $(OBJS) $(BIN) 
+	
+$(BIN): $(OBJS)
+	$(AR) $(BIN) $(OBJS)
+	$(RANLIB) $(BIN)
+ 
+.PHONY: all clean
+
