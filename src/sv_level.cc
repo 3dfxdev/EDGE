@@ -923,7 +923,7 @@ void SR_LevelPutImage(void *storage, int index, void *extra)
 //
 bool SR_LevelGetColmap(void *storage, int index, void *extra)
 {
-	const colourmap_t ** dest = (const colourmap_t **)storage + index;
+	const colourmap_c ** dest = (const colourmap_c **)storage + index;
 	const char *str;
 
 	str = SV_GetString();
@@ -931,7 +931,7 @@ bool SR_LevelGetColmap(void *storage, int index, void *extra)
 	if (! str)
 		I_Error("SR_LevelGetColmap: NULL found !\n");
 
-	(*dest) = DDF_ColmapLookup(str);
+	(*dest) = colourmaps.Lookup(str);
 
 	Z_Free((char *)str);
 	return true;
@@ -945,7 +945,7 @@ bool SR_LevelGetColmap(void *storage, int index, void *extra)
 //
 void SR_LevelPutColmap(void *storage, int index, void *extra)
 {
-	const colourmap_t *src = ((const colourmap_t **)storage)[index];
+	const colourmap_c *src = ((const colourmap_c **)storage)[index];
 
 	DEV_ASSERT2(src);
 
