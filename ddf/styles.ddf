@@ -17,16 +17,18 @@
 BACKGROUND.COLOUR = #888888;
 BACKGROUND.TRANSLUCENCY = 25%;
 // BACKGROUND.IMAGE = FLAT1;
-// BACKGROUND.SCALE = 0.5;
+// BACKGROUND.SCALE = 0.5;   // ASPECT too
 // BACKGROUND.FLAGS = TILED;
 
 // BORDER.COLOUR = #CCCCCC;
 // BORDER.SIZE = 2;
 
-TEXT.COLOUR = TEXT_REDS;  // colourmap name or #AABBCC colour
-TEXT.FONT   = DMFONT;
-TEXT.SCALE  = 0.5;  // make big or small
-TEXT.ASPECT = 1.0;  // make tall or wide
+// upto 4 text styles...
+
+TEXT(1).COLOUR = TEXT_REDS;  // colourmap name or #AABBCC colour
+TEXT(1).FONT   = DMFONT;
+TEXT(1).SCALE  = 0.5;  // make big or small
+TEXT(1).ASPECT = 1.0;  // make tall or wide
 
 // these are based on current menu code:
 SOUND.BEGIN  = SWITCHN;

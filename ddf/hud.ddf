@@ -63,14 +63,14 @@ YOU.KEY(RED_CARD+RED_SKULL)    = IMAGE(STKEYS8,239,191);
 YOU.KEY(RED_CARD)              = IMAGE(STKEYS2,239,191);
 YOU.KEY(RED_SKULL)             = IMAGE(STKEYS5,239,191);
 
-YOU.AMMO(0).NUM = SMALL_NUM(288,173,3);
-YOU.AMMO(0).MAX = SMALL_NUM(314,173,3);
-YOU.AMMO(1).NUM = SMALL_NUM(288,179,3);
-YOU.AMMO(1).MAX = SMALL_NUM(314,179,3);
-YOU.AMMO(2).NUM = SMALL_NUM(288,185,3);
-YOU.AMMO(2).MAX = SMALL_NUM(314,185,3);
-YOU.AMMO(3).NUM = SMALL_NUM(288,191,3);
-YOU.AMMO(3).MAX = SMALL_NUM(314,191,3);
+YOU.AMMO(BULLETS).NUM = SMALL_NUM(288,173,3);
+YOU.AMMO(BULLETS).MAX = SMALL_NUM(314,173,3);
+YOU.AMMO(SHELLS).NUM  = SMALL_NUM(288,179,3);
+YOU.AMMO(SHELLS).MAX  = SMALL_NUM(314,179,3);
+YOU.AMMO(ROCKETS).NUM = SMALL_NUM(ROCKETS88,185,3);
+YOU.AMMO(ROCKETS).MAX = SMALL_NUM(314,185,3);
+YOU.AMMO(CELLS).NUM   = SMALL_NUM(288,191,3);
+YOU.AMMO(CELLS).MAX   = SMALL_NUM(314,191,3);
 
 // range of images based on percentage of variable
 // using ZERO_HIDE means it's gone when zero.
@@ -86,8 +86,7 @@ YOU.AIR = IMAGE_RANGE(AIRBAR01, AIRBAR20, 0, 0), ZERO_HIDE;
 // 
 //    STATS.FPS, STATS.MSPF, etc...
 //
-//    strings: YOU.NAME = STRING(100,123,10), STYLE(NAME_XYZ);
-//             LEVEL.NAME = ...
+//    strings: LEVEL.NAME = STRING(100,123,10), STYLE(NAME_XYZ);
 //
 //             CONST("FOO")    = STRING(X,Y,W), STYLE(BLAH);
 //             CONST("FooBar") = LDF_STR(X,Y,W);
@@ -113,14 +112,12 @@ HEIGHT = 32;
 // etc...
 
 
-[TABBED/map]   // the "map" specialisation used when you press TAB.
-               // can have multiple of them as well (+/- toggles).
-               // omit it to disable Tabbing.
-... 
+[MAP/map]     // the "map" specialisation used when you press TAB.
+...           // can have multiple of them as well (+/- toggles).
+              // omit it to disable Tabbing.
 
 
 [BLAH/rts]    // maybe have "rts" specialisation: only usable by
-              // RTS scripts.  These huds would be _additional_ to
+...           // RTS scripts.  These huds would be _additional_ to
               // the current one.  E.g. TIP_HUD BLAH 5
-...
 
