@@ -514,8 +514,8 @@ static optmenuitem_t stdkeyconfig[] =
 	{OPT_KeyConfig, "Move Up", NULL, 0, KEYD_INSERT, &key_flyup, NULL, NULL},
 	{OPT_KeyConfig, "Move Down", NULL, 0, KEYD_DELETE, &key_flydown, NULL, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_KeyConfig, "Strafe", NULL, 0, KEYD_RALT + (KEYD_MOUSE2 << 16), &key_strafe, NULL, NULL},
 	{OPT_KeyConfig, "Run", NULL, 0, KEYD_RSHIFT, &key_speed, NULL, NULL},
+	{OPT_KeyConfig, "Strafe", NULL, 0, KEYD_RALT + (KEYD_MOUSE2 << 16), &key_strafe, NULL, NULL},
 	{OPT_KeyConfig, "Strafe Left", NULL, 0, ',', &key_strafeleft, NULL, NULL},
 	{OPT_KeyConfig, "Strafe Right", NULL, 0, '.', &key_straferight, NULL, NULL},
 	{OPT_KeyConfig, "Toggle Autorun", NULL, 0, KEYD_CAPSLOCK, &key_autorun, NULL, NULL}
