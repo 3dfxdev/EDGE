@@ -333,7 +333,7 @@ void SV_MobjCreateElems(int num_elems)
 		mobjlisthead = cur;
 
 		// initialise defaults
-		cur->info = mobjdefs[0];
+		cur->info = mobjtypes[0];
 		cur->state = cur->next_state = states+1;
 	}
 }
@@ -549,12 +549,12 @@ void SR_MobjPutMobj(void *storage, int index, void *extra)
 //
 bool SR_MobjGetType(void *storage, int index, void *extra)
 {
-	mobjdef_c ** dest = (mobjdef_c **)storage + index;
+	mobjtype_c ** dest = (mobjtype_c **)storage + index;
 
 	const char *name = SV_GetString();
 
 	// Intentional Const Override
-	*dest = (name == NULL) ? NULL : (mobjdef_c *)mobjdefs.Lookup(name);
+	*dest = (name == NULL) ? NULL : (mobjtype_c *)mobjtypes.Lookup(name);
 
 	Z_Free((char *)name);
 	return true;
@@ -565,7 +565,7 @@ bool SR_MobjGetType(void *storage, int index, void *extra)
 //
 void SR_MobjPutType(void *storage, int index, void *extra)
 {
-	mobjdef_c *info = ((mobjdef_c **)storage)[index];
+	mobjtype_c *info = ((mobjtype_c **)storage)[index];
 
 	SV_PutString((info == NULL) ? NULL : info->ddf.name);
 }
@@ -635,7 +635,7 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 
 	const char *swizzle;
 	const mobj_t *mo = (mobj_t *) sv_current_elem;
-	const mobjdef_c *actual;
+	const mobjtype_c *actual;
 
 	DEV_ASSERT2(mo);
 	DEV_ASSERT2(mo->info);
@@ -673,7 +673,7 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 	if (buffer[0] != '*')
 	{
 		// Do we care about those in the disabled group?
-		actual = mobjdefs.Lookup(buffer);
+		actual = mobjtypes.Lookup(buffer);
 		if (!actual)
 			I_Error("LOADGAME: no such thing %s for state %s:%s\n",
 			buffer, base_p, off_p);
@@ -747,7 +747,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	int s_num, base;
 
 	const mobj_t *mo = (mobj_t *) sv_current_elem;
-	const mobjdef_c *actual;
+	const mobjtype_c *actual;
 
 	DEV_ASSERT2(mo);
 	DEV_ASSERT2(mo->info);
@@ -799,9 +799,9 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 		epi::array_iterator_c it;
 
 		// look for real object
-		for (it = mobjdefs.GetBaseIterator(); it.IsValid(); it++)
+		for (it = mobjtypes.GetBaseIterator(); it.IsValid(); it++)
 		{
-			actual = ITERATOR_TO_TYPE(it, mobjdef_c*);
+			actual = ITERATOR_TO_TYPE(it, mobjtype_c*);
 
 			if (actual->last_state <= 0 ||
 				actual->last_state < actual->first_state)
