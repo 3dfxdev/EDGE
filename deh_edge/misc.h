@@ -13,9 +13,6 @@
 #ifndef __MISC_HDR__
 #define __MISC_HDR__
 
-#include "i_defs.h"
-#include "info.h"
-
 namespace Misc
 {
 	extern int init_ammo;
@@ -39,6 +36,5 @@ namespace Misc
 
 	void AlterMisc(const char *misc_name, int value);
 }
-
 
 #endif /* __MISC_HDR__ */

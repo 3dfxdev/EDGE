@@ -13,9 +13,6 @@
 #ifndef __FRAMES_HDR__
 #define __FRAMES_HDR__
 
-#include "i_defs.h"
-#include "info.h"
-
 typedef enum
 {
 	AF_EXPLODE   = (1 << 0),   // uses A_Explode

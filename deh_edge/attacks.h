@@ -13,13 +13,9 @@
 #ifndef __ATTACKS_HDR__
 #define __ATTACKS_HDR__
 
-#include "i_defs.h"
-#include "info.h"
-
 namespace Attacks
 {
 	void ConvertATK(void);
 }
-
 
 #endif /* __ATTACKS_HDR__ */
