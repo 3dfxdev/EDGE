@@ -109,6 +109,7 @@ epi::u32array_c& W_GetListLumps(int file, lumplist_e which);
 void W_GetTextureLumps(int file, wadtex_resource_c *res);
 int W_GetNumFiles(void);
 int W_GetFileCompatMode(int file);
+int W_GetFileForLump(int lump);
 
 // Define this only in an emergency.  All these debug printfs quickly
 // add up, and it takes only a few seconds to end up with a 40 meg debug file!

@@ -2470,6 +2470,45 @@ int P_DetectMapCompat(const mapdef_c *map)
 }
 
 //
+// P_DetectWadGameCompat
+//
+// Detects the compatibility mode of all levels starting with the
+// one given, and merges that with the WAD compatibility mode.
+//
+int P_DetectWadGameCompat(const mapdef_c *first)
+{
+	DEV_ASSERT2(first);
+
+	int lumpnum = W_CheckNumForName(first->lump.GetString());
+
+	if (lumpnum < 0)
+		return 0;
+
+	int file = W_GetFileForLump(lumpnum);
+
+	// start with the WAD compatibility flags
+	// FIXME: assumes wadcompat_e == mapcompat_e
+	int result = W_GetFileCompatMode(file);
+
+	for (int loop = 0; loop < 32; loop++)
+	{
+		result |= P_DetectMapCompat(first);
+
+		// stop when sequence runs out, or WAD file changes
+		first = game::LookupMap(first->nextmapname);
+		if (! first)
+			break;
+
+		lumpnum = W_CheckNumForName(first->lump.GetString());
+
+		if (lumpnum < 0 || file != W_GetFileForLump(lumpnum))
+			break;
+	}
+
+	return result;
+}
+
+//
 // P_Init
 //
 void P_Init(void)
@@ -2490,33 +2529,38 @@ namespace playsim
 	//
 	linetype_c* LookupLineType(int num)
 	{
+		linetype_c* def = linetypes.Lookup(num);
+
+		// DDF types always override
+		if (def)
+			return def;
+
   		if (level_flags.compat_mode == CM_BOOM && DDF_IsBoomLineType(num))
 		{
 			return DDF_BoomGetGenLine(num);
 		}
 
-		linetype_c* l = linetypes.Lookup(num);
-		if (l)
-			return l;
-
 		I_Warning("playsim::LookupLineType(): Unknown linedef type %d", num);
 		return linetypes[0];	// Return template line
 	}	
-	
+
 	//
 	// sectortype_c* LookupSectorType()
 	//	
 	sectortype_c* LookupSectorType(int num)
 	{
+		sectortype_c* def = sectortypes.Lookup(num);
+
   		// check for BOOM generalised sector types
+		// new DDF types (i.e. not in EDGE.WAD) always override
 		if (level_flags.compat_mode == CM_BOOM && DDF_IsBoomSectorType(num))
 		{
-			return DDF_BoomGetGenSector(num);
+			if (! def || def->boom_conflict)
+				return DDF_BoomGetGenSector(num);
 		}
-		
-		sectortype_c* s = sectortypes.Lookup(num);
-		if (s)
-			return s;
+
+		if (def)
+			return def;
 
 		I_Warning("playsim::LookupSectorType(): Unknown sector type %d", num);
 		return sectortypes[0];	// Return template sector

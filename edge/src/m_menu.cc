@@ -46,6 +46,7 @@
 #include "m_misc.h"
 #include "m_option.h"
 #include "m_random.h"
+#include "p_setup.h"
 #include "r_local.h"
 #include "s_sound.h"
 #include "st_stuff.h"
@@ -1172,35 +1173,9 @@ void M_DrawEpisode(void)
 	RGL_ImageEasy320(54, 38, menu_episode);
 }
 
-static void VerifyNightmare(int ch)
+static void ReallyDoStartLevel(skill_t skill, gamedef_c *g)
 {
-	epi::array_iterator_c it;
-	gamedef_c *g;
-
-	if (ch != 'y')
-		return;
-
-	// -KM- 1998/12/17 Clear the intermission.
-	WI_Clear();
-  
-	// find episode (???)
-	// FIXME!!!Unify the starting level code
-	g = NULL;
-	for (it = gamedefs.GetBaseIterator(); it.IsValid(); it++) 
-	{ 
-		g = ITERATOR_TO_TYPE(it, gamedef_c*);
-		if (!strcmp(g->namegraphic, 
-		           EpisodeMenu[chosen_epi].patch_name))
-		{
-			break;
-		}
-	}
-	
-	// Sanity checking...
-	if (!it.IsValid())
-		return;
-		
-	if (!G_DeferredInitNew(sk_nightmare, g->firstmap, false))
+	if (!G_DeferredInitNew(skill, g->firstmap, false))
 	{
 		// 23-6-98 KM Fixed this.
 		M_SetupNextMenu(&EpiDef);
@@ -1211,6 +1186,97 @@ static void VerifyNightmare(int ch)
 	M_ClearMenus();
 }
 
+static skill_t vcc_skill;
+static gamedef_c *vcc_game;
+
+static void VerifyCompatChange(int ch)
+{
+	if (ch != 'y' && ch != 'n')
+		return;
+
+	if (ch == 'y')
+	{
+		global_flags.compat_mode =
+			(global_flags.compat_mode != CM_EDGE) ? CM_EDGE : CM_BOOM;
+	}
+
+	ReallyDoStartLevel(vcc_skill, vcc_game);
+}
+
+static void DoStartLevel(skill_t skill)
+{
+	// -KM- 1998/12/17 Clear the intermission.
+	WI_Clear();
+  
+	// find episode
+	gamedef_c *g = NULL;
+	epi::array_iterator_c it;
+
+	for (it = gamedefs.GetBaseIterator(); it.IsValid(); it++) 
+	{ 
+		g = ITERATOR_TO_TYPE(it, gamedef_c*);
+
+		if (!strcmp(g->namegraphic, EpisodeMenu[chosen_epi].patch_name))
+		{
+			break;
+		}
+	}
+
+	// Sanity checking...
+	if (! g)
+	{
+		I_Warning("Internal Error: no episode for '%s'.\n",
+			EpisodeMenu[chosen_epi].patch_name);
+		M_ClearMenus();
+		return;
+	}
+
+	const mapdef_c * map = game::LookupMap(g->firstmap);
+	if (! map)
+	{
+		I_Warning("Cannot find map for '%s' (episode %s)\n",
+			g->firstmap.GetString(),
+			EpisodeMenu[chosen_epi].patch_name);
+		M_ClearMenus();
+		return;
+	}
+
+	// Compatibility check (EDGE vs BOOM)
+	int compat = P_DetectWadGameCompat(map);
+	int cur_compat = (global_flags.compat_mode == CM_EDGE) ?
+			MAP_CM_Edge : MAP_CM_Boom;
+
+	if (compat != 0 && compat != cur_compat)
+	{
+		char msg_buf[2048];
+
+		if (compat == (MAP_CM_Edge|MAP_CM_Boom))
+			sprintf(msg_buf, language["CompatBoth"],
+				(cur_compat == MAP_CM_Edge) ? "EDGE" : "BOOM");
+		else
+			sprintf(msg_buf, language["CompatChange"],
+				(cur_compat != MAP_CM_Edge) ? "EDGE" : "BOOM",
+				(cur_compat == MAP_CM_Edge) ? "EDGE" : "BOOM");
+
+		// remember settings (Ugh!)
+		vcc_skill = skill;
+		vcc_game  = g;
+
+		M_StartMessage(msg_buf, VerifyCompatChange, true);
+		return;
+	}
+
+	ReallyDoStartLevel(skill, g);
+}
+
+static void VerifyNightmare(int ch)
+{
+	if (ch != 'y')
+		return;
+
+	DoStartLevel(sk_nightmare);
+}
+
 void M_ChooseSkill(int choice)
 {
 	if (choice == sk_nightmare)
@@ -1219,38 +1285,7 @@ void M_ChooseSkill(int choice)
 		return;
 	}
 	
-	epi::array_iterator_c it;
-	gamedef_c *g;
-
-	// -KM- 1998/12/17 Clear the intermission.
-	WI_Clear();
-  
-	// find episode (???)
-	// FIXME!!! Unify the starting level code
-	g = NULL;
-	for (it = gamedefs.GetBaseIterator(); it.IsValid(); it++) 
-	{ 
-		g = ITERATOR_TO_TYPE(it, gamedef_c*);
-		if (!strcmp(g->namegraphic, 
-		           EpisodeMenu[chosen_epi].patch_name))
-		{
-			break;
-		}
-	}
-	
-	// Sanity checking...
-	if (!it.IsValid())
-		return;
-		
-	if (!G_DeferredInitNew((skill_t)choice, g->firstmap, false))
-	{
-		// 23-6-98 KM Fixed this.
-		M_SetupNextMenu(&EpiDef);
-		M_StartMessage(language["EpisodeNonExist"], NULL, false);
-		return;
-	}
-
-	M_ClearMenus();	
+	DoStartLevel((skill_t)choice);
 }
 
 void M_Episode(int choice)
