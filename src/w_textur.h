@@ -56,10 +56,6 @@ void W_InitTextures(void);
 int W_TextureNumForName(const char *name);
 int W_CheckTextureNumForName(const char *name);
 
-// -AJA- this will soon be redundant
-byte *W_ConvertSpriteRGBA(int patch, int *width, int *height,
-    float_t *right, float_t *bottom);
-
 // -AJA- !!!! FIXME: BIG HACK HERE
 void *W_TextureDefForName(const char *name);
 
