@@ -24,7 +24,8 @@
 // LogBox Constructor
 //
 UI_LogBox::UI_LogBox(int x, int y, int w, int h) :
-    Fl_Multi_Browser(x, y, w, h)
+    Fl_Multi_Browser(x, y, w, h),
+	save_lines(), save_count(0)
 {
 	// cancel the automatic `begin' in Fl_Group constructor
 	// (Fl_Group is an ancestor of Fl_Browser).
@@ -85,11 +86,13 @@ void UI_LogBox::AddMsg(const char *msg, Fl_Color col, // = FL_BLACK,
 {
 	nlMutexLock(&save_lock);
 
-	// FIXME: have a limit on size
+	if (save_count < SAVE_LIMIT)
+	{
+		log_mem_c *mem = new log_mem_c(msg, col, bold);
 
-	log_mem_c *mem = new log_mem_c(msg, col, bold);
-
-	save_lines.push_back(mem);
+		save_lines.push_back(mem);
+		save_count++;
+	}
 
 	nlMutexUnlock(&save_lock);
 }
@@ -144,13 +147,11 @@ void UI_LogBox::Update()
 {
 	nlMutexLock(&save_lock);
 
-	for (;;)
+	for (; save_count > 0; save_count--)
 	{
 		log_mem_c *mem = (log_mem_c *) save_lines.pop_front();
 
-		if (! mem)
-			break;
-
+		SYS_NULL_CHECK(mem);
 		SYS_NULL_CHECK(mem->line);
 
 		DoAddMsg(mem->line, mem->col, mem->bold);
