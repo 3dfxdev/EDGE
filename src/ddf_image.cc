@@ -56,6 +56,24 @@ static const commandlist_t image_commands[] =
 
 imagedef_container_c imagedefs;
 
+static image_namespace_e GetImageNamespace(const char *prefix)
+{
+	if (DDF_CompareName(prefix, "gfx") == 0)
+		return INS_Graphic;
+
+	if (DDF_CompareName(prefix, "tex") == 0)
+		return INS_Texture;
+
+	if (DDF_CompareName(prefix, "flat") == 0)
+		return INS_Flat;
+
+	if (DDF_CompareName(prefix, "spr") == 0)
+		return INS_Sprite;
+	
+	DDF_Error("Invalid image prefix '%s' (use: gfx,tex,flat,spr)\n", prefix);
+	return INS_Flat; /* NOT REACHED */ 
+}
+
 //
 //  DDF PARSE ROUTINES
 //
@@ -65,8 +83,30 @@ static bool ImageStartEntry(const char *name)
 
 	bool replaces = false;
 
+	image_namespace_e belong = INS_Graphic;
+
 	if (name && name[0])
 	{
+		char *pos = strchr(name, ':');
+
+		if (pos)
+		{
+			epi::string_c s;
+
+			s.Empty();
+			s.AddChars(name, 0, pos - name);
+				
+			if (s.IsEmpty())
+				DDF_Error("Missing image prefix.\n");
+
+			belong = GetImageNamespace(s.GetString());
+
+			name = pos + 1;
+
+			if (! name[0])
+				DDF_Error("Missing image name.\n");
+		}
+
 		// W_Image code has limited space for the name
 		if (strlen(name) > 15)
 			DDF_Error("Image name [%s] too long.\n", name);
@@ -103,6 +143,8 @@ static bool ImageStartEntry(const char *name)
 
 	// instantiate the static entry
 	buffer_image.Default();
+	buffer_image.belong = belong;
+
 	return replaces;
 }
 
@@ -310,6 +352,7 @@ void imagedef_c::Copy(const imagedef_c &src)
 //
 void imagedef_c::CopyDetail(const imagedef_c &src)
 {
+	belong  = src.belong;
 	type    = src.type;
 	colour  = src.colour;
 	builtin = src.builtin;
@@ -329,6 +372,7 @@ void imagedef_c::Default()
 {
 	ddf.Default();
 
+	belong = INS_Graphic;
 	type = IMGDT_Colour;
 	colour = 0x000000;  // black
 	builtin = BLTIM_Quadratic;

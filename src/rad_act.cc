@@ -126,8 +126,7 @@ void RAD_ResetTips(void)
 //
 static void SetupTip(drawtip_t *cur)
 {
-	// FIXME
-	if (! rts_hack_style)
+	if (! rts_hack_style) // FIXME !!!!!
 		rts_hack_style = hu_styles.Lookup(default_style);
 
 	int i;
@@ -742,9 +741,9 @@ void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param)
 
 	// find texture or flat
 	if (ctex->what >= CHTEX_Floor)
-		image = W_ImageLookup(ctex->texname, IMSRC_Flat);
+		image = W_ImageLookup(ctex->texname, INS_Flat);
 	else
-		image = W_ImageLookup(ctex->texname, IMSRC_Texture);
+		image = W_ImageLookup(ctex->texname, INS_Texture);
 
 	if (ctex->what == CHTEX_Sky)
 	{

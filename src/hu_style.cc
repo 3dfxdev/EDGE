@@ -54,10 +54,10 @@ void style_c::Load()
 	{
 		const char *name = def->bg.image_name.GetString();
 
-		bg_image = W_ImageLookup(name, IMSRC_Flat, ILF_Null);
+		bg_image = W_ImageLookup(name, INS_Flat, ILF_Null);
 
 		if (! bg_image)
-			bg_image = W_ImageLookup(name, IMSRC_Patch);
+			bg_image = W_ImageLookup(name, INS_Graphic);
 	}
 
 	for (int T = 0; T < styledef_c::NUM_TXST; T++)

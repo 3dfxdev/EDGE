@@ -696,17 +696,17 @@ static void LoadGraphics(void)
 	for (i = 0; i < 10; i++)
 	{
 		sprintf(namebuf, "STTNUM%d", i);
-		tallnum[i] = W_ImageLookup(namebuf, IMSRC_Font);
+		tallnum[i] = W_ImageLookup(namebuf);  //!!! FIXME: use the style!
 
 		sprintf(namebuf, "STYSNUM%d", i);
-		shortnum[i] = W_ImageLookup(namebuf, IMSRC_Font);
+		shortnum[i] = W_ImageLookup(namebuf);
 	}
 
 	// Load percent key.
-	tallpercent = W_ImageLookup("STTPRCNT", IMSRC_Font);
+	tallpercent = W_ImageLookup("STTPRCNT");
 
 	// Load '-'
-	sttminus = W_ImageLookup("STTMINUS", IMSRC_Font);
+	sttminus = W_ImageLookup("STTMINUS");
 
 	// key cards
 	// -ACB- 1998/09/11 Include dual card/skull graphics

@@ -27,6 +27,7 @@
 #define __W_IMAGE__
 
 #include "dm_type.h"
+#include "ddf_image.h"
 #include "r_defs.h"
 #include "r_state.h"
 
@@ -94,37 +95,6 @@ typedef byte cached_image_t;
 
 typedef enum
 {
-	// Source was a patch name
-	IMSRC_Patch = 0,
-
-	// INTERNAL ONLY: Source was a raw block of 320x200 bytes (Heretic/Hexen)
-	IMSRC_Raw320x200,
-
-	// Source was a font patch name
-	IMSRC_Font,
-
-	// Source was a sprite name
-	IMSRC_Sprite,
-
-	// Source was a flat name
-	IMSRC_Flat,
-
-	// Source was a texture name
-	IMSRC_Texture,
-
-	// Source is from IMAGE.DDF
-	IMSRC_User,
-
-	// INTERNAL ONLY: Source was a sky texture, merged for a pseudo sky box
-	IMSRC_SkyMerge,
-
-	// INTERNAL ONLY: Source is dummy image
-	IMSRC_Dummy,
-}
-image_source_e;
-
-typedef enum
-{
 	WSKY_North = 0,
 	WSKY_East,
 	WSKY_South,
@@ -142,16 +112,18 @@ typedef enum
 	ILF_Null    = 0x0001,  // return NULL rather than a dummy image
 	ILF_Exact   = 0x0002,  // type must be exactly the same
 	ILF_NoNew   = 0x0004,  // image must already exist (don't create it)
+	ILF_Font    = 0x0008,  // font character (be careful with backups)
 }
 image_lookup_flags_e;
 
-const image_t *W_ImageLookup(const char *name, int type = IMSRC_Patch, int flags = 0);
+const image_t *W_ImageLookup(const char *name, image_namespace_e = INS_Graphic,
+	int flags = 0);
 const image_t *W_ImageFromSkyMerge(const image_t *sky, int face);
 const image_t *W_ImageForDummySprite(void);
 
 // savegame code (Only)
-const image_t *W_ImageFromString(char type, const char *name);
-void W_ImageToString(const image_t *image, char *type, char *namebuf);
+const image_t *W_ImageParseSaveString(char type, const char *name);
+void W_ImageMakeSaveString(const image_t *image, char *type, char *namebuf);
 
 
 //

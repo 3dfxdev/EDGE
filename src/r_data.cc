@@ -111,7 +111,7 @@ void R_AddFlatAnim(animdef_c *anim)
 			// that -- the lump list does NOT take overriding flats (in newer
 			// pwads) into account.
 
-			flats[i] = W_ImageLookup(name, IMSRC_Flat, ILF_Null|ILF_Exact|ILF_NoNew);
+			flats[i] = W_ImageLookup(name, INS_Flat, ILF_Null|ILF_Exact|ILF_NoNew);
 		}
 
 		W_AnimateImageSet(flats, total, anim->speed);
@@ -128,7 +128,7 @@ void R_AddFlatAnim(animdef_c *anim)
 	const image_t **flats = new const image_t* [total];
 
 	for (int i = 0; i < total; i++)
-		flats[i] = W_ImageLookup(anim->pics[i], IMSRC_Flat, ILF_Null|ILF_Exact);
+		flats[i] = W_ImageLookup(anim->pics[i], INS_Flat, ILF_Null|ILF_Exact);
 
 	W_AnimateImageSet(flats, total, anim->speed);
 	delete[] flats;
@@ -182,7 +182,7 @@ void R_AddTextureAnim(animdef_c *anim)
 		for (int i = 0; i < total; i++)
 		{
 			const char *name = W_TextureNameInSet(set, s_offset + i);
-			texs[i] = W_ImageLookup(name, IMSRC_Texture, ILF_Null|ILF_Exact|ILF_NoNew);
+			texs[i] = W_ImageLookup(name, INS_Texture, ILF_Null|ILF_Exact|ILF_NoNew);
 		}
 
 		W_AnimateImageSet(texs, total, anim->speed);
@@ -201,16 +201,16 @@ void R_AddTextureAnim(animdef_c *anim)
 	const image_t **texs = new const image_t* [total];
 
 	for (int i = 0; i < total; i++)
-		texs[i] = W_ImageLookup(anim->pics[i], IMSRC_Texture, ILF_Null|ILF_Exact);
+		texs[i] = W_ImageLookup(anim->pics[i], INS_Texture, ILF_Null|ILF_Exact);
 
 	W_AnimateImageSet(texs, total, anim->speed);
 	delete[] texs;
 }
 
 //
-// R_AddUserAnim
+// R_AddGraphicAnim
 // 
-void R_AddUserAnim(animdef_c *anim)
+void R_AddGraphicAnim(animdef_c *anim)
 {
 	int total = anim->pics.GetSize();
 
@@ -222,7 +222,7 @@ void R_AddUserAnim(animdef_c *anim)
 	const image_t **users = new const image_t* [total];
 
 	for (int i = 0; i < total; i++)
-		users[i] = W_ImageLookup(anim->pics[i], IMSRC_User, ILF_Null|ILF_Exact);
+		users[i] = W_ImageLookup(anim->pics[i], INS_Graphic, ILF_Null|ILF_Exact);
 
 	W_AnimateImageSet(users, total, anim->speed);
 	delete[] users;
@@ -321,8 +321,8 @@ void R_InitPicAnims(void)
 				R_AddFlatAnim(A);
 				break;
 
-			case animdef_c::A_User:
-				R_AddUserAnim(A);
+			case animdef_c::A_Graphic:
+				R_AddGraphicAnim(A);
 				break;
 		}
 	}

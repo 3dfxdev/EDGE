@@ -50,7 +50,7 @@ public:
 	{
 		A_Flat = 0,
 		A_Texture,
-		A_User
+		A_Graphic
 	};
 
 	int type;
