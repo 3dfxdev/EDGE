@@ -61,10 +61,12 @@ public:
 	inline query_client_proto_t& qc_p() { return *((query_client_proto_t *)DataPtr()); }
 	inline new_game_proto_t&     ng_p() { return *((new_game_proto_t *)DataPtr()); }
 	inline query_game_proto_t&   qg_p() { return *((query_game_proto_t *)DataPtr()); }
+	inline join_queue_proto_t&   jq_p() { return *((join_queue_proto_t *)DataPtr()); }
 	inline play_game_proto_t&    pg_p() { return *((play_game_proto_t *)DataPtr()); }
 	inline ticcmd_proto_t&       tc_p() { return *((ticcmd_proto_t *)DataPtr()); }
 	inline tic_group_proto_t&    tg_p() { return *((tic_group_proto_t *)DataPtr()); }
 	inline tic_retransmit_proto_t& tr_p() { return *((tic_retransmit_proto_t *)DataPtr()); }
+	inline message_proto_t&      ms_p() { return *((message_proto_t *)DataPtr()); }
 };
 
 #endif  // USE_HAWKNL
