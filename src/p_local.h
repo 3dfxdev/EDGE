@@ -51,6 +51,7 @@
 // MAXRADIUS is for precalculated sector block boxes
 // the spider demon is larger, but we do not have any moving sectors nearby
 #define MAXRADIUS    (32.0f)
+#define MAXDLIGHTRADIUS    (112.0f)
 
 #define MAXMOVE      (100.0f)
 #define STEPMOVE     (2.0f)
@@ -80,10 +81,12 @@ extern mobj_t *RandomTarget;
 void P_ActPlayerAttack(mobj_t * playerobj, const attacktype_t * attack);
 void P_ActSlammedIntoObject(mobj_t * object, mobj_t * objecthit);
 boolean_t P_ActMissileContact(mobj_t * object, mobj_t * objecthit);
-boolean_t P_ActBulletContact(mobj_t * object, mobj_t * objecthit, float_t damage);
+boolean_t P_ActBulletContact(mobj_t * object, mobj_t * objecthit, 
+    float_t damage, const damage_t * damtype);
 void P_ActTouchyContact(mobj_t * touchy, mobj_t * victim);
 boolean_t P_ActUseThing(mobj_t * user, mobj_t * thing, float_t open_bottom,
     float_t open_top);
+void P_BringCorpseToLife(mobj_t * corpse);
 
 //
 // P_WEAPON
@@ -226,9 +229,6 @@ int GAP_Constrict(vgap_t * dest, int d_num, vgap_t * src, int s_num);
 extern boolean_t floatok;
 extern float_t float_destz;
 
-extern float_t attackrange;
-extern mobj_t *shootthing;  // who started the shoot
-
 extern mobj_t *linetarget;  // who got hit (or NULL)
 
 extern boolean_t mobj_hit_sky;
@@ -250,14 +250,16 @@ void P_UpdateMultipleFloors(sector_t * sector);
 boolean_t P_ChangeSector(sector_t * sector, boolean_t crunch);
 boolean_t P_CheckAbsPosition(mobj_t * thing, float_t x, float_t y, float_t z);
 boolean_t P_CheckSight(mobj_t * t1, mobj_t * t2);
-void P_RadiusAttack(mobj_t * spot, mobj_t * source, float_t damage);
-void P_RadiusThrust(mobj_t * spot, mobj_t * source, float_t thrust);
+boolean_t P_CheckSightApproxVert(mobj_t * t1, mobj_t * t2);
+void P_RadiusAttack(mobj_t * spot, mobj_t * source, float_t radius,
+    float_t damage, const damage_t * damtype, boolean_t thrust_only);
 boolean_t P_TeleportMove(mobj_t * thing, float_t x, float_t y, float_t z);
 boolean_t P_TryMove(mobj_t * thing, float_t x, float_t y);
 void P_SlideMove(mobj_t * mo, float_t x, float_t y);
 void P_UseLines(player_t * player);
 void P_LineAttack(mobj_t * t1, angle_t angle, float_t distance, 
-    float_t slope, float_t damage, const mobjinfo_t *puff);
+    float_t slope, float_t damage, const damage_t * damtype,
+    const mobjinfo_t *puff);
 
 //
 // P_SETUP
@@ -280,18 +282,19 @@ extern int bmapheight;  // in mapblocks
 extern float_t bmaporgx;
 extern float_t bmaporgy;  // origin of block map
 
-extern mobj_t **blocklinks;  // for thing chains
+extern mobj_t **blocklinks;   // for thing chains
+extern mobj_t **blocklights;  // for dynamic lights
 
 //
 // P_INTER
 //
 
 void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher);
-void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source, 
-    float_t damage);
 void P_ThrustMobj(mobj_t * target, mobj_t * source, float_t thrust);
-void P_KillMobj(mobj_t * source, mobj_t * target);
-boolean_t P_GiveBenefitList(player_t *player, mobj_t *special, 
+void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
+    float_t amount, const damage_t * damtype);
+void P_KillMobj(mobj_t * source, mobj_t * target, const damage_t * damtype);
+boolean_t P_GiveBenefitList(player_t *player, mobj_t *special,
     benefit_t *list);
 
 

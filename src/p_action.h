@@ -98,10 +98,8 @@ void P_ActMakeRangeAttemptSound(mobj_t * object);
 void P_ActMakeActiveSound(mobj_t * object);
 
 // Explosion Damage Actions
-void P_ActSetDamageExplosion(mobj_t * object);
-void P_ActVaryingDamageExplosion(mobj_t * object);
-void P_ActSetThrust(mobj_t * object);
-void P_ActVaryingThrust(mobj_t * object);
+void P_ActDamageExplosion(mobj_t * object);
+void P_ActThrust(mobj_t * object);
 
 // Stand-by / Looking Actions
 void P_ActStandardLook(mobj_t * object);
@@ -138,6 +136,7 @@ void P_ActBounceDisarm(mobj_t * object);
 void P_ActPathCheck(mobj_t * object);
 void P_ActPathFollow(mobj_t * object);
 void P_ActDropItem(mobj_t * object);
+void P_ActDLightSet(mobj_t * object);
 
 // Projectiles
 void P_ActFixedHomingProjectile(mobj_t * object);
