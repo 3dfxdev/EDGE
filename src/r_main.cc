@@ -469,7 +469,7 @@ static bool DoExecuteChangeResolution(void)
 
 	V_InitResolution();
 
-	RGL_NewScreenSize(SCREENWIDTH, SCREENHEIGHT, BPP);
+	RGL_NewScreenSize(SCREENWIDTH, SCREENHEIGHT, SCREENBITS);
 
 	// -ES- 1999/08/29 Fixes the garbage palettes, and the blank 16-bit console
 	V_SetPalette(PALETTE_NORMAL, 0);
