@@ -287,8 +287,8 @@ void SV_FreeGLOB(saveglobals_t *globs);
 
 boolean_t SV_MainInit(void);
 
-const savestruct_t *SV_MainLookupStruct(const char *name);
-const savearray_t  *SV_MainLookupArray(const char *name);
+savestruct_t *SV_MainLookupStruct(const char *name);
+savearray_t  *SV_MainLookupArray(const char *name);
 
 void SV_BeginLoad(void);
 void SV_FinishLoad(void);
