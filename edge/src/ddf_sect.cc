@@ -115,6 +115,16 @@ static bool SectorStartEntry(const char *name)
 	// instantiate the static entry
 	buffer_sector.Default();
 
+	if (boom_conflict && number >= 32 && number < 96)
+	{
+		int N = number % 32;
+
+		if ((N >= 0 && N <= 4) || N==8 || N==12 || N==13 || N==17)
+		{
+			buffer_sector.boom_conflict = true;
+		}
+	}
+
 	return (existing != NULL);
 }
 
@@ -475,6 +485,7 @@ void sectortype_c::Copy(sectortype_c &src)
 //
 void sectortype_c::CopyDetail(sectortype_c &src)
 {
+	boom_conflict = src.boom_conflict;
 	secret = src.secret;
 	crush = src.crush;
 
@@ -514,12 +525,14 @@ void sectortype_c::Default()
 {
 	ddf.Default();
 	
+	boom_conflict = false;
 	secret = false;
+	crush = false;
+
 	gravity = GRAVITY;
 	friction = FRICTION;
 	viscosity = VISCOSITY;
 	drag = DRAG;
-	crush = false;
 	
 	f.Default(movplanedef_c::DEFAULT_FloorSect);
 	c.Default(movplanedef_c::DEFAULT_CeilingSect);

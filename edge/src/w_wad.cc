@@ -1194,6 +1194,8 @@ void W_ReadDDF(void)
 
 		if (external_ddf)
 		{
+			DDF_SetBoomConflict(true);
+
 			// call read function
 			ext_loaded = (* DDF_Readers[d].func)(NULL, 0);
 		}
@@ -1227,11 +1229,15 @@ void W_ReadDDF(void)
 			W_ReadLump(lump, data);
 			data[length] = 0;
 
+			DDF_SetBoomConflict(df->kind == FLKIND_EWad);
+
 			// call read function
 			(* DDF_Readers[d].func)(data, length);
 
 			delete [] data;
 		}
+
+		DDF_SetBoomConflict(false);
 
 		epi::string_c msg_buf;
 

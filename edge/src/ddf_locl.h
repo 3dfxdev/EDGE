@@ -259,6 +259,7 @@ state_starter_t;
 bool DDF_MainReadFile (readinfo_t * readinfo);
 
 extern int ddf_version;  // hexadecimal e.g. 0x128
+extern bool boom_conflict;
 
 extern int cur_ddf_line_num;
 extern epi::string_c cur_ddf_filename;
