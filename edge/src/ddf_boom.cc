@@ -214,12 +214,12 @@ static void MakeBoomFloor(linetype_c *line, int number)
 	{
 		case 0:  // Down
 			line->f.speed_down = 1 << speed;
-			line->f.sfxdown = DDF_SfxLookupSound("STNMOV");
+			line->f.sfxdown = sfxdefs.GetEffect("STNMOV");
 			break;
 
 		case 1:  // Up;
 			line->f.speed_up = 1 << speed;
-			line->f.sfxup = DDF_SfxLookupSound("STNMOV");
+			line->f.sfxup = sfxdefs.GetEffect("STNMOV");
 			break;
 	}
 
@@ -293,12 +293,12 @@ static void MakeBoomCeiling(linetype_c *line, int number)
 	{
 		case 0:  // Down
 			line->c.speed_down = 1 << speed;
-			line->c.sfxdown = DDF_SfxLookupSound("STNMOV");
+			line->c.sfxdown = sfxdefs.GetEffect("STNMOV");
 			break;
 
 		case 1:  // Up;
 			line->c.speed_up = 1 << speed;
-			line->c.sfxup = DDF_SfxLookupSound("STNMOV");
+			line->c.sfxup = sfxdefs.GetEffect("STNMOV");
 			break;
 	}
 
@@ -322,8 +322,8 @@ static void MakeBoomDoor(linetype_c *line, int number)
 
 	line->c.speed_up = 2 << speed;
 	line->c.speed_down = line->c.speed_up;
-	line->c.sfxup = DDF_SfxLookupSound("DOROPN");
-	line->c.sfxdown = DDF_SfxLookupSound("DORCLS");
+	line->c.sfxup = sfxdefs.GetEffect("DOROPN");
+	line->c.sfxdown = sfxdefs.GetEffect("DORCLS");
 
 	switch (kind & 2)
 	{
@@ -362,8 +362,8 @@ static void MakeBoomLockedDoor(linetype_c *line, int number)
 
 	line->c.speed_up = 2 << speed;
 	line->c.speed_down = line->c.speed_up;
-	line->c.sfxup = DDF_SfxLookupSound("DOROPN");
-	line->c.sfxdown = DDF_SfxLookupSound("DORCLS");
+	line->c.sfxup = sfxdefs.GetEffect("DOROPN");
+	line->c.sfxdown = sfxdefs.GetEffect("DORCLS");
 	line->c.wait = 150;
 
 	// handle keys
@@ -430,8 +430,8 @@ static void MakeBoomLift(linetype_c *line, int number)
 
 	line->f.speed_up = 1 << speed;
 	line->f.speed_down = line->f.speed_up;
-	line->f.sfxstart = DDF_SfxLookupSound("PSTART");
-	line->f.sfxstop  = DDF_SfxLookupSound("PSTOP");
+	line->f.sfxstart = sfxdefs.GetEffect("PSTART");
+	line->f.sfxstop  = sfxdefs.GetEffect("PSTOP");
 
 	switch (target)
 	{
@@ -485,13 +485,13 @@ static void MakeBoomStair(linetype_c *line, int number)
 		case 0:  // Down
 			line->f.dest = -(4 << step);
 			line->f.speed_down = (1 << speed) / 4.0f;
-			line->f.sfxdown = DDF_SfxLookupSound("STNMOV");
+			line->f.sfxdown = sfxdefs.GetEffect("STNMOV");
 			break;
 
 		case 1:  // Up
 			line->f.dest = 4 << step;
 			line->f.speed_up = (1 << speed) / 4.0f;
-			line->f.sfxup = DDF_SfxLookupSound("STNMOV");
+			line->f.sfxup = sfxdefs.GetEffect("STNMOV");
 			break;
 	}
 
@@ -520,7 +520,7 @@ static void MakeBoomCrusher(linetype_c *line, int number)
 
 	if (! silent)
 	{
-		line->c.sfxup = DDF_SfxLookupSound("STNMOV");
+		line->c.sfxup = sfxdefs.GetEffect("STNMOV");
 		line->c.sfxdown = line->c.sfxup;
 	}
 }

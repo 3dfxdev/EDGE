@@ -281,7 +281,7 @@ void RAD_DisplayTips(void)
 
 		if (current->playsound)
 		{
-			S_StartSound(NULL, DDF_SfxLookupSound("TINK"));
+			S_StartSound(NULL, sfxdefs.GetEffect("TINK"));
 			current->playsound = false;
 		}
 

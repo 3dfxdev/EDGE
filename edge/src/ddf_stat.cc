@@ -535,7 +535,7 @@ void DDF_StateGetSound(const char *arg, state_t * cur_state)
 	if (!arg || !arg[0])
 		return;
 
-	cur_state->action_par = (void *)DDF_SfxLookupSound(arg);
+	cur_state->action_par = (void *)sfxdefs.GetEffect(arg);
 }
 
 //

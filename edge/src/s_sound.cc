@@ -77,7 +77,7 @@ bool nosound = false;
 
 typedef struct
 {
-	sfxinfo_t *sfxinfo; // sound information (if null, channel avail.)
+	sfxdef_c *sfxinfo; // sound information (if null, channel avail.)
 	mobj_t *origin;     // origin of sound
 	int orig_vol;       // volume sound was started at (0 to 255).
 	int channel;        // handle of the sound being played
@@ -102,7 +102,7 @@ static playsfx_t playingsfx[PLAYINGSFXLIMIT];
 static int playingsfxnum = PLAYINGSFXLIMIT;
 
 // dummy head/tail in sound linked list
-static sfxinfo_t sfxcachehead;
+static sfxdef_c sfxcachehead;
 
 // number of sounds currently in cache.
 static int numcachedsfx;
@@ -129,40 +129,46 @@ static INLINE int edgemid(int a, int b, int c)
 //
 // InsertAtTail
 //
-static INLINE void InsertAtTail(sfxinfo_t *sound)
+static INLINE void InsertAtTail(sfxdef_c *sound)
 {
 	sound->next = &sfxcachehead;
 	sound->prev = sfxcachehead.prev;
 	sound->next->prev = sound;
 	sound->prev->next = sound;
+
+	L_WriteDebug("Cached[1]: %s\n", sound->ddf.name);
 }
 
 //
 // InsertAtHead
 //
-static INLINE void InsertAtHead(sfxinfo_t *sound)
+static INLINE void InsertAtHead(sfxdef_c *sound)
 {
 	sound->next = sfxcachehead.next;
 	sound->prev = &sfxcachehead;
 	sound->next->prev = sound;
 	sound->prev->next = sound;
+
+	L_WriteDebug("Cached[2]: %s\n", sound->ddf.name);
 }
 
 //
 // UnlinkSound
 //
-static INLINE void UnlinkSound(sfxinfo_t *sound)
+static INLINE void UnlinkSound(sfxdef_c *sound)
 {
 	sound->next->prev = sound->prev;
 	sound->prev->next = sound->next;
 	sound->next = NULL;
 	sound->prev = NULL;
+
+	L_WriteDebug("Unlinked: %s\n", sound->ddf.name);
 }
 
 //
 // RemoveSoundFromCache
 //
-static void RemoveSoundFromCache(sfxinfo_t *sound)
+static void RemoveSoundFromCache(sfxdef_c *sound)
 {
 	int snd_num = sound->normal.sounds[0];
 
@@ -182,9 +188,9 @@ static void RemoveSoundFromCache(sfxinfo_t *sound)
 // -KM- 1998/12/16 If an sfx doesn't exist, use pistol sound.
 // -ACB- 1999/09/20 Renamed to S_GetSfxLumpNum. Moved from I_Sound.C
 //
-static int GetSfxLumpNum(sfxinfo_t *sfx)
+static int GetSfxLumpNum(sfxdef_c *sfx)
 {
-	char *name = sfx->lump_name;
+	const char *name = sfx->lump_name;
 	int i;
 
 	i = W_CheckNumForName(name);
@@ -206,7 +212,7 @@ static int GetSfxLumpNum(sfxinfo_t *sfx)
 // of the cache's linked list.  Returns true if successful, or false
 // if sound didn't exist.
 //
-static bool CacheSound(sfxinfo_t *sound)
+static bool CacheSound(sfxdef_c *sound)
 {
 	int snd_num = sound->normal.sounds[0];
 	int length, freq;
@@ -274,7 +280,7 @@ static bool CacheSound(sfxinfo_t *sound)
 //
 // -AJA- 2000/04/21: max_distance for sounds.ddf, and 3D distance.
 //
-static int AdjustSoundParams(sfxinfo_t *sfx, mobj_t *listener, 
+static int AdjustSoundParams(sfxdef_c *sfx, mobj_t *listener, 
 							 mobj_t *source, int *vol, int *sep)
 {
 	float approx_dist;
@@ -327,7 +333,7 @@ static int AdjustSoundParams(sfxinfo_t *sfx, mobj_t *listener,
 //
 // -AJA- 1999/09/10: made static.
 //
-static int GetSoundChannel(mobj_t *origin, sfxinfo_t *sfxinfo)
+static int GetSoundChannel(mobj_t *origin, sfxdef_c *sfxinfo)
 {
 	// channel number to use
 	int cnum = -1;
@@ -408,7 +414,7 @@ static int GetSoundChannel(mobj_t *origin, sfxinfo_t *sfxinfo)
 // -KM-  1998/09/01: Looping support
 // -AJA- 1999/09/10: Made static.
 //
-static int StartSoundAtVolume(mobj_t *origin, sfxinfo_t *sfx, int volume)
+static int StartSoundAtVolume(mobj_t *origin, sfxdef_c *sfx, int volume)
 {
 	int snd_num = sfx->normal.sounds[0];
 	int rc, sep;
@@ -500,7 +506,7 @@ static void FlushSoundCaches(z_urgency_e urge)
 {
 	int i;
 	int n = 0;
-	sfxinfo_t *sfx;
+	sfxdef_c *sfx;
 
 	switch (urge)
 	{
@@ -509,8 +515,8 @@ static void FlushSoundCaches(z_urgency_e urge)
 		case Z_UrgencyHigh: n = numcachedsfx / 2; break;
 		case Z_UrgencyExtreme: n = numcachedsfx; break;
 
-    default:
-      I_Error("FlushSoundCaches: Invalid urgency level %d\n", urge);
+		default:
+			I_Error("FlushSoundCaches: Invalid urgency level %d\n", urge);
 	}
 
 	for (i = 0, sfx = sfxcachehead.next; i < n; i++)
@@ -577,7 +583,7 @@ void S_SoundLevelInit(void)
 //
 // S_StartSound
 //
-int S_StartSound(mobj_t *origin, sfx_t *sound_id)
+int S_StartSound(mobj_t *origin, sfx_t *s)
 {
 	int volume;
 
@@ -591,7 +597,7 @@ int S_StartSound(mobj_t *origin, sfx_t *sound_id)
 	volume = (MAX_VOLUME - (S_MAX_VOLUME*8)) + (soundvolume*8);
 
 	// -KM- 1998/11/25 Fixed this, added origin check
-	if (!sound_id)
+	if (!s)
 	{
 		// -ACB- 2000/01/09 Quick hack to test the system specifics - START
 		//    if (origin)
@@ -603,7 +609,7 @@ int S_StartSound(mobj_t *origin, sfx_t *sound_id)
 		return -1;
 	}
 
-	return StartSoundAtVolume(origin, DDF_SfxSelect(sound_id), volume);
+	return StartSoundAtVolume(origin, sound::LookupEffect(s), volume);
 }
 
 //
@@ -932,4 +938,24 @@ void S_StopChannel(int cnum)
 
 	return;
 }
+
+namespace sound
+{
+	sfxdef_c* LookupEffect(const sfx_t *s)
+	{
+		int num;
+
+		DEV_ASSERT2(s->num >= 1);
+	
+		// -KM- 1999/01/31 Using P_Random here means demos and net games 
+		//  get out of sync.
+		// -AJA- 1999/07/19: That's why we use M_Random instead :).
+	
+		num = s->sounds[M_Random() % s->num];
+	
+		DEV_ASSERT2(0 <= num && num < sfxdefs.GetSize());
+	
+		return sfxdefs[num];
+	}
+};
 
