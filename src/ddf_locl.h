@@ -364,7 +364,8 @@ void DDF_StateGetSlope (const char *arg, state_t * cur_state);
 
 void DDF_StateReadState (const char *info, const char *label,
 			 int *first, int *last, int *state_num, int index,
-			 const char *redir, const actioncode_t * action_list);
+			 const char *redir, const actioncode_t * action_list,
+			 bool is_weapon);
 void DDF_StateFinishStates (int first, int last);
 void DDF_StateFixupStates (int first, int last);
 void DDF_StateCleanUp (void);

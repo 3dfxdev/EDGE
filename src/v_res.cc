@@ -52,9 +52,6 @@ bool graphicsmode = false;
 float DX, DY, DXI, DYI, DY2, DYI2;
 int SCALEDWIDTH, SCALEDHEIGHT, X_OFFSET, Y_OFFSET;
 
-float BASEYCENTER;
-float BASEXCENTER;
-
 // Screen Modes
 screenmode_t *scrmode;
 int numscrmodes;
@@ -95,10 +92,6 @@ void V_InitResolution(void)
 	// Calculates the weapon height, relative to the aspect ratio.
 	//
 	// Moved here from a #define in r_things.c  -ACB- 1998/08/04
-	//
-	// -ES- 1999/03/04 Better psprite scaling
-	BASEYCENTER = 100;
-	BASEXCENTER = 160;
 
 #if 0  // -AJA- This message meaningless at the moment
 	// -KM- 1998/07/31 Cosmetic indenting

@@ -137,10 +137,10 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 		tex_x2 = right - tex_x2;
 	}
 
-	float tx1 = psp->sx - BASEXCENTER - IM_OFFSETX(image);
+	float tx1 = (160.0f - IM_WIDTH(image) / 2.0) + psp->sx - IM_OFFSETX(image);
 	float tx2 = tx1 + w;
 
-	float ty1 = psp->sy - IM_OFFSETY(image);
+	float ty1 = WEAPONTOP - psp->sy + IM_OFFSETY(image);
 	float ty2 = ty1 + h;
 
 	// compute lighting
@@ -171,11 +171,11 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	float x1b, y1b, x1t, y1t, x2b, y2b, x2t, y2t;  // screen coords
 
-	x1b = x1t = (160.0f + tx1) * viewwindowwidth / 320.0f;
-	x2b = x2t = (160.0f + tx2) * viewwindowwidth / 320.0f;
+	x1b = x1t = viewwindowwidth  * tx1 / 320.0f;
+	x2b = x2t = viewwindowwidth  * tx2 / 320.0f;
 
-	y1b = y2b = (ty2) * viewwindowheight / 200.0f;
-	y1t = y2t = (ty1) * viewwindowheight / 200.0f;
+	y1b = y2b = viewwindowheight * ty1 / 200.0f;
+	y1t = y2t = viewwindowheight * ty2 / 200.0f;
 
 	if (fuzzy)
 	{
@@ -211,10 +211,10 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	x2t = (float)viewwindowx + x2t;
 	x2b = (float)viewwindowx + x2b;
 
-	y1b = (float)(SCREENHEIGHT - viewwindowy) - y1b - 1;
-	y1t = (float)(SCREENHEIGHT - viewwindowy) - y1t - 1;
-	y2t = (float)(SCREENHEIGHT - viewwindowy) - y2t - 1;
-	y2b = (float)(SCREENHEIGHT - viewwindowy) - y2b - 1;
+	y1b = (float)(SCREENHEIGHT - viewwindowy - viewwindowheight) + y1b - 1;
+	y1t = (float)(SCREENHEIGHT - viewwindowy - viewwindowheight) + y1t - 1;
+	y2t = (float)(SCREENHEIGHT - viewwindowy - viewwindowheight) + y2t - 1;
+	y2b = (float)(SCREENHEIGHT - viewwindowy - viewwindowheight) + y2b - 1;
  
 	glColor4f(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
 

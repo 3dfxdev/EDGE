@@ -86,13 +86,13 @@ static add_spr_cache_t add_spr_cache[2] =
 // found, a new sprite is created, and that index is returned.  The
 // given sprite name should be upper case.
 // 
-int R_AddSpriteName(const char *name, int frame)
+int R_AddSpriteName(const char *name, int frame, bool is_weapon)
 {
 	if (strcmp(name, "NULL") == 0)
 	{
 		if (numsprites == 0)  // fill out dummy entry, #0
 		{
-			spritedef_c *def = new spritedef_c(name);
+			spritedef_c *def = new spritedef_c(name, false);
 
 			sprites.Insert(def);
 			numsprites = sprites.GetSize();
@@ -124,7 +124,7 @@ int R_AddSpriteName(const char *name, int frame)
 		{
 			index = numsprites;
 
-			spritedef_c *def = new spritedef_c(name);
+			spritedef_c *def = new spritedef_c(name, is_weapon);
 
 			sprites.Insert(def);
 			numsprites = sprites.GetSize();
@@ -216,7 +216,7 @@ static void InstallSpriteLump(spritedef_c *def, int lump,
 		return;
 	}
 
-	W_ImageCreateSprite(lumpname, lump);
+	W_ImageCreateSprite(lumpname, lump, def->is_weapon);
 
 	def->frames[frame].images[rot] = W_ImageLookup(lumpname, IMSRC_Sprite);
 	def->frames[frame].flip[rot] = flip;

@@ -83,7 +83,7 @@ public:
 class spritedef_c
 {
 public:
-	spritedef_c(const char *_name) : numframes(0), frames(NULL)
+	spritedef_c(const char *_name, bool _weap) : is_weapon(_weap), numframes(0), frames(NULL)
 	{
 		strcpy(name, _name);
 	}
@@ -91,6 +91,8 @@ public:
 	// four letter sprite name (e.g. "TROO").
 	char name[6];
   
+  	bool is_weapon;
+
     // total number of frames.  Zero for missing sprites.
 	int numframes;
 
@@ -117,7 +119,7 @@ public:
 extern spritedef_array_c sprites;
 extern int numsprites;  // same as sprites.GetSize()
 
-int R_AddSpriteName(const char *name, int frame);
+int R_AddSpriteName(const char *name, int frame, bool is_weapon);
 void R_InitSprites(void);
 
 #endif
