@@ -117,10 +117,18 @@ public:
 
 	backgroundstyle_c bg;
 
-	textstyle_c title; // title style
-	textstyle_c text;  // main text style
-	textstyle_c alt;   // alternative text style
-	textstyle_c help;  // for help messages
+	// the four text styles
+	typedef enum
+	{
+		T_TEXT = 0, // main text style
+		T_ALT,      // alternative text style
+		T_TITLE,    // title style
+		T_HELP,     // for help messages
+
+		NUM_TXST
+	};
+
+	textstyle_c text[NUM_TXST];
 
 	soundstyle_c sounds;
 };

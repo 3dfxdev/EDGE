@@ -98,10 +98,10 @@ static const commandlist_t style_commands[] =
 {
 	// sub-commands
 	DDF_SUB_LIST("BACKGROUND", bg, background_commands, buffer_bgstyle),
-	DDF_SUB_LIST("TITLE", title, text_commands, buffer_textstyle),
-	DDF_SUB_LIST("TEXT",  text,  text_commands, buffer_textstyle),
-	DDF_SUB_LIST("ALT",   alt,   text_commands, buffer_textstyle),
-	DDF_SUB_LIST("HELP",  help,  text_commands, buffer_textstyle),
+	DDF_SUB_LIST("TEXT",  text[0], text_commands, buffer_textstyle),
+	DDF_SUB_LIST("ALT",   text[1], text_commands, buffer_textstyle),
+	DDF_SUB_LIST("TITLE", text[2], text_commands, buffer_textstyle),
+	DDF_SUB_LIST("HELP",  text[3], text_commands, buffer_textstyle),
 	DDF_SUB_LIST("SOUND", sounds, sound_commands, buffer_soundstyle),
 
 	DDF_CMD_END
@@ -220,7 +220,7 @@ void DDF_StyleCleanUp(void)
 
 	if (! default_style)
 		I_Error("Styles.ddf is missing the [DEFAULT] style.\n");
-	else if (! default_style->text.font)
+	else if (! default_style->text[0].font)
 		I_Error("The [DEFAULT] style is missing TEXT.FONT\n");
 
 	styledefs.Trim();
@@ -476,10 +476,8 @@ void styledef_c::CopyDetail(const styledef_c &src)
 {
 	bg = src.bg;
 
-	title = src.title;
-	text  = src.text;
-	alt   = src.alt;
-	help  = src.help;
+	for (int T = 0; T < NUM_TXST; T++)
+		text[T] = src.text[T];
 
 	sounds = src.sounds;
 }
@@ -493,10 +491,8 @@ void styledef_c::Default()
 
 	bg.Default();
 
-	title.Default();
-	text.Default();
-	alt.Default();
-	help.Default();
+	for (int T = 0; T < NUM_TXST; T++)
+		text[T].Default();
 
 	sounds.Default();
 }
