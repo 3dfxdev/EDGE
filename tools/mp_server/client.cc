@@ -20,6 +20,7 @@
 
 #include "autolock.h"
 #include "client.h"
+#include "lib_util.h"
 #include "mp_main.h"
 #include "network.h"
 #include "packet.h"
@@ -62,8 +63,7 @@ bool client_c::Verify(const NLaddress *remote_addr) const
 
 int client_c::CompareName(const char *other) const
 {
-	// FIXME!!!! case insensitive
-	return strcmp(name, other);
+	return StrCaseCmp(name, other);
 }
 
 void client_c::FillClientInfo(client_info_t *info) const
