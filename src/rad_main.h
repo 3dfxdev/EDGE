@@ -344,6 +344,7 @@ typedef struct rad_script_s
   // Optional conditions...
   s_ondeath_t *boss_trig;
   s_onheight_t *height_trig;
+  condition_check_t *cond_trig;
 
   char *next_in_path;
 
