@@ -296,6 +296,10 @@ typedef enum { false, true } boolean_t;
 #include <values.h>
 #include <sys/stat.h>
 
+#ifdef USE_GL
+#include <GL/gl.h>
+#endif
+
 #define EDGECONFIGFILE ".edgerc"
 #define EDGEHOMEDIR    "HOME"
 #define EDGEWADDIR     "EDGEWADDIR"
