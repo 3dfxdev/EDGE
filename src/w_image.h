@@ -43,26 +43,26 @@ struct texturedef_s;
 #define DL_OUTER_SQRT   8.0f
 
 
-typedef struct image_s  //FIXME: class image_c (+= real_image_s)
+typedef struct image_s  // FIXME: class image_c
 {
-	// total image size, must be a power of two on each axis.
-	unsigned short total_w;
-	unsigned short total_h;
-
 	// actual image size.  Images that are smaller than their total size
 	// are located in the top left corner, cannot tile, and are padded
 	// with black pixels if solid, or transparent pixels otherwise.
 	unsigned short actual_w;
 	unsigned short actual_h;
 
+	// total image size, must be a power of two on each axis.
+	unsigned short total_w;
+	unsigned short total_h;
+
     // offset values.  Only used for sprites and on-screen patches.
 	short offset_x;
 	short offset_y;
 
-    // scale values, where 0x0100 is normal.  Higher values stretch the
+    // scale values, where 1.0f is normal.  Higher values stretch the
     // image (on the wall/floor), lower values shrink it.
-	unsigned short scale_x;
-	unsigned short scale_y;
+	float scale_x;
+	float scale_y;
 
     // when true, the image is guaranteed to be solid (i.e. contain no
     // transparent parts).
@@ -79,14 +79,18 @@ typedef byte cached_image_t;
 #define MIP_SIZE(size,mip)  MAX(1, (size) >> (mip))
 
 // utility macros
-#define IM_RIGHT(image)  ((float)(image)->actual_w / (image)->total_w)
-#define IM_BOTTOM(image) ((float)(image)->actual_h / (image)->total_h)
+#define IM_RIGHT(image)  (float((image)->actual_w) / (image)->total_w)
+#define IM_BOTTOM(image) (float((image)->actual_h) / (image)->total_h)
 
-#define IM_WIDTH(image)  ((image)->actual_w * (image)->scale_x / 0x100)
-#define IM_HEIGHT(image) ((image)->actual_h * (image)->scale_y / 0x100)
+#define IM_WIDTH(image)  ((image)->actual_w * (image)->scale_x)
+#define IM_HEIGHT(image) ((image)->actual_h * (image)->scale_y)
 
-#define IM_OFFSETX(image) ((image)->offset_x * (image)->scale_x / 0x100)
-#define IM_OFFSETY(image) ((image)->offset_y * (image)->scale_y / 0x100)
+#define IM_OFFSETX(image) ((image)->offset_x * (image)->scale_x)
+#define IM_OFFSETY(image) ((image)->offset_y * (image)->scale_y)
+
+// deliberately long, should not be used (except for special cases)
+#define IM_TOTAL_WIDTH(image)  ((image)->total_w * (image)->scale_x)
+#define IM_TOTAL_HEIGHT(image) ((image)->total_h * (image)->scale_y)
 
 typedef enum
 {
