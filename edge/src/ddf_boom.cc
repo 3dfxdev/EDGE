@@ -543,13 +543,13 @@ static void MakeBoomStair(linetype_c *line, int number)
 	switch (dir)
 	{
 		case 0:  // Down
-			line->f.dest = -(4 << step);
+			line->f.dest = -(step ? 8 * step : 4);
 			line->f.speed_down = (1 << speed) / 4.0f;
 			line->f.sfxdown = sfxdefs.GetEffect("STNMOV");
 			break;
 
 		case 1:  // Up
-			line->f.dest = 4 << step;
+			line->f.dest = (step ? 8 * step : 4);
 			line->f.speed_up = (1 << speed) / 4.0f;
 			line->f.sfxup = sfxdefs.GetEffect("STNMOV");
 			break;
