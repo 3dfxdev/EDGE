@@ -290,39 +290,10 @@ typedef enum { false, true } bool;
 // MacOSX GCC
 #ifdef MACOSX
 
-typedef long long Int64;
-typedef float float;
-#define FLOAT_IEEE_754
+#include "epi/epi.h"
 
 #define FLT_MAX  INT_MAX  //!!!!!! TEMPORARY
 #define FLT_MIN  INT_MIN
-
-#ifdef __cplusplus
-typedef bool bool;
-#else
-typedef enum { false, true } bool;
-#endif
-
-// extern "C" {
-
-#include <ctype.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <math.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <sys/stat.h>
-
-
-#ifdef USE_GL
-#include <OpenGL/gl.h>
-#endif
-
-// }
 
 #define EDGECONFIGFILE "edge.cfg"
 #define EDGEHOMEDIR    "HOME"
