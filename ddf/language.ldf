@@ -1,12 +1,12 @@
 //
 //    EDGE DEFAULT.LDF -redefine or add new messages.
 //    For documentation, see http://edge.sourceforge.net/
-//    Version 4.2
+//    Version 4.3
 //
 
 <LANGUAGES>
 
-#VERSION 1.28
+#VERSION 1.29
 
 // ------ English Language Definition File ----------
 
