@@ -91,7 +91,9 @@ static void CalcHeight(player_t * player)
 
 		if (player->deltaviewheight != 0)
 		{
-			player->deltaviewheight += 0.25f;
+			// use a weird number to minimise chance of hitting
+			// zero when deltaviewheight goes neg -> positive.
+			player->deltaviewheight += 0.24162f;
 		}
 	}
 
@@ -224,6 +226,9 @@ static void MovePlayer(player_t * player)
 
 			// update any things near the player
 			P_ChangeThingSize(mo);
+
+			if (mo->player->deltaviewheight == 0)
+				mo->player->deltaviewheight = -1.0f;
 		}
 		else if (player->cmd.upwardmove >= 0 && 
 			mo->height < mo->info->height)
@@ -235,6 +240,9 @@ static void MovePlayer(player_t * player)
 
 				// update any things near the player
 				P_ChangeThingSize(mo);
+
+				if (mo->player->deltaviewheight == 0)
+					mo->player->deltaviewheight = 1.0f;
 			}
 		}
 
