@@ -49,6 +49,7 @@ boolean_t I_CDStartPlayback(int tracknum);
 boolean_t I_CDPausePlayback(void);
 boolean_t I_CDResumePlayback(void);
 void I_CDStopPlayback(void);
+boolean_t I_CDFinished(void);
 
 // I_CONWIN.C - For console output when not is graphics mode
 void I_StartWinConsole(void);
