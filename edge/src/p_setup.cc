@@ -1502,8 +1502,8 @@ void GenerateBlockMap(int min_x, int min_y, int max_x, int max_y)
 
   bmaporgx = min_x - 8;
   bmaporgy = min_y - 8;
-  bmapwidth  = (int)(max_x - bmaporgx) / MAPBLOCKUNITS + 1;
-  bmapheight = (int)(max_y - bmaporgy) / MAPBLOCKUNITS + 1;
+  bmapwidth  = BLOCKMAP_GET_X(max_x) + 1;
+  bmapheight = BLOCKMAP_GET_Y(max_y) + 1;
 
   btotal = bmapwidth * bmapheight;
 
@@ -1615,7 +1615,6 @@ void GroupLines(void)
   sector_t *sector;
   seg_t *seg;
   float bbox[4];
-  int block;
   line_t **line_p;
 
   // setup remaining seg information
@@ -1672,21 +1671,20 @@ void GroupLines(void)
     sector->soundorg.z = (sector->f_h + sector->c_h) / 2;
 
     // adjust bounding box to map blocks
-    block = (int)(bbox[BOXTOP] - bmaporgy + MAXRADIUS) / MAPBLOCKUNITS;
-    block = block >= bmapheight ? bmapheight - 1 : block;
-    sector->blockbox[BOXTOP] = block;
+    int xl = BLOCKMAP_GET_X(bbox[BOXLEFT]   - MAXRADIUS);
+    int xh = BLOCKMAP_GET_X(bbox[BOXRIGHT]  + MAXRADIUS);
+    int yl = BLOCKMAP_GET_Y(bbox[BOXBOTTOM] - MAXRADIUS);
+    int yh = BLOCKMAP_GET_Y(bbox[BOXTOP]    + MAXRADIUS);
 
-    block = (int)(bbox[BOXBOTTOM] - bmaporgy - MAXRADIUS) / MAPBLOCKUNITS;
-    block = block < 0 ? 0 : block;
-    sector->blockbox[BOXBOTTOM] = block;
+    xl = (xl < 0) ? 0 : xl;
+    xh = (xh >= bmapwidth) ? bmapwidth - 1 : xh;
+    yl = (yl < 0) ? 0 : yl;
+    yh = (yh >= bmapheight) ? bmapheight - 1 : yh;
 
-    block = (int)(bbox[BOXRIGHT] - bmaporgx + MAXRADIUS) / MAPBLOCKUNITS;
-    block = block >= bmapwidth ? bmapwidth - 1 : block;
-    sector->blockbox[BOXRIGHT] = block;
-
-    block = (int)(bbox[BOXLEFT] - bmaporgx - MAXRADIUS) / MAPBLOCKUNITS;
-    block = block < 0 ? 0 : block;
-    sector->blockbox[BOXLEFT] = block;
+    sector->blockbox[BOXTOP] = yh;
+    sector->blockbox[BOXBOTTOM] = yl;
+    sector->blockbox[BOXRIGHT] = xh;
+    sector->blockbox[BOXLEFT] = xl;
   }
 }
 
