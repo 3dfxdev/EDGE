@@ -717,8 +717,7 @@ static void DrawDeathmatchStats(void)
 
 		char temp[40];
 
-		sprintf(temp, "%s", players[p]->playername); //FIXME !!!
-I_Printf("Player %d name = [%s]\n", p, players[p]->playername); //DEBUGG
+		sprintf(temp, "%s", players[p]->playername);
 		HL_WriteText(wi_net_style, t_type, 20, y, temp);
 
 		sprintf(temp, "%5d", dm_frags[i]);
@@ -991,7 +990,7 @@ static void DrawCoopStats(void)
 
 		char temp[40];
 
-		sprintf(temp, "%s", players[p]->playername); //FIXME !!!
+		sprintf(temp, "%s", players[p]->playername);
 		HL_WriteText(wi_net_style, t_type, 6, y, temp);
 
 		sprintf(temp, "%3d%%", cnt_kills[i]);
