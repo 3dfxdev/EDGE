@@ -48,7 +48,7 @@ void M_Drawer(void);
 
 // Called by D_DoomMain,
 // loads the config file.
-bool M_Init(void);
+void M_Init(void);
 
 // Called by intro code to force menu up upon a keypress,
 // does nothing if menu is already up.

@@ -41,7 +41,7 @@ extern int mapthing_NUM;
 void P_SetupLevel(skill_t skill, int autotag);
 
 // Called by startup code.
-bool P_Init(void);
+void P_Init(void);
 
 // Needed by savegame code.
 void P_RemoveMobjs(void);

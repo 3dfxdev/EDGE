@@ -2556,9 +2556,8 @@ bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing)
 //
 // P_MapInit
 //
-bool P_MapInit(void)
+void P_MapInit(void)
 {
 	spechit.Clear();
-	return true;
 }
 

@@ -30,6 +30,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dstrings.h"
+#include "e_main.h"
 #include "g_game.h"
 #include "hu_lib.h"
 #include "m_misc.h"
@@ -145,8 +146,11 @@ static const unsigned char shiftxform[] =
 //
 // Heads-up Init
 //
-bool HU_Init(void)
+void HU_Init(void)
 {
+	// should use language["HeadsUpInit"], but LDF hasn't been loaded yet
+	E_ProgressMessage("HU_Init: Setting up heads up display.\n");
+
 	int i;
 	char buffer[10];
 	const image_t *missing;
@@ -179,8 +183,6 @@ bool HU_Init(void)
 
 	hu_font.width  = IM_WIDTH(hu_font.images['M' - '!']);
 	hu_font.height = IM_HEIGHT(hu_font.images['M' - '!']);
-
-	return true;
 }
 
 static void HU_Stop(void)

@@ -34,6 +34,7 @@
 #include "dm_state.h"
 #include "dstrings.h"
 #include "ddf_main.h"
+#include "e_main.h"
 #include "g_game.h"
 #include "m_fixed.h"
 #include "m_random.h"
@@ -922,14 +923,14 @@ void ST_ReInit(void)
 //
 // Called once at startup
 //
-bool ST_Init(void)
+void ST_Init(void)
 {
 	DEV_ASSERT2(veryfirsttime);
 
 	veryfirsttime = 0;
 
+	E_ProgressMessage(language["STBarInit"]);
+
 	LoadData();
 	M_CheatInit();
-
-	return true;
 }

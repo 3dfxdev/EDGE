@@ -93,9 +93,8 @@ void DDF_Error(const char *err, ...)
 	// check for buffer overflow
 	DEV_ASSERT(buffer[2047] == 0, ("Buffer overflow in DDF_Error"));
   
-	// add a blank line for readability under DOS/Linux.  Two linefeeds
-	// because the cursor may be at the end of a line with dots.
-	I_Printf("\n\n");
+	// add a blank line for readability under DOS/Linux.
+	I_Printf("\n");
  
 	I_Error("%s", buffer);
 }
@@ -180,7 +179,7 @@ void DDF_Obsolete(const char *err, ...)
 		DDF_Warning("%s", buffer);
 }
 
-bool DDF_Init(void)
+void DDF_Init(void)
 {
 	DDF_StateInit();
 	DDF_LanguageInit();
@@ -196,8 +195,6 @@ bool DDF_Init(void)
 	DDF_GameInit();
 	DDF_LevelInit();
 	DDF_MusicPlaylistInit();
-
-	return true;
 }
 
 // -KM- 1999/01/29 Fixed #define system.
@@ -250,7 +247,7 @@ static const char *DDF_MainGetDefine(const char *name)
 // This goes through the information loaded via DDF and matchs any
 // info stored as references.
 //
-bool DDF_CleanUp(void)
+void DDF_CleanUp(void)
 {
 	DDF_LanguageCleanUp();
 	DDF_MobjCleanUp();
@@ -269,8 +266,6 @@ bool DDF_CleanUp(void)
 	
 	// -AJA- FIXME: this belongs elsewhere...
 	currmap = mapdefs[0];
-    
-	return true;
 }
 
 // -KM- 1998/12/16 This loads the ddf file into memory for parsing.
@@ -813,7 +808,6 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 	if (readinfo->filename)
 	{
 		delete [] memfile;
-		I_Printf("\n");
 	}
 
 	return;

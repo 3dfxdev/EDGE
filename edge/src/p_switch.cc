@@ -41,7 +41,7 @@ buttonlist_c buttonlist;
 //
 // Only called at game initialization.
 //
-bool P_InitSwitchList(void)
+void P_InitSwitchList(void)
 {
 	epi::array_iterator_c it;
 	switchdef_c *sw;
@@ -53,8 +53,6 @@ bool P_InitSwitchList(void)
 		sw->cache.image[0] = W_ImageFromTexture(sw->name1, true);
 		sw->cache.image[1] = W_ImageFromTexture(sw->name2, true);
 	}
-
-	return true;
 }
 
 //

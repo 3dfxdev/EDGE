@@ -34,7 +34,7 @@
 
 #define DATA_END_MARKER  "ENDE"
 
-bool SV_ChunkInit(void);
+void SV_ChunkInit(void);
 void SV_ChunkShutdown(void);
 
 int SV_GetError(void);

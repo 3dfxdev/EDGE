@@ -34,9 +34,8 @@
 #include "r_defs.h"
 #include "r_state.h"
 
-// I/O, setting up the stuff.
-bool R_InitFlats(void);
-bool R_InitPicAnims(void);
+void R_InitFlats(void);
+void R_InitPicAnims(void);
 
 void R_AddFlatAnim(animdef_c *anim);
 void R_AddTextureAnim(animdef_c *anim);

@@ -288,7 +288,7 @@ bool EV_DoElevator(sector_t * sec, const elevatordef_c * type, sector_t * model)
 //
 //  P_SWITCH
 //
-bool P_InitSwitchList(void);
+void P_InitSwitchList(void);
 void P_ChangeSwitchTexture(line_t * line, bool useAgain, line_special_e specials, bool noSound);
 
 #endif

@@ -59,7 +59,7 @@ extern bool message_dontfuckwithme;
 // HEADS UP TEXT
 //
 
-bool HU_Init(void);
+void HU_Init(void);
 void HU_Start(void);
 
 bool HU_Responder(event_t * ev);

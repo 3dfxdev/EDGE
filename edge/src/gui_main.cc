@@ -266,23 +266,20 @@ void GUI_MainDrawer(void)
 //
 // GUI_MainInit
 //
-bool GUI_MainInit(void)
+void GUI_MainInit(void)
 {
 	GUI_Init(&main_gui);
-	return true;
 }
 
-bool GUI_ConInit(void)
+void GUI_ConInit(void)
 {
 	CON_Start(&main_gui);
 	CON_InitResolution();
-	return true;
 }
 
-bool GUI_MouseInit(void)
+void GUI_MouseInit(void)
 {
 	mouse = W_GetNumForName("mouse");
-	return true;
 }
 
 void GUI_InitResolution(void)

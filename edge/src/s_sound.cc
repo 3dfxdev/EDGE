@@ -40,6 +40,7 @@
 
 #include "dm_defs.h"
 #include "dm_state.h"
+#include "e_main.h"
 #include "m_argv.h"
 #include "m_random.h"
 #include "p_local.h"
@@ -534,17 +535,17 @@ static void FlushSoundCaches(z_urgency_e urge)
 //
 // -ACB- 1999/10/09 Re-written from scratch.
 //
-bool S_Init(void)
+void S_Init(void)
 {
-	int i;
+	E_ProgressMessage(language["SoundInit"]);
 
 	sfxcachehead.next = sfxcachehead.prev = &sfxcachehead;
 	Z_RegisterCacheFlusher(FlushSoundCaches);
 
 	if (nosound)
-		return true; // we allowed to fail with no sound
+		return; // we allowed to fail with no sound
 
-	for (i = 0; i < playingsfxnum; i++)
+	for (int i = 0; i < playingsfxnum; i++)
 	{
 		playingsfx[i].sfxinfo = NULL;
 		playingsfx[i].origin = NULL;
@@ -553,8 +554,6 @@ bool S_Init(void)
 		playingsfx[i].paused = false;
 		playingsfx[i].looping = false;
 	}
-
-	return true;
 }
 
 //

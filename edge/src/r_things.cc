@@ -386,7 +386,7 @@ static void CheckSpriteFrames(spritedef_c *def)
 // 
 // -AJA- 2001/02/01: rewrote this stuff.
 // 
-bool R_InitSprites(void)
+void R_InitSprites(void)
 {
 	int i, file;
 
@@ -442,7 +442,5 @@ bool R_InitSprites(void)
 
 	Z_Free(sprite_map);
 	sprite_map = NULL;
-
-	return true;
 }
 

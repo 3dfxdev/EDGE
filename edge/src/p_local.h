@@ -311,7 +311,7 @@ extern line_t *blockline;
 
 extern linelist_c spechit;
 
-bool P_MapInit(void);
+void P_MapInit(void);
 bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing);
 mobj_t *P_MapFindCorpse(mobj_t * thing);
 mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool force_aim);

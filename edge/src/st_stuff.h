@@ -56,7 +56,7 @@ void ST_Start(void);
 void ST_ReInit(void);
 
 // Called by startup code.
-bool ST_Init(void);
+void ST_Init(void);
 
 // States for the chat code.
 typedef enum

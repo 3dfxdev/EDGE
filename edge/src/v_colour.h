@@ -32,7 +32,7 @@
 #include "ddf_main.h"
 #include "r_defs.h"
 
-bool V_InitPalette(void);
+void V_InitPalette(void);
 void V_InitColour(void);
 
 // -ACB- 1999/10/11 Gets an RGB colour from the current palette

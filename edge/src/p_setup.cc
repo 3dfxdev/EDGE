@@ -29,6 +29,7 @@
 #include "ddf_main.h"
 #include "dm_defs.h"
 #include "dm_state.h"
+#include "e_main.h"
 #include "g_game.h"
 #include "l_glbsp.h"
 #include "m_argv.h"
@@ -2338,9 +2339,9 @@ void P_SetupLevel(skill_t skill, int autotag)
 //
 // P_Init
 //
-bool P_Init(void)
+void P_Init(void)
 {
-	int i;
+	E_ProgressMessage(language["PlayState"]);
 	
 	// There should not yet exist a player
 	DEV_ASSERT2(players == NULL);
@@ -2348,13 +2349,11 @@ bool P_Init(void)
 	// Create all the players
 	// -ES- FIXME: Do the player system more cleanly
 	// (remove limitations, dynamify)
-	for (i = 0; i < MAXPLAYERS; i++)
+	for (int i = 0; i < MAXPLAYERS; i++)
 		P_AddPlayer(i);
 	
 	dm_starts.Clear();
 	playerstarts = Z_New(spawnpoint_t, MAXPLAYERS);
-
-	return true;
 }
 
 namespace playsim

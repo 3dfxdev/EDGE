@@ -54,7 +54,7 @@ void W_PreCacheTextureNum(int texnum);
 int W_TextureNumForName(const char *name);
 int W_CheckTextureNumForName(const char *name);
 
-bool W_InitTextures(void);
+void W_InitTextures(void);
 int W_FindTextureSequence(const char *start, const char *end,
     int *s_offset, int *e_offset);
 const char *W_TextureNameInSet(int set, int offset);

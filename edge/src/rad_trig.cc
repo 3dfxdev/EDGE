@@ -785,11 +785,9 @@ void RAD_ReadScript(void *data, int size)
 //
 // RAD_Init
 //
-bool RAD_Init(void)
+void RAD_Init(void)
 {
 	RAD_InitTips();
-
-	return true;
 }
 
 static void AddMenuLine(drawtip_t *T, int y, char key, const char *text,
