@@ -870,7 +870,7 @@ void SV_PutFloat(float value)
 	bool neg;
 
 	neg = (value < 0.0f);
-	value = fabs(value);
+	if (neg) value = -value;
 
 	mant = (int) ldexp(frexp(value, &exp), 30);
 

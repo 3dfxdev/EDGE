@@ -347,6 +347,8 @@ extern "C" {
    typedef long                 lzo_ptrdiff_t;
 #endif
 
+// -AJA- FIXME: if void * is 8 bytes, use unsigned long long OR EQUIV 
+
 #if !defined(__LZO_HAVE_PTR_T)
 #  if defined(lzo_ptr_t)
 #    define __LZO_HAVE_PTR_T
@@ -1045,7 +1047,7 @@ static lzo_bool ptr_check(void)
     if (r == 1)
     {
 	for (i = 0; i < 10; i++)
-	    dict[i] = wrkmem;
+	    dict[i] = (const lzo_byte*) wrkmem;
 	BZERO8_PTR(dict+1,sizeof(dict[0]),8);
 	r &= __lzo_assert(dict[0] == wrkmem);
 	for (i = 1; i < 9; i++)
