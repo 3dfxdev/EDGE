@@ -72,7 +72,7 @@ rts_parser_t;
 
 int rad_cur_linenum;
 char *rad_cur_filename;
-static char *rad_cur_linedata = NULL;
+epi::strent_c rad_cur_linedata;
 
 static char tokenbuf[4096];
 
@@ -89,7 +89,7 @@ static int rad_cur_level = 0;
 static bool rad_has_start_map;
 
 static const char *rad_level_names[3] =
-{ "outer area", "map area", "trigger area" };
+	{ "outer area", "map area", "trigger area" };
 
 // Location of current script
 static rad_script_t *this_rad;
@@ -149,9 +149,9 @@ void RAD_Error(const char *err, ...)
 		rad_cur_filename);
 	pos += strlen(pos);
 
-	if (rad_cur_linedata)
+	if (!rad_cur_linedata.IsEmpty())
 	{
-		sprintf(pos, "Line contents: %s\n", rad_cur_linedata);
+		sprintf(pos, "Line contents: %s\n", rad_cur_linedata.GetString());
 		pos += strlen(pos);
 	}
 
@@ -181,8 +181,8 @@ void RAD_Warning(const char *err, ...)
 	I_Warning("Found problem near line %d of %s\n", rad_cur_linenum, 
 		rad_cur_filename);
 
-	if (rad_cur_linedata)
-		I_Warning("with line contents: %s\n", rad_cur_linedata);
+	if (!rad_cur_linedata.IsEmpty())
+		I_Warning("with line contents: %s\n", rad_cur_linedata.GetString());
 
 	I_Warning("%s", buffer);
 }
@@ -216,24 +216,6 @@ void RAD_WarnError2(int ver, const char *err, ...)
 	else
 		RAD_Warning("%s", buffer);
 }
-
-static void RAD_ErrorSetLineData(const char *data)
-{
-	if (rad_cur_linedata)
-		Z_Free(rad_cur_linedata);
-
-	rad_cur_linedata = Z_StrDup(data);
-}
-
-static void RAD_ErrorClearLineData(void)
-{
-	if (rad_cur_linedata)
-	{
-		Z_Free(rad_cur_linedata);
-		rad_cur_linedata = NULL;
-	}
-}
-
 
 // Searches through the #defines namespace for a match and returns
 // its value if it exists.
@@ -2084,13 +2066,13 @@ void RAD_ParseLine(char *s)
 	char *pars[16];
 	rts_parser_t *cur;
 
-	RAD_ErrorSetLineData(s);
+	rad_cur_linedata.Set(s);
 
 	RAD_CollectParameters(s, &pnum, pars, 16);
 
 	if (pnum == 0)
 	{
-		RAD_ErrorClearLineData();
+		rad_cur_linedata.Clear();
 		return;
 	}
 
@@ -2129,7 +2111,7 @@ void RAD_ParseLine(char *s)
 					rad_level_names[cur->level]);
 
 				RAD_FreeParameters(pnum, pars);
-				RAD_ErrorClearLineData();
+				rad_cur_linedata.Clear();
 
 				return;
 			}
@@ -2148,7 +2130,7 @@ void RAD_ParseLine(char *s)
 		(* cur->parser)(pnum, (const char **) pars);
 
 		RAD_FreeParameters(pnum, pars);
-		RAD_ErrorClearLineData();
+		rad_cur_linedata.Clear();
 
 		return;
 	}
@@ -2156,7 +2138,7 @@ void RAD_ParseLine(char *s)
 	RAD_WarnError2(0x128, "Unknown primitive: %s\n", pars[0]);
 
 	RAD_FreeParameters(pnum, pars);
-	RAD_ErrorClearLineData();
+	rad_cur_linedata.Clear();
 }
 
 void RAD_ParserBegin(void)
