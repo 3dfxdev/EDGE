@@ -13,6 +13,7 @@ EDGE DDF 4.0 (2004-04-30):
 5) LANGUAGE.DDF: added Spanish translation for monster names, thanks to
                  lobo_eire (Luke Brennan).
 6) LANGUAGE.DDF: tidied up entries that had ""; on separate lines.
+7) THINGS.DDF: gave all players JUMP_DELAY of 26T.
 
 
 EDGE DDF 3.9 (2004-01-15):
