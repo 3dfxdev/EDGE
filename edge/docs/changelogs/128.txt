@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.28 (since 1.27)
 ===============================
 
-(Date: APRIL 12th 2004)
+(Date: APRIL 27th 2004)
 
 Bugs fixed
 ----------
@@ -77,6 +77,8 @@ General improvements
 
 + windows version prevents more than one instance of EDGE running at
   the same time.  Also, S/W and GL window handling has been reworked.
+
++ the GL renderer emulates the flat-flooding and deep-water tricks.
 
 - the sprite name "NULL" is now hard-coded, and always shows nothing.
 - RTS SPAWNTHING: when thing is unknown, show warning instead of error.
