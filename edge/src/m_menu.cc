@@ -99,9 +99,6 @@ static void (* message_input_routine)(char *response) = NULL;
 
 static int chosen_epi;
 
-const char *gammamsg[5];
-
-
 //
 //  IMAGES USED
 //
@@ -627,13 +624,13 @@ void M_ReadSaveStrings(void)
 	{
 		if (ex_slots[i].corrupt)
 		{
-			strncpy(ex_slots[i].desc, DDF_LanguageLookup("CorruptSlot"),
+			strncpy(ex_slots[i].desc, language["CorruptSlot"],
 					SAVESTRINGSIZE - 1);
 			continue;
 		}
 		else if (ex_slots[i].empty)
 		{
-			strncpy(ex_slots[i].desc, DDF_LanguageLookup("EmptySlot"),
+			strncpy(ex_slots[i].desc, language["EmptySlot"],
 					SAVESTRINGSIZE - 1);
 			continue;
 		}
@@ -726,7 +723,7 @@ static void M_DrawSaveLoadCommon(int row, int row2)
 //
 // M_LoadGame
 //
-// 98-7-10 KM Savegame slots increased
+// 1998/07/10 KM Savegame slots increased
 //
 void M_DrawLoad(void)
 {
@@ -789,7 +786,7 @@ void M_LoadGame(int choice)
 {
 	if (netgame)
 	{
-		M_StartMessage(DDF_LanguageLookup("NoLoadInNetGame"), NULL, false);
+		M_StartMessage(language["NoLoadInNetGame"], NULL, false);
 		return;
 	}
 
@@ -877,7 +874,7 @@ void M_SaveGame(int choice)
 {
 	if (!usergame)
 	{
-		M_StartMessage(DDF_LanguageLookup("SaveWhenNotPlaying"), NULL, false);
+		M_StartMessage(language["SaveWhenNotPlaying"], NULL, false);
 		return;
 	}
 
@@ -929,7 +926,7 @@ void M_QuickSave(void)
 		return;
 	}
 
-	sprintf(tempstring, DDF_LanguageLookup("QuickSaveOver"),
+	sprintf(tempstring, language["QuickSaveOver"],
 			ex_slots[quickSaveSlot].desc);
 
 	M_StartMessage(tempstring, QuickSaveResponse, true);
@@ -956,17 +953,17 @@ void M_QuickLoad(void)
 {
 	if (netgame)
 	{
-		M_StartMessage(DDF_LanguageLookup("NoQLoadInNet"), NULL, false);
+		M_StartMessage(language["NoQLoadInNet"], NULL, false);
 		return;
 	}
 
 	if (quickSaveSlot < 0)
 	{
-		M_StartMessage(DDF_LanguageLookup("NoQuickSaveSlot"), NULL, false);
+		M_StartMessage(language["NoQuickSaveSlot"], NULL, false);
 		return;
 	}
 
-	sprintf(tempstring, DDF_LanguageLookup("QuickLoad"),
+	sprintf(tempstring, language["QuickLoad"],
 			ex_slots[quickSaveSlot].desc);
   
 	M_StartMessage(tempstring, QuickLoadResponse, true);
@@ -1102,7 +1099,7 @@ void M_NewGame(int choice)
 {
 	if (netgame && !demoplayback)
 	{
-		M_StartMessage(DDF_LanguageLookup("NewNetGame"), NULL, false);
+		M_StartMessage(language["NewNetGame"], NULL, false);
 		return;
 	}
 
@@ -1204,7 +1201,7 @@ static void VerifyNightmare(int ch)
 	{
 		// 23-6-98 KM Fixed this.
 		M_SetupNextMenu(&EpiDef);
-		M_StartMessage(DDF_LanguageLookup("EpisodeNonExist"), NULL, false);
+		M_StartMessage(language["EpisodeNonExist"], NULL, false);
 		return;
 	}
 
@@ -1215,7 +1212,7 @@ void M_ChooseSkill(int choice)
 {
 	if (choice == sk_nightmare)
 	{
-		M_StartMessage(DDF_LanguageLookup("NightMareCheck"), VerifyNightmare, true);
+		M_StartMessage(language["NightMareCheck"], VerifyNightmare, true);
 		return;
 	}
 	
@@ -1246,7 +1243,7 @@ void M_ChooseSkill(int choice)
 	{
 		// 23-6-98 KM Fixed this.
 		M_SetupNextMenu(&EpiDef);
-		M_StartMessage(DDF_LanguageLookup("EpisodeNonExist"), NULL, false);
+		M_StartMessage(language["EpisodeNonExist"], NULL, false);
 		return;
 	}
 
@@ -1268,7 +1265,7 @@ void M_Options(int choice)
 }
 
 //
-//      Toggle messages on/off
+// Toggle messages on/off
 //
 void M_ChangeMessages(int choice)
 {
@@ -1276,9 +1273,9 @@ void M_ChangeMessages(int choice)
 	(void) choice;
 
 	if (!showMessages)
-		CON_Printf("%s\n", DDF_LanguageLookup("MessagesOn"));
+		CON_Printf("%s\n", language["MessagesOn"]);
 	else
-		CON_Printf("%s\n", DDF_LanguageLookup("MessagesOff"));
+		CON_Printf("%s\n", language["MessagesOff"]);
 
 	showMessages = 1 - showMessages;
 
@@ -1308,11 +1305,11 @@ void M_EndGame(int choice)
 
 	if (netgame)
 	{
-		M_StartMessage(DDF_LanguageLookup("EndNetGame"), NULL, false);
+		M_StartMessage(language["EndNetGame"], NULL, false);
 		return;
 	}
 
-	M_StartMessage(DDF_LanguageLookup("EndGameCheck"), EndGameResponse, true);
+	M_StartMessage(language["EndGameCheck"], EndGameResponse, true);
 }
 
 //
@@ -1354,7 +1351,7 @@ static void QuitResponse(int ch)
 		do
 		{
 			sprintf(refname, "QuitSnd%d", numsounds + 1);
-			if (DDF_LanguageValidRef(refname))
+			if (language.IsValidRef(refname))
 				numsounds++;
 			else
 				break;
@@ -1369,10 +1366,10 @@ static void QuitResponse(int ch)
 			do
 			{
 				sprintf(refname, "QuitSnd%d", i + 1);
-				sprintf(sound, "DS%s", DDF_LanguageLookup(refname));
+				sprintf(sound, "DS%s", language[refname]);
 				if (W_CheckNumForName(sound) != -1)
 				{
-					S_StartSound(NULL, sfxdefs.GetEffect(DDF_LanguageLookup(refname)));
+					S_StartSound(NULL, sfxdefs.GetEffect(language[refname]));
 					break;
 				}
 				i = (i + 1) % numsounds;
@@ -1414,7 +1411,7 @@ void M_QuitEDGE(int choice)
 
 	int num_quitmessages;
 
-	DOSY = DDF_LanguageLookup("PressToQuit");
+	DOSY = language["PressToQuit"];
 
 	num_quitmessages = 0;
 
@@ -1423,7 +1420,7 @@ void M_QuitEDGE(int choice)
 	do
 	{
 		sprintf(refname, "QUITMSG%d", num_quitmessages + 1);
-		if (DDF_LanguageValidRef(refname))
+		if (language.IsValidRef(refname))
 			num_quitmessages++;
 		else
 			break;
@@ -1435,7 +1432,7 @@ void M_QuitEDGE(int choice)
 	// or one at random, between 1 and maximum number.
 	//
 	sprintf(refname, "QUITMSG%d", (M_Random() % num_quitmessages) + 1);
-	chosen_msg = DDF_LanguageLookup(refname);
+	chosen_msg = language[refname];
 	Z_Resize(endstring, char, strlen(chosen_msg) + 3 + strlen(DOSY));
 	sprintf(endstring, "%s\n\n%s", chosen_msg, DOSY);
 
@@ -1834,7 +1831,21 @@ bool M_Responder(event_t * ev)
 				current_gamma++;
 				if (current_gamma > 4)
 					current_gamma = 0;
-				CON_Printf("%s\n", gammamsg[current_gamma]);
+					
+				const char *msg = NULL;
+				
+				switch(current_gamma)
+				{
+					case 0: { msg = language["GammaOff"];  break; }
+					case 1: { msg = language["GammaLevelOne"];  break; }
+					case 2: { msg = language["GammaLevelTwo"];  break; }
+					case 3: { msg = language["GammaLevelThree"];  break; }
+					case 4: { msg = language["GammaLevelFour"];  break; }
+					default: { msg = NULL; break; }
+				}
+				
+				if (msg)	
+					CON_Printf("%s\n", msg);
 
 				// -AJA- 1999/07/03: removed PLAYPAL reference.
 				return true;
