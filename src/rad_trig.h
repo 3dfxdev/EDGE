@@ -28,7 +28,8 @@
 #define PARSERVFIX    10
 
 #define MAXSTRLEN     512
-#define MAXTIPSLOT    32
+#define MAXTIPSLOT    30
+#define FIXEDSLOTS    9
 
 extern rad_script_t *r_scripts;
 extern rad_trigger_t *r_triggers;
@@ -78,6 +79,7 @@ extern char *rad_cur_filename;
 void RAD_ActNOP(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActTip(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActTipProps(rad_trigger_t *R, mobj_t *actor, void *param);
+void RAD_ActTipFade(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActPlaySound(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActKillSound(rad_trigger_t *R, mobj_t *actor, void *param);
