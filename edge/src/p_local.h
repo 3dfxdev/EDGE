@@ -60,6 +60,8 @@
 #define MELEERANGE   (64.0f)
 #define MISSILERANGE (2000.0f)
 
+#define RESPAWN_DELAY  (TICRATE / 2)
+
 // Weapon sprite speeds
 #define LOWERSPEED (6.0f)
 #define RAISESPEED (6.0f)
@@ -107,6 +109,9 @@ void P_PlayerThink(player_t * player);
 void P_UpdateAvailWeapons(player_t *p);
 boolean_t P_AddWeapon(player_t *player, weaponinfo_t *info, int *index);
 void P_GiveInitialBenefits(player_t *player, const mobjinfo_t *info);
+void P_AddPlayerToGame(player_t *p);
+void P_RemovePlayerFromGame(player_t *p);
+void P_RemoveAllPlayers(void);
 
 //
 // P_MOBJ
@@ -120,7 +125,7 @@ extern iteminque_t *itemquehead;
 // -ACB- 1998/08/27 Start Pointer in the mobj list.
 extern mobj_t *mobjlisthead;
 
-void P_SpawnPlayer(player_t *p, const mapthing_t * mthing);
+void P_SpawnPlayer(player_t *p, const spawnpoint_t * sthing);
 void P_RemoveMobj(mobj_t * th);
 statenum_t P_MobjFindLabel(mobj_t * mobj, const char *label);
 boolean_t P_SetMobjState(mobj_t * mobj, statenum_t state);
@@ -129,8 +134,6 @@ void P_SetMobjDirAndSpeed(mobj_t * mobj, angle_t angle, float_t slope, float_t s
 void P_RunMobjThinkers(void);
 void P_SpawnPuff(float_t x, float_t y, float_t z, const mobjinfo_t * puff);
 void P_SpawnBlood(float_t x, float_t y, float_t z, float_t damage, angle_t angle, const mobjinfo_t * blood);
-void P_SpawnMapThing(const mapthing_t * mthing);
-
 void P_RemoveQueuedMobjs(void);
 
 void P_MobjSetTracer(mobj_t *mo, mobj_t *target);
