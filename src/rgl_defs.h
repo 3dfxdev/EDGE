@@ -63,14 +63,8 @@ stored_gl_tex_t;
 void RGL_InitTextures(void);
 void RGL_ResetTextures(void);
 
-void RGL_Texture(int texture, int is_masked);
-void RGL_Flat(int flat);
 void RGL_Sprite(int sprite);
 
-
-void RGL_1DOcclusionClear(angle_t low, angle_t high);
-void RGL_1DOcclusionSet(angle_t low, angle_t high);
-boolean_t RGL_1DOcclusionTest(angle_t low, angle_t high);
 
 // EXPERIMENTAL!!
 #define SPR_HALO  9998
@@ -159,6 +153,13 @@ void RGL_DrawUnits(void);
 #define SET_EDGE_FLAG(E)  \
     do { vert->edge = (E); } while(0)
  
+//
+//  1D OCCLUSION STUFF
+//
+void RGL_1DOcclusionClear(angle_t low, angle_t high);
+void RGL_1DOcclusionSet(angle_t low, angle_t high);
+boolean_t RGL_1DOcclusionTest(angle_t low, angle_t high);
+
 
 #endif  // __RGL_DEFS__
 #endif  // USE_GL
