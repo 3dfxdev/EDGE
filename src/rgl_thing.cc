@@ -672,27 +672,22 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 		return;
 
 	// calculate edges of the shape
-	float pos1, pos2;
+	float sprite_width  = IM_WIDTH(image);
+	float sprite_height = IM_HEIGHT(image);
+	float side_offset   = IM_OFFSETX(image);
+	float top_offset    = IM_OFFSETY(image);
 
 	if (spr_flip)
-	{
-		pos2 = IM_OFFSETX(image) * mo->info->xscale;
-		pos1 = pos2 - IM_WIDTH(image) * mo->info->xscale;
-	}
-	else
-	{
-		pos1 = - IM_OFFSETX(image) * mo->info->xscale;
-		pos2 = pos1 + IM_WIDTH(image) * mo->info->xscale;
-	}
+		side_offset *= -1.0f;
+
+	float pos1 = (sprite_width/-2.0f + side_offset) * mo->info->xscale;
+	float pos2 = (sprite_width/+2.0f + side_offset) * mo->info->xscale;
 
 	float tx1 = tx + pos1;
 	float tx2 = tx + pos2;
 
-	float sprite_height = IM_HEIGHT(image);
-	float top_offset = IM_OFFSETY(image);
-
-	float gzt = mo->z + top_offset * mo->info->yscale;
-	float gzb = gzt - sprite_height * mo->info->yscale;
+	float gzt = mo->z + (sprite_height + top_offset) * mo->info->yscale;
+	float gzb = mo->z + top_offset * mo->info->yscale;
 
 	// fix for sprites that sit wrongly into the floor/ceiling
 	int clip_vert = 0;
