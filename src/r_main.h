@@ -93,6 +93,7 @@ extern lighttable_t scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
 extern int extralight;
 extern const colourmap_t *effect_colourmap;
 extern float_t effect_strength;
+extern boolean_t effect_infrared;
 extern boolean_t setresfailed;
 
 //
