@@ -736,7 +736,7 @@ exfloor_fit_e P_ExtraFloorFits(sector_t *sec, float z1, float z2)
 void P_AddExtraFloor(sector_t *sec, line_t *line)
 {
 	sector_t *ctrl = line->frontsector;
-	const extrafloor_info_t *ef_info;
+	const extrafloordef_c *ef_info;
 
 	surface_t *top, *bottom;
 	extrafloor_t *newbie, *cur;

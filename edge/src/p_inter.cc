@@ -550,7 +550,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 // P_KillMobj
 //
 // Altered to reflect the fact that the dropped item is a pointer to
-// mobjdef_c, uses new procedure: P_MobjCreateObject.
+// mobjtype_c, uses new procedure: P_MobjCreateObject.
 //
 // Note: Damtype can be NULL here.
 //
@@ -561,7 +561,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 //
 void P_KillMobj(mobj_t * source, mobj_t * target, const damage_t *damtype)
 {
-	const mobjdef_c *item;
+	const mobjtype_c *item;
 	statenum_t state;
 	bool overkill;
 

@@ -129,7 +129,7 @@ void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 	int j, k;
 	int tag = line->tag;
 	epi::array_iterator_c it;
-	const linedeftype_t *type = line->special;
+	const linetype_c *type = line->special;
 	mobj_t *soundorg;
 	side_t *side;
 	bwhere_e pos;

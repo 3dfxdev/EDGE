@@ -260,7 +260,7 @@ static bool CorpseShouldSlide(mobj_t * mo)
 static void TeleportRespawn(mobj_t * mobj)
 {
 	float x, y, z, oldradius, oldheight;
-	const mobjdef_c *info = mobj->spawnpoint.info;
+	const mobjtype_c *info = mobj->spawnpoint.info;
 	mobj_t *new_mo;
 	int oldflags;
 
@@ -336,7 +336,7 @@ static void TeleportRespawn(mobj_t * mobj)
 static void ResurrectRespawn(mobj_t * mobj)
 {
 	float x, y, z, oldradius, oldheight;
-	const mobjdef_c *info;
+	const mobjtype_c *info;
 	int oldflags;
 
 	x = mobj->x;
@@ -1642,7 +1642,7 @@ void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 //
 // P_SpawnPuff
 //
-void P_SpawnPuff(float x, float y, float z, const mobjdef_c * puff)
+void P_SpawnPuff(float x, float y, float z, const mobjtype_c * puff)
 {
 	mobj_t *th;
 
@@ -1667,7 +1667,7 @@ void P_SpawnPuff(float x, float y, float z, const mobjdef_c * puff)
 // -KM- 1999/01/31 Different blood objects for different mobjs.
 //
 void P_SpawnBlood(float x, float y, float z, float damage,
-				  angle_t angle, const mobjdef_c * blood)
+				  angle_t angle, const mobjtype_c * blood)
 {
 	int num;
 	mobj_t *th;
@@ -1715,7 +1715,7 @@ void P_MobjItemRespawn(void)
 {
 	float x, y, z;
 	mobj_t *mo;
-	const mobjdef_c *objtype;
+	const mobjtype_c *objtype;
 
 	iteminque_t *cur, *next;
 
@@ -1812,7 +1812,7 @@ void P_MobjRemoveMissile(mobj_t * missile)
 //
 // -ACB- 1998/08/02 Procedure written.
 //
-mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjdef_c *type)
+mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 {
 	mobj_t *mobj;
 	state_t *st;

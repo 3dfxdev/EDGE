@@ -44,7 +44,7 @@ light_t *lights = NULL;
 //
 static void DoLight(light_t * light)
 {
-	const lighttype_t *type = light->type;
+	const lightdef_c *type = light->type;
 
 	if (type->type == LITE_None || --light->count)
 		return;
@@ -261,7 +261,7 @@ light_t *P_NewLight(void)
 //
 // EV_Lights
 //
-bool EV_Lights(sector_t * sec, const lighttype_t * type)
+bool EV_Lights(sector_t * sec, const lightdef_c * type)
 {
 	light_t *light;
 

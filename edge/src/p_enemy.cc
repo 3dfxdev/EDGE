@@ -508,7 +508,7 @@ shoot_spot_info_t brain_spots = { -1, NULL };
 //       regenerated after the loadgame when the BrainShooter next
 //       tries to shoot a cube.
 // 
-void P_LookForShootSpots(const mobjdef_c *spot_type)
+void P_LookForShootSpots(const mobjtype_c *spot_type)
 {
 	int i;
 	mobj_t *cur;
@@ -568,10 +568,10 @@ void P_FreeShootSpots(void)
 //
 static void SpawnDeathMissile(mobj_t *source, float x, float y, float z)
 {
-	const mobjdef_c *info;
+	const mobjtype_c *info;
 	mobj_t *th;
 
-	info = mobjdefs.Lookup("BRAIN DEATH MISSILE");
+	info = mobjtypes.Lookup("BRAIN DEATH MISSILE");
 
 	th = P_MobjCreateObject(x, y, z, info);
 	if (th->info->seesound)
@@ -651,7 +651,7 @@ void A_CubeSpawn(mobj_t * cube)
 {
 	mobj_t *targ;
 	mobj_t *newmobj;
-	const mobjdef_c *type;
+	const mobjtype_c *type;
 	int r;
 
 	targ = cube->target;
@@ -662,27 +662,27 @@ void A_CubeSpawn(mobj_t * cube)
 	// Probability distribution (kind of :)),
 	// decreasing likelihood.
 	if (r < 50)
-		type = mobjdefs.Lookup("IMP");
+		type = mobjtypes.Lookup("IMP");
 	else if (r < 90)
-		type = mobjdefs.Lookup("DEMON");
+		type = mobjtypes.Lookup("DEMON");
 	else if (r < 120)
-		type = mobjdefs.Lookup("SPECTRE");
+		type = mobjtypes.Lookup("SPECTRE");
 	else if (r < 130)
-		type = mobjdefs.Lookup("PAIN ELEMENTAL");
+		type = mobjtypes.Lookup("PAIN ELEMENTAL");
 	else if (r < 160)
-		type = mobjdefs.Lookup("CACODEMON");
+		type = mobjtypes.Lookup("CACODEMON");
 	else if (r < 162)
-		type = mobjdefs.Lookup("ARCHVILE");
+		type = mobjtypes.Lookup("ARCHVILE");
 	else if (r < 172)
-		type = mobjdefs.Lookup("REVENANT");
+		type = mobjtypes.Lookup("REVENANT");
 	else if (r < 192)
-		type = mobjdefs.Lookup("ARACHNOTRON");
+		type = mobjtypes.Lookup("ARACHNOTRON");
 	else if (r < 222)
-		type = mobjdefs.Lookup("MANCUBUS");
+		type = mobjtypes.Lookup("MANCUBUS");
 	else if (r < 246)
-		type = mobjdefs.Lookup("HELL KNIGHT");
+		type = mobjtypes.Lookup("HELL KNIGHT");
 	else
-		type = mobjdefs.Lookup("BARON OF HELL");
+		type = mobjtypes.Lookup("BARON OF HELL");
 
 	newmobj = P_MobjCreateObject(targ->x, targ->y, targ->z, type);
 

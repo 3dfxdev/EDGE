@@ -220,7 +220,7 @@ void F_Ticker(void)
 					picnum++;
 				}
 
-				if ((unsigned int)picnum >= finale->pics.GetSize())
+				if (picnum >= finale->pics.GetSize())
 				{
 					finalecount = 0;
 					picnum = 0;
@@ -330,7 +330,7 @@ static void TextWrite(void)
 //   in order of appearance
 //
 
-static const mobjdef_c *castorder;
+static const mobjtype_c *castorder;
 static const char *casttitle;
 static int casttics;
 static state_t *caststate;
@@ -451,11 +451,11 @@ static void CastPerformAction(void)
 
 static void CastInitNew(int num)
 {
-	castorder = mobjdefs.LookupCastMember(num);
+	castorder = mobjtypes.LookupCastMember(num);
 
 	// FIXME!!! Better handling of the finale
 	if (!castorder)
-		castorder = mobjdefs[0];
+		castorder = mobjtypes[0];
 
 	casttitle = castorder->cast_title ?
 		DDF_LanguageLookup(castorder->cast_title) : castorder->ddf.name;
