@@ -58,7 +58,7 @@
 #define FIRST_CHUNK_OFS  16L
 
 
-int sv_read_version = 0;
+int savegame_version = 0;
 
 static int last_error = 0;
 
@@ -228,7 +228,7 @@ bool SV_VerifyHeader(int *version)
 
 	(*version) = SV_GetInt();
 
-	sv_read_version = (*version);
+	savegame_version = (*version);
 
 	if (last_error)
 	{
@@ -297,7 +297,7 @@ bool SV_VerifyContents(void)
 			return false;
 		}
 
-		if (sv_read_version < 0x12901)
+		if (savegame_version < 0x12901)
 		{
 			// check for matching markers
 			char end_marker[6];
@@ -470,7 +470,7 @@ bool SV_PushReadChunk(const char *id)
 
 		DEV_ASSERT2(decomp_len == orig_len);
 
-		if (sv_read_version < 0x12901)
+		if (savegame_version < 0x12901)
 		{
 			for (i=0; i < decomp_len; i++)
 				cur->start[i] ^= (byte)(XOR_STRING[i % XOR_LEN]);
@@ -503,7 +503,7 @@ bool SV_PushReadChunk(const char *id)
 
 	// check for matching markers
 
-	if (sv_read_version < 0x12901)
+	if (savegame_version < 0x12901)
 	{
 		SV_GetMarker(marker);
 
@@ -581,6 +581,8 @@ bool SV_OpenWriteFile(const char *filename, int version)
 {
 	chunk_stack_size = 0;
 	last_error = 0;
+
+	savegame_version = version;
 
 	current_crc.Reset();
 

@@ -51,6 +51,8 @@
 #define FIRST_CHUNK_OFS  16L
 
 
+int demo_version;
+
 static int last_error = 0;
 
 
@@ -192,6 +194,8 @@ bool DEM_VerifyHeader(int *version)
 	DEM_GetByte(); DEM_GetByte();
 
 	(*version) = DEM_GetInt();
+
+	demo_version = (*version);
 
 	if (last_error)
 	{
@@ -423,6 +427,8 @@ bool DEM_OpenWriteFile(const char *filename, int version)
 {
 	chunk_stack_size = 0;
 	last_error = 0;
+
+	demo_version = version;
 
 	current_crc.Reset();
 

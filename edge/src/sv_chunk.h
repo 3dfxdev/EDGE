@@ -43,7 +43,7 @@ int SV_GetError(void);
 //  READING
 //
 
-extern int sv_read_version;
+extern int savegame_version;
 
 bool SV_OpenReadFile(const char *filename);
 bool SV_CloseReadFile(void);
