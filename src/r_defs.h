@@ -114,7 +114,7 @@ typedef struct region_properties_s
 	const colourmap_c *colourmap;
 
 	// special type (e.g. damaging)
-	const specialsector_t *special;
+	const sectortype_c *special;
 
 	// -KM- 1998/10/29 Added gravity + friction
 	float gravity;
@@ -189,7 +189,7 @@ typedef struct extrafloor_s
 	// type of extrafloor this is.  Only NULL for unused extrafloors.
 	// This value is cached pointer to ef_line->special->ef.
 	//
-	const extrafloor_info_t *ef_info;
+	const extrafloordef_c *ef_info;
 
 	// extrafloor linedef (frontsector == control sector).  Only NULL
 	// for unused extrafloors.
@@ -390,7 +390,7 @@ typedef struct line_s
 	int tag;
 	int count;
 
-	const linedeftype_t *special;
+	const linetype_c *special;
 
     // Visual appearance: SideDefs.
     // side[1] will be NULL if one sided.

@@ -91,7 +91,7 @@ static bool P_DoSectorsFromTag(int tag, const void *p1, void *p2,
 //
 static bool DoElevator_wrapper(sector_t *s, const void *p1, void *p2) 
 {
-	return EV_DoElevator(s, (const elevator_sector_t*)p1, (sector_t*)p2);
+	return EV_DoElevator(s, (const elevatordef_c*)p1, (sector_t*)p2);
 }
 
 //
@@ -99,7 +99,7 @@ static bool DoElevator_wrapper(sector_t *s, const void *p1, void *p2)
 //
 static bool DoPlane_wrapper(sector_t *s, const void *p1, void *p2)
 {
-	return EV_DoPlane(s, (const moving_plane_t*)p1, (sector_t*)p2);
+	return EV_DoPlane(s, (const movplanedef_c*)p1, (sector_t*)p2);
 }
 
 //
@@ -107,7 +107,7 @@ static bool DoPlane_wrapper(sector_t *s, const void *p1, void *p2)
 //
 static bool DoLights_wrapper(sector_t *s, const void *p1, void *p2)
 {
-	return EV_Lights(s, (const lighttype_t*)p1);
+	return EV_Lights(s, (const lightdef_c*)p1);
 }
 
 //
@@ -539,7 +539,7 @@ static void AdjustLightParts(side_t *side, bool left,
 // P_EFTransferTrans
 //
 static void P_EFTransferTrans(sector_t *ctrl, sector_t *sec, line_t *line, 
-		const extrafloor_info_t *ef, float trans)
+		const extrafloordef_c *ef, float trans)
 {
 	int i;
 
@@ -589,7 +589,7 @@ static void P_EFTransferTrans(sector_t *ctrl, sector_t *sec, line_t *line,
 // Handles BOOM's line -> tagged line transfers.
 //
 static void P_LineEffect(line_t *target, line_t *source,
-		const linedeftype_t *special)
+		const linetype_c *special)
 {
 	float length = R_PointToDist(0, 0, source->dx, source->dy);
 
@@ -688,7 +688,7 @@ static void P_LineEffect(line_t *target, line_t *source,
 // Handles BOOM's line -> tagged sector transfers.
 //
 static void P_SectorEffect(sector_t *target, line_t *source,
-		const linedeftype_t *special)
+		const linetype_c *special)
 {
 	float length = R_PointToDist(0, 0, source->dx, source->dy);
 	angle_t angle = R_PointToAngle(0, 0, source->dx, source->dy);
@@ -788,7 +788,7 @@ static void P_SectorEffect(sector_t *target, line_t *source,
 // -ACB- 2001/01/14: Added Elevator Sector Type
 //
 static bool P_ActivateSpecialLine(line_t * line,
-		const linedeftype_t * special, int tag, int side, mobj_t * thing,
+		const linetype_c * special, int tag, int side, mobj_t * thing,
 		trigger_e trig, int can_reach, int no_care_who)
 {
 	bool texSwitch = false;
@@ -1196,7 +1196,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 		// -KM- 1998/09/27 Reversable linedefs.
 		if (line->special && special->newtrignum)
 			line->special = (special->newtrignum <= 0) ? NULL :
-				DDF_LineLookupNum(special->newtrignum);
+				playsim::LookupLineType(special->newtrignum);
 
 		P_ChangeSwitchTexture(line, line->special && (special->newtrignum == 0),
 				special->special_flags, playedSound);
@@ -1267,7 +1267,7 @@ bool P_UseSpecialLine(mobj_t * thing, line_t * line, int side,
 void P_RemoteActivation(mobj_t * thing, int typenum, int tag, 
 		int side, trigger_e method)
 {
-	const linedeftype_t *spec = DDF_LineLookupNum(typenum);
+	const linetype_c *spec = playsim::LookupLineType(typenum);
 
 	P_ActivateSpecialLine(NULL, spec, tag, side, thing, method, 1,
 			(thing == NULL));
@@ -1278,7 +1278,7 @@ static INLINE void PlayerInProperties(player_t *player,
 		float bz, float tz, float f_h, float c_h,
 		region_properties_t *props)
 {
-	const specialsector_t *special = props->special;
+	const sectortype_c *special = props->special;
 	float damage, factor;
 
 	if (!special || c_h < f_h)
@@ -1476,7 +1476,7 @@ void P_UpdateSpecials(void)
 	int i;
 	line_t *line;
 	sector_t *sec;
-	const linedeftype_t *special;
+	const linetype_c *special;
 
 	// LEVEL TIMER
 	if (levelTimer == true)
@@ -1576,8 +1576,8 @@ void P_UpdateSpecials(void)
 void P_SpawnSpecials(int autotag)
 {
 	sector_t *sector;
-	const specialsector_t *secSpecial;
-	const linedeftype_t *special;
+	const sectortype_c *secSpecial;
+	const linetype_c *special;
 	const char *s;
 
 	int i;

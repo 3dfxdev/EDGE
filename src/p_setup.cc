@@ -522,7 +522,7 @@ static void LoadSectors(int lump)
 
 		ss->props.lightlevel = SHORT(ms->lightlevel);
 		ss->props.special = (SHORT(ms->special) <= 0) ? NULL :
-		DDF_SectorLookupNum(SHORT(ms->special));
+		playsim::LookupSectorType(SHORT(ms->special));
 
 		ss->exfloor_max = 0;
 
@@ -617,7 +617,7 @@ static void LoadNodes(int lump, char *name)
 //
 // SpawnMapThing
 //
-static void SpawnMapThing(const mobjdef_c *info,
+static void SpawnMapThing(const mobjtype_c *info,
 						  float x, float y, float z, angle_t angle, int options)
 {
 	int bit;
@@ -731,7 +731,7 @@ static void LoadThings(int lump)
 
 	const void *data;
 	const mapthing_t *mt;
-	const mobjdef_c *objtype;
+	const mobjtype_c *objtype;
 	int numthings;
 
 	if (!W_VerifyLumpName(lump, "THINGS"))
@@ -766,7 +766,7 @@ static void LoadThings(int lump)
 		}
 #endif
 
-		objtype = mobjdefs.Lookup(typenum);
+		objtype = mobjtypes.Lookup(typenum);
 
 		// MOBJTYPE not found, don't crash out: JDS Compliance.
 		// -ACB- 1998/07/21
@@ -799,7 +799,7 @@ static void LoadHexenThings(int lump)
 
 	const void *data;
 	const maphexenthing_t *mt;
-	const mobjdef_c *objtype;
+	const mobjtype_c *objtype;
 	int numthings;
 
 	if (!W_VerifyLumpName(lump, "THINGS"))
@@ -826,7 +826,7 @@ static void LoadHexenThings(int lump)
 		typenum = USHORT(mt->type);
 		options = USHORT(mt->options) & 0x000F;
 
-		objtype = mobjdefs.Lookup(typenum);
+		objtype = mobjtypes.Lookup(typenum);
 
 		// MOBJTYPE not found, don't crash out: JDS Compliance.
 		// -ACB- 1998/07/21
@@ -955,7 +955,7 @@ static void LoadLineDefs(int lump)
 		ld->v2 = &vertexes[USHORT(mld->v2)];
 
 		ld->special = (SHORT(mld->special) <= 0) ? NULL :
-		DDF_LineLookupNum(SHORT(mld->special));
+		playsim::LookupLineType(SHORT(mld->special));
 
 		side0 = USHORT(mld->sidenum[0]);
 		side1 = USHORT(mld->sidenum[1]);
@@ -1022,7 +1022,7 @@ static void LoadHexenLineDefs(int lump)
 
 		// this ignores the activation bits -- oh well
 		ld->special = (mld->special[0] == 0) ? NULL :
-		DDF_LineLookupNum(1000 + mld->special[0]);
+		linetypes.Lookup(1000 + mld->special[0]);
 
 		side0 = USHORT(mld->sidenum[0]);
 		side1 = USHORT(mld->sidenum[1]);
@@ -1934,8 +1934,8 @@ static void ShutdownLevel(void)
 	R2_TileSkyClear();
 #endif
 
-	DDF_LineClearGeneralised();
-	DDF_SectorClearGeneralised();
+	genlinetypes.Reset();
+	gensectortypes.Reset();
 
 	level_active = false;
 }
@@ -2166,4 +2166,76 @@ bool P_Init(void)
 	playerstarts = Z_New(spawnpoint_t, MAXPLAYERS);
 
 	return true;
+}
+
+namespace playsim
+{
+	//
+	// linetype_c* LookupLineType()
+	//
+	linetype_c* LookupLineType(int num)
+	{
+		linetype_c* l;
+		
+		// FIXME!! Isn't there an upper limit to boom linedef types?
+  		if ((level_flags.compat_mode == CM_BOOM) && num >= 0x2F80)
+		{
+			l = genlinetypes.Lookup(num);
+			
+			// If this hasn't be found, create it 
+			if (!l)
+			{
+				l = new linetype_c;
+				
+				l->Default();
+				DDF_BoomMakeGenLine(l, num);	// <-- Can this error?
+				
+				genlinetypes.Insert(l);
+			}
+			
+			return l;
+		}
+
+		l = linetypes.Lookup(num);
+		if (l)
+			return l;
+
+		I_Warning("playsim::LookupLineType(): Unknown linedef type %d", num);
+		return linetypes[0];	// Return template line
+	}	
+	
+	//
+	// sectortype_c* LookupSectorType()
+	//	
+	sectortype_c* LookupSectorType(int num)
+	{
+		sectortype_c* s;
+		
+  		// check for BOOM generalised sector types
+ 		// FIXME!! Isn't there an upper limit to boom sector types?
+		if ((level_flags.compat_mode == CM_BOOM) && num >= 0x20)
+		{
+			s = gensectortypes.Lookup(num);
+			
+			// Create if it doesn't exist
+			if (!s)
+			{
+				s = new sectortype_c;
+				
+				s->Default();
+				DDF_BoomMakeGenSector(s, num);	// <-- Can this error?
+				
+				gensectortypes.Insert(s);
+			}
+			
+			return s;
+		}
+		
+		s = sectortypes.Lookup(num);
+		if (s)
+			return s;
+
+		I_Warning("playsim::LookupSectorType(): Unknown sector type %d", num);
+		return sectortypes[0];	// Return template sector
+	}
 }

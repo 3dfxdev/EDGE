@@ -36,19 +36,6 @@
 #include "r_defs.h"
 #include "w_image.h"
 
-#define CEILSPEED   1.0f
-#define FLOORSPEED  1.0f
-
-#define GRAVITY     8.0f
-#define FRICTION    0.9063f
-#define VISCOSITY   0.0f
-#define DRAG        0.99f
-#define RIDE_FRICTION    0.7f
-#define LADDER_FRICTION  0.8f
-
-#define STOPSPEED   0.15f
-#define OOF_SPEED   20.0f
-
 #define MENU_GRAV_NORMAL  8
 
 typedef enum
@@ -64,7 +51,7 @@ movedat_e;
 typedef struct light_s
 {
 	// type of light effect
-	const lighttype_t *type;
+	const lightdef_c *type;
 
 	sector_t *sector;
 
@@ -117,7 +104,7 @@ typedef struct elev_move_s
 	movedat_e whatiam;
 	struct elev_move_s *next, *prev;
 
-	const elevator_sector_t *type;
+	const elevatordef_c *type;
 	sector_t *sector;
 
 	float startheight;
@@ -147,7 +134,7 @@ typedef struct plane_move_s
 	movedat_e whatiam;
 	struct plane_move_s *next, *prev;
 
-	const moving_plane_t *type;
+	const movplanedef_c *type;
 	sector_t *sector;
 
 	bool is_ceiling;
@@ -178,7 +165,7 @@ typedef struct slider_move_s
 	movedat_e whatiam;
 	struct slider_move_s *next, *prev;
 
-	const sliding_door_t *info;
+	const sliding_door_c *info;
 	line_t *line;
 
 	// current distance it has opened
@@ -210,7 +197,7 @@ extern button_t *buttonlist;
 extern light_t *lights;
 extern gen_move_t *active_movparts;
 
-extern linedeftype_t donut[2];
+extern linetype_c donut[2];
 
 // at map load
 void P_SpawnSpecials(int autotag);
@@ -240,7 +227,7 @@ sector_t *P_FindSectorFromTag(int tag);
 int P_FindMinSurroundingLight(sector_t * sector, int max);
 
 // start an action...
-bool EV_Lights(sector_t * sec, const lighttype_t * type);
+bool EV_Lights(sector_t * sec, const lightdef_c * type);
 
 void P_RunActiveSectors(void);
 
@@ -261,14 +248,14 @@ void P_DestroyAllSectorSFX(void);
 void EV_LightTurnOn(int tag, int bright);
 bool EV_DoDonut(sector_t * s1, sfx_t * sfx[4]);
 bool EV_Teleport(line_t * line, int tag, int side, mobj_t * thing, 
-    int delay, int special, const mobjdef_c * ineffectobj,
-    const mobjdef_c * outeffectobj);
-bool EV_ManualPlane(line_t * line, mobj_t * thing, const moving_plane_t * type);
-bool EV_ManualElevator(line_t * line, mobj_t * thing, const elevator_sector_t * type);
+    int delay, int special, const mobjtype_c * ineffectobj,
+    const mobjtype_c * outeffectobj);
+bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * type);
+bool EV_ManualElevator(line_t * line, mobj_t * thing, const elevatordef_c * type);
 
-void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_t * s);
-bool EV_DoPlane(sector_t * sec, const moving_plane_t * type, sector_t * model);
-bool EV_DoElevator(sector_t * sec, const elevator_sector_t * type, sector_t * model);
+void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_c * s);
+bool EV_DoPlane(sector_t * sec, const movplanedef_c * type, sector_t * model);
+bool EV_DoElevator(sector_t * sec, const elevatordef_c * type, sector_t * model);
 
 //
 //  P_SWITCH
