@@ -1554,6 +1554,8 @@ float P_AimLineAttack(mobj_t * t1, angle_t angle, float distance)
 	float x2 = t1->x + distance * M_Cos(angle);
 	float y2 = t1->y + distance * M_Sin(angle);
 
+	Z_Clear(&aim_I, shoot_trav_info_t, 1);
+
 	if (t1->info)
 		aim_I.start_z = t1->z + t1->height * PERCENT_2_FLOAT(t1->info->shotheight);
 	else
@@ -1598,6 +1600,8 @@ void P_LineAttack(mobj_t * t1, angle_t angle, float distance,
 {
 	float x2 = t1->x + distance * M_Cos(angle);
 	float y2 = t1->y + distance * M_Sin(angle);
+
+	Z_Clear(&shoot_I, shoot_trav_info_t, 1);
 
 	if (t1->info)
 		shoot_I.start_z = t1->z + t1->height * PERCENT_2_FLOAT(t1->info->shotheight);
@@ -1674,6 +1678,8 @@ mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 	{
 		return P_MapTargetTheory(source);
 	}
+
+	Z_Clear(&aim_I, shoot_trav_info_t, 1);
 
 	aim_I.source = source;
 	aim_I.forced = force_aim;
