@@ -32,9 +32,6 @@ std::vector<game_c *> games;
 
 
 game_c::game_c(const game_info_t *info) : state(ST_Zombie),
-	engine_name(info->engine_name),
-    game_name(info->game_name),
-	level_name(info->level_name),
 	mode(info->mode), skill(info->skill),
 	min_players(info->min_players),
 	num_bots(info->num_bots),
@@ -43,7 +40,9 @@ game_c::game_c(const game_info_t *info) : state(ST_Zombie),
 	gametic(0),
 	zombie_millies(0)
 {
-	/* nothing needed */
+	strcpy(engine_name, info->engine_name);
+    strcpy(game_name,   info->game_name);
+	strcpy(level_name,  info->level_name);
 }
 
 game_c::~game_c()
@@ -116,9 +115,9 @@ void game_c::FillGameInfo(game_info_t *info) const
 			break;
 	}
 
-	strcpy(info->engine_name, engine_name.c_str());
-	strcpy(info->game_name,   game_name.c_str());
-	strcpy(info->level_name,  level_name.c_str());
+	strcpy(info->engine_name, engine_name);
+	strcpy(info->game_name,   game_name);
+	strcpy(info->level_name,  level_name);
 
 	info->mode  = mode;
 	info->skill = skill;
@@ -399,8 +398,8 @@ void PK_new_game(packet_c *pk)
 	// NOW UNLOCKED
 
 	LogPrintf(0, "Client %d created new game %d %s %s:%s (%s)\n",
-		client_id, CL->game_id, GM->engine_name.c_str(),
-		GM->game_name.c_str(), GM->level_name.c_str(),
+		client_id, CL->game_id, GM->engine_name,
+		GM->game_name, GM->level_name,
 		(GM->mode == 'C') ? "Coop" : "DM");
 
 	// send acknowledgement

@@ -42,7 +42,7 @@ public: //!!!!  private:
 
 	int state;
 
-	std::string name;
+	char name[client_info_t::NAME_LEN];
 	NLaddress addr;
 
 	int game_id;

@@ -41,9 +41,9 @@ private:
 	int state;
 
 public: //FIXME
-	std::string engine_name;  // EDGE129
-	std::string game_name;    // DOOM2 (etc)
-	std::string level_name;   // MAP01 (etc)
+	char engine_name[game_info_t::ENGINE_STR_MAX];  // EDGE129
+	char game_name  [game_info_t::GAME_STR_MAX];    // DOOM2 (etc)
+	char level_name [game_info_t::LEVEL_STR_MAX];   // MAP01 (etc)
 
 	char mode;
 	byte skill;
