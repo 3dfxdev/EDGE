@@ -25,6 +25,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_search.h"
+#include "g_game.h"
 #include "m_argv.h"
 #include "m_bbox.h"
 #include "m_random.h"
@@ -216,9 +217,9 @@ void RGL_SetupMatrices3D(void)
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	DEV_ASSERT2(currentmap);
-	if (currentmap->lighting != rgl_light_model)
-		SetupLightMap(currentmap->lighting);
+	DEV_ASSERT2(currmap);
+	if (currmap->lighting != rgl_light_model)
+		SetupLightMap(currmap->lighting);
 }
 
 //

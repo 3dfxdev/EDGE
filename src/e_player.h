@@ -287,8 +287,8 @@ typedef struct
 	char *level;  // episode # (0-2)
 
 	// previous and next levels, origin 0
-	const mapstuff_t *last;
-	const mapstuff_t *next;
+	const mapdef_c *last;
+	const mapdef_c *next;
 
 	int maxkills;
 	int maxitems;

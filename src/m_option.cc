@@ -41,7 +41,7 @@
 // -ACB- 1998/07/30 Remove M_SetRespawn and the newnmrespawn &
 //                  respawnmonsters. Used new respawnsetting variable.
 //
-// -ACB- 1998/08/10 Edited the menu's to reflect the fact that currentmap
+// -ACB- 1998/08/10 Edited the menu's to reflect the fact that currmap
 //                  flags can prevent changes.
 //
 // -ES-  1998/08/21 Added resolution options
@@ -1376,7 +1376,7 @@ static void M_ChangeGamma(int keypressed)
 //
 static void M_ChangeBlood(int keypressed)
 {
-	if ((currentmap->force_on | currentmap->force_off) & MPF_MoreBlood)
+	if ((currmap->force_on | currmap->force_off) & MPF_MoreBlood)
 		return;
 
 	level_flags.more_blood = global_flags.more_blood;
@@ -1384,7 +1384,7 @@ static void M_ChangeBlood(int keypressed)
 
 static void M_ChangeJumping(int keypressed)
 {
-	if ((currentmap->force_on | currentmap->force_off) & MPF_Jumping)
+	if ((currmap->force_on | currmap->force_off) & MPF_Jumping)
 		return;
 
 	level_flags.jump = global_flags.jump;
@@ -1392,7 +1392,7 @@ static void M_ChangeJumping(int keypressed)
 
 static void M_ChangeCrouching(int keypressed)
 {
-	if ((currentmap->force_on | currentmap->force_off) & MPF_Crouching)
+	if ((currmap->force_on | currmap->force_off) & MPF_Crouching)
 		return;
 
 	level_flags.crouch = global_flags.crouch;
@@ -1400,7 +1400,7 @@ static void M_ChangeCrouching(int keypressed)
 
 static void M_ChangeExtra(int keypressed)
 {
-	if ((currentmap->force_on | currentmap->force_off) & MPF_Extras)
+	if ((currmap->force_on | currmap->force_off) & MPF_Extras)
 		return;
 
 	level_flags.have_extra = global_flags.have_extra;
@@ -1413,7 +1413,7 @@ static void M_ChangeExtra(int keypressed)
 //
 static void M_ChangeMonsterRespawn(int keypressed)
 {
-	if ((currentmap->force_on | currentmap->force_off) & MPF_ResRespawn)
+	if ((currmap->force_on | currmap->force_off) & MPF_ResRespawn)
 		return;
 
 	level_flags.res_respawn = global_flags.res_respawn;
@@ -1421,7 +1421,7 @@ static void M_ChangeMonsterRespawn(int keypressed)
 
 static void M_ChangeItemRespawn(int keypressed)
 {
-	if ((currentmap->force_on | currentmap->force_off) & MPF_ItemRespawn)
+	if ((currmap->force_on | currmap->force_off) & MPF_ItemRespawn)
 		return;
 
 	level_flags.itemrespawn = global_flags.itemrespawn;
@@ -1429,7 +1429,7 @@ static void M_ChangeItemRespawn(int keypressed)
 
 static void M_ChangeTransluc(int keypressed)
 {
-	if ((currentmap->force_on | currentmap->force_off) & MPF_Translucency)
+	if ((currmap->force_on | currmap->force_off) & MPF_Translucency)
 		return;
 
 	level_flags.trans = global_flags.trans;
@@ -1437,7 +1437,7 @@ static void M_ChangeTransluc(int keypressed)
 
 static void M_ChangeTrue3d(int keypressed)
 {
-	if ((currentmap->force_on | currentmap->force_off) & MPF_True3D)
+	if ((currmap->force_on | currmap->force_off) & MPF_True3D)
 		return;
 
 	level_flags.true3dgameplay = global_flags.true3dgameplay;
@@ -1445,7 +1445,7 @@ static void M_ChangeTrue3d(int keypressed)
 
 static void M_ChangeAutoAim(int keypressed)
 {
-	if ((currentmap->force_on | currentmap->force_off) & MPF_AutoAim)
+	if ((currmap->force_on | currmap->force_off) & MPF_AutoAim)
 		return;
 
 	level_flags.autoaim = global_flags.autoaim;
@@ -1456,7 +1456,7 @@ static void M_ChangeRespawn(int keypressed)
 	if (gameskill == sk_nightmare)
 		return;
 
-	if ((currentmap->force_on | currentmap->force_off) & MPF_Respawn)
+	if ((currmap->force_on | currmap->force_off) & MPF_Respawn)
 		return;
 
 	level_flags.respawn = global_flags.respawn;
@@ -1467,7 +1467,7 @@ static void M_ChangeFastparm(int keypressed)
 	if (gameskill == sk_nightmare)
 		return;
 
-	if ((currentmap->force_on | currentmap->force_off) & MPF_FastParm)
+	if ((currmap->force_on | currmap->force_off) & MPF_FastParm)
 		return;
 
 	level_flags.fastparm = global_flags.fastparm;
@@ -1481,7 +1481,7 @@ static void M_ChangeMipMap(int keypressed)
 
 static void M_ChangeShadows(int keypressed)
 {
-	if ((currentmap->force_on | currentmap->force_off) & MPF_Shadows)
+	if ((currmap->force_on | currmap->force_off) & MPF_Shadows)
 		return;
 
 	level_flags.shadows = global_flags.shadows;
@@ -1489,7 +1489,7 @@ static void M_ChangeShadows(int keypressed)
 
 static void M_ChangeHalos(int keypressed)
 {
-	if ((currentmap->force_on | currentmap->force_off) & MPF_Halos)
+	if ((currmap->force_on | currmap->force_off) & MPF_Halos)
 		return;
 
 	level_flags.halos = global_flags.halos;
@@ -1497,7 +1497,7 @@ static void M_ChangeHalos(int keypressed)
 
 static void M_ChangeCompatMode(int keypressed)
 {
-	if ((currentmap->force_on | currentmap->force_off) & MPF_BoomCompat)
+	if ((currmap->force_on | currmap->force_off) & MPF_BoomCompat)
 		return;
 
 	level_flags.compat_mode = global_flags.compat_mode;
@@ -1509,7 +1509,7 @@ static void M_ChangeCompatMode(int keypressed)
 
 static void M_ChangeKicking(int keypressed)
 {
-	if ((currentmap->force_on | currentmap->force_off) & MPF_Kicking)
+	if ((currmap->force_on | currmap->force_off) & MPF_Kicking)
 		return;
 
 	level_flags.kicking = global_flags.kicking;

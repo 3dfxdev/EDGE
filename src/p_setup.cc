@@ -177,14 +177,16 @@ static void LoadVertexes(int lump)
 	vertex_t *li;
 
 	if (! W_VerifyLumpName(lump, "VERTEXES"))
-		I_Error("Bad WAD: level %s missing VERTEXES.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s missing VERTEXES.\n", 
+				currmap->lump.GetString());
 
 	// Determine number of lumps:
 	//  total lump length / vertex record length.
 	numvertexes = W_LumpLength(lump) / sizeof(mapvertex_t);
 
 	if (numvertexes == 0)
-		I_Error("Bad WAD: level %s contains 0 vertexes.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s contains 0 vertexes.\n", 
+				currmap->lump.GetString());
 
 	// Allocate zone memory for buffer.  Must be zeroed.
 	vertexes = Z_ClearNew(vertex_t, numvertexes);
@@ -218,7 +220,8 @@ static void LoadGLVertexes(int lump)
 	vertex_t *vert;
 
 	if (!W_VerifyLumpName(lump, "GL_VERT"))
-		I_Error("Bad WAD: level %s missing GL_VERT.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s missing GL_VERT.\n", 
+				currmap->lump.GetString());
 
 	// Load data into cache.
 	data = (byte *) W_CacheLumpNum(lump);
@@ -286,12 +289,14 @@ static void LoadGLSegs(int lump)
 	int partner;
 
 	if (! W_VerifyLumpName(lump, "GL_SEGS"))
-		I_Error("Bad WAD: level %s missing GL_SEGS.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s missing GL_SEGS.\n", 
+				currmap->lump.GetString());
 
 	numsegs = W_LumpLength(lump) / sizeof(map_glseg_t);
 
 	if (numsegs == 0)
-		I_Error("Bad WAD: level %s contains 0 gl-segs.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s contains 0 gl-segs.\n", 
+				currmap->lump.GetString());
 
 	segs = Z_ClearNew(seg_t, numsegs);
 	data = W_CacheLumpNum(lump);
@@ -374,12 +379,14 @@ static void LoadSubsectors(int lump, const char *name)
 	subsector_t *ss;
 
 	if (! W_VerifyLumpName(lump, name))
-		I_Error("Bad WAD: level %s missing %s.\n", currentmap->lump, name);
+		I_Error("Bad WAD: level %s missing %s.\n", 
+				currmap->lump.GetString(), name);
 
 	numsubsectors = W_LumpLength(lump) / sizeof(mapsubsector_t);
 
 	if (numsubsectors == 0)
-		I_Error("Bad WAD: level %s contains 0 ssectors.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s contains 0 ssectors.\n", 
+				currmap->lump.GetString());
 
 	subsectors = Z_ClearNew(subsector_t, numsubsectors);
 
@@ -397,7 +404,8 @@ static void LoadSubsectors(int lump, const char *name)
 		seg_t **prevptr = &ss->segs;
 
 		if (countsegs == 0 || firstseg == 0xFFFF || firstseg+countsegs > numsegs)
-			I_Error("Bad WAD: level %s has invalid SSECTORS.\n", currentmap->lump);
+			I_Error("Bad WAD: level %s has invalid SSECTORS.\n", 
+					currmap->lump.GetString());
 
 		ss->sector = NULL;
 		ss->thinglist = NULL;
@@ -420,7 +428,8 @@ static void LoadSubsectors(int lump, const char *name)
 		}
 
 		if (ss->sector == NULL)
-			I_Error("Bad WAD: level %s has crazy SSECTORS.\n", currentmap->lump);
+			I_Error("Bad WAD: level %s has crazy SSECTORS.\n", 
+					currmap->lump.GetString());
 
 		*prevptr = NULL;
 
@@ -473,12 +482,14 @@ static void LoadSectors(int lump)
 	sector_t *ss;
 
 	if (! W_VerifyLumpName(lump, "SECTORS"))
-		I_Error("Bad WAD: level %s missing SECTORS.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s missing SECTORS.\n", 
+				currmap->lump.GetString());
 
 	numsectors = W_LumpLength(lump) / sizeof(mapsector_t);
 
 	if (numsectors == 0)
-		I_Error("Bad WAD: level %s contains 0 sectors.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s contains 0 sectors.\n", 
+				currmap->lump.GetString());
 
 	sectors = Z_ClearNew(sector_t, numsectors);
 
@@ -547,7 +558,8 @@ static void LoadNodes(int lump, char *name)
 	seg_t *seg;
 
 	if (! W_VerifyLumpName(lump, name))
-		I_Error("Bad WAD: level %s missing %s.\n", currentmap->lump, name);
+		I_Error("Bad WAD: level %s missing %s.\n", 
+				currmap->lump.GetString(), name);
 
 	// Note: zero numnodes is valid.
 	numnodes = W_LumpLength(lump) / sizeof(mapnode_t);
@@ -723,12 +735,14 @@ static void LoadThings(int lump)
 	int numthings;
 
 	if (!W_VerifyLumpName(lump, "THINGS"))
-		I_Error("Bad WAD: level %s missing THINGS.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s missing THINGS.\n", 
+				currmap->lump.GetString());
 
 	numthings = W_LumpLength(lump) / sizeof(mapthing_t);
 
 	if (numthings == 0)
-		I_Error("Bad WAD: level %s contains 0 things.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s contains 0 things.\n", 
+				currmap->lump.GetString());
 
 	data = W_CacheLumpNum(lump);
 	CRC32_ProcessBlock(&mapthing_CRC, (const byte*)data, W_LumpLength(lump));
@@ -789,12 +803,14 @@ static void LoadHexenThings(int lump)
 	int numthings;
 
 	if (!W_VerifyLumpName(lump, "THINGS"))
-		I_Error("Bad WAD: level %s missing THINGS.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s missing THINGS.\n", 
+				currmap->lump.GetString());
 
 	numthings = W_LumpLength(lump) / sizeof(maphexenthing_t);
 
 	if (numthings == 0)
-		I_Error("Bad WAD: level %s contains 0 things.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s contains 0 things.\n", 
+				currmap->lump.GetString());
 
 	data = W_CacheLumpNum(lump);
 	CRC32_ProcessBlock(&mapthing_CRC, (const byte*)data, W_LumpLength(lump));
@@ -877,14 +893,15 @@ static INLINE void ComputeLinedefData(line_t *ld, int side0, int side1)
 	if (side0 == -1)
 	{
 		I_Warning("Bad WAD: level %s linedef #%d is missing RIGHT side\n",
-			currentmap->lump, ld - lines);
+			currmap->lump.GetString(), ld - lines);
 		side0 = 0;
 	}
 
 	if ((ld->flags & ML_TwoSided) && ((side0 == -1) || (side1 == -1)))
 	{
 		I_Warning("Bad WAD: level %s has linedef #%d marked TWOSIDED, "
-			"but it has only one side.\n", currentmap->lump, ld - lines);
+			"but it has only one side.\n", 
+			currmap->lump.GetString(), ld - lines);
 
 		ld->flags &= ~ML_TwoSided;
 	}
@@ -913,12 +930,14 @@ static void LoadLineDefs(int lump)
 	int i;
 
 	if (! W_VerifyLumpName(lump, "LINEDEFS"))
-		I_Error("Bad WAD: level %s missing LINEDEFS.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s missing LINEDEFS.\n", 
+				currmap->lump.GetString());
 
 	numlines = W_LumpLength(lump) / sizeof(maplinedef_t);
 
 	if (numlines == 0)
-		I_Error("Bad WAD: level %s contains 0 linedefs.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s contains 0 linedefs.\n", 
+				currmap->lump.GetString());
 
 	lines = Z_ClearNew(line_t, numlines);
 	temp_line_sides = Z_ClearNew(int, numlines * 2);
@@ -977,12 +996,14 @@ static void LoadHexenLineDefs(int lump)
 	int i;
 
 	if (! W_VerifyLumpName(lump, "LINEDEFS"))
-		I_Error("Bad WAD: level %s missing LINEDEFS.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s missing LINEDEFS.\n", 
+				currmap->lump.GetString());
 
 	numlines = W_LumpLength(lump) / sizeof(maphexenlinedef_t);
 
 	if (numlines == 0)
-		I_Error("Bad WAD: level %s contains 0 linedefs.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s contains 0 linedefs.\n", 
+				currmap->lump.GetString());
 
 	lines = Z_ClearNew(line_t, numlines);
 	temp_line_sides = Z_ClearNew(int, numlines * 2);
@@ -1031,7 +1052,7 @@ static void TransferMapSideDef(const mapsidedef_t *msd, side_t *sd,
 	if (sec_num < 0)
 	{
 		I_Warning("Level %s has sidedef with bad sector ref (%d)\n",
-			currentmap->lump, sec_num);
+			currmap->lump.GetString(), sec_num);
 		sec_num = 0;
 	}
 	sd->sector = &sectors[sec_num];
@@ -1065,12 +1086,14 @@ static void LoadSideDefs(int lump)
 	int nummapsides;
 
 	if (! W_VerifyLumpName(lump, "SIDEDEFS"))
-		I_Error("Bad WAD: level %s missing SIDEDEFS.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s missing SIDEDEFS.\n", 
+				currmap->lump.GetString());
 
 	nummapsides = W_LumpLength(lump) / sizeof(mapsidedef_t);
 
 	if (nummapsides == 0)
-		I_Error("Bad WAD: level %s contains 0 sidedefs.\n", currentmap->lump);
+		I_Error("Bad WAD: level %s contains 0 sidedefs.\n", 
+				currmap->lump.GetString());
 
 	sides = Z_ClearNew(side_t, numsides);
 
@@ -1093,14 +1116,14 @@ static void LoadSideDefs(int lump)
 		if (side0 >= nummapsides)
 		{
 			I_Warning("Bad WAD: level %s linedef #%d has bad RIGHT side.\n",
-				currentmap->lump, i);
+				currmap->lump.GetString(), i);
 			side0 = nummapsides-1;
 		}
 
 		if (side1 != -1 && side1 >= nummapsides)
 		{
 			I_Warning("Bad WAD: level %s linedef #%d has bad LEFT side.\n",
-				currentmap->lump, i);
+				currmap->lump.GetString(), i);
 			side1 = nummapsides-1;
 		}
 
@@ -1413,7 +1436,7 @@ static void LoadBlockMap(int lump)
 
 	if (num_lines <= 4)
 		I_Error("Bad WAD: level %s missing BLOCKMAP.  Build the nodes !\n", 
-		currentmap->lump);
+		currmap->lump.GetString());
 
 	bmaporgx = (float)SHORT(data[0]);
 	bmaporgy = (float)SHORT(data[1]);
@@ -1670,7 +1693,7 @@ static void DoBlockMap(int lump)
 
 	if (! W_VerifyLumpName(lump, "BLOCKMAP"))
 		I_Error("Bad WAD: level %s missing BLOCKMAP.  Build the nodes !\n", 
-		currentmap->lump);
+		currmap->lump.GetString());
 
 	if (M_CheckParm("-blockmap") > 0 ||
 		W_LumpLength(lump) > (128 * 1024) ||
@@ -1786,17 +1809,19 @@ static void LoadReject(int lump)
 
 	if (! W_VerifyLumpName(lump, "REJECT"))
 		I_Error("Bad WAD: level %s missing REJECT.  Build the nodes !\n", 
-		currentmap->lump);
+		currmap->lump.GetString());
 
 	if (W_LumpLength(lump) == 0)
 		I_Error("Bad WAD: level %s missing REJECT.  Build the nodes !\n", 
-		currentmap->lump);
+		currmap->lump.GetString());
 
 	req_length = (numsectors * numsectors + 7) / 8;
 
 	if (W_LumpLength(lump) < req_length)
 	{
-		M_WarnError("Level %s has invalid REJECT info !\n", currentmap->lump);
+		M_WarnError("Level %s has invalid REJECT info !\n", 
+					currmap->lump.GetString());
+					
 		rejectmatrix = NULL;
 		return;
 	}
@@ -1924,9 +1949,9 @@ static void ShutdownLevel(void)
 // P_SetupLevel
 //
 // Sets up the current level using the skill passed and the
-// information in currentmap.
+// information in currmap.
 //
-// -ACB- 1998/08/09 Use currentmap to ref lump and par time
+// -ACB- 1998/08/09 Use currmap to ref lump and par time
 // -KM- 1998/11/25 Added autotag.
 //
 void P_SetupLevel(skill_t skill, int autotag)
@@ -1942,7 +1967,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 
 	totalkills = totalitems = totalsecret = wminfo.maxfrags = 0;
 
-	wminfo.partime = currentmap->partime;
+	wminfo.partime = currmap->partime;
 
 	for (p = players; p; p = p->next)
 	{
@@ -1954,12 +1979,12 @@ void P_SetupLevel(skill_t skill, int autotag)
 	// will be set by player think.
 	consoleplayer->viewz = FLO_UNUSED;
 
-	lumpnum = W_GetNumForName(currentmap->lump);
+	lumpnum = W_GetNumForName(currmap->lump);
 
 	leveltime = 0;
 
 	// -AJA- 1999/12/20: Support for "GL-Friendly Nodes".
-	sprintf(gl_lumpname, "GL_%s", currentmap->lump);
+	sprintf(gl_lumpname, "GL_%s", currmap->lump.GetString());
 	gl_lumpnum = W_CheckNumForName(gl_lumpname);
 
 	// ignore GL info if the level marker occurs _before_ the normal
@@ -2132,7 +2157,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 		R_PrecacheLevel();
 
 	S_SoundLevelInit(); // Clear out the playing sounds
-	S_ChangeMusic(currentmap->music, true); // start level music
+	S_ChangeMusic(currmap->music, true); // start level music
 
 	level_active = true;
 }

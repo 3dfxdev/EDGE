@@ -87,8 +87,6 @@ void G_DoSaveGame(void);
 gameaction_e gameaction = ga_nothing;
 gamestate_e gamestate = GS_NOTHING;
 skill_t gameskill = sk_invalid;
-const mapstuff_t *currentmap = NULL;  // currentmap
-const mapstuff_t *nextmap = NULL;  // currentmap
 
 bool paused = false;
 
@@ -247,7 +245,11 @@ fixed_t mlookspeed = 1000 / 64;
 bool invertmouse = false;
 
 // -ACB- 2004/05/25 We need to store our current gamedef
-gamedef_c* currgamedef;
+gamedef_c* currgamedef = NULL;
+
+// -ACB- 2004/05/25 We need to store our current/next mapdefs
+const mapdef_c* currmap = NULL;
+const mapdef_c* nextmap = NULL;
 
 //--------------------------------------------
 
@@ -262,7 +264,7 @@ int bodyqueslot;
 
 void *statcopy;  // for statistics driver
 
-static const mapstuff_t *d_newmap = NULL;
+static const mapdef_c *d_newmap = NULL;
 static skill_t d_newskill;
 static bool d_newwarp;
 
@@ -623,7 +625,7 @@ void G_DoLoadLevel(void)
 {
 	player_t *p;
 
-	if (currentmap == NULL)
+	if (currmap == NULL)
 		I_Error("G_DoLoadLevel: No Current Map selected");
 
 	// Set the sky map.
@@ -634,7 +636,7 @@ void G_DoLoadLevel(void)
 	//
 	// -ACB- 1998/08/09 Reference current map for sky name.
 
-	sky_image = W_ImageFromTexture(currentmap->sky);
+	sky_image = W_ImageFromTexture(currmap->sky);
 
 	if (wipegamestate == GS_LEVEL)
 		wipegamestate = GS_NOTHING;  // force a wipe
@@ -649,7 +651,7 @@ void G_DoLoadLevel(void)
 	for (p = players; p; p = p->next)
 	{
 		if (p->playerstate == PST_DEAD ||
-			(currentmap->force_on & MPF_ResetPlayer))
+			(currmap->force_on & MPF_ResetPlayer))
 		{
 			p->playerstate = PST_REBORN;
 		}
@@ -661,9 +663,9 @@ void G_DoLoadLevel(void)
 	// -AJA- 2000/02/02: Made it more generic.
 
 #define HANDLE_FLAG(var, specflag)  \
-	if (currentmap->force_on & (specflag))  \
+	if (currmap->force_on & (specflag))  \
 	(var) = true;  \
-	else if (currentmap->force_off & (specflag))  \
+	else if (currmap->force_off & (specflag))  \
 	(var) = false;
 
 	HANDLE_FLAG(level_flags.jump, MPF_Jumping);
@@ -685,25 +687,25 @@ void G_DoLoadLevel(void)
 
 #undef HANDLE_FLAG
 
-	if (currentmap->force_on & MPF_BoomCompat)
+	if (currmap->force_on & MPF_BoomCompat)
 		level_flags.compat_mode = CM_BOOM;
-	else if (currentmap->force_off & MPF_BoomCompat)
+	else if (currmap->force_off & MPF_BoomCompat)
 		level_flags.compat_mode = CM_EDGE;
 
-	if (currentmap->force_on & MPF_AutoAim)
+	if (currmap->force_on & MPF_AutoAim)
 	{
-		if (currentmap->force_on & MPF_AutoAimMlook)
+		if (currmap->force_on & MPF_AutoAimMlook)
 			level_flags.autoaim = AA_MLOOK;
 		else
 			level_flags.autoaim = AA_ON;
 	}
-	else if (currentmap->force_off & MPF_AutoAim)
+	else if (currmap->force_off & MPF_AutoAim)
 		level_flags.autoaim = AA_OFF;
 
 	//
 	// Note: It should be noted that only the gameskill is
-	// passed as the level is already defined in currentmap,
-	// The method for changing currentmap, is using by
+	// passed as the level is already defined in currmap,
+	// The method for changing currmap, is using by
 	// G_DeferredInitNew.
 	//
 	// -ACB- 1998/08/09 New P_SetupLevel
@@ -711,9 +713,9 @@ void G_DoLoadLevel(void)
 	//
 	RAD_ClearTriggers();
 
-	P_SetupLevel(gameskill, currentmap->autotag);
+	P_SetupLevel(gameskill, currmap->autotag);
 
-	RAD_SpawnTriggers(currentmap->ddf.name);
+	RAD_SpawnTriggers(currmap->ddf.name);
 
 	// -KM- 1998/12/21 If a drone player, the display player is already
 	//   set up.
@@ -728,7 +730,7 @@ void G_DoLoadLevel(void)
 	gameaction = ga_nothing;
 
 	CON_SetVisible( /* !!! showMessages?vs_minimal: */ vs_notvisible);
-	CON_Printf("%s\n", currentmap->ddf.name);
+	CON_Printf("%s\n", currmap->ddf.name);
 
 	// clear cmd building stuff
 	Z_Clear(gamekeydown, bool, NUMKEYS);
@@ -908,7 +910,7 @@ void G_Ticker(void)
 				break;
 				
 			case ga_loadnext:
-				currentmap = nextmap;
+				currmap = nextmap;
 				G_DoLoadLevel();
 				break;
 				
@@ -1298,7 +1300,7 @@ void G_ScreenShot(void)
 //  actually exiting level.
 void G_ExitLevel(int time)
 {
-	nextmap = DDF_LevelMapLookup(currentmap->nextmapname);
+	nextmap = game::LookupMap(currmap->nextmapname);
 	exittime = leveltime + time;
 	exit_skipall = false;
 }
@@ -1307,14 +1309,14 @@ void G_ExitLevel(int time)
 //                  removed the check for map31.
 void G_SecretExitLevel(int time)
 {
-	nextmap = DDF_LevelMapLookup(currentmap->secretmapname);
+	nextmap = game::LookupMap(currmap->secretmapname);
 	exittime = leveltime + time;
 	exit_skipall = false;
 }
 
 void G_ExitToLevel(char *name, int time, bool skip_all)
 {
-	nextmap = DDF_LevelMapLookup(name);
+	nextmap = game::LookupMap(name);
 	exittime = leveltime + time;
 	exit_skipall = skip_all;
 }
@@ -1338,7 +1340,7 @@ void G_DoCompleted(void)
 		AM_Stop();
 
 	// handle "no stat" levels
-	if (currentmap->wistyle == WISTYLE_None || exit_skipall)
+	if (currmap->wistyle == WISTYLE_None || exit_skipall)
 	{
 		viewactive = false;
 		automapactive = false;
@@ -1347,14 +1349,14 @@ void G_DoCompleted(void)
 		return;
 	}
 
-	wminfo.level = currentmap->ddf.name;
-	wminfo.last = currentmap;
+	wminfo.level = currmap->ddf.name;
+	wminfo.last = currmap;
 	wminfo.next = nextmap;
 	wminfo.maxkills = totalkills;
 	wminfo.maxitems = totalitems;
 	wminfo.maxsecret = totalsecret;
 	wminfo.maxfrags = 0;
-	wminfo.partime = currentmap->partime;
+	wminfo.partime = currmap->partime;
 	wminfo.pnum = consoleplayer->pnum;
 
 	if (!wminfo.plyr)
@@ -1390,7 +1392,7 @@ void G_WorldDone(void)
 		return;
 	}
 
-	F_StartFinale(&currentmap->f_end, nextmap ? ga_briefing : ga_nothing);
+	F_StartFinale(&currmap->f_end, nextmap ? ga_briefing : ga_nothing);
 }
 
 //
@@ -1423,7 +1425,7 @@ void G_DoLoadGame(void)
 	char *filename;
 	int version;
 	saveglobals_t *globs;
-	const mapstuff_t *tempmap;
+	const mapdef_c *tempmap;
 
 	gameaction = ga_nothing;
 
@@ -1458,7 +1460,7 @@ void G_DoLoadGame(void)
 
 	// --- pull info from global structure ---
 
-	tempmap = DDF_LevelMapLookup(globs->level);
+	tempmap = game::LookupMap(globs->level);
 
 	if (! tempmap)
 		I_Error("LOAD-GAME: No such map %s !  Check WADS\n", globs->level);
@@ -1560,8 +1562,8 @@ void G_DoSaveGame(void)
 
 	// --- fill in global structure ---
 
-	globs->game = Z_StrDup(currentmap->episode_name);
-	globs->level = Z_StrDup(currentmap->ddf.name);
+	globs->game = Z_StrDup(currmap->episode_name);
+	globs->level = Z_StrDup(currmap->ddf.name);
 	globs->flags = level_flags;
 	globs->gravity = level_flags.menu_grav;
 
@@ -1625,7 +1627,7 @@ void G_DoSaveGame(void)
 //
 // G_DeferredInitNew
 //
-// This is the procedure that changes the currentmap
+// This is the procedure that changes the currmap
 // at the start of the game and outside the normal
 // progression of the game. All thats needed is the
 // skill and the name (The name in the DDF File itself).
@@ -1634,7 +1636,7 @@ void G_DoSaveGame(void)
 //
 bool G_DeferredInitNew(skill_t skill, const char *mapname, bool warpopt)
 {
-	d_newmap = DDF_LevelMapLookup(mapname);
+	d_newmap = game::LookupMap(mapname);
 
 	if (!d_newmap)
 		return false;
@@ -1678,7 +1680,7 @@ void G_DoNewGame(void)
 	// -AJA- 2003/10/09: support for pre-level briefing screen on first map.
 	//       FIXME: kludgy. All this game logic desperately needs rethinking.
 
-	F_StartFinale(&currentmap->f_pre, ga_loadlevel);
+	F_StartFinale(&currmap->f_pre, ga_loadlevel);
 }
 
 //
@@ -1687,10 +1689,10 @@ void G_DoNewGame(void)
 // -ACB- 1998/07/12 Removed Lost Soul/Spectre Ability stuff
 // -ACB- 1998/08/10 Inits new game without the need for gamemap or episode.
 // -ACB- 1998/09/06 Removed remarked code.
-// -KM- 1998/12/21 Added mapstuff param so no need for defered init new
+// -KM- 1998/12/21 Added mapdef param so no need for defered init new
 //   which was conflicting with net games.
 //
-void G_InitNew(skill_t skill, const mapstuff_t * map, long seed)
+void G_InitNew(skill_t skill, const mapdef_c * map, long seed)
 {
 	player_t *p;
 
@@ -1704,7 +1706,7 @@ void G_InitNew(skill_t skill, const mapstuff_t * map, long seed)
 		S_ResumeSounds();  // -ACB- 1999/10/17 New Sound API
 	}
 
-	currentmap = map;
+	currmap = map;
 
 	if (skill > sk_nightmare)
 		skill = sk_nightmare;
@@ -1855,10 +1857,10 @@ void G_BeginRecording(void)
 
 	//---------------------------------------------------------
 	// -ACB- 1998/09/03 Record Level Name In Demo
-	i = (int)strlen(currentmap->ddf.name);
+	i = (int)strlen(currmap->ddf.name);
 	WriteByteToDemo(i);
-	WriteToDemo(currentmap->ddf.name, i);
-	L_WriteDebug("G_BeginRecording: %s\n", currentmap->ddf.name);
+	WriteToDemo(currmap->ddf.name, i);
+	L_WriteDebug("G_BeginRecording: %s\n", currmap->ddf.name);
 	//---------------------------------------------------------
 
 	WriteByteToDemo(gameskill);
@@ -1920,7 +1922,7 @@ void G_DoPlayDemo(void)
 	int i,j;
 	int demversion;
 	char mapname[30];
-	const mapstuff_t *newmap;
+	const mapdef_c *newmap;
 	long random_seed;
 	///  player_t *p;
 
@@ -1975,8 +1977,7 @@ void G_DoPlayDemo(void)
 	//----------------------------------------------------------------
 	// -ACB- 1998/09/03 Setup the given mapname; fail if map does not
 	// exist.
-	newmap = DDF_LevelMapLookup(mapname);
-
+	newmap = game::LookupMap(mapname);
 	if (newmap == NULL)
 	{
 		gameaction = ga_nothing;
@@ -2281,3 +2282,22 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 	return true;
 }
 
+namespace game
+{
+	//
+	// mapdef_c* LookupMap()
+	//
+	mapdef_c* LookupMap(const char *refname)
+	{
+		mapdef_c* m;
+		
+		m = mapdefs.Lookup(refname);
+		if (m)
+		{
+			if (W_CheckNumForName(m->lump) != -1)
+				return m;
+		}
+		
+		return NULL;
+	}
+}

@@ -40,6 +40,7 @@
 
 #include "dm_defs.h"
 #include "dm_state.h"
+#include "g_game.h"
 #include "m_bbox.h"
 #include "m_random.h"
 #include "p_local.h"
@@ -177,7 +178,7 @@ static bool PIT_StompThing(mobj_t * thing)
 		}
 	}
 
-	if (!tm_I.mover->player && (currentmap->force_off & MPF_Stomp))
+	if (!tm_I.mover->player && (currmap->force_off & MPF_Stomp))
 		return false;
 
 	P_DamageMobj(thing, tm_I.mover, tm_I.mover, 10000, NULL);
