@@ -33,9 +33,8 @@
 
 #include "epi/epistring.h"
 
-extern long random_seed;  //
-extern int starttime;     // for demo code
-extern bool netdemo;      //
+extern long random_seed;  // for demo code
+extern int starttime;     //
 
 // -KM- 1998/11/25 Added support for finales before levels
 typedef enum
