@@ -54,7 +54,7 @@ void S_PauseSounds(void);
 void S_RemoveSoundOrigin(mobj_t *origin);
 void S_AddToFreeQueue(mobj_t *origin, void *block);
 void S_StopSound(mobj_t *origin);
-void S_StopLoopingSounds(mobj_t *origin);
+void S_StopLoopingSound(mobj_t *origin); // -ACB- 2001/01/09 Addition Functionality
 void S_StopChannel(int cnum);
 void S_UpdateSounds(mobj_t *listener);
 void S_SoundTicker(void);
