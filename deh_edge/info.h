@@ -426,6 +426,7 @@ typedef struct  // dynamic information
 {
 	char group;
 	int gr_idx;
+	int gr_next;  // next state in same group (incl. random-jumps)
 }
 statedyn_t;
 
