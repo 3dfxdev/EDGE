@@ -1879,7 +1879,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjdef_c *type)
 		mobj->flags |= MF_TOUCHY;
 
 	// handle dynamic lights
-	if (blocklights && type->dlight.type != DLITE_None)
+	if (type->dlight.type != DLITE_None)
 	{
 		mobj->extendedflags |= EF_DLIGHT;
 		mobj->dlight_qty = mobj->dlight_target = (float)type->dlight.intensity;
