@@ -337,7 +337,7 @@ static void P_FireWeapon(player_t * p)
 	P_SetPsprite(p, ps_weapon, newstate);
 
 	if (! (w->special_flags & WPSP_SilentToMon) &&
-		! (w->attack->flags & AF_SilentToMon))
+		! (w->attack && (w->attack->flags & AF_SilentToMon)))
 	{
 		P_NoiseAlert(p);
 	}
@@ -377,7 +377,7 @@ static void P_FireSecondAttack(player_t * p)
 	P_SetPsprite(p, ps_weapon, newstate);
 
 	if (! (w->special_flags & WPSP_SilentToMon) &&
-		! (w->sa_attack->flags & AF_SilentToMon))
+		! (w->sa_attack && (w->sa_attack->flags & AF_SilentToMon)))
 	{
 		P_NoiseAlert(p);
 	}
