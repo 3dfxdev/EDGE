@@ -230,7 +230,7 @@ static const image_t *keys[9];
 static const image_t *faces[ST_NUMFACES];
 
 // face background
-static const image_t *faceback;
+static const image_t *faceback[8];
 
 // main bar right
 static const image_t *armsbg;
@@ -289,6 +289,9 @@ static void RefreshBackground(void)
 	{
 		// -AJA- hack fix for red line at bottom of screen
 		RGL_Image320(ST_X, ST_Y, ST_WIDTH, ST_HEIGHT+1, sbar_image);
+
+		if (netgame)
+			RGL_ImageEasy320(ST_FX, 0, faceback[displayplayer % 8]);
 	}
 }
 
@@ -729,8 +732,11 @@ static void LoadGraphics(void)
 	}
 
 	// face backgrounds for different colour players
-	sprintf(namebuf, "STFB%d", displayplayer % 8);
-	faceback = W_ImageFromPatch(namebuf);
+	for (i = 0; i < 8; i++)
+	{
+		sprintf(namebuf, "STFB%d", i);
+		faceback[i] = W_ImageFromPatch(namebuf);
+	}
 
 	// status bar background bits
 	sbar_image = W_ImageFromPatch("STBAR");
