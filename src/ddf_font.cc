@@ -230,7 +230,10 @@ static void DDF_FontGetPatch(const char *info, void *storage)
 L_WriteDebug("FontDecode '%s' ( '%s' )\n", patch_buf, range_buf);
 
 	// find dividing colon
-	char *colon = (char *) DDF_MainDecodeList(range_buf, ':', true);
+	char *colon = NULL;
+	
+	if (strlen(range_buf) > 1)
+		colon = (char *) DDF_MainDecodeList(range_buf, ':', true);
 
 	if (colon)
 		*colon++ = 0;
