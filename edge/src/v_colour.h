@@ -41,10 +41,9 @@ void V_IndexNominalToRGB(int indexcol, byte *returncol);
 
 // -ES- 1998/11/29 Added translucency tables
 // -AJA- 1999/06/30: Moved 'em here, from dm_state.h.
+extern byte rgb_32k[32][32][32];  // 32K RGB table, for 8-bit translucency
 extern unsigned long col2rgb16[65][256][2];
 extern unsigned long col2rgb8[65][256];
-extern unsigned char rgb_32k[32][32][32];  // 32K RGB table, for 8-bit translucency
-
 extern unsigned long hicolourtransmask;  // OR mask used for translucency
 
 // -AJA- 1999/07/03: moved here from v_res.h.
@@ -94,6 +93,7 @@ void V_GetColmapRGB(const colourmap_t *colmap,
 // general purpose colormaps & coltables
 extern const colourmap_t *normal_map;
 extern const colourmap_t *sky_map;
+extern const colourmap_t *shadow_map;
 extern const coltable_t *fuzz_coltable;
 extern const coltable_t *dim_coltable;
 
