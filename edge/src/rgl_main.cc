@@ -371,6 +371,12 @@ void RGL_CheckExtensions(void)
 		use_color_material = false;
 		use_vertex_array = false;
 	}
+	else if (strstr(glstr_renderer, "Velocity") != NULL)
+	{
+		I_Printf("OpenGL: Enabling workarounds for Velocity card.\n");
+		use_color_material = false;
+		use_vertex_array = false;
+	}
 	else if (strstr(glstr_renderer, "Voodoo3") != NULL)
 	{
 		I_Printf("OpenGL: Enabling workarounds for Voodoo3 card.\n");
