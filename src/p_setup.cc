@@ -1704,9 +1704,7 @@ static void DoBlockMap(int lump)
 
 	// clear out mobj chains
 	blocklinks  = Z_ClearNew(mobj_t *, bmapwidth * bmapheight);
-
-	if (use_dlights)
-		blocklights = Z_ClearNew(mobj_t *, bmapwidth * bmapheight);
+	blocklights = Z_ClearNew(mobj_t *, bmapwidth * bmapheight);
 }
 
 // all sectors' line tables
@@ -1919,11 +1917,8 @@ static void ShutdownLevel(void)
 
 	Z_Free(linebuffer);
 	Z_Free(blocklinks);
-	if (blocklights)
-	{
-		Z_Free(blocklights);
-		blocklights = NULL;
-	}
+	Z_Free(blocklights);
+
 	Z_Free(bmap_lines); bmap_lines = NULL;
 	Z_Free(bmap_pointers); bmap_pointers = NULL;
 
