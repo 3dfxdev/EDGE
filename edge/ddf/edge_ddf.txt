@@ -1,3 +1,18 @@
+EDGE DDF 3.9 (15/1/2004):
+=========================
+
+1) THINGS.DDF: fixed respawn states for HEAVY_WEAPONS_DUDE, PAIN_ELEMENTAL,
+               and WOLFENSTEIN_SS to match standard DOOM (they were missing
+               a few frames).
+2) THINGS.DDF: added dummy entries DEAD_TORSO and DEAD_BOTTOM.
+3) THINGS.DDF: added new [SMOKE] entry.
+
+4) ATTACKS.DDF: made REVENANT_MISSILE use PUFF=SMOKE.
+5) ATTACKS.DDF: added two extra frames to ARCHVILE_FIRE which existed
+                in standard DOOM but were missing from EDGE.
+6) ATTACKS.DDF: made the PLAYER_PLASMA timing 6 tics instead of 2 tics,
+                to match standard DOOM.
+
 EDGE DDF 3.8 (29/11/2003):
 ==========================
 
