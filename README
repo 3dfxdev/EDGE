@@ -14,11 +14,13 @@ Archive listing:
 
 
 System Requirements:
-  - Either a DOOM, DOOM II, TNT, PLUTONIA or FREEDOOM WAD file.
   - Pentium 133 MHz CPU (233 MHz for 640x480 mode or GLEDGE).
   - 32MB RAM (64MB RAM recommended).
   - Hardware accelerated 3D card with OpenGL drivers (GLEDGE only).
-
+  
+  - Either a DOOM, DOOM II, TNT, PLUTONIA or FREEDOOM WAD file.
+  	(See "Getting hold of a game data" below).
+   
   For Win32:
     - DirectX 7.0 or higher.
     - Videocard and Soundcard which is compatible DirectX 7.0.
@@ -29,9 +31,26 @@ System Requirements:
     - Glibc 2.
 
 
+Getting hold of game data:
+  	You can get hold of freedoom from freedoom.sourceforge.net which 
+    is _free_ and has been produced by fans of the game in their
+    spare time, or you can purchase "The Ultimate Doom", "Doom II" or 
+    "Final Doom" (Plutonia/TNT) from id software at www.idsoftware.com. 
+    The shareware data will also work with EDGE. You need to copy the
+    .wad file you want to use into your EDGE directory. The wad names 
+    and what game they belong to are listed below: 
+
+    doom1.wad    -> Shareware Doom.
+    doom.wad     -> Doom/Ultimate Doom.
+    doom2.wad    -> Doom II
+    plutonia.wad -> Final Doom (Plutonia)
+    tnt.wad      -> Final Doom (TNT)
+
+
 Useful Parameters:
   * Screen Size: -width [screenwidth] -height [screenheight]
   * Colour depth: -bpp [depth]  (1 for 8-bit, 2 for 16-bit)
+  * Windowed Mode: -windowed
   * Pick IWAD file: -iwad [main wad file]
   * Play PWAD file: -file [addon wad file]
   * Jump to level: -warp [mapname]  (in the form of MAP01 or E2M9 etc..) 
@@ -261,9 +280,18 @@ Contact points:
 
 
 Compiling EDGE:
+  For All Versions:
+      glBSP 2.05 is intended for use with this version of EDGE. All
+      those people who download the source from CVS will need to
+      add this to the source tree for the edge module. The directory
+      name is in the format glbsp-x.xx - with the x's replaced
+      with the version number.
+
   For Windows:
       - use the IDE project files: EDGE.VCPROJ for Microsoft Visual
-      Studio, or EDGE.DEV for Dev C++ (a free C/C++ IDE).
+      Studio, or EDGE.DEV for Dev C++ (a free C/C++ IDE). Users
+      of the Dev C++ will also need to locate a version of the
+      DirectX libraries for 8.1. 
 
   For Linux:
     - just type 'make' in the top-level dir.  This will create gledge.
@@ -311,13 +339,12 @@ Command line options:
   -bots  <num>         Number of bots.
   -deathmatch          Deathmatch game (otherwise COOP).
   -altdeath            Alternate deathmatch mode.
-  -singletics          (Something net related ?)
+  -singletics          
   -timer  <mins>       Time limited games, and specifies how long.
   -avg                 Andy Virtual Gaming (same as -timer 20).
   -respawn             Monster respawning.
   -(no)itemrespawn     Item respawning.
   -newnmrespawn        Monsters respawn as if resurrected.
-  -viewangle  <ang>    (May not work) view angle for drones.
 
   -boom                Set compatibility to BOOM mode.
   -edge                Set compatibility to EDGE mode.
@@ -344,7 +371,6 @@ Command line options:
   -(no)mlook           Mouse-look up/down.
   -(no)kick            Weapon kick effect.
 
-  -(no)devparm         (Unused at the moment)
   -(no)monsters        Enable/disable monsters within the game.
   -(no)fast            Fast monsters.
   -(no)rotatemap       Automap rotation.
@@ -367,9 +393,6 @@ Command line options:
   -fastsprites         Load sprite images at start of level.
   -newmap OR -newhud   Automap overlay.
   -noconhistory        Disable console history (save some memory).
-  -noblit              (Unused at the moment)
-  -spritekludge        (Unused at the moment)
-  -screencomp <mode>   (Currently broken) screen composition.
 
 
   Win32 only options:
@@ -388,16 +411,13 @@ Command line options:
  
 
 Console commands:
-  ARGS  <a> <b> ...    Just displays the arguments given to it.
   CRC  <lump>          Computes the CRC value of a wad lump.
-  EAT  <size>          Eats memory (for debugging purposes).
   EXEC  <filename>     Executes the console commands in file.
   PLAYSOUND  <sound>   Plays the sound (fatal error if unknown !).
   QUIT                 Quit EDGE (pops up a query message).
   SET  <cvar> <val>    Set console variable to a new value.
-  TYPE  <filename>     Displays the file on the console.
   TYPEOF  <cvar>       Displays the type of a console variable.
-  WATCH  <cvar> <max>  Show var as a slider (NOTE: doesn't work).
+
 
   * The SET command can be used with no options, which displays all
     known variables (and their values), or just the cvar name, which
