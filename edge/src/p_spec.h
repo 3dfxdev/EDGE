@@ -39,7 +39,7 @@
 #define CEILSPEED   1.0f
 #define FLOORSPEED  1.0f
 
-#define STOPSPEED   0.0625f
+#define STOPSPEED   0.15f
 #define FRICTION    0.9063f
 #define VISCOSITY   0.0f
 #define GRAVITY     8.0f
@@ -125,7 +125,7 @@ typedef struct sec_move_s
   int newspecial;
 
 #ifdef USE_IMAGE
-  struct image_s *new_image;
+  const image_t *new_image;
 #else
   int texture;  //!!!
 #endif
