@@ -293,7 +293,7 @@ int font_c::StringLines(const char *str) const
 //
 // font_c::DrawChar
 //
-void font_c::DrawChar(int x, int y, char ch,   // FIXME: float x, y
+void font_c::DrawChar(float x, float y, char ch,
     const colourmap_c *colmap, float alpha) const
 {
 	const image_t *image = CharImage(ch);
