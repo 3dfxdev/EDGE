@@ -203,7 +203,7 @@ typedef struct intercept_s
 {
 	float frac;  // along trace line
 
-	int type;
+	intercept_type_e type;
 
 	union
 	{

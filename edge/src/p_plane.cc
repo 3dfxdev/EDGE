@@ -106,7 +106,7 @@ static const image_t * SECPIC(sector_t * sec, bool is_ceiling,
 // -ACB- 1998/09/06 Remarked and Reformatted.
 // -ACB- 2001/02/04 Move to p_plane.c
 //
-static float GetSecHeightReference(int ref, sector_t * sec)
+static float GetSecHeightReference(heightref_e ref, sector_t * sec)
 {
 	switch (ref & REF_MASK)
 	{
@@ -138,7 +138,7 @@ static float GetSecHeightReference(int ref, sector_t * sec)
 //
 // -ACB- 2001/02/04 Written
 //
-static float GetElevatorHeightReference(int ref, sector_t * sec)
+static float GetElevatorHeightReference(heightref_e ref, sector_t * sec)
 {
 	return -1;
 }

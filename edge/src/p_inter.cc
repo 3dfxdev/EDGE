@@ -59,7 +59,7 @@ static bool GiveAmmo(player_t * player, mobj_t * special,
   int dropped = (special && (special->flags & MF_DROPPED));
 
   int ammo  = be->subtype;  
-  int num   = floor(be->amount) / (dropped ? 2 : 1);
+  int num   = (int)floor(be->amount) / (dropped ? 2 : 1);
 
   bool change_weap;
   int priority = -100;
@@ -122,7 +122,7 @@ static bool GiveAmmoLimit(player_t * player, mobj_t * special,
     benefit_t *be, bool lose_em)
 {
   int ammo  = be->subtype;  
-  int limit = floor(be->amount);
+  int limit = (int)floor(be->amount);
 
   if (ammo == AM_NoAmmo)
     return false;
@@ -758,7 +758,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 
     // add damage after armour / invuln detection
     if (damage > 0)
-      player->damagecount += MAX(damage, DAMAGE_ADD_MIN);
+      player->damagecount += (int)MAX(damage, DAMAGE_ADD_MIN);
 
     // teleport stomp does 10k points...
     if (player->damagecount > DAMAGE_LIMIT)

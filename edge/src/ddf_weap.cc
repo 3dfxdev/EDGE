@@ -532,11 +532,11 @@ static void DDF_WGetSpecialFlags(const char *info, void *storage)
       true, false))
   {
     case CHKF_Positive:
-      buffer_weapon.special_flags |= flag_value;
+      buffer_weapon.special_flags = (weapon_flag_e)(buffer_weapon.special_flags | flag_value);
       break;
     
     case CHKF_Negative:
-      buffer_weapon.special_flags &= ~flag_value;
+      buffer_weapon.special_flags = (weapon_flag_e)(buffer_weapon.special_flags & ~flag_value);
       break;
 
     case CHKF_User:

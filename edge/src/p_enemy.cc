@@ -304,7 +304,7 @@ void P_NewChaseDir(mobj_t * object)
   dirtype_e tdir;
 
   dirtype_e d[3];
-  int olddir;
+  dirtype_e olddir;
   dirtype_e turnaround;
 
   olddir = object->movedir;

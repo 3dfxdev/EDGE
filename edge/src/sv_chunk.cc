@@ -686,7 +686,7 @@ bool SV_PopWriteChunk(void)
 	{
 #if (COMPRESS_ENABLE)
 		unsigned char *out_buf;
-		unsigned int out_len;
+		unsigned int out_len;   // unsigned due to LZO
 
 		for (i=0; i < len; i++)
 			cur->start[i] ^= (byte)(XOR_STRING[i % XOR_LEN]);
@@ -702,7 +702,7 @@ bool SV_PopWriteChunk(void)
 				cur->e_mark);
 		}
 
-		DEV_ASSERT2(out_len <= MAX_COMP_SIZE(len));
+		DEV_ASSERT2((int)out_len <= MAX_COMP_SIZE(len));
 
 		// write compressed length
 		SV_PutInt(out_len);
@@ -710,7 +710,7 @@ bool SV_PopWriteChunk(void)
 		// write original length to parent
 		SV_PutInt(len);
 
-		for (i=0; (i < out_len) && !last_error; i++)
+		for (i=0; (i < (int)out_len) && !last_error; i++)
 			SV_PutByte(out_buf[i]);
 
 		DEV_ASSERT2(!last_error);

@@ -31,15 +31,23 @@
 
 #ifdef __BIG_ENDIAN__
 
+// -AJA- 2003/10/06: use inline functions to prevent warnings
+class endian_swapper_c
+{
+  public:
+    static short SHORT(unsigned short x);
+    static long  LONG (unsigned long  x);
+};
+
 // Swap 16bit, that is, MSB and LSB byte.
-static short SHORT(unsigned short x)
+inline short endian_swapper_c::SHORT(unsigned short x)
 {
   // No masking with 0xFF should be necessary.
   return (x >> 8) | (x << 8);
 }
 
 // Swapping 32bit.
-static long LONG(unsigned long x)
+inline long endian_swapper_c::LONG(unsigned long x)
 {
   return
       (x >> 24)
@@ -47,6 +55,9 @@ static long LONG(unsigned long x)
       | ((x << 8) & 0xff0000)
       | (x << 24);
 }
+
+#define SHORT(x)  endian_swapper_c::SHORT(x)
+#define LONG(x)   endian_swapper_c::LONG(x)
 
 #else
 

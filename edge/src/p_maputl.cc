@@ -1400,8 +1400,8 @@ static void P_UnsetThingPosition(mobj_t * thing)
 		}
 		else
 		{
-			blockx = (thing->x - bmaporgx) / MAPBLOCKUNITS;
-			blocky = (thing->y - bmaporgy) / MAPBLOCKUNITS;
+			blockx = (int)(thing->x - bmaporgx) / MAPBLOCKUNITS;
+			blocky = (int)(thing->y - bmaporgy) / MAPBLOCKUNITS;
 
 			if (blockx >= 0 && blockx < bmapwidth &&
 				blocky >= 0 && blocky < bmapheight)
@@ -1435,8 +1435,8 @@ static void P_UnsetThingPosition(mobj_t * thing)
 		}
 		else
 		{
-			blockx = (thing->x - bmaporgx) / MAPBLOCKUNITS;
-			blocky = (thing->y - bmaporgy) / MAPBLOCKUNITS;
+			blockx = (int)(thing->x - bmaporgx) / MAPBLOCKUNITS;
+			blocky = (int)(thing->y - bmaporgy) / MAPBLOCKUNITS;
 
 			if (blockx >= 0 && blockx < bmapwidth &&
 				blocky >= 0 && blocky < bmapheight)
@@ -1576,8 +1576,8 @@ void P_SetThingPosition(mobj_t * thing)
 	// link into blockmap
 	if (!(thing->flags & MF_NOBLOCKMAP))
 	{
-		blockx = (thing->x - bmaporgx) / MAPBLOCKUNITS;
-		blocky = (thing->y - bmaporgy) / MAPBLOCKUNITS;
+		blockx = (int)(thing->x - bmaporgx) / MAPBLOCKUNITS;
+		blocky = (int)(thing->y - bmaporgy) / MAPBLOCKUNITS;
 
 		if (blockx >= 0 && blockx < bmapwidth &&
 			blocky >= 0 && blocky < bmapheight)
@@ -1602,8 +1602,8 @@ void P_SetThingPosition(mobj_t * thing)
 	// link into dynamic light blockmap
 	if (thing->extendedflags & EF_DLIGHT)
 	{
-		blockx = (thing->x - bmaporgx) / MAPBLOCKUNITS;
-		blocky = (thing->y - bmaporgy) / MAPBLOCKUNITS;
+		blockx = (int)(thing->x - bmaporgx) / MAPBLOCKUNITS;
+		blocky = (int)(thing->y - bmaporgy) / MAPBLOCKUNITS;
 
 		if (blockx >= 0 && blockx < bmapwidth &&
 			blocky >= 0 && blocky < bmapheight)
@@ -1998,10 +1998,10 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 	// -AJA- use floor() here, for more precise behaviour.
 	// FIXME: is this correct though ?
 
-	xt1 = floor(x1 / MAPBLOCKUNITS);
-	yt1 = floor(y1 / MAPBLOCKUNITS);
-	xt2 = floor(x2 / MAPBLOCKUNITS);
-	yt2 = floor(y2 / MAPBLOCKUNITS);
+	xt1 = (int)floor(x1 / MAPBLOCKUNITS);
+	yt1 = (int)floor(y1 / MAPBLOCKUNITS);
+	xt2 = (int)floor(x2 / MAPBLOCKUNITS);
+	yt2 = (int)floor(y2 / MAPBLOCKUNITS);
 
 	if (xt2 > xt1)
 	{

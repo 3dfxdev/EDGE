@@ -106,7 +106,7 @@ typedef struct shoot_trav_info_s
 	mobj_t *source;
 	float range;
 	float start_z;
-	float angle;
+	angle_t angle;
 	float slope;
 	float topslope;
 	float bottomslope;
@@ -133,6 +133,7 @@ static INLINE int PointOnLineSide(float x, float y, line_t *ld)
 
 	return P_PointOnDivlineSide(x, y, &div);
 }
+
 
 //
 // TELEPORT MOVE
@@ -220,10 +221,10 @@ bool P_TeleportMove(mobj_t * thing, float x, float y, float z)
 	Z_SetArraySize(&spechit_a, numspechit = 0);
 
 	// stomp on any things contacted
-	xl = (tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS) / MAPBLOCKUNITS;
-	xh = (tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS) / MAPBLOCKUNITS;
-	yl = (tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS) / MAPBLOCKUNITS;
-	yh = (tmbbox[BOXTOP] - bmaporgy + MAXRADIUS) / MAPBLOCKUNITS;
+	xl = (int)(tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS) / MAPBLOCKUNITS;
+	xh = (int)(tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS) / MAPBLOCKUNITS;
+	yl = (int)(tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS) / MAPBLOCKUNITS;
+	yh = (int)(tmbbox[BOXTOP] - bmaporgy + MAXRADIUS) / MAPBLOCKUNITS;
 	for (bx = xl; bx <= xh; bx++)
 		for (by = yl; by <= yh; by++)
 			if (!P_BlockThingsIterator(bx, by, PIT_StompThing))
@@ -404,10 +405,10 @@ bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z)
 	// based on their origin point, and can overlap
 	// into adjacent blocks by up to MAXRADIUS units.
 
-	xl = (tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS) / MAPBLOCKUNITS;
-	xh = (tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS) / MAPBLOCKUNITS;
-	yl = (tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS) / MAPBLOCKUNITS;
-	yh = (tmbbox[BOXTOP] - bmaporgy + MAXRADIUS) / MAPBLOCKUNITS;
+	xl = (int)(tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS) / MAPBLOCKUNITS;
+	xh = (int)(tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS) / MAPBLOCKUNITS;
+	yl = (int)(tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS) / MAPBLOCKUNITS;
+	yh = (int)(tmbbox[BOXTOP] - bmaporgy + MAXRADIUS) / MAPBLOCKUNITS;
 
 	for (bx = xl; bx <= xh; bx++)
 		for (by = yl; by <= yh; by++)
@@ -416,10 +417,10 @@ bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z)
 
 	// check lines
 
-	xl = (tmbbox[BOXLEFT] - bmaporgx) / MAPBLOCKUNITS;
-	xh = (tmbbox[BOXRIGHT] - bmaporgx) / MAPBLOCKUNITS;
-	yl = (tmbbox[BOXBOTTOM] - bmaporgy) / MAPBLOCKUNITS;
-	yh = (tmbbox[BOXTOP] - bmaporgy) / MAPBLOCKUNITS;
+	xl = (int)(tmbbox[BOXLEFT] - bmaporgx) / MAPBLOCKUNITS;
+	xh = (int)(tmbbox[BOXRIGHT] - bmaporgx) / MAPBLOCKUNITS;
+	yl = (int)(tmbbox[BOXBOTTOM] - bmaporgy) / MAPBLOCKUNITS;
+	yh = (int)(tmbbox[BOXTOP] - bmaporgy) / MAPBLOCKUNITS;
 
 	for (bx = xl; bx <= xh; bx++)
 		for (by = yl; by <= yh; by++)
@@ -793,10 +794,10 @@ static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 		// based on their origin point, and can overlap
 		// into adjacent blocks by up to MAXRADIUS units.
 
-		xl = (tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS) / MAPBLOCKUNITS;
-		xh = (tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS) / MAPBLOCKUNITS;
-		yl = (tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS) / MAPBLOCKUNITS;
-		yh = (tmbbox[BOXTOP] - bmaporgy + MAXRADIUS) / MAPBLOCKUNITS;
+		xl = (int)(tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS) / MAPBLOCKUNITS;
+		xh = (int)(tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS) / MAPBLOCKUNITS;
+		yl = (int)(tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS) / MAPBLOCKUNITS;
+		yh = (int)(tmbbox[BOXTOP] - bmaporgy + MAXRADIUS) / MAPBLOCKUNITS;
 
 		for (bx = xl; bx <= xh; bx++)
 			for (by = yl; by <= yh; by++)
@@ -806,10 +807,10 @@ static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 
 	// check lines
 
-	xl = (tmbbox[BOXLEFT] - bmaporgx) / MAPBLOCKUNITS;
-	xh = (tmbbox[BOXRIGHT] - bmaporgx) / MAPBLOCKUNITS;
-	yl = (tmbbox[BOXBOTTOM] - bmaporgy) / MAPBLOCKUNITS;
-	yh = (tmbbox[BOXTOP] - bmaporgy) / MAPBLOCKUNITS;;
+	xl = (int)(tmbbox[BOXLEFT] - bmaporgx) / MAPBLOCKUNITS;
+	xh = (int)(tmbbox[BOXRIGHT] - bmaporgx) / MAPBLOCKUNITS;
+	yl = (int)(tmbbox[BOXBOTTOM] - bmaporgy) / MAPBLOCKUNITS;
+	yh = (int)(tmbbox[BOXTOP] - bmaporgy) / MAPBLOCKUNITS;;
 
 	thing->on_ladder = -1;
 
@@ -2441,10 +2442,10 @@ mobj_t *P_MapFindCorpse(mobj_t * thing)
 		raisertryx = thing->x + thing->speed * xspeed[thing->movedir];
 		raisertryy = thing->y + thing->speed * yspeed[thing->movedir];
 
-		xlow = (raisertryx - bmaporgx - MAXRADIUS * 2) / MAPBLOCKUNITS;
-		xhigh = (raisertryx - bmaporgx + MAXRADIUS * 2) / MAPBLOCKUNITS;
-		ylow = (raisertryy - bmaporgy - MAXRADIUS * 2) / MAPBLOCKUNITS;
-		yhigh = (raisertryy - bmaporgy + MAXRADIUS * 2) / MAPBLOCKUNITS;
+		xlow  = (int)(raisertryx - bmaporgx - MAXRADIUS * 2) / MAPBLOCKUNITS;
+		xhigh = (int)(raisertryx - bmaporgx + MAXRADIUS * 2) / MAPBLOCKUNITS;
+		ylow  = (int)(raisertryy - bmaporgy - MAXRADIUS * 2) / MAPBLOCKUNITS;
+		yhigh = (int)(raisertryy - bmaporgy + MAXRADIUS * 2) / MAPBLOCKUNITS;
 
 		for (xcount = xlow; xcount <= xhigh; xcount++)
 			for (ycount = ylow; ycount <= yhigh; ycount++)
@@ -2556,10 +2557,10 @@ bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing)
 	tmbbox[BOXBOTTOM] = my1 < my2 ? my1 : my2;
 	tmbbox[BOXTOP] = my1 > my2 ? my1 : my2;
 
-	xlow = (tmbbox[BOXLEFT] - bmaporgx) / MAPBLOCKUNITS;
-	xhigh = (tmbbox[BOXRIGHT] - bmaporgx) / MAPBLOCKUNITS;
-	ylow = (tmbbox[BOXBOTTOM] - bmaporgy) / MAPBLOCKUNITS;
-	yhigh = (tmbbox[BOXTOP] - bmaporgy) / MAPBLOCKUNITS;
+	xlow  = (int)(tmbbox[BOXLEFT] - bmaporgx) / MAPBLOCKUNITS;
+	xhigh = (int)(tmbbox[BOXRIGHT] - bmaporgx) / MAPBLOCKUNITS;
+	ylow  = (int)(tmbbox[BOXBOTTOM] - bmaporgy) / MAPBLOCKUNITS;
+	yhigh = (int)(tmbbox[BOXTOP] - bmaporgy) / MAPBLOCKUNITS;
 
 	validcount++;
 

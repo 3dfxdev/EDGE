@@ -301,15 +301,15 @@ static int AdjustSoundParams(sfxinfo_t *sfx, mobj_t *listener,
 	angle = angle - listener->angle;
 
 	// stereo separation
-	*sep = 128.0f - S_STEREO_SWING * M_Sin(angle);
+	*sep = (int) (128.0f - S_STEREO_SWING * M_Sin(angle));
 
 	// volume calculation
 	if (approx_dist > S_CLOSE_DIST2)
 	{
 		// Kester's Physics Model v1.1
 		// -KM- 1998/07/31 Use Full dynamic range
-		*vol *= (S_CLIPPING_DIST2 - approx_dist) / 
-			(S_CLIPPING_DIST2 - S_CLOSE_DIST2);
+		*vol = (int) (*vol * (S_CLIPPING_DIST2 - approx_dist) / 
+			(S_CLIPPING_DIST2 - S_CLOSE_DIST2));
 
 		if (*vol > MAX_VOLUME)
 			*vol = MAX_VOLUME;

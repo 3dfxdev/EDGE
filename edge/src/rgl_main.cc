@@ -96,7 +96,7 @@ extern int rgl_currtimeval;  // hack..
 #define LT_BLU(light)  (MIN(255,light) * ren_blu_mul / 255.0)
 
 
-static void SetupLightMap(int model)
+static void SetupLightMap(lighting_model_e model)
 {
 	int i;
   
@@ -279,9 +279,9 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	if (which == ps_weapon || which == ps_flash)
 	{
-		L_r = rgl_weapon_r + lit_Nom * c_r;
-		L_g = rgl_weapon_g + lit_Nom * c_g;
-		L_b = rgl_weapon_b + lit_Nom * c_b;
+		L_r = (int)(rgl_weapon_r + lit_Nom * c_r);
+		L_g = (int)(rgl_weapon_g + lit_Nom * c_g);
+		L_b = (int)(rgl_weapon_b + lit_Nom * c_b);
 	}
 	else
 	{
@@ -751,9 +751,19 @@ void RGL_Init(void)
 	RGL_CheckExtensions();
 
 	// read implementation limits
-	glGetIntegerv(GL_MAX_LIGHTS,       &glmax_lights);
-	glGetIntegerv(GL_MAX_CLIP_PLANES,  &glmax_clip_planes);
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &glmax_tex_size);
+        {
+          GLint max_lights;
+          GLint max_clip_planes;
+          GLint max_tex_size;
+
+          glGetIntegerv(GL_MAX_LIGHTS,       &max_lights);
+          glGetIntegerv(GL_MAX_CLIP_PLANES,  &max_clip_planes);
+          glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size);
+
+          glmax_lights = max_lights;
+          glmax_clip_planes = max_clip_planes;
+          glmax_tex_size = max_tex_size;
+        }
 
 	I_Printf("OpenGL: Lights: %d  Clippers: %d  Max_tex: %d\n",
 			 glmax_lights, glmax_clip_planes, glmax_tex_size);

@@ -69,7 +69,7 @@ static void Confidence(bot_t * bot)
 	else if (mo->health > 3 * mo->info->spawnhealth / 4 && p->ready_wp >= 0 &&
 		p->weapons[p->ready_wp].info->ammo != AM_NoAmmo)
 	{
-		int ammo = p->weapons[p->ready_wp].info->ammo;
+	        ammotype_e ammo = p->weapons[p->ready_wp].info->ammo;
 
 		if (p->ammo[ammo].num > p->ammo[ammo].max / 2)
 			bot->confidence = 1;
@@ -140,7 +140,7 @@ static int EvaluateWeapon(player_t *p, int w_num)
 		value += 2048;
 
 	value += (M_Random() - 128) * 16;
-	return value;
+	return (int)value;
 }
 
 //
@@ -177,7 +177,7 @@ static bool PTR_BotLook(intercept_t * in)
 
 		if (li->frontsector->f_h != li->backsector->f_h)
 		{
-			if (abs(li->frontsector->f_h - li->backsector->f_h) > 24.0)
+			if (fabs(li->frontsector->f_h - li->backsector->f_h) > 24.0)
 				return false;
 		}
 
@@ -715,7 +715,7 @@ static void ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 					// backward
 					dest->forwardmove = -0x32;
 				}
-				dest->sidemove = dest->forwardmove * M_Tan(a);
+				dest->sidemove = (char)(dest->forwardmove * M_Tan(a));
 			}
 			else
 			{
@@ -729,7 +729,7 @@ static void ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 					// right
 					dest->sidemove = -0x32;
 				}
-				dest->forwardmove = dest->sidemove * M_Tan(a - ANG90);
+				dest->forwardmove = (char)(dest->sidemove * M_Tan(a - ANG90));
 			}
 		}
 	}

@@ -61,7 +61,7 @@ typedef struct data_file_s
 	const char *file_name;
 
 	// type of file
-	int type;
+	data_file_type_e type;
 
 	// file handle, as returned from open().
 	int handle;
@@ -411,7 +411,7 @@ static ddf_reader_t DDF_Readers[] =
 	{ "RSCRIPT", RAD_LoadLump, 0 }       // -AJA- 2000/04/21.
 };
 
-#define NUM_DDF_READERS  (sizeof(DDF_Readers) / sizeof(ddf_reader_t))
+#define NUM_DDF_READERS  (int)(sizeof(DDF_Readers) / sizeof(ddf_reader_t))
 
 //
 // FreeLump

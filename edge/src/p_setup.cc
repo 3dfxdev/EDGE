@@ -1419,10 +1419,10 @@ static void BlockAddLine(int line_num)
 
   float slope;
 
-  x0 = ld->v1->x - bmaporgx;
-  y0 = ld->v1->y - bmaporgy;
-  x1 = ld->v2->x - bmaporgx;
-  y1 = ld->v2->y - bmaporgy;
+  x0 = (int)(ld->v1->x - bmaporgx);
+  y0 = (int)(ld->v1->y - bmaporgy);
+  x1 = (int)(ld->v2->x - bmaporgx);
+  y1 = (int)(ld->v2->y - bmaporgy);
 
   // swap endpoints if horizontally backward
   if (x1 < x0)
@@ -1433,21 +1433,21 @@ static void BlockAddLine(int line_num)
     temp = y0; y0 = y1; y1 = temp;
   }
 
-  DEV_ASSERT2(0 <= x0 && (x0 / 128) < bmapwidth);
-  DEV_ASSERT2(0 <= y0 && (y0 / 128) < bmapheight);
-  DEV_ASSERT2(0 <= x1 && (x1 / 128) < bmapwidth);
-  DEV_ASSERT2(0 <= y1 && (y1 / 128) < bmapheight);
+  DEV_ASSERT2(0 <= x0 && (x0 / MAPBLOCKUNITS) < bmapwidth);
+  DEV_ASSERT2(0 <= y0 && (y0 / MAPBLOCKUNITS) < bmapheight);
+  DEV_ASSERT2(0 <= x1 && (x1 / MAPBLOCKUNITS) < bmapwidth);
+  DEV_ASSERT2(0 <= y1 && (y1 / MAPBLOCKUNITS) < bmapheight);
 
   // check if this line spans multiple blocks.
 
-  x_dist = ABS((x1 / 128) - (x0 / 128));
-  y_dist = ABS((y1 / 128) - (y0 / 128));
+  x_dist = ABS((x1 / MAPBLOCKUNITS) - (x0 / MAPBLOCKUNITS));
+  y_dist = ABS((y1 / MAPBLOCKUNITS) - (y0 / MAPBLOCKUNITS));
 
   y_sign = (y1 >= y0) ? 1 : -1;
 
   // handle the simple cases: same column or same row
 
-  blocknum = (y0 / 128) * bmapwidth + (x0 / 128);
+  blocknum = (y0 / MAPBLOCKUNITS) * bmapwidth + (x0 / MAPBLOCKUNITS);
 
   if (y_dist == 0)
   {
@@ -1502,8 +1502,8 @@ void GenerateBlockMap(int min_x, int min_y, int max_x, int max_y)
 
   bmaporgx = min_x - 8;
   bmaporgy = min_y - 8;
-  bmapwidth  = (max_x - bmaporgx) / 128 + 1;
-  bmapheight = (max_y - bmaporgy) / 128 + 1;
+  bmapwidth  = (int)(max_x - bmaporgx) / MAPBLOCKUNITS + 1;
+  bmapheight = (int)(max_y - bmaporgy) / MAPBLOCKUNITS + 1;
 
   btotal = bmapwidth * bmapheight;
 
@@ -1563,17 +1563,17 @@ static void DoBlockMap(int lump)
   int i;
   int map_width, map_height;
 
-  int min_x = vertexes[0].x, min_y = vertexes[0].y;
-  int max_x = vertexes[0].x, max_y = vertexes[0].y;
+  int min_x = (int)vertexes[0].x, min_y = (int)vertexes[0].y;
+  int max_x = (int)vertexes[0].x, max_y = (int)vertexes[0].y;
 
   for (i=1; i < numvertexes; i++)
   {
     vertex_t *v = vertexes + i;
     
-    min_x = MIN(v->x, min_x);
-    min_y = MIN(v->y, min_y);
-    max_x = MAX(v->x, max_x);
-    max_y = MAX(v->y, max_y);
+    min_x = MIN((int)v->x, min_x);
+    min_y = MIN((int)v->y, min_y);
+    max_x = MAX((int)v->x, max_x);
+    max_y = MAX((int)v->y, max_y);
   }
 
   map_width  = max_x - min_x;
@@ -1672,19 +1672,19 @@ void GroupLines(void)
     sector->soundorg.z = (sector->f_h + sector->c_h) / 2;
 
     // adjust bounding box to map blocks
-    block = (bbox[BOXTOP] - bmaporgy + MAXRADIUS) / MAPBLOCKUNITS;
+    block = (int)(bbox[BOXTOP] - bmaporgy + MAXRADIUS) / MAPBLOCKUNITS;
     block = block >= bmapheight ? bmapheight - 1 : block;
     sector->blockbox[BOXTOP] = block;
 
-    block = (bbox[BOXBOTTOM] - bmaporgy - MAXRADIUS) / MAPBLOCKUNITS;
+    block = (int)(bbox[BOXBOTTOM] - bmaporgy - MAXRADIUS) / MAPBLOCKUNITS;
     block = block < 0 ? 0 : block;
     sector->blockbox[BOXBOTTOM] = block;
 
-    block = (bbox[BOXRIGHT] - bmaporgx + MAXRADIUS) / MAPBLOCKUNITS;
+    block = (int)(bbox[BOXRIGHT] - bmaporgx + MAXRADIUS) / MAPBLOCKUNITS;
     block = block >= bmapwidth ? bmapwidth - 1 : block;
     sector->blockbox[BOXRIGHT] = block;
 
-    block = (bbox[BOXLEFT] - bmaporgx - MAXRADIUS) / MAPBLOCKUNITS;
+    block = (int)(bbox[BOXLEFT] - bmaporgx - MAXRADIUS) / MAPBLOCKUNITS;
     block = block < 0 ? 0 : block;
     sector->blockbox[BOXLEFT] = block;
   }
@@ -1834,7 +1834,7 @@ static void ShutdownLevel(void)
 // -ACB- 1998/08/09 Use currentmap to ref lump and par time
 // -KM- 1998/11/25 Added autotag.
 //
-void P_SetupLevel(int skill, int autotag)
+void P_SetupLevel(skill_t skill, int autotag)
 {
   int j;
   int lumpnum;

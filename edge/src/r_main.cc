@@ -419,7 +419,7 @@ static void InitLightTables(void)
 		for (j = 0; j < MAXLIGHTZ; j++)
 		{
 			scale = 16 * 160.0 / (j + 1);
-			level = startmap - scale;
+			level = (int)(startmap - scale);
 
 			if (level < 0)
 				level = 0;
@@ -431,7 +431,7 @@ static void InitLightTables(void)
 
 		for (j = 0; j < MAXLIGHTSCALE; j++)
 		{
-			level = startmap - j * 192.0 / MAXLIGHTSCALE;
+			level = (int)(startmap - j * 192.0 / MAXLIGHTSCALE);
 
 			if (level < 0)
 				level = 0;

@@ -595,7 +595,7 @@ static void DoPaletteStuff(void)
 	if (consoleplayer->powers[PW_Berserk] > 0)
 	{
 		// slowly fade the berzerk out
-		bzc = MIN(20, consoleplayer->powers[PW_Berserk]);
+		bzc = MIN(20, (int) consoleplayer->powers[PW_Berserk]);
 
 		if (bzc > cnt)
 			cnt = bzc;

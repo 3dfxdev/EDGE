@@ -35,7 +35,7 @@ extern int mapthing_NUM;
 
 // -KM- 1998/11/25 Added autotag.  Linedefs with this tag are automatically
 //   triggered.
-void P_SetupLevel(int skill, int autotag);
+void P_SetupLevel(skill_t skill, int autotag);
 
 // Called by startup code.
 bool P_Init(void);

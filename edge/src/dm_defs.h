@@ -119,7 +119,7 @@ typedef struct gameflags_s
 	bool jump;
 	bool crouch;
 	bool mlook;
-	int autoaim;
+	autoaim_t autoaim;
 
 	bool trans;
 	bool cheats;
@@ -129,7 +129,7 @@ typedef struct gameflags_s
 	bool shadows;
 	bool halos;
 
-	int compat_mode;
+	compat_mode_t compat_mode;
 	bool kicking;
 }
 gameflags_t;

@@ -58,9 +58,16 @@ typedef enum
 }
 finalestage_e;
 
+#ifdef __cplusplus
+void operator++ (finalestage_e& f, int blah)
+{
+  f = (finalestage_e)(f + 1);
+}
+#endif
+
 // Stage of animation:
 //  0 = text, 1 = art screen, 2 = character cast
-static int finalestage;
+static finalestage_e finalestage;
 
 // -ES- 2000/03/11 skip to the next finale stage
 static bool skip_finale;
@@ -72,7 +79,7 @@ static int picnum;
 
 static const char *finaletext;
 
-static int newgameaction;
+static gameaction_e newgameaction;
 static const finale_t *finale;
 static void StartCast(void);
 static void CastTicker(void);
@@ -85,7 +92,7 @@ static const image_t *finale_bossback;
 //
 // F_StartFinale
 //
-void F_StartFinale(const finale_t *f, int newaction)
+void F_StartFinale(const finale_t * f, gameaction_e newaction)
 {
   player_t *p;
 
@@ -161,7 +168,7 @@ bool F_Responder(event_t * event)
 //
 void F_Ticker(void)
 {
-  int fstage = finalestage;
+  finalestage_e fstage = finalestage;
 
   if (skip_finale)
   {
@@ -253,7 +260,7 @@ void F_Ticker(void)
       break;
   }
 
-  if (finalestage != (finalestage_e)fstage && finalestage != f_end)
+  if (finalestage != fstage && finalestage != f_end)
     wipegamestate = GS_NOTHING;
 
   // advance animation
@@ -282,7 +289,7 @@ static void TextWrite(void)
   cy = 10;
   ch = finaletext;
 
-  count = (finalecount - 10) / finale->text_speed;
+  count = (int) ((finalecount - 10) / finale->text_speed);
   if (count < 0)
     count = 0;
 

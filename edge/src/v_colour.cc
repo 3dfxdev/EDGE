@@ -964,7 +964,7 @@ const coltable_t *V_GetColtable(const colourmap_t * nominal,
     if (effect_colourmap->length > 1)
     {
       nominal = effect_colourmap;
-      lightlevel = 255 * effect_strength;
+      lightlevel = (int)(255 * effect_strength);
     }
     else if (effect_strength >= 1.0 || ((int)(effect_strength * 16) & 2))
     {

@@ -102,7 +102,7 @@ const linedeftype_t template_line =
 		-1, -1,         // speed up/down
 		REF_Absolute,   // dest ref
 		0,              // dest
-		REF_Current + REF_CEILING,  // other ref
+		(heightref_e)(REF_Current | REF_CEILING),  // other ref
 		0,              // other
 		"",             // texture
 		0, 0,           // wait, prewait

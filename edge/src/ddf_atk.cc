@@ -379,11 +379,11 @@ static void DDF_AtkGetSpecial(const char *info, void *storage)
 	switch (DDF_MainCheckSpecialFlag(info, attack_specials, &flag_value, true, false))
 	{
 		case CHKF_Positive:
-			buffer_atk.flags |= flag_value;
+			buffer_atk.flags = (attackflags_e)(buffer_atk.flags | flag_value);
 			break;
     
 		case CHKF_Negative:
-			buffer_atk.flags &= ~flag_value;
+			buffer_atk.flags = (attackflags_e)(buffer_atk.flags & ~flag_value);
 			break;
 
 		case CHKF_User:
