@@ -217,6 +217,7 @@ typedef struct drawthing_s
   // world offsets for GL
   float left_dx,  left_dy;
   float right_dx, right_dy;
+  float orig_top, orig_bottom;
   
   // EXPERIMENTAL
   bool is_shadow;
