@@ -275,9 +275,7 @@ void P_DestroyAllSectorSFX(void);
 
 void EV_LightTurnOn(int tag, int bright);
 bool EV_DoDonut(sector_t * s1, sfx_t * sfx[4]);
-bool EV_Teleport(line_t * line, int tag, int side, mobj_t * thing, 
-    int delay, int special, const mobjtype_c * ineffectobj,
-    const mobjtype_c * outeffectobj);
+bool EV_Teleport(line_t * line, int tag, mobj_t *thing, const teleportdef_c *def);
 bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * type);
 bool EV_ManualElevator(line_t * line, mobj_t * thing, const elevatordef_c * type);
 
