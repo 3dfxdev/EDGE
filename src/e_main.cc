@@ -186,8 +186,6 @@ layer_t *backbg_layer = NULL;
 layer_t *conplayer_layer = NULL;
 layer_t *pause_layer = NULL;
 
-bool e_display_OK = false;
-
 //
 // EVENT HANDLING
 //
@@ -670,15 +668,13 @@ void E_Display(void)
 	else
 		wipe = false;
 
-	if (gamestate == GS_LEVEL && gametic)
+	if (gamestate == GS_LEVEL)
 		HU_Erase();
 
 	// do buffered drawing
 	switch (gamestate)
 	{
 		case GS_LEVEL:
-			if (!gametic)
-				break;
 			if (automapactive == 2)
 				AM_Drawer();
 
@@ -712,7 +708,7 @@ void E_Display(void)
 	}
 
 	// draw the view directly
-	if (gamestate == GS_LEVEL && gametic && automapactive != 2)
+	if (gamestate == GS_LEVEL && automapactive != 2)
 	{
 		R_Render();
 
@@ -720,7 +716,7 @@ void E_Display(void)
 			AM_Drawer();
 	}
 
-	if (gamestate == GS_LEVEL && gametic)
+	if (gamestate == GS_LEVEL)
 	{
 		ST_Drawer();
 		HU_Drawer();
@@ -1574,7 +1570,7 @@ startuporder_t startcode[] =
 	{  1, P_InitSwitchList,    },
 	{  1, R_InitPicAnims,      },
 	{  1, S_Init,              },
-	{  1, N_CheckNetGame,      },
+	{  1, N_InitNetwork,       },
 	{  2, ST_Init,             },
 	{  0, NULL,                }
 };
@@ -1784,18 +1780,13 @@ namespace engine
 //		L_WriteDebug("[0] Mem size: %ld\n", epi::the_mem_manager->GetAllocatedSize());
 #endif
 
-		bool fresh_game_tic = true;
+		bool fresh_game_tic;
 
-		int counts = N_TryRunTics();
+		int counts = N_TryRunTics(&fresh_game_tic);
 
-		DEV_ASSERT2(counts != 0);
+		DEV_ASSERT2(counts > 0);
 
-		if (counts < 0)  // give the menu a chance to work
-		{
-			counts = -counts;
-			fresh_game_tic = false;
-		}	
-
+L_WriteDebug("^^^ TIME [%d] : counts %d\n", I_GetTime(), counts); //!!!!!
 		for (; counts > 0; counts--)  // run the tics
 		{
 			if (advance_title)
@@ -1816,7 +1807,7 @@ namespace engine
 		// process one or more tics
 		if (singletics)
 		{
-			N_DoBuildTiccmds();
+			N_BuildTiccmds();
 
 ///---			int buf = maketic % BACKUPTICS;
 ///---
@@ -1861,10 +1852,6 @@ namespace engine
 
 		// Update display, next frame, with current state.
 		E_Display();
-
-		// -AJA- hack to allow other code to know when they can call
-		//       E_Display().
-		e_display_OK = true;
 	}
 
 	//
