@@ -33,8 +33,8 @@
 #include "r_local.h"
 #endif
 
-#define VIEWHEIGHT       41.0f  // Player Standard View Height
-#define DEATHVIEWHEIGHT   6.0f
+#define DEATHVIEWHEIGHT  6.0f
+#define CROUCH_SLOWDOWN  0.6f
 
 #ifdef USE_GL
 #define LOOKUPLIMIT    0.9f
