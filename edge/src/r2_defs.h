@@ -222,6 +222,9 @@ typedef struct drawthing_s
 	// EXPERIMENTAL
 	bool is_shadow;
 	bool is_halo;
+	
+	// Rendering order
+	struct drawthing_s *rd_l, *rd_r, *rd_prev, *rd_next; 
 }
 drawthing_t;
 
