@@ -108,45 +108,6 @@ New features:
   test the result, and jump to the matching label.  It will fail to jump
   if there aren't enough labels, or menu could not be shown (netgame).
 
-+ weapon handling has been generally improved (especially the way clips
-  work).  Anything using the CLIPSIZE command is considered a "clip weapon",
-  and will store ammo inside of its clip, even when not selected.  Also
-  there is support for manual reloading (new key in Keyboard Options).
-
-  There are many new specials.  The following new command is used to
-  give specials for the secondary attack:
-
-    SEC_SPECIAL = xxx;
-
-  The ones in the plain "SPECIAL" command apply to the primary attack
-  (some might apply to the whole weapon).  The following specials are
-  available:
-
-    SILENT_TO_MONSTERS : don't wake up those demons (WHOLE)
-	ANIMATED           : UP and DOWN states are animated (WHOLE)
-	NO_SWITCH          : don't switch to new weapon if ammo runs out
-
-	NO_TRIGGER   : prevent reloading by pressing fire button
-	FRESH        : reload empty weapon when fresh ammo is picked up
-	NO_MANUAL    : disable manual reloading key
-	PARTIAL      : for manual reload: allow partial clip refills
-
-  When using the ANIMATED special, the weapon sprite doesn't raise up
-  or lower down.  Instead the UP and DOWN states should show an
-  animation.  The RAISE and LOWER commands must occur once, in the
-  very last frame.
-
-  There are now empty states.  These are shown (instead of ready
-  states) when the primary attack runs out of ammo.  You must use
-  the "EMPTY" action with the empty states, for example:
-
-    STATES(EMPTY) = ABCD:E:1:NORMAL:EMPTY;
-
-  There are also WARMUP and SECWARMUP states.  These will be entered
-  when firing the weapon from the READY states (not for refiring).
-  These states jump to the ATTACK and SECATTACK states when finished
-  (i.e. you don't need #ATTACK at the end).
-
 - new SEQUENCE command for ANIMS.DDF.  Use it to specify the full
   animation sequence.  Names cannot be used twice.  For example:
 
@@ -182,11 +143,71 @@ New features:
   single-player, and "!4:5" means never in skills 4 or 5.
 
 
+New weapon stuff
+----------------
+
++ weapon handling has been generally improved (especially the way clips
+  work).  Anything using the CLIPSIZE command is considered a "clip weapon",
+  and will store ammo inside of its clip, even when not selected.  Also
+  there is support for manual reloading (new key in Keyboard Options).
+
+- There are many new specials.  The following new command is used to
+  give specials for the secondary attack:
+
+    SEC_SPECIAL = xxx;
+
+  The ones in the plain "SPECIAL" command apply to the primary attack
+  (some might apply to the whole weapon).  The following specials are
+  available:
+
+    SILENT_TO_MONSTERS : don't wake up those demons (WHOLE)
+    ANIMATED           : UP and DOWN states are animated (WHOLE)
+    NO_SWITCH          : don't switch to new weapon if ammo runs out
+
+    NO_TRIGGER   : prevent reloading by pressing fire button
+    FRESH        : reload empty weapon when fresh ammo is picked up
+    NO_MANUAL    : disable manual reloading key
+    PARTIAL      : for manual reload: allow partial clip refills
+
+  When using the ANIMATED special, the weapon sprite doesn't raise up
+  or lower down.  Instead the UP and DOWN states should show an
+  animation.  The RAISE and LOWER commands must occur once, in the
+  very last frame.
+
+- There are now empty states.  These are shown (instead of ready
+  states) when the primary attack runs out of ammo.  You must use
+  the "EMPTY" action with the empty states, for example:
+
+    STATES(EMPTY) = ABCD:E:1:NORMAL:EMPTY;
+
+  There are also WARMUP and SECWARMUP states.  These will be entered
+  when firing the weapon from the READY states (not for refiring).
+  These states jump to the ATTACK and SECATTACK states when finished
+  (i.e. you don't need #ATTACK at the end).
+
+- Edge now supports IDLE states.  These are entered from the READY
+  or EMPTY states after a certain time has elapsed.  The minimum
+  time is given with the IDLE_WAIT command.  There is also an
+  IDLE_CHANCE command which is the chance to enter the idle states 
+  when the timer runs out.  If the timer runs out and the random
+  test fails, then the timer is reset to 1/10th of IDLE_WAIT.
+
+  For example, "IDLE_WAIT=20" means that the random test occurs
+  at 20 seconds, 22 seconds, 24 seconds, and so forth, until it
+  succeeds.  If the chance is 100%, is succeeds on the first try.
+
+- Finally there are now DISCARD and SECDISCARD states.  They are
+  similar to the PARTIAL special: if you press the reload key with
+  a half-empty clip (i.e. neither empty nor full), then the clip is
+  discarded and the DISCARD states are entered.  These states must
+  end with the CHECKRELOAD action to cause the weapon to be reloaded.
+
+
 New command-line options:
 -------------------------
 
     -deh     Specify a DeHackEd (or BEX) patch file.  You can have
-	         multiple patch files after the -deh option.
+             multiple patch files after the -deh option.
 
 
 Hats off to...

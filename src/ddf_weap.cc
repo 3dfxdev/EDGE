@@ -76,6 +76,8 @@ static const commandlist_t weapon_commands[] =
 	DF("SHOW CLIP", show_clip, DDF_MainGetBoolean),
 	DF("BOBBING", bobbing, DDF_MainGetPercent),
 	DF("SWAYING", swaying, DDF_MainGetPercent),
+	DF("IDLE WAIT", idle_wait, DDF_MainGetTime),
+	DF("IDLE CHANCE", idle_chance, DDF_MainGetPercent),
 
 	// -AJA- backwards compatibility cruft...
 	DF("!SOUND1", sound1, DDF_MainLookupSound),
@@ -91,6 +93,7 @@ static const state_starter_t weapon_starters[] =
 	{"DOWN",      "DOWN",   &buffer_weapon.down_state},
 	{"READY",     "READY",  &buffer_weapon.ready_state},
 	{"EMPTY",     "EMPTY",  &buffer_weapon.empty_state},
+	{"IDLE",      "READY",  &buffer_weapon.idle_state},
 	{"CROSSHAIR", "REMOVE", &buffer_weapon.crosshair},
 	{"ZOOM",      "ZOOM",   &buffer_weapon.zoom_state},
 
@@ -608,6 +611,7 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 	down_state  = src.down_state;
 	ready_state = src.ready_state;
 	empty_state = src.empty_state;
+	idle_state  = src.idle_state;
 	crosshair   = src.crosshair;
 	zoom_state  = src.zoom_state;
 
@@ -638,6 +642,8 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 	show_clip = src.show_clip;
 	bobbing = src.bobbing;
 	swaying = src.swaying;
+	idle_wait = src.idle_wait;
+	idle_chance = src.idle_chance;
 }
 
 //
@@ -674,6 +680,7 @@ void weapondef_c::Default(void)
 	down_state= 0;
 	ready_state = 0;
 	empty_state = 0;
+	idle_state = 0;
 
 	crosshair = 0;
 	zoom_state = 0;
@@ -701,6 +708,8 @@ void weapondef_c::Default(void)
 	show_clip = false;
 	bobbing = PERCENT_MAKE(100);
 	swaying = PERCENT_MAKE(100);
+	idle_wait = 15 * TICRATE;
+	idle_chance = PERCENT_MAKE(12);
 }
 
 //
