@@ -1179,11 +1179,14 @@ static void ReallyDoStartLevel(skill_t skill, gamedef_c *g)
 	newgame_params_c params;
 
 	params.skill = skill;
-	params.game  = g;
+	params.deathmatch = 0;
 
 	params.total_players = 1;
 	params.players[0] = PFL_Zero;  // i.e. !BOT and !NETWORK
 
+	params.random_seed = I_PureRandom();
+
+	params.game = g;
 	params.map = G_LookupMap(g->firstmap);
 
 	if (! params.map || ! G_DeferredInitNew(params))

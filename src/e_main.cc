@@ -1574,6 +1574,9 @@ namespace engine
 
 	bool TryAutoStart()
 	{
+#if 0
+		N_InitiateNetGame();
+#endif
 		if (!autostart && !netgame)  // FIXME: no need for netgames to autostart
 			return false;
 
@@ -1604,11 +1607,28 @@ namespace engine
 
 		params.total_players = 1;
 		params.players[0] = PFL_Zero;  // i.e. !BOT and !NETWORK
+
+		params.random_seed = I_PureRandom();
+
 #if 0
-		params.total_players = 4;
-		params.players[1] = PFL_Bot;
-		params.players[2] = PFL_Bot;
-		params.players[3] = PFL_Bot;
+		params.total_players = 2;
+
+		if (deathmatch == 3)
+		{
+			params.players[0] = PFL_Network;
+			params.players[1] = PFL_Zero;
+		}
+		else
+		{
+			params.players[0] = PFL_Zero;
+			params.players[1] = PFL_Network;
+		}
+
+		params.deathmatch = 1;
+		params.random_seed = 0x1234;
+
+//  		params.players[2] = PFL_Bot;
+//  		params.players[3] = PFL_Bot;
 #endif
 
 		return G_DeferredInitNew(params);
