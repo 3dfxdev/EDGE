@@ -251,6 +251,16 @@ typedef struct sector_s
   // does this sector control extrafloors in other sectors ?
   boolean_t controller;
 
+  //
+  // This is one of two things. A list of extrafloor sectors we're linked to, or
+  // a list of sectors we provide an extrafloor for. If we are a controller, the
+  // latter is true, if we are not a controller the former is true.
+  //
+  // -ACB- 2001/03/19
+  //
+  struct sector_s **exfloorlist;
+  int exfloornum;
+
   extrafloor_record_t *extrafloor_records;
 
   // 0 = untraversed, 1,2 = sndlines-1

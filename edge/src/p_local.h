@@ -260,6 +260,7 @@ boolean_t P_CheckSight(mobj_t * t1, mobj_t * t2);
 boolean_t P_CheckSightApproxVert(mobj_t * t1, mobj_t * t2);
 void P_RadiusAttack(mobj_t * spot, mobj_t * source, float_t radius,
     float_t damage, const damage_t * damtype, boolean_t thrust_only);
+
 boolean_t P_TeleportMove(mobj_t * thing, float_t x, float_t y, float_t z);
 boolean_t P_TryMove(mobj_t * thing, float_t x, float_t y);
 void P_SlideMove(mobj_t * mo, float_t x, float_t y);
@@ -267,6 +268,10 @@ void P_UseLines(player_t * player);
 void P_LineAttack(mobj_t * t1, angle_t angle, float_t distance, 
     float_t slope, float_t damage, const damage_t * damtype,
     const mobjinfo_t *puff);
+
+void P_AddExtrafloorLink(sector_t *sec, sector_t *linkedsec);
+void P_ClearExtrafloorLinks(sector_t *sec);
+
 
 //
 // P_SETUP
