@@ -140,6 +140,8 @@ void FatalError(const char *str, ...)
   	printf("\nError: %s\n", message_buf);
 	fflush(stdout);
 
+	System_Shutdown();
+
 #if (FATAL_COREDUMP && defined(UNIX))
 	raise(SIGSEGV);
 #endif
@@ -160,6 +162,8 @@ void InternalError(const char *str, ...)
 
   	printf("\nINTERNAL ERROR: %s\n", message_buf);
 	fflush(stdout);
+
+	System_Shutdown();
 
 #if (FATAL_COREDUMP && defined(UNIX))
 	raise(SIGSEGV);
