@@ -328,7 +328,7 @@ void RGL_DrawPlayerSprites(player_t * p)
 		}
 	}
 
-	if (!got_cross && !automapactive)
+	if (!got_cross && !automapactive && p->health > 0)
 		DrawStdCrossHair((screen_hud != HUD_Full) ? 0 : FROM_200(ST_HEIGHT));
 }
 
