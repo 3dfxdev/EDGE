@@ -141,6 +141,10 @@ void RGL_FinishSky(void)
 		glDepthMask(GL_TRUE);
 
 		glDisable(GL_TEXTURE_2D);
+#if 1
+		// clear buffer (EXPERIMENTAL)
+		glClear(GL_DEPTH_BUFFER_BIT);
+#endif
 	}
 }
 
