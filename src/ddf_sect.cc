@@ -146,7 +146,6 @@ static specialsector_t ** ddf_gen_sectors;
 int num_ddf_gen_sectors;
 static stack_array_t ddf_gen_sectors_a;
 
-
 void DDF_SectGetSpecialFlags(const char *info, void *storage);
 
 #undef  DDF_CMD_BASE
@@ -154,10 +153,10 @@ void DDF_SectGetSpecialFlags(const char *info, void *storage);
 
 static const commandlist_t sect_commands[] =
 {
-	DDF_SUB_LIST("FLOOR",    f,      floor_commands),
-	DDF_SUB_LIST("CEILING",  c,      floor_commands),
-	DDF_SUB_LIST("ELEVATOR", e,      elevator_commands),
-	DDF_SUB_LIST("DAMAGE",   damage, damage_commands),
+  DDF_SUB_LIST("FLOOR",    f,      floor_commands,    dummy_floor),
+  DDF_SUB_LIST("CEILING",  c,      floor_commands,    dummy_floor),
+  DDF_SUB_LIST("ELEVATOR", e,      elevator_commands, dummy_elevator),
+  DDF_SUB_LIST("DAMAGE",   damage, damage_commands,   dummy_damage),
 
 	DF("SECRET", secret, DDF_MainGetBoolean),
 	DF("SPECIAL", special_flags, DDF_SectGetSpecialFlags),

@@ -250,8 +250,9 @@ static void DDF_LineGetSkyType(const char *info, void *storage);
 static void DDF_LineGetLineEffect(const char *info, void *storage);
 static void DDF_LineGetSectorEffect(const char *info, void *storage);
 
-static moving_plane_t dummy_floor;
-static elevator_sector_t dummy_movsec;
+moving_plane_t dummy_floor;
+elevator_sector_t dummy_elevator;
+
 static sliding_door_t dummy_slider;
 static tilesky_info_t dummy_tilesky;
 static ladder_info_t dummy_ladder;
@@ -261,43 +262,41 @@ static ladder_info_t dummy_ladder;
 
 const commandlist_t floor_commands[] =
 {
-/*
-	DDF_CMD_SUB("TYPE", type, DDF_SectGetMType),
-	DDF_CMD_SUB("SPEED UP",   speed_up,   DDF_MainGetFloat),
-	DDF_CMD_SUB("SPEED DOWN", speed_down, DDF_MainGetFloat),
-	DDF_CMD_SUB("DEST REF",   destref,    DDF_SectGetDestRef),
-	DDF_CMD_SUB("DEST OFFSET", dest, DDF_MainGetFloat),
-	DDF_CMD_SUB("OTHER REF",   otherref,  DDF_SectGetDestRef),
-	DDF_CMD_SUB("OTHER OFFSET", other, DDF_MainGetFloat),
-	DDF_CMD_SUB("TEXTURE", tex, DDF_MainGetInlineStr10),
-	DDF_CMD_SUB("PAUSE TIME", wait,  DDF_MainGetTime),
-	DDF_CMD_SUB("WAIT TIME", prewait,  DDF_MainGetTime),
-	DDF_CMD_SUB("SFX START", sfxstart, DDF_MainLookupSound),
-	DDF_CMD_SUB("SFX UP",    sfxup,    DDF_MainLookupSound),
-	DDF_CMD_SUB("SFX DOWN",  sfxdown,  DDF_MainLookupSound),
-	DDF_CMD_SUB("SFX STOP",  sfxstop,  DDF_MainLookupSound),
-	DDF_CMD_SUB("SCROLL ANGLE", scroll_angle,DDF_MainGetAngle),
-	DDF_CMD_SUB("SCROLL SPEED", scroll_speed,DDF_MainGetFloat),
-*/
+  DF("TYPE", type, DDF_SectGetMType),
+  DF("SPEED UP",   speed_up,   DDF_MainGetFloat),
+  DF("SPEED DOWN", speed_down, DDF_MainGetFloat),
+  DF("DEST REF",   destref,    DDF_SectGetDestRef),
+  DF("DEST OFFSET", dest, DDF_MainGetFloat),
+  DF("OTHER REF",   otherref,  DDF_SectGetDestRef),
+  DF("OTHER OFFSET", other, DDF_MainGetFloat),
+  DF("TEXTURE", tex, DDF_MainGetInlineStr10),
+  DF("PAUSE TIME", wait,  DDF_MainGetTime),
+  DF("WAIT TIME", prewait,  DDF_MainGetTime),
+  DF("SFX START", sfxstart, DDF_MainLookupSound),
+  DF("SFX UP",    sfxup,    DDF_MainLookupSound),
+  DF("SFX DOWN",  sfxdown,  DDF_MainLookupSound),
+  DF("SFX STOP",  sfxstop,  DDF_MainLookupSound),
+  DF("SCROLL ANGLE", scroll_angle,DDF_MainGetAngle),
+  DF("SCROLL SPEED", scroll_speed,DDF_MainGetFloat),
+
 	DDF_CMD_END
 };
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  dummy_movsec
+#define DDF_CMD_BASE  dummy_elevator
 
 const commandlist_t elevator_commands[] =
 {
-/*
-	DDF_CMD_SUB("TYPE", type, DDF_SectGetMType),
-	DDF_CMD_SUB("SPEED UP",   speed_up,   DDF_MainGetFloat),
-	DDF_CMD_SUB("SPEED DOWN", speed_down, DDF_MainGetFloat),
-	DDF_CMD_SUB("PAUSE TIME", wait, DDF_MainGetTime),
-	DDF_CMD_SUB("WAIT TIME", prewait,   DDF_MainGetTime),
-	DDF_CMD_SUB("SFX START", sfxstart,  DDF_MainLookupSound),
-	DDF_CMD_SUB("SFX UP",    sfxup,     DDF_MainLookupSound),
-	DDF_CMD_SUB("SFX DOWN",  sfxdown,   DDF_MainLookupSound),
-	DDF_CMD_SUB("SFX STOP",  sfxstop,   DDF_MainLookupSound),
-*/
+  DF("TYPE", type, DDF_SectGetMType),
+  DF("SPEED UP",   speed_up,   DDF_MainGetFloat),
+  DF("SPEED DOWN", speed_down, DDF_MainGetFloat),
+  DF("PAUSE TIME", wait, DDF_MainGetTime),
+  DF("WAIT TIME", prewait,   DDF_MainGetTime),
+  DF("SFX START", sfxstart,  DDF_MainLookupSound),
+  DF("SFX UP",    sfxup,     DDF_MainLookupSound),
+  DF("SFX DOWN",  sfxdown,   DDF_MainLookupSound),
+  DF("SFX STOP",  sfxstop,   DDF_MainLookupSound),
+
 	DDF_CMD_END
 };
 
@@ -306,13 +305,12 @@ const commandlist_t elevator_commands[] =
 
 const commandlist_t tilesky_commands[] =
 {
-/*
-	DDF_CMD_SUB("TYPE",   type,   DDF_LineGetSkyType),
-	DDF_CMD_SUB("LAYER",  layer,  DDF_MainGetNumeric),
-	DDF_CMD_SUB("NUMBER", number, DDF_MainGetNumeric),
-	DDF_CMD_SUB("SQUISH", squish, DDF_MainGetFloat),
-	DDF_CMD_SUB("OFFSET", offset, DDF_MainGetFloat),
-*/
+  DF("TYPE",   type,   DDF_LineGetSkyType),
+  DF("LAYER",  layer,  DDF_MainGetNumeric),
+  DF("NUMBER", number, DDF_MainGetNumeric),
+  DF("SQUISH", squish, DDF_MainGetFloat),
+  DF("OFFSET", offset, DDF_MainGetFloat),
+
 	DDF_CMD_END
 };
 
@@ -321,7 +319,7 @@ const commandlist_t tilesky_commands[] =
 
 const commandlist_t ladder_commands[] =
 {
-//	DDF_CMD_SUB("HEIGHT", height, DDF_MainGetFloat),
+  DF("HEIGHT", height, DDF_MainGetFloat),
 	DDF_CMD_END
 };
 
@@ -330,17 +328,15 @@ const commandlist_t ladder_commands[] =
 
 const commandlist_t slider_commands[] =
 {
-	/*
-	DDF_CMD_SUB("TYPE",  type, DDF_LineGetSlideType),
-	DDF_CMD_SUB("SPEED", speed, DDF_MainGetFloat),
-	DDF_CMD_SUB("PAUSE TIME", wait, DDF_MainGetTime),
-	DDF_CMD_SUB("SEE THROUGH", see_through, DDF_MainGetBoolean),
-	DDF_CMD_SUB("DISTANCE",  distance,  DDF_MainGetPercent),
-	DDF_CMD_SUB("SFX START", sfx_start, DDF_MainLookupSound),
-	DDF_CMD_SUB("SFX OPEN",  sfx_open,  DDF_MainLookupSound),
-	DDF_CMD_SUB("SFX CLOSE", sfx_close, DDF_MainLookupSound),
-	DDF_CMD_SUB("SFX STOP",  sfx_stop,  DDF_MainLookupSound),
-	*/
+  DF("TYPE",  type, DDF_LineGetSlideType),
+  DF("SPEED", speed, DDF_MainGetFloat),
+  DF("PAUSE TIME", wait, DDF_MainGetTime),
+  DF("SEE THROUGH", see_through, DDF_MainGetBoolean),
+  DF("DISTANCE",  distance,  DDF_MainGetPercent),
+  DF("SFX START", sfx_start, DDF_MainLookupSound),
+  DF("SFX OPEN",  sfx_open,  DDF_MainLookupSound),
+  DF("SFX CLOSE", sfx_close, DDF_MainLookupSound),
+  DF("SFX STOP",  sfx_stop,  DDF_MainLookupSound),
 
 	DDF_CMD_END
 };
@@ -351,13 +347,12 @@ const commandlist_t slider_commands[] =
 static const commandlist_t linedef_commands[] =
 {
 	// sub-commands
-/*
-	DDF_SUB_LIST("FLOOR",    f, floor_commands),
-	DDF_SUB_LIST("CEILING",  c, floor_commands),
-	DDF_SUB_LIST("ELEVATOR", e, elevator_commands),
-	DDF_SUB_LIST("SLIDER",   s, slider_commands),
-	DDF_SUB_LIST("TILESKY",  sky, tilesky_commands),
-	DDF_SUB_LIST("LADDER",   ladder, ladder_commands),
+  DDF_SUB_LIST("FLOOR",    f, floor_commands,    dummy_floor),
+  DDF_SUB_LIST("CEILING",  c, floor_commands,    dummy_floor),
+  DDF_SUB_LIST("ELEVATOR", e, elevator_commands, dummy_elevator),
+  DDF_SUB_LIST("SLIDER",   s, slider_commands,   dummy_slider),
+  DDF_SUB_LIST("TILESKY",  sky, tilesky_commands, dummy_tilesky),
+  DDF_SUB_LIST("LADDER",   ladder, ladder_commands, dummy_ladder),
 
 	DF("NEWTRIGGER", newtrignum, DDF_MainGetNumeric),
 	DF("ACTIVATORS", obj, DDF_LineGetActivators),
@@ -419,7 +414,6 @@ static const commandlist_t linedef_commands[] =
 	DF("!EXTRAFLOOR TRANSLUCENCY", translucency, DDF_MainGetPercent),
 	DF("!SOUND", ddf, DDF_DummyFunction),
 	DF("!LIGHT PROBABILITY", ddf, DDF_DummyFunction),
-*/
 
 	DDF_CMD_END
 };
@@ -619,7 +613,6 @@ static void LinedefFinishEntry(void)
 	{
 		DDF_WarnError("Friction value too low (%1.2f), it would prevent "
 			"all movement.\n", buffer_line.friction);
-
 		buffer_line.friction = 0.1;
 	}
 

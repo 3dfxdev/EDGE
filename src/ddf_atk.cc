@@ -95,23 +95,22 @@ static void DDF_AtkGetType(const char *info, void *storage);
 static void DDF_AtkGetSpecial(const char *info, void *storage);
 static void DDF_AtkGetLabel(const char *info, void *storage);
 
-static damage_t dummy_damage;
+damage_t dummy_damage;
 
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  dummy_damage
 
 const commandlist_t damage_commands[] =
 {
-/*
-	DDF_CMD_SUB("VAL", nominal, DDF_MainGetFloat),
-	DDF_CMD_SUB("MAX", linear_max, DDF_MainGetFloat),
-	DDF_CMD_SUB("ERROR", error, DDF_MainGetFloat),
-	DDF_CMD_SUB("DELAY", delay, DDF_MainGetTime),
+  DF("VAL", nominal,    DDF_MainGetFloat),
+  DF("MAX", linear_max, DDF_MainGetFloat),
+  DF("ERROR", error, DDF_MainGetFloat),
+  DF("DELAY", delay, DDF_MainGetTime),
 
-	DDF_CMD_SUB("PAIN STATE", pain, DDF_AtkGetLabel),
-	DDF_CMD_SUB("DEATH STATE", death, DDF_AtkGetLabel),
-	DDF_CMD_SUB("OVERKILL STATE", overkill, DDF_AtkGetLabel),
-*/
+  DF("PAIN STATE", pain, DDF_AtkGetLabel),
+  DF("DEATH STATE", death, DDF_AtkGetLabel),
+  DF("OVERKILL STATE", overkill, DDF_AtkGetLabel),
+
 	DDF_CMD_END
 };
 
@@ -125,9 +124,8 @@ const commandlist_t damage_commands[] =
 
 static const commandlist_t attack_commands[] =
 {
-/*
 	// sub-commands
-	DDF_SUB_LIST("DAMAGE", damage, damage_commands),
+  DDF_SUB_LIST("DAMAGE", damage, damage_commands, dummy_damage),
 
 	DF("ATTACKTYPE", ddf, DDF_AtkGetType),
 	DF("ATTACK SPECIAL", ddf, DDF_AtkGetSpecial),
@@ -155,7 +153,7 @@ static const commandlist_t attack_commands[] =
 	DF("!DAMAGE", damage.nominal, DDF_MainGetFloat),
 	{"!DAMAGE RANGE", DDF_MainGetFloat, &a_damage_range, NULL},
 	{"!DAMAGE MULTI", DDF_MainGetFloat, &a_damage_multi, NULL},
-*/
+
 	DDF_CMD_END
 };
 
@@ -363,7 +361,7 @@ static const specflags_t attack_specials[] =
     {"SPAWN TELEFRAGS", AF_SpawnTelefrags, 0},
     {"NEED SIGHT", AF_NeedSight, 0},
     {"FACE TARGET", AF_FaceTarget, 0},
-    {"PLAYER ATTACK", AF_Player, 0},
+
     {"FORCE AIM", AF_ForceAim, 0},
     {"ANGLED SPAWN", AF_AngledSpawn, 0},
     {"PLAYER ATTACK", AF_Player, 0},
