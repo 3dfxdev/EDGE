@@ -63,7 +63,8 @@ static const wi_map_t template_wi =
 	NULL,			// titlepics
 	0,				// numtitlepics
 	0,				// titlemusic;
-	TICRATE * 4		// titletics;
+	TICRATE * 4,	// titletics;
+	0 				// special_music;
 };
 
 static void DDF_GameGetPic (const char *info, void *storage);
@@ -98,6 +99,7 @@ static const commandlist_t wi_commands[] =
 	DF ("NAME GRAPHIC", namegraphic, DDF_MainGetInlineStr10),
 	DF ("TITLE MUSIC", titlemusic, DDF_MainGetNumeric),
 	DF ("TITLE TIME", titletics, DDF_MainGetTime),
+	DF ("SPECIAL MUSIC", special_music, DDF_MainGetNumeric),
 
 	// these don't quite fit in yet
 	DF ("TITLE GRAPHIC", ddf, DDF_GameGetPic),
