@@ -1,0 +1,12 @@
+//
+// EDGE RESOURCES
+//
+#include "edge32.rh"
+
+MAIN_MENU MENU DISCARDABLE
+{
+  POPUP "File"
+  {
+    MENUITEM "Exit", MAIN_MENU_FILE_EXIT
+  }
+}

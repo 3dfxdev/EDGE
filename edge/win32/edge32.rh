@@ -1,0 +1,10 @@
+//
+// EDGE RESOURCE HEADER
+//
+#ifndef __RESOURCE_HEADER__
+#define __RESOURCE_HEADER__
+
+#define MAIN_MENU            100
+#define MAIN_MENU_FILE_EXIT  1001
+
+#endif /* __RESOURCE_HEADER__ */
