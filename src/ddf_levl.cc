@@ -411,8 +411,8 @@ void map_finaledef_c::Default()
 	
 	text_back.Clear();
 	text_flat.Clear();
-	text_speed = 0.0f;
-	text_wait = 0;
+	text_speed = 3.0f;
+	text_wait = 150;
 	text_colmap = NULL;
 
 	pics.Clear();
