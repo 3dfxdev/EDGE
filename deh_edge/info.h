@@ -162,8 +162,8 @@ typedef enum
     SPR_TLMP,
     SPR_TLP2,
     NUMSPRITES
-
-} spritenum_t;
+}
+spritenum_t;
 
 typedef enum
 {
@@ -1144,8 +1144,7 @@ typedef struct
 	spritenum_t	sprite;
 	long			frame;
 	long			tics;
-	// void		(*action) ();
-	actionf_t			action;
+	int			action;
 	statenum_t			nextstate;
 	long			misc1, misc2;
 }
