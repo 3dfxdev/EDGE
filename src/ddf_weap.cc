@@ -261,11 +261,12 @@ static void WeaponParseField(const char *field, const char *contents,
 	if (WeaponTryParseState(field, contents, index, is_last))
 		return;
 
-	if (ddf_version < 0x129)
+	if (ddf_version < 0x128)
 	{
 		// handle properties (old piece of crud)
 		if (index == 0 && DDF_CompareName(contents, "TRUE") == 0)
 		{
+			L_WriteDebug("WEAPON PROPERTY CRUD: %s = %s\n", field, contents);
 			DDF_WGetSpecialFlags(field, &buffer_weapon.specials[0]);
 			return;
 		}
