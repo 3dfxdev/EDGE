@@ -51,6 +51,7 @@ void S_SoundLevelInit(void);
 int S_StartSound(mobj_t *origin, sfx_t *sound_id);
 void S_ResumeSounds(void);
 void S_PauseSounds(void);
+void S_RemoveSoundOrigin(mobj_t *origin);
 void S_StopSound(mobj_t *origin);
 void S_StopChannel(int cnum);
 void S_UpdateSounds(mobj_t *listener);
@@ -60,6 +61,6 @@ void S_SetSfxVolume(int volume);
 void S_FlushSoundCaches(z_urgency_e urge);
 
 // S_UTIL.C
-byte *S_UtilConvertMUStoMIDI(byte* data);
+byte *S_UtilConvertMUStoMIDI(byte *data);
 
 #endif
