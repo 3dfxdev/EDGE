@@ -35,7 +35,7 @@
 #define TRANS_PIXEL  247
 
 // Post end marker
-#define WPOST_END  0xFF
+#define P_SENTINEL  0xFF
 
 typedef struct w_post_s
 {
