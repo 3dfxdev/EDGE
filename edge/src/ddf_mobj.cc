@@ -867,7 +867,7 @@ const mobjinfo_t *DDF_MobjLookupNum(const int number)
 			break;
 	}
 
-	if (i < 0)
+	if (i < num_disabled_mobjinfo)
 		return NULL;
 
 	// do a sprite check (like for weapons)
