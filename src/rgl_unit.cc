@@ -86,6 +86,8 @@ static int cur_unit;
 
 static bool solid_mode;
 
+bool rgl_1d_debug = false;
+
 
 //
 // RGL_InitUnits
@@ -382,6 +384,16 @@ void RGL_1DOcclusionSet(angle_t low, angle_t high)
 	low_b  = low  & 0x1F;  low  >>= 5; 
 	high_b = high & 0x1F;  high >>= 5; 
 
+#if 0  // TEMP DEBUGGING CODE
+unsigned int low_orig = low;
+if (rgl_1d_debug)
+{
+	L_WriteDebug("> low = %d.%d  high = %d.%d\n", low, low_b, high, high_b);
+	L_WriteDebug("> Low mask = 0x%08x  High mask = 0x%08x\n",
+		LOW_MASK(low_b), HIGH_MASK(high_b));
+}
+#endif
+
 	if (low == high)
 	{
 		oned_oculus_buffer[low] &= ~(LOW_MASK(low_b) & HIGH_MASK(high_b));
@@ -396,6 +408,28 @@ void RGL_1DOcclusionSet(angle_t low, angle_t high)
 		for (; low != high; low = (low+1) % ONED_TOTAL)
 			oned_oculus_buffer[low] = 0x00000000;
 	}
+
+#if 0  // TEMP DEBUGGING CODE
+if (rgl_1d_debug)
+{
+	low = low_orig;
+
+	L_WriteDebug("> ");
+	L_WriteDebug("0x%08x", oned_oculus_buffer[low]);
+
+	if (low != high)
+	{
+		low = (low+1) % ONED_TOTAL;
+
+		for (; low != high; low = (low+1) % ONED_TOTAL)
+			L_WriteDebug(" 0x%08x", oned_oculus_buffer[low]);
+
+		L_WriteDebug(" 0x%08x", oned_oculus_buffer[high]);
+	}
+
+	L_WriteDebug(" <\n");
+}
+#endif
 }
 
 //
@@ -414,12 +448,35 @@ bool RGL_1DOcclusionTest(angle_t low, angle_t high)
 	low  >>= (ANGLEBITS - ONED_POWER);
 	high >>= (ANGLEBITS - ONED_POWER);
 
-	// make the check a little wider, to be sure to be sure
-	if (low > 0) low--;
-	if (high < (ONED_SIZE-1)) high++;
-
 	low_b  = low  & 0x1F;  low  >>= 5; 
 	high_b = high & 0x1F;  high >>= 5; 
+
+#if 0  // TEMP DEBUGGING CODE
+unsigned int low_orig = low;
+if (rgl_1d_debug)
+{
+	L_WriteDebug("? low = %d.%d  high = %d.%d\n", low, low_b, high, high_b);
+	L_WriteDebug("? Low mask = 0x%08x  High mask = 0x%08x\n",
+		LOW_MASK(low_b), HIGH_MASK(high_b));
+
+	L_WriteDebug("? ");
+	L_WriteDebug("0x%08x", oned_oculus_buffer[low]);
+
+	if (low != high)
+	{
+		low = (low+1) % ONED_TOTAL;
+
+		for (; low != high; low = (low+1) % ONED_TOTAL)
+			L_WriteDebug(" 0x%08x", oned_oculus_buffer[low]);
+
+		L_WriteDebug(" 0x%08x", oned_oculus_buffer[high]);
+	}
+
+	L_WriteDebug(".\n");
+
+	low = low_orig;
+}
+#endif
 
 	if (low == high)
 		return ! (oned_oculus_buffer[low] & (LOW_MASK(low_b) & HIGH_MASK(high_b)));
