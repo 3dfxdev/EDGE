@@ -1,22 +1,20 @@
 
-EDGE 1.27 README.1ST
+EDGE 1.28 README.1ST
 ====================
 
 Welcome to EDGE, the Enhanced Doom Gaming Engine.
 
 Archive listing:
-  * edge              - Linux Executable, software rendering
-  * gledge            - Linux Executable, OpenGL rendering
-  * musserv           - Linux music server 
-  * edge.cfg          - Default Configuration File
+  * edge32.exe        - Windows Executable, software rendering
+  * gledge32.exe      - Windows Executable, OpenGL rendering
+  * upgrader.exe      - Windows Executable, upgrade utility
   * edge.wad          - EDGE WAD Information
   * edge-ddf.zip      - EDGE DDF files (not required to play)
   * readme.1st        - Guess what you reading?
 
 
 System Requirements:
-  - Either a DOOM, DOOM II, TNT or PLUTONIA WAD file.
-  - Computer with an FPU (Intel 486DX or higher).
+  - Either a DOOM, DOOM II, TNT, PLUTONIA or FREEDOOM WAD file.
   - Pentium 133 MHz CPU (233 MHz for 640x480 mode or GLEDGE).
   - 32MB RAM (64MB RAM recommended).
   - Hardware accelerated 3D card with OpenGL drivers (GLEDGE only).
@@ -26,7 +24,7 @@ System Requirements:
     - Videocard and Soundcard which is compatible DirectX 7.0.
 
   For Linux:
-    - SDL (Simple DirectMedia Layer) version 1.1.
+    - SDL (Simple DirectMedia Layer) version 1.2.
     - XFree86 4.0 with DRI 3D hardware acceleration (GLEDGE only).
     - Glibc 2.
 
@@ -41,7 +39,7 @@ Useful Parameters:
   * Show EDGE version: -version
   * Disable sound: -nosound
   * Disable music: -nomusic
-  * Turn off warnings: -nowarn  (useful for 1.24 wads like QDOOMTST)
+  * Disable warnings: -nowarn  (useful for 1.24 wads like QDOOMTST)
 
 
 Notable EDGE features:
@@ -70,79 +68,102 @@ Notable EDGE features:
     visplane overflow or medusa effect).
  
  
-New features in 1.26:
-  - Savegames are back.  This is brand new code, which works OK in the
-    tests we've made, but may have bugs/issues with it.
+Important changes:
+  - On multi-user systems (newer versions of Windows, and Linux)
+    the location for the config file (EDGE.CFG) and savegames has
+	moved, and is user-specific.  This allows multiple users to have
+	their own configuration and savegames.
 
-  - EDGE now has built-in support for building "GL Nodes", which the
-    renderers (software and OpenGL) need to draw levels properly.
-    Some wads have the GL Nodes in them already -- for the rest EDGE
-    will automatically create a ".GWA" file containing them.  When
-    this happens, a screen will pop up showing some progress bars.
-    This can take a while (especially for huge wads like ETERNAL) but
-    it only has to be done once.
+	To allow easy upgrading, we have included a tool along with the
+	EDGE binaries: UPGRADER.EXE.  You must run this first, before
+	running EDGE -- it will either move the files to the new place,
+	or spit out a message saying 'Nothing to do'.
+	
+	On Linux, the new location is the ~/.edge directory.  You can
+	either download, compile and run the Upgrader tool, or manually
+	move the edge.cfg file and savegames directory there.
 
-  - Improved BOOM compatibility: all of the non-generalised linetypes
-    are supported, with the exception of line-to-line teleporters
-    (which we haven't coded yet) and some scrolling types.  The
-    generalised line and sector types are mostly implemented too,
-    though some don't work correctly yet.
-    
-    For EDGE 1.27, there is a `Compatibility' option in the Gameplay
-    menu with two choices: "EDGE" and "BOOM".  This is because the the
-    BOOM generalised types can interfere with TCs/mods which define
-    their own types in DDF.  If a level doesn't seem to be working
-    properly, e.g. doors that won't open, try changing this option and
-    restarting the level.
+  - Support for playing MP3 music has been removed, since the
+    licensing is not compatible with Open Source software.  The
+    next version of EDGE will support OGG Vorbis, a free format
+	which sounds just as good but has no licensing fees.
 
-  - Mipmapping in the software and GL renderers.  In software mode,
-    this can make walls/floors/etc look blurry, so it can be disabled
-    in the Video Options menu or with the -nomipmap command-line
-    option (use -mipmap to enable).
+	
+Bugs fixed in 1.28:
+  + serious crash bug loading textures from PWads fixed.
+  + savegame problem which could cause crashes fixed.
+  + windows version now detects out-of-date GWA files properly.
+  + windows version now handles filenames with double quotes.
+  + fixed crash when a door closed on a dead player.
+  + fixed (potential) crash in GL mode when depth was 8 bits.
+  + crash on cast parade with flipped sprites (HellKnight) fixed.
 
-  - Crouching.  Uses the `Move Down' key in the standard controls
-    option menu, and must be enabled in the gameplay option menu.
-
-  - Shadows under things.  Can be enabled/disabled in the Video Option
-    menu, or with the -shadows command-line option.
-
-  - Dynamic lighting, only works in GLEDGE for now.  It can be
-    enabled/disabled in the Video Option menu (disabling will give
-    higher framerates and also saves memory) -- Note that you need to
-    restart the level for the change to take effect.
-
-  - Many DDF and RTS enhancements, too many to list in this readme,
-    but include: more ammo types, improved tips, thin sliding doors,
-    and better damage control.
+  - fix for too much bobbing.
+  - fix for floor textures in GL (wrong scale, no transparency).
+  - fixed ceilings not opening because of stuck things (MAP06).
+  - certain fonts are no longer forced red (QDOOM).
+  - fixed the issue with monsters resurrecting into another.
+  - render sprites (S/W mode) with posts exceeding 128 pixels.
+  
+  * Many more... See the 1.28 ChangeLog for the complete list.
  
 
-New features in 1.27:
-  - Wipes and crosshairs now work in GLEDGE.
+General improvements in 1.28:
+  + better default configuration: e.g. 640x400 mode, 16 bit colour.
+                                                                                            
+  + full Mlook range in GL mode.
+                                                                                            
+  + better sky drawing in GL: fake skybox copes with Mlook, never
+    wobbles anymore, and is drawn a lot faster than before.
+                                                                                            
+  + windows version prevents more than one instance of EDGE running at
+    the same time.  Also, window handling code has been reworked.
+                                                                                            
+  + the GL renderer emulates the flat-flooding and deep-water tricks.
+                                                                                            
+  - better images for when you have both keycard and skullkey.
+  - config file remembers current language and current Save/Load page.
+  - Pixelfade wipe has been implemented for OpenGL mode.
+  - text strings look better in modes smaller than 640x400.
+  - the source code is now written in C++.
 
-  - Weapon kick can be disabled in the Gameplay Option menu.
+  * See the 1.28 ChangeLog for more...
 
-  - Better checking when loading savegame files.  If the level data is
-    detected to be different, e.g. loading a DOOM2 mad when playing
-    PLUTONIA, then the load is aborted.  Unfortunately EDGE also
-    crashes out -- recovering from a partial loadgame is a hard
-    problem to fix.
 
-  - A couple new DDF/RTS features.  See the CHANGELOG(s) for more
-    information. 
- 
- 
+New features in 1.28:
+  + very basic overlay HUD.  (Better one will be made when HUD.DDF is
+    implemented).
+
+  + EDGE.log file, automatically remembers all startup messages.
+
+  + new #VERSION directive for DDF files and RTS scripts.  It is followed by
+    the version of EDGE needed to use the DDF/RTS.  E.g. "#VERSION 1.28".
+    This directive is _required_ to use new features in EDGE 1.28, but it
+    also prevents you using obsolete features (they produce a fatal error).
+
+  - RESISTANCE_CLASS for DDF.  Used the same way as IMMUNITY_CLASS, but the
+    monster only suffers 40% of the original damage.
+
+  - TIP_GRAPHIC supports scaling via fourth parameter, which is a value
+    like 0.5, 1.0, 2.0.  For example:
+
+      TIP_GRAPHIC  M_PAUSE  3  false  0.5
+
+  * See the 1.28 ChangeLog file for more...
+
+
 Known Issues:
   - Multiplayer (networking) does not work.  We don't have the time to
     work on this at the moment, unfortunately.
 
   - Joysticks do not work.  We haven't done any work in that area.
 
-  - A few issues with the sky in GLEDGE, like certain ceilings drawn
-    which shouldn't be (e.g. MAP14).  The wobblies are gone though.
+  - Music is not implemented for Linux or MacOS X.
+
+  - Music volume slider (under Windows) is broken.
  
   - There are some visual problems/glitches with the screen,
-    especially when the view window is shrunk down.  Also the fonts
-    can look "chunky" in low resolutions (320x200).
+    especially when the view window is shrunk down.
  
   - EDGE is still somewhat slow.  Overall this is because we had
     little time to spend on optimising the code.  For software mode,
@@ -153,8 +174,8 @@ Known Issues:
   - Levels and TCs designed for EDGE 1.24 (or earlier) can produce a
     bucket-load of warnings when starting up.  These warnings are
     mostly about DDF features that have been removed or changed.
-    Hence some older stuff may not work 100%.  Use the -nowarn option
-    to turn off these warnings.
+    Hence some older stuff will not work 100%.  Use the -nowarn
+	option to turn off these warnings.
  
   - Some sprites are designed to look sunk into the floor, typically
     corpses, and can look like they are "floating" in EDGE.  This is a
@@ -172,27 +193,29 @@ Known Issues:
     saved in a savegame, so after loading a level there are no looping
     sounds being played at all.
  
-  - Some graphics can look fuzzy in GLEDGE, such as the title screens
-    and the status bar background.  This happens because many 3D cards
-    (e.g. Voodoo 3) have a texture size limitation of 256x256 pixels,
-    but some DOOM graphics are 320 pixels wide -- they don't fit, so
-    GLEDGE has to squash them down to half the size.
+  - Some graphics can be more blurred than they should be in GLEDGE,
+    such as the title screens and the status bar background.
+
+	This happens because many 3D cards (e.g. Voodoo 3) have a texture
+	size limitation of 256x256 pixels, but some DOOM graphics are 320
+	pixels wide -- because they don't fit, GLEDGE has to squash them.
  
   - The console has very limited functionality.
  
   - Certain colourmaps (especially Fog) don't work in GL mode.
 
- 
+  - Teleport wipes don't work in GL mode.
+
+
 Troubleshooting:
   - If EDGE crashes, or otherwise misbehaves, please help us by
     reporting the problem.  To do this check out the EDGE website at
     http://edge.sourceforge.net.  We appreciate input because if you
     don't tell us about a bug, we can't deal with it.
 
-  - The debug file can show some useful information (especially for us 
-    when trying to track down a problem).  Create it like this:
-
-      edge32 [normal parameters...] -debugfile debug.txt
+  - Post the EDGE.LOG file which EDGE creates along with your bug
+    report, as this contains lots of useful information to help
+	us track down the problem.
 
   For Windows:
     - Ensure you are running with virtual memory ENABLED.  This will
@@ -211,12 +234,12 @@ Troubleshooting:
       for it on your computer.  A really low framerate usually
       indicates that the *software* GL driver is being used (not what
       we want, of course ;).  Go to the website of your card's
-      manufacture and look for a recent 3D driver.  Another place to
+      manufacturer and look for a recent 3D driver.  Another place to
       look is on Microsoft's site.  Basically, if Quake 3 (or some
       other OpenGL game) works, then GLEDGE should work too.
    
   For Linux:
-    - SDL 1.1 can be found at http://www.libsdl.org/.
+    - SDL 1.2 can be found at http://www.libsdl.org/.
     
     - 3D support under linux is still a developing thang, e.g. there
       is no support for DRI (Direct Rendering Infrastructure) in
@@ -232,38 +255,31 @@ Contact points:
   * For the latest news and developments visit the EDGE Website
     at http://edge.sourceforge.net.
 
-  * For Forums, Engine Reports and CVS Access visit the EDGE Project
+  * For Forums, Bug Reports and CVS Access visit the EDGE Project
     site at http://sourceforge.net/projects/edge.
-
-  * Contact the EDGE Team at edge-public@lists.sourceforge.net or via
-    one of the team members (see the team page on the main website).
 
   * For more information on "GL Nodes", see the glBSP homepage at
     http://glbsp.sourceforge.net.
 
 
 Compiling EDGE:
+  For Windows:
+  	- use the IDE project files: EDGE.VCPROJ for Microsoft Visual
+	  Studio, or EDGE.DEV for Dev C++ (a free C/C++ IDE).
 
-  Quick guide:
-  
-  First you need to build the GLBSP plugin.  Cd into glbsp/plugin
-  directory and type `make' (or make -f makefile.bcc for windows, or
-  make -f makefile.osx for MacOS X).
+  For Linux:
+    - just type 'make' in the top-level dir.  This will create gledge.
+	  edit the Makefile in order to create the S/W version.
 
-  To make EDGE itself, cd into the platform specific directory
-  (`linux', `win32' or `djgpp'), that's where the Makefile is.  For MacOS X,
-  cd into the `linux' directory (the code is shared).  Edit
-  the Makefile, there are some useful parameters you can change at the
-  top.  Then type `make' (or for windows, `make -f Makefile.bcc', or
-  `make -f Makefile.osx' for MacOS X).
+  For MacOS X:
+    - type 'make -f Makefile.osx' in the top-level dir.
+	  NOTE: MacOS X support is broken right now (
 
 
 Command line options:
-
   * Note that "(no)" here means that the option switch can optionally
     be prefixed with the word "no", e.g. -shadows OR -noshadows.  The
-    plain option enables the feature, and the one with "no" disables
-    that feature.
+    plain option enables the feature, the one with "no" disables it.
 
   -version             Show version of EDGE and exit.
 
@@ -362,24 +378,18 @@ Command line options:
 
    (none)
 
-  DOS only options:
-
-  -forcevga            Limit video mode to VGA 320x200x8.
-  -ihatebill           (Unused at the moment)
-  -bitspp  <depth>     (Unused I think) select video depth.
 
   Linux only options:
 
   -freq  <freq>        Set sound frequency (sample rate) in Hz.
   -mono                Disable stereo sound output.
-  -sound16             Try to enable 16 bit sound.
+  -sound16             Force 16 bit sound, if available.
   -allegfm             Use the allegro FM patches for music.
   -warpmouse           Use special mouse handling code.
   -nograb              Don't grab the mouse cursor
  
 
 Console commands:
-
   ARGS  <a> <b> ...    Just displays the arguments given to it.
   CRC  <lump>          Computes the CRC value of a wad lump.
   EAT  <size>          Eats memory (for debugging purposes).
