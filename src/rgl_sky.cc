@@ -224,10 +224,10 @@ void RGL_DrawSkyBox(void)
 	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_T));
 
 	glBegin(GL_QUADS);
-	glTexCoord2f(v0, v0); glVertex3f(-dist, -dist, +dist);
-	glTexCoord2f(v0, v1); glVertex3f(-dist,  dist, +dist);
-	glTexCoord2f(v1, v1); glVertex3f( dist,  dist, +dist);
-	glTexCoord2f(v1, v0); glVertex3f( dist, -dist, +dist);
+	glTexCoord2f(v0, v0); glVertex3f(-dist,  dist, +dist);
+	glTexCoord2f(v0, v1); glVertex3f(-dist, -dist, +dist);
+	glTexCoord2f(v1, v1); glVertex3f( dist, -dist, +dist);
+	glTexCoord2f(v1, v0); glVertex3f( dist,  dist, +dist);
 	glEnd();
 
 	// bottom
