@@ -1903,7 +1903,7 @@ ddf_base_c::~ddf_base_c()
 //
 // ddf_base_c::Copy()
 //
-void ddf_base_c::Copy(ddf_base_c &src)
+void ddf_base_c::Copy(const ddf_base_c &src)
 {
 	name = src.name;
 	number = src.number;
@@ -1933,7 +1933,7 @@ void ddf_base_c::SetUniqueName(const char *prefix, int num)
 //
 // ddf_base_c assignment operator
 //
-ddf_base_c& ddf_base_c::operator=(ddf_base_c &rhs)
+ddf_base_c& ddf_base_c::operator= (const ddf_base_c &rhs)
 {
 	if (&rhs != this)
 		Copy(rhs);
