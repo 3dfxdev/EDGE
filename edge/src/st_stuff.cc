@@ -287,11 +287,8 @@ static void RefreshBackground(void)
 {
 	if (st_baron_not_overlay)
 	{
-#ifdef USE_GL  // -AJA- hack fix for red line at bottom of screen
+		// -AJA- hack fix for red line at bottom of screen
 		VCTX_Image320(ST_X, ST_Y, ST_WIDTH, ST_HEIGHT+1, sbar_image);
-#else
-		VCTX_Image320(ST_X, ST_Y, ST_WIDTH, ST_HEIGHT, sbar_image);
-#endif
 	}
 }
 
