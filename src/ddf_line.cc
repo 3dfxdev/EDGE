@@ -702,6 +702,8 @@ static specflags_t teleport_specials[] =
 	{"SAME OFFSET", TELSP_SameOffset, 0},
 	{"PRESERVE", TELSP_Preserve, 0},
 	{"ROTATE", TELSP_Rotate, 0},
+	{"LINE", TELSP_Line, 0},
+	{"REVERSING", TELSP_Reversing, 0},
 	{NULL, 0, 0}
 };
 
