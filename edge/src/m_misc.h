@@ -61,6 +61,7 @@ void M_ScreenShot(void);
 exttype_e M_CheckExtension(const char *ext, const char* filename);
 byte *M_GetFileData(char *filename, int *length);
 char *M_ComposeFileName(const char *dir, const char *file);
+void M_WarnError(const char *error,...) GCCATTR(format(printf, 1, 2));
 
 extern int cfgnormalfov, cfgzoomedfov;
 
