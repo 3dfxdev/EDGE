@@ -714,8 +714,7 @@ typedef struct
 spriteframe_t;
 
 //
-// A sprite definition:
-//  a number of animation frames.
+// A sprite definition: a number of animation frames.
 //
 typedef struct
 {
