@@ -2,7 +2,7 @@
 //  Main program
 //------------------------------------------------------------------------
 //
-//  Edge MultiPlayer Server (C) 2004  Andrew Apted
+//  Edge MultiPlayer Server (C) 2005  Andrew Apted
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
 	main_win = new UI_MainWin(MY_TITLE);
 
 	LogPrintf(0,
-		"\n*** " MY_TITLE " (C) 2004 Andrew Apted ***\n\n"
+		"\n*** " MY_TITLE " (C) 2005 Andrew Apted ***\n\n"
 	);
 
 	NetInit();
