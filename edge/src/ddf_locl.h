@@ -273,7 +273,6 @@ boolean_t DDF_MainParseField(const commandlist_t *commands,
     const char *field, const char *contents);
 void DDF_MainLookupSound(const char *info, void *storage, void *priv);
 void DDF_MainRefAttack(const char *info, void *storage, void *priv);
-void DDF_MainReferenceString(const char *info, void *storage, void *priv);
 
 // -KM- 1998/09/27 Two new funcs shared by sectors + linedefs.
 void DDF_MainGetLighttype(const char *info, void *storage, void *priv);
@@ -290,6 +289,7 @@ int DDF_MainLookupDirector(const mobjinfo_t *obj, const char *info);
 
 // DDF_ANIM Code
 void DDF_AnimInit(void);
+void DDF_AnimCleanUp(void);
 
 // DDF_ATK Code
 void DDF_AttackInit(void);
@@ -298,12 +298,15 @@ attacktype_t *DDF_AttackLookup(const char *name);
 
 // DDF_GAME Code
 void DDF_GameInit(void);
+void DDF_GameCleanUp(void);
 
 // DDF_LANG Code
 void DDF_LanguageInit(void);
+void DDF_LanguageCleanUp(void);
 
 // DDF_LEVL Code
 void DDF_LevelInit(void);
+void DDF_LevelCleanUp(void);
 
 // DDF_LINE Code
 void DDF_LinedefInit(void);
@@ -330,6 +333,7 @@ void ThingParseField(const char *field, const char *contents,
 
 // DDF_MUS Code
 void DDF_MusicPlaylistInit(void);
+void DDF_MusicPlaylistCleanUp(void);
 
 // DDF_STAT Code
 void DDF_StateInit(void);
@@ -347,6 +351,7 @@ int StateFindLabel(int first, int last, const char *label);
 
 // DDF_SECT Code
 void DDF_SectorInit(void);
+void DDF_SectorCleanUp(void);
 
 // DDF_SFX Code
 void DDF_SFXInit(void);
@@ -355,6 +360,7 @@ void DDF_SFXCleanUp(void);
 // DDF_SWTH Code
 // -KM- 1998/07/31 Switch and Anim ddfs.
 void DDF_SWInit(void);
+void DDF_SWCleanUp(void);
 
 // DDF_WEAP Code
 void DDF_WeaponInit(void);
@@ -362,8 +368,8 @@ void DDF_WeaponCleanUp(void);
 extern const specflags_t ammo_types[];
 
 // DDF_COLM Code -AJA- 1999/07/09.
-// void DDF_PaletteInit(void);
 void DDF_ColmapInit(void);
+void DDF_ColmapCleanUp(void);
 
 // Miscellaneous stuff needed here & there
 extern mobjinfo_t buffer_mobj;
