@@ -24,6 +24,7 @@
 #include "hu_lib.h"
 #include "hu_stuff.h"
 #include "g_game.h"
+#include "lu_math.h"
 #include "m_argv.h"
 #include "m_swap.h"
 #include "p_local.h"
@@ -794,7 +795,8 @@ static void RAD_ParseVersion(int pnum, const char **pars)
 	if (vers < 0.99f || vers > 9.99f)
 		RAD_Error("Illegal #VERSION number.\n");
 
-	int decimal = (int)(100.0f * vers + 0.5f);
+	vers *= 100.0f;
+	int decimal = I_ROUND(vers);
 
 	rts_version = ((decimal / 100) << 8) |
 				  (((decimal / 10) % 10) << 4) | (decimal % 10);
