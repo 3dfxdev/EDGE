@@ -307,9 +307,16 @@ wbstartstruct_t;
 void P_ConsolePlayerBuilder(const player_t *p, void *data, ticcmd_t *dest);
 void P_BotPlayerBuilder(const player_t *p, void *data, ticcmd_t *dest);
 
-// This is the only way to create a new player.
-void P_AddPlayer(int pnum);
+void G_DeathMatchSpawnPlayer(player_t *p);
+void G_CoopSpawnPlayer(player_t *p);
 
-bool P_PlayerSwitchWeapon(player_t *player, weapondef_c *choice);
+void G_SetConsolePlayer(int pnum);
+void G_SetDisplayPlayer(int pnum);
+void G_ToggleDisplayPlayer(void);
+
+void G_PlayerReborn(player_t *player, const mobjtype_c *info);
+void G_PlayerFinishLevel(player_t *p);
+
+bool G_CheckConditions(mobj_t *mo, condition_check_t *cond);
 
 #endif

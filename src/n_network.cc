@@ -337,15 +337,13 @@ void E_CheckNetGame(void)
 	netgame = false;
 #endif
 
+	consoleplayer = 0;
+
 	for (int i = 0; i < pl_num; i++)  // FIXME: get num_players from play_game_proto_t
 	{
-		P_CreatePlayer(i);
-
-		if (i != 0)
-			P_BotCreate(players[i], false);
+		P_CreatePlayer(i, i != consoleplayer);
 	}
 
-	consoleplayer = 0;
 	DEV_ASSERT2(players[consoleplayer]);
 
 	G_SetConsolePlayer(consoleplayer);

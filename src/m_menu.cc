@@ -779,7 +779,7 @@ void M_LoadSelect(int choice)
 		return;
 	}
 
-	G_LoadGame(save_page * SAVE_SLOTS + choice);
+	G_DeferredLoadGame(save_page * SAVE_SLOTS + choice);
 	M_ClearMenus();
 }
 
@@ -836,7 +836,7 @@ void M_DrawSave(void)
 //
 static void M_DoSave(int page, int slot)
 {
-	G_SaveGame(page * SAVE_SLOTS + slot, ex_slots[slot].desc);
+	G_DeferredSaveGame(page * SAVE_SLOTS + slot, ex_slots[slot].desc);
 	M_ClearMenus();
 
 	// PICK QUICKSAVE SLOT YET?
@@ -1645,7 +1645,7 @@ bool M_Responder(event_t * ev)
 	// -ACB- 1999/10/11 F1 is responsible for print screen at any time
 	if (ch == KEYD_F1)
 	{
-		G_ScreenShot();
+		G_DeferredScreenShot();
 		return true;
 	}
 

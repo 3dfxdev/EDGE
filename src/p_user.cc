@@ -33,6 +33,7 @@
 #include "dm_state.h"
 #include "g_game.h"
 #include "m_inline.h"
+#include "p_bot.h"
 #include "p_local.h"
 #include "p_mobj.h"
 #include "rad_trig.h"
@@ -662,7 +663,7 @@ void P_PlayerThink(player_t * player)
 //
 // P_CreatePlayer
 //
-void P_CreatePlayer(int pnum)
+void P_CreatePlayer(int pnum, bool is_bot)
 {
 	DEV_ASSERT2(0 <= pnum && pnum < MAXPLAYERS);
 
@@ -690,6 +691,9 @@ void P_CreatePlayer(int pnum)
 		// -ES- Default to player##
 		sprintf(p->playername, "Player%d", pnum + 1);
 	}
+
+	if (is_bot)
+		P_BotCreate(p, false);
 }
 
 //
