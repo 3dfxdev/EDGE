@@ -47,21 +47,33 @@ void ArgvInit(int argc, const char **argv)
 
 	arg_list = new const char *[arg_count];
 
+	int dest = 0;
+
 	for (int i = 0; i < arg_count; i++)
 	{
 		const char *cur = argv[i];
 		SYS_NULL_CHECK(cur);
 
+#ifdef MACOSX
+		// ignore MacOS X rubbish
+		if (strncmp(cur, "-psn", 4) == 0)
+			continue;
+#endif
+
 		// support GNU-style long options
 		if (cur[0] == '-' && cur[1] == '-' && isalnum(cur[2]))
 			cur++;
 
-		arg_list[i] = strdup(cur);
+		arg_list[dest] = strdup(cur);
 
 		// support DOS-style short options
 		if (cur[0] == '/' && (isalnum(cur[1]) || cur[1] == '?') && cur[2] == 0)
-			*(char *)(arg_list[i]) = '-';
+			*(char *)(arg_list[dest]) = '-';
+
+		dest++;
 	}
+
+	arg_count = dest;
 }
 
 //
