@@ -26,6 +26,7 @@
 #define DUMMYUNIONNAMEN(n)
 
 #include "..\i_defs.h"
+
 #include <objbase.h>
 #include <wchar.h>
 #include <winbase.h>
@@ -39,11 +40,6 @@
 #include <dsound.h>
 
 #include "edge32.rh" // Resources
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 // I_CD.C - MCI CD Handling
 boolean_t I_CDStartPlayback(int tracknum);
@@ -62,15 +58,17 @@ void I_ShutdownWinConsole(void);
 void I_ControlTicker(void);
 void I_HandleKeypress(int key, boolean_t keydown); // handle message loop key presses
 
-// I_DIGMID.C - DirectMusic MIDI Handler
-boolean_t I_StartupDirectMusic(void *sysinfo);
-int I_DirectMusicPlayback(char *filename, boolean_t loops);
-void I_DirectMusicTicker(int *handle);
-void I_DirectMusicPause(int *handle);
-void I_DirectMusicResume(int *handle);
-void I_DirectMusicStop(void);
-void I_ShutdownDirectMusic(void);
-char *I_DirectMusicReturnError(void);
+// I_MP3.C - Win32 MP3 Handling
+boolean_t I_StartupMP3(void);
+int I_MP3PlayTrack(char *fn, boolean_t loopy);
+void I_MP3BufferFill(void);
+void I_MP3Ticker(void);
+void I_MP3Pause(void);
+void I_MP3Resume(void);
+void I_MP3Stop(void);
+boolean_t I_MP3Playing(void);
+void I_MP3SetVolume(int vol);
+void I_ShutdownMP3(void);
 
 // I_MUS.C - Win32 MUS Handling
 boolean_t I_StartupMUS(void);
@@ -87,7 +85,7 @@ void I_ShutdownMUS(void);
 void I_PostMusicError(char *error);
 
 // I_SOUND.C
-LPDIRECTSOUND I_SoundReturnObject(void); // for DirectMusic
+LPDIRECTSOUND I_SoundReturnObject(void); // for MP3
 
 // I_SYSTEM.C
 long FAR PASCAL I_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -103,10 +101,6 @@ extern HACCEL accelerator;
 // -ACB- 2000/07/04 We want to see this lot from elsewhere in the EPI
 extern HWND conwinhandle;
 extern boolean_t appactive;
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif __SYSTEM_INTERNAL_H__
 

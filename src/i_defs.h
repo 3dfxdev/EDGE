@@ -181,7 +181,7 @@ typedef enum { false, true } boolean_t;
 
 #define DIRSEPARATOR '\\'
 
-#define NAME        "EDGE"
+#define NAME        "The EDGE Engine"
 #define OUTPUTNAME  "EDGECONSOLE"
 #define TITLE       "EDGE Engine"
 #define OUTPUTTITLE "EDGE System Console"
@@ -389,8 +389,10 @@ typedef enum { false, true } boolean_t;
 #endif // BeOS GCC
 
 #ifdef LEAK_HUNT
+
 #undef I_TmpMalloc
 #undef I_TmpFree
+
 #ifdef __GNUC__
 
 //
@@ -410,6 +412,7 @@ typedef enum { false, true } boolean_t;
 #define I_TmpFree(ptr) Z_Free(Z_UnRegisterTmpMalloc(ptr, __FILE__))
 
 #endif
+
 #endif
 
 #endif /*__SYSTEM_SPECIFIC_DEFS__*/
