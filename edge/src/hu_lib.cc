@@ -165,6 +165,9 @@ void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c 
 	if (! font)
 		I_Error("Style [%s] is missing a font !\n", L->style->def->ddf.name.GetString());
 
+	if (! colmap)
+		colmap =L->style->def->text[L->text_type].colmap;
+
 	// -AJA- 1999/09/07: centred text.
 	if (L->centre)
 	{
@@ -195,9 +198,9 @@ void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c 
 
 void HL_DrawTextLine(hu_textline_t * L, bool drawcursor)
 {
-	HL_DrawTextLineAlpha(L, drawcursor,
-		L->style->def->text[L->text_type].colmap ?
-		L->style->def->text[L->text_type].colmap : text_red_map, 1.0f);
+	HL_DrawTextLineAlpha(L, drawcursor, NULL, 1.0f);
+///---		L->style->def->text[L->text_type].colmap ?
+///---		L->style->def->text[L->text_type].colmap : text_red_map, 1.0f);
 }
 
 // sorta called by HU_Erase and just better darn get things straight

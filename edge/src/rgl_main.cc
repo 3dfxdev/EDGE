@@ -237,12 +237,12 @@ void RGL_DrawImage(int x, int y, int w, int h, const image_t *image,
 //
 // RGL_SolidBox
 //
-void RGL_SolidBox(int x, int y, int w, int h, int colour, float alpha)
+void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t colour, float alpha)
 {
 	if (alpha < 0.99f)
 		glEnable(GL_BLEND);
   
-	glColor4f(PAL_RED(colour), PAL_GRN(colour), PAL_BLU(colour), alpha);
+	glColor4f(RGB_RED(colour), RGB_GRN(colour), RGB_BLU(colour), alpha);
   
 	glBegin(GL_QUADS);
 

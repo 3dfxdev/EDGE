@@ -31,6 +31,8 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dstrings.h"
+#include "hu_lib.h"
+#include "hu_style.h"
 #include "m_argv.h"
 #include "m_bbox.h"
 #include "m_cheat.h"
@@ -233,8 +235,8 @@ static float scale_mtof = INITSCALEMTOF;
 // used by FTOM to scale from frame-buffer-to-map coords (=1/scale_mtof)
 static float scale_ftom;
 
-// numbers used for marking by the automap
-static const image_t *marknums[10];
+///---// numbers used for marking by the automap
+///---static const image_t *marknums[10];
 
 // where the points are
 static mpoint_t markpoints[AM_NUMMARKPOINTS];
@@ -250,6 +252,8 @@ cheatseq_t cheat_amap = {0, 0};
 static bool stopped = true;
 
 bool map_overlay = false;
+
+extern style_c *automap_style;  // FIXME: put in header
 
 // current am colourmap
 static const byte *am_colmap = NULL;
@@ -410,14 +414,14 @@ static void InitVariables(void)
 //
 static void LoadPics(void)
 {
-	int i;
-	char namebuf[9];
-
-	for (i = 0; i < 10; i++)
-	{
-		sprintf(namebuf, "AMMNUM%d", i);
-		marknums[i] = W_ImageFromPatch(namebuf);
-	}
+///---	int i;
+///---	char namebuf[9];
+///---
+///---	for (i = 0; i < 10; i++)
+///---	{
+///---		sprintf(namebuf, "AMMNUM%d", i);
+///---		marknums[i] = W_ImageFromPatch(namebuf);
+///---	}
 }
 
 static void ClearMarks(void)
@@ -1224,16 +1228,17 @@ static void AM_WalkBSPNode(int bspnum)
 
 static void DrawMarks(void)
 {
-	int i, sx, sy;
-
-	for (i = 0; i < AM_NUMMARKPOINTS; i++)
+	for (int i = 0; i < AM_NUMMARKPOINTS; i++)
 	{
 		if (markpoints[i].x != -1)
 		{
-			sx = CXMTOF(markpoints[i].x);
-			sy = CYMTOF(markpoints[i].y);
+			int sx = CXMTOF(markpoints[i].x);
+			int sy = CYMTOF(markpoints[i].y);
 
-			RGL_ImageEasy(sx, sy, marknums[i]);
+			char buf[20];
+			sprintf(buf, "%d", i);
+
+			HL_WriteText(automap_style,1, sx, sy, buf);
 		}
 	}
 }
@@ -1261,6 +1266,8 @@ void AM_Drawer(void)
 	if (!automapactive)
 		return;
 
+	DEV_ASSERT2(automap_style);
+
 	if (automapactive == 1)
 		am_colmap = am_overlay_colmap;
 
@@ -1269,7 +1276,7 @@ void AM_Drawer(void)
 		am_colmap = am_normal_colmap;
 
 		// clear the framebuffer
-		RGL_SolidBox(f_x, f_y, f_w, f_h, BACK_COL, 1.0f);
+		automap_style->DrawBackground(f_x, f_y, f_w, f_h);
 	}
 
 	if (grid && !rotatemap)

@@ -67,7 +67,6 @@ int mouseSensitivity;  // has default
 int showMessages;
 
 int screen_hud;  // has default
-int darken_screen;
 
 epi::strent_c msg_string;
 int msg_lastmenu;
@@ -197,6 +196,9 @@ typedef struct menu_s
 	// menu items
 	menuitem_t *menuitems;
 
+	// style variable
+	style_c **style_var;
+
 	// draw routine
 	void (* draw_func)(void);
 
@@ -299,6 +301,7 @@ static menu_t MainDef =
 	main_end,
 	NULL,
 	MainMenu,
+	&main_menu_style,
 	M_DrawMainMenu,
 	97, 64,
 	0
@@ -325,12 +328,13 @@ static menu_t EpiDef =
 	0,  //ep_end,  // # of menu items
 	&MainDef,  // previous menu
 	&DefaultEpiMenu,  // menuitem_t ->
+	&episode_style,
 	M_DrawEpisode,  // drawing routine ->
 	48, 63,  // x,y
 	0  // lastOn
 };
 
-static menuitem_t NewGameMenu[] =
+static menuitem_t SkillMenu[] =
 {
 	{1, "M_JKILL", NULL, M_ChooseSkill, 'p'},
 	{1, "M_ROUGH", NULL, M_ChooseSkill, 'r'},
@@ -339,11 +343,12 @@ static menuitem_t NewGameMenu[] =
 	{1, "M_NMARE", NULL, M_ChooseSkill, 'n'}
 };
 
-static menu_t NewDef =
+static menu_t SkillDef =
 {
 	sk_numtypes,  // # of menu items
 	&EpiDef,  // previous menu
-	NewGameMenu,  // menuitem_t ->
+	SkillMenu,  // menuitem_t ->
+	&skill_style,
 	M_DrawNewGame,  // drawing routine ->
 	48, 63,  // x,y
 	sk_medium  // lastOn
@@ -385,6 +390,7 @@ static menu_t ReadDef1 =
 	read1_end,
 	&MainDef,
 	ReadMenu1,
+	&menu_def_style,  // FIXME: maybe have READ_1 and READ_2 styles ??
 	M_DrawReadThis1,
 	280, 185,
 	0
@@ -407,6 +413,7 @@ static menu_t ReadDef2 =
 	read2_end,
 	&ReadDef1,
 	ReadMenu2,
+	&menu_def_style,  // FIXME: maybe have READ_1 and READ_2 styles ??
 	M_DrawReadThis2,
 	330, 175,
 	0
@@ -438,6 +445,7 @@ static menu_t SoundDef =
 	sound_end,
 	&MainDef,  ///  &OptionsDef,
 	SoundMenu,
+	&menu_def_style,  // FIXME: maybe have SOUND_MENU style
 	M_DrawSound,
 	80, 64,
 	0
@@ -467,6 +475,7 @@ static menu_t LoadDef =
 	SAVE_SLOTS,
 	&MainDef,
 	LoadingMenu,
+	&load_style,
 	M_DrawLoad,
 	30, 34,
 	0
@@ -494,6 +503,7 @@ static menu_t SaveDef =
 	SAVE_SLOTS,
 	&MainDef,
 	SavingMenu,
+	&save_style,
 	M_DrawSave,
 	30, 34,
 	0
@@ -1246,7 +1256,7 @@ void M_ChooseSkill(int choice)
 void M_Episode(int choice)
 {
 	chosen_epi = choice;
-	M_SetupNextMenu(&NewDef);
+	M_SetupNextMenu(&SkillDef);
 }
 
 //
@@ -1958,18 +1968,14 @@ void M_Drawer(void)
 
 	inhelpscreens = false;
 
-	// 1998/07/10 KM Darken screen added for all messages (quit messages)
 	if (!menuactive)
 		return;
-
-	if (darken_screen)
-	{
-		RGL_SolidBox(0, 0, SCREENWIDTH, SCREENHEIGHT, pal_black, 0.5f);
-	}
 
 	// Horiz. & Vertically center string and print it.
 	if (msg_mode)
 	{
+		dialog_style->DrawBackground();
+
 		// FIXME: HU code should support center justification: this
 		// would remove the code duplication below...
 		epi::string_c msg;
@@ -2032,11 +2038,11 @@ void M_Drawer(void)
 			
 				if (s.GetLength())
 				{
-					x = 160 - (dialog_style->fonts[0]->StringWidth(s.GetString()) / 2);
-					HL_WriteText(dialog_style,0, x, y, s.GetString());
+					x = 160 - (dialog_style->fonts[1]->StringWidth(s.GetString()) / 2);
+					HL_WriteText(dialog_style,1, x, y, s.GetString());
 				}
 				
-				y += dialog_style->fonts[0]->NominalHeight();
+				y += dialog_style->fonts[1]->NominalHeight();
 				oldpos = pos + 1;
 			}
 			while (pos >= 0 && oldpos < (int)input.GetLength());
@@ -2052,6 +2058,11 @@ void M_Drawer(void)
 		return;
 	}
 
+	style_c *style = currentMenu->style_var[0];
+	DEV_ASSERT2(style);
+
+	style->DrawBackground();
+	
 	// call Draw routine
 	if (currentMenu->draw_func)
 		(* currentMenu->draw_func)();
@@ -2206,7 +2217,7 @@ void M_Init(void)
 		MainMenu[readthis] = MainMenu[quitdoom];
 		MainDef.numitems--;
 		MainDef.y += 8; // FIXME
-		NewDef.prevMenu = &MainDef;
+		SkillDef.prevMenu = &MainDef;
 		ReadDef1.draw_func = M_DrawReadThis1;
 		ReadDef1.x = 330;
 		ReadDef1.y = 165;

@@ -783,7 +783,7 @@ void E_PageTicker(void)
 		E_AdvanceDemo();
 }
 
-#define NOPAGE_COLOUR  (GRAY + GRAY_LEN*4/5)
+#define NOPAGE_COLOUR  0x303030
 
 //
 // E_PageDrawer

@@ -48,8 +48,7 @@ void RGL_NewScreenSize(int width, int height, int bpp);
 // (invisible) to 255 (totally opaque).  Colour is a palette index
 // (0-255).  Drawing will be clipped to the current clipping
 // rectangle.
-void RGL_SolidBox(int x, int y, int w, int h,
-					  int colour, float alpha);
+void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t colour, float alpha);
 
 // Draw a solid colour line (possibly translucent) between the two
 // end points.  Coordinates are inclusive.  Used for the automap.

@@ -214,7 +214,7 @@ int font_c::CharWidth(char ch) const
 	DEV_ASSERT2(def->type == FNTYP_Patch);
 
 	if (ch == ' ')
-		return p_cache.width * 2 / 3;
+		return p_cache.width * 3 / 5;
 
 	const struct image_s *im = CharImage(ch);
 
