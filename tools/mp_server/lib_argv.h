@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------
-//  Main defines
+//  Argument library
 //------------------------------------------------------------------------
 //
 //  Edge MultiPlayer Server (C) 2004  Andrew Apted
@@ -16,13 +16,16 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef __MP_MAIN_H__
-#define __MP_MAIN_H__
+#ifndef __LIB_ARGV_H__
+#define __LIB_ARGV_H__
 
-#define MPSERVER_VERSION  "0.47"
-#define MPSERVER_VER_HEX  0x047
+extern const char **arg_list;
+extern int arg_count;
 
-#define MPS_DEF_MAX_CLIENT  16
-#define MPS_DEF_ALIVE_WAIT  60 /* seconds */
+void ArgvInit(int argc, const char **argv);
+void ArgvTerm(void);
 
-#endif /* __MP_MAIN_H__ */
+int ArgvFind(char short_name, const char *long_name, int *num_params = NULL);
+bool ArgvIsOption(int index);
+
+#endif /* __LIB_ARGV_H__ */
