@@ -187,8 +187,7 @@ typedef struct
   enum
   {
     INCPT_Line  = 0,
-    INCPT_Thing = 1,
-    INCPT_Plane = 2
+    INCPT_Thing = 1
   }
   type;
 
@@ -196,7 +195,6 @@ typedef struct
   {
     mobj_t *thing;
     line_t *line;
-///    plane_info_t *plane;
   }
   d;
 }
