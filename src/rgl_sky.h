@@ -29,6 +29,8 @@
 #include "v_ctx.h"
 
 
+#define STRETCH_MIRROR  3
+
 void RGL_SetupSkyMatrices(void);
 void RGL_RevertSkyMatrices(void);
 void RGL_BeginSky(void);
@@ -41,7 +43,6 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2);
 void RGL_UpdateSkyBoxTextures(void);
 void RGL_PreCacheSky(void);
 void RGL_CalcSkyCoord(float sx, float sy, float sz, int tw, float *tx, float *ty);
-
 
 
 #endif  // __RGL_SKY__

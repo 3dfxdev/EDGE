@@ -55,7 +55,7 @@ typedef struct image_s
 	unsigned short actual_w;
 	unsigned short actual_h;
 
-    // offset values.  Only used for sprites.
+    // offset values.  Only used for sprites and on-screen patches.
 	short offset_x;
 	short offset_y;
 

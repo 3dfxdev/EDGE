@@ -48,8 +48,6 @@
 
 static bool need_to_draw_sky = false;
 
-#define STRETCH_MIRROR  3
-
 int sky_stretch = 0;  // ranges from 0 to 3
 
 
@@ -158,7 +156,7 @@ void RGL_DrawSkyBox(void)
 
 	if (! glcap_edgeclamp)
 	{
-		float size = box_info.north->actual_w;
+		float size = IM_WIDTH(box_info.north);
 
 		v0 = 0.5f / size;
 		v1 = 1.0f - v0;
@@ -358,25 +356,9 @@ void RGL_UpdateSkyBoxTextures(void)
 	box_info.north  = W_ImageFromSkyMerge(sky_image, WSKY_North);
 	box_info.east   = W_ImageFromSkyMerge(sky_image, WSKY_East);
 	box_info.top    = W_ImageFromSkyMerge(sky_image, WSKY_Top);
-	
-	// optimisation for MIRROR mode (FIXME: doom retex / real skyboxes)
-	if (sky_stretch == STRETCH_MIRROR)
-		box_info.bottom = box_info.top;
-	else
-		box_info.bottom = W_ImageFromSkyMerge(sky_image, WSKY_Bottom);
-
-	// small optimisation for 256 wide skies
-	// FIXME: !!! doesn't work with Doom Retexturing Project (check scale ?)
-	if (sky_image->actual_w <= 256)
-	{
-		box_info.south = box_info.north;
-		box_info.west  = box_info.east;
-	}
-	else
-	{
-		box_info.south  = W_ImageFromSkyMerge(sky_image, WSKY_South);
-		box_info.west   = W_ImageFromSkyMerge(sky_image, WSKY_West);
-	}
+	box_info.bottom = W_ImageFromSkyMerge(sky_image, WSKY_Bottom);
+	box_info.south  = W_ImageFromSkyMerge(sky_image, WSKY_South);
+	box_info.west   = W_ImageFromSkyMerge(sky_image, WSKY_West);
 }
 
 void RGL_PreCacheSky(void)
