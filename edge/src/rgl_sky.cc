@@ -141,8 +141,9 @@ void RGL_FinishSky(void)
 		glDepthMask(GL_TRUE);
 
 		glDisable(GL_TEXTURE_2D);
-#if 1
-		// clear buffer (EXPERIMENTAL)
+#if 0
+		// clear buffer (EXPERIMENTAL) -- render problems (ceiling you
+		//               shouln't be able to see (MAP05, MAP12).
 		glClear(GL_DEPTH_BUFFER_BIT);
 #endif
 	}
