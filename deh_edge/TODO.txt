@@ -2,13 +2,14 @@
 DEH-EDGE Todo
 -------------
 
-+  things.cpp : split into states.cpp.
-
 +  give monsters ATTACKS.
 
 -  damn teleport: IDLE does TRANS_SET(0%).
 
-+  info.cpp/h : too big, split up.
++  misc.[ch] and text.[ch]
+
+DONE:  things.cpp : split into states.cpp.
+DONE:  info.cpp/h : too big, split up.
 
 -  read patches, apply them.
 
