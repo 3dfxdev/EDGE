@@ -1548,7 +1548,11 @@ static bool ConditionTryHealth(const char *name, const char *sub,
 static bool ConditionTryArmour(const char *name, const char *sub,
 									condition_check_t *cond)
 {
-	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, armourtype_names, 
+	if (DDF_CompareName(name, "ARMOUR") == 0)
+	{
+		cond->subtype = ARMOUR_Total;
+	}
+	else if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, armourtype_names, 
 		&cond->subtype, false, false))
 	{
 		return false;

@@ -2111,7 +2111,10 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 				if (!p)
 					return false;
 
-				temp = (p->armours[cond->subtype] >= cond->amount);
+				if (cond->subtype == ARMOUR_Total)
+					temp = (p->totalarmour >= cond->amount);
+				else
+					temp = (p->armours[cond->subtype] >= cond->amount);
 
 				if ((!cond->negate && !temp) || (cond->negate && temp))
 					return false;
