@@ -17,10 +17,10 @@
 //----------------------------------------------------------------------------
 
 #define EDGEVER     0x128
-#define EDGEVERSTR  "1.28"
+#define EDGEVERSTR  "1.28a"
 
 // patch level
-#define EDGEPATCH  0x00
+#define EDGEPATCH  0x01
 
 // -ES- 2000/03/04 The version of EDGE.WAD we require.
 #define EDGE_WAD_VERSION 3
