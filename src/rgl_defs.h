@@ -67,6 +67,11 @@ void RGL_Flat(int flat);
 void RGL_Sprite(int sprite);
 
 
+void RGL_1DOcclusionClear(angle_t low, angle_t high);
+void RGL_1DOcclusionSet(angle_t low, angle_t high);
+boolean_t RGL_1DOcclusionTest(angle_t low, angle_t high);
+
+
 //
 //  RGL_MAIN
 //
@@ -74,6 +79,8 @@ void RGL_Sprite(int sprite);
 extern int glmax_lights;
 extern int glmax_clip_planes;
 extern int glmax_tex_size;
+
+extern angle_t oned_side_angle;
 
 extern float_t light_to_gl[256];
 
