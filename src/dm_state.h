@@ -94,8 +94,8 @@ extern boolean_t noblit;
 extern angle_t viewanglebaseoffset;
 
 // Player taking events, and displaying.
-extern int consoleplayer;
-extern int displayplayer;
+extern player_t *consoleplayer;
+extern player_t *displayplayer;
 extern int maxplayers;
 
 // -------------------------------------
@@ -137,14 +137,14 @@ extern int gametic;
 
 extern const char **player_names;
 
-// Bookkeeping on players - state.
+// Linked list of all players.
 extern player_t *players;
+// Pointer to each player.
+extern player_t **playerlookup;
 
-extern short (*consistency)[BACKUPTICS];
-
-#define NORMHEALTH	 100
-#define MAXHEALTH	 200
-#define MAXARMOUR	 200
+#define NORMHEALTH 100
+#define MAXHEALTH 200
+#define MAXARMOUR 200
 
 #define CHEATARMOUR      MAXARMOUR
 #define CHEATARMOURTYPE  ARMOUR_Blue
@@ -206,12 +206,7 @@ extern doomcom_t *doomcom;
 // This points inside doomcom.
 extern doomdata_t *netbuffer;
 
-extern ticcmd_t localcmds[BACKUPTICS];
-
 extern int maketic;
-extern int *nettics;
-
-extern ticcmd_t (*netcmds)[BACKUPTICS];
 
 extern int ticdup;
 
