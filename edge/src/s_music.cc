@@ -24,6 +24,7 @@
 #include "m_misc.h"
 #include "s_sound.h"
 #include "w_wad.h"
+#include "z_zone.h"
 
 // Current music handle
 static int musichandle = -1;
@@ -94,10 +95,15 @@ void S_ChangeMusic(int entrynum, bool looping)
 		//
 		if (play->type != MUS_OGG)
 		{
-			data = M_GetFileData(play->info.GetString(), &datlength);
+			// -AJA- 2005/01/15: filenames in DDF relative to GAMEDIR
+			epi::string_c fullname;
+			M_ComposeFileName(fullname, gamedir, play->info.GetString());
+
+			data = M_GetFileData(fullname.GetString(), &datlength);
+
 			if (!data)
 			{
-				I_Warning("S_ChangeMusic: Can't Load File '%s'\n", play->info.GetString());
+				I_Warning("S_ChangeMusic: Can't Load File '%s'\n", fullname.GetString());
 				return;
 			}
 
@@ -107,14 +113,21 @@ void S_ChangeMusic(int entrynum, bool looping)
 		}
 		else
 		{
+			// -AJA- 2005/01/15: filenames in DDF relative to GAMEDIR
+			epi::string_c fullname;
+			M_ComposeFileName(fullname, gamedir, play->info.GetString());
+
 			musdat.format = IMUSSF_FILE;
-			musdat.info.file.name = play->info;
+			musdat.info.file.name = Z_StrDup(fullname.GetString());
 		}
 
 		musichandle = I_MusicPlayback(&musdat, play->type, looping);
 
 		if (data)
 			delete [] data;
+
+		if (musdat.format == IMUSSF_FILE)
+			Z_Free((void*)musdat.info.file.name);
 	}
 
 	if (play->infotype == MUSINF_LUMP)
