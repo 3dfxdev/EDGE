@@ -377,6 +377,8 @@ static void LoadV3Segs(const byte *data, int length)
 //
 static void LoadGLSegs(int lump)
 {
+	DEV_ASSERT2(lump < 0x10000);  // sanity check
+
 	const byte *data;
 	int i, length;
 	const map_glseg_t *ml;
@@ -417,16 +419,29 @@ static void LoadGLSegs(int lump)
 		int v1num = EPI_LE_U16(ml->v1);
 		int v2num = EPI_LE_U16(ml->v2);
 
-		// FIXME: check if indices are valid
+		// FIXME: check if indices are valid, abort loading
+
 		if (v1num & SF_GL_VERTEX)
+		{
+			DEV_ASSERT2((v1num & ~SF_GL_VERTEX) < num_gl_vertexes);  // sanity check
 			seg->v1 = &gl_vertexes[v1num & ~SF_GL_VERTEX];
+		}
 		else
+		{
+			DEV_ASSERT2(v1num < numvertexes);  // sanity check
 			seg->v1 = &vertexes[v1num];
+		}
 
 		if (v2num & SF_GL_VERTEX)
+		{
+			DEV_ASSERT2((v2num & ~SF_GL_VERTEX) < num_gl_vertexes);  // sanity check
 			seg->v2 = &gl_vertexes[v2num & ~SF_GL_VERTEX];
+		}
 		else
+		{
+			DEV_ASSERT2(v2num < numvertexes);  // sanity check
 			seg->v2 = &vertexes[v2num];
+		}
 
 		seg->angle  = R_PointToAngle(seg->v1->x, seg->v1->y,
 			seg->v2->x, seg->v2->y);
@@ -443,6 +458,8 @@ static void LoadGLSegs(int lump)
 			seg->miniseg = 1;
 		else
 		{
+			DEV_ASSERT2(linedef < numlines);  // sanity check
+
 			float sx, sy;
 
 			seg->miniseg = 0;
@@ -465,7 +482,10 @@ static void LoadGLSegs(int lump)
 		if (partner == 0xFFFF)
 			seg->partner = NULL;
 		else
+		{
+			DEV_ASSERT2(partner < numsegs);  // sanity check
 			seg->partner = &segs[partner];
+		}
 
 		// The following fields are filled out elsewhere:
 		//     sub_next, front_sub, back_sub, frontsector, backsector.
@@ -891,11 +911,9 @@ static void SpawnMapThing(const mobjtype_c *info,
 		mobj->spawnpoint.flags |= MF_AMBUSH;
 	}
 
-#if 0 // -AJA- 2004/04/29: DISABLED due to junk options in old wads
 	// -AJA- 2000/09/22: MBF compatibility flag
 	if (options & MTF_FRIEND)
 		mobj->side = ~0;
-#endif
 }
 
 //
@@ -927,7 +945,23 @@ static void LoadThings(int lump)
 	mapthing_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 	mapthing_NUM = numthings;
 
+	// -AJA- 2004/11/04: check the options in all things to see whether
+	// we can use new option flags or not.  Same old wads put 1 bits in
+	// unused locations (unusued for original Doom anyway).  The logic
+	// here is based on PrBoom, but PrBoom checks each thing separately.
+
+	bool limit_options = false;
+
 	mt = (const mapthing_t *) data;
+
+	for (i = 0; i < numthings; i++)
+	{
+		options = EPI_LE_U16(mt[i].options);
+
+		if (options & MTF_RESERVED)
+			limit_options = true;
+	}
+
 	for (i = 0; i < numthings; i++, mt++)
 	{
 		x = (float) EPI_LE_S16(mt->x);
@@ -935,6 +969,9 @@ static void LoadThings(int lump)
 		angle = FLOAT_2_ANG((float) EPI_LE_S16(mt->angle));
 		typenum = EPI_LE_U16(mt->type);
 		options = EPI_LE_U16(mt->options);
+
+		if (limit_options)
+			options &= 0x001F;
 
 #if (FORCE_LOCATION)
 		if (typenum == 1)
