@@ -548,7 +548,7 @@ void BOT_DMSpawn(void)
 	int i, j;
 	int selections;
 	mobj_t *bot;
-	const mobjinfo_t *info;
+	const mobjinfo_c *info;
 
 	selections = deathmatch_p - deathmatchstarts;
 	if (selections < 4)
