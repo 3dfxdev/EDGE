@@ -2,13 +2,18 @@
 DEH-EDGE Todo
 -------------
 
--  output a ".dwa" file.
+-  option for EDGE version (e.g. -v128, --version 1.27).
+
+   -  output a ".hwa" file (if version >= 0x128).
+   -  don't require a complete sounds.ddf (version >= 0x128).
+   -  disable other 1.27 workarounds.
+   -  if version < 0x128, disable CAST_TITLE (etc) DDF commands.
 
 +  support multiple patches.
 
--  versions of malloc and strdup that error out on no memory.
-
--  frames: remove 'OutputState' (etc) from header file.
+DONE:  add 'MONSTER' flag to non-count-as-kill but is "monstery".
+DONE:  versions of malloc and strdup that error out on no memory.
+DONE:  frames: remove 'OutputState' (etc) from header file.
 
 
 BATMAN BUGS
@@ -17,6 +22,18 @@ BATMAN BUGS
 -  guys with flamethrowers: no hurties (attacking action in attack).
 
 -  inside of helicopter doesn't work (guys should teleport in, open door).
+   >>> because no MONSTER flag (required by EDGE for teleport lines).
+
+-  clowns: speed is 0, so how can they move in Edge ?
+
+-  suicidal Penguin (doomnum 2028).  See below.
+
+
+MORDETH BUGS
+------------
+
+-  suicidal Revenant (doomnum 60).  Doesn't enter MELEE states, since
+   has no closecombat attack (EDGE requires it, original Doom doesn't).
 
 
 FUTURE Plans
@@ -25,6 +42,4 @@ FUTURE Plans
 -  support for BEX (Boom extensions).
 
 -  support for Boom/MBF additional things/frames/etc.
-
--  option for EDGE version (e.g. -v128, --version 1.27).
 
