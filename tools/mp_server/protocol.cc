@@ -28,37 +28,35 @@
 
 void header_proto_t::ByteSwap()
 {
-	flags      = SYS_BE_S16(flags);
-	request_id = SYS_BE_S16(request_id);
-	data_len   = SYS_BE_S16(data_len);
-
-	source = SYS_BE_S16(source);
-	dest   = SYS_BE_S16(dest);
-	game   = SYS_BE_S16(game);
+	flags    = SYS_BE_S16(flags);
+	request  = SYS_BE_S16(request);
+	client   = SYS_BE_S16(client);
+	data_len = SYS_BE_S16(data_len);
 }
 
 void error_proto_t::ByteSwap()
 {
-	type     = SYS_BE_S16(type);
-	param[0] = SYS_BE_S16(param[0]);
-	param[1] = SYS_BE_S16(param[1]);
+	/* nothing needed -- yet */
 }
 
 void client_info_t::ByteSwap()
 {
-	game_id = SYS_BE_S16(game_id);
+	game = SYS_BE_S16(game);
 }
 
 void connect_proto_t::ByteSwap()
 {
+	protocol_ver = SYS_BE_S16(protocol_ver);
+
 	info.ByteSwap();
 }
 
 void query_client_proto_t::ByteSwap(bool do_info)
 {
-	first_id = SYS_BE_S16(first_id);
+	first_client  = SYS_BE_S16(first_client);
+	total_clients = SYS_BE_S16(total_clients);
 
-	if (do_info)  // FIXME: swap structures manually higher up
+	if (do_info)  // FIXME: swap structures manually higher up ?
 	{
 		for (int c = 0; c < count; c++)
 			info[c].ByteSwap();
@@ -68,7 +66,12 @@ void query_client_proto_t::ByteSwap(bool do_info)
 void game_info_t::ByteSwap()
 {
 	min_players = SYS_BE_S16(min_players);
-	engine_ver  = SYS_BE_S16(engine_ver);
+	num_bots    = SYS_BE_S16(num_bots);
+
+	features = SYS_BE_U32(features);
+
+	wad_checksum = SYS_BE_U16(wad_checksum);
+	def_checksum = SYS_BE_U16(def_checksum);
 
 	num_players = SYS_BE_S16(num_players);
 	num_votes   = SYS_BE_S16(num_votes);
@@ -77,39 +80,60 @@ void game_info_t::ByteSwap()
 void new_game_proto_t::ByteSwap()
 {
 	info.ByteSwap();
+
+	game = SYS_BE_S16(game);
 }
 
 void query_game_proto_t::ByteSwap(bool do_info)
 {
-	first_id = SYS_BE_S16(first_id);
+	first_game  = SYS_BE_S16(first_game);
+	total_games = SYS_BE_S16(total_games);
 
-	if (do_info)
+	if (do_info)  // FIXME: swap structures manually higher up ?
 	{
 		for (int c = 0; c < count; c++)
 			info[c].ByteSwap();
 	}
 }
 
+void join_queue_proto_t::ByteSwap()
+{
+	game = SYS_BE_S16(game);
+}
+
 void play_game_proto_t::ByteSwap()
 {
-	total_players = SYS_BE_S16(total_players);
-	first_player  = SYS_BE_S16(first_player);
+	random_seed = SYS_BE_U32(random_seed);
 
 	for (int p = 0; p < count; p++)
-		client_id[p] = SYS_BE_S16(client_id[p]);
+		client_list[p] = SYS_BE_S16(client_list[p]);
+}
+
+void raw_ticcmd_t::ByteSwap()
+{
+	shorts[0] = SYS_BE_U16(shorts[0]);
+	shorts[1] = SYS_BE_U16(shorts[1]);
+	shorts[2] = SYS_BE_U16(shorts[2]);
+	shorts[3] = SYS_BE_U16(shorts[3]);
 }
 
 void ticcmd_proto_t::ByteSwap()
 {
-	/// tic_counter = SYS_BE_S16(tic_counter);
-
-	/* TICCMDs are the engine's responsibility */
+	tic_counter = SYS_BE_U32(tic_counter);
+	
+	/* TICCMDs are purely the engine's responsibility */
 }
 
 void tic_group_proto_t::ByteSwap()
 {
-	/// tic_counter  = SYS_BE_S16(tic_counter);
+	tic_counter = SYS_BE_U32(tic_counter);
+
 	first_player = SYS_BE_S16(first_player);
 
 	/* TICCMDs are the engine's responsibility */
+}
+
+void message_proto_t::ByteSwap()
+{
+	dest = SYS_BE_S16(dest);
 }

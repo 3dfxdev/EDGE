@@ -37,6 +37,7 @@ typedef struct header_proto_s
 	s16_t data_len;
 	s16_t client;
 	s16_t request;   // use to match requests with replies
+
 	s16_t reserved;  // (future expansion)
 
 	void ByteSwap();
@@ -64,7 +65,7 @@ typedef struct error_proto_s
 {
 	char type[2];
 
-	s16_t reserved[2];
+	u32_t reserved;
 
 	static const int ERR_STR_MAX = 200;
 
@@ -87,7 +88,7 @@ typedef struct client_info_s
 
 	char name[NAME_LEN];
 
-	s16_t reserved[4];
+	u32_t reserved[2];
 
 	/* --- query output --- */
 
@@ -136,7 +137,7 @@ typedef struct query_client_proto_s
 	byte  count;
 
 	s16_t total_clients;  // output value
-	s16_t reserved2[2];
+	s16_t reserved;
 
 	static const int CLIENT_FIT = 16;
 
@@ -174,6 +175,7 @@ typedef struct game_info_s
 	s16_t num_bots;
 
 	u32_t features;
+	u32_t reserved;  // (future expansion)
 
 	enum  // feature bitflags:
 	{
@@ -184,13 +186,11 @@ typedef struct game_info_s
 		FT_AutoAim    = (1 << 4),
 
 		// compatibility mode:
-		FT_BoomCompat = (1 << 30);
+		FT_BoomCompat = (1 << 30)
 	};
 
 	u16_t wad_checksum;  // checksum over all loaded wads
 	u16_t def_checksum;  // checksum over all definitions
-
-	s16_t reserved1[2]; 
 
 	/* --- query output --- */
 
@@ -233,7 +233,7 @@ typedef struct query_game_proto_s
 	byte  count;
 
 	s16_t total_games;  // out value
-	s16_t reserved[2];
+	s16_t reserved;
 
 	static const int GAME_FIT = 8;
 
@@ -250,12 +250,11 @@ query_game_proto_t;
 typedef struct join_queue_proto_s
 {
 	s16_t game;
-	s16_t reserved[2];
+	s16_t reserved;
 
 	void ByteSwap();
 }
 join_queue_proto_t;
-
 
 
 /* LEAVE-GAME ("lg") has no data */
@@ -268,19 +267,18 @@ join_queue_proto_t;
 //
 typedef struct play_game_proto_s
 {
+	static const int PLAYER_MAX = 30;
+
 	byte real_players;
 	byte bots_each;  // how many bots handled by each client
 
 	u32_t random_seed;
+	u32_t reserved;
 
 	byte first_player;
 	byte count;
 
-	s16_t reserved[2];
-
-	static const int PLAYER_MAX = 30;
-
-	// client IDs for each player (upto PLAYER_MAX).
+	// client IDs for each player (upto PLAYER_MAX).  No bots here.
 	s16_t client_list[1];
 
 	void ByteSwap();
@@ -322,7 +320,7 @@ typedef struct ticcmd_proto_s
 	u32_t tic_counter;
 	byte  count;
 
-	s16_t reserved2[2];
+	s16_t reserved;
 
 	static const int TICCMD_FIT = 24;
 
@@ -346,10 +344,10 @@ typedef struct tic_group_proto_s
 {
 	u32_t tic_counter;
 
-	s16_t first_player;
-	byte  count;
+	byte first_player;
+	byte count;
 
-	s16_t reserved2[2];
+	s16_t reserved;
 
 	static const int TICCMD_FIT = 24;
 
