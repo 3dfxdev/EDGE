@@ -173,8 +173,17 @@ extern char *ddfdir;
 extern const char *cfgfile;
 extern FILE *debugfile;
 
+// if true, load DDF/RTS as external files (instead of from EDGE.WAD)
+extern boolean_t external_ddf;
+
 // if true, load all graphics at level load
 extern boolean_t precache;
+
+// if true, prefer to crash out on various errors
+extern boolean_t strict_errors;
+
+// if true, enable HOM detection (hall of mirrors effect)
+extern boolean_t hom_detect;
 
 // wipegamestate can be set to -1
 //  to force a wipe on the next draw
@@ -197,6 +206,7 @@ extern int bodyqueslot;
 //  as well as tracking projectiles etc.
 extern int skyflatnum;
 
+//---------------------------------------------------
 // Netgame stuff (buffers and pointers, i.e. indices).
 
 // This is for use in the network communication.
