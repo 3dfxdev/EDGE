@@ -114,7 +114,7 @@ static int starttime;
 // switch change or the boss die.
 
 int exittime = 0x7fffffff;
-bool secretexit = false;
+bool exit_skipall = false;  // -AJA- temporary (maybe become "exit_mode")
 
 bool viewactive = false;
 
@@ -720,6 +720,7 @@ void G_DoLoadLevel(void)
 	Z_CheckHeap();
 	starttime = I_GetTime();
 	exittime = 0x7fffffff;
+	exit_skipall = false;
 
 	gamestate = GS_LEVEL;
 	gameaction = ga_nothing;
@@ -733,7 +734,6 @@ void G_DoLoadLevel(void)
 	sendpause = sendsave = paused = false;
 
 	viewactive = true;
-	secretexit = false;
 }
 
 //
@@ -869,7 +869,7 @@ void G_Ticker(void)
 	if (exittime == leveltime)
 	{
 		gameaction = ga_completed;
-		exittime = -1;
+		exittime = 0x7fffffff;
 	}
 
 	// do things to change the game state
@@ -1297,6 +1297,7 @@ void G_ExitLevel(int time)
 {
 	nextmap = DDF_LevelMapLookup(currentmap->nextmapname);
 	exittime = leveltime + time;
+	exit_skipall = false;
 }
 
 // -ACB- 1998/08/08 We don't have support for the german edition
@@ -1305,12 +1306,14 @@ void G_SecretExitLevel(int time)
 {
 	nextmap = DDF_LevelMapLookup(currentmap->secretmapname);
 	exittime = leveltime + time;
+	exit_skipall = false;
 }
 
-void G_ExitToLevel(char *name, int time)
+void G_ExitToLevel(char *name, int time, bool skip_all)
 {
 	nextmap = DDF_LevelMapLookup(name);
 	exittime = leveltime + time;
+	exit_skipall = skip_all;
 }
 
 //
@@ -1332,7 +1335,7 @@ void G_DoCompleted(void)
 		AM_Stop();
 
 	// handle "no stat" levels
-	if (currentmap->wistyle == WISTYLE_None)
+	if (currentmap->wistyle == WISTYLE_None || exit_skipall)
 	{
 		viewactive = false;
 		automapactive = false;
@@ -1378,6 +1381,12 @@ void G_DoCompleted(void)
 //
 void G_WorldDone(void)
 {
+	if (exit_skipall && nextmap)
+	{
+		gameaction = ga_loadnext;
+		return;
+	}
+
 	F_StartFinale(&currentmap->f_end, nextmap ? ga_briefing : ga_nothing);
 }
 

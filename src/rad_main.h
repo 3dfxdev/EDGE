@@ -163,6 +163,8 @@ s_skill_t;
 typedef struct
 {
 	char *map_name;
+
+	bool skip_all;
 }
 s_gotomap_t;
 
