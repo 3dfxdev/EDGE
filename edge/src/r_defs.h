@@ -64,17 +64,14 @@ struct image_s;
 // Note: transformed values not buffered locally, like some
 // DOOM-alikes ("wt", "WebView") did.
 //
-typedef struct
-{
-  float_t x, y;
-}
-vertex_t;
+typedef vec2_t vertex_t;
 
 // Forward of LineDefs, for Sectors.
 struct line_s;
 struct side_s;
 struct region_properties_s;
 
+//
 // Region Properties
 //
 // Stores the properties that affect each vertical region.
@@ -98,147 +95,79 @@ typedef struct region_properties_s
 
   // pushing sector information (normally 0)
   float_t x_push, y_push, z_push;
-
-  // ... thinker stuff (for glowing lights) ...
 }
 region_properties_t;
 
-// Plane Info
 //
-// Stores information about a single plane, and is used for floors and
-// ceilings of sectors.
+// Surface
 //
-// -AJA- 1999/10/09: added this.
-//
-typedef struct plane_info_s
+// Stores the texturing information about a single "surface", which is
+// either a wall part or a ceiling/floor.  Doesn't include position
+// info -- that is elsewhere.
+// 
+typedef struct surface_s
 {
-  float_t h;
   const struct image_s *image;
 
-  float_t x_offset;
-  float_t y_offset;
   float_t translucency;
 
-  // current scrolling deltas (normally 0)
-  float_t x_scroll, y_scroll;
+  // transformation matrix (usually identity)
+  vec2_t x_mat;
+  vec2_t y_mat;
 
-  // texture scale.  Normal is 64.0, 32.0 is half the size, 128.0 is
-  // twice the normal size (i.e. alignment on 128x128 blocks).
-  float_t scale;
- 
-  // texture angle (normally 0)
-  angle_t angle;
-  
+  // current offset and scrolling deltas
+  vec2_t offset;
+  vec2_t scroll;
+
   // lighting override (as in BOOM).  Usually NULL.
   struct region_properties_s *override_p;
-
-  // -ACB- 2001/01/29 Added
-  void *movedata;
 }
-plane_info_t;
+surface_t;
 
-// Side Part
 //
-// Stores information about a single part of a sidedef/wall (lower,
-// middle or upper).
+// ExtraFloor
 //
-// -AJA- 1999/10/09: added this.
+// Stores information about a single extrafloor within a sector.
 //
-typedef struct sidepart_s
-{
-  // Texture image
-  // We do not maintain names here. 
-  const struct image_s *image;
-
-  // offsets (horizontal and vertical)
-  float_t x_offset;
-  float_t y_offset;
-  float_t translucency;
-  
-  // current scrolling deltas (normally 0)
-  float_t x_scroll, y_scroll;
-
-  // scaling: 1.0 is normal, 0.5 is half size, 2.0 is twice size.
-  float_t scale;
-
-  // skewing: 0.0 is normal, 1.0 is 45 degrees up, -1.0 is down.
-  float_t skew;
-}
-sidepart_t;
-
-// Vertical Region
+// -AJA- 2001/07/11: added this, replaces vert_region.
 //
-// Stores information about a single vertical region within a sector
-// (a single "storey" if you will).
-//
-// -AJA- 1999/10/09: added this.
-//
-typedef struct vert_region_s
+typedef struct extrafloor_s
 {
   // links in chain.  These are sorted by increasing heights, using
-  // ceil->h as the reference.  This is important, especially when a
+  // bottom_h as the reference.  This is important, especially when a
   // liquid extrafloor overlaps a solid one: using this rule, the
   // liquid region will be higher than the solid one.
-  struct vert_region_s *higher;
-  struct vert_region_s *lower;
+  // 
+  struct extrafloor_s *higher;
+  struct extrafloor_s *lower;
 
-  // whether this region is "hidden", e.g. a liquid that sits in the
-  // middle of a thick platform.  These regions hardly come into play:
-  // they are never rendered, and objects are never considered to be
-  // in them.  Also used for the (erroneous) condition where the
-  // ceiling is lower than the floor.  Flooders will still flood
-  // though.  
-  boolean_t hidden;
-  
-  // floor and ceiling of the region.  When the containing sector is
-  // bogus (having floor height >= ceiling height), then there will
-  // also be a single bogus region, otherwise all regions have
-  // floor->h <= ceil->h.  NOTE WELL: an empty region (floor ==
-  // ceiling) is allowed, this can occur when (for example) a thick
-  // extrafloor sits exactly on the sector's floor.
+  struct sector_s *sector;
 
-  plane_info_t *floor;
-  plane_info_t *ceil;
+  // top and bottom heights of the extrafloor.  For non-THICK
+  // extrafloors, these are the same.  These are generally the same as
+  // in the dummy sector, EXCEPT during the process of moving the
+  // extrafloor.
+  //
+  float_t top_h, bottom_h;
 
+  // top/bottom surfaces of the extrafloor
+  surface_t *top;
+  surface_t *bottom;
+
+  // properties used for stuff below us
   region_properties_t *p;
 
-  // heights: floor->h, ceil->h, and sec_next->floor->h.
-  float_t f_h, c_h, top_h;
-  
-  // extra floor details
-  // (NULL if this region is part of the normal sector)
-  const extrafloor_t *extrafloor;
+  // type of extrafloor this is.  Never NULL
+  const extrafloor_info_t *ef_info;
 
-  // line for nominal extra side 
-  // (between this region's CEILING and the next region's FLOOR)
-  struct line_s *extraline;
+  // extrafloor linedef (frontsector == control sector)
+  struct line_s *ef_line;
+
+  // link in dummy sector's controlling list
+  struct extrafloor_s *ctrl_next;
 }
-vert_region_t;
+extrafloor_t;
 
-// Record of an extrafloor used in a sector.
-// Used to construct the region list.
-//
-// -AJA- 1999/11/23: added this.
-//
-// -AJA- NOTE: this is going away soon !
-//
-typedef struct extrafloor_record_s
-{
-  // link in list
-  struct extrafloor_record_s *next;
-
-  // priority, higher values occur later.  We need this since the
-  // order that extrafloors get added is significant, for example
-  // liquid floors must be adder after solid floors.
-  int priority;
-
-  // type of extra floor
-  const extrafloor_t *info;
-
-  // linedef responsible (frontsector == control sector)
-  struct line_s *line;
-}
-extrafloor_record_t;
 
 //
 // The SECTORS record, at runtime.
@@ -247,52 +176,57 @@ struct subsector_s;
 
 typedef struct sector_s
 {
-  // basic plane info.  Note that the region list should be used for
-  // most things (esp. rendering).
-  plane_info_t floor;
-  plane_info_t ceil;
+  // floor and ceiling heights
+  float_t f_h, c_h;
 
-  // properties
+  surface_t floor, ceil;
+
   region_properties_t p;
 
-  // tag
   int tag;
 
-  // range of vert_regions (in the global `regions' array) that this
-  // sector can use.  At load time we can deduce the maximum number of
-  // regions needed for extrafloors, even if they dynamically come and
-  // go.
-  int region_first;
-  int region_max;
-  int regions_used;
-
-  // -AJA- 1999/10/09: Multiple extrafloor code.
-  // There is always at least one region, even when the sector is
-  // bogus and has floor height >= ceiling height.
-  vert_region_t *bottom_reg;
-  vert_region_t *top_reg;
-
-  // does this sector control extrafloors in other sectors ?
-  boolean_t controller;
-
+  // set of extrafloors (in the global `extrafloors' array) that this
+  // sector can use.  At load time we can deduce the maximum number
+  // needed for extrafloors, even if they dynamically come and go.
   //
-  // This is one of two things. A list of extrafloor sectors we're linked to, or
-  // a list of sectors we provide an extrafloor for. If we are a controller, the
-  // latter is true, if we are not a controller the former is true.
-  //
-  // -ACB- 2001/03/19
-  //
-  struct sector_s **exfloorlist;
-  int exfloornum;
+  short exfloor_max;
+  short exfloor_used;
+  extrafloor_t *exfloor_first;
 
-  // -AJA- NOTE: this list is going away soon !
-  extrafloor_record_t *extrafloor_records;
+  // -AJA- 2001/07/11: New multiple extrafloor code.
+  //
+  // Now only the
+  // FLOORS ARE IMPLIED.  Unlike before, the floor below an extrafloor
+  // is NOT stored in each extrafloor_t -- you must scan down to find
+  // them, and use the sector's floor if you hit NULL.
+  //
+  extrafloor_t *bottom_ef;
+  extrafloor_t *top_ef;
+
+  // Liquid extrafloors are now kept in a separate list.  For many
+  // purposes (especially moving sectors) they otherwise just get in
+  // the way.
+  //
+  extrafloor_t *bottom_liq;
+  extrafloor_t *top_liq;
+
+  // linked list of extrafloors that this sector controls.  NULL means
+  // that this sector is not a controller.
+  //
+  extrafloor_t *control_floors;
+ 
+//???  int gap_num;
+//???  vgap_t *gaps;
+
+  void *floor_move;
+  void *ceil_move;
 
   // 0 = untraversed, 1,2 = sndlines-1
+  // FIXME: move into vert region
   int soundtraversed;
 
-  // thing that made a sound (or null)
-  mobj_t *soundtarget;
+  // player# that made a sound (starting at 0), or -1
+  int sound_player;
 
   // mapblock bounding box for height changes
   int blockbox[4];
@@ -304,8 +238,8 @@ typedef struct sector_s
   struct line_s **lines;  // [linecount] size
 
   // sky height for GL renderer
-  float_t sky_height;
-  
+  float_t sky_h;
+ 
   // if == validcount, already checked
   int validcount;
 
@@ -321,21 +255,50 @@ typedef struct sector_s
 }
 sector_t;
 
-#define FLOOR    0
-#define CEILING  1
+
+typedef struct wall_tile_s
+{
+  // vertical extent of this tile.  The seg determines the horizontal
+  // extent.
+  // 
+  float_t z1, z2;
+
+  // texturing top, in world coordinates
+  float_t tex_z;
+
+  // various flags
+  int flags;
+
+  // corresponding surface.  NULL if this tile is unused.
+  surface_t *surface;
+}
+wall_tile_t;
+
+#define WTILF_Extra    0x0001
+#define WTILF_MidMask  0x0004
+#define WTILF_Sky      0x0010
+#define WTILF_Slider   0x0020
+
 
 //
 // The SideDef.
 //
-
 typedef struct side_s
 {
-  sidepart_t top;
-  sidepart_t middle;
-  sidepart_t bottom;
+  surface_t top;
+  surface_t middle;
+  surface_t bottom;
 
   // Sector the SideDef is facing.
   sector_t *sector;
+
+  // set of tiles used for this side
+  short tile_max;
+  short tile_used;
+  wall_tile_t *tiles;
+
+  // midmasker Y offset
+  float_t midmask_offset;
 }
 side_t;
 
@@ -353,7 +316,7 @@ slopetype_t;
 
 // Vertical gap between a floor & a ceiling.
 // -AJA- 1999/07/19. 
-
+//
 typedef struct
 {
   float_t f;  // floor
@@ -361,6 +324,9 @@ typedef struct
 }
 vgap_t;
 
+//
+// LINEDEF
+//
 typedef struct line_s
 {
   // Vertices, from v1 to v2.
@@ -370,6 +336,7 @@ typedef struct line_s
   // Precalculated v2 - v1 for side checking.
   float_t dx;
   float_t dy;
+  float_t length;
 
   // Animation related.
   int flags;
@@ -397,17 +364,23 @@ typedef struct line_s
   // if == validcount, already checked
   int validcount;
 
+  // whether this linedef is "blocking" for rendering purposes.
+  // Always true for 1s lines.  Always false when both sides of the
+  // line reference the same sector.
+  //
+  boolean_t blocked;
+
   // -AJA- 1999/07/19: Extra floor support.  We now keep track of the
   // gaps between the front & back sectors here, instead of computing
   // them each time in P_LineOpening() -- which got a lot more complex
   // due to extra floors.  Now they only need to be recomputed when
   // one of the sectors changes height.
-
+  //
   int gap_num;
   vgap_t gaps[MAXOPENGAPS];
 
   // -AJA- 2000/10/01: Sight gaps.
-  int s_gap_num;
+  int sight_gap_num;
   vgap_t sight_gaps[MAXOPENGAPS];
 
   // slider thinker, normally NULL
@@ -419,7 +392,7 @@ typedef struct line_s
 line_t;
 
 //
-// A SubSector.
+// SubSector.
 //
 // References a Sector.
 // Basically, this is a list of LineSegs, indicating the visible walls
@@ -465,7 +438,7 @@ typedef struct subsector_s
 subsector_t;
 
 //
-// The LineSeg.
+// The LineSeg
 //
 // Defines part of a wall that faces inwards on a convex BSP leaf.
 //
@@ -496,6 +469,7 @@ typedef struct seg_s
   //       subsector.  Thus all the segs (normal + mini) define a
   //       closed convex polygon.  When the `miniseg' field is true,
   //       all the fields below it are unused.
+  //
   boolean_t miniseg;
 
   float_t offset;
@@ -570,6 +544,7 @@ post_t;
 // column_t is a list of 0 or more post_t, (byte)-1 terminated
 typedef post_t column_t;
 
+
 //
 // OTHER TYPES
 //
@@ -590,50 +565,6 @@ typedef byte lighttable_t;
 //
 typedef byte coltable_t;
 
-struct visplane_s;
-
-// Drawsegs.
-//
-// These remember where a wall was drawn on the screen, so that sprites
-// can be clipped correctly.  Also stores info for drawing mid-textures
-// on 2S linedefs.
-//
-typedef struct drawseg_s
-{
-  seg_t *curline;
-  int x1;
-  int x2;
-
-  float_t scale1;
-  float_t scale2;
-  float_t scalestep;
-
-  // -ES- 1999/03/24 Added These.
-  float_t light1;
-  float_t lightstep;
-
-  // 0=none, 1=bottom, 2=top, 3=both
-  int silhouette;
-
-  // do not clip sprites above this
-  float_t bsilheight;
-
-  // do not clip sprites below this
-  float_t tsilheight;
-
-  // texture to use for masked mid.
-  sidepart_t *part;
- 
-  // openings index to lists for sprite clipping,
-  //  all three adjusted so [x1] is first value.
-  // maskedtexturecol is >=0 when there is a masked mid texture.
-
-  int sprtopclip;
-  int sprbottomclip;
-  int maskedtexturecol;
-}
-drawseg_t;
-
 //      
 // Sprites are patches with a special naming convention so they can be
 // recognized by R_InitSprites.  The base name is NNNNFx or NNNNFxFx,
@@ -649,10 +580,12 @@ typedef struct spriteframe_s
 {
   // whether this frame has been completed.  Completed frames cannot
   // be replaced by sprite lumps in older wad files.
+  // 
   byte finished;
   
   // if not rotated, we don't have to determine the angle for the
   // sprite.  This is an optimisation.
+  // 
   byte rotated;
   
   // Flip bits (1 = flip) to use for view angles 0-15.
@@ -681,34 +614,5 @@ typedef struct spritedef_s
   spriteframe_t *frames;
 }
 spritedef_t;
-
-//
-// Visplanes.
-//
-// These are horizontal planes that will be drawn during a refresh.
-// Multiple floors (or ceilings) can be merged into the same visplane
-// (if they shared the same height, texture, lighting, etc...).
-// Conversely, a single sector may require multiple visplanes.
-// 
-typedef struct visplane_s
-{
-  float_t height;
-  int picnum;
-  int lightlevel;
-
-  // -KM- 1998/09/27 Dynamic colourmaps
-  // -AJA- 1999/07/08: Now uses colmap.ddf.
-  const colourmap_t *colourmap;
-
-  float_t xoffset;
-  float_t yoffset;
-
-  int minx;
-  int maxx;
-
-  unsigned short *top;
-  unsigned short *bottom;
-}
-visplane_t;
 
 #endif  // __R_DEFS__

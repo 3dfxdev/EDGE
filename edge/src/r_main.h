@@ -41,7 +41,7 @@ extern float_t viewsin;
 extern float_t viewvertangle;
 
 extern subsector_t *viewsubsector;
-extern vert_region_t *view_vertregion;
+extern extrafloor_t *view_vertregion;
 
 extern int viewwidth;
 extern int viewheight;
@@ -112,7 +112,7 @@ angle_t R_PointToAngle(float_t x1, float_t y1, float_t x2, float_t y2);
 float_t R_PointToDist(float_t x1, float_t y1, float_t x2, float_t y2);
 float_t R_ScaleFromGlobalAngle(angle_t visangle);
 subsector_t *R_PointInSubsector(float_t x, float_t y);
-vert_region_t *R_PointInVertRegion(subsector_t *sub, float_t z);
+extrafloor_t *R_PointInExtraFloor(subsector_t *sub, float_t z);
 
 //
 // REFRESH - the actual rendering functions.

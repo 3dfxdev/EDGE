@@ -32,6 +32,9 @@
 #include "v_ctx.h"
 
 
+struct drawfloor_s;
+
+
 //
 //  R2_BSP
 //
@@ -67,10 +70,6 @@ typedef struct screenline_s
 screenline_t;
 
 
-// forward decls.
-struct drawfloor_s;
-
-
 //
 // DrawWall
 //
@@ -88,7 +87,7 @@ typedef struct drawwall_s
   seg_t *seg;
 
   // texture to use
-  sidepart_t *part;
+  surface_t *part;
   
   // texture scaling
   float_t scale1;
@@ -110,7 +109,8 @@ typedef struct drawwall_s
   
   // horizontal slider ?
   slidetype_e slide_type;
-  float_t opening, target;
+  float_t opening, line_len;
+  int side;
 }
 drawwall_t;
 
@@ -134,8 +134,11 @@ typedef struct drawplane_s
 
   int face_dir;
 
+  // height
+  float_t h;
+
   // texture & offsets to use
-  plane_info_t *info;
+  surface_t *info;
 
   // colourmap & lighting
   region_properties_t *props;
@@ -161,6 +164,7 @@ typedef struct drawthing_s
   // Note: the area.ranges field isn't used here, instead the x1..x2
   // range is looked-up in the the containing subsector, which stores
   // *empty* areas to clip against.
+  //
   screenline_t area;
 
   // actual map object
@@ -172,12 +176,14 @@ typedef struct drawthing_s
 
   // these record whether this piece of a sprite has been clipped on
   // the left or right side.  We can skip certain clipsegs when one of
-  // these is true (and stop when the both become true).
+  // these is true (and stop when they both become true).
+  // 
   boolean_t clipped_left, clipped_right;
   
   // +1 if this sprites should be vertically clipped at a solid
   // floor or ceiling, 0 if just clip at translucent planes, or -1 if
   // shouldn't be vertically clipped at all.
+  //
   int clip_vert;
   
   // sprite image to use
@@ -231,10 +237,17 @@ typedef struct drawfloor_s
   struct drawfloor_s *next, *prev;
 
   // link for height order list
-  struct drawfloor_s *z_next, *z_prev;
+  struct drawfloor_s *higher, *lower;
 
-  // region
-  vert_region_t *reg;
+  // heights for this floor
+  float_t f_h, c_h, top_h;
+ 
+  surface_t *floor, *ceil;
+
+  extrafloor_t *ef;
+
+  // properties used herein
+  region_properties_t *props;
 
   // list of walls (includes midmasked textures)
   drawwall_t *walls;
@@ -245,9 +258,6 @@ typedef struct drawfloor_s
   // list of things
   // (not sorted until R2_DrawFloor is called).
   drawthing_t *things;
-
-  // list of extra walls
-  drawwall_t *extras;
 
   // list of dynamic lights
   drawthing_t *dlights;

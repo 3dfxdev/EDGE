@@ -46,8 +46,4 @@ extern boolean_t markceiling;
 
 extern boolean_t skymap;
 
-extern stack_array_t drawsegs_a;
-extern drawseg_t **drawsegs;
-extern int ds_p;
-
 #endif

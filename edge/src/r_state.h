@@ -52,8 +52,8 @@ extern sector_t *sectors;
 extern int numsubsectors;
 extern subsector_t *subsectors;
 
-extern int numregions;
-extern vert_region_t *regions;
+extern int numextrafloors;
+extern extrafloor_t *extrafloors;
      
 extern int numnodes;
 extern node_t *nodes;
@@ -63,6 +63,9 @@ extern line_t *lines;
 
 extern int numsides;
 extern side_t *sides;
+
+extern int numwalltiles;
+extern wall_tile_t *walltiles;
 
 extern int numvertgaps;
 extern vgap_t vertgaps;
