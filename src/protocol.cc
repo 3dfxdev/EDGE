@@ -44,6 +44,13 @@ void error_proto_t::ByteSwap()
 	/* nothing needed -- yet */
 }
 
+#if 0
+void broadcast_discover_t::ByteSwap()
+{
+	tcp_port = SYS_BE_U16(tcp_port);
+}
+#endif
+
 void client_info_t::ByteSwap()
 {
 	game = SYS_BE_S16(game);
