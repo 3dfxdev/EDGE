@@ -22,4 +22,7 @@
 // LINUX
 const char * I_LocalIPAddrString(const char *iface_name);
 
+// LINUX and MACOSX
+void I_IgnoreBrokenPipes(void);
+
 #endif  /* __SYS_NET__ */

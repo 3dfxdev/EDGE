@@ -195,6 +195,11 @@ void NetInit(void)
 {
 	nlMutexInit(&global_lock);
 
+	I_IgnoreBrokenPipes();
+
+	nlHint(NL_REUSE_ADDRESS, NL_TRUE);
+	nlHint(NL_TCP_NO_DELAY,  NL_TRUE);
+
 	InitNetTime();
 
     DebugPrintf("NL_VERSION: %s\n", nlGetString(NL_VERSION));
