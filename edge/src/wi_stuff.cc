@@ -349,7 +349,8 @@ static void DrawOnLnode(wi_mappos_c* mappos, const image_t * images[2])
 	}
 	else
 	{
-		L_WriteDebug("Could not place patch on level '%s'\n", mappos->info->name);
+		L_WriteDebug("Could not place patch on level '%s'\n", 
+		  mappos->info->name.GetString());
 	}
 }
 
