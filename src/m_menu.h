@@ -67,10 +67,9 @@ void M_StartMessage(const char *string, void (* routine)(int response),
 void M_StartMessageInput(const char *string, 
     void (* routine)(const char *response));
 
-void M_DoSave(int page, int slot);
-void M_QuickSave(void);
-
+void M_EndGame(int choice);
 void M_QuitEDGE(int choice);
+void M_MultiplayerGame(int choice);
 
 void M_DrawThermo(int x, int y, int thermWidth, int thermDot, int div);
 

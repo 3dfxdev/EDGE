@@ -355,13 +355,17 @@ static void M_DefaultMenuItem(optmenuitem_t *item)
 //
 //  MAIN MENU
 //
+#define LANGUAGE_POS  8
+
 static optmenuitem_t mainmenu[] =
 {
+	{OPT_Function, "Leave Game", NULL, 0, 0, NULL, M_EndGame, NULL},
+	{OPT_Function, "Set Resolution", NULL, 0, 0, NULL, M_ResolutionOptions, "ChangeRes"},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Keyboard Controls", NULL, 0, 0, NULL, M_StandardControlOptions, "Controls"},
 	{OPT_Function, "Mouse Options", NULL, 0, 0, NULL, M_AnalogueOptions, "AnalogueOptions"},
 	{OPT_Function, "Gameplay Options", NULL, 0, 0, NULL, M_GameplayOptions, "GameplayOptions"},
 	{OPT_Function, "Video Options", NULL, 0, 0, NULL, M_VideoOptions, "VideoOptions"},
-	{OPT_Function, "Set Resolution", NULL, 0, 0, NULL, M_ResolutionOptions, "ChangeRes"},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Language", NULL, 0, 0, NULL, M_ChangeLanguage, NULL},
 	{OPT_Switch, "Messages", YesNo, 2, 1, &showMessages, NULL, "Messages"},
@@ -483,7 +487,7 @@ static menuinfo_t analogueoptionsinfo =
 // -ACB- 1998/07/15 Altered menu structure
 // -KM- 1998/07/21 Change blood to switch
 //
-optmenuitem_t playoptions[] =
+static optmenuitem_t playoptions[] =
 {
 	{OPT_Switch, "Compatibility", CompatSet, 2, 0, &global_flags.compat_mode, M_ChangeCompatMode, NULL},
 	{OPT_Switch, "AutoAiming", AAim, 3, 1, &global_flags.autoaim, M_ChangeAutoAim, NULL},
@@ -618,6 +622,28 @@ static specialkey_t specialkeylist[] =  // terminate on -1
     {KEYD_MWHEEL_DN, "Wheel Down"},
     {-1, ""}
 };
+
+//
+// M_OptCheckNetgame
+//
+// Sets the first option to be "Leave Game" or "Multiplayer Game"
+// depending on whether we are playing a game or not.
+//
+void M_OptCheckNetgame(void)
+{
+	if (usergame)
+	{
+		strcpy(mainmenu[0].name, "Leave Game");
+		mainmenu[0].routine = &M_EndGame;
+		mainmenu[0].help = NULL;
+	}
+	else
+	{
+		strcpy(mainmenu[0].name, "Multiplayer Game");
+		mainmenu[0].routine = &M_MultiplayerGame;
+		mainmenu[0].help = NULL;
+	}
+}
 
 //
 // M_InitOptmenu
@@ -913,7 +939,7 @@ static void M_LanguageDrawer(int x, int y, int deltay)
 
 	buf.Format("%s", language.GetName());
 
-	HL_WriteText(opt_def_style,1, x+15, y + deltay * 6, buf);
+	HL_WriteText(opt_def_style,1, x+15, y + deltay * LANGUAGE_POS, buf);
 }
 
 //
