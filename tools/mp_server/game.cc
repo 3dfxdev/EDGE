@@ -291,8 +291,7 @@ static void SV_build_tic_group(game_c *GM, packet_c *pk, int tic_num, int first,
 
 	pk->SetType("Tg");
 	pk->hd().flags = 0;
-	pk->hd().data_len = sizeof(tic_group_proto_t) +
-		(count * (1 + GM->bots_each) - 1) * sizeof(raw_ticcmd_t);
+	pk->hd().data_len = sizeof(tic_group_proto_t) - sizeof(raw_ticcmd_t);
 
 	// client field is set elsewhere
 
@@ -312,6 +311,8 @@ static void SV_build_tic_group(game_c *GM, packet_c *pk, int tic_num, int first,
 		client_c *CL = clients[GM->players[p]];
 
 		CL->tics->Read(GM->sv_gametic, raw_cmds);
+
+		pk->hd().data_len += band * sizeof(raw_ticcmd_t);
 	}
 
 	tg.ByteSwap(false);
