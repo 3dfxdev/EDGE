@@ -153,7 +153,19 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 
 		case MUS_OGG:
 		{
-			oggplayer->Open(musdat->info.file.name);
+            if (musdat->format != IMUSSF_DATA &&
+                musdat->format != IMUSSF_FILE)
+            {
+                I_PostMusicError("I_MusicPlayback: OGG given in unsupported format.\n");
+                handle = -1;
+                break;
+            }
+
+            if (musdat->format == IMUSSF_DATA)
+				oggplayer->Open(musdat->info.data.ptr, musdat->info.data.size);
+			else if (musdat->format == IMUSSF_FILE)
+				oggplayer->Open(musdat->info.file.name);
+				
 			oggplayer->Play(looping);
 			handle = MAKEHANDLE(MUS_OGG, looping, 1);
 			break;
