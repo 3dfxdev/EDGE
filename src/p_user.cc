@@ -391,7 +391,7 @@ static void DeathThink(player_t * player)
 			player->mo->angle += delta;
 			player->mo->vertangle += delta_s;
 
-			if (player->damagecount && (gametic % 3) == 0)
+			if (player->damagecount && (leveltime % 3) == 0)
 				player->damagecount--;
 		}
 	}
