@@ -33,9 +33,10 @@ std::vector<client_c *> clients;
 
 
 client_c::client_c(const client_info_t *info, const NLaddress *_addr) :
-	state(ST_Browsing), name(info->name),
+	state(ST_Browsing),
 	game_id(-1), player_id(-1), voted(false), tics(8 /* !!!! FIXME */)
 {
+	strcpy(name, info->name);
 	memcpy(&addr, _addr, sizeof(addr));
 }
 
@@ -60,7 +61,7 @@ bool client_c::Verify(const NLaddress *remote_addr) const
 int client_c::CompareName(const char *other) const
 {
 	// FIXME!!!! case insensitive
-	return strcmp(name.c_str(), other);
+	return strcmp(name, other);
 }
 
 void client_c::FillClientInfo(client_info_t *info) const
@@ -84,7 +85,7 @@ void client_c::FillClientInfo(client_info_t *info) const
 			break;
 	}
 
-	strcpy(info->name, name.c_str());
+	strcpy(info->name, name);
 
 	info->game = game_id;
 }
@@ -247,6 +248,7 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 	}
 
 	con.info.name[client_info_t::NAME_LEN-1] = 0;  // ensure NUL-terminated
+
 	if (! ValidatePlayerName(con.info.name))
 	{
 		SV_send_error(pk, "bn", "Invalid name !");
