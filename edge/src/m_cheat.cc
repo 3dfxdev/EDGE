@@ -39,7 +39,6 @@
 #include "m_cheat.h"
 
 #include "con_main.h"
-#include "m_fixed.h"
 #include "ddf_main.h"
 #include "dstrings.h"
 #include "g_game.h"

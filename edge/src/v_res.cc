@@ -33,7 +33,6 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "m_argv.h"
-#include "m_fixed.h"
 #include "r_state.h"
 #include "r_things.h"
 #include "r_vbinit.h"

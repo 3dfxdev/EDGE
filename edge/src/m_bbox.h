@@ -28,7 +28,6 @@
 
 #include <limits.h>
 
-#include "m_fixed.h"
 
 // Bounding box coordinate storage.
 enum

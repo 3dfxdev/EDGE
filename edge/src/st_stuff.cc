@@ -36,7 +36,6 @@
 #include "ddf_main.h"
 #include "e_main.h"
 #include "g_game.h"
-#include "m_fixed.h"
 #include "m_random.h"
 #include "st_lib.h"
 #include "r_local.h"

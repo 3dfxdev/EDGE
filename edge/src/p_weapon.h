@@ -27,9 +27,8 @@
 #define __P_PSPR__
 
 // Basic data types.
-// Needs fixed point, and BAM angles.
+// Needs BAM angles.
 #include "lu_math.h"
-#include "m_fixed.h"
 
 #include "ddf_main.h"
 

@@ -31,7 +31,6 @@
 
 // Some more or less basic data types
 // we depend on.
-#include "m_fixed.h"
 #include "m_math.h"
 
 // SECTORS do store MObjs anyway.

@@ -36,7 +36,6 @@
 #include "gui_main.h"
 #include "m_argv.h"
 #include "m_bbox.h"
-#include "m_fixed.h"
 #include "m_misc.h"
 #include "m_menu.h"
 #include "p_local.h"

@@ -30,7 +30,6 @@
 
 #include "dm_state.h"
 #include "m_bbox.h"
-#include "m_fixed.h"
 
 #include "r_data.h"
 #include "r_defs.h"
