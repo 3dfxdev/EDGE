@@ -117,12 +117,12 @@ void I_Warning(const char *warning,...) GCCATTR(format(printf, 1, 2));
 
 typedef struct i_time_s
 {
-	byte day;
-	byte month;
-	short year;
-	byte hours;
-	byte minutes;
-	byte secs;
+	byte day;      // 1-31
+	byte month;    // 1-12
+	short year;    // 1900-2100
+	byte hours;    // 0-23 (0 is midnight, 12am)
+	byte minutes;  // 0-59
+	byte secs;     // 0-59
 }
 i_time_t;
 
