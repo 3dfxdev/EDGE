@@ -1316,6 +1316,11 @@ void DDF_MainGetAngle(const char *info, void *storage)
 	if (sscanf(info, "%f", &val) != 1)
 		DDF_Error("Bad angle value: %s\n", info);
 
+	if ((int) val == 360)
+		val = 359.5;
+	else if (val > 360.0f)
+		DDF_WarnError2(0x129, "Angle '%s' too large (must be less than 360)\n", info);
+
 	*dest = FLOAT_2_ANG(val);
 }
 
