@@ -208,9 +208,9 @@ typedef struct drawthing_s
 
   //...
 
-  // TEMP for GL
-  float_t left_x,  left_y;
-  float_t right_x, right_y;
+  // world offsets for GL
+  float_t left_dx,  left_dy;
+  float_t right_dx, right_dy;
   
   // EXPERIMENTAL
   boolean_t is_shadow;
@@ -276,8 +276,22 @@ void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor);
 //  R2_UTIL
 //
 
+typedef struct tilesky_s
+{
+  boolean_t active;
+  
+  const tilesky_info_t *info;
+
+  // linedef that info comes from
+  struct line_s *line;
+}
+tilesky_t;
+
 extern byte *subsectors_seen;
 extern Y_range_t Screen_clip[2048];
+
+extern tilesky_t sky_tiles[4];
+extern int sky_tiles_active;
 
 void R2_InitUtil(void);
 void R2_ClearBSP(void);
@@ -306,6 +320,9 @@ void R2_2DOcclusionClose(int x1, int x2, Y_range_t *ranges,
     boolean_t connect_low, boolean_t connect_high, boolean_t solid);
 void R2_2DOcclusionCopy(int x1, int x2, Y_range_t *ranges);
 void R2_2DUpdate1D(int x1, int x2);
+
+void R2_TileSkyClear(void);
+void R2_TileSkyAdd(const tilesky_info_t *info, struct line_s *line);
 
 
 //
