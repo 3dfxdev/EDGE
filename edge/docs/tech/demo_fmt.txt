@@ -1,0 +1,198 @@
+
+EDGE Demo Format
+================
+
+Last updated: January 2005.
+
+This document assumes familiarity with the savegame system,
+as described in "docs/tech/save_sys.txt".
+
+
+General overview
+----------------
+
+Demo files have the extension '.EDM'.
+
+Demo files begin with a header, then some chunks which contain
+the info about the game, and then have chunks for all events of
+each game tic.
+
+Chunks begin with a four letter marker and are followed by a
+four byte length field.  The length only includes the data
+following the chunk header.
+
+All numbers are stored in little-endian order.  Floating point is
+stored as a 16-bit signed exponent followed by a 32-bit signed
+mantissa.
+
+
+File Format
+-----------
+
+-  HEADER (Non-chunked)
+
+   +  MAGIC NUMBER (`EdgeDemo')
+   +  PADDING: 0x0D 0x0A 0x1A 0x00.
+   +  EDGE version that wrote the demo file (32 bit BCD, e.g. 0x129).
+
+-  Game definition.  [GAME]
+
+   +  variables: multiple lots of [VARI] chunks.
+   +  list of wad files.  [WADS]
+   +  player descriptions:  [PLYR]
+
+-  Tic Area: stream of [TICK] chunks
+
+   +  player ticcmds.  [PCMD]
+
+-  TRAILER (Non-chunked)
+
+   +  End marker [ENDE].
+   +  Data CRC (32 bits, every data byte in file before this CRC).
+
+
+Compression
+-----------
+
+Instead of [TICK] chunks, allow a compression chunk which
+contains a group of [TICK] chunks (e.g. one second's worth),
+which are then compressed.  The marker type is [PACK].
+
+
+Game Variables
+--------------
+
+The game information consists mainly of VAR = VALUE pairs, for
+example: LEVEL_NAME = MAP05 and SKILL = 3.  These are stored in
+[VARI] chunks in the top-level [GAME] chunk.  The following is
+the list of variables needed:
+
+GAME: name of game (mission), e.g. "HELL_ON_EARTH".
+LEVEL: name of level, e.g. "MAP01".
+FLAGS: level flags, numeric.
+GRAVITY: numeric, usually "8".
+
+P_RANDOM: numeric.
+SKILL: numeric, range is 1-5.
+NETGAME: numeric, "0" is SP, "1" is COOP, "2" and up is DM.
+
+@@@...
+
+
+Chunk Formats
+=============
+
+VARI
+----
+
+STRING for variable name.
+STRING for value.
+
+WADS
+----
+
+32 bits for number of wads.
+STRING for filename of _each_ WAD.
+
+PLYR
+----
+
+32 bits for number of players.
+32 bits for display player.
+
+@@@...
+
+
+PCMD
+----
+
+Multiple lots of (one per player) :-
+
+16 bits for ticcmd angle.
+16 bits for ticcmd mlook angle.
+16 bits for ticcmd consistency.
+16 bits for ticcmd unused1.
+
+3 bytes for ticcmd movement.
+2 bytes for ticcmd buttons.
+3 bytes for ticcmd other stuff.
+
+PACK
+----
+
+32 bits for Original length.
+32 bits for CRC32 of original data.
+compressed data....  (padded to multiple of 4 bytes)
+
+
+---------------------------------------------------------------------------
+  FUTURE IDEAS
+---------------------------------------------------------------------------
+
+
+Significant events
+------------------
+
+Certain game events are very significant, and should be recorded
+explicitly in the demo file.  For example: a player dying.  Other
+significant events (such as a line activation) could be optional,
+recorded for more robustness, or left out for smaller file size.
+Many events (such as a bullet puff being spawned) are not
+significant enough to be put into the demo file.
+
+Always recorded:
+
+  -  player enters map (new or reborn).
+  -  player dies.
+  -  player activates a certain linedef (incl. doors, RTS).
+
+  -  monster is spawned.
+  -  monster dies.
+
+  -  item is spawned (respawned).
+  -  item is picked up.
+
+Optionally record:
+
+  -  player uses a certain attack.
+  -  monster uses a certain attack.
+  -  monster activates a certain linedef (incl. doors).
+
+
+Random numbers
+--------------
+
+A significant source of de-syncing is the use of a global random
+number generator (P_Random).  It only takes a single extra call
+to P_Random() to make _ALL_ future uses of P_Random() get
+different values.
+
+Lee Killough worked out a good system with BOOM: for different
+uses of P_Random, have different random number generators.  So if
+one gets out of sync, the remaining will still be OK (only a
+single subsystem is affected).
+
+I think this system can be improved upon, so that if any subsystem
+gets out of sync, it will only remain out of sync for ONE TIC.
+
+Firstly we use a very high quality random number generator (like
+Mersenne Twister) to generate N random bytes per tic (e.g. 64).
+Each subsystem keeps an index value, which is cleared to zero when
+these random bytes are generated, and incremented for each call to
+P_Random().  Let SUB be the subsystem, RAND[] be the generated
+bytes, and IDX be the index, then:
+
+    value = RAND[(SUB * 17 + IDX) % N];
+
+Assumption 1: each subsystem doesn't require more than N values
+per tic, and in the odd case where it happens, it won't matter.
+
+Assumption 2: it doesn't matter that different subsystems are
+(potentially) using the same set of values.
+
+An improvement which solves both these issues is to apply a static
+table of random values, TABLE[] of size K (like 256), in a
+subsystem specific way:
+
+    value ^= TABLE[(SUB * 29 + IDX) % K];
+
