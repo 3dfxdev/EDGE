@@ -100,6 +100,16 @@ const byte *V_GetTranslationTable(const colourmap_t * colmap);
 // text translation tables
 extern const byte *font_whitener;
 
+extern const colourmap_t *text_red_map;
+extern const colourmap_t *text_white_map;
+extern const colourmap_t *text_grey_map;
+extern const colourmap_t *text_green_map;
+extern const colourmap_t *text_brown_map;
+extern const colourmap_t *text_blue_map;
+extern const colourmap_t *text_ltblue_map;
+extern const colourmap_t *text_yellow_map;
+
+// FIXME: these eight tables will soon be redundant
 extern const byte *text_colour_red;
 extern const byte *text_colour_white;
 extern const byte *text_colour_grey;
