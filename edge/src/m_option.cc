@@ -115,7 +115,6 @@ static void M_Key2String(int key, char *deststring);
 // -ACB- 1998/08/09 "Does Map allow these changes?" procedures.
 static void M_ChangeMonsterRespawn(int keypressed);
 static void M_ChangeItemRespawn(int keypressed);
-static void M_ChangeTransluc(int keypressed);
 static void M_ChangeTrue3d(int keypressed);
 static void M_ChangeAutoAim(int keypressed);
 static void M_ChangeFastparm(int keypressed);
@@ -394,7 +393,6 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Slider, "Zoomed FOV", NULL, 35, 1, &menuzoomedfov, M_ChangeZoomedFOV, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Switch, "HUD", Huds, 3, HUD_Full, &screen_hud, M_ChangeScreenHud, NULL},
-	{OPT_Boolean, "Translucency", YesNo, 2, 1, &global_flags.trans, M_ChangeTransluc, NULL},
 	{OPT_Switch, "Mipmapping", MipMaps, 3, 1, &use_mipmapping, M_ChangeMipMap, NULL},
 	{OPT_Boolean, "Smoothing", YesNo, 2, 1, &use_smoothing, M_ChangeMipMap, NULL},
 	{OPT_Boolean, "Shadows", YesNo, 2, 0, &global_flags.shadows, M_ChangeShadows, NULL},
@@ -1472,14 +1470,6 @@ static void M_ChangeItemRespawn(int keypressed)
 		return;
 
 	level_flags.itemrespawn = global_flags.itemrespawn;
-}
-
-static void M_ChangeTransluc(int keypressed)
-{
-	if (currmap && ((currmap->force_on | currmap->force_off) & MPF_Translucency))
-		return;
-
-	level_flags.trans = global_flags.trans;
 }
 
 static void M_ChangeTrue3d(int keypressed)

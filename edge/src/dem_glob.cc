@@ -172,7 +172,6 @@ static void DG_GetLevelFlags(const char *info, void *storage)
 	HANDLE_FLAG(dest->true3dgameplay, MPF_True3D);
 	HANDLE_FLAG(dest->more_blood, MPF_MoreBlood);
 	HANDLE_FLAG(dest->cheats, MPF_Cheats);
-	HANDLE_FLAG(dest->trans, MPF_Translucency);
 	HANDLE_FLAG(dest->respawn, MPF_Respawn);
 	HANDLE_FLAG(dest->res_respawn, MPF_ResRespawn);
 	HANDLE_FLAG(dest->have_extra, MPF_Extras);
@@ -253,7 +252,6 @@ static const char *DG_PutLevelFlags(void *storage)
 	HANDLE_FLAG(src->true3dgameplay, MPF_True3D);
 	HANDLE_FLAG(src->more_blood, MPF_MoreBlood);
 	HANDLE_FLAG(src->cheats, MPF_Cheats);
-	HANDLE_FLAG(src->trans, MPF_Translucency);
 	HANDLE_FLAG(src->respawn, MPF_Respawn);
 	HANDLE_FLAG(src->res_respawn, MPF_ResRespawn);
 	HANDLE_FLAG(src->have_extra, MPF_Extras);

@@ -207,7 +207,6 @@ void G_DoLoadLevel(void)
 	HANDLE_FLAG(level_flags.true3dgameplay, MPF_True3D);
 	HANDLE_FLAG(level_flags.more_blood, MPF_MoreBlood);
 	HANDLE_FLAG(level_flags.cheats, MPF_Cheats);
-	HANDLE_FLAG(level_flags.trans, MPF_Translucency);
 	HANDLE_FLAG(level_flags.respawn, MPF_Respawn);
 	HANDLE_FLAG(level_flags.res_respawn, MPF_ResRespawn);
 	HANDLE_FLAG(level_flags.have_extra, MPF_Extras);

@@ -122,7 +122,6 @@ gameflags_t default_gameflags =
 	true,   // mlook
 	AA_ON,  // autoaim
      
-	true,   // trans
 	true,   // cheats
      
 	true,   // have_extra
@@ -377,7 +376,6 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("true3d", &global_flags.true3dgameplay, false);
 	M_CheckBooleanParm("blood", &global_flags.more_blood, false);
 	M_CheckBooleanParm("cheats", &global_flags.cheats, false);
-	M_CheckBooleanParm("trans", &global_flags.trans, false);
 	M_CheckBooleanParm("jumping", &global_flags.jump, false);
 	M_CheckBooleanParm("crouching", &global_flags.crouch, false);
 	M_CheckBooleanParm("weaponswitch", &global_flags.weapon_switch, false);

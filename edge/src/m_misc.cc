@@ -107,7 +107,6 @@ static default_t defaults[] =
     {CFGT_Boolean, "swapstereo", &swapstereo, 0},
     {CFGT_Boolean, "invertmouse", &invertmouse, 0},
     {CFGT_Int, "mlookspeed", &mlookspeed, 1000 / 64},
-    {CFGT_Boolean, "translucency", &global_flags.trans, 1},
 
     // -ES- 1998/11/28 Save fade settings
     {CFGT_Enum, "telept_effect", &telept_effect, 0},

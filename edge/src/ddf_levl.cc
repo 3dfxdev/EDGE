@@ -90,12 +90,17 @@ static const commandlist_t level_commands[] =
 	DDF_CMD_END
 };
 
+static specflags_t deprec_map_specials[] =
+{
+    {"TRANSLUCENCY", 0, 0},
+    {NULL, 0, 0}
+};
+
 static specflags_t map_specials[] =
 {
     {"JUMPING", MPF_Jumping, 0},
     {"MLOOK", MPF_Mlook, 0},
     {"FREELOOK", MPF_Mlook, 0},  // -AJA- backwards compat.
-    {"TRANSLUCENCY", MPF_Translucency, 0},
     {"CHEATS", MPF_Cheats, 0},
     {"ITEM RESPAWN", MPF_ItemRespawn, 0},
     {"FAST MONSTERS", MPF_FastParm, 0},
@@ -260,7 +265,24 @@ void DDF_LevelGetSpecials(const char *info, void *storage)
 
 	int flag_value;
 
-	switch (DDF_MainCheckSpecialFlag(info, map_specials, &flag_value, true, true))
+    // Handle depreciated flags
+	switch (DDF_MainCheckSpecialFlag(info, deprec_map_specials, 
+                                     &flag_value, true, true))
+	{
+		case CHKF_Positive:
+		case CHKF_Negative:
+		case CHKF_User:
+            DDF_Warning("Level special '%s' deprecated.\n", info);
+            return;
+            break;
+
+		case CHKF_Unknown:
+			break;
+    }
+
+    // Handle working flags
+	switch (DDF_MainCheckSpecialFlag(info, map_specials, 
+                                     &flag_value, true, true))
 	{
 		case CHKF_Positive:
 			buffer_map.force_on  |=  flag_value;

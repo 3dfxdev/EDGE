@@ -122,7 +122,6 @@ typedef struct gameflags_s
 	bool mlook;
 	autoaim_t autoaim;
 
-	bool trans;
 	bool cheats;
 	bool have_extra;
 	bool limit_zoom;
