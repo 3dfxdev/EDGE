@@ -1552,29 +1552,35 @@ void DDF_MainGetRGB(const char *info, void *storage)
 //
 // DDF_MainGetWhenAppear
 //
-// -AJA- 1999/10/23: written.
-//
 void DDF_MainGetWhenAppear(const char *info, void *storage)
 {
-	int *result = (int *)storage;
+	when_appear_e *result = (when_appear_e *)storage;
 
 	*result = WNAP_None;
 
-	// -AJA- FIXME: such a hack...
-	if (strstr(info, "1")) *result |= WNAP_SkillLevel1;
-	if (strstr(info, "2")) *result |= WNAP_SkillLevel2;
-	if (strstr(info, "3")) *result |= WNAP_SkillLevel3;
-	if (strstr(info, "4")) *result |= WNAP_SkillLevel4;
-	if (strstr(info, "5")) *result |= WNAP_SkillLevel5;
+	if (strstr(info, "1"))
+		*result = (when_appear_e)(*result | WNAP_SkillLevel1);
+
+	if (strstr(info, "2"))
+		*result = (when_appear_e)(*result | WNAP_SkillLevel2);
+
+	if (strstr(info, "3"))
+		*result = (when_appear_e)(*result | WNAP_SkillLevel3);
+
+	if (strstr(info, "4"))
+		*result = (when_appear_e)(*result | WNAP_SkillLevel4);
+
+	if (strstr(info, "5"))
+		*result = (when_appear_e)(*result | WNAP_SkillLevel5);
 
 	if (strstr(info, "SP") || strstr(info, "sp"))
-		*result |= WNAP_Single;
+		*result = (when_appear_e)(*result| WNAP_Single);
 
 	if (strstr(info, "COOP") || strstr(info, "coop"))
-		*result |= WNAP_Coop;
+		*result = (when_appear_e)(*result | WNAP_Coop);
 
 	if (strstr(info, "DM") || strstr(info, "dm"))
-		*result |= WNAP_DeathMatch;
+		*result = (when_appear_e)(*result | WNAP_DeathMatch);
 }
 
 //

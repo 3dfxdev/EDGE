@@ -443,29 +443,6 @@ static bool CheckForBoolean(const char *s)
 	return false;
 }
 
-//
-// DoParseWhenAppear
-//
-// -AJA- FIXME: duplicated code, use DDF_MainGetWhenAppear someday.
-//
-static void DoParseWhenAppear(rad_script_t *scr, const char *skill)
-{
-	scr->appear = WNAP_None;
-
-	if (strstr(skill, "1")) scr->appear = (when_appear_e)(scr->appear | WNAP_SkillLevel1);
-	if (strstr(skill, "2")) scr->appear = (when_appear_e)(scr->appear | WNAP_SkillLevel2);
-	if (strstr(skill, "3")) scr->appear = (when_appear_e)(scr->appear | WNAP_SkillLevel3);
-	if (strstr(skill, "4")) scr->appear = (when_appear_e)(scr->appear | WNAP_SkillLevel4);
-	if (strstr(skill, "5")) scr->appear = (when_appear_e)(scr->appear | WNAP_SkillLevel5);
-
-	if (strstr(skill, "SP") || strstr(skill, "sp"))
-		scr->appear = (when_appear_e)(scr->appear| WNAP_Single);
-	if (strstr(skill, "COOP") || strstr(skill, "coop"))
-		scr->appear = (when_appear_e)(scr->appear | WNAP_Coop);
-	if (strstr(skill, "DM") || strstr(skill, "dm"))
-		scr->appear = (when_appear_e)(scr->appear | WNAP_DeathMatch);
-}
-
 static void DoParsePlayerSet(const char *info, unsigned long *set)
 {
 	const char *p = info;
@@ -999,9 +976,9 @@ static void RAD_ParseTag(int pnum, const char **pars)
 
 static void RAD_ParseWhenAppear(int pnum, const char **pars)
 {
-	// When_Appear 1:2:3:4:5:sp:coop:dm:extra
+	// When_Appear 1:2:3:4:5:SP:COOP:DM
 
-	DoParseWhenAppear(this_rad, pars[1]);
+	DDF_MainGetWhenAppear(pars[1], &this_rad->appear);
 }
 
 static void RAD_ParseWhenPlayerNum(int pnum, const char **pars)
