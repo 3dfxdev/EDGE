@@ -73,11 +73,8 @@ void R_AddFlatAnim(animdef_c *anim)
 
 	int file;
 	int s_offset, e_offset;
-	const int *lumps;
-	int total;
 
 	int i;
-	const image_t **flats;
 
 	if (start == -1 || end == -1)
 	{
@@ -95,20 +92,21 @@ void R_AddFlatAnim(animdef_c *anim)
 		return;
 	}
 
-	DEV_ASSERT2(s_offset <= e_offset);
+	epi::u32array_c& lumps = W_GetListLumps(file, LMPLST_Flats);
+	int total = lumps.GetSize();
 
-	lumps = W_GetListLumps(file, LMPLST_Flats, &total);
+	DEV_ASSERT2(s_offset <= e_offset);
+	DEV_ASSERT2(e_offset < total);
 
 	// determine animation sequence
-	lumps += s_offset;
 	total = e_offset - s_offset + 1;
 
-	flats = Z_New(const image_t *, total);
+	const image_t **flats = new const image_t* [total];
 
 	// lookup each flat
 	for (i=0; i < total; i++)
 	{
-		const char *name = W_GetLumpName(lumps[i]);
+		const char *name = W_GetLumpName(lumps[s_offset + i]);
 
 		// Note we use W_ImageFromFlat() here.  It might seem like a good
 		// optimisation to use the lump number directly, but we can't do
@@ -119,7 +117,7 @@ void R_AddFlatAnim(animdef_c *anim)
 	}
 
 	W_AnimateImageSet(flats, total, anim->speed);
-	Z_Free(flats);
+	delete[] flats;
 }
 
 //
@@ -150,9 +148,6 @@ void R_AddTextureAnim(animdef_c *anim)
 {
 	int set, s_offset, e_offset;
 
-	int i, total;
-	const image_t **texs;
-
 	set = W_FindTextureSequence(anim->startname, anim->endname,
 			&s_offset, &e_offset);
 
@@ -164,19 +159,18 @@ void R_AddTextureAnim(animdef_c *anim)
 
 	DEV_ASSERT2(s_offset <= e_offset);
 
-	total = e_offset - s_offset + 1;
-
-	texs = Z_New(const image_t *, total);
+	int total = e_offset - s_offset + 1;
+	const image_t **texs = new const image_t* [total];
 
 	// lookup each texture
-	for (i=0; i < total; i++)
+	for (int i = 0; i < total; i++)
 	{
 		const char *name = W_TextureNameInSet(set, s_offset + i);
 		texs[i] = W_ImageFromTexture(name);
 	}
 
 	W_AnimateImageSet(texs, total, anim->speed);
-	Z_Free(texs);
+	delete[] texs;
 }
 
 //
@@ -196,10 +190,8 @@ bool R_InitFlats(void)
 
 	for (file=0; file < max_file; file++)
 	{
-		const int *lumps;
-		int lumpnum;
-
-		lumps = W_GetListLumps(file, LMPLST_Flats, &lumpnum);
+		epi::u32array_c& lumps = W_GetListLumps(file, LMPLST_Flats);
+		int lumpnum = lumps.GetSize();
 
 		if (lumpnum == 0)
 			continue;
@@ -300,25 +292,25 @@ static void R_PrecacheSprites(void)
 
 	for (i=1; i < numsprites; i++)  // ignore SPR_NULL
 	{
-		spritedef_t *sp = sprites + i;
+		spritedef_c *def = sprites[i];
 		int fr, rot;
 
 		const image_t *cur_image;
 		const image_t *last_image = NULL;  // an optimisation
 
-		if (! sprite_present[i] || sp->numframes == 0)
+		if (! sprite_present[i] || def->numframes == 0)
 			continue;
 
-		DEV_ASSERT2(sp->frames);
+		DEV_ASSERT2(def->frames);
 
-		for (fr=0; fr < sp->numframes; fr++)
+		for (fr=0; fr < def->numframes; fr++)
 		{
-			if (! sp->frames[fr].finished)
+			if (! def->frames[fr].finished)
 				continue;
 
 			for (rot=0; rot < 16; rot++)
 			{
-				cur_image = sp->frames[fr].images[rot];
+				cur_image = def->frames[fr].images[rot];
 
 				if (cur_image == NULL || cur_image == last_image)
 					continue;
@@ -342,8 +334,6 @@ static void R_PrecacheSprites(void)
 //                   
 void R_PrecacheLevel(void)
 {
-	const image_t ** images;
-
 	int max_image;
 	int count = 0;
 	int i;
@@ -362,7 +352,7 @@ void R_PrecacheLevel(void)
 	// maximum possible images
 	max_image = 1 + 3 * numsides + 2 * numsectors;
 
-	images = Z_New(const image_t *, max_image);
+	const image_t ** images = new const image_t* [max_image];
 
 	// Sky texture is always present.
 	images[count++] = sky_image;
@@ -415,5 +405,5 @@ void R_PrecacheLevel(void)
 
 	RGL_PreCacheSky();
 
-	Z_Free(images);
+	delete[] images;
 }

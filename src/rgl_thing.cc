@@ -344,8 +344,8 @@ static INLINE void LinkDrawthingIntoDrawfloor(drawthing_t *dthing,
 //
 const image_t * R2_GetThingSprite(mobj_t *mo, bool *flip)
 {
-	spritedef_t *sprite;
-	spriteframe_t *frame;
+	spritedef_c *sprite;
+	spriteframe_c *frame;
 
 	angle_t ang;
 	int rot;
@@ -361,7 +361,7 @@ const image_t * R2_GetThingSprite(mobj_t *mo, bool *flip)
 		I_Error("R2_GetThingSprite: invalid sprite number %i.\n", mo->sprite);
 #endif
 
-	sprite = sprites + mo->sprite;
+	sprite = sprites[mo->sprite];
 
 	if (mo->frame >= sprite->numframes ||
 		!sprite->frames[mo->frame].finished)
@@ -406,8 +406,8 @@ const image_t * R2_GetThingSprite(mobj_t *mo, bool *flip)
 //
 const image_t * R2_GetOtherSprite(int spritenum, int framenum, bool *flip)
 {
-	spritedef_t *sprite;
-	spriteframe_t *frame;
+	spritedef_c *sprite;
+	spriteframe_c *frame;
 
 	if (spritenum == SPR_NULL)
 		return NULL;
@@ -418,7 +418,7 @@ const image_t * R2_GetOtherSprite(int spritenum, int framenum, bool *flip)
 		I_Error("R2_GetThingSprite: invalid sprite number %i.\n", spritenum);
 #endif
 
-	sprite = sprites + spritenum;
+	sprite = sprites[spritenum];
 
 	if (framenum >= sprite->numframes ||
 		!sprite->frames[framenum].finished)

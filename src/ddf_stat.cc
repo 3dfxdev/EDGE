@@ -725,7 +725,7 @@ bool DDF_CheckSprites(int st_low, int st_high)
 	if (st_low > st_high)
 		return true;
 
-	if (sprites[states[st_low].sprite].frames > 0)
+	if (sprites[states[st_low].sprite]->frames > 0)
 		return true;	
 
 	return false;

@@ -234,7 +234,7 @@ bool W_InitTextures(void)
 	{
 		E_LocalProgress(file, max_file, NULL);
 
-		wadtex_resource_t WT;
+		wadtex_resource_c WT;
 
 		W_GetTextureLumps(file, &WT);
 
