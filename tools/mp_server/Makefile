@@ -17,7 +17,11 @@ CXXFLAGS=$(CFLAGS)
 LDFLAGS=-L/usr/X11R6/lib -Lhawknl1.68/src
 LIBS=-lm -lpthread -lNL $(FLTK_LIBS)
 
-OBJS=autolock.o  \
+FLTABLE_OBJS=FL/Fl_Table.o \
+             FL/Fl_Table_Row.o
+
+OBJS=$(FLTABLE_OBJS) \
+     autolock.o  \
      buffer.o    \
      client.o    \
      game.o      \
@@ -30,7 +34,10 @@ OBJS=autolock.o  \
 	 protocol.o  \
 	 sys_assert.o \
 	 sys_debug.o \
+	 sys_net.o   \
 	 ticstore.o  \
+	 ui_client.o \
+	 ui_game.o   \
      ui_log.o    \
      ui_menu.o   \
 	 ui_stats.o  \
@@ -42,7 +49,7 @@ OBJS=autolock.o  \
 all:    $(PROGNAME)
 
 clean:
-	rm -f $(PROGNAME) *.o core core.* mp_debug.txt ERRS update.log
+	rm -f $(PROGNAME) *.o FL/*.o core core.* mp_debug.txt ERRS update.log
 
 $(PROGNAME): $(OBJS)
 	$(CXX) $(CFLAGS) $(OBJS) -o $(PROGNAME) $(LDFLAGS) $(LIBS)
