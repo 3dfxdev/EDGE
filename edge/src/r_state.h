@@ -48,9 +48,6 @@ extern float_t *spriteoffset;
 extern float_t *spritetopoffset;
 
 // for global animation
-extern int *flatlist;
-extern int *wad2flatlist;
-extern int *flattranslation;
 extern int *texturetranslation;
 
 // Sprite....

@@ -56,13 +56,7 @@ void W_InitTextures(void);
 int W_TextureNumForName(const char *name);
 int W_CheckTextureNumForName(const char *name);
 
-// -AJA- These for the GL code
-
-byte *W_ConvertFlatRGBA(int flat, int *width, int *height);
-
-byte *W_ConvertTextureRGBA(int tex, int *width, int *height,
-    float_t *right, float_t *bottom, int is_masked);
-
+// -AJA- this will soon be redundant
 byte *W_ConvertSpriteRGBA(int patch, int *width, int *height,
     float_t *right, float_t *bottom);
 

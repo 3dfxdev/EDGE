@@ -151,6 +151,8 @@ void W_InitImages(void);
 void W_UpdateImageAnims(void);
 void W_ResetImages(void);
 
+void W_AnimateFlatRange(const int *lumps, int number, int speed);
+
 void W_LockImagesOGL(void);
 void W_UnlockImagesOGL(void);
 

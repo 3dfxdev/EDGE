@@ -37,10 +37,6 @@
 // I/O, setting up the stuff.
 void R_InitData(void);
 void R_PrecacheLevel(void);
-
-// Retrieval.
-// Floor/ceiling opaque texture tiles,
-// lookup by name. For animation?
-int R_FlatNumForName(const char *name);
+void R_AddFlatAnim(animdef_t *anim);
 
 #endif

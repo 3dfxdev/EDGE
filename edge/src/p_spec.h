@@ -197,7 +197,6 @@ extern button_t *buttonlist;
 
 // at game start
 void P_InitPicAnims(void);
-void P_ReInitPicAnims(int pos);
 
 // at map load
 void P_SpawnSpecials(int autotag);
