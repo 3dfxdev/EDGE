@@ -317,6 +317,25 @@ static void CleanupParameters(void)
 	}
 }
 
+static void I_ChangeToExeDir(const char *full_path)
+{
+	const char *r = strrchr(full_path, '\\');
+
+	if (r == NULL || r == full_path)
+		return;
+
+	int length = (r - full_path) + 1;
+
+	char *buf = new char[length];
+
+	memcpy(buf, full_path, length);
+	buf[length] = 0;
+
+	SetCurrentDirectory(buf);
+
+	delete[] buf;
+}
+
 //
 // WinMain
 //
@@ -344,6 +363,11 @@ int PASCAL WinMain (HINSTANCE curr, HINSTANCE prev, LPSTR cmdline, int show)
 
 	// sort command line 
 	ParseParameters();
+
+	// -AJA- workaround for drag-and-drop (Windows sets our current
+	//       directory to the windows directory C:\WINDOWS).
+	if (edgeargc >= 1)
+		I_ChangeToExeDir(edgeargv[0]);
 
 	// Run Game....
 	engine::Main(edgeargc, edgeargv);
