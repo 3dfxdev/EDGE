@@ -47,11 +47,11 @@ CXXINCS = -Iinclude/c++/3.2.3/ \
 
 CFLAGS=$(INCS) $(OPTIM) \
        -Wall -fexceptions \
-	   -DWIN32 -DDEVELOPERS -DUSE_DL_PREFIX -DUSE_DEH
+	   -DWIN32 -DDEVELOPERS -DUSE_DL_PREFIX
 
 CXXFLAGS=$(CXXINCS) $(INCS) $(OPTIM) \
          -Wall -fexceptions -fno-rtti \
-         -DWIN32 -DDEVELOPERS -DUSE_DL_PREFIX -DUSE_DEH
+         -DWIN32 -DDEVELOPERS -DUSE_DL_PREFIX
 
 # ----- LIBRARIES ------------------------------------------------------
 
