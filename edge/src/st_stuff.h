@@ -31,12 +31,11 @@
 #include "v_screen.h"
 
 // Size of statusbar.
-// Now sensitive for scaling.
-#define ST_HEIGHT	(32 * SCREEN_MUL)
-#define ST_WIDTH 320
-#define ST_Y		(SCREENHEIGHT - ST_HEIGHT)
+#define ST_HEIGHT       32
+#define ST_WIDTH        320
 
-extern int ST_X;
+#define ST_X            0
+#define ST_Y            (200 - ST_HEIGHT)
 
 //
 // STATUS BAR
@@ -59,9 +58,6 @@ void ST_ReInit(void);
 
 // Called by startup code.
 boolean_t ST_Init(void);
-
-extern screen_t *sbar_scr;
-extern screen_t *sbar_back;
 
 extern boolean_t stbar_update;
 

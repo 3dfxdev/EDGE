@@ -28,6 +28,7 @@
 
 // We are referring to patches.
 #include "r_defs.h"
+#include "w_image.h"
 
 //
 // Typedefs of widgets
@@ -39,8 +40,7 @@ typedef struct
 {
   // upper right-hand corner
   //  of the number (right-justified)
-  int x;
-  int y;
+  int x, y;
 
   // max # of digits in number
   int width;
@@ -55,11 +55,11 @@ typedef struct
   //  whether to update number
   boolean_t *on;
 
-  // list of patches for 0-9
-  const patch_t **p;
+  // list of images for 0-9
+  const image_t ** digits;
 
-  // minus. NULL for no minus.
-  const patch_t *minus;
+  // minus, or NULL for none.
+  const image_t *minus;
 }
 st_number_t;
 
@@ -80,8 +80,7 @@ typedef struct
   st_float_t f;
 
   // percent sign graphic
-  const patch_t *p;
-
+  const image_t *percsign;
 }
 st_percent_t;
 
@@ -89,8 +88,7 @@ st_percent_t;
 typedef struct
 {
   // center-justified location of icons
-  int x;
-  int y;
+  int x, y;
 
   // last icon number
   int oldinum;
@@ -103,7 +101,7 @@ typedef struct
   boolean_t *on;
 
   // list of icons
-  const patch_t **p;
+  const image_t ** icons;
 }
 st_multicon_t;
 
@@ -112,8 +110,7 @@ st_multicon_t;
 typedef struct
 {
   // center-justified location of icon
-  int x;
-  int y;
+  int x, y;
 
   // last icon value
   boolean_t oldval;
@@ -126,7 +123,7 @@ typedef struct
   boolean_t *on;
 
   // icon
-  const patch_t *p;
+  const image_t *icon;
 }
 st_binicon_t;
 
@@ -141,26 +138,33 @@ st_binicon_t;
 void STLIB_Init(void);
 
 // Number widget routines
-void STLIB_InitNum(st_number_t * n, int x, int y, const patch_t **pl, const patch_t *minus, int *num, boolean_t * on, int width);
+void STLIB_InitNum(st_number_t * n, int x, int y, 
+    const image_t ** digits, const image_t *minus, int *num, 
+    boolean_t * on, int width);
 
-void STLIB_InitFloat(st_float_t * n, int x, int y, const patch_t ** pl, float_t *num, boolean_t * on, int width);
+void STLIB_InitFloat(st_float_t * n, int x, int y, const image_t ** digits, 
+    float_t *num, boolean_t * on, int width);
 
 void STLIB_UpdateNum(st_number_t * n, boolean_t refresh);
 void STLIB_UpdateFloat(st_float_t * n, boolean_t refresh);
 
 // Percent widget routines
-void STLIB_InitPercent(st_percent_t * p, int x, int y, const patch_t ** pl, float_t *num, boolean_t * on, const patch_t * percent);
+void STLIB_InitPercent(st_percent_t * p, int x, int y, 
+    const image_t ** digits, const image_t *percsign,
+    float_t *num, boolean_t * on);
 
 void STLIB_UpdatePercent(st_percent_t * per, int refresh);
 
 // Multiple Icon widget routines
-void STLIB_InitMultIcon(st_multicon_t * mi, int x, int y, const patch_t ** il, int *inum, boolean_t * on);
+void STLIB_InitMultIcon(st_multicon_t * mi, int x, int y, 
+    const image_t ** icons, int *inum, boolean_t * on);
 
 void STLIB_UpdateMultIcon(st_multicon_t * mi, boolean_t refresh);
 
 // Binary Icon widget routines
 
-void STLIB_InitBinIcon(st_binicon_t * b, int x, int y, const patch_t * i, boolean_t * val, boolean_t * on);
+void STLIB_InitBinIcon(st_binicon_t * b, int x, int y, 
+    const image_t * icon, boolean_t * val, boolean_t * on);
 
 void STLIB_UpdateBinIcon(st_binicon_t * bi, boolean_t refresh);
 

@@ -2,7 +2,7 @@
 //  EDGE Video Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2000  The EDGE Team.
+//  Copyright (c) 1999-2001  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -60,45 +60,11 @@ void V_AddAvailableResolution(int width, int height, int depth);
 //
 #define CENTERY                 (SCREENHEIGHT/2)
 
+#define FROM_320(x)  ((x) * SCREENWIDTH  / 320)
+#define FROM_200(y)  ((y) * SCREENHEIGHT / 200)
+
 extern screen_t *main_scr;
 extern screen_t *back_scr;
-
-// Allocates buffer screens, call before R_Init.
-
-/* JUST IN CASE I DON'T TRUST THIS SYSTEM....
-#define V_Init V_Init8
-#define V_CopyRect V_CopyRect8
-#define V_CopyScreen V_CopyScreen8
-#define V_DrawPatch V_DrawPatch8
-#define V_DrawPatchFlipped V_DrawPatchFlipped8
-#define V_DrawPatchDirect V_DrawPatchDirect8
-#define V_DrawPatchInDirect V_DrawPatchInDirect8
-#define V_DrawPatchInDirectFlipped V_DrawPatchInDirectFlipped8
-#define V_DrawPatchTrans V_DrawPatchTrans8
-#define V_DrawPatchInDirectTrans V_DrawPatchInDirectTrans8
-#define V_DrawPatchInDirectAlpha V_DrawPatchInDirectAlpha8
-#define V_DrawPatchShrink V_DrawPatchShrink8
-#define V_DrawBlock V_DrawBlock8
-#define V_GetBlock V_GetBlock8
-#define V_DarkenScreen V_DarkenScreen8
-#define V_TextureBackScreen V_TextureBackScreen8
-#define V_DrawPixel V_DrawPixel8
-#define V_DrawLine V_DrawLine8
-#define V_DrawBox V_DrawBox8
-#define V_DrawPatchClip V_DrawPatchClip8
-
-#define resinit_r_draw_c resinit_r_draw_c8
-#define R_DrawColumn R_DrawColumn8_CVersion
-#define R_DrawFuzzColumn R_DrawFuzzColumn8
-#define R_DrawTranslucentColumn R_DrawTranslucentColumn8
-#define R_DrawTranslatedColumn R_DrawTranslatedColumn8
-#define R_DrawTranslucentTranslatedColumn R_DrawTranslucentTranslatedColumn8
-#define R_VideoErase R_VideoErase8
-#define R_DrawSpan R_DrawSpan8_CVersion
-#define R_DrawTranslucentSpan R_DrawTranslucentSpan8
-#define R_FillBackScreen R_FillBackScreen8 
-#define R_DrawViewBorder R_DrawViewBorder8
-*/
 
 // Allocates buffer screens, call before R_Init.
 extern void (*V_Init) (void);
@@ -122,8 +88,6 @@ extern void (*V_DrawLine) (screen_t * scr, int x1, int y1, int x2, int y2, int c
 extern void (*V_DrawBox) (screen_t * scr, int x, int y, int w, int h, int c);
 extern void (*V_DrawPatchClip) (screen_t * scr, int x, int y, int left, int top, int right, int bottom, boolean_t flip, const patch_t * patch);
 
-extern void V_DrawPatchName(screen_t * scr, int x, int y, const char *name);
-extern void V_DrawPatchInDirectName(screen_t * scr, int x, int y, const char *name);
 
 //
 // now with r_draw.h
@@ -158,6 +122,7 @@ extern int *columnofs;
 
 extern void (*resinit_r_draw_c) (void);
 extern void (*R_DrawColumn) (void);
+extern void (*R_DrawColumn_MIP) (void);
 extern void (*R_DrawFuzzColumn) (void);
 extern void (*R_DrawTranslucentColumn) (void);
 extern void (*R_DrawTranslatedColumn) (void);
@@ -180,10 +145,12 @@ extern const byte *ds_source;
 extern const byte *dc_translation;
 
 extern void (*R_DrawSpan) (void);
+extern void (*R_DrawSpan_MIP) (void);
 extern void (*R_DrawTranslucentSpan) (void);
-extern void (*R_FillBackScreen) (void);
-extern void (*R_DrawViewBorder) (void);
 extern void V_ClearPageBackground(screen_t * scr);
+
+void R_DrawViewBorder(void);
+void R_FillBackScreen(void);
 
 // WPost stuff
 

@@ -72,4 +72,6 @@ void M_QuickSave(void);
 
 void M_QuitEDGE(int choice);
 
+void M_DrawThermo(int x, int y, int thermWidth, int thermDot, int div);
+
 #endif

@@ -64,7 +64,7 @@ typedef struct video_context_s
   // (which is precomputed from an in-game object).  Coordinates are
   // inclusive.
   
-  void (* RenderScene)(int x1, int y1, int x2, int y2, vid_view_t *view);
+  void (* RenderScene)(int x, int y, int w, int h, vid_view_t *view);
   
   // Begin/End a sequence of drawing for a particular layer.  The
   // coordinates to BeginDraw are the bounding box the future drawing
@@ -84,9 +84,9 @@ typedef struct video_context_s
   // guaranteed for power-of-two sized images.  The drawing will be
   // clipped to the current clipping rectangle.
   
-  void (* DrawImage)(int x1, int y1, int x2, int y2,
+  void (* DrawImage)(int x, int y, int w, int h, const image_t *image,
       float_t tx1, float_t ty1, float_t tx2, float_t ty2,
-      const image_t *image, const colourmap_t *colmap, int alpha);
+      const colourmap_t *colmap, float_t alpha);
  
   // Draw a solid colour box (possibly translucent) in the given
   // rectangle.  Coordinates are inclusive.  Alpha ranges from 0
@@ -94,8 +94,8 @@ typedef struct video_context_s
   // (0-255).  Drawing will be clipped to the current clipping
   // rectangle.
   
-  void (* SolidBox)(int x1, int y1, int x2, int y2,
-      int colour, int alpha);
+  void (* SolidBox)(int x, int y, int w, int h,
+      int colour, float_t alpha);
  
   // Draw a solid colour line (possibly translucent) between the two
   // end points.  Coordinates are inclusive.  Alpha ranges from 0
@@ -104,7 +104,7 @@ typedef struct video_context_s
   // the current clipping rectangle.
   
   void (* SolidLine)(int x1, int y1, int x2, int y2,
-      int colour, int alpha);
+      int colour, float_t alpha);
   
   // Read the contents of the screen into the given buffer, which is
   // in RGB format (3 bytes per pixel).  Buffer must be large enough
@@ -112,13 +112,36 @@ typedef struct video_context_s
   // be called after screen is fully rendered but _before_ the
   // I_FinishFrame() function has been called.
 
-  void (* ReadScreen)(int x1, int y1, int x2, int y2, byte *rgb_buffer);
+  void (* ReadScreen)(int x, int y, int w, int h, byte *rgb_buffer);
 }
 video_context_t;
 
 
 // Global video context.  There is only ever one.
 extern video_context_t vctx;
+
+
+// Convenience macros
+
+#define VCTX_Image(X,Y,W,H,Image)  \
+    vctx.DrawImage((X)-(Image)->offset_x, (Y)-(Image)->offset_y,  \
+       (W),(H),(Image),0,0,IM_RIGHT(Image),IM_BOTTOM(Image),NULL,1.0)
+
+#define VCTX_Image320(X,Y,W,H,Image)  \
+    vctx.DrawImage(FROM_320((X)-(Image)->offset_x), \
+       FROM_200((Y)-(Image)->offset_y), FROM_320(W), FROM_200(H),  \
+       (Image),0,0,IM_RIGHT(Image),IM_BOTTOM(Image),NULL,1.0)
+
+#define VCTX_ImageEasy(X,Y,Image)  \
+    vctx.DrawImage((X)-(Image)->offset_x, (Y)-(Image)->offset_y,  \
+       IM_WIDTH(Image),IM_HEIGHT(Image),(Image),  \
+       0,0,IM_RIGHT(Image),IM_BOTTOM(Image),NULL,1.0)
+
+#define VCTX_ImageEasy320(X,Y,Image)  \
+    vctx.DrawImage(FROM_320((X)-(Image)->offset_x), \
+       FROM_200((Y)-(Image)->offset_y), \
+       FROM_320(IM_WIDTH(Image)), FROM_200(IM_HEIGHT(Image)),  \
+       (Image),0,0,IM_RIGHT(Image),IM_BOTTOM(Image),NULL,1.0)
 
 
 #endif  // __V_CTX__

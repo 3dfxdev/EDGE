@@ -2,7 +2,7 @@
 //  EDGE Heads-up-display library Code (header)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2000  The EDGE Team.
+//  Copyright (c) 1999-2001  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -55,23 +55,13 @@ typedef struct H_font_s
   
   // images for each character.  Missing characters will be filled
   // with a default image.
-#ifdef USE_IMAGE
   const image_t ** images;
-#else
-  const patch_t ** patches;
-#endif
 }
 H_font_t;
 
-#ifdef USE_IMAGE
 #define HFONT_GET_CH(font,ch)  \
     ((font)->images[MAX((font)->first_ch, MIN((font)->last_ch, (ch))) -  \
      (font)->first_ch])
-#else
-#define HFONT_GET_CH(font,ch)  \
-    ((font)->patches[MAX((font)->first_ch, MIN((font)->last_ch, (ch))) -  \
-     (font)->first_ch])
-#endif
 
 
 #define HU_MAXLINES		4
@@ -183,7 +173,8 @@ void HL_InitSText(hu_stext_t * s, int x, int y, int h,
 void HL_AddLineToSText(hu_stext_t * s);
 
 // add message to stext
-void HL_AddMessageToSText(hu_stext_t * s, const char *prefix, const char *msg);
+void HL_AddMessageToSText(hu_stext_t * s, 
+    const unsigned char *prefix, const unsigned char *msg);
 
 // draws stext
 void HL_DrawSText(hu_stext_t * s);
@@ -205,7 +196,7 @@ void HL_EraseLineFromIText(hu_itext_t * it);
 void HL_ResetIText(hu_itext_t * it);
 
 // left of left-margin
-void HL_AddPrefixToIText(hu_itext_t * it, char *str);
+void HL_AddPrefixToIText(hu_itext_t * it, const unsigned char *str);
 
 // whether eaten
 boolean_t HL_KeyInIText(hu_itext_t * it, unsigned char ch);
@@ -225,11 +216,12 @@ void HL_DrawTextLineAlpha(hu_textline_t * l, boolean_t drawcursor,
 
 // hu_font size routines
 int HL_CharWidth(const H_font_t *font, int c);
-int HL_TextMaxLen(int max_w, const char *str);
-int HL_StringWidth(const char *string);
-int HL_StringHeight(const char *string);
+int HL_TextMaxLen(int max_w, const unsigned char *str);
+int HL_StringWidth(const unsigned char *string);
+int HL_StringHeight(const unsigned char *string);
 
-void HL_WriteText(int x, int y, const char *string);
-void HL_WriteTextTrans(int x, int y, const byte *trans, const char *string);
+void HL_WriteText(int x, int y, const unsigned char *string);
+void HL_WriteTextTrans(int x, int y, const byte *trans, 
+    const unsigned char *string);
 
 #endif  // __HULIB__
