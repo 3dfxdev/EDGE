@@ -236,9 +236,6 @@ static float scale_mtof = INITSCALEMTOF;
 // used by FTOM to scale from frame-buffer-to-map coords (=1/scale_mtof)
 static float scale_ftom;
 
-///---// numbers used for marking by the automap
-///---static const image_t *marknums[10];
-
 // where the points are
 static mpoint_t markpoints[AM_NUMMARKPOINTS];
 
@@ -410,21 +407,6 @@ static void InitVariables(player_t *p)
 	old_m_h = m_h;
 }
 
-//
-// LoadPics
-//
-static void LoadPics(void)
-{
-///---	int i;
-///---	char namebuf[9];
-///---
-///---	for (i = 0; i < 10; i++)
-///---	{
-///---		sprintf(namebuf, "AMMNUM%d", i);
-///---		marknums[i] = W_ImageFromPatch(namebuf);
-///---	}
-}
-
 static void ClearMarks(void)
 {
 	int i;
@@ -482,7 +464,6 @@ static void StartAM(void)
 	LevelInit();
 
 	InitVariables(players[displayplayer]);
-	LoadPics();
 
 	stopped = false;
 }
