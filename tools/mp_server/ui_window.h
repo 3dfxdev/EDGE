@@ -50,6 +50,12 @@ public:
 	// user closed the window
 	bool want_quit;
 
+	void Update()
+	{
+		stat_box->Update();
+		log_box->Update();
+	}
+
 	// routine to capture the current main window state into the
 	// guix_preferences_t structure.
 	// 

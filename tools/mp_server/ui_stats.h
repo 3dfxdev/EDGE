@@ -37,6 +37,9 @@ private:
 	Fl_Output *in_bytes;
 	Fl_Output *out_bytes;
 	Fl_Output *buf_bytes;
+
+public:
+	void Update();
 };
 
 #endif /* __UI_STATS_H__ */

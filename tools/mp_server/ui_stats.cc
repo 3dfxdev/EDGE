@@ -17,6 +17,8 @@
 //------------------------------------------------------------------------
 
 #include "includes.h"
+
+#include "buffer.h"
 #include "ui_stats.h"
 #include "ui_window.h"
 
@@ -95,3 +97,19 @@ UI_Stats::~UI_Stats()
 {
 }
 
+
+//
+// Stats Updater
+//
+void UI_Stats::Update()
+{
+	char num_buf[40];
+
+	// FIXME: others....
+
+	sprintf(num_buf, "%d", buffered_packets);
+	buf_pks->value(num_buf);
+
+	sprintf(num_buf, "%d", buffered_bytes);
+	buf_bytes->value(num_buf);
+}

@@ -163,9 +163,7 @@ int main(int argc, char **argv)
 		{
 			Fl::wait(0.1f);
 
-			main_win->log_box->Update();
-
-			// FIXME: refresh
+			main_win->Update();
 		}
 
 		if (net_failure)
