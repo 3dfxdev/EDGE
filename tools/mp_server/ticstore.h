@@ -23,23 +23,23 @@
 
 class tic_band_c
 {
-	// holds the ticcmds for a set of players (e.g. everyone in a game).
+	// holds the ticcmds for a set of players.
 	// you could consider this the horizontal dimension.
+
+friend class tic_store_c;
 
 public:
 	tic_band_c(int _size);
 	~tic_band_c();
 
 private:
-	raw_ticcmd_t *cmds;
-
 	int size;
 
-public:
-	bool received;
+	raw_ticcmd_t *cmds;
 
-	void Read(raw_ticcmd_t *dest, int start, int count) const;
-	void Write(const raw_ticcmd_t *src, int start, int count);
+public:
+	void Read(       raw_ticcmd_t *dest, int start, int count) const;
+	void Write(const raw_ticcmd_t *src,  int start, int count);
 };
 
 class tic_store_c
@@ -52,24 +52,17 @@ public:
 	~tic_store_c();
 
 private:
-	int cur_tic;
-	int past_tic;
-
 	tic_band_c *bands[MP_SAVETICS * 2];
 
+	bool received[MP_SAVETICS * 2];
+
 public:
-	void Reset(int tic_num);
+	void Clear(int tic_num);
+	bool HasGot(int tic_num) const;
 
-	bool CanRead (int tic_num) const;
-	bool CanWrite(int tic_num) const;
-
-	void Read(int tic_num, raw_ticcmd_t *src, int start, int count) const;
-	void Write(int tic_num, const raw_ticcmd_t *src, int start, int count);
-
-	// void Read(const ticcmd_proto_t& tc);
-
-	void Forget(int tic_num);
-	// forget all past commands before 'tic_num'.
+	// these read and write a whole band
+	void Read( int tic_num,       raw_ticcmd_t *dest) const;
+	void Write(int tic_num, const raw_ticcmd_t *src);
 };
 
 #endif /* __TICSTORE_H__ */
