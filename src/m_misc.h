@@ -39,7 +39,6 @@ typedef enum
 	CFGT_Int = 0,
 	CFGT_Boolean = 1,
 	CFGT_Key = 2,
-	CFGT_ChatMacro = 3
 }
 cfg_type_e;
 
