@@ -305,11 +305,7 @@ typedef enum
   // Thing can be "used" (like linedefs) with the spacebar.  Thing
   // will then enter its TOUCH_STATES (when they exist).
   // -AJA- 2000/02/17: added this.
-  EF_USABLE = 0x800000,
-
-  // Player doesn't bob up & down as they walk.  Affects weapon too.
-  // -AJA- 2000/08/03: added this.
-  EF_NOSIREEBOB = 0x1000000
+  EF_USABLE = 0x800000
 }
 mobjextendedflag_t;
 
