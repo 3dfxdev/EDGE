@@ -1817,7 +1817,9 @@ static void ShutdownLevel(void)
   if (rejectmatrix)
     W_DoneWithLump(rejectmatrix);
 
-  R2_TileSkyClear();
+#if 0
+	R2_TileSkyClear();
+#endif
 
   DDF_LineClearGeneralised();
   DDF_SectorClearGeneralised();
@@ -1845,10 +1847,6 @@ void P_SetupLevel(skill_t skill, int autotag)
   if (level_active)
     ShutdownLevel();
 
-  // -AJA- this don't belong here, but startup is too screwed ATM
-  // (no way should level load precede graphics init).
-  R2_TileSkyClear();
-  
   totalkills = totalitems = totalsecret = wminfo.maxfrags = 0;
 
   wminfo.partime = currentmap->partime;

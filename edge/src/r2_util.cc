@@ -518,40 +518,6 @@ void R2_2DUpdate1D(int x1, int x2)
 
 //----------------------------------------------------------------------------
 //
-//  TILE SKY UTILITIES
-//
-
-tilesky_t sky_tiles[4];
-int sky_tiles_active = 0;
-
-void R2_TileSkyClear(void)
-{
-  memset(sky_tiles, 0, sizeof(sky_tiles));
-  sky_tiles_active = 0;
-}
-
-void R2_TileSkyAdd(const tilesky_info_t *info, struct line_s *line)
-{
-  int layer = info->layer - 1;
-
-  if (layer < 0 || layer >= MAX_TILESKY)
-    return;
-
-  // update count of active sky tiles
-  if (! sky_tiles[layer].active)
-    sky_tiles_active++;
-
-  sky_tiles[layer].info = info;
-  sky_tiles[layer].line = line;
-  sky_tiles[layer].active = true;
-
-  L_WriteDebug("SKY TILE %d ACTIVE (total active %d)\n",
-      layer, sky_tiles_active);
-}
-
-
-//----------------------------------------------------------------------------
-//
 //  LEVEL-OF-DETAIL STUFF
 //
 //  These functions return a "LOD" number.  1 means the maximum

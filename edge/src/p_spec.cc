@@ -1745,11 +1745,13 @@ void P_SpawnSpecials(int autotag)
     if (PERCENT_2_FLOAT(special->translucency) <= 0.99f && lines[i].side[1])
       lines[i].side[1]->middle.translucency = PERCENT_2_FLOAT(special->translucency);
 
+#if 0
     // -AJA- 2001/01/23: Tiling sky support.
     if (special->sky.type != TILESKY_None)
     {
       R2_TileSkyAdd(&special->sky, lines + i);
     }
+#endif
 
     if (special->autoline)
     {
