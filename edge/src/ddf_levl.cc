@@ -109,18 +109,16 @@ static finale_t dummy_finale;
 
 static const commandlist_t finale_commands[] =
 {
-/*
-	DDF_CMD_SUB("TEXT", text, DDF_MainGetString),
-	DDF_CMD_SUB("TEXT GRAPHIC", text_back, DDF_MainGetInlineStr10),
-	DDF_CMD_SUB("TEXT FLAT", text_flat, DDF_MainGetInlineStr10),
-	DDF_CMD_SUB("TEXT SPEED", text_speed, DDF_MainGetFloat),
-	DDF_CMD_SUB("TEXT WAIT", text_wait, DDF_MainGetNumeric),
-	DDF_CMD_SUB("GRAPHIC", text, DDF_LevelGetPic),
-	DDF_CMD_SUB("GRAPHIC WAIT", picwait, DDF_MainGetTime),
-	DDF_CMD_SUB("CAST", docast, DDF_MainGetBoolean),
-	DDF_CMD_SUB("BUNNY", dobunny, DDF_MainGetBoolean),
-	DDF_CMD_SUB("MUSIC", music, DDF_MainGetNumeric),
-*/
+  DF("TEXT", text, DDF_MainGetString),
+  DF("TEXT GRAPHIC", text_back, DDF_MainGetInlineStr10),
+  DF("TEXT FLAT", text_flat, DDF_MainGetInlineStr10),
+  DF("TEXT SPEED", text_speed, DDF_MainGetFloat),
+  DF("TEXT WAIT", text_wait, DDF_MainGetNumeric),
+  DF("GRAPHIC", text, DDF_LevelGetPic),
+  DF("GRAPHIC WAIT", picwait, DDF_MainGetTime),
+  DF("CAST", docast, DDF_MainGetBoolean),
+  DF("BUNNY", dobunny, DDF_MainGetBoolean),
+  DF("MUSIC", music, DDF_MainGetNumeric),
 
 	DDF_CMD_END
 };
@@ -133,9 +131,8 @@ static const commandlist_t finale_commands[] =
 static const commandlist_t level_commands[] =
 {
 	// sub-commands
-/*
-	DDF_SUB_LIST("END", f[0], finale_commands),
-	DDF_SUB_LIST("PRE", f[1], finale_commands),
+  DDF_SUB_LIST("END", f[0], finale_commands, dummy_finale),
+  DDF_SUB_LIST("PRE", f[1], finale_commands, dummy_finale),
 
 	DF("LUMPNAME", lump, DDF_MainGetInlineStr10),
 	DF("DESCRIPTION", description, DDF_MainGetString),
@@ -151,7 +148,7 @@ static const commandlist_t level_commands[] =
 	DF("LIGHTING", lighting, DDF_LevelGetLighting),
 	DF("STATS", wistyle, DDF_LevelGetWistyle),
 	DF("SPECIAL", ddf, DDF_LevelGetSpecials),
-*/
+
 	DDF_CMD_END
 };
 

@@ -1170,7 +1170,7 @@ void DDF_MainGetString(const char *info, void *storage)
 //
 boolean_t DDF_MainParseSubField(const commandlist_t *sub_comms,
 								const char *field, const char *contents, char *stor_base,
-								const char *base_command)
+    char *dummy_base, const char *base_command)
 {
 	int i, len;
 	boolean_t obsolete = false;
@@ -1204,7 +1204,7 @@ boolean_t DDF_MainParseSubField(const commandlist_t *sub_comms,
 				//
 				// return DDF_MainParseSubField(
 				//    sub_comms[i].sub_comms, field + len + 1, contents,
-				//    sub_comms[i].storage, name);
+        //    sub_comms[i].storage, sub_comms[i].sub_dummy_base, name);
         
 				I_Error("DDF_MainParseSubField: can't recurse !\n");
 			}
@@ -1229,8 +1229,9 @@ boolean_t DDF_MainParseSubField(const commandlist_t *sub_comms,
 
 	DEV_ASSERT2(sub_comms[i].parse_command);
 
-	(* sub_comms[i].parse_command)(contents, 
-								   stor_base + FIELD_P2OFF(sub_comms[i].storage));
+  int offset = ((char *) sub_comms[i].storage) - dummy_base;
+
+  (* sub_comms[i].parse_command)(contents, stor_base + offset);
 
 	return true;
 }
@@ -1272,7 +1273,9 @@ boolean_t DDF_MainParseField(const commandlist_t *commands,
 			{
 				// found the sub-field reference
 				return DDF_MainParseSubField( commands[i].sub_comms, 
-											  field + len + 1, contents, (char*)commands[i].storage, name);
+                        field + len + 1, contents,
+                        (char*)commands[i].storage,
+                        (char*)commands[i].sub_dummy_base, name);
 			}
       
 			continue;

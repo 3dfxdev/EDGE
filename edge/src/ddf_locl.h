@@ -134,32 +134,20 @@ typedef struct commandlist_s
 	//
 	void (*parse_command) (const char *info, void *storage);
 
-	void *storage;		// FIXME: should be `int offset'
+  void *storage;
 
 	const struct commandlist_s *sub_comms;
+  void *sub_dummy_base;
 }
 commandlist_t;
-
-// -ACB- 2000/08/15 - FIELD_OFFSET is defined in Win32 headers
-#define FIELD_OFF(dummy,field)  \
-    ((char *) & ((dummy).field) - (char *) & (dummy))
-
-#define FIELD_OFF2P(dummy,field)  \
-    ((char *) FIELD_OFF(dummy,field))
-
-#define FIELD_P2OFF(ptr)  ((int) ptr)
 
 // NOTE: requires DDF_CMD_BASE to be defined as the dummy struct
 
 #define DDF_CMD(name,field,parser)  \
-    { /* ((char *)& (DDF_CMD_BASE . field)) - ((char *)& DDF_CMD_BASE), */  \
-      name, parser, &DDF_CMD_BASE.field, NULL }
+    { name, parser, &DDF_CMD_BASE.field, NULL, NULL }
 
-#define DDF_CMD_SUB(name,field,parser)  \
-    { name, parser, FIELD_OFF2P(DDF_CMD_BASE,field), NULL }
-
-#define DDF_SUB_LIST(name,field,subcomms)  \
-    { "*" name, NULL, &DDF_CMD_BASE.field, subcomms }
+#define DDF_SUB_LIST(name,field,subcomms,dummybase)  \
+    { "*" name, NULL, &DDF_CMD_BASE.field, subcomms, &dummybase }
 
 #define DDF_CMD_END  { NULL, NULL, NULL, NULL }
 
@@ -444,9 +432,13 @@ void DDF_BoomMakeGenLine (linedeftype_t * line, int number);
 // Miscellaneous stuff needed here & there
 extern mobjinfo_t buffer_mobj;
 extern const mobjinfo_t template_mobj;
+
+extern elevator_sector_t dummy_elevator;
+extern moving_plane_t dummy_floor;
+extern damage_t dummy_damage;
+
 extern const commandlist_t elevator_commands[];
 extern const commandlist_t floor_commands[];
-extern const commandlist_t thing_commands[];
 extern const commandlist_t damage_commands[];
 
 #endif // __DDF_LOCAL__

@@ -200,15 +200,15 @@ static haloinfo_t dummy_halo;
 
 const commandlist_t halo_commands[] =
 {
-	/*
-	DDF_CMD_SUB("HEIGHT", height, DDF_MainGetFloat),
-	DDF_CMD_SUB("SIZE", size,     DDF_MainGetFloat),
-	DDF_CMD_SUB("MINSIZE", minsize, DDF_MainGetFloat),
-	DDF_CMD_SUB("MAXSIZE", maxsize, DDF_MainGetFloat),
-	DDF_CMD_SUB("TRANSLUCENCY", translucency, DDF_MainGetPercent),
-	DDF_CMD_SUB("COLOUR",  colour,  DDF_MainGetRGB),
-	DDF_CMD_SUB("GRAPHIC", graphic, DDF_MainGetInlineStr10),
-	*/
+
+  DF("HEIGHT", height, DDF_MainGetFloat),
+  DF("SIZE", size,     DDF_MainGetFloat),
+  DF("MINSIZE", minsize, DDF_MainGetFloat),
+  DF("MAXSIZE", maxsize, DDF_MainGetFloat),
+  DF("TRANSLUCENCY", translucency, DDF_MainGetPercent),
+  DF("COLOUR",  colour,  DDF_MainGetRGB),
+  DF("GRAPHIC", graphic, DDF_MainGetInlineStr10),
+
 
 	DDF_CMD_END
 };
@@ -218,12 +218,11 @@ const commandlist_t halo_commands[] =
 
 const commandlist_t dlight_commands[] =
 {
-/*
-	DDF_CMD_SUB("TYPE", type, DDF_MobjGetDLight),
-	DDF_CMD_SUB("INTENSITY", intensity, DDF_MainGetNumeric),
-	DDF_CMD_SUB("COLOUR", colour, DDF_MainGetRGB),
-	DDF_CMD_SUB("HEIGHT", height, DDF_MainGetPercent),
-*/
+  DF("TYPE", type, DDF_MobjGetDLight),
+  DF("INTENSITY", intensity, DDF_MainGetNumeric),
+  DF("COLOUR", colour, DDF_MainGetRGB),
+  DF("HEIGHT", height, DDF_MainGetPercent),
+  
 	DDF_CMD_END
 };
 
@@ -233,11 +232,10 @@ const commandlist_t dlight_commands[] =
 const commandlist_t thing_commands[] =
 {
 	// sub-commands
-	/*
-	DDF_SUB_LIST("HALO",   halo,   halo_commands),
-	DDF_SUB_LIST("DLIGHT", dlight, dlight_commands),
-	DDF_SUB_LIST("EXPLODE DAMAGE", damage, damage_commands),
-	DDF_SUB_LIST("CHOKE DAMAGE", choke_damage, damage_commands),
+  DDF_SUB_LIST("HALO",   halo,   halo_commands,   dummy_halo),
+  DDF_SUB_LIST("DLIGHT", dlight, dlight_commands, dummy_dlight),
+  DDF_SUB_LIST("EXPLODE DAMAGE", damage, damage_commands, dummy_damage),
+  DDF_SUB_LIST("CHOKE DAMAGE", choke_damage, damage_commands, dummy_damage),
 
 	DF("SPAWNHEALTH", spawnhealth, DDF_MainGetFloat),
 	DF("RADIUS", radius, DDF_MainGetFloat),
@@ -315,7 +313,6 @@ const commandlist_t thing_commands[] =
 	DF("!EXPLOD DAMAGERANGE", damage.nominal, DDF_MainGetFloat),
 	DF("!EXPLOD DAMAGEMULTI", ddf, DDF_DummyFunction),
 	DF("!GIB", ddf, DDF_DummyFunction),
-	*/
 
 	DDF_CMD_END
 };
@@ -404,9 +401,9 @@ static const actioncode_t thing_actions[] =
 	{"DLIGHT FADE",       P_ActDLightFade, DDF_StateGetInteger},
 	{"DLIGHT RANDOM",     P_ActDLightRandom, DDF_StateGetIntPair},
 
-	{"FACE",              P_ActFaceDir, DDF_StateGetInteger},
-	{"TURN",              P_ActTurnDir, DDF_StateGetInteger},
-	{"TURN RANDOM",       P_ActTurnRandom, DDF_StateGetInteger},
+    {"FACE",              P_ActFaceDir, DDF_StateGetAngle},
+    {"TURN",              P_ActTurnDir, DDF_StateGetAngle},
+    {"TURN RANDOM",       P_ActTurnRandom, DDF_StateGetAngle},
 	{"MLOOK FACE",        P_ActMlookFace, DDF_StateGetSlope},
 	{"MLOOK TURN",        P_ActMlookTurn, DDF_StateGetSlope},
 	{"MOVE FWD",          P_ActMoveFwd, DDF_StateGetFloat},
