@@ -102,6 +102,7 @@ static savefield_t sv_fields_player[] =
 	SF(itemcount, "itemcount", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(secretcount, "secretcount", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(jumpwait, "jumpwait", 1, SVT_INT, SR_GetInt, SR_PutInt),
+	SF(idlewait, "idlewait", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(air_in_lungs, "air_in_lungs", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(underwater, "underwater", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
 	SF(flash, "flash_b", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
@@ -112,7 +113,6 @@ static savefield_t sv_fields_player[] =
 	//   in_game: only in-game players are saved.
 	//   key_choices: depends on DDF too much, and not important.
 	//   remember_atk[]: ditto.
-	//   idlewait: not important.
 	//   next,prev: links are regenerated.
 	//   avail_weapons, totalarmour: regenerated.
 
