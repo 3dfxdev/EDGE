@@ -856,6 +856,13 @@ const mobjinfo_t *DDF_MobjLookupNum(const int number)
 	if (i < 0)
 		return NULL;
 
+	// do a sprite check (like for weapons)
+	if (mobjinfo[i]->first_state &&
+		sprites[states[mobjinfo[i]->first_state].sprite].frames == 0)
+	{
+		return NULL;
+	}
+
 	// update the cache
 	mobj_lookup_cache[slot] = mobjinfo[i];
 

@@ -59,6 +59,7 @@
 #include "r_layers.h"
 #include "r_vbinit.h"
 #include "r2_defs.h"
+#include "wp_main.h"   // need wipetype_e in rgl_defs.h
 #include "rgl_defs.h"
 #include "s_sound.h"
 #include "st_stuff.h"
@@ -73,7 +74,6 @@
 #include "w_textur.h"
 #include "w_wad.h"
 #include "wi_stuff.h"
-#include "wp_main.h"
 #include "z_zone.h"
 
 // Internals
@@ -511,7 +511,7 @@ static void M_DisplayPause(void)
 // wipegamestate can be set to GS_NOTHING to force a wipe on the next draw
 
 gamestate_e wipegamestate = GS_DEMOSCREEN;
-int wipe_method = WIPE_Melt;
+wipetype_e wipe_method = WIPE_Melt;
 int wipe_reverse = 0;
 bool redrawsbar;
 
@@ -527,6 +527,10 @@ void E_Display(void)
 	static gamestate_e oldgamestate = GS_NOTHING;
 
 	// for wiping
+#ifndef USE_GL
+	static wipeinfo_t *wipeinfo = NULL;
+	static screen_t *wipeend = NULL;
+#endif
 	static screen_t *wipestart = NULL;
 	bool wipe;
 
@@ -715,7 +719,7 @@ void E_Display(void)
 	I_FinishFrame();  // page flip or blit buffer
       
 #else // USE_GL
-  
+
   // -ES- 1999/08/10 New wiping system
   // wipe update
   wipeend = V_ResizeScreen(wipeend, SCREENWIDTH, SCREENHEIGHT, BPP);
@@ -727,11 +731,14 @@ void E_Display(void)
       SCREENWIDTH, SCREENHEIGHT, wipeinfo,
       -1, wipe_reverse, wipe_method);
 
-  wipestarttime = I_GetTime();
-  tics = 0;
+  int wipestarttime = I_GetTime();
+  int tics = 0;
+  bool done;
 
   do
   {
+	int nowtime;
+
     do
     {
       nowtime = I_GetTime();

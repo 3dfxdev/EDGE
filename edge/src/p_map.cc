@@ -607,7 +607,7 @@ static bool PIT_CheckRelThing(mobj_t * thing)
 	if (thing == tm_I.mover)
 		return true;
 
-	if (!(thing->flags & (MF_SOLID | MF_SPECIAL | MF_SHOOTABLE | MF_TOUCHY)))
+	if (0 == (thing->flags & (MF_SOLID | MF_SPECIAL | MF_SHOOTABLE | MF_TOUCHY)))
 		return true;
 
 	blockdist = thing->radius + tm_I.mover->radius;

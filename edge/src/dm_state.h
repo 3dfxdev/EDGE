@@ -283,8 +283,6 @@ extern bool graphicsmode;
 extern int telept_effect;
 extern int telept_flash;
 extern int telept_reverse;
-extern int wipe_reverse;
-extern int wipe_method;
 
 //mlook stuff
 extern int mlookspeed;
