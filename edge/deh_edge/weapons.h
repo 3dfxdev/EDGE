@@ -13,9 +13,6 @@
 #ifndef __WEAPONS_HDR__
 #define __WEAPONS_HDR__
 
-#include "i_defs.h"
-#include "info.h"
-
 // Ammunition types defined.
 typedef enum
 {
@@ -35,6 +32,24 @@ namespace Ammo
 	extern int plr_max[4];
 	extern int pickups[4];
 }
+
+// Weapon info: sprite frames, ammunition use.
+typedef struct
+{
+	const char *ddf_name;
+
+    int ammo, ammo_per_shot;
+	int bind_key, priority;
+	
+	const char *flags;
+
+    int upstate;
+    int downstate;
+    int readystate;
+    int atkstate;
+    int flashstate;
+}
+weaponinfo_t;
 
 // The defined weapons...
 typedef enum
