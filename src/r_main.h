@@ -81,7 +81,7 @@ extern int framecount;
 
 #define MAXLIGHTZ	       512
 #define LIGHTZSHIFT		18
-#define FLAT_LIGHTZ             32
+#define FLAT_LIGHTZ             24
 
 #define MAXLIGHTSCALE		48
 #define LIGHTSCALESHIFT		12
@@ -94,7 +94,6 @@ extern int extralight;
 extern const colourmap_t *effect_colourmap;
 extern float_t effect_strength;
 extern boolean_t setresfailed;
-extern const coltable_t *fuzz_coltable;
 
 //
 // Function pointers to switch refresh/drawing functions.
