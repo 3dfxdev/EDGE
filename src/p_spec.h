@@ -36,7 +36,6 @@
 #include "r_defs.h"
 #include "w_image.h"
 
-#define GLOWSPEED   8.0f
 #define CEILSPEED   1.0f
 #define FLOORSPEED  1.0f
 
@@ -51,19 +50,24 @@
 
 typedef struct light_s
 {
+  // type of light effect
+  lighttype_t *type;
+
   sector_t *sector;
 
-  litetype_e type;
-
+  // countdown value to next change, or 0 if disabled
   int count;
 
+  // dark and bright levels
   int minlight;
   int maxlight;
+  
+  // current direction for GLOW type, -1 down, +1 up
   int direction;
-  int darktime;
-  int brighttime;
-  int probability;
 
+  // countdown value for FADE type
+  int fade_count;
+ 
   struct light_s *prev, *next;
 }
 light_t;
