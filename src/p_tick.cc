@@ -50,7 +50,7 @@ void P_Ticker(void)
 
   // pause if in menu and at least one tic has been run
   if (!netgame && menuactive && !demoplayback && 
-      consoleplayer->viewz != M_PI)
+      consoleplayer->viewz != FLO_UNUSED)
   {
     return;
   }

@@ -182,10 +182,10 @@ const linedeftype_t template_line =
 	SCPT_None,   // scroll parts
 	NULL,        // security message
 	NULL,        // colourmap
-	M_PI,        // gravity     <-}
-	M_PI,        // friction    <-} - M_PI means "not changed"
-	M_PI,        // viscosity   <-}
-	M_PI,        // drag        <-}
+  FLO_UNUSED,  // gravity
+  FLO_UNUSED,  // friction
+  FLO_UNUSED,  // viscosity
+  FLO_UNUSED,  // drag
 	sfx_None,    // ambient_sfx
 	sfx_None,    // activate_sfx
 	0,           // music
@@ -609,14 +609,14 @@ static void LinedefFinishEntry(void)
 		}
 	}
 
-	if (buffer_line.friction != (float)M_PI && buffer_line.friction < 0.01)
+  if (buffer_line.friction != FLO_UNUSED && buffer_line.friction < 0.01)
 	{
 		DDF_WarnError("Friction value too low (%1.2f), it would prevent "
 			"all movement.\n", buffer_line.friction);
 		buffer_line.friction = 0.1;
 	}
 
-	if (buffer_line.viscosity != (float)M_PI && buffer_line.viscosity > 0.99)
+  if (buffer_line.viscosity != FLO_UNUSED && buffer_line.viscosity > 0.99)
 	{
 		DDF_WarnError("Viscosity value too high (%1.2f), it would prevent "
 			"all movement.\n", buffer_line.viscosity);

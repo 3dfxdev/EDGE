@@ -56,6 +56,10 @@
 #define FORCE_LOC_ANG   0
 
 
+#define SEG_INVALID  ((seg_t *) -3)
+#define SUB_INVALID  ((subsector_t *) -3)
+
+
 //
 // MAP related Lookup tables.
 // Store VERTEXES, LINEDEFS, SIDEDEFS, etc.
@@ -351,8 +355,8 @@ static void LoadGLSegs(int lump)
     // The following fields are filled out elsewhere:
     //     sub_next, front_sub, back_sub, frontsector, backsector.
 
-    seg->sub_next = (seg_t *) -3;
-    seg->front_sub = seg->back_sub = (subsector_t *) -3;
+    seg->sub_next = SEG_INVALID;
+    seg->front_sub = seg->back_sub = SUB_INVALID;
   }
 
   W_DoneWithLump(data);
@@ -1857,7 +1861,7 @@ void P_SetupLevel(int skill, int autotag)
 
   // Initial height of PointOfView
   // will be set by player think.
-  consoleplayer->viewz = M_PI;
+  consoleplayer->viewz = FLO_UNUSED;
 
   lumpnum = W_GetNumForName(currentmap->lump);
 
