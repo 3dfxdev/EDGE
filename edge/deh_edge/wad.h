@@ -26,7 +26,7 @@ namespace WAD
 	void Printf(const char *str, ...);
 	void FinishLump(void);
 
-	void WriteFile(const char *name);
+	dehret_e WriteFile(const char *name);
 }
 
 }  // Deh_Edge

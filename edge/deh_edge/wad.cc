@@ -26,9 +26,9 @@
 //------------------------------------------------------------------------
 
 #include "i_defs.h"
+#include "dh_plugin.h"
 #include "wad.h"
 
-#include "dh_plugin.h"
 #include "system.h"
 
 
@@ -211,7 +211,7 @@ void WAD::FinishLump(void)
 //
 // WAD::WriteFile
 //
-void WAD::WriteFile(const char *name)
+dehret_e WAD::WriteFile(const char *name)
 {
 	if (cur_lump)
 		InternalError("WAD_WriteFile: lump not finished.\n");
@@ -226,7 +226,8 @@ void WAD::WriteFile(const char *name)
 	{
 		int err_num = errno;
 
-		FatalError("Cannot create output file: %s\n[%s]\n", name, strerror(err_num));
+		SetErrorMsg("Cannot create output file: %s\n[%s]\n", name, strerror(err_num));
+		return DEH_E_NoFile;
 	}
 
 	// Write Header
@@ -272,6 +273,8 @@ void WAD::WriteFile(const char *name)
 
 	// Close File
 	fclose(fp);
+
+	return DEH_OK;
 }
 
 //

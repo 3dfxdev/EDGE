@@ -146,16 +146,25 @@ void Startup(void)
 	all_mode = false;
 }
 
-void AddFile(const char *filename)
+dehret_e AddFile(const char *filename)
 {
 	if (num_inputs >= MAX_INPUTS)
-		FatalError("Too many input files !!\n");
+	{
+		SetErrorMsg("Too many input files !!\n");
+		return DEH_E_BadArgs;
+	}
 
 	if (strlen(ReplaceExtension(filename, NULL)) == 0)
-		FatalError("Illegal input filename: %s\n", filename);
+	{
+		SetErrorMsg("Illegal input filename: %s\n", filename);
+		return DEH_E_BadArgs;
+	}
 
 	if (CheckExtension(filename, "wad") || CheckExtension(filename, "hwa"))
-		FatalError("Input filename cannot be a WAD file.\n");
+	{
+		SetErrorMsg("Input filename cannot be a WAD file.\n");
+		return DEH_E_BadArgs;
+	}
 
 	if (CheckExtension(filename, NULL))
 	{
@@ -167,35 +176,43 @@ void AddFile(const char *filename)
 
 		if (FileExists(bex_name))
 		{
-			input_bufs[num_inputs++] = new input_buffer_c(
-				Buffer::OpenFile(bex_name), FileBaseName(bex_name), false);
-			return;
+			parse_buffer_api *buf = Buffer::OpenFile(bex_name);
+
+			if (! buf) return DEH_E_NoFile;  // normally won't happen
+
+			input_bufs[num_inputs++] = new input_buffer_c(buf,
+				FileBaseName(bex_name), false);
+
+			return DEH_OK;
 		}
 
 		const char *deh_name = ReplaceExtension(filename, "deh");
 
 		if (FileExists(deh_name))
 		{
-			input_bufs[num_inputs++] = new input_buffer_c(
-				Buffer::OpenFile(deh_name), FileBaseName(deh_name), false);
-			return;
+			parse_buffer_api *buf = Buffer::OpenFile(deh_name);
+
+			if (! buf) return DEH_E_NoFile;  // normally won't happen
+
+			input_bufs[num_inputs++] = new input_buffer_c(buf,
+				FileBaseName(deh_name), false);
+
+			return DEH_OK;
 		}
 	}
 
-	input_bufs[num_inputs++] = new input_buffer_c(
-		Buffer::OpenFile(filename), FileBaseName(filename), false);
+	parse_buffer_api *buf = Buffer::OpenFile(filename);
+
+	if (! buf)
+		return DEH_E_NoFile;
+
+	input_bufs[num_inputs++] = new input_buffer_c(buf,
+		FileBaseName(filename), false);
+
+	return DEH_OK;
 }
 
-void AddLump(const char *data, int length, const char *infoname)
-{
-	if (num_inputs >= MAX_INPUTS)
-		FatalError("Too many input lumps !!\n");
-
-	input_bufs[num_inputs++] = new input_buffer_c(
-		Buffer::OpenLump(data, length), infoname, true);
-}
-
-void FreeBuffers(void)
+void FreeInputBuffers(void)
 {
 	for (int j = 0; j < num_inputs; j++)
 	{
@@ -207,8 +224,10 @@ void FreeBuffers(void)
 	}
 }
 
-void Convert(void)
+dehret_e Convert(void)
 {
+	dehret_e result;
+
 	// load DEH patch file(s)
 	for (int j = 0; j < num_inputs; j++)
 	{
@@ -220,10 +239,13 @@ void Convert(void)
 
 		PrintMsg("Loading patch file: %s\n", input_bufs[j]->infoname);
 
-		Patch::Load(input_bufs[j]->buf);
+		result = Patch::Load(input_bufs[j]->buf);
+
+		if (result != DEH_OK)
+			return result;
 	}
 
-	FreeBuffers();
+	FreeInputBuffers();
 
 	ProgressText("Converting DEH");
 	ProgressMajor(70, 80);
@@ -261,10 +283,12 @@ void Convert(void)
 	ProgressText("Writing HWA file");
 	ProgressMajor(80, 100);
 
-	WAD::WriteFile(output_file);
-	PrintMsg("\n");
+	result = WAD::WriteFile(output_file);
 
+	PrintMsg("\n");
 	ProgressMajor(100, 100);
+
+	return result;
 }
 
 void Shutdown(void)
@@ -274,7 +298,7 @@ void Shutdown(void)
 }
 
 
-/* ----- main program ----------------------------- */
+/* ----- option handling ----------------------------- */
 
 #ifndef DEH_EDGE_PLUGIN
 
@@ -294,7 +318,9 @@ void ParseArgs(int argc, char **argv)
 			if (! first_input)
 				first_input = opt;
 
-			AddFile(opt);
+			if (AddFile(opt) != DEH_OK)
+				FatalError("%s", GetErrorMsg());
+
 			continue;
 		}
 
@@ -368,27 +394,41 @@ void ParseArgs(int argc, char **argv)
 
 #endif  // DEH_EDGE_PLUGIN
 
-void ValidateArgs(void)
+dehret_e ValidateArgs(void)
 {
 	if (num_inputs == 0)
-		FatalError("Missing input filename !\n");
+	{
+		SetErrorMsg("Missing input filename !\n");
+		return DEH_E_BadArgs;
+	}
 
 	if (target_version < 123 || target_version >= 300)
-		FatalError("Illegal version number: %d.%02d\n", target_version / 100,
+	{
+		SetErrorMsg("Illegal version number: %d.%02d\n", target_version / 100,
 			target_version % 100);
+		return DEH_E_BadArgs;
+	}
 
 	if (! output_file)
-		FatalError("Missing output filename !\n");
+	{
+		SetErrorMsg("Missing output filename !\n");
+		return DEH_E_BadArgs;
+	}
 
 	if (CheckExtension(output_file, "deh") ||
 	    CheckExtension(output_file, "bex"))
-		FatalError("Output filename cannot be a DEH file.\n");
+	{
+		SetErrorMsg("Output filename cannot be a DEH file.\n");
+		return DEH_E_BadArgs;
+	}
 
 	if (CheckExtension(output_file, NULL))
 	{
 		output_file = StringDup(ReplaceExtension(output_file,
 			(target_version >= 128) ? "hwa" : "wad"));
 	}
+
+	return DEH_OK;
 }
 
 }  // Deh_Edge
@@ -397,40 +437,54 @@ void ValidateArgs(void)
 
 #ifndef DEH_EDGE_PLUGIN
 
+namespace Deh_Edge
+{
+
 int main(int argc, char **argv)
 {
-	Deh_Edge::Startup();
-	Deh_Edge::ShowTitle();
+	Startup();
+	ShowTitle();
 	
 	// skip program name itself
 	argv++, argc--;
 
 	if (argc <= 0)
 	{
-		Deh_Edge::ShowInfo();
-		Deh_Edge::System_Shutdown();
+		ShowInfo();
+		System_Shutdown();
 
-		exit(1);
+		return 1;
 	}
 
-	if (Deh_Edge::StrCaseCmp(argv[0], "/?") == 0 ||
-		Deh_Edge::StrCaseCmp(argv[0], "-h") == 0 ||
-		Deh_Edge::StrCaseCmp(argv[0], "-help") == 0 ||
-		Deh_Edge::StrCaseCmp(argv[0], "--help") == 0)
+	if (StrCaseCmp(argv[0], "/?") == 0 ||
+		StrCaseCmp(argv[0], "-h") == 0 ||
+		StrCaseCmp(argv[0], "-help") == 0 ||
+		StrCaseCmp(argv[0], "--help") == 0)
 	{
-		Deh_Edge::ShowInfo();
-		Deh_Edge::System_Shutdown();
+		ShowInfo();
+		System_Shutdown();
 
-		exit(1);
+		return 1;
 	}
 
-	Deh_Edge::ParseArgs(argc, argv);
-	Deh_Edge::ValidateArgs();
+	ParseArgs(argc, argv);
 
-	Deh_Edge::Convert();
-	Deh_Edge::Shutdown();
+	if (ValidateArgs() != DEH_OK)
+		FatalError("%s", GetErrorMsg());
+
+	if (Convert() != DEH_OK)
+		FatalError("%s", GetErrorMsg());
+
+	Shutdown();
 
 	return 0;
+}
+
+}  // Deh_Edge
+
+int main(int argc, char **argv)
+{
+	return Deh_Edge::main(argc, argv);
 }
 
 #endif  // DEH_EDGE_PLUGIN
@@ -439,19 +493,18 @@ int main(int argc, char **argv)
 
 #ifdef DEH_EDGE_PLUGIN
 
-dehret_e DehEdgeStartup(const dehconvfuncs_t *funcs)
+void DehEdgeStartup(const dehconvfuncs_t *funcs)
 {
 	Deh_Edge::Startup();
 	Deh_Edge::cur_funcs = funcs;
 
-	Deh_Edge::PrintMsg("DeHackEd -> EDGE Conversion Tool V" DEH_EDGE_VERS "\n");
-
-	return DEH_OK;
+	Deh_Edge::PrintMsg("*** DeHackEd -> EDGE Conversion Tool V%s ***\n",
+		DEH_EDGE_VERS);
 }
 
 const char *DehEdgeGetError(void)
 {
-	return "(Unknown Error)"; //!!!! FIXME
+	return Deh_Edge::GetErrorMsg();
 }
 
 dehret_e DehEdgeSetVersion(int version)
@@ -470,38 +523,43 @@ dehret_e DehEdgeSetQuiet(int quiet)
 
 dehret_e DehEdgeAddFile(const char *filename)
 {
-	// FIXME: if not exists, return DEH_E_XXX
-	Deh_Edge::AddFile(filename);
-
-	return DEH_OK;
+	return Deh_Edge::AddFile(filename);
 }
 
 dehret_e DehEdgeAddLump(const char *data, int length, const char *infoname)
 {
-	Deh_Edge::AddLump(data, length, infoname);
+	if (Deh_Edge::num_inputs >= MAX_INPUTS)
+	{
+		Deh_Edge::SetErrorMsg("Too many input lumps !!\n");
+		return DEH_E_BadArgs;
+	}
+
+	Deh_Edge::input_bufs[Deh_Edge::num_inputs++] =
+		new Deh_Edge::input_buffer_c(
+			Deh_Edge::Buffer::OpenLump(data, length), infoname, true);
 
 	return DEH_OK;
 }
 
 dehret_e DehEdgeRunConversion(const char *out_name)
 {
-	// if (! out_name)
-	//	return DEH_E_BadArgs;
+	if (! out_name)
+		Deh_Edge::FatalError("RunConversion: missing output name.\n");
 
 	Deh_Edge::output_file = out_name;
 
-	Deh_Edge::ValidateArgs();
-	Deh_Edge::Convert();
+	dehret_e result = Deh_Edge::ValidateArgs();
 
-	return DEH_OK;
+	if (result != DEH_OK)
+		return result;
+
+	return Deh_Edge::Convert();
 }
 
-dehret_e DehEdgeShutdown(void)
+void DehEdgeShutdown(void)
 {
 	Deh_Edge::Shutdown();
 	Deh_Edge::cur_funcs = NULL;
-
-	return DEH_OK;
 }
 
 #endif  // DEH_EDGE_PLUGIN

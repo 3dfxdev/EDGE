@@ -48,6 +48,9 @@ bool disable_progress = false;
 
 char message_buf[1024];
 
+char global_error_buf[1024];
+bool has_error_msg = false;
+
 #if (DEBUG_ENABLED)
 FILE *debug_fp = NULL;
 #endif
@@ -104,6 +107,8 @@ void Endian_Startup(void);
 //
 void System_Startup(void)
 {
+	has_error_msg = false;
+
 	if (! cur_funcs)
 	{
 		setbuf(stdout, NULL);
@@ -246,6 +251,30 @@ void InternalError(const char *str, ...)
 
 	exit(5);
 }
+
+void SetErrorMsg(const char *str, ...)
+{
+	va_list args;
+
+	va_start(args, str);
+	vsprintf(global_error_buf, str, args);
+	va_end(args);
+
+	has_error_msg = true;
+}
+
+const char *GetErrorMsg(void)
+{
+	if (! has_error_msg)
+		return "";
+	
+	has_error_msg = false;
+
+	return global_error_buf;
+}
+
+
+/* --------- progress handling -------------------------------- */
 
 //
 // ProgressMajor

@@ -26,12 +26,13 @@
 //------------------------------------------------------------------------
 
 #include "i_defs.h"
+
 #include "buffer.h"
+#include "dh_plugin.h"
 #include "patch.h"
 
 #include "ammo.h"
 #include "convert.h"
-#include "dh_plugin.h"
 #include "frames.h"
 #include "info.h"
 #include "misc.h"
@@ -517,15 +518,18 @@ namespace Patch
 		TextStr::ReplaceBinaryString(tx_num, text_buf);
 	}
 
-	void LoadReallyOld(void)
+	dehret_e LoadReallyOld(void)
 	{
 		char tempfmt = 0;
 
 		pat_buf->read(&tempfmt, 1);
 
 		if (tempfmt < 1 || tempfmt > 2)
-			FatalError("Bad format byte in DeHackEd patch file.\n"
+		{
+			SetErrorMsg("Bad format byte in DeHackEd patch file.\n"
 				"[Really old patch, format byte %d]\n", tempfmt);
+			return DEH_E_ParseError;
+		}
 
 		patch_fmt = (int)tempfmt;
 		doom_ver = 12;
@@ -555,9 +559,11 @@ namespace Patch
 			for (j = 0; j < FRAMES_1_2; j++)
 				ReadBinaryFrame(frame12to166[j]);
 		}
+
+		return DEH_OK;
 	}
 
-	void LoadBinary(void)
+	dehret_e LoadBinary(void)
 	{
 		char tempdoom = 0;
 		char tempfmt  = 0;
@@ -566,16 +572,25 @@ namespace Patch
 		pat_buf->read(&tempfmt,  1);
 
 		if (tempfmt == 3)
-			FatalError("Doom 1.6 beta patches are not supported.\n");
+		{
+			SetErrorMsg("Doom 1.6 beta patches are not supported.\n");
+			return DEH_E_ParseError;
+		}
 		else if (tempfmt != 4)
-			FatalError("Bad format byte in DeHackEd patch file.\n"
+		{
+			SetErrorMsg("Bad format byte in DeHackEd patch file.\n"
 				"[Binary patch, format byte %d]\n", tempfmt);
+			return DEH_E_ParseError;
+		}
 
 		patch_fmt = 4;
 
 		if (tempdoom != 12 && ! (tempdoom >= 16 && tempdoom <= 21))
-			FatalError("Bad Doom release number in patch file !\n"
+		{
+			SetErrorMsg("Bad Doom release number in patch file !\n"
 				"[Binary patch, release number %d]\n", tempdoom);
+			return DEH_E_ParseError;
+		}
 
 		doom_ver = (int)tempdoom;
 
@@ -658,6 +673,8 @@ namespace Patch
 			for (j = 1; j <= TEXTS_1_6; j++)
 				ReadBinaryText(j);
 		}
+
+		return DEH_OK;
 	}
 
 	//------------------------------------------------------------------------
@@ -1106,7 +1123,7 @@ namespace Patch
 		}
 	}
 
-	void LoadDiff(void)
+	dehret_e LoadDiff(void)
 	{
 		DetectMsg("text-based");
 
@@ -1133,45 +1150,64 @@ namespace Patch
 			if (StrCaseCmpPartial(line_buf, "Doom version") == 0)
 			{
 				if (! equal_pos)
-					FatalError("Badly formed directive !\nLine %d: %s\n",
+				{
+					SetErrorMsg("Badly formed directive !\nLine %d: %s\n",
 						line_num, line_buf);
+					return DEH_E_ParseError;
+				}
 
 				doom_ver = (int)strtol(equal_pos+1, NULL, 10);
 
 				if (! (doom_ver == 12 ||
 					  (doom_ver >= 16 && doom_ver <= 21)))
 				{
-					FatalError("Unknown doom version found: V%d.%d\n",
+					SetErrorMsg("Unknown doom version found: V%d.%d\n",
 						doom_ver / 10, (doom_ver+1000) % 10);
+					return DEH_E_ParseError;
 				}
 
 				// I don't think the DeHackEd code supports this correctly
 				if (doom_ver == 12)
-					FatalError("Text patches for DOOM V1.2 are not supported.\n");
+				{
+					SetErrorMsg("Text patches for DOOM V1.2 are not supported.\n");
+					return DEH_E_ParseError;
+				}
 			}
 
 			if (StrCaseCmpPartial(line_buf, "Patch format") == 0)
 			{
 				if (got_info)
-					FatalError("Patch format is specified twice.\n");
+				{
+					SetErrorMsg("Patch format is specified twice.\n");
+					return DEH_E_ParseError;
+				}
 
 				got_info = true;
 
 				if (! equal_pos)
-					FatalError("Badly formed directive !\nLine %d: %s\n",
+				{
+					SetErrorMsg("Badly formed directive !\nLine %d: %s\n",
 						line_num, line_buf);
+					return DEH_E_ParseError;
+				}
 
 				patch_fmt = (int)strtol(equal_pos+1, NULL, 10);
 
 				if (patch_fmt < 5 || patch_fmt > 6)
-					FatalError("Unknown dehacked patch format found: %d\n",
+				{
+					SetErrorMsg("Unknown dehacked patch format found: %d\n",
 						patch_fmt);
+					return DEH_E_ParseError;
+				}
 
 				VersionMsg();
 			}
 
 			if (StrCaseCmpPartial(line_buf, "include") == 0)
-				FatalError("BEX INCLUDE directive is not supported.\n");
+			{
+				SetErrorMsg("BEX INCLUDE directive is not supported.\n");
+				return DEH_E_ParseError;
+			}
 
 			if (StrCaseCmpPartial(line_buf, "Text") == 0 &&
 				isspace(line_buf[4]))
@@ -1198,9 +1234,11 @@ namespace Patch
 				ProcessLine();
 			}
 		}
+
+		return DEH_OK;
 	}
 
-	void LoadNormal(void)
+	dehret_e LoadNormal(void)
 	{
 		char idstr[30];
 
@@ -1209,33 +1247,44 @@ namespace Patch
 		pat_buf->read(idstr, 24);
 
 		if (StrCaseCmp(idstr, "atch File for DeHackEd v") != 0)
-			FatalError("File is not a DeHackEd patch file !\n");
+		{
+			SetErrorMsg("File is not a DeHackEd patch file !\n");
+			return DEH_E_ParseError;
+		}
 
 		memset(idstr, 0, 4);
 
 		pat_buf->read(idstr, 3);
 
 		if (! isdigit(idstr[0]) || idstr[1] != '.' || ! isdigit(idstr[2]))
-			FatalError("Bad version string in DeHackEd patch file.\n"
+		{
+			SetErrorMsg("Bad version string in DeHackEd patch file.\n"
 				"[String %s is not digit . digit]\n", idstr);
+			return DEH_E_ParseError;
+		}
 
 		dhe_ver = (idstr[0] - '0') * 10 + (idstr[2] - '0');
 
 		if (dhe_ver < 20 || dhe_ver > 31)
-			FatalError("This patch file has an incorrect version number !\n"
-				"[Version %s]\n", idstr); 
+		{
+			SetErrorMsg("This patch file has an incorrect version number !\n"
+				"[Version %s]\n", idstr);
+			return DEH_E_ParseError;
+		}
 
 		if (dhe_ver < 23)
-			LoadBinary();
+			return LoadBinary();
 		else
-			LoadDiff();
+			return LoadDiff();
 	}
 }
 
-void Patch::Load(parse_buffer_api *buf)
+dehret_e Patch::Load(parse_buffer_api *buf)
 {
 	pat_buf = buf;
 	assert(pat_buf);
+
+	dehret_e result = DEH_OK;
 
 	file_error = false;
 
@@ -1244,14 +1293,19 @@ void Patch::Load(parse_buffer_api *buf)
 	pat_buf->read(&tempver, 1);
 
 	if (tempver == 12)
-		LoadReallyOld();
+		result = LoadReallyOld();
 	else if (tempver == 'P')
-		LoadNormal();
+		result = LoadNormal();
 	else	
-		FatalError("File is not a DeHackEd patch file !\n");
+	{
+		SetErrorMsg("File is not a DeHackEd patch file !\n");
+		result = DEH_E_ParseError;
+	}
 
 	PrintMsg("\n");
 	pat_buf = NULL;
+
+	return result;
 }
 
 }  // Deh_Edge

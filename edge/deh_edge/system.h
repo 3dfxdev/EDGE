@@ -36,6 +36,10 @@ void PrintWarn(const char *str, ...);
 void FatalError(const char *str, ...);
 void InternalError(const char *str, ...);
 
+// error message storage and retrieval
+void SetErrorMsg(const char *str, ...);
+const char *GetErrorMsg(void);
+
 // progress functions
 void ProgressMajor(int low_perc, int high_perc);
 void ProgressMinor(int count, int limit);

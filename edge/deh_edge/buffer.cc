@@ -117,9 +117,8 @@ parse_buffer_api *OpenFile(const char *filename)
 	if (fp == NULL)
 	{
 		int err_num = errno;
-		FatalError("Could not open file: %s\n[%s]\n", filename, strerror(err_num));
-
-		return NULL; /* NOT REACHED */
+		SetErrorMsg("Could not open file: %s\n[%s]\n", filename, strerror(err_num));
+		return NULL;
 	}
 
 	int length;
@@ -131,10 +130,11 @@ parse_buffer_api *OpenFile(const char *filename)
 
 	if (length < 0)
 	{
-		int err_num = errno;
-		FatalError("Couldn't get file size: %s\n[%s]\n", filename, strerror(err_num));
+		fclose(fp);
 
-		return NULL; /* NOT REACHED */
+		int err_num = errno;
+		SetErrorMsg("Couldn't get file size: %s\n[%s]\n", filename, strerror(err_num));
+		return NULL;
 	}
 
 	char *f_data = new char[length + 1];

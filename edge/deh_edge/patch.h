@@ -24,7 +24,7 @@ namespace Patch
 	extern int active_obj;
 	extern int patch_fmt;
 
-	void Load(parse_buffer_api *buf);
+	dehret_e Load(parse_buffer_api *buf);
 }
 
 }  // Deh_Edge
