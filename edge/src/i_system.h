@@ -385,6 +385,11 @@ void I_NetCmd(void);
 // Send or receive a network command packet.  Not currently used (but
 // must be defined).
 
+const char * I_LocalIPAddrString(const char *eth_name);
+// LINUX ONLY: determine IP address from an ethernet adaptor.
+// The given string is "eth0" or "eth1".  Returns NULL if something
+// went wrong.
+
 
 //--------------------------------------------------------
 //  VIDEO functions.
