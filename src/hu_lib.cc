@@ -75,7 +75,15 @@ int HL_CharWidth(const H_font_t *font, char ch)
 	if (! HL_CharExists(font, ch))
 		return DUMMY_WIDTH(font);
 
-	return IM_WIDTH(font->images[HU_INDEX(ch) - font->first_ch]);
+	int w = IM_WIDTH(font->images[HU_INDEX(ch) - font->first_ch]);
+
+	// -AJA- make text look nicer on low resolutions
+	if (SCREENWIDTH < 620 && SCREENWIDTH > 320)
+	{
+		w = (w * 320 + SCREENWIDTH - 64) / SCREENWIDTH;
+	}
+
+	return w;
 }
 
 //
@@ -155,6 +163,17 @@ static void HL_WriteChar(int x, int y, const H_font_t *font, char ch,
 	DEV_ASSERT2(HL_CharExists(font, ch));
 
 	const image_t *image = font->images[HU_INDEX(ch) - font->first_ch];
+
+	// -AJA- make text look nicer on low resolutions
+	if (SCREENWIDTH < 620)
+	{
+		vctx.DrawImage(FROM_320(x) - image->offset_x, 
+			FROM_200(y) - image->offset_y,
+			IM_WIDTH(image), IM_HEIGHT(image), image,
+			0.0f, 0.0f, IM_RIGHT(image), IM_BOTTOM(image), colmap,
+			M_FixedToFloat(alpha));
+		return;
+	}
 
 	vctx.DrawImage(FROM_320(x - image->offset_x), 
 		FROM_200(y - image->offset_y),
