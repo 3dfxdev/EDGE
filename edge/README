@@ -7,7 +7,7 @@ Welcome to EDGE, the Enhanced Doom Gaming Engine.
 Archive listing:
   * edge32.exe        - Windows Executable, software rendering
   * gledge32.exe      - Windows Executable, OpenGL rendering
-  * upgrader.exe      - Windows Executable, upgrade utility
+  * upgrader.exe      - Upgrade utility
   * edge.wad          - EDGE WAD Information
   * edge-ddf.zip      - EDGE DDF files (not required to play)
   * readme.1st        - Guess what you reading?
@@ -71,24 +71,24 @@ Notable EDGE features:
 Important changes:
   - On multi-user systems (newer versions of Windows, and Linux)
     the location for the config file (EDGE.CFG) and savegames has
-	moved, and is user-specific.  This allows multiple users to have
-	their own configuration and savegames.
+    moved, and is user-specific.  This allows multiple users to have
+    their own configuration and savegames.
 
-	To allow easy upgrading, we have included a tool along with the
-	EDGE binaries: UPGRADER.EXE.  You must run this first, before
-	running EDGE -- it will either move the files to the new place,
-	or spit out a message saying 'Nothing to do'.
-	
-	On Linux, the new location is the ~/.edge directory.  You can
-	either download, compile and run the Upgrader tool, or manually
-	move the edge.cfg file and savegames directory there.
+    To allow easy upgrading, we have included a tool along with the
+    EDGE binaries: UPGRADER.EXE.  You must run this first, before
+    running EDGE -- it will either move the files to the new place,
+    or spit out a message saying 'Nothing to do'.
+    
+    On Linux, the new location is the ~/.edge directory.  You can
+    either download, compile and run the Upgrader tool, or manually
+    move the edge.cfg file and savegames directory there.
 
   - Support for playing MP3 music has been removed, since the
     licensing is not compatible with Open Source software.  The
     next version of EDGE will support OGG Vorbis, a free format
-	which sounds just as good but has no licensing fees.
+    which sounds just as good but has no licensing fees.
 
-	
+    
 Bugs fixed in 1.28:
   + serious crash bug loading textures from PWads fixed.
   + savegame problem which could cause crashes fixed.
@@ -113,7 +113,7 @@ General improvements in 1.28:
                                                                                             
   + full Mlook range in GL mode.
                                                                                             
-  + better sky drawing in GL: fake skybox copes with Mlook, never
+  + better sky drawing in GL: the fake skybox copes with Mlook, never
     wobbles anymore, and is drawn a lot faster than before.
                                                                                             
   + windows version prevents more than one instance of EDGE running at
@@ -144,7 +144,7 @@ New features in 1.28:
   - RESISTANCE_CLASS for DDF.  Used the same way as IMMUNITY_CLASS, but the
     monster only suffers 40% of the original damage.
 
-  - TIP_GRAPHIC supports scaling via fourth parameter, which is a value
+  - TIP_GRAPHIC supports scaling via the fourth parameter, which is a value
     like 0.5, 1.0, 2.0.  For example:
 
       TIP_GRAPHIC  M_PAUSE  3  false  0.5
@@ -175,7 +175,7 @@ Known Issues:
     bucket-load of warnings when starting up.  These warnings are
     mostly about DDF features that have been removed or changed.
     Hence some older stuff will not work 100%.  Use the -nowarn
-	option to turn off these warnings.
+    option to turn off these warnings.
  
   - Some sprites are designed to look sunk into the floor, typically
     corpses, and can look like they are "floating" in EDGE.  This is a
@@ -196,9 +196,9 @@ Known Issues:
   - Some graphics can be more blurred than they should be in GLEDGE,
     such as the title screens and the status bar background.
 
-	This happens because many 3D cards (e.g. Voodoo 3) have a texture
-	size limitation of 256x256 pixels, but some DOOM graphics are 320
-	pixels wide -- because they don't fit, GLEDGE has to squash them.
+    This happens because many 3D cards (e.g. Voodoo 3) have a texture
+    size limitation of 256x256 pixels, but some DOOM graphics are 320
+    pixels wide -- because they don't fit, GLEDGE has to squash them.
  
   - The console has very limited functionality.
  
@@ -215,7 +215,7 @@ Troubleshooting:
 
   - Post the EDGE.LOG file which EDGE creates along with your bug
     report, as this contains lots of useful information to help
-	us track down the problem.
+    us track down the problem.
 
   For Windows:
     - Ensure you are running with virtual memory ENABLED.  This will
@@ -264,16 +264,16 @@ Contact points:
 
 Compiling EDGE:
   For Windows:
-  	- use the IDE project files: EDGE.VCPROJ for Microsoft Visual
-	  Studio, or EDGE.DEV for Dev C++ (a free C/C++ IDE).
+      - use the IDE project files: EDGE.VCPROJ for Microsoft Visual
+      Studio, or EDGE.DEV for Dev C++ (a free C/C++ IDE).
 
   For Linux:
     - just type 'make' in the top-level dir.  This will create gledge.
-	  edit the Makefile in order to create the S/W version.
+      edit the Makefile in order to create the S/W version.
 
   For MacOS X:
     - type 'make -f Makefile.osx' in the top-level dir.
-	  NOTE: MacOS X support is broken right now (
+      NOTE: MacOS X support is broken right now (
 
 
 Command line options:
@@ -404,6 +404,7 @@ Console commands:
   * The SET command can be used with no options, which displays all
     known variables (and their values), or just the cvar name, which
     displays the value of that variable.
+
 
 --- END OF README.1ST ---
 
