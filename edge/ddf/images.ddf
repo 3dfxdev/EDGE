@@ -23,18 +23,32 @@
 
 <IMAGES>
 
+[DLIGHT_QUAD]
+IMAGE_DATA = BUILTIN:QUADRATIC;
+SPECIAL=CLAMP_X,CLAMP_Y;
+
+[DLIGHT_LINEAR]
+IMAGE_DATA = BUILTIN:LINEAR;
+SPECIAL=CLAMP_X,CLAMP_Y;
+
+[SHADOW_PLAIN]
+IMAGE_DATA = BUILTIN:SHADOW;
+SPECIAL=CLAMP_X,CLAMP_Y;
+
+
+{
 [DARKROCK]  // image name, found for texture/flat/graphic lookup
 
 SPECIALISE(sprite) = USE_NORMAL;
 
-SOURCE = WAD_TEX:"DARKROCK";
+IMAGE_DATA = WAD_TEX:"DARKROCK";
 
 // possible types:
 //    WAD_FLAT, WAD_TEX, WAD_GFX,
 //    WAD_SPRITE, WAD_PLSKIN, WAD_TEXPATCH,
 //    (GFX is anything not a sprite, player-skin or tex-patch)
 //
-//    PACKAGE:/doom/tex/foo.png
+//    EPK:tex/foo.png
 //
 //    FILE:"C:\FOO\BAR.JPEG"
 //
@@ -103,3 +117,4 @@ DLIGHT.XXXX = YYYY;
 
 AMBIENT_SOUND = BLAH;
 
+}

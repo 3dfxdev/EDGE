@@ -109,7 +109,6 @@ YOU.AIR = IMAGE_RANGE(AIRBAR01, AIRBAR20, 0, 0), ZERO_HIDE;
 WIDTH = 0;
 HEIGHT = 0;
 
-
 [OVERLAY]
 WIDTH = 200;
 HEIGHT = 32;
@@ -118,10 +117,10 @@ HEIGHT = 32;
 
 [AUTOMAP]        // have ones for the automap (when you press TAB).
 USAGE = AUTOMAP; // can have multiple of them as well (+/- toggles).
-                 // omit it to disable Tabbing.
+...              // omit it to disable Tabbing.
 
 
 [RTS_1]       // maybe have "rts" ones: only usable by RTS scripts.
 USAGE = RTS;  // These huds would be _additional_ to current one.
-              // E.g. ENABLE_HUD RTS_1
+...           // E.g. ENABLE_HUD RTS_1
 
