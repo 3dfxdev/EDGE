@@ -77,7 +77,7 @@ int conwipeduration = 10;
 
 // the console's screen
 screen_t *conscreen;
-char consolebackg[9] = "FWATER1";
+char consolebackg[9] = "CONSOLE";
 static const image_t *console_bg_image = NULL;
 
 // the console background. Used to clear conscreen.
