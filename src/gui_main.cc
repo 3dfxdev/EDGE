@@ -111,7 +111,6 @@ bool GUI_Responder(gui_t ** gui, guievent_t * e)
 	gui_t *g = *gui;
 	guievent_t event = *e;
 	bool eat;
-	const visible_t *v;
 
 	switch (event.type)
 	{
@@ -139,11 +138,11 @@ bool GUI_Responder(gui_t ** gui, guievent_t * e)
 		case gev_keydown:
 			if (event.data1 == KEYD_TILDE)
 			{
-				CON_GetCVar("constate", (const void **)&v);
-				CON_SetVisible((visible_t)(((*v) + 1) % NUMVIS));
+				CON_SetVisible(vs_toggle);
 				return true;
 			}
 			break;
+
 		default:
 			break;
 	}

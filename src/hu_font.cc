@@ -293,17 +293,20 @@ int font_c::StringLines(const char *str) const
 //
 // font_c::DrawChar
 //
-void font_c::DrawChar(float x, float y, char ch,
+void font_c::DrawChar(float x, float y, char ch, float scale, float aspect,
     const colourmap_c *colmap, float alpha) const
 {
 	const image_t *image = CharImage(ch);
 
 	if (! image)
 		return;
+	
+	float sc_x = scale * aspect;
+	float sc_y = scale;
 
 	RGL_DrawImage(
-	    FROM_320(x - IM_OFFSETX(image)), FROM_200(y - IM_OFFSETY(image)),
-		FROM_320(IM_WIDTH(image)),       FROM_200(IM_HEIGHT(image)),
+	    FROM_320(x - IM_OFFSETX(image) * sc_x), FROM_200(y - IM_OFFSETY(image) * sc_y),
+		FROM_320(IM_WIDTH(image)) * sc_x,       FROM_200(IM_HEIGHT(image)) * sc_y,
 		image, 0.0f, 0.0f, IM_RIGHT(image), IM_BOTTOM(image), colmap, alpha);
 }
 

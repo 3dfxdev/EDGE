@@ -57,10 +57,10 @@ void HL_Init(void)
 // Write a string using the hu_font and index translator.
 //
 void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
-	const colourmap_c *colmap, const char *str)
+	const colourmap_c *colmap, const char *str, float scale)
 {
-	int cx = x;
-	int cy = y;
+	float cx = x;
+	float cy = y;
 
 	font_c *font = style->fonts[text_type];
 
@@ -74,18 +74,16 @@ void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
 		if (ch == '\n')
 		{
 			cx = x;
-			cy += 12;
+			cy += 12.0f * scale;  // FIXME: use font's height
 			continue;
 		}
 
-		if (cx >= 320)
+		if (cx >= 320.0f)
 			continue;
 
-		int w = font->CharWidth(ch);
+		font->DrawChar(cx, cy, ch, scale,1.0f, colmap, 1.0f);
 
-		font->DrawChar(cx, cy, ch, colmap, 1.0f);
-
-		cx += w;
+		cx += font->CharWidth(ch) * scale;
 	}
 }
 
@@ -94,9 +92,9 @@ void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
 //
 // Write a string using the hu_font.
 //
-void HL_WriteText(style_c *style, int text_type, int x, int y, const char *str)
+void HL_WriteText(style_c *style, int text_type, int x, int y, const char *str, float scale)
 {
-	HL_WriteTextTrans(style, text_type, x, y, style->def->text[text_type].colmap, str);
+	HL_WriteTextTrans(style, text_type, x, y, style->def->text[text_type].colmap, str, scale);
 }
 
 //----------------------------------------------------------------------------
@@ -174,6 +172,8 @@ void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c 
 		x -= font->StringWidth(L->ch) / 2;
 	}
 
+	float scale = 1.0f;
+
 	for (i = 0; (i < L->len) && (x < 320); i++, x += w)
 	{
 		char ch = L->ch[i];
@@ -183,7 +183,7 @@ void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c 
 		if (x < -w)
 			continue;
 
-		font->DrawChar(x, y, ch, colmap, alpha);
+		font->DrawChar(x, y, ch, scale,1.0f, colmap, alpha);
 	}
 
 	// draw the cursor if requested
@@ -191,7 +191,7 @@ void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c 
 	{
 		if (drawcursor && x < 320)
 		{
-			font->DrawChar(x, y, '_', colmap, alpha);
+			font->DrawChar(x, y, '_', scale,1.0f, colmap, alpha);
 		}
 	}
 }

@@ -70,7 +70,9 @@ void style_c::Load()
 //
 // style_c::DrawBackground
 //
-void style_c::DrawBackground(int x, int y, int w, int h)
+// !!! FIXME: align -- temp fix for console.
+//
+void style_c::DrawBackground(int x, int y, int w, int h, int align)
 {
 	if (w == 0)
 		x = 0, w = SCREENWIDTH;
@@ -101,16 +103,18 @@ void style_c::DrawBackground(int x, int y, int w, int h)
 		x_scale *= (float)SCREENWIDTH  / 320.0f;
 		y_scale *= (float)SCREENHEIGHT / 200.0f;
 
-		RGL_DrawImage(x, y, w, h, bg_image, 0.0f, 0.0f,
+		RGL_DrawImage(x, y, w, h, bg_image,
+				0.0f, align ? (1.0f - bottom * h / IM_HEIGHT(bg_image) / y_scale) : 0.0f,
 				right  * w / IM_WIDTH(bg_image)  / x_scale,
-				bottom * h / IM_HEIGHT(bg_image) / y_scale,
+				align ? 1.0f : (bottom * h / IM_HEIGHT(bg_image) / y_scale),
 				NULL, alpha);
 	}
 	else if (def->special & SYLSP_TiledNoScale)
 	{
-		RGL_DrawImage(x, y, w, h, bg_image, 0.0f, 0.0f,
+		RGL_DrawImage(x, y, w, h, bg_image,
+				0.0f, align ? (1.0f - bottom * h / IM_HEIGHT(bg_image)) : 0.0f,
 				right  * w / IM_WIDTH(bg_image),
-				bottom * h / IM_HEIGHT(bg_image),
+				align ? 1.0f : (bottom * h / IM_HEIGHT(bg_image)),
 				NULL, alpha);
 	}
 	else
