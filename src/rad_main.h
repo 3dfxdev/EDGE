@@ -131,10 +131,11 @@ typedef struct
 s_gotomap_t;
 
 
-//PlaySound Function <SOUNDNO> {<x> <y>}
+// Play Sound function
 typedef struct s_sound_s
 {
-  mobj_t mo;  // Sound Location
+  // sound location.  z can be ONFLOORZ.
+  float_t x, y, z;
 
   sfx_t *soundid;
 }
@@ -316,7 +317,7 @@ typedef struct rad_script_s
   float_t y;
   float_t z1;
   float_t z2;
-  float_t z_mid;
+  float_t z_mid;   // M_PI when no Z range
 
   // Script name (or NULL)
   char *script_name;
@@ -380,6 +381,9 @@ typedef struct rad_trigger_s
   // current state info
   rts_state_t *state;
   int wait_tics;
+
+  // origin for any sounds played by the trigger
+  degenmobj_t soundorg;
 }
 rad_trigger_t;
 
