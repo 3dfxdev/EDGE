@@ -287,7 +287,11 @@ mobj_t *P_MapTargetTheory(mobj_t * source);
 
 float_t P_AimLineAttack(mobj_t * t1, angle_t angle, float_t distance);
 void P_UpdateMultipleFloors(sector_t * sector);
-boolean_t P_ChangeSector(sector_t * sector, boolean_t crunch);
+boolean_t P_CheckSolidSectorMove(sector_t *sec, boolean_t is_ceiling,
+        float_t dh);
+boolean_t P_SolidSectorMove(sector_t *sec, boolean_t is_ceiling,
+        float_t dh, boolean_t crush, boolean_t nocarething);
+void P_ChangeThingSize(mobj_t *mo);
 boolean_t P_CheckAbsPosition(mobj_t * thing, float_t x, float_t y, float_t z);
 boolean_t P_CheckSight(mobj_t * src, mobj_t * dest);
 boolean_t P_CheckSightApproxVert(mobj_t * src, mobj_t * dest);
