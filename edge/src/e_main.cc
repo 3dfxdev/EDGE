@@ -1167,7 +1167,7 @@ static void CheckExternal(void)
 //
 // Adds an IWAD and EDGE.WAD. -ES-  2000/01/01 Rewritten.
 //
-const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", NULL };
+const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "freedoom", NULL };
 
 static void IdentifyVersion(void)
 {
