@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE Specials Lines & Floor Code
+//  EDGE Specials Lines, Elevator & Floor Code
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2000  The EDGE Team.
@@ -23,9 +23,9 @@
 //
 //----------------------------------------------------------------------------
 //
-// -KM- 1998/09/01 Lines.ddf
-//
+// -KM-  1998/09/01 Lines.ddf
 // -ACB- 1998/09/13 Cleaned Up.
+// -ACB- 2001/01/14 Added Elevator Types
 //
 
 #ifndef __P_SPEC__
@@ -157,6 +157,37 @@ typedef struct slider_move_s
 }
 slider_move_t;
 
+typedef struct elev_move_s
+{
+  const elevator_sector_t *type;
+  sector_t *sector;
+
+  float_t startheight;
+  float_t destheight;
+  float_t speed;
+  boolean_t crush;
+
+  // 1 = up, 0 = waiting at top, -1 = down
+  int direction;
+  int olddirection;
+
+  int tag;
+
+  // tics to wait when fully open
+  int waited;
+
+  boolean_t sfxstarted;
+  boolean_t completed;
+
+  int newspecial;
+
+  const image_t *new_ceiling_image;
+  const image_t *new_floor_image;
+
+  struct elev_move_s *next, *prev;
+}
+elev_move_t;
+
 // End-level timer (-TIMER option)
 extern boolean_t levelTimer;
 extern int levelTimeCount;
@@ -224,9 +255,11 @@ boolean_t EV_DoDonut(sector_t * s1, sfx_t * sfx[4]);
 boolean_t EV_Teleport(line_t * line, int tag, int side, mobj_t * thing, 
     int delay, int special, const mobjinfo_t * ineffectobj,
     const mobjinfo_t * outeffectobj);
-boolean_t EV_Manual(line_t * line, mobj_t * thing, const moving_plane_t * type);
+boolean_t EV_ManualPlane(line_t * line, mobj_t * thing, const moving_plane_t * type);
+boolean_t EV_ManualElevator(line_t * line, mobj_t * thing, const elevator_sector_t * type);
 boolean_t EV_Slider(line_t * line, mobj_t * thing, const sliding_door_t * s);
 boolean_t EV_DoSector(sector_t * sec, const moving_plane_t * type, sector_t * model);
+boolean_t EV_DoElevator(sector_t * sec, const elevator_sector_t * type, sector_t * model);
 
 //
 //  P_SWITCH
