@@ -240,8 +240,8 @@ Troubleshooting:
     don't tell us about a bug, we can't deal with it.
 
   - Post the EDGE.LOG file which EDGE creates along with your bug
-    report, as this contains lots of useful information to help
-    us track down the problem.
+    report, as this contains lots of useful information to help us
+    track down the problem.
 
   For Windows:
     - Ensure you are running with virtual memory ENABLED.  This will
@@ -256,13 +256,13 @@ Troubleshooting:
          C:\program files\directx\setup\
          C:\winnt\system32
 
-    - For GLEDGE to work, you need a 3D card *plus* OpenGL drivers
-      for it on your computer.  A really low framerate usually
-      indicates that the *software* GL driver is being used (not what
-      we want, of course ;).  Go to the website of your card's
+    - For EDGE to work, you need a 3D card *plus* OpenGL drivers for
+      it installed on your computer.  A really low framerate (1 FPS)
+	  usually means that the *software* GL driver is being used (not
+	  what we want, of course ;).  Go to the website of your card's
       manufacturer and look for a recent 3D driver.  Another place to
       look is on Microsoft's site.  Basically, if Quake 3 (or some
-      other OpenGL game) works, then GLEDGE should work too.
+      other OpenGL game) works, then EDGE should work too.
 
     - SHOULD YOU HAVE ANY PROBLEMS WITH GRAPHICAL PROBLEMS OR WITH
 	  THE ENGINE LOCKING UP PLEASE ENSURE YOU HAVE THE LATEST VIDEO
@@ -272,17 +272,18 @@ Troubleshooting:
       latest drivers since some older drivers (circa 2001) have been 
       known to cause a lockup during startup.
 
+	  Voodoo3 is known to have problems, since the only OpenGL
+	  drivers that exist for it are very old and buggy.
+
   For Linux:
     - SDL 1.2 can be found at http://www.libsdl.org/.
 
-???    - 3D support under linux is still a developing thang, e.g. there
-???      is no support for DRI (Direct Rendering Infrastructure) in
-???      some distributions yet (notably Debian 2.2), as it requires
-???      XFree86 4.0.
-???      
-???      Also required is a recent kernel (> 2.2.18 or > 2.4.0).  A good
-???      guide to whether accelerated 3D is working is to run `glxinfo'
-???      in an xterm, and see if it says "direct rendering: Yes".
+    - You can check whether hardware 3D rendering is available by
+	  running the 'glxinfo' program in an xterm, and look for the line
+	  that says "direct rendering: Yes".
+
+  For MacOS X:
+    - An OpenAL installer can be found here: @@@@ TODO
 
 
 Contact points:
