@@ -33,6 +33,7 @@
 #include "dh_embed.h"
 #include "frames.h"
 #include "info.h"
+#include "misc.h"
 #include "patch.h"
 #include "rscript.h"
 #include "sounds.h"
@@ -123,7 +124,12 @@ void Startup(void)
 {
 	System_Startup();
 
+	Ammo::Startup();
 	Frames::Startup();
+	Misc::Startup();
+	Rscript::Startup();
+	Sounds::Startup();
+	TextStr::Startup();
 	Things::Startup();
 	Weapons::Startup();
 
@@ -223,7 +229,6 @@ void Convert(void)
 	ProgressMajor(70, 80);
 
 	Storage::ApplyAll();
-	ProgressMinor(1, 6);
 
 	// do conversions into DDF...
 	PrintMsg("Converting data into EDGE %d.%02d DDF...\n",
@@ -232,20 +237,22 @@ void Convert(void)
 	TextStr::SpriteDependencies();
 	Frames::StateDependencies();
 	Ammo::AmmoDependencies();
-	ProgressMinor(2, 6);
+	ProgressMinor(1, 5);
 
 	Things::ConvertTHING();
 	Attacks::ConvertATK();
-	ProgressMinor(3, 6);
+	ProgressMinor(2, 5);
 
 	Weapons::ConvertWEAP();
 	Sounds::ConvertSFX();
 	Sounds::ConvertMUS();
-	ProgressMinor(4, 6);
+	ProgressMinor(3, 5);
 
 	TextStr::ConvertLDF();
 	Rscript::ConvertRAD();
-	ProgressMinor(5, 6);
+	ProgressMinor(4, 5);
+
+	Storage::RestoreAll();
 
 	PrintMsg("\n");
 	PrintMsg("Writing WAD file: %s\n", output_file);

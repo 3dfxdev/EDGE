@@ -37,6 +37,7 @@ namespace Misc
 	// NOTE: we don't support changing the amounts given by cheats
 	//       (God Mode Health, IDKFA Armor, etc).
 
+	void Startup(void);
 	void AlterMisc(int new_val);
 }
 

@@ -451,6 +451,27 @@ const char *lang_bex_unsupported[] =
 
 //------------------------------------------------------------------------
 
+void TextStr::Startup(void)
+{
+	for (int s = 0; s < NUMSPRITES_BEX; s++)
+	{
+		free(sprnames[s].new_name);
+		sprnames[s].new_name = NULL;
+	}
+
+	for (int i = 0; lang_list[i].orig_text; i++)
+	{
+		free(lang_list[i].new_text);
+		lang_list[i].new_text = NULL;
+	}
+
+	for (int c = 0; cheat_list[c].orig_text; c++)
+	{
+		free(cheat_list[c].new_text);
+		cheat_list[c].new_text = NULL;
+	}
+}
+
 namespace TextStr
 {
 	void SpriteDependencies(void)
@@ -473,7 +494,7 @@ bool TextStr::ReplaceSprite(const char *before, const char *after)
 	assert(strlen(before) == 4);
 	assert(strlen(after)  == 4);
 
-	for (int i = 0; sprnames[i].orig_name; i++)
+	for (int i = 0; i < NUMSPRITES_BEX; i++)
 	{
 		spritename_t *spr = sprnames + i;
 

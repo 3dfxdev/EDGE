@@ -44,20 +44,20 @@
 namespace Deh_Edge
 {
 
-int Misc::init_ammo   = 50;
+int Misc::init_ammo;
 
-int Misc::max_armour  = 200;
-int Misc::max_health  = 200;
+int Misc::max_armour;
+int Misc::max_health;
 
-int Misc::green_armour_class = 1;
-int Misc::blue_armour_class  = 2;
-int Misc::bfg_cells_per_shot = 40;
+int Misc::green_armour_class;
+int Misc::blue_armour_class;
+int Misc::bfg_cells_per_shot;
 
-int Misc::soul_health  = 200;
-int Misc::soul_limit   = 200;
-int Misc::mega_health  = 200;
+int Misc::soul_health;
+int Misc::soul_limit;
+int Misc::mega_health;
 
-int Misc::monster_infight = 202;
+int Misc::monster_infight;
 
 
 typedef struct
@@ -71,16 +71,16 @@ miscinfo_t;
 
 namespace Misc
 {
-	int init_ammo_mobj[] = { MT_PLAYER, -1 };
+	const int init_ammo_mobj[] = { MT_PLAYER, -1 };
 
-	int max_heal_mobj[] = { MT_MISC2, -1 };
-	int max_arm_mobj [] = { MT_MISC0, MT_MISC1, MT_MISC3, MT_MEGA, -1 };
+	const int max_heal_mobj[] = { MT_MISC2, -1 };
+	const int max_arm_mobj [] = { MT_MISC0, MT_MISC1, MT_MISC3, MT_MEGA, -1 };
 
-	int green_class_mobj[] = { MT_MISC0, -1 };
-	int blue_class_mobj [] = { MT_MISC1, -1 };
+	const int green_class_mobj[] = { MT_MISC0, -1 };
+	const int blue_class_mobj [] = { MT_MISC1, -1 };
 
-	int soulsphere_mobj [] = { MT_MISC12, -1 };
-	int megasphere_mobj [] = { MT_MEGA,   -1 };
+	const int soulsphere_mobj [] = { MT_MISC12, -1 };
+	const int megasphere_mobj [] = { MT_MEGA,   -1 };
 
 	const miscinfo_t misc_info[] =
 	{
@@ -121,6 +121,24 @@ namespace Misc
 				Things::MarkThing(i);
 		}
 	}
+}
+
+void Misc::Startup(void)
+{
+    init_ammo   = 50;
+
+    max_armour  = 200;
+    max_health  = 200;
+
+    green_armour_class = 1;
+    blue_armour_class  = 2;
+    bfg_cells_per_shot = 40;
+
+    soul_health  = 200;
+    soul_limit   = 200;
+    mega_health  = 200;
+
+    monster_infight = 202;
 }
 
 void Misc::AlterMisc(int new_val)

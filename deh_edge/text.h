@@ -25,6 +25,8 @@ spritename_t;
 
 namespace TextStr
 {
+	void Startup(void);
+
 	// these return true if the string was found.
 	bool ReplaceString(const char *before, const char *after);
 	bool ReplaceSprite(const char *before, const char *after);
