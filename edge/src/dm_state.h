@@ -142,7 +142,6 @@ extern player_t *players;
 // Pointer to each player.
 extern player_t **playerlookup;
 
-#define NORMHEALTH 100
 #define MAXHEALTH 200
 #define MAXARMOUR 200
 
@@ -184,6 +183,9 @@ extern boolean_t strict_errors;
 
 // if true, disable warning messages
 extern boolean_t no_warnings;
+
+// if true, disable obsolete warning messages
+extern boolean_t no_obsoletes;
 
 // if true, enable HOM detection (hall of mirrors effect)
 extern boolean_t hom_detect;
