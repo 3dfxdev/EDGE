@@ -48,7 +48,7 @@ public:
 	memory_buffer_c(const char *_data, int _length) :
 		data(_data), length(_length), ptr(_data)
 	{
-		/* NOTE: data is not copied, but _is_ freed */
+		/* NOTE: data is not copied, but it _is_ freed */
 	}
 
 	~memory_buffer_c()
@@ -96,6 +96,20 @@ public:
 	{
 		if (ptr > data)
 			ptr--;
+	}
+
+	bool isBinary() const
+	{
+		if (length == 0)
+			return false;
+
+		int test_len = (length > 260) ? 256 : ((length * 3 + 1) / 4);
+
+		for (; test_len > 0; test_len--)
+			if (data[test_len - 1] == 0)
+				return true;
+
+		return false;
 	}
 
 	void showProgress()
