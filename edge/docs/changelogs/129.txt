@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: DECEMBER 10th 2004)
+(Date: DECEMBER 13th 2004)
 
 
 Bugs fixed
@@ -26,6 +26,7 @@ Bugs fixed
 - damage over 1000 no longer hurts invulnerable players.
 - monsters on different sides now attack each other.  (UNTESTED)
 - problems mlooking up/down while zoomed are fixed.
+- sides of extrafloors would not scroll properly, fixed.
 
 
 Old Fixes (from EDGE 1.28A)
@@ -114,6 +115,8 @@ General improvements
 New DDF features:
 -----------------
 
++ new IMAGES.DDF file.  The corresponding wad lump is DDFIMAGE.  @@@@
+
 + new FONTS.DDF file.  The equivalent wad lump is DDFFONT.  This is used
   to define fonts (the set of character images for drawing text).  The
   following example shows the available features:
@@ -143,8 +146,6 @@ New DDF features:
   since you can change them all by only editing a single style.
 
   @@@
-
-(NOT FINISHED) new IMAGES.DDF file.  blah...
 
 - RELOAD states for monsters.  This is controlled by the new command
   RELOAD_SHOTS and the new action RELOAD_CHECK, which tests if the
