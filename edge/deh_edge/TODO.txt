@@ -14,16 +14,6 @@ DONE:  option for EDGE version.
 DONE:  support multiple patches.
 
 
-BATMAN BUGS
------------
-
--  clowns: speed is 0, so how can they move in Edge ?
-
-
-MORDETH BUGS
-------------
-
-
 FUTURE Plans
 ------------
 
