@@ -418,18 +418,11 @@ const image_t * R2_GetThingSprite(mobj_t *mo, bool *flip)
 
 	frame = sprite->frames + mo->frame;
 
+	rot = 0;
+
 	if (frame->rotated)
-	{
-		// choose a different rotation based on player view
-		ang = R_PointToAngle(viewx, viewy, mo->x, mo->y) -
-			mo->angle + ANG180 + (ANG45 / (frame->extended ? 4 : 2));
-		rot = ANG_2_ROT(ang);
-	}
-	else
-	{
-		// use single rotation for all views
-		rot = 0;
-	}
+		rot = frame->CalcRot(mo->angle,
+			R_PointToAngle(viewx, viewy, mo->x, mo->y));
 
 	DEV_ASSERT2(0 <= rot && rot < 16);
 

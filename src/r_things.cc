@@ -178,8 +178,14 @@ static void InstallSpriteLump(spritedef_c *def, int lump,
 		   return;
 	}
 
+	DEV_ASSERT2(frame >= 0);
+
 	// ignore frames larger than what is used in DDF
 	if (frame >= def->numframes)
+		return;
+
+	// don't disturb any frames already loaded
+	if (def->frames[frame].finished)
 		return;
 
 	if ('0' == rot_ch)
@@ -196,12 +202,6 @@ static void InstallSpriteLump(spritedef_c *def, int lump,
 		return;
 	}
 
-	DEV_ASSERT2(0 <= frame && frame < def->numframes);
-
-	// don't disturb any already-loaded frames
-	if (def->frames[frame].finished)
-		return;
-
 	def->frames[frame].rotated = (rot_ch == '0') ? 0 : 1;
 
 	if (rot & 1)
@@ -216,9 +216,71 @@ static void InstallSpriteLump(spritedef_c *def, int lump,
 		return;
 	}
 
-	W_ImageCreateSprite(lumpname, lump, def->is_weapon);
+	def->frames[frame].images[rot] = W_ImageCreateSprite(lumpname, lump, def->is_weapon);
+	def->frames[frame].flip[rot] = flip;
+}
 
-	def->frames[frame].images[rot] = W_ImageLookup(lumpname, INS_Sprite);
+static void InstallSpriteImage(spritedef_c *def, const image_t *img,
+    const char *img_name, int pos, byte flip)
+{
+	int frame, rot;
+
+	// don't need toupper() -- DDF entry names are always uppercase.
+	char frame_ch = img_name[pos];
+	char rot_ch   = img_name[pos+1];
+
+	// convert frame & rotation characters
+	// NOTE: rotations 9 and A-G are EDGE specific.
+
+	if ('A' <= frame_ch && frame_ch <= 'Z')
+	{
+		frame = (frame_ch - 'A');
+	}
+	else
+	{
+	   I_Warning("Sprite %s (IMAGES.DDF) has illegal frame.\n", img_name);
+	   return;
+	}
+
+	DEV_ASSERT2(frame >= 0);
+
+	// ignore frames larger than what is used in DDF
+	if (frame >= def->numframes)
+		return;
+
+	// don't disturb any frames already loaded
+	if (def->frames[frame].finished)
+		return;
+
+	if ('0' == rot_ch)
+		rot = 0;
+	else if ('1' <= rot_ch && rot_ch <= '8')
+		rot = (rot_ch - '1') * 2;
+	else if ('9' == rot_ch)
+		rot = 1;
+	else if ('A' <= rot_ch && rot_ch <= 'G')
+		rot = (rot_ch - 'A') * 2 + 3;
+	else
+	{
+		I_Warning("Sprite %s (IMAGES.DDF) has illegal rotation.\n", img_name);
+		return;
+	}
+
+	def->frames[frame].rotated = (rot_ch == '0') ? 0 : 1;
+
+	if (rot & 1)
+		def->frames[frame].extended = 1;
+
+	DEV_ASSERT2(0 <= rot && rot < 16);
+
+	if (def->frames[frame].images[rot])
+	{
+		I_Warning("Sprite %s:%c has two images mapped to it.\n", 
+				img_name, frame_ch);
+		return;
+	}
+
+	def->frames[frame].images[rot] = img;
 	def->frames[frame].flip[rot] = flip;
 }
 
@@ -244,15 +306,13 @@ static void FillSpriteFrames(int file, int prog_base, int prog_total)
 		const char *sprname  = sprite_map[S]->name;
 		const char *lumpname = W_GetLumpName(lumps[L]);
 
-		int comp;
-
 		if (strlen(lumpname) != 6 && strlen(lumpname) != 8)
 		{
 			I_Warning("Sprite name %s has illegal length.\n", lumpname);
 			L++; continue;
 		}
 
-		comp = strncmp(sprname, lumpname, 4);
+		int comp = strncmp(sprname, lumpname, 4);
 
 		if (comp < 0)  // S < L
 		{
@@ -264,7 +324,6 @@ static void FillSpriteFrames(int file, int prog_base, int prog_total)
 		}
 
 		// we have a match
-
 		InstallSpriteLump(sprite_map[S], lumps[L], lumpname, 4, 0);
 
 		if (lumpname[6])
@@ -277,6 +336,60 @@ static void FillSpriteFrames(int file, int prog_base, int prog_total)
 	}
 }
 
+//
+// FillSpriteFramesUser
+//
+// Like the above, but made especially for IMAGES.DDF.
+//
+static void FillSpriteFramesUser(int prog_base, int prog_total)
+{
+	int img_num;
+	const image_t ** images = W_ImageGetUserSprites(&img_num);
+
+	if (img_num == 0)
+		return;
+
+	DEV_ASSERT2(images);
+
+	int S = 0, L = 0;
+
+	while (S < sprite_map_len && L < img_num)
+	{
+		const char *sprname  = sprite_map[S]->name;
+		const char *img_name = W_ImageGetName(images[L]);
+
+		if (strlen(img_name) != 6 && strlen(img_name) != 8)
+		{
+			I_Warning("Sprite name %s (IMAGES.DDF) has illegal length.\n", img_name);
+			L++; continue;
+		}
+
+		int comp = strncmp(sprname, img_name, 4);
+
+		if (comp < 0)  // S < L
+		{
+			S++; continue;
+		}
+		else if (comp > 0)  // S > L
+		{
+			L++; continue;
+		}
+
+		// we have a match
+		InstallSpriteImage(sprite_map[S], images[L], img_name, 4, 0);
+
+		if (img_name[6])
+			InstallSpriteImage(sprite_map[S], images[L], img_name, 6, 1);
+
+		L++;
+
+		// update startup progress bar
+		E_LocalProgress(prog_base + L * 100 / img_num, prog_total);
+	}
+
+	delete[] images;
+}
+
 static void MarkCompletedFrames(void)
 {
 	int src, dst;
@@ -285,11 +398,9 @@ static void MarkCompletedFrames(void)
 	{
 		spritedef_c *def = sprite_map[src];
 
-		int f, i;
-		int count;
 		int finish_num = 0;
 
-		for (f=0; f < def->numframes; f++)
+		for (int f = 0; f < def->numframes; f++)
 		{
 			char frame_ch = 'A' + f;
 			spriteframe_c *frame = def->frames + f;
@@ -300,47 +411,37 @@ static void MarkCompletedFrames(void)
 				continue;
 			}
 
-			// check if all image pointers are NULL
-			for (i=count=0; i < 16; i++)
-				count += frame->images[i] ? 1 : 0;
+			int rot_count = 0;
 
-			if (count == 0)
+			// check if all image pointers are NULL
+			for (int i=0; i < 16; i++)
+				rot_count += frame->images[i] ? 1 : 0;
+
+			if (rot_count == 0)
 				continue;
 
 			frame->finished = 1;
 			finish_num++;
 
-			// fill in any gaps.  This is especially needed because of the
-			// extra 8 rotations, but it also handles missing sprites well.
-
 			if (! frame->rotated)
 			{
-				if (count != 1)
-					I_Warning("Sprite %s:%c has extra rotations.\n", def->name,
-							frame_ch);
+				if (rot_count != 1)
+					I_Warning("Sprite %s:%c has extra rotations.\n", def->name, frame_ch);
 
 				DEV_ASSERT2(frame->images[0] != NULL);
-
-				for (i=1; i < 16; i++)
-				{
-					frame->images[i] = frame->images[0];
-					frame->flip[i]   = frame->flip[0];
-				}
-
 				continue;
 			}
 
-			if (count != 8 && count != 16)
-				I_Warning("Sprite %s:%c is missing rotations.\n", def->name, 
-						frame_ch);
+			if (rot_count != 8 && rot_count != 16)
+				I_Warning("Sprite %s:%c is missing rotations.\n", def->name, frame_ch);
 
-			// Note two passes are needed
-			for (i=0; i < (16 * 2); i++)
+			// Note: two passes are needed
+			for (int j=0; j < (16 * 2); j++)
 			{
-				if (frame->images[i % 16] && !frame->images[(i+1) % 16])
+				if (frame->images[j % 16] && !frame->images[(j+1) % 16])
 				{
-					frame->images[(i+1) % 16] = frame->images[i % 16];
-					frame->flip  [(i+1) % 16] = frame->flip  [i % 16];
+					frame->images[(j+1) % 16] = frame->images[j % 16];
+					frame->flip  [(j+1) % 16] = frame->flip  [j % 16];
 				}
 			}
 		}
@@ -358,14 +459,11 @@ static void MarkCompletedFrames(void)
 // show warnings for missing patches
 static void CheckSpriteFrames(spritedef_c *def)
 {
-	int i;
-	int missing;
+	int missing = 0;
 
-	for (i = missing = 0; i < def->numframes; i++)
-	{
+	for (int i = 0; i < def->numframes; i++)
 		if (! def->frames[i].finished)
 			missing++;
-	}
 
 	if (missing > 0 && missing < def->numframes)
 		I_Warning("Missing %d frames in sprite: %s\n", missing, def->name);
@@ -429,16 +527,17 @@ void R_InitSprites(void)
 
 	// iterate over each file.  Order is important, we must go from
 	// newest wad to oldest, so that new sprites override the old ones.
-	// Completely finished sprites get removed from the sorted list as
-	// we go.  
+	// Completely finished sprites get removed from the list as we go.  
 	//
 	// NOTE WELL: override granularity is single frames.
 
 	int numfiles = W_GetNumFiles();
 
+	FillSpriteFramesUser(0, (numfiles+1) * 100);
+
 	for (int file = numfiles - 1; file >= 0; file--)
 	{
-		FillSpriteFrames(file, (numfiles-1 - file) * 100, numfiles * 100);
+		FillSpriteFrames(file, (numfiles - file) * 100, (numfiles+1) * 100);
 		MarkCompletedFrames();
 	}
 
