@@ -302,7 +302,7 @@ bool M_CheatResponder(event_t * ev)
 #endif
 	else if (M_CheckCheat(&cheat_suicide, key))
 	{
-		P_DamageMobj(pl->mo, NULL, pl->mo, 10000, NULL);
+		P_TelefragMobj(pl->mo, pl->mo, NULL);
 
 		// -ACB- 1998/08/26 Suicide language reference
 		CON_MessageLDF("SuicideCheat");
@@ -320,7 +320,7 @@ bool M_CheatResponder(event_t * ev)
 		{
 			if ((currmobj->extendedflags & EF_MONSTER) && (currmobj->health > 0))
 			{
-				P_DamageMobj(currmobj, NULL, NULL, 10000, NULL);
+				P_TelefragMobj(currmobj, NULL, NULL);
 				killcount++;
 			}
 		}

@@ -371,6 +371,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher);
 void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust);
 void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 				  float amount, const damage_c * damtype);
+void P_TelefragMobj(mobj_t * target, mobj_t * inflictor, const damage_c * damtype);
 void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c * damtype);
 bool P_GiveBenefitList(player_t *player, mobj_t *special, benefit_t *list,
                        bool lose_em, int *new_weap = NULL, int *new_ammo = NULL);

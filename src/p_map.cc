@@ -149,15 +149,15 @@ static bool PIT_StompThing(mobj_t * thing)
 	if (!(thing->flags & MF_SHOOTABLE))
 		return true;
 
+	// check we aren't trying to stomp ourselves
+	if (thing == tm_I.mover)
+		return true;
+
 	blockdist = thing->radius + tm_I.mover->radius;
 
 	// check to see we hit it
 	if (fabs(thing->x - tm_I.x) >= blockdist || fabs(thing->y - tm_I.y) >= blockdist)
 		return true;  // no, we did not
-
-	// check we aren't trying to stomp ourselves
-	if (thing == tm_I.mover)
-		return true;
 
 	// -AJA- 1999/07/30: True 3d gameplay checks.
 	if (level_flags.true3dgameplay)
@@ -180,7 +180,7 @@ static bool PIT_StompThing(mobj_t * thing)
 	if (!tm_I.mover->player && (currmap->force_off & MPF_Stomp))
 		return false;
 
-	P_DamageMobj(thing, tm_I.mover, tm_I.mover, 10000, NULL);
+	P_TelefragMobj(thing, tm_I.mover, NULL);
 	return true;
 }
 
