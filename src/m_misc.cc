@@ -132,7 +132,7 @@ static default_t defaults[] =
     {CFGT_Boolean, "jumping", &global_flags.jump, 1},
     {CFGT_Boolean, "crouching", &global_flags.crouch, 1},
     {CFGT_Boolean, "mipmapping", &use_mipmapping, 1},
-    {CFGT_Boolean, "smoothing", &use_smoothing, 1},
+    {CFGT_Boolean, "smoothing", &use_smoothing, 0},
     {CFGT_Boolean, "dither", &use_dithering, 0},
     {CFGT_Int, "dlights", &use_dlights, 1},
     {CFGT_Int, "detail_level", &detail_level, 1},
