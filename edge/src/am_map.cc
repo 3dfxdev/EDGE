@@ -49,6 +49,7 @@
 #include "w_wad.h"
 
 #define DEBUG_TRUEBSP  0
+#define DEBUG_COLLIDE  0
 
 // Automap colours
 
@@ -1028,6 +1029,39 @@ static void DrawLineCharacter(player_t *p,mline_t *lineguy, int lineguylines,
 	}
 }
 
+#if (DEBUG_COLLIDE == 1)
+static void DrawObjectBounds(player_t *p, mobj_t *mo, int colour)
+{
+	float R = mo->radius;
+
+	if (R < 2)
+		R = 2;
+
+	float lx = mo->x - R;
+	float ly = mo->y - R;
+	float hx = mo->x + R;
+	float hy = mo->y + R;
+
+	mline_t ml;
+
+	GetRotatedCoords(p, lx, ly, &ml.a.x, &ml.a.y);
+	GetRotatedCoords(p, lx, hy, &ml.b.x, &ml.b.y);
+	DrawMline(&ml, colour);
+
+	GetRotatedCoords(p, lx, hy, &ml.a.x, &ml.a.y);
+	GetRotatedCoords(p, hx, hy, &ml.b.x, &ml.b.y);
+	DrawMline(&ml, colour);
+
+	GetRotatedCoords(p, hx, hy, &ml.a.x, &ml.a.y);
+	GetRotatedCoords(p, hx, ly, &ml.b.x, &ml.b.y);
+	DrawMline(&ml, colour);
+
+	GetRotatedCoords(p, hx, ly, &ml.a.x, &ml.a.y);
+	GetRotatedCoords(p, lx, ly, &ml.b.x, &ml.b.y);
+	DrawMline(&ml, colour);
+}
+#endif
+
 static int player_colours[8] =
 {
 	GREEN,
@@ -1045,6 +1079,10 @@ static void AM_DrawPlayer(mobj_t *mo)
 	int colour;
 
 	player_t *p = players[displayplayer];
+
+#if (DEBUG_COLLIDE == 1)
+	DrawObjectBounds(p, mo, YOUR_COL);
+#endif
 
 	if (!netgame)
 	{
@@ -1094,6 +1132,11 @@ static void AM_WalkThing(mobj_t *mo)
 		colour = DEAD_COL;
 	else if (mo->extendedflags & EF_MONSTER)
 		colour = MONST_COL;
+
+#if (DEBUG_COLLIDE == 1)
+	DrawObjectBounds(players[displayplayer], mo, colour);
+	return;
+#endif
 
 	DrawLineCharacter(players[displayplayer],
 		thintriangle_guy, NUMTHINTRIANGLEGUYLINES,
@@ -1201,15 +1244,6 @@ static void DrawMarks(void)
 	}
 }
 
-static void DrawCrosshair(int colour)
-{
-#if 0  // FIXME !
-	// -AJA- 1999/07/04: now uses V_DrawPixel().
-
-	V_DrawPixel(main_scr, f_w / 2, f_h / 2, colour);  // single point for now
-#endif
-}
-
 static void AM_RenderScene(void)
 {
 	//!!!! FIXME: enable Scissor test
@@ -1255,7 +1289,6 @@ void AM_Drawer(void)
 
 	AM_RenderScene();
 
-	DrawCrosshair(XHAIR_COL);
 	DrawMarks();
 
 #ifdef DEVELOPERS
