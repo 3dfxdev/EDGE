@@ -49,6 +49,8 @@
 #include "w_image.h"
 #include "z_zone.h"
 
+#include "epi/epistring.h"
+
 // -KM- 1999/01/31 Order is important, Languages are loaded before sfx, etc...
 typedef struct ddf_reader_s
 {
@@ -923,12 +925,12 @@ bool W_ReadDDF(void)
 			delete [] data;
 		}
 
-		char msg_buf[256];
+		epi::string_c msg_buf;
 
-		sprintf(msg_buf, "Parsing %s %s", (d == NUM_DDF_READERS-1) ? "RTS" : "DDF",
+		msg_buf.Format("Parsing %s %s", (d == NUM_DDF_READERS-1) ? "RTS" : "DDF",
 			DDF_Readers[d].print_name);
 
-		E_LocalProgress(d, NUM_DDF_READERS, msg_buf);
+		E_LocalProgress(d, NUM_DDF_READERS, msg_buf.GetString());
 	}
 
 	return true;

@@ -776,7 +776,7 @@ void M_ComposeFileName(epi::string_c& fn, const char *dir, const char *file)
 // -ACB- 2000/01/08 Written
 // -ES-  2000/06/12 Now returns the allocated pointer, or NULL on failure.
 //
-byte* M_GetFileData(char *filename, int *length)
+byte* M_GetFileData(const char *filename, int *length)
 {
 	FILE *lumpfile;
 	byte *data;

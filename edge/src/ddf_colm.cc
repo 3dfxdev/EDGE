@@ -23,8 +23,6 @@
 
 #include "ddf_locl.h"
 
-#include "z_zone.h"
-
 #undef  DF
 #define DF  DDF_CMD
 
@@ -71,8 +69,10 @@ static bool ColmapStartEntry(const char *name)
 	{
 		dynamic_colmap = new colourmap_c;
 
-		dynamic_colmap->ddf.name = (name && name[0]) ? Z_StrDup(name) :
-			DDF_MainCreateUniqueName("UNNAMED_COLMAP", colourmaps.GetSize());
+		if (name && name[0])
+			dynamic_colmap->ddf.name.Set(name);
+		else
+			dynamic_colmap->ddf.SetUniqueName("UNNAMED_COLMAP", colourmaps.GetSize());
 
 		colourmaps.Insert(dynamic_colmap);
 	}
@@ -83,7 +83,7 @@ static bool ColmapStartEntry(const char *name)
 	buffer_colmap.Default();
 
 	// make sure fonts get whitened properly (as the default)
-	if (strncasecmp(dynamic_colmap->ddf.name, "TEXT", 4) == 0)
+	if (strncasecmp(dynamic_colmap->ddf.name.GetString(), "TEXT", 4) == 0)
 	{
 		buffer_colmap.special = COLSP_Whiten;
 	}
@@ -134,7 +134,7 @@ static void ColmapFinishEntry(void)
 	// Compute CRC.  In this case, there is no need, since colourmaps
 	// only affect rendering, they have zero effect on the game
 	// simulation itself.
-	dynamic_colmap->ddf.crc = 0;
+	dynamic_colmap->ddf.crc.Reset();
 }
 
 static void ColmapClearAll(void)
@@ -274,10 +274,7 @@ void colourmap_c::CopyDetail(colourmap_c &src)
 //
 void colourmap_c::Default()
 {
-	// FIXME: ddf.Clear() ?
-	ddf.name	= "";
-	ddf.number	= 0;	
-	ddf.crc		= 0;
+	ddf.Default();
 	
 	lump_name.Clear();
 	start = 0;
@@ -326,11 +323,7 @@ void colourmap_container_c::CleanupObject(void *obj)
 	colourmap_c *c = *(colourmap_c**)obj;
 
 	if (c)
-	{
-		// FIXME: Use proper new/transfer name cleanup to ddf_base destructor
-		if (c->ddf.name) { Z_Free(c->ddf.name); }
 		delete c;
-	}
 
 	return;
 }
@@ -349,7 +342,7 @@ colourmap_c* colourmap_container_c::Lookup(const char *refname)
 	for (it = GetIterator(num_disabled); it.IsValid(); it++)
 	{
 		c = ITERATOR_TO_TYPE(it, colourmap_c*);
-		if (DDF_CompareName(c->ddf.name, refname) == 0)
+		if (DDF_CompareName(c->ddf.name.GetString(), refname) == 0)
 			return c;
 	}
 

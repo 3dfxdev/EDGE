@@ -37,7 +37,6 @@
 #include "r_state.h"
 #include "r_main.h"
 #include "v_res.h"
-#include "z_zone.h"
 
 #include "r2_defs.h"
 

@@ -42,6 +42,8 @@
 #include "p_local.h"
 #include "r_state.h"
 
+#include "z_zone.h"
+
 
 #define DEBUG_SIGHT  0
 

@@ -28,7 +28,6 @@
 
 #include "e_player.h"
 #include "r_defs.h"
-#include "z_zone.h"
 
 int R_AddSpriteName(const char *name, int frame);
 bool R_InitSprites(void);

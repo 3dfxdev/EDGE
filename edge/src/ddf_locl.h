@@ -22,6 +22,8 @@
 #include "p_weapon.h"
 #include "dm_defs.h"
 
+#include "epi/epistring.h"
+
 // defines for parser stuff.
 #define BACKSLASH   '\\'
 #define COMMANDREAD '='
@@ -258,12 +260,15 @@ void DDF_MainReadFile (readinfo_t * readinfo);
 
 extern int ddf_version;  // hexadecimal e.g. 0x128
 
+extern int cur_ddf_line_num;
+extern epi::string_c cur_ddf_filename;
+extern epi::string_c cur_ddf_entryname;
+extern epi::string_c cur_ddf_linedata;
+
 void DDF_Error (const char *err, ...);
 void DDF_Warning (const char *err, ...);
 void DDF_WarnError (const char *err, ...);
 void DDF_WarnError2 (int ver, const char *err, ...);
-void DDF_ErrorSetEntryName (const char *err, ...);
-void DDF_ErrorClearEntryName (void);
 
 void DDF_MainGetPercent (const char *info, void *storage);
 void DDF_MainGetPercentAny (const char *info, void *storage);
@@ -292,7 +297,6 @@ checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
 			      const specflags_t * flag_set, int *flag_value,
 			      bool allow_prefixes, bool allow_user);
 
-char *DDF_MainCreateUniqueName (const char *prefix, int num);
 int DDF_MainLookupDirector (const mobjtype_c * obj, const char *info);
 
 // DDF_ANIM Code
@@ -362,7 +366,7 @@ void DDF_StateReadState (const char *info, const char *label,
 void DDF_StateFinishStates (int first, int last);
 void DDF_StateFixupStates (int first, int last);
 void DDF_StateCleanUp (void);
-int StateFindLabel (int first, int last, const char *label);
+int DDF_StateFindLabel (int first, int last, const char *label);
 
 // DDF_SECT Code
 void DDF_SectorInit (void);

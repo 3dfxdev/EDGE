@@ -33,7 +33,6 @@
 
 #include "r_defs.h"
 #include "r_state.h"
-#include "z_zone.h"
 
 // Texture cache reference structure, returned by the texture cache system.
 // The actual structure is private.

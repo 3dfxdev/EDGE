@@ -46,7 +46,7 @@
 #include "v_colour.h"
 #include "v_ctx.h"
 #include "v_res.h"
-#include "z_zone.h"
+
 #include "w_wad.h"
 #include "wi_stuff.h"
 

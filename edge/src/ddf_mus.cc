@@ -19,7 +19,6 @@
 #include "i_defs.h"
 #include "dm_defs.h"
 #include "ddf_locl.h"
-#include "z_zone.h"
 
 static pl_entry_c buffer_plentry;
 static pl_entry_c *dynamic_plentry;
@@ -109,7 +108,7 @@ static void DDF_MusicParseInfo(const char *info, void *storage)
 
 	// Remained is the string reference: filename/lumpname/track-number
 	pos++;
-	buffer_plentry.info = Z_StrDup(&info[pos]);
+	buffer_plentry.info.Set(&info[pos]);
 
 	return;
 }
@@ -135,7 +134,6 @@ static bool PlaylistStartEntry(const char *name)
 	else
 	{
 		dynamic_plentry = new pl_entry_c;
-		dynamic_plentry->ddf.name   = NULL;
 		dynamic_plentry->ddf.number = number;
 		playlist.Insert(dynamic_plentry);
 	}
@@ -163,7 +161,7 @@ static void PlaylistFinishEntry(void)
 
 	// Compute CRC.  In this case, there is no need, since the music
 	// playlist has zero impact on the game simulation itself.
-	dynamic_plentry->ddf.crc = 0;
+	dynamic_plentry->ddf.crc.Reset();
 }
 
 static void PlaylistClearAll(void)
@@ -239,7 +237,6 @@ pl_entry_c::pl_entry_c()
 //
 pl_entry_c::pl_entry_c(pl_entry_c &rhs)
 {
-	info = NULL;
 	Copy(rhs);
 }
 
@@ -248,8 +245,6 @@ pl_entry_c::pl_entry_c(pl_entry_c &rhs)
 //
 pl_entry_c::~pl_entry_c()
 {
-	if (info)
-		Z_Free(info);
 }
 
 //
@@ -270,15 +265,7 @@ void pl_entry_c::CopyDetail(pl_entry_c &src)
 {
 	type = src.type;
 	infotype = src.infotype;
-
-	// Duplicate info
-	if (info)
-		Z_Free(info);				// FIXME: Use proper delete
-
-	if (src.info)
-		info = Z_StrDup(src.info);	// FIXME: Use a epi string?
-	else
-		info = NULL;
+	info = src.info;
 }
 
 //
@@ -286,14 +273,11 @@ void pl_entry_c::CopyDetail(pl_entry_c &src)
 // 
 void pl_entry_c::Default()
 {
-	// FIXME: ddf.default()?
-	ddf.name = NULL;
-	ddf.number = 0;
-	ddf.crc = 0;
+	ddf.Default();
 
 	type = MUS_UNKNOWN;     
 	infotype = MUSINF_UNKNOWN;
-	info = NULL;             
+	info.Clear();             
 }
 
 //

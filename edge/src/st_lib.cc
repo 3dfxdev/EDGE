@@ -36,7 +36,6 @@
 #include "v_res.h"
 #include "w_image.h"
 #include "w_wad.h"
-#include "z_zone.h"
 
 void STLIB_Init(void)
 {

@@ -36,8 +36,6 @@
 #include "sv_main.h"
 #include "w_wad.h"
 #include "wi_stuff.h"
-#include "z_zone.h"
-
 
 //
 // SV_BeginSave

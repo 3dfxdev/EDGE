@@ -33,8 +33,6 @@
 #include "r_state.h"
 #include "s_sound.h"
 #include "w_textur.h"
-#include "z_zone.h"
-
 
 buttonlist_c buttonlist;
 

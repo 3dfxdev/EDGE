@@ -50,7 +50,6 @@
 #include "p_bot.h"
 #include "st_stuff.h"
 #include "w_wad.h"
-#include "z_zone.h"
 
 //
 // CHEAT SEQUENCE PACKAGE

@@ -33,8 +33,6 @@
 #include "ddf_locl.h"
 #include "ddf_main.h"
 
-#include "z_zone.h"
-
 #undef  DF
 #define DF  DDF_CMD
 
@@ -325,8 +323,6 @@ static bool LinedefStartEntry(const char *name)
 		linetypes.Insert(dynamic_line);
 	}
 
-	dynamic_line->ddf.name = NULL;
-
 	// instantiate the static entry
 	buffer_line.Default();
 	s_speed = 1.0f;
@@ -423,12 +419,7 @@ static void LinedefFinishEntry(void)
 	dynamic_line->CopyDetail(buffer_line);
 
 	// compute CRC...
-	// FIXME: Use EPI classes
-	CRC32_Init(&dynamic_line->ddf.crc);
-
-	// FIXME: add stuff...
-
-	CRC32_Done(&dynamic_line->ddf.crc);
+	// FIXME: Do something!
 }
 
 //
@@ -502,8 +493,7 @@ void DDF_LinedefCleanUp(void)
 	{
 		l = ITERATOR_TO_TYPE(it, linetype_c*);
 
-		// FIXME!! Use epi::error_c handler here		
-		DDF_ErrorSetEntryName("[%d]  (lines.ddf)", l->ddf.number);
+		cur_ddf_entryname.Format("[%d]  (lines.ddf)", l->ddf.number);
 
 		l->t.inspawnobj = l->t.inspawnobj_ref ?
 			mobjtypes.Lookup(l->t.inspawnobj_ref) : NULL;
@@ -511,7 +501,7 @@ void DDF_LinedefCleanUp(void)
 		l->t.outspawnobj = l->t.outspawnobj_ref ?
 			mobjtypes.Lookup(l->t.outspawnobj_ref) : NULL;
 
-		DDF_ErrorClearEntryName();
+		cur_ddf_entryname.Empty();
 	}
 
 	linetypes.Trim();
@@ -1635,10 +1625,7 @@ void linetype_c::CopyDetail(linetype_c &src)
 //
 void linetype_c::Default(void)
 {
-	// FIXME: ddf.Default()?
-	ddf.name = NULL;
-	ddf.number = 0;
-	ddf.crc = 0;
+	ddf.Default();
 
 	newtrignum = 0;
 	type = line_none;
@@ -1727,11 +1714,7 @@ void linetype_container_c::CleanupObject(void *obj)
 	linetype_c *l = *(linetype_c**)obj;
 
 	if (l)
-	{
-		// FIXME: Use proper new/transfer name cleanup to ddf_base destructor
-		if (l->ddf.name) { Z_Free(l->ddf.name); }
 		delete l;
-	}
 
 	return;
 }

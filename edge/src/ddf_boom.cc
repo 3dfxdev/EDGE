@@ -21,8 +21,6 @@
 #include "ddf_main.h"
 #include "ddf_locl.h"
 
-#include "z_zone.h"
-
 //
 // DDF_BoomMakeGenSector
 //

@@ -25,8 +25,6 @@
 #include "ddf_locl.h"
 #include "ddf_main.h"
 
-#include "z_zone.h"
-
 #undef  DF
 #define DF  DDF_CMD
 
@@ -94,8 +92,10 @@ static bool SoundStartEntry(const char *name)
 	{
 		dynamic_sfx = new sfxdef_c;
 
-		dynamic_sfx->ddf.name = (name && name[0]) ? Z_StrDup(name) :
-			DDF_MainCreateUniqueName("UNNAMED_SOUND", sfxdefs.GetSize());
+		if (name && name[0])
+			dynamic_sfx->ddf.name.Set(name);
+		else
+			dynamic_sfx->ddf.SetUniqueName("UNNAMED_SOUND", sfxdefs.GetSize());
 
 		sfxdefs.Insert(dynamic_sfx);
 	}
@@ -132,7 +132,7 @@ static void SoundFinishEntry(void)
 
 	// Compute CRC.  In this case, there is no need, since sounds have
 	// zero impact on the game simulation itself.
-	dynamic_sfx->ddf.crc = 0;
+	dynamic_sfx->ddf.crc.Reset();
 }
 
 static void SoundClearAll(void)
@@ -178,7 +178,7 @@ void DDF_SFXInit(void)
 	// create the null sfx
 	sfxdef_c* s = new sfxdef_c;
 	s->Default();
-	s->ddf.name = "NULL";
+	s->ddf.name.Set("NULL");
 	sfxdefs.Insert(s);
 }
 
@@ -270,10 +270,7 @@ void sfxdef_c::CopyDetail(sfxdef_c &src)
 //
 void sfxdef_c::Default()
 {
-	// FIXME: ddf.default()?
-	ddf.name = NULL;
-	ddf.number = 0;
-	ddf.crc = 0;
+	ddf.Default();
 	
 	lump_name.Clear();
 	
@@ -341,7 +338,7 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 	{
 		si = ITERATOR_TO_TYPE(it, sfxdef_c*);
 		
-		if (strncasecmpwild(name, si->ddf.name, 8) == 0)
+		if (strncasecmpwild(name, si->ddf.name.GetString(), 8) == 0)
 		{
 			count++;
 			last = it;
@@ -380,7 +377,7 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 	{
 		si = ITERATOR_TO_TYPE(it, sfxdef_c*);
 		
-		if (strncasecmpwild(name, si->ddf.name, 8) == 0)
+		if (strncasecmpwild(name, si->ddf.name.GetString(), 8) == 0)
 			r->sounds[r->num++] = it.GetPos();
 	}
 
@@ -400,7 +397,7 @@ sfxdef_c* sfxdef_container_c::Lookup(const char *name)
 	for (it=GetIterator(num_disabled); it.IsValid(); it++)
 	{
 		s = ITERATOR_TO_TYPE(it, sfxdef_c*);
-		if (DDF_CompareName(s->ddf.name, name) == 0)
+		if (DDF_CompareName(s->ddf.name.GetString(), name) == 0)
 		{
 			return s;
 		}

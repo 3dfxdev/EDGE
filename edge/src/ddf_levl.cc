@@ -24,8 +24,6 @@
 #include "ddf_locl.h"
 #include "ddf_main.h"
 
-#include "z_zone.h"
-
 #include "./epi/epiutil.h"
 
 #undef  DF
@@ -144,8 +142,10 @@ static bool LevelStartEntry(const char *name)
 	{
 		dynamic_map = new mapdef_c;
 
-		dynamic_map->ddf.name = (name && name[0]) ? Z_StrDup(name) :
-			DDF_MainCreateUniqueName("UNNAMED_LEVEL_MAP", mapdefs.GetSize());
+		if (name && name[0])
+			dynamic_map->ddf.name.Set(name);
+		else
+			dynamic_map->ddf.SetUniqueName("UNNAMED_LEVEL_MAP", mapdefs.GetSize());
 
 		mapdefs.Insert(dynamic_map);
 	}
@@ -189,11 +189,7 @@ static void LevelFinishEntry(void)
 	dynamic_map->CopyDetail(buffer_map);
 
 	// compute CRC...
-	CRC32_Init(&dynamic_map->ddf.crc);
-
-	// FIXME: add stuff...
-
-	CRC32_Done(&dynamic_map->ddf.crc);
+	// FIXME! Do something...
 }
 
 static void LevelClearAll(void)
@@ -480,10 +476,7 @@ void mapdef_c::CopyDetail(mapdef_c &src)
 //
 void mapdef_c::Default()
 {
-	// FIXME: ddf.Clear() ?
-	ddf.name	= "";
-	ddf.number	= 0;	
-	ddf.crc		= 0;
+	ddf.Default();
 
 	next = NULL;
 	
@@ -554,7 +547,7 @@ mapdef_c* mapdef_container_c::Lookup(const char *refname)
 	for (it = GetTailIterator(); it.IsValid(); it--)
 	{
 		m = ITERATOR_TO_TYPE(it, mapdef_c*);
-		if (DDF_CompareName(m->ddf.name, refname) == 0) // Create ddf compare function
+		if (DDF_CompareName(m->ddf.name.GetString(), refname) == 0) // Create ddf compare function
 			return m;
 	}
 

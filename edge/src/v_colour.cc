@@ -742,7 +742,7 @@ static void LoadColourmap(const colourmap_c * colm)
 
 	if ((colm->start + colm->length) * 256 > size)
 		I_Error("Colourmap [%s] is too small ! (LENGTH too big)\n", 
-		colm->ddf.name);
+		colm->ddf.name.GetString());
 
 	data_in = data + (colm->start * 256);
 

@@ -28,26 +28,6 @@
 
 #include "i_defs.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
-#include "e_search.h"
-#include "m_bbox.h"
-#include "m_random.h"
-#include "p_local.h"
-#include "p_mobj.h"
-#include "r_defs.h"
-#include "r_main.h"
-#include "r_sky.h"
-#include "r_state.h"
-#include "r_things.h"
-#include "r2_defs.h"
-#include "rgl_defs.h"
-#include "v_colour.h"
-#include "v_res.h"
-#include "w_textur.h"
-#include "w_wad.h"
-#include "z_zone.h"
-
 /* NOTE: texture handling now done by image system */
 
 /* --- AJA: test for a logo --- */

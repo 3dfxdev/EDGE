@@ -25,8 +25,6 @@
 #include "ddf_locl.h"
 #include "ddf_main.h"
 
-#include "z_zone.h"
-
 #undef  DF
 #define DF  DDF_CMD
 
@@ -114,8 +112,6 @@ static bool SectorStartEntry(const char *name)
 		sectortypes.Insert(dynamic_sector);
 	}
 
-	dynamic_sector->ddf.name = NULL;
-
 	// instantiate the static entry
 	buffer_sector.Default();
 
@@ -154,11 +150,7 @@ static void SectorFinishEntry(void)
 	dynamic_sector->CopyDetail(buffer_sector);
 
 	// compute CRC...
-	CRC32_Init(&dynamic_sector->ddf.crc);
-
 	// FIXME: add stuff...
-
-	CRC32_Done(&dynamic_sector->ddf.crc);
 }
 
 //
@@ -519,10 +511,7 @@ void sectortype_c::CopyDetail(sectortype_c &src)
 //
 void sectortype_c::Default()
 {
-	// FIXME: ddf.Default()?
-	ddf.name = NULL;
-	ddf.number = 0;
-	ddf.crc = 0;
+	ddf.Default();
 	
 	secret = false;
 	gravity = GRAVITY;
@@ -591,11 +580,7 @@ void sectortype_container_c::CleanupObject(void *obj)
 	sectortype_c *s = *(sectortype_c**)obj;
 
 	if (s)
-	{
-		// FIXME: Use proper new/transfer name cleanup to ddf_base destructor
-		if (s->ddf.name) { Z_Free(s->ddf.name); }
 		delete s;
-	}
 
 	return;
 }

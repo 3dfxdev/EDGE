@@ -519,7 +519,7 @@ void RAD_GroupTriggerTags(rad_trigger_t *trig)
 //
 // RAD_SpawnTriggers
 //
-void RAD_SpawnTriggers(char *map_name)
+void RAD_SpawnTriggers(const char *map_name)
 {
 	rad_script_t *scr;
 	rad_trigger_t *trig;

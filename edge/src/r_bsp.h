@@ -27,7 +27,6 @@
 #define __R_BSP__
 
 #include "r_defs.h"
-#include "z_zone.h"
 
 extern side_t *sidedef;
 extern line_t *linedef;

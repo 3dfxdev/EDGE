@@ -498,7 +498,7 @@ void SR_WeaponPutInfo(void *storage, int index, void *extra)
 {
 	weapondef_c *info = ((weapondef_c **)storage)[index];
 
-	SV_PutString(info ? info->ddf.name : NULL);
+	SV_PutString(info ? info->ddf.name.GetString() : NULL);
 }
 
 
@@ -681,7 +681,7 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 		base--)
 	{ /* nothing */ }
 
-	buf.Format("%s:%s:%d", actual->ddf.name,
+	buf.Format("%s:%s:%d", actual->ddf.name.GetString(),
 		states[base].label ? states[base].label : "*",
 		1 + s_num - base);
 

@@ -100,10 +100,10 @@ void S_ChangeMusic(int entrynum, bool looping)
 		//
 		if (play->type != MUS_OGG)
 		{
-			data = M_GetFileData(play->info, &datlength);
+			data = M_GetFileData(play->info.GetString(), &datlength);
 			if (!data)
 			{
-				I_Warning("S_ChangeMusic: Can't Load File '%s'\n", play->info);
+				I_Warning("S_ChangeMusic: Can't Load File '%s'\n", play->info.GetString());
 				return;
 			}
 
@@ -140,7 +140,7 @@ void S_ChangeMusic(int entrynum, bool looping)
 		}
 		else
 		{
-			I_Warning("S_ChangeMusic: LUMP '%s' not found.\n", play->info); 
+			I_Warning("S_ChangeMusic: LUMP '%s' not found.\n", play->info.GetString()); 
 			return;
 		}
 	}

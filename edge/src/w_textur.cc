@@ -39,6 +39,7 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+#include "epi/epiutil.h"
 
 typedef struct texture_set_s
 {
@@ -79,10 +80,10 @@ static void InstallTextureLumps(int file, int pnames, int palette,
 	const int *maptex;
 	const int *maptex1;
 	const int *maptex2;
-	int *patchlookup;
+	epi::s32array_c patchlookup;
 	const int *directory;
 
-	char name[9];
+	lumpname_c name;
 	const char *names;
 	const char *name_p;
 
@@ -91,18 +92,17 @@ static void InstallTextureLumps(int file, int pnames, int palette,
 	byte *base;
 
 	// Load the patch names from pnames.lmp.
-	name[8] = 0;
-
 	names = (const char*)W_CacheLumpNum(pnames);
 	nummappatches = LONG(*((const int *)names));
 	name_p = names + 4;
 
-	patchlookup = Z_New(int, nummappatches);
+	patchlookup.Size(nummappatches);
 
 	for (i = 0; i < nummappatches; i++)
 	{
-		Z_StrNCpy(name, name_p + i * 8, 8);
-		patchlookup[i] = W_CheckNumForTexPatch(name);
+		name.Set((const char*)(name_p + i * 8));
+		j = W_CheckNumForTexPatch(name);
+		patchlookup.Insert(j);
 	}
 
 	W_DoneWithLump(names);
@@ -205,8 +205,6 @@ static void InstallTextureLumps(int file, int pnames, int palette,
 
 	if (maptex2)
 		W_DoneWithLump(maptex2);
-
-	Z_Free(patchlookup);
 }
 
 //
@@ -260,7 +258,7 @@ bool W_InitTextures(void)
 	for (j=0; j < num_tex_sets; j++)
 		numtextures += tex_sets[j].numtextures;
 
-	textures = cur = Z_New(texturedef_t *, numtextures);
+	textures = cur = new texturedef_t*[numtextures];
 
 	for (j=0; j < num_tex_sets; j++)
 	{
@@ -310,7 +308,7 @@ bool W_InitTextures(void)
 
 	// free pointer array.  We need to keep the definitions in memory
 	// for (a) the image system and (b) texture anims.
-	Z_Free(textures);
+	delete [] textures;
 
 	return true;
 }

@@ -34,7 +34,6 @@
 #include "p_local.h"
 #include "s_sound.h"
 #include "st_stuff.h"
-#include "z_zone.h"
 
 #define BONUS_ADD    6
 #define BONUS_LIMIT  100

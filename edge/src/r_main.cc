@@ -50,7 +50,6 @@
 #include "v_colour.h"
 #include "w_wad.h"
 #include "wp_main.h"
-#include "z_zone.h"
 
 #define RESDELAY_MAXLOOP 18081979
 

@@ -34,7 +34,6 @@
 
 #include "dm_state.h"
 #include "p_local.h"
-#include "z_zone.h"
 
 int leveltime;
 

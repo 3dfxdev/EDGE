@@ -401,7 +401,7 @@ static bool ThingTryParseState(const char *field,
 	const state_starter_t *starter;
 	const char *pos;
 
-	char labname[68];
+	epi::string_c labname;
 
 	if (strncasecmp(field, "STATES(", 7) != 0)
 		return false;
@@ -414,13 +414,14 @@ static bool ThingTryParseState(const char *field,
 	if (pos == NULL || pos == field || pos > (field+64))
 		return false;
 
-	Z_StrNCpy(labname, field, pos - field);
+	labname.Empty();
+	labname.AddChars(field, 0, pos - field);
 
 	// check for the "standard" states
 	starter = NULL;
 
 	for (i=0; thing_starters[i].label; i++)
-		if (DDF_CompareName(thing_starters[i].label, labname) == 0)
+		if (DDF_CompareName(thing_starters[i].label, labname.GetString()) == 0)
 			break;
 
 	if (thing_starters[i].label)
@@ -444,25 +445,28 @@ static bool ThingStartEntry(const char *buffer)
 {
 	int idx;
 
-	char namebuf[200];
+	epi::string_c s;
 	int number = 0;
 	char *pos = strchr(buffer, ':');
 
+	s.Empty();
 	if (pos)
 	{
-		Z_StrNCpy(namebuf, buffer, pos - buffer);
+		s.AddChars(buffer, 0, pos - buffer);
+		
 		number = MAX(0, atoi(pos+1));
 	}
 	else
 	{
-		strcpy(namebuf, buffer);
+		if (buffer && buffer[0])
+			s = buffer;
 	}
 
 	idx = -1;
 
-	if (namebuf[0])
+	if (!s.IsEmpty())
 	{
-		idx = mobjtypes.FindFirst(namebuf, mobjtypes.GetDisabledCount());
+		idx = mobjtypes.FindFirst(s.GetString(), mobjtypes.GetDisabledCount());
 		if (idx>=0)
 		{
 			mobjtypes.MoveToEnd(idx);
@@ -474,10 +478,10 @@ static bool ThingStartEntry(const char *buffer)
 	{
 		dynamic_mobj = new mobjtype_c;
 
-		dynamic_mobj->ddf.name = 
-			(namebuf[0]) ? 
-			Z_StrDup(namebuf) :
-			DDF_MainCreateUniqueName("UNNAMED_THING", mobjtypes.GetSize());
+		if (s.IsEmpty())
+			dynamic_mobj->ddf.SetUniqueName("UNNAMED_THING", mobjtypes.GetSize());
+		else
+			dynamic_mobj->ddf.name.Set(s.GetString());
 
 		mobjtypes.Insert(dynamic_mobj);
 	}
@@ -576,11 +580,7 @@ static void ThingFinishEntry(void)
 	dynamic_mobj->CopyDetail(buffer_mobj);
 
 	// compute CRC...
-	CRC32_Init(&dynamic_mobj->ddf.crc);
-
-	// FIXME: add more stuff...
-
-	CRC32_Done(&dynamic_mobj->ddf.crc);
+	// FIXME: Do something.
 }
 
 static void ThingClearAll(void)
@@ -636,7 +636,7 @@ void DDF_MobjCleanUp(void)
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
 
-		DDF_ErrorSetEntryName("[%s]  (things.ddf)", m->ddf.name);
+		cur_ddf_entryname.Format("[%s]  (things.ddf)", m->ddf.name.GetString());
 
 		m->dropitem = m->dropitem_ref ? mobjtypes.Lookup(m->dropitem_ref) : NULL;
 		m->blood = m->blood_ref ? mobjtypes.Lookup(m->blood_ref) : mobjtypes.Lookup("BLOOD");
@@ -653,7 +653,7 @@ void DDF_MobjCleanUp(void)
 		//       Now clean it up.
 		m->xscale *= m->yscale;
 
-		DDF_ErrorClearEntryName();
+		cur_ddf_entryname.Empty();
 	}
 
 	mobjtypes.Trim();
@@ -936,7 +936,7 @@ static void BenefitAdd(benefit_t **list, benefit_t *source)
 	}
 
 	// nope, create a new one and link it onto the _TAIL_
-	cur = Z_New(benefit_t, 1);
+	cur = new benefit_t;
 
 	cur[0] = source[0];
 	cur->next = NULL;
@@ -1209,11 +1209,7 @@ mobjtype_c *DDF_MobjMakeAttackObj(mobjtype_c *info, const char *atk_name)
 
 	result = new mobjtype_c;
 	result->CopyDetail(info[0]);
-
-	// FIXME!!! Use ddf constructor
-	result->ddf.name = Z_StrDup(s);
-	result->ddf.number = 0;
-	result->ddf.crc = 0;
+	result->ddf.name.Set(s);
 
 	// Add to the list
 	mobjtypes.Insert(result);
@@ -1552,10 +1548,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 //
 void mobjtype_c::Default()
 {
-	// FIXME: ddf.Clear() ?
-	ddf.name	= "";
-	ddf.number	= 0;	
-	ddf.crc		= 0;
+	ddf.Default();
 
 	first_state = 0;
 	last_state = 0; 
@@ -1701,11 +1694,7 @@ void mobjtype_container_c::CleanupObject(void *obj)
 	mobjtype_c *m = *(mobjtype_c**)obj;
 
 	if (m)
-	{
-		// FIXME: Use proper new/transfer name cleanup to ddf_base destructor
-		if (m->ddf.name) { Z_Free(m->ddf.name); }
 		delete m;
-	}
 
 	return;
 }
@@ -1726,7 +1715,7 @@ int mobjtype_container_c::FindFirst(const char *name, int startpos)
 	while (it.IsValid())
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
-		if (DDF_CompareName(m->ddf.name, name) == 0)
+		if (DDF_CompareName(m->ddf.name.GetString(), name) == 0)
 		{
 			return it.GetPos();
 		}
@@ -1753,7 +1742,7 @@ int mobjtype_container_c::FindLast(const char *name, int startpos)
 	while (it.IsValid())
 	{
 		m = ITERATOR_TO_TYPE(it, mobjtype_c*);
-		if (DDF_CompareName(m->ddf.name, name) == 0)
+		if (DDF_CompareName(m->ddf.name.GetString(), name) == 0)
 		{
 			return it.GetPos();
 		}

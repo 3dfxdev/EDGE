@@ -26,7 +26,6 @@
 #include "dm_state.h"
 #include "p_spec.h"
 #include "r_local.h"
-#include "z_zone.h"
 
 #undef  DF
 #define DF  DDF_CMD
@@ -76,7 +75,7 @@ static bool AnimStartEntry(const char *name)
 		for (it = animdefs.GetBaseIterator(); it.IsValid(); it++)
 		{
 			a = ITERATOR_TO_TYPE(it, animdef_c*);
-			if (DDF_CompareName(a->ddf.name, name) == 0)
+			if (DDF_CompareName(a->ddf.name.GetString(), name) == 0)
 			{
 				dynamic_anim = a;
 				replaces = true;
@@ -90,8 +89,10 @@ static bool AnimStartEntry(const char *name)
 	{
 		dynamic_anim = new animdef_c;
 
-		dynamic_anim->ddf.name = (name && name[0]) ? Z_StrDup(name) :
-			DDF_MainCreateUniqueName("UNNAMED_ANIM", animdefs.GetSize());
+		if (name && name[0])
+			dynamic_anim->ddf.name.Set(name);
+		else
+			dynamic_anim->ddf.SetUniqueName("UNNAMED_ANIM", animdefs.GetSize());
 
 		animdefs.Insert(dynamic_anim);
 	}
@@ -132,7 +133,7 @@ static void AnimFinishEntry(void)
 
 	// Compute CRC.  In this case, there is no need, since animations
 	// have zero impact on the game simulation.
-	dynamic_anim->ddf.crc = 0;
+	dynamic_anim->ddf.crc.Reset();
 }
 
 static void AnimClearAll(void)
@@ -253,10 +254,7 @@ void animdef_c::CopyDetail(animdef_c &src)
 //
 void animdef_c::Default()
 {
-	// FIXME: ddf.Default()?
-	ddf.name = NULL;
-	ddf.number = 0;
-	ddf.crc = 0;
+	ddf.Default();
 
 	istexture = true;
 
@@ -287,11 +285,7 @@ void animdef_container_c::CleanupObject(void *obj)
 	animdef_c *a = *(animdef_c**)obj;
 
 	if (a)
-	{
-		// FIXME: Use proper new/transfer name cleanup to ddf_base destructor
-		if (a->ddf.name) { Z_Free(a->ddf.name); }
 		delete a;
-	}
 
 	return;
 }

@@ -24,8 +24,6 @@
 #include "ddf_locl.h"
 #include "ddf_main.h"
 
-#include "z_zone.h"
-
 #include "./epi/epistring.h"
 
 #undef  DF
@@ -90,8 +88,10 @@ static bool GameStartEntry (const char *name)
 	{
 		dynamic_gamedef = new gamedef_c;
 
-		dynamic_gamedef->ddf.name = (name && name[0]) ? Z_StrDup(name) :
-			DDF_MainCreateUniqueName("UNNAMED_GAMEDEF", gamedefs.GetSize());
+		if (name && name[0])
+			dynamic_gamedef->ddf.name.Set(name);
+		else
+			dynamic_gamedef->ddf.SetUniqueName("UNNAMED_GAMEDEF", gamedefs.GetSize());
 
 		gamedefs.Insert(dynamic_gamedef);
 	}
@@ -129,10 +129,7 @@ static void GameFinishEntry (void)
 	dynamic_gamedef->CopyDetail(buffer_gamedef);
 
 	// compute CRC...
-	// FIXME: Use EPI CRC Class
-	CRC32_Init (&dynamic_gamedef->ddf.crc);
-	// FIXME: more stuff...
-	CRC32_Done (&dynamic_gamedef->ddf.crc);
+	// FIXME: Do something!
 }
 
 static void GameClearAll (void)
@@ -816,10 +813,7 @@ void gamedef_c::CopyDetail(gamedef_c &src)
 //
 void gamedef_c::Default()
 {
-	// FIXME: ddf.Clear() ?
-	ddf.name	= "";
-	ddf.number	= 0;	
-	ddf.crc		= 0;
+	ddf.Default();
 
 	anims.Clear();
 	mappos.Clear();
@@ -908,7 +902,7 @@ gamedef_c* gamedef_container_c::Lookup(const char *refname)
 	for (it = GetBaseIterator(); it.IsValid(); it++)
 	{
 		g = ITERATOR_TO_TYPE(it, gamedef_c*);
-		if (DDF_CompareName(g->ddf.name, refname) == 0)
+		if (DDF_CompareName(g->ddf.name.GetString(), refname) == 0)
 			return g;
 	}
 

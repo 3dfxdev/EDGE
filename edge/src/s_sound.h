@@ -27,7 +27,6 @@
 #define __S_SOUND__
 
 #include "p_mobj.h"
-#include "z_zone.h"
 
 // for the sliders
 #define S_MIN_VOLUME 0

@@ -27,7 +27,6 @@
 #include "ddf_main.h"
 #include "e_search.h"
 #include "p_action.h"
-#include "z_zone.h"
 
 #undef  DF
 #define DF  DDF_CMD
@@ -166,7 +165,7 @@ static bool WeaponTryParseState(const char *field,
 	const state_starter_t *starter;
 	const char *pos;
 
-	char labname[68];
+	epi::string_c labname;
 
 	if (strncasecmp(field, "STATES(", 7) != 0)
 		return false;
@@ -179,13 +178,14 @@ static bool WeaponTryParseState(const char *field,
 	if (pos == NULL || pos == field || pos > (field+64))
 		return false;
 
-	Z_StrNCpy(labname, field, pos - field);
+	labname.Empty();
+	labname.AddChars(field, 0, pos - field);
 
 	// check for the "standard" states
 	starter = NULL;
 
 	for (i=0; weapon_starters[i].label; i++)
-		if (DDF_CompareName(weapon_starters[i].label, labname) == 0)
+		if (DDF_CompareName(weapon_starters[i].label, labname.GetString()) == 0)
 			break;
 
 	if (weapon_starters[i].label)
@@ -221,8 +221,10 @@ static bool WeaponStartEntry(const char *name)
 	{
 		dynamic_weapon = new weapondef_c;
 
-		dynamic_weapon->ddf.name = (name && name[0]) ? Z_StrDup(name) :
-			DDF_MainCreateUniqueName("UNNAMED_WEAPON", weapondefs.GetSize());
+		if (name && name[0])
+			dynamic_weapon->ddf.name.Set(name);
+		else
+			dynamic_weapon->ddf.SetUniqueName("UNNAMED_WEAPON", weapondefs.GetSize());
 
 		weapondefs.Insert(dynamic_weapon);
 	}
@@ -262,7 +264,7 @@ static void WeaponFinishEntry(void)
 {
 	if (! buffer_weapon.first_state)
 		DDF_Error("Weapon `%s' has missing states.\n",
-			dynamic_weapon->ddf.name);
+			dynamic_weapon->ddf.name.GetString());
 
 	DDF_StateFinishStates(buffer_weapon.first_state, buffer_weapon.last_state);
 
@@ -288,15 +290,10 @@ static void WeaponFinishEntry(void)
 	dynamic_weapon->CopyDetail(buffer_weapon);
 
 	// compute CRC...
-	CRC32_Init(&dynamic_weapon->ddf.crc);
-
-	CRC32_ProcessInt(&dynamic_weapon->ddf.crc, dynamic_weapon->ammo);
-	CRC32_ProcessInt(&dynamic_weapon->ddf.crc, dynamic_weapon->ammopershot);
+	dynamic_weapon->ddf.crc += dynamic_weapon->ammo;
+	dynamic_weapon->ddf.crc += dynamic_weapon->ammopershot;
 
 	// FIXME: do more stuff...
-	// FIXME: Use epi::crc class
-
-	CRC32_Done(&dynamic_weapon->ddf.crc);
 }
 
 static void WeaponClearAll(void)
@@ -379,7 +376,7 @@ void DDF_WeaponCleanUp(void)
 		L_WriteDebug("DDF_Weap: CHOICES ON KEY %d:\n", key);
 		for (i=0; i < wk->numchoices; i++)
 		{
-			L_WriteDebug("  [%s] pri=%d\n", wk->choices[i]->ddf.name,
+			L_WriteDebug("  [%s] pri=%d\n", wk->choices[i]->ddf.name.GetString(),
 					wk->choices[i]->priority);
 		}
 #endif
@@ -571,10 +568,7 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 //	
 void weapondef_c::Default(void)
 {
-	// FIXME: ddf.Clear() ?
-	ddf.name	= "";
-	ddf.number	= 0;	
-	ddf.crc		= 0;	
+	ddf.Default();
 
 	attack = NULL;
 
@@ -672,11 +666,7 @@ void weapondef_container_c::CleanupObject(void *obj)
 	weapondef_c *w = *(weapondef_c**)obj;
 
 	if (w)
-	{
-		// FIXME: Use proper new/transfer name cleanup to ddf_base destructor
-		if (w->ddf.name) { Z_Free(w->ddf.name); }
 		delete w;
-	}
 
 	return;
 }
@@ -697,7 +687,7 @@ int weapondef_container_c::FindFirst(const char *name, int startpos)
 	while (it.IsValid())
 	{
 		w = ITERATOR_TO_TYPE(it, weapondef_c*);
-		if (DDF_CompareName(w->ddf.name, name) == 0)
+		if (DDF_CompareName(w->ddf.name.GetString(), name) == 0)
 		{
 			return it.GetPos();
 		}

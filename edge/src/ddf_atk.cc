@@ -26,7 +26,6 @@
 #include "ddf_locl.h"
 #include "ddf_main.h"
 
-#include "z_zone.h"
 
 #undef  DF
 #define DF  DDF_CMD
@@ -128,8 +127,10 @@ static bool AttackStartEntry(const char *name)
 	{
 		dynamic_atk = new atkdef_c;
 
-		dynamic_atk->ddf.name = (name && name[0]) ? Z_StrDup(name) :
-			DDF_MainCreateUniqueName("UNNAMED_ATTACK", atkdefs.GetSize());
+		if (name && name[0])
+			dynamic_atk->ddf.name.Set(name);
+		else
+			dynamic_atk->ddf.SetUniqueName("UNNAMED_ATTACK", atkdefs.GetSize());
 
 		atkdefs.Insert(dynamic_atk);
 	}
@@ -182,7 +183,7 @@ static void AttackFinishEntry(void)
 								  buffer_mobj.last_state);
 
 		buffer_atk.atk_mobj = DDF_MobjMakeAttackObj(&buffer_mobj,
-													dynamic_atk->ddf.name);
+											dynamic_atk->ddf.name.GetString());
 
 	}
 	else
@@ -210,12 +211,7 @@ static void AttackFinishEntry(void)
   
 	dynamic_atk->CopyDetail(buffer_atk);
 
-	// compute CRC...
-	CRC32_Init(&dynamic_atk->ddf.crc);
-
-	// FIXME: add more stuff...
-
-	CRC32_Done(&dynamic_atk->ddf.crc);
+	// FIXME!! Compute the CRC value
 }
 
 static void AttackClearAll(void)
@@ -269,7 +265,7 @@ void DDF_AttackCleanUp(void)
 	{
 		a = ITERATOR_TO_TYPE(it, atkdef_c*);
 
-		DDF_ErrorSetEntryName("[%s]  (attacks.ddf)", a->ddf.name);
+		cur_ddf_entryname.Format("[%s]  (attacks.ddf)", a->ddf.name.GetString());
 
 		// lookup thing references
 
@@ -287,7 +283,7 @@ void DDF_AttackCleanUp(void)
 				a->objinitstate = DDF_MainLookupDirector(a->spawnedobj, a->objinitstate_ref);
 		}
 
-		DDF_ErrorClearEntryName();
+		cur_ddf_entryname.Empty();
 	}
 
 	atkdefs.Trim();
@@ -386,9 +382,7 @@ static void DDF_AtkGetLabel(const char *info, void *storage)
 	if (i <= 0)
 		DDF_Error("Bad State `%s'.\n", info);
 
-	lab->label = Z_New(const char, i + 1);
-	Z_StrNCpy((char *)lab->label, info, i);
-
+	lab->label.Set(info, i);
 	lab->offset = div ? MAX(0, atoi(div+1) - 1) : 0;
 }
 
@@ -466,10 +460,7 @@ void atkdef_c::CopyDetail(atkdef_c &src)
 //
 void atkdef_c::Default()
 {
-	// FIXME: ddf.Clear() ?
-	ddf.name	= "";
-	ddf.number	= 0;	
-	ddf.crc		= 0;
+	ddf.Default();
 
 	attackstyle = ATK_NONE;
 	flags = AF_None;
@@ -538,11 +529,7 @@ void atkdef_container_c::CleanupObject(void *obj)
 	atkdef_c *a = *(atkdef_c**)obj;
 
 	if (a)
-	{
-		// FIXME: Use proper new/transfer name cleanup to ddf_base destructor
-		if (a->ddf.name) { Z_Free(a->ddf.name); }
 		delete a;
-	}
 
 	return;
 }
@@ -563,7 +550,7 @@ atkdef_c* atkdef_container_c::Lookup(const char *refname)
 	for (it = GetIterator(num_disabled); it.IsValid(); it++)
 	{
 		a = ITERATOR_TO_TYPE(it, atkdef_c*);
-		if (DDF_CompareName(a->ddf.name, refname) == 0)
+		if (DDF_CompareName(a->ddf.name.GetString(), refname) == 0)
 			return a;
 	}
 

@@ -284,7 +284,7 @@ wbplayerstruct_t;
 
 typedef struct
 {
-	char *level;  // episode # (0-2)
+	const char *level;  // episode # (0-2)
 
 	// previous and next levels, origin 0
 	const mapdef_c *last;
