@@ -28,6 +28,7 @@ public:
 	virtual int  getch() = 0;
 	virtual void ungetch(int c) = 0;
 
+	virtual bool isBinary() const = 0;
 	virtual void showProgress() = 0;
 };
 
