@@ -33,9 +33,4 @@
 #define SAVEGAMEEXT     "esg"
 #define SAVEGAMEMODE    0755
 
-extern const char *chat_macros[10];
-
-extern const char *destination_keys;
-extern const char *gammamsg[5];
-
 #endif
