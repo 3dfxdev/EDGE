@@ -241,6 +241,7 @@ hud_type_e;
 
 extern int crosshair;
 extern int screen_hud;
+extern int sky_stretch;
 extern int menunormalfov, menuzoomedfov;
 extern int usemouse;
 extern int usejoystick;

@@ -113,26 +113,14 @@ typedef byte cached_image_t;
 
 typedef enum
 {
-	// Vertical posts.  Each post is essentially the same as in normal
-	// doom, with one exception: the first byte is not an absolute Y
-	// offset from top of sprite, but the number of pixels to skip from
-	// the current position.  This removes the height limitation from
-	// the column drawers (it still exists in the WAD format though).
-	IMG_Post = 0,
-
-    // Block o' pixels.  Total size is MIP_SIZE(total_h, mip) *
-    // MIP_SIZE(total_w, mip).  Pixel ordering is optimised for walls:
-    // 1st byte is top left, 2nd byte is next pixel down, etc...
-    // Transparent parts (if any) have `TRANS_PIXEL' values.
-	IMG_Block = 1,
-
-	// OpenGL support.  The image is not read directly, but referred to
-	// as a GL texture id number (which can be given to glBindTexture).
-	// The `mip' value must be 0.  Transparent parts (if any) are given
-	// an alpha of zero (otherwise alpha is 255).
-	IMG_OGL = 2
+	WSKY_North = 0,
+	WSKY_East,
+	WSKY_South,
+	WSKY_West,
+	WSKY_Top,
+	WSKY_Bottom
 }
-image_mode_e;
+sky_box_face_e;
 
 //
 //  IMAGE LOOKUP
@@ -143,7 +131,7 @@ const image_t *W_ImageFromFlat(const char *flat_name,   bool allow_null = false)
 const image_t *W_ImageFromPatch(const char *patch_name, bool allow_null = false);
 const image_t *W_ImageFromFont(const char *patch_name);
 const image_t *W_ImageFromHalo(const char *patch_name);
-const image_t *W_ImageFromSkyMerge(const image_t *sky, bool bottom);
+const image_t *W_ImageFromSkyMerge(const image_t *sky, int face);
 const image_t *W_ImageForDummySprite(void);
 
 extern image_t *savepic_image;
@@ -174,14 +162,10 @@ void W_LockImagesOGL(void);
 void W_UnlockImagesOGL(void);
 
 const cached_image_t *W_ImageCache(const image_t *image, 
-								   image_mode_e mode, int mip, bool anim,
+								   int mip = 0, bool anim = true,
 								   const colourmap_c *trans = NULL);
 void W_ImageDone(const cached_image_t *c);
 void W_ImagePreCache(const image_t *image);
-
-const w_post_t *W_ImageGetPost(const cached_image_t *c, int column);
-
-const byte *W_ImageGetBlock(const cached_image_t *c);
 
 GLuint W_ImageGetOGL(const cached_image_t *c);
 

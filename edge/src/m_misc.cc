@@ -108,6 +108,7 @@ static default_t defaults[] =
     {CFGT_Enum, "wipe_method", &wipe_method, WIPE_Melt},
     {CFGT_Int, "wipe_reverse", &wipe_reverse, 0},
     {CFGT_Enum, "crosshair", &crosshair, 0},
+    {CFGT_Enum, "sky_stretch", &sky_stretch, 3},
     {CFGT_Boolean, "rotatemap", &rotatemap, 0},
     {CFGT_Boolean, "newhud", &map_overlay, 0},
     {CFGT_Boolean, "respawnsetting", &global_flags.res_respawn, 0},
