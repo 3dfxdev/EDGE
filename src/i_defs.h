@@ -124,7 +124,7 @@ typedef enum { false, true } boolean_t;
 
 #define GCCATTR(a) __attribute__((a))
 #define INLINE inline
-#define EDGE_INLINE(decl, body) extern inline decl body
+#define EDGE_INLINE(decl, body) extern decl ; extern inline decl body
 
 //
 // TmpMalloc is a memory allocater which can be used for temporary allocations.

@@ -90,6 +90,7 @@ void W_PreCacheLumpName(const char *name);
 void *W_LoadLumpNum(int lump);
 void *W_LoadLumpName(const char *name);
 boolean_t W_VerifyLumpName(int lump, const char *name);
+int W_CacheInfo(int level);
 
 wadtex_resource_t *W_GetTextureResources(void);
 int *W_GetList(char name, int *num);

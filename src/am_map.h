@@ -62,7 +62,7 @@ typedef struct
 }
 islope_t;
 
-void resinit_am_map_c(void);
+void AM_InitResolution(void);
 
 // Called by main loop.
 boolean_t AM_Responder(event_t * ev);
