@@ -358,11 +358,14 @@ struct mobj_s
 
   int frame;  // might be ORed with FF_FULLBRIGHT
 
+  // current subsector and vertical region
   struct subsector_s *subsector;
+  struct vert_region_s *region;
 
   // The closest interval over all contacted Sectors.
   float_t floorz;
   float_t ceilingz;
+  float_t dropoffz;
 
   // For movement checking.
   float_t radius;
@@ -458,6 +461,10 @@ struct mobj_s
 
   // -AJA- 1999/07/31: when not NULL, we are sitting on top of it.
   mobj_t * ride_em;
+
+  // these delta values give what position from the ride_em thing's
+  // center we are sitting on it.
+  float_t ride_dx, ride_dy;
 
   // -AJA- 1999/09/25: Path support.
   struct rad_script_s *path_trigger;
