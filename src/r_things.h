@@ -71,7 +71,7 @@ public:
 	// Images for each view angle 0-15.
 	const struct image_s *images[16];
 
-	int CalcRot(angle_t obj_face, angle_t from_view) const
+	inline int CalcRot(angle_t obj_face, angle_t from_view) const
 	{
 		if (! rotated)
 			return 0;
@@ -119,7 +119,7 @@ private:
 
 public:
     // List Management
-	int GetSize() { return array_entries; }
+	int GetSize() const { return array_entries; }
 	int Insert(spritedef_c *c) { return InsertObject((void*)&c); }
 	spritedef_c* operator[](int idx) { return *(spritedef_c**)FetchObject(idx); }
 };
