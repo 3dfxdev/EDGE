@@ -714,6 +714,14 @@ void S_UpdateSounds(mobj_t *listener)
         listen_ori_up[CY] = 0.0f;
         listen_ori_up[CZ] = 1.0f;
 
+		// implement swap-stereo by negating the UP vector
+		if (swapstereo)
+		{
+			listen_ori_up[CX] *= -1.0f;
+			listen_ori_up[CY] *= -1.0f;
+			listen_ori_up[CZ] *= -1.0f;
+		}
+
         I_SoundSetListenerOrient(listen_ori_at, listen_ori_up);
         I_SoundSetListenerPos(listen_pos, listen_veloc);
     }
