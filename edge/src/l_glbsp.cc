@@ -247,7 +247,12 @@ bool GB_BuildNodes(const char *filename, const char *outname)
 	// FIXME: user-controllable build options (factor, fresh, etc).
 
 	if (GLBSP_E_OK != GlbspCheckInfo(&nb_info, &nb_comms))
+	{
+		GB_PrintMsg("Param Check FAILED:\n");
+		GB_PrintMsg("- %s\n", nb_comms.message);
+
 		return false;
+	}
 
 	GB_InitProgress();
 
@@ -256,7 +261,12 @@ bool GB_BuildNodes(const char *filename, const char *outname)
 	GB_TermProgress();
 
 	if (ret != GLBSP_E_OK)
+	{
+		GB_PrintMsg("Building FAILED:\n");
+		GB_PrintMsg("- %s\n\n", nb_comms.message);
+
 		return false;
+	}
 
 	DEV_ASSERT2(nb_info.gwa_mode);
 
