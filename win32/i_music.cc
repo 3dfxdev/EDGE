@@ -352,6 +352,10 @@ void I_SetMusicVolume(int *handle, int volume)
 			break;
 		}
 
+#ifdef HOGGIE_OGG_SUPPORT
+		case MUS_OGG:	{ oggplayer->SetVolume(volume); break; }
+#endif
+
 		default:
 			break;
 	}
