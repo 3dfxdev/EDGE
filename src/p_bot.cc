@@ -45,10 +45,17 @@ static mobj_t *bot_shooter = NULL;
 static void NewBotChaseDir(bot_t * bot)
 {
 	// FIXME: This is not very intelligent...
-	if (bot->target && (M_Random() & 1))
+	int r = M_Random();
+
+	if (bot->target && (r % 3 == 0))
 	{
 		bot->angle = R_PointToAngle(bot->pl->mo->x, bot->pl->mo->y,
 			bot->target->x, bot->target->y);
+	}
+	else if (bot->supportobj && (r % 3 == 1))
+	{
+		bot->angle = R_PointToAngle(bot->pl->mo->x, bot->pl->mo->y,
+			bot->supportobj->x, bot->supportobj->y);
 	}
 	else
 		bot->angle = M_Random() << 24;
@@ -71,6 +78,7 @@ static void Confidence(bot_t * bot)
 		if (p->ammo[ammo].num > p->ammo[ammo].max / 2)
 			bot->confidence = 1;
 	}
+
 	bot->confidence = 0;
 }
 
@@ -318,37 +326,70 @@ static void MoveBot(bot_t *bot, angle_t angle)
 // Based on P_LookForTargets from p_enemy.c
 static bool LookForBotTargets(bot_t *bot)
 {
-	mobj_t *object = bot->pl->mo;
-	mobj_t *currmobj;
+	mobj_t *we = bot->pl->mo;
+	mobj_t *them;
 
-	for (currmobj = mobjlisthead; currmobj; currmobj = currmobj->next)
+	for (them = mobjlisthead; them; them = them->next)
 	{
-		if ((currmobj->side & object->side) && !object->supportobj)
+		if (them == we)
+			continue;
+
+		bool same_side = ((them->side & we->side) != 0);
+
+		// only target monsters or players (not barrels)
+		if (! (them->extendedflags & EF_MONSTER) && ! them->player)
+			continue;
+
+		if (! (them->flags & MF_SHOOTABLE))
+			continue;
+
+		if (them->player && them != we && same_side &&
+			!we->supportobj && them->supportobj != we)
 		{
-			if (currmobj->supportobj != object && P_CheckSight(object, currmobj))
+			if (them->supportobj && P_CheckSight(we, them->supportobj))
 			{
-				bot->supportobj = currmobj;
+				bot->supportobj = them->supportobj;
+				return true;
+			}
+			else if (P_CheckSight(we, them))
+			{
+				bot->supportobj = them;
 				return true;
 			}
 		}
+
 		// The following must be true to justify that you attack a target:
 		// 1. The target may not be yourself or your support obj.
-		// 2. The target must either want to attack you, or be on a different side
-		// 3. The target may not have the same supportobj as you.
-		// 4. The target's type must be different from your, if you aren't disloyal.
+		// 2. The target's type must be different from your, if you aren't disloyal.
+		// 3. The target must either want to attack you, or be on a different side
+		// 4. The target may not have the same supportobj as you.
 		// 5. You must be able to see and shoot the target.
 
-		if ((((currmobj->target == object->supportobj || currmobj->target == object)
-			&& currmobj->target)
-			|| (object->side && !(currmobj->side & object->side)))
-			&& ((currmobj != object) &&
-			(currmobj != object->supportobj) &&
-			(object->info != currmobj->info || (object->extendedflags & EF_DISLOYALTYPE)) &&
-			((object->supportobj == NULL) || object->supportobj != currmobj->supportobj)))
+		if (we->info == them->info && ! (we->extendedflags & EF_DISLOYALTYPE)) 
+			continue;
+
+#if 0  // OLD CODE (TO BE REMOVED)
+		if ((((them->target == we->supportobj || them->target == we)
+			&& them->target)
+			|| (we->side && !(them->side & we->side)))
+			&& ((them != we) &&
+			(them != we->supportobj) &&
+			(we->info != them->info || (we->extendedflags & EF_DISLOYALTYPE)) &&
+			((we->supportobj == NULL) || we->supportobj != them->supportobj)))
 		{
-			if ((currmobj->flags & MF_SHOOTABLE) && P_CheckSight(object, currmobj))
+			if ((them->flags & MF_SHOOTABLE) && P_CheckSight(we, them))
 			{
-				bot->target = currmobj;
+				bot->target = them;
+				return true;
+			}
+		}
+#endif
+		if (! same_side || (them->target &&
+			(them->target == we || them->target == we->supportobj)))
+		{
+			if (P_CheckSight(we, them))
+			{
+				bot->target = them;
 				return true;
 			}
 		}
@@ -510,6 +551,7 @@ static void BotThink(bot_t * bot)
 			if (bot->movecount < 0 || !move_ok)
 			{
 				NewBotChaseDir(bot);
+
 				if (!move_ok)
 					bot->strafedir = M_Random() & 1;
 			}
