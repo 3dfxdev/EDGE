@@ -212,10 +212,9 @@ static void N_ConnectServer(void)
 	client_id = pk.hd().client;
 	
 	fprintf(stderr, "Connected to server: client_id %d\n", client_id);
-	fprintf(stderr, "Server version %x.%02x  Protocol version %x.%x.%x\n",
+	fprintf(stderr, "Server version %x.%02x  Protocol version %x.%02x\n",
 		con.server_ver >> 8, con.server_ver & 0xFF,
-		con.protocol_ver >> 8, (con.protocol_ver >> 4) & 0xF,
-		con.protocol_ver & 0xF);
+		con.protocol_ver >> 8, con.protocol_ver & 0xFF);
 }
 
 static void N_NewGame(void)
@@ -398,7 +397,10 @@ static void GetPackets(bool do_delay)
 
 	tic_group_proto_t& tg = pk.tg_p();
 
-	tg.ByteSwap((1 + bots_each) * tg.count);
+	int count = tg.last_player - tg.first_player + 1;
+
+	tg.ByteSwap();
+	tg.ByteSwapCmds((1 + bots_each) * count);
 
 	// !!! FIXME: handle tg.count
 
@@ -469,7 +471,8 @@ static void DoSendTiccmds(int tic)
 
 	DEV_ASSERT2((raw_cmd - tc.tic_cmds) == (1 + bots_each));
 
-    tc.ByteSwap((1 + bots_each) * tc.count);
+    tc.ByteSwap();
+    tc.ByteSwapCmds((1 + bots_each) * tc.count);
 
 	L_WriteDebug("Writing ticcmd for tic %d\n", tic);
 

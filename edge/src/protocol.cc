@@ -57,16 +57,17 @@ void connect_proto_t::ByteSwap()
 	info.ByteSwap();
 }
 
-void query_client_proto_t::ByteSwap(bool do_info)
+void query_client_proto_t::ByteSwap()
 {
 	first_client  = SYS_BE_S16(first_client);
+	last_client   = SYS_BE_S16(last_client);
 	total_clients = SYS_BE_S16(total_clients);
+}
 
-	if (do_info)  // FIXME: swap structures manually higher up ?
-	{
-		for (int c = 0; c < count; c++)
-			info[c].ByteSwap();
-	}
+void query_client_proto_t::ByteSwapInfo(int num_info)
+{
+	for (int i = 0; i < num_info; i++)
+		info[i].ByteSwap();
 }
 
 void game_info_t::ByteSwap()
@@ -84,16 +85,17 @@ void new_game_proto_t::ByteSwap()
 	game = SYS_BE_S16(game);
 }
 
-void query_game_proto_t::ByteSwap(bool do_info)
+void query_game_proto_t::ByteSwap()
 {
 	first_game  = SYS_BE_S16(first_game);
+	last_game   = SYS_BE_S16(last_game);
 	total_games = SYS_BE_S16(total_games);
+}
 
-	if (do_info)  // FIXME: swap structures manually higher up ?
-	{
-		for (int c = 0; c < count; c++)
-			info[c].ByteSwap();
-	}
+void query_game_proto_t::ByteSwapInfo(int num_info)
+{
+	for (int i = 0; i < num_info; i++)
+		info[i].ByteSwap();
 }
 
 void join_queue_proto_t::ByteSwap()
@@ -104,8 +106,11 @@ void join_queue_proto_t::ByteSwap()
 void play_game_proto_t::ByteSwap()
 {
 	random_seed = SYS_BE_U32(random_seed);
+}
 
-	for (int p = 0; p < count; p++)
+void play_game_proto_t::ByteSwapPlayers(int num_players)
+{
+	for (int p = 0; p < num_players; p++)
 		client_list[p] = SYS_BE_S16(client_list[p]);
 }
 
@@ -117,18 +122,24 @@ void raw_ticcmd_t::ByteSwap()
 	shorts[3] = SYS_BE_U16(shorts[3]);
 }
 
-void ticcmd_proto_t::ByteSwap(int num_cmds)
+void ticcmd_proto_t::ByteSwap()
 {
 	gametic = SYS_BE_U32(gametic);
-	
+}
+
+void ticcmd_proto_t::ByteSwapCmds(int num_cmds)
+{
 	for (int t = 0; t < num_cmds; t++)
 		tic_cmds[t].ByteSwap();
 }
 
-void tic_group_proto_t::ByteSwap(int num_cmds)
+void tic_group_proto_t::ByteSwap()
 {
 	gametic = SYS_BE_U32(gametic);
+}
 
+void tic_group_proto_t::ByteSwapCmds(int num_cmds)
+{
 	for (int t = 0; t < num_cmds; t++)
 		tic_cmds[t].ByteSwap();
 }
