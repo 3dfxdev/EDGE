@@ -120,19 +120,7 @@ static bool AttackStartEntry(const char *name)
 	atkdef_c *existing = NULL;
 
 	if (name && name[0])
-	{
-		epi::array_iterator_c it;
-
-		for (it = atkdefs.GetIterator(atkdefs.GetDisabledCount()); it.IsValid(); it++)
-		{
-			existing = ITERATOR_TO_TYPE(it, atkdef_c*);
-			if (DDF_CompareName(existing->ddf.name, name) == 0)
-			{
-				dynamic_atk = existing;
-				break;
-			}
-		}
-	}
+		existing = atkdefs.Lookup(name);
 
 	// not found, create a new one
 	if (! existing)
@@ -561,11 +549,11 @@ void atkdef_container_c::CleanupObject(void *obj)
 }
 
 //
-// const atkdef_c* atkdef_container_c::Lookup()
+// atkdef_c* atkdef_container_c::Lookup()
 //
 // Looks an mobjdef by name, returns a fatal error if it does not exist.
 //
-const atkdef_c* atkdef_container_c::Lookup(const char *refname)
+atkdef_c* atkdef_container_c::Lookup(const char *refname)
 {
 	epi::array_iterator_c it;
 	atkdef_c *a;
@@ -582,119 +570,3 @@ const atkdef_c* atkdef_container_c::Lookup(const char *refname)
 
 	return NULL;
 }
-
-/*
-
-//
-// atkdef_container_c::FindFirst
-//
-int atkdef_container_c::FindFirst(const char *name, int startpos)
-{
-	epi::array_iterator_c it;
-	mobjdef_c *m;
-
-	if (startpos>0)
-		it = GetIterator(startpos);
-	else
-		it = GetBaseIterator();
-
-	while (it.IsValid())
-	{
-		m = ITERATOR_TO_TYPE(it, mobjdef_c*);
-		if (DDF_CompareName(m->ddf.name, name) == 0)
-		{
-			return it.GetPos();
-		}
-
-		it++;
-	}
-
-	return -1;
-}
-
-//
-// atkdef_container_c::FindLast
-//
-int atkdef_container_c::FindLast(const char *name, int startpos)
-{
-	epi::array_iterator_c it;
-	mobjdef_c *m;
-
-	if (startpos>=0 && startpos<array_entries)
-		it = GetIterator(startpos);
-	else
-		it = GetTailIterator();
-
-	while (it.IsValid())
-	{
-		m = ITERATOR_TO_TYPE(it, mobjdef_c*);
-		if (DDF_CompareName(m->ddf.name, name) == 0)
-		{
-			return it.GetPos();
-		}
-
-		it--;
-	}
-
-	return -1;
-}
-
-//
-// atkdef_container_c::MoveToEnd
-//
-// Moves an entry from its current position to end of the list
-//
-bool atkdef_container_c::MoveToEnd(int idx)
-{
-	mobjdef_c* m;
-
-	if (idx < 0 || idx >= array_entries)
-		return false;
-
-	if (idx == (array_entries - 1))
-		return true;					// Already at the end
-
-	// Get a copy of the pointer 
-	m = (*this)[idx];
-
-	I_MoveData((void*)&array[idx*array_block_objsize], 
-		       (void*)&array[idx*(array_block_objsize+1)], 
-			   (array_entries-(idx+1))*array_block_objsize);
-
-	memcpy(&array[(array_entries-1)*array_block_objsize], (void*)&m, sizeof(mobjdef_c*));
-	return true;
-}
-
-//
-// const atkdef_c* atkdef_container_c::Lookup()
-//
-// Looks an atkdef by number, returns a fatal error if it does not exist.
-//
-const atkdef_c* atkdef_container_c::Lookup(int id)
-{
-	epi::array_iterator_c it;
-	mobjdef_c *m;
-
-	for (it = GetTailIterator(); it.IsValid(); it--)
-	{
-		m = ITERATOR_TO_TYPE(it, mobjdef_c*);
-		if (m->ddf.number == id)
-		{
-			break;
-		}
-	}
-
-	if (!it.IsValid())
-		return NULL;
-
-	if (it.GetPos() < (unsigned int)num_disabled)
-		return NULL;
-
-	// do a sprite check (like for weapons)
-	if (! DDF_CheckSprites(m->first_state, m->last_state))
-		return NULL;
-
-	// update the cache
-	return m;
-}
-*/
