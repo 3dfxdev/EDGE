@@ -322,7 +322,7 @@ void DDF_MainRefAttack (const char *info, void *storage);
 
 void DDF_DummyFunction (const char *info, void *storage);
 
-int DDF_MainCheckSpecialFlag (const char *name,
+checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
 			      const specflags_t * flag_set, int *flag_value,
 			      bool allow_prefixes, bool allow_user);
 

@@ -33,7 +33,6 @@
 // Define USE_INT64 if the system supports 64 bit integers.
 //#define USE_INT64
 //
-typedef float float;
 
 //
 // define FLOAT_IEEE_754 if the float is IEEE_754 compliant, i.e. 1 bit
@@ -237,11 +236,8 @@ typedef enum { false, true } bool;
 #ifdef BeOS
 
 typedef long long Int64;
-typedef float float;
 #define FLOAT_IEEE_754
-#ifdef __cplusplus
-typedef bool bool;
-#else
+#ifndef __cplusplus
 typedef enum { false, true } bool;
 #endif
 
@@ -341,10 +337,6 @@ typedef enum { false, true } bool;
 #define OUTPUTNAME  "EDGECONSOLE"
 #define TITLE       "EDGE Engine"
 #define OUTPUTTITLE "EDGE Engine console"
-
-#define GCCATTR(a) __attribute__((a))
-#define INLINE inline
-#define EDGE_INLINE(decl, body) extern inline decl body
 
 #define I_TmpMalloc(size) alloca(size)
 #define I_TmpFree(ptr) do { } while (0)

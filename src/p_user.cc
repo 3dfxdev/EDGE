@@ -601,25 +601,25 @@ void P_PlayerThink(player_t * player)
 
   if (player->powers[PW_Invulnerable] > 0)
   {
-    int s = player->powers[PW_Invulnerable];
+    float s = player->powers[PW_Invulnerable];
 
     player->effect_colourmap = DDF_ColmapLookup("ALLWHITE");
-    player->effect_strength = (float)((s >= 128) ? 1.0 : s / 128.0);
+    player->effect_strength = ((s >= 128) ? 1.0 : s / 128.0);
   }
   else if (player->powers[PW_Infrared] > 0)
   {
-    int s = player->powers[PW_Infrared];
+    float s = player->powers[PW_Infrared];
 
     player->effect_infrared = true;
-    player->effect_strength = (float)((s >= 128) ? 1.0 : s / 128.0);
+    player->effect_strength = ((s >= 128) ? 1.0 : s / 128.0);
   }
   // -ACB- 1998/07/15 NightVision Code
   else if (player->powers[PW_NightVision] > 0)
   {
-    int s = player->powers[PW_NightVision];
+    float s = player->powers[PW_NightVision];
 
     player->effect_colourmap = DDF_ColmapLookup("ALLGREEN");
-    player->effect_strength = (float)((s >= 128) ? 1.0 : s / 128.0);
+    player->effect_strength = ((s >= 128) ? 1.0 : s / 128.0);
   }
 }
 
@@ -859,7 +859,7 @@ bool P_AddWeapon(player_t *player, weaponinfo_t *info, int *index)
   if (rep_slot >= 0 && player->ready_wp == rep_slot)
   {
     player->ready_wp = WPSEL_None;
-    player->pending_wp = rep_slot;
+    player->pending_wp = (weapon_selection_e) rep_slot;
 
     P_SetPsprite(player, ps_weapon, S_NULL);
   }

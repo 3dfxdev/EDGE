@@ -436,7 +436,7 @@ struct mobj_s
   int extendedflags;
 
   // Movement direction, movement generation (zig-zagging).
-  int movedir;  // 0-7
+  dirtype_e movedir;  // 0-7
 
   // when 0, select a new dir
   int movecount;

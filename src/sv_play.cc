@@ -111,7 +111,7 @@ static savefield_t sv_fields_player[] =
 	//   key_choices: depends on DDF too much, and not important.
 	//   remember_atk1/2: ditto.
 	//   next,prev: links are regenerated.
-      //   avail_weapons: regenerated.
+	//   avail_weapons: regenerated.
 	
 	SVFIELD_END
 };

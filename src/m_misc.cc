@@ -590,7 +590,7 @@ void M_ScreenShot(void)
 //
 void M_MakeSaveScreenShot(void)
 {
-/*
+/* !!!!!!
 #ifdef USE_GL
 	/// FIXME:
 	// buffer = (byte*)Z_Malloc(SCREENWIDTH*SCREENHEIGHT*4);

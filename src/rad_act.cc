@@ -282,8 +282,8 @@ void RAD_DisplayTips(void)
 		{
 			const image_t *image = current->tip_graphic;
 
-			int x = SCREENWIDTH  * PERCENT_2_FLOAT(current->p.x_pos);
-			int y = SCREENHEIGHT * PERCENT_2_FLOAT(current->p.y_pos);
+			int x = (int)(SCREENWIDTH  * PERCENT_2_FLOAT(current->p.x_pos));
+			int y = (int)(SCREENHEIGHT * PERCENT_2_FLOAT(current->p.y_pos));
 
 			vctx.DrawImage(x, y, IM_WIDTH(image), IM_HEIGHT(image), image,
 				0, 0, IM_RIGHT(image), IM_BOTTOM(image), NULL, alpha);
@@ -836,9 +836,9 @@ void RAD_ActMoveSector(rad_trigger_t *R, mobj_t *actor, void *param)
 static void LightOneSector(sector_t *sec, s_lightsector_t *t)
 {
 	if (t->relative)
-		sec->props.lightlevel += t->value;
+		sec->props.lightlevel += (int)t->value;
 	else
-		sec->props.lightlevel = t->value;
+		sec->props.lightlevel = (int)t->value;
 }
 
 void RAD_ActLightSector(rad_trigger_t *R, mobj_t *actor, void *param)

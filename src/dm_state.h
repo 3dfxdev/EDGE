@@ -58,14 +58,14 @@ extern bool modifiedgame;
 //
 
 // Defaults for menu, methinks.
-extern int startskill;
+extern skill_t startskill;
 extern char *startmap;
 extern bool drone;
 
 extern bool autostart;
 
 // Selected by user. 
-extern int gameskill;
+extern skill_t gameskill;
 
 // Netgame? Only true if >1 player.
 extern bool netgame;
@@ -121,7 +121,7 @@ extern bool autoquickload;
 extern bool singledemo;
 
 //?
-extern int gamestate;
+extern gamestate_e gamestate;
 
 //-----------------------------
 // Internal parameters, fixed.
@@ -198,7 +198,7 @@ extern bool hom_detect;
 
 // wipegamestate can be set to -1
 //  to force a wipe on the next draw
-extern int wipegamestate;
+extern gamestate_e wipegamestate;
 
 extern int mouseSensitivity;
 

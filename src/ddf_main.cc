@@ -1641,7 +1641,7 @@ static int FindSpecialFlag(const char *prefix, const char *name,
 	return -1;
 }
 
-int DDF_MainCheckSpecialFlag(const char *name,
+checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
 							 const specflags_t *flag_set, int *flag_value, 
 							 bool allow_prefixes, bool allow_user)
 {

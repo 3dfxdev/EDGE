@@ -727,7 +727,7 @@ static void InitVB_NViews(viewbitmap_t * vb, int nviews)
 
     cameras[i] = R_CreateCamera();
     
-    R_InitCamera_ViewOffs(cameras[i], (float)(viewanglebaseoffset+(((nviews - 1 - i * 2) * FIELDOFVIEW / 2) << ANGLETOFINESHIFT)) );
+    R_InitCamera_ViewOffs(cameras[i], (angle_t)(viewanglebaseoffset+(((nviews - 1 - i * 2) * FIELDOFVIEW / 2) << ANGLETOFINESHIFT)) );
     
     v = R_CreateView(vb, a, 0, 0, cameras[i], VRF_VIEW, 0);
     

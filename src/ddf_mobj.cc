@@ -1437,7 +1437,7 @@ mobjinfo_t *DDF_MobjMakeAttackObj(mobjinfo_t *info, const char *atk_name)
 
 	result->ddf.name = Z_StrDup(namebuf);
 	result->ddf.number = 0;
-	result->ddf.crc = 0-1;
+	result->ddf.crc = 0;
 
 	return result;
 }

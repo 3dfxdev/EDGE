@@ -40,6 +40,6 @@ void F_Ticker(void);
 void F_Drawer(void);
 
 // -KM- 1998/11/25 Finales generalised.
-void F_StartFinale(const finale_t * f, int newaction);
+void F_StartFinale(const finale_t * f, gameaction_e newaction);
 
 #endif

@@ -272,7 +272,7 @@ sector_t *P_GetNextSector(const line_t * line, const sector_t * sec)
 #define F_C_HEIGHT(sector)  \
     ((ref & REF_CEILING) ? (sector)->c_h : (sector)->f_h)
     
-float P_FindSurroundingHeight(const int ref, const sector_t *sec)
+float P_FindSurroundingHeight(const heightref_e ref, const sector_t *sec)
 {
   int i, count;
   float height;
@@ -691,7 +691,7 @@ static void P_SectorEffect(sector_t *target, line_t *source,
     const linedeftype_t *special)
 {
   float length = R_PointToDist(0, 0, source->dx, source->dy);
-  float angle = R_PointToAngle(0, 0, source->dx, source->dy);
+  angle_t angle = R_PointToAngle(0, 0, source->dx, source->dy);
 
   if (special->sector_effect & SECTFX_LightFloor)
     target->floor.override_p = &source->frontsector->props;

@@ -37,6 +37,13 @@ static stack_array_t *stack_arrays = NULL;
 static cache_flusher_f **cache_flushers = NULL;
 static int num_flushers = 0;
 
+#ifdef __cplusplus
+void operator++ (z_urgency_e& urg, int blah)
+{
+  urg = (z_urgency_e)(urg + 1);
+}
+#endif
+
 //
 // Z_StrDup
 //
@@ -412,7 +419,7 @@ void *Z_ReMalloc2(void *ptr, int size)
 	void *h, *newp;
 #endif
 	int allocsize;
-	int flush_urge = Z_UrgencyNone;
+	z_urgency_e flush_urge = Z_UrgencyNone;
 
 	if (size == 0)
 	{
@@ -469,7 +476,7 @@ void *Z_Malloc2(int size)
 	void *p;
 #endif
 	int allocsize;
-	int flush_urge = Z_UrgencyNone;
+	z_urgency_e flush_urge = Z_UrgencyNone;
 
 	if (size == 0)
 		return NULL;

@@ -139,7 +139,7 @@ void STLIB_UpdateNum(st_number_t * n, bool refresh)
 
 void STLIB_UpdateFloat(st_float * n, bool refresh)
 {
-	int i = *n->f;
+	int i = (int) *n->f;
 
 	// HACK: Display 1 for numbers between 0 and 1. This is just because a
 	// health of 0.3 otherwise would be displayed as 0%, which would make it

@@ -138,7 +138,7 @@ void P_RefillClips(player_t * p)
 void P_BringUpWeapon(player_t * p)
 {
   weaponinfo_t *info;
-  int sel;
+  weapon_selection_e sel;
 
   DEV_ASSERT2(p->pending_wp != WPSEL_NoChange);
 
@@ -988,7 +988,7 @@ void A_WeaponShoot(mobj_t * mo)
 
   weaponinfo_t *w = p->weapons[p->ready_wp].info;
   attacktype_t *attack = w->attack;
-  int ammo;
+  ammotype_e ammo;
   int count;
 
   DEV_ASSERT2(p->ready_wp >= 0);
@@ -1061,7 +1061,7 @@ void A_WeaponShootSA(mobj_t * mo)
 
   weaponinfo_t *w = p->weapons[p->ready_wp].info;
   attacktype_t *attack = w->sa_attack;
-  int ammo;
+  ammotype_e ammo;
   int count;
 
   DEV_ASSERT2(p->ready_wp >= 0);

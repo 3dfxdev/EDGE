@@ -84,9 +84,9 @@ void G_DoVictory(void);
 void G_DoWorldDone(void);
 void G_DoSaveGame(void);
 
-int gameaction;
-int gamestate = GS_NOTHING;
-int gameskill = sk_invalid;
+gameaction_e gameaction;
+gamestate_e gamestate = GS_NOTHING;
+skill_t gameskill = sk_invalid;
 const mapstuff_t *currentmap = NULL;  // currentmap
 const mapstuff_t *nextmap = NULL;  // currentmap
 
@@ -264,7 +264,7 @@ int bodyqueslot;
 void *statcopy;  // for statistics driver
 
 static const mapstuff_t *d_newmap = NULL;
-static int d_newskill;
+static skill_t d_newskill;
 static bool d_newwarp;
 
 // -KM- 1998/09/01 Made static.
@@ -597,7 +597,7 @@ void G_BuildTiccmd(ticcmd_t * cmd)
 		if (vertangle < LOOKDOWNLIMIT)
 			vertangle = LOOKDOWNLIMIT;
 
-		cmd->vertangle = vertangle * 254;
+		cmd->vertangle = (signed char)(vertangle * 254);
 	}
 
 	// special buttons
@@ -1452,7 +1452,7 @@ void G_DoLoadGame(void)
 	if (! tempmap)
 		I_Error("LOAD-GAME: No such map %s !  Check WADS\n", globs->level);
 
-	gameskill = globs->skill;
+	gameskill = (skill_t) globs->skill;
 	random_seed = globs->p_random;
 
 	G_InitNew(gameskill, tempmap, random_seed);
@@ -1482,7 +1482,7 @@ void G_DoLoadGame(void)
 	totalsecret = globs->total_secrets;
 
 	// con_player = globs->console_player;
-	gameskill = globs->skill;
+	gameskill = (skill_t) globs->skill;
 	netgame = globs->netgame;  /// FIXME: deathmatch var
 
 	// clear line/sector lookup caches, in case level_flags.compat_mode
@@ -1615,7 +1615,7 @@ void G_DoSaveGame(void)
 //
 // Returns true if OK, or false if no such map exists.
 //
-bool G_DeferedInitNew(int skill, const char *mapname, bool warpopt)
+bool G_DeferedInitNew(skill_t skill, const char *mapname, bool warpopt)
 {
 	d_newmap = DDF_LevelMapLookup(mapname);
 
@@ -1668,7 +1668,7 @@ void G_DoNewGame(void)
 // -KM- 1998/12/21 Added mapstuff param so no need for defered init new
 //   which was conflicting with net games.
 //
-void G_InitNew(int skill, const mapstuff_t * map, long seed)
+void G_InitNew(skill_t skill, const mapstuff_t * map, long seed)
 {
 	player_t *p;
 
@@ -1897,7 +1897,7 @@ void G_DeferedPlayDemo(const char *name)
 //
 void G_DoPlayDemo(void)
 {
-	int skill;
+	skill_t skill;
 	int i,j;
 	int demversion;
 	char mapname[30];
@@ -1938,7 +1938,7 @@ void G_DoPlayDemo(void)
 		demo_p += i;
 		//------------------------------------------------------
 
-		skill = playdemobuffer[demo_p++];
+		skill = (skill_t) playdemobuffer[demo_p++];
 		deathmatch = playdemobuffer[demo_p++];
 		consoleplayer = playerlookup[playdemobuffer[demo_p++]];
 

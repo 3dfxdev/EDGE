@@ -458,7 +458,7 @@ typedef struct rad_script_s
 	int max_players;
 
 	// Handling for multiple players
-	int netmode;
+	rad_script_netmode_e netmode;
 
 	// Map Coordinates
 	float x, y, z;

@@ -180,7 +180,7 @@ gameflags_t global_flags;
 
 bool drone = false;
 
-int startskill;
+skill_t startskill;
 char *startmap;
 
 bool autostart;
@@ -509,7 +509,7 @@ static void M_DisplayPause(void)
 // -ACB- 1998/07/27 Removed doublebufferflag check (unneeded).  
 
 // wipegamestate can be set to -1 to force a wipe on the next draw
-int wipegamestate = GS_DEMOSCREEN;
+gamestate_e wipegamestate = GS_DEMOSCREEN;
 int wipe_method = WIPE_Melt;
 int wipe_reverse = 0;
 bool redrawsbar;
@@ -523,7 +523,7 @@ void E_Display(void)
 	static bool inhelpscreensstate = false;
 	static bool fullscreen = false;
 	static int borderdrawcount;
-	static int oldgamestate = GS_NOTHING;
+	static gamestate_e oldgamestate = GS_NOTHING;
 
 	// for wiping
 	static screen_t *wipestart = NULL;

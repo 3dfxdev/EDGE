@@ -138,6 +138,6 @@ extern event_t events[MAXEVENTS];
 extern int eventhead;
 extern int eventtail;
 
-extern int gameaction;
+extern gameaction_e gameaction;
 
 #endif
