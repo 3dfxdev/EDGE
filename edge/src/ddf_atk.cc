@@ -206,7 +206,7 @@ static bool AttackStartEntry(const char *name)
 
 	// instantiate the static entries
 	buffer_atk  = template_atk;
-	buffer_mobj = template_mobj;
+	buffer_mobj.Default();
 
 	return replaces;
 }
@@ -341,10 +341,10 @@ void DDF_AttackCleanUp(void)
 
 		// lookup thing references
 
-		atk->puff = atk->puff_ref ? DDF_MobjLookup(atk->puff_ref) : NULL;
+		atk->puff = atk->puff_ref ? mobjinfo.Lookup(atk->puff_ref) : NULL;
 
 		atk->spawnedobj = atk->spawnedobj_ref ? 
-			DDF_MobjLookup(atk->spawnedobj_ref) : NULL;
+			mobjinfo.Lookup(atk->spawnedobj_ref) : NULL;
       
 		if (atk->spawnedobj)
 		{
