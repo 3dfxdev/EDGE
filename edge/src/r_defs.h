@@ -458,6 +458,9 @@ typedef struct subsector_s
 	// pointer to bounding box (usually in parent node)
 	float *bbox;
 
+	// -AJA- 2004/04/20: used when emulating deep-water TRICK
+	struct sector_s *deep_ref;
+
 	// -- Rendering stuff (only used during rendering) --
 
     // link in render list (furthest to closest)

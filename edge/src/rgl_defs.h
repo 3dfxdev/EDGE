@@ -125,6 +125,8 @@ local_gl_vert_t *RGL_BeginUnit(GLuint mode, int max_vert,
 void RGL_EndUnit(int actual_vert);
 void RGL_DrawUnits(void);
 
+void RGL_SendRawVector(const local_gl_vert_t *V);
+
 // utility macros
 #define SET_COLOR(R,G,B,A)  \
 	do { vert->col[0] = (R); vert->col[1] = (G); vert->col[2] = (B);  \

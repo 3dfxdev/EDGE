@@ -227,6 +227,24 @@ void RGL_EndUnit(int actual_vert)
 	DEV_ASSERT2(cur_unit <= MAX_L_UNIT);
 }
 
+void RGL_SendRawVector(const local_gl_vert_t *V)
+{
+	if (use_color_material || ! use_lighting)
+		glColor4fv(V->col);
+	else
+	{
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, V->col);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, V->col);
+	}
+
+	glTexCoord2f(V->t_x, V->t_y);
+	glNormal3f(V->n_x, V->n_y, V->n_z);
+	glEdgeFlag(V->edge);
+
+	// vertex must be last
+	glVertex3f(V->x, V->y, V->z);
+}
+
 //
 // RGL_DrawUnits
 //
@@ -308,24 +326,7 @@ void RGL_DrawUnits(void)
 			glBegin(unit->mode);
 
 			for (j=0; j < unit->count; j++)
-			{
-				local_gl_vert_t *V = local_verts + unit->first + j;
-
-				if (use_color_material || ! use_lighting)
-					glColor4fv(V->col);
-				else
-				{
-					glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, V->col);
-					glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, V->col);
-				}
-
-				glTexCoord2f(V->t_x, V->t_y);
-				glNormal3f(V->n_x, V->n_y, V->n_z);
-				glEdgeFlag(V->edge);
-
-				// vertex must be last
-				glVertex3f(V->x, V->y, V->z);
-			}
+				RGL_SendRawVector(local_verts + unit->first + j);
 
 			glEnd();
 		}
