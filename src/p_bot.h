@@ -88,6 +88,11 @@ typedef struct bot_s
 
   botcmd_t cmd;
 
+  // remember previous movements, just in case the thinker is run twice the
+  // same gametic.
+  ticcmd_t prev_cmd;
+  int prev_gametime;
+
   struct bot_s *next;
 }
 bot_t;
