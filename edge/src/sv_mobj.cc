@@ -520,7 +520,7 @@ bool SR_MobjGetMobj(void *storage, int index, void *extra)
 
 	int swizzle = SV_GetInt();
 
-  *dest = (swizzle == 0) ? NULL : (mobj_t*)SV_MobjGetElem(swizzle - 1);
+	*dest = (swizzle == 0) ? NULL : (mobj_t*)SV_MobjGetElem(swizzle - 1);
 	return true;
 }
 
@@ -549,12 +549,12 @@ void SR_MobjPutMobj(void *storage, int index, void *extra)
 //
 bool SR_MobjGetType(void *storage, int index, void *extra)
 {
-	mobjinfo_t ** dest = (mobjinfo_t **)storage + index;
+	mobjinfo_c ** dest = (mobjinfo_c **)storage + index;
 
 	const char *name = SV_GetString();
 
 	// Intentional Const Override
-	*dest = (name == NULL) ? NULL : (mobjinfo_t *)DDF_MobjLookup(name);
+	*dest = (name == NULL) ? NULL : (mobjinfo_c *)mobjinfo.Lookup(name);
 
 	Z_Free((char *)name);
 	return true;
@@ -565,7 +565,7 @@ bool SR_MobjGetType(void *storage, int index, void *extra)
 //
 void SR_MobjPutType(void *storage, int index, void *extra)
 {
-	mobjinfo_t *info = ((mobjinfo_t **)storage)[index];
+	mobjinfo_c *info = ((mobjinfo_c **)storage)[index];
 
 	SV_PutString((info == NULL) ? NULL : info->ddf.name);
 }
@@ -631,11 +631,11 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 
 	char buffer[256];
 	char *base_p, *off_p;
-	int i, base, offset;
+	int base, offset;
 
 	const char *swizzle;
 	const mobj_t *mo = (mobj_t *) sv_current_elem;
-	const mobjinfo_t *actual;
+	const mobjinfo_c *actual;
 
 	DEV_ASSERT2(mo);
 	DEV_ASSERT2(mo->info);
@@ -672,19 +672,9 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 
 	if (buffer[0] != '*')
 	{
-		// traverse backwards in case #CLEARALL was used
-		for (i=num_mobjinfo-1; i >= 0; i--)
-		{
-			actual = mobjinfo[i];
-
-			if (! actual->ddf.name)
-				continue;
-
-			if (DDF_CompareName(buffer, actual->ddf.name) == 0)
-				break;
-		}
-
-		if (i < 0)
+		// Do we care about those in the disabled group?
+		actual = mobjinfo.Lookup(buffer);
+		if (!actual)
 			I_Error("LOADGAME: no such thing %s for state %s:%s\n",
 			buffer, base_p, off_p);
 	}
@@ -754,10 +744,10 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 
 	char swizzle[64];
 
-	int i, s_num, base;
+	int s_num, base;
 
 	const mobj_t *mo = (mobj_t *) sv_current_elem;
-	const mobjinfo_t *actual;
+	const mobjinfo_c *actual;
 
 	DEV_ASSERT2(mo);
 	DEV_ASSERT2(mo->info);
@@ -806,10 +796,12 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 		I_Warning("SAVEGAME: object [%s] is in AWOL state %d\n",
 			mo->info->ddf.name, s_num);
 
+		epi::array_iterator_c it;
+
 		// look for real object
-		for (i=0; i < num_mobjinfo; i++)
+		for (it = mobjinfo.GetBaseIterator(); it.IsValid(); it++)
 		{
-			actual = mobjinfo[i];
+			actual = ITERATOR_TO_TYPE(it, mobjinfo_c*);
 
 			if (actual->last_state <= 0 ||
 				actual->last_state < actual->first_state)
@@ -819,7 +811,7 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 				break;
 		}
 
-		if (i == num_mobjinfo)
+		if (it.IsValid())
 		{
 			I_Warning("-- ARGH: state %d cannot be found !!\n", s_num);
 			SV_PutString("*:*:1");
