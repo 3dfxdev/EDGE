@@ -400,7 +400,7 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Boolean, "Smoothing", YesNo, 2, 1, &use_smoothing, M_ChangeMipMap, NULL},
 	{OPT_Boolean, "Shadows", YesNo, 2, 0, &global_flags.shadows, M_ChangeShadows, NULL},
 	{OPT_Switch, "Dynamic Lighting", DLMode, 3, 0, &use_dlights, M_ChangeDLights, NULL},
-	{OPT_Switch, "Detail Level", Details, 3, 1, &detail_level, NULL, NULL},
+	{OPT_Switch, "Detail Level", Details, 3, 1, &detail_level, M_ChangeMipMap, NULL},
 	{OPT_Switch, "Crosshair", CrosO, 4, 0, &crosshair, NULL, NULL},
 	{OPT_Boolean, "Map Overlay", YesNo, 2, 0, &map_overlay, NULL, NULL},
 	{OPT_Boolean, "Map Rotation", YesNo, 2, 0, &rotatemap, NULL, NULL},
@@ -1521,7 +1521,7 @@ static void M_ChangeFastparm(int keypressed)
 	level_flags.fastparm = global_flags.fastparm;
 }
 
-// this used by both MIPMIP and SMOOTHING options
+// this used by both MIPMIP, SMOOTHING and DETAIL options
 static void M_ChangeMipMap(int keypressed)
 {
 	W_ResetImages();
@@ -1572,7 +1572,7 @@ static void M_ChangeWeaponSwitch(int keypressed)
 
 static void M_ChangeDLights(int keypressed)
 {
-	/* nothing to do -- change occurs at next level load */
+	/* nothing to do */
 }
 
 

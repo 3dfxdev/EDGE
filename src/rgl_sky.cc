@@ -303,7 +303,7 @@ extern void W_ImageClearMergingSky(void);
 static const float stretches[4] =
 { 0.55f, 0.78f, 1.0f, 1.0f /* MIRROR */};
 
-void RGL_CalcSkyCoord(float sx, float sy, float sz, int tw, float *tx, float *ty)
+void RGL_CalcSkyCoord(float sx, float sy, float sz, bool narrow, float *tx, float *ty)
 {
 	angle_t H = R_PointToAngle(0, 0, sx, sy);
 	angle_t V = R_PointToAngle(0, 0, sz, R_PointToDist(0, 0, sx, sy));
@@ -311,7 +311,7 @@ void RGL_CalcSkyCoord(float sx, float sy, float sz, int tw, float *tx, float *ty
 	H = 0 - H;
 	V = V;
 
-	if (tw <= 256)
+	if (narrow)
 		*tx = (float)(H >> 7) / (float)(1 << 24);
 	else
 		*tx = (float)(H >> 8) / (float)(1 << 24);
