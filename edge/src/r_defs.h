@@ -128,6 +128,9 @@ typedef struct plane_info_s
   
   // lighting override (as in BOOM).  Usually NULL.
   struct region_properties_s *override_p;
+
+  // -ACB- 2001/01/29 Added
+  void *movedata;
 }
 plane_info_t;
 
@@ -262,6 +265,7 @@ typedef struct sector_s
   // origin for any sounds played by the sector
   degenmobj_t soundorg;
 
+/*
   //
   // thinker_t for reversable actions
   // -KM- 1998/10/29 Separate thinkers for floor + ceiling
@@ -273,6 +277,7 @@ typedef struct sector_s
   //       this is not a pleasent hack.
   //
   void *specialdata[3];
+*/
 
   int linecount;
   struct line_s **lines;  // [linecount] size
