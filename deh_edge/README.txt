@@ -1,5 +1,5 @@
 
-DEH_EDGE 1.2
+DEH_EDGE 1.3
 ============
 
 by Andrew Apted.  22nd September 2004.
@@ -76,12 +76,12 @@ Options
 Limitations
 -----------
 
-1. Doesn't yet convert three of the new BOOM/MBF actions: A_Scratch,
+1. Doesn't yet handle the BEX "INCLUDE" directive.
+
+2. Doesn't yet convert three of the new BOOM/MBF actions: A_Scratch,
    A_Spawn and A_Mushroom.
 
-2. Doesn't handle the BEX "INCLUDE" directive.
-
-3. No support for a few DEH patchables, e.g. 'God Mode Health'.
+3. No support for a couple DEH patchables, e.g. 'God Mode Health'.
    These can't be changed in EDGE via DDF.  Most (probably all) of
    them have little importance (like what certain cheats give you).
 
