@@ -90,57 +90,73 @@ namespace Things
 	typedef struct 
 	{
 		int flag;
-		const char *name;
+		const char *name;  // for EDGE
+		const char *bex;  // NULL if same as EDGE name
 	}
 	flagname_t;
 
 	const flagname_t flagnamelist[] =
 	{
-		{ MF_NOBLOCKMAP,   "NOBLOCKMAP" },
-		{ MF_NOBLOOD,      "DAMAGESMOKE" },
-		{ MF_NOCLIP,       "NOCLIP" },
-		{ MF_NOGRAVITY,    "NOGRAVITY" },
-		{ MF_NOSECTOR,     "NOSECTOR" },
-		{ MF_NOTDMATCH,    "NODEATHMATCH" },
+		{ MF_NOBLOCKMAP,   "NOBLOCKMAP",     NULL },
+		{ MF_NOBLOOD,      "DAMAGESMOKE",   "NOBLOOD" },
+		{ MF_NOCLIP,       "NOCLIP",         NULL },
+		{ MF_NOGRAVITY,    "NOGRAVITY",      NULL },
+		{ MF_NOSECTOR,     "NOSECTOR",       NULL },
+		{ MF_NOTDMATCH,    "NODEATHMATCH",  "NOTDMATCH" },
 
-		{ MF_AMBUSH,       "AMBUSH" },
-		{ MF_CORPSE,       "CORPSE" },
-		{ MF_COUNTITEM,    "COUNT_AS_ITEM" },
-		{ MF_COUNTKILL,    "COUNT_AS_KILL" },
-		{ MF_DROPOFF,      "DROPOFF" },
-		{ MF_DROPPED,      "DROPPED" },
-		{ MF_FLOAT,        "FLOAT" },
-		{ MF_MISSILE,      "MISSILE" },
-		{ MF_PICKUP,       "PICKUP" },
-		{ MF_SHADOW,       "FUZZY" },
-		{ MF_SHOOTABLE,    "SHOOTABLE" },
-		{ MF_SKULLFLY,     "SKULLFLY" },
-		{ MF_SLIDE,        "SLIDER" },
-		{ MF_SOLID,        "SOLID" },
-		{ MF_SPAWNCEILING, "SPAWNCEILING" },
-		{ MF_SPECIAL,      "SPECIAL" },
-		{ MF_TELEPORT,     "TELEPORT" },
+		{ MF_AMBUSH,       "AMBUSH",         NULL },
+		{ MF_CORPSE,       "CORPSE",         NULL },
+		{ MF_COUNTITEM,    "COUNT_AS_ITEM", "COUNTITEM" },
+		{ MF_COUNTKILL,    "COUNT_AS_KILL", "COUNTKILL" },
+		{ MF_DROPOFF,      "DROPOFF",        NULL },
+		{ MF_DROPPED,      "DROPPED",        NULL },
+		{ MF_FLOAT,        "FLOAT",          NULL },
+		{ MF_MISSILE,      "MISSILE",        NULL },
+		{ MF_PICKUP,       "PICKUP",         NULL },
+		{ MF_SHADOW,       "FUZZY",         "SHADOW" },
+		{ MF_SHOOTABLE,    "SHOOTABLE",      NULL },
+		{ MF_SKULLFLY,     "SKULLFLY",       NULL },
+		{ MF_SLIDE,        "SLIDER",        "SLIDE" },
+		{ MF_SOLID,        "SOLID",          NULL },
+		{ MF_SPAWNCEILING, "SPAWNCEILING",   NULL },
+		{ MF_SPECIAL,      "SPECIAL",        NULL },
+		{ MF_TELEPORT,     "TELEPORT",       NULL },
 
 		// BOOM and MBF flags...
-		{ MF_BOUNCES,      "BOUNCE" },
-		{ MF_STEALTH,      "STEALTH" },
-		{ MF_TOUCHY,       "TOUCHY" },
+		{ MF_BOUNCES,      "BOUNCE",   "BOUNCES" },
+		{ MF_STEALTH,      "STEALTH",   NULL },
+		{ MF_TOUCHY,       "TOUCHY",    NULL },
 
-		{ 0, NULL }  // End sentinel
+		// Boom/MBF flags which don't produce an Edge SPECIAL
+        { MF_TRANSLATION1, NULL, "TRANSLATION1" },
+        { MF_TRANSLATION2, NULL, "TRANSLATION2" },
+        { MF_TRANSLATION1, NULL, "TRANSLATION"  },  // bug compat
+        { MF_TRANSLUCENT,  NULL, "TRANSLUCENT" },
+        { MF_TRANSLUCENT,  NULL, "TRANSLUC50"  },
+        { MF_TRANSLUCENT,  NULL, "TRANSLUC25"  },  // XXX: 25,75 unsupported
+        { MF_TRANSLUCENT,  NULL, "TRANSLUC75"  },  //
 
-		/* Not needed: MF_INFLOAT, MF_JUSTATTACKED, MF_JUSTHIT */
+		{ 0, NULL, NULL }  // End sentinel
 	};
 
 	const flagname_t extflaglist[] =
 	{
-		{ EF_DISLOYAL,    "DISLOYAL,ATTACK_HURTS" },  // Must be first
-		{ EF_TRIG_HAPPY,  "TRIGGER_HAPPY" },
-		{ EF_BOSSMAN,     "BOSSMAN" },
-		{ EF_NO_RAISE,    "NO_RESURRECT" },
-		{ EF_NO_GRUDGE,   "NO_GRUDGE,NEVERTARGETED" },
-		{ EF_NO_ITEM_BK,  "NO_RESPAWN" },
+		{ EF_DISLOYAL,    "DISLOYAL,ATTACK_HURTS", NULL },  // Must be first
+		{ EF_TRIG_HAPPY,  "TRIGGER_HAPPY", NULL },
+		{ EF_BOSSMAN,     "BOSSMAN", NULL },
+		{ EF_NO_RAISE,    "NO_RESURRECT", NULL },
+		{ EF_NO_GRUDGE,   "NO_GRUDGE,NEVERTARGETED", NULL },
+		{ EF_NO_ITEM_BK,  "NO_RESPAWN", NULL },
 
-		{ 0, NULL }  // End sentinel
+		{ 0, NULL, NULL }  // End sentinel
+	};
+
+	const char *flag_bex_ignored[] =
+	{
+		"INFLOAT", "JUSTATTACKED", "JUSTHIT", 
+		"UNUSED1", "UNUSED2", "UNUSED3", "UNUSED4",
+
+		NULL
 	};
 
 	bool CheckIsMonster(const mobjinfo_t *info, int mt_num, int player)
@@ -1034,9 +1050,9 @@ void Things::AlterThing(int new_val)
 {
 	int mt_num = Patch::active_obj - 1;  // NOTE WELL
 
-	const char *field_name = Patch::line_buf;
-
 	assert(0 <= mt_num && mt_num < NUMMOBJTYPES_BEX);
+
+	const char *field_name = Patch::line_buf;
 
 	int stride = ((char*) (mobjinfo+1)) - ((char*) mobjinfo);
 
@@ -1045,6 +1061,72 @@ void Things::AlterThing(int new_val)
 		PrintWarn("UNKNOWN THING FIELD: %s\n", field_name);
 		return;
 	}
+
+	MarkThing(mt_num);
+}
+
+void Things::AlterBexBits(char *bit_str)
+{
+	int mt_num = Patch::active_obj - 1;  // NOTE WELL
+
+	assert(0 <= mt_num && mt_num < NUMMOBJTYPES_BEX);
+
+	static const char *delims = "+|, \t\f\r";
+
+	char *temp_dat = NULL;
+	int new_flags = 0;
+	int i;
+
+	for (char *token = strtok_r(bit_str, delims, &temp_dat);
+	     token != NULL;
+		 token = strtok_r(NULL, delims, &temp_dat))
+	{
+		assert(token[0] != 0);  // tokens should be non-empty
+
+		if (isdigit(token[0]))
+		{
+			int flags;
+
+			if (sscanf(token, " %i ", &flags) == 1)
+				new_flags |= flags;
+			else
+                PrintWarn("Line %d: unreadable BITS value: %s\n",
+					Patch::line_num, token);
+
+			continue;
+		}
+
+		// see whether name is in known list
+		for (i = 0; flagnamelist[i].flag != 0; i++)
+		{
+			const char *name = flagnamelist[i].bex ?
+				flagnamelist[i].bex : flagnamelist[i].name;
+
+			assert(name);
+
+			if (StrCaseCmp(token, name) == 0)
+				break;
+		}
+
+		if (flagnamelist[i].flag != 0)
+		{
+			new_flags |= flagnamelist[i].flag;
+			continue;
+		}
+
+		// see whether we should ignore this flag
+		for (i = 0; flag_bex_ignored[i]; i++)
+			if (StrCaseCmp(token, flag_bex_ignored[i]) == 0)
+				break;
+
+		if (flag_bex_ignored[i])
+			continue;
+
+		PrintWarn("Line %d: unknown BITS mnemonic: %s\n",
+			Patch::line_num, token);
+	}
+
+	Storage::RememberMod(&mobjinfo[mt_num].flags, new_flags);
 
 	MarkThing(mt_num);
 }
@@ -1128,7 +1210,7 @@ bool Things::AlterOneField(const fieldreference_t *refs, const char *deh_field,
 		if (ValidateValue(refs, new_val))
 		{
 			// prevent BOOM/MBF specific flags from being set using
-			// numeric notation.  Only settable via AAA+BBB notation.
+			// numeric notation.  Only settable via AA+BB+CC notation.
 			if (refs->field_type == FT_BITS)
 				new_val &= ~ ALL_BEX_FLAGS;
 

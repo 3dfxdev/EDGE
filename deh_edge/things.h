@@ -60,6 +60,7 @@ namespace Things
 		int entry_offset, int new_val);
 
 	void AlterThing(int new_val);
+	void AlterBexBits(char *bit_str);
 }
 
 #endif /* __THINGS_HDR__ */

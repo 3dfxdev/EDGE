@@ -102,7 +102,8 @@ typedef enum
     //  using an internal color lookup table for re-indexing.
     // If 0x4 0x8 or 0xc,
     //  use a translation table for player colormaps
-    MF_TRANSLATION = 0xc000000,
+    MF_TRANSLATION1 = 0x4000000,
+    MF_TRANSLATION2 = 0x8000000,
 
 	// ---- BOOM and MBF flags ----
 
@@ -118,6 +119,7 @@ typedef enum
 }
 mobjflag_t;
 
+#define MF_TRANSLATION  (MF_TRANSLATION1 | MF_TRANSLATION2)
 #define ALL_BEX_FLAGS  \
 	(MF_STEALTH | MF_TRANSLUCENT | MF_TOUCHY | MF_BOUNCES | MF_FRIEND)
 
