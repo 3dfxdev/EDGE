@@ -1372,7 +1372,7 @@ static void QuitResponse(int ch)
 				sprintf(sound, "DS%s", DDF_LanguageLookup(refname));
 				if (W_CheckNumForName(sound) != -1)
 				{
-					S_StartSound(NULL, DDF_SfxLookupSound(DDF_LanguageLookup(refname)));
+					S_StartSound(NULL, sfxdefs.GetEffect(DDF_LanguageLookup(refname)));
 					break;
 				}
 				i = (i + 1) % numsounds;

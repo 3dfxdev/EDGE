@@ -31,31 +31,10 @@
 #undef  DF
 #define DF  DDF_CMD
 
-static sfxinfo_t buffer_sfx;
-static sfxinfo_t *dynamic_sfx;
+static sfxdef_c buffer_sfx;
+static sfxdef_c *dynamic_sfx;
 
-static const sfxinfo_t template_sfx =
-{
-	DDF_BASE_NIL,  // ddf
-
-	"",     // lump_name
-	{ 1, { 0 }}, // normal
-	0,      // singularity
-	999,    // priority (lower is more important)
-	PERCENT_MAKE(100), // volume
-	false,  // looping
-	false,  // precious
-	S_CLIPPING_DIST, // max_distance
-	NULL,   // cache next
-	NULL    // cache prev
-};
-
-sfxinfo_t ** S_sfx;
-int numsfx = 0;
-int num_disabled_sfx = 0;
-
-static stack_array_t S_sfx_a;
-
+sfxdef_container_c sfxdefs;
 
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  buffer_sfx
@@ -102,49 +81,33 @@ bastard_sfx_t bastard_sfx[] =
 
 static bool SoundStartEntry(const char *name)
 {
-	int i = -1;
-	bool replaces = false;
+	sfxdef_c *existing = NULL;
 
 	if (name && name[0])
-	{
-		for (i=num_disabled_sfx; i < numsfx; i++)
-		{
-			if (DDF_CompareName(S_sfx[i]->ddf.name, name) == 0)
-			{
-				dynamic_sfx = S_sfx[i];
-				replaces = true;
-				break;
-			}
-		}
-
-		// NOTE: we normally adjust the array so that the newest entries
-		// are at the end.  We *don't* do that here because we'd have to
-		// update all normal.sound[0] references.
-	}
+		existing = sfxdefs.Lookup(name);
 
 	// not found, create a new one
-	if (! replaces)
+	if (existing)
 	{
-		Z_SetArraySize(&S_sfx_a, ++numsfx);
-
-		i = numsfx - 1;
-
-		dynamic_sfx = S_sfx[i];
-		dynamic_sfx->ddf.name = (name && name[0]) ? Z_StrDup(name) :
-			DDF_MainCreateUniqueName("UNNAMED_SOUND", numsfx);
+		dynamic_sfx = existing;
 	}
+	else
+	{
+		dynamic_sfx = new sfxdef_c;
 
-	DEV_ASSERT2(i >= 0);
+		dynamic_sfx->ddf.name = (name && name[0]) ? Z_StrDup(name) :
+			DDF_MainCreateUniqueName("UNNAMED_SOUND", sfxdefs.GetSize());
+
+		sfxdefs.Insert(dynamic_sfx);
+	}
 
 	dynamic_sfx->ddf.number = 0;
 
-	// instantiate the static entry
-	buffer_sfx = template_sfx;
-
-	buffer_sfx.normal.num = 1;        // self reference
-	buffer_sfx.normal.sounds[0] = i;  //
-
-	return replaces;
+	// instantiate the static entries
+	buffer_sfx.Default();
+	buffer_sfx.normal.sounds[0] = sfxdefs.GetSize()-1; // self reference
+	
+	return (existing != NULL);
 }
 
 static void SoundParseField(const char *field, const char *contents,
@@ -160,17 +123,13 @@ static void SoundParseField(const char *field, const char *contents,
 
 static void SoundFinishEntry(void)
 {
-	ddf_base_t base;
-
 	if (!buffer_sfx.lump_name[0])
 		DDF_Error("Missing LUMP_NAME for sound.\n");
 
 	// transfer static entry to dynamic entry
 	// Keeps the ID info intact as well.
 
-	base = dynamic_sfx->ddf;
-	dynamic_sfx[0] = buffer_sfx;
-	dynamic_sfx->ddf = base;
+	dynamic_sfx->CopyDetail(buffer_sfx);
 
 	// Compute CRC.  In this case, there is no need, since sounds have
 	// zero impact on the game simulation itself.
@@ -180,8 +139,7 @@ static void SoundFinishEntry(void)
 static void SoundClearAll(void)
 {
 	// not safe to delete entries -- mark them disabled
-
-	num_disabled_sfx = numsfx;
+	sfxdefs.SetDisabledCount(sfxdefs.GetDisabledCount());
 }
 
 void DDF_ReadSFX(void *data, int size)
@@ -216,11 +174,13 @@ void DDF_ReadSFX(void *data, int size)
 
 void DDF_SFXInit(void)
 {
-	Z_InitStackArray(&S_sfx_a, (void ***)&S_sfx, sizeof(sfxinfo_t), 0);
-
+	sfxdefs.Clear();		// Clear the array
+	
 	// create the null sfx
-	Z_SetArraySize(&S_sfx_a, numsfx = 1);
-	S_sfx[numsfx-1][0] = template_sfx;
+	sfxdef_c* s = new sfxdef_c;
+	s->Default();
+	s->ddf.name = "NULL";
+	sfxdefs.Insert(s);
 }
 
 void DDF_SFXCleanUp(void)
@@ -228,74 +188,9 @@ void DDF_SFXCleanUp(void)
 	int i;
 
 	for (i = sizeof(bastard_sfx) / sizeof(bastard_sfx_t); i--; )
-		bastard_sfx[i].s = DDF_SfxLookupSound(bastard_sfx[i].name);
-}
-
-//
-// DDF_SfxLookupSound
-//
-// -ACB- 1999/11/06:
-//   Fixed from using zero-length array style malloc - Not ANSI Compliant.
-//   Renamed DDF_SfxLookupSound to destingush from the one in DDF_MAIN.C.
-//
-// -AJA- 2001/11/03: 
-//   Modified to count matches first, then allocate the memory.
-//   Prevents memory fragmentation.
-//
-sfx_t *DDF_SfxLookupSound(const char *name, bool error)
-{
-	int i, count;
-	int last_id = -1;
-
-	sfx_t *r;
-
-	// NULL Sound
-	if (!name || !name[0])
-		return NULL;
-
-	// count them
-	for (count=0, i=numsfx-1; i >= num_disabled_sfx; i--)
-	{
-		if (strncasecmpwild(name, S_sfx[i]->ddf.name, 8) == 0)
-		{
-			count++;
-			last_id = i;
-		}
-	}
-
-	if (count == 0)
-	{
-		if (!lax_errors && !error)
-			DDF_Error("Unknown SFX: '%.8s'\n", name);
-
-		return NULL;
-	}
-
-	// -AJA- optimisation to save some memory
-	if (count == 1)
-	{
-		sfx_t *r = & (S_sfx[last_id]->normal);
-
-		DEV_ASSERT2(r->num == 1);
-
-		return r;
-	}
-
-	// allocate elements.  Uses (count-1) since sfx_t already includes
-	// the first integer.
-	// 
-	r = (sfx_t *) Z_New(byte, sizeof(sfx_t) + (count-1) * sizeof(int));
-
-	// now store them
-	for (r->num=0, i=numsfx-1; i >= num_disabled_sfx; i--)
-	{
-		if (strncasecmpwild(name, S_sfx[i]->ddf.name, 8) == 0)
-			r->sounds[r->num++] = i;
-	}
-
-	DEV_ASSERT2(r->num == count);
-
-	return r;
+		bastard_sfx[i].s = sfxdefs.GetEffect(bastard_sfx[i].name);
+		
+	sfxdefs.Trim();
 }
 
 //
@@ -314,28 +209,203 @@ void DDF_MainLookupSound(const char *info, void *storage)
 
 	DEV_ASSERT2(info && storage);
 
-	*dest = DDF_SfxLookupSound(info);
+	*dest = sfxdefs.GetEffect(info);
+}
+
+// --> Sound Effect Definition Class
+
+//
+// sfxdef_c Constructor
+//
+sfxdef_c::sfxdef_c()
+{
+	prev = NULL;
+	next = NULL;
 }
 
 //
-// DDF_SfxSelect
-// 
-// Choose one of the sounds in sfx_t.  Mainly here for data hiding,
-// keeping numsfx and S_sfx out of other code.
-// 
-sfxinfo_t *DDF_SfxSelect(const sfx_t *sound_id)
+// sfxdef_c Copy constructor
+//
+sfxdef_c::sfxdef_c(sfxdef_c &rhs)
 {
-	int snd_num;
+	Copy(rhs);
+}
 
-	DEV_ASSERT2(sound_id->num >= 1);
+//
+// sfxdef_c Destructor
+//
+sfxdef_c::~sfxdef_c()
+{
+}
 
-	// -KM- 1999/01/31 Using P_Random here means demos and net games 
-	//  get out of sync.
-	// -AJA- 1999/07/19: That's why we use M_Random instead :).
+//
+// sfxdef_c::Copy()
+//
+void sfxdef_c::Copy(sfxdef_c &src)
+{
+	ddf = src.ddf;
+	CopyDetail(src);
+}
 
-	snd_num = sound_id->sounds[M_Random() % sound_id->num];
+//
+// sfxdef_c::CopyDetail()
+//
+void sfxdef_c::CopyDetail(sfxdef_c &src)
+{
+	lump_name = src.lump_name;
 
-	DEV_ASSERT2(0 <= snd_num && snd_num < numsfx);
+	// The internal sfx_t is only every a single entry	
+	normal.sounds[0] = src.normal.sounds[0];
+	normal.num = 1;
+	
+	singularity = src.singularity;      // singularity
+	priority = src.priority;    		// priority (lower is more important)
+	volume = src.volume; 				// volume
+	looping = src.looping;  			// looping
+	precious = src.precious;  			// precious
+	max_distance = src.max_distance; 	// max_distance
+}
 
-	return S_sfx[snd_num];
+//
+// sfxdef_c::Default()
+//
+void sfxdef_c::Default()
+{
+	// FIXME: ddf.default()?
+	ddf.name = NULL;
+	ddf.number = 0;
+	ddf.crc = 0;
+	
+	lump_name.Clear();
+	
+	normal.sounds[0] = 0;
+	normal.num = 1;
+	
+	singularity = 0;      			// singularity
+	priority = 999;    				// priority (lower is more important)
+	volume = PERCENT_MAKE(100); 	// volume
+	looping = false;  				// looping
+	precious = false;  				// precious
+	max_distance = S_CLIPPING_DIST; // max_distance
+	prev = NULL;   					// cache next
+	next = NULL;   					// cache prev
+}
+
+//
+// sfxdef_c assignment operator
+//
+sfxdef_c& sfxdef_c::operator=(sfxdef_c &rhs)
+{
+	if(&rhs != this)
+		Copy(rhs);
+
+	return *this;
+}
+
+// --> Sound Effect Definition Containter Class
+
+//
+// sfxdef_container_c::CleanupObject()
+//
+void sfxdef_container_c::CleanupObject(void *obj)
+{
+	sfxdef_c *s = *(sfxdef_c**)obj;
+
+	if (s)
+		delete s;
+
+	return;
+}
+
+//
+// sfxdef_container_c::GetEffect()
+//
+// FIXME!! Remove error param hack and throw an epi::error
+// FIXME!! Cache results for those we create
+//
+sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
+{
+	epi::array_iterator_c it, last;
+	int count;
+
+	sfxdef_c *si;
+	sfx_t *r;
+
+	// NULL Sound
+	if (!name || !name[0])
+		return NULL;
+
+	// count them
+	for (count=0, it=GetTailIterator(); 
+		it.IsValid() && it.GetPos() >= num_disabled; 
+		it--)
+	{
+		si = ITERATOR_TO_TYPE(it, sfxdef_c*);
+		
+		if (strncasecmpwild(name, si->ddf.name, 8) == 0)
+		{
+			count++;
+			last = it;
+		}
+	}
+
+	if (count == 0)
+	{
+		if (!lax_errors && !error)
+			DDF_Error("Unknown SFX: '%.8s'\n", name);
+
+		return NULL;
+	}
+
+	// -AJA- optimisation to save some memory
+	if (count == 1)
+	{
+		si = ITERATOR_TO_TYPE(last, sfxdef_c*);
+		r = &si->normal;
+
+		DEV_ASSERT2(r->num == 1);
+
+		return r;
+	}
+
+	//
+	// allocate elements.  Uses (count-1) since sfx_t already includes
+	// the first integer.
+	// 
+	r = (sfx_t*) new byte[sizeof(sfx_t) + ((count-1) * sizeof(int))];
+
+	// now store them
+	for (r->num=0, it=GetTailIterator(); 
+		it.IsValid() && it.GetPos() >= num_disabled; 
+		it--)
+	{
+		si = ITERATOR_TO_TYPE(it, sfxdef_c*);
+		
+		if (strncasecmpwild(name, si->ddf.name, 8) == 0)
+			r->sounds[r->num++] = it.GetPos();
+	}
+
+	DEV_ASSERT2(r->num == count);
+
+	return r;
+}
+
+//
+// sfxdef_container_c::Lookup()
+//
+sfxdef_c* sfxdef_container_c::Lookup(const char *name)
+{
+	epi::array_iterator_c it;
+	sfxdef_c *s;
+	
+	for (it=GetIterator(num_disabled); it.IsValid(); it++)
+	{
+		s = ITERATOR_TO_TYPE(it, sfxdef_c*);
+		if (DDF_CompareName(s->ddf.name, name) == 0)
+		{
+			return s;
+		}
+	}
+	
+	return NULL;
 }

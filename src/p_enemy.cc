@@ -708,7 +708,7 @@ void A_PlayerScream(mobj_t * mo)
 	{
 		// if the player dies and unclipped health is < -50%...
 
-		sound = DDF_SfxLookupSound("PDIEHI");
+		sound = sfxdefs.GetEffect("PDIEHI");
 	}
 
 	S_StartSound(mo, sound);
