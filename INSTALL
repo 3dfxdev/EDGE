@@ -1,0 +1,34 @@
+
+EDGE 1.29 COMPILATION NOTES
+===========================
+
+@@@ fixme: Needs rewriting !
+
+  For All Versions:
+      glBSP 2.10 is intended for use with this version of EDGE. All
+      those people who download the source from CVS will need to
+      add this to the source tree for the edge module. The directory
+      name is in the format glbsp-x.xx - with the x's replaced
+      with the version number.
+
+      DEH_EDGE 1.3 is also required.  The directory name is in the
+      format deh_edge_x.x - with the x's replaced with the version
+      number.
+
+
+  For Windows:
+!!!!      - use the IDE project files: EDGE.VCPROJ for Microsoft Visual
+!!!!      Studio, or EDGE.DEV for Dev C++ (a free C/C++ IDE). Users
+!!!!      of the Dev C++ will also need to locate a version of the
+!!!!      DirectX libraries for 8.1. 
+
+  For Linux:
+      @@@@ todo: humidity
+
+    - just type 'make' in the top-level dir.  This will create gledge.
+      edit the Makefile in order to create the S/W version.
+
+  For MacOS X:
+    - type 'make -f Makefile.osx' in the top-level dir.
+      NOTE: MacOS X support is broken right now.
+
