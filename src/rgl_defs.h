@@ -43,7 +43,7 @@ extern int glmax_clip_planes;
 extern int glmax_tex_size;
 
 extern int rgl_light_map[256];
-extern angle_t oned_side_angle;
+extern angle_t oned_side_angle;  // ANG180 disables polar clipping
 
 void RGL_Init(void);
 void RGL_SoftInit(void);
