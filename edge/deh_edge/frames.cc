@@ -86,20 +86,20 @@ static const actioninfo_t action_info[NUMACTIONS] =
     { "W:RAISE", 0, NULL, NULL },       // A_Raise
     { "W:SHOOT", 0, "C:PLAYER_PUNCH", NULL },       // A_Punch
     { "W:REFIRE", 0, NULL, NULL },      // A_ReFire
-    { "W:SHOOT", 0, "R:PLAYER_PISTOL", NULL },       // A_FirePistol
+    { "W:SHOOT", AF_FLASH, "R:PLAYER_PISTOL", NULL },       // A_FirePistol
     { "W:LIGHT1", 0, NULL, NULL },      // A_Light1
-    { "W:SHOOT", 0, "R:PLAYER_SHOTGUN", NULL },       // A_FireShotgun
+    { "W:SHOOT", AF_FLASH, "R:PLAYER_SHOTGUN", NULL },       // A_FireShotgun
     { "W:LIGHT2", 0, NULL, NULL },      // A_Light2
-    { "W:SHOOT", 0, "R:PLAYER_SHOTGUN2", NULL },       // A_FireShotgun2
+    { "W:SHOOT", AF_FLASH, "R:PLAYER_SHOTGUN2", NULL },       // A_FireShotgun2
     { "W:CHECKRELOAD", 0, NULL, NULL }, // A_CheckReload
     { "W:PLAYSOUND(DBOPN)", 0, NULL, NULL },  // A_OpenShotgun2
     { "W:PLAYSOUND(DBLOAD)", 0, NULL, NULL }, // A_LoadShotgun2
     { "W:PLAYSOUND(DBCLS)", 0, NULL, NULL },  // A_CloseShotgun2
-    { "W:SHOOT", 0, "R:PLAYER_CHAINGUN", NULL },      // A_FireCGun
-    { "W:FLASH", 0, NULL, NULL },      // A_GunFlash
+    { "W:SHOOT", AF_FLASH, "R:PLAYER_CHAINGUN", NULL },      // A_FireCGun
+    { "W:FLASH", AF_FLASH, NULL, NULL },      // A_GunFlash
     { "W:SHOOT", 0, "R:PLAYER_MISSILE", NULL },      // A_FireMissile
     { "W:SHOOT", 0, "C:PLAYER_SAW", NULL },      // A_Saw
-    { "W:SHOOT", 0, "R:PLAYER_PLASMA", NULL },      // A_FirePlasma
+    { "W:SHOOT", AF_FLASH, "R:PLAYER_PLASMA", NULL },      // A_FirePlasma
     { "W:PLAYSOUND(BFG)", 0, NULL, NULL },      // A_BFGsound
     { "W:SHOOT", 0, "R:PLAYER_BFG9000", NULL },      // A_FireBFG
     { "W:SPARE_ATTACK", 0, NULL, NULL },      // A_BFGSpray
@@ -109,7 +109,7 @@ static const actioninfo_t action_info[NUMACTIONS] =
     { "PLAYER_SCREAM", 0, NULL, NULL },      // A_PlayerScream
     { "MAKEDEAD", 0, NULL, NULL },      // A_Fall
     { "MAKEOVERKILLSOUND", 0, NULL, NULL },      // A_XScream
-    { "LOOKOUT", 0, NULL, NULL },      // A_Look
+    { "LOOKOUT", AF_LOOK, NULL, NULL },      // A_Look
     { "CHASE", 0, NULL, NULL },      // A_Chase
     { "FACETARGET", 0, NULL, NULL },      // A_FaceTarget
     { "RANGE_ATTACK", 0, "R:FORMER_HUMAN_PISTOL", NULL },      // A_PosAttack
@@ -145,8 +145,8 @@ static const actioninfo_t action_info[NUMACTIONS] =
     { "PLAYSOUND(HOOF)", 0, NULL, NULL },      // A_Hoof
     { "RANGE_ATTACK", 0, "R:CYBERDEMON_MISSILE", NULL },      // A_CyberAttack
     { "RANGE_ATTACK", 0, "R:ELEMENTAL_SPAWNER", NULL },      // A_PainAttack
-    { "SPARE_ATTACK", 0, "S:ELEMENTAL_DEATHSPAWN", NULL },      // A_PainDie
-    { "NOTHING", 0, NULL, NULL },      // A_KeenDie
+    { "SPARE_ATTACK", AF_MAKEDEAD, "S:ELEMENTAL_DEATHSPAWN", NULL },      // A_PainDie
+    { "NOTHING", AF_KEENDIE | AF_MAKEDEAD, NULL, NULL },      // A_KeenDie
     { "MAKEPAINSOUND", 0, NULL, NULL },      // A_BrainPain
     { "BRAINSCREAM", 0, NULL, NULL },      // A_BrainScream
     { "BRAINDIE", 0, NULL, NULL },      // A_BrainDie
@@ -510,6 +510,32 @@ bool Frames::CheckSpawnRemove(int first)
 	return false;
 }
 
+bool Frames::CheckWeaponFlash(int first)
+{
+	// fairly simple test, we don't need to detect looping or such here,
+	// just following the states upto a small maximum is enough.
+
+	for (int len = 0; len < 30; len++)
+	{
+		if (first == S_NULL)
+			break;
+
+		if (states[first].tics < 0)  // hibernation
+			break;
+
+		int act = states[first].action;
+
+		assert(0 <= act && act < NUMACTIONS);
+
+		if (action_info[act].act_flags & AF_FLASH)
+			return true;
+
+		first = states[first].nextstate;
+	}
+
+	return false;
+}
+
 namespace Frames
 {
 	void UpdateAttackSlots(const char *act_name, const char *atk)
@@ -577,7 +603,8 @@ void Frames::OutputState(char group, int cur)
 	if (weap_act)
 		act_name += 2;
 
-	if (st->action != S_NULL && weap_act == ! IS_WEAPON(group))
+	if (st->action != S_NULL && weap_act == ! IS_WEAPON(group) &&
+		StrCaseCmp(act_name, "NOTHING") != 0)
 	{
 		if (weap_act)
 			PrintWarn("Frame %d: weapon action %s used in thing.\n", cur, act_name);
@@ -587,9 +614,28 @@ void Frames::OutputState(char group, int cur)
 		act_name = "NOTHING";
 	}
 
+	// If the death states contain A_PainDie or A_KeenDie, then we
+	// need to add an A_Fall action for proper operation in EDGE.
+	if (action_info[st->action].act_flags & AF_MAKEDEAD)
+	{
+		WAD::Printf("    %s:%c:0:%s:MAKEDEAD,\n",
+			TextStr::GetSprite(st->sprite),
+			'A' + ((int) st->frame & 31),
+			(st->frame >= 32768) ? "BRIGHT" : "NORMAL");
+	}
+
+	int tics = (int) st->tics;
+
+	// kludge for EDGE and Batman TC.  EDGE waits 35 tics before exiting the
+	// level from A_BrainDie, but standard Doom does it immediately.  Oddly,
+	// Batman TC goes into a loop calling A_BrainDie every tic.
+
+	if (tics >= 0 && tics < 40 && StrCaseCmp(act_name, "BRAINDIE") == 0)
+		tics = 40;
+
 	WAD::Printf("    %s:%c:%d:%s:%s",
 		TextStr::GetSprite(st->sprite),
-		'A' + ((int) st->frame & 31), (int) st->tics,
+		'A' + ((int) st->frame & 31), tics,
 		(st->frame >= 32768) ? "BRIGHT" : "NORMAL", act_name);
 
 	if (st->action != S_NULL && weap_act == ! IS_WEAPON(group))
