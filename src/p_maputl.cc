@@ -65,7 +65,7 @@ touch_node_t *free_touch_nodes;
 //
 // Gives an estimation of distance (not exact)
 //
-flo_t P_ApproxDistance(flo_t dx, flo_t dy)
+float P_ApproxDistance(float dx, float dy)
 {
 	dx = fabs(dx);
 	dy = fabs(dy);
@@ -83,9 +83,9 @@ flo_t P_ApproxDistance(flo_t dx, flo_t dy)
 //
 // -AJA- 1999/09/11: written.
 //
-flo_t P_ApproxSlope(flo_t dx, flo_t dy, flo_t dz)
+float P_ApproxSlope(float dx, float dy, float dz)
 {
-	flo_t dist = P_ApproxDistance(dx, dy);
+	float dist = P_ApproxDistance(dx, dy);
 
 	// kludge to prevent overflow or division by zero.
 	if (dist < 1.0 / 32)
@@ -101,10 +101,10 @@ flo_t P_ApproxSlope(flo_t dx, flo_t dy, flo_t dz)
 // Returns 0 (front/right) or 1 (back/left).  If the point lies
 // directly on the line, result is undefined (either 0 or 1).
 //
-int P_PointOnDivlineSide(flo_t x, flo_t y, divline_t *div)
+int P_PointOnDivlineSide(float x, float y, divline_t *div)
 {
-	flo_t dx, dy;
-	flo_t left, right;
+	float dx, dy;
+	float left, right;
 
 	if (div->dx == 0)
 		return ((x <= div->x) ^ (div->dy > 0)) ? 0 : 1;
@@ -138,11 +138,11 @@ int P_PointOnDivlineSide(flo_t x, flo_t y, divline_t *div)
 // parameter determines when the point is considered "on" the line.
 // Returns 0 (front/right), 1 (back/left), or 2 (on).
 //
-int P_PointOnDivlineThick(flo_t x, flo_t y, divline_t *div,
-						  flo_t div_len, flo_t thickness)
+int P_PointOnDivlineThick(float x, float y, divline_t *div,
+						  float div_len, float thickness)
 {
-	flo_t dx, dy;
-	flo_t left, right;
+	float dx, dy;
+	float left, right;
 
 	if (div->dx == 0)
 	{
@@ -179,7 +179,7 @@ int P_PointOnDivlineThick(flo_t x, flo_t y, divline_t *div,
 // Considers the line to be infinite
 // Returns side 0 or 1, -1 if box crosses the line.
 //
-int P_BoxOnLineSide(flo_t * tmbox, line_t * ld)
+int P_BoxOnLineSide(float * tmbox, line_t * ld)
 {
 	int p1 = 0;
 	int p2 = 0;
@@ -236,7 +236,7 @@ int P_BoxOnLineSide(flo_t * tmbox, line_t * ld)
 // Considers the line to be infinite
 // Returns side 0 or 1, -1 if box crosses the line.
 //
-static int P_BoxOnDivLineSide(flo_t * tmbox, divline_t *div)
+static int P_BoxOnDivLineSide(float * tmbox, divline_t *div)
 {
 	int p1 = 0;
 	int p2 = 0;
@@ -286,19 +286,19 @@ static int P_BoxOnDivLineSide(flo_t * tmbox, divline_t *div)
 // Returns the fractional intercept point along the first divline.
 // This is only called by the addthings and addlines traversers.
 //
-flo_t P_InterceptVector(divline_t * v2, divline_t * v1)
+float P_InterceptVector(divline_t * v2, divline_t * v1)
 {
-	flo_t frac;
-	flo_t num;
-	flo_t den;
-	flo_t v1x;
-	flo_t v1y;
-	flo_t v1dx;
-	flo_t v1dy;
-	flo_t v2x;
-	flo_t v2y;
-	flo_t v2dx;
-	flo_t v2dy;
+	float frac;
+	float num;
+	float den;
+	float v1x;
+	float v1y;
+	float v1dx;
+	float v1dy;
+	float v2x;
+	float v2y;
+	float v2dx;
+	float v2dy;
 
 	v1x = v1->x;
 	v1y = v1->y;
@@ -324,7 +324,7 @@ flo_t P_InterceptVector(divline_t * v2, divline_t * v1)
 //  GAP UTILITY FUNCTIONS
 //
 
-static int GAP_RemoveSolid(vgap_t * dest, int d_num, flo_t z1, flo_t z2)
+static int GAP_RemoveSolid(vgap_t * dest, int d_num, float z1, float z2)
 {
 	int d;
 	int new_num = 0;
@@ -440,7 +440,7 @@ static int GAP_SightConstruct(vgap_t * gaps, sector_t * sec)
 static int GAP_Restrict(vgap_t * dest, int d_num, vgap_t * src, int s_num)
 {
 	int d, s;
-	flo_t f, c;
+	float f, c;
 
 	int new_num = 0;
 	vgap_t new_gaps[32];
@@ -505,19 +505,19 @@ static void GAP_Dump(vgap_t *gaps, int num)
 //
 // Returns the gap number, or -1 if there are no gaps at all.
 //
-int P_FindThingGap(vgap_t * gaps, int gap_num, flo_t z1, flo_t z2)
+int P_FindThingGap(vgap_t * gaps, int gap_num, float z1, float z2)
 {
 	int i;
-	flo_t dist;
+	float dist;
 
 	int fit_num = 0;
 	int fit_last = -1;
 
 	int fit_closest = -1;
-	flo_t fit_mindist = INT_MAX;
+	float fit_mindist = INT_MAX;
 
 	int nofit_closest = -1;
-	flo_t nofit_mindist = INT_MAX;
+	float nofit_mindist = INT_MAX;
 
 	// check for trivial gaps...
 
@@ -577,8 +577,8 @@ int P_FindThingGap(vgap_t * gaps, int gap_num, flo_t z1, flo_t z2)
 // particular Z would have.  Returns the nominal Z height.  Some special
 // values of Z are recognised: ONFLOORZ & ONCEILINGZ.
 //
-flo_t P_ComputeThingGap(mobj_t * thing, sector_t * sec, flo_t z,
-						flo_t * f, flo_t * c)
+float P_ComputeThingGap(mobj_t * thing, sector_t * sec, float z,
+						float * f, float * c)
 {
 	vgap_t temp_gaps[100];
 	int temp_num;
@@ -700,7 +700,7 @@ void P_DumpExtraFloors(const sector_t *sec)
 //
 // Check if a solid extrafloor fits.
 //
-exfloor_fit_e P_ExtraFloorFits(sector_t *sec, flo_t z1, flo_t z2)
+exfloor_fit_e P_ExtraFloorFits(sector_t *sec, float z1, float z2)
 {
 	extrafloor_t *ef;
 
@@ -712,8 +712,8 @@ exfloor_fit_e P_ExtraFloorFits(sector_t *sec, flo_t z1, flo_t z2)
 
 	for (ef=sec->bottom_ef; ef && ef->higher; ef=ef->higher)
 	{
-		flo_t bottom = ef->bottom_h;
-		flo_t top = ef->top_h;
+		float bottom = ef->bottom_h;
+		float top = ef->top_h;
 
 		DEV_ASSERT2(top >= bottom);
 
@@ -736,7 +736,7 @@ void P_AddExtraFloor(sector_t *sec, line_t *line)
 	surface_t *top, *bottom;
 	extrafloor_t *newbie, *cur;
 
-	boolean_t liquid;
+	bool liquid;
 	exfloor_fit_e errcode;
 
 	DEV_ASSERT2(line->special);
@@ -921,8 +921,8 @@ void P_FloodExtraFloors(sector_t *sector)
 }
 
 
-static INLINE void AddWallTile(side_t *sd, flo_t z1, flo_t z2,
-							   flo_t tex_z, surface_t *surface, int flags)
+static INLINE void AddWallTile(side_t *sd, float z1, float z2,
+							   float tex_z, surface_t *surface, int flags)
 {
 	wall_tile_t *wt;
 
@@ -952,11 +952,11 @@ void P_ComputeWallTiles(line_t *ld, int sidenum)
 	surface_t *surf;
 
 	extrafloor_t *S, *L, *C;
-	flo_t floor_h;
-	flo_t tex_z;
+	float floor_h;
+	float tex_z;
 
-	boolean_t lower_invis = false;
-	boolean_t upper_invis = false;
+	bool lower_invis = false;
+	bool upper_invis = false;
 
 
 	if (! sd)
@@ -1005,10 +1005,10 @@ void P_ComputeWallTiles(line_t *ld, int sidenum)
 
 	if (sd->middle.image)
 	{
-		flo_t f1 = MAX(sec->f_h, other->f_h);
-		flo_t c1 = MIN(sec->c_h, other->c_h);
+		float f1 = MAX(sec->f_h, other->f_h);
+		float c1 = MIN(sec->c_h, other->c_h);
 
-		flo_t f2, c2;
+		float f2, c2;
 
 		if (ld->flags & ML_LowerUnpegged)
 		{
@@ -1215,7 +1215,7 @@ typedef struct setposbsp_s
 {
 	mobj_t *thing;
 
-	flo_t bbox[4];
+	float bbox[4];
 }
 setposbsp_t;
 
@@ -1634,7 +1634,7 @@ void P_SetThingPosition(mobj_t * thing)
 // when moving a thing, rather than fiddling with the coordinates
 // directly (or even P_UnsetThingPos/P_SetThingPos pairs).
 // 
-void P_ChangeThingPosition(mobj_t * thing, flo_t x, flo_t y, flo_t z)
+void P_ChangeThingPosition(mobj_t * thing, float x, float y, float z)
 {
 	P_UnsetThingPosition(thing);
 
@@ -1680,7 +1680,7 @@ void P_FreeSectorTouchNodes(sector_t *sec)
 // 23-6-98 KM Changed to reflect blockmap is now int* not short*
 // -AJA- 2000/07/31: line data changed back to shorts.
 //
-boolean_t P_BlockLinesIterator (int x, int y, boolean_t(*func) (line_t *))
+bool P_BlockLinesIterator (int x, int y, bool(*func) (line_t *))
 {
 	unsigned short *list;
 	line_t *ld;
@@ -1711,7 +1711,7 @@ boolean_t P_BlockLinesIterator (int x, int y, boolean_t(*func) (line_t *))
 //
 // P_BlockThingsIterator
 //
-boolean_t P_BlockThingsIterator(int x, int y, boolean_t(*func) (mobj_t *))
+bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *))
 {
 	mobj_t *mobj;
 
@@ -1737,7 +1737,7 @@ intercept_t **intercepts = NULL;
 int intercept_p;
 
 divline_t trace;
-boolean_t earlyout;
+bool earlyout;
 int ptflags;
 
 //
@@ -1751,11 +1751,11 @@ int ptflags;
 // are on opposite sides of the trace.
 // Returns true if earlyout and a solid line hit.
 //
-static boolean_t PIT_AddLineIntercepts(line_t * ld)
+static bool PIT_AddLineIntercepts(line_t * ld)
 {
 	int s1;
 	int s2;
-	flo_t frac;
+	float frac;
 	divline_t div;
 
 	div.x = ld->v1->x;
@@ -1803,21 +1803,21 @@ static boolean_t PIT_AddLineIntercepts(line_t * ld)
 //
 // PIT_AddThingIntercepts
 //
-static boolean_t PIT_AddThingIntercepts(mobj_t * thing)
+static bool PIT_AddThingIntercepts(mobj_t * thing)
 {
-	flo_t x1;
-	flo_t y1;
-	flo_t x2;
-	flo_t y2;
+	float x1;
+	float y1;
+	float x2;
+	float y2;
 
 	int s1;
 	int s2;
 
-	boolean_t tracepositive;
+	bool tracepositive;
 
 	divline_t div;
 
-	flo_t frac;
+	float frac;
 
 	tracepositive = (trace.dx >= 0) == (trace.dy >= 0);
 
@@ -1874,10 +1874,10 @@ static boolean_t PIT_AddThingIntercepts(mobj_t * thing)
 // Returns true if the traverser function returns true
 // for all lines.
 //
-static boolean_t TraverseIntercepts(traverser_t func, flo_t maxfrac)
+static bool TraverseIntercepts(traverser_t func, float maxfrac)
 {
 	int count;
-	flo_t dist;
+	float dist;
 	int scan;
 	intercept_t *in = NULL;
 
@@ -1933,23 +1933,23 @@ static boolean_t TraverseIntercepts(traverser_t func, flo_t maxfrac)
 // Returns true if the traverser function returns true
 // for all lines.
 //
-boolean_t P_PathTraverse(flo_t x1, flo_t y1, flo_t x2, flo_t y2, 
+bool P_PathTraverse(float x1, float y1, float x2, float y2, 
 						 int flags, traverser_t trav)
 {
-	static boolean_t firsttime = true;
+	static bool firsttime = true;
 
 	int xt1;
 	int yt1;
 	int xt2;
 	int yt2;
 
-	flo_t xstep;
-	flo_t ystep;
+	float xstep;
+	float ystep;
 
-	flo_t partial;
+	float partial;
 
-	flo_t xintercept;
-	flo_t yintercept;
+	float xintercept;
+	float yintercept;
 
 	double tmp;
 
@@ -2099,7 +2099,7 @@ boolean_t P_PathTraverse(flo_t x1, flo_t y1, flo_t x2, flo_t y2,
 	return TraverseIntercepts(trav, 1.0);
 }
 
-static INLINE boolean_t PST_CheckBBox(flo_t *bspcoord, flo_t *test)
+static INLINE bool PST_CheckBBox(float *bspcoord, float *test)
 {
 	return (test[BOXRIGHT]  < bspcoord[BOXLEFT] ||
 		test[BOXLEFT]   > bspcoord[BOXRIGHT] ||
@@ -2107,8 +2107,8 @@ static INLINE boolean_t PST_CheckBBox(flo_t *bspcoord, flo_t *test)
 		test[BOXBOTTOM] > bspcoord[BOXTOP]) ? false : true;
 }
 
-static boolean_t TraverseSubsec(int bspnum, flo_t *bbox,
-								boolean_t (*func)(mobj_t *mo))
+static bool TraverseSubsec(int bspnum, float *bbox,
+								bool (*func)(mobj_t *mo))
 {
 	subsector_t *sub;
 	node_t *node;
@@ -2159,16 +2159,16 @@ static boolean_t TraverseSubsec(int bspnum, flo_t *bbox,
 // If any function returns false, then this routine returns false and
 // nothing else is checked.  Otherwise true is returned.
 //
-boolean_t P_SubsecThingIterator(flo_t *bbox,
-								boolean_t (*func)(mobj_t *mo))
+bool P_SubsecThingIterator(float *bbox,
+								bool (*func)(mobj_t *mo))
 {
 	return TraverseSubsec(root_node, bbox, func);
 }
 
-static flo_t checkempty_bbox[4];
+static float checkempty_bbox[4];
 static line_t *checkempty_line;
 
-static boolean_t PST_CheckThingArea(mobj_t *mo)
+static bool PST_CheckThingArea(mobj_t *mo)
 {
 	if (mo->x + mo->radius < checkempty_bbox[BOXLEFT] ||
 		mo->x - mo->radius > checkempty_bbox[BOXRIGHT] ||
@@ -2190,9 +2190,9 @@ static boolean_t PST_CheckThingArea(mobj_t *mo)
 	return false;
 }
 
-static boolean_t PST_CheckThingLine(mobj_t *mo)
+static bool PST_CheckThingLine(mobj_t *mo)
 {
-	flo_t bbox[4];
+	float bbox[4];
 	int side;
 
 	bbox[BOXLEFT]   = mo->x - mo->radius;
@@ -2222,7 +2222,7 @@ static boolean_t PST_CheckThingLine(mobj_t *mo)
 // Checks if there are any things contained within the given rectangle
 // on the 2D map.
 //
-boolean_t P_ThingsInArea(flo_t *bbox)
+bool P_ThingsInArea(float *bbox)
 {
 	checkempty_bbox[BOXLEFT]   = bbox[BOXLEFT];
 	checkempty_bbox[BOXRIGHT]  = bbox[BOXRIGHT];
@@ -2237,7 +2237,7 @@ boolean_t P_ThingsInArea(flo_t *bbox)
 //
 // Checks if there are any things touching the given line.
 //
-boolean_t P_ThingsOnLine(line_t *ld)
+bool P_ThingsOnLine(line_t *ld)
 {
 	checkempty_line = ld;
 

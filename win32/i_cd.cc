@@ -42,7 +42,7 @@ static MCIERROR errorcode;
 //
 // Initialises playing a CD-Audio Track, returns false on failure.
 //
-boolean_t I_CDStartPlayback(int tracknum)
+bool I_CDStartPlayback(int tracknum)
 {
 	MCI_OPEN_PARMS openparm;
 	MCI_PLAY_PARMS playparm;
@@ -66,11 +66,11 @@ boolean_t I_CDStartPlayback(int tracknum)
 	}
 
 	// open parameters
-	openparm.dwCallback      = (DWORD)mainwindow;
+	openparm.dwCallback      = (DWORD_PTR)mainwindow;
 	openparm.lpstrDeviceType = CDDEVICE;
 
 	// Open MCI CD-Audio
-	errorcode = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE, (DWORD)&openparm);
+	errorcode = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE, (DWORD_PTR)&openparm);
 	if (errorcode)
 	{
 		if (!mciGetErrorString(errorcode, errordesc, 128))
@@ -87,10 +87,10 @@ boolean_t I_CDStartPlayback(int tracknum)
 	currcd->id = openparm.wDeviceID;
 
 	// Get the status of MCI CD-Audio
-	statusparm.dwCallback = (DWORD)mainwindow;
+	statusparm.dwCallback = (DWORD_PTR)mainwindow;
 	statusparm.dwItem     = MCI_STATUS_MEDIA_PRESENT;
 
-	errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)&statusparm);
+	errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)&statusparm);
 	if (errorcode || !statusparm.dwReturn)
 	{
 		if (!mciGetErrorString(errorcode, errordesc, 128))
@@ -105,10 +105,10 @@ boolean_t I_CDStartPlayback(int tracknum)
 	}
 
 	// Get the number of CD Tracks
-	statusparm.dwCallback = (DWORD)mainwindow;
+	statusparm.dwCallback = (DWORD_PTR)mainwindow;
 	statusparm.dwItem     = MCI_STATUS_NUMBER_OF_TRACKS;
 
-	errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)&statusparm);
+	errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)&statusparm);
 	if (errorcode)
 	{
 		if (!mciGetErrorString(errorcode, errordesc, 128))
@@ -122,7 +122,7 @@ boolean_t I_CDStartPlayback(int tracknum)
 		return false;
 	}
 
-	numoftracks = statusparm.dwReturn;
+	numoftracks = (DWORD)statusparm.dwReturn;
 	if (tracknum >= numoftracks)
 	{
 		mciSendCommand(currcd->id, MCI_CLOSE, 0, (DWORD)NULL);
@@ -133,11 +133,11 @@ boolean_t I_CDStartPlayback(int tracknum)
 	}
 
 	// Get the status of the CD Track
-	statusparm.dwCallback = (DWORD)mainwindow;
+	statusparm.dwCallback = (DWORD_PTR)mainwindow;
 	statusparm.dwItem     = MCI_CDA_STATUS_TYPE_TRACK;
 	currcd->currenttrack  = statusparm.dwTrack    = tracknum;
 
-	errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM|MCI_TRACK, (DWORD)&statusparm);
+	errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM|MCI_TRACK, (DWORD_PTR)&statusparm);
 	if (errorcode)
 	{
 		if (!mciGetErrorString(errorcode, errordesc, 128))
@@ -163,22 +163,22 @@ boolean_t I_CDStartPlayback(int tracknum)
 
 	// Setup time format
 	setparm.dwTimeFormat = MCI_FORMAT_TMSF;
-	mciSendCommand(currcd->id, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD)(LPVOID)&setparm);
+	mciSendCommand(currcd->id, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD_PTR)&setparm);
 
 	// Setup play parameters
-	playparm.dwCallback = (DWORD)mainwindow;
+	playparm.dwCallback = (DWORD_PTR)mainwindow;
 	currcd->startpos = playparm.dwFrom = MCI_MAKE_TMSF(tracknum, 0, 0, 0);
 
 	// Check if last track...
 	if (tracknum == (numoftracks-1))
 	{
 		currcd->finishpos = playparm.dwTo = 0L;
-		errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM, (DWORD)(LPVOID)&playparm);
+		errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM, (DWORD_PTR)&playparm);
 	}
 	else
 	{
 		currcd->finishpos = playparm.dwTo = MCI_MAKE_TMSF(tracknum+1, 0, 0, 0);
-		errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM|MCI_TO, (DWORD)(LPVOID)&playparm);
+		errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM|MCI_TO, (DWORD_PTR)&playparm);
 	}
 
 	if (errorcode)
@@ -200,7 +200,7 @@ boolean_t I_CDStartPlayback(int tracknum)
 //
 // I_CDPausePlayback
 //
-boolean_t I_CDPausePlayback(void)
+bool I_CDPausePlayback(void)
 {
 	MCI_SET_PARMS setparm;
 	MCI_STATUS_PARMS statusparm;
@@ -216,12 +216,12 @@ boolean_t I_CDPausePlayback(void)
 	}
 
 	setparm.dwTimeFormat = MCI_FORMAT_TMSF;
-	mciSendCommand(currcd->id, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD)(LPVOID)&setparm);
+	mciSendCommand(currcd->id, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD_PTR)&setparm);
 
-	statusparm.dwCallback  = (DWORD)mainwindow;
+	statusparm.dwCallback  = (DWORD_PTR)mainwindow;
 	statusparm.dwItem = MCI_STATUS_POSITION;
 
-	errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)&statusparm);
+	errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)&statusparm);
 	if (errorcode)
 	{
 		if (!mciGetErrorString(errorcode, errordesc, 128))
@@ -232,7 +232,7 @@ boolean_t I_CDPausePlayback(void)
 		return false;
 	}
 
-	currcd->pausedpos = statusparm.dwReturn;
+	currcd->pausedpos = (DWORD)statusparm.dwReturn;
 
 	mciSendCommand(currcd->id, MCI_STOP, 0, (DWORD)NULL);
 
@@ -242,7 +242,7 @@ boolean_t I_CDPausePlayback(void)
 //
 // I_CDResumePlayback
 //
-boolean_t I_CDResumePlayback(void)
+bool I_CDResumePlayback(void)
 {
 	MCI_SET_PARMS setparm;
 	MCI_PLAY_PARMS playparm;
@@ -258,16 +258,16 @@ boolean_t I_CDResumePlayback(void)
 	}
 
 	setparm.dwTimeFormat = MCI_FORMAT_TMSF;
-	mciSendCommand(currcd->id, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD)(LPVOID) &setparm);
+	mciSendCommand(currcd->id, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD_PTR) &setparm);
 
-	playparm.dwCallback = (DWORD)mainwindow;
+	playparm.dwCallback = (DWORD_PTR)mainwindow;
 	playparm.dwFrom     = currcd->pausedpos;
 	playparm.dwTo       = currcd->finishpos;
 
 	if (!currcd->finishpos)
-		errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM, (DWORD)(LPVOID)&playparm);
+		errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM, (DWORD_PTR)&playparm);
 	else
-		errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM|MCI_TO, (DWORD)(LPVOID)&playparm);
+		errorcode = mciSendCommand(currcd->id, MCI_PLAY, MCI_NOTIFY|MCI_FROM|MCI_TO, (DWORD_PTR)&playparm);
 
 	if (errorcode)
 	{
@@ -304,19 +304,18 @@ void I_CDStopPlayback(void)
 //
 // Has the CD Finished playing
 //
-boolean_t I_CDFinished(void)
+bool I_CDFinished(void)
 {
-	MCI_PLAY_PARMS playparm;
 	MCI_STATUS_PARMS statusparm;
 
 	if (!currcd)
 		return false;
 
 	// Get the status of MCI CD-Audio
-	statusparm.dwCallback = (DWORD)mainwindow;
+	statusparm.dwCallback = (DWORD_PTR)mainwindow;
 	statusparm.dwItem     = MCI_STATUS_MODE;
 
-	mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)&statusparm);
+	mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)&statusparm);
 
 	switch(statusparm.dwReturn)
 	{

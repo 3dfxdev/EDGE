@@ -130,10 +130,10 @@ static void DDF_MusicParseInfo(const char *info, void *storage)
 //  DDF PARSE ROUTINES
 //
 
-static boolean_t PlaylistStartEntry(const char *name)
+static bool PlaylistStartEntry(const char *name)
 {
   int i;
-  boolean_t replaces = false;
+  bool replaces = false;
   int number = MAX(0, atoi(name));
 
   if (number == 0)
@@ -175,7 +175,7 @@ static boolean_t PlaylistStartEntry(const char *name)
 }
 
 static void PlaylistParseField(const char *field, const char *contents,
-    int index, boolean_t is_last)
+    int index, bool is_last)
 {
 #if (DEBUG_DDF)  
   L_WriteDebug("PLAYLIST_PARSE: %s = %s;\n", field, contents);

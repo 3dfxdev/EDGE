@@ -55,7 +55,7 @@ typedef struct commit_array_s
   int pos;
 
   // whether an item has been gotten, but not yet committed.
-  boolean_t active;
+  bool active;
 }
 commit_array_t;
 
@@ -252,7 +252,7 @@ static int num_range_arrays;
 static range_array_t *free_R_array;
 static int free_RA_pos;
 
-static boolean_t RA_active;
+static bool RA_active;
 
 //
 // R2_InitOpenings
@@ -368,7 +368,7 @@ void R2_1DOcclusionSet(int x1, int x2)
 // Test if the range from x1..x2 is completely blocked, returning true
 // if it is, otherwise false.
 //
-boolean_t R2_1DOcclusionTest(int x1, int x2)
+bool R2_1DOcclusionTest(int x1, int x2)
 {
   DEV_ASSERT2(0 <= x1 && x1 <= x2);
 
@@ -385,7 +385,7 @@ boolean_t R2_1DOcclusionTest(int x1, int x2)
 // Similiar to the above routine, but shrinks the given range as much
 // as possible.  Returns true if totally occluded.
 //
-boolean_t R2_1DOcclusionTestShrink(int *x1, int *x2)
+bool R2_1DOcclusionTestShrink(int *x1, int *x2)
 {
   DEV_ASSERT2(0 <= (*x1) && (*x1) <= (*x2));
 
@@ -445,7 +445,7 @@ void R2_2DOcclusionClear(int x1, int x2)
 // R2_2DOcclusionClose
 //
 void R2_2DOcclusionClose(int x1, int x2, Y_range_t *ranges,
-    boolean_t connect_low, boolean_t connect_high, boolean_t solid)
+    bool connect_low, bool connect_high, bool solid)
 {
   int i;
 
@@ -564,7 +564,7 @@ int lod_base_cube = 256;
 //
 // R2_GetPointLOD
 //
-int R2_GetPointLOD(flo_t x, flo_t y, flo_t z)
+int R2_GetPointLOD(float x, float y, float z)
 {
   x = fabs(x - viewx);
   y = fabs(y - viewy);
@@ -578,8 +578,8 @@ int R2_GetPointLOD(flo_t x, flo_t y, flo_t z)
 //
 // R2_GetBBoxLOD
 //
-int R2_GetBBoxLOD(flo_t x1, flo_t y1, flo_t z1,
-    flo_t x2, flo_t y2, flo_t z2)
+int R2_GetBBoxLOD(float x1, float y1, float z1,
+    float x2, float y2, float z2)
 {
   x1 -= viewx;  x2 -= viewx;
   y1 -= viewy;  y2 -= viewy;
@@ -602,8 +602,8 @@ int R2_GetBBoxLOD(flo_t x1, flo_t y1, flo_t z1,
 // this could be improved to handle diagonal lines better (at the
 // moment we just use the line's bbox).
 //
-int R2_GetWallLOD(flo_t x1, flo_t y1, flo_t z1,
-    flo_t x2, flo_t y2, flo_t z2)
+int R2_GetWallLOD(float x1, float y1, float z1,
+    float x2, float y2, float z2)
 {
   x1 -= viewx;  x2 -= viewx;
   y1 -= viewy;  y2 -= viewy;
@@ -622,13 +622,13 @@ int R2_GetWallLOD(flo_t x1, flo_t y1, flo_t z1,
 //
 // R2_GetPlaneLOD
 //
-int R2_GetPlaneLOD(subsector_t *sub, flo_t h)
+int R2_GetPlaneLOD(subsector_t *sub, float h)
 {
   // get BBOX of plane
-  flo_t x1 = sub->bbox[BOXLEFT]   - viewx;
-  flo_t x2 = sub->bbox[BOXRIGHT]  - viewx;
-  flo_t y1 = sub->bbox[BOXBOTTOM] - viewy;
-  flo_t y2 = sub->bbox[BOXTOP]    - viewy;
+  float x1 = sub->bbox[BOXLEFT]   - viewx;
+  float x2 = sub->bbox[BOXRIGHT]  - viewx;
+  float y1 = sub->bbox[BOXBOTTOM] - viewy;
+  float y2 = sub->bbox[BOXTOP]    - viewy;
 
   x1 = ((x1<0) != (x2<0)) ? 0 : MIN(fabs(x1), fabs(x2));
   y1 = ((y1<0) != (y2<0)) ? 0 : MIN(fabs(y1), fabs(y2));

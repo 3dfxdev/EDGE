@@ -52,12 +52,12 @@ void CON_InitFunctionList(funclist_t * fl, const char *cvarname, void (*default_
 void CON_SetFunclistDest(funclist_t * fl, void (**dest) (void));
 
 // Sets an existing cvar (if writable)
-boolean_t CON_SetCVar(const char *name, const char *value);
+bool CON_SetCVar(const char *name, const char *value);
 
 // Gets an existing cvar value (if readable) pass the address of a
 // pointer to the data you want, eg int *p; CON_GetCVar("health", &p);
 // Must be done this way because using a void
-boolean_t CON_GetCVar(const char *name, const void **value);
+bool CON_GetCVar(const char *name, const void **value);
 
 // more low-level version of GetCVar.
 // Usable in callbacks and similar, when it's simpler.
@@ -66,19 +66,19 @@ boolean_t CON_GetCVar(const char *name, const void **value);
 const void *CON_CVarGetValue(const cvar_t * var);
 
 // Creates a new value.
-boolean_t CON_CreateCVar(const char *name, cflag_t flags, const cvartype_t * type, void *value);
+bool CON_CreateCVar(const char *name, cflag_t flags, const cvartype_t * type, void *value);
 
 // Deletes a cvar.
-boolean_t CON_DeleteCVar(const char *name);
+bool CON_DeleteCVar(const char *name);
 
 // Some special create routines for common types.
 // The value pointer points to the variable that is changed whenever the
 // cvar is changed. If NULL is passed, a new value will be created internally
-boolean_t CON_CreateCVarInt(const char *name, cflag_t flags, int *value);
-boolean_t CON_CreateCVarStr(const char *name, cflag_t flags, char *value, int maxlen);
-boolean_t CON_CreateCVarBool(const char *name, cflag_t flags, boolean_t * value);
-boolean_t CON_CreateCVarReal(const char *name, cflag_t flags, flo_t * value);
-boolean_t CON_CreateCVarEnum(const char *name, cflag_t flags, void *value, const char *names, int num);
+bool CON_CreateCVarInt(const char *name, cflag_t flags, int *value);
+bool CON_CreateCVarStr(const char *name, cflag_t flags, char *value, int maxlen);
+bool CON_CreateCVarBool(const char *name, cflag_t flags, bool * value);
+bool CON_CreateCVarReal(const char *name, cflag_t flags, float * value);
+bool CON_CreateCVarEnum(const char *name, cflag_t flags, void *value, const char *names, int num);
 
 // Adds a callback hook, which will be called whenever the value is changed.
 // The callback will get the cvar as parameter. Normally, it should only

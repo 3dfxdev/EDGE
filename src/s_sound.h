@@ -37,7 +37,7 @@
 #define S_CLIPPING_DIST 1600.0
 
 // S_MUSIC.C
-void S_ChangeMusic(int entrynum, boolean_t looping);
+void S_ChangeMusic(int entrynum, bool looping);
 void S_ResumeMusic(void);
 void S_PauseMusic(void);
 void S_StopMusic(void);
@@ -46,7 +46,7 @@ int S_GetMusicVolume(void);
 void S_SetMusicVolume(int volume);
 
 // S_SOUND.C
-boolean_t S_Init(void);
+bool S_Init(void);
 void S_SoundLevelInit(void);
 int S_StartSound(mobj_t *origin, sfx_t *sound_id);
 void S_ResumeSounds(void);

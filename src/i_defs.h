@@ -33,14 +33,14 @@
 // Define USE_INT64 if the system supports 64 bit integers.
 //#define USE_INT64
 //
-typedef float flo_t;
+typedef float float;
 
 //
 // define FLOAT_IEEE_754 if the float is IEEE_754 compliant, i.e. 1 bit
 // sign + 8 bits exponent + 23 bits mantissa.
 //
 //#define FLOAT_IEEE_754
-typedef enum { false, true } boolean_t;
+typedef enum { false, true } bool;
 
 //
 // Add any system includes here, e.g.
@@ -237,12 +237,12 @@ typedef enum { false, true } boolean_t;
 #ifdef BeOS
 
 typedef long long Int64;
-typedef float flo_t;
+typedef float float;
 #define FLOAT_IEEE_754
 #ifdef __cplusplus
-typedef bool boolean_t;
+typedef bool bool;
 #else
-typedef enum { false, true } boolean_t;
+typedef enum { false, true } bool;
 #endif
 
 #include <ctype.h>
@@ -295,16 +295,16 @@ typedef enum { false, true } boolean_t;
 #ifdef MACOSX
 
 typedef long long Int64;
-typedef float flo_t;
+typedef float float;
 #define FLOAT_IEEE_754
 
 #define FLT_MAX  INT_MAX  //!!!!!! TEMPORARY
 #define FLT_MIN  INT_MIN
 
 #ifdef __cplusplus
-typedef bool boolean_t;
+typedef bool bool;
 #else
-typedef enum { false, true } boolean_t;
+typedef enum { false, true } bool;
 #endif
 
 // extern "C" {

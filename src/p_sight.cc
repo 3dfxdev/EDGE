@@ -50,12 +50,12 @@ typedef struct sight_info_s
 {
   // source position (dx/dy is vector to dest)
   divline_t src;
-  flo_t src_z;
+  float src_z;
   subsector_t *src_sub;
 
   // dest position
   vec2_t dest;
-  flo_t dest_z;
+  float dest_z;
   subsector_t *dest_sub;
 
   // angle from src->dest, for fast seg check
@@ -68,14 +68,14 @@ typedef struct sight_info_s
   // NOTE: the values are not real slopes, the distance from src to
   //       dest is the implied denominator.
   // 
-  flo_t top_slope;
-  flo_t bottom_slope;
+  float top_slope;
+  float bottom_slope;
 
   // bounding box on LOS line (idea pinched from PrBOOM).
-  flo_t bbox[4];
+  float bbox[4];
 
   // true if one of the sectors contained extrafloors
-  boolean_t exfloors;
+  bool exfloors;
 }
 sight_info_t;
 
@@ -87,7 +87,7 @@ static sight_info_t sight_I;
 typedef struct wall_intercept_s
 {
   // fractional distance, 0.0 -> 1.0
-  flo_t frac;
+  float frac;
 
   // sector that faces the source from this intercept point
   sector_t *sector;
@@ -104,7 +104,7 @@ int sight_rej_miss;
 #endif
 
 
-static INLINE void AddSightIntercept(flo_t frac, sector_t *sec)
+static INLINE void AddSightIntercept(float frac, sector_t *sec)
 {
   wall_icpts.num++;
   Z_BunchNewSize(wall_icpts, wall_intercept_t);
@@ -119,7 +119,7 @@ static INLINE void AddSightIntercept(flo_t frac, sector_t *sec)
 // Returns false if LOS is blocked by the given subsector, otherwise
 // true.  Note: extrafloors are not checked here.
 //
-static boolean_t CrossSubsector(subsector_t *sub)
+static bool CrossSubsector(subsector_t *sub)
 {
   seg_t *seg;
   line_t *ld;
@@ -130,8 +130,8 @@ static boolean_t CrossSubsector(subsector_t *sub)
   sector_t *back;
   divline_t divl;
 
-  flo_t frac;
-  flo_t slope;
+  float frac;
+  float slope;
 
   // check lines
   for (seg = sub->segs; seg != NULL; seg = seg->sub_next)
@@ -205,7 +205,7 @@ static boolean_t CrossSubsector(subsector_t *sub)
 
     // compute intercept vector (fraction from 0 to 1)
     {
-      flo_t num, den;
+      float num, den;
 
       den = divl.dy * sight_I.src.dx - divl.dx * sight_I.src.dy;
 
@@ -226,7 +226,7 @@ static boolean_t CrossSubsector(subsector_t *sub)
 
     if (front->f_h != back->f_h)
     {
-      flo_t openbottom = MAX(ld->frontsector->f_h, ld->backsector->f_h);
+      float openbottom = MAX(ld->frontsector->f_h, ld->backsector->f_h);
       slope = (openbottom - sight_I.src_z) / frac;
       if (slope > sight_I.bottom_slope)
         sight_I.bottom_slope = slope;
@@ -234,7 +234,7 @@ static boolean_t CrossSubsector(subsector_t *sub)
 
     if (front->c_h != back->c_h)
     {
-      flo_t opentop = MIN(ld->frontsector->c_h, ld->backsector->c_h);
+      float opentop = MIN(ld->frontsector->c_h, ld->backsector->c_h);
       slope = (opentop - sight_I.src_z) / frac;
       if (slope < sight_I.top_slope)
         sight_I.top_slope = slope;
@@ -259,7 +259,7 @@ static boolean_t CrossSubsector(subsector_t *sub)
 // Returns false if LOS is blocked by the given node, otherwise true.
 // Note: extrafloors are not checked here.
 //
-static boolean_t CheckSightBSP(int bspnum)
+static bool CheckSightBSP(int bspnum)
 {
   DEV_ASSERT2(bspnum >= 0);
 
@@ -327,13 +327,13 @@ static boolean_t CheckSightBSP(int bspnum)
 //
 // Returns false if LOS is blocked by extrafloors, otherwise true.
 // 
-static boolean_t CheckSightIntercepts(flo_t slope)
+static bool CheckSightIntercepts(float slope)
 {
   int i, j;
   sector_t *sec;
 
-  flo_t last_h = sight_I.src_z;
-  flo_t cur_h;
+  float last_h = sight_I.src_z;
+  float cur_h;
 
 #if (DEBUG_SIGHT >= 1)
   L_WriteDebug("INTERCEPTS  slope %1.0f\n", slope);
@@ -341,7 +341,7 @@ static boolean_t CheckSightIntercepts(flo_t slope)
 
   for (i=0; i < wall_icpts.num; i++, last_h = cur_h)
   {
-    boolean_t blocked = true;
+    bool blocked = true;
 
     cur_h = sight_I.src_z + slope * wall_icpts.arr[i].frac;
 
@@ -356,8 +356,8 @@ static boolean_t CheckSightIntercepts(flo_t slope)
 
     for (j=0; j < sec->sight_gap_num; j++)
     {
-      flo_t z1 = sec->sight_gaps[j].f;
-      flo_t z2 = sec->sight_gaps[j].c;
+      float z1 = sec->sight_gaps[j].f;
+      float z2 = sec->sight_gaps[j].c;
 
 #if (DEBUG_SIGHT >= 3)
       L_WriteDebug("    SIGHT GAP [%d] = %1.1f .. %1.1f\n", j, z1, z2);
@@ -384,13 +384,13 @@ static boolean_t CheckSightIntercepts(flo_t slope)
 // When the subsector is the same, we only need to check whether a
 // non-SeeThrough extrafloor gets in the way.
 // 
-static boolean_t CheckSightSameSubsector(mobj_t *src, mobj_t *dest)
+static bool CheckSightSameSubsector(mobj_t *src, mobj_t *dest)
 {
   int j;
   sector_t *sec;
 
-  flo_t lower_z;
-  flo_t upper_z;
+  float lower_z;
+  float upper_z;
 
   if (sight_I.src_z < dest->z)
   {
@@ -412,8 +412,8 @@ static boolean_t CheckSightSameSubsector(mobj_t *src, mobj_t *dest)
 
   for (j=0; j < sec->sight_gap_num; j++)
   {
-    flo_t z1 = sec->sight_gaps[j].f;
-    flo_t z2 = sec->sight_gaps[j].c;
+    float z1 = sec->sight_gaps[j].f;
+    float z2 = sec->sight_gaps[j].c;
 
     if (z1 <= lower_z && upper_z <= z2)
       return true;
@@ -428,12 +428,12 @@ static boolean_t CheckSightSameSubsector(mobj_t *src, mobj_t *dest)
 // Returns true if a straight line between t1 and t2 is unobstructed.
 // Uses the REJECT info.
 //
-boolean_t P_CheckSight(mobj_t * src, mobj_t * dest)
+bool P_CheckSight(mobj_t * src, mobj_t * dest)
 {
   int n, num_div;
 
-  flo_t dest_heights[5];
-  flo_t dist_a;
+  float dest_heights[5];
+  float dist_a;
 
   // First check for trivial rejection.
 
@@ -589,7 +589,7 @@ boolean_t P_CheckSight(mobj_t * src, mobj_t * dest)
   // 
   for (n=0; n < num_div; n++)
   {
-    flo_t slope = dest_heights[n] - sight_I.src_z;
+    float slope = dest_heights[n] - sight_I.src_z;
 
     if (slope > sight_I.top_slope || slope < sight_I.bottom_slope)
       continue;
@@ -609,7 +609,7 @@ boolean_t P_CheckSight(mobj_t * src, mobj_t * dest)
 // don't resurrect monsters that are completely out of view in another
 // vertical region.  Returns true if sight possible, false otherwise.
 //
-boolean_t P_CheckSightApproxVert(mobj_t * src, mobj_t * dest)
+bool P_CheckSightApproxVert(mobj_t * src, mobj_t * dest)
 {
   DEV_ASSERT2(src->info);
 

@@ -42,11 +42,11 @@
 #include "edge32.rh" // Resources
 
 // I_CD.C - MCI CD Handling
-boolean_t I_CDStartPlayback(int tracknum);
-boolean_t I_CDPausePlayback(void);
-boolean_t I_CDResumePlayback(void);
+bool I_CDStartPlayback(int tracknum);
+bool I_CDPausePlayback(void);
+bool I_CDResumePlayback(void);
 void I_CDStopPlayback(void);
-boolean_t I_CDFinished(void);
+bool I_CDFinished(void);
 
 // I_CONWIN.C - For console output when not is graphics mode
 void I_StartWinConsole(void);
@@ -56,28 +56,28 @@ void I_ShutdownWinConsole(void);
 
 // I_CTRL.C
 void I_ControlTicker(void);
-void I_HandleKeypress(int key, boolean_t keydown); // handle message loop key presses
+void I_HandleKeypress(int key, bool keydown); // handle message loop key presses
 
 // I_MP3.C - Win32 MP3 Handling
-boolean_t I_StartupMP3(void);
-int I_MP3PlayTrack(char *fn, boolean_t loopy);
+bool I_StartupMP3(void);
+int I_MP3PlayTrack(char *fn, bool loopy);
 void I_MP3BufferFill(void);
 void I_MP3Ticker(void);
 void I_MP3Pause(void);
 void I_MP3Resume(void);
 void I_MP3Stop(void);
-boolean_t I_MP3Playing(void);
+bool I_MP3Playing(void);
 void I_MP3SetVolume(int vol);
 void I_ShutdownMP3(void);
 
 // I_MUS.C - Win32 MUS Handling
-boolean_t I_StartupMUS(void);
-int I_MUSPlayTrack(byte *data, int length, boolean_t loopy);
+bool I_StartupMUS(void);
+int I_MUSPlayTrack(byte *data, int length, bool loopy);
 void I_MUSPause(void);
 void I_MUSResume(void);
 void I_MUSStop(void);
 void I_MUSTicker(void);
-boolean_t I_MUSPlaying(void);
+bool I_MUSPlaying(void);
 void I_MUSSetVolume(int vol);
 void I_ShutdownMUS(void);
 
@@ -100,7 +100,7 @@ extern HACCEL accelerator;
 
 // -ACB- 2000/07/04 We want to see this lot from elsewhere in the EPI
 extern HWND conwinhandle;
-extern boolean_t appactive;
+extern bool appactive;
 
 #endif /* __SYSTEM_INTERNAL_H__ */
 

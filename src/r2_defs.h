@@ -62,10 +62,10 @@ typedef struct screenline_s
   // top line (higher on screen), used only for tex coords.  When the
   // ranges are unclipped, this should correspond to the top pixel
   // positions in the ranges.
-  flo_t y, step;
+  float y, step;
 
   // vertical offset (in WORLD coordinates, but positive goes down)
-  flo_t y_offset;
+  float y_offset;
 }
 screenline_t;
 
@@ -90,8 +90,8 @@ typedef struct drawwall_s
   surface_t *part;
   
   // texture scaling
-  flo_t scale1;
-  flo_t scale_step;
+  float scale1;
+  float scale_step;
 
   // colourmap & lighting
   region_properties_t *props;
@@ -100,8 +100,8 @@ typedef struct drawwall_s
   int extra_light[2];
 
   // info for texture mapper
-  flo_t distance;
-  flo_t x_offset;
+  float distance;
+  float x_offset;
   angle_t angle;
 
   // contains transparent parts ?
@@ -109,7 +109,7 @@ typedef struct drawwall_s
   
   // horizontal slider ?
   slidetype_e slide_type;
-  flo_t opening, line_len;
+  float opening, line_len;
   int side;
 }
 drawwall_t;
@@ -130,12 +130,12 @@ typedef struct drawplane_s
 
   // when true, this drawplane only marks where a plane ends
   // (where it starts will be determined by a future drawplane).
-  boolean_t marker_only;
+  bool marker_only;
 
   int face_dir;
 
   // height
-  flo_t h;
+  float h;
 
   // texture & offsets to use
   surface_t *info;
@@ -171,14 +171,14 @@ typedef struct drawthing_s
   mobj_t *mo;
 
   // vertical extent of sprite (world coords)
-  flo_t top;
-  flo_t bottom;
+  float top;
+  float bottom;
 
   // these record whether this piece of a sprite has been clipped on
   // the left or right side.  We can skip certain clipsegs when one of
   // these is true (and stop when they both become true).
   // 
-  boolean_t clipped_left, clipped_right;
+  bool clipped_left, clipped_right;
   
   // +1 if this sprites should be vertically clipped at a solid
   // floor or ceiling, 0 if just clip at translucent planes, or -1 if
@@ -188,25 +188,25 @@ typedef struct drawthing_s
   
   // sprite image to use
   const image_t *image;
-  boolean_t flip;
+  bool flip;
 
   // scaling
-  flo_t xfrac;
-  flo_t xscale;
-  flo_t yscale;
-  flo_t ixscale;
-  flo_t iyscale;
+  float xfrac;
+  float xscale;
+  float yscale;
+  float ixscale;
+  float iyscale;
   
   // distance
-  flo_t dist_scale;
+  float dist_scale;
 
   // translated coords
-  flo_t tx, tz;
-  flo_t tx1, tx2;
+  float tx, tz;
+  float tx1, tx2;
   
   // colourmap/lighting
   region_properties_t *props;
-  boolean_t bright;
+  bool bright;
   const byte *trans_table;
 
   // dynamic lighting
@@ -215,12 +215,12 @@ typedef struct drawthing_s
   //...
 
   // world offsets for GL
-  flo_t left_dx,  left_dy;
-  flo_t right_dx, right_dy;
+  float left_dx,  left_dy;
+  float right_dx, right_dy;
   
   // EXPERIMENTAL
-  boolean_t is_shadow;
-  boolean_t is_halo;
+  bool is_shadow;
+  bool is_halo;
 }
 drawthing_t;
 
@@ -240,7 +240,7 @@ typedef struct drawfloor_s
   struct drawfloor_s *higher, *lower;
 
   // heights for this floor
-  flo_t f_h, c_h, top_h;
+  float f_h, c_h, top_h;
  
   surface_t *floor, *ceil;
 
@@ -266,20 +266,20 @@ drawfloor_t;
 
 
 extern int detail_level;
-extern boolean_t use_dlights;
+extern bool use_dlights;
 extern int sprite_kludge;
 
-boolean_t R2_CheckBBox(flo_t *bspcoord);
+bool R2_CheckBBox(float *bspcoord);
 void R2_RenderTrueBSP(void);
 
-const image_t * R2_GetThingSprite(mobj_t *mo, boolean_t *flip);
-const image_t * R2_GetOtherSprite(int sprite, int frame, boolean_t *flip);
+const image_t * R2_GetThingSprite(mobj_t *mo, bool *flip);
+const image_t * R2_GetOtherSprite(int sprite, int frame, bool *flip);
 void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing);
 
 void R2_AddDLights(int num, int *level, 
-    flo_t *x, flo_t *y, flo_t *z, mobj_t *mo);
+    float *x, float *y, float *z, mobj_t *mo);
 void R2_AddColourDLights(int num, int *r, int *g, int *b, 
-    flo_t *x, flo_t *y, flo_t *z, mobj_t *mo);
+    float *x, float *y, float *z, mobj_t *mo);
 void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor);
 
 
@@ -289,7 +289,7 @@ void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor);
 
 typedef struct tilesky_s
 {
-  boolean_t active;
+  bool active;
   
   const tilesky_info_t *info;
 
@@ -322,25 +322,25 @@ void R2_CommitOpenings(int width);
 
 void R2_1DOcclusionClear(int x1, int x2);
 void R2_1DOcclusionSet(int x1, int x2);
-boolean_t R2_1DOcclusionTest(int x1, int x2);
-boolean_t R2_1DOcclusionTestShrink(int *x1, int *x2);
+bool R2_1DOcclusionTest(int x1, int x2);
+bool R2_1DOcclusionTestShrink(int *x1, int *x2);
 void R2_1DOcclusionClose(int x1, int x2, Y_range_t *ranges);
 
 void R2_2DOcclusionClear(int x1, int x2);
 void R2_2DOcclusionClose(int x1, int x2, Y_range_t *ranges,
-    boolean_t connect_low, boolean_t connect_high, boolean_t solid);
+    bool connect_low, bool connect_high, bool solid);
 void R2_2DOcclusionCopy(int x1, int x2, Y_range_t *ranges);
 void R2_2DUpdate1D(int x1, int x2);
 
 void R2_TileSkyClear(void);
 void R2_TileSkyAdd(const tilesky_info_t *info, struct line_s *line);
 
-int R2_GetPointLOD(flo_t x, flo_t y, flo_t z);
-int R2_GetBBoxLOD(flo_t x1, flo_t y1, flo_t z1,
-    flo_t x2, flo_t y2, flo_t z2);
-int R2_GetWallLOD(flo_t x1, flo_t y1, flo_t z1,
-    flo_t x2, flo_t y2, flo_t z2);
-int R2_GetPlaneLOD(subsector_t *sub, flo_t h);
+int R2_GetPointLOD(float x, float y, float z);
+int R2_GetBBoxLOD(float x1, float y1, float z1,
+    float x2, float y2, float z2);
+int R2_GetWallLOD(float x1, float y1, float z1,
+    float x2, float y2, float z2);
+int R2_GetPlaneLOD(subsector_t *sub, float h);
 
 
 //

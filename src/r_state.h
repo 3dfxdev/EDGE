@@ -73,9 +73,9 @@ extern vgap_t *vertgaps;
 //
 // POV data.
 //
-extern flo_t viewx;
-extern flo_t viewy;
-extern flo_t viewz;
+extern float viewx;
+extern float viewy;
+extern float viewz;
 
 extern angle_t viewangle;
 
@@ -94,7 +94,7 @@ extern angle_t clipscope;
 extern angle_t topangle, bottomangle,
  rightangle, leftangle;
 // tangents for the angles
-extern flo_t topslope, bottomslope,
+extern float topslope, bottomslope,
  rightslope, leftslope;
 
 // -ES- 1999/03/02 Added these.
@@ -107,14 +107,14 @@ extern int vb_w, vb_h, vb_depth;
 #define vb_pitch vb_depth  // transitional wart
 
 // Unit scale is used at distance distunit
-extern flo_t x_distunit;
-extern flo_t y_distunit;
+extern float x_distunit;
+extern float y_distunit;
 
 // -ES- 1999/05/22 Made Dynamic
 extern int *viewangletox;
 extern angle_t *xtoviewangle;
 
-extern flo_t rw_distance;
+extern float rw_distance;
 extern angle_t rw_normalangle;
 
 // angle to line origin

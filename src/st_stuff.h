@@ -42,13 +42,13 @@
 //
 
 // Called by main loop.
-boolean_t ST_Responder(event_t * ev);
+bool ST_Responder(event_t * ev);
 
 // Called by main loop.
 void ST_Ticker(void);
 
 // Called by main loop.
-void ST_Drawer(boolean_t fullscreen, boolean_t refresh);
+void ST_Drawer(bool fullscreen, bool refresh);
 
 // Called when the console player is spawned on each level.
 void ST_Start(void);
@@ -57,9 +57,9 @@ void ST_Start(void);
 void ST_ReInit(void);
 
 // Called by startup code.
-boolean_t ST_Init(void);
+bool ST_Init(void);
 
-extern boolean_t stbar_update;
+extern bool stbar_update;
 
 // States for the chat code.
 typedef enum

@@ -32,8 +32,8 @@ static const char **myargv = NULL;
 // this one is here to avoid infinite recursion of param files.
 typedef struct added_parm_s
 {
-  const char *name;
-  struct added_parm_s *next;
+	const char *name;
+	struct added_parm_s *next;
 }
 added_parm_t;
 
@@ -47,30 +47,30 @@ static added_parm_t *added_parms;
 //
 static void AddArgument(const char *s, int pos)
 {
-  int i;
+	int i;
 
 #ifdef DEVELOPERS
-  L_WriteDebug("Adding parameter '%s'\n", s);
+	L_WriteDebug("Adding parameter '%s'\n", s);
 #endif
 
-  DEV_ASSERT2(pos >= 0 && pos <= myargc);
+	DEV_ASSERT2(pos >= 0 && pos <= myargc);
 
-  if (s[0] == '@')
-  {  // add it as a response file
-    M_ApplyResponseFile(&s[1], pos);
-    return;
-  }
+	if (s[0] == '@')
+	{  // add it as a response file
+		M_ApplyResponseFile(&s[1], pos);
+		return;
+	}
 
-  myargc++;
-  myargv = (const char**)realloc((void*)myargv, myargc * sizeof(char *));
-  if (!myargv)
-    I_Error("AddArgument: Out of memory!");
+	myargc++;
+	myargv = (const char**)realloc((void*)myargv, myargc * sizeof(char *));
+	if (!myargv)
+		I_Error("AddArgument: Out of memory!");
 
-  // move any parameters forward
-  for (i = myargc - 1; i > pos; i--)
-    myargv[i] = myargv[i - 1];
+	// move any parameters forward
+	for (i = myargc - 1; i > pos; i--)
+		myargv[i] = myargv[i - 1];
 
-  myargv[pos] = s;
+	myargv[pos] = s;
 }
 
 //
@@ -88,15 +88,15 @@ static void AddArgument(const char *s, int pos)
 //
 int M_CheckNextParm(const char *check, int prev)
 {
-  int i;
+	int i;
 
-  for (i = prev + 1; i < myargc; i++)
-  {
-    if (!stricmp(check, myargv[i]))
-      return i;
-  }
+	for (i = prev + 1; i < myargc; i++)
+	{
+		if (!stricmp(check, myargv[i]))
+			return i;
+	}
 
-  return 0;
+	return 0;
 }
 
 //
@@ -108,7 +108,7 @@ int M_CheckNextParm(const char *check, int prev)
 // or 0 if not present
 int M_CheckParm(const char *check)
 {
-  return M_CheckNextParm(check, 0);
+	return M_CheckNextParm(check, 0);
 }
 
 //
@@ -119,13 +119,13 @@ int M_CheckParm(const char *check)
 // "-foo bar".
 const char *M_GetParm(const char *check)
 {
-  int p;
+	int p;
 
-  p = M_CheckParm(check);
-  if (p && p + 1 < myargc)
-    return myargv[p + 1];
-  else
-    return NULL;
+	p = M_CheckParm(check);
+	if (p && p + 1 < myargc)
+		return myargv[p + 1];
+	else
+		return NULL;
 }
 
 //
@@ -135,35 +135,35 @@ const char *M_GetParm(const char *check)
 //
 void M_ApplyResponseFile(const char *name, int position)
 {
-  char buf[1024];
-  FILE *f;
-  added_parm_t this_parm;
-  added_parm_t *p;
+	char buf[1024];
+	FILE *f;
+	added_parm_t this_parm;
+	added_parm_t *p;
 
-  // check if the file has already been added
-  for (p = added_parms; p; p = p->next)
-  {
-    if (!strcmp(p->name, name))
-      return;
-  }
+	// check if the file has already been added
+	for (p = added_parms; p; p = p->next)
+	{
+		if (!strcmp(p->name, name))
+			return;
+	}
 
-  // mark that this file has been added
-  this_parm.name = name;
-  p = this_parm.next = added_parms;
+	// mark that this file has been added
+	this_parm.name = name;
+	p = this_parm.next = added_parms;
 
-  // add arguments from the given file
-  f = fopen(name, "rb");
-  if (!f)
-    I_Error("Couldn't open \"%s\" for reading!", name);
+	// add arguments from the given file
+	f = fopen(name, "rb");
+	if (!f)
+		I_Error("Couldn't open \"%s\" for reading!", name);
 
-  for (; EOF != fscanf(f, "%s", buf); position++)
-    // we must use strdup: Z_Init might not have been called
-    AddArgument(strdup(buf), position);
+	for (; EOF != fscanf(f, "%s", buf); position++)
+		// we must use strdup: Z_Init might not have been called
+		AddArgument(strdup(buf), position);
 
-  // unlink from list
-  added_parms = p;
+	// unlink from list
+	added_parms = p;
 
-  fclose(f);
+	fclose(f);
 }
 
 //
@@ -173,20 +173,20 @@ void M_ApplyResponseFile(const char *name, int position)
 //
 void M_InitArguments(int argc, const char **argv)
 {
-  int i;
+	int i;
 
-  // argv[0] should always be placed before the response file.
-  AddArgument(argv[0], 0);
+	// argv[0] should always be placed before the response file.
+	AddArgument(argv[0], 0);
 
-  if (I_Access("edge.cmd"))
-    M_ApplyResponseFile("edge.cmd", 1);
+	if (I_Access("edge.cmd"))
+		M_ApplyResponseFile("edge.cmd", 1);
 
-  // scan through the arguments
-  for (i = 1; i < argc; i++)
-  {
-    // add all new arguments to the end of the arg list.
-    AddArgument(argv[i], myargc);
-  }
+	// scan through the arguments
+	for (i = 1; i < argc; i++)
+	{
+		// add all new arguments to the end of the arg list.
+		AddArgument(argv[i], myargc);
+	}
 }
 
 //
@@ -198,26 +198,26 @@ void M_InitArguments(int argc, const char **argv)
 //
 // -AJA- 1999/10/18: written.
 //
-void M_CheckBooleanParm(const char *parm, boolean_t *boolval, boolean_t 
-reverse)
+void M_CheckBooleanParm(const char *parm, bool *boolval, bool 
+						reverse)
 {
-  char parmbuf[100];
+	char parmbuf[100];
 
-  sprintf(parmbuf, "-%s", parm);
+	sprintf(parmbuf, "-%s", parm);
 
-  if (M_CheckParm(parmbuf) > 0)
-  {
-    *boolval = ! reverse;
-    return;
-  }
+	if (M_CheckParm(parmbuf) > 0)
+	{
+		*boolval = ! reverse;
+		return;
+	}
 
-  sprintf(parmbuf, "-no%s", parm);
+	sprintf(parmbuf, "-no%s", parm);
 
-  if (M_CheckParm(parmbuf) > 0)
-  {
-    *boolval = reverse;
-    return;
-  }
+	if (M_CheckParm(parmbuf) > 0)
+	{
+		*boolval = reverse;
+		return;
+	}
 }
 
 
@@ -228,8 +228,8 @@ reverse)
 // (use GetArgumentCount/GetArgument instead)
 const char **M_GetArguments(int *ret_argc)
 {
-  *ret_argc = myargc;
-  return myargv;
+	*ret_argc = myargc;
+	return myargv;
 }
 
 //
@@ -238,15 +238,15 @@ const char **M_GetArguments(int *ret_argc)
 // Returns the wished argument. argnum must be less than M_GetArgCount().
 const char *M_GetArgument(int argnum)
 {
-  // this should never happen, so crash out if DEVELOPERS.
-  if (argnum <= 0 || argnum >= myargc)
+	// this should never happen, so crash out if DEVELOPERS.
+	if (argnum <= 0 || argnum >= myargc)
 #ifdef DEVELOPERS
-    I_Error("M_GetArgument: Out of range (%d)", argnum);
+		I_Error("M_GetArgument: Out of range (%d)", argnum);
 #else
-    return "";
+		return "";
 #endif
 
-  return myargv[argnum];
+	return myargv[argnum];
 }
 
 //
@@ -255,5 +255,5 @@ const char *M_GetArgument(int argnum)
 // Returns the number of program arguments.
 int M_GetArgCount(void)
 {
-  return myargc;
+	return myargc;
 }

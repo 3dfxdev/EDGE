@@ -23,13 +23,13 @@
 #include "e_event.h"
 
 // This function inits the GUI system (&& console)
-boolean_t GUI_MainInit(void);
+bool GUI_MainInit(void);
 
 // This function calls the tickers for all gui apps.
 void GUI_MainTicker(void);
 
 // This function handles input to all guis.
-boolean_t GUI_MainResponder(event_t * ev);
+bool GUI_MainResponder(event_t * ev);
 
 // This function draws all the guis to the screen
 void GUI_MainDrawer(void);

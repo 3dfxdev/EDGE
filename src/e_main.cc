@@ -77,13 +77,13 @@
 #include "z_zone.h"
 
 // Internals
-static boolean_t SetGlobalVars(void);
-static boolean_t SpecialWadVerify(void);
-static boolean_t ShowNotice(void);
+static bool SetGlobalVars(void);
+static bool SpecialWadVerify(void);
+static bool ShowNotice(void);
 
 typedef struct
 {
-	boolean_t (*function)(void);
+	bool (*function)(void);
 	char *LDFmessage;
 }
 startuporder_t;
@@ -121,15 +121,15 @@ startuporder_t startcode[] =
 	{ NULL,                NULL            }
 };
 
-boolean_t devparm;  // started game with -devparm
-boolean_t singletics = false;  // debug flag to cancel adaptiveness
+bool devparm;  // started game with -devparm
+bool singletics = false;  // debug flag to cancel adaptiveness
 
 // -ES- 2000/02/13 Takes screenshot every screenshot_rate tics.
 // Must be used in conjunction with singletics.
 static int screenshot_rate;
 
 // For savegame screenies...
-boolean_t need_save_screenshot = false;
+bool need_save_screenshot = false;
 
 FILE *debugfile = NULL;
 
@@ -178,29 +178,29 @@ gameflags_t level_flags;
 
 gameflags_t global_flags;
 
-boolean_t drone = false;
+bool drone = false;
 
 int startskill;
 char *startmap;
 
-boolean_t autostart;
-boolean_t advancedemo;
+bool autostart;
+bool advancedemo;
 
 int newnmrespawn = 0;
 
-boolean_t rotatemap = false;
-boolean_t showstats = false;
-boolean_t swapstereo = false;
-boolean_t mus_pause_stop = false;
-boolean_t infight = false;
+bool rotatemap = false;
+bool showstats = false;
+bool swapstereo = false;
+bool mus_pause_stop = false;
+bool infight = false;
 
-boolean_t external_ddf = false;
-boolean_t strict_errors = false;
-boolean_t lax_errors = false;
-boolean_t hom_detect = false;
-boolean_t no_warnings = false;
-boolean_t no_obsoletes = false;
-boolean_t autoquickload = false;
+bool external_ddf = false;
+bool strict_errors = false;
+bool lax_errors = false;
+bool hom_detect = false;
+bool no_warnings = false;
+bool no_obsoletes = false;
+bool autoquickload = false;
 
 char *iwaddir;
 char *homedir;
@@ -216,7 +216,7 @@ layer_t *backbg_layer = NULL;
 layer_t *conplayer_layer = NULL;
 layer_t *pause_layer = NULL;
 
-boolean_t e_display_OK = false;
+bool e_display_OK = false;
 
 //
 // EVENT HANDLING
@@ -235,7 +235,7 @@ int eventtail;
 //
 // -ACB- 1999/09/20 Created. Sets Global Stuff.
 //
-static boolean_t SetGlobalVars(void)
+static bool SetGlobalVars(void)
 {
 	int p;
 	const char *s;
@@ -354,7 +354,7 @@ static boolean_t SetGlobalVars(void)
 //
 // SpecialWadVerify
 //
-static boolean_t SpecialWadVerify(void)
+static bool SpecialWadVerify(void)
 {
 	int lump;
 
@@ -444,7 +444,7 @@ static boolean_t SpecialWadVerify(void)
 //
 // ShowNotice
 //
-static boolean_t ShowNotice(void)
+static bool ShowNotice(void)
 {
 	I_Printf("%s", DDF_LanguageLookup("Notice"));
  
@@ -512,22 +512,22 @@ static void M_DisplayPause(void)
 int wipegamestate = GS_DEMOSCREEN;
 int wipe_method = WIPE_Melt;
 int wipe_reverse = 0;
-boolean_t redrawsbar;
+bool redrawsbar;
 
-static boolean_t wipe_gl_active = false;
+static bool wipe_gl_active = false;
 
 void E_Display(void)
 {
-	static boolean_t viewactivestate = false;
-	static boolean_t menuactivestate = false;
-	static boolean_t inhelpscreensstate = false;
-	static boolean_t fullscreen = false;
+	static bool viewactivestate = false;
+	static bool menuactivestate = false;
+	static bool inhelpscreensstate = false;
+	static bool fullscreen = false;
 	static int borderdrawcount;
 	static int oldgamestate = GS_NOTHING;
 
 	// for wiping
 	static screen_t *wipestart = NULL;
-	boolean_t wipe;
+	bool wipe;
 
 	if (nodrawers)
 		return;  // for comparative timing / profiling
@@ -804,10 +804,10 @@ void E_EDGELoopRoutine(void)
 //
 static void E_EDGELoop(void)
 {
-// SV_MainTestPrimitives();
-// RGL_TestPolyQuads();
+	// SV_MainTestPrimitives();
+	// RGL_TestPolyQuads();
 
-  // -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
+	// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
 	R_ChangeResolution(SCREENWIDTH, SCREENHEIGHT, SCREENBITS, SCREENWINDOW);
 
 	// -ES- 1999/09/27 This will trap any errors before we have to set gfxmode
@@ -817,10 +817,10 @@ static void E_EDGELoop(void)
 	// screen.  Reset clock too.
 	R_ExecuteChangeResolution();
 
-  //
-  // -ACB- 1999/09/24 Call System Specific Looping function. Some systems
-  //                  don't loop forever.
-  //
+	//
+	// -ACB- 1999/09/24 Call System Specific Looping function. Some systems
+	//                  don't loop forever.
+	//
 	I_EDGELoop();
 	return;
 }
@@ -1116,7 +1116,7 @@ static void IdentifyVersion(void)
 {
 	int i;
 	char *filename;
-	boolean_t done;
+	bool done;
 	int wadnum;
 	int length;
 	const char *location;
@@ -1266,7 +1266,7 @@ void E_EDGEMain(void)
 	char *filename;
 	char title[] = "EDGE v" EDGEVERSTR;
 	int turbo_scale = 100;
-	boolean_t success;
+	bool success;
 
 	// Start memory allocation system at the very start
 	Z_Init();

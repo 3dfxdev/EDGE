@@ -89,7 +89,7 @@ static char errordesc[256];
 static char scratcherror[256];
 
 // System Started?
-static boolean_t inited;
+static bool inited;
 
 // Difference between MAX and MIN vol
 static int voldiff;                    
@@ -338,7 +338,7 @@ channel_t *GetChannel(int *channelid, storesfx_t *sfx)
 //
 // -ACB- 1999/10/06
 // 
-boolean_t I_StartupSound(void *sysinfo)
+bool I_StartupSound(void *sysinfo)
 {
 	WAVEFORMATEX format;
 	DSBUFFERDESC bufferdesc;
@@ -428,7 +428,7 @@ boolean_t I_StartupSound(void *sysinfo)
 //
 // -ACB- 1999/10/05 Written
 //
-boolean_t I_LoadSfx(const unsigned char *data, unsigned int length, unsigned int freq, unsigned int handle)
+bool I_LoadSfx(const unsigned char *data, unsigned int length, unsigned int freq, unsigned int handle)
 {
 	unsigned int i;
 	storesfx_t **oldlist;
@@ -498,7 +498,7 @@ boolean_t I_LoadSfx(const unsigned char *data, unsigned int length, unsigned int
 // -ACB- 2000/02/19 Written
 // -ACB- 2000/05/17 Free Sound Effects Data
 //
-boolean_t I_UnloadSfx(unsigned int handle)
+bool I_UnloadSfx(unsigned int handle)
 {
 	unsigned int i;
 
@@ -534,7 +534,7 @@ boolean_t I_UnloadSfx(unsigned int handle)
 //
 // -ACB- 1999/10/06
 //
-boolean_t I_SoundAlter(unsigned int chanid, int pan, int vol)
+bool I_SoundAlter(unsigned int chanid, int pan, int vol)
 {
 	channel_t *channel;
 	LONG actualpan;
@@ -576,7 +576,7 @@ boolean_t I_SoundAlter(unsigned int chanid, int pan, int vol)
 // This kills a sound. Stops the sound playing and destroys
 // the buffer if necessary.
 //
-boolean_t I_SoundKill(unsigned int chanid)
+bool I_SoundKill(unsigned int chanid)
 {
 	channel_t *channel;
 
@@ -615,7 +615,7 @@ boolean_t I_SoundKill(unsigned int chanid)
 //
 // -ACB- 1999/10/05 Written.
 //
-int I_SoundPlayback(unsigned int handle, int pan, int vol, boolean_t looping)
+int I_SoundPlayback(unsigned int handle, int pan, int vol, bool looping)
 {
 	storesfx_t *sfx;
 	channel_t *channel;
@@ -722,7 +722,7 @@ int I_SoundPlayback(unsigned int handle, int pan, int vol, boolean_t looping)
 //
 // -ACB- 1999/10/06 Written
 //
-boolean_t I_SoundCheck(unsigned int chanid)
+bool I_SoundCheck(unsigned int chanid)
 {
 	if (chanid >= numchannels)
 		return false;
@@ -733,7 +733,7 @@ boolean_t I_SoundCheck(unsigned int chanid)
 //
 // I_SoundPause
 //
-boolean_t I_SoundPause(unsigned int chanid)
+bool I_SoundPause(unsigned int chanid)
 {
 	channel_t *channel;
 	DWORD curpos;
@@ -790,7 +790,7 @@ boolean_t I_SoundPause(unsigned int chanid)
 //
 // I_SoundResume
 //
-boolean_t I_SoundResume(unsigned int chanid)
+bool I_SoundResume(unsigned int chanid)
 {
 	channel_t *channel;
 	DWORD status;
@@ -864,7 +864,7 @@ boolean_t I_SoundResume(unsigned int chanid)
 //
 // I_SoundStopLooping
 //
-boolean_t I_SoundStopLooping(unsigned int chanid)
+bool I_SoundStopLooping(unsigned int chanid)
 {
 	channel_t *channel;
 

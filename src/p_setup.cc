@@ -113,8 +113,8 @@ unsigned short ** bmap_pointers = NULL;
 int *blockmaplump = NULL;
 
 // origin of block map
-flo_t bmaporgx;
-flo_t bmaporgy;
+float bmaporgx;
+float bmaporgy;
 
 // for thing chains
 mobj_t **blocklinks = NULL;
@@ -123,7 +123,7 @@ mobj_t **blocklinks = NULL;
 mobj_t **blocklights = NULL;
 
 // bbox used 
-static flo_t dummy_bbox[4];
+static float dummy_bbox[4];
 
 unsigned long mapsector_CRC;
 unsigned long mapline_CRC;
@@ -148,13 +148,13 @@ spawnpoint_t *deathmatch_p;
 
 spawnpoint_t *playerstarts;
 
-static boolean_t hexen_level;
+static bool hexen_level;
 
 // When "GL Nodes v2.0" vertices are found, then our segs are "exact"
 // (have fixed-point granularity) and we don't need to fudge the
 // vertex positions.
 // 
-static boolean_t remove_slime_trails;
+static bool remove_slime_trails;
 
 // a place to store sidedef numbers of the loaded linedefs.
 // There is two values for every line: side0 and side1.
@@ -324,7 +324,7 @@ static void LoadGLSegs(int lump)
       seg->miniseg = 1;
     else
     {
-      flo_t sx, sy;
+      float sx, sy;
 
       seg->miniseg = 0;
       seg->linedef = &lines[linedef];
@@ -564,7 +564,7 @@ static void LoadNodes(int lump, char *name)
       nd->children[j] = USHORT(mn->children[j]);
 
       for (k = 0; k < 4; k++)
-        nd->bbox[j][k] = (flo_t) SHORT(mn->bbox[j][k]);
+        nd->bbox[j][k] = (float) SHORT(mn->bbox[j][k]);
       
       // update bbox pointers in subsector
       if (nd->children[j] & NF_SUBSECTOR)
@@ -599,7 +599,7 @@ static void LoadNodes(int lump, char *name)
 // SpawnMapThing
 //
 static void SpawnMapThing(const mobjinfo_t *info,
-    flo_t x, flo_t y, flo_t z, angle_t angle, int options)
+    float x, float y, float z, angle_t angle, int options)
 {
   int bit;
   mobj_t *mobj;
@@ -703,7 +703,7 @@ static void SpawnMapThing(const mobjinfo_t *info,
 //
 static void LoadThings(int lump)
 {
-  flo_t x, y, z;
+  float x, y, z;
   angle_t angle;
   int options, typenum;
   int i;
@@ -728,9 +728,9 @@ static void LoadThings(int lump)
   mt = (const mapthing_t *) data;
   for (i = 0; i < numthings; i++, mt++)
   {
-    x = (flo_t) SHORT(mt->x);
-    y = (flo_t) SHORT(mt->y);
-    angle = FLOAT_2_ANG((flo_t) SHORT(mt->angle));
+    x = (float) SHORT(mt->x);
+    y = (float) SHORT(mt->y);
+    angle = FLOAT_2_ANG((float) SHORT(mt->angle));
     typenum = USHORT(mt->type);
     options = USHORT(mt->options);
 
@@ -769,7 +769,7 @@ static void LoadThings(int lump)
 //
 static void LoadHexenThings(int lump)
 {
-  flo_t x, y, z;
+  float x, y, z;
   angle_t angle;
   int options, typenum;
   int i;
@@ -794,10 +794,10 @@ static void LoadHexenThings(int lump)
   mt = (const maphexenthing_t *) data;
   for (i = 0; i < numthings; i++, mt++)
   {
-    x = (flo_t) SHORT(mt->x);
-    y = (flo_t) SHORT(mt->y);
-    z = (flo_t) SHORT(mt->z);
-    angle = FLOAT_2_ANG((flo_t) SHORT(mt->angle));
+    x = (float) SHORT(mt->x);
+    y = (float) SHORT(mt->y);
+    z = (float) SHORT(mt->z);
+    angle = FLOAT_2_ANG((float) SHORT(mt->angle));
     typenum = USHORT(mt->type);
     options = USHORT(mt->options) & 0x000F;
 
@@ -1004,7 +1004,7 @@ static void LoadHexenLineDefs(int lump)
 }
 
 static void TransferMapSideDef(const mapsidedef_t *msd, side_t *sd,
-    boolean_t two_sided)
+    bool two_sided)
 {
   char buffer[10];
 
@@ -1322,8 +1322,8 @@ static void LoadBlockMap(int lump)
     I_Error("Bad WAD: level %s missing BLOCKMAP.  Build the nodes !\n", 
         currentmap->lump);
 
-  bmaporgx = (flo_t)SHORT(data[0]);
-  bmaporgy = (flo_t)SHORT(data[1]);
+  bmaporgx = (float)SHORT(data[0]);
+  bmaporgy = (float)SHORT(data[1]);
   bmapwidth  = SHORT(data[2]);
   bmapheight = SHORT(data[3]);
 
@@ -1413,7 +1413,7 @@ static void BlockAddLine(int line_num)
   int y_sign;
   int x_dist, y_dist;
 
-  flo_t slope;
+  float slope;
 
   x0 = ld->v1->x - bmaporgx;
   y0 = ld->v1->y - bmaporgy;
@@ -1465,7 +1465,7 @@ static void BlockAddLine(int line_num)
 
   DEV_ASSERT2(x1 > x0);
 
-  slope = (flo_t)(y1 - y0) / (flo_t)(x1 - x0);
+  slope = (float)(y1 - y0) / (float)(x1 - x0);
 
   // handle each column of blocks in turn
   for (i=0; i <= x_dist; i++)
@@ -1610,7 +1610,7 @@ void GroupLines(void)
   line_t *li;
   sector_t *sector;
   seg_t *seg;
-  flo_t bbox[4];
+  float bbox[4];
   int block;
   line_t **line_p;
 
@@ -1758,7 +1758,7 @@ void P_RemoveSectors(void)
   Z_Free(sectors);
 }
 
-static boolean_t level_active = false;
+static bool level_active = false;
 
 //
 // P_ShutdownLevel
@@ -2043,7 +2043,7 @@ void P_SetupLevel(int skill, int autotag)
 //
 // P_Init
 //
-boolean_t P_Init(void)
+bool P_Init(void)
 {
   deathmatchstarts = Z_New(spawnpoint_t, max_deathmatch_starts);
   playerstarts = Z_New(spawnpoint_t, MAXPLAYERS);

@@ -33,7 +33,7 @@
 
 typedef struct button_s
 {
-  boolean_t status;
+  bool status;
   char *string;
   gui_t *parent;
 }
@@ -50,15 +50,15 @@ msgbox_t;
 
 typedef struct drag_s
 {
-  boolean_t mouse;
+  bool mouse;
   gui_t *parent;
 }
 drag_t;
 
 void BT_Drawer(gui_t * g);
-boolean_t BT_Responder(gui_t * g, guievent_t * ev);
+bool BT_Responder(gui_t * g, guievent_t * ev);
 void MSG_Drawer(gui_t * g);
-boolean_t MSG_Responder(gui_t * g, guievent_t * ev);
+bool MSG_Responder(gui_t * g, guievent_t * ev);
 
 gui_t *GUI_BTStart(gui_t ** g, gui_t * parent, int id, int x, int y, char *string)
 {
@@ -86,7 +86,7 @@ gui_t *GUI_BTStart(gui_t ** g, gui_t * parent, int id, int x, int y, char *strin
   return gui;
 }
 
-boolean_t BT_Responder(gui_t * g, guievent_t * ev)
+bool BT_Responder(gui_t * g, guievent_t * ev)
 {
   button_t *bt = (button_t*)g->process;
   guievent_t click;
@@ -156,7 +156,7 @@ gui_t *GUI_MSGStart(gui_t ** g, gui_t * parent, int msg_id, int id, char *string
   return gui;
 }
 
-boolean_t MSG_Responder(gui_t * g, guievent_t * ev)
+bool MSG_Responder(gui_t * g, guievent_t * ev)
 {
   int r;
   msgbox_t *msg = (msgbox_t*)g->process;
@@ -200,7 +200,7 @@ void MSG_Drawer(gui_t * g)
   GUI_Drawer(&msg->gui);
 }
 
-static boolean_t DRAG_Responder(gui_t * g, guievent_t * ev)
+static bool DRAG_Responder(gui_t * g, guievent_t * ev)
 {
   drag_t *drag = (drag_t *) g->process;
   guievent_t event;
@@ -270,7 +270,7 @@ typedef struct
 }
 bar_t;
 
-static boolean_t BAR_Responder(gui_t * g, guievent_t * ev)
+static bool BAR_Responder(gui_t * g, guievent_t * ev)
 {
   bar_t *bar = (bar_t*)g->process;
 

@@ -83,7 +83,7 @@ void P_SetPsprite(player_t * p, int position, int stnum)
 // -KM- 1998/12/16 Added check to make sure sprites exist.
 // -AJA- 2000: Made into a separate routine.
 //
-boolean_t P_CheckWeaponSprite(weaponinfo_t *info)
+bool P_CheckWeaponSprite(weaponinfo_t *info)
 {
   if (!info->up_state)
     return false;
@@ -249,7 +249,7 @@ void P_SelectNewWeapon(player_t * p, int priority, ammotype_e ammo)
 // Returns true if there is enough ammo to shoot.
 // If not, selects the next weapon to use.
 //
-static boolean_t CheckAmmo(player_t * p)
+static bool CheckAmmo(player_t * p)
 {
   weaponinfo_t *info;
 
@@ -272,7 +272,7 @@ static boolean_t CheckAmmo(player_t * p)
 //
 // CheckAmmoSA
 //
-static boolean_t CheckAmmoSA(player_t * p)
+static bool CheckAmmoSA(player_t * p)
 {
   weaponinfo_t *info;
 
@@ -391,7 +391,7 @@ void P_DropWeapon(player_t * p)
 void A_WeaponReady(mobj_t * mo)
 {
   player_t *p = mo->player;
-  boolean_t hasjetpack = p->powers[PW_Jetpack] > 0;
+  bool hasjetpack = p->powers[PW_Jetpack] > 0;
   pspdef_t *psp = &p->psprites[p->action_psp];
 
   statenum_t newstate;
@@ -741,7 +741,7 @@ void A_WeaponKick(mobj_t * mo)
   DEV_ASSERT2(p->ready_wp >= 0);
 
   if (psp->state && psp->state->action_par)
-    kick = ((flo_t *) psp->state->action_par)[0];
+    kick = ((float *) psp->state->action_par)[0];
     
   p->deltaviewheight -= kick;
   p->kick_offset = kick;
@@ -1273,7 +1273,7 @@ void A_WeaponTransSet(mobj_t * mo)
 {
   player_t *p = mo->player;
   pspdef_t *psp = &p->psprites[p->action_psp];
-  flo_t value = VISIBLE;
+  float value = VISIBLE;
 
   DEV_ASSERT2(p->ready_wp >= 0);
 
@@ -1293,7 +1293,7 @@ void A_WeaponTransFade(mobj_t * mo)
 {
   player_t *p = mo->player;
   pspdef_t *psp = &p->psprites[p->action_psp];
-  flo_t value = INVISIBLE;
+  float value = INVISIBLE;
 
   DEV_ASSERT2(p->ready_wp >= 0);
 

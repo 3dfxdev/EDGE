@@ -40,7 +40,7 @@
 #include "glbsp-2.05/glbsp.h"
 
 
-boolean_t gb_draw_progress = false;
+bool gb_draw_progress = false;
 
 static char message_buf[1024];
 static int ticker_time;
@@ -68,7 +68,7 @@ typedef struct
 	int limit;
 
 	// current position (0.0 to 1.0)
-	flo_t pos;
+	float pos;
 
 	char text[MAXBARTEXT];
 }
@@ -79,7 +79,7 @@ static const gb_bar_t default_bar = { 0, 0.0f, { 0, }};
 static gb_bar_t bars[2];
 static displaytype_e cur_disp = DIS_INVALID;
 
-static boolean_t gb_refresh;
+static bool gb_refresh;
 
 
 //
@@ -204,7 +204,7 @@ void GB_DisplaySetBar(int barnum, int count)
 	}
 
 	// compute fractional position
-	bars[barnum - 1].pos = (flo_t)count / bars[barnum - 1].limit;
+	bars[barnum - 1].pos = (float)count / bars[barnum - 1].limit;
 }
 
 //
@@ -237,7 +237,7 @@ const nodebuildfuncs_t edge_build_funcs =
 // map_lump (a lump number from w_wad for the start marker, e.g.
 // "MAP01").  Returns true if successful, false if it failed.
 //
-boolean_t GB_BuildNodes(int map_lump)
+bool GB_BuildNodes(int map_lump)
 {
 	nodebuildinfo_t nb_info;
 	volatile nodebuildcomms_t nb_comms;

@@ -299,7 +299,7 @@ static char *DDF_MainGetDefine(char *name)
 // This goes through the information loaded via DDF and matchs any
 // info stored as references.
 //
-boolean_t DDF_MainCleanUp(void)
+bool DDF_MainCleanUp(void)
 {
 	int i;
 	char *s;
@@ -538,7 +538,7 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 	int size;
 	int comment_level;
 	int bracket_level;
-	boolean_t firstgo;
+	bool firstgo;
 	char *current_command = NULL;
 	int current_index = 0;
 	char namebuf[200];
@@ -588,7 +588,7 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 		// -KM- 1998/12/16 Added #define command to ddf files.
 		if (!strnicmp(memfileptr, "#DEFINE", 7))
 		{
-			boolean_t line = false;
+			bool line = false;
 
 			memfileptr += 8;
 			name = memfileptr;
@@ -894,7 +894,7 @@ readchar_t DDF_MainProcessChar(char character, char *buffer, int status)
 	int len;
 
 	// -ACB- 1998/08/11 Used for detecting formatting in a string
-	static boolean_t formatchar = false;
+	static bool formatchar = false;
 
 	len = strlen(buffer);
 
@@ -1120,7 +1120,7 @@ void DDF_MainGetNumeric(const char *info, void *storage)
 //
 void DDF_MainGetBoolean(const char *info, void *storage)
 {
-	boolean_t *dest = (boolean_t *)storage;
+	bool *dest = (bool *)storage;
 
 	DEV_ASSERT2(info && storage);
 
@@ -1168,12 +1168,12 @@ void DDF_MainGetString(const char *info, void *storage)
 // does (and return true), otherwise return false.  For sub-commands,
 // the storage pointer
 //
-boolean_t DDF_MainParseSubField(const commandlist_t *sub_comms,
+bool DDF_MainParseSubField(const commandlist_t *sub_comms,
 								const char *field, const char *contents, char *stor_base,
     char *dummy_base, const char *base_command)
 {
 	int i, len;
-	boolean_t obsolete = false;
+	bool obsolete = false;
 	const char *name = NULL;
 
 	for (i=0; sub_comms[i].name; i++)
@@ -1242,11 +1242,11 @@ boolean_t DDF_MainParseSubField(const commandlist_t *sub_comms,
 // Check if the command exists, and call the parser function if it
 // does (and return true), otherwise return false.
 //
-boolean_t DDF_MainParseField(const commandlist_t *commands, 
+bool DDF_MainParseField(const commandlist_t *commands, 
 							 const char *field, const char *contents)
 {
 	int i, len;
-	boolean_t obsolete = false;
+	bool obsolete = false;
 	const char *name = NULL;
 
 	for (i=0; commands[i].name; i++)
@@ -1373,7 +1373,7 @@ int DDF_MainLookupDirector(const mobjinfo_t *info, const char *ref)
 
 void DDF_MainGetFloat(const char *info, void *storage)
 {
-	flo_t *dest = (flo_t *)storage;
+	float *dest = (float *)storage;
 
 	DEV_ASSERT2(info && storage);
 
@@ -1399,7 +1399,7 @@ void DDF_MainGetAngle(const char *info, void *storage)
 void DDF_MainGetSlope(const char *info, void *storage)
 {
 	float val;
-	flo_t *dest = (flo_t *)storage;
+	float *dest = (float *)storage;
 
 	DEV_ASSERT2(info && storage);
 
@@ -1424,7 +1424,7 @@ void DDF_MainGetPercent(const char *info, void *storage)
 	percent_t *dest = (percent_t *)storage;
 	char s[101];
 	char *p;
-	flo_t f;
+	float f;
 
 	// check that the string is valid
 	Z_StrNCpy(s, info, 100);
@@ -1461,7 +1461,7 @@ void DDF_MainGetPercentAny(const char *info, void *storage)
 	percent_t *dest = (percent_t *)storage;
 	char s[101];
 	char *p;
-	flo_t f;
+	float f;
 
 	// check that the string is valid
 	Z_StrNCpy(s, info, 100);
@@ -1510,7 +1510,7 @@ void DDF_MainGetTime(const char *info, void *storage)
 	if (sscanf(info, "%f", &val) != 1)
 		DDF_Error("Bad time value: %s\n", info);
 
-	*dest = (int)(val * (flo_t)TICRATE);
+	*dest = (int)(val * (float)TICRATE);
 }
 
 //
@@ -1619,7 +1619,7 @@ static int FindSpecialFlag(const char *prefix, const char *name,
 	for (i=0; flag_set[i].name; i++)
 	{
 		const char *current = flag_set[i].name;
-		boolean_t obsolete = false;
+		bool obsolete = false;
 
 		if (current[0] == '!')
 		{
@@ -1643,7 +1643,7 @@ static int FindSpecialFlag(const char *prefix, const char *name,
 
 int DDF_MainCheckSpecialFlag(const char *name,
 							 const specflags_t *flag_set, int *flag_value, 
-							 boolean_t allow_prefixes, boolean_t allow_user)
+							 bool allow_prefixes, bool allow_user)
 {
 	int index;
 	int negate = 0;

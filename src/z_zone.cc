@@ -552,7 +552,7 @@ void Z_DumpLeakInfo(int level)
 	memblock_t *block;
 	leak_info_item *list = NULL;
 	int listsize = 0;
-	boolean_t done;
+	bool done;
 	FILE *f;
 
 	f = fopen("leakinfo", "wt");
@@ -720,7 +720,7 @@ void Z_Init(void)
 //
 // Return true if the memory is completely clear.
 //
-boolean_t Z_CheckIfZero(const byte *ptr, int size)
+bool Z_CheckIfZero(const byte *ptr, int size)
 {
 	for (; size > 0; size--, ptr++)
 		if (*ptr)

@@ -48,7 +48,7 @@ struct cvartype_s
   // Sets the cvar's value according to a parameter list.
   // The parameter list always contains at least one argument.
   // Also use this as callback: it is called whenever the cvar changes.
-  boolean_t (*set_value) (cvar_t * cvar, int argc, const char **argv);
+  bool (*set_value) (cvar_t * cvar, int argc, const char **argv);
 
   // Called when the cvar is destroyed. Should free the memory of the
   // cvar's value member.

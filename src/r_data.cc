@@ -181,7 +181,7 @@ void R_AddTextureAnim(animdef_t *anim)
 //
 // R_InitFlats
 // 
-boolean_t R_InitFlats(void)
+bool R_InitFlats(void)
 {
   int max_file = W_GetNumFiles();
   int j, file;
@@ -252,9 +252,9 @@ boolean_t R_InitFlats(void)
 //
 // R_InitPicAnims
 //
-// -ACB- 1999/09/25 modified for new boolean_t type
+// -ACB- 1999/09/25 modified for new bool type
 //
-boolean_t R_InitPicAnims(void)
+bool R_InitPicAnims(void)
 {
   int i;
 

@@ -51,7 +51,7 @@
 #include "ddf_main.h"  // -KM- 1998/07/31 Need animation definitions
 
 // Level exit timer
-boolean_t levelTimer;
+bool levelTimer;
 int levelTimeCount;
 
 // -AJA- temp structure for BOOM water (compatibility)
@@ -67,7 +67,7 @@ typedef struct sectorsfx_s
 {
   sector_t *sector;
   sfx_t *sfx;
-  boolean_t sfxstarted;
+  bool sfxstarted;
 
   // tics to go before next update
   int count;
@@ -81,15 +81,15 @@ sectorsfx_t;
 
 static sectorsfx_t *sectorsfx_list;
 
-static boolean_t P_DoSectorsFromTag(int tag, const void *p1, void *p2,
-    boolean_t(*func) (sector_t *, const void *, void *));
+static bool P_DoSectorsFromTag(int tag, const void *p1, void *p2,
+    bool(*func) (sector_t *, const void *, void *));
 
 //
 // DoElevator_wrapper
 //
 // -ACB- 2001/01/14 Added
 //
-static boolean_t DoElevator_wrapper(sector_t *s, const void *p1, void *p2) 
+static bool DoElevator_wrapper(sector_t *s, const void *p1, void *p2) 
 {
   return EV_DoElevator(s, (const elevator_sector_t*)p1, (sector_t*)p2);
 }
@@ -97,7 +97,7 @@ static boolean_t DoElevator_wrapper(sector_t *s, const void *p1, void *p2)
 //
 // DoPlane_wrapper
 //
-static boolean_t DoPlane_wrapper(sector_t *s, const void *p1, void *p2)
+static bool DoPlane_wrapper(sector_t *s, const void *p1, void *p2)
 {
   return EV_DoPlane(s, (const moving_plane_t*)p1, (sector_t*)p2);
 }
@@ -105,7 +105,7 @@ static boolean_t DoPlane_wrapper(sector_t *s, const void *p1, void *p2)
 //
 // DoLights_wrapper
 //
-static boolean_t DoLights_wrapper(sector_t *s, const void *p1, void *p2)
+static bool DoLights_wrapper(sector_t *s, const void *p1, void *p2)
 {
   return EV_Lights(s, (const lighttype_t*)p1);
 }
@@ -113,7 +113,7 @@ static boolean_t DoLights_wrapper(sector_t *s, const void *p1, void *p2)
 //
 // DoDonut_wrapper
 //
-static boolean_t DoDonut_wrapper(sector_t *s, const void *p1, void *p2)
+static bool DoDonut_wrapper(sector_t *s, const void *p1, void *p2)
 {
   return EV_DoDonut(s, (sfx_t**)p2);
 }
@@ -272,11 +272,11 @@ sector_t *P_GetNextSector(const line_t * line, const sector_t * sec)
 #define F_C_HEIGHT(sector)  \
     ((ref & REF_CEILING) ? (sector)->c_h : (sector)->f_h)
     
-flo_t P_FindSurroundingHeight(const int ref, const sector_t *sec)
+float P_FindSurroundingHeight(const int ref, const sector_t *sec)
 {
   int i, count;
-  flo_t height;
-  flo_t base = F_C_HEIGHT(sec);
+  float height;
+  float base = F_C_HEIGHT(sec);
 
   if (ref & REF_INCLUDE)
     height = base;
@@ -288,8 +288,8 @@ flo_t P_FindSurroundingHeight(const int ref, const sector_t *sec)
   for (i = count = 0; i < sec->linecount; i++)
   {
     sector_t *other = P_GetNextSector(sec->lines[i], sec);
-    boolean_t satisfy;
-    flo_t other_h;
+    bool satisfy;
+    float other_h;
 
     if (!other)
       continue;
@@ -330,11 +330,11 @@ flo_t P_FindSurroundingHeight(const int ref, const sector_t *sec)
 //
 // -KM- 1998/09/01 Lines.ddf; used to be inlined in p_floors
 //
-flo_t P_FindRaiseToTexture(sector_t * sec)
+float P_FindRaiseToTexture(sector_t * sec)
 {
   int i;
   side_t *side;
-  flo_t minsize = INT_MAX;
+  float minsize = INT_MAX;
   int secnum = sec - sectors;
 
   for (i = 0; i < sec->linecount; i++)
@@ -448,11 +448,11 @@ void P_AddSpecialSector(sector_t *sec)
   sect_speciallist = sec;
 }
 
-static void AdjustScrollParts(side_t *side, boolean_t left,
-    scroll_part_e parts, flo_t x_speed, flo_t y_speed)
+static void AdjustScrollParts(side_t *side, bool left,
+    scroll_part_e parts, float x_speed, float y_speed)
 {
-  flo_t xmul = (left && (parts & SCPT_LeftRevX)) ? -1 : 1;
-  flo_t ymul = (left && (parts & SCPT_LeftRevY)) ? -1 : 1;
+  float xmul = (left && (parts & SCPT_LeftRevX)) ? -1 : 1;
+  float ymul = (left && (parts & SCPT_LeftRevY)) ? -1 : 1;
 
   if (! side)
     return;
@@ -477,8 +477,8 @@ static void AdjustScrollParts(side_t *side, boolean_t left,
   }
 }
 
-static void AdjustScaleParts(side_t *side, boolean_t left,
-    scroll_part_e parts, flo_t scale)
+static void AdjustScaleParts(side_t *side, bool left,
+    scroll_part_e parts, float scale)
 {
   if (! side)
     return;
@@ -496,8 +496,8 @@ static void AdjustScaleParts(side_t *side, boolean_t left,
     side->bottom.x_mat.x = side->bottom.y_mat.y = scale;
 }
 
-static void AdjustSkewParts(side_t *side, boolean_t left,
-    scroll_part_e parts, flo_t skew)
+static void AdjustSkewParts(side_t *side, bool left,
+    scroll_part_e parts, float skew)
 {
   if (! side)
     return;
@@ -515,7 +515,7 @@ static void AdjustSkewParts(side_t *side, boolean_t left,
     side->bottom.y_mat.x = skew * side->bottom.y_mat.y;
 }
 
-static void AdjustLightParts(side_t *side, boolean_t left,
+static void AdjustLightParts(side_t *side, bool left,
     scroll_part_e parts, region_properties_t *p)
 {
   if (! side)
@@ -539,7 +539,7 @@ static void AdjustLightParts(side_t *side, boolean_t left,
 // P_EFTransferTrans
 //
 static void P_EFTransferTrans(sector_t *ctrl, sector_t *sec, line_t *line, 
-    const extrafloor_info_t *ef, flo_t trans)
+    const extrafloor_info_t *ef, float trans)
 {
   int i;
 
@@ -591,7 +591,7 @@ static void P_EFTransferTrans(sector_t *ctrl, sector_t *sec, line_t *line,
 static void P_LineEffect(line_t *target, line_t *source,
     const linedeftype_t *special)
 {
-  flo_t length = R_PointToDist(0, 0, source->dx, source->dy);
+  float length = R_PointToDist(0, 0, source->dx, source->dy);
 
   if ((special->line_effect & LINEFX_Translucency) && (target->flags & ML_TwoSided))
   {
@@ -606,8 +606,8 @@ static void P_LineEffect(line_t *target, line_t *source,
     //       suggests that the horizontal speed is proportional to the
     //       tagging line's length.
 
-    flo_t xspeed = source->dx / 32.0;
-    flo_t yspeed = source->dy / 32.0;
+    float xspeed = source->dx / 32.0;
+    float yspeed = source->dy / 32.0;
 
     AdjustScrollParts(target->side[0], 0, special->line_parts,
         xspeed, yspeed);
@@ -620,8 +620,8 @@ static void P_LineEffect(line_t *target, line_t *source,
 
   if ((special->line_effect & LINEFX_OffsetScroll) && target->side[0])
   {
-    flo_t xspeed = -target->side[0]->middle.offset.x;
-    flo_t yspeed =  target->side[0]->middle.offset.y;
+    float xspeed = -target->side[0]->middle.offset.x;
+    float yspeed =  target->side[0]->middle.offset.y;
 
     AdjustScrollParts(target->side[0], 0, special->line_parts,
         xspeed, yspeed);
@@ -660,7 +660,7 @@ static void P_LineEffect(line_t *target, line_t *source,
   // experimental: skew wall texture(s) by sidedef Y offset
   if ((special->line_effect & LINEFX_Skew) && source->side[0])
   {
-    flo_t skew = source->side[0]->top.offset.x / 128.0;
+    float skew = source->side[0]->top.offset.x / 128.0;
 
     AdjustSkewParts(target->side[0], 0, special->line_parts, skew);
     AdjustSkewParts(target->side[1], 1, special->line_parts, skew);
@@ -690,8 +690,8 @@ static void P_LineEffect(line_t *target, line_t *source,
 static void P_SectorEffect(sector_t *target, line_t *source,
     const linedeftype_t *special)
 {
-  flo_t length = R_PointToDist(0, 0, source->dx, source->dy);
-  flo_t angle = R_PointToAngle(0, 0, source->dx, source->dy);
+  float length = R_PointToDist(0, 0, source->dx, source->dy);
+  float angle = R_PointToAngle(0, 0, source->dx, source->dy);
 
   if (special->sector_effect & SECTFX_LightFloor)
     target->floor.override_p = &source->frontsector->props;
@@ -787,13 +787,13 @@ static void P_SectorEffect(sector_t *target, line_t *source,
 //
 // -ACB- 2001/01/14: Added Elevator Sector Type
 //
-static boolean_t P_ActivateSpecialLine(line_t * line,
+static bool P_ActivateSpecialLine(line_t * line,
     const linedeftype_t * special, int tag, int side, mobj_t * thing,
     trigger_e trig, int can_reach, int no_care_who)
 {
-  boolean_t texSwitch = false;
-  boolean_t failedsecurity;  // -ACB- 1998/09/11 Security pass/fail check
-  boolean_t playedSound = false;
+  bool texSwitch = false;
+  bool failedsecurity;  // -ACB- 1998/09/11 Security pass/fail check
+  bool playedSound = false;
   sfx_t *sfx[4];
   sector_t *tsec;
 
@@ -1035,7 +1035,7 @@ static boolean_t P_ActivateSpecialLine(line_t * line,
   // Note: M_PI means "not changed" for gravity, friction and
   // viscosity and drag.
 
-  if (special->gravity != (flo_t)M_PI && tag > 0)
+  if (special->gravity != (float)M_PI && tag > 0)
   {
     for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
     {
@@ -1044,7 +1044,7 @@ static boolean_t P_ActivateSpecialLine(line_t * line,
     }
   }
 
-  if (special->friction != (flo_t)M_PI && tag > 0)
+  if (special->friction != (float)M_PI && tag > 0)
   {
     for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
     {
@@ -1053,7 +1053,7 @@ static boolean_t P_ActivateSpecialLine(line_t * line,
     }
   }
 
-  if (special->viscosity != (flo_t)M_PI && tag > 0)
+  if (special->viscosity != (float)M_PI && tag > 0)
   {
     for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
     {
@@ -1062,7 +1062,7 @@ static boolean_t P_ActivateSpecialLine(line_t * line,
     }
   }
 
-  if (special->drag != (flo_t)M_PI && tag > 0)
+  if (special->drag != (float)M_PI && tag > 0)
   {
     for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
     {
@@ -1217,7 +1217,7 @@ static boolean_t P_ActivateSpecialLine(line_t * line,
 // -KM- 1998/09/01 Now much simpler
 // -ACB- 1998/09/12 Return success/failure
 //
-boolean_t P_CrossSpecialLine(line_t *ld, int side, mobj_t * thing)
+bool P_CrossSpecialLine(line_t *ld, int side, mobj_t * thing)
 {
   return P_ActivateSpecialLine(ld, ld->special, ld->tag, 
       side, thing, line_walkable, 1, 0);
@@ -1249,8 +1249,8 @@ void P_ShootSpecialLine(line_t * ld, int side, mobj_t * thing)
 //       accessible.  Could be used for smarter switches, like one on
 //       a lower wall-part which is out of reach (e.g. MAP02).
 //
-boolean_t P_UseSpecialLine(mobj_t * thing, line_t * line, int side,
-    flo_t open_bottom, flo_t open_top)
+bool P_UseSpecialLine(mobj_t * thing, line_t * line, int side,
+    float open_bottom, float open_top)
 {
   int can_reach = (thing->z < open_top) &&
       (thing->z + thing->height + USE_Z_RANGE >= open_bottom);
@@ -1278,11 +1278,11 @@ void P_RemoteActivation(mobj_t * thing, int typenum, int tag,
 
 
 static INLINE void PlayerInProperties(player_t *player,
-    flo_t bz, flo_t tz, flo_t f_h, flo_t c_h,
+    float bz, float tz, float f_h, float c_h,
     region_properties_t *props)
 {
   const specialsector_t *special = props->special;
-  flo_t damage, factor;
+  float damage, factor;
 
   if (!special || c_h < f_h)
     return;
@@ -1407,12 +1407,12 @@ static INLINE void PlayerInProperties(player_t *player,
 void P_PlayerInSpecialSector(player_t * player, sector_t * sec)
 {
   extrafloor_t *S, *L, *C;
-  flo_t floor_h;
+  float floor_h;
 
-  flo_t bz = player->mo->z;
-  flo_t tz = player->mo->z + player->mo->height;
+  float bz = player->mo->z;
+  float tz = player->mo->z + player->mo->height;
 
-  boolean_t was_underwater = player->underwater;
+  bool was_underwater = player->underwater;
 
   player->swimming = false;
   player->underwater = false;
@@ -1656,7 +1656,7 @@ void P_SpawnSpecials(int autotag)
     // compute pushing force
     if (secSpecial->push_speed > 0 || secSpecial->push_zspeed > 0)
     {
-      flo_t mul = secSpecial->push_speed / 100.0;
+      float mul = secSpecial->push_speed / 100.0;
 
       sector->props.push.x += M_Cos(secSpecial->push_angle) * mul;
       sector->props.push.y += M_Sin(secSpecial->push_angle) * mul;
@@ -1666,8 +1666,8 @@ void P_SpawnSpecials(int autotag)
     // Scrollers
     if (secSpecial->f.scroll_speed > 0)
     {
-      flo_t dx = M_Cos(secSpecial->f.scroll_angle);
-      flo_t dy = M_Sin(secSpecial->f.scroll_angle);
+      float dx = M_Cos(secSpecial->f.scroll_angle);
+      float dy = M_Sin(secSpecial->f.scroll_angle);
         
       sector->floor.scroll.x -= dx * secSpecial->f.scroll_speed / 32.0;
       sector->floor.scroll.y -= dy * secSpecial->f.scroll_speed / 32.0;
@@ -1676,8 +1676,8 @@ void P_SpawnSpecials(int autotag)
     }
     if (secSpecial->c.scroll_speed > 0)
     {
-      flo_t dx = M_Cos(secSpecial->c.scroll_angle);
-      flo_t dy = M_Sin(secSpecial->c.scroll_angle);
+      float dx = M_Cos(secSpecial->c.scroll_angle);
+      float dy = M_Sin(secSpecial->c.scroll_angle);
       
       sector->ceil.scroll.x -= dx * secSpecial->c.scroll_speed / 32.0;
       sector->ceil.scroll.y -= dy * secSpecial->c.scroll_speed / 32.0;
@@ -1773,11 +1773,11 @@ void P_SpawnSpecials(int autotag)
 //
 // -AJA- 1999/09/29: Updated for new tagged sector links.
 //
-static boolean_t P_DoSectorsFromTag(int tag, const void *p1, void *p2,
-    boolean_t(*func) (sector_t *, const void *, void *))
+static bool P_DoSectorsFromTag(int tag, const void *p1, void *p2,
+    bool(*func) (sector_t *, const void *, void *))
 {
   sector_t *tsec;
-  boolean_t rtn = false;
+  bool rtn = false;
 
   for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
   {

@@ -188,10 +188,10 @@ static specflags_t map_specials[] =
 //  DDF PARSE ROUTINES
 //
 
-static boolean_t LevelStartEntry(const char *name)
+static bool LevelStartEntry(const char *name)
 {
 	int i;
-	boolean_t replaces = false;
+	bool replaces = false;
 
 	if (name && name[0])
 	{
@@ -233,7 +233,7 @@ static boolean_t LevelStartEntry(const char *name)
 }
 
 static void LevelParseField(const char *field, const char *contents,
-							int index, boolean_t is_last)
+							int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	L_WriteDebug("LEVEL_PARSE: %s = %s;\n", field, contents);

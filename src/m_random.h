@@ -31,8 +31,8 @@
 int M_Random(void);
 int P_Random(void);
 int P_RandomNegPos(void);
-boolean_t M_RandomTest(percent_t chance);
-boolean_t P_RandomTest(percent_t chance);
+bool M_RandomTest(percent_t chance);
+bool P_RandomTest(percent_t chance);
 
 // Savegame support
 int P_ReadRandomState(void);

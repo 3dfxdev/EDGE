@@ -40,10 +40,10 @@ enum
 };  // bbox coordinates
 
 // Bounding box functions.
-void M_ClearBox(flo_t * box);
-void M_AddToBox(flo_t * box, flo_t x, flo_t y);
-void M_CopyBox(flo_t * box, flo_t * other);
-void M_UnionBox(flo_t * box, flo_t * other);
+void M_ClearBox(float * box);
+void M_AddToBox(float * box, float x, float y);
+void M_CopyBox(float * box, float * other);
+void M_UnionBox(float * box, float * other);
 
 //
 //  DIRTY REGION HANDLING
@@ -62,8 +62,8 @@ void M_UnionBox(flo_t * box, flo_t * other);
 #define DIRT_REG_H  ((1536+DIRT_Y-1) / DIRT_X)
 
 extern byte dirty_region[DIRT_REG_H][DIRT_REG_W];
-extern boolean_t dirty_region_whole;
-extern boolean_t dirty_region_always;
+extern bool dirty_region_whole;
+extern bool dirty_region_always;
 
 void M_CleanMatrix(void);
 void M_DirtyMatrix(void);

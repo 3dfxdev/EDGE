@@ -71,10 +71,10 @@ static stack_array_t ddf_colmaps_a;
 //  DDF PARSE ROUTINES
 //
 
-static boolean_t ColmapStartEntry(const char *name)
+static bool ColmapStartEntry(const char *name)
 {
   int i;
-  boolean_t replaces = false;
+  bool replaces = false;
 
   if (name && name[0])
   {
@@ -116,7 +116,7 @@ static boolean_t ColmapStartEntry(const char *name)
 }
 
 static void ColmapParseField(const char *field, const char *contents,
-    int index, boolean_t is_last)
+    int index, bool is_last)
 {
 #if (DEBUG_DDF)  
   L_WriteDebug("COLMAP_PARSE: %s = %s;\n", field, contents);

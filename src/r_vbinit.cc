@@ -350,7 +350,7 @@ auto_vbdata_t;
 static void CheckDetailChange(void *data)
 {
   auto_vbdata_t *d = (auto_vbdata_t*)data;
-  flo_t fps;
+  float fps;
   unsigned long curtime;
   int detail;
 
@@ -727,7 +727,7 @@ static void InitVB_NViews(viewbitmap_t * vb, int nviews)
 
     cameras[i] = R_CreateCamera();
     
-    R_InitCamera_ViewOffs(cameras[i], (flo_t)(viewanglebaseoffset+(((nviews - 1 - i * 2) * FIELDOFVIEW / 2) << ANGLETOFINESHIFT)) );
+    R_InitCamera_ViewOffs(cameras[i], (float)(viewanglebaseoffset+(((nviews - 1 - i * 2) * FIELDOFVIEW / 2) << ANGLETOFINESHIFT)) );
     
     v = R_CreateView(vb, a, 0, 0, cameras[i], VRF_VIEW, 0);
     
@@ -876,7 +876,7 @@ void R_InitCamera_ViewOffs(camera_t * c, angle_t offs)
   R_AddStartCallback(&c->frame_start, CameraFrameInit_ViewOffs, data, Z_Free);
 }
 
-flo_t camera_3d_offset = 4.0;
+float camera_3d_offset = 4.0;
 
 static void CameraFrameInit_3D_Left(void *data)
 {

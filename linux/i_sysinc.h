@@ -28,22 +28,22 @@
 #endif
 
 // I_CD.C
-boolean_t I_StartupCD(void);
-boolean_t I_CDStartPlayback(int tracknum);
+bool I_StartupCD(void);
+bool I_CDStartPlayback(int tracknum);
 void I_CDPausePlayback(void);
 void I_CDResumePlayback(void);
 void I_CDStopPlayback(void);
 void I_CDSetVolume(int vol);
-boolean_t I_CDFinished(void);
+bool I_CDFinished(void);
 void I_ShutdownCD(void);
 
 // I_MUSIC.C
-extern boolean_t musicpaused;
+extern bool musicpaused;
 void I_PostMusicError(const char *message);
 
 // I_MUSSRV.C
-boolean_t I_StartupMusserv(void);
-boolean_t I_MusservStartPlayback(const char *data, int len);
+bool I_StartupMusserv(void);
+bool I_MusservStartPlayback(const char *data, int len);
 void I_MusservPausePlayback(void);
 void I_MusservResumePlayback(void);
 void I_MusservStopPlayback(void);
@@ -51,8 +51,8 @@ void I_MusservSetVolume(int vol);
 void I_ShutdownMusserv(void);
 
 // MP3 stuff
-boolean_t I_StartupMP3(void);
-int I_MP3PlayTrack(const char *filename, boolean_t looping);
+bool I_StartupMP3(void);
+int I_MP3PlayTrack(const char *filename, bool looping);
 void I_MP3StopTrack(int track);
 void I_MP3SetVolume(int vol);
 void I_ShutdownMP3(void);

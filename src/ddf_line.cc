@@ -63,7 +63,7 @@ static linedeftype_t buffer_line;
 static linedeftype_t *dynamic_line;
 
 // these bits logically belong with buffer_line:
-static flo_t s_speed;
+static float s_speed;
 static scrolldirs_e s_dir;
 
 const linedeftype_t template_line =
@@ -215,9 +215,9 @@ const moving_plane_t donut_floor =
 	FLOORSPEED / 2,  //  speed up
 	FLOORSPEED / 2,  //  speed down
 	REF_Absolute,    //  dest ref
-	(flo_t)INT_MAX,//  dest
+	(float)INT_MAX,//  dest
 	REF_Absolute,    //  other ref
-	(flo_t)INT_MAX,//  other
+	(float)INT_MAX,//  other
 	"",              //  texture
 	0, 0,            //  wait, prewait
 	0, 0, 0, 0,      //  SFX start/up/down/stop
@@ -493,10 +493,10 @@ s_activators[] =
 //
 // LinedefStartEntry
 //
-static boolean_t LinedefStartEntry(const char *name)
+static bool LinedefStartEntry(const char *name)
 {
 	int i;
-	boolean_t replaces = false;
+	bool replaces = false;
 	int number = MAX(0, atoi(name));
 
 	if (number == 0)
@@ -544,7 +544,7 @@ static boolean_t LinedefStartEntry(const char *name)
 // LinedefParseField
 //
 static void LinedefParseField(const char *field, const char *contents,
-							  int index, boolean_t is_last)
+							  int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	L_WriteDebug("LINEDEF_PARSE: %s = %s;\n", field, contents);
@@ -609,14 +609,14 @@ static void LinedefFinishEntry(void)
 		}
 	}
 
-	if (buffer_line.friction != (flo_t)M_PI && buffer_line.friction < 0.01)
+	if (buffer_line.friction != (float)M_PI && buffer_line.friction < 0.01)
 	{
 		DDF_WarnError("Friction value too low (%1.2f), it would prevent "
 			"all movement.\n", buffer_line.friction);
 		buffer_line.friction = 0.1;
 	}
 
-	if (buffer_line.viscosity != (flo_t)M_PI && buffer_line.viscosity > 0.99)
+	if (buffer_line.viscosity != (float)M_PI && buffer_line.viscosity > 0.99)
 	{
 		DDF_WarnError("Viscosity value too high (%1.2f), it would prevent "
 			"all movement.\n", buffer_line.viscosity);
@@ -747,7 +747,7 @@ void DDF_LineGetScroller(const char *info, void *storage)
 void DDF_LineGetSecurity(const char *info, void *storage)
 {
 	int i;
-	boolean_t required = false;
+	bool required = false;
 
 	if (info[0] == '+')
 	{

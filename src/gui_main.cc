@@ -29,7 +29,7 @@
 #include "z_zone.h"
 
 static int mouse_x = 0, mouse_y = 0;
-static boolean_t mouse_visible = false;
+static bool mouse_visible = false;
 
 static int mouse;
 
@@ -101,16 +101,16 @@ void GUI_Ticker(gui_t ** gui)
   while (g != *gui);
 }
 
-static boolean_t GUI_InBox(int x, int y, gui_t * g)
+static bool GUI_InBox(int x, int y, gui_t * g)
 {
   return (x <= g->right && x >= g->left && y <= g->bottom && y >= g->top);
 }
 
-boolean_t GUI_Responder(gui_t ** gui, guievent_t * e)
+bool GUI_Responder(gui_t ** gui, guievent_t * e)
 {
   gui_t *g = *gui;
   guievent_t event = *e;
-  boolean_t eat;
+  bool eat;
   const visible_t *v;
 
   switch (event.type)
@@ -228,7 +228,7 @@ void GUI_MainTicker(void)
   GUI_Ticker(&main_gui);
 }
 
-boolean_t GUI_MainResponder(event_t * ev)
+bool GUI_MainResponder(event_t * ev)
 {
   guievent_t ge;
 
@@ -266,7 +266,7 @@ void GUI_MainDrawer(void)
 //
 // GUI_MainInit
 //
-boolean_t GUI_MainInit(void)
+bool GUI_MainInit(void)
 {
   mouse = W_GetNumForName("mouse");
   GUI_Init(&main_gui);
@@ -279,17 +279,17 @@ void GUI_InitResolution(void)
   CON_InitResolution();
 }
 
-void GUI_MainSetMouseVisibility(boolean_t visible)
+void GUI_MainSetMouseVisibility(bool visible)
 {
   mouse_visible = visible;
 }
 
-boolean_t GUI_MainGetMouseVisibility(void)
+bool GUI_MainGetMouseVisibility(void)
 {
   return mouse_visible;
 }
 
-boolean_t GUI_SetMouse(char *name)
+bool GUI_SetMouse(char *name)
 {
   mouse = W_CheckNumForName(name);
   if (mouse == -1)

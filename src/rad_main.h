@@ -40,7 +40,7 @@ typedef struct s_tip_s
 	int display_time;
 
 	// play the TINK sound ?
-	boolean_t playsound;
+	bool playsound;
 }
 s_tip_t;
 
@@ -73,12 +73,12 @@ typedef struct s_thing_s
 {
 	// If the object is spawned somewhere
 	// else on the map.  z can be ONFLOORZ or ONCEILINGZ.
-	flo_t x;
-	flo_t y;
-	flo_t z;
+	float x;
+	float y;
+	float z;
 
 	angle_t angle;
-	flo_t slope;
+	float slope;
 
 	// -AJA- 1999/09/11: since the RSCRIPT lump can be loaded before
 	//       DDF* lumps, we can't store a pointer to a mobjinfo_t here
@@ -88,8 +88,8 @@ typedef struct s_thing_s
 	char *thing_name;
 	int thing_type;
 
-	boolean_t ambush;
-	boolean_t spawn_effect;
+	bool ambush;
+	bool spawn_effect;
 }
 s_thing_t;
 
@@ -97,7 +97,7 @@ s_thing_t;
 // Radius Damage Player Trigger
 typedef struct
 {
-	flo_t damage_amount;
+	float damage_amount;
 }
 s_damagep_t;
 
@@ -105,8 +105,8 @@ s_damagep_t;
 // Radius Heal Player Trigger
 typedef struct
 {
-	flo_t limit;
-	flo_t heal_amount;
+	float limit;
+	float heal_amount;
 }
 s_healp_t;
 
@@ -115,8 +115,8 @@ s_healp_t;
 typedef struct
 {
 	armour_type_e type;
-	flo_t limit;
-	flo_t armour_amount;
+	float limit;
+	float armour_amount;
 }
 s_armour_t;
 
@@ -125,7 +125,7 @@ s_armour_t;
 typedef struct
 {
 	benefit_t *benefit;
-	boolean_t lose_it;  // or use_it :)
+	bool lose_it;  // or use_it :)
 }
 s_benefit_t;
 
@@ -139,7 +139,7 @@ typedef struct s_damage_monsters_s
 	int thing_type;
 
 	// how much damage to do
-	flo_t damage_amount;
+	float damage_amount;
 }
 s_damage_monsters_t;
 
@@ -149,7 +149,7 @@ typedef struct
 {
 	skill_t skill;
 	int Respawn;
-	boolean_t FastMonsters;
+	bool FastMonsters;
 }
 s_skill_t;
 
@@ -175,7 +175,7 @@ typedef struct s_sound_s
 	int kind;
 
 	// sound location.  z can be ONFLOORZ.
-	flo_t x, y, z;
+	float x, y, z;
 
 	sfx_t *soundid;
 }
@@ -189,7 +189,7 @@ typedef struct s_music_s
 	int playnum;
 
 	// whether to loop or not
-	boolean_t looping;
+	bool looping;
 }
 s_music_t;
 
@@ -203,12 +203,12 @@ typedef struct s_movesector_s
 	int secnum;
 
 	// Ceiling or Floor
-	boolean_t is_ceiling;
+	bool is_ceiling;
 
 	// when true, add the value to current height.  Otherwise set it.
-	boolean_t relative;
+	bool relative;
 
-	flo_t value;
+	float value;
 }
 s_movesector_t;
 
@@ -222,9 +222,9 @@ typedef struct s_lightsector_s
 	int secnum;
 
 	// when true, add the value to current light.  Otherwise set it.
-	boolean_t relative;
+	bool relative;
 
-	flo_t value;
+	float value;
 }
 s_lightsector_t;
 
@@ -238,7 +238,7 @@ typedef struct s_enabler_s
 	int tag;
 
 	// true to disable, false to enable
-	boolean_t new_disabled;
+	bool new_disabled;
 }
 s_enabler_t;
 
@@ -416,7 +416,7 @@ typedef struct s_onheight_s
 
 	// height range, trigger won't activate until sector's floor is
 	// within this range (inclusive).
-	flo_t z1, z2;
+	float z1, z2;
 
 	// sector number, < 0 means use the trigger's location
 	int sec_num;
@@ -461,10 +461,10 @@ typedef struct rad_script_s
 	int netmode;
 
 	// Map Coordinates
-	flo_t x, y, z;
+	float x, y, z;
 
 	// Trigger size
-	flo_t rad_x, rad_y, rad_z;
+	float rad_x, rad_y, rad_z;
 
 	// Script name (or NULL)
 	char *script_name;
@@ -479,19 +479,19 @@ typedef struct rad_script_s
 	int absolute_req_players;
 
 	// Initially disabled ?
-	boolean_t tagged_disabled;
+	bool tagged_disabled;
 
 	// Check for use.
-	boolean_t tagged_use;
+	bool tagged_use;
 
 	// Continues working ?
-	boolean_t tagged_independent;
+	bool tagged_independent;
 
 	// Requires no player intervention ?
-	boolean_t tagged_immediate;
+	bool tagged_immediate;
 
 	// Should external enables/disables be player specific ?
-	boolean_t tagged_player_specific;
+	bool tagged_player_specific;
 
 	// Tagged_Repeat info (normal if repeat_count < 0)
 	int repeat_count;
@@ -535,10 +535,10 @@ typedef struct rad_trigger_s
 	rad_script_t *info;
 
 	// is it disabled ?
-	boolean_t disabled;
+	bool disabled;
 
 	// has it been activated yet?
-	boolean_t activated;
+	bool activated;
 
 	// players who activated it (bit field)
 	unsigned long acti_players;
@@ -576,21 +576,21 @@ typedef struct drawtip_s
 	int delay;
 
 	// do we need to recompute some stuff (e.g. colmap) ?
-	boolean_t dirty;
+	bool dirty;
 
 	// tip text DOH!
 	const char *tip_text;
 	const struct image_s *tip_graphic;
 
 	// play a sound ?
-	boolean_t playsound;
+	bool playsound;
 
 	// current colour
 	const struct colourmap_s *colmap;
 
 	// fading fields
 	int fade_time;
-	flo_t fade_target;
+	float fade_target;
 
 	// HULIB info
 	int hu_linenum;

@@ -69,7 +69,7 @@
 #define SAVEGAMESIZE    0x50000
 #define SAVESTRINGSIZE  24
 
-boolean_t G_CheckDemoStatus(void);
+bool G_CheckDemoStatus(void);
 void G_ReadDemoTiccmd(ticcmd_t * cmd);
 void G_WriteDemoTiccmd(ticcmd_t * cmd);
 
@@ -90,23 +90,23 @@ int gameskill = sk_invalid;
 const mapstuff_t *currentmap = NULL;  // currentmap
 const mapstuff_t *nextmap = NULL;  // currentmap
 
-boolean_t paused = false;
+bool paused = false;
 
 // ok to save / end game 
-boolean_t usergame;
+bool usergame;
 
 // send a pause event next tic 
-static boolean_t sendpause = false;
+static bool sendpause = false;
 
 // send a save event next tic 
-static boolean_t sendsave = false;
+static bool sendsave = false;
 
 // if true, exit with report on completion 
-static boolean_t timingdemo;
+static bool timingdemo;
 
 // for comparative timing purposes 
-boolean_t nodrawers;
-boolean_t noblit;
+bool nodrawers;
+bool noblit;
 static int starttime;
 
 // -KM- 1998/11/25 Exit time is the time when the level will actually finish
@@ -114,9 +114,9 @@ static int starttime;
 // switch change or the boss die.
 
 int exittime = 0x7fffffff;
-boolean_t secretexit;
+bool secretexit;
 
-boolean_t viewactive;
+bool viewactive;
 
 // GAMEPLAY MODES:
 //
@@ -131,7 +131,7 @@ boolean_t viewactive;
 int deathmatch;
 
 // only true if packets are broadcast 
-boolean_t netgame;
+bool netgame;
 
 player_t *players = NULL;
 player_t **playerlookup = NULL;
@@ -149,10 +149,10 @@ int totalkills, totalitems, totalsecret;
 
 static long random_seed;
 static char *demoname;
-boolean_t demorecording;
-boolean_t demoplayback;
-boolean_t netdemo;
-boolean_t newdemo;
+bool demorecording;
+bool demoplayback;
+bool netdemo;
+bool newdemo;
 
 // 98-7-10 KM Remove maxdemo limit
 static const byte *playdemobuffer = NULL;
@@ -163,10 +163,10 @@ static int demo_length;
 int maxdemo;
 
 // quit after playing a demo from cmdline 
-boolean_t singledemo;
+bool singledemo;
 
 // if true, load all graphics at start 
-boolean_t precache = true;
+bool precache = true;
 
 // parms for world map / intermission 
 wbstartstruct_t wminfo;
@@ -223,7 +223,7 @@ static int angleturn[3] =
 
 #define NUMKEYS         512
 
-static boolean_t gamekeydown[NUMKEYS];
+static bool gamekeydown[NUMKEYS];
 int turnheld;  // for accelerative turning 
 
 //-------------------------------------------
@@ -238,7 +238,7 @@ int joy_yaxis = AXIS_FORWARD;
 // The last one is ignored (AXIS_DISABLE)
 static int analogue[6] = {0, 0, 0, 0, 0, 0};
 
-boolean_t stageturn;  // Stage Turn Control
+bool stageturn;  // Stage Turn Control
 
 int forwardmovespeed;  // Speed controls
 
@@ -248,7 +248,7 @@ int sidemovespeed;
 fixed_t mlookspeed = 1000 / 64;
 
 // -ACB- 1999/09/30 Has to be true or false - bool-ified
-boolean_t invertmouse = false;
+bool invertmouse = false;
 
 //--------------------------------------------
 
@@ -265,7 +265,7 @@ void *statcopy;  // for statistics driver
 
 static const mapstuff_t *d_newmap = NULL;
 static int d_newskill;
-static boolean_t d_newwarp;
+static bool d_newwarp;
 
 // -KM- 1998/09/01 Made static.
 static int CheckKey(int keynum)
@@ -334,14 +334,14 @@ static int CmdChecksum(ticcmd_t * cmd)
 void G_BuildTiccmd(ticcmd_t * cmd)
 {
 	int i;
-	boolean_t strafe;
-	flo_t vertangle;  // -ACB- 1998/07/02 Look angle
+	bool strafe;
+	float vertangle;  // -ACB- 1998/07/02 Look angle
 #ifdef MOUSE_ACC
 	// Define MOUSE_ACC to get smoother movements
 	// These values are first added to the movements, and then
 	// 66% of the total movement is subtracted from the actual movement,
 	// & added to these.
-	static flo_t slope_acc = 0;
+	static float slope_acc = 0;
 	static angle_t angle_acc = 0;
 #endif
 
@@ -353,9 +353,9 @@ void G_BuildTiccmd(ticcmd_t * cmd)
 	int side;
 	// -ACB- 1999/09/20 Removed. base tic is zero-ed out ticcmd.
 	//  ticcmd_t *base;
-	static boolean_t allow180 = true;
-	static boolean_t allowzoom = true;
-	static boolean_t allowautorun = true;
+	static bool allow180 = true;
+	static bool allowzoom = true;
+	static bool allowautorun = true;
 
 	// -ACB- 1999/09/20 Removed. base tic is zero-ed out ticcmd.
 	//base = I_BaseTiccmd();  // empty, or external driver
@@ -422,11 +422,11 @@ void G_BuildTiccmd(ticcmd_t * cmd)
 
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
 		if (CheckKey(key_lookup))
-			vertangle += (flo_t)mlook_rate / 1024.0;
+			vertangle += (float)mlook_rate / 1024.0;
 
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
 		if (CheckKey(key_lookdown))
-			vertangle -= (flo_t)mlook_rate / 1024.0;
+			vertangle -= (float)mlook_rate / 1024.0;
 
 		if (viewiszoomed)
 			mlook_rate /= ZOOM_ANGLE_DIV;
@@ -738,7 +738,7 @@ void G_DoLoadLevel(void)
 	CON_Printf("%s\n", currentmap->ddf.name);
 
 	// clear cmd building stuff
-	Z_Clear(gamekeydown, boolean_t, NUMKEYS);
+	Z_Clear(gamekeydown, bool, NUMKEYS);
 	Z_Clear(analogue, int, 5);
 	sendpause = sendsave = paused = false;
 }
@@ -748,7 +748,7 @@ void G_DoLoadLevel(void)
 //
 // Get info needed to make ticcmd_ts for the players.
 // 
-boolean_t G_Responder(event_t * ev)
+bool G_Responder(event_t * ev)
 {
 	// 25-6-98 KM Allow spy mode for demos even in deathmatch
 	if ((gamestate == GS_LEVEL) && (ev->type == ev_keydown) && 
@@ -1063,7 +1063,7 @@ static void G_PlayerFinishLevel(player_t *p)
 
 void G_PlayerReborn(player_t *p)
 {
-	boolean_t in_game;
+	bool in_game;
 	const mobjinfo_t *info;
 	player_t *next, *prev;
 	void *data;
@@ -1120,9 +1120,9 @@ void G_PlayerReborn(player_t *p)
 // Returns false if the player cannot be respawned at the given spot
 // because something is occupying it 
 //
-static boolean_t G_CheckSpot(player_t *player, spawnpoint_t *point)
+static bool G_CheckSpot(player_t *player, spawnpoint_t *point)
 {
-	flo_t x, y, z;
+	float x, y, z;
 	player_t *p;
 
 	if (!player->mo)
@@ -1615,7 +1615,7 @@ void G_DoSaveGame(void)
 //
 // Returns true if OK, or false if no such map exists.
 //
-boolean_t G_DeferedInitNew(int skill, const char *mapname, boolean_t warpopt)
+bool G_DeferedInitNew(int skill, const char *mapname, bool warpopt)
 {
 	d_newmap = DDF_LevelMapLookup(mapname);
 
@@ -2002,7 +2002,7 @@ void G_TimeDemo(const char *name)
 // 
 //-KM- 1998/07/10 Reformed code for limitless demo
 //
-boolean_t G_CheckDemoStatus(void)
+bool G_CheckDemoStatus(void)
 {
 	int endtime;
 	player_t *p;
@@ -2012,7 +2012,7 @@ boolean_t G_CheckDemoStatus(void)
 		float fps;
 
 		endtime = I_GetTime();
-		fps = ((flo_t)(gametic * TICRATE)) / (endtime - starttime);
+		fps = ((float)(gametic * TICRATE)) / (endtime - starttime);
 		I_Error("timed %i gametics in %i realtics, which equals %f fps", gametic,
 			endtime - starttime, fps);
 	}
@@ -2063,7 +2063,7 @@ boolean_t G_CheckDemoStatus(void)
 //
 // -AJA- 1999/10/23: written.
 
-boolean_t G_CheckWhenAppear(when_appear_e appear)
+bool G_CheckWhenAppear(when_appear_e appear)
 {
 	if (! (appear & (1 << gameskill)))
 		return false;
@@ -2085,10 +2085,10 @@ boolean_t G_CheckWhenAppear(when_appear_e appear)
 //
 // -AJA- 2000/07/23: written.
 //
-boolean_t G_CheckConditions(mobj_t *mo, condition_check_t *cond)
+bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 {
 	player_t *p = mo->player;
-	boolean_t temp;
+	bool temp;
 
 	for (; cond; cond = cond->next)
 	{

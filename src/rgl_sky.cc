@@ -48,32 +48,32 @@
 #define DEBUG  0
 
 
-#define RGB_RED(rgbcol)  ((flo_t)((rgbcol >> 16) & 0xFF) / 255.0)
-#define RGB_GRN(rgbcol)  ((flo_t)((rgbcol >>  8) & 0xFF) / 255.0)
-#define RGB_BLU(rgbcol)  ((flo_t)((rgbcol      ) & 0xFF) / 255.0)
+#define RGB_RED(rgbcol)  ((float)((rgbcol >> 16) & 0xFF) / 255.0)
+#define RGB_GRN(rgbcol)  ((float)((rgbcol >>  8) & 0xFF) / 255.0)
+#define RGB_BLU(rgbcol)  ((float)((rgbcol      ) & 0xFF) / 255.0)
 
 
 #if 0  // TEMPORARILY DISABLED
 
 static INLINE void DrawSkyTilePoint(const tilesky_info_t *info,
     const image_t *image, int p, int xmul, int ymul, int zmul, 
-    flo_t dx, flo_t dy)
+    float dx, float dy)
 {
-  flo_t x = tilepoints[p].x * xmul;
-  flo_t y = tilepoints[p].y * ymul;
-  flo_t z = tilepoints[p].z * zmul;
+  float x = tilepoints[p].x * xmul;
+  float y = tilepoints[p].y * ymul;
+  float z = tilepoints[p].z * zmul;
 
-  flo_t tx = (zmul > 0) ? tilepoints[p].tx : tilepoints[p].bx;
-  flo_t ty = (zmul > 0) ? tilepoints[p].ty : tilepoints[p].by;
+  float tx = (zmul > 0) ? tilepoints[p].tx : tilepoints[p].bx;
+  float ty = (zmul > 0) ? tilepoints[p].ty : tilepoints[p].by;
 
   if (xmul < 0)
   {
-    flo_t tmp = tx; tx = 1 - ty; ty = 1 - tmp;
+    float tmp = tx; tx = 1 - ty; ty = 1 - tmp;
   }
   
   if (ymul < 0)
   {
-    flo_t tmp = tx; tx = ty; ty = tmp;
+    float tmp = tx; tx = ty; ty = tmp;
   }
   
   CHECKVAL(info->number);
@@ -86,7 +86,7 @@ static INLINE void DrawSkyTilePoint(const tilesky_info_t *info,
     
 static void DrawSkyTilePart(const tilesky_info_t *info,
     const image_t *image, int xmul, int ymul, int zmul, 
-    flo_t dx, flo_t dy)
+    float dx, float dy)
 {
   int s;
   int len, top, bot;
@@ -119,8 +119,8 @@ static void RGL_DrawTiledSky(void)
   const tilesky_info_t *info;
 
   side_t *side;
-  flo_t trans;
-  flo_t dx, dy;
+  float trans;
+  float dx, dy;
 
   RGL_SetupMatricesTiledSky();
 
@@ -177,17 +177,17 @@ static void RGL_DrawTiledSky(void)
 void RGL_DrawSky(void)
 {
   int x, y, w, h;
-  flo_t right, bottom;
+  float right, bottom;
 
   const cached_image_t *cim;
   GLuint tex_id;
 
-  flo_t mlook_rad;
+  float mlook_rad;
   int top_L, bottom_L;
   int base_a = viewangle >> 6;
 
   int sx1, sy1, sx2, sy2;  // screen coords
-  flo_t tx1, tx2, ty, bx1, bx2, by;  // tex coords
+  float tx1, tx2, ty, bx1, bx2, by;  // tex coords
 
   if (! draw_sky)
     return;
@@ -210,8 +210,8 @@ void RGL_DrawSky(void)
 
   w = sky_image->actual_w;
   h = sky_image->actual_h;
-  right  = w / (flo_t)sky_image->total_w;
-  bottom = h / (flo_t)sky_image->total_h;
+  right  = w / (float)sky_image->total_w;
+  bottom = h / (float)sky_image->total_h;
 
   // sky is always 100% bright
   glColor4f(1.0, 1.0, 1.0, 1.0);
@@ -233,7 +233,7 @@ void RGL_DrawSky(void)
   {
     // d is just the distance horizontally forward from the eye to
     // the top edge of the view rectangle.
-    flo_t d = M_ROOT2 * sin(M_PI/2 - (mlook_rad + M_PI/4));
+    float d = M_ROOT2 * sin(M_PI/2 - (mlook_rad + M_PI/4));
 
     top_L = ANG90 - M_ATan(d);
   }
@@ -246,7 +246,7 @@ void RGL_DrawSky(void)
   {
     // d is just the distance horizontally forward from the eye to
     // the bottom edge of the view rectangle.
-    flo_t d = M_ROOT2 * sin(M_PI/2 - (M_PI/4 - mlook_rad));
+    float d = M_ROOT2 * sin(M_PI/2 - (M_PI/4 - mlook_rad));
 
     bottom_L = ANG90 - M_ATan(d);
   }
@@ -256,7 +256,7 @@ void RGL_DrawSky(void)
     top_L = bottom_L = ANG90;
   }
   
-  #define NEWSKYSHIFT  ((flo_t)(1 << (ANGLEBITS - 16)))
+  #define NEWSKYSHIFT  ((float)(1 << (ANGLEBITS - 16)))
 
   top_L >>= 6;
   bottom_L >>= 6;
@@ -264,11 +264,11 @@ void RGL_DrawSky(void)
   base_a *= 2;
 
   CHECKVAL(w);
-  tx1 = (flo_t)(base_a + top_L) / NEWSKYSHIFT / (flo_t)w;
-  tx2 = (flo_t)(base_a - top_L) / NEWSKYSHIFT / (flo_t)w;
+  tx1 = (float)(base_a + top_L) / NEWSKYSHIFT / (float)w;
+  tx2 = (float)(base_a - top_L) / NEWSKYSHIFT / (float)w;
 
-  bx1 = (flo_t)(base_a + bottom_L) / NEWSKYSHIFT / (flo_t)w;
-  bx2 = (flo_t)(base_a - bottom_L) / NEWSKYSHIFT / (flo_t)w;
+  bx1 = (float)(base_a + bottom_L) / NEWSKYSHIFT / (float)w;
+  bx2 = (float)(base_a - bottom_L) / NEWSKYSHIFT / (float)w;
 
   if (w <= 512)
   {
@@ -278,8 +278,8 @@ void RGL_DrawSky(void)
 
   // compute sky vertical tex coords
   {
-    flo_t top_a    = (M_PI/2 - mlook_rad - M_PI/4) / M_PI;
-    flo_t bottom_a = (M_PI/2 - mlook_rad + M_PI/4) / M_PI;
+    float top_a    = (M_PI/2 - mlook_rad - M_PI/4) / M_PI;
+    float bottom_a = (M_PI/2 - mlook_rad + M_PI/4) / M_PI;
     
     if (top_a < 0)
       top_a = 0;
@@ -305,18 +305,18 @@ void RGL_DrawSky(void)
     int ya = sy1 + (sy2 - sy1) * y     / 8;
     int yb = sy1 + (sy2 - sy1) * (y+1) / 8;
     
-    flo_t la = tx1 + (bx1 - tx1) * y     / 8;
-    flo_t ra = tx2 + (bx2 - tx2) * y     / 8;
-    flo_t lb = tx1 + (bx1 - tx1) * (y+1) / 8;
-    flo_t rb = tx2 + (bx2 - tx2) * (y+1) / 8;
+    float la = tx1 + (bx1 - tx1) * y     / 8;
+    float ra = tx2 + (bx2 - tx2) * y     / 8;
+    float lb = tx1 + (bx1 - tx1) * (y+1) / 8;
+    float rb = tx2 + (bx2 - tx2) * (y+1) / 8;
 
-    flo_t txa = la + (ra - la) * x     / 8;
-    flo_t bxa = lb + (rb - lb) * x     / 8;
-    flo_t txb = la + (ra - la) * (x+1) / 8;
-    flo_t bxb = lb + (rb - lb) * (x+1) / 8;
+    float txa = la + (ra - la) * x     / 8;
+    float bxa = lb + (rb - lb) * x     / 8;
+    float txb = la + (ra - la) * (x+1) / 8;
+    float bxb = lb + (rb - lb) * (x+1) / 8;
     
-    flo_t tya = ty + (by - ty) * y     / 8;
-    flo_t bya = ty + (by - ty) * (y+1) / 8;
+    float tya = ty + (by - ty) * y     / 8;
+    float bya = ty + (by - ty) * (y+1) / 8;
     
     glTexCoord2f(txa, 1.0 - bottom * tya);
     glVertex2i(xa, SCREENHEIGHT - ya);
@@ -341,12 +341,12 @@ void RGL_DrawSky(void)
 #endif  // TEMPORARILY DISABLED
 
 
-static INLINE void CalcSkyTexCoord(flo_t x, flo_t y, flo_t z, 
-    flo_t *tx, flo_t *ty)
+static INLINE void CalcSkyTexCoord(float x, float y, float z, 
+    float *tx, float *ty)
 {
-  flo_t dist;
-  flo_t tile_num = 1;
-  flo_t base_val, angle_val;
+  float dist;
+  float tile_num = 1;
+  float base_val, angle_val;
 
   angle_t angle;
   
@@ -418,7 +418,7 @@ void SkyPolyCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 {
   sky_data_t *data = (sky_data_t *)d;
 
-  flo_t tx, ty;
+  float tx, ty;
 
   CalcSkyTexCoord(src->x, src->y, src->z, &tx, &ty);
  
@@ -432,7 +432,7 @@ void SkyPolyCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 //
 // RGL_DrawSkyPlane
 //
-void RGL_DrawSkyPlane(subsector_t *sub, flo_t h)
+void RGL_DrawSkyPlane(subsector_t *sub, float h)
 {
   raw_polyquad_t *poly;
   sky_data_t data;
@@ -484,12 +484,12 @@ void RGL_DrawSkyPlane(subsector_t *sub, flo_t h)
 //
 // RGL_DrawSkyWall
 //
-void RGL_DrawSkyWall(seg_t *seg, flo_t h1, flo_t h2)
+void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 {
-  flo_t x1 = seg->v1->x;
-  flo_t y1 = seg->v1->y;
-  flo_t x2 = seg->v2->x;
-  flo_t y2 = seg->v2->y;
+  float x1 = seg->v1->x;
+  float y1 = seg->v1->y;
+  float x2 = seg->v2->x;
+  float y2 = seg->v2->y;
 
   GLuint tex_id;
   const cached_image_t *cim;

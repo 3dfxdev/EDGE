@@ -35,16 +35,16 @@
 extern int negonearray;
 #define screenheightarray 0
 
-extern flo_t pspritescale;
-extern flo_t pspriteiscale;
-extern flo_t pspritescale2;
-extern flo_t pspriteiscale2;
-extern flo_t masked_translucency;
+extern float pspritescale;
+extern float pspriteiscale;
+extern float pspritescale2;
+extern float pspriteiscale2;
+extern float masked_translucency;
 
 extern int extra_psp_light;
 
 int R_AddSpriteName(const char *name, int frame);
-boolean_t R_InitSprites(void);
+bool R_InitSprites(void);
 
 // -ES- 1999/05/31 Changed player sprite system.
 void R_DrawPlayerSprites(player_t * p);

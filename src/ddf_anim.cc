@@ -77,10 +77,10 @@ static stack_array_t animdefs_a;
 //  DDF PARSE ROUTINES
 //
 
-static boolean_t AnimStartEntry(const char *name)
+static bool AnimStartEntry(const char *name)
 {
 	int i;
-	boolean_t replaces = false;
+	bool replaces = false;
 
 	if (name && name[0])
 	{
@@ -121,7 +121,7 @@ static boolean_t AnimStartEntry(const char *name)
 	return replaces;
 }
 
-static void AnimParseField(const char *field, const char *contents, int index, boolean_t is_last)
+static void AnimParseField(const char *field, const char *contents, int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	L_WriteDebug("ANIM_PARSE: %s = %s;\n", field, contents);
@@ -212,7 +212,7 @@ void DDF_AnimCleanUp(void)
 //
 static void DDF_AnimGetType(const char *info, void *storage)
 {
-	boolean_t *is_tex = (boolean_t *) storage;
+	bool *is_tex = (bool *) storage;
 
 	DEV_ASSERT2(storage);
 

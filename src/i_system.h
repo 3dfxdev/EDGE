@@ -38,7 +38,7 @@
 //
 // -ACB- 1999/09/20 Removed system specific attribs.
 
-boolean_t I_SystemStartup(void);
+bool I_SystemStartup(void);
 // This routine is responsible for getting things off the ground, in
 // particular calling all the other platform initialisers (i.e.
 // I_StartupControl, I_StartupGraphics, I_StartupMusic and
@@ -93,7 +93,7 @@ void I_TraceBack(void);
 // "-traceback" option, and when present call this routine instead of
 // I_CloseProgram() whenever a fatal error occurs.
 
-boolean_t I_Access(const char *filename);
+bool I_Access(const char *filename);
 // Returns true if the given file or directory exists.  For files it
 // should check if it readable.
 
@@ -102,11 +102,11 @@ char *I_PreparePath(const char *path);
 // concatenate a DIRSEPARATOR and a file name to it.  Allocates and
 // returns the new string.  Doesn't fail.
 
-boolean_t I_PathIsAbsolute(const char *path);
+bool I_PathIsAbsolute(const char *path);
 // Returns true if the path should be treated as an absolute path,
 // otherwise false.
 
-boolean_t I_PathIsDirectory(const char *path);
+bool I_PathIsDirectory(const char *path);
 // Returns true if the given path refers to a directory, otherwise
 // false (e.g. the path is a file, _or_ doesn't exist).
 
@@ -126,7 +126,7 @@ typedef struct i_time_s
 }
 i_time_t;
 
-boolean_t I_GetModifiedTime(const char *filename, i_time_t *time);
+bool I_GetModifiedTime(const char *filename, i_time_t *time);
 // -ACB- 2000/06/05 The returns the time of when the filename passed
 // was modified.
 
@@ -199,7 +199,7 @@ extern unsigned long microtimer_granularity;
 //
 // -ACB- 1999/09/19 moved from I_Music.H
 
-extern boolean_t nomusic;
+extern bool nomusic;
 // This variable enables/disables music.  Initially false, it is set
 // to true by the "-nomusic" option.  Can also be set to true by the
 // platform code when no working music device is found.
@@ -230,14 +230,14 @@ i_music_info_t;
 // Struct for setting up music playback. This 
 // is here because it is an interface between engine and EPI Code.
 
-boolean_t I_StartupMusic(void *sysinfo);
+bool I_StartupMusic(void *sysinfo);
 // Initialises the music system.  Returns true if successful,
 // otherwise false.  (You should set "nomusic" to true if it fails).
 // The main code never calls this function, it should be called by
 // I_SystemStartup(), and can be passed some platform-specific data
 // via the `sysinfo' parameter.
 
-int I_MusicPlayback(i_music_info_t* musdat, int type, boolean_t looping);
+int I_MusicPlayback(i_music_info_t* musdat, int type, bool looping);
 // Starts music playing using the 'i_music_info_t' for info.
 //
 // Returns an integer handle that is used to refer to the music (in
@@ -279,19 +279,19 @@ char *I_MusicReturnError(void);
 //
 // -ACB- 1999/09/20 Moved from I_Sound.H
 
-extern boolean_t nosound;
+extern bool nosound;
 // This variable enables/disables sound.  Initially false, it is set
 // to true by the "-nosound" option.  Can also be set to true by the
 // platform code when no working sound device is found.
 
-boolean_t I_StartupSound(void *sysinfo);
+bool I_StartupSound(void *sysinfo);
 // Initialises the sound system.  Returns true if successful,
 // otherwise false if something went wrong (NOTE: you must set nosound
 // to false when it fails).   The main code never calls this function,
 // it should be called by I_SystemStartup(), and can be passed some
 // platform-specific data via the `sysinfo' parameter.
 
-boolean_t I_LoadSfx(const unsigned char *data, unsigned int length, 
+bool I_LoadSfx(const unsigned char *data, unsigned int length, 
 					unsigned int freq, unsigned int handle);
 // Loads the given `handle' with the specified sound data.  Handle is
 // a small integer value from 0 onwards.  If no such handle exists
@@ -304,12 +304,12 @@ boolean_t I_LoadSfx(const unsigned char *data, unsigned int length,
 // sound data is also mono.  There is no support for 16-bit or stereo
 // sounds yet.
 
-boolean_t I_UnloadSfx(unsigned int handle);
+bool I_UnloadSfx(unsigned int handle);
 // Unloads the sound data for the given handle, previously loaded via
 // I_LoadSfx().  This frees the sound data.  Returns true on success,
 // otherwise false.
 
-int I_SoundPlayback(unsigned int handle, int pan, int vol, boolean_t looping);
+int I_SoundPlayback(unsigned int handle, int pan, int vol, bool looping);
 // Starts the sound with the given handle playing, using the
 // paramaters for panning, volume and looping.  Pan ranges from 0
 // (hard left) to 128 (middle) to 255 (hard right).  Volume ranges
@@ -320,26 +320,26 @@ int I_SoundPlayback(unsigned int handle, int pan, int vol, boolean_t looping);
 // wrong, especially when there are no free channels, then -1 is
 // returned.
 
-boolean_t I_SoundAlter(unsigned int chanid, int pan, int vol);
+bool I_SoundAlter(unsigned int chanid, int pan, int vol);
 // Alters the parameters of a currently playing sound.  Returns true
 // if successful, otherwise false.
 
-boolean_t I_SoundCheck(unsigned int chanid);
+bool I_SoundCheck(unsigned int chanid);
 // Checks that the given sound is still playing (i.e. has not reached
 // the end yet), and returns true if it is, otherwise false.
 
-boolean_t I_SoundPause(unsigned int chanid);
+bool I_SoundPause(unsigned int chanid);
 // Pauses the sound on the specified channel.  Returns true on
 // success, otherwise false.
 
-boolean_t I_SoundResume(unsigned int chanid);
+bool I_SoundResume(unsigned int chanid);
 // Resumes the previously paused sound on the specified channel.
 // Returns true on success, otherwise false.
 
-boolean_t I_SoundStopLooping(unsigned int chanid);
+bool I_SoundStopLooping(unsigned int chanid);
 // Stops the sound on this channel looping
 
-boolean_t I_SoundKill(unsigned int chanid);
+bool I_SoundKill(unsigned int chanid);
 // Kills a sound on the specified channel that was started with
 // I_SoundPlayback(), and frees the channel to be used for future
 // sound playbacks.  Note that this function must be called even if
@@ -404,7 +404,7 @@ typedef struct screenmode_s
 	int width;
 	int height;
 	int depth;
-	boolean_t windowed;
+	bool windowed;
 }
 screenmode_t;
 
@@ -444,7 +444,7 @@ long I_Colour2Pixel(byte palette[256][3], int col);
 void I_GetTruecolInfo(truecol_info_t *info);
 // Returns the truecolor information for the current mode.
 
-boolean_t I_SetScreenSize(screenmode_t *mode);
+bool I_SetScreenSize(screenmode_t *mode);
 // Tries to set the video card to the given mode (or open a window).
 // If there already was a valid mode (or open window), this call
 // should replace it.  The previous contents (including the palette)

@@ -71,7 +71,7 @@ static int soundvolume;
 #define S_STEREO_SWING          96.0f
 
 // If true, sound system is disabled/not working. Changed to false if sound init ok.
-boolean_t nosound = false;
+bool nosound = false;
 
 typedef struct
 {
@@ -79,8 +79,8 @@ typedef struct
 	mobj_t *origin;     // origin of sound
 	int orig_vol;       // volume sound was started at (0 to 255).
 	int channel;        // handle of the sound being played
-	boolean_t paused;   // is sound paused?
-	boolean_t looping;  // is sound looping?     -ACB- 2001/01/09 Added
+	bool paused;   // is sound paused?
+	bool looping;  // is sound looping?     -ACB- 2001/01/09 Added
 }
 playsfx_t;
 
@@ -204,11 +204,11 @@ static int GetSfxLumpNum(sfxinfo_t *sfx)
 // of the cache's linked list.  Returns true if successful, or false
 // if sound didn't exist.
 //
-static boolean_t CacheSound(sfxinfo_t *sound)
+static bool CacheSound(sfxinfo_t *sound)
 {
 	int snd_num = sound->normal.sounds[0];
 	int length, freq;
-	boolean_t success;
+	bool success;
 	const byte *lump;
 	int lumpnum;
 	const char *error;
@@ -275,8 +275,8 @@ static boolean_t CacheSound(sfxinfo_t *sound)
 static int AdjustSoundParams(sfxinfo_t *sfx, mobj_t *listener, 
 							 mobj_t *source, int *vol, int *sep)
 {
-	flo_t approx_dist;
-	flo_t adx, ady, adz;
+	float approx_dist;
+	float adx, ady, adz;
 	angle_t angle;
 
 	// calculate the distance to sound origin
@@ -412,7 +412,7 @@ static int StartSoundAtVolume(mobj_t *origin, sfxinfo_t *sfx, int volume)
 	int rc, sep;
 	int cnum, orig_vol;
 
-	boolean_t looping;
+	bool looping;
 	const char *error;
 
 	if (nosound)
@@ -532,7 +532,7 @@ static void FlushSoundCaches(z_urgency_e urge)
 //
 // -ACB- 1999/10/09 Re-written from scratch.
 //
-boolean_t S_Init(void)
+bool S_Init(void)
 {
 	int i;
 
@@ -755,7 +755,7 @@ void S_UpdateSounds(mobj_t *listener)
 	int sep;
 	playsfx_t *c;
 	free_origin_t *q, *next, *prev;
-	boolean_t kill;
+	bool kill;
 
 	if (nosound)
 		return;

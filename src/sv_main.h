@@ -104,7 +104,7 @@ typedef struct savefieldtype_s
   // SFKIND_Struct it is the name of the structure, for SFKIND_Index
   // it is the name of the array.  When `field_put' is NULL, then this
   // field is not saved into the output SDEF chunk.
-  boolean_t (* field_get)(void *storage, int index, void *extra);
+  bool (* field_get)(void *storage, int index, void *extra);
   void (* field_put)(void *storage, int index, void *extra);
 
   // for loaded info, this points to the known version of the field,
@@ -144,7 +144,7 @@ typedef struct savestruct_s
 
   // this must be true to put the definition into the savegame file.
   // Allows compatibility structures that are read-only.
-  boolean_t define_me;
+  bool define_me;
 
   // only used when loading.  For loaded info, this refers to the
   // known struct of the same name (or NULL if none).  For known info,
@@ -169,7 +169,7 @@ typedef struct savearray_s
 
   // this must be true to put the definition into the savegame file.
   // Allows compatibility arrays that are read-only.
-  boolean_t define_me;
+  bool define_me;
 
   // array routines.  Not used for loaded info.
   int (* count_elems)(void);
@@ -193,17 +193,17 @@ savearray_t;
 //
 //  Note the `SR_' prefix.
 //
-boolean_t SR_GetByte(void *storage, int index, void *extra);
-boolean_t SR_GetShort(void *storage, int index, void *extra);
-boolean_t SR_GetInt(void *storage, int index, void *extra);
+bool SR_GetByte(void *storage, int index, void *extra);
+bool SR_GetShort(void *storage, int index, void *extra);
+bool SR_GetInt(void *storage, int index, void *extra);
 
-boolean_t SR_GetFixed(void *storage, int index, void *extra);
-boolean_t SR_GetAngle(void *storage, int index, void *extra);
-boolean_t SR_GetFloat(void *storage, int index, void *extra);
-boolean_t SR_GetVec2(void *storage, int index, void *extra);
-boolean_t SR_GetVec3(void *storage, int index, void *extra);
+bool SR_GetFixed(void *storage, int index, void *extra);
+bool SR_GetAngle(void *storage, int index, void *extra);
+bool SR_GetFloat(void *storage, int index, void *extra);
+bool SR_GetVec2(void *storage, int index, void *extra);
+bool SR_GetVec3(void *storage, int index, void *extra);
 
-boolean_t SR_GetIntAsFloat(void *storage, int index, void *extra);
+bool SR_GetIntAsFloat(void *storage, int index, void *extra);
 
 #define SR_GetBoolean  SR_GetInt
 #define SR_GetEnum     SR_GetInt
@@ -302,7 +302,7 @@ void SV_FreeGLOB(saveglobals_t *globs);
 //  ADMININISTRATION
 //
 
-boolean_t SV_MainInit(void);
+bool SV_MainInit(void);
 
 savestruct_t *SV_MainLookupStruct(const char *name);
 savearray_t  *SV_MainLookupArray(const char *name);
@@ -310,8 +310,8 @@ savearray_t  *SV_MainLookupArray(const char *name);
 void SV_BeginLoad(void);
 void SV_FinishLoad(void);
 
-boolean_t SV_LoadStruct(void *base, savestruct_t *info);
-boolean_t SV_LoadEverything(void);
+bool SV_LoadStruct(void *base, savestruct_t *info);
+bool SV_LoadEverything(void);
 
 void SV_BeginSave(void);
 void SV_FinishSave(void);
@@ -336,7 +336,7 @@ extern void *sv_current_elem;
 extern savestruct_t *sv_known_structs;
 extern savearray_t  *sv_known_arrays;
 
-boolean_t SR_MobjGetMobj(void *storage, int index, void *extra);
+bool SR_MobjGetMobj(void *storage, int index, void *extra);
 void SR_MobjPutMobj(void *storage, int index, void *extra);
 
 int SV_MobjFindElem(mobj_t *elem);
@@ -345,22 +345,22 @@ void * SV_MobjGetElem(int index);
 int SV_PlayerFindElem(player_t *elem);
 void * SV_PlayerGetElem(int index);
 
-boolean_t SR_LevelGetImage(void *storage, int index, void *extra);
+bool SR_LevelGetImage(void *storage, int index, void *extra);
 void SR_LevelPutImage(void *storage, int index, void *extra);
 
-boolean_t SR_LevelGetColmap(void *storage, int index, void *extra);
+bool SR_LevelGetColmap(void *storage, int index, void *extra);
 void SR_LevelPutColmap(void *storage, int index, void *extra);
 
-boolean_t SR_LineGetLine(void *storage, int index, void *extra);
+bool SR_LineGetLine(void *storage, int index, void *extra);
 void SR_LinePutLine(void *storage, int index, void *extra);
 
-boolean_t SR_SectorGetSector(void *storage, int index, void *extra);
+bool SR_SectorGetSector(void *storage, int index, void *extra);
 void SR_SectorPutSector(void *storage, int index, void *extra);
 
-boolean_t SR_SectorGetEF(void *storage, int index, void *extra);
+bool SR_SectorGetEF(void *storage, int index, void *extra);
 void SR_SectorPutEF(void *storage, int index, void *extra);
 
-boolean_t SR_TriggerGetScript(void *storage, int index, void *extra);
+bool SR_TriggerGetScript(void *storage, int index, void *extra);
 void SR_TriggerPutScript(void *storage, int index, void *extra);
 
 

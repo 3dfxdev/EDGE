@@ -72,8 +72,8 @@ typedef struct wipescr_s wipescr_t;
 typedef struct wipetype_s
 {
   // allow that start or end are equal to dest
-  boolean_t allow_start_dest;
-  boolean_t allow_end_dest;
+  bool allow_start_dest;
+  bool allow_end_dest;
   // these should init/destroy the data field of wp
   void (*init_info) (wipeparm_t * wp);
   void (*destroy_info) (wipeparm_t * wp);
@@ -98,7 +98,7 @@ struct wipescr_s
   // if this is true, scr is a copy of the actual screen, and should
   // be updated in every call to WIPE_DoWipe. Used when destination
   // intersects with start (or end).
-  boolean_t update_scr;
+  bool update_scr;
   // used for positioning if update_scr is set.
   int update_x, update_y;
 };
@@ -113,7 +113,7 @@ struct wipeparm_s
   screen_t *end;
 
   // ranges from 0 to 1.0. 0 means 100% start, 1.0 means 100% end.
-  flo_t progress;
+  float progress;
 
   // data that is customisable for wipetype
   void *data;
@@ -127,7 +127,7 @@ struct wipeinfo_s
   int duration;
 
   // tells whether this wipeinfo is active or done.
-  boolean_t active;
+  bool active;
 
   // w & h of the area where wiping will take place
   int width, height;
@@ -136,7 +136,7 @@ struct wipeinfo_s
   // start screen and ends with end screen. E.g. a reversed melt means that
   // the end screen anti-melts (moves upward) until it covers the entire
   // screen. Crossfading is not affected by revesion.
-  boolean_t reversed;
+  bool reversed;
   wipetype_t *type;
 
   // the parameters to the wiper
@@ -156,13 +156,13 @@ wipeinfo_t *WIPE_InitWipe(screen_t * dest, int destx, int desty,
     screen_t * start, int startx, int starty, int cstart,
     screen_t * end, int endx, int endy, int cend,
     int width, int height, wipeinfo_t * wi,
-    int duration, boolean_t reverse, wipetype_e effect);
+    int duration, bool reverse, wipetype_e effect);
 
 // you don't need to call this, that's done automatically.
 void WIPE_StopWipe(screen_t * dest, screen_t * start, screen_t * end, wipeinfo_t * wi);
 
 // does the progress'th tic of the wipe. Returns true when done. Always keep
 // calling this until it returns true.
-boolean_t WIPE_DoWipe(screen_t * dest, screen_t * start, screen_t * end, int progress, wipeinfo_t * wi);
+bool WIPE_DoWipe(screen_t * dest, screen_t * start, screen_t * end, int progress, wipeinfo_t * wi);
 
 #endif

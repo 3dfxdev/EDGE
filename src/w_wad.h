@@ -49,15 +49,15 @@ lumplist_e;
 extern int numlumps;
 extern int addwadnum;
 
-void W_AddRawFilename(const char *file, boolean_t allow_ddf);
-boolean_t W_InitMultipleFiles(void);
+void W_AddRawFilename(const char *file, bool allow_ddf);
+bool W_InitMultipleFiles(void);
 
 int W_CheckNumForName2(const char *name);
 int W_GetNumForName2(const char *name);
 
 int W_LumpLength(int lump);
 void W_ReadLump(int lump, void *dest);
-boolean_t W_LumpRawInfo(int lump, int *handle, int *pos, int *size);
+bool W_LumpRawInfo(int lump, int *handle, int *pos, int *size);
 
 void W_DoneWithLump(const void *ptr);
 void W_DoneWithLump_Flushable(const void *ptr);
@@ -67,7 +67,7 @@ void W_PreCacheLumpNum(int lump);
 void W_PreCacheLumpName(const char *name);
 void *W_LoadLumpNum(int lump);
 void *W_LoadLumpName(const char *name);
-boolean_t W_VerifyLumpName(int lump, const char *name);
+bool W_VerifyLumpName(int lump, const char *name);
 const char *W_GetLumpName(int lump);
 int W_CacheInfo(int level);
 

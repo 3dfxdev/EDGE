@@ -64,7 +64,7 @@ angle_t FIELDOFVIEW = 2048;
 
 // The used aspect ratio. A normal texel will look aspect_ratio*4/3
 // times wider than high on the monitor
-static const flo_t aspect_ratio = 200.0 / 320.0;
+static const float aspect_ratio = 200.0 / 320.0;
 
 // the extreme angles of the view
 // -AJA- FIXME: these aren't angle_t (32 bit angles).
@@ -73,10 +73,10 @@ angle_t bottomangle;
 angle_t rightangle;
 angle_t leftangle;
 
-flo_t leftslope;
-flo_t rightslope;
-flo_t topslope;
-flo_t bottomslope;
+float leftslope;
+float rightslope;
+float topslope;
+float bottomslope;
 
 int viewwidth;
 int viewheight;
@@ -90,10 +90,10 @@ int vb_h;
 int vb_pitch;
 
 angle_t viewangle = 0;
-flo_t viewvertangle;
+float viewvertangle;
 
 angle_t normalfov, zoomedfov;
-boolean_t viewiszoomed = false;
+bool viewiszoomed = false;
 
 // increment every time a check is made
 int validcount = 1;
@@ -101,16 +101,16 @@ int validcount = 1;
 // -KM- 1998/09/27 Dynamic colourmaps
 // -AJA- 1999/07/10: Updated for colmap.ddf.
 const colourmap_t *effect_colourmap;
-flo_t effect_strength;
-boolean_t effect_infrared;
+float effect_strength;
+bool effect_infrared;
 
 // -ES- 1999/03/19 rename from center to focus
-flo_t focusxfrac;
-flo_t focusyfrac;
+float focusxfrac;
+float focusyfrac;
 
 // -ES- 1999/03/14 Added these. Unit Scale is used for things one distunit away.
-flo_t x_distunit;
-flo_t y_distunit;
+float x_distunit;
+float y_distunit;
 
 // just for profiling purposes
 int framecount;
@@ -119,12 +119,12 @@ int linecount;
 subsector_t *viewsubsector;
 region_properties_t *view_props;
 
-flo_t viewx;
-flo_t viewy;
-flo_t viewz;
+float viewx;
+float viewy;
+float viewz;
 
-flo_t viewcos;
-flo_t viewsin;
+float viewcos;
+float viewsin;
 
 player_t *viewplayer;
 
@@ -181,10 +181,10 @@ int telept_starttic;
 int telept_active = 0;
 static void R_Render_Standard(void)
 {
-  R_RenderViewBitmap(screenvb);
-  if (telept_active)
-    telept_active = !WIPE_DoWipe(&screenvb->screen, &screenvb->screen,
-        &screenvb->screen, leveltime - telept_starttic, telept_wipeinfo);
+	R_RenderViewBitmap(screenvb);
+	if (telept_active)
+		telept_active = !WIPE_DoWipe(&screenvb->screen, &screenvb->screen,
+		&screenvb->screen, leveltime - telept_starttic, telept_wipeinfo);
 }
 
 //
@@ -197,86 +197,86 @@ static void R_Render_Standard(void)
 // tangent (slope) value which is looked up in the
 // tantoangle[] table.
 //
-angle_t R_PointToAngle(flo_t x1, flo_t y1, flo_t x, flo_t y)
+angle_t R_PointToAngle(float x1, float y1, float x, float y)
 {
-  x -= x1;
-  y -= y1;
+	x -= x1;
+	y -= y1;
 
-  if ((x == 0) && (y == 0))
-    return 0;
+	if ((x == 0) && (y == 0))
+		return 0;
 
-  if (x >= 0)
-  {
-    // x >=0
-    if (y >= 0)
-    {
-      // y>= 0
+	if (x >= 0)
+	{
+		// x >=0
+		if (y >= 0)
+		{
+			// y>= 0
 
-      if (x > y)
-      {
-        // octant 0
-        return M_ATan(y / x);
-      }
-      else
-      {
-        // octant 1
-        return ANG90 - 1 - M_ATan(x / y);
-      }
-    }
-    else
-    {
-      // y<0
-      y = -y;
+			if (x > y)
+			{
+				// octant 0
+				return M_ATan(y / x);
+			}
+			else
+			{
+				// octant 1
+				return ANG90 - 1 - M_ATan(x / y);
+			}
+		}
+		else
+		{
+			// y<0
+			y = -y;
 
-      if (x > y)
-      {
-        // octant 8
-        // -ACB- 1999/09/27 Fixed MSVC Compiler warning
-        return 0 - M_ATan(y / x);
-      }
-      else
-      {
-        // octant 7
-        return ANG270 + M_ATan(x / y);
-      }
-    }
-  }
-  else
-  {
-    // x<0
-    x = -x;
+			if (x > y)
+			{
+				// octant 8
+				// -ACB- 1999/09/27 Fixed MSVC Compiler warning
+				return 0 - M_ATan(y / x);
+			}
+			else
+			{
+				// octant 7
+				return ANG270 + M_ATan(x / y);
+			}
+		}
+	}
+	else
+	{
+		// x<0
+		x = -x;
 
-    if (y >= 0)
-    {
-      // y>= 0
-      if (x > y)
-      {
-        // octant 3
-        return ANG180 - 1 - M_ATan(y / x);
-      }
-      else
-      {
-        // octant 2
-        return ANG90 + M_ATan(x / y);
-      }
-    }
-    else
-    {
-      // y<0
-      y = -y;
+		if (y >= 0)
+		{
+			// y>= 0
+			if (x > y)
+			{
+				// octant 3
+				return ANG180 - 1 - M_ATan(y / x);
+			}
+			else
+			{
+				// octant 2
+				return ANG90 + M_ATan(x / y);
+			}
+		}
+		else
+		{
+			// y<0
+			y = -y;
 
-      if (x > y)
-      {
-        // octant 4
-        return ANG180 + M_ATan(y / x);
-      }
-      else
-      {
-        // octant 5
-        return ANG270 - 1 - M_ATan(x / y);
-      }
-    }
-  }
+			if (x > y)
+			{
+				// octant 4
+				return ANG180 + M_ATan(y / x);
+			}
+			else
+			{
+				// octant 5
+				return ANG270 - 1 - M_ATan(x / y);
+			}
+		}
+	}
 }
 
 //
@@ -284,35 +284,35 @@ angle_t R_PointToAngle(flo_t x1, flo_t y1, flo_t x, flo_t y)
 //
 //
 //
-flo_t R_PointToDist(flo_t x1, flo_t y1, flo_t x2, flo_t y2)
+float R_PointToDist(float x1, float y1, float x2, float y2)
 {
-  angle_t angle;
-  flo_t dx;
-  flo_t dy;
-  flo_t temp;
-  flo_t dist;
+	angle_t angle;
+	float dx;
+	float dy;
+	float temp;
+	float dist;
 
-  dx = fabs(x2 - x1);
-  dy = fabs(y2 - y1);
+	dx = fabs(x2 - x1);
+	dy = fabs(y2 - y1);
 
-  if (dx == 0)
-    return dy;
-  else if (dy == 0)
-    return dx;
+	if (dx == 0)
+		return dy;
+	else if (dy == 0)
+		return dx;
 
-  if (dy > dx)
-  {
-    temp = dx;
-    dx = dy;
-    dy = temp;
-  }
+	if (dy > dx)
+	{
+		temp = dx;
+		dx = dy;
+		dy = temp;
+	}
 
-  angle = M_ATan(dy / dx) + ANG90;
+	angle = M_ATan(dy / dx) + ANG90;
 
-  // use as cosine
-  dist = dx / M_Sin(angle);
+	// use as cosine
+	dist = dx / M_Sin(angle);
 
-  return dist;
+	return dist;
 }
 
 //
@@ -324,61 +324,61 @@ flo_t R_PointToDist(flo_t x1, flo_t y1, flo_t x2, flo_t y2)
 //
 // rw_distance & rw_normalangle must be calculated first.
 //
-flo_t R_ScaleFromGlobalAngle(angle_t visangle)
+float R_ScaleFromGlobalAngle(angle_t visangle)
 {
-  flo_t scale;
-  angle_t anglea;
-  angle_t angleb;
-  flo_t cosa;
-  flo_t cosb;
-  flo_t num;
-  flo_t den;
+	float scale;
+	angle_t anglea;
+	angle_t angleb;
+	float cosa;
+	float cosb;
+	float num;
+	float den;
 
-  // Note: anglea is the difference between the given angle `visangle'
-  // and the view angle.  We calculate the distance from the camera to
-  // the seg line (below), and by triangulating we can determine the
-  // distance from the view plane to the point on the seg (along a line
-  // parallel to the view angle).
-  //
-  // Namely: z = hyp * cos(anglea).
-  //
-  // Thus: scale = 1.0 / z.
-  //
-  // Since the angle lies in the view's cliprange (clipping has
-  // already occurred), the cosine will always be positive.
+	// Note: anglea is the difference between the given angle `visangle'
+	// and the view angle.  We calculate the distance from the camera to
+	// the seg line (below), and by triangulating we can determine the
+	// distance from the view plane to the point on the seg (along a line
+	// parallel to the view angle).
+	//
+	// Namely: z = hyp * cos(anglea).
+	//
+	// Thus: scale = 1.0 / z.
+	//
+	// Since the angle lies in the view's cliprange (clipping has
+	// already occurred), the cosine will always be positive.
 
-  anglea = visangle - viewangle;
-  cosa = M_Cos(anglea);
+	anglea = visangle - viewangle;
+	cosa = M_Cos(anglea);
 
-  // Note: angleb is the difference between the given angle `visangle'
-  // and the seg line's normal.  We know the distance along the normal
-  // (rw_distance), thus by triangulating we can calculate the
-  // distance from the camera to the seg line at the given angle,
-  //
-  // Namely: hyp = rw_distance / cos(angleb).
-  //
-  // Since the seg line faces the camera (back faces have already been
-  // culled), the cosine will always be positive.
+	// Note: angleb is the difference between the given angle `visangle'
+	// and the seg line's normal.  We know the distance along the normal
+	// (rw_distance), thus by triangulating we can calculate the
+	// distance from the camera to the seg line at the given angle,
+	//
+	// Namely: hyp = rw_distance / cos(angleb).
+	//
+	// Since the seg line faces the camera (back faces have already been
+	// culled), the cosine will always be positive.
 
-  angleb = visangle - rw_normalangle;
-  cosb = M_Cos(angleb);
+	angleb = visangle - rw_normalangle;
+	cosb = M_Cos(angleb);
 
-  num = y_distunit * cosb;
-  den = rw_distance * cosa;
+	num = y_distunit * cosb;
+	den = rw_distance * cosa;
 
-  if (den > 0)
-  {
-    scale = num / den;
+	if (den > 0)
+	{
+		scale = num / den;
 
-    if (scale > 64)
-      scale = 64;
-    else if (scale < 1/256.0)
-      scale = 1/256.0;
-  }
-  else
-    scale = 64;
+		if (scale > 64)
+			scale = 64;
+		else if (scale < 1/256.0)
+			scale = 1/256.0;
+	}
+	else
+		scale = 64;
 
-  return scale;
+	return scale;
 }
 
 //
@@ -386,10 +386,10 @@ flo_t R_ScaleFromGlobalAngle(angle_t visangle)
 //
 static void InitTextureMapping(void)
 {
-  // this should be called between each view change (or it could be removed)
-  leftclipangle = xtoviewangle[0];
-  rightclipangle = xtoviewangle[viewwidth];
-  clipscope = leftclipangle - rightclipangle;
+	// this should be called between each view change (or it could be removed)
+	leftclipangle = xtoviewangle[0];
+	rightclipangle = xtoviewangle[viewwidth];
+	clipscope = leftclipangle - rightclipangle;
 }
 
 //
@@ -401,46 +401,46 @@ static void InitTextureMapping(void)
 //
 static void InitLightTables(void)
 {
-  int i;
-  int j;
-  int level;
-  flo_t startmap;
-  flo_t scale;
+	int i;
+	int j;
+	int level;
+	float startmap;
+	float scale;
 
-  // Calculate the light levels to use
-  //  for each level / distance combination &
-  //  for each level / scale combination.
-  // -AJA- 1999/07/10: Reworked for colmap.ddf.
+	// Calculate the light levels to use
+	//  for each level / distance combination &
+	//  for each level / scale combination.
+	// -AJA- 1999/07/10: Reworked for colmap.ddf.
 
-  for (i = 0; i < LIGHTLEVELS; i++)
-  {
-    startmap = ((LIGHTLEVELS - 1 - i) * 2) * 256.0 / LIGHTLEVELS;
+	for (i = 0; i < LIGHTLEVELS; i++)
+	{
+		startmap = ((LIGHTLEVELS - 1 - i) * 2) * 256.0 / LIGHTLEVELS;
 
-    for (j = 0; j < MAXLIGHTZ; j++)
-    {
-      scale = 16 * 160.0 / (j + 1);
-      level = startmap - scale;
+		for (j = 0; j < MAXLIGHTZ; j++)
+		{
+			scale = 16 * 160.0 / (j + 1);
+			level = startmap - scale;
 
-      if (level < 0)
-        level = 0;
-      if (level > 255)
-        level = 255;
+			if (level < 0)
+				level = 0;
+			if (level > 255)
+				level = 255;
 
-      zlight[i][j] = 255 - level;
-    }
+			zlight[i][j] = 255 - level;
+		}
 
-    for (j = 0; j < MAXLIGHTSCALE; j++)
-    {
-      level = startmap - j * 192.0 / MAXLIGHTSCALE;
+		for (j = 0; j < MAXLIGHTSCALE; j++)
+		{
+			level = startmap - j * 192.0 / MAXLIGHTSCALE;
 
-      if (level < 0)
-        level = 0;
-      if (level > 255)
-        level = 255;
+			if (level < 0)
+				level = 0;
+			if (level > 255)
+				level = 255;
 
-      scalelight[i][j] = 255 - level;
-    }
-  }
+			scalelight[i][j] = 255 - level;
+		}
+	}
 }
 
 // Can currently only be R_Render_Standard.
@@ -454,47 +454,47 @@ void (*R_Render) (void) = R_Render_Standard;
 //
 // The change will take effect next refresh.
 
-boolean_t setsizeneeded;
+bool setsizeneeded;
 int setblocks;
-boolean_t setresfailed = false;
+bool setresfailed = false;
 int use_3d_mode;
 
 void R_SetViewSize(int blocks)
 {
-  setsizeneeded = true;
+	setsizeneeded = true;
 
-  setblocks = blocks;
+	setblocks = blocks;
 }
 
-static void InitViews(viewbitmap_t * vb, flo_t xoffset)
+static void InitViews(viewbitmap_t * vb, float xoffset)
 {
-  const char *s;
-  aspect_t *a;
+	const char *s;
+	aspect_t *a;
 
-  // -ES- 1999/03/19 Use focusx & focusy, for asymmetric fovs.
-  focusxfrac = leftslope * viewwidth / (leftslope - rightslope) + xoffset;
+	// -ES- 1999/03/19 Use focusx & focusy, for asymmetric fovs.
+	focusxfrac = leftslope * viewwidth / (leftslope - rightslope) + xoffset;
 
-  // Unit scale at distance distunit.
-  x_distunit = viewwidth / (leftslope - rightslope);
+	// Unit scale at distance distunit.
+	x_distunit = viewwidth / (leftslope - rightslope);
 
-  a = R_CreateAspect(vb,
-      x_distunit, y_distunit,
-      focusxfrac,
-      topslope, bottomslope,
-      viewwidth, viewheight);
+	a = R_CreateAspect(vb,
+		x_distunit, y_distunit,
+		focusxfrac,
+		topslope, bottomslope,
+		viewwidth, viewheight);
 
-  // first of all, create the psprite view, but only if viewanglebaseoffset == 0
-  if (viewanglebaseoffset == 0)
-    R_CreateView(vb, a, 0, 0, camera, VRF_PSPR, 100);
+	// first of all, create the psprite view, but only if viewanglebaseoffset == 0
+	if (viewanglebaseoffset == 0)
+		R_CreateView(vb, a, 0, 0, camera, VRF_PSPR, 100);
 
-  s = M_GetParm("-screencomp");
-  if (s)
-  {
-    screencomposition = atoi(s);
-  }
+	s = M_GetParm("-screencomp");
+	if (s)
+	{
+		screencomposition = atoi(s);
+	}
 
-  // now create the "real" views...
-  screencomplist[screencomposition].routine(vb);
+	// now create the "real" views...
+	screencomplist[screencomposition].routine(vb);
 }
 
 //
@@ -502,118 +502,118 @@ static void InitViews(viewbitmap_t * vb, flo_t xoffset)
 //
 void R_ExecuteSetViewSize(void)
 {
-  flo_t slopeoffset;
-  int sbar_height;
+	float slopeoffset;
+	int sbar_height;
 
-  setsizeneeded = false;
-  redrawsbar = true;
+	setsizeneeded = false;
+	redrawsbar = true;
 
-  sbar_height = FROM_200(ST_HEIGHT);
-  
-  if (setblocks == 11 || background_camera_mo)
-  {
-    viewwidth  = SCREENWIDTH;
-    viewheight = SCREENHEIGHT;
-  }
-  else
-  {
-    viewwidth  = (setblocks * SCREENWIDTH / 10) & ~7;
+	sbar_height = FROM_200(ST_HEIGHT);
 
-    // Fixes 400x300 etc.
-    if (setblocks == 10)
-      viewheight = SCREENHEIGHT - sbar_height;
-    else
-      viewheight = (setblocks * (SCREENHEIGHT - sbar_height) / 10) & ~7;
-  }
+	if (setblocks == 11 || background_camera_mo)
+	{
+		viewwidth  = SCREENWIDTH;
+		viewheight = SCREENHEIGHT;
+	}
+	else
+	{
+		viewwidth  = (setblocks * SCREENWIDTH / 10) & ~7;
 
-  viewwindowwidth  = viewwidth;
-  viewwindowheight = viewheight;
-  viewwindowx = (SCREENWIDTH - viewwindowwidth) / 2;
+		// Fixes 400x300 etc.
+		if (setblocks == 10)
+			viewheight = SCREENHEIGHT - sbar_height;
+		else
+			viewheight = (setblocks * (SCREENHEIGHT - sbar_height) / 10) & ~7;
+	}
 
-  if (viewwidth == SCREENWIDTH)
-    viewwindowy = 0;
-  else
-    viewwindowy = (SCREENHEIGHT - sbar_height - viewheight) / 2;
+	viewwindowwidth  = viewwidth;
+	viewwindowheight = viewheight;
+	viewwindowx = (SCREENWIDTH - viewwindowwidth) / 2;
 
-  leftslope = M_Tan(leftangle << ANGLETOFINESHIFT);
-  rightslope = M_Tan(rightangle << ANGLETOFINESHIFT);
+	if (viewwidth == SCREENWIDTH)
+		viewwindowy = 0;
+	else
+		viewwindowy = (SCREENHEIGHT - sbar_height - viewheight) / 2;
 
-  slopeoffset = M_Tan((FIELDOFVIEW / 2) << ANGLETOFINESHIFT) * aspect_ratio;
-  slopeoffset = slopeoffset * viewwindowheight / viewwindowwidth;
-  slopeoffset = slopeoffset * SCREENWIDTH / SCREENHEIGHT;
+	leftslope = M_Tan(leftangle << ANGLETOFINESHIFT);
+	rightslope = M_Tan(rightangle << ANGLETOFINESHIFT);
 
-  topslope = slopeoffset;
-  bottomslope = -slopeoffset;
+	slopeoffset = M_Tan((FIELDOFVIEW / 2) << ANGLETOFINESHIFT) * aspect_ratio;
+	slopeoffset = slopeoffset * viewwindowheight / viewwindowwidth;
+	slopeoffset = slopeoffset * SCREENWIDTH / SCREENHEIGHT;
 
-  y_distunit = viewwindowheight / (topslope - bottomslope);
-  focusyfrac = viewwindowheight * topslope / (topslope - bottomslope);
+	topslope = slopeoffset;
+	bottomslope = -slopeoffset;
 
-  if (use_3d_mode && SCREENBITS == 16)
-  {
-    static camera_t *leftc, *rightc;
+	y_distunit = viewwindowheight / (topslope - bottomslope);
+	focusyfrac = viewwindowheight * topslope / (topslope - bottomslope);
 
-    if (screenvb)
-      R_DestroyViewBitmap(screenvb);
+	if (use_3d_mode && SCREENBITS == 16)
+	{
+		static camera_t *leftc, *rightc;
 
-    if (rightvb)
-      R_DestroyViewBitmap(rightvb);
+		if (screenvb)
+			R_DestroyViewBitmap(screenvb);
 
-    rightvb = R_CreateViewBitmap(viewwindowwidth, viewwindowheight, BPP, NULL, 0, 0);
-    screenvb = R_CreateViewBitmap(viewwindowwidth, viewwindowheight, BPP, main_scr, viewwindowx, viewwindowy);
+		if (rightvb)
+			R_DestroyViewBitmap(rightvb);
 
-    R_InitVB_3D_Right(rightvb, screenvb);
+		rightvb = R_CreateViewBitmap(viewwindowwidth, viewwindowheight, BPP, NULL, 0, 0);
+		screenvb = R_CreateViewBitmap(viewwindowwidth, viewwindowheight, BPP, main_scr, viewwindowx, viewwindowy);
 
-    if (!leftc)
-    {
-      leftc = R_CreateCamera();
-      R_InitCamera_3D_Left(leftc);
-      rightc = R_CreateCamera();
-      R_InitCamera_3D_Right(rightc);
-    }
+		R_InitVB_3D_Right(rightvb, screenvb);
 
-    camera = leftc;
-    InitViews(screenvb, 4.0);
-    camera = rightc;
-    InitViews(rightvb, -4.0);
+		if (!leftc)
+		{
+			leftc = R_CreateCamera();
+			R_InitCamera_3D_Left(leftc);
+			rightc = R_CreateCamera();
+			R_InitCamera_3D_Right(rightc);
+		}
 
-    R_InitVB_3D_Left(rightvb, screenvb);
-  }
-  else
-  {
-    // -AJA- FIXME: cameras should be renewed when starting a new
-    //       level (since there will be new mobjs).
+		camera = leftc;
+		InitViews(screenvb, 4.0);
+		camera = rightc;
+		InitViews(rightvb, -4.0);
 
-    // -AJA- 1999/10/22: background cameras.  This code really sucks
-    //       arse, needs improving.
-    if (background_camera_mo && !background_camera)
-    {
-      background_camera = R_CreateCamera();
-      R_InitCamera_StdObject(background_camera, background_camera_mo);
-      camera = background_camera;
-    }
+		R_InitVB_3D_Left(rightvb, screenvb);
+	}
+	else
+	{
+		// -AJA- FIXME: cameras should be renewed when starting a new
+		//       level (since there will be new mobjs).
 
-    if (!camera || (background_camera && !background_camera_mo))
-    {
-      camera = R_CreateCamera();
-      R_InitCamera_StdPlayer(camera);
-      background_camera = NULL;
-    }
+		// -AJA- 1999/10/22: background cameras.  This code really sucks
+		//       arse, needs improving.
+		if (background_camera_mo && !background_camera)
+		{
+			background_camera = R_CreateCamera();
+			R_InitCamera_StdObject(background_camera, background_camera_mo);
+			camera = background_camera;
+		}
 
-    if (screenvb)
-      R_DestroyViewBitmap(screenvb);
+		if (!camera || (background_camera && !background_camera_mo))
+		{
+			camera = R_CreateCamera();
+			R_InitCamera_StdPlayer(camera);
+			background_camera = NULL;
+		}
 
-    screenvb = R_CreateViewBitmap(viewwindowwidth, viewwindowheight, BPP, 
-        main_scr, 0, 0); //!!!! viewwindowx, viewwindowy);
+		if (screenvb)
+			R_DestroyViewBitmap(screenvb);
 
-    InitViews(screenvb, 0);
-  }
+		screenvb = R_CreateViewBitmap(viewwindowwidth, viewwindowheight, BPP, 
+			main_scr, 0, 0); //!!!! viewwindowx, viewwindowy);
 
-  R_SetActiveViewBitmap(screenvb);
+		InitViews(screenvb, 0);
+	}
 
-  pspritescale = (flo_t)(viewwindowwidth / 320.0);
-  pspriteiscale = (flo_t)(320.0 / viewwindowwidth);
-  pspritescale2 = ((flo_t)SCREENHEIGHT / SCREENWIDTH) * viewwindowwidth / 200;
-  pspriteiscale2 = ((flo_t)SCREENWIDTH / SCREENHEIGHT) * 200 / viewwindowwidth;
+	R_SetActiveViewBitmap(screenvb);
+
+	pspritescale = (float)(viewwindowwidth / 320.0);
+	pspriteiscale = (float)(320.0 / viewwindowwidth);
+	pspritescale2 = ((float)SCREENHEIGHT / SCREENWIDTH) * viewwindowwidth / 200;
+	pspriteiscale2 = ((float)SCREENWIDTH / SCREENHEIGHT) * 200 / viewwindowwidth;
 
 }
 
@@ -624,37 +624,37 @@ void R_ExecuteSetViewSize(void)
 // -ES- 1999/03/28 Added This
 void R_SetFOV(angle_t fov)
 {
-  // can't change fov to angle below 5 or above 175 deg (approx). Round so
-  // that 5 and 175 are allowed for sure.
-  if (fov < ANG90 / 18)
-    fov = ANG90 / 18;
-  if (fov > ((ANG90 + 17) / 18) * 35)
-    fov = ANG90 / 18 * 35;
+	// can't change fov to angle below 5 or above 175 deg (approx). Round so
+	// that 5 and 175 are allowed for sure.
+	if (fov < ANG90 / 18)
+		fov = ANG90 / 18;
+	if (fov > ((ANG90 + 17) / 18) * 35)
+		fov = ANG90 / 18 * 35;
 
-  setsizeneeded = true;
+	setsizeneeded = true;
 
-  fov = fov >> ANGLETOFINESHIFT;  // convert to fineangle format
+	fov = fov >> ANGLETOFINESHIFT;  // convert to fineangle format
 
-  leftangle = fov / 2;
-  rightangle = (fov/2)*-1; // -ACB- 1999/09/27 Fixed MSVC Compiler Problem
-  FIELDOFVIEW = leftangle - rightangle;
+	leftangle = fov / 2;
+	rightangle = (fov/2)*-1; // -ACB- 1999/09/27 Fixed MSVC Compiler Problem
+	FIELDOFVIEW = leftangle - rightangle;
 }
 
 void R_SetNormalFOV(angle_t newfov)
 {
-  menunormalfov = (newfov - ANG45 / 18) / (ANG45 / 9);
-  cfgnormalfov = (newfov + ANG45 / 90) / (ANG180 / 180);
-  normalfov = newfov;
-  if (!viewiszoomed)
-    R_SetFOV(normalfov);
+	menunormalfov = (newfov - ANG45 / 18) / (ANG45 / 9);
+	cfgnormalfov = (newfov + ANG45 / 90) / (ANG180 / 180);
+	normalfov = newfov;
+	if (!viewiszoomed)
+		R_SetFOV(normalfov);
 }
 void R_SetZoomedFOV(angle_t newfov)
 {
-  menuzoomedfov = (newfov - ANG45 / 18) / (ANG45 / 9);
-  cfgzoomedfov = (newfov + ANG45 / 90) / (ANG180 / 180);
-  zoomedfov = newfov;
-  if (viewiszoomed)
-    R_SetFOV(zoomedfov);
+	menuzoomedfov = (newfov - ANG45 / 18) / (ANG45 / 9);
+	cfgzoomedfov = (newfov + ANG45 / 90) / (ANG180 / 180);
+	zoomedfov = newfov;
+	if (viewiszoomed)
+		R_SetFOV(zoomedfov);
 }
 
 //
@@ -664,18 +664,18 @@ void R_SetZoomedFOV(angle_t newfov)
 //
 // -ES- 1998/08/20 Added this
 //
-boolean_t changeresneeded = false;
+bool changeresneeded = false;
 static screenmode_t setMode;
 
-void R_ChangeResolution(int width, int height, int depth, boolean_t windowed)
+void R_ChangeResolution(int width, int height, int depth, bool windowed)
 {
-  changeresneeded = true;
-  setsizeneeded = true;  // need to re-init some stuff
+	changeresneeded = true;
+	setsizeneeded = true;  // need to re-init some stuff
 
-  setMode.width    = width;
-  setMode.height   = height;
-  setMode.depth    = depth;
-  setMode.windowed = windowed;
+	setMode.width    = width;
+	setMode.height   = height;
+	setMode.depth    = depth;
+	setMode.windowed = windowed;
 }
 
 //
@@ -687,174 +687,174 @@ void R_ChangeResolution(int width, int height, int depth, boolean_t windowed)
 //
 // -ES- 1999/04/05 Changed this to work with the viewbitmap system
 //
-static boolean_t DoExecuteChangeResolution(void)
+static bool DoExecuteChangeResolution(void)
 {
-  static boolean_t init_rend = false;
-  changeresneeded = false;
+	static bool init_rend = false;
+	changeresneeded = false;
 
-  SCREENWIDTH  = setMode.width;
-  SCREENHEIGHT = setMode.height;
-  SCREENBITS   = setMode.depth;
-  SCREENWINDOW = setMode.windowed;
+	SCREENWIDTH  = setMode.width;
+	SCREENHEIGHT = setMode.height;
+	SCREENBITS   = setMode.depth;
+	SCREENWINDOW = setMode.windowed;
 
-  // -ACB- 1999/09/20
-  // parameters needed for I_SetScreenMode - returns false on failure
-  if (! I_SetScreenSize(&setMode))
-  {
-    // wait one second before changing res again, gfx card doesn't like to
-    // switch mode too rapidly
-    int tics = I_GetTime() + TICRATE;
-    while (tics >= I_GetTime())
-    { /* nothing */ }
+	// -ACB- 1999/09/20
+	// parameters needed for I_SetScreenMode - returns false on failure
+	if (! I_SetScreenSize(&setMode))
+	{
+		// wait one second before changing res again, gfx card doesn't like to
+		// switch mode too rapidly
+		int tics = I_GetTime() + TICRATE;
+		while (tics >= I_GetTime())
+		{ /* nothing */ }
 
-    // something was wrong, check if memory is corrupt
-    Z_CheckHeap();
+		// something was wrong, check if memory is corrupt
+		Z_CheckHeap();
 
-    return false;
-  }
+		return false;
+	}
 
-  // -ES- 2000-08-14 The resolution is obviously available.
-  // In some situations, it might however not yet be available in the
-  // screenmode list.
-  V_AddAvailableResolution(&setMode);
+	// -ES- 2000-08-14 The resolution is obviously available.
+	// In some situations, it might however not yet be available in the
+	// screenmode list.
+	V_AddAvailableResolution(&setMode);
 
-  V_InitResolution();
+	V_InitResolution();
 
-  // -AJA- 1999/07/01: Setup colour tables.
-  V_InitColour();
+	// -AJA- 1999/07/01: Setup colour tables.
+	V_InitColour();
 
-  if (! init_rend)
-  {
+	if (! init_rend)
+	{
 #ifdef USE_GL
-    RGL_Init();
+		RGL_Init();
 #else
-    R2_Init();
+		R2_Init();
 #endif
-    
-    init_rend = true;
-  }
 
-///!!!! -AJA- FIXME: clean up (move into R2_NewScreenSize)
-  {
-    int i;
+		init_rend = true;
+	}
 
-    Z_Resize(columnofs, int, SCREENWIDTH);
-    Z_Resize(ylookup, byte *, SCREENHEIGHT);
+	///!!!! -AJA- FIXME: clean up (move into R2_NewScreenSize)
+	{
+		int i;
 
-    for (i=0; i < SCREENWIDTH; i++)
-      columnofs[i] = i * BPP;
+		Z_Resize(columnofs, int, SCREENWIDTH);
+		Z_Resize(ylookup, byte *, SCREENHEIGHT);
 
-    for (i=0; i < SCREENHEIGHT; i++)
-      ylookup[i] = main_scr->data + i * main_scr->pitch;
-  }
+		for (i=0; i < SCREENWIDTH; i++)
+			columnofs[i] = i * BPP;
 
-  vctx.NewScreenSize(SCREENWIDTH, SCREENHEIGHT, BPP);
+		for (i=0; i < SCREENHEIGHT; i++)
+			ylookup[i] = main_scr->data + i * main_scr->pitch;
+	}
 
-  // -ES- 1999/08/29 Fixes the garbage palettes, and the blank 16-bit console
-  V_SetPalette(PALETTE_NORMAL, 0);
-  V_ColourNewFrame();
+	vctx.NewScreenSize(SCREENWIDTH, SCREENHEIGHT, BPP);
 
-  // -ES- 1999/08/20 Update GUI (resize stuff etc)
-  GUI_InitResolution();
+	// -ES- 1999/08/29 Fixes the garbage palettes, and the blank 16-bit console
+	V_SetPalette(PALETTE_NORMAL, 0);
+	V_ColourNewFrame();
 
-  // re-initialise various bits of GL state
+	// -ES- 1999/08/20 Update GUI (resize stuff etc)
+	GUI_InitResolution();
+
+	// re-initialise various bits of GL state
 #ifdef USE_GL
-  RGL_SoftInit();
-  W_ResetImages();
+	RGL_SoftInit();
+	W_ResetImages();
 #endif
 
-  graphicsmode = true;
+	graphicsmode = true;
 
-  // -AJA- 1999/07/03: removed PLAYPAL reference.
-  return true;
+	// -AJA- 1999/07/03: removed PLAYPAL reference.
+	return true;
 }
 
 void R_ExecuteChangeResolution(void)
 {
-  int i, j, idx;
-  screenmode_t wantedMode;
-  screenmode_t oldMode;
-  screenmode_t mode320 = { 320, 200, 8, false };
+	int i, j, idx;
+	screenmode_t wantedMode;
+	screenmode_t oldMode;
+	screenmode_t mode320 = { 320, 200, 8, false };
 
-  wantedMode = setMode;
-  
-  oldMode.width    = SCREENWIDTH;
-  oldMode.height   = SCREENHEIGHT;
-  oldMode.depth    = SCREENBITS;
-  oldMode.windowed = SCREENWINDOW;
+	wantedMode = setMode;
 
-  // -ACB- 1999/09/21 false on failure - logical.
-  if (DoExecuteChangeResolution())
-  {
-    setresfailed = false;
-    return;
-  }
+	oldMode.width    = SCREENWIDTH;
+	oldMode.height   = SCREENHEIGHT;
+	oldMode.depth    = SCREENBITS;
+	oldMode.windowed = SCREENWINDOW;
 
-  setresfailed = true;
+	// -ACB- 1999/09/21 false on failure - logical.
+	if (DoExecuteChangeResolution())
+	{
+		setresfailed = false;
+		return;
+	}
 
-  setMode = oldMode;
-  setsizeneeded = true;
+	setresfailed = true;
 
-  if (DoExecuteChangeResolution())
-    return;
+	setMode = oldMode;
+	setsizeneeded = true;
 
-  // couldn't even reset to old resolution. Perhaps they were the same.
-  // Try 320x200 as second last resort.  Do a major loop over
-  // windowing flag, e.g. so if all fullscreen modes fail we switch to
-  // trying the windowing ones.
+	if (DoExecuteChangeResolution())
+		return;
 
-  for (j=0; j < 2; j++, SCREENWINDOW = !SCREENWINDOW)
-  {
-    mode320.windowed = SCREENWINDOW;
-    idx = V_FindClosestResolution(&mode320, false, false);
+	// couldn't even reset to old resolution. Perhaps they were the same.
+	// Try 320x200 as second last resort.  Do a major loop over
+	// windowing flag, e.g. so if all fullscreen modes fail we switch to
+	// trying the windowing ones.
 
-    if (idx == -1)
-      continue;
+	for (j=0; j < 2; j++, SCREENWINDOW = !SCREENWINDOW)
+	{
+		mode320.windowed = SCREENWINDOW;
+		idx = V_FindClosestResolution(&mode320, false, false);
 
-    setMode = scrmode[idx];
-    setsizeneeded = true;
+		if (idx == -1)
+			continue;
 
-    I_Warning("Requested mode not available.  Trying %dx%dx%dc %s...\n",
-        setMode.width, setMode.height, 1 << setMode.depth,
-        setMode.windowed ? "(Windowed)" : "(Fullscreen)");
-     
-    if (DoExecuteChangeResolution())
-      return;
+		setMode = scrmode[idx];
+		setsizeneeded = true;
 
-    // Should not happen, that mode was in the avail list. 
-    // Last ditch effort: try all other modes in avail list.
+		I_Warning("Requested mode not available.  Trying %dx%dx%dc %s...\n",
+			setMode.width, setMode.height, 1 << setMode.depth,
+			setMode.windowed ? "(Windowed)" : "(Fullscreen)");
 
-    for (i=0; i < numscrmodes; i++)
-    {
-      if (scrmode[i].windowed != SCREENWINDOW)
-        continue;
+		if (DoExecuteChangeResolution())
+			return;
 
-      setMode = scrmode[i];
-      setsizeneeded = true;
+		// Should not happen, that mode was in the avail list. 
+		// Last ditch effort: try all other modes in avail list.
 
-      // ignore ones we've already tried
-      if (i == idx)
-        continue;
-      
-      if (V_CompareModes(&setMode, &wantedMode) == 0)
-        continue;
+		for (i=0; i < numscrmodes; i++)
+		{
+			if (scrmode[i].windowed != SCREENWINDOW)
+				continue;
 
-      if (V_CompareModes(&setMode, &oldMode) == 0)
-        continue;
+			setMode = scrmode[i];
+			setsizeneeded = true;
 
-      I_Warning("Requested mode not available.  Trying %dx%dx%dc %s...\n",
-          setMode.width, setMode.height, 1 << setMode.depth,
-          setMode.windowed ? "(Windowed)" : "(Fullscreen)");
-     
-      if (DoExecuteChangeResolution())
-        return;
-    }
-  }
+			// ignore ones we've already tried
+			if (i == idx)
+				continue;
 
-  // Ouch. Nothing worked! Quit.
+			if (V_CompareModes(&setMode, &wantedMode) == 0)
+				continue;
 
-  I_Error(DDF_LanguageLookup("ModeSelErrT"), SCREENWIDTH, SCREENHEIGHT, 
-        1 << SCREENBITS);
+			if (V_CompareModes(&setMode, &oldMode) == 0)
+				continue;
+
+			I_Warning("Requested mode not available.  Trying %dx%dx%dc %s...\n",
+				setMode.width, setMode.height, 1 << setMode.depth,
+				setMode.windowed ? "(Windowed)" : "(Fullscreen)");
+
+			if (DoExecuteChangeResolution())
+				return;
+		}
+	}
+
+	// Ouch. Nothing worked! Quit.
+
+	I_Error(DDF_LanguageLookup("ModeSelErrT"), SCREENWIDTH, SCREENHEIGHT, 
+		1 << SCREENBITS);
 }
 
 //
@@ -862,87 +862,87 @@ void R_ExecuteChangeResolution(void)
 //
 // Called once at startup, to initialise some rendering stuff.
 //
-boolean_t R_Init(void)
+bool R_Init(void)
 {
-  R_SetViewSize(screenblocks);
-  I_Printf(".");
-  InitLightTables();
-  I_Printf(".");
-  I_Printf(".");
-  R_SetNormalFOV((angle_t)(cfgnormalfov * (angle_t)((flo_t)ANG45 / 45.0)));
-  I_Printf(".");
-  R_SetZoomedFOV((angle_t)(cfgzoomedfov * (angle_t)((flo_t)ANG45 / 45.0)));
-  I_Printf(".");
-  R_SetFOV(normalfov);
-  I_Printf(".");
-  framecount = 0;
+	R_SetViewSize(screenblocks);
+	I_Printf(".");
+	InitLightTables();
+	I_Printf(".");
+	I_Printf(".");
+	R_SetNormalFOV((angle_t)(cfgnormalfov * (angle_t)((float)ANG45 / 45.0)));
+	I_Printf(".");
+	R_SetZoomedFOV((angle_t)(cfgzoomedfov * (angle_t)((float)ANG45 / 45.0)));
+	I_Printf(".");
+	R_SetFOV(normalfov);
+	I_Printf(".");
+	framecount = 0;
 
-  return true;
+	return true;
 }
 
 //
 // R_PointInSubsector
 //
-subsector_t *R_PointInSubsector(flo_t x, flo_t y)
+subsector_t *R_PointInSubsector(float x, float y)
 {
-  node_t *node;
-  int side;
-  int nodenum;
+	node_t *node;
+	int side;
+	int nodenum;
 
-  nodenum = root_node;
+	nodenum = root_node;
 
-  while (!(nodenum & NF_SUBSECTOR))
-  {
-    node = &nodes[nodenum];
-    side = P_PointOnDivlineSide(x, y, &node->div);
-    nodenum = node->children[side];
-  }
+	while (!(nodenum & NF_SUBSECTOR))
+	{
+		node = &nodes[nodenum];
+		side = P_PointOnDivlineSide(x, y, &node->div);
+		nodenum = node->children[side];
+	}
 
-  return &subsectors[nodenum & ~NF_SUBSECTOR];
+	return &subsectors[nodenum & ~NF_SUBSECTOR];
 }
 
 //
 // R_PointGetProps
 //
-region_properties_t *R_PointGetProps(subsector_t *sub, flo_t z)
+region_properties_t *R_PointGetProps(subsector_t *sub, float z)
 {
-  extrafloor_t *S, *L, *C;
-  flo_t floor_h;
+	extrafloor_t *S, *L, *C;
+	float floor_h;
 
-  // traverse extrafloors upwards
- 
-  floor_h = sub->sector->f_h;
+	// traverse extrafloors upwards
 
-  S = sub->sector->bottom_ef;
-  L = sub->sector->bottom_liq;
+	floor_h = sub->sector->f_h;
 
-  while (S || L)
-  {
-    if (!L || (S && S->bottom_h < L->bottom_h))
-    {
-      C = S;  S = S->higher;
-    }
-    else
-    {
-      C = L;  L = L->higher;
-    }
+	S = sub->sector->bottom_ef;
+	L = sub->sector->bottom_liq;
 
-    DEV_ASSERT2(C);
+	while (S || L)
+	{
+		if (!L || (S && S->bottom_h < L->bottom_h))
+		{
+			C = S;  S = S->higher;
+		}
+		else
+		{
+			C = L;  L = L->higher;
+		}
 
-    // ignore liquids in the middle of THICK solids, or below real
-    // floor or above real ceiling
-    //
-    if (C->bottom_h < floor_h || C->bottom_h > sub->sector->c_h)
-      continue;
-    
-    if (z < C->top_h)
-      return C->p;
+		DEV_ASSERT2(C);
 
-    floor_h = C->top_h;
-  }
+		// ignore liquids in the middle of THICK solids, or below real
+		// floor or above real ceiling
+		//
+		if (C->bottom_h < floor_h || C->bottom_h > sub->sector->c_h)
+			continue;
 
-  // extrafloors were exhausted, must be top area
-  return sub->sector->p;
+		if (z < C->top_h)
+			return C->p;
+
+		floor_h = C->top_h;
+	}
+
+	// extrafloors were exhausted, must be top area
+	return sub->sector->p;
 }
 
 int telept_effect = 0;
@@ -951,14 +951,14 @@ int telept_reverse = 0;
 
 void R_StartFading(int start, int range)
 {
-  telept_wipeinfo = WIPE_InitWipe(&screenvb->screen, 0, 0,
-      &screenvb->screen, 0, 0, true,
-      &screenvb->screen, 0, 0, false,
-      viewwindowwidth, viewwindowheight, telept_wipeinfo,
-      range, telept_reverse, (wipetype_e)telept_effect);
+	telept_wipeinfo = WIPE_InitWipe(&screenvb->screen, 0, 0,
+		&screenvb->screen, 0, 0, true,
+		&screenvb->screen, 0, 0, false,
+		viewwindowwidth, viewwindowheight, telept_wipeinfo,
+		range, telept_reverse, (wipetype_e)telept_effect);
 
-  telept_active = true;
-  telept_starttic = start + leveltime;
+	telept_active = true;
+	telept_starttic = start + leveltime;
 }
 
 //
@@ -969,15 +969,15 @@ void R_StartFading(int start, int range)
 //
 static void SetupFrame(camera_t * camera, view_t * v)
 {
-  // init all the globals
-  R_CallCallbackList(camera->frame_start);
+	// init all the globals
+	R_CallCallbackList(camera->frame_start);
 
-  // do some more stuff
-  viewsin = M_Sin(viewangle);
-  viewcos = M_Cos(viewangle);
+	// do some more stuff
+	viewsin = M_Sin(viewangle);
+	viewcos = M_Cos(viewangle);
 
-  framecount++;
-  validcount++;
+	framecount++;
+	validcount++;
 }
 
 //
@@ -985,70 +985,70 @@ static void SetupFrame(camera_t * camera, view_t * v)
 //
 void R_RenderViewBitmap(viewbitmap_t * vb)
 {
-  view_t *v;
-  aspect_t *a;
+	view_t *v;
+	aspect_t *a;
 
-  colfunc = basecolfunc = R_DrawColumn;
-  fuzzcolfunc = R_DrawFuzzColumn;
-  transcolfunc = R_DrawTranslatedColumn;
-  spanfunc = R_DrawSpan;
-  trans_spanfunc = R_DrawTranslucentSpan;
+	colfunc = basecolfunc = R_DrawColumn;
+	fuzzcolfunc = R_DrawFuzzColumn;
+	transcolfunc = R_DrawTranslatedColumn;
+	spanfunc = R_DrawSpan;
+	trans_spanfunc = R_DrawTranslucentSpan;
 
-  R_CallCallbackList(vb->frame_start);
+	R_CallCallbackList(vb->frame_start);
 
-  R_SetActiveViewBitmap(vb);
+	R_SetActiveViewBitmap(vb);
 
-  for (v = vb->views; v; v = v->vbnext)
-  {
-    a = v->aspect;
+	for (v = vb->views; v; v = v->vbnext)
+	{
+		a = v->aspect;
 
-    SetupFrame(v->camera, v);
+		SetupFrame(v->camera, v);
 
-    R_AspectChangeY(a, a->y_distunit, viewvertangle);
+		R_AspectChangeY(a, a->y_distunit, viewvertangle);
 
-    R_CallCallbackList(v->frame_start);
+		R_CallCallbackList(v->frame_start);
 
-    R_SetActiveView(v);
+		R_SetActiveView(v);
 
-    // we don't need to do anything if the view is invisible
-    // we still have to call frame_end though, in case it would be used for
-    // some sort of cleanup after frame_start, or if it would change something
-    // in the view.
-    if (v->screen.width > 0 && v->screen.height > 0)
-    {
-      if (v->renderflags & VRF_VIEW)
-      {
-        // -ES- FIXME: Clean up renderflags stuff.
-        // Each view should have its own renderer, which can be truebsp,
-        // non-truebsp or psprite. Needs cleanup of code.
+		// we don't need to do anything if the view is invisible
+		// we still have to call frame_end though, in case it would be used for
+		// some sort of cleanup after frame_start, or if it would change something
+		// in the view.
+		if (v->screen.width > 0 && v->screen.height > 0)
+		{
+			if (v->renderflags & VRF_VIEW)
+			{
+				// -ES- FIXME: Clean up renderflags stuff.
+				// Each view should have its own renderer, which can be truebsp,
+				// non-truebsp or psprite. Needs cleanup of code.
 
-        // check for new console commands.
-        E_NetUpdate();
-  
+				// check for new console commands.
+				E_NetUpdate();
+
 #ifdef USE_GL
-        RGL_RenderTrueBSP();
+				RGL_RenderTrueBSP();
 #else
-        R2_RenderTrueBSP();
+				R2_RenderTrueBSP();
 #endif
-        // Check for new console commands.
-        E_NetUpdate();
-      }
+				// Check for new console commands.
+				E_NetUpdate();
+			}
 #ifndef USE_GL
-      if (v->renderflags & VRF_PSPR && v->camera->view_obj->player)
-      {
-        // Draw the player sprites.
-        // -ES- 1999/05/27 Moved psprite code here.
-        focusyfrac = (flo_t)viewheight / 2;
+			if (v->renderflags & VRF_PSPR && v->camera->view_obj->player)
+			{
+				// Draw the player sprites.
+				// -ES- 1999/05/27 Moved psprite code here.
+				focusyfrac = (float)viewheight / 2;
 
-        R2_DrawPlayerSprites(v->camera->view_obj->player);
-      }
+				R2_DrawPlayerSprites(v->camera->view_obj->player);
+			}
 #endif
-    }
-    R_CallCallbackList(v->frame_end);
-    R_CallCallbackList(v->camera->frame_end);
-  }
+		}
+		R_CallCallbackList(v->frame_end);
+		R_CallCallbackList(v->camera->frame_end);
+	}
 
-  R_CallCallbackList(vb->frame_end);
+	R_CallCallbackList(vb->frame_end);
 }
 
 //
@@ -1060,20 +1060,20 @@ void R_RenderViewBitmap(viewbitmap_t * vb)
 //
 void R_SetActiveViewBitmap(viewbitmap_t * vb)
 {
-  if (curviewbmp == vb)
-    return;
+	if (curviewbmp == vb)
+		return;
 
-  curviewbmp = vb;
+	curviewbmp = vb;
 
-  vb_h = vb->screen.height;
-  vb_w = vb->screen.width;
+	vb_h = vb->screen.height;
+	vb_w = vb->screen.width;
 
-  // only need to re-init if pitch has changed.
-  if (vb->screen.pitch != vb_pitch)
-  {
-    vb_pitch = vb->screen.pitch;
-    I_PrepareAssembler();
-  }
+	// only need to re-init if pitch has changed.
+	if (vb->screen.pitch != vb_pitch)
+	{
+		vb_pitch = vb->screen.pitch;
+		I_PrepareAssembler();
+	}
 }
 
 //
@@ -1083,45 +1083,45 @@ void R_SetActiveViewBitmap(viewbitmap_t * vb)
 //
 void R_SetActiveView(view_t * v)
 {
-  aspect_t *a;
+	aspect_t *a;
 
-  curview = v;
+	curview = v;
 
-  a = v->aspect;
+	a = v->aspect;
 
-  // error if not the appropriate vb is used. Could call
-  // R_SetActiveViewBitmap instead, but you should always do that manually
-  // before calling this one.
-  if (v->parent != curviewbmp)
-    I_Error("R_SetActiveView: The wrong viewbitmap is used!");
+	// error if not the appropriate vb is used. Could call
+	// R_SetActiveViewBitmap instead, but you should always do that manually
+	// before calling this one.
+	if (v->parent != curviewbmp)
+		I_Error("R_SetActiveView: The wrong viewbitmap is used!");
 
-///!!!!  columnofs = v->columnofs;
-///!!!!  ylookup = v->ylookup;
+	///!!!!  columnofs = v->columnofs;
+	///!!!!  ylookup = v->ylookup;
 
-  viewwidth = v->screen.width;
-  viewheight = v->screen.height;
+	viewwidth = v->screen.width;
+	viewheight = v->screen.height;
 
-  focusxfrac = a->focusxfrac - (flo_t)v->aspect_x;
-  focusyfrac = a->focusyfrac - (flo_t)v->aspect_y;
+	focusxfrac = a->focusxfrac - (float)v->aspect_x;
+	focusyfrac = a->focusyfrac - (float)v->aspect_y;
 
-  viewangletox = v->viewangletox;
-  xtoviewangle = v->xtoviewangle;
+	viewangletox = v->viewangletox;
+	xtoviewangle = v->xtoviewangle;
 
-  distscale = v->distscale;
+	distscale = v->distscale;
 
-  yslope = v->yslope;
+	yslope = v->yslope;
 
-  topslope = a->topslope - (a->topslope - a->bottomslope) * v->aspect_y / a->maxheight;
-  bottomslope = a->topslope - (a->topslope - a->bottomslope) * (v->aspect_y + viewheight) / a->maxheight;
+	topslope = a->topslope - (a->topslope - a->bottomslope) * v->aspect_y / a->maxheight;
+	bottomslope = a->topslope - (a->topslope - a->bottomslope) * (v->aspect_y + viewheight) / a->maxheight;
 
 #ifndef USE_GL
-  topslope += a->fakefocusslope;
-  bottomslope += a->fakefocusslope;
+	topslope += a->fakefocusslope;
+	bottomslope += a->fakefocusslope;
 #endif
 
-  x_distunit = a->x_distunit;
-  y_distunit = a->y_distunit;
+	x_distunit = a->x_distunit;
+	y_distunit = a->y_distunit;
 
-  // This is no more time-critical, so it can be called every frame...
-  InitTextureMapping();
+	// This is no more time-critical, so it can be called every frame...
+	InitTextureMapping();
 }

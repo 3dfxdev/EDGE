@@ -200,8 +200,8 @@ static void DoWipe_Pixelfade(wipeparm_t * wp)
 
 typedef struct
 {
-  flo_t max;
-  flo_t yoffs[1];
+  float max;
+  float yoffs[1];
 }
 meltdata_t;
 
@@ -217,8 +217,8 @@ static void DoWipe_Melt(wipeparm_t * wp)
 {
   int y, h, x;
   meltdata_t *data = (meltdata_t*)wp->data;
-  flo_t *yoffs;
-  flo_t extray;
+  float *yoffs;
+  float extray;
   int bpp = wp->dest->bytepp;
   int width = wp->dest->width / 2 * bpp;
   int height = wp->dest->height;
@@ -267,19 +267,19 @@ static void DoWipe_Melt(wipeparm_t * wp)
 
 static void InitData_Melt(wipeparm_t * wp)
 {
-  flo_t *yoffs;
+  float *yoffs;
   int width = wp->dest->width / 2 * wp->dest->bytepp;
   meltdata_t *data;
   int x;
-  flo_t r;
-  flo_t max;
-  flo_t highest, lowest;
-  flo_t scale = (flo_t)(((3.0f * 8.0f * 320.0f / 200.0f / 256.0f) / wp->dest->bytepp) * wp->dest->height / wp->dest->width);
+  float r;
+  float max;
+  float highest, lowest;
+  float scale = (float)(((3.0f * 8.0f * 320.0f / 200.0f / 256.0f) / wp->dest->bytepp) * wp->dest->height / wp->dest->width);
 
-  wp->data = data = (meltdata_t *) Z_Malloc(sizeof(meltdata_t) + (width - 1) * sizeof(flo_t));
+  wp->data = data = (meltdata_t *) Z_Malloc(sizeof(meltdata_t) + (width - 1) * sizeof(float));
  
   yoffs = data->yoffs;
-  max = (flo_t)(wp->dest->height * (16.0f * 8.0f / 200.0f));
+  max = (float)(wp->dest->height * (16.0f * 8.0f / 200.0f));
 
   // keep track of top and bottom of the array
   highest = 0;

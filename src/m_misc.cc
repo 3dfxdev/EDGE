@@ -63,14 +63,14 @@ int cfgnormalfov;
 int cfgzoomedfov;
 
 // toggled by autorun button.
-boolean_t autorunning = false;
+bool autorunning = false;
 
-boolean_t display_disk = false;
+bool display_disk = false;
 static const image_t *disk_image = NULL;
 static const image_t *air_images[21] = { NULL, };
 
 unsigned short save_screenshot[160][100];
-boolean_t save_screenshot_valid = false;
+bool save_screenshot_valid = false;
 
 #ifdef LINUX
 char *mousetype;
@@ -283,7 +283,7 @@ static void WriteTGAFile(const char *filename, int width, int height,
 //
 // M_WriteFile
 //
-boolean_t M_WriteFile(char const *name, void *source, int length)
+bool M_WriteFile(char const *name, void *source, int length)
 {
 	int handle;
 	int count;
@@ -382,7 +382,7 @@ void M_SaveDefaults(void)
 //
 // M_LoadDefaults
 //
-boolean_t M_LoadDefaults(void)
+bool M_LoadDefaults(void)
 {
 	int i;
 	FILE *f;
@@ -390,7 +390,7 @@ boolean_t M_LoadDefaults(void)
 	char strparm[100];
 	char *newstring = 0;
 	int parm;
-	boolean_t isstring;
+	bool isstring;
 
 	// set everything to base values
 	numdefaults = sizeof(defaults) / sizeof(defaults[0]);
@@ -869,7 +869,7 @@ void L_WriteDebug(const char *message,...)
 // 
 int L_ConvertToDB(int volume, int min, int max)
 {
-	flo_t tmp;
+	float tmp;
 	int result;
 
 	DEV_ASSERT2(0 <= volume && volume <= 255);

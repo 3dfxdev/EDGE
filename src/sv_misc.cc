@@ -85,19 +85,19 @@ void SV_PlaneMoveCreateElems(int num_elems);
 void SV_PlaneMoveFinaliseElems(void);
 
 
-boolean_t SR_LightGetType(void *storage, int index, void *extra);
+bool SR_LightGetType(void *storage, int index, void *extra);
 void SR_LightPutType(void *storage, int index, void *extra);
 
-boolean_t SR_TriggerGetScript(void *storage, int index, void *extra);
+bool SR_TriggerGetScript(void *storage, int index, void *extra);
 void SR_TriggerPutScript(void *storage, int index, void *extra);
 
-boolean_t SR_TriggerGetState(void *storage, int index, void *extra);
+bool SR_TriggerGetState(void *storage, int index, void *extra);
 void SR_TriggerPutState(void *storage, int index, void *extra);
 
-boolean_t SR_TipGetString(void *storage, int index, void *extra);
+bool SR_TipGetString(void *storage, int index, void *extra);
 void SR_TipPutString(void *storage, int index, void *extra);
 
-boolean_t SR_PlaneMoveGetType(void *storage, int index, void *extra);
+bool SR_PlaneMoveGetType(void *storage, int index, void *extra);
 void SR_PlaneMovePutType(void *storage, int index, void *extra);
 
 
@@ -806,7 +806,7 @@ void SV_PlaneMoveFinaliseElems(void)
 //
 // SR_LightGetType
 //
-boolean_t SR_LightGetType(void *storage, int index, void *extra)
+bool SR_LightGetType(void *storage, int index, void *extra)
 {
 	const lighttype_t ** dest = (const lighttype_t **)storage + index;
 
@@ -899,7 +899,7 @@ void SR_LightPutType(void *storage, int index, void *extra)
 //
 // SR_TriggerGetState
 //
-boolean_t SR_TriggerGetState(void *storage, int index, void *extra)
+bool SR_TriggerGetState(void *storage, int index, void *extra)
 {
 	const rts_state_t ** dest = (const rts_state_t **)storage + index;
 	const rts_state_t *temp;
@@ -967,7 +967,7 @@ void SR_TriggerPutState(void *storage, int index, void *extra)
 //
 // SR_TriggerGetScript
 //
-boolean_t SR_TriggerGetScript(void *storage, int index, void *extra)
+bool SR_TriggerGetScript(void *storage, int index, void *extra)
 {
 	const rad_script_t ** dest = (const rad_script_t **)storage + index;
 	const rad_script_t *temp;
@@ -1103,7 +1103,7 @@ void SR_TriggerPutScript(void *storage, int index, void *extra)
 //
 // SR_TipGetString
 //
-boolean_t SR_TipGetString(void *storage, int index, void *extra)
+bool SR_TipGetString(void *storage, int index, void *extra)
 {
 	const char ** dest = (const char **)storage + index;
 
@@ -1128,12 +1128,12 @@ void SR_TipPutString(void *storage, int index, void *extra)
 //
 // SR_PlaneMoveGetType
 //
-boolean_t SR_PlaneMoveGetType(void *storage, int index, void *extra)
+bool SR_PlaneMoveGetType(void *storage, int index, void *extra)
 {
 	const moving_plane_t ** dest = (const moving_plane_t **)storage + index;
 
 	int number;
-	boolean_t is_ceil;
+	bool is_ceil;
 	const char *str;
 
 	str = SV_GetString();

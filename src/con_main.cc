@@ -58,7 +58,7 @@ int CON_CMDLeakInfo(const char *args);
 int CON_CMDCrc(const char *args);
 int CON_CMDPlaySound(const char *args);
 
-boolean_t CON_CMDHelloWorldResponder(gui_t * gui, guievent_t * ev);
+bool CON_CMDHelloWorldResponder(gui_t * gui, guievent_t * ev);
 
 // Current console commands.  Needs extending badly.
 // 'Builtin' commands should be added here
@@ -177,14 +177,14 @@ void CON_TryCommand(const char *cmd)
 
 int CON_CMDToggleMouse(const char *args)
 {
-  boolean_t vis = !GUI_MainGetMouseVisibility();
+  bool vis = !GUI_MainGetMouseVisibility();
 
   GUI_MainSetMouseVisibility(vis);
   CON_Printf("Mouse: %s\n", vis ? "on" : "off");
   return 0;
 }
 
-boolean_t CON_CMDHelloWorldResponder(gui_t * gui, guievent_t * ev)
+bool CON_CMDHelloWorldResponder(gui_t * gui, guievent_t * ev)
 {
   switch (ev->type)
   {
@@ -416,7 +416,7 @@ int CON_CMDSet(const char *args)
         }
         else if (!strcmp(argv[2], "true") || !strcmp(argv[2], "false"))
         {
-          boolean_t *b = Z_New(boolean_t, 1);
+          bool *b = Z_New(bool, 1);
 
           *b = !strcmp(argv[2], "true");
           CON_CreateCVarBool(argv[1], (cflag_t) (cf_delete|cf_mem|cf_normal), b);

@@ -59,8 +59,8 @@ typedef struct botcmd_s
 
 	union
 	{
-		struct {flo_t x,y;} xyz;
-		struct {angle_t angle; flo_t distance;} dir;
+		struct {float x,y;} xyz;
+		struct {angle_t angle; float distance;} dir;
 		mobj_t *mo;
 	} 
 	followobj;
@@ -71,8 +71,8 @@ typedef struct botcmd_s
 
 	union
 	{
-		struct {flo_t x,y,z;} xyz;
-		struct {angle_t angle; flo_t slope;} angle;
+		struct {float x,y,z;} xyz;
+		struct {angle_t angle; float slope;} angle;
 		mobj_t *mo;
 	}
 	faceobj;
@@ -80,10 +80,10 @@ typedef struct botcmd_s
 	// The weapon we want to use. -1 if the current one is fine.
 	int new_weapon;
 
-	boolean_t attack;
-	boolean_t second_attack;
-	boolean_t use;
-	boolean_t jump;
+	bool attack;
+	bool second_attack;
+	bool use;
+	bool jump;
 } 
 botcmd_t;
 
@@ -91,7 +91,7 @@ typedef struct bot_s
 {
 	const player_t *pl;
 
-	boolean_t strafedir;
+	bool strafedir;
 	int confidence;
 	int threshold;
 	int movecount;

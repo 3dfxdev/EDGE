@@ -38,9 +38,9 @@ static attacktype_t buffer_atk;
 static attacktype_t *dynamic_atk;
 
 // this (and buffer_mobj) logically belongs with buffer_atk:
-static boolean_t attack_has_mobj;
-static flo_t a_damage_range;
-static flo_t a_damage_multi;
+static bool attack_has_mobj;
+static float a_damage_range;
+static float a_damage_multi;
 
 static const attacktype_t template_atk =
 {
@@ -162,10 +162,10 @@ static const commandlist_t attack_commands[] =
 //  DDF PARSE ROUTINES
 //
 
-static boolean_t AttackStartEntry(const char *name)
+static bool AttackStartEntry(const char *name)
 {
 	int i;
-	boolean_t replaces = false;
+	bool replaces = false;
 
 	if (name && name[0])
 	{
@@ -212,7 +212,7 @@ static boolean_t AttackStartEntry(const char *name)
 }
 
 static void AttackParseField(const char *field, const char *contents,
-							 int index, boolean_t is_last)
+							 int index, bool is_last)
 {
 #if (DEBUG_DDF)  
 	L_WriteDebug("ATTACK_PARSE: %s = %s;\n", field, contents);

@@ -34,7 +34,7 @@
 
 #define DATA_END_MARKER  "ENDE"
 
-boolean_t SV_ChunkInit(void);
+bool SV_ChunkInit(void);
 void SV_ChunkShutdown(void);
 
 int SV_GetError(void);
@@ -43,15 +43,15 @@ int SV_GetError(void);
 //  READING
 //
 
-boolean_t SV_OpenReadFile(const char *filename);
-boolean_t SV_CloseReadFile(void);
-boolean_t SV_VerifyHeader(int *version);
-boolean_t SV_VerifyContents(void);
+bool SV_OpenReadFile(const char *filename);
+bool SV_CloseReadFile(void);
+bool SV_VerifyHeader(int *version);
+bool SV_VerifyContents(void);
 
-boolean_t SV_PushReadChunk(const char *id);
-boolean_t SV_PopReadChunk(void);
+bool SV_PushReadChunk(const char *id);
+bool SV_PopReadChunk(void);
 int SV_RemainingChunkSize(void);
-boolean_t SV_SkipReadChunk(const char *id);
+bool SV_SkipReadChunk(const char *id);
 
 unsigned char  SV_GetByte(void);
 unsigned short SV_GetShort(void);
@@ -59,20 +59,20 @@ unsigned int   SV_GetInt(void);
 
 fixed_t SV_GetFixed(void);
 angle_t SV_GetAngle(void);
-flo_t SV_GetFloat(void);
+float SV_GetFloat(void);
 
 const char *SV_GetString(void);
-boolean_t SV_GetMarker(char id[5]);
+bool SV_GetMarker(char id[5]);
 
 //
 //  WRITING
 //
 
-boolean_t SV_OpenWriteFile(const char *filename, int version);
-boolean_t SV_CloseWriteFile(void);
+bool SV_OpenWriteFile(const char *filename, int version);
+bool SV_CloseWriteFile(void);
 
-boolean_t SV_PushWriteChunk(const char *id);
-boolean_t SV_PopWriteChunk(void);
+bool SV_PushWriteChunk(const char *id);
+bool SV_PopWriteChunk(void);
 
 void SV_PutByte(unsigned char value);
 void SV_PutShort(unsigned short value);

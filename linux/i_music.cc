@@ -45,12 +45,12 @@ static byte capable;
 #define MUSICERRLEN 256
 static char errordesc[MUSICERRLEN];
 
-boolean_t musicpaused = false;
+bool musicpaused = false;
 
 //
 // I_StartupMusic
 //
-boolean_t I_StartupMusic(void *sysinfo)
+bool I_StartupMusic(void *sysinfo)
 {
   // Clear the error message
   memset(errordesc, '\0', sizeof(char)*MUSICERRLEN);
@@ -77,7 +77,7 @@ boolean_t I_StartupMusic(void *sysinfo)
 //
 // I_MusicPlayback
 //
-int I_MusicPlayback(i_music_info_t *musdat, int type, boolean_t looping)
+int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 {
   int handle;
   int track;
@@ -322,7 +322,7 @@ void I_MusicTicker(int *handle)
 {
   int type;
   int libhandle;
-  boolean_t looping;
+  bool looping;
 
   if (musicpaused)
     return;

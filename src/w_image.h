@@ -90,7 +90,7 @@ typedef struct image_s
 
     // when true, the image is guaranteed to be solid (i.e. contain no
     // transparent parts).
-	boolean_t solid;
+	bool solid;
 
 	// ...rest of this structure is private...
 }
@@ -103,8 +103,8 @@ typedef byte cached_image_t;
 #define MIP_SIZE(size,mip)  MAX(1, (size) >> (mip))
 
 // utility macros
-#define IM_RIGHT(image)  ((flo_t)(image)->actual_w / (image)->total_w)
-#define IM_BOTTOM(image) ((flo_t)(image)->actual_h / (image)->total_h)
+#define IM_RIGHT(image)  ((float)(image)->actual_w / (image)->total_w)
+#define IM_BOTTOM(image) ((float)(image)->actual_h / (image)->total_h)
 
 #define IM_WIDTH(image)  ((image)->actual_w * (image)->scale_x / 0x100)
 #define IM_HEIGHT(image) ((image)->actual_h * (image)->scale_y / 0x100)
@@ -157,10 +157,10 @@ void W_ImageToString(const image_t *image, char *type, char *namebuf);
 //
 
 extern int use_mipmapping;
-extern boolean_t use_smoothing;
-extern boolean_t use_dithering;
+extern bool use_smoothing;
+extern bool use_dithering;
 
-boolean_t W_InitImages(void);
+bool W_InitImages(void);
 void W_UpdateImageAnims(void);
 void W_ResetImages(void);
 
@@ -174,7 +174,7 @@ void W_LockImagesOGL(void);
 void W_UnlockImagesOGL(void);
 
 const cached_image_t *W_ImageCache(const image_t *image, 
-								   image_mode_e mode, int mip, boolean_t anim);
+								   image_mode_e mode, int mip, bool anim);
 void W_ImageDone(const cached_image_t *c);
 void W_ImagePreCache(const image_t *image);
 

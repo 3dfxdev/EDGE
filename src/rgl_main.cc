@@ -66,30 +66,30 @@ char *glstr_renderer = NULL;
 char *glstr_version = NULL;
 char *glstr_extensions = NULL;
 
-boolean_t glcap_hardware = true;
-boolean_t glcap_multitex = false;
-boolean_t glcap_paletted = false;
+bool glcap_hardware = true;
+bool glcap_multitex = false;
+bool glcap_paletted = false;
 
 angle_t oned_side_angle;
 
 
 int glpar_invuln = 0;
 
-boolean_t ren_allbright;
-flo_t ren_red_mul;
-flo_t ren_grn_mul;
-flo_t ren_blu_mul;
+bool ren_allbright;
+float ren_red_mul;
+float ren_grn_mul;
+float ren_blu_mul;
 
 extern int rgl_currtimeval;  // hack..
 
 
-#define RGB_RED(rgbcol)  ((flo_t)((rgbcol >> 16) & 0xFF) / 255.0)
-#define RGB_GRN(rgbcol)  ((flo_t)((rgbcol >>  8) & 0xFF) / 255.0)
-#define RGB_BLU(rgbcol)  ((flo_t)((rgbcol      ) & 0xFF) / 255.0)
+#define RGB_RED(rgbcol)  ((float)((rgbcol >> 16) & 0xFF) / 255.0)
+#define RGB_GRN(rgbcol)  ((float)((rgbcol >>  8) & 0xFF) / 255.0)
+#define RGB_BLU(rgbcol)  ((float)((rgbcol      ) & 0xFF) / 255.0)
 
-#define PAL_RED(pix)  ((flo_t)(playpal_data[0][pix][0]) / 255.0)
-#define PAL_GRN(pix)  ((flo_t)(playpal_data[0][pix][1]) / 255.0)
-#define PAL_BLU(pix)  ((flo_t)(playpal_data[0][pix][2]) / 255.0)
+#define PAL_RED(pix)  ((float)(playpal_data[0][pix][0]) / 255.0)
+#define PAL_GRN(pix)  ((float)(playpal_data[0][pix][1]) / 255.0)
+#define PAL_BLU(pix)  ((float)(playpal_data[0][pix][2]) / 255.0)
 
 #define LT_RED(light)  (MIN(255,light) * ren_red_mul / 255.0)
 #define LT_GRN(light)  (MIN(255,light) * ren_grn_mul / 255.0)
@@ -136,8 +136,8 @@ void RGL_SetupMatrices2D(void)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0.0, (flo_t)SCREENWIDTH, 
-			0.0, (flo_t)SCREENHEIGHT, -1.0, 1.0);
+	glOrtho(0.0, (float)SCREENWIDTH, 
+			0.0, (float)SCREENHEIGHT, -1.0, 1.0);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -202,23 +202,23 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 {
 	const image_t *image;
 	const cached_image_t *cim;
-	boolean_t flip;
+	bool flip;
 
 	int fuzzy = (player->mo->flags & MF_FUZZY);
 
-	flo_t x1b, y1b, x1t, y1t, x2b, y2b, x2t, y2t;  // screen coords
-	flo_t tx1, ty1, tx2, ty2;  // texture coords
+	float x1b, y1b, x1t, y1t, x2b, y2b, x2t, y2t;  // screen coords
+	float tx1, ty1, tx2, ty2;  // texture coords
 
-	flo_t tex_x1, tex_x2;
-	flo_t tex_top_h, tex_bot_h;
-	flo_t trans;
+	float tex_x1, tex_x2;
+	float tex_top_h, tex_bot_h;
+	float trans;
 
 	GLuint tex_id;
 	int w, h;
-	flo_t right, bottom;
+	float right, bottom;
 
 	int lit_Nom, L_r, L_g, L_b;
-	flo_t c_r, c_g, c_b;
+	float c_r, c_g, c_b;
 
 	lit_Nom = (ren_allbright || state->bright) ? 240 :
 		(props->lightlevel * 240 / 255);
@@ -296,16 +296,16 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	if (fuzzy)
 	{
-		flo_t range_x = fabs(x2b - x1b) / 12.0;
-		flo_t range_y = fabs(y1t - y1b) / 12.0;
+		float range_x = fabs(x2b - x1b) / 12.0;
+		float range_y = fabs(y1t - y1b) / 12.0;
 
-		flo_t bl_x = sin(rgl_currtimeval / 5.0);
-		flo_t tl_x = sin(rgl_currtimeval / 11.0);
-		flo_t tr_x = sin(rgl_currtimeval / 7.0);
-		flo_t br_x = sin(rgl_currtimeval / 13.0);
+		float bl_x = sin(rgl_currtimeval / 5.0);
+		float tl_x = sin(rgl_currtimeval / 11.0);
+		float tr_x = sin(rgl_currtimeval / 7.0);
+		float br_x = sin(rgl_currtimeval / 13.0);
 
-		flo_t tl_y = cos(rgl_currtimeval / 11.0);
-		flo_t tr_y = cos(rgl_currtimeval / 7.0);
+		float tl_y = cos(rgl_currtimeval / 11.0);
+		float tr_y = cos(rgl_currtimeval / 7.0);
     
 		// don't adjust the bottom Y positions
     
@@ -323,15 +323,15 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	glScissor(viewwindowx, SCREENHEIGHT-viewwindowheight-viewwindowy,
 			  viewwindowwidth, viewwindowheight);
 
-	x1b = (flo_t)viewwindowx + x1b;
-	x1t = (flo_t)viewwindowx + x1t;
-	x2t = (flo_t)viewwindowx + x2t;
-	x2b = (flo_t)viewwindowx + x2b;
+	x1b = (float)viewwindowx + x1b;
+	x1t = (float)viewwindowx + x1t;
+	x2t = (float)viewwindowx + x2t;
+	x2b = (float)viewwindowx + x2b;
 
-	y1b = (flo_t)(SCREENHEIGHT - viewwindowy) - y1b - 1;
-	y1t = (flo_t)(SCREENHEIGHT - viewwindowy) - y1t - 1;
-	y2t = (flo_t)(SCREENHEIGHT - viewwindowy) - y2t - 1;
-	y2b = (flo_t)(SCREENHEIGHT - viewwindowy) - y2b - 1;
+	y1b = (float)(SCREENHEIGHT - viewwindowy) - y1b - 1;
+	y1t = (float)(SCREENHEIGHT - viewwindowy) - y1t - 1;
+	y2t = (float)(SCREENHEIGHT - viewwindowy) - y2t - 1;
+	y2b = (float)(SCREENHEIGHT - viewwindowy) - y2b - 1;
  
 	glColor4f(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
 
@@ -411,7 +411,7 @@ void RGL_DrawPlayerSprites(player_t * p)
 //
 void RGL_RainbowEffect(player_t *player)
 {
-	flo_t s;
+	float s;
   
 	ren_allbright = false;
 	ren_red_mul = ren_grn_mul = ren_blu_mul = 1.0;
@@ -453,7 +453,7 @@ void RGL_ColourmapEffect(player_t *player)
 		return;
 
 	{
-		flo_t s = (flo_t) player->powers[PW_Invulnerable];
+		float s = (float) player->powers[PW_Invulnerable];
     
 		s = MIN(128.0, s) / 128.0;
 
@@ -513,10 +513,10 @@ void RGL_PaletteEffect(player_t *player)
   
 	rgb_max = MIN(200, rgb_max);
 
-	glColor4f((flo_t) rgb_data[0] / (flo_t) rgb_max,
-			  (flo_t) rgb_data[1] / (flo_t) rgb_max,
-			  (flo_t) rgb_data[2] / (flo_t) rgb_max,
-			  (flo_t) rgb_max / 255.0);
+	glColor4f((float) rgb_data[0] / (float) rgb_max,
+			  (float) rgb_data[1] / (float) rgb_max,
+			  (float) rgb_data[2] / (float) rgb_max,
+			  (float) rgb_max / 255.0);
 
 	glEnable(GL_BLEND);
 
@@ -569,10 +569,10 @@ void RGL_EndDraw(void)
 // RGL_DrawImage
 //
 void RGL_DrawImage(int x, int y, int w, int h, const image_t *image, 
-				   flo_t tx1, flo_t ty1, flo_t tx2, flo_t ty2,
-				   const colourmap_t *colmap, flo_t alpha)
+				   float tx1, float ty1, float tx2, float ty2,
+				   const colourmap_t *colmap, float alpha)
 {
-	flo_t r = 1.0, g = 1.0, b = 1.0;
+	float r = 1.0, g = 1.0, b = 1.0;
 
 	const cached_image_t *cim = W_ImageCache(image, IMG_OGL, 0, false);
 
@@ -617,7 +617,7 @@ void RGL_DrawImage(int x, int y, int w, int h, const image_t *image,
 //
 // RGL_SolidBox
 //
-void RGL_SolidBox(int x, int y, int w, int h, int colour, flo_t alpha)
+void RGL_SolidBox(int x, int y, int w, int h, int colour, float alpha)
 {
 	if (alpha < 0.99)
 		glEnable(GL_BLEND);

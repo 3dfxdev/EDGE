@@ -103,7 +103,7 @@ typedef struct layer_s
   // Event handler.  Can be NULL (for draw-only layers).  Doesn't need
   // to handle child layers, they will be called automatically.
   
-  boolean_t (* Listener)(struct layer_s *layer, event_t *ev);
+  bool (* Listener)(struct layer_s *layer, event_t *ev);
 
   // Resize routine, called whenever the parent layer's bounding box
   // changes.  For top level layers, this means whenever the user
@@ -124,7 +124,7 @@ typedef struct layer_s
   // Layer is not visible (e.g. completely covered by a higher layer
   // that is solid, or lies totally outside parent's bounding box).
   
-  boolean_t invisible;
+  bool invisible;
   
   // Index into stack array of solid rectangles.  All solid rects
   // strictly _before_ this value can be used for clipping.
@@ -164,7 +164,7 @@ extern int num_solid_rects;
 // INTERFACE
 //
 
-boolean_t R_LayerInit(void);
+bool R_LayerInit(void);
 
 layer_t *R_LayerNew(int depth, int x1, int y1, int x2, int y2, layerflags_e flags, void *priv);
 void R_LayerDestroy(layer_t *layer);
@@ -179,11 +179,11 @@ void R_LayerChangeBounds(layer_t *layer, int x1, int y1, int x2, int y2);
 void R_LayerChangeFlags(layer_t *layer, layerflags_e flags);
 void R_LayerChangeContents(layer_t *layer);
 
-boolean_t R_LayerClipRectToSolids(int solid_index,
+bool R_LayerClipRectToSolids(int solid_index,
     int *x1, int *y1, int *x2, int *y2);
 
 void R_DrawLayers(void);
-boolean_t R_ListenLayers(event_t *ev);
+bool R_ListenLayers(event_t *ev);
 void R_ResizeLayers(void);
 
 

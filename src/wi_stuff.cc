@@ -86,7 +86,7 @@
 #define SHOWLASTLOCDELAY SHOWNEXTLOCDELAY
 
 // used to accelerate or skip a stage
-static boolean_t acceleratestage;
+static bool acceleratestage;
 
 // wbs->pnum
 static int me;
@@ -188,7 +188,7 @@ void WI_MapInit(const wi_map_t * map)
     if (!worldmap.ddf.name || strcmp(map->ddf.name, worldmap.ddf.name))
     {
       worldmap = *map;
-      Z_Clear(worldmap.mapdone, boolean_t, worldmap.nummaps);
+      Z_Clear(worldmap.mapdone, bool, worldmap.nummaps);
     }
   }
 }
@@ -235,7 +235,7 @@ static void DrawOnLnode(int n, const image_t * images[2])
   int i;
   int left, top, right, bottom;
 
-  boolean_t fits = false;
+  bool fits = false;
   mappos_t *mappos = &worldmap.mappos[n];
 
   for (i=0; i < 2; i++)
@@ -450,7 +450,7 @@ static void UpdateNoState(void)
 
 }
 
-static boolean_t snl_pointeron = false;
+static bool snl_pointeron = false;
 
 static void InitShowNextLoc(void)
 {
@@ -515,7 +515,7 @@ static void InitDeathmatchStats(void)
 
   int i;
   int j;
-  boolean_t done = false;
+  bool done = false;
   int *rank;
 
   rank = Z_New(int, MAXPLAYERS);
@@ -565,7 +565,7 @@ static void UpdateDeathmatchStats(void)
   int i;
   int p;
 
-  boolean_t stillticking;
+  bool stillticking;
 
   if (acceleratestage && dm_state != 4)
   {
@@ -702,7 +702,7 @@ static void InitNetgameStats(void)
 {
   int *rank;
   int i, j;
-  boolean_t done = false;
+  bool done = false;
 
   rank = Z_New(int, MAXPLAYERS);
   state = StatCount;
@@ -758,7 +758,7 @@ static void UpdateNetgameStats(void)
   int i;
   int p;
 
-  boolean_t stillticking;
+  bool stillticking;
 
   if (acceleratestage && ng_state != 10)
   {

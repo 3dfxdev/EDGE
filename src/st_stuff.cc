@@ -177,10 +177,10 @@
 #define ST_MAXAMMO3Y            ((191))
 
 // used to update the whole status bar
-boolean_t stbar_update = true;
+bool stbar_update = true;
 
 // colorise health/ammo/armour
-boolean_t stbar_colours = false;
+bool stbar_colours = false;
 
 // used to execute ST_Init() only once
 static int veryfirsttime = 1;
@@ -192,25 +192,25 @@ static int st_msgcounter = 0;
 static st_chatstateenum_t st_chatstate;
 
 // whether left-side main status bar is active
-static boolean_t st_statusbaron;
+static bool st_statusbaron;
 
 // whether status bar chat is active
-static boolean_t st_chat;
+static bool st_chat;
 
 // value of st_chat before message popped up
-static boolean_t st_oldchat;
+static bool st_oldchat;
 
 // whether chat window has the cursor on
-static boolean_t st_cursoron;
+static bool st_cursoron;
 
 // !deathmatch
-static boolean_t st_notdeathmatch;
+static bool st_notdeathmatch;
 
 // !deathmatch && st_statusbaron
-static boolean_t st_armson;
+static bool st_armson;
 
 // !deathmatch
-static boolean_t st_fragson;
+static bool st_fragson;
 
 // main bar left
 static const image_t *sbar_image;
@@ -277,7 +277,7 @@ static int st_fragscount;
 // holds key-type for each key box on bar
 static int keyboxes[3];
 
-static boolean_t st_stopped = true;
+static bool st_stopped = true;
 
 
 //
@@ -300,7 +300,7 @@ static void RefreshBackground(void)
 //
 // ST_Responder
 //
-boolean_t ST_Responder(event_t * ev)
+bool ST_Responder(event_t * ev)
 {
 	// does nothing at the moment
 	return false;
@@ -308,7 +308,7 @@ boolean_t ST_Responder(event_t * ev)
 
 static int ST_CalcPainOffset(void)
 {
-	flo_t base, health;
+	float base, health;
 	int index;
 
 	if (! consoleplayer->mo)
@@ -324,7 +324,7 @@ static int ST_CalcPainOffset(void)
 	return ST_FACESTRIDE * index;
 }
 
-static void DrawWidgets(boolean_t refresh)
+static void DrawWidgets(bool refresh)
 {
 	int i;
 
@@ -586,7 +586,7 @@ void ST_Ticker(void)
 static void DoPaletteStuff(void)
 {
 	int palette = PALETTE_NORMAL;
-	flo_t amount = 0;
+	float amount = 0;
 	int cnt;
 	int bzc;
 
@@ -641,7 +641,7 @@ static void DiffDraw(void)
 	DrawWidgets(false);
 }
 
-void ST_Drawer(boolean_t fullscreen, boolean_t refresh)
+void ST_Drawer(bool fullscreen, bool refresh)
 {
 	st_statusbaron = (!fullscreen) || automapactive;
 
@@ -934,7 +934,7 @@ void ST_ReInit(void)
 //
 // Called once at startup
 //
-boolean_t ST_Init(void)
+bool ST_Init(void)
 {
 	DEV_ASSERT2(veryfirsttime);
 

@@ -120,9 +120,9 @@ typedef struct elev_move_s
   const elevator_sector_t *type;
   sector_t *sector;
 
-  flo_t startheight;
-  flo_t destheight;
-  flo_t speed;
+  float startheight;
+  float destheight;
+  float speed;
 
   // 1 = up, 0 = waiting at top, -1 = down
   int direction;
@@ -133,7 +133,7 @@ typedef struct elev_move_s
   // tics to wait when fully open
   int waited;
 
-  boolean_t sfxstarted;
+  bool sfxstarted;
 
   int newspecial;
 
@@ -150,12 +150,12 @@ typedef struct plane_move_s
   const moving_plane_t *type;
   sector_t *sector;
 
-  boolean_t is_ceiling;
+  bool is_ceiling;
 
-  flo_t startheight;
-  flo_t destheight;
-  flo_t speed;
-  boolean_t crush;
+  float startheight;
+  float destheight;
+  float speed;
+  bool crush;
 
   // 1 = up, 0 = waiting at top, -1 = down
   int direction;
@@ -166,7 +166,7 @@ typedef struct plane_move_s
   // tics to wait when fully open
   int waited;
 
-  boolean_t sfxstarted;
+  bool sfxstarted;
 
   int newspecial;
   const image_t *new_image;
@@ -182,13 +182,13 @@ typedef struct slider_move_s
   line_t *line;
 
   // current distance it has opened
-  flo_t opening;
+  float opening;
 
   // target distance
-  flo_t target;
+  float target;
 
   // length of line
-  flo_t line_len;
+  float line_len;
  
   // 1 = opening, 0 = waiting, -1 = closing
   int direction;
@@ -196,13 +196,13 @@ typedef struct slider_move_s
   // tics to wait at the top
   int waited;
 
-  boolean_t sfxstarted;
-  boolean_t final_open;
+  bool sfxstarted;
+  bool final_open;
 }
 slider_move_t;
 
 // End-level timer (-TIMER option)
-extern boolean_t levelTimer;
+extern bool levelTimer;
 extern int levelTimeCount;
 
 extern int maxbuttons;
@@ -219,9 +219,9 @@ void P_SpawnSpecials(int autotag);
 void P_UpdateSpecials(void);
 
 // when needed
-boolean_t P_UseSpecialLine(mobj_t * thing, line_t * line, int side,
-    flo_t open_bottom, flo_t open_top);
-boolean_t P_CrossSpecialLine(line_t *ld, int side, mobj_t * thing);
+bool P_UseSpecialLine(mobj_t * thing, line_t * line, int side,
+    float open_bottom, float open_top);
+bool P_CrossSpecialLine(line_t *ld, int side, mobj_t * thing);
 void P_ShootSpecialLine(line_t *ld, int side, mobj_t * thing);
 void P_RemoteActivation(mobj_t * thing, int typenum, int tag, 
     int side, trigger_e method);
@@ -234,8 +234,8 @@ sector_t *P_GetSector(int currentSector, int line, int side);
 sector_t *P_GetNextSector(const line_t * line, const sector_t * sec);
 
 // Info Needs....
-flo_t P_FindSurroundingHeight(const int ref, const sector_t *sec);
-flo_t P_FindRaiseToTexture(sector_t * sec);  // -KM- 1998/09/01 New func, old inline
+float P_FindSurroundingHeight(const int ref, const sector_t *sec);
+float P_FindRaiseToTexture(sector_t * sec);  // -KM- 1998/09/01 New func, old inline
 
 // -AJA- 1999/09/29: added this.
 sector_t *P_FindSectorFromTag(int tag);
@@ -243,7 +243,7 @@ sector_t *P_FindSectorFromTag(int tag);
 int P_FindMinSurroundingLight(sector_t * sector, int max);
 
 // start an action...
-boolean_t EV_Lights(sector_t * sec, const lighttype_t * type);
+bool EV_Lights(sector_t * sec, const lighttype_t * type);
 
 void P_RunActiveSectors(void);
 
@@ -262,22 +262,22 @@ void P_RunSectorSFX(void);
 void P_DestroyAllSectorSFX(void);
 
 void EV_LightTurnOn(int tag, int bright);
-boolean_t EV_DoDonut(sector_t * s1, sfx_t * sfx[4]);
-boolean_t EV_Teleport(line_t * line, int tag, int side, mobj_t * thing, 
+bool EV_DoDonut(sector_t * s1, sfx_t * sfx[4]);
+bool EV_Teleport(line_t * line, int tag, int side, mobj_t * thing, 
     int delay, int special, const mobjinfo_t * ineffectobj,
     const mobjinfo_t * outeffectobj);
-boolean_t EV_ManualPlane(line_t * line, mobj_t * thing, const moving_plane_t * type);
-boolean_t EV_ManualElevator(line_t * line, mobj_t * thing, const elevator_sector_t * type);
+bool EV_ManualPlane(line_t * line, mobj_t * thing, const moving_plane_t * type);
+bool EV_ManualElevator(line_t * line, mobj_t * thing, const elevator_sector_t * type);
 
 void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_t * s);
-boolean_t EV_DoPlane(sector_t * sec, const moving_plane_t * type, sector_t * model);
-boolean_t EV_DoElevator(sector_t * sec, const elevator_sector_t * type, sector_t * model);
+bool EV_DoPlane(sector_t * sec, const moving_plane_t * type, sector_t * model);
+bool EV_DoElevator(sector_t * sec, const elevator_sector_t * type, sector_t * model);
 
 //
 //  P_SWITCH
 //
-boolean_t P_InitSwitchList(void);
-void P_ChangeSwitchTexture(line_t * line, boolean_t useAgain, line_special_e specials, boolean_t noSound);
-boolean_t P_ButtonCheckPressed(line_t * line);
+bool P_InitSwitchList(void);
+void P_ChangeSwitchTexture(line_t * line, bool useAgain, line_special_e specials, bool noSound);
+bool P_ButtonCheckPressed(line_t * line);
 
 #endif

@@ -26,48 +26,48 @@
 #include "i_defs.h"
 #include "m_bbox.h"
 
-void M_ClearBox(flo_t * box)
+void M_ClearBox(float * box)
 {
-  box[BOXTOP] = box[BOXRIGHT] = INT_MIN;
-  box[BOXBOTTOM] = box[BOXLEFT] = INT_MAX;
+	box[BOXTOP] = box[BOXRIGHT] = FLT_MIN;
+	box[BOXBOTTOM] = box[BOXLEFT] = FLT_MAX;
 }
 
-void M_AddToBox(flo_t * box, flo_t x, flo_t y)
+void M_AddToBox(float * box, float x, float y)
 {
-  if (x < box[BOXLEFT])
-    box[BOXLEFT] = x;
+	if (x < box[BOXLEFT])
+		box[BOXLEFT] = x;
 
-  if (x > box[BOXRIGHT])
-    box[BOXRIGHT] = x;
+	if (x > box[BOXRIGHT])
+		box[BOXRIGHT] = x;
 
-  if (y < box[BOXBOTTOM])
-    box[BOXBOTTOM] = y;
+	if (y < box[BOXBOTTOM])
+		box[BOXBOTTOM] = y;
 
-  if (y > box[BOXTOP])
-    box[BOXTOP] = y;
+	if (y > box[BOXTOP])
+		box[BOXTOP] = y;
 }
 
-void M_CopyBox(flo_t * box, flo_t * other)
+void M_CopyBox(float * box, float * other)
 {
-  box[BOXLEFT]   = other[BOXLEFT];
-  box[BOXRIGHT]  = other[BOXRIGHT];
-  box[BOXTOP]    = other[BOXTOP];
-  box[BOXBOTTOM] = other[BOXBOTTOM];
+	box[BOXLEFT]   = other[BOXLEFT];
+	box[BOXRIGHT]  = other[BOXRIGHT];
+	box[BOXTOP]    = other[BOXTOP];
+	box[BOXBOTTOM] = other[BOXBOTTOM];
 }
 
-void M_UnionBox(flo_t * box, flo_t * other)
+void M_UnionBox(float * box, float * other)
 {
-  if (other[BOXLEFT] < box[BOXLEFT])
-    box[BOXLEFT] = other[BOXLEFT];
+	if (other[BOXLEFT] < box[BOXLEFT])
+		box[BOXLEFT] = other[BOXLEFT];
 
-  if (other[BOXRIGHT] > box[BOXRIGHT])
-    box[BOXRIGHT] = other[BOXRIGHT];
-    
-  if (other[BOXBOTTOM] < box[BOXBOTTOM])
-    box[BOXBOTTOM] = other[BOXBOTTOM];
+	if (other[BOXRIGHT] > box[BOXRIGHT])
+		box[BOXRIGHT] = other[BOXRIGHT];
 
-  if (other[BOXTOP] > box[BOXTOP])
-    box[BOXTOP] = other[BOXTOP];
+	if (other[BOXBOTTOM] < box[BOXBOTTOM])
+		box[BOXBOTTOM] = other[BOXBOTTOM];
+
+	if (other[BOXTOP] > box[BOXTOP])
+		box[BOXTOP] = other[BOXTOP];
 }
 
 //
@@ -76,8 +76,8 @@ void M_UnionBox(flo_t * box, flo_t * other)
 
 byte dirty_region[DIRT_REG_H][DIRT_REG_W];
 
-boolean_t dirty_region_whole = true;
-boolean_t dirty_region_always = false;
+bool dirty_region_whole = true;
+bool dirty_region_always = false;
 
 //
 // M_CleanMatrix
@@ -86,9 +86,9 @@ boolean_t dirty_region_always = false;
 
 void M_CleanMatrix(void)
 {
-  dirty_region_whole = false;
+	dirty_region_whole = false;
 
-  memset(dirty_region, 0, sizeof(dirty_region));
+	memset(dirty_region, 0, sizeof(dirty_region));
 }
 
 //
@@ -98,12 +98,12 @@ void M_CleanMatrix(void)
 
 void M_DirtyMatrix(void)
 {
-  if (dirty_region_whole)
-    return;
+	if (dirty_region_whole)
+		return;
 
-  dirty_region_whole = true;
+	dirty_region_whole = true;
 
-  memset(dirty_region, 1, sizeof(dirty_region));
+	memset(dirty_region, 1, sizeof(dirty_region));
 }
 
 //
@@ -113,24 +113,24 @@ void M_DirtyMatrix(void)
 
 void M_DirtyRegion(int x1, int y1, int x2, int y2)
 {
-  int x;
+	int x;
 
-  if (dirty_region_whole)
-    return;
+	if (dirty_region_whole)
+		return;
 
-  DEV_ASSERT2(x1 >= 0);  DEV_ASSERT2(y1 >= 0);
-  DEV_ASSERT2(x1 <= x2); DEV_ASSERT2(y1 <= y2);
+	DEV_ASSERT2(x1 >= 0);  DEV_ASSERT2(y1 >= 0);
+	DEV_ASSERT2(x1 <= x2); DEV_ASSERT2(y1 <= y2);
 
-  x1 /= DIRT_X; y1 /= DIRT_Y;
-  x2 /= DIRT_X; y2 /= DIRT_Y;
+	x1 /= DIRT_X; y1 /= DIRT_Y;
+	x2 /= DIRT_X; y2 /= DIRT_Y;
 
-  DEV_ASSERT2(x2 < DIRT_REG_W); 
-  DEV_ASSERT2(y2 < DIRT_REG_H);
+	DEV_ASSERT2(x2 < DIRT_REG_W); 
+	DEV_ASSERT2(y2 < DIRT_REG_H);
 
-  for (; y1 <= y2; y1++)
-  {
-    for (x=x1; x <= x2; x++)
-      dirty_region[y1][x] = 1;
-  }
+	for (; y1 <= y2; y1++)
+	{
+		for (x=x1; x <= x2; x++)
+			dirty_region[y1][x] = 1;
+	}
 }
 

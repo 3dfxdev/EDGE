@@ -23,15 +23,15 @@
 #endif
 
 EDGE_INLINE(
-flo_t M_FixedToFloat(fixed_t fix),
+float M_FixedToFloat(fixed_t fix),
 {
-  return (flo_t)fix / 65536;
+  return (float)fix / 65536;
 })
 
 #ifdef FLOAT_IEEE_754
 // Use routines written for the usual 32-bit float format
 EDGE_INLINE(
-fixed_t M_FloatToFixed(flo_t fl),
+fixed_t M_FloatToFixed(float fl),
 {
   long i;
   int sign;
@@ -61,7 +61,7 @@ fixed_t M_FloatToFixed(flo_t fl),
 })
 
 EDGE_INLINE(
-long M_FloatToInt(flo_t fl),
+long M_FloatToInt(float fl),
 {
   long i;
   int sign;
@@ -81,10 +81,10 @@ long M_FloatToInt(flo_t fl),
   return (((((i & 0x007FFFFF) | 0x00800000) << 7) >> (0x7d - (i >> 23))) + sign) ^ sign;
 })
 #else
-// Some other kind of flo_t is used, so we have to use the portable versions
+// Some other kind of float is used, so we have to use the portable versions
 
 EDGE_INLINE(
-fixed_t M_FloatToFixed(flo_t fl),
+fixed_t M_FloatToFixed(float fl),
 {
   if (fl > 32767)
     return (fixed_t) INT_MAX;
@@ -96,7 +96,7 @@ fixed_t M_FloatToFixed(flo_t fl),
 })
 
 EDGE_INLINE(
-long M_FloatToInt(flo_t fl),
+long M_FloatToInt(float fl),
 {
   if (fl >= INT_MAX)
     return (long)INT_MAX;

@@ -28,15 +28,15 @@
 
 #include "e_event.h"
 
-extern boolean_t redrawsbar;
-extern boolean_t advancedemo;
-extern boolean_t e_display_OK;
-extern boolean_t need_save_screenshot;
+extern bool redrawsbar;
+extern bool advancedemo;
+extern bool e_display_OK;
+extern bool need_save_screenshot;
 
 void E_AddFile(const char *file);
 void E_EDGEMain(void);
 void E_EDGELoopRoutine(void);
-boolean_t E_CheckNetGame(void);
+bool E_CheckNetGame(void);
 void E_ProcessEvents(void);
 void E_DoAdvanceDemo(void);
 void E_PostEvent(event_t * ev);

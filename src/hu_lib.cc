@@ -227,7 +227,7 @@ void HL_InitTextLine(hu_textline_t * t, int x, int y,
   HL_ClearTextLine(t);
 }
 
-boolean_t HL_AddCharToTextLine(hu_textline_t * t, char ch)
+bool HL_AddCharToTextLine(hu_textline_t * t, char ch)
 {
   if (t->len >= HU_MAXLINELENGTH-1)
     return false;
@@ -238,7 +238,7 @@ boolean_t HL_AddCharToTextLine(hu_textline_t * t, char ch)
   return true;
 }
 
-boolean_t HL_DelCharFromTextLine(hu_textline_t * t)
+bool HL_DelCharFromTextLine(hu_textline_t * t)
 {
   if (!t->len)
     return false;
@@ -267,7 +267,7 @@ boolean_t HL_DelCharFromTextLine(hu_textline_t * t)
 // -AJA- 2000/03/05: Index replaced with pointer to trans table.
 // -AJA- 2000/10/22: Renamed for alpha support.
 //
-void HL_DrawTextLineAlpha(hu_textline_t * L, boolean_t drawcursor, const colourmap_t *colmap, fixed_t alpha)
+void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_t *colmap, fixed_t alpha)
 {
   int i, w, x, y;
   char c;
@@ -306,7 +306,7 @@ void HL_DrawTextLineAlpha(hu_textline_t * L, boolean_t drawcursor, const colourm
   }
 }
 
-void HL_DrawTextLine(hu_textline_t * L, boolean_t drawcursor)
+void HL_DrawTextLine(hu_textline_t * L, bool drawcursor)
 {
   HL_DrawTextLineAlpha(L, drawcursor, text_red_map, FRACUNIT);
   
@@ -360,7 +360,7 @@ void HL_EraseTextLine(hu_textline_t * l)
   int lh;
   int y;
   int yoffset;
-  static boolean_t lastautomapactive = true;
+  static bool lastautomapactive = true;
 
   // Only erases when NOT in automap and the screen is reduced,
   // and the text must either need updating or refreshing
@@ -393,7 +393,7 @@ void HL_EraseTextLine(hu_textline_t * l)
 //----------------------------------------------------------------------------
 
 void HL_InitSText(hu_stext_t * s, int x, int y, int h, 
-    const H_font_t *font, boolean_t * on)
+    const H_font_t *font, bool * on)
 {
   int i;
 
@@ -472,7 +472,7 @@ void HL_EraseSText(hu_stext_t * s)
 //----------------------------------------------------------------------------
 
 void HL_InitIText(hu_itext_t * it, int x, int y, 
-    const H_font_t *font, boolean_t * on)
+    const H_font_t *font, bool * on)
 {
   // default left margin is start of text
   it->margin = 0;
@@ -513,7 +513,7 @@ void HL_AddPrefixToIText(hu_itext_t * it, const char *str)
 
 // wrapper function for handling general keyed input.
 // returns true if it ate the key
-boolean_t HL_KeyInIText(hu_itext_t * it, const char ch)
+bool HL_KeyInIText(hu_itext_t * it, const char ch)
 {
   if (ch >= ' ' && ch <= '_')
     HL_AddCharToTextLine(&it->L, (char)ch);

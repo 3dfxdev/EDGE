@@ -91,7 +91,7 @@ typedef struct
   int needsupdate;
 
   // centre text horizontally, around x.
-  boolean_t centre;
+  bool centre;
 }
 hu_textline_t;
 
@@ -109,9 +109,9 @@ typedef struct
   // current line number
   int curline;
 
-  // pointer to boolean_t stating whether to update window
-  boolean_t *on;
-  boolean_t laston;  // last value of *->on.
+  // pointer to bool stating whether to update window
+  bool *on;
+  bool laston;  // last value of *->on.
 }
 hu_stext_t;
 
@@ -126,9 +126,9 @@ typedef struct
   // left margin past which I am not to delete characters
   int margin;
 
-  // pointer to boolean_t stating whether to update window
-  boolean_t *on;
-  boolean_t laston;  // last value of *->on;
+  // pointer to bool stating whether to update window
+  bool *on;
+  bool laston;  // last value of *->on;
 }
 hu_itext_t;
 
@@ -150,13 +150,13 @@ void HL_InitTextLine(hu_textline_t * t, int x, int y,
     const H_font_t *font);
 
 // returns success
-boolean_t HL_AddCharToTextLine(hu_textline_t * t, char ch);
+bool HL_AddCharToTextLine(hu_textline_t * t, char ch);
 
 // returns success
-boolean_t HL_DelCharFromTextLine(hu_textline_t * t);
+bool HL_DelCharFromTextLine(hu_textline_t * t);
 
 // draws tline
-void HL_DrawTextLine(hu_textline_t * l, boolean_t drawcursor);
+void HL_DrawTextLine(hu_textline_t * l, bool drawcursor);
 
 // erases text line
 void HL_EraseTextLine(hu_textline_t * l);
@@ -167,7 +167,7 @@ void HL_EraseTextLine(hu_textline_t * l);
 
 // initialise new stext
 void HL_InitSText(hu_stext_t * s, int x, int y, int h, 
-    const H_font_t *font, boolean_t * on);
+    const H_font_t *font, bool * on);
 
 // add a new line
 void HL_AddLineToSText(hu_stext_t * s);
@@ -184,7 +184,7 @@ void HL_EraseSText(hu_stext_t * s);
 
 // Input Text Line widget routines
 void HL_InitIText(hu_itext_t * it, int x, int y, 
-    const H_font_t *font, boolean_t * on);
+    const H_font_t *font, bool * on);
 
 // enforces left margin
 void HL_DelCharFromIText(hu_itext_t * it);
@@ -199,7 +199,7 @@ void HL_ResetIText(hu_itext_t * it);
 void HL_AddPrefixToIText(hu_itext_t * it, const char *str);
 
 // whether eaten
-boolean_t HL_KeyInIText(hu_itext_t * it, char ch);
+bool HL_KeyInIText(hu_itext_t * it, char ch);
 
 void HL_DrawIText(hu_itext_t * it);
 
@@ -207,7 +207,7 @@ void HL_DrawIText(hu_itext_t * it);
 void HL_EraseIText(hu_itext_t * it);
 
 // -ACB- 1998/06/10
-void HL_DrawTextLineAlpha(hu_textline_t * l, boolean_t drawcursor, 
+void HL_DrawTextLineAlpha(hu_textline_t * l, bool drawcursor, 
     const colourmap_t *colmap, fixed_t alpha);
 
 #define HL_DrawTextLineTrans(L,DC,TR)  \
