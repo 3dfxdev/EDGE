@@ -144,11 +144,13 @@ const image_t *W_ImageFromFlat(const char *flat_name);
 const image_t *W_ImageFromPatch(const char *patch_name);
 const image_t *W_ImageFromFont(const char *patch_name);
 const image_t *W_ImageFromHalo(const char *patch_name);
+const image_t *W_ImageForDummySprite(void);
 
 extern image_t *savepic_image;
 
 const image_t *W_ImageFromString(char type, const char *name);
 void W_ImageToString(const image_t *image, char *type, char *namebuf);
+
 
 //
 //  IMAGE USAGE

@@ -32,6 +32,7 @@
 #include "ddf_main.h"
 #include "r_defs.h"
 
+boolean_t V_InitPalette(void);
 void V_InitColour(void);
 
 // -ACB- 1999/10/11 Gets an RGB colour from the current palette
@@ -63,6 +64,7 @@ extern byte playpal_data[14][256][3];
 #define PALETTE_BONUS    2
 #define PALETTE_SUIT     3
 
+int V_FindColour(int r, int g, int b);
 void V_SetPalette(int type, float_t amount);
 void V_ColourNewFrame(void);
 
@@ -122,6 +124,11 @@ extern byte null_tranmap[256];
 
 // halo translation table
 extern byte halo_conv_table[256];
+
+// colour indices from palette
+extern int pal_black, pal_white, pal_gray239;
+extern int pal_red, pal_green, pal_blue;
+extern int pal_yellow, pal_green1, pal_brown1;
 
 // colour values.  These assume the standard Doom palette.  Maybe
 // remove most of these one day -- will take some work though...
