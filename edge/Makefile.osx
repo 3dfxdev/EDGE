@@ -47,7 +47,6 @@ SOUND_LIBS=-logg -lvorbis -lvorbisfile -framework OpenAL
 
 ASM_DIR=noasm
 ASM_FLAGS=
-ASM_OBJS=$(ASM_NULL_OBJS)
 
 FLTK_FLAGS=-I/usr/local/lib -DUSE_FLTK
 FLTK_LIBS=$(prefix)/lib/libfltk_images.a $(prefix)/lib/libfltk.a
@@ -67,8 +66,6 @@ HAWK_LIBS=
 # HAWK_LIBS=-lpthread $(prefix)/lib/libNL.a
 
 # --- putting it all together ---------
-
-ASM_DIR=$(ASM_DIR)
 
 CPPFLAGS=-I$(LX_DIR) -I.
 
@@ -226,7 +223,7 @@ COMMON_OBJS= \
         w_wad.o \
 		z_zone.o
 
-ASM_NULL_OBJS= \
+ASM_OBJS= \
         noasm/i_asm.o 
 
 OBJS=$(SYSTEM_OBJS) \
