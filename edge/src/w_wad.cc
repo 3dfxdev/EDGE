@@ -910,18 +910,17 @@ bool W_ReadDDF(void)
 			if (lump < 0)
 				continue;
 
-			// FIXME: not using m_misc's M_GetFileData ???
 			char *data;
 			int length = W_LumpLength(lump);
 
-			data = Z_New(char, length + 1);
+			data = new char[length + 1];
 			W_ReadLump(lump, data);
 			data[length] = 0;
 
 			// call read function
 			(* DDF_Readers[d].func)(data, length);
 
-			Z_Free(data);
+			delete [] data;
 		}
 
 		char msg_buf[256];
