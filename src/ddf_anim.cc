@@ -151,7 +151,7 @@ static void AnimClearAll(void)
 }
 
 
-void DDF_ReadAnims(void *data, int size)
+bool DDF_ReadAnims(void *data, int size)
 {
 	readinfo_t anims;
 
@@ -178,7 +178,7 @@ void DDF_ReadAnims(void *data, int size)
 	anims.finish_entry = AnimFinishEntry;
 	anims.clear_all    = AnimClearAll;
 
-	DDF_MainReadFile(&anims);
+	return DDF_MainReadFile(&anims);
 }
 
 //

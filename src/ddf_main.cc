@@ -269,7 +269,7 @@ void DDF_CleanUp(void)
 }
 
 // -KM- 1998/12/16 This loads the ddf file into memory for parsing.
-// -AJA- Returns NULL if no such file exists.
+// -AJA- Returns NULL if no such file exists (with a warning).
 
 static void *DDF_MainCacheFile(readinfo_t * readinfo)
 {
@@ -289,7 +289,7 @@ static void *DDF_MainCacheFile(readinfo_t * readinfo)
 
 	if (file == NULL)
 	{
-		I_Error("DDF_MainReadFile: Unable to open: '%s'\n", filename);
+		I_Warning("DDF_MainReadFile: Unable to open: '%s'\n", filename);
 
 		I_TmpFree(filename);
 		return NULL;

@@ -62,7 +62,7 @@ typedef struct ddf_reader_s
 {
 	const char *name;
 	const char *print_name;
-	void (* func)(void *data, int size);
+	bool (* func)(void *data, int size);
 }
 ddf_reader_t;
 
@@ -1189,10 +1189,13 @@ void W_ReadDDF(void)
 
 	for (int d = 0; d < NUM_DDF_READERS; d++)
 	{
+		// when external file doesn't exist, use one in EDGE.WAD.
+		bool ext_loaded = false;
+
 		if (external_ddf)
 		{
 			// call read function
-			(* DDF_Readers[d].func)(NULL, 0);
+			ext_loaded = (* DDF_Readers[d].func)(NULL, 0);
 		}
 
 		for (int f = 0; f < data_files.GetSize(); f++)
@@ -1209,7 +1212,7 @@ void W_ReadDDF(void)
 			if (df->kind >= FLKIND_Demo)
 				continue;
 
-			if (external_ddf && df->kind == FLKIND_EWad)
+			if (ext_loaded && df->kind == FLKIND_EWad)
 				continue;
 
 			int lump = df->ddf_lumps[d];

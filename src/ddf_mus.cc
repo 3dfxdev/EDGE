@@ -174,7 +174,7 @@ static void PlaylistClearAll(void)
 //
 // DDF_ReadMusicPlaylist
 //
-void DDF_ReadMusicPlaylist(void *data, int size)
+bool DDF_ReadMusicPlaylist(void *data, int size)
 {
 	readinfo_t playlistinfo;
 
@@ -201,7 +201,7 @@ void DDF_ReadMusicPlaylist(void *data, int size)
 	playlistinfo.finish_entry = PlaylistFinishEntry;
 	playlistinfo.clear_all    = PlaylistClearAll;
 
-	DDF_MainReadFile(&playlistinfo);
+	return DDF_MainReadFile(&playlistinfo);
 }
 
 //

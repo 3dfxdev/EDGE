@@ -424,7 +424,7 @@ static void LanguageClearAll(void)
 }
 
 
-void DDF_ReadLangs(void *data, int size)
+bool DDF_ReadLangs(void *data, int size)
 {
 	readinfo_t languages;
 
@@ -451,7 +451,7 @@ void DDF_ReadLangs(void *data, int size)
 	languages.finish_entry = LanguageFinishEntry;
 	languages.clear_all    = LanguageClearAll;
 
-	DDF_MainReadFile(&languages);
+	return DDF_MainReadFile(&languages);
 }
 
 void DDF_LanguageInit(void)

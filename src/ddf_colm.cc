@@ -144,7 +144,7 @@ static void ColmapClearAll(void)
 }
 
 
-void DDF_ReadColourMaps(void *data, int size)
+bool DDF_ReadColourMaps(void *data, int size)
 {
 	readinfo_t colm_r;
 
@@ -171,7 +171,7 @@ void DDF_ReadColourMaps(void *data, int size)
 	colm_r.finish_entry = ColmapFinishEntry;
 	colm_r.clear_all    = ColmapClearAll;
 
-	DDF_MainReadFile(&colm_r);
+	return DDF_MainReadFile(&colm_r);
 }
 
 void DDF_ColmapInit(void)

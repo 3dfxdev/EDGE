@@ -125,7 +125,7 @@ static void SwitchClearAll(void)
 }
 
 
-void DDF_ReadSW(void *data, int size)
+bool DDF_ReadSW(void *data, int size)
 {
 #if (DEBUG_DDF)
 	epi::array_iterator_c it;
@@ -157,7 +157,8 @@ void DDF_ReadSW(void *data, int size)
 	switches.finish_entry = SwitchFinishEntry;
 	switches.clear_all    = SwitchClearAll;
 
-	DDF_MainReadFile(&switches);
+	if (! DDF_MainReadFile(&switches))
+		return false;
 
 #if (DEBUG_DDF)
 	L_WriteDebug("DDF_ReadSW: Switch List:\n");
@@ -170,6 +171,8 @@ void DDF_ReadSW(void *data, int size)
 						i, sw->name1, sw->name2);
 	}
 #endif
+
+	return true;
 }
 
 //

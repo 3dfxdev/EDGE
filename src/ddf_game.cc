@@ -139,7 +139,7 @@ static void GameClearAll (void)
 }
 
 
-void DDF_ReadGames (void *data, int size)
+bool DDF_ReadGames (void *data, int size)
 {
 	readinfo_t games;
 
@@ -166,7 +166,7 @@ void DDF_ReadGames (void *data, int size)
 	games.finish_entry = GameFinishEntry;
 	games.clear_all = GameClearAll;
 
-	DDF_MainReadFile (&games);
+	return DDF_MainReadFile (&games);
 }
 
 void DDF_GameInit(void)

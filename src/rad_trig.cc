@@ -752,14 +752,18 @@ void RAD_LoadFile(const char *name)
 //
 // RAD_ReadScript
 //
-void RAD_ReadScript(void *data, int size)
+bool RAD_ReadScript(void *data, int size)
 {
 	if (data == NULL)
 	{
 		epi::string_c fn;
 		M_ComposeFileName(fn, ddfdir, "edge.scr");
+
+		if (! I_Access(fn.GetString()))
+			return false;
+
 		RAD_LoadFile(fn.GetString());
-		return;
+		return true;
 	}
 
 	L_WriteDebug("RTS: Loading LUMP (size=%d)\n", size);
@@ -779,6 +783,8 @@ void RAD_ReadScript(void *data, int size)
 	RAD_ParseScript();
 
 	Z_Free(rad_memfile);
+
+	return true;
 }
 
 //

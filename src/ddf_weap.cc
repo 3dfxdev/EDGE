@@ -306,7 +306,7 @@ static void WeaponClearAll(void)
 //
 // DDF_ReadWeapons
 //
-void DDF_ReadWeapons(void *data, int size)
+bool DDF_ReadWeapons(void *data, int size)
 {
 	readinfo_t weapons;
 
@@ -333,7 +333,7 @@ void DDF_ReadWeapons(void *data, int size)
 	weapons.finish_entry = WeaponFinishEntry;
 	weapons.clear_all    = WeaponClearAll;
 
-	DDF_MainReadFile(&weapons);
+	return DDF_MainReadFile(&weapons);
 }
 
 void DDF_WeaponInit(void)
