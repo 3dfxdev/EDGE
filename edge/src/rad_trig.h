@@ -40,7 +40,8 @@ void TIP_DisplayTips(int y);
 
 // RadiusTrigger & Scripting Prototypes
 boolean_t RAD_Init(void);
-void RAD_LoadScript(const char *name, int lump, boolean_t dots);
+void RAD_LoadLump(void *data, int size);
+void RAD_LoadFile(const char *name, boolean_t dots);
 void RAD_SpawnTriggers(char *map_name);
 void RAD_ClearTriggers(void);
 
@@ -74,6 +75,7 @@ void RAD_ActNOP(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActTip(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActPlaySound(rad_trigger_t *R, mobj_t *actor, void *param);
+void RAD_ActKillSound(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActSectorMove(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActSectorLight(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActEnableScript(rad_trigger_t *R, mobj_t *actor, void *param);
