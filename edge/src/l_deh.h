@@ -26,12 +26,8 @@
 #ifndef __L_DEH__
 #define __L_DEH__
 
-extern bool dh_draw_progress;
-
 bool DH_ConvertFile(const char *filename, const char *outname);
 bool DH_ConvertLump(const byte *data, int length, const char *lumpname,
 	const char *outname);
-
-void DH_DrawProgress(void);
 
 #endif  // __L_DEH__

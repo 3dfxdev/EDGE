@@ -915,7 +915,7 @@ int L_ConvertToDB(int volume, int min, int max)
 // Returns -1 for less, 0 for equals, and +1 for greater.
 // I.e. the same values as used by strcmp() and friends.
 //
-int L_CompareTimeStamps(i_time_t *A, i_time_t *B)
+int L_CompareTimeStamps(const i_time_t *A, const i_time_t *B)
 {
 	int a_index;
 	int b_index;
@@ -939,6 +939,27 @@ int L_CompareTimeStamps(i_time_t *A, i_time_t *B)
 		return +1;
 	else
 		return 0;
+}
+
+//
+// L_CompareFileTimes
+//
+// Just like L_CompareTimeStamps above, but give the filenames.
+//
+int L_CompareFileTimes(const char *A, const char *B)
+{
+	i_time_t A_time;
+	i_time_t B_time;
+
+	// FIXME: probably better to throw exceptions rather than I_Error
+
+	if (!I_GetModifiedTime(A, &A_time))
+		I_Error("AddFile: I_GetModifiedTime failed on %s\n", A);
+
+	if (!I_GetModifiedTime(B, &B_time))
+		I_Error("AddFile: I_GetModifiedTime failed on %s\n", B);
+
+	return L_CompareTimeStamps(&A_time, &B_time);
 }
 
 

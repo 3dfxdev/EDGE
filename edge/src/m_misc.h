@@ -77,7 +77,8 @@ byte *M_GetFileData(const char *filename, int *length);
 void M_ComposeFileName(epi::string_c& fn, const char *dir, const char *file);
 void M_WarnError(const char *error,...) GCCATTR(format(printf, 1, 2));
 
-int L_CompareTimeStamps(i_time_t *A, i_time_t *B);
+int L_CompareTimeStamps(const i_time_t *A, const i_time_t *B);
+int L_CompareFileTimes(const char *wad_file, const char *gwa_file);
 
 extern unsigned short save_screenshot[160][100];
 extern bool save_screenshot_valid;

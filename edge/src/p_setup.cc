@@ -1423,8 +1423,8 @@ static void SetupWallTiles(void)
 		numwalltiles += num_0 + num_1;
 	}
 
-	/// I_Printf("%dK used for wall tiles.\n", (numwalltiles *
-	///    sizeof(wall_tile_t) + 1023) / 1024);
+	// I_Printf("%dK used for wall tiles.\n", (numwalltiles *
+	//    sizeof(wall_tile_t) + 1023) / 1024);
 
 	DEV_ASSERT2(numwalltiles > 0);
 
@@ -1488,8 +1488,8 @@ static void SetupVertGaps(void)
 
 	numvertgaps = line_gaps + sect_sight_gaps;
 
-	/// I_Printf("%dK used for vert gaps.\n", (numvertgaps *
-	///    sizeof(vgap_t) + 1023) / 1024);
+	// I_Printf("%dK used for vert gaps.\n", (numvertgaps *
+	//    sizeof(vgap_t) + 1023) / 1024);
 
 	// zero is now impossible
 	DEV_ASSERT2(numvertgaps > 0);
@@ -2178,16 +2178,8 @@ void P_SetupLevel(skill_t skill, int autotag)
 	if (gl_lumpnum >= 0 && gl_lumpnum < lumpnum)
 		gl_lumpnum = -1;
 
-	// -- GLBSP PLUGIN CODE --
-
-	if (gl_lumpnum < 0)
-	{
-		if (GB_BuildNodes(lumpnum))
-			gl_lumpnum = W_CheckNumForName(gl_lumpname);
-
-		if (gl_lumpnum < 0)
-			I_Error("Failed to build GL-Nodes !\n");
-	}
+	if (gl_lumpnum < 0)  // shouldn't happen
+		I_Error("Internal error: missing GL-Nodes.\n");
 
 	// clear CRC values
 	mapsector_CRC.Reset();

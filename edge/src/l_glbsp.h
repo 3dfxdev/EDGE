@@ -26,9 +26,6 @@
 #ifndef __L_GLBSP__
 #define __L_GLBSP__
 
-extern bool gb_draw_progress;
-
-bool GB_BuildNodes(int map_lump);
-void GB_DrawProgress(void);
+bool GB_BuildNodes(const char *filename, const char *outname);
 
 #endif  // __L_GLBSP__
