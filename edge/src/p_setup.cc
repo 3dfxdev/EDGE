@@ -603,7 +603,7 @@ static void LoadNodes(int lump, char *name)
 //
 // SpawnMapThing
 //
-static void SpawnMapThing(const mobjinfo_t *info,
+static void SpawnMapThing(const mobjinfo_c *info,
 						  float x, float y, float z, angle_t angle, int options)
 {
 	int bit;
@@ -717,7 +717,7 @@ static void LoadThings(int lump)
 
 	const void *data;
 	const mapthing_t *mt;
-	const mobjinfo_t *objtype;
+	const mobjinfo_c *objtype;
 	int numthings;
 
 	if (!W_VerifyLumpName(lump, "THINGS"))
@@ -750,7 +750,7 @@ static void LoadThings(int lump)
 		}
 #endif
 
-		objtype = DDF_MobjLookupNum(typenum);
+		objtype = mobjinfo.Lookup(typenum);
 
 		// MOBJTYPE not found, don't crash out: JDS Compliance.
 		// -ACB- 1998/07/21
@@ -783,7 +783,7 @@ static void LoadHexenThings(int lump)
 
 	const void *data;
 	const maphexenthing_t *mt;
-	const mobjinfo_t *objtype;
+	const mobjinfo_c *objtype;
 	int numthings;
 
 	if (!W_VerifyLumpName(lump, "THINGS"))
@@ -808,7 +808,7 @@ static void LoadHexenThings(int lump)
 		typenum = USHORT(mt->type);
 		options = USHORT(mt->options) & 0x000F;
 
-		objtype = DDF_MobjLookupNum(typenum);
+		objtype = mobjinfo.Lookup(typenum);
 
 		// MOBJTYPE not found, don't crash out: JDS Compliance.
 		// -ACB- 1998/07/21
