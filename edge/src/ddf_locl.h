@@ -253,6 +253,8 @@ state_starter_t;
 void DDF_MainReadFile(readinfo_t * readinfo);
 
 void DDF_Error(const char *err, ...);
+void DDF_Warning(const char *err, ...);
+void DDF_WarnError(const char *err, ...);
 
 void DDF_MainGetPercent(const char *info, void *storage, void *priv);
 void DDF_MainGetBoolean(const char *info, void *storage, void *priv);
