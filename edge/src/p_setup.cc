@@ -2369,6 +2369,102 @@ void P_SetupLevel(skill_t skill, int autotag)
 	level_active = true;
 }
 
+static void DetectSectorCompat(int lump, int *edge_cnt, int *boom_cnt)
+{
+	if (! W_VerifyLumpName(lump, "SECTORS"))
+		return;
+
+	numsectors = W_LumpLength(lump) / sizeof(mapsector_t);
+	if (numsectors == 0)
+		return;
+
+	const void *data = W_CacheLumpNum(lump);
+	const mapsector_t *ms = (const mapsector_t *) data;
+
+	for (; numsectors > 0; numsectors--, ms++)
+	{
+		// convert negative tags to zero
+		/// int tag = MAX(0, EPI_LE_S16(ms->tag));
+		int special = MAX(0, EPI_LE_S16(ms->special));
+
+		if (special == 0)
+			continue;
+
+		sectortype_c *def = sectortypes.Lookup(special);  // NULL OK !
+
+		if (DDF_IsBoomSectorType(special) && !def)
+			*boom_cnt++;
+		else if (special >= 32 && def)
+			*edge_cnt++;
+	}
+
+	W_DoneWithLump(data);
+}
+
+static void DetectLineDefCompat(int lump, int *edge_cnt, int *boom_cnt)
+{
+	if (! W_VerifyLumpName(lump, "LINEDEFS"))
+		return;
+
+	numlines = W_LumpLength(lump) / sizeof(maplinedef_t);
+	if (numlines == 0)
+		return;
+
+	const void *data = W_CacheLumpNum(lump);
+	const maplinedef_t *mld = (const maplinedef_t *) data;
+
+	for (; numlines > 0; numlines--, mld++)
+	{
+		/// int flags = EPI_LE_U16(mld->flags);
+		/// int tag = MAX(0, EPI_LE_S16(mld->tag));
+		int special = MAX(0, EPI_LE_S16(mld->special));
+
+		if (special == 0)
+			continue;
+
+		linetype_c *def = linetypes.Lookup(special);  // NULL OK !
+
+		if ((DDF_IsBoomLineType(special) && !def) || special == 242)
+			*boom_cnt++;
+		else if (def->ef.type != EXFL_None)
+			*edge_cnt++;
+	}
+
+	W_DoneWithLump(data);
+}
+
+//
+// P_DetectMapCompat
+//
+// Returns a combination of MAP_CM_Edge and MAP_CM_Boom.
+//
+int P_DetectMapCompat(const mapdef_c *map)
+{
+	int lumpnum = W_CheckNumForName(currmap->lump.GetString());
+
+	if (lumpnum < 0)
+		return 0;
+
+	// check if the level is for Hexen
+	if (lumpnum + ML_BEHAVIOR < numlumps &&
+		W_VerifyLumpName(lumpnum + ML_BEHAVIOR, "BEHAVIOR"))
+	{
+		return 0;
+	}
+
+	int edge_cnt = 0;
+	int boom_cnt = 0;
+
+	DetectSectorCompat( lumpnum + ML_SECTORS,  &edge_cnt, &boom_cnt);
+	DetectLineDefCompat(lumpnum + ML_LINEDEFS, &edge_cnt, &boom_cnt);
+
+	L_WriteDebug("P_DetectMapCompat: [%s] edge_cnt %d, boom_cnt %d\n",
+		currmap->lump.GetString(), edge_cnt, boom_cnt);
+
+	return ((edge_cnt > 0) ? MAP_CM_Edge : 0) | 
+	       ((boom_cnt > 0) ? MAP_CM_Boom : 0);
+}
+
 //
 // P_Init
 //

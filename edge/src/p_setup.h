@@ -36,15 +36,24 @@ extern epi::crc32_c mapthing_CRC;
 
 extern int mapthing_NUM;
 
+// Called by startup code.
+void P_Init(void);
+
 // -KM- 1998/11/25 Added autotag.  Linedefs with this tag are automatically
 //   triggered.
 void P_SetupLevel(skill_t skill, int autotag);
 
-// Called by startup code.
-void P_Init(void);
-
 // Needed by savegame code.
 void P_RemoveMobjs(void);
 void P_RemoveItemsInQue(void);
+
+typedef enum
+{
+	MAP_CM_Edge = 0x0001,  // uses EDGE features
+	MAP_CM_Boom = 0x0002,  // uses BOOM features
+}
+mapcompat_e;
+
+int P_DetectMapCompat(const mapdef_c *map);
 
 #endif
