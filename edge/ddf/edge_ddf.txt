@@ -6,7 +6,7 @@ EDGE DDF 4.4: (2005-02-05)
 
 2) IMAGES.DDF: added prefixes to every entry.
 
-3) ATTACKS.DDF: Revenant missile should have NO_TRACE_CHANCE = 25%,
+3) ATTACKS.DDF: Revenant missile should have NO_TRACE_CHANCE = 50%,
                 and fixed timing to match original Doom.
 
 
