@@ -214,6 +214,14 @@ void *NetRun(void *data)
 				PK_connect_to_server(&pk, &remote_addr);
 				continue;
 			}
+			else if (pk.CheckType("bd"))   // broadcast discovery
+			{
+				PK_broadcast_discovery(&pk);
+				continue;
+			}
+
+			// must validate the client field (the only exceptions are the
+			// connect-to-server and the broadcast-discovery packets).
 
 			if (! VerifyClient(pk.hd().source, &remote_addr))
 			{

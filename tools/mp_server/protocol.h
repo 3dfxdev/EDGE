@@ -79,7 +79,7 @@ typedef struct error_proto_s
 error_proto_t;
 
 
-/* BROADCAST-DISCOVER ("bd") has no data */
+/* BROADCAST-DISCOVERY ("bd") has no data */
 
 
 //

@@ -121,7 +121,7 @@ bool client_c::MatchDest(int dest, int game) const
 
 void client_c::TransmitMessage(packet_c *pk)
 {
-	// !!!!! FIXME: set remote addr to dest client
+	nlSetRemoteAddr(main_socket, &addr);
 
 	pk->Write(main_socket);
 
@@ -302,6 +302,16 @@ void PK_leave_server(packet_c *pk)
 	pk->hd().flags = 0;
 	pk->hd().data_len = 0;
 	pk->hd().game = -1;
+
+	pk->Write(main_socket);
+}
+
+void PK_broadcast_discovery(packet_c *pk)
+{
+	// very simple: just send it back!
+	// (client will get our address and port)
+
+	pk->SetType("Bd");
 
 	pk->Write(main_socket);
 }
