@@ -28,8 +28,8 @@
 //
 // Setup Constructor
 //
-UI_Setup::UI_Setup(int x, int y, int w, int h) :
-    Fl_Group(x, y, w, h)
+UI_Setup::UI_Setup(int x, int y, int w, int h, const char *label) :
+    Fl_Group(x, y, w, h, label)
 {
 	// cancel the automatic `begin' in Fl_Group constructor
 	end();
@@ -38,14 +38,15 @@ UI_Setup::UI_Setup(int x, int y, int w, int h) :
 
 	int gy = y;
 
-	Fl_Group *sv_info = new Fl_Group(x, gy, w, 160, "\n Server Panel");
-	sv_info->end();
+	Fl_Group *sv_info = this;
+
+///	sv_info->end();
 	sv_info->box(FL_THIN_UP_BOX);
 	sv_info->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT | FL_ALIGN_TOP);
 	sv_info->labeltype(FL_NORMAL_LABEL);
 	sv_info->labelfont(FL_HELVETICA_BOLD);
 
-	add(sv_info);
+	resizable(0);  // don't resize our children
 
 	gy += sv_info->h();
 
@@ -87,7 +88,7 @@ UI_Setup::UI_Setup(int x, int y, int w, int h) :
 	stop_but->color(FL_RED);
 	sv_info->add(stop_but);
 
-	/* ----- Limits panel ----- */
+#if 0	/* ----- Limits panel ----- */
 	
 	Fl_Group *lim_info = new Fl_Group(x, gy, w, 130, "\n Limits Panel");
 	lim_info->end();
@@ -141,8 +142,9 @@ UI_Setup::UI_Setup(int x, int y, int w, int h) :
 	max_bots->value(4);
 
 	lim_info->add(max_bots);
+#endif
 
-	/* ----- Authorisation panel ----- */
+#if 0	/* ----- Authorisation panel ----- */
 
 	Fl_Group *act_panel = new Fl_Group(x, gy, w, y + h - gy, "\n Authorisation Panel");
 	act_panel->end();
@@ -158,6 +160,7 @@ UI_Setup::UI_Setup(int x, int y, int w, int h) :
 	// TODO: authorisation stuff (passwords for game creation).
 
 	resizable(act_panel);  // TEMP
+#endif
 }
 
 

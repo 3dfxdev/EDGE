@@ -47,11 +47,11 @@ public:
 	Fl_Menu_Bar *menu_bar;
 #endif
 
-	Fl_Tabs *tabs;
+///	Fl_Tabs *tabs;
 
 	UI_Setup *setup_box;
-	UI_ClientList *client_list;
-	UI_GameList *game_list;
+///	UI_ClientList *client_list;
+///	UI_GameList *game_list;
 
 	UI_Stats *stat_box;
 	UI_LogBox *log_box;

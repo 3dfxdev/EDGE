@@ -28,8 +28,8 @@
 //
 // Stats Constructor
 //
-UI_Stats::UI_Stats(int x, int y, int w, int h) :
-    Fl_Group(x, y, w, h)
+UI_Stats::UI_Stats(int x, int y, int w, int h, const char *label) :
+    Fl_Group(x, y, w, h, label)
 {
 	// cancel the automatic `begin' in Fl_Group constructor
 	end();
@@ -38,7 +38,10 @@ UI_Stats::UI_Stats(int x, int y, int w, int h) :
 	resizable(0);  // don't resize our children
 
 	labeltype(FL_NORMAL_LABEL);
+	labelfont(FL_HELVETICA_BOLD);
 	align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT | FL_ALIGN_TOP);
+
+	y += 38;
 
 	// ---- numbers of clients and games ----
 
@@ -47,12 +50,12 @@ UI_Stats::UI_Stats(int x, int y, int w, int h) :
 	clients->value("0");
 	add(clients);
 
-	queued = new Fl_Output(x+120, y+30, 50, 22, "Games Queued: ");
+	queued = new Fl_Output(x+120, y+32, 50, 22, "Games Queued: ");
 	queued->align(FL_ALIGN_LEFT);
 	queued->value("0");
 	add(queued);
 
-	played = new Fl_Output(x+120, y+56, 50, 22, "Games Played: ");
+	played = new Fl_Output(x+120, y+60, 50, 22, "Games Played: ");
 	played->align(FL_ALIGN_LEFT);
 	played->value("0");
 	add(played);
@@ -64,12 +67,12 @@ UI_Stats::UI_Stats(int x, int y, int w, int h) :
 	in_pks->value("0");
 	add(in_pks);
 
-	out_pks = new Fl_Output(x+300, y+30, 70, 22, "Output packets: ");
+	out_pks = new Fl_Output(x+300, y+32, 70, 22, "Output packets: ");
 	out_pks->align(FL_ALIGN_LEFT);
 	out_pks->value("0");
 	add(out_pks);
 
-	buf_pks = new Fl_Output(x+300, y+56, 70, 22, "Buffered packets: ");
+	buf_pks = new Fl_Output(x+300, y+60, 70, 22, "Buffered packets: ");
 	buf_pks->align(FL_ALIGN_LEFT);
 	buf_pks->value("0");
 	add(buf_pks);
@@ -81,12 +84,12 @@ UI_Stats::UI_Stats(int x, int y, int w, int h) :
 	in_bytes->value("0");
 	add(in_bytes);
 
-	out_bytes = new Fl_Output(x+430, y+30, 100, 22, "Kbytes: ");
+	out_bytes = new Fl_Output(x+430, y+32, 100, 22, "Kbytes: ");
 	out_bytes->align(FL_ALIGN_LEFT);
 	out_bytes->value("0");
 	add(out_bytes);
 
-	buf_bytes = new Fl_Output(x+430, y+56, 100, 22, "Kbytes: ");
+	buf_bytes = new Fl_Output(x+430, y+60, 100, 22, "Kbytes: ");
 	buf_bytes->align(FL_ALIGN_LEFT);
 	buf_bytes->value("0");
 	add(buf_bytes);
