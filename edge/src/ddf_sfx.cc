@@ -297,7 +297,7 @@ sfx_t *DDF_SfxLookupSound(const char *name)
 //
 // DDF_MainLookupSound
 //
-// Lookup the sound specificed.
+// Lookup the sound specified.
 //
 // -ACB- 1998/07/08 Checked the S_sfx table for sfx names.
 // -ACB- 1998/07/18 Removed to the need set *currentcmdlist[commandref].data to -1
