@@ -94,6 +94,7 @@ typedef struct region_properties_s
   float_t gravity;
   float_t friction;
   float_t viscosity;
+  float_t drag;
 
   // pushing sector information (normally 0)
   float_t x_push, y_push, z_push;
