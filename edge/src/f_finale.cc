@@ -47,6 +47,7 @@
 #include "v_res.h"
 #include "z_zone.h"
 #include "w_wad.h"
+#include "wi_stuff.h"
 
 typedef enum
 {
@@ -168,104 +169,106 @@ bool F_Responder(event_t * event)
 //
 void F_Ticker(void)
 {
-  finalestage_e fstage = finalestage;
+	finalestage_e fstage = finalestage;
 
-  if (skip_finale)
-  {
-    skip_finale = false;
-    if (finalestage == (finalestage_e)f_text && (unsigned int)finalecount < TEXTSPEED * strlen(DDF_LanguageLookup(finale->text)))
-    {
-      // -ES- 2000/03/08 Two-stage text acceleration. Complete the text the
-      // first time, skip to next finale the second time.
-      finalecount = TEXTSPEED * strlen(DDF_LanguageLookup(finale->text));
-    }
-    else
-    {
-      finalestage++;
-      finalecount = 0;
-    }
-  }
+	if (skip_finale)
+	{
+		skip_finale = false;
+		if (finalestage == (finalestage_e)f_text && (unsigned int)finalecount < TEXTSPEED * strlen(DDF_LanguageLookup(finale->text)))
+		{
+			// -ES- 2000/03/08 Two-stage text acceleration. Complete the text the
+			// first time, skip to next finale the second time.
+			finalecount = TEXTSPEED * strlen(DDF_LanguageLookup(finale->text));
+		}
+		else
+		{
+			finalestage++;
+			finalecount = 0;
+		}
+	}
 
-  switch (finalestage)
-  {
-    case f_text:
-      if (finale->text)
-      {
-        gamestate = GS_FINALE;
-        if (!finalecount)
-        {
-          finaletext = DDF_LanguageLookup(finale->text);
-          S_ChangeMusic(finale->music, true);
-          wipegamestate = GS_NOTHING;
-          break;
-        }
-        else if ((unsigned int)finalecount > strlen(finaletext) * TEXTSPEED + TEXTWAIT)
-        {
-          finalecount = 0;
-        }
-        else
-          break;
-      }
-      finalestage++;
+	switch (finalestage)
+	{
+		case f_text:
+			if (finale->text)
+			{
+				gamestate = GS_FINALE;
+				if (!finalecount)
+				{
+					finaletext = DDF_LanguageLookup(finale->text);
+					S_ChangeMusic(finale->music, true);
+					wipegamestate = GS_NOTHING;
+					break;
+				}
+				else if ((unsigned int)finalecount > strlen(finaletext) * TEXTSPEED + TEXTWAIT)
+				{
+					finalecount = 0;
+				}
+				else
+					break;
+			}
+			finalestage++;
 
-    case f_pic:
-      if (finale->pics)
-      {
-        gamestate = GS_FINALE;
-        if ((unsigned int)finalecount > finale->picwait)
-        {
-          finalecount = 0;
-          picnum++;
-        }
+		case f_pic:
+			if (finale->pics)
+			{
+				gamestate = GS_FINALE;
+				if ((unsigned int)finalecount > finale->picwait)
+				{
+					finalecount = 0;
+					picnum++;
+				}
 
-        if ((unsigned int)picnum >= finale->numpics)
-        {
-          finalecount = 0;
-          picnum = 0;
-        }
-        else
-          break;
-      }
-      finalestage++;
+				if ((unsigned int)picnum >= finale->numpics)
+				{
+					finalecount = 0;
+					picnum = 0;
+				}
+				else
+					break;
+			}
+			finalestage++;
 
-    case f_bunny:
-      if (finale->dobunny)
-      {
-        gamestate = GS_FINALE;
+		case f_bunny:
+			if (finale->dobunny)
+			{
+				gamestate = GS_FINALE;
 
-        if (!finalecount)
-          wipegamestate = GS_NOTHING; // force a wipe
+				if (!finalecount)
+				{
+					S_ChangeMusic(worldmap.special_music, true);
+					wipegamestate = GS_NOTHING; // force a wipe
+				}
 
-        break;
-      }
-      finalestage++;
+				break;
+			}
+			finalestage++;
 
-    case f_cast:
-      if (finale->docast)
-      {
-        gamestate = GS_FINALE;
-        if (!finalecount)
-          StartCast();
-        else
-          CastTicker();
-        break;
-      }
-      finalestage++;
+		case f_cast:
+			if (finale->docast)
+			{
+				gamestate = GS_FINALE;
+				if (!finalecount)
+					StartCast();
+				else
+					CastTicker();
+				break;
+			}
+			finalestage++;
 
-    case f_end:
-      if (newgameaction != ga_nothing)
-        gameaction = newgameaction;
-      else
-        finalestage = fstage;
-      break;
-  }
+		case f_end:
+			if (newgameaction != ga_nothing)
+				gameaction = newgameaction;
+			else
+				finalestage = fstage;
+			break;
+	}
 
-  if (finalestage != fstage && finalestage != f_end)
-    wipegamestate = GS_NOTHING;
+	if (finalestage != fstage && finalestage != f_end)
+		wipegamestate = GS_NOTHING;
 
-  // advance animation
-  finalecount++;
-
+	// advance animation
+	finalecount++;
 }
 
 //
@@ -457,7 +460,7 @@ static void StartCast(void)
 
   CastSetState(castorder->chase_state);
  
-  // S_ChangeMusic("d_evil", true);
+  S_ChangeMusic(worldmap.special_music, true);
 }
 
 //
