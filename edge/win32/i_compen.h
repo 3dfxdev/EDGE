@@ -21,7 +21,11 @@
 //
 // -ACB- 1999/09/22
 //
+#ifndef __I_COMPEN__
+#define __I_COMPEN__
 
-int strcasecmp(const char *s1, const char *s2);
+//int strcasecmp(const char *s1, const char *s2);
 int strncasecmp(const char *s1, const char *s2, int max);
 int strncasecmpwild(const char *s1, const char *s2, int n);
+
+#endif
