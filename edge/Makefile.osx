@@ -8,22 +8,24 @@
 
 PROGNAME=gledge
 
+# Prefix for static libraries and their headers
+prefix=/Users/aapted
+
 # compiler
-CC=g++
+CXX=g++
 
 # assembler (for the .asm files)
 AS=nasm -f elf
 
 # optimisation
-#OPTIM=-O3
 #OPTIM=-g3
-OPTIM=-O
+OPTIM=-O2
 
 DEBUG=1
 #PROFILE=1
 #RELEASE=1
 
-# --- internal stuff from here on ---
+# --- internal stuff from here on ------
 
 LX_DIR=linux
 EPI_DIR=epi
@@ -32,23 +34,23 @@ AL_DIR=AL
 LZO_DIR=lzo
 GLBSP_DIR=glbsp-2.10
 DEH_DIR=deh_edge_1.3
-JPEG_DIR=libjpeg
-PNG_DIR=libpng
 
-VIDEO_FLAGS=$(shell sdl-config --cflags)
-VIDEO_LDFLAGS=-L/usr/X11R6/lib
+VIDEO_FLAGS=$(shell $(prefix)/bin/sdl-config --cflags)
+VIDEO_LDFLAGS=
 VIDEO_OBJS=$(SDL_DIR)/i_video.o
-VIDEO_LIBS=$(shell sdl-config --libs) -lGL
+VIDEO_LIBS=$(shell $(prefix)/bin/sdl-config --static-libs)
 
-SOUND_FLAGS=-DUSE_AL
+SOUND_FLAGS=-DUSE_AL -I/Library/Frameworks/OpenAL.framework/Headers
 SOUND_LDFLAGS=
-SOUND_OBJS=$(AL_DIR)/i_sound.o\
-		$(AL_DIR)/oggplayer.o
-SOUND_LIBS=-lopenal -logg -lvorbis -lvorbisfile
+SOUND_OBJS=$(AL_DIR)/i_sound.o $(AL_DIR)/oggplayer.o
+SOUND_LIBS=-logg -lvorbis -lvorbisfile -framework OpenAL
 
 ASM_DIR=noasm
 ASM_FLAGS=
 ASM_OBJS=$(ASM_NULL_OBJS)
+
+FLTK_FLAGS=-I/usr/local/lib -DUSE_FLTK
+FLTK_LIBS=$(prefix)/lib/libfltk_images.a $(prefix)/lib/libfltk.a
 
 # HUM_OBJS=
 # HUM_FLAGS=
@@ -57,29 +59,45 @@ HUM_OBJS=$(AL_DIR)/humdinger.o
 HUM_FLAGS=-I./humidity-0.50 -DUSE_HUMID
 HUM_LIBS=./humidity-0.50/libhumidity.a  # -lpthread
 
-# --- putting it all together ---
+HAWK_FLAGS=
+HAWK_LDFLAGS=
+HAWK_LIBS=
+# HAWK_FLAGS=-I./hawknl1.68/include -DUSE_HAWKNL
+# HAWK_LDFLAGS=-L./hawknl1.68/src
+# HAWK_LIBS=-lpthread $(prefix)/lib/libNL.a
+
+# --- putting it all together ---------
 
 ASM_DIR=$(ASM_DIR)
 
 CPPFLAGS=-I$(LX_DIR) -I.
 
-CFLAGS=-Wall $(OPTIM) -DMACOSX -DDEVELOPERS  -D__BIG_ENDIAN__  \
-       $(ASM_FLAGS) $(VIDEO_FLAGS)  \
-       $(SOUND_FLAGS)
+CFLAGS=-Wall $(OPTIM) -DMACOSX -DDEVELOPERS -DUSE_FLTK -DUSE_DEH -D__BIG_ENDIAN__  \
+       $(ASM_FLAGS) $(VIDEO_FLAGS) $(SOUND_FLAGS) \
+	   $(FLTK_FLAGS) $(HUM_FLAGS) $(HAWK_FLAGS) \
+	   -I$(prefix)/include
 
-CXXFLAGS=-Wall $(OPTIM) -DMACOSX -DDEVELOPERS  -D__BIG_ENDIAN__ \
-       $(ASM_FLAGS) $(VIDEO_FLAGS)  \
-       $(SOUND_FLAGS)
+CXXFLAGS=-Wall $(OPTIM) -DMACOSX -DDEVELOPERS -DUSE_FLTK -DUSE_DEH -D__BIG_ENDIAN__ \
+       $(ASM_FLAGS) $(VIDEO_FLAGS) $(SOUND_FLAGS) \
+	   $(FLTK_FLAGS) $(HUM_FLAGS) $(HAWK_FLAGS) \
+	   -I$(prefix)/include
 
 LDFLAGS=$(VIDEO_LDFLAGS)  \
-        $(SOUND_LDFLAGS)
+        $(SOUND_LDFLAGS) -I$(prefix)/lib
+
+# ----- LIBRARIES --------------------------------------------------------
 
 LIBS=-lm  \
-	$(EPI_DIR)/libepi.a $(LZO_DIR)/liblzo.a \
+	$(EPI_DIR)/libepi.a \
+	$(LZO_DIR)/liblzo.a \
 	$(GLBSP_DIR)/libglbsp.a  \
 	$(DEH_DIR)/libdehedge.a  \
-	$(VIDEO_LIBS) $(SOUND_LIBS) \
-	-lpng
+	$(prefix)/lib/libz.a \
+	$(prefix)/lib/libpng.a \
+	$(VIDEO_LIBS) \
+	$(SOUND_LIBS) \
+	$(FLTK_LIBS) \
+	$(HUM_LIBS) 
 
 # ----- OBJECTS --------------------------------------------------------
 
@@ -245,7 +263,7 @@ dehedge:
 	$(MAKE) -C $(DEH_DIR) -f Plugin_osx.mak
 
 $(PROGNAME): $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $(PROGNAME) $(LIBS)
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $(PROGNAME) $(LIBS)
 
 .PHONY: all clean $(SUBDIRS)
 
