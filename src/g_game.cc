@@ -36,6 +36,7 @@
 #include "dm_state.h"
 #include "dstrings.h"
 #include "e_main.h"
+#include "e_input.h"
 #include "f_finale.h"
 #include "m_argv.h"
 #include "m_cheat.h"
@@ -71,9 +72,9 @@
 #define SAVEGAMESIZE    0x50000
 #define SAVESTRINGSIZE  24
 
-bool G_CheckDemoStatus(void);
 void G_ReadDemoTiccmd(ticcmd_t * cmd);
 void G_WriteDemoTiccmd(ticcmd_t * cmd);
+bool G_FinishDemo(void);
 
 static void G_DoReborn(player_t *p);
 
@@ -89,16 +90,13 @@ gameaction_e gameaction = ga_nothing;
 gamestate_e gamestate = GS_NOTHING;
 skill_t gameskill = sk_invalid;
 
+extern bool sendpause;
+extern bool sendsave;
+
 bool paused = false;
 
 // ok to save / end game 
 bool usergame;
-
-// send a pause event next tic 
-static bool sendpause = false;
-
-// send a save event next tic 
-static bool sendsave = false;
 
 // if true, exit with report on completion 
 static bool timingdemo;
@@ -169,82 +167,6 @@ bool precache = true;
 // parms for world map / intermission 
 wbstartstruct_t wminfo;
 
-//
-// controls (have defaults) 
-// 
-int key_right;
-int key_left;
-int key_lookup;
-int key_lookdown;
-int key_lookcenter;
-
-// -ES- 1999/03/28 Zoom Key
-int key_zoom;
-
-int key_up;
-int key_down;
-int key_strafeleft;
-int key_straferight;
-int key_fire;
-int key_use;
-int key_strafe;
-int key_speed;
-int key_autorun;
-int key_nextweapon;
-int key_jump;
-int key_map;
-int key_180;
-int key_talk;
-int key_mlook;
-int key_secondatk;
-int key_reload;
-
-// -MH- 1998/07/10 Flying keys
-int key_flyup;
-int key_flydown;
-
-#define MAXPLMOVE  (forwardmove[1])
-
-#define TURBOTHRESHOLD  0x32
-
-static int forwardmove[2] = {0x19, 0x32};
-static int upwardmove[2]  = {0x19, 0x32};  // -MH- 1998/08/18 Up/Down movement
-static int sidemove[2]    = {0x18, 0x28};
-static int angleturn[3]   = {640, 1280, 320};  // + slow turn 
-
-#define ZOOM_ANGLE_DIV  3
-
-#define SLOWTURNTICS    6
-
-#define NUMKEYS         512
-
-static bool gamekeydown[NUMKEYS];
-int turnheld;  // for accelerative turning 
-
-//-------------------------------------------
-// -KM-  1998/09/01 Analogue binding
-// -ACB- 1998/09/06 Two-stage turning switch
-//
-int mouse_xaxis = AXIS_TURN;  // joystick values are used once
-int mouse_yaxis = AXIS_FORWARD;
-int joy_xaxis = AXIS_TURN;  // joystick values are repeated
-int joy_yaxis = AXIS_FORWARD;
-
-// The last one is ignored (AXIS_DISABLE)
-static int analogue[6] = {0, 0, 0, 0, 0, 0};
-
-bool stageturn;  // Stage Turn Control
-
-int forwardmovespeed;  // Speed controls
-
-int angleturnspeed;
-int sidemovespeed;
-
-fixed_t mlookspeed = 1000 / 64;
-
-// -ACB- 1999/09/30 Has to be true or false - bool-ified
-bool invertmouse = false;
-
 // -ACB- 2004/05/25 We need to store our current gamedef
 const gamedef_c* currgamedef = NULL;
 
@@ -268,23 +190,7 @@ static const gamedef_c *d_gamedef = NULL;
 static skill_t d_newskill;
 static bool d_newwarp;
 
-// -KM- 1998/09/01 Made static.
-static int CheckKey(int keynum)
-{
-#ifdef DEVELOPERS
-	if ((keynum >> 16) > NUMKEYS)
-		I_Error("Invalid key!");
-	else if ((keynum & 0xffff) > NUMKEYS)
-		I_Error("Invalid key!");
-#endif
-
-	if (gamekeydown[keynum >> 16])
-		return true;
-	else if (gamekeydown[keynum & 0xffff])
-		return true;
-	else
-		return false;
-}
+#define TURBOTHRESHOLD  0x32
 
 //
 // Writes data to the demo
@@ -304,321 +210,6 @@ static void WriteToDemo(const void *src, int length)
 static void WriteByteToDemo(byte c)
 {
 	WriteToDemo(&c, 1);
-}
-
-#if 0  // UNUSED ???
-static int CmdChecksum(ticcmd_t * cmd)
-{
-	int i;
-	int sum = 0;
-
-	for (i = 0; i < (int)sizeof(ticcmd_t) / 4 - 1; i++)
-		sum += ((int *)cmd)[i];
-
-	return sum;
-}
-#endif
-
-//
-// G_BuildTiccmd
-//
-// Builds a ticcmd from all of the available inputs
-//
-// -ACB- 1998/07/02 Added Vertical angle checking for mlook.
-// -ACB- 1998/07/10 Reformatted: I can read the code! :)
-// -ACB- 1998/09/06 Apply speed controls to -KM-'s analogue controls
-// -AJA- 1999/08/10: Reworked the GetSpeedDivisor macro.
-//
-#define G_DefineGetSpeedDivisor(speed) \
-	(((speed) == 8) ? 1 : (8 - (speed)) << 4)
-
-void G_BuildTiccmd(ticcmd_t * cmd)
-{
-	int i;
-	bool strafe;
-	float vertslope;  // -ACB- 1998/07/02 Look angle
-#ifdef MOUSE_ACC
-	// Define MOUSE_ACC to get smoother movements
-	// These values are first added to the movements, and then
-	// 66% of the total movement is subtracted from the actual movement,
-	// & added to these.
-	static float slope_acc = 0;
-	static angle_t angle_acc = 0;
-#endif
-
-	int speed;
-	int tspeed;
-	int forward;
-	int upward;  // -MH- 1998/08/18 Fly Up/Down movement
-
-	int side;
-	// -ACB- 1999/09/20 Removed. base tic is zero-ed out ticcmd.
-	//  ticcmd_t *base;
-	static bool allow180 = true;
-	static bool allowzoom = true;
-	static bool allowautorun = true;
-
-	// -ACB- 1999/09/20 Removed. base tic is zero-ed out ticcmd.
-	//base = I_BaseTiccmd();  // empty, or external driver
-	Z_Clear(cmd, ticcmd_t, 1);
-
-	// -KM- 1998/12/21 If a drone player, do not accept input.
-	if (drone)
-		return;
-
-	vertslope = 0;
-
-	strafe = CheckKey(key_strafe)?true:false;
-	speed = CheckKey(key_speed);
-
-	if (autorunning)
-		speed = !speed;
-
-	upward = forward = side = 0;
-
-	//
-	// -KM- 1998/09/01 use two stage accelerative turning on all devices
-	//
-	// -ACB- 1998/09/06 Allow stage turning to be switched off for
-	//                  analogue devices...
-	//
-	if (CheckKey(key_right) || CheckKey(key_left) || (analogue[AXIS_TURN] && stageturn))
-		turnheld += ticdup;
-	else
-		turnheld = 0;
-
-	// slow turn ?
-	if (turnheld < SLOWTURNTICS)
-		tspeed = 2;
-	else
-		tspeed = speed;
-
-	// -ES- 1999/03/28 Zoom Key
-	if (CheckKey(key_zoom))
-	{
-		if (allowzoom)
-		{
-			cmd->extbuttons |= EBT_ZOOM;
-			allowzoom = false;
-		}
-	}
-	else
-		allowzoom = true;
-
-	// -AJA- 2000/04/14: Autorun toggle
-	if (CheckKey(key_autorun))
-	{
-		if (allowautorun)
-		{
-			autorunning  = !autorunning;
-			allowautorun = false;
-		}
-	}
-	else
-		allowautorun = true;
-
-	if (level_flags.mlook)
-	{
-		fixed_t mlook_rate = mlookspeed;
-
-		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
-		if (CheckKey(key_lookup))
-			vertslope += (float)mlook_rate / 1024.0f;
-
-		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
-		if (CheckKey(key_lookdown))
-			vertslope -= (float)mlook_rate / 1024.0f;
-
-		if (viewiszoomed)
-			mlook_rate /= ZOOM_ANGLE_DIV;
-
-		// -ACB- 1998/07/02 Use CENTER flag to center the vertical look.
-		if (CheckKey(key_lookcenter))
-			cmd->extbuttons |= EBT_CENTER;
-
-		// -KM- 1998/09/01 More analogue binding
-		vertslope += M_FixedToFloat(analogue[AXIS_MLOOK] * mlook_rate);
-	}
-
-	// You have to release the 180 deg turn key before you can press it again
-	if (CheckKey(key_180))
-	{
-		if (allow180)
-			cmd->angleturn = ANG180 >> 16;
-		allow180 = false;
-	}
-	else
-	{
-		allow180 = true;
-		cmd->angleturn = 0;
-	}
-
-	//let movement keys cancel each other out
-	if (strafe)
-	{
-		if (CheckKey(key_right))
-			side += sidemove[speed];
-
-		if (CheckKey(key_left))
-			side -= sidemove[speed];
-
-		// -KM- 1998/09/01 Analogue binding
-		// -ACB- 1998/09/06 Side Move Speed Control
-		i = G_DefineGetSpeedDivisor(sidemovespeed);
-		side += analogue[AXIS_TURN] * sidemove[speed] / i;
-	}
-	else
-	{
-		int angle_rate = angleturn[tspeed];
-
-		if (viewiszoomed)
-			angle_rate /= ZOOM_ANGLE_DIV;
-
-		if (CheckKey(key_right))
-			cmd->angleturn -= angle_rate;
-
-		if (CheckKey(key_left))
-			cmd->angleturn += angle_rate;
-
-		// -KM- 1998/09/01 Analogue binding
-		// -ACB- 1998/09/06 Angle Turn Speed Control
-		i = G_DefineGetSpeedDivisor(angleturnspeed);
-		cmd->angleturn -= analogue[AXIS_TURN] * angle_rate / i;
-	}
-
-	// -MH- 1998/08/18 Fly up
-	if (level_flags.true3dgameplay)
-	{
-		if ((CheckKey(key_flyup)))
-			upward += upwardmove[speed];
-
-		// -MH- 1998/08/18 Fly down
-		if ((CheckKey(key_flydown)))
-			upward -= upwardmove[speed];
-
-		i = G_DefineGetSpeedDivisor(forwardmovespeed);
-		upward += analogue[AXIS_FLY] * upwardmove[speed] / i;
-	}
-
-	if (CheckKey(key_up))
-		forward += forwardmove[speed];
-
-	if (CheckKey(key_down))
-		forward -= forwardmove[speed];
-
-	// -KM- 1998/09/01 Analogue binding
-	// -ACB- 1998/09/06 Forward Move Speed Control
-	i = G_DefineGetSpeedDivisor(forwardmovespeed);
-	forward -= analogue[AXIS_FORWARD] * forwardmove[speed] / i;
-
-	// -ACB- 1998/09/06 Side Move Speed Control
-	i = G_DefineGetSpeedDivisor(sidemovespeed);
-	side += analogue[AXIS_STRAFE] * sidemove[speed] / i;
-
-	if (CheckKey(key_straferight))
-		side += sidemove[speed];
-
-	if (CheckKey(key_strafeleft))
-		side -= sidemove[speed];
-
-	// buttons
-	cmd->chatchar = HU_DequeueChatChar();
-
-	if (CheckKey(key_fire))
-		cmd->buttons |= BT_ATTACK;
-
-	if (CheckKey(key_use))
-		cmd->buttons |= BT_USE;
-
-	if (CheckKey(key_jump))
-		cmd->extbuttons |= EBT_JUMP;
-
-	if (CheckKey(key_secondatk))
-		cmd->extbuttons |= EBT_SECONDATK;
-
-	if (CheckKey(key_reload))
-		cmd->extbuttons |= EBT_RELOAD;
-
-	// -KM- 1998/11/25 Weapon change key
-	for (i = 0; i < 10; i++)
-	{
-		if (CheckKey('0' + i))
-		{
-			cmd->buttons |= BT_CHANGE;
-			cmd->buttons |= i << BT_WEAPONSHIFT;
-			break;
-		}
-	}
-
-	// -MH- 1998/08/18 Yep. More flying controls...
-	if (upward > MAXPLMOVE)
-		upward = MAXPLMOVE;
-	else if (upward < -MAXPLMOVE)
-		upward = -MAXPLMOVE;
-
-	if (forward > MAXPLMOVE)
-		forward = MAXPLMOVE;
-	else if (forward < -MAXPLMOVE)
-		forward = -MAXPLMOVE;
-
-	if (side > MAXPLMOVE)
-		side = MAXPLMOVE;
-	else if (side < -MAXPLMOVE)
-		side = -MAXPLMOVE;
-
-	cmd->upwardmove += upward;
-	cmd->forwardmove += forward;
-	cmd->sidemove += side;
-
-#ifdef MOUSE_ACC
-	cmd->angleturn += angle_acc;
-	angle_acc = cmd->angleturn * 2/3;
-	if (angle_acc < 64)
-		// disable acc at very small angles (0.35 deg)
-		angle_acc = 0;
-	cmd->angleturn -= angle_acc;
-
-	vertslope += slope_acc;
-	slope_acc = vertslope * 2/3;
-	if (slope_acc < 64 * 2 * M_PI / 65536.0f)
-		// disable acc at very small angles (0.35 deg)
-		slope_acc = 0;
-	vertslope -= slope_acc;
-#endif
-
-	if (vertslope != 0)
-	{
-		cmd->extbuttons |= EBT_MLOOK;
-
-		if (vertslope > 0.5f)
-			vertslope = 0.5f;
-		else if (vertslope < -0.5f)
-			vertslope = -0.5f;
-
-		cmd->vertslope = (signed char)(vertslope * 254);
-	}
-
-	// special buttons
-	if (sendpause)
-	{
-		sendpause = false;
-		cmd->buttons = BT_SPECIAL | BTS_PAUSE;
-	}
-
-	if (sendsave)
-	{
-		sendsave = false;
-
-#if 0  // -AJA- FIXME: doesn't handle save_pages
-		if (netgame)
-			cmd->buttons = BT_SPECIAL | BTS_SAVEGAME | (savegame_slot << BTS_SAVESHIFT);
-		else
-#endif
-			gameaction = ga_savegame;
-	}
-
-	// -KM- 1998/09/01 Analogue binding
-	Z_Clear(analogue, int, 5);
 }
 
 //
@@ -738,10 +329,9 @@ void G_DoLoadLevel(void)
 	CON_Printf("%s\n", currmap->ddf.name.GetString());
 
 	// clear cmd building stuff
-	Z_Clear(gamekeydown, bool, NUMKEYS);
-	Z_Clear(analogue, int, 5);
-	sendpause = sendsave = paused = false;
+	E_ClearInput();
 
+	paused = false;
 	viewactive = true;
 }
 
@@ -764,6 +354,7 @@ bool G_Responder(event_t * ev)
 				displayplayer = players;
 		}
 		while (!displayplayer->in_game && displayplayer != consoleplayer);
+
 		return true;
 	}
 
@@ -803,56 +394,7 @@ bool G_Responder(event_t * ev)
 			return true;  // finale ate the event 
 	}
 
-	// -ES- Fixme: Clean up globals gamekeydown and analogue.
-	switch (ev->type)
-	{
-		case ev_keydown:
-			if (ev->value.key == KEYD_PAUSE)
-			{
-				sendpause = true;
-				return true;
-			}
-
-			if (ev->value.key < NUMKEYS)
-				gamekeydown[ev->value.key] = true;
-
-			// eat key down events 
-			return true;
-
-		case ev_keyup:
-			if (ev->value.key < NUMKEYS)
-				gamekeydown[ev->value.key] = false;
-
-			// always let key up events filter down 
-			return false;
-
-			// -KM- 1998/09/01 Change mouse/joystick to analogue
-		case ev_analogue:
-			{
-				// -AJA- 1999/07/27: Mlook key like quake's.
-				if (level_flags.mlook && CheckKey(key_mlook))
-				{
-					if (ev->value.analogue.axis == mouse_xaxis)
-					{
-						analogue[AXIS_TURN] += ev->value.analogue.amount;
-						return true;
-					}
-					if (ev->value.analogue.axis == mouse_yaxis)
-					{
-						analogue[AXIS_MLOOK] += ev->value.analogue.amount;
-						return true;
-					}
-				}
-
-				analogue[ev->value.analogue.axis] += ev->value.analogue.amount;
-				return true;  // eat events
-			}
-
-		default:
-			break;
-	}
-
-	return false;
+	return INP_Responder(ev);
 }
 
 //
@@ -1786,7 +1328,7 @@ void G_ReadDemoTiccmd(ticcmd_t * cmd)
 	if (demo_p >= demo_length)
 	{
 		// end of demo data stream
-		G_CheckDemoStatus();
+		G_FinishDemo();
 		return;
 	}
 
@@ -1813,8 +1355,8 @@ void G_ReadDemoTiccmd(ticcmd_t * cmd)
 void G_WriteDemoTiccmd(ticcmd_t * cmd)
 {
 	// press q to end demo recording
-	if (gamekeydown[(int)('q')])
-		G_CheckDemoStatus();
+	if (E_InputCheckKey((int)('q')))
+		G_FinishDemo();
 
 	// -ACB- 1998/07/11 Added additional ticcmd stuff to demo
 	// -MH-  1998/08/18 Added same for fly up/down
@@ -1886,24 +1428,6 @@ void G_BeginRecording(void)
 
 	i = EPI_LE_S32(random_seed);
 	WriteToDemo(&i, 4);
-}
-
-//
-// G_SetTurboScale
-//
-// Sets the turbo scale (100 is normal)
-void G_SetTurboScale(int scale)
-{
-	const int origforwardmove[2] = {0x19, 0x32};
-	const int origupwardmove[2] = {0x19, 0x32};
-	const int origsidemove[2] = {0x18, 0x28};
-
-	upwardmove[0]  = origupwardmove[0] * scale / 100;
-	upwardmove[1]  = origupwardmove[1] * scale / 100;
-	forwardmove[0] = origforwardmove[0] * scale / 100;
-	forwardmove[1] = origforwardmove[1] * scale / 100;
-	sidemove[0]    = origsidemove[0] * scale / 100;
-	sidemove[1]    = origsidemove[1] * scale / 100;
 }
 
 //
@@ -2037,14 +1561,14 @@ void G_TimeDemo(const char *name)
 }
 
 // 
-// G_CheckDemoStatus 
+// G_FinishDemo 
 //
-//Called after a death or level completion to allow demos to be cleaned up, 
-//Returns true if a new demo loop action will take place 
+// Called after a death or level completion to allow demos to be cleaned up, 
+// Returns true if a new demo loop action will take place 
 // 
-//-KM- 1998/07/10 Reformed code for limitless demo
+// -KM- 1998/07/10 Reformed code for limitless demo
 //
-bool G_CheckDemoStatus(void)
+bool G_FinishDemo(void)
 {
 	int endtime;
 	player_t *p;

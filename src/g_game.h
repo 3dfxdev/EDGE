@@ -68,10 +68,8 @@ void G_BeginRecording(void);
 
 void G_PlayDemo(const char *name);
 void G_TimeDemo(const char *name);
-bool G_CheckDemoStatus(void);
+bool G_FinishDemo(void);
 void G_PlayerReborn(player_t *player, const mobjtype_c *info);
-
-void G_SetTurboScale(int scale);
 
 // -KM- 1998/11/25 Added Time param
 void G_ExitLevel(int time);
@@ -82,8 +80,6 @@ void G_WorldDone(void);
 
 void G_Ticker(void);
 bool G_Responder(event_t * ev);
-
-void G_BuildTiccmd(ticcmd_t *cmd);
 
 void G_ScreenShot(void);
 
@@ -100,4 +96,4 @@ namespace game
 	mapdef_c* LookupMap(const char *refname);
 };
 
-#endif
+#endif  /* __G_GAME__ */
