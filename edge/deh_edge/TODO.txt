@@ -7,10 +7,10 @@ DEH-EDGE TODO
 +  Plugin: pass proper error values (and strings) when something
    goes wrong (e.g. wad save problem).
 
-+  fix the way default output name is determined (for Plugin: don't
-   have a default).
+TEST:  fix the way default output name is determined (for Plugin: don't
+       have a default).
 
--  check that extension stuff (missing for input/output) still works.
+TEST:  check that extension stuff (missing for input/output) still works.
 
 -  implement these Boom/MBF actions:
 
