@@ -165,7 +165,6 @@ static char Axis[] = "Turn/Forward/Strafe/MLook/Fly/Disable";
 static int prevscrmode;
 static int selectedscrmode;
 static int testticker = -1;
-static char setreserror[128];
 
 // Volume Changes
 static int menumusicvol;
@@ -666,14 +665,16 @@ void M_OptTicker(void)
 
 	if (setresfailed)
 	{
+		epi::string_c s;
+		
 		displaybpp = scrmode[selectedscrmode].depth;
 
-		sprintf(setreserror, language["ModeSelErr"],
+		s.Format(language["ModeSelErr"],
 				scrmode[selectedscrmode].width,
 				scrmode[selectedscrmode].height,
 				displaybpp);
 
-		M_StartMessage(setreserror, NULL, false);
+		M_StartMessage(s.GetString(), NULL, false);
 		testticker = -1;
 		selectedscrmode = prevscrmode;
 		setresfailed = false;
