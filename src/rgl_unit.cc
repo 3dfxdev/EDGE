@@ -94,7 +94,7 @@ static bool solid_mode;
 //
 void RGL_InitUnits(void)
 {
-	M_CheckBooleanParm("vertexarray", &use_vertex_array, true);
+	M_CheckBooleanParm("vertexarray", &use_vertex_array, false);
 
 	if (use_vertex_array)
 	{
@@ -111,7 +111,9 @@ void RGL_InitUnits(void)
 		glEnableClientState(GL_NORMAL_ARRAY);
 		glEnableClientState(GL_EDGE_FLAG_ARRAY);
 
+#if 0  // REQUIRES OPENGL 1.3
 		glClientActiveTexture(GL_TEXTURE0);
+#endif
 	}
 }
 
@@ -283,8 +285,8 @@ void RGL_DrawUnits(void)
 
 				glTexCoord2f(V->t_x, V->t_y);
 				glNormal3f(V->n_x, V->n_y, V->n_z);
-				glEdgeFlag(V->edge);
 				glColor4fv(V->col);
+				glEdgeFlag(V->edge);
 
 				// vertex must be last
 				glVertex3f(V->x, V->y, V->z);
