@@ -262,10 +262,13 @@ typedef struct sector_s
   // origin for any sounds played by the sector
   degenmobj_t soundorg;
 
+  //
   // thinker_t for reversable actions
   // -KM- 1998/10/29 Separate thinkers for floor + ceiling
+  //
   // -AJA- FIXME: ick, clean this up (i.e. move thinkers into
   //       plane_info_t).
+  //
   void *specialdata[2];
 
   int linecount;
