@@ -57,6 +57,7 @@ imagedef_container_c imagedefs;
 //
 static bool ImageStartEntry(const char *name)
 {
+I_Printf("ImageStartEntry [%s]\n", name);
 	bool replaces = false;
 
 	if (name && name[0])
@@ -120,6 +121,8 @@ static void ImageFinishEntry(void)
 	// Compute CRC.  In this case, there is no need, since images
 	// have no real impact on the game simulation.
 	dynamic_image->ddf.crc.Reset();
+I_Printf("ImageFinishEntry [%s] size %d\n", dynamic_image->ddf.name.GetString(),
+	imagedefs.GetSize());
 }
 
 static void ImageClearAll(void)
@@ -180,11 +183,10 @@ void DDF_ImageCleanUp(void)
 //
 static void DDF_ImageGetType(const char *info, void *storage)
 {
+
 	bool *is_tex = (bool *) storage;
 
-	DEV_ASSERT2(storage);
-
-	// !!!! FIXME: DDF_ImageGetType
+return;	// !!!! FIXME: DDF_ImageGetType
 
 	if (DDF_CompareName(info, "FLAT") == 0)
 		(*is_tex) = false;
@@ -282,7 +284,7 @@ void imagedef_c::Default()
 	ddf.Default();
 
 	type = IMGDT_Colour;
-	colour = 0x000000;  // black
+	colour = 0xff7000;  // black  !!!!!! FIXME
 	builtin = BLTIM_Quadratic;
 
 	special = IMGSP_None;

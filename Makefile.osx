@@ -127,6 +127,7 @@ COMMON_OBJS= \
         ddf_sect.o ddf_sfx.o  \
         ddf_swth.o ddf_weap.o \
 		ddf_font.o ddf_style.o \
+		ddf_image.o \
         dm_defs.o  dm_state.o \
         e_main.o e_net.o      \
         f_finale.o g_game.o   \
