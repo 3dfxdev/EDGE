@@ -101,6 +101,8 @@ extern angle_t FIELDOFVIEW;  // Number of FINEANGLES in viewwidth wide window
 // Mostly used to get the address offset when moving from y to y+1.
 extern int vb_w, vb_h, vb_depth;
 
+#define vb_pitch vb_depth  // transitional wart
+
 // Unit scale is used at distance distunit
 extern float_t x_distunit;
 extern float_t y_distunit;
@@ -114,8 +116,5 @@ extern angle_t rw_normalangle;
 
 // angle to line origin
 extern int rw_angle1;
-
-extern visplane_t *floorplane;
-extern visplane_t *ceilingplane;
 
 #endif
