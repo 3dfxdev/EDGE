@@ -43,8 +43,13 @@
 #include "weapons.h"
 
 
-const char *input_file  = NULL;
+#define MAX_INPUTS  32
+
+
+const char *input_files[MAX_INPUTS];
 const char *output_file = NULL;
+
+int num_inputs = 0;
 
 bool quiet_mode = false;
 bool all_mode   = false;
@@ -70,7 +75,7 @@ static void ShowTitle(void)
 static void ShowInfo(void)
 {
   PrintMsg(
-    "USAGE:  deh_edge  (Options...)  input.deh  (-o  output.wad)\n"
+    "USAGE:  deh_edge  (Options...)  input.deh (...)  (-o output.wad)\n"
 	"\n"
 	"Available options.\n"
 	"    -o  --output    Output filename override.\n"
@@ -94,10 +99,10 @@ static void ParseArgs(int argc, char **argv)
 		// input filename ?
 		if (*opt != '-')
 		{
-			if (input_file)
-				FatalError("Too many filenames (use -o for output).\n");
+			if (num_inputs >= MAX_INPUTS)
+				FatalError("Too many input files !!\n");
 
-			input_file = StringDup(opt);
+			input_files[num_inputs++] = StringDup(opt);
 			continue;
 		}
 
@@ -139,20 +144,26 @@ static void ParseArgs(int argc, char **argv)
 
 static void ValidateArgs(void)
 {
-	if (! input_file)
+	int j;
+
+	if (num_inputs == 0)
 		FatalError("Missing input filename !\n");
 
-	if (strlen(ReplaceExtension(input_file, NULL)) == 0)
-		FatalError("Illegal input filename: %s\n", input_file);
+	for (j = 0; j < num_inputs; j++)
+	{
+		if (strlen(ReplaceExtension(input_files[j], NULL)) == 0)
+			FatalError("Illegal input filename: %s\n", input_files[j]);
 
-	if (CheckExtension(input_file, "wad"))
-		FatalError("Input filename cannot be a WAD file.\n");
+		if (CheckExtension(input_files[j], "wad") ||
+		    CheckExtension(input_files[j], "hwa"))
+			FatalError("Input filename cannot be a WAD file.\n");
+	}
 
 	if (! output_file)
 	{
 		// default output filename, add "_deh.wad" to base
 
-		const char *base_name = ReplaceExtension(input_file, NULL);
+		const char *base_name = ReplaceExtension(input_files[0], NULL);
 		
 		char *new_file = StringNew(strlen(base_name) + 16);
 
@@ -162,15 +173,22 @@ static void ValidateArgs(void)
 		output_file = new_file;
 	}
 
-	if (CheckExtension(output_file, "deh"))
+	if (CheckExtension(output_file, "deh") ||
+	    CheckExtension(output_file, "bex"))
 		FatalError("Output filename cannot be a DEH file.\n");
 
-	if (StrCaseCmp(input_file, output_file) == 0)
-		FatalError("Output filename is same as input filename.\n");
-	
-	if (CheckExtension(input_file, NULL) && ! FileExists(input_file))
+	for (j = 0; j < num_inputs; j++)
 	{
-		input_file = StringDup(ReplaceExtension(input_file, "deh"));
+		if (StrCaseCmp(input_files[j], output_file) == 0)
+			FatalError("Output filename is same as input filename.\n");
+		
+		if (CheckExtension(input_files[j], NULL) &&
+			! FileExists(input_files[j]))
+		{
+			// FIXME: for BEX support, check for BEX here
+
+			input_files[j] = StringDup(ReplaceExtension(input_files[j], "deh"));
+		}
 	}
 
 	if (CheckExtension(output_file, NULL))
@@ -213,10 +231,9 @@ int main(int argc, char **argv)
 	ParseArgs(argc, argv);
 	ValidateArgs();
 
-	// load DEH patch file
-	PrintMsg("Loading patch file: %s\n", input_file);
-
-	Patch::Load(input_file);
+	// load DEH patch file(s)
+	for (int j = 0; j < num_inputs; j++)
+		Patch::Load(input_files[j]);
 
 	Storage::ApplyAll();
 

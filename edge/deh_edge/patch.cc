@@ -76,12 +76,6 @@ namespace Patch
 		PrintMsg("Patch format %d, for DOOM EXE %d.%d%s\n",
 			patch_fmt, doom_ver / 10, doom_ver % 10,
 			(doom_ver == 16) ? "66" : "");
-	
-		if (patch_fmt == 2 || patch_fmt == 4)
-			PrintMsg("Note: code-pointer changes not supported.\n");
-
-		if (patch_fmt == 4 && (doom_ver < 16 || doom_ver > 17))
-			PrintMsg("      text string changes also not supported.\n");
 	}
 
 	int GetRawInt(void)
@@ -1061,6 +1055,8 @@ namespace Patch
 
 void Patch::Load(const char *filename)
 {
+	PrintMsg("Loading patch file: %s\n", filename);
+
 	// Note: always binary - we'll handle CR/LF ourselves
 	pat_fp = fopen(filename, "rb");
 
