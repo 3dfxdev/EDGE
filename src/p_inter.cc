@@ -107,7 +107,7 @@ static bool GiveAmmo(player_t * player, mobj_t * special,
 	{
 		weapondef_c *w = player->weapons[player->ready_wp].info;
 
-		if (w->special_flags & WPSP_NoAutoSwitch)
+		if (! (w->special_flags & WPSP_SwitchAway))
 			return true;
 
 		priority = w->priority;

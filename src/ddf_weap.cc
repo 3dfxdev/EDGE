@@ -70,6 +70,7 @@ static const commandlist_t weapon_commands[] =
 	DF("FEEDBACK", feedback, DDF_MainGetBoolean),
 	DF("KICK", kick, DDF_MainGetFloat),
 	DF("SPECIAL", special_flags, DDF_WGetSpecialFlags),
+	DF("SEC SPECIAL", sa_specials, DDF_WGetSpecialFlags),
 	DF("ZOOM FOV", zoom_fov, DDF_MainGetAngle),
 	DF("REFIRE INACCURATE", refire_inacc, DDF_MainGetBoolean),
 	DF("SHOW CLIP", show_clip, DDF_MainGetBoolean),
@@ -252,11 +253,14 @@ static void WeaponParseField(const char *field, const char *contents,
 	if (WeaponTryParseState(field, contents, index, is_last))
 		return;
 
-	// handle properties
-	if (index == 0 && DDF_CompareName(contents, "TRUE") == 0)
+	if (ddf_version < 0x129)
 	{
-		DDF_WGetSpecialFlags(field, NULL);  // FIXME FOR OFFSETS
-		return;
+		// handle properties (old piece of crud)
+		if (index == 0 && DDF_CompareName(contents, "TRUE") == 0)
+		{
+			DDF_WGetSpecialFlags(field, &buffer_weapon.special_flags);
+			return;
+		}
 	}
 
 	DDF_WarnError2(0x128, "Unknown weapons.ddf command: %s\n", field);
@@ -275,8 +279,35 @@ static void WeaponFinishEntry(void)
 	{
 		DDF_WarnError2(0x128, "Bad AMMOPERSHOT value for weapon: %d\n",
 				buffer_weapon.ammopershot);
-		buffer_weapon.ammopershot = 1;
+		buffer_weapon.ammopershot = 0;
 	}
+	if (buffer_weapon.sa_ammopershot < 0)
+	{
+		DDF_WarnError2(0x129, "Bad SEC_AMMOPERSHOT value for weapon: %d\n",
+				buffer_weapon.sa_ammopershot);
+		buffer_weapon.sa_ammopershot = 0;
+	}
+
+	if (buffer_weapon.clip_size < 1)
+	{
+		DDF_WarnError2(0x129, "Bad CLIPSIZE value for weapon: %d\n",
+				buffer_weapon.clip_size);
+		buffer_weapon.clip_size = 1;
+	}
+	if (buffer_weapon.sa_clip_size < 1)
+	{
+		DDF_WarnError2(0x129, "Bad SEC_CLIPSIZE value for weapon: %d\n",
+				buffer_weapon.sa_clip_size);
+		buffer_weapon.sa_clip_size = 1;
+	}
+
+	// zero values for ammopershot really mean infinite ammo
+
+	if (buffer_weapon.ammopershot == 0)
+		buffer_weapon.ammo = AM_NoAmmo;
+
+	if (buffer_weapon.sa_ammopershot == 0)
+		buffer_weapon.sa_ammo = AM_NoAmmo;
 
 	// backwards compatibility (REMOVE for 1.26)
 	if (buffer_weapon.priority < 0)
@@ -286,6 +317,11 @@ static void WeaponFinishEntry(void)
 		buffer_weapon.dangerous = true;
 		buffer_weapon.priority = 10;
 	}
+
+	// backwards compatibility
+	if (ddf_version < 0x129)
+		buffer_weapon.sa_specials = (weapon_flag_e)
+			(buffer_weapon.special_flags & WPSP_SilentToMon);
 
 	// transfer static entry to dynamic entry
 	dynamic_weapon->CopyDetail(buffer_weapon);
@@ -436,7 +472,11 @@ static void DDF_WGetUpgrade(const char *info, void *storage)
 static specflags_t weapon_specials[] =
 {
     {"SILENT TO MONSTERS", WPSP_SilentToMon, 0},
-    {"AUTO SWITCH", WPSP_NoAutoSwitch, 1},
+    {"SWITCH", WPSP_SwitchAway, 0},
+	{"TRIGGER", WPSP_Trigger, 0},
+	{"NEW", WPSP_New, 0},
+	{"KEY", WPSP_Key, 0},
+	{"PARTIAL", WPSP_Partial, 0},
     {NULL, WPSP_None, 0}
 };
 
@@ -447,22 +487,27 @@ static void DDF_WGetSpecialFlags(const char *info, void *storage)
 {
 	int flag_value;
 
+	weapon_flag_e *dest = (weapon_flag_e *) storage;
+
 	switch (DDF_MainCheckSpecialFlag(info, weapon_specials, &flag_value,
 				true, false))
 	{
 		case CHKF_Positive:
-			buffer_weapon.special_flags = (weapon_flag_e)(buffer_weapon.special_flags | flag_value);
+			*dest = (weapon_flag_e)(*dest | flag_value);
 			break;
 
 		case CHKF_Negative:
-			buffer_weapon.special_flags = (weapon_flag_e)(buffer_weapon.special_flags & ~flag_value);
+			*dest = (weapon_flag_e)(*dest & ~flag_value);
 			break;
 
 		case CHKF_User:
 		case CHKF_Unknown:
 			DDF_WarnError2(0x128, "DDF_WGetSpecialFlags: Unknown Special: %s", info);
-			break;
+			return;
 	}
+
+	if (ddf_version < 0x129 && (flag_value & 0xFFFE) != 0)
+		DDF_Error("New weapon specials require #VERSION 1.29 or later.\n");
 }
 
 // --> Weapon Definition
@@ -558,6 +603,7 @@ void weapondef_c::CopyDetail(weapondef_c &src)
   	
   	bind_key = src.bind_key;
   	special_flags = src.special_flags;
+  	sa_specials = src.sa_specials;
 	
 	zoom_fov = src.zoom_fov;
 	refire_inacc = src.refire_inacc;
@@ -624,7 +670,8 @@ void weapondef_c::Default(void)
 
 	nothrust = false;
 	bind_key = -1;
-	special_flags = WPSP_None;
+	special_flags = DEFAULT_WPSP;
+	sa_specials = (weapon_flag_e)(DEFAULT_WPSP & ~WPSP_SwitchAway);
 	zoom_fov = 0;
 	refire_inacc = false;
 	show_clip = false;
