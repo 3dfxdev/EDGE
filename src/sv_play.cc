@@ -160,6 +160,7 @@ static savefield_t sv_fields_playerweapon[] =
 {
 	SF(info, "info", 1, SVT_STRING, SR_WeaponGetInfo, SR_WeaponPutInfo),
 	SF(owned, "owned", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
+	SF(flags, "flags", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(clip_size[0], "clip_size",    1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(clip_size[1], "sa_clip_size", 1, SVT_INT, SR_GetInt, SR_PutInt),
   

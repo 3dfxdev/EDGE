@@ -61,7 +61,7 @@ static const commandlist_t weapon_commands[] =
 	DF("BINDKEY", bind_key, DDF_MainGetNumeric),
 	DF("PRIORITY", priority, DDF_MainGetNumeric),
 	DF("DANGEROUS", dangerous, DDF_MainGetBoolean),
-	DF("UPGRADES", upgraded_weap, DDF_WGetUpgrade),
+	DF("UPGRADES", upgrade_weap, DDF_WGetUpgrade),
 	DF("IDLE SOUND", idle, DDF_MainLookupSound),
 	DF("ENGAGED SOUND", engaged, DDF_MainLookupSound),
 	DF("HIT SOUND", hit, DDF_MainLookupSound),
@@ -517,6 +517,31 @@ static void DDF_WGetSpecialFlags(const char *info, void *storage)
 		DDF_Error("New weapon specials require #VERSION 1.29 or later.\n");
 }
 
+//
+// DDF_WeaponIsUpgrade
+//
+// Checks whether first weapon is an upgrade of second one,
+// including indirectly (e.g. an upgrade of an upgrade).
+//
+bool DDF_WeaponIsUpgrade(weapondef_c *weap, weapondef_c *old)
+{
+	if (!weap || !old || weap == old)
+		return false;
+	
+	for (int loop = 0; loop < 10; loop++)
+	{
+		if (! weap->upgrade_weap)
+			return false;
+
+		if (weap->upgrade_weap == old)
+			return true;
+	
+		weap = weap->upgrade_weap;
+	}
+
+	return false;
+}
+
 // --> Weapon Definition
 
 //
@@ -585,7 +610,7 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 
 	autogive = src.autogive;
 	feedback = src.feedback;
-	upgraded_weap = src.upgraded_weap;
+	upgrade_weap = src.upgrade_weap;
 
 	priority = src.priority;
 	dangerous = src.dangerous;
@@ -651,7 +676,7 @@ void weapondef_c::Default(void)
 
 	autogive = false;
 	feedback = false;
-	upgraded_weap = NULL;
+	upgrade_weap = NULL;
 	priority = 0;
 	dangerous = false;
 

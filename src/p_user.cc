@@ -845,52 +845,44 @@ void P_UpdateTotalArmour(player_t *p)
 //
 bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 {
-	int i;
 	int slot = -1;
-	int rep_slot = -1;
+	int upgrade_slot = -1;
 
 	// cannot own weapons if sprites are missing
 	if (! P_CheckWeaponSprite(info))
 		return false;
 
-	for (i=0; i < MAXWEAPONS; i++)
+	for (int i=0; i < MAXWEAPONS; i++)
 	{
 		weapondef_c *cur_info = player->weapons[i].info;
+
+		// skip weapons that are being removed
+		if (player->weapons[i].flags & PLWEP_Removing)
+			continue;
 
 		// find free slot
 		if (! player->weapons[i].owned)
 		{
-			// check ready_wp, to prevent problems with a removed weapon
-			// that is still going through its lowering states.
-			if (slot < 0 && i != player->ready_wp)
+			if (slot < 0)
 				slot = i;
-
 			continue;
 		}
 
 		// check if already own this weapon
 		if (cur_info == info)
-		{
 			return false;
-		}
 
 		// don't downgrade any UPGRADED weapons
-		// NOTE: this cannot detect upgrades of upgrades: FIXME!!!
-		if (cur_info->upgraded_weap == info)
-		{
+		if (DDF_WeaponIsUpgrade(cur_info, info))
 			return false;
-		}
 
 		// check for weapon upgrades
-		if (cur_info == info->upgraded_weap)
+		if (cur_info == info->upgrade_weap)
 		{
-			rep_slot = i;
+			upgrade_slot = i;
 			continue;
 		}
 	}
-
-	if (rep_slot >= 0)
-		slot = rep_slot;
 
 	if (slot < 0)
 		return false;
@@ -902,6 +894,7 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 
 	player->weapons[slot].owned = true;
 	player->weapons[slot].info  = info;
+	player->weapons[slot].flags = 0;
 	player->weapons[slot].clip_size[0] = 0;
 	player->weapons[slot].clip_size[1] = 0;
 
@@ -911,17 +904,20 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 	if (info->autogive)
 		P_TryFillNewWeapon(player, slot, AM_DontCare, NULL);
 
-	// handle the icky case of holding the weapon which is being
-	// replaced by the new one.  This won't look great, the weapon
-	// should lower rather than just disappear.  Oh well.
-	// FIXME: upgrades probably should be instantaneous (and transfer clip)
-
-	if (rep_slot >= 0 && player->ready_wp == rep_slot)
+	if (upgrade_slot >= 0)
 	{
-		player->ready_wp = WPSEL_None;
-		player->pending_wp = (weapon_selection_e) rep_slot;
+		player->weapons[upgrade_slot].owned = false;
 
-		P_SetPsprite(player, ps_weapon, S_NULL);
+		// handle the case of holding the weapon which is being upgraded
+		// by the new one.  We mark the old weapon for removal.
+
+		if (player->ready_wp == upgrade_slot)
+		{
+			player->weapons[upgrade_slot].flags |= PLWEP_Removing;
+			player->pending_wp = (weapon_selection_e) slot;
+		}
+		else
+			player->weapons[upgrade_slot].info = NULL;
 	}
 
 	return true;
@@ -941,6 +937,8 @@ bool P_RemoveWeapon(player_t *player, weapondef_c *info)
 		if (! player->weapons[i].owned)
 			continue;
 
+		// Note: no need to check PLWEP_Removing
+
 		if (player->weapons[i].info == info)
 			break;
 	}
@@ -951,26 +949,24 @@ bool P_RemoveWeapon(player_t *player, weapondef_c *info)
 	L_WriteDebug("P_RemoveWeapon: [%s] @ %d\n", info->ddf.name.GetString(), i);
 
 	player->weapons[i].owned = false;
-	player->weapons[i].info  = NULL;
 
 	P_UpdateAvailWeapons(player);
 
-	// handle the icky case of already holding the weapon.  This won't
-	// look great, the weapon should lower rather than just disappear.
-	// Oh well.
-	// FIXME: mark removal as a flag, do actual removal (clear owned)
-	//        when lowered.
+	// handle the case of already holding the weapon.  We mark the
+	// weapon as being removed (the flag is cleared once lowered).
 
 	if (player->ready_wp == i)
 	{
-		player->ready_wp = WPSEL_None;
-		P_SetPsprite(player, ps_weapon, S_NULL);
-		P_SelectNewWeapon(player, -100, AM_DontCare);
+		player->weapons[i].flags |= PLWEP_Removing;
+
+		if (player->pending_wp == WPSEL_NoChange)
+			P_DropWeapon(player);
 	}
-	else if (player->pending_wp == i)
-	{
+	else
+		player->weapons[i].info = NULL;
+
+	if (player->pending_wp == i)
 		P_SelectNewWeapon(player, -100, AM_DontCare);
-	}
 
 	return true;
 }

@@ -74,6 +74,12 @@ typedef struct
 }
 pspdef_t;
 
+typedef enum
+{
+	PLWEP_Removing  = 0x0001,  // weapon is being removed (or upgraded)
+}
+playerweapon_flags_e;
+
 //
 // Per-player Weapon Info.
 // 
@@ -83,6 +89,9 @@ typedef struct
 
 	// player has this weapon.
 	bool owned;
+
+	// various flags
+	int flags;
 
 	// current clip sizes
 	int clip_size[2];
