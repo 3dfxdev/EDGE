@@ -28,6 +28,8 @@
 
 #include "dm_type.h"
 
+#ifndef EPI_MEM_USAGE
+
 #define ZONEID  0x1d4a11f1
 
 typedef enum
@@ -180,5 +182,7 @@ do \
 	} \
 } \
 while(0) \
+
+#endif	/* EPI_MEM_USAGE */
 
 #endif
