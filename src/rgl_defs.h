@@ -100,6 +100,7 @@ void RGL_RenderTrueBSP(void);
 
 extern bool use_lighting;
 extern bool use_color_material;
+extern bool dumb_sky;
 
 // a single vertex to pass to the GL 
 typedef struct local_gl_vert_s
