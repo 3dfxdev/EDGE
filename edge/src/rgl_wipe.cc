@@ -343,39 +343,45 @@ static void RGL_Wipe_Doors(float how_far)
 	glBindTexture(GL_TEXTURE_2D, cur_wipe_tex);
 	glColor3f(1.0f, 1.0f, 1.0f);
 
-	// left side
-	glBegin(GL_QUADS);
+	for (int column = 0; column < 5; column++)
+	{
+		float c = column / 10.0f;
+		float e = column / 5.0f;
 
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex2f(0, 0);
+		// left side
+		glBegin(GL_QUAD_STRIP);
 
-	glTexCoord2f(0.0f, 1.0f);
-	glVertex2f(0, SCREENHEIGHT);
+		glTexCoord2f(0.1f + c, 0.0f);
+		glVertex2f(dx * (e + 0.2f), dy * (e + 0.2f));
 
-	glTexCoord2f(0.5f, 1.0f);
-	glVertex2f(dx, SCREENHEIGHT - dy);
+		glTexCoord2f(0.0f + c, 0.0f);
+		glVertex2f(dx * e, dy * e);
 
-	glTexCoord2f(0.5f, 0.0f);
-	glVertex2f(dx, dy);
+		glTexCoord2f(0.1f + c, 1.0f);
+		glVertex2f(dx * (e + 0.2f), SCREENHEIGHT - dy * (e + 0.2f));
 
-	glEnd();
+		glTexCoord2f(0.0f + c, 1.0f);
+		glVertex2f(dx * e, SCREENHEIGHT - dy * e);
 
-	// right side
-	glBegin(GL_QUADS);
+		glEnd();
 
-	glTexCoord2f(0.5f, 0.0f);
-	glVertex2f(SCREENWIDTH - dx, dy);
+		// right side
+		glBegin(GL_QUAD_STRIP);
 
-	glTexCoord2f(0.5f, 1.0f);
-	glVertex2f(SCREENWIDTH - dx, SCREENHEIGHT - dy);
+		glTexCoord2f(1.0f - c, 0.0f);
+		glVertex2f(SCREENWIDTH - dx * e, dy * e);
 
-	glTexCoord2f(1.0f, 1.0f);
-	glVertex2f(SCREENWIDTH, SCREENHEIGHT);
+		glTexCoord2f(0.9f - c, 0.0f);
+		glVertex2f(SCREENWIDTH - dx * (e + 0.2f), dy * (e + 0.2f));
 
-	glTexCoord2f(1.0f, 0.0f);
-	glVertex2f(SCREENWIDTH, 0);
+		glTexCoord2f(1.0f - c, 1.0f);
+		glVertex2f(SCREENWIDTH - dx * e, SCREENHEIGHT - dy * e);
 
-	glEnd();
+		glTexCoord2f(0.9f - c, 1.0f);
+		glVertex2f(SCREENWIDTH - dx * (e + 0.2f), SCREENHEIGHT - dy * (e + 0.2f));
+
+		glEnd();
+	}
 
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
