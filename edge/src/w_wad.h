@@ -88,8 +88,6 @@ int W_GetNumForName2(const char *name);
 int W_CheckNumForTexPatch(const char *name);
 
 int W_LumpLength(int lump);
-void W_ReadLump(int lump, void *dest);
-bool W_LumpRawInfo(int lump, int *handle, int *pos, int *size);
 
 void W_DoneWithLump(const void *ptr);
 void W_DoneWithLump_Flushable(const void *ptr);
@@ -105,7 +103,6 @@ int W_CacheInfo(int level);
 
 const char *W_GetFileName(int lump);
 int W_GetPaletteForLump(int lump);
-void W_AddDynamicGWA(const char *filename, int map_lump);
 int W_FindFlatSequence(const char *start, const char *end, 
     int *s_offset, int *e_offset);
 epi::u32array_c& W_GetListLumps(int file, lumplist_e which);
