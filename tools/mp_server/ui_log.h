@@ -31,6 +31,9 @@ private:
 	NLmutex save_lock;
 
 	list_c save_lines;
+	int save_count;
+
+	static const int SAVE_LIMIT = 50;
 
 public:
 	void Update();
