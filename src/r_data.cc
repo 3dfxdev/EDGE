@@ -60,9 +60,6 @@
 //    flats in newer wads will get used if their name matches one in
 //    the sequence.
 //
-// Note that via rule 2, the _earliest_ wad sets the animation
-// sequence.  HMMMMM !!
-// 
 // -AJA- 2001/01/28: reworked flat animations.
 // 
 void R_AddFlatAnim(animdef_c *anim)
@@ -114,7 +111,7 @@ void R_AddFlatAnim(animdef_c *anim)
 			// that -- the lump list does NOT take overriding flats (in newer
 			// pwads) into account.
 
-			flats[i] = W_ImageFromFlat(name);
+			flats[i] = W_ImageFromFlat(name, true); // FIXME: do NOT want USER/TEX images !!!
 		}
 
 		W_AnimateImageSet(flats, total, anim->speed);
@@ -131,7 +128,7 @@ void R_AddFlatAnim(animdef_c *anim)
 	const image_t **flats = new const image_t* [total];
 
 	for (int i = 0; i < total; i++)
-		flats[i] = W_ImageFromFlat(anim->pics[i]);
+		flats[i] = W_ImageFromFlat(anim->pics[i], true); // FIXME: do NOT want USER/TEX images !!!
 
 	W_AnimateImageSet(flats, total, anim->speed);
 	delete[] flats;
@@ -185,7 +182,7 @@ void R_AddTextureAnim(animdef_c *anim)
 		for (int i = 0; i < total; i++)
 		{
 			const char *name = W_TextureNameInSet(set, s_offset + i);
-			texs[i] = W_ImageFromTexture(name);
+			texs[i] = W_ImageFromTexture(name, true); // FIXME: do NOT want USER/FLAT images !!!
 		}
 
 		W_AnimateImageSet(texs, total, anim->speed);
@@ -204,10 +201,31 @@ void R_AddTextureAnim(animdef_c *anim)
 	const image_t **texs = new const image_t* [total];
 
 	for (int i = 0; i < total; i++)
-		texs[i] = W_ImageFromTexture(anim->pics[i]);
+		texs[i] = W_ImageFromTexture(anim->pics[i], true); // FIXME: do NOT want USER/FLAT images !!!
 
 	W_AnimateImageSet(texs, total, anim->speed);
 	delete[] texs;
+}
+
+//
+// R_AddUserAnim
+// 
+void R_AddUserAnim(animdef_c *anim)
+{
+	int total = anim->pics.GetSize();
+
+	DEV_ASSERT2(total != 0);
+
+	if (total == 1)
+		return;
+
+	const image_t **users = new const image_t* [total];
+
+	for (int i = 0; i < total; i++)
+		users[i] = W_ImageFromPatch(anim->pics[i], true); // FIXME: USER ONLY !!!!
+
+	W_AnimateImageSet(users, total, anim->speed);
+	delete[] users;
 }
 
 //
@@ -293,10 +311,20 @@ void R_InitPicAnims(void)
 
 		DEV_ASSERT2(A);
 
-		if (A->istexture)
-			R_AddTextureAnim(A);
-		else
-			R_AddFlatAnim(A);
+		switch (A->type)
+		{
+			case animdef_c::A_Texture:
+				R_AddTextureAnim(A);
+				break;
+
+			case animdef_c::A_Flat:
+				R_AddFlatAnim(A);
+				break;
+
+			case animdef_c::A_User:
+				R_AddUserAnim(A);
+				break;
+		}
 	}
 }
 
