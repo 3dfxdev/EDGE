@@ -738,7 +738,7 @@ void E_Display(void)
       wipestart, 0, 0, 1,
       wipeend, 0, 0, 1,
       SCREENWIDTH, SCREENHEIGHT, wipeinfo,
-      -1, wipe_reverse, wipe_method);
+	  -1, wipe_reverse?true:false, wipe_method);
 
   int wipestarttime = I_GetTime();
   int tics = 0;
