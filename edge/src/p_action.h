@@ -32,8 +32,8 @@
 // Info for the JUMP action
 typedef struct act_jump_info_s
 {
-  // chance value 0-255
-  int chance; 
+  // chance value
+  percent_t chance; 
 }
 act_jump_info_t;
 
