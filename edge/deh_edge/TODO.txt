@@ -2,11 +2,6 @@
 DEH-EDGE TODO
 -------------
 
-DONE:  Plugin: pass proper error values (and strings) when something
-       goes wrong (e.g. wad save problem).
-
-+  create Plugin_win.dev.
-
 -  create Makefile.osx and Plugin_osx.mak.
 
 -  implement these Boom/MBF actions:
@@ -24,8 +19,6 @@ DONE:  Plugin: pass proper error values (and strings) when something
    - A_Mushroom : ideally need new EDGE action (AT LEAST: custom attack(s)).
                   mobjinfo[].damage determines number of FATSO missiles.
 				  doesn't use misc1/misc2.
-
-   DONE: A_Die : needs a new EDGE action.
 
 -  warn about ZDoom-specific actions/strings/etc.
 
