@@ -20,143 +20,35 @@
 //
 // -KM- 1998/09/27 Written.
 //
-
 #include "i_defs.h"
 
 #include "ddf_locl.h"
 #include "ddf_main.h"
-#include "dm_state.h"
-#include "m_fixed.h"
-#include "p_mobj.h"
-#include "p_local.h"
+
 #include "z_zone.h"
 
 #undef  DF
 #define DF  DDF_CMD
 
-#define DDF_SectHashFunc(x)  (((x) + 211) % 211)
+#define DDF_SectHashFunc(x)  (((x) + LOOKUP_CACHESIZE) % LOOKUP_CACHESIZE)
 
-static specialsector_t buffer_sect;
-static specialsector_t *dynamic_sect;
+static sectortype_c buffer_sector;
+static sectortype_c *dynamic_sector;
 
-static const specialsector_t template_sect =
-{
-	DDF_BASE_NIL,  // ddf
-
-	false,      // secret
-	GRAVITY,    // gravity
-	FRICTION,   // friction
-	VISCOSITY,  // viscosity
-	DRAG,       // drag 
-	false,      // crush
-
-	// Floor
-	{
-		mov_undefined,  // type
-		false,  // is_ceiling
-		false,  // crush
-		0,      // speed_up
-		0,      // speed_down
-		REF_Absolute, // destref
-		0,      // dest
-		REF_Absolute, // otherref
-		0,      // other
-		"",     // tex
-		0,      // wait
-		0,      // prewait
-		NULL,   // sfxstart
-		NULL,   // sfxup
-		NULL,   // sfxdown
-		NULL,   // sfxstop
-		0,      // scroll_angle
-		0.0f     // scroll_speed
-	},
-
-	// Ceiling
-	{
-		mov_undefined,  // type
-		true,   // is_ceiling
-		false,  // crush
-		0,      // speed_up
-		0,      // speed_down
-		REF_Absolute, // destref
-		0,      // dest
-		REF_Absolute, // otherref
-		0,      // other
-		"",     // tex
-		0,      // wait
-		0,      // prewait
-		NULL,   // sfxstart
-		NULL,   // sfxup
-		NULL,   // sfxdown
-		NULL,   // sfxstop
-		0,      // scroll_angle
-		0.0f     // scroll_speed
-	},
-
-	// Elevator
-	{
-		mov_undefined,  // type
-		-1,             // speed up
-		-1,             // speed down
-		0,              // wait
-		0,              // prewait
-		sfx_None,       // SFX start
-		sfx_None,       // SFX up
-		sfx_None,       // SFX down
-		sfx_None        // SFX stop
-	},
-
-	// Light
-	{ LITE_None, 64, PERCENT_MAKE(50), 0,0,0, 8 },
-
-	// Damage
-	{
-		0,      // nominal
-		-1,     // linear_max
-		-1,     // error
-		31,     // delay (in tics)
-		NULL_LABEL, NULL_LABEL, NULL_LABEL,  // override labels
-		false   // no_armour
-	},
-
-	SECSP_None,   // special_flags
-	EXIT_None,    // exit type
-	NULL,         // colourmap
-	NULL,         // ambient_sfx
-	DEFAULT_APPEAR,  // appear
-	4,            // crush_time
-	10.0f,        // crush_damage
-
-	0.0f,         // push_speed
-	0.0f,         // push_zspeed
-
-	0             // push_angle
-};
-
-specialsector_t ** ddf_sectors = NULL;
-int num_ddf_sectors = 0;
-
-static stack_array_t ddf_sectors_a;
-
-static const specialsector_t *sector_lookup_cache[211];
-
-// BOOM generalised sector support
-static specialsector_t ** ddf_gen_sectors;
-int num_ddf_gen_sectors;
-static stack_array_t ddf_gen_sectors_a;
+sectortype_container_c gensectortypes; 	// <-- Generalised
+sectortype_container_c sectortypes; 	// <-- User-defined
 
 void DDF_SectGetSpecialFlags(const char *info, void *storage);
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_sect
+#define DDF_CMD_BASE  buffer_sector
 
 static const commandlist_t sect_commands[] =
 {
-  DDF_SUB_LIST("FLOOR",    f,      floor_commands,    dummy_floor),
-  DDF_SUB_LIST("CEILING",  c,      floor_commands,    dummy_floor),
-  DDF_SUB_LIST("ELEVATOR", e,      elevator_commands, dummy_elevator),
-  DDF_SUB_LIST("DAMAGE",   damage, damage_commands,   dummy_damage),
+  	DDF_SUB_LIST("FLOOR",    f,      floor_commands,    buffer_floor),
+  	DDF_SUB_LIST("CEILING",  c,      floor_commands,    buffer_floor),
+  	DDF_SUB_LIST("ELEVATOR", e,      elevator_commands, buffer_elevator),
+  	DDF_SUB_LIST("DAMAGE",   damage, damage_commands,   buffer_damage),
 
 	DF("SECRET", secret, DDF_MainGetBoolean),
 	DF("SPECIAL", special_flags, DDF_SectGetSpecialFlags),
@@ -193,7 +85,6 @@ static const commandlist_t sect_commands[] =
 	DDF_CMD_END
 };
 
-
 //
 //  DDF PARSE ROUTINES
 //
@@ -203,45 +94,32 @@ static const commandlist_t sect_commands[] =
 //
 static bool SectorStartEntry(const char *name)
 {
-	int i;
-	bool replaces = false;
 	int number = MAX(0, atoi(name));
 
 	if (number == 0)
-		DDF_Error("Bad sector number in sectors.ddf: %s\n", name);
+		DDF_Error("Bad sectordef number in sectors.ddf: %s\n", name);
 
-	for (i=0; i < num_ddf_sectors; i++)
+	epi::array_iterator_c it;
+	sectortype_c *existing = NULL;
+
+	existing = sectortypes.Lookup(number);
+	if (existing)
 	{
-		if (ddf_sectors[i]->ddf.number == number)
-		{
-			dynamic_sect = ddf_sectors[i];
-			replaces = true;
-			break;
-		}
+		dynamic_sector = existing;
+	}
+	else
+	{
+		dynamic_sector = new sectortype_c;
+		dynamic_sector->ddf.number = number;
+		sectortypes.Insert(dynamic_sector);
 	}
 
-	// if found, adjust pointer array to keep newest entries at end
-	if (replaces && i < (num_ddf_sectors-1))
-	{
-		Z_MoveData(ddf_sectors + i, ddf_sectors + i + 1, specialsector_t *,
-			num_ddf_sectors - i);
-		ddf_sectors[num_ddf_sectors - 1] = dynamic_sect;
-	}
-
-	// not found, create a new one
-	if (!replaces)
-	{
-		Z_SetArraySize(&ddf_sectors_a, ++num_ddf_sectors);
-		dynamic_sect = ddf_sectors[num_ddf_sectors - 1];
-	}
-
-	dynamic_sect->ddf.name   = NULL;
-	dynamic_sect->ddf.number = number;
+	dynamic_sector->ddf.name = NULL;
 
 	// instantiate the static entry
-	buffer_sect = template_sect;
+	buffer_sector.Default();
 
-	return replaces;
+	return (existing != NULL);
 }
 
 //
@@ -272,22 +150,15 @@ static void SectorParseField(const char *field, const char *contents,
 //
 static void SectorFinishEntry(void)
 {
-	ddf_base_t base;
-
-	// FIXME: check stuff...
-
-	// transfer static entry to dynamic entry
-
-	base = dynamic_sect->ddf;
-	dynamic_sect[0] = buffer_sect;
-	dynamic_sect->ddf = base;
+	// FIXME!! Check stuff
+	dynamic_sector->CopyDetail(buffer_sector);
 
 	// compute CRC...
-	CRC32_Init(&dynamic_sect->ddf.crc);
+	CRC32_Init(&dynamic_sector->ddf.crc);
 
 	// FIXME: add stuff...
 
-	CRC32_Done(&dynamic_sect->ddf.crc);
+	CRC32_Done(&dynamic_sector->ddf.crc);
 }
 
 //
@@ -296,11 +167,8 @@ static void SectorFinishEntry(void)
 static void SectorClearAll(void)
 {
 	// it is safe to just delete all sector types
-
-	num_ddf_sectors = 0;
-	Z_SetArraySize(&ddf_sectors_a, num_ddf_sectors);
+	sectortypes.Reset();
 }
-
 
 //
 // DDF_ReadSectors
@@ -340,14 +208,15 @@ void DDF_ReadSectors(void *data, int size)
 //
 void DDF_SectorInit(void)
 {
-	Z_InitStackArray(&ddf_sectors_a, (void ***)&ddf_sectors,
-		sizeof(specialsector_t), 0);
-
-	Z_InitStackArray(&ddf_gen_sectors_a, (void ***)&ddf_gen_sectors, 
-		sizeof(specialsector_t), 0);
-
-	// clear lookup cache
-	memset(sector_lookup_cache, 0, sizeof(sector_lookup_cache));
+	sectortypes.Reset();
+	
+	// Insert the template sector as the first entry, this is used
+	// should the lookup fail	
+	sectortype_c *s;
+	s = new sectortype_c;
+	s->Default();
+	s->ddf.number = -1;
+	sectortypes.Insert(s);
 }
 
 //
@@ -355,101 +224,10 @@ void DDF_SectorInit(void)
 //
 void DDF_SectorCleanUp(void)
 {
-	/* nothing to do */
+	sectortypes.Trim();
 }
 
 //----------------------------------------------------------------------------
-
-//
-// DDF_SectorLookupGeneralised
-//
-// Support for BOOM generalised sector types.
-// 
-static const specialsector_t *DDF_SectorLookupGeneralised(int number)
-{
-	int i;
-	specialsector_t *sector;
-
-	for (i=0; i < num_ddf_gen_sectors; i++)
-	{
-		if (ddf_gen_sectors[i]->ddf.number == number)
-			return ddf_gen_sectors[i];
-	}
-
-	// this sector type does not exist yet in the array of dynamic
-	// sector types.  Thus we need to create it.
-
-	Z_SetArraySize(&ddf_gen_sectors_a, ++num_ddf_gen_sectors);
-
-	sector = ddf_gen_sectors[num_ddf_gen_sectors - 1];
-
-	// instantiate it with defaults
-	(*sector) = template_sect;
-
-	DDF_BoomMakeGenSector(sector, number);
-
-	return (const specialsector_t *) sector;
-}
-
-void DDF_SectorClearGeneralised(void)
-{
-	num_ddf_gen_sectors = 0;
-	Z_SetArraySize(&ddf_gen_sectors_a, num_ddf_gen_sectors);
-
-	// clear the cache
-	memset(sector_lookup_cache, 0, sizeof(sector_lookup_cache));
-}
-
-//
-// DDF_SectorLookupNum
-//
-// Returns the special sector properties from given specialtype
-//
-// -KM-  1998/09/19 Wrote Procedure
-// -AJA- 2000/02/09: Reworked.  Hash table is now a cache.
-//
-const specialsector_t *DDF_SectorLookupNum(int number)
-{
-	int i;
-	int slot = DDF_SectHashFunc(number);
-
-	// check the lookup cache...
-	if (sector_lookup_cache[slot] &&
-		sector_lookup_cache[slot]->ddf.number == number)
-	{
-		return sector_lookup_cache[slot];
-	}
-
-	// check for BOOM generalised sector types
-	if ((level_flags.compat_mode == CM_BOOM) && number >= 0x20)
-	{
-		sector_lookup_cache[slot] = DDF_SectorLookupGeneralised(number);
-		return sector_lookup_cache[slot];
-	}
-
-	// find sector by number
-	// NOTE: we go backwards, so that later entries are found first
-	for (i=num_ddf_sectors-1; i >= 0; i--)
-	{
-		if (ddf_sectors[i]->ddf.number == number)
-			break;
-	}
-
-	if (i < 0)
-	{
-		// -AJA- 1999/06/19: Don't crash out if the sector type is unknown,
-		// just print a message and ignore it (like for unknown thing types).
-
-		I_Warning("Unknown sector type: %d\n", number);
-
-		return &template_sect;
-	}
-
-	// update the cache
-	sector_lookup_cache[slot] = ddf_sectors[i];
-
-	return sector_lookup_cache[slot];
-}
 
 static specflags_t sector_specials[] =
 {
@@ -474,11 +252,15 @@ void DDF_SectGetSpecialFlags(const char *info, void *storage)
 	switch (DDF_MainCheckSpecialFlag(info, sector_specials, &flag_value, true, false))
 	{
 		case CHKF_Positive:
-			buffer_sect.special_flags = (sector_flag_e)(buffer_sect.special_flags | flag_value);
+			buffer_sector.special_flags = 
+				(sector_flag_e)(buffer_sector.special_flags | flag_value);
+			
 			break;
 
 		case CHKF_Negative:
-			buffer_sect.special_flags = (sector_flag_e)(buffer_sect.special_flags & ~flag_value);
+			buffer_sector.special_flags = 
+				(sector_flag_e)(buffer_sector.special_flags & ~flag_value);
+			
 			break;
 
 		case CHKF_User:
@@ -660,4 +442,221 @@ void DDF_SectGetDestRef(const char *info, void *storage)
 			DDF_WarnError2(0x128, "Unknown Reference Point: %s\n", info);
 			break;
 	}
+}
+
+// --> Sector type definition class
+
+//
+// sectortype_c Constructor
+//
+sectortype_c::sectortype_c()
+{
+}
+
+//
+// sectortype_c Copy constructor
+//
+sectortype_c::sectortype_c(sectortype_c &rhs)
+{
+	Copy(rhs);
+}
+
+//
+// sectortype_c Destructor
+//
+sectortype_c::~sectortype_c()
+{
+}
+
+//
+// sectortype_c::Copy()
+//
+void sectortype_c::Copy(sectortype_c &src)
+{
+	ddf = src.ddf;
+	CopyDetail(src);
+}
+
+//
+// sectortype_c::CopyDetail()
+//
+void sectortype_c::CopyDetail(sectortype_c &src)
+{
+	secret = src.secret;
+	crush = src.crush;
+
+	gravity = src.gravity;
+	friction = src.friction;
+	viscosity = src.viscosity;
+	drag = src.drag;
+
+	f = src.f;
+	c = src.c;
+	e = src.e;
+	l = src.l;
+
+	damage.pain.label = src.damage.pain.label;
+	damage.pain.offset = src.damage.pain.offset;
+	damage.death.label = src.damage.death.label;
+	damage.death.offset = src.damage.death.offset;
+	damage.overkill.label = src.damage.overkill.label;
+	damage.overkill.offset = src.damage.overkill.offset;
+	
+	special_flags = src.special_flags;
+	e_exit = src.e_exit;
+	
+	use_colourmap = src.use_colourmap;
+	
+	ambient_sfx = src.ambient_sfx;
+
+	appear = src.appear;
+
+	crush_time = src.crush_time;
+	crush_damage = src.crush_damage;
+
+	push_speed = src.push_speed;
+	push_zspeed = src.push_zspeed;
+	push_angle = src.push_angle;
+}
+
+//
+// sectortype_c::Default()
+//
+void sectortype_c::Default()
+{
+	// FIXME: ddf.Default()?
+	ddf.name = NULL;
+	ddf.number = 0;
+	ddf.crc = 0;
+	
+	secret = false;
+	gravity = GRAVITY;
+	friction = FRICTION;
+	viscosity = VISCOSITY;
+	drag = DRAG;
+	crush = false;
+	
+	f.Default(movplanedef_c::DEFAULT_FloorSect);
+	c.Default(movplanedef_c::DEFAULT_CeilingSect);
+	
+	e.Default();
+	l.Default();
+
+	damage.nominal = 0.0f;
+	damage.linear_max = -1.0f;
+	damage.error = -1.0f;
+	damage.delay = 31;
+	damage.pain.label = NULL;
+	damage.pain.offset = 0;
+	damage.death.label = NULL;
+	damage.death.offset = 0;
+	damage.overkill.label = NULL;
+	damage.overkill.offset = 0;
+	damage.no_armour = false;
+	
+	special_flags = SECSP_None;
+	e_exit = EXIT_None;
+	use_colourmap = NULL;
+	ambient_sfx = NULL;
+	appear = DEFAULT_APPEAR;
+	crush_time = 4;
+	crush_damage = 10.0f;
+
+	push_speed = 0.0f;
+	push_zspeed = 0.0f;
+
+	push_angle = 0;
+}
+
+//
+// sectortype_c assignment operator
+//
+sectortype_c& sectortype_c::operator=(sectortype_c &rhs)
+{
+	if(&rhs != this)
+		Copy(rhs);
+
+	return *this;
+}
+
+// --> Line definition type container class
+
+//
+// sectortype_container_c Constructor
+//
+sectortype_container_c::sectortype_container_c() : 
+	epi::array_c(sizeof(sectortype_c*))
+{
+	Reset();
+}
+
+//
+// sectortype_container_c Destructor
+//
+sectortype_container_c::~sectortype_container_c()
+{
+	Clear();
+}
+
+//
+// sectortype_container_c::CleanupObject
+//
+void sectortype_container_c::CleanupObject(void *obj)
+{
+	sectortype_c *s = *(sectortype_c**)obj;
+
+	if (s)
+	{
+		// FIXME: Use proper new/transfer name cleanup to ddf_base destructor
+		if (s->ddf.name) { Z_Free(s->ddf.name); }
+		delete s;
+	}
+
+	return;
+}
+
+//
+// sectortype_c* sectortype_container_c::Lookup()
+//
+// Looks an linetype by id, returns NULL if line can't be found.
+//
+sectortype_c* sectortype_container_c::Lookup(const int id)
+{
+	int slot = DDF_SectHashFunc(id);
+
+	// check the cache
+	if (lookup_cache[slot] &&
+		lookup_cache[slot]->ddf.number == id)
+	{
+		return lookup_cache[slot];
+	}	
+
+	epi::array_iterator_c it;
+	sectortype_c *s = NULL;
+
+	for (it = GetTailIterator(); it.IsValid(); it--)
+	{
+		s = ITERATOR_TO_TYPE(it, sectortype_c*);
+		if (s->ddf.number == id)
+		{
+			break;
+		}
+	}
+
+	if (!it.IsValid())
+		return NULL;
+
+	lookup_cache[slot] = s; // Update the cache
+	return s;
+}
+
+//
+// sectortype_container_c::Reset()
+//
+// Clears down both the data and the cache
+//
+void sectortype_container_c::Reset()
+{
+	Clear();
+	memset(lookup_cache, 0, sizeof(sectortype_c*) * LOOKUP_CACHESIZE);
 }
