@@ -318,6 +318,9 @@ typedef enum
 
   // Missile can tunnel through enemies.  -AJA- 2000/10/23
   EF_TUNNEL = 0x8000000,
+
+  // Marks thing as being a dynamic light.
+  EF_DLIGHT = 0x10000000
 }
 mobjextendedflag_t;
 
@@ -485,23 +488,28 @@ struct mobj_s
 
 #ifdef USE_IMAGE
   const struct image_s *halo_image;
+
+  int dlight_qty;
+  const struct image_s *dlight_image;
 #endif
-  
+
   // hash values for TUNNEL missiles
   unsigned long tunnel_hash[2];
 
   // linked list (mobjlisthead)
-  mobj_t *next;
-  mobj_t *prev;
+  mobj_t *next, *prev;
 
   // Interaction info, by BLOCKMAP.
   // Links in blocks (if needed).
-  mobj_t *bnext;
-  mobj_t *bprev;
+  mobj_t *bnext, *bprev;
 
   // More list: links in subsector (if needed)
-  mobj_t *snext;
-  mobj_t *sprev;
+  mobj_t *snext, *sprev;
+
+#ifdef USE_IMAGE
+  // One more: link in dynamic light blockmap
+  mobj_t *dlnext, *dlprev;
+#endif
 };
 
 // Item-in-Respawn-que Structure -ACB- 1998/07/30
