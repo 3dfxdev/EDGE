@@ -126,7 +126,7 @@ void RAD_ResetTips(void)
 //
 static void SetupTip(drawtip_t *cur)
 {
-	if (! rts_hack_style) // FIXME !!!!!
+	if (! rts_hack_style)
 	{
 		styledef_c *def = styledefs.Lookup("RTS_TIP");
 		if (! def)
