@@ -143,6 +143,8 @@ const image_t *W_ImageFromPatch(const char *patch_name);
 const image_t *W_ImageFromFont(const char *patch_name);
 const image_t *W_ImageFromHalo(const char *patch_name);
 
+extern image_t *savepic_image;
+
 //
 //  IMAGE USAGE
 //
@@ -155,6 +157,7 @@ void W_UpdateImageAnims(void);
 void W_ResetImages(void);
 
 void W_AnimateFlatRange(const int *lumps, int number, int speed);
+void W_DrawSavePic(const byte *pixels);
 
 void W_LockImagesOGL(void);
 void W_UnlockImagesOGL(void);
