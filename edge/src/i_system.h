@@ -47,9 +47,9 @@ bool I_SystemStartup(void);
 // partially completed actions should be undone, e.g. freeing all
 // resources obtained).
 
-void I_EDGELoop(void);
+void I_Loop(void);
 // This is called by EDGE to begin the main engine loop, and is not
-// expected to return.  It must call E_EDGELoopRoutine() to perform a
+// expected to return.  It must call engine::Tick() to perform a
 // single loop in the system, which processes events, updates the play
 // simulation, keeps sound and music playing, and most importantly
 // renders a single frame of graphics.
