@@ -1904,14 +1904,11 @@ void G_SetTurboScale(int scale)
 //
 // G_PlayDemo 
 //
-static const char *defdemoname;
+epi::strent_c defdemoname;
 
 void G_DeferredPlayDemo(const char *name)
 {
-	if (defdemoname)
-		Z_Free((char *)defdemoname);
-
-	defdemoname = Z_StrDup(name);
+	defdemoname.Set(name);
 	gameaction = ga_playdemo;
 }
 
@@ -1944,7 +1941,7 @@ void G_DoPlayDemo(void)
 	demo_length = W_LumpLength(W_GetNumForName(defdemoname));
 	if (demo_length < 16)
 		// no real demo could be smaller than 16 bytes
-		I_Error("Demo '%s' is too small!", defdemoname);
+		I_Error("Demo '%s' is too small!", defdemoname.GetString());
 	if (playdemobuffer[demo_length-1] != DEMOMARKER)
 		I_Warning("Warning: Demo has no end marker! It might be corrupt.\n");
 	else
@@ -2030,7 +2027,7 @@ void G_TimeDemo(const char *name)
 	timingdemo = true;
 	singletics = true;
 
-	defdemoname = name;
+	defdemoname.Set(name);
 	gameaction = ga_playdemo;
 }
 
