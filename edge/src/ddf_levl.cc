@@ -24,88 +24,32 @@
 #include "ddf_locl.h"
 #include "ddf_main.h"
 #include "dm_state.h"
+#include "g_game.h"
 #include "m_fixed.h"
 #include "m_math.h"
 #include "p_mobj.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
+#include "./epi/epiutil.h"
+
 #undef  DF
 #define DF  DDF_CMD
-
-static mapstuff_t buffer_map;
-static mapstuff_t *dynamic_map;
-
-static const mapstuff_t template_map =
-{
-	DDF_BASE_NIL,  // ddf
-
-	NULL,  // next
-	NULL,  // description
-	"",    // namegraphic
-	"",    // lump
-	"",    // sky
-	"",    // surround
-	0,     // music
-
-	0,     // partime
-	NULL,  // episode_name
-	MPF_None,     // force_on
-	MPF_None,     // force_off
-	"",    // nextmapname
-	"",    // secretmapname
-	0,     // autotag
-	LMODEL_Doom,  // lighting
-	WISTYLE_Doom, // wistyle
-
-	// f_pre
-	{
-		NULL,  // text
-		"",    // text_back
-		"",    // text_flat
-		3,     // text_speed
-		150,   // text_wait
-		NULL,  // text_colmap
-		0,     // numpics
-		0,     // picwait
-		NULL,  // pics
-		false, // docast
-		false, // dobunny
-		0      // music
-	},
-
-	// f_end
-	{
-		NULL,  // text
-		"",    // text_back
-		"",    // text_flat
-		3,     // text_speed
-		150,   // text_wait
-		NULL,  // text_colmap
-		0,     // numpics
-		0,     // picwait
-		NULL,  // pics
-		false, // docast
-		false, // dobunny
-		0      // music
-	}
-};
-
-mapstuff_t ** level_maps = NULL;
-int num_level_maps = 0;
-
-static stack_array_t level_maps_a;
-
 
 static void DDF_LevelGetSpecials(const char *info, void *storage);
 static void DDF_LevelGetPic(const char *info, void *storage);
 static void DDF_LevelGetLighting(const char *info, void *storage);
 static void DDF_LevelGetWistyle(const char *info, void *storage);
 
-static finale_t dummy_finale;
+mapdef_container_c mapdefs;
+
+static mapdef_c buffer_map;
+static mapdef_c* dynamic_map;
+
+static map_finaledef_c buffer_finale;
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  dummy_finale
+#define DDF_CMD_BASE  buffer_finale
 
 static const commandlist_t finale_commands[] =
 {
@@ -132,8 +76,8 @@ static const commandlist_t finale_commands[] =
 static const commandlist_t level_commands[] =
 {
 	// sub-commands
-	DDF_SUB_LIST("PRE", f_pre, finale_commands, dummy_finale),
-	DDF_SUB_LIST("END", f_end, finale_commands, dummy_finale),
+	DDF_SUB_LIST("PRE", f_pre, finale_commands, buffer_finale),
+	DDF_SUB_LIST("END", f_end, finale_commands, buffer_finale),
 
 	DF("LUMPNAME", lump, DDF_MainGetInlineStr10),
 	DF("DESCRIPTION", description, DDF_MainGetString),
@@ -191,46 +135,33 @@ static specflags_t map_specials[] =
 
 static bool LevelStartEntry(const char *name)
 {
-	int i;
-	bool replaces = false;
+	mapdef_c *existing = NULL;
 
 	if (name && name[0])
-	{
-		for (i=0; i < num_level_maps; i++)
-		{
-			if (DDF_CompareName(level_maps[i]->ddf.name, name) == 0)
-			{
-				dynamic_map = level_maps[i];
-				replaces = true;
-				break;
-			}
-		}
-
-		// if found, adjust pointer array to keep newest entries at end
-		if (replaces && i < (num_level_maps-1))
-		{
-			Z_MoveData(level_maps + i, level_maps + i + 1, mapstuff_t *,
-				num_level_maps - i);
-			level_maps[num_level_maps - 1] = dynamic_map;
-		}
-	}
+		existing = mapdefs.Lookup(name);
 
 	// not found, create a new one
-	if (! replaces)
+	if (existing)
 	{
-		Z_SetArraySize(&level_maps_a, ++num_level_maps);
+		dynamic_map = existing;
+	}
+	else
+	{
+		dynamic_map = new mapdef_c;
 
-		dynamic_map = level_maps[num_level_maps - 1];
 		dynamic_map->ddf.name = (name && name[0]) ? Z_StrDup(name) :
-		DDF_MainCreateUniqueName("UNNAMED_LEVEL_MAP", num_level_maps);
+			DDF_MainCreateUniqueName("UNNAMED_LEVEL_MAP", mapdefs.GetSize());
+
+		mapdefs.Insert(dynamic_map);
 	}
 
 	dynamic_map->ddf.number = 0;
 
-	// instantiate the static entry
-	buffer_map = template_map;
+	// instantiate the static entries
+	buffer_map.Default();
+	buffer_finale.Default();
 
-	return replaces;
+	return (existing != NULL);	
 }
 
 static void LevelParseField(const char *field, const char *contents,
@@ -253,20 +184,14 @@ static void LevelParseField(const char *field, const char *contents,
 
 static void LevelFinishEntry(void)
 {
-	ddf_base_t base;
-
 	// check stuff
-
 	if (buffer_map.episode_name == NULL)
 		DDF_Error("Level entry must have an EPISODE name !\n");
 
 	// FIXME: check more stuff here...
 
 	// transfer static entry to dynamic entry
-
-	base = dynamic_map->ddf;
-	dynamic_map[0] = buffer_map;
-	dynamic_map->ddf = base;
+	dynamic_map->CopyDetail(buffer_map);
 
 	// compute CRC...
 	CRC32_Init(&dynamic_map->ddf.crc);
@@ -275,16 +200,14 @@ static void LevelFinishEntry(void)
 
 	CRC32_Done(&dynamic_map->ddf.crc);
 
-	// Initial Hack
-	currentmap = dynamic_map;
+	// Initial Hack ???
+	//currentmap = dynamic_map;
 }
 
 static void LevelClearAll(void)
 {
 	// safe to delete the level entries -- no refs
-
-	num_level_maps = 0;
-	Z_SetArraySize(&level_maps_a, num_level_maps);
+	mapdefs.Clear();
 }
 
 
@@ -320,42 +243,21 @@ void DDF_ReadLevels(void *data, int size)
 
 void DDF_LevelInit(void)
 {
-	Z_InitStackArray(&level_maps_a, (void ***)&level_maps, sizeof(mapstuff_t), 0);
+	mapdefs.Clear();
 }
 
 void DDF_LevelCleanUp(void)
 {
-	if (num_level_maps == 0)
+	if (mapdefs.GetSize() == 0)
 		I_Error("There are no levels defined in DDF !\n");
-}
 
-
-//
-// DDF_LevelMapLookup
-//
-// Changes the current map: this is globally visible to all those who ref
-// ddf_main.h. It will check there is an map with that entry name exists
-// and the map lump name also exists. Returns map if it exists.
-//
-const mapstuff_t *DDF_LevelMapLookup(const char *refname)
-{
-	int i;
-
-	if (!refname)
-		return NULL;
-
-	for (i=num_level_maps-1; i >= 0; i--)
-	{
-		if (DDF_CompareName(level_maps[i]->ddf.name, refname) != 0)
-			continue;
-
-		if (W_CheckNumForName(level_maps[i]->lump) == -1)
-			continue;
-
-		return level_maps[i];
-	}
-
-	return NULL;
+	mapdefs.Trim();
+	
+	//
+	// FIXME!!! Shocking Hack! Setup an initial currentmap 
+	//          elsewhere or deal with the pointer being NULL
+	//
+	currmap = mapdefs[0];
 }
 
 //
@@ -365,11 +267,9 @@ const mapstuff_t *DDF_LevelMapLookup(const char *refname)
 //
 void DDF_LevelGetPic(const char *info, void *storage)
 {
-	finale_t *f = (finale_t *)storage;
+	map_finaledef_c *f = (map_finaledef_c *)storage;
 
-	Z_Resize(f->pics, char, 9 * (f->numpics + 1));
-	Z_StrNCpy(f->pics + f->numpics * 9, info, 8);
-	f->numpics++;
+	f->pics.Insert(info);
 }
 
 void DDF_LevelGetSpecials(const char *info, void *storage)
@@ -445,3 +345,281 @@ void DDF_LevelGetWistyle(const char *info, void *storage)
 	((intermission_style_e *)storage)[0] = (intermission_style_e)flag_value;
 }
 
+// --> map finale definition class
+
+//
+// map_finaledef_c Constructor
+//
+map_finaledef_c::map_finaledef_c()
+{
+	text = NULL;
+	Default();
+}
+
+//
+// map_finaledef_c Copy constructor
+//
+map_finaledef_c::map_finaledef_c(map_finaledef_c &rhs)
+{
+	text = NULL;
+	Copy(rhs);
+}
+
+//
+// map_finaledef_c Destructor
+//
+map_finaledef_c::~map_finaledef_c()
+{
+}
+
+//
+// map_finaledef_c::Copy()
+//
+void map_finaledef_c::Copy(map_finaledef_c &src)
+{
+	if (text)
+	{
+		Z_Free(text);		// FIXME!! Use proper delete	
+		text = NULL;
+	}
+	text = Z_StrDup(src.text);		// FIXME!! Use proper new/delete	
+
+	text_back = src.text_back;
+	text_flat = src.text_flat;
+	text_speed = src.text_speed;
+	text_wait = src.text_wait;
+	text_colmap = src.text_colmap;
+	
+	pics = src.pics;		
+	picwait = src.picwait;
+
+	docast = src.docast;
+	dobunny = src.dobunny;
+	music = src.music;
+}
+
+//
+// map_finaledef_c::Default()
+//
+void map_finaledef_c::Default()
+{
+	if (text)
+	{
+		Z_Free(text);		// FIXME!! Use proper delete	
+		text = NULL;
+	}
+	
+	text_back.Clear();
+	text_flat.Clear();
+	text_speed = 0.0f;
+	text_wait = 0;
+	text_colmap = NULL;
+
+	pics.Clear();
+	picwait = 0;
+
+	docast = false;
+	dobunny = false;
+	music = 0;
+}
+
+//
+// map_finaledef_c assignment operator
+//
+map_finaledef_c& map_finaledef_c::operator=(map_finaledef_c &rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+		
+	return *this;
+}
+
+// --> map definition class
+
+//
+// mapdef_c Constructor
+//
+mapdef_c::mapdef_c()
+{
+	description = NULL;
+	episode_name = NULL;
+	Default();
+}
+
+//
+// mapdef_c Copy constructor
+//
+mapdef_c::mapdef_c(mapdef_c &rhs)
+{
+	description = NULL;
+	episode_name = NULL;
+	Copy(rhs);
+}
+
+//
+// mapdef_c Destructor
+//
+mapdef_c::~mapdef_c()
+{
+	if (description)
+	{
+		Z_Free(description);		// FIXME!! Use proper delete	
+		description = NULL;
+	}
+
+	if (episode_name)
+	{
+		Z_Free(episode_name);		// FIXME!! Use proper delete	
+		episode_name = NULL;
+	}
+}
+
+//
+// mapdef_c::Copy()
+//
+void mapdef_c::Copy(mapdef_c &src)
+{
+	ddf = src.ddf;
+	CopyDetail(src);	
+}
+
+//
+// mapdef_c::CopyDetail()
+//
+void mapdef_c::CopyDetail(mapdef_c &src)
+{
+	next = src.next;				// FIXME!! Gamestate data
+	
+	if (description)
+	{
+		Z_Free(description);		// FIXME!! Use proper delete	
+		description = NULL;
+	}
+	description = Z_StrDup(src.description);		// FIXME!! Use proper new/delete	
+	
+  	namegraphic = src.namegraphic;
+  	lump = src.lump;
+   	sky = src.sky;
+   	surround = src.surround;
+   	
+   	music = src.music;
+	partime = src.partime;
+	
+	if (episode_name)
+	{
+		Z_Free(episode_name);		// FIXME!! Use proper delete	
+		episode_name = NULL;
+	}	
+	episode_name = Z_StrDup(src.episode_name);		// FIXME!! Use proper new/delete	
+	
+	force_on = src.force_on;
+	force_off = src.force_off;
+
+	nextmapname = src.nextmapname;
+	secretmapname = src.secretmapname;
+
+	autotag = src.autotag;
+
+	lighting = src.lighting;
+	wistyle = src.wistyle;
+
+	f_pre = src.f_pre;
+	f_end = src.f_end;
+}
+
+//
+// mapdef_c::Default()
+//
+void mapdef_c::Default()
+{
+	// FIXME: ddf.Clear() ?
+	ddf.name	= "";
+	ddf.number	= 0;	
+	ddf.crc		= 0;
+
+	next = NULL;
+	
+	if (description)
+	{
+		Z_Free(description);		// FIXME!! Use proper delete	
+		description = NULL;
+	}
+	
+  	namegraphic.Clear();
+  	lump.Clear();
+   	sky.Clear();
+   	surround.Clear();
+   	
+   	music = 0;
+	partime = 0;
+	
+	if (episode_name)
+	{
+		Z_Free(episode_name);		// FIXME!! Use proper delete	
+		episode_name = NULL;
+	}
+	
+	force_on = MPF_None;
+	force_off = MPF_None;
+
+	nextmapname.Clear();
+	secretmapname.Clear();
+
+	autotag = 0;
+
+	lighting = LMODEL_Doom;
+	wistyle = WISTYLE_Doom;
+
+	f_pre.Default();
+	f_end.Default();
+}
+
+//
+// mapdef_c assignment operator
+//
+mapdef_c& mapdef_c::operator=(mapdef_c &rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+		
+	return *this;
+}
+
+// --> map definition container class
+
+//
+// mapdef_container_c::CleanupObject()
+//
+void mapdef_container_c::CleanupObject(void *obj)
+{
+	mapdef_c *m = *(mapdef_c**)obj;
+
+	if (m)
+		delete m;
+
+	return;
+}
+
+//
+// mapdef_c* mapdef_container_c::Lookup()
+//
+// Looks an gamedef by name, returns a fatal error if it does not exist.
+//
+mapdef_c* mapdef_container_c::Lookup(const char *refname)
+{
+	epi::array_iterator_c it;
+	mapdef_c *m;
+
+	if (!refname || !refname[0])
+		return NULL;
+
+	for (it = GetTailIterator(); it.IsValid(); it--)
+	{
+		m = ITERATOR_TO_TYPE(it, mapdef_c*);
+		if (DDF_CompareName(m->ddf.name, refname) == 0) // Create ddf compare function
+			return m;
+	}
+
+	// FIXME!!! Throw an epi:error_c here
+	return NULL;
+}

@@ -82,7 +82,7 @@ static int picnum;
 static const char *finaletext;
 
 static gameaction_e newgameaction;
-static const finale_t *finale;
+static const map_finaledef_c *finale;
 static void StartCast(void);
 static void CastTicker(void);
 static bool CastResponder(event_t * ev);
@@ -94,7 +94,7 @@ static const image_t *finale_bossback;
 //
 // F_StartFinale
 //
-void F_StartFinale(const finale_t * f, gameaction_e newaction)
+void F_StartFinale(const map_finaledef_c * f, gameaction_e newaction)
 {
 	player_t *p;
 
@@ -148,7 +148,7 @@ bool F_Responder(event_t * event)
 	for (i = f_end-1; i > finalestage; i--)
 	{
 		if ((i == f_cast && finale->docast) || (i == f_bunny && finale->dobunny)
-				|| (i == f_pic && finale->pics) || (i == f_text && finale->text))
+				|| (i == f_pic && finale->pics.GetSize()) || (i == f_text && finale->text))
 			break;
 	}
 
@@ -211,7 +211,7 @@ void F_Ticker(void)
 			finalestage++;
 
 		case f_pic:
-			if (finale->pics)
+			if (finale->pics.GetSize())
 			{
 				gamestate = GS_FINALE;
 				if ((unsigned int)finalecount > finale->picwait)
@@ -220,7 +220,7 @@ void F_Ticker(void)
 					picnum++;
 				}
 
-				if ((unsigned int)picnum >= finale->numpics)
+				if ((unsigned int)picnum >= finale->pics.GetSize())
 				{
 					finalecount = 0;
 					picnum = 0;
@@ -695,8 +695,7 @@ void F_Drawer(void)
 
 		case f_pic:
 			{
-				const image_t *image = W_ImageFromPatch(
-						finale->pics + (picnum * 9));
+				const image_t *image = W_ImageFromPatch(finale->pics[picnum]);
 
 				VCTX_Image320(0, 0, 320, 200, image);
 			}

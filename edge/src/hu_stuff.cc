@@ -30,6 +30,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dstrings.h"
+#include "g_game.h"
 #include "hu_lib.h"
 #include "m_misc.h"
 #include "m_swap.h"
@@ -48,7 +49,7 @@
 //
 // Locally used constants, shortcuts.
 //
-// -ACB- 1998/08/09 Removed the HU_TITLE stuff; Use currentmap->description.
+// -ACB- 1998/08/09 Removed the HU_TITLE stuff; Use currmap->description.
 //
 #define HU_TITLEHEIGHT	1
 #define HU_TITLEX	0
@@ -190,7 +191,7 @@ static void HU_Stop(void)
 	headsupactive = false;
 }
 
-// -ACB- 1998/08/09 Used Currentmap to set the map name in string
+// -ACB- 1998/08/09 Used currmap to set the map name in string
 void HU_Start(void)
 {
 	int i;
@@ -223,11 +224,11 @@ void HU_Start(void)
 	HL_InitTextLine(&textlinememory,
 		0, 5 * (1 + hu_font.height), &hu_font);
 
-	// -ACB- 1998/08/09 Use Currentmap settings
-	if (currentmap->description &&
-		DDF_LanguageValidRef(currentmap->description))
+	// -ACB- 1998/08/09 Use currmap settings
+	if (currmap->description &&
+		DDF_LanguageValidRef(currmap->description))
 	{
-		string = DDF_LanguageLookup(currentmap->description);
+		string = DDF_LanguageLookup(currmap->description);
 		I_Printf("Entering %s\n", string);
 
 		for (; *string; string++)

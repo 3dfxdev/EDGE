@@ -256,7 +256,7 @@ static void MovePlayer(player_t * player)
 
 	// EDGE Feature: Jump Code
 	//
-	// -ACB- 1998/08/09 Check that jumping is allowed in the currentmap
+	// -ACB- 1998/08/09 Check that jumping is allowed in the currmap
 	//                  Make player pause before jumping again
 
 	if (cmd->extbuttons & EBT_JUMP)

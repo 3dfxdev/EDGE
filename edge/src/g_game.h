@@ -35,7 +35,7 @@
 //
 void G_DeathMatchSpawnPlayer(player_t *p);
 
-void G_InitNew(skill_t skill, const mapstuff_t * map, long random_seed);
+void G_InitNew(skill_t skill, const mapdef_c * map, long random_seed);
 
 //
 // Called by the Startup code & M_Responder; A normal game
@@ -89,5 +89,12 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond);
 char *G_FileNameFromSlot(int slot);
 
 extern gamedef_c* currgamedef;
+extern const mapdef_c* currmap;
+extern const mapdef_c* nextmap;
+
+namespace game
+{
+	mapdef_c* LookupMap(const char *refname);
+};
 
 #endif
