@@ -66,10 +66,6 @@ struct image_s;
 typedef struct
 {
   float_t x, y;
-  
-  // vertex lighting info (EXPERIMENTAL !)
-  int f_light, c_light;
-  float_t f_min, c_max;
 }
 vertex_t;
 
