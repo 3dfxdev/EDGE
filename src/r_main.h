@@ -102,8 +102,6 @@ extern boolean_t setresfailed;
 extern void (*colfunc) (void);
 extern void (*basecolfunc) (void);
 extern void (*fuzzcolfunc) (void);
-
-// No shadow effects on floors.  Yet... :)
 extern void (*spanfunc) (void);
 extern void (*trans_spanfunc) (void);
 
