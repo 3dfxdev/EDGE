@@ -2,8 +2,16 @@
 CHANGELOG
 =========
 
-Changes in V1.0  (Unreleased)
+Changes in V1.1  (Unreleased)
 -----------------------------
+
+ - added support for the extra BOOM/MBF things, states, sprites
+   and sounds (e.g. the DOG).  The extra actions are there but
+   only as place-holders.
+
+
+Changes in V1.0  (4th June 2004)
+--------------------------------
 
  - multiple patches (even binary ones !).
 
