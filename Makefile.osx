@@ -40,7 +40,7 @@ VIDEO_LDFLAGS=
 VIDEO_OBJS=$(SDL_DIR)/i_video.o
 VIDEO_LIBS=$(shell $(prefix)/bin/sdl-config --static-libs)
 
-SOUND_FLAGS=-DUSE_AL -I/Library/Frameworks/OpenAL.framework/Headers
+SOUND_FLAGS=-I/Library/Frameworks/OpenAL.framework/Headers
 SOUND_LDFLAGS=
 SOUND_OBJS=$(AL_DIR)/i_sound.o $(AL_DIR)/oggplayer.o
 SOUND_LIBS=-logg -lvorbis -lvorbisfile -framework OpenAL
