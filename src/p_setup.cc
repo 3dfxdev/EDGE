@@ -34,7 +34,6 @@
 #include "l_glbsp.h"
 #include "m_argv.h"
 #include "m_inline.h"
-#include "m_swap.h"
 #include "m_bbox.h"
 #include "m_fixed.h"
 #include "m_misc.h"
@@ -51,6 +50,7 @@
 #include "z_zone.h"
 
 #include "epi/epicrc.h"
+#include "epi/epiendian.h"
 
 // debugging aide:
 #define FORCE_LOCATION  0
@@ -201,8 +201,8 @@ static void LoadVertexes(int lump)
 	// internal representation as fixed.
 	for (i = 0; i < numvertexes; i++, li++, ml++)
 	{
-		li->x = SHORT(ml->x);
-		li->y = SHORT(ml->y);
+		li->x = EPI_LE_S16(ml->x);
+		li->y = EPI_LE_S16(ml->y);
 	}
 
 	// Free buffer memory.
@@ -227,8 +227,8 @@ static void LoadV2Vertexes(const byte *data, int length)
 	// Copy and convert vertex coordinates,
 	for (i = 0; i < num_gl_vertexes; i++, vert++, ml2++)
 	{
-		vert->x = M_FixedToFloat((fixed_t) LONG(ml2->x));
-		vert->y = M_FixedToFloat((fixed_t) LONG(ml2->y));
+		vert->x = M_FixedToFloat((fixed_t) EPI_LE_S32(ml2->x));
+		vert->y = M_FixedToFloat((fixed_t) EPI_LE_S32(ml2->y));
 	}
 
 	// these vertices are good -- don't muck with 'em...
@@ -276,8 +276,8 @@ static void LoadGLVertexes(int lump)
 	// Internal representation is float.
 	for (i = 0; i < num_gl_vertexes; i++, vert++, ml++)
 	{
-		vert->x = SHORT(ml->x);
-		vert->y = SHORT(ml->y);
+		vert->x = EPI_LE_S16(ml->x);
+		vert->y = EPI_LE_S16(ml->y);
 	}
 
 	// Free buffer memory.
@@ -309,8 +309,8 @@ static void LoadV3Segs(const byte *data, int length)
 
 	for (int i = 0; i < numsegs; i++, seg++, ml++)
 	{
-		unsigned int v1num = ULONG(ml->v1);
-		unsigned int v2num = ULONG(ml->v2);
+		unsigned int v1num = EPI_LE_U32(ml->v1);
+		unsigned int v2num = EPI_LE_U32(ml->v2);
 
 		// FIXME: check if indices are valid
 		if (v1num & SF_GL_VERTEX_V3)
@@ -329,8 +329,8 @@ static void LoadV3Segs(const byte *data, int length)
 		seg->length = R_PointToDist(seg->v1->x, seg->v1->y,
 			seg->v2->x, seg->v2->y);
 
-		linedef = USHORT(ml->linedef);
-		flags = USHORT(ml->flags);
+		linedef = EPI_LE_U16(ml->linedef);
+		flags = EPI_LE_U16(ml->flags);
 		side = (flags & V3SEG_F_LEFT) ? 1 : 0;
 
 		seg->frontsector = seg->backsector = NULL;
@@ -357,7 +357,7 @@ static void LoadV3Segs(const byte *data, int length)
 				seg->backsector = seg->linedef->side[side^1]->sector;
 		}
 
-		partner = LONG(ml->partner);
+		partner = EPI_LE_S32(ml->partner);
 
 		if (partner == -1)
 			seg->partner = NULL;
@@ -414,8 +414,8 @@ static void LoadGLSegs(int lump)
 
 	for (i = 0; i < numsegs; i++, seg++, ml++)
 	{
-		int v1num = USHORT(ml->v1);
-		int v2num = USHORT(ml->v2);
+		int v1num = EPI_LE_U16(ml->v1);
+		int v2num = EPI_LE_U16(ml->v2);
 
 		// FIXME: check if indices are valid
 		if (v1num & SF_GL_VERTEX)
@@ -434,8 +434,8 @@ static void LoadGLSegs(int lump)
 		seg->length = R_PointToDist(seg->v1->x, seg->v1->y,
 			seg->v2->x, seg->v2->y);
 
-		linedef = USHORT(ml->linedef);
-		side = USHORT(ml->side);
+		linedef = EPI_LE_U16(ml->linedef);
+		side = EPI_LE_U16(ml->side);
 
 		seg->frontsector = seg->backsector = NULL;
 
@@ -460,7 +460,7 @@ static void LoadGLSegs(int lump)
 				seg->backsector = seg->linedef->side[side^1]->sector;
 		}
 
-		partner = USHORT(ml->partner);
+		partner = EPI_LE_U16(ml->partner);
 
 		if (partner == 0xFFFF)
 			seg->partner = NULL;
@@ -499,8 +499,8 @@ static void LoadV3Subsectors(const byte *data, int length)
 
 	for (i = 0; i < numsubsectors; i++, ss++, ms++)
 	{
-		int countsegs = LONG(ms->numsegs);
-		int firstseg  = LONG(ms->firstseg);
+		int countsegs = EPI_LE_S32(ms->numsegs);
+		int firstseg  = EPI_LE_S32(ms->firstseg);
 
 		// -AJA- 1999/09/23: New linked list for the segs of a subsector
 		//       (part of true bsp rendering).
@@ -585,8 +585,8 @@ static void LoadSubsectors(int lump, const char *name)
 
 	for (i = 0; i < numsubsectors; i++, ss++, ms++)
 	{
-		int countsegs = USHORT(ms->numsegs);
-		int firstseg  = USHORT(ms->firstseg);
+		int countsegs = EPI_LE_U16(ms->numsegs);
+		int firstseg  = EPI_LE_U16(ms->firstseg);
 
 		// -AJA- 1999/09/23: New linked list for the segs of a subsector
 		//       (part of true bsp rendering).
@@ -690,8 +690,8 @@ static void LoadSectors(int lump)
 	{
 		char buffer[10];
 
-		ss->f_h = SHORT(ms->floorheight);
-		ss->c_h = SHORT(ms->ceilingheight);
+		ss->f_h = EPI_LE_S16(ms->floorheight);
+		ss->c_h = EPI_LE_S16(ms->ceilingheight);
 
 		ss->floor.translucency = VISIBLE;
 		ss->floor.x_mat.x = 1;  ss->floor.x_mat.y = 0;
@@ -706,11 +706,11 @@ static void LoadSectors(int lump)
 		ss->ceil.image = W_ImageFromFlat(buffer);
 
 		// convert negative tags to zero
-		ss->tag = MAX(0, SHORT(ms->tag));
+		ss->tag = MAX(0, EPI_LE_S16(ms->tag));
 
-		ss->props.lightlevel = SHORT(ms->lightlevel);
-		ss->props.special = (SHORT(ms->special) <= 0) ? NULL :
-		playsim::LookupSectorType(SHORT(ms->special));
+		ss->props.lightlevel = EPI_LE_S16(ms->lightlevel);
+		ss->props.special = (EPI_LE_S16(ms->special) <= 0) ? NULL :
+		playsim::LookupSectorType(EPI_LE_S16(ms->special));
 
 		ss->exfloor_max = 0;
 
@@ -759,19 +759,19 @@ static void LoadNodes(int lump, char *name)
 
 	for (i = 0; i < numnodes; i++, nd++, mn++)
 	{
-		nd->div.x = SHORT(mn->x);
-		nd->div.y = SHORT(mn->y);
-		nd->div.dx = SHORT(mn->dx);
-		nd->div.dy = SHORT(mn->dy);
+		nd->div.x  = EPI_LE_S16(mn->x);
+		nd->div.y  = EPI_LE_S16(mn->y);
+		nd->div.dx = EPI_LE_S16(mn->dx);
+		nd->div.dy = EPI_LE_S16(mn->dy);
 
 		nd->div_len = R_PointToDist(0, 0, nd->div.dx, nd->div.dy);
 
 		for (j = 0; j < 2; j++)
 		{
-			nd->children[j] = USHORT(mn->children[j]);
+			nd->children[j] = EPI_LE_U16(mn->children[j]);
 
 			for (k = 0; k < 4; k++)
-				nd->bbox[j][k] = (float) SHORT(mn->bbox[j][k]);
+				nd->bbox[j][k] = (float) EPI_LE_S16(mn->bbox[j][k]);
 
 			// update bbox pointers in subsector
 			if (nd->children[j] & NF_SUBSECTOR)
@@ -930,11 +930,11 @@ static void LoadThings(int lump)
 	mt = (const mapthing_t *) data;
 	for (i = 0; i < numthings; i++, mt++)
 	{
-		x = (float) SHORT(mt->x);
-		y = (float) SHORT(mt->y);
-		angle = FLOAT_2_ANG((float) SHORT(mt->angle));
-		typenum = USHORT(mt->type);
-		options = USHORT(mt->options);
+		x = (float) EPI_LE_S16(mt->x);
+		y = (float) EPI_LE_S16(mt->y);
+		angle = FLOAT_2_ANG((float) EPI_LE_S16(mt->angle));
+		typenum = EPI_LE_U16(mt->type);
+		options = EPI_LE_U16(mt->options);
 
 #if (FORCE_LOCATION)
 		if (typenum == 1)
@@ -998,12 +998,12 @@ static void LoadHexenThings(int lump)
 	mt = (const maphexenthing_t *) data;
 	for (i = 0; i < numthings; i++, mt++)
 	{
-		x = (float) SHORT(mt->x);
-		y = (float) SHORT(mt->y);
-		z = (float) SHORT(mt->z);
-		angle = FLOAT_2_ANG((float) SHORT(mt->angle));
-		typenum = USHORT(mt->type);
-		options = USHORT(mt->options) & 0x000F;
+		x = (float) EPI_LE_S16(mt->x);
+		y = (float) EPI_LE_S16(mt->y);
+		z = (float) EPI_LE_S16(mt->z);
+		angle = FLOAT_2_ANG((float) EPI_LE_S16(mt->angle));
+		typenum = EPI_LE_U16(mt->type);
+		options = EPI_LE_U16(mt->options) & 0x000F;
 
 		objtype = mobjtypes.Lookup(typenum);
 
@@ -1128,16 +1128,16 @@ static void LoadLineDefs(int lump)
 	ld = lines;
 	for (i = 0; i < numlines; i++, mld++, ld++)
 	{
-		ld->flags = USHORT(mld->flags);
-		ld->tag = MAX(0, SHORT(mld->tag));
-		ld->v1 = &vertexes[USHORT(mld->v1)];
-		ld->v2 = &vertexes[USHORT(mld->v2)];
+		ld->flags = EPI_LE_U16(mld->flags);
+		ld->tag = MAX(0, EPI_LE_S16(mld->tag));
+		ld->v1 = &vertexes[EPI_LE_U16(mld->v1)];
+		ld->v2 = &vertexes[EPI_LE_U16(mld->v2)];
 
-		ld->special = (SHORT(mld->special) <= 0) ? NULL :
-		playsim::LookupLineType(SHORT(mld->special));
+		ld->special = (EPI_LE_S16(mld->special) <= 0) ? NULL :
+		playsim::LookupLineType(EPI_LE_S16(mld->special));
 
-		side0 = USHORT(mld->sidenum[0]);
-		side1 = USHORT(mld->sidenum[1]);
+		side0 = EPI_LE_U16(mld->sidenum[0]);
+		side1 = EPI_LE_U16(mld->sidenum[1]);
 
 		ComputeLinedefData(ld, side0, side1);
 
@@ -1194,17 +1194,17 @@ static void LoadHexenLineDefs(int lump)
 	ld = lines;
 	for (i = 0; i < numlines; i++, mld++, ld++)
 	{
-		ld->flags = USHORT(mld->flags) & 0x00FF;
+		ld->flags = EPI_LE_U16(mld->flags) & 0x00FF;
 		ld->tag = 0;
-		ld->v1 = &vertexes[USHORT(mld->v1)];
-		ld->v2 = &vertexes[USHORT(mld->v2)];
+		ld->v1 = &vertexes[EPI_LE_U16(mld->v1)];
+		ld->v2 = &vertexes[EPI_LE_U16(mld->v2)];
 
 		// this ignores the activation bits -- oh well
 		ld->special = (mld->special[0] == 0) ? NULL :
 		linetypes.Lookup(1000 + mld->special[0]);
 
-		side0 = USHORT(mld->sidenum[0]);
-		side1 = USHORT(mld->sidenum[1]);
+		side0 = EPI_LE_U16(mld->sidenum[0]);
+		side1 = EPI_LE_U16(mld->sidenum[1]);
 
 		ComputeLinedefData(ld, side0, side1);
 	}
@@ -1217,11 +1217,11 @@ static void TransferMapSideDef(const mapsidedef_t *msd, side_t *sd,
 {
 	char buffer[10];
 
-	int sec_num = SHORT(msd->sector);
+	int sec_num = EPI_LE_S16(msd->sector);
 
 	sd->top.translucency = VISIBLE;
-	sd->top.offset.x = SHORT(msd->textureoffset);
-	sd->top.offset.y = SHORT(msd->rowoffset);
+	sd->top.offset.x = EPI_LE_S16(msd->textureoffset);
+	sd->top.offset.y = EPI_LE_S16(msd->rowoffset);
 	sd->top.x_mat.x = 1;  sd->top.x_mat.y = 0;
 	sd->top.y_mat.x = 0;  sd->top.y_mat.y = 1;
 
@@ -1630,10 +1630,10 @@ static void LoadBlockMap(int lump)
 		I_Error("Bad WAD: level %s missing BLOCKMAP.  Build the nodes !\n", 
 		currmap->lump.GetString());
 
-	bmaporgx = (float)SHORT(data[0]);
-	bmaporgy = (float)SHORT(data[1]);
-	bmapwidth  = SHORT(data[2]);
-	bmapheight = SHORT(data[3]);
+	bmaporgx = (float)EPI_LE_S16(data[0]);
+	bmaporgy = (float)EPI_LE_S16(data[1]);
+	bmapwidth  = EPI_LE_S16(data[2]);
+	bmapheight = EPI_LE_S16(data[3]);
 
 	// skip header
 	dat_pos = data + 4;
@@ -1651,13 +1651,13 @@ static void LoadBlockMap(int lump)
 
 	for (i=0; i < num_ofs; i++)
 		bmap_pointers[i] = bmap_lines +
-		((int)USHORT(dat_pos[i]) - num_ofs - 4);
+		((int)EPI_LE_U16(dat_pos[i]) - num_ofs - 4);
 
 	// skip offsets
 	dat_pos += num_ofs;
 
 	for (i=0; i < num_lines; i++)
-		bmap_lines[i] = USHORT(dat_pos[i]);
+		bmap_lines[i] = EPI_LE_U16(dat_pos[i]);
 
 	W_DoneWithLump(data);
 }

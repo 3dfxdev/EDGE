@@ -40,7 +40,6 @@
 #include "m_menu.h"
 #include "m_option.h"
 #include "m_random.h"
-#include "m_swap.h"
 #include "p_spec.h"
 #include "w_wad.h"
 #include "r_main.h"
@@ -55,6 +54,7 @@
 #include "z_zone.h"
 
 #include "epi/epiutil.h"
+#include "epi/epiendian.h"
 
 //
 // DEFAULTS
@@ -236,8 +236,8 @@ static void WriteTGAFile(const char *filename, int width, int height,
 		tgahead[tga_imgtype] = 2;  // Unmapped RGB
 		tgahead[tga_imgbpp] = 24;  // 3 byte colours (B,G,R)
     
-		*((short *) &tgahead[tga_imgwidth])  = SHORT(width);
-		*((short *) &tgahead[tga_imgheight]) = SHORT(height);
+		*((short *) &tgahead[tga_imgwidth])  = EPI_LE_S16(width);
+		*((short *) &tgahead[tga_imgheight]) = EPI_LE_S16(height);
 
 		// flip the blue and red color components
 

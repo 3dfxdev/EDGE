@@ -42,7 +42,6 @@
 #include "l_glbsp.h"
 #include "m_argv.h"
 #include "m_misc.h"
-#include "m_swap.h"
 #include "e_player.h"
 #include "rad_trig.h"
 #include "rgl_defs.h"
@@ -54,6 +53,7 @@
 #include "l_deh.h"
 #endif
 
+#include "epi/epiendian.h"
 #include "epi/epistring.h"
 #include "epi/epiutil.h"
 
@@ -941,8 +941,8 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 			}
 		}
 
-		header.numlumps = LONG(header.numlumps);
-		header.infotableofs = LONG(header.infotableofs);
+		header.numlumps = EPI_LE_S32(header.numlumps);
+		header.infotableofs = EPI_LE_S32(header.infotableofs);
 
 		length = header.numlumps * sizeof(wad_entry_t);
 		fileinfo = Z_New(wad_entry_t, header.numlumps);
@@ -956,7 +956,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 		for (j=startlump, curinfo=fileinfo; j < numlumps; j++,curinfo++)
 		{
-			AddLump(df, j, LONG(curinfo->pos), LONG(curinfo->size),
+			AddLump(df, j, EPI_LE_S32(curinfo->pos), EPI_LE_S32(curinfo->size),
 					datafile, (dyn_index >= 0) ? dyn_index : datafile, 
 					curinfo->name,
 					(kind == FLKIND_PWad) || (kind || FLKIND_HWad) ||
