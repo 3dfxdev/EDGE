@@ -50,11 +50,11 @@
 #endif /* LINUX */
 
 #ifndef SYS_Swap16
-#define SYS_Swap16  epi::endian_swapper_c::Swap16
+#define SYS_Swap16  endian_swapper_c::Swap16
 #endif
 
 #ifndef SYS_Swap32
-#define SYS_Swap32  epi::endian_swapper_c::Swap32
+#define SYS_Swap32  endian_swapper_c::Swap32
 #endif
 
 
