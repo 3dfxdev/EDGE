@@ -42,5 +42,6 @@ void E_PageTicker(void);
 void E_PageDrawer(void);
 void E_AdvanceDemo(void);
 void E_StartTitle(void);
+void E_EngineShutdown(void);
 
 #endif

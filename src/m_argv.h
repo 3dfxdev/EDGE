@@ -28,16 +28,15 @@
 
 #include "i_defs.h"
 
-extern int myargc;
-extern const char **myargv;
-
 // Returns the position of the given parameter
 // in the arg list (0 if not found).
 int M_CheckParm(const char *check);
 int M_CheckNextParm(const char *check, int prev);
 const char *M_GetParm(const char *check);
-void M_InitArguments(int argc, const char **argv);
+void M_InitArguments(int argc, char **argv); // Not CONST -ACB- 2000/06/08
 void M_ApplyResponseFile(const char *name, int position);
 void M_CheckBooleanParm(const char *parm, boolean_t *bool, boolean_t reverse);
+char** M_GetArguments(int* ret_argc);
+void M_FreeArguments(void);
 
 #endif
