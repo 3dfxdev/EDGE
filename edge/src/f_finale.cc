@@ -276,49 +276,51 @@ void F_Ticker(void)
 //
 static void TextWrite(void)
 {
-  int count;
-  const char *ch;
-  int c, cx, cy;
-  hu_textline_t L;
+	int count;
+	const char *ch;
+	int c, cx, cy;
+	hu_textline_t L;
 
-  // 98-7-10 KM erase the entire screen to a tiled background
-  if (finale_textback)
-    vctx.DrawImage(0, 0, SCREENWIDTH, SCREENHEIGHT, finale_textback,
-         0.0f, 0.0f, IM_RIGHT(finale_textback) * finale_textbackscale,
-         IM_BOTTOM(finale_textback) * finale_textbackscale, NULL, 1.0f);
-   
-  // draw some of the text onto the screen
-  cx = 10;
-  cy = 10;
-  ch = finaletext;
+	// 98-7-10 KM erase the entire screen to a tiled background
+	if (finale_textback)
+		vctx.DrawImage(0, 0, SCREENWIDTH, SCREENHEIGHT, finale_textback,
+				0.0f, 0.0f, IM_RIGHT(finale_textback) * finale_textbackscale,
+				IM_BOTTOM(finale_textback) * finale_textbackscale, NULL, 1.0f);
 
-  count = (int) ((finalecount - 10) / finale->text_speed);
-  if (count < 0)
-    count = 0;
+	// draw some of the text onto the screen
+	cx = 10;
+	cy = 10;
+	ch = finaletext;
 
-  HL_InitTextLine(&L, 10, cy, &hu_font);
+	count = (int) ((finalecount - 10) / finale->text_speed);
+	if (count < 0)
+		count = 0;
 
-  for (;;)
-  {
-    if (count == 0 || !(*ch))
-    {
-      HL_DrawTextLineTrans(&L, false, text_red_map);
-      break;
-    }
+	HL_InitTextLine(&L, 10, cy, &hu_font);
 
-    c = *ch++;
-    count--;
+	for (;;)
+	{
+		DEV_ASSERT2(finale);
 
-    if (c == '\n')
-    {
-      cy += 11;
-      HL_DrawTextLineTrans(&L, false, text_red_map);
-      HL_InitTextLine(&L, 10, cy, &hu_font);
-      continue;
-    }
+		if (count == 0 || !(*ch))
+		{
+			HL_DrawTextLineTrans(&L, false, finale->text_colmap);
+			break;
+		}
 
-    HL_AddCharToTextLine(&L, c);
-  }
+		c = *ch++;
+		count--;
+
+		if (c == '\n')
+		{
+			cy += 11;
+			HL_DrawTextLineTrans(&L, false, finale->text_colmap);
+			HL_InitTextLine(&L, 10, cy, &hu_font);
+			continue;
+		}
+
+		HL_AddCharToTextLine(&L, c);
+	}
 }
 
 //
@@ -343,106 +345,106 @@ static int shotsfxchannel = -1;
 // 
 static void CastSetState(statenum_t st)
 {
-  if (st == S_NULL)
-    return;
+	if (st == S_NULL)
+		return;
 
-  caststate = &states[st];
+	caststate = &states[st];
 
-  casttics = caststate->tics;
-  if (casttics < 0)
-    casttics = 15;
+	casttics = caststate->tics;
+	if (casttics < 0)
+		casttics = 15;
 }
 
 static void CAST_RangeAttack(const attacktype_t *range)
 {
-  sfx_t *sfx = NULL;
+	sfx_t *sfx = NULL;
 
-  DEV_ASSERT2(range);
+	DEV_ASSERT2(range);
 
-  // special handling for shot attacks (AJA: dunno why)
-  if (range->attackstyle == ATK_SHOT)
-  {
-    sfx = range->sound;
-    
-    if (sfx && shotsfxchannel >= 0)
-      S_StopChannel(shotsfxchannel);
-    
-    if (sfx)
-      shotsfxchannel = S_StartSound(NULL, sfx);
+	// special handling for shot attacks (AJA: dunno why)
+	if (range->attackstyle == ATK_SHOT)
+	{
+		sfx = range->sound;
 
-    return;
-  }
+		if (sfx && shotsfxchannel >= 0)
+			S_StopChannel(shotsfxchannel);
 
-  if (range->attackstyle == ATK_SKULLFLY)
-  {
-    sfx = range->initsound;
-  }
-  else if (range->attackstyle == ATK_SPAWNER)
-  {
-    if (range->spawnedobj && range->spawnedobj->rangeattack)
-      sfx = range->spawnedobj->rangeattack->initsound;
-  }
-  else if (range->attackstyle == ATK_TRACKER)
-  {
-    sfx = range->initsound;
-  }
-  else if (range->atk_mobj)
-  {
-    sfx = range->atk_mobj->seesound;
-  }
+		if (sfx)
+			shotsfxchannel = S_StartSound(NULL, sfx);
 
-  if (sfx)
-    S_StartSound(NULL, sfx);
+		return;
+	}
+
+	if (range->attackstyle == ATK_SKULLFLY)
+	{
+		sfx = range->initsound;
+	}
+	else if (range->attackstyle == ATK_SPAWNER)
+	{
+		if (range->spawnedobj && range->spawnedobj->rangeattack)
+			sfx = range->spawnedobj->rangeattack->initsound;
+	}
+	else if (range->attackstyle == ATK_TRACKER)
+	{
+		sfx = range->initsound;
+	}
+	else if (range->atk_mobj)
+	{
+		sfx = range->atk_mobj->seesound;
+	}
+
+	if (sfx)
+		S_StartSound(NULL, sfx);
 }
 
 static void CastPerformAction(void)
 {
-  sfx_t *sfx = NULL;
+	sfx_t *sfx = NULL;
 
-  // Yuk, handles sounds
+	// Yuk, handles sounds
 
-  if (caststate->action == P_ActMakeCloseAttemptSound)
-  {
-    if (castorder->closecombat)
-      sfx = castorder->closecombat->initsound;
-  }
-  else if (caststate->action == P_ActMeleeAttack)
-  {
-    if (castorder->closecombat)
-      sfx = castorder->closecombat->sound;
-  }
-  else if (caststate->action == P_ActMakeRangeAttemptSound)
-  {
-    if (castorder->rangeattack)
-      sfx = castorder->rangeattack->initsound;
-  }
-  else if (caststate->action == P_ActRangeAttack)
-  {
-    if (castorder->rangeattack)
-      CAST_RangeAttack(castorder->rangeattack);
-  }
-  else if (caststate->action == P_ActComboAttack)
-  {
-    if (castonmelee && castorder->closecombat)
-    {
-      sfx = castorder->closecombat->sound;
-    }
-    else if (castorder->rangeattack)
-    {
-      CAST_RangeAttack(castorder->rangeattack);
-    }
-  }
-  else if (castorder->activesound && (M_Random() < 2) && !castdeath)
-  {
-    sfx = castorder->activesound;
-  }
-  else if (caststate->action == P_ActWalkSoundChase)
-  {
-    sfx = castorder->walksound;
-  }
+	if (caststate->action == P_ActMakeCloseAttemptSound)
+	{
+		if (castorder->closecombat)
+			sfx = castorder->closecombat->initsound;
+	}
+	else if (caststate->action == P_ActMeleeAttack)
+	{
+		if (castorder->closecombat)
+			sfx = castorder->closecombat->sound;
+	}
+	else if (caststate->action == P_ActMakeRangeAttemptSound)
+	{
+		if (castorder->rangeattack)
+			sfx = castorder->rangeattack->initsound;
+	}
+	else if (caststate->action == P_ActRangeAttack)
+	{
+		if (castorder->rangeattack)
+			CAST_RangeAttack(castorder->rangeattack);
+	}
+	else if (caststate->action == P_ActComboAttack)
+	{
+		if (castonmelee && castorder->closecombat)
+		{
+			sfx = castorder->closecombat->sound;
+		}
+		else if (castorder->rangeattack)
+		{
+			CAST_RangeAttack(castorder->rangeattack);
+		}
+	}
+	else if (castorder->activesound && (M_Random() < 2) && !castdeath)
+	{
+		sfx = castorder->activesound;
+	}
+	else if (caststate->action == P_ActWalkSoundChase)
+	{
+		sfx = castorder->walksound;
+	}
 
-  if (sfx)
-    S_StartSound(NULL, sfx);
+	if (sfx)
+		S_StartSound(NULL, sfx);
 }
 
 //
@@ -450,17 +452,17 @@ static void CastPerformAction(void)
 //
 static void StartCast(void)
 {
-  wipegamestate = GS_NOTHING;  // force a screen wipe
+	wipegamestate = GS_NOTHING;  // force a screen wipe
 
-  castorder = DDF_MobjLookupCast(2);
-  castdeath = false;
-  castframes = 0;
-  castonmelee = 0;
-  castattacking = false;
+	castorder = DDF_MobjLookupCast(2);
+	castdeath = false;
+	castframes = 0;
+	castonmelee = 0;
+	castattacking = false;
 
-  CastSetState(castorder->chase_state);
+	CastSetState(castorder->chase_state);
  
-  S_ChangeMusic(worldmap.special_music, true);
+	S_ChangeMusic(worldmap.special_music, true);
 }
 
 //
@@ -471,75 +473,75 @@ static void StartCast(void)
 //
 static void CastTicker(void)
 {
-  int st;
+	int st;
 
-  // time to change state yet ?
-  casttics--;
-  if (casttics > 0)
-    return;
+	// time to change state yet ?
+	casttics--;
+	if (casttics > 0)
+		return;
 
-  // switch from deathstate to next monster
-  if (caststate->tics == -1 || caststate->nextstate == S_NULL ||
-      (castdeath && castframes >= 30))
-  {
-    castorder = DDF_MobjLookupCast(castorder->castorder + 1);
-    castframes = 0;
-    castdeath = false;
-    castattacking = false;
+	// switch from deathstate to next monster
+	if (caststate->tics == -1 || caststate->nextstate == S_NULL ||
+			(castdeath && castframes >= 30))
+	{
+		castorder = DDF_MobjLookupCast(castorder->castorder + 1);
+		castframes = 0;
+		castdeath = false;
+		castattacking = false;
 
-    DEV_ASSERT2(castorder->chase_state);  // checked in ddf_mobj.c
-    CastSetState(castorder->chase_state);
+		DEV_ASSERT2(castorder->chase_state);  // checked in ddf_mobj.c
+		CastSetState(castorder->chase_state);
 
-    if (castorder->seesound)
-      S_StartSound(NULL, castorder->seesound);
+		if (castorder->seesound)
+			S_StartSound(NULL, castorder->seesound);
 
-    return;
-  }
+		return;
+	}
 
-  CastPerformAction();
+	CastPerformAction();
 
-  // advance to next state in animation
-  // -AJA- if there's a jumpstate, enter it occasionally
+	// advance to next state in animation
+	// -AJA- if there's a jumpstate, enter it occasionally
 
-  if (caststate->jumpstate && (M_Random() < 64))
-    st = caststate->jumpstate;
-  else
-    st = caststate->nextstate;
+	if (caststate->jumpstate && (M_Random() < 64))
+		st = caststate->jumpstate;
+	else
+		st = caststate->nextstate;
 
-  CastSetState(st);
-  castframes++;
+	CastSetState(st);
+	castframes++;
 
-  // go into attack frame
-  if (castframes == 24 && !castdeath)
-  {
-    castonmelee ^= 1;
-    st = castonmelee ? castorder->melee_state : castorder->missile_state;
+	// go into attack frame
+	if (castframes == 24 && !castdeath)
+	{
+		castonmelee ^= 1;
+		st = castonmelee ? castorder->melee_state : castorder->missile_state;
 
-    if (st == S_NULL)
-    {
-      castonmelee ^= 1;
-      st = castonmelee ? castorder->melee_state : castorder->missile_state;
-    }
+		if (st == S_NULL)
+		{
+			castonmelee ^= 1;
+			st = castonmelee ? castorder->melee_state : castorder->missile_state;
+		}
 
-    // check if missing both melee and missile states
-    if (st != S_NULL)
-    {
-      castattacking = true;
-      CastSetState(st);
+		// check if missing both melee and missile states
+		if (st != S_NULL)
+		{
+			castattacking = true;
+			CastSetState(st);
 
-      if (castorder->attacksound)
-        S_StartSound(NULL, castorder->attacksound);
-    }
-  }
+			if (castorder->attacksound)
+				S_StartSound(NULL, castorder->attacksound);
+		}
+	}
 
-  // leave attack frames after a certain time
-  if (castattacking && (castframes == 48 || 
-        caststate == &states[castorder->chase_state]))
-  {
-    castattacking = false;
-    castframes = 0;
-    CastSetState(castorder->chase_state);
-  }
+	// leave attack frames after a certain time
+	if (castattacking && (castframes == 48 || 
+				caststate == &states[castorder->chase_state]))
+	{
+		castattacking = false;
+		castframes = 0;
+		CastSetState(castorder->chase_state);
+	}
 }
 
 //
@@ -547,36 +549,36 @@ static void CastTicker(void)
 //
 static bool CastResponder(event_t * ev)
 {
-  if (ev->type != ev_keydown)
-    return false;
+	if (ev->type != ev_keydown)
+		return false;
 
-  if (castdeath)
-    return true;  // already in dying frames
+	if (castdeath)
+		return true;  // already in dying frames
 
-  // go into death frame
-  castdeath = true;
+	// go into death frame
+	castdeath = true;
 
-  if (castorder->overkill_state && (M_Random() < 32))
-    caststate = &states[castorder->overkill_state];
-  else
-  {
-    DEV_ASSERT2(castorder->death_state);  // checked in ddf_mobj.c
-    caststate = &states[castorder->death_state];
-  }
+	if (castorder->overkill_state && (M_Random() < 32))
+		caststate = &states[castorder->overkill_state];
+	else
+	{
+		DEV_ASSERT2(castorder->death_state);  // checked in ddf_mobj.c
+		caststate = &states[castorder->death_state];
+	}
 
-  casttics = caststate->tics;
-  castframes = 0;
-  castattacking = false;
+	casttics = caststate->tics;
+	castframes = 0;
+	castattacking = false;
 
-  if (castorder->deathsound)
-    S_StartSound(NULL, castorder->deathsound);
+	if (castorder->deathsound)
+		S_StartSound(NULL, castorder->deathsound);
 
-  return true;
+	return true;
 }
 
 static void CastPrint(char *text)
 {
-  HL_WriteText(160 - HL_StringWidth(text)/2, 180, text);
+	HL_WriteText(160 - HL_StringWidth(text)/2, 180, text);
 }
 
 //
@@ -584,29 +586,29 @@ static void CastPrint(char *text)
 //
 static void CastDrawer(void)
 {
-  const image_t *image;
-  bool flip;
+	const image_t *image;
+	bool flip;
 
-  // erase the entire screen to a background
-  // -KM- 1998/07/21 Clear around the pic too.
-  DEV_ASSERT2(finale_bossback);
-  VCTX_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, finale_bossback);
+	// erase the entire screen to a background
+	// -KM- 1998/07/21 Clear around the pic too.
+	DEV_ASSERT2(finale_bossback);
+	VCTX_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, finale_bossback);
 
-  CastPrint(castorder->ddf.name);
+	CastPrint(castorder->ddf.name);
 
-  // draw the current frame in the middle of the screen
-  image = R2_GetOtherSprite(caststate->sprite, caststate->frame, &flip);
+	// draw the current frame in the middle of the screen
+	image = R2_GetOtherSprite(caststate->sprite, caststate->frame, &flip);
 
-  if (! image)
-    return;
+	if (! image)
+		return;
 
-  vctx.DrawImage(FROM_320(160 - image->offset_x),
-                 FROM_200(170 - image->offset_y), 
-                 FROM_320(IM_WIDTH(image)), 
-                 FROM_200(IM_HEIGHT(image)), image,
-                 flip ? IM_RIGHT(image) : 0, 0,
-                 flip ? 0 : IM_RIGHT(image), IM_BOTTOM(image),
-                 NULL, 1.0f);
+	vctx.DrawImage(FROM_320(160 - image->offset_x),
+			FROM_200(170 - image->offset_y), 
+			FROM_320(IM_WIDTH(image)), 
+			FROM_200(IM_HEIGHT(image)), image,
+			flip ? IM_RIGHT(image) : 0, 0,
+			flip ? 0 : IM_RIGHT(image), IM_BOTTOM(image),
+			NULL, 1.0f);
 }
 
 //
