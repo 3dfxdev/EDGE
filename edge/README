@@ -203,6 +203,8 @@ Known Issues:
     little bit of progress recently, and hope to get something
     working soon.
 
+  - Drag-and-drop does not work in MacOS X and Linux.
+
   - Joysticks do not work.  We haven't done any work in that area.
 
   - EDGE is still somewhat slow.  Overall this is because we had
