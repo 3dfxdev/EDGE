@@ -404,8 +404,8 @@ void HU_Drawer(void)
 
 		HL_ClearTextLine(&textlinememory);
 		sprintf(textbuf, "used cache: %d/%d",
-			Z_UsedMemory(1),
-			Z_UsedMemory(2));
+			W_CacheInfo(1),
+			W_CacheInfo(2));
 		s = textbuf;
 		while (*s)
 			HL_AddCharToTextLine(&textlinememory, *(s++));
