@@ -72,10 +72,10 @@ static bool SwitchStartEntry(const char *name)
 	else
 	{
 		dynamic_switchdef = new switchdef_c;
+		dynamic_switchdef->ddf.name = Z_StrDup(name);
 		switchdefs.Insert(dynamic_switchdef);
 	}
 	
-	dynamic_switchdef->ddf.name = Z_StrDup(name);
 	dynamic_switchdef->ddf.number = 0;
 
 	// instantiate the static entry
@@ -187,7 +187,7 @@ void DDF_SWCleanUp(void)
 // ---> switchdef_c class
 
 //
-// switchdef_c constructor
+// switchdef_c Constructor
 //
 switchdef_c::switchdef_c()
 {
