@@ -54,25 +54,25 @@ boolean_t I_CDFinished(void);
 // I_CONWIN.C - For console output when not is graphics mode
 void I_StartWinConsole(void);
 void I_SetConsoleTitle(const char *title);
-void I_WinConPrintf(const char* message, ...);
+void I_WinConPrintf(const char *message, ...);
 void I_ShutdownWinConsole(void);
 
 // I_CTRL.C
 void I_HandleKeypress(int key, boolean_t keydown); // handle message loop key presses
 
 // I_DIGMID.C - DirectMusic MIDI Handler
-boolean_t I_StartupDirectMusic(void* sysinfo);
-int I_DirectMusicPlayback(char* filename, boolean_t loops);
-void I_DirectMusicTicker(int* handle);
-void I_DirectMusicPause(int* handle);
-void I_DirectMusicResume(int* handle);
+boolean_t I_StartupDirectMusic(void *sysinfo);
+int I_DirectMusicPlayback(char *filename, boolean_t loops);
+void I_DirectMusicTicker(int *handle);
+void I_DirectMusicPause(int *handle);
+void I_DirectMusicResume(int *handle);
 void I_DirectMusicStop(void);
 void I_ShutdownDirectMusic(void);
-char* I_DirectMusicReturnError(void);
+char *I_DirectMusicReturnError(void);
 
 // I_MUS.C - Win32 MUS Handling
 boolean_t I_StartupMUS(void);
-int I_MUSPlayTrack(byte* data, int length, boolean_t loopy);
+int I_MUSPlayTrack(byte *data, int length, boolean_t loopy);
 void I_MUSPause(void);
 void I_MUSResume(void);
 void I_MUSStop(void);
@@ -82,7 +82,7 @@ void I_MUSSetVolume(int vol);
 void I_ShutdownMUS(void);
 
 // I_MUSIC.C
-void I_PostMusicError(char* error);
+void I_PostMusicError(char *error);
 
 // I_SOUND.C
 LPDIRECTSOUND I_SoundReturnObject(void); // for DirectMusic

@@ -78,14 +78,14 @@ typedef struct gui_s
   // If there is no ticker, set this field to NULL.  Remember that this is
   // not a real multitasking environment, so no big for loops please!
   // The parameter passed is a pointer to the structure, so it is called
-  // (by the system as gui_t* gui;  gui->Ticker(gui);
+  // (by the system as gui_t *gui;  gui->Ticker(gui);
   // Tickers are called 35 times per second.
-  void (*Ticker) (struct gui_s * gui);
+  void (*Ticker) (struct gui_s *gui);
   // This function is used to respond to events like key presses and spawn
   // events.  Passes a pointer to the structure (see Ticker) and a pointer
   // to the event to process.  (Don't modify the event.) Set to NULL to
   // ignore all events.
-   boolean_t(*Responder) (struct gui_s * gui, guievent_t * event);
+   boolean_t(*Responder) (struct gui_s *gui, guievent_t * event);
   // Should draw the app to the screen.  Once again optional and passed
   // a pointer to the structure.
   void (*Drawer) (struct gui_s * gui);
@@ -110,8 +110,8 @@ gui_t;
 // This returns a pointer to the top level gui system.
 gui_t **GUI_NULL(void);
 
-// This initialises a gui_t* to be used as a gui.
-// eg:  gui_t* gui;
+// This initialises a gui_t * to be used as a gui.
+// eg:  gui_t *gui;
 //      GUI_Init(&gui);
 void GUI_Init(gui_t ** gui);
 

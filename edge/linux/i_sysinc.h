@@ -35,7 +35,7 @@ boolean_t I_CDFinished(void);
 void I_ShutdownCD(void);
 
 // I_MUSIC.C
-void I_PostMusicError(char* message);
+void I_PostMusicError(const char *message);
 
 // I_MUSSRV.C
 boolean_t I_StartupMusserv(void);

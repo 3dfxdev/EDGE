@@ -45,9 +45,6 @@
 #define SCREEN_MUL              1
 #define INV_ASPECT_RATIO        0.625  // 0.75, ideally
 
-// The maximum number of players, multiplayer/networking.
-#define MAXPLAYERS      8
-
 // State updates, number of tics / second.
 #define TICRATE         35
 

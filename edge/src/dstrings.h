@@ -38,10 +38,8 @@
 #define DEVMAPS "devmaps"
 #define DEVDATA "devdata"
 
-//extern char* endmsg[];
 extern const char *chat_macros[10];
 
-//extern char destination_keys[MAXPLAYERS+1];
 extern const char *destination_keys;
 extern const char *gammamsg[5];
 
