@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: FEBRUARY 12th 2005)
+(Date: FEBRUARY 17th 2005)
 
 
 Bugs fixed
@@ -14,10 +14,10 @@ Bugs fixed
 
 - Arch-vile no longer resurrects monsters into itself.
 - don't display "Entering" on intermission when map is last one.
-- fix for ONCONDITION <weapon> in RTS scripts.
+- fix for ONCONDITION-WEAPON in RTS scripts.
 - fix for teleport on MAP06 (going to wrong place).
 - boss brain can now be hurt from rocket explosions.
-- DDF parser will catch angles > 360 degrees.
+- DDF parser will catch angles over 360 degrees.
 - watching a moving monster while dead is now smoother.
 - allow KEY_GREENCARD and KEY_GREENSKULL in DDF.
 - berserk strength now lasts the whole level.
@@ -30,6 +30,8 @@ Bugs fixed
 - fixed some missing mid-masked textures (Eternal MAP28).
 - smoking tracers sometimes wouldn't produce smoke.
 - revenant missiles fixed to match the original.
+- fixed stair-building bug (e.g. TNT MAP16).
+- some problems handling the mouse-wheel were fixed.
 
 
 Old Fixes (from EDGE 1.28A)
@@ -285,7 +287,8 @@ New weapon stuff
   work).  Anything using the CLIPSIZE command is considered a "clip weapon",
   and will store ammo inside of its clip, even when not selected.
 
-+ support for manual reloading (new key in Keyboard Options).
++ support for manual reloading (new key in Keyboard Options), and
+  also next-weapon and previous-weapon keys.
 
 + Four new ammo types: DAGGERS, ARROWS, TORPEDOES, CRYSTALS (names
   inspired by Heretic/Hexen/HacX).  That brings the total to twelve.
