@@ -323,7 +323,13 @@ mobjextendedflag_t;
 typedef enum
 {
 	// -AJA- 2004/08/25: always pick up this item
-	HF_FORCEPICKUP = 1
+	HF_FORCEPICKUP = 1,
+
+	// -AJA- 2004/09/02: immune from friendly fire
+	HF_SIDEIMMUNE = 2,
+
+	// -AJA- 2004/09/02: don't retaliate if hurt by friendly fire
+	HF_ULTRALOYAL = 4
 }
 mobjhyperflag_t;
 
