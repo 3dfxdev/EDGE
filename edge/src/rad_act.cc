@@ -227,7 +227,7 @@ static void SendTip(s_tip_t * tip, int slot)
 		Z_Free((char *)current->tip_text);
 
 	if (tip->tip_ldf)
-		current->tip_text = Z_StrDup(DDF_LanguageLookup(tip->tip_ldf));
+		current->tip_text = Z_StrDup(language[tip->tip_ldf]);
 	else if (tip->tip_text)
 		current->tip_text = Z_StrDup(tip->tip_text);
 	else

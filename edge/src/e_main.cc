@@ -77,9 +77,13 @@
 #include "z_zone.h"
 
 #include "./epi/epierror.h"
+#include "./epi/epistring.h"
+
+#define DEFAULT_LANGUAGE  "ENGLISH"
 
 // Internals
 static bool SetGlobalVars(void);
+static bool SetLanguage(void); 
 static bool SpecialWadVerify(void);
 static bool ShowNotice(void);
 
@@ -92,15 +96,18 @@ startuporder_t;
 
 startuporder_t startcode[] =
 {
-	{ M_LoadDefaults,      "DefaultLoad"   },
+	{ M_LoadDefaults,      NULL            },
+//	{ M_LoadDefaults,      "DefaultLoad"   },
 	{ SetGlobalVars,       NULL            },
 	{ RAD_Init,            NULL            },
-	{ W_InitMultipleFiles, "WadFileInit"   },
+	{ W_InitMultipleFiles, NULL            },
+//	{ W_InitMultipleFiles, "WadFileInit"   },
 	{ V_InitPalette,       NULL            },
 	{ W_InitImages,        NULL            },
 	{ R_InitFlats,         NULL            },
 	{ W_InitTextures,      NULL            },
 	{ DDF_MainCleanUp,     NULL            },
+	{ SetLanguage,         NULL            },
 	{ SpecialWadVerify,    NULL            },
 	{ ShowNotice,          NULL            },
 	{ V_MultiResInit,      "AllocScreens"  },
@@ -352,6 +359,36 @@ static bool SetGlobalVars(void)
 	return true;
 }
 
+//
+// bool SetLanguage
+//
+bool SetLanguage(void)
+{
+	if (M_CheckParm("-lang") > 0)
+	{
+		epi::string_c s;
+		
+		s = M_GetParm("-lang");
+		
+		if (!language.Select(s))
+		{
+			epi::string_c s2;
+			s2.Format("Invalid language: '%s'", s.GetString());
+			I_Error(s2.GetString());
+		}
+	}
+
+	if (!language.IsValid())
+	{
+		if (!language.Select(DEFAULT_LANGUAGE))
+		{
+			if (!language.Select(0))
+				I_Error("Unable to select any language!");
+		}
+	}
+	
+	return true;
+}
 
 //
 // SpecialWadVerify
@@ -448,7 +485,7 @@ static bool SpecialWadVerify(void)
 //
 static bool ShowNotice(void)
 {
-	I_Printf("%s", DDF_LanguageLookup("Notice"));
+	I_Printf("%s", language["Notice"]);
  
 	return true;
 }
@@ -997,8 +1034,16 @@ static void InitDirectories(void)
 	}
 	else
 	{
-		//gamedir = Z_StrDup(homedir);
-		gamedir = Z_StrDup(".");
+		gamedir = getenv("EDGEDATA");
+		if (gamedir)
+		{
+			gamedir = I_PreparePath(gamedir);
+		}
+		else
+		{
+			//gamedir = Z_StrDup(homedir);
+			gamedir = Z_StrDup(".");
+		}
 	}
 
 	// add parameter file "gamedir/parms" if it exists.
@@ -1384,11 +1429,11 @@ namespace engine
 		CheckExternal();
 
 		DDF_MainInit();
-
+	
 		IdentifyVersion();
 
 		if (devparm)
-			I_Printf("%s", DDF_LanguageLookup("DevelopmentMode"));
+			I_Printf("%s", language["DevelopmentMode"]);
 
 		p = M_CheckParm("-turbo");
 		if (p)
@@ -1503,7 +1548,7 @@ namespace engine
 		{
 			// Print Message On Screen
 			if (startcode[p].LDFmessage)
-				I_Printf(DDF_LanguageLookup(startcode[p].LDFmessage));
+				I_Printf(language[startcode[p].LDFmessage]);
 
 			// if the startup function fails - quit startup
 			success = startcode[p].function();
