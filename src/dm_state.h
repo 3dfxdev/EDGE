@@ -182,6 +182,9 @@ extern boolean_t precache;
 // if true, prefer to crash out on various errors
 extern boolean_t strict_errors;
 
+// if true, disable warning messages
+extern boolean_t no_warnings;
+
 // if true, enable HOM detection (hall of mirrors effect)
 extern boolean_t hom_detect;
 
