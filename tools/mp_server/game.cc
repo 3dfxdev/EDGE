@@ -218,11 +218,25 @@ void game_c::TryRunTics()
 	if (avail_tics > (MP_SAVETICS - saved_tics))
 		avail_tics = (MP_SAVETICS - saved_tics);
 
+	if (avail_tics == 0)
+		return;
+
 	for (; avail_tics > 0; avail_tics--)
 	{
 		SV_send_all_tic_groups(-1, this, sv_gametic, 0, num_players, false);
 
 		BumpGameTic();
+	}
+
+	// server did advance: set retransmit-request timers
+	for (int p = 0; p < num_players; p++)
+	{
+		client_c *CL = clients[players[p]];
+
+		if (CL->tics->HasGot(sv_gametic))
+			CL->tic_retry_time = -1;
+		else
+			CL->BumpRetryTime();
 	}
 }
 
@@ -376,6 +390,21 @@ static void SV_send_all_tic_groups(int one_client, game_c *GM, int tic_num,
 		pk.Write(main_socket);
 
 		pk.hd().ByteSwap();  // FIXME: rebuild header each time
+	}
+}
+
+void GameTimeouts()
+{
+	// lock ??
+
+	for (int game_id = 0; (unsigned)game_id < games.size(); game_id++)
+	{
+		game_c *GM = games[game_id];
+
+		if (! GM)
+			continue;
+
+		// FIXME: remove stale games (no players)
 	}
 }
 
@@ -697,16 +726,21 @@ void PK_ticcmd(packet_c *pk)
 			continue;
 		}
 
-		DebugPrintf("New ticcmd #%d from client %d\n", got_tic, client_id);
+		DebugPrintf("Time %d: New ticcmd #%d from client %d\n", cur_net_time,
+			got_tic, client_id);
 
 		CL->tics->Write(got_tic, raw_cmds);
 		new_count++;
+
+		if (got_tic == GM->sv_gametic)
+			CL->tic_retry_time = -1;
 	}
 
 	// check for missing packet (future write)
 	if (new_count > 0 && ! CL->tics->HasGot(GM->sv_gametic))
 	{
-		// FIXME: speed up retransmit timer......
+		// speed up retransmit-request timer
+		CL->tic_retry_time -= 10;  /* 100 ms */
 	}
 
 	GM->TryRunTics();

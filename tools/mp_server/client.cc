@@ -20,6 +20,7 @@
 
 #include "autolock.h"
 #include "client.h"
+#include "game.h"
 #include "lib_util.h"
 #include "mp_main.h"
 #include "network.h"
@@ -38,7 +39,7 @@ volatile int total_clients = 0;
 client_c::client_c(const client_info_t *info, const NLaddress *_addr) :
 	state(ST_Browsing),
 	game_id(-1), pl_index(-1), voted(false),
-	tics(NULL)
+	tics(NULL), die_time(1 << 30)
 {
 	strcpy(name, info->name);
 	memcpy(&addr, _addr, sizeof(addr));
@@ -144,9 +145,65 @@ void client_c::InitGame(int idx, int bots_each)
 
 	tics = new tic_store_c(1 + bots_each);
 
-	tic_wait = tic_wait_total = 0;
+	BumpRetryTime();
 
 	state = ST_Playing;
+}
+
+void client_c::BumpRetryTime(int delta)
+{
+	tic_retry_time = cur_net_time + delta;
+}
+
+void client_c::BumpDieTime(int delta)
+{
+	die_time = cur_net_time + delta;
+}
+
+void client_c::TimeoutTic(int cl_idx)
+{
+// !!! FIXME: we don't fucking know our own client number
+
+	if (state != ST_Playing)
+		return;
+
+	game_c *GM = games[game_id];
+	SYS_ASSERT(GM);
+
+	if (tic_retry_time < 0)  // OK, we already have this tic
+		return;
+	
+	if (cur_net_time < tic_retry_time)
+		return;
+
+	// reset timer to try again
+	BumpRetryTime();
+
+	DebugPrintf("Time %d: Sending retransmit request to player %d game %d\n",
+		cur_net_time, pl_index, game_id);
+
+	packet_c pk;
+
+	pk.Clear();  // paranoia
+
+	pk.SetType("Tr");
+	pk.hd().flags = 0;
+	pk.hd().client = cl_idx;
+	pk.hd().data_len = sizeof(tic_retransmit_proto_t);
+
+	tic_retransmit_proto_t& tr = pk.tr_p();
+
+	tr.gametic = GM->sv_gametic;
+	tr.offset  = 0;
+	tr.count   = 1;  // could be smarter ??
+
+	tr.first_player = tr.last_player = pl_index;
+
+	tr.ByteSwap();
+
+	nlSetRemoteAddr(main_socket, &addr);
+
+	pk.Write(main_socket);
 }
 
 
@@ -173,6 +230,27 @@ bool ValidatePlayerName(const char *name)
 		return false;
 	
 	return true;
+}
+
+void ClientTimeouts()
+{
+	// lock ??
+
+	for (int cl_idx = 0; (unsigned)cl_idx < clients.size(); cl_idx++)
+	{
+		client_c *CL = clients[cl_idx];
+
+		if (! CL)
+			continue;
+
+		if (cur_net_time >= CL->die_time)
+		{
+			// FIXME: remove client !!
+			continue;
+		}
+
+		CL->TimeoutTic(cl_idx);
+	}
 }
 
 //------------------------------------------------------------------------
@@ -337,15 +415,17 @@ void PK_broadcast_discovery(packet_c *pk, NLaddress *remote_addr)
 	LogPrintf(0, "Broadcast discovery from addr %s\n", GetAddrName(remote_addr));
 
 	pk->SetType("Bd");
+	pk->hd().flags = 0;
+	pk->hd().client = 0;
+	pk->hd().data_len = 0;
 
 	pk->Write(main_socket);
 }
 
 void PK_keep_alive(packet_c *pk)
 {
-	client_c *CL = clients[pk->hd().client];
-
-	// CL->alive_millies = 0;
+	DebugPrintf("Time %d: keep alive from client %d\n", cur_net_time,
+		pk->hd().client);
 }
 
 void PK_query_client(packet_c *pk)

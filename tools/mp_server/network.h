@@ -27,6 +27,8 @@ extern NLmutex global_lock;
 extern volatile bool net_quit;
 extern volatile bool net_failure;
 
+extern int cur_net_time;
+
 void NetInit(void);
 void *NetRun(void *data);
 

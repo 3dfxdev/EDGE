@@ -56,9 +56,15 @@ public: //!!!!  private:
 
 		tic_store_c *tics;
 
-		int tic_wait;    // units are 1/100 second.
-		int tic_wait_total;
+		// time (in future) when we should send a retransmit request.
+		// negative if unneeded (we already have the ticcmd).
+		int tic_retry_time;
 	// }
+
+	// time (in future) when this client should go away, or be booted
+	// off if actually playing a game.  Keep-alive packets are needed
+	// to prevent this, but when playing a game ticcmds suffice.
+	int die_time;
 
 public:
 	bool CheckAddr(const NLaddress *remote_addr) const;
@@ -71,12 +77,17 @@ public:
 	void TransmitMessage(packet_c *pk);
 
 	void InitGame(int idx, int bots_each);
+	void TimeoutTic(int cl_idx);
+
+	void BumpRetryTime(int delta = 20 /* 200 ms */);
+	void BumpDieTime(int delta = 500 /* 5 seconds */);
 };
 
 extern std::vector<client_c *> clients;
 extern volatile int total_clients;
 
 bool VerifyClient(short idx, const NLaddress *remote_addr);
+void ClientTimeouts();
 
 void SV_send_error(packet_c *pk, const char *type, const char *str, ...);
 
