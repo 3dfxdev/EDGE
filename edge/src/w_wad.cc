@@ -47,6 +47,7 @@
 #include "dm_type.h"
 #include "e_main.h"
 #include "e_search.h"
+#include "l_deh.h"
 #include "l_glbsp.h"
 #include "m_argv.h"
 #include "m_misc.h"
@@ -56,10 +57,6 @@
 #include "w_textur.h"
 #include "w_image.h"
 #include "z_zone.h"
-
-#ifdef USE_DEH
-#include "l_deh.h"
-#endif
 
 #include "epi/endianess.h"
 #include "epi/strings.h"
@@ -1066,7 +1063,6 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	}
 
 	// handle DeHackEd patch files
-#ifdef USE_DEH
 	if (kind == FLKIND_Deh || df->deh_lump >= 0)
 	{
 		const char *hwa_file = MakeHwaFilename(filename);
@@ -1100,7 +1096,6 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		// Load it (using good ol' recursion again).
 		AddFile(hwa_file, FLKIND_HWad, -1);
 	}
-#endif // USE_DEH
 }
 
 //

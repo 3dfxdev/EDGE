@@ -23,8 +23,6 @@
 //
 //----------------------------------------------------------------------------
 
-#ifdef USE_DEH
-
 #include "i_defs.h"
 
 #include "dm_type.h"
@@ -179,4 +177,3 @@ bool DH_ConvertLump(const byte *data, int length, const char *lumpname,
 	return (ret == DEH_OK);
 }
 
-#endif  // USE_DEH
