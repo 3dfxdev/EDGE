@@ -447,6 +447,7 @@ void RGL_RainbowEffect(player_t *player)
 	{
 		s = MIN(128.0f, s);
 		ren_red_mul = ren_blu_mul = 1.0f - s / 128.0f;
+		ren_allbright = true;
 		return;
 	}
 
