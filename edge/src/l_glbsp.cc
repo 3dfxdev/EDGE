@@ -218,15 +218,15 @@ void GB_DisplayClose(void)
 const nodebuildfuncs_t edge_build_funcs =
 {
 	GB_FatalError,
-		GB_PrintMsg,
-		GB_Ticker,
+	GB_PrintMsg,
+	GB_Ticker,
 
-		GB_DisplayOpen,
-		GB_DisplaySetTitle,
-		GB_DisplaySetBar,
-		GB_DisplaySetBarLimit,
-		GB_DisplaySetBarText,
-		GB_DisplayClose
+	GB_DisplayOpen,
+	GB_DisplaySetTitle,
+	GB_DisplaySetBar,
+	GB_DisplaySetBarLimit,
+	GB_DisplaySetBarText,
+	GB_DisplayClose
 };
 
 
@@ -248,9 +248,11 @@ bool GB_BuildNodes(int map_lump)
 	memcpy((void *)&nb_comms, (void *)&default_buildcomms, sizeof(nodebuildcomms_t));
 	//  nb_comms = default_buildcomms;
 
-  nb_info.input_file = GlbspStrDup(W_GetFileName(map_lump));
+	nb_info.input_file = GlbspStrDup(W_GetFileName(map_lump));
+	nb_info.quiet = true;
+	nb_info.choose_fresh = true;
 
-	// FIXME: check parm "-node-factor"
+	// FIXME: user-controllable build options (factor, fresh, etc).
 
 	if (GLBSP_E_OK != GlbspCheckInfo(&nb_info, &nb_comms))
 		return false;
