@@ -88,8 +88,8 @@ savefieldtype_t;
 // This describes a single field
 typedef struct savefieldtype_s
 {
-  // offset of field into structure
-  int offset;
+  // offset of field in structure (actually a ptr into dummy struct)
+  const char *offset_p;
 
   // name of field in savegame system
   const char *field_name;
@@ -116,10 +116,12 @@ savefield_t;
 // NOTE: requires SV_F_BASE to be defined as the dummy struct
 
 #define SVFIELD(field,fname,fnum,ftype,getter,putter)  \
-    { ((char *)& (SV_F_BASE . field)) - ((char *)& SV_F_BASE),  \
+    { (const char *) & SV_F_BASE.field,  \
       fname, fnum, ftype, getter, putter, NULL }
 
 #define SVFIELD_END  { 0, NULL, 0, SVT_INVALID, NULL, NULL, NULL }
+
+#define SVDUMMY  ((const char *) & SV_F_BASE)
 
 
 // This describes a single structure
@@ -136,6 +138,9 @@ typedef struct savestruct_s
 
   // array of field definitions
   savefield_t *fields;
+
+  // address of dummy struct (used to compute field offsets)
+  const char *dummy_base;
 
   // this must be true to put the definition into the savegame file.
   // Allows compatibility structures that are read-only.

@@ -217,6 +217,7 @@ boolean_t SV_LoadStruct(void *base, savestruct_t *info)
   char marker[6];
   savefield_t *cur, *actual;
   char *storage;
+  int offset;
   int i;
 
   SV_GetMarker(marker);
@@ -237,8 +238,11 @@ boolean_t SV_LoadStruct(void *base, savestruct_t *info)
     }
     
     DEV_ASSERT2(actual->field_get);
+    DEV_ASSERT2(info->counterpart);
 
-    storage = ((char *) base) + actual->offset;
+    offset = actual->offset_p - info->counterpart->dummy_base;
+
+    storage = ((char *) base) + offset;
 
     for (i=0; i < cur->count; i++)
     {

@@ -111,20 +111,16 @@ static button_t sv_dummy_button;
 
 static savefield_t sv_fields_button[] =
 {
-	/*
 	SF(line, "line", 1, SVT_INDEX("lines"), 
 	SR_LineGetLine, SR_LinePutLine),
 	SF(where, "where", 1, SVT_ENUM, SR_GetEnum, SR_PutEnum),
 	SF(bimage, "bimage", 1, SVT_STRING, SR_LevelGetImage, SR_LevelPutImage),
 	SF(btimer, "btimer", 1, SVT_INT, SR_GetInt, SR_PutInt),
-	*/
 
 	// FIXME: off_sound
 
 	SVFIELD_END
 };
-
-#undef SV_F_BASE
 
 savestruct_t sv_struct_button =
 {
@@ -132,9 +128,12 @@ savestruct_t sv_struct_button =
 	"button_t",        // structure name
 	"butn",            // start marker
 	sv_fields_button,  // field descriptions
+  SVDUMMY,           // dummy base
 	true,              // define_me
 	NULL               // pointer to known struct
 };
+
+#undef SV_F_BASE
 
 savearray_t sv_array_button =
 {
@@ -163,7 +162,6 @@ static light_t sv_dummy_light;
 
 static savefield_t sv_fields_light[] =
 {
-	/*
 	SF(type, "type", 1, SVT_STRING, SR_LightGetType, SR_LightPutType),
 	SF(sector, "sector", 1, SVT_INDEX("sectors"), 
 	SR_SectorGetSector, SR_SectorPutSector),
@@ -172,7 +170,6 @@ static savefield_t sv_fields_light[] =
 	SF(maxlight, "maxlight", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(direction, "direction", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(fade_count, "fade_count", 1, SVT_INT, SR_GetInt, SR_PutInt),
-	*/
 
 	// NOT HERE:
 	//   - prev & next: automatically regenerated
@@ -180,17 +177,18 @@ static savefield_t sv_fields_light[] =
 	SVFIELD_END
 };
 
-#undef SV_F_BASE
-
 savestruct_t sv_struct_light =
 {
 	NULL,              // link in list
 	"light_t",         // structure name
 	"lite",            // start marker
 	sv_fields_light,   // field descriptions
+  SVDUMMY,           // dummy base
 	true,              // define_me
 	NULL               // pointer to known struct
 };
+
+#undef SV_F_BASE
 
 savearray_t sv_array_light =
 {
@@ -219,7 +217,6 @@ static rad_trigger_t sv_dummy_trigger;
 
 static savefield_t sv_fields_trigger[] =
 {
-	/*
 	SF(info, "info", 1, SVT_STRING,
 	SR_TriggerGetScript, SR_TriggerPutScript),
 
@@ -232,7 +229,6 @@ static savefield_t sv_fields_trigger[] =
 	SR_TriggerGetState, SR_TriggerPutState),
 	SF(wait_tics, "wait_tics", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(tip_slot, "tip_slot", 1, SVT_INT, SR_GetInt, SR_PutInt),
-	*/
 
 	// NOT HERE
 	//   - next & prev: can be regenerated.
@@ -242,17 +238,18 @@ static savefield_t sv_fields_trigger[] =
 	SVFIELD_END
 };
 
-#undef SV_F_BASE
-
 savestruct_t sv_struct_trigger =
 {
 	NULL,               // link in list
 	"rad_trigger_t",    // structure name
 	"trig",             // start marker
 	sv_fields_trigger,  // field descriptions
+  SVDUMMY,            // dummy base
 	true,               // define_me
 	NULL                // pointer to known struct
 };
+
+#undef SV_F_BASE
 
 savearray_t sv_array_trigger =
 {
@@ -284,7 +281,6 @@ static savefield_t sv_fields_drawtip[] =
 	// treating the `p' sub-struct here as if the fields were directly
 	// in drawtip_t.
 
-	/*
 	SF(p.x_pos, "x_pos", 1, SVT_PERCENT, SR_GetPercent, SR_PutPercent),
 	SF(p.y_pos, "y_pos", 1, SVT_PERCENT, SR_GetPercent, SR_PutPercent),
 	SF(p.left_just, "left_just", 1, SVT_INT, SR_GetInt, SR_PutInt),
@@ -301,7 +297,6 @@ static savefield_t sv_fields_drawtip[] =
 	SF(playsound, "playsound", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
 	SF(fade_time, "fade_time", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(fade_target, "fade_target", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
-	*/
 
 	// NOT HERE:
 	//    p.slot_num, p.time: not used withing drawtip_t
@@ -311,17 +306,18 @@ static savefield_t sv_fields_drawtip[] =
 	SVFIELD_END
 };
 
-#undef SV_F_BASE
-
 savestruct_t sv_struct_drawtip =
 {
 	NULL,              // link in list
 	"drawtip_t",       // structure name
 	"dtip",            // start marker
 	sv_fields_drawtip, // field descriptions
+  SVDUMMY,           // dummy base
 	true,              // define_me
 	NULL               // pointer to known struct
 };
+
+#undef SV_F_BASE
 
 savearray_t sv_array_drawtip =
 {
@@ -350,7 +346,6 @@ static plane_move_t sv_dummy_plane_move;
 
 static savefield_t sv_fields_plane_move[] =
 {
-	/*
 	SF(type, "type", 1, SVT_STRING, SR_PlaneMoveGetType, SR_PlaneMovePutType),
 	SF(sector, "sector", 1, SVT_INDEX("sectors"), 
 	SR_SectorGetSector, SR_SectorPutSector),
@@ -370,7 +365,6 @@ static savefield_t sv_fields_plane_move[] =
 	SF(newspecial, "newspecial", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(new_image, "new_image", 1, SVT_STRING, 
 	SR_LevelGetImage, SR_LevelPutImage),
-	*/
 
 	// NOT HERE:
 	//   - whatiam: will always be MDT_PLANE
@@ -379,17 +373,18 @@ static savefield_t sv_fields_plane_move[] =
 	SVFIELD_END
 };
 
-#undef SV_F_BASE
-
 savestruct_t sv_struct_plane_move =
 {
 	NULL,                  // link in list
 	"plane_move_t",        // structure name
 	"pmov",                // start marker
 	sv_fields_plane_move,  // field descriptions
+  SVDUMMY,               // dummy base
 	true,                  // define_me
 	NULL                   // pointer to known struct
 };
+
+#undef SV_F_BASE
 
 savearray_t sv_array_plane_move =
 {

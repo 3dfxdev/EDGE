@@ -26,8 +26,6 @@
 #include "i_defs.h"
 #include "sv_chunk.h"
 
-#include "ddf_locl.h"  // needed for FIELD_OFF
-
 #include "dm_state.h"
 #include "e_main.h"
 #include "g_game.h"
@@ -70,17 +68,16 @@ typedef struct
 	// stringify function.  Return string must be freed.
 	const char * (* stringify_func)(void *storage);
 
-	// field offset
-	int offset;
+  // field offset (given as a pointer within dummy struct)
+  const char *offset_p;
 }
 global_command_t;
 
 
-#define GLOB_OFF(field)  FIELD_OFF(dummy_glob, field)
+#define GLOB_OFF(field)  ((const char *) &dummy_glob.field)
 
 static const global_command_t global_commands[] =
 {
-	/*
 	{ "GAME",  GV_GetString, GV_PutString, GLOB_OFF(game) },
 	{ "LEVEL", GV_GetString, GV_PutString, GLOB_OFF(level) },
 	{ "FLAGS", GV_GetLevelFlags, GV_PutLevelFlags, GLOB_OFF(flags) },
@@ -108,7 +105,7 @@ static const global_command_t global_commands[] =
 	{ "DDFSECT", GV_GetCheckCRC, GV_PutCheckCRC, GLOB_OFF(ddfsect) },
 	{ "DDFMOBJ", GV_GetCheckCRC, GV_PutCheckCRC, GLOB_OFF(ddfmobj) },
 	{ "DDFWEAP", GV_GetCheckCRC, GV_PutCheckCRC, GLOB_OFF(ddfweap) },
-	*/
+
 	{ NULL, NULL, 0 }
 };
 
@@ -350,8 +347,10 @@ static boolean_t GlobReadVARI(saveglobals_t *globs)
 
 	if (global_commands[i].name)
 	{
+    int offset = global_commands[i].offset_p - (char *) &dummy_glob;
+
 		// found it, so parse it
-		storage = ((char *) globs) + global_commands[i].offset;
+    storage = ((char *) globs) + offset;
 
 		(* global_commands[i].parse_func)(var_data, storage);
 	}
@@ -447,8 +446,10 @@ static void GlobWriteVARIs(saveglobals_t *globs)
 
 	for (i=0; global_commands[i].name; i++)
 	{
+    int offset = global_commands[i].offset_p - (char *) &dummy_glob;
+
 		const char *data;
-		void *storage = ((char *) globs) + global_commands[i].offset;
+    void *storage = ((char *) globs) + offset;
 
 		data = (* global_commands[i].stringify_func)(storage);
 		DEV_ASSERT2(data);
