@@ -38,6 +38,10 @@ static win32_mixer_t *mixer = NULL;
 static cdinfo_t *currcd = NULL;
 static MCIERROR errorcode;
 
+static int currcd_track = 0;
+static bool currcd_loop = false;
+static float currcd_gain = 0.0f;
+
 //
 // I_StartupCD
 //
@@ -88,7 +92,7 @@ void I_ShutdownCD()
 //
 // Initialises playing a CD-Audio Track, returns false on failure.
 //
-bool I_CDStartPlayback(int tracknum)
+bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
 {
 	MCI_OPEN_PARMS openparm;
 	MCI_PLAY_PARMS playparm;
@@ -240,6 +244,10 @@ bool I_CDStartPlayback(int tracknum)
 		return false;
 	}
 
+	currcd_track = tracknum;
+	currcd_loop = loopy;
+	I_CDSetVolume(gain);
+
 	return true;
 }
 
@@ -377,9 +385,7 @@ bool I_CDFinished(void)
 //
 // I_CDSetVolume
 //
-// Vol is from 0 to 255.
-//
-void I_CDSetVolume(int vol)
+void I_CDSetVolume(float gain)
 {
 	if (!mixer)
 		return;
@@ -387,20 +393,34 @@ void I_CDSetVolume(int vol)
 	DWORD actualvol;
 
 	// Too small...
-	if (vol < 0)
-		vol = 0;
+	if (gain < 0)
+		gain = 0;
 
 	// Too big...
-	if (vol > 15)
-		vol = 15;
+	if (gain > 1)
+		gain = 1;
 
 	// Calculate a given value in range
-	actualvol = vol * (mixer->maxvol - mixer->minvol);
-	if (actualvol>0)
-		actualvol /= 15;
-	else
-		actualvol = 0;
+	actualvol = int(gain * (mixer->maxvol - mixer->minvol));
 	actualvol += mixer->minvol;
 
 	I_MusicSetMixerVol(mixer, actualvol);
+
+	currcd_gain = gain;
+}
+
+//
+// I_CDTicker
+//
+bool I_CDTicker(void)
+{
+	if (currcd_loop && I_CDFinished())
+	{
+		I_CDStopPlayback();
+
+		if (! I_CDStartPlayback(currcd_track, currcd_loop, currcd_gain))
+			return false;
+	}
+
+	return true;
 }

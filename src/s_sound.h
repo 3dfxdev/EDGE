@@ -29,8 +29,9 @@
 #include "p_mobj.h"
 
 // for the sliders
-#define S_MIN_VOLUME 0
-#define S_MAX_VOLUME 15
+#define SND_SLIDER_NUM  20
+
+extern float slider_to_gain[SND_SLIDER_NUM];
 
 // S_MUSIC.C
 void S_ChangeMusic(int entrynum, bool looping);

@@ -182,7 +182,7 @@ bool I_StartupMUS()
 //
 // I_MUSPlayTrack
 //
-int I_MUSPlayTrack(byte *data, int length, bool loopy)
+int I_MUSPlayTrack(byte *data, int length, bool loopy, float gain)
 {
 	if (!midiavailable)
 		return -1;
@@ -199,10 +199,12 @@ int I_MUSPlayTrack(byte *data, int length, bool loopy)
 	}
 
 	memcpy(song, data, length);
+
 	playpos = SongStartAddress();       // Go to the beginning of the song.
 	playing = true;
 	looping = loopy;
 
+	I_MUSSetVolume(gain);
 	return 1;
 }
 
@@ -294,9 +296,7 @@ void I_ShutdownMUS(void)
 //
 // I_MUSSetVolume
 //
-// Vol is from 0 to 255.
-//
-void I_MUSSetVolume(int vol)
+void I_MUSSetVolume(float gain)
 {
 	if (!mixer)
 		return;
@@ -304,19 +304,15 @@ void I_MUSSetVolume(int vol)
 	DWORD actualvol;
 
 	// Too small...
-	if (vol < 0)
-		vol = 0;
+	if (gain < 0)
+		gain = 0;
 
 	// Too big...
-	if (vol > 15)
-		vol = 15;
+	if (gain > 1)
+		gain = 1;
 
 	// Calculate a given value in range
-	actualvol = vol * (mixer->maxvol - mixer->minvol);
-	if (actualvol>0)
-		actualvol /= 15;
-	else
-		actualvol = 0;
+	actualvol = int(gain * (mixer->maxvol - mixer->minvol));
 	actualvol += mixer->minvol;
 
 	I_MusicSetMixerVol(mixer, actualvol);

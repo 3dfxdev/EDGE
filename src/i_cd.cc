@@ -35,6 +35,10 @@ static int cd_num_drives;
 static int cd_drive_idx;
 static bool cd_playing;
 
+static int currcd_track = 0;
+static bool currcd_loop = false;
+static float currcd_gain = 0.0f;
+
 static void MusicErrorPrintf(const char *fmt, ...)
 {
 	static char errmsg[1024];
@@ -116,7 +120,7 @@ void I_ShutdownCD()
 //
 // Attempts to play CD track 'tracknum', returns true on success.
 //
-bool I_CDStartPlayback(int tracknum)
+bool I_CDStartPlayback(int tracknum, bool loop, float gain)
 {
 	if (cd_playing)
 		I_CDStopPlayback();
@@ -142,6 +146,10 @@ bool I_CDStartPlayback(int tracknum)
 			tracknum, SDL_GetError());
 		return false;
 	}
+
+	currcd_track = tracknum;
+	currcd_loop  = loop;
+	I_CDSetVolume(gain);
 
 	cd_playing = true;
 	return true;
@@ -179,20 +187,17 @@ void I_CDStopPlayback(void)
 //
 // I_CDSetVolume
 //
-// Sets the CD Volume
-//
-void I_CDSetVolume(int vol)
+void I_CDSetVolume(float gain)
 {
-	if ((vol >= 0) && (vol <= 15))
-	{
-		// FIXME: no SDL function for changing CD volume
-	}
+	// FIXME: no SDL function for changing CD volume
+
+	currcd_gain = gain;
 }
 
 //
 // I_CDFinished
 //
-// Has the CD Finished
+// Has the CD Finished?
 //
 bool I_CDFinished(void)
 {
@@ -201,3 +206,18 @@ bool I_CDFinished(void)
 	return (st == CD_STOPPED);  // what about CD_PAUSED ??
 }
 
+//
+// I_CDTicker
+//
+bool I_CDTicker(void)
+{
+	if (currcd_loop && I_CDFinished())
+	{
+		I_CDStopPlayback();  //???
+
+		if (! I_CDStartPlayback(currcd_track, currcd_loop, currcd_gain))
+			return false;
+	}
+
+	return true;
+}

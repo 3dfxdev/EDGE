@@ -104,7 +104,8 @@ bool I_StartupMusic(void *sysinfo)
 //
 // I_MusicPlayback
 //
-int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
+int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping,
+	float gain)
 {
 	int handle;
 
@@ -118,15 +119,17 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 		// CD Support...
 		case MUS_CD:
 		{
-			if (! I_CDStartPlayback(musdat->info.cd.track))
+			if (! I_CDStartPlayback(musdat->info.cd.track, looping, gain))
 				handle = -1;
 			else
+			{
 				handle = MAKEHANDLE(MUS_CD, looping, musdat->info.cd.track);
+			}
 			break;
 		}
 
-		case MUS_MIDI:
 		case MUS_MUS:
+		case MUS_MIDI:
 		{
 #ifdef USE_HUMID
 			handle = -1;
@@ -140,7 +143,7 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 					handle = -1;
 				else
 				{
-					humdinger->Play(looping);
+					humdinger->Play(looping, gain);
 					handle = MAKEHANDLE(type, looping, track);
 				}
 			}
@@ -166,7 +169,7 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 			else if (musdat->format == IMUSSF_FILE)
 				oggplayer->Open(musdat->info.file.name);
 				
-			oggplayer->Play(looping);
+			oggplayer->Play(looping, gain);
 			handle = MAKEHANDLE(MUS_OGG, looping, 1);
 			break;
 		}
@@ -318,7 +321,7 @@ void I_MusicKill(int *handle)
 //
 // I_SetMusicVolume
 //
-void I_SetMusicVolume(int *handle, int volume)
+void I_SetMusicVolume(int *handle, float gain)
 {
 	int type;
 
@@ -331,7 +334,7 @@ void I_SetMusicVolume(int *handle, int volume)
 	{
 		case MUS_CD:
 		{
-			I_CDSetVolume(volume);
+			I_CDSetVolume(gain);
 			break;
 		}
 
@@ -339,14 +342,14 @@ void I_SetMusicVolume(int *handle, int volume)
 		case MUS_MUS:
 		case MUS_MIDI:
 		{
-			if (humdinger) humdinger->SetVolume(volume);
+			if (humdinger) humdinger->SetVolume(gain);
 			break;
 		}
 #endif
 
 		case MUS_OGG:
 		{
-			oggplayer->SetVolume(volume);
+			oggplayer->SetVolume(gain);
 			break;
 		}
 
@@ -378,16 +381,10 @@ void I_MusicTicker(int *handle)
 	{
 		case MUS_CD:
 		{
-			if (!(I_GetTime()%TICRATE))
+			if (I_GetTime() % TICRATE == 0)
 			{
-				if (looping && I_CDFinished())
-				{
-					if (!I_CDStartPlayback(libhandle))
-					{
-						*handle = -1;
-						I_ShutdownCD();
-					}
-				}
+				if (! I_CDTicker())
+					*handle = -1;
 			}
 			break;
 		}

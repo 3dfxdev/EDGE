@@ -92,7 +92,8 @@ bool I_StartupMusic(void *sysinfo)
 //
 // I_MusicPlayback
 //
-int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
+int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping,
+	float gain);
 {
 	int track;
 	int handle;
@@ -107,7 +108,7 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 		// CD Support...
 		case MUS_CD:
 		{
-			if (!I_CDStartPlayback(musdat->info.cd.track))
+			if (!I_CDStartPlayback(musdat->info.cd.track, looping, gain))
 			{
 				handle = -1;
 			}
@@ -128,13 +129,14 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 		case MUS_MUS:
 		{
 			track = I_MUSPlayTrack((byte*)musdat->info.data.ptr,
-				musdat->info.data.size,
-				looping);
+				musdat->info.data.size, looping, gain);
 
 			if (track == -1)
 				handle = -1;
 			else
+			{
 				handle = MAKEHANDLE(MUS_MUS, looping, track);
+			}
 
 			break;
 		}
@@ -146,7 +148,8 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping)
 			else // if (musdat->format == IMUSSF_FILE)
 				oggplayer->Open(musdat->info.file.name);
 				
-			oggplayer->Play(looping);
+			oggplayer->Play(looping, gain);
+
 			handle = MAKEHANDLE(MUS_OGG, looping, 1);
 			break;
 		}
@@ -280,14 +283,10 @@ void I_MusicTicker(int *handle)
 	{
 		case MUS_CD:
 		{
-			if (!(I_GetTime()%TICRATE))
+			if (I_GetTime() % TICRATE == 0)
 			{
-				if (looping && I_CDFinished())
-				{
-					I_CDStopPlayback();
-					if (!I_CDStartPlayback(libhandle))
-						*handle = -1;
-				}
+				if (! I_CDTicker())
+					*handle = -1;
 			}
 			break;
 		}
@@ -304,7 +303,7 @@ void I_MusicTicker(int *handle)
 //
 // I_SetMusicVolume
 //
-void I_SetMusicVolume(int *handle, int volume)
+void I_SetMusicVolume(int *handle, float gain)
 {
 	int type;
 	int handleint;
@@ -317,7 +316,7 @@ void I_SetMusicVolume(int *handle, int volume)
 	{
 		case MUS_CD:   
 		{ 
-			I_CDSetVolume(volume);
+			I_CDSetVolume(gain);
 			break; 
 		}
 
@@ -326,11 +325,11 @@ void I_SetMusicVolume(int *handle, int volume)
 
 		case MUS_MUS:
 		{
-			I_MUSSetVolume(volume);
+			I_MUSSetVolume(gain);
 			break;
 		}
 
-		case MUS_OGG: { oggplayer->SetVolume(volume); break; }
+		case MUS_OGG: { oggplayer->SetVolume(gain); break; }
 
 		default:
 			break;

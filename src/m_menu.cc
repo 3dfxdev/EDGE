@@ -1011,8 +1011,8 @@ void M_DrawSound(void)
 
 	RGL_ImageEasy320(60, 38, menu_svol);
 
-	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol + 1), 16, soundvol, 1);
-	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), 16, musicvol, 1);
+	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol + 1),   SND_SLIDER_NUM, soundvol, 1);
+	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), SND_SLIDER_NUM, musicvol, 1);
 }
 
 #if 0
@@ -1039,13 +1039,13 @@ void M_SfxVol(int choice)
 	switch (choice)
 	{
 		case SLIDERLEFT:
-			if (soundvol > S_MIN_VOLUME)
+			if (soundvol > 0)
 				soundvol--;
 
 			break;
 
 		case SLIDERRIGHT:
-			if (soundvol < S_MAX_VOLUME)
+			if (soundvol < SND_SLIDER_NUM-1)
 				soundvol++;
 
 			break;
@@ -1068,13 +1068,13 @@ void M_MusicVol(int choice)
 	switch (choice)
 	{
 		case SLIDERLEFT:
-			if (musicvol > S_MIN_VOLUME)
+			if (musicvol > 0)
 				musicvol--;
 
 			break;
 
 		case SLIDERRIGHT:
-			if (musicvol < S_MAX_VOLUME)
+			if (musicvol < SND_SLIDER_NUM-1)
 				musicvol++;
 
 			break;

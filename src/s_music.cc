@@ -28,6 +28,8 @@
 
 // Current music handle
 static int musichandle = -1;
+
+// music slider value (range is 0 to 19)
 static int musicvolume;
 
 bool nomusic = false;
@@ -63,7 +65,7 @@ void S_ChangeMusic(int entrynum, bool looping)
 
 	if (nomusic)
 		return;
-
+	
 	// -AJA- playlist number 0 reserved to mean "no music"
 	if (entrynum <= 0)
 	{
@@ -82,6 +84,8 @@ void S_ChangeMusic(int entrynum, bool looping)
 		I_Warning("S_ChangeMusic: MP3 music no longer supported.\n");
 		return;
 	}
+
+	float volume = slider_to_gain[musicvolume];
 
 	// -ACB- 2000/06/06 This is not system specific
 	if (play->infotype == MUSINF_FILE)
@@ -127,7 +131,7 @@ void S_ChangeMusic(int entrynum, bool looping)
 			musdat.info.file.name = Z_StrDup(fn.GetString());
 		}
 
-		musichandle = I_MusicPlayback(&musdat, play->type, looping);
+		musichandle = I_MusicPlayback(&musdat, play->type, looping, volume);
 
 		if (data)
 			delete [] data;
@@ -148,7 +152,7 @@ void S_ChangeMusic(int entrynum, bool looping)
 			musdat.info.data.ptr = data;
 			musdat.info.data.size = datlength;
 
-			musichandle = I_MusicPlayback(&musdat, play->type, looping);
+			musichandle = I_MusicPlayback(&musdat, play->type, looping, volume);
 			W_DoneWithLump(data);
 		}
 		else
@@ -163,16 +167,11 @@ void S_ChangeMusic(int entrynum, bool looping)
 		musdat.format = IMUSSF_CD;
 		musdat.info.cd.track = atoi(play->info);
 
-		musichandle = I_MusicPlayback(&musdat, play->type, looping);
+		musichandle = I_MusicPlayback(&musdat, play->type, looping, volume);
 	}
 
-	// if the music handle is returned, set the volume.
-	if (musichandle != -1)
-		I_SetMusicVolume(&musichandle, musicvolume);
-	else
+	if (musichandle == -1)
 		I_Printf("%s\n", I_MusicReturnError());
-
-	return;
 }
 
 //
@@ -233,11 +232,13 @@ int S_GetMusicVolume(void)
 //
 void S_SetMusicVolume(int volume)
 {
-	musicvolume = edgemid(S_MIN_VOLUME, volume, S_MAX_VOLUME);
+	DEV_ASSERT2(volume >= 0 && volume < SND_SLIDER_NUM);
+
+	musicvolume = volume;
 
 	if (nomusic || musichandle == -1)
 		return;
 
-	I_SetMusicVolume(&musichandle, volume);
+	I_SetMusicVolume(&musichandle, slider_to_gain[musicvolume]);
 }
 

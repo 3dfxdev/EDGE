@@ -225,7 +225,8 @@ bool I_StartupMusic(void *sysinfo);
 // I_SystemStartup(), and can be passed some platform-specific data
 // via the `sysinfo' parameter.
 
-int I_MusicPlayback(i_music_info_t* musdat, int type, bool looping);
+int I_MusicPlayback(i_music_info_t* musdat, int type, bool looping,
+	float gain);
 // Starts music playing using the 'i_music_info_t' for info.
 //
 // Returns an integer handle that is used to refer to the music (in
@@ -242,9 +243,9 @@ void I_MusicResume(int *handle);
 void I_MusicKill(int *handle);
 // You can't stop the rock!!  This does.
 
-void I_SetMusicVolume(int *handle, int volume);
-// Sets the music's volume.  The volume is in the range 0 to 15, from
-// quietest to loudest.
+void I_SetMusicVolume(int *handle, float gain);
+// Sets the music's volume.  The gain is in the range 0.0 to 1.0
+// from quietest to loudest.
 
 void I_MusicTicker(int *handle);
 // Called once in a while.  Should keep the music going.
@@ -297,11 +298,11 @@ bool I_UnloadSfx(unsigned int handle);
 // I_LoadSfx().  This frees the sound data.  Returns true on success,
 // otherwise false.
 
-int I_SoundPlayback(unsigned int handle, int vol, bool looping);
+int I_SoundPlayback(unsigned int handle, float gain, bool looping,
+	bool relative, float *pos, float *veloc);
 // Starts the sound with the given handle playing, using the
-// paramaters for panning, volume and looping.  Pan ranges from 0
-// (hard left) to 128 (middle) to 255 (hard right).  Volume ranges
-// from 0 (silent) to 255 (loudest).
+// paramaters for panning, volume and looping.  Gain ranges from
+// from 0.0 (silent) to 1.0 (loudest).
 //
 // Returns the channel ID where the sound is played, which is used to
 // refer to the sound in the other functions below.  If something goes
@@ -324,11 +325,11 @@ bool I_SoundSetListenerOrient(float *at, float *up);
 // Sets the listener orientation. The 'at' and 'up' vectors
 // are 3-entry tuples. Returns true if successful, otherwise false.
 
-bool I_SoundSetListenerPos(float *pos);
+bool I_SoundSetListenerPos(float *pos, float *veloc);
 // Sets the listener position in (x,y,z) format tuple. Returns true 
 // if successful, otherwise false.
 
-bool I_SoundSetPos(unsigned int chanid, float *pos);
+bool I_SoundSetPos(unsigned int chanid, float *pos, float *veloc);
 // Set the sound position in an (x,y,z) format tuple. Returns true if 
 // successful, otherwise false.
 
@@ -336,7 +337,7 @@ bool I_SoundSetRelative(unsigned int chanid, bool relative);
 // Set the "position of sound is relative to listener" flag. Returns true if 
 // successful, otherwise false.
 
-bool I_SoundSetVolume(unsigned int chanid, int vol);
+bool I_SoundSetVolume(unsigned int chanid, float gain);
 // Alters the volume of a currently playing sound.  Returns true
 // if successful, otherwise false.
 
