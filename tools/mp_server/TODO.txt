@@ -5,9 +5,8 @@ MPSERVER TODO
 NETWORKING
 ----------
 
-+ implement PK_tic_retransmit.
-
-+ send our own retransmit requests. 
+TEST: send our own retransmit requests. 
+TEST: implement PK_tic_retransmit.
 
 - validate packet lengths and contents.
 
