@@ -1282,6 +1282,8 @@ static void RAD_ParseTip(int pnum, const char **pars)
 	//
 	// (likewise for Tip_LDF)
 	// (likewise for Tip_Graphic)
+	//
+	// NOTE: Tip_Graphic accepts a scale, e.g. M_PAUSE:50%
 
 	s_tip_t *tip;
 
@@ -1289,9 +1291,30 @@ static void RAD_ParseTip(int pnum, const char **pars)
 
 	tip->display_time = 3 * TICRATE;
 	tip->playsound = false;
+	tip->gfx_scale = 1.0f;
 
 	if (DDF_CompareName(pars[0], "TIP_GRAPHIC") == 0)
-		tip->tip_graphic = Z_StrDup(pars[1]);
+	{
+		const char *div = strchr(pars[1], ':');
+
+		if (div)
+		{
+			int len = div - pars[1];
+
+			if (len == 0 || div[1] == 0)
+				RAD_Error("%s: Bad image spec `%s'.\n", pars[0], pars[1]);
+
+			tip->tip_graphic = Z_New(char, len + 1);
+			Z_StrNCpy(tip->tip_graphic, pars[1], len);
+
+			percent_t perc;
+			RAD_CheckForPercentAny(div + 1, &perc);
+
+			tip->gfx_scale = PERCENT_2_FLOAT(perc);
+		}
+		else
+			tip->tip_graphic = Z_StrDup(pars[1]);
+	}
 	else if (DDF_CompareName(pars[0], "TIP_LDF") == 0)
 		tip->tip_ldf = Z_StrDup(pars[1]);
 	else if (pars[1][0] == '"')

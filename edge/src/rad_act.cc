@@ -235,6 +235,7 @@ static void SendTip(s_tip_t * tip, int slot)
 	current->tip_graphic = tip->tip_graphic ?
 		W_ImageFromPatch(tip->tip_graphic) : NULL;
 	current->playsound   = tip->playsound ? true : false;
+	current->scale       = tip->tip_graphic ? tip->gfx_scale : 1.0f;
 	current->fade_time   = 0;
 
 	// mark it as "set me up please"
@@ -290,13 +291,15 @@ void RAD_DisplayTips(void)
 
 		if (current->tip_graphic)
 		{
+			float sc = current->scale;
+
 			const image_t *image = current->tip_graphic;
 
 			int x = (int)(SCREENWIDTH  * PERCENT_2_FLOAT(current->p.x_pos));
 			int y = (int)(SCREENHEIGHT * PERCENT_2_FLOAT(current->p.y_pos));
 
-			int w = FROM_320(IM_WIDTH(image));
-			int h = FROM_200(IM_HEIGHT(image));
+			int w = (int)(sc * FROM_320(IM_WIDTH(image)));
+			int h = (int)(sc * FROM_200(IM_HEIGHT(image)));
 
 			y -= h / 2;
 

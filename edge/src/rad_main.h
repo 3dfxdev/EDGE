@@ -41,6 +41,9 @@ typedef struct s_tip_s
 
 	// play the TINK sound ?
 	bool playsound;
+
+	// graphic scaling (1.0 is normal, higher is bigger).
+	float gfx_scale;
 }
 s_tip_t;
 
@@ -432,10 +435,13 @@ s_onheight_t;
 typedef enum
 {
 	// spawn a separate trigger for each player
-	RNET_Separate = 0,
+	RNET_Separate,
 
 	// spawn only a single trigger, "absolute" semantics
-	RNET_Absolute
+	RNET_Absolute,
+
+	// not specified -- try to automatically detect it
+	RNET_Auto
 }
 rad_script_netmode_e;
 
@@ -583,6 +589,9 @@ typedef struct drawtip_s
 
 	// play a sound ?
 	bool playsound;
+
+	// scaling info (so far only for Tip_Graphic)
+	float scale;
 
 	// current colour
 	const struct colourmap_s *colmap;
