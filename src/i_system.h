@@ -57,7 +57,7 @@ void I_EDGELoop(void);
 void I_Printf(const char *message,...) GCCATTR(format(printf, 1, 2));
 // The generic print function.  If in text mode, the message should be
 // displayed on the text mode screen.  This function should also call
-// CON_Printf(), and may call I_WriteDebug() too.
+// L_WriteDebug() and CON_Printf().
 
 void I_PutTitle(const char *title);
 // This function should clear the text mode screen (or window), and
@@ -109,9 +109,6 @@ boolean_t I_PathIsDirectory(const char *path);
 void I_Warning(const char *warning,...) GCCATTR(format(printf, 1, 2));
 // Writes a warning to the console and the debug file (if any).  This
 // function should call CON_Printf().
-
-void I_WriteDebug(const char *message,...) GCCATTR(format(printf, 1, 2));
-// Writes a debugging message to the debug file (if any).
 
 
 //--------------------------------------------------------
@@ -468,5 +465,9 @@ void I_ShutdownGraphics(void);
 #else
 #define CHECKVAL(x)  do {} while(0)
 #endif
+
+// TEMP: this gunk needed for the time being
+#define I_WriteDebug  L_WriteDebug
+void L_WriteDebug(const char *message,...) GCCATTR(format(printf, 1, 2));
 
 #endif // __I_SYSTEM__
