@@ -31,9 +31,6 @@
 
 #include "epi/epiarray.h"
 
-// utility macro.
-#define ANG_2_ROT(angle)  ((angle_t)(angle) >> (ANGLEBITS-4))
-
 //      
 // Sprites are patches with a special naming convention so they can be
 // recognized by R_InitSprites.  The base name is NNNNFx or NNNNFxFx,
@@ -59,12 +56,10 @@ public:
 
 	// whether this frame has been completed.  Completed frames cannot
 	// be replaced by sprite lumps in older wad files.
-	// 
 	byte finished;
   
     // if not rotated, we don't have to determine the angle for the
     // sprite.  This is an optimisation.
-    // 
 	byte rotated;
   
 	// normally zero, will be 1 if the [9ABCDEFG] rotations are used.
@@ -73,8 +68,21 @@ public:
 	// Flip bits (1 = flip) to use for view angles 0-15.
 	byte flip[16];
   
-	// Images for each view angle 0-15.  Never NULL.
+	// Images for each view angle 0-15.
 	const struct image_s *images[16];
+
+	int CalcRot(angle_t obj_face, angle_t from_view) const
+	{
+		if (! rotated)
+			return 0;
+
+		if (extended)
+			return (unsigned int)(from_view - obj_face + ANG180 +
+					(ANG45 / 4)) >> (ANGLEBITS - 4);
+		else
+			return (unsigned int)(from_view - obj_face + ANG180 +
+					(ANG45 / 2)) >> (ANGLEBITS - 4);
+	}
 };
 
 //

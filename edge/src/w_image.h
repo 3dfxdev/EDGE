@@ -140,7 +140,7 @@ void W_ResetImages(void);
 
 void W_ImageCreateFlats(int *lumps, int number);
 void W_ImageCreateTextures(struct texturedef_s ** defs, int number);
-void W_ImageCreateSprite(const char *name, int lump, bool is_weapon);
+const image_t *W_ImageCreateSprite(const char *name, int lump, bool is_weapon);
 void W_ImageCreateUser(void);
 void W_AnimateImageSet(const image_t ** images, int number, int speed);
 void W_DrawSavePic(const byte *pixels);
@@ -159,9 +159,10 @@ void W_ImagePreCache(const image_t *image);
 
 GLuint W_ImageGetOGL(const cached_image_t *c);
 
-#ifdef DEVELOPERS
-const char *W_ImageDebugName(const image_t *image);
-#endif
+const char *W_ImageGetName(const image_t *image);
+
+// this only needed during initialisation -- r_things.cpp
+const image_t ** W_ImageGetUserSprites(int *count);
 
 // internal routines -- only needed by rgl_wipe.c
 int W_MakeValidSize(int value);
