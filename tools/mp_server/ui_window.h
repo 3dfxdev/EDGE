@@ -25,8 +25,8 @@
 
 #define MAIN_BG_COLOR  fl_gray_ramp(FL_NUM_GRAY * 9 / 24)
 
-#define MAIN_WINDOW_MIN_W  540
-#define MAIN_WINDOW_MIN_H  450
+#define MAIN_WINDOW_MIN_W  560
+#define MAIN_WINDOW_MIN_H  400
 
 class UI_LogBox;
 

@@ -35,6 +35,8 @@ UI_Stats::UI_Stats(int x, int y, int w, int h) :
 	labeltype(FL_NORMAL_LABEL);
 	align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT | FL_ALIGN_TOP);
 
+	// ---- numbers of clients and games ----
+
 	clients = new Fl_Output(x+120, y+4, 50, 22, "Clients:");
 	clients->align(FL_ALIGN_LEFT);
 	clients->value("0");
@@ -49,6 +51,40 @@ UI_Stats::UI_Stats(int x, int y, int w, int h) :
 	played->align(FL_ALIGN_LEFT);
 	played->value("0");
 	add(played);
+
+	// ---- packets read, written and buffered ----
+
+	in_pks = new Fl_Output(x+300, y+4, 70, 22, "Input packets:");
+	in_pks->align(FL_ALIGN_LEFT);
+	in_pks->value("0");
+	add(in_pks);
+
+	out_pks = new Fl_Output(x+300, y+30, 70, 22, "Output packets:");
+	out_pks->align(FL_ALIGN_LEFT);
+	out_pks->value("0");
+	add(out_pks);
+
+	buf_pks = new Fl_Output(x+300, y+56, 70, 22, "Buffered packets:");
+	buf_pks->align(FL_ALIGN_LEFT);
+	buf_pks->value("0");
+	add(buf_pks);
+
+	// ---- number of bytes read, written and buffered ----
+
+	in_bytes = new Fl_Output(x+420, y+4, 110, 22, "bytes:");
+	in_bytes->align(FL_ALIGN_LEFT);
+	in_bytes->value("0");
+	add(in_bytes);
+
+	out_bytes = new Fl_Output(x+420, y+30, 110, 22, "bytes:");
+	out_bytes->align(FL_ALIGN_LEFT);
+	out_bytes->value("0");
+	add(out_bytes);
+
+	buf_bytes = new Fl_Output(x+420, y+56, 110, 22, "bytes:");
+	buf_bytes->align(FL_ALIGN_LEFT);
+	buf_bytes->value("0");
+	add(buf_bytes);
 }
 
 

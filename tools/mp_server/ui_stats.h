@@ -29,6 +29,14 @@ private:
 	Fl_Output *clients;
 	Fl_Output *queued;
 	Fl_Output *played;
+
+	Fl_Output *in_pks;
+	Fl_Output *out_pks;
+	Fl_Output *buf_pks;
+
+	Fl_Output *in_bytes;
+	Fl_Output *out_bytes;
+	Fl_Output *buf_bytes;
 };
 
 #endif /* __UI_STATS_H__ */
