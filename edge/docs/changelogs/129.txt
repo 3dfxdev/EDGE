@@ -107,20 +107,50 @@ General improvements
 New features:
 -------------
 
++ new FONTS.DDF file.  The equivalent wad lump is DDFFONT.  This is used
+  to define fonts (the set of character images to draw text with).
+
+  @@@
+
++ new STYLES.DDF file.  The equivalent wad lump is DDFSTYLE.  This is
+  used to define styles: these are the background colour/image and the
+  text font/colour/scaling information and also sounds.  Many parts of
+  the EDGE user interface can be changed using styles, e.g. the video
+  options menu has a corresponding style called [VIDEO_OPTIONS].
+
+  @@@
+
 + new RTS menu system:
 
     SHOW_MENU      title option1 option2 ...
     SHOW_MENU_LDF  title option1 option2 ...
          
-    JUMP_ON  MENU  label1 label2 ...
+	MENU_STYLE  style_name
 
-	@@@  MENU_STYLE  style_name
+    JUMP_ON  MENU  label1 label2 ...
 
   The RTS menu will pause the game (including all scripts) until the user
   presses a valid number key.  Savegames are also disabled while the RTS
   menu is shown.  Once the menu is finished, the JUMP_ON command will
   test the result, and jump to the matching label.  It will fail to jump
   if there aren't enough labels, or menu could not be shown (netgame).
+
+  The title can contain newlines (given by "\n"), to make multi-line
+  titles.  Newlines do not work in the options however.  The new
+  MENU_STYLE command gives the style for the next SHOW_MENU command.
+  If you don't use this command, the default style is "RTS_MENU"
+  (or just "MENU" if that one does not exist).
+
+- lines in RTS scripts can be split over two (or more) actual lines
+  by placing the \ character at the end.  A silly example:
+
+     SHOW_MENU "title" \
+	     "option one"  \
+	     "option two"  \
+		 "option three"
+
+  Note: there must not be any spaces after the \ character, otherwise
+  it doesn't work.
 
 - RELOAD states for monsters.  This is controlled by the new command
   RELOAD_SHOTS and the new action RELOAD_CHECK, which tests if the
