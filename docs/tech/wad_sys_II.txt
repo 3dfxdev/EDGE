@@ -2,7 +2,7 @@
 Wad System II
 =============
 
-by The EDGE Team.  September 2004.
+by The EDGE Team.  October 2004.
 
 
 Storage
@@ -10,21 +10,20 @@ Storage
 
 The new system will represent a normal filesystem heirarchy,
 with directories and files.  All files will have an extension
-(e.g. "foo.png").  All filenames will be in lowercase, to
+(e.g. "foo.png").  All filenames should be in lowercase, to
 avoid issues with different operating systems (Win32 is not
 case-sensitive, but Linux and MacOS X both are).
 
-This filesystem will form an extension to the WAD file.  From
-the point of view of the WAD, it will exist as one big lump
-with a special name (possibly "__PACK__").  This lump will
-have its own internal structure for directories and files.
+This filesystem will be stored in standard ZIP files, but
+with a different extension (possibly "EPK", an abbreviation
+of "EDGE PacKage").
 
 The normal lumps in a WAD, when loaded by EDGE, will be given
 a spot in the WAD II directory structure with a suitable
 extension.  For example: the flats between F_START and F_END
 will be placed in a "flats/" directory and given the ".rdf"
 (Raw Doom Flat) extension.  If there is a conflict between
-the WAD and the embedded filesystem, the filesystem wins.
+the WAD and the new system, the new filesystem wins.
 
 Mod and TC developers will be able to use the real filesystem
 when creating and testing their projects, so they won't have
@@ -97,8 +96,8 @@ Resource directories
 Compatibility with WADs requires the following sub-dirs:
 
 flat/xxx.rdf     : stuff between F_START and F_END, or equiv.
-sprite/xxx.rdi   : stuff between S_START and S_END, or equiv.
 patch/xxx.rdi    : stuff between P_START and P_END, or equiv.
+sprite/zz/xx.rdi : stuff between S_START and S_END, or equiv.
 colmap/xxx.cmp   : stuff between C_START and C_END.
 
 texture/xxx.rdt  : stuff defined in the TEXTURE1/2 lumps.
@@ -112,11 +111,13 @@ font/xxx.rdi     : font characters.
 sound/xxx.rds    : sounds.  Also ".wav" format.
 music/xxx.mus    : music.   Also ".mid" and ".ogg" formats.
 
-model/xxx.md2    : model meshes.  (MD2 only shown as an example)
-skin/xxx.png     : model skin images.
-
 ddf/lines.ddf    : DDF files (use same names as externally).
 ddf/edge.scr     : RTS scripts.
+
+model/troo/xxx.md2  : model meshes.  (MD2 only shown as an example)
+model/troo/xxx.png  : model skin images.
+
+plskin/name/xxx.rdi : player skin sprites
 
 
 File Formats / Extensions
@@ -144,13 +145,7 @@ Old formats:
 .mus  : Doom Music format.
 
 .deh  : DeHackEd patch files.
-
-
-Stuff that can use the ".raw" extension:
-
--  level lumps: things.raw, linedefs.raw, etc..
--  GENMIDI.raw
--  DMXGUS.raw
+.skn  : Skin definition files.
 
 
 New formats:
@@ -162,17 +157,32 @@ New formats:
 .ogg  : music, sounds.
 .mid  : music.
 
-.gl   : glBSP level lumps (nodes.gl, segs.gl, etc)
+.gl   : glBSP level lumps (nodes.gl, segs.gl, etc).
 
 .ddf  : DDF files.
 .scr  : RTS scripts.
+
+
+Stuff that can use the ".raw" extension:
+
+-  level lumps (things.raw, linedefs.raw, etc).
 
 
 Lumps that won't remain after conversion:
 
 -  Any of the markers (MAP01, F_START, etc).
 -  PNAMES and TEXTURE1/2. 
+-  GENMIDI and DMXGUS: aren't needed with modern PCs.
 -  PC Speaker sounds: totally useless.
+
+
+Authoring Information
+---------------------
+
+Each package file will contain a compulsory top-level file that
+describes it.
+
+<< Not Yet Specified >>
 
 
 Animations
@@ -182,9 +192,9 @@ Flat and texture animations are a bit of a nuisance since they
 depend on the order they occur in the WAD file.  The solution
 suggested here is this: WADs which are loaded into the new
 directory system will keep the same ordering (e.g. if the
-flats go <XXX,CCC,MMM,YYY> then that order is retained in the
+flats go <XXX,CCC,YYY,MMM> then that order is retained in the
 "flat/" directory).  However, our pack/unpack utility will
-store files in the __PACK__ structure in alphabetical order.
+store files in the __PACK__ structure in alphabetical order. @@@@ FIXME
 
 It's also suggested that using FIRST/LAST in anims.ddf will be
 deprecated for new Mods, and that a new syntax which specifies
@@ -194,75 +204,4 @@ the exact image sequence is implemented, for example:
 TYPE = FLAT;
 SEQUENCE = "XXX","CCC","MMM","YYY";
 SPEED = 8T;
-
-
-New Package Format
-==================
-
-*  This describes the __PACK__ lump in the WAD.  Offset values
-   stored here are relative to the start of the __PACK__ lump
-   (they are NOT absolute file offsets).
-
-*  All integer values are stored in little-endian format, i.e.
-   the least significant byte is first, and the most significant
-   byte is last.
-
-*  All values here are 32 bits, unless indicated otherwise.
-
-*  There is no special support for compression.  If needed, it
-   should be done the same way as in a normal filesystem: using
-   the file extension (e.g. ".gz" for gzipped data).
-
-Header
-------
-
-+0   magic value: 'EPK' + 0x1F.  (from "Edge PacKage")
-+4   offset to root directory.
-+8   offset to string table.
-+12  flags
-
-Header Flags
-------------
-
-None defined yet, reserved for future expansion.
-
-String Table
-------------
-
-+0   total size of string table
-+4   number of strings
-+8   STRINGS...
-
-*  Each string is NUL terminated, encoding is UTF-8 (Unicode).
-
-*  The whole string table is padded with NULs to a multiple of 4 bytes. 
-   This padding is not included in the size field (consider it as simply
-   space between chunks).
-
-Directory
----------
-
-+0   number of entries
-+4   ENTRIES.....
-
-Entry
------
-
-+0   name (index into the string table).
-+4   data offset
-+8   data length
-+12  flags
-+16  timestamp, seconds since midnight 1/1/1970.
-
-Entry Flags
------------
-
-0x0001: Sub-directory.
-
-Data chunks
------------
-
-*  Data chunks are padded with NULs to a multiple of 4 bytes.
-   This padding is not included in any of the length fields
-   (consider it as simply space between chunks).
 
