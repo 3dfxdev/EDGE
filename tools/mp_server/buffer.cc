@@ -24,13 +24,18 @@
 #include "protocol.h"
 #include "ui_log.h"
 
+volatile int buffered_packets = 0;
+volatile int buffered_bytes = 0;
 
 class buffer_packet_c
 {
+friend class buffer_queue_c;
+
 private:
 	static const int OLD_TIME = 30;  /* seconds */
 
-public:  // a hack
+	buffer_packet_c *next;  // link in list
+	buffer_packet_c *prev;
 
 	NLsocket sock;
 	NLaddress addr;
@@ -43,7 +48,7 @@ public:  // a hack
 public:
 	buffer_packet_c(NLsocket _sock, NLaddress *_addr, int _ntime,
 		const char *_data, int _len) :
-			sock(_sock), ntime(_ntime), len(_len)
+			next(NULL), prev(NULL), sock(_sock), ntime(_ntime), len(_len)
 	{
 		memcpy(&addr, _addr, sizeof(NLaddress));
 
@@ -52,6 +57,7 @@ public:
 		memcpy(data, _data, len);
 	}
 
+#if 0
 	buffer_packet_c(const buffer_packet_c& other) :
 		sock(other.sock), ntime(other.ntime), len(other.len)
 	{
@@ -61,6 +67,7 @@ public:
 
 		memcpy(data, other.data, len);
 	}
+#endif
 
 	~buffer_packet_c()
 	{
@@ -89,69 +96,99 @@ public:
 		return true;
 	}
 
-	/* ---- predicates ---- */
-
-	class retry_write
+	// returns true if should remove packet from buffer
+	// (either write was successful, or packet too old).
+	bool RetryWrite(int cur_time)
 	{
-		// returns true if should remove packet from buffer
-		// (either write was successful, or packet too old).
-
-	private:
-		int cur_time;
-
-	public:
-		retry_write(int _time) : cur_time(_time) { }
-
-		inline bool operator() (const buffer_packet_c& bp)
+		if (TooOld(cur_time))
 		{
-			if (bp.TooOld(cur_time))
-			{
-				LogPrintf(1, "Removing old packet: type [%c%c] addr %s\n",
-					bp.data[0], bp.data[1], GetAddrName(&bp.addr));
-				return true;
-			}
-
-			return bp.Write();
+			LogPrintf(1, "Dropping old packet: type [%c%c] addr %s\n",
+				data[0], data[1], GetAddrName(&addr));
+			return true;
 		}
-	};
+
+		return Write();
+	}
 };
+
+//------------------------------------------------------------------------
 
 class buffer_queue_c
 {
 private:
-	static const unsigned int QUEUE_MAX = 256;
+	static const int QUEUE_MAX = 256;
 
-	typedef std::list<buffer_packet_c> pkt_list;
+	buffer_packet_c *head;
+	buffer_packet_c *tail;
 
-	pkt_list queue;
+	int size;
 
 public:
-	buffer_queue_c() : queue() { }
+	buffer_queue_c() : head(NULL), tail(NULL), size(0) { }
 	~buffer_queue_c() { }
+
+	void Remove(buffer_packet_c *bp)
+	{
+		buffered_bytes -= bp->len;
+		buffered_packets--;
+
+		if (bp->next)
+			bp->next->prev = bp->prev;
+		else
+			tail = bp->prev;
+
+		if (bp->prev)
+			bp->prev->next = bp->next;
+		else
+			head = bp->next;
+
+		delete bp;
+
+		size--;
+		SYS_ASSERT(size > 0);
+	}
 
 	void Add(NLsocket sock, NLaddress *addr, const char *data, int len)
 	{
-		if (queue.size() == QUEUE_MAX)
-			queue.erase(queue.begin());
+		if (size == QUEUE_MAX)
+			Remove(tail);
 
-		queue.push_back(buffer_packet_c(sock, addr, GetNetTime(), data, len));
+		buffered_bytes += len;
+		buffered_packets++;
 
-		SYS_ASSERT(queue.size() <= QUEUE_MAX);
+		buffer_packet_c *bp = new buffer_packet_c(sock, addr, GetNetTime(), data, len);
+
+		bp->next = head;
+		bp->prev = NULL;
+
+		if (head)
+			head->prev = bp;
+		else
+			tail = bp;
+
+		head = bp;
+
+		size++;
+		SYS_ASSERT(size <= QUEUE_MAX);
 	}
 
 	void RetryWrites(int cur_time)
 	{
-		pkt_list::iterator new_end =
-			std::remove_if(queue.begin(), queue.end(),
-				buffer_packet_c::retry_write(cur_time));
+		buffer_packet_c *next;
 
-		queue.erase(new_end, queue.end());
+		for (buffer_packet_c *bp = head; bp; bp = next)
+		{
+			next = bp->next;
+
+			if (bp->RetryWrite(cur_time))
+				Remove(bp);
+		}
 	}
 };
 
-buffer_queue_c buffer_Q;
-
 //------------------------------------------------------------------------
+
+static buffer_queue_c buffer_Q;
 
 //
 // BufferPacket

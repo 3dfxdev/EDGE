@@ -19,6 +19,9 @@
 #ifndef __BUFFER_H__
 #define __BUFFER_H__
 
+extern volatile int buffered_packets;
+extern volatile int buffered_bytes;
+
 void BufferPacket(NLsocket sock, const char *data, int len);
 
 void BufferRetryWrites(int cur_time);
