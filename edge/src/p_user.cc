@@ -593,10 +593,6 @@ void P_PlayerThink(player_t * player)
 
 	// Check for weapon change.
 
-	// A special event has no other buttons.
-	if (cmd->buttons & BT_SPECIAL)
-		cmd->buttons = 0;
-
 	if (cmd->buttons & BT_CHANGE)
 	{
 		int i, j;

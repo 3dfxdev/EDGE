@@ -565,45 +565,6 @@ void G_Ticker(void)
 	// and build new consistency check.
 	G_TiccmdTicker();
 
-///---	// check for special buttons
-///---	for (pnum = 0; pnum < MAXPLAYERS; pnum++)
-///---	{
-///---		player_t *p = players[pnum];
-///---		if (! p) continue;
-///---
-///---		if (! (p->cmd.buttons & BT_SPECIAL))
-///---			continue;
-///---
-///---		switch (p->cmd.buttons & BT_SPECIALMASK)
-///---		{
-///---			case BTS_PAUSE:
-///---				paused = !paused;
-///---				if (paused)
-///---				{
-///---					S_PauseMusic();
-///---					S_PauseSounds();
-///---				}
-///---				else
-///---				{
-///---					S_ResumeMusic();
-///---					S_ResumeSounds();
-///---				}
-///---				// explicit as probably killed the initial effect
-///---				S_StartSound(NULL, sfx_swtchn);
-///---				break;
-///---
-///---#if 0  // -AJA- disabled for now
-///---			case BTS_SAVEGAME:
-///---				if (!savedescription[0])
-///---					strcpy(savedescription, "NET GAME");
-///---				savegame_slot =
-///---					(p->cmd.buttons & BTS_SAVEMASK) >> BTS_SAVESHIFT;
-///---				gameaction = ga_savegame;
-///---				break;
-///---#endif
-///---		}
-///---	}
-
 	// do main actions
 	switch (gamestate)
 	{
