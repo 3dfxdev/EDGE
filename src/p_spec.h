@@ -116,7 +116,7 @@ typedef struct sec_move_s
 
   int tag;
 
-  // tics to wait at the top
+  // tics to wait when fully open
   int waited;
 
   boolean_t sfxstarted;
