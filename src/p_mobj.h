@@ -513,6 +513,9 @@ struct mobj_s
   // -AJA- 1999/09/25: Path support.
   struct rad_script_s *path_trigger;
 
+  // if we're on a ladder, this is the linedef #, otherwise -1.
+  int on_ladder;
+  
   shoot_spot_info_t *spot_info;
 
   int dlight_qty;
