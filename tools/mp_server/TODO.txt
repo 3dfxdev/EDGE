@@ -5,7 +5,11 @@ TODO
 NETWORKING
 ----------
 
++ have -localaddr cmdline option (remove BIG HACK).
+
 + connection: have a protocol version field.
+
+- game packets: merge "game" and "level" names --> one string (e.g. DOOM2:MAP01)
 
 - validate packet lengths and contents.
 
