@@ -48,11 +48,22 @@ void M_UnionBox(float_t * box, float_t * other);
 //
 //  DIRTY REGION HANDLING
 // 
-// Each byte represents a 64x64 block of the screen.
-extern byte dirty_region[32][32];
+// Each byte in dirty_region[][] represents a block (DIRT_X x DIRT_Y)
+// on the screen.  When `dirty_region_all' is true, then the whole
+// screen is considered dirty (simplifying some operations).
+
+#define DIRT_X  16
+#define DIRT_Y  16
+
+#define DIRT_REG_W  ((2048+DIRT_X-1) / DIRT_X)
+#define DIRT_REG_H  ((1536+DIRT_Y-1) / DIRT_X)
+
+extern byte dirty_region[DIRT_REG_H][DIRT_REG_W];
+extern boolean_t dirty_region_all;
 
 void M_CleanRegion(int x1, int y1, int x2, int y2);
 void M_DirtyRegion(int x1, int y1, int x2, int y2);
+
 boolean_t M_TestAndClean(int x, int y);
 
 
