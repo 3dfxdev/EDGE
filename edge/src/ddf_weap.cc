@@ -713,12 +713,12 @@ int weapondef_container_c::FindFirst(const char *name, int startpos)
 //
 weapondef_c* weapondef_container_c::Lookup(const char* refname)
 {
-	int idx = mobjtypes.FindFirst(refname, num_disabled);
+	int idx = FindFirst(refname, num_disabled);
 	if (idx >= 0)
 		return (*this)[idx];
 
 	// FIXME!!! Throw an epi::error_c obj
-	//DDF_Error("Unknown thing type: %s\n", refname);
+	//DDF_Error("Unknown weapon type: %s\n", refname);
 	return NULL;
 }
 
@@ -729,15 +729,16 @@ void weaponkey_c::Load(weapondef_container_c *wc)
 {
 	epi::array_iterator_c it;
 	weapondef_c *wd;
+	int i;
 	
 	Clear();
 	
 	choices = new weapondef_c*[wc->GetSize()];
 	numchoices = wc->GetSize();
 
-	for (wd = choices[0], it = wc->GetBaseIterator(); it.IsValid(); wd++, it++)
+	for (wd = choices[0], i = 0; i < numchoices; wd++, i++)
 	{
-		wd = ITERATOR_TO_TYPE(it, weapondef_c*);
+		choices[i] = (*wc)[i];
 	}
 }
 
