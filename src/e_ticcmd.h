@@ -35,9 +35,6 @@
 
 typedef struct
 {
-	// vertical angle for mlook: tan(delta) * 254
-	signed char vertslope;
-
 	// -MH- 1998/08/23 upward movement
 	signed char upwardmove;
 
@@ -47,16 +44,75 @@ typedef struct
 	// /32 for move
 	signed char sidemove;
 
-	// *65536 for angle delta
-	short angleturn;
-
-	// checks for net game
-	short consistency;
-
 	byte chatchar;
 	byte buttons;
 	byte extbuttons;
+
+	// *65536 for angle delta
+	short angleturn;
+
+	// vertical angle for mlook, *65536 for angle delta
+	short mlookturn;
+
+	// checks for net game
+	short consistency;
 }
 ticcmd_t;
+
+//
+// Button/action code definitions.
+//
+typedef enum
+{
+	// Press "Fire".
+	BT_ATTACK = 1,
+
+	// Use button, to open doors, activate switches.
+	BT_USE = 2,
+
+	// Flag: game events, not really buttons.
+	BT_SPECIAL = 128,
+	BT_SPECIALMASK = 3,
+
+	// Flag, weapon change pending.
+	// If true, the next 3 bits hold weapon num.
+	BT_CHANGE = 4,
+
+	// The 3bit weapon mask and shift, convenience.
+	BT_WEAPONMASK = (8 + 16 + 32 + 64),
+	BT_WEAPONSHIFT = 3,
+
+	// Pause the game.
+	BTS_PAUSE = 1,
+
+	// Save the game at each console.
+	BTS_SAVEGAME = 2,
+
+	// Savegame slot numbers
+	//  occupy the second byte of buttons.    
+	BTS_SAVEMASK = (4 + 8 + 16),
+	BTS_SAVESHIFT = 2
+}
+buttoncode_t;
+
+//
+// Extended Buttons: EDGE Specfics
+// -ACB- 1998/07/03
+//
+typedef enum
+{
+	EBT_JUMP = 1,
+	EBT_CENTER = 4,
+
+	// -AJA- 2000/02/08: support for second attack.
+	EBT_SECONDATK = 8,
+
+	// -AJA- 2000/03/18: more control over zooming
+	EBT_ZOOM = 16,
+
+	// -AJA- 2004/11/10: manual weapon reload
+	EBT_RELOAD = 32
+}
+extbuttoncode_t;
 
 #endif

@@ -28,6 +28,7 @@
 #include "ddf_main.h"
 #include "ddf_colm.h"
 #include "e_event.h"
+#include "e_input.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "g_game.h"
@@ -135,7 +136,25 @@ static void MovePlayer(player_t * player)
 
 	cmd = &player->cmd;
 
-	player->mo->angle += (angle_t)M_FloatToFixed(cmd->angleturn * player->mo->speed);
+	player->mo->angle += (angle_t)(cmd->angleturn << 16);
+
+	// EDGE Feature: Vertical Look (Mlook)
+	//
+	// -ACB- 1998/07/02 New Code used, rerouted via Ticcmd
+	// -ACB- 1998/07/27 Used defines for look limits.
+	//
+	if (level_flags.mlook)
+	{
+		player->mo->vertangle += (angle_t)(cmd->mlookturn << 16);
+
+		if (player->mo->vertangle > LOOKUPLIMIT && player->mo->vertangle < LOOKDOWNLIMIT)
+		{
+			if (player->mo->vertangle <= ANG180)
+				player->mo->vertangle = LOOKUPLIMIT;
+			else
+				player->mo->vertangle = LOOKDOWNLIMIT;
+		}
+	}
 
 	// compute XY and Z speeds, taking swimming (etc) into account
 	// (we try to swim in view direction -- assumes no gravity).
@@ -286,24 +305,6 @@ static void MovePlayer(player_t * player)
 	if (cmd->extbuttons & EBT_ZOOM)
 	{
 		P_Zoom(player);
-	}
-
-	// EDGE Feature: Vertical Look (Mlook)
-	//
-	// -ACB- 1998/07/02 New Code used, rerouted via Ticcmd
-	// -ACB- 1998/07/27 Used defines for look limits.
-	//
-	if (level_flags.mlook && (cmd->extbuttons & EBT_MLOOK))
-	{
-		player->mo->vertangle += M_ATan(cmd->vertslope / 254.0f);
-
-		if (player->mo->vertangle > LOOKUPLIMIT && player->mo->vertangle < LOOKDOWNLIMIT)
-		{
-			if (player->mo->vertangle <= ANG180)
-				player->mo->vertangle = LOOKUPLIMIT;
-			else
-				player->mo->vertangle = LOOKDOWNLIMIT;
-		}
 	}
 
 	// EDGE Feature: Vertical Centering (Mlook)
@@ -483,7 +484,7 @@ static void P_UpdatePowerups(player_t *player)
 // Does the thinking of the console player, i.e. read from input
 void P_ConsolePlayerThinker(const player_t *p, void *data, ticcmd_t *dest)
 {
-	G_BuildTiccmd(dest);
+	E_BuildTiccmd(dest);
 }
 
 bool P_PlayerSwitchWeapon(player_t *player, weapondef_c *choice)
