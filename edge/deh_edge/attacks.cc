@@ -336,20 +336,23 @@ void Attacks::ConvertAttack(const mobjinfo_t *info, int mt_num, bool plr_rocket)
 	if (strchr(ext->flags, KF_KEEP_FIRE))
 		WAD::Printf("KEEP_FIRING_CHANCE = 4%%;\n");
 
-	Things::HandleFlags(info, mt_num, 0);
-
 	HandleAtkSpecials(info, mt_num, ext, plr_rocket);
 	HandleSounds(info, mt_num);
 	HandleFrames(info, mt_num);
+
+	WAD::Printf("\n");
+
+	Things::HandleFlags(info, mt_num, 0);
 
 	if (Frames::attack_slot[0] || Frames::attack_slot[1] ||
 	    Frames::attack_slot[2])
 	{
 		PrintWarn("Attack [%s] contained an attacking action.\n", info->name + 1);
+		Things::HandleAttacks(info, mt_num);
 	}
 
 	if (Frames::act_flags & AF_EXPLODE)
-		WAD::Printf("\nEXPLODE_DAMAGE.VAL = 128;\n");
+		WAD::Printf("EXPLODE_DAMAGE.VAL = 128;\n");
 
 	WAD::Printf("\n");
 }
