@@ -5,7 +5,7 @@ EDGE Demo Format
 Last updated: January 2005.
 
 This document assumes familiarity with the savegame system,
-as described in "docs/tech/save_sys.txt".
+as described in 'docs/tech/save_sys.txt'.
 
 
 General overview
@@ -14,12 +14,13 @@ General overview
 Demo files have the extension '.EDM'.
 
 Demo files begin with a header, then some chunks which contain
-the info about the game, and then have chunks for all events of
-each game tic.
+the info about the game, and then a stream chunks for the
+events of each game tic.
 
 Chunks begin with a four letter marker and are followed by a
 four byte length field.  The length only includes the data
-following the chunk header.
+following the chunk header.  Chunks are padded to a multiple
+of four bytes (the padding is NOT included in the length).
 
 All numbers are stored in little-endian order.  Floating point is
 stored as a 16-bit signed exponent followed by a 32-bit signed
@@ -38,12 +39,13 @@ File Format
 -  Game definition.  [GAME]
 
    +  variables: multiple lots of [VARI] chunks.
+   +  list of players:  [PLYR]
    +  list of wad files.  [WADS]
-   +  player descriptions:  [PLYR]
 
 -  Tic Area: stream of [TICK] chunks
 
-   +  player ticcmds.  [PCMD]
+   +  player ticcmds.   [PCMD]
+   +  synchronisation.  [SYNC]  (not every tic)
 
 -  TRAILER (Non-chunked)
 
@@ -56,7 +58,17 @@ Compression
 
 Instead of [TICK] chunks, allow a compression chunk which
 contains a group of [TICK] chunks (e.g. one second's worth),
-which are then compressed.  The marker type is [PACK].
+which are then compressed.  The marker type is [PACK].  The
+compression method is LZO (using the minilzo library).
+
+
+Player Synchronisation
+----------------------
+
+These chunks store the real position and angles of a player
+at a certain game tic.  To keep the filesize down, they are
+spread out so that there is roughly one [SYNC] chunk per
+player per second.
 
 
 Game Variables
@@ -67,16 +79,33 @@ example: LEVEL_NAME = MAP05 and SKILL = 3.  These are stored in
 [VARI] chunks in the top-level [GAME] chunk.  The following is
 the list of variables needed:
 
-GAME: name of game (mission), e.g. "HELL_ON_EARTH".
-LEVEL: name of level, e.g. "MAP01".
-FLAGS: level flags, numeric.
-GRAVITY: numeric, usually "8".
+standard info:
 
-P_RANDOM: numeric.
-SKILL: numeric, range is 1-5.
-NETGAME: numeric, "0" is SP, "1" is COOP, "2" and up is DM.
+  GAME: name of game (mission), e.g. "HELL_ON_EARTH".
+  LEVEL: name of level, e.g. "MAP01".
+  FLAGS: level flags, numeric.
+  GRAVITY: numeric, usually "8".
 
-@@@...
+  SKILL: numeric, range is 1-5.
+  NETGAME: numeric, "0" is SP, "1" is COOP, "2" and up is DM.
+  P_RANDOM: numeric.
+
+level check info:
+
+  MAPSECTOR: dual num, first is count, second is CRC (in hex).
+  MAPLINE:   dual num (includes vertex and sidedef info).
+  MAPTHING:  dual num (Note: static map things, not mobjs).
+
+ddf/rts check info:
+
+  RSCRIPT: dual num (Note: static RTS scripts).
+  DDFATK:  dual num, first is count, second is CRC (hex).
+  DDFGAME: dual num.
+  DDFLEVL: dual num.
+  DDFLINE: dual num.
+  DDFSECT: dual num.
+  DDFMOBJ: dual num.
+  DDFWEAP: dual num.
 
 
 Chunk Formats
@@ -88,25 +117,27 @@ VARI
 STRING for variable name.
 STRING for value.
 
-WADS
-----
-
-32 bits for number of wads.
-STRING for filename of _each_ WAD.
-
 PLYR
 ----
 
 32 bits for number of players.
 32 bits for display player.
 
-@@@...
+8 bits for each player.  Values are a bitmask:
 
+  0x04 : player was a bot
+  0x08 : player was remote (over the network)
+
+WADS
+----
+
+32 bits for number of wads.
+STRING for filename of _each_ WAD.
 
 PCMD
 ----
 
-Multiple lots of (one per player) :-
+Multiple lots (one per player) of :-
 
 16 bits for ticcmd angle.
 16 bits for ticcmd mlook angle.
@@ -122,7 +153,21 @@ PACK
 
 32 bits for Original length.
 32 bits for CRC32 of original data.
-compressed data....  (padded to multiple of 4 bytes)
+32 bits for number of [TICK] chunks.
+
+compressed data....
+
+SYNC
+----
+
+16 bits for player number
+
+FLOAT for their x position
+FLOAT for their y position
+FLOAT for their z position
+
+32 bits for their turn angle
+32 bits for their mlook angle
 
 
 ---------------------------------------------------------------------------
@@ -157,6 +202,7 @@ Optionally record:
   -  player uses a certain attack.
   -  monster uses a certain attack.
   -  monster activates a certain linedef (incl. doors).
+  -  player/monster is hurt
 
 
 Random numbers
