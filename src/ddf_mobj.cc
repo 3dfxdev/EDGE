@@ -207,6 +207,8 @@ static const state_starter_t thing_starters[] =
 
 static const actioncode_t thing_actions[] =
 {
+	{"NOTHING", NULL, NULL},
+
 	{"CLOSEATTEMPTSND",   P_ActMakeCloseAttemptSound, NULL},
 	{"COMBOATTACK",       P_ActComboAttack, NULL},
 	{"FACETARGET",        P_ActFaceTarget, NULL},
@@ -278,9 +280,6 @@ static const actioncode_t thing_actions[] =
 
 	// Boom/MBF compatibility
 	{"DIE",               P_ActDie, NULL},
-
-	// miscellaneous actions
-	{"NOTHING", NULL, NULL},
 
 	// bossbrain actions
 	{"BRAINSPIT", A_BrainSpit, NULL},

@@ -64,7 +64,8 @@ void A_WeaponEnableRadTrig(mobj_t * object);
 void A_WeaponDisableRadTrig(mobj_t * object);
 
 void A_SetCrosshair(mobj_t * object);
-void A_GotTarget(mobj_t * object);
+void A_TargetJump(mobj_t * object);
+void A_FriendJump(mobj_t * object);
 void A_GunFlash(mobj_t * object);
 void A_WeaponKick(mobj_t * object);
 
