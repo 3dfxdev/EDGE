@@ -65,7 +65,6 @@ static const commandlist_t background_commands[] =
 static const commandlist_t text_commands[] =
 {
     DF("COLOURMAP", colmap, DDF_MainGetColourmap),
-	DF("COLOUR",    colour, DDF_MainGetRGB),
 	DF("TRANSLUCENCY", translucency, DDF_MainGetPercent),
     DF("FONT",   font,   DDF_MainLookupFont),
     DF("SCALE",  scale,  DDF_MainGetFloat),
@@ -347,7 +346,6 @@ textstyle_c::~textstyle_c()
 void textstyle_c::Default()
 {
 	colmap = NULL;
-	colour = 0xFFFFFF;  // white
 	translucency = PERCENT_MAKE(100);
 
 	font   = NULL;
@@ -363,7 +361,6 @@ textstyle_c& textstyle_c::operator= (const textstyle_c &rhs)
 	if (&rhs != this)
 	{
 		colmap = rhs.colmap;
-		colour = rhs.colour;
 		translucency = rhs.translucency;
 
 		font   = rhs.font;
