@@ -54,7 +54,7 @@
 
 
 #define Z_NEAR  1.0f
-#define Z_FAR   32000.0f
+#define Z_FAR   200000.0f
 
 static bool has_drawn_sky = false;
 
