@@ -1672,6 +1672,20 @@ namespace engine
 		{
 			if (autostart || netgame)
 			{
+				// compatibility check (EDGE vs BOOM)
+				const mapdef_c * map = game::LookupMap(startmap);
+				if (map)
+				{
+					int compat = P_DetectWadGameCompat(map);
+
+					if (compat == MAP_CM_Edge)
+						global_flags.compat_mode = CM_EDGE;
+					else if (compat == MAP_CM_Boom)
+						global_flags.compat_mode = CM_BOOM;
+					else if (compat != 0)
+						I_Warning("Detected both EDGE and BOOM features - check compatibility\n");
+				}
+
 				// if startmap is failed, do normal start.
 				if (! G_DeferredInitNew(startskill, startmap, true))
 					E_StartTitle();
