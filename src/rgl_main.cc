@@ -164,8 +164,6 @@ void RGL_SetupMatrices2D(void)
 //
 void RGL_SetupMatrices3D(void)
 {
-	float side_ang = 0.0f;
-
 	GLfloat ambient[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	glViewport(viewwindowx, SCREENHEIGHT - viewwindowy - viewwindowheight,
@@ -188,7 +186,6 @@ void RGL_SetupMatrices3D(void)
 	glLoadIdentity();
 	glRotatef(270.0f - ANG_2_FLOAT(viewvertangle), 1.0f, 0.0f, 0.0f);
 	glRotatef(90.0f - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
-	glRotatef(side_ang, 0.0f, 1.0f, 0.0f);
 	glTranslatef(-viewx, -viewy, -viewz);
 
 	// turn on lighting.  Some drivers (e.g. TNT2) don't work properly
