@@ -174,7 +174,6 @@ static int menusoundvol;
 //static char FadeT[] = "Off/On, flash/On, no flash";
 static char AAim[] = "Off/On/Mlook";
 static char MipMaps[] = "None/Good/Best";
-static char DLights[] = "Off/On";
 static char Details[] = "Low/Medium/High";
 
 static int scrcomp_o;
@@ -205,7 +204,7 @@ typedef struct optmenuitem_s
   
 	int numtypes;
 	int default_val;
-	int *switchvar;
+	void *switchvar;
   
 	void (*routine)(int keypressed);
 
@@ -309,17 +308,13 @@ static int M_GetCurrentSwitchValue(optmenuitem_t *item)
 	{
 		case OPT_Boolean:
 		{
-			bool *boolptr;
-
-			boolptr = (bool*)item->switchvar;
-			retval = (*boolptr)?1:0;
-
+			retval = *(bool*)item->switchvar ? 1 : 0;
 			break;
 		}
 
 		case OPT_Switch:
 		{
-			retval = *(item->switchvar);
+			retval = *(int*)(item->switchvar);
 			break;
 		}
 
@@ -339,10 +334,7 @@ static void M_DefaultMenuItem(optmenuitem_t *item)
 	{
 		case OPT_Boolean:
 		{
-			bool* boolptr;
-
-			boolptr = (bool*)item->switchvar;
-			*boolptr = (item->default_val)?true:false;
+			*(bool*)item->switchvar = (item->default_val)?true:false;
 			break;
 		}
 
@@ -350,7 +342,7 @@ static void M_DefaultMenuItem(optmenuitem_t *item)
 		case OPT_Slider:
 		case OPT_Switch:
 		{
-			*(item->switchvar) = item->default_val;
+			*(int*)(item->switchvar) = item->default_val;
 			break;
 		}
 
@@ -374,7 +366,7 @@ static optmenuitem_t mainmenu[] =
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Language", NULL, 0, 0, NULL, M_ChangeLanguage, NULL},
 	{OPT_Switch, "Messages", YesNo, 2, 1, &showMessages, NULL, "Messages"},
-	{OPT_Boolean, "Swap Stereo", YesNo, 2, 0, (int *)&swapstereo, NULL, "SwapStereo"},
+	{OPT_Boolean, "Swap Stereo", YesNo, 2, 0, &swapstereo, NULL, "SwapStereo"},
 	{OPT_Slider, "Sound Volume", NULL, 16, 12,  &menusoundvol, M_ChangeSfxVol, NULL},
 	{OPT_Slider, "Music Volume", NULL, 16, 12,  &menumusicvol, M_ChangeMusVol, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
@@ -403,25 +395,25 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Slider, "Field Of View", NULL, 35, 17, &menunormalfov, M_ChangeNormalFOV, NULL},
 	{OPT_Slider, "Zoomed FOV", NULL, 35, 1, &menuzoomedfov, M_ChangeZoomedFOV, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Boolean, "Translucency", YesNo, 2, 1, (int *)&global_flags.trans, M_ChangeTransluc, NULL},
+	{OPT_Boolean, "Translucency", YesNo, 2, 1, &global_flags.trans, M_ChangeTransluc, NULL},
 	{OPT_Switch, "Mipmapping", MipMaps, 3, 0, &use_mipmapping, M_ChangeMipMap, NULL},
-	{OPT_Boolean, "Smoothing", YesNo, 2, 1, (int *)&use_smoothing, M_ChangeMipMap, NULL},
-	{OPT_Boolean, "Shadows", YesNo, 2, 0, (int *)&global_flags.shadows, M_ChangeShadows, NULL},
-	{OPT_Switch, "Dynamic Lighting", DLights, 2, 0, (int *)&use_dlights, M_ChangeDLights, NULL},
-	{OPT_Switch, "Detail Level", Details, 3, 1, (int *)&detail_level, NULL, NULL},
+	{OPT_Boolean, "Smoothing", YesNo, 2, 1, &use_smoothing, M_ChangeMipMap, NULL},
+	{OPT_Boolean, "Shadows", YesNo, 2, 0, &global_flags.shadows, M_ChangeShadows, NULL},
+	{OPT_Boolean, "Dynamic Lighting", YesNo, 2, 0, &use_dlights, M_ChangeDLights, NULL},
+	{OPT_Switch, "Detail Level", Details, 3, 1, &detail_level, NULL, NULL},
 	{OPT_Switch, "Crosshair", CrosO, 4, 0, &crosshair, NULL, NULL},
-	{OPT_Boolean, "Map Rotation", YesNo, 2, 0, (int *)&rotatemap, NULL, NULL},
-	{OPT_Boolean, "Map Overlay", YesNo, 2, 0, (int *)&newhud, NULL, NULL},
+	{OPT_Boolean, "Map Rotation", YesNo, 2, 0, &rotatemap, NULL, NULL},
+	{OPT_Boolean, "Map Overlay", YesNo, 2, 0, &newhud, NULL, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Switch, "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 0, &telept_effect, NULL, NULL},
 	{OPT_Switch, "Teleport Flash", YesNo, 2, 1, &telept_flash, NULL, NULL},
-	{OPT_Switch, "Wipe method", WIPE_EnumStr, WIPE_NUMWIPES, 1, (int *)&wipe_method, NULL, NULL} 
+	{OPT_Switch, "Wipe method", WIPE_EnumStr, WIPE_NUMWIPES, 1, &wipe_method, NULL, NULL} 
   
 #if 0  // TEMPORARILY DISABLED (we need an `Advanced Options' menu)
 	{OPT_Switch, "Screen Composition", scrcomps, 9, 0, &scrcomp_o, M_ChangeScreenComp, NULL},
     {OPT_Switch, "Reverse effect", YesNo, 2, 0, &telept_reverse, NULL, NULL},
     {OPT_Switch, "Reversed wipe", YesNo, 2, 0, &wipe_reverse, NULL, NULL},
-    {OPT_Boolean, "Stretch Sky", YesNo, 2, 0, (int *)&global_flags.stretchsky, M_ChangeStretchSky, NULL},
+    {OPT_Boolean, "Stretch Sky", YesNo, 2, 0, &global_flags.stretchsky, M_ChangeStretchSky, NULL},
     {OPT_Switch, "Cyan/Red 3d effect", YesNo, 2, 0, &use_3d_mode, M_Toggle3dMode, NULL},
 #endif
 };
@@ -465,14 +457,14 @@ static menuinfo_t resoptionsinfo =
 //
 static optmenuitem_t analogueoptions[] =
 {
-	{OPT_Boolean, "Invert Mouse", YesNo, 2, false, (int*)&invertmouse, NULL, NULL},
+	{OPT_Boolean, "Invert Mouse", YesNo, 2, false, &invertmouse, NULL, NULL},
 	{OPT_Switch, "Mouse X Axis", Axis, 6, AXIS_TURN, &mouse_xaxis, NULL, NULL},
 	{OPT_Switch, "Mouse Y Axis", Axis, 6, AXIS_FORWARD, &mouse_yaxis, NULL, NULL},
 	{OPT_Slider, "MouseSpeed", NULL, 20, 8, &mouseSensitivity, NULL, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Slider, "MLook Speed", NULL, 20, 8, &mlookspeed, NULL, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Boolean, "Two-Stage Turning", YesNo, 2, 0, (int *)&stageturn, NULL, NULL},
+	{OPT_Boolean, "Two-Stage Turning", YesNo, 2, 0, &stageturn, NULL, NULL},
 	{OPT_Slider, "Turning Speed", NULL, 9, 0, &angleturnspeed, NULL, NULL},
 	{OPT_Slider, "Side Move Speed", NULL, 9, 0, &sidemovespeed, NULL, NULL},
 	{OPT_Slider, "Forward Move Speed", NULL, 9, 0, &forwardmovespeed, NULL, NULL}
@@ -499,21 +491,21 @@ static menuinfo_t analogueoptionsinfo =
 //
 optmenuitem_t playoptions[] =
 {
-	{OPT_Switch, "Compatibility", CompatSet, 2, 0, (int *)&global_flags.compat_mode, M_ChangeCompatMode, NULL},
-	{OPT_Switch, "AutoAiming", AAim, 3, 1, (int *)&global_flags.autoaim, M_ChangeAutoAim, NULL},
-	{OPT_Boolean, "Jumping", YesNo, 2, 0, (int *)&global_flags.jump, M_ChangeJumping, NULL},
-	{OPT_Boolean, "Crouching", YesNo, 2, 0, (int *)&global_flags.crouch, M_ChangeCrouching, NULL},
-	{OPT_Boolean, "Weapon Kick", YesNo, 2, 1, (int *)&global_flags.kicking, M_ChangeKicking, NULL},
-	{OPT_Boolean, "More Blood", YesNo, 2, 0, (int *)&global_flags.more_blood, M_ChangeBlood, "Blood"},
-	{OPT_Boolean, "Extras", YesNo, 2, 1, (int *)&global_flags.have_extra, M_ChangeExtra, NULL},
-	{OPT_Boolean, "True 3D Gameplay", YesNo, 2, 1, (int *)&global_flags.true3dgameplay, M_ChangeTrue3d, "True3d"},
+	{OPT_Switch, "Compatibility", CompatSet, 2, 0, &global_flags.compat_mode, M_ChangeCompatMode, NULL},
+	{OPT_Switch, "AutoAiming", AAim, 3, 1, &global_flags.autoaim, M_ChangeAutoAim, NULL},
+	{OPT_Boolean, "Jumping", YesNo, 2, 0, &global_flags.jump, M_ChangeJumping, NULL},
+	{OPT_Boolean, "Crouching", YesNo, 2, 0, &global_flags.crouch, M_ChangeCrouching, NULL},
+	{OPT_Boolean, "Weapon Kick", YesNo, 2, 1, &global_flags.kicking, M_ChangeKicking, NULL},
+	{OPT_Boolean, "More Blood", YesNo, 2, 0, &global_flags.more_blood, M_ChangeBlood, "Blood"},
+	{OPT_Boolean, "Extras", YesNo, 2, 1, &global_flags.have_extra, M_ChangeExtra, NULL},
+	{OPT_Boolean, "True 3D Gameplay", YesNo, 2, 1, &global_flags.true3dgameplay, M_ChangeTrue3d, "True3d"},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Slider, "Gravity", NULL, 20, 8, &global_flags.menu_grav, NULL, "Gravity"},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Boolean, "Enemy Respawn Mode", Respw, 2, 0, (int *)&global_flags.res_respawn, M_ChangeMonsterRespawn, NULL},
-	{OPT_Boolean, "Item Respawn", YesNo, 2, 0, (int *)&global_flags.itemrespawn, M_ChangeItemRespawn, NULL},
-	{OPT_Boolean, "Fast Monsters", YesNo, 2, 0, (int *)&global_flags.fastparm, M_ChangeFastparm, NULL},
-	{OPT_Boolean, "Respawn", YesNo, 2, 0, (int *)&global_flags.respawn, M_ChangeRespawn, NULL}
+	{OPT_Boolean, "Enemy Respawn Mode", Respw, 2, 0, &global_flags.res_respawn, M_ChangeMonsterRespawn, NULL},
+	{OPT_Boolean, "Item Respawn", YesNo, 2, 0, &global_flags.itemrespawn, M_ChangeItemRespawn, NULL},
+	{OPT_Boolean, "Fast Monsters", YesNo, 2, 0, &global_flags.fastparm, M_ChangeFastparm, NULL},
+	{OPT_Boolean, "Respawn", YesNo, 2, 0, &global_flags.respawn, M_ChangeRespawn, NULL}
 };
 
 static menuinfo_t playoptionsinfo = 
@@ -812,14 +804,15 @@ void M_OptDrawer()
 			case OPT_Slider:
 			{
 				M_DrawThermo(curr_menu->menu_center + 15, curry,
-							 curr_menu->items[i].numtypes - 1, *(curr_menu->items[i].switchvar), 2);
+							 curr_menu->items[i].numtypes - 1,
+							  *(int*)(curr_menu->items[i].switchvar), 2);
               
 				break;
 			}
 
 			case OPT_KeyConfig:
 
-				k = (*(curr_menu->items[i].switchvar));
+				k = *(int*)(curr_menu->items[i].switchvar);
 				M_Key2String(k, tempstring);
 				HL_WriteTextTrans((curr_menu->menu_center + 15), curry, OPTSHADE, tempstring);
 				break;
@@ -922,7 +915,7 @@ bool M_OptResponder(event_t * ev, int ch)
 		if (ch == KEYD_ESCAPE)
 			return true;
      
-		blah = (curr_item->switchvar);
+		blah = (int*)(curr_item->switchvar);
 		if (((*blah) >> 16) == key)
 		{
 			(*blah) &= 0xffff;
@@ -951,7 +944,7 @@ bool M_OptResponder(event_t * ev, int ch)
 		case KEYD_BACKSPACE:
 		{
 			if (curr_item->type == OPT_KeyConfig)
-				*(curr_item->switchvar) = 0;
+				*(int*)(curr_item->switchvar) = 0;
 			return true;
 		}
 
@@ -1008,9 +1001,7 @@ bool M_OptResponder(event_t * ev, int ch)
 
 				case OPT_Boolean:
 				{
-					bool *boolptr;
-
-					boolptr = (bool*)curr_item->switchvar;
+					bool *boolptr = (bool*)curr_item->switchvar;
 					*boolptr = !(*boolptr);
 
 					S_StartSound(NULL, sfx_pistol);
@@ -1023,10 +1014,10 @@ bool M_OptResponder(event_t * ev, int ch)
 
 				case OPT_Switch:
 				{
-					(*(curr_item->switchvar))--;
+					(*(int*)(curr_item->switchvar))--;
 
-					if ((*(curr_item->switchvar)) < 0)
-						(*(curr_item->switchvar)) = curr_item->numtypes - 1;
+					if ((*(int*)(curr_item->switchvar)) < 0)
+						(*(int*)(curr_item->switchvar)) = curr_item->numtypes - 1;
 
 					S_StartSound(NULL, sfx_pistol);
 
@@ -1047,9 +1038,9 @@ bool M_OptResponder(event_t * ev, int ch)
 
 				case OPT_Slider:
 				{
-					if ((*(curr_item->switchvar)) > 0)
+					if ((*(int*)(curr_item->switchvar)) > 0)
 					{
-						(*(curr_item->switchvar))--;
+						(*(int*)(curr_item->switchvar))--;
 						S_StartSound(NULL, sfx_stnmov);
 					}
 
@@ -1087,9 +1078,7 @@ bool M_OptResponder(event_t * ev, int ch)
 
 				case OPT_Boolean:
 				{
-					bool *boolptr;
-
-					boolptr = (bool*)curr_item->switchvar;
+					bool *boolptr = (bool*)curr_item->switchvar;
 					*boolptr = !(*boolptr);
 
 					S_StartSound(NULL, sfx_pistol);
@@ -1102,10 +1091,10 @@ bool M_OptResponder(event_t * ev, int ch)
 
 				case OPT_Switch:
 				{
-					(*(curr_item->switchvar))++;
+					(*(int*)(curr_item->switchvar))++;
 
-					if ((*(curr_item->switchvar)) >= curr_item->numtypes)
-						(*(curr_item->switchvar)) = 0;
+					if ((*(int*)(curr_item->switchvar)) >= curr_item->numtypes)
+						(*(int*)(curr_item->switchvar)) = 0;
 
 					S_StartSound(NULL, sfx_pistol);
 
@@ -1126,9 +1115,9 @@ bool M_OptResponder(event_t * ev, int ch)
 
 				case OPT_Slider:
 				{
-					if ((*(curr_item->switchvar)) < (curr_item->numtypes - 1))
+					if ((*(int*)(curr_item->switchvar)) < (curr_item->numtypes - 1))
 					{
-						(*(curr_item->switchvar))++;
+						(*(int*)(curr_item->switchvar))++;
 						S_StartSound(NULL, sfx_stnmov);
 					}
 
@@ -1534,7 +1523,7 @@ static void M_ChangeKicking(int keypressed)
 
 static void M_ChangeDLights(int keypressed)
 {
-  /* nothing to do -- change occurs at next level load */
+	/* nothing to do -- change occurs at next level load */
 }
 
 

@@ -34,20 +34,32 @@
 //
 // MISC
 //
+typedef enum
+{
+	CFGT_Int = 0,
+	CFGT_Boolean = 1,
+	CFGT_Key = 2,
+	CFGT_ChatMacro = 3
+}
+cfg_type_e;
+
+#define CFGT_Enum  CFGT_Int
+
 typedef struct
 {
-  char *name;
-  int *location;
-  int defaultvalue;
+	int type;
+	const char *name;
+	void *location;
+	int defaultvalue;
 }
 default_t;
 
 typedef enum
 {
-  EXT_WEIRD       = 0x00,
-  EXT_NONE        = 0x01,
-  EXT_NOTMATCHING = 0x02,
-  EXT_MATCHING    = 0x04
+	EXT_WEIRD       = 0x00,
+	EXT_NONE        = 0x01,
+	EXT_NOTMATCHING = 0x02,
+	EXT_MATCHING    = 0x04
 }
 exttype_e;
 
@@ -114,7 +126,5 @@ extern int joybuse;
 extern int joybspeed;
 
 extern bool autorunning;
-
-extern default_t defaults[];
 
 #endif
