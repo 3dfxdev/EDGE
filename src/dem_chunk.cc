@@ -848,3 +848,30 @@ void DEM_GetTiccmd(ticcmd_t *cmd)
     cmd->special[1] = DEM_GetByte();
 }
 
+
+//----------------------------------------------------------------------------
+
+//
+//  Player SYNC
+//
+
+void DEM_PutPlayerSync(const player_t *p)
+{
+	DEV_ASSERT2(p->mo);
+
+	DEM_PutShort(p->pnum);
+
+	DEM_PutFloat(p->mo->x);
+	DEM_PutFloat(p->mo->y);
+	DEM_PutFloat(p->mo->z);
+	DEM_PutFloat(p->viewheight);
+
+	DEM_PutAngle(p->mo->angle);
+	DEM_PutAngle(p->mo->vertangle);
+
+	DEM_PutFloat(p->mo->mom.x);
+	DEM_PutFloat(p->mo->mom.y);
+	DEM_PutFloat(p->mo->mom.z);
+	DEM_PutFloat(p->mo->health);
+}
+

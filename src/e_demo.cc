@@ -168,6 +168,15 @@ void E_DemoReadTick(void)
 			continue;
 		}
 
+		if (strcmp(marker, "Sync") == 0)
+		{
+			// FIXME: sync information is currently ignored
+			if (! DEM_SkipReadChunk(marker))
+				break;
+
+			continue;
+		}
+
 		// skip chunk
 		I_Warning("LOAD_DEMO: Unknown TICK sub-chunk [%s]\n", marker);
 
@@ -196,7 +205,22 @@ void E_DemoWriteTick(void)
 
 	DEM_PopWriteChunk();  // Pcmd
 
-	// TODO: SYNC chunks
+	if (gamestate == GS_LEVEL)
+	{
+		// create Sync information
+		for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+		{
+			player_t *p = players[pnum];
+			if (! p) continue;
+
+			if ((gametic + pnum) % (TICRATE/2) == 1)
+			{
+				DEM_PushWriteChunk("Sync");
+				DEM_PutPlayerSync(p);
+				DEM_PopWriteChunk();
+			}
+		}
+	}
 
 	// TODO: store game events
 
