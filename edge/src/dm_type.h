@@ -28,7 +28,6 @@
 
 typedef unsigned char byte;
 typedef unsigned int angle_t;
-typedef float_t percent_t;
 
 // -AJA- 1999/07/19: Just can't cope without these... :)
 
