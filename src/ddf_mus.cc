@@ -135,11 +135,10 @@ static bool PlaylistStartEntry(const char *name)
 	else
 	{
 		dynamic_plentry = new pl_entry_c;
+		dynamic_plentry->ddf.name   = NULL;
+		dynamic_plentry->ddf.number = number;
 		playlist.Insert(dynamic_plentry);
 	}
-
-	dynamic_plentry->ddf.name   = NULL;
-	dynamic_plentry->ddf.number = number;
 
 	// instantiate the static entry
 	buffer_plentry.Default();
