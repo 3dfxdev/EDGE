@@ -173,6 +173,7 @@ extern char *gamedir;
 extern char *savedir;
 extern char *ddfdir;
 extern const char *cfgfile;
+extern FILE *logfile;
 extern FILE *debugfile;
 
 // if true, load DDF/RTS as external files (instead of from EDGE.WAD)
@@ -270,7 +271,6 @@ extern bool SCREENWINDOW;
 // transitional macros
 #define BPP  (SCREENBITS / 8)
 #define SCREENDEPTH  SCREENPITCH
-#define in_a_window  SCREENWINDOW
 
 // I_Video.c / V_Video*.c Precalc. Stuff
 extern float DX, DY, DXI, DYI, DY2, DYI2;

@@ -226,6 +226,12 @@ void I_Error(const char *error,...)
 
 	ChangeDisplaySettings(0, 0);
 
+	if (logfile)
+	{
+		fprintf(logfile, "ERROR: %s\n", errmsg);
+		fflush(logfile);
+	}
+
 	if (debugfile)
 	{
 		fprintf(debugfile, "ERROR: %s\n", msgbuf);
@@ -258,6 +264,8 @@ void I_Printf(const char *message,...)
 
 	// Print the message into a text string
 	vsprintf(printbuf, message, argptr);
+
+	L_WriteLog("%s", printbuf);
 
 	// If debuging enabled, print to the debugfile
 	L_WriteDebug("%s", printbuf);
@@ -567,6 +575,12 @@ void I_SystemShutdown(void)
 	// Kill timer
 	timeKillEvent(timerID);
 	timeEndPeriod(TIMER_RES);
+
+	if (logfile)
+	{
+		fclose(logfile);
+		logfile = NULL;
+	}
 
 	// -KM- 1999/01/31 Close the debugfile
 #ifdef DEVELOPERS

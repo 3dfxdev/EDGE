@@ -43,29 +43,29 @@
 
 static char cp437_to_ascii[160] =
 { 
-  '.', '.', '.', '.', '.', '.', '.', '.',   // 0x00 - 0x07
-  '.', '.', '.', '.', '.', '.', '.', '.',   // 0x08 - 0x0F
-  '>', '<', '.', '.', '.', '.', '.', '.',   // 0x10 - 0x17
-  '.', '.', '.', '<', '.', '.', 'A', 'V',   // 0x18 - 0x1F
+	'.', '.', '.', '.', '.', '.', '.', '.',   // 0x00 - 0x07
+	'.', '.', '.', '.', '.', '.', '.', '.',   // 0x08 - 0x0F
+	'>', '<', '.', '.', '.', '.', '.', '.',   // 0x10 - 0x17
+	'.', '.', '.', '<', '.', '.', 'A', 'V',   // 0x18 - 0x1F
 
-  '.', '.', '.', '.', '.', '.', '.', '.',   // 0x80 - 0x87
-  '.', '.', '.', '.', '.', '.', '.', '.',   // 0x88 - 0x8F
-  '.', '.', '.', '.', '.', '.', '.', '.',   // 0x90 - 0x97
-  '.', '.', '.', '.', '.', '.', '.', '.',   // 0x98 - 0x9F
-  '.', '.', '.', '.', '.', '.', '.', '.',   // 0xA0 - 0xA7
-  '.', '.', '.', '.', '.', '.', '.', '.',   // 0xA8 - 0xAF
+	'.', '.', '.', '.', '.', '.', '.', '.',   // 0x80 - 0x87
+	'.', '.', '.', '.', '.', '.', '.', '.',   // 0x88 - 0x8F
+	'.', '.', '.', '.', '.', '.', '.', '.',   // 0x90 - 0x97
+	'.', '.', '.', '.', '.', '.', '.', '.',   // 0x98 - 0x9F
+	'.', '.', '.', '.', '.', '.', '.', '.',   // 0xA0 - 0xA7
+	'.', '.', '.', '.', '.', '.', '.', '.',   // 0xA8 - 0xAF
 
-  '.', '%', '.', '|', '+', '+', '+', '.',   // 0xB0 - 0xB7
-  '.', '+', '|', '+', '+', '.', '.', '+',   // 0xB8 - 0xBF
-  '+', '+', '+', '+', '-', '+', '+', '|',   // 0xC0 - 0xC7
-  '+', '+', '+', '+', '+', '-', '+', '-',   // 0xC8 - 0xCF
-  '+', '-', '.', '.', '.', '.', '.', '+',   // 0xD0 - 0xD7
-  '+', '+', '+', '.', '.', '.', '.', '.',   // 0xD8 - 0xDF
+	'.', '%', '.', '|', '+', '+', '+', '.',   // 0xB0 - 0xB7
+	'.', '+', '|', '+', '+', '.', '.', '+',   // 0xB8 - 0xBF
+	'+', '+', '+', '+', '-', '+', '+', '|',   // 0xC0 - 0xC7
+	'+', '+', '+', '+', '+', '-', '+', '-',   // 0xC8 - 0xCF
+	'+', '-', '.', '.', '.', '.', '.', '+',   // 0xD0 - 0xD7
+	'+', '+', '+', '.', '.', '.', '.', '.',   // 0xD8 - 0xDF
 
-  '.', '.', '.', '.', '.', '.', '.', '.',   // 0xE0 - 0xE7
-  '.', '.', '.', '.', '.', '.', '.', '.',   // 0xE8 - 0xEF
-  '.', '.', '>', '<', '.', '.', '.', '.',   // 0xF0 - 0xF7
-  '.', '.', '.', '.', '.', '.', '.', '.'    // 0xF8 - 0xFF
+	'.', '.', '.', '.', '.', '.', '.', '.',   // 0xE0 - 0xE7
+	'.', '.', '.', '.', '.', '.', '.', '.',   // 0xE8 - 0xEF
+	'.', '.', '>', '<', '.', '.', '.', '.',   // 0xF0 - 0xF7
+	'.', '.', '.', '.', '.', '.', '.', '.'    // 0xF8 - 0xFF
 };
 
 unsigned long microtimer_granularity = 1000000;
@@ -88,34 +88,34 @@ void I_WaitVBL (int count)
 
 unsigned long I_GetMicroSec (void)
 {
-  struct timeval tv;
-  struct timezone tz;
-  gettimeofday (&tv, &tz);
-  return (tv.tv_sec * 1000000 + tv.tv_usec);
+	struct timeval tv;
+	struct timezone tz;
+	gettimeofday (&tv, &tz);
+	return (tv.tv_sec * 1000000 + tv.tv_usec);
 }
 
 static unsigned long lasttimereply;
 
 int I_GetTime (void)
 {
-  struct timeval tv;
-  struct timezone tz;
-  static unsigned long basetime = 0;
-  unsigned long thistimereply;
+	struct timeval tv;
+	struct timezone tz;
+	static unsigned long basetime = 0;
+	unsigned long thistimereply;
 
-  gettimeofday (&tv, &tz);
+	gettimeofday (&tv, &tz);
 
-  // Fix for time problem
-  thistimereply = (tv.tv_sec * TICRATE + (tv.tv_usec * TICRATE) / 1000000);
+	// Fix for time problem
+	thistimereply = (tv.tv_sec * TICRATE + (tv.tv_usec * TICRATE) / 1000000);
 
-  if (!basetime)
-    basetime = thistimereply;
-  thistimereply -= basetime;
+	if (!basetime)
+		basetime = thistimereply;
+	thistimereply -= basetime;
 
-  if (thistimereply < lasttimereply)
-    thistimereply = lasttimereply;
+	if (thistimereply < lasttimereply)
+		thistimereply = lasttimereply;
 
-  return (lasttimereply = thistimereply);
+	return (lasttimereply = thistimereply);
 }
 
 
@@ -135,31 +135,31 @@ static char errmsg[4096];  // buffer of error message -- killough
 
 static inline int convert_colour(int colour, int *bold)
 {
-  *bold = 0;
+	*bold = 0;
 
-  if (colour > 7)
-  {
-    colour &= 7;
-    *bold = 1;
-  }
+	if (colour > 7)
+	{
+		colour &= 7;
+		*bold = 1;
+	}
 
-  switch (colour)
-  {
-    case 1: return 4;
-    case 3: return 6;
-    case 4: return 1;
-    case 6: return 3;
-  }
+	switch (colour)
+	{
+		case 1: return 4;
+		case 3: return 6;
+		case 4: return 1;
+		case 6: return 3;
+	}
 
-  return colour;
+	return colour;
 }
 
 // CPhipps - flags controlling ENDOOM behaviour
 enum
 {
-  endoom_colours = 1,
-  endoom_nonasciichars = 2,
-  endoom_droplastline = 4
+	endoom_colours = 1,
+	endoom_nonasciichars = 2,
+	endoom_droplastline = 4
 };
 unsigned int endoom_mode;
 
@@ -168,13 +168,13 @@ unsigned int endoom_mode;
 //
 void I_Warning(const char *warning,...)
 {
-  va_list argptr;
- 
-  va_start (argptr, warning);
-  vsprintf (errmsg, warning, argptr);
-  va_end (argptr);
+	va_list argptr;
 
-  I_Printf ("WARNING: %s", errmsg);
+	va_start (argptr, warning);
+	vsprintf (errmsg, warning, argptr);
+	va_end (argptr);
+
+	I_Printf ("WARNING: %s", errmsg);
 }
 
 //
@@ -182,31 +182,37 @@ void I_Warning(const char *warning,...)
 //
 void I_Error (const char *error, ...)
 {
-  va_list argptr;
+	va_list argptr;
 
-  va_start (argptr, error);
-  vsprintf (errmsg, error, argptr);
-  va_end (argptr);
-  fprintf (stderr, "%s\n", errmsg);
+	va_start (argptr, error);
+	vsprintf (errmsg, error, argptr);
+	va_end (argptr);
+	fprintf (stderr, "%s\n", errmsg);
 
-  if (debugfile)
-  {
-    fprintf(debugfile, "ERROR: %s\n", errmsg);
-    fflush(debugfile);
-  }
-  
-  //
-  // -AJA- Commit suicide, thereby producing a core dump which may
-  //       well come in handy for debugging the code that called
-  //       I_Error().
-  //
+	if (logfile)
+	{
+		fprintf(logfile, "ERROR: %s\n", errmsg);
+		fflush(logfile);
+	}
+
+	if (debugfile)
+	{
+		fprintf(debugfile, "ERROR: %s\n", errmsg);
+		fflush(debugfile);
+	}
+
+	//
+	// -AJA- Commit suicide, thereby producing a core dump which may
+	//       well come in handy for debugging the code that called
+	//       I_Error().
+	//
 #ifdef DEVELOPERS
-  raise(11);
+	raise(11);
 #endif
 
-  I_SystemShutdown();
+	I_SystemShutdown();
 
-  exit (-1);
+	exit (-1);
 }
 
 // -AJA- Routine which emulates IBM charset.
@@ -237,72 +243,74 @@ static void PrintString(char *str)
 
 void I_Printf (const char *message,...)
 {
-  va_list argptr;
-  char printbuf[2048];
-  char *string = printbuf;
+	va_list argptr;
+	char printbuf[2048];
+	char *string = printbuf;
 
-  va_start (argptr, message);
+	va_start (argptr, message);
 
-  // Print the message into a text string
-  vsprintf (printbuf, message, argptr);
+	// Print the message into a text string
+	vsprintf (printbuf, message, argptr);
 
-  // If debuging enabled, print to the debugfile
-  L_WriteDebug("%s", printbuf);
+	L_WriteLog("%s", printbuf);
 
-  // Clean up \n\r combinations
-  while (*string)
-  {
-    if (*string == '\n')
-    {
-      memmove (string + 2, string + 1, strlen (string));
-      string[1] = '\r';
-      string++;
-    }
-    string++;
-  }
+	// If debuging enabled, print to the debugfile
+	L_WriteDebug("%s", printbuf);
 
-  // Send the message to the console.
-  CON_Printf (printbuf);
+	// Clean up \n\r combinations
+	while (*string)
+	{
+		if (*string == '\n')
+		{
+			memmove (string + 2, string + 1, strlen (string));
+			string[1] = '\r';
+			string++;
+		}
+		string++;
+	}
 
-  // And the text screen if in text mode
-  if (!graphicsmode)
-  {
-    PrintString(printbuf);
-  }
+	// Send the message to the console.
+	CON_Printf (printbuf);
 
-  va_end(argptr);
+	// And the text screen if in text mode
+	if (!graphicsmode)
+	{
+		PrintString(printbuf);
+	}
+
+	va_end(argptr);
 }
 
 void TextAttr (int attr)
 {
-  // Not supported in Linux without low-level termios manipulation
-  // or ncurses, which I'd rather not link
-  // textattr(attr);
+	// Not supported in Linux without low-level termios manipulation
+	// or ncurses, which I'd rather not link
+	// textattr(attr);
 }
 
 void ClearScreen (void)
 {  
-  I_Printf("\n");
+	I_Printf("\n");
 }
 
 // -KM- 1998/10/29 Use all of screen, not just first 25 rows.
 void I_PutTitle(const char *title)
 {
-  char string[81];
-  int centre;
+	char string[81];
+	int centre;
 
-  memset(string, ' ', 80);
-  string[80] = 0;
+	memset(string, ' ', 80);
+	string[80] = 0;
 
-  // Build the title
-  centre = (80 - strlen(title)) / 2;
-  memcpy(&string[centre], title, strlen(title));
+	// Build the title
+	centre = (80 - strlen(title)) / 2;
+	memcpy(&string[centre], title, strlen(title));
 
-  // Print the title
-  TextAttr(0x07);
-  ClearScreen();
-  I_Printf("%s\n\n", string);
-  TextAttr(0x07);
+	// Print the title
+	TextAttr(0x07);
+	ClearScreen();
+	I_Printf("%s\n\n", string);
+	TextAttr(0x07);
 }
 
 //
@@ -310,7 +318,7 @@ void I_PutTitle(const char *title)
 //
 void I_DisplayExitScreen(void)
 {
-  /* not implemented */
+	/* not implemented */
 }
 
 //
@@ -318,7 +326,7 @@ void I_DisplayExitScreen(void)
 //
 void I_CloseProgram(int exitnum)
 {
-  exit(exitnum);
+	exit(exitnum);
 }
 
 //
@@ -328,7 +336,7 @@ void I_CloseProgram(int exitnum)
 // on some systems (typically the function call stack).
 void I_TraceBack(void)
 {
-  I_CloseProgram(-1);
+	I_CloseProgram(-1);
 }
 
 //
@@ -338,12 +346,12 @@ void I_TraceBack(void)
 //
 bool I_SystemStartup(void)
 {
-  I_StartupControl();
-  I_StartupGraphics();
-  I_StartupSound(NULL);    // -ACB- 1999/09/20 Sets nosound directly
-  I_StartupMusic(NULL);
+	I_StartupControl();
+	I_StartupGraphics();
+	I_StartupSound(NULL);    // -ACB- 1999/09/20 Sets nosound directly
+	I_StartupMusic(NULL);
 
-  return true;
+	return true;
 }
 
 //
@@ -353,17 +361,23 @@ bool I_SystemStartup(void)
 //
 void I_SystemShutdown(void)
 {
-  E_EngineShutdown();
+	E_EngineShutdown();
 
-  I_ShutdownMusic();
-  I_ShutdownSound();
-  I_ShutdownGraphics();
-  I_ShutdownControl();
+	I_ShutdownMusic();
+	I_ShutdownSound();
+	I_ShutdownGraphics();
+	I_ShutdownControl();
 
-  // -KM- 1999/01/31 Close the debugfile
+	if (logfile)
+	{
+		fclose(logfile);
+		logfile = NULL;
+	}
+
+	// -KM- 1999/01/31 Close the debugfile
 #ifdef DEVELOPERS
-  if (debugfile)
-    fclose(debugfile);
+	if (debugfile)
+		fclose(debugfile);
 #endif
 }
 

@@ -131,6 +131,7 @@ static int screenshot_rate;
 // For savegame screenies...
 bool need_save_screenshot = false;
 
+FILE *logfile = NULL;
 FILE *debugfile = NULL;
 
 gameflags_t default_gameflags =
@@ -969,7 +970,7 @@ void E_DoAdvanceDemo(void)
 				sprintf(buffer, "DEMO1");
 			}
 
-			G_DeferedPlayDemo(buffer);
+			G_DeferredPlayDemo(buffer);
 			break;
 		}
 	}
@@ -1256,6 +1257,18 @@ static void IdentifyVersion(void)
 	I_TmpFree(filename);
 }
 
+static void ShowDate(void)
+{
+	time_t cur_time;
+	char timebuf[100];
+
+	time(&cur_time);
+	strftime(timebuf, 99, "%I:%M %p on %d/%b/%Y", localtime(&cur_time));
+
+	L_WriteLog("[Log file created at %s]\n\n", timebuf);
+	L_WriteDebug("[Debug file created at %s]\n\n", timebuf);
+}
+
 static void ShowVersion(void)
 {
 	// 23-6-98 KM Changed to hex to allow versions such as 0.65a etc
@@ -1297,6 +1310,24 @@ void E_EDGEMain(void)
 	// -AJA- 2000/02/02: initialise global gameflags to defaults
 	global_flags = default_gameflags;
 
+	// -AJA- 2003/11/08 The log file gets all CON_Printfs, I_Printfs,
+	//                  I_Warnings and I_Errors.
+	if (true)
+	{
+		char filename[128];
+
+		strcpy(filename, "edge.log");  // maybe EPI define ??
+
+		logfile = fopen(filename, "w");
+
+		if (!logfile)
+			I_Error("E_EDGEMain: Unable to create log file");
+	}
+	else
+	{
+		logfile = NULL;
+	}
+	
 	//
 	// -ACB- 1998/09/06 Only used for debugging.
 	//                  Moved here to setup debug file for DDF Parsing...
@@ -1358,6 +1389,7 @@ void E_EDGEMain(void)
 	I_RegisterAssembler();
 	I_PutTitle(title);
 
+	ShowDate();
 	ShowVersion();
 
 	InitDirectories();
@@ -1517,7 +1549,7 @@ void E_EDGEMain(void)
 	{
 		// quit after one demo
 		singledemo = true;
-		G_DeferedPlayDemo(ps);
+		G_DeferredPlayDemo(ps);
 
 		// never returns
 		E_EDGELoop();
@@ -1544,7 +1576,7 @@ void E_EDGEMain(void)
 		if (autostart || netgame)
 		{
 			// if startmap is failed, do normal start.
-			if (! G_DeferedInitNew(startskill, startmap, true))
+			if (! G_DeferredInitNew(startskill, startmap, true))
 				E_StartTitle();
 
 			Z_Free(startmap);

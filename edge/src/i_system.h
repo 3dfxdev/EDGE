@@ -497,6 +497,7 @@ void I_ShutdownGraphics(void);
 #define CHECKVAL(x)  do {} while(0)
 #endif
 
+void L_WriteLog(const char *message,...) GCCATTR(format(printf, 1, 2));
 void L_WriteDebug(const char *message,...) GCCATTR(format(printf, 1, 2));
 
 // TEMP: another temporary "common lib" thing.
