@@ -66,4 +66,7 @@ byte *W_ConvertTextureRGBA(int tex, int *width, int *height,
 byte *W_ConvertSpriteRGBA(int patch, int *width, int *height,
     float_t *right, float_t *bottom);
 
+// -AJA- !!!! FIXME: BIG HACK HERE
+void *W_TextureDefForName(const char *name);
+
 #endif

@@ -85,6 +85,10 @@ typedef byte cached_image_t;
 // macro for converting image_t sizes to cached_image_t sizes
 #define MIP_SIZE(size,mip)  MAX(1, (size) >> (mip))
 
+// utility macros
+#define IM_RIGHT(image)  ((float_t)(image)->actual_w / (image)->total_w)
+#define IM_BOTTOM(image) ((float_t)(image)->actual_h / (image)->total_h)
+
 typedef enum
 {
   // Vertical posts.  Each post is essentially the same as in normal
@@ -115,6 +119,7 @@ image_mode_e;
 const image_t *W_ImageFromTexture(const char *tex_name);
 const image_t *W_ImageFromFlat(const char *flat_name);
 const image_t *W_ImageFromPatch(const char *patch_name);
+const image_t *W_ImageFromFont(const char *patch_name);
 
 //
 //  IMAGE USAGE
