@@ -377,6 +377,7 @@ static void ResurrectRespawn(mobj_t * mobj)
 
 	mobj->flags = info->flags;
 	mobj->extendedflags = info->extendedflags;
+	mobj->hyperflags = info->hyperflags;
 	mobj->health = info->spawnhealth;
 
 	mobj->visibility = PERCENT_2_FLOAT(info->translucency);
@@ -1839,6 +1840,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 
 	// -ACB- 1998/06/25 new mobj Stuff (1998/07/11 - invisibility added)
 	mobj->extendedflags = type->extendedflags;
+	mobj->hyperflags = type->hyperflags;
 	mobj->vis_target = mobj->visibility = PERCENT_2_FLOAT(type->translucency);
 	mobj->currentattack = NULL;
 

@@ -313,4 +313,6 @@ void P_BotPlayerThinker(const player_t *p, void *data, ticcmd_t *dest);
 // This is the only way to create a new player.
 void P_AddPlayer(int pnum);
 
+bool P_PlayerSwitchWeapon(player_t *player, weapondef_c *choice);
+
 #endif

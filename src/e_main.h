@@ -40,7 +40,6 @@ namespace engine
 	void Tick(void);
 };
 
-void E_AddFile(const char *file);
 bool E_CheckNetGame(void);
 void E_ProcessEvents(void);
 void E_DoAdvanceDemo(void);

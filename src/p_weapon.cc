@@ -277,7 +277,8 @@ static bool CheckAmmo(player_t * p)
 			info->ammopershot)
 		return true;
 
-	P_SelectNewWeapon(p, -100, AM_DontCare);
+	if (! (info->special_flags & WPSP_NoAutoSwitch))
+		P_SelectNewWeapon(p, -100, AM_DontCare);
 
 	return false;
 }

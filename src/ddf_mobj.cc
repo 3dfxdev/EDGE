@@ -31,6 +31,7 @@
 #include "ddf_main.h"
 
 #include "p_action.h"
+#include "rgl_fx.h"
 #include "z_zone.h"
 
 #include "./epi/epistring.h"
@@ -46,6 +47,7 @@ mobjtype_c *dynamic_mobj;
 mobjtype_container_c mobjtypes;
 
 void DDF_MobjGetBenefit(const char *info, void *storage);
+void DDF_MobjGetPickupEffect(const char *info, void *storage);
 void DDF_MobjGetDLight(const char *info, void *storage);
 
 static dlightinfo_c buffer_dlight;
@@ -110,6 +112,7 @@ const commandlist_t thing_commands[] =
 	DF("LOSE BENEFIT", lose_benefits, DDF_MobjGetBenefit),
 	DF("PICKUP BENEFIT", pickup_benefits, DDF_MobjGetBenefit),
 	DF("PICKUP MESSAGE", pickup_message, DDF_MainGetString),
+	DF("PICKUP EFFECT", pickup_effects, DDF_MobjGetPickupEffect),
 
 	DF("PAINCHANCE", painchance, DDF_MainGetPercent),
 	DF("MINATTACK CHANCE", minatkchance, DDF_MainGetPercent),
@@ -532,6 +535,10 @@ static void ThingFinishEntry(void)
 	if (buffer_mobj.flags & MF_COUNTKILL)
 		buffer_mobj.extendedflags |= EF_MONSTER;
 
+	// countable items are always pick-up-able
+	if (buffer_mobj.flags & MF_COUNTITEM)
+		buffer_mobj.hyperflags |= HF_FORCEPICKUP;
+
 	// check stuff...
 
 	if (buffer_mobj.mass < 1)
@@ -663,16 +670,19 @@ void DDF_MobjCleanUp(void)
 // ParseBenefitString
 //
 // Parses a string like "HEALTH(20:100)".  Returns the number of
-// number parameters (0, 1 or 2).  Causes an error if it cannot parse
-// the string.
+// number parameters (0, 1 or 2).  If the brackets are missing, an
+// error occurs.  If the numbers cannot be parsed, then 0 is returned
+// and the param buffer contains the stuff in brackets (normally the
+// param string will be empty).   FIXME: this interface is fucked.
 //
-static int ParseBenefitString(const char *info, char *name,
+static int ParseBenefitString(const char *info, char *name, char *param,
 							  float *value, float *limit)
 {
 	int len = strlen(info);
 
 	char *pos = strchr(info, '(');
-	char buffer[200];
+
+	param[0] = 0;
 
 	// do we have matched parentheses ?
 	if (pos && len >= 4 && info[len - 1] == ')')
@@ -682,15 +692,17 @@ static int ParseBenefitString(const char *info, char *name,
 		Z_StrNCpy(name, info, len2);
 
 		len -= len2 + 2;
-		Z_StrNCpy(buffer, pos + 1, len);
+		Z_StrNCpy(param, pos + 1, len);
 
-		switch (sscanf(buffer, " %f : %f ", value, limit))
+		switch (sscanf(param, " %f : %f ", value, limit))
 		{
-			case 1: return 1;
-			case 2: return 2;
+			case 0: return 0;
+
+			case 1: param[0] = 0; return 1;
+			case 2: param[0] = 0; return 2;
 
 			default:
-				DDF_WarnError2(0x128, "Missing values in benefit string: %s\n", info);
+				DDF_WarnError2(0x128, "Bad value in benefit string: %s\n", info);
 				return -1;
 		}
 	}
@@ -963,13 +975,14 @@ static void BenefitAdd(benefit_t **list, benefit_t *source)
 void DDF_MobjGetBenefit(const char *info, void *storage)
 {
 	char namebuf[200];
+	char parambuf[200];
 	int num_vals;
 
 	benefit_t temp;
 
 	DEV_ASSERT2(storage);
 
-	num_vals = ParseBenefitString(info, namebuf, &temp.amount, &temp.limit);
+	num_vals = ParseBenefitString(info, namebuf, parambuf, &temp.amount, &temp.limit);
 
 	// an error occurred ?
 	if (num_vals < 0)
@@ -988,6 +1001,148 @@ void DDF_MobjGetBenefit(const char *info, void *storage)
 	}
 
 	DDF_WarnError2(0x128, "Unknown/Malformed benefit type: %s\n", namebuf);
+}
+
+benefit_effect_c::benefit_effect_c(benefit_effect_type_e _type,
+	int _sub, int _slot, float _time) :
+		next(NULL), type(_type), subtype(_sub), slot(_slot), time(_time)
+{
+}
+
+static void AddPickupEffect(benefit_effect_c **list, 
+	benefit_effect_type_e type, int subtype, int slot, float time) 
+{
+	benefit_effect_c *cur, *tail;
+
+	// nope, create a new one and link it onto the _TAIL_
+	cur = new benefit_effect_c(type, subtype, slot, time);
+
+	cur->next = NULL;
+
+	if ((*list) == NULL)
+	{
+		(*list) = cur;
+		return;
+	}
+
+	for (tail = (*list); tail && tail->next; tail=tail->next)
+	{ }
+
+	tail->next = cur;
+}
+
+void BA_ParsePowerupEffect(benefit_effect_c **list,
+	int pnum, float par1, float par2, const char *word_par)
+{
+	int p_up = (int)par1;
+	int slot = (int)par2;
+
+	DEV_ASSERT2(0 <= p_up && p_up < NUMPOWERS);
+
+	if (slot < 0 || slot >= NUM_FX_SLOT)
+		DDF_Error("POWERUP_EFFECT: bad FX slot #%s\n", par1);
+
+	AddPickupEffect(list, BNFX_PowerupEffect, p_up, slot, 0);
+}
+
+void BA_ParseScreenEffect(benefit_effect_c **list,
+	int pnum, float par1, float par2, const char *word_par)
+{
+	int slot = (int)par1;
+
+	if (slot < 0 || slot >= NUM_FX_SLOT)
+		DDF_Error("SCREEN_EFFECT: bad FX slot #%s\n", par1);
+
+	if (par2 <= 0)
+		DDF_Error("SCREEN_EFFECT: bad time value: %1.2f\n", par2);
+
+	AddPickupEffect(list, BNFX_ScreenEffect, 0, slot, par2);
+}
+
+void BA_ParseSwitchWeapon(benefit_effect_c **list,
+	int pnum, float par1, float par2, const char *word_par)
+{
+	if (pnum != -1)
+		DDF_Error("SWITCH_WEAPON: missing weapon name !\n");
+
+	DEV_ASSERT2(word_par && word_par[0]);
+
+	int subtype = weapondefs.FindFirst(word_par);
+
+	if (subtype < 0)
+		DDF_Error("SWITCH_WEAPON: unknown weapon name: %s\n", word_par);
+
+	AddPickupEffect(list, BNFX_SwitchWeapon, subtype, 0, 0);
+}
+
+typedef struct ben_fx_parser_s
+{
+	const char *name;
+	int num_pars;  // -1 means a single word
+	void (* parser)(benefit_effect_c **list,
+			int pnum, float par1, float par2, const char *word_par);
+}
+ben_fx_parser_t;
+
+static const ben_fx_parser_t ben_fx_parsers[] =
+{
+	{ "SCREEN EFFECT",  2, BA_ParseScreenEffect },
+	{ "SWITCH WEAPON", -1, BA_ParseSwitchWeapon },
+
+	// that's all, folks.
+	{ NULL, 0, NULL }
+};
+
+//
+// DDF_MobjGetPickupEffect
+//
+// Parse a single effect and add it to the effect list accordingly.
+// No merging is done.
+//
+void DDF_MobjGetPickupEffect(const char *info, void *storage)
+{
+	char namebuf[200];
+	char parambuf[200];
+	int num_vals;
+
+	DEV_ASSERT2(storage);
+
+	benefit_effect_c **fx_list = (benefit_effect_c **) storage;
+
+	benefit_t temp; // FIXME kludge (write new parser method ?)
+
+	num_vals = ParseBenefitString(info, namebuf, parambuf, &temp.amount, &temp.limit);
+
+	// an error occurred ?
+	if (num_vals < 0)
+		return;
+
+	if (parambuf[0])
+		num_vals = -1;
+
+	for (int i=0; ben_fx_parsers[i].name; i++)
+	{
+		if (DDF_CompareName(ben_fx_parsers[i].name, namebuf) != 0)
+			continue;
+
+		(* ben_fx_parsers[i].parser)(fx_list, num_vals, 
+			temp.amount, temp.limit, parambuf);
+
+		return;
+	}
+
+	// secondly, try the powerups
+	for (int p=0; powertype_names[p].name; p++)
+	{
+		if (DDF_CompareName(powertype_names[p].name, namebuf) != 0)
+			continue;
+
+		BA_ParsePowerupEffect(fx_list, num_vals, p, temp.amount, parambuf);
+
+		return;
+	}
+
+	DDF_Error("Unknown/Malformed benefit effect: %s\n", namebuf);
 }
 
 // -KM- 1998/11/25 Translucency to fractional.
@@ -1056,6 +1211,12 @@ static specflags_t extended_specials[] =
 	{NULL, 0, 0}
 };
 
+static specflags_t hyper_specials[] =
+{
+	{"FORCE PICKUP", HF_FORCEPICKUP, 0},
+	{NULL, 0, 0}
+};
+
 //
 // DDF_MobjGetSpecial
 //
@@ -1089,40 +1250,44 @@ void DDF_MobjGetSpecial(const char *info, void *storage)
 		return;
 	}
 
-	switch (DDF_MainCheckSpecialFlag(info, normal_specials,
-		&flag_value, true, false))
+	int *flag_ptr = &buffer_mobj.flags; 
+
+	checkflag_result_e res =
+		DDF_MainCheckSpecialFlag(info, normal_specials,
+			&flag_value, true, false);
+
+	if (res == CHKF_User || res == CHKF_Unknown)
+	{
+		// wasn't a normal special.  Try the extended ones...
+		flag_ptr = &buffer_mobj.extendedflags;
+
+		res = DDF_MainCheckSpecialFlag(info, extended_specials,
+				&flag_value, true, false);
+	}
+
+	if (res == CHKF_User || res == CHKF_Unknown)
+	{
+		// -AJA- 2004/08/25: Try the hyper specials...
+		flag_ptr = &buffer_mobj.hyperflags;
+
+		res = DDF_MainCheckSpecialFlag(info, hyper_specials,
+				&flag_value, true, false);
+	}
+
+	switch (res)
 	{
 		case CHKF_Positive:
-			buffer_mobj.flags |= flag_value;
+			*flag_ptr |= flag_value;
 			break;
 
 		case CHKF_Negative:
-			buffer_mobj.flags &= ~flag_value;
+			*flag_ptr &= ~flag_value;
 			break;
 
 		case CHKF_User:
 		case CHKF_Unknown:
-		{
-			// wasn't a normal special.  Try the extended ones...
-
-			switch (DDF_MainCheckSpecialFlag(info, extended_specials,
-				&flag_value, true, false))
-			{
-				case CHKF_Positive:
-					buffer_mobj.extendedflags |= flag_value;
-					break;
-
-				case CHKF_Negative:
-					buffer_mobj.extendedflags &= ~flag_value;
-					break;
-
-				case CHKF_User:
-				case CHKF_Unknown:
-					DDF_WarnError2(0x128, "DDF_MobjGetSpecial: Unknown special '%s'", info);
-					break;
-			}
+			DDF_WarnError2(0x128, "DDF_MobjGetSpecial: Unknown special '%s'", info);
 			break;
-		}
 	}
 }
 
@@ -1467,11 +1632,13 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 
     flags = src.flags; 
     extendedflags = src.extendedflags; 
+    hyperflags = src.hyperflags; 
 
 	damage = src.damage;	
 
 	lose_benefits = src.lose_benefits; 
 	pickup_benefits = src.pickup_benefits; 
+	pickup_effects = src.pickup_effects; 
 	pickup_message = src.pickup_message; 
 	initial_benefits = src.initial_benefits; 
 
@@ -1581,11 +1748,13 @@ void mobjtype_c::Default()
 
     flags = 0;
     extendedflags = 0;
+	hyperflags = 0;
 
 	damage.Default(damage_c::DEFAULT_Mobj);
 
 	lose_benefits = NULL;
 	pickup_benefits = NULL;
+	pickup_effects = NULL;
 	pickup_message = NULL;
 	initial_benefits = NULL;
 
