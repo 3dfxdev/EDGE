@@ -61,7 +61,9 @@ void S_SoundTicker(void);
 int S_GetSfxVolume(void);
 void S_SetSfxVolume(int volume);
 
-// S_UTIL.C
-byte *S_UtilConvertMUStoMIDI(byte *data);
+namespace sound
+{
+	sfxdef_c* LookupEffect(const sfx_t *s);
+};
 
 #endif
