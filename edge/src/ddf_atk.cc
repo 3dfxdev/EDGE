@@ -124,7 +124,9 @@ static bool AttackStartEntry(const char *name)
 
 	// not found, create a new one
 	if (existing)
+	{
 		dynamic_atk = existing;
+	}
 	else
 	{
 		dynamic_atk = new atkdef_c;
@@ -184,6 +186,7 @@ static void AttackFinishEntry(void)
 
 		buffer_atk.atk_mobj = DDF_MobjMakeAttackObj(&buffer_mobj,
 													dynamic_atk->ddf.name);
+
 	}
 	else
 		buffer_atk.atk_mobj = NULL;
@@ -401,19 +404,19 @@ atkdef_c::atkdef_c()
 }
 
 //
-// atkdef_c Destructor
-//
-atkdef_c::~atkdef_c()
-{
-}
-
-//
 // atkdef_c Copy Constructor
 //
 atkdef_c::atkdef_c(atkdef_c &rhs)
 {
 	ddf = rhs.ddf;
 	CopyDetail(rhs);
+}
+
+//
+// atkdef_c Destructor
+//
+atkdef_c::~atkdef_c()
+{
 }
 
 //
@@ -551,7 +554,7 @@ void atkdef_container_c::CleanupObject(void *obj)
 //
 // atkdef_c* atkdef_container_c::Lookup()
 //
-// Looks an mobjdef by name, returns a fatal error if it does not exist.
+// Looks an atkdef by name, returns a fatal error if it does not exist.
 //
 atkdef_c* atkdef_container_c::Lookup(const char *refname)
 {
