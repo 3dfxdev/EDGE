@@ -459,6 +459,16 @@ static void RunPickupEffects(player_t *player, mobj_t *special,
 	}
 }
 
+static bool SpecialIsKey(mobj_t *special)
+{
+	for (benefit_t *B = special->info->pickup_benefits; B != NULL; B = B->next)
+	{
+		if (B->type == BENEFIT_Key)
+			return true;
+	}
+
+	return false;
+}
 
 //
 // P_TouchSpecialThing
@@ -515,8 +525,18 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 
 	if (pickup)
 	{
-		special->health = 0;
-		P_KillMobj(player->mo, special, NULL);
+		// leave keys in COOP games (FIXME !!! Temporary hack)
+		if (numplayers > 1 && !deathmatch && 
+			! (special->hyperflags & HF_FORCEPICKUP) &&
+			SpecialIsKey(special))
+		{
+			/* keep it */
+		}
+		else
+		{
+			special->health = 0;
+			P_KillMobj(player->mo, special, NULL);
+		}
 
 		player->bonuscount += BONUS_ADD;
 		if (player->bonuscount > BONUS_LIMIT)
