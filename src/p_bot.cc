@@ -117,7 +117,7 @@ static int EvaluateWeapon(player_t *p, int w_num)
 		case ATK_SMARTPROJECTILE:
 			value *= 2;
 		case ATK_PROJECTILE:
-			value += 256 * attack->atk_mobj->damage.nominal;
+			value += 256 * attack->atk_mobj->explode_damage.nominal;
 			value *= attack->atk_mobj->speed / 20;
 			break;
 
