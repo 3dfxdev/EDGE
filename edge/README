@@ -96,8 +96,8 @@ Major changes in 1.29:
 
   * OpenAL as the new sound system.  OpenAL is a 3D audio library which
     can take advantage of hardware sound mixing.  The Windows package
-	comes with an installer for it, and it is available for the other
-	platforms too.
+    comes with an installer for it, and it is available for the other
+    platforms too.
 
   * MacOS X support.  This is the initial version, and there are some
     known problems (e.g. drag-and-drop is not working yet).
@@ -168,7 +168,7 @@ New DDF/RTS features in 1.29:
 
   + new RTS menu system.  A script can show a menu, which pauses the
     game until the user selects an option.  The script can then see
-	what the user selected and perform some specific actions.
+    what the user selected and perform some specific actions.
 
   + weapon clip handling has been greatly improved (and made sane).
 
@@ -179,14 +179,14 @@ New DDF/RTS features in 1.29:
 
   - There are new weapon specials, and they can be given to the primary
     and secondary attack separately (e.g. SEC_SPECIAL command).  They
-	include: ANIMATED, NO_SWITCH, NO_TRIGGER, FRESH, NO_MANUAL and
-	NO_PARTIAL.  Many of these control reloading behaviour.
+    include: ANIMATED, NO_SWITCH, NO_TRIGGER, FRESH, NO_MANUAL and
+    NO_PARTIAL.  Many of these control reloading behaviour.
 
   - Numerous new weapon states: EMPTY states for when the weapon has
     run out of ammo (primary attack only), IDLE for when the player
-	hasn't used the weapon for a while, WARMUP and SECWARMUP for
-	showing a "spin-up" animation, and finally DISCARD / SECDISCARD
-	states for reloading a weapon which wasn't empty.
+    hasn't used the weapon for a while, WARMUP and SECWARMUP for
+    showing a "spin-up" animation, and finally DISCARD / SECDISCARD
+    states for reloading a weapon which wasn't empty.
 
   - RELOAD states for monsters.
   - SEQUENCE command for ANIMS.DDF.
@@ -195,13 +195,13 @@ New DDF/RTS features in 1.29:
   - better control over explosion damage (EXPLODE_RADIUS command).
   - WHEN_APPEAR in DDF and RTS now accepts simpler syntax.
 
-  * See the 1.29 ChangeLog file for all the details...
+  * That was just a summary.  See the 1.29 ChangeLog for more...
 
 
 Known Issues:
-  - Multiplayer (networking) does not work.  We have done a little
-    work on this, and expect to have the basics working again in the
-    next release.
+  - Multiplayer (networking) does not work yet.  We have made a
+    little bit of progress recently, and hope to get something
+    working soon.
 
   - Joysticks do not work.  We haven't done any work in that area.
 
@@ -217,10 +217,10 @@ Known Issues:
   - Some sprites are designed to look sunk into the floor, typically
     corpses, and can look like they are "floating" in EDGE.  This is a
     limitation of using OpenGL rendering (if the sprites are lowered,
-	the get clipped and this looks much worse).
+    the get clipped and this looks much worse).
 
     Certain other DOOM tricks, e.g. flat-flooding, sometimes don't
-	work properly with EDGE's renderer.
+    work properly with EDGE's renderer.
 
   - Bullets can sometimes pass through solid extrafloors.
 
@@ -260,29 +260,29 @@ Troubleshooting:
 
     - For EDGE to work, you need a 3D card *plus* OpenGL drivers for
       it installed on your computer.  A really low framerate (1 FPS)
-	  usually means that the *software* GL driver is being used (not
-	  what we want, of course ;).  Go to the website of your card's
+      usually means that the *software* GL driver is being used (not
+      what we want, of course ;).  Go to the website of your card's
       manufacturer and look for a recent 3D driver.  Another place to
       look is on Microsoft's site.  Basically, if Quake 3 (or some
       other OpenGL game) works, then EDGE should work too.
 
     - SHOULD YOU HAVE ANY PROBLEMS WITH GRAPHICAL PROBLEMS OR WITH
-	  THE ENGINE LOCKING UP PLEASE ENSURE YOU HAVE THE LATEST VIDEO
+      THE ENGINE LOCKING UP PLEASE ENSURE YOU HAVE THE LATEST VIDEO
       AND OPENGL DRIVERS FOR YOUR MACHINE.
 
       Users of the ATI Rage series are recommended to upgrade to the 
       latest drivers since some older drivers (circa 2001) have been 
       known to cause a lockup during startup.
 
-	  Voodoo3 is known to have problems, since the only OpenGL
-	  drivers that exist for it are very old and buggy.
+      Voodoo3 is known to have problems, since the only OpenGL
+      drivers that exist for it are very old and buggy.
 
   For Linux:
     - SDL 1.2 can be found at http://www.libsdl.org/.
 
     - You can check whether hardware 3D rendering is available by
-	  running the 'glxinfo' program in an xterm, and look for the line
-	  that says "direct rendering: Yes".
+      running the 'glxinfo' program in an xterm, and look for the line
+      that says "direct rendering: Yes".
 
   For MacOS X:
     - An OpenAL installer can be found here: @@@@ TODO
