@@ -2,7 +2,7 @@
 //  EDGE Colour Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2000  The EDGE Team.
+//  Copyright (c) 1999-2001  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -119,6 +119,9 @@ extern const byte *am_overlay_colmap;
 
 // do-nothing translation table
 extern byte null_tranmap[256];
+
+// halo translation table
+extern byte halo_conv_table[256];
 
 // colour values.  These assume the standard Doom palette.  Maybe
 // remove most of these one day -- will take some work though...
