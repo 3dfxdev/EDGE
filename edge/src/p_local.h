@@ -247,12 +247,15 @@ void P_LineAttack(mobj_t * t1, angle_t angle, float_t distance,
 // P_SETUP
 //
 // 23-6-98 KM Short*s changed to int*s, for bigger, better blockmaps
+// -AJA- 2000/07/31: line data changed back to shorts.
 //
 extern const byte *rejectmatrix;  // for fast sight rejection
 
-extern int *blockmaplump;  // offsets in blockmap are from here
+#define BMAP_END  ((unsigned short) 0xFFFF)
 
-extern int *blockmap;
+extern unsigned short *bmap_lines;
+extern unsigned short ** bmap_pointers;
+
 extern int bmapwidth;
 extern int bmapheight;  // in mapblocks
 
