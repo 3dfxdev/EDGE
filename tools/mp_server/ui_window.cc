@@ -2,7 +2,7 @@
 //  Main Window
 //------------------------------------------------------------------------
 //
-//  Edge MultiPlayer Server (C) 2004  Andrew Apted
+//  Edge MultiPlayer Server (C) 2005  Andrew Apted
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -130,9 +130,9 @@ UI_MainWin::UI_MainWin(const char *title) :
 	tabs->add(stat_group);
 
 	stat_box = new UI_Stats(0, cy, w(), 82);
-	ctrl_group->add(stat_box);
+	stat_group->add(stat_box);
 
-///	cy += stat_box->h();
+   	cy += stat_box->h();
 
 	log_box = new UI_LogBox(0, cy, w(), h() - cy);
 	stat_group->add(log_box);
