@@ -46,6 +46,8 @@
 // Networking and tick handling related.
 #define BACKUPTICS 12
 
+#define MAX_PLAYNAME  32
+
 //
 // Player states.
 //
@@ -57,7 +59,7 @@ typedef enum
   // Dead on the ground, view follows killer.
   PST_DEAD,
 
-  // Ready to restart/respawn???
+  // Waiting to be respawned in the level.
   PST_REBORN
 }
 playerstate_t;
@@ -100,11 +102,28 @@ weapon_selection_e;
 //
 typedef struct player_s
 {
-  mobj_t *mo;
-  playerstate_t playerstate;
+  // Linked list of in-game players.
+  struct player_s *prev, *next;
+
+  // player number.  Starts at 0.
+  int pnum;
+
+  // is this player currently playing ?
+  // NOTE: when false, all fields below it are unused.
+  boolean_t in_game;
+
+  // actions to perform.  Comes either from the local computer or over
+  // the network in multiplayer mode.
   ticcmd_t cmd;
 
-  int pnum;
+  playerstate_t playerstate;
+  
+  // map object that this player controls.  Will be NULL outside of a
+  // level (e.g. on the intermission screen).
+  mobj_t *mo;
+
+  // player's name
+  char playername[MAX_PLAYNAME];
 
   // Determine POV,
   //  including viewpoint bobbing during movement.
@@ -218,9 +237,6 @@ typedef struct player_s
   int face_index;
   int face_count;
 
-  // is this player currently playing ?
-  boolean_t in_game;
-
   // -AJA- 1999/08/10: This field is the state number which is
   // remembered for WEAPON_NOFIRE_RETURN when the player lets go of
   // the button.  -1 if not yet fired or after changing weapons.
@@ -236,10 +252,6 @@ typedef struct player_s
   void (*thinker)(const struct player_s *, void *data, ticcmd_t *dest);
   void *data;
   void (*level_init)(const struct player_s *, void *data);
-
-  // Linked list of in-game players.
-  struct player_s *prev;
-  struct player_s *next;
 }
 player_t;
 
@@ -292,6 +304,6 @@ void P_ConsolePlayerThinker(const player_t *p, void *data, ticcmd_t *dest);
 void P_BotPlayerThinker(const player_t *p, void *data, ticcmd_t *dest);
 
 // This is the only way to create a new player.
-player_t *P_AddPlayer(int pnum);
+void P_AddPlayer(int pnum);
 
 #endif
