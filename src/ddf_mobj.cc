@@ -756,7 +756,7 @@ static bool BenefitTryAmmo(const char *name, benefit_t *be,
 								int num_vals)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, ammo_types, 
-		&be->subtype, false, false))
+		&be->sub.type, false, false))
 	{
 		return false;
 	}
@@ -764,7 +764,7 @@ static bool BenefitTryAmmo(const char *name, benefit_t *be,
 	be->type = BENEFIT_Ammo;
 	be->limit = 0;
 
-	if ((ammotype_e)be->subtype == AM_NoAmmo)
+	if ((ammotype_e)be->sub.type == AM_NoAmmo)
 	{
 		DDF_WarnError2(0x128, "Illegal ammo benefit: %s\n", name);
 		return false;
@@ -800,7 +800,7 @@ static bool BenefitTryAmmoLimit(const char *name, benefit_t *be,
 	Z_StrNCpy(namebuf, name, len);
 
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(namebuf, ammo_types, 
-		&be->subtype, false, false))
+		&be->sub.type, false, false))
 	{
 		return false;
 	}
@@ -808,7 +808,7 @@ static bool BenefitTryAmmoLimit(const char *name, benefit_t *be,
 	be->type = BENEFIT_AmmoLimit;
 	be->limit = 0;
 
-	if (be->subtype == AM_NoAmmo)
+	if (be->sub.type == AM_NoAmmo)
 	{
 		DDF_WarnError2(0x128, "Illegal ammolimit benefit: %s\n", name);
 		return false;
@@ -832,10 +832,12 @@ static bool BenefitTryAmmoLimit(const char *name, benefit_t *be,
 static bool BenefitTryWeapon(const char *name, benefit_t *be,
 								  int num_vals)
 {
-	be->subtype = weapondefs.FindFirst(name, weapondefs.GetDisabledCount());
+	int idx = weapondefs.FindFirst(name, weapondefs.GetDisabledCount());
 
-	if (be->subtype < 0)
+	if (idx < 0)
 		return false;
+
+	be->sub.weap = weapondefs[idx];
 
 	be->type = BENEFIT_Weapon;
 	be->limit = 1.0f;
@@ -861,7 +863,7 @@ static bool BenefitTryKey(const char *name, benefit_t *be,
 							   int num_vals)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, keytype_names, 
-		&be->subtype, false, false))
+		&be->sub.type, false, false))
 	{
 		return false;
 	}
@@ -893,7 +895,7 @@ static bool BenefitTryHealth(const char *name, benefit_t *be,
 		return false;
 
 	be->type = BENEFIT_Health;
-	be->subtype = 0;
+	be->sub.type = 0;
 
 	if (num_vals < 1)
 	{
@@ -911,7 +913,7 @@ static bool BenefitTryArmour(const char *name, benefit_t *be,
 								  int num_vals)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, armourtype_names, 
-		&be->subtype, false, false))
+		&be->sub.type, false, false))
 	{
 		return false;
 	}
@@ -926,7 +928,7 @@ static bool BenefitTryArmour(const char *name, benefit_t *be,
 
 	if (num_vals < 2)
 	{
-		switch (be->subtype)
+		switch (be->sub.type)
 		{
 			case ARMOUR_Green:  be->limit = 100; break;
 			case ARMOUR_Blue:   be->limit = 200; break;
@@ -943,7 +945,7 @@ static bool BenefitTryPowerup(const char *name, benefit_t *be,
 								   int num_vals)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, powertype_names, 
-		&be->subtype, false, false))
+		&be->sub.type, false, false))
 	{
 		return false;
 	}
@@ -966,7 +968,10 @@ static void BenefitAdd(benefit_t **list, benefit_t *source)
 	// check if this benefit overrides a previous one
 	for (cur=(*list); cur; cur=cur->next)
 	{
-		if (cur->type == source->type && cur->subtype == source->subtype)
+		if (cur->type == BENEFIT_Weapon)
+			continue;
+
+		if (cur->type == source->type && cur->sub.type == source->sub.type)
 		{
 			cur->amount = source->amount;
 			cur->limit  = source->limit;
@@ -1030,20 +1035,22 @@ void DDF_MobjGetBenefit(const char *info, void *storage)
 	DDF_WarnError2(0x128, "Unknown/Malformed benefit type: %s\n", namebuf);
 }
 
-benefit_effect_c::benefit_effect_c(benefit_effect_type_e _type,
+pickup_effect_c::pickup_effect_c(pickup_effect_type_e _type,
 	int _sub, int _slot, float _time) :
-		next(NULL), type(_type), subtype(_sub), slot(_slot), time(_time)
+		next(NULL), type(_type), slot(_slot), time(_time)
 {
+	sub.type = _sub;
 }
 
-static void AddPickupEffect(benefit_effect_c **list, 
-	benefit_effect_type_e type, int subtype, int slot, float time) 
+pickup_effect_c::pickup_effect_c(pickup_effect_type_e _type,
+	weapondef_c *_weap, int _slot, float _time) :
+		next(NULL), type(_type), slot(_slot), time(_time)
 {
-	benefit_effect_c *cur, *tail;
+	sub.weap = _weap;
+}
 
-	// nope, create a new one and link it onto the _TAIL_
-	cur = new benefit_effect_c(type, subtype, slot, time);
-
+static void AddPickupEffect(pickup_effect_c **list, pickup_effect_c *cur)
+{
 	cur->next = NULL;
 
 	if ((*list) == NULL)
@@ -1052,13 +1059,15 @@ static void AddPickupEffect(benefit_effect_c **list,
 		return;
 	}
 
+	pickup_effect_c *tail;
+
 	for (tail = (*list); tail && tail->next; tail=tail->next)
 	{ }
 
 	tail->next = cur;
 }
 
-void BA_ParsePowerupEffect(benefit_effect_c **list,
+void BA_ParsePowerupEffect(pickup_effect_c **list,
 	int pnum, float par1, float par2, const char *word_par)
 {
 	int p_up = (int)par1;
@@ -1069,10 +1078,10 @@ void BA_ParsePowerupEffect(benefit_effect_c **list,
 	if (slot < 0 || slot >= NUM_FX_SLOT)
 		DDF_Error("POWERUP_EFFECT: bad FX slot #%s\n", par1);
 
-	AddPickupEffect(list, BNFX_PowerupEffect, p_up, slot, 0);
+	AddPickupEffect(list, new pickup_effect_c(PUFX_PowerupEffect, p_up, slot, 0));
 }
 
-void BA_ParseScreenEffect(benefit_effect_c **list,
+void BA_ParseScreenEffect(pickup_effect_c **list,
 	int pnum, float par1, float par2, const char *word_par)
 {
 	int slot = (int)par1;
@@ -1083,10 +1092,10 @@ void BA_ParseScreenEffect(benefit_effect_c **list,
 	if (par2 <= 0)
 		DDF_Error("SCREEN_EFFECT: bad time value: %1.2f\n", par2);
 
-	AddPickupEffect(list, BNFX_ScreenEffect, 0, slot, par2);
+	AddPickupEffect(list, new pickup_effect_c(PUFX_ScreenEffect, 0, slot, par2));
 }
 
-void BA_ParseSwitchWeapon(benefit_effect_c **list,
+void BA_ParseSwitchWeapon(pickup_effect_c **list,
 	int pnum, float par1, float par2, const char *word_par)
 {
 	if (pnum != -1)
@@ -1094,24 +1103,21 @@ void BA_ParseSwitchWeapon(benefit_effect_c **list,
 
 	DEV_ASSERT2(word_par && word_par[0]);
 
-	int subtype = weapondefs.FindFirst(word_par, weapondefs.GetDisabledCount());
+	weapondef_c *weap = weapondefs.Lookup(word_par);
 
-	if (subtype < 0)
-		DDF_Error("SWITCH_WEAPON: unknown weapon name: %s\n", word_par);
-
-	AddPickupEffect(list, BNFX_SwitchWeapon, subtype, 0, 0);
+	AddPickupEffect(list, new pickup_effect_c(PUFX_SwitchWeapon, weap, 0, 0));
 }
 
-typedef struct ben_fx_parser_s
+typedef struct pick_fx_parser_s
 {
 	const char *name;
 	int num_pars;  // -1 means a single word
-	void (* parser)(benefit_effect_c **list,
+	void (* parser)(pickup_effect_c **list,
 			int pnum, float par1, float par2, const char *word_par);
 }
-ben_fx_parser_t;
+pick_fx_parser_t;
 
-static const ben_fx_parser_t ben_fx_parsers[] =
+static const pick_fx_parser_t pick_fx_parsers[] =
 {
 	{ "SCREEN EFFECT",  2, BA_ParseScreenEffect },
 	{ "SWITCH WEAPON", -1, BA_ParseSwitchWeapon },
@@ -1134,7 +1140,7 @@ void DDF_MobjGetPickupEffect(const char *info, void *storage)
 
 	DEV_ASSERT2(storage);
 
-	benefit_effect_c **fx_list = (benefit_effect_c **) storage;
+	pickup_effect_c **fx_list = (pickup_effect_c **) storage;
 
 	benefit_t temp; // FIXME kludge (write new parser method ?)
 
@@ -1147,12 +1153,12 @@ void DDF_MobjGetPickupEffect(const char *info, void *storage)
 	if (parambuf[0])
 		num_vals = -1;
 
-	for (int i=0; ben_fx_parsers[i].name; i++)
+	for (int i=0; pick_fx_parsers[i].name; i++)
 	{
-		if (DDF_CompareName(ben_fx_parsers[i].name, namebuf) != 0)
+		if (DDF_CompareName(pick_fx_parsers[i].name, namebuf) != 0)
 			continue;
 
-		(* ben_fx_parsers[i].parser)(fx_list, num_vals, 
+		(* pick_fx_parsers[i].parser)(fx_list, num_vals, 
 			temp.amount, temp.limit, parambuf);
 
 		return;
@@ -1423,12 +1429,12 @@ static bool ConditionTryAmmo(const char *name, const char *sub,
 								  condition_check_t *cond)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, ammo_types, 
-		&cond->subtype, false, false))
+		&cond->sub.type, false, false))
 	{
 		return false;
 	}
 
-	if ((ammotype_e)cond->subtype == AM_NoAmmo)
+	if ((ammotype_e)cond->sub.type == AM_NoAmmo)
 	{
 		DDF_WarnError2(0x128, "Illegal ammo in condition: %s\n", name);
 		return false;
@@ -1444,10 +1450,12 @@ static bool ConditionTryAmmo(const char *name, const char *sub,
 static bool ConditionTryWeapon(const char *name, const char *sub,
 									condition_check_t *cond)
 {
-	cond->subtype = weapondefs.FindFirst(name, weapondefs.GetDisabledCount());
+	int idx = weapondefs.FindFirst(name, weapondefs.GetDisabledCount());
 
-	if (cond->subtype < 0)
+	if (idx < 0)
 		return false;
+
+	cond->sub.weap = weapondefs[idx];
 
 	cond->cond_type = COND_Weapon;
 	return true;
@@ -1457,7 +1465,7 @@ static bool ConditionTryKey(const char *name, const char *sub,
 								 condition_check_t *cond)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, keytype_names, 
-		&cond->subtype, false, false))
+		&cond->sub.type, false, false))
 	{
 		return false;
 	}
@@ -1484,10 +1492,10 @@ static bool ConditionTryArmour(const char *name, const char *sub,
 {
 	if (DDF_CompareName(name, "ARMOUR") == 0)
 	{
-		cond->subtype = ARMOUR_Total;
+		cond->sub.type = ARMOUR_Total;
 	}
 	else if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, armourtype_names, 
-		&cond->subtype, false, false))
+		&cond->sub.type, false, false))
 	{
 		return false;
 	}
@@ -1503,7 +1511,7 @@ static bool ConditionTryPowerup(const char *name, const char *sub,
 									 condition_check_t *cond)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, powertype_names, 
-		&cond->subtype, false, false))
+		&cond->sub.type, false, false))
 	{
 		return false;
 	}
@@ -1532,13 +1540,13 @@ static void CheckPowerupCompatibility(void)
 
 	for (benefit_t *b = buffer_mobj.pickup_benefits; b; b = b->next)
 	{
-		if (b->type == BENEFIT_Powerup && b->subtype == PW_Berserk)
+		if (b->type == BENEFIT_Powerup && b->sub.type == PW_Berserk)
 		{
-			int subtype = weapondefs.FindFirst("FIST", weapondefs.GetDisabledCount());
+			int idx = weapondefs.FindFirst("FIST", weapondefs.GetDisabledCount());
 
-			if (subtype >= 0)
+			if (idx >= 0)
 				AddPickupEffect(&buffer_mobj.pickup_effects,
-					BNFX_SwitchWeapon, subtype, 0, 0);
+					new pickup_effect_c(PUFX_SwitchWeapon, weapondefs[idx], 0, 0));
 			break;
 		}
 	}
@@ -1560,8 +1568,9 @@ bool DDF_MainParseCondition(const char *info, condition_check_t *cond)
 
 	cond->negate = false;
 	cond->cond_type = COND_NONE;
-	cond->subtype = 0;
 	cond->amount = 1;
+
+	memset(&cond->sub, 0, sizeof(cond->sub));
 
 	pos = strchr(info, '(');
 

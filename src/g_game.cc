@@ -2140,10 +2140,10 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 				if (!p)
 					return false;
 
-				if (cond->subtype == ARMOUR_Total)
+				if (cond->sub.type == ARMOUR_Total)
 					temp = (p->totalarmour >= i_amount);
 				else
-					temp = (p->armours[cond->subtype] >= i_amount);
+					temp = (p->armours[cond->sub.type] >= i_amount);
 
 				if ((!cond->negate && !temp) || (cond->negate && temp))
 					return false;
@@ -2154,7 +2154,7 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 				if (!p)
 					return false;
 
-				temp = ((p->cards & cond->subtype) != 0);
+				temp = ((p->cards & cond->sub.type) != 0);
 
 				if ((!cond->negate && !temp) || (cond->negate && temp))
 					return false;
@@ -2167,16 +2167,13 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 
 				temp = false;
 
+				for (int i=0; i < MAXWEAPONS; i++)
 				{
-					int i;
-					for (i=0; i < MAXWEAPONS; i++)
+					if (p->weapons[i].owned &&
+						p->weapons[i].info == cond->sub.weap)
 					{
-						if (p->weapons[i].owned &&
-							p->weapons[i].info == weapondefs[i])
-						{
-							temp = true;
-							break;
-						}
+						temp = true;
+						break;
 					}
 				}
 
@@ -2189,7 +2186,7 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 				if (!p)
 					return false;
 
-				temp = (p->powers[cond->subtype] > cond->amount);
+				temp = (p->powers[cond->sub.type] > cond->amount);
 
 				if ((!cond->negate && !temp) || (cond->negate && temp))
 					return false;
@@ -2200,7 +2197,7 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 				if (!p)
 					return false;
 
-				temp = (p->ammo[cond->subtype].num >= i_amount);
+				temp = (p->ammo[cond->sub.type].num >= i_amount);
 
 				if ((!cond->negate && !temp) || (cond->negate && temp))
 					return false;

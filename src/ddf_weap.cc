@@ -467,12 +467,9 @@ static void DDF_WGetAmmo(const char *info, void *storage)
 
 static void DDF_WGetUpgrade(const char *info, void *storage)
 {
-	int *dest = (int *)storage;
+	weapondef_c **dest = (weapondef_c **)storage;
 
-	*dest = weapondefs.FindFirst(info);
-
-	if (*dest < 0)
-		DDF_WarnError2(0x128, "Unknown weapon to upgrade: %s\n", info);
+	*dest = weapondefs.Lookup(info);
 }
 
 static specflags_t weapon_specials[] =
@@ -655,7 +652,7 @@ void weapondef_c::Default(void)
 
 	autogive = false;
 	feedback = false;
-	upgraded_weap = -1;
+	upgraded_weap = NULL;
 	priority = 0;
 	dangerous = false;
 
