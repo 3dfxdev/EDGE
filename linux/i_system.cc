@@ -27,6 +27,7 @@
 #include <sys/stat.h>
 #include <ctype.h>
 
+#include "./i_sysinc.h"
 #include "i_defs.h"
 
 #include "version.h"
@@ -41,6 +42,18 @@
 #include "r_draw2.h"
 #include "w_wad.h"
 #include "z_zone.h"
+
+#ifdef USE_FLTK
+
+// remove some problematic #defines
+#undef VISIBLE
+#undef INVISIBLE
+
+#include <FL/Fl.H>
+#include <FL/Fl_Window.H>
+#include <FL/fl_ask.H>
+
+#endif // USE_FLTK
 
 static char cp437_to_ascii[160] =
 { 
@@ -71,6 +84,8 @@ static char cp437_to_ascii[160] =
 
 unsigned long microtimer_granularity = 1000000;
 
+
+void I_RemoveGrab(void);  // in SDL/i_video.cpp
 
 void I_WaitVBL (int count)
 {
@@ -188,7 +203,10 @@ void I_Error (const char *error, ...)
 	va_start (argptr, error);
 	vsprintf (errmsg, error, argptr);
 	va_end (argptr);
+
+#ifndef USE_FLTK
 	fprintf (stderr, "%s\n", errmsg);
+#endif
 
 	if (logfile)
 	{
@@ -202,17 +220,25 @@ void I_Error (const char *error, ...)
 		fflush(debugfile);
 	}
 
+#ifdef USE_FLTK
+	I_SystemShutdown();
+	I_MessageBox(errmsg, "EDGE Error", 0);
+
+	exit(-1);
+#endif
+
 	//
 	// -AJA- Commit suicide, thereby producing a core dump which may
 	//       well come in handy for debugging the code that called
 	//       I_Error().
 	//
 #ifdef DEVELOPERS
+	I_RemoveGrab();
 	raise(11);
+	/* NOTREACHED */
 #endif
 
 	I_SystemShutdown();
-
 	exit (-1);
 }
 
@@ -274,10 +300,12 @@ void I_Printf (const char *message,...)
 	CON_Printf (printbuf);
 
 	// And the text screen if in text mode
+#ifndef USE_FLTK
 	if (!graphicsmode)
 	{
 		PrintString(printbuf);
 	}
+#endif
 
 	va_end(argptr);
 }
@@ -522,3 +550,18 @@ void I_Loop(void)
 	while (1)
 		engine::Tick();
 }
+
+//
+// I_MessageBox
+//
+void I_MessageBox(const char *message, const char *title, int mode)
+{
+#ifdef USE_FLTK
+	Fl::scheme(NULL);
+	fl_message_font(FL_HELVETICA_BOLD, 18);	
+	fl_message("%s", message);
+#else // USE_FLTK
+	fprintf(stderr, "%s", message);
+#endif // USE_FLTK
+}
+

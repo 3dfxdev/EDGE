@@ -53,4 +53,7 @@ void I_ShutdownMusserv(void);
 // I_FMPAT.C
 void I_CreateGENMIDI(byte *dest);
 
+// I_USER.C
+void I_MessageBox(const char *message, const char *title, int mode);
+
 #endif // __SYSTEM_INTERNAL_H__
