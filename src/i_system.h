@@ -111,6 +111,21 @@ void I_Warning(const char *warning,...) GCCATTR(format(printf, 1, 2));
 // function should call CON_Printf().
 
 
+typedef struct i_time_s
+{
+  int day;
+  int month;
+  int year;
+  int hours;
+  int minutes;
+  int secs;
+}
+i_time_t;
+
+boolean_t I_GetModifiedTime(const char *filename, i_time_t *time);
+// -ACB- 2000/06/05 The returns the time of when the filename passed
+// was modified.
+
 //--------------------------------------------------------
 //  ASM functions.
 //--------------------------------------------------------
