@@ -57,6 +57,7 @@
 #include "nl.h"
 #endif
 
+#ifndef USE_FLTK
 static char cp437_to_ascii[160] =
 { 
 	'.', '.', '.', '.', '.', '.', '.', '.',   // 0x00 - 0x07
@@ -83,6 +84,7 @@ static char cp437_to_ascii[160] =
 	'.', '.', '>', '<', '.', '.', '.', '.',   // 0xF0 - 0xF7
 	'.', '.', '.', '.', '.', '.', '.', '.'    // 0xF8 - 0xFF
 };
+#endif
 
 unsigned long microtimer_granularity = 1000000;
 
@@ -245,6 +247,7 @@ void I_Error (const char *error, ...)
 }
 
 // -AJA- Routine which emulates IBM charset.
+#ifndef USE_FLTK
 static void PrintString(char *str)
 {
 	for (; *str; str++)
@@ -269,6 +272,7 @@ static void PrintString(char *str)
 
 	fflush(stdout);
 }
+#endif
 
 void I_Printf (const char *message,...)
 {
