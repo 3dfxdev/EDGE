@@ -237,7 +237,7 @@ boolean_t EV_DoSector(sector_t * sec, const moving_plane_t * type, sector_t * mo
 //
 void P_InitSwitchList(void);
 void P_ChangeSwitchTexture(line_t * line, boolean_t useAgain, 
-    line_flag_e specials, boolean_t noSound);
+    line_special_e specials, boolean_t noSound);
 boolean_t P_ButtonCheckPressed(line_t * line);
 
 #endif
