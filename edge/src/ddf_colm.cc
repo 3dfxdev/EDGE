@@ -65,7 +65,9 @@ static bool ColmapStartEntry(const char *name)
 		existing = colourmaps.Lookup(name);
 
 	// not found, create a new one
-	if (! existing)
+	if (existing)
+		dynamic_colmap = existing;
+	else
 	{
 		dynamic_colmap = new colourmap_c;
 

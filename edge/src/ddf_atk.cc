@@ -123,7 +123,9 @@ static bool AttackStartEntry(const char *name)
 		existing = atkdefs.Lookup(name);
 
 	// not found, create a new one
-	if (! existing)
+	if (existing)
+		dynamic_atk = existing;
+	else
 	{
 		dynamic_atk = new atkdef_c;
 
