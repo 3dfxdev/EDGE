@@ -540,8 +540,10 @@ static optmenuitem_t extkeyconfig[] =
 	{OPT_KeyConfig, "Look Down", NULL, 0, KEYD_PGDN, &key_lookdown, NULL, NULL},
 	{OPT_KeyConfig, "Center View", NULL, 0, KEYD_HOME, &key_lookcenter, NULL, NULL},
 	{OPT_KeyConfig, "Zoom in/out", NULL, 0, '\\', &key_zoom, NULL, NULL},
-	{OPT_KeyConfig, "180 degree turn", NULL, 0, 0, &key_180, NULL, NULL},
 	{OPT_KeyConfig, "Jump", NULL, 0, '/', &key_jump, NULL, NULL},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_KeyConfig, "180 degree turn", NULL, 0, 0, &key_180, NULL, NULL},
+    {OPT_KeyConfig, "Manual Reload", NULL, 0, 0, &key_reload, NULL, NULL},
 	{OPT_KeyConfig, "Mouse Look", NULL, 0, 0, &key_mlook, NULL, NULL},
 	{OPT_KeyConfig, "Map Toggle", NULL, 0, KEYD_TAB, &key_map, NULL, NULL},
 	{OPT_KeyConfig, "Multiplay Talk", NULL, 0, 't', &key_talk, NULL, NULL}
