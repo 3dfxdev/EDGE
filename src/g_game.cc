@@ -382,7 +382,7 @@ bool G_Responder(event_t * ev)
 	if (ev->type == ev_keydown && ev->value.key == KEYD_F12)
 	{
 		// 25-6-98 KM Allow spy mode for demos even in deathmatch
-		if (gamestate == GS_LEVEL && (demoplayback || !deathmatch))
+		if (gamestate == GS_LEVEL && (demoplayback || true || !deathmatch)) //!!!!!!
 		{
 			G_ChangeDisplayPlayer();
 			return true;
@@ -473,7 +473,7 @@ static void G_TiccmdTicker(void)
 		{
 			if (gametic > BACKUPTICS && p->consistency[buf] != cmd->consistency)
 			{
-				I_Error("Consistency failure on player %d (%i should be %i)",
+/* !!!!!! */		I_Warning("Consistency failure on player %d (%i should be %i)",
 					p->pnum + 1, cmd->consistency, p->consistency[buf]);
 			}
 			if (p->mo)
