@@ -79,6 +79,10 @@ ALT.FONT="DOOM";   // alt used for highlighted player
 ALT.COLOURMAP="TEXT_YELLOW";
 // Fixme: sounds !!
 
+[RTS_TIP]
+TEXT.FONT="DOOM";
+SOUND.BEGIN="TINK";
+
 [CONSOLE]
 BACKGROUND.IMAGE="CONSOLE";
 SPECIAL=TILED;
