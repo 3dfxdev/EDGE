@@ -327,6 +327,13 @@ static int ST_CalcPainOffset(void)
 
 static void DrawWidgets(bool refresh)
 {
+#if 0  // ARMOUR DEBUGGING
+	consoleplayer->ammo[0].max = (int)consoleplayer->armours[0];
+	consoleplayer->ammo[1].max = (int)consoleplayer->armours[1];
+	consoleplayer->ammo[2].max = (int)consoleplayer->armours[2];
+	consoleplayer->ammo[3].max = (int)consoleplayer->armours[3];
+#endif
+
 	int i;
 
 	// used by w_arms[] widgets
