@@ -97,7 +97,7 @@ int WAD_LumpExists(const char *name)
 //
 // WAD_NewLump
 //
-void WAD_NewLump(const byte *data, int size, const char *name)
+void WAD_NewLump(const char *name)
 {
 	if (cur_lump)
 		InternalError("WAD_NewLump: current lump not finished");
@@ -204,9 +204,11 @@ void WAD_WriteFile(const char *name)
 		FatalError("Cannot create output file: %s", name);
 
 	// Write Header
+	int raw_num = Endian_U32(num_lumps);
+
 	fwrite((void*)pwadstr, 1, 4, fp);
-	fwrite((void*)&num_lumps, sizeof(int), 1, fp);
-	fwrite((void*)&num_lumps, sizeof(int), 1, fp); // dummy - write later
+	fwrite((void*)&raw_num, sizeof(int), 1, fp);
+	fwrite((void*)&raw_num, sizeof(int), 1, fp); // dummy - write later
 
 	// Write Lumps
 	int i;
@@ -219,19 +221,22 @@ void WAD_WriteFile(const char *name)
 	}
 
 	PadFile(fp);
-	int info_offset = ftell(fp);
+	int raw_offset = Endian_U32(ftell(fp));
 
 	// Write Lumpinfos (directory table)
 	for (i = 0; i < num_lumps; i++)
 	{
-		fwrite((void*)&lumplist[i]->filepos, sizeof(int), 1, fp);
-		fwrite((void*)&lumplist[i]->size, sizeof(int), 1, fp);
+		int raw_pos  = Endian_U32(lumplist[i]->filepos);
+		int raw_size = Endian_U32(lumplist[i]->size);
+
+		fwrite((void*)&raw_pos, sizeof(int), 1, fp);
+		fwrite((void*)&raw_size, sizeof(int), 1, fp);
 		fwrite((void*)lumplist[i]->name, 1, 8, fp);
 	}
 
 	// Write table offset
 	fseek(fp, 8, SEEK_SET);
-	fwrite((void*)&info_offset, sizeof(int), 1, fp);
+	fwrite((void*)&raw_offset, sizeof(int), 1, fp);
 
 	// Close File
 	fclose(fp);
