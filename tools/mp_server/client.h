@@ -32,6 +32,7 @@ public:
 	~client_c();
 
 public: //!!!!  private:
+	int index;
 
 	NLsocket sock;
 	NLaddress addr;
@@ -91,8 +92,10 @@ public:
 	void BumpDieTime(int delta = 500 /* 5 seconds */);
 };
 
-extern std::vector<client_c *> clients;
+extern client_c *clients[];
 extern volatile int total_clients;
+
+void CreateNewClient(NLsocket SOCK);
 
 bool VerifyClient(short idx, const NLaddress *remote_addr);
 void ClientTimeouts();

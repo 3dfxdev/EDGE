@@ -24,6 +24,8 @@
 extern NLsocket bcast_socket;
 extern NLsocket conn_socket;
 
+extern NLint main_group;
+
 extern NLmutex global_lock;
 
 extern volatile bool net_quit;

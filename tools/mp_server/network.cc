@@ -32,7 +32,7 @@
 NLsocket bcast_socket;
 NLsocket conn_socket;
 
-static NLint main_group;
+NLint main_group;
 
 NLmutex  global_lock;  // lock the client/game structures
 
@@ -252,6 +252,15 @@ void NetInit(void)
 		exit(5); //!!!!
 	}
 
+	DebugPrintf("Broadcast socket  = 0x%x\n", bcast_socket);
+	DebugPrintf("Connection socket = 0x%x\n", conn_socket);
+
+	if (nlListen(conn_socket) != NL_TRUE)
+	{
+		fl_alert("Unable to listen on TCP socket:\n(%s)", GetNLErrorStr());
+		exit(5); //!!!!
+	}
+
 	main_group = nlGroupCreate();
 
 	if (main_group == NL_INVALID)
@@ -326,11 +335,14 @@ static void HandleConnection(void)
 
 	if (NEW_SOCK == NL_INVALID)
 	{
-		// @@@
+		LogPrintf(0, "Unable to accept TCP connection: %s\n",
+				GetNLErrorStr());
 		return;
 	}
 
-	// FIXME @@@@
+	DebugPrintf("Accepted new connection, socket = 0x%x\n", NEW_SOCK);
+
+	CreateNewClient(NEW_SOCK);
 }
 
 static void NormalPacket(NLsocket CUR_SOCK)

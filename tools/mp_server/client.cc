@@ -31,14 +31,14 @@
 //
 // Client list
 //
-std::vector<client_c *> clients;
+client_c *clients[MPS_DEF_MAX_CLIENT];
 
 volatile int total_clients = 0;
 
 
 client_c::client_c(const client_info_t *info, const NLsocket *_sock,
 	const NLaddress *_addr) :
-		state(ST_Browsing),
+		state(ST_Connecting),
 		game_id(-1), pl_index(-1), voted(false),
 		tics(NULL), die_time(1 << 30)
 {
@@ -254,7 +254,7 @@ void client_c::SendError(packet_c *pk, const char *type, const char *str, ...)
 
 bool ClientExists(short idx)
 {
-	if (idx < 0 || (unsigned)idx >= clients.size())
+	if (idx < 0 || (unsigned)idx >= MPS_DEF_MAX_CLIENT)
 		return false;
 
 	return clients[idx] != NULL;
@@ -279,7 +279,7 @@ void ClientTimeouts()
 {
 	// lock ??
 
-	for (int cl_idx = 0; (unsigned)cl_idx < clients.size(); cl_idx++)
+	for (int cl_idx = 0; (unsigned)cl_idx < MPS_DEF_MAX_CLIENT; cl_idx++)
 	{
 		client_c *CL = clients[cl_idx];
 
@@ -302,33 +302,7 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 {
 	// FIXME: check if too many games
 
-	int client_id;
-
-	// check if already connected
-	// Note: don't need to LOCK here, since other thread never modifies
-	//       the data (only copies it).
-
-	for (client_id = 0; (unsigned)client_id < clients.size(); client_id++)
-	{
-		client_c *CL = clients[client_id];
-
-		if (! CL)
-			continue;
-
-		if (CL->CheckAddr(remote_addr))
-		{
-			CL->SendError(pk, "ac", "Already connected !");
-			LogPrintf(2, "Client %d was already connected.\n", client_id);
-			return;
-		}
-	}
-
-	// determine client ID#
-	for (client_id = 0; (unsigned)client_id < clients.size(); client_id++)
-	{
-		if (clients[client_id] == NULL)
-			break;
-	}
+	int client_id = pk->hd().client;
 
 	connect_proto_t& con = pk->cs_p();
 
@@ -346,7 +320,7 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 	}
 
 	// check if name already used
-	for (int c2 = 0; (unsigned)c2 < clients.size(); c2++)
+	for (int c2 = 0; (unsigned)c2 < MPS_DEF_MAX_CLIENT; c2++)
 	{
 		client_c *CL = clients[c2];
 
@@ -360,25 +334,6 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 			return;
 		}
 	}
-
-	// LOCK STRUCTURES
-	{
-		autolock_c LOCK(&global_lock);
-
-		NLsocket FOO_BAR; //!!!!!
-
-		client_c *CL = new client_c(&con.info, &FOO_BAR, remote_addr);
-
-		SYS_ASSERT((unsigned)client_id <= clients.size());
-
-		if ((unsigned)client_id == clients.size())
-			clients.push_back(CL);
-		else
-			clients[client_id] = CL;
-	}
-	// NOW UNLOCKED
-
-	total_clients++;
 
 	// successful!
 
@@ -443,7 +398,7 @@ void PK_query_client(packet_c *pk)
 	{
 		short count = MIN(total, query_client_proto_t::CLIENT_FIT);
 
-		qc.total_clients = clients.size();
+		qc.total_clients = total_clients;
 		qc.first_client = cur_id;
 		qc.last_client = qc.first_client + count - 1;
 
@@ -513,7 +468,7 @@ void PK_message(packet_c *pk)
 		case message_proto_t::D_OTHER_PLAYERS:
 		case message_proto_t::D_ABSOLUTELY_EVERYONE:
 		{
-			for (int c = 0; (unsigned)c < clients.size(); c++)
+			for (int c = 0; (unsigned)c < MPS_DEF_MAX_CLIENT; c++)
 			{
 				client_c *CL = clients[c];
 				
@@ -556,5 +511,60 @@ void PK_broadcast_discovery_UDP(packet_c *pk, NLaddress *remote_addr)
 	pk->hd().data_len = 0;
 
 	pk->Write(bcast_socket);
+}
+
+//------------------------------------------------------------------------
+
+void CreateNewClient(NLsocket SOCK)
+{
+	NLaddress remote_addr;
+
+	nlGetRemoteAddr(SOCK, &remote_addr);
+
+	if (total_clients >= MPS_DEF_MAX_CLIENT)
+	{
+		LogPrintf(2, "Connection rejected, too many clients (%d)\n", total_clients);
+		nlClose(SOCK);
+		return;
+	}
+	
+	int client_id;
+
+	// check if already connected
+	// Note: don't need to LOCK here, since other thread never modifies
+	//       the data (only copies it).
+
+	for (client_id = 0; (unsigned)client_id < MPS_DEF_MAX_CLIENT; client_id++)
+	{
+		client_c *CL = clients[client_id];
+
+		if (CL && CL->CheckAddr(&remote_addr))
+		{
+			// CL->SendError(pk, "ac", "Already connected !");
+			LogPrintf(2, "Client %d was already connected.\n", client_id);
+			return;
+		}
+	}
+
+	// determine client ID#
+	for (client_id = 0; (unsigned)client_id < MPS_DEF_MAX_CLIENT; client_id++)
+	{
+		if (clients[client_id] == NULL)
+			break;
+	}
+
+	SYS_ASSERT((unsigned)client_id < MPS_DEF_MAX_CLIENT);
+
+	// LOCK STRUCTURES
+	{
+		autolock_c LOCK(&global_lock);
+
+		clients[client_id] = new client_c(NULL, &SOCK, &remote_addr); //!!!!!!
+
+		total_clients++;
+	}
+	// NOW UNLOCKED
+
+	nlGroupAddSocket(main_group, SOCK);
 }
 
