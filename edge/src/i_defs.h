@@ -383,7 +383,7 @@ typedef enum { false, true } boolean_t;
 #define I_MoveData memcpy
 
 #include "i_system.h"
-#include "BeOS/b_compen.h"
+#include "beos/b_compen.h"
 
 #endif // BeOS GCC
 
