@@ -48,11 +48,11 @@ static void main_win_close_CB(Fl_Widget *w, void *data)
 void WindowSmallDelay(void)
 {
 #ifndef WIN32
-  Fl::wait(0);  usleep(100 * 1000);
-  Fl::wait(0);  usleep(100 * 1000);
+	Fl::wait(0);  usleep(100 * 1000);
+	Fl::wait(0);  usleep(100 * 1000);
 #endif
 
-  Fl::wait(0);
+	Fl::wait(0);
 }
 
 int guix_prefs_win_w = 550;  // FIXME
@@ -65,60 +65,96 @@ int guix_prefs_win_h = 550;
 UI_MainWin::UI_MainWin(const char *title) :
     Fl_Window(guix_prefs_win_w, guix_prefs_win_h, title)
 {
-  // turn off auto-add-widget mode
-  end();
+	// turn off auto-add-widget mode
+	end();
 
-  size_range(MAIN_WINDOW_MIN_W, MAIN_WINDOW_MIN_H);
- 
-  // Set initial position.
-  //
-  // Note: this may not work properly.  It seems that when my window
-  // manager adds the titlebar/border, it moves the actual window
-  // down and slightly to the right, causing subsequent invokations
-  // to keep going lower and lower.
+	size_range(MAIN_WINDOW_MIN_W, MAIN_WINDOW_MIN_H);
 
-///  position(guix_prefs.win_x, guix_prefs.win_y);
+	// Set initial position.
+	//
+	// Note: this may not work properly.  It seems that when my window
+	// manager adds the titlebar/border, it moves the actual window
+	// down and slightly to the right, causing subsequent invokations
+	// to keep going lower and lower.
 
-  callback((Fl_Callback *) main_win_close_CB);
+	///  position(guix_prefs.win_x, guix_prefs.win_y);
 
-  // set a nice darkish gray for the space between main boxes
-  color(MAIN_BG_COLOR, MAIN_BG_COLOR);
+	callback((Fl_Callback *) main_win_close_CB);
 
-  want_quit = false;
+	// set a nice darkish gray for the space between main boxes
+	color(MAIN_BG_COLOR, MAIN_BG_COLOR);
+
+	want_quit = false;
 
 
-  // create contents
-  int cy = 0;
+	// create contents
+	int cy = 0;
 
-  menu_bar = MenuCreate(0, 0, w(), 28);
-  add(menu_bar);
+	menu_bar = MenuCreate(0, 0, w(), 28);
+	add(menu_bar);
 
 #ifndef MACOSX
-  cy += menu_bar->h();
+	cy += menu_bar->h();
 #endif
 
-  stat_box = new UI_Stats(0, cy, w(), 82);
-  add(stat_box);
+	tabs = new Fl_Tabs(0, cy, w(), h() - cy);
+	tabs->end();
+	tabs->selection_color(FL_YELLOW);
 
-  cy += stat_box->h();
+	cy += 22;
 
-  log_box = new UI_LogBox(0, cy, w(), h() - cy);
-  add(log_box);
+	Fl_Group *ctrl_group = new Fl_Group(0, cy, w(), h() - cy, "Control");
+	ctrl_group->end();
 
-  resizable(log_box);
+	tabs->add(ctrl_group);
 
-  // show window (pass some dummy arguments)
-  int argc = 1;
-  char *argv[] = { "edge-mpserv", NULL };
-  
-  show(argc, argv);
+	//...
 
-  // read initial pos, giving 1/5th of a second for the WM to adjust
-  // our window's position (naughty WM...)
-  WindowSmallDelay();
+	Fl_Group *client_group = new Fl_Group(0, cy, w(), h() - cy, "Clients");
+	client_group->end();
 
-  init_x = x(); init_y = y();
-  init_w = w(); init_h = h();
+	tabs->add(client_group);
+
+	//...
+
+	Fl_Group *game_group = new Fl_Group(0, cy, w(), h() - cy, "Games");
+	game_group->end();
+
+	tabs->add(game_group);
+
+	//...
+
+	Fl_Group *stat_group = new Fl_Group(0, cy, w(), h() - cy, "Log");
+	stat_group->end();
+
+	tabs->add(stat_group);
+
+	stat_box = new UI_Stats(0, cy, w(), 82);
+	ctrl_group->add(stat_box);
+
+///	cy += stat_box->h();
+
+	log_box = new UI_LogBox(0, cy, w(), h() - cy);
+	stat_group->add(log_box);
+
+
+   	tabs->value(stat_group);
+
+	add(tabs);
+	resizable(tabs);
+
+	// show window (pass some dummy arguments)
+	int argc = 1;
+	char *argv[] = { "edge-mpserv", NULL };
+
+	show(argc, argv);
+
+	// read initial pos, giving 1/5th of a second for the WM to adjust
+	// our window's position (naughty WM...)
+	WindowSmallDelay();
+
+	init_x = x(); init_y = y();
+	init_w = w(); init_h = h();
 }
 
 //
