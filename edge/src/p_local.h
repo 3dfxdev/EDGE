@@ -120,14 +120,17 @@ void P_Zoom(player_t * player);
 //
 // P_USER
 //
+void P_CreatePlayer(int pnum, bool is_bot);
+void P_DestroyAllPlayers(void);
+void P_GiveInitialBenefits(player_t *player, const mobjtype_c *info);
+
 void P_PlayerThink(player_t * player);
 void P_UpdateAvailWeapons(player_t *p);
 void P_UpdateTotalArmour(player_t *p);
+
 bool P_AddWeapon(player_t *player, weapondef_c *info, int *index);
 bool P_RemoveWeapon(player_t *player, weapondef_c *info);
-void P_GiveInitialBenefits(player_t *player, const mobjtype_c *info);
-void P_CreatePlayer(int pnum);
-void P_DestroyAllPlayers(void);
+bool P_PlayerSwitchWeapon(player_t *player, weapondef_c *choice);
 
 //
 // P_MOBJ
@@ -141,7 +144,6 @@ extern iteminque_t *itemquehead;
 // -ACB- 1998/08/27 Start Pointer in the mobj list.
 extern mobj_t *mobjlisthead;
 
-void P_SpawnPlayer(player_t *p, const spawnpoint_t * sthing);
 void P_RemoveMobj(mobj_t * th);
 statenum_t P_MobjFindLabel(mobj_t * mobj, const char *label);
 bool P_SetMobjState(mobj_t * mobj, statenum_t state);

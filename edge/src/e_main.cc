@@ -1658,14 +1658,14 @@ namespace engine
 		ps = M_GetParm("-timedemo");
 		if (ps)
 		{
-			G_TimeDemo(ps);
+			G_DeferredTimeDemo(ps);
 			return;
 		}
 
 		ps = M_GetParm("-loadgame");
 		if (ps)
 		{
-			G_LoadGame(atoi(ps));
+			G_DeferredLoadGame(atoi(ps));
 		}
 
 		// -ACB- 1998/09/06 use new mapping system

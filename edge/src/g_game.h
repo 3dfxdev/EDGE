@@ -39,12 +39,6 @@ extern bool netdemo;      //
 //
 // GAME
 //
-void G_DeathMatchSpawnPlayer(player_t *p);
-void G_CoopSpawnPlayer(player_t *p);
-
-void G_SetConsolePlayer(int pnum);
-void G_SetDisplayPlayer(int pnum);
-
 void G_InitNew(skill_t skill, const mapdef_c *map, const gamedef_c *gamedef, long seed);
 
 //
@@ -60,14 +54,10 @@ bool G_DeferredInitNew(skill_t skill,
 
 // Can be called by the startup code or M_Responder,
 // calls P_SetupLevel or W_EnterWorld.
-void G_LoadGame(int slot);
-
-void G_DoLoadGame(void);
+void G_DeferredLoadGame(int slot);
 
 // Called by M_Responder.
-void G_SaveGame(int slot, const char *description);
-
-void G_PlayerReborn(player_t *player, const mobjtype_c *info);
+void G_DeferredSaveGame(int slot, const char *description);
 
 // -KM- 1998/11/25 Added Time param
 void G_ExitLevel(int time);
@@ -79,10 +69,9 @@ void G_WorldDone(void);
 void G_Ticker(void);
 bool G_Responder(event_t * ev);
 
-void G_ScreenShot(void);
+void G_DeferredScreenShot(void);
 
 bool G_CheckWhenAppear(when_appear_e appear);
-bool G_CheckConditions(mobj_t *mo, condition_check_t *cond);
 void G_FileNameFromSlot(epi::string_c& fn, int slot);
 
 extern const gamedef_c* currgamedef;

@@ -236,7 +236,7 @@ void G_BeginRecording(void)
 }
 
 //
-// G_PlayDemo 
+// G_DeferredPlayDemo
 //
 epi::strent_c defdemoname;
 
@@ -355,9 +355,9 @@ void G_DoPlayDemo(void)
 }
 
 //
-// G_TimeDemo 
+// G_DeferredTimeDemo
 //
-void G_TimeDemo(const char *name)
+void G_DeferredTimeDemo(const char *name)
 {
 	nodrawers = M_CheckParm("-nodraw")?true:false;
 	noblit = M_CheckParm("-noblit")?true:false;

@@ -34,14 +34,17 @@
 
 
 void G_DeferredPlayDemo(const char *demo);
+void G_DeferredTimeDemo(const char *name);
+
+void G_DoPlayDemo(void);
 
 // Only called by startup code.
 void G_RecordDemo(const char *name);
 
 void G_BeginRecording(void);
-
-void G_PlayDemo(const char *name);
-void G_TimeDemo(const char *name);
 bool G_FinishDemo(void);
+
+void G_ReadDemoTiccmd(ticcmd_t * cmd);
+void G_WriteDemoTiccmd(ticcmd_t * cmd);
 
 #endif  /* __E_DEMO_H__ */
