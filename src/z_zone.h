@@ -116,9 +116,9 @@ void Z_DumpLeakInfo(int level);
 //
 // Reallocates a block. Use instead of Z_ReMalloc wherever possible.
 // Unlike normal Z_ReMalloc, the pointer parameter is assigned the new
-// value.
+// value, and there is no return value.
 #define Z_Resize(ptr,type,n)  \
-    ((ptr) = (type *) Z_ReMalloc((void *)(ptr), (n) * sizeof(type)))
+    (void)((ptr) = (type *) Z_ReMalloc((void *)(ptr), (n) * sizeof(type)))
 
 //
 // Z_ClearNew

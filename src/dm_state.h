@@ -183,7 +183,6 @@ extern gamestate_t wipegamestate;
 extern int mouseSensitivity;
 
 extern boolean_t inhelpscreens;
-extern int detailLevel;
 extern int setblocks;
 extern int quickSaveSlot;
 extern int darken_screen;
@@ -218,7 +217,7 @@ extern boolean_t swapstereo;
 extern boolean_t infight;
 
 extern int crosshair;
-extern int screenSize;
+extern int screen_size;
 extern int screenblocks;
 extern int menunormalfov, menuzoomedfov;
 extern int usemouse;
