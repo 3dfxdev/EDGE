@@ -171,11 +171,16 @@ void RGL_DrawSkyBackground(void)
 	// sky is always 100% bright
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
+#if 1
+	sx1 = -1; sx2 = +1;
+	sy1 = -1; sy2 = +1;
+#else  // old way
 	sx1 = viewwindowx;
 	sx2 = viewwindowx + viewwindowwidth;
 
 	sy1 = viewwindowy;
 	sy2 = viewwindowy + viewwindowheight;
+#endif
 
 	// compute sky horizontally tex coords
 	mlook_rad = atan(viewvertangle);
@@ -244,49 +249,49 @@ void RGL_DrawSkyBackground(void)
 	{
 		for (x=0; x < 8; x++)
 		{
-			int xa = sx1 + (sx2 - sx1) * x     / 8;
-			int xb = sx1 + (sx2 - sx1) * (x+1) / 8;
+			float xa = sx1 + (sx2 - sx1) * x     / 8.0f;
+			float xb = sx1 + (sx2 - sx1) * (x+1) / 8.0f;
 
-			int ya = sy1 + (sy2 - sy1) * y     / 8;
-			int yb = sy1 + (sy2 - sy1) * (y+1) / 8;
+			float ya = sy1 + (sy2 - sy1) * y     / 8.0f;
+			float yb = sy1 + (sy2 - sy1) * (y+1) / 8.0f;
 
-			float la = tx1 + (bx1 - tx1) * y     / 8;
-			float ra = tx2 + (bx2 - tx2) * y     / 8;
-			float lb = tx1 + (bx1 - tx1) * (y+1) / 8;
-			float rb = tx2 + (bx2 - tx2) * (y+1) / 8;
+			float la = tx1 + (bx1 - tx1) * y     / 8.0f;
+			float ra = tx2 + (bx2 - tx2) * y     / 8.0f;
+			float lb = tx1 + (bx1 - tx1) * (y+1) / 8.0f;
+			float rb = tx2 + (bx2 - tx2) * (y+1) / 8.0f;
 
-			float txa = la + (ra - la) * x     / 8;
-			float bxa = lb + (rb - lb) * x     / 8;
-			float txb = la + (ra - la) * (x+1) / 8;
-			float bxb = lb + (rb - lb) * (x+1) / 8;
+			float txa = la + (ra - la) * x     / 8.0f;
+			float bxa = lb + (rb - lb) * x     / 8.0f;
+			float txb = la + (ra - la) * (x+1) / 8.0f;
+			float bxb = lb + (rb - lb) * (x+1) / 8.0f;
 
-			float tya = ty + (by - ty) * y     / 8;
-			float bya = ty + (by - ty) * (y+1) / 8;
+			float tya = ty + (by - ty) * y     / 8.0f;
+			float bya = ty + (by - ty) * (y+1) / 8.0f;
 
 #if 1
 			// sky way #3, using depth-buffer
 
-			float pxa = xa / (float)SCREENWIDTH  * 2.0f - 1.0f;
-			float pxb = xb / (float)SCREENWIDTH  * 2.0f - 1.0f;
-			float pya = ya / (float)SCREENHEIGHT * 2.0f - 1.0f;
-			float pyb = yb / (float)SCREENHEIGHT * 2.0f - 1.0f;
+///---			float pxa = xa / (float)SCREENWIDTH  * 2.0f - 1.0f;
+///---			float pxb = xb / (float)SCREENWIDTH  * 2.0f - 1.0f;
+///---			float pya = ya / (float)SCREENHEIGHT * 2.0f - 1.0f;
+///---			float pyb = yb / (float)SCREENHEIGHT * 2.0f - 1.0f;
 
 			float dist = Z_FAR * 0.99;
 
-			pxa *= dist; pya *= dist;
-			pxb *= dist; pyb *= dist;
+			xa *= dist; ya *= dist;
+			xb *= dist; yb *= dist;
 
 			glTexCoord2f(txa, 1.0f - bottom * tya);
-			glVertex3f(pxa, pya, dist);
+			glVertex3f(xa, ya, dist);
 
 			glTexCoord2f(txb, 1.0f - bottom * tya);
-			glVertex3f(pxb, pya, dist);
+			glVertex3f(xb, ya, dist);
 
 			glTexCoord2f(bxb, 1.0f - bottom * bya);
-			glVertex3f(pxb, pyb, dist);
+			glVertex3f(xb, yb, dist);
 
 			glTexCoord2f(bxa, 1.0f - bottom * bya);
-			glVertex3f(pxa, pyb, dist);
+			glVertex3f(xa, yb, dist);
 #endif
 
 #if 0
