@@ -68,6 +68,7 @@ void A_WeaponKick(mobj_t * object);
 void A_WeaponShootSA(mobj_t * object);
 void A_ReFireSA(mobj_t * object);
 void A_NoFireSA(mobj_t * object);
+void A_NoFireReturnSA(mobj_t * object);
 void A_CheckReloadSA(mobj_t * object);
 void A_GunFlashSA(mobj_t * object);
 
