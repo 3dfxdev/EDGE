@@ -32,7 +32,7 @@ struct rad_trigger_s;
 
 typedef struct s_tip_s
 {
-  // tip text or graphic. two of these must be NULL.
+  // tip text or graphic.  Two of these must be NULL.
   const char *tip_text;
   char *tip_ldf;
   char *tip_graphic;
@@ -46,7 +46,27 @@ typedef struct s_tip_s
 s_tip_t;
 
 
-//SpawnThing Function
+typedef struct s_tip_prop_s
+{
+  // new slot number, or < 0 for no change.
+  int slot_num;
+  
+  // tip position (as a percentage, 0-255), < 0 for no change
+  int x_pos, y_pos;
+
+  // left justify.  Can be 1, 0, or < 0 for no change.
+  int left_just;
+  
+  // tip colourmap, or NULL for no change
+  const char *colourmap_name;
+ 
+  // translucency value (normally 1.0), or < 0 for no change
+  float_t translucency;
+}
+s_tip_prop_t;
+
+
+// SpawnThing Function
 typedef struct s_thing_s
 {
   // If the object is spawned somewhere
@@ -385,6 +405,9 @@ typedef struct rad_trigger_s
 
   // origin for any sounds played by the trigger
   degenmobj_t soundorg;
+
+  // current tip slot (each tip slot works independently).
+  int tip_slot;
 }
 rad_trigger_t;
 
