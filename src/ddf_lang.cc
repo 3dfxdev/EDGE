@@ -39,100 +39,368 @@
 
 #include "ddf_locl.h"
 #include "ddf_main.h"
-#include "dm_state.h"
-#include "m_argv.h"
-#include "p_spec.h"
-#include "r_local.h"
+
 #include "z_zone.h"
 
-#define DEFAULT_LANGUAGE  "ENGLISH"
+#include "epi/epistring.h"
 
-
-static language_t *dynamic_lang;
-
-static const language_t template_lang =
+// ---> ddf buildinfo for language class
+class ddf_bi_lang_c
 {
-	DDF_BASE_NIL,  // ddf
-	NULL,  // refs
+public:
+	ddf_bi_lang_c() 
+	{
+		treehead = NULL; 
+	}
+	
+	~ddf_bi_lang_c() 
+	{ 
+		DeleteLangNodes(); 
+	}
+	
+	struct langentry_s
+	{
+		langentry_s()
+		{
+			// Binary tree for sorting
+			left = NULL;
+			right = NULL;
+			
+			// Next entry with matching ref
+			lang_next = NULL;
+			
+			// Linked list
+			prev = NULL;
+			next = NULL;
+		}
+		
+		int lang;
+	
+		epi::strent_c ref;
+		epi::strent_c value;	
+		
+		// A linked list + binary tree is wasteful, but speed efficent and
+		// avoids stack overflow issues that may occur
+		struct langentry_s* left;
+		struct langentry_s* right;
+		
+		struct langentry_s* prev;
+		struct langentry_s* next;
+
+		// Next entry 
+		struct langentry_s* lang_next;		
+	};
+	
+private:
+	langentry_s *treehead;
+	 
+public:
+	epi::strlist_c langnames;
+	int currlang;
+	
+	epi::strlist_c comp_langrefs;		// Compiled language references
+	epi::strlist_c comp_langvalues;	// Compiled language values (1 per lang)
+	
+	// LANGUAGE ENTRY NODE HANDLING
+	
+	void AddLangNode(const char *_ref, const char *value)
+	{
+		langentry_s *currnode, *node, *newnode;
+		epi::string_c ref;
+		int cmp;
+		enum { CREATE_HEAD, TO_LEFT, TO_RIGHT, ADD, REPLACE } act;
+		
+		// Convert to upper case
+		ref = _ref;
+		ref.ToUpper();
+		
+		act = CREATE_HEAD;
+		node = treehead;
+		while (node && act != REPLACE)
+		{
+			currnode = node;
+			
+			if (act != ADD)
+				cmp = strcmp(ref.GetString(), node->ref.GetString());
+			else
+				cmp = 0;	// Has to be a match if the last act was ADD
+					
+			if (cmp == 0)
+			{
+				//
+				// Check to see if the language id matches, if it does then
+				// replace the entry, else add the node.
+				//
+				if (node->lang == currlang)
+				{
+					act = REPLACE;
+				}
+				else
+				{
+					act = ADD;
+					node = node->lang_next;
+				}
+			} 
+			else if (cmp < 0)
+			{
+				act = TO_LEFT;
+				node = node->left;
+			}
+			else if (cmp > 0)
+			{
+				act = TO_RIGHT;
+				node = node->right;
+			}
+		}
+	
+		// Handle replace seperately, since we not creating anything
+		if (act == REPLACE)
+		{
+			node->value.Set(value);
+			return;
+		}
+	
+		newnode = new langentry_s;
+		
+		if (act != ADD) { newnode->ref.Set(ref); }
+		newnode->value.Set(value);
+		newnode->lang = currlang;
+		
+		switch (act)
+		{
+			case CREATE_HEAD:	
+			{ 
+				treehead = newnode; 
+				break;
+			}
+			
+			case TO_LEFT:		
+			{ 
+				// Update the binary tree
+				currnode->left = newnode;
+				
+				// Update the linked list (Insert behind current node)
+				if (currnode->prev) 
+				{ 
+					currnode->prev->next = newnode; 
+					newnode->prev = currnode->prev;
+				}
+				
+				currnode->prev = newnode;
+				newnode->next = currnode; 
+				break;
+			}
+			
+			case TO_RIGHT:  	
+			{ 
+				// Update the binary tree
+				currnode->right = newnode; 
+
+				// Update the linked list (Insert infront of current node)
+				if (currnode->next) 
+				{ 
+					currnode->next->prev = newnode; 
+					newnode->next = currnode->next;
+				}
+				
+				currnode->next = newnode;
+				newnode->prev = currnode; 
+				break;
+			}
+			
+			case ADD:  		
+			{ 
+				currnode->lang_next = newnode; 
+				break;
+			}
+			
+			default: 			
+			{ 
+				break; /* FIXME!! Throw error */ 
+			}
+		}
+	}
+	
+	void DeleteLangNodes()
+	{
+		if (!treehead)
+			return;
+		
+		// The node head is the head for the binary tree, so
+		// we have to find the head by going backwards from
+		// the treehead
+		
+		langentry_s *currnode, *savenode;
+
+		currnode = treehead;
+		while (currnode->prev)
+			currnode = currnode->prev;
+			
+		while (currnode)
+		{
+			savenode = currnode->next;
+			delete currnode;
+			currnode = savenode;
+		}
+	}
+	
+	// LANGUAGES
+	
+	//
+	// AddLanguage()
+	//
+	// Returns if the language already exists
+	//
+	bool AddLanguage(const char *name)
+	{
+		int langsel = -1;
+		
+		// Look for an existing language entry if one exists
+		if (name && name[0])
+		{
+			epi::array_iterator_c it;
+			epi::string_c s;
+			
+			for (it = langnames.GetBaseIterator();
+				it.IsValid(); it++)
+			{
+				s = ITERATOR_TO_TYPE(it, char*);
+				s.ToUpper();
+				if (s.Compare(name) == 0)
+				{
+					langsel = it.GetPos();
+					break;
+				}
+			}
+		}
+		
+		// Setup the current language index, adding the new entry if needs be
+		if (langsel < 0)
+		{
+			epi::string_c s;
+			
+			if (name && name[0])
+			{
+				s = name;
+			}
+			else
+			{
+				char* s2;
+				
+				// FIXME! Stop using Z_Zone!
+				s2 = DDF_MainCreateUniqueName("UNNAMED_LANGUAGE", 
+									langnames.GetSize());
+							
+				s = s2;
+				Z_Free(s2);
+			}
+			
+			langnames.Insert(s.GetString());
+			currlang = langnames.GetSize() - 1;
+		}
+		else
+		{
+			currlang = langsel;
+		}
+		
+		
+		return (langsel < 0);
+	}
+	
+	// LIST COMPILING
+			
+	void CompileLanguageReferences()
+	{
+		comp_langrefs.Clear();
+		
+		if (!treehead)
+			return;					// Nothing to do
+
+		langentry_s *currnode, *head;
+		int count;
+		
+		currnode = treehead;
+		while (currnode->prev)
+			currnode = currnode->prev;
+			
+		head = currnode;
+			
+		// Count the entries so strlist_c does not over-fragment memory
+		count = 0;
+		while (currnode)
+		{
+			currnode = currnode->next;
+			count++;
+		}
+		
+		comp_langrefs.Size(count);
+		
+		// Add entries
+		for (currnode = head; currnode; currnode = currnode->next)
+			comp_langrefs.Insert(currnode->ref);
+		
+		return;		
+	}
+	
+	void CompileLanguageValues(int lang)
+	{
+		DEV_ASSERT2(lang >=0 && lang <= langnames.GetSize());
+			
+		comp_langvalues.Clear();
+		
+		if (!treehead)
+			return;					// Nothing to do
+
+		langentry_s *currnode, *head, *langnode;
+		int count;
+		
+		// Find me head, son!
+		currnode = treehead;
+		while (currnode->prev)
+			currnode = currnode->prev;
+			
+		head = currnode;
+			
+		// Count the entries so strlist_c does not over-fragment memory
+		count = 0;
+		while (currnode)
+		{
+			currnode = currnode->next;
+			count++;
+		}
+		
+		comp_langvalues.Size(count);
+		
+		// Add entries
+		for (currnode = head; currnode; currnode = currnode->next)
+		{
+			langnode = currnode;
+			while (langnode && langnode->lang != lang)
+				langnode = langnode->lang_next;
+				
+			if (langnode)
+				comp_langvalues.Insert(langnode->value);
+			else	
+				comp_langvalues.Insert(NULL);
+		}
+		
+		return;
+	}
 };
 
+// Globals
+language_c language;	// -ACB- 2004/07/28 Languages instance
 
-// array of languages
-
-language_t ** languages = NULL;
-int num_languages = 0;
-
-static stack_array_t languages_a;
-
-
-int cur_lang_index = -1;
-
-static const char *want_language;
-static bool want_from_cmdline;
-
-
-static void DDF_LanguageAddRef(language_t *lang, const char *ref, 
-    const char *text);
-static int DDF_LanguageFind(const char *lang_name);
-
-
-//
-// Hardcoded entries.
-//
-// These are _only_ needed for strings that are used before the
-// LANGUAGE.LDF file or DDFLANG lump(s) have been read in.
-
-static langref_t hardcoded_ldfs[] =
-{
-	{ "DefaultLoad", "M_LoadDefaults: Loaded system defaults.\n", NULL },
-	{ "DevelopmentMode", "Development Mode is enabled.\n", NULL },
-	{ "TurboScale",  "Turbo scale: %i%%\n", NULL },
-	{ "WadFileInit", "W_Init: Init WADfiles.\n", NULL },
-
-	{ NULL, NULL, NULL }
-};
-
+// Locals
+ddf_bi_lang_c* lang_buildinfo;
 
 //
 //  DDF PARSING ROUTINES
 //
-
 static bool LanguageStartEntry(const char *name)
 {
-	int i, index = -1;
-	bool replaces = false;
-
-	if (name && name[0])
-	{
-		for (i=0; i < num_languages; i++)
-		{
-			if (DDF_CompareName(languages[i]->ddf.name, name) == 0)
-			{
-				dynamic_lang = languages[i];
-				index = i;
-				replaces = true;
-				break;
-			}
-		}
-	}
-
-	// not found, create a new one
-	if (! replaces)
-	{
-		index = num_languages;
-
-		Z_SetArraySize(&languages_a, ++num_languages);
-
-		dynamic_lang = languages[index];
-
-		// initialise the new entry
-		dynamic_lang[0] = template_lang;
-
-		dynamic_lang->ddf.name = (name && name[0]) ? Z_StrDup(name) :
-			DDF_MainCreateUniqueName("UNNAMED_LANGUAGE", num_languages);
-	}
-
-	return replaces;
+	// Return value is true if language is a replacement
+	return lang_buildinfo->AddLanguage(name);
 }
 
 static void LanguageParseField(const char *field, const char *contents,
@@ -148,283 +416,298 @@ static void LanguageParseField(const char *field, const char *contents,
 		return;
 	}
 
-	DDF_LanguageAddRef(dynamic_lang, field, contents);
+	lang_buildinfo->AddLangNode(field, contents);
 }
 
 static void LanguageFinishEntry(void)
 {
-	// Compute CRC.  Not needed for languages.
-	dynamic_lang->ddf.crc = 0;
+	/* ... */
 }
 
 static void LanguageClearAll(void)
 {
 	// safe to delete all language entries
-
-	num_languages = 0;
-	Z_SetArraySize(&languages_a, num_languages);
+	language.Clear();
 }
 
 
 void DDF_ReadLangs(void *data, int size)
 {
-	readinfo_t language;
+	readinfo_t languages;
 
-	language.memfile = (char*)data;
-	language.memsize = size;
-	language.tag = "LANGUAGES";
-	language.entries_per_dot = 1;
+	languages.memfile = (char*)data;
+	languages.memsize = size;
+	languages.tag = "LANGUAGES";
+	languages.entries_per_dot = 1;
 
-	if (language.memfile)
+	if (languages.memfile)
 	{
-		language.message = NULL;
-		language.filename = NULL;
-		language.lumpname = "DDFLANG";
+		languages.message = NULL;
+		languages.filename = NULL;
+		languages.lumpname = "DDFLANG";
 	}
 	else
 	{
-		language.message = "DDF_InitLanguage";
-		language.filename = "language.ldf";
-		language.lumpname = NULL;
+		languages.message = "DDF_InitLanguage";
+		languages.filename = "language.ldf";
+		languages.lumpname = NULL;
 	}
 
-	language.start_entry  = LanguageStartEntry;
-	language.parse_field  = LanguageParseField;
-	language.finish_entry = LanguageFinishEntry;
-	language.clear_all    = LanguageClearAll;
+	languages.start_entry  = LanguageStartEntry;
+	languages.parse_field  = LanguageParseField;
+	languages.finish_entry = LanguageFinishEntry;
+	languages.clear_all    = LanguageClearAll;
 
-	DDF_MainReadFile(&language);
-
-	// --- handle finding the desired language ---
-
-	if (want_language)
-	{
-		int idx = DDF_LanguageFind(want_language);
-
-		if (idx >= 0)
-		{
-			cur_lang_index = idx;
-
-			Z_Free((void *)want_language);
-			want_language = 0;
-		}
-	}
-
-	if (cur_lang_index < 0)
-		cur_lang_index = DDF_LanguageFind(DEFAULT_LANGUAGE);
+	DDF_MainReadFile(&languages);
 }
 
 void DDF_LanguageInit(void)
 {
-	cur_lang_index = -1;
+	// FIXME! Copy any existing entries into the new buildinfo
 
-	if (M_CheckParm("-lang") > 0)
-	{
-		want_language = Z_StrDup(M_GetParm("-lang"));
-		want_from_cmdline = true;
-	}
+	// Clear any existing
+	language.Clear();
 
-	Z_InitStackArray(&languages_a, (void ***)&languages, sizeof(language_t), 0);
+	// Create a build info object
+	lang_buildinfo = new ddf_bi_lang_c;
 }
 
 void DDF_LanguageCleanUp(void)
 {
-	if (want_language && want_from_cmdline)
-		I_Error("Unknown language: %s\n", want_language);
-		
-	if (cur_lang_index < 0)
+	// Convert build info into the language structure
+	int langcount = lang_buildinfo->langnames.GetSize();
+	if (langcount == 0)
+		I_Error("Missing languages !\n");
+	
+	// Load the choice of languages
+	language.LoadLanguageChoices(lang_buildinfo->langnames);
+	
+	// Load the reference table
+	lang_buildinfo->CompileLanguageReferences();
+	language.LoadLanguageReferences(lang_buildinfo->comp_langrefs);
+	
+	// Load the value table for each one of the languages
+	int i;
+	for (i=0; i<langcount; i++)
 	{
-		if (num_languages == 0)
-			I_Error("Missing languages !\n");
-
-		I_Warning("The required language does not exist.\n");
-
-		cur_lang_index = 0;  // last restort: just use first one
+		lang_buildinfo->CompileLanguageValues(i);
+		language.LoadLanguageValues(i, lang_buildinfo->comp_langvalues);
 	}
+	
+	//language.Dump();
+	//exit(1);
+	
+	// Dispose of the data
+	delete lang_buildinfo;
 }
 
-static langref_t *FindLanguageRef(const char *refname)
+//
+// language_c Constructor
+//
+language_c::language_c()
 {
-	int i;
-	char *tmpname;
-	langref_t *entry;
+	current = -1;
+}
 
-	if (cur_lang_index < 0)
-		return NULL;
+//
+// language_c Destructor
+//
+language_c::~language_c()
+{
+	Clear();
+}
 
-	DEV_ASSERT2(cur_lang_index < num_languages);
-
-	// convert to uppercase
-
-	tmpname = (char*)I_TmpMalloc(strlen(refname) + 1);
-	for (i = 0; refname[i]; i++)
+//
+// language_c::Clear()
+//
+// Clear the contents
+//
+void language_c::Clear()
+{
+	choices.Clear();
+	refs.Clear();
+	
+	if (values)
 	{
-		tmpname[i] = toupper(refname[i]);
+		delete [] values;
+		values = NULL;
 	}
-	tmpname[i] = 0;
+	
+	current = -1;
+}
 
-	// when a reference cannot be found in the current language, we look
-	// for it in the other languages.
-
-	for (i=cur_lang_index; i < cur_lang_index+num_languages; i++)
+//
+// int language_c::Find(const char* ref)
+//
+int language_c::Find(const char *ref)
+{
+	if (!values || !ref)
+		return -1;
+		
+	epi::string_c s = ref;
+	s.ToUpper();			// Refs are all uppercase
+	
+	// FIXME!! Optimise search - this list is sorted in order
+	int i, max;
+	for (i=0, max=refs.GetSize(); i<max; i++)
 	{
-		language_t *lang = languages[i % num_languages];
+		if (s.Compare(refs[i]) == 0)
+			return i;
+	}
+	
+	return -1;	
+}
 
-		entry = lang->refs;
+//
+// const char* language_c::GetName()
+//	
+// Returns the current name if idx is isvalid, can be
+// NULL if the choices table has not been setup
+//
+const char* language_c::GetName(int idx)
+{
+	if (idx < 0)
+		idx = current;
+		
+	if (idx < 0 || idx >= choices.GetSize())
+		return NULL; 
+	
+	return choices[idx];
+}
 
-		// -ES- 2000/02/04 Optimisation: replaced stricmp with strcmp
-		while (entry != NULL && strcmp(tmpname, entry->refname))
-			entry = entry->next;
+//
+// bool language_c::IsValidRef()
+//
+bool language_c::IsValidRef(const char *refname)
+{
+	return (Find(refname)>=0);
+}
 
-		if (entry)
+//
+// language_c::LoadLanguageChoices()
+//	
+void language_c::LoadLanguageChoices(epi::strlist_c& _langnames)
+{
+	choices.Set(_langnames);
+}
+
+//
+// language_c::LoadLanguageReferences()
+//
+void language_c::LoadLanguageReferences(epi::strlist_c& _refs)
+{
+	if (values)
+		delete [] values;
+	
+	refs.Set(_refs);
+	values = new epi::strbox_c[refs.GetSize()];
+	
+	return;
+}
+
+//
+// language_c::LoadLanguageValues()
+//
+void language_c::LoadLanguageValues(int lang, epi::strlist_c& _values)
+{
+	if (_values.GetSize() != refs.GetSize())
+		return;	// FIXME!! Throw error
+		
+	if (lang < 0 || lang >= choices.GetSize())
+		return;	// FIXME!! Throw error
+		
+	values[lang].Set(_values);
+	
+	return;
+}
+
+//
+// language_c::Select() Named Select
+//
+bool language_c::Select(const char *name)
+{
+	int i, max;
+	
+	for(i=0, max=choices.GetSize(); i<max; i++)
+	{
+		if (!strcmp(name, choices[i]))
 		{
-			I_TmpFree(tmpname);
-			return entry;
+			current = i;
+			return true;
 		}
 	}
+	
+	// FIXME!! Throw error
+	return false;
+}
 
-	// not found !
-	I_TmpFree(tmpname);
+//
+// language_c::Select() Index Select
+//
+bool language_c::Select(int idx)
+{
+	if (idx < 0 || idx >= choices.GetSize())
+		return false;	// FIXME!! Throw error
+		
+	current = idx;
+	return true;
+}
+
+//
+// const char* language_c::operator[]()
+//	
+const char* language_c::operator[](const char *refname)
+{
+	int idx;
+	
+	idx = Find(refname);
+	if (idx>=0)
+	{
+		if (current < 0 || current >= choices.GetSize())
+			return NULL;	// FIXME!! Throw error		
+		
+		char *s = values[current][idx];
+		if (s != NULL)
+			return s;
+			
+		// Look through other language definitions is one does not exist
+		int i, max;
+		for (i=0, max=choices.GetSize(); i<max; i++)
+		{
+			if (i != current)
+			{
+				char *s = values[i][idx];
+				if (s != NULL)
+					return values[i][idx];
+			}
+		}
+	}
+	
 	return NULL;
 }
 
-//
-// DDF_LanguageFind
-//
-static int DDF_LanguageFind(const char *lang_name)
+/*
+void language_c::Dump(void)
 {
-	int i;
-
-    for (i=0; i < num_languages; i++)
-    {
-		if (DDF_CompareName(languages[i]->ddf.name, lang_name) == 0)
-			return i;
-	}
-
-	return -1;
-}
-
-//
-// DDF_LanguageChange
-//
-// Change to a new language.  Especially from the config file.
-//
-void DDF_LanguageChange(const char *lang_name, bool from_config)
-{
-	// don't overwrite previous use of -lang parameter
-	if (from_config && want_from_cmdline)
-		return;
-
-	int idx = DDF_LanguageFind(lang_name);
-
-	if (idx >= 0)
+	int i,j;
+	for (i=0; i<choices.GetSize(); i++)
 	{
-		cur_lang_index = idx;
-		return;
-	}
+		I_Printf("Language %d is %s\n", i, choices[i]);
+	}	
+	I_Printf("\n");
 
-	// DDF loading from lumps occurs _after_ loading config file, therefore
-	// the languages may not be loaded yet.
-
-	if (want_language)
-		Z_Free((void *)want_language);
-
-	want_language = Z_StrDup(lang_name);
-	want_from_cmdline = false;
-}
-
-//
-// DDF_LanguageLookup
-//
-// Globally Visibile to all files that directly or indirectly include ddf_main.h;
-// This compares the ref name given with the refnames in the language lookup
-// table. If one compares with the other, a pointer to the string is returned. If
-// one is not found than an error is generated.
-//
-const char *DDF_LanguageLookup(const char *refname)
-{
-	int i;
-	langref_t *entry;
-
-	// -AJA- Due to the new "DDF lumps in EDGE.WAD" thing, certain
-	//       messages need to be looked up before any LDF entries have
-	//       been read in (from EDGE.WAD).  These entries must be
-	//       hardcoded in this file.  
-
-	if (num_languages == 0)
+	for (i=0; i<refs.GetSize(); i++)
 	{
-		for (i=0; hardcoded_ldfs[i].refname; i++)
-		{
-			if (DDF_CompareName(refname, hardcoded_ldfs[i].refname) == 0)
-				return hardcoded_ldfs[i].string;
-		}
+		I_Printf("Ref %d is %s\n", i, refs[i]);
 	}
-	else
+
+	I_Printf("\n");
+	for (i=0; i<choices.GetSize(); i++)
 	{
-		entry = FindLanguageRef(refname);
-
-		if (entry != NULL)
-			return entry->string;
-	}
-
-	if (strict_errors)
-		DDF_Error("DDF_LanguageLookup: Unknown String Ref: %s\n", refname);
-
-	return refname;
+		for (j=0; j<values[i].GetSize(); j++)
+			I_Printf("Value %d/%d (%s) is %s\n", i, j, refs[j], values[i][j]);
+			
+		I_Printf("\n");
+	}	
 }
-
-//
-// DDF_LanguageValidRef
-//
-// Returns whether the given ref is valid.
-// -ES- 2000/02/04 Added
-//
-bool DDF_LanguageValidRef(const char *refname)
-{
-	langref_t *entry = FindLanguageRef(refname);
-
-	return (entry == NULL) ? false : true;
-}
-
-
-//
-// DDF_LanguageAddRef
-//
-// Puts the string into the buffer entry and adds it to the linked list.
-//
-static void DDF_LanguageAddRef(language_t *lang, const char *ref, 
-    const char *text)
-{
-	langref_t *entry;
-
-	// look for entry with same name
-
-	for (entry=lang->refs; entry; entry=entry->next)
-	{
-		if (DDF_CompareName(entry->refname, ref) == 0)
-			break;
-	}
-
-	if (entry)
-	{
-		// replace existing entry
-
-		// -ES- INTENTIONAL CONST OVERRIDE
-		Z_Free((char*) entry->string);
-
-		entry->string = Z_StrDup(text);
-		return;
-	}
-
-	// create new entry
-
-	entry = Z_New(langref_t, 1);
-
-	entry->refname = Z_StrDup(ref);
-	entry->string  = Z_StrDup(text);
-
-	// link it in
-	entry->next = lang->refs;
-	lang->refs = entry;
-}
-
+*/
