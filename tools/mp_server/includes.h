@@ -16,8 +16,8 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef __UI_INCLUDES_H__
-#define __UI_INCLUDES_H__
+#ifndef __MP_INCLUDES_H__
+#define __MP_INCLUDES_H__
 
 /* C library */
 
@@ -84,4 +84,4 @@
 #include "sys_debug.h"
 #include "sys_endian.h"
 
-#endif /* __UI_INCLUDES_H__ */
+#endif /* __MP_INCLUDES_H__ */
