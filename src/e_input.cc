@@ -429,7 +429,6 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 // 
 bool INP_Responder(event_t * ev)
 {
-	// -ES- Fixme: Clean up globals gamekeydown and analogue.
 	switch (ev->type)
 	{
 		case ev_keydown:
@@ -507,5 +506,6 @@ void E_ClearInput(void)
 {
 	Z_Clear(gamekeydown, bool, NUMKEYS);
 	Z_Clear(analogue, int, 5);
+
 	sendpause = sendsave = false;
 }
