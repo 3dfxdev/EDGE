@@ -52,6 +52,8 @@
 #include "wp_main.h"
 #include "z_zone.h"
 
+#define RESDELAY_MAXLOOP 18081979
+
 viewbitmap_t *rightvb;
 
 // the view and viewbitmap that the rendering system currently is set up for
@@ -674,6 +676,9 @@ void R_ChangeResolution(int width, int height, int depth, bool windowed)
 	setMode.height   = height;
 	setMode.depth    = depth;
 	setMode.windowed = windowed;
+
+	L_WriteDebug("R_ChangeResolution: Trying %dx%dx%d (%s)\n", 
+		width, height, depth, windowed?"windowed":"fullscreen");
 }
 
 //
@@ -698,9 +703,25 @@ static bool DoExecuteChangeResolution(void)
 	if (! I_SetScreenSize(&setMode))
 	{
 		// wait one second before changing res again, gfx card doesn't like to
-		// switch mode too rapidly
-		int tics = I_GetTime() + TICRATE;
-		while (tics >= I_GetTime()) { /* nothing */ }
+		// switch mode too rapidly.
+		int count, t, t1, t2;
+
+		count = 0;
+		t1 = I_GetTime();
+		t2 = t1 + TICRATE;
+
+		// -ACB- 2004/02/21 If the app is minimised, the clock won't tic. Handle this.
+		do 
+		{ 
+			t = I_GetTime();
+
+			if (t == t1)
+				count++;
+
+			if (count > RESDELAY_MAXLOOP)
+				break;
+		}
+		while (t2 >= t);
 
 		// something was wrong, check if memory is corrupt
 		Z_CheckHeap();
