@@ -450,6 +450,9 @@ typedef struct rad_script_s
   // Set of states
   rts_state_t *first_state;
   rts_state_t *last_state;
+
+  // CRC of the important parts of this RTS script.
+  unsigned long crc;
 }
 rad_script_t;
 
@@ -482,11 +485,11 @@ typedef struct rad_trigger_s
   rts_state_t *state;
   int wait_tics;
 
-  // origin for any sounds played by the trigger
-  degenmobj_t soundorg;
-
   // current tip slot (each tip slot works independently).
   int tip_slot;
+
+  // origin for any sounds played by the trigger
+  degenmobj_t soundorg;
 }
 rad_trigger_t;
 
