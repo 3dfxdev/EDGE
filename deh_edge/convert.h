@@ -13,7 +13,7 @@
 #ifndef __CONVERT_HDR__
 #define __CONVERT_HDR__
 
-#define THINGS_1_2   104
+#define THINGS_1_2   103
 #define FRAMES_1_2   512
 #define SPRITES_1_2  105
 #define SOUNDS_1_2   63
