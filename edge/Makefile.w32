@@ -22,14 +22,16 @@ PNG_DIR="c:/localsrc/eclipse/lpng125"
 ZLIB_DIR="c:/localsrc/eclipse/zlib121"
 ## HAWK_DIR="hawknl1.68"
 
+# Optimisation level
+#OPTIM=-g3
+OPTIM=-O2
+
 # Generated library directories
 DEH_DIR=./deh_edge_1.3
 GLBSP_DIR=./glbsp-2.10
 
 INCS=-I$(DEVCPP_DIR)/include
         
-CFLAGS=$(INCS) -fexceptions -O2 -Wall -DUSE_DL_PREFIX -DWIN32
-
 CXXINCS=-I$(DEVCPP_DIR)/include/c++ \
         -I$(DEVCPP_DIR)/include/c++/mingw32 \
         -I$(DEVCPP_DIR)/include/c++/backward \
@@ -37,8 +39,12 @@ CXXINCS=-I$(DEVCPP_DIR)/include/c++ \
 		-I$(DX_DIR)/include \
         -I$(OGG_DIR)/include
 
-CXXFLAGS=$(CXXINCS) $(INCS) \
-         -O2 -Wall -fno-rtti -fexceptions \
+CFLAGS=$(INCS) $(OPTIM) \
+       -Wall -fexceptions \
+	   -DWIN32 -DDEVELOPERS -DUSE_DL_PREFIX -DUSE_DEH
+
+CXXFLAGS=$(CXXINCS) $(INCS) $(OPTIM) \
+         -Wall -fexceptions -fno-rtti \
          -DWIN32 -DDEVELOPERS -DUSE_DL_PREFIX -DUSE_DEH
 
 # ----- LIBRARIES ------------------------------------------------------
