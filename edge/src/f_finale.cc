@@ -85,7 +85,7 @@ static gameaction_e newgameaction;
 static const map_finaledef_c *finale;
 static void StartCast(void);
 static void CastTicker(void);
-static bool CastResponder(event_t * ev);
+static void CastSkip(void);
 
 static const image_t *finale_textback;
 static float finale_textbackscale;
@@ -144,28 +144,10 @@ void F_StartFinale(const map_finaledef_c * f, gameaction_e newaction)
 
 bool F_Responder(event_t * event)
 {
-	int i;
-
-	if (finalestage == f_cast)
-		return CastResponder(event);
-
 	if (event->type != ev_keydown)
 		return false;
 
-	// -ES- 2000/02/27 Hack: The first parts of the final stage may be
-	// accelerated, but not the last one, so we have to check if there are
-	// any more to do.
-	for (i = f_end-1; i > finalestage; i--)
-	{
-		if ((i == f_cast && finale->docast) || (i == f_bunny && finale->dobunny)
-				|| (i == f_pic && finale->pics.GetSize()) || (i == f_text && finale->text))
-			break;
-	}
-
-	// Skip finale if there either is a next final stage, or if there is a next
-	// sub-stage (for the two-stage text acceleration)
-	if (i > finalestage || (finalestage == f_text &&
-		 (unsigned int)finalecount < (TEXTSPEED * strlen(language[finale->text]))))
+	if (finalecount > TICRATE)
 	{
 		skip_finale = true;
 		return true;
@@ -179,103 +161,113 @@ bool F_Responder(event_t * event)
 //
 void F_Ticker(void)
 {
-	finalestage_e fstage = finalestage;
+	finalestage_e orig_stage = finalestage;
 
-	if (skip_finale)
+	if (finalestage == f_text)
 	{
-		skip_finale = false;
-		if (finalestage == (finalestage_e)f_text &&
-			(unsigned int)finalecount < TEXTSPEED * strlen(language[finale->text]))
-		{
-			// -ES- 2000/03/08 Two-stage text acceleration. Complete the text the
-			// first time, skip to next finale the second time.
-			finalecount = TEXTSPEED * strlen(language[finale->text]);
-		}
+		if (! finale->text)
+			finalestage++;
 		else
 		{
-			finalestage++;
-			finalecount = 0;
+			gamestate = GS_FINALE;
+
+			if (finalecount == 0)
+			{
+				finaletext = language[finale->text];
+				S_ChangeMusic(finale->music, true);
+				wipegamestate = GS_NOTHING;
+			}
+			else if (skip_finale && finalecount < (int)strlen(finaletext) * TEXTSPEED)
+			{
+				finalecount = TEXTSPEED * strlen(finaletext);
+				skip_finale = false;
+			}
+			else if (skip_finale || finalecount > TEXTWAIT + (int)strlen(finaletext) * TEXTSPEED)
+			{
+				finalestage++;
+				finalecount = 0;
+				skip_finale = false;
+			}
 		}
 	}
 
-	switch (finalestage)
+	if (finalestage == f_pic)
 	{
-		case f_text:
-			if (finale->text)
-			{
-				gamestate = GS_FINALE;
-				if (!finalecount)
-				{
-					finaletext = language[finale->text];
-					S_ChangeMusic(finale->music, true);
-					wipegamestate = GS_NOTHING;
-					break;
-				}
-				else if ((unsigned int)finalecount > strlen(finaletext) * TEXTSPEED + TEXTWAIT)
-				{
-					finalecount = 0;
-				}
-				else
-					break;
-			}
+		if (finale->pics.GetSize() == 0)
 			finalestage++;
+		else
+		{
+			gamestate = GS_FINALE;
 
-		case f_pic:
-			if (finale->pics.GetSize())
+			if (skip_finale || finalecount > (int)finale->picwait)
 			{
-				gamestate = GS_FINALE;
-				if ((unsigned int)finalecount > finale->picwait)
-				{
-					finalecount = 0;
-					picnum++;
-				}
-
-				if (picnum >= finale->pics.GetSize())
-				{
-					finalecount = 0;
-					picnum = 0;
-				}
-				else
-					break;
+				picnum++;
+				finalecount = 0;
+				skip_finale = false;
 			}
-			finalestage++;
 
-		case f_bunny:
-			if (finale->dobunny)
+			if (picnum >= finale->pics.GetSize())
 			{
-				gamestate = GS_FINALE;
-
-				if (!finalecount)
-				{
-					S_ChangeMusic(currgamedef->special_music, true);
-					wipegamestate = GS_NOTHING; // force a wipe
-				}
-
-				break;
+				finalestage++;
+				finalecount = 0;
+				picnum = 0;
 			}
-			finalestage++;
-
-		case f_cast:
-			if (finale->docast)
-			{
-				gamestate = GS_FINALE;
-				if (!finalecount)
-					StartCast();
-				else
-					CastTicker();
-				break;
-			}
-			finalestage++;
-
-		case f_end:
-			if (newgameaction != ga_nothing)
-				gameaction = newgameaction;
-			else
-				finalestage = fstage;
-			break;
+		}
 	}
 
-	if (finalestage != fstage && finalestage != f_end)
+	if (finalestage == f_bunny)
+	{
+		if (! finale->dobunny)
+			finalestage++;
+		else
+		{
+			gamestate = GS_FINALE;
+
+			if (finalecount == 0)
+			{
+				S_ChangeMusic(currgamedef->special_music, true);
+				wipegamestate = GS_NOTHING; // force a wipe
+			}
+
+			if (skip_finale && finalecount < 1100)
+			{
+				finalecount = 1100;
+				skip_finale = false;
+			}
+		}
+	}
+
+	if (finalestage == f_cast)
+	{
+		if (! finale->docast)
+			finalestage++;
+		else
+		{
+			gamestate = GS_FINALE;
+
+			if (finalecount == 0)
+				StartCast();
+			else if (skip_finale)
+			{
+				CastSkip();
+				skip_finale = false;
+			}
+			else
+				CastTicker();
+		}
+	}
+
+	if (finalestage == f_end)
+	{
+		if (newgameaction != ga_nothing)
+			gameaction = newgameaction;
+#if 0  // -AJA Huh ???
+		else
+			finalestage = orig_stage;
+#endif
+	}
+
+	if (finalestage != orig_stage && finalestage != f_end)
 		wipegamestate = GS_NOTHING;
 
 	// advance animation
@@ -569,15 +561,12 @@ static void CastTicker(void)
 }
 
 //
-// CastResponder
+// CastSkip
 //
-static bool CastResponder(event_t * ev)
+static void CastSkip(void)
 {
-	if (ev->type != ev_keydown)
-		return false;
-
 	if (castdeath)
-		return true;  // already in dying frames
+		return;  // already in dying frames
 
 	// go into death frame
 	castdeath = true;
@@ -596,8 +585,6 @@ static bool CastResponder(event_t * ev)
 
 	if (castorder->deathsound)
 		S_StartSound(NULL, castorder->deathsound);
-
-	return true;
 }
 
 static void CastPrint(const char *text)
