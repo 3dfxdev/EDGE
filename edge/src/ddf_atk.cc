@@ -90,6 +90,7 @@ static const commandlist_t attack_commands[] =
 	DF("TOO CLOSE RANGE", tooclose, DDF_MainGetNumeric),
 	DF("NO TRACE CHANCE", notracechance, DDF_MainGetPercent),
 	DF("KEEP FIRING CHANCE", keepfirechance, DDF_MainGetPercent),
+	DF("TRACE ANGLE", trace_angle, DDF_MainGetAngle),
 	DF("ASSAULT SPEED", assault_speed, DDF_MainGetFloat),
 	DF("ATTEMPT SOUND", initsound, DDF_MainLookupSound),
 	DF("ENGAGED SOUND", sound, DDF_MainLookupSound),
@@ -437,6 +438,7 @@ void atkdef_c::CopyDetail(atkdef_c &src)
 	yoffset = src.yoffset;
 	angle_offset = src.angle_offset;
 	slope_offset = src.slope_offset;
+	trace_angle  = src.trace_angle;
 	assault_speed = src.assault_speed;
 	height = src.height;
 	range = src.range;
@@ -474,6 +476,7 @@ void atkdef_c::Default()
 	yoffset = 0;
 	angle_offset = 0;
 	slope_offset = 0;
+	trace_angle = (ANG270 / 16);
 	assault_speed = 0;
 	height = 0;
 	range = 0;
