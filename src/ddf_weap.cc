@@ -163,25 +163,33 @@ const specflags_t ammo_types[] =
 {
     {"NOAMMO",  AM_NoAmmo, 0},
 
-    {"BULLETS", AM_Bullet, 0},
-    {"SHELLS",  AM_Shell,  0},
-    {"ROCKETS", AM_Rocket, 0},
-    {"CELLS",   AM_Cell,   0},
-
+    {"BULLETS",  AM_Bullet,  0},
+    {"SHELLS",   AM_Shell,   0},
+    {"ROCKETS",  AM_Rocket,  0},
+    {"CELLS",    AM_Cell,    0},
     {"PELLETS",  AM_Pellet,  0},
     {"NAILS",    AM_Nail,    0},
     {"GRENADES", AM_Grenade, 0},
     {"GAS",      AM_Gas,     0},
 
-    {"DAGGERS",   AM_Dagger,  0},
-    {"ARROWS",    AM_Arrow,   0},
-    {"TORPEDOES", AM_Torpedo, 0},
-    {"CRYSTALS",  AM_Crystal, 0},
+	// FIXME: parse these with code?
+    {"AMMO1",  AM_Bullet,  0},
+    {"AMMO2",  AM_Shell,   0},
+    {"AMMO3",  AM_Rocket,  0},
+    {"AMMO4",  AM_Cell,    0},
+    {"AMMO5",  AM_Pellet,  0},
+    {"AMMO6",  AM_Nail,    0},
+    {"AMMO7",  AM_Grenade, 0},
+    {"AMMO8",  AM_Gas,     0},
 
-    {"GROMMETS",  AM_Grommet,  0},
-    {"BUCKSHOT",  AM_Buckshot, 0},
-    {"TOXIN",     AM_Toxin,    0},
-    {"MANA",      AM_Mana,     0},
+    {"AMMO9",  AM_9,  0},
+    {"AMMO10", AM_10, 0},
+    {"AMMO11", AM_11, 0},
+    {"AMMO12", AM_12, 0},
+    {"AMMO13", AM_13, 0},
+    {"AMMO14", AM_14, 0},
+    {"AMMO15", AM_15, 0},
+    {"AMMO16", AM_16, 0},
 
     {NULL, 0, 0}
 };

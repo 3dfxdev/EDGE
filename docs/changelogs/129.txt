@@ -299,10 +299,9 @@ New weapon stuff
 + support for manual reloading (new key in Keyboard Options), and
   also next-weapon and previous-weapon keys.
 
-+ eight new ammo types: DAGGERS, ARROWS, TORPEDOES, CRYSTALS, GROMMETS,
-  BUCKSHOT, TOXIN and MANA (names inspired by Heretic/Hexen/HacX/madness).
-  That brings the total to 16.  The limit on holdable weapons has also
-  been increased from 32 to 64.
++ eight new ammo types, AMMO9, AMMO10 ... upto AMMO16.  The old ammo
+  types can (optionally) be called AMMO1 ... AMMO8.  The limit on
+  holdable weapons has also been increased from 32 to 64.
 
 - there are many new specials.  The following new command is used to
   give specials for the secondary attack:
