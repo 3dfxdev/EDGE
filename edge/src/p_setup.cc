@@ -2393,7 +2393,7 @@ static void DetectSectorCompat(int lump, int *edge_cnt, int *boom_cnt)
 		sectortype_c *def = sectortypes.Lookup(special);  // NULL OK !
 
 		// the boom-conflicting types cannot tell us anything
-		if (def->boom_conflict)
+		if (def && def->boom_conflict)
 			continue;
 
 		if (DDF_IsBoomSectorType(special) && !def)
@@ -2430,7 +2430,7 @@ static void DetectLineDefCompat(int lump, int *edge_cnt, int *boom_cnt)
 
 		if (DDF_IsBoomLineType(special) && !def)
 			(*boom_cnt) += 1;
-		else if (def->ef.type != EXFL_None && special != 242)
+		else if (def && def->ef.type != EXFL_None && special != 242)
 			(*edge_cnt) += 1;
 	}
 
