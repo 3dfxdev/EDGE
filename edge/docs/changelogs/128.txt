@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.28 (since 1.27)
 ===============================
 
-(Date: MAY 17th 2004)
+(Date: JUNE 3rd 2004)
 
 Bugs fixed
 ----------
@@ -52,7 +52,7 @@ Bugs fixed
 Bugs fixed in 1.28a
 -------------------
 
-- @@@
+- fixed crouching (unable to stand back up) bug.
 
 
 Features removed:
