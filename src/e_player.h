@@ -121,10 +121,6 @@ typedef struct player_s
   // Bob/squat speed.
   float_t deltaviewheight;
 
-  // This is the wanted viewz.  vertangle will move
-  // smoothly to this when changed.
-  float_t deltaviewz;
-
   // bounded/scaled total momentum.
   float_t bob;
 
