@@ -170,9 +170,9 @@ static bool WeaponCanPartialReload(player_t *p, int idx, int ATK)
 {
 	weapondef_c *info = p->weapons[idx].info;
 
-	// doesn't make any sense for non-clip weapons
+	// for non-clip weapons, same as WeaponCanReload()
 	if (info->clip_size[ATK] == 0)
-		return false;
+		return WeaponCanFire(p, idx, ATK);
 
 	// clip check (cannot reload if clip is full)
 	if (p->weapons[idx].clip_size[ATK] == info->clip_size[ATK])
@@ -698,6 +698,17 @@ void A_WeaponReady(mobj_t * mo)
 		return;
 	}
 
+	// check for emptiness.  The ready_state check is needed since this
+	// code is currently used by the EMPTY action as well.
+	if (info->empty_state && ! WeaponCouldAutoFire(p, p->ready_wp, 0) &&
+		psp->state == &states[info->ready_state])
+	{
+		// don't use Deferred here, since we don't want the weapon to
+		// display the ready sprite (even only briefly).
+		P_SetPsprite(p, ps_weapon, info->empty_state);
+		return;
+	}
+
 	if (info->idle && psp->state == &states[info->ready_state])
 		S_StartSound(mo, info->idle);
 
@@ -742,22 +753,23 @@ void A_WeaponReady(mobj_t * mo)
 			if (! info->attack_state[ATK])
 				continue;
 
-			bool reload = false;
-
 			if ((info->specials[ATK] & WPSP_Fresh) && info->clip_size[ATK] > 0 &&
 				info->ammo[ATK] != AM_NoAmmo)
 			{
-				reload = WeaponCanReload(p, p->ready_wp, ATK);
+				if (WeaponCanReload(p, p->ready_wp, ATK))
+				{
+					GotoReloadState(p, ATK);
+					break;
+				}
 			}
 			else if ((p->cmd.extbuttons & EBT_RELOAD) &&
 					 (info->specials[ATK] & WPSP_Manual) &&
 					  info->reload_state[ATK])
 			{
-				reload = (info->specials[ATK] & WPSP_Partial) ?
+				bool reload = ((info->specials[ATK] & WPSP_Partial) ||
+						  info->discard_state[ATK]) ?
 					WeaponCanPartialReload(p, p->ready_wp, ATK) :
 					WeaponCanReload(p, p->ready_wp, ATK);
-
-				weapondef_c *info = p->weapons[p->ready_wp].info;
 
 				// for non-clip weapons, chew up some ammo
 				if (reload && info->clip_size[ATK] == 0 &&
@@ -765,12 +777,23 @@ void A_WeaponReady(mobj_t * mo)
 				{
 					p->ammo[info->ammo[ATK]].num -= info->ammopershot[ATK];
 				}
-			}
 
-			if (reload)
-				GotoReloadState(p, ATK);
-		}
-	}
+				// for discarding, we require a non-empty clip
+				if (reload && info->discard_state[ATK] &&
+					(info->clip_size == 0 || WeaponCanFire(p, p->ready_wp, ATK)))
+				{
+					p->weapons[p->ready_wp].clip_size[ATK] = 0;
+					P_SetPspriteDeferred(p, ps_weapon, info->discard_state[ATK]);
+					break;
+				}
+				else if (reload)
+				{
+					GotoReloadState(p, ATK);
+					break;
+				}
+			}
+		}  // for (ATK)
+	}  // (! fire_0 && ! fire_1)
 
 	BobWeapon(p, info);
 }
