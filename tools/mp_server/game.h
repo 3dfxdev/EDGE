@@ -78,6 +78,7 @@ public:
 	void InitGame();
 	void BumpGameTic();
 	void BumpMinTic();
+	void TryRunTics();
 
 	int ComputeMinTic() const;
 	int ComputeGroupAvail() const;

@@ -34,6 +34,11 @@ volatile int total_queued_games = 0;
 volatile int total_played_games = 0;
 
 
+// forward decl
+static void SV_send_all_tic_groups(int one_client, game_c *GM, int tic_num,
+	int first_pl, int count_pl, bool retrans);
+
+
 game_c::game_c(const game_info_t *info) : state(ST_Zombie),
 	mode(info->mode), skill(info->skill),
 	min_players(info->min_players),
@@ -195,6 +200,30 @@ void game_c::CalcBots()
 		bots_each = BOT_MAX;
 
 	num_bots = bots_each * num_players;
+}
+
+void game_c::TryRunTics()
+{
+	int saved_tics = sv_gametic - pl_min_tic;
+
+	SYS_ASSERT(saved_tics >= 0);
+	SYS_ASSERT(saved_tics <= MP_SAVETICS);
+
+	int avail_tics = ComputeGroupAvail();
+
+	DebugPrintf("=== gametic %d avail %d saved %d\n", sv_gametic,
+		avail_tics, saved_tics);
+
+	// when the save area is full, the server cannot advance
+	if (avail_tics > (MP_SAVETICS - saved_tics))
+		avail_tics = (MP_SAVETICS - saved_tics);
+
+	for (; avail_tics > 0; avail_tics--)
+	{
+		SV_send_all_tic_groups(-1, this, sv_gametic, 0, num_players, false);
+
+		BumpGameTic();
+	}
 }
 
 //------------------------------------------------------------------------
@@ -633,7 +662,6 @@ void PK_ticcmd(packet_c *pk)
 		CL->pl_gametic = cl_gametic;
 
 	int min_tic = GM->ComputeMinTic();
-
 	while (GM->pl_min_tic < min_tic)
 		GM->BumpMinTic();
 
@@ -681,26 +709,7 @@ void PK_ticcmd(packet_c *pk)
 		// FIXME: speed up retransmit timer......
 	}
 
-	int saved_tics = GM->sv_gametic - GM->pl_min_tic;
-
-	SYS_ASSERT(saved_tics >= 0);
-	SYS_ASSERT(saved_tics <= MP_SAVETICS);
-
-	int avail_tics = GM->ComputeGroupAvail();
-
-	DebugPrintf("=== gametic %d avail %d saved %d\n", GM->sv_gametic,
-		avail_tics, saved_tics);
-
-	// when the save area is full, the server cannot advance
-	if (avail_tics > (MP_SAVETICS - saved_tics))
-		avail_tics = (MP_SAVETICS - saved_tics);
-
-	for (; avail_tics > 0; avail_tics--)
-	{
-		SV_send_all_tic_groups(-1, GM, GM->sv_gametic, 0, GM->num_players, false);
-
-		GM->BumpGameTic();
-	}
+	GM->TryRunTics();
 }
 
 void PK_tic_retransmit(packet_c *pk)
@@ -732,7 +741,6 @@ void PK_tic_retransmit(packet_c *pk)
 		CL->pl_gametic = cl_gametic;
 
 	int min_tic = GM->ComputeMinTic();
-
 	while (GM->pl_min_tic < min_tic)
 		GM->BumpMinTic();
 
@@ -766,6 +774,7 @@ void PK_tic_retransmit(packet_c *pk)
 		SV_send_all_tic_groups(client_id, GM, GM->sv_gametic, tr.first_player, player_count, true);
 	}
 
-	// !!! FIXME: the BumpMinTic above may mean the server can move on
+	// the BumpMinTic above may mean the server can advance
+	GM->TryRunTics();
 }
 
