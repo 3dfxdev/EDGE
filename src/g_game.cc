@@ -561,10 +561,10 @@ void G_BuildTiccmd(ticcmd_t * cmd)
 	else if (side < -MAXPLMOVE)
 		side = -MAXPLMOVE;
 
-	if (vertangle > 0.5)
-		vertangle = 0.5;
-	else if (vertangle < -0.5)
-		vertangle = -0.5;
+	if (vertangle > 0.5f)
+		vertangle = 0.5f;
+	else if (vertangle < -0.5f)
+		vertangle = -0.5f;
 
 	cmd->upwardmove += upward;
 	cmd->forwardmove += forward;
@@ -580,7 +580,7 @@ void G_BuildTiccmd(ticcmd_t * cmd)
 
 	vertangle += slope_acc;
 	slope_acc = vertangle * 2/3;
-	if (slope_acc < 64 * 2 * M_PI / 65536.0)
+	if (slope_acc < 64 * 2 * M_PI / 65536.0f)
 		// disable acc at very small angles (0.35 deg)
 		slope_acc = 0;
 	vertangle -= slope_acc;

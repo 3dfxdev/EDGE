@@ -1248,7 +1248,7 @@ static bool PTR_AimTraverse(intercept_t * in)
 
 	dist = aim_I.range * in->frac;
 
-	if (dist < 0.01)
+	if (dist < 0.01f)
 		return true;
 
 	if (in->type == INCPT_Line)
@@ -1695,8 +1695,8 @@ mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 	}
 	else
 	{
-		aim_I.topslope = 100.0 / 160.0f;
-		aim_I.bottomslope = -100.0 / 160.0f;
+		aim_I.topslope = 100.0f / 160.0f;
+		aim_I.bottomslope = -100.0f / 160.0f;
 	}
 
 	aim_I.range = distance;

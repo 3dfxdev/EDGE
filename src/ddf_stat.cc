@@ -699,10 +699,10 @@ void DDF_StateGetSlope(const char *arg, state_t * cur_state)
 	if (sscanf(arg, " %f ", &tmp) != 1)
 		DDF_Error("DDF_StateGetSlope: bad value: %s\n", arg);
 
-	if (tmp > +89.5)
-		tmp = +89.5;
-	if (tmp < -89.5)
-		tmp = -89.5;
+	if (tmp > +89.5f)
+		tmp = +89.5f;
+	if (tmp < -89.5f)
+		tmp = -89.5f;
 
 	*value = M_Tan(FLOAT_2_ANG(tmp));
 

@@ -91,7 +91,7 @@ const linedeftype_t template_line =
 		"",             // texture
 		0, 0,           // wait, prewait
 		sfx_None, sfx_None, sfx_None, sfx_None,  // SFX start/up/down/stop
-		0, 0.0          // scroll_angle, scroll_speed
+		0, 0.0f          // scroll_angle, scroll_speed
 	},
 
 	// Ceiling
@@ -107,7 +107,7 @@ const linedeftype_t template_line =
 		"",             // texture
 		0, 0,           // wait, prewait
 		sfx_None, sfx_None, sfx_None, sfx_None,  // SFX start/up/down/stop
-		0, 0.0          // scroll_angle, scroll_speed
+		0, 0.0f          // scroll_angle, scroll_speed
 	},
 
 	// Elevator
@@ -133,7 +133,7 @@ const linedeftype_t template_line =
 	// Sliding Door
 	{
 		SLIDE_None,   // sliding type
-		4.0,          // speed (distance per tic)
+		4.0f,          // speed (distance per tic)
 		150,          // wait time
 		false,        // see through ?
 		PERCENT_MAKE(90), // distance
@@ -610,18 +610,18 @@ static void LinedefFinishEntry(void)
 		}
 	}
 
-	if (buffer_line.friction != FLO_UNUSED && buffer_line.friction < 0.01)
+	if (buffer_line.friction != FLO_UNUSED && buffer_line.friction < 0.05f)
 	{
 		DDF_WarnError("Friction value too low (%1.2f), it would prevent "
 			"all movement.\n", buffer_line.friction);
-		buffer_line.friction = 0.1f;
+		buffer_line.friction = 0.05f;
 	}
 
-	if (buffer_line.viscosity != FLO_UNUSED && buffer_line.viscosity > 0.99)
+	if (buffer_line.viscosity != FLO_UNUSED && buffer_line.viscosity > 0.95f)
 	{
 		DDF_WarnError("Viscosity value too high (%1.2f), it would prevent "
 			"all movement.\n", buffer_line.viscosity);
-		buffer_line.viscosity = 0.9f;
+		buffer_line.viscosity = 0.95f;
 	}
 
 	// FIXME: check more stuff...

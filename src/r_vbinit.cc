@@ -341,12 +341,12 @@ auto_vbdata_t;
 // Checks what we should swith the detail level to.
 //
 // We aim to allow an error of about 10%
-#define ALLOWED_ERROR (0.1)
+#define ALLOWED_ERROR (0.1f)
 // this is the minimal time we can allow between two time measurements
 // to keep the measurement error within ALLOWED_ERROR.
 #define MIN_TIME_INTERVAL (1000000/ALLOWED_ERROR/2/microtimer_granularity)
 // returns the time interval between time1 and time2
-#define TIME_INTERVAL(time1,time2) ((time2) - (time1) + 0.5 / microtimer_granularity)
+#define TIME_INTERVAL(time1,time2) ((time2) - (time1) + 0.5f / microtimer_granularity)
 static void CheckDetailChange(void *data)
 {
 	auto_vbdata_t *d = (auto_vbdata_t*)data;
@@ -380,11 +380,11 @@ static void CheckDetailChange(void *data)
 	d->tic0 = d->tic1;
 
 	detail = d->curdet;
-	if (fps > 35.0)
+	if (fps > 35.0f)
 	{
 		detail++;
 	}
-	if (fps < 30.0)
+	if (fps < 30.0f)
 	{
 		detail--;
 	}
@@ -585,7 +585,7 @@ static void InitVB_LDE(viewbitmap_t * vb)
 	view_t *v;
 
 	a2 = R_CreateAspect(vb, x_distunit / 2, y_distunit / 2,
-		((focusxfrac - 0.5)/2),
+		((focusxfrac - 0.5f)/2),
 		topslope, bottomslope,
 		viewwidth / 2, viewheight / 2);
 
@@ -628,7 +628,7 @@ static void InitVB_AutoDetail(viewbitmap_t * vb) // naming conventions?
 	int *detail;
 
 	a2 = R_CreateAspect(vb, x_distunit / 2, y_distunit / 2,
-		(focusxfrac - 0.5) / 2,
+		(focusxfrac - 0.5f) / 2,
 		topslope, bottomslope,
 		viewwidth / 2, viewheight / 2);
 

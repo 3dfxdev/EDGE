@@ -45,7 +45,7 @@
 
 // The minimum distance between player and a visible sprite.
 // FIXME: Decrease value, lower values are valid when float is used.
-#define MINZ        (4.0)
+#define MINZ        (4.0f)
 
 //
 // Sprite rotation 0 is facing the viewer,

@@ -64,7 +64,7 @@ angle_t FIELDOFVIEW = 2048;
 
 // The used aspect ratio. A normal texel will look aspect_ratio*4/3
 // times wider than high on the monitor
-static const float aspect_ratio = 200.0 / 320.0f;
+static const float aspect_ratio = 200.0f / 320.0f;
 
 // the extreme angles of the view
 // -AJA- FIXME: these aren't angle_t (32 bit angles).
@@ -372,7 +372,7 @@ float R_ScaleFromGlobalAngle(angle_t visangle)
 
 		if (scale > 64)
 			scale = 64;
-		else if (scale < 1/256.0)
+		else if (scale < 1/256.0f)
 			scale = 1/256.0f;
 	}
 	else
@@ -414,11 +414,11 @@ static void InitLightTables(void)
 
 	for (i = 0; i < LIGHTLEVELS; i++)
 	{
-		startmap = ((LIGHTLEVELS - 1 - i) * 2) * 256.0 / LIGHTLEVELS;
+		startmap = ((LIGHTLEVELS - 1 - i) * 2) * 256.0f / LIGHTLEVELS;
 
 		for (j = 0; j < MAXLIGHTZ; j++)
 		{
-			scale = 16 * 160.0 / (j + 1);
+			scale = 16 * 160.0f / (j + 1);
 			level = (int)(startmap - scale);
 
 			if (level < 0)
@@ -431,7 +431,7 @@ static void InitLightTables(void)
 
 		for (j = 0; j < MAXLIGHTSCALE; j++)
 		{
-			level = (int)(startmap - j * 192.0 / MAXLIGHTSCALE);
+			level = (int)(startmap - j * 192.0f / MAXLIGHTSCALE);
 
 			if (level < 0)
 				level = 0;
@@ -572,9 +572,9 @@ void R_ExecuteSetViewSize(void)
 		}
 
 		camera = leftc;
-		InitViews(screenvb, 4.0);
+		InitViews(screenvb, 4.0f);
 		camera = rightc;
-		InitViews(rightvb, -4.0);
+		InitViews(rightvb, -4.0f);
 
 		R_InitVB_3D_Left(rightvb, screenvb);
 	}
@@ -610,10 +610,10 @@ void R_ExecuteSetViewSize(void)
 
 	R_SetActiveViewBitmap(screenvb);
 
-	pspritescale = (float)(viewwindowwidth / 320.0);
-	pspriteiscale = (float)(320.0 / viewwindowwidth);
-	pspritescale2 = ((float)SCREENHEIGHT / SCREENWIDTH) * viewwindowwidth / 200;
-	pspriteiscale2 = ((float)SCREENWIDTH / SCREENHEIGHT) * 200 / viewwindowwidth;
+	pspritescale = (float)(viewwindowwidth / 320.0f);
+	pspriteiscale = (float)(320.0f / viewwindowwidth);
+	pspritescale2 = ((float)SCREENHEIGHT / SCREENWIDTH) * viewwindowwidth / 200.0f;
+	pspriteiscale2 = ((float)SCREENWIDTH / SCREENHEIGHT) * 200.0f / viewwindowwidth;
 
 }
 
@@ -869,9 +869,9 @@ bool R_Init(void)
 	InitLightTables();
 	I_Printf(".");
 	I_Printf(".");
-	R_SetNormalFOV((angle_t)(cfgnormalfov * (angle_t)((float)ANG45 / 45.0)));
+	R_SetNormalFOV((angle_t)(cfgnormalfov * (angle_t)((float)ANG45 / 45.0f)));
 	I_Printf(".");
-	R_SetZoomedFOV((angle_t)(cfgzoomedfov * (angle_t)((float)ANG45 / 45.0)));
+	R_SetZoomedFOV((angle_t)(cfgzoomedfov * (angle_t)((float)ANG45 / 45.0f)));
 	I_Printf(".");
 	R_SetFOV(normalfov);
 	I_Printf(".");

@@ -69,10 +69,10 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2);
 //  RGL_BSP
 //
 
-#define M_ROOT2  1.414213562
+#define M_ROOT2  1.414213562f
 
 // save a little room for lighting effects
-#define TOP_LIGHT  (0.9)
+#define TOP_LIGHT  (0.9f)
 
 #define MAX_PLVERT  64
 

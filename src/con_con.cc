@@ -630,7 +630,7 @@ void CON_Drawer(gui_t * gui)
 
 	// -AJA- Temp fix for image system:
 	vctx.DrawImage(0, 0, conwidth, conheight, console_bg_image,
-		0.0, 0.0, IM_RIGHT(console_bg_image) * 5.0f, 
+		0.0f, 0.0f, IM_RIGHT(console_bg_image) * 5.0f, 
 		IM_BOTTOM(console_bg_image) * 5.0f, NULL, 1.0f);
 
 	if (bottomrow == -1)

@@ -481,11 +481,11 @@ static void UpdateWidgets(void)
 	keys_e cards;
 
 	// set health colour, as in BOOM.  -AJA- Experimental !!
-	if (!stbar_colours || consoleplayer->health < 25.0)
+	if (!stbar_colours || consoleplayer->health < 25.0f)
 		w_health.f.num.colmap = text_red_map;
-	else if (consoleplayer->health < 60.0)
+	else if (consoleplayer->health < 60.0f)
 		w_health.f.num.colmap = text_green_map;
-	else if (consoleplayer->health <= 100.0)
+	else if (consoleplayer->health <= 100.0f)
 		w_health.f.num.colmap = text_yellow_map;
 	else
 		w_health.f.num.colmap = text_blue_map;

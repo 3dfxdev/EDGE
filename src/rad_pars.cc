@@ -94,7 +94,7 @@ static char *pending_label = NULL;
 
 // Default tip properties (position, colour, etc)
 static s_tip_prop_t default_tip_props =
-{ -1, -1, -1, -1, NULL, -1.0, 0 };
+{ -1, -1, -1, -1, NULL, -1.0f, 0 };
 
 
 int RAD_StringHashFunc(const char *s)
@@ -280,7 +280,7 @@ static void RAD_CheckForPercent(const char *info, void *storage)
 	*p = 0;
 
 	RAD_CheckForFloat(s, &f);
-	if (f < 0.0 || f > 100.0)
+	if (f < 0.0f || f > 100.0f)
 		RAD_Error("Percentage out of range: %s\n", info);
 
 	*(percent_t *)storage = f / 100.0f;

@@ -169,23 +169,6 @@ static mline_t cheat_player_arrow[] =
 
 #define NUMCHEATPLYRLINES (sizeof(cheat_player_arrow)/sizeof(mline_t))
 
-#if 0
-// -ES- 1999/10/16 Cos(60) and Sin(60)
-#define C (0.5)
-#define S (0.8660254038)
-
-static mline_t triangle_guy[] =
-{
-	{{-S, -C}, {S, -C}},
-	{{S, -C}, {0, 1.0}},
-	{{0, 1.0}, {-S, -C}}
-};
-
-#undef C
-#undef S
-#define NUMTRIANGLEGUYLINES (sizeof(triangle_guy)/sizeof(mline_t))
-#endif
-
 static mline_t thintriangle_guy[] =
 {
 	{{-0.5f, -0.7f}, {1.0f, 0.0f}},
@@ -782,7 +765,7 @@ void AM_Ticker(void)
 		DoFollowPlayer();
 
 	// Change the zoom if necessary
-	if (ftom_zoommul != 1.0)
+	if (ftom_zoommul != 1.0f)
 		ChangeWindowScale();
 
 	// Change x,y location
@@ -1291,7 +1274,7 @@ void AM_Drawer(void)
 		am_colmap = am_normal_colmap;
 
 		// clear the framebuffer
-		vctx.SolidBox(f_x, f_y, f_w, f_h, BACK_COL, 1.0);
+		vctx.SolidBox(f_x, f_y, f_w, f_h, BACK_COL, 1.0f);
 	}
 
 	if (grid && !rotatemap)

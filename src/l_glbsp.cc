@@ -326,8 +326,8 @@ void GB_DrawProgress(void)
 	if (gb_refresh)
 	{
 		vctx.DrawImage(0, 0, SCREENWIDTH, SCREENHEIGHT, gb_background,
-			0.0, 0.0, IM_RIGHT(gb_background) * 5.0f, 
-			IM_BOTTOM(gb_background) * 5.0f, NULL, 1.0);
+			0.0f, 0.0f, IM_RIGHT(gb_background) * 5.0f, 
+			IM_BOTTOM(gb_background) * 5.0f, NULL, 1.0f);
 
 		gb_refresh = false;
 	}
@@ -368,10 +368,10 @@ void GB_DrawProgress(void)
 		HL_WriteTextTrans(lx, ty, text_white_map, bars[i].text);
 
 		if (x3 > x1)
-			vctx.SolidBox(x1, y1, x3-x1, y2-y1, fg, 1.0);
+			vctx.SolidBox(x1, y1, x3-x1, y2-y1, fg, 1.0f);
 
 		if (x3 < x2)
-			vctx.SolidBox(x3, y1, x2-x3, y2-y1, bg, 1.0);
+			vctx.SolidBox(x3, y1, x2-x3, y2-y1, bg, 1.0f);
 	}
 }
 

@@ -1380,7 +1380,7 @@ static void MoveSlider(slider_move_t *smov)
 			// mark line as blocking (at some point)
 			P_ComputeGaps(smov->line);
 
-			if (smov->opening <= 0.0)
+			if (smov->opening <= 0.0f)
 			{
 				S_StartSound((mobj_t *) & sec->soundorg, smov->info->sfx_stop);
 				P_RemoveActivePart((gen_move_t*)smov);

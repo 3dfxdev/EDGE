@@ -112,7 +112,7 @@ bool M_RandomTest(percent_t chance)
 {
   return (chance <= 0) ? false :
          (chance >= 1) ? true :
-         (M_Random()/255.0 < chance) ? true : false;
+         (M_Random()/255.0f < chance) ? true : false;
 }
 
 //
@@ -122,7 +122,7 @@ bool P_RandomTest(percent_t chance)
 {
   return (chance <= 0) ? false :
          (chance >= 1) ? true :
-         (P_Random()/255.0 < chance) ? true : false;
+         (P_Random()/255.0f < chance) ? true : false;
 }
 
 //

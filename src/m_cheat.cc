@@ -399,7 +399,7 @@ bool M_CheatResponder(event_t * ev)
 	else if (M_CheckCheat(&cheat_mypos, key))
 	{
 		CON_Message("ang=%f;x,y=(%f,%f)",
-			pl->mo->angle * 45.0 / ANG45, pl->mo->x, pl->mo->y);
+			ANG_2_FLOAT(pl->mo->angle), pl->mo->x, pl->mo->y);
 	}
 
 	// 'clev' change-level cheat

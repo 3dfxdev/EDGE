@@ -136,8 +136,8 @@ void RGL_SetupMatrices2D(void)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0.0, (float)SCREENWIDTH, 
-			0.0, (float)SCREENHEIGHT, -1.0, 1.0);
+	glOrtho(0.0f, (float)SCREENWIDTH, 
+			0.0f, (float)SCREENHEIGHT, -1.0f, 1.0f);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -155,8 +155,8 @@ void RGL_SetupMatrices2D(void)
 //
 // Setup the GL matrices for drawing 3D stuff.
 
-#define Z_NEAR  1.0
-#define Z_FAR   32000.0
+#define Z_NEAR  1.0f
+#define Z_FAR   32000.0f
 
 void RGL_SetupMatrices3D(void)
 {
@@ -572,14 +572,14 @@ void RGL_DrawImage(int x, int y, int w, int h, const image_t *image,
 				   float tx1, float ty1, float tx2, float ty2,
 				   const colourmap_t *colmap, float alpha)
 {
-	float r = 1.0, g = 1.0, b = 1.0f;
+	float r = 1.0f, g = 1.0f, b = 1.0f;
 
 	const cached_image_t *cim = W_ImageCache(image, IMG_OGL, 0, false);
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim));
  
-	if (alpha < 0.99 || !image->solid)
+	if (alpha < 0.99f || !image->solid)
 		glEnable(GL_BLEND);
 
 ///  else if (!image->solid)
@@ -619,7 +619,7 @@ void RGL_DrawImage(int x, int y, int w, int h, const image_t *image,
 //
 void RGL_SolidBox(int x, int y, int w, int h, int colour, float alpha)
 {
-	if (alpha < 0.99)
+	if (alpha < 0.99f)
 		glEnable(GL_BLEND);
   
 	glColor4f(PAL_RED(colour), PAL_GRN(colour), PAL_BLU(colour), alpha);
@@ -734,7 +734,7 @@ void RGL_SoftInit(void)
 
 	glShadeModel(GL_SMOOTH);
 	glDepthFunc(GL_LEQUAL);
-	glAlphaFunc(GL_GREATER, 1.0 / 32.0);
+	glAlphaFunc(GL_GREATER, 1.0f / 32.0f);
 
 	glHint(GL_FOG_HINT, GL_FASTEST);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
