@@ -680,8 +680,8 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 	if (spr_flip)
 		side_offset *= -1.0f;
 
-	float pos1 = (sprite_width/-2.0f + side_offset) * mo->info->xscale;
-	float pos2 = (sprite_width/+2.0f + side_offset) * mo->info->xscale;
+	float pos1 = (sprite_width/-2.0f - side_offset) * mo->info->xscale;
+	float pos2 = (sprite_width/+2.0f - side_offset) * mo->info->xscale;
 
 	float tx1 = tx + pos1;
 	float tx2 = tx + pos2;
