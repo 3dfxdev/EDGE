@@ -41,6 +41,7 @@
 #include "p_local.h"
 #include "p_bot.h"
 #include "r2_defs.h"
+#include "rgl_defs.h"
 #include "r_sky.h"
 #include "s_sound.h"
 #include "w_image.h"
