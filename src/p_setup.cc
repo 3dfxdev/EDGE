@@ -228,8 +228,8 @@ static void LoadV2Vertexes(const byte *data, int length)
 	// Copy and convert vertex coordinates,
 	for (i = 0; i < num_gl_vertexes; i++, vert++, ml2++)
 	{
-		vert->x = M_FixedToFloat((fixed_t) EPI_LE_S32(ml2->x));
-		vert->y = M_FixedToFloat((fixed_t) EPI_LE_S32(ml2->y));
+		vert->x = (float)EPI_LE_S32(ml2->x) / 65536.0f;
+		vert->y = (float)EPI_LE_S32(ml2->y) / 65536.0f;
 	}
 
 	// these vertices are good -- don't muck with 'em...

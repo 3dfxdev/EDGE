@@ -835,23 +835,13 @@ unsigned int SV_GetInt(void)
 //----------------------------------------------------------------------------
 
 //
-//  FIXED POINT & ANGLES
+//  ANGLES
 //
 
-
-void SV_PutFixed(fixed_t value) 
-{ 
-	SV_PutInt((unsigned int) value);
-}
 
 void SV_PutAngle(angle_t value) 
 { 
 	SV_PutInt((unsigned int) value);
-}
-
-fixed_t SV_GetFixed(void) 
-{
-	return (fixed_t) SV_GetInt();
 }
 
 angle_t SV_GetAngle(void) 

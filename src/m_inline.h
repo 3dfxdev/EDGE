@@ -22,43 +22,8 @@
 #define EDGE_INLINE(decl,body) extern decl;
 #endif
 
-EDGE_INLINE(
-float M_FixedToFloat(fixed_t fix),
-{
-  return (float)fix / 65536;
-})
-
 #ifdef FLOAT_IEEE_754
 // Use routines written for the usual 32-bit float format
-EDGE_INLINE(
-fixed_t M_FloatToFixed(float fl),
-{
-  long i;
-  int sign;
-
-  i = *(long*)&fl;
-  // extract sign bit: -1 if negative, 0 if positive.
-  sign = i >> 31;
-  // mask sign bit.
-  i &= 0x7FFFFFFF;
-  // check bounds: Prevent shift wraparound
-  if (i >= 0x47000000)
-  {
-    // Very big/small.
-    // Return MAXINT or MININT depending on sign
-    return 0x7FFFFFFF - sign;
-  }
-  // near zero.
-  if (i <= 0x37000000)
-  {
-    return 0;
-  }
-
-  // Extract the mantissa (which is the last 23 bits of the float, plus
-  // an extra leading bit). Shift these according to the exponent
-  // (which is i>>23), and finally apply the sign.
-  return (((((i & 0x007FFFFF) | 0x00800000) << 7) >> (0x8d - (i >> 23))) + sign) ^ sign;
-})
 
 EDGE_INLINE(
 long M_FloatToInt(float fl),
@@ -82,18 +47,6 @@ long M_FloatToInt(float fl),
 })
 #else
 // Some other kind of float is used, so we have to use the portable versions
-
-EDGE_INLINE(
-fixed_t M_FloatToFixed(float fl),
-{
-  if (fl > 32767)
-    return (fixed_t) INT_MAX;
-
-  if (fl < -32767)
-    return (fixed_t) INT_MIN;
-
-  return (fixed_t)(fl * 65536);
-})
 
 EDGE_INLINE(
 long M_FloatToInt(float fl),

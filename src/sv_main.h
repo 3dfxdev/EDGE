@@ -81,7 +81,6 @@ savefieldtype_t;
 #define SVT_STRUCT(name)   { SFKIND_Struct,  0, name }
 
 #define SVT_ANGLE          SVT_INT
-#define SVT_FIXED          SVT_INT
 #define SVT_BOOLEAN        SVT_INT
 #define SVT_ENUM           SVT_INT
 #define SVT_PERCENT        SVT_FLOAT
@@ -199,7 +198,6 @@ bool SR_GetByte(void *storage, int index, void *extra);
 bool SR_GetShort(void *storage, int index, void *extra);
 bool SR_GetInt(void *storage, int index, void *extra);
 
-bool SR_GetFixed(void *storage, int index, void *extra);
 bool SR_GetAngle(void *storage, int index, void *extra);
 bool SR_GetFloat(void *storage, int index, void *extra);
 bool SR_GetBoolean(void *storage, int index, void *extra);
@@ -222,7 +220,6 @@ void SR_PutByte(void *storage, int index, void *extra);
 void SR_PutShort(void *storage, int index, void *extra);
 void SR_PutInt(void *storage, int index, void *extra);
 
-void SR_PutFixed(void *storage, int index, void *extra);
 void SR_PutAngle(void *storage, int index, void *extra);
 void SR_PutFloat(void *storage, int index, void *extra);
 void SR_PutBoolean(void *storage, int index, void *extra);

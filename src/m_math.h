@@ -72,8 +72,6 @@ vec3_t;
     (dest).z *= (val); } while(0)
 
 
-fixed_t FixedDiv(fixed_t a, fixed_t b) GCCATTR(const);
-fixed_t FixedMul(fixed_t a, fixed_t b) GCCATTR(const);
 float M_Tan(angle_t ang)             GCCATTR(const);
 angle_t M_ATan(float slope)          GCCATTR(const);
 float M_Cos(angle_t ang)             GCCATTR(const);
