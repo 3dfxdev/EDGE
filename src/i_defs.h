@@ -124,7 +124,7 @@ typedef enum { false, true } boolean_t;
 #include "i_system.h"
 
 #endif
-#endif
+#endif  // MinGW
 
 // Microsoft Visual C++ V6.0 for Win32
 #ifdef WIN32 
@@ -166,7 +166,7 @@ typedef enum { false, true } boolean_t;
 #include "i_system.h"
 
 #endif
-#endif
+#endif  // Visual C++
 
 // Borland C++ V5.5 for Win32
 #ifdef WIN32 
@@ -204,7 +204,7 @@ typedef enum { false, true } boolean_t;
 #include "i_system.h"
 
 #endif
-#endif
+#endif  // Borland C++
 
 // LINUX GCC
 #ifdef LINUX
@@ -239,8 +239,7 @@ typedef enum { false, true } boolean_t;
 typedef long long Int64;
 typedef float flo_t;
 #define FLOAT_IEEE_754
-
-#ifdef _cplusplus
+#ifdef __cplusplus
 typedef bool boolean_t;
 #else
 typedef enum { false, true } boolean_t;
@@ -264,7 +263,7 @@ typedef enum { false, true } boolean_t;
 #include <GL/gl.h>
 #endif
 
-#define EDGECONFIGFILE ".edgerc"
+#define EDGECONFIGFILE "edge.cfg"
 #define EDGEHOMEDIR    "HOME"
 #define EDGEWADDIR     "EDGEWADDIR"
 #define EDGEWADEXT     "wad"
@@ -291,6 +290,72 @@ typedef enum { false, true } boolean_t;
 #include "beos/b_compen.h"
 
 #endif // BeOS GCC
+
+// MacOSX GCC
+#ifdef MACOSX
+
+typedef long long Int64;
+typedef float flo_t;
+#define FLOAT_IEEE_754
+
+#define FLT_MAX  INT_MAX  //!!!!!! TEMPORARY
+#define FLT_MIN  INT_MIN
+
+#ifdef __cplusplus
+typedef bool boolean_t;
+#else
+typedef enum { false, true } boolean_t;
+#endif
+
+// extern "C" {
+
+#include <ctype.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <math.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
+#include <sys/stat.h>
+
+
+#ifdef USE_GL
+#include <OpenGL/gl.h>
+#endif
+
+// }
+
+#define EDGECONFIGFILE "edge.cfg"
+#define EDGEHOMEDIR    "HOME"
+#define EDGEWADDIR     "EDGEWADDIR"
+#define EDGEWADEXT     "wad"
+#define EDGEGWAEXT     "gwa"
+#define REQUIREDWAD    "edge"
+
+#define DIRSEPARATOR '/'
+
+#define NAME        "EDGE"
+#define OUTPUTNAME  "EDGECONSOLE"
+#define TITLE       "EDGE Engine"
+#define OUTPUTTITLE "EDGE Engine console"
+
+#define GCCATTR(a) __attribute__((a))
+#define INLINE inline
+#define EDGE_INLINE(decl, body) extern inline decl body
+
+#define I_TmpMalloc(size) alloca(size)
+#define I_TmpFree(ptr) do { } while (0)
+
+#define I_MoveData memmove
+
+#include "i_system.h"
+#include "linux/i_compen.h"
+
+#endif // MACOSX GCC
+
 
 #ifdef LEAK_HUNT
 
@@ -320,3 +385,5 @@ typedef enum { false, true } boolean_t;
 #endif
 
 #endif /*__SYSTEM_SPECIFIC_DEFS__*/
+
+
