@@ -329,7 +329,7 @@ static void TextWrite(void)
 //   in order of appearance
 //
 
-static const mobjinfo_t *castorder;
+static const mobjinfo_c *castorder;
 static const char *casttitle;
 static int casttics;
 static state_t *caststate;
@@ -450,7 +450,12 @@ static void CastPerformAction(void)
 
 static void CastInitNew(int num)
 {
-	castorder = DDF_MobjLookupCast(num);
+	castorder = mobjinfo.LookupCastMember(num);
+
+	// FIXME!!! Better handling of the finale
+	if (!castorder)
+		castorder = mobjinfo[0];
+
 	casttitle = castorder->cast_title ?
 		DDF_LanguageLookup(castorder->cast_title) : castorder->ddf.name;
 
