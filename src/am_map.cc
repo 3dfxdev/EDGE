@@ -1212,6 +1212,8 @@ static void DrawCrosshair(int colour)
 
 static void AM_RenderScene(void)
 {
+	//!!!! FIXME: enable Scissor test
+
 	if (var_smoothmap)
 	{
 		glEnable(GL_LINE_SMOOTH);
