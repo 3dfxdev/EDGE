@@ -712,6 +712,9 @@ void P_DestroyAllPlayers(void)
 	}
 
 	num_players = 0;
+
+	consoleplayer = -1;
+	displayplayer = -1;
 }
 
 //

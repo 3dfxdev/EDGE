@@ -21,4 +21,17 @@
 
 void N_InitiateGame(void);
 
+void E_CheckNetGame(void);
+
+// Create any new ticcmds and broadcast to other players.
+// returns value of I_GetTime().
+int E_NetUpdate(bool do_delay = false);
+
+// Broadcasts special packets to other players
+//  to notify of game exit
+void E_QuitNetGame(void);
+
+// returns number of ticks to run.
+int E_TryRunTics(void);
+
 #endif /* __N_NETWORK_H__ */

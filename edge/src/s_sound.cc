@@ -278,6 +278,8 @@ static bool CacheSound(sfxdef_c *sound)
 static int AdjustSoundParams(sfxdef_c *sfx, mobj_t *listener, 
 							 mobj_t *source, int *vol, int *sep)
 {
+	DEV_ASSERT2(listener);
+
 	float approx_dist;
 	float adx, ady, adz;
 	angle_t angle;
@@ -435,7 +437,8 @@ static int StartSoundAtVolume(mobj_t *origin, sfxdef_c *sfx, int volume)
 	// Check to see if it is audible,
 	//  and if not, modify the params
 
-	player_t *p = players[displayplayer]; // can be NULL (no game is active)
+	// can be NULL (no game is active)
+	player_t *p = (num_players == 0) ? NULL : players[displayplayer];
 
 	if (origin && p && origin != p->mo)
 	{
@@ -747,7 +750,7 @@ void S_AddToFreeQueue(mobj_t *origin, void *block)
 //
 // S_UpdateSounds
 //
-// Updates sounds
+// Updates sounds.  listener can be NULL.
 //
 void S_UpdateSounds(mobj_t *listener)
 {
@@ -782,7 +785,7 @@ void S_UpdateSounds(mobj_t *listener)
 
 		// check non-local sounds for distance clipping
 		//  or modify their params
-		if (c->origin && (listener != c->origin))
+		if (c->origin && listener && (listener != c->origin))
 		{
 			// Check for freed origin in intolerant mode
 			DEV_ASSERT2(*(int *)(&c->origin->x) != -1);
@@ -841,7 +844,11 @@ void S_UpdateSounds(mobj_t *listener)
 void S_SoundTicker(void)
 {
 	I_SoundTicker();
-	S_UpdateSounds(players[displayplayer]->mo); //!!! FIXME: don't require players during initial menu
+
+	if (num_players == 0)
+		S_UpdateSounds(NULL);
+	else
+		S_UpdateSounds(players[displayplayer]->mo);
 }
 
 //

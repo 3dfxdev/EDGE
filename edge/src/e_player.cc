@@ -89,8 +89,8 @@
 player_t *players[MAXPLAYERS];
 int num_players;
 
-int consoleplayer; // player taking events and displaying 
-int displayplayer; // view being displayed 
+int consoleplayer = -1; // player taking events
+int displayplayer = -1; // view being displayed 
 
 // for intermission
 int totalkills, totalitems, totalsecret;
