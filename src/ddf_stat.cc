@@ -511,7 +511,9 @@ void DDF_StateGetAttack(const char *arg, state_t * cur_state)
 	if (!arg || !arg[0])
 		return;
 
-	cur_state->action_par = (void *)DDF_AttackLookup(arg);
+	cur_state->action_par = (void *)atkdefs.Lookup(arg);
+	if (cur_state->action_par == NULL)
+		DDF_WarnError2(0x128, "Unknown Attack (States): %s\n", arg);
 }
 
 //
@@ -522,7 +524,7 @@ void DDF_StateGetMobj(const char *arg, state_t * cur_state)
 	if (!arg || !arg[0])
 		return;
 
-	cur_state->action_par = (void *)mobjinfo.Lookup(arg);
+	cur_state->action_par = (void *)mobjdefs.Lookup(arg);
 }
 
 //

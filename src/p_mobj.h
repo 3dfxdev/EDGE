@@ -356,7 +356,7 @@ typedef struct
 	angle_t vertangle;
 
 	// type of thing
-	const mobjinfo_c *info;
+	const mobjdef_c *info;
 
 	// certain flags (mainly MF_AMBUSH).
 	int flags;
@@ -412,7 +412,7 @@ struct mobj_s
 	// If == validcount, already checked.
 	int validcount;
 
-	const mobjinfo_c *info;
+	const mobjdef_c *info;
 
 	// state tic counter
 	int tics;
@@ -455,7 +455,7 @@ struct mobj_s
 	float vis_target;
 
 	// current attack to be made
-	const attacktype_t *currentattack;
+	const atkdef_c *currentattack;
 
 	// spread count for Ordered spreaders
 	int spreadcount;

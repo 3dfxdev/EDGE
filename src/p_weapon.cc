@@ -926,7 +926,7 @@ void A_GotTarget(mobj_t * mo)
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
-	attacktype_t *attack = p->weapons[p->ready_wp].info->attack;
+	atkdef_c *attack = p->weapons[p->ready_wp].info->attack;
 	mobj_t *obj;
 
 	DEV_ASSERT2(p->ready_wp >= 0);
@@ -1000,7 +1000,7 @@ void A_WeaponShoot(mobj_t * mo)
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
 	weaponinfo_t *w = p->weapons[p->ready_wp].info;
-	attacktype_t *attack = w->attack;
+	atkdef_c *attack = w->attack;
 	ammotype_e ammo;
 	int count;
 
@@ -1008,7 +1008,7 @@ void A_WeaponShoot(mobj_t * mo)
 
 	// -AJA- 1999/08/10: Multiple attack support.
 	if (psp->state && psp->state->action_par)
-		attack = (attacktype_t *) psp->state->action_par;
+		attack = (atkdef_c *) psp->state->action_par;
 
 	ammo = w->ammo;
 
@@ -1073,7 +1073,7 @@ void A_WeaponShootSA(mobj_t * mo)
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
 	weaponinfo_t *w = p->weapons[p->ready_wp].info;
-	attacktype_t *attack = w->sa_attack;
+	atkdef_c *attack = w->sa_attack;
 	ammotype_e ammo;
 	int count;
 
@@ -1081,7 +1081,7 @@ void A_WeaponShootSA(mobj_t * mo)
 
 	// -AJA- 1999/08/10: Multiple attack support.
 	if (psp->state && psp->state->action_par)
-		attack = (attacktype_t *) psp->state->action_par;
+		attack = (atkdef_c *) psp->state->action_par;
 
 	ammo = w->sa_ammo;
 
@@ -1147,12 +1147,12 @@ void A_WeaponEject(mobj_t * mo)
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
 	weaponinfo_t *w = p->weapons[p->ready_wp].info;
-	attacktype_t *attack = w->eject_attack;
+	atkdef_c *attack = w->eject_attack;
 
 	DEV_ASSERT2(p->ready_wp >= 0);
 
 	if (psp->state && psp->state->action_par)
-		attack = (attacktype_t *) psp->state->action_par;
+		attack = (atkdef_c *) psp->state->action_par;
 
 	P_ActPlayerAttack(mo, attack);
 }
