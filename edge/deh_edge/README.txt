@@ -2,7 +2,7 @@
 DEH_EDGE 1.3
 ============
 
-by Andrew Apted.  22nd September 2004.
+by Andrew Apted.  19th February 2005.
 
 
 Introduction
@@ -51,8 +51,8 @@ You need to specify the EDGE version number.  For example:
    deh_edge --edge 1.27 batman.deh
 
 It will create the file "batman_deh.wad".  (Note that the
-extension is not HWA like above -- .HWA files only work in
-EDGE 1.28 and later).
+extension is not HWA like above, since .HWA files only work
+in EDGE 1.28 and later).
 
 Then run EDGE using this additional file, for example:
 
@@ -87,8 +87,8 @@ Limitations
 
 4. Raw action offsets and sprite/sound name pointers are unsupported.
    These are heavily dependent on the exact version of the DOOM EXE.
-   Since they are rarely used, and it requires a lot of much work to
-   compile the required tables, they might never be supported.
+   Since they are rarely used, and since it requires heaps of work
+   to compile the required tables, they might never be supported.
  
 5. Text replacements only work in EDGE when the language selected is
    ENGLISH.  This is a nuisance for anyone who usually plays in a
@@ -110,7 +110,7 @@ DEH_EDGE uses source code from:
 Copyright/License
 -----------------
 
-DEH_EDGE is Copyright (C) 2004 The EDGE Team.
+DEH_EDGE is Copyright (C) 2004-2005 The EDGE Team.
 
 All trademarks are the propriety of their owners.
 
