@@ -31,6 +31,10 @@
 #define DUMMY_WIDTH  4
 
 
+// all the fonts that's fit to print
+font_container_c hu_fonts;
+
+
 font_c::font_c(fontdef_c *_def) : def(_def)
 {
 	p_cache.first = 0;
@@ -282,5 +286,42 @@ int font_c::StringLines(const char *str) const
 			lines++;
 
 	return lines;
+}
+
+// ---> font_container_c class
+
+//
+// font_container_c::CleanupObject()
+//
+void font_container_c::CleanupObject(void *obj)
+{
+	font_c *a = *(font_c**)obj;
+
+	if (a) delete a;
+}
+
+//
+// font_container_c::Lookup()
+//
+// Never returns NULL.
+//
+font_c* font_container_c::Lookup(fontdef_c *def)
+{
+	DEV_ASSERT2(def);
+
+	for (epi::array_iterator_c it = GetIterator(0); it.IsValid(); it++)
+	{
+		font_c *f = ITERATOR_TO_TYPE(it, font_c*);
+
+		if (def == f->def)
+			return f;
+	}
+
+	font_c *new_f = new font_c(def);
+
+	new_f->Load();
+	Insert(new_f);
+
+	return new_f;
 }
 

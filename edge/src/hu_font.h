@@ -39,6 +39,8 @@ patchcache_t;
 
 class font_c
 {
+friend class font_container_c;
+
 public:
 	font_c(fontdef_c *_def);
 	~font_c();
@@ -65,7 +67,28 @@ public:
 	const struct image_s *CharImage(char ch) const;
 
 private:
+	void BumpPatchName(char *name);
 	void LoadPatches();
 };
+
+class font_container_c : public epi::array_c 
+{
+public:
+	font_container_c() : epi::array_c(sizeof(font_c*)) {}
+	~font_container_c() { Clear(); } 
+
+private:
+	void CleanupObject(void *obj);
+
+public:
+	int GetSize() {	return array_entries; } 
+	int Insert(font_c *a) { return InsertObject((void*)&a); }
+	font_c* operator[](int idx) { return *(font_c**)FetchObject(idx); } 
+
+	// Search Functions
+	font_c* Lookup(fontdef_c *def);
+};
+
+extern font_container_c hu_fonts;
 
 #endif  // __HU_FONT__
