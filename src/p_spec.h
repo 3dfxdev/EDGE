@@ -88,6 +88,7 @@ typedef struct button_s
 #endif
   int btimer;
   mobj_t *soundorg;
+  sfx_t *off_sound;
 }
 button_t;
 
