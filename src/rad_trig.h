@@ -80,6 +80,7 @@ extern char *rad_cur_filename;
 //
 //  ACTIONS
 //
+
 void RAD_ActNOP(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActTip(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActTipProps(rad_trigger_t *R, mobj_t *actor, void *param);
@@ -93,6 +94,7 @@ void RAD_ActMoveSector(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActLightSector(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActEnableScript(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActActivateLinetype(rad_trigger_t *R, mobj_t *actor, void *param);
+void RAD_ActUnblockLines(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActJump(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActSleep(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActRetrigger(rad_trigger_t *R, mobj_t *actor, void *param);

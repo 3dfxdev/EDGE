@@ -80,8 +80,6 @@ extern int rgl_weapon_g;
 extern int rgl_weapon_b;
 
 void RGL_RenderScene(int x, int y, int w, int h, vid_view_t *view);
-
-// FIXME: this will be redundant with layer system...
 void RGL_RenderTrueBSP(void);
 
 

@@ -102,6 +102,7 @@ typedef struct texturedef_s
   short file;
   
   unsigned short *columnofs;
+  int palette_lump;
 
   // All the patches[patchcount] are drawn back to front into the
   // cached texture.

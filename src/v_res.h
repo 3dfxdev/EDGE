@@ -138,7 +138,4 @@ extern fixed_t dp_yscale;
 extern screenmode_t *scrmode;
 extern int numscrmodes;
 
-// FIXME:
-#define V_MarkRect(x,y,w,h)  do {} while (0)
-
 #endif // __MULTIRES_H__
