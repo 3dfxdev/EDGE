@@ -111,11 +111,15 @@ typedef struct player_s
   // Focal origin above r.z
   float_t viewz;
 
-  // Base height above floor for viewz.
+  // Base height above floor for viewz.  Tracks `std_viewheight' but
+  // is different when squatting (i.e. after a fall).
   float_t viewheight;
 
   // Bob/squat speed.
   float_t deltaviewheight;
+
+  // standard viewheight, usually 75% of height.
+  float_t std_viewheight;
 
   // bounded/scaled total momentum.
   float_t bob;
