@@ -38,6 +38,9 @@
 void G_DeathMatchSpawnPlayer(player_t *p);
 void G_CoopSpawnPlayer(player_t *p);
 
+void G_SetConsolePlayer(int pnum);
+void G_SetDisplayPlayer(int pnum);
+
 void G_InitNew(skill_t skill, const mapdef_c *map, const gamedef_c *gamedef, long seed);
 
 //

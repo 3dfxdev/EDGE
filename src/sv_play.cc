@@ -30,6 +30,8 @@
 
 #include "dm_state.h"
 #include "e_player.h"
+#include "g_game.h"
+#include "p_bot.h"
 #include "p_local.h"
 #include "sv_chunk.h"
 #include "sv_main.h"
@@ -266,7 +268,7 @@ int SV_PlayerCountElems(void)
 void *SV_PlayerGetElem(int index)
 {
 	if (index >= num_players)
-		I_Error("LOADGAME: Invalid Player: %d\n", index);
+		I_Error("LOADGAME: Invalid player index: %d\n", index);
 
 	DEV_ASSERT2(players[index]);
 
@@ -355,14 +357,17 @@ void SV_PlayerFinaliseElems(void)
 		player_t *p = temp[pnum];
 		if (! p) continue;
 
+		if (p->pnum < 0)
+			I_Error("LOADGAME: player did not load (index %d) !\n", pnum);
+
 		if (p->pnum >= MAXPLAYERS)
 			I_Error("LOADGAME: player with bad index (%d) !\n", p->pnum);
 
-		if (players[p->pnum])
-			I_Error("LOADGAME: Two players with same number !\n");
-
 		if (! p->mo)
 			I_Error("LOADGAME: Player %d has no mobj !\n", p->pnum);
+
+		if (players[p->pnum])
+			I_Error("LOADGAME: Two players with same number !\n");
 
 		players[p->pnum] = p;
 
@@ -375,18 +380,23 @@ void SV_PlayerFinaliseElems(void)
 		if (p->playerflags & PFL_Display)
 			displayplayer = p->pnum;
 
-		// FIXME: we don't support bots (yet)
-		p->builder = P_ConsolePlayerBuilder;
+		if (p->playerflags & PFL_Bot)
+			P_BotCreate(p, true);
+		else
+			p->builder = P_ConsolePlayerBuilder;
 
 		P_UpdateAvailWeapons(p);
 		P_UpdateTotalArmour(p);
 	}
 
+	if (first < 0)
+		I_Error("LOADGAME: No players !!\n");
+
 	if (consoleplayer < 0)
-		consoleplayer = first;
+		G_SetConsolePlayer(first);
 
 	if (displayplayer < 0)
-		displayplayer = consoleplayer;
+		G_SetDisplayPlayer(consoleplayer);
 }
 
 

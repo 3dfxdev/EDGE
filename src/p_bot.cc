@@ -144,16 +144,6 @@ static int EvaluateWeapon(player_t *p, int w_num)
 	return (int)value;
 }
 
-//
-// P_RemoveBots
-//
-// Done at level shutdown, right after all mobjs have been removed.
-// Erases anything level specific from the bot structs.
-//
-void P_RemoveBots(void)
-{
-}
-
 static bot_t *looking_bot;
 
 static bool PTR_BotLook(intercept_t * in)
@@ -539,57 +529,6 @@ static void BotThink(bot_t * bot)
 	}
 }
 
-void BOT_DMSpawn(void)
-{
-#if 0
-	int i, j;
-	int selections;
-	mobj_t *bot;
-	const mobjtype_c *info;
-
-	selections = deathmatch_p - deathmatchstarts;
-	if (selections < 4)
-		I_Warning("Only %i deathmatch spots, 4 required\n", selections);
-
-	info = DDF_MobjLookupPlayer(-2);
-
-	for (j = 0; j < selections; j++)
-	{
-		i = M_Random() % selections;
-		bot = P_MobjCreateObject(deathmatchstarts[i].x,
-			deathmatchstarts[i].y, ONFLOORZ, info);
-
-		if (P_CheckAbsPosition(bot, bot->x, bot->y, bot->z))
-		{
-			P_MobjCreateObject(bot->x, bot->y, bot->z, info->respawneffect);
-			bot->side = M_Random() & 31;
-			bot->side = 1 << bot->side;
-			return;
-		}
-		P_RemoveMobj(bot);
-	}
-#endif
-}
-
-//
-// P_BotCreate
-//
-// Converts the player (which should be empty, i.e. neither a network
-// or console player) to a bot.
-//
-void P_BotCreate(player_t *p)
-{
-	bot_t *bot = Z_ClearNew(bot_t, 1);
-
-	p->builder = P_BotPlayerBuilder;
-	p->data = (void *)bot;
-	p->playerflags |= PFL_Bot;
-
-	sprintf(p->playername, "Bot%d", p->pnum + 1);
-
-	bot->pl = p;
-}
-
 //
 // Reads the botcmd_t, converts it to ticcmd_t and stores the result in dest.
 //
@@ -743,11 +682,6 @@ static void ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 	// L_WriteDebug("  CMD: fwd=%d side=%d\n", dest->forwardmove, dest->sidemove);
 }
 
-static void DoThink(bot_t *bot)
-{
-	BotThink(bot);
-}
-
 void P_BotPlayerBuilder(const player_t *p, void *data, ticcmd_t *cmd)
 {
 	bot_t *bot = (bot_t *)data;
@@ -763,7 +697,7 @@ void P_BotPlayerBuilder(const player_t *p, void *data, ticcmd_t *cmd)
 		Z_Clear(&bot->cmd, botcmd_t, 1);
 		bot->cmd.new_weapon = -1;
 
-		DoThink(bot);
+		BotThink(bot);
 
 		ConvertToTiccmd(bot, &bot->prev_cmd, &bot->cmd);
 	}
@@ -777,3 +711,35 @@ void P_BotPlayerBuilder(const player_t *p, void *data, ticcmd_t *cmd)
 
 	*cmd = bot->prev_cmd;
 }
+
+//
+// P_BotCreate
+//
+// Converts the player (which should be empty, i.e. neither a network
+// or console player) to a bot.  Recreate is true for bot players
+// loaded from a savegame.
+//
+void P_BotCreate(player_t *p, bool recreate)
+{
+	bot_t *bot = Z_ClearNew(bot_t, 1);
+
+	p->builder = P_BotPlayerBuilder;
+	p->data = (void *)bot;
+	p->playerflags |= PFL_Bot;
+
+	bot->pl = p;
+
+	if (! recreate)
+		sprintf(p->playername, "Bot%d", p->pnum + 1);
+}
+
+//
+// P_RemoveBots
+//
+// Done at level shutdown, right after all mobjs have been removed.
+// Erases anything level specific from the bot structs.
+//
+void P_RemoveBots(void)  // FIXME!!! bot data never freed
+{
+}
+
