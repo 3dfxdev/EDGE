@@ -37,7 +37,8 @@ volatile int total_clients = 0;
 
 client_c::client_c(const client_info_t *info, const NLaddress *_addr) :
 	state(ST_Browsing),
-	game_id(-1), player_id(-1), voted(false)
+	game_id(-1), pl_index(-1), voted(false),
+	tics(NULL)
 {
 	strcpy(name, info->name);
 	memcpy(&addr, _addr, sizeof(addr));
@@ -129,6 +130,23 @@ void client_c::TransmitMessage(packet_c *pk)
 	pk->Write(main_socket);
 
 	pk->hd().ByteSwap();  // for subsequent usage
+}
+
+void client_c::InitGame(int idx, int bots_each)
+{
+	SYS_ASSERT(state == client_c::ST_Queueing);
+
+	pl_index = idx;
+	pl_gametic = 0;
+
+	if (tics)
+		delete tics;
+
+	tics = new tic_store_c(1 + bots_each);
+
+	tic_wait = tic_wait_total = 0;
+
+	state = ST_Playing;
 }
 
 
@@ -344,7 +362,7 @@ void PK_keep_alive(packet_c *pk)
 {
 	client_c *CL = clients[pk->hd().client];
 
-	CL->alive_millies = 0;
+	// CL->alive_millies = 0;
 }
 
 void PK_query_client(packet_c *pk)

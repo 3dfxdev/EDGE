@@ -38,10 +38,7 @@ game_c::game_c(const game_info_t *info) : state(ST_Zombie),
 	mode(info->mode), skill(info->skill),
 	min_players(info->min_players),
 	num_bots(info->num_bots),
-	queuers(), players(),
-	num_players(0), bots_each(0), num_votes(0),
-	zombie_millies(0),
-	gametic(0), tics(NULL)
+	num_players(0), bots_each(0), num_votes(0)
 {
 	strcpy(engine_name, info->engine_name);
     strcpy(game_name,   info->game_name);
@@ -53,53 +50,32 @@ game_c::~game_c()
 	/* nothing needed */
 }
 
-bool game_c::InQueue(int client_id) const
+bool game_c::HasPlayer(int client_id) const
 {
-	return (std::find(queuers.begin(), queuers.end(), client_id) !=
-			queuers.end());
+	for (int i = 0; i < num_players; i++)
+		if (players[i] == client_id)
+			return true;
+
+	return false;
 }
 
-bool game_c::InGame(int client_id) const
+void game_c::AddPlayer(int client_id)
 {
-	return (std::find(players.begin(), players.end(), client_id) !=
-			players.end());
+	SYS_ASSERT(! HasPlayer(client_id));
+	SYS_ASSERT(num_players < MP_PLAYER_MAX);
+
+	players[num_players++] = client_id;
 }
 
-int game_c::AddToQueue(int client_id)
+void game_c::RemovePlayer(int client_id)
 {
-	SYS_ASSERT(! InQueue(client_id));
+	// FIXME: this is utterly fucked!
 
-	queuers.push_back(client_id);
+	for (int i = 0; i < MP_PLAYER_MAX; i++)
+		if (players[i] == client_id)
+			players[i] = -1;
 
-	return queuers.size() - 1;
-}
-
-int game_c::AddToGame(int client_id)
-{
-	SYS_ASSERT(! InGame(client_id));
-
-	players.push_back(client_id);
-	num_players = players.size();
-
-	return players.size() - 1;
-}
-
-void game_c::RemoveFromQueue(int client_id)
-{
-	std::vector<int>::iterator new_end =
-		std::remove(queuers.begin(), queuers.end(), client_id);
-	
-	queuers.erase(new_end, queuers.end());
-}
-
-void game_c::RemoveFromGame(int client_id)
-{
-	std::vector<int>::iterator new_end =
-		std::remove(players.begin(), players.end(), client_id);
-	
-	players.erase(new_end, players.end());
-
-	num_players = players.size();
+	// FIXME: num_players--;
 }
 
 void game_c::FillGameInfo(game_info_t *info) const
@@ -126,52 +102,86 @@ void game_c::FillGameInfo(game_info_t *info) const
 	info->skill = skill;
 	 
 	info->min_players = min_players;
+	info->num_players = num_players;
+
 	info->num_bots    = num_bots;
+	info->num_votes   = num_votes;
 
 	//!!! FIXME: features
 	//!!! FIXME: wad_checksum, def_checksum
-
-	if (state == ST_Queueing)
-		info->num_players = queuers.size();
-	else
-		info->num_players = num_players;
-
-	info->num_votes = num_votes;
 }
 
 void game_c::InitGame()
 {
 ///!!!	SYS_ASSERT(num_players >= 2);
 
-	gametic = 0;
-
-	if (tics)
-		delete tics;
-
-	tics = new tic_store_c(num_players + num_bots);
+	sv_gametic = 0;
+	pl_min_tic = 0;  /* no past ticcmds */
 
 	state = ST_Playing;
+
+	total_played_games++;
+	total_queued_games--;
 }
 
 void game_c::BumpTic()
 {
-	gametic++;
+	sv_gametic++;
+}
+
+int game_c::ComputeMinTic() const
+{
+	int new_min_tic = INT_MAX;
+
+	for (int p = 0; p < num_players; p++)
+	{
+		client_c *CL = clients[players[p]];
+
+		if (CL->pl_gametic < new_min_tic)
+			new_min_tic = CL->pl_gametic;
+	}
+
+	return new_min_tic;
+}
+
+int game_c::ComputeGroupAvail() const
+{
+	int offset;
+	for (offset = 0; offset < MP_SAVETICS; offset++)
+	{
+		int p;
+		for (p = 0; p < num_players; p++)
+		{
+			client_c *CL = clients[players[p]];
+
+			if (! CL->tics->HasGot(sv_gametic + offset))
+				break;
+		}
+
+		if (p != num_players)
+			break;
+	}
+
+	return offset;
 }
 
 void game_c::CalcBots()
 {
+	static const int BOT_MAX = 8;
+
 	SYS_ASSERT(num_players > 0);
 	SYS_ASSERT(num_players <= MP_PLAYER_MAX);
 
 	if (num_bots + num_players >= MP_PLAYER_MAX)
 		num_bots = MP_PLAYER_MAX - num_players;
-	
+
+	SYS_ASSERT(num_bots >= 0);
+
 	bots_each = num_bots  / num_players;
 
-	// shouldn't happen, but hey.
-	if (bots_each > ticcmd_proto_t::TICCMD_FIT - 2)
-		bots_each = ticcmd_proto_t::TICCMD_FIT - 2;
-	
+	if (bots_each > BOT_MAX)
+		bots_each = BOT_MAX;
+
 	num_bots = bots_each * num_players;
 }
 
@@ -190,9 +200,7 @@ static void SV_build_play_game(game_c *GM, packet_c *pk)
 	pk->Clear();  // paranoia
 
 	pk->SetType("Pg");
-
 	pk->hd().flags = 0;
-
 	pk->hd().data_len = sizeof(play_game_proto_t) + (GM->num_players - 1) *
 		sizeof(s16_t);
 
@@ -229,34 +237,20 @@ static void BeginGame(game_c *GM)
 
 		// move all clients from queueing to playing state
 
-		SYS_ASSERT(GM->queuers.size() == (unsigned)GM->num_players);
-		SYS_ASSERT(GM->players.size() == 0);
-
-		GM->players.reserve(GM->num_players);
-
 		for (int q = 0; q < GM->num_players; q++)
 		{
-			int client_id = GM->queuers[q];
+			int client_id = GM->players[q];
 
 			DebugPrintf("Moving Client %d from Queue to PLAY\n", client_id);
 
 			client_c *CL = clients[client_id];
-			SYS_ASSERT(CL->state == client_c::ST_Queueing);
 
-			CL->state = client_c::ST_Playing;
-
-			GM->RemoveFromQueue(client_id);
-			CL->player_id = GM->AddToGame(client_id);
+			CL->InitGame(q, GM->bots_each);
 		}
-
-		SYS_ASSERT(GM->queuers.size() == 0);
 
 		GM->InitGame();
 	}
 	// NOW UNLOCKED
-
-	total_played_games++;
-	total_queued_games--;
 
 	// send PLAY packets !!
 
@@ -267,7 +261,6 @@ static void BeginGame(game_c *GM)
 	for (int p = 0; p < GM->num_players; p++)
 	{
 		int client_id = GM->players[p];
-
 		client_c *CL = clients[client_id];
 
 		nlSetRemoteAddr(main_socket, &CL->addr);
@@ -285,51 +278,47 @@ static void SV_build_tic_group(game_c *GM, packet_c *pk, int first, int count)
 	pk->Clear();  // paranoia
 
 	pk->SetType("Tg");
-
 	pk->hd().flags = 0;
-
-	pk->hd().data_len = sizeof(tic_group_proto_t) + (count - 1) *
-		sizeof(raw_ticcmd_t);
+	pk->hd().data_len = sizeof(tic_group_proto_t) +
+		(count * (1 + GM->bots_each) - 1) * sizeof(raw_ticcmd_t);
 
 	// client field is set elsewhere
 
 	tic_group_proto_t& tg = pk->tg_p();
 
-	tg.gametic = GM->gametic;
+	tg.gametic = GM->sv_gametic;
 	tg.offset  = 0;
 
 	tg.first_player = first;
 	tg.count = count;
 
-	for (int p = first; p < first+count; p++)
+	raw_ticcmd_t *raw_cmds = tg.tic_cmds;
+	int band = 1 + GM->bots_each;
+
+	for (int p = first; p < first+count; p++, raw_cmds += band)
 	{
-		int client_id = GM->players[p];
+		client_c *CL = clients[GM->players[p]];
 
-		client_c *CL = clients[client_id];
-
-//!!!!! FIXME		CL->tics.Read(GM->gametic, tg.tic_cmds + (p * (1 + GM->bots_each)),
-//!!!!!			0, 1 + GM->bots_each);
+		CL->tics->Read(GM->sv_gametic, raw_cmds);
 	}
-///---	memcpy(tg.tic_cmds, GM->tic_cmds + first, count * sizeof(raw_ticcmd_t));
 
 	tg.ByteSwap(false);
 }
 
-static void SV_send_all_tic_groups(game_c *GM)
+static void SV_send_all_tic_groups(game_c *GM, int tic_num, int first_pl, int count_pl)
 {
 	// !!!! FIXME: handle more than TICCMD_FIT
 	SYS_ASSERT(GM->num_players <= tic_group_proto_t::TICCMD_FIT);
 
 	packet_c pk;
 
-	SV_build_tic_group(GM, &pk, 0, GM->num_players);
+	SV_build_tic_group(GM, &pk, first_pl, count_pl);
 
 	// broadcast packet to each client
 
 	for (int p = 0; p < GM->num_players; p++)
 	{
 		int client_id = GM->players[p];
-
 		client_c *CL = clients[client_id];
 
 		nlSetRemoteAddr(main_socket, &CL->addr);
@@ -389,8 +378,7 @@ void PK_new_game(packet_c *pk)
 		else
 			games[game_id] = GM;
 
-		GM->AddToQueue(client_id);
-		GM->num_players++;
+		GM->AddPlayer(client_id);
 
 		CL->state = client_c::ST_Queueing;
 		CL->game_id = game_id;
@@ -450,8 +438,7 @@ void PK_join_queue(packet_c *pk)
 
 		GM = games[CL->game_id];
 
-		GM->AddToQueue(client_id);
-		GM->num_players++;
+		GM->AddPlayer(client_id);
 
 		CL->state = client_c::ST_Queueing;
 		CL->game_id = game_id;
@@ -487,23 +474,21 @@ void PK_leave_game(packet_c *pk)
 
 		if (CL->state == client_c::ST_Queueing)
 		{
-			GM->RemoveFromQueue(client_id);
+			GM->RemovePlayer(client_id);
 
 			if (CL->voted)
 				GM->num_votes--;
 		}
 		else if (CL->state == client_c::ST_Playing)
 		{
-			GM->RemoveFromGame(client_id);
+			GM->RemovePlayer(client_id);
 
-			// FIXME: notify other players
+			// FIXME: notify other players (ETC !)
 		}
-
-		GM->num_players--;
 
 		CL->state = client_c::ST_Browsing;
 		CL->game_id = -1;
-		CL->player_id = -1;
+		CL->pl_index = -1;
 		CL->voted = false;
 	}
 	// NOW UNLOCKED
@@ -611,39 +596,111 @@ void PK_ticcmd(packet_c *pk)
 	SYS_ASSERT(GameExists(CL->game_id));
 
 	game_c *GM = games[CL->game_id];
-	SYS_ASSERT(GM->InGame(client_id));
+	SYS_ASSERT(GM->HasPlayer(client_id));
 
-	int plyr_id = CL->player_id;
+	int pl_id = CL->pl_index;
 
-	SYS_ASSERT(0 <= plyr_id && plyr_id < GM->num_players);
-	SYS_ASSERT(GM->players[plyr_id] == client_id);
+	SYS_ASSERT(0 <= pl_id && pl_id < GM->num_players);
+	SYS_ASSERT(GM->players[pl_id] == client_id);
+
+	// NOTE: We are not LOCKING since tic-stuff is not touched by UI thread
+
+	int cl_gametic = (int)tc.gametic;
+
+	if (cl_gametic > CL->pl_gametic)
+		CL->pl_gametic = cl_gametic;
+
+	int got_tic = cl_gametic + tc.offset;
+	int count = tc.count;
+
+	const raw_ticcmd_t *raw_cmds = tc.tic_cmds;
+	int band = 1 + GM->bots_each;
+
+	int new_count = 0;
+
+	for (; count > 0; got_tic++, raw_cmds += band, count--)
+	{
+		// in the past ?  ignore it.
+		if (got_tic < GM->sv_gametic)
+		{
+			DebugPrintf("Ticcmd from client %d in past (%d < %d)\n",
+				client_id, got_tic, GM->sv_gametic);
+			continue;
+		}
+
+		// too far in the future ?  shouldn't happen (FIXME: send error)
+		if (got_tic >= GM->sv_gametic + MP_SAVETICS)
+		{
+			LogPrintf(1, "Ticcmd from client %d too far ahead (%d >> %d)\n",
+				client_id, got_tic, GM->sv_gametic);
+			break; // skip remaining
+		}
+
+		if (CL->tics->HasGot(got_tic))
+		{
+			DebugPrintf("Old ticcmd #%d from client %d\n", got_tic, client_id);
+			continue;
+		}
+
+		DebugPrintf("New ticcmd #%d from client %d\n", got_tic, client_id);
+
+		CL->tics->Write(got_tic, raw_cmds);
+		new_count++;
+	}
+
+	// check for missing packet (future write)
+	if (new_count > 0 && ! CL->tics->HasGot(GM->sv_gametic))
+	{
+		// FIXME: speed up retransmit timer......
+	}
+
+	int saved_tics = GM->sv_gametic - GM->ComputeMinTic();
+
+	SYS_ASSERT(saved_tics >= 0);
+	SYS_ASSERT(saved_tics <= MP_SAVETICS);
+
+	int avail_tics = GM->ComputeGroupAvail();
+
+DebugPrintf("=== gametic %d avail %d saved %d\n", GM->sv_gametic, avail_tics, saved_tics);
+
+	// when the save area is full, the server cannot advance
+
+	if (avail_tics < (MP_SAVETICS - saved_tics))
+		avail_tics = (MP_SAVETICS - saved_tics);
+
+	for (; avail_tics > 0; avail_tics--, GM->sv_gametic++)
+	{
+		SV_send_all_tic_groups(GM, GM->sv_gametic, 0, GM->num_players);
+	}
+}
+
+void PK_tic_retransmit(packet_c *pk)
+{
+	int client_id = pk->hd().client;
+
+	tic_retransmit_proto_t& tr = pk->tr_p();
+
+	tr.ByteSwap();
+
+	// FIXME: check data_len
+
+	client_c *CL = clients[client_id];
+	SYS_ASSERT(GameExists(CL->game_id));
+
+	game_c *GM = games[CL->game_id];
+	SYS_ASSERT(GM->HasPlayer(client_id));
+
+	int pl_id = CL->pl_index;
+
+	SYS_ASSERT(0 <= pl_id && pl_id < GM->num_players);
+	SYS_ASSERT(GM->players[pl_id] == client_id);
 
 	// NOTE: We ar not LOCKING since tic-stuff is not touched by UI thread
 
-	if ((int)tc.gametic != GM->gametic)
-	{
-		LogPrintf(1, "Ticcmd from client %d, bad tic # (%d != %d)\n",
-			client_id, tc.gametic, GM->gametic);
-		return;
-	}
+	DebugPrintf("Client %d tic retransmit req: tic %u (gametic %d)\n",
+		client_id, tr.gametic + tr.offset, (int)tr.gametic);
 
-	if (0) //!!!!  GM->got_cmds.test(plyr_id))
-	{
-		LogPrintf(1, "Ticcmd from client %d, already received\n", client_id);
-		return;
-	}
+	// FIXME !!!!!! tic retransmit
 
-//!!!!! FIXME	CL->tics.Write(tc.gametic, tc.tic_cmds, 0, 1 + GM->bots_each);
-
-///---	memcpy(GM->tic_cmds + plyr_id, tc.tic_cmds, sizeof(raw_ticcmd_t));
-
-//!!!!	GM->got_cmds.set(plyr_id);
-
-	if (0) //!!!! FIXME FIXME GM->got_cmds.count() == (unsigned)GM->num_players)
-	{
-		SV_send_all_tic_groups(GM);
-
-		GM->BumpTic();
-	}
 }
 
