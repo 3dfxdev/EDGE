@@ -58,6 +58,8 @@
 // XXX needed to get original name (warning message)
 extern spritename_t sprnames[NUMSPRITES_BEX];
 
+#define CAST_MAX  20
+
 
 void Things::Startup(void)
 {
@@ -68,6 +70,8 @@ namespace Things
 {
 	bool got_one;
 	bool flags_got_one;
+
+	int cast_mobjs[CAST_MAX];
 
 	void BeginLump(void)
 	{
@@ -357,6 +361,48 @@ namespace Things
 
 			if (mobj->height == 16*FRACUNIT)
 				mobj->height = height_fixes[i+1]*FRACUNIT;
+		}
+	}
+
+	void CollectTheCast(void)
+	{
+		for (int i = 0; i < CAST_MAX; i++)
+			cast_mobjs[i] = -1;
+
+		for (int mt_num = 0; mt_num < NUMMOBJTYPES_BEX; mt_num++)
+		{
+			int order = 0;
+
+			// cast objects are required to have CHASE and DEATH states
+			if (mobjinfo[mt_num].seestate == S_NULL ||
+				mobjinfo[mt_num].deathstate == S_NULL)
+				continue;
+
+			switch (mt_num)
+			{
+				case MT_PLAYER:    order =  1; break;
+				case MT_POSSESSED: order =  2; break;
+				case MT_SHOTGUY:   order =  3; break;
+				case MT_CHAINGUY:  order =  4; break;
+				case MT_TROOP:     order =  5; break;
+				case MT_SERGEANT:  order =  6; break;
+				case MT_SKULL:     order =  7; break;
+				case MT_HEAD:      order =  8; break;
+				case MT_KNIGHT:    order =  9; break;
+				case MT_BRUISER:   order = 10; break;
+				case MT_BABY:      order = 11; break;
+				case MT_PAIN:      order = 12; break;
+				case MT_UNDEAD:    order = 13; break;
+				case MT_FATSO:     order = 14; break;
+				case MT_VILE:      order = 15; break;
+				case MT_SPIDER:    order = 16; break;
+				case MT_CYBORG:    order = 17; break;
+
+				default:
+					continue;
+			}
+
+			cast_mobjs[order] = mt_num;
 		}
 	}
 
@@ -765,40 +811,28 @@ namespace Things
 		if (player >= 2)
 			return;
 
-		int order = 0;
+		int pos   = 1;
+		int order = 1;
 
-		switch (mt_num)
+		for (; pos < CAST_MAX; pos++)
 		{
-			case MT_PLAYER:    order =  1; break;
-			case MT_POSSESSED: order =  2; break;
-			case MT_SHOTGUY:   order =  3; break;
-			case MT_CHAINGUY:  order =  4; break;
-			case MT_TROOP:     order =  5; break;
-			case MT_SERGEANT:  order =  6; break;
-			case MT_SKULL:     order =  7; break;
-			case MT_HEAD:      order =  8; break;
-			case MT_KNIGHT:    order =  9; break;
-			case MT_BRUISER:   order = 10; break;
-			case MT_BABY:      order = 11; break;
-			case MT_PAIN:      order = 12; break;
-			case MT_UNDEAD:    order = 13; break;
-			case MT_FATSO:     order = 14; break;
-			case MT_VILE:      order = 15; break;
-			case MT_SPIDER:    order = 16; break;
-			case MT_CYBORG:    order = 17; break;
+			// ignore missing members (ensure real order is contiguous)
+			if (cast_mobjs[pos] < 0)
+				continue;
 
-			default:
-				return;
+			if (cast_mobjs[pos] == mt_num)
+				break;
+
+			order++;
 		}
 
-		// FIXME: this will fuck up the cast-order screen
-		if (info->seestate == S_NULL)
+		if (pos >= CAST_MAX)  // not found
 			return;
 
 		WAD::Printf("CASTORDER = %d;\n", order);
 
 		if (target_version >= 128)
-			WAD::Printf("CAST_TITLE = %s;\n", cast_titles[order - 1]);
+			WAD::Printf("CAST_TITLE = %s;\n", cast_titles[pos - 1]);
 	}
 
 	void HandleDropItem(const mobjinfo_t *info, int mt_num)
@@ -919,6 +953,7 @@ void Things::ConvertMobj(const mobjinfo_t *info, int mt_num, int player)
 void Things::ConvertTHING(void)
 {
 	FixHeights();
+	CollectTheCast();
 
 	got_one = false;
 

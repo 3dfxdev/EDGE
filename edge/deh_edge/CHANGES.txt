@@ -9,6 +9,9 @@ Changes in V1.1  (Unreleased)
    and sounds (e.g. the DOG).  The extra actions are there but
    only as place-holders.
 
+ - made the CAST screen robust, before it would not work properly
+   if certain monsters lost their chase or death states.
+
 
 Changes in V1.0  (4th June 2004)
 --------------------------------
