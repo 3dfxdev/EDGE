@@ -121,7 +121,7 @@ typedef enum
 
   // OpenGL support.  The image is not read directly, but referred to
   // as a GL texture id number (which can be given to glBindTexture).
-  // The `mip' value must be 0).  Transparent parts (if any) are given
+  // The `mip' value must be 0.  Transparent parts (if any) are given
   // an alpha of zero (otherwise alpha is 255).
   IMG_OGL = 2
 }

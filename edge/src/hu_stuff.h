@@ -27,6 +27,7 @@
 #define __HU_STUFF_H__
 
 #include "e_event.h"
+#include "hu_lib.h"
 #include "r_defs.h"
 
 extern int showMessages;
@@ -50,7 +51,7 @@ extern int showMessages;
 
 #define HU_MSGTIMEOUT	(4*TICRATE)
 
-extern const patch_t *hu_font[HU_FONTSIZE];
+extern H_font_t hu_font;
 extern boolean_t chat_on;
 extern boolean_t message_dontfuckwithme;
 

@@ -51,7 +51,6 @@ typedef enum
 }
 exttype_e;
 
-int M_DrawText(int x, int y, boolean_t direct, char *string);
 boolean_t M_WriteFile(char const *name, void *source, int length);
 boolean_t M_LoadDefaults(void);
 void M_SaveDefaults(void);
