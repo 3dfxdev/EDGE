@@ -54,7 +54,7 @@ static INLINE int edgemid(int a, int b, int c)
 //
 void S_ChangeMusic(int entrynum, bool looping)
 {
-	const pl_entry_t *play;
+	const pl_entry_c *play;
 	byte *data;
 	int datlength;
 	int datnum;
