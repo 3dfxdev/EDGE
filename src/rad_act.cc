@@ -51,15 +51,15 @@ drawtip_t tip_slots[MAXTIPSLOT];
 // properties for fixed slots
 static s_tip_prop_t fixed_props[FIXEDSLOTS] =
 {
-	{ 1, 0.50, 0.50, 0, "TEXT_WHITE",  1.0 }, 
-	{ 2, 0.20, 0.25, 1, "TEXT_WHITE",  1.0 },
-	{ 3, 0.20, 0.75, 1, "TEXT_WHITE",  1.0 },
-	{ 4, 0.50, 0.50, 0, "TEXT_BLUE",   1.0 },
-	{ 5, 0.20, 0.25, 1, "TEXT_BLUE",   1.0 },
-	{ 6, 0.20, 0.75, 1, "TEXT_BLUE",   1.0 },
-	{ 7, 0.50, 0.50, 0, "TEXT_YELLOW", 1.0 },
-	{ 8, 0.20, 0.25, 1, "TEXT_YELLOW", 1.0 },
-	{ 9, 0.20, 0.75, 1, "TEXT_YELLOW", 1.0 } 
+	{ 1, 0.50f, 0.50f, 0, "TEXT_WHITE",  1.0f }, 
+	{ 2, 0.20f, 0.25f, 1, "TEXT_WHITE",  1.0f },
+	{ 3, 0.20f, 0.75f, 1, "TEXT_WHITE",  1.0f },
+	{ 4, 0.50f, 0.50f, 0, "TEXT_BLUE",   1.0f },
+	{ 5, 0.20f, 0.25f, 1, "TEXT_BLUE",   1.0f },
+	{ 6, 0.20f, 0.75f, 1, "TEXT_BLUE",   1.0f },
+	{ 7, 0.50f, 0.50f, 0, "TEXT_YELLOW", 1.0f },
+	{ 8, 0.20f, 0.25f, 1, "TEXT_YELLOW", 1.0f },
+	{ 9, 0.20f, 0.75f, 1, "TEXT_YELLOW", 1.0f } 
 };
 
 //
@@ -787,8 +787,8 @@ void RAD_ActSkill(rad_trigger_t *R, mobj_t *actor, void *param)
 
 	gameskill = skill->skill;
 
-	level_flags.fastparm = skill->FastMonsters;
-	level_flags.respawn = skill->Respawn;
+	level_flags.fastparm = skill->fastmonsters;
+	level_flags.respawn = skill->respawn?true:false;
 }
 
 static void MoveOneSector(sector_t *sec, s_movesector_t *t)

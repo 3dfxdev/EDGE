@@ -881,10 +881,10 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 		if (y1 > y2)
 			RAD_WarnError("%s: bad Y range %1.1f to %1.1f\n", pars[0], y1, y2);
 
-		this_rad->x = (x1 + x2) / 2;
-		this_rad->y = (y1 + y2) / 2;
-		this_rad->rad_x = fabs(x1 - x2) / 2;
-		this_rad->rad_y = fabs(y1 - y2) / 2;
+		this_rad->x = (float)(x1 + x2) / 2.0f;
+		this_rad->y = (float)(y1 + y2) / 2.0f;
+		this_rad->rad_x = (float)fabs(x1 - x2) / 2.0f;
+		this_rad->rad_y = (float)fabs(y1 - y2) / 2.0f;
 
 		if (pnum >= 7)
 		{
@@ -895,8 +895,8 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 				RAD_WarnError("%s: bad height range %1.1f to %1.1f\n",
 				pars[0], z1, z2);
 
-			this_rad->z = (z1 + z2) / 2;
-			this_rad->rad_z = fabs(z1 - z2) / 2;
+			this_rad->z = (z1 + z2) / 2.0f;
+			this_rad->rad_z = fabs(z1 - z2) / 2.0f;
 		}
 	}
 	else
@@ -921,8 +921,8 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 				RAD_WarnError("%s: bad height range %1.1f to %1.1f\n",
 				pars[0], z1, z2);
 
-			this_rad->z = (z1 + z2) / 2;
-			this_rad->rad_z = fabs(z1 - z2) / 2;
+			this_rad->z = (z1 + z2) / 2.0f;
+			this_rad->rad_z = fabs(z1 - z2) / 2.0f;
 		}
 	}
 
@@ -1729,8 +1729,8 @@ static void RAD_ParseSkill(int pnum, const char **pars)
 	RAD_CheckForInt(pars[1], &val);
 
 	skill->skill = (skill_t) (val - 1);
-	skill->Respawn = CheckForBoolean(pars[2]);
-	skill->FastMonsters = CheckForBoolean(pars[3]);
+	skill->respawn = CheckForBoolean(pars[2]);
+	skill->fastmonsters = CheckForBoolean(pars[3]);
 
 	AddStateToScript(this_rad, 0, RAD_ActSkill, skill);
 }

@@ -630,7 +630,7 @@ void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust)
   // -ACB- 2000/03/11 Div-by-zero check...
   CHECKVAL(target->info->mass);
 
-  push = 12.0 * thrust / target->info->mass;
+  push = 12.0f * thrust / target->info->mass;
 
   target->mom.x += push * M_Cos(angle);
   target->mom.y += push * M_Sin(angle);
@@ -739,10 +739,10 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 
       switch (i)
       {
-        case ARMOUR_Green:  saved = damage * 0.33; break;
-        case ARMOUR_Blue:   saved = damage * 0.50; break;
-        case ARMOUR_Yellow: saved = damage * 0.75; break;
-        case ARMOUR_Red:    saved = damage * 0.90; break;
+        case ARMOUR_Green:  saved = damage * 0.33f; break;
+        case ARMOUR_Blue:   saved = damage * 0.50f; break;
+        case ARMOUR_Yellow: saved = damage * 0.75f; break;
+        case ARMOUR_Red:    saved = damage * 0.90f; break;
         default: 
           I_Error("INTERNAL ERROR in P_DamageMobj: bad armour %d\n", i);
       }

@@ -283,9 +283,9 @@ static int AdjustSoundParams(sfxinfo_t *sfx, mobj_t *listener,
 
 	// calculate the distance to sound origin
 	//  and clip it if necessary
-	adx = fabs(listener->x - source->x);
-	ady = fabs(listener->y - source->y);
-	adz = fabs(listener->z - source->z);
+	adx = (float)fabs(listener->x - source->x);
+	ady = (float)fabs(listener->y - source->y);
+	adz = (float)fabs(listener->z - source->z);
 
 	// From _GG1_ p.428. Approx. euclidian distance fast.
 	//    approx_dist = adx + ady - ((adx < ady ? adx : ady)>>1);
