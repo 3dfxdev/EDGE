@@ -2,7 +2,7 @@
 EDGE Demo Format
 ================
 
-Last updated: January 2005.
+Last updated: March 2005.
 
 This document assumes familiarity with the savegame system,
 as described in 'docs/tech/save_sys.txt'.
@@ -67,7 +67,7 @@ Player Synchronisation
 
 These chunks store the real position and angles of a player
 at a certain game tic.  To keep the filesize down, they are
-spread out so that there is roughly one [SYNC] chunk per
+spread out so that there is roughly two [SYNC] chunks per
 player per second.
 
 
@@ -148,29 +148,36 @@ Multiple lots (one per player) of :-
 16 bits for ticcmd consistency.
 16 bits for ticcmd unused1.
 
-3 bytes for ticcmd movement.
-2 bytes for ticcmd buttons.
+3 bytes for ticcmd movement (fwd, side, up/down).
+2 bytes for ticcmd buttons (normal, extended).
 3 bytes for ticcmd other stuff.
 
 PACK
 ----
 
 32 bits for Original length.
-32 bits for CRC32 of original data.
+32 bits for CRC32 of original data (zero if not computed).
 
 compressed data....
 
 SYNC
 ----
 
-16 bits for player number
+16 bits for player number.
 
-FLOAT for their x position
-FLOAT for their y position
-FLOAT for their z position
+FLOAT for their x position.
+FLOAT for their y position.
+FLOAT for their z position.
+FLOAT for their view_height.
 
-32 bits for their turn angle
-32 bits for their mlook angle
+32 bits for their turn angle.
+32 bits for their mlook angle.
+
+FLOAT for their x momentum.
+FLOAT for their y momentum.
+FLOAT for their z momentum.
+FLOAT for their health.
+
 
 
 ---------------------------------------------------------------------------
@@ -225,13 +232,13 @@ I think this system can be improved upon, so that if any subsystem
 gets out of sync, it will only remain out of sync for ONE TIC.
 
 Firstly we use a very high quality random number generator (like
-Mersenne Twister) to generate N random bytes per tic (e.g. 64).
+Mersenne Twister) to generate N random bytes per tic (e.g. 32).
 Each subsystem keeps an index value, which is cleared to zero when
 these random bytes are generated, and incremented for each call to
 P_Random().  Let SUB be the subsystem, RAND[] be the generated
 bytes, and IDX be the index, then:
 
-    value = RAND[(SUB * 17 + IDX) % N];
+    value = RAND[(SUB * 23 + IDX) % N];
 
 Assumption 1: each subsystem doesn't require more than N values
 per tic, and in the odd case where it happens, it won't matter.
@@ -239,9 +246,9 @@ per tic, and in the odd case where it happens, it won't matter.
 Assumption 2: it doesn't matter that different subsystems are
 (potentially) using the same set of values.
 
-An improvement which solves both these issues is to apply a static
-table of random values, TABLE[] of size K (like 256), in a
-subsystem specific way:
+An improvement which solves both these issues (at the expense of
+slower computation) is to apply a static table of random values,
+TABLE[] of size K (like 256), in a subsystem specific way:
 
     value ^= TABLE[(SUB * 29 + IDX) % K];
 
