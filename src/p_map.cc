@@ -1769,7 +1769,9 @@ static bool PTR_UseTraverse(intercept_t * in)
 		use_upper = MIN(use_upper, side->sector->c_h);
 	}
 
-	if (!line->special)
+	if (! line->special ||
+		line->special->type == line_shootable ||
+		line->special->type == line_walkable)
 	{
 		if (line->gap_num == 0 || use_upper <= use_lower)
 		{
@@ -1805,7 +1807,7 @@ void P_UseLines(player_t * player)
 	float y2;
 
 	usething = player->mo;
-	use_lower = FLT_MIN;
+	use_lower = -FLT_MAX;
 	use_upper = FLT_MAX;
 
 	angle = player->mo->angle;

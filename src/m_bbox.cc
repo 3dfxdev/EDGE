@@ -28,7 +28,7 @@
 
 void M_ClearBox(float * box)
 {
-	box[BOXTOP] = box[BOXRIGHT] = FLT_MIN;
+	box[BOXTOP] = box[BOXRIGHT] = -FLT_MAX;
 	box[BOXBOTTOM] = box[BOXLEFT] = FLT_MAX;
 }
 

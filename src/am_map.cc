@@ -319,7 +319,7 @@ static void FindMinMaxBoundaries(void)
 	float b;
 
 	min_x = min_y = FLT_MAX; // -ACB- 2003/09/21 Max value was INT_MAX; changed it to fall in line with its type
-	max_x = max_y = FLT_MIN; // -ACB- 2003/09/21 Max value was INT_MIN; changed it to fall in line with its type
+	max_x = max_y = -FLT_MAX; // -ACB- 2003/09/21 Max value was INT_MIN; changed it to fall in line with its type
 
 	for (i = 0; i < numvertexes; i++)
 	{
