@@ -46,6 +46,7 @@
 #include "m_misc.h"
 #include "m_option.h"
 #include "m_random.h"
+#include "n_network.h"
 #include "p_setup.h"
 #include "r_local.h"
 #include "s_sound.h"

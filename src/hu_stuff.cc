@@ -36,6 +36,7 @@
 #include "hu_lib.h"
 #include "hu_style.h"
 #include "m_misc.h"
+#include "n_network.h"
 #include "r_defs.h"
 #include "r_things.h"
 #include "rad_trig.h"

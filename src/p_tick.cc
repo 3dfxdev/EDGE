@@ -33,6 +33,7 @@
 #include "p_tick.h"
 
 #include "dm_state.h"
+#include "n_network.h"
 #include "p_local.h"
 
 int leveltime;

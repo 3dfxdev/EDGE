@@ -39,8 +39,11 @@
 #include "z_zone.h"
 
 
-bool var_hogcpu = true;
+// only true if packets are exchanged with a server
+bool netgame = false;
 
+
+bool var_hogcpu = true;
 
 extern gameflags_t default_gameflags;
 
@@ -66,8 +69,6 @@ static void N_Preliminaries(void)
 
     if (nlSelectNetwork(NL_IP) == NL_FALSE)
 		I_Error("nlSelectNetwork failed:\n%s", N_GetErrorStr());
-
-	NLaddress local;
 
 	srand(I_PureRandom());
 }
@@ -215,7 +216,7 @@ static void N_ConnectServer(void)
 
 	connect_proto_t& con = pk.cs_p();
 
-	sprintf(con.info.name, "Flynn%02d", rand()&63);
+	sprintf(con.info.name, "Flynn%05d", rand()&0x7FFF);
 
 	con.ByteSwap();
 

@@ -85,6 +85,7 @@
 #include "hu_style.h"
 #include "m_menu.h"
 #include "m_misc.h"
+#include "n_network.h"
 #include "p_local.h"
 #include "r_main.h"
 #include "r_vbinit.h"
@@ -1263,6 +1264,8 @@ static void M_AnalogueOptions(int keypressed)
 //
 static void M_GameplayOptions(int keypressed)
 {
+	// not allowed in netgames (changing most of these options would
+	// break synchronisation with the other machines).
 	if (netgame)
 		return;
 

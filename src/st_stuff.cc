@@ -290,7 +290,7 @@ static void RefreshBackground(void)
 		// -AJA- hack fix for red line at bottom of screen
 		RGL_Image320(ST_X, ST_Y, ST_WIDTH, ST_HEIGHT+1, sbar_image);
 
-		if (netgame)
+		if (numplayers > 1)
 			RGL_ImageEasy320(ST_FX, ST_Y, faceback[displayplayer % 8]);
 	}
 }
@@ -317,10 +317,10 @@ static void DrawWidgets(void)
 	int i;
 
 	// used by w_arms[] widgets
-	st_armson = st_baron_not_overlay && !deathmatch;
+	st_armson = st_baron_not_overlay && !DEATHMATCH();
 
 	// used by w_frags widget
-	st_fragson = st_baron_not_overlay && deathmatch;
+	st_fragson = st_baron_not_overlay && DEATHMATCH();
 
 	if (st_statusbaron)
 	{
@@ -595,13 +595,13 @@ static void UpdateWidgets(void)
 	ST_UpdateFaceWidget();
 
 	// used by the w_armsbg widget
-	st_notdeathmatch = !deathmatch;
+	st_notdeathmatch = !DEATHMATCH();
 
 	// used by w_arms[] widgets
-	st_armson = st_baron_not_overlay && !deathmatch;
+	st_armson = st_baron_not_overlay && !DEATHMATCH();
 
 	// used by w_frags widget
-	st_fragson = st_baron_not_overlay && deathmatch;
+	st_fragson = st_baron_not_overlay && DEATHMATCH();
 	st_fragscount = 0;
 
 	st_fragscount = p->frags;

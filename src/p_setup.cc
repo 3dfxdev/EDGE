@@ -874,14 +874,14 @@ static void SpawnMapThing(const mobjtype_c *info,
 	// check for apropriate skill level
 	// -ES- 1999/04/13 Implemented Kester's Bugfix.
 	// -AJA- 1999/10/21: Reworked again.
-	if (!netgame && !deathmatch && (options & MTF_NOT_SINGLE))
+	if (SP_MATCH() && (options & MTF_NOT_SINGLE))
 		return;
 
 	// -AJA- 1999/09/22: Boom compatibility flags.
-	if (netgame && !deathmatch && (options & MTF_NOT_COOP))
+	if (COOP_MATCH() && (options & MTF_NOT_COOP))
 		return;
 
-	if (deathmatch && (options & MTF_NOT_DM))
+	if (DEATHMATCH() && (options & MTF_NOT_DM))
 		return;
 
 	if (gameskill == sk_baby)
@@ -894,8 +894,8 @@ static void SpawnMapThing(const mobjtype_c *info,
 	if ((options & bit) == 0)
 		return;
 
-	// don't spawn keycards and players in deathmatch
-	if (deathmatch && info->flags & MF_NOTDMATCH)
+	// don't spawn keycards in deathmatch
+	if (DEATHMATCH() && (info->flags & MF_NOTDMATCH))
 		return;
 
 	// don't spawn any monsters if -nomonsters

@@ -58,9 +58,6 @@ extern bool autostart;
 // Selected by user. 
 extern skill_t gameskill;
 
-// Netgame? Only true if >1 player.
-extern bool netgame;
-
 // Flag: true only if started as net deathmatch.
 // An enum might handle altdeath/cooperative better.
 extern int deathmatch;
@@ -133,6 +130,10 @@ extern int numplayers;
 // Player taking events, and displaying.
 extern int consoleplayer;
 extern int displayplayer;
+
+#define DEATHMATCH()  (deathmatch > 0)
+#define COOP_MATCH()  (deathmatch == 0 && numplayers > 1)
+#define SP_MATCH()    (deathmatch == 0 && numplayers <= 1)
 
 #define MAXHEALTH 200
 #define MAXARMOUR 200

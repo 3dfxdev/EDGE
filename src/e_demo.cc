@@ -49,6 +49,7 @@
 #include "m_misc.h"
 #include "m_menu.h"
 #include "m_random.h"
+#include "n_network.h"
 #include "hu_stuff.h"
 #include "p_bot.h"
 #include "p_local.h"
@@ -473,7 +474,7 @@ bool G_FinishDemo(void)
 
 		netdemo = false;
 		netgame = false;
-		deathmatch = false;
+		deathmatch = 0;
 
 		level_flags.fastparm = false;
 		level_flags.nomonsters = false;
