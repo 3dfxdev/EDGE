@@ -233,8 +233,8 @@ typedef struct drawthing_s
   mobj_t *mo;
 
   // vertical extent of sprite (world coords)
-  int top;
-  int bottom;
+  float_t top;
+  float_t bottom;
 
   // for non-cut-off pieces of a sprite, this is NULL, otherwise it is
   // the subsector that the previous (whole, non-split) piece was in.
@@ -246,6 +246,10 @@ typedef struct drawthing_s
   // if this drawthing has not moved, -1 if it moved left, +1 if it
   // moved right.
   int cut_move_dir;
+
+  // true if this sprites should be vertically clipped at a solid
+  // floor or ceiling.
+  boolean_t clip_vert;
   
   // sprite image to use
   int patch;
@@ -375,6 +379,7 @@ planeback_t;
 
 extern boolean_t use_true_bsp;
 extern boolean_t force_classic;
+extern int sprite_kludge;
 
 boolean_t R2_CheckBBox(float_t *bspcoord);
 void R2_RenderTrueBSP(void);
