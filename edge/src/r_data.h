@@ -35,8 +35,11 @@
 #include "r_state.h"
 
 // I/O, setting up the stuff.
-void R_InitData(void);
-void R_PrecacheLevel(void);
+boolean_t R_InitFlats(void);
+boolean_t R_InitPicAnims(void);
+
 void R_AddFlatAnim(animdef_t *anim);
+void R_AddTextureAnim(animdef_t *anim);
+void R_PrecacheLevel(void);
 
 #endif

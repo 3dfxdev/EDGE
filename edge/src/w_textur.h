@@ -49,14 +49,65 @@ void W_DoneWithTexture(const cached_tex_t *t);
 
 void W_PreCacheTextureNum(int texnum);
 
-void W_InitTextures(void);
 
 // Called by P_Ticker for switches and animations,
 // returns the texture number for the texture name.
 int W_TextureNumForName(const char *name);
 int W_CheckTextureNumForName(const char *name);
 
-// -AJA- !!!! FIXME: BIG HACK HERE
-void *W_TextureDefForName(const char *name);
+boolean_t W_InitTextures(void);
+int W_FindTextureSequence(const char *start, const char *end,
+    int *s_offset, int *e_offset);
+const char *W_TextureNameInSet(int set, int offset);
+  
+
+//
+// Graphics:
+// ^^^^^^^^^
+// DOOM graphics for walls and sprites is stored in vertical runs of
+// opaque pixels (posts).
+//
+// A column is composed of zero or more posts, a patch or sprite is
+// composed of zero or more columns.
+//
+
+//
+// A single patch from a texture definition, basically a rectangular area
+// within the texture rectangle.
+//
+// Note: Block origin (always UL), which has already accounted
+// for the internal origin of the patch.
+//
+typedef struct
+{
+  int originx;
+  int originy;
+  int patch;  // lump number
+}
+texpatch_t;
+
+//
+// A texturedef_t describes a rectangular texture, which is composed of
+// one or more mappatch_t structures that arrange graphic patches.
+//
+typedef struct texturedef_s
+{
+  // Keep name for switch changing, etc.  Zero terminated.
+  char name[10];
+
+  short width;
+  short height;
+
+  // which WAD file this texture came from
+  short file;
+  
+  unsigned short *columnofs;
+
+  // All the patches[patchcount] are drawn back to front into the
+  // cached texture.
+  short patchcount;
+  texpatch_t patches[1];
+}
+texturedef_t;
 
 #endif

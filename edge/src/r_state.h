@@ -32,14 +32,6 @@
 #include "m_math.h"
 
 //
-// Refresh internal data structures,
-//  for rendering.
-//
-
-// for global animation
-extern int *texturetranslation;
-
-//
 // Lookup tables for map data.
 //
 extern int numsprites;
@@ -122,9 +114,6 @@ extern angle_t rw_normalangle;
 
 // angle to line origin
 extern int rw_angle1;
-
-// Segs count?
-extern int sscount;
 
 extern visplane_t *floorplane;
 extern visplane_t *ceilingplane;

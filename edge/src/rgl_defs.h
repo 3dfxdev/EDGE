@@ -61,9 +61,6 @@ void RGL_MapClear(void);
 //  RGL_SKY
 //
 //
-void RGL_MarkSky(void);
-void RGL_DrawSky(void);
-
 void RGL_DrawSkyPlane(subsector_t *sub, float_t h);
 void RGL_DrawSkyWall(seg_t *seg, float_t h1, float_t h2);
 
