@@ -27,7 +27,7 @@
 
 #include "i_defs.h"
 
-#include "dh_embed.h"
+#include "dh_plugin.h"
 #include "system.h"
 
 

@@ -29,7 +29,7 @@
 #include "text.h"
 
 #include "buffer.h"
-#include "dh_embed.h"
+#include "dh_plugin.h"
 #include "info.h"
 #include "english.h"
 #include "frames.h"

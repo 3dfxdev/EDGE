@@ -28,7 +28,7 @@
 #include "i_defs.h"
 #include "info.h"
 
-#include "dh_embed.h"
+#include "dh_plugin.h"
 #include "sounds.h"
 #include "mobj.h"
 

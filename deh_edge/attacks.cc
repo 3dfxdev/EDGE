@@ -28,7 +28,7 @@
 #include "i_defs.h"
 #include "attacks.h"
 
-#include "dh_embed.h"
+#include "dh_plugin.h"
 #include "info.h"
 #include "frames.h"
 #include "misc.h"
