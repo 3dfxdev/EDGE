@@ -213,7 +213,9 @@ void G_RecordDemo(const char *filename)
 	epi::string_c demoname;
 
 	M_ComposeFileName(demoname, gamedir, filename);
-	demoname += ".edm";	// FIXME!! Check extension has not been given
+
+	if (M_CheckExtension("edm", demoname.GetString()) == EXT_NONE)
+		demoname += ".edm";
 
 	usergame = false;
 
@@ -291,7 +293,9 @@ void G_DeferredPlayDemo(const char *filename)
 	epi::string_c demoname;
 
 	M_ComposeFileName(demoname, gamedir, filename);
-	demoname += ".edm";	// FIXME!! Check extension has not been given
+
+	if (M_CheckExtension("edm", demoname.GetString()) == EXT_NONE)
+		demoname += ".edm";
 
 	defdemoname.Set(demoname.GetString());
 
