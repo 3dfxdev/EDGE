@@ -15,8 +15,8 @@ AS=nasm -f elf
 
 # optimisation
 #OPTIM=-O3
-#OPTIM=-O -g
-OPTIM=-g3
+#OPTIM=-g3
+OPTIM=-O
 
 # Video options: SDL SDLGL
 VIDEO=SDLGL
@@ -189,7 +189,7 @@ all: $(EDGELIBS) $(PROGNAME)
 
 clean:
 	rm -f $(PROGNAME) core *.o \
-	    $(LX_DIR)/*.o $(SDL_DIR)/*.o $(ASM_DIR)/*.o
+	    $(LX_DIR)/*.o $(SDL_DIR)/*.o $(EPI_DIR)/*.o $(ASM_DIR)/*.o
 
 epi lzo xingmp3:
 	$(MAKE) -C $@ -f Makefile.osx
