@@ -247,6 +247,10 @@ namespace Sounds
 	
 	void MarkSound(int s_num)
 	{
+		// can happen since the binary patches contain the dummy sound
+		if (s_num == sfx_None)
+			return;
+
 		assert(1 <= s_num && s_num < NUMSFX);
 
 		some_sound_modified = true;
