@@ -285,7 +285,8 @@ static void ImageParseLump(const char *spec)
 	{
 		buffer_image.format = LIF_PNG;
 	}
-	else if (DDF_CompareName(keyword, "JPEG") == 0)
+	else if (DDF_CompareName(keyword, "JPG") == 0 ||
+	         DDF_CompareName(keyword, "JPEG") == 0)
 	{
 		buffer_image.format = LIF_JPEG;
 	}
