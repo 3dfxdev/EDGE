@@ -127,9 +127,8 @@ void P_UpdateTotalArmour(player_t *p);
 bool P_AddWeapon(player_t *player, weapondef_c *info, int *index);
 bool P_RemoveWeapon(player_t *player, weapondef_c *info);
 void P_GiveInitialBenefits(player_t *player, const mobjtype_c *info);
-void P_AddPlayerToGame(player_t *p);
-void P_RemovePlayerFromGame(player_t *p);
-void P_RemoveAllPlayers(void);
+void P_CreatePlayer(int pnum);
+void P_DestroyAllPlayers(void);
 
 //
 // P_MOBJ

@@ -388,7 +388,7 @@ void RAD_ActTip(rad_trigger_t *R, mobj_t *actor, void *param)
 	// Only display the tip to the player that stepped into the radius
 	// trigger.
 
-	if (actor->player != consoleplayer)
+	if (actor->player != players[consoleplayer])
 		return;
 
 	SendTip(R, tip, R->tip_slot);
@@ -399,7 +399,7 @@ void RAD_ActTipProps(rad_trigger_t *R, mobj_t *actor, void *param)
 	s_tip_prop_t *tp = (s_tip_prop_t *) param;
 	drawtip_t *current;
 
-	if (actor->player != consoleplayer)
+	if (actor->player != players[consoleplayer])
 		return;
 
 	if (tp->slot_num >= 0)
@@ -516,12 +516,14 @@ void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param)
 void RAD_ActDamagePlayers(rad_trigger_t *R, mobj_t *actor, void *param)
 {
 	s_damagep_t *damage = (s_damagep_t *) param;
-	player_t *p;
 
 	// Make sure these can happen to everyone within the radius.
 	// Damage the player(s)
-	for (p = players; p; p = p->next)
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
+		player_t *p = players[pnum];
+		if (! p) continue;
+
 		if (!RAD_WithinRadius(p->mo, R->info))
 			continue;
 
@@ -532,11 +534,13 @@ void RAD_ActDamagePlayers(rad_trigger_t *R, mobj_t *actor, void *param)
 void RAD_ActHealPlayers(rad_trigger_t *R, mobj_t *actor, void *param)
 {
 	s_healp_t *heal = (s_healp_t *) param;
-	player_t *p;
 
 	// Heal the player(s)
-	for (p = players; p; p = p->next)
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
+		player_t *p = players[pnum];
+		if (! p) continue;
+
 		if (!RAD_WithinRadius(p->mo, R->info))
 			continue;
 
@@ -555,11 +559,13 @@ void RAD_ActHealPlayers(rad_trigger_t *R, mobj_t *actor, void *param)
 void RAD_ActArmourPlayers(rad_trigger_t *R, mobj_t *actor, void *param)
 {
 	s_armour_t *armour = (s_armour_t *) param;
-	player_t *p;
 
 	// Armour for player(s)
-	for (p = players; p; p = p->next)
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
+		player_t *p = players[pnum];
+		if (! p) continue;
+
 		if (!RAD_WithinRadius(p->mo, R->info))
 			continue;
 
@@ -580,10 +586,12 @@ void RAD_ActArmourPlayers(rad_trigger_t *R, mobj_t *actor, void *param)
 void RAD_ActBenefitPlayers(rad_trigger_t *R, mobj_t *actor, void *param)
 {
 	s_benefit_t *be = (s_benefit_t *) param;
-	player_t *p;
 
-	for (p = players; p; p = p->next)
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
+		player_t *p = players[pnum];
+		if (! p) continue;
+
 		if (!RAD_WithinRadius(p->mo, R->info))
 			continue;
 

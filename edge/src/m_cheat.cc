@@ -177,13 +177,13 @@ static void M_ChangeMusicCheat(const char *string)
 
 bool M_CheatResponder(event_t * ev)
 {
-	int i, j;
-	char key;
-	player_t *pl = consoleplayer;
-
 #ifdef NOCHEATS
 	return false;
 #endif
+
+	int i, j;
+	char key;
+	player_t *pl = players[consoleplayer];
 
 	// disable cheats while in RTS menu
 	if (rts_menuactive)

@@ -62,7 +62,17 @@ typedef enum
 	// Waiting to be respawned in the level.
 	PST_REBORN
 }
-playerstate_t;
+playerstate_e;
+
+//
+// Player flags
+typedef enum
+{
+	PFL_Console = 0x0001,
+	PFL_Display = 0x0002,
+	PFL_Bot     = 0x0004
+}
+playerflag_e;
 
 //
 // Player internal flags, for cheats and debug.
@@ -102,21 +112,17 @@ weapon_selection_e;
 //
 typedef struct player_s
 {
-	// Linked list of in-game players.
-	struct player_s *prev, *next;
-
 	// player number.  Starts at 0.
 	int pnum;
-
-	// is this player currently playing ?
-	// NOTE: when false, all fields below it are unused.
-	bool in_game;
 
 	// actions to perform.  Comes either from the local computer or over
 	// the network in multiplayer mode.
 	ticcmd_t cmd;
 
-	playerstate_t playerstate;
+	playerstate_e playerstate;
+
+	// miscellaneous flags
+	int playerflags;
 
 	// map object that this player controls.  Will be NULL outside of a
 	// level (e.g. on the intermission screen).
@@ -160,10 +166,6 @@ typedef struct player_s
 	// Set of keys held
 	keys_e cards;
 
-	// Frags, kills of other players.
-	int frags;
-	int totalfrags;
-
 	// weapons, either an index into the player->weapons[] array, or one
 	// of the WPSEL_* values.
 	weapon_selection_e ready_wp;
@@ -194,10 +196,15 @@ typedef struct player_s
 	// Refired shots are less accurate.
 	int refire;
 
+	// Frags, kills of other players.
+	int frags;
+	int totalfrags;
+
 	// For intermission stats.
 	int killcount;
 	int itemcount;
 	int secretcount;
+	int leveltime;
 
 	// For screen flashing (red or bright).
 	int damagecount;
@@ -257,9 +264,8 @@ typedef struct player_s
 	ticcmd_t netcmds[BACKUPTICS];
 	int netnode;
 
-	// This function will be called by P_PlayerThink to initialise
-	// the ticcmd_t.
-	void (*thinker)(const struct player_s *, void *data, ticcmd_t *dest);
+	// This function will be called to initialise the ticcmd_t.
+	void (*builder)(const struct player_s *, void *data, ticcmd_t *dest);
 	void *data;
 }
 player_t;
@@ -268,6 +274,7 @@ player_t;
 // INTERMISSION
 // Structure passed e.g. to WI_Start(wb)
 //
+#if 0
 typedef struct
 {
 	bool in;  // whether the player is in game
@@ -281,6 +288,7 @@ typedef struct
 	int totalfrags;
 }
 wbplayerstruct_t;
+#endif
 
 typedef struct
 {
@@ -298,16 +306,16 @@ typedef struct
 	// the par time
 	int partime;
 
-	// index of this player in game
-	int me;
-
-	wbplayerstruct_t *plrs;
+///---	// index of this player in game
+///---	int me;
+///---
+///---	wbplayerstruct_t *plrs;
 }
 wbstartstruct_t;
 
-// Player thinkers
-void P_ConsolePlayerThinker(const player_t *p, void *data, ticcmd_t *dest);
-void P_BotPlayerThinker(const player_t *p, void *data, ticcmd_t *dest);
+// Player ticcmd builders
+void P_ConsolePlayerBuilder(const player_t *p, void *data, ticcmd_t *dest);
+void P_BotPlayerBuilder(const player_t *p, void *data, ticcmd_t *dest);
 
 // This is the only way to create a new player.
 void P_AddPlayer(int pnum);

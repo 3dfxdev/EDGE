@@ -395,6 +395,8 @@ public:
 	int GetSize() { return array_entries; } 
 	
 	spawnpoint_t* operator[](int idx) { return (spawnpoint_t*)FetchObject(idx); } 
+
+	spawnpoint_t* FindPlayer(int pnum);
 };
 
 // Map Object definition.

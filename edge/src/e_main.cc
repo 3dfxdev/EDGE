@@ -146,8 +146,6 @@ gameflags_t level_flags;
 
 gameflags_t global_flags;
 
-bool drone = false;
-
 skill_t startskill;
 char *startmap;
 
@@ -740,8 +738,7 @@ void E_Display(void)
 	}
 	else if (screenshot_rate && gamestate == GS_LEVEL)
 	{
-		if (!singletics)
-			I_Error("E_Display: -screenshot must be used in conjunction with timedemo or singletics!");
+		DEV_ASSERT2(singletics);
 
 		if (leveltime % screenshot_rate == 0)
 			M_ScreenShot();
@@ -862,7 +859,7 @@ static void DemoNextPicture(void)
 //
 void E_DoAdvanceDemo(void)
 {
-	consoleplayer->playerstate = PST_LIVE;  // not reborn
+//!!!!	consoleplayer->playerstate = PST_LIVE;  // not reborn
 
 	advancedemo = false;
 	usergame = false;     // no save or end game here
@@ -1309,6 +1306,7 @@ static void CheckSkillEtc(void)
 	if (ps)
 	{
 		screenshot_rate = atoi(ps);
+		singletics = true;
 	}
 }
 
@@ -1747,7 +1745,7 @@ namespace engine
 		{
 			I_ControlGetEvents();
 			E_ProcessEvents();
-			E_BuildTiccmd(&consoleplayer->netcmds[maketic % BACKUPTICS]);
+			E_BuildTiccmd(&players[consoleplayer]->netcmds[maketic % BACKUPTICS]);
 
 			if (advancedemo)
 				E_DoAdvanceDemo();

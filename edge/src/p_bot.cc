@@ -39,9 +39,6 @@
 #include "p_action.h"
 #include "rad_trig.h"
 
-// Linked list of all bots.
-static bot_t *bots = NULL;
-
 static float bot_atkrange;
 static mobj_t *bot_shooter = NULL;
 
@@ -582,18 +579,15 @@ void BOT_DMSpawn(void)
 //
 void P_BotCreate(player_t *p)
 {
-	bot_t *bot;
+	bot_t *bot = Z_ClearNew(bot_t, 1);
 
-	p->thinker = P_BotPlayerThinker;
-	P_AddPlayerToGame(p);
-
-	bot = Z_ClearNew(bot_t, 1);
+	p->builder = P_BotPlayerBuilder;
 	p->data = (void *)bot;
+	p->playerflags |= PFL_Bot;
+
+	sprintf(p->playername, "Bot%d", p->pnum + 1);
 
 	bot->pl = p;
-
-	bot->next = bots;
-	bots = bot;
 }
 
 //
@@ -754,7 +748,7 @@ static void DoThink(bot_t *bot)
 	BotThink(bot);
 }
 
-void P_BotPlayerThinker(const player_t *p, void *data, ticcmd_t *cmd)
+void P_BotPlayerBuilder(const player_t *p, void *data, ticcmd_t *cmd)
 {
 	bot_t *bot = (bot_t *)data;
 

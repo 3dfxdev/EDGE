@@ -98,8 +98,6 @@ static style_c *finale_hack_style;
 //
 void F_StartFinale(const map_finaledef_c * f, gameaction_e newaction)
 {
-	player_t *p;
-
 	finalestage = f_text;
 	finalecount = 0;
 	gameaction = ga_nothing;
@@ -109,8 +107,9 @@ void F_StartFinale(const map_finaledef_c * f, gameaction_e newaction)
 	newgameaction = newaction;
 	picnum = 0;
 
-	for (p = players; p; p = p->next)
-		p->cmd.buttons = 0;
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
+		if (players[pnum])
+			players[pnum]->cmd.buttons = 0;
 
 	// here is where we lookup the required images
 

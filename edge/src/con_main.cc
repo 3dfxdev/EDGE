@@ -547,7 +547,7 @@ int CON_CMDPlaySound(const char *args)
 //                  #define to procedure because of compiler
 //                  differences.
 //
-void CON_PlayerMessage(player_t *plyr, const char *message, ...)
+void CON_PlayerMessage(int plyr, const char *message, ...)
 {
 	va_list argptr;
 	char buffer[256];
@@ -571,7 +571,7 @@ void CON_PlayerMessage(player_t *plyr, const char *message, ...)
 //                  #define to procedure because of compiler
 //                  differences.
 //
-void CON_PlayerMessageLDF(player_t *plyr, const char *lookup, ...)
+void CON_PlayerMessageLDF(int plyr, const char *lookup, ...)
 {
 	va_list argptr;
 	char buffer[256];
@@ -579,13 +579,14 @@ void CON_PlayerMessageLDF(player_t *plyr, const char *lookup, ...)
 	if (consoleplayer != plyr)
 		return;
 
+	lookup = language[lookup];
+
 	Z_Clear(buffer, char, 256);
 
 	va_start(argptr, lookup);
-	vsprintf(buffer, language[lookup], argptr);
+	vsprintf(buffer, lookup, argptr);
 	va_end(argptr);
 
 	CON_Message("%s", buffer);
 }
-
 

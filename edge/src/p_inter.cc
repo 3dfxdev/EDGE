@@ -526,7 +526,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 		if (special->info->pickup_message &&
 			language.IsValidRef(special->info->pickup_message))
 		{
-			CON_PlayerMessage(player, 
+			CON_PlayerMessage(player->pnum, 
 				language[special->info->pickup_message]);
 		}
 
@@ -594,7 +594,7 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype)
 	{
 		// count all monster deaths,
 		// even those caused by other monsters
-		consoleplayer->killcount++;
+		players[consoleplayer]->killcount++;
 	}
 
 	if (target->player)
@@ -614,7 +614,7 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype)
 		P_DropWeapon(target->player);
 
 		// don't die in auto map, switch view prior to dying
-		if (target->player == consoleplayer && automapactive)
+		if (target->player == players[consoleplayer] && automapactive)
 			AM_Stop();
 	}
 

@@ -479,10 +479,10 @@ static void P_UpdatePowerups(player_t *player)
 }
 
 //
-// P_ConsolePlayerThinker
+// P_ConsolePlayerBuilder
 //
 // Does the thinking of the console player, i.e. read from input
-void P_ConsolePlayerThinker(const player_t *p, void *data, ticcmd_t *dest)
+void P_ConsolePlayerBuilder(const player_t *p, void *data, ticcmd_t *dest)
 {
 	E_BuildTiccmd(dest);
 }
@@ -661,29 +661,21 @@ void P_PlayerThink(player_t * player)
 }
 
 //
-// P_AddPlayer
+// P_CreatePlayer
 //
-// Creates a new player.
-//
-void P_AddPlayer(int pnum)
+void P_CreatePlayer(int pnum)
 {
-	player_t *p;
-	char namebuf[32];
-
 	DEV_ASSERT2(0 <= pnum && pnum < MAXPLAYERS);
 
-	if (playerlookup == NULL)
-		playerlookup = Z_ClearNew(player_t *, MAXPLAYERS);
+	DEV_ASSERT(! players[pnum], ("P_AddPlayer: %d already there", pnum));
 
-	DEV_ASSERT(! playerlookup[pnum], 
-		("P_AddPlayer: %d already there", pnum));
-
-	p = playerlookup[pnum] = Z_ClearNew(player_t, 1);
-
-	p->in_game = false;
+	player_t *p = Z_ClearNew(player_t, 1);
 	p->pnum = pnum;
 
+	players[pnum] = p;
+
 	// determine name
+	char namebuf[32];
 	sprintf(namebuf, "Player%dName", pnum + 1);
 
 	if (language.IsValidRef(namebuf))
@@ -699,99 +691,19 @@ void P_AddPlayer(int pnum)
 }
 
 //
-// P_RemoveAllPlayers
+// P_DestroyAllPlayers
 //
-void P_RemoveAllPlayers(void)
+void P_DestroyAllPlayers(void)
 {
-	int i;
-
-	players = NULL;
-
-	for (i=0; i < MAXPLAYERS; i++)
+	for (int pnum=0; pnum < MAXPLAYERS; pnum++)
 	{
-		if (!playerlookup[i])
+		if (! players[pnum])
 			continue;
 
-		Z_Free(playerlookup[i]);
-		playerlookup[i] = NULL;
+		Z_Free(players[pnum]);
+
+		players[pnum] = NULL;
 	}
-}
-
-//
-// P_AddPlayerToGame
-//
-void P_AddPlayerToGame(player_t *p)
-{
-	int i;
-
-	DEV_ASSERT2(0 <= p->pnum && p->pnum < MAXPLAYERS);
-
-	if (p->in_game)
-		return;
-
-	p->in_game = true;
-
-	// Link it in.  The list is sorted by pnum.
-	if (players == NULL)
-	{
-		p->next = p->prev = NULL;
-		players = p;
-		return;
-	}
-
-	// find player directly before this one, if any
-	for (i = p->pnum - 1; i >= 0; i--)
-		if (playerlookup[i] && playerlookup[i]->in_game)
-			break;
-
-	if (i < 0)
-	{
-		p->next = players;
-		p->prev = NULL;
-
-		if (p->next)
-			p->next->prev = p;
-
-		players = p;
-	}
-	else
-	{
-		p->next = playerlookup[i]->next;
-		p->prev = playerlookup[i];
-
-		if (p->next)
-			p->next->prev = p;
-
-		playerlookup[i]->next = p;
-	}
-
-	L_WriteDebug("  List:\n");
-	for (p=players; p; p=p->next)
-	{
-		L_WriteDebug("    %p %d\n", p, p->pnum+1);
-	}
-	L_WriteDebug("  EndList\n");
-}
-
-//
-// P_RemovePlayerFromGame
-//
-void P_RemovePlayerFromGame(player_t *p)
-{
-	DEV_ASSERT2(0 <= p->pnum && p->pnum < MAXPLAYERS);
-
-	if (!p->in_game)
-		return;
-
-	if (p->next)
-		p->next->prev = p->prev;
-
-	if (p->prev)
-		p->prev->next = p->next;
-	else
-		players = p->next;
-
-	p->in_game = false;
 }
 
 //

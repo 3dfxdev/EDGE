@@ -435,15 +435,16 @@ static int StartSoundAtVolume(mobj_t *origin, sfxdef_c *sfx, int volume)
 	// Check to see if it is audible,
 	//  and if not, modify the params
 
-	if (origin && origin != consoleplayer->mo)
+	player_t *p = players[displayplayer];
+
+	if (origin && origin != p->mo)
 	{
-		rc = AdjustSoundParams(sfx, consoleplayer->mo, origin,
-			&volume, &sep);
+		rc = AdjustSoundParams(sfx, p->mo, origin, &volume, &sep);
 
 		if (!rc)
 			return -1;
 
-		if (origin->x == consoleplayer->mo->x && origin->y == consoleplayer->mo->y)
+		if (origin->x == p->mo->x && origin->y == p->mo->y)
 		{
 			sep = NORM_SEP;
 		}
@@ -840,7 +841,7 @@ void S_UpdateSounds(mobj_t *listener)
 void S_SoundTicker(void)
 {
 	I_SoundTicker();
-	S_UpdateSounds(consoleplayer->mo);
+	S_UpdateSounds(players[displayplayer]->mo);
 }
 
 //

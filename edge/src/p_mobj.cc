@@ -85,12 +85,10 @@ public:
 	int Insert(mobj_t *mo) 
 	{ 
 		epi::array_iterator_c it;
-		mobj_t *mo2;
 		
 		for (it=GetBaseIterator(); it.IsValid(); it++)
 		{
-			mo2 = ITERATOR_TO_TYPE(it, mobj_t*);
-			if (mo == mo2)
+			if (mo == ITERATOR_TO_TYPE(it, mobj_t*))
 				return -1;
 		}
 	
@@ -100,17 +98,27 @@ public:
 
 mobjlist_c removeque;
 
-//
-// Holds the players real Z location, so the missile when teleported to
-// a different height sector stay relative to it.
-//
-float realplayerz = 0;  //-jc-
-
 // List of all objects in map.
 mobj_t *mobjlisthead;
 
 // Where objects go to die...
 iteminque_t *itemquehead;
+
+spawnpoint_t* spawnpointarray_c::FindPlayer(int pnum)
+{
+	epi::array_iterator_c it;
+	
+	for (it=GetBaseIterator(); it.IsValid(); it++)
+	{
+		spawnpoint_t *point = ITERATOR_TO_PTR(it, spawnpoint_t);
+		DEV_ASSERT2(point->info);
+
+		if (point->info->playernum == pnum)
+			return point;
+	}
+
+	return NULL;  // not found
+}
 
 // =========================== INTERNALS =========================== 
 
@@ -1489,155 +1497,6 @@ void P_RemoveMobj(mobj_t *mo)
 }
 
 //
-// P_SpawnPlayer
-//
-// Called when a player is spawned on the level.
-// Most of the player structure stays unchanged between levels.
-//
-// -KM- 1998/12/21 Cleaned this up a bit.
-// -KM- 1999/01/31 Removed all those nasty cases for doomednum (1/4001)
-//
-void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
-{
-	float x, y, z;
-
-	mobj_t *mobj;
-
-	int i;
-
-	// -ES- FIXME: Move these checks higher up.
-	if (!p)
-		return;
-
-	// -jc- not playing?
-	if (!p->in_game)
-		return;
-
-	// -KM- 1998/11/25 This is in preparation for skins.  The creatures.ddf
-	//   will hold player start objects, sprite will be taken for skin.
-	// -AJA- 2004/04/14: Use DDF entry from level thing.
-
-	if (point->info == NULL)
-		I_Error("P_SpawnPlayer: No such item type!");
-
-	const mobjtype_c *info = point->info;
-	if (info->playernum <= 0)
-		info = mobjtypes.LookupPlayer(p->pnum + 1);
-
-	if (p->playerstate == PST_REBORN)
-	{
-		G_PlayerReborn(p, info);
-	}
-
-	x = point->x;
-	y = point->y;
-	z = point->z;
-
-	mobj = P_MobjCreateObject(x, y, z, info);
-
-	mobj->angle = point->angle;
-	mobj->vertangle = point->vertangle;
-	mobj->player = p;
-	mobj->health = p->health;
-
-	p->mo = mobj;
-	p->playerstate = PST_LIVE;
-	p->refire = 0;
-	p->damagecount = 0;
-	p->bonuscount = 0;
-	p->extralight = 0;
-	p->effect_colourmap = NULL;
-	p->std_viewheight = mobj->height * PERCENT_2_FLOAT(info->viewheight);
-	p->viewheight = p->std_viewheight;
-	p->jumpwait = 0;
-
-	// setup gun psprite
-	P_SetupPsprites(p);
-
-	// give all cards in death match mode
-	if (deathmatch)
-		p->cards = KF_MASK;
-
-	// -AJA- in COOP, all players are on the same side
-	if (netgame && !deathmatch)
-		mobj->side = 0x7FFFFFFF;
-
-	// -AJA- FIXME: surely this belongs elsewhere.
-	if (p == consoleplayer)
-	{
-		char buffer[16];
-
-		// wake up the status bar
-		ST_Start();
-
-		// wake up the heads up text
-		HU_Start();
-
-		CON_DeleteCVar("health");
-		CON_CreateCVarReal("health", (cflag_t)(cf_read | cf_delete), &mobj->health);
-		CON_DeleteCVar("frags");
-		CON_CreateCVarInt("frags", (cflag_t)(cf_read | cf_delete), &p->frags);
-		CON_DeleteCVar("totalfrags");
-		CON_CreateCVarInt("totalfrags", (cflag_t)(cf_read | cf_delete), &p->totalfrags);
-
-		for (i = 0; i < NUMAMMO; i++)
-		{
-			sprintf(buffer, "ammo%d", i);
-			CON_DeleteCVar(buffer);
-			CON_CreateCVarInt(buffer, (cflag_t)(cf_read | cf_delete), &p->ammo[i].num);
-
-			sprintf(buffer, "maxammo%d", i);
-			CON_DeleteCVar(buffer);
-			CON_CreateCVarInt(buffer, (cflag_t)(cf_read | cf_delete), &p->ammo[i].max);
-		}
-
-#if 0  // FIXME:
-		for (i = num_disabled_weapons; i < numweapons; i++)
-		{
-			sprintf(buffer, "weapon%d", i);
-			CON_DeleteCVar(buffer);
-			CON_CreateCVarBool(buffer, (cflag_t)(cf_read | cf_delete), &p->weapons[i].owned);
-		}
-#endif
-
-		for (i = 0; i < NUMARMOUR; i++)
-		{
-			sprintf(buffer, "armour%d", i);
-			CON_DeleteCVar(buffer);
-			CON_CreateCVarReal(buffer, (cflag_t)(cf_read | cf_delete), &p->armours[i]);
-		}
-
-#if 0  // FIXME:
-		for (i = 0; i < NUMCARDS; i++)
-		{
-			sprintf(buffer, "key%d", i);
-			CON_DeleteCVar(buffer);
-			CON_CreateCVarBool(buffer, cf_read | cf_delete, &p->cards[i]);
-		}
-#endif
-
-		for (i = 0; i < NUMPOWERS; i++)
-		{
-			sprintf(buffer, "power%d", i);
-			CON_DeleteCVar(buffer);
-			CON_CreateCVarReal(buffer, (cflag_t)(cf_read | cf_delete), &p->powers[i]);
-		}
-	}
-
-	// Heh, make a drone player invisible and no clip
-	if (doomcom->drone & (1 << p->pnum))
-	{
-		mobj->vis_target = mobj->visibility = INVISIBLE;
-		mobj->flags |= MF_NOCLIP;
-		mobj->flags &= ~(MF_SHOOTABLE | MF_SOLID);
-	}
-
-	// Don't get stuck spawned in things: telefrag them.
-	if (deathmatch >= 3)
-		P_TeleportMove(mobj, mobj->x, mobj->y, mobj->z);
-}
-
-//
 // GAME SPAWN FUNCTIONS
 //
 
@@ -1898,7 +1757,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 	mobj->z = P_ComputeThingGap(mobj, sec, z, &mobj->floorz, &mobj->ceilingz);
 
 	// Find the real players height (TELEPORT WEAPONS).
-	mobj->origheight = z - realplayerz;  //-jc-
+	mobj->origheight = z;
 
 	// update totals for countable items.  Doing it here means that
 	// things spawned dynamically can be counted as well.  Whilst this
@@ -1908,6 +1767,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 
 	if (mobj->flags & MF_COUNTKILL)
 		totalkills++;
+
 	if (mobj->flags & MF_COUNTITEM)
 		totalitems++;
 

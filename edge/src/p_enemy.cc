@@ -429,19 +429,19 @@ bool P_LookForPlayers(mobj_t * actor, angle_t range)
 	float dist;
 
 	c = 0;
-	stop = (actor->lastlook - 1) % MAXPLAYERS;
+	stop = (actor->lastlook - 1 + MAXPLAYERS) % MAXPLAYERS;
 
-	for (;; actor->lastlook = (actor->lastlook + 1) % MAXPLAYERS)
+	for (; actor->lastlook != stop; actor->lastlook = (actor->lastlook + 1) % MAXPLAYERS)
 	{
-		player = playerlookup[actor->lastlook];
+		player = players[actor->lastlook];
 
-		if (!player || !player->in_game)
+		if (!player)
 			continue;
 
 		DEV_ASSERT2(player->mo);
 
 		// done looking ?
-		if (c++ == 2 || actor->lastlook == stop)
+		if (c++ >= 2)
 			break;
 
 		// dead ?

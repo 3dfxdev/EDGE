@@ -352,6 +352,9 @@ const char *I_SoundReturnError(void);
 //
 // -ACB- 1999/09/20 Moved from I_Net.H
 
+void I_StartupNetwork(void);
+void I_ShutdownNetwork(void);
+
 void I_InitNetwork(void);
 // Initialise the platform's networking code.  Not currently used.
 // Note well that networking in EDGE is not currently implemented, and

@@ -31,6 +31,7 @@
 #include "g_game.h"
 
 #include "am_map.h"
+#include "con_cvar.h"
 #include "con_main.h"
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -68,6 +69,10 @@
 #include "z_zone.h"
 
 #include "epi/epiendian.h"
+
+#ifdef USE_HAWKNL
+#include "n_network.h"  //!!!!!
+#endif
 
 #define SAVEGAMESIZE    0x50000
 #define SAVESTRINGSIZE  24
@@ -130,14 +135,23 @@ int deathmatch;
 // only true if packets are broadcast 
 bool netgame;
 
-player_t *players = NULL;
-player_t **playerlookup = NULL;
+//
+// PLAYER ARRAY
+//
+// Main rule is that players[p->num] == p (for all players p).
+// The array only holds players "in game", the remaining fields
+// are NULL.  There may be NULL entries in-between valid entries
+// (e.g. player #2 left the game, so players[2] becomes NULL).
+// This means that num_players is NOT an index to last entry + 1.
+//
+// The consoleplayer and displayplayer variables must be valid
+// indices at all times.
+//
+player_t *players[MAXPLAYERS];
+int num_players;
 
-// player taking events and displaying 
-player_t *consoleplayer;
-
-// view being displayed 
-player_t *displayplayer;
+int consoleplayer; // player taking events and displaying 
+int displayplayer; // view being displayed 
 
 int gametic;
 
@@ -217,8 +231,6 @@ static void WriteByteToDemo(byte c)
 //
 void G_DoLoadLevel(void)
 {
-	player_t *p;
-
 	if (currmap == NULL)
 		I_Error("G_DoLoadLevel: No Current Map selected");
 
@@ -242,8 +254,11 @@ void G_DoLoadLevel(void)
 	background_camera_mo = NULL;
 	R_ExecuteSetViewSize();
 
-	for (p = players; p; p = p->next)
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
+		player_t *p = players[pnum];
+		if (! p) continue;
+
 		if (p->playerstate == PST_DEAD ||
 			(currmap->force_on & MPF_ResetPlayer))
 		{
@@ -313,10 +328,7 @@ void G_DoLoadLevel(void)
 
 	RAD_SpawnTriggers(currmap->ddf.name.GetString());
 
-	// -KM- 1998/12/21 If a drone player, the display player is already
-	//   set up.
-	if (!drone)
-		displayplayer = consoleplayer;  // view the guy you are playing
+	displayplayer = consoleplayer;  // view the guy you are playing
 
 	starttime = I_GetTime();
 	exittime = 0x7fffffff;
@@ -335,6 +347,23 @@ void G_DoLoadLevel(void)
 	viewactive = true;
 }
 
+static void G_ChangeDisplayPlayer(void)
+{
+	for (int i = 0; i < MAXPLAYERS; i++)
+	{
+		int pnum = (displayplayer + i) % MAXPLAYERS;
+
+		if (players[pnum])
+		{
+			players[displayplayer]->playerflags &= ~PFL_Display;
+			displayplayer = pnum;
+
+			players[displayplayer]->playerflags |= PFL_Display;
+			return;
+		}
+	}
+}
+
 //
 // G_Responder  
 //
@@ -347,14 +376,7 @@ bool G_Responder(event_t * ev)
 		(ev->value.key == KEYD_F12) && (demoplayback || !deathmatch))
 	{
 		// spy mode 
-		do
-		{
-			displayplayer = displayplayer->next;
-			if (!displayplayer)
-				displayplayer = players;
-		}
-		while (!displayplayer->in_game && displayplayer != consoleplayer);
-
+		G_ChangeDisplayPlayer();
 		return true;
 	}
 
@@ -408,12 +430,14 @@ void G_Ticker(void)
 {
 	int buf;
 	ticcmd_t *cmd;
-	player_t *p;
+	int pnum;
 
 	// do player reborns if needed
-	for (p = players; p; p = p->next)
+	for (pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
-		if (p->playerstate == PST_REBORN)
+		player_t *p = players[pnum];
+
+		if (p && p->playerstate == PST_REBORN)
 			G_DoReborn(p);
 	}
 
@@ -477,10 +501,13 @@ void G_Ticker(void)
 
 	// get commands, check consistency,
 	// and build new consistency check
-	buf = (gametic / ticdup) % BACKUPTICS;
+	buf = gametic % BACKUPTICS;
 
-	for (p = players; p; p = p->next)
+	for (pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
+		player_t *p = players[pnum];
+		if (! p) continue;
+
 		cmd = &p->cmd;
 
 		// -ES- FIXME: Change format of player_t->cmd?
@@ -499,7 +526,7 @@ void G_Ticker(void)
 			CON_Printf(language["IsTurbo"], p->playername);
 		}
 
-		if (netgame && !netdemo && !(gametic % ticdup))
+		if (netgame && !netdemo)
 		{
 			if (gametic > BACKUPTICS
 				&& p->consistency[buf] != cmd->consistency)
@@ -514,9 +541,12 @@ void G_Ticker(void)
 		}
 	}
 	// check for special buttons
-	for (p = players; p; p = p->next)
+	for (pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
-		if (!(p->cmd.buttons & BT_SPECIAL))
+		player_t *p = players[pnum];
+		if (! p) continue;
+
+		if (! (p->cmd.buttons & BT_SPECIAL))
 			continue;
 
 		switch (p->cmd.buttons & BT_SPECIALMASK)
@@ -579,7 +609,6 @@ void G_Ticker(void)
 
 //
 // PLAYER STRUCTURE FUNCTIONS
-// also see P_SpawnPlayer in P_Things
 //
 
 
@@ -619,10 +648,8 @@ static void G_PlayerFinishLevel(player_t *p)
 //
 void G_PlayerReborn(player_t *p, const mobjtype_c *info)
 {
-	bool in_game;
-	player_t *next, *prev;
 	void *data;
-	void (*thinker)(const player_t *, void *, ticcmd_t *);
+	void (*builder)(const player_t *, void *, ticcmd_t *);
 
 	int frags;
 	int totalfrags;
@@ -636,32 +663,26 @@ void G_PlayerReborn(player_t *p, const mobjtype_c *info)
 	killcount = p->killcount;
 	itemcount = p->itemcount;
 	secretcount = p->secretcount;
-	thinker = p->thinker;
+	builder = p->builder;
 	data = p->data;
-	prev = p->prev;
-	next = p->next;
 
 #if 0  // -AJA- 2004/04/14: use DDF entry from level thing
 	info = DDF_MobjLookupPlayer(p->pnum+1);
 #endif
 
-	in_game = p->in_game;
 	pnum = p->pnum;
 
 	Z_Clear(p, player_t, 1);
 
 	p->pnum = pnum;
-	p->in_game = in_game;
 
 	p->frags = frags;
 	p->totalfrags = totalfrags;
 	p->killcount = killcount;
 	p->itemcount = itemcount;
 	p->secretcount = secretcount;
-	p->thinker = thinker;
+	p->builder = builder;
 	p->data = data;
-	p->prev = prev;
-	p->next = next;
 
 	// don't do anything immediately 
 	p->usedown = p->attackdown[0] = p->attackdown[1] = false;
@@ -675,19 +696,24 @@ void G_PlayerReborn(player_t *p, const mobjtype_c *info)
 // G_CheckSpot  
 //
 // Returns false if the player cannot be respawned at the given spot
-// because something is occupying it 
+// because something is occupying it.
 //
 static bool G_CheckSpot(player_t *player, const spawnpoint_t *point)
 {
 	float x, y, z;
-	player_t *p;
 
 	if (!player->mo)
 	{
 		// first spawn of level, before corpses
-		for (p = players; p != player; p = p->next)
+		for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 		{
-			if (p->mo->x == point->x && p->mo->y == point->y)
+			player_t *p = players[pnum];
+
+			if (!p || !p->mo || p == player)
+				continue;
+
+			if (fabs(p->mo->x - point->x) < 8.0f &&
+				fabs(p->mo->y - point->y) < 8.0f)
 				return false;
 		}
 		return true;
@@ -715,68 +741,230 @@ static bool G_CheckSpot(player_t *player, const spawnpoint_t *point)
 	return true;
 }
 
+static void SetPlayerConVars(player_t *p)
+{
+	mobj_t *mobj = p->mo;
+
+	char buffer[16];
+
+	CON_DeleteCVar("health");
+	CON_DeleteCVar("frags");
+	CON_DeleteCVar("totalfrags");
+
+	CON_CreateCVarReal("health", (cflag_t)(cf_read | cf_delete), &mobj->health);
+	CON_CreateCVarInt("frags", (cflag_t)(cf_read | cf_delete), &p->frags);
+	CON_CreateCVarInt("totalfrags", (cflag_t)(cf_read | cf_delete), &p->totalfrags);
+
+	int i;
+	for (i = 0; i < NUMAMMO; i++)
+	{
+		sprintf(buffer, "ammo%d", i);
+		CON_DeleteCVar(buffer);
+		CON_CreateCVarInt(buffer, (cflag_t)(cf_read | cf_delete), &p->ammo[i].num);
+
+		sprintf(buffer, "maxammo%d", i);
+		CON_DeleteCVar(buffer);
+		CON_CreateCVarInt(buffer, (cflag_t)(cf_read | cf_delete), &p->ammo[i].max);
+	}
+
+#if 0  // FIXME:
+	for (i = num_disabled_weapons; i < numweapons; i++)
+	{
+		sprintf(buffer, "weapon%d", i);
+		CON_DeleteCVar(buffer);
+		CON_CreateCVarBool(buffer, (cflag_t)(cf_read | cf_delete), &p->weapons[i].owned);
+	}
+#endif
+
+	for (i = 0; i < NUMARMOUR; i++)
+	{
+		sprintf(buffer, "armour%d", i);
+		CON_DeleteCVar(buffer);
+		CON_CreateCVarReal(buffer, (cflag_t)(cf_read | cf_delete), &p->armours[i]);
+	}
+
+#if 0  // FIXME:
+	for (i = 0; i < NUMCARDS; i++)
+	{
+		sprintf(buffer, "key%d", i);
+		CON_DeleteCVar(buffer);
+		CON_CreateCVarBool(buffer, cf_read | cf_delete, &p->cards[i]);
+	}
+#endif
+
+	for (i = 0; i < NUMPOWERS; i++)
+	{
+		sprintf(buffer, "power%d", i);
+		CON_DeleteCVar(buffer);
+		CON_CreateCVarReal(buffer, (cflag_t)(cf_read | cf_delete), &p->powers[i]);
+	}
+}
+
+//
+// P_SpawnPlayer
+//
+// Called when a player is spawned on the level.
+// Most of the player structure stays unchanged between levels.
+//
+// -KM- 1998/12/21 Cleaned this up a bit.
+// -KM- 1999/01/31 Removed all those nasty cases for doomednum (1/4001)
+//
+void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
+{
+	float x, y, z;
+
+	mobj_t *mobj;
+
+	// -KM- 1998/11/25 This is in preparation for skins.  The creatures.ddf
+	//   will hold player start objects, sprite will be taken for skin.
+	// -AJA- 2004/04/14: Use DDF entry from level thing.
+
+	if (point->info == NULL)
+		I_Error("P_SpawnPlayer: No such item type!");
+
+	const mobjtype_c *info = point->info;
+
+	if (info->playernum <= 0)
+		info = mobjtypes.LookupPlayer(p->pnum + 1);
+
+	if (p->playerstate == PST_REBORN)
+	{
+		G_PlayerReborn(p, info);
+	}
+
+	x = point->x;
+	y = point->y;
+	z = point->z;
+
+	mobj = P_MobjCreateObject(x, y, z, info);
+
+	mobj->angle = point->angle;
+	mobj->vertangle = point->vertangle;
+	mobj->player = p;
+	mobj->health = p->health;
+
+	p->mo = mobj;
+	p->playerstate = PST_LIVE;
+	p->refire = 0;
+	p->damagecount = 0;
+	p->bonuscount = 0;
+	p->extralight = 0;
+	p->effect_colourmap = NULL;
+	p->std_viewheight = mobj->height * PERCENT_2_FLOAT(info->viewheight);
+	p->viewheight = p->std_viewheight;
+	p->jumpwait = 0;
+
+	// setup gun psprite
+	P_SetupPsprites(p);
+
+	// give all cards in death match mode
+	if (deathmatch)
+		p->cards = KF_MASK;
+
+	// -AJA- in COOP, all players are on the same side
+	if (netgame && !deathmatch)
+		mobj->side = 0x7FFFFFFF;
+
+	// -AJA- FIXME: maybe this belongs elsewhere.
+	if (p->pnum == consoleplayer)
+	{
+		// wake up the status bar and heads up text
+		ST_Start();
+		HU_Start();
+
+		SetPlayerConVars(p);
+	}
+
+	// Don't get stuck spawned in things: telefrag them.
+	P_TeleportMove(mobj, mobj->x, mobj->y, mobj->z);
+}
+
 //
 // G_DeathMatchSpawnPlayer 
 //
-// Spawns a player at one of the random death match spots
-// called at level load and each death 
+// Spawns a player at one of the random deathmatch spots.
+// Called at level load and each death.
 //
 void G_DeathMatchSpawnPlayer(player_t *p)
 {
-	epi::array_iterator_c it;
-	spawnpoint_t *sp;
-	
-	int i, j;
-	int begin;
-
 	if (p->pnum >= dm_starts.GetSize())
 		I_Warning("Few deathmatch spots, %d recommended.\n", p->pnum + 1);
 
 	if (dm_starts.GetSize())
 	{
-		begin = P_Random() % dm_starts.GetSize();
+		int begin = P_Random() % dm_starts.GetSize();
 
-		for (j = 0; j < dm_starts.GetSize(); j++)
+		for (int j = 0; j < dm_starts.GetSize(); j++)
 		{
-			i = (begin + it.GetPos()) % dm_starts.GetSize();
+			int i = (begin + j) % dm_starts.GetSize();
 
-			sp = dm_starts[i];
-			if (G_CheckSpot(p, sp))
+			if (G_CheckSpot(p, dm_starts[i]))
 			{
-				P_SpawnPlayer(p, sp);
+				P_SpawnPlayer(p, dm_starts[i]);
 				return;
 			}
 		}
-
-		// no good spot, so the player will probably get stuck
-		if (playerstarts[p->pnum].info)
-			P_SpawnPlayer(p, &playerstarts[p->pnum]);
-		else
-			P_SpawnPlayer(p, dm_starts[begin]);
 	}
-	else
+
+	// no good spot, so the player will probably get stuck
+	if (coop_starts.GetSize())
 	{
-		// No deathmatch spawn exists.
-		if (playerstarts[p->pnum].info)
-		{
-			P_SpawnPlayer(p, &playerstarts[p->pnum]);
-		}
-		else
-		{
-			for (i = 0; i < MAXPLAYERS; i++)
-			{
-				if (playerstarts[i].info)
-				{
-					P_SpawnPlayer(p, &playerstarts[i]);
-					break;
-				}
-			}
+		int begin = P_Random() % coop_starts.GetSize();
 
-			// no player or deathmatch starts could be found.
-			if (i == MAXPLAYERS)
-				I_Error("No player starts found!");
+		for (int j = 0; j < coop_starts.GetSize(); j++)
+		{
+			int i = (begin + j) % coop_starts.GetSize();
+
+			if (G_CheckSpot(p, coop_starts[i]))
+			{
+				P_SpawnPlayer(p, coop_starts[i]);
+				return;
+			}
 		}
 	}
+
+	I_Error("No player starts found!");
+}
+
+//
+// G_CoopSpawnPlayer 
+//
+// Spawns a player at one of the random deathmatch spots.
+// Called at level load and each death.
+//
+void G_CoopSpawnPlayer(player_t *p)
+{
+	spawnpoint_t *sp = coop_starts.FindPlayer(p->pnum + 1);
+
+	if (sp == NULL)
+		I_Error("Missing player %d start !\n", p->pnum+1);
+
+	if (G_CheckSpot(p, sp))
+	{
+		P_SpawnPlayer(p, sp);
+		return;
+	}
+
+	I_Warning("Player %d start is invalid.\n", p->pnum+1);
+
+	sp = NULL;
+	int begin = p->pnum;
+
+	// try to spawn at one of the other players spots
+	for (int j = 0; j < coop_starts.GetSize(); j++)
+	{
+		int i = (begin + j) % coop_starts.GetSize();
+
+		sp = coop_starts[i];
+
+		if (G_CheckSpot(p, sp))
+			break;
+	}
+
+	DEV_ASSERT2(sp);
+
+	// they're going to be inside something.  Too bad.
+	P_SpawnPlayer(p, sp);
 }
 
 //
@@ -784,10 +972,8 @@ void G_DeathMatchSpawnPlayer(player_t *p)
 // 
 static void G_DoReborn(player_t *p)
 {
-	int i;
-
 	// single player ?
-	if (!(netgame || deathmatch))
+	if (!netgame && !deathmatch)
 	{
 		// -AJA- 2003/10/09: we should only get here after the player
 		//       died, i.e. not through other uses of PST_REBORN that
@@ -795,48 +981,21 @@ static void G_DoReborn(player_t *p)
 
 		if (gamestate == GS_LEVEL)
 			gameaction = ga_loadlevel;
+		return;
 	}
-	else
+
+	// first disassociate the corpse 
+	p->mo->player = NULL;
+
+	// spawn at random spot if in death match 
+	if (deathmatch)
 	{
-		// respawn at the start
-
-		// first dissasociate the corpse 
-		p->mo->player = NULL;
-
-		// spawn at random spot if in death match 
-		if (deathmatch)
-		{
-			G_DeathMatchSpawnPlayer(p);
-			return;
-		}
-
-		if (playerstarts[p->pnum].info == NULL)
-			I_Error("Missing player %d start !\n", p->pnum+1);
-
-		if (G_CheckSpot(p, &playerstarts[p->pnum]))
-		{
-			P_SpawnPlayer(p, &playerstarts[p->pnum]);
-			return;
-		}
-
-		I_Warning("Player %d start is invalid.\n", p->pnum+1);
-
-		// try to spawn at one of the other players spots
-		for (i = 0; i < MAXPLAYERS; i++)
-		{
-			if (playerstarts[i].info == NULL)
-				continue;
-
-			if (G_CheckSpot(p, &playerstarts[i]))
-			{
-				P_SpawnPlayer(p, &playerstarts[i]);
-				return;
-			}
-		}
-
-		// he's going to be inside something.  Too bad.
-		P_SpawnPlayer(p, &playerstarts[p->pnum]);
+		G_DeathMatchSpawnPlayer(p);
+		return;
 	}
+
+	// respawn at the start
+	G_CoopSpawnPlayer(p);
 }
 
 void G_ScreenShot(void)
@@ -874,12 +1033,15 @@ void G_ExitToLevel(char *name, int time, bool skip_all)
 //
 void G_DoCompleted(void)
 {
-	player_t *p;
-
 	gameaction = ga_nothing;
 
-	for (p = players; p; p = p->next)
+	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
+		player_t *p = players[pnum];
+		if (! p) continue;
+
+		p->leveltime = leveltime;
+
 		// take away cards and stuff
 		G_PlayerFinishLevel(p);
 	}
@@ -908,20 +1070,18 @@ void G_DoCompleted(void)
 	wminfo.maxsecret = totalsecret;
 	wminfo.maxfrags = 0;
 	wminfo.partime = currmap->partime;
-	wminfo.me = consoleplayer->pnum;
 
-	if (!wminfo.plrs)
-		wminfo.plrs = Z_New(wbplayerstruct_t, MAXPLAYERS);
+//	wminfo.me = consoleplayer->pnum;
 
-	Z_Clear(wminfo.plrs, wbplayerstruct_t, MAXPLAYERS);
+///---	if (!wminfo.plrs)
+///---		wminfo.plrs = Z_New(wbplayerstruct_t, MAXPLAYERS);
+///---	Z_Clear(wminfo.plrs, wbplayerstruct_t, MAXPLAYERS);
 
+#if 0
 	for (p = players; p; p = p->next)
 	{
-		DEV_ASSERT2(0 <= p->pnum && p->pnum < MAXPLAYERS);
-
 		wbplayerstruct_t *wp = wminfo.plrs + p->pnum;
 
-		wp->in = p->in_game;
 		wp->skills = p->killcount;
 		wp->sitems = p->itemcount;
 		wp->ssecret = p->secretcount;
@@ -929,6 +1089,7 @@ void G_DoCompleted(void)
 		wp->frags = p->frags;
 		wp->totalfrags = p->totalfrags;
 	}
+#endif
 
 	gamestate = GS_INTERMISSION;
 	viewactive = false;
@@ -1131,7 +1292,7 @@ void G_DoSaveGame(void)
 	globs->total_items   = totalitems;
 	globs->total_secrets = totalsecret;
 
-	globs->console_player = consoleplayer->pnum;
+	globs->console_player = 0; // !!!FIXME CHECK: consoleplayer->pnum;
 	globs->skill = gameskill;
 	globs->netgame = netgame ? (1+deathmatch) : 0;
 	globs->sky_image = sky_image;
@@ -1210,8 +1371,6 @@ bool G_DeferredInitNew(skill_t skill, const char *mapname, bool warpopt)
 
 void G_DoNewGame(void)
 {
-	player_t *p;
-
 	demoplayback = false;
 
 	if (d_newwarp)
@@ -1219,11 +1378,13 @@ void G_DoNewGame(void)
 		if (netdemo)
 		{
 			deathmatch = netdemo = netgame = false;
-			consoleplayer = players;
+			consoleplayer = 0; //???
 
 			// !!! FIXME: this is wrong
+#if 0
 			for (p = players->next; p; p = p->next)
 				p->in_game = false;
+#endif
 		}
 
 		level_flags.fastparm = false;
@@ -1252,10 +1413,15 @@ void G_DoNewGame(void)
 //
 void G_InitNew(skill_t skill, const mapdef_c *map, const gamedef_c *gamedef, long seed)
 {
-	player_t *p;
+	int pnum;
 
-	for (p = players; p; p = p->next)
+	for (pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+		if (! p) continue;
+
 		memset(p->consistency, -1, sizeof(p->consistency));
+	}
 
 	if (paused)
 	{
@@ -1280,8 +1446,13 @@ void G_InitNew(skill_t skill, const mapdef_c *map, const gamedef_c *gamedef, lon
 	// force players to be initialised upon first level load         
 	// -AJA- 2003/10/09: except that this doesn't do anything, as the
 	//                   playerstate is set to PST_LIVE In P_SpawnPlayer !!
-	for (p = players; p; p = p->next)
+	for (pnum = 0; pnum < MAXPLAYERS; pnum++)
+	{
+		player_t *p = players[pnum];
+		if (! p) continue;
+
 		p->playerstate = PST_REBORN;
+	}
 
 	usergame = true;  // will be set false if a demo 
 
@@ -1420,7 +1591,7 @@ void G_BeginRecording(void)
 
 	WriteByteToDemo(gameskill);
 	WriteByteToDemo(deathmatch);
-	WriteByteToDemo(consoleplayer->pnum);
+	WriteByteToDemo(consoleplayer);
 	WriteToDemo(&level_flags, sizeof(level_flags));
 
 	///  for (p = players; p; p = p->next)
@@ -1496,11 +1667,12 @@ void G_DoPlayDemo(void)
 
 		skill = (skill_t) playdemobuffer[demo_p++];
 		deathmatch = playdemobuffer[demo_p++];
-		consoleplayer = playerlookup[playdemobuffer[demo_p++]];
+		consoleplayer = playdemobuffer[demo_p++];
 
 		level_flags = *(gameflags_t *)&playdemobuffer[demo_p];
 		demo_p += sizeof(level_flags);
 
+		/// FIXME: !!!
 		///    for (p = players; p; p = p->next)
 		///      p->in_game = playdemobuffer[demo_p++];
 
@@ -1529,15 +1701,17 @@ void G_DoPlayDemo(void)
 
 	//----------------------------------------------------------------
 
+#if 0  // WTF???
 	if (players->next && players->next->in_game)
 	{
 		netgame = true;
 		netdemo = true;
 	}
+#endif
 
 	// don't spend a lot of time in loadlevel
 	precache = false;
-	
+
 	G_InitNew(skill, newmap, newgamedef, random_seed);
 	G_DoLoadLevel();
 	
@@ -1571,7 +1745,6 @@ void G_TimeDemo(const char *name)
 bool G_FinishDemo(void)
 {
 	int endtime;
-	player_t *p;
 
 	if (timingdemo)
 	{
@@ -1599,12 +1772,14 @@ bool G_FinishDemo(void)
 		deathmatch = false;
 
 		//!!! FIXME: this is wrong
+#if 0
 		for (p = players; p; p = p->next)
 			p->in_game = false;
+#endif
 
 		level_flags.fastparm = false;
 		level_flags.nomonsters = false;
-		consoleplayer = playerlookup[0];
+		consoleplayer = 0; //???
 		E_AdvanceDemo();
 		return true;
 	}

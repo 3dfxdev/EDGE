@@ -449,38 +449,34 @@ static void PrintString(const char *s)
 	UpdateLastLine();
 }
 
-void CON_Printf(const char *message,...)
+void CON_Printf(const char *message, ...)
 {
 	va_list argptr;
 	char buffer[1024];
 
 	va_start(argptr, message);
-
-	// Print the message into a text string
 	vsprintf(buffer, message, argptr);
+	va_end(argptr);
 
 	PrintString(buffer);
-
-	va_end(argptr);
 }
 
-void CON_MessageLDF(const char *lookup,...)
+void CON_MessageLDF(const char *lookup, ...)
 {
 	va_list argptr;
 	char buffer[1024];
 
-	va_start(argptr, lookup);
+	lookup = language[lookup];
 
-	// Print the message into a text string
-	vsprintf(buffer, language[lookup], argptr);
+	va_start(argptr, lookup);
+	vsprintf(buffer, lookup, argptr);
+	va_end(argptr);
 
 	HU_StartMessage(buffer);
 
 	strcat(buffer, "\n");
 
 	PrintString(buffer);
-
-	va_end(argptr);
 }
 
 void CON_Message(const char *message,...)

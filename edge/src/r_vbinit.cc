@@ -101,9 +101,8 @@ void R_InitCamera_StdObject(camera_t * c, mobj_t * mo)
 static void CameraFrameInit_StdPlayer(void *data)
 {
 	camera_t *c = (camera_t*)data;
-	player_t *player;
+	player_t *player = players[displayplayer];
 
-	player = displayplayer;
 	c->view_obj = player->mo;
 
 	viewx = player->mo->x;
