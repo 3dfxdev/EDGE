@@ -46,11 +46,13 @@ static void GV_GetInt(const char *info, void *storage);
 static void GV_GetString(const char *info, void *storage);
 static void GV_GetCheckCRC(const char *info, void *storage);
 static void GV_GetLevelFlags(const char *info, void *storage);
+static void GV_GetImage(const char *info, void *storage);
 
 static const char *GV_PutInt(void *storage);
 static const char *GV_PutString(void *storage);
 static const char *GV_PutCheckCRC(void *storage);
 static const char *GV_PutLevelFlags(void *storage);
+static const char *GV_PutImage(void *storage);
 
 
 static saveglobals_t dummy_glob;
@@ -68,8 +70,8 @@ typedef struct
 	// stringify function.  Return string must be freed.
 	const char * (* stringify_func)(void *storage);
 
-  // field offset (given as a pointer within dummy struct)
-  const char *offset_p;
+	// field offset (given as a pointer within dummy struct)
+	const char *offset_p;
 }
 global_command_t;
 
@@ -90,6 +92,8 @@ static const global_command_t global_commands[] =
 	{ "CONSOLE_PLAYER", GV_GetInt, GV_PutInt, GLOB_OFF(console_player) },
 	{ "SKILL", GV_GetInt, GV_PutInt, GLOB_OFF(skill) },
 	{ "NETGAME", GV_GetInt, GV_PutInt, GLOB_OFF(netgame) },
+	{ "SKY_IMAGE", GV_GetImage, GV_PutImage, GLOB_OFF(sky_image) },
+
 	{ "DESCRIPTION", GV_GetString, GV_PutString, GLOB_OFF(description) },
 	{ "DESC_DATE", GV_GetString, GV_PutString, GLOB_OFF(desc_date) },
 
@@ -188,6 +192,26 @@ static void GV_GetLevelFlags(const char *info, void *storage)
 		((flags & MPF_AutoAimMlook) ? AA_MLOOK : AA_ON) : AA_OFF;
 }
 
+static void GV_GetImage(const char *info, void *storage)
+{
+	// based on SR_LevelGetImage...
+
+	const image_t ** dest = (const image_t **)storage;
+
+	DEV_ASSERT2(info && storage);
+
+	if (info[0] == 0)
+	{
+		(*dest) = NULL;
+		return;
+	}
+
+	if (info[1] != ':')
+		I_Warning("GV_GetImage: invalid image string `%s'\n", info);
+
+	(*dest) = W_ImageFromString(info[0], info + 2);
+}
+
 
 //----------------------------------------------------------------------------
 //
@@ -270,6 +294,24 @@ static const char *GV_PutLevelFlags(void *storage)
 		flags |= MPF_AutoAimMlook;
 
 	return GV_PutInt(&flags);
+}
+
+static const char *GV_PutImage(void *storage)
+{
+	// based on SR_LevelPutImage...
+
+	const image_t **src = (const image_t **)storage;
+	char buffer[64];
+
+	DEV_ASSERT2(storage);
+
+	if (*src == NULL)
+		return (const char *) Z_ClearNew(char, 1);
+
+	W_ImageToString(*src, buffer, buffer + 2);
+	buffer[1] = ':';
+
+	return Z_StrDup(buffer);
 }
 
 

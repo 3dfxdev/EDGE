@@ -61,6 +61,7 @@
 #include "st_stuff.h"
 #include "version.h"
 #include "v_res.h"
+#include "w_image.h"
 #include "w_textur.h"
 #include "w_wad.h"
 #include "wi_stuff.h"
@@ -1483,6 +1484,9 @@ void G_DoLoadGame(void)
 	// con_player = globs->console_player;
 	gameskill = (skill_t) globs->skill;
 	netgame = globs->netgame?true:false;  /// FIXME: deathmatch var
+	
+	if (globs->sky_image)  // backwards compat (sky_image added 2003/12/19)
+		sky_image = globs->sky_image;
 
 	// clear line/sector lookup caches, in case level_flags.compat_mode
 	// changed (e.g. CM_BOOM -> CM_EDGE).
@@ -1557,6 +1561,7 @@ void G_DoSaveGame(void)
 	globs->console_player = consoleplayer->pnum;
 	globs->skill = gameskill;
 	globs->netgame = netgame ? (1+deathmatch) : 0;
+	globs->sky_image = sky_image;
 
 	time(&cur_time);
 	strftime(timebuf, 99, "%I:%M %p  %d/%b/%Y", localtime(&cur_time));
