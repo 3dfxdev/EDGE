@@ -82,12 +82,6 @@ void S_ChangeMusic(int entrynum, bool looping)
 		return;
 	}
 
-	if (play->type == MUS_OGG && play->infotype != MUSINF_FILE)
-	{
-		I_Warning("S_ChangeMusic: OGG Vorbis music only supported via file.\n");
-		return;
-	}
-
 	// -ACB- 2000/06/06 This is not system specific
 	if (play->infotype == MUSINF_FILE)
 	{
