@@ -113,7 +113,7 @@ void UI_GameList::draw_cell(TableContext context, int R, int C,
     switch (context)
     {
 		case CONTEXT_STARTPAGE:
-			fl_font(FL_HELVETICA, 16);
+			// fl_font(FL_HELVETICA, 16);
 			break;
 
 		case CONTEXT_ENDPAGE:

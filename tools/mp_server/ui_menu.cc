@@ -63,6 +63,7 @@ static void menu_do_about(Fl_Widget *w, void * data)
 #if 0
 	// add the about image
 	Fl_Group *group = new Fl_Group(0, 0, 230, ab_win->h());
+	group->end();
 	group->box(FL_FLAT_BOX);
 	group->color(FL_BLACK, FL_BLACK);
 	ab_win->add(group);
