@@ -19,12 +19,9 @@ AS=nasm -f elf
 OPTIM=-g3
 
 # Video options: SDL SDLGL
-# No longer supported: X GGI GLUT
 VIDEO=SDLGL
 
 # Sound options: SDL
-# Note: SDL sound requires SDL video
-# No longer supported: OSS
 SOUND=SDL
 
 # Assembly options: N Y
@@ -37,59 +34,36 @@ DEBUG=1
 # --- internal stuff from here on ---
 
 LX_DIR=linux
-MAIN_DIR=.
-EPI_DIR=$(MAIN_DIR)/epi
-LZO_DIR=$(MAIN_DIR)/lzo
-XING_DIR=$(MAIN_DIR)/xingmp3
-GLBSP_DIR=$(MAIN_DIR)/glbsp-2.05
-JPEG_DIR=$(MAIN_DIR)/libjpeg
-PNG_DIR=$(MAIN_DIR)/libpng
+EPI_DIR=epi
+SDL_DIR=SDL
+LZO_DIR=lzo
+XING_DIR=xingmp3
+GLBSP_DIR=glbsp-2.05
+JPEG_DIR=libjpeg
+PNG_DIR=libpng
 
 V_SDL_NAME=edge
 V_SDL_FLAGS=$(shell sdl-config --cflags)
 V_SDL_LDFLAGS=-L/usr/X11R6/lib
-V_SDL_OBJS=$(LX_DIR)/iv_sdl.o
+V_SDL_OBJS=$(SDL_DIR)/i_video.o
 V_SDL_LIBS=$(shell sdl-config --libs)
 
 V_SDLGL_NAME=gledge
 V_SDLGL_FLAGS=$(shell sdl-config --cflags) -DUSE_GL
 V_SDLGL_LDFLAGS=-L/usr/X11R6/lib
-V_SDLGL_OBJS=$(LX_DIR)/iv_sdl.o
+V_SDLGL_OBJS=$(SDL_DIR)/i_video.o
 V_SDLGL_LIBS=$(shell sdl-config --libs) -lGL
-
-V_X_NAME=lxedge
-V_X_FLAGS=
-V_X_LDFLAGS=-L/usr/X11R6/lib
-V_X_OBJS=$(LX_DIR)/iv_x.o
-V_X_LIBS=-lX11 -lXext
-
-V_GGI_NAME=ggiedge
-V_GGI_FLAGS=
-V_GGI_LDFLAGS=
-V_GGI_OBJS=$(LX_DIR)/iv_ggi.o
-V_GGI_LIBS=-lggi -lggiwmh
-
-V_GLUT_NAME=glutedge
-V_GLUT_FLAGS=-DUSE_GL -DUSE_GLUT
-V_GLUT_LDFLAGS=-L/usr/X11R6/lib
-V_GLUT_OBJS=$(LX_DIR)/iv_gl.o
-V_GLUT_LIBS=-lGL -lGLU -lglut  -lX11 -lXext -lXmu -lXt -lXi -lSM -lICE
 
 S_SDL_FLAGS=
 S_SDL_LDFLAGS=
 S_SDL_OBJS=$(LX_DIR)/is_sdl.o
 S_SDL_LIBS=
 
-S_OSS_FLAGS=
-S_OSS_LDFLAGS=
-S_OSS_OBJS=$(LX_DIR)/is_oss.o
-S_OSS_LIBS=
-
-ASM_N_DIR=$(MAIN_DIR)/noasm
+ASM_N_DIR=noasm
 ASM_N_FLAGS=
 ASM_N_OBJS=$(ASM_NULL_OBJS)
 
-ASM_Y_DIR=$(MAIN_DIR)/i386
+ASM_Y_DIR=i386
 ASM_Y_FLAGS=-DASM_NEED_UNDERSCORES
 ASM_Y_OBJS=$(ASM_I386_OBJS)
 
@@ -99,7 +73,7 @@ PROGNAME=$(V_$(VIDEO)_NAME)
 
 ASM_DIR=$(ASM_$(ASSEM)_DIR)
 
-CPPFLAGS=-I$(LX_DIR) -I$(MAIN_DIR)
+CPPFLAGS=-I$(LX_DIR) -I.
 
 CFLAGS=-Wall $(OPTIM) -DMACOSX -DDEVELOPERS  -D__BIG_ENDIAN__  \
        $(ASM_$(ASSEM)_FLAGS) $(V_$(VIDEO)_FLAGS)  \
@@ -119,86 +93,88 @@ LIBS=-lm  \
 
 # ----- OBJECTS --------------------------------------------------------
 
-OBJS=$(SYSTEM_OBJS) $(ASM_$(ASSEM)_OBJS)  \
+OBJS=$(SYSTEM_OBJS) $(SDL_OBJS) $(ASM_$(ASSEM)_OBJS)  \
      $(V_$(VIDEO)_OBJS) $(S_$(SOUND)_OBJS) $(COMMON_OBJS)
 
 ##   $(PNG_OBJS) $(JPEG_OBJS)
 
+SDL_OBJS= \
+		$(SDL_DIR)/i_ctrl.o  \
+        $(SDL_DIR)/i_cd.o    $(SDL_DIR)/i_net.o
+ 
 SYSTEM_OBJS= \
         $(LX_DIR)/i_main.o   $(LX_DIR)/i_music.o  \
-        $(LX_DIR)/i_net.o                         \
-        $(LX_DIR)/i_ctrl.o   $(LX_DIR)/i_compen.o \
-        $(LX_DIR)/i_system.o $(LX_DIR)/i_cd_osx.o \
+        $(LX_DIR)/i_compen.o $(LX_DIR)/i_system.o \
         $(LX_DIR)/i_mussrv.o $(LX_DIR)/i_fmpat.o
 
 COMMON_OBJS= \
-        $(MAIN_DIR)/am_map.o $(MAIN_DIR)/con_main.o   \
-        $(MAIN_DIR)/con_cvar.o $(MAIN_DIR)/con_con.o  \
-		$(MAIN_DIR)/ddf_parser.o \
-        $(MAIN_DIR)/ddf_anim.o $(MAIN_DIR)/ddf_atk.o  \
-        $(MAIN_DIR)/ddf_boom.o $(MAIN_DIR)/ddf_colm.o \
-        $(MAIN_DIR)/ddf_game.o $(MAIN_DIR)/ddf_lang.o \
-        $(MAIN_DIR)/ddf_levl.o $(MAIN_DIR)/ddf_line.o \
-        $(MAIN_DIR)/ddf_main.o $(MAIN_DIR)/ddf_mobj.o \
-        $(MAIN_DIR)/ddf_mus.o  $(MAIN_DIR)/ddf_stat.o \
-        $(MAIN_DIR)/ddf_sect.o $(MAIN_DIR)/ddf_sfx.o  \
-        $(MAIN_DIR)/ddf_swth.o $(MAIN_DIR)/ddf_weap.o \
-        $(MAIN_DIR)/dm_defs.o  $(MAIN_DIR)/dm_state.o \
-        $(MAIN_DIR)/e_main.o $(MAIN_DIR)/e_net.o      \
-        $(MAIN_DIR)/f_finale.o $(MAIN_DIR)/g_game.o   \
-        $(MAIN_DIR)/gui_main.o $(MAIN_DIR)/gui_ctls.o \
-        $(MAIN_DIR)/hu_lib.o $(MAIN_DIR)/hu_stuff.o   \
-        $(MAIN_DIR)/lu_math.o  $(MAIN_DIR)/lu_gamma.o \
-        $(MAIN_DIR)/l_mp3.o    $(MAIN_DIR)/l_glbsp.o  \
-        $(MAIN_DIR)/m_argv.o   $(MAIN_DIR)/m_random.o \
-        $(MAIN_DIR)/m_bbox.o $(MAIN_DIR)/m_cheat.o    \
-        $(MAIN_DIR)/m_fixed.o $(MAIN_DIR)/m_menu.o    \
-        $(MAIN_DIR)/m_misc.o $(MAIN_DIR)/m_option.o   \
-        $(MAIN_DIR)/m_math.o $(MAIN_DIR)/m_crc32.o    \
-        $(MAIN_DIR)/p_action.o $(MAIN_DIR)/p_enemy.o \
-        $(MAIN_DIR)/p_inter.o $(MAIN_DIR)/p_lights.o \
-        $(MAIN_DIR)/p_map.o   $(MAIN_DIR)/p_maputl.o \
-        $(MAIN_DIR)/p_bot.o   $(MAIN_DIR)/p_mobj.o   \
-        $(MAIN_DIR)/p_plane.o $(MAIN_DIR)/p_weapon.o \
-        $(MAIN_DIR)/p_setup.o $(MAIN_DIR)/p_sight.o  \
-        $(MAIN_DIR)/p_spec.o $(MAIN_DIR)/p_switch.o  \
-        $(MAIN_DIR)/p_tick.o $(MAIN_DIR)/p_user.o    \
-        $(MAIN_DIR)/r_bsp.o $(MAIN_DIR)/r_data.o     \
-        $(MAIN_DIR)/r_draw1.o $(MAIN_DIR)/r_draw2.o  \
-        $(MAIN_DIR)/r_main.o $(MAIN_DIR)/r_plane.o   \
-        $(MAIN_DIR)/r_segs.o $(MAIN_DIR)/r_layers.o  \
-        $(MAIN_DIR)/r_sky.o  $(MAIN_DIR)/r_things.o  \
-        $(MAIN_DIR)/r_view.o $(MAIN_DIR)/r_vbinit.o  \
-        $(MAIN_DIR)/r2_bsp.o $(MAIN_DIR)/r2_draw.o   \
-        $(MAIN_DIR)/r2_util.o  \
-        $(MAIN_DIR)/rgl_bsp.o $(MAIN_DIR)/rgl_main.o \
-        $(MAIN_DIR)/rgl_sky.o $(MAIN_DIR)/rgl_unit.o \
-        $(MAIN_DIR)/rgl_wipe.o \
-        $(MAIN_DIR)/rad_act.o $(MAIN_DIR)/rad_pars.o  \
-        $(MAIN_DIR)/rad_trig.o $(MAIN_DIR)/sv_chunk.o \
-        $(MAIN_DIR)/sv_dump.o  $(MAIN_DIR)/sv_glob.o  \
-        $(MAIN_DIR)/sv_main.o  $(MAIN_DIR)/sv_mobj.o  \
-        $(MAIN_DIR)/sv_load.o  $(MAIN_DIR)/sv_save.o  \
-        $(MAIN_DIR)/sv_level.o $(MAIN_DIR)/sv_misc.o  \
-        $(MAIN_DIR)/sv_play.o  \
-        $(MAIN_DIR)/s_sound.o $(MAIN_DIR)/s_music.o   \
-        $(MAIN_DIR)/st_lib.o  $(MAIN_DIR)/st_stuff.o  \
-        $(MAIN_DIR)/v_func.o  $(MAIN_DIR)/v_screen.o  \
-        $(MAIN_DIR)/v_res.o $(MAIN_DIR)/v_colour.o    \
-        $(MAIN_DIR)/v_video1.o $(MAIN_DIR)/v_video2.o \
-        $(MAIN_DIR)/v_toplev.o $(MAIN_DIR)/w_image.o  \
-        $(MAIN_DIR)/w_wad.o $(MAIN_DIR)/wi_stuff.o    \
-        $(MAIN_DIR)/wp_main.o $(MAIN_DIR)/wp_wipe.o   \
-        $(MAIN_DIR)/w_textur.o $(MAIN_DIR)/z_zone.o
+        am_map.o con_main.o   \
+        con_cvar.o con_con.o  \
+		ddf_parser.o \
+        ddf_anim.o ddf_atk.o  \
+        ddf_boom.o ddf_colm.o \
+        ddf_game.o ddf_lang.o \
+        ddf_levl.o ddf_line.o \
+        ddf_main.o ddf_mobj.o \
+        ddf_mus.o  ddf_stat.o \
+        ddf_sect.o ddf_sfx.o  \
+        ddf_swth.o ddf_weap.o \
+        dm_defs.o  dm_state.o \
+        e_main.o e_net.o      \
+        f_finale.o g_game.o   \
+        gui_main.o gui_ctls.o \
+        hu_lib.o hu_stuff.o   \
+        lu_math.o  lu_gamma.o \
+        l_mp3.o    l_glbsp.o  \
+        m_argv.o   m_random.o \
+        m_bbox.o m_cheat.o    \
+        m_fixed.o m_menu.o    \
+        m_misc.o m_option.o   \
+        m_math.o m_crc32.o    \
+        p_action.o p_enemy.o \
+        p_inter.o p_lights.o \
+        p_map.o   p_maputl.o \
+        p_bot.o   p_mobj.o   \
+        p_plane.o p_weapon.o \
+        p_setup.o p_sight.o  \
+        p_spec.o p_switch.o  \
+        p_tick.o p_user.o    \
+        r_bsp.o r_data.o     \
+        r_draw1.o r_draw2.o  \
+        r_main.o r_plane.o   \
+        r_segs.o r_layers.o  \
+        r_sky.o  r_things.o  \
+        r_view.o r_vbinit.o  \
+        r2_bsp.o r2_draw.o   \
+        r2_util.o  \
+        rgl_bsp.o rgl_main.o \
+        rgl_sky.o rgl_unit.o \
+        rgl_wipe.o \
+        rad_act.o rad_pars.o  \
+        rad_trig.o sv_chunk.o \
+        sv_dump.o  sv_glob.o  \
+        sv_main.o  sv_mobj.o  \
+        sv_load.o  sv_save.o  \
+        sv_level.o sv_misc.o  \
+        sv_play.o  \
+        s_sound.o s_music.o   \
+        st_lib.o  st_stuff.o  \
+        v_func.o  v_screen.o  \
+        v_res.o v_colour.o    \
+        v_video1.o v_video2.o \
+        v_toplev.o w_image.o  \
+        w_wad.o wi_stuff.o    \
+        wp_main.o wp_wipe.o   \
+        w_textur.o z_zone.o
 
 
 ASM_NULL_OBJS= \
-        $(MAIN_DIR)/noasm/i_asm.o 
+        noasm/i_asm.o 
 
 ASM_I386_OBJS= \
-        $(MAIN_DIR)/i386/i_asm.o    $(MAIN_DIR)/i386/i_cpu.o    \
-        $(MAIN_DIR)/i386/r_column.o $(MAIN_DIR)/i386/r_resize.o \
-        $(MAIN_DIR)/i386/r_span.o
+        i386/i_asm.o    i386/i_cpu.o    \
+        i386/r_column.o i386/r_resize.o \
+        i386/r_span.o
 
 # ----- RULES --------------------------------------------------------
 
@@ -209,11 +185,11 @@ ASM_I386_OBJS= \
 
 EDGELIBS = epi glbsp lzo xingmp3
 
-all: $(EDGELIBS) $(MAIN_DIR)/$(PROGNAME)
+all: $(EDGELIBS) $(PROGNAME)
 
 clean:
-	rm -f $(MAIN_DIR)/$(PROGNAME) $(LX_DIR)/*.o \
-        $(MAIN_DIR)/*.o $(ASM_DIR)/*.o $(MAIN_DIR)/core
+	rm -f $(PROGNAME) core *.o \
+	    $(LX_DIR)/*.o $(SDL_DIR)/*.o $(ASM_DIR)/*.o
 
 epi lzo xingmp3:
 	$(MAKE) -C $@ -f Makefile.osx
@@ -222,10 +198,10 @@ glbsp:
 	$(MAKE) -C $(GLBSP_DIR)/plugin -f makefile.osx
 
 renderclean:
-	rm -f $(MAIN_DIR)/$(PROGNAME) $(MAIN_DIR)/r*.o
+	rm -f $(PROGNAME) r*.o
 
-$(MAIN_DIR)/$(PROGNAME): $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $(MAIN_DIR)/$(PROGNAME) $(LIBS)
+$(PROGNAME): $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $(PROGNAME) $(LIBS)
 
 .PHONY: all clean $(EDGELIBS) renderclean
 
