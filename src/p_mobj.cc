@@ -1504,7 +1504,6 @@ void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 	float x, y, z;
 
 	mobj_t *mobj;
-	const mobjinfo_t *objtype;
 
 	int i;
 
@@ -1518,18 +1517,21 @@ void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 
 	// -KM- 1998/11/25 This is in preparation for skins.  The creatures.ddf
 	//   will hold player start objects, sprite will be taken for skin.
-	objtype = DDF_MobjLookupPlayer(p->pnum+1);
+	// -AJA- 2004/04/14: Use DDF entry from level thing.
+
+	if (point->info == NULL)
+		I_Error("P_SpawnPlayer: No such item type!");
 
 	if (p->playerstate == PST_REBORN)
 	{
-		G_PlayerReborn(p);
+		G_PlayerReborn(p, point->info);
 	}
 
 	x = point->x;
 	y = point->y;
 	z = point->z;
 
-	mobj = P_MobjCreateObject(x, y, z, objtype);
+	mobj = P_MobjCreateObject(x, y, z, point->info);
 
 	mobj->angle = point->angle;
 	mobj->vertangle = point->vertangle;
@@ -1543,7 +1545,7 @@ void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 	p->bonuscount = 0;
 	p->extralight = 0;
 	p->effect_colourmap = NULL;
-	p->std_viewheight = mobj->height * PERCENT_2_FLOAT(objtype->viewheight);
+	p->std_viewheight = mobj->height * PERCENT_2_FLOAT(point->info->viewheight);
 	p->viewheight = p->std_viewheight;
 	p->jumpwait = 0;
 

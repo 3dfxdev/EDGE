@@ -1066,10 +1066,9 @@ static void G_PlayerFinishLevel(player_t *p)
 // Called after a player dies. 
 // almost everything is cleared and initialised.
 
-void G_PlayerReborn(player_t *p)
+void G_PlayerReborn(player_t *p, const mobjinfo_t *info)
 {
 	bool in_game;
-	const mobjinfo_t *info;
 	player_t *next, *prev;
 	void *data;
 	void (*thinker)(const player_t *, void *, ticcmd_t *);
@@ -1091,7 +1090,9 @@ void G_PlayerReborn(player_t *p)
 	prev = p->prev;
 	next = p->next;
 
+#if 0  // -AJA- 2004/04/14: use DDF entry from level thing
 	info = DDF_MobjLookupPlayer(p->pnum+1);
+#endif
 
 	in_game = p->in_game;
 	pnum = p->pnum;
@@ -1125,7 +1126,7 @@ void G_PlayerReborn(player_t *p)
 // Returns false if the player cannot be respawned at the given spot
 // because something is occupying it 
 //
-static bool G_CheckSpot(player_t *player, spawnpoint_t *point)
+static bool G_CheckSpot(player_t *player, const spawnpoint_t *point)
 {
 	float x, y, z;
 	player_t *p;
