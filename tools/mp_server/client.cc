@@ -58,9 +58,12 @@ bool client_c::CheckAddr(const NLaddress *remote_addr) const
 	return (nlAddrCompare(&addr, remote_addr) == NL_TRUE);
 }
 
-bool client_c::Verify(const NLaddress *remote_addr) const
+bool client_c::Verify(NLsocket WSOCK, const NLaddress *remote_addr) const
 {
 	if (state == ST_Going || state == ST_Gone)
+		return false;
+
+	if (sock != WSOCK)
 		return false;
 
 	return (nlAddrCompare(&addr, remote_addr) == NL_TRUE);
@@ -75,6 +78,7 @@ void client_c::FillClientInfo(client_info_t *info) const
 {
 	switch (state)
 	{
+		case ST_Connecting:
 		case ST_Going:
 		case ST_Gone:
 			info->state = client_info_t::CS_NotExist;
@@ -260,9 +264,9 @@ bool ClientExists(short idx)
 	return clients[idx] != NULL;
 }
 
-bool VerifyClient(short idx, const NLaddress *remote_addr)
+bool VerifyClient(short idx, NLsocket SOCK, const NLaddress *remote_addr)
 {
-	return ClientExists(idx) ? clients[idx]->Verify(remote_addr) : false;
+	return ClientExists(idx) ? clients[idx]->Verify(SOCK, remote_addr) : false;
 }
 
 bool ValidatePlayerName(const char *name)
@@ -298,11 +302,12 @@ void ClientTimeouts()
 
 //------------------------------------------------------------------------
 
-void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
+void PK_connect_to_server(packet_c *pk)
 {
 	// FIXME: check if too many games
 
 	int client_id = pk->hd().client;
+	client_c *CL = clients[pk->hd().client];
 
 	connect_proto_t& con = pk->cs_p();
 
@@ -314,7 +319,7 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 
 	if (! ValidatePlayerName(con.info.name))
 	{
-///!!!!!	CL->SendError(pk, "bn", "Invalid name !");
+		CL->SendError(pk, "bn", "Invalid name !");
 		LogPrintf(1, "Client %d tried to connect with invalid name.\n", client_id);
 		return;
 	}
@@ -329,13 +334,14 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 
 		if (CL->CompareName(con.info.name) == 0)
 		{
-			CL->SendError(pk, "un", "Name already in use !");
+			CL->SendError(pk, "en", "Name already exists !");
 			LogPrintf(2, "Client %d tried to connect, name was already used.\n", client_id);
 			return;
 		}
 	}
 
 	// successful!
+	CL->state = client_c::ST_Browsing;
 
 	pk->SetType("Cs");
 
@@ -343,15 +349,14 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 	pk->hd().data_len = sizeof(connect_proto_t) - sizeof(client_info_t);
 	pk->hd().client = client_id;
 
-	con.server_ver = MPSERVER_VER_HEX;
+	con.server_ver   = MPSERVER_VER_HEX;
 	con.protocol_ver = MP_PROTOCOL_VER;
 
 	con.ByteSwap();
 
 	clients[client_id]->Write(pk);
 
-	LogPrintf(0, "New client %d: name '%s' addr %s\n", client_id, "Player",
-		GetAddrName(remote_addr));
+	LogPrintf(0, "Client %d connected: name '%s'\n", client_id, con.info.name);
 }
 
 void PK_leave_server(packet_c *pk)
