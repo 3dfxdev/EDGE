@@ -35,7 +35,6 @@
 #include "v_video2.h"
 #include "v_res.h"
 #include "v_colour.h"
-#include "v_screen.h"
 
 #include "e_main.h"
 #include "e_event.h"
