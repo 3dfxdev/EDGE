@@ -886,5 +886,6 @@ gamedef_c* gamedef_container_c::Lookup(const char *refname)
 			return g;
 	}
 
+	// FIXME!!! Throw an epi:error_c here
 	return NULL;
 }
