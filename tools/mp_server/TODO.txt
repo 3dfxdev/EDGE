@@ -5,6 +5,10 @@ MPSERVER TODO
 NETWORKING
 ----------
 
++ finish updating code for NL_RELIABLE_PACKETS.
+
++ handle a broken connection (Read or Write --> NL_MESSAGE_END).
+
 - validate packet lengths and contents.
 
 - send acknowledgements.  Also do logging/error packets.
@@ -18,18 +22,14 @@ USER INTERFACE
 --------------
 
 + control screen : 
-  + set port (and addr)
-  + limits on clients/games, etc.
+  - show real local address, and port.
+  + set port
   - ACTIVATE button.
   - RESET button (boot all, deactivate).
-
-- copy the game/client lists for the UI.
-
-- client list.  (allow booting off)
-
-- game list.  (allow terminating games).
 
 - exit confirmation if there are clients/games,
   show a "shutdown" window (4 sec for games, 4 for clients),
   with a "quit now" button.
+
+- prevent 'ESCAPE' key from exiting.
 
