@@ -31,6 +31,11 @@
 typedef struct vec2_s
 {
 	float x, y;
+
+	void Set(float _x, float _y)
+	{
+		x = _x; y = _y;
+	}
 }
 vec2_t;
 
@@ -46,6 +51,11 @@ vec2_t;
 typedef struct vec3_s
 {
 	float x, y, z;
+
+	void Set(float _x, float _y, float _z)
+	{
+		x = _x; y = _y; z = _z;
+	}
 }
 vec3_t;
 

@@ -1305,6 +1305,90 @@ static void SetupVertGaps(void)
 	DEV_ASSERT2(cur_gap == (vertgaps + numvertgaps));
 }
 
+static void DetectDeepWaterTrick(void)
+{
+	char *self_subs = Z_ClearNew(char, numsubsectors);
+
+	for (int i = 0; i < numsegs; i++)
+	{
+		const seg_t *seg = segs + i;
+
+		if (seg->miniseg)
+			continue;
+
+		DEV_ASSERT2(seg->front_sub);
+
+		if (seg->linedef->backsector &&
+		    seg->linedef->frontsector == seg->linedef->backsector)
+		{
+			self_subs[seg->front_sub - subsectors] |= 1;
+		}
+		else
+		{
+			self_subs[seg->front_sub - subsectors] |= 2;
+		}
+	}
+
+	int count;
+	int pass = 0;
+
+	do
+	{
+		pass++;
+
+		count = 0;
+
+		for (int j = 0; j < numsubsectors; j++)
+		{
+			subsector_t *sub = subsectors + j;
+			const seg_t *seg;
+
+			if (self_subs[j] != 1)
+				continue;
+#if 0
+			L_WriteDebug("Subsector [%d] @ (%1.0f,%1.0f) sec %d --> %d\n", j,
+				(sub->bbox[BOXLEFT] + sub->bbox[BOXRIGHT]) / 2.0,
+				(sub->bbox[BOXBOTTOM] + sub->bbox[BOXTOP]) / 2.0,
+				sub->sector - sectors, self_subs[j]);
+#endif
+			const seg_t *Xseg = 0;
+
+			for (seg = sub->segs; seg; seg = seg->sub_next)
+			{
+				DEV_ASSERT2(seg->back_sub);
+
+				int k = seg->back_sub - subsectors;
+#if 0
+				L_WriteDebug("  Seg [%d] back_sub %d (back_sect %d)\n", seg - segs, k,
+					seg->back_sub->sector - sectors);
+#endif
+				if (self_subs[k] & 2)
+				{
+					if (! Xseg)
+						Xseg = seg;
+				}
+			}
+
+			if (Xseg)
+			{
+				sub->deep_ref = Xseg->back_sub->deep_ref ?
+					Xseg->back_sub->deep_ref : Xseg->back_sub->sector;
+#if 0
+				L_WriteDebug("  Updating (from seg %d) --> SEC %d\n", Xseg - segs,
+					sub->deep_ref - sectors);
+#endif
+				self_subs[j] = 3;
+
+				count++;
+			}
+		}
+	}
+	while (count > 0 && pass < 100);
+
+	Z_Free(self_subs);
+}
+
+
 //
 // LoadBlockMap
 //
@@ -1986,6 +2070,8 @@ void P_SetupLevel(skill_t skill, int autotag)
 		for (j=0; j < numsectors; j++)
 			P_RecomputeTilesInSector(sectors + j);
 	}
+
+	DetectDeepWaterTrick();
 
 #ifdef USE_GL
 	R_ComputeSkyHeights();
