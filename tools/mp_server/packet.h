@@ -61,6 +61,7 @@ public:
 	inline play_game_proto_t&    pg_p() { return *((play_game_proto_t *)DataPtr()); }
 	inline ticcmd_proto_t&       tc_p() { return *((ticcmd_proto_t *)DataPtr()); }
 	inline tic_group_proto_t&    tg_p() { return *((tic_group_proto_t *)DataPtr()); }
+	inline tic_retransmit_proto_t& tr_p() { return *((tic_retransmit_proto_t *)DataPtr()); }
 	inline message_proto_t&      ms_p() { return *((message_proto_t *)DataPtr()); }
 };
 
