@@ -844,123 +844,118 @@ bool EV_Teleport
 	const mobjtype_c * outeffectobj
 	)
 {
-	int i;
-	angle_t an;
-	mobj_t *currmobj;
-	float oldx;
-	float oldy;
-	float oldz;
-	float centre_x, centre_y;
-	float new_x, new_y, new_z;
-	mobj_t *fog;
-
 	if (!thing)
 		return false;
 
-	for (i = 0; i < numsubsectors; i++)
+	mobj_t *currmobj = NULL;
+
+	// find the teleportman
+	for (int i = 0; i < numsectors; i++)
 	{
-		if (subsectors[i].sector->tag != tag)
+		if (sectors[i].tag != tag)
 			continue;
 
-		currmobj = subsectors[i].thinglist;
-
-		while (currmobj)
+		for (subsector_t *sub=sectors[i].subsectors; sub; sub=sub->sec_next)
 		{
-			// not a teleportman
-			if (currmobj->info != outeffectobj)
-			{
-				currmobj = currmobj->snext;
-				continue;
-			}
+			for (currmobj=sub->thinglist; currmobj; currmobj=currmobj->snext)
+				if (currmobj->info == outeffectobj)
+					break;
 
-			oldx = thing->x;
-			oldy = thing->y;
-			oldz = thing->z;
+			if (currmobj)
+				break;
+		}
 
-			new_x = currmobj->x;
-			new_y = currmobj->y;
-			new_z = currmobj->z;
+		if (currmobj)
+			break;
+	}
 
-			if (line && (special & TELSP_SameOffset))
-			{
-				centre_x = (line->v1->x + line->v2->x) / 2;
-				centre_y = (line->v1->y + line->v2->y) / 2;
+	if (! currmobj)
+		return false;
 
-				new_x += thing->x - centre_x;
-				new_y += thing->y - centre_y;
-			}
+	float oldx = thing->x;
+	float oldy = thing->y;
+	float oldz = thing->z;
 
-			if (special & TELSP_SameHeight)
-				new_z += (thing->z - thing->floorz);
-			else if (thing->flags & MF_MISSILE)
-				new_z += thing->origheight;
+	float new_x = currmobj->x;
+	float new_y = currmobj->y;
+	float new_z = currmobj->z;
 
-			if (!P_TeleportMove(thing, new_x, new_y, new_z))
-				return false;
+	if (line && (special & TELSP_SameOffset))
+	{
+		float centre_x = (line->v1->x + line->v2->x) / 2;
+		float centre_y = (line->v1->y + line->v2->y) / 2;
 
-			if (thing->player)
-				thing->player->viewz = thing->z + thing->player->viewheight;
+		new_x += thing->x - centre_x;
+		new_y += thing->y - centre_y;
+	}
 
-			// spawn teleport fog at source and destination
-			if (ineffectobj)
-			{
-				fog = P_MobjCreateObject(oldx, oldy, oldz, ineffectobj);
+	if (special & TELSP_SameHeight)
+		new_z += (thing->z - thing->floorz);
+	else if (thing->flags & MF_MISSILE)
+		new_z += thing->origheight;
 
-				if (fog->info->chase_state)
-					P_SetMobjState(fog, fog->info->chase_state);
-			}
+	if (!P_TeleportMove(thing, new_x, new_y, new_z))
+		return false;
 
-			an = currmobj->angle;
+	if (thing->player)
+		thing->player->viewz = thing->z + thing->player->viewheight;
 
-			//
-			// -ACB- 1998/09/06 Switched 40 to 20. This by my records is
-			//                  the original setting.
-			//
-			// -ES- 1998/10/29 When fading, we don't want to see the fog.
-			//
-			fog = P_MobjCreateObject(currmobj->x + 20 * M_Cos(an),
-									 currmobj->y + 20 * M_Sin(an),
-									 currmobj->z, outeffectobj);
+	mobj_t *fog;
 
-			if (fog->info->chase_state)
-				P_SetMobjState(fog, fog->info->chase_state);
+	// spawn teleport fog at source and destination
+	if (ineffectobj)
+	{
+		fog = P_MobjCreateObject(oldx, oldy, oldz, ineffectobj);
 
-			if (thing->player && !telept_flash)
-				fog->vis_target = fog->visibility = INVISIBLE;
+		if (fog->info->chase_state)
+			P_SetMobjState(fog, fog->info->chase_state);
+	}
 
-			// don't move for a bit
-			if (thing->player && !(special & TELSP_SameSpeed))
-			{
-				thing->reactiontime = delay;
-				// -ES- 1998/10/29 Start the fading
-				if (telept_effect && thing->player == displayplayer)
-					R_StartFading(0, (delay * 5) / 2);
-				thing->mom.x = thing->mom.y = thing->mom.z = 0;
-			}
+	angle_t an = currmobj->angle;
 
-			if (special & TELSP_Rotate)
-			{
-				thing->angle += currmobj->angle;
-			}
-			else if (!(special & TELSP_SameDir))
-			{
-				thing->angle = currmobj->angle;
-				thing->vertangle = currmobj->vertangle;
-			}
+	//
+	// -ACB- 1998/09/06 Switched 40 to 20. This by my records is
+	//                  the original setting.
+	//
+	// -ES- 1998/10/29 When fading, we don't want to see the fog.
+	//
+	fog = P_MobjCreateObject(currmobj->x + 20 * M_Cos(an),
+							 currmobj->y + 20 * M_Sin(an),
+							 currmobj->z, outeffectobj);
 
-			if (thing->flags & MF_MISSILE)
-			{
-				thing->mom.x = thing->speed * M_Cos(thing->angle);
-				thing->mom.y = thing->speed * M_Sin(thing->angle);
-			}
+	if (fog->info->chase_state)
+		P_SetMobjState(fog, fog->info->chase_state);
 
-			return true;
+	if (thing->player && !telept_flash)
+		fog->vis_target = fog->visibility = INVISIBLE;
 
-		}  // while (currmobj)
+	// don't move for a bit
+	if (thing->player && !(special & TELSP_SameSpeed))
+	{
+		thing->reactiontime = delay;
+		// -ES- 1998/10/29 Start the fading
+		if (telept_effect && thing->player == displayplayer)
+			R_StartFading(0, (delay * 5) / 2);
+		thing->mom.x = thing->mom.y = thing->mom.z = 0;
+	}
 
-	}  // for (subsector) loop
+	if (special & TELSP_Rotate)
+	{
+		thing->angle += currmobj->angle;
+	}
+	else if (!(special & TELSP_SameDir))
+	{
+		thing->angle = currmobj->angle;
+		thing->vertangle = currmobj->vertangle;
+	}
 
-	return false;
+	if (thing->flags & MF_MISSILE)
+	{
+		thing->mom.x = thing->speed * M_Cos(thing->angle);
+		thing->mom.y = thing->speed * M_Sin(thing->angle);
+	}
+
+	return true;
 }
 
 //
