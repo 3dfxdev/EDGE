@@ -649,6 +649,13 @@ namespace Patch
 
 	bool CheckNewSection(void)
 	{
+		if (StrCaseCmpPartial(line_buf, "[CODEPTR]") == 0)
+		{
+			PrintWarn("BEX directive [CODEPTR] not supported.\n");
+			syncing = true;
+			return false;
+		}
+
 		if (line_buf[0] == '[')
 			FatalError("BEX (Boom Extension) directives not supported.\n"
 				"Line %d: %s\n", line_num, line_buf);
