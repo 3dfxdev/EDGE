@@ -76,6 +76,7 @@
 
 #include "errorcodes.h"
 
+#include "./epi/epiassert.h"
 #include "./epi/epierror.h"
 #include "./epi/epistring.h"
 
@@ -1556,13 +1557,13 @@ startuporder_t startcode[] =
 namespace engine
 {
 	// Local Prototypes
-	bool Startup();
+	void Startup();
 	void Shutdown(void);
 
 	//
 	// Startup
 	//
-	bool Startup()
+	void Startup()
 	{
 		int p;
 		const char *ps;
@@ -1629,14 +1630,14 @@ namespace engine
 			// quit after one demo
 			singledemo = true;
 			G_DeferredPlayDemo(ps);
-			return true;
+			return;
 		}
 
 		ps = M_GetParm("-timedemo");
 		if (ps)
 		{
 			G_TimeDemo(ps);
-			return true;
+			return;
 		}
 
 		ps = M_GetParm("-loadgame");
@@ -1661,8 +1662,6 @@ namespace engine
 				E_StartTitle();  // start up intro loop
 			}
 		}
-
-		return true;
 	}
 
 	//
@@ -1692,23 +1691,21 @@ namespace engine
 
 		try
 		{
-			// Todo: All Startup functions should throw errors
-			// Startup()
-			if (!Startup())
-			{
-				epi::error_c err(ERR_GENERIC, "Failed Startup!");
-				throw err;
-			}
-				
+			// Startup function will throw an error if something goes wrong
+			Startup();
+			
 			// -ACB- 1999/09/24 Call System Specific Looping function. Some
 			//                  systems don't loop forever.
 			I_Loop();
 		}
 		catch(epi::error_c err)
 		{
-			printf("%s\n",err.GetInfo());
-			//I_Error(err.GetInfo());
-		};
+			I_Error("%s\n", err.GetInfo());
+		}
+		catch(...)
+		{
+			I_Error("Unexpected internal failure occurred !\n");
+		}
 
 		Shutdown();    // Shutdown whatever at this point
 
