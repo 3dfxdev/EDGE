@@ -18,6 +18,7 @@
 
 #include "i_defs.h"
 
+#include "attacks.h"
 #include "system.h"
 #include "things.h"
 #include "wad.h"
@@ -125,6 +126,7 @@ int main(int argc, char **argv)
 
 	// DO STUFF !!
 		Things::ConvertAll();
+		Attacks::ConvertAll();
 
 	PrintMsg("Writing WAD file: %s\n", output_file);
 	WAD::WriteFile(output_file);
