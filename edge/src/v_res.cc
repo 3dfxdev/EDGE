@@ -59,7 +59,11 @@ float BASEXCENTER;
 screenmode_t *scrmode;
 int numscrmodes;
 
-static void SetRes(void)
+//
+// V_InitResolution
+// Inits everything resolution-dependent to SCREENWIDTH x SCREENHEIGHT x BPP
+//
+void V_InitResolution(void)
 {
 	// -ES- 1999/03/04 Removed weird aspect ratio warning - bad ratios don't look awful anymore :-)
 	SCALEDWIDTH = (SCREENWIDTH - (SCREENWIDTH % 320));
@@ -113,20 +117,6 @@ static void SetRes(void)
 	AM_InitResolution();
 }
 
-static void SetBPP(void)
-{
-}
-
-//
-// V_InitResolution
-// Inits everything resolution-dependent to SCREENWIDTH x SCREENHEIGHT x BPP
-//
-void V_InitResolution(void)
-{
-	SetBPP();
-	SetRes();
-}
-
 //
 // V_MultiResInit
 //
@@ -136,8 +126,8 @@ void V_InitResolution(void)
 //
 bool V_MultiResInit(void)
 {
-	I_Printf("Resolution: %d x %d x %dc\n", SCREENWIDTH, SCREENHEIGHT, 
-			1 << SCREENBITS);
+	I_Printf("Resolution: %d x %d x %d\n", SCREENWIDTH, SCREENHEIGHT, 
+			 SCREENBITS);
 	return true;
 }
 
@@ -153,11 +143,16 @@ void V_AddAvailableResolution(screenmode_t *mode)
 {
 	int i;
 
-	// Unused depth: do not add.
-	if (mode->depth != 8 && mode->depth != 16 && mode->depth != 24)
+	if (mode->depth == 32)
+		mode->depth = 24;
+	else if (mode->depth == 15)
+		mode->depth = 16;
+
+	// Unsupported depth: do not add it.
+	if (mode->depth != 16 && mode->depth != 24)
 		return;
 
-	L_WriteDebug("V_AddAvailableResolution: Res %d x %d - %dbpp\n", mode->width,
+	L_WriteDebug("V_AddAvailableResolution: %d x %d x %d\n", mode->width,
 			mode->height, mode->depth);
 
 	if (!scrmode)
@@ -214,8 +209,11 @@ int V_FindClosestResolution(screenmode_t *mode,
 		int dw = ABS(scrmode[i].width  - mode->width);
 		int dh = ABS(scrmode[i].height - mode->height);
 		int dd = ABS(scrmode[i].depth  - mode->depth) * DEPTH_MUL;
-		int dist;
-
+#if 0
+		L_WriteDebug("MODE %d/%d  %dx%dx%d (%s)\n",
+			i+1,numscrmodes, scrmode[i].width, scrmode[i].height, scrmode[i].depth,
+			scrmode[i].windowed ? "Windowed" : "Fullscreen");
+#endif
 		if (scrmode[i].windowed != mode->windowed)
 			continue;
 
@@ -229,7 +227,7 @@ int V_FindClosestResolution(screenmode_t *mode,
 		if (samedepth && dd != 0)
 			continue;
 
-		dist = dw * dw + dh * dh + dd * dd;
+		int dist = dw * dw + dh * dh + dd * dd;
 
 		if (dist >= best_dist)
 			continue;
@@ -238,7 +236,9 @@ int V_FindClosestResolution(screenmode_t *mode,
 		best_idx = i;
 		best_dist = dist;
 	}
-
+#if 0
+	L_WriteDebug("NO MATCH\n");
+#endif
 	return best_idx;
 }
 

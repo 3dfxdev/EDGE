@@ -172,9 +172,9 @@ void RGL_SetupMatrices3D(void)
 //
 
 //
-// RGL_NewScreenSize
+// RGL_NewcreenSize
 //
-void RGL_NewScreenSize(int width, int height, int bpp)
+void RGL_NewScreenSize(int width, int height, int bits)
 {
 	//!!! quick hack
 	RGL_SetupMatrices2D();

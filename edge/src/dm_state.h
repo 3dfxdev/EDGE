@@ -257,9 +257,6 @@ extern int SCREENHEIGHT;
 extern int SCREENBITS;
 extern bool SCREENWINDOW;
 
-// transitional macros
-#define BPP  (SCREENBITS / 8)
-
 // I_Video.c / V_Video*.c Precalc. Stuff
 extern float DX, DY, DXI, DYI, DY2, DYI2;
 extern int SCALEDWIDTH, SCALEDHEIGHT, X_OFFSET, Y_OFFSET;

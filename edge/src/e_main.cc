@@ -308,6 +308,12 @@ static void SetGlobalVars(void)
 	if (s)
 		SCREENBITS = atoi(s) * 8;
 
+	// restrict depth to allowable values
+	if (SCREENBITS < 15)
+		SCREENBITS = 15;
+	else if (SCREENBITS > 16)
+		SCREENBITS = 24;
+
 	M_CheckBooleanParm("windowed",   &SCREENWINDOW, false);
 	M_CheckBooleanParm("fullscreen", &SCREENWINDOW, true);
 

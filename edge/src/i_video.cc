@@ -55,14 +55,7 @@
 #include <signal.h>
 
 
-// Dummy screen... 
-// mainscreen is a full-size subscreen of this one.
 static SDL_Surface *my_vis;
-
-// This needs to be global to retain fullscreen options
-static Uint32 my_flags = (SDL_OPENGL | SDL_DOUBLEBUF);
-
-unsigned char *thepalette;
 
 static int graphics_shutdown = 0;
 
@@ -87,6 +80,15 @@ static screenmode_t possresmode[] =
 	{ 800, 600, 16, false},
 	{1024, 768, 16, false},
 
+	{ 320, 200, 24, false}, // TRUECOLOR
+	{ 320, 240, 24, false},
+	{ 400, 300, 24, false},
+	{ 512, 384, 24, false},
+	{ 640, 400, 24, false},
+	{ 640, 480, 24, false},
+	{ 800, 600, 24, false},
+	{1024, 768, 24, false},
+
 	// windowed modes
 	{ 320, 200, 16, true},
 	{ 320, 240, 16, true},
@@ -96,6 +98,15 @@ static screenmode_t possresmode[] =
 	{ 640, 480, 16, true},
 	{ 800, 600, 16, true},
 	{1024, 768, 16, true},
+
+	{ 320, 200, 24, true},  // TRUECOLOR
+	{ 320, 240, 24, true},
+	{ 400, 300, 24, true},
+	{ 512, 384, 24, true},
+	{ 640, 400, 24, true},
+	{ 640, 480, 24, true},
+	{ 800, 600, 24, true},
+	{1024, 768, 24, true},
 
 	{  -1,  -1, -1}
 };
@@ -135,38 +146,43 @@ static void VideoModeCommonStuff(void)
 //
 void I_StartupGraphics(void)
 {
-	int i;
-	int got_depth;
-
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0)
 		I_Error("Couldn't init SDL\n");
 
 	M_CheckBooleanParm("warpmouse", &use_warp_mouse, false);
 	M_CheckBooleanParm("grab", &use_grab, false);
 
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,   5);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,  5);
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     5);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   5);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,    5);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
 
 	// -ACB- 2000/03/16 Detect Possible Resolutions
-	for (i = 0; possresmode[i].width != -1; i++)
+	for (int i = 0; possresmode[i].width != -1; i++)
 	{
-		if (possresmode[i].windowed)
+		screenmode_t *mode = possresmode + i;
+
+#if 0
+		if (mode->windowed)
 		{
-			V_AddAvailableResolution(possresmode + i);
+			V_AddAvailableResolution(mode);
 			continue;
 		}
+#endif
 
-		got_depth = SDL_VideoModeOK(possresmode[i].width, possresmode[i].height,
-				possresmode[i].depth, my_flags | SDL_FULLSCREEN);
+		int got_depth = SDL_VideoModeOK(mode->width, mode->height,
+				mode->depth, SDL_OPENGL | SDL_DOUBLEBUF |
+				(mode->windowed ? 0 : SDL_FULLSCREEN));
 
-		if (got_depth == possresmode[i].depth ||
-				(got_depth == 15 && possresmode[i].depth == 16))
+		int token = (got_depth * 100 + mode->depth);
+
+		if (got_depth == mode->depth ||
+			token == 1516 || token == 1615 ||
+			token == 2432 || token == 3224)
 		{
-			V_AddAvailableResolution(possresmode + i);
+			V_AddAvailableResolution(mode);
 		}
 	}
 }
@@ -176,21 +192,22 @@ void I_StartupGraphics(void)
 //
 bool I_SetScreenSize(screenmode_t *mode)
 {
-	if (mode->depth != 16)
+	if (mode->depth < 15)
 		return false;
 
 	my_vis = SDL_SetVideoMode(mode->width, mode->height, mode->depth, 
-			my_flags | (mode->windowed ? 0 : SDL_FULLSCREEN));
+					SDL_OPENGL | SDL_DOUBLEBUF |
+					(mode->windowed ? 0 : SDL_FULLSCREEN));
 
 	if (my_vis == NULL)
 		return false;
 
-	///  if (my_vis->format->BytesPerPixel != mode->depth / 8)
-	///    return false;
+	if (my_vis->format->BytesPerPixel <= 1)
+		return false;
 
 	SCREENWIDTH  = my_vis->w;
 	SCREENHEIGHT = my_vis->h;
-	SCREENBITS   = my_vis->format->BytesPerPixel * 8;
+	SCREENBITS   = (my_vis->format->BytesPerPixel == 2) ? 16 : 24;
 
 	VideoModeCommonStuff();
 

@@ -41,7 +41,7 @@ void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer);
 // screen has changed size/depth.  New size/depth is given.  Must be
 // called before any rendering has occurred (e.g. just before
 // I_StartFrame).
-void RGL_NewScreenSize(int width, int height, int bpp);
+void RGL_NewScreenSize(int width, int height, int bits);
 
 // Draw a solid colour box (possibly translucent) in the given
 // rectangle.  Coordinates are inclusive.  Alpha ranges from 0

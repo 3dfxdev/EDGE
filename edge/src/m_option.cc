@@ -360,12 +360,12 @@ static void M_DefaultMenuItem(optmenuitem_t *item)
 static optmenuitem_t mainmenu[] =
 {
 	{OPT_Function, "Leave Game", NULL, 0, 0, NULL, M_EndGame, NULL},
-	{OPT_Function, "Set Resolution", NULL, 0, 0, NULL, M_ResolutionOptions, "ChangeRes"},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+///	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Keyboard Controls", NULL, 0, 0, NULL, M_StandardControlOptions, "Controls"},
 	{OPT_Function, "Mouse Options", NULL, 0, 0, NULL, M_AnalogueOptions, "AnalogueOptions"},
 	{OPT_Function, "Gameplay Options", NULL, 0, 0, NULL, M_GameplayOptions, "GameplayOptions"},
 	{OPT_Function, "Video Options", NULL, 0, 0, NULL, M_VideoOptions, "VideoOptions"},
+	{OPT_Function, "Set Resolution", NULL, 0, 0, NULL, M_ResolutionOptions, "ChangeRes"},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Language", NULL, 0, 0, NULL, M_ChangeLanguage, NULL},
 	{OPT_Switch, "Messages", YesNo, 2, 1, &showMessages, NULL, "Messages"},
@@ -1228,20 +1228,20 @@ static void M_VideoOptions(int keypressed)
 //
 static void M_ResolutionOptions(int keypressed)
 {
-	int i;
 	byte depth = SCREENBITS;
-	screenmode_t curMode;
 
 	// Get a depth mask for resolution selection
-	DEV_ASSERT2(depth == 8 || depth == 16 || depth == 24);
+	DEV_ASSERT2(depth == 16 || depth == 24 || depth == 32);
 
 	// Find the current mode in the scrmode[] table
-	curMode.width = SCREENWIDTH;
-	curMode.height = SCREENHEIGHT;
-	curMode.depth = SCREENBITS;
+	screenmode_t curMode;
+
+	curMode.width    = SCREENWIDTH;
+	curMode.height   = SCREENHEIGHT;
+	curMode.depth    = SCREENBITS;
 	curMode.windowed = SCREENWINDOW;
 
-	i = V_FindClosestResolution(&curMode, true, true);
+	int i = V_FindClosestResolution(&curMode, true, true);
 
 	if (i == -1)
 		I_Error("M_ResolutionOptions: Graphics mode not listed in scrmode[]");
@@ -1680,21 +1680,21 @@ static void M_ChangeStoredBpp(int keypressed)
 	{
 		if (keypressed == KEYD_LEFTARROW)
 		{
-			if (newdepthbit == 8)
-				newdepthbit = 24;
+			if (newdepthbit == 16)
+				newdepthbit = 32;
 			else if (newdepthbit == 24)
 				newdepthbit = 16;
-			else if (newdepthbit == 16)
-				newdepthbit = 8;
+			else if (newdepthbit == 32)
+				newdepthbit = 24;
 		}
 		else if (keypressed == KEYD_RIGHTARROW)
 		{
-			if (newdepthbit == 8)
+			if (newdepthbit == 32)
 				newdepthbit = 16;
 			else if (newdepthbit == 16)
 				newdepthbit = 24;
 			else if (newdepthbit == 24)
-				newdepthbit = 8;
+				newdepthbit = 32;
 		}
     
 		newMode.width = scrmode[selectedscrmode].width;
