@@ -9,7 +9,7 @@ CXX=g++
 AR=ar rc
 RANLIB=ranlib
 
-CXXFLAGS=-g -O -Wall
+CXXFLAGS=-O -Wall
 LDFLAGS=-Xlinker --warn-common
 DEFINES=-DLINUX -DDEH_EDGE_PLUGIN
 LIBS=-lm
