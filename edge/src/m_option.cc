@@ -147,6 +147,7 @@ static void M_OptionTestResolution(int keypressed);
 static void M_RestoreResSettings(int keypressed);
 static void M_ChangeStoredRes(int keypressed);
 static void M_ChangeStoredBpp(int keypressed);
+static void M_ChangeStoredMode(int keypressed);
 
 static void M_LanguageDrawer(int x, int y, int deltay);
 static void M_ChangeLanguage(int keypressed);
@@ -429,6 +430,7 @@ static optmenuitem_t resoptions[] =
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Change Size", NULL, 0, 0, NULL, M_ChangeStoredRes, NULL},
 	{OPT_Function, "Change Depth", NULL, 0, 0, NULL, M_ChangeStoredBpp, NULL},
+	{OPT_Function, "Change Mode", NULL, 0, 0, NULL, M_ChangeStoredMode, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Set Resolution", NULL, 0, 0, NULL, M_OptionSetResolution, NULL},
 	{OPT_Function, "Test Resolution", NULL, 0, 0, NULL, M_OptionTestResolution, NULL},
@@ -696,18 +698,14 @@ void M_InitOptmenu()
 //
 void M_OptTicker(void)
 {
-	int displaybpp = 0;
-
 	if (setresfailed)
 	{
 		epi::string_c s;
 		
-		displaybpp = scrmode[selectedscrmode].depth;
-
 		s.Format(language["ModeSelErr"],
 				scrmode[selectedscrmode].width,
 				scrmode[selectedscrmode].height,
-				displaybpp);
+				scrmode[selectedscrmode].depth);
 
 		M_StartMessage(s.GetString(), NULL, false);
 		testticker = -1;
@@ -884,29 +882,32 @@ void M_OptDrawer()
 static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int centrex)
 {
 	char tempstring[80];
-	int y;
-	int displaybpp = 8;
 
 	// Draw current resolution
-	y = topy;
+	int y = topy;
 	sprintf(tempstring, "Current Resolution:");
 	HL_WriteText(style,0, 160 - (style->fonts[0]->StringWidth(tempstring) / 2), y, tempstring);
 
 	y += dy;
-	sprintf(tempstring, "%d x %d in %d-bit mode", SCREENWIDTH, SCREENHEIGHT,
-			SCREENBITS);
+	sprintf(tempstring, "%d x %d at %d-bit %s", SCREENWIDTH, SCREENHEIGHT,
+			SCREENBITS, SCREENWINDOW ? "Windowed" : "Fullscreen");
 	HL_WriteText(style,1, 160 - (style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
+
+	screenmode_t& cur_mode = scrmode[selectedscrmode];
 
 	// Draw resolution selection option
 	y += (dy*2);
-	sprintf(tempstring, "%dx%d", scrmode[selectedscrmode].width, scrmode[selectedscrmode].height);
+	sprintf(tempstring, "%dx%d", cur_mode.width, cur_mode.height);
 	HL_WriteText(style,1, centrex+15, y, tempstring);
 
 	// Draw depth selection option
-	displaybpp = scrmode[selectedscrmode].depth;
+	y += dy;
+	sprintf(tempstring, "%d bit", cur_mode.depth);
+	HL_WriteText(style,1, centrex+15, y, tempstring);
 
 	y += dy;
-	sprintf(tempstring, "%d bit", displaybpp);
+	sprintf(tempstring, "%s", cur_mode.windowed ?
+		 "Windowed" : "Fullscreen");
 	HL_WriteText(style,1, centrex+15, y, tempstring);
 
 	// Draw selected resolution and mode:
@@ -916,10 +917,9 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 
 	y += dy;
 
-	sprintf(tempstring, "%d x %d in %d-bit mode",
-			scrmode[selectedscrmode].width,
-			scrmode[selectedscrmode].height,
-			displaybpp);
+	sprintf(tempstring, "%d x %d at %d-bit %s",
+			cur_mode.width, cur_mode.height, cur_mode.depth,
+			cur_mode.windowed ? "Windowed" : "Fullscreen");
 
 	HL_WriteText(style,1, 160 - (style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
 }
@@ -1658,18 +1658,13 @@ static void M_ChangeStoredRes(int keypressed)
 //
 static void M_ChangeStoredBpp(int keypressed)
 {
-	int newdepthbit;
-	bool gotnewdepth;  // Got new resolution setting
-	screenmode_t newMode;
-	int idx;
-
-	// Ignore anything by LEFT and RIGHT arrow keys
+	// Ignore anything but LEFT and RIGHT arrow keys
 	if (keypressed != KEYD_LEFTARROW && keypressed != KEYD_RIGHTARROW)
 		return;
 
-	newdepthbit = scrmode[selectedscrmode].depth;
+	int newdepthbit = scrmode[selectedscrmode].depth;
 
-	gotnewdepth = false;
+	bool gotnewdepth = false;
 	while (!gotnewdepth)
 	{
 		if (keypressed == KEYD_LEFTARROW)
@@ -1687,12 +1682,14 @@ static void M_ChangeStoredBpp(int keypressed)
 				newdepthbit = 32;
 		}
     
+		screenmode_t newMode;
+
 		newMode.width = scrmode[selectedscrmode].width;
 		newMode.height = scrmode[selectedscrmode].height;
+		newMode.windowed = scrmode[selectedscrmode].height;
 		newMode.depth = newdepthbit;
-		newMode.windowed = SCREENWINDOW;
 
-		idx = V_FindClosestResolution(&newMode, false, true);
+		int idx = V_FindClosestResolution(&newMode, false, true);
      
 		// Select res
 		if (idx != -1)
@@ -1701,8 +1698,31 @@ static void M_ChangeStoredBpp(int keypressed)
 			gotnewdepth = true;
 		}
 	}
+}
 
-	return;
+//
+// M_ChangeStoredMode
+//
+// -AJA- 2005/01/02: Windowed vs Fullscreen
+//
+static void M_ChangeStoredMode(int keypressed)
+{
+	// Ignore anything but LEFT and RIGHT arrow keys
+	if (keypressed != KEYD_LEFTARROW && keypressed != KEYD_RIGHTARROW)
+		return;
+
+	screenmode_t newMode;
+
+	newMode.width = scrmode[selectedscrmode].width;
+	newMode.height = scrmode[selectedscrmode].height;
+	newMode.depth = scrmode[selectedscrmode].depth;
+	newMode.windowed = ! scrmode[selectedscrmode].windowed;
+
+	int idx = V_FindClosestResolution(&newMode, false, false);
+
+	// Select res
+	if (idx != -1)
+		selectedscrmode = idx;
 }
 
 //
@@ -1710,10 +1730,10 @@ static void M_ChangeStoredBpp(int keypressed)
 //
 static void M_OptionSetResolution(int keypressed)
 {
-	R_ChangeResolution(
-		scrmode[selectedscrmode].width, 
-		scrmode[selectedscrmode].height, 
-		scrmode[selectedscrmode].depth, SCREENWINDOW);
+	screenmode_t& cur_mode = scrmode[selectedscrmode];
+
+	R_ChangeResolution(cur_mode.width, cur_mode.height, 
+		cur_mode.depth, cur_mode.windowed);
 }
 
 //
@@ -1721,10 +1741,10 @@ static void M_OptionSetResolution(int keypressed)
 //
 static void M_OptionTestResolution(int keypressed)
 {
-	R_ChangeResolution(
-		scrmode[selectedscrmode].width, 
-		scrmode[selectedscrmode].height, 
-		scrmode[selectedscrmode].depth, SCREENWINDOW);
+	screenmode_t& cur_mode = scrmode[selectedscrmode];
+
+	R_ChangeResolution(cur_mode.width, cur_mode.height, 
+		cur_mode.depth, cur_mode.windowed);
 
 	testticker = TICRATE * 3;
 }
@@ -1734,9 +1754,9 @@ static void M_OptionTestResolution(int keypressed)
 //
 static void M_RestoreResSettings(int keypressed)
 {
-	R_ChangeResolution(
-		scrmode[prevscrmode].width, 
-		scrmode[prevscrmode].height,
-		scrmode[prevscrmode].depth, SCREENWINDOW);
+	screenmode_t& prev_mode = scrmode[prevscrmode];
+
+	R_ChangeResolution(prev_mode.width, prev_mode.height,
+		prev_mode.depth, prev_mode.windowed);
 }
 
