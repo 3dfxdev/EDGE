@@ -324,6 +324,8 @@ void G_DeferredTimeDemo(const char *filename)
 //
 void G_DoPlayDemo(void)
 {
+	gameaction = ga_nothing;
+
 	epi::file_c *fp = epi::the_filesystem->Open(defdemoname.GetString(),
         epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
 
