@@ -45,15 +45,7 @@
 #define DEBUG  0
 
 
-#define RGB_RED(rgbcol)  ((float)((rgbcol >> 16) & 0xFF) / 255.0f)
-#define RGB_GRN(rgbcol)  ((float)((rgbcol >>  8) & 0xFF) / 255.0f)
-#define RGB_BLU(rgbcol)  ((float)((rgbcol      ) & 0xFF) / 255.0f)
-
-
-#define Z_NEAR  1.0f
-#define Z_FAR   200000.0f
-
-static bool has_drawn_sky = false;
+static bool need_to_draw_sky = false;
 
 static bool sky_box = true;
 
@@ -118,7 +110,7 @@ void RGL_RevertSkyMatrices(void)
 //
 void RGL_BeginSky(void)
 {
-	has_drawn_sky = false;
+	need_to_draw_sky = false;
 
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	glDisable(GL_TEXTURE_2D);
@@ -136,7 +128,7 @@ void RGL_FinishSky(void)
 
 	// draw sky picture, but DON'T affect the depth buffering
 
-	if (has_drawn_sky)
+	if (need_to_draw_sky)
 	{
 		glEnable(GL_TEXTURE_2D);
 
@@ -259,13 +251,6 @@ void RGL_DrawSkyBox(void)
 //
 void RGL_DrawSkyBackground(void)
 {
-#if 0  // sky way #1, behind everything
-	if (has_drawn_sky)
-		return;
-
-	has_drawn_sky = true;
-#endif
-
 	RGL_SetupSkyMatrices();
 
 	int x, y, w, h;
@@ -296,16 +281,8 @@ void RGL_DrawSkyBackground(void)
 	// sky is always 100% bright
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-#if 1
 	sx1 = -1; sx2 = +1;
 	sy1 = -1; sy2 = +1;
-#else  // old way
-	sx1 = viewwindowx;
-	sx2 = viewwindowx + viewwindowwidth;
-
-	sy1 = viewwindowy;
-	sy2 = viewwindowy + viewwindowheight;
-#endif
 
 	// compute sky horizontally tex coords
 	mlook_rad = ANG_2_FLOAT(viewvertangle) * M_PI / 180.0f;
@@ -367,8 +344,7 @@ void RGL_DrawSkyBackground(void)
 			float tya = ty + (by - ty) * y     / 8.0f;
 			float bya = ty + (by - ty) * (y+1) / 8.0f;
 
-#if 1
-			// sky way #3, using depth-buffer
+			// --- handle sky (using depth buffer) ---
 
 			float dist = Z_FAR * 0.99;
 
@@ -386,23 +362,6 @@ void RGL_DrawSkyBackground(void)
 
 			glTexCoord2f(bxa, 1.0f - bottom * bya);
 			glVertex3f(xa, yb, dist);
-#endif
-
-#if 0
-			// sky way #1, behind everything
-		
-			glTexCoord2f(txa, 1.0f - bottom * tya);
-			glVertex2i(xa, SCREENHEIGHT - ya);
-
-			glTexCoord2f(txb, 1.0f - bottom * tya);
-			glVertex2i(xb, SCREENHEIGHT - ya);
-
-			glTexCoord2f(bxb, 1.0f - bottom * bya);
-			glVertex2i(xb, SCREENHEIGHT - yb);
-
-			glTexCoord2f(bxa, 1.0f - bottom * bya);
-			glVertex2i(xa, SCREENHEIGHT - yb);
-#endif
 		}
 	}
 
@@ -415,169 +374,28 @@ void RGL_DrawSkyBackground(void)
 	RGL_RevertSkyMatrices();
 }
 
-
-#if 0  // sky way #2, polygons
-
-static INLINE void CalcSkyTexCoord(float x, float y, float z, 
-								   float *tx, float *ty)
-{
-	float dist;
-	float tile_num = 1;
-	float base_val, angle_val;
-
-	angle_t angle;
-
-	x -= viewx;
-	y -= viewy;
-	z -= viewz;
-
-	// OPTIMISE
-	dist = (float)sqrt(x*x + y*y + z*z);
-
-	if (dist < 1) 
-		dist = 1;
-
-	x /= dist;
-	y /= dist;
-	z /= dist;
-
-	angle = viewangle - R_PointToAngle(0, 0, x, y);
-
-	base_val = ANG_2_FLOAT(viewangle);
-
-	if (angle < ANG180)
-		angle_val = ANG_2_FLOAT(angle);
-	else
-		angle_val = ANG_2_FLOAT(angle) - 360.0f;
-
-	(*tx) = tile_num * (base_val - angle_val) /
-		(sky_image->actual_w > 256 ? 360.0f : 180.0f);
-	(*ty) = tile_num * ((1 + z) / 2);  /// * IM_BOTTOM(sky_image);
-	return;
-
-#if 0  // EXPERIMENTAL
-	dist = sqrt(x*x + z*z);
-
-	if (dist > 0.01f)
-	{
-		x /= dist;
-		z /= dist;
-	}
-
-	x = (1 + x) / 2;
-	z = (1 + z) / 2;
-
-	if (0)  // sky_image->actual_w > 256)
-	{
-		x /= 2;
-
-		if (y < 0)
-			x = 1.0f - x;
-	}
-	else
-	{
-		if (y < 0)
-			x = -x;
-	}
-
-	(*tx) = x;
-	(*ty) = z * IM_BOTTOM(sky_image);
-#endif
-}
-
-typedef struct sky_data_s
-{
-	vec3_t normal;
-}
-sky_data_t;
-
-void SkyPolyCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
-{
-	sky_data_t *data = (sky_data_t *)d;
-
-	float tx, ty;
-
-	CalcSkyTexCoord(src->x, src->y, src->z, &tx, &ty);
-
-	SET_COLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	SET_TEXCOORD(tx, ty);
-	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
-	SET_EDGE_FLAG(GL_TRUE);
-	SET_VERTEX(src->x, src->y, src->z);
-}
-#endif
-
 //
 // RGL_DrawSkyPlane
 //
 void RGL_DrawSkyPlane(subsector_t *sub, float h)
 {
-	if (! dumb_sky)
-	{
-		seg_t *seg;
+	need_to_draw_sky = true;
 
-		glNormal3f(0, 0, (viewz > h) ? 1.0f : -1.0f);
-
-		glBegin(GL_POLYGON);
-
-		for (seg=sub->segs; seg; seg=seg->sub_next)
-		{
-			glVertex3f(seg->v1->x, seg->v1->y, h);
-		}
-
-		glEnd();
-	}
-
-	has_drawn_sky = true;
-
-#if 0  // sky way #2, polygons.
-
-	raw_polyquad_t *poly;
-	sky_data_t data;
+	if (dumb_sky)
+		return;
 
 	seg_t *seg;
 
-	GLuint tex_id;
-	const cached_image_t *cim;
+	glNormal3f(0, 0, (viewz > h) ? 1.0f : -1.0f);
 
-	int num_vert, i;
+	glBegin(GL_POLYGON);
 
-	// count number of actual vertices
-	for (seg=sub->segs, num_vert=0; seg; seg=seg->sub_next, num_vert++)
-	{ /* nothing here */ }
-
-	if (num_vert > MAX_PLVERT)
-		num_vert = MAX_PLVERT;
-
-	DEV_ASSERT2(sky_image);
-	cim = W_ImageCache(sky_image, IMG_OGL, 0, true);
-	tex_id = W_ImageGetOGL(cim);
-
-	// normally this is wrong -- W_LockImagesOGL saves us though.
-	W_ImageDone(cim);
-
-	data.normal.x = 0;
-	data.normal.y = 0;
-	data.normal.z = (viewz > h) ? 1.0f : -1.0f;
-
-	// create PolyQuad and transfer vertices
-
-	poly = RGL_NewPolyQuad(num_vert, false);
-
-	for (seg=sub->segs, i=0; seg && (i < MAX_PLVERT); 
-		seg=seg->sub_next, i++)
+	for (seg=sub->segs; seg; seg=seg->sub_next)
 	{
-		PQ_ADD_VERT(poly, seg->v1->x, seg->v1->y, h);
+		glVertex3f(seg->v1->x, seg->v1->y, h);
 	}
 
-	RGL_BoundPolyQuad(poly);
-	RGL_SplitPolyQuadLOD(poly, 1, 128 >> detail_level);
-
-	RGL_RenderPolyQuad(poly, &data, &SkyPolyCoordFunc, tex_id,
-		false, false);
-
-	RGL_FreePolyQuad(poly);
-#endif
+	glEnd();
 }
 
 //
@@ -585,67 +403,26 @@ void RGL_DrawSkyPlane(subsector_t *sub, float h)
 //
 void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 {
-	if (! dumb_sky)
-	{
-		float x1 = seg->v1->x;
-		float y1 = seg->v1->y;
-		float x2 = seg->v2->x;
-		float y2 = seg->v2->y;
+	need_to_draw_sky = true;
 
-		glNormal3f(y2 - y1, x1 - x2, 0);
-
-		glBegin(GL_QUADS);
-
-		glVertex3f(x1, y1, h1);
-		glVertex3f(x1, y1, h2);
-		glVertex3f(x2, y2, h2);
-		glVertex3f(x2, y2, h1);
-
-		glEnd();
-	}
-
-	has_drawn_sky = true;
-
-#if 0  // sky way #2, polygons.
+	if (dumb_sky)
+		return;
 
 	float x1 = seg->v1->x;
 	float y1 = seg->v1->y;
 	float x2 = seg->v2->x;
 	float y2 = seg->v2->y;
 
-	GLuint tex_id;
-	const cached_image_t *cim;
+	glNormal3f(y2 - y1, x1 - x2, 0);
 
-	sky_data_t data;
-	raw_polyquad_t *poly;
+	glBegin(GL_QUADS);
 
-	poly = RGL_NewPolyQuad(4, true);
+	glVertex3f(x1, y1, h1);
+	glVertex3f(x1, y1, h2);
+	glVertex3f(x2, y2, h2);
+	glVertex3f(x2, y2, h1);
 
-	PQ_ADD_VERT(poly, x1, y1, h1);
-	PQ_ADD_VERT(poly, x1, y1, h2);
-	PQ_ADD_VERT(poly, x2, y2, h1);
-	PQ_ADD_VERT(poly, x2, y2, h2);
-
-	// get texture id for sky
-	DEV_ASSERT2(sky_image);
-	cim = W_ImageCache(sky_image, IMG_OGL, 0, true);
-	tex_id = W_ImageGetOGL(cim);
-
-	// normally this is wrong -- W_LockImagesOGL saves us though.
-	W_ImageDone(cim);
-
-	data.normal.x = y2 - y1;
-	data.normal.y = x1 - x2;
-	data.normal.z = 0;
-
-	RGL_BoundPolyQuad(poly);
-	RGL_SplitPolyQuadLOD(poly, 1, 128 >> detail_level);
-
-	RGL_RenderPolyQuad(poly, &data, &SkyPolyCoordFunc, tex_id,
-		false, false);
-
-	RGL_FreePolyQuad(poly);
-#endif
+	glEnd();
 }
 
 //----------------------------------------------------------------------------
