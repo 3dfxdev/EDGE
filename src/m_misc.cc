@@ -98,7 +98,7 @@ static default_t defaults[] =
     {CFGT_Boolean, "invertmouse", &invertmouse, 0},
     {CFGT_Int, "mlookspeed", &mlookspeed, 1000 / 64},
     {CFGT_Boolean, "translucency", &global_flags.trans, 1},
-   
+
     // -ES- 1998/11/28 Save fade settings
     {CFGT_Enum, "telept_effect", &telept_effect, 0},
     {CFGT_Int, "telept_reverse", &telept_reverse, 0},
@@ -113,7 +113,7 @@ static default_t defaults[] =
     {CFGT_Boolean, "respawn", &global_flags.respawn, 0},
     {CFGT_Boolean, "fastparm", &global_flags.fastparm, 0},
     {CFGT_Int, "grav", &global_flags.menu_grav, MENU_GRAV_NORMAL},
-    {CFGT_Boolean, "true3dgameplay", &global_flags.true3dgameplay, 0},
+    {CFGT_Boolean, "true3dgameplay", &global_flags.true3dgameplay, 1},
     {CFGT_Enum, "autoaim", &global_flags.autoaim, 1},
     {CFGT_Boolean, "missileteleport", &missileteleport, 0},
     {CFGT_Int, "teleportdelay", &teleportdelay, 0},
@@ -121,14 +121,14 @@ static default_t defaults[] =
     // -KM- 1998/07/21 Save the blood setting
     {CFGT_Boolean, "blood", &global_flags.more_blood, 0},
     {CFGT_Boolean, "extra", &global_flags.have_extra, 1},
-    {CFGT_Boolean, "shadows", &global_flags.shadows, 1},
+    {CFGT_Boolean, "shadows", &global_flags.shadows, 0},
     {CFGT_Boolean, "halos", &global_flags.halos, 0},
     {CFGT_Boolean, "weaponkick", &global_flags.kicking, 1},
     {CFGT_Boolean, "jumping", &global_flags.jump, 1},
     {CFGT_Boolean, "crouching", &global_flags.crouch, 1},
     {CFGT_Boolean, "mipmapping", &use_mipmapping, 1},
     {CFGT_Boolean, "smoothing", &use_smoothing, 1},
-    {CFGT_Boolean, "dlights", &use_dlights, 0},
+    {CFGT_Boolean, "dlights", &use_dlights, 1},
     {CFGT_Boolean, "dither", &use_dithering, 0},
     {CFGT_Int, "detail_level", &detail_level, 1},
 
@@ -156,7 +156,7 @@ static default_t defaults[] =
 
     {CFGT_Int, "darken_screen", &darken_screen, 1},
     {CFGT_Int, "snd_channels",  &dummysndchan, 3},
-    {CFGT_Int, "usegamma",      &current_gamma, 0},
+    {CFGT_Int, "usegamma",      &current_gamma, 2},
     {CFGT_Int, "save_page",     &save_page, 0},
 
     {CFGT_Key, "key_right",      &key_right,      0},
