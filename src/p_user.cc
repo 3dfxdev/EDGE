@@ -345,7 +345,7 @@ static void DeathThink(player_t * player)
 		delta = angle - player->mo->angle;
 
 		slope = P_ApproxSlope(dx, dy, dz);
-		slope = MIN(0.5, MAX(-0.5, slope));
+		slope = MIN(0.5f, MAX(-0.5f, slope));
 		delta_s = M_ATan(slope) - player->mo->vertangle;
 
 		if ((delta <= ANG1 || delta >= (angle_t)(0 - ANG1)) &&
@@ -402,7 +402,7 @@ static void P_UpdatePowerups(player_t *player)
 
 	for (pw = 0; pw < NUMPOWERS; pw++)
 	{
-		if (pw == PW_AllMap)  // kept forever and a day
+		if (player->powers[pw] < 0)  // -ACB- 2004/02/04 Negative values last a level
 			continue;
 
 		float& qty_r = player->powers[pw];
@@ -441,8 +441,7 @@ static void P_UpdatePowerups(player_t *player)
 		player->effect_infrared = true;
 		player->effect_strength = ((s >= 128.0f) ? 1.0f : s / 128.0f);
 	}
-	// -ACB- 1998/07/15 NightVision Code
-	else if (player->powers[PW_NightVision] > 0.0f)
+	else if (player->powers[PW_NightVision] > 0.0f)		// -ACB- 1998/07/15 NightVision Code
 	{
 		float s = player->powers[PW_NightVision];
 
