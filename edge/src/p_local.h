@@ -77,6 +77,9 @@
 
 extern mobj_t *RandomTarget;
 
+// useful macro for the vertical center of an object
+#define MO_MIDZ(mo)  ((mo)->z + (mo)->height / 2)
+
 //
 // P_ACTION
 //
