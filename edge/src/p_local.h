@@ -144,6 +144,7 @@ void P_MobjSetSource(mobj_t *mo, mobj_t *target);
 void P_MobjSetTarget(mobj_t *mo, mobj_t *target);
 void P_MobjSetSupportObj(mobj_t *mo, mobj_t *target);
 void P_MobjSetRideEm(mobj_t *mo, mobj_t *target);
+void P_MobjSetRealSource(mobj_t *mo, mobj_t *source);
 
 // -ACB- 1998/08/02 New procedures for DDF etc...
 void P_MobjItemRespawn(void);

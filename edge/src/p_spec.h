@@ -39,10 +39,14 @@
 #define CEILSPEED   1.0f
 #define FLOORSPEED  1.0f
 
-#define STOPSPEED   0.15f
+#define GRAVITY     8.0f
 #define FRICTION    0.9063f
 #define VISCOSITY   0.0f
-#define GRAVITY     8.0f
+#define DRAG        0.99f
+#define RIDE_FRICTION    0.7f
+#define LADDER_FRICTION  0.8f
+
+#define STOPSPEED   0.15f
 #define OOF_SPEED   20.0f
 
 #define MENU_GRAV_NORMAL  8
@@ -96,7 +100,6 @@ typedef struct button_s
   bwhere_e where;
   const image_t *bimage;
   int btimer;
-  mobj_t *soundorg;
   sfx_t *off_sound;
 }
 button_t;
@@ -212,6 +215,7 @@ extern int levelTimeCount;
 
 extern int maxbuttons;
 extern button_t *buttonlist;
+extern light_t *lights;
 
 // at game start
 void P_InitPicAnims(void);
