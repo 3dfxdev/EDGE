@@ -45,48 +45,6 @@ z_urgency_e;
 // A cache flusher is a function that can find and free unused memory.
 typedef void cache_flusher_f(z_urgency_e urge);
 
-typedef struct stack_array_s stack_array_t;
-
-struct stack_array_s
-{
-	// points to the actual array pointer.
-	// the stack_array is defined to be uninitialised if this one is NULL.
-	void ***ptr;
-
-	// the size of each element in ptr.
-	int elem_size;
-
-	// The number of currently used objects.
-	// Elements above this limit will be freed automatically if memory gets
-	// tight. Otherwise it will stay there, saving some future Z_ReMalloc calls.
-	int num;
-
-	// The number of allocated objects.
-	int max;
-
-	// alloc_bunch elements will be allocated at a time, saving some memory block
-	// overheads.
-	// If this is negative, the array will work in a different way:
-	// *ptr will be an array of elements rather than an array of pointers.
-	// This means that no pointer except *ptr may point to an element
-	// of the array, since it can be reallocated any time.
-	int alloc_bunch;
-
-	// Shows the number of users who have locked this grow_array.
-	int locked;
-
-	stack_array_t *next;
-};
-
-// Stack array functions.
-void Z_LockStackArray(stack_array_t *a);
-void Z_UnlockStackArray(stack_array_t *a);
-void Z_ClearStackArray(stack_array_t *a);
-void Z_DeleteStackArray(stack_array_t *a);
-void Z_InitStackArray(stack_array_t *a, void ***ptr, int elem_size, int alloc_bunch);
-stack_array_t *Z_CreateStackArray(void ***ptr, int elem_size, int alloc_bunch);
-void Z_SetArraySize(stack_array_t *a, int num);
-
 // Generic helper functions.
 char *Z_StrDup(const char *s);
 
