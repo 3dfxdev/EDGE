@@ -2548,7 +2548,7 @@ namespace playsim
 			return DDF_BoomGetGenLine(num);
 		}
 
-		I_Warning("playsim::LookupLineType(): Unknown linedef type %d", num);
+		I_Warning("playsim::LookupLineType(): Unknown linedef type %d\n", num);
 		return linetypes[0];	// Return template line
 	}	
 
