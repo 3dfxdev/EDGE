@@ -79,6 +79,12 @@ gamestate_t;
 #define MTF_NOT_DM      32
 #define MTF_NOT_COOP    64
 
+// -AJA- 2000/07/31: Friend flag, from MBF
+#define MTF_FRIEND      128 
+
+// -AJA- 2000/07/31: Experimental flag
+#define MTF_MEANDER     1024
+
 typedef enum
 {
   sk_baby,
