@@ -24,6 +24,8 @@
 
 // This function inits the GUI system (&& console)
 bool GUI_MainInit(void);
+bool GUI_MouseInit(void);
+bool GUI_ConInit(void);
 
 // This function calls the tickers for all gui apps.
 void GUI_MainTicker(void);

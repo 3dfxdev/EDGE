@@ -51,5 +51,6 @@ void E_AdvanceDemo(void);
 void E_StartTitle(void);
 void E_EngineShutdown(void);
 void E_Display(void);
+void E_LocalProgress(int step, int total, const char *message);
 
 #endif

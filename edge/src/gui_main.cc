@@ -268,15 +268,25 @@ void GUI_MainDrawer(void)
 //
 bool GUI_MainInit(void)
 {
-	mouse = W_GetNumForName("mouse");
 	GUI_Init(&main_gui);
+	return true;
+}
+
+bool GUI_ConInit(void)
+{
 	CON_Start(&main_gui);
+	CON_InitResolution();
+	return true;
+}
+
+bool GUI_MouseInit(void)
+{
+	mouse = W_GetNumForName("mouse");
 	return true;
 }
 
 void GUI_InitResolution(void)
 {
-	CON_InitResolution();
 }
 
 void GUI_MainSetMouseVisibility(bool visible)

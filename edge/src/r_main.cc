@@ -446,7 +446,6 @@ void R_ChangeResolution(int width, int height, int depth, bool windowed)
 //
 static bool DoExecuteChangeResolution(void)
 {
-	static bool init_rend = false;
 	changeresneeded = false;
 
 	SCREENWIDTH  = setMode.width;
@@ -488,16 +487,6 @@ static bool DoExecuteChangeResolution(void)
 	V_AddAvailableResolution(&setMode);
 
 	V_InitResolution();
-
-	// -AJA- 1999/07/01: Setup colour tables.
-	V_InitColour();
-
-	if (! init_rend)
-	{
-		RGL_Init();
-		init_rend = true;
-	}
-
 
 	RGL_NewScreenSize(SCREENWIDTH, SCREENHEIGHT, BPP);
 
@@ -620,6 +609,9 @@ bool R_Init(void)
 	R_SetFOV(normalfov);
 
 	framecount = 0;
+
+	// -AJA- 1999/07/01: Setup colour tables.
+	V_InitColour();
 
 	return true;
 }

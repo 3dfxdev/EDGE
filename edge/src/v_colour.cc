@@ -28,6 +28,7 @@
 
 #include "dm_defs.h"
 #include "dm_state.h"
+#include "e_main.h"
 #include "m_argv.h"
 #include "r_main.h"
 #include "rgl_defs.h"
@@ -222,14 +223,13 @@ static void InitTranslationTables(void)
 /* progress indicator for the translucency table calculations */
 static void ColourCallbackFunc(int pos)
 {
-	static int cur_pos = 0;
+	DEV_ASSERT2(pos < 256);
 
-	if (pos <= cur_pos)
-		return;
+	static int cur_pos = 0;
 
 	while (pos >= cur_pos + 16)
 	{
-		I_Printf(".");
+		E_LocalProgress(cur_pos / 16, 16, NULL);
 		cur_pos += 16;
 	}
 }

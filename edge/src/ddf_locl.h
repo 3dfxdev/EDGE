@@ -22,8 +22,6 @@
 #include "p_weapon.h"
 #include "dm_defs.h"
 
-#define DDFVERSION 120
-
 // defines for parser stuff.
 #define BACKSLASH   '\\'
 #define COMMANDREAD '='

@@ -49,6 +49,7 @@ extern angle_t oned_side_angle;  // ANG180 disables polar clipping
 
 void RGL_Init(void);
 void RGL_SoftInit(void);
+void RGL_DrawProgress(int perc);
 void RGL_SetupMatrices2D(void);
 void RGL_SetupMatrices3D(void);
 void RGL_DrawPlayerSprites(player_t * p);
@@ -57,6 +58,8 @@ void RGL_RainbowEffect(player_t *player);
 void RGL_ColourmapEffect(player_t *player);
 void RGL_PaletteEffect(player_t *player);
 
+const byte *RGL_LogoImage(int *w, int *h);
+const byte *RGL_InitImage(int *w, int *h);
 
 //
 //  RGL_SKY

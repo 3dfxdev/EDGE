@@ -248,8 +248,6 @@ static void DDF_ErrorClearLineData(void)
 
 void DDF_MainInit(void)
 {
-	I_Printf("Data Definition v%i.%02i\n", DDFVERSION / 100, DDFVERSION % 100);
-
 	DDF_StateInit();
 	DDF_LanguageInit();
 	DDF_SFXInit();
@@ -264,23 +262,6 @@ void DDF_MainInit(void)
 	DDF_GameInit();
 	DDF_LevelInit();
 	DDF_MusicPlaylistInit();
-
-	if (external_ddf)
-	{
-		DDF_ReadLangs(NULL, 0);
-		DDF_ReadSFX(NULL, 0);
-		DDF_ReadColourMaps(NULL, 0);
-		DDF_ReadAtks(NULL, 0); 
-		DDF_ReadWeapons(NULL, 0);
-		DDF_ReadThings(NULL, 0);
-		DDF_ReadLines(NULL, 0);
-		DDF_ReadSectors(NULL, 0);
-		DDF_ReadSW(NULL, 0);
-		DDF_ReadAnims(NULL, 0);
-		DDF_ReadGames(NULL, 0);
-		DDF_ReadLevels(NULL, 0);
-		DDF_ReadMusicPlaylist(NULL, 0);
-	}
 }
 
 // -KM- 1999/01/29 Fixed #define system.
@@ -742,8 +723,6 @@ void DDF_MainReadFile(readinfo_t * readinfo)
 				if (bracket_level > 0)
 					DDF_Error("Unclosed () brackets detected.\n");
          
-				if (entry_count % MAX(1, readinfo->entries_per_dot) == 0)
-					I_Printf(".");
 				entry_count++;
 
 				if (firstgo)

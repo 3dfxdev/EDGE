@@ -94,43 +94,46 @@ typedef struct
 {
 	bool (*function)(void);
 	char *LDFmessage;
+	int prog_time;  // rough indication of progress time
 }
 startuporder_t;
 
 startuporder_t startcode[] =
 {
-	{ M_LoadDefaults,      NULL            },
-//	{ M_LoadDefaults,      "DefaultLoad"   },
-	{ SetGlobalVars,       NULL            },
-	{ RAD_Init,            NULL            },
-	{ W_InitMultipleFiles, NULL            },
-//	{ W_InitMultipleFiles, "WadFileInit"   },
-	{ V_InitPalette,       NULL            },
-	{ W_InitImages,        NULL            },
-	{ R_InitFlats,         NULL            },
-	{ W_InitTextures,      NULL            },
-	{ DDF_MainCleanUp,     NULL            },
-	{ SetLanguage,         NULL            },
-	{ SpecialWadVerify,    NULL            },
-	{ ShowNotice,          NULL            },
-	{ V_MultiResInit,      "AllocScreens"  },
-	{ I_SystemStartup,     "InitMachine"   },
-	{ RAD_LoadParam,       NULL            },
-	{ GUI_MainInit,        NULL            },
-	{ SV_ChunkInit,        NULL            },
-	{ SV_MainInit,         NULL            },
-	{ M_Init,              "MiscInfo"      },
-	{ R_Init,              "RefreshDaemon" },
-	{ P_Init,              "PlayState"     },
-	{ P_MapInit,           NULL            },
-	{ P_InitSwitchList,    NULL            },
-	{ R_InitPicAnims,      NULL            },
-	{ R_InitSprites,       NULL            },
-	{ S_Init,              "SoundInit"     },
-	{ HU_Init,             "HeadsUpInit"   },
-	{ E_CheckNetGame,      "CheckNetGame"  },
-	{ ST_Init,             "STBarInit"     },
-	{ NULL,                NULL            }
+///---	{ M_LoadDefaults,      NULL            ,1 },
+///---	{ M_LoadDefaults,      "DefaultLoad"   ,1 },
+	{ SetGlobalVars,       NULL            ,1 },
+	{ RAD_Init,            NULL            ,1 },
+	{ W_InitMultipleFiles, NULL            ,3 },
+	{ V_InitPalette,       NULL            ,1 },
+///---	{ W_InitImages,        NULL            ,1 },
+	{ HU_Init,             "HeadsUpInit"   ,2 },
+	{ R_InitFlats,         "InitFlats"     ,5 },
+	{ W_InitTextures,      "InitTextures"  ,5 },
+	{ GUI_ConInit,         "ConInit"       ,1 },
+	{ SpecialWadVerify,    NULL            ,1 },
+///---	{ V_MultiResInit,      "AllocScreens"  ,1 },
+///---	{ I_SystemStartup,     "InitMachine"   ,1 },
+	{ GUI_MouseInit,       NULL            ,1 },
+//	{ W_InitMultipleFiles, "WadFileInit"   ,1 },
+	{ W_ReadDDF,           NULL            ,9 },
+	{ RAD_LoadParam,       NULL            ,2 },
+	{ DDF_MainCleanUp,     NULL            ,1 },
+	{ SetLanguage,         NULL            ,1 },
+	{ ShowNotice,          NULL            ,1 },
+	{ SV_ChunkInit,        NULL            ,1 },
+	{ SV_MainInit,         NULL            ,1 },
+	{ M_Init,              "MiscInfo"      ,1 },
+	{ R_Init,              "RefreshDaemon" ,5 },
+	{ P_Init,              "PlayState"     ,1 },
+	{ P_MapInit,           NULL            ,1 },
+	{ P_InitSwitchList,    NULL            ,1 },
+	{ R_InitPicAnims,      NULL            ,1 },
+	{ R_InitSprites,       NULL            ,1 },
+	{ S_Init,              "SoundInit"     ,1 },
+	{ E_CheckNetGame,      "CheckNetGame"  ,1 },
+	{ ST_Init,             "STBarInit"     ,1 },
+	{ NULL,                NULL            ,1 }
 };
 
 bool devparm;  // started game with -devparm
@@ -243,6 +246,74 @@ int eventhead;
 int eventtail;
 
 // ===================Internal====================
+
+class startup_progress_c
+{
+private:
+	int perc;
+	int g_step, g_size, g_total;  // global progress
+	int l_step, l_total;   // local progress
+
+public:
+	startup_progress_c() :
+		perc(-1),  // force update on initial setting
+		g_step(0), g_size(0), g_total(0),
+		l_step(0), l_total(0) { }
+
+	~startup_progress_c() { }
+
+	void recomputePercent()
+	{
+		int pp = (100 * g_step + (100 * g_size * l_step / l_total)) / g_total;
+
+		DEV_ASSERT2(0 <= pp && pp <= 100);
+
+		if (pp != perc)
+		{
+			perc = pp;
+			RGL_DrawProgress(perc);
+		}
+	}
+
+	void setGlobal(int step, int size, int total)
+	{
+		g_step  = step;
+		g_size  = size;
+		g_total = total;
+	}
+
+	void setLocal(int step, int total)
+	{
+		l_step  = step;
+		l_total = total;
+	}
+};
+
+static startup_progress_c s_progress;
+
+void E_LocalProgress(int step, int total, const char *message)
+{
+	s_progress.setLocal(step, total);
+
+	// FIXME: show message (2nd line)
+	if (message)
+		I_Printf("%s\n", message);
+
+	s_progress.recomputePercent();
+}
+
+void E_GlobalProgress(int step, int size, int total, const char *message)
+{
+	s_progress.setGlobal(step, size, total);
+
+	E_LocalProgress(0, 1, NULL);  // clear 2nd line
+
+	// FIXME: show message (1st line)
+	if (message)
+		I_Printf("%s\n", message);
+
+	s_progress.recomputePercent();
+}
 
 //
 // SetGlobalVars
@@ -1372,8 +1443,25 @@ namespace engine
 		M_CheckBooleanParm("obsolete", &no_obsoletes, true);
 		M_CheckBooleanParm("lax", &lax_errors, false);
 
-		CheckExternal();
+		M_LoadDefaults();
 
+		// startup the system now
+		V_MultiResInit();
+		W_InitImages();
+		GUI_MainInit();
+
+		I_SystemStartup();
+
+		// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
+		R_ChangeResolution(SCREENWIDTH, SCREENHEIGHT, SCREENBITS, SCREENWINDOW);
+		// -KM- 1998/09/27 Change res now, so music doesn't start before
+		// screen.  Reset clock too.
+		R_ExecuteChangeResolution();
+
+		RGL_Init();
+		E_GlobalProgress(0, 0, 1, NULL);
+
+		CheckExternal();
 		DDF_MainInit();
 	
 		IdentifyVersion();
@@ -1476,18 +1564,30 @@ namespace engine
 			startmap = Z_StrDup("MAP01"); // MUNDO HACK!!!!
 		}
 
+		int total=0;
+		int cur=0;
+
+		for (p=0; startcode[p].function != NULL; p++)
+			total += startcode[p].prog_time;
+
 		// Cycle through all the startup functions, quit on failure.
 		for (p=0; startcode[p].function != NULL; p++)
 		{
-			// Print Message On Screen
-			if (startcode[p].LDFmessage)
-				I_Printf(language[startcode[p].LDFmessage]);
+			E_GlobalProgress(cur, startcode[p].prog_time, total,
+				startcode[p].LDFmessage ?  language[startcode[p].LDFmessage] :
+				NULL);
 
 			// if the startup function fails - quit startup
 			success = startcode[p].function();
 			if (!success)
 				return false;
+
+			cur += startcode[p].prog_time;
 		}
+
+		E_GlobalProgress(100, 0, 100, NULL);
+
+		CON_SetVisible(vs_notvisible);
 
 		ps = M_GetParm("-screenshot");
 		if (ps)
@@ -1604,12 +1704,12 @@ namespace engine
 		// SV_MainTestPrimitives();
 		// RGL_TestPolyQuads();
 
-		// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
-		R_ChangeResolution(SCREENWIDTH, SCREENHEIGHT, SCREENBITS, SCREENWINDOW);
-
-		// -KM- 1998/09/27 Change res now, so music doesn't start before
-		// screen.  Reset clock too.
-		R_ExecuteChangeResolution();
+///---		// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
+///---		R_ChangeResolution(SCREENWIDTH, SCREENHEIGHT, SCREENBITS, SCREENWINDOW);
+///---
+///---		// -KM- 1998/09/27 Change res now, so music doesn't start before
+///---		// screen.  Reset clock too.
+///---		R_ExecuteChangeResolution();
 
 		//
 		// -ACB- 1999/09/24 Call System Specific Looping function. Some systems

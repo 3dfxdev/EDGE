@@ -52,6 +52,7 @@ extern int addwadnum;
 
 void W_AddRawFilename(const char *file, bool allow_ddf);
 bool W_InitMultipleFiles(void);
+bool W_ReadDDF(void);
 
 int W_CheckNumForName2(const char *name);
 int W_GetNumForName2(const char *name);
