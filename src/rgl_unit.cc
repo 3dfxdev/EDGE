@@ -24,6 +24,7 @@
 
 #include "i_defs.h"
 
+#include "con_cvar.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_search.h"
@@ -49,6 +50,7 @@
 
 
 bool use_vertex_array = true;
+bool use_color_material = true;
 
 
 #define MAX_L_VERT  4096
@@ -98,7 +100,10 @@ void RGL_InitUnits(void)
 {
 	M_CheckBooleanParm("vertexarray", &use_vertex_array, false);
 
-	if (use_vertex_array)
+	CON_CreateCVarBool("vertexarray", cf_normal, &use_vertex_array);
+	CON_CreateCVarBool("colormaterial", cf_normal, &use_color_material);
+
+	if (true)  /// XXX
 	{
 		// setup pointers to client state
 		glVertexPointer(3, GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].x);
@@ -285,9 +290,16 @@ void RGL_DrawUnits(void)
 			{
 				local_gl_vert_t *V = local_verts + unit->first + j;
 
+				if (use_color_material)
+					glColor4fv(V->col);
+				else
+				{
+					glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, V->col);
+					glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, V->col);
+				}
+
 				glTexCoord2f(V->t_x, V->t_y);
 				glNormal3f(V->n_x, V->n_y, V->n_z);
-				glColor4fv(V->col);
 				glEdgeFlag(V->edge);
 
 				// vertex must be last
