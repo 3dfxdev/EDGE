@@ -30,7 +30,6 @@
 #ifndef __F_WIPE_H__
 #define __F_WIPE_H__
 
-#include "m_fixed.h"
 
 //
 //                       SCREEN WIPE PACKAGE

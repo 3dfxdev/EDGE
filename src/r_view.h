@@ -27,7 +27,6 @@
 #define __R_VIEW__
 
 #include "e_player.h"
-#include "m_fixed.h"
 #include "m_math.h"
 
 typedef struct camera_s camera_t;

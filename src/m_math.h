@@ -26,7 +26,6 @@
 #ifndef __M_MATH_H__
 #define __M_MATH_H__
 
-#include "m_fixed.h"
 
 typedef struct vec2_s
 {
