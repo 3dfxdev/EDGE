@@ -2343,8 +2343,6 @@ void P_SetupLevel(skill_t skill, int autotag)
 		{
 			p->mo = NULL;
 			G_DeathMatchSpawnPlayer(p);
-			if (p->level_init)
-				p->level_init(p, p->data);
 		}
 	}
 
