@@ -13,6 +13,9 @@
 #ifndef __INFO_HDR__
 #define __INFO_HDR__
 
+namespace Deh_Edge
+{
+
 typedef enum
 {
     SPR_TROO, SPR_SHTG, SPR_PUNG, SPR_PISG, SPR_PISF,
@@ -432,5 +435,7 @@ statedyn_t;
 
 extern bool state_modified[NUMSTATES_BEX];
 extern statedyn_t state_dyn[NUMSTATES_BEX];
+
+}  // Deh_Edge
 
 #endif  /* __INFO_HDR__ */

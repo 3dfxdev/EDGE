@@ -29,6 +29,8 @@
 
 #include "ammo.h"
 #include "attacks.h"
+#include "buffer.h"
+#include "dh_embed.h"
 #include "frames.h"
 #include "info.h"
 #include "patch.h"
@@ -43,28 +45,57 @@
 #include "weapons.h"
 
 
+namespace Deh_Edge
+{
+
+class input_buffer_c
+{
+public:
+	parse_buffer_api *buf;
+	const char *infoname;
+	bool is_lump;
+
+	input_buffer_c(parse_buffer_api *_buf, const char *_info, bool _lump) :
+		buf(_buf), is_lump(_lump)
+	{
+		infoname = StringDup(_info);
+	}
+
+	~input_buffer_c()
+	{
+		delete buf;
+		buf = NULL;
+
+		free((void*)infoname); 
+	}
+};
+
 #define MAX_INPUTS  32
 
-
-const char *input_files[MAX_INPUTS];
-const char *output_file = NULL;
-
+input_buffer_c *input_bufs[MAX_INPUTS];
 int num_inputs = 0;
 
-int target_version = 128;  // EDGE 1.28
+const char *output_file = NULL;
 
-bool quiet_mode = false;
-bool all_mode   = false;
+#define DEFAULT_TARGET  129
+
+int target_version;
+bool quiet_mode;
+bool all_mode;
+
+const dehconvfuncs_t *cur_funcs = NULL;
 
 
 /* ----- user information ----------------------------- */
 
-static void ShowTitle(void)
+#ifndef DEH_EDGE_PLUGIN
+
+void ShowTitle(void)
 {
   PrintMsg(
     "\n"
 	"=================================================\n"
-    "|    DeHackEd -> EDGE Conversion Tool  V" VERSION "     |\n"
+    "|    DeHackEd -> EDGE Conversion Tool  V" DEH_EDGE_VERS "     |\n"
 	"|                                               |\n"
 	"|  The EDGE Team.  http://edge.sourceforge.net  |\n"
 	"=================================================\n"
@@ -72,7 +103,7 @@ static void ShowTitle(void)
   );
 }
 
-static void ShowInfo(void)
+void ShowInfo(void)
 {
   PrintMsg(
     "USAGE:  deh_edge  (Options...)  input.deh (...)  (-o output.wad)\n"
@@ -86,11 +117,163 @@ static void ShowInfo(void)
   );
 }
 
+#endif
+
+void Startup(void)
+{
+	System_Startup();
+
+	Frames::Startup();
+	Things::Startup();
+	Weapons::Startup();
+
+	Storage::Startup();
+	WAD::Startup();
+
+	/* reset parameters */
+
+	num_inputs = 0;
+	output_file = NULL;
+
+	target_version = DEFAULT_TARGET;
+	quiet_mode = false;
+	all_mode = false;
+}
+
+void AddFile(const char *filename)
+{
+	if (num_inputs >= MAX_INPUTS)
+		FatalError("Too many input files !!\n");
+
+	if (strlen(ReplaceExtension(filename, NULL)) == 0)
+		FatalError("Illegal input filename: %s\n", filename);
+
+	if (CheckExtension(filename, "wad") || CheckExtension(filename, "hwa"))
+		FatalError("Input filename cannot be a WAD file.\n");
+
+	if (CheckExtension(filename, NULL))
+	{
+		// memory management here is "optimised" (i.e. a bit dodgy),
+		// since the result of ReplaceExtension() is an internal static
+		// buffer.
+
+		const char *bex_name = ReplaceExtension(filename, "bex");
+
+		if (FileExists(bex_name))
+		{
+			input_bufs[num_inputs++] = new input_buffer_c(
+				Buffer::OpenFile(bex_name), FileBaseName(bex_name), false);
+			return;
+		}
+
+		const char *deh_name = ReplaceExtension(filename, "deh");
+
+		if (FileExists(deh_name))
+		{
+			input_bufs[num_inputs++] = new input_buffer_c(
+				Buffer::OpenFile(deh_name), FileBaseName(deh_name), false);
+			return;
+		}
+	}
+
+	input_bufs[num_inputs++] = new input_buffer_c(
+		Buffer::OpenFile(filename), FileBaseName(filename), false);
+}
+
+void AddLump(const char *data, int length, const char *infoname)
+{
+	if (num_inputs >= MAX_INPUTS)
+		FatalError("Too many input lumps !!\n");
+
+	input_bufs[num_inputs++] = new input_buffer_c(
+		Buffer::OpenLump(data, length), infoname, true);
+}
+
+void FreeBuffers(void)
+{
+	for (int j = 0; j < num_inputs; j++)
+	{
+		if (input_bufs[j])
+		{
+			delete input_bufs[j];
+			input_bufs[j] = NULL;
+		}
+	}
+}
+
+void Convert(void)
+{
+	// load DEH patch file(s)
+	for (int j = 0; j < num_inputs; j++)
+	{
+		char temp_text[256];
+		sprintf(temp_text, "Parsing %s", input_bufs[j]->infoname);
+
+		ProgressText(temp_text);
+		ProgressMajor(j * 70 / num_inputs, (j+1) * 70 / num_inputs);
+
+		PrintMsg("Loading patch file: %s\n", input_bufs[j]->infoname);
+
+		Patch::Load(input_bufs[j]->buf);
+	}
+
+	FreeBuffers();
+
+	ProgressText("Converting DEH");
+	ProgressMajor(70, 80);
+
+	Storage::ApplyAll();
+	ProgressMinor(1, 6);
+
+	// do conversions into DDF...
+	PrintMsg("Converting data into EDGE %d.%02d DDF...\n",
+		target_version / 100, target_version % 100);
+
+	TextStr::SpriteDependencies();
+	Frames::StateDependencies();
+	Ammo::AmmoDependencies();
+	ProgressMinor(2, 6);
+
+	Things::ConvertTHING();
+	Attacks::ConvertATK();
+	ProgressMinor(3, 6);
+
+	Weapons::ConvertWEAP();
+	Sounds::ConvertSFX();
+	Sounds::ConvertMUS();
+	ProgressMinor(4, 6);
+
+	TextStr::ConvertLDF();
+	Rscript::ConvertRAD();
+	ProgressMinor(5, 6);
+
+	PrintMsg("\n");
+	PrintMsg("Writing WAD file: %s\n", output_file);
+
+	ProgressText("Writing HWA file");
+	ProgressMajor(80, 100);
+
+	WAD::WriteFile(output_file);
+	PrintMsg("\n");
+
+	ProgressMajor(100, 100);
+}
+
+void Shutdown(void)
+{
+	WAD::Shutdown();
+	System_Shutdown();
+}
+
 
 /* ----- main program ----------------------------- */
 
-static void ParseArgs(int argc, char **argv)
+#ifndef DEH_EDGE_PLUGIN
+
+void ParseArgs(int argc, char **argv)
 {
+	const char *first_input = NULL;
+
 	while (argc > 0)
 	{
 		const char *opt = *argv;
@@ -100,10 +283,10 @@ static void ParseArgs(int argc, char **argv)
 		// input filename ?
 		if (*opt != '-')
 		{
-			if (num_inputs >= MAX_INPUTS)
-				FatalError("Too many input files !!\n");
+			if (! first_input)
+				first_input = opt;
 
-			input_files[num_inputs++] = StringDup(opt);
+			AddFile(opt);
 			continue;
 		}
 
@@ -161,12 +344,24 @@ static void ParseArgs(int argc, char **argv)
 
 		FatalError("Unknown option: %s\n", opt);
 	}
+
+	// choose output filename when not specified
+
+	if (! output_file && first_input)
+	{
+		const char *base_name = ReplaceExtension(first_input, NULL);
+
+		output_file = StringNew(strlen(base_name) + 16);
+
+		strcpy((char *)output_file, base_name);
+		strcat((char *)output_file, (target_version >= 128) ? ".hwa" : "_deh.wad");
+	}
 }
 
-static void ValidateArgs(void)
-{
-	int j;
+#endif  // DEH_EDGE_PLUGIN
 
+void ValidateArgs(void)
+{
 	if (num_inputs == 0)
 		FatalError("Missing input filename !\n");
 
@@ -174,123 +369,147 @@ static void ValidateArgs(void)
 		FatalError("Illegal version number: %d.%02d\n", target_version / 100,
 			target_version % 100);
 
-	for (j = 0; j < num_inputs; j++)
-	{
-		if (strlen(ReplaceExtension(input_files[j], NULL)) == 0)
-			FatalError("Illegal input filename: %s\n", input_files[j]);
-
-		if (CheckExtension(input_files[j], "wad") ||
-		    CheckExtension(input_files[j], "hwa"))
-			FatalError("Input filename cannot be a WAD file.\n");
-	}
-
 	if (! output_file)
-	{
-		// default output filename, add ".hwa" or "_deh.wad" to base
-
-		const char *base_name = ReplaceExtension(input_files[0], NULL);
-		
-		char *new_file = StringNew(strlen(base_name) + 16);
-
-		strcpy(new_file, base_name);
-		strcat(new_file, (target_version >= 128) ? ".hwa" : "_deh.wad");
-
-		output_file = new_file;
-	}
+		FatalError("Missing output filename !\n");
 
 	if (CheckExtension(output_file, "deh") ||
 	    CheckExtension(output_file, "bex"))
 		FatalError("Output filename cannot be a DEH file.\n");
-
-	for (j = 0; j < num_inputs; j++)
-	{
-		if (StrCaseCmp(input_files[j], output_file) == 0)
-			FatalError("Output filename is same as input filename.\n");
-		
-		if (CheckExtension(input_files[j], NULL) &&
-			! FileExists(input_files[j]))
-		{
-			input_files[j] = StringDup(ReplaceExtension(input_files[j], "bex"));
-
-			if (! FileExists(input_files[j]))
-			{
-				input_files[j] = StringDup(ReplaceExtension(input_files[j], "deh"));
-			}
-		}
-	}
 
 	if (CheckExtension(output_file, NULL))
 	{
 		output_file = StringDup(ReplaceExtension(output_file,
 			(target_version >= 128) ? "hwa" : "wad"));
 	}
+
+///---	for (j = 0; j < num_inputs; j++)
+///---	{
+///---		if (input_bufs[j]->is_lump)
+///---			continue;
+///---
+///---		if (StrCaseCmp(input_bufs[j]->infoname, output_file) == 0)
+///---			FatalError("Output filename is same as input filename.\n");
+///---	}
 }
+
+}  // Deh_Edge
+
+//------------------------------------------------------------------------
+
+#ifndef DEH_EDGE_PLUGIN
 
 int main(int argc, char **argv)
 {
-	System_Startup();
-
-	ShowTitle();
+	Deh_Edge::Startup();
+	Deh_Edge::ShowTitle();
 	
 	// skip program name itself
 	argv++, argc--;
 
 	if (argc <= 0)
 	{
-		ShowInfo();
-		System_Shutdown();
+		Deh_Edge::ShowInfo();
+		Deh_Edge::System_Shutdown();
+
 		exit(1);
 	}
 
-	if (StrCaseCmp(argv[0], "/?") == 0 || StrCaseCmp(argv[0], "-h") == 0 ||
-		StrCaseCmp(argv[0], "-help") == 0 || StrCaseCmp(argv[0], "--help") == 0)
+	if (Deh_Edge::StrCaseCmp(argv[0], "/?") == 0 ||
+		Deh_Edge::StrCaseCmp(argv[0], "-h") == 0 ||
+		Deh_Edge::StrCaseCmp(argv[0], "-help") == 0 ||
+		Deh_Edge::StrCaseCmp(argv[0], "--help") == 0)
 	{
-		ShowInfo();
-		System_Shutdown();
+		Deh_Edge::ShowInfo();
+		Deh_Edge::System_Shutdown();
+
 		exit(1);
 	}
 
-	Frames::Startup();
-	Things::Startup();
-	Weapons::Startup();
+	Deh_Edge::ParseArgs(argc, argv);
+	Deh_Edge::ValidateArgs();
 
-	Storage::Startup();
-	WAD::Startup();
-
-	ParseArgs(argc, argv);
-	ValidateArgs();
-
-	// load DEH patch file(s)
-	for (int j = 0; j < num_inputs; j++)
-		Patch::Load(input_files[j]);
-
-	Storage::ApplyAll();
-
-	// do conversions into DDF...
-	PrintMsg("Converting data into EDGE %d.%02d DDF...\n",
-		target_version / 100, target_version % 100);
-
-	TextStr::SpriteDependencies();
-	Frames::StateDependencies();
-	Ammo::AmmoDependencies();
-
-	Things::ConvertTHING();
-	Attacks::ConvertATK();
-	Weapons::ConvertWEAP();
-	Sounds::ConvertSFX();
-	Sounds::ConvertMUS();
-	TextStr::ConvertLDF();
-	Rscript::ConvertRAD();
-
-	PrintMsg("\n");
-	PrintMsg("Writing WAD file: %s\n", output_file);
-
-	WAD::WriteFile(output_file);
-	PrintMsg("\n");
-
-	WAD::Shutdown();
-	System_Shutdown();
+	Deh_Edge::Convert();
+	Deh_Edge::Shutdown();
 
 	return 0;
 }
 
+#endif  // DEH_EDGE_PLUGIN
+
+//------------------------------------------------------------------------
+
+#ifdef DEH_EDGE_PLUGIN
+
+dehret_e DehEdgeStartup(const dehconvfuncs_t *funcs)
+{
+	Deh_Edge::Startup();
+	Deh_Edge::cur_funcs = funcs;
+
+	Deh_Edge::PrintMsg("DeHackEd -> EDGE Conversion Tool V" DEH_EDGE_VERS "\n");
+
+	return DEH_OK;
+}
+
+const char *DehEdgeGetError(void)
+{
+	return "(Unknown Error)"; //!!!! FIXME
+}
+
+///---dehret_e DehEdgeSetOutName(const char *filename)
+///---{
+///---	Deh_Edge::output_file = Deh_Edge::StringDup(filename);
+///---
+///---	return DEH_OK;
+///---}
+
+dehret_e DehEdgeSetVersion(int version)
+{
+	Deh_Edge::target_version = version;  // validated later
+
+	return DEH_OK;
+}
+
+dehret_e DehEdgeSetQuiet(int quiet)
+{
+	Deh_Edge::quiet_mode = (quiet != 0);
+
+	return DEH_OK;
+}
+
+dehret_e DehEdgeAddFile(const char *filename)
+{
+	// FIXME: if not exists, return DEH_E_XXX
+	Deh_Edge::AddFile(filename);
+
+	return DEH_OK;
+}
+
+dehret_e DehEdgeAddLump(const char *data, int length, const char *infoname)
+{
+	Deh_Edge::AddLump(data, length, infoname);
+
+	return DEH_OK;
+}
+
+dehret_e DehEdgeRunConversion(const char *out_name)
+{
+	// if (! out_name)
+	//	return DEH_E_BadArgs;
+
+	Deh_Edge::output_file = out_name;
+
+	Deh_Edge::ValidateArgs();
+	Deh_Edge::Convert();
+
+	return DEH_OK;
+}
+
+dehret_e DehEdgeShutdown(void)
+{
+	Deh_Edge::Shutdown();
+	Deh_Edge::cur_funcs = NULL;
+
+	return DEH_OK;
+}
+
+#endif  // DEH_EDGE_PLUGIN

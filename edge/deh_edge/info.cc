@@ -28,8 +28,12 @@
 #include "i_defs.h"
 #include "info.h"
 
+#include "dh_embed.h"
 #include "mobj.h"
 
+
+namespace Deh_Edge
+{
 
 #define DEBUG_RANGES  0
 
@@ -1292,3 +1296,4 @@ const char *state_names[NUMSTATES_BEX] =
 };
 #endif
 
+}  // Deh_Edge

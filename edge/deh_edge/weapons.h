@@ -13,6 +13,9 @@
 #ifndef __WEAPONS_HDR__
 #define __WEAPONS_HDR__
 
+namespace Deh_Edge
+{
+
 // Weapon info: sprite frames, ammunition use.
 typedef struct
 {
@@ -60,5 +63,7 @@ namespace Weapons
 
 	void ConvertWEAP(void);
 }
+
+}  // Deh_Edge
 
 #endif /* __WEAPONS_HDR__ */

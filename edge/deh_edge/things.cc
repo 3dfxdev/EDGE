@@ -29,6 +29,8 @@
 #include "things.h"
 
 #include "ammo.h"
+#include "buffer.h"
+#include "dh_embed.h"
 #include "info.h"
 #include "frames.h"
 #include "misc.h"
@@ -43,6 +45,9 @@
 #include "wad.h"
 #include "weapons.h"
 
+
+namespace Deh_Edge
+{
 
 #define DEBUG_MONST  0
 
@@ -78,6 +83,10 @@ namespace Things
 		WAD::NewLump("DDFTHING");
 
 		WAD::Printf(GEN_BY_COMMENT);
+
+		if (target_version >= 129)
+			WAD::Printf("#VERSION 1.29\n");
+			
 		WAD::Printf("<THINGS>\n\n");
 	}
 
@@ -625,7 +634,7 @@ namespace Things
 	{
 		int spr_num;
 		const char *benefit;
-		int pars;
+		int par_num;
 		int amount, limit;
 		const char *ldf;
 		int sound;
@@ -697,6 +706,8 @@ namespace Things
 			WAD::Printf("PICKUP_BENEFIT = POWERUP_BERSERK(60:60),HEALTH(100:100);\n");
 			WAD::Printf("PICKUP_MESSAGE = GotBerserk;\n");
 			WAD::Printf("PICKUP_SOUND = %s;\n", Sounds::GetSound(sfx_getpow));
+			if (target_version >= 129)
+				WAD::Printf("PICKUP_EFFECT = SWITCH_WEAPON(FIST);\n");
 			return;
 		}
 		else if (spr_num == SPR_MEGA)  // Megasphere
@@ -801,14 +812,14 @@ namespace Things
 			amount *= 5;
 		}
 
-		if (pu->pars == 2 && amount > limit)
+		if (pu->par_num == 2 && amount > limit)
 			amount = limit;
 
 		WAD::Printf("PICKUP_BENEFIT = %s", pu->benefit);
 
-		if (pu->pars == 1)
+		if (pu->par_num == 1)
 			WAD::Printf("(%d)", amount);
-		else if (pu->pars == 2)
+		else if (pu->par_num == 2)
 			WAD::Printf("(%d:%d)", amount, limit);
 
 		WAD::Printf(";\n");
@@ -1236,3 +1247,5 @@ bool Things::AlterOneField(const fieldreference_t *refs, const char *deh_field,
 
 	return false;
 }
+
+}  // Deh_Edge

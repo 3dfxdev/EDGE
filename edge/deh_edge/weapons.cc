@@ -29,6 +29,8 @@
 #include "weapons.h"
 
 #include "ammo.h"
+#include "buffer.h"
+#include "dh_embed.h"
 #include "info.h"
 #include "frames.h"
 #include "misc.h"
@@ -40,6 +42,9 @@
 #include "things.h"
 #include "wad.h"
 
+
+namespace Deh_Edge
+{
 
 #define WF_FREE       'f'
 #define WF_REF_INACC  'r'
@@ -307,3 +312,4 @@ void Weapons::AlterWeapon(int new_val)
 	MarkWeapon(wp_num);
 }
 
+}  // Deh_Edge

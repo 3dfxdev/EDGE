@@ -13,6 +13,9 @@
 #ifndef __TEXT_HDR__
 #define __TEXT_HDR__
 
+namespace Deh_Edge
+{
+
 typedef struct
 {
 	const char *orig_name;
@@ -38,5 +41,7 @@ namespace TextStr
 
 	void ConvertLDF(void);
 }
+
+}  // Deh_Edge
 
 #endif /* __TEXT_HDR__ */

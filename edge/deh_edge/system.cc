@@ -26,31 +26,77 @@
 //------------------------------------------------------------------------
 
 #include "i_defs.h"
+
+#include "dh_embed.h"
 #include "system.h"
 
+
+namespace Deh_Edge
+{
 
 #define FATAL_COREDUMP  0
 
 #define DEBUG_ENABLED   0
-#define DEBUG_ENDIAN  0
+#define DEBUG_ENDIAN    0
+#define DEBUG_PROGRESS  0
+
 #define DEBUGGING_FILE  "deh_debug.log"
 
 
-static int cpu_big_endian = 0;
+int cpu_big_endian = 0;
+bool disable_progress = false;
 
-static bool disable_progress = false;
-static int progress_shown;
-
-static char message_buf[1024];
+char message_buf[1024];
 
 #if (DEBUG_ENABLED)
-static FILE *debug_fp = NULL;
+FILE *debug_fp = NULL;
 #endif
 
 
-static void Debug_Startup(void);
-static void Debug_Shutdown(void);
-static void Endian_Startup(void);
+typedef struct
+{
+public:
+	// current major range
+	int low_perc;
+	int high_perc;
+
+	// current percentage
+	int cur_perc;
+
+	void Reset(void)
+	{
+		low_perc = high_perc = 0;
+		cur_perc = 0;
+	}
+
+	void Major(int low, int high)
+	{
+		low_perc = cur_perc = low;
+		high_perc = high;
+	}
+
+	bool Minor(int count, int limit)
+	{
+		int new_perc = low_perc + (high_perc - low_perc) * count / limit;
+
+		if (new_perc > cur_perc)
+		{
+			cur_perc = new_perc;
+			return true;
+		}
+
+		return false;
+	}
+}
+progress_info_t;
+
+progress_info_t progress;
+
+
+// forward decls
+void Debug_Startup(void);
+void Debug_Shutdown(void);
+void Endian_Startup(void);
 
 
 //
@@ -58,16 +104,19 @@ static void Endian_Startup(void);
 //
 void System_Startup(void)
 {
-	setbuf(stdout, NULL);
+	if (! cur_funcs)
+	{
+		setbuf(stdout, NULL);
 
-	progress_shown = -1;
-
-#ifdef UNIX  
-	// no whirling baton if stderr is redirected
-	if (! isatty(2))
-		disable_progress = true;
+#if defined(LINUX) || defined(UNIX)
+		// no whirling baton if stderr is redirected
+		if (! isatty(2))
+			disable_progress = true;
 #endif
+	}
 	
+	progress.Reset();
+
 	Debug_Startup();
 	Endian_Startup();
 }
@@ -77,7 +126,7 @@ void System_Startup(void)
 //
 void System_Shutdown(void)
 {
-	ClearProgress();
+//	if (! cur_funcs) ClearProgress();
 
 	Debug_Shutdown();
 }
@@ -96,8 +145,13 @@ void PrintMsg(const char *str, ...)
 	vsprintf(message_buf, str, args);
 	va_end(args);
 
-	printf("%s", message_buf);
-	fflush(stdout);
+	if (cur_funcs)
+		cur_funcs->print_msg("%s", message_buf);
+	else
+	{
+		printf("%s", message_buf);
+		fflush(stdout);
+	}
 
 #if (DEBUG_ENABLED)
 	Debug_PrintMsg("> %s", message_buf);
@@ -117,8 +171,13 @@ void PrintWarn(const char *str, ...)
 
 	if (! quiet_mode)
 	{
-		printf("- Warning: %s", message_buf);
-		fflush(stdout);
+		if (cur_funcs)
+			cur_funcs->print_msg("- Warning: %s", message_buf);
+		else
+		{
+			printf("- Warning: %s", message_buf);
+			fflush(stdout);
+		}
 	}
 
 #if (DEBUG_ENABLED)
@@ -137,8 +196,16 @@ void FatalError(const char *str, ...)
 	vsprintf(message_buf, str, args);
 	va_end(args);
 
-  	printf("\nError: %s\n", message_buf);
-	fflush(stdout);
+	if (cur_funcs)
+	{
+		cur_funcs->fatal_error("Error: %s\n", message_buf);
+		/* NOT REACHED */
+	}
+	else
+	{
+		printf("\nError: %s\n", message_buf);
+		fflush(stdout);
+	}
 
 	System_Shutdown();
 
@@ -160,8 +227,16 @@ void InternalError(const char *str, ...)
 	vsprintf(message_buf, str, args);
 	va_end(args);
 
-  	printf("\nINTERNAL ERROR: %s\n", message_buf);
-	fflush(stdout);
+	if (cur_funcs)
+	{
+		cur_funcs->fatal_error("INTERNAL ERROR: %s\n", message_buf);
+		/* NOT REACHED */
+	}
+	else
+	{
+		printf("\nINTERNAL ERROR: %s\n", message_buf);
+		fflush(stdout);
+	}
 
 	System_Shutdown();
 
@@ -172,6 +247,58 @@ void InternalError(const char *str, ...)
 	exit(5);
 }
 
+//
+// ProgressMajor
+//
+// Called for major elements, i.e. each patch file to process and
+// also the final save.
+//
+void ProgressMajor(int low_perc, int high_perc)
+{
+	progress.Major(low_perc, high_perc);
+
+	if (cur_funcs)
+		cur_funcs->progress_bar(progress.cur_perc);
+#if (DEBUG_PROGRESS)
+	else
+		fprintf(stderr, "PROGRESS %d%% (to %d%%)\n", progress.low_perc,
+			progress.high_perc);
+#endif
+}
+
+//
+// ProgressMinor
+//
+// Called for the progress of a single element (patch file loading,
+// hwa file saving).  The count value should range from 0 to limit-1.
+// 
+void ProgressMinor(int count, int limit)
+{
+	if (progress.Minor(count, limit))
+	{
+		if (cur_funcs)
+			cur_funcs->progress_bar(progress.cur_perc);
+#if (DEBUG_PROGRESS)
+		else
+			fprintf(stderr, " Progress Minor %d%%\n", progress.cur_perc);
+#endif
+	}
+}
+
+//
+// ProgressText
+//
+void ProgressText(const char *str)
+{
+	if (cur_funcs)
+		cur_funcs->progress_text(str);
+#if (DEBUG_PROGRESS)
+	else
+		fprintf(stderr, "------ %s ------\n", str);
+#endif
+}
+
+#if 0
 //
 // ClearProgress
 //
@@ -199,11 +326,12 @@ void ShowProgress(int count, int limit)
 
 	progress_shown = perc;
 }
+#endif
 
 
 /* -------- debugging code ----------------------------- */
 
-static void Debug_Startup(void)
+void Debug_Startup(void)
 {
 #if (DEBUG_ENABLED)
 	debug_fp = fopen(DEBUGGING_FILE, "w");
@@ -215,7 +343,7 @@ static void Debug_Startup(void)
 #endif
 }
 
-static void Debug_Shutdown(void)
+void Debug_Shutdown(void)
 {
 #if (DEBUG_ENABLED)
 	if (debug_fp)
@@ -257,7 +385,7 @@ void Debug_PrintMsg(const char *str, ...)
 //
 // Parts inspired by the Yadex endian.cc code.
 //
-static void Endian_Startup(void)
+void Endian_Startup(void)
 {
 	volatile union
 	{
@@ -333,3 +461,4 @@ unsigned int Endian_U32(unsigned int x)
 		return x;
 }
 
+}  // Deh_Edge

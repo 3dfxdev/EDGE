@@ -28,6 +28,8 @@
 #include "i_defs.h"
 #include "ammo.h"
 
+#include "buffer.h"
+#include "dh_embed.h"
 #include "info.h"
 #include "mobj.h"
 #include "patch.h"
@@ -36,6 +38,8 @@
 #include "things.h"
 #include "util.h"
 
+namespace Deh_Edge
+{
 
 int Ammo::plr_max[4] = 
 { 
@@ -151,3 +155,4 @@ namespace Ammo
 	}
 }
 
+}  // Deh_Edge

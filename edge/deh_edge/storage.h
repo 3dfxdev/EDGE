@@ -13,11 +13,16 @@
 #ifndef __STORAGE_HDR__
 #define __STORAGE_HDR__
 
+namespace Deh_Edge
+{
+
 namespace Storage
 {
 	void Startup(void);
 	void RememberMod(int *target, int value);
 	void ApplyAll(void);
 }
+
+}  // Deh_Edge
 
 #endif /* __STORAGE_HDR__ */

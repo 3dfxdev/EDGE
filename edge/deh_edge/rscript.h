@@ -13,11 +13,16 @@
 #ifndef __RSCRIPT_HDR__
 #define __RSCRIPT_HDR__
 
+namespace Deh_Edge
+{
+
 namespace Rscript
 {
 	void MarkKeenDie(int mt_num);
 
 	void ConvertRAD(void);
 }
+
+}  // Deh_Edge
 
 #endif /* __RSCRIPT_HDR__ */

@@ -13,11 +13,14 @@
 #ifndef __UTIL_HDR__
 #define __UTIL_HDR__
 
+namespace Deh_Edge
+{
 
 // file utilities
 bool FileExists(const char *filename);
 bool CheckExtension(const char *filename, const char *ext);
 const char *ReplaceExtension(const char *filename, const char *ext);
+const char *FileBaseName(const char *filename);
 bool FileIsBinary(FILE *fp);
 
 // string utilities
@@ -28,5 +31,6 @@ const char *StrUpper(const char *name);
 char *StringNew(int length);
 char *StringDup(const char *orig);
 
+}  // Deh_Edge
 
 #endif /* __UTIL_HDR__ */

@@ -13,6 +13,9 @@
 #ifndef __SOUNDS_HDR__
 #define __SOUNDS_HDR__
 
+namespace Deh_Edge
+{
+
 //
 // MusicInfo struct.
 //
@@ -153,5 +156,7 @@ namespace Sounds
 	void ConvertSFX(void);
 	void ConvertMUS(void);
 }
+
+}  // Deh_Edge
 
 #endif  /* __SOUNDS_HDR__ */

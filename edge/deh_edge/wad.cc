@@ -28,8 +28,12 @@
 #include "i_defs.h"
 #include "wad.h"
 
+#include "dh_embed.h"
 #include "system.h"
 
+
+namespace Deh_Edge
+{
 
 #define PWAD_HEADER  "PWAD"
 
@@ -186,7 +190,7 @@ void WAD::Printf(const char *str, ...)
 	va_end(args);
 
 #if (DEBUG_DDF)
-	printf("%s", wad_msg_buf);
+	fprintf(stderr, "%s", wad_msg_buf);
 #else
 	WAD::AddData((byte *) wad_msg_buf, strlen(wad_msg_buf));
 #endif
@@ -232,6 +236,8 @@ void WAD::WriteFile(const char *name)
 	fwrite((void*)&raw_num, sizeof(int), 1, fp);
 	fwrite((void*)&raw_num, sizeof(int), 1, fp); // dummy - write later
 
+	ProgressMinor(1, num_lumps+3);
+
 	// Write Lumps
 	int i;
 
@@ -240,6 +246,8 @@ void WAD::WriteFile(const char *name)
 		PadFile(fp);
 		lumplist[i]->filepos = ftell(fp);
 		fwrite((void*)lumplist[i]->data, 1, lumplist[i]->size, fp);
+
+		ProgressMinor(i+2, num_lumps+3);
 	}
 
 	PadFile(fp);
@@ -255,6 +263,8 @@ void WAD::WriteFile(const char *name)
 		fwrite((void*)&raw_size, sizeof(int), 1, fp);
 		fwrite((void*)lumplist[i]->name, 1, 8, fp);
 	}
+
+	ProgressMinor(num_lumps+2, num_lumps+3);
 
 	// Write table offset
 	fseek(fp, 8, SEEK_SET);
@@ -299,3 +309,5 @@ void WAD::Shutdown(void)
 		lumplist = 0;
 	}
 }
+
+}  // Deh_Edge

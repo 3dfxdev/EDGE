@@ -13,6 +13,9 @@
 #ifndef __MISC_HDR__
 #define __MISC_HDR__
 
+namespace Deh_Edge
+{
+
 namespace Misc
 {
 	extern int init_ammo;
@@ -36,5 +39,7 @@ namespace Misc
 
 	void AlterMisc(int new_val);
 }
+
+}  // Deh_Edge
 
 #endif /* __MISC_HDR__ */

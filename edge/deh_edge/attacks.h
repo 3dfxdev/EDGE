@@ -13,9 +13,14 @@
 #ifndef __ATTACKS_HDR__
 #define __ATTACKS_HDR__
 
+namespace Deh_Edge
+{
+
 namespace Attacks
 {
 	void ConvertATK(void);
 }
+
+}  // Deh_Edge
 
 #endif /* __ATTACKS_HDR__ */

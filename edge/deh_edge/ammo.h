@@ -13,6 +13,9 @@
 #ifndef __AMMO_HDR__
 #define __AMMO_HDR__
 
+namespace Deh_Edge
+{
+
 // Ammunition types defined.
 typedef enum
 {
@@ -41,5 +44,7 @@ namespace Ammo
 
 	void AlterAmmo(int new_val);
 }
+
+}  // Deh_Edge
 
 #endif /* __AMMO_HDR__ */
