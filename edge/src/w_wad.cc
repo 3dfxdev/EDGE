@@ -39,6 +39,8 @@
 #include "dm_type.h"
 #include "e_main.h"
 #include "e_search.h"
+//#include "l_deh.h"
+#include "l_glbsp.h"
 #include "m_argv.h"
 #include "m_misc.h"
 #include "m_swap.h"
@@ -859,7 +861,6 @@ void W_AddRawFilename(const char *file, bool allow_ddf)
 // W_InitMultipleFiles
 //
 // Pass a null terminated list of files to use.
-// All files are optional, but at least one file must be found.
 // Files with a .wad extension are idlink files with multiple lumps.
 // Other files are single lumps with the base filename for the lump name.
 // Lump names can appear multiple times.
@@ -886,6 +887,16 @@ bool W_InitMultipleFiles(void)
 		I_Error("W_InitMultipleFiles: no files found");
 		return false;
 	}
+
+#ifdef DEH_PROTOTYPE
+//DH_ConvertFile("batman.deh");
+	int lump = W_GetNumForName2("DHBATMAN");
+	const byte *data = (const byte *)W_CacheLumpNum(lump);
+	int length = W_LumpLength(lump);
+	DH_ConvertLump(data, length, "DHBATMAN");
+	W_DoneWithLump(data);
+	AddFile("DHBATMAN.hwa", true, -1);
+#endif
 
 	return true;
 }
