@@ -261,7 +261,6 @@ typedef struct player_s
 	// the ticcmd_t.
 	void (*thinker)(const struct player_s *, void *data, ticcmd_t *dest);
 	void *data;
-	void (*level_init)(const struct player_s *, void *data);
 }
 player_t;
 
