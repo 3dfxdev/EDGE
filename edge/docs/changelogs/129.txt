@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: MARCH 3rd 2005)
+(Date: MARCH 11th 2005)
 
 
 Bugs fixed
@@ -299,11 +299,12 @@ New weapon stuff
 + support for manual reloading (new key in Keyboard Options), and
   also next-weapon and previous-weapon keys.
 
-+ Four new ammo types: DAGGERS, ARROWS, TORPEDOES, CRYSTALS (names
-  inspired by Heretic/Hexen/HacX).  That brings the total to twelve.
-  The limit on holdable weapons was also increased from 32 to 64.
++ eight new ammo types: DAGGERS, ARROWS, TORPEDOES, CRYSTALS, GROMMETS,
+  BUCKSHOT, TOXIN and MANA (names inspired by Heretic/Hexen/HacX/madness).
+  That brings the total to 16.  The limit on holdable weapons has also
+  been increased from 32 to 64.
 
-- There are many new specials.  The following new command is used to
+- there are many new specials.  The following new command is used to
   give specials for the secondary attack:
 
     SEC_SPECIAL = xxx;
@@ -326,13 +327,13 @@ New weapon stuff
   animation.  The RAISE and LOWER commands must occur once, in the
   very last frame.
 
-- There are now empty states.  These are shown (instead of ready
+- there are now empty states.  These are shown (instead of ready
   states) when the primary attack runs out of ammo.  You must use
   the "EMPTY" action in the empty states, for example:
 
     STATES(EMPTY) = ABCD:E:1:NORMAL:EMPTY;
 
-- There are also WARMUP and SECWARMUP states.  These will be entered
+- there are also WARMUP and SECWARMUP states.  These will be entered
   when firing the weapon from the READY states (not for refiring).
   These states jump to the ATTACK and SECATTACK states when finished
   (i.e. you don't need #ATTACK at the end).
