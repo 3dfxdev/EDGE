@@ -1,6 +1,6 @@
 Debug
 Release
-Software Mode Release
+"Software Mode Release"
 glbsp-2.05
 edge_private.rc
 edge.layout
@@ -10,8 +10,6 @@ EDGE.LOG
 edge.ncb
 edge.suo
 Makefile.win
-Software Mode Release
-Software Mode Release
 ERRS
 TODO
 FUTURE
