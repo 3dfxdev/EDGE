@@ -88,7 +88,7 @@ bool tic_store_c::HasGot(int tic_num) const
 void tic_store_c::Read(int tic_num, raw_ticcmd_t *dest) const
 {
 	// should never read a band which we didn't write
-	SYS_ASSERT(received[tic_num % (MP_SAVETICS*2)]);
+	SYS_ASSERT(HasGot(tic_num));
 
 	tic_band_c *band = bands[tic_num % (MP_SAVETICS*2)];
 
@@ -97,6 +97,9 @@ void tic_store_c::Read(int tic_num, raw_ticcmd_t *dest) const
 
 void tic_store_c::Write(int tic_num, const raw_ticcmd_t *src)
 {
+	// should never write over an already written band
+	SYS_ASSERT(! HasGot(tic_num));
+
 	tic_band_c *band = bands[tic_num % (MP_SAVETICS*2)];
 
 	band->Write(src, 0, band->size);
