@@ -88,7 +88,7 @@ typedef struct
 	const char *ldf_name;
 	const char *deh_name;  // also BEX name
 
-	int v166_index;
+	int v166_index;  // starts at 1, or -1 for no match
 
 	// holds modified version (NULL means not modified).  Guaranteed to
 	// have space for an additional four (4) characters.
@@ -506,6 +506,33 @@ bool TextStr::ReplaceString(const char *before, const char *after)
 	}
 
 	return false;
+}
+
+void TextStr::ReplaceBinaryString(int v166_index, const char *str)
+{
+	assert(str[0]);
+
+	for (int i = 0; lang_list[i].orig_text; i++)
+	{
+		langinfo_t *lang = lang_list + i;
+
+		if (lang->v166_index != v166_index)
+			continue;
+
+		// OK, found it, so check if it has changed
+
+		if (StrCaseCmp(str, lang->orig_text) != 0)
+		{
+			int len = strlen(lang->orig_text);
+
+			if (! lang->new_text)
+				lang->new_text = StringNew(len + 5);
+
+			StrMaxCopy(lang->new_text, str, len + 4);
+		}
+
+		return;
+	}
 }
 
 bool TextStr::ReplaceCheat(const char *deh_name, const char *str)

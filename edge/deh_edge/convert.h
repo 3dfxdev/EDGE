@@ -18,6 +18,8 @@
 #define SPRITES_1_2  105
 #define SOUNDS_1_2   63
 
+#define TEXTS_1_6  1053
+
 #define POINTER_NUM  448
 
 extern short thing12to166[THINGS_1_2];
