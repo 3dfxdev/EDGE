@@ -415,7 +415,7 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Switch, "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 0, &telept_effect, NULL, NULL},
 	{OPT_Switch, "Teleport Flash", YesNo, 2, 1, &telept_flash, NULL, NULL},
-	{OPT_Switch, "Wipe method", WIPE_EnumStr, WIPE_NUMWIPES, 1, &wipe_method, NULL, NULL} 
+	{OPT_Switch, "Wipe method", WIPE_EnumStr, WIPE_NUMWIPES, 1, (int *)&wipe_method, NULL, NULL} 
   
 #if 0  // TEMPORARILY DISABLED (we need an `Advanced Options' menu)
 	{OPT_Switch, "Screen Composition", scrcomps, 9, 0, &scrcomp_o, M_ChangeScreenComp, NULL},

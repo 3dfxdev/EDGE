@@ -1076,6 +1076,18 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 
     if ((mo->flags & MF_MISSILE) && !(mo->flags & MF_NOCLIP))
     {
+		// -AJA- 2003/10/09: handle missiles that hit a monster on
+		//       the head from a sharp downward angle (such a case
+		//       is missed by PIT_CheckRelThing).  FIXME: more kludge.
+
+		if (mo->below_mo && (int)mo->floorz ==
+			(int)(mo->below_mo->z + mo->below_mo->info->height) &&
+			(mo->below_mo->flags & MF_SHOOTABLE) &&
+			(mo->source != mo->below_mo))
+		{
+			P_ActMissileContact(mo, mo->below_mo);
+		}
+
       // if the floor is sky, don't explode missile -ACB- 1998/07/31
       if (IS_SKY(mo->subsector->sector->floor) &&
           mo->subsector->sector->f_h >= mo->floorz)
@@ -1153,6 +1165,13 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 
     if ((mo->flags & MF_MISSILE) && !(mo->flags & MF_NOCLIP))
     {
+		if (mo->above_mo && (int)mo->ceilingz == (int)(mo->above_mo->z) &&
+			(mo->above_mo->flags & MF_SHOOTABLE) &&
+			(mo->source != mo->above_mo))
+		{
+			P_ActMissileContact(mo, mo->above_mo);
+		}
+
       // if the ceiling is sky, don't explode missile -ACB- 1998/07/31
       if (IS_SKY(mo->subsector->sector->ceil) &&
           mo->subsector->sector->c_h <= mo->ceilingz)

@@ -108,7 +108,7 @@ default_t defaults[] =
     {"telept_effect", &telept_effect, 0},
     {"telept_reverse", &telept_reverse, 0},
     {"telept_flash", &telept_flash, 1},
-    {"wipe_method", &wipe_method, WIPE_Melt},
+    {"wipe_method", (int *)&wipe_method, WIPE_Melt},
     {"wipe_reverse", &wipe_reverse, 0},
     {"crosshair", &crosshair, 0},
     {"stretchsky", (int *)&global_flags.stretchsky, 1},

@@ -474,7 +474,7 @@ static int GAP_Restrict(vgap_t * dest, int d_num, vgap_t * src, int s_num)
 	return new_num;
 }
 
-#ifdef DEVELOPERS
+#if 0  // DEBUG ONLY
 static void GAP_Dump(vgap_t *gaps, int num)
 {
 	int j;
