@@ -84,7 +84,7 @@ typedef struct
 {
 	const char *orig_text;
 	const char *ldf_name;
-	const char *deh_name;
+	const char *deh_name;  // also BEX name
 
 	// holds modified version (NULL means not modified).  Guaranteed to
 	// have space for an additional four (4) characters.
@@ -357,6 +357,16 @@ langinfo_t lang_list[] =
     { P4TEXT, "PlutEndGameText", NULL, NULL },
     { P5TEXT, "PlutLevel31Text", NULL, NULL },
     { P6TEXT, "PlutLevel32Text", NULL, NULL },
+
+	// Extra strings (not found in LANGUAGE.LDF)
+    { X_COMMERC,  "Commercial", NULL, NULL },
+    { X_REGIST,   "Registered", NULL, NULL },
+    { X_TITLE1,   "Title1",     NULL, NULL },
+    { X_TITLE2,   "Title2",     NULL, NULL },
+    { X_TITLE3,   "Title3",     NULL, NULL },
+    { X_MODIFIED, "Notice",     NULL, NULL },
+    { X_NODIST1,  "Notice",     NULL, NULL },
+    { X_NODIST2,  "Notice",     NULL, NULL },
 
 	// Monster cast names...
     { CC_ARACH,  "ArachnotronName",       NULL, NULL },
