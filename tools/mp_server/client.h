@@ -71,6 +71,7 @@ void SV_send_error(packet_c *pk, short type, const char *str, ...);
 
 void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr);
 void PK_leave_server(packet_c *pk);
+void PK_broadcast_discovery(packet_c *pk);
 void PK_keep_alive(packet_c *pk);
 void PK_query_client(packet_c *pk);
 void PK_message(packet_c *pk);

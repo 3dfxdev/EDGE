@@ -231,6 +231,8 @@ static void BeginGame(game_c *GM)
 		pk.hd().dest   = client_id;
 		pk.hd().game   = CL->game_id;
 
+		nlSetRemoteAddr(main_socket, &CL->addr);
+
 		pk.Write(main_socket);
 
 		pk.hd().ByteSwap();  // FIXME: rebuild header
@@ -281,6 +283,8 @@ static void SV_send_all_tic_groups(game_c *GM)
 		pk.hd().source = client_id;
 		pk.hd().dest   = client_id;
 		pk.hd().game   = CL->game_id;
+
+		nlSetRemoteAddr(main_socket, &CL->addr);
 
 		pk.Write(main_socket);
 
