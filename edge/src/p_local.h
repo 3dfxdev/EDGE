@@ -106,15 +106,16 @@ void P_BringCorpseToLife(mobj_t * corpse);
 //
 // P_WEAPON
 //
+#define GRIN_TIME   (TICRATE * 2)
+
 void P_SetupPsprites(player_t * curplayer);
 void P_MovePsprites(player_t * curplayer);
 void P_SetPsprite(player_t * p, int position, int stnum);
 void P_DropWeapon(player_t * player);
-void P_BringUpWeapon(player_t * player);
 bool P_CheckWeaponSprite(weapondef_c *info);
 void P_SelectNewWeapon(player_t * player, int priority, ammotype_e ammo);
+bool P_FillNewWeapon(player_t *p, int idx);
 void P_Zoom(player_t * player);
-void P_RefillClips(player_t * player);
 
 //
 // P_USER
@@ -122,7 +123,7 @@ void P_RefillClips(player_t * player);
 void P_PlayerThink(player_t * player);
 void P_UpdateAvailWeapons(player_t *p);
 void P_UpdateTotalArmour(player_t *p);
-bool P_AddWeapon(player_t *player, weapondef_c *info, int *index);
+bool P_AddWeapon(player_t *player, weapondef_c *info, int *index, bool switch_to);
 bool P_RemoveWeapon(player_t *player, weapondef_c *info);
 void P_GiveInitialBenefits(player_t *player, const mobjtype_c *info);
 void P_AddPlayerToGame(player_t *p);

@@ -41,8 +41,6 @@
 #define DAMAGE_ADD_MIN  3
 #define DAMAGE_LIMIT  100
 
-#define GRIN_TIME   (TICRATE * 2)
-
 
 //
 // P_GiveAmmo
@@ -102,8 +100,6 @@ static bool GiveAmmo(player_t * player, mobj_t * special,
 	// Don't override any weapon change already underway.
 	// Don't change weapon if NO_AUTO_SWITCH is true.
 
-	P_RefillClips(player);
-
 	if (player->pending_wp != WPSEL_NoChange)
 		return true;
 
@@ -162,13 +158,8 @@ static bool GiveWeapon(player_t * player, mobj_t * special,
 	if (lose_em)
 		return P_RemoveWeapon(player, info);
 
-	if (! P_AddWeapon(player, info, &pw_index))
+	if (! P_AddWeapon(player, info, &pw_index, true))
 		return false;
-
-	player->pending_wp = (weapon_selection_e) pw_index;
-
-	// be cheeky... :-)
-	player->grin_count = GRIN_TIME;
 
 	return true;
 }

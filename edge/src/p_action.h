@@ -43,6 +43,7 @@ void A_Light1(mobj_t * object);
 void A_Light2(mobj_t * object);
 
 void A_WeaponReady(mobj_t * object);
+void A_WeaponEmpty(mobj_t * object);
 void A_WeaponShoot(mobj_t * object);
 void A_WeaponEject(mobj_t * object);
 void A_WeaponJump(mobj_t * object);
