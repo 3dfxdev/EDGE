@@ -1,0 +1,124 @@
+
+CHANGELOG FOR 1.29 (since 1.28)
+===============================
+
+(Date: OCTOBER 2nd 2004)
+
+
+Bugs fixed
+----------
+
++ crash loading a game containing dynamic lights when D/L disabled.
+
+- Arch-vile no longer resurrects monsters into itself.
+- don't display "Entering" on intermission when map is last one.
+- fix for ONCONDITION <weapon> in RTS scripts.
+- fix for teleport on MAP06 (going to wrong place).
+- boss brain can now be hurt from rocket explosions.
+- quotes (") usable in response files (for filenames with spaces).
+- DDF parser will catch angles > 360 degrees.
+- watching a moving monster while dead is now smoother.
+- allow KEY_GREENCARD and KEY_GREENSKULL in DDF.
+- texture vertical mis-alignment in some rare cases fixed.
+- berserk strength now lasts the whole level.
+
+
+Fixes from 1.28A
+----------------
+
++ Windows 95 support.
++ fix the crouching bug.
+
+- look for patch lumps first in between P_START/P_END.
+- handle ALT+TAB better under Windows.
+- handle non-power-of-two textures in GL mode.
+- allow brain-shooter without any shoot spots (Darren Salt).
+- allow compiling without DEVELOPERS define (Darren Salt).
+- fix for some memory trashing problems (Darren Salt).
+
+
+Features removed:
+-----------------
+
++ software rendering has been removed.  @@@
+
+
+General improvements
+--------------------
+
++ new sound system, using OpenAL (a 3D audio library). 
+
+(NOT FINISHED) support for OGG Vorbis Music playing.  @@@
+
+(NOT FINISHED) build in support for DeHackEd and BEX patches.  @@@
+
+(NOT FINISHED) new startup.  @@@ - the windows console window.
+
+(NOT FINISHED) support V3 of GL-NODES.  glbsp 2.10, Deus Vult MAP05, BLAH
+
+- source code uses more C++ features, and more of the EPI (Edge Platform
+  Interace).  The "Zone" memory manager has mostly been replaced.
+
+- Linux: fatal errors produce a pop-up dialog box.  EDGE can now be
+  run by double clicking the executable.
+
+- Linux: support for CD music.
+
+- sky looks a bit better, with a stretch option in Video menu.
+- the old "sky flooding" trick is now emulated.
+- RTS tips are sent to the console.
+- missing files (given with -file) now produce an error.
+- monster spawning will keep the parent's AMBUSH status.
+
+
+New features:
+-------------
+
++ new RTS menu system:
+
+    SHOW_MENU      title option1 option2 ...
+    SHOW_MENU_LDF  title option1 option2 ...
+         
+    JUMP_ON  MENU  label1 label2 ...
+
+  The RTS menu will pause the game (including all scripts) until the user
+  presses a valid number key.  Savegames are also disabled while the RTS
+  menu is shown.
+
+- PICKUP_EFFECT = SWITCH_WEAPON(xxx) , required for #VERSION 1.29 and
+  higher.  Berserk fist.  Compatibility maintained.
+
+- FORCE_PICKUP thing special.  
+- SIDE_IMMUNE thing special.  @@@
+- ULTRA_LOYAL thing special.  @@@
+- NO_AUTO_SWITCH weapon special.
+- FIRST_SILENT_TO_MONSTERS and SECOND_SILENT_TO_MONSTERS.  @@@
+- DIE action for things.ddf.
+
+- EXPLODE_RADIUS command for things and attacks.  @@@
+
+- EXPLODE_IMMUNE and ALWAYS_LOUD (BOSSMAN) @@@
+
+
+New console variables:
+----------------------
+
+  DUMBSKY            Use a simpler method for OpenGL sky drawing.
+                     (A few drivers have problems, e.g. Voodoo 3).
+
+
+New command-line options:
+-------------------------
+
+(NOT FINISHED)  -deh             Specify a DeHackEd (or BEX) patch file.
+
+
+Hats off
+--------
+
+Special mention to Erik Sandberg's contribution to EDGE. Its worth a
+note he did a shedload of quality work and made a special effort to
+make sure we were GPL legal - something we maintain now - we do this
+since because we have recently removed the software renderer, we
+removed about 90% of the work he put into EDGE.
+
