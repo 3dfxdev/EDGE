@@ -1876,7 +1876,6 @@ static bool PIT_RadiusAttack(mobj_t * thing)
 
 	if (P_CheckSight(bomb_I.spot, thing))
 	{
-		// must be in direct path
 		if (bomb_I.thrust)
 			P_ThrustMobj(thing, bomb_I.spot, bomb_I.damage * dist);
 		else

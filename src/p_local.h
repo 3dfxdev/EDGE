@@ -341,7 +341,7 @@ extern mobj_t **blocklights;  // for dynamic lights
 //
 
 void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher);
-void P_ThrustMobj(mobj_t * target, mobj_t * source, float thrust);
+void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust);
 void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 				  float amount, const damage_t * damtype);
 void P_KillMobj(mobj_t * source, mobj_t * target, const damage_t * damtype);
