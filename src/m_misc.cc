@@ -95,8 +95,7 @@ static default_t defaults[] =
     {CFGT_Int, "music_volume",      &cfgmusic,         8},
     {CFGT_Int, "show_messages",     &showMessages,     1},
 
-//    {"autorun", &autorunning, (int)false},
-
+    {CFGT_Boolean, "autorun", &autorunning, 0},
     {CFGT_Boolean, "swapstereo", &swapstereo, 0},
     {CFGT_Boolean, "invertmouse", &invertmouse, 0},
     {CFGT_Int, "mlookspeed", &mlookspeed, 1000 / 64},
