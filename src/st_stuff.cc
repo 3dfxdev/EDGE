@@ -291,7 +291,7 @@ static void RefreshBackground(void)
 		RGL_Image320(ST_X, ST_Y, ST_WIDTH, ST_HEIGHT+1, sbar_image);
 
 		if (netgame)
-			RGL_ImageEasy320(ST_FX, 0, faceback[displayplayer % 8]);
+			RGL_ImageEasy320(ST_FX, ST_Y, faceback[displayplayer % 8]);
 	}
 }
 

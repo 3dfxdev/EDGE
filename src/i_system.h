@@ -163,7 +163,7 @@ long I_PureRandom(void);
 int I_GetTime(void);
 // Returns a value that increases monotonically over time.  The value
 // should increase by TICRATE every second (TICRATE is currently 35).
-// The starting value is not significant.
+// The starting value should be close to zero.
 
 unsigned long I_ReadMicroSeconds(void);
 // Like I_GetTime(), this function returns a value that increases

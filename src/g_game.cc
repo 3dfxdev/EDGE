@@ -36,6 +36,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dstrings.h"
+#include "e_demo.h"
 #include "e_main.h"
 #include "e_input.h"
 #include "f_finale.h"
@@ -82,7 +83,6 @@ bool G_FinishDemo(void);
 
 static void G_DoReborn(player_t *p);
 
-void G_DoLoadLevel(void);
 void G_DoNewGame(void);
 void G_DoLoadGame(void);
 void G_DoPlayDemo(void);
@@ -102,13 +102,11 @@ bool paused = false;
 // ok to save / end game 
 bool usergame;
 
-// if true, exit with report on completion 
-static bool timingdemo;
-
 // for comparative timing purposes 
 bool nodrawers;
 bool noblit;
-static int starttime;
+
+int starttime;
 
 // -KM- 1998/11/25 Exit time is the time when the level will actually finish
 // after hitting the exit switch/killing the boss.  So that you see the
@@ -157,22 +155,7 @@ int gametic;
 // for intermission
 int totalkills, totalitems, totalsecret;
 
-static long random_seed;
-bool demorecording;
-bool demoplayback;
-bool netdemo;
-bool newdemo;
-
-// 98-7-10 KM Remove maxdemo limit
-static const byte *playdemobuffer = NULL;
-static FILE *demofile = NULL;
-static int demo_p;
-// -ES- 2000/01/28 Added.
-static int demo_length;
-int maxdemo;
-
-// quit after playing a demo from cmdline 
-bool singledemo;
+long random_seed;
 
 // if true, load all graphics at start 
 bool precache = true;
@@ -204,26 +187,6 @@ static skill_t d_newskill;
 static bool d_newwarp;
 
 #define TURBOTHRESHOLD  0x32
-
-//
-// Writes data to the demo
-//
-// -ES- 1999/10/17 Added.
-//
-static void WriteToDemo(const void *src, int length)
-{
-	fwrite(src,1,length,demofile);
-	// This will make sure that also the last bytes are written at a crash
-	fflush(demofile);
-}
-
-//
-// Stores a single byte to the demo.
-//
-static void WriteByteToDemo(byte c)
-{
-	WriteToDemo(&c, 1);
-}
 
 //
 // G_DoLoadLevel 
@@ -672,55 +635,60 @@ static void G_PlayerFinishLevel(player_t *p)
 }
 
 //
-// G_PlayerReborn
+// player_s::Reborn
 //
 // Called after a player dies. 
-// almost everything is cleared and initialised.
+// Almost everything is cleared and initialised.
 //
-void G_PlayerReborn(player_t *p, const mobjtype_c *info)
+void player_s::Reborn()
 {
-	void *data;
-	void (*builder)(const player_t *, void *, ticcmd_t *);
+	playerstate = PST_LIVE;
 
-	int frags;
-	int totalfrags;
-	int killcount;
-	int itemcount;
-	int secretcount;
-	int pnum;
+	mo = NULL;
+	health = 0;
 
-	frags = p->frags;
-	totalfrags = p->totalfrags;
-	killcount = p->killcount;
-	itemcount = p->itemcount;
-	secretcount = p->secretcount;
-	builder = p->builder;
-	data = p->data;
+	memset(armours, 0, sizeof(armours));
+	memset(powers,  0, sizeof(powers));
 
-#if 0  // -AJA- 2004/04/14: use DDF entry from level thing
-	info = DDF_MobjLookupPlayer(p->pnum+1);
-#endif
+	totalarmour = 0;
+	cards = KF_NONE;
 
-	pnum = p->pnum;
+	ready_wp = WPSEL_None;
+	pending_wp = WPSEL_NoChange;
 
-	Z_Clear(p, player_t, 1);
+	memset(weapons, 0, sizeof(weapons));
+	memset(key_choices, 0, sizeof(key_choices));
+	memset(avail_weapons, 0, sizeof(avail_weapons));
+	memset(ammo, 0, sizeof(ammo));
 
-	p->pnum = pnum;
+	cheats = 0;
+	refire = 0;
+	bob = 0;
+	kick_offset = 0;
+	damagecount = bonuscount = 0;
+	extralight = 0;
+	flash = false;
 
-	p->frags = frags;
-	p->totalfrags = totalfrags;
-	p->killcount = killcount;
-	p->itemcount = itemcount;
-	p->secretcount = secretcount;
-	p->builder = builder;
-	p->data = data;
+	attacker = NULL;
 
-	// don't do anything immediately 
-	p->usedown = p->attackdown[0] = p->attackdown[1] = false;
+	effect_colourmap = NULL;
+	effect_infrared = 0;
+	effect_strength = 0;
 
-	p->playerstate = PST_LIVE;
+	memset(psprites, 0, sizeof(psprites));
+	
+	jumpwait = 0;
+	idlewait = 0;
+	air_in_lungs = 0;
+	underwater = false;
+	swimming = false;
+	grin_count = 0;
+	old_health = 0;
+	attackdown_count = 0;
+	face_index = 0;
+	face_count = 0;
 
-	P_GiveInitialBenefits(p, info);
+	remember_atk[0] = remember_atk[1] = -1;
 }
 
 //
@@ -860,7 +828,8 @@ void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 
 	if (p->playerstate == PST_REBORN)
 	{
-		G_PlayerReborn(p, info);
+		p->Reborn();
+		P_GiveInitialBenefits(p, info);
 	}
 
 	x = point->x;
@@ -884,6 +853,9 @@ void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 	p->std_viewheight = mobj->height * PERCENT_2_FLOAT(info->viewheight);
 	p->viewheight = p->std_viewheight;
 	p->jumpwait = 0;
+
+	// don't do anything immediately 
+	p->usedown = p->attackdown[0] = p->attackdown[1] = false;
 
 	// setup gun psprite
 	P_SetupPsprites(p);
@@ -1101,26 +1073,6 @@ void G_DoCompleted(void)
 	wminfo.maxsecret = totalsecret;
 	wminfo.maxfrags = 0;
 	wminfo.partime = currmap->partime;
-
-//	wminfo.me = consoleplayer->pnum;
-
-///---	if (!wminfo.plrs)
-///---		wminfo.plrs = Z_New(wbplayerstruct_t, MAXPLAYERS);
-///---	Z_Clear(wminfo.plrs, wbplayerstruct_t, MAXPLAYERS);
-
-#if 0
-	for (p = players; p; p = p->next)
-	{
-		wbplayerstruct_t *wp = wminfo.plrs + p->pnum;
-
-		wp->skills = p->killcount;
-		wp->sitems = p->itemcount;
-		wp->ssecret = p->secretcount;
-		wp->stime = leveltime;
-		wp->frags = p->frags;
-		wp->totalfrags = p->totalfrags;
-	}
-#endif
 
 	gamestate = GS_INTERMISSION;
 	viewactive = false;
@@ -1502,332 +1454,6 @@ void G_InitNew(skill_t skill, const mapdef_c *map, const gamedef_c *gamedef, lon
 		level_flags.cheats = false;
 #endif
 	}
-}
-
-//
-// DEMO RECORDING 
-// 
-#define DEMOMARKER              0x80
-
-//
-// G_ReadDemoTiccmd
-//
-// A demo file is essentially a stream of ticcmds: every tic,
-// the ticcmd holds all the info for movement for a player on
-// that tic. This means that a demo merely replays the movements
-// and actions of the player.
-//
-// This function gets the actions from the recdemobuffer and gives
-// them to ticcmd to be played out. Its worth a note that this
-// is the reason demos desync when played on two different
-// versions, since any alteration to the gameplay could give
-// a different reaction to a player action and therefore the
-// game is different to the original.
-//  
-void G_ReadDemoTiccmd(ticcmd_t * cmd)
-{
-	// 98-7-10 KM Demolimit removed
-	if (demo_p >= demo_length)
-	{
-		// end of demo data stream
-		G_FinishDemo();
-		return;
-	}
-
-	// -ACB- 1998/07/11 Added additional ticcmd stuff to demo
-	// -MH-  1998/08/18 Added same for fly up/down
-	//                  Keep all upward stuff before all forward stuff, to
-	//                  keep consistent. Will break existing demos. Damn.
-	*cmd = *(ticcmd_t *)&playdemobuffer[demo_p];
-	demo_p += sizeof(ticcmd_t);
-}
-
-//
-// G_WriteDemoTiccmd
-//
-// A demo file is essentially a stream of ticcmds: every tic,
-// the ticcmd holds all the info for movement for a player on
-// that tic. This means that a demo merely replays the movements
-// and actions of the player.
-//
-// This function writes the ticcmd to the recdemobuffer and
-// then get G_ReadDemoTiccmd to read it, so that whatever is
-// recorded is played out. 
-//
-void G_WriteDemoTiccmd(ticcmd_t * cmd)
-{
-	// press q to end demo recording
-	if (E_InputCheckKey((int)('q')))
-		G_FinishDemo();
-
-	// -ACB- 1998/07/11 Added additional ticcmd stuff to demo
-	// -MH-  1998/08/18 Added same for fly up/down
-	//                  Keep all upward stuff before all forward stuff, to
-	//                  keep consistent. Will break existing demos. Damn.
-	WriteToDemo(cmd, sizeof(ticcmd_t));
-}
-
-//
-// G_RecordDemo 
-// 
-// 98-7-10 KM Demolimit removed
-//
-void G_RecordDemo(const char *name)
-{
-	// assume demo name is less than 256 chars
-	epi::string_c demoname;
-		
-	M_ComposeFileName(demoname, gamedir, name);
-	demoname += ".lmp";	// FIXME!! Check extension has not been given
-	
-	usergame = false;
-	maxdemo = 0x20000;
-
-	// Write directly to file. Possibly a bit slower without disk cache, but
-	// uses less memory, and the demo can record EDGE crashes.
-	demofile = fopen(demoname.GetString(), "wb");	
-	demorecording = true;
-}
-
-//
-// G_BeginRecording
-//
-// -ACB- 1998/07/02 Changed the code to record as version 0.65 (065),
-//                  All of the additional EDGE features are stored in
-//                  the demo.
-//
-// -KM-  1998/07/10 Removed the demo limit.
-//
-// -ACB- 1998/07/12 Removed Lost Soul/Spectre Ability Check
-//
-void G_BeginRecording(void)
-{
-	int i;
-	///  player_t *p;
-
-	demo_p = 0;
-
-	WriteByteToDemo(DEMOVERSION);
-
-	if ((int)gameskill == -1)
-		gameskill = startskill;
-
-	//---------------------------------------------------------
-	// -ACB- 1998/09/03 Record Level Name In Demo
-	i = (int)strlen(currmap->ddf.name);
-	WriteByteToDemo(i);
-	WriteToDemo(currmap->ddf.name, i);
-	L_WriteDebug("G_BeginRecording: %s\n", currmap->ddf.name.GetString());
-	//---------------------------------------------------------
-
-	WriteByteToDemo(gameskill);
-	WriteByteToDemo(deathmatch);
-	WriteByteToDemo(consoleplayer);
-	WriteToDemo(&level_flags, sizeof(level_flags));
-
-	///  for (p = players; p; p = p->next)
-	///    WriteByteToDemo(p->in_game);
-
-	i = EPI_LE_S32(random_seed);
-	WriteToDemo(&i, 4);
-}
-
-//
-// G_PlayDemo 
-//
-epi::strent_c defdemoname;
-
-void G_DeferredPlayDemo(const char *name)
-{
-	defdemoname.Set(name);
-	gameaction = ga_playdemo;
-}
-
-//
-// G_DoPlayDemo
-// Sets up the system to play a demo.
-//
-// -ACB- 1998/07/02 Change the code only to play version 0.65 demos.
-// -KM-  1998/07/10 Displayed error message on screen and make demos limitless
-// -ACB- 1998/07/12 Removed Lost Soul/Spectre Ability Check
-// -ACB- 1998/07/12 Removed error message (became bloody annoying...)
-//
-void G_DoPlayDemo(void)
-{
-	skill_t skill;
-	int i,j;
-	int demversion;
-	char mapname[30];
-	const gamedef_c *newgamedef;
-	const mapdef_c *newmap;
-	long random_seed;
-	///  player_t *p;
-
-	gameaction = ga_nothing;
-	playdemobuffer = (const byte*)W_CacheLumpName(defdemoname);
-	demo_p = 0;
-	demversion = playdemobuffer[demo_p++];
-
-	// -ES- 1999/10/17 Allow cut off demos: Add a demo marker if it doesn't exist.
-	demo_length = W_LumpLength(W_GetNumForName(defdemoname));
-	if (demo_length < 16)
-		// no real demo could be smaller than 16 bytes
-		I_Error("Demo '%s' is too small!", defdemoname.GetString());
-	if (playdemobuffer[demo_length-1] != DEMOMARKER)
-		I_Warning("Warning: Demo has no end marker! It might be corrupt.\n");
-	else
-		demo_length--;
-
-	if (demversion != DEMOVERSION)
-	{
-		gameaction = ga_nothing;
-		return;
-	}
-	else
-	{
-		//------------------------------------------------------
-		// -ACB- 1998/09/03 Read the Level Name from the demo.
-		i = playdemobuffer[demo_p++];
-
-		for (j = 0; j < i; j++)
-			mapname[j] = playdemobuffer[demo_p + j];
-		mapname[i] = 0;
-
-		demo_p += i;
-		//------------------------------------------------------
-
-		skill = (skill_t) playdemobuffer[demo_p++];
-		deathmatch = playdemobuffer[demo_p++];
-		G_SetConsolePlayer(playdemobuffer[demo_p++]);
-
-		level_flags = *(gameflags_t *)&playdemobuffer[demo_p];
-		demo_p += sizeof(level_flags);
-
-		/// FIXME: !!!
-		///    for (p = players; p; p = p->next)
-		///      p->in_game = playdemobuffer[demo_p++];
-
-		// -ES- 2000/02/04 Random seed
-		random_seed = EPI_LE_S32(*(long*)&playdemobuffer[demo_p]);
-		demo_p += 4;
-	}
-
-	//----------------------------------------------------------------
-	// -ACB- 1998/09/03 Setup the given mapname; fail if map does not
-	// exist.
-	newmap = game::LookupMap(mapname);
-	if (newmap == NULL)
-	{
-		gameaction = ga_nothing;
-		return;
-	}
-
-	newgamedef = gamedefs.Lookup(newmap->episode_name);
-	if (newgamedef == NULL)
-	{
-		gameaction = ga_nothing;
-		return;
-	}
-
-
-	//----------------------------------------------------------------
-
-#if 0  // WTF???
-	if (players->next && players->next->in_game)
-	{
-		netgame = true;
-		netdemo = true;
-	}
-#endif
-
-	// don't spend a lot of time in loadlevel
-	precache = false;
-
-	G_InitNew(skill, newmap, newgamedef, random_seed);
-	G_DoLoadLevel();
-	
-	precache = true;
-	usergame = false;
-	demoplayback = true;
-}
-
-//
-// G_TimeDemo 
-//
-void G_TimeDemo(const char *name)
-{
-	nodrawers = M_CheckParm("-nodraw")?true:false;
-	noblit = M_CheckParm("-noblit")?true:false;
-	timingdemo = true;
-	singletics = true;
-
-	defdemoname.Set(name);
-	gameaction = ga_playdemo;
-}
-
-// 
-// G_FinishDemo 
-//
-// Called after a death or level completion to allow demos to be cleaned up, 
-// Returns true if a new demo loop action will take place 
-// 
-// -KM- 1998/07/10 Reformed code for limitless demo
-//
-bool G_FinishDemo(void)
-{
-	int endtime;
-
-	if (timingdemo)
-	{
-		float fps;
-
-		endtime = I_GetTime();
-		fps = ((float)(gametic * TICRATE)) / (endtime - starttime);
-		I_Error("timed %i gametics in %i realtics, which equals %f fps", gametic,
-			endtime - starttime, fps);
-	}
-
-	if (demoplayback)
-	{
-		if (singledemo)
-		{
-			// -ACB- 1999/09/20 New code order, shutdown system then close program.
-			I_SystemShutdown();
-			I_CloseProgram(0);
-		}
-
-		W_DoneWithLump(playdemobuffer);
-		demoplayback = false;
-		netdemo = false;
-		netgame = false;
-		deathmatch = false;
-
-		//!!! FIXME: this is wrong
-#if 0
-		for (p = players; p; p = p->next)
-			p->in_game = false;
-#endif
-
-		level_flags.fastparm = false;
-		level_flags.nomonsters = false;
-		consoleplayer = 0; //???
-		E_AdvanceDemo();
-		return true;
-	}
-
-	if (demorecording)
-	{
-		// Finish it
-		WriteByteToDemo(DEMOMARKER);
-		// Finish the demo file:
-		fclose(demofile);
-		demofile = NULL;
-		I_Error("Demo recorded");
-
-		demorecording = false;
-	}
-
-	return false;
 }
 
 //

@@ -476,8 +476,6 @@ void AM_Stop(void)
 //
 static void StartAM(void)
 {
-	// static int lastlevel = -1, lastepisode = -1;
-
 	if (!stopped)
 		AM_Stop();
 
@@ -1049,7 +1047,17 @@ static void DrawLineCharacter(player_t *p,mline_t *lineguy, int lineguylines,
 	}
 }
 
-static int player_colours[8] = { GREEN,  GRAY + GRAY_LEN*2/3, BROWN, RED + RED_LEN/2,  ORANGE, GRAY + GRAY_LEN*1/3, RED, PINK };
+static int player_colours[8] =
+{
+	GREEN,
+	GRAY + GRAY_LEN*2/3,
+	BROWN,
+	RED + RED_LEN/2,
+	ORANGE,
+	GRAY + GRAY_LEN*1/3,
+	RED,
+	PINK
+};
 
 static void AM_DrawPlayer(mobj_t *mo)
 {

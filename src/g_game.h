@@ -32,6 +32,10 @@
 
 #include "epi/epistring.h"
 
+extern long random_seed;  //
+extern int starttime;     // for demo code
+extern bool netdemo;      //
+
 //
 // GAME
 //
@@ -54,8 +58,6 @@ bool G_DeferredInitNew(skill_t skill,
 					   const char *mapname,
 					   bool warpopt);
 
-void G_DeferredPlayDemo(const char *demo);
-
 // Can be called by the startup code or M_Responder,
 // calls P_SetupLevel or W_EnterWorld.
 void G_LoadGame(int slot);
@@ -65,14 +67,6 @@ void G_DoLoadGame(void);
 // Called by M_Responder.
 void G_SaveGame(int slot, const char *description);
 
-// Only called by startup code.
-void G_RecordDemo(const char *name);
-
-void G_BeginRecording(void);
-
-void G_PlayDemo(const char *name);
-void G_TimeDemo(const char *name);
-bool G_FinishDemo(void);
 void G_PlayerReborn(player_t *player, const mobjtype_c *info);
 
 // -KM- 1998/11/25 Added Time param
@@ -99,5 +93,7 @@ namespace game
 {
 	mapdef_c* LookupMap(const char *refname);
 };
+
+void G_DoLoadLevel(void);  // for demo code
 
 #endif  /* __G_GAME__ */

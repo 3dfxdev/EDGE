@@ -389,6 +389,9 @@ static void DeathThink(player_t * player)
 
 			player->mo->angle += delta;
 			player->mo->vertangle += delta_s;
+
+			if (player->damagecount && (gametic % 3) == 0)
+				player->damagecount--;
 		}
 	}
 	else if (player->damagecount)
@@ -670,7 +673,9 @@ void P_CreatePlayer(int pnum)
 	DEV_ASSERT(! players[pnum], ("P_CreatePlayer: %d already there", pnum));
 
 	player_t *p = Z_ClearNew(player_t, 1);
+
 	p->pnum = pnum;
+	p->playerstate = PST_LIVE;
 
 	players[pnum] = p;
 	num_players++;
