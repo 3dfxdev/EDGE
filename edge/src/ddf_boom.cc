@@ -372,37 +372,37 @@ static void MakeBoomLockedDoor(linetype_c *line, int number)
 	{
 		case 0:  // ANY
 			line->keys = (keys_e)(KF_RedCard | KF_BlueCard | KF_YellowCard | KF_RedSkull | KF_BlueSkull | KF_YellowSkull);
-			line->failedmessage = Z_StrDup("NeedAnyForDoor");
+			line->failedmessage.Set("NeedAnyForDoor");
 			break;
 
 		case 1:  // Red Card
 			line->keys = (keys_e)(KF_RedCard | (sk_ck ? KF_RedSkull : 0));
-			line->failedmessage = Z_StrDup("NeedRedForDoor");
+			line->failedmessage.Set("NeedRedForDoor");
 			break;
 
 		case 2:  // Blue Card
 			line->keys = (keys_e)(KF_BlueCard | (sk_ck ? KF_BlueSkull : 0));
-			line->failedmessage = Z_StrDup("NeedBlueForDoor");
+			line->failedmessage.Set("NeedBlueForDoor");
 			break;
 
 		case 3:  // Yellow Card
 			line->keys = (keys_e)(KF_YellowCard | (sk_ck ? KF_YellowSkull : 0));
-			line->failedmessage = Z_StrDup("NeedYellowForDoor");
+			line->failedmessage.Set("NeedYellowForDoor");
 			break;
 
 		case 4:  // Red Skull
 			line->keys = (keys_e)(KF_RedSkull | (sk_ck ? KF_RedCard : 0));
-			line->failedmessage = Z_StrDup("NeedRedForDoor");
+			line->failedmessage.Set("NeedRedForDoor");
 			break;
 
 		case 5:  // Blue Skull
 			line->keys = (keys_e)(KF_BlueSkull | (sk_ck ? KF_BlueCard : 0));
-			line->failedmessage = Z_StrDup("NeedBlueForDoor");
+			line->failedmessage.Set("NeedBlueForDoor");
 			break;
 
 		case 6:  // Yellow Skull
 			line->keys = (keys_e)(KF_YellowSkull | (sk_ck ? KF_YellowCard : 0));
-			line->failedmessage = Z_StrDup("NeedYellowForDoor");
+			line->failedmessage.Set("NeedYellowForDoor");
 			break;
 
 		case 7:  // ALL  
@@ -410,7 +410,7 @@ static void MakeBoomLockedDoor(linetype_c *line, int number)
 				(KF_RedCard | KF_BlueCard | KF_YellowCard |
 				KF_RedSkull | KF_BlueSkull | KF_YellowSkull));
 
-			line->failedmessage = Z_StrDup("NeedAllForDoor");
+			line->failedmessage.Set("NeedAllForDoor");
 			break;
 	}
 }

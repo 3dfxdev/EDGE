@@ -1225,18 +1225,15 @@ void DDF_MainGetBoolean(const char *info, void *storage)
 //
 // -KM- 1998/07/31 Needed a string argument.  Based on DDF_MainGetNumeric.
 // -AJA- 2000/02/09: Free any existing string (potential memory leak).
-
+// -ACB- 2004/07/26: Use epi::strent_c
+//
 void DDF_MainGetString(const char *info, void *storage)
 {
-	char **dest = (char **)storage;
+	epi::strent_c *dest = (epi::strent_c *)storage;
 
 	DEV_ASSERT2(info && storage);
 
-	// free any previous string
-	if (*dest)
-		Z_Free(*dest);
-
-	*dest = Z_StrDup(info);
+	dest->Set(info);
 }
 
 

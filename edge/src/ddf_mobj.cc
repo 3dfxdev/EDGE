@@ -1597,7 +1597,7 @@ void mobjtype_c::Default()
 	initial_benefits = NULL;
 
     castorder = 0;
-	cast_title = NULL;
+	cast_title.Clear();
 	respawntime = 30 * TICRATE;
 	translucency = PERCENT_MAKE(100);
 	minatkchance = PERCENT_MAKE(0);
@@ -1654,13 +1654,13 @@ void mobjtype_c::Default()
 	dlight.Default();
 
 	dropitem = NULL;
-	dropitem_ref = NULL;
+	dropitem_ref.Clear();
 	blood = NULL;
-	blood_ref = NULL;
+	blood_ref.Clear();
 	respawneffect = NULL;
-	respawneffect_ref = NULL;
+	respawneffect_ref.Clear();
 	spitspot = NULL;
-	spitspot_ref = NULL;
+	spitspot_ref.Clear();
 }
 
 //
