@@ -41,20 +41,23 @@ private:
 	int state;
 
 public: //FIXME
-	std::string game_name;   // DOOM2 (etc)
-	std::string level_name;  // MAP01 (etc)
+	std::string engine_name;  // EDGE129
+	std::string game_name;    // DOOM2 (etc)
+	std::string level_name;   // MAP01 (etc)
 
 	char mode;
-	char skill;
+	byte skill;
 
 	int min_players;
-	int engine_ver;
+	int num_bots;
 
 	std::vector<int> queuers;
 	std::vector<int> players;  // in the game
 
 	int num_players;
 	int num_votes;
+
+	// ---- tic handlig ----
 
 	int tic_counter;
 
