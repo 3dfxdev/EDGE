@@ -64,13 +64,13 @@ static const image_t *gb_background = NULL;
 
 typedef struct
 {
-  // current limit
-  int limit;
-  
-  // current position (0.0 to 1.0)
-  flo_t pos;
+	// current limit
+	int limit;
 
-  char text[MAXBARTEXT];
+	// current position (0.0 to 1.0)
+	flo_t pos;
+
+	char text[MAXBARTEXT];
 }
 gb_bar_t;
 
@@ -87,13 +87,13 @@ static boolean_t gb_refresh;
 //
 void GB_PrintMsg(const char *str, ...)
 {
-  va_list args;
+	va_list args;
 
-  va_start(args, str);
-  vsprintf(message_buf, str, args);
-  va_end(args);
+	va_start(args, str);
+	vsprintf(message_buf, str, args);
+	va_end(args);
 
-  I_Printf("GB: %s", message_buf);
+	I_Printf("GB: %s", message_buf);
 }
 
 //
@@ -103,13 +103,13 @@ void GB_PrintMsg(const char *str, ...)
 //
 void GB_FatalError(const char *str, ...)
 {
-  va_list args;
+	va_list args;
 
-  va_start(args, str);
-  vsprintf(message_buf, str, args);
-  va_end(args);
+	va_start(args, str);
+	vsprintf(message_buf, str, args);
+	va_end(args);
 
-  I_Error("Builing nodes failed: %s\n", message_buf);
+	I_Error("Builing nodes failed: %s\n", message_buf);
 }
 
 //
@@ -117,23 +117,23 @@ void GB_FatalError(const char *str, ...)
 //
 void GB_Ticker(void)
 {
-  int cur_time;
-  
-  if (! e_display_OK)
-    return;
-  
-  cur_time = I_GetTime();
-  
-  if (ticker_time != 0 && cur_time < ticker_time + REDRAW_TICS)
-    return;
-  
-  E_Display();
-  
-  // Note: get the time _after_ rendering the frame.  This handles the
-  // situation of very low framerates better, as we can at least
-  // perform REDRAW_TICS amount of work for each frame.
- 
-  ticker_time = I_GetTime();
+	int cur_time;
+
+	if (! e_display_OK)
+		return;
+
+	cur_time = I_GetTime();
+
+	if (ticker_time != 0 && cur_time < ticker_time + REDRAW_TICS)
+		return;
+
+	E_Display();
+
+	// Note: get the time _after_ rendering the frame.  This handles the
+	// situation of very low framerates better, as we can at least
+	// perform REDRAW_TICS amount of work for each frame.
+
+	ticker_time = I_GetTime();
 }
 
 //
@@ -141,14 +141,14 @@ void GB_Ticker(void)
 //
 boolean_g GB_DisplayOpen(displaytype_e type)
 {
-  cur_disp = type;
+	cur_disp = type;
 
-  bars[0] = default_bar;
-  bars[1] = default_bar;
+	bars[0] = default_bar;
+	bars[1] = default_bar;
 
-  gb_refresh = true;
-   
-  return TRUE;
+	gb_refresh = true;
+
+	return TRUE;
 }
 
 //
@@ -156,7 +156,7 @@ boolean_g GB_DisplayOpen(displaytype_e type)
 //
 void GB_DisplaySetTitle(const char *str)
 {
-  /* does nothing */
+	/* does nothing */
 }
 
 //
@@ -164,7 +164,7 @@ void GB_DisplaySetTitle(const char *str)
 //
 void GB_DisplaySetText(const char *str)
 {
-  /* does nothing */
+	/* does nothing */
 }
 
 //
@@ -172,12 +172,12 @@ void GB_DisplaySetText(const char *str)
 //
 void GB_DisplaySetBarText(int barnum, const char *str)
 {
-  DEV_ASSERT2(1 <= barnum && barnum <= 2);
+	DEV_ASSERT2(1 <= barnum && barnum <= 2);
 
-  Z_StrNCpy(bars[barnum - 1].text, str, MAXBARTEXT-1);
+	Z_StrNCpy(bars[barnum - 1].text, str, MAXBARTEXT-1);
 
-  // only need to refresh on text changes (not on bar changes)
-  gb_refresh = true;
+	// only need to refresh on text changes (not on bar changes)
+	gb_refresh = true;
 }
 
 //
@@ -185,9 +185,9 @@ void GB_DisplaySetBarText(int barnum, const char *str)
 //
 void GB_DisplaySetBarLimit(int barnum, int limit)
 {
-  DEV_ASSERT2(1 <= barnum && barnum <= 2);
+	DEV_ASSERT2(1 <= barnum && barnum <= 2);
 
-  bars[barnum - 1].limit = limit;
+	bars[barnum - 1].limit = limit;
 }
 
 //
@@ -195,16 +195,16 @@ void GB_DisplaySetBarLimit(int barnum, int limit)
 //
 void GB_DisplaySetBar(int barnum, int count)
 {
-  DEV_ASSERT2(1 <= barnum && barnum <= 2);
+	DEV_ASSERT2(1 <= barnum && barnum <= 2);
 
-  if (count < 0 || bars[barnum - 1].limit <= 0 ||
-      count > bars[barnum - 1].limit)
-  {
-    return;
-  }
+	if (count < 0 || bars[barnum - 1].limit <= 0 ||
+		count > bars[barnum - 1].limit)
+	{
+		return;
+	}
 
-  // compute fractional position
-  bars[barnum - 1].pos = (flo_t)count / bars[barnum - 1].limit;
+	// compute fractional position
+	bars[barnum - 1].pos = (flo_t)count / bars[barnum - 1].limit;
 }
 
 //
@@ -212,22 +212,22 @@ void GB_DisplaySetBar(int barnum, int count)
 //
 void GB_DisplayClose(void)
 {
-  /* does nothing */
+	/* does nothing */
 }
 
 const nodebuildfuncs_t edge_build_funcs =
 {
-  GB_FatalError,
-  GB_PrintMsg,
-  GB_Ticker,
+	GB_FatalError,
+		GB_PrintMsg,
+		GB_Ticker,
 
-  GB_DisplayOpen,
-  GB_DisplaySetTitle,
-  GB_DisplaySetText,
-  GB_DisplaySetBar,
-  GB_DisplaySetBarLimit,
-  GB_DisplaySetBarText,
-  GB_DisplayClose
+		GB_DisplayOpen,
+		GB_DisplaySetTitle,
+		GB_DisplaySetText,
+		GB_DisplaySetBar,
+		GB_DisplaySetBarLimit,
+		GB_DisplaySetBarText,
+		GB_DisplayClose
 };
 
 
@@ -240,37 +240,37 @@ const nodebuildfuncs_t edge_build_funcs =
 //
 boolean_t GB_BuildNodes(int map_lump)
 {
-  nodebuildinfo_t nb_info;
-  volatile nodebuildcomms_t nb_comms;
-  glbsp_ret_e ret;
+	nodebuildinfo_t nb_info;
+	volatile nodebuildcomms_t nb_comms;
+	glbsp_ret_e ret;
 
-  nb_info  = default_buildinfo;
+	nb_info  = default_buildinfo;
 
-  memcpy((void *)&nb_comms, (void *)&default_buildcomms, sizeof(nodebuildcomms_t));
-//  nb_comms = default_buildcomms;
-  
-  nb_info.input_file = W_GetFileName(map_lump);
-  
-  // FIXME: check parm "-node-factor"
-  
-  if (GLBSP_E_OK != GlbspCheckInfo(&nb_info, &nb_comms))
-    return false;
-  
-  GB_InitProgress();
+	memcpy((void *)&nb_comms, (void *)&default_buildcomms, sizeof(nodebuildcomms_t));
+	//  nb_comms = default_buildcomms;
 
-  ret = GlbspBuildNodes(&nb_info, &edge_build_funcs, &nb_comms);
- 
-  GB_TermProgress();
+	nb_info.input_file = W_GetFileName(map_lump);
 
-  if (ret != GLBSP_E_OK)
-    return false;
+	// FIXME: check parm "-node-factor"
 
-  DEV_ASSERT2(nb_info.output_file);
-  DEV_ASSERT2(nb_info.gwa_mode);
-  
-  W_AddDynamicGWA(nb_info.output_file, map_lump);
+	if (GLBSP_E_OK != GlbspCheckInfo(&nb_info, &nb_comms))
+		return false;
 
-  return true;
+	GB_InitProgress();
+
+	ret = GlbspBuildNodes(&nb_info, &edge_build_funcs, &nb_comms);
+
+	GB_TermProgress();
+
+	if (ret != GLBSP_E_OK)
+		return false;
+
+	DEV_ASSERT2(nb_info.output_file);
+	DEV_ASSERT2(nb_info.gwa_mode);
+
+	W_AddDynamicGWA(nb_info.output_file, map_lump);
+
+	return true;
 }
 
 //
@@ -278,15 +278,15 @@ boolean_t GB_BuildNodes(int map_lump)
 //
 void GB_InitProgress(void)
 {
-  ticker_time = 0;
-  cur_disp = DIS_INVALID;
-  gb_draw_progress = true;
-  gb_refresh = true;
+	ticker_time = 0;
+	cur_disp = DIS_INVALID;
+	gb_draw_progress = true;
+	gb_refresh = true;
 
-  if (! e_display_OK)
-    return;
+	if (! e_display_OK)
+		return;
 
-  //...
+	//...
 }
 
 //
@@ -294,12 +294,12 @@ void GB_InitProgress(void)
 //
 void GB_TermProgress(void)
 {
-  gb_draw_progress = false;
+	gb_draw_progress = false;
 
-  if (! e_display_OK)
-    return;
+	if (! e_display_OK)
+		return;
 
-  //...
+	//...
 }
 
 //
@@ -307,72 +307,72 @@ void GB_TermProgress(void)
 //
 void GB_DrawProgress(void)
 {
-  int i;
-  
-  // -AJA- funky maths for "scaled resolution" thing
-  int lx = 32;
-  int rx = 240;
+	int i;
 
-  int x1 = X_OFFSET + lx * DX;
-  int x2 = X_OFFSET + rx * DX;
+	// -AJA- funky maths for "scaled resolution" thing
+	int lx = 32;
+	int rx = 240;
 
-  int num_bars, dy;
-  int filecol, nodecol;
+	int x1 = (int)(X_OFFSET + lx * DX);
+	int x2 = (int)(X_OFFSET + rx * DX);
 
-  DEV_ASSERT2(e_display_OK);
+	int num_bars, dy;
+	int filecol, nodecol;
 
-  if (! gb_background)
-    gb_background = W_ImageFromFlat("FLAT10");
+	DEV_ASSERT2(e_display_OK);
 
-  if (gb_refresh)
-  {
-    vctx.DrawImage(0, 0, SCREENWIDTH, SCREENHEIGHT, gb_background,
-        0.0, 0.0, IM_RIGHT(gb_background) * 5.0, 
-        IM_BOTTOM(gb_background) * 5.0, NULL, 1.0);
+	if (! gb_background)
+		gb_background = W_ImageFromFlat("FLAT10");
 
-    gb_refresh = false;
-  }
+	if (gb_refresh)
+	{
+		vctx.DrawImage(0, 0, SCREENWIDTH, SCREENHEIGHT, gb_background,
+			0.0, 0.0, IM_RIGHT(gb_background) * 5.0f, 
+			IM_BOTTOM(gb_background) * 5.0f, NULL, 1.0);
 
-  HL_WriteTextTrans(12, 10, text_green_map, MESSAGE1);
-  HL_WriteTextTrans(12, 24, text_green_map, MESSAGE2);
+		gb_refresh = false;
+	}
 
-  switch (cur_disp)
-  {
-    case DIS_BUILDPROGRESS:
-      num_bars = 2; dy = 0; 
-      filecol = RED; nodecol = (CYAN + CYAN_LEN/2);
-      break;
-    
-    case DIS_FILEPROGRESS:
-      num_bars = 1; dy = 0; 
-      filecol = nodecol = YELLOW;
-      break;
+	HL_WriteTextTrans(12, 10, text_green_map, MESSAGE1);
+	HL_WriteTextTrans(12, 24, text_green_map, MESSAGE2);
 
-    default:
-      return;
-  }
+	switch (cur_disp)
+	{
+		case DIS_BUILDPROGRESS:
+			num_bars = 2; dy = 0; 
+			filecol = RED; nodecol = (CYAN + CYAN_LEN/2);
+			break;
 
-  for (i=0; i < num_bars; i++)
-  {
-    int x3 = x1 + (int)(bars[i].pos * (x2 - x1));
+		case DIS_FILEPROGRESS:
+			num_bars = 1; dy = 0; 
+			filecol = nodecol = YELLOW;
+			break;
 
-    int ty = 60 + i * 30 + dy;
-    int uy = 70 + i * 30 + dy;
-    int by = 80 + i * 30 + dy;
+		default:
+			return;
+	}
 
-    int y1 = Y_OFFSET + uy * DY;
-    int y2 = Y_OFFSET + by * DY;
+	for (i=0; i < num_bars; i++)
+	{
+		int x3 = x1 + (int)(bars[i].pos * (x2 - x1));
 
-    int bg = DBLUE;
-    int fg = (i == num_bars-1) ? filecol : nodecol;
+		int ty = 60 + i * 30 + dy;
+		int uy = 70 + i * 30 + dy;
+		int by = 80 + i * 30 + dy;
 
-    HL_WriteTextTrans(lx, ty, text_white_map, bars[i].text);
-    
-    if (x3 > x1)
-      vctx.SolidBox(x1, y1, x3-x1, y2-y1, fg, 1.0);
+		int y1 = (int)(Y_OFFSET + uy * DY);
+		int y2 = (int)(Y_OFFSET + by * DY);
 
-    if (x3 < x2)
-      vctx.SolidBox(x3, y1, x2-x3, y2-y1, bg, 1.0);
-  }
+		int bg = DBLUE;
+		int fg = (i == num_bars-1) ? filecol : nodecol;
+
+		HL_WriteTextTrans(lx, ty, text_white_map, bars[i].text);
+
+		if (x3 > x1)
+			vctx.SolidBox(x1, y1, x3-x1, y2-y1, fg, 1.0);
+
+		if (x3 < x2)
+			vctx.SolidBox(x3, y1, x2-x3, y2-y1, bg, 1.0);
+	}
 }
 

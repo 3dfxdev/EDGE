@@ -69,17 +69,17 @@ static int last_error = 0;
 
 typedef struct chunk_s
 {
-  char s_mark[6];
-  char e_mark[6];
+	char s_mark[6];
+	char e_mark[6];
 
-  // read/write data.  When reading, this is only allocated/freed for
-  // top level chunks (depth 0), lower chunks just point inside their
-  // parent's data.  When writing, all chunks are allocated (and grow
-  // bigger as needed).  Note: `end' is the byte _after_ the last one.
+	// read/write data.  When reading, this is only allocated/freed for
+	// top level chunks (depth 0), lower chunks just point inside their
+	// parent's data.  When writing, all chunks are allocated (and grow
+	// bigger as needed).  Note: `end' is the byte _after_ the last one.
 
-  unsigned char *start; 
-  unsigned char *end; 
-  unsigned char *pos;
+	unsigned char *start; 
+	unsigned char *end; 
+	unsigned char *pos;
 }
 chunk_t;
 
@@ -96,37 +96,37 @@ static long compress_wrkmem[LZO1X_1_MEM_COMPRESS/sizeof(long) + 2];
 
 static boolean_t CheckMagic(void)
 {
-  int i;
-  int len = strlen(EDGESAVE_MAGIC);
+	int i;
+	int len = strlen(EDGESAVE_MAGIC);
 
-  for (i=0; i < len; i++)
-    if (SV_GetByte() != EDGESAVE_MAGIC[i])
-      return false;
-  
-  return true;
+	for (i=0; i < len; i++)
+		if (SV_GetByte() != EDGESAVE_MAGIC[i])
+			return false;
+
+	return true;
 }
 
 static void PutMagic(void)
 {
-  int i;
-  int len = strlen(EDGESAVE_MAGIC);
+	int i;
+	int len = strlen(EDGESAVE_MAGIC);
 
-  for (i=0; i < len; i++)
-    SV_PutByte(EDGESAVE_MAGIC[i]);
+	for (i=0; i < len; i++)
+		SV_PutByte(EDGESAVE_MAGIC[i]);
 }
 
 static void PutPadding(void)
 {
-  SV_PutByte(0x1A);
-  SV_PutByte(0x0D);
-  SV_PutByte(0x0A);
-  SV_PutByte(0x00);
+	SV_PutByte(0x1A);
+	SV_PutByte(0x0D);
+	SV_PutByte(0x0A);
+	SV_PutByte(0x00);
 }
 
 static INLINE boolean_t VerifyMarker(const char *id)
 {
-  return isalnum(id[0]) && isalnum(id[1]) &&
-         isalnum(id[2]) && isalnum(id[3]);
+	return isalnum(id[0]) && isalnum(id[1]) &&
+		isalnum(id[2]) && isalnum(id[3]);
 }
 
 //
@@ -134,10 +134,10 @@ static INLINE boolean_t VerifyMarker(const char *id)
 //
 boolean_t SV_ChunkInit(void)
 {
-  if (lzo_init() != LZO_E_OK)
-    I_Error("SV_ChunkInit: LZO initialisation error !\n");
+	if (lzo_init() != LZO_E_OK)
+		I_Error("SV_ChunkInit: LZO initialisation error !\n");
 
-  return true;
+	return true;
 }
 
 //
@@ -145,7 +145,7 @@ boolean_t SV_ChunkInit(void)
 //
 void SV_ChunkShutdown(void)
 {
-  // nothing to do
+	// nothing to do
 }
 
 //
@@ -153,10 +153,10 @@ void SV_ChunkShutdown(void)
 //
 int SV_GetError(void)
 {
-  int result = last_error;
-  last_error = 0;
+	int result = last_error;
+	last_error = 0;
 
-  return result;
+	return result;
 }
 
 
@@ -171,20 +171,20 @@ int SV_GetError(void)
 //
 boolean_t SV_OpenReadFile(const char *filename)
 {
-  chunk_stack_size = 0;
-  last_error = 0;
+	chunk_stack_size = 0;
+	last_error = 0;
 
-  CRC32_Init(&current_crc);
+	CRC32_Init(&current_crc);
 
-  current_fp = fopen(filename, "rb");
+	current_fp = fopen(filename, "rb");
 
-  if (! current_fp)
-  {
-    /// I_Warning("LOADGAME: Couldn't open file: %s\n", filename);
-    return false;
-  }
+	if (! current_fp)
+	{
+		/// I_Warning("LOADGAME: Couldn't open file: %s\n", filename);
+		return false;
+	}
 
-  return true;
+	return true;
 }
 
 //
@@ -192,17 +192,17 @@ boolean_t SV_OpenReadFile(const char *filename)
 //
 boolean_t SV_CloseReadFile(void)
 {
-  DEV_ASSERT2(current_fp);
+	DEV_ASSERT2(current_fp);
 
-  DEV_ASSERT(chunk_stack_size == 0,
-      ("SV_CloseReadFile: Too many Pushes (missing Pop somewhere).\n"));
+	DEV_ASSERT(chunk_stack_size == 0,
+		("SV_CloseReadFile: Too many Pushes (missing Pop somewhere).\n"));
 
-  fclose(current_fp);
+	fclose(current_fp);
 
-  if (last_error)
-    I_Warning("LOADGAME: Error(s) occurred during reading.\n");
-  
-  return true;
+	if (last_error)
+		I_Warning("LOADGAME: Error(s) occurred during reading.\n");
+
+	return true;
 }
 
 //
@@ -213,29 +213,29 @@ boolean_t SV_CloseReadFile(void)
 //
 boolean_t SV_VerifyHeader(int *version)
 {
-  // check header
+	// check header
 
-  if (! CheckMagic())
-  {
-    I_Warning("LOADGAME: Bad magic in savegame file\n");
-    return false;
-  }
+	if (! CheckMagic())
+	{
+		I_Warning("LOADGAME: Bad magic in savegame file\n");
+		return false;
+	}
 
-  // skip padding
-  SV_GetByte();
-  SV_GetByte();
-  SV_GetByte();
-  SV_GetByte();
+	// skip padding
+	SV_GetByte();
+	SV_GetByte();
+	SV_GetByte();
+	SV_GetByte();
 
-  (*version) = SV_GetInt();
+	(*version) = SV_GetInt();
 
-  if (last_error)
-  {
-    I_Warning("LOADGAME: Bad header in savegame file\n");
-    return false;
-  }
+	if (last_error)
+	{
+		I_Warning("LOADGAME: Bad header in savegame file\n");
+		return false;
+	}
 
-  return true;
+	return true;
 }
 
 //
@@ -243,105 +243,105 @@ boolean_t SV_VerifyHeader(int *version)
 //
 boolean_t SV_VerifyContents(void)
 {
-  unsigned int final_crc, read_crc;
+	unsigned int final_crc, read_crc;
 
-  DEV_ASSERT2(current_fp);
-  DEV_ASSERT2(chunk_stack_size == 0);
+	DEV_ASSERT2(current_fp);
+	DEV_ASSERT2(chunk_stack_size == 0);
 
-  // skip top-level chunks until end...
-  for (;;)
-  {
+	// skip top-level chunks until end...
+	for (;;)
+	{
 #if (COMPRESS_ENABLE)
-    unsigned int orig_len;
+		unsigned int orig_len;
 #endif
-    unsigned int file_len;
+		unsigned int file_len;
 
-    char start_marker[6];
-    char end_marker[6];
+		char start_marker[6];
+		char end_marker[6];
 
-    SV_GetMarker(start_marker);
+		SV_GetMarker(start_marker);
 
-    if (! VerifyMarker(start_marker))
-    {
-      I_Warning("LOADGAME: Verify failed: Invalid start marker: "
-          "%02X %02X %02X %02X\n", start_marker[0], start_marker[1],
-          start_marker[2], start_marker[3]);
-      return false;
-    }
+		if (! VerifyMarker(start_marker))
+		{
+			I_Warning("LOADGAME: Verify failed: Invalid start marker: "
+				"%02X %02X %02X %02X\n", start_marker[0], start_marker[1],
+				start_marker[2], start_marker[3]);
+			return false;
+		}
 
-    if (strcmp(start_marker, DATA_END_MARKER) == 0)
-      break;
+		if (strcmp(start_marker, DATA_END_MARKER) == 0)
+			break;
 
-    // read chunk length
-    file_len = SV_GetInt();
+		// read chunk length
+		file_len = SV_GetInt();
 
 #if (COMPRESS_ENABLE)
-    // read original, uncompressed size
-    orig_len = SV_GetInt();
+		// read original, uncompressed size
+		orig_len = SV_GetInt();
 
-    if ((orig_len & 3) != 0 || file_len > MAX_COMP_SIZE(orig_len))
-    {
-      I_Warning("LOADGAME: Verify failed: Chunk has bad size: "
-          "(file=%d orig=%d)\n", file_len, orig_len);
-      return false;
-    }
+		if ((orig_len & 3) != 0 || file_len > MAX_COMP_SIZE(orig_len))
+		{
+			I_Warning("LOADGAME: Verify failed: Chunk has bad size: "
+				"(file=%d orig=%d)\n", file_len, orig_len);
+			return false;
+		}
 #endif
 
-    // skip data bytes (merely compute the CRC)
-    for (; (file_len > 0) && !last_error; file_len--)
-      SV_GetByte();
+		// skip data bytes (merely compute the CRC)
+		for (; (file_len > 0) && !last_error; file_len--)
+			SV_GetByte();
 
-    SV_GetMarker(end_marker);
+		SV_GetMarker(end_marker);
 
-    // run out of data ?
-    if (last_error)
-    {
-      I_Warning("LOADGAME: Verify failed: Chunk corrupt or "
-          "File truncated.\n");
-      return false;
-    }
+		// run out of data ?
+		if (last_error)
+		{
+			I_Warning("LOADGAME: Verify failed: Chunk corrupt or "
+				"File truncated.\n");
+			return false;
+		}
 
-    // check for matching markers
+		// check for matching markers
 
-    if (! VerifyMarker(end_marker))
-    {
-      I_Warning("LOADGAME: Verify failed: Invalid end marker: "
-          "%02X %02X %02X %02X\n", end_marker[0], end_marker[1],
-          end_marker[2], end_marker[3]);
-      return false;
-    }
-    else if (stricmp(start_marker, end_marker) != 0)
-    {
-      I_Warning("LOADGAME: Verify failed: Mismatched markers: "
-          "%s != %s\n", start_marker, end_marker);
-      return false;
-    }
-  }
+		if (! VerifyMarker(end_marker))
+		{
+			I_Warning("LOADGAME: Verify failed: Invalid end marker: "
+				"%02X %02X %02X %02X\n", end_marker[0], end_marker[1],
+				end_marker[2], end_marker[3]);
+			return false;
+		}
+		else if (stricmp(start_marker, end_marker) != 0)
+		{
+			I_Warning("LOADGAME: Verify failed: Mismatched markers: "
+				"%s != %s\n", start_marker, end_marker);
+			return false;
+		}
+	}
 
-  // check trailer
-  if (! CheckMagic())
-  {
-    I_Warning("LOADGAME: Verify failed: Bad trailer.\n");
-    return false;
-  }
+	// check trailer
+	if (! CheckMagic())
+	{
+		I_Warning("LOADGAME: Verify failed: Bad trailer.\n");
+		return false;
+	}
 
-  CRC32_Done(&current_crc);
-  
-  final_crc = current_crc;
-  read_crc = SV_GetInt();
+	CRC32_Done(&current_crc);
 
-  if (read_crc != final_crc)
-  {
-    I_Warning("LOADGAME: Verify failed: Bad CRC: %08X != %08X\n", 
-        final_crc, read_crc);
-    return false;
-  }
+	final_crc = current_crc;
+	read_crc = SV_GetInt();
 
-  // Move file pointer back to beginning
-  fseek(current_fp, FIRST_CHUNK_OFS, SEEK_SET);
-  clearerr(current_fp);
+	if (read_crc != final_crc)
+	{
+		I_Warning("LOADGAME: Verify failed: Bad CRC: %08X != %08X\n", 
+			final_crc, read_crc);
+		return false;
+	}
 
-  return true;
+	// Move file pointer back to beginning
+	fseek(current_fp, FIRST_CHUNK_OFS, SEEK_SET);
+	clearerr(current_fp);
+
+	return true;
 }
 
 //
@@ -349,62 +349,62 @@ boolean_t SV_VerifyContents(void)
 //
 unsigned char SV_GetByte(void) 
 { 
-  chunk_t *cur;
-  unsigned char result;
+	chunk_t *cur;
+	unsigned char result;
 
-  if (last_error)
-    return 0;
+	if (last_error)
+		return 0;
 
-  // read directly from file when no chunks are on the stack
-  if (chunk_stack_size == 0)
-  {
-    int c = fgetc(current_fp);
+	// read directly from file when no chunks are on the stack
+	if (chunk_stack_size == 0)
+	{
+		int c = fgetc(current_fp);
 
-    if (c == EOF)
-    {
-      I_Error("LOADGAME: Corrupt Savegame (reached EOF).\n");
-      last_error = 1;
-      return 0;
-    }
-    
-    CRC32_ProcessByte(&current_crc, c);
-    
-#if DEBUG_GETBYTE
-  { 
-    static int pos=0; pos++;
-    L_WriteDebug("0.%02X%s", result, ((pos % 10)==0) ? "\n" : " ");
-  }
-#endif
+		if (c == EOF)
+		{
+			I_Error("LOADGAME: Corrupt Savegame (reached EOF).\n");
+			last_error = 1;
+			return 0;
+		}
 
-    return (unsigned char) c;
-  }
-
-  cur = &chunk_stack[chunk_stack_size - 1];
-
-  DEV_ASSERT2(cur->start);
-  DEV_ASSERT2(cur->pos >= cur->start);
-  DEV_ASSERT2(cur->pos <= cur->end);
-
-  if (cur->pos == cur->end)
-  {
-    //!!!
-    I_Error("LOADGAME: Corrupt Savegame (reached end of [%s] chunk).\n", cur->s_mark);
-    last_error = 2;
-    return 0;
-  }
-
-  result = cur->pos[0];
-  cur->pos++;
+		CRC32_ProcessByte(&current_crc, c);
 
 #if DEBUG_GETBYTE
-  { 
-    static int pos=0; pos++;
-    L_WriteDebug("%d.%02X%s", chunk_stack_size, result, 
-        ((pos % 10)==0) ? "\n" : " ");
-  }
+		{ 
+			static int pos=0; pos++;
+			L_WriteDebug("0.%02X%s", result, ((pos % 10)==0) ? "\n" : " ");
+		}
 #endif
 
-  return result;
+		return (unsigned char) c;
+	}
+
+	cur = &chunk_stack[chunk_stack_size - 1];
+
+	DEV_ASSERT2(cur->start);
+	DEV_ASSERT2(cur->pos >= cur->start);
+	DEV_ASSERT2(cur->pos <= cur->end);
+
+	if (cur->pos == cur->end)
+	{
+		//!!!
+		I_Error("LOADGAME: Corrupt Savegame (reached end of [%s] chunk).\n", cur->s_mark);
+		last_error = 2;
+		return 0;
+	}
+
+	result = cur->pos[0];
+	cur->pos++;
+
+#if DEBUG_GETBYTE
+	{ 
+		static int pos=0; pos++;
+		L_WriteDebug("%d.%02X%s", chunk_stack_size, result, 
+			((pos % 10)==0) ? "\n" : " ");
+	}
+#endif
+
+	return result;
 }
 
 //
@@ -412,124 +412,124 @@ unsigned char SV_GetByte(void)
 //
 boolean_t SV_PushReadChunk(const char *id)
 {
-  chunk_t *cur;
-  unsigned int file_len;
-  char marker[6];
+	chunk_t *cur;
+	unsigned int file_len;
+	char marker[6];
 
-  DEV_ASSERT(chunk_stack_size < MAX_CHUNK_DEPTH,
-      ("SV_PushReadChunk: Too many Pushes (missing Pop somewhere)."));
+	DEV_ASSERT(chunk_stack_size < MAX_CHUNK_DEPTH,
+		("SV_PushReadChunk: Too many Pushes (missing Pop somewhere)."));
 
-  // read chunk length
-  file_len = SV_GetInt();
+	// read chunk length
+	file_len = SV_GetInt();
 
-  // create new chunk_t
-  cur = &chunk_stack[chunk_stack_size];
+	// create new chunk_t
+	cur = &chunk_stack[chunk_stack_size];
 
-  strcpy(cur->s_mark, id);
-  strcpy(cur->e_mark, id);
-  strupr(cur->e_mark);
+	strcpy(cur->s_mark, id);
+	strcpy(cur->e_mark, id);
+	strupr(cur->e_mark);
 
-  // top level chunk ?
-  if (chunk_stack_size == 0)
-  {
-    unsigned int i;
+	// top level chunk ?
+	if (chunk_stack_size == 0)
+	{
+		unsigned int i;
 
 #if (COMPRESS_ENABLE)
-    unsigned int orig_len;
-    unsigned int decomp_len;
-    byte *file_data;
+		unsigned int orig_len;
+		unsigned int decomp_len;
+		byte *file_data;
 
-    // read uncompressed size
-    orig_len = SV_GetInt();
+		// read uncompressed size
+		orig_len = SV_GetInt();
 
-    DEV_ASSERT2(file_len <= MAX_COMP_SIZE(orig_len));
+		DEV_ASSERT2(file_len <= MAX_COMP_SIZE(orig_len));
 
-    file_data = Z_New(byte, file_len);
-    
-    for (i=0; (i < file_len) && !last_error; i++)
-      file_data[i] = SV_GetByte();
-    
-    DEV_ASSERT2(!last_error);
+		file_data = Z_New(byte, file_len);
 
-    cur->start = Z_New(byte, orig_len);
-    cur->end = cur->start + orig_len;
+		for (i=0; (i < file_len) && !last_error; i++)
+			file_data[i] = SV_GetByte();
 
-    // decompress data
-    decomp_len = orig_len;
+		DEV_ASSERT2(!last_error);
 
-    i = lzo1x_decompress_safe(file_data, file_len,
-        cur->start, &decomp_len, NULL);
+		cur->start = Z_New(byte, orig_len);
+		cur->end = cur->start + orig_len;
 
-    if (i != LZO_E_OK)
-    {
-      I_Error("LOADGAME: ReadChunk [%s] failed: Decompress error.\n", id);
-    }
+		// decompress data
+		decomp_len = orig_len;
 
-    DEV_ASSERT2(decomp_len == orig_len);
-    
-    for (i=0; i < decomp_len; i++)
-      cur->start[i] ^= (byte)(XOR_STRING[i % XOR_LEN]);
+		i = lzo1x_decompress_safe(file_data, file_len,
+			cur->start, &decomp_len, NULL);
+
+		if (i != LZO_E_OK)
+		{
+			I_Error("LOADGAME: ReadChunk [%s] failed: Decompress error.\n", id);
+		}
+
+		DEV_ASSERT2(decomp_len == orig_len);
+
+		for (i=0; i < decomp_len; i++)
+			cur->start[i] ^= (byte)(XOR_STRING[i % XOR_LEN]);
 #else
-    cur->start = Z_New(byte, file_len);
-    cur->end = cur->start + file_len;
+		cur->start = Z_New(byte, file_len);
+		cur->end = cur->start + file_len;
 
-    for (i=0; (i < file_len) && !last_error; i++)
-      cur->start[i] = SV_GetByte();
-    
-    DEV_ASSERT2(!last_error);
+		for (i=0; (i < file_len) && !last_error; i++)
+			cur->start[i] = SV_GetByte();
+
+		DEV_ASSERT2(!last_error);
 #endif
-  }
-  else
-  {
-    chunk_t *parent = &chunk_stack[chunk_stack_size - 1];
+	}
+	else
+	{
+		chunk_t *parent = &chunk_stack[chunk_stack_size - 1];
 
-    cur->start = parent->pos;
-    cur->end = cur->start + file_len;
+		cur->start = parent->pos;
+		cur->end = cur->start + file_len;
 
-    // skip data in parent
-    parent->pos += file_len;
+		// skip data in parent
+		parent->pos += file_len;
 
-    DEV_ASSERT2(parent->pos >= parent->start);
-    DEV_ASSERT2(parent->pos <= parent->end);
-  }
+		DEV_ASSERT2(parent->pos >= parent->start);
+		DEV_ASSERT2(parent->pos <= parent->end);
+	}
 
-  cur->pos = cur->start;
+	cur->pos = cur->start;
 
-  // check for matching markers
+	// check for matching markers
 
-  SV_GetMarker(marker);
+	SV_GetMarker(marker);
 
-  if (strcmp(cur->e_mark, marker) != 0)
-  {
-    I_Error("LOADGAME: ReadChunk [%s] failed: Bad markers.\n", id);
-  }
+	if (strcmp(cur->e_mark, marker) != 0)
+	{
+		I_Error("LOADGAME: ReadChunk [%s] failed: Bad markers.\n", id);
+	}
 
-  // let the SV_GetByte routine (etc) see the new chunk
-  chunk_stack_size++;
-  return true;
+	// let the SV_GetByte routine (etc) see the new chunk
+	chunk_stack_size++;
+	return true;
 }
 
 // SV_PopReadChunk
 //
 boolean_t SV_PopReadChunk(void)
 {
-  chunk_t *cur;
+	chunk_t *cur;
 
-  DEV_ASSERT(chunk_stack_size > 0, 
-      ("SV_PopReadChunk: Too many Pops (missing Push somewhere)."));
+	DEV_ASSERT(chunk_stack_size > 0, 
+		("SV_PopReadChunk: Too many Pops (missing Push somewhere)."));
 
-  cur = &chunk_stack[chunk_stack_size - 1];
-  
-  if (chunk_stack_size == 1)
-  {
-    // free the data
-    Z_Free(cur->start);
-  }
+	cur = &chunk_stack[chunk_stack_size - 1];
 
-  cur->start = cur->pos = cur->end = NULL;
-  chunk_stack_size--;
+	if (chunk_stack_size == 1)
+	{
+		// free the data
+		Z_Free(cur->start);
+	}
 
-  return true;
+	cur->start = cur->pos = cur->end = NULL;
+	chunk_stack_size--;
+
+	return true;
 }
 
 //
@@ -537,16 +537,16 @@ boolean_t SV_PopReadChunk(void)
 //
 int SV_RemainingChunkSize(void)
 {
-  chunk_t *cur;
-  
-  DEV_ASSERT2(chunk_stack_size > 0);
+	chunk_t *cur;
 
-  cur = &chunk_stack[chunk_stack_size - 1];
-  
-  DEV_ASSERT2(cur->pos >= cur->start);
-  DEV_ASSERT2(cur->pos <= cur->end);
+	DEV_ASSERT2(chunk_stack_size > 0);
 
-  return (cur->end - cur->pos);
+	cur = &chunk_stack[chunk_stack_size - 1];
+
+	DEV_ASSERT2(cur->pos >= cur->start);
+	DEV_ASSERT2(cur->pos <= cur->end);
+
+	return (cur->end - cur->pos);
 }
 
 //
@@ -554,10 +554,10 @@ int SV_RemainingChunkSize(void)
 //
 boolean_t SV_SkipReadChunk(const char *id)
 {
-  if (! SV_PushReadChunk(id))
-    return false;
-  
-  return SV_PopReadChunk();
+	if (! SV_PushReadChunk(id))
+		return false;
+
+	return SV_PopReadChunk();
 }
 
 
@@ -572,26 +572,26 @@ boolean_t SV_SkipReadChunk(const char *id)
 //
 boolean_t SV_OpenWriteFile(const char *filename, int version)
 {
-  chunk_stack_size = 0;
-  last_error = 0;
+	chunk_stack_size = 0;
+	last_error = 0;
 
-  CRC32_Init(&current_crc);
+	CRC32_Init(&current_crc);
 
-  current_fp = fopen(filename, "wb");
+	current_fp = fopen(filename, "wb");
 
-  if (! current_fp)
-  {
-    I_Warning("SAVEGAME: Couldn't open file: %s\n", filename);
-    return false;
-  }
+	if (! current_fp)
+	{
+		I_Warning("SAVEGAME: Couldn't open file: %s\n", filename);
+		return false;
+	}
 
-  // write header
+	// write header
 
-  PutMagic();
-  PutPadding();
-  SV_PutInt(version);
+	PutMagic();
+	PutPadding();
+	SV_PutInt(version);
 
-  return true;
+	return true;
 }
 
 //
@@ -599,29 +599,29 @@ boolean_t SV_OpenWriteFile(const char *filename, int version)
 //
 boolean_t SV_CloseWriteFile(void)
 {
-  unsigned int final_crc;
+	unsigned int final_crc;
 
-  DEV_ASSERT2(current_fp);
+	DEV_ASSERT2(current_fp);
 
-  DEV_ASSERT(chunk_stack_size == 0,
-      ("SV_CloseWriteFile: Too many Pushes (missing Pop somewhere).\n"));
+	DEV_ASSERT(chunk_stack_size == 0,
+		("SV_CloseWriteFile: Too many Pushes (missing Pop somewhere).\n"));
 
-  // write trailer
+	// write trailer
 
-  SV_PutMarker(DATA_END_MARKER);
-  PutMagic();
+	SV_PutMarker(DATA_END_MARKER);
+	PutMagic();
 
-  CRC32_Done(&current_crc);
-  final_crc = current_crc;
+	CRC32_Done(&current_crc);
+	final_crc = current_crc;
 
-  SV_PutInt(final_crc);
+	SV_PutInt(final_crc);
 
-  if (last_error)
-    I_Warning("SAVEGAME: Error(s) occurred during writing.\n");
-  
-  fclose(current_fp);
+	if (last_error)
+		I_Warning("SAVEGAME: Error(s) occurred during writing.\n");
 
-  return true;
+	fclose(current_fp);
+
+	return true;
 }
 
 //
@@ -629,25 +629,25 @@ boolean_t SV_CloseWriteFile(void)
 //
 boolean_t SV_PushWriteChunk(const char *id)
 {
-  chunk_t *cur;
+	chunk_t *cur;
 
-  DEV_ASSERT(chunk_stack_size < MAX_CHUNK_DEPTH,
-      ("SV_PushWriteChunk: Too many Pushes (missing Pop somewhere)."));
+	DEV_ASSERT(chunk_stack_size < MAX_CHUNK_DEPTH,
+		("SV_PushWriteChunk: Too many Pushes (missing Pop somewhere)."));
 
-  // create new chunk_t
-  cur = &chunk_stack[chunk_stack_size];
-  chunk_stack_size++;
+	// create new chunk_t
+	cur = &chunk_stack[chunk_stack_size];
+	chunk_stack_size++;
 
-  strcpy(cur->s_mark, id);
-  strcpy(cur->e_mark, id);
-  strupr(cur->e_mark);
+	strcpy(cur->s_mark, id);
+	strcpy(cur->e_mark, id);
+	strupr(cur->e_mark);
 
-  // create initial buffer
-  cur->start = Z_New(byte, 1024);
-  cur->pos   = cur->start;
-  cur->end   = cur->start + 1024;
+	// create initial buffer
+	cur->start = Z_New(byte, 1024);
+	cur->pos   = cur->start;
+	cur->end   = cur->start + 1024;
 
-  return true;
+	return true;
 }
 
 //
@@ -655,93 +655,93 @@ boolean_t SV_PushWriteChunk(const char *id)
 //
 boolean_t SV_PopWriteChunk(void)
 {
-  int i;
-  chunk_t *cur;
-  int len;
+	int i;
+	chunk_t *cur;
+	int len;
 
-  DEV_ASSERT(chunk_stack_size > 0, 
-      ("SV_PopWriteChunk: Too many Pops (missing Push somewhere)."));
+	DEV_ASSERT(chunk_stack_size > 0, 
+		("SV_PopWriteChunk: Too many Pops (missing Push somewhere)."));
 
-  cur = &chunk_stack[chunk_stack_size - 1];
-  
-  DEV_ASSERT2(cur->start);
-  DEV_ASSERT2(cur->pos >= cur->start);
-  DEV_ASSERT2(cur->pos <= cur->end);
+	cur = &chunk_stack[chunk_stack_size - 1];
 
-  len = cur->pos - cur->start;
+	DEV_ASSERT2(cur->start);
+	DEV_ASSERT2(cur->pos >= cur->start);
+	DEV_ASSERT2(cur->pos <= cur->end);
 
-  // pad chunk to multiple of 4 characters
-  for (; len & 3; len++)
-    SV_PutByte(0);
+	len = cur->pos - cur->start;
 
-  // decrement stack size, so future PutBytes go where they should
-  chunk_stack_size--;
+	// pad chunk to multiple of 4 characters
+	for (; len & 3; len++)
+		SV_PutByte(0);
 
-  // firstly, write out marker
-  SV_PutMarker(cur->s_mark);
+	// decrement stack size, so future PutBytes go where they should
+	chunk_stack_size--;
 
-  // write out data.  For top-level chunks, compress it.
+	// firstly, write out marker
+	SV_PutMarker(cur->s_mark);
 
-  if (chunk_stack_size == 0)
-  {
+	// write out data.  For top-level chunks, compress it.
+
+	if (chunk_stack_size == 0)
+	{
 #if (COMPRESS_ENABLE)
-    unsigned char *out_buf;
-    unsigned int out_len;
+		unsigned char *out_buf;
+		unsigned int out_len;
 
-    for (i=0; i < len; i++)
-      cur->start[i] ^= (byte)(XOR_STRING[i % XOR_LEN]);
+		for (i=0; i < len; i++)
+			cur->start[i] ^= (byte)(XOR_STRING[i % XOR_LEN]);
 
-    out_buf = Z_New(byte, MAX_COMP_SIZE(len));
+		out_buf = Z_New(byte, MAX_COMP_SIZE(len));
 
-    i = lzo1x_1_compress(cur->start, len, out_buf, &out_len,
-        compress_wrkmem);
-    
-    if (i != LZO_E_OK)
-    {
-      I_Error("SAVEGAME: WriteChunk [%s] failed: Decompress error.\n",
-          cur->e_mark);
-    }
+		i = lzo1x_1_compress(cur->start, len, out_buf, &out_len,
+			compress_wrkmem);
 
-    DEV_ASSERT2(out_len <= MAX_COMP_SIZE(len));
+		if (i != LZO_E_OK)
+		{
+			I_Error("SAVEGAME: WriteChunk [%s] failed: Decompress error.\n",
+				cur->e_mark);
+		}
 
-    // write compressed length
-    SV_PutInt(out_len);
-    
-    // write original length to parent
-    SV_PutInt(len);
+		DEV_ASSERT2(out_len <= MAX_COMP_SIZE(len));
 
-    for (i=0; (i < out_len) && !last_error; i++)
-      SV_PutByte(out_buf[i]);
-    
-    DEV_ASSERT2(!last_error);
+		// write compressed length
+		SV_PutInt(out_len);
 
-    Z_Free(out_buf);
+		// write original length to parent
+		SV_PutInt(len);
+
+		for (i=0; (i < out_len) && !last_error; i++)
+			SV_PutByte(out_buf[i]);
+
+		DEV_ASSERT2(!last_error);
+
+		Z_Free(out_buf);
 #else
-    // write chunk length to parent
-    SV_PutInt(len);
+		// write chunk length to parent
+		SV_PutInt(len);
 
-    for (i=0; i < len; i++)
-      SV_PutByte(cur->start[i]);
+		for (i=0; i < len; i++)
+			SV_PutByte(cur->start[i]);
 #endif
-  }
-  else
-  {
-    // write chunk length to parent
-    SV_PutInt(len);
+	}
+	else
+	{
+		// write chunk length to parent
+		SV_PutInt(len);
 
-    // FIXME: optimise this (transfer data directly into parent)
-    for (i=0; i < len; i++)
-      SV_PutByte(cur->start[i]);
-  }
+		// FIXME: optimise this (transfer data directly into parent)
+		for (i=0; i < len; i++)
+			SV_PutByte(cur->start[i]);
+	}
 
-  // write end marker
-  SV_PutMarker(cur->e_mark);
+	// write end marker
+	SV_PutMarker(cur->e_mark);
 
-  // all done, free stuff
-  Z_Free(cur->start);
+	// all done, free stuff
+	Z_Free(cur->start);
 
-  cur->start = cur->pos = cur->end = NULL;
-  return true;
+	cur->start = cur->pos = cur->end = NULL;
+	return true;
 }
 
 //
@@ -749,54 +749,54 @@ boolean_t SV_PopWriteChunk(void)
 //
 void SV_PutByte(unsigned char value) 
 {
-  chunk_t *cur;
+	chunk_t *cur;
 
 #if DEBUG_PUTBYTE
-  { 
-    static int pos=0; pos++;
-    L_WriteDebug("%d.%02x%s", chunk_stack_size, value, 
-        ((pos % 10)==0) ? "\n" : " ");
-  }
+	{ 
+		static int pos=0; pos++;
+		L_WriteDebug("%d.%02x%s", chunk_stack_size, value, 
+			((pos % 10)==0) ? "\n" : " ");
+	}
 #endif
 
-  if (last_error)
-    return;
+	if (last_error)
+		return;
 
-  // write directly to the file when chunk stack is empty
-  if (chunk_stack_size == 0)
-  {
-    fputc(value, current_fp);
+	// write directly to the file when chunk stack is empty
+	if (chunk_stack_size == 0)
+	{
+		fputc(value, current_fp);
 
-    if (ferror(current_fp))
-    {
-      I_Warning("SAVEGAME: Write error occurred !\n");
-      last_error = 3;
-      return;
-    }
-    
-    CRC32_ProcessByte(&current_crc, value);
-    return;
-  }
+		if (ferror(current_fp))
+		{
+			I_Warning("SAVEGAME: Write error occurred !\n");
+			last_error = 3;
+			return;
+		}
 
-  cur = &chunk_stack[chunk_stack_size - 1];
+		CRC32_ProcessByte(&current_crc, value);
+		return;
+	}
 
-  DEV_ASSERT2(cur->start);
-  DEV_ASSERT2(cur->pos >= cur->start);
-  DEV_ASSERT2(cur->pos <= cur->end);
+	cur = &chunk_stack[chunk_stack_size - 1];
 
-  // space left in chunk ?  If not, resize it.
-  if (cur->pos == cur->end)
-  {
-    int new_len = (cur->end - cur->start) + 1024;
-    int pos_idx = (cur->pos - cur->start);
+	DEV_ASSERT2(cur->start);
+	DEV_ASSERT2(cur->pos >= cur->start);
+	DEV_ASSERT2(cur->pos <= cur->end);
 
-    Z_Resize(cur->start, byte, new_len);
+	// space left in chunk ?  If not, resize it.
+	if (cur->pos == cur->end)
+	{
+		int new_len = (cur->end - cur->start) + 1024;
+		int pos_idx = (cur->pos - cur->start);
 
-    cur->end = cur->start + new_len;
-    cur->pos = cur->start + pos_idx;
-  }
+		Z_Resize(cur->start, byte, new_len);
 
-  *(cur->pos++) = value;
+		cur->end = cur->start + new_len;
+		cur->pos = cur->start + pos_idx;
+	}
+
+	*(cur->pos++) = value;
 }
 
 
@@ -808,24 +808,24 @@ void SV_PutByte(unsigned char value)
 
 void SV_PutShort(unsigned short value) 
 {
-  SV_PutByte(value & 0xff);
-  SV_PutByte(value >> 8);
+	SV_PutByte(value & 0xff);
+	SV_PutByte(value >> 8);
 }
 
 void SV_PutInt(unsigned int value) 
 {
-  SV_PutShort(value & 0xffff);
-  SV_PutShort(value >> 16);
+	SV_PutShort(value & 0xffff);
+	SV_PutShort(value >> 16);
 }
 
 unsigned short SV_GetShort(void) 
 { 
-  return SV_GetByte() | (SV_GetByte() << 8);
+	return SV_GetByte() | (SV_GetByte() << 8);
 }
 
 unsigned int SV_GetInt(void) 
 { 
-  return SV_GetShort() | (SV_GetShort() << 16);
+	return SV_GetShort() | (SV_GetShort() << 16);
 }
 
 
@@ -838,22 +838,22 @@ unsigned int SV_GetInt(void)
 
 void SV_PutFixed(fixed_t value) 
 { 
-  SV_PutInt((unsigned int) value);
+	SV_PutInt((unsigned int) value);
 }
 
 void SV_PutAngle(angle_t value) 
 { 
-  SV_PutInt((unsigned int) value);
+	SV_PutInt((unsigned int) value);
 }
 
 fixed_t SV_GetFixed(void) 
 {
-  return (fixed_t) SV_GetInt();
+	return (fixed_t) SV_GetInt();
 }
 
 angle_t SV_GetAngle(void) 
 {
-  return (angle_t) SV_GetInt();
+	return (angle_t) SV_GetInt();
 }
 
 
@@ -865,28 +865,28 @@ angle_t SV_GetAngle(void)
 
 void SV_PutFloat(float value) 
 { 
-  int exp;
-  int mant;
-  boolean_t neg;
+	int exp;
+	int mant;
+	boolean_t neg;
 
-  neg = (value < 0.0);
-  value = fabs(value);
+	neg = (value < 0.0);
+	value = fabs(value);
 
-  mant = (int) ldexp(frexp(value, &exp), 30);
+	mant = (int) ldexp(frexp(value, &exp), 30);
 
-  SV_PutShort(256 + exp);
-  SV_PutInt((unsigned int) (neg ? -mant : mant));
+	SV_PutShort(256 + exp);
+	SV_PutInt((unsigned int) (neg ? -mant : mant));
 }
 
 flo_t SV_GetFloat(void) 
 { 
-  int exp;
-  int mant;
+	int exp;
+	int mant;
 
-  exp = SV_GetShort() - 256;
-  mant = (int) SV_GetInt();
+	exp = SV_GetShort() - 256;
+	mant = (int) SV_GetInt();
 
-  return ldexp((float) mant, -30 + exp);
+	return ldexp((float) mant, -30 + exp);
 }
 
 
@@ -898,64 +898,64 @@ flo_t SV_GetFloat(void)
 
 void SV_PutString(const char *str) 
 { 
-  if (str == NULL)
-  {
-    SV_PutByte(NULLSTR_MARKER);
-    return;
-  }
-  
-  SV_PutByte(STRING_MARKER);
-  SV_PutShort(strlen(str));
+	if (str == NULL)
+	{
+		SV_PutByte(NULLSTR_MARKER);
+		return;
+	}
 
-  for (; *str; str++)
-    SV_PutByte(*str);
+	SV_PutByte(STRING_MARKER);
+	SV_PutShort(strlen(str));
+
+	for (; *str; str++)
+		SV_PutByte(*str);
 }
 
 void SV_PutMarker(const char *id)
 {
-  int i;
+	int i;
 
-  DEV_ASSERT2(id);
-  DEV_ASSERT2(strlen(id) == 4);
+	DEV_ASSERT2(id);
+	DEV_ASSERT2(strlen(id) == 4);
 
-  for (i=0; i < 4; i++)
-    SV_PutByte((unsigned char) id[i]);
+	for (i=0; i < 4; i++)
+		SV_PutByte((unsigned char) id[i]);
 }
 
 const char *SV_GetString(void) 
 {
-  int len, i;
-  char *result;
-  
-  int type = SV_GetByte();
+	int len, i;
+	char *result;
 
-  if (type == NULLSTR_MARKER)
-    return NULL;
-  
-  if (type != STRING_MARKER)
-    I_Error("Corrupt savegame (invalid string).\n");
+	int type = SV_GetByte();
 
-  len = SV_GetShort();
+	if (type == NULLSTR_MARKER)
+		return NULL;
 
-  result = Z_New(char, len + 1);
-  result[len] = 0;
+	if (type != STRING_MARKER)
+		I_Error("Corrupt savegame (invalid string).\n");
 
-  for (i = 0; i < len; i++)
-    result[i] = (char) SV_GetByte();
+	len = SV_GetShort();
 
-  // Intentional Const Override
-  return (const char *) result;
+	result = Z_New(char, len + 1);
+	result[len] = 0;
+
+	for (i = 0; i < len; i++)
+		result[i] = (char) SV_GetByte();
+
+	// Intentional Const Override
+	return (const char *) result;
 }
 
 boolean_t SV_GetMarker(char id[5])
 { 
-  int i;
+	int i;
 
-  for (i=0; i < 4; i++)
-    id[i] = (char) SV_GetByte();
+	for (i=0; i < 4; i++)
+		id[i] = (char) SV_GetByte();
 
-  id[4] = 0;
+	id[4] = 0;
 
-  return VerifyMarker(id);
+	return VerifyMarker(id);
 }
 

@@ -32,11 +32,11 @@
 
 typedef enum
 {
-  Z_UrgencyNone    = 0,
-  Z_UrgencyLow     = 1,
-  Z_UrgencyMedium  = 2,
-  Z_UrgencyHigh    = 3,
-  Z_UrgencyExtreme = 4
+	Z_UrgencyNone    = 0,
+	Z_UrgencyLow     = 1,
+	Z_UrgencyMedium  = 2,
+	Z_UrgencyHigh    = 3,
+	Z_UrgencyExtreme = 4
 }
 z_urgency_e;
 
@@ -47,33 +47,33 @@ typedef struct stack_array_s stack_array_t;
 
 struct stack_array_s
 {
-  // points to the actual array pointer.
-  // the stack_array is defined to be uninitialised if this one is NULL.
-  void ***ptr;
+	// points to the actual array pointer.
+	// the stack_array is defined to be uninitialised if this one is NULL.
+	void ***ptr;
 
-  // the size of each element in ptr.
-  int elem_size;
+	// the size of each element in ptr.
+	int elem_size;
 
-  // The number of currently used objects.
-  // Elements above this limit will be freed automatically if memory gets
-  // tight. Otherwise it will stay there, saving some future Z_ReMalloc calls.
-  int num;
+	// The number of currently used objects.
+	// Elements above this limit will be freed automatically if memory gets
+	// tight. Otherwise it will stay there, saving some future Z_ReMalloc calls.
+	int num;
 
-  // The number of allocated objects.
-  int max;
+	// The number of allocated objects.
+	int max;
 
-  // alloc_bunch elements will be allocated at a time, saving some memory block
-  // overheads.
-  // If this is negative, the array will work in a different way:
-  // *ptr will be an array of elements rather than an array of pointers.
-  // This means that no pointer except *ptr may point to an element
-  // of the array, since it can be reallocated any time.
-  int alloc_bunch;
+	// alloc_bunch elements will be allocated at a time, saving some memory block
+	// overheads.
+	// If this is negative, the array will work in a different way:
+	// *ptr will be an array of elements rather than an array of pointers.
+	// This means that no pointer except *ptr may point to an element
+	// of the array, since it can be reallocated any time.
+	int alloc_bunch;
 
-  // Shows the number of users who have locked this grow_array.
-  int locked;
+	// Shows the number of users who have locked this grow_array.
+	int locked;
 
-  stack_array_t *next;
+	stack_array_t *next;
 };
 
 // Stack array functions.
@@ -130,7 +130,7 @@ void Z_DumpLeakInfo(int level);
 // value, and there is no return value.
 //
 #define Z_Resize(ptr,type,n)  \
-    (void)((ptr) = (type *) Z_ReMalloc((void *)(ptr), (n) * sizeof(type)))
+	(void)((ptr) = (type *) Z_ReMalloc((void *)(ptr), (n) * sizeof(type)))
 
 //
 // Z_ClearNew
@@ -145,7 +145,7 @@ void Z_DumpLeakInfo(int level);
 // Clears memory to zero.
 //
 #define Z_Clear(ptr, type, num)  \
-    memset((void *)(ptr), ((ptr) - ((type *)(ptr))), (num) * sizeof(type))
+	memset((void *)(ptr), ((ptr) - ((type *)(ptr))), (num) * sizeof(type))
 
 //
 // Z_MoveData
@@ -153,7 +153,7 @@ void Z_DumpLeakInfo(int level);
 // moves data from src to dest.
 //
 #define Z_MoveData(dest, src, type, num)  \
-    I_MoveData((void *)(dest), (void *)(src), (num) * sizeof(type) + ((src) - (type *)(src)) + ((dest) - (type *)(dest)))
+	I_MoveData((void *)(dest), (void *)(src), (num) * sizeof(type) + ((src) - (type *)(src)) + ((dest) - (type *)(dest)))
 
 //
 // StrNCpy
@@ -163,17 +163,22 @@ void Z_DumpLeakInfo(int level);
 // The terminating zero is always applied (there is no reason not to)
 //
 #define Z_StrNCpy(dest, src, max) \
-     (void)(strncpy((dest), (src), (max)), (dest)[(max)] = 0)
+	(void)(strncpy((dest), (src), (max)), (dest)[(max)] = 0)
 
 // -AJA- 2001/07/24: New lightweight "Bunches"
 
 #define Z_Bunch(type)  \
-    struct { type *arr; int max; int num; }
-    
-#define Z_BunchNewSize(var, type)  do {  \
-      if ((var).num > (var).max)  \
-      { (var).max = (var).num + 16;  \
-        Z_Resize((var).arr, type, (var).max);  \
-      } } while(0)
- 
+	struct { type *arr; int max; int num; }
+
+#define Z_BunchNewSize(var, type)  \
+do \
+{  \
+	if ((var).num > (var).max)  \
+	{								\
+		(var).max = (var).num + 16;				\
+		Z_Resize((var).arr, type, (var).max);	\
+	} \
+} \
+while(0) \
+
 #endif

@@ -88,7 +88,7 @@
 
 #define AM_NUMMARKPOINTS 10
 
-#define PLAYERRADIUS 16.0
+#define PLAYERRADIUS 16.0f
 
 //
 // NOTE:
@@ -97,13 +97,13 @@
 //
 
 // scale on entry
-#define INITSCALEMTOF (0.2)
+#define INITSCALEMTOF (0.2f)
 // how much the automap moves window per tic in frame-buffer coordinates
 // moves 140 pixels in 1 second
 #define F_PANINC 4
 // how much zoom-in per tic
 // goes to 2x in 1 second
-#define M_ZOOMIN (1.02)
+#define M_ZOOMIN (1.02f)
 // how much zoom-out per tic
 // pulls out to 0.5x in 1 second
 #define M_ZOOMOUT (1/M_ZOOMIN)
@@ -127,44 +127,44 @@
 
 static mline_t player_arrow[] =
 {
-  {{-0.875, 0}, {1.0, 0}},   // -----
-    
-  {{1.0, 0}, {0.5,  0.25}},  // ----->
-  {{1.0, 0}, {0.5, -0.25}},
-     
-  {{-0.875, 0}, {-1.125,  0.25}},  // >---->
-  {{-0.875, 0}, {-1.125, -0.25}},
-     
-  {{-0.625, 0}, {-0.875,  0.25}},  // >>--->
-  {{-0.625, 0}, {-0.875, -0.25}}
+	{{-0.875f, 0.0f}, {1.0f, 0.0f}},   // -----
+
+	{{1.0f, 0.0f}, {0.5f,  0.25f}},  // ----->
+	{{1.0f, 0.0f}, {0.5f, -0.25f}},
+
+	{{-0.875f, 0.0f}, {-1.125f,  0.25f}},  // >---->
+	{{-0.875f, 0.0f}, {-1.125f, -0.25f}},
+
+	{{-0.625f, 0.0f}, {-0.875f,  0.25f}},  // >>--->
+	{{-0.625f, 0.0f}, {-0.875f, -0.25f}}
 };
 
 #define NUMPLYRLINES (sizeof(player_arrow)/sizeof(mline_t))
 
 static mline_t cheat_player_arrow[] =
 {
-  {{-0.875, 0}, {1.0, 0}},    // -----
-  
-  {{1.0, 0}, {0.5,  0.167}},  // ----->
-  {{1.0, 0}, {0.5, -0.167}},
-  
-  {{-0.875, 0}, {-1.125,  0.167}},  // >----->
-  {{-0.875, 0}, {-1.125, -0.167}},
-  
-  {{-0.625, 0}, {-0.875,  0.167}},  // >>----->
-  {{-0.625, 0}, {-0.875, -0.167}},
-  
-  {{-0.5, 0}, {-0.5, -0.167}},      // >>-d--->
-  {{-0.5, -0.167}, {-0.5 + 0.167, -0.167}},
-  {{-0.5 + 0.167, -0.167}, {-0.5 + 0.167, 0.25}},
-  
-  {{-0.167, 0}, {-0.167, -0.167}},  // >>-dd-->
-  {{-0.167, -0.167}, {0, -0.167}},
-  {{0, -0.167}, {0, 0.25}},
+	{{-0.875f, 0.0f}, {1.0f, 0.0f}},    // -----
 
-  {{0.167, 0.25}, {0.167, -0.143}},  // >>-ddt->
-  {{0.167, -0.143}, {0.167 + 0.031, -0.143 - 0.031}},
-  {{0.167 + 0.031, -0.143 - 0.031}, {0.167 + 0.1, -0.143}}
+	{{1.0f, 0.0f}, {0.5f,  0.167f}},  // ----->
+	{{1.0f, 0.0f}, {0.5f, -0.167f}},
+
+	{{-0.875f, 0.0f}, {-1.125f,  0.167f}},  // >----->
+	{{-0.875f, 0.0f}, {-1.125f, -0.167f}},
+
+	{{-0.625f, 0.0f}, {-0.875f,  0.167f}},  // >>----->
+	{{-0.625f, 0.0f}, {-0.875f, -0.167f}},
+
+	{{-0.5f, 0.0f}, {-0.5f, -0.167f}},      // >>-d--->
+	{{-0.5f, -0.167f}, {-0.5f + 0.167f, -0.167f}},
+	{{-0.5f + 0.167f, -0.167f}, {-0.5f + 0.167f, 0.25f}},
+
+	{{-0.167f, 0.0f}, {-0.167f, -0.167f}},  // >>-dd-->
+	{{-0.167f, -0.167f}, {0.0f, -0.167f}},
+	{{0.0f, -0.167f}, {0.0f, 0.25f}},
+
+	{{0.167f, 0.25f}, {0.167f, -0.143f}},  // >>-ddt->
+	{{0.167f, -0.143f}, {0.167f + 0.031f, -0.143f - 0.031f}},
+	{{0.167f + 0.031f, -0.143f - 0.031f}, {0.167f + 0.1f, -0.143f}}
 };
 
 #define NUMCHEATPLYRLINES (sizeof(cheat_player_arrow)/sizeof(mline_t))
@@ -176,9 +176,9 @@ static mline_t cheat_player_arrow[] =
 
 static mline_t triangle_guy[] =
 {
-  {{-S, -C}, {S, -C}},
-  {{S, -C}, {0, 1.0}},
-  {{0, 1.0}, {-S, -C}}
+	{{-S, -C}, {S, -C}},
+	{{S, -C}, {0, 1.0}},
+	{{0, 1.0}, {-S, -C}}
 };
 
 #undef C
@@ -188,9 +188,9 @@ static mline_t triangle_guy[] =
 
 static mline_t thintriangle_guy[] =
 {
-  {{-0.5, -0.7}, {1.0, 0}},
-  {{1.0, 0}, {-0.5, 0.7}},
-  {{-0.5, 0.7}, {-0.5, -0.7}}
+	{{-0.5f, -0.7f}, {1.0f, 0.0f}},
+	{{1.0f, 0.0f}, {-0.5f, 0.7f}},
+	{{-0.5f, 0.7f}, {-0.5f, -0.7f}}
 };
 
 #define NUMTHINTRIANGLEGUYLINES (sizeof(thintriangle_guy)/sizeof(mline_t))
@@ -274,45 +274,45 @@ static const byte *am_colmap = NULL;
 
 static void ActivateNewScale(void)
 {
-  m_x += m_w / 2;
-  m_y += m_h / 2;
-  m_w = FTOM(f_w);
-  m_h = FTOM(f_h);
-  m_x -= m_w / 2;
-  m_y -= m_h / 2;
-  m_x2 = m_x + m_w;
-  m_y2 = m_y + m_h;
+	m_x += m_w / 2;
+	m_y += m_h / 2;
+	m_w = FTOM(f_w);
+	m_h = FTOM(f_h);
+	m_x -= m_w / 2;
+	m_y -= m_h / 2;
+	m_x2 = m_x + m_w;
+	m_y2 = m_y + m_h;
 }
 
 static void SaveScaleAndLoc(void)
 {
-  old_m_x = m_x;
-  old_m_y = m_y;
-  old_m_w = m_w;
-  old_m_h = m_h;
+	old_m_x = m_x;
+	old_m_y = m_y;
+	old_m_w = m_w;
+	old_m_h = m_h;
 }
 
 static void RestoreScaleAndLoc(void)
 {
-  m_w = old_m_w;
-  m_h = old_m_h;
+	m_w = old_m_w;
+	m_h = old_m_h;
 
-  if (!followplayer)
-  {
-    m_x = old_m_x;
-    m_y = old_m_y;
-  }
-  else
-  {
-    m_x = consoleplayer->mo->x - m_w / 2;
-    m_y = consoleplayer->mo->y - m_h / 2;
-  }
-  m_x2 = m_x + m_w;
-  m_y2 = m_y + m_h;
+	if (!followplayer)
+	{
+		m_x = old_m_x;
+		m_y = old_m_y;
+	}
+	else
+	{
+		m_x = consoleplayer->mo->x - m_w / 2;
+		m_y = consoleplayer->mo->y - m_h / 2;
+	}
+	m_x2 = m_x + m_w;
+	m_y2 = m_y + m_h;
 
-  // Change the scaling multipliers
-  scale_mtof = (flo_t)f_w / m_w;
-  scale_ftom = 1 / scale_mtof;
+	// Change the scaling multipliers
+	scale_mtof = (flo_t)f_w / m_w;
+	scale_ftom = 1 / scale_mtof;
 }
 
 //
@@ -320,9 +320,9 @@ static void RestoreScaleAndLoc(void)
 //
 static void AddMark(void)
 {
-  markpoints[markpointnum].x = m_x + m_w / 2;
-  markpoints[markpointnum].y = m_y + m_h / 2;
-  markpointnum = (markpointnum + 1) % AM_NUMMARKPOINTS;
+	markpoints[markpointnum].x = m_x + m_w / 2;
+	markpoints[markpointnum].y = m_y + m_h / 2;
+	markpointnum = (markpointnum + 1) % AM_NUMMARKPOINTS;
 }
 
 //
@@ -331,63 +331,63 @@ static void AddMark(void)
 //
 static void FindMinMaxBoundaries(void)
 {
-  int i;
-  flo_t a;
-  flo_t b;
+	int i;
+	flo_t a;
+	flo_t b;
 
-  min_x = min_y = INT_MAX;
-  max_x = max_y = INT_MIN;
+	min_x = min_y = FLT_MAX; // -ACB- 2003/09/21 Max value was INT_MAX; changed it to fall in line with its type
+	max_x = max_y = FLT_MIN; // -ACB- 2003/09/21 Max value was INT_MIN; changed it to fall in line with its type
 
-  for (i = 0; i < numvertexes; i++)
-  {
-    if (vertexes[i].x < min_x)
-      min_x = vertexes[i].x;
-    else if (vertexes[i].x > max_x)
-      max_x = vertexes[i].x;
+	for (i = 0; i < numvertexes; i++)
+	{
+		if (vertexes[i].x < min_x)
+			min_x = vertexes[i].x;
+		else if (vertexes[i].x > max_x)
+			max_x = vertexes[i].x;
 
-    if (vertexes[i].y < min_y)
-      min_y = vertexes[i].y;
-    else if (vertexes[i].y > max_y)
-      max_y = vertexes[i].y;
-  }
+		if (vertexes[i].y < min_y)
+			min_y = vertexes[i].y;
+		else if (vertexes[i].y > max_y)
+			max_y = vertexes[i].y;
+	}
 
-  max_w = max_x - min_x;
-  max_h = max_y - min_y;
+	max_w = max_x - min_x;
+	max_h = max_y - min_y;
 
-  min_w = 2 * PLAYERRADIUS;  // const? never changed?
+	min_w = 2.0f * PLAYERRADIUS;  // const? never changed?
 
-  min_h = 2 * PLAYERRADIUS;
+	min_h = 2.0f * PLAYERRADIUS;
 
-  a = (flo_t)f_w / max_w;
-  b = (flo_t)f_h / max_h;
+	a = (flo_t)f_w / max_w;
+	b = (flo_t)f_h / max_h;
 
-  min_scale_mtof = a < b ? a : b;
-  max_scale_mtof = (flo_t)f_h / (2 * PLAYERRADIUS);
+	min_scale_mtof = a < b ? a : b;
+	max_scale_mtof = (flo_t)f_h / (2.0f * PLAYERRADIUS);
 }
 
 static void ChangeWindowLoc(void)
 {
-  if (m_paninc.x != 0 || m_paninc.y != 0)
-  {
-    followplayer = 0;
-    f_oldloc.x = INT_MAX;
-  }
+	if (m_paninc.x != 0 || m_paninc.y != 0)
+	{
+		followplayer = 0;
+		f_oldloc.x = FLT_MAX; // -ACB- 2003/09/21 Max value was INT_MAX; changed it to fall in line with its type
+	}
 
-  m_x += m_paninc.x;
-  m_y += m_paninc.y;
+	m_x += m_paninc.x;
+	m_y += m_paninc.y;
 
-  if (m_x + m_w / 2 > max_x)
-    m_x = max_x - m_w / 2;
-  else if (m_x + m_w / 2 < min_x)
-    m_x = min_x - m_w / 2;
+	if (m_x + m_w / 2 > max_x)
+		m_x = max_x - m_w / 2;
+	else if (m_x + m_w / 2 < min_x)
+		m_x = min_x - m_w / 2;
 
-  if (m_y + m_h / 2 > max_y)
-    m_y = max_y - m_h / 2;
-  else if (m_y + m_h / 2 < min_y)
-    m_y = min_y - m_h / 2;
+	if (m_y + m_h / 2 > max_y)
+		m_y = max_y - m_h / 2;
+	else if (m_y + m_h / 2 < min_y)
+		m_y = min_y - m_h / 2;
 
-  m_x2 = m_x + m_w;
-  m_y2 = m_y + m_h;
+	m_x2 = m_x + m_w;
+	m_y2 = m_y + m_h;
 }
 
 //
@@ -395,35 +395,35 @@ static void ChangeWindowLoc(void)
 //
 static void InitVariables(void)
 {
-  DEV_ASSERT2(consoleplayer);
+	DEV_ASSERT2(consoleplayer);
 
-  if (newhud == true)
-    automapactive = 1;
-  else
-    automapactive = 2;
+	if (newhud == true)
+		automapactive = 1;
+	else
+		automapactive = 2;
 
-  f_oldloc.x = INT_MAX;
+	f_oldloc.x = FLT_MAX; // -ACB- 2003/09/21 Max value was FLOAT_MAX; changed it to fall in line with its type
 
-  m_paninc.x = m_paninc.y = 0;
-  ftom_zoommul = 1.0;
-  mtof_zoommul = 1.0;
+	m_paninc.x = m_paninc.y = 0;
+	ftom_zoommul = 1.0;
+	mtof_zoommul = 1.0;
 
-  m_w = FTOM(f_w);
-  m_h = FTOM(f_h);
+	m_w = FTOM(f_w);
+	m_h = FTOM(f_h);
 
-  m_x = consoleplayer->mo->x - m_w / 2;
-  m_y = consoleplayer->mo->y - m_h / 2;
+	m_x = consoleplayer->mo->x - m_w / 2;
+	m_y = consoleplayer->mo->y - m_h / 2;
 
-  ChangeWindowLoc();
+	ChangeWindowLoc();
 
-  // for saving & restoring
-  old_m_x = m_x;
-  old_m_y = m_y;
-  old_m_w = m_w;
-  old_m_h = m_h;
+	// for saving & restoring
+	old_m_x = m_x;
+	old_m_y = m_y;
+	old_m_w = m_w;
+	old_m_h = m_h;
 
-  // inform the status bar of the change
-  stbar_update = true;
+	// inform the status bar of the change
+	stbar_update = true;
 }
 
 //
@@ -431,24 +431,24 @@ static void InitVariables(void)
 //
 static void LoadPics(void)
 {
-  int i;
-  char namebuf[9];
+	int i;
+	char namebuf[9];
 
-  for (i = 0; i < 10; i++)
-  {
-    sprintf(namebuf, "AMMNUM%d", i);
-    marknums[i] = W_ImageFromPatch(namebuf);
-  }
+	for (i = 0; i < 10; i++)
+	{
+		sprintf(namebuf, "AMMNUM%d", i);
+		marknums[i] = W_ImageFromPatch(namebuf);
+	}
 }
 
 static void ClearMarks(void)
 {
-  int i;
+	int i;
 
-  for (i = 0; i < AM_NUMMARKPOINTS; i++)
-    markpoints[i].x = -1;  // means empty
+	for (i = 0; i < AM_NUMMARKPOINTS; i++)
+		markpoints[i].x = -1;  // means empty
 
-  markpointnum = 0;
+	markpointnum = 0;
 }
 
 //
@@ -457,25 +457,25 @@ static void ClearMarks(void)
 //
 static void LevelInit(void)
 {
-  if (!cheat_amap.sequence)
-    cheat_amap.sequence = DDF_LanguageLookup("iddt");
+	if (!cheat_amap.sequence)
+		cheat_amap.sequence = DDF_LanguageLookup("iddt");
 
-  leveljuststarted = 0;
+	leveljuststarted = 0;
 
-  f_x = f_y = 0;
-  f_w = finit_width;
-  f_h = finit_height;
+	f_x = f_y = 0;
+	f_w = finit_width;
+	f_h = finit_height;
 
-  ClearMarks();
+	ClearMarks();
 
-  FindMinMaxBoundaries();
+	FindMinMaxBoundaries();
 
-  scale_mtof = min_scale_mtof * (10.0/7);
+	scale_mtof = min_scale_mtof * (10.0f/7.0f);
 
-  if (scale_mtof > max_scale_mtof)
-    scale_mtof = min_scale_mtof;
+	if (scale_mtof > max_scale_mtof)
+		scale_mtof = min_scale_mtof;
 
-  scale_ftom = 1 / scale_mtof;
+	scale_ftom = 1 / scale_mtof;
 }
 
 //
@@ -483,8 +483,8 @@ static void LevelInit(void)
 //
 void AM_Stop(void)
 {
-  automapactive = 0;
-  stopped = true;
+	automapactive = 0;
+	stopped = true;
 }
 
 //
@@ -492,30 +492,30 @@ void AM_Stop(void)
 //
 static void StartAM(void)
 {
-  // static int lastlevel = -1, lastepisode = -1;
+	// static int lastlevel = -1, lastepisode = -1;
 
-  if (!stopped)
-    AM_Stop();
+	if (!stopped)
+		AM_Stop();
 
-  LevelInit();
+	LevelInit();
 
-  InitVariables();
-  LoadPics();
+	InitVariables();
+	LoadPics();
 
-  stopped = false;
+	stopped = false;
 }
 
 void AM_InitResolution(void)
 {
-  finit_width  = SCREENWIDTH;
-  finit_height = SCREENHEIGHT - FROM_200(ST_HEIGHT);
+	finit_width  = SCREENWIDTH;
+	finit_height = SCREENHEIGHT - FROM_200(ST_HEIGHT);
 
-  LevelInit();  // -ES- 1998/08/20
+	LevelInit();  // -ES- 1998/08/20
 
-  CON_CreateCVarBool("newhud", cf_normal, &newhud);
+	CON_CreateCVarBool("newhud", cf_normal, &newhud);
 
-  if (M_CheckParm("-newmap"))
-    newhud = true;
+	if (M_CheckParm("-newmap"))
+		newhud = true;
 }
 
 //
@@ -523,21 +523,21 @@ void AM_InitResolution(void)
 //
 static void AM_Hide(void)
 {
-  automapactive = 0;
-  viewactive = true;
+	automapactive = 0;
+	viewactive = true;
 }
 
 static void AM_Show(void)
 {
-  if (stopped)
-    StartAM();
+	if (stopped)
+		StartAM();
 
-  if (newhud == true)
-    automapactive = 1;
-  else
-    automapactive = 2;
+	if (newhud == true)
+		automapactive = 1;
+	else
+		automapactive = 2;
 
-  viewactive = false;
+	viewactive = false;
 }
 
 //
@@ -545,9 +545,9 @@ static void AM_Show(void)
 //
 static void MinOutWindowScale(void)
 {
-  scale_mtof = min_scale_mtof;
-  scale_ftom = 1 / scale_mtof;
-  ActivateNewScale();
+	scale_mtof = min_scale_mtof;
+	scale_ftom = 1 / scale_mtof;
+	ActivateNewScale();
 }
 
 //
@@ -555,9 +555,9 @@ static void MinOutWindowScale(void)
 //
 static void MaxOutWindowScale(void)
 {
-  scale_mtof = max_scale_mtof;
-  scale_ftom = 1 / scale_mtof;
-  ActivateNewScale();
+	scale_mtof = max_scale_mtof;
+	scale_ftom = 1 / scale_mtof;
+	ActivateNewScale();
 }
 
 //
@@ -565,176 +565,176 @@ static void MaxOutWindowScale(void)
 //
 boolean_t AM_Responder(event_t * ev)
 {
-  int rc;
-  static int bigstate = 0;
+	bool rc;
+	static int bigstate = 0;
 
-  rc = false;
+	rc = false;
 
-  if (!automapactive)
-  {
-    if (ev->type == ev_keydown && ((ev->value.key == (AM_STARTKEY >> 16)) || (ev->value.key == (AM_STARTKEY & 0xffff))))
-    {
-      AM_Show();
-      rc = true;
-    }
-  }
-  else if (ev->type == ev_keydown)
-  {
+	if (!automapactive)
+	{
+		if (ev->type == ev_keydown && ((ev->value.key == (AM_STARTKEY >> 16)) || (ev->value.key == (AM_STARTKEY & 0xffff))))
+		{
+			AM_Show();
+			rc = true;
+		}
+	}
+	else if (ev->type == ev_keydown)
+	{
 
-    rc = true;
-    switch (ev->value.key)
-    {
-      case AM_PANRIGHTKEY:
-        // pan right
-        if (!followplayer)
-          m_paninc.x = FTOM(F_PANINC);
-        else
-          rc = false;
-        break;
-        
-      case AM_PANLEFTKEY:
-        // pan left
-        if (!followplayer)
-          m_paninc.x = -FTOM(F_PANINC);
-        else
-          rc = false;
-        break;
-        
-      case AM_PANUPKEY:
-        // pan up
-        if (!followplayer)
-          m_paninc.y = FTOM(F_PANINC);
-        else
-          rc = false;
-        break;
-        
-      case AM_PANDOWNKEY:
-        // pan down
-        if (!followplayer)
-          m_paninc.y = -FTOM(F_PANINC);
-        else
-          rc = false;
-        break;
-        
-      case AM_ZOOMOUTKEY:
-        // zoom out
-        mtof_zoommul = M_ZOOMOUT;
-        ftom_zoommul = M_ZOOMIN;
-        break;
-        
-      case AM_ZOOMINKEY:
-        // zoom in
-        mtof_zoommul = M_ZOOMIN;
-        ftom_zoommul = M_ZOOMOUT;
-        break;
-        
-      case AM_GOBIGKEY:
-        bigstate = !bigstate;
-        if (bigstate)
-        {
-          SaveScaleAndLoc();
-          MinOutWindowScale();
-        }
-        else
-          RestoreScaleAndLoc();
-        break;
-        
-      case AM_FOLLOWKEY:
-        followplayer = !followplayer;
-        f_oldloc.x = INT_MAX;
-        // -ACB- 1998/08/10 Use DDF Lang Reference
-        if (followplayer)
-          CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOn");
-        else
-          CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOff");
-        break;
-        
-      case AM_GRIDKEY:
-        grid = !grid;
-        // -ACB- 1998/08/10 Use DDF Lang Reference
-        if (grid)
-          CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOn");
-        else
-          CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOff");
-        break;
-        
-      case AM_MARKKEY:
-        // -ACB- 1998/08/10 Use DDF Lang Reference
-        CON_PlayerMessage(consoleplayer, "%s %d",
-            DDF_LanguageLookup("AutoMapMarkedSpot"),
-            markpointnum);
-        AddMark();
-        break;
-        
-      case AM_CLEARMARKKEY:
-        ClearMarks();
-        // -ACB- 1998/08/10 Use DDF Lang Reference
-        CON_PlayerMessageLDF(consoleplayer, "AutoMapMarksClear");
-        break;
-        
-      default:
-        if (ev->value.key == (AM_ENDKEY >> 16) || 
-            ev->value.key == (AM_ENDKEY & 0xffff))
-        {
-          if (automapactive == 1)
-          {
-            stbar_update = true;
-            automapactive = 2;
-          }
-          else
-          {
-            bigstate = 0;
-            viewactive = true;
-            AM_Hide();
-          }
-        }
-        else
-        {
-          rc = false;
-        }
-    }
-    // -ACB- 1999/09/28 Proper casting
-    if (!deathmatch && M_CheckCheat(&cheat_amap, (char)ev->value.key))
-    {
-      rc = false;
-      cheating = (cheating + 1) % 3;
-    }
-  }
+		rc = true;
+		switch (ev->value.key)
+		{
+		case AM_PANRIGHTKEY:
+			// pan right
+			if (!followplayer)
+				m_paninc.x = FTOM(F_PANINC);
+			else
+				rc = false;
+			break;
 
-  else if (ev->type == ev_keyup)
-  {
-    rc = false;
-    switch (ev->value.key)
-    {
-      case AM_PANRIGHTKEY:
-        if (!followplayer)
-          m_paninc.x = 0;
-        break;
-        
-      case AM_PANLEFTKEY:
-        if (!followplayer)
-          m_paninc.x = 0;
-        break;
-        
-      case AM_PANUPKEY:
-        if (!followplayer)
-          m_paninc.y = 0;
-        break;
-        
-      case AM_PANDOWNKEY:
-        if (!followplayer)
-          m_paninc.y = 0;
-        break;
+		case AM_PANLEFTKEY:
+			// pan left
+			if (!followplayer)
+				m_paninc.x = -FTOM(F_PANINC);
+			else
+				rc = false;
+			break;
 
-      case AM_ZOOMOUTKEY:
-      case AM_ZOOMINKEY:
-        mtof_zoommul = 1.0;
-        ftom_zoommul = 1.0;
-        break;
-    }
-  }
+		case AM_PANUPKEY:
+			// pan up
+			if (!followplayer)
+				m_paninc.y = FTOM(F_PANINC);
+			else
+				rc = false;
+			break;
 
-  return rc;
+		case AM_PANDOWNKEY:
+			// pan down
+			if (!followplayer)
+				m_paninc.y = -FTOM(F_PANINC);
+			else
+				rc = false;
+			break;
+
+		case AM_ZOOMOUTKEY:
+			// zoom out
+			mtof_zoommul = M_ZOOMOUT;
+			ftom_zoommul = M_ZOOMIN;
+			break;
+
+		case AM_ZOOMINKEY:
+			// zoom in
+			mtof_zoommul = M_ZOOMIN;
+			ftom_zoommul = M_ZOOMOUT;
+			break;
+
+		case AM_GOBIGKEY:
+			bigstate = !bigstate;
+			if (bigstate)
+			{
+				SaveScaleAndLoc();
+				MinOutWindowScale();
+			}
+			else
+				RestoreScaleAndLoc();
+			break;
+
+		case AM_FOLLOWKEY:
+			followplayer = !followplayer;
+			f_oldloc.x = FLT_MAX; // -ACB- 2003/09/21 Max value was INT_MAX; changed it to fall in line with its type
+			// -ACB- 1998/08/10 Use DDF Lang Reference
+			if (followplayer)
+				CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOn");
+			else
+				CON_PlayerMessageLDF(consoleplayer, "AutoMapFollowOff");
+			break;
+
+		case AM_GRIDKEY:
+			grid = !grid;
+			// -ACB- 1998/08/10 Use DDF Lang Reference
+			if (grid)
+				CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOn");
+			else
+				CON_PlayerMessageLDF(consoleplayer, "AutoMapGridOff");
+			break;
+
+		case AM_MARKKEY:
+			// -ACB- 1998/08/10 Use DDF Lang Reference
+			CON_PlayerMessage(consoleplayer, "%s %d",
+				DDF_LanguageLookup("AutoMapMarkedSpot"),
+				markpointnum);
+			AddMark();
+			break;
+
+		case AM_CLEARMARKKEY:
+			ClearMarks();
+			// -ACB- 1998/08/10 Use DDF Lang Reference
+			CON_PlayerMessageLDF(consoleplayer, "AutoMapMarksClear");
+			break;
+
+		default:
+			if (ev->value.key == (AM_ENDKEY >> 16) || 
+				ev->value.key == (AM_ENDKEY & 0xffff))
+			{
+				if (automapactive == 1)
+				{
+					stbar_update = true;
+					automapactive = 2;
+				}
+				else
+				{
+					bigstate = 0;
+					viewactive = true;
+					AM_Hide();
+				}
+			}
+			else
+			{
+				rc = false;
+			}
+		}
+		// -ACB- 1999/09/28 Proper casting
+		if (!deathmatch && M_CheckCheat(&cheat_amap, (char)ev->value.key))
+		{
+			rc = false;
+			cheating = (cheating + 1) % 3;
+		}
+	}
+
+	else if (ev->type == ev_keyup)
+	{
+		rc = false;
+		switch (ev->value.key)
+		{
+		case AM_PANRIGHTKEY:
+			if (!followplayer)
+				m_paninc.x = 0;
+			break;
+
+		case AM_PANLEFTKEY:
+			if (!followplayer)
+				m_paninc.x = 0;
+			break;
+
+		case AM_PANUPKEY:
+			if (!followplayer)
+				m_paninc.y = 0;
+			break;
+
+		case AM_PANDOWNKEY:
+			if (!followplayer)
+				m_paninc.y = 0;
+			break;
+
+		case AM_ZOOMOUTKEY:
+		case AM_ZOOMINKEY:
+			mtof_zoommul = 1.0;
+			ftom_zoommul = 1.0;
+			break;
+		}
+	}
+
+	return rc;
 
 }
 
@@ -743,30 +743,30 @@ boolean_t AM_Responder(event_t * ev)
 //
 static void ChangeWindowScale(void)
 {
-  // Change the scaling multipliers
-  scale_mtof *= mtof_zoommul;
-  scale_ftom = 1.0 / scale_mtof;
+	// Change the scaling multipliers
+	scale_mtof *= mtof_zoommul;
+	scale_ftom = 1.0f / scale_mtof;
 
-  if (scale_mtof < min_scale_mtof)
-    MinOutWindowScale();
-  else if (scale_mtof > max_scale_mtof)
-    MaxOutWindowScale();
-  else
-    ActivateNewScale();
+	if (scale_mtof < min_scale_mtof)
+		MinOutWindowScale();
+	else if (scale_mtof > max_scale_mtof)
+		MaxOutWindowScale();
+	else
+		ActivateNewScale();
 }
 
 static void DoFollowPlayer(void)
 {
-  if (f_oldloc.x != consoleplayer->mo->x || 
-      f_oldloc.y != consoleplayer->mo->y)
-  {
-    m_x = FTOM(MTOF(consoleplayer->mo->x)) - m_w / 2;
-    m_y = FTOM(MTOF(consoleplayer->mo->y)) - m_h / 2;
-    m_x2 = m_x + m_w;
-    m_y2 = m_y + m_h;
-    f_oldloc.x = consoleplayer->mo->x;
-    f_oldloc.y = consoleplayer->mo->y;
-  }
+	if (f_oldloc.x != consoleplayer->mo->x || 
+		f_oldloc.y != consoleplayer->mo->y)
+	{
+		m_x = FTOM(MTOF(consoleplayer->mo->x)) - m_w / 2;
+		m_y = FTOM(MTOF(consoleplayer->mo->y)) - m_h / 2;
+		m_x2 = m_x + m_w;
+		m_y2 = m_y + m_h;
+		f_oldloc.x = consoleplayer->mo->x;
+		f_oldloc.y = consoleplayer->mo->y;
+	}
 }
 
 
@@ -775,19 +775,19 @@ static void DoFollowPlayer(void)
 //
 void AM_Ticker(void)
 {
-  if (!automapactive)
-    return;
+	if (!automapactive)
+		return;
 
-  if (followplayer)
-    DoFollowPlayer();
+	if (followplayer)
+		DoFollowPlayer();
 
-  // Change the zoom if necessary
-  if (ftom_zoommul != 1.0)
-    ChangeWindowScale();
+	// Change the zoom if necessary
+	if (ftom_zoommul != 1.0)
+		ChangeWindowScale();
 
-  // Change x,y location
-  if (m_paninc.x != 0 || m_paninc.y != 0)
-    ChangeWindowLoc();
+	// Change x,y location
+	if (m_paninc.x != 0 || m_paninc.y != 0)
+		ChangeWindowLoc();
 }
 
 //
@@ -796,40 +796,40 @@ void AM_Ticker(void)
 //
 static INLINE void Rotate(flo_t * x, flo_t * y, angle_t a)
 {
-  flo_t tmpx;
+	flo_t tmpx;
 
-  tmpx = *x * M_Cos(a) - *y * M_Sin(a);
+	tmpx = *x * M_Cos(a) - *y * M_Sin(a);
 
-  *y = *x * M_Sin(a) + *y * M_Cos(a);
+	*y = *x * M_Sin(a) + *y * M_Cos(a);
 
-  *x = tmpx;
+	*x = tmpx;
 }
 
 static INLINE void GetRotatedCoords(flo_t sx, flo_t sy,
-    flo_t *dx, flo_t *dy)
+									flo_t *dx, flo_t *dy)
 {
-  *dx = sx;
-  *dy = sy;
+	*dx = sx;
+	*dy = sy;
 
-  if (rotatemap)
-  {
-    // rotate coordinates so they are on the map correctly
-    *dx -= consoleplayer->mo->x;
-    *dy -= consoleplayer->mo->y;
-    
-    Rotate(dx, dy, ANG90 - consoleplayer->mo->angle);
-    
-    *dx += consoleplayer->mo->x;
-    *dy += consoleplayer->mo->y;
-  }
+	if (rotatemap)
+	{
+		// rotate coordinates so they are on the map correctly
+		*dx -= consoleplayer->mo->x;
+		*dy -= consoleplayer->mo->y;
+
+		Rotate(dx, dy, ANG90 - consoleplayer->mo->angle);
+
+		*dx += consoleplayer->mo->x;
+		*dy += consoleplayer->mo->y;
+	}
 }
 
 static INLINE angle_t GetRotatedAngle(angle_t src)
 {
-  if (rotatemap)
-    return src + ANG90 - consoleplayer->mo->angle;
+	if (rotatemap)
+		return src + ANG90 - consoleplayer->mo->angle;
 
-  return src;
+	return src;
 }
 
 
@@ -838,27 +838,27 @@ static INLINE angle_t GetRotatedAngle(angle_t src)
 //
 static void DrawMline(mline_t * ml, int colour)
 {
-  int x1, y1, x2, y2;
-  int f_x2 = f_x + f_w - 1;
-  int f_y2 = f_y + f_h - 1;
+	int x1, y1, x2, y2;
+	int f_x2 = f_x + f_w - 1;
+	int f_y2 = f_y + f_h - 1;
 
-  DEV_ASSERT2(am_colmap);
-  DEV_ASSERT2(0 <= colour && colour <= 255);
+	DEV_ASSERT2(am_colmap);
+	DEV_ASSERT2(0 <= colour && colour <= 255);
 
-  // transform to frame-buffer coordinates.
-  x1 = CXMTOF(ml->a.x);
-  y1 = CYMTOF(ml->a.y);
-  x2 = CXMTOF(ml->b.x);
-  y2 = CYMTOF(ml->b.y);
+	// transform to frame-buffer coordinates.
+	x1 = CXMTOF(ml->a.x);
+	y1 = CYMTOF(ml->a.y);
+	x2 = CXMTOF(ml->b.x);
+	y2 = CYMTOF(ml->b.y);
 
-  // trivial rejects
-  if ((x1 < f_x && x2 < f_x) || (x1 > f_x2 && x2 > f_x2) ||
-      (y1 < f_y && y2 < f_y) || (y1 > f_y2 && y2 > f_y2))
-  {
-    return;
-  }
-  
-  vctx.SolidLine(x1, y1, x2, y2, colour);
+	// trivial rejects
+	if ((x1 < f_x && x2 < f_x) || (x1 > f_x2 && x2 > f_x2) ||
+		(y1 < f_y && y2 < f_y) || (y1 > f_y2 && y2 > f_y2))
+	{
+		return;
+	}
+
+	vctx.SolidLine(x1, y1, x2, y2, colour);
 }
 
 //
@@ -866,37 +866,37 @@ static void DrawMline(mline_t * ml, int colour)
 //
 static void DrawGrid(int colour)
 {
-  flo_t x, y;
-  flo_t start, end;
-  mline_t ml;
+	flo_t x, y;
+	flo_t start, end;
+	mline_t ml;
 
-  // Figure out start of vertical gridlines
-  start = m_x + fmod(MAPBLOCKUNITS - (m_x - bmaporgx), MAPBLOCKUNITS);
-  end = m_x + m_w;
+	// Figure out start of vertical gridlines
+	start = m_x + (flo_t)fmod((flo_t)MAPBLOCKUNITS - (m_x - bmaporgx), (flo_t)MAPBLOCKUNITS);
+	end = m_x + m_w;
 
-  // draw vertical gridlines
-  ml.a.y = m_y;
-  ml.b.y = m_y + m_h;
-  for (x = start; x < end; x += MAPBLOCKUNITS)
-  {
-    ml.a.x = x;
-    ml.b.x = x;
-    DrawMline(&ml, colour);
-  }
+	// draw vertical gridlines
+	ml.a.y = m_y;
+	ml.b.y = m_y + m_h;
+	for (x = start; x < end; x += MAPBLOCKUNITS)
+	{
+		ml.a.x = x;
+		ml.b.x = x;
+		DrawMline(&ml, colour);
+	}
 
-  // Figure out start of horizontal gridlines
-  start = m_y + fmod(MAPBLOCKUNITS - (m_y - bmaporgy), MAPBLOCKUNITS);
-  end = m_y + m_h;
+	// Figure out start of horizontal gridlines
+	start = m_y + (flo_t)fmod((flo_t)MAPBLOCKUNITS - (m_y - bmaporgy), (flo_t)MAPBLOCKUNITS);
+	end = m_y + m_h;
 
-  // draw horizontal gridlines
-  ml.a.x = m_x;
-  ml.b.x = m_x + m_w;
-  for (y = start; y < end; y += MAPBLOCKUNITS)
-  {
-    ml.a.y = y;
-    ml.b.y = y;
-    DrawMline(&ml, colour);
-  }
+	// draw horizontal gridlines
+	ml.a.x = m_x;
+	ml.b.x = m_x + m_w;
+	for (y = start; y < end; y += MAPBLOCKUNITS)
+	{
+		ml.a.y = y;
+		ml.b.y = y;
+		DrawMline(&ml, colour);
+	}
 }
 
 //
@@ -909,29 +909,29 @@ static void DrawGrid(int colour)
 //
 static boolean_t CheckSimiliarRegions(sector_t *front, sector_t *back)
 {
-  extrafloor_t *F, *B;
+	extrafloor_t *F, *B;
 
-  if (front->tag == back->tag)
-    return true;
+	if (front->tag == back->tag)
+		return true;
 
-  // Note: doesn't worry about liquids
+	// Note: doesn't worry about liquids
 
-  F = front->bottom_ef;
-  B = back->bottom_ef;
+	F = front->bottom_ef;
+	B = back->bottom_ef;
 
-  while (F && B)
-  {
-    if (F->top_h != B->top_h)
-      return false;
-    
-    if (F->bottom_h != B->bottom_h)
-      return false;
-    
-    F = F->higher;
-    B = B->higher;
-  }
+	while (F && B)
+	{
+		if (F->top_h != B->top_h)
+			return false;
 
-  return (F || B) ? false : true;
+		if (F->bottom_h != B->bottom_h)
+			return false;
+
+		F = F->higher;
+		B = B->higher;
+	}
+
+	return (F || B) ? false : true;
 }
 
 //
@@ -941,93 +941,93 @@ static boolean_t CheckSimiliarRegions(sector_t *front, sector_t *back)
 //
 static void AM_WalkSeg(seg_t *seg)
 {
-  mline_t l;
-  line_t *line;
+	mline_t l;
+	line_t *line;
 
-  sector_t *front = seg->frontsector;
-  sector_t *back  = seg->backsector;
+	sector_t *front = seg->frontsector;
+	sector_t *back  = seg->backsector;
 
-  if (seg->miniseg)
-  {
+	if (seg->miniseg)
+	{
 #if (DEBUG_TRUEBSP == 1)
-    if (seg->partner && seg > seg->partner)
-      return;
+		if (seg->partner && seg > seg->partner)
+			return;
 #endif
 
 #if (DEBUG_TRUEBSP > 0)
-    GetRotatedCoords(seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
-    GetRotatedCoords(seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
+		GetRotatedCoords(seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
+		GetRotatedCoords(seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
 
-    DrawMline(&l, MINI_COL);
+		DrawMline(&l, MINI_COL);
 #endif
 
-    return;
-  }
-  
-  line = seg->linedef;
-  DEV_ASSERT2(line);
+		return;
+	}
 
-  // only draw segs on the _right_ side of linedefs
+	line = seg->linedef;
+	DEV_ASSERT2(line);
+
+	// only draw segs on the _right_ side of linedefs
 #if (DEBUG_TRUEBSP < 2)
-  if (line->side[1] == seg->sidedef)
-    return;
+	if (line->side[1] == seg->sidedef)
+		return;
 #endif
 
-  GetRotatedCoords(seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
-  GetRotatedCoords(seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
+	GetRotatedCoords(seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
+	GetRotatedCoords(seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
 
-  if (cheating || (line->flags & ML_Mapped))
-  {
-    if ((line->flags & ML_DontDraw) && !cheating)
-      return;
+	if (cheating || (line->flags & ML_Mapped))
+	{
+		if ((line->flags & ML_DontDraw) && !cheating)
+			return;
 
-    if (!front || !back)
-    {
-      DrawMline(&l, WALL_COL);
-    }
-    else
-    {
-      if (line->special && line->special->singlesided)
-      {  
-        // teleporters
-        DrawMline(&l, TELE_COL);
-      }
-      else if (line->flags & ML_Secret)
-      {  
-        // secret door
-        if (cheating)
-          DrawMline(&l, SECRET_COL);
-        else
-          DrawMline(&l, WALL_COL);
-      }
-      else if (back->f_h != front->f_h)
-      {
-        // floor level change
-        DrawMline(&l, FLOOR_COL);
-      }
-      else if (back->c_h != front->c_h)
-      {
-        // ceiling level change
-        DrawMline(&l, CEIL_COL);
-      }
-      else if ((front->exfloor_used > 0 || back->exfloor_used > 0) &&
-               (front->exfloor_used != back->exfloor_used ||
-                ! CheckSimiliarRegions(front, back)))
-      {
-        // -AJA- 1999/10/09: extra floor change.
-        DrawMline(&l, REGION_COL);
-      }
-      else if (cheating || (DEBUG_TRUEBSP > 1))
-      {
-        DrawMline(&l, ALLMAP_COL);
-      }
-    }
-  }
-  else if (consoleplayer->powers[PW_AllMap])
-  {
-    if (! (line->flags & ML_DontDraw))
-      DrawMline(&l, ALLMAP_COL);
-  }
+		if (!front || !back)
+		{
+			DrawMline(&l, WALL_COL);
+		}
+		else
+		{
+			if (line->special && line->special->singlesided)
+			{  
+				// teleporters
+				DrawMline(&l, TELE_COL);
+			}
+			else if (line->flags & ML_Secret)
+			{  
+				// secret door
+				if (cheating)
+					DrawMline(&l, SECRET_COL);
+				else
+					DrawMline(&l, WALL_COL);
+			}
+			else if (back->f_h != front->f_h)
+			{
+				// floor level change
+				DrawMline(&l, FLOOR_COL);
+			}
+			else if (back->c_h != front->c_h)
+			{
+				// ceiling level change
+				DrawMline(&l, CEIL_COL);
+			}
+			else if ((front->exfloor_used > 0 || back->exfloor_used > 0) &&
+				(front->exfloor_used != back->exfloor_used ||
+				! CheckSimiliarRegions(front, back)))
+			{
+				// -AJA- 1999/10/09: extra floor change.
+				DrawMline(&l, REGION_COL);
+			}
+			else if (cheating || (DEBUG_TRUEBSP > 1))
+			{
+				DrawMline(&l, ALLMAP_COL);
+			}
+		}
+	}
+	else if (consoleplayer->powers[PW_AllMap])
+	{
+		if (! (line->flags & ML_DontDraw))
+			DrawMline(&l, ALLMAP_COL);
+	}
 }
 
 
@@ -1035,118 +1035,116 @@ static void AM_WalkSeg(seg_t *seg)
 #if (DEBUG_TRUEBSP == 4)
 static void DEBUG_ShowSubSecs(void)
 {
-  int x, y;
+	int x, y;
 
-  for (y=0;     y < f_h; y += 3)
-  for (x=(y&1); x < f_w; x += 3)
-  {
-    flo_t mx = CXFTOM(x);
-    flo_t my = CYFTOM(y);
+	for (y=0;     y < f_h; y += 3)
+		for (x=(y&1); x < f_w; x += 3)
+		{
+			flo_t mx = CXFTOM(x);
+			flo_t my = CYFTOM(y);
 
-    int subsec = R_PointInSubsector(mx, my) - subsectors;
+			int subsec = R_PointInSubsector(mx, my) - subsectors;
 
-    V_DrawPixel(main_scr, x, y, subsec * 17 + (subsec/256) * 11);
-  }
+			V_DrawPixel(main_scr, x, y, subsec * 17 + (subsec/256) * 11);
+		}
 }
 #endif
 
 
 static void DrawLineCharacter(mline_t *lineguy, int lineguylines, 
-    flo_t radius, angle_t angle, int colour, flo_t x, flo_t y)
+							  flo_t radius, angle_t angle, int colour, flo_t x, flo_t y)
 {
-  int i;
-  mline_t l;
-  flo_t ch_x, ch_y;
+	int i;
+	mline_t l;
+	flo_t ch_x, ch_y;
 
-  if (radius < 2)
-    radius = 2;
+	if (radius < 2)
+		radius = 2;
 
-  GetRotatedCoords(x, y, &ch_x, &ch_y);
-  angle = GetRotatedAngle(angle);
-  
-  for (i = 0; i < lineguylines; i++)
-  {
-    l.a.x = lineguy[i].a.x * radius;
-    l.a.y = lineguy[i].a.y * radius;
+	GetRotatedCoords(x, y, &ch_x, &ch_y);
+	angle = GetRotatedAngle(angle);
 
-    if (angle)
-      Rotate(&l.a.x, &l.a.y, angle);
+	for (i = 0; i < lineguylines; i++)
+	{
+		l.a.x = lineguy[i].a.x * radius;
+		l.a.y = lineguy[i].a.y * radius;
 
-    l.a.x += ch_x;
-    l.a.y += ch_y;
+		if (angle)
+			Rotate(&l.a.x, &l.a.y, angle);
 
-    l.b.x = lineguy[i].b.x * radius;
-    l.b.y = lineguy[i].b.y * radius;
+		l.a.x += ch_x;
+		l.a.y += ch_y;
 
-    if (angle)
-      Rotate(&l.b.x, &l.b.y, angle);
+		l.b.x = lineguy[i].b.x * radius;
+		l.b.y = lineguy[i].b.y * radius;
 
-    l.b.x += ch_x;
-    l.b.y += ch_y;
+		if (angle)
+			Rotate(&l.b.x, &l.b.y, angle);
 
-    DrawMline(&l, colour);
-  }
+		l.b.x += ch_x;
+		l.b.y += ch_y;
+
+		DrawMline(&l, colour);
+	}
 }
 
-static int player_colours[8] =
-{ GREEN,  GRAY + GRAY_LEN*2/3, BROWN, RED + RED_LEN/2, 
-  ORANGE, GRAY + GRAY_LEN*1/3, RED, PINK };
+static int player_colours[8] = { GREEN,  GRAY + GRAY_LEN*2/3, BROWN, RED + RED_LEN/2,  ORANGE, GRAY + GRAY_LEN*1/3, RED, PINK };
 
 static void AM_DrawPlayer(mobj_t *mo)
 {
-  int colour;
-  
-  DEV_ASSERT2(mo->player->in_game);
+	int colour;
 
-  if (!netgame)
-  {
-    if (cheating)
-      DrawLineCharacter(cheat_player_arrow, NUMCHEATPLYRLINES, 
-          mo->radius, mo->angle, YOUR_COL, mo->x, mo->y);
-    else
-      DrawLineCharacter(player_arrow, NUMPLYRLINES, 
-          mo->radius, mo->angle, YOUR_COL, mo->x, mo->y);
+	DEV_ASSERT2(mo->player->in_game);
 
-    return;
-  }
+	if (!netgame)
+	{
+		if (cheating)
+			DrawLineCharacter(cheat_player_arrow, NUMCHEATPLYRLINES, 
+			mo->radius, mo->angle, YOUR_COL, mo->x, mo->y);
+		else
+			DrawLineCharacter(player_arrow, NUMPLYRLINES, 
+			mo->radius, mo->angle, YOUR_COL, mo->x, mo->y);
 
-  if ((deathmatch && !singledemo) && mo->player != consoleplayer)
-    return;
+		return;
+	}
 
-  if (mo->player->powers[PW_PartInvis])
-    colour = (DBLUE + DBLUE_LEN - 1);  // *close* to black
-  else
-    colour = player_colours[mo->player->pnum & 0x07];
+	if ((deathmatch && !singledemo) && mo->player != consoleplayer)
+		return;
 
-  DrawLineCharacter(player_arrow, NUMPLYRLINES, 
-      mo->radius, mo->angle, colour, mo->x, mo->y);
+	if (mo->player->powers[PW_PartInvis])
+		colour = (DBLUE + DBLUE_LEN - 1);  // *close* to black
+	else
+		colour = player_colours[mo->player->pnum & 0x07];
+
+	DrawLineCharacter(player_arrow, NUMPLYRLINES, 
+		mo->radius, mo->angle, colour, mo->x, mo->y);
 }
 
 static void AM_WalkThing(mobj_t *mo)
 {
-  int colour = THING_COL;
+	int colour = THING_COL;
 
-  if (mo->player)
-  {
-    AM_DrawPlayer(mo);
-    return;
-  }
+	if (mo->player)
+	{
+		AM_DrawPlayer(mo);
+		return;
+	}
 
-  if (cheating != 2)
-    return;
+	if (cheating != 2)
+		return;
 
-  // -AJA- more colourful things
-  if (mo->flags & MF_SPECIAL)
-    colour = ITEM_COL;
-  else if (mo->flags & MF_MISSILE)
-    colour = MISSL_COL;
-  else if (mo->extendedflags & EF_MONSTER && mo->health <= 0)
-    colour = DEAD_COL;
-  else if (mo->extendedflags & EF_MONSTER)
-    colour = MONST_COL;
-  
-  DrawLineCharacter(thintriangle_guy, NUMTHINTRIANGLEGUYLINES,
-      mo->radius, mo->angle, colour, mo->x, mo->y);
+	// -AJA- more colourful things
+	if (mo->flags & MF_SPECIAL)
+		colour = ITEM_COL;
+	else if (mo->flags & MF_MISSILE)
+		colour = MISSL_COL;
+	else if (mo->extendedflags & EF_MONSTER && mo->health <= 0)
+		colour = DEAD_COL;
+	else if (mo->extendedflags & EF_MONSTER)
+		colour = MONST_COL;
+
+	DrawLineCharacter(thintriangle_guy, NUMTHINTRIANGLEGUYLINES,
+		mo->radius, mo->angle, colour, mo->x, mo->y);
 }
 
 //
@@ -1156,22 +1154,22 @@ static void AM_WalkThing(mobj_t *mo)
 //
 static void AM_WalkSubsector(int num)
 {
-  subsector_t *sub = &subsectors[num];
+	subsector_t *sub = &subsectors[num];
 
-  seg_t *seg;
-  mobj_t *thing;
+	seg_t *seg;
+	mobj_t *thing;
 
-  // handle each seg
-  for (seg=sub->segs; seg; seg=seg->sub_next)
-  {
-    AM_WalkSeg(seg);
-  }
+	// handle each seg
+	for (seg=sub->segs; seg; seg=seg->sub_next)
+	{
+		AM_WalkSeg(seg);
+	}
 
-  // handle each thing
-  for (thing=sub->thinglist; thing; thing=thing->snext)
-  {
-    AM_WalkThing(thing);
-  }
+	// handle each thing
+	for (thing=sub->thinglist; thing; thing=thing->snext)
+	{
+		AM_WalkThing(thing);
+	}
 }
 
 //
@@ -1182,15 +1180,15 @@ static void AM_WalkSubsector(int num)
 //
 static boolean_t AM_CheckBBox(flo_t *bspcoord)
 {
-  flo_t xl = bspcoord[BOXLEFT];
-  flo_t yt = bspcoord[BOXTOP];
-  flo_t xr = bspcoord[BOXRIGHT];
-  flo_t yb = bspcoord[BOXBOTTOM];
+	flo_t xl = bspcoord[BOXLEFT];
+	flo_t yt = bspcoord[BOXTOP];
+	flo_t xr = bspcoord[BOXRIGHT];
+	flo_t yb = bspcoord[BOXBOTTOM];
 
-  if (xr < m_x || xl > m_x2 || yt < m_y || yb > m_y2)
-    return false;
+	if (xr < m_x || xl > m_x2 || yt < m_y || yb > m_y2)
+		return false;
 
-  return true;
+	return true;
 }
 
 //
@@ -1201,80 +1199,80 @@ static boolean_t AM_CheckBBox(flo_t *bspcoord)
 //
 static void AM_WalkBSPNode(int bspnum)
 {
-  node_t *node;
-  int side;
+	node_t *node;
+	int side;
 
-  // Found a subsector?
-  if (bspnum & NF_SUBSECTOR)
-  {
-    AM_WalkSubsector(bspnum & (~NF_SUBSECTOR));
-    return;
-  }
+	// Found a subsector?
+	if (bspnum & NF_SUBSECTOR)
+	{
+		AM_WalkSubsector(bspnum & (~NF_SUBSECTOR));
+		return;
+	}
 
-  node = &nodes[bspnum];
-  side = 0;
+	node = &nodes[bspnum];
+	side = 0;
 
 #if (DEBUG_TRUEBSP == 2 || DEBUG_TRUEBSP == 3)
-  side = P_PointOnDivlineSide(consoleplayer->mo->x, consoleplayer->mo->y, &node->div);
+	side = P_PointOnDivlineSide(consoleplayer->mo->x, consoleplayer->mo->y, &node->div);
 #endif
 
-  // Recursively divide right space
-  if (AM_CheckBBox(node->bbox[0]))
-    AM_WalkBSPNode(node->children[side]);
+	// Recursively divide right space
+	if (AM_CheckBBox(node->bbox[0]))
+		AM_WalkBSPNode(node->children[side]);
 
 #if (DEBUG_TRUEBSP == 2)
-  return;
+	return;
 #elif (DEBUG_TRUEBSP == 3)
-  {
-    mline_t l;
+	{
+		mline_t l;
 
-    flo_t x1 = node->div.x - node->div.dx * 2;
-    flo_t y1 = node->div.y - node->div.dy * 2;
-    flo_t x2 = node->div.x + node->div.dx * 2;
-    flo_t y2 = node->div.y + node->div.dy * 2;
+		flo_t x1 = node->div.x - node->div.dx * 2;
+		flo_t y1 = node->div.y - node->div.dy * 2;
+		flo_t x2 = node->div.x + node->div.dx * 2;
+		flo_t y2 = node->div.y + node->div.dy * 2;
 
-    GetRotatedCoords(x1+3, y1+3, &l.a.x, &l.a.y);
-    GetRotatedCoords(x2+3, y2+3, &l.b.x, &l.b.y);
+		GetRotatedCoords(x1+3, y1+3, &l.a.x, &l.a.y);
+		GetRotatedCoords(x2+3, y2+3, &l.b.x, &l.b.y);
 
-    DrawMline(&l, GREEN+GREEN_LEN*4/5);
-    return;
-  }
+		DrawMline(&l, GREEN+GREEN_LEN*4/5);
+		return;
+	}
 #endif
 
-  // Recursively divide back space
-  if (AM_CheckBBox(node->bbox[side ^ 1]))
-    AM_WalkBSPNode(node->children[side ^ 1]);
+	// Recursively divide back space
+	if (AM_CheckBBox(node->bbox[side ^ 1]))
+		AM_WalkBSPNode(node->children[side ^ 1]);
 }
 
 static void DrawMarks(void)
 {
-  int i, sx, sy;
+	int i, sx, sy;
 
-  for (i = 0; i < AM_NUMMARKPOINTS; i++)
-  {
-    if (markpoints[i].x != -1)
-    {
-      sx = CXMTOF(markpoints[i].x);
-      sy = CYMTOF(markpoints[i].y);
+	for (i = 0; i < AM_NUMMARKPOINTS; i++)
+	{
+		if (markpoints[i].x != -1)
+		{
+			sx = CXMTOF(markpoints[i].x);
+			sy = CYMTOF(markpoints[i].y);
 
-      VCTX_ImageEasy(sx, sy, marknums[i]);
-    }
-  }
+			VCTX_ImageEasy(sx, sy, marknums[i]);
+		}
+	}
 }
 
 static void DrawCrosshair(int colour)
 {
 #if 0  // FIXME !
-  // -AJA- 1999/07/04: now uses V_DrawPixel().
+	// -AJA- 1999/07/04: now uses V_DrawPixel().
 
-  V_DrawPixel(main_scr, f_w / 2, f_h / 2, colour);  // single point for now
+	V_DrawPixel(main_scr, f_w / 2, f_h / 2, colour);  // single point for now
 #endif
 }
 
 static void AM_RenderScene(void)
 {
-  // walk the bsp tree
-  AM_WalkBSPNode(root_node);
+	// walk the bsp tree
+	AM_WalkBSPNode(root_node);
 }
 
 //
@@ -1282,29 +1280,29 @@ static void AM_RenderScene(void)
 //
 void AM_Drawer(void)
 {
-  if (!automapactive)
-    return;
+	if (!automapactive)
+		return;
 
-  if (automapactive == 1)
-    am_colmap = am_overlay_colmap;
+	if (automapactive == 1)
+		am_colmap = am_overlay_colmap;
 
-  if (automapactive == 2)
-  {
-    am_colmap = am_normal_colmap;
+	if (automapactive == 2)
+	{
+		am_colmap = am_normal_colmap;
 
-    // clear the framebuffer
-    vctx.SolidBox(f_x, f_y, f_w, f_h, BACK_COL, 1.0);
-  }
+		// clear the framebuffer
+		vctx.SolidBox(f_x, f_y, f_w, f_h, BACK_COL, 1.0);
+	}
 
-  if (grid && !rotatemap)
-    DrawGrid(GRID_COL);
+	if (grid && !rotatemap)
+		DrawGrid(GRID_COL);
 
-  AM_RenderScene();
+	AM_RenderScene();
 
-  DrawCrosshair(XHAIR_COL);
-  DrawMarks();
+	DrawCrosshair(XHAIR_COL);
+	DrawMarks();
 
 #ifdef DEVELOPERS
-  am_colmap = NULL;
+	am_colmap = NULL;
 #endif
 }

@@ -56,22 +56,22 @@
 // a single unit (polygon, quad, etc) to pass to the GL
 typedef struct local_gl_unit_s
 {
-  // unit mode (e.g. GL_POLYGON)
-  GLuint mode;
+	// unit mode (e.g. GL_POLYGON)
+	GLuint mode;
 
-  // range of local vertices
-  int first, count;
-  
-  // texture used
-  GLuint tex_id;
+	// range of local vertices
+	int first, count;
 
-  // texture contains see-through parts (i.e. significant areas where
-  // alpha = 0, like sprites).
-  boolean_t masked;
+	// texture used
+	GLuint tex_id;
 
-  // texture/vertices should be alpha blended (e.g. translucent
-  // water).
-  boolean_t blended;
+	// texture contains see-through parts (i.e. significant areas where
+	// alpha = 0, like sprites).
+	boolean_t masked;
+
+	// texture/vertices should be alpha blended (e.g. translucent
+	// water).
+	boolean_t blended;
 }
 local_gl_unit_t;
 
@@ -93,21 +93,21 @@ static boolean_t solid_mode;
 //
 void RGL_InitUnits(void)
 {
-  // GL client state stuff disabled, due to problems with certain
-  // drivers (in particular, Voodoo3 under Win32).
+	// GL client state stuff disabled, due to problems with certain
+	// drivers (in particular, Voodoo3 under Win32).
 #if 0
-  // setup pointers to client state
-  glVertexPointer(3, GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].x);
-  glColorPointer (4, GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].r);
-  glTexCoordPointer(2, GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].t_x);
-  glNormalPointer(GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].n_x);
-  glEdgeFlagPointer(sizeof(local_gl_vert_t), &local_verts[0].edge);
+	// setup pointers to client state
+	glVertexPointer(3, GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].x);
+	glColorPointer (4, GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].r);
+	glTexCoordPointer(2, GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].t_x);
+	glNormalPointer(GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].n_x);
+	glEdgeFlagPointer(sizeof(local_gl_vert_t), &local_verts[0].edge);
 
-  glEnableClientState(GL_EDGE_FLAG_ARRAY);
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glEnableClientState(GL_COLOR_ARRAY);
-  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_EDGE_FLAG_ARRAY);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
 #endif
 }
 
@@ -124,8 +124,8 @@ void RGL_InitUnits(void)
 //
 void RGL_StartUnits(boolean_t solid)
 {
-  cur_vert = cur_unit = 0;
-  solid_mode = solid;
+	cur_vert = cur_unit = 0;
+	solid_mode = solid;
 }
 
 //
@@ -135,7 +135,7 @@ void RGL_StartUnits(boolean_t solid)
 //
 void RGL_FinishUnits(void)
 {
-  RGL_DrawUnits();
+	RGL_DrawUnits();
 }
 
 //
@@ -149,28 +149,28 @@ void RGL_FinishUnits(void)
 // texture should be blended (like for translucent water or sprites).
 //
 local_gl_vert_t *RGL_BeginUnit(GLuint mode, int max_vert,
-    GLuint tex_id, boolean_t masked, boolean_t blended)
+							   GLuint tex_id, boolean_t masked, boolean_t blended)
 {
-  local_gl_unit_t *unit;
-  
-  DEV_ASSERT2(max_vert > 0);
-  DEV_ASSERT2(tex_id != 0);
+	local_gl_unit_t *unit;
 
-  // check for out-of-space
-  if (cur_vert + max_vert > MAX_L_VERT || cur_unit >= MAX_L_UNIT)
-  {
-    RGL_DrawUnits();
-  }
+	DEV_ASSERT2(max_vert > 0);
+	DEV_ASSERT2(tex_id != 0);
 
-  unit = local_units + cur_unit;
+	// check for out-of-space
+	if (cur_vert + max_vert > MAX_L_VERT || cur_unit >= MAX_L_UNIT)
+	{
+		RGL_DrawUnits();
+	}
 
-  unit->mode    = mode;
-  unit->tex_id  = tex_id;
-  unit->first   = cur_vert;  // count set later
-  unit->masked  = masked;
-  unit->blended = blended;
+	unit = local_units + cur_unit;
 
-  return local_verts + cur_vert;
+	unit->mode    = mode;
+	unit->tex_id  = tex_id;
+	unit->first   = cur_vert;  // count set later
+	unit->masked  = masked;
+	unit->blended = blended;
+
+	return local_verts + cur_vert;
 }
 
 //
@@ -178,19 +178,19 @@ local_gl_vert_t *RGL_BeginUnit(GLuint mode, int max_vert,
 //
 void RGL_EndUnit(int actual_vert)
 {
-  local_gl_unit_t *unit;
+	local_gl_unit_t *unit;
 
-  DEV_ASSERT2(actual_vert > 0);
+	DEV_ASSERT2(actual_vert > 0);
 
-  unit = local_units + cur_unit;
+	unit = local_units + cur_unit;
 
-  unit->count = actual_vert;
+	unit->count = actual_vert;
 
-  cur_vert += actual_vert;
-  cur_unit++;
-  
-  DEV_ASSERT2(cur_vert <= MAX_L_VERT);
-  DEV_ASSERT2(cur_unit <= MAX_L_UNIT);
+	cur_vert += actual_vert;
+	cur_unit++;
+
+	DEV_ASSERT2(cur_vert <= MAX_L_VERT);
+	DEV_ASSERT2(cur_unit <= MAX_L_UNIT);
 }
 
 //
@@ -201,99 +201,99 @@ void RGL_EndUnit(int actual_vert)
 //
 void RGL_DrawUnits(void)
 {
-  int i, j;
-  GLuint cur_tex = 0xABE74C74;
-  GLfloat d_col[4] = { 1.0, 1.0, 1.0, 1.0 };
+	int i, j;
+	GLuint cur_tex = 0xABE74C74;
+	GLfloat d_col[4] = { 1.0, 1.0, 1.0, 1.0 };
 
-  boolean_t cur_masking  = false;
-  boolean_t cur_blending = false;
+	boolean_t cur_masking  = false;
+	boolean_t cur_blending = false;
 
-  if (cur_unit == 0)
-    return;
-   
-  for (i=0; i < cur_unit; i++)
-    local_unit_map[i] = i;
+	if (cur_unit == 0)
+		return;
 
-  // need to sort ?
-  if (solid_mode)
-  {
-    #define CMP(a,b)  \
-        (local_units[a].tex_id < local_units[b].tex_id ||        \
-         (local_units[a].tex_id == local_units[b].tex_id &&      \
-          (local_units[a].blended < local_units[b].blended ||    \
-           (local_units[a].blended == local_units[b].blended &&  \
-            local_units[a].masked < local_units[b].masked))))
-    QSORT(GLuint, local_unit_map, cur_unit, CUTOFF);
-    #undef CMP
-  }
+	for (i=0; i < cur_unit; i++)
+		local_unit_map[i] = i;
 
-  glEnable(GL_TEXTURE_2D);
-  glDisable(GL_ALPHA_TEST);
-  glDisable(GL_BLEND);
+	// need to sort ?
+	if (solid_mode)
+	{
+#define CMP(a,b)  \
+	(local_units[a].tex_id < local_units[b].tex_id ||        \
+	(local_units[a].tex_id == local_units[b].tex_id &&      \
+	(local_units[a].blended < local_units[b].blended ||    \
+	(local_units[a].blended == local_units[b].blended &&  \
+	local_units[a].masked < local_units[b].masked))))
+		QSORT(GLuint, local_unit_map, cur_unit, CUTOFF);
+#undef CMP
+	}
 
-  for (i=0; i < cur_unit; i++)
-  {
-    local_gl_unit_t *unit = local_units + local_unit_map[i];
-    
-    DEV_ASSERT2(unit->count > 0);
-    DEV_ASSERT2(unit->tex_id != 0);
+	glEnable(GL_TEXTURE_2D);
+	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_BLEND);
 
-    // detect changes in texture/alpha/blending and change state
-    
-    if (cur_masking != unit->masked)
-    {
-      cur_masking = unit->masked;
+	for (i=0; i < cur_unit; i++)
+	{
+		local_gl_unit_t *unit = local_units + local_unit_map[i];
 
-      if (cur_masking)
-        glEnable(GL_ALPHA_TEST);
-      else
-        glDisable(GL_ALPHA_TEST);
-    }
+		DEV_ASSERT2(unit->count > 0);
+		DEV_ASSERT2(unit->tex_id != 0);
 
-    if (cur_blending != unit->blended)
-    {
-      cur_blending = unit->blended;
+		// detect changes in texture/alpha/blending and change state
 
-      if (cur_blending)
-        glEnable(GL_BLEND);
-      else 
-        glDisable(GL_BLEND);
-    }
+		if (cur_masking != unit->masked)
+		{
+			cur_masking = unit->masked;
 
-    if (cur_tex != unit->tex_id)
-    {
-      cur_tex = unit->tex_id;
-      glBindTexture(GL_TEXTURE_2D, cur_tex);
-    }
+			if (cur_masking)
+				glEnable(GL_ALPHA_TEST);
+			else
+				glDisable(GL_ALPHA_TEST);
+		}
 
-    // set alpha from first vertex (we never interpolate it)
-    d_col[3] = local_verts[unit->first].col[3];
+		if (cur_blending != unit->blended)
+		{
+			cur_blending = unit->blended;
 
-    glBegin(unit->mode);
- 
-    for (j=0; j < unit->count; j++)
-    {
-      local_gl_vert_t *V = local_verts + unit->first + j;
+			if (cur_blending)
+				glEnable(GL_BLEND);
+			else 
+				glDisable(GL_BLEND);
+		}
 
-      glTexCoord2f(V->t_x, V->t_y);
-      glNormal3f(V->n_x, V->n_y, V->n_z);
-      glEdgeFlag(V->edge);
-      glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, V->col);
-      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, d_col);
+		if (cur_tex != unit->tex_id)
+		{
+			cur_tex = unit->tex_id;
+			glBindTexture(GL_TEXTURE_2D, cur_tex);
+		}
 
-      // vertex must be last
-      glVertex3f(V->x, V->y, V->z);
-    }
+		// set alpha from first vertex (we never interpolate it)
+		d_col[3] = local_verts[unit->first].col[3];
 
-    glEnd();
-  }
+		glBegin(unit->mode);
 
-  // all done
-  cur_vert = cur_unit = 0;
+		for (j=0; j < unit->count; j++)
+		{
+			local_gl_vert_t *V = local_verts + unit->first + j;
 
-  glDisable(GL_TEXTURE_2D);
-  glDisable(GL_ALPHA_TEST);
-  glDisable(GL_BLEND);
+			glTexCoord2f(V->t_x, V->t_y);
+			glNormal3f(V->n_x, V->n_y, V->n_z);
+			glEdgeFlag(V->edge);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, V->col);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, d_col);
+
+			// vertex must be last
+			glVertex3f(V->x, V->y, V->z);
+		}
+
+		glEnd();
+	}
+
+	// all done
+	cur_vert = cur_unit = 0;
+
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_BLEND);
 }
 
 
@@ -315,26 +315,26 @@ static unsigned long oned_oculus_buffer[ONED_SIZE / 32];
 //
 static unsigned long oned_low_masks[32] =
 {
-  0xFFFFFFFF, 0x7FFFFFFF, 0x3FFFFFFF, 0x1FFFFFFF,
-  0x0FFFFFFF, 0x07FFFFFF, 0x03FFFFFF, 0x01FFFFFF,
-  0x00FFFFFF, 0x007FFFFF, 0x003FFFFF, 0x001FFFFF,
-  0x000FFFFF, 0x0007FFFF, 0x0003FFFF, 0x0001FFFF,
-  0x0000FFFF, 0x00007FFF, 0x00003FFF, 0x00001FFF,
-  0x00000FFF, 0x000007FF, 0x000003FF, 0x000001FF,
-  0x000000FF, 0x0000007F, 0x0000003F, 0x0000001F,
-  0x0000000F, 0x00000007, 0x00000003, 0x00000001
+	0xFFFFFFFF, 0x7FFFFFFF, 0x3FFFFFFF, 0x1FFFFFFF,
+		0x0FFFFFFF, 0x07FFFFFF, 0x03FFFFFF, 0x01FFFFFF,
+		0x00FFFFFF, 0x007FFFFF, 0x003FFFFF, 0x001FFFFF,
+		0x000FFFFF, 0x0007FFFF, 0x0003FFFF, 0x0001FFFF,
+		0x0000FFFF, 0x00007FFF, 0x00003FFF, 0x00001FFF,
+		0x00000FFF, 0x000007FF, 0x000003FF, 0x000001FF,
+		0x000000FF, 0x0000007F, 0x0000003F, 0x0000001F,
+		0x0000000F, 0x00000007, 0x00000003, 0x00000001
 };
 
 static unsigned long oned_high_masks[32] =
 {
-  0x80000000, 0xC0000000, 0xE0000000, 0xF0000000,
-  0xF8000000, 0xFC000000, 0xFE000000, 0xFF000000,
-  0xFF800000, 0xFFC00000, 0xFFE00000, 0xFFF00000,
-  0xFFF80000, 0xFFFC0000, 0xFFFE0000, 0xFFFF0000,
-  0xFFFF8000, 0xFFFFC000, 0xFFFFE000, 0xFFFFF000,
-  0xFFFFF800, 0xFFFFFC00, 0xFFFFFE00, 0xFFFFFF00,
-  0xFFFFFF80, 0xFFFFFFC0, 0xFFFFFFE0, 0xFFFFFFF0,
-  0xFFFFFFF8, 0xFFFFFFFC, 0xFFFFFFFE, 0xFFFFFFFF
+	0x80000000, 0xC0000000, 0xE0000000, 0xF0000000,
+		0xF8000000, 0xFC000000, 0xFE000000, 0xFF000000,
+		0xFF800000, 0xFFC00000, 0xFFE00000, 0xFFF00000,
+		0xFFF80000, 0xFFFC0000, 0xFFFE0000, 0xFFFF0000,
+		0xFFFF8000, 0xFFFFC000, 0xFFFFE000, 0xFFFFF000,
+		0xFFFFF800, 0xFFFFFC00, 0xFFFFFE00, 0xFFFFFF00,
+		0xFFFFFF80, 0xFFFFFFC0, 0xFFFFFFE0, 0xFFFFFFF0,
+		0xFFFFFFF8, 0xFFFFFFFC, 0xFFFFFFFE, 0xFFFFFFFF
 };
 
 #define LOW_MASK(L)   oned_low_masks[L]
@@ -350,36 +350,36 @@ static unsigned long oned_high_masks[32] =
 //
 void RGL_1DOcclusionClear(angle_t low, angle_t high)
 {
-  unsigned int low_b, high_b;
+	unsigned int low_b, high_b;
 
-  low  += ANG90;
-  high += ANG90;
+	low  += ANG90;
+	high += ANG90;
 
-  DEV_ASSERT2(low  <= ANG180);
-  DEV_ASSERT2(high <= ANG180);
-  DEV_ASSERT2(low  <= high);
+	DEV_ASSERT2(low  <= ANG180);
+	DEV_ASSERT2(high <= ANG180);
+	DEV_ASSERT2(low  <= high);
 
-  if (low  == ANG180) low--;
-  if (high == ANG180) high--;
+	if (low  == ANG180) low--;
+	if (high == ANG180) high--;
 
-  low  >>= (ANGLEBITS - ONED_POWER);
-  high >>= (ANGLEBITS - ONED_POWER);
+	low  >>= (ANGLEBITS - ONED_POWER);
+	high >>= (ANGLEBITS - ONED_POWER);
 
-  low_b  = low  & 0x1F;  low  >>= 5; 
-  high_b = high & 0x1F;  high >>= 5; 
+	low_b  = low  & 0x1F;  low  >>= 5; 
+	high_b = high & 0x1F;  high >>= 5; 
 
-  if (low == high)
-  {
-    oned_oculus_buffer[low] |= (LOW_MASK(low_b) & HIGH_MASK(high_b));
-  }
-  else
-  {
-    oned_oculus_buffer[low]  |= LOW_MASK(low_b);
-    oned_oculus_buffer[high] |= HIGH_MASK(high_b);
+	if (low == high)
+	{
+		oned_oculus_buffer[low] |= (LOW_MASK(low_b) & HIGH_MASK(high_b));
+	}
+	else
+	{
+		oned_oculus_buffer[low]  |= LOW_MASK(low_b);
+		oned_oculus_buffer[high] |= HIGH_MASK(high_b);
 
-    for (low++; low < high; low++)
-      oned_oculus_buffer[low] = 0xFFFFFFFF;
-  }
+		for (low++; low < high; low++)
+			oned_oculus_buffer[low] = 0xFFFFFFFF;
+	}
 }
 
 //
@@ -391,36 +391,36 @@ void RGL_1DOcclusionClear(angle_t low, angle_t high)
 //
 void RGL_1DOcclusionSet(angle_t low, angle_t high)
 {
-  unsigned int low_b, high_b;
+	unsigned int low_b, high_b;
 
-  low  += ANG90;
-  high += ANG90;
+	low  += ANG90;
+	high += ANG90;
 
-  DEV_ASSERT2(low  <= ANG180);
-  DEV_ASSERT2(high <= ANG180);
-  DEV_ASSERT2(low  <= high);
+	DEV_ASSERT2(low  <= ANG180);
+	DEV_ASSERT2(high <= ANG180);
+	DEV_ASSERT2(low  <= high);
 
-  if (low  == ANG180) low--;
-  if (high == ANG180) high--;
+	if (low  == ANG180) low--;
+	if (high == ANG180) high--;
 
-  low  >>= (ANGLEBITS - ONED_POWER);
-  high >>= (ANGLEBITS - ONED_POWER);
+	low  >>= (ANGLEBITS - ONED_POWER);
+	high >>= (ANGLEBITS - ONED_POWER);
 
-  low_b  = low  & 0x1F;  low  >>= 5; 
-  high_b = high & 0x1F;  high >>= 5; 
+	low_b  = low  & 0x1F;  low  >>= 5; 
+	high_b = high & 0x1F;  high >>= 5; 
 
-  if (low == high)
-  {
-    oned_oculus_buffer[low] &= ~(LOW_MASK(low_b) & HIGH_MASK(high_b));
-  }
-  else
-  {
-    oned_oculus_buffer[low]  &= ~LOW_MASK(low_b);
-    oned_oculus_buffer[high] &= ~HIGH_MASK(high_b);
+	if (low == high)
+	{
+		oned_oculus_buffer[low] &= ~(LOW_MASK(low_b) & HIGH_MASK(high_b));
+	}
+	else
+	{
+		oned_oculus_buffer[low]  &= ~LOW_MASK(low_b);
+		oned_oculus_buffer[high] &= ~HIGH_MASK(high_b);
 
-    for (low++; low < high; low++)
-      oned_oculus_buffer[low] = 0x00000000;
-  }
+		for (low++; low < high; low++)
+			oned_oculus_buffer[low] = 0x00000000;
+	}
 }
 
 //
@@ -433,43 +433,43 @@ void RGL_1DOcclusionSet(angle_t low, angle_t high)
 //
 boolean_t RGL_1DOcclusionTest(angle_t low, angle_t high)
 {
-  unsigned int low_b, high_b;
+	unsigned int low_b, high_b;
 
-  low  += ANG90;
-  high += ANG90;
+	low  += ANG90;
+	high += ANG90;
 
-  DEV_ASSERT2(low  <= ANG180);
-  DEV_ASSERT2(high <= ANG180);
-  DEV_ASSERT2(low  <= high);
+	DEV_ASSERT2(low  <= ANG180);
+	DEV_ASSERT2(high <= ANG180);
+	DEV_ASSERT2(low  <= high);
 
-  if (low  == ANG180) low--;
-  if (high == ANG180) high--;
+	if (low  == ANG180) low--;
+	if (high == ANG180) high--;
 
-  low  >>= (ANGLEBITS - ONED_POWER);
-  high >>= (ANGLEBITS - ONED_POWER);
+	low  >>= (ANGLEBITS - ONED_POWER);
+	high >>= (ANGLEBITS - ONED_POWER);
 
-  // make the check a little wider, to be sure to be sure
-  if (low > 0) low--;
-  if (high < (ONED_SIZE-1)) high++;
- 
-  low_b  = low  & 0x1F;  low  >>= 5; 
-  high_b = high & 0x1F;  high >>= 5; 
+	// make the check a little wider, to be sure to be sure
+	if (low > 0) low--;
+	if (high < (ONED_SIZE-1)) high++;
 
-  if (low == high)
-    return (oned_oculus_buffer[low] & 
-        LOW_MASK(low_b) & HIGH_MASK(high_b)) ? false : true;
+	low_b  = low  & 0x1F;  low  >>= 5; 
+	high_b = high & 0x1F;  high >>= 5; 
 
-  if (oned_oculus_buffer[low] & LOW_MASK(low_b))
-    return false;
-   
-  if (oned_oculus_buffer[high] & HIGH_MASK(high_b))
-    return false;
+	if (low == high)
+		return (oned_oculus_buffer[low] & 
+		LOW_MASK(low_b) & HIGH_MASK(high_b)) ? false : true;
 
-  for (low++; low < high; low++)
-    if (oned_oculus_buffer[low])
-      return false;
+	if (oned_oculus_buffer[low] & LOW_MASK(low_b))
+		return false;
 
-  return true;
+	if (oned_oculus_buffer[high] & HIGH_MASK(high_b))
+		return false;
+
+	for (low++; low < high; low++)
+		if (oned_oculus_buffer[low])
+			return false;
+
+	return true;
 }
 
 
@@ -485,282 +485,282 @@ boolean_t RGL_1DOcclusionTest(angle_t low, angle_t high)
 
 raw_polyquad_t *RGL_NewPolyQuad(int maxvert, boolean_t quad)
 {
-  raw_polyquad_t *poly;
+	raw_polyquad_t *poly;
 
-  poly = Z_ClearNew(raw_polyquad_t, 1);
+	poly = Z_ClearNew(raw_polyquad_t, 1);
 
-  poly->verts = Z_New(vec3_t, maxvert);
-  poly->num_verts = 0;
-  poly->max_verts = maxvert;
+	poly->verts = Z_New(vec3_t, maxvert);
+	poly->num_verts = 0;
+	poly->max_verts = maxvert;
 
-  poly->quad = quad;
+	poly->quad = quad;
 
-  return poly;
+	return poly;
 }
 
 void RGL_FreePolyQuad(raw_polyquad_t *poly)
 {
-  while (poly)
-  {
-    raw_polyquad_t *cur = poly;
-    poly = poly->sisters;
+	while (poly)
+	{
+		raw_polyquad_t *cur = poly;
+		poly = poly->sisters;
 
-    Z_Free(cur->verts);
-    Z_Free(cur);
-  }
+		Z_Free(cur->verts);
+		Z_Free(cur);
+	}
 }
 
 void RGL_BoundPolyQuad(raw_polyquad_t *poly)
 {
-  int j;
-  
-  raw_polyquad_t *cur = poly;
-///    poly = poly->sisters;
+	int j;
 
-  DEV_ASSERT2(cur->num_verts > 0);
+	raw_polyquad_t *cur = poly;
+	///    poly = poly->sisters;
 
-  cur->min = cur->verts[0];
-  cur->max = cur->verts[0];
+	DEV_ASSERT2(cur->num_verts > 0);
 
-  for (j=1; j < cur->num_verts; j++)
-  {
-    vec3_t *src = cur->verts + j;
+	cur->min = cur->verts[0];
+	cur->max = cur->verts[0];
 
-    if (src->x < cur->min.x) cur->min.x = src->x;
-    else if (src->x > cur->max.x) cur->max.x = src->x;
+	for (j=1; j < cur->num_verts; j++)
+	{
+		vec3_t *src = cur->verts + j;
 
-    if (src->y < cur->min.y) cur->min.y = src->y;
-    else if (src->y > cur->max.y) cur->max.y = src->y;
+		if (src->x < cur->min.x) cur->min.x = src->x;
+		else if (src->x > cur->max.x) cur->max.x = src->x;
 
-    if (src->z < cur->min.z) cur->min.z = src->z;
-    else if (src->z > cur->max.z) cur->max.z = src->z;
-  }
+		if (src->y < cur->min.y) cur->min.y = src->y;
+		else if (src->y > cur->max.y) cur->max.y = src->y;
+
+		if (src->z < cur->min.z) cur->min.z = src->z;
+		else if (src->z > cur->max.z) cur->max.z = src->z;
+	}
 }
 
 #ifdef DEVELOPERS
 static void RGL_DumpPolyQuad(raw_polyquad_t *poly, boolean_t single)
 {
-  int j;
+	int j;
 
-  L_WriteDebug("DUMP POLY %p quad=%d num=%d max=%d\n", poly, 
-      poly->quad, poly->num_verts, poly->max_verts);
+	L_WriteDebug("DUMP POLY %p quad=%d num=%d max=%d\n", poly, 
+		poly->quad, poly->num_verts, poly->max_verts);
 
-  while (poly)
-  {
-    raw_polyquad_t *cur = poly;
-    poly = single ? NULL : poly->sisters;
+	while (poly)
+	{
+		raw_polyquad_t *cur = poly;
+		poly = single ? NULL : poly->sisters;
 
-    if (! single)
-      L_WriteDebug("--CUR SISTER: %p\n", cur);
+		if (! single)
+			L_WriteDebug("--CUR SISTER: %p\n", cur);
 
 #if 0
-    L_WriteDebug("  BBOX: (%1.0f,%1.0f,%1.0f) -> (%1.0f,%1.0f,%1.0f)\n",
-        cur->min.x, cur->min.y, cur->min.z, 
-        cur->max.x, cur->max.y, cur->max.z);
+		L_WriteDebug("  BBOX: (%1.0f,%1.0f,%1.0f) -> (%1.0f,%1.0f,%1.0f)\n",
+			cur->min.x, cur->min.y, cur->min.z, 
+			cur->max.x, cur->max.y, cur->max.z);
 #endif
 
-    if (cur->quad)
-    {
-      for (j=0; j < cur->num_verts; j += 2)
-      {
-        L_WriteDebug("  SIDE: (%1.0f,%1.0f,%1.0f) -> (%1.0f,%1.0f,%1.0f)\n",
-            cur->verts[j].x, cur->verts[j].y, cur->verts[j].z,
-            cur->verts[j+1].x, cur->verts[j+1].y, cur->verts[j+1].z);
-      }
-    }
-    else
-    {
-      for (j=0; j < cur->num_verts; j += 1)
-      {
-        L_WriteDebug("  POINT: (%1.0f,%1.0f,%1.0f)\n",
-            cur->verts[j].x, cur->verts[j].y, cur->verts[j].z);
-      }
-    }
-  }
+		if (cur->quad)
+		{
+			for (j=0; j < cur->num_verts; j += 2)
+			{
+				L_WriteDebug("  SIDE: (%1.0f,%1.0f,%1.0f) -> (%1.0f,%1.0f,%1.0f)\n",
+					cur->verts[j].x, cur->verts[j].y, cur->verts[j].z,
+					cur->verts[j+1].x, cur->verts[j+1].y, cur->verts[j+1].z);
+			}
+		}
+		else
+		{
+			for (j=0; j < cur->num_verts; j += 1)
+			{
+				L_WriteDebug("  POINT: (%1.0f,%1.0f,%1.0f)\n",
+					cur->verts[j].x, cur->verts[j].y, cur->verts[j].z);
+			}
+		}
+	}
 
-  L_WriteDebug("\n");
+	L_WriteDebug("\n");
 }
 #endif
 
 static void RGL_DoSplitQuadVertSep(raw_polyquad_t *quad, int extras)
 {
-  int j;
-  flo_t h1, h2;
-  flo_t span_z;
-  
-  DEV_ASSERT2(extras >= 1);
+	int j;
+	flo_t h1, h2;
+	flo_t span_z;
 
-  // Note: doesn't handle already split quads (i.e. num_verts > 4).
-  DEV_ASSERT2(quad->num_verts == 4);
-  
-  // the original QUAD will end up being the top-most part, and we
-  // create the newbies from the bottom upwards.  Hence final order is
-  // top piece to bottom piece.
-  //
-  h1 = quad->min.z;
-  span_z = quad->max.z - quad->min.z;
+	DEV_ASSERT2(extras >= 1);
 
-  for (j=0; j < extras; j++, h1 = h2)
-  {
-    raw_polyquad_t *N = RGL_NewPolyQuad(4, true);
-    N->num_verts = 4;
+	// Note: doesn't handle already split quads (i.e. num_verts > 4).
+	DEV_ASSERT2(quad->num_verts == 4);
 
-    Z_MoveData(N->verts, quad->verts, vec3_t, 4);
+	// the original QUAD will end up being the top-most part, and we
+	// create the newbies from the bottom upwards.  Hence final order is
+	// top piece to bottom piece.
+	//
+	h1 = quad->min.z;
+	span_z = quad->max.z - quad->min.z;
 
-    h2 = quad->min.z + span_z * (j+1) / (flo_t)(extras + 1);
+	for (j=0; j < extras; j++, h1 = h2)
+	{
+		raw_polyquad_t *N = RGL_NewPolyQuad(4, true);
+		N->num_verts = 4;
 
-    N->verts[0].z = h1;  N->verts[1].z = h2;
-    N->verts[2].z = h1;  N->verts[3].z = h2;
+		Z_MoveData(N->verts, quad->verts, vec3_t, 4);
 
-    // link it in
-    RGL_BoundPolyQuad(N);
+		h2 = quad->min.z + span_z * (j+1) / (flo_t)(extras + 1);
 
-    N->sisters = quad->sisters;
-    quad->sisters = N;
-  }
+		N->verts[0].z = h1;  N->verts[1].z = h2;
+		N->verts[2].z = h1;  N->verts[3].z = h2;
 
-  quad->verts[0].z = h1;
-  quad->verts[2].z = h1;
+		// link it in
+		RGL_BoundPolyQuad(N);
 
-  RGL_BoundPolyQuad(quad);
+		N->sisters = quad->sisters;
+		quad->sisters = N;
+	}
+
+	quad->verts[0].z = h1;
+	quad->verts[2].z = h1;
+
+	RGL_BoundPolyQuad(quad);
 }
 
 static void RGL_DoSplitQuadHorizSep(raw_polyquad_t *quad, int extras)
 {
-  int j;
-  vec2_t p1, p2;
-  vec2_t span;
-  
-  DEV_ASSERT2(extras >= 1);
+	int j;
+	vec2_t p1, p2;
+	vec2_t span;
 
-  // Note: doesn't handle already split quads (i.e. num_verts > 4).
-  DEV_ASSERT2(quad->num_verts == 4);
-  
-  // the original QUAD will end up being the right-most part, and we
-  // create the newbies from the left.  Hence final order is right
-  // piece to left piece.
-  //
-  p1.x = quad->verts[0].x;
-  p1.y = quad->verts[0].y;
+	DEV_ASSERT2(extras >= 1);
 
-  span.x = quad->verts[2].x - p1.x;
-  span.y = quad->verts[2].y - p1.y;
+	// Note: doesn't handle already split quads (i.e. num_verts > 4).
+	DEV_ASSERT2(quad->num_verts == 4);
 
-  for (j=0; j < extras; j++, p1 = p2)
-  {
-    raw_polyquad_t *N = RGL_NewPolyQuad(4, true);
-    N->num_verts = 4;
+	// the original QUAD will end up being the right-most part, and we
+	// create the newbies from the left.  Hence final order is right
+	// piece to left piece.
+	//
+	p1.x = quad->verts[0].x;
+	p1.y = quad->verts[0].y;
 
-    Z_MoveData(N->verts, quad->verts, vec3_t, 4);
+	span.x = quad->verts[2].x - p1.x;
+	span.y = quad->verts[2].y - p1.y;
 
-    p2.x = quad->verts[0].x + span.x * (j+1) / (flo_t)(extras + 1);
-    p2.y = quad->verts[0].y + span.y * (j+1) / (flo_t)(extras + 1);
+	for (j=0; j < extras; j++, p1 = p2)
+	{
+		raw_polyquad_t *N = RGL_NewPolyQuad(4, true);
+		N->num_verts = 4;
 
-    N->verts[0].x = p1.x;  N->verts[0].y = p1.y;
-    N->verts[1].x = p1.x;  N->verts[1].y = p1.y;
+		Z_MoveData(N->verts, quad->verts, vec3_t, 4);
 
-    N->verts[2].x = p2.x;  N->verts[2].y = p2.y;
-    N->verts[3].x = p2.x;  N->verts[3].y = p2.y;
+		p2.x = quad->verts[0].x + span.x * (j+1) / (flo_t)(extras + 1);
+		p2.y = quad->verts[0].y + span.y * (j+1) / (flo_t)(extras + 1);
 
-    // link it in
-    RGL_BoundPolyQuad(N);
+		N->verts[0].x = p1.x;  N->verts[0].y = p1.y;
+		N->verts[1].x = p1.x;  N->verts[1].y = p1.y;
 
-    N->sisters = quad->sisters;
-    quad->sisters = N;
-  }
+		N->verts[2].x = p2.x;  N->verts[2].y = p2.y;
+		N->verts[3].x = p2.x;  N->verts[3].y = p2.y;
 
-  quad->verts[0].x = p1.x; quad->verts[0].y = p1.y;
-  quad->verts[1].x = p1.x; quad->verts[1].y = p1.y;
+		// link it in
+		RGL_BoundPolyQuad(N);
 
-  RGL_BoundPolyQuad(quad);
+		N->sisters = quad->sisters;
+		quad->sisters = N;
+	}
+
+	quad->verts[0].x = p1.x; quad->verts[0].y = p1.y;
+	quad->verts[1].x = p1.x; quad->verts[1].y = p1.y;
+
+	RGL_BoundPolyQuad(quad);
 }
 
 static void RGL_DoSplitQuadHoriz(raw_polyquad_t *quad, int extras)
 {
-  int j;
-  vec3_t p1, p2;
-  vec2_t span;
+	int j;
+	vec3_t p1, p2;
+	vec2_t span;
 
-  DEV_ASSERT2(extras >= 1);
+	DEV_ASSERT2(extras >= 1);
 
-  // Note: doesn't handle already split quads (i.e. num_verts > 4).
-  DEV_ASSERT2(quad->num_verts == 4);
+	// Note: doesn't handle already split quads (i.e. num_verts > 4).
+	DEV_ASSERT2(quad->num_verts == 4);
 
-  p1 = quad->verts[0];
-  p2 = quad->verts[3];
+	p1 = quad->verts[0];
+	p2 = quad->verts[3];
 
-  // resize vertex array in the polyquad
-  if (extras*2 + 4 > quad->max_verts)
-  {
-    Z_Resize(quad->verts, vec3_t, extras*2 + 4);
-    quad->max_verts = extras*2 + 4;
-  }
+	// resize vertex array in the polyquad
+	if (extras*2 + 4 > quad->max_verts)
+	{
+		Z_Resize(quad->verts, vec3_t, extras*2 + 4);
+		quad->max_verts = extras*2 + 4;
+	}
 
-  quad->num_verts = extras*2 + 4;
+	quad->num_verts = extras*2 + 4;
 
-  quad->verts[0] = p1;
-  quad->verts[1] = p1;
-  quad->verts[1].z = p2.z;
-  quad->verts[extras*2 + 2] = p2;
-  quad->verts[extras*2 + 3] = p2;
-  quad->verts[extras*2 + 2].z = p1.z;
+	quad->verts[0] = p1;
+	quad->verts[1] = p1;
+	quad->verts[1].z = p2.z;
+	quad->verts[extras*2 + 2] = p2;
+	quad->verts[extras*2 + 3] = p2;
+	quad->verts[extras*2 + 2].z = p1.z;
 
-  span.x = p2.x - p1.x;
-  span.y = p2.y - p1.y;
+	span.x = p2.x - p1.x;
+	span.y = p2.y - p1.y;
 
-  for (j=0; j < extras; j++)
-  {
-    vec3_t *pair = quad->verts + (j+1) * 2;
+	for (j=0; j < extras; j++)
+	{
+		vec3_t *pair = quad->verts + (j+1) * 2;
 
-    pair[0].x = p1.x + span.x * (j+1) / (flo_t)(extras + 1);
-    pair[0].y = p1.y + span.y * (j+1) / (flo_t)(extras + 1);
-    pair[0].z = p1.z;
+		pair[0].x = p1.x + span.x * (j+1) / (flo_t)(extras + 1);
+		pair[0].y = p1.y + span.y * (j+1) / (flo_t)(extras + 1);
+		pair[0].z = p1.z;
 
-    pair[1].x = pair[0].x;
-    pair[1].y = pair[0].y;
-    pair[1].z = p2.z;
-  }
+		pair[1].x = pair[0].x;
+		pair[1].y = pair[0].y;
+		pair[1].z = p2.z;
+	}
 
-  // no need to recompute the bounds, they are still valid
+	// no need to recompute the bounds, they are still valid
 }
 
 static void RGL_DoSplitQuad(raw_polyquad_t *quad, int division,
-    boolean_t separate)
+							boolean_t separate)
 {
-  flo_t span_xy, span_z;
+	flo_t span_xy, span_z;
 
-  raw_polyquad_t *orig = quad;
+	raw_polyquad_t *orig = quad;
 
-  // first pass: split vertically
-  for (quad = orig; quad; )
-  {
-    raw_polyquad_t *cur = quad;
-    quad = quad->sisters;
+	// first pass: split vertically
+	for (quad = orig; quad; )
+	{
+		raw_polyquad_t *cur = quad;
+		quad = quad->sisters;
 
-    span_z = cur->max.z - cur->min.z;
+		span_z = cur->max.z - cur->min.z;
 
-    if (span_z > division)
-    {
-      RGL_DoSplitQuadVertSep(cur, floor(span_z / division));
-    }
-  }
+		if (span_z > division)
+		{
+			RGL_DoSplitQuadVertSep(cur, floor(span_z / division));
+		}
+	}
 
-  // second pass: split horizontally
-  for (quad = orig; quad; )
-  {
-    raw_polyquad_t *cur = quad;
-    quad = quad->sisters;
+	// second pass: split horizontally
+	for (quad = orig; quad; )
+	{
+		raw_polyquad_t *cur = quad;
+		quad = quad->sisters;
 
-    span_xy = MAX(cur->max.x - cur->min.x, cur->max.y - cur->min.y);
+		span_xy = MAX(cur->max.x - cur->min.x, cur->max.y - cur->min.y);
 
-    if (span_xy > division)
-    {
-      if (separate)
-        RGL_DoSplitQuadHorizSep(cur, floor(span_xy / division));
-      else
-        RGL_DoSplitQuadHoriz(cur, floor(span_xy / division));
-    }
-  }
+		if (span_xy > division)
+		{
+			if (separate)
+				RGL_DoSplitQuadHorizSep(cur, floor(span_xy / division));
+			else
+				RGL_DoSplitQuadHoriz(cur, floor(span_xy / division));
+		}
+	}
 }
 
 
@@ -768,48 +768,48 @@ static void RGL_DoSplitQuad(raw_polyquad_t *quad, int division,
 
 
 static INLINE void AddPolyDynPoint(raw_polyquad_t *poly,
-    flo_t x, flo_t y, flo_t z)
+								   flo_t x, flo_t y, flo_t z)
 {
-  DEV_ASSERT2(poly);
-  DEV_ASSERT2(poly->num_verts <= poly->max_verts);
-  
-  if (poly->num_verts == poly->max_verts)
-  {
-    poly->max_verts += 8;
-    Z_Resize(poly->verts, vec3_t, poly->max_verts);
-  }
+	DEV_ASSERT2(poly);
+	DEV_ASSERT2(poly->num_verts <= poly->max_verts);
 
-  DEV_ASSERT2(poly->num_verts < poly->max_verts);
-  
-  PQ_ADD_VERT(poly, x, y ,z);
+	if (poly->num_verts == poly->max_verts)
+	{
+		poly->max_verts += 8;
+		Z_Resize(poly->verts, vec3_t, poly->max_verts);
+	}
+
+	DEV_ASSERT2(poly->num_verts < poly->max_verts);
+
+	PQ_ADD_VERT(poly, x, y ,z);
 }
 
 static INLINE void AddPolyVertIntercept(raw_polyquad_t *poly,
-    vec3_t *P, vec3_t *S, flo_t y)
+										vec3_t *P, vec3_t *S, flo_t y)
 {
-  flo_t frac;
+	flo_t frac;
 
-  DEV_ASSERT2(P->y != S->y);
-  DEV_ASSERT2(MIN(P->y, S->y)-1 <= y && y <= MAX(P->y, S->y)+1);
-  
-  frac = (y - P->y) / (S->y - P->y);
+	DEV_ASSERT2(P->y != S->y);
+	DEV_ASSERT2(MIN(P->y, S->y)-1 <= y && y <= MAX(P->y, S->y)+1);
 
-  AddPolyDynPoint(poly, P->x + (S->x - P->x) * frac, y,
-      P->z + (S->z - P->z) * frac);
+	frac = (y - P->y) / (S->y - P->y);
+
+	AddPolyDynPoint(poly, P->x + (S->x - P->x) * frac, y,
+		P->z + (S->z - P->z) * frac);
 }
 
 static INLINE void AddPolyHorizIntercept(raw_polyquad_t *poly,
-    vec3_t *P, vec3_t *S, flo_t x)
+										 vec3_t *P, vec3_t *S, flo_t x)
 {
-  flo_t frac;
+	flo_t frac;
 
-  DEV_ASSERT2(P->x != S->x);
-  DEV_ASSERT2(MIN(P->x, S->x)-1 <= x && x <= MAX(P->x, S->x)+1);
-  
-  frac = (x - P->x) / (S->x - P->x);
+	DEV_ASSERT2(P->x != S->x);
+	DEV_ASSERT2(MIN(P->x, S->x)-1 <= x && x <= MAX(P->x, S->x)+1);
 
-  AddPolyDynPoint(poly, x, P->y + (S->y - P->y) * frac,
-      P->z + (S->z - P->z) * frac);
+	frac = (x - P->x) / (S->x - P->x);
+
+	AddPolyDynPoint(poly, x, P->y + (S->y - P->y) * frac,
+		P->z + (S->z - P->z) * frac);
 }
 
 //
@@ -835,126 +835,126 @@ static INLINE void AddPolyHorizIntercept(raw_polyquad_t *poly,
 // 
 static void RGL_DoSplitPolyVert(raw_polyquad_t *poly, int extras)
 {
-  int j, k;
-  flo_t y;
-  flo_t span_y = poly->max.y - poly->min.y;
-  flo_t min_y = poly->min.y;
+	int j, k;
+	flo_t y;
+	flo_t span_y = poly->max.y - poly->min.y;
+	flo_t min_y = poly->min.y;
 
-  vec3_t *orig_verts;
-  int orig_num;
+	vec3_t *orig_verts;
+	int orig_num;
 
-  int start, end, step;
-    
-  // copy original vertices
-  orig_num = poly->num_verts;
-  DEV_ASSERT2(orig_num >= 3);
-  
-  orig_verts = Z_New(vec3_t, orig_num);
-  Z_MoveData(orig_verts, poly->verts, vec3_t, orig_num);
-  
-  // clear current polygon
-  poly->num_verts = 0;
+	int start, end, step;
 
-  for (k=0; k < orig_num; k++)
-  {
-    vec3_t P, S;
-    boolean_t down;
+	// copy original vertices
+	orig_num = poly->num_verts;
+	DEV_ASSERT2(orig_num >= 3);
 
-    P = orig_verts[k];
-    S = orig_verts[(k+1) % orig_num];
+	orig_verts = Z_New(vec3_t, orig_num);
+	Z_MoveData(orig_verts, poly->verts, vec3_t, orig_num);
 
-    down = (P.y > S.y);
+	// clear current polygon
+	poly->num_verts = 0;
 
-    // always add current point
-    AddPolyDynPoint(poly, P.x, P.y, P.z);
+	for (k=0; k < orig_num; k++)
+	{
+		vec3_t P, S;
+		boolean_t down;
 
-    // handle same Y coords
-    if (fabs(P.y - S.y) < 0.01)
-      continue;
+		P = orig_verts[k];
+		S = orig_verts[(k+1) % orig_num];
 
-    if (down)
-      start = extras-1, end = -1, step = -1;
-    else
-      start = 0, end = extras, step = +1;
-        
-    for (j=start; j != end; j += step)
-    {
-      y = min_y + span_y * (j+1) / (flo_t)(extras+1);
+		down = (P.y > S.y);
 
-      // no intercept ?
-      if (y <= (down ? S.y : P.y) + 0.01 || 
-          y >= (down ? P.y : S.y) - 0.01)
-        continue;
+		// always add current point
+		AddPolyDynPoint(poly, P.x, P.y, P.z);
 
-      AddPolyVertIntercept(poly, &P, &S, y);
-    }
-  }
+		// handle same Y coords
+		if (fabs(P.y - S.y) < 0.01)
+			continue;
 
-  // no need to recompute bbox -- still valid
+		if (down)
+			start = extras-1, end = -1, step = -1;
+		else
+			start = 0, end = extras, step = +1;
 
-  Z_Free(orig_verts);
+		for (j=start; j != end; j += step)
+		{
+			y = min_y + span_y * (j+1) / (flo_t)(extras+1);
+
+			// no intercept ?
+			if (y <= (down ? S.y : P.y) + 0.01 || 
+				y >= (down ? P.y : S.y) - 0.01)
+				continue;
+
+			AddPolyVertIntercept(poly, &P, &S, y);
+		}
+	}
+
+	// no need to recompute bbox -- still valid
+
+	Z_Free(orig_verts);
 }
 
 static void RGL_DoSplitPolyHoriz(raw_polyquad_t *poly, int extras)
 {
-  int j, k;
-  flo_t x;
-  flo_t span_x= poly->max.x - poly->min.x;
-  flo_t min_x= poly->min.x;
+	int j, k;
+	flo_t x;
+	flo_t span_x= poly->max.x - poly->min.x;
+	flo_t min_x= poly->min.x;
 
-  vec3_t *orig_verts;
-  int orig_num;
+	vec3_t *orig_verts;
+	int orig_num;
 
-  int start, end, step;
-    
-  // copy original vertices
-  orig_num = poly->num_verts;
-  DEV_ASSERT2(orig_num >= 3);
-  
-  orig_verts = Z_New(vec3_t, orig_num);
-  Z_MoveData(orig_verts, poly->verts, vec3_t, orig_num);
-  
-  // clear current polygon
-  poly->num_verts = 0;
+	int start, end, step;
 
-  for (k=0; k < orig_num; k++)
-  {
-    vec3_t P, S;
-    boolean_t left;
+	// copy original vertices
+	orig_num = poly->num_verts;
+	DEV_ASSERT2(orig_num >= 3);
 
-    P = orig_verts[k];
-    S = orig_verts[(k+1) % orig_num];
+	orig_verts = Z_New(vec3_t, orig_num);
+	Z_MoveData(orig_verts, poly->verts, vec3_t, orig_num);
 
-    left = (P.x > S.x);
+	// clear current polygon
+	poly->num_verts = 0;
 
-    // always add current point
-    AddPolyDynPoint(poly, P.x, P.y, P.z);
+	for (k=0; k < orig_num; k++)
+	{
+		vec3_t P, S;
+		boolean_t left;
 
-    // handle same X coords
-    if (fabs(P.x - S.x) < 0.01)
-      continue;
+		P = orig_verts[k];
+		S = orig_verts[(k+1) % orig_num];
 
-    if (left)
-      start = extras-1, end = -1, step = -1;
-    else
-      start = 0, end = extras, step = +1;
-        
-    for (j=start; j != end; j += step)
-    {
-      x = min_x + span_x * (j+1) / (flo_t)(extras+1);
+		left = (P.x > S.x);
 
-      // no intercept ?
-      if (x <= (left ? S.x : P.x) + 0.01 || 
-          x >= (left ? P.x : S.x) - 0.01)
-        continue;
+		// always add current point
+		AddPolyDynPoint(poly, P.x, P.y, P.z);
 
-      AddPolyHorizIntercept(poly, &P, &S, x);
-    }
-  }
+		// handle same X coords
+		if (fabs(P.x - S.x) < 0.01)
+			continue;
 
-  // no need to recompute bbox -- still valid
+		if (left)
+			start = extras-1, end = -1, step = -1;
+		else
+			start = 0, end = extras, step = +1;
 
-  Z_Free(orig_verts);
+		for (j=start; j != end; j += step)
+		{
+			x = min_x + span_x * (j+1) / (flo_t)(extras+1);
+
+			// no intercept ?
+			if (x <= (left ? S.x : P.x) + 0.01 || 
+				x >= (left ? P.x : S.x) - 0.01)
+				continue;
+
+			AddPolyHorizIntercept(poly, &P, &S, x);
+		}
+	}
+
+	// no need to recompute bbox -- still valid
+
+	Z_Free(orig_verts);
 }
 
 //
@@ -1001,276 +1001,276 @@ static void RGL_DoSplitPolyHoriz(raw_polyquad_t *poly, int extras)
 //       
 static void RGL_DoSplitPolyVertSep(raw_polyquad_t *poly, int extras)
 {
-  int j, k;
-  flo_t y1, y2;
-  flo_t span_y = poly->max.y - poly->min.y;
-  flo_t min_y = poly->min.y;
+	int j, k;
+	flo_t y1, y2;
+	flo_t span_y = poly->max.y - poly->min.y;
+	flo_t min_y = poly->min.y;
 
-  raw_polyquad_t *N;
-  vec3_t *orig_verts;
-  int orig_num;
-    
-  // copy original vertices
-  orig_num = poly->num_verts;
-  DEV_ASSERT2(orig_num >= 3);
-  
-  orig_verts = Z_New(vec3_t, orig_num);
-  Z_MoveData(orig_verts, poly->verts, vec3_t, orig_num);
-  
-  // clear current polygon
-  poly->num_verts = 0;
-  
-  y1 = poly->min.y;
+	raw_polyquad_t *N;
+	vec3_t *orig_verts;
+	int orig_num;
 
-  for (j=0; j < extras+1; j++, y1 = y2)
-  {
-    y2 = min_y + span_y * (j+1) / (flo_t)(extras+1);
+	// copy original vertices
+	orig_num = poly->num_verts;
+	DEV_ASSERT2(orig_num >= 3);
 
-    if (j == 0)
-    {
-      N = poly;
-    }
-    else
-    {
-      N = RGL_NewPolyQuad(8, false);
+	orig_verts = Z_New(vec3_t, orig_num);
+	Z_MoveData(orig_verts, poly->verts, vec3_t, orig_num);
 
-      // link it in
-      N->sisters = poly->sisters;
-      poly->sisters = N;
-    }
+	// clear current polygon
+	poly->num_verts = 0;
 
-    for (k=0; k < orig_num; k++)
-    {
-      vec3_t P, S;
-      int Ppos, Spos;
-      int Pedg, Sedg;
-      flo_t cy, dy;
-        
-      P = orig_verts[k];
-      S = orig_verts[(k+1) % orig_num];
+	y1 = poly->min.y;
 
-      Ppos = (P.y < y1) ? -1 : (P.y > y2) ? +1 : 0;
-      Spos = (S.y < y1) ? -1 : (S.y > y2) ? +1 : 0;
-      
-      // handle boundary conditions
-      Pedg = (fabs(P.y-y1)<0.01) ? -1 : (fabs(P.y-y2)<0.01) ? +1 : 0;
-      Sedg = (fabs(S.y-y1)<0.01) ? -1 : (fabs(S.y-y2)<0.01) ? +1 : 0;
+	for (j=0; j < extras+1; j++, y1 = y2)
+	{
+		y2 = min_y + span_y * (j+1) / (flo_t)(extras+1);
 
-      if (Pedg != 0)
-        Ppos = 0;
+		if (j == 0)
+		{
+			N = poly;
+		}
+		else
+		{
+			N = RGL_NewPolyQuad(8, false);
 
-      if (Sedg != 0)
-        Spos = 0;
+			// link it in
+			N->sisters = poly->sisters;
+			poly->sisters = N;
+		}
 
-      if (P.y < S.y)
-        cy = y1, dy = y2;
-      else
-        cy = y2, dy = y1;
+		for (k=0; k < orig_num; k++)
+		{
+			vec3_t P, S;
+			int Ppos, Spos;
+			int Pedg, Sedg;
+			flo_t cy, dy;
 
-      // always add current point if inside the range
-      if (Ppos == 0)
-        AddPolyDynPoint(N, P.x, P.y, P.z);
-       
-      // handle the do nothing cases
-      if (Ppos == Spos)
-        continue;
+			P = orig_verts[k];
+			S = orig_verts[(k+1) % orig_num];
 
-      if ((Ppos < 0 && Sedg < 0) || (Ppos > 0 && Sedg > 0))
-        continue;
+			Ppos = (P.y < y1) ? -1 : (P.y > y2) ? +1 : 0;
+			Spos = (S.y < y1) ? -1 : (S.y > y2) ? +1 : 0;
 
-      if ((Spos < 0 && Pedg < 0) || (Spos > 0 && Pedg > 0))
-        continue;
+			// handle boundary conditions
+			Pedg = (fabs(P.y-y1)<0.01) ? -1 : (fabs(P.y-y2)<0.01) ? +1 : 0;
+			Sedg = (fabs(S.y-y1)<0.01) ? -1 : (fabs(S.y-y2)<0.01) ? +1 : 0;
 
-      // handle the "branching inside->outside" case
-      if (Ppos == 0)
-      {
-        AddPolyVertIntercept(N, &P, &S, dy);
-        continue;
-      }
+			if (Pedg != 0)
+				Ppos = 0;
 
-      // OK, we know the P->S line must cross CY
-      AddPolyVertIntercept(N, &P, &S, cy);
-      
-      // check for double intercept
-      if (Ppos * Spos < 0)
-      {
-        AddPolyVertIntercept(N, &P, &S, dy);
-      }
-    }
- 
-    RGL_BoundPolyQuad(N);
-  }
+			if (Sedg != 0)
+				Spos = 0;
 
-  Z_Free(orig_verts);
+			if (P.y < S.y)
+				cy = y1, dy = y2;
+			else
+				cy = y2, dy = y1;
+
+			// always add current point if inside the range
+			if (Ppos == 0)
+				AddPolyDynPoint(N, P.x, P.y, P.z);
+
+			// handle the do nothing cases
+			if (Ppos == Spos)
+				continue;
+
+			if ((Ppos < 0 && Sedg < 0) || (Ppos > 0 && Sedg > 0))
+				continue;
+
+			if ((Spos < 0 && Pedg < 0) || (Spos > 0 && Pedg > 0))
+				continue;
+
+			// handle the "branching inside->outside" case
+			if (Ppos == 0)
+			{
+				AddPolyVertIntercept(N, &P, &S, dy);
+				continue;
+			}
+
+			// OK, we know the P->S line must cross CY
+			AddPolyVertIntercept(N, &P, &S, cy);
+
+			// check for double intercept
+			if (Ppos * Spos < 0)
+			{
+				AddPolyVertIntercept(N, &P, &S, dy);
+			}
+		}
+
+		RGL_BoundPolyQuad(N);
+	}
+
+	Z_Free(orig_verts);
 }
 
 static void RGL_DoSplitPolyHorizSep(raw_polyquad_t *poly, int extras)
 {
-  int j, k;
-  flo_t x1, x2;
-  flo_t span_x = poly->max.x - poly->min.x;
-  flo_t min_x = poly->min.x;
+	int j, k;
+	flo_t x1, x2;
+	flo_t span_x = poly->max.x - poly->min.x;
+	flo_t min_x = poly->min.x;
 
-  raw_polyquad_t *N;
-  vec3_t *orig_verts;
-  int orig_num;
-    
-  // copy original vertices
-  orig_num = poly->num_verts;
-  DEV_ASSERT2(orig_num >= 3);
-  
-  orig_verts = Z_New(vec3_t, orig_num);
-  Z_MoveData(orig_verts, poly->verts, vec3_t, orig_num);
-  
-  // clear current polygon
-  poly->num_verts = 0;
-  
-  x1 = poly->min.x;
+	raw_polyquad_t *N;
+	vec3_t *orig_verts;
+	int orig_num;
 
-  for (j=0; j < extras+1; j++, x1 = x2)
-  {
-    x2 = min_x + span_x * (j+1) / (flo_t)(extras+1);
+	// copy original vertices
+	orig_num = poly->num_verts;
+	DEV_ASSERT2(orig_num >= 3);
 
-    if (j == 0)
-    {
-      N = poly;
-    }
-    else
-    {
-      N = RGL_NewPolyQuad(8, false);
+	orig_verts = Z_New(vec3_t, orig_num);
+	Z_MoveData(orig_verts, poly->verts, vec3_t, orig_num);
 
-      // link it in
-      N->sisters = poly->sisters;
-      poly->sisters = N;
-    }
+	// clear current polygon
+	poly->num_verts = 0;
 
-    for (k=0; k < orig_num; k++)
-    {
-      vec3_t P, S;
-      int Ppos, Spos;
-      int Pedg, Sedg;
-      flo_t cx, dx;
-        
-      P = orig_verts[k];
-      S = orig_verts[(k+1) % orig_num];
+	x1 = poly->min.x;
 
-      Ppos = (P.x < x1) ? -1 : (P.x > x2) ? +1 : 0;
-      Spos = (S.x < x1) ? -1 : (S.x > x2) ? +1 : 0;
-      
-      // handle boundary conditions
-      Pedg = (fabs(P.x-x1)<0.01) ? -1 : (fabs(P.x-x2)<0.01) ? +1 : 0;
-      Sedg = (fabs(S.x-x1)<0.01) ? -1 : (fabs(S.x-x2)<0.01) ? +1 : 0;
+	for (j=0; j < extras+1; j++, x1 = x2)
+	{
+		x2 = min_x + span_x * (j+1) / (flo_t)(extras+1);
 
-      if (Pedg != 0)
-        Ppos = 0;
+		if (j == 0)
+		{
+			N = poly;
+		}
+		else
+		{
+			N = RGL_NewPolyQuad(8, false);
 
-      if (Sedg != 0)
-        Spos = 0;
+			// link it in
+			N->sisters = poly->sisters;
+			poly->sisters = N;
+		}
 
-      if (P.x < S.x)
-        cx = x1, dx = x2;
-      else
-        cx = x2, dx = x1;
+		for (k=0; k < orig_num; k++)
+		{
+			vec3_t P, S;
+			int Ppos, Spos;
+			int Pedg, Sedg;
+			flo_t cx, dx;
 
-      // always add current point if inside the range
-      if (Ppos == 0)
-        AddPolyDynPoint(N, P.x, P.y, P.z);
-       
-      // handle the do nothing cases
-      if (Ppos == Spos)
-        continue;
+			P = orig_verts[k];
+			S = orig_verts[(k+1) % orig_num];
 
-      if ((Ppos < 0 && Sedg < 0) || (Ppos > 0 && Sedg > 0))
-        continue;
+			Ppos = (P.x < x1) ? -1 : (P.x > x2) ? +1 : 0;
+			Spos = (S.x < x1) ? -1 : (S.x > x2) ? +1 : 0;
 
-      if ((Spos < 0 && Pedg < 0) || (Spos > 0 && Pedg > 0))
-        continue;
+			// handle boundary conditions
+			Pedg = (fabs(P.x-x1)<0.01) ? -1 : (fabs(P.x-x2)<0.01) ? +1 : 0;
+			Sedg = (fabs(S.x-x1)<0.01) ? -1 : (fabs(S.x-x2)<0.01) ? +1 : 0;
 
-      // handle the "branching inside->outside" case
-      if (Ppos == 0)
-      {
-        AddPolyHorizIntercept(N, &P, &S, dx);
-        continue;
-      }
+			if (Pedg != 0)
+				Ppos = 0;
 
-      // OK, we know the P->S line must cross CX
-      AddPolyHorizIntercept(N, &P, &S, cx);
-      
-      // check for double intercept
-      if (Ppos * Spos < 0)
-      {
-        AddPolyHorizIntercept(N, &P, &S, dx);
-      }
-    }
- 
-    RGL_BoundPolyQuad(N);
-  }
+			if (Sedg != 0)
+				Spos = 0;
 
-  Z_Free(orig_verts);
+			if (P.x < S.x)
+				cx = x1, dx = x2;
+			else
+				cx = x2, dx = x1;
+
+			// always add current point if inside the range
+			if (Ppos == 0)
+				AddPolyDynPoint(N, P.x, P.y, P.z);
+
+			// handle the do nothing cases
+			if (Ppos == Spos)
+				continue;
+
+			if ((Ppos < 0 && Sedg < 0) || (Ppos > 0 && Sedg > 0))
+				continue;
+
+			if ((Spos < 0 && Pedg < 0) || (Spos > 0 && Pedg > 0))
+				continue;
+
+			// handle the "branching inside->outside" case
+			if (Ppos == 0)
+			{
+				AddPolyHorizIntercept(N, &P, &S, dx);
+				continue;
+			}
+
+			// OK, we know the P->S line must cross CX
+			AddPolyHorizIntercept(N, &P, &S, cx);
+
+			// check for double intercept
+			if (Ppos * Spos < 0)
+			{
+				AddPolyHorizIntercept(N, &P, &S, dx);
+			}
+		}
+
+		RGL_BoundPolyQuad(N);
+	}
+
+	Z_Free(orig_verts);
 }
 
 static void RGL_DoSplitPolyListVert(raw_polyquad_t *poly,
-    int extras, boolean_t separate)
+									int extras, boolean_t separate)
 {
-  while (poly)
-  {
-    raw_polyquad_t *cur = poly;
-    poly = poly->sisters;
+	while (poly)
+	{
+		raw_polyquad_t *cur = poly;
+		poly = poly->sisters;
 
-    if (separate)
-      RGL_DoSplitPolyVertSep(cur, extras);
-    else
-      RGL_DoSplitPolyVert(cur, extras);
-  }
+		if (separate)
+			RGL_DoSplitPolyVertSep(cur, extras);
+		else
+			RGL_DoSplitPolyVert(cur, extras);
+	}
 }
 
 static void RGL_DoSplitPolyListHoriz(raw_polyquad_t *poly,
-    int extras, boolean_t separate)
+									 int extras, boolean_t separate)
 {
-  while (poly)
-  {
-    raw_polyquad_t *cur = poly;
-    poly = poly->sisters;
+	while (poly)
+	{
+		raw_polyquad_t *cur = poly;
+		poly = poly->sisters;
 
-    if (separate)
-      RGL_DoSplitPolyHorizSep(cur, extras);
-    else
-      RGL_DoSplitPolyHoriz(cur, extras);
-  }
+		if (separate)
+			RGL_DoSplitPolyHorizSep(cur, extras);
+		else
+			RGL_DoSplitPolyHoriz(cur, extras);
+	}
 }
 
 static void RGL_DoSplitPolygon(raw_polyquad_t *poly, int division,
-    boolean_t separate)
+							   boolean_t separate)
 {
-  flo_t span_x = poly->max.x - poly->min.x;
-  flo_t span_y = poly->max.y - poly->min.y;
+	flo_t span_x = poly->max.x - poly->min.x;
+	flo_t span_y = poly->max.y - poly->min.y;
 
-  DEV_ASSERT2(division > 0);
+	DEV_ASSERT2(division > 0);
 
-  if (span_x > division && span_y > division)
-  {
-    // split the shortest axis before longest one
-    if (span_x < span_y)
-    {
-      RGL_DoSplitPolyListHoriz(poly, floor(span_x / division), true);
-      span_x = 0;
-    }
-    else
-    {
-      RGL_DoSplitPolyListVert(poly, floor(span_y / division), true);
-      span_y = 0;
-    }
-  }
- 
-  if (span_x > division)
-  {
-    RGL_DoSplitPolyListHoriz(poly, floor(span_x / division), separate);
-  }
+	if (span_x > division && span_y > division)
+	{
+		// split the shortest axis before longest one
+		if (span_x < span_y)
+		{
+			RGL_DoSplitPolyListHoriz(poly, floor(span_x / division), true);
+			span_x = 0;
+		}
+		else
+		{
+			RGL_DoSplitPolyListVert(poly, floor(span_y / division), true);
+			span_y = 0;
+		}
+	}
 
-  if (span_y > division)
-  {
-    RGL_DoSplitPolyListVert(poly, floor(span_y / division), separate);
-  }
+	if (span_x > division)
+	{
+		RGL_DoSplitPolyListHoriz(poly, floor(span_x / division), separate);
+	}
+
+	if (span_y > division)
+	{
+		RGL_DoSplitPolyListVert(poly, floor(span_y / division), separate);
+	}
 }
 
 
@@ -1278,136 +1278,136 @@ static void RGL_DoSplitPolygon(raw_polyquad_t *poly, int division,
 
 
 void RGL_SplitPolyQuad(raw_polyquad_t *poly, int division,
-    boolean_t separate)
+					   boolean_t separate)
 {
-  if (poly->quad)
-    RGL_DoSplitQuad(poly, division, separate);
-  else
-    RGL_DoSplitPolygon(poly, division, separate);
+	if (poly->quad)
+		RGL_DoSplitQuad(poly, division, separate);
+	else
+		RGL_DoSplitPolygon(poly, division, separate);
 }
 
 void RGL_SplitPolyQuadLOD(raw_polyquad_t *poly, int max_lod, int base_div)
 {
-  raw_polyquad_t *trav, *tail;
-  int lod;
+	raw_polyquad_t *trav, *tail;
+	int lod;
 
-  // first step: make sure nothing is larger than 1024
- 
-  RGL_SplitPolyQuad(poly, 1024, true);
+	// first step: make sure nothing is larger than 1024
 
-  // second step: compute LOD of each bit
+	RGL_SplitPolyQuad(poly, 1024, true);
 
-  for (trav = poly; trav; )
-  {
-    raw_polyquad_t *cur = trav;
-    trav = trav->sisters;
+	// second step: compute LOD of each bit
 
-    lod = R2_GetBBoxLOD(cur->min.x, cur->min.y, cur->min.z,
-        cur->max.x, cur->max.y, cur->max.z);
+	for (trav = poly; trav; )
+	{
+		raw_polyquad_t *cur = trav;
+		trav = trav->sisters;
 
-    lod = MAX(lod, max_lod) * base_div;
+		lod = R2_GetBBoxLOD(cur->min.x, cur->min.y, cur->min.z,
+			cur->max.x, cur->max.y, cur->max.z);
 
-    if (lod > (1024 * 3/4))
-      continue;
+		lod = MAX(lod, max_lod) * base_div;
 
-    // unlink remaining pieces, putting them back in after splitting
-    // this piece.
-    //
-    cur->sisters = NULL;
-    
-    RGL_SplitPolyQuad(cur, lod, (cur->quad) ? false : true);
- 
-    for (tail = cur; tail->sisters; tail = tail->sisters)
-    { /* nothing here */ }
-    
-    DEV_ASSERT2(tail);
-    tail->sisters = trav;
-  }
+		if (lod > (1024 * 3/4))
+			continue;
+
+		// unlink remaining pieces, putting them back in after splitting
+		// this piece.
+		//
+		cur->sisters = NULL;
+
+		RGL_SplitPolyQuad(cur, lod, (cur->quad) ? false : true);
+
+		for (tail = cur; tail->sisters; tail = tail->sisters)
+		{ /* nothing here */ }
+
+		DEV_ASSERT2(tail);
+		tail->sisters = trav;
+	}
 }
 
 void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
-    void (* CoordFunc)(vec3_t *src, local_gl_vert_t *vert, void *data),
-    GLuint tex_id, boolean_t masked, boolean_t blended)
+						void (* CoordFunc)(vec3_t *src, local_gl_vert_t *vert, void *data),
+						GLuint tex_id, boolean_t masked, boolean_t blended)
 {
-  int j;
-  local_gl_vert_t *vert;
-  
-  while (poly)
-  {
-    raw_polyquad_t *cur = poly;
-    poly = poly->sisters;
+	int j;
+	local_gl_vert_t *vert;
 
-    DEV_ASSERT2(cur->num_verts > 0);
-    DEV_ASSERT2(cur->num_verts <= cur->max_verts);
+	while (poly)
+	{
+		raw_polyquad_t *cur = poly;
+		poly = poly->sisters;
 
-    vert = RGL_BeginUnit(cur->quad ? GL_QUAD_STRIP : GL_POLYGON,
-        cur->num_verts, tex_id, masked, blended);
+		DEV_ASSERT2(cur->num_verts > 0);
+		DEV_ASSERT2(cur->num_verts <= cur->max_verts);
 
-    for (j=0; j < cur->num_verts; j++)
-    {
-      (* CoordFunc)(cur->verts + j, vert + j, data);
-    }
- 
-    RGL_EndUnit(j);
-  }
+		vert = RGL_BeginUnit(cur->quad ? GL_QUAD_STRIP : GL_POLYGON,
+			cur->num_verts, tex_id, masked, blended);
+
+		for (j=0; j < cur->num_verts; j++)
+		{
+			(* CoordFunc)(cur->verts + j, vert + j, data);
+		}
+
+		RGL_EndUnit(j);
+	}
 }
 
 
 #if 0  // DEBUG ONLY
 static raw_polyquad_t * CreateTestQuad(flo_t x1, flo_t y1,
-    flo_t z1, flo_t x2, flo_t y2, flo_t z2)
+									   flo_t z1, flo_t x2, flo_t y2, flo_t z2)
 {
-  raw_polyquad_t *poly = RGL_NewPolyQuad(4, true);
+	raw_polyquad_t *poly = RGL_NewPolyQuad(4, true);
 
-  PQ_ADD_VERT(poly, x1, y1, z1);
-  PQ_ADD_VERT(poly, x1, y1, z2);
-  PQ_ADD_VERT(poly, x2, y2, z1);
-  PQ_ADD_VERT(poly, x2, y2, z2);
+	PQ_ADD_VERT(poly, x1, y1, z1);
+	PQ_ADD_VERT(poly, x1, y1, z2);
+	PQ_ADD_VERT(poly, x2, y2, z1);
+	PQ_ADD_VERT(poly, x2, y2, z2);
 
-  RGL_BoundPolyQuad(poly);
+	RGL_BoundPolyQuad(poly);
 
-  return poly;
+	return poly;
 }
 
 static raw_polyquad_t * CreateTestPolygon1(void)
 {
-  raw_polyquad_t *poly = RGL_NewPolyQuad(10, false);
+	raw_polyquad_t *poly = RGL_NewPolyQuad(10, false);
 
-  PQ_ADD_VERT(poly, 200, 200,  88);
-  PQ_ADD_VERT(poly, 500, 2600, 88);
-  PQ_ADD_VERT(poly, 550, 2600, 88);
-  PQ_ADD_VERT(poly, 750, 1400, 88);
-//  PQ_ADD_VERT(poly, 800, 1000, 88);
-  PQ_ADD_VERT(poly, 800, 800,  88);
+	PQ_ADD_VERT(poly, 200, 200,  88);
+	PQ_ADD_VERT(poly, 500, 2600, 88);
+	PQ_ADD_VERT(poly, 550, 2600, 88);
+	PQ_ADD_VERT(poly, 750, 1400, 88);
+	//  PQ_ADD_VERT(poly, 800, 1000, 88);
+	PQ_ADD_VERT(poly, 800, 800,  88);
 
-  RGL_BoundPolyQuad(poly);
+	RGL_BoundPolyQuad(poly);
 
-  return poly;
+	return poly;
 }
 
 void RGL_TestPolyQuads(void)
 {
-  raw_polyquad_t *test;
+	raw_polyquad_t *test;
 
-  L_WriteDebug("=== QUAD TEST ===\n");
-  test = CreateTestQuad(300, 400, 150, 3700, 2200, 1750);
-  RGL_DumpPolyQuad(test, false);
+	L_WriteDebug("=== QUAD TEST ===\n");
+	test = CreateTestQuad(300, 400, 150, 3700, 2200, 1750);
+	RGL_DumpPolyQuad(test, false);
 
-  L_WriteDebug("Splitting to 1000 division...\n");
-  RGL_SplitPolyQuad(test, 1000, true);
-  RGL_DumpPolyQuad(test, false);
+	L_WriteDebug("Splitting to 1000 division...\n");
+	RGL_SplitPolyQuad(test, 1000, true);
+	RGL_DumpPolyQuad(test, false);
 
-  L_WriteDebug("Further splitting to 128 division...\n");
-  RGL_SplitPolyQuad(test, 128, false);
-  RGL_DumpPolyQuad(test, false);
+	L_WriteDebug("Further splitting to 128 division...\n");
+	RGL_SplitPolyQuad(test, 128, false);
+	RGL_DumpPolyQuad(test, false);
 
-  L_WriteDebug("=== POLYGON TEST ===\n");
-  test = CreateTestPolygon1();
-  RGL_DumpPolyQuad(test, false);
+	L_WriteDebug("=== POLYGON TEST ===\n");
+	test = CreateTestPolygon1();
+	RGL_DumpPolyQuad(test, false);
 
-  L_WriteDebug("Splitting to 1000 division...\n");
-  RGL_SplitPolyQuad(test, 1000, false);
-  RGL_DumpPolyQuad(test, false);
+	L_WriteDebug("Splitting to 1000 division...\n");
+	RGL_SplitPolyQuad(test, 1000, false);
+	RGL_DumpPolyQuad(test, false);
 }
 #endif  // DEBUG
 
