@@ -57,7 +57,6 @@ public:
 	textstyle_c& operator= (const textstyle_c& rhs);
 
 	const colourmap_c *colmap;
-	rgbcol_t colour;
 
 	percent_t translucency;
 
