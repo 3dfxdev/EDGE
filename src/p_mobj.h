@@ -420,10 +420,9 @@ struct mobj_s
 
   float_t origheight;
 
-  // visibility.  NOTE: `delta_vis' is the target visibility, and not
-  // a delta.
+  // current visibility and target visibility
   float_t visibility;
-  float_t delta_vis;
+  float_t vis_target;
 
   // New flags
   int extendedflags;
