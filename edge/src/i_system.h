@@ -466,8 +466,6 @@ void I_ShutdownGraphics(void);
 #define CHECKVAL(x)  do {} while(0)
 #endif
 
-// TEMP: this gunk needed for the time being
-#define I_WriteDebug  L_WriteDebug
 void L_WriteDebug(const char *message,...) GCCATTR(format(printf, 1, 2));
 
 // TEMP: another temporary "common lib" thing.
