@@ -48,11 +48,11 @@ static const commandlist_t weapon_commands[] =
 {
 	DF("AMMOTYPE", ammo, DDF_WGetAmmo),
 	DF("AMMOPERSHOT", ammopershot, DDF_MainGetNumeric),
-	DF("CLIPSIZE", clip, DDF_MainGetNumeric),
+	DF("CLIPSIZE", clip_size, DDF_MainGetNumeric),
 	DF("AUTOMATIC", autofire, DDF_MainGetBoolean),
 	DF("SEC AMMOTYPE", sa_ammo, DDF_WGetAmmo),
 	DF("SEC AMMOPERSHOT", sa_ammopershot, DDF_MainGetNumeric),
-	DF("SEC CLIPSIZE", sa_clip, DDF_MainGetNumeric),
+	DF("SEC CLIPSIZE", sa_clip_size, DDF_MainGetNumeric),
 	DF("SEC AUTOMATIC", sa_autofire, DDF_MainGetBoolean),
 	DF("ATTACK", attack, DDF_MainRefAttack),
 	DF("SECOND ATTACK", sa_attack, DDF_MainRefAttack),
@@ -92,6 +92,7 @@ static const state_starter_t weapon_starters[] =
 	{"ATTACK",    "READY",  &buffer_weapon.attack_state},
 	{"RELOAD",    "READY",  &buffer_weapon.reload_state},
 	{"FLASH",     "REMOVE", &buffer_weapon.flash_state},
+	{"EMPTY",     "EMPTY",  &buffer_weapon.empty_state},
 	{"SECATTACK", "READY",  &buffer_weapon.sa_attack_state},
 	{"SECRELOAD", "READY",  &buffer_weapon.sa_reload_state},
 	{"SECFLASH",  "REMOVE", &buffer_weapon.sa_flash_state},
@@ -106,6 +107,7 @@ static const actioncode_t weapon_actions[] =
 	{"RAISE",             A_Raise, NULL},
 	{"LOWER",             A_Lower, NULL},
 	{"READY",             A_WeaponReady, NULL},
+	{"EMPTY",             A_WeaponEmpty, NULL},
 	{"SHOOT",             A_WeaponShoot, DDF_StateGetAttack},
 	{"EJECT",             A_WeaponEject, DDF_StateGetAttack},
 	{"REFIRE",            A_ReFire, NULL},
@@ -279,8 +281,7 @@ static void WeaponFinishEntry(void)
 	// backwards compatibility (REMOVE for 1.26)
 	if (buffer_weapon.priority < 0)
 	{
-		if (! no_obsoletes)
-			DDF_Warning("Using PRIORITY=-1 in weapons.ddf is obsolete !\n");
+		DDF_WarnError2(0x129, "Using PRIORITY=-1 in weapons.ddf is obsolete !\n");
 
 		buffer_weapon.dangerous = true;
 		buffer_weapon.priority = 10;
@@ -507,7 +508,7 @@ void weapondef_c::CopyDetail(weapondef_c &src)
   
 	ammo = src.ammo;		
 	ammopershot = src.ammopershot;	
-	clip = src.clip;				
+	clip_size = src.clip_size;				
 	autofire = src.autofire;		
 	kick = src.kick;				
   
@@ -515,7 +516,7 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 	
 	sa_ammo = src.sa_ammo;		
 	sa_ammopershot = src.sa_ammopershot;	
-	sa_clip = src.sa_clip;			
+	sa_clip_size = src.sa_clip_size;			
 	sa_autofire = src.sa_autofire;		
   
 	first_state = src.first_state;
@@ -527,7 +528,8 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 	attack_state = src.attack_state;	
 	reload_state = src.reload_state;	
 	flash_state = src.flash_state;		
-	
+	empty_state = src.empty_state;		
+
 	sa_attack_state = src.sa_attack_state;	
 	sa_reload_state = src.sa_reload_state;	
 	sa_flash_state = src.sa_flash_state;		
@@ -575,7 +577,7 @@ void weapondef_c::Default(void)
 
 	ammo = AM_NoAmmo;		
 	ammopershot = 0;	
-	clip = 1;				
+	clip_size = 1;				
 	autofire = false;		
 	kick = 0.0f;				
 
@@ -583,7 +585,7 @@ void weapondef_c::Default(void)
 	
 	sa_ammo = AM_NoAmmo;		
 	sa_ammopershot = 0;	
-	sa_clip = 1;			
+	sa_clip_size = 1;			
 	sa_autofire = false;	
 
 	first_state = 0;
@@ -595,6 +597,7 @@ void weapondef_c::Default(void)
 	attack_state = 0;
 	reload_state = 0;
 	flash_state = 0; 
+	empty_state = 0; 
 	
 	sa_attack_state = 0;
 	sa_reload_state = 0;

@@ -522,6 +522,9 @@ static void UpdateWidgets(void)
 			{
 				w_ready.num = &consoleplayer->ammo[pw->info->ammo].num;
 
+				if (pw->info->clip_size > 1)
+					w_ready.num += consoleplayer->weapons[consoleplayer->ready_wp].clip_size;
+
 				// set ammo colour as in BOOM.  -AJA- Experimental !!
 				if (stbar_colours)
 				{

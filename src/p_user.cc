@@ -843,7 +843,7 @@ void P_UpdateTotalArmour(player_t *p)
 // Returns true if player didn't already have the weapon.  If
 // successful and `index' is non-NULL, it is set to the new index.
 //
-bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
+bool P_AddWeapon(player_t *player, weapondef_c *info, int *index, bool switch_to)
 {
 	int i;
 	int slot = -1;
@@ -896,17 +896,29 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 	if (slot < 0)
 		return false;
 
+	if (index)
+		(*index) = slot;
+
 	L_WriteDebug("P_AddWeapon: [%s] @ %d\n", info->ddf.name.GetString(), slot);
 
 	player->weapons[slot].owned = true;
 	player->weapons[slot].info  = info;
-	player->weapons[slot].clip_size    = info->clip;
-	player->weapons[slot].sa_clip_size = info->sa_clip;
+	player->weapons[slot].clip_size    = 0;
+	player->weapons[slot].sa_clip_size = 0;
 
 	P_UpdateAvailWeapons(player);
 
-	if (index)
-		(*index) = slot;
+	// new weapons should fill clip if possible
+	if (switch_to && ! P_FillNewWeapon(player, slot))
+		switch_to = false;
+
+	if (switch_to)
+	{
+		player->pending_wp = (weapon_selection_e) slot;
+
+		// be cheeky... :-)
+		player->grin_count = GRIN_TIME;
+	}
 
 	// handle the icky case of holding the weapon which is being
 	// replaced by the new one.  This won't look great, the weapon
@@ -983,30 +995,10 @@ void P_GiveInitialBenefits(player_t *p, const mobjtype_c *info)
 	epi::array_iterator_c it;
 	weapondef_c *w;
 	
-	int priority = -100;
-	int pw_index;
 	int i;
 
 	p->ready_wp   = WPSEL_None;
 	p->pending_wp = WPSEL_NoChange;
-
-	for (it=weapondefs.GetIterator(weapondefs.GetDisabledCount());
-		it.IsValid(); it++)
-	{
-		w = ITERATOR_TO_TYPE(it, weapondef_c*);
-		if (!w->autogive)
-			continue;
-
-		if (!P_AddWeapon(p, w, &pw_index))
-			continue;
-
-		// choose highest priority FREE weapon as the default
-		if (w->priority > priority)
-		{
-			priority = w->priority;
-			p->pending_wp = p->ready_wp = (weapon_selection_e)pw_index;
-		}
-	}
 
 	for (i=0; i < 10; i++)
 		p->key_choices[i] = 0;
@@ -1030,6 +1022,33 @@ void P_GiveInitialBenefits(player_t *p, const mobjtype_c *info)
 
 	// give all initial benefits
 	P_GiveBenefitList(p, NULL, info->initial_benefits, false);
+
+	int priority = -100;
+
+	// give all free weapons
+	for (it=weapondefs.GetIterator(weapondefs.GetDisabledCount());
+		it.IsValid(); it++)
+	{
+		w = ITERATOR_TO_TYPE(it, weapondef_c*);
+		if (!w->autogive)
+			continue;
+
+		int pw_index;
+
+		if (!P_AddWeapon(p, w, &pw_index, false))
+			continue;
+
+		// choose highest priority FREE weapon as the default
+		// FIXME: make sure AMMO is avail !!!!!
+		if (w->priority > priority)
+		{
+			priority = w->priority;
+			p->pending_wp = p->ready_wp = (weapon_selection_e)pw_index;
+		}
+	}
+
+	if (p->ready_wp >= 0)
+		P_FillNewWeapon(p, p->ready_wp);
 
 	// refresh to remove all stuff from status bar
 	P_UpdateAvailWeapons(p);
