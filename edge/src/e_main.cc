@@ -1024,7 +1024,45 @@ static void InitDirectories(void)
 	}
 	else
 	{
-		homedir = Z_StrDup(".");
+		char *home = getenv("HOME");
+		if (home)
+		{
+			bool valid = true;
+			char *tempdir;
+
+			tempdir = I_PreparePath(home);
+
+			homedir = Z_New(char, strlen(tempdir) + strlen(HOMESUBDIR) + 2);
+			sprintf(homedir, "%s%c%s", tempdir, DIRSEPARATOR, HOMESUBDIR);
+
+			Z_Free(tempdir);
+
+			if (!I_PathIsDirectory(homedir))
+			{
+				// Hack with define before we stick in the epi
+#ifdef WIN32
+				mkdir(homedir);
+#else
+				mkdir(homedir, SAVEGAMEMODE);
+#endif
+				// Check whether the directory was created
+				if (!I_PathIsDirectory(homedir))
+				{
+					valid = false;
+				}
+			}
+
+			if (!valid)
+			{
+				Z_Free(homedir);
+				homedir = NULL;
+			}
+		}
+		
+		if (!homedir)
+		{
+			homedir = Z_StrDup(".");
+		}
 	}
 
 	// Get the Game Directory from parameter.
@@ -1035,7 +1073,8 @@ static void InitDirectories(void)
 	}
 	else
 	{
-		gamedir = Z_StrDup(homedir);
+		//gamedir = Z_StrDup(homedir);
+		gamedir = Z_StrDup(".");
 	}
 
 	// add parameter file "gamedir/parms" if it exists.
@@ -1078,20 +1117,17 @@ static void InitDirectories(void)
 	p = M_GetParm("-config");
 	if (p)
 	{
-		cfgfile = M_ComposeFileName(gamedir, p);
+		cfgfile = M_ComposeFileName(homedir, p);
 	}
 	else
 	{
-		char *s = Z_New(char, strlen(gamedir) + strlen(EDGECONFIGFILE) + 2);
-	    sprintf(s, "%s%c%s", gamedir, DIRSEPARATOR, EDGECONFIGFILE);
+		char *s = Z_New(char, strlen(homedir) + strlen(EDGECONFIGFILE) + 2);
+	    sprintf(s, "%s%c%s", homedir, DIRSEPARATOR, EDGECONFIGFILE);
 		cfgfile = s;
-//		char *s = Z_New(char, strlen(EDGECONFIGFILE)+3);
-//		sprintf(s, "%c%c%s", '~', DIRSEPARATOR, EDGECONFIGFILE);
-//		cfgfile = s;
 	}
 
 	// savegame directory
-	savedir = M_ComposeFileName(gamedir, SAVEGAMEDIR);
+	savedir = M_ComposeFileName(homedir, SAVEGAMEDIR);
 
 #ifdef WIN32
     mkdir(savedir);
@@ -1164,12 +1200,12 @@ static void IdentifyVersion(void)
 		else
 		{
 			// it was a file
-			iwaddir = Z_StrDup(homedir);
+			iwaddir = Z_StrDup(gamedir);
 		}
 	}
 	else
 	{
-		iwaddir = Z_StrDup(homedir);
+		iwaddir = Z_StrDup(gamedir);
 		iwad = NULL;
 	}
 
@@ -1201,7 +1237,7 @@ static void IdentifyVersion(void)
 		done = false;
 		for (i = 0; i < 3 && !done; i++)
 		{
-			location = (i == 0 ? iwaddir : (i == 1 ? gamedir : homedir));
+			location = (i == 0 ? iwaddir : gamedir);
 
 			//
 			// go through the available wad names constructing an access
@@ -1237,23 +1273,26 @@ static void IdentifyVersion(void)
 		I_Error("IdentifyVersion: No IWADS found!\n");
 
 	// Add the required WAD file (EDGE.WAD), search in iwaddir and homedir.
-	length = MAX(strlen(homedir), strlen(iwaddir)) + strlen(REQUIREDWAD) + strlen(EDGEWADEXT) + 3;
+	length = MAX(strlen(gamedir), strlen(iwaddir)) + strlen(REQUIREDWAD) + strlen(EDGEWADEXT) + 3;
 	filename = (char*)I_TmpMalloc(length);
 
 	done = false;
 	for (i = 0; i < 2 && !done; i++)
 	{
-		location = (i == 0 ? iwaddir : homedir);
+		location = (i == 0 ? iwaddir : gamedir);
 
-		sprintf(filename, "%s%c%s.%s", location, DIRSEPARATOR, REQUIREDWAD, EDGEWADEXT);
-
-		if (I_Access(filename))
+		if (location)
 		{
-			// Only read the DDF/RTS lumps in EDGE.WAD if we are not in
-			// external-ddf mode.
+			sprintf(filename, "%s%c%s.%s", location, DIRSEPARATOR, REQUIREDWAD, EDGEWADEXT);
 
-			W_AddRawFilename(filename, external_ddf ? false : true);
-			done = true;
+			if (I_Access(filename))
+			{
+				// Only read the DDF/RTS lumps in EDGE.WAD if we are not in
+				// external-ddf mode.
+
+				W_AddRawFilename(filename, external_ddf ? false : true);
+				done = true;
+			}
 		}
 	}
 
