@@ -665,7 +665,7 @@ const char* language_c::operator[](const char *refname)
 	if (idx>=0)
 	{
 		if (current < 0 || current >= choices.GetSize())
-			return NULL;	// FIXME!! Throw error		
+			return refname;  // -AJA- preserve old behaviour
 		
 		char *s = values[current][idx];
 		if (s != NULL)
@@ -684,7 +684,7 @@ const char* language_c::operator[](const char *refname)
 		}
 	}
 	
-	return NULL;
+	return refname;  // -AJA- preserve old behaviour
 }
 
 /*
