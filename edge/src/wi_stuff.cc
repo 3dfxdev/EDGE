@@ -517,8 +517,6 @@ static void InitNoState(void)
 {
 	state = NoState;
 	acceleratestage = false;
-	
-	// -ACB- 2004/06/27 If there is no next map, move on
 	cnt = 10;
 }
 
@@ -712,7 +710,7 @@ static void UpdateDeathmatchStats(void)
 			{
 				S_StartSound(NULL, worldint.GetGameDef()->accel_snd);
 
-				// Skip next loc on no map -ACB- 2004/05/27
+				// Skip next loc on no map -ACB- 2004/06/27
 				if (!worldint.nummappos || !wbs->next)	
 					InitNoState();
 				else
@@ -997,7 +995,7 @@ static void UpdateNetgameStats(void)
 			{
 				S_StartSound(NULL, worldint.GetGameDef()->nextmap);
 
-				// Skip next loc on no map -ACB- 2004/05/27
+				// Skip next loc on no map -ACB- 2004/06/27
 				if (!worldint.nummappos || !wbs->next)
 					InitNoState();
 				else
@@ -1176,7 +1174,7 @@ static void UpdateStats(void)
 		{
 			S_StartSound(NULL, worldint.GetGameDef()->nextmap);
 
-			// Skip next loc on no map -ACB- 2004/05/27
+			// Skip next loc on no map -ACB- 2004/06/27
 			if (!worldint.nummappos || !wbs->next)
 				InitNoState();
 			else
