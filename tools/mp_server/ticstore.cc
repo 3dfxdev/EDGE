@@ -26,7 +26,7 @@
 #include "ui_log.h"
 
 
-tic_band_c::tic_band_c(int _size) : size(_size), received(false)
+tic_band_c::tic_band_c(int _size) : size(_size)
 {
 	cmds = new raw_ticcmd_t[_size];
 }
@@ -57,10 +57,13 @@ void tic_band_c::Write(const raw_ticcmd_t *src, int start, int count)
 
 //------------------------------------------------------------------------
 
-tic_store_c::tic_store_c(int band_size) : cur_tic(0), past_tic(0)
+tic_store_c::tic_store_c(int band_size)
 {
 	for (int i = 0; i < MP_SAVETICS*2; i++)
+	{
 		bands[i] = new tic_band_c(band_size);
+		received[i] = false;
+	}
 }
 
 tic_store_c::~tic_store_c()
@@ -72,37 +75,32 @@ tic_store_c::~tic_store_c()
 	}
 }
 
-void tic_store_c::Reset(int tic_num)
+void tic_store_c::Clear(int tic_num)
 {
-	cur_tic  = tic_num;
-	past_tic = tic_num;  // i.e. none
+	received[tic_num % (MP_SAVETICS*2)] = 0;
 }
 
-bool tic_store_c::CanRead (int tic_num) const
+bool tic_store_c::HasGot(int tic_num) const
 {
-	return (tic_num >= past_tic && tic_num < cur_tic + MP_SAVETICS);
+	return received[tic_num % (MP_SAVETICS*2)];
 }
 
-bool tic_store_c::CanWrite(int tic_num) const
+void tic_store_c::Read(int tic_num, raw_ticcmd_t *dest) const
 {
-	return (tic_num >= cur_tic && tic_num < cur_tic + MP_SAVETICS);
-}
-
-void tic_store_c::Read(int tic_num, raw_ticcmd_t *dest, int start, int count) const
-{
-	SYS_ASSERT(CanRead(tic_num));
+	// should never read a band which we didn't write
+	SYS_ASSERT(received[tic_num % (MP_SAVETICS*2)]);
 
 	tic_band_c *band = bands[tic_num % (MP_SAVETICS*2)];
 
-	band->Read(dest, start, count);
+	band->Read(dest, 0, band->size);
 }
 
-void tic_store_c::Write(int tic_num, const raw_ticcmd_t *src, int start, int count)
+void tic_store_c::Write(int tic_num, const raw_ticcmd_t *src)
 {
-	SYS_ASSERT(CanWrite(tic_num));
-
 	tic_band_c *band = bands[tic_num % (MP_SAVETICS*2)];
 
-	band->Write(src, start, count);
+	band->Write(src, 0, band->size);
+
+	received[tic_num % (MP_SAVETICS*2)] = true;
 }
 
