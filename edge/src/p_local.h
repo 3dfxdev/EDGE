@@ -315,8 +315,7 @@ void P_MapInit(void);
 bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing);
 mobj_t *P_MapFindCorpse(mobj_t * thing);
 mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool force_aim);
-mobj_t *P_MapTargetTheory(mobj_t * source);
-void P_AimTargetTheory(mobj_t * source, float *x, float *y, float *z);
+void P_TargetTheory(mobj_t * source, mobj_t * target, float *x, float *y, float *z);
 
 mobj_t *P_AimLineAttack(mobj_t * t1, angle_t angle, float distance, float *slope);
 void P_UpdateMultipleFloors(sector_t * sector);

@@ -1563,50 +1563,42 @@ void P_LineAttack(mobj_t * t1, angle_t angle, float distance,
 }
 
 //
-// P_MapTargetTheory
+// P_TargetTheory
 //
-// Returns a dummy moving object for a target, used for mobjs
-// that don't have a specific target; but need to launch some sort
-// of projectile in the direction based upon the angle & vertical
-// angle of the mobj.
+// Compute destination for projectiles, allowing for targets that
+// don't exist (e.g. since we have autoaim disabled).
 //
-// -ACB- 1998/09/01
+// -AJA- 2005/02/07: Rewrote the DUMMYMOBJ stuff.
 //
-void P_AimTargetTheory(mobj_t * source, float *x, float *y, float *z)
+void P_TargetTheory(mobj_t * source, mobj_t * target, float *x, float *y, float *z)
 {
-	float start_z;
-
-	if (source->info)
-		start_z = source->z + source->height * PERCENT_2_FLOAT(source->info->shotheight);
+	if (target)
+	{
+		(*x) = target->x;
+		(*y) = target->y;
+		(*z) = MO_MIDZ(target);
+	}
 	else
-		start_z = source->z + source->height / 2 + 8;
+	{
+		float start_z;
 
-	(*x) = source->x + MISSILERANGE * M_Cos(source->angle);
-	(*y) = source->y + MISSILERANGE * M_Sin(source->angle);
-	(*z) = start_z   + MISSILERANGE * M_Tan(source->vertangle);
-}
+		if (source->info)
+			start_z = source->z + source->height *
+				PERCENT_2_FLOAT(source->info->shotheight);
+		else
+			start_z = source->z + source->height / 2 + 8;
 
-mobj_t *P_MapTargetTheory(mobj_t * source)
-{
-	static mobj_t theorytarget;
-
-	Z_Clear(&theorytarget, mobj_t, 1);
-
-	P_AimTargetTheory(source,
-		&theorytarget.x, &theorytarget.y, &theorytarget.z);
-
-	theorytarget.extendedflags = EF_DUMMYMOBJ;
-	theorytarget.radius = theorytarget.height = 1;
-
-	return &theorytarget;
+		(*x) = source->x + MISSILERANGE * M_Cos(source->angle);
+		(*y) = source->y + MISSILERANGE * M_Sin(source->angle);
+		(*z) = start_z   + MISSILERANGE * M_Tan(source->vertangle);
+	}
 }
 
 //
 // P_MapTargetAutoAim
 //
-// Returns a moving object for a target; will search for a mobj to
-// lock onto, however a dummy target returned if no object cannot be
-// locked onto.
+// Returns a moving object for a target.  Will search for a mobj
+// to lock onto.  Returns NULL if nothing could be locked onto.
 //
 // -ACB- 1998/09/01
 // -AJA- 1999/08/08: Added `force_aim' to fix chainsaw.
@@ -1618,7 +1610,7 @@ mobj_t *DoMapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 	// -KM- 1999/01/31 Autoaim is an option.
 	if (source->player && !level_flags.autoaim && !force_aim)
 	{
-		return P_MapTargetTheory(source);
+		return NULL;
 	}
 
 	Z_Clear(&aim_I, shoot_trav_info_t, 1);
@@ -1654,16 +1646,16 @@ mobj_t *DoMapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 		PTR_AimTraverse);
 
 	if (! aim_I.target)
-	{
-		return P_MapTargetTheory(source);
-	}
+		return NULL;
 
 	// -KM- 1999/01/31 Look at the thing you aimed at.  Is sometimes
 	//   useful, sometimes annoying :-)
 	if (source->player && level_flags.autoaim == AA_MLOOK)
 	{
-		source->vertangle = M_ATan((aim_I.target->z - source->z) /
-			P_ApproxDistance(source->x - aim_I.target->x, source->y - aim_I.target->y));
+		float slope = P_ApproxSlope(source->x - aim_I.target->x,
+				source->y - aim_I.target->y, aim_I.target->z - source->z);
+
+		source->vertangle = M_ATan(slope);
 
 		if (source->vertangle > LOOKUPLIMIT && source->vertangle < LOOKDOWNLIMIT)
 		{
@@ -1682,7 +1674,7 @@ mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 	mobj_t *target = DoMapTargetAutoAim(source, angle, distance, force_aim);
 
 	// If that is a miss, aim slightly to the left or right
-	if (target->extendedflags & EF_DUMMYMOBJ)
+	if (! target)
 	{
 		angle_t diff = ANG180 / 32;
 
@@ -1690,13 +1682,11 @@ mobj_t *P_MapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 			diff = 0 - diff;
 
 		mobj_t *T2 = DoMapTargetAutoAim(source, angle + diff, distance, force_aim);
+		if (T2)
+			return T2;
 
-		if (T2->extendedflags & EF_DUMMYMOBJ)
-		{
-			T2 = DoMapTargetAutoAim(source, angle - diff, distance, force_aim);
-		}
-
-		if (! (T2->extendedflags & EF_DUMMYMOBJ))
+		T2 = DoMapTargetAutoAim(source, angle - diff, distance, force_aim);
+		if (T2)
 			return T2;
 	}
 

@@ -257,9 +257,7 @@ typedef enum
 	// more recent pain.
 	EF_NOGRUDGE = 1024,
 
-	// This object is dummy, used for carring a dummy set of co-ordinates for
-	// use as a target.
-	EF_DUMMYMOBJ = 2048,
+	EF_UNUSED_2048 = 2048,
 
 	// Archvile cannot resurrect this monster
 	EF_NORESURRECT = 4096,
