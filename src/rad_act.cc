@@ -295,7 +295,15 @@ void RAD_DisplayTips(void)
 			int x = (int)(SCREENWIDTH  * PERCENT_2_FLOAT(current->p.x_pos));
 			int y = (int)(SCREENHEIGHT * PERCENT_2_FLOAT(current->p.y_pos));
 
-			vctx.DrawImage(x, y, IM_WIDTH(image), IM_HEIGHT(image), image,
+			int w = FROM_320(IM_WIDTH(image));
+			int h = FROM_200(IM_HEIGHT(image));
+
+			y -= h / 2;
+
+			if (! current->p.left_just)
+				x -= h / 2;
+
+			vctx.DrawImage(x, y, w, h, image,
 				0, 0, IM_RIGHT(image), IM_BOTTOM(image), NULL, alpha);
 
 			continue;
