@@ -223,36 +223,29 @@ void RGL_DrawSkyBox(void)
 	glTexCoord2f(v1, v1); glVertex3f( dist, -dist, bottom);
 	glEnd();
 
-	// north
-	// glColor3f(1, 0, 0);
 	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(c_side));
+	glBegin(GL_QUAD_STRIP);
 
-	glBegin(GL_QUADS);
-	glTexCoord2f(side_w * 1.0f, side_b); glVertex3f(-dist,  dist, bottom);
-	glTexCoord2f(side_w * 1.0f, side_t); glVertex3f(-dist,  dist, top);
-	glTexCoord2f(side_w * 0.0f, side_t); glVertex3f( dist,  dist, top);
-	glTexCoord2f(side_w * 0.0f, side_b); glVertex3f( dist,  dist, bottom);
-
-	// east
-	// glColor3f(1, 0, 1);
+	// north-east
 	glTexCoord2f(side_w * 4.0f, side_b); glVertex3f( dist,  dist, bottom);
 	glTexCoord2f(side_w * 4.0f, side_t); glVertex3f( dist,  dist, top);
-	glTexCoord2f(side_w * 3.0f, side_t); glVertex3f( dist, -dist, top);
-	glTexCoord2f(side_w * 3.0f, side_b); glVertex3f( dist, -dist, bottom);
 
-	// south
-	// glColor3f(1, 1, 0);
+	// south-east
 	glTexCoord2f(side_w * 3.0f, side_b); glVertex3f( dist, -dist, bottom);
 	glTexCoord2f(side_w * 3.0f, side_t); glVertex3f( dist, -dist, top);
-	glTexCoord2f(side_w * 2.0f, side_t); glVertex3f(-dist, -dist, top);
-	glTexCoord2f(side_w * 2.0f, side_b); glVertex3f(-dist, -dist, bottom);
 
-	// west
-	// glColor3f(1, 0.5, 0);
+	// south-west
 	glTexCoord2f(side_w * 2.0f, side_b); glVertex3f(-dist, -dist, bottom);
 	glTexCoord2f(side_w * 2.0f, side_t); glVertex3f(-dist, -dist, top);
-	glTexCoord2f(side_w * 1.0f, side_t); glVertex3f(-dist,  dist, top);
+
+	// north-west
 	glTexCoord2f(side_w * 1.0f, side_b); glVertex3f(-dist,  dist, bottom);
+	glTexCoord2f(side_w * 1.0f, side_t); glVertex3f(-dist,  dist, top);
+
+	// back to north-east
+	glTexCoord2f(side_w * 0.0f, side_b); glVertex3f( dist,  dist, bottom);
+	glTexCoord2f(side_w * 0.0f, side_t); glVertex3f( dist,  dist, top);
+
 	glEnd();
 
 	W_ImageDone(c_side);
