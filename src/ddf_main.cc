@@ -1814,14 +1814,22 @@ dlightinfo_c::dlightinfo_c()
 //
 dlightinfo_c::dlightinfo_c(dlightinfo_c &rhs)
 {
-	type = rhs.type;
-	intensity = rhs.intensity;
-	colour = rhs.colour;
-	height = rhs.height;
+	Copy(rhs);
 }
 
 //
-// dlightinfo::Default()
+// dlightinfo_c::Copy()
+//
+void dlightinfo_c::Copy(dlightinfo_c &src)
+{
+	type = src.type;
+	intensity = src.intensity;
+	colour = src.colour;
+	height = src.height;
+}
+
+//
+// dlightinfo_c::Default()
 //
 void dlightinfo_c::Default()
 {
@@ -1829,6 +1837,17 @@ void dlightinfo_c::Default()
 	intensity = 32;
 	colour = 0xFFFFFF;			// (RGB 8:8:8)
 	height = PERCENT_MAKE(50);	
+}
+
+//
+// dlightinfo_c assignment operator
+//
+dlightinfo_c& dlightinfo_c::operator=(dlightinfo_c &rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+
+	return *this;
 }
 
 // ---> haloinfo class
@@ -1846,13 +1865,21 @@ haloinfo_c::haloinfo_c()
 //
 haloinfo_c::haloinfo_c(haloinfo_c &rhs)
 {
-	height = rhs.height;
-	size = rhs.size;
-	minsize = rhs.minsize;
-	maxsize = rhs.maxsize;
-	translucency = rhs.translucency;
-	colour = rhs.colour;					// (RGB 8:8:8)
-	graphic = rhs.graphic;
+	Copy(rhs);
+}
+
+//
+// haloinfo_c::Copy()
+//
+void haloinfo_c::Copy(haloinfo_c &src)
+{
+	height = src.height;
+	size = src.size;
+	minsize = src.minsize;
+	maxsize = src.maxsize;
+	translucency = src.translucency;
+	colour = src.colour;					// (RGB 8:8:8)
+	graphic = src.graphic;
 }
 
 //
@@ -1867,4 +1894,15 @@ void haloinfo_c::Default(void)
 	translucency = PERCENT_MAKE(50);
 	colour = 0xFFFFFF;					// (RGB 8:8:8)
 	graphic.Clear();
+}
+
+//
+// haloinfo_c& assignment operator
+//
+haloinfo_c& haloinfo_c::operator=(haloinfo_c &rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+
+	return *this;
 }
