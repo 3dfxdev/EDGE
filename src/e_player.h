@@ -232,8 +232,9 @@ typedef struct player_s
 
   // This function will be called by P_PlayerThink to initialise
   // the ticcmd_t.
-  void (*thinker)(struct player_s *, void *data, ticcmd_t *dest);
+  void (*thinker)(const struct player_s *, void *data, ticcmd_t *dest);
   void *data;
+  void (*level_init)(const struct player_s *, void *data);
 
   // Linked list of in-game players.
   struct player_s *prev;
@@ -286,8 +287,8 @@ typedef struct
 wbstartstruct_t;
 
 // Player thinkers
-void P_ConsolePlayerThinker(player_t *p, void *data, ticcmd_t *dest);
-void P_BotPlayerThinker(player_t *p, void *data, ticcmd_t *dest);
+void P_ConsolePlayerThinker(const player_t *p, void *data, ticcmd_t *dest);
+void P_BotPlayerThinker(const player_t *p, void *data, ticcmd_t *dest);
 
 // This is the only way to create a new player.
 player_t *P_AddPlayer(int pnum);

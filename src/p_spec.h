@@ -160,10 +160,10 @@ void P_RemoteActivation(mobj_t * thing, int typenum, int tag,
 void P_PlayerInSpecialSector(player_t * player, sector_t *sec);
 
 // Utilities...
-int twoSided(int sector, int line);
-side_t *getSide(int currentSector, int line, int side);
-sector_t *getSector(int currentSector, int line, int side);
-sector_t *getNextSector(line_t * line, sector_t * sec);
+int P_TwoSided(int sector, int line);
+side_t *P_GetSide(int currentSector, int line, int side);
+sector_t *P_GetSector(int currentSector, int line, int side);
+sector_t *P_GetNextSector(line_t * line, sector_t * sec);
 
 // Info Needs....
 float_t P_FindLowestFloorSurrounding(sector_t * sec);

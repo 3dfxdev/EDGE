@@ -28,15 +28,71 @@
 
 #include "e_player.h"
 
+// This describes what action the bot wants to do.
+// It will be translated to a ticcmd_t by P_BotPlayerThinker.
+typedef struct botcmd_s
+{
+  // The
+  enum
+  {
+    FOLLOW_NONE = 0,
+    FOLLOW_MOBJ,
+    FOLLOW_XY,
+    FOLLOW_DIR
+  } followtype;
+  union
+  {
+    struct {float_t x,y;} xyz;
+    struct {angle_t angle; float_t distance;} dir;
+    mobj_t *mo;
+  } followobj;
+
+  // If we want to face someone, do this here.
+  // Either face a mobj, a specified map coordinate, or a given angle.
+  enum
+  {
+    FACE_NONE = 0,
+    FACE_MOBJ,
+    FACE_XYZ,
+    FACE_ANGLE
+  }
+  facetype;
+  union
+  {
+    struct {float_t x,y,z;} xyz;
+    struct {angle_t angle; float_t slope;} angle;
+    mobj_t *mo;
+  }
+  faceobj;
+
+  // The weapon we want to use. -1 if the current one is fine.
+  int new_weapon;
+
+  boolean_t attack;
+  boolean_t second_attack;
+  boolean_t use;
+  boolean_t jump;
+} botcmd_t;
+
 typedef struct bot_s
 {
-  player_t player;
+  const player_t *pl;
+
   boolean_t strafedir;
   int confidence;
+  int threshold;
+  int movecount;
+  mobj_t *target;
+  mobj_t *supportobj;
+  angle_t angle;
+
+  botcmd_t cmd;
+
   struct bot_s *next;
 }
 bot_t;
 
+void P_BotCreate(player_t *p);
 void BOT_DMSpawn(void);
 void P_RemoveBots(void);
 

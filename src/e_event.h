@@ -95,7 +95,7 @@ typedef enum
   BT_CHANGE = 4,
 
   // The 3bit weapon mask and shift, convenience.
-  // -KM- 1998/11/25 Allow 10 weapon keys
+  // -KM- 1998/11/25 Allow 16 weapon keys
   BT_WEAPONMASK = (8 + 16 + 32 + 64),
   BT_WEAPONSHIFT = 3,
 
@@ -133,7 +133,7 @@ extbuttoncode_t;
 //
 // GLOBAL VARIABLES
 //
-#define MAXEVENTS		128
+#define MAXEVENTS 128
 
 extern event_t events[MAXEVENTS];
 extern int eventhead;
