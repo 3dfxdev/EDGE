@@ -20,7 +20,6 @@
 #define __GUI_CTLS_H__
 
 #include "gui_gui.h"
-#include "v_screen.h"
 
 // Standard gui controls.  (Need more!)
 

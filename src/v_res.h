@@ -32,8 +32,6 @@
 #include "dm_type.h"
 #include "dm_defs.h"
 #include "r_data.h"
-#include "v_screen.h"
-#include "v_video1.h"
 
 bool V_MultiResInit(void);
 void V_InitResolution(void);

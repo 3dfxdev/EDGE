@@ -28,7 +28,6 @@
 
 #include "dm_type.h"
 #include "e_event.h"
-#include "v_screen.h"
 
 // Size of statusbar.
 #define ST_HEIGHT       32

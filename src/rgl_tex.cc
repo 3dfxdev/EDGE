@@ -37,7 +37,6 @@
 #include "p_mobj.h"
 #include "r_defs.h"
 #include "r_main.h"
-#include "r_plane.h"
 #include "r_sky.h"
 #include "r_state.h"
 #include "r_things.h"

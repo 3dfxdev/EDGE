@@ -33,7 +33,6 @@
 #include "con_defs.h"
 #include "dm_state.h"
 #include "r_main.h"
-#include "r_segs.h"
 #include "r_state.h"
 #include "r_view.h"
 #include "v_colour.h"

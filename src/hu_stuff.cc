@@ -35,7 +35,6 @@
 #include "m_misc.h"
 #include "m_swap.h"
 #include "r_defs.h"
-#include "r_plane.h"
 #include "r_things.h"
 #include "rad_trig.h"
 #include "s_sound.h"

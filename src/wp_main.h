@@ -30,7 +30,6 @@
 #ifndef __F_WIPE_H__
 #define __F_WIPE_H__
 
-#include "v_screen.h"
 #include "m_fixed.h"
 
 //

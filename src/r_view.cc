@@ -30,7 +30,6 @@
 #include "m_math.h"
 #include "r_data.h"
 #include "r_main.h"
-#include "r_plane.h"
 #include "r_things.h"
 #include "z_zone.h"
 
