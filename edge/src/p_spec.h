@@ -91,7 +91,26 @@ typedef struct button_s
 }
 button_t;
 
-// -ACB- 2001/01/29 Maybe I'm thinking too OO.
+// --> Button list class
+class buttonlist_c : public epi::array_c
+{
+public:
+	buttonlist_c() : epi::array_c(sizeof(button_t)) {}
+	~buttonlist_c() { Clear(); }
+
+private:
+	void CleanupObject(void *obj) { /* ... */ }
+
+public:
+	int Find(button_t *b);
+	button_t* GetNew();
+	int GetSize() {	return array_entries; } 
+	bool IsPressed(line_t* line);
+	void SetSize(int count);
+	
+	button_t* operator[](int idx) { return (button_t*)FetchObject(idx); } 
+};
+
 typedef struct gen_move_s
 {
 	movedat_e whatiam;
@@ -192,8 +211,8 @@ slider_move_t;
 extern bool levelTimer;
 extern int levelTimeCount;
 
-extern int maxbuttons;
-extern button_t *buttonlist;
+extern buttonlist_c buttonlist;
+
 extern light_t *lights;
 extern gen_move_t *active_movparts;
 
@@ -262,6 +281,5 @@ bool EV_DoElevator(sector_t * sec, const elevatordef_c * type, sector_t * model)
 //
 bool P_InitSwitchList(void);
 void P_ChangeSwitchTexture(line_t * line, bool useAgain, line_special_e specials, bool noSound);
-bool P_ButtonCheckPressed(line_t * line);
 
 #endif

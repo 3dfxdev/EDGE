@@ -921,7 +921,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 	}
 
 	// Check if button already pressed
-	if (line && P_ButtonCheckPressed(line))
+	if (line && buttonlist.IsPressed(line))
 		return false;
 
 	// Do lights
@@ -1475,7 +1475,6 @@ static INLINE void ApplyScroll(vec2_t& offset, const vec2_t& delta)
 //
 void P_UpdateSpecials(void)
 {
-	int i;
 	line_t *line;
 	sector_t *sec;
 	const linetype_c *special;
@@ -1524,39 +1523,43 @@ void P_UpdateSpecials(void)
 	}
 
 	// DO BUTTONS
-	for (i = 0; i < maxbuttons; i++)
+	epi::array_iterator_c it;
+	button_t *b;
+	
+	for (it=buttonlist.GetBaseIterator(); it.IsValid(); it++)
 	{
-		if (buttonlist[i].btimer == 0)
+		b = ITERATOR_TO_PTR(it, button_t);
+
+		if (b->btimer == 0)
 			continue;
 
-		buttonlist[i].btimer--;
+		b->btimer--;
 
-		if (buttonlist[i].btimer != 0)
+		if (b->btimer != 0)
 			continue;
 
-		switch (buttonlist[i].where)
+		switch (b->where)
 		{
 			case BWH_Top:
-				buttonlist[i].line->side[0]->top.image = buttonlist[i].bimage;
+				b->line->side[0]->top.image = b->bimage;
 				break;
 
 			case BWH_Middle:
-				buttonlist[i].line->side[0]->middle.image = buttonlist[i].bimage;
+				b->line->side[0]->middle.image = b->bimage;
 				break;
 
 			case BWH_Bottom:
-				buttonlist[i].line->side[0]->bottom.image = buttonlist[i].bimage;
+				b->line->side[0]->bottom.image = b->bimage;
 				break;
 
 			case BWH_None:
 				I_Error("INTERNAL ERROR: bwhere is BWH_None !\n");
 		}
 
-		if (buttonlist[i].off_sound)
-			S_StartSound((mobj_t *) &buttonlist[i].line->frontsector->soundorg,
-					buttonlist[i].off_sound);
+		if (b->off_sound)
+			S_StartSound((mobj_t *) &b->line->frontsector->soundorg, b->off_sound);
 
-		Z_Clear(&buttonlist[i], button_t, 1);
+		memset(b, 0, sizeof(button_t));	
 	}
 }
 
@@ -1604,8 +1607,7 @@ void P_SpawnSpecials(int autotag)
 		levelTimeCount = time;
 	}
 
-	for (i = 0; i < maxbuttons; i++)
-		Z_Clear(&buttonlist[i], button_t, 1);
+	buttonlist.Clear();
 
 	sp_new_floors = Z_ClearNew(const image_t *, numsectors);
 
