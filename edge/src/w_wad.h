@@ -28,6 +28,8 @@
 
 #include "dm_defs.h"
 
+#include "epi/epiutil.h"
+
 typedef enum
 {
 	FLKIND_IWad = 0,  // iwad file
@@ -44,15 +46,18 @@ typedef enum
 }
 filekind_e;
 
-typedef struct wadtex_resource_s
+class wadtex_resource_c
 {
+public:
+	wadtex_resource_c() : palette(-1), pnames(-1), texture1(-1), texture2(-1)
+	{ }
+
 	// lump numbers, or -1 if nonexistent
 	int palette;
 	int pnames;
 	int texture1;
 	int texture2;
-}
-wadtex_resource_t;
+};
 
 typedef enum
 {
@@ -94,8 +99,8 @@ int W_GetPaletteForLump(int lump);
 void W_AddDynamicGWA(const char *filename, int map_lump);
 int W_FindFlatSequence(const char *start, const char *end, 
     int *s_offset, int *e_offset);
-const int *W_GetListLumps(int file, lumplist_e which, int *count);
-void W_GetTextureLumps(int file, wadtex_resource_t *res);
+epi::u32array_c& W_GetListLumps(int file, lumplist_e which);
+void W_GetTextureLumps(int file, wadtex_resource_c *res);
 int W_GetNumFiles(void);
 
 // Define this only in an emergency.  All these debug printfs quickly

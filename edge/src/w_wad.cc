@@ -52,6 +52,7 @@
 #include "z_zone.h"
 
 #include "epi/epistring.h"
+#include "epi/epiutil.h"
 
 // -KM- 1999/01/31 Order is important, Languages are loaded before sfx, etc...
 typedef struct ddf_reader_s
@@ -83,8 +84,18 @@ static ddf_reader_t DDF_Readers[] =
 #define NUM_DDF_READERS  (int)(sizeof(DDF_Readers) / sizeof(ddf_reader_t))
 #define RTS_READER  (NUM_DDF_READERS-1)
 
-typedef struct data_file_s
+class data_file_c
 {
+public:
+	data_file_c(const char *_fname, int _kind, int _handle) :
+		file_name(_fname), kind(_kind), handle(_handle),
+		sprite_lumps(), flat_lumps(), patch_lumps(), skin_lumps(),
+		wadtex()
+	{
+		for (int d = 0; d < NUM_DDF_READERS; d++)
+			ddf_lumps[d] = -1;
+	}
+
 	const char *file_name;
 
 	// type of file
@@ -93,26 +104,34 @@ typedef struct data_file_s
 	// file handle, as returned from open().
 	int handle;
 
-	// sprite list
-	// Note: we allocate 16 integers at a time
-	int *sprite_lumps;
-	int sprite_num;
-
-	// flat list (also 16 at a time)
-	int *flat_lumps;
-	int flat_num;
-
-	// patch list (yes, 16 at a time)
-	int *patch_lumps;
-	int patch_num;
+	// lists for sprites, flats, patches and skins
+	epi::u32array_c sprite_lumps;
+	epi::u32array_c flat_lumps;
+	epi::u32array_c patch_lumps;
+	epi::u32array_c skin_lumps;
 
 	// ddf lump list
 	int ddf_lumps[NUM_DDF_READERS];
 
 	// texture information
-	wadtex_resource_t wadtex;
-}
-data_file_t;
+	wadtex_resource_c wadtex;
+};
+
+class datafile_array_c : public epi::array_c
+{
+public:
+	datafile_array_c() : epi::array_c(sizeof(data_file_c*)) { }
+	~datafile_array_c() { Clear(); }
+
+private:
+	void CleanupObject(void *obj) { delete *(data_file_c**)obj; }
+
+public:
+    // List Management
+	int GetSize() { return array_entries; }
+	int Insert(data_file_c *c) { return InsertObject((void*)&c); }
+	data_file_c* operator[](int idx) { return *(data_file_c**)FetchObject(idx); }
+};
 
 // Raw filenames
 typedef struct raw_filename_s
@@ -174,8 +193,7 @@ static lumpheader_t lumphead;
 // Used to decide how many bytes we should flush.
 static int cache_size = 0;
 
-static data_file_t *data_files = NULL;
-static int datafile = -1;
+static datafile_array_c data_files;
 
 // the first datafile which contains a PLAYPAL lump
 static int palette_datafile = -1;
@@ -302,6 +320,14 @@ static bool IsDummySF(const char *name)
 			strncmp(name, "P3_START", 8) == 0);
 }
 
+//
+// Is the name a skin specifier ?
+//
+static bool IsSkin(const char *name)
+{
+	return (strncmp(name, "S_SKIN", 6) == 0);
+}
+
 static int FileLength(int handle)
 {
 	struct stat fileinfo;
@@ -344,15 +370,17 @@ static void ExtractFileBase(const char *path, char *dest)
 //
 // W_GetTextureLumps
 //
-void W_GetTextureLumps(int file, wadtex_resource_t *res)
+void W_GetTextureLumps(int file, wadtex_resource_c *res)
 {
-	DEV_ASSERT2(0 <= file && file <= datafile);
+	DEV_ASSERT2(0 <= file && file < data_files.GetSize());
 	DEV_ASSERT2(res);
 
-	res->palette  = data_files[file].wadtex.palette;
-	res->pnames   = data_files[file].wadtex.pnames;
-	res->texture1 = data_files[file].wadtex.texture1;
-	res->texture2 = data_files[file].wadtex.texture2;
+	data_file_c *df = data_files[file];
+
+	res->palette  = df->wadtex.palette;
+	res->pnames   = df->wadtex.pnames;
+	res->texture1 = df->wadtex.texture1;
+	res->texture2 = df->wadtex.texture2;
 
 	// find an earlier PNAMES lump when missing.
 	// Ditto for palette.
@@ -362,10 +390,10 @@ void W_GetTextureLumps(int file, wadtex_resource_t *res)
 		int cur;
 
 		for (cur=file; res->pnames == -1 && cur > 0; cur--)
-			res->pnames = data_files[cur].wadtex.pnames;
+			res->pnames = data_files[cur]->wadtex.pnames;
 
 		for (cur=file; res->palette == -1 && cur > 0; cur--)
-			res->palette = data_files[cur].wadtex.palette;
+			res->palette = data_files[cur]->wadtex.palette;
 	}
 }
 
@@ -414,13 +442,13 @@ static void SortLumps(void)
 // Put the sprite list in sorted order (of name), required by
 // R_InitSprites (speed optimisation).
 //
-static void SortSpriteLumps(data_file_t *f)
+static void SortSpriteLumps(data_file_c *df)
 {
-	if (f->sprite_num < 2)
+	if (df->sprite_lumps.GetSize() < 2)
 		return;
 
 #define CMP(a, b) (strncmp(lumpinfo[a].name, lumpinfo[b].name, 8) < 0)
-	QSORT(int, f->sprite_lumps, f->sprite_num, CUTOFF);
+	QSORT(int, df->sprite_lumps, df->sprite_lumps.GetSize(), CUTOFF);
 #undef CMP
 
 #if 0  // DEBUGGING
@@ -498,6 +526,7 @@ static void MarkAsCached(lumpheader_t *item)
 	cache_size += W_LumpLength(item->lumpindex);
 }
 
+#if 0
 static INLINE void AddSpriteOrFlat(int **list, int *count, int item)
 {
 	// no more room ?
@@ -510,11 +539,12 @@ static INLINE void AddSpriteOrFlat(int **list, int *count, int item)
 
 	(*count) += 1;
 }
+#endif
 
 //
 // AddLump
 //
-static void AddLump(int lump, int pos, int size, int file, 
+static void AddLump(data_file_c *df, int lump, int pos, int size, int file, 
 					int sort_index, const char *name, bool allow_ddf)
 {
 	int j;
@@ -532,24 +562,24 @@ static void AddLump(int lump, int pos, int size, int file,
 
 	if (!strncmp(name, "PLAYPAL", 8))
 	{
-		data_files[file].wadtex.palette = lump;
+		df->wadtex.palette = lump;
 		if (palette_datafile < 0)
 			palette_datafile = file;
 		return;
 	}
 	else if (!strncmp(name, "PNAMES", 8))
 	{
-		data_files[file].wadtex.pnames = lump;
+		df->wadtex.pnames = lump;
 		return;
 	}
 	else if (!strncmp(name, "TEXTURE1", 8))
 	{
-		data_files[file].wadtex.texture1 = lump;
+		df->wadtex.texture1 = lump;
 		return;
 	}
 	else if (!strncmp(name, "TEXTURE2", 8))
 	{
-		data_files[file].wadtex.texture2 = lump;
+		df->wadtex.texture2 = lump;
 		return;
 	}
 
@@ -560,10 +590,17 @@ static void AddLump(int lump, int pos, int size, int file,
 		{
 			if (!strncmp(name, DDF_Readers[j].name, 8))
 			{
-				data_files[file].ddf_lumps[j] = lump;
+				df->ddf_lumps[j] = lump;
 				return;
 			}
 		}
+	}
+
+	if (IsSkin(lump_p->name))
+	{
+			df->skin_lumps.Insert(lump);
+///---		AddSpriteOrFlat(&df->skin_lumps,
+///---						&df->skin_num, lump);
 	}
 
 	// -- handle sprite, flat & patch lists --
@@ -612,16 +649,19 @@ static void AddLump(int lump, int pos, int size, int file,
 	if (lump_p->size > 0 && !IsDummySF(lump_p->name))
 	{
 		if (within_sprite_list)
-			AddSpriteOrFlat(&data_files[file].sprite_lumps,
-							&data_files[file].sprite_num, lump);
+			df->sprite_lumps.Insert(lump);
+///---			AddSpriteOrFlat(&df->sprite_lumps,
+///---						&df->sprite_num, lump);
     
 		if (within_flat_list)
-			AddSpriteOrFlat(&data_files[file].flat_lumps,
-							&data_files[file].flat_num, lump);
+			df->flat_lumps.Insert(lump);
+///---			AddSpriteOrFlat(&df->flat_lumps,
+///---							&df->flat_num, lump);
     
 		if (within_patch_list)
-			AddSpriteOrFlat(&data_files[file].patch_lumps,
-							&data_files[file].patch_num, lump);
+			df->patch_lumps.Insert(lump);
+///---			AddSpriteOrFlat(&data_files[file].patch_lumps,
+///---							&data_files[file].patch_num, lump);
 	}
 }
 
@@ -660,25 +700,11 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	I_Printf("  adding %s", filename);
 
 	startlump = numlumps;
-	datafile++;
-	Z_Resize(data_files, data_file_t, datafile + 1);
 
-	data_files[datafile].file_name = Z_StrDup(filename);
-	data_files[datafile].kind = kind;
-	data_files[datafile].handle = handle;
-	data_files[datafile].sprite_lumps = NULL;
-	data_files[datafile].sprite_num = 0;
-	data_files[datafile].flat_lumps = NULL;
-	data_files[datafile].flat_num = 0;
-	data_files[datafile].patch_lumps = NULL;
-	data_files[datafile].patch_num = 0;
-	data_files[datafile].wadtex.palette = -1;
-	data_files[datafile].wadtex.pnames = -1;
-	data_files[datafile].wadtex.texture1 = -1;
-	data_files[datafile].wadtex.texture2 = -1;
+	int datafile = data_files.GetSize();
 
-	for (j = 0; j < NUM_DDF_READERS; j++)
-		data_files[datafile].ddf_lumps[j] = -1;
+	data_file_c *df = new data_file_c(Z_StrDup(filename), kind, handle);
+	data_files.Insert(df);
 
 	if (kind <= FLKIND_HWad)
 	{
@@ -707,9 +733,9 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		numlumps += header.numlumps;
 		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
 
-		for (j=startlump,curinfo=fileinfo; j < numlumps; j++,curinfo++)
+		for (j=startlump, curinfo=fileinfo; j < numlumps; j++,curinfo++)
 		{
-			AddLump(j, LONG(curinfo->pos), LONG(curinfo->size),
+			AddLump(df, j, LONG(curinfo->pos), LONG(curinfo->size),
 					datafile, (dyn_index >= 0) ? dyn_index : datafile, 
 					curinfo->name,
 					(kind == FLKIND_PWad) || (kind || FLKIND_HWad) ||
@@ -718,28 +744,28 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 		Z_Free(fileinfo);
 	}
-	else
+	else  /* single lump file */
 	{
 		char lump_name[32];
 
 		DEV_ASSERT2(dyn_index < 0);
 
-		// single lump file
 		ExtractFileBase(filename, lump_name);
 
 		// Fill in lumpinfo
 		numlumps++;
 		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
 
-		AddLump(startlump, 0, FileLength(handle), datafile, datafile, 
+		AddLump(df, startlump, 0, FileLength(handle), datafile, datafile, 
 				lump_name, true);
 	}
 
 	SortLumps();
-	SortSpriteLumps(data_files + datafile);
+	SortSpriteLumps(df);
 
 	// set up caching
 	Z_Resize(lumplookup, lumpheader_t *, numlumps);
+
 	for (j=startlump; j < numlumps; j++)
 		lumplookup[j] = NULL;
 
@@ -839,7 +865,7 @@ void W_AddRawFilename(const char *file, int kind)
 
 	L_WriteDebug("Added: %s\n", file);
 
-	// -AJA- FIXME: remove raw_filename_t, just use data_file_t
+	// -AJA- FIXME: can we remove raw_filename_t, just use data_file_c ?
 	if (addwadnum == maxwadfiles)
 		Z_Resize(wadfiles, raw_filename_t, ++maxwadfiles + 1);
 
@@ -908,18 +934,20 @@ bool W_ReadDDF(void)
 			(* DDF_Readers[d].func)(NULL, 0);
 		}
 
-		for (int f = 0; f <= datafile; f++)
+		for (int f = 0; f < data_files.GetSize(); f++)
 		{
-			if (d == RTS_READER && data_files[f].kind == FLKIND_Script)
+			data_file_c *df = data_files[f];
+
+			if (d == RTS_READER && df->kind == FLKIND_Script)
 			{
-				RAD_LoadFile(data_files[f].file_name);
+				RAD_LoadFile(df->file_name);
 				continue;
 			}
 
-			if (data_files[f].kind >= FLKIND_Demo)
+			if (df->kind >= FLKIND_Demo)
 				continue;
 
-			int lump = data_files[f].ddf_lumps[d];
+			int lump = df->ddf_lumps[d];
 
 			if (lump < 0)
 				continue;
@@ -957,17 +985,17 @@ bool W_ReadDDF(void)
 const char *W_GetFileName(int lump)
 {
 	lumpinfo_t *l;
-	data_file_t *f;
+	data_file_c *df;
 
 	DEV_ASSERT2(0 <= lump && lump < numlumps);
 
 	l = lumpinfo + lump;
-	f = data_files + l->file;
+	df = data_files[l->file];
 
-	if (f->kind >= FLKIND_Lump)
+	if (df->kind >= FLKIND_Lump)
 		return NULL;
   
-	return f->file_name;
+	return df->file_name;
 }
 
 //
@@ -987,21 +1015,19 @@ const char *W_GetFileName(int lump)
 // 
 int W_GetPaletteForLump(int lump)
 {
-	lumpinfo_t *l;
-	data_file_t *f;
-
 	DEV_ASSERT2(0 <= lump && lump < numlumps);
 
-	l = lumpinfo + lump;
-	f = data_files + l->file;
+	int f = lumpinfo[lump].file;
 
-	for (; f > (data_files + palette_datafile); f--)
+	for (; f > palette_datafile; f--)
 	{
-		if (f->kind >= FLKIND_Lump)
+		data_file_c *df = data_files[f];
+
+		if (df->kind >= FLKIND_Lump)
 			continue;
 
-		if (f->wadtex.palette >= 0)
-			return f->wadtex.palette;
+		if (df->wadtex.palette >= 0)
+			return df->wadtex.palette;
 	}
 
 	// none found
@@ -1081,14 +1107,12 @@ int W_GetNumForName2(const char *name)
 //       so we should look there first.  Also we should never return a
 //       flat as a tex-patch.
 //
-// FIXME: Optimise !! (Major source of startup slowdown).
+// FIXME: Optimise !!! (Major source of startup slowdown).
 //
 int W_CheckNumForTexPatch(const char *name)
 {
-	int i, file;
-	data_file_t *f;
-  
-	char buf[9];
+	int i;
+	char buf[10];
 
 	for (i = 0; name[i]; i++)
 	{
@@ -1100,29 +1124,29 @@ int W_CheckNumForTexPatch(const char *name)
 	}
 	buf[i] = 0;
 
-	for (file=datafile; file >= 0; file--)
+	for (int file = data_files.GetSize()-1; file >= 0; file--)
 	{
-		f = data_files + file;
+		data_file_c *df = data_files[file];
 
 		// look for patch name
-		for (i=0; i < f->patch_num; i++)
+		for (i=0; i < df->patch_lumps.GetSize(); i++)
 		{
-			if (strncmp(buf, W_GetLumpName(f->patch_lumps[i]), 8) == 0)
+			if (strncmp(buf, W_GetLumpName(df->patch_lumps[i]), 8) == 0)
 				break;
 		}
 
-		if (i < f->patch_num)
-			return f->patch_lumps[i];
+		if (i < df->patch_lumps.GetSize())
+			return df->patch_lumps[i];
 
 		// look for sprite name
-		for (i=0; i < f->sprite_num; i++)
+		for (i=0; i < df->sprite_lumps.GetSize(); i++)
 		{
-			if (strncmp(buf, W_GetLumpName(f->sprite_lumps[i]), 8) == 0)
+			if (strncmp(buf, W_GetLumpName(df->sprite_lumps[i]), 8) == 0)
 				break;
 		}
 
-		if (i < f->sprite_num)
-			return f->sprite_lumps[i];
+		if (i < df->sprite_lumps.GetSize())
+			return df->sprite_lumps[i];
 
 		// check all other lumps
 		for (i=0; i < numlumps; i++)
@@ -1182,29 +1206,27 @@ int W_LumpLength(int lump)
 int W_FindFlatSequence(const char *start, const char *end, 
 					   int *s_offset, int *e_offset)
 {
-	int i, file;
-	data_file_t *f;
-  
-	for (file=datafile; file >= 0; file--)
+	for (int file = data_files.GetSize()-1; file >= 0; file--)
 	{
-		f = data_files + file;
+		int i;
+		data_file_c *df = data_files[file];
 
 		// look for start name
-		for (i=0; i < f->flat_num; i++)
+		for (i=0; i < df->flat_lumps.GetSize(); i++)
 		{
-			if (strncmp(start, W_GetLumpName(f->flat_lumps[i]), 8) == 0)
+			if (strncmp(start, W_GetLumpName(df->flat_lumps[i]), 8) == 0)
 				break;
 		}
 
-		if (i >= f->flat_num)
+		if (i >= df->flat_lumps.GetSize())
 			continue;
 
 		(*s_offset) = i;
 
 		// look for end name
-		for (i++; i < f->flat_num; i++)
+		for (i++; i < df->flat_lumps.GetSize(); i++)
 		{
-			if (strncmp(end, W_GetLumpName(f->flat_lumps[i]), 8) == 0)
+			if (strncmp(end, W_GetLumpName(df->flat_lumps[i]), 8) == 0)
 			{
 				(*e_offset) = i;
 				return file;
@@ -1221,29 +1243,23 @@ int W_FindFlatSequence(const char *start, const char *end,
 //
 // Returns NULL for an empty list.
 //
-const int *W_GetListLumps(int file, lumplist_e which, int *count)
+epi::u32array_c& W_GetListLumps(int file, lumplist_e which)
 {
-	DEV_ASSERT2(0 <= file && file <= datafile);
+	DEV_ASSERT2(0 <= file && file < data_files.GetSize());
+
+	data_file_c *df = data_files[file];
 
 	switch (which)
 	{
-		case LMPLST_Sprites:
-			(*count) = data_files[file].sprite_num;
-			return data_files[file].sprite_lumps;
-    
-		case LMPLST_Flats:
-			(*count) = data_files[file].flat_num;
-			return data_files[file].flat_lumps;
-    
-		case LMPLST_Patches:
-			(*count) = data_files[file].patch_num;
-			return data_files[file].patch_lumps;
+		case LMPLST_Sprites: return df->sprite_lumps;
+		case LMPLST_Flats:   return df->flat_lumps;
+		case LMPLST_Patches: return df->patch_lumps;
+
+		default: break;
 	}
 
-#ifdef DEVELOPERS
 	I_Error("W_GetListLumps: bad `which' (%d)\n", which);
-#endif
-	return NULL;
+	return df->sprite_lumps; /* NOT REACHED */
 }
 
 //
@@ -1251,7 +1267,7 @@ const int *W_GetListLumps(int file, lumplist_e which, int *count)
 //
 int W_GetNumFiles(void)
 {
-	return (datafile + 1);
+	return data_files.GetSize();
 }
 
 //
@@ -1266,18 +1282,15 @@ int W_GetNumFiles(void)
 //
 bool W_LumpRawInfo(int lump, int *handle, int *pos, int *size)
 {
-	lumpinfo_t *l;
-	data_file_t *f;
-
 	if (lump >= numlumps)
 		I_Error("W_LumpRawInfo: %i >= numlumps", lump);
 
-	l = lumpinfo + lump;
-	f = data_files + l->file;
+	lumpinfo_t *L = lumpinfo + lump;
+	data_file_c *df = data_files[L->file];
 
-	(*handle) = f->handle;
-	(*pos)    = l->position;
-	(*size)   = l->size;
+	(*handle) = df->handle;
+	(*pos)    = L->position;
+	(*size)   = L->size;
 
 	return true;
 }
@@ -1290,25 +1303,21 @@ bool W_LumpRawInfo(int lump, int *handle, int *pos, int *size)
 //
 void W_ReadLump(int lump, void *dest)
 {
-	int c;
-	lumpinfo_t *l;
-	data_file_t *f;
-
 	if (lump >= numlumps)
 		I_Error("W_ReadLump: %i >= numlumps", lump);
 
-	l = lumpinfo + lump;
-	f = data_files + l->file;
+	lumpinfo_t *L = lumpinfo + lump;
+	data_file_c *df = data_files[L->file];
 
 	// -KM- 1998/07/31 This puts the loading icon in the corner of the screen :-)
 	display_disk = true;
 
-	lseek(f->handle, l->position, SEEK_SET);
+	lseek(df->handle, L->position, SEEK_SET);
 
-	c = read(f->handle, dest, l->size);
+	int c = read(df->handle, dest, L->size);
 
-	if (c < l->size)
-		I_Error("W_ReadLump: only read %i of %i on lump %i", c, l->size, lump);
+	if (c < L->size)
+		I_Error("W_ReadLump: only read %i of %i on lump %i", c, L->size, lump);
 }
 
 //

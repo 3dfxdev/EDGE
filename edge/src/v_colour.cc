@@ -94,7 +94,7 @@ static int V_FindPureColour(int which);
 bool V_InitPalette(void)
 {
 	int t, i, r, g, b, max_file, pal_lump;
-	wadtex_resource_t WT;
+	wadtex_resource_c WT;
 
 	const byte *pal = (const byte*)W_CacheLumpName("PLAYPAL");
 

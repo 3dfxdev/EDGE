@@ -55,12 +55,12 @@
 // There was a lot of stuff grabbed wrong, so I changed it...
 //
 
-// Sprite defs.  allocated in blocks of 16
-spritedef_t *sprites = NULL;
+// Sprite definitions
+spritedef_array_c sprites;
 int numsprites = 0;
 
 // Sorted map of sprite defs.  Only used during initialisation.
-static spritedef_t ** sprite_map = NULL;
+static spritedef_c ** sprite_map = NULL;
 static int sprite_map_len;
 
 
@@ -92,11 +92,10 @@ int R_AddSpriteName(const char *name, int frame)
 	{
 		if (numsprites == 0)  // fill out dummy entry, #0
 		{
-			Z_Resize(sprites, spritedef_t, numsprites + 16);
-			numsprites++;
+			spritedef_c *def = new spritedef_c(name);
 
-			Z_Clear(sprites + 0, spritedef_t, 1);
-			strcpy(sprites[0].name, name);
+			sprites.Insert(def);
+			numsprites = sprites.GetSize();
 		}
 
 		return SPR_NULL;
@@ -117,7 +116,7 @@ int R_AddSpriteName(const char *name, int frame)
 		// look backwards, assuming a recent sprite is more likely
 		for (index=numsprites-1; index >= 1; index--)
 		{
-			if (strcmp(sprites[index].name, name) == 0)
+			if (strcmp(sprites[index]->name, name) == 0)
 				break;
 		}
 
@@ -125,13 +124,10 @@ int R_AddSpriteName(const char *name, int frame)
 		{
 			index = numsprites;
 
-			if ((numsprites % 16) == 0)
-				Z_Resize(sprites, spritedef_t, numsprites + 16);
+			spritedef_c *def = new spritedef_c(name);
 
-			numsprites++;
-
-			Z_Clear(sprites + index, spritedef_t, 1);
-			strcpy(sprites[index].name, name);
+			sprites.Insert(def);
+			numsprites = sprites.GetSize();
 		}
 
 		// update cache
@@ -143,8 +139,9 @@ int R_AddSpriteName(const char *name, int frame)
 
 	// update maximal frame count
 	// NOTE: frames are allocated during R_InitSprites
-	if (frame > sprites[index].numframes)
-		sprites[index].numframes = frame;
+
+	if (frame > sprites[index]->numframes)
+		sprites[index]->numframes = frame;
 
 	return index;
 }
@@ -153,7 +150,7 @@ int R_AddSpriteName(const char *name, int frame)
 // SPRITE LOADING FUNCTIONS
 //
 
-static void InstallSpriteLump(spritedef_t *def, int lump,
+static void InstallSpriteLump(spritedef_c *def, int lump,
     const char *lumpname, int pos, byte flip)
 {
 	int frame, rot;
@@ -165,7 +162,9 @@ static void InstallSpriteLump(spritedef_t *def, int lump,
 	// NOTE: rotations 9 and A-G are EDGE specific.
 
 	if ('A' <= frame_ch && frame_ch <= 'Z')
+	{
 		frame = (frame_ch - 'A');
+	}
 	else switch (frame_ch)
 	{
 		case '[':  frame = 26; break;
@@ -175,8 +174,8 @@ static void InstallSpriteLump(spritedef_t *def, int lump,
 		case '_':  frame = 30; break;
 
 		default:
-				   I_Warning("Sprite lump %s has illegal frame.\n", lumpname);
-				   return;
+		   I_Warning("Sprite lump %s has illegal frame.\n", lumpname);
+		   return;
 	}
 
 	// ignore frames larger than what is used in DDF
@@ -226,12 +225,8 @@ static void InstallSpriteLump(spritedef_t *def, int lump,
 //
 static void FillSpriteFrames(int file)
 {
-	const int *lumps;
-	int lumpnum;
-
-	int S, L;
-
-	lumps = W_GetListLumps(file, LMPLST_Sprites, &lumpnum);
+	epi::u32array_c& lumps = W_GetListLumps(file, LMPLST_Sprites);
+	int lumpnum = lumps.GetSize();
 
 	if (lumpnum == 0)
 		return;
@@ -240,7 +235,7 @@ static void FillSpriteFrames(int file)
 	// list.  Both lists have already been sorted to make this as fast
 	// as possible.
 
-	S = L = 0; 
+	int S = 0, L = 0;
 
 	while (S < sprite_map_len && L < lumpnum)
 	{
@@ -283,7 +278,7 @@ static void MarkCompletedFrames(void)
 
 	for (src = dst = 0; src < sprite_map_len; src++)
 	{
-		spritedef_t *def = sprite_map[src];
+		spritedef_c *def = sprite_map[src];
 
 		int f, i;
 		int count;
@@ -292,7 +287,7 @@ static void MarkCompletedFrames(void)
 		for (f=0; f < def->numframes; f++)
 		{
 			char frame_ch = 'A' + f;
-			spriteframe_t *frame = def->frames + f;
+			spriteframe_c *frame = def->frames + f;
 
 			if (frame->finished)
 			{
@@ -356,7 +351,7 @@ static void MarkCompletedFrames(void)
 }
 
 // show warnings for missing patches
-static void CheckSpriteFrames(spritedef_t *def)
+static void CheckSpriteFrames(spritedef_c *def)
 {
 	int i;
 	int missing;
@@ -373,7 +368,7 @@ static void CheckSpriteFrames(spritedef_t *def)
 	// free some memory for completely missing sprites
 	if (missing == def->numframes)
 	{
-		Z_Free(def->frames);
+		delete[] def->frames;
 
 		def->numframes = 0;
 		def->frames = NULL;
@@ -384,7 +379,8 @@ static void CheckSpriteFrames(spritedef_t *def)
 // R_InitSprites
 //
 // Use the sprite lists in the WAD (S_START..S_END) to flesh out the
-// known sprite definitions (global `sprites' array) with images.
+// known sprite definitions (global `sprites' array, created while
+// parsing DDF) with images.
 //
 // Checking for missing frames still done at run time.
 // 
@@ -402,27 +398,29 @@ bool R_InitSprites(void)
 	// allocate frames (ignore NULL sprite, #0)
 	for (i=1; i < numsprites; i++)
 	{
-		DEV_ASSERT2(strlen(sprites[i].name) == 4);
-		DEV_ASSERT2(sprites[i].numframes > 0);
+		spritedef_c *def = sprites[i];
 
-		sprites[i].frames = Z_ClearNew(spriteframe_t, sprites[i].numframes);
+		DEV_ASSERT2(strlen(def->name) == 4);
+		DEV_ASSERT2(def->numframes > 0);
+
+		def->frames = new spriteframe_c[def->numframes];
 
 		// names in the sprite list should be unique
 		if (i > 0)
 		{
-			DEV_ASSERT2(strncmp(sprites[i-1].name, sprites[i].name, 4) != 0);
+			DEV_ASSERT2(strncmp(sprites[i-1]->name, def->name, 4) != 0);
 		}
 	}
 
 	// create a sorted list (ignore NULL entry, #0)
 	sprite_map_len = numsprites - 1;
-	sprite_map = Z_New(spritedef_t *, sprite_map_len);
+	sprite_map = Z_New(spritedef_c *, sprite_map_len);
 
 	for (i=0; i < sprite_map_len; i++)
-		sprite_map[i] = sprites + 1 + i;
+		sprite_map[i] = sprites[i + 1];
 
 #define CMP(a, b)  (strcmp(a->name, b->name) < 0)
-	QSORT(spritedef_t *, sprite_map, sprite_map_len, CUTOFF);
+	QSORT(spritedef_c *, sprite_map, sprite_map_len, CUTOFF);
 #undef CMP
 
 	// iterate over each file.  Order is important, we must go from
@@ -440,7 +438,7 @@ bool R_InitSprites(void)
 
 	// perform checks and free stuff
 	for (i=1; i < numsprites; i++)
-		CheckSpriteFrames(sprites + i);
+		CheckSpriteFrames(sprites[i]);
 
 	Z_Free(sprite_map);
 	sprite_map = NULL;
