@@ -169,7 +169,7 @@ void RGL_DrawSkyBox(void)
 	RGL_SetupSkyMatrices();
 
 	float dist = Z_FAR / 2.0f;
-	float top  = dist / 2.0f;
+	float top  = dist;
 	float bottom = -dist / 2.0f;
 
 	float v0 = 0.0f;
