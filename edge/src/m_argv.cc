@@ -217,22 +217,11 @@ void M_CheckBooleanParm(const char *parm, bool *boolval, bool reverse)
 	}
 }
 
-
 //
-// M_GetArguments
-//
-// FIXME: Remove, nobody should need this
-// (use GetArgumentCount/GetArgument instead)
-const char **M_GetArguments(int *ret_argc)
-{
-	*ret_argc = myargc;
-	return myargv;
-}
-
-//
-// M_GetArguments
+// M_GetArgument
 //
 // Returns the wished argument. argnum must be less than M_GetArgCount().
+//
 const char *M_GetArgument(int argnum)
 {
 	// this should never happen, so crash out if DEVELOPERS.
