@@ -69,10 +69,8 @@ void CON_PlayerMessageLDF(player_t *plyr, const char *message, ...);
 
 typedef enum
 {
-  // invisible
-  vs_notvisible,
-  // fullscreen + a command line
-  vs_maximal,
+  vs_notvisible,     // invisible
+  vs_maximal,        // fullscreen + a command line
   NUMVIS
 }
 visible_t;

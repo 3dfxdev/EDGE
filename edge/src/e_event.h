@@ -73,7 +73,7 @@ typedef enum
   ga_screenshot,
   ga_briefing
 }
-gameaction_t;
+gameaction_e;
 
 //
 // Button/action code definitions.
@@ -138,6 +138,6 @@ extern event_t events[MAXEVENTS];
 extern int eventhead;
 extern int eventtail;
 
-extern gameaction_t gameaction;
+extern int gameaction;
 
 #endif

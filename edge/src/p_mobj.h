@@ -339,9 +339,14 @@ typedef enum
   DI_SOUTH,
   DI_SOUTHEAST,
   DI_NODIR,
-  NUMDIRS
+  NUMDIRS,
+
+  DI_SLOWTURN,
+  DI_FASTTURN,
+  DI_WALKING,
+  DI_EVASIVE
 }
-dirtype_t;
+dirtype_e;
 
 // Each sector has a degenmobj_t in its center for sound origin
 // purposes.
@@ -431,7 +436,7 @@ struct mobj_s
   int extendedflags;
 
   // Movement direction, movement generation (zig-zagging).
-  dirtype_t movedir;  // 0-7
+  int movedir;  // 0-7
 
   // when 0, select a new dir
   int movecount;

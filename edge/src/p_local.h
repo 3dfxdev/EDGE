@@ -102,7 +102,7 @@ void P_SetPsprite(player_t * p, int position, int stnum);
 void P_DropWeapon(player_t * player);
 void P_BringUpWeapon(player_t * player);
 boolean_t P_CheckWeaponSprite(weaponinfo_t *info);
-void P_SelectNewWeapon(player_t * player, int priority, ammotype_t ammo);
+void P_SelectNewWeapon(player_t * player, int priority, ammotype_e ammo);
 void P_Zoom(player_t * player);
 void P_RefillClips(player_t * player);
 
@@ -140,7 +140,7 @@ void P_RunMobjThinkers(void);
 void P_SpawnPuff(float_t x, float_t y, float_t z, const mobjinfo_t * puff);
 void P_SpawnBlood(float_t x, float_t y, float_t z, float_t damage, angle_t angle, const mobjinfo_t * blood);
 void P_RemoveQueuedMobjs(void);
-void P_CalcFullProperties(const mobj_t *mo, region_properties_t *new);
+void P_CalcFullProperties(const mobj_t *mo, region_properties_t *newregp);
 
 void P_MobjSetTracer(mobj_t *mo, mobj_t *target);
 void P_MobjSetSource(mobj_t *mo, mobj_t *target);
@@ -169,8 +169,8 @@ typedef struct
 }
 shoot_spot_info_t;
 
-extern dirtype_t opposite[];
-extern dirtype_t diags[];
+extern dirtype_e opposite[];
+extern dirtype_e diags[];
 extern float_t xspeed[8];
 extern float_t yspeed[8];
 extern shoot_spot_info_t brain_spots;
@@ -192,7 +192,7 @@ void P_FreeShootSpots(void);
 #define PT_ADDTHINGS 2
 #define PT_EARLYOUT  4
 
-typedef struct
+typedef struct intercept_s
 {
   float_t frac;  // along trace line
 

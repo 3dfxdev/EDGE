@@ -32,6 +32,7 @@
 
 typedef enum
 {
+  Z_UrgencyNone    = 0,
   Z_UrgencyLow     = 1,
   Z_UrgencyMedium  = 2,
   Z_UrgencyHigh    = 3,

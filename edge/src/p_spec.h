@@ -234,7 +234,7 @@ sector_t *P_GetSector(int currentSector, int line, int side);
 sector_t *P_GetNextSector(const line_t * line, const sector_t * sec);
 
 // Info Needs....
-float_t P_FindSurroundingHeight(const heightref_e ref, const sector_t *sec);
+float_t P_FindSurroundingHeight(const int ref, const sector_t *sec);
 float_t P_FindRaiseToTexture(sector_t * sec);  // -KM- 1998/09/01 New func, old inline
 
 // -AJA- 1999/09/29: added this.

@@ -117,7 +117,7 @@ typedef struct layer_s
   // Private pointer, store any layer-specific information here.  Must
   // be allocated with Z_New() or similiar if not NULL.
   
-  void *private;
+  void *priv;
 
   // --- stuff private to layer system itself ---
 
@@ -166,8 +166,7 @@ extern int num_solid_rects;
 
 boolean_t R_LayerInit(void);
 
-layer_t *R_LayerNew(int depth, int x1, int y1, int x2, int y2,
-    layerflags_e flags, void *private);
+layer_t *R_LayerNew(int depth, int x1, int y1, int x2, int y2, layerflags_e flags, void *priv);
 void R_LayerDestroy(layer_t *layer);
 
 void R_LayerAdd(layer_t *parent, layer_t *layer);
