@@ -354,8 +354,10 @@ typedef enum { false, true } bool;
 #define DEFAULTSCREENBITS   16
 #define DEFAULTSCREENWINDOW false
 
+// moved; compile failure if ASSEM=Y
 #include "linux/i_compen.h"
 #include "i_system.h"
+//#include "linux/i_compen.h"
 
 #endif // MACOSX GCC
 
