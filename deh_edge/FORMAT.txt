@@ -47,14 +47,15 @@ LoadDiff:
 BEX (BOOM Extended)
 -------------------
 
-DHE version (at top of file) is ???
-Patch format has remained at 6 (ouch !). ???
+DHE version (at top of file) is normal (3.0).
+Patch format has remained at 6 (ouch !).
 
 Values allowed to be hexadecimal (scanf "%i").
 
 INCLUDE directive.
 
 ^Thing -> Bits can use FLAG+FLAG+FLAG format.
+          (Some flags only settable this way: TOUCHY, BOUNCES).
 
 [CODEPTR] section, with text names for code pointers.
 [PARS] section.
