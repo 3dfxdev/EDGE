@@ -107,6 +107,7 @@ extern const coltable_t *dim_coltable;
 
 // text translation tables
 extern const byte *font_whitener;
+extern const colourmap_t *font_whiten_map;
 
 extern const colourmap_t *text_red_map;
 extern const colourmap_t *text_white_map;

@@ -55,7 +55,7 @@ void STLIB_InitNum(st_number_t * n, int x, int y,
 	n->on = on;
 	n->digits = digits;
 	n->minus = minus;
-	n->colmap = text_red_map;
+	n->colmap = NULL;  // text_red_map;
 }
 
 void STLIB_InitFloat(st_float * n, int x, int y, 

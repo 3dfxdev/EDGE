@@ -484,18 +484,27 @@ static void UpdateWidgets(void)
 	keys_e cards;
 
 	// set health colour, as in BOOM.  -AJA- Experimental !!
-	if (!stbar_colours || consoleplayer->health < 25.0f)
-		w_health.f.num.colmap = text_red_map;
-	else if (consoleplayer->health < 60.0f)
-		w_health.f.num.colmap = text_green_map;
-	else if (consoleplayer->health <= 100.0f)
-		w_health.f.num.colmap = text_yellow_map;
+	if (stbar_colours)
+	{
+		if (consoleplayer->health < 25.0f)
+			w_health.f.num.colmap = text_red_map;
+		else if (consoleplayer->health < 60.0f)
+			w_health.f.num.colmap = text_green_map;
+		else if (consoleplayer->health <= 100.0f)
+			w_health.f.num.colmap = text_yellow_map;
+		else
+			w_health.f.num.colmap = text_blue_map;
+	}
 	else
-		w_health.f.num.colmap = text_blue_map;
+	{
+		// the original digits have a grey shadow that doesn't look nice
+		// on the overlay hud.  Using the TEXT_RED map improves it.
+		w_health.f.num.colmap = is_overlay ? text_red_map : NULL;
+	}
 
 	// find ammo amount to show -- or leave it blank
 	w_ready.num = &largeammo;
-	w_ready.colmap = is_overlay ? text_yellow_map : text_red_map;
+	w_ready.colmap = is_overlay ? text_yellow_map : NULL;
 
 	if (consoleplayer->ready_wp >= 0)
 	{
@@ -541,7 +550,7 @@ static void UpdateWidgets(void)
 	}
 
 	if (consoleplayer->totalarmour < 1)
-		w_armour.f.num.colmap = is_overlay ? text_green_map : text_red_map;
+		w_armour.f.num.colmap = is_overlay ? text_green_map : NULL;
 
 	cards = consoleplayer->cards;
 
