@@ -473,12 +473,18 @@ bool P_LookForPlayers(mobj_t * actor, angle_t range)
 		if (!player || !player->in_game)
 			continue;
 
+		DEV_ASSERT2(player->mo);
+
 		// done looking ?
 		if (c++ == 2 || actor->lastlook == stop)
 			break;
 
 		// dead ?
 		if (player->health <= 0)
+			continue;
+
+		// on the same team ?
+		if ((actor->side & player->mo->side) != 0)
 			continue;
 
 		// out of sight ?

@@ -700,7 +700,7 @@ static void SpawnMapThing(const mobjinfo_t *info,
 
 	// -AJA- 2000/09/22: MBF compatibility flag
 	if (options & MTF_FRIEND)
-		mobj->side = 0x7FFFFFFF;
+		mobj->side = ~0;
 }
 
 //
