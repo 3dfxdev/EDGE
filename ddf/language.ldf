@@ -175,6 +175,72 @@ E4M7Desc="E4M7: And Hell Followed";
 E4M8Desc="E4M8: Unto The Cruel";
 E4M9Desc="E4M9: Fear";
 
+Tnt01Desc="level 1: system control";
+Tnt02Desc="level 2: human bbq";
+Tnt03Desc="level 3: power control";
+Tnt04Desc="level 4: wormhole";
+Tnt05Desc="level 5: hanger";
+Tnt06Desc="level 6: open season";
+Tnt07Desc="level 7: prison";
+Tnt08Desc="level 8: metal";
+Tnt09Desc="level 9: stronghold";
+Tnt10Desc="level 10: redemption";
+Tnt11Desc="level 11: storage facility";
+Tnt12Desc="level 12: crater";
+Tnt13Desc="level 13: nukage processing";
+Tnt14Desc="level 14: steel works";
+Tnt15Desc="level 15: dead zone";
+Tnt16Desc="level 16: deepest reaches";
+Tnt17Desc="level 17: processing area";
+Tnt18Desc="level 18: mill";
+Tnt19Desc="level 19: shipping/respawning";
+Tnt20Desc="level 20: central processing";
+Tnt21Desc="level 21: administration center";
+Tnt22Desc="level 22: habitat";
+Tnt23Desc="level 23: lunar mining project";
+Tnt24Desc="level 24: quarry";
+Tnt25Desc="level 25: baron's den";
+Tnt26Desc="level 26: ballistyx";
+Tnt27Desc="level 27: mount pain";
+Tnt28Desc="level 28: heck";
+Tnt29Desc="level 29: river styx";
+Tnt30Desc="level 30: last call";
+Tnt31Desc="level 31: pharaoh";
+Tnt32Desc="level 32: caribbean";
+
+Plut01Desc="level 1: congo";
+Plut02Desc="level 2: well of souls";
+Plut03Desc="level 3: aztec";
+Plut04Desc="level 4: caged";
+Plut05Desc="level 5: ghost town";
+Plut06Desc="level 6: baron's lair";
+Plut07Desc="level 7: caughtyard";
+Plut08Desc="level 8: realm";
+Plut09Desc="level 9: abattoire";
+Plut10Desc="level 10: onslaught";
+Plut11Desc="level 11: hunted";
+Plut12Desc="level 12: speed";
+Plut13Desc="level 13: the crypt";
+Plut14Desc="level 14: genesis";
+Plut15Desc="level 15: the twilight";
+Plut16Desc="level 16: the omen";
+Plut17Desc="level 17: compound";
+Plut18Desc="level 18: neurosphere";
+Plut19Desc="level 19: nme";
+Plut20Desc="level 20: the death domain";
+Plut21Desc="level 21: slayer";
+Plut22Desc="level 22: impossible mission";
+Plut23Desc="level 23: tombstone";
+Plut24Desc="level 24: the final frontier";
+Plut25Desc="level 25: the temple of darkness";
+Plut26Desc="level 26: bunker";
+Plut27Desc="level 27: anti-christ";
+Plut28Desc="level 28: the sewers";
+Plut29Desc="level 29: odyssey of noises";
+Plut30Desc="level 30: the gateway of hell";
+Plut31Desc="level 31: cyberden";
+Plut32Desc="level 32: go 2 it";
+
 DefaultCHATMACRO1="I'm ready to kick butt!";
 DefaultCHATMACRO2="I'm OK.";
 DefaultCHATMACRO3="I'm not looking too good!";
@@ -345,7 +411,6 @@ Level12Text="YOU HAVE WON! YOUR VICTORY HAS ENABLED\n"
             "STARPORT.\" SLOWLY AND PAINFULLY YOU GET\n"
             "UP AND RETURN TO THE FRAY.";
 
-
 Level21Text="YOU ARE AT THE CORRUPT HEART OF THE CITY,\n"
             "SURROUNDED BY THE CORPSES OF YOUR ENEMIES.\n"
             "YOU SEE NO WAY TO DESTROY THE CREATURES'\n"
@@ -383,6 +448,122 @@ Level32Text="CONGRATULATIONS, YOU'VE FOUND THE\n"
             "BLAZE THROUGH THIS ONE!\n";
 
 
+TntLevel7Text="You've fought your way out of the infested\n"
+  "experimental labs.   It seems that UAC has\n"
+  "once again gulped it down.  With their\n"
+  "high turnover, it must be hard for poor\n"
+  "old UAC to buy corporate health insurance\n"
+  "nowadays..\n"
+  "\n"
+  "Ahead lies the military complex, now\n"
+  "swarming with diseased horrors hot to get\n"
+  "their teeth into you. With luck, the\n"
+  "complex still has some warlike ordnance\n"
+  "laying around.";
+
+TntLevel12Text="You hear the grinding of heavy machinery\n"
+  "ahead.  You sure hope they're not stamping\n"
+  "out new hellspawn, but you're ready to\n"
+  "ream out a whole herd if you have to.\n"
+  "They might be planning a blood feast, but\n"
+  "you feel about as mean as two thousand\n"
+  "maniacs packed into one mad killer.\n"
+  "\n"
+  "You don't plan to go down easy.";
+
+TntLevel21Text="The vista opening ahead looks real damn\n"
+  "familiar. Smells familiar, too -- like\n"
+  "fried excrement. You didn't like this\n"
+  "place before, and you sure as hell ain't\n"
+  "planning to like it now. The more you\n"
+  "brood on it, the madder you get.\n"
+  "Hefting your gun, an evil grin trickles\n"
+  "onto your face. Time to take some names.";
+
+TntEndGameText="Suddenly, all is silent, from one horizon\n"
+  "to the other. The agonizing echo of Hell\n"
+  "fades away, the nightmare sky turns to\n"
+  "blue, the heaps of monster corpses start \n"
+  "to evaporate along with the evil stench \n"
+  "that filled the air. Jeeze, maybe you've\n"
+  "done it. Have you really won?\n"
+  "\n"
+  "Something rumbles in the distance.\n"
+  "A blue light begins to glow inside the\n"
+  "ruined skull of the demon-spitter.";
+
+TntLevel31Text="What now? Looks totally different. Kind\n"
+  "of like King Tut's condo. Well,\n"
+  "whatever's here can't be any worse\n"
+  "than usual. Can it?  Or maybe it's best\n"
+  "to let sleeping gods lie..";
+
+TntLevel32Text="Time for a vacation. You've burst the\n"
+  "bowels of hell and by golly you're ready\n"
+  "for a break. You mutter to yourself,\n"
+  "Maybe someone else can kick Hell's ass\n"
+  "next time around. Ahead lies a quiet town,\n"
+  "with peaceful flowing water, quaint\n"
+  "buildings, and presumably no Hellspawn.\n"
+  "\n"
+  "As you step off the transport, you hear\n"
+  "the stomp of a cyberdemon's iron shoe.";
+
+
+PlutLevel7Text="You gloat over the steaming carcass of the\n"
+  "Guardian.  With its death, you've wrested\n"
+  "the Accelerator from the stinking claws\n"
+  "of Hell.  You relax and glance around the\n"
+  "room.  Damn!  There was supposed to be at\n"
+  "least one working prototype, but you can't\n"
+  "see it. The demons must have taken it.\n"
+  "\n"
+  "You must find the prototype, or all your\n"
+  "struggles will have been wasted. Keep\n"
+  "moving, keep fighting, keep killing.\n"
+  "Oh yes, keep living, too.";
+
+PlutLevel12Text="Even the deadly Arch-Vile labyrinth could\n"
+  "not stop you, and you've gotten to the\n"
+  "prototype Accelerator which is soon\n"
+  "efficiently and permanently deactivated.\n"
+  "\n"
+  "You're good at that kind of thing.";
+
+PlutLevel21Text="You've bashed and battered your way into\n"
+  "the heart of the devil-hive.  Time for a\n"
+  "Search-and-Destroy mission, aimed at the\n"
+  "Gatekeeper, whose foul offspring is\n"
+  "cascading to Earth.  Yeah, he's bad. But\n"
+  "you know who's worse!\n"
+  "\n"
+  "Grinning evilly, you check your gear, and\n"
+  "get ready to give the bastard a little Hell\n"
+  "of your own making!";
+
+PlutEndGameText="The Gatekeeper's evil face is splattered\n"
+  "all over the place.  As its tattered corpse\n"
+  "collapses, an inverted Gate forms and\n"
+  "sucks down the shards of the last\n"
+  "prototype Accelerator, not to mention the\n"
+  "few remaining demons.  You're done. Hell\n"
+  "has gone back to pounding bad dead folks \n"
+  "instead of good live ones.  Remember to\n"
+  "tell your grandkids to put a rocket\n"
+  "launcher in your coffin. If you go to Hell\n"
+  "when you die, you'll need it for some\n"
+  "final cleaning-up ...";
+
+PlutLevel31Text="You've found the second-hardest level we\n"
+  "got. Hope you have a saved game a level or\n"
+  "two previous.  If not, be prepared to die\n"
+  "aplenty. For master marines only.";
+
+PlutLevel32Text="Betcha wondered just what WAS the hardest\n"
+  "level we had ready for ya?  Now you know.\n"
+  "No one gets out alive.";
+
+
 CheckNetGame=    "D_CheckNetGame: Checking network game status.\n";
 HeadsUpInit=     "HU_Init: Setting up heads up display.\n";
 InitMachine=     "I_Init: Setting up machine state.\n";
@@ -399,6 +580,24 @@ IsTurbo=         "%s is turbo!";
 AllocScreens=    "V_Init: allocate screens.\n";
 WadFileInit=     "W_Init: Init WADfiles.\n";
 ZoneMemoryAlloc= "Z_Init: Init Zone Memory Allocation. \n";
+
+ArachnotronName=     "ARACHNOTRON";
+ArchVileName=        "ARCH-VILE";
+BaronOfHellName=     "BARON OF HELL";
+CacodemonName=       "CACODEMON";
+CyberdemonName=      "THE CYBERDEMON";
+DemonName=           "DEMON";
+HeavyWeaponDudeName= "HEAVY WEAPON DUDE";
+HellKnightName=      "HELL KNIGHT";
+ImpName=             "IMP";
+LostSoulName=        "LOST SOUL";
+MancubusName=        "MANCUBUS";
+OurHeroName=         "OUR HERO";
+PainElementalName=   "PAIN ELEMENTAL";
+RevenantName=        "REVENANT";
+ShotgunGuyName=      "SHOTGUN GUY";
+SpiderMastermindName="THE SPIDER MASTERMIND";
+ZombiemanName=       "ZOMBIEMAN";
 
 Notice=
  "==============================================================================\n"
@@ -1472,6 +1671,24 @@ Level31Text = "FELICITATIONS! VOUS AVEZ TROUVE LE\n"
 Level32Text = "FELICITATIONS! VOUS AVEZ DECOUVERT\n"
 	"LE NIVEAU SUPER SECRET! VOUS FERIEZ\n"
 	"MIEUX DE FONCER DANS CELUI-LA!\n";
+
+ArachnotronName=     "ARACHNOTRON";
+ArchVileName=        "ARCHI-INFAME";
+BaronOfHellName=     "BARON DE L'ENFER";
+CacodemonName=       "CACODEMON";
+DemonName=           "DEMON";
+HeavyWeaponDudeName= "MEC SUPER-ARME";
+HellKnightName=      "CHEVALIER DE L'ENFER";
+ImpName=             "DIABLOTIN";
+LostSoulName=        "AME PERDUE";
+MancubusName=        "MANCUBUS";
+OurHeroName=         "NOTRE HEROS";
+PainElementalName=   "ELEMENTAIRE DE LA DOULEUR";
+RevenantName=        "REVENANT";
+ShotgunGuyName=      "TYPE AU FUSIL";
+CyberdemonName=      "LE CYBERDEMON";
+SpiderMastermindName="L'ARAIGNEE CERVEAU";
+ZombiemanName=       "ZOMBIE";
 
 Notice = 
 "==============================================================================\n"
