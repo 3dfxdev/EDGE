@@ -97,19 +97,19 @@ namespace Attacks
 	void HandleSounds(const mobjinfo_t *info, int mt_num)
 	{
 		if (info->seesound != sfx_None)
-			WAD::Printf("LAUNCH_SOUND = %s;\n", Things::GetSound(info->seesound));
+			WAD::Printf("LAUNCH_SOUND = %s;\n", Sounds::GetSound(info->seesound));
 
 		if (info->deathsound != sfx_None)
-			WAD::Printf("DEATH_SOUND = %s;\n", Things::GetSound(info->deathsound));
+			WAD::Printf("DEATH_SOUND = %s;\n", Sounds::GetSound(info->deathsound));
 
 		if (mt_num == MT_FIRE)
 		{
-			WAD::Printf("ATTEMPT_SOUND = %s;\n", Things::GetSound(sfx_vilatk));
-			WAD::Printf("ENGAGED_SOUND = %s;\n", Things::GetSound(sfx_barexp));
+			WAD::Printf("ATTEMPT_SOUND = %s;\n", Sounds::GetSound(sfx_vilatk));
+			WAD::Printf("ENGAGED_SOUND = %s;\n", Sounds::GetSound(sfx_barexp));
 		}
 
 		if (mt_num == MT_FATSHOT)
-			WAD::Printf("ATTEMPT_SOUND = %s;\n", Things::GetSound(sfx_manatk));
+			WAD::Printf("ATTEMPT_SOUND = %s;\n", Sounds::GetSound(sfx_manatk));
 	}
 
 	void HandleFrames(const mobjinfo_t *info, int mt_num)

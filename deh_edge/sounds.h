@@ -139,6 +139,8 @@ namespace Sounds
 	void MarkSound(int s_num);
 	void AlterSound(int new_val);
 
+	const char *GetSound(int sound_id);
+
 	void ConvertSFX(void);
 	void ConvertMUS(void);
 }

@@ -147,9 +147,9 @@ namespace Weapons
 	{
 		if (w_num == wp_chainsaw)
 		{
-			WAD::Printf("START_SOUND = %s;\n", Things::GetSound(sfx_sawup));
-			WAD::Printf("IDLE_SOUND = %s;\n", Things::GetSound(sfx_sawidl));
-			WAD::Printf("ENGAGED_SOUND = %s;\n", Things::GetSound(sfx_sawful));
+			WAD::Printf("START_SOUND = %s;\n",   Sounds::GetSound(sfx_sawup));
+			WAD::Printf("IDLE_SOUND = %s;\n",    Sounds::GetSound(sfx_sawidl));
+			WAD::Printf("ENGAGED_SOUND = %s;\n", Sounds::GetSound(sfx_sawful));
 			return;
 		}
 
@@ -189,11 +189,6 @@ namespace Weapons
 
 		if (has_flash)
 			Frames::OutputGroup(info->flashstate, 'f');
-
-		if (Frames::act_flags & AF_THING_ST)
-		{
-			PrintWarn("Weapon [%s] uses thing states.\n", info->ddf_name);
-		}
 	}
 
 	void HandleAttacks(const weaponinfo_t *info, int w_num)

@@ -296,6 +296,36 @@ namespace Sounds
 		PrintWarn("UNKNOWN SOUND FIELD: %s\n", deh_field);
 	}
 
+	const char *GetSound(int sound_id)
+	{
+		assert(sound_id != sfx_None);
+		assert(strlen(S_sfx[sound_id].orig_name) < 16);
+
+		// handle random sounds
+		switch (sound_id)
+		{
+			case sfx_podth1: case sfx_podth2: case sfx_podth3:
+				return "\"PODTH?\"";
+
+			case sfx_posit1: case sfx_posit2: case sfx_posit3:
+				return "\"POSIT?\"";
+
+			case sfx_bgdth1: case sfx_bgdth2:
+				return "\"BGDTH?\"";
+
+			case sfx_bgsit1: case sfx_bgsit2:
+				return "\"BGSIT?\"";
+
+			default: break;
+		}
+
+		static char name_buf[40];
+
+		sprintf(name_buf, "\"%s\"", StrUpper(S_sfx[sound_id].orig_name));
+
+		return name_buf;
+	}
+
 	void BeginSoundLump(void)
 	{
 		WAD::NewLump("DDFSFX");
