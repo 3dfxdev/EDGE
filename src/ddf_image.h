@@ -30,6 +30,7 @@ typedef enum
 {
 	IMGDT_Colour = 0,   // solid colour
 	IMGDT_Builtin,      // built-in pre-fab DYI kit
+	IMGDT_File,         // load from an image file
 
 	// future:
 	// IMGDT_WadFlat
@@ -39,7 +40,6 @@ typedef enum
 	// IMGDT_WadPlaySkin
 	// IMGDT_WadTexPatch
 	// IMGDT_Package
-	IMGDT_File,          // TEST TEST TEST
 	// IMGDT_Composed
 }
 imagedata_type_e;
@@ -91,9 +91,9 @@ public:
 
 	image_special_e special;
 
-	// --- future: ---
-
 	epi::strent_c name;   // IMGDT_WadXXX, IMGDT_Package, IMGDT_File
+
+	int builtin_size;
 
 	// COMPOSE specifics:
 	//   rgbcol_t base_col;
@@ -111,7 +111,7 @@ public:
 	//   rgb_formula_t conv_r, conv_g, conv_b, conv_a;
 
 	// RENDERING specifics:
-	//   float scale, aspect;
+	float scale, aspect;
 	//   percent_t translucency;
 	//   angle_t rotation;
 };

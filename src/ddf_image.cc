@@ -44,8 +44,11 @@ static void DDF_ImageGetSpecial(const char *info, void *storage);
 
 static const commandlist_t image_commands[] =
 {
-	DF("IMAGE DATA", type, DDF_ImageGetType),
+	DF("IMAGE DATA", type,    DDF_ImageGetType),
 	DF("SPECIAL",    special, DDF_ImageGetSpecial),
+	DF("SIZE",       builtin_size, DDF_MainGetNumeric),
+	DF("SCALE",      scale,   DDF_MainGetFloat),
+	DF("ASPECT",     aspect,  DDF_MainGetFloat),
 
 	DDF_CMD_END
 };
@@ -311,6 +314,9 @@ void imagedef_c::CopyDetail(const imagedef_c &src)
 	name    = src.name;
 
 	special = src.special;
+	builtin_size = src.builtin_size;
+	scale   = src.scale;
+	aspect  = src.aspect;
 }
 
 //
@@ -327,6 +333,10 @@ void imagedef_c::Default()
 	name.Clear();
 
 	special = IMGSP_None;
+
+	builtin_size = 256;
+	scale  = 1.0f;
+	aspect = 1.0f;
 }
 
 //
