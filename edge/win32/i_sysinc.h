@@ -53,7 +53,7 @@ boolean_t I_CDFinished(void);
 
 // I_CONWIN.C - For console output when not is graphics mode
 void I_StartWinConsole(void);
-void I_SetConsoleTitle(char *title);
+void I_SetConsoleTitle(const char *title);
 void I_WinConPrintf(const char* message, ...);
 void I_ShutdownWinConsole(void);
 
