@@ -619,7 +619,7 @@ static void ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 			x = src->faceobj.mo->x - bot->pl->mo->x;
 			y = src->faceobj.mo->y - bot->pl->mo->y;
 			new_angle = R_PointToAngle(bot->pl->mo->x, bot->pl->mo->y, src->faceobj.mo->x, src->faceobj.mo->y);
-			s = sqrt(x * x + y * y);
+			s = (float)sqrt(x * x + y * y);
 			
 			if (s < 0.1f)
 				s = 0.1f;
@@ -631,7 +631,7 @@ static void ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 			x = src->faceobj.xyz.x - bot->pl->mo->x;
 			y = src->faceobj.xyz.y - bot->pl->mo->y;
 			new_angle = R_PointToAngle(bot->pl->mo->x, bot->pl->mo->y, src->faceobj.xyz.x, src->faceobj.xyz.y);
-			s = sqrt(x * x + y * y);
+			s = (float)sqrt(x * x + y * y);
 
 			if (s < 0.1f)
 				s = 0.1f;

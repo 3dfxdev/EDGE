@@ -259,7 +259,7 @@ void P_RemoveAllActiveParts(void)
 //
 static move_result_e AttemptMovePlane(sector_t * sector, 
 									  float speed, float dest, bool crush, 
-									  int is_ceiling, int direction)
+									  bool is_ceiling, int direction)
 {
 	bool past = false;
 	bool nofit;
@@ -1257,7 +1257,7 @@ bool EV_DoDonut(sector_t * s1, sfx_t *sfx[4])
 
 	for (i = 0; i < s2->linecount; i++)
 	{
-		if ((!s2->lines[i]->flags & ML_TwoSided) || (s2->lines[i]->backsector == s1))
+		if (!(s2->lines[i]->flags & ML_TwoSided) || (s2->lines[i]->backsector == s1))
 			continue;
 
 		s3 = s2->lines[i]->backsector;

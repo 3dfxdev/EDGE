@@ -366,7 +366,7 @@ void G_BuildTiccmd(ticcmd_t * cmd)
 
 	vertangle = 0;
 
-	strafe = CheckKey(key_strafe);
+	strafe = CheckKey(key_strafe)?true:false;
 	speed = CheckKey(key_speed);
 
 	if (autorunning)
@@ -421,11 +421,11 @@ void G_BuildTiccmd(ticcmd_t * cmd)
 
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
 		if (CheckKey(key_lookup))
-			vertangle += (float)mlook_rate / 1024.0;
+			vertangle += (float)mlook_rate / 1024.0f;
 
 		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
 		if (CheckKey(key_lookdown))
-			vertangle -= (float)mlook_rate / 1024.0;
+			vertangle -= (float)mlook_rate / 1024.0f;
 
 		if (viewiszoomed)
 			mlook_rate /= ZOOM_ANGLE_DIV;

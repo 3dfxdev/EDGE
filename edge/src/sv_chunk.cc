@@ -869,7 +869,7 @@ void SV_PutFloat(float value)
 	int mant;
 	bool neg;
 
-	neg = (value < 0.0);
+	neg = (value < 0.0f);
 	value = fabs(value);
 
 	mant = (int) ldexp(frexp(value, &exp), 30);
@@ -886,7 +886,7 @@ float SV_GetFloat(void)
 	exp = SV_GetShort() - 256;
 	mant = (int) SV_GetInt();
 
-	return ldexp((float) mant, -30 + exp);
+	return (float)ldexp((float) mant, -30 + exp);
 }
 
 

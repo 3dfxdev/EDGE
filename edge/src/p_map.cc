@@ -332,7 +332,7 @@ static bool PIT_CheckAbsThing(mobj_t * thing)
 			return true;
 	}
 
-	solid = (thing->flags & MF_SOLID);
+	solid = (thing->flags & MF_SOLID)?true:false;
 
 	// check for missiles making contact
 	// -ACB- 1998/08/04 Procedure for missile contact
@@ -661,7 +661,7 @@ static bool PIT_CheckRelThing(mobj_t * thing)
 	// -ACB- 1998/08/04 Use procedure
 	// -KM- 1998/09/01 After I noticed Skulls slamming into boxes of rockets...
 
-	solid = (thing->flags & MF_SOLID);
+	solid = (thing->flags & MF_SOLID)?true:false;
 
 	if ((tm_I.flags & MF_SKULLFLY) && solid)
 	{
@@ -1176,7 +1176,7 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 			traily = mo->y + mo->radius;
 		}
 
-		bestslidefrac = 1.0001;
+		bestslidefrac = 1.0001f;
 
 		P_PathTraverse(leadx, leady, leadx + dx, leady + dy,
 			PT_ADDLINES, PTR_SlideTraverse);
@@ -1186,7 +1186,7 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 			PT_ADDLINES, PTR_SlideTraverse);
 
 		// move up to the wall
-		if (bestslidefrac == 1.0001)
+		if (bestslidefrac == 1.0001f)
 		{
 			// the move must have hit the middle, so stairstep
 			if (!P_TryMove(mo, mo->x, mo->y + dy))
@@ -1195,8 +1195,8 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 		}
 
 		// fudge a bit to make sure it doesn't hit
-		bestslidefrac -= 0.01;
-		if (bestslidefrac > 0)
+		bestslidefrac -= 0.01f;
+		if (bestslidefrac > 0.0f)
 		{
 			newx = dx * bestslidefrac;
 			newy = dy * bestslidefrac;
@@ -1211,12 +1211,12 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 
 		// Now continue along the wall.
 		// First calculate remainder.
-		bestslidefrac = 1.0 - (bestslidefrac + 0.01);
+		bestslidefrac = 1.0f - (bestslidefrac + 0.01f);
 
-		if (bestslidefrac > 1.0)
+		if (bestslidefrac > 1.0f)
 			bestslidefrac = 1.0f;
 
-		if (bestslidefrac <= 0)
+		if (bestslidefrac <= 0.0f)
 			return;
 
 		tmxmove = dx * bestslidefrac;
@@ -1394,8 +1394,8 @@ static bool PTR_ShootTraverse(intercept_t * in)
 
 	dist = shoot_I.range * in->frac;
 
-	if (dist < 0.1)
-		dist = 0.1;
+	if (dist < 0.1f)
+		dist = 0.1f;
 
 	// Intercept is a line?
 	if (in->type == INCPT_Line)
@@ -1486,9 +1486,8 @@ static bool PTR_ShootTraverse(intercept_t * in)
 		}
 
 		// position puff off the wall
-
-		x -= trace.dx * 6.0 / shoot_I.range;
-		y -= trace.dy * 6.0 / shoot_I.range;
+		x -= trace.dx * 6.0f / shoot_I.range;
+		y -= trace.dy * 6.0f / shoot_I.range;
 
 		// Spawn bullet puffs.
 		if (shoot_I.puff)
@@ -1526,7 +1525,7 @@ static bool PTR_ShootTraverse(intercept_t * in)
 
 	// hit thing
 	// position a bit closer
-	frac = in->frac - 10.0 / shoot_I.range;
+	frac = in->frac - 10.0f / shoot_I.range;
 
 	x = trace.x + trace.dx * frac;
 	y = trace.y + trace.dy * frac;
@@ -1567,13 +1566,13 @@ float P_AimLineAttack(mobj_t * t1, angle_t angle, float distance)
 
 	if (t1->player)
 	{
-		aim_I.topslope = (t1->vertangle * 256 + 100.0) / 160.0f;
-		aim_I.bottomslope = (t1->vertangle * 256 - 100.0) / 160.0f;
+		aim_I.topslope = (t1->vertangle * 256.0f + 100.0f) / 160.0f;
+		aim_I.bottomslope = (t1->vertangle * 256.0f - 100.0f) / 160.0f;
 	}
 	else
 	{
-		aim_I.topslope = 100.0 / 160.0f;
-		aim_I.bottomslope = -100.0 / 160.0f;
+		aim_I.topslope = 100.0f / 160.0f;
+		aim_I.bottomslope = -100.0f / 160.0f;
 	}
 
 	linetarget = NULL;
@@ -1581,7 +1580,7 @@ float P_AimLineAttack(mobj_t * t1, angle_t angle, float distance)
 	aim_I.source = t1;
 	aim_I.range = distance;
 	aim_I.angle = angle;
-	aim_I.slope = 0;
+	aim_I.slope = 0.0f;
 
 	P_PathTraverse(t1->x, t1->y, x2, y2, PT_ADDLINES | PT_ADDTHINGS, PTR_AimTraverse);
 
@@ -1806,8 +1805,8 @@ void P_UseLines(player_t * player)
 	float y2;
 
 	usething = player->mo;
-	use_lower = INT_MIN;
-	use_upper = INT_MAX;
+	use_lower = FLT_MIN;
+	use_upper = FLT_MAX;
 
 	angle = player->mo->angle;
 
@@ -1858,8 +1857,8 @@ static bool PIT_RadiusAttack(mobj_t * thing)
 	if (thing->info->extendedflags & EF_BOSSMAN)
 		return true;
 
-	dx = fabs(thing->x - bomb_I.spot->x);
-	dy = fabs(thing->y - bomb_I.spot->y);
+	dx = (float)fabs(thing->x - bomb_I.spot->x);
+	dy = (float)fabs(thing->y - bomb_I.spot->y);
 
 	// dist is the distance to the *edge* of the thing
 	dist = MAX(dx, dy) - thing->radius;
@@ -1915,9 +1914,9 @@ static bool PIT_SphereAttack(mobj_t * thing)
 		return true;
 
 	// -KM- 1999/01/31 Use thing->height/2
-	dx = fabs(thing->x - bomb_I.spot->x);
-	dy = fabs(thing->y - bomb_I.spot->y);
-	dz = fabs(MO_MIDZ(thing) - MO_MIDZ(bomb_I.spot));
+	dx = (float)fabs(thing->x - bomb_I.spot->x);
+	dy = (float)fabs(thing->y - bomb_I.spot->y);
+	dz = (float)fabs(MO_MIDZ(thing) - MO_MIDZ(bomb_I.spot));
 
 	// dist is the distance to the *edge* of the thing
 	dist = MAX(MAX(dx, dy) - thing->radius, dz - thing->height/2);
@@ -1995,7 +1994,7 @@ void P_RadiusAttack(mobj_t * spot, mobj_t * source, float radius,
 static bool crushchange;
 static bool nofit;
 static int crush_time;
-static int crush_damage;
+static float crush_damage;
 
 
 //
@@ -2050,8 +2049,8 @@ static bool PIT_ChangeSector(mobj_t * thing)
 		mo = P_MobjCreateObject(thing->x, thing->y, MO_MIDZ(thing),
 			thing->info->blood);
 
-		mo->mom.x = (M_Random() - 128) / 4.0f;
-		mo->mom.y = (M_Random() - 128) / 4.0f;
+		mo->mom.x = (float)(M_Random() - 128) / 4.0f;
+		mo->mom.y = (float)(M_Random() - 128) / 4.0f;
 	}
 
 	// keep checking (crush other things) 
@@ -2079,7 +2078,7 @@ static void ChangeSectorHeights(sector_t *sec, float f_h,
 	mobj_t *mo;
 
 	crush_time   = 4;
-	crush_damage = 10;
+	crush_damage = 10.0f;
 
 	for (tn=sec->touch_things; tn; tn=next)
 	{
@@ -2549,7 +2548,7 @@ bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing)
 	mb2 = spawnthing->z;
 	mt2 = spawnthing->z + spawnthing->height;
 
-	crosser = (spawnthing->extendedflags & EF_CROSSLINES);
+	crosser = (spawnthing->extendedflags & EF_CROSSLINES)?true:false;
 
 	tmbbox[BOXLEFT] = mx1 < mx2 ? mx1 : mx2;
 	tmbbox[BOXRIGHT] = mx1 > mx2 ? mx1 : mx2;
