@@ -1069,7 +1069,7 @@ static void G_PlayerFinishLevel(player_t *p)
 // Called after a player dies. 
 // almost everything is cleared and initialised.
 //
-void G_PlayerReborn(player_t *p, const mobjdef_c *info)
+void G_PlayerReborn(player_t *p, const mobjtype_c *info)
 {
 	bool in_game;
 	player_t *next, *prev;
@@ -1162,7 +1162,7 @@ static bool G_CheckSpot(player_t *player, const spawnpoint_t *point)
 	// (temp fix for teleport effect)
 	x += 20 * M_Cos(point->angle);
 	y += 20 * M_Sin(point->angle);
-	P_MobjCreateObject(x, y, z, mobjdefs.Lookup("TELEPORT FLASH"));
+	P_MobjCreateObject(x, y, z, mobjtypes.Lookup("TELEPORT FLASH"));
 
 	return true;
 }
@@ -1508,8 +1508,8 @@ void G_DoLoadGame(void)
 
 	// clear line/sector lookup caches, in case level_flags.compat_mode
 	// changed (e.g. CM_BOOM -> CM_EDGE).
-	DDF_LineClearGeneralised();
-	DDF_SectorClearGeneralised();
+	genlinetypes.Reset();
+	gensectortypes.Reset();
 
 	if (SV_LoadEverything() && SV_GetError() == 0)
 	{
@@ -1803,7 +1803,7 @@ void G_ReadDemoTiccmd(ticcmd_t * cmd)
 void G_WriteDemoTiccmd(ticcmd_t * cmd)
 {
 	// press q to end demo recording
-	if (gamekeydown['q'])
+	if (gamekeydown[(int)('q')])
 		G_CheckDemoStatus();
 
 	// -ACB- 1998/07/11 Added additional ticcmd stuff to demo
