@@ -145,6 +145,15 @@ bool SR_GetFloat(void *storage, int index, void *extra)
 }
 
 //
+// SR_GetBoolean
+//
+bool SR_GetBoolean(void *storage, int index, void *extra)
+{
+  ((bool *)storage)[index] = SV_GetInt() ? true : false;
+  return true;
+}
+
+//
 // SR_GetVec2
 //
 bool SR_GetVec2(void *storage, int index, void *extra)
@@ -226,6 +235,14 @@ void SR_PutAngle(void *storage, int index, void *extra)
 void SR_PutFloat(void *storage, int index, void *extra)
 {
   SV_PutFloat(((float *)storage)[index]);
+}
+
+//
+// SR_PutBoolean
+//
+void SR_PutBoolean(void *storage, int index, void *extra)
+{
+  SV_PutInt(((bool *)storage)[index] ? 1 : 0);
 }
 
 //
