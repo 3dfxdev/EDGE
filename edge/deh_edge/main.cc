@@ -77,7 +77,7 @@ static void ParseArgs(int argc, char **argv)
 	}
 	else
 	{
-		output_file = strdup("test_deh.wad");  //!!!! FIXME
+		output_file = strdup("bar_deh.wad");  //!!!! FIXME
 	}
 
 	// !!!! AddMissingExtension(&input_file,  ".deh");
