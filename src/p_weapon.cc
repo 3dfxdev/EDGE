@@ -126,9 +126,11 @@ bool P_FillNewWeapon(player_t *p, int idx)
 	for (int ATK = 0; ATK < 2; ATK++)
 	{
 		if (info->ammo[ATK] == AM_NoAmmo || info->clip_size[ATK] == 1)
-			continue;
-
-		if (info->clip_size[ATK] <= p->ammo[info->ammo[ATK]].num)
+		{
+			if (ATK == 0)
+				result = true;
+		}
+		else if (info->clip_size[ATK] <= p->ammo[info->ammo[ATK]].num)
 		{
 			p->weapons[idx].clip_size[ATK] = info->clip_size[ATK];
 			p->ammo[info->ammo[ATK]].num  -= info->clip_size[ATK];
@@ -254,9 +256,6 @@ static void GotoReadyState(player_t *p)
 
 	P_SetPspriteDeferred(p, ps_weapon, newstate);
 	P_SetPspriteDeferred(p, ps_crosshair, p->weapons[p->ready_wp].info->crosshair);
-
-	// -AJA- FIXME: probably need to take the _player_ thing out of its
-	// attack state.
 }
 
 static void GotoEmptyState(player_t *p)
@@ -265,9 +264,6 @@ static void GotoEmptyState(player_t *p)
 
 	P_SetPspriteDeferred(p, ps_weapon, newstate);
 	P_SetPsprite(p, ps_crosshair, S_NULL);
-
-	// -AJA- FIXME: probably need to take the _player_ thing out of its
-	// attack state.
 }
 
 static void GotoAttackState(player_t * p, int ATK)
@@ -595,27 +591,39 @@ void P_Zoom(player_t *p)
 //----------------------------------------------------------------------------
 
 
-// FIXME: bobbing stops while firing: causes a jerk when finished
-
 static void BobWeapon(player_t *p, weapondef_c *info)
 {
 	bool hasjetpack = p->powers[PW_Jetpack] > 0;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
+	float new_sx = 1.0f;
+	float new_sy = WEAPONTOP;
+	
 	// bob the weapon based on movement speed
-	if (hasjetpack)
-	{
-		psp->sx = 1.0f;
-		psp->sy = WEAPONTOP;
-	}
-	else
+	if (! hasjetpack)
 	{
 		angle_t angle = (128 * leveltime) << ANGLETOFINESHIFT;
-		psp->sx = 1.0f + p->bob * PERCENT_2_FLOAT(info->swaying) * M_Cos(angle);
+		new_sx = 1.0f + p->bob * PERCENT_2_FLOAT(info->swaying) * M_Cos(angle);
 
 		angle &= (ANG180 - 1);
-		psp->sy = WEAPONTOP + p->bob * PERCENT_2_FLOAT(info->bobbing) * M_Sin(angle);
+		new_sy = WEAPONTOP + p->bob * PERCENT_2_FLOAT(info->bobbing) * M_Sin(angle);
 	}
+
+	psp->sx = new_sx;
+	psp->sy = new_sy;
+
+#if 0  // won't really work with low framerates
+	// try to prevent noticeable jumps
+	if (fabs(new_sx - psp->sx) <= MAX_BOB_DX)
+		psp->sx = new_sx;
+	else
+		psp->sx += (new_sx > psp->sx) ? MAX_BOB_DX : -MAX_BOB_DX;
+
+	if (fabs(new_sy - psp->sy) <= MAX_BOB_DY)
+		psp->sy = new_sy;
+	else
+		psp->sy += (new_sy > psp->sy) ? MAX_BOB_DY : -MAX_BOB_DY;
+#endif
 }
 
 //
@@ -630,6 +638,8 @@ void A_WeaponReady(mobj_t * mo)
 {
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
+
+	DEV_ASSERT2(p->ready_wp != WPSEL_None);
 
 	weapondef_c *info = p->weapons[p->ready_wp].info;
 
@@ -680,16 +690,27 @@ void A_WeaponReady(mobj_t * mo)
 		{
 			bool reload = false;
 
-			if ((info->specials[ATK] & WPSP_Fresh) && (info->clip_size[ATK] > 1))
+			if ((info->specials[ATK] & WPSP_Fresh) && info->clip_size[ATK] != 1 &&
+				info->ammo[ATK] != AM_NoAmmo)
 			{
 				reload = WeaponCanReload(p, p->ready_wp, ATK);
 			}
 			else if ((p->cmd.extbuttons & EBT_RELOAD) &&
-					 (info->specials[ATK] & WPSP_Key))
+					 (info->specials[ATK] & WPSP_Manual) &&
+					 (ATK ? info->sa_reload_state : info->reload_state))
 			{
 				reload = (info->specials[ATK] & WPSP_Partial) ?
 					WeaponCanPartialReload(p, p->ready_wp, ATK) :
 					WeaponCanReload(p, p->ready_wp, ATK);
+
+				weapondef_c *info = p->weapons[p->ready_wp].info;
+
+				// for non-clip weapons, chew up some ammo
+				if (reload && info->clip_size[ATK] == 1 &&
+					info->ammo[ATK] != AM_NoAmmo)
+				{
+					p->ammo[info->ammo[ATK]].num -= info->ammopershot[ATK];
+				}
 			}
 
 			if (reload)
