@@ -38,6 +38,7 @@
 #include "m_swap.h"
 #include "p_local.h"
 #include "r_sky.h"
+#include "rgl_sky.h"
 #include "w_wad.h"
 #include "w_textur.h"
 #include "z_zone.h"
@@ -411,6 +412,8 @@ void R_PrecacheLevel(void)
 
 		W_ImagePreCache(images[i]);
 	}
+
+	RGL_PreCacheSky();
 
 	Z_Free(images);
 }

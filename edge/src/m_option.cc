@@ -158,7 +158,7 @@ static char CompatSet[] = "EDGE/Boom";
 static char CrosO[] = "None/Cross/Dot/Angle";  // crosshair options
 static char Respw[] = "Teleport/Resurrect";  // monster respawning
 static char Axis[] = "Turn/Forward/Strafe/MLook/Fly/Disable";
-static char SkySq[] = "Small/Medium/Large/Full";
+static char SkySq[] = "Small/Medium/Large/Mirror";
 
 // Screen resolution changes
 static int prevscrmode;
@@ -387,14 +387,14 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch, "Detail Level", Details, 3, 1, &detail_level, NULL, NULL},
 	{OPT_Switch, "Crosshair", CrosO, 4, 0, &crosshair, NULL, NULL},
 	{OPT_Boolean, "Map Overlay", YesNo, 2, 0, &map_overlay, NULL, NULL},
-	{OPT_Switch, "Sky stretch", SkySq, 4, 3, &sky_stretch, M_ChangeMipMap, NULL},
+	{OPT_Boolean, "Map Rotation", YesNo, 2, 0, &rotatemap, NULL, NULL},
+	{OPT_Switch, "Sky stretch", SkySq, 4, 1, &sky_stretch, M_ChangeMipMap, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Switch, "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 0, &telept_effect, NULL, NULL},
 	{OPT_Switch, "Teleport Flash", YesNo, 2, 1, &telept_flash, NULL, NULL},
 	{OPT_Switch, "Wipe method", WIPE_EnumStr, WIPE_NUMWIPES, 1, &wipe_method, NULL, NULL} 
   
 #if 0  // TEMPORARILY DISABLED (we need an `Advanced Options' menu)
-	{OPT_Boolean, "Map Rotation", YesNo, 2, 0, &rotatemap, NULL, NULL},
+	{OPT_Switch, "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 0, &telept_effect, NULL, NULL},
     {OPT_Switch, "Reverse effect", YesNo, 2, 0, &telept_reverse, NULL, NULL},
     {OPT_Switch, "Reversed wipe", YesNo, 2, 0, &wipe_reverse, NULL, NULL},
 #endif

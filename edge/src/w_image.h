@@ -167,6 +167,9 @@ const cached_image_t *W_ImageCache(const image_t *image,
 void W_ImageDone(const cached_image_t *c);
 void W_ImagePreCache(const image_t *image);
 
+// -AJA- planned....
+// epi::basicimage_c *W_ImageGetEpiBlock(const cached_image_t *c);
+
 GLuint W_ImageGetOGL(const cached_image_t *c);
 
 #ifdef DEVELOPERS
@@ -177,10 +180,4 @@ const char *W_ImageDebugName(const image_t *image);
 int W_MakeValidSize(int value);
 
 #endif  // __W_IMAGE__
-
-
-
-
-
-
 

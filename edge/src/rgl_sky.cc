@@ -22,6 +22,7 @@
 #include "am_map.h"
 #include "dm_defs.h"
 #include "dm_state.h"
+#include "con_main.h"
 #include "e_search.h"
 #include "m_bbox.h"
 #include "m_random.h"
@@ -47,6 +48,8 @@
 
 static bool need_to_draw_sky = false;
 
+#define STRETCH_MIRROR  3
+
 int sky_stretch = 0;  // ranges from 0 to 3
 
 
@@ -68,8 +71,6 @@ static skybox_info_t box_info =
 	NULL, NULL
 };
 
-static void UpdateSkyBoxTextures(void);
-
 
 //
 // RGL_SetupSkyMatrices
@@ -88,7 +89,7 @@ void RGL_SetupSkyMatrices(void)
 	glLoadIdentity();
 	
 	glRotatef(270.0f - ANG_2_FLOAT(viewvertangle), 1.0f, 0.0f, 0.0f);
-	glRotatef(45.0f  - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
+	glRotatef(90.0f  - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
 //	glTranslatef(0.0f, 0.0f, 0.0f);
 }
 
@@ -147,8 +148,7 @@ void RGL_FinishSky(void)
 
 void RGL_DrawSkyBox(void)
 {
-	UpdateSkyBoxTextures();
-
+	RGL_UpdateSkyBoxTextures();
 	RGL_SetupSkyMatrices();
 
 	float dist = Z_FAR / 2.0f;
@@ -158,9 +158,10 @@ void RGL_DrawSkyBox(void)
 
 	if (! glcap_edgeclamp)
 	{
-		// FIXME: assumes textures are 128x128
-		v0 =   0.5f / 128.0f;
-		v1 = 127.5f / 128.0f;
+		float size = box_info.north->actual_w;
+
+		v0 = 0.5f / size;
+		v1 = 1.0f - v0;
 	}
 
 	const cached_image_t *cim_N, *cim_E, *cim_S, *cim_W;
@@ -299,7 +300,10 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 
 //----------------------------------------------------------------------------
 
-static const float stretches[4] = { 0.55f, 0.70f, 0.85f, 1.0f };
+extern void W_ImageClearMergingSky(void);
+
+static const float stretches[4] =
+{ 0.55f, 0.78f, 1.0f, 1.0f /* MIRROR */};
 
 void RGL_CalcSkyCoord(float sx, float sy, float sz, int tw, float *tx, float *ty)
 {
@@ -316,35 +320,53 @@ void RGL_CalcSkyCoord(float sx, float sy, float sz, int tw, float *tx, float *ty
 
 	float k = (float)(V >> 7) / (float)(1 << 24);
 
-	// FIXME: optimise
-	k = k * 2.0f - 1.0f;
-
-	if (k < 0)
-		k = -pow(-k, stretches[sky_stretch]);
+	if (sky_stretch == STRETCH_MIRROR)
+	{
+		k *= 2.0f;
+		*ty = (k > 1.0f) ? 2.0f - k : k;
+	}
 	else
-		k =  pow(k,  stretches[sky_stretch]);
+	{
+		// FIXME: optimise
+		k = k * 2.0f - 1.0f;
 
-	// if (k < -0.99) k = -0.99;
-	// if (k > +0.99) k = +0,99;
+		if (k < 0)
+			k = -pow(-k, stretches[sky_stretch]);
+		else
+			k =  pow(k,  stretches[sky_stretch]);
 
-	*ty = (k + 1.0f) / 2.0f;
+		// if (k < -0.99) k = -0.99;
+		// if (k > +0.99) k = +0,99;
+
+		*ty = (k + 1.0f) / 2.0f;
+	}
 }
 
-static void UpdateSkyBoxTextures(void)
+void RGL_UpdateSkyBoxTextures(void)
 {
 	if (box_info.base_sky == sky_image &&
 		box_info.last_stretch == sky_stretch)
+	{
 		return;
-	
+	}
+
+	W_ImageClearMergingSky(); // hack (see w_image.cpp)
+
 	box_info.base_sky = sky_image;
 	box_info.last_stretch = sky_stretch;
 
 	box_info.north  = W_ImageFromSkyMerge(sky_image, WSKY_North);
 	box_info.east   = W_ImageFromSkyMerge(sky_image, WSKY_East);
 	box_info.top    = W_ImageFromSkyMerge(sky_image, WSKY_Top);
-	box_info.bottom = W_ImageFromSkyMerge(sky_image, WSKY_Bottom);
+	
+	// optimisation for MIRROR mode
+	if (sky_stretch == STRETCH_MIRROR)
+		box_info.bottom = box_info.top;
+	else
+		box_info.bottom = W_ImageFromSkyMerge(sky_image, WSKY_Bottom);
 
 	// small optimisation for 256 wide skies
+	// FIXME: !!! doesn't work with Doom Retexturing Project (check scale ?)
 	if (sky_image->actual_w <= 256)
 	{
 		box_info.south = box_info.north;
@@ -355,4 +377,20 @@ static void UpdateSkyBoxTextures(void)
 		box_info.south  = W_ImageFromSkyMerge(sky_image, WSKY_South);
 		box_info.west   = W_ImageFromSkyMerge(sky_image, WSKY_West);
 	}
+}
+
+void RGL_PreCacheSky(void)
+{
+	W_ImagePreCache(box_info.north);
+	W_ImagePreCache(box_info.east);
+	W_ImagePreCache(box_info.top);
+
+	if (box_info.south != box_info.north)
+		W_ImagePreCache(box_info.south);
+
+	if (box_info.west != box_info.east)
+		W_ImagePreCache(box_info.west);
+
+	if (box_info.bottom != box_info.top)
+		W_ImagePreCache(box_info.bottom);
 }
