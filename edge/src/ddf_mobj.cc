@@ -302,10 +302,11 @@ const specflags_t keytype_names[] =
 	{"BLUECARD",    KF_BlueCard,    0},
 	{"YELLOWCARD",  KF_YellowCard,  0},
 	{"REDCARD",     KF_RedCard,     0},
+	{"GREENCARD",   KF_GreenCard,   0},
+
 	{"BLUESKULL",   KF_BlueSkull,   0},
 	{"YELLOWSKULL", KF_YellowSkull, 0},
 	{"REDSKULL",    KF_RedSkull,    0},
-	{"GREENCARD",   KF_GreenCard,   0},
 	{"GREENSKULL",  KF_GreenSkull,  0},
 
 	{"GOLD KEY",    KF_GoldKey,     0},
@@ -317,13 +318,17 @@ const specflags_t keytype_names[] =
 	{"FIRE KEY",    KF_FireKey,     0},
 	{"WATER KEY",   KF_WaterKey,    0},
 
-	// backwards compatibility
+	// -AJA- compatibility (this way is the easiest)
 	{"KEY BLUECARD",    KF_BlueCard,    0},
 	{"KEY YELLOWCARD",  KF_YellowCard,  0},
 	{"KEY REDCARD",     KF_RedCard,     0},
+	{"KEY GREENCARD",   KF_GreenCard,   0},
+
 	{"KEY BLUESKULL",   KF_BlueSkull,   0},
 	{"KEY YELLOWSKULL", KF_YellowSkull, 0},
 	{"KEY REDSKULL",    KF_RedSkull,    0},
+	{"KEY GREENSKULL",  KF_GreenSkull,  0},
+
 	{NULL, 0, 0}
 };
 
