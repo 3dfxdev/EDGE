@@ -98,7 +98,7 @@ typedef struct client_info_s
 
 	s16_t game;
 
-	byte state;
+	char state;
 
 	enum  // state values:
 	{
@@ -118,7 +118,8 @@ client_info_t;
 //
 typedef struct connect_proto_s
 {
-	s16_t protocol_ver;  // three-digit hex: 0x025 means 0.2.5
+	s16_t protocol_ver;  // OUTPUT: three-digit hex (0x025 means 0.2.5)
+	s16_t reserved;
 
 	client_info_t info;
 
@@ -202,7 +203,7 @@ typedef struct game_info_s
 
 	s16_t num_votes;
 
-	byte state;
+	char state;
 
 	enum  // state values:
 	{
