@@ -37,7 +37,7 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include "glbsp/glbsp.h"
+#include "glbsp-2.05/glbsp.h"
 
 
 boolean_t gb_draw_progress = false;
@@ -223,7 +223,6 @@ const nodebuildfuncs_t edge_build_funcs =
 
 		GB_DisplayOpen,
 		GB_DisplaySetTitle,
-		GB_DisplaySetText,
 		GB_DisplaySetBar,
 		GB_DisplaySetBarLimit,
 		GB_DisplaySetBarText,
@@ -249,7 +248,7 @@ boolean_t GB_BuildNodes(int map_lump)
 	memcpy((void *)&nb_comms, (void *)&default_buildcomms, sizeof(nodebuildcomms_t));
 	//  nb_comms = default_buildcomms;
 
-	nb_info.input_file = W_GetFileName(map_lump);
+  nb_info.input_file = GlbspStrDup(W_GetFileName(map_lump));
 
 	// FIXME: check parm "-node-factor"
 
