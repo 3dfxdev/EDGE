@@ -832,7 +832,7 @@ static bool BenefitTryAmmoLimit(const char *name, benefit_t *be,
 static bool BenefitTryWeapon(const char *name, benefit_t *be,
 								  int num_vals)
 {
-	be->subtype = weapondefs.FindFirst(name);
+	be->subtype = weapondefs.FindFirst(name, weapondefs.GetDisabledCount());
 
 	if (be->subtype < 0)
 		return false;
@@ -1094,7 +1094,7 @@ void BA_ParseSwitchWeapon(benefit_effect_c **list,
 
 	DEV_ASSERT2(word_par && word_par[0]);
 
-	int subtype = weapondefs.FindFirst(word_par);
+	int subtype = weapondefs.FindFirst(word_par, weapondefs.GetDisabledCount());
 
 	if (subtype < 0)
 		DDF_Error("SWITCH_WEAPON: unknown weapon name: %s\n", word_par);
@@ -1444,7 +1444,7 @@ static bool ConditionTryAmmo(const char *name, const char *sub,
 static bool ConditionTryWeapon(const char *name, const char *sub,
 									condition_check_t *cond)
 {
-	cond->subtype = weapondefs.FindFirst(name);
+	cond->subtype = weapondefs.FindFirst(name, weapondefs.GetDisabledCount());
 
 	if (cond->subtype < 0)
 		return false;
@@ -1534,7 +1534,7 @@ static void CheckPowerupCompatibility(void)
 	{
 		if (b->type == BENEFIT_Powerup && b->subtype == PW_Berserk)
 		{
-			int subtype = weapondefs.FindFirst("FIST");
+			int subtype = weapondefs.FindFirst("FIST", weapondefs.GetDisabledCount());
 
 			if (subtype >= 0)
 				AddPickupEffect(&buffer_mobj.pickup_effects,
