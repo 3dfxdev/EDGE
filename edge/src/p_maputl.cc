@@ -1034,8 +1034,12 @@ void P_ComputeWallTiles(line_t *ld, int sidenum)
 			if (upper_invis) c1 = sec->c_h;
 		}
 
-		f2 = MAX(f2, f1);
-		c2 = MIN(c2, c1);
+		// hack for "see-through" lines (same sector on both sides)
+		if (sec != other)
+		{
+			f2 = MAX(f2, f1);
+			c2 = MIN(c2, c1);
+		}
 
 		if (c2 > f2)
 		{
