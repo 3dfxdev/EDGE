@@ -1417,7 +1417,7 @@ void DDF_MainRefAttack(const char *info, void *storage)
 //
 // DDF_MainLookupDirector
 //
-int DDF_MainLookupDirector(const mobjdef_c *info, const char *ref)
+int DDF_MainLookupDirector(const mobjtype_c *info, const char *ref)
 {
 	int i, state, offset;
 	char *director;
