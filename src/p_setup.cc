@@ -2393,9 +2393,9 @@ static void DetectSectorCompat(int lump, int *edge_cnt, int *boom_cnt)
 		sectortype_c *def = sectortypes.Lookup(special);  // NULL OK !
 
 		if (DDF_IsBoomSectorType(special) && !def)
-			*boom_cnt++;
+			(*boom_cnt) += 1;
 		else if (special >= 32 && def)
-			*edge_cnt++;
+			(*edge_cnt) += 1;
 	}
 
 	W_DoneWithLump(data);
@@ -2424,10 +2424,10 @@ static void DetectLineDefCompat(int lump, int *edge_cnt, int *boom_cnt)
 
 		linetype_c *def = linetypes.Lookup(special);  // NULL OK !
 
-		if ((DDF_IsBoomLineType(special) && !def) || special == 242)
-			*boom_cnt++;
-		else if (def->ef.type != EXFL_None)
-			*edge_cnt++;
+		if (DDF_IsBoomLineType(special) && !def)
+			(*boom_cnt) += 1;
+		else if (def->ef.type != EXFL_None && special != 242)
+			(*edge_cnt) += 1;
 	}
 
 	W_DoneWithLump(data);
@@ -2452,17 +2452,17 @@ int P_DetectMapCompat(const mapdef_c *map)
 		return 0;
 	}
 
-	int edge_cnt = 0;
-	int boom_cnt = 0;
+	int edge_sec = 0, edge_lin = 0;
+	int boom_sec = 0, boom_lin = 0;
 
-	DetectSectorCompat( lumpnum + ML_SECTORS,  &edge_cnt, &boom_cnt);
-	DetectLineDefCompat(lumpnum + ML_LINEDEFS, &edge_cnt, &boom_cnt);
+	DetectSectorCompat( lumpnum + ML_SECTORS,  &edge_sec, &boom_sec);
+	DetectLineDefCompat(lumpnum + ML_LINEDEFS, &edge_lin, &boom_lin);
 
-	L_WriteDebug("P_DetectMapCompat: [%s] edge_cnt %d, boom_cnt %d\n",
-		map->lump.GetString(), edge_cnt, boom_cnt);
+	L_WriteDebug("P_DetectMapCompat: [%s] edge %d+%d, boom %d+%d\n",
+		map->lump.GetString(), edge_sec, edge_lin, boom_sec, boom_lin);
 
-	return ((edge_cnt > 0) ? MAP_CM_Edge : 0) | 
-	       ((boom_cnt > 0) ? MAP_CM_Boom : 0);
+	return ((edge_sec + edge_lin > 0) ? MAP_CM_Edge : 0) | 
+	       ((boom_sec + boom_lin > 0) ? MAP_CM_Boom : 0);
 }
 
 //
