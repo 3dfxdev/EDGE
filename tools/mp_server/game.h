@@ -55,15 +55,14 @@ public: //FIXME
 	std::vector<int> players;  // in the game
 
 	int num_players;
+	int bots_each;
 	int num_votes;
 
 	// ---- tic handlig ----
 
 	int tic_counter;
 
-	static const int P_MAX = play_game_proto_t::PLAYER_MAX;
-
-	std::bitset<P_MAX> got_cmds;
+	std::bitset<MP_PLAYER_MAX> got_cmds;
 	raw_ticcmd_t *tic_cmds;
 
 	int zombie_millies;  // countdown before deletion
@@ -78,6 +77,7 @@ public:
 	void RemoveFromQueue(int client_id);
 	void RemoveFromGame (int client_id);
 
+	void CalcBots();
 	void FillGameInfo(game_info_t *info) const;
 
 	void InitGame();

@@ -154,6 +154,15 @@ bool ValidatePlayerName(const char *name)
 	return true;
 }
 
+static const char *ProtoVerToString(int ver)
+{
+	static char buf[40];
+
+	sprintf(buf, "%x.%x.%x", (ver >> 8) & 0xF, (ver >> 4) & 0xF, ver & 0xF);
+
+	return buf;
+}
+
 //------------------------------------------------------------------------
 
 void SV_send_error(packet_c *pk, const char *type, const char *str, ...)
@@ -197,8 +206,8 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 
 	int client_id;
 
-	// check if not already connected
-	// Note: don't need to lock here, since other thread never modifies
+	// check if already connected
+	// Note: don't need to LOCK here, since other thread never modifies
 	//       the data (only copies it).
 
 	for (client_id = 0; (unsigned)client_id < clients.size(); client_id++)
@@ -228,8 +237,16 @@ void PK_connect_to_server(packet_c *pk, NLaddress *remote_addr)
 	// FIXME: check data_len
 
 	con.ByteSwap();
-	con.info.name[client_info_t::NAME_LEN-1] = 0;  // ensure NUL-terminated
 
+	if (con.protocol_ver != MP_PROTOCOL_VER)
+	{
+		SV_send_error(pk, "ip", "Invalid protocol !");
+		LogPrintf(1, "Client %d had wrong protocol (%s)", client_id,
+			ProtoVerToString(con.protocol_ver));
+		return;
+	}
+
+	con.info.name[client_info_t::NAME_LEN-1] = 0;  // ensure NUL-terminated
 	if (! ValidatePlayerName(con.info.name))
 	{
 		SV_send_error(pk, "bn", "Invalid name !");
@@ -335,7 +352,7 @@ void PK_query_client(packet_c *pk)
 	short cur_id = qc.first_client;
 	byte  total  = qc.count;
 
-	if (total == 0)
+	if (total == 0) // FIXME: allow zero (just get total field)
 		return;
 
 	// prepare packet header
@@ -347,6 +364,7 @@ void PK_query_client(packet_c *pk)
 
 	while (total > 0)
 	{
+		qc.total_clients = clients.size();
 		qc.first_client = cur_id;
 		qc.count = MIN(total, query_client_proto_t::CLIENT_FIT);
 		
