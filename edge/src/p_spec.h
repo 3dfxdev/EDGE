@@ -134,7 +134,6 @@ typedef struct elev_move_s
   int waited;
 
   boolean_t sfxstarted;
-  boolean_t completed;
 
   int newspecial;
 
@@ -168,7 +167,6 @@ typedef struct plane_move_s
   int waited;
 
   boolean_t sfxstarted;
-  boolean_t completed;
 
   int newspecial;
   const image_t *new_image;
