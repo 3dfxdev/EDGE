@@ -335,7 +335,7 @@ void Attacks::ConvertAttack(const mobjinfo_t *info, int mt_num, bool plr_rocket)
 		WAD::Printf("TOO_CLOSE_RANGE = 196;\n");
 
 	if (strchr(ext->flags, KF_NO_TRACE))
-		WAD::Printf("NO_TRACE_CHANCE = 2%%;\n");
+		WAD::Printf("NO_TRACE_CHANCE = 50%%;\n");
 
 	if (strchr(ext->flags, KF_KEEP_FIRE))
 		WAD::Printf("KEEP_FIRING_CHANCE = 4%%;\n");
