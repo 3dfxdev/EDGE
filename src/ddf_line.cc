@@ -42,11 +42,11 @@
 // Scrolling
 typedef enum
 {
-	dir_none = 0,
-	dir_vert = 1,
-	dir_up = 2,
+	dir_none  = 0,
+	dir_vert  = 1,
+	dir_up    = 2,
 	dir_horiz = 4,
-	dir_left = 8
+	dir_left  = 8
 }
 scrolldirs_e;
 
@@ -225,24 +225,29 @@ static const commandlist_t linedef_commands[] =
 };
 
 
-// -AJA- FIXME
-
-static struct
+typedef struct
 {
-	char *s;
+	const char *s;
+	scrolldirs_e dir;
+}
+scroll_kludge_t;
+
+static scroll_kludge_t s_scroll[] =
+{
+	{ "NONE",  dir_none  },
+	{ "UP",    (scrolldirs_e)(dir_vert | dir_up) },
+	{ "DOWN",  dir_vert  },
+	{ "LEFT",  (scrolldirs_e)(dir_horiz | dir_left) },
+	{ "RIGHT", dir_horiz },
+	{ NULL,    dir_none  }
+};
+
+
+static struct  // FIXME: APPLIES TO NEXT 3 TABLES !
+{
+	const char *s;
 	int n;
 }
-
-s_scroll[] =
-{
-	{ "NONE", dir_none | dir_none } ,
-	{ "UP", (dir_vert | dir_up) | ((~dir_none) << 16) } ,
-	{ "DOWN", (dir_vert) | ((~dir_up) << 16) } ,
-	{ "LEFT", (dir_horiz | dir_left) | ((~dir_none) << 16) } ,
-	{ "RIGHT", (dir_horiz) | ((~dir_left) << 16) }
-}
-
-,
 
 // FIXME: use keytype_names (in ddf_mobj.c)
 s_keys[] =
@@ -324,6 +329,7 @@ static bool LinedefStartEntry(const char *name)
 
 	// instantiate the static entry
 	buffer_line.Default();
+
 	s_speed = 1.0f;
 	s_dir = dir_none;
 
@@ -517,14 +523,11 @@ void DDF_LinedefCleanUp(void)
 //
 void DDF_LineGetScroller(const char *info, void *storage)
 {
-	int i;
-
-	for (i = sizeof(s_scroll) / sizeof(s_scroll[0]); i--;)
+	for (int i = 0; s_scroll[i].s; i++)
 	{
 		if (!stricmp(info, s_scroll[i].s))
 		{
-			s_dir = (scrolldirs_e)((s_dir & s_scroll[i].n) >> 16);
-			s_dir = (scrolldirs_e)((s_dir | s_scroll[i].n) & 0xffff);
+			s_dir = (scrolldirs_e)(s_dir | s_scroll[i].dir);
 			return;
 		}
 	}
@@ -625,6 +628,8 @@ static specflags_t extrafloor_types[] =
 	{"FLOODER",       EXFL_Flooder,      0},
 	{"SIDE UPPER",    EXFL_SideUpper,    0},
 	{"SIDE LOWER",    EXFL_SideLower,    0},
+	{"SIDE MIDX",     EXFL_SideMidX,     0},
+	{"SIDE MIDY",     EXFL_SideMidY,     0},
 	{"BOOMTEX",       EXFL_BoomTex,      0},
 
 	// backwards compat...
@@ -1153,7 +1158,7 @@ void extrafloordef_c::Copy(extrafloordef_c &src)
 void extrafloordef_c::Default()
 {
 	control = EFCTL_None;
-	type = EXFL_None;
+	type = EXFL_SideMidX;
 }
 
 //

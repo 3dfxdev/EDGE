@@ -460,6 +460,8 @@ static void AdjustScrollParts(side_t *side, bool left,
 	if (! side)
 		return;
 
+	// -AJA- this is an inconsistency, needed for compatibility with
+	//       original DOOM and Boom.  (Should be SCPT_RIGHT | SCPT_LEFT).
 	if (parts == SCPT_None)
 		parts = SCPT_RIGHT;
 
@@ -1743,14 +1745,6 @@ void P_SpawnSpecials(int autotag)
 
 		if (PERCENT_2_FLOAT(special->translucency) <= 0.99f && lines[i].side[1])
 			lines[i].side[1]->middle.translucency = PERCENT_2_FLOAT(special->translucency);
-
-#if 0
-		// -AJA- 2001/01/23: Tiling sky support.
-		if (special->sky.type != TILESKY_None)
-		{
-			R2_TileSkyAdd(&special->sky, lines + i);
-		}
-#endif
 
 		if (special->autoline)
 		{
