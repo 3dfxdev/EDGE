@@ -1,4 +1,12 @@
 
+EDGE DDF 4.5: (2005-XX-XX)
+==========================
+
+1) LINES.DDF: fix certain teleport types to teleport objects
+              (via OTHER keyword in ACTIVATOR line), needed for
+              compatibility with Boom teleportation rules.
+
+
 EDGE DDF 4.4: (2005-02-11)
 ==========================
 
