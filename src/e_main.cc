@@ -819,31 +819,31 @@ void E_AdvanceDemo(void)
 static void DemoNextPicture(void)
 {
 	int count;
-	wi_map_t *wi;
+	gamedef_c *g;
   
 	// prevent an infinite loop
 	for (count=0; count < 200; count++)
 	{
-		wi = wi_maps[page_map];
+		g = gamedefs[page_map];
 
-		if (page_pic >= wi->numtitlepics)
+		if (page_pic >= g->titlepics.GetSize())
 		{
-			page_map = (page_map + 1) % num_wi_maps;
+			page_map = (page_map + 1) % gamedefs.GetSize();
 			page_pic = 0;
 			continue;
 		}
 
 		// ignore non-existing episodes.  Doesn't include title-only ones
 		// like [EDGE].
-		if (page_pic == 0 && wi->firstmap && wi->firstmap[0] &&
-			W_CheckNumForName(wi->firstmap) == -1)
+		if (page_pic == 0 && g->firstmap && g->firstmap[0] &&
+			W_CheckNumForName(g->firstmap) == -1)
 		{
-			page_map = (page_map + 1) % num_wi_maps;
+			page_map = (page_map + 1) % gamedefs.GetSize();
 			continue;
 		}
 
 		// ignore non-existing images
-		if (W_CheckNumForName(wi->titlepics[page_pic]) < 0)
+		if (W_CheckNumForName(g->titlepics[page_pic]) < 0)
 		{
 			page_pic += 1;
 			continue;
@@ -851,10 +851,10 @@ static void DemoNextPicture(void)
 
 		// found one !!
 
-		if (page_pic == 0 && wi->titlemusic > 0)
-			S_ChangeMusic(wi->titlemusic, false);
+		if (page_pic == 0 && g->titlemusic > 0)
+			S_ChangeMusic(g->titlemusic, false);
 
-		page_image = W_ImageFromPatch(wi->titlepics[page_pic]);
+		page_image = W_ImageFromPatch(g->titlepics[page_pic]);
 		page_pic += 1;
     
 		return;
@@ -884,7 +884,7 @@ void E_DoAdvanceDemo(void)
 
 			DemoNextPicture();
 
-			pagetic = wi_maps[page_map]->titletics;
+			pagetic = gamedefs[page_map]->titletics;
 			break;
 		}
 
@@ -916,7 +916,7 @@ void E_StartTitle(void)
 	demo_num = 1;
 
 	// force pic overflow -> first available titlepic
-	page_map = num_wi_maps - 1;
+	page_map = gamedefs.GetSize() - 1;
 	page_pic = 999;
  
 	E_AdvanceDemo();
