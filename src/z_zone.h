@@ -118,6 +118,7 @@ void Z_DumpLeakInfo(int level);
 //
 // Allocates num elements of type. Use this instead of Z_Malloc whenever
 // possible.
+//
 #define Z_New(type, num) ((type *) Z_Malloc((num) * sizeof(type)))
 
 //
@@ -134,6 +135,7 @@ void Z_DumpLeakInfo(int level);
 // Z_ClearNew
 //
 // The Z_Calloc version of Z_New. Allocates mem and clears it to zero.
+//
 #define Z_ClearNew(type, num) ((type *) Z_Calloc((num) * sizeof(type)))
 
 //
