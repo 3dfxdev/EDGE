@@ -666,6 +666,8 @@ STATES(IDLE)=FCAN:A:4:BRIGHT:NOTHING,
              FCAN:B:4:BRIGHT:NOTHING,
              FCAN:C:4:BRIGHT:NOTHING;
        
+// Note: mis-spelled entry (should be DEAD_GIBBED_PLAYER1), but can't
+//       be fixed because it breaks savegames.
 [DEAD_GIBBER_PLAYER1:10]
 RADIUS=20;
 HEIGHT=16;
