@@ -29,6 +29,8 @@
 #ifndef __R2_DEFS__
 #define __R2_DEFS__
 
+#include "v_ctx.h"
+
 
 //
 //  R2_POLY
@@ -422,6 +424,8 @@ void R2_AddSkyBottom(int x1, int x2, float_t y, float_t y_step);
 //  R2_DRAW
 //
 
+extern video_context_t vctx;
+
 void R2_DrawWall (drawsub_t *sub, drawwall_t  *wall);
 void R2_DrawPlane(drawsub_t *sub, drawplane_t *plane);
 void R2_DrawThing(drawsub_t *sub, drawthing_t *thing);
@@ -431,6 +435,8 @@ void R2_DrawSky(void);
 
 void BOGUS_Clear(void);
 void BOGUS_Line(float x1, float y1, float x2, float y2, int col);
+
+void R2_Init(void);
 
 
 #endif  // __R2_DEFS__
