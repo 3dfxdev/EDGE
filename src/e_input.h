@@ -33,6 +33,7 @@ void E_ClearInput(void);
 void E_BuildTiccmd(ticcmd_t * cmd);
 bool E_InputCheckKey(int keynum);
 void E_SetTurboScale(int scale);
+void E_UpdateKeyState(void);
 
 bool INP_Responder(event_t * ev);
 
