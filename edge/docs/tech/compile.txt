@@ -1,0 +1,102 @@
+================
+Compiling EDGE
+================
+
+(Note: this document is out of date)
+
+This document describes in detail all the different ways you can compile EDGE.
+
+============================================================================
+Contents
+============================================================================
+
+1. How to compile EDGE on the different platforms
+  1.1. DJGPP
+  1.2. Win32
+  1.3. Linux
+  1.4. BeOS
+2. General define options
+3. System-specific define options
+  3.1 386 machines
+  3.2 Linux 
+
+============================================================================
+1. How to compile EDGE on the different platforms
+============================================================================
+
+1.1 DJGPP
+We recommend using DJGPP 2.03, Allegro 3.12 or later.
+You can get DJGPP from http://www.delorie.com/djgpp/ and Allegro from
+http://www.talula.demon.co.uk/allegro/index.html.
+To compile, just enter the EDGE\DJGPP directory and type MAKE.
+
+1.2 Win32
+1.3 Linux
+1.4 BeOS
+If using BeOS R5 PE, you will need to go to http://www.be.com/ and download
+the developer file and install them. You will also require a copy of the SDL
+runtime and includes available from http://www.libsdl.org and a copy of nasm
+a BeOS package of which can be got from http://www.bebits.com. The current
+NASM package has a bug which means you will have to drop to a console and
+execute the following command:
+"ln -s /boot/home/config/bin/nasm /boot/develop/BeIDE/tools/"
+Open the directory edge/BeOS/Beedge and open the file Beedge.proj.
+Press alt-M to build.
+
+============================================================================
+2. General define options
+============================================================================
+
+Some things can be changed at compile time, by letting the preprocessor
+pre-define a few macros.
+This is usually done by passing -DFOO to the compiler, which will define
+the macro FOO (it's the same thing as adding the row "#define FOO" to the
+top of each C file). You can also pass -DFOO=bar, which will be the same
+thing as adding the row "#define FOO bar" to the top of each C file.
+
+The following macros can be defined on all systems:
+
+DEVELOPERS: Enables a lot of extra error checks and debugging features.
+Will trap lots of errors in the input files and output more descriptive
+information, so this is recommended for those who are developing levels
+with EDGE. Also strongly recommended for anyone involved in development of
+the EDGE source code. You should only disable DEVELOPERS if you aren't
+using EDGE for anything else than playing, and you _really_ need maximal
+speed: EDGE will run slightly faster when DEVELOPERS is disabled, but you
+will be able to report bugs much more easily when DEVELOPERS is enabled.
+DEBUGDDFREAD: If used in conjunction with DEVELOPERS, lots of extra
+debugging information will be written to the debugfile at DDF parsing.
+INTOLERANT_MATH: Will on some systems make EDGE crash more often on
+mathematical faults. In addition, it will make some kinds of bugs (mostly
+related to uninitialised memory) more visible.
+This is strongly recommended: The extra crashes will almost
+never occur, and if they ever would occur, that's a bug that should be
+reported. In conjunction with DEVELOPERS, INTOLERANT_MATH will make the
+game slightly slower and memory consuming, without DEVELOPERS it won't take
+up any extra resources at all.
+LEAK_HUNT: Not finished. It's supposed to help finding memory leaks, by
+monitoring all memory allocation calls.
+MHFX_LAXSPRITEROTATIONS
+MOUSE_ACC: Enables mouse smoothing, within the input system.
+NO_NIGHTMARE_CHEATS: Disables cheats in nightmare mode.
+NOCHEATS: Disables the code that checks for cheats.
+NOSMOOTHING: Disables all forms of bilinear texture interpolation (makes
+the game marginally faster).
+USE_GL: Enables the usage of OpenGL rendering.
+
+============================================================================
+3. System-specific define options
+============================================================================
+
+3.1 i386 machines
+If you are using the i386 assembler, there are a few options:
+ALIGN_MANUALLY: Some routines are optimised for a special code alignment,
+but some compilers aren't good enough at alignment, so the code has to be
+aligned manually, at startup time.
+ALLOW_SELF_MODIFY: Allow functions that are modified on-the-fly. Some systems
+make those generate segfaults.
+CODE_SECTION: The section to place self-modifying code. Defaults to .text,
+but systems like Linux need to change it to .data.
+  
+3.2 Linux 
+
