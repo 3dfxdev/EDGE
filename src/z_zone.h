@@ -97,16 +97,11 @@ void *Z_Calloc2(int size);
 void *Z_Malloc2(int size);
 void *Z_ReMalloc2(void *ptr, int size);
 void Z_Free(void *ptr);
-void Z_CheckHeap(void);
-int Z_FreeMemory(int level);
-int Z_UsedMemory(int level);
-bool Z_CheckIfZero(const byte *ptr, int size);
 
 // -ES- 1999/12/16 Leak Hunt
 #ifdef LEAK_HUNT
 void *Z_RegisterMalloc(void *ptr, const char *file, int row);
 void *Z_UnRegisterTmpMalloc(void *ptr, const char *func);
-void Z_DumpLeakInfo(int level);
 #define Z_Malloc(size) Z_RegisterMalloc(Z_Malloc2(size),__FILE__,__LINE__)
 #define Z_Calloc(size) Z_RegisterMalloc(Z_Calloc2(size),__FILE__,__LINE__)
 #define Z_ReMalloc(ptr,size) Z_RegisterMalloc(Z_ReMalloc2(ptr,size),__FILE__,__LINE__)
