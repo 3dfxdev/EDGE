@@ -74,9 +74,6 @@ extern fixed_t dc_yfrac;
 extern fixed_t dc_ystep;
 extern fixed_t dc_translucency;
 
-extern fixed_t dc_iscale;       // !!! FIXME: redundant
-extern fixed_t dc_texturemid;   // !!! FIXME: redundant
-
 #ifndef NOSMOOTHING
 extern boolean_t dc_usesmoothing;
 extern boolean_t ds_usesmoothing;

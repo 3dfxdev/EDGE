@@ -49,10 +49,6 @@ struct image_s;
 #define SIL_TOP                 2
 #define SIL_BOTH                3
 
-// FIXME: temporary limit !
-#define MAX_VERT_REGS  10
-#define MAXOPENGAPS    (MAX_VERT_REGS * 2 + 1)
-
 
 //
 // INTERNAL MAP TYPES
@@ -270,7 +266,6 @@ typedef struct sector_s
   void *ceil_move;
 
   // 0 = untraversed, 1,2 = sndlines-1
-  // FIXME: move into vert region
   int soundtraversed;
 
   // player# that made a sound (starting at 0), or -1

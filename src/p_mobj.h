@@ -511,9 +511,9 @@ struct mobj_s
   mobj_t * above_mo;
   mobj_t * below_mo;
 
-///---  // these delta values give what position from the ride_em thing's
-///---  // center that we are sitting on.
-///---  float_t ride_dx, ride_dy;
+  // these delta values give what position from the ride_em thing's
+  // center that we are sitting on.
+  float_t ride_dx, ride_dy;
 
   // -AJA- 1999/09/25: Path support.
   struct rad_script_s *path_trigger;
