@@ -56,10 +56,8 @@ bool P_InitSwitchList(void)
   {
     switchlist_t *sw = alph_switches[i];
 
-    // -AJA- FIXME: allow NULL textures, to prevent spurious warning
-    //       when using DOOM 1.
-    sw->cache.image[0] = W_ImageFromTexture(sw->name1);
-    sw->cache.image[1] = W_ImageFromTexture(sw->name2);
+    sw->cache.image[0] = W_ImageFromTexture(sw->name1, true);
+    sw->cache.image[1] = W_ImageFromTexture(sw->name2, true);
   }
 
   return true;

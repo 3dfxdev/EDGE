@@ -367,7 +367,7 @@ static void CheckSpriteFrames(spritedef_t *def)
       missing++;
   }
 
-  if (missing > 0)
+  if (missing > 0 && missing < def->numframes)
     I_Warning("Missing %d frames in sprite: %s\n", missing, def->name);
 
   // free some memory for completely missing sprites
