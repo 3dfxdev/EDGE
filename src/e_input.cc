@@ -141,12 +141,6 @@ int mlookspeed = 1000 / 64;
 // -ACB- 1999/09/30 Has to be true or false - bool-ified
 bool invertmouse = false;
 
-// send a pause event next tic 
-bool sendpause = false;
-
-// send a save event next tic 
-bool sendsave = false;
-
 
 bool E_InputCheckKey(int keynum)
 {
@@ -432,11 +426,6 @@ bool INP_Responder(event_t * ev)
 	switch (ev->type)
 	{
 		case ev_keydown:
-			if (ev->value.key == KEYD_PAUSE)
-			{
-				sendpause = true;
-				return true;
-			}
 
 			if (ev->value.key < NUMKEYS)
 				gamekeydown[ev->value.key] = true;
@@ -506,6 +495,4 @@ void E_ClearInput(void)
 {
 	Z_Clear(gamekeydown, bool, NUMKEYS);
 	Z_Clear(analogue, int, 5);
-
-	sendpause = sendsave = false;
 }
