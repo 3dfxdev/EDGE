@@ -312,7 +312,7 @@ static void SV_build_tic_group(game_c *GM, packet_c *pk, int first, int count)
 	}
 ///---	memcpy(tg.tic_cmds, GM->tic_cmds + first, count * sizeof(raw_ticcmd_t));
 
-	tg.ByteSwap(true);
+	tg.ByteSwap(false);
 }
 
 static void SV_send_all_tic_groups(game_c *GM)
@@ -603,7 +603,7 @@ void PK_ticcmd(packet_c *pk)
 
 	ticcmd_proto_t& tc = pk->tc_p();
 
-	tc.ByteSwap(true);
+	tc.ByteSwap(false);
 
 	// FIXME: check data_len
 
