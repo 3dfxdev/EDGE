@@ -631,7 +631,12 @@ void P_ComputeGaps(line_t * ld)
 		return;
 	}
 
-	if (MAX(front->f_h, back->f_h) >= MIN(front->c_h, back->c_h))
+	// NOTE: this check is rather lax.  It mirrors the check in original
+	// Doom r_bsp.c, in order for transparent doors to work properly.
+	// In particular, the blocked flag can be clear even when one of the
+	// sectors is closed (has ceiling <= floor).
+
+	if (back->c_h <= front->f_h || front->c_h <= back->f_h)
 	{
 		// closed door.
 		return;
