@@ -294,6 +294,10 @@ namespace Things
 		if (mt_num == MT_TELEPORTMAN)
 			cur_f &= ~MF_NOSECTOR;
 
+		// special workaround for negative MASS values
+		if (info->mass < 0)
+			cur_f |= MF_SPAWNCEILING | MF_NOGRAVITY;
+
 		bool is_monster = CheckIsMonster(info, mt_num, player, true);
 		bool force_disloyal = (is_monster && Misc::monster_infight == 221);
 
@@ -958,7 +962,7 @@ void Things::ConvertMobj(const mobjinfo_t *info, int mt_num, int player)
 	else if (info->speed != 0)
 		WAD::Printf("SPEED = %s;\n", GetSpeed(info->speed));
 
-	if (info->mass != 100)
+	if (info->mass != 100 && info->mass > 0)
 		WAD::Printf("MASS = %d;\n", info->mass);
 
 	if (info->reactiontime != 0)
