@@ -32,8 +32,10 @@
 #include "convert.h"
 #include "frames.h"
 #include "info.h"
+#include "misc.h"
 #include "mobj.h"
 #include "sounds.h"
+#include "storage.h"
 #include "system.h"
 #include "text.h"
 #include "things.h"
@@ -144,7 +146,7 @@ namespace Patch
 		if (*dest == temp)
 			return;
 
-		(*dest) = temp;
+		Storage::RememberMod(dest, temp);
 
 		MarkObject(o_kind, o_num);
 	}
@@ -175,7 +177,7 @@ namespace Patch
 		if (*dest == temp)
 			return;
 
-		(*dest) = temp;
+		Storage::RememberMod(dest, temp);
 
 		MarkObject(o_kind, o_num);
 	}
@@ -206,7 +208,7 @@ namespace Patch
 		if (*dest == temp)
 			return;
 
-		(*dest) = temp;
+		Storage::RememberMod(dest, temp);
 
 		MarkObject(o_kind, o_num);
 	}
@@ -237,7 +239,7 @@ namespace Patch
 		if (*dest == temp)
 			return;
 
-		(*dest) = temp;
+		Storage::RememberMod(dest, temp);
 
 		MarkObject(o_kind, o_num);
 	}
@@ -260,7 +262,7 @@ namespace Patch
 		if (*dest == temp)
 			return;
 
-		(*dest) = temp;
+		Storage::RememberMod(dest, temp);
 
 		MarkObject(o_kind, o_num);
 	}
@@ -481,7 +483,7 @@ namespace Patch
 		}
 		else
 		{
-			/* -AJA- NOTE WELL: the "- 1" here.  Testing confiras that the
+			/* -AJA- NOTE WELL: the "- 1" here.  Testing confirms that the
 			 * DeHackEd code omits the very last frame from the V1.666+
 			 * binary format.  The V1.2 binary format is fine though.
 			 */
@@ -522,17 +524,29 @@ namespace Patch
 	typedef enum
 	{
 		// patch format 5:
-		DEH_THING, DEH_SOUND, DEH_FRAME, DEH_SPRITE, DEH_AMMO,
-		DEH_WEAPON,  // DEH_TEXT not needed
+		DEH_THING, DEH_SOUND, DEH_FRAME, DEH_SPRITE, DEH_AMMO, DEH_WEAPON,
+		/* DEH_TEXT not needed */
 
 		// patch format 6:
-		DEH_PTR, DEH_CHEAT, DEH_MISC
+		DEH_PTR, DEH_CHEAT, DEH_MISC,
 
 		// boom extensions:
 		// BEX_PAR, BEX_CODEPTR, BEX_STRING,
-		// BEX_SOUND, BEX_MUSIC, BEX_HELPER
+		// BEX_SOUND, BEX_MUSIC, BEX_HELPER,
+
+		NUMSECTIONS
 	}
 	sectionkind_e;
+
+	const char *section_name[] =
+	{
+		"Thing",   "Sound", "Frame", "Sprite", "Ammo", "Weapon",  
+		"Pointer", "Cheat", "Misc"     
+
+		// boom extensions:
+		//  "[PAR]", "[CODEPTR]", "[STRING]", 
+		//  "[SOUND]", "[MUSIC]", "[HELPER]", 
+	};
 
 	char line_buf[MAX_LINE+4];
 	int  line_num;
@@ -543,6 +557,7 @@ namespace Patch
 	int active_obj = -1;
 
 	const char *cur_txt_ptr;
+	bool syncing;
 
 	void GetNextLine(void)
 	{
@@ -595,37 +610,42 @@ namespace Patch
 		line_num++;
 	}
 	
-	typedef struct
+	bool ValidateObject(void)
 	{
-		const char *name;
-		int kind;
+		int min_obj = 0;
+		int max_obj = 0;
+
+		switch (active_section)
+		{
+			case DEH_THING:  min_obj = 1; max_obj = NUMMOBJTYPES; break;
+
+			case DEH_SOUND:  max_obj = NUMSFX - 1; break;
+			case DEH_FRAME:  max_obj = NUMSTATES - 1; break;
+			case DEH_AMMO:   max_obj = NUMAMMO - 1; break;
+			case DEH_WEAPON: max_obj = NUMWEAPONS - 1; break;
+			case DEH_PTR:    max_obj = POINTER_NUM - 1; break;
+
+			case DEH_MISC:   /* don't care */ return true;
+			case DEH_CHEAT:  /* don't care */ return true;
+			case DEH_SPRITE: /* don't care */ return true;
+
+			/// XXX BEX....
+
+			default:
+				InternalError("Bad active_section value %d\n", active_section);
+		}
+
+		if (active_obj < min_obj || active_obj > max_obj)
+		{
+			PrintWarn("Line %d: Illegal %s number: %d.\n",
+				line_num, section_name[active_section], active_obj);
+
+			syncing = true;
+			return false;
+		}
+
+		return true;
 	}
-	sectionname_t;
-
-	const sectionname_t sections[] =
-	{
-		{ "Thing",   DEH_THING },
-		{ "Sound",   DEH_SOUND },
-		{ "Frame",   DEH_FRAME },
-		{ "Sprite",  DEH_SPRITE },
-		{ "Ammo",    DEH_AMMO },
-		{ "Weapon",  DEH_WEAPON },
-		{ "Pointer", DEH_PTR },
-		{ "Cheat",   DEH_CHEAT },
-		{ "Misc",    DEH_MISC },
-
-		// ^Text is given special treatment.
-
-		// boom extensions:
-		//  "[PAR]",     BEX_PAR },
-		//  "[CODEPTR]", BEX_CODEPTR },
-		//  "[STRING]",  BEX_STRING },
-		//  "[SOUND]",   BEX_SOUND },
-		//  "[MUSIC]",   BEX_MUSIC },
-		//  "[HELPER]",  BEX_HELPER },
-
-		{ NULL, -1 }   // End sentinel
-	};
 
 	bool CheckNewSection(void)
 	{
@@ -636,12 +656,12 @@ namespace Patch
 		int i;
 		int obj_num;
 
-		for (i = 0; sections[i].name; i++)
+		for (i = 0; i < NUMSECTIONS; i++)
 		{
-			if (StrCaseCmpPartial(line_buf, sections[i].name) != 0)
+			if (StrCaseCmpPartial(line_buf, section_name[i]) != 0)
 				continue;
 
-			int sec_len = strlen(sections[i].name);
+			int sec_len = strlen(section_name[i]);
 
 			if (! isspace(line_buf[sec_len]))
 				continue;
@@ -649,10 +669,10 @@ namespace Patch
 			if (sscanf(line_buf + sec_len, " %i ", &obj_num) != 1)
 				continue;
 
-			active_section = sections[i].kind;
+			active_section = i;
 			active_obj = obj_num;
 
-			return true;
+			return ValidateObject();
 		}
 
 		return false;
@@ -781,7 +801,67 @@ namespace Patch
 		Debug_PrintMsg("Section %d Object %d : <%s>\n", active_section,
 			active_obj, line_buf);
 
-		//!!! FIXME
+		if (! equal_pos)
+		{
+			PrintWarn("Ignoring line: %s\n", line_buf);
+			return;
+		}
+
+		// remove whitespace around '=' sign
+
+		char *final = equal_pos;
+
+		while (final > line_buf && isspace(final[-1]))
+			final--;
+
+		*final = 0;
+
+		equal_pos++;
+
+		while (*equal_pos && isspace(*equal_pos))
+			equal_pos++;
+
+		if (line_buf[0] == 0)
+		{
+			PrintWarn("Line %d: No field name before equal sign.\n", line_num);
+			return;
+		}
+		else if (equal_pos[0] == 0)
+		{
+			PrintWarn("Line %d: No value after equal sign.\n", line_num);
+			return;
+		}
+
+		int num_value = 0;
+                                                                                            
+        if (active_section != DEH_CHEAT)  // XXX for BEX
+        {
+            if (sscanf(equal_pos, " %i ", &num_value) != 1)
+            {
+                PrintWarn("Line %d: unreadable %s value: %s\n",
+					line_num, section_name[active_section], equal_pos);
+                return;
+            }
+        }
+
+		switch (active_section)
+		{
+			case DEH_THING:  Things:: AlterThing(num_value);   break;
+			case DEH_SOUND:  Sounds:: AlterSound(num_value);   break;
+			case DEH_FRAME:  Frames:: AlterFrame(num_value);   break;
+			case DEH_AMMO:   Ammo::   AlterAmmo(num_value);    break;
+			case DEH_WEAPON: Weapons::AlterWeapon(num_value);  break;
+			case DEH_PTR:    Frames:: AlterPointer(num_value); break;
+			case DEH_MISC:   Misc::   AlterMisc(num_value);    break;
+
+			case DEH_CHEAT:  TextStr::AlterCheat(equal_pos);   break;
+			case DEH_SPRITE: /* ignored */ break;
+
+			/// XXX BEX....
+
+			default:
+				InternalError("Bad active_section value %d\n", active_section);
+		}
 	}
 
 	void LoadDiff(void)
@@ -793,8 +873,9 @@ namespace Patch
 
 		line_num = 0;
 
-		bool syncing = true;
 		bool got_info = false;
+
+		syncing = true;
 
 		while (! feof(pat_fp))
 		{
