@@ -1555,6 +1555,7 @@ startuporder_t startcode[] =
 	{  1, GUI_ConInit,         },
 	{  1, SpecialWadVerify,    },
 	{  1, GUI_MouseInit,       },
+	{  1, M_InitMiscConVars,   },
 	{ 20, W_ReadDDF,           },
 	{  1, DDF_CleanUp,         },
 	{  1, SetLanguage,         },

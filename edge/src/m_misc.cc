@@ -31,6 +31,7 @@
 #include "i_defs.h"
 #include "m_misc.h"
 
+#include "con_cvar.h"
 #include "con_main.h"
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -69,6 +70,7 @@ int cfgzoomedfov;
 // toggled by autorun button.
 bool autorunning = false;
 
+bool var_diskicon = true;
 bool display_disk = false;
 static const image_t *disk_image = NULL;
 static const image_t *air_images[21] = { NULL, };
@@ -160,6 +162,12 @@ static default_t defaults[] =
     {CFGT_Int, "snd_channels",  &dummysndchan, 3},
     {CFGT_Int, "usegamma",      &current_gamma, 2},
     {CFGT_Int, "save_page",     &save_page, 0},
+
+	// -------------------- VARS --------------------
+
+	{CFGT_Boolean, "var_diskicon", &var_diskicon, 1},
+
+	// -------------------- KEYS --------------------
 
     {CFGT_Key, "key_right",      &key_right,      0},
     {CFGT_Key, "key_left",       &key_left,       0},
@@ -486,16 +494,24 @@ bool M_LoadDefaults(void)
 }
 
 //
+// M_InitMiscConVars
+//
+// -AJA- 2005/01/05: added.
+//
+void M_InitMiscConVars(void)
+{
+	M_CheckBooleanParm("diskicon", &var_diskicon, false);
+	CON_CreateCVarBool("diskicon", cf_normal, &var_diskicon);
+}
+
+//
 // M_DisplayDisk
 //
 // Displays disk during loading...
 //
 void M_DisplayDisk(void)
 {
-	if (!graphicsmode)
-		return;
-
-	if (!display_disk)
+	if (!graphicsmode || !var_diskicon || !display_disk)
 		return;
    
 	if (!disk_image)
