@@ -89,8 +89,8 @@ void RAD_ActKillSound(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActChangeMusic(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param);
 
-void RAD_ActSectorMove(rad_trigger_t *R, mobj_t *actor, void *param);
-void RAD_ActSectorLight(rad_trigger_t *R, mobj_t *actor, void *param);
+void RAD_ActMoveSector(rad_trigger_t *R, mobj_t *actor, void *param);
+void RAD_ActLightSector(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActEnableScript(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActActivateLinetype(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActJump(rad_trigger_t *R, mobj_t *actor, void *param);

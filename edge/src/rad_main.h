@@ -185,24 +185,38 @@ s_music_t;
 
 
 //Sector Vertical movement
-typedef struct s_sectorv_s
+typedef struct s_movesector_s
 {
+  // tag to apply to.  When tag == 0, use the exact sector number
+  // (deprecated, but kept for backwards compat).
+  int tag;
   int secnum;
-  float_t increment;
 
   // Ceiling or Floor
   boolean_t corf;
+
+  // when true, add the value to current height.  Otherwise set it.
+  boolean_t relative;
+
+  float_t value;
 }
-s_sectorv_t;
+s_movesector_t;
 
 
-//Sector Vertical movement
-typedef struct s_sectorl_s
+//Sector Light change
+typedef struct s_lightsector_s
 {
+  // tag to apply to.  When tag == 0, use the exact sector number
+  // (deprecated, but kept for backwards compat).
+  int tag;
   int secnum;
-  int increment;
+
+  // when true, add the value to current light.  Otherwise set it.
+  boolean_t relative;
+
+  float_t value;
 }
-s_sectorl_t;
+s_lightsector_t;
 
 
 // Enable/Disable
