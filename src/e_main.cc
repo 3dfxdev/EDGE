@@ -545,11 +545,14 @@ static void DoSystemStartup(void)
 	I_SystemStartup();
 
 	// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
-	int idx = scrmodelist.Find(SCREENWIDTH, 
-	                           SCREENHEIGHT, 
-	                           SCREENBITS, 
-	                           SCREENWINDOW);
-	DEV_ASSERT2(idx>=0); // Must be valid
+	int idx = scrmodelist.FindNearest(SCREENWIDTH, 
+                                      SCREENHEIGHT, 
+                                      SCREENBITS, 
+                                      SCREENWINDOW);
+
+	if (idx < 0)
+        I_Error("DoSystemStartup: No available resolutions"); // Must be valid
+
 	R_ChangeResolution(idx);
 
 	// -KM- 1998/09/27 Change res now, so music doesn't start before
@@ -1731,9 +1734,6 @@ namespace engine
 			// Startup function will throw an error if something goes wrong
 			Startup();
 
-			// TEMP!!!
-			scrmodelist.Dump();
-			
 			// -ACB- 1999/09/24 Call System Specific Looping function. Some
 			//                  systems don't loop forever.
 			I_Loop();
