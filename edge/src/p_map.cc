@@ -998,15 +998,12 @@ static bool P_ThingHeightClip(mobj_t * thing)
 // Allows the player to slide along any angled walls.
 //
 static float bestslidefrac;
-static float secondslidefrac;
-
 static line_t *bestslideline;
-static line_t *secondslideline;
 
 static float tmxmove;
 static float tmymove;
 
-mobj_t *slidemo;
+static mobj_t *slidemo;
 
 //
 // P_HitSlideLine
@@ -1016,15 +1013,6 @@ mobj_t *slidemo;
 //
 static void HitSlideLine(line_t * ld)
 {
-	int side;
-
-	angle_t lineangle;
-	angle_t moveangle;
-	angle_t deltaangle;
-
-	float movelen;
-	float newlen;
-
 	if (ld->slopetype == ST_HORIZONTAL)
 	{
 		tmymove = 0;
@@ -1037,22 +1025,22 @@ static void HitSlideLine(line_t * ld)
 		return;
 	}
 
-	side = PointOnLineSide(slidemo->x, slidemo->y, ld);
+	int side = PointOnLineSide(slidemo->x, slidemo->y, ld);
 
-	lineangle = R_PointToAngle(0, 0, ld->dx, ld->dy);
+	angle_t lineangle = R_PointToAngle(0, 0, ld->dx, ld->dy);
 
 	if (side == 1)
 		lineangle += ANG180;
 
-	moveangle = R_PointToAngle(0, 0, tmxmove, tmymove);
-	deltaangle = moveangle - lineangle;
+	angle_t moveangle = R_PointToAngle(0, 0, tmxmove, tmymove);
+	angle_t deltaangle = moveangle - lineangle;
 
 	if (deltaangle > ANG180)
 		deltaangle += ANG180;
 	// I_Error ("SlideLine: ang>ANG180");
 
-	movelen = P_ApproxDistance(tmxmove, tmymove);
-	newlen = movelen * M_Cos(deltaangle);
+	float movelen = P_ApproxDistance(tmxmove, tmymove);
+	float newlen = movelen * M_Cos(deltaangle);
 
 	tmxmove = newlen * M_Cos(lineangle);
 	tmymove = newlen * M_Sin(lineangle);
@@ -1063,14 +1051,11 @@ static void HitSlideLine(line_t * ld)
 //
 static bool PTR_SlideTraverse(intercept_t * in)
 {
-	line_t *li;
-	int i;
+	DEV_ASSERT(in->type == INCPT_Line, ("PTR_SlideTraverse: not a line?"));
 
-	DEV_ASSERT(in->type ==INCPT_Line, ("PTR_SlideTraverse: not a line?"));
+	line_t *li = in->d.line;
 
-	li = in->d.line;
-
-	if (!(li->flags & ML_TwoSided))
+	if (! (li->flags & ML_TwoSided))
 	{
 		// hit the back side ?
 		if (PointOnLineSide(slidemo->x, slidemo->y, li))
@@ -1079,7 +1064,7 @@ static bool PTR_SlideTraverse(intercept_t * in)
 
 	// -AJA- 1999/07/19: Gaps are now stored in line_t.
 
-	for (i = 0; i < li->gap_num; i++)
+	for (int i = 0; i < li->gap_num; i++)
 	{
 		// check if it can fit in the space
 		if (slidemo->height > li->gaps[i].c - li->gaps[i].f)
@@ -1100,8 +1085,6 @@ static bool PTR_SlideTraverse(intercept_t * in)
 	// see if it is closer than best so far
 	if (in->frac < bestslidefrac)
 	{
-		secondslidefrac = bestslidefrac;
-		secondslideline = bestslideline;
 		bestslidefrac = in->frac;
 		bestslideline = li;
 	}
@@ -1121,50 +1104,36 @@ static bool PTR_SlideTraverse(intercept_t * in)
 //
 void P_SlideMove(mobj_t * mo, float x, float y)
 {
-	float leadx;
-	float leady;
-	float trailx;
-	float traily;
-	float newx;
-	float newy;
+	slidemo = mo;
+
 	float dx = x - mo->x;
 	float dy = y - mo->y;
-	int hitcount;
-	bool retry;
 
-	slidemo = mo;
-	hitcount = 0;
-	retry = true;
-
-	while (retry)
+	for (int hitcount = 0; hitcount < 2; hitcount++)
 	{
-		if (++hitcount == 3)
-		{
-			if (!P_TryMove(mo, mo->x, mo->y + dy))
-				P_TryMove(mo, mo->x + dx, mo->y);
-			return;
-		}
+		float leadx,  leady;
+		float trailx, traily;
 
 		// trace along the three leading corners
 		if (dx > 0)
 		{
-			leadx = mo->x + mo->radius;
+			leadx  = mo->x + mo->radius;
 			trailx = mo->x - mo->radius;
 		}
 		else
 		{
-			leadx = mo->x - mo->radius;
+			leadx  = mo->x - mo->radius;
 			trailx = mo->x + mo->radius;
 		}
 
 		if (dy > 0)
 		{
-			leady = mo->y + mo->radius;
+			leady  = mo->y + mo->radius;
 			traily = mo->y - mo->radius;
 		}
 		else
 		{
-			leady = mo->y - mo->radius;
+			leady  = mo->y - mo->radius;
 			traily = mo->y + mo->radius;
 		}
 
@@ -1190,8 +1159,8 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 		bestslidefrac -= 0.01f;
 		if (bestslidefrac > 0.0f)
 		{
-			newx = dx * bestslidefrac;
-			newy = dy * bestslidefrac;
+			float newx = dx * bestslidefrac;
+			float newy = dy * bestslidefrac;
 
 			if (!P_TryMove(mo, mo->x + newx, mo->y + newy))
 			{
@@ -1220,8 +1189,12 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 		dy = tmymove;
 
 		if (P_TryMove(mo, mo->x + tmxmove, mo->y + tmymove))
-			retry = false;
+			return;
 	}
+
+	// last ditch attempt
+	if (! P_TryMove(mo, mo->x, mo->y + dy))
+		P_TryMove(mo, mo->x + dx, mo->y);
 }
 
 //
