@@ -20,6 +20,7 @@
 #define __DDF_STYLE__
 
 #include "dm_defs.h"
+#include "ddf_font.h"
 
 #include "./epi/epiutil.h"
 
@@ -46,8 +47,7 @@ public:
 	percent_t translucency;
 
 	epi::strent_c image_name;
-	const struct image_s *cache_image;
-	
+
 	background_special_e special;
 
 	float scale;
@@ -64,7 +64,7 @@ public:
 	void Default();
 	textstyle_c& operator= (const textstyle_c& rhs);
 
-	const colourmap_c *colmap;  // FIXME: have a combined colmap/rgbcol
+	const colourmap_c *colmap;
 	rgbcol_t colour;
 
 	percent_t translucency;

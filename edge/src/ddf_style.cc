@@ -290,7 +290,6 @@ void backgroundstyle_c::Default()
 	translucency = PERCENT_MAKE(100);
 
 	image_name.Clear();	
-	cache_image = NULL;
 
 	special = (background_special_e) 0;
 	scale  = 1.0f;
@@ -312,8 +311,6 @@ backgroundstyle_c& backgroundstyle_c::operator= (const backgroundstyle_c &rhs)
 		special = rhs.special;
 		scale   = rhs.scale;
 		aspect  = rhs.aspect;
-
-		cache_image = NULL;  // don't need to copy cache, just reset it
 	}
 		
 	return *this;
