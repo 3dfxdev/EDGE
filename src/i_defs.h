@@ -47,6 +47,7 @@ typedef enum { false, true } bool;
 //
 
 #define EDGECONFIGFILE "EDGE.CFG"
+#define EDGELOGFILE    "EDGE.LOG"
 #define EDGEHOMEDIR    "EDGE"
 #define EDGEWADDIR     "EDGEWADDIR"
 #define EDGEWADEXT     "wad"
@@ -99,6 +100,7 @@ typedef enum { false, true } bool;
 #include "epi/epi.h"
 
 #define EDGECONFIGFILE "EDGE.CFG"
+#define EDGELOGFILE    "EDGE.LOG"
 #define EDGEHOMEDIR    "EDGE"
 #define EDGEWADDIR     "EDGEWADDIR"
 #define EDGEWADEXT     "wad"
@@ -134,6 +136,7 @@ typedef enum { false, true } bool;
 #include "epi/epi.h"
 
 #define EDGECONFIGFILE "EDGE.CFG"
+#define EDGELOGFILE    "EDGE.LOG"
 #define EDGEHOMEDIR    "EDGE"
 #define EDGEWADDIR     "EDGEWADDIR"
 #define EDGEWADEXT     "wad"
@@ -174,6 +177,7 @@ typedef enum { false, true } bool;
 #include "epi/epi.h"
 
 #define EDGECONFIGFILE "EDGE.CFG"
+#define EDGELOGFILE    "EDGE.LOG"
 #define EDGEHOMEDIR    "EDGE"
 #define EDGEWADDIR     "EDGEWADDIR"
 #define EDGEWADEXT     "wad"
@@ -211,6 +215,7 @@ typedef enum { false, true } bool;
 #include "epi/epi.h"
 
 #define EDGECONFIGFILE ".edgerc"
+#define EDGELOGFILE    "edge.log"
 #define EDGEHOMEDIR    "HOME"
 #define EDGEWADDIR     "EDGEWADDIR"
 #define EDGEWADEXT     "wad"
@@ -260,6 +265,7 @@ typedef enum { false, true } bool;
 #endif
 
 #define EDGECONFIGFILE "edge.cfg"
+#define EDGELOGFILE    "edge.log"
 #define EDGEHOMEDIR    "HOME"
 #define EDGEWADDIR     "EDGEWADDIR"
 #define EDGEWADEXT     "wad"
@@ -293,6 +299,7 @@ typedef enum { false, true } bool;
 #include "epi/epi.h"
 
 #define EDGECONFIGFILE "edge.cfg"
+#define EDGELOGFILE    "edge.log"
 #define EDGEHOMEDIR    "HOME"
 #define EDGEWADDIR     "EDGEWADDIR"
 #define EDGEWADEXT     "wad"
