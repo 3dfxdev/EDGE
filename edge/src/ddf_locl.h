@@ -154,7 +154,7 @@ typedef struct readinfo_s
   // the name "buffer_xxxxx" in the associated ddf_xxx.c file, and
   // holds the parsed info until the entry is complete, at which time
   // the static part is copied into the dynamic part.
-  
+
   //
   //  FUNCTIONS
   //
@@ -199,6 +199,7 @@ typedef struct readinfo_s
   // pointers to them), otherwise they should be marked `disabled' and
   // ignored in subsequent searches.  Note: The parser ensures that
   // this is never called in the middle of an entry.
+  //
   void (* clear_all)(void);
 }
 readinfo_t;
