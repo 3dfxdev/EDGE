@@ -8,11 +8,11 @@ by Andrew Apted.  16th January 2004.
 Introduction
 ------------
 
-Deh_edge is a utility for converting DeHackEd (.DEH) files into something
+DEH_EDGE is a utility for converting DeHackEd (.DEH) files into something
 that can be loaded into the EDGE engine (http://edge.sourceforge.net).
 The output is a WAD containing a bunch of DDF lumps.
 
-Deh_edge is a command line utility, so the Windows version must be run
+DEH_EDGE is a command line utility, so the Windows version must be run
 from the DOS box.
 
 
@@ -33,20 +33,27 @@ Options
         filename is the DEH filename with the extension removed
         and "_deh.wad" added.
 
+  -q    quiet mode, disable warning messages.
+
 
 Acknowledgements
 ----------------
 
-Deh_edge is based on DeHackEd source code, by Greg Lewis.
-Deh_edge is based on the DOOM source code (c) id software.
+DEH_EDGE is based on:
+
+  +  DeHackEd source code, by Greg Lewis.
+
+  -  DOOM source code (C) 1993-1996 id Software, Inc.
+  -  Linux DOOM Hack Editor, by Sam Lantinga.
+  -  PrBoom's DEH/BEX code, by Ty Halderman, TeamTNT.
 
 
 Copyright/License
 -----------------
 
-Deh_edge is Copyright (C) 2004 Andrew Apted.
+DEH_EDGE is Copyright (C) 2004 Andrew Apted.
 
-Deh_edge is under the GNU General Public License (GPL).  See the file
+DEH_EDGE is under the GNU General Public License (GPL).  See the file
 COPYING.txt in the source package (or go to http://www.gnu.org) for
 the full text, but to summarise:
 
