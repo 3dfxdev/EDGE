@@ -36,10 +36,6 @@
 //  for rendering.
 //
 
-// needed for texture pegging
-extern float_t *textureheight;
-extern float_t *texturewidth;
-
 // for global animation
 extern int *texturetranslation;
 
