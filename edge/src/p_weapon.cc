@@ -454,9 +454,12 @@ static bool CheckAmmoSwitch(player_t * p, int attack)
 
 //!!!!	@@ can reload && reload states && check flag --> goto reload states
 
+	weapon_flag_e flags = (attack == 1) ? info->special_flags :
+		info->sa_specials;
+
 	if (info->empty_state)
 		P_SetPspriteDeferred(p, ps_weapon, info->empty_state);
-	else if ((info->special_flags & WPSP_NoAutoSwitch) || attack == 2)
+	else if (! (flags & WPSP_SwitchAway))
 		P_SetPspriteDeferred(p, ps_weapon, info->ready_state);
 	else
 		P_SelectNewWeapon(p, -100, AM_DontCare);
@@ -1371,7 +1374,7 @@ void A_WeaponShootSA(mobj_t * mo)
 	}
 
 	// wake up monsters
-	if (! (info->special_flags & WPSP_SilentToMon) &&
+	if (! (info->sa_specials & WPSP_SilentToMon) &&
 		! (attack->flags & AF_SilentToMon))
 	{
 		P_NoiseAlert(p);
