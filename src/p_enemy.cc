@@ -464,10 +464,6 @@ bool P_LookForPlayers(mobj_t * actor, angle_t range)
 		if ((actor->side & player->mo->side) != 0)
 			continue;
 
-		// out of sight ?
-		if (!P_CheckSight(actor, player->mo))
-			continue;
-
 		if (range < ANG180)
 		{
 			an = R_PointToAngle(actor->x, actor->y, player->mo->x,
@@ -484,6 +480,10 @@ bool P_LookForPlayers(mobj_t * actor, angle_t range)
 					continue;
 			}
 		}
+
+		// out of sight ?
+		if (!P_CheckSight(actor, player->mo))
+			continue;
 
 		P_MobjSetTarget(actor, player->mo);
 		return true;
