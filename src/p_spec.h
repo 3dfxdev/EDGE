@@ -53,151 +53,151 @@
 
 typedef enum
 {
-  MDT_INVALID  = 0,
-  MDT_ELEVATOR = 1,
-  MDT_PLANE    = 2,
-  MDT_SLIDER   = 3,
-  ENDOFMDTTYPES
+	MDT_INVALID  = 0,
+	MDT_ELEVATOR = 1,
+	MDT_PLANE    = 2,
+	MDT_SLIDER   = 3,
+	ENDOFMDTTYPES
 }
 movedat_e;
 
 typedef struct light_s
 {
-  // type of light effect
-  const lighttype_t *type;
+	// type of light effect
+	const lighttype_t *type;
 
-  sector_t *sector;
+	sector_t *sector;
 
-  // countdown value to next change, or 0 if disabled
-  int count;
+	// countdown value to next change, or 0 if disabled
+	int count;
 
-  // dark and bright levels
-  int minlight;
-  int maxlight;
-  
-  // current direction for GLOW type, -1 down, +1 up
-  int direction;
+	// dark and bright levels
+	int minlight;
+	int maxlight;
 
-  // countdown value for FADE type
-  int fade_count;
- 
-  struct light_s *prev, *next;
+	// current direction for GLOW type, -1 down, +1 up
+	int direction;
+
+	// countdown value for FADE type
+	int fade_count;
+
+	struct light_s *prev, *next;
 }
 light_t;
 
 typedef enum
 {
-  BWH_None,
-  BWH_Top,
-  BWH_Middle,
-  BWH_Bottom
+	BWH_None,
+	BWH_Top,
+	BWH_Middle,
+	BWH_Bottom
 }
 bwhere_e;
 
 typedef struct button_s
 {
-  line_t *line;
-  bwhere_e where;
-  const image_t *bimage;
-  int btimer;
-  sfx_t *off_sound;
+	line_t *line;
+	bwhere_e where;
+	const image_t *bimage;
+	int btimer;
+	sfx_t *off_sound;
 }
 button_t;
 
 // -ACB- 2001/01/29 Maybe I'm thinking too OO.
 typedef struct gen_move_s
 {
-  movedat_e whatiam;
-  struct gen_move_s *next, *prev;
+	movedat_e whatiam;
+	struct gen_move_s *next, *prev;
 }
 gen_move_t;
 
 typedef struct elev_move_s
 {
-  movedat_e whatiam;
-  struct elev_move_s *next, *prev;
+	movedat_e whatiam;
+	struct elev_move_s *next, *prev;
 
-  const elevator_sector_t *type;
-  sector_t *sector;
+	const elevator_sector_t *type;
+	sector_t *sector;
 
-  float startheight;
-  float destheight;
-  float speed;
+	float startheight;
+	float destheight;
+	float speed;
 
-  // 1 = up, 0 = waiting at top, -1 = down
-  int direction;
-  int olddirection;
+	// 1 = up, 0 = waiting at top, -1 = down
+	int direction;
+	int olddirection;
 
-  int tag;
+	int tag;
 
-  // tics to wait when fully open
-  int waited;
+	// tics to wait when fully open
+	int waited;
 
-  bool sfxstarted;
+	bool sfxstarted;
 
-  int newspecial;
+	int newspecial;
 
-  const image_t *new_ceiling_image;
-  const image_t *new_floor_image;
+	const image_t *new_ceiling_image;
+	const image_t *new_floor_image;
 }
 elev_move_t;
 
 typedef struct plane_move_s
 {
-  movedat_e whatiam;
-  struct plane_move_s *next, *prev;
+	movedat_e whatiam;
+	struct plane_move_s *next, *prev;
 
-  const moving_plane_t *type;
-  sector_t *sector;
+	const moving_plane_t *type;
+	sector_t *sector;
 
-  bool is_ceiling;
+	bool is_ceiling;
 
-  float startheight;
-  float destheight;
-  float speed;
-  bool crush;
+	float startheight;
+	float destheight;
+	float speed;
+	bool crush;
 
-  // 1 = up, 0 = waiting at top, -1 = down
-  int direction;
-  int olddirection;
+	// 1 = up, 0 = waiting at top, -1 = down
+	int direction;
+	int olddirection;
 
-  int tag;
+	int tag;
 
-  // tics to wait when fully open
-  int waited;
+	// tics to wait when fully open
+	int waited;
 
-  bool sfxstarted;
+	bool sfxstarted;
 
-  int newspecial;
-  const image_t *new_image;
+	int newspecial;
+	const image_t *new_image;
 }
 plane_move_t;
 
 typedef struct slider_move_s
 {
-  movedat_e whatiam;
-  struct slider_move_s *next, *prev;
+	movedat_e whatiam;
+	struct slider_move_s *next, *prev;
 
-  const sliding_door_t *info;
-  line_t *line;
+	const sliding_door_t *info;
+	line_t *line;
 
-  // current distance it has opened
-  float opening;
+	// current distance it has opened
+	float opening;
 
-  // target distance
-  float target;
+	// target distance
+	float target;
 
-  // length of line
-  float line_len;
- 
-  // 1 = opening, 0 = waiting, -1 = closing
-  int direction;
+	// length of line
+	float line_len;
 
-  // tics to wait at the top
-  int waited;
+	// 1 = opening, 0 = waiting, -1 = closing
+	int direction;
 
-  bool sfxstarted;
-  bool final_open;
+	// tics to wait at the top
+	int waited;
+
+	bool sfxstarted;
+	bool final_open;
 }
 slider_move_t;
 

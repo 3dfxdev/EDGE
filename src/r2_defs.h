@@ -41,8 +41,8 @@ struct drawfloor_s;
 
 typedef struct Y_range_s
 {
-  // range is inclusive.  y1 > y2 means the column is empty.
-  short y1, y2;
+	// range is inclusive.  y1 > y2 means the column is empty.
+	short y1, y2;
 }
 Y_range_t;
 
@@ -53,19 +53,19 @@ Y_range_t;
 //
 typedef struct screenline_s
 {
-  // horizontal range (inclusive)
-  short x1, x2;
+	// horizontal range (inclusive)
+	short x1, x2;
 
-  // vertical columns over x1..x2.
-  Y_range_t *ranges;
+	// vertical columns over x1..x2.
+	Y_range_t *ranges;
 
-  // top line (higher on screen), used only for tex coords.  When the
-  // ranges are unclipped, this should correspond to the top pixel
-  // positions in the ranges.
-  float y, step;
+	// top line (higher on screen), used only for tex coords.  When the
+	// ranges are unclipped, this should correspond to the top pixel
+	// positions in the ranges.
+	float y, step;
 
-  // vertical offset (in WORLD coordinates, but positive goes down)
-  float y_offset;
+	// vertical offset (in WORLD coordinates, but positive goes down)
+	float y_offset;
 }
 screenline_t;
 
@@ -78,39 +78,39 @@ screenline_t;
 //
 typedef struct drawwall_s
 {
-  // link for list
-  struct drawwall_s *next;
+	// link for list
+	struct drawwall_s *next;
 
-  screenline_t area;
+	screenline_t area;
 
-  // seg this belongs to
-  seg_t *seg;
+	// seg this belongs to
+	seg_t *seg;
 
-  // texture to use
-  surface_t *part;
-  
-  // texture scaling
-  float scale1;
-  float scale_step;
+	// texture to use
+	surface_t *part;
 
-  // colourmap & lighting
-  region_properties_t *props;
+	// texture scaling
+	float scale1;
+	float scale_step;
 
-  // dynamic lighting
-  int extra_light[2];
+	// colourmap & lighting
+	region_properties_t *props;
 
-  // info for texture mapper
-  float distance;
-  float x_offset;
-  angle_t angle;
+	// dynamic lighting
+	int extra_light[2];
 
-  // contains transparent parts ?
-  int is_masked;
-  
-  // horizontal slider ?
-  slidetype_e slide_type;
-  float opening, line_len;
-  int side;
+	// info for texture mapper
+	float distance;
+	float x_offset;
+	angle_t angle;
+
+	// contains transparent parts ?
+	int is_masked;
+
+	// horizontal slider ?
+	slidetype_e slide_type;
+	float opening, line_len;
+	int side;
 }
 drawwall_t;
 
@@ -123,29 +123,29 @@ drawwall_t;
 //
 typedef struct drawplane_s
 {
-  // link for list
-  struct drawplane_s *next;
+	// link for list
+	struct drawplane_s *next;
 
-  screenline_t area;
+	screenline_t area;
 
-  // when true, this drawplane only marks where a plane ends
-  // (where it starts will be determined by a future drawplane).
-  bool marker_only;
+	// when true, this drawplane only marks where a plane ends
+	// (where it starts will be determined by a future drawplane).
+	bool marker_only;
 
-  int face_dir;
+	int face_dir;
 
-  // height
-  float h;
+	// height
+	float h;
 
-  // texture & offsets to use
-  surface_t *info;
+	// texture & offsets to use
+	surface_t *info;
 
-  // colourmap & lighting
-  region_properties_t *props;
+	// colourmap & lighting
+	region_properties_t *props;
 
-  // dynamic lighting
-  int extra_light[2];
-  int min_y, max_y;
+	// dynamic lighting
+	int extra_light[2];
+	int min_y, max_y;
 }
 drawplane_t;
 
@@ -157,71 +157,71 @@ drawplane_t;
 //
 typedef struct drawthing_s
 {
-  // link for list
-  struct drawthing_s *next;
-  struct drawthing_s *prev;
+	// link for list
+	struct drawthing_s *next;
+	struct drawthing_s *prev;
 
-  // Note: the area.ranges field isn't used here, instead the x1..x2
-  // range is looked-up in the the containing subsector, which stores
-  // *empty* areas to clip against.
-  //
-  screenline_t area;
+	// Note: the area.ranges field isn't used here, instead the x1..x2
+	// range is looked-up in the the containing subsector, which stores
+	// *empty* areas to clip against.
+	//
+	screenline_t area;
 
-  // actual map object
-  mobj_t *mo;
+	// actual map object
+	mobj_t *mo;
 
-  // vertical extent of sprite (world coords)
-  float top;
-  float bottom;
+	// vertical extent of sprite (world coords)
+	float top;
+	float bottom;
 
-  // these record whether this piece of a sprite has been clipped on
-  // the left or right side.  We can skip certain clipsegs when one of
-  // these is true (and stop when they both become true).
-  // 
-  bool clipped_left, clipped_right;
-  
-  // +1 if this sprites should be vertically clipped at a solid
-  // floor or ceiling, 0 if just clip at translucent planes, or -1 if
-  // shouldn't be vertically clipped at all.
-  //
-  int clip_vert;
-  
-  // sprite image to use
-  const image_t *image;
-  bool flip;
+	// these record whether this piece of a sprite has been clipped on
+	// the left or right side.  We can skip certain clipsegs when one of
+	// these is true (and stop when they both become true).
+	// 
+	bool clipped_left, clipped_right;
 
-  // scaling
-  float xfrac;
-  float xscale;
-  float yscale;
-  float ixscale;
-  float iyscale;
-  
-  // distance
-  float dist_scale;
+	// +1 if this sprites should be vertically clipped at a solid
+	// floor or ceiling, 0 if just clip at translucent planes, or -1 if
+	// shouldn't be vertically clipped at all.
+	//
+	int clip_vert;
 
-  // translated coords
-  float tx, tz;
-  float tx1, tx2;
-  
-  // colourmap/lighting
-  region_properties_t *props;
-  bool bright;
-  const byte *trans_table;
+	// sprite image to use
+	const image_t *image;
+	bool flip;
 
-  // dynamic lighting
-  int extra_light;
+	// scaling
+	float xfrac;
+	float xscale;
+	float yscale;
+	float ixscale;
+	float iyscale;
 
-  //...
+	// distance
+	float dist_scale;
 
-  // world offsets for GL
-  float left_dx,  left_dy;
-  float right_dx, right_dy;
-  float orig_top, orig_bottom;
-  
-  // EXPERIMENTAL
-  bool is_shadow;
-  bool is_halo;
+	// translated coords
+	float tx, tz;
+	float tx1, tx2;
+
+	// colourmap/lighting
+	region_properties_t *props;
+	bool bright;
+	const byte *trans_table;
+
+	// dynamic lighting
+	int extra_light;
+
+	//...
+
+	// world offsets for GL
+	float left_dx,  left_dy;
+	float right_dx, right_dy;
+	float orig_top, orig_bottom;
+
+	// EXPERIMENTAL
+	bool is_shadow;
+	bool is_halo;
 }
 drawthing_t;
 
@@ -234,34 +234,34 @@ drawthing_t;
 //
 typedef struct drawfloor_s
 {
-  // link for list, drawing order
-  struct drawfloor_s *next, *prev;
+	// link for list, drawing order
+	struct drawfloor_s *next, *prev;
 
-  // link for height order list
-  struct drawfloor_s *higher, *lower;
+	// link for height order list
+	struct drawfloor_s *higher, *lower;
 
-  // heights for this floor
-  float f_h, c_h, top_h;
- 
-  surface_t *floor, *ceil;
+	// heights for this floor
+	float f_h, c_h, top_h;
 
-  extrafloor_t *ef;
+	surface_t *floor, *ceil;
 
-  // properties used herein
-  region_properties_t *props;
+	extrafloor_t *ef;
 
-  // list of walls (includes midmasked textures)
-  drawwall_t *walls;
+	// properties used herein
+	region_properties_t *props;
 
-  // list of planes (including translucent ones).
-  drawplane_t *planes;
+	// list of walls (includes midmasked textures)
+	drawwall_t *walls;
 
-  // list of things
-  // (not sorted until R2_DrawFloor is called).
-  drawthing_t *things;
+	// list of planes (including translucent ones).
+	drawplane_t *planes;
 
-  // list of dynamic lights
-  drawthing_t *dlights;
+	// list of things
+	// (not sorted until R2_DrawFloor is called).
+	drawthing_t *things;
+
+	// list of dynamic lights
+	drawthing_t *dlights;
 }
 drawfloor_t;
 

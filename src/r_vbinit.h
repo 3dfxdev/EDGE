@@ -32,12 +32,12 @@
 typedef struct vbinit_s vbinit_t;
 struct vbinit_s
 {
-  // short name of the routine
-  char *name;
-  // pointer to the initialisation routine
-  void (*routine)(viewbitmap_t * vb);
-  // a longer description of it
-  char *description;
+	// short name of the routine
+	char *name;
+	// pointer to the initialisation routine
+	void (*routine)(viewbitmap_t * vb);
+	// a longer description of it
+	char *description;
 };
 
 // null-terminated list of available viewbitmap initialisers

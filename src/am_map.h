@@ -34,13 +34,13 @@
 //
 typedef struct
 {
-  float x, y;
+	float x, y;
 }
 mpoint_t;
 
 typedef struct
 {
-  mpoint_t a, b;
+	mpoint_t a, b;
 }
 mline_t;
 

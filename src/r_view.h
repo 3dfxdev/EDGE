@@ -43,23 +43,23 @@ typedef struct callback_s callback_t;
 // purposes too.
 struct callback_s
 {
-  // the actual callback. Could for example be a detail increaser for a view.
-  // The parameter is the data field of the callback_t.
-  void (*f) (void *);
-  // User data: The callback needs info about what to operate on. Typically
-  // just a pointer to the view_t (or viewbitmap_t or camera_t).
-  // Could also be a pointer to a user defined struct containing that pointer
-  // plus some extra user info.
-  void *data;
-  // Routine that deallocates the data field. Typically Z_Free, if data was
-  // allocated with Z_New. Or NULL if nothing was allocated when the
-  // callback was created.
-  // Some start-of-frame callbacks might want to share data with end-of-frame
-  // ones, in that case the destruction should be done in the end-of-frame
-  // one, since the start-of-frame list always is destroyed first.
-  void (*kill_data) (void *);
-  // prev is executed before this callback and next after.
-  callback_t *prev, *next;
+	// the actual callback. Could for example be a detail increaser for a view.
+	// The parameter is the data field of the callback_t.
+	void (*f) (void *);
+	// User data: The callback needs info about what to operate on. Typically
+	// just a pointer to the view_t (or viewbitmap_t or camera_t).
+	// Could also be a pointer to a user defined struct containing that pointer
+	// plus some extra user info.
+	void *data;
+	// Routine that deallocates the data field. Typically Z_Free, if data was
+	// allocated with Z_New. Or NULL if nothing was allocated when the
+	// callback was created.
+	// Some start-of-frame callbacks might want to share data with end-of-frame
+	// ones, in that case the destruction should be done in the end-of-frame
+	// one, since the start-of-frame list always is destroyed first.
+	void (*kill_data) (void *);
+	// prev is executed before this callback and next after.
+	callback_t *prev, *next;
 };
 
 //
@@ -67,16 +67,16 @@ struct callback_s
 //
 struct camera_s
 {
-  // executed at the start of every frame when it's used for rendering,
-  // to set some globals
-  callback_t *frame_start;
-  // Optional, does any necessary cleanup at end of frame
-  callback_t *frame_end;
+	// executed at the start of every frame when it's used for rendering,
+	// to set some globals
+	callback_t *frame_start;
+	// Optional, does any necessary cleanup at end of frame
+	callback_t *frame_end;
 
-  // If the camera is attached to a player, this points to it. Otherwise
-  // it's NULL. It's used for psprite drawing.
-  // -AJA- 1999/09/11: Now a pointer to mobj_t instead of player_t.
-  mobj_t *view_obj;
+	// If the camera is attached to a player, this points to it. Otherwise
+	// it's NULL. It's used for psprite drawing.
+	// -AJA- 1999/09/11: Now a pointer to mobj_t instead of player_t.
+	mobj_t *view_obj;
 };
 
 //
@@ -85,25 +85,25 @@ struct camera_s
 // -ES- 1999/07/31 Use the screen_t system.
 struct viewbitmap_s
 {
-  screen_t screen;
+	screen_t screen;
 
-  // Linked list of the views that can be drawn to this bitmap.
-  view_t *views;
+	// Linked list of the views that can be drawn to this bitmap.
+	view_t *views;
 
-  // Linked list of the aspects that can be used with this bitmap.
-  aspect_t *aspects;
+	// Linked list of the aspects that can be used with this bitmap.
+	aspect_t *aspects;
 
-  // Array of size (height), containing the addresses of each line.
-  // the views' ylookups will point to one of the elements.
-  byte **baseylookup;
+	// Array of size (height), containing the addresses of each line.
+	// the views' ylookups will point to one of the elements.
+	byte **baseylookup;
 
-  // Array of size (width), where element x contains x*BPP (currently).
-  // the views' columnoffsets will point to one of these elements.
-  int *basecolumnofs;
+	// Array of size (width), where element x contains x*BPP (currently).
+	// the views' columnoffsets will point to one of these elements.
+	int *basecolumnofs;
 
-  // If these aren't null, they will be called at the start/end of each frame.
-  callback_t *frame_start;
-  callback_t *frame_end;
+	// If these aren't null, they will be called at the start/end of each frame.
+	callback_t *frame_start;
+	callback_t *frame_end;
 };
 
 //
@@ -115,45 +115,45 @@ struct viewbitmap_s
 // FIXME: Split up aspect_s into separate x and y?
 struct aspect_s
 {
-  // the maximal width/height for views using this aspect.
-  int maxwidth;
-  int maxheight;
+	// the maximal width/height for views using this aspect.
+	int maxwidth;
+	int maxheight;
 
-  // X RELATED STUFF
+	// X RELATED STUFF
 
-  // These show the tables for maxwidth.
-  // The tables used in view_t are based on these ones, but can do some small
-  // changes if not maxwidth is used.
-  int *baseviewangletox;
-  angle_t *basextoviewangle;
-  float *basedistscale;
-  float x_distunit;
-  float focusxfrac;
+	// These show the tables for maxwidth.
+	// The tables used in view_t are based on these ones, but can do some small
+	// changes if not maxwidth is used.
+	int *baseviewangletox;
+	angle_t *basextoviewangle;
+	float *basedistscale;
+	float x_distunit;
+	float focusxfrac;
 
-  // Y RELATED STUFF
+	// Y RELATED STUFF
 
-  float *baseyslope;
-  float y_distunit;
-  float focusyfrac;
+	float *baseyslope;
+	float y_distunit;
+	float focusyfrac;
 
-  // the slope of the real focus is 0, this is the slope which we pretend to be focus.
-  // ie. the slope that normally is in the middle of the screen.
-  float fakefocusslope;
-  // topslope & bottomslope show the offset to fakefocusslope.
-  float topslope;
-  float bottomslope;
+	// the slope of the real focus is 0, this is the slope which we pretend to be focus.
+	// ie. the slope that normally is in the middle of the screen.
+	float fakefocusslope;
+	// topslope & bottomslope show the offset to fakefocusslope.
+	float topslope;
+	float bottomslope;
 
-  // GENERAL STUFF
+	// GENERAL STUFF
 
-  // list of views that use this aspect. These will be updated if the aspect
-  // is changed.
-  view_t *views;
+	// list of views that use this aspect. These will be updated if the aspect
+	// is changed.
+	view_t *views;
 
-  // aspects are atm viewbitmap specific.
-  viewbitmap_t *parent;
+	// aspects are atm viewbitmap specific.
+	viewbitmap_t *parent;
 
-  // next in parent's list
-  aspect_t *next;
+	// next in parent's list
+	aspect_t *next;
 };
 
 //
@@ -162,43 +162,43 @@ struct aspect_s
 // A view is an area on a viewbitmap, on which a view is projected.
 struct view_s
 {
-  // The memory area this view is drawn to. A subscreen of the parent
-  // viewbitmap's screen.
-  screen_t screen;
+	// The memory area this view is drawn to. A subscreen of the parent
+	// viewbitmap's screen.
+	screen_t screen;
 
-  byte **ylookup;
-  int *columnofs;
+	byte **ylookup;
+	int *columnofs;
 
-  // aspect related
-  int *viewangletox;
-  angle_t *xtoviewangle;
-  float *distscale;
-  int aspect_x;
+	// aspect related
+	int *viewangletox;
+	angle_t *xtoviewangle;
+	float *distscale;
+	int aspect_x;
 
-  int aspect_y;
-  float *yslope;
+	int aspect_y;
+	float *yslope;
 
 #define VRF_PSPR (1)
 #define VRF_VIEW (2)
-  unsigned char renderflags;  // flag variable telling what to render here
+	unsigned char renderflags;  // flag variable telling what to render here
 
-  // Lists of routines that will be called at the start/end of each frame.
-  callback_t *frame_start;
-  callback_t *frame_end;
+	// Lists of routines that will be called at the start/end of each frame.
+	callback_t *frame_start;
+	callback_t *frame_end;
 
-  // Views with high priority are drawn on top on low-prioritised.
-  // Conventions:
-  // A normal view has priority 0.
-  // A player sprite view has priority 100.
-  int priority;
+	// Views with high priority are drawn on top on low-prioritised.
+	// Conventions:
+	// A normal view has priority 0.
+	// A player sprite view has priority 100.
+	int priority;
 
-  camera_t *camera;
+	camera_t *camera;
 
-  aspect_t *aspect;
-  view_t *anext;  // the next view in the aspect's list
+	aspect_t *aspect;
+	view_t *anext;  // the next view in the aspect's list
 
-  viewbitmap_t *parent;
-  view_t *vbnext;  // the next view in the parent viewbitmap's list
+	viewbitmap_t *parent;
+	view_t *vbnext;  // the next view in the parent viewbitmap's list
 
 };
 

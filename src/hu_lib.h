@@ -38,24 +38,24 @@
 //       clashes with any libraries.
 typedef struct H_font_s
 {
-  // name of font.  Not used yet.
-  char name[32];
-  
-  // prefix for patch names, e.g. "STFCN".
-  char prefix[10];
-  
-  // nominal width and height.  Characters can be larger or smaller
-  // than this, but these values give a good guess for formatting
-  // purposes.
-  int width, height;
- 
-  // range of characters in the font.  Charset is IBM cp437.
-  int first_ch;
-  int last_ch;
-  
-  // images for each character.  Missing characters will be filled
-  // with a default image.
-  const image_t ** images;
+	// name of font.  Not used yet.
+	char name[32];
+
+	// prefix for patch names, e.g. "STFCN".
+	char prefix[10];
+
+	// nominal width and height.  Characters can be larger or smaller
+	// than this, but these values give a good guess for formatting
+	// purposes.
+	int width, height;
+
+	// range of characters in the font.  Charset is IBM cp437.
+	int first_ch;
+	int last_ch;
+
+	// images for each character.  Missing characters will be filled
+	// with a default image.
+	const image_t ** images;
 }
 H_font_t;
 
@@ -71,23 +71,23 @@ H_font_t;
 
 typedef struct
 {
-  // position of top/left corner of text
-  int x, y;
+	// position of top/left corner of text
+	int x, y;
 
-  // font
-  const H_font_t *font;
+	// font
+	const H_font_t *font;
 
-  // line of text
-  char ch[HU_MAXLINELENGTH + 1];
+	// line of text
+	char ch[HU_MAXLINELENGTH + 1];
 
-  // current line length
-  int len;
+	// current line length
+	int len;
 
-  // whether this line needs to be udpated
-  int needsupdate;
+	// whether this line needs to be udpated
+	int needsupdate;
 
-  // centre text horizontally, around x.
-  bool centre;
+	// centre text horizontally, around x.
+	bool centre;
 }
 hu_textline_t;
 
@@ -96,18 +96,18 @@ hu_textline_t;
 
 typedef struct
 {
-  // text lines to draw
-  hu_textline_t L[HU_MAXLINES];
+	// text lines to draw
+	hu_textline_t L[HU_MAXLINES];
 
-  // height in lines
-  int h;
+	// height in lines
+	int h;
 
-  // current line number
-  int curline;
+	// current line number
+	int curline;
 
-  // pointer to bool stating whether to update window
-  bool *on;
-  bool laston;  // last value of *->on.
+	// pointer to bool stating whether to update window
+	bool *on;
+	bool laston;  // last value of *->on.
 }
 hu_stext_t;
 
@@ -116,15 +116,15 @@ hu_stext_t;
 
 typedef struct
 {
-  // text line to input on
-  hu_textline_t L;
+	// text line to input on
+	hu_textline_t L;
 
-  // left margin past which I am not to delete characters
-  int margin;
+	// left margin past which I am not to delete characters
+	int margin;
 
-  // pointer to bool stating whether to update window
-  bool *on;
-  bool laston;  // last value of *->on;
+	// pointer to bool stating whether to update window
+	bool *on;
+	bool laston;  // last value of *->on;
 }
 hu_itext_t;
 

@@ -30,7 +30,7 @@
 
 typedef struct vec2_s
 {
-  float x, y;
+	float x, y;
 }
 vec2_t;
 
@@ -45,7 +45,7 @@ vec2_t;
 
 typedef struct vec3_s
 {
-  float x, y, z;
+	float x, y, z;
 }
 vec3_t;
 

@@ -31,18 +31,18 @@
 
 typedef struct wadtex_resource_s
 {
-  // lump numbers, or -1 if nonexistent
-  int palette;
-  int pnames;
-  int texture1;
-  int texture2;
+	// lump numbers, or -1 if nonexistent
+	int palette;
+	int pnames;
+	int texture1;
+	int texture2;
 }
 wadtex_resource_t;
 
 typedef enum
 {
-  LMPLST_Sprites,
-  LMPLST_Flats,
+	LMPLST_Sprites,
+	LMPLST_Flats,
 }
 lumplist_e;
 
@@ -85,26 +85,26 @@ int W_GetNumFiles(void);
 #ifdef WAD_CHECK
 static int W_CheckNumForName3(const char *x, const char *file, int line)
 {
-  Debug_Printf("Find '%s' @ %s:%d\n", x, file, line);
-  return W_CheckNumForName2(x);
+	Debug_Printf("Find '%s' @ %s:%d\n", x, file, line);
+	return W_CheckNumForName2(x);
 }
 
 static int W_GetNumForName3(const char *x, const char *file, int line)
 {
-  Debug_Printf("Find '%s' @ %s:%d\n", x, file, line);
-  return W_GetNumForName2(x);
+	Debug_Printf("Find '%s' @ %s:%d\n", x, file, line);
+	return W_GetNumForName2(x);
 }
 
 static void *W_CacheLumpNum3(int lump, const char *file, int line)
 {
-  Debug_Printf("Cache '%d' @ %s:%d\n", lump, file, line);
-  return W_CacheLumpNum2(lump, tag);
+	Debug_Printf("Cache '%d' @ %s:%d\n", lump, file, line);
+	return W_CacheLumpNum2(lump, tag);
 }
 
 static void *W_CacheLumpName3(const char *name, const char *file, int line)
 {
-  Debug_Printf("Cache '%s' @ %s:%d\n", name, file, line);
-  return W_CacheLumpName2(name, tag);
+	Debug_Printf("Cache '%s' @ %s:%d\n", name, file, line);
+	return W_CacheLumpName2(name, tag);
 }
 
 #define W_CheckNumForName(x) W_CheckNumForName3(x, __FILE__, __LINE__)

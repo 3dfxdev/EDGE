@@ -39,8 +39,8 @@
 // -KM- 1998/07/21 Needed in am_map.c (iddt cheat)
 typedef struct
 {
-  const char *sequence;
-  const char *p;
+	const char *sequence;
+	const char *p;
 }
 cheatseq_t;
 

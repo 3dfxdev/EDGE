@@ -64,87 +64,87 @@ layerflags_e;
 
 typedef struct layer_s
 {
-  // Link in list.
-  
-  struct layer_s *next;
-  struct layer_s *prev;
+	// Link in list.
 
-  // Parent layer, or NULL if this is a top level layer.
-  
-  struct layer_s *parent;
+	struct layer_s *next;
+	struct layer_s *prev;
 
-  // Child list (often empty).  All children layers are considered to
-  // sit above their parent.
-  
-  struct layer_s *children;
+	// Parent layer, or NULL if this is a top level layer.
 
-  // Depth.  Higher layers are drawn later than lower ones.  Multiple
-  // layers of the same depth are allowed, but the results are
-  // undefined if they overlap.
+	struct layer_s *parent;
 
-  int depth;
+	// Child list (often empty).  All children layers are considered to
+	// sit above their parent.
 
-  // Rectangular bounds of layer on the screen.  (x,y) coordinates are
-  // absolute.  Coordinates are inclusive.
-  
-  int x1, y1, x2, y2;
+	struct layer_s *children;
 
-  // Various flags/properties for the layer.
-  
-  layerflags_e flags;
+	// Depth.  Higher layers are drawn later than lower ones.  Multiple
+	// layers of the same depth are allowed, but the results are
+	// undefined if they overlap.
 
-  // Draw routine.  Can be NULL (for listen-only layers).  Doesn't
-  // need to handle child layers, they will be called automatically.
-  // All drawing MUST be clipped to the current clipping rectangle (in
-  // the clip_* fields).
-  
-  void (* Drawer)(struct layer_s *layer);
-  
-  // Event handler.  Can be NULL (for draw-only layers).  Doesn't need
-  // to handle child layers, they will be called automatically.
-  
-  bool (* Listener)(struct layer_s *layer, event_t *ev);
+	int depth;
 
-  // Resize routine, called whenever the parent layer's bounding box
-  // changes.  For top level layers, this means whenever the user
-  // selects a different video mode.  Must not be NULL !  The routine
-  // must call R_LayerChangeBounds() on itself with the new size; this
-  // will take care of resizing any children layers.  The parameters
-  // are the parent layer bounds.
-  
-  void (* Resizer)(struct layer_s *layer, int x1, int y1, int x2, int y2);
+	// Rectangular bounds of layer on the screen.  (x,y) coordinates are
+	// absolute.  Coordinates are inclusive.
 
-  // Private pointer, store any layer-specific information here.  Must
-  // be allocated with Z_New() or similiar if not NULL.
-  
-  void *priv;
+	int x1, y1, x2, y2;
 
-  // --- stuff private to layer system itself ---
+	// Various flags/properties for the layer.
 
-  // Layer is not visible (e.g. completely covered by a higher layer
-  // that is solid, or lies totally outside parent's bounding box).
-  
-  bool invisible;
-  
-  // Index into stack array of solid rectangles.  All solid rects
-  // strictly _before_ this value can be used for clipping.
-  
-  int solid_index;
+	layerflags_e flags;
 
-  // Current clipping rectangle (based on parent and current layer
-  // dimensions).  Only valid when Drawer() is called, and the draw
-  // function MUST clip to this rectangle. 
+	// Draw routine.  Can be NULL (for listen-only layers).  Doesn't
+	// need to handle child layers, they will be called automatically.
+	// All drawing MUST be clipped to the current clipping rectangle (in
+	// the clip_* fields).
 
-  int clip_x1, clip_y1, clip_x2, clip_y2;
+	void (* Drawer)(struct layer_s *layer);
 
-  // Visible size of the layer (assuming `invisible' field is false)
-  // once clipped to the solid rectangles.  No need to draw anything
-  // outside of this rectangle, e.g. a rendering window can skip
-  // columns and spans the lie totally outside.  Only valid when
-  // Drawer() is called.  This rectangle is guaranteed to exist
-  // completely within the clip rectangle.
+	// Event handler.  Can be NULL (for draw-only layers).  Doesn't need
+	// to handle child layers, they will be called automatically.
 
-  int vis_x1, vis_y1, vis_x2, vis_y2;
+	bool (* Listener)(struct layer_s *layer, event_t *ev);
+
+	// Resize routine, called whenever the parent layer's bounding box
+	// changes.  For top level layers, this means whenever the user
+	// selects a different video mode.  Must not be NULL !  The routine
+	// must call R_LayerChangeBounds() on itself with the new size; this
+	// will take care of resizing any children layers.  The parameters
+	// are the parent layer bounds.
+
+	void (* Resizer)(struct layer_s *layer, int x1, int y1, int x2, int y2);
+
+	// Private pointer, store any layer-specific information here.  Must
+	// be allocated with Z_New() or similiar if not NULL.
+
+	void *priv;
+
+	// --- stuff private to layer system itself ---
+
+	// Layer is not visible (e.g. completely covered by a higher layer
+	// that is solid, or lies totally outside parent's bounding box).
+
+	bool invisible;
+
+	// Index into stack array of solid rectangles.  All solid rects
+	// strictly _before_ this value can be used for clipping.
+
+	int solid_index;
+
+	// Current clipping rectangle (based on parent and current layer
+	// dimensions).  Only valid when Drawer() is called, and the draw
+	// function MUST clip to this rectangle. 
+
+	int clip_x1, clip_y1, clip_x2, clip_y2;
+
+	// Visible size of the layer (assuming `invisible' field is false)
+	// once clipped to the solid rectangles.  No need to draw anything
+	// outside of this rectangle, e.g. a rendering window can skip
+	// columns and spans the lie totally outside.  Only valid when
+	// Drawer() is called.  This rectangle is guaranteed to exist
+	// completely within the clip rectangle.
+
+	int vis_x1, vis_y1, vis_x2, vis_y2;
 }
 layer_t;
 

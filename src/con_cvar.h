@@ -27,17 +27,17 @@ typedef struct funclist_s funclist_t;
 // Console variables (cvars)
 typedef enum
 {
-  // Readable
-  cf_read = 1,
-  // Writable.  Player properties are not writable!
-  cf_write = 2,
-  // Normal: cf_read|cf_write
-  cf_normal = 3,
-  // cvar is in z_memory.  If it is deleted, it will be Z_Freed
-  // this is handled individually by each type
-  cf_mem = 4,
-  // Delete: cvar can be deleted.
-  cf_delete = 8
+	// Readable
+	cf_read = 1,
+	// Writable.  Player properties are not writable!
+	cf_write = 2,
+	// Normal: cf_read|cf_write
+	cf_normal = 3,
+	// cvar is in z_memory.  If it is deleted, it will be Z_Freed
+	// this is handled individually by each type
+	cf_mem = 4,
+	// Delete: cvar can be deleted.
+	cf_delete = 8
 }
 cflag_t;
 

@@ -29,9 +29,9 @@
 
 typedef struct
 {
-  int mask;
-  int bits;
-  int shift;
+	int mask;
+	int bits;
+	int shift;
 }
 colourshift_t;
 

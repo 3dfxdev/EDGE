@@ -42,18 +42,18 @@ class endian_swapper_c
 // Swap 16bit, that is, MSB and LSB byte.
 inline short endian_swapper_c::SHORT(unsigned short x)
 {
-  // No masking with 0xFF should be necessary.
-  return (x >> 8) | (x << 8);
+	// No masking with 0xFF should be necessary.
+	return (x >> 8) | (x << 8);
 }
 
 // Swapping 32bit.
 inline long endian_swapper_c::LONG(unsigned long x)
 {
-  return
-      (x >> 24)
-      | ((x >> 8) & 0xff00)
-      | ((x << 8) & 0xff0000)
-      | (x << 24);
+	return
+		(x >> 24)
+		| ((x >> 8) & 0xff00)
+		| ((x << 8) & 0xff0000)
+		| (x << 24);
 }
 
 #define SHORT(x)  endian_swapper_c::SHORT(x)

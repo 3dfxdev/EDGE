@@ -27,83 +27,83 @@
 // Input event types.
 typedef enum
 {
-  // Base events (see d_event.h) so guievent_t can be used
-  // as an extension of event_t
-  gev_keydown,
-  gev_keyup,
-  gev_analogue,
+	// Base events (see d_event.h) so guievent_t can be used
+	// as an extension of event_t
+	gev_keydown,
+	gev_keyup,
+	gev_analogue,
 
-  // Creation events
-  gev_spawn,
-  gev_destroy,
-  gev_losefocus,
+	// Creation events
+	gev_spawn,
+	gev_destroy,
+	gev_losefocus,
 
-  // If a responder returns false in relation to these two
-  // events, the system will handle them.
-  gev_move,
-  gev_size,
+	// If a responder returns false in relation to these two
+	// events, the system will handle them.
+	gev_move,
+	gev_size,
 
-  // Sent to do stuff like drag
-  gev_hover,
+	// Sent to do stuff like drag
+	gev_hover,
 
-  // All gui controls send messages >= 1000. So it is extendable
-  gev_ctrl = 1000,
-  gev_bnclick,
-  gev_drag,
+	// All gui controls send messages >= 1000. So it is extendable
+	gev_ctrl = 1000,
+	gev_bnclick,
+	gev_drag,
 
-  // Events greater than gev_user are free for user applications
-  gev_user = 10000
+	// Events greater than gev_user are free for user applications
+	gev_user = 10000
 }
 guievtype_t;
 
 // Event structure.
 typedef struct
 {
-  guievtype_t type;
-  int data1;  // buttons (keys) / data2 axis
-  int data2;  // analogue axis 1
-  int data3;  // data4 axis
-  int data4;  // analogue axis 2
+	guievtype_t type;
+	int data1;  // buttons (keys) / data2 axis
+	int data2;  // analogue axis 1
+	int data3;  // data4 axis
+	int data4;  // analogue axis 2
 }
 guievent_t;
 
 typedef struct gui_s
 {
-  // The id is essentially a user field.  Usually used to identify
-  // controls in sub windows.  eg you create buttons with ids 0, 1...
-  // and the buttons send their id numbers back when they are pushed,
-  // so you know which button is clicked.
-  int id;
-  // The ticker function is where you do the main thinking of the application
-  // If there is no ticker, set this field to NULL.  Remember that this is
-  // not a real multitasking environment, so no big for loops please!
-  // The parameter passed is a pointer to the structure, so it is called
-  // (by the system as gui_t *gui;  gui->Ticker(gui);
-  // Tickers are called 35 times per second.
-  void (*Ticker) (struct gui_s *gui);
-  // This function is used to respond to events like key presses and spawn
-  // events.  Passes a pointer to the structure (see Ticker) and a pointer
-  // to the event to process.  (Don't modify the event.) Set to NULL to
-  // ignore all events.
-   bool(*Responder) (struct gui_s *gui, guievent_t * event);
-  // Should draw the app to the screen.  Once again optional and passed
-  // a pointer to the structure.
-  void (*Drawer) (struct gui_s * gui);
-  // This is a user pointer.  To make apps "thread safe" in this mock
-  // gui, store all 'global' variables in a structure pointed to by this.
-  // Otherwise, you can only have one instance of your app open at any one
-  // time.
-  void *process;
-  // These variables store the position of your app on the screen.  You should
-  // not draw outside these coordinates.
-  int left, right, top, bottom;
-  // The gui is stored as a circular linked list.
-  struct gui_s *prev, *next;
-  // The entire gui system is stored in a single gui_t*, which points to the
-  // forground application.  This field points to that variable.  You can create
-  // other guis, eg dialog boxes which consist of gui's (buttons, check boxes etc)
-  // that are sub windows your window.  (Pheww!) (See message box?)
-  struct gui_s **gui;
+	// The id is essentially a user field.  Usually used to identify
+	// controls in sub windows.  eg you create buttons with ids 0, 1...
+	// and the buttons send their id numbers back when they are pushed,
+	// so you know which button is clicked.
+	int id;
+	// The ticker function is where you do the main thinking of the application
+	// If there is no ticker, set this field to NULL.  Remember that this is
+	// not a real multitasking environment, so no big for loops please!
+	// The parameter passed is a pointer to the structure, so it is called
+	// (by the system as gui_t *gui;  gui->Ticker(gui);
+	// Tickers are called 35 times per second.
+	void (*Ticker) (struct gui_s *gui);
+	// This function is used to respond to events like key presses and spawn
+	// events.  Passes a pointer to the structure (see Ticker) and a pointer
+	// to the event to process.  (Don't modify the event.) Set to NULL to
+	// ignore all events.
+	bool(*Responder) (struct gui_s *gui, guievent_t * event);
+	// Should draw the app to the screen.  Once again optional and passed
+	// a pointer to the structure.
+	void (*Drawer) (struct gui_s * gui);
+	// This is a user pointer.  To make apps "thread safe" in this mock
+	// gui, store all 'global' variables in a structure pointed to by this.
+	// Otherwise, you can only have one instance of your app open at any one
+	// time.
+	void *process;
+	// These variables store the position of your app on the screen.  You should
+	// not draw outside these coordinates.
+	int left, right, top, bottom;
+	// The gui is stored as a circular linked list.
+	struct gui_s *prev, *next;
+	// The entire gui system is stored in a single gui_t*, which points to the
+	// forground application.  This field points to that variable.  You can create
+	// other guis, eg dialog boxes which consist of gui's (buttons, check boxes etc)
+	// that are sub windows your window.  (Pheww!) (See message box?)
+	struct gui_s **gui;
 }
 gui_t;
 
