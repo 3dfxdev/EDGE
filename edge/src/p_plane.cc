@@ -58,7 +58,7 @@ static bool P_StasifySector(sector_t * sec);
 static bool P_ActivateInStasis(int tag);
 
 static elev_move_t *P_SetupElevatorAction(sector_t * sector, 
-										  const elevator_sector_t * type, sector_t * model);
+										  const elevatordef_c * type, sector_t * model);
 
 static void MoveElevator(elev_move_t *elev);
 static void MovePlane(plane_move_t *plane);
@@ -348,7 +348,7 @@ static void MovePlane(plane_move_t *plane)
 				if (plane->newspecial != -1)
 				{
 					plane->sector->props.special = (plane->newspecial <= 0) ? NULL :
-						DDF_SectorLookupNum(plane->newspecial);
+						playsim::LookupSectorType(plane->newspecial);
 				}
 
 				SECPIC(plane->sector, plane->is_ceiling, plane->new_image);
@@ -453,7 +453,7 @@ static void MovePlane(plane_move_t *plane)
 				if (plane->newspecial != -1)
 				{
 					plane->sector->props.special = (plane->newspecial <= 0) ? NULL :
-						DDF_SectorLookupNum(plane->newspecial);
+						sectortypes.Lookup(plane->newspecial);
 				}
 
 				SECPIC(plane->sector, plane->is_ceiling, plane->new_image);
@@ -627,7 +627,9 @@ static sector_t *P_GetSectorSurrounding(sector_t * sec, float dest, bool forc)
 // Setup the Floor Action, depending on the linedeftype trigger and the
 // sector info.
 //
-static plane_move_t *P_SetupSectorAction(sector_t * sector, const moving_plane_t * type, sector_t * model)
+static plane_move_t *P_SetupSectorAction(sector_t * sector, 
+                                         const movplanedef_c * type, 
+                                         sector_t * model)
 {
 	plane_move_t *plane;
 	float start, dest;
@@ -754,7 +756,7 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector, const moving_plane_t
 			if (plane->newspecial != -1)
 			{
 				sector->props.special = (plane->newspecial <= 0) ? NULL :
-					DDF_SectorLookupNum(plane->newspecial);
+					sectortypes.Lookup(plane->newspecial);
 			}
 		}
 	}
@@ -783,7 +785,7 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector, const moving_plane_t
 				if (plane->newspecial != -1)
 				{
 					sector->props.special = (plane->newspecial <= 0) ? NULL :
-						DDF_SectorLookupNum(plane->newspecial);
+						sectortypes.Lookup(plane->newspecial);
 				}
 			}
 		}
@@ -838,8 +840,8 @@ bool EV_Teleport
 	mobj_t* thing,
 	int delay,
 	int special,
-	const mobjdef_c* ineffectobj,
-	const mobjdef_c * outeffectobj
+	const mobjtype_c* ineffectobj,
+	const mobjtype_c * outeffectobj
 	)
 {
 	int i;
@@ -974,7 +976,7 @@ bool EV_Teleport
 // things (e.g. skip a whole staircase) when 2 or more stair sectors
 // were tagged.
 //
-static bool EV_BuildOneStair(sector_t * sec, const moving_plane_t * type)
+static bool EV_BuildOneStair(sector_t * sec, const movplanedef_c * type)
 {
 	int i;
 	float next_height;
@@ -1042,7 +1044,7 @@ static bool EV_BuildOneStair(sector_t * sec, const moving_plane_t * type)
 //
 // EV_BuildStairs
 //
-static bool EV_BuildStairs(sector_t * sec, const moving_plane_t * type)
+static bool EV_BuildStairs(sector_t * sec, const movplanedef_c * type)
 {
 	bool rtn = false;
 
@@ -1071,7 +1073,7 @@ static bool EV_BuildStairs(sector_t * sec, const moving_plane_t * type)
 //
 // Do Platforms/Floors/Stairs/Ceilings/Doors
 //
-bool EV_DoPlane(sector_t * sec, const moving_plane_t * type, sector_t * model)
+bool EV_DoPlane(sector_t * sec, const movplanedef_c * type, sector_t * model)
 {
 	// Activate all <type> plats that are in_stasis
 	switch (type->type)
@@ -1110,7 +1112,7 @@ bool EV_DoPlane(sector_t * sec, const moving_plane_t * type, sector_t * model)
 //
 // EV_ManualPlane
 //
-bool EV_ManualPlane(line_t * line, mobj_t * thing, const moving_plane_t * type)
+bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * type)
 {
 	sector_t *sec;
 	plane_move_t *msec;
@@ -1216,7 +1218,7 @@ static bool P_StasifySector(sector_t * sec)
 
 // -AJA- 1999/12/07: cleaned up this donut stuff
 
-linedeftype_t donut[2];
+linetype_c donut[2];
 static int donut_setup = 0;
 
 //
@@ -1235,16 +1237,16 @@ bool EV_DoDonut(sector_t * s1, sfx_t *sfx[4])
 
 	if (! donut_setup)
 	{
-		donut[0] = template_line;
+		donut[0].Default();
 		donut[0].count = 1;
 		donut[0].specialtype = 0;
-		donut[0].f = donut_floor;
-		strcpy(donut[0].f.tex, "-");
+		donut[0].f.Default(movplanedef_c::DEFAULT_DonutFloor);
+		donut[0].f.tex.Set("-");
 
-		donut[1] = template_line;
+		donut[1].Default();
 		donut[1].count = 1;
-		donut[1].f = donut_floor;
-		donut[1].f.dest = INT_MIN;
+		donut[1].f.Default(movplanedef_c::DEFAULT_DonutFloor);
+		donut[1].f.dest = (float)INT_MIN;	// FIXME!! INT_MIN on an FP Number?
 
 		donut_setup++;
 	}
@@ -1398,7 +1400,7 @@ static void MoveSlider(slider_move_t *smov)
 //
 // Handle thin horizontal sliding doors.
 //
-void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_t * s)
+void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_c * s)
 {
 	sector_t *sec = line->frontsector;
 	slider_move_t *smov;
@@ -1643,7 +1645,7 @@ static void MoveElevator(elev_move_t *elev)
 //
 // Do Elevators
 //
-bool EV_DoElevator(sector_t * sec, const elevator_sector_t * type, sector_t * model)
+bool EV_DoElevator(sector_t * sec, const elevatordef_c * type, sector_t * model)
 {
 #if 0
 	if (!sec->controller)
@@ -1660,7 +1662,7 @@ bool EV_DoElevator(sector_t * sec, const elevator_sector_t * type, sector_t * mo
 //
 // EV_ManualElevator
 //
-bool EV_ManualElevator(line_t * line, mobj_t * thing,  const elevator_sector_t * type)
+bool EV_ManualElevator(line_t * line, mobj_t * thing,  const elevatordef_c * type)
 {
 	return false;
 }
@@ -1669,7 +1671,7 @@ bool EV_ManualElevator(line_t * line, mobj_t * thing,  const elevator_sector_t *
 // P_SetupElevatorAction
 //
 static elev_move_t *P_SetupElevatorAction(sector_t * sector,
-										  const elevator_sector_t * type, sector_t * model)
+										  const elevatordef_c * type, sector_t * model)
 {
 	elev_move_t *elev;
 	float start, dest;
