@@ -87,7 +87,6 @@ void R2_FreeAllocatedStuff(void);
 // For the empty list, it indicates an area not yet filled in by walls
 // or planes.  Note: yt & yb are inclusive.
 //
-
 typedef struct screenline_s
 {
   // links for list
@@ -123,7 +122,7 @@ struct drawsub_s;
 //
 // Stores the info about a single visible section of a wall of a
 // subsector.
-
+//
 typedef struct drawwall_s
 {
   // link for list
@@ -168,7 +167,7 @@ drawwall_t;
 // Used to clip sprites to subsector boundaries.  Every time we visit
 // a subsector, we must compute a list of clipsegs for every seg of
 // the subsector (even ones that are totally off-screen).
-
+//
 typedef struct clipseg_s
 {
   // link for list
@@ -194,7 +193,7 @@ clipseg_t;
 //
 // Stores the info about a single visible plane (either floor or
 // ceiling) of a subsector.
-
+//
 typedef struct drawplane_s
 {
   // link for list
@@ -223,7 +222,7 @@ drawplane_t;
 // DrawThing
 //
 // Stores the info about a single visible sprite in a subsector.
-
+//
 typedef struct drawthing_s
 {
   // link for list
@@ -283,6 +282,9 @@ typedef struct drawthing_s
   float_t left_x,  left_y;
   float_t right_x, right_y;
   
+  // EXPERIMENTAL
+  boolean_t is_halo;
+  
   // TEMP HACK
   int picnum;
 }
@@ -294,7 +296,7 @@ drawthing_t;
 //
 // Stores all the information needed to draw a single on-screen
 // floor of a subsector.
-
+//
 typedef struct drawfloor_s
 {
   // link for list, drawing order
@@ -328,12 +330,13 @@ drawfloor_t;
 //
 // Stores all the information needed to draw a single on-screen
 // subsector.
-
+//
 typedef struct drawsub_s
 {
   // link in list
   // (sorted from furthest to closest)
   struct drawsub_s *next;
+  struct drawsub_s *prev;
 
   subsector_t *subsec;
 
@@ -363,7 +366,7 @@ drawsub_t;
 //
 // Describes an onscreen (but back-facing) seg which is used to mark
 // the edges of planes.
-
+//
 typedef struct planeback_s
 {
   // link for list
