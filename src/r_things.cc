@@ -92,7 +92,7 @@ int R_AddSpriteName(const char *name, int frame, bool is_weapon)
 	{
 		if (numsprites == 0)  // fill out dummy entry, #0
 		{
-			spritedef_c *def = new spritedef_c(name, false);
+			spritedef_c *def = new spritedef_c(name);
 
 			sprites.Insert(def);
 			numsprites = sprites.GetSize();
@@ -104,7 +104,6 @@ int R_AddSpriteName(const char *name, int frame, bool is_weapon)
 	int index;
 
 	DEV_ASSERT2(strlen(name) == 4);
-	frame += 1;
 
 	// look in cache
 	if (strcmp(name, add_spr_cache[0].name) == 0)
@@ -124,7 +123,7 @@ int R_AddSpriteName(const char *name, int frame, bool is_weapon)
 		{
 			index = numsprites;
 
-			spritedef_c *def = new spritedef_c(name, is_weapon);
+			spritedef_c *def = new spritedef_c(name);
 
 			sprites.Insert(def);
 			numsprites = sprites.GetSize();
@@ -140,8 +139,11 @@ int R_AddSpriteName(const char *name, int frame, bool is_weapon)
 	// update maximal frame count
 	// NOTE: frames are allocated during R_InitSprites
 
-	if (frame > sprites[index]->numframes)
-		sprites[index]->numframes = frame;
+	if (frame+1 > sprites[index]->numframes)
+		sprites[index]->numframes = frame+1;
+	
+	if (is_weapon)
+		sprites[index]->MarkWeapon(frame);
 
 	return index;
 }
@@ -216,7 +218,9 @@ static void InstallSpriteLump(spritedef_c *def, int lump,
 		return;
 	}
 
-	def->frames[frame].images[rot] = W_ImageCreateSprite(lumpname, lump, def->is_weapon);
+	def->frames[frame].images[rot] = W_ImageCreateSprite(lumpname, lump,
+		def->IsWeapon(frame));
+
 	def->frames[frame].flip[rot] = flip;
 }
 
