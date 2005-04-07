@@ -389,8 +389,18 @@ static void WeaponClearAll(void)
 {
 	// not safe to delete weapons, there are (integer) references
 
-//!!!!!! FIXME: disabled since it breaks castle.wad
-//	weapondefs.SetDisabledCount(weapondefs.GetSize());
+	// not using SetDisabledCount() since it breaks castle.wad
+
+	epi::array_iterator_c it;
+
+	for (it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
+		 it.IsValid(); it++)
+	{
+		weapondef_c *wd = ITERATOR_TO_TYPE(it, weapondef_c*);
+
+		if (wd)
+			wd->no_cheat = true;
+	}
 }
 
 
@@ -653,6 +663,8 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 	crosshair   = src.crosshair;
 	zoom_state  = src.zoom_state;
 
+	no_cheat = src.no_cheat;
+
 	autogive = src.autogive;
 	feedback = src.feedback;
 	upgrade_weap = src.upgrade_weap;
@@ -722,6 +734,8 @@ void weapondef_c::Default(void)
 
 	crosshair = 0;
 	zoom_state = 0;
+
+	no_cheat = false;
 
 	autogive = false;
 	feedback = false;

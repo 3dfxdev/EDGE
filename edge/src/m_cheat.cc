@@ -251,16 +251,14 @@ bool M_CheatResponder(event_t * ev)
 		pl->armours[CHEATARMOURTYPE] = CHEATARMOUR;
 
 		epi::array_iterator_c it;
-		weapondef_c* w;
 		
-		it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
-		while (it.IsValid())
+		for (it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
+			 it.IsValid(); it++)
 		{
-			w = ITERATOR_TO_TYPE(it, weapondef_c*);
-			if (w)
+			weapondef_c* w = ITERATOR_TO_TYPE(it, weapondef_c*);
+
+			if (w && !w->no_cheat)
 				P_AddWeapon(pl, w, NULL);
-				
-			it++;
 		}
 
 		for (i = 0; i < NUMAMMO; i++)
@@ -281,16 +279,14 @@ bool M_CheatResponder(event_t * ev)
 		pl->armours[CHEATARMOURTYPE] = CHEATARMOUR;
 
 		epi::array_iterator_c it;
-		weapondef_c* w;
-		
-		it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
-		while (it.IsValid())
+
+		for (it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
+			 it.IsValid(); it++)
 		{
-			w = ITERATOR_TO_TYPE(it, weapondef_c*);
-			if (w)
+			weapondef_c* w = ITERATOR_TO_TYPE(it, weapondef_c*);
+
+			if (w && !w->no_cheat)
 				P_AddWeapon(pl, w, NULL);
-				
-			it++;
 		}
 
 		for (i = 0; i < NUMAMMO; i++)
