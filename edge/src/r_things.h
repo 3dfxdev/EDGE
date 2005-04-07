@@ -91,7 +91,7 @@ public:
 class spritedef_c
 {
 public:
-	spritedef_c(const char *_name, bool _weap) : is_weapon(_weap), numframes(0), frames(NULL)
+	spritedef_c(const char *_name) : numframes(0), frames(NULL), weapon_frames(0)
 	{
 		strcpy(name, _name);
 	}
@@ -99,13 +99,29 @@ public:
 	// four letter sprite name (e.g. "TROO").
 	char name[6];
   
-  	bool is_weapon;
-
     // total number of frames.  Zero for missing sprites.
 	int numframes;
 
 	// sprite frames.
 	spriteframe_c *frames;
+
+	// HACK: bitmask for which frames are weapons (limit is 32)
+	unsigned int weapon_frames;
+
+public:
+	void MarkWeapon(int frame)
+	{
+		if (frame < 32)
+			weapon_frames |= (1 << frame);
+	}
+
+	bool IsWeapon(int frame) const
+	{
+		if (frame >= 32)
+			return false;
+
+		return (weapon_frames & (1 << frame)) ? true : false;
+	}
 };
 
 class spritedef_array_c : public epi::array_c
