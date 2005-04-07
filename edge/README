@@ -336,7 +336,7 @@ Command line options:
   -turbo  <num>        Running speed, 100 is normal.
   -vspeed  <num>       Look up/down speed, 1000 is normal.
 
-  -players  <num>      Total number of players (includes bots).
+  -players  <num>      Number of real players.
   -bots  <num>         Number of bots.
   -deathmatch          Deathmatch game (otherwise COOP).
   -altdeath            Alternate deathmatch mode.
