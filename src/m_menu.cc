@@ -1119,50 +1119,36 @@ void M_NewGame(int choice)
 // -KM- 1998/12/16 Generates EpiDef menu dynamically.
 static void CreateEpisodeMenu(void)
 {
-	int j, k, e;
-	char alpha;
-	epi::array_iterator_c it;
+	if (gamedefs.GetSize() == 0)
+		I_Error("No defined episodes !\n");
 
 	EpisodeMenu = Z_ClearNew(menuitem_t, gamedefs.GetSize());
 
-	for (it = gamedefs.GetBaseIterator(), e = 0; it.IsValid(); it++)
+	int e = 0;
+	epi::array_iterator_c it;
+
+	for (it = gamedefs.GetBaseIterator(); it.IsValid(); it++)
 	{
 		gamedef_c *g = ITERATOR_TO_TYPE(it, gamedef_c*);
 
-		if (W_CheckNumForName(g->firstmap) == -1)
+		if (W_CheckNumForName(g->firstmap.GetString()) == -1)
 			continue;
 
-		k = 0;
 		EpisodeMenu[e].status = 1;
 		EpisodeMenu[e].select_func = M_Episode;
-		Z_StrNCpy(EpisodeMenu[e].patch_name, g->namegraphic, 8);
 		EpisodeMenu[e].image = NULL;
-		alpha = EpisodeMenu[e].patch_name[0];
+		EpisodeMenu[e].alpha_key = '1' + e;
 
-		// ????
-		for (j = 0; j < e; j++)
-		{
-			if (alpha == EpisodeMenu[j].alpha_key)
-			{
-				while (EpisodeMenu[e].patch_name[k] && EpisodeMenu[e].patch_name[k] != ' ')
-					k++;
+		Z_StrNCpy(EpisodeMenu[e].patch_name, g->namegraphic.GetString(), 8);
+		EpisodeMenu[e].patch_name[8] = 0;
 
-				k++;
-
-				if (EpisodeMenu[e].patch_name[k])
-					alpha = EpisodeMenu[e].patch_name[k];
-
-				j = 0;
-			}
-		}
-		EpisodeMenu[e].alpha_key = alpha;
 		e++;
 	}
 
 	if (e == 0)
 		I_Error("No available episodes !\n");
 
-	EpiDef.numitems = e;
+	EpiDef.numitems  = e;
 	EpiDef.menuitems = EpisodeMenu;
 }
 
@@ -1187,7 +1173,7 @@ static void ReallyDoStartLevel(skill_t skill, gamedef_c *g)
 	params.SinglePlayer(startbots);
 
 	params.game = g;
-	params.map = G_LookupMap(g->firstmap);
+	params.map = G_LookupMap(g->firstmap.GetString());
 
 	if (! params.map || ! G_DeferredInitNew(params))
 	{
@@ -1230,7 +1216,7 @@ static void DoStartLevel(skill_t skill)
 	{ 
 		g = ITERATOR_TO_TYPE(it, gamedef_c*);
 
-		if (!strcmp(g->namegraphic, EpisodeMenu[chosen_epi].patch_name))
+		if (!strcmp(g->namegraphic.GetString(), EpisodeMenu[chosen_epi].patch_name))
 		{
 			break;
 		}
@@ -1245,7 +1231,7 @@ static void DoStartLevel(skill_t skill)
 		return;
 	}
 
-	const mapdef_c * map = G_LookupMap(g->firstmap);
+	const mapdef_c * map = G_LookupMap(g->firstmap.GetString());
 	if (! map)
 	{
 		I_Warning("Cannot find map for '%s' (episode %s)\n",
