@@ -1130,6 +1130,7 @@ static void CreateEpisodeMenu(void)
 	for (it = gamedefs.GetBaseIterator(); it.IsValid(); it++)
 	{
 		gamedef_c *g = ITERATOR_TO_TYPE(it, gamedef_c*);
+		if (! g) continue;
 
 		if (W_CheckNumForName(g->firstmap.GetString()) == -1)
 			continue;
