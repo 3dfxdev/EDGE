@@ -33,6 +33,7 @@
 #include "e_main.h"
 #include "e_player.h"
 #include "g_game.h"
+#include "m_argv.h"
 #include "p_bot.h"
 #include "p_local.h"
 #include "version.h"
@@ -53,6 +54,9 @@ static int game_id;
 static int bots_each;
 
 static NLaddress server;
+static NLint     port;
+static NLaddress local_addr;
+
 static NLsocket  socket;
 static NLint     sk_group;
 
@@ -62,12 +66,84 @@ static packet_c pk;
 
 #ifdef USE_HAWKNL
 
-static void N_Preliminaries(void)
+static bool MakeBroadcastAddress(NLaddress *dest, const NLaddress *src)
 {
-	srand(I_PureRandom());
+	// changes the last value, e.g. 10.0.0.4 --> 10.0.0.255
+
+	static char name_buf[NL_MAX_STRING_LENGTH];
+
+	char *begin = nlAddrToString(src, name_buf);
+
+	char *pos = strrchr(begin, '.');
+
+	if (! pos)
+		return false;
+	
+	strcpy(pos + 1, "255");
+
+	return (nlStringToAddr(begin, dest) == NL_TRUE);
 }
 
-static bool N_TestServer(NLsocket sock)
+static bool N_DetermineLocalAddr(void)
+{
+	// explicitly given via command-line option?
+	const char *p = M_GetParm("-local");
+
+	if (p)
+	{
+		if (! nlStringToAddr(p, &local_addr))
+		{
+			I_Error("Bad local address '%s'\n(%s)", p, I_NetworkReturnError());
+		}
+
+		return true;
+	}
+
+	int count;
+	NLaddress *all_addrs = nlGetAllLocalAddr(&count);
+
+	if (all_addrs && count > 0)
+	{
+		for (int i = 0; i < count; i++)
+		{
+			const char *addr_name = N_GetAddrName(all_addrs +i);
+
+			L_WriteDebug("ALL-Local[%d] = %s\n", i, addr_name);
+
+			if (strncmp(addr_name, "127.", 4) == 0 ||
+				strncmp(addr_name, "0.0.", 4) == 0 ||
+				strncmp(addr_name, "255.255.", 8) == 0)
+			{
+				continue;
+			}
+
+			// found a valid one
+			memcpy(&local_addr, all_addrs + i, sizeof(local_addr));
+			return true;
+		}
+	}
+
+#ifdef LINUX
+	const char *local_ip = I_LocalIPAddrString("eth0");
+	if (! local_ip)
+		local_ip = I_LocalIPAddrString("eth1");
+	if (! local_ip)
+		local_ip = I_LocalIPAddrString("ppp0");
+
+	if (local_ip)
+	{
+		L_WriteDebug("LINUX-Local-IP = %s\n", local_ip);
+
+		nlStringToAddr(local_ip, &local_addr);
+		return true;
+	}
+#endif
+
+	return false;
+}
+
+
+static bool N_BroadcastToServer(NLsocket sock)
 {
 	pk.SetType("bd");
 	pk.hd().flags = 0;
@@ -77,12 +153,16 @@ static bool N_TestServer(NLsocket sock)
 	if (! pk.Write(sock))
 		I_Error("Unable to write BD packet:\n%s", I_NetworkReturnError());
 
+	L_WriteDebug("Wrote BD packet\n"); //!!!!
+
 	int count = 0;
 
 	for (;;)
 	{
 		if (pk.Read(sock))
 		{
+			L_WriteDebug("READ A PACKET: [%c%c]\n", pk.hd().type[0], pk.hd().type[1]);
+
 			if (pk.CheckType("Bd"))
 				break;
 			else
@@ -104,74 +184,73 @@ static bool N_TestServer(NLsocket sock)
 	return true;
 }
 
-static void N_FindServer(void)
+static bool N_FindServer(void)
 {
-	// test local computer
+	printf("Looking for server...\n");
 
-	NLsocket loc_sock = nlOpen(0, NL_UNRELIABLE);
+	// set explicitly (via command line)
+	const char *str = M_GetParm("-server");
 
-    if (loc_sock == NL_INVALID)
+	if (str)
+	{
+		if (nlStringToAddr(str, &server) != NL_TRUE)
+			I_Error("Bad server address '%s'\n(%s)", str,
+				I_NetworkReturnError());
+		return true;
+	}
+
+#if 0	// test for same computer
+	NLsocket same_sock = nlOpen(0, NL_UNRELIABLE);
+
+    if (same_sock == NL_INVALID)
 		I_Error("Unable to create local socket:\n%s", I_NetworkReturnError());
 
-	NLaddress loc_addr;
+	NLaddress same_addr;
+	memcpy(&same_addr, &local_addr, sizeof(same_addr));
+	nlSetAddrPort(&same_addr, port);
 
-	nlGetLocalAddr(loc_sock, &loc_addr);
-
-	const char *addr_name = N_GetAddrName(&loc_addr);
-
-	L_WriteDebug("NETWORK: Local addr: %s\n", addr_name);
-
-	// ignore loopback (127.0.0.1)
-	// FIXME: check other addresses using nlGetAllLocalAddr()
-	if (strncmp(addr_name, "127.", 4) == 0)
+	if (! nlSetRemoteAddr(same_sock, &same_addr))
 	{
-#ifdef LINUX
-		addr_name = I_LocalIPAddrString("eth0");
-		
-		L_WriteDebug("NETWORK: eth0 address: %s\n", addr_name);
-
-		if (! addr_name)
-			addr_name = I_LocalIPAddrString("eth1");
-
-		if (! addr_name)
+		I_Warning("Set remote address on broadcast socket failed.\n%s",
+			I_NetworkReturnError());
+	}
+	else
+	{
+		if (N_BroadcastToServer(same_sock))
+		{
+			nlClose(same_sock);
+			return true;
+		}
+	}
 #endif
-			I_Error("Couldn't determine IP address of local machine.\n");
-
-		nlStringToAddr(addr_name, &loc_addr);
-	}
-
-	printf("Local addr %s\n", N_GetAddrName(&loc_addr));
-
-	nlSetAddrPort(&loc_addr, 26710);
-
-	if (! nlSetRemoteAddr(loc_sock, &loc_addr))
-		I_Error("Set remote address on local socket failed.\n%s", I_NetworkReturnError());
-
-	if (N_TestServer(loc_sock))
-	{
-		nlClose(loc_sock);
-		return;
-	}
-
-	printf("Server not on same computer, trying LAN...\n");
 
 	//--------------------------------------------------------
 
-	NLsocket bc_sock = nlOpen(26710, NL_BROADCAST);
+	printf("Server not on same computer, trying LAN...\n");
+
+	NLsocket bc_sock = nlOpen(port, NL_BROADCAST);
 
     if (bc_sock == NL_INVALID) // FIXME: don't error on this
-		I_Error("Unable to create broadcast socket:\n%s", I_NetworkReturnError());
+	{
+		I_Warning("Unable to create broadcast socket:\n%s", I_NetworkReturnError());
+		return false;
+	}
 
-	NLaddress remote;
-	nlStringToAddr("192.168.0.255:26710", &remote);  //!!! HACK
+	NLaddress bc_addr;
+	MakeBroadcastAddress(&bc_addr, &local_addr);
+	nlSetAddrPort(&bc_addr, port);
+	
+	if (! nlSetRemoteAddr(bc_sock, &bc_addr))
+	{
+		I_Warning("Set remote address on broadcast socket failed.\n%s", I_NetworkReturnError());
+		nlClose(bc_sock);
+		return false;
+	}
 
-	if (! nlSetRemoteAddr(bc_sock, &remote))
-		I_Error("Set remote address on broadcast socket failed.\n%s", I_NetworkReturnError());
-
-	if (! N_TestServer(bc_sock))
-		I_Error("Server not found (didn't receive reply).\n");
+	bool result = (N_BroadcastToServer(bc_sock) == NL_TRUE);
 
 	nlClose(bc_sock);
+	return result;
 }
 
 static void N_ConnectServer(void)
@@ -473,10 +552,16 @@ static void N_Vote(const game_info_t *gminfo, newgame_params_c *params)
 //
 void N_InitiateNetGame(void)
 {
+	if (nonet)
+		I_Error("N_InitiateNetGame: no network!\n");
+
 	pk.Clear();
 
-	N_Preliminaries();
-	N_FindServer();
+	if (N_FindServer())
+		I_Printf("Network: server address is %s\n", N_GetAddrName(&server));
+	else
+		I_Error("Failed to find server!\nPlease specify manually using -server");
+
 	N_ConnectServer();
 
 	bool found_game = false;
@@ -503,7 +588,7 @@ void N_InitiateNetGame(void)
 
 void N_InitiateNetGame(void)
 {
-	I_Error("Networking not supported (no hawk)\n");
+	I_Error("Networking not supported (hawk has flown)\n");
 }
 
 #endif // USE_HAWKNL
@@ -519,7 +604,33 @@ void N_InitNetwork(void)
 {
 	DEV_ASSERT2(sizeof(ticcmd_t) == sizeof(raw_ticcmd_t));
 
+	srand(I_PureRandom());
+
 	N_ResetTics();
+
+#ifdef USE_HAWKNL
+	if (nonet)
+		return;
+
+	if (N_DetermineLocalAddr())
+	{
+		I_Printf("Network: local address is %s\n", N_GetAddrName(&local_addr));
+		nlSetLocalAddr(&local_addr);
+	}
+	else
+	{
+		I_Printf("Network: FAILED to determine local address.\n");
+		nonet = true;
+	}
+
+	port = 26710;
+
+	const char *str = M_GetParm("-port");
+	if (str)
+		port = atoi(str);
+	
+	I_Printf("Network: server port is %d\n", port);
+#endif
 }
 
 static void GetPackets(bool do_delay)
