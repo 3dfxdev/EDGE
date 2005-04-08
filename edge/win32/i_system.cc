@@ -119,6 +119,7 @@ bool I_SystemStartup(void)
 	clockspeed = 1000 / ACTUAL_TIMER_HZ;
 	timerID = timeSetEvent(clockspeed, TIMER_RES, SysTicker, 0, TIME_PERIODIC);
 
+	I_StartupNetwork();
 	I_StartupControl();
 
 	// Startup Sound
@@ -553,6 +554,7 @@ void I_SystemShutdown(void)
 	I_ShutdownMusic();
 	I_ShutdownSound();
 	I_ShutdownControl();
+	I_ShutdownNetwork();
 
 	// Kill timer
 	timeKillEvent(timerID);

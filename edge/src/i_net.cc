@@ -16,21 +16,3 @@
 //
 //----------------------------------------------------------------------------
 
-#include "../i_defs.h"
-#include "i_sysinc.h"
-
-//
-// I_InitNetwork
-//
-void I_InitNetwork(void)
-{
-}
-
-//
-// I_NetCmd
-//
-// Sends/Receives a packet.
-//
-void I_NetCmd(void)
-{
-}

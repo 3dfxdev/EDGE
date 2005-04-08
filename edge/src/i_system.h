@@ -372,23 +372,23 @@ const char *I_SoundReturnError(void);
 //
 // -ACB- 1999/09/20 Moved from I_Net.H
 
+extern bool nonet;
+
 void I_StartupNetwork(void);
 void I_ShutdownNetwork(void);
 
-void I_InitNetwork(void);
-// Initialise the platform's networking code.  Not currently used.
-// Note well that networking in EDGE is not currently implemented, and
-// if it ever does get implemented then this interface is likely to
-// change significantly.
+const char *I_NetworkReturnError(void);
+// Returns an error message string that describes the error from the
+// last network (HawkNL) function that failed.  It will return an empty
+// string if no errors have yet occurred, but never NULL.  It will
+// clear the error status.
 
-void I_NetCmd(void);
-// Send or receive a network command packet.  Not currently used (but
-// must be defined).
-
+#ifdef LINUX
 const char * I_LocalIPAddrString(const char *eth_name);
 // LINUX ONLY: determine IP address from an ethernet adaptor.
 // The given string is "eth0" or "eth1".  Returns NULL if something
 // went wrong.
+#endif
 
 
 //--------------------------------------------------------
