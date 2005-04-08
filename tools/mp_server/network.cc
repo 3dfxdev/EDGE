@@ -115,7 +115,10 @@ static void InitNetTime(void)
 
 	// initialise random-number generator too
 
-	srand(base_time.seconds ^ (base_time.useconds / 3));
+	unsigned int net_random = base_time.seconds ^ (base_time.useconds * 229);
+	DebugPrintf("Global Random Seed = 0x%x\n", net_random);
+
+	srand(net_random);
 }
 
 //
@@ -190,6 +193,8 @@ static bool DetermineLocalAddr(void)
 	const char *local_ip = I_LocalIPAddrString("eth0");
 	if (! local_ip)
 		local_ip = I_LocalIPAddrString("eth1");
+	if (! local_ip)
+		local_ip = I_LocalIPAddrString("ppp0");
 
 	if (local_ip)
 	{
