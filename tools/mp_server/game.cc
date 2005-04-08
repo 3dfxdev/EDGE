@@ -266,8 +266,9 @@ static void SV_build_play_game(game_c *GM, packet_c *pk)
 	gm.bots_each    = GM->bots_each;
 
 	// assume RAND_MAX could be small (e.g. 0x7FFF)
-	gm.random_seed  = ((rand() & 0xFF) << 24) || ((rand() & 0xFF) << 16) ||
-	                  ((rand() & 0xFF) <<  8) ||  (rand() & 0xFF);
+	gm.random_seed = (rand() << 16) ^ rand();
+
+	DebugPrintf("GAME Random SEED = 0x%x\n", (unsigned int)gm.random_seed);
 
 	gm.first_player = 0;
 	gm.last_player  = gm.first_player + GM->num_players - 1;
@@ -324,7 +325,7 @@ static void BeginGame(game_c *GM)
 
 		CL->Write(&pk);
 
-		pk.hd().ByteSwap();  // FIXME: rebuild header
+		pk.hd().ByteSwap();  // fix header
 	}
 }
 
