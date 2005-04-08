@@ -99,7 +99,7 @@ static bool N_TestServer(NLsocket sock)
 
 	nlGetRemoteAddr(sock, &server);
 
-	fprintf(stderr, "Found server: %s\n", N_GetAddrName(&server));
+	printf("Found server: %s\n", N_GetAddrName(&server));
 
 	return true;
 }
@@ -140,7 +140,7 @@ static void N_FindServer(void)
 		nlStringToAddr(addr_name, &loc_addr);
 	}
 
-	fprintf(stderr, "Local addr %s\n", N_GetAddrName(&loc_addr));
+	printf("Local addr %s\n", N_GetAddrName(&loc_addr));
 
 	nlSetAddrPort(&loc_addr, 26710);
 
@@ -153,7 +153,7 @@ static void N_FindServer(void)
 		return;
 	}
 
-	fprintf(stderr, "Server not on same computer, trying LAN...\n");
+	printf("Server not on same computer, trying LAN...\n");
 
 	//--------------------------------------------------------
 
@@ -176,9 +176,9 @@ static void N_FindServer(void)
 
 static void N_ConnectServer(void)
 {
+#if 0  /// UDP : choose a random socket port
 	int port = 0;
 
-	// choose a random socket port
 	for (int tries = 0; tries < 100; tries++)
 	{
 		port = 11000 + (rand() & 0x1FFF);
@@ -191,11 +191,14 @@ static void N_ConnectServer(void)
 		if ((tries % 10) == 9)
 			I_Sleep(10 /* millisecs */);
 	}
+#else  /// TCP
+	socket = nlOpen(0, NL_RELIABLE_PACKETS);
+#endif
 
     if (socket == NL_INVALID)
 		I_Error("Unable to create main socket:\n%s", I_NetworkReturnError());
 
-	fprintf(stderr, "Port %d\n", port);
+///UDP	printf("Port %d\n", port);
 
 	if (nlConnect(socket, &server) != NL_TRUE)
 		I_Error("Failed to connect to server: timed out\n");  // FIXME: retry a few times
@@ -236,8 +239,8 @@ static void N_ConnectServer(void)
 
 	client_id = pk.hd().client;
 	
-	fprintf(stderr, "Connected to server: client_id %d\n", client_id);
-	fprintf(stderr, "Server version %x.%02x  Protocol version %x.%02x\n",
+	printf("Connected to server: client_id %d\n", client_id);
+	printf("Server version %x.%02x  Protocol version %x.%02x\n",
 		con.server_ver >> 8, con.server_ver & 0xFF,
 		con.protocol_ver >> 8, con.protocol_ver & 0xFF);
 }
@@ -277,7 +280,7 @@ static bool N_FindGame(game_info_t *gminfo /* out */)
 
 	if (qg.info[0].state != game_info_t::GS_Queued)
 	{
-		fprintf(stderr, "Query game #0: not queued\n");
+		printf("Query game #0: does not exist\n");
 		return false;
 	}
 
@@ -285,7 +288,7 @@ static bool N_FindGame(game_info_t *gminfo /* out */)
 
 	memcpy(gminfo, &qg.info, sizeof(game_info_t));
 
-	fprintf(stderr, "Query game #0: QUEUING\n");
+	printf("Query game #0: accepting players (QUEUING)\n");
 	return true;
 }
 
@@ -320,7 +323,7 @@ static void N_JoinGame(void)
 		I_Error("Failed to join game (invalid reply)\n");
 #endif
 
-	fprintf(stderr, "Joined queue for game #%d\n", game_id);
+	printf("Joined queue for game #%d\n", game_id);
 }
 
 static void N_NewGame(game_info_t *gminfo /* out */)
@@ -372,7 +375,7 @@ static void N_NewGame(game_info_t *gminfo /* out */)
 
 	game_id = ng.game;
 
-	fprintf(stderr, "Created new game: %d\n", game_id);
+	printf("Created new game: %d\n", game_id);
 }
 
 static void N_Vote(const game_info_t *gminfo, newgame_params_c *params)
@@ -396,7 +399,7 @@ static void N_Vote(const game_info_t *gminfo, newgame_params_c *params)
 		if (pk.Read(socket))
 			break;
 
-		fprintf(stderr, "Waiting for game-start packet (%d)\n", loop_num);
+		printf("Waiting for game-start packet (%d)\n", loop_num);
 	}
 
 	if (loop_num <= 0)
@@ -417,7 +420,7 @@ static void N_Vote(const game_info_t *gminfo, newgame_params_c *params)
 
 	/* ---- decode parameters ---- */
 
-	fprintf(stderr, "Setting up game parameters\n");
+	printf("Setting up game parameters\n");
 
 	bots_each = pg.bots_each;
 
@@ -427,7 +430,7 @@ static void N_Vote(const game_info_t *gminfo, newgame_params_c *params)
 	{
 		int R_client = pg.client_list[RP];
 
-		fprintf(stderr, "Real player %d --> client %d\n", RP, R_client);
+		printf("Real player %d --> client %d\n", RP, R_client);
 
 		for (int BT = 0; BT < (1 + bots_each); BT++)
 		{
@@ -439,14 +442,14 @@ static void N_Vote(const game_info_t *gminfo, newgame_params_c *params)
 				params->players[pnum] = (playerflag_e)
 					(params->players[pnum] | PFL_Network);
 
-			fprintf(stderr, "  Game player %d --> 0x%x\n",
+			printf("  Game player %d --> 0x%x\n",
 				pnum, params->players[pnum]);
 		}
 	}
 
-	fprintf(stderr, "Random seed: 0x%lx\n", (long) pg.random_seed);
-	fprintf(stderr, "Skill %d  Game Mode '%c'\n", gminfo->skill, gminfo->mode);
-	fprintf(stderr, "Level: '%s'\n", gminfo->level_name);
+	printf("Random seed: 0x%lx\n", (long) pg.random_seed);
+	printf("Skill %d  Game Mode '%c'\n", gminfo->skill, gminfo->mode);
+	printf("Level: '%s'\n", gminfo->level_name);
 
 	params->random_seed = pg.random_seed;
 
@@ -462,7 +465,7 @@ static void N_Vote(const game_info_t *gminfo, newgame_params_c *params)
 	if (! params->game)
 		I_Error("Net_start: no gamedef for level '%s'\n", gminfo->level_name);
 
-	fprintf(stderr, "LET THE GAMES BEGIN !!!\n");
+	printf("LET THE GAMES BEGIN !!!\n");
 }
 
 //
