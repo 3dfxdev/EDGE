@@ -623,7 +623,7 @@ bool language_c::Select(const char *name)
 	
 	for(i=0, max=choices.GetSize(); i<max; i++)
 	{
-		if (!strcmp(name, choices[i]))
+		if (! DDF_CompareName(name, choices[i]))
 		{
 			current = i;
 			return true;

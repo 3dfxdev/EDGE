@@ -419,28 +419,29 @@ static void SetGlobalVars(void)
 //
 void SetLanguage(void)
 {
-	if (M_CheckParm("-lang") > 0)
+	const char *want_lang = M_GetParm("-lang");
+
+	if (! want_lang)
+		want_lang = config_language;  // m_misc
+
+	if (want_lang)
 	{
-		epi::string_c s;
-		
-		s = M_GetParm("-lang");
-		
-		if (!language.Select(s))
-		{
-			epi::string_c s2;
-			s2.Format("Invalid language: '%s'", s.GetString());
-			I_Error(s2.GetString());
-		}
+		if (language.Select(want_lang))
+			return;
+
+		I_Error("Invalid language: '%s'\n", want_lang);
 	}
 
-	if (!language.IsValid())
-	{
-		if (!language.Select(DEFAULT_LANGUAGE))
-		{
-			if (!language.Select(0))
-				I_Error("Unable to select any language!");
-		}
-	}
+	if (language.IsValid())
+		return;
+
+	if (language.Select(DEFAULT_LANGUAGE))
+		return;
+
+	if (language.Select(0))
+		return;
+
+	I_Error("Unable to select any language!");
 }
 
 //

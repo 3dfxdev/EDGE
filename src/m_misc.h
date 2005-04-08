@@ -92,4 +92,6 @@ extern bool var_smoothmap;
 
 extern int cfgnormalfov, cfgzoomedfov;
 
+extern char *config_language;
+
 #endif  /* __M_MISC__ */

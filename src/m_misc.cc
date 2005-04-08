@@ -84,6 +84,8 @@ bool var_smoothmap = true;
 unsigned short save_screenshot[160][100];
 bool save_screenshot_valid = false;
 
+char *config_language = NULL;
+
 // -ACB- 1999/09/19 Sound API
 int dummysndchan;
 static int cfgsound;
@@ -355,8 +357,7 @@ void M_SaveDefaults(void)
 	}
 
 	// -AJA- 2004/01/10: this doesn't fit in yet...
-	fprintf(f, "language\t\t\"%s\"\n", 
-			language.GetName());
+	fprintf(f, "language\t\t\"%s\"\n", language.GetName());
 
 	for (i = 0; i < numdefaults; i++)
 	{
@@ -451,17 +452,14 @@ bool M_LoadDefaults(void)
 			}
 
 			// -AJA- 2004/01/10: this doesn't fit in yet...
-			// -ACB- 2004/07/29: FIXME! (do after LDF Init)
-#if 0
 			if (strcmp(def, "language") == 0)
 			{
 				if (!isstring)
 					continue;  // FIXME: show warning
 				
-				language.Select(newstring);
+				config_language = Z_StrDup(newstring);
 				continue;
 			}
-#endif
 
 			for (i = 0; i < numdefaults; i++)
 			{
