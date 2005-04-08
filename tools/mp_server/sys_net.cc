@@ -54,7 +54,7 @@ const char * I_LocalIPAddrString(const char *iface_name)
 {
 	int fd;
 
-	fd = socket(AF_INET, SOCK_DGRAM, 0);
+	fd = socket(PF_INET, SOCK_DGRAM, 0);
 
 	if (fd < 0)
 	{
