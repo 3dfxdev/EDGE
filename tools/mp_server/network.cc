@@ -32,6 +32,8 @@
 NLsocket bcast_socket;
 NLsocket conn_socket;
 
+NLaddress local_addr;
+
 NLint main_group;
 
 NLmutex  global_lock;  // lock the client/game structures
@@ -89,6 +91,24 @@ const char *GetNLErrorStr(void)
 	return err_buf;
 }
 
+static bool MakeBroadcastAddress(NLaddress *dest, const NLaddress *src)
+{
+	// changes the last value, e.g. 10.0.0.4 --> 10.0.0.255
+
+	static char name_buf[NL_MAX_STRING_LENGTH];
+
+	char *begin = nlAddrToString(src, name_buf);
+
+	char *pos = strrchr(begin, '.');
+
+	if (! pos)
+		return false;
+	
+	strcpy(pos + 1, "255");
+
+	return (nlStringToAddr(begin, dest) == NL_TRUE);
+}
+
 static void InitNetTime(void)
 {
 	nlTime(&base_time);
@@ -117,7 +137,7 @@ int GetNetTime(void)
 	return int(sec_diff * 100 + usec_diff / 10000);
 }
 
-static void DetermineLocalAddr(void)
+static bool DetermineLocalAddr(void)
 {
 	// explicitly given via command-line option?
 	int p, num_p;
@@ -132,41 +152,38 @@ static void DetermineLocalAddr(void)
 			exit(5);
 	    }
 
-		NLaddress addr;
-
-		if (! nlStringToAddr(arg_list[p+1], &addr))
+		if (! nlStringToAddr(arg_list[p+1], &local_addr))
 		{
 			fl_alert("Bad local address '%s'\n(%s)", arg_list[p+1],
 				GetNLErrorStr());
 			exit(5);
 		}
 
-		nlSetLocalAddr(&addr);
-		return;
+		return true;
 	}
 
 	int count;
 	NLaddress *all_addrs = nlGetAllLocalAddr(&count);
 
-	if (! all_addrs || count <= 0)
-		return;
-
-	for (int i = 0; i < count; i++)
+	if (all_addrs && count > 0)
 	{
-		const char *addr_name = GetAddrName(all_addrs +i);
-
-		DebugPrintf("ALL-Local[%d] = %s\n", i, addr_name);
-
-		if (strncmp(addr_name, "127.", 4) == 0 ||
-		    strncmp(addr_name, "0.0.", 4) == 0 ||
-		    strncmp(addr_name, "255.255.", 8) == 0)
+		for (int i = 0; i < count; i++)
 		{
-			continue;
-		}
+			const char *addr_name = GetAddrName(all_addrs +i);
 
-		// found a valid one
-		nlSetLocalAddr(all_addrs + i);
-		return;
+			DebugPrintf("ALL-Local[%d] = %s\n", i, addr_name);
+
+			if (strncmp(addr_name, "127.", 4) == 0 ||
+				strncmp(addr_name, "0.0.", 4) == 0 ||
+				strncmp(addr_name, "255.255.", 8) == 0)
+			{
+				continue;
+			}
+
+			// found a valid one
+			memcpy(&local_addr, all_addrs + i, sizeof(local_addr));
+			return true;
+		}
 	}
 
 #ifdef LINUX
@@ -178,12 +195,12 @@ static void DetermineLocalAddr(void)
 	{
 		DebugPrintf("LINUX-Local-IP = %s\n", local_ip);
 
-		NLaddress addr;
-		nlStringToAddr(local_ip, &addr);
-		nlSetLocalAddr(&addr);
-		return;
+		nlStringToAddr(local_ip, &local_addr);
+		return true;
 	}
 #endif
+
+	return false;
 }
 
 //
@@ -239,7 +256,12 @@ void NetInit(void)
 		}
 	}
 
-	bcast_socket = nlOpen(port, NL_UNRELIABLE);
+	// Must create BROADCAST socket using special broadcast address
+	NLaddress bcast_addr;
+	MakeBroadcastAddress(&bcast_addr, &local_addr);
+	nlSetLocalAddr(&bcast_addr);
+
+	bcast_socket = nlOpen(port, NL_BROADCAST);
 
 	if (bcast_socket == NL_INVALID)
 	{
@@ -247,6 +269,9 @@ void NetInit(void)
 				 GetNLErrorStr());
 		exit(5); //!!!!
 	}
+
+	// Set real local address (for listen socket)
+	nlSetLocalAddr(&local_addr);
 
 	conn_socket = nlOpen(port, NL_RELIABLE_PACKETS);
 
