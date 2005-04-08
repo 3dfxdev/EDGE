@@ -276,7 +276,7 @@ public:
 	int nummappos;
 };
 
-wi_c worldint;
+static wi_c worldint;
 
 //
 // CODE
@@ -1263,6 +1263,61 @@ void WI_Ticker(void)
 	}
 }
 
+void WI_Drawer(void)
+{
+	if (background_camera_mo)
+	{
+		R_Render();
+	} 
+	else
+	{
+		RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, bg_image);
+
+		for (int i = 0; i < worldint.numanims; i++)
+		{
+			wi_anim_c *a = &worldint.anims[i];
+
+			if (a->frameon == -1)
+				continue;
+
+			wi_frame_c *f = NULL;
+
+			if (a->info->type == wi_animdef_c::WI_LEVEL)
+			{
+				if (!wbs->next)
+					f = NULL;
+				else if (!strcmp(wbs->next->ddf.name, a->info->level))
+					f = &a->frames[a->frameon];
+			}
+			else
+				f = &a->frames[a->frameon];
+
+			if (f)
+				RGL_ImageEasy320(f->info->pos.x, f->info->pos.y, f->image);
+		}
+	}
+
+	switch (state)
+	{
+		case StatCount:
+			if (SP_MATCH())
+				DrawSinglePlayerStats();
+			else if (DEATHMATCH())
+				DrawDeathmatchStats();
+			else
+				DrawCoopStats();
+			break;
+
+		case ShowNextLoc:
+			DrawShowNextLoc();
+			break;
+
+		case NoState:
+			DrawNoState();
+			break;
+	}
+}
+
 static void LoadData(void)
 {
 	int i, j;
@@ -1344,61 +1399,6 @@ static void LoadData(void)
 	}
 }
 
-void WI_Drawer(void)
-{
-	if (background_camera_mo)
-	{
-		R_Render();
-	} 
-	else
-	{
-		RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, bg_image);
-
-		for (int i = 0; i < worldint.numanims; i++)
-		{
-			wi_anim_c *a = &worldint.anims[i];
-
-			if (a->frameon == -1)
-				continue;
-
-			wi_frame_c *f = NULL;
-
-			if (a->info->type == wi_animdef_c::WI_LEVEL)
-			{
-				if (!wbs->next)
-					f = NULL;
-				else if (!strcmp(wbs->next->ddf.name, a->info->level))
-					f = &a->frames[a->frameon];
-			}
-			else
-				f = &a->frames[a->frameon];
-
-			if (f)
-				RGL_ImageEasy320(f->info->pos.x, f->info->pos.y, f->image);
-		}
-	}
-
-	switch (state)
-	{
-		case StatCount:
-			if (SP_MATCH())
-				DrawSinglePlayerStats();
-			else if (DEATHMATCH())
-				DrawDeathmatchStats();
-			else
-				DrawCoopStats();
-			break;
-
-		case ShowNextLoc:
-			DrawShowNextLoc();
-			break;
-
-		case NoState:
-			DrawNoState();
-			break;
-	}
-}
-
 static void InitVariables(wbstartstruct_t * wbstartstruct)
 {
 	wbs = wbstartstruct;
@@ -1416,13 +1416,20 @@ static void InitVariables(wbstartstruct_t * wbstartstruct)
 	if (!wbs->maxsecret)
 		wbs->maxsecret = 1;
 
-	worldint.Init(gamedefs.Lookup(wbs->last->episode_name));
+	gamedef_c *def = gamedefs.Lookup(wbs->last->episode_name.GetString());
+
+	if (! def)
+		I_Error("Intermission: unknown game '%s'\n",
+			wbs->last->episode_name.GetString());
+
+	worldint.Init(def);
+
+	LoadData();
 }
 
 void WI_Start(wbstartstruct_t * wbstartstruct)
 {
 	InitVariables(wbstartstruct);
-	LoadData();
 
 	if (SP_MATCH())
 		InitSinglePlayerStats();
