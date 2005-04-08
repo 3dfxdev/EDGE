@@ -27,38 +27,6 @@
 #include "n_packet.h"
 
 //
-// N_GetErrorStr
-//
-const char *N_GetErrorStr(void)
-{
-	int err = nlGetError();
-
-	if (err == NL_NO_ERROR)
-		return "(Unknown Problem)";
-
-	static char err_buf[512];
-
-	if (err == NL_SYSTEM_ERROR)
-	{
-		err = nlGetSystemError();
-		sprintf(err_buf, "%s", nlGetSystemErrorStr(err));
-	}
-	else
-	{
-		sprintf(err_buf, "NL: %s", nlGetErrorStr(err));
-	}
-
-	// remove newlines and other rubbish
-	for (int i = 0; err_buf[i] && (unsigned)i < sizeof(err_buf); i++)
-	{
-		if (! isprint(err_buf[i]))
-			err_buf[i] = ' ';
-	}
-
-	return err_buf;
-}
-
-//
 // N_GetAddrName
 //
 const char *N_GetAddrName(const NLaddress *addr)
@@ -100,7 +68,7 @@ bool packet_c::Read(NLsocket sock)
 
 	if (len < 0)
 	{
-		L_WriteDebug("PacketRead failed: %s\n", N_GetErrorStr());
+		L_WriteDebug("PacketRead failed: %s\n", I_NetworkReturnError());
 		return false;
 	}
 
@@ -160,7 +128,7 @@ bool packet_c::Write(NLsocket sock)
 	}
 	else if (wrote < 0)
 	{
-		L_WriteDebug("PacketWrite failed: %s\n", N_GetErrorStr());
+		L_WriteDebug("PacketWrite failed: %s\n", I_NetworkReturnError());
 		return false;
 	}
 	else if (wrote != len)

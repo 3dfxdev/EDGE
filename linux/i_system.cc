@@ -53,10 +53,6 @@
 
 #endif // USE_FLTK
 
-#ifdef USE_HAWKNL
-#include "nl.h"
-#endif
-
 #ifndef USE_FLTK
 static char cp437_to_ascii[160] =
 { 
@@ -381,10 +377,7 @@ void I_TraceBack(void)
 //
 bool I_SystemStartup(void)
 {
-#ifdef USE_HAWKNL
-	nlInit();  // FIXME: check if successful, set "no_net" flag when not
-#endif
-
+	I_StartupNetwork();
 	I_StartupControl();
 	I_StartupGraphics();
 	I_StartupSound(NULL);    // -ACB- 1999/09/20 Sets nosound directly
@@ -406,10 +399,7 @@ void I_SystemShutdown(void)
 	I_ShutdownSound();
 	I_ShutdownGraphics();
 	I_ShutdownControl();
-
-#ifdef USE_HAWKNL
-	nlShutdown();
-#endif
+	I_ShutdownNetwork();
 
 	if (logfile)
 	{

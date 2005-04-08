@@ -23,8 +23,8 @@
 
 #include "protocol.h"
 
-const char *N_GetErrorStr(void);
 const char *N_GetAddrName(const NLaddress *addr);
+// utility method: return string for address (Note: static buffer)
 
 class packet_c
 {

@@ -64,12 +64,6 @@ static packet_c pk;
 
 static void N_Preliminaries(void)
 {
-	nlHint(NL_REUSE_ADDRESS, NL_TRUE);
-	nlHint(NL_TCP_NO_DELAY,  NL_TRUE);
-
-    if (nlSelectNetwork(NL_IP) == NL_FALSE)
-		I_Error("nlSelectNetwork failed:\n%s", N_GetErrorStr());
-
 	srand(I_PureRandom());
 }
 
@@ -78,9 +72,10 @@ static bool N_TestServer(NLsocket sock)
 	pk.SetType("bd");
 	pk.hd().flags = 0;
 	pk.hd().data_len = 0;
+	pk.hd().client = 0;
 
 	if (! pk.Write(sock))
-		I_Error("Unable to write BD packet:\n%s", N_GetErrorStr());
+		I_Error("Unable to write BD packet:\n%s", I_NetworkReturnError());
 
 	int count = 0;
 
@@ -116,7 +111,7 @@ static void N_FindServer(void)
 	NLsocket loc_sock = nlOpen(0, NL_UNRELIABLE);
 
     if (loc_sock == NL_INVALID)
-		I_Error("Unable to create local socket:\n%s", N_GetErrorStr());
+		I_Error("Unable to create local socket:\n%s", I_NetworkReturnError());
 
 	NLaddress loc_addr;
 
@@ -148,7 +143,7 @@ static void N_FindServer(void)
 	nlSetAddrPort(&loc_addr, 26710);
 
 	if (! nlSetRemoteAddr(loc_sock, &loc_addr))
-		I_Error("Set remote address on local socket failed.\n%s", N_GetErrorStr());
+		I_Error("Set remote address on local socket failed.\n%s", I_NetworkReturnError());
 
 	if (N_TestServer(loc_sock))
 	{
@@ -163,13 +158,13 @@ static void N_FindServer(void)
 	NLsocket bc_sock = nlOpen(26710, NL_BROADCAST);
 
     if (bc_sock == NL_INVALID) // FIXME: don't error on this
-		I_Error("Unable to create broadcast socket:\n%s", N_GetErrorStr());
+		I_Error("Unable to create broadcast socket:\n%s", I_NetworkReturnError());
 
 	NLaddress remote;
 	nlStringToAddr("192.168.0.255:26710", &remote);  //!!! HACK
 
 	if (! nlSetRemoteAddr(bc_sock, &remote))
-		I_Error("Set remote address on broadcast socket failed.\n%s", N_GetErrorStr());
+		I_Error("Set remote address on broadcast socket failed.\n%s", I_NetworkReturnError());
 
 	if (! N_TestServer(bc_sock))
 		I_Error("Server not found (didn't receive reply).\n");
@@ -196,7 +191,7 @@ static void N_ConnectServer(void)
 	}
 
     if (socket == NL_INVALID)
-		I_Error("Unable to create main socket:\n%s", N_GetErrorStr());
+		I_Error("Unable to create main socket:\n%s", I_NetworkReturnError());
 
 	fprintf(stderr, "Port %d\n", port);
 
@@ -213,6 +208,7 @@ static void N_ConnectServer(void)
 	pk.SetType("cs");
 	pk.hd().flags = 0;
 	pk.hd().data_len = sizeof(connect_proto_t);
+	pk.hd().client = 0;
 
 	connect_proto_t& con = pk.cs_p();
 
@@ -221,7 +217,7 @@ static void N_ConnectServer(void)
 	con.ByteSwap();
 
 	if (! pk.Write(socket))
-		I_Error("Unable to write CS packet:\n%s", N_GetErrorStr());
+		I_Error("Unable to write CS packet:\n%s", I_NetworkReturnError());
 
 	I_Sleep(1000);
 
@@ -251,6 +247,7 @@ static bool N_FindGame(game_info_t *gminfo /* out */)
 	pk.SetType("qg");
 	pk.hd().flags = 0;
 	pk.hd().data_len = sizeof(query_game_proto_t);
+	pk.hd().client = client_id;
 
 	query_game_proto_t& qg = pk.qg_p();
 
@@ -260,7 +257,7 @@ static bool N_FindGame(game_info_t *gminfo /* out */)
 	qg.ByteSwap();
 
 	if (! pk.Write(socket))
-		I_Error("Unable to write QG packet:\n%s", N_GetErrorStr());
+		I_Error("Unable to write QG packet:\n%s", I_NetworkReturnError());
 
 	I_Sleep(1000);
 
@@ -297,6 +294,7 @@ static void N_JoinGame(void)
 	pk.SetType("jq");
 	pk.hd().flags = 0;
 	pk.hd().data_len = sizeof(join_queue_proto_t);
+	pk.hd().client = client_id;
 
 	join_queue_proto_t& jq = pk.jq_p();
 
@@ -305,7 +303,7 @@ static void N_JoinGame(void)
 	jq.ByteSwap();
 
 	if (! pk.Write(socket))
-		I_Error("Unable to write JQ packet:\n%s", N_GetErrorStr());
+		I_Error("Unable to write JQ packet:\n%s", I_NetworkReturnError());
 
 	I_Sleep(1000);
 #if 0 //!!!!
@@ -330,6 +328,7 @@ static void N_NewGame(game_info_t *gminfo /* out */)
 	pk.SetType("ng");
 	pk.hd().flags = 0;
 	pk.hd().data_len = sizeof(new_game_proto_t);
+	pk.hd().client = client_id;
 
 	new_game_proto_t& ng = pk.ng_p();
 
@@ -342,7 +341,7 @@ static void N_NewGame(game_info_t *gminfo /* out */)
 	ng.info.skill = 1 + (byte)startskill;
 
 	ng.info.min_players = startplayers;
-	ng.info.num_bots = startbots * startplayers;
+	ng.info.num_bots = startbots;
 	ng.info.gameplay = ~0;
 	ng.info.features =  0;
 
@@ -354,7 +353,7 @@ static void N_NewGame(game_info_t *gminfo /* out */)
 	ng.ByteSwap();
 
 	if (! pk.Write(socket))
-		I_Error("Unable to write NG packet:\n%s", N_GetErrorStr());
+		I_Error("Unable to write NG packet:\n%s", I_NetworkReturnError());
 
 	I_Sleep(1000);
 
@@ -381,9 +380,10 @@ static void N_Vote(const game_info_t *gminfo, newgame_params_c *params)
 	pk.SetType("vp");
 	pk.hd().flags = 0;
 	pk.hd().data_len = 0;
+	pk.hd().client = client_id;
 
 	if (! pk.Write(socket))
-		I_Error("Unable to write VP packet:\n%s", N_GetErrorStr());
+		I_Error("Unable to write VP packet:\n%s", I_NetworkReturnError());
 
 	int loop_num;
 	for (loop_num = 60; loop_num > 0; loop_num -= 2)
@@ -600,8 +600,8 @@ static void DoSendTiccmds(int tic)
 
 	pk.SetType("tc");
 	pk.hd().flags = 0;
-	pk.hd().client = client_id;
 	pk.hd().data_len = sizeof(ticcmd_proto_t) - sizeof(raw_ticcmd_t);
+	pk.hd().client = client_id;
 
     ticcmd_proto_t& tc = pk.tc_p();
 
