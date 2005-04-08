@@ -526,7 +526,7 @@ static void N_Vote(const game_info_t *gminfo, newgame_params_c *params)
 		}
 	}
 
-	printf("Random seed: 0x%lx\n", (long) pg.random_seed);
+	printf("Random seed: 0x%x\n", (unsigned int) pg.random_seed);
 	printf("Skill %d  Game Mode '%c'\n", gminfo->skill, gminfo->mode);
 	printf("Level: '%s'\n", gminfo->level_name);
 
