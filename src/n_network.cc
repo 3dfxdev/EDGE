@@ -125,6 +125,7 @@ static void N_FindServer(void)
 	// FIXME: check other addresses using nlGetAllLocalAddr()
 	if (strncmp(addr_name, "127.", 4) == 0)
 	{
+#ifdef LINUX
 		addr_name = I_LocalIPAddrString("eth0");
 		
 		L_WriteDebug("NETWORK: eth0 address: %s\n", addr_name);
@@ -133,6 +134,7 @@ static void N_FindServer(void)
 			addr_name = I_LocalIPAddrString("eth1");
 
 		if (! addr_name)
+#endif
 			I_Error("Couldn't determine IP address of local machine.\n");
 
 		nlStringToAddr(addr_name, &loc_addr);
