@@ -5,9 +5,9 @@ MPSERVER TODO
 NETWORKING
 ----------
 
-+ finish updating code for NL_RELIABLE_PACKETS.
+* handle a broken connection (Read or Write --> NL_MESSAGE_END).
 
-+ handle a broken connection (Read or Write --> NL_MESSAGE_END).
+- finish updating code for NL_RELIABLE_PACKETS.
 
 - validate packet lengths and contents.
 
@@ -22,8 +22,7 @@ USER INTERFACE
 --------------
 
 + control screen : 
-  - show real local address, and port.
-  + set port
+  + able to change port (have 9 "standard" ports)
   - ACTIVATE button.
   - RESET button (boot all, deactivate).
 
