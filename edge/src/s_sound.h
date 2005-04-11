@@ -45,7 +45,7 @@ void S_SetMusicVolume(int volume);
 // S_SOUND.C
 void S_Init(void);
 void S_SoundLevelInit(void);
-int S_StartSound(mobj_t *origin, sfx_t *sound_id);
+int S_StartSound(mobj_t *origin, sfx_t *sound_id, int category=0);
 void S_ResumeSounds(void);
 void S_PauseSounds(void);
 void S_RemoveSoundOrigin(mobj_t *origin);
