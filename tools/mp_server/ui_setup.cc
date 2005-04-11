@@ -54,14 +54,14 @@ UI_Setup::UI_Setup(int x, int y, int w, int h, const char *label) :
 
 	address = new Fl_Output(x+100, cy, 160, 24, "Address: ");
 	address->align(FL_ALIGN_LEFT);
-	address->value("123.45.67.191");  //!!!!!
+	address->value("unknown");
 	sv_info->add(address);
 
 	cy += 32;
 
 	port = new Fl_Output(x+100, cy, 60, 24, "Port: ");
 	port->align(FL_ALIGN_LEFT);
-	port->value("20702");  //!!!!!
+	port->value("unset");
 	sv_info->add(port);
 
 	Fl_Button *port_but = new Fl_Button(x+180, cy, 80, 24, "Select...");
@@ -170,5 +170,18 @@ UI_Setup::UI_Setup(int x, int y, int w, int h, const char *label) :
 //
 UI_Setup::~UI_Setup()
 {
+}
+
+void UI_Setup::SetAddress(const char *addr_str)
+{
+	address->value(addr_str);
+}
+
+void UI_Setup::SetPort(int port_num)
+{
+	char num_buf[20];
+	sprintf(num_buf, "%d", port_num);
+
+	port->value(num_buf);
 }
 

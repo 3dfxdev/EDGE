@@ -155,6 +155,9 @@ int main(int argc, char **argv)
 
 	NetInit();
 
+	main_win->setup_box->SetAddress(GetAddrName(&local_addr));
+	main_win->setup_box->SetPort(local_port);
+
 	NLthreadID net_thread = nlThreadCreate(NetRun, NULL, NL_TRUE);
 
 	if (net_thread == (NLthreadID) NL_INVALID)
@@ -168,7 +171,7 @@ int main(int argc, char **argv)
 		// run the GUI until the user quits
 		while (! main_win->want_quit && ! net_failure)
 		{
-			Fl::wait(0.1f);
+			Fl::wait(0.3f);
 
 			main_win->Update();
 		}
