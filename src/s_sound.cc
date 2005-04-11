@@ -504,7 +504,7 @@ void S_SoundLevelInit(void)
 //
 // S_StartSound
 //
-int S_StartSound(mobj_t *origin, sfx_t *s)
+int S_StartSound(mobj_t *origin, sfx_t *s, int category)
 {
 	if (nosound)
 		return -1;
