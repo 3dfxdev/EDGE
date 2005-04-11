@@ -38,6 +38,8 @@ private:
 #endif
 
 public:
+	void SetAddress(const char *addr_str);
+	void SetPort(int port);
 };
 
 #endif /* __UI_SETUP_H__ */

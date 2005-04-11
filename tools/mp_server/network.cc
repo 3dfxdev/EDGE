@@ -33,6 +33,7 @@ NLsocket bcast_socket;
 NLsocket conn_socket;
 
 NLaddress local_addr;
+NLint local_port;
 
 NLint main_group;
 
@@ -239,7 +240,7 @@ void NetInit(void)
 	DetermineLocalAddr();
 
 	// override default port
-	int port = MPS_DEF_PORT;
+	local_port = MPS_DEF_PORT;
 
 	int num_p;
 	int p = ArgvFind('p', "port", &num_p);
@@ -252,9 +253,9 @@ void NetInit(void)
 			exit(5);
 	    }
 
-		port = atoi(arg_list[p+1]);
+		local_port = atoi(arg_list[p+1]);
 
-		if (port <= 0 || port > 65535)
+		if (local_port <= 0 || local_port > 65535)
 		{
 			fl_alert("-port option: invalid value '%s'", arg_list[p+1]);
 			exit(5);
@@ -266,11 +267,11 @@ void NetInit(void)
 	MakeBroadcastAddress(&bcast_addr, &local_addr);
 	nlSetLocalAddr(&bcast_addr);
 
-	bcast_socket = nlOpen(port, NL_BROADCAST);
+	bcast_socket = nlOpen(local_port, NL_BROADCAST);
 
 	if (bcast_socket == NL_INVALID)
 	{
-		fl_alert("Unable to create UDP socket on port %d:\n(%s)", port,
+		fl_alert("Unable to create UDP socket on port %d:\n(%s)", local_port,
 				 GetNLErrorStr());
 		exit(5); //!!!!
 	}
@@ -278,11 +279,11 @@ void NetInit(void)
 	// Set real local address (for listen socket)
 	nlSetLocalAddr(&local_addr);
 
-	conn_socket = nlOpen(port, NL_RELIABLE_PACKETS);
+	conn_socket = nlOpen(local_port, NL_RELIABLE_PACKETS);
 
 	if (conn_socket == NL_INVALID)
 	{
-		fl_alert("Unable to create TCP socket on port %d:\n(%s)", port,
+		fl_alert("Unable to create TCP socket on port %d:\n(%s)", local_port,
 				 GetNLErrorStr());
 		exit(5); //!!!!
 	}

@@ -24,6 +24,9 @@
 extern NLsocket bcast_socket;
 extern NLsocket conn_socket;
 
+extern NLaddress local_addr;
+extern NLint local_port;
+
 extern NLint main_group;
 
 extern NLmutex global_lock;
