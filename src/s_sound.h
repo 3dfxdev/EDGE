@@ -28,6 +28,22 @@
 
 #include "p_mobj.h"
 
+typedef enum
+{
+	SNCAT_UI = 0,       // for the user interface (menus, tips)
+	SNCAT_Music,        // for OGG music and MIDI synthesis
+	SNCAT_ConPlayer,    // for console player (pain, death, pickup)
+	SNCAT_ConWeapon,    // for console player's weapon
+	SNCAT_OtherPlayer,  // for all other players
+	SNCAT_MonstSig,     // for monster significant sounds
+	SNCAT_Monster,      // for all other monster sounds
+	SNCAT_Object,       // for all other objects
+	SNCAT_Level,        // for doors, lifts and RTS
+
+	NUMSOUNDCATS
+}
+sound_category_e;
+
 // for the sliders
 #define SND_SLIDER_NUM  20
 
@@ -45,7 +61,7 @@ void S_SetMusicVolume(int volume);
 // S_SOUND.C
 void S_Init(void);
 void S_SoundLevelInit(void);
-int S_StartSound(mobj_t *origin, sfx_t *sound_id, int category=0);
+int S_StartSound(mobj_t *origin, sfx_t *sound_id, int category=SNCAT_Level);
 void S_ResumeSounds(void);
 void S_PauseSounds(void);
 void S_RemoveSoundOrigin(mobj_t *origin);
