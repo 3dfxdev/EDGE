@@ -32,13 +32,13 @@ typedef enum
 {
 	SNCAT_UI = 0,       // for the user interface (menus, tips)
 	SNCAT_Music,        // for OGG music and MIDI synthesis
+	SNCAT_Level,        // for doors, lifts and RTS -> STATIC LOC
 	SNCAT_ConPlayer,    // for console player (pain, death, pickup)
 	SNCAT_ConWeapon,    // for console player's weapon
 	SNCAT_OtherPlayer,  // for all other players
 	SNCAT_MonstSig,     // for monster significant sounds
 	SNCAT_Monster,      // for all other monster sounds
 	SNCAT_Object,       // for all other objects
-	SNCAT_Level,        // for doors, lifts and RTS
 
 	NUMSOUNDCATS
 }
