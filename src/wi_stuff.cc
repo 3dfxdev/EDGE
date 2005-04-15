@@ -610,6 +610,8 @@ static void UpdateDeathmatchStats(void)
 {
 	bool stillticking;
 
+	gamedef_c *gd = worldint.GetGameDef();
+
 	if (acceleratestage && dm_state != 4)
 	{
 		acceleratestage = false;
@@ -625,7 +627,7 @@ static void UpdateDeathmatchStats(void)
 			dm_totals[i] = players[p]->totalfrags;
 		}
 
-		S_StartSound(NULL, worldint.GetGameDef()->done);
+		S_StartSound(NULL, gd->done);
 		dm_state = 4;
 	}
 
@@ -633,7 +635,7 @@ static void UpdateDeathmatchStats(void)
 	{
 		case 2:
 			if (!(bcnt & 3))
-				S_StartSound(NULL, worldint.GetGameDef()->percent);
+				S_StartSound(NULL, gd->percent);
 
 			stillticking = false;
 			for (int i = 0; i < NUM_SHOWN; i++)
@@ -656,7 +658,7 @@ static void UpdateDeathmatchStats(void)
 			}
 			if (!stillticking)
 			{
-				S_StartSound(NULL, worldint.GetGameDef()->done);
+				S_StartSound(NULL, gd->done);
 				dm_state++;
 			}
 			break;
@@ -664,7 +666,7 @@ static void UpdateDeathmatchStats(void)
 		case 4:
 			if (acceleratestage)
 			{
-				S_StartSound(NULL, worldint.GetGameDef()->accel_snd);
+				S_StartSound(NULL, gd->accel_snd);
 
 				// Skip next loc on no map -ACB- 2004/06/27
 				if (!worldint.nummappos || !wbs->next)	
@@ -786,6 +788,8 @@ static void UpdateCoopStats(void)
 {
 	bool stillticking;
 
+	gamedef_c *gd = worldint.GetGameDef();
+
 	if (acceleratestage && ng_state != 10)
 	{
 		acceleratestage = false;
@@ -808,7 +812,7 @@ static void UpdateCoopStats(void)
 			}
 		}
 
-		S_StartSound(NULL, worldint.GetGameDef()->done);
+		S_StartSound(NULL, gd->done);
 		ng_state = 10;
 	}
 
@@ -816,7 +820,7 @@ static void UpdateCoopStats(void)
 	{
 		case 2:
 			if (!(bcnt & 3))
-				S_StartSound(NULL, worldint.GetGameDef()->percent);
+				S_StartSound(NULL, gd->percent);
 
 			stillticking = false;
 
@@ -837,14 +841,14 @@ static void UpdateCoopStats(void)
 
 			if (!stillticking)
 			{
-				S_StartSound(NULL, worldint.GetGameDef()->done);
+				S_StartSound(NULL, gd->done);
 				ng_state++;
 			}
 			break;
 
 		case 4:
 			if (!(bcnt & 3))
-				S_StartSound(NULL, worldint.GetGameDef()->percent);
+				S_StartSound(NULL, gd->percent);
 
 			stillticking = false;
 
@@ -863,14 +867,14 @@ static void UpdateCoopStats(void)
 			}
 			if (!stillticking)
 			{
-				S_StartSound(NULL, worldint.GetGameDef()->done);
+				S_StartSound(NULL, gd->done);
 				ng_state++;
 			}
 			break;
 
 		case 6:
 			if (!(bcnt & 3))
-				S_StartSound(NULL, worldint.GetGameDef()->percent);
+				S_StartSound(NULL, gd->percent);
 
 			stillticking = false;
 
@@ -891,14 +895,14 @@ static void UpdateCoopStats(void)
 
 			if (!stillticking)
 			{
-				S_StartSound(NULL, worldint.GetGameDef()->done);
+				S_StartSound(NULL, gd->done);
 				ng_state += 1 + 2 * !dofrags;
 			}
 			break;
 
 		case 8:
 			if (!(bcnt & 3))
-				S_StartSound(NULL, worldint.GetGameDef()->percent);
+				S_StartSound(NULL, gd->percent);
 
 			stillticking = false;
 
@@ -922,7 +926,7 @@ static void UpdateCoopStats(void)
 
 			if (!stillticking)
 			{
-				S_StartSound(NULL, worldint.GetGameDef()->frag_snd);
+				S_StartSound(NULL, gd->frag_snd);
 				ng_state++;
 			}
 			break;
@@ -930,7 +934,7 @@ static void UpdateCoopStats(void)
 		case 10:
 			if (acceleratestage)
 			{
-				S_StartSound(NULL, worldint.GetGameDef()->nextmap);
+				S_StartSound(NULL, gd->nextmap);
 
 				// Skip next loc on no map -ACB- 2004/06/27
 				if (!worldint.nummappos || !wbs->next)
@@ -1042,6 +1046,8 @@ static void UpdateSinglePlayerStats(void)
 
 	player_t *con_plyr = players[consoleplayer];
 
+	gamedef_c *gd = worldint.GetGameDef();
+
 	if (acceleratestage && sp_state != sp_end)
 	{
 		acceleratestage = false;
@@ -1050,7 +1056,7 @@ static void UpdateSinglePlayerStats(void)
 		cnt_secrets[0] = (con_plyr->secretcount * 100) / wbs->maxsecret;
 		cnt_time = con_plyr->leveltime / TICRATE;
 		cnt_par = wbs->partime / TICRATE;
-		S_StartSound(NULL, worldint.GetGameDef()->done);
+		S_StartSound(NULL, gd->done);
 		sp_state = sp_end;
 	}
 
@@ -1059,12 +1065,12 @@ static void UpdateSinglePlayerStats(void)
 		cnt_kills[0] += 2;
 
 		if (!(bcnt & 3))
-			S_StartSound(NULL, worldint.GetGameDef()->percent);
+			S_StartSound(NULL, gd->percent);
 
 		if (cnt_kills[0] >= (con_plyr->killcount * 100) / wbs->maxkills)
 		{
 			cnt_kills[0] = (con_plyr->killcount * 100) / wbs->maxkills;
-			S_StartSound(NULL, worldint.GetGameDef()->done);
+			S_StartSound(NULL, gd->done);
 			sp_state++;
 		}
 	}
@@ -1073,12 +1079,12 @@ static void UpdateSinglePlayerStats(void)
 		cnt_items[0] += 2;
 
 		if (!(bcnt & 3))
-			S_StartSound(NULL, worldint.GetGameDef()->percent);
+			S_StartSound(NULL, gd->percent);
 
 		if (cnt_items[0] >= (con_plyr->itemcount * 100) / wbs->maxitems)
 		{
 			cnt_items[0] = (con_plyr->itemcount * 100) / wbs->maxitems;
-			S_StartSound(NULL, worldint.GetGameDef()->done);
+			S_StartSound(NULL, gd->done);
 			sp_state++;
 		}
 	}
@@ -1087,12 +1093,12 @@ static void UpdateSinglePlayerStats(void)
 		cnt_secrets[0] += 2;
 
 		if (!(bcnt & 3))
-			S_StartSound(NULL, worldint.GetGameDef()->percent);
+			S_StartSound(NULL, gd->percent);
 
 		if (cnt_secrets[0] >= (con_plyr->secretcount * 100) / wbs->maxsecret)
 		{
 			cnt_secrets[0] = (con_plyr->secretcount * 100) / wbs->maxsecret;
-			S_StartSound(NULL, worldint.GetGameDef()->done);
+			S_StartSound(NULL, gd->done);
 			sp_state++;
 		}
 	}
@@ -1100,7 +1106,7 @@ static void UpdateSinglePlayerStats(void)
 	else if (sp_state == sp_time)
 	{
 		if (!(bcnt & 3))
-			S_StartSound(NULL, worldint.GetGameDef()->percent);
+			S_StartSound(NULL, gd->percent);
 
 		cnt_time += 3;
 
@@ -1115,7 +1121,7 @@ static void UpdateSinglePlayerStats(void)
 
 			if (cnt_time >= con_plyr->leveltime / TICRATE)
 			{
-				S_StartSound(NULL, worldint.GetGameDef()->done);
+				S_StartSound(NULL, gd->done);
 				sp_state++;
 			}
 		}
@@ -1124,7 +1130,7 @@ static void UpdateSinglePlayerStats(void)
 	{
 		if (acceleratestage)
 		{
-			S_StartSound(NULL, worldint.GetGameDef()->nextmap);
+			S_StartSound(NULL, gd->nextmap);
 
 			// Skip next loc on no map -ACB- 2004/06/27
 			if (!worldint.nummappos || !wbs->next)
@@ -1338,20 +1344,22 @@ static void LoadData(void)
 		wi_net_style = hu_styles.Lookup(def);
 	}
 
+	gamedef_c *gd = worldint.GetGameDef();
+
 	// background
-	bg_image = W_ImageLookup(worldint.GetGameDef()->background);
+	bg_image = W_ImageLookup(gd->background);
 
 	lnames[0] = W_ImageLookup(wbs->last->namegraphic);
 
 	if (wbs->next)
 		lnames[1] = W_ImageLookup(wbs->next->namegraphic);
 
-	if (worldint.GetGameDef()->yah[0][0])
-		yah[0] = W_ImageLookup(worldint.GetGameDef()->yah[0]);
-	if (worldint.GetGameDef()->yah[1][0])
-		yah[1] = W_ImageLookup(worldint.GetGameDef()->yah[1]);
-	if (worldint.GetGameDef()->splatpic[0])
-		splat[0] = W_ImageLookup(worldint.GetGameDef()->splatpic);
+	if (gd->yah[0][0])
+		yah[0] = W_ImageLookup(gd->yah[0]);
+	if (gd->yah[1][0])
+		yah[1] = W_ImageLookup(gd->yah[1]);
+	if (gd->splatpic[0])
+		splat[0] = W_ImageLookup(gd->splatpic);
 	
 	wiminus = W_ImageLookup("WIMINUS"); //!!! FIXME: use the style!
 	percent = W_ImageLookup("WIPCNT");
