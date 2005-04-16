@@ -44,7 +44,7 @@ private:
 	epi::vec3_c left_v;
 	epi::vec3_c right_v;
 	epi::vec3_c top_v;
-	epi::vec3_c bottom;
+	epi::vec3_c bottom_v;
 
 #if 0
 	// equivalent for the 2D plane.  Both are equal to zero when this
@@ -59,6 +59,7 @@ private:
 
 	void FindAngles(epi::vec3_c _dir);
 	void Recalculate();
+	void AdjustPlane(epi::vec3_c *v);
 
 public:
 	camera_c();
