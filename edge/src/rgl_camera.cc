@@ -74,14 +74,6 @@ void camera_c::FindAngles(epi::vec3_c _dir)
 
 void camera_c::Recalculate()
 {
-	// compute face direction, ensuring it has length == 1
-	dir.z = mlook.Sin();
-
-	float len_2d = mlook.Cos();
-
-	dir.x = len_2d * turn.Cos();
-	dir.y = len_2d * turn.Sin();
-
 	// compute slopes
 	epi::angle_c SideAng = FOV / 2;
 
@@ -93,13 +85,55 @@ void camera_c::Recalculate()
 
 	vert_slope = horiz_slope * aspect;
 
-	// plane vectors...  !!!! FIXME
-    
+	// compute face direction, ensuring it has length == 1
+	dir.z = mlook.Sin();
+
+	float len_2d = mlook.Cos();
+
+	dir.x = len_2d * turn.Cos();
+	dir.y = len_2d * turn.Sin();
+
 	// cone information
 	float diagonal = sqrtf(horiz_slope * horiz_slope + vert_slope * vert_slope);
 
 	cone_cos = Z_NEAR / sqrtf(Z_NEAR * Z_NEAR + diagonal * diagonal);
 	cone_tan = diagonal / Z_NEAR;
+
+	// plane vectors...
+	epi::vec2_c tmp_A(-Z_NEAR, 0);
+	tmp_A.Rotate(mlook);
+
+	left_v  = epi::vec3_c(tmp_A.x,  horiz_slope, tmp_A.y);
+	right_v = epi::vec3_c(tmp_A.x, -horiz_slope, tmp_A.y);
+
+	epi::vec2_c tmp_B(-vert_slope, Z_NEAR);
+	tmp_B.Rotate(mlook);
+
+	top_v = epi::vec3_c(tmp_B.x, 0, tmp_B.y);
+
+	epi::vec2_c tmp_C(-vert_slope, -Z_NEAR);
+	tmp_C.Rotate(mlook);
+
+	bottom_v = epi::vec3_c(tmp_C.x, 0, tmp_C.y);
+
+	AdjustPlane(&left_v);
+	AdjustPlane(&right_v);
+	AdjustPlane(&top_v);
+	AdjustPlane(&bottom_v);
+}
+
+void camera_c::AdjustPlane(epi::vec3_c *v)
+{
+	// rotate by the camera's turn angle, then scale the vector
+	// to be unit length.
+
+	epi::vec2_c base(v->x, v->y);
+	base.Rotate(turn);
+	
+	v->x = base.x;
+	v->y = base.y;
+
+	*v /= v->Length();
 }
 
 void camera_c::LoadGLMatrices(bool translate) const
@@ -150,10 +184,29 @@ int camera_c::TestSphere(epi::vec3_c mid, float R) const
 
 int camera_c::TestBBox(const epi::bbox3_c *bb) const
 {
-	// first step: check for sphere surrounding camera
+	// first step: check for bbox surrounding camera
 	if (bb->Contains(pos + dir))
 		return HIT_PARTIAL;
 
+	// second step: check  @@@ !!!!
+	for (int pt_index = 0; pt_index < 8; pt_index++)
+	{
+	}
+
 	return HIT_PARTIAL;  //!!!!! FIXME
 }
+
+//------------------------------------------------------------------------
+//  TEST ROUTINES
+//------------------------------------------------------------------------
+
+#ifdef TEST_CAMERA_CLASS
+
+void Test_CameraClass(void)
+{
+// !!! FIXME
+
+}
+
+#endif // TEST_CAMERA_CLASS
 
