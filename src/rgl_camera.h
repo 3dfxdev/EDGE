@@ -34,6 +34,9 @@ private:
 	epi::angle_c turn;
 	epi::angle_c mlook;
 
+	float horiz_slope;
+	float vert_slope;
+
 	// vectors for the planes that make up the view frustum.  The vectors
 	// face towards the inside of the frustum.  The near plane vector is
 	// already known (same as camera direction).
@@ -43,11 +46,12 @@ private:
 	epi::vec3_c top_v;
 	epi::vec3_c bottom;
 
+#if 0
 	// equivalent for the 2D plane.  Both are equal to zero when this
 	// isn't possible (camera looking too far up/down)
-	// FIXME: needed ??
 	epi::angle_c left_2D;
 	epi::angle_c right_2D;
+#endif
 
 	// information for Sphere-Cone intersection test
 	float cone_cos;
@@ -72,6 +76,7 @@ public:
 	void SetPosDir(epi::vec3_c _pos, epi::angle_c _turn, epi::angle_c _mlook);
 
 	void LoadGLMatrices(bool translate = true) const;
+	// set the OpenGL projection and model matrices to match this camera.
 
 	enum
 	{
@@ -80,7 +85,7 @@ public:
 		HIT_INSIDE,       // fully inside the cone/frustum
 	};
 
-	int TestSphere(const epi::vec3_c mid, float R) const;
+	int TestSphere(epi::vec3_c mid, float R) const;
 	// perform two tests: firstly that the sphere is behind the near
 	// plane -- return HIT_OUTSIDE if true.  Then test the sphere
 	// against the view cone, and return a HIT_XXX value.
