@@ -52,29 +52,58 @@ camera_c::~camera_c()
 	// nothing to free here, move along...
 }
 
-void FindAngles(epi::vec3_c _dir)
+void camera_c::FindAngles(epi::vec3_c _dir)
 {
-	// !!!! FIXME: FindAngles
+	float len_2d = sqrt(_dir.x * _dir.x + _dir.y * _dir.y);
+
+#if 0
+	if (len_2d < 0.001f)
+	{
+		// vector is directly upwards or downwards, do the best we can.
+		// (don't change TURN angle, hopefully current value is better
+		// than an abitrary choice).
+
+		mlook = (_dir.z < 0) ? epi::angle_c(-89.9f) : epi::angle_c(89.9f);
+		return;
+	}
+#endif
+
+	turn  = epi::angle_c::FromVector(_dir.x, _dir.y);
+	mlook = epi::angle_c::FromVector(len_2d, _dir.z);
 }
 
-void Recalculate()
+void camera_c::Recalculate()
 {
-	// !!!! FIXME: Recalculate
-}
+	// compute face direction, ensuring it has length == 1
+	dir.z = mlook.Sin();
 
-void camera_c::LoadGLMatrices(bool translate) const
-{
-	// first compute slopes
+	float len_2d = mlook.Cos();
+
+	dir.x = len_2d * turn.Cos();
+	dir.y = len_2d * turn.Sin();
+
+	// compute slopes
 	epi::angle_c SideAng = FOV / 2;
 
-	float horiz_slope = SideAng.Tan();
+	horiz_slope = SideAng.Tan();
 
 	float aspect = ASPECT_RATIO *
 		(float(viewwindowheight) / SCREENHEIGHT) /
 		(float(viewwindowwidth)  / SCREENWIDTH);
 
-	float vert_slope = horiz_slope * aspect;
+	vert_slope = horiz_slope * aspect;
 
+	// plane vectors...  !!!! FIXME
+    
+	// cone information
+	float diagonal = sqrtf(horiz_slope * horiz_slope + vert_slope * vert_slope);
+
+	cone_cos = Z_NEAR / sqrtf(Z_NEAR * Z_NEAR + diagonal * diagonal);
+	cone_tan = diagonal / Z_NEAR;
+}
+
+void camera_c::LoadGLMatrices(bool translate) const
+{
 	glMatrixMode(GL_PROJECTION);
 
 	glLoadIdentity();
@@ -90,39 +119,41 @@ void camera_c::LoadGLMatrices(bool translate) const
 		glTranslatef(-pos.x, -pos.y, -pos.z);
 }
 
-int camera_c::TestSphere(const epi::vec3_c mid, float R) const
+int camera_c::TestSphere(epi::vec3_c mid, float R) const
 {
-	return HIT_PARTIAL;  //!!!!! FIXME
+	// first step: check for sphere surrounding camera
+	epi::vec3_c relat(mid - pos);
+	
+	if (relat * relat <= R * R)
+		return HIT_PARTIAL;
 
-#if 0
+	// second step: check if completely behind the near plane
+	float along_axis = relat * dir;
 
-Cone-Sphere test:
------------------
+	if (along_axis - Z_NEAR <= -R)
+		return HIT_OUTSIDE;
+	
+	// third step: check sphere against the cone
+	float perp_sphr = sqrtf(relat * relat - along_axis * along_axis);
+	float perp_cone = along_axis * cone_tan;
 
-V = sphere.center - cone.apex_location
-a = V * cone.direction_normal
-b = a * cone.tan
-c = sqrt( V*V - a*a )
-d = c - b
-e = d * cone.cos
+	float dist = (perp_sphr - perp_cone) * cone_cos;
 
-now  if ( e >= sphere.radius ) , cull the sphere
-else if ( e <=-sphere.radius ) , totally include the sphere
-	else the sphere is partially included.
+	if (dist >= R)
+		return HIT_OUTSIDE;
 
+	if (dist <= -R)
+		return HIT_INSIDE;
 
-Occlusion tests:
-----------------
-
-1. Sphere against near plane
-2. Sphere against cone
-3. BBox against five planes [needed ??]
-
-#endif
+	return HIT_PARTIAL;
 }
 
 int camera_c::TestBBox(const epi::bbox3_c *bb) const
 {
+	// first step: check for sphere surrounding camera
+	if (bb->Contains(pos + dir))
+		return HIT_PARTIAL;
+
 	return HIT_PARTIAL;  //!!!!! FIXME
 }
 
