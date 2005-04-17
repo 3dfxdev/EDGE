@@ -97,6 +97,23 @@ public:
 	// frustum, returning one of the HIT_XXX values.  This test is
 	// a lot slower than TestSphere(), which should be used first.
 	// HIT_PARTIAL is returned when the bbox surrounds the camera.
+
+private:
+	inline bool TryBBoxPlane(const epi::bbox3_c *bb,
+		epi::vec3_c loc, epi::vec3_c face, bool *partial) const
+	{
+		// returns true when completely outside
+
+		int hit = bb->IntersectPlane(loc, face);
+
+		if (hit == epi::bbox3_c::HIT_OUTSIDE)
+			return true;
+
+		if (hit == epi::bbox3_c::HIT_PARTIAL)
+			*partial = true;
+
+		return false;
+	}
 };
 
 //----------------------------------------------------------------------------

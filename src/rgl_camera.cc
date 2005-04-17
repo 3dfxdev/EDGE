@@ -188,12 +188,25 @@ int camera_c::TestBBox(const epi::bbox3_c *bb) const
 	if (bb->Contains(pos + dir))
 		return HIT_PARTIAL;
 
-	// second step: check  @@@ !!!!
-	for (int pt_index = 0; pt_index < 8; pt_index++)
-	{
-	}
+	// second step: check bbox against each frustum plane
+	bool partial = false;
 
-	return HIT_PARTIAL;  //!!!!! FIXME
+	if (TryBBoxPlane(bb, pos + dir, dir, &partial))
+		return HIT_OUTSIDE;
+
+	if (TryBBoxPlane(bb, pos, left_v, &partial))
+		return HIT_OUTSIDE;
+
+	if (TryBBoxPlane(bb, pos, right_v, &partial))
+		return HIT_OUTSIDE;
+
+	if (TryBBoxPlane(bb, pos, top_v, &partial))
+		return HIT_OUTSIDE;
+
+	if (TryBBoxPlane(bb, pos, bottom_v, &partial))
+		return HIT_OUTSIDE;
+
+	return partial ? HIT_PARTIAL : HIT_INSIDE;
 }
 
 //------------------------------------------------------------------------
