@@ -33,6 +33,8 @@
 #include "v_ctx.h"
 #include "z_zone.h"
 
+#define TEST_CAMERA_CLASS  1
+
 static const float ASPECT_RATIO = 200.0f / 320.0f;
 
 camera_c::camera_c() : FOV(epi::angle_c::Ang90()), pos(), turn(), mlook()
@@ -70,10 +72,20 @@ void camera_c::FindAngles(epi::vec3_c _dir)
 
 	turn  = epi::angle_c::FromVector(_dir.x, _dir.y);
 	mlook = epi::angle_c::FromVector(len_2d, _dir.z);
+
+#ifdef TEST_CAMERA_CLASS
+	L_WriteDebug("  FindAngles: (%1.4f,%1.4f,%1.4f) --> turn %1.2f | mlook %1.2f\n",
+		_dir.x, _dir.y, _dir.z, turn.Degrees(), mlook.Degrees());
+#endif
 }
 
 void camera_c::Recalculate()
 {
+#ifdef TEST_CAMERA_CLASS
+	L_WriteDebug("  Recalculate: turn %1.1f mlook %1.1f pos (%1.3f,%1.3f,%1.3f)\n",
+		turn.Degrees(), mlook.Degrees(), pos.x, pos.y, pos.z);
+#endif
+
 	// compute slopes
 	epi::angle_c SideAng = FOV / 2;
 
@@ -85,13 +97,18 @@ void camera_c::Recalculate()
 
 	vert_slope = horiz_slope * aspect;
 
-	// compute face direction, ensuring it has length == 1
+	// compute face direction (this code ensures length == 1)
 	dir.z = mlook.Sin();
 
 	float len_2d = mlook.Cos();
 
 	dir.x = len_2d * turn.Cos();
 	dir.y = len_2d * turn.Sin();
+
+#ifdef TEST_CAMERA_CLASS
+	L_WriteDebug("    aspect %1.3f horiz %1.3f vert %1.3f dir (%1.3f,%1.3f,%1.3f)\n",
+		aspect, horiz_slope, vert_slope, dir.x, dir.y, dir.z);
+#endif
 
 	// cone information
 	float diagonal = sqrtf(horiz_slope * horiz_slope + vert_slope * vert_slope);
@@ -100,40 +117,56 @@ void camera_c::Recalculate()
 	cone_tan = diagonal / Z_NEAR;
 
 	// plane vectors...
-	epi::vec2_c tmp_A(-Z_NEAR, 0);
-	tmp_A.Rotate(mlook);
+	left_v  = epi::vec3_c(-Z_NEAR,  horiz_slope, 0);
+	right_v = epi::vec3_c(-Z_NEAR, -horiz_slope, 0);
 
-	left_v  = epi::vec3_c(tmp_A.x,  horiz_slope, tmp_A.y);
-	right_v = epi::vec3_c(tmp_A.x, -horiz_slope, tmp_A.y);
+	top_v    = epi::vec3_c(-vert_slope, 0,  Z_NEAR);
+	bottom_v = epi::vec3_c(-vert_slope, 0, -Z_NEAR);
 
-	epi::vec2_c tmp_B(-vert_slope, Z_NEAR);
-	tmp_B.Rotate(mlook);
+#ifdef TEST_CAMERA_CLASS
+	L_WriteDebug("    cone_diagonal %1.3f cone_cos %1.3f cone_tan %1.3f\n",
+		diagonal, cone_cos, cone_tan);
 
-	top_v = epi::vec3_c(tmp_B.x, 0, tmp_B.y);
-
-	epi::vec2_c tmp_C(-vert_slope, -Z_NEAR);
-	tmp_C.Rotate(mlook);
-
-	bottom_v = epi::vec3_c(tmp_C.x, 0, tmp_C.y);
+	L_WriteDebug("  Raw vectors: L=(%1.3f,%1.3f,%1.3f) R=(%1.3f,%1.3f,%1.3f)\n",
+		left_v.x, left_v.y, left_v.z, right_v.x, right_v.y, right_v.z);
+	L_WriteDebug("               T=(%1.3f,%1.3f,%1.3f) B=(%1.3f,%1.3f,%1.3f)\n",
+		top_v.x, top_v.y, top_v.z, bottom_v.x, bottom_v.y, bottom_v.z);
+#endif
 
 	AdjustPlane(&left_v);
 	AdjustPlane(&right_v);
 	AdjustPlane(&top_v);
 	AdjustPlane(&bottom_v);
+
+#ifdef TEST_CAMERA_CLASS
+	L_WriteDebug("  Final vectors: L=(%1.3f,%1.3f,%1.3f) R=(%1.3f,%1.3f,%1.3f)\n",
+		left_v.x, left_v.y, left_v.z, right_v.x, right_v.y, right_v.z);
+	L_WriteDebug("                 T=(%1.3f,%1.3f,%1.3f) B=(%1.3f,%1.3f,%1.3f)\n",
+		top_v.x, top_v.y, top_v.z, bottom_v.x, bottom_v.y, bottom_v.z);
+	
+	L_WriteDebug("\n");
+#endif
 }
 
 void camera_c::AdjustPlane(epi::vec3_c *v)
 {
-	// rotate by the camera's turn angle, then scale the vector
-	// to be unit length.
+	// initial vector will be relative to the camera looking
+	// due east (no rotation or mlook).  First we apply mlook,
+	// then the camera's turn angle, and lastly scale the
+	// vector to be unit length.
 
-	epi::vec2_c base(v->x, v->y);
-	base.Rotate(turn);
-	
-	v->x = base.x;
-	v->y = base.y;
+	epi::vec2_c temp(v->x, v->z);
+	temp.Rotate(mlook);
 
-	*v /= v->Length();
+	v->z = temp.y;
+
+	temp.y = v->y;
+	temp.Rotate(turn);
+
+	v->x = temp.x;
+	v->y = temp.y;
+
+	v->MakeUnit();
 }
 
 void camera_c::LoadGLMatrices(bool translate) const
@@ -215,10 +248,120 @@ int camera_c::TestBBox(const epi::bbox3_c *bb) const
 
 #ifdef TEST_CAMERA_CLASS
 
-void Test_CameraClass(void)
+static void Test_Camera_Recalc(void)
 {
-// !!! FIXME
+	// generate bounding spheres and bboxes
+	float BR = 10;
+	float SR = BR * sqrtf(3.0f);
 
+	epi::vec3_c Sph1(-150, 50, 20);
+	epi::vec3_c Sph2(0,    50, 20);
+	epi::vec3_c Sph3(50,   50, 20);
+
+	epi::vec3_c Adj(BR, BR, BR);
+
+	epi::bbox3_c Box1(Sph1 - Adj, Sph1 + Adj);
+	epi::bbox3_c Box2(Sph2 - Adj, Sph2 + Adj);
+	epi::bbox3_c Box3(Sph3 - Adj, Sph3 + Adj);
+
+	L_WriteDebug("\n---CAMERA-RECALC-TEST-------------------------------\n\n");
+
+	L_WriteDebug("Standard constructor...\n");
+
+	camera_c cam;
+
+	for (int mlook_idx = 0; mlook_idx < 3; mlook_idx++)
+	{
+		epi::angle_c m((mlook_idx == 0) ? 0 : (mlook_idx == 1) ? 45 : -45);
+
+		for (int turn_idx = 0; turn_idx < 8; turn_idx++)
+		{
+			epi::angle_c t(turn_idx * 45);
+
+			L_WriteDebug("Setting angles to: turn %1.3f | mlook %1.3f\n",
+				t.Degrees(), m.Degrees());
+
+			cam.SetDir(t, m);
+
+			int hs = cam.TestSphere(Sph1, SR);
+			int hb = cam.TestBBox(&Box1);
+
+			L_WriteDebug("  Sphere1: %c  Box1: %c\n",
+				(hs == camera_c::HIT_OUTSIDE) ? 'O' :
+				(hs == camera_c::HIT_INSIDE)  ? 'I' : 'P',
+				(hb == camera_c::HIT_OUTSIDE) ? 'O' :
+				(hb == camera_c::HIT_INSIDE)  ? 'I' : 'P');
+
+			hs = cam.TestSphere(Sph2, SR);
+			hb = cam.TestBBox(&Box2);
+
+			L_WriteDebug("  Sphere2: %c  Box2: %c\n",
+				(hs == camera_c::HIT_OUTSIDE) ? 'O' :
+				(hs == camera_c::HIT_INSIDE)  ? 'I' : 'P',
+				(hb == camera_c::HIT_OUTSIDE) ? 'O' :
+				(hb == camera_c::HIT_INSIDE)  ? 'I' : 'P');
+
+			hs = cam.TestSphere(Sph3, SR);
+			hb = cam.TestBBox(&Box3);
+
+			L_WriteDebug("  Sphere3: %c  Box3: %c\n",
+				(hs == camera_c::HIT_OUTSIDE) ? 'O' :
+				(hs == camera_c::HIT_INSIDE)  ? 'I' : 'P',
+				(hb == camera_c::HIT_OUTSIDE) ? 'O' :
+				(hb == camera_c::HIT_INSIDE)  ? 'I' : 'P');
+
+			L_WriteDebug("\n");
+		}
+	}
+
+	L_WriteDebug("-------------------------------------------------\n\n");
+}
+
+static void Test_Camera_FromDir(void)
+{
+	L_WriteDebug("\n---CAMERA-FROMDIR-TEST------------------------------\n\n");
+
+	L_WriteDebug("Standard constructor...\n");
+
+	camera_c cam;
+
+	epi::vec3_c new_dir;
+	
+	new_dir = epi::vec3_c(123, 234, 0);
+	L_WriteDebug("Setting dir to (%1.1f,%1.1f,%1.1f)\n", new_dir.x, new_dir.y, new_dir.z);
+	cam.SetDir(new_dir);
+
+	new_dir = epi::vec3_c(-123, 56, 234);
+	L_WriteDebug("Setting dir to (%1.1f,%1.1f,%1.1f)\n", new_dir.x, new_dir.y, new_dir.z);
+	cam.SetDir(new_dir);
+
+	new_dir = epi::vec3_c(45, -68, -89);
+	L_WriteDebug("Setting dir to (%1.1f,%1.1f,%1.1f)\n", new_dir.x, new_dir.y, new_dir.z);
+	cam.SetDir(new_dir);
+
+	new_dir = epi::vec3_c(-45, 0, -89);
+	L_WriteDebug("Setting dir to (%1.1f,%1.1f,%1.1f)\n", new_dir.x, new_dir.y, new_dir.z);
+	cam.SetDir(new_dir);
+
+	new_dir = epi::vec3_c(0, 2, 1);
+	L_WriteDebug("Setting dir to (%1.1f,%1.1f,%1.1f)\n", new_dir.x, new_dir.y, new_dir.z);
+	cam.SetDir(new_dir);
+
+	new_dir = epi::vec3_c(0, 0, 3);
+	L_WriteDebug("Setting dir to (%1.1f,%1.1f,%1.1f)\n", new_dir.x, new_dir.y, new_dir.z);
+	cam.SetDir(new_dir);
+
+	new_dir = epi::vec3_c(0, 0, -5);
+	L_WriteDebug("Setting dir to (%1.1f,%1.1f,%1.1f)\n", new_dir.x, new_dir.y, new_dir.z);
+	cam.SetDir(new_dir);
+
+	L_WriteDebug("-------------------------------------------------\n\n");
+}
+
+void Test_Camera(void)
+{
+	Test_Camera_Recalc();
+	Test_Camera_FromDir();
 }
 
 #endif // TEST_CAMERA_CLASS
