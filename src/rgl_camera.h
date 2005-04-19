@@ -82,21 +82,23 @@ public:
 	enum
 	{
 		HIT_OUTSIDE = 0,  // fully outside the cone/frustum
-		HIT_PARTIAL,      // intersects the edge of the cone/frustum
 		HIT_INSIDE,       // fully inside the cone/frustum
+		HIT_PARTIAL,      // intersects the edge of the cone/frustum
+		HIT_SURROUND,     // the sphere/bbox surrounds the camera
 	};
 
 	int TestSphere(epi::vec3_c mid, float R) const;
-	// perform two tests: firstly that the sphere is behind the near
-	// plane -- return HIT_OUTSIDE if true.  Then test the sphere
-	// against the view cone, and return a HIT_XXX value.
-	// HIT_PARTIAL is returned when the sphere surrounds the camera.
+	// firstly the sphere is checked to be behind the near plane,
+	// returning HIT_OUTSIDE immediately if true.  If the sphere
+	// surrounds the camera, HIT_SURROUND is returned.  Otherwise
+	// the sphere is tested against the view cone, and returns either
+	// HIT_OUTSIDE or HIT_PARTIAL.  (It is not useful to return
+	// HIT_INSIDE because the cone is larger than the view frustum).
 
 	int TestBBox(const epi::bbox3_c *bb) const;
 	// perform a bounding box test against the sides of the view
 	// frustum, returning one of the HIT_XXX values.  This test is
-	// a lot slower than TestSphere(), which should be used first.
-	// HIT_PARTIAL is returned when the bbox surrounds the camera.
+	// slower than TestSphere(), which should be used first.
 
 private:
 	inline bool TryBBoxPlane(const epi::bbox3_c *bb,
