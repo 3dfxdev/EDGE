@@ -33,7 +33,7 @@
 #include "v_ctx.h"
 #include "z_zone.h"
 
-#define TEST_CAMERA_CLASS  1
+/* #define TEST_CAMERA_CLASS 1 */
 
 static const float ASPECT_RATIO = 200.0f / 320.0f;
 
@@ -116,12 +116,12 @@ void camera_c::Recalculate()
 	cone_cos = Z_NEAR / sqrtf(Z_NEAR * Z_NEAR + diagonal * diagonal);
 	cone_tan = diagonal / Z_NEAR;
 
-	// plane vectors...
-	left_v  = epi::vec3_c(-Z_NEAR,  horiz_slope, 0);
-	right_v = epi::vec3_c(-Z_NEAR, -horiz_slope, 0);
+	// plane vectors... (must face inwards)
+	left_v  = epi::vec3_c(Z_NEAR, -horiz_slope, 0);
+	right_v = epi::vec3_c(Z_NEAR,  horiz_slope, 0);
 
-	top_v    = epi::vec3_c(-vert_slope, 0,  Z_NEAR);
-	bottom_v = epi::vec3_c(-vert_slope, 0, -Z_NEAR);
+	top_v    = epi::vec3_c(vert_slope, 0, -Z_NEAR);
+	bottom_v = epi::vec3_c(vert_slope, 0,  Z_NEAR);
 
 #ifdef TEST_CAMERA_CLASS
 	L_WriteDebug("    cone_diagonal %1.3f cone_cos %1.3f cone_tan %1.3f\n",
@@ -192,7 +192,7 @@ int camera_c::TestSphere(epi::vec3_c mid, float R) const
 	epi::vec3_c relat(mid - pos);
 	
 	if (relat * relat <= R * R)
-		return HIT_PARTIAL;
+		return HIT_SURROUND;
 
 	// second step: check if completely behind the near plane
 	float along_axis = relat * dir;
@@ -201,16 +201,15 @@ int camera_c::TestSphere(epi::vec3_c mid, float R) const
 		return HIT_OUTSIDE;
 	
 	// third step: check sphere against the cone
-	float perp_sphr = sqrtf(relat * relat - along_axis * along_axis);
-	float perp_cone = along_axis * cone_tan;
+	float perp_sphr2 = relat * relat - along_axis * along_axis;
+	float perp_cone  = along_axis * cone_tan + R / cone_cos;
 
-	float dist = (perp_sphr - perp_cone) * cone_cos;
+	// NOTE: not useful to return HIT_INSIDE (when dist <= -R) since
+	//       the cone is larger than the view frustum, hence leads to
+	//       false positives.
 
-	if (dist >= R)
+	if (perp_sphr2 >= perp_cone * perp_cone)
 		return HIT_OUTSIDE;
-
-	if (dist <= -R)
-		return HIT_INSIDE;
 
 	return HIT_PARTIAL;
 }
@@ -219,7 +218,7 @@ int camera_c::TestBBox(const epi::bbox3_c *bb) const
 {
 	// first step: check for bbox surrounding camera
 	if (bb->Contains(pos + dir))
-		return HIT_PARTIAL;
+		return HIT_SURROUND;
 
 	// second step: check bbox against each frustum plane
 	bool partial = false;
@@ -264,6 +263,10 @@ static void Test_Camera_Recalc(void)
 	epi::bbox3_c Box2(Sph2 - Adj, Sph2 + Adj);
 	epi::bbox3_c Box3(Sph3 - Adj, Sph3 + Adj);
 
+//	L_WriteDebug("Box1 (%1.0f,%1.0f,%1.0f) .. (%1.0f,%1.0f,%1.0f)\n",
+//		Box1.lo.x, Box1.lo.y, Box1.lo.z,
+//		Box1.hi.x, Box1.hi.y, Box1.hi.z);
+
 	L_WriteDebug("\n---CAMERA-RECALC-TEST-------------------------------\n\n");
 
 	L_WriteDebug("Standard constructor...\n");
@@ -287,8 +290,7 @@ static void Test_Camera_Recalc(void)
 			int hb = cam.TestBBox(&Box1);
 
 			L_WriteDebug("  Sphere1: %c  Box1: %c\n",
-				(hs == camera_c::HIT_OUTSIDE) ? 'O' :
-				(hs == camera_c::HIT_INSIDE)  ? 'I' : 'P',
+				(hs == camera_c::HIT_OUTSIDE) ? 'O' : 'P',
 				(hb == camera_c::HIT_OUTSIDE) ? 'O' :
 				(hb == camera_c::HIT_INSIDE)  ? 'I' : 'P');
 
@@ -296,8 +298,7 @@ static void Test_Camera_Recalc(void)
 			hb = cam.TestBBox(&Box2);
 
 			L_WriteDebug("  Sphere2: %c  Box2: %c\n",
-				(hs == camera_c::HIT_OUTSIDE) ? 'O' :
-				(hs == camera_c::HIT_INSIDE)  ? 'I' : 'P',
+				(hs == camera_c::HIT_OUTSIDE) ? 'O' : 'P',
 				(hb == camera_c::HIT_OUTSIDE) ? 'O' :
 				(hb == camera_c::HIT_INSIDE)  ? 'I' : 'P');
 
@@ -305,8 +306,7 @@ static void Test_Camera_Recalc(void)
 			hb = cam.TestBBox(&Box3);
 
 			L_WriteDebug("  Sphere3: %c  Box3: %c\n",
-				(hs == camera_c::HIT_OUTSIDE) ? 'O' :
-				(hs == camera_c::HIT_INSIDE)  ? 'I' : 'P',
+				(hs == camera_c::HIT_OUTSIDE) ? 'O' : 'P',
 				(hb == camera_c::HIT_OUTSIDE) ? 'O' :
 				(hb == camera_c::HIT_INSIDE)  ? 'I' : 'P');
 
