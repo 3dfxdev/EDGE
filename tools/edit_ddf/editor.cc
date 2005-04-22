@@ -26,7 +26,7 @@
 #include "defs.h"
 
 
-#define FLOWOVER_STYLE(ch)  ((ch) == 'S' || (ch) == 'T' || (ch) == 'E')
+#define FLOWOVER_STYLE(ch)  ((ch) == 'S' || (ch) == 'T' || (ch) == 'I')
 
 
 void style_unfinished_cb(int, void *);
@@ -98,48 +98,48 @@ int W_Editor::handle(int event)
 
 Fl_Text_Display::Style_Table_Entry W_Editor::table_dark[W_Editor::TABLE_SIZE] =
 {
-	{ FL_WHITE,      FL_COURIER,        14, 0 }, // A
+	{ FL_WHITE,      FL_COURIER,        14, 0 }, // A - Average stuff
 	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // B - Backslash \X
 	{ FL_BLUE,       FL_COURIER,        14, 0 }, // C - Comments //
 	{ FL_MAGENTA,    FL_COURIER,        14, 0 }, // D - Directives #
-	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // E - Entries [ ]
+	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // E - ERRORS
 	{ FL_WHITE,      FL_COURIER_BOLD,   14, 0 }, // F
 	{ FL_WHITE,      FL_COURIER_BOLD,   14, 0 }, // G
 	{ FL_WHITE,      FL_COURIER_BOLD,   14, 0 }, // H
-	{ FL_RED,        FL_COURIER,        14, 0 }, // I - Illegal
+	{ FL_RED,        FL_COURIER,        14, 0 }, // I - Items [ ]
 	{ FL_WHITE,      FL_COURIER,        14, 0 }, // J 
 	{ FL_WHITE,      FL_COURIER,        14, 0 }, // K - Keyword
 	{ FL_WHITE,      FL_COURIER,        14, 0 }, // L 
 	{ FL_WHITE,      FL_COURIER,        14, 0 }, // M 
 	{ FL_YELLOW,     FL_COURIER,        14, 0 }, // N - Numbers
 	{ FL_WHITE,      FL_COURIER,        14, 0 }, // O 
-	{ FL_WHITE,      FL_COURIER,        14, 0 }, // P - Plain
+	{ FL_WHITE,      FL_COURIER,        14, 0 }, // P - Parentheses ( )
 	{ FL_GREEN,      FL_COURIER,        14, 0 }, // Q
-	{ FL_WHITE,      FL_COURIER_BOLD,   14, 0 }, // R - paRentheses ( )
+	{ FL_WHITE,      FL_COURIER_BOLD,   14, 0 }, // R
 	{ FL_GREEN,      FL_COURIER,        14, 0 }, // S - Strings ""
 	{ FL_MAGENTA,    FL_COURIER_BOLD,   14, 0 }  // T - Tags < >
 };
 
 Fl_Text_Display::Style_Table_Entry W_Editor::table_light[W_Editor::TABLE_SIZE] =
 {
-	{ FL_BLACK,      FL_COURIER,        14, 0 }, // A
+	{ FL_BLACK,      FL_COURIER,        14, 0 }, // A - Average stuff
 	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // B - Backslash \X
 	{ FL_BLUE,       FL_COURIER,        14, 0 }, // C - Comments //
 	{ FL_MAGENTA,    FL_COURIER,        14, 0 }, // D - Directives #
-	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // E - Entries [ ]
+	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // E - ERRORS
 	{ FL_BLACK,      FL_COURIER_BOLD,   14, 0 }, // F
 	{ FL_BLACK,      FL_COURIER_BOLD,   14, 0 }, // G
 	{ FL_BLACK,      FL_COURIER_BOLD,   14, 0 }, // H
-	{ FL_RED,        FL_COURIER,        14, 0 }, // I - Illegal
+	{ FL_RED,        FL_COURIER,        14, 0 }, // I - Items [ ]
 	{ FL_BLACK,      FL_COURIER,        14, 0 }, // J 
 	{ FL_BLACK,      FL_COURIER,        14, 0 }, // K - Keyword
 	{ FL_BLACK,      FL_COURIER,        14, 0 }, // L 
 	{ FL_BLACK,      FL_COURIER,        14, 0 }, // M 
 	{ FL_BLACK,      FL_COURIER,        14, 0 }, // N - Numbers
 	{ FL_BLACK,      FL_COURIER,        14, 0 }, // O 
-	{ FL_BLACK,      FL_COURIER,        14, 0 }, // P - Plain
+	{ FL_BLACK,      FL_COURIER,        14, 0 }, // P - Parentheses ( )
 	{ FL_GREEN,      FL_COURIER,        14, 0 }, // Q 
-	{ FL_BLACK,      FL_COURIER_BOLD,   14, 0 }, // R - paRentheses ( )
+	{ FL_BLACK,      FL_COURIER_BOLD,   14, 0 }, // R
 	{ FL_GREEN,      FL_COURIER,        14, 0 }, // S - Strings ""
 	{ FL_MAGENTA,    FL_COURIER_BOLD,   14, 0 }  // T - Tags < >
 };
@@ -183,7 +183,7 @@ void style_update_cb(int pos,		// I - Position of update
 	{
 		// Insert characters into the style buffer...
 		char *style = new char[nInserted + 1];
-		memset(style, 'P', nInserted);
+		memset(style, 'A', nInserted);
 		style[nInserted] = '\0';
 
 		WE->stylebuf->replace(pos, pos + nDeleted, style);
@@ -249,7 +249,7 @@ WE->stylebuf->character(end-2), WE->stylebuf->character(end-1), WE->stylebuf->ch
 void W_Editor::ParseStyleRange(int start, int end)
 {
 	// get style of previous line (from the '\n' character)
-	char context = 'P';
+	char context = 'A';
 
 	if (start > 0)
 		context = stylebuf->character(start - 1);
@@ -318,7 +318,7 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 				len = ParseTag(text, t_end, style);
 				break;
 
-			case 'E':
+			case 'I':
 				len = ParseEntry(text, t_end, style);
 				break;
 			
@@ -337,7 +337,7 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 		if (*text == '\n')
 		{
 			text++;
-			*style++ = 'P';
+			*style++ = 'A';
 			at_col0 = true;
 			continue;
 		}
@@ -401,7 +401,7 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 		else if (*text == '(')  // Brackets
 		{
 			text++;
-			*style++ = 'R';
+			*style++ = 'P';
 
 			int len = ParseBrackets(text, t_end, style);
 			text += len;
@@ -431,7 +431,7 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 		}
 
 		text++;
-		*style++ = 'P';
+		*style++ = 'A';
 		at_col0 = false;
 	}
 }
@@ -557,12 +557,12 @@ int W_Editor::ParseBrackets(const char *text, const char *t_end, char *style)
 		if (*text == ')')
 		{
 			text++;
-			*style++ = 'R';
+			*style++ = 'P';
 			break;
 		}
 
 		text++;
-		*style++ = 'R';
+		*style++ = 'P';
 	}
 
 	return (text - t_orig);
