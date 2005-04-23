@@ -19,6 +19,7 @@ LIBS=-lm $(FLTK_LIBS)
 
 OBJS=./main.o     \
      ./asserts.o  \
+     ./config.o   \
      ./dialog.o   \
      ./editor.o   \
      ./lists.o    \
