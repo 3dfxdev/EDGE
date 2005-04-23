@@ -90,6 +90,7 @@
 #include "structs.h"
 #include "util.h"
 #include "wad.h"
+#include "config.h"
 #include "dialog.h"
 #include "menu.h"
 #include "editor.h"
