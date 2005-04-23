@@ -61,6 +61,9 @@ void UtilFree(void *data);
 // compare two strings case insensitively.
 int UtilStrCaseCmp(const char *A, const char *B);
 
+// compare two strings like the DDF parser does
+int UtilStrCmpDDF(const char *A, const char *B);
+
 // round a positive value up to the nearest power of two.
 int UtilRoundPOW2(int x);
 
