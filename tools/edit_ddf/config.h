@@ -24,7 +24,7 @@ class word_group_c
 private:
 	static const int MAX_WORDS = 5;
 
-	const char * words[MAX_KEYWORDS];
+	const char * words[MAX_WORDS];
 	int num_words;
 
 	// void *extra_data;
@@ -36,13 +36,15 @@ public:
 	word_group_c(const word_group_c& other);
 	~word_group_c();
 
-	int Size() const;
+	int Size() const { return num_words; }
 	// return the size of this group
 
 	const char *Get(int index) const;
 	// retrieve a given word from the group
 
 	/* ---- modifying methods ---- */
+
+	void Clear();
 
 	void Append(const char *W);
 	// append the given word onto the end of this group
@@ -52,7 +54,7 @@ class keyword_box_c
 {
 public:
 	enum
-	P
+	{
 		TP_General = 0,  
 
 		TP_Files,
@@ -86,13 +88,14 @@ public:
 	keyword_box_c(int _type, const char *_name);
 	~keyword_box_c();
 
-	bool MatchName(const char *other) const;
+	bool MatchType(int req_type) const { return req_type == type; }
+	bool MatchName(const char *req_name) const;
 	// check if this keyword box matches the given name.
 
 	int Size() const;
 	// return the size of the keyword box.
 
-	keyword_set_c *Get(int index) const;
+	word_group_c *Get(int index) const;
 	// retrieve a given word-group from the keyword box.
 
 	bool HasKeyword(const char *W);
@@ -108,37 +111,44 @@ public:
 	// build a new word-group in the keyword box.
 };
 
-class kbox_container_c
+class kb_container_c
 {
 private:
-	static const int MAX_DEFBOX = 200;
+	static const int MAX_BOXES = 200;
 
-	keyword_box_c *boxes[MAX_DEFBOX];
+	keyword_box_c *boxes[MAX_BOXES];
 	int num_boxes;
 
 public:
-	kbox_container_c();
-	~kbox_container_c();
+	kb_container_c();
+	~kb_container_c();
 
-	int Size() const;
+	int Size() const { return num_boxes; }
 	// return the size of the container.
 
 	keyword_box_c *Get(int index) const;
 	// retrieve a given keyword box from the container.
 
-	keyword_box_c *FindByName(const char *name) const;
-	// find the keyword box with a matching name.
-	
+	keyword_box_c *Find(int type, const char *name);
+	// find the keyword box with a matching name.  Returns
+	// NULL when not found.
+
 	/* ---- modifying methods ---- */
 
+	void Clear();
+	// remove existing contents.
+
 	void Append(keyword_box_c *B);
-	// add a new keyword box into the container
+	// add a new keyword box into the container.  This pointer is merely
+	// copied (not the whole keyword box), and will be freed by the
+	// destructor of this class.
 
 	bool ReadFile(const char *filename);
 	bool WriteFile(const char *filename);
 	// functions to read and write from/to the filesystem.
 	// Return false on error (e.g. file not found).  The
-	// ReadFile() method clears any previous data.
+	// ReadFile() method merely appends the new boxes
+	// (even if the types/names match).
 };
 
 #endif /* __EDITDDF_CONFIG_H__ */
