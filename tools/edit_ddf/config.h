@@ -19,85 +19,120 @@
 #ifndef __EDITDDF_CONFIG_H__
 #define __EDITDDF_CONFIG_H__
 
-class keyword_set_c
+class word_group_c
 {
 private:
-	static const int MAX_KEYWORDS = 5;
+	static const int MAX_WORDS = 5;
 
-	const char ** keywords;
-	int num_keywords;
+	const char * words[MAX_KEYWORDS];
+	int num_words;
+
+	// void *extra_data;
 
 public:
-	keyword_set_c();
-	keyword_set_c(const char *K);
-	keyword_set_c(const char *K1, const char *K2);
-	~keyword_set_c();
-
-	void Append(const char *K);
-	// append the given keyword onto the end of this set
+	word_group_c();
+	word_group_c(const char *W);
+	word_group_c(const char *W1, const char *W2);
+	word_group_c(const word_group_c& other);
+	~word_group_c();
 
 	int Size() const;
-	// return the size of this set
+	// return the size of this group
 
 	const char *Get(int index) const;
-	// retrieve a given keyword from the set
+	// retrieve a given word from the group
+
+	/* ---- modifying methods ---- */
+
+	void Append(const char *W);
+	// append the given word onto the end of this group
 };
 
-class defin_box_c
+class keyword_box_c
 {
+public:
+	enum
+	P
+		TP_General = 0,  
+
+		TP_Files,
+		TP_Keywords,
+		TP_Commands,
+		TP_States,
+		TP_Actions
+	};
+
 private:
+	int type;
+
+	const char *name;
+
 	class nd_c
 	{
 	public:
 		nd_c *next;
-		const char *line;
+		word_group_c group;
 
-		nd_c(keyword_set_c *K);
+		nd_c();
 		~nd_c();
 	};
 
 	nd_c *head;
+	nd_c *tail;
 
-	// FIXME: binary lookup for keywords
+	// FIXME: fast lookup for keywords
 
 public:
-	defin_box_c();
-	~defin_box_c();
+	keyword_box_c(int _type, const char *_name);
+	~keyword_box_c();
 
-	void Append(keyword_set_c *K);
-	// add a new keyword_set into the definition box
+	bool MatchName(const char *other) const;
+	// check if this keyword box matches the given name.
 
 	int Size() const;
-	// return the size of the definition box
+	// return the size of the keyword box.
 
 	keyword_set_c *Get(int index) const;
-	// retrieve a given keyword_set from the definition box
+	// retrieve a given word-group from the keyword box.
 
-	bool HasKeyword(const char *K);
-	// check if the given keyword exists.
+	bool HasKeyword(const char *W);
+	// check if the given keyword exists.  Only checks the first
+	// element of each word_group_c.
+
+	// FIXME: auto-complete API
+
+	/* ---- modifying methods ---- */
+
+	void BeginNew(const char *W);
+	void AddToCurrent(const char *W);
+	// build a new word-group in the keyword box.
 };
 
-class defbox_container_c
+class kbox_container_c
 {
 private:
 	static const int MAX_DEFBOX = 200;
 
-	defin_box_c *boxes;
-
+	keyword_box_c *boxes[MAX_DEFBOX];
 	int num_boxes;
 
 public:
-	defbox_container_c();
-	~defbox_container_c();
-
-	void Append(defin_box_c *B);
-	// add a new definition box into the container
+	kbox_container_c();
+	~kbox_container_c();
 
 	int Size() const;
-	// return the size of the container
+	// return the size of the container.
 
-	defin_box_c *Get(int index) const;
-	// retrieve a given definition box from the container
+	keyword_box_c *Get(int index) const;
+	// retrieve a given keyword box from the container.
+
+	keyword_box_c *FindByName(const char *name) const;
+	// find the keyword box with a matching name.
+	
+	/* ---- modifying methods ---- */
+
+	void Append(keyword_box_c *B);
+	// add a new keyword box into the container
 
 	bool ReadFile(const char *filename);
 	bool WriteFile(const char *filename);
