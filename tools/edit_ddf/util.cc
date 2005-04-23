@@ -115,8 +115,29 @@ int UtilStrCaseCmp(const char *A, const char *B)
 			return (toupper(*A) - toupper(*B));
 	}
 
-	// strings are equal
-	return 0;
+	return 0; // strings are equal
+}
+
+int UtilStrCmpDDF(const char *A, const char *B)
+{
+	for (; *A || *B; A++, B++)
+	{
+		if (*A == ' ' || *A == '_')
+		{
+			A++; continue;
+		}
+
+		if (*B == ' ' || *B == '_')
+		{
+			B++; continue;
+		}
+
+		// this test also catches end-of-string conditions
+		if (toupper(*A) != toupper(*B))
+			return toupper(*A) - toupper(*B);
+	}
+
+	return 0; // strings are equal
 }
 
 //
