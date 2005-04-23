@@ -17,6 +17,21 @@
 //------------------------------------------------------------------------
 
 #include "defs.h"
+
+//
+// Grammar of the config file:
+//
+// FILE  = BOX { BOX }.
+// BOX   = box-type name "{" GROUP { "," GROUP } [","] "}".
+// GROUP = WORD { ":" (WORD | NUMBER | STRING) }.
+//
+// Lexical structures:
+//
+// COMMENT = "//" until the end of line.
+// WORD    = letter { letter | digit | "_" }.
+// NUMBER  = digit  { digit | "." }.
+// STRING  = '"' { str-char } '"'.
+//
  
 word_group_c::word_group_c() : num_words(0)
 { }
@@ -186,8 +201,8 @@ void keyword_box_c::WriteToFile(FILE *fp)
 		case TP_Actions:  fprintf(fp, "ACTIONS "); break;
 
 		default:
-			AssertFail("Illegal keyword-box type %d\n", type);
-			return;
+			AssertFail("Illegal keyword-box type %d", type);
+			return; /* NOT REACHED */
 	};
 
 	fprintf(fp, "{");
@@ -251,6 +266,139 @@ void kb_container_c::Append(keyword_box_c *B)
 	boxes[num_boxes++] = B;
 }
 
+const char * kb_container_c::ParseToken(FILE *fp)
+{
+	static char buffer[256];
+	int buf_len = 0;
+
+	enum { PAR_Unknown, PAR_Word, PAR_Number, PAR_String, PAR_Comment };
+
+	int state = PAR_Unknown;
+
+	for (;;)
+	{
+		if (buf_len+4 > (int)sizeof(buffer))
+		{
+			PrintWarn("Config file: extremely long token found!\n");
+			break;
+		}
+
+		int c = fgetc(fp);
+
+		if (c == EOF || ferror(fp))
+			break;
+
+		if (state == PAR_Unknown)
+		{
+			// skip whitespace
+			if (isspace(c) || ! isprint(c))
+				continue;
+
+			if (isalpha(c))
+			{
+				buffer[buf_len++] = TOK_WORD;
+				buffer[buf_len++] = c;
+
+				state = PAR_Word;
+				continue;
+			}
+			else if (isdigit(c) || c == '-' || c == '+')
+			{
+				buffer[buf_len++] = TOK_NUMBER;
+				buffer[buf_len++] = c;
+
+				state = PAR_Word;
+				continue;
+			}
+			else if (c == '"')
+			{
+				buffer[buf_len++] = TOK_STRING;
+
+				state = PAR_String;
+				continue;
+			}
+			else if (c == '#')
+			{
+				state = PAR_Comment;
+				continue;
+			}
+
+			// found a symbol
+			buffer[buf_len++] = TOK_SYMBOL;
+			buffer[buf_len++] = c;
+			break;
+		}
+		else if (state == PAR_Comment)
+		{
+			if (c == '\n')
+				state = PAR_Unknown;
+
+			continue;
+		}
+		else if (state == PAR_String)
+		{
+			if (c != '"' || c != '\n')
+			{
+				buffer[buf_len++] = c;
+				continue;
+			}
+
+			// prevent unterminated string warning
+			if (c != '\n')
+				state = PAR_Unknown;
+
+			// found end of string
+			break;
+		}
+		else if (state == PAR_Word)
+		{
+			if (isalnum(c) || c == '_')
+			{
+				buffer[buf_len++] = c;
+				continue;
+			}
+
+			// found end of identifier
+			ungetc(c, fp);
+			break;
+		}
+		else if (state == PAR_Number)
+		{
+			if (isdigit(c) || c == '.')
+			{
+				buffer[buf_len++] = c;
+				continue;
+			}
+
+			// found end of number
+			ungetc(c, fp);
+			break;
+		}
+		else
+		{
+			AssertFail("Illegal parse state %d", state);
+			return NULL; /* NOT REACHED */
+		}
+	}
+
+	if (state == PAR_String)
+		PrintWarn("Config file: unterminated string!\n");
+
+	// special handling for '-' and '+' symbols
+	if (buf_len == 2 && buffer[0] == TOK_NUMBER)
+		buffer[0] = TOK_SYMBOL;
+
+	buffer[buf_len] = 0;
+
+	if (buffer[0] == TOK_STRING)
+		return buffer;
+
+	if (buf_len >= 2) 
+		return buffer;
+
+	return NULL;  // EOF
+}
+
 //
 // Config Reading
 //
@@ -260,14 +408,21 @@ bool kb_container_c::ReadFile(const char *filename)
 
 	if (! fp)
 	{
-		PrintWarn("Unable to open redd file: %s\n", strerror(errno));
+		PrintWarn("Unable to open read file: %s\n", strerror(errno));
 		return false;
 	}
 
 	// clear previous stuff
 	Clear();
 
-	// !!!! FIXME:
+	for (;;)
+	{
+		const char *token = ParseToken(fp);
+		if (! token)
+			break;
+
+		@@@
+	}
 
 	fclose(fp);
 	return true;

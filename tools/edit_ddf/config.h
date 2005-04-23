@@ -155,6 +155,18 @@ public:
 	// Return false on error (e.g. file not found).  The
 	// ReadFile() method merely appends the new boxes
 	// (even if the types/names match).
+
+private:
+	enum
+	{
+		TOK_SYMBOL = 1, TOK_WORD, TOK_NUMBER, TOK_STRING
+	};
+
+	const char * ParseToken(FILE *fp);
+	// read a single token from the file, and return it.  The
+	// returned pointer is into a static buffer.  The first
+	// character is one of the TOK_XXX values.  Returns NULL
+	// upon EOF.
 };
 
 #endif /* __EDITDDF_CONFIG_H__ */
