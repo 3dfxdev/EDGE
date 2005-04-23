@@ -68,6 +68,17 @@ void word_group_c::Append(const char *W)
 	words[num_words++] = strdup(W);
 }
 
+void word_group_c::WriteToFile(FILE *fp)
+{
+	for (int i = 0; i < Size(); i++)
+	{
+		fprintf(fp, "%s", words[i]);
+
+		if (i+1 < Size())
+			fprintf(fp, ":");
+	}
+}
+
 //------------------------------------------------------------------------
 
 keyword_box_c::keyword_box_c(int _type, const char *_name) :
@@ -128,7 +139,17 @@ word_group_c *keyword_box_c::Get(int index) const
 
 bool keyword_box_c::HasKeyword(const char *W)
 {
-	return false; // !!!! FIXME
+	for (nd_c *cur = head; cur; cur = cur->next)
+	{
+		SYS_ASSERT(cur->group.Size() > 0);
+
+		const char *cur_word = cur->group.Get(0);
+
+		if (UtilStrCmpDDF(cur_word, W) == 0)
+			return true;
+	}
+
+	return false; // not found
 }
 
 void keyword_box_c::BeginNew(const char *W)
@@ -153,6 +174,37 @@ void keyword_box_c::AddToCurrent(const char *W)
 	tail->group.Append(W);
 }
 
+void keyword_box_c::WriteToFile(FILE *fp)
+{
+	switch (type)
+	{
+		case TP_General:  fprintf(fp, "GENERAL "); break;
+		case TP_Files:    fprintf(fp, "FILES ");   break;
+		case TP_Keywords: fprintf(fp, "KEYWORDS "); break;
+		case TP_Commands: fprintf(fp, "COMMANDS "); break;
+		case TP_States:   fprintf(fp, "STATES ");  break;
+		case TP_Actions:  fprintf(fp, "ACTIONS "); break;
+
+		default:
+			AssertFail("Illegal keyword-box type %d\n", type);
+			return;
+	};
+
+	fprintf(fp, "{");
+
+	for (nd_c *cur = head; cur; cur = cur->next)
+	{
+		cur->group.WriteToFile(fp);
+
+		if (cur->next)
+			fprintf(fp, ",");
+
+		fprintf(fp, "\n");
+	}
+
+	fprintf(fp, "}\n\n");
+}
+
 //------------------------------------------------------------------------
 
 kb_container_c::kb_container_c() : num_boxes(0)
@@ -173,7 +225,15 @@ keyword_box_c *kb_container_c::Get(int index) const
 
 keyword_box_c *kb_container_c::Find(int type, const char *name)
 {
-	return NULL;  // !!!! FIXME
+	for (int i = 0; i < Size(); i++)
+	{
+		keyword_box_c *box = Get(i);
+
+		if (box->MatchType(type) && box->MatchName(name))
+			return box;
+	}
+
+	return NULL;  // not found
 }
 
 void kb_container_c::Clear()
@@ -200,7 +260,7 @@ bool kb_container_c::ReadFile(const char *filename)
 
 	if (! fp)
 	{
-		PrintWarn("Unable to open path file: %s\n", strerror(errno));
+		PrintWarn("Unable to open redd file: %s\n", strerror(errno));
 		return false;
 	}
 
@@ -210,11 +270,27 @@ bool kb_container_c::ReadFile(const char *filename)
 	// !!!! FIXME:
 
 	fclose(fp);
-
 	return true;
 }
 
-bool kb_container_c::WriteFile(const char *filename)
+bool kb_container_c::WriteFile(const char *filename, const char *comment)
 {
-	return false; // !!!! FIXME
+	FILE *fp = fopen(filename, "w");
+
+	if (! fp)
+	{
+		PrintWarn("Unable to open write file: %s\n", strerror(errno));
+		return false;
+	}
+
+	if (comment)
+		fprintf(fp, "// %s\n\n", comment);
+
+	for (int i = 0; i < Size(); i++)
+	{
+		Get(i)->WriteToFile(fp);
+	}
+
+	fclose(fp);
+	return true;
 }

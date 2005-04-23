@@ -48,6 +48,9 @@ public:
 
 	void Append(const char *W);
 	// append the given word onto the end of this group
+
+	void WriteToFile(FILE *fp);
+	// write this word group into the given file.
 };
 
 class keyword_box_c
@@ -109,6 +112,9 @@ public:
 	void BeginNew(const char *W);
 	void AddToCurrent(const char *W);
 	// build a new word-group in the keyword box.
+
+	void WriteToFile(FILE *fp);
+	// write this keyword box into the given file.
 };
 
 class kb_container_c
@@ -144,7 +150,7 @@ public:
 	// destructor of this class.
 
 	bool ReadFile(const char *filename);
-	bool WriteFile(const char *filename);
+	bool WriteFile(const char *filename, const char *comment = NULL);
 	// functions to read and write from/to the filesystem.
 	// Return false on error (e.g. file not found).  The
 	// ReadFile() method merely appends the new boxes
