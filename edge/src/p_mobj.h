@@ -242,7 +242,7 @@ typedef enum
 	// this projectile has been checked for tracing if set.
 	EF_FIRSTCHECK = 64,
 
-	EF_UNUSED_128 = 128,
+	EF_UNUSED_128 = 128,   // was: NOTRACE
 
 	// double the chance of object using range attack
 	EF_TRIGGERHAPPY = 256,
@@ -257,7 +257,7 @@ typedef enum
 	// more recent pain.
 	EF_NOGRUDGE = 1024,
 
-	EF_UNUSED_2048 = 2048,
+	EF_UNUSED_2048 = 2048,   // was: DUMMYMOBJ
 
 	// Archvile cannot resurrect this monster
 	EF_NORESURRECT = 4096,
@@ -305,8 +305,7 @@ typedef enum
 	// Missile can tunnel through enemies.  -AJA- 2000/10/23
 	EF_TUNNEL = 0x4000000,
 
-	// Marks thing as being a dynamic light.
-	EF_DLIGHT = 0x8000000,
+	EF_UNUSED_8000000 = 0x8000000,   // was: DLIGHT
 
 	// Thing has been gibbed.
 	EF_GIBBED = 0x10000000,
