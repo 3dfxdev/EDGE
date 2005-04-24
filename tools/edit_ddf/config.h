@@ -91,6 +91,10 @@ public:
 	keyword_box_c(int _type, const char *_name);
 	~keyword_box_c();
 
+	int GetType() const { return type; }
+	const char *GetName() const { return name; }
+	const char *GetTypeName() const;
+
 	bool MatchType(int req_type) const { return req_type == type; }
 	bool MatchName(const char *req_name) const;
 	// check if this keyword box matches the given name.
@@ -159,6 +163,11 @@ public:
 	// (even if the types/names match).
 
 private:
+	// data needed for good error messages
+	int parse_line;
+	keyword_box_c *parse_box;
+	const char *parse_file;
+
 	enum
 	{
 		TOK_SYMBOL = 1, TOK_WORD, TOK_NUMBER, TOK_STRING
@@ -178,6 +187,11 @@ private:
 	keyword_box_c *ParseBOX(FILE *fp);
 	// parse a whole box structure from the file.
 	// Returns NULL upon EOF.
+
+	void Error(const char *str, ...);
+	// display a fatal error from parsing, showing line number etc.
+
+	static char error_buf[1024];
 };
 
 #endif /* __EDITDDF_CONFIG_H__ */

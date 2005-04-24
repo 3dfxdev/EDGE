@@ -22,7 +22,7 @@
 // Grammar of the config file:
 //
 // FILE  = BOX { BOX }.
-// BOX   = box-type name "{" GROUP { "," GROUP } [","] "}".
+// BOX   = section WORD "{" GROUP { "," GROUP } [","] "}".
 // GROUP = WORD { ":" (WORD | NUMBER | STRING) }.
 //
 // Lexical structures:
@@ -87,7 +87,11 @@ void word_group_c::WriteToFile(FILE *fp)
 {
 	for (int i = 0; i < Size(); i++)
 	{
+		if (i > 0) fputc('"', fp);
+
 		fprintf(fp, "%s", words[i]);
+
+		if (i > 0) fputc('"', fp);
 
 		if (i+1 < Size())
 			fprintf(fp, ":");
@@ -97,7 +101,7 @@ void word_group_c::WriteToFile(FILE *fp)
 //------------------------------------------------------------------------
 
 keyword_box_c::keyword_box_c(int _type, const char *_name) :
-	type(type), head(NULL), tail(NULL)
+	type(_type), head(NULL), tail(NULL)
 {
 	name = strdup(_name);
 }
@@ -120,6 +124,23 @@ keyword_box_c::nd_c::nd_c() : next(NULL), group()
 
 keyword_box_c::nd_c::~nd_c()
 { }
+
+const char *keyword_box_c::GetTypeName() const
+{
+	switch (type)
+	{
+		case TP_General:  return "GENERAL";
+		case TP_Files:    return "FILES";
+		case TP_Keywords: return "KEYWORDS";
+		case TP_Commands: return "COMMANDS";
+		case TP_States:   return "STATES";
+		case TP_Actions:  return "ACTIONS";
+
+		default:
+			AssertFail("Illegal keyword-box type %d", type);
+			return ""; /* NOT REACHED */
+	};
+}
 
 bool keyword_box_c::MatchName(const char *req_name) const
 {
@@ -212,24 +233,13 @@ void keyword_box_c::AddToCurrent(const char *W)
 
 void keyword_box_c::WriteToFile(FILE *fp)
 {
-	switch (type)
-	{
-		case TP_General:  fprintf(fp, "GENERAL "); break;
-		case TP_Files:    fprintf(fp, "FILES ");   break;
-		case TP_Keywords: fprintf(fp, "KEYWORDS "); break;
-		case TP_Commands: fprintf(fp, "COMMANDS "); break;
-		case TP_States:   fprintf(fp, "STATES ");  break;
-		case TP_Actions:  fprintf(fp, "ACTIONS "); break;
-
-		default:
-			AssertFail("Illegal keyword-box type %d", type);
-			return; /* NOT REACHED */
-	};
-
-	fprintf(fp, "{");
+	fprintf(fp, "%s %s\n", GetTypeName(), GetName());
+	fprintf(fp, "{\n");
 
 	for (nd_c *cur = head; cur; cur = cur->next)
 	{
+		fprintf(fp, "    ");
+
 		cur->group.WriteToFile(fp);
 
 		if (cur->next)
@@ -314,6 +324,8 @@ bool kb_container_c::WriteFile(const char *filename, const char *comment)
 //  Config Reading
 //------------------------------------------------------------------------
 
+char kb_container_c::error_buf[1024];
+
 const char * kb_container_c::ParseToken(FILE *fp)
 {
 	static char buffer[256];
@@ -327,7 +339,7 @@ const char * kb_container_c::ParseToken(FILE *fp)
 	{
 		if (buf_len+4 > (int)sizeof(buffer))
 		{
-			FatalError("Config file: extremely long token found!\n");
+			Error("Extremely long token found!\n");
 			break;
 		}
 
@@ -340,7 +352,12 @@ const char * kb_container_c::ParseToken(FILE *fp)
 		{
 			// skip whitespace
 			if (isspace(c) || ! isprint(c))
+			{
+				if (c == '\n')
+					parse_line++;
+				
 				continue;
+			}
 
 			if (isalpha(c))
 			{
@@ -379,20 +396,23 @@ const char * kb_container_c::ParseToken(FILE *fp)
 		else if (state == PAR_Comment)
 		{
 			if (c == '\n')
+			{
 				state = PAR_Unknown;
+				parse_line++;
+		    }
 
 			continue;
 		}
 		else if (state == PAR_String)
 		{
-			if (c != '"' || c != '\n')
+			if (c != '"' && c != '\n')
 			{
 				buffer[buf_len++] = c;
 				continue;
 			}
 
-			// prevent unterminated string warning
-			if (c != '\n')
+			// prevent unterminated string error
+			if (c == '"')
 				state = PAR_Unknown;
 
 			// found end of string
@@ -430,7 +450,10 @@ const char * kb_container_c::ParseToken(FILE *fp)
 	}
 
 	if (state == PAR_String)
-		FatalError("Config file: unterminated string!\n");
+	{
+		parse_line--;
+		Error("Unterminated string!\n");
+	}
 
 	// special handling for '-' and '+' symbols
 	if (buf_len == 2 && buffer[0] == TOK_NUMBER)
@@ -455,7 +478,7 @@ const char *kb_container_c::ParseGROUP(FILE *fp, keyword_box_c *box)
 		return tok;
 
 	if (tok[0] != TOK_WORD)
-		FatalError("Bad word group (must start with a word, got '%s')\n", tok+1);
+		Error("Bad word group (expected a word, got: %s)\n", tok+1);
 
 	box->BeginNew(tok+1);
 
@@ -467,15 +490,15 @@ const char *kb_container_c::ParseGROUP(FILE *fp, keyword_box_c *box)
 			break;
 
 		if (tok[0] != TOK_SYMBOL || tok[1] != ':')
-			FatalError("Missing ':' for word group (got '%s' instead)\n", tok+1);
+			Error("Missing ':' for word group (got: %s)\n", tok+1);
 
 		tok = ParseToken(fp);
 		
 		if (! tok || (tok[0] == TOK_SYMBOL && (tok[1] == ',' || tok[1] == '}')))
-			FatalError("Bad word group (missing word after ':')\n");
+			Error("Bad word group (missing word after ':')\n");
 
 		if (tok[0] == TOK_SYMBOL && tok[1] == ':')
-			FatalError("Bad word group (two ':' in a row)\n");
+			Error("Bad word group (two ':' in a row)\n");
 
 		box->AddToCurrent(tok+1);
 	}
@@ -485,32 +508,34 @@ const char *kb_container_c::ParseGROUP(FILE *fp, keyword_box_c *box)
 
 keyword_box_c *kb_container_c::ParseBOX(FILE *fp)
 {
-	const char *section = ParseToken(fp);
-
-	if (! section)
-		return NULL;
-
-	if (section[0] != TOK_WORD)
-		FatalError("Unexpected token '%s' (needed section type)\n", section+1);
-	
-	int sec_type;
-
-	if (! keyword_box_c::MatchSection(section+1, &sec_type))
-		FatalError("Bad section type '%s'\n", section+1);
-
-	const char *name = ParseToken(fp);
-
-	if (! name)
-		FatalError("Missing name for %s section\n", section+1);
-	else if (name[0] != TOK_WORD)
-		FatalError("Bad name '%s' in %s section\n", name+1, section+1);
-
-	keyword_box_c *box = new keyword_box_c(sec_type, name+1);
-
 	const char *tok = ParseToken(fp);
 
+	if (! tok)
+		return NULL;
+
+	if (tok[0] != TOK_WORD)
+		Error("Missing section type (got: %s)\n", tok+1);
+
+	int sec_type;
+
+	if (! keyword_box_c::MatchSection(tok+1, &sec_type))
+		Error("Bad section type: %s\n", tok+1);
+
+	tok = ParseToken(fp);
+
+	if (! tok)
+		Error("Missing section name\n");
+	else if (tok[0] != TOK_WORD)
+		Error("Bad section name: %s\n", tok+1);
+
+	keyword_box_c *box = new keyword_box_c(sec_type, tok+1);
+
+	parse_box = box;  // error information
+
+	tok = ParseToken(fp);
+
 	if (! tok || tok[0] != TOK_SYMBOL || tok[1] != '{')
-		FatalError("Missing { for %s section\n", section+1);
+		Error("Missing '{' for section\n");
 	
 	for (;;)
 	{
@@ -520,8 +545,10 @@ keyword_box_c *kb_container_c::ParseBOX(FILE *fp)
 			break;
 
 		if (tok[0] != TOK_SYMBOL || tok[1] != ',')
-			FatalError("Bad symbol %c in %s section\n", tok[1], section+1);
+			Error("Bad word group (expected a comma, got: %s)\n", tok[1]);
 	}
+
+	parse_box = NULL;
 
 	return box;
 }
@@ -539,6 +566,11 @@ bool kb_container_c::ReadFile(const char *filename)
 	// clear previous stuff
 	Clear();
 
+	// setup information for error messages
+	parse_line = 1;
+	parse_box = NULL;
+	parse_file = filename;
+
 	for (;;)
 	{
 		keyword_box_c *box = ParseBOX(fp);
@@ -550,6 +582,28 @@ bool kb_container_c::ReadFile(const char *filename)
 	}
 
 	fclose(fp);
+
+	parse_box  = NULL;
+	parse_file = NULL;
+
 	return true;
 }
 
+void kb_container_c::Error(const char *str, ...)
+{
+	va_list args;
+
+	va_start(args, str);
+	vsprintf(error_buf, str, args);
+	va_end(args);
+
+	SYS_ASSERT(parse_file);
+
+	if (parse_box)
+		FatalError("ERROR: %sLine: %d, section: %s %s, file: %s\n",
+			error_buf, parse_line, parse_box->GetTypeName(),
+			parse_box->GetName(), parse_file);
+	else
+		FatalError("ERROR: %sLine: %d, file: %s\n",
+			error_buf, parse_line, parse_file);
+}
