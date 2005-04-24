@@ -1741,7 +1741,6 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 	// handle dynamic lights
 	if (type->dlight.type != DLITE_None)
 	{
-		mobj->extendedflags |= EF_DLIGHT;
 		mobj->dlight_qty = mobj->dlight_target = (float)type->dlight.intensity;
 	}
 
