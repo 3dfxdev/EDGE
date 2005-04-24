@@ -107,6 +107,8 @@ public:
 
 	// FIXME: auto-complete API
 
+	static bool MatchSection(const char *word, int *sec_type);
+
 	/* ---- modifying methods ---- */
 
 	void BeginNew(const char *W);
@@ -167,6 +169,15 @@ private:
 	// returned pointer is into a static buffer.  The first
 	// character is one of the TOK_XXX values.  Returns NULL
 	// upon EOF.
+
+	const char *kb_container_c::ParseGROUP(FILE *fp, keyword_box_c *box);
+	// parse a single word-group and add it to the box.
+	// Returns the token which terminated the group
+	// (NULL for EOF).
+
+	keyword_box_c *ParseBOX(FILE *fp);
+	// parse a whole box structure from the file.
+	// Returns NULL upon EOF.
 };
 
 #endif /* __EDITDDF_CONFIG_H__ */

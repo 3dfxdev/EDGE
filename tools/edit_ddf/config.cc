@@ -167,6 +167,27 @@ bool keyword_box_c::HasKeyword(const char *W)
 	return false; // not found
 }
 
+bool keyword_box_c::MatchSection(const char *word, int *sec_type)
+{
+	if (UtilStrCaseCmp(word, "GENERAL") == 0)
+		*sec_type = TP_General;
+	else if (UtilStrCaseCmp(word, "FILES") == 0)
+		*sec_type = TP_Files;
+	else if (UtilStrCaseCmp(word, "KEYWORDS") == 0)
+		*sec_type = TP_Keywords;
+	else if (UtilStrCaseCmp(word, "COMMANDS") == 0)
+		*sec_type = TP_Commands;
+	else if (UtilStrCaseCmp(word, "STATES") == 0)
+		*sec_type = TP_States;
+	else if (UtilStrCaseCmp(word, "ACTIONS") == 0)
+		*sec_type = TP_Actions;
+	else
+		return false;
+	
+	return true;
+}
+
+
 void keyword_box_c::BeginNew(const char *W)
 {
 	nd_c *cur = new nd_c();
@@ -261,10 +282,37 @@ void kb_container_c::Clear()
 
 void kb_container_c::Append(keyword_box_c *B)
 {
-	SYS_ASSERT(num_boxes < MAX_BOXES);
+	if (num_boxes >= MAX_BOXES)
+		FatalError("Too many sections in config file!\n");
 
 	boxes[num_boxes++] = B;
 }
+
+bool kb_container_c::WriteFile(const char *filename, const char *comment)
+{
+	FILE *fp = fopen(filename, "w");
+
+	if (! fp)
+	{
+		PrintWarn("Unable to open write file: %s\n", strerror(errno));
+		return false;
+	}
+
+	if (comment)
+		fprintf(fp, "# %s\n\n", comment);
+
+	for (int i = 0; i < Size(); i++)
+	{
+		Get(i)->WriteToFile(fp);
+	}
+
+	fclose(fp);
+	return true;
+}
+
+//------------------------------------------------------------------------
+//  Config Reading
+//------------------------------------------------------------------------
 
 const char * kb_container_c::ParseToken(FILE *fp)
 {
@@ -279,7 +327,7 @@ const char * kb_container_c::ParseToken(FILE *fp)
 	{
 		if (buf_len+4 > (int)sizeof(buffer))
 		{
-			PrintWarn("Config file: extremely long token found!\n");
+			FatalError("Config file: extremely long token found!\n");
 			break;
 		}
 
@@ -382,7 +430,7 @@ const char * kb_container_c::ParseToken(FILE *fp)
 	}
 
 	if (state == PAR_String)
-		PrintWarn("Config file: unterminated string!\n");
+		FatalError("Config file: unterminated string!\n");
 
 	// special handling for '-' and '+' symbols
 	if (buf_len == 2 && buffer[0] == TOK_NUMBER)
@@ -399,9 +447,85 @@ const char * kb_container_c::ParseToken(FILE *fp)
 	return NULL;  // EOF
 }
 
-//
-// Config Reading
-//
+const char *kb_container_c::ParseGROUP(FILE *fp, keyword_box_c *box)
+{
+	const char *tok = ParseToken(fp);
+
+	if (! tok || (tok[0] == TOK_SYMBOL && (tok[1] == ',' || tok[1] == '}')))
+		return tok;
+
+	if (tok[0] != TOK_WORD)
+		FatalError("Bad word group (must start with a word, got '%s')\n", tok+1);
+
+	box->BeginNew(tok+1);
+
+	for (;;)
+	{
+		tok = ParseToken(fp);
+
+		if (! tok || (tok[0] == TOK_SYMBOL && (tok[1] == ',' || tok[1] == '}')))
+			break;
+
+		if (tok[0] != TOK_SYMBOL || tok[1] != ':')
+			FatalError("Missing ':' for word group (got '%s' instead)\n", tok+1);
+
+		tok = ParseToken(fp);
+		
+		if (! tok || (tok[0] == TOK_SYMBOL && (tok[1] == ',' || tok[1] == '}')))
+			FatalError("Bad word group (missing word after ':')\n");
+
+		if (tok[0] == TOK_SYMBOL && tok[1] == ':')
+			FatalError("Bad word group (two ':' in a row)\n");
+
+		box->AddToCurrent(tok+1);
+	}
+
+	return tok;
+}
+
+keyword_box_c *kb_container_c::ParseBOX(FILE *fp)
+{
+	const char *section = ParseToken(fp);
+
+	if (! section)
+		return NULL;
+
+	if (section[0] != TOK_WORD)
+		FatalError("Unexpected token '%s' (needed section type)\n", section+1);
+	
+	int sec_type;
+
+	if (! keyword_box_c::MatchSection(section+1, &sec_type))
+		FatalError("Bad section type '%s'\n", section+1);
+
+	const char *name = ParseToken(fp);
+
+	if (! name)
+		FatalError("Missing name for %s section\n", section+1);
+	else if (name[0] != TOK_WORD)
+		FatalError("Bad name '%s' in %s section\n", name+1, section+1);
+
+	keyword_box_c *box = new keyword_box_c(sec_type, name+1);
+
+	const char *tok = ParseToken(fp);
+
+	if (! tok || tok[0] != TOK_SYMBOL || tok[1] != '{')
+		FatalError("Missing { for %s section\n", section+1);
+	
+	for (;;)
+	{
+		tok = ParseGROUP(fp, box);
+
+		if (! tok || (tok[0] == TOK_SYMBOL && tok[1] == '}'))
+			break;
+
+		if (tok[0] != TOK_SYMBOL || tok[1] != ',')
+			FatalError("Bad symbol %c in %s section\n", tok[1], section+1);
+	}
+
+	return box;
+}
+
 bool kb_container_c::ReadFile(const char *filename)
 {
 	FILE *fp = fopen(filename, "r");
@@ -417,35 +541,15 @@ bool kb_container_c::ReadFile(const char *filename)
 
 	for (;;)
 	{
-		const char *token = ParseToken(fp);
-		if (! token)
+		keyword_box_c *box = ParseBOX(fp);
+
+		if (! box)
 			break;
 
-		@@@
+		Append(box);
 	}
 
 	fclose(fp);
 	return true;
 }
 
-bool kb_container_c::WriteFile(const char *filename, const char *comment)
-{
-	FILE *fp = fopen(filename, "w");
-
-	if (! fp)
-	{
-		PrintWarn("Unable to open write file: %s\n", strerror(errno));
-		return false;
-	}
-
-	if (comment)
-		fprintf(fp, "// %s\n\n", comment);
-
-	for (int i = 0; i < Size(); i++)
-	{
-		Get(i)->WriteToFile(fp);
-	}
-
-	fclose(fp);
-	return true;
-}
