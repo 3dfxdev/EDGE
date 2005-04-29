@@ -113,6 +113,10 @@ int main(int argc, char **argv)
 		// set defaults, also initializes the nodebuildxxxx stuff
 		MainSetDefaults();
 
+		kb_container_c config;
+
+		config.ReadFile("DDF_def.cfg");
+
 #if 0
 		const char *filename = "data/doom2.wad";
 
