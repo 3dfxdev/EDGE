@@ -19,15 +19,30 @@
 #ifndef __EDITDDF_CONFIG_H__
 #define __EDITDDF_CONFIG_H__
 
+class keyword_box_c;
+class kb_container_c;
+
+
 class word_group_c
 {
+public:
+	enum
+	{
+		SUB_None = 0,
+		SUB_Enum,
+		SUB_Flags,
+		SUB_Commands,
+		SUB_Ref
+	};
+
 private:
 	static const int MAX_WORDS = 5;
 
 	const char * words[MAX_WORDS];
 	int num_words;
 
-	// void *extra_data;
+	keyword_box_c *sub;
+	int sub_type;
 
 public:
 	word_group_c();
@@ -42,9 +57,17 @@ public:
 	const char *Get(int index) const;
 	// retrieve a given word from the group
 
+	keyword_box_c *GetSub() const { return sub; }
+	int GetSubType() const { return sub_type; }
+
 	/* ---- modifying methods ---- */
 
 	void Clear();
+
+	void SetSub(keyword_box_c *box, int type)
+	{
+		sub = box; sub_type = type;
+	}
 
 	void Append(const char *W);
 	// append the given word onto the end of this group
@@ -85,6 +108,9 @@ private:
 	nd_c *head;
 	nd_c *tail;
 
+	// used for thing/weapons to find state and action keyword boxes.
+	keyword_box_c *state_link;
+
 	// FIXME: fast lookup for keywords
 
 public:
@@ -94,6 +120,8 @@ public:
 	int GetType() const { return type; }
 	const char *GetName() const { return name; }
 	const char *GetTypeName() const;
+
+	keyword_box_c *GetStateLink() const { return state_link; }
 
 	bool MatchType(int req_type) const { return req_type == type; }
 	bool MatchName(const char *req_name) const;
@@ -105,9 +133,9 @@ public:
 	word_group_c *Get(int index) const;
 	// retrieve a given word-group from the keyword box.
 
-	bool HasKeyword(const char *W);
+	word_group_c *Find(const char *W);
 	// check if the given keyword exists.  Only checks the first
-	// element of each word_group_c.
+	// element of each word_group_c.  Returns NULL if not found.
 
 	// FIXME: auto-complete API
 
@@ -119,8 +147,16 @@ public:
 	void AddToCurrent(const char *W);
 	// build a new word-group in the keyword box.
 
+	void SetStateLink(keyword_box_c *box) { state_link = box; }
+
 	void WriteToFile(FILE *fp);
 	// write this keyword box into the given file.
+
+private:
+	void LinkFileSub(kb_container_c *KB, word_group_c *wg);
+	void LinkCommandSub(kb_container_c *KB, word_group_c *wg);
+	void LinkAllSubs(kb_container_c *KB);
+
 };
 
 class kb_container_c

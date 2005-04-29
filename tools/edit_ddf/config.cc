@@ -33,21 +33,22 @@
 // STRING  = '"' { str-char } '"'.
 //
  
-word_group_c::word_group_c() : num_words(0)
+word_group_c::word_group_c() : num_words(0), sub(NULL)
 { }
 
-word_group_c::word_group_c(const char *W) : num_words(0)
+word_group_c::word_group_c(const char *W) : num_words(0), sub(NULL)
 {
 	Append(W);
 }
 
-word_group_c::word_group_c(const char *W1, const char *W2) : num_words(0)
+word_group_c::word_group_c(const char *W1, const char *W2) :
+	num_words(0), sub(NULL)
 {
 	Append(W1);
 	Append(W2);
 }
 
-word_group_c::word_group_c(const word_group_c& other)
+word_group_c::word_group_c(const word_group_c& other) : sub(NULL)
 {
 	num_words = other.num_words;
 
@@ -101,7 +102,7 @@ void word_group_c::WriteToFile(FILE *fp)
 //------------------------------------------------------------------------
 
 keyword_box_c::keyword_box_c(int _type, const char *_name) :
-	type(_type), head(NULL), tail(NULL)
+	type(_type), head(NULL), tail(NULL), state_link(NULL)
 {
 	name = strdup(_name);
 }
@@ -173,7 +174,7 @@ word_group_c *keyword_box_c::Get(int index) const
 	return &cur->group;
 }
 
-bool keyword_box_c::HasKeyword(const char *W)
+word_group_c *keyword_box_c::Find(const char *W)
 {
 	for (nd_c *cur = head; cur; cur = cur->next)
 	{
@@ -182,10 +183,10 @@ bool keyword_box_c::HasKeyword(const char *W)
 		const char *cur_word = cur->group.Get(0);
 
 		if (UtilStrCmpDDF(cur_word, W) == 0)
-			return true;
+			return &cur->group;
 	}
 
-	return false; // not found
+	return NULL; // not found
 }
 
 bool keyword_box_c::MatchSection(const char *word, int *sec_type)
@@ -249,6 +250,113 @@ void keyword_box_c::WriteToFile(FILE *fp)
 	}
 
 	fprintf(fp, "}\n\n");
+}
+
+void keyword_box_c::LinkFileSub(kb_container_c *KB, word_group_c *wg)
+{
+	if (wg->Size() < 3)
+		return;
+	
+	char command_name[200];
+	char state_name[200];
+	char action_name[200];
+
+	sprintf(command_name, "%s_commands", wg->Get(1));
+	sprintf(state_name,   "%s_states",   wg->Get(1));
+	sprintf(action_name,  "%s_actions",  wg->Get(1));
+
+	keyword_box_c *command_box = KB->Find(TP_Commands, command_name);
+	if (! command_name)
+		FatalError("ERROR: Cannot find COMMAND section: %s\n", command_name);
+
+	wg->SetSub(command_box, word_group_c::SUB_Commands);
+
+	// state and action sections are optional, but if states are present
+	// then the actions must be present too.
+	keyword_box_c *state_box = KB->Find(TP_States, state_name);
+	if (! state_box)
+		return;
+
+	keyword_box_c *action_box = KB->Find(TP_Actions, action_name);
+	if (! action_name)
+		FatalError("ERROR: Cannot find ACTION section: %s\n", action_name);
+
+	// link them in, Scotty...
+	state_link = state_box;
+	state_link->state_link = action_box;
+}
+
+void keyword_box_c::LinkCommandSub(kb_container_c *KB, word_group_c *wg)
+{
+	if (wg->Size() < 3)
+		return;
+	
+	const char *type_name = wg->Get(1);
+	const char *ref_name  = wg->Get(2);
+
+	if (UtilStrCaseCmp(type_name, "ref") == 0)
+	{
+		char command_name[200];
+		sprintf(command_name, "%s_commands", ref_name);
+
+		keyword_box_c *box = KB->Find(TP_Commands, command_name);
+		if (! box)
+			FatalError("ERROR: Cannot find REF: %s\n", command_name);
+
+		wg->SetSub(box, word_group_c::SUB_Ref);
+	}
+	else if (UtilStrCaseCmp(type_name, "sub") == 0)
+	{
+		keyword_box_c *box = KB->Find(TP_Commands, ref_name);
+		if (! box)
+			FatalError("ERROR: Cannot find SUB: %s\n", ref_name);
+
+		wg->SetSub(box, word_group_c::SUB_Commands);
+	}
+	else if (UtilStrCaseCmp(type_name, "enum") == 0)
+	{
+		keyword_box_c *box = KB->Find(TP_Keywords, ref_name);
+		if (! box)
+			FatalError("ERROR: Cannot find ENUM: %s\n", ref_name);
+
+		wg->SetSub(box, word_group_c::SUB_Enum);
+	}
+	else if (UtilStrCaseCmp(type_name, "flags") == 0)
+	{
+		keyword_box_c *box = KB->Find(TP_Keywords, ref_name);
+		if (! box)
+			FatalError("ERROR: Cannot find FLAGS: %s\n", ref_name);
+
+		wg->SetSub(box, word_group_c::SUB_Flags);
+	}
+}
+
+void keyword_box_c::LinkAllSubs(kb_container_c *KB)
+{
+	for (nd_c *cur = head; cur; cur = cur->next)
+	{
+		switch (type)
+		{
+			case TP_General:
+			case TP_Keywords:
+			case TP_States:
+				// nothing to do
+				return;
+
+			case TP_Files:
+				LinkFileSub(KB, &cur->group);
+				return;
+
+			case TP_Commands:
+			case TP_Actions:
+				LinkCommandSub(KB, &cur->group);
+				return;
+
+			default:
+				AssertFail("Illegal keyword-box type %d", type);
+				return; /* NOT REACHED */
+		};
+	}
 }
 
 //------------------------------------------------------------------------
