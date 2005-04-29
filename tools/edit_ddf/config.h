@@ -232,4 +232,6 @@ private:
 	static char error_buf[1024];
 };
 
+extern kb_container_c config;
+
 #endif /* __EDITDDF_CONFIG_H__ */

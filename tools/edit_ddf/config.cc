@@ -33,6 +33,10 @@
 // STRING  = '"' { str-char } '"'.
 //
  
+kb_container_c config;
+
+//------------------------------------------------------------------------
+
 word_group_c::word_group_c() : num_words(0), sub(NULL)
 { }
 
