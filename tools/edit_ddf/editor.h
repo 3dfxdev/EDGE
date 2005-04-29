@@ -66,14 +66,15 @@ public: //!!!!!
 
 	void ParseStyleRange(int start, int end);
 
-	int ParseString(const char *text, const char *t_end, char *style);
-	int ParseUntilEOL(const char *text, const char *t_end, char *style, char context);
+	int ParseString(const char *text, const char *t_end, char *style, bool new_line);
+	int ParseDirective(const char *text, const char *t_end, char *style);
 	int ParseComment(const char *text, const char *t_end, char *style);
-	int ParseTag(const char *text, const char *t_end, char *style);
-	int ParseEntry(const char *text, const char *t_end, char *style);
-	int ParseBrackets(const char *text, const char *t_end, char *style);
+	int ParseTag(const char *text, const char *t_end, char *style, bool new_line);
+	int ParseEntry(const char *text, const char *t_end, char *style, bool new_line);
 	int ParseNumber(const char *text, const char *t_end, char *style);
 	int ParseKeyword(const char *text, const char *t_end, char *style);
+
+	void ValidateBrackets(const char *text, const char *t_end, char *style);
 };
 
 

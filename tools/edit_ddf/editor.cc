@@ -311,17 +311,17 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 		switch (context)
 		{
 			case 'S':
-				len = ParseString(text, t_end, style);
+				len = ParseString(text, t_end, style, true);
 				break;
 
 			case 'T':
-				len = ParseTag(text, t_end, style);
+				len = ParseTag(text, t_end, style, true);
 				break;
 
 			case 'I':
-				len = ParseEntry(text, t_end, style);
+				len = ParseEntry(text, t_end, style, true);
 				break;
-			
+
 			default:
 				AssertFail("FLOWOVER_STYLE '%c' is not handled.\n", context);
 				break;  /* NOT REACHED */
@@ -332,6 +332,9 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 		at_col0 = false;
 	}
 
+	const char *begin_line  = text;
+	      char *begin_style = style;
+
 	while (text < t_end)
 	{
 		if (*text == '\n')
@@ -339,87 +342,53 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 			text++;
 			*style++ = 'A';
 			at_col0 = true;
-			continue;
+
+			ValidateBrackets(begin_line, text, begin_style);
+
+			begin_line  = text;
+			begin_style = style;
 		}
 		else if (*text == '\"')
 		{
-			text++;
-			*style++ = 'S';
-
-			int len = ParseString(text, t_end, style);
+			int len = ParseString(text, t_end, style, false);
 			text += len;
 			style += len;
 			at_col0 = false;
-			continue;
 		}
 		else if (at_col0 && *text == '<')  // Tags
 		{
-			text++;
-			*style++ = 'T';
-
-			int len = ParseTag(text, t_end, style);
+			int len = ParseTag(text, t_end, style, false);
 			text += len;
 			style += len;
 			at_col0 = false;
-			continue;
 		}
 		else if (at_col0 && *text == '#')  // Directives
 		{
-			text++;
-			*style++ = 'D';
-
-			int len = ParseUntilEOL(text, t_end, style, 'D');
+			int len = ParseDirective(text, t_end, style);
 			text += len;
 			style += len;
 			at_col0 = false;
-			continue;
 		}
 		else if (strncmp(text, "//", 2) == 0 && text+1 < t_end)
 		{
-			text += 2;
-			*style++ = 'C';
-			*style++ = 'C';
-
 			int len = ParseComment(text, t_end, style);
 			text += len;
 			style += len;
 			at_col0 = false;
-			continue;
 		}
-		else if (at_col0 && *text == '[')
+		else if (at_col0 && *text == '[')  // Entries
 		{
-			text++;
-			*style++ = 'E';
-
-			int len = ParseEntry(text, t_end, style);
+			int len = ParseEntry(text, t_end, style, false);
 			text += len;
 			style += len;
 			at_col0 = false;
-			continue;
 		}
-#if 0
-		else if (*text == '(')  // Brackets
-		{
-			text++;
-			*style++ = 'P';
-
-			int len = ParseBrackets(text, t_end, style);
-			text += len;
-			style += len;
-			at_col0 = false;
-			continue;
-		}
-#endif
 		else if (isdigit(*text) || (*text == '-' && text+1 < t_end && isdigit(text[1])))
 		{
-			text++;
-			*style++ = 'N';
-
 			int len = ParseNumber(text, t_end, style);
 			text += len;
 			style += len;
 			at_col0 = false;
-			continue;
 		}
 		else if (isalpha(*text) || *text == '_' || *text == '#')
 		{
@@ -427,18 +396,28 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 			text += len;
 			style += len;
 			at_col0 = false;
-			continue;
 		}
-
-		text++;
-		*style++ = 'A';
-		at_col0 = false;
+		else
+		{
+			text++;
+			*style++ = 'A';
+			at_col0 = false;
+		}
 	}
 }
 
-int W_Editor::ParseString(const char *text, const char *t_end, char *style)
+int W_Editor::ParseString(const char *text, const char *t_end, char *style,
+	bool new_line)
 {
 	const char *t_orig = text;
+
+	if (! new_line)
+	{
+		SYS_ASSERT(text[0] == '\"');
+
+		text++;
+		*style++ = 'S';
+	}
 
 	while (text < t_end)
 	{
@@ -466,18 +445,14 @@ int W_Editor::ParseString(const char *text, const char *t_end, char *style)
 	return (text - t_orig);
 }
 
-int W_Editor::ParseUntilEOL(const char *text, const char *t_end, char *style,
-	char context)
+int W_Editor::ParseDirective(const char *text, const char *t_end, char *style)
 {
 	const char *t_orig = text;
 
-	while (text < t_end)
+	while (text < t_end && *text != '\n')
 	{
-		if (*text == '\n')
-			break;
-
 		text++;
-		*style++ = context;
+		*style++ = 'D';
 	}
 
 	return (text - t_orig);
@@ -487,11 +462,8 @@ int W_Editor::ParseComment(const char *text, const char *t_end, char *style)
 {
 	const char *t_orig = text;
 
-	while (text < t_end)
+	while (text < t_end && *text != '\n')
 	{
-		if (*text == '\n')
-			break;
-
 		text++;
 		*style++ = 'C';
 	}
@@ -499,78 +471,133 @@ int W_Editor::ParseComment(const char *text, const char *t_end, char *style)
 	return (text - t_orig);
 }
 
-int W_Editor::ParseTag(const char *text, const char *t_end, char *style)
+int W_Editor::ParseTag(const char *text, const char *t_end, char *style,
+	bool new_line)
 {
 	const char *t_orig = text;
 
-	while (text < t_end)
+	if (! new_line)
 	{
-///		if (*text == '\n')
-///			break;
-
-		if (*text == '>')
-		{
-			text++;
-			*style++ = 'T';
-			break;
-		}
+		SYS_ASSERT(*text == '<');
 
 		text++;
 		*style++ = 'T';
+
+		char buffer[84];
+		int len = 0;
+
+		while (len < 80 && text+len < t_end && isalnum(text[len]))
+		{
+			buffer[len] = text[len];
+			len++;
+		}
+
+		buffer[len] = 0;
+
+		if (len > 0)
+		{
+			bool known = false;
+
+			text += len;
+
+			keyword_box_c *ddf = config.Find(keyword_box_c::TP_Files, "ddf");
+			if (ddf)
+			{
+				if (ddf->Find(buffer) != NULL)
+					known = true;
+			}
+
+			memset(style, known ? 'T' : 'E', len);
+			style += len;
+		}
+	}
+
+	while (text < t_end)
+	{
+		text++;
+		*style++ = 'T';
+
+		if (text[-1] == '>')
+			break;
 	}
 
 	return (text - t_orig);
 }
 
-int W_Editor::ParseEntry(const char *text, const char *t_end, char *style)
+int W_Editor::ParseEntry(const char *text, const char *t_end, char *style,
+	bool new_line)
 {
 	const char *t_orig = text;
 
 	while (text < t_end)
 	{
-///		if (*text == '\n')
-///			break;
-
-		if (*text == ']')
-		{
-			text++;
-			*style++ = 'E';
-			break;
-		}
-
 		text++;
 		*style++ = 'E';
+
+		if (text[-1] == ']')
+			break;
 	}
 
 	return (text - t_orig);
 }
 
-int W_Editor::ParseBrackets(const char *text, const char *t_end, char *style)
+void W_Editor::ValidateBrackets(const char *text, const char *t_end, char *style)
 {
-	const char *t_orig = text;
+	const char *origin = text;
 
-	while (text < t_end)
+	int brackets_open = 0;
+
+	// FIXME: handle strings
+
+	for (; text < t_end; text++)
 	{
-///		if (*text == '\n')
-///			break;
+		// stop if there was a syntax highlight continuing onto
+		// the next line (such as strings).
+		if (*text == '\n')
+			if (style[text - origin] != 'A')
+				break;
 
-		if (*text == ')')
+		if (*text == '(')
 		{
-			text++;
-			*style++ = 'P';
-			break;
+			brackets_open++;
 		}
-
-		text++;
-		*style++ = 'P';
+		else if (*text == ')')
+		{
+			if (brackets_open == 1)
+			{
+				// finish the last group, start new group
+				style += (text - origin);
+				origin = text;
+				brackets_open = 0;
+			}
+			else if (brackets_open == 0)
+				style[text - origin] = 'E';
+			else
+				brackets_open--;
+		}
 	}
 
-	return (text - t_orig);
+	if (brackets_open > 0)
+	{
+		for (text = origin; text < t_end; text++)
+			if (*text == '(')
+				break;
+
+		SYS_ASSERT(text < t_end);
+
+		style[text - origin] = 'E';
+	}
 }
 
 int W_Editor::ParseNumber(const char *text, const char *t_end, char *style)
 {
 	const char *t_orig = text;
+
+	if (*text == '-')
+	{
+		text++;
+		*style++ = 'N';
+	}
 
 	while (text < t_end)
 	{
