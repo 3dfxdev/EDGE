@@ -266,7 +266,7 @@ void keyword_box_c::LinkFileSub(kb_container_c *KB, word_group_c *wg)
 	sprintf(action_name,  "%s_actions",  wg->Get(1));
 
 	keyword_box_c *command_box = KB->Find(TP_Commands, command_name);
-	if (! command_name)
+	if (! command_box)
 		FatalError("ERROR: Cannot find COMMAND section: %s\n", command_name);
 
 	wg->SetSub(command_box, word_group_c::SUB_Commands);
@@ -278,7 +278,7 @@ void keyword_box_c::LinkFileSub(kb_container_c *KB, word_group_c *wg)
 		return;
 
 	keyword_box_c *action_box = KB->Find(TP_Actions, action_name);
-	if (! action_name)
+	if (! action_box)
 		FatalError("ERROR: Cannot find ACTION section: %s\n", action_name);
 
 	// link them in, Scotty...
@@ -341,20 +341,20 @@ void keyword_box_c::LinkAllSubs(kb_container_c *KB)
 			case TP_Keywords:
 			case TP_States:
 				// nothing to do
-				return;
+				break;
 
 			case TP_Files:
 				LinkFileSub(KB, &cur->group);
-				return;
+				break;
 
 			case TP_Commands:
 			case TP_Actions:
 				LinkCommandSub(KB, &cur->group);
-				return;
+				break;
 
 			default:
 				AssertFail("Illegal keyword-box type %d", type);
-				return; /* NOT REACHED */
+				break; /* NOT REACHED */
 		};
 	}
 }
@@ -694,7 +694,18 @@ bool kb_container_c::ReadFile(const char *filename)
 	parse_box  = NULL;
 	parse_file = NULL;
 
+	// form linkages between keyword boxes
+	LinkAllBoxes();
+
 	return true;
+}
+
+void kb_container_c::LinkAllBoxes()
+{
+	for (int i = 0; i < num_boxes; i++)
+	{
+		boxes[i]->LinkAllSubs(this);
+	}
 }
 
 void kb_container_c::Error(const char *str, ...)

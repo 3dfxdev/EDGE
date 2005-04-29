@@ -152,11 +152,11 @@ public:
 	void WriteToFile(FILE *fp);
 	// write this keyword box into the given file.
 
+	void LinkAllSubs(kb_container_c *KB);
+
 private:
 	void LinkFileSub(kb_container_c *KB, word_group_c *wg);
 	void LinkCommandSub(kb_container_c *KB, word_group_c *wg);
-	void LinkAllSubs(kb_container_c *KB);
-
 };
 
 class kb_container_c
@@ -223,6 +223,8 @@ private:
 	keyword_box_c *ParseBOX(FILE *fp);
 	// parse a whole box structure from the file.
 	// Returns NULL upon EOF.
+
+	void LinkAllBoxes();
 
 	void Error(const char *str, ...);
 	// display a fatal error from parsing, showing line number etc.
