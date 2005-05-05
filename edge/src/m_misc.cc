@@ -47,6 +47,7 @@
 #include "w_wad.h"
 #include "r_main.h"
 #include "r2_defs.h"
+#include "rgl_defs.h"
 #include "s_sound.h"
 #include "v_ctx.h"
 #include "v_res.h"
@@ -177,6 +178,9 @@ static default_t defaults[] =
 	{CFGT_Boolean, "var_hogcpu",    &var_hogcpu,    1},
 	{CFGT_Boolean, "var_fadepower", &var_fadepower, 1},
 	{CFGT_Boolean, "var_smoothmap", &var_smoothmap, 1},
+
+	{CFGT_Int, "var_nearclip",  &var_nearclip,  4},
+	{CFGT_Int, "var_farclip",   &var_farclip,   32000},
 
 	// -------------------- KEYS --------------------
 
@@ -519,6 +523,19 @@ void M_InitMiscConVars(void)
 
 	M_CheckBooleanParm("smoothmap", &var_smoothmap, false);
 	CON_CreateCVarBool("smoothmap", cf_normal, &var_smoothmap);
+
+	const char *s;
+
+	s = M_GetParm("-nearclip");
+	if (s)
+		var_nearclip = atoi(s);
+
+	s = M_GetParm("-farclip");
+	if (s)
+		var_farclip = atoi(s);
+
+	CON_CreateCVarInt("nearclip", cf_normal, &var_nearclip);
+	CON_CreateCVarInt("farclip",  cf_normal, &var_farclip);
 }
 
 //

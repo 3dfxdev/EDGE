@@ -91,8 +91,8 @@ extern float ren_red_mul;
 extern float ren_grn_mul;
 extern float ren_blu_mul;
 
-#define Z_NEAR  1.0f
-#define Z_FAR   200000.0f
+extern int var_nearclip;
+extern int var_farclip;
 
 
 // FIXME: temp hack
