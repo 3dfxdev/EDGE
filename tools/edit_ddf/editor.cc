@@ -57,7 +57,7 @@ void W_Editor::SetScheme(int kind, int font_h)
 {
 	textfont(FL_COURIER);
 
-	if (kind == SCHEME_Dark)
+	if (true) // kind == SCHEME_Dark)
 	{
 		color(FL_BLACK /* background */, FL_WHITE /* selection */);
 		cursor_color(FL_WHITE);
@@ -71,10 +71,11 @@ void W_Editor::SetScheme(int kind, int font_h)
 	for (int i = 0; i < TABLE_SIZE; i++)
 	{
 		table_dark [i].size = font_h;
-		table_light[i].size = font_h;
+		// table_light[i].size = font_h;
 	}
 
-	highlight_data(stylebuf, (kind == SCHEME_Dark) ? table_dark : table_light,
+	highlight_data(stylebuf, table_dark,
+		// (kind == SCHEME_Dark) ? table_dark : table_dark,
 		TABLE_SIZE, 'Z', style_unfinished_cb, this);
 
 	cur_scheme = kind;
@@ -98,28 +99,35 @@ int W_Editor::handle(int event)
 
 Fl_Text_Display::Style_Table_Entry W_Editor::table_dark[W_Editor::TABLE_SIZE] =
 {
-	{ FL_WHITE,      FL_COURIER,        14, 0 }, // A - Average stuff
-	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // B - Backslash \X
+	{ FL_WHITE,      FL_COURIER,        14, 0 }, // A - All else
+	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // B
 	{ FL_BLUE,       FL_COURIER,        14, 0 }, // C - Comments //
 	{ FL_MAGENTA,    FL_COURIER,        14, 0 }, // D - Directives #
 	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // E - ERRORS
-	{ FL_WHITE,      FL_COURIER_BOLD,   14, 0 }, // F
+	{ FL_RED,        FL_COURIER_BOLD,   14, 0 }, // F - Froobars
 	{ FL_WHITE,      FL_COURIER_BOLD,   14, 0 }, // G
 	{ FL_WHITE,      FL_COURIER_BOLD,   14, 0 }, // H
-	{ FL_RED,        FL_COURIER,        14, 0 }, // I - Items [ ]
-	{ FL_WHITE,      FL_COURIER,        14, 0 }, // J 
-	{ FL_WHITE,      FL_COURIER,        14, 0 }, // K - Keyword
-	{ FL_WHITE,      FL_COURIER,        14, 0 }, // L 
-	{ FL_WHITE,      FL_COURIER,        14, 0 }, // M 
+	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // I - Items [ ]
+	{ FL_WHITE,      FL_COURIER,        14, 0 }, // J
+	{ FL_DARK_YELLOW,      FL_COURIER,        14, 0 }, // K - Keyword
+	{ FL_WHITE,      FL_COURIER,        14, 0 }, // L
+	{ FL_WHITE,      FL_COURIER,        14, 0 }, // M
 	{ FL_YELLOW,     FL_COURIER,        14, 0 }, // N - Numbers
-	{ FL_WHITE,      FL_COURIER,        14, 0 }, // O 
-	{ FL_WHITE,      FL_COURIER,        14, 0 }, // P - Parentheses ( )
-	{ FL_GREEN,      FL_COURIER,        14, 0 }, // Q
+	{ FL_WHITE,      FL_COURIER,        14, 0 }, // O
+	{ FL_WHITE,      FL_COURIER,        14, 0 }, // P
+	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // Q - Quoted char \X
 	{ FL_WHITE,      FL_COURIER_BOLD,   14, 0 }, // R
 	{ FL_GREEN,      FL_COURIER,        14, 0 }, // S - Strings ""
-	{ FL_MAGENTA,    FL_COURIER_BOLD,   14, 0 }  // T - Tags < >
+	{ FL_MAGENTA,    FL_COURIER_BOLD,   14, 0 }, // T - Tags < >
+	{ FL_WHITE,      FL_COURIER,        14, 0 }, // U
+	{ FL_WHITE,      FL_COURIER,        14, 0 }, // V
+	{ FL_WHITE,      FL_COURIER,        14, 0 }, // W
+	{ FL_WHITE,      FL_COURIER,        14, 0 }, // X - cont'd command
+	{ FL_WHITE,      FL_COURIER,        14, 0 }, // Y - cont'd special
+	{ FL_WHITE,      FL_COURIER,        14, 0 }  // Z - cont'd states 
 };
 
+#if 0
 Fl_Text_Display::Style_Table_Entry W_Editor::table_light[W_Editor::TABLE_SIZE] =
 {
 	{ FL_BLACK,      FL_COURIER,        14, 0 }, // A - Average stuff
@@ -142,7 +150,14 @@ Fl_Text_Display::Style_Table_Entry W_Editor::table_light[W_Editor::TABLE_SIZE] =
 	{ FL_BLACK,      FL_COURIER_BOLD,   14, 0 }, // R
 	{ FL_GREEN,      FL_COURIER,        14, 0 }, // S - Strings ""
 	{ FL_MAGENTA,    FL_COURIER_BOLD,   14, 0 }  // T - Tags < >
+	{ FL_BLACK,      FL_COURIER,        14, 0 }, // U 
+	{ FL_BLACK,      FL_COURIER,        14, 0 }, // V 
+	{ FL_BLACK,      FL_COURIER,        14, 0 }, // W 
+	{ FL_BLACK,      FL_COURIER,        14, 0 }, // X 
+	{ FL_BLACK,      FL_COURIER,        14, 0 }, // Y 
+	{ FL_BLACK,      FL_COURIER,        14, 0 }  // Z 
 };
+#endif
 
 
 
@@ -287,16 +302,6 @@ bool W_Editor::Load(const char *filename)
 //---------------------------------------------------------------------------
 
 
-//
-// 'compare_keywords()' - Compare two keywords...
-//
-
-int compare_keywords(const void *a, const void *b)
-{
-	return (strcmp(*((const char **)a), *((const char **)b)));
-}
-
-
 void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 						  char context)
 {
@@ -337,13 +342,40 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 
 	while (text < t_end)
 	{
+		if (at_col0)
+		{
+			if (*text == '<')  // Tags
+			{
+				int len = ParseTag(text, t_end, style, false);
+				text += len;
+				style += len;
+				at_col0 = false;
+				continue;
+			}
+			else if (*text == '#')  // Directives
+			{
+				int len = ParseDirective(text, t_end, style);
+				text += len;
+				style += len;
+				at_col0 = false;
+				continue;
+			}
+			else if (*text == '[')  // Entries
+			{
+				int len = ParseEntry(text, t_end, style, false);
+				text += len;
+				style += len;
+				at_col0 = false;
+				continue;
+			}
+		}
+
 		if (*text == '\n')
 		{
-			text++;
-			*style++ = 'A';
+			text++, *style++ = 'A';
 			at_col0 = true;
 
-			ValidateBrackets(begin_line, text, begin_style);
+			ValidateLines(begin_line, text, begin_style);
 
 			begin_line  = text;
 			begin_style = style;
@@ -355,30 +387,9 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 			style += len;
 			at_col0 = false;
 		}
-		else if (at_col0 && *text == '<')  // Tags
-		{
-			int len = ParseTag(text, t_end, style, false);
-			text += len;
-			style += len;
-			at_col0 = false;
-		}
-		else if (at_col0 && *text == '#')  // Directives
-		{
-			int len = ParseDirective(text, t_end, style);
-			text += len;
-			style += len;
-			at_col0 = false;
-		}
 		else if (strncmp(text, "//", 2) == 0 && text+1 < t_end)
 		{
 			int len = ParseComment(text, t_end, style);
-			text += len;
-			style += len;
-			at_col0 = false;
-		}
-		else if (at_col0 && *text == '[')  // Entries
-		{
-			int len = ParseEntry(text, t_end, style, false);
 			text += len;
 			style += len;
 			at_col0 = false;
@@ -399,8 +410,7 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 		}
 		else
 		{
-			text++;
-			*style++ = 'A';
+			text++, *style++ = 'A';
 			at_col0 = false;
 		}
 	}
@@ -415,8 +425,7 @@ int W_Editor::ParseString(const char *text, const char *t_end, char *style,
 	{
 		SYS_ASSERT(text[0] == '\"');
 
-		text++;
-		*style++ = 'S';
+		text++, *style++ = 'S';
 	}
 
 	while (text < t_end)
@@ -424,8 +433,7 @@ int W_Editor::ParseString(const char *text, const char *t_end, char *style,
 		if (*text == '\"')
 		{
 			// End-quote of string
-			text++;
-			*style++ = 'S';
+			text++, *style++ = 'S';
 			break;
 		}
 
@@ -433,13 +441,12 @@ int W_Editor::ParseString(const char *text, const char *t_end, char *style,
 		{
 			// Escape sequence, including \"
 			text += 2;
-			*style++ = 'B';
-			*style++ = 'B';
+			*style++ = 'Q';
+			*style++ = 'Q';
 			continue;
 		}
 
-		text++;
-		*style++ = 'S';
+		text++, *style++ = 'S';
 	}
 
 	return (text - t_orig);
@@ -451,8 +458,7 @@ int W_Editor::ParseDirective(const char *text, const char *t_end, char *style)
 
 	while (text < t_end && *text != '\n')
 	{
-		text++;
-		*style++ = 'D';
+		text++, *style++ = 'D';
 	}
 
 	return (text - t_orig);
@@ -464,8 +470,7 @@ int W_Editor::ParseComment(const char *text, const char *t_end, char *style)
 
 	while (text < t_end && *text != '\n')
 	{
-		text++;
-		*style++ = 'C';
+		text++, *style++ = 'C';
 	}
 
 	return (text - t_orig);
@@ -480,8 +485,7 @@ int W_Editor::ParseTag(const char *text, const char *t_end, char *style,
 	{
 		SYS_ASSERT(*text == '<');
 
-		text++;
-		*style++ = 'T';
+		text++, *style++ = 'T';
 
 		char buffer[84];
 		int len = 0;
@@ -507,19 +511,25 @@ int W_Editor::ParseTag(const char *text, const char *t_end, char *style,
 					known = true;
 			}
 
-			memset(style, known ? 'T' : 'E', len);
+			memset(style, known ? 'T' : 'F', len);
 			style += len;
 		}
 	}
 
 	while (text < t_end)
 	{
-		text++;
-		*style++ = 'T';
+		text++, *style++ = 'T';
 
 		if (text[-1] == '>')
 			break;
 	}
+
+	// mark anything after the closing '>' as an error
+	while (text < t_end && *text != '\n' && isspace(*text))
+		text++, *style++ = 'A';
+		
+	while (text < t_end && *text != '\n')
+		text++, *style++ = 'E';
 
 	return (text - t_orig);
 }
@@ -531,14 +541,66 @@ int W_Editor::ParseEntry(const char *text, const char *t_end, char *style,
 
 	while (text < t_end)
 	{
-		text++;
-		*style++ = 'E';
+		text++, *style++ = 'I';
 
 		if (text[-1] == ']')
 			break;
 	}
 
+	// mark anything after the closing ']' as an error
+	while (text < t_end && *text != '\n' && isspace(*text))
+		text++, *style++ = 'A';
+
+	while (text < t_end && *text != '\n')
+		text++, *style++ = 'E';
+
 	return (text - t_orig);
+}
+
+int W_Editor::ParseNumber(const char *text, const char *t_end, char *style)
+{
+	const char *t_orig = text;
+
+	if (*text == '-')
+	{
+		text++, *style++ = 'N';
+	}
+
+	while (text < t_end)
+	{
+		if (*text == '%')
+		{
+			text++, *style++ = 'N';
+			break;
+		}
+
+		if (! isdigit(*text) && *text != '.')
+			break;
+
+		text++, *style++ = 'N';
+	}
+
+	return (text - t_orig);
+}
+
+int W_Editor::ParseKeyword(const char *text, const char *t_end, char *style)
+{
+	const char *t_orig = text;
+
+	while (text < t_end)
+	{
+		if (! isalnum(*text) && *text != '_' && *text != '#')
+			break;
+
+		text++, *style++ = 'K';
+	}
+
+	return (text - t_orig);
+}
+
+void W_Editor::ValidateLines(const char *text, const char *t_end, char *style)
+{
+	// !!!!! FIXME
 }
 
 void W_Editor::ValidateBrackets(const char *text, const char *t_end, char *style)
@@ -553,9 +615,11 @@ void W_Editor::ValidateBrackets(const char *text, const char *t_end, char *style
 	{
 		// stop if there was a syntax highlight continuing onto
 		// the next line (such as strings).
-		if (*text == '\n')
-			if (style[text - origin] != 'A')
-				break;
+///		if (*text == '\n')
+///			if (style[text - origin] != 'A')
+///				break;
+		if (style[text - origin] != 'A')
+			continue;
 
 		if (*text == '(')
 		{
@@ -580,57 +644,16 @@ void W_Editor::ValidateBrackets(const char *text, const char *t_end, char *style
 	if (brackets_open > 0)
 	{
 		for (text = origin; text < t_end; text++)
-			if (*text == '(')
+		{
+			if (style[text-origin] == 'A' && *text == '(')
+			{
+				style[text - origin] = 'E';
 				break;
+			}
+		}
 
 		SYS_ASSERT(text < t_end);
 
-		style[text - origin] = 'E';
 	}
-}
-
-int W_Editor::ParseNumber(const char *text, const char *t_end, char *style)
-{
-	const char *t_orig = text;
-
-	if (*text == '-')
-	{
-		text++;
-		*style++ = 'N';
-	}
-
-	while (text < t_end)
-	{
-		if (*text == '%')
-		{
-			text++;
-			*style++ = 'N';
-			break;
-		}
-
-		if (! isdigit(*text) && *text != '.')
-			break;
-
-		text++;
-		*style++ = 'N';
-	}
-
-	return (text - t_orig);
-}
-
-int W_Editor::ParseKeyword(const char *text, const char *t_end, char *style)
-{
-	const char *t_orig = text;
-
-	while (text < t_end)
-	{
-		if (! isalnum(*text) && *text != '_' && *text != '#')
-			break;
-
-		text++;
-		*style++ = 'K';
-	}
-
-	return (text - t_orig);
 }
 

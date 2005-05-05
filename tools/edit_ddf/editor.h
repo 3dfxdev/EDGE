@@ -41,9 +41,9 @@ public:
 	Fl_Text_Buffer *stylebuf;
 
 private:
-	static const int TABLE_SIZE = 20;
+	static const int TABLE_SIZE = 26;
 	static Fl_Text_Display::Style_Table_Entry table_dark [TABLE_SIZE];
-	static Fl_Text_Display::Style_Table_Entry table_light[TABLE_SIZE];
+	// static Fl_Text_Display::Style_Table_Entry table_light[TABLE_SIZE];
 
 public:
 	enum
@@ -74,7 +74,8 @@ public: //!!!!!
 	int ParseNumber(const char *text, const char *t_end, char *style);
 	int ParseKeyword(const char *text, const char *t_end, char *style);
 
-	void ValidateBrackets(const char *text, const char *t_end, char *style);
+	void ValidateBrackets(const char *line, const char *L_end, char *style);
+	void ValidateLines(const char *text, const char *t_end, char *style);
 };
 
 
