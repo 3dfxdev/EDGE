@@ -82,7 +82,9 @@ void RGL_SetupSkyMatrices(void)
 	glPushMatrix();
 
 	glLoadIdentity();
-	glFrustum(rightslope, leftslope, bottomslope, topslope, Z_NEAR, Z_FAR);
+	glFrustum(rightslope * var_nearclip, leftslope * var_nearclip,
+			  bottomslope * var_nearclip, topslope * var_nearclip,
+			  var_nearclip, var_farclip);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -180,7 +182,7 @@ void RGL_DrawSkyBox(void)
 	RGL_UpdateSkyBoxTextures();
 	RGL_SetupSkyMatrices();
 
-	float dist = Z_FAR / 2.0f;
+	float dist = var_farclip / 2.0f;
 
 	float v0 = 0.0f;
 	float v1 = 1.0f;

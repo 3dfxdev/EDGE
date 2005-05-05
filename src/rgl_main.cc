@@ -45,6 +45,9 @@ bool glcap_multitex = false;
 bool glcap_paletted = false;
 bool glcap_edgeclamp = false;
 
+int var_nearclip = 4;
+int var_farclip  = 32000;
+
 angle_t oned_side_angle;
 
 static int glbsp_last_prog_time = 0;
@@ -129,10 +132,9 @@ void RGL_SetupMatrices3D(void)
 	glMatrixMode(GL_PROJECTION);
 
 	glLoadIdentity();
-	glFrustum(rightslope, leftslope, bottomslope, topslope, Z_NEAR, Z_FAR);
-#if 0
-	glOrtho(rightslope * 240, leftslope * 240, bottomslope * 240, topslope * 240, Z_NEAR, Z_FAR);
-#endif
+	glFrustum(rightslope * var_nearclip, leftslope * var_nearclip,
+			  bottomslope * var_nearclip, topslope * var_nearclip,
+			  var_nearclip, var_farclip);
 
 	// calculate look-at matrix
 
