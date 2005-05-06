@@ -336,6 +336,7 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 			continue;
 		}
 
+		// check for missing semicolon
 		bool is_special = (at_col0 && (*text == '<' || *text == '#' || *text == '['));
 
 		if (context != 'A' && (is_special || equal_pos >= 0))
@@ -382,8 +383,8 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 		}
 
 		ParseLine(text, (comment_pos >= 0) ? comment_pos : line_len,
-			style, &context);
-		
+			style, equal_pos, &context);
+
 		if (comment_pos >= 0)
 			ParseComment(text + comment_pos, text + line_len, style + comment_pos);
 
@@ -680,27 +681,15 @@ int W_Editor::ParseKeyword(const char *text, const char *t_end, char *style)
 	return (text - t_orig);
 }
 
-void W_Editor::ValidateLines(const char *text, const char *t_end, char *style)
-{
-	// !!!!! FIXME
-}
-
 void W_Editor::ValidateBrackets(const char *text, const char *t_end, char *style)
 {
-	const char *origin = text;
+	const char *t_orig = text;
 
 	int brackets_open = 0;
 
-	// FIXME: handle strings
-
 	for (; text < t_end; text++)
 	{
-		// stop if there was a syntax highlight continuing onto
-		// the next line (such as strings).
-///		if (*text == '\n')
-///			if (style[text - origin] != 'A')
-///				break;
-		if (style[text - origin] != 'A')
+		if (style[text - t_orig] == 'S')
 			continue;
 
 		if (*text == '(')
@@ -712,12 +701,12 @@ void W_Editor::ValidateBrackets(const char *text, const char *t_end, char *style
 			if (brackets_open == 1)
 			{
 				// finish the last group, start new group
-				style += (text - origin);
-				origin = text;
+				style += (text - t_orig) + 1;
+				t_orig = text + 1;
 				brackets_open = 0;
 			}
 			else if (brackets_open == 0)
-				style[text - origin] = 'E';
+				style[text - t_orig] = 'E';
 			else
 				brackets_open--;
 		}
@@ -725,22 +714,21 @@ void W_Editor::ValidateBrackets(const char *text, const char *t_end, char *style
 
 	if (brackets_open > 0)
 	{
-		for (text = origin; text < t_end; text++)
+		for (text = t_orig; text < t_end; text++)
 		{
-			if (style[text-origin] == 'A' && *text == '(')
+			if (style[text-t_orig] != 'S' && *text == '(')
 			{
-				style[text - origin] = 'E';
+				style[text - t_orig] = 'E';
 				break;
 			}
 		}
 
 		SYS_ASSERT(text < t_end);
-
 	}
 }
 
 void W_Editor::ParseLine(const char *text, int length, char *style,
-	char *context)
+	int equal_pos, char *context)
 {
 	int len;
 
@@ -768,6 +756,8 @@ void W_Editor::ParseLine(const char *text, int length, char *style,
 			AssertFail("LINE Context '%c' not handled.\n", *context);
 			break; /* NOT REACHED */
 	}
+
+	ValidateBrackets(text, t_end, style);
 }
 
 int W_Editor::ParseNormalLine(const char *text, const char *t_end, char *style,

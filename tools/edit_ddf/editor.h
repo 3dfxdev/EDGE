@@ -77,9 +77,8 @@ public: //!!!!!
 	int CheckInvalidString(const char *text, const char *t_end, char *style);
 
 	void ValidateBrackets(const char *line, const char *L_end, char *style);
-	void ValidateLines(const char *text, const char *t_end, char *style);
 
-	void ParseLine(const char *text, int length, char *style, char *context);
+	void ParseLine(const char *text, int length, char *style, int equal_pos, char *context);
 	int ParseNormalLine(const char *text, const char *t_end, char *style, char *context);
 	int ParseCommandData(const char *text, const char *t_end, char *style, char *context);
 	int ParseFlagData(const char *text, const char *t_end, char *style, char *context);
