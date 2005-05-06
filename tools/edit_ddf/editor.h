@@ -70,9 +70,11 @@ public: //!!!!!
 	int ParseDirective(const char *text, const char *t_end, char *style);
 	int ParseComment(const char *text, const char *t_end, char *style);
 	int ParseTag(const char *text, const char *t_end, char *style, bool new_line);
-	int ParseEntry(const char *text, const char *t_end, char *style, bool new_line);
+	int ParseItem(const char *text, const char *t_end, char *style, bool new_line);
 	int ParseNumber(const char *text, const char *t_end, char *style);
 	int ParseKeyword(const char *text, const char *t_end, char *style);
+
+	int CheckInvalidString(const char *text, const char *t_end, char *style);
 
 	void ValidateBrackets(const char *line, const char *L_end, char *style);
 	void ValidateLines(const char *text, const char *t_end, char *style);
