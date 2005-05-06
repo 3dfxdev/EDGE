@@ -292,6 +292,9 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 		context = 'A';
 	}
 
+	// --- LOOP over each line ---
+	// (Sometimes a group of lines, e.g. when a string is mal-formed)
+
 	while (text < t_end)
 	{
 		at_col0 = true;
@@ -440,8 +443,9 @@ int W_Editor::CheckInvalidString(const char *text, const char *t_end, char *styl
 	
 	SYS_ASSERT(text[0] == '\"');
 
+	// mark this quote as an error
 	text++;
-	*style++ = 'S';
+	*style++ = 'E';
 
 	int len = ParseString(text, t_end, style, true);
 
