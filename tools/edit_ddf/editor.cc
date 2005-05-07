@@ -99,32 +99,32 @@ int W_Editor::handle(int event)
 
 Fl_Text_Display::Style_Table_Entry W_Editor::table_dark[W_Editor::TABLE_SIZE] =
 {
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // 'A' - All else
+	{ FL_RED,        FL_COURIER,        14, 0 }, // 'A' - All else
 	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // 'B'
 	{ FL_BLUE,       FL_COURIER,        14, 0 }, // 'C' - Comments //
 	{ FL_MAGENTA,    FL_COURIER,        14, 0 }, // 'D' - Directives #
 	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // 'E' - ERRORS
-	{ FL_DARK_YELLOW,FL_COURIER,        14, 0 }, // 'F' - Flags (specials)
-	{ FL_LIGHT2,     FL_COURIER_BOLD,   14, 0 }, // 'G'
-	{ FL_LIGHT2,     FL_COURIER_BOLD,   14, 0 }, // 'H'
+	{ FL_MAGENTA,    FL_COURIER,        14, 0 }, // 'F' - Flags (specials)
+	{ FL_DARK2,      FL_COURIER,        14, 0 }, // 'G'
+	{ FL_DARK2,      FL_COURIER,        14, 0 }, // 'H'
 	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // 'I' - Items [ ]
 	{ FL_CYAN,       FL_COURIER,        14, 0 }, // 'J' - States
-	{ FL_MAGENTA,     FL_COURIER,        14, 0 }, // 'K' - Keyword (command)
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // 'L'
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // 'M'
+	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // 'K' - Keyword (command)
+	{ FL_DARK2,      FL_COURIER,        14, 0 }, // 'L'
+	{ FL_DARK2,      FL_COURIER,        14, 0 }, // 'M'
 	{ FL_YELLOW,     FL_COURIER,        14, 0 }, // 'N' - Numbers
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // 'O'
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // 'P'
+	{ FL_DARK2,      FL_COURIER,        14, 0 }, // 'O'
+	{ FL_DARK2,      FL_COURIER,        14, 0 }, // 'P'
 	{ FL_CYAN,       FL_COURIER_BOLD,   14, 0 }, // 'Q' - Quoted char \X
-	{ FL_LIGHT2,     FL_COURIER_BOLD,   14, 0 }, // 'R'
+	{ FL_DARK2,      FL_COURIER_BOLD,   14, 0 }, // 'R'
 	{ FL_GREEN,      FL_COURIER,        14, 0 }, // 'S' - Strings ""
 	{ FL_MAGENTA,    FL_COURIER_BOLD,   14, 0 }, // 'T' - Tags < >
 	{ FL_RED,        FL_COURIER_BOLD,   14, 0 }, // 'U' - Unknown words
-	{ FL_DARK2,      FL_COURIER,        14, 0 }, // 'V' - invalid string neighbour
-	{ FL_YELLOW,     FL_COURIER,        14, 0 }, // 'W' - Word
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // 'X'
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // 'Y'
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }  // 'Z'
+	{ FL_DARK_YELLOW,FL_COURIER,        14, 0 }, // 'V' - invalid string neighbour
+	{ FL_DARK2,      FL_COURIER,        14, 0 }, // 'W' - Word
+	{ FL_DARK2,      FL_COURIER,        14, 0 }, // 'X'
+	{ FL_DARK2,      FL_COURIER,        14, 0 }, // 'Y'
+	{ FL_DARK2,      FL_COURIER,        14, 0 }  // 'Z'
 };
 
 
@@ -141,12 +141,12 @@ void style_unfinished_cb(int, void*)
 // 'style_update()' - Update the style buffer...
 //
 
-void style_update_cb(int pos,		// I - Position of update
-		 int nInserted,	// I - Number of inserted chars
-	     int nDeleted,	// I - Number of deleted chars
-         int nRestyled,	// I - Number of restyled chars
-	     const char * deletedText,// I - Text that was deleted
-         void *cbArg) 	// I - Callback data
+void style_update_cb(int pos,		// Position of update
+					 int nInserted,	// Number of inserted chars
+					 int nDeleted,	// Number of deleted chars
+					 int nRestyled,	// Number of restyled chars
+					 const char * deletedText,// Text that was deleted
+					 void *cbArg) 	// Callback data
 {
 	(void)nRestyled;
 	(void)deletedText;
@@ -261,7 +261,6 @@ bool W_Editor::Load(const char *filename)
 //  STYLE PARSING CODE
 //---------------------------------------------------------------------------
 
-
 void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 						  char context)
 {
@@ -343,29 +342,32 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 
 		// --- special stuff ---
 
-		if (*text == '<')  // Tags
+		if (at_col0)
 		{
-			int len = ParseTag(text, t_end, style, &context);
-			text  += len;
-			style += len;
-			continue;
-		}
-		else if (*text == '#')  // Directives
-		{
-			int len = ParseDirective(text, t_end, style, &context);
-			text  += len;
-			style += len;
-			continue;
-		}
-		else if (*text == '[')  // Items
-		{
-			int len = ParseItem(text, t_end, style, &context);
-			text  += len;
-			style += len;
-			
-			if (context == 'A')
-				partial_line = true;
-			continue;
+			if (*text == '<')  // Tags
+			{
+				int len = ParseTag(text, t_end, style, &context);
+				text  += len;
+				style += len;
+				continue;
+			}
+			else if (*text == '#')  // Directives
+			{
+				int len = ParseDirective(text, t_end, style, &context);
+				text  += len;
+				style += len;
+				continue;
+			}
+			else if (*text == '[')  // Items
+			{
+				int len = ParseItem(text, t_end, style, &context);
+				text  += len;
+				style += len;
+				
+				if (context == 'A')
+					partial_line = true;
+				continue;
+			}
 		}
 
 		// --- normal stuff ---
@@ -420,57 +422,40 @@ int W_Editor::CheckMalformedString(const char *text, const char *t_end, char *st
 	SYS_ASSERT(last_quote);
 
 	// mark bordering characters as invalid
-	for (text = t_orig; text < last_quote; text++)
-		*style++ = 'V';
+//	in_string = false;
+	for (text = t_orig; text < last_quote; )
+	{
+		if (*text == '\"')
+		{
+			int len = ParseString(text, t_end, style);
+			text  += len;
+			style += len;
+			continue;
+		}
+
+		text++, *style++ = 'V'; // (in_string || *text == '\"') ? 'S' : 'V';
+	}
+
+	SYS_ASSERT(text == last_quote);
+	SYS_ASSERT(text < t_end);
 
 	SYS_ASSERT(*text == '\"');
-	SYS_ASSERT(text < t_end);
 
 	// mark this quote as an error
 	text++, *style++ = 'E';
 
 	*context = 'S';
 
-///	char context = 'S';
-///
-///	text += ParseBadStuff(text, t_end, style, &context);
-
 	return (text - t_orig);
 }
 
-#if 0
-int W_Editor::CheckInvalidItem(const char *text, const char *t_end, char *style)
-{
-	if (text >= t_end || *text != '[')
-		return 0;
-
-	const char *t_orig = text;
-
-	while (text < t_end && *text != '\n')
-	{
-		if (*text == ']')
-			return 0;
-
-		text++;
-	}
-
-	style[0] = 'E';
-
-	return text - t_orig;
-}
-#endif
-
-int W_Editor::ParseString(const char *text, const char *t_end, char *style,
-	bool new_line)
+int W_Editor::ParseString(const char *text, const char *t_end, char *style)
 {
 	const char *t_orig = text;
 
-///---	if (! new_line)
-///---	{
-		SYS_ASSERT(text[0] == '\"');
+	SYS_ASSERT(text[0] == '\"');
 
-		text++, *style++ = 'S';
-///---	}
+	text++, *style++ = 'S';
 
 	while (text < t_end)
 	{
@@ -491,19 +476,6 @@ int W_Editor::ParseString(const char *text, const char *t_end, char *style,
 
 		text++, *style++ = 'S';
 	}
-
-///---	if (new_line)
-///---	{
-///---		// mark bordering characters as invalid
-///---		while (text < t_end && *text != '\n')
-///---			text++, *style++ = 'V';
-///---
-///---		// handle newline as well
-///---		if (text < t_end)
-///---		{
-///---			text++, *style++ = 'A';  ///XXX
-///---		}
-///---	}
 
 	return (text - t_orig);
 }
@@ -573,67 +545,30 @@ int W_Editor::ParseTag(const char *text, const char *t_end, char *style,
 {
 	const char *t_orig = text;
 
-	// FIND END TAG !!!
+	SYS_ASSERT(*text == '<');
 
-	while ( 1)   // not a real loop (a hack!!)
+	// check for invalid tag (missing '>')
+	int pos;
+	for (pos = 0; text+pos < t_end && text[pos] != '\n'; pos++)
+		if (text[pos] == '>')
+			break;
+	
+	if (text+pos >= t_end || text[pos] != '>')
 	{
-		SYS_ASSERT(*text == '<');
-
-		text++, *style++ = 'T';
-
-		if (text < t_end && *text == '<')
-		{
+		// mark initial '<' as an error
+		if (text < t_end)
 			text++, *style++ = 'E';
-			break;
-		}
 
-		char buffer[84];
-		int len = 0;
-
-		while (len < 80 && text+len < t_end && isalnum(text[len]))
-		{
-			buffer[len] = text[len];
-			len++;
-		}
-
-		buffer[len] = 0;
-
-		if (len > 0)
-		{
-			bool known = false;
-
-			text += len;
-
-			keyword_box_c *ddf = config.Find(keyword_box_c::TP_Files, "ddf");
-			if (ddf)
-			{
-				if (ddf->Find(buffer) != NULL)
-					known = true;
-			}
-
-			memset(style, known ? 'T' : 'U', len);
-			style += len;
-		}
-
-		break;
+		*context = 'T';
+		return (text - t_orig);
 	}
 
-	bool got_end = false;
+	ValidateTag(text+1, text+pos, style+1);
 
-	while (text < t_end && *text != '\n')
-	{
-		text++, *style++ = 'T';
+	style[0] = style[pos] = 'T';
 
-		if (text[-1] == '>')
-		{
-			got_end = true;
-			break;
-		}
-	}
-
-	bool new_line; //!!!!!
-	if (!got_end && !new_line && t_orig < t_end)
-		style[t_orig - text] = 'E';
+	text  += pos+1;
+	style += pos+1;
 
 	// mark anything after the closing '>' as an error
 	while (text < t_end && *text != '\n' && isspace(*text))
@@ -643,18 +578,53 @@ int W_Editor::ParseTag(const char *text, const char *t_end, char *style,
 	{
 		if (text+1 < t_end && strncmp(text, "//", 2) == 0)
 		{
-			int len = ParseComment(text, t_end, style);
-			text  += len;
-			style += len;
-			break;
+			*context = 'A';
+			return (text - t_orig);
 		}
 
 		text++, *style++ = 'E';
 	}
 
-	if (text < t_end)
-		text++, *style++ = 'A';
+	*context = 'A';
 
+	// update newline to correct context
+	if (text < t_end)
+		text++, *style++ = *context;
+
+	return (text - t_orig);
+}
+
+int W_Editor::ParseItem(const char *text, const char *t_end, char *style,
+	char *context)
+{
+	const char *t_orig = text;
+
+	SYS_ASSERT(*text == '[');
+
+	// check for invalid item (missing ']')
+	int pos;
+	for (pos = 0; text+pos < t_end && text[pos] != '\n'; pos++)
+		if (text[pos] == ']')
+			break;
+
+	if (text+pos >= t_end || text[pos] != ']')
+	{
+		// mark initial '[' as an error
+		if (text < t_end)
+			text++, *style++ = 'E';
+
+		*context = 'I';
+		return (text - t_orig);
+	}
+
+	ValidateItem(text+1, text+pos, style+1);
+
+	style[0] = style[pos] = 'I';
+
+	text  += pos+1;
+	style += pos+1;
+
+	*context = 'A';
 	return (text - t_orig);
 }
 
@@ -669,10 +639,6 @@ int W_Editor::ParseDirective(const char *text, const char *t_end, char *style,
 		{
 			*context = 'A';
 			return (text - t_orig);
-///---			int len = ParseComment(text, t_end, style);
-///---			text  += len;
-///---			style += len;
-///---			break;
 		}
 
 		text++, *style++ = 'D';
@@ -681,60 +647,6 @@ int W_Editor::ParseDirective(const char *text, const char *t_end, char *style,
 	*context = 'A';
 
 	// update newline to correct context
-	if (text < t_end)
-		text++, *style++ = 'A';
-
-	return (text - t_orig);
-}
-
-int W_Editor::ParseItem(const char *text, const char *t_end, char *style,
-	char *context)
-{
-	const char *t_orig = text;
-
-	while (text < t_end)
-	{
-		if (*text == '\n')
-		{
-		}
-
-		text++, *style++ = 'I';
-
-		if (text[-1] == ']')
-			break;
-	}
-
-	// handle mal-formed items like mal-formed strings
-	if (true)
-	{
-		while (text < t_end && *text != '\n')
-			text++, *style++ = 'V';
-
-		// handle newline as well
-		if (text < t_end)
-		{
-			text++, *style++ = 'A';  ///XXX
-		}
-		return (text - t_orig);
-	}
-
-	// mark anything after the closing ']' as an error
-	while (text < t_end && *text != '\n' && isspace(*text))
-		text++, *style++ = 'A';
-
-	while (text < t_end && *text != '\n')
-	{
-		if (text+1 < t_end && strncmp(text, "//", 2) == 0)
-		{
-			int len = ParseComment(text, t_end, style);
-			text  += len;
-			style += len;
-			break;
-		}
-
-		text++, *style++ = 'E';
-	}
-
 	if (text < t_end)
 		text++, *style++ = 'A';
 
@@ -810,78 +722,14 @@ int W_Editor::ParseNumber(const char *text, const char *t_end, char *style)
 	return (text - t_orig);
 }
 
-void W_Editor::ValidateBrackets(const char *text, const char *t_end, char *style)
-{
-	const char *t_orig = text;
-
-	int brackets_open = 0;
-
-	for (; text < t_end; text++)
-	{
-		if (style[text - t_orig] == 'S')
-			continue;
-
-		if (*text == '(')
-		{
-			brackets_open++;
-		}
-		else if (*text == ')')
-		{
-			if (brackets_open == 1)
-			{
-				// finish the last group, start new group
-				style += (text - t_orig) + 1;
-				t_orig = text + 1;
-				brackets_open = 0;
-			}
-			else if (brackets_open == 0)
-				style[text - t_orig] = 'E';
-			else
-				brackets_open--;
-		}
-	}
-
-	if (brackets_open > 0)
-	{
-		for (text = t_orig; text < t_end; text++)
-		{
-			if (style[text-t_orig] != 'S' && *text == '(')
-			{
-				style[text - t_orig] = 'E';
-				break;
-			}
-		}
-
-		SYS_ASSERT(text < t_end);
-	}
-}
-
-void W_Editor::ValidateTerminator(const char *text, const char *t_end, char *style)
-{
-	// FIXME: THIS IS NOT USED, REMOVE
-
-	while (t_end > text)
-	{
-		t_end--;
-
-		if (isspace(*t_end))
-			continue;
-
-		if (*t_end != ',' && *t_end != ';')
-			style[t_end - text] = 'E';
-
-		break;
-	}
-}
-
 //------------------------------------------------------------------------
 
 void W_Editor::ParseLine(const char *text, const char *t_end, char *style,
 	int equal_pos, char *context)
 {
-	int pos = CheckForSemicolon(text, t_end, equal_pos, style);
-	if (pos >= 0)
-		t_end = text + pos;
+	int semi_pos = CheckSemicolon(text, t_end, equal_pos, style);
+	if (semi_pos >= 0)
+		t_end = text + semi_pos;
 
 	switch (*context)
 	{
@@ -902,20 +750,19 @@ void W_Editor::ParseLine(const char *text, const char *t_end, char *style,
 			break; /* NOT REACHED */
 	}
 
-	if (pos >= 0)
+	// semicolons mark the end of the current command
+	if (semi_pos >= 0)
 		*context = 'A';
 
-	ValidateBrackets(text, t_end, style);
+	// for command lines, brackets before '=' are validated elsewhere
+	if (equal_pos >= 0)
+		ValidateBrackets(text + equal_pos, t_end, style + equal_pos);
+	else
+		ValidateBrackets(text, t_end, style);
 }
 
-int W_Editor::CheckForSemicolon(const char *text, const char *t_end, int equal_pos, char *style)
+int W_Editor::CheckSemicolon(const char *text, const char *t_end, int equal_pos, char *style)
 {
-///---	if (equal_pos >= 0)
-///---	{
-///---		text  += equal_pos+1;
-///---		style += equal_pos+1;
-///---	}
-
 	bool in_string = false;
 	int pos = (equal_pos >= 0) ? (equal_pos+1) : 0; 
 
@@ -938,7 +785,7 @@ int W_Editor::CheckForSemicolon(const char *text, const char *t_end, int equal_p
 	text  += pos;
 	style += pos;
 
-	text++, *style++ = 'N';
+	text++, *style++ = 'K';
 
 	while (text < t_end && isspace(*text))
 		text++, *style++ = 'A';
@@ -993,17 +840,15 @@ void W_Editor::ParseNormalLine(const char *text, const char *t_end, char *style,
 	}
 	return;
 
-#if 0
+}
+
+void W_Editor::ParseCommandData(const char *text, const char *t_end, char *style,
+	char *context)
+{
+#if 0 //!!!!
 		if (*text == '\"')
 		{
 			int len = ParseString(text, t_end, style, false);
-			text  += len;
-			style += len;
-			at_col0 = false;
-		}
-		else if (strncmp(text, "//", 2) == 0 && text+1 < t_end)
-		{
-			int len = ParseComment(text, t_end, style);
 			text  += len;
 			style += len;
 			at_col0 = false;
@@ -1027,11 +872,6 @@ void W_Editor::ParseNormalLine(const char *text, const char *t_end, char *style,
 			text++, *style++ = 'A';
 		}
 #endif
-}
-
-void W_Editor::ParseCommandData(const char *text, const char *t_end, char *style,
-	char *context)
-{
 	while (text < t_end)
 	{
 		text++, *style++ = *context;
@@ -1050,9 +890,133 @@ void W_Editor::ParseFlagData(const char *text, const char *t_end, char *style,
 void W_Editor::ParseStateData(const char *text, const char *t_end, char *style,
 	char *context)
 {
+#if 0 //!!!!
+		if (*text == '\"')
+		{
+			int len = ParseString(text, t_end, style, false);
+			text  += len;
+			style += len;
+			at_col0 = false;
+		}
+		else if (isdigit(*text) || (*text == '-' && text+1 < t_end && isdigit(text[1])))
+		{
+			int len = ParseNumber(text, t_end, style);
+			text += len;
+			style += len;
+			at_col0 = false;
+		}
+		else if (isalpha(*text) || *text == '_' || *text == '#')
+		{
+			int len = ParseWord(text, t_end, style);
+			text += len;
+			style += len;
+			at_col0 = false;
+		}
+		else
+		{
+			text++, *style++ = 'A';
+		}
+#endif
+
 	while (text < t_end)
 	{
 		text++, *style++ = *context;
+	}
+}
+
+//------------------------------------------------------------------------
+
+void W_Editor::ValidateTag(const char *text, const char *t_end, char *style)
+{
+#if 0 //!!!!
+		char buffer[84];
+		int len = 0;
+
+		while (len < 80 && text+len < t_end && isalnum(text[len]))
+		{
+			buffer[len] = text[len];
+			len++;
+		}
+
+		buffer[len] = 0;
+
+		if (len > 0)
+		{
+			bool known = false;
+
+			text += len;
+
+			keyword_box_c *ddf = config.Find(keyword_box_c::TP_Files, "ddf");
+			if (ddf)
+			{
+				if (ddf->Find(buffer) != NULL)
+					known = true;
+			}
+
+			memset(style, known ? 'T' : 'U', len);
+#endif
+
+	memset(style, 'T', t_end - text);
+}
+
+void W_Editor::ValidateItem(const char *text, const char *t_end, char *style)
+{
+	memset(style, 'I', t_end - text);
+}
+
+char ValidateCommand(const char *text, const char *t_end, char *style)
+{
+	// !!!!! FIXME XXX
+
+	return 'K';
+}
+
+void W_Editor::ValidateBrackets(const char *text, const char *t_end, char *style)
+{
+	// NOTE: this routine is a bit special, since it runs after all
+    //       other syntax highlighting is done.
+
+	const char *t_orig = text;
+
+	int brackets_open = 0;
+
+	for (; text < t_end; text++)
+	{
+		if (style[text - t_orig] == 'S')
+			continue;
+
+		if (*text == '(')
+		{
+			brackets_open++;
+		}
+		else if (*text == ')')
+		{
+			if (brackets_open == 1)
+			{
+				// finish the last group, start new group
+				style += (text - t_orig) + 1;
+				t_orig = text + 1;
+				brackets_open = 0;
+			}
+			else if (brackets_open == 0)
+				style[text - t_orig] = 'E';
+			else
+				brackets_open--;
+		}
+	}
+
+	if (brackets_open > 0)
+	{
+		for (text = t_orig; text < t_end; text++)
+		{
+			if (style[text-t_orig] != 'S' && *text == '(')
+			{
+				style[text - t_orig] = 'E';
+				break;
+			}
+		}
+
+		SYS_ASSERT(text < t_end);
 	}
 }
 

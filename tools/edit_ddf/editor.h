@@ -61,8 +61,7 @@ private:
 	int cur_scheme;
 
 public: //!!!!!
-	void ParseStyle(const char *text, const char *t_end, char *style,
-					char context);
+	void ParseStyle(const char *text, const char *t_end, char *style, char context);
 
 	void ParseStyleRange(int start, int end);
 
@@ -70,7 +69,7 @@ public: //!!!!!
 	int ParseDirective(const char *text, const char *t_end, char *style, char *context);
 	int ParseItem(const char *text, const char *t_end, char *style, char *context);
 
-	int ParseString(const char *text, const char *t_end, char *style, bool new_line);
+	int ParseString(const char *text, const char *t_end, char *style);
 	int ParseComment(const char *text, const char *t_end, char *style);
 	int ParseWord(const char *text, const char *t_end, char *style);
 	int ParseNumber(const char *text, const char *t_end, char *style);
@@ -78,10 +77,12 @@ public: //!!!!!
 	int ParseBadStuff(const char *text, const char *t_end, char *style, char *context);
 
 	int CheckMalformedString(const char *text, const char *t_end, char *style, char *context);
-	int CheckForSemicolon(const char *text, const char *t_end, int equal_pos, char *style);
+	int CheckSemicolon(const char *text, const char *t_end, int equal_pos, char *style);
 
-	void ValidateBrackets(const char *line, const char *L_end, char *style);
-	void ValidateTerminator(const char *text, const char *t_end, char *style);
+	void ValidateTag(const char *text, const char *t_end, char *style);
+	void ValidateItem(const char *text, const char *t_end, char *style);
+	char ValidateCommand(const char *text, const char *t_end, char *style);
+	void ValidateBrackets(const char *text, const char *t_end, char *style);
 
 	void ParseLine(const char *text, const char *t_end, char *style, int equal_pos, char *context);
 	void ParseNormalLine(const char *text, const char *t_end, char *style, int equal_pos, char *context);
