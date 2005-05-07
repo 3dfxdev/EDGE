@@ -108,6 +108,9 @@ int main(int argc, char **argv)
 			exit(1);
 		}
 
+		if (arg_count < 1 || ArgvIsOption(0))
+			FatalError("ERROR: Missing filename.\n");
+
 		InitFLTK();
 
 		MainSetDefaults();
@@ -134,7 +137,7 @@ int main(int argc, char **argv)
 
 		guix_win = new Guix_MainWin(PROG_NAME);  // FIXME: version
 
-		guix_win->ed->Load("test.ddf");
+		guix_win->ed->Load(arg_list[0]);
 
 		// run the GUI until the user quits
 		while (! guix_win->want_quit)
