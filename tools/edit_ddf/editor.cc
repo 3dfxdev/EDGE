@@ -26,7 +26,7 @@
 #include "defs.h"
 
 
-#define FLOWOVER_STYLE(ch)  ((ch) == 'S' || (ch) == 'I')
+#define FLOWOVER_STYLE(ch)  ((ch) == 'S' || (ch) == 'T' || (ch) == 'I')
 
 
 void style_unfinished_cb(int, void *);
@@ -267,37 +267,23 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 {
 	SYS_ASSERT(text < t_end);
 
-	bool at_col0 = true;
-
-	if (FLOWOVER_STYLE(context))
-	{
-		int len = 0;
-
-		switch (context)
-		{
-			case 'S': len = ParseString(text, t_end, style, true);
-				break;
-
-			case 'I': len = ParseItem(text, t_end, style, true);
-				break;
-
-			default:
-				AssertFail("FLOWOVER_STYLE '%c' not handled.\n", context);
-				break;  /* NOT REACHED */
-		}
-
-		text += len;
-		style += len;
-		at_col0 = true;
-		context = 'A';
-	}
-
 	// --- LOOP over each line ---
 	// (Sometimes a group of lines, e.g. when a string is mal-formed)
 
+	bool partial_line = false;
+
 	while (text < t_end)
 	{
-		at_col0 = true;
+		bool at_col0 = ! partial_line;
+		partial_line = false;
+
+		if (FLOWOVER_STYLE(context))
+		{
+			int len = ParseBadStuff(text, t_end, style, &context);
+			text  += len;
+			style += len;
+			continue;
+		}
 
 		// skip leading whitespace
 		while (text < t_end && *text != '\n' && isspace(*text))
@@ -330,23 +316,14 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 			}
 		}
 
-		int len = CheckInvalidString(text, t_end, style);
-		if (len > 0)
-		{
-			text += len;
-			style += len;
-			at_col0 = true;
-			continue;
-		}
-
-		// check for missing semicolon
+		// check for missing semicolon (in previous line)
 		bool is_special = (at_col0 && (*text == '<' || *text == '#' || *text == '['));
 
 		if (context != 'A' && (is_special || equal_pos >= 0))
 		{
 			memset(style, 'E', line_len);
 
-			text += line_len;
+			text  += line_len;
 			style += line_len;
 
 			context = 'A';
@@ -356,34 +333,42 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 			continue;
 		}
 
-		// handle special stuff
-		if (at_col0)
+		int len = CheckMalformedString(text, t_end, style, &context);
+		if (len > 0)
 		{
-			if (*text == '<')  // Tags
-			{
-				int len = ParseTag(text, t_end, style, false);
-				text += len;
-				style += len;
-				at_col0 = true;
-				continue;
-			}
-			else if (*text == '#')  // Directives
-			{
-				int len = ParseDirective(text, t_end, style);
-				text += len;
-				style += len;
-				at_col0 = true;
-				continue;
-			}
-			else if (*text == '[')  // Entries
-			{
-				int len = ParseItem(text, t_end, style, false);
-				text += len;
-				style += len;
-				at_col0 = true;
-				continue;
-			}
+			text  += len;
+			style += len;
+			continue;
 		}
+
+		// --- special stuff ---
+
+		if (*text == '<')  // Tags
+		{
+			int len = ParseTag(text, t_end, style, &context);
+			text  += len;
+			style += len;
+			continue;
+		}
+		else if (*text == '#')  // Directives
+		{
+			int len = ParseDirective(text, t_end, style, &context);
+			text  += len;
+			style += len;
+			continue;
+		}
+		else if (*text == '[')  // Items
+		{
+			int len = ParseItem(text, t_end, style, &context);
+			text  += len;
+			style += len;
+			
+			if (context == 'A')
+				partial_line = true;
+			continue;
+		}
+
+		// --- normal stuff ---
 
 		ParseLine(text, text + ((comment_pos >= 0) ? comment_pos : line_len),
 			style, equal_pos, &context);
@@ -391,24 +376,26 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 		if (comment_pos >= 0)
 			ParseComment(text + comment_pos, text + line_len, style + comment_pos);
 
-		text += line_len;
+		text  += line_len;
 		style += line_len;
 
 		SYS_ASSERT(text <= t_end);
 
+		// update newline to the correct context
 		if (text < t_end)
 			text++, *style++ = context;
 	}
 }
 
-int W_Editor::CheckInvalidString(const char *text, const char *t_end, char *style)
+int W_Editor::CheckMalformedString(const char *text, const char *t_end, char *style,
+	char *context)
 {
 	const char *t_orig = text;
 	const char *last_quote = NULL;
 
 	bool in_string = false;
 
-	while (text < t_end && *text != '\n')
+	for (; text < t_end && *text != '\n'; text++)
 	{
 		// check for comments
 		if (!in_string && text+1 < t_end && strncmp(text, "//", 2) == 0)
@@ -420,15 +407,11 @@ int W_Editor::CheckInvalidString(const char *text, const char *t_end, char *styl
 				last_quote = text;
 
 			in_string = !in_string;
-			text++;
 		}
-		else if (*text == '\\' && text+1 < t_end)
+		else if (text[0] == '\\' && text+1 < t_end && !isspace(text[1]))
 		{
-			// Escape sequence, including \"
-			text += 2;
+			text++; // Escape sequence, handles \" too
 		}
-		else
-			text++;
 	}
 
 	if (! in_string)
@@ -436,33 +419,58 @@ int W_Editor::CheckInvalidString(const char *text, const char *t_end, char *styl
 
 	SYS_ASSERT(last_quote);
 
-	text = t_orig;
-
+	// mark bordering characters as invalid
 	for (text = t_orig; text < last_quote; text++)
 		*style++ = 'V';
-	
-	SYS_ASSERT(text[0] == '\"');
+
+	SYS_ASSERT(*text == '\"');
+	SYS_ASSERT(text < t_end);
 
 	// mark this quote as an error
-	text++;
-	*style++ = 'E';
+	text++, *style++ = 'E';
 
-	int len = ParseString(text, t_end, style, true);
+	*context = 'S';
 
-	return (text - t_orig) + len;
+///	char context = 'S';
+///
+///	text += ParseBadStuff(text, t_end, style, &context);
+
+	return (text - t_orig);
 }
+
+#if 0
+int W_Editor::CheckInvalidItem(const char *text, const char *t_end, char *style)
+{
+	if (text >= t_end || *text != '[')
+		return 0;
+
+	const char *t_orig = text;
+
+	while (text < t_end && *text != '\n')
+	{
+		if (*text == ']')
+			return 0;
+
+		text++;
+	}
+
+	style[0] = 'E';
+
+	return text - t_orig;
+}
+#endif
 
 int W_Editor::ParseString(const char *text, const char *t_end, char *style,
 	bool new_line)
 {
 	const char *t_orig = text;
 
-	if (! new_line)
-	{
+///---	if (! new_line)
+///---	{
 		SYS_ASSERT(text[0] == '\"');
 
 		text++, *style++ = 'S';
-	}
+///---	}
 
 	while (text < t_end)
 	{
@@ -473,31 +481,77 @@ int W_Editor::ParseString(const char *text, const char *t_end, char *style,
 			break;
 		}
 
-		if (text[0] == '\\' && text+1 < t_end)
+		if (text[0] == '\\' && text+1 < t_end && !isspace(text[1]))
 		{
-			// Escape sequence, including \"
-			text += 2;
-			*style++ = 'Q';
-			*style++ = 'Q';
+			// Escape sequence, handles \" too
+			text++, *style++ = 'Q';
+			text++, *style++ = 'Q';
 			continue;
 		}
 
 		text++, *style++ = 'S';
 	}
 
-	if (new_line)
-	{
-		// mark bordering characters as invalid
-		for (; text < t_end && *text != '\n'; text++)
-			*style++ = 'V';
+///---	if (new_line)
+///---	{
+///---		// mark bordering characters as invalid
+///---		while (text < t_end && *text != '\n')
+///---			text++, *style++ = 'V';
+///---
+///---		// handle newline as well
+///---		if (text < t_end)
+///---		{
+///---			text++, *style++ = 'A';  ///XXX
+///---		}
+///---	}
 
-		// handle newline as well
-		if (text < t_end)
-		{
-			text++;
-			*style += 'A';  ///XXX
-		}
+	return (text - t_orig);
+}
+
+int W_Editor::ParseBadStuff(const char *text, const char *t_end, char *style,
+	char *context)
+{
+	const char *t_orig = text;
+
+	char end_symbol = 0;
+
+	switch (*context)
+	{
+		case 'S': end_symbol = '"'; break;
+		case 'T': end_symbol = '>'; break;
+		case 'I': end_symbol = ']'; break;
+
+		default:
+			AssertFail("OVERFLOW Context '%c' not handled.\n", *context);
+			break; /* NOT REACHED */
 	}
+	
+	while (text < t_end)
+	{
+		if (text[0] == '\\' && *context == 'S' &&
+			text+1 < t_end && !isspace(text[1]))
+		{
+			// Escape sequence, handles \" too
+			text++, *style++ = 'Q';
+			text++, *style++ = 'Q';
+			continue;
+		}
+
+		text++, *style++ = *context;
+
+		if (text[-1] == end_symbol)
+			break;
+	}
+
+	// mark bordering characters as invalid
+	while (text < t_end && *text != '\n')
+		text++, *style++ = 'V';
+
+	*context = 'A';
+
+	// update newline to correct context
+	if (text < t_end)
+		text++, *style++ = *context;
 
 	return (text - t_orig);
 }
@@ -515,11 +569,13 @@ int W_Editor::ParseComment(const char *text, const char *t_end, char *style)
 }
 
 int W_Editor::ParseTag(const char *text, const char *t_end, char *style,
-	bool new_line)
+	char *context)
 {
 	const char *t_orig = text;
 
-	while (! new_line)   // not a real loop (a hack!!)
+	// FIND END TAG !!!
+
+	while ( 1)   // not a real loop (a hack!!)
 	{
 		SYS_ASSERT(*text == '<');
 
@@ -575,6 +631,7 @@ int W_Editor::ParseTag(const char *text, const char *t_end, char *style,
 		}
 	}
 
+	bool new_line; //!!!!!
 	if (!got_end && !new_line && t_orig < t_end)
 		style[t_orig - text] = 'E';
 
@@ -587,7 +644,7 @@ int W_Editor::ParseTag(const char *text, const char *t_end, char *style,
 		if (text+1 < t_end && strncmp(text, "//", 2) == 0)
 		{
 			int len = ParseComment(text, t_end, style);
-			text += len;
+			text  += len;
 			style += len;
 			break;
 		}
@@ -601,7 +658,8 @@ int W_Editor::ParseTag(const char *text, const char *t_end, char *style,
 	return (text - t_orig);
 }
 
-int W_Editor::ParseDirective(const char *text, const char *t_end, char *style)
+int W_Editor::ParseDirective(const char *text, const char *t_end, char *style,
+	char *context)
 {
 	const char *t_orig = text;
 
@@ -609,15 +667,20 @@ int W_Editor::ParseDirective(const char *text, const char *t_end, char *style)
 	{
 		if (text+1 < t_end && strncmp(text, "//", 2) == 0)
 		{
-			int len = ParseComment(text, t_end, style);
-			text += len;
-			style += len;
-			break;
+			*context = 'A';
+			return (text - t_orig);
+///---			int len = ParseComment(text, t_end, style);
+///---			text  += len;
+///---			style += len;
+///---			break;
 		}
 
 		text++, *style++ = 'D';
 	}
 
+	*context = 'A';
+
+	// update newline to correct context
 	if (text < t_end)
 		text++, *style++ = 'A';
 
@@ -625,16 +688,34 @@ int W_Editor::ParseDirective(const char *text, const char *t_end, char *style)
 }
 
 int W_Editor::ParseItem(const char *text, const char *t_end, char *style,
-	bool new_line)
+	char *context)
 {
 	const char *t_orig = text;
 
-	while (text < t_end)  ///  && *text != '\n')
+	while (text < t_end)
 	{
+		if (*text == '\n')
+		{
+		}
+
 		text++, *style++ = 'I';
 
 		if (text[-1] == ']')
 			break;
+	}
+
+	// handle mal-formed items like mal-formed strings
+	if (true)
+	{
+		while (text < t_end && *text != '\n')
+			text++, *style++ = 'V';
+
+		// handle newline as well
+		if (text < t_end)
+		{
+			text++, *style++ = 'A';  ///XXX
+		}
+		return (text - t_orig);
 	}
 
 	// mark anything after the closing ']' as an error
@@ -646,7 +727,7 @@ int W_Editor::ParseItem(const char *text, const char *t_end, char *style,
 		if (text+1 < t_end && strncmp(text, "//", 2) == 0)
 		{
 			int len = ParseComment(text, t_end, style);
-			text += len;
+			text  += len;
 			style += len;
 			break;
 		}
@@ -659,6 +740,34 @@ int W_Editor::ParseItem(const char *text, const char *t_end, char *style,
 
 	return (text - t_orig);
 }
+
+#if 0
+int W_Editor::ParseBadItem(const char *text, const char *t_end, char *style,
+	char *context)
+{
+	const char *t_orig = text;
+
+	while (text < t_end)
+	{
+		text++, *style++ = 'I';
+
+		if (text[-1] == ']')
+			break;
+	}
+
+	// handle mal-formed items like mal-formed strings
+
+	while (text < t_end && *text != '\n')
+		text++, *style++ = 'V';
+
+	*context = 'A';
+
+	if (text < t_end)
+		text++, *style++ = *context;
+
+	return (text - t_orig);
+}
+#endif
 
 int W_Editor::ParseWord(const char *text, const char *t_end, char *style)
 {
@@ -888,14 +997,14 @@ void W_Editor::ParseNormalLine(const char *text, const char *t_end, char *style,
 		if (*text == '\"')
 		{
 			int len = ParseString(text, t_end, style, false);
-			text += len;
+			text  += len;
 			style += len;
 			at_col0 = false;
 		}
 		else if (strncmp(text, "//", 2) == 0 && text+1 < t_end)
 		{
 			int len = ParseComment(text, t_end, style);
-			text += len;
+			text  += len;
 			style += len;
 			at_col0 = false;
 		}
