@@ -99,32 +99,32 @@ int W_Editor::handle(int event)
 
 Fl_Text_Display::Style_Table_Entry W_Editor::table_dark[W_Editor::TABLE_SIZE] =
 {
-	{ FL_DARK2,     FL_COURIER,        14, 0 }, // A - All else
-	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // B
-	{ FL_BLUE,       FL_COURIER,        14, 0 }, // C - Comments //
-	{ FL_MAGENTA,    FL_COURIER,        14, 0 }, // D - Directives #
-	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // E - ERRORS
-	{ FL_DARK_YELLOW,     FL_COURIER,        14, 0 }, // F - Flags (specials)
-	{ FL_LIGHT2,     FL_COURIER_BOLD,   14, 0 }, // G
-	{ FL_LIGHT2,     FL_COURIER_BOLD,   14, 0 }, // H
-	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // I - Items [ ]
-	{ FL_CYAN,     FL_COURIER,        14, 0 }, // J - States
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // K - Keyword (command)
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // L
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // M
-	{ FL_YELLOW,     FL_COURIER,        14, 0 }, // N - Numbers
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // O
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // P
-	{ FL_CYAN,       FL_COURIER_BOLD,   14, 0 }, // Q - Quoted char \X
-	{ FL_LIGHT2,     FL_COURIER_BOLD,   14, 0 }, // R
-	{ FL_GREEN,      FL_COURIER,        14, 0 }, // S - Strings ""
-	{ FL_MAGENTA,    FL_COURIER_BOLD,   14, 0 }, // T - Tags < >
-	{ FL_RED,        FL_COURIER_BOLD,   14, 0 }, // U - Unknown words
-	{ FL_DARK2,      FL_COURIER,        14, 0 }, // V - invalid string neighbour
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // W - Word
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // X
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // Y
-	{ FL_LIGHT2,     FL_COURIER,        14, 0 }  // Z
+	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // 'A' - All else
+	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // 'B'
+	{ FL_BLUE,       FL_COURIER,        14, 0 }, // 'C' - Comments //
+	{ FL_MAGENTA,    FL_COURIER,        14, 0 }, // 'D' - Directives #
+	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // 'E' - ERRORS
+	{ FL_DARK_YELLOW,FL_COURIER,        14, 0 }, // 'F' - Flags (specials)
+	{ FL_LIGHT2,     FL_COURIER_BOLD,   14, 0 }, // 'G'
+	{ FL_LIGHT2,     FL_COURIER_BOLD,   14, 0 }, // 'H'
+	{ FL_GREEN,      FL_COURIER_BOLD,   14, 0 }, // 'I' - Items [ ]
+	{ FL_CYAN,       FL_COURIER,        14, 0 }, // 'J' - States
+	{ FL_MAGENTA,     FL_COURIER,        14, 0 }, // 'K' - Keyword (command)
+	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // 'L'
+	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // 'M'
+	{ FL_YELLOW,     FL_COURIER,        14, 0 }, // 'N' - Numbers
+	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // 'O'
+	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // 'P'
+	{ FL_CYAN,       FL_COURIER_BOLD,   14, 0 }, // 'Q' - Quoted char \X
+	{ FL_LIGHT2,     FL_COURIER_BOLD,   14, 0 }, // 'R'
+	{ FL_GREEN,      FL_COURIER,        14, 0 }, // 'S' - Strings ""
+	{ FL_MAGENTA,    FL_COURIER_BOLD,   14, 0 }, // 'T' - Tags < >
+	{ FL_RED,        FL_COURIER_BOLD,   14, 0 }, // 'U' - Unknown words
+	{ FL_DARK2,      FL_COURIER,        14, 0 }, // 'V' - invalid string neighbour
+	{ FL_YELLOW,     FL_COURIER,        14, 0 }, // 'W' - Word
+	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // 'X'
+	{ FL_LIGHT2,     FL_COURIER,        14, 0 }, // 'Y'
+	{ FL_LIGHT2,     FL_COURIER,        14, 0 }  // 'Z'
 };
 
 
@@ -312,7 +312,7 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 		int comment_pos = -1;
 		bool in_string = false;
 
-		for (int j=0; j+1 < line_len; j++)
+		for (int j=0; j < line_len; j++)
 		{
 			if (text[j] == '"')
 			{
@@ -323,7 +323,7 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 			if (!in_string && text[j] == '=' && equal_pos < 0)
 				equal_pos = j;
 
-			if (!in_string && strncmp(text+j, "//", 2) == 0)
+			if (!in_string && j+1 < line_len && strncmp(text+j, "//", 2) == 0)
 			{
 				comment_pos = j;
 				break;
@@ -385,7 +385,7 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 			}
 		}
 
-		ParseLine(text, (comment_pos >= 0) ? comment_pos : line_len,
+		ParseLine(text, text + ((comment_pos >= 0) ? comment_pos : line_len),
 			style, equal_pos, &context);
 
 		if (comment_pos >= 0)
@@ -519,11 +519,17 @@ int W_Editor::ParseTag(const char *text, const char *t_end, char *style,
 {
 	const char *t_orig = text;
 
-	if (! new_line)
+	while (! new_line)   // not a real loop (a hack!!)
 	{
 		SYS_ASSERT(*text == '<');
 
 		text++, *style++ = 'T';
+
+		if (text < t_end && *text == '<')
+		{
+			text++, *style++ = 'E';
+			break;
+		}
 
 		char buffer[84];
 		int len = 0;
@@ -549,18 +555,28 @@ int W_Editor::ParseTag(const char *text, const char *t_end, char *style,
 					known = true;
 			}
 
-			memset(style, known ? 'T' : 'E', len);
+			memset(style, known ? 'T' : 'U', len);
 			style += len;
 		}
+
+		break;
 	}
+
+	bool got_end = false;
 
 	while (text < t_end && *text != '\n')
 	{
 		text++, *style++ = 'T';
 
 		if (text[-1] == '>')
+		{
+			got_end = true;
 			break;
+		}
 	}
+
+	if (!got_end && !new_line && t_orig < t_end)
+		style[t_orig - text] = 'E';
 
 	// mark anything after the closing '>' as an error
 	while (text < t_end && *text != '\n' && isspace(*text))
@@ -644,6 +660,21 @@ int W_Editor::ParseItem(const char *text, const char *t_end, char *style,
 	return (text - t_orig);
 }
 
+int W_Editor::ParseWord(const char *text, const char *t_end, char *style)
+{
+	const char *t_orig = text;
+
+	while (text < t_end)
+	{
+		if (! isalnum(*text) && *text != '_' && *text != '#')
+			break;
+
+		text++, *style++ = 'W';
+	}
+
+	return (text - t_orig);
+}
+
 int W_Editor::ParseNumber(const char *text, const char *t_end, char *style)
 {
 	const char *t_orig = text;
@@ -665,21 +696,6 @@ int W_Editor::ParseNumber(const char *text, const char *t_end, char *style)
 			break;
 
 		text++, *style++ = 'N';
-	}
-
-	return (text - t_orig);
-}
-
-int W_Editor::ParseKeyword(const char *text, const char *t_end, char *style)
-{
-	const char *t_orig = text;
-
-	while (text < t_end)
-	{
-		if (! isalnum(*text) && *text != '_' && *text != '#')
-			break;
-
-		text++, *style++ = 'K';
 	}
 
 	return (text - t_orig);
@@ -731,29 +747,45 @@ void W_Editor::ValidateBrackets(const char *text, const char *t_end, char *style
 	}
 }
 
-void W_Editor::ParseLine(const char *text, int length, char *style,
+void W_Editor::ValidateTerminator(const char *text, const char *t_end, char *style)
+{
+	// FIXME: THIS IS NOT USED, REMOVE
+
+	while (t_end > text)
+	{
+		t_end--;
+
+		if (isspace(*t_end))
+			continue;
+
+		if (*t_end != ',' && *t_end != ';')
+			style[t_end - text] = 'E';
+
+		break;
+	}
+}
+
+//------------------------------------------------------------------------
+
+void W_Editor::ParseLine(const char *text, const char *t_end, char *style,
 	int equal_pos, char *context)
 {
-	int len;
-
-	const char *t_end = text + length;
+	int pos = CheckForSemicolon(text, t_end, equal_pos, style);
+	if (pos >= 0)
+		t_end = text + pos;
 
 	switch (*context)
 	{
-		case 'A':
-			len = ParseNormalLine(text, t_end, style, context);
+		case 'A': ParseNormalLine(text, t_end, style, equal_pos, context);
 			break;
 
-		case 'K':
-			len = ParseCommandData(text, t_end, style, context);
+		case 'K': ParseCommandData(text, t_end, style, context);
 			break;
 
-		case 'F':
-			len = ParseFlagData(text, t_end, style, context);
+		case 'F': ParseFlagData(text, t_end, style, context);
 			break;
 
-		case 'J':
-			len = ParseStateData(text, t_end, style, context);
+		case 'J': ParseStateData(text, t_end, style, context);
 			break;
 
 		default:
@@ -761,44 +793,96 @@ void W_Editor::ParseLine(const char *text, int length, char *style,
 			break; /* NOT REACHED */
 	}
 
+	if (pos >= 0)
+		*context = 'A';
+
 	ValidateBrackets(text, t_end, style);
 }
 
-int W_Editor::ParseNormalLine(const char *text, const char *t_end, char *style,
-	char *context)
+int W_Editor::CheckForSemicolon(const char *text, const char *t_end, int equal_pos, char *style)
 {
-	const char *t_orig = text;
+///---	if (equal_pos >= 0)
+///---	{
+///---		text  += equal_pos+1;
+///---		style += equal_pos+1;
+///---	}
+
+	bool in_string = false;
+	int pos = (equal_pos >= 0) ? (equal_pos+1) : 0; 
+
+	for (; pos < (t_end - text); pos++)
+	{
+		if (text[pos] == '"')
+		{
+			in_string = !in_string;
+			continue;
+		}
+
+		if (!in_string && text[pos] == ';')
+			break;
+	}
+
+	if (pos >= (t_end - text))
+		return -1;  // NOT FOUND
+
+	// mark everything after the semicolon as error
+	text  += pos;
+	style += pos;
+
+	text++, *style++ = 'N';
+
+	while (text < t_end && isspace(*text))
+		text++, *style++ = 'A';
 
 	while (text < t_end)
+		text++, *style++ = 'E';
+
+	return pos;
+}
+
+void W_Editor::ParseNormalLine(const char *text, const char *t_end, char *style,
+	int equal_pos, char *context)
+{
+	if (text >= t_end)
+		return;
+
+	if (equal_pos < 0)
 	{
-		if (*text == '\n')
-		{
-			*context = 'A';
-			text++, *style++ = *context;
-			break;
-		}
+		memset(style, 'V', t_end - text);
+		return;
+	}
 
-		int j;
-		for (j = 0; text+j < t_end && text[j] != '\n'; j++)
-			if (text[j] == '=')
-				break;
+	// @@@@
 
-		if (text+j < t_end && text[j] == '=')
-		{
-			memset(style, 'K', j);
+	memset(style, 'W', equal_pos+1);
 
-			text += j;
-			style += j;
+	bool special = false;
+	bool states  = false;
 
-			text++, *style++ = 'A';
+	if (strncmp(text, "SPECIAL", 7) == 0)
+		special = true;
+	else if (strncmp(text, "STATES", 6) == 0)
+		states = true;
 
-			*context = 'J';
-			int len = ParseStateData(text, t_end, style, context);
+	text  += equal_pos+1;
+	style += equal_pos+1;
 
-			text += len;
-			style += len;
-			break;
-		}
+	if (special)
+	{
+		*context = 'F';
+		ParseFlagData(text, t_end, style, context);
+	}
+	else if (states)
+	{
+		*context = 'J';
+		ParseStateData(text, t_end, style, context);
+	}
+	else
+	{
+		*context = 'K';
+		ParseCommandData(text, t_end, style, context);
+	}
+	return;
 
 #if 0
 		if (*text == '\"')
@@ -824,75 +908,42 @@ int W_Editor::ParseNormalLine(const char *text, const char *t_end, char *style,
 		}
 		else if (isalpha(*text) || *text == '_' || *text == '#')
 		{
-			int len = ParseKeyword(text, t_end, style);
+			int len = ParseWord(text, t_end, style);
 			text += len;
 			style += len;
 			at_col0 = false;
 		}
 		else
-#endif
 		{
 			text++, *style++ = 'A';
 		}
-	}
-
-	return (text - t_orig);
+#endif
 }
 
-int W_Editor::ParseCommandData(const char *text, const char *t_end, char *style,
+void W_Editor::ParseCommandData(const char *text, const char *t_end, char *style,
 	char *context)
 {
-	const char *t_orig = text;
-
-	while (text < t_end && *text != '\n')
+	while (text < t_end)
 	{
 		text++, *style++ = *context;
-
-		if (text[-1] == ';')
-			*context = 'A';
 	}
-
-	if (text < t_end)
-		text++, *style++ = *context;
-	
-	return (text - t_orig);
 }
 
-int W_Editor::ParseFlagData(const char *text, const char *t_end, char *style,
+void W_Editor::ParseFlagData(const char *text, const char *t_end, char *style,
 	char *context)
 {
-	const char *t_orig = text;
-
-	while (text < t_end && *text != '\n')
+	while (text < t_end)
 	{
 		text++, *style++ = *context;
-
-		if (text[-1] == ';')
-			*context = 'A';
 	}
-
-	if (text < t_end)
-		text++, *style++ = *context;
-	
-	return (text - t_orig);
 }
 
-int W_Editor::ParseStateData(const char *text, const char *t_end, char *style,
+void W_Editor::ParseStateData(const char *text, const char *t_end, char *style,
 	char *context)
 {
-	const char *t_orig = text;
-
-	while (text < t_end && *text != '\n')
+	while (text < t_end)
 	{
 		text++, *style++ = *context;
-
-		if (text[-1] == ';')
-			*context = 'A';
 	}
-
-	if (text < t_end)
-		text++, *style++ = *context;
-	
-	return (text - t_orig);
 }
 

@@ -71,18 +71,20 @@ public: //!!!!!
 	int ParseComment(const char *text, const char *t_end, char *style);
 	int ParseTag(const char *text, const char *t_end, char *style, bool new_line);
 	int ParseItem(const char *text, const char *t_end, char *style, bool new_line);
+	int ParseWord(const char *text, const char *t_end, char *style);
 	int ParseNumber(const char *text, const char *t_end, char *style);
-	int ParseKeyword(const char *text, const char *t_end, char *style);
 
 	int CheckInvalidString(const char *text, const char *t_end, char *style);
+	int CheckForSemicolon(const char *text, const char *t_end, int equal_pos, char *style);
 
 	void ValidateBrackets(const char *line, const char *L_end, char *style);
+	void ValidateTerminator(const char *text, const char *t_end, char *style);
 
-	void ParseLine(const char *text, int length, char *style, int equal_pos, char *context);
-	int ParseNormalLine(const char *text, const char *t_end, char *style, char *context);
-	int ParseCommandData(const char *text, const char *t_end, char *style, char *context);
-	int ParseFlagData(const char *text, const char *t_end, char *style, char *context);
-	int ParseStateData(const char *text, const char *t_end, char *style, char *context);
+	void ParseLine(const char *text, const char *t_end, char *style, int equal_pos, char *context);
+	void ParseNormalLine(const char *text, const char *t_end, char *style, int equal_pos, char *context);
+	void ParseCommandData(const char *text, const char *t_end, char *style, char *context);
+	void ParseFlagData(const char *text, const char *t_end, char *style, char *context);
+	void ParseStateData(const char *text, const char *t_end, char *style, char *context);
 };
 
 
