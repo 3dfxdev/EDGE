@@ -57,13 +57,13 @@ public:
 	bool Load(const char *filename);
 	// returns false if file not found.
 
+	void UpdateStyleRange(int start, int end);
+	// called by buffer-update callback.
+
 private:
 	int cur_scheme;
 
-public: //!!!!!
-	void ParseStyle(const char *text, const char *t_end, char *style, char context);
-
-	void ParseStyleRange(int start, int end);
+	void Parse(const char *text, const char *t_end, char *style, char context);
 
 	int ParseTag(const char *text, const char *t_end, char *style, char *context);
 	int ParseDirective(const char *text, const char *t_end, char *style, char *context);
@@ -78,17 +78,18 @@ public: //!!!!!
 
 	int CheckMalformedString(const char *text, const char *t_end, char *style, char *context);
 	int CheckSemicolon(const char *text, const char *t_end, int equal_pos, char *style);
+	bool CheckComma(const char *text, const char *t_end);
+
+	void ParseLine(const char *text, const char *t_end, char *style, int equal_pos, char *context);
+	void ParseCommand(const char *text, const char *t_end, char *style, int equal_pos, char *context);
+	void ParseCommandData(const char *text, const char *t_end, char *style, char *context);
+	void ParseStateData(const char *text, const char *t_end, char *style, char *context);
+	void ParseFlagData(const char *text, const char *t_end, char *style, char *context);
 
 	void ValidateTag(const char *text, const char *t_end, char *style);
 	void ValidateItem(const char *text, const char *t_end, char *style);
 	char ValidateCommand(const char *text, const char *t_end, char *style);
 	void ValidateBrackets(const char *text, const char *t_end, char *style);
-
-	void ParseLine(const char *text, const char *t_end, char *style, int equal_pos, char *context);
-	void ParseNormalLine(const char *text, const char *t_end, char *style, int equal_pos, char *context);
-	void ParseCommandData(const char *text, const char *t_end, char *style, char *context);
-	void ParseFlagData(const char *text, const char *t_end, char *style, char *context);
-	void ParseStateData(const char *text, const char *t_end, char *style, char *context);
 };
 
 

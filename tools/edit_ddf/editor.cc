@@ -120,11 +120,11 @@ Fl_Text_Display::Style_Table_Entry W_Editor::table_dark[W_Editor::TABLE_SIZE] =
 	{ FL_GREEN,      FL_COURIER,        14, 0 }, // 'S' - Strings ""
 	{ FL_MAGENTA,    FL_COURIER_BOLD,   14, 0 }, // 'T' - Tags < >
 	{ FL_RED,        FL_COURIER_BOLD,   14, 0 }, // 'U' - Unknown words
-	{ FL_DARK_YELLOW,FL_COURIER,        14, 0 }, // 'V' - invalid string neighbour
+	{ FL_DARK_YELLOW,FL_COURIER,        14, 0 }, // 'V' - invalid text
 	{ FL_DARK2,      FL_COURIER,        14, 0 }, // 'W' - Word
-	{ FL_DARK2,      FL_COURIER,        14, 0 }, // 'X'
-	{ FL_DARK2,      FL_COURIER,        14, 0 }, // 'Y'
-	{ FL_DARK2,      FL_COURIER,        14, 0 }  // 'Z'
+	{ FL_DARK2,      FL_COURIER,        14, 0 }, // 'X' - no comma (command)
+	{ FL_DARK2,      FL_COURIER,        14, 0 }, // 'Y' - no comma (states)
+	{ FL_DARK2,      FL_COURIER,        14, 0 }  // 'Z' - no comma (flags)
 };
 
 
@@ -201,7 +201,7 @@ void style_update_cb(int pos,		// Position of update
 		//       The character() method returns NUL in this case.
 		char last_before = WE->stylebuf->character(end-1);
 
-		WE->ParseStyleRange(start, end);
+		WE->UpdateStyleRange(start, end);
 
 		char last_after = WE->stylebuf->character(end-1);
 
@@ -221,7 +221,7 @@ void style_update_cb(int pos,		// Position of update
 	}
 }
 
-void W_Editor::ParseStyleRange(int start, int end)
+void W_Editor::UpdateStyleRange(int start, int end)
 {
 	// get style of previous line (from the '\n' character)
 	char context = 'A';
@@ -232,7 +232,7 @@ void W_Editor::ParseStyleRange(int start, int end)
 	char *text  = textbuf->text_range(start, end);
 	char *style = stylebuf->text_range(start, end);
 	{
-		ParseStyle(text, text + (end - start), style, context);
+		Parse(text, text + (end - start), style, context);
 
 		stylebuf->replace(start, end, style);
 	}
@@ -261,8 +261,7 @@ bool W_Editor::Load(const char *filename)
 //  STYLE PARSING CODE
 //---------------------------------------------------------------------------
 
-void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
-						  char context)
+void W_Editor::Parse(const char *text, const char *t_end, char *style, char context)
 {
 	SYS_ASSERT(text < t_end);
 
@@ -315,17 +314,28 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 			}
 		}
 
-		// check for missing semicolon (in previous line)
+		// check for missing semicolon or comma (in previous line)
 		bool is_special = (at_col0 && (*text == '<' || *text == '#' || *text == '['));
+		bool no_comma = (context >= 'X' && context <= 'Z');
 
-		if (context != 'A' && (is_special || equal_pos >= 0))
+		if (context != 'A' && (is_special || equal_pos >= 0 || no_comma))
 		{
 			memset(style, 'E', line_len);
 
 			text  += line_len;
 			style += line_len;
 
-			context = 'A';
+			if (is_special || equal_pos >= 0)
+			{
+				context = 'A';
+			}
+			else switch (context)
+			{
+				case 'X': context = 'K'; break;
+				case 'Y': context = 'J'; break;
+				case 'Z': context = 'F'; break;
+				default:  context = 'A'; break;
+			}
 
 			if (text < t_end)
 				text++, *style++ = context;
@@ -342,32 +352,29 @@ void W_Editor::ParseStyle(const char *text, const char *t_end, char *style,
 
 		// --- special stuff ---
 
-		if (at_col0)
+		if (at_col0 && *text == '<')  // Tags
 		{
-			if (*text == '<')  // Tags
-			{
-				int len = ParseTag(text, t_end, style, &context);
-				text  += len;
-				style += len;
-				continue;
-			}
-			else if (*text == '#')  // Directives
-			{
-				int len = ParseDirective(text, t_end, style, &context);
-				text  += len;
-				style += len;
-				continue;
-			}
-			else if (*text == '[')  // Items
-			{
-				int len = ParseItem(text, t_end, style, &context);
-				text  += len;
-				style += len;
-				
-				if (context == 'A')
-					partial_line = true;
-				continue;
-			}
+			int len = ParseTag(text, t_end, style, &context);
+			text  += len;
+			style += len;
+			continue;
+		}
+		else if (at_col0 && *text == '#')  // Directives
+		{
+			int len = ParseDirective(text, t_end, style, &context);
+			text  += len;
+			style += len;
+			continue;
+		}
+		else if (at_col0 && *text == '[')  // Items
+		{
+			int len = ParseItem(text, t_end, style, &context);
+			text  += len;
+			style += len;
+			
+			if (context == 'A')
+				partial_line = true;
+			continue;
 		}
 
 		// --- normal stuff ---
@@ -727,22 +734,24 @@ int W_Editor::ParseNumber(const char *text, const char *t_end, char *style)
 void W_Editor::ParseLine(const char *text, const char *t_end, char *style,
 	int equal_pos, char *context)
 {
+	bool has_comma = CheckComma(text, t_end);
 	int semi_pos = CheckSemicolon(text, t_end, equal_pos, style);
+
 	if (semi_pos >= 0)
 		t_end = text + semi_pos;
 
 	switch (*context)
 	{
-		case 'A': ParseNormalLine(text, t_end, style, equal_pos, context);
+		case 'A': ParseCommand(text, t_end, style, equal_pos, context);
 			break;
 
 		case 'K': ParseCommandData(text, t_end, style, context);
 			break;
 
-		case 'F': ParseFlagData(text, t_end, style, context);
+		case 'J': ParseStateData(text, t_end, style, context);
 			break;
 
-		case 'J': ParseStateData(text, t_end, style, context);
+		case 'F': ParseFlagData(text, t_end, style, context);
 			break;
 
 		default:
@@ -752,7 +761,19 @@ void W_Editor::ParseLine(const char *text, const char *t_end, char *style,
 
 	// semicolons mark the end of the current command
 	if (semi_pos >= 0)
+	{
 		*context = 'A';
+	}
+	else if (! has_comma)
+	{
+		switch (*context)
+		{
+			case 'K': *context = 'X'; break;
+			case 'J': *context = 'Y'; break;
+			case 'F': *context = 'Z'; break;
+			default: /* nothing to do */ break;
+		}
+	}
 
 	// for command lines, brackets before '=' are validated elsewhere
 	if (equal_pos >= 0)
@@ -796,7 +817,21 @@ int W_Editor::CheckSemicolon(const char *text, const char *t_end, int equal_pos,
 	return pos;
 }
 
-void W_Editor::ParseNormalLine(const char *text, const char *t_end, char *style,
+bool W_Editor::CheckComma(const char *text, const char *t_end)
+{
+	for (t_end--; t_end > text; t_end--)
+	{
+		if (*t_end == ',')
+			return true;
+
+		if (! isspace(*t_end))
+			break;
+	}
+
+	return false;  // not found
+}
+
+void W_Editor::ParseCommand(const char *text, const char *t_end, char *style,
 	int equal_pos, char *context)
 {
 	if (text >= t_end)
@@ -878,15 +913,6 @@ void W_Editor::ParseCommandData(const char *text, const char *t_end, char *style
 	}
 }
 
-void W_Editor::ParseFlagData(const char *text, const char *t_end, char *style,
-	char *context)
-{
-	while (text < t_end)
-	{
-		text++, *style++ = *context;
-	}
-}
-
 void W_Editor::ParseStateData(const char *text, const char *t_end, char *style,
 	char *context)
 {
@@ -918,6 +944,15 @@ void W_Editor::ParseStateData(const char *text, const char *t_end, char *style,
 		}
 #endif
 
+	while (text < t_end)
+	{
+		text++, *style++ = *context;
+	}
+}
+
+void W_Editor::ParseFlagData(const char *text, const char *t_end, char *style,
+	char *context)
+{
 	while (text < t_end)
 	{
 		text++, *style++ = *context;
