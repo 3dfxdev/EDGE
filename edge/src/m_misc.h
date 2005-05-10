@@ -89,6 +89,8 @@ extern bool autorunning;
 extern bool display_disk;
 extern bool var_fadepower;
 extern bool var_smoothmap;
+extern bool var_hq_scale;
+extern bool var_hq_all;
 
 extern int cfgnormalfov, cfgzoomedfov;
 
