@@ -81,6 +81,8 @@ static const image_t *air_images[21] = { NULL, };
 
 bool var_fadepower = true;
 bool var_smoothmap = true;
+bool var_hq_scale  = true;
+bool var_hq_all    = false;
 
 unsigned short save_screenshot[160][100];
 bool save_screenshot_valid = false;
@@ -178,6 +180,7 @@ static default_t defaults[] =
 	{CFGT_Boolean, "var_hogcpu",    &var_hogcpu,    1},
 	{CFGT_Boolean, "var_fadepower", &var_fadepower, 1},
 	{CFGT_Boolean, "var_smoothmap", &var_smoothmap, 1},
+	{CFGT_Boolean, "var_hq_scale",  &var_hq_scale,  1},
 
 	{CFGT_Int, "var_nearclip",  &var_nearclip,  4},
 	{CFGT_Int, "var_farclip",   &var_farclip,   32000},
@@ -523,6 +526,12 @@ void M_InitMiscConVars(void)
 
 	M_CheckBooleanParm("smoothmap", &var_smoothmap, false);
 	CON_CreateCVarBool("smoothmap", cf_normal, &var_smoothmap);
+
+	M_CheckBooleanParm("hqscale", &var_hq_scale, false);
+	CON_CreateCVarBool("hqscale", cf_normal, &var_hq_scale);
+
+	M_CheckBooleanParm("hqall", &var_hq_all, false);
+	CON_CreateCVarBool("hqall", cf_normal, &var_hq_all);
 
 	const char *s;
 
