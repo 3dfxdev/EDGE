@@ -960,7 +960,6 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
 			if (isalnum(character) || character == SPACE || character == '-' ||
 				character == ':' || character == '.' || character == '[' ||
 				character == ']' || character == '\\' || character == '!' ||
-				character == '=' ||  // -AJA- 1999/08/10.
 				character == '#' || character == '%' || 
 				character == '@' || character == '?')
 			{
