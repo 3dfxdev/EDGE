@@ -427,7 +427,7 @@ void RGL_SoftInit(void)
 	glDepthFunc(GL_LEQUAL);
 	glAlphaFunc(GL_GREATER, 1.0f / 32.0f);
 
-	glHint(GL_FOG_HINT, GL_FASTEST);
+	glHint(GL_FOG_HINT, GL_NICEST);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 }
 
