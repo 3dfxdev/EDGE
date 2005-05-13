@@ -1044,7 +1044,7 @@ void W_Editor::ValidateBrackets(const char *text, const char *t_end, char *style
 	{
 		for (text = t_orig; text < t_end; text++)
 		{
-			if (style[text-t_orig] != 'S' && *text == '(')
+			if (style[text - t_orig] != 'S' && *text == '(')
 			{
 				style[text - t_orig] = 'E';
 				break;
@@ -1052,6 +1052,19 @@ void W_Editor::ValidateBrackets(const char *text, const char *t_end, char *style
 		}
 
 		SYS_ASSERT(text < t_end);
+	}
+
+	// check for invalid /*..*/ comments
+	for (const char *T = t_orig; T+1 < t_end; T++)
+	{
+		if (style[T - t_orig] == 'S')
+			continue;
+
+		if ((T[0] == '/' && T[1] == '*') ||
+		    (T[0] == '*' && T[1] == '/'))
+		{
+			style[T - t_orig] = style[T+1 - t_orig] = 'E';
+		}
 	}
 }
 
