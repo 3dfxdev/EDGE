@@ -1,8 +1,14 @@
 
 Munch_DDF TODO
-=============
+==============
 
--  syntax parsers: handle initial char(s) in ParseXXX routine.
++  remove CR characters (remember "DOS" mode, write them back).
 
-+  sort out patch for FLTK (fl_contrast).
+-  validate item names in [ ] (depends on file type).
+
+-  prevent ESCAPE from exiting.
+
+-  open new file, save and SaveAs in menu.
+
+-  sort out patch for FLTK (fl_contrast, 'E' style, knob size).
 
