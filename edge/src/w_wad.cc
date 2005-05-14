@@ -93,6 +93,8 @@ static ddf_reader_t DDF_Readers[] =
 };
 
 #define NUM_DDF_READERS  (int)(sizeof(DDF_Readers) / sizeof(ddf_reader_t))
+
+#define LANG_READER  0
 #define RTS_READER  (NUM_DDF_READERS-1)
 
 class data_file_c
@@ -937,6 +939,10 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	data_file_c *df = new data_file_c(Z_StrDup(filename), kind, handle);
 	data_files.Insert(df);
 
+	// for RTS scripts, adding the data_file is enough
+	if (kind == FLKIND_Script)
+		return;
+
 	if (kind <= FLKIND_HWad)
 	{
 		// WAD file
@@ -984,7 +990,10 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 		DEV_ASSERT2(dyn_index < 0);
 
-		ExtractFileBase(filename, lump_name);
+		if (kind == FLKIND_DDF)
+			DDF_GetLumpNameForFile(filename, lump_name);
+		else
+			ExtractFileBase(filename, lump_name);
 
 		// Fill in lumpinfo
 		numlumps++;
@@ -1179,6 +1188,36 @@ void W_InitMultipleFiles(void)
 		I_Error("W_InitMultipleFiles: no files found");
 }
 
+static bool TryLoadExtraLanguage(const char *name)
+{
+	int lumpnum = W_CheckNumForName(name);
+
+	if (lumpnum < 0)
+		return false;
+
+	int length = W_LumpLength(lumpnum);
+	char *data = new char[length + 1];
+
+	W_ReadLump(lumpnum, data);
+	data[length] = 0;
+
+	DDF_ReadLangs(data, length);
+
+	delete[] data;
+
+	return true;
+}
+
+static void LoadTntPlutStrings(void)
+{
+	if (strncmp(iwad_base, "TNT", 3) == 0)
+		TryLoadExtraLanguage("TNTLANG");
+
+	if (strncmp(iwad_base, "PLUT", 4) == 0)
+		TryLoadExtraLanguage("PLUTLANG");
+}
+
+
 void W_ReadDDF(void)
 {
 	// -AJA- the order here may look strange.  Since DDF files
@@ -1234,13 +1273,17 @@ void W_ReadDDF(void)
 			(* DDF_Readers[d].func)(data, length);
 
 			delete [] data;
+
+			// special handling for TNT and Plutonia
+			if (d == LANG_READER && df->kind == FLKIND_EWad)
+				LoadTntPlutStrings();
 		}
 
 		DDF_SetBoomConflict(false);
 
 		epi::string_c msg_buf;
 
-		msg_buf.Format("Parsing %s %s\n", (d == NUM_DDF_READERS-1) ? "RTS" : "DDF",
+		msg_buf.Format("Loaded %s %s\n", (d == NUM_DDF_READERS-1) ? "RTS" : "DDF",
 			DDF_Readers[d].print_name);
 
 		E_ProgressMessage(msg_buf.GetString());

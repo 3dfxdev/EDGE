@@ -175,6 +175,7 @@ bool autoquickload = false;
 
 // FIXME!! Strbox this lot...
 char *iwaddir;
+char *iwad_base;
 char *homedir;
 char *gamedir;
 char *savedir;
@@ -1119,6 +1120,37 @@ static void CheckExternal(void)
 	I_TmpFree(testfile);
 }
 
+static char *ExtractIWadBase(const char *path)
+{
+	const char *start = path + strlen(path) - 1;
+
+	// back up until a \ or the start
+	while (start != path
+		   && *(start - 1) != '\\'
+		   && *(start - 1) != '/'
+		   && *(start - 1) != ':')  // Kester added :
+	{
+		start--;
+	}
+
+	int length = 0;
+
+	// move forward until extension or end
+	while (start[length] && start[length] != '.')
+		length++;
+
+	if (length == 0)
+		I_Error("ExtractIWadBase: zero length basename: %s\n", path);
+	
+	char *result = Z_New(char, length+1);
+
+	memcpy(result, start, length);
+	result[length] = 0;
+
+	return result;
+}
+
+
 //
 // E_IdentifyVersion
 //
@@ -1132,7 +1164,6 @@ static void IdentifyVersion(void)
 	const char *location;
 	char *iwad;
 	int i;
-	int wadnum;
 	epi::string_c fn;
 
 	// Check -iwad parameter, find out if we are talking directory or file
@@ -1186,7 +1217,10 @@ static void IdentifyVersion(void)
 			I_Error("IdentifyVersion: Unable to add specified '%s'", 
 					fn.GetString());
 		}
-		
+
+		iwad_base = ExtractIWadBase(iwad);
+		strupr(iwad_base);
+
 		Z_Free(iwad);
 	}
 	else // cycle through default wad names and add them if they exist
@@ -1203,22 +1237,26 @@ static void IdentifyVersion(void)
 			// -ACB- 2000/06/08 Quit after we found a file - don't load
 			//                  more than one IWAD
 			//
-			wadnum = 0;
-			while (wadname[wadnum] && !done)
+			for (int w_idx=0; wadname[w_idx]; w_idx++)
 			{
 				fn.Format("%s%c%s.%s", location, DIRSEPARATOR, 
-						wadname[wadnum], EDGEWADEXT);
+						wadname[w_idx], EDGEWADEXT);
 
 				if (I_Access(fn.GetString()))
 				{
 					W_AddRawFilename(fn.GetString(), FLKIND_IWad);
-					done = true;
-				}
 
-				wadnum++;
+					iwad_base = Z_StrDup(wadname[w_idx]);
+					strupr(iwad_base);
+
+					done = true;
+					break;
+				}
 			}
 		}
 	}
+
+	L_WriteDebug("IWAD BASE = [%s]\n", iwad_base);
 
 	if (!addwadnum)
 		I_Error("IdentifyVersion: No IWADS found!\n");
@@ -1430,6 +1468,9 @@ static void AddSingleCmdLineFile(const char *name)
 		kind = FLKIND_HWad;
 	else if (M_CheckExtension("scr", name) == EXT_MATCHING)
 		kind = FLKIND_Script;
+	else if (M_CheckExtension("ddf", name) == EXT_MATCHING ||
+	         M_CheckExtension("ldf", name) == EXT_MATCHING)
+		kind = FLKIND_DDF;
 	else if (M_CheckExtension("deh", name) == EXT_MATCHING ||
 	         M_CheckExtension("bex", name) == EXT_MATCHING)
 		kind = FLKIND_Deh;
@@ -1652,6 +1693,8 @@ namespace engine
 		SetGlobalVars();
 
 		DoSystemStartup();
+
+		// RGL_FontStartup();
 
 		E_GlobalProgress(0, 0, 1);
 

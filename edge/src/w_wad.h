@@ -40,6 +40,7 @@ typedef enum
 
 	FLKIND_Lump,      // raw lump (no extension)
 
+	FLKIND_DDF,       // .ddf or .ldf file
 	FLKIND_Demo,      // .lmp demo file
 	FLKIND_Script,    // .scr (RTS) script
 	FLKIND_Deh        // .deh or .bex file
