@@ -1261,6 +1261,7 @@ static specflags_t hyper_specials[] =
 	{"FORCE PICKUP", HF_FORCEPICKUP, 0},
 	{"SIDE IMMUNE", HF_SIDEIMMUNE, 0},
 	{"ULTRA LOYAL", HF_ULTRALOYAL, 0},
+	{"ZBUFFER", HF_NOZBUFFER, 1},
 	{NULL, 0, 0}
 };
 
