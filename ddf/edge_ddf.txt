@@ -1,14 +1,18 @@
 
-EDGE DDF 4.5: (2005-03-11)
+EDGE DDF 4.5: (2005-05-13)
 ==========================
 
 1) LINES.DDF: fix certain teleport types to teleport objects
               (via OTHER keyword in ACTIVATOR line), needed for
               compatibility with Boom teleportation rules.
 
-2) IMAGES.DDF: added PNG image for title screens and console.
+2) IMAGES.DDF: added PNG images for title, credits and console.
 
 3) THINGS.DDF: added new ammo limits to player entries (16 now).
+
+4) THINGS.DDF: fix for teleport fog.
+
+5) GAMES.DDF, PLAYLIST.DDF: updated for new OGG title music.
 
 
 EDGE DDF 4.4: (2005-02-11)
