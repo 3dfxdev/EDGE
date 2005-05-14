@@ -1033,6 +1033,9 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	if (trans <= 0.99 || use_smoothing)
 		blending |= BL_Alpha;
 
+	if (dthing->mo->hyperflags & HF_NOZBUFFER)
+		blending |= BL_NoZBuf;
+
 	local_gl_vert_t *vert, *orig;
 
 	vert = orig = RGL_BeginUnit(GL_QUADS, 4, tex_id,0, /* pass */ 0, blending);

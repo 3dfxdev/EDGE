@@ -138,6 +138,25 @@ void RGL_SoftInitUnits()
 	}
 }
 
+void ComputeMiddle(vec3_t *mid, vec3_t *verts, int count)
+{
+	mid->x = verts[0].x;
+	mid->y = verts[0].y;
+	mid->z = verts[0].z;
+
+	for (int i=1; i < count; i++)
+	{
+		mid->x += verts[i].x;
+		mid->y += verts[i].y;
+		mid->z += verts[i].z;
+	}
+
+	mid->x /= float(count);
+	mid->y /= float(count);
+	mid->z /= float(count);
+}
+
+
 
 //
 // RGL_StartUnits
@@ -288,6 +307,17 @@ void RGL_DrawUnits(void)
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 
+//	glEnable(GL_LIGHT_0);
+
+
+#if 0
+	float fog_col[4] = { 1, 1, 0.3, 0};
+	glDisable(GL_FOG);
+	glFogi(GL_FOG_MODE, GL_EXP);
+	glFogf(GL_FOG_DENSITY, 0.002f);
+	glFogfv(GL_FOG_COLOR, fog_col);
+#endif
+
 	for (i=0; i < cur_unit; i++)
 	{
 		local_gl_unit_t *unit = local_units + local_unit_map[i];
@@ -327,6 +357,8 @@ void RGL_DrawUnits(void)
 			}
 			else
 				glDisable(GL_BLEND);
+
+			glDepthMask((cur_blending & BL_NoZBuf) ? GL_FALSE : GL_TRUE);
 
 			if (cur_blending & BL_Multi)
 			{
@@ -387,6 +419,8 @@ void RGL_DrawUnits(void)
 	glDisable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0);
 #endif
+
+	glDepthMask(GL_TRUE);
 
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_ALPHA_TEST);

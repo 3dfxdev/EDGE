@@ -325,7 +325,10 @@ typedef enum
 	HF_SIDEIMMUNE = 2,
 
 	// -AJA- 2004/09/02: don't retaliate if hurt by friendly fire
-	HF_ULTRALOYAL = 4
+	HF_ULTRALOYAL = 4,
+
+	// -AJA- 2005/05/14: don't update the Z buffer (particles).
+	HF_NOZBUFFER = 8
 }
 mobjhyperflag_t;
 

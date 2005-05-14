@@ -60,6 +60,7 @@ typedef enum
 	BL_Alpha   = 0x0002,  // alpha-blend with the framebuffer
 	BL_Add     = 0x0004,  // additive-blend with the framebuffer
 	BL_Multi   = 0x0010,  // use multi-texturing (second unit MODULATEs)
+	BL_NoZBuf  = 0x0020,  // don't update the Z buffer
 }
 blending_mode_e;
 
