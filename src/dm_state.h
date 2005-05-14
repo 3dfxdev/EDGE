@@ -158,6 +158,7 @@ extern wbstartstruct_t wminfo;
 
 // File handling stuff.
 extern char *iwaddir;
+extern char *iwad_base;
 extern char *homedir;
 extern char *gamedir;
 extern char *savedir;

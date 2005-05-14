@@ -276,6 +276,106 @@ void DDF_CleanUp(void)
 	currmap = mapdefs[0];
 }
 
+static const char *tag_conversion_table[] =
+{
+    "ANIMATIONS",  "DDFANIM",
+    "ATTACKS",     "DDFATK",
+    "COLOURMAPS",  "DDFCOLM",
+    "FONTS",       "DDFFONT",
+    "GAMES",       "DDFGAME",
+    "IMAGES",      "DDFIMAGE",
+    "LANGUAGES",   "DDFLANG",
+    "LEVELS",      "DDFLEVL",
+    "LINES",       "DDFLINE",
+    "PLAYLISTS",   "DDFPLAY",
+    "SECTORS",     "DDFSECT",
+    "SOUNDS",      "DDFSFX",
+    "STYLES",      "DDFSTYLE",
+    "SWITCHES",    "DDFSWTH",
+    "THINGS",      "DDFTHING",
+    "WEAPONS",     "DDFWEAP",
+
+	NULL, NULL
+};
+
+void DDF_GetLumpNameForFile(const char *filename, char *lumpname)
+{
+	FILE *fp = fopen(filename, "r");
+	
+	if (!fp)
+		I_Error("Couldn't open DDF file: %s\n", filename);
+
+	bool in_comment = false;
+
+	for (;;)
+	{
+		int ch = fgetc(fp);
+
+		if (ch == EOF || ferror(fp))
+			break;
+
+		if (ch == '/' || ch == '#')  // skip directives too
+		{
+			in_comment = true;
+			continue;
+		}
+
+		if (in_comment)
+		{
+			if (ch == '\n' || ch == '\r')
+				in_comment = false;
+			continue;
+		}
+		
+		if (ch == '[')
+			break;
+
+		if (ch != '<')
+			continue;
+
+		// found start of <XYZ> tag, read it in
+
+		char tag_buf[40];
+		int len = 0;
+
+		for (;;)
+		{
+			ch = fgetc(fp);
+
+			if (ch == EOF || ferror(fp) || ch == '>')
+				break;
+
+			tag_buf[len++] = toupper(ch);
+
+			if (len+2 >= (int)sizeof(tag_buf))
+				break;
+		}
+
+		tag_buf[len] = 0;
+
+		if (len > 0)
+		{
+			for (int i = 0; tag_conversion_table[i]; i += 2)
+			{
+				if (strcmp(tag_buf, tag_conversion_table[i]) == 0)
+				{
+					strcpy(lumpname, tag_conversion_table[i+1]);
+					fclose(fp);
+
+					return;  // SUCCESS!
+				}
+			}
+
+			fclose(fp);
+			I_Error("Unknown marker <%s> in DDF file: %s\n", tag_buf, filename);
+		}
+		break;
+	}
+
+	fclose(fp);
+	I_Error("Missing <..> marker in DDF file: %s\n", filename);
+}
+
 void DDF_SetBoomConflict(bool enabled)
 {
 	boom_conflict = enabled;
