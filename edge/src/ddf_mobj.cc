@@ -164,6 +164,7 @@ const commandlist_t thing_commands[] =
 	DF("BOBBING", bobbing, DDF_MainGetPercent),
 	DF("IMMUNITY CLASS", immunity, DDF_MainGetBitSet),
 	DF("RESISTANCE CLASS", resistance, DDF_MainGetBitSet),
+	DF("GHOST CLASS", ghost, DDF_MainGetBitSet),   // -AJA- 2005/05/15
 	DF("SHADOW TRANSLUCENCY", shadow_trans, DDF_MainGetPercent),
 	DF("LUNG CAPACITY", lung_capacity, DDF_MainGetTime),
 	DF("GASP START", gasp_start, DDF_MainGetTime),
@@ -1260,8 +1261,10 @@ static specflags_t hyper_specials[] =
 {
 	{"FORCE PICKUP", HF_FORCEPICKUP, 0},
 	{"SIDE IMMUNE", HF_SIDEIMMUNE, 0},
+	{"SIDE GHOST", HF_SIDEGHOST, 0},
 	{"ULTRA LOYAL", HF_ULTRALOYAL, 0},
 	{"ZBUFFER", HF_NOZBUFFER, 1},
+	{"HOVER", HF_HOVER, 0},
 	{NULL, 0, 0}
 };
 
@@ -1334,7 +1337,7 @@ void DDF_MobjGetSpecial(const char *info, void *storage)
 
 		case CHKF_User:
 		case CHKF_Unknown:
-			DDF_WarnError2(0x128, "DDF_MobjGetSpecial: Unknown special '%s'", info);
+			DDF_WarnError2(0x128, "DDF_MobjGetSpecial: Unknown special '%s'\n", info);
 			break;
 	}
 }
@@ -1363,7 +1366,7 @@ void DDF_MobjGetDLight(const char *info, void *storage)
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info, 
 		dlight_type_names, &flag_value, false, false))
 	{
-		DDF_WarnError2(0x128, "Unknown dlight type '%s'", info);
+		DDF_WarnError2(0x128, "Unknown dlight type '%s'\n", info);
 		return;
 	}
 
@@ -1763,6 +1766,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	bobbing = src.bobbing; 
 	immunity = src.immunity; 
 	resistance = src.resistance; 
+	ghost = src.ghost; 
 
 	closecombat = src.closecombat; 
 	rangeattack = src.rangeattack; 
@@ -1881,6 +1885,7 @@ void mobjtype_c::Default()
 	bobbing = PERCENT_MAKE(100);
 	immunity = BITSET_EMPTY;
 	resistance = BITSET_EMPTY;
+	ghost = BITSET_EMPTY;
 
 	closecombat = NULL;
 	rangeattack = NULL;
