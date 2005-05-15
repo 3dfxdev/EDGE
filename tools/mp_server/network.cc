@@ -271,9 +271,9 @@ void NetInit(void)
 
 	if (bcast_socket == NL_INVALID)
 	{
-		fl_alert("Unable to create UDP socket on port %d:\n(%s)", local_port,
-				 GetNLErrorStr());
-		exit(5); //!!!!
+		LogPrintf(2, "Unable to create UDP broadcast socket on port %d:\n(%s)\n\n",
+			local_port, GetNLErrorStr());
+		/* leave socket as NL_INVALID */
 	}
 
 	// Set real local address (for listen socket)
@@ -305,8 +305,10 @@ void NetInit(void)
 		exit(5);
 	}
 
-	nlGroupAddSocket(main_group, bcast_socket);
 	nlGroupAddSocket(main_group, conn_socket);
+
+	if (bcast_socket != NL_INVALID)
+		nlGroupAddSocket(main_group, bcast_socket);
 
 	NLaddress addr;
 
@@ -340,6 +342,8 @@ static void HandleTimeouts()
 
 static void HandleBroadcast(void)
 {
+	SYS_ASSERT(bcast_socket != NL_INVALID);
+
 	packet_c pk; 
 	pk.Clear();
 
@@ -504,7 +508,7 @@ void *NetRun(void *data)
 			{
 				NLsocket CUR_SOCK = socks[idx];
 
-				if (CUR_SOCK == bcast_socket)
+				if (bcast_socket != NL_INVALID && CUR_SOCK == bcast_socket)
 					HandleBroadcast();
 				else if (CUR_SOCK == conn_socket)
 					HandleConnection();
