@@ -324,11 +324,17 @@ typedef enum
 	// -AJA- 2004/09/02: immune from friendly fire
 	HF_SIDEIMMUNE = 2,
 
+	// -AJA- 2005/05/15: friendly fire passes through you
+	HF_SIDEGHOST = 4,
+
 	// -AJA- 2004/09/02: don't retaliate if hurt by friendly fire
-	HF_ULTRALOYAL = 4,
+	HF_ULTRALOYAL = 8,
 
 	// -AJA- 2005/05/14: don't update the Z buffer (particles).
-	HF_NOZBUFFER = 8
+	HF_NOZBUFFER = 16,
+
+	// -AJA- 2005/05/15: the sprite hovers up and down
+	HF_HOVER = 32,
 }
 mobjhyperflag_t;
 

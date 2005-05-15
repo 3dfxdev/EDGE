@@ -732,6 +732,19 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 	float gzt = mo->z + (sprite_height + top_offset) * mo->info->yscale;
 	float gzb = mo->z + top_offset * mo->info->yscale;
 
+	if (mo->hyperflags & HF_HOVER)
+	{
+		// compute a different phase for different objects
+		angle_t phase = (angle_t) mo;
+		phase ^= (angle_t)(phase << 19);
+		phase += (angle_t)(leveltime << (ANGLEBITS-6));
+
+		float hover_dz = M_Sin(phase) * 4.0f;
+
+		gzt += hover_dz;
+		gzb += hover_dz;
+	}
+
 	// fix for sprites that sit wrongly into the floor/ceiling
 	int clip_vert = 0;
 

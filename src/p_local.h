@@ -94,9 +94,9 @@ extern mobj_t *RandomTarget;
 //
 void P_PlayerAttack(mobj_t * playerobj, const atkdef_c * attack);
 void P_SlammedIntoObject(mobj_t * object, mobj_t * objecthit);
-bool P_MissileContact(mobj_t * object, mobj_t * objecthit);
-bool P_BulletContact(mobj_t * object, mobj_t * objecthit, 
-							 float damage, const damage_c * damtype);
+int P_MissileContact(mobj_t * object, mobj_t * objecthit);
+int P_BulletContact(mobj_t * object, mobj_t * objecthit, 
+					 float damage, const damage_c * damtype);
 void P_TouchyContact(mobj_t * touchy, mobj_t * victim);
 bool P_UseThing(mobj_t * user, mobj_t * thing, float open_bottom,
 						float open_top);

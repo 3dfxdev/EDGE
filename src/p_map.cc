@@ -351,7 +351,9 @@ static bool PIT_CheckAbsThing(mobj_t * thing)
 		if (tm_I.mover->source && tm_I.mover->source == thing)
 			return true;
 
-		P_MissileContact(tm_I.mover, thing);
+		if (P_MissileContact(tm_I.mover, thing) < 0)
+			return true;
+
 		return (tm_I.extflags & EF_TUNNEL) ? true : false;
 	}
 
@@ -689,7 +691,9 @@ static bool PIT_CheckRelThing(mobj_t * thing)
 		if (tm_I.mover->source && tm_I.mover->source == thing)
 			return true;
 
-		P_MissileContact(tm_I.mover, thing);
+		if (P_MissileContact(tm_I.mover, thing) < 0)
+			return true;
+
 		return (tm_I.extflags & EF_TUNNEL) ? true : false;
 	}
 
@@ -1475,7 +1479,11 @@ static bool PTR_ShootTraverse(intercept_t * in)
 
 	if (th->flags & MF_SHOOTABLE)
 	{
-		if (! P_BulletContact(shoot_I.source, th, shoot_I.damage, shoot_I.damtype))
+		int what = P_BulletContact(shoot_I.source, th, shoot_I.damage, shoot_I.damtype);
+
+		if (what < 0) // bullets pass through
+			return true;
+		else if (what == 0)
 			use_puff = true;
 	}
 
