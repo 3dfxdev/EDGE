@@ -19,8 +19,8 @@
 #ifndef __MP_MAIN_H__
 #define __MP_MAIN_H__
 
-#define MPSERVER_VERSION  "0.60"
-#define MPSERVER_VER_HEX  0x060
+#define MPSERVER_VERSION  "0.61"
+#define MPSERVER_VER_HEX  0x061
 
 #define MPS_DEF_MAX_CLIENT  32
 #define MPS_DEF_MAX_GAME     8
