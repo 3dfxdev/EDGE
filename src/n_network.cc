@@ -256,13 +256,13 @@ static bool N_FindServer(void)
 static void N_ConnectServer(void)
 {
 #if 0  /// UDP : choose a random socket port
-	int port = 0;
+	int udp_port = 0;
 
 	for (int tries = 0; tries < 100; tries++)
 	{
-		port = 11000 + (rand() & 0x1FFF);
+		udp_port = 11000 + (rand() & 0x1FFF);
 
-		socket = nlOpen(port, NL_RELIABLE_PACKETS);
+		socket = nlOpen(udp_port, NL_RELIABLE_PACKETS);
 
 		if (socket != NL_INVALID)
 			break;
@@ -279,8 +279,12 @@ static void N_ConnectServer(void)
 
 ///UDP	printf("Port %d\n", port);
 
+	nlSetAddrPort(&server, port);
+
 	if (nlConnect(socket, &server) != NL_TRUE)
 		I_Error("Failed to connect to server: timed out\n");  // FIXME: retry a few times
+
+	I_Sleep(1000);
 
 ///UDP	nlSetRemoteAddr(socket, &server);
 
