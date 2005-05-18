@@ -41,7 +41,8 @@ side_t *sidedef;
 line_t *linedef;
 sector_t *frontsector;
 sector_t *backsector;
-int root_node;
+
+unsigned int root_node;
 
 
 //

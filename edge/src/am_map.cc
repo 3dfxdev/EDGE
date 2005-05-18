@@ -1149,7 +1149,7 @@ static void AM_WalkThing(mobj_t *mo)
 //
 // Visit a subsector and draw everything.
 //
-static void AM_WalkSubsector(int num)
+static void AM_WalkSubsector(unsigned int num)
 {
 	subsector_t *sub = &subsectors[num];
 
@@ -1204,15 +1204,15 @@ static bool AM_CheckBBox(float *bspcoord)
 // Walks all subsectors below a given node, traversing subtree
 // recursively.  Just call with BSP root.
 //
-static void AM_WalkBSPNode(int bspnum)
+static void AM_WalkBSPNode(unsigned int bspnum)
 {
 	node_t *node;
 	int side;
 
 	// Found a subsector?
-	if (bspnum & NF_SUBSECTOR)
+	if (bspnum & NF_V5_SUBSECTOR)
 	{
-		AM_WalkSubsector(bspnum & (~NF_SUBSECTOR));
+		AM_WalkSubsector(bspnum & (~NF_V5_SUBSECTOR));
 		return;
 	}
 

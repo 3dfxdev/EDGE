@@ -261,11 +261,11 @@ static bool CrossSubsector(subsector_t *sub)
 // Returns false if LOS is blocked by the given node, otherwise true.
 // Note: extrafloors are not checked here.
 //
-static bool CheckSightBSP(int bspnum)
+static bool CheckSightBSP(unsigned int bspnum)
 {
 	DEV_ASSERT2(bspnum >= 0);
 
-	while (! (bspnum & NF_SUBSECTOR))
+	while (! (bspnum & NF_V5_SUBSECTOR))
 	{
 		node_t *node = nodes + bspnum;
 		int s1, s2;
@@ -296,10 +296,10 @@ static bool CheckSightBSP(int bspnum)
 		bspnum = node->children[s2];
 	}
 
-	bspnum &= ~NF_SUBSECTOR;
+	bspnum &= ~NF_V5_SUBSECTOR;
 
-	DEV_ASSERT((0 <= bspnum && bspnum < numsubsectors),
-		("CrossSubsector: sub %i with numsub = %i", bspnum, numsubsectors));
+	DEV_ASSERT((0 <= bspnum && int(bspnum) < numsubsectors),
+		("CrossSubsector: sub %u with numsub = %i", bspnum, numsubsectors));
 
 	{
 		subsector_t *sub = subsectors + bspnum;

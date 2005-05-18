@@ -1247,7 +1247,7 @@ static void SetPositionBSP(setposbsp_t *info, int nodenum)
 	subsector_t *sub;
 	seg_t *seg;
 
-	while (! (nodenum & NF_SUBSECTOR))
+	while (! (nodenum & NF_V5_SUBSECTOR))
 	{
 		node_t *nd = nodes + nodenum;
 
@@ -1270,7 +1270,7 @@ static void SetPositionBSP(setposbsp_t *info, int nodenum)
 	// we don't actually split the thing's BBOX when it intersects with
 	// a partition line.
 
-	sub = subsectors + (nodenum & ~NF_SUBSECTOR);
+	sub = subsectors + (nodenum & ~NF_V5_SUBSECTOR);
 
 	for (seg=sub->segs; seg; seg=seg->sub_next)
 	{
@@ -2125,7 +2125,7 @@ static INLINE bool PST_CheckBBox(float *bspcoord, float *test)
 		test[BOXBOTTOM] > bspcoord[BOXTOP]) ? false : true;
 }
 
-static bool TraverseSubsec(int bspnum, float *bbox,
+static bool TraverseSubsec(unsigned int bspnum, float *bbox,
 								bool (*func)(mobj_t *mo))
 {
 	subsector_t *sub;
@@ -2133,7 +2133,7 @@ static bool TraverseSubsec(int bspnum, float *bbox,
 	mobj_t *obj;
 
 	// just a normal node ?
-	if (! (bspnum & NF_SUBSECTOR))
+	if (! (bspnum & NF_V5_SUBSECTOR))
 	{
 		node = nodes + bspnum;
 
@@ -2157,7 +2157,7 @@ static bool TraverseSubsec(int bspnum, float *bbox,
 
 	// the sharp end: check all things in the subsector
 
-	sub = subsectors + (bspnum & ~NF_SUBSECTOR);
+	sub = subsectors + (bspnum & ~NF_V5_SUBSECTOR);
 
 	for (obj=sub->thinglist; obj; obj=obj->snext)
 	{

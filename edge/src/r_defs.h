@@ -557,8 +557,8 @@ typedef struct node_s
 	divline_t div;
 	float div_len;
 
-	// If NF_SUBSECTOR its a subsector.
-	unsigned short children[2];
+	// bit NF_V5_SUBSECTOR set for a subsector.
+	unsigned int children[2];
 
 	// Bounding boxes for this node.
 	float bbox[2][4];

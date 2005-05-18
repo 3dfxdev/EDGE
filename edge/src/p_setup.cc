@@ -155,6 +155,7 @@ spawnpointarray_c dm_starts;
 spawnpointarray_c coop_starts;
 
 static bool hexen_level;
+static bool v5_nodes;
 
 // When "GL Nodes v2.0" vertices are found, then our segs are "exact"
 // (have fixed-point granularity) and we don't need to fudge the
@@ -257,8 +258,11 @@ static void LoadGLVertexes(int lump)
 	// Handle v2.0 of "GL Node" specs (fixed point vertices)
 	if (length >= 4 &&
 		data[0] == 'g' && data[1] == 'N' &&
-		data[2] == 'd' && data[3] == '2')
+		data[2] == 'd' && (data[3] == '2' || data[3] == '5'))
 	{
+		if (data[3] == '5')
+			v5_nodes = true;
+
 		LoadV2Vertexes(data + 4, length - 4);
 		W_DoneWithLump(data);
 		return;
@@ -269,7 +273,7 @@ static void LoadGLVertexes(int lump)
 		data[0] == 'g' && data[1] == 'N' &&
 		data[2] == 'd' && data[3] == '4')
 	{
-		I_Error("Risen3D Nodes detected, please rebuild nodes with glBSP.\n");
+		I_Error("V4 Nodes not supported, please rebuild nodes with glBSP.\n");
 	}
 
 	// Determine number of vertices:
@@ -301,7 +305,6 @@ static void LoadV3Segs(const byte *data, int length)
 	const map_gl3seg_t *ml;
 	seg_t *seg;
 	int linedef;
-	int flags;
 	int side;
 	int partner;
 
@@ -316,19 +319,22 @@ static void LoadV3Segs(const byte *data, int length)
 	ml = (const map_gl3seg_t *) data;
 	seg = segs;
 
+	// check both V3 and V5 bits
+	unsigned int VERTEX_V3_OR_V5 = SF_GL_VERTEX_V3 | SF_GL_VERTEX_V5;
+
 	for (int i = 0; i < numsegs; i++, seg++, ml++)
 	{
 		unsigned int v1num = EPI_LE_U32(ml->v1);
 		unsigned int v2num = EPI_LE_U32(ml->v2);
 
 		// FIXME: check if indices are valid
-		if (v1num & SF_GL_VERTEX_V3)
-			seg->v1 = &gl_vertexes[v1num & ~SF_GL_VERTEX_V3];
+		if (v1num & VERTEX_V3_OR_V5)
+			seg->v1 = &gl_vertexes[v1num & ~VERTEX_V3_OR_V5];
 		else
 			seg->v1 = &vertexes[v1num];
 
-		if (v2num & SF_GL_VERTEX_V3)
-			seg->v2 = &gl_vertexes[v2num & ~SF_GL_VERTEX_V3];
+		if (v2num & VERTEX_V3_OR_V5)
+			seg->v2 = &gl_vertexes[v2num & ~VERTEX_V3_OR_V5];
 		else
 			seg->v2 = &vertexes[v2num];
 
@@ -339,8 +345,7 @@ static void LoadV3Segs(const byte *data, int length)
 			seg->v2->x, seg->v2->y);
 
 		linedef = EPI_LE_U16(ml->linedef);
-		flags = EPI_LE_U16(ml->flags);
-		side = (flags & V3SEG_F_LEFT) ? 1 : 0;
+		side = ml->side ? 1 : 0;
 
 		seg->frontsector = seg->backsector = NULL;
 
@@ -409,6 +414,13 @@ static void LoadGLSegs(int lump)
 		data[2] == 'd' && data[3] == '3')
 	{
 		LoadV3Segs(data + 4, length - 4);
+		W_DoneWithLump(data);
+		return;
+	}
+
+	if (v5_nodes)
+	{
+		LoadV3Segs(data, length);
 		W_DoneWithLump(data);
 		return;
 	}
@@ -602,6 +614,13 @@ static void LoadSubsectors(int lump, const char *name)
 		return;
 	}
 
+	if (v5_nodes)
+	{
+		LoadV3Subsectors(data, length);
+		W_DoneWithLump(data);
+		return;
+	}
+
 	numsubsectors = length / sizeof(mapsubsector_t);
 
 	if (numsubsectors == 0)
@@ -763,25 +782,99 @@ static void LoadSectors(int lump)
 	W_DoneWithLump(data);
 }
 
+static void SetupRootNode(void)
+{
+	if (numnodes > 0)
+	{
+		root_node = numnodes - 1;
+	}
+	else
+	{
+		root_node = NF_V5_SUBSECTOR | 0;
+
+		// compute bbox for the single subsector
+		M_ClearBox(dummy_bbox);
+
+		int i;
+		seg_t *seg;
+
+		for (i=0, seg=segs; i < numsegs; i++, seg++)
+		{
+			M_AddToBox(dummy_bbox, seg->v1->x, seg->v1->y);
+			M_AddToBox(dummy_bbox, seg->v2->x, seg->v2->y);
+		}
+	}
+}
+
+//
+// LoadV5Nodes
+//
+static void LoadV5Nodes(const void *data, int length)
+{
+	int i, j, k;
+	const map_gl5node_t *mn;
+	node_t *nd;
+
+	numnodes = length / sizeof(map_gl5node_t);
+	nodes = Z_ClearNew(node_t, numnodes);
+
+	mn = (const map_gl5node_t *) data;
+	nd = nodes;
+
+	for (i = 0; i < numnodes; i++, nd++, mn++)
+	{
+		nd->div.x  = EPI_LE_S16(mn->x);
+		nd->div.y  = EPI_LE_S16(mn->y);
+		nd->div.dx = EPI_LE_S16(mn->dx);
+		nd->div.dy = EPI_LE_S16(mn->dy);
+
+		nd->div_len = R_PointToDist(0, 0, nd->div.dx, nd->div.dy);
+
+		for (j = 0; j < 2; j++)
+		{
+			nd->children[j] = EPI_LE_U32(mn->children[j]);
+
+			for (k = 0; k < 4; k++)
+				nd->bbox[j][k] = (float) EPI_LE_S16(mn->bbox[j][k]);
+
+			// update bbox pointers in subsector
+			if (nd->children[j] & NF_V5_SUBSECTOR)
+			{
+				subsector_t *ss = subsectors + (nd->children[j] & ~NF_V5_SUBSECTOR);
+				ss->bbox = &nd->bbox[j][0];
+			}
+		}
+	}
+
+	SetupRootNode();
+}
+
 //
 // LoadNodes
 //
 static void LoadNodes(int lump, char *name)
 {
-	const void *data;
 	int i, j, k;
 	const mapnode_t *mn;
 	node_t *nd;
-	seg_t *seg;
 
 	if (! W_VerifyLumpName(lump, name))
 		I_Error("Bad WAD: level %s missing %s.\n", 
 				currmap->lump.GetString(), name);
 
 	// Note: zero numnodes is valid.
-	numnodes = W_LumpLength(lump) / sizeof(mapnode_t);
+	int length = W_LumpLength(lump);
+	const void *data = W_CacheLumpNum(lump);
+
+	if (v5_nodes)
+	{
+		LoadV5Nodes(data, length);
+		W_DoneWithLump(data);
+		return;
+	}
+
+	numnodes = length / sizeof(mapnode_t);
 	nodes = Z_ClearNew(node_t, numnodes);
-	data = W_CacheLumpNum(lump);
 
 	mn = (const mapnode_t *) data;
 	nd = nodes;
@@ -802,11 +895,12 @@ static void LoadNodes(int lump, char *name)
 			for (k = 0; k < 4; k++)
 				nd->bbox[j][k] = (float) EPI_LE_S16(mn->bbox[j][k]);
 
-			// update bbox pointers in subsector
+			// change to correct bit, and update bbox pointers
 			if (nd->children[j] & NF_SUBSECTOR)
 			{
-				subsector_t *ss = subsectors + (nd->children[j] & ~NF_SUBSECTOR);
+				nd->children[j] = NF_V5_SUBSECTOR | (nd->children[j] & ~NF_SUBSECTOR);
 
+				subsector_t *ss = subsectors + (nd->children[j] & ~NF_V5_SUBSECTOR);
 				ss->bbox = &nd->bbox[j][0];
 			}
 		}
@@ -814,21 +908,7 @@ static void LoadNodes(int lump, char *name)
 
 	W_DoneWithLump(data);
 
-	if (numnodes > 0)
-		root_node = numnodes - 1;
-	else
-	{
-		root_node = NF_SUBSECTOR | 0;
-
-		// compute bbox for the single subsector
-		M_ClearBox(dummy_bbox);
-
-		for (i=0, seg=segs; i < numsegs; i++, seg++)
-		{
-			M_AddToBox(dummy_bbox, seg->v1->x, seg->v1->y);
-			M_AddToBox(dummy_bbox, seg->v2->x, seg->v2->y);
-		}
-	}
+	SetupRootNode();
 }
 
 //
@@ -2271,6 +2351,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 	itemquehead = NULL;
 	mobjlisthead = NULL;
 
+	v5_nodes = false;
 	remove_slime_trails = true;
 
 	// check if the level is for Hexen

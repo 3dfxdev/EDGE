@@ -32,6 +32,7 @@ extern side_t *sidedef;
 extern line_t *linedef;
 extern sector_t *frontsector;
 extern sector_t *backsector;
-extern int root_node;
+
+extern unsigned int root_node;
 
 #endif
