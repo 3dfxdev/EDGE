@@ -577,18 +577,18 @@ subsector_t *R_PointInSubsector(float x, float y)
 {
 	node_t *node;
 	int side;
-	int nodenum;
+	unsigned int nodenum;
 
 	nodenum = root_node;
 
-	while (!(nodenum & NF_SUBSECTOR))
+	while (!(nodenum & NF_V5_SUBSECTOR))
 	{
 		node = &nodes[nodenum];
 		side = P_PointOnDivlineSide(x, y, &node->div);
 		nodenum = node->children[side];
 	}
 
-	return &subsectors[nodenum & ~NF_SUBSECTOR];
+	return &subsectors[nodenum & ~NF_V5_SUBSECTOR];
 }
 
 //

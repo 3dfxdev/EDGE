@@ -75,8 +75,7 @@ enum
 // A single Vertex.
 typedef struct
 {
-	short x;
-	short y;
+	short x, y;
 }
 mapvertex_t;
 
@@ -98,8 +97,7 @@ mapsidedef_t;
 // to the BSP builder.
 typedef struct
 {
-	short v1;
-	short v2;
+	short v1, v2;
 	short flags;
 	short special;
 	short tag;
@@ -167,8 +165,7 @@ lineflag_e;
 // -AJA- 2001/08/04: Hexen linedef
 typedef struct
 {
-	short v1;
-	short v2;
+	short v1, v2;
 	short flags;
 	byte special[6];
 	short sidenum[2];
@@ -197,7 +194,7 @@ typedef struct
 }
 mapsubsector_t;
 
-// -AJA- 2004/07/14: New kind of subsector for V3.0 of the "GL Nodes"
+// -AJA- 2004/07/14: New kind of subsector for V3 and V5 of "GL Nodes"
 //      specifications.  Needed for huge levels (over 65534 segs).
 typedef struct
 {
@@ -210,8 +207,7 @@ map_gl3subsec_t;
 // using partition lines selected by BSP builder.
 typedef struct mapseg_s
 {
-	short v1;
-	short v2;
+	short v1, v2;
 	short angle;
 	short linedef;
 	short side;
@@ -225,8 +221,7 @@ mapseg_t;
 typedef struct map_glseg_s
 {
 	// start & end vertices
-	unsigned short v1;
-	unsigned short v2;
+	unsigned short v1, v2;
 
 	// linedef, or -1 for minisegs
 	short linedef;
@@ -240,38 +235,35 @@ typedef struct map_glseg_s
 map_glseg_t;
 
 // Indicates a GL-specific vertex
-#define	SF_GL_VERTEX	0x8000
+#define	SF_GL_VERTEX  (unsigned short)(1 << 15)
 
-// -AJA- 2004/07/14: New kind of subsector for V3.0 of the "GL Nodes"
+// -AJA- 2004/07/14: New kind of subsector for V3 and V5 of "GL Nodes"
 //      specifications.  Needed for huge levels (over 65534 segs).
 typedef struct
 {
 	// start & end vertices
-	unsigned long v1;
-	unsigned long v2;
+	unsigned long v1, v2;
 
 	// linedef, or -1 for minisegs
 	short linedef;
 
-	// flag bitfield, the main one is the side flag.
-	short flags;
+	// side flag (0 for right, 1 for left)
+	short side;
 
 	// corresponding partner seg, or -1 on one-sided walls
 	long partner;
 }
 map_gl3seg_t;
 
-// Indicates a GL-specific vertex (V3 format only)
-#define	SF_GL_VERTEX_V3   (1 << 30)
-
-#define V3SEG_F_LEFT   0x0001   // side number (0 = right, 1 = left)
+// Indicates a GL-specific vertex (V3 and V5 formats)
+#define	SF_GL_VERTEX_V3   (unsigned int)(1 << 30)
+#define	SF_GL_VERTEX_V5   (unsigned int)(1 << 31)
 
 // -AJA- 2000/07/01: New kind of vertex for V2.0 of the "GL Nodes"
 //      specifications.  These vertices are in 16.16 fixed point.
 typedef struct
 {
-	long x;
-	long y;
+	long x, y;
 }
 map_gl2vertex_t;
 
@@ -280,31 +272,47 @@ map_gl2vertex_t;
 typedef struct
 {
 	// Partition line from (x,y) to x+dx,y+dy)
-	short x;
-	short y;
-	short dx;
-	short dy;
+	short x, y;
+	short dx, dy;
 
 	// Bounding box for each child,
 	// clip against view frustum.
 	short bbox[2][4];
 
-	// If NF_SUBSECTOR its a subsector,
+	// bit NF_SUBSECTOR set for a subsector,
 	// else it's a node of another subtree.
 	unsigned short children[2];
-
 }
 mapnode_t;
 
 // Indicate a leaf.
-#define	NF_SUBSECTOR	0x8000
+#define	NF_SUBSECTOR  (unsigned short)(1 << 15)
+
+// -AJA- 2005/05/18: new structure for V5 GL-Nodes:
+typedef struct
+{
+	// Partition line from (x,y) to x+dx,y+dy)
+	short x, y;
+	short dx, dy;
+
+	// Bounding box for each child,
+	// clip against view frustum.
+	short bbox[2][4];
+
+	// bit NF_V5_SUBSECTOR set for a subsector,
+	// else it's a node of another subtree.
+	unsigned int children[2];
+}
+map_gl5node_t;
+
+// Indicate a leaf.
+#define	NF_V5_SUBSECTOR  (unsigned int)(1 << 31)
 
 // Thing definition, position, orientation and type,
 // plus skill/visibility flags and attributes.
 typedef struct
 {
-	short x;
-	short y;
+	short x, y;
 	short angle;
 	short type;
 	short options;
