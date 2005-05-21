@@ -90,6 +90,7 @@
 #include "r_main.h"
 #include "r_vbinit.h"
 #include "r2_defs.h"
+#include "rgl_defs.h"
 #include "s_sound.h"
 #include "v_ctx.h"
 #include "v_res.h"
@@ -394,16 +395,17 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Slider, "Zoomed FOV", NULL, 35, 1, &menuzoomedfov, M_ChangeZoomedFOV, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Switch, "HUD", Huds, 3, HUD_Full, &screen_hud, M_ChangeScreenHud, NULL},
-	{OPT_Switch, "Mipmapping", MipMaps, 3, 1, &use_mipmapping, M_ChangeMipMap, NULL},
 	{OPT_Boolean, "Smoothing", YesNo, 2, 1, &use_smoothing, M_ChangeMipMap, NULL},
-	{OPT_Boolean, "Shadows", YesNo, 2, 0, &global_flags.shadows, M_ChangeShadows, NULL},
+	{OPT_Switch, "Mipmapping", MipMaps, 3, 1, &use_mipmapping, M_ChangeMipMap, NULL},
+	{OPT_Boolean, "Doom-like fading", YesNo, 2, 1, &doom_fading, NULL, NULL},
 	{OPT_Switch, "Dynamic Lighting", DLMode, 2, 0, &use_dlights, M_ChangeDLights, NULL},
 	{OPT_Switch, "Detail Level", Details, 3, 1, &detail_level, M_ChangeMipMap, NULL},
+	{OPT_Switch, "Sky stretch", SkySq, 5, 1, &sky_stretch, M_ChangeMipMap, NULL},
+	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
+	{OPT_Boolean, "Shadows", YesNo, 2, 0, &global_flags.shadows, M_ChangeShadows, NULL},
 	{OPT_Switch, "Crosshair", CrosO, 4, 0, &crosshair, NULL, NULL},
 	{OPT_Boolean, "Map Overlay", YesNo, 2, 0, &map_overlay, NULL, NULL},
 	{OPT_Boolean, "Map Rotation", YesNo, 2, 0, &rotatemap, NULL, NULL},
-	{OPT_Switch, "Sky stretch", SkySq, 5, 1, &sky_stretch, M_ChangeMipMap, NULL},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Switch, "Teleport Flash", YesNo, 2, 1, &telept_flash, NULL, NULL},
 	{OPT_Switch, "Wipe method", WIPE_EnumStr, WIPE_NUMWIPES, 1, &wipe_method, NULL, NULL} 
   

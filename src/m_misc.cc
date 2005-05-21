@@ -132,6 +132,7 @@ static default_t defaults[] =
     {CFGT_Enum, "autoaim", &global_flags.autoaim, 1},
     {CFGT_Boolean, "missileteleport", &missileteleport, 0},
     {CFGT_Int, "teleportdelay", &teleportdelay, 0},
+    {CFGT_Boolean, "doom_fading", &doom_fading, 1},
 
     // -KM- 1998/07/21 Save the blood setting
     {CFGT_Boolean, "blood", &global_flags.more_blood, 0},

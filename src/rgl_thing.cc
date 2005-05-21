@@ -884,17 +884,12 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 //
 void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 {
-	int lit_Nom = dthing->bright ? 255 : RGL_Light(dthing->props->lightlevel);
-		
 	int fuzzy = (dthing->mo->flags & MF_FUZZY);
 	float trans = fuzzy ? FUZZY_TRANS : dthing->mo->visibility;
 
 	const colourmap_c *colmap = dthing->props->colourmap;
 
-	float c_r, c_g, c_b;
 	int L_r, L_g, L_b;
-
-	V_GetColmapRGB(colmap, &c_r, &c_g, &c_b, false);
 
 	float dx = 0, dy = 0;
 
@@ -921,9 +916,31 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 #endif
 	else
 	{
-		L_r = (int)(lit_Nom * c_r);
-		L_g = (int)(lit_Nom * c_g);
-		L_b = (int)(lit_Nom * c_b);
+		int L = dthing->bright ? 255 : dthing->props->lightlevel;
+
+		float c_r, c_g, c_b;
+		V_GetColmapRGB(colmap, &c_r, &c_g, &c_b, false);
+
+		if (doom_fading)
+		{
+			float dx = fabs(dthing->mo->x - viewx);
+			float dy = fabs(dthing->mo->y - viewy);
+			float dz = fabs(MO_MIDZ(dthing->mo) - viewz);
+
+			float dist = APPROX_DIST3(dx, dy, dz);
+
+			L = EMU_LIGHT(L, dist);
+
+			L = RGL_LightEmu((L < 0) ? 0 : (L > 255) ? 255 : L);
+		}
+		else
+		{
+			L = RGL_Light(L);
+		}
+
+		L_r = (int)(L * c_r);
+		L_g = (int)(L * c_g);
+		L_b = (int)(L * c_b);
 	}
 
 	if (trans < 0.04f)
