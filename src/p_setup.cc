@@ -168,6 +168,32 @@ static bool remove_slime_trails;
 static int *temp_line_sides;
 
 
+static void CheckEvilutionBug(byte *data, int length)
+{
+	// The IWAD for TNT Evilution has a bug in MAP31 which prevents
+	// the yellow keycard from appearing (the "Multiplayer Only" flag
+	// is set), and the level cannot be completed.  This fixes it.
+
+	static const byte Y_key_data[] =
+	{
+		0x59,0xf5, 0x48,0xf8, 0,0, 6,0, 0x17,0
+	};
+
+	static const int Y_key_offset = 0x125C;
+
+	if (length < Y_key_offset + 10)
+		return;
+
+	data += Y_key_offset;
+
+	if (memcmp(data, Y_key_data, 10) != 0)
+		return;
+
+	I_Printf("Detected TNT MAP31 bug, adding fix.\n");
+
+	data[8] &= ~MTF_NOT_SINGLE;
+}
+
 //
 // LoadVertexes
 //
@@ -1035,6 +1061,8 @@ static void LoadThings(int lump)
 	data = W_CacheLumpNum(lump);
 	mapthing_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 	mapthing_NUM = numthings;
+
+	CheckEvilutionBug((byte *)data, W_LumpLength(lump));
 
 	// -AJA- 2004/11/04: check the options in all things to see whether
 	// we can use new option flags or not.  Same old wads put 1 bits in
