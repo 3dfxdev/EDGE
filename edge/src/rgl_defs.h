@@ -73,8 +73,7 @@ const byte *RGL_BetaImage(int *w, int *h);
 
 #define M_ROOT2  1.414213562f  // FIXME: move into m_math.h ?
 
-// save a little room for lighting effects
-#define TOP_LIGHT  (0.9f)
+#define EMU_LIGHT(level,dist)  ((level) * 2 - 256 + int(80*256.0f / (dist)))
 
 // extra lighting on the player weapon
 extern int rgl_weapon_r;
@@ -82,6 +81,7 @@ extern int rgl_weapon_g;
 extern int rgl_weapon_b;
 
 int RGL_Light(int nominal);
+int RGL_LightEmu(int nominal);
 void RGL_LoadLights(void);
 void RGL_RenderTrueBSP(void);
 
@@ -91,8 +91,16 @@ extern float ren_red_mul;
 extern float ren_grn_mul;
 extern float ren_blu_mul;
 
+extern bool doom_fading;
 extern int var_nearclip;
 extern int var_farclip;
+
+#define APPROX_DIST2(dx,dy)  \
+	((dx) + (dy) - 0.5f * MIN((dx),(dy)))
+
+#define APPROX_DIST3(dx,dy,dz)  \
+	APPROX_DIST2(APPROX_DIST2(dx,dy),dz)
+
 
 
 // FIXME: temp hack
