@@ -87,7 +87,8 @@ void RGL_UpdateTheFuzz(void)
 // RGL_DrawPSprite
 //
 static void RGL_DrawPSprite(pspdef_t * psp, int which,
-							player_t * player, region_properties_t *props, const state_t *state)
+							player_t * player, region_properties_t *props,
+							const state_t *state)
 {
 	// determine sprite patch
 	bool flip;
@@ -147,18 +148,26 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	float ty2 = ty1 + h;
 
 	// compute lighting
-	int lit_Nom = state->bright ? 255 : RGL_Light(props->lightlevel);
-
-	float c_r, c_g, c_b;
 	int L_r, L_g, L_b;
-
-	V_GetColmapRGB(props->colourmap, &c_r, &c_g, &c_b, false);
 
 	if (which == ps_weapon || which == ps_flash)
 	{
-		L_r = (int)(rgl_weapon_r + lit_Nom * c_r);
-		L_g = (int)(rgl_weapon_g + lit_Nom * c_g);
-		L_b = (int)(rgl_weapon_b + lit_Nom * c_b);
+		int L = state->bright ? 255 : props->lightlevel;
+
+		float c_r, c_g, c_b;
+		V_GetColmapRGB(props->colourmap, &c_r, &c_g, &c_b, false);
+
+		if (doom_fading)
+		{
+			L = EMU_LIGHT(L, 160.0f);
+			L = RGL_LightEmu((L < 0) ? 0 : (L > 255) ? 255 : L);
+		}
+		else
+			L = RGL_Light(L);
+
+		L_r = (int)(rgl_weapon_r + L * c_r);
+		L_g = (int)(rgl_weapon_g + L * c_g);
+		L_b = (int)(rgl_weapon_b + L * c_b);
 	}
 	else
 	{
@@ -930,13 +939,10 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 			float dist = APPROX_DIST3(dx, dy, dz);
 
 			L = EMU_LIGHT(L, dist);
-
 			L = RGL_LightEmu((L < 0) ? 0 : (L > 255) ? 255 : L);
 		}
 		else
-		{
 			L = RGL_Light(L);
-		}
 
 		L_r = (int)(L * c_r);
 		L_g = (int)(L * c_g);
