@@ -289,7 +289,6 @@ void RGL_SolidLine(int x1, int y1, int x2, int y2, int colour)
 //
 void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer)
 {
-	glReadBuffer(GL_FRONT);
 	glPixelZoom(1.0f, 1.0f);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
