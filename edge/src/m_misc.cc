@@ -61,6 +61,7 @@
 #include "epi/endianess.h"
 #include "epi/files.h"
 #include "epi/filesystem.h"
+#include "epi/image_jpeg.h"
 
 //
 // DEFAULTS
@@ -246,6 +247,7 @@ tgaheader_e;
 
 // ======================= INTERNALS =======================
 
+#if 0
 //
 // WriteTGAFile
 //
@@ -285,6 +287,7 @@ static void WriteTGAFile(const char *filename, int width, int height,
 		fclose(fp);
 	}
 }
+#endif
 
 // ===================== END OF INTERNALS =====================
 
@@ -622,16 +625,14 @@ void M_DisplayAir(void)
 //
 // M_ScreenShot
 //
-void M_ScreenShot(void)
+void M_ScreenShot(bool show_msg)
 {
-	byte *buffer;
-	char filename[14];
-	int i;
+	char filename[20];
 
 	// find a file name to save it to
-	strcpy(filename,"SHOT0000.tga");
+	strcpy(filename,"SHOT0000.jpg");
 
-	for (i = 0; i <= 9999; i++)
+	for (int i = 0; i <= 9999; i++)
 	{
 		filename[4] =  i / 1000 + '0';
 		filename[5] = (i % 1000) / 100 + '0';
@@ -642,10 +643,29 @@ void M_ScreenShot(void)
 			break; // file doesn't exist
 	}
 
-	buffer = new byte[SCREENWIDTH*SCREENHEIGHT*4];
-	RGL_ReadScreen(0, 0, SCREENWIDTH, SCREENHEIGHT, buffer);
-	WriteTGAFile(filename, SCREENWIDTH, SCREENHEIGHT, buffer);
-	delete [] buffer;
+	FILE *fp = fopen(filename, "wb");
+	if (fp == NULL)
+	{
+		if (show_msg)
+			I_Printf("Unable to create file: %s\n", filename);
+		return;
+	}
+	
+	epi::basicimage_c img(SCREENWIDTH, SCREENHEIGHT, 3);
+
+	RGL_ReadScreen(0, 0, SCREENWIDTH, SCREENHEIGHT, img.pixels);
+
+	bool result = epi::JPEG::Save(img, fp);
+
+	if (show_msg)
+	{
+		if (result)
+			I_Printf("Captured to jpeg file: %s\n", filename);
+		else
+			I_Printf("Error saving jpeg file: %s\n", filename);
+	}
+
+	fclose(fp);
 }
 
 //

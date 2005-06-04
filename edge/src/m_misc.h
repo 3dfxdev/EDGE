@@ -72,7 +72,7 @@ int M_ReadFile(char const *name, byte **buffer);
 void M_InitMiscConVars(void);
 void M_DisplayDisk(void);
 void M_DisplayAir(void);
-void M_ScreenShot(void);
+void M_ScreenShot(bool show_msg);
 void M_MakeSaveScreenShot(void);
 exttype_e M_CheckExtension(const char *ext, const char* filename);
 byte *M_GetFileData(const char *filename, int *length);

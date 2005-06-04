@@ -742,8 +742,7 @@ void E_Display(void)
 		M_DisplayPause();
 
 	// menus go directly to the screen
-	M_Drawer();  // menu is drawn even on top of everything...
-	GUI_MainDrawer();  // 2004/04/12 -AJA- ...EXCEPT the console
+	M_Drawer();  // menu is drawn even on top of everything (except console)
 	M_DisplayDisk();
 
 	N_NetUpdate();  // send out any new accumulation
@@ -751,15 +750,18 @@ void E_Display(void)
 	if (m_screenshot_required)
 	{
 		m_screenshot_required = false;
-		M_ScreenShot();
+		M_ScreenShot(true);
 	}
 	else if (screenshot_rate && gamestate == GS_LEVEL)
 	{
 		DEV_ASSERT2(singletics);
 
 		if (leveltime % screenshot_rate == 0)
-			M_ScreenShot();
+			M_ScreenShot(false);
 	}
+
+	// draw console _after_ doing screenshots
+	GUI_MainDrawer();
 
 	// normal update
 	if (!wipe && !wipe_gl_active)
