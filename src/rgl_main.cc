@@ -289,13 +289,15 @@ void RGL_SolidLine(int x1, int y1, int x2, int y2, int colour)
 //
 void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer)
 {
+	glFlush();
+
 	glPixelZoom(1.0f, 1.0f);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	// output needs to be top-down, but GL coords are bottom-up.
-	for (; h > 0; h--, y++)
+	for (int yy = y + h - 1; yy >= y; yy--)
 	{
-		glReadPixels(x, y, w, 1, GL_RGB, GL_UNSIGNED_BYTE, rgb_buffer);
+		glReadPixels(x, yy, w, 1, GL_RGB, GL_UNSIGNED_BYTE, rgb_buffer);
 
 		rgb_buffer += w * 3;
 	}

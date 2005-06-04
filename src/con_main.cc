@@ -22,6 +22,7 @@
 #include "con_defs.h"
 #include "dm_state.h"
 #include "dm_defs.h"
+#include "g_game.h"
 #include "gui_gui.h"
 #include "gui_ctls.h"
 #include "s_sound.h"
@@ -51,6 +52,7 @@ int CON_CMDExec(const char *args);
 int CON_CMDArgText(const char *args);
 int CON_CMDType(const char *args);
 int CON_CMDTypeOf(const char *args);
+int CON_CMDScreenShot(const char *args);
 int CON_CMDSet(const char *args);
 int CON_CMDWatch(const char *args);
 int CON_CMDQuitEDGE(const char *args);
@@ -73,6 +75,7 @@ con_cmd_t consolecommands[] =
 	{"eat", 0, CON_CMDEat},
 	{"exec", 0, CON_CMDExec},
 	{"mouse", 0, CON_CMDToggleMouse},
+	{"screenshot", 0, CON_CMDScreenShot},
 	{"set", 0, CON_CMDSet},
 	{"test", 0, CON_CMDHelloWorld},
 	{"type", 0, CON_CMDType},
@@ -314,6 +317,13 @@ int CON_CMDEat(const char *args)
 	}
 	else
 		Z_Resize(p, char, bytes);
+
+	return 0;
+}
+
+int CON_CMDScreenShot(const char *args)
+{
+	G_DeferredScreenShot();
 
 	return 0;
 }
