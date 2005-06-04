@@ -1644,7 +1644,7 @@ bool M_Responder(event_t * ev)
 	ch = ev->value.key;
 
 	// -ACB- 1999/10/11 F1 is responsible for print screen at any time
-	if (ch == KEYD_F1)
+	if (ch == KEYD_F1 || ch == KEYD_PRTSCR)
 	{
 		G_DeferredScreenShot();
 		return true;
