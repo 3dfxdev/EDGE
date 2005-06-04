@@ -113,7 +113,6 @@ static GLuint CaptureScreenAsTexture(bool use_alpha, bool spooky)
 	// read pixels from screen, scaling down to target size which must
 	// be both power-of-two and within the GL's tex_size limitation.
 
-	glReadBuffer(GL_FRONT);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	for (y=0; y < total_h; y++)
