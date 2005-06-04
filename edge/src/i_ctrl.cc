@@ -119,6 +119,17 @@ static int TranslateSDLKey(SDL_KeyboardEvent ev)
 		case SDLK_F11: return KEYD_F11;
 		case SDLK_F12: return KEYD_F12;
 
+		case SDLK_KP0: return '0';
+		case SDLK_KP1: return '1';
+		case SDLK_KP2: return '2';
+		case SDLK_KP3: return '3';
+		case SDLK_KP4: return '4';
+		case SDLK_KP5: return '5';
+		case SDLK_KP6: return '6';
+		case SDLK_KP7: return '7';
+		case SDLK_KP8: return '8';
+		case SDLK_KP9: return '9';
+
 		case SDLK_KP_PLUS:  return '+';
 		case SDLK_KP_MINUS: return '-';
 		case SDLK_KP_PERIOD: return '.';
