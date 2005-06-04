@@ -975,7 +975,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 			AddLump(df, j, EPI_LE_S32(curinfo->pos), EPI_LE_S32(curinfo->size),
 					datafile, (dyn_index >= 0) ? dyn_index : datafile, 
 					curinfo->name,
-					(kind == FLKIND_PWad) || (kind || FLKIND_HWad) ||
+					(kind == FLKIND_PWad) || (kind == FLKIND_HWad) ||
 					(kind == FLKIND_EWad && ! external_ddf));
 
 			if (kind != FLKIND_HWad)
