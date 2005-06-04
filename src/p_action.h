@@ -126,6 +126,7 @@ void P_ActRangeAttack(mobj_t * object);
 void P_ActSpareAttack(mobj_t * object);
 void P_ActRefireCheck(mobj_t * object);
 void P_ActReloadCheck(mobj_t * object);
+void P_ActReloadReset(mobj_t * object);
 
 // Miscellanous
 void P_ActFaceTarget(mobj_t * object);

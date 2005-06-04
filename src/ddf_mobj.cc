@@ -229,6 +229,7 @@ static const actioncode_t thing_actions[] =
 	{"RANGEATTEMPTSND",   P_ActMakeRangeAttemptSound, NULL},
 	{"REFIRE CHECK",      P_ActRefireCheck, NULL},
 	{"RELOAD CHECK",      P_ActReloadCheck, NULL},
+	{"RELOAD RESET",      P_ActReloadReset, NULL},
 	{"LOOKOUT",           P_ActStandardLook, NULL},
 	{"SUPPORT LOOKOUT",   P_ActPlayerSupportLook, NULL},
 	{"CHASE",             P_ActStandardChase, NULL},
