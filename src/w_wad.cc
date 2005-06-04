@@ -1032,7 +1032,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	// -AJA- 1999/12/25: What did Santa bring EDGE ?  Just some support
 	//       for "GWA" files (part of the "GL-Friendly Nodes" specs).
   
-	if (kind <= FLKIND_PWad && df->level_markers.GetSize() > 0)
+	if (kind <= FLKIND_EWad && df->level_markers.GetSize() > 0)
 	{
 		if (HasInternalGLNodes(df, datafile))
 		{
