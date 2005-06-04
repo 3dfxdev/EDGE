@@ -104,6 +104,7 @@ static int TranslateSDLKey(SDL_KeyboardEvent ev)
 		case SDLK_PAGEDOWN:   return KEYD_PGDN;
 		case SDLK_INSERT: return KEYD_INSERT;
 		case SDLK_PAUSE: return KEYD_PAUSE;
+		case SDLK_PRINT: return KEYD_PRTSCR;
 
 		case SDLK_F1:  return KEYD_F1;
 		case SDLK_F2:  return KEYD_F2;
