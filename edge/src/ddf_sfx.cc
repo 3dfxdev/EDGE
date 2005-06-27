@@ -225,8 +225,6 @@ void DDF_MainLookupSound(const char *info, void *storage)
 //
 sfxdef_c::sfxdef_c()
 {
-	prev = NULL;
-	next = NULL;
 }
 
 //
@@ -290,8 +288,6 @@ void sfxdef_c::Default()
 	looping = false;  				// looping
 	precious = false;  				// precious
 	max_distance = S_CLIPPING_DIST; // max_distance
-	prev = NULL;   					// cache next
-	next = NULL;   					// cache prev
 }
 
 //

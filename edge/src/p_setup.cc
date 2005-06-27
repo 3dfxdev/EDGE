@@ -2129,9 +2129,9 @@ void GroupLines(void)
 			I_Error("GroupLines: miscounted");
 
 		// set the degenmobj_t to the middle of the bounding box
-		sector->soundorg.x = (bbox[BOXRIGHT] + bbox[BOXLEFT]) / 2;
-		sector->soundorg.y = (bbox[BOXTOP] + bbox[BOXBOTTOM]) / 2;
-		sector->soundorg.z = (sector->f_h + sector->c_h) / 2;
+		sector->sfx_origin.x = (bbox[BOXRIGHT] + bbox[BOXLEFT]) / 2;
+		sector->sfx_origin.y = (bbox[BOXTOP] + bbox[BOXBOTTOM]) / 2;
+		sector->sfx_origin.z = (sector->f_h + sector->c_h) / 2;
 
 		// adjust bounding box to map blocks
 		int xl = BLOCKMAP_GET_X(bbox[BOXLEFT]   - MAXRADIUS);
@@ -2218,7 +2218,7 @@ void P_RemoveSectors(void)
 		P_FreeSectorTouchNodes(sectors + i);
 
 		// Might still be playing a sound.
-		S_StopSound((mobj_t *)&sectors[i].soundorg);
+		sound::StopFX(&sectors[i].sfx_origin);
 	}
 
 	Z_Free(sectors);
@@ -2472,7 +2472,8 @@ void P_SetupLevel(skill_t skill, int autotag)
 	if (precache)
 		R_PrecacheLevel();
 	
-	S_SoundLevelInit(); // Clear out the playing sounds
+	sound::Reset(); // Clear out the playing sounds
+
 	S_ChangeMusic(currmap->music, true); // start level music
 
 	level_active = true;

@@ -237,7 +237,7 @@ static savefield_t sv_fields_trigger[] =
 	// NOT HERE
 	//   - next & prev: can be regenerated.
 	//   - tag_next & tag_prev: ditto
-	//   - soundorg: can be recomputed.
+	//   - sound: can be recomputed.
 	//   - last_con_message: doesn't matter.
 
 	SVFIELD_END

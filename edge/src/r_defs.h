@@ -209,6 +209,14 @@ vgap_t;
 //
 struct subsector_s;
 
+// Each sector has a sec_sfxorig_t in its center for sound origin
+// purposes.
+typedef struct sec_sfxorig_s
+{
+	float x, y, z;
+}
+sec_sfxorig_t;
+
 typedef struct sector_s
 {
 	// floor and ceiling heights
@@ -269,7 +277,8 @@ typedef struct sector_s
 	int blockbox[4];
 
 	// origin for any sounds played by the sector
-	degenmobj_t soundorg;
+	sec_sfxorig_t sfx_origin;
+    int sfx_handle;
 
 	int linecount;
 	struct line_s **lines;  // [linecount] size

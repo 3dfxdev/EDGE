@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
-//  Errorcodes
+//  EDGE System Specific Header for OpenAL
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2005  The EDGE Team.
-// 
+//  Copyright (c) 2005  The EDGE Team.
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -16,18 +16,23 @@
 //
 //----------------------------------------------------------------------------
 //
-// -ACB- 2004/08/18 Written
+//  Based on the DOOM source code, released by Id Software under the
+//  following copyright:
 //
-#ifndef __ERRORCODES__
-#define __ERRORCODES__
+//    Copyright (C) 1993-1996 by id Software, Inc.
+//
+//----------------------------------------------------------------------------
+#ifndef __SYSTEM_SPECIFIC_DEFS_OPENAL__
+#define __SYSTEM_SPECIFIC_DEFS_OPENAL__
 
-enum error_e
-{
-	ERR_GENERIC = 0x1,
-	ERR_MUSIC   = 0x2,
-	ERR_SOUND   = 0x4,
-	ERR_VIDEO   = 0x8,
-	ERR_NUMTYPES
-};
-
+#ifndef LINUX
+#include <al.h>
+#include <alc.h>
+#else
+#include <AL/al.h>
+#include <AL/alc.h>
 #endif
+
+#define NO_SOURCE  ((ALuint)-1)
+
+#endif // __SYSTEM_SPECIFIC_DEFS_OPENAL__

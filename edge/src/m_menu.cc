@@ -537,7 +537,7 @@ void M_LoadSavePage(int choice)
 			break;
 	}
 
-	S_StartSound(NULL, sfx_swtchn);
+	sound::StartFX(sfx_swtchn, SNCAT_UI);
 	M_ReadSaveStrings();
 }
 
@@ -908,7 +908,7 @@ static void QuickSaveResponse(int ch)
 	if (ch == 'y')
 	{
 		M_DoSave(quickSavePage, quickSaveSlot);
-		S_StartSound(NULL, sfx_swtchx);
+		sound::StartFX(sfx_swtchx, SNCAT_UI);
 	}
 }
 
@@ -916,7 +916,7 @@ void M_QuickSave(void)
 {
 	if (!usergame)
 	{
-		S_StartSound(NULL, sfx_oof);
+		sound::StartFX(sfx_oof, SNCAT_UI);
 		return;
 	}
 
@@ -954,7 +954,7 @@ static void QuickLoadResponse(int ch)
 		M_LoadSelect(quickSaveSlot);
 
 		save_page = tempsavepage;
-		S_StartSound(NULL, sfx_swtchx);
+		sound::StartFX(sfx_swtchx, SNCAT_UI);
 	}
 }
 
@@ -1008,7 +1008,7 @@ void M_DrawSound(void)
 	int soundvol;
 
 	musicvol = S_GetMusicVolume();
-	soundvol = S_GetSfxVolume();
+	soundvol = sound::GetVolume();
 
 	RGL_ImageEasy320(60, 38, menu_svol);
 
@@ -1035,7 +1035,7 @@ void M_SfxVol(int choice)
 {
 	int soundvol;
 
-	soundvol = S_GetSfxVolume();
+	soundvol = sound::GetVolume();
 
 	switch (choice)
 	{
@@ -1052,7 +1052,7 @@ void M_SfxVol(int choice)
 			break;
 	}
 
-	S_SetSfxVolume(soundvol);
+	sound::SetVolume(soundvol);
 }
 
 //
@@ -1337,7 +1337,7 @@ void M_EndGame(int choice)
 {
 	if (!usergame)
 	{
-		S_StartSound(NULL, sfx_oof);
+		sound::StartFX(sfx_oof, SNCAT_UI);
 		return;
 	}
 
@@ -1410,7 +1410,7 @@ static void QuitResponse(int ch)
 				sprintf(sound, "DS%s", language[refname]);
 				if (W_CheckNumForName(sound) != -1)
 				{
-					S_StartSound(NULL, sfxdefs.GetEffect(language[refname]));
+					sound::StartFX(sfxdefs.GetEffect(language[refname]), SNCAT_UI);
 					break;
 				}
 				i = (i + 1) % numsounds;
@@ -1528,7 +1528,7 @@ void M_MultiplayerGame(int choice)
 {
 	if (usergame)  // shouldn't happen
 	{
-		S_StartSound(NULL, sfx_oof);
+		sound::StartFX(sfx_oof, SNCAT_UI);
 		return;
 	}
 
@@ -1665,7 +1665,7 @@ bool M_Responder(event_t * ev)
 		if (message_key_routine)
 			(* message_key_routine)(ch);
 
-		S_StartSound(NULL, sfx_swtchx);
+		sound::StartFX(sfx_swtchx, SNCAT_UI);
 		return true;
 	}
 	else if (msg_mode == 2)
@@ -1681,7 +1681,7 @@ bool M_Responder(event_t * ev)
 			input_string.Clear();
 			
 			menuactive = false;
-			S_StartSound(NULL, sfx_swtchx);
+			sound::StartFX(sfx_swtchx, SNCAT_UI);
 			return true;
 		}
 
@@ -1698,7 +1698,7 @@ bool M_Responder(event_t * ev)
 
 			input_string.Clear();
 			
-			S_StartSound(NULL, sfx_swtchx);
+			sound::StartFX(sfx_swtchx, SNCAT_UI);
 			return true;
 		}
 		
@@ -1791,7 +1791,7 @@ bool M_Responder(event_t * ev)
 					return false;
 				// 98-7-10 KM Use new defines
 				M_SizeDisplay(SLIDERLEFT);
-				S_StartSound(NULL, sfx_stnmov);
+				sound::StartFX(sfx_stnmov, SNCAT_UI);
 				return true;
 
 			case KEYD_EQUALS:  // Screen size up
@@ -1800,20 +1800,20 @@ bool M_Responder(event_t * ev)
 					return false;
 				// 98-7-10 KM Use new defines
 				M_SizeDisplay(SLIDERRIGHT);
-				S_StartSound(NULL, sfx_stnmov);
+				sound::StartFX(sfx_stnmov, SNCAT_UI);
 				return true;
 
 			case KEYD_F2:  // Save
 
 				M_StartControlPanel();
-				S_StartSound(NULL, sfx_swtchn);
+				sound::StartFX(sfx_swtchn, SNCAT_UI);
 				M_SaveGame(0);
 				return true;
 
 			case KEYD_F3:  // Load
 
 				M_StartControlPanel();
-				S_StartSound(NULL, sfx_swtchn);
+				sound::StartFX(sfx_swtchn, SNCAT_UI);
 				M_LoadGame(0);
 				return true;
 
@@ -1822,44 +1822,44 @@ bool M_Responder(event_t * ev)
 				M_StartControlPanel();
 				currentMenu = &SoundDef;
 				itemOn = sfx_vol;
-				S_StartSound(NULL, sfx_swtchn);
+				sound::StartFX(sfx_swtchn, SNCAT_UI);
 				return true;
 
 			case KEYD_F5:  // Detail toggle, now loads options menu
 				// -KM- 1998/07/31 F5 now loads options menu, detail is obsolete.
 
-				S_StartSound(NULL, sfx_swtchn);
+				sound::StartFX(sfx_swtchn, SNCAT_UI);
 				M_StartControlPanel();
 				M_Options(0);
 				return true;
 
 			case KEYD_F6:  // Quicksave
 
-				S_StartSound(NULL, sfx_swtchn);
+				sound::StartFX(sfx_swtchn, SNCAT_UI);
 				M_QuickSave();
 				return true;
 
 			case KEYD_F7:  // End game
 
-				S_StartSound(NULL, sfx_swtchn);
+				sound::StartFX(sfx_swtchn, SNCAT_UI);
 				M_EndGame(0);
 				return true;
 
 			case KEYD_F8:  // Toggle messages
 
 				M_ChangeMessages(0);
-				S_StartSound(NULL, sfx_swtchn);
+				sound::StartFX(sfx_swtchn, SNCAT_UI);
 				return true;
 
 			case KEYD_F9:  // Quickload
 
-				S_StartSound(NULL, sfx_swtchn);
+				sound::StartFX(sfx_swtchn, SNCAT_UI);
 				M_QuickLoad();
 				return true;
 
 			case KEYD_F10:  // Quit DOOM
 
-				S_StartSound(NULL, sfx_swtchn);
+				sound::StartFX(sfx_swtchn, SNCAT_UI);
 				M_QuitEDGE(0);
 				return true;
 
@@ -1893,7 +1893,7 @@ bool M_Responder(event_t * ev)
 		if (ch == KEYD_ESCAPE)
 		{
 			M_StartControlPanel();
-			S_StartSound(NULL, sfx_swtchn);
+			sound::StartFX(sfx_swtchn, SNCAT_UI);
 			return true;
 		}
 		return false;
@@ -1909,7 +1909,7 @@ bool M_Responder(event_t * ev)
 					itemOn = 0;
 				else
 					itemOn++;
-				S_StartSound(NULL, sfx_pstop);
+				sound::StartFX(sfx_pstop, SNCAT_UI);
 			}
 			while (currentMenu->menuitems[itemOn].status == -1);
 			return true;
@@ -1921,7 +1921,7 @@ bool M_Responder(event_t * ev)
 					itemOn = currentMenu->numitems - 1;
 				else
 					itemOn--;
-				S_StartSound(NULL, sfx_pstop);
+				sound::StartFX(sfx_pstop, SNCAT_UI);
 			}
 			while (currentMenu->menuitems[itemOn].status == -1);
 			return true;
@@ -1931,7 +1931,7 @@ bool M_Responder(event_t * ev)
 			if (currentMenu->menuitems[itemOn].select_func &&
 				currentMenu->menuitems[itemOn].status == 2)
 			{
-				S_StartSound(NULL, sfx_stnmov);
+				sound::StartFX(sfx_stnmov, SNCAT_UI);
 				// 98-7-10 KM Use new defines
 				(* currentMenu->menuitems[itemOn].select_func)(SLIDERLEFT);
 			}
@@ -1942,7 +1942,7 @@ bool M_Responder(event_t * ev)
 			if (currentMenu->menuitems[itemOn].select_func &&
 				currentMenu->menuitems[itemOn].status == 2)
 			{
-				S_StartSound(NULL, sfx_stnmov);
+				sound::StartFX(sfx_stnmov, SNCAT_UI);
 				// 98-7-10 KM Use new defines
 				(* currentMenu->menuitems[itemOn].select_func)(SLIDERRIGHT);
 			}
@@ -1954,14 +1954,14 @@ bool M_Responder(event_t * ev)
 			{
 				currentMenu->lastOn = itemOn;
 				(* currentMenu->menuitems[itemOn].select_func)(itemOn);
-				S_StartSound(NULL, sfx_pistol);
+				sound::StartFX(sfx_pistol, SNCAT_UI);
 			}
 			return true;
 
 		case KEYD_ESCAPE:
 			currentMenu->lastOn = itemOn;
 			M_ClearMenus();
-			S_StartSound(NULL, sfx_swtchx);
+			sound::StartFX(sfx_swtchx, SNCAT_UI);
 			return true;
 
 		case KEYD_BACKSPACE:
@@ -1970,7 +1970,7 @@ bool M_Responder(event_t * ev)
 			{
 				currentMenu = currentMenu->prevMenu;
 				itemOn = currentMenu->lastOn;
-				S_StartSound(NULL, sfx_swtchn);
+				sound::StartFX(sfx_swtchn, SNCAT_UI);
 			}
 			return true;
 
@@ -1979,14 +1979,14 @@ bool M_Responder(event_t * ev)
 				if (currentMenu->menuitems[i].alpha_key == ch)
 				{
 					itemOn = i;
-					S_StartSound(NULL, sfx_pstop);
+					sound::StartFX(sfx_pstop, SNCAT_UI);
 					return true;
 				}
 			for (i = 0; i <= itemOn; i++)
 				if (currentMenu->menuitems[i].alpha_key == ch)
 				{
 					itemOn = i;
-					S_StartSound(NULL, sfx_pstop);
+					sound::StartFX(sfx_pstop, SNCAT_UI);
 					return true;
 				}
 			break;

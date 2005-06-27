@@ -34,12 +34,17 @@
 
 #include "m_math.h"
 
-#include "dm_data.h"
-#include "ddf_main.h"
-#include "lu_math.h"
-
 // forward decl.
+class atkdef_c;
+class mobjtype_c;
+
 struct mobj_s;
+struct player_s;
+struct rad_script_s;
+struct region_properties_s;
+struct state_s;
+struct subsector_s;
+struct touch_node_s;
 
 //
 // NOTES: mobj_t
@@ -359,14 +364,6 @@ typedef enum
 }
 dirtype_e;
 
-// Each sector has a degenmobj_t in its center for sound origin
-// purposes.
-typedef struct
-{
-	float x, y, z;
-}
-degenmobj_t;
-
 typedef struct
 {
 	// location on the map.  `z' can take the special values ONFLOORZ
@@ -419,7 +416,7 @@ struct mobj_s
 	angle_t vertangle;  // looking up or down
 
 	// used to find patch_t and flip value
-	spritenum_t sprite;
+	int sprite;
 
 	// frame and brightness
 	short frame, bright;
@@ -575,5 +572,8 @@ typedef struct iteminque_s
 	struct iteminque_s *prev;
 }
 iteminque_t;
+
+// useful macro for the vertical center of an object
+#define MO_MIDZ(mo)  ((mo)->z + (mo)->height / 2)
 
 #endif  // __P_MOBJ__

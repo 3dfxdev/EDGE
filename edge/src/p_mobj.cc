@@ -379,7 +379,7 @@ static void ResurrectRespawn(mobj_t * mobj)
 
 	// Resurrect monster
 	if (info->overkill_sound)
-		S_StartSound(mobj, info->overkill_sound);
+		sound::StartFX(info->overkill_sound, P_MobjGetSfxCategory(mobj), mobj);
 
 	P_SetMobjState(mobj, info->raise_state);
 
@@ -490,8 +490,15 @@ static void DoRemoveMobj(mobj_t * mo)
 #endif
 	}
 
-	// Sound might still be playing, so use indirect Z_Free.
-	S_AddToFreeQueue(mo, mo);
+	// Sound might still be playing, so use remove the
+    // link between object and effect
+
+    // SFX_FIXME: Stop any looping sound effect
+    //sound::StopLoopingFX(mo); 
+
+    sound::UnlinkFX(mo);
+
+	Z_Free(mo); // Finally destroy the object
 }
 
 // ======================== END OF INTERNALS ======================== 
@@ -651,7 +658,7 @@ void P_MobjExplodeMissile(mobj_t * mo)
 	mo->extendedflags &= ~(EF_BOUNCE | EF_USABLE);
 
 	if (mo->info->deathsound)
-		S_StartSound(mo, mo->info->deathsound);
+		sound::StartFX(mo->info->deathsound, P_MobjGetSfxCategory(mo), mo);
 
 	// mobjdef used -ACB- 1998/08/06
 	P_SetMobjStateDeferred(mo, mo->info->death_state, P_Random() & 3);
@@ -1080,7 +1087,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				// Squat down. Decrease viewheight for a moment after hitting the
 				// ground (hard), and utter appropriate sound.
 				mo->player->deltaviewheight = zmove / 8.0f;
-				S_StartSound(mo, mo->info->oof_sound);
+				sound::StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
 			}
 			// -KM- 1998/12/16 If bigger than max fall, take damage.
 			if (mo->info->maxfall && gravity > 0 && -mo->mom.z > hurt_momz &&
@@ -1172,7 +1179,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 			if (mo->player && gravity < 0 && zmove > OOF_SPEED && ! fly_or_swim)
 			{
 				mo->player->deltaviewheight = zmove / 8.0f;
-				S_StartSound(mo, mo->info->oof_sound);
+				sound::StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
 			}
 			if (mo->info->maxfall && gravity < 0 && mo->mom.z > hurt_momz &&
 				(! mo->player || ! fly_or_swim))
@@ -1791,6 +1798,32 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 	return mobj;
 }
 
+//
+// P_MobjGetSfxCategory
+//
+// Returns the sound category for
+//
+int P_MobjGetSfxCategory(mobj_t *mo)
+{
+    int sfx_cat;
+
+    if (mo->player)
+    {
+        if (mo->player == players[consoleplayer])
+            sfx_cat = SNCAT_ConPlayer;
+        else
+            sfx_cat = SNCAT_OtherPlayer;
+    }
+    else
+    {
+        if (mo->extendedflags & EF_MONSTER) 
+            sfx_cat = SNCAT_Monster;
+        else
+            sfx_cat = SNCAT_Object;
+    }
+
+    return sfx_cat;
+}
 
 #if 0  // DEBUGGING
 void P_DumpMobjs(void)

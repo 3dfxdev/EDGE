@@ -217,19 +217,26 @@ static void MovePlayer(player_t * player)
 
 	if (hasjetpack)
 	{
+        int sfx_cat;
+
+        if (player == players[consoleplayer])
+            sfx_cat = SNCAT_ConPlayer;
+        else
+            sfx_cat = SNCAT_OtherPlayer;
+
 		if (player->powers[PW_Jetpack] <= (5 * TICRATE))
 		{
 			if (!(leveltime & 10))
-				S_StartSound(player->mo, sfx_jpflow);  // fuel low
+				sound::StartFX(sfx_jpflow, sfx_cat, player->mo);  // fuel low
 		}
 		else if (cmd->upwardmove > 0)
-			S_StartSound(player->mo, sfx_jprise);
+			sound::StartFX(sfx_jprise, sfx_cat, player->mo);
 		else if (cmd->upwardmove < 0)
-			S_StartSound(player->mo, sfx_jpdown);
+			sound::StartFX(sfx_jpdown, sfx_cat, player->mo);
 		else if (cmd->forwardmove || cmd->sidemove)
-			S_StartSound(player->mo, (onground ? sfx_jpidle : sfx_jpmove));
+			sound::StartFX((onground ? sfx_jpidle : sfx_jpmove), sfx_cat, player->mo);
 		else
-			S_StartSound(player->mo, sfx_jpidle);
+			sound::StartFX(sfx_jpidle, sfx_cat, player->mo);
 	}
 
 	if ((cmd->forwardmove || cmd->sidemove)
@@ -297,7 +304,16 @@ static void MovePlayer(player_t * player)
 
 			// -AJA- 1999/09/11: New JUMP_SOUND for ddf.
 			if (player->mo->info->jump_sound)
-				S_StartSound(player->mo, player->mo->info->jump_sound);
+            {
+                int sfx_cat;
+                
+                if (player == players[consoleplayer])
+                    sfx_cat = SNCAT_ConPlayer;
+                else
+                    sfx_cat = SNCAT_OtherPlayer;
+
+				sound::StartFX(player->mo->info->jump_sound, sfx_cat, player->mo);
+            }
 		}
 	}
 

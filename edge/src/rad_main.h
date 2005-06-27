@@ -209,7 +209,7 @@ typedef struct s_sound_s
 	// sound location.  z can be ONFLOORZ.
 	float x, y, z;
 
-	sfx_t *soundid;
+	sfx_t *sfx;
 }
 s_sound_t;
 
@@ -594,8 +594,8 @@ typedef struct rad_trigger_s
 	// result of last SHOW_MENU (1 to 9, or 0 when cancelled)
 	int menu_result;
 
-	// origin for any sounds played by the trigger
-	degenmobj_t soundorg;
+    // Sound handle
+    int sfx_handle;
 
 	// prevent repeating scripts from clogging the console
 	const char *last_con_message;

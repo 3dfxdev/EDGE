@@ -1579,7 +1579,7 @@ static void RAD_ParsePlaySound(int pnum, const char **pars)
 	else
 		t->kind = PSOUND_Normal;
 
-	t->soundid = sfxdefs.GetEffect(pars[1]);
+	t->sfx = sfxdefs.GetEffect(pars[1]);
 
 	t->x = this_rad->x;
 	t->y = this_rad->y;

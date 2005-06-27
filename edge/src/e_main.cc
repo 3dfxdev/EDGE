@@ -1582,7 +1582,10 @@ void E_EngineShutdown(void)
 	if (demorecording)
 		G_FinishDemo();
 
-	S_StopMusic();
+	S_StopMusic();  // <--- FIXME: sound::StopMusic()?
+
+    sound::Shutdown();
+
 	N_QuitNetGame();
 }
 
@@ -1625,7 +1628,7 @@ startuporder_t startcode[] =
 	{  1, P_MapInit,           },
 	{  1, P_InitSwitchList,    },
 	{  1, R_InitPicAnims,      },
-	{  1, S_Init,              },
+	{  1, sound::Init,         },
 	{  1, N_InitNetwork,       },
 	{  2, ST_Init,             },
 	{  0, NULL,                }
@@ -1638,7 +1641,10 @@ namespace engine
 	void Startup();
 	void Shutdown(void);
 
-	void E_AutoStart()
+    //
+    // AutoStart
+    //
+	void AutoStart()
 	{
 		newgame_params_c params;
 
@@ -1753,7 +1759,7 @@ namespace engine
 			if (netgame)
 				N_InitiateNetGame();
 			else if (autostart)
-				E_AutoStart();
+				AutoStart();
 			else
 				E_StartTitle();  // start up intro loop
 		}
@@ -1843,7 +1849,7 @@ namespace engine
 
 			G_Ticker(fresh_game_tic);
 
-			S_SoundTicker(); // -ACB- 1999/10/11 Improved sound update routines
+			sound::Ticker(); 
 			S_MusicTicker(); // -ACB- 1999/11/13 Improved music update routines
 
 			N_NetUpdate();  // check for new console commands

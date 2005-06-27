@@ -24,13 +24,14 @@
 #include "m_misc.h"
 #include "s_sound.h"
 #include "w_wad.h"
-#include "z_zone.h"
 
 // Current music handle
 static int musichandle = -1;
 
 // music slider value (range is 0 to 19)
 static int musicvolume;
+
+int mix_music_chan = -1;
 
 bool nomusic = false;
 
@@ -91,6 +92,7 @@ void S_ChangeMusic(int entrynum, bool looping)
 	if (play->infotype == MUSINF_FILE)
 	{
 		data = NULL;
+        epi::string_c fn;
 
 		//
 		// -ACB- 2004/08/18 Something of a hack until we revamp this to be
@@ -100,14 +102,13 @@ void S_ChangeMusic(int entrynum, bool looping)
 		if (play->type != MUS_OGG)
 		{
 			// -AJA- 2005/01/15: filenames in DDF relative to GAMEDIR
-			epi::string_c fullname;
-			M_ComposeFileName(fullname, gamedir, play->info.GetString());
+			M_ComposeFileName(fn, gamedir, play->info.GetString());
 
-			data = M_GetFileData(fullname.GetString(), &datlength);
+			data = M_GetFileData(fn.GetString(), &datlength);
 
 			if (!data)
 			{
-				I_Warning("S_ChangeMusic: Can't Load File '%s'\n", fullname.GetString());
+				I_Warning("S_ChangeMusic: Can't Load File '%s'\n", fn.GetString());
 				return;
 			}
 
@@ -118,7 +119,6 @@ void S_ChangeMusic(int entrynum, bool looping)
 		else
 		{
 			// -AJA- 2005/01/15: filenames in DDF relative to GAMEDIR
-			epi::string_c fn;
 			M_ComposeFileName(fn, gamedir, play->info.GetString());
 
 			if (! I_Access(fn.GetString()))
@@ -128,16 +128,13 @@ void S_ChangeMusic(int entrynum, bool looping)
 			}
 
 			musdat.format = IMUSSF_FILE;
-			musdat.info.file.name = Z_StrDup(fn.GetString());
+			musdat.info.file.name = fn.GetString();
 		}
 
 		musichandle = I_MusicPlayback(&musdat, play->type, looping, volume);
 
 		if (data)
 			delete [] data;
-
-		if (musdat.format == IMUSSF_FILE)
-			Z_Free((void*)musdat.info.file.name);
 	}
 
 	if (play->infotype == MUSINF_LUMP)

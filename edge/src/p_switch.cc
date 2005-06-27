@@ -97,7 +97,7 @@ void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 	int tag = line->tag;
 	epi::array_iterator_c it;
 	const linetype_c *type = line->special;
-	mobj_t *soundorg;
+	sec_sfxorig_t *sfx_origin;
 	side_t *side;
 	bwhere_e pos;
 
@@ -106,21 +106,23 @@ void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 		if (line != &lines[j])
 		{
 			if (tag == 0 || (lines[j].tag != tag) || 
-					(specials & LINSP_SwitchSeparate) ||
-					(type != lines[j].special && type && 
-					 lines[j].special && useAgain))
+                (specials & LINSP_SwitchSeparate) ||
+                (type != lines[j].special && type && 
+                 lines[j].special && useAgain))
 			{
 				continue;
 			}
 		}
 
 		side = lines[j].side[0];
-		soundorg = (mobj_t *) &lines[j].frontsector->soundorg;
+		sfx_origin = &lines[j].frontsector->sfx_origin;
 
 		pos = BWH_None;
 
 		switchdef_c *sw;
-		for (it = switchdefs.GetBaseIterator(); it.IsValid() && (pos == BWH_None); it++)
+		for (it = switchdefs.GetBaseIterator(); 
+             it.IsValid() && (pos == BWH_None); 
+             it++)
 		{
 			sw = ITERATOR_TO_TYPE(it, switchdef_c*);
 
@@ -155,7 +157,7 @@ void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 				// -KM- 98/07/31 Implement sounds
 				if (! noSound && sw->on_sfx)
 				{
-					S_StartSound(soundorg, sw->on_sfx);
+					sound::StartFX(sw->on_sfx, SNCAT_Level, sfx_origin);
 					noSound = true;
 				}
 

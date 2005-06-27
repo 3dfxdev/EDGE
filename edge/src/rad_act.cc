@@ -299,7 +299,8 @@ void RAD_DisplayTips(void)
 
 		if (current->playsound)
 		{
-			S_StartSound(NULL, sfxdefs.GetEffect("TINK"));
+            // SFX_FIXME: Use new form
+			sound::StartFX(sfxdefs.GetEffect("TINK"));
 			current->playsound = false;
 		}
 
@@ -705,26 +706,29 @@ void RAD_ActPlaySound(rad_trigger_t *R, mobj_t *actor, void *param)
 
 	if (ambient->kind == PSOUND_BossMan)
 	{
-		S_StartSound(NULL, ambient->soundid);
+        // SFX_FIXME: Use new style call
+		R->sfx_handle = sound::StartFX(ambient->sfx, SNCAT_Level);
 		return;
 	}
 
 	// Ambient sound
-	R->soundorg.x = ambient->x;
-	R->soundorg.y = ambient->y;
+    epi::vec3_c pos;
+
+	pos.x = ambient->x;
+	pos.y = ambient->y;
 
 	if (ambient->z == ONFLOORZ)
-		R->soundorg.z = R_PointInSubsector(ambient->x, ambient->y)->
-		sector->f_h;
+		pos.z = R_PointInSubsector(ambient->x, ambient->y)->sector->f_h;
 	else
-		R->soundorg.z = ambient->z;
+		pos.z = ambient->z;
 
-	S_StartSound((mobj_t *) &R->soundorg, ambient->soundid);
+    // SFX_FIXME: Use x,y,z position and return handle
+	R->sfx_handle = sound::StartFX(ambient->sfx, SNCAT_Level, pos);
 }
 
 void RAD_ActKillSound(rad_trigger_t *R, mobj_t *actor, void *param)
 {
-	S_StopSound((mobj_t *) &R->soundorg);
+	sound::StopFX(R->sfx_handle);
 }
 
 void RAD_ActChangeMusic(rad_trigger_t *R, mobj_t *actor, void *param)
