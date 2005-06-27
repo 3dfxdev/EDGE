@@ -26,11 +26,16 @@
 #ifndef __S_SOUND__
 #define __S_SOUND__
 
-#include "p_mobj.h"
+#include "epi/math_vector.h"
 
+// Forward declarations
+typedef struct mobj_s mobj_t;
+typedef struct sec_sfxorig_s sec_sfxorig_t;
+
+// Sound Categories
 typedef enum
 {
-	SNCAT_UI = 0,       // for the user interface (menus, tips)
+	SNCAT_UI,           // for the user interface (menus, tips)
 	SNCAT_Music,        // for OGG music and MIDI synthesis
 	SNCAT_Level,        // for doors, lifts and RTS -> STATIC LOC
 	SNCAT_ConPlayer,    // for console player (pain, death, pickup)
@@ -39,8 +44,7 @@ typedef enum
 	SNCAT_MonstSig,     // for monster significant sounds
 	SNCAT_Monster,      // for all other monster sounds
 	SNCAT_Object,       // for all other objects
-
-	NUMSOUNDCATS
+	SNCAT_NUMTYPES
 }
 sound_category_e;
 
@@ -59,24 +63,54 @@ int S_GetMusicVolume(void);
 void S_SetMusicVolume(int volume);
 
 // S_SOUND.C
-void S_Init(void);
-void S_SoundLevelInit(void);
-int S_StartSound(mobj_t *origin, sfx_t *sound_id, int category=SNCAT_Level);
-void S_ResumeSounds(void);
-void S_PauseSounds(void);
-void S_RemoveSoundOrigin(mobj_t *origin);
-void S_AddToFreeQueue(mobj_t *origin, void *block);
-void S_StopSound(mobj_t *origin);
-void S_StopLoopingSound(mobj_t *origin); // -ACB- 2001/01/09 Addition Functionality
-void S_StopChannel(int cnum);
-void S_UpdateSounds(mobj_t *listener);
-void S_SoundTicker(void);
-int S_GetSfxVolume(void);
-void S_SetSfxVolume(int volume);
-
 namespace sound
 {
-	sfxdef_c* LookupEffect(const sfx_t *s);
+    // FX Flags
+    typedef enum
+    {
+        FXFLAG_IGNOREPAUSE = 0x1
+    }
+    fx_flag_t;
+
+    // Init/Shutdown
+    void Init(void);
+    void Shutdown(void);
+
+    void Reset(void);
+
+    // FX Control
+    void SetFXFlags(int handle, int flags);
+
+    int StartFX(sfx_t *sfx, int category, epi::vec3_c pos, int flags = 0); 
+    int StartFX(sfx_t *sfx, int category, mobj_t *mo, int flags = 0); 
+    int StartFX(sfx_t *sfx, int category, sec_sfxorig_t *orig, int flags = 0); 
+    int StartFX(sfx_t *sfx, int category = SNCAT_UI, int flags = 0);
+
+    void StopFX(int handle);
+    void StopFX(sec_sfxorig_t *orig);
+    void StopFX(mobj_t *mo);
+
+    void StopLoopingFX(int handle);
+    void StopLoopingFX(sec_sfxorig_t *orig);
+    void StopLoopingFX(mobj_t *mo);
+    
+    void ResumeAllFX();
+    void PauseAllFX();
+
+    // Ticker
+    void Ticker();
+
+    // Playsim Object <-> Effect Linkage
+    void UnlinkFX(mobj_t *mo);
+    void UnlinkFX(sec_sfxorig_t *orig);
+
+    // Volume Control
+    int GetVolume();
+    void SetVolume(int volume);
+
+    // Non-rejigged-stuff
+	int LookupEffectDef(const sfx_t *s);
+    void SetListener();
 };
 
 #endif

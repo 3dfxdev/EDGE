@@ -551,7 +551,16 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 		}
 
 		if (sound)
-			S_StartSound(player->mo, sound);
+        {
+            int sfx_cat;
+
+            if (player == players[consoleplayer])
+                sfx_cat = SNCAT_ConPlayer;
+            else
+                sfx_cat = SNCAT_OtherPlayer;
+
+			sound::StartFX(sound, sfx_cat, player->mo);
+        }
 
 		if (new_weap >= 0 || new_ammo >= 0)
 			P_TrySwitchNewWeapon(player, new_weap, (ammotype_e)new_ammo);

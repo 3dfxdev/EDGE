@@ -334,15 +334,19 @@ static void MovePlane(plane_move_t *plane)
 
             if (!plane->sfxstarted)
             {
-                S_StartSound((mobj_t *) &plane->sector->soundorg, 
-                             plane->type->sfxdown);
+                sound::StartFX(plane->type->sfxdown, 
+                               SNCAT_Level,
+                               &plane->sector->sfx_origin);
+
                 plane->sfxstarted = true;
             }
 
             if (res == RES_PastDest)
             {
-                S_StartSound((mobj_t *) &plane->sector->soundorg, 
-                             plane->type->sfxstop);
+                sound::StartFX(plane->type->sfxstop, 
+                               SNCAT_Level,
+                               &plane->sector->sfx_origin);
+
                 plane->speed = plane->type->speed_up;
 
                 if (plane->newspecial != -1)
@@ -428,8 +432,9 @@ static void MovePlane(plane_move_t *plane)
 
                 if (dir)
                 {
-                    S_StartSound((mobj_t *) &plane->sector->soundorg,
-                                 plane->type->sfxstart);
+                    sound::StartFX(plane->type->sfxstart, 
+                                   SNCAT_Level,
+                                   &plane->sector->sfx_origin);
                 }
 
                 plane->direction = dir;  // time to go back
@@ -445,20 +450,23 @@ static void MovePlane(plane_move_t *plane)
 
             if (!plane->sfxstarted)
             {
-                S_StartSound((mobj_t *) &plane->sector->soundorg, 
-                             plane->type->sfxup);
+                sound::StartFX(plane->type->sfxup, 
+                               SNCAT_Level,
+                               &plane->sector->sfx_origin);
+
                 plane->sfxstarted = true;
             }
 
             if (res == RES_PastDest)
             {
-                S_StartSound((mobj_t *) &plane->sector->soundorg, 
-                             plane->type->sfxstop);
+                sound::StartFX(plane->type->sfxstop, 
+                               SNCAT_Level,
+                               &plane->sector->sfx_origin);
 
                 if (plane->newspecial != -1)
                 {
-                    plane->sector->props.special = (plane->newspecial <= 0) ? NULL :
-                        sectortypes.Lookup(plane->newspecial);
+                    plane->sector->props.special = (plane->newspecial <= 0) ? 
+                        NULL : sectortypes.Lookup(plane->newspecial);
                 }
 
                 SECPIC(plane->sector, plane->is_ceiling, plane->new_image);
@@ -749,14 +757,20 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
     plane->is_ceiling = def->is_ceiling;
 
     // -ACB- 10/01/2001 Trigger starting sfx
-    S_StopLoopingSound((mobj_t *) & sector->soundorg);
+    sound::StopLoopingFX(&sector->sfx_origin);
     if (def->sfxstart)
-        S_StartSound((mobj_t *) & sector->soundorg, def->sfxstart);
+    {
+        sound::StartFX(def->sfxstart, 
+                       SNCAT_Level,
+                       &sector->sfx_origin);
+    }
 
     // change to surrounding
     if (def->tex[0] == '-')
     {
-        model = P_GetSectorSurrounding(sector, plane->destheight, def->is_ceiling);
+        model = P_GetSectorSurrounding(sector, 
+                                       plane->destheight, 
+                                       def->is_ceiling);
         if (model)
         {
             plane->new_image = SECPIC(model, def->is_ceiling, NULL);
@@ -1305,7 +1319,10 @@ bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * def)
 
         if (dir != olddir)
         {
-            S_StartSound((mobj_t *) & sec->soundorg, def->sfxstart);
+            sound::StartFX(def->sfxstart, 
+                           SNCAT_Level,
+                           &sec->sfx_origin);
+
             msec->sfxstarted = !(thing->player);
             return true;
         }
@@ -1469,7 +1486,10 @@ static void MoveSlider(slider_move_t *smov)
             {
                 if (SliderCanClose(smov->line))
                 {
-                    S_StartSound((mobj_t *) & sec->soundorg, smov->info->sfx_start);
+                    sound::StartFX(smov->info->sfx_start, 
+                                   SNCAT_Level,
+                                   &sec->sfx_origin);
+
                     smov->sfxstarted = false;
                     smov->direction = DIRECTION_DOWN;
                 }
@@ -1485,7 +1505,10 @@ static void MoveSlider(slider_move_t *smov)
         case 1:
             if (! smov->sfxstarted)
             {
-                S_StartSound((mobj_t *) & sec->soundorg, smov->info->sfx_open);
+                sound::StartFX(smov->info->sfx_open, 
+                               SNCAT_Level,
+                               &sec->sfx_origin);
+
                 smov->sfxstarted = true;
             }
 
@@ -1496,7 +1519,10 @@ static void MoveSlider(slider_move_t *smov)
 
             if (smov->opening >= smov->target)
             {
-                S_StartSound((mobj_t *) & sec->soundorg, smov->info->sfx_stop);
+                sound::StartFX(smov->info->sfx_stop, 
+                               SNCAT_Level,
+                               &sec->sfx_origin);
+
                 smov->opening = smov->target;
                 smov->direction = DIRECTION_WAIT;
                 smov->waited = smov->info->wait;
@@ -1526,7 +1552,10 @@ static void MoveSlider(slider_move_t *smov)
         case -1:
             if (! smov->sfxstarted)
             {
-                S_StartSound((mobj_t *) & sec->soundorg, smov->info->sfx_close);
+                sound::StartFX(smov->info->sfx_close, 
+                               SNCAT_Level,
+                               &sec->sfx_origin);
+
                 smov->sfxstarted = true;
             }
 
@@ -1537,7 +1566,10 @@ static void MoveSlider(slider_move_t *smov)
 
             if (smov->opening <= 0.0f)
             {
-                S_StartSound((mobj_t *) & sec->soundorg, smov->info->sfx_stop);
+                sound::StartFX(smov->info->sfx_stop, 
+                               SNCAT_Level,
+                               &sec->sfx_origin);
+
                 P_RemoveActivePart((gen_move_t*)smov);
                 return;
             }
@@ -1592,7 +1624,7 @@ void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_c * s)
 
     P_AddActivePart((gen_move_t*)smov);
 
-    S_StartSound((mobj_t *) & sec->soundorg, s->sfx_start);
+    sound::StartFX(s->sfx_start, SNCAT_Level, &sec->sfx_origin);
 
     // Must handle line count here, since the normal code in p_spec.c
     // will clear the line->special pointer, confusing various bits of
@@ -1733,14 +1765,20 @@ static void MoveElevator(elev_move_t *elev)
                                       elev->direction);
 
             if (!elev->sfxstarted)
-            {
-                S_StartSound((mobj_t *) & elev->sector->soundorg, elev->type->sfxdown);
+            {    
+                sound::StartFX(elev->type->sfxdown, 
+                               SNCAT_Level, 
+                               &elev->sector->sfx_origin);
+
                 elev->sfxstarted = true;
             }
 
             if (res == RES_PastDest || res == RES_Impossible)
             {
-                S_StartSound((mobj_t *) & elev->sector->soundorg, elev->type->sfxstop);
+                sound::StartFX(elev->type->sfxstop, 
+                               SNCAT_Level, 
+                               &elev->sector->sfx_origin);
+
                 elev->speed = elev->type->speed_up;
 
 // ---> ACB 2001/03/25 Quick hack to get continous movement
@@ -1765,13 +1803,19 @@ static void MoveElevator(elev_move_t *elev)
 
             if (!elev->sfxstarted)
             {
-                S_StartSound((mobj_t *) & elev->sector->soundorg, elev->type->sfxdown);
+                sound::StartFX(elev->type->sfxdown, 
+                               SNCAT_Level, 
+                               &elev->sector->sfx_origin);
+
                 elev->sfxstarted = true;
             }
 
             if (res == RES_PastDest || res == RES_Impossible)
             {
-                S_StartSound((mobj_t *) & elev->sector->soundorg, elev->type->sfxstop);
+                sound::StartFX(elev->type->sfxstop, 
+                               SNCAT_Level, 
+                               &elev->sector->sfx_origin);
+
                 elev->speed = elev->type->speed_down;
 
 // ---> ACB 2001/03/25 Quick hack to get continous movement
@@ -1878,9 +1922,13 @@ static elev_move_t *P_SetupElevatorAction(sector_t * sector,
     elev->type = def;
 
     // -ACB- 10/01/2001 Trigger starting sfx
-    S_StopLoopingSound((mobj_t *) & sector->soundorg);
+    sound::StopLoopingFX(&sector->sfx_origin);
     if (def->sfxstart)
-        S_StartSound((mobj_t *) & sector->soundorg, def->sfxstart);
+    {
+        sound::StartFX(def->sfxstart, 
+                       SNCAT_Level, 
+                       &sector->sfx_origin);
+    }
 
     P_AddActivePart((gen_move_t*)elev);
     return elev;

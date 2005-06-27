@@ -377,10 +377,10 @@ static void CAST_RangeAttack(const atkdef_c *range)
 		sfx = range->sound;
 
 		if (sfx && shotsfxchannel >= 0)
-			S_StopChannel(shotsfxchannel);
+			sound::StopFX(shotsfxchannel);
 
 		if (sfx)
-			shotsfxchannel = S_StartSound(NULL, sfx);
+			shotsfxchannel = sound::StartFX(sfx, SNCAT_Monster);
 
 		return;
 	}
@@ -404,7 +404,7 @@ static void CAST_RangeAttack(const atkdef_c *range)
 	}
 
 	if (sfx)
-		S_StartSound(NULL, sfx);
+		sound::StartFX(sfx, SNCAT_Monster);
 }
 
 static void CastPerformAction(void)
@@ -454,7 +454,7 @@ static void CastPerformAction(void)
 	}
 
 	if (sfx)
-		S_StartSound(NULL, sfx);
+		sound::StartFX(sfx, SNCAT_Monster);
 }
 
 static void CastInitNew(int num)
@@ -511,7 +511,7 @@ static void CastTicker(void)
 		CastInitNew(castorder->castorder + 1);
 
 		if (castorder->seesound)
-			S_StartSound(NULL, castorder->seesound);
+			sound::StartFX(castorder->seesound);
 
 		return;
 	}
@@ -549,7 +549,7 @@ static void CastTicker(void)
 			CastSetState(st);
 
 			if (castorder->attacksound)
-				S_StartSound(NULL, castorder->attacksound);
+				sound::StartFX(castorder->attacksound, SNCAT_Monster);
 		}
 	}
 
@@ -587,7 +587,7 @@ static void CastSkip(void)
 	castattacking = false;
 
 	if (castorder->deathsound)
-		S_StartSound(NULL, castorder->deathsound);
+		sound::StartFX(castorder->deathsound, SNCAT_Monster);
 }
 
 static void CastPrint(const char *text)
@@ -672,7 +672,7 @@ static void BunnyScroll(void)
 
 	if (stage > laststage)
 	{
-		S_StartSound(NULL, sfx_pistol);
+		sound::StartFX(sfx_pistol, SNCAT_UI);
 		laststage = stage;
 	}
 

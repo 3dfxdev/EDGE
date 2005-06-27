@@ -165,30 +165,8 @@ static void DoSectorSFX(sectorsfx_t *sec)
 
 	sec->count = SECSFX_TIME;
 
-	player_t *p = players[displayplayer];
-	DEV_ASSERT2(p);
-
 	if (!sec->sfxstarted)
-	{
-		if (P_ApproxDistance(p->mo->x - sec->sector->soundorg.x,
-					p->mo->y - sec->sector->soundorg.y) < S_CLIPPING_DIST)
-		{
-			int channel = S_StartSound((mobj_t *) & sec->sector->soundorg,
-					sec->sfx);
-
-			if (channel >= 0)
-				sec->sfxstarted = true;
-		}
-	}
-	else
-	{
-		if (P_ApproxDistance(p->mo->x - sec->sector->soundorg.x,
-					p->mo->y - sec->sector->soundorg.y) > S_CLIPPING_DIST)
-		{
-			S_StopSound((mobj_t *) &sec->sector->soundorg);
-			sec->sfxstarted = false;
-		}
-	}
+        sound::StartFX(sec->sfx, SNCAT_Level, &sec->sector->sfx_origin);
 }
 
 //
@@ -836,9 +814,12 @@ static bool P_ActivateSpecialLine(line_t * line,
 		return false;
 
 	// -AJA- 1999/12/07: Height checking.
-	if (line && thing && thing->player && (special->special_flags & LINSP_MustReach) && !can_reach)
+	if (line && thing && thing->player && 
+        (special->special_flags & LINSP_MustReach) && !can_reach)
 	{
-		S_StartSound(thing, thing->info->noway_sound);
+        sound::StartFX(thing->info->noway_sound, 
+                       P_MobjGetSfxCategory(thing), thing);
+
 		return false;
 	}
 
@@ -1171,10 +1152,17 @@ static bool P_ActivateSpecialLine(line_t * line,
 	if (special->activate_sfx)
 	{
 		if (line)
-			S_StartSound((mobj_t *) &line->frontsector->soundorg, 
-					special->activate_sfx);
-		else if (thing)
-			S_StartSound(thing, special->activate_sfx);
+        {
+			sound::StartFX(special->activate_sfx, 
+                           SNCAT_Level,
+                           &line->frontsector->sfx_origin);
+		}
+        else if (thing)
+        {
+            sound::StartFX(special->activate_sfx, 
+                           P_MobjGetSfxCategory(thing),
+                           thing);
+        }
 
 		playedSound = true;
 	}
@@ -1373,7 +1361,9 @@ static INLINE void PlayerInProperties(player_t *player,
 		player->cheats &= ~CF_GODMODE;
 		if (player->health <= special->damage.nominal)
 		{
-			S_StartSound(player->mo, player->mo->info->deathsound);
+            sound::StartFX(player->mo->info->deathsound,
+                           P_MobjGetSfxCategory(player->mo),
+                           player->mo);
 
 			// -KM- 1998/12/16 We don't want to alter the special type,
 			//   modify the sector's attributes instead.
@@ -1387,7 +1377,9 @@ static INLINE void PlayerInProperties(player_t *player,
 		player->cheats &= ~CF_GODMODE;
 		if (player->health <= special->damage.nominal)
 		{
-			S_StartSound(player->mo, player->mo->info->deathsound);
+            sound::StartFX(player->mo->info->deathsound,
+                           P_MobjGetSfxCategory(player->mo),
+                           player->mo);
 
 			props->special = NULL;
 			G_SecretExitLevel(1);
@@ -1455,7 +1447,11 @@ void P_PlayerInSpecialSector(player_t * player, sector_t * sec)
 				(player->mo->info->lung_capacity - player->mo->info->gasp_start))
 		{
 			if (player->mo->info->gasp_sound)
-				S_StartSound(player->mo, player->mo->info->gasp_sound);
+            {
+                sound::StartFX(player->mo->info->gasp_sound,
+                               P_MobjGetSfxCategory(player->mo),
+                               player->mo);
+            }
 		}
 
 		player->air_in_lungs = player->mo->info->lung_capacity;
@@ -1559,7 +1555,10 @@ void P_UpdateSpecials(void)
 		}
 
 		if (b->off_sound)
-			S_StartSound((mobj_t *) &b->line->frontsector->soundorg, b->off_sound);
+        {
+            sound::StartFX(b->off_sound, SNCAT_Level,
+                           &b->line->frontsector->sfx_origin);
+        }
 
 		memset(b, 0, sizeof(button_t));	
 	}

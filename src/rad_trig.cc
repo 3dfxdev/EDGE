@@ -473,7 +473,8 @@ static void DoRemoveTrigger(rad_trigger_t *trig)
 	else
 		r_triggers = trig->next;
 
-	S_AddToFreeQueue((mobj_t *)&trig->soundorg, (void *)trig);
+    // SFX_FIXME: sound::StopLoopingFX(trig->sfx_handle);
+    Z_Free(trig);
 }
 
 // Called by P_PlayerThink
@@ -619,15 +620,9 @@ void RAD_DoRadiTrigger(player_t * p)
 // of each rad_trigger_t, keeping all triggers with the same tag in a
 // linked list for faster handling.
 //
-// Also sets up `soundorg'.
-//
 void RAD_GroupTriggerTags(rad_trigger_t *trig)
 {
 	rad_trigger_t *cur;
-
-	trig->soundorg.x = trig->info->x;
-	trig->soundorg.y = trig->info->y;
-	trig->soundorg.z = 0.0f;
 
 	trig->tag_next = trig->tag_prev = NULL;
 

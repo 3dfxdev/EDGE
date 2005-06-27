@@ -380,7 +380,7 @@ static void P_BringUpWeapon(player_t * p)
 	}
 
 	if (info->start)
-		S_StartSound(p->mo, info->start);
+		sound::StartFX(info->start, SNCAT_ConWeapon, p->mo);
 
 	P_SetPspriteDeferred(p, ps_weapon, info->up_state);
 	P_SetPsprite(p, ps_flash,  S_NULL);
@@ -838,7 +838,7 @@ void A_WeaponReady(mobj_t * mo)
 	if (info->idle && (psp->state == &states[info->ready_state] ||
 		(info->empty_state && psp->state == &states[info->empty_state])))
 	{
-		S_StartSound(mo, info->idle);
+		sound::StartFX(info->idle, SNCAT_ConWeapon, mo);
 	}
 
 	bool fire_0 = ButtonDown(p, 0);
@@ -1321,7 +1321,7 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 	if (mo->target)
 	{
 		if (info->hit)
-			S_StartSound(mo, info->hit);
+			sound::StartFX(info->hit, SNCAT_ConWeapon, mo);
 
 		if (info->feedback)
 			mo->flags |= MF_JUSTATTACKED;
@@ -1329,7 +1329,7 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 	else
 	{
 		if (info->engaged)
-			S_StartSound(mo, info->engaged);
+			sound::StartFX(info->engaged, SNCAT_ConWeapon, mo);
 	}
 
 	// show the player making the shot/attack...
@@ -1404,7 +1404,7 @@ void A_WeaponPlaySound(mobj_t * mo)
 		return;
 	}
 
-	S_StartSound(mo, sound);
+	sound::StartFX(sound, SNCAT_ConWeapon, mo);
 }
 
 //
@@ -1414,7 +1414,7 @@ void A_WeaponPlaySound(mobj_t * mo)
 //
 void A_WeaponKillSound(mobj_t * mo)
 {
-	S_StopSound(mo);
+	sound::StopFX(mo);
 }
 
 //
@@ -1423,19 +1423,19 @@ void A_WeaponKillSound(mobj_t * mo)
 void A_SFXWeapon1(mobj_t * mo)
 {
 	player_t *p = mo->player;
-	S_StartSound(mo, p->weapons[p->ready_wp].info->sound1);
+	sound::StartFX(p->weapons[p->ready_wp].info->sound1, SNCAT_ConWeapon, mo);
 }
 
 void A_SFXWeapon2(mobj_t * mo)
 {
 	player_t *p = mo->player;
-	S_StartSound(mo, p->weapons[p->ready_wp].info->sound2);
+	sound::StartFX(p->weapons[p->ready_wp].info->sound2, SNCAT_ConWeapon, mo);
 }
 
 void A_SFXWeapon3(mobj_t * mo)
 {
 	player_t *p = mo->player;
-	S_StartSound(mo, p->weapons[p->ready_wp].info->sound3);
+	sound::StartFX(p->weapons[p->ready_wp].info->sound3, SNCAT_ConWeapon, mo);
 }
 
 //

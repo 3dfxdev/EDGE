@@ -84,11 +84,6 @@
       if ((var) < 0) (var) = 0;  \
     }
 
-extern mobj_t *RandomTarget;
-
-// useful macro for the vertical center of an object
-#define MO_MIDZ(mo)  ((mo)->z + (mo)->height / 2)
-
 //
 // P_ACTION
 //
@@ -169,6 +164,9 @@ void P_MobjItemRespawn(void);
 void P_MobjRemoveMissile(mobj_t * missile);
 void P_MobjExplodeMissile(mobj_t * missile);
 mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c * type);
+
+// -ACB- 2005/05/06 Sound Effect Category Support
+int P_MobjGetSfxCategory(mobj_t* mo);
 
 //
 // P_ENEMY

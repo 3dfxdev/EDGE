@@ -282,7 +282,7 @@ static void M_ChangeMusVol(int keypressed)
 //
 static void M_ChangeSfxVol(int keypressed)
 {
-	S_SetSfxVolume(menusoundvol);
+	sound::SetVolume(menusoundvol);
 	return;
 }
 
@@ -690,7 +690,7 @@ void M_InitOptmenu()
 	extkeyconfiginfo.sister_prev = &stdkeyconfiginfo;
 
 	menumusicvol = S_GetMusicVolume(); // -ACB- 1999/11/13 Music API Volume
-	menusoundvol = S_GetSfxVolume();   // -ACB- 1999/10/10 Sound API Volume
+	menusoundvol = sound::GetVolume();   
 
 	// Restore the config setting.
 	M_ChangeBlood(-1);
@@ -750,7 +750,7 @@ void M_OptDrawer()
 
 	// make sure the local volume values are kept up-to-date
 	menumusicvol = S_GetMusicVolume();
-	menusoundvol = S_GetSfxVolume();
+	menusoundvol = sound::GetVolume();
  
 	int font_h = style->fonts[0]->NominalHeight(); // FIXME: fonts[0] maybe null
 
@@ -1015,7 +1015,7 @@ bool M_OptResponder(event_t * ev, int ch)
 			}
 			while (curr_item->type == 0);
 
-			S_StartSound(NULL, sfx_pstop);
+			sound::StartFX(sfx_pstop, SNCAT_UI);
 			return true;
 		}
 
@@ -1030,7 +1030,7 @@ bool M_OptResponder(event_t * ev, int ch)
 			}
 			while (curr_item->type == 0);
 
-			S_StartSound(NULL, sfx_pstop);
+			sound::StartFX(sfx_pstop, SNCAT_UI);
 			return true;
 		}
 
@@ -1043,7 +1043,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					curr_menu = curr_menu->sister_prev;
 					curr_item = curr_menu->items + curr_menu->pos;
 
-					S_StartSound(NULL, sfx_pstop);
+					sound::StartFX(sfx_pstop, SNCAT_UI);
 				}
 				return true;
 			}
@@ -1060,7 +1060,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					bool *boolptr = (bool*)curr_item->switchvar;
 					*boolptr = !(*boolptr);
 
-					S_StartSound(NULL, sfx_pistol);
+					sound::StartFX(sfx_pistol, SNCAT_UI);
 
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
@@ -1075,7 +1075,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					if ((*(int*)(curr_item->switchvar)) < 0)
 						(*(int*)(curr_item->switchvar)) = curr_item->numtypes - 1;
 
-					S_StartSound(NULL, sfx_pistol);
+					sound::StartFX(sfx_pistol, SNCAT_UI);
 
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
@@ -1088,7 +1088,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
 
-					S_StartSound(NULL, sfx_pistol);
+					sound::StartFX(sfx_pistol, SNCAT_UI);
 					return true;
 				}
 
@@ -1097,7 +1097,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					if ((*(int*)(curr_item->switchvar)) > 0)
 					{
 						(*(int*)(curr_item->switchvar))--;
-						S_StartSound(NULL, sfx_stnmov);
+						sound::StartFX(sfx_stnmov, SNCAT_UI);
 					}
 
 					if (curr_item->routine != NULL)
@@ -1119,7 +1119,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					curr_menu = curr_menu->sister_next;
 					curr_item = curr_menu->items + curr_menu->pos;
 
-					S_StartSound(NULL, sfx_pstop);
+					sound::StartFX(sfx_pstop, SNCAT_UI);
 				}
 				return true;
 			}
@@ -1137,7 +1137,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					bool *boolptr = (bool*)curr_item->switchvar;
 					*boolptr = !(*boolptr);
 
-					S_StartSound(NULL, sfx_pistol);
+					sound::StartFX(sfx_pistol, SNCAT_UI);
 
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
@@ -1152,7 +1152,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					if ((*(int*)(curr_item->switchvar)) >= curr_item->numtypes)
 						(*(int*)(curr_item->switchvar)) = 0;
 
-					S_StartSound(NULL, sfx_pistol);
+					sound::StartFX(sfx_pistol, SNCAT_UI);
 
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
@@ -1165,7 +1165,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
 
-					S_StartSound(NULL, sfx_pistol);
+					sound::StartFX(sfx_pistol, SNCAT_UI);
 					return true;
 				}
 
@@ -1174,7 +1174,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					if ((*(int*)(curr_item->switchvar)) < (curr_item->numtypes - 1))
 					{
 						(*(int*)(curr_item->switchvar))++;
-						S_StartSound(NULL, sfx_stnmov);
+						sound::StartFX(sfx_stnmov, SNCAT_UI);
 					}
 
 					if (curr_item->routine != NULL)
@@ -1205,7 +1205,7 @@ bool M_OptResponder(event_t * ev, int ch)
 				curr_menu = &mainmenuinfo;
 				curr_item = curr_menu->items + curr_menu->pos;
 			}
-			S_StartSound(NULL, sfx_swtchx);
+			sound::StartFX(sfx_swtchx, SNCAT_UI);
 			return true;
 		}
 	}

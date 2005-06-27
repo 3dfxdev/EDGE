@@ -543,7 +543,7 @@ int CON_CMDPlaySound(const char *args)
 	}
 	else
 	{
-		S_StartSound(NULL, sfx);
+		sound::StartFX(sfx, SNCAT_UI);
 	}
 
 	KillArgs(argc, argv);

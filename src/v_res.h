@@ -29,9 +29,7 @@
 #ifndef __VIDEORES_H__
 #define __VIDEORES_H__
 
-#include "dm_type.h"
-#include "dm_defs.h"
-#include "r_data.h"
+#include "i_defs.h"
 
 #include "./epi/arrays.h"
 
