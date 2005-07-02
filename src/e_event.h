@@ -50,12 +50,15 @@ typedef struct
 	union
 	{
 		int key;
+	
 		struct
 		{
 			int axis;
 			int amount;
-		} analogue;
-	} value;
+		} 
+		analogue;
+	} 
+	value;
 }
 event_t;
 
