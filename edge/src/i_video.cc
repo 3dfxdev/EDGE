@@ -16,29 +16,17 @@
 //
 //----------------------------------------------------------------------------
 
-#ifdef MACOSX
-#include <SDL.h>
-#else
-#include <SDL/SDL.h>
-#endif
+#include "../i_defs.h"
+#include "i_sdlinc.h"
 
-#include "i_defs.h"
-#include "m_argv.h"
-#include "v_res.h"
+#include "../m_argv.h"
+#include "../v_res.h"
 
 #include <signal.h>
 
 static SDL_Surface *my_vis;
 
 static int graphics_shutdown = 0;
-
-bool use_grab = true;
-
-#if defined(MACOSX) || defined(BeOS)
-bool use_warp_mouse = true;
-#else
-bool use_warp_mouse = false;
-#endif
 
 // Possible Screen Modes
 static i_scrmode_t possresmode[] =
@@ -97,11 +85,6 @@ static void VideoModeCommonStuff(void)
 		SDL_ShowCursor(0);
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 	}
-
-	//if (use_warp_mouse)
-	//	SDL_WarpMouse(SCREENWIDTH/2, SCREENHEIGHT/2);
-
-	SDL_WM_SetCaption("Enhanced Doom Gaming Engine", "EDGE");
 
 #ifdef DEVELOPERS
 	// override SDL signal handlers (the so-called "parachute").
@@ -168,11 +151,6 @@ bool I_SetScreenSize(i_scrmode_t *mode)
 	if (my_vis->format->BytesPerPixel <= 1)
 		return false;
 
-	// -ACB- 2005/03/06 No, the tail doesn't wag the dog....
-	//SCREENWIDTH  = my_vis->w;
-	//SCREENHEIGHT = my_vis->h;
-	//SCREENBITS   = (my_vis->format->BytesPerPixel == 2) ? 16 : 32;
-
 	VideoModeCommonStuff();
 	SDL_GL_SwapBuffers();
 	return true;
@@ -191,13 +169,15 @@ void I_StartFrame(void)
 void I_FinishFrame(void)
 {
 	SDL_GL_SwapBuffers();
-
-	// -DEL- 2001/01/29 SDL_GrabInput doesn't work on beos so try to
-	// stop the mouse leaving the window every frame.
-	if (use_warp_mouse)
-		SDL_WarpMouse(SCREENWIDTH/2, SCREENHEIGHT/2);
 }
 
+//
+// I_PutTitle
+//
+void I_PutTitle(const char *title)
+{
+	SDL_WM_SetCaption(title, title);
+}
 //
 // I_RemoveGrab()
 //
@@ -220,6 +200,5 @@ void I_ShutdownGraphics(void)
 
 	graphics_shutdown = 1;
 
-	fprintf(stderr, "Shutting down graphics...\n");
 	SDL_Quit ();
 }
