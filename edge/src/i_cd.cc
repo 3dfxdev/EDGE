@@ -154,9 +154,9 @@ bool I_CDStartPlayback(int tracknum, bool loop, float gain)
 //
 // Paused the playing CD
 //
-void I_CDPausePlayback(void)
+bool I_CDPausePlayback(void)
 {
-	SDL_CDPause(cd_dev);
+	return (SDL_CDPause(cd_dev) == 0);
 }
 
 //
@@ -164,9 +164,9 @@ void I_CDPausePlayback(void)
 //
 // Resumes the paused CD
 //
-void I_CDResumePlayback(void)
+bool I_CDResumePlayback(void)
 {
-	SDL_CDResume(cd_dev);
+	return (SDL_CDResume(cd_dev) == 0);
 }
 
 //
