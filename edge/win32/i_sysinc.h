@@ -33,14 +33,6 @@
 
 #include <sys/types.h> // Required for _stat()
 
-#define DIRECTDRAW_VERSION  0x0300
-#define DIRECTINPUT_VERSION 0x0300
-#define DIRECTSOUND_VERSION 0X0300
-
-#include <ddraw.h>
-#include <dinput.h>
-#include <dsound.h>
-
 #include "edge32.rh" // Resources
 
 // Win32 Mixer
@@ -69,10 +61,6 @@ bool I_CDFinished(void);
 bool I_CDTicker(void);
 void I_ShutdownCD();
 
-// I_CTRL.C
-void I_ControlTicker(void);
-void I_HandleKeypress(int key, bool keydown); // handle message loop key presses
-
 // I_MUS.C - Win32 MUS Handling
 bool I_StartupMUS();
 int I_MUSPlayTrack(byte *data, int length, bool loopy, float gain);
@@ -91,20 +79,6 @@ win32_mixer_t *I_MusicLoadMixer(DWORD type);
 void I_MusicReleaseMixer(win32_mixer_t* mixer);
 bool I_MusicGetMixerVol(win32_mixer_t* mixer, DWORD *vol);
 bool I_MusicSetMixerVol(win32_mixer_t* mixer, DWORD vol);
-
-// I_SYSTEM.C
-long FAR PASCAL I_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-
-// I_VIDEO.C
-void I_SizeWindow(void);
-
-// Window stuff
-extern HWND mainwindow;
-extern HINSTANCE maininstance;
-extern HACCEL accelerator;
-
-// -ACB- 2000/07/04 We want to see this lot from elsewhere in the EPI
-extern bool appactive;
 
 #endif /* __SYSTEM_INTERNAL_H__ */
 
