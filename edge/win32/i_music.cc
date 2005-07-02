@@ -21,7 +21,9 @@
 
 #include "..\i_defs.h"
 #include "i_sysinc.h"
+
 #include "../AL/oggplayer.h"
+#include "../SDL/i_sdlinc.h"
 
 // #defines for handle information
 #define GETLIBHANDLE(_handle) (_handle&0xFF)
@@ -357,7 +359,7 @@ void I_ShutdownMusic(void)
 //
 // I_PostMusicError
 //
-void I_PostMusicError(char *message)
+void I_PostMusicError(const char *message)
 {
 	memset(errordesc, 0, MUSICERRLEN*sizeof(char));
 
