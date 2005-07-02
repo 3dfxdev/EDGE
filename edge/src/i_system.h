@@ -421,12 +421,6 @@ void I_FinishFrame(void);
 // routine typically copies the screen buffer to the video memory.  It
 // may also handle double/triple buffering here.
 
-void I_WaitVBL(int count);
-// Waits until the video card is in Vertical Blanking.  The count
-// parameter is the number of frames to wait for (1 means this very
-// frame).  This function may do nothing if VBL information is not
-// available on the platform.
-
 bool I_SetScreenSize(i_scrmode_t *mode);
 // Tries to set the video card to the given mode (or open a window).
 // If there already was a valid mode (or open window), this call
