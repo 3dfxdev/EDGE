@@ -19,14 +19,8 @@
 // 	      Using SDL's CD functions might be the way to go...
 //
 
-#ifdef MACOSX
-#include <SDL.h>
-#else
-#include <SDL/SDL.h>
-#endif
-
 #include "../i_defs.h"
-#include "i_sysinc.h"
+#include "i_sdlinc.h"
 
 
 static SDL_CD *cd_dev;  // NULL when CD system is inactive
