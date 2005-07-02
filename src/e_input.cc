@@ -28,41 +28,13 @@
 //
 
 #include "i_defs.h"
-#include "g_game.h"
+#include "e_input.h"
 
-#include "am_map.h"
-#include "con_main.h"
-#include "dm_defs.h"
-#include "dm_state.h"
-#include "dstrings.h"
+#include "e_event.h"
 #include "e_main.h"
-#include "f_finale.h"
-#include "m_argv.h"
-#include "m_cheat.h"
-#include "m_inline.h"
-#include "m_misc.h"
-#include "m_menu.h"
-#include "m_random.h"
 #include "hu_stuff.h"
-#include "p_bot.h"
-#include "p_local.h"
-#include "p_setup.h"
-#include "p_tick.h"
-#include "r_data.h"
-#include "r_layers.h"
-#include "r_sky.h"
-#include "r_view.h"
-#include "rad_trig.h"
-#include "s_sound.h"
-#include "sv_chunk.h"
-#include "sv_main.h"
-#include "st_stuff.h"
-#include "version.h"
-#include "v_res.h"
-#include "w_image.h"
-#include "w_textur.h"
-#include "w_wad.h"
-#include "wi_stuff.h"
+#include "m_misc.h"
+#include "r_main.h"
 #include "z_zone.h"
 
 //
@@ -527,4 +499,26 @@ void E_UpdateKeyState(void)
 	for (int k = 0; k < NUMKEYS; k++)
 		if (gamekeydown[k] & GK_UP)
 			gamekeydown[k] = 0;
+}
+
+//
+// E_ReleaseAllKeys
+//
+// Generate events which should release all current 
+//
+void E_ReleaseAllKeys(void)
+{
+	int i;
+	for (i = 0; i < NUMKEYS; i++)
+	{
+		if (gamekeydown[i] & GK_DOWN)
+		{
+			event_t ev;
+			
+			ev.type = ev_keyup;
+			ev.value.key = i;
+			
+			E_PostEvent(&ev);
+		}
+	}
 }
