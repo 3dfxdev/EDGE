@@ -1417,8 +1417,6 @@ static void QuitResponse(int ch)
 			}
 			while (i != start);
 		}
-
-		I_WaitVBL(105);
 	}
 
 	// -ACB- 1999/09/20 New exit code order
