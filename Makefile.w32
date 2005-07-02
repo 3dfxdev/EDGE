@@ -14,12 +14,13 @@ CPP=mingw32-g++.exe
 WINDRES=windres.exe
 
 # External library directories
-AL_DIR="c:/localbin/openal"
-DX_DIR="c:/localbin/dxsdk-gcc"
-OGG_DIR="c:/localbin/oggvorbis-win32sdk-1.0.1"
-JPEG_DIR="c:/localbin/gnuwin32"
-PNG_DIR="c:/localbin/gnuwin32"
-ZLIB_DIR="c:/localbin/gnuwin32"
+AL_DIR="c:/program files/OpenAL 1.0 Software Development Kit"
+DX_DIR="c:/program files/Microsoft DirectX 9.0 SDK"
+OGG_DIR="c:/program files/oggvorbis-win32sdk-1.0.1"
+JPEG_DIR="c:/program files/gnuwin32"
+PNG_DIR="c:/program files/gnuwin32"
+SDL_DIR="c:/program files/SDL-1.2.8"
+ZLIB_DIR="c:/program files/gnuwin32"
 ## HAWK_DIR="hawknl1.68"
 
 # Optimisation level
@@ -43,6 +44,7 @@ CXXINCS = -Iinclude/c++/3.2.3/ \
 		  -I$(OGG_DIR)/include \
 		  -I$(JPEG_DIR)/include \
 		  -I$(PNG_DIR)/include \
+		  -I$(SDL_DIR)/include \
 		  -I$(ZLIB_DIR)/include
 
 CFLAGS=$(INCS) $(OPTIM) \
@@ -68,16 +70,19 @@ LIBS= \
 	$(OGG_DIR)/lib/ogg.lib \
 	$(JPEG_DIR)/lib/libjpeg.a \
 	$(PNG_DIR)/lib/libpng13.a \
+	$(SDL_DIR)/lib/libSDL.a \
 	$(ZLIB_DIR)/lib/libz.a \
 	-lwsock32 -lopengl32 -lwinmm -lgdi32 \
 	-ldxguid -ldinput 
-
 # ----- OBJECTS ------------------------------------------------------
 
 OBJS= \
 	$(RES) \
 	AL/i_sound.o \
 	AL/oggplayer.o \
+	SDL/i_ctrl.o \
+	SDL/i_system.o \
+	SDL/i_video.o \
 	am_map.o \
 	con_con.o \
 	con_cvar.o \
@@ -189,12 +194,10 @@ OBJS= \
 	w_image.o \
 	win32/i_cd.o \
 	win32/i_compen.o \
-	win32/i_ctrl.o \
 	win32/i_main.o \
 	win32/i_music.o \
 	win32/i_mus.o \
 	win32/i_net.o \
-	win32/i_opengl.o \
 	win32/i_system.o \
 	wi_stuff.o \
 	wp_wipe.o \
