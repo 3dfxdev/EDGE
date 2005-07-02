@@ -50,17 +50,6 @@ typedef struct
 }
 win32_mixer_t;
 
-// I_CD.C - MCI CD Handling
-bool I_StartupCD(void);
-bool I_CDStartPlayback(int tracknum, bool loopy, float gain);
-bool I_CDPausePlayback(void);
-bool I_CDResumePlayback(void);
-void I_CDStopPlayback(void);
-void I_CDSetVolume(float gain);
-bool I_CDFinished(void);
-bool I_CDTicker(void);
-void I_ShutdownCD();
-
 // I_MUS.C - Win32 MUS Handling
 bool I_StartupMUS();
 int I_MUSPlayTrack(byte *data, int length, bool loopy, float gain);
@@ -73,8 +62,6 @@ void I_MUSSetVolume(float gain);
 void I_ShutdownMUS(void);
 
 // I_MUSIC.C
-void I_PostMusicError(char *error);
-
 win32_mixer_t *I_MusicLoadMixer(DWORD type);
 void I_MusicReleaseMixer(win32_mixer_t* mixer);
 bool I_MusicGetMixerVol(win32_mixer_t* mixer, DWORD *vol);
