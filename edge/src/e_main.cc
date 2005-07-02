@@ -1691,8 +1691,6 @@ namespace engine
 		// -ACB- 1999/09/20 defines to be used?
 		CON_InitConsole(79, 25, false);  // AJA: FIXME: init later (in startcode[])
 
-		I_PutTitle(E_TITLE);
-
 		ShowDateAndVersion();
 
 		InitDirectories();
@@ -1701,6 +1699,8 @@ namespace engine
 		SetGlobalVars();
 
 		DoSystemStartup();
+
+		I_PutTitle(E_TITLE); // Needs to be done once the system is up and running
 
 		// RGL_FontStartup();
 
@@ -1816,6 +1816,16 @@ namespace engine
 		epi::Shutdown();
 	}
 
+	//
+	// Idle
+	//
+	// Called when this application has lost focus (i.e. an ALT+TAB event)
+	//
+	void Idle(void)
+	{
+		E_ReleaseAllKeys();
+	}
+	
 	//
 	// Tick
 	//
