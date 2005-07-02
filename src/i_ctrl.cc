@@ -112,7 +112,8 @@ void InactiveEventProcess(SDL_Event *sdl_ev)
 			if (!sdl_ev->active.gain)
 				break;
 				
-			if (sdl_ev->active.state & (SDL_APPINPUTFOCUS|SDL_APPACTIVE))
+			if (sdl_ev->active.state & SDL_APPACTIVE ||
+                sdl_ev->active.state & SDL_APPINPUTFOCUS)
 				HandleFocusGain();
 			break;
 
@@ -170,9 +171,15 @@ void HandleKeyEvent(SDL_Event* ev)
 	event.type  = (ev->type == SDL_KEYDOWN) ? ev_keydown : ev_keyup;
 	event.value.key = TranslateSDLKey((int)ev->key.keysym.sym);
 
-	if (event.value.key < 0 || (event.value.key == KEYD_TAB && alt_is_down))
+	if (event.value.key < 0)
 		return;
-		
+
+    if (event.value.key == KEYD_TAB && alt_is_down)
+    {
+        alt_is_down = false;
+		return;
+    }
+
 	if (event.value.key == KEYD_LALT)
 		alt_is_down = (event.type == ev_keydown);
 		
