@@ -32,7 +32,22 @@ typedef enum
 }
 app_state_flags_e;
 
+// I_CD
+bool I_StartupCD(void);
+bool I_CDStartPlayback(int tracknum, bool loopy, float gain);
+bool I_CDPausePlayback(void);
+bool I_CDResumePlayback(void);
+void I_CDStopPlayback(void);
+void I_CDSetVolume(float gain);
+bool I_CDFinished(void);
+bool I_CDTicker(void);
+void I_ShutdownCD();
+
+// I_CTRL
 void I_CentreMouse();
+
+// I_MUSIC
+void I_PostMusicError(const char *message);
 
 extern int app_state;
 extern bool use_grab;
