@@ -34,6 +34,7 @@ extern bool need_save_screenshot;
 namespace engine
 {
 	void Main(int argc, const char **argv);
+	void Idle(void);
 	void Tick(void);
 };
 
