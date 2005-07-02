@@ -1454,7 +1454,7 @@ namespace sound
         {
             if (tfx->flags & TESTFX_USE)
             {
-                int pos_type;
+                int pos_type = FXPOSTYPE_NOTUSED;
 
                 if (tfx->link_type == FXLINKTYPE_PENDING)
                 {
@@ -2177,7 +2177,7 @@ namespace sound
 		//  get out of sync.
 		// -AJA- 1999/07/19: That's why we use M_Random instead :).
 
-        if (num > 1)
+        if (s->num > 1)
             num = s->sounds[M_Random() % s->num];
         else
             num = s->sounds[0];
