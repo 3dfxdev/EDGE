@@ -18,6 +18,7 @@
 //
 
 #include "..\i_defs.h"
+#include "..\SDL\i_sdlinc.h"
 
 #include "..\con_main.h"
 #include "..\dm_defs.h"
@@ -31,9 +32,6 @@
 #include "..\z_zone.h"
 
 #include "i_sysinc.h"
-
-// Application active?
-bool appactive;
 
 // has system been setup?
 bool systemup = false;
@@ -65,7 +63,7 @@ static int actualticcount = 0;          // Actual tick count
 //
 void CALLBACK SysTicker(UINT id, UINT msg, DWORD user, DWORD dw1, DWORD dw2)
 {
-	if (appactive)
+	if (app_state & APP_STATE_ACTIVE)
 	{
 		actualticcount++;
 
@@ -74,31 +72,7 @@ void CALLBACK SysTicker(UINT id, UINT msg, DWORD user, DWORD dw1, DWORD dw2)
 	}
 
 	I_MUSTicker();         // Called to handle MUS Code
-	I_ControlTicker();     // Called to buffer input for reading
-
 	return;
-}
-
-//
-// HandleFocusChange
-//
-static void HandleFocusChange(HWND window, HWND otherwin, bool gotfocus)
-{
-	if (window == mainwindow && otherwin != mainwindow)
-	{
-		if (gotfocus)
-		{
-			while (ShowCursor(FALSE) >= 0) {}; // Remove the cursor
-			appactive = true;
-			I_HandleKeypress(KEYD_PAUSE, false);
-		}
-		else
-		{
-			I_HandleKeypress(KEYD_PAUSE, false);
-			ShowCursor(TRUE);
-			appactive = false;
-		}
-	}
 }
 
 // ============ END OF INTERNALS ==============
@@ -120,21 +94,19 @@ bool I_SystemStartup(void)
 	timerID = timeSetEvent(clockspeed, TIMER_RES, SysTicker, 0, TIME_PERIODIC);
 
 	I_StartupNetwork();
+
+	I_StartupGraphics(); // SDL requires this to be called first
 	I_StartupControl();
 
 	// Startup Sound
 	if (!M_CheckParm("-nosound"))
 	{
-		nosound = !(I_StartupSound((void*)&mainwindow));
-		if (nosound)
-			I_Warning("%s\n", I_SoundReturnError());
+		nosound = !(I_StartupSound((void*)NULL));
 	}
 
 	// Startup Music System
-	if (!I_StartupMusic((void*)&mainwindow))
+	if (!I_StartupMusic((void*)NULL))
 		I_Warning("%s\n", I_MusicReturnError());
-
-	I_StartupGraphics();
 
 #ifndef DEVELOPERS
 
@@ -146,13 +118,6 @@ bool I_SystemStartup(void)
 #endif /* DEVELOPERS */
 
 	return true;
-}
-
-//
-// I_WaitVBL
-//
-void I_WaitVBL(int count)
-{
 }
 
 //
@@ -232,8 +197,8 @@ void I_Error(const char *error,...)
 		fflush(debugfile);
 	}
 
-	ShowCursor(TRUE);
-	MessageBox(mainwindow, msgbuf, TITLE, MB_OK);
+	//ShowCursor(TRUE);
+	MessageBox(NULL, msgbuf, TITLE, MB_OK);
 
 	I_SystemShutdown();
 	I_CloseProgram(-1);
@@ -280,17 +245,6 @@ void I_Printf(const char *message,...)
 	CON_Printf(printbuf);
 
 	va_end(argptr);
-}
-
-//
-// I_PutTitle
-//
-// This basically inits the Win32 System Console for init an sets
-// the main window's title (which isn't yet viewable).
-//
-void I_PutTitle(const char *title)
-{
-	SetWindowText(mainwindow, title); // Set EDGE Engine Window with this title
 }
 
 //
@@ -386,92 +340,6 @@ bool I_Access(const char *filename)
 }
 
 //
-// I_WindowProc
-//
-// The Main Window Message Handling Procedure
-//
-long FAR PASCAL I_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	switch (message)
-	{
-		case WM_CLOSE:
-			return 1L;
-
-		case WM_KEYDOWN:
-			// We don't want to know about a key still being pressed.
-			if ((lParam & 0x40000000) != 0) 
-				break;                        
-
-			if (wParam == VK_PAUSE)
-				I_HandleKeypress(KEYD_PAUSE, true);
-
-			return 0L;
-
-		case WM_KEYUP:
-			if (wParam == VK_PAUSE)
-				I_HandleKeypress(KEYD_PAUSE, false);
-
-			return 0L;
-
-		case WM_KILLFOCUS:
-			HandleFocusChange(hWnd, (HWND)(wParam), false);
-			return 0L;
-
-		case WM_SETFOCUS:
-			HandleFocusChange(hWnd, (HWND)(wParam), true);
-			return 0L;
-
-		case WM_SIZE:
-			if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED) 
-			{
-				I_SizeWindow();
-				return 0L;
-			}
-		break;
-
-	default:
-		break;
-	}
-
-	return (long)DefWindowProc(hWnd, message, wParam, lParam);
-}
-
-//
-// I_Loop
-//
-// Win32 needs to handle messages during its loop...
-//
-void I_Loop(void)
-{
-	MSG msg;
-	static bool gameon = true;
-
-	while (gameon)
-	{
-		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			if (msg.message == WM_QUIT)
-			{
-				gameon = false;
-				appactive = false;
-				break;
-			}
-
-			if (!TranslateAccelerator(msg.hwnd, accelerator, &msg))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-		}
-
-		if (appactive)
-			engine::Tick();
-	}
-
-	return;
-}
-
-//
 // I_PureRandom
 //
 long I_PureRandom(void)
@@ -550,10 +418,10 @@ void I_SystemShutdown(void)
 	waittime = timeGetTime() + 2000;
 	while (waittime >= (int)timeGetTime());
 
-	I_ShutdownGraphics();
 	I_ShutdownMusic();
 	I_ShutdownSound();
 	I_ShutdownControl();
+	I_ShutdownGraphics();
 	I_ShutdownNetwork();
 
 	// Kill timer
@@ -572,7 +440,6 @@ void I_SystemShutdown(void)
 		fclose(debugfile);
 #endif
 }
-
 
 
 

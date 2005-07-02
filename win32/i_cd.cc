@@ -20,7 +20,12 @@
 //
 
 #include "..\i_defs.h"
+#include "..\SDL\i_sdlinc.h"
+
 #include "i_sysinc.h"
+
+
+#include <SDL/SDL_syswm.h>
 
 #define CDDEVICE "cdaudio"
 
@@ -34,20 +39,28 @@ typedef struct
 }
 cdinfo_t;
 
-static win32_mixer_t *mixer = NULL;
-static cdinfo_t *currcd = NULL;
-static MCIERROR errorcode;
+win32_mixer_t *mixer = NULL;
+cdinfo_t *currcd = NULL;
+MCIERROR errorcode;
 
-static int currcd_track = 0;
-static bool currcd_loop = false;
-static float currcd_gain = 0.0f;
+int currcd_track = 0;
+bool currcd_loop = false;
+float currcd_gain = 0.0f;
+
+HWND app_hwnd;
 
 //
 // I_StartupCD
 //
 bool I_StartupCD()
 {
-	// Insert code here...
+	SDL_SysWMinfo wm_info;
+
+	// Setup the application window handle 
+	SDL_VERSION(&wm_info.version);
+	SDL_GetWMInfo(&wm_info);
+	app_hwnd = wm_info.window;
+
 	mixer = I_MusicLoadMixer(MIXERLINE_COMPONENTTYPE_SRC_COMPACTDISC);
 	if (!mixer)
 	{
@@ -114,7 +127,7 @@ bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
 	}
 
 	// open parameters
-	openparm.dwCallback      = (DWORD_PTR)mainwindow;
+	openparm.dwCallback      = (DWORD_PTR)app_hwnd;
 	openparm.lpstrDeviceType = CDDEVICE;
 
 	// Open MCI CD-Audio
@@ -135,7 +148,7 @@ bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
 	currcd->id = openparm.wDeviceID;
 
 	// Get the status of MCI CD-Audio
-	statusparm.dwCallback = (DWORD_PTR)mainwindow;
+	statusparm.dwCallback = (DWORD_PTR)app_hwnd;
 	statusparm.dwItem     = MCI_STATUS_MEDIA_PRESENT;
 
 	errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)&statusparm);
@@ -153,7 +166,7 @@ bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
 	}
 
 	// Get the number of CD Tracks
-	statusparm.dwCallback = (DWORD_PTR)mainwindow;
+	statusparm.dwCallback = (DWORD_PTR)app_hwnd;
 	statusparm.dwItem     = MCI_STATUS_NUMBER_OF_TRACKS;
 
 	errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)&statusparm);
@@ -181,7 +194,7 @@ bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
 	}
 
 	// Get the status of the CD Track
-	statusparm.dwCallback = (DWORD_PTR)mainwindow;
+	statusparm.dwCallback = (DWORD_PTR)app_hwnd;
 	statusparm.dwItem     = MCI_CDA_STATUS_TYPE_TRACK;
 	currcd->currenttrack  = statusparm.dwTrack    = tracknum;
 
@@ -214,7 +227,7 @@ bool I_CDStartPlayback(int tracknum, bool loopy, float gain)
 	mciSendCommand(currcd->id, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD_PTR)&setparm);
 
 	// Setup play parameters
-	playparm.dwCallback = (DWORD_PTR)mainwindow;
+	playparm.dwCallback = (DWORD_PTR)app_hwnd;
 	currcd->startpos = playparm.dwFrom = MCI_MAKE_TMSF(tracknum, 0, 0, 0);
 
 	// Check if last track...
@@ -270,7 +283,7 @@ bool I_CDPausePlayback(void)
 	setparm.dwTimeFormat = MCI_FORMAT_TMSF;
 	mciSendCommand(currcd->id, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD_PTR)&setparm);
 
-	statusparm.dwCallback  = (DWORD_PTR)mainwindow;
+	statusparm.dwCallback  = (DWORD_PTR)app_hwnd;
 	statusparm.dwItem = MCI_STATUS_POSITION;
 
 	errorcode = mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)&statusparm);
@@ -312,7 +325,7 @@ bool I_CDResumePlayback(void)
 	setparm.dwTimeFormat = MCI_FORMAT_TMSF;
 	mciSendCommand(currcd->id, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD_PTR) &setparm);
 
-	playparm.dwCallback = (DWORD_PTR)mainwindow;
+	playparm.dwCallback = (DWORD_PTR)app_hwnd;
 	playparm.dwFrom     = currcd->pausedpos;
 	playparm.dwTo       = currcd->finishpos;
 
@@ -364,7 +377,7 @@ bool I_CDFinished(void)
 		return false;
 
 	// Get the status of MCI CD-Audio
-	statusparm.dwCallback = (DWORD_PTR)mainwindow;
+	statusparm.dwCallback = (DWORD_PTR)app_hwnd;
 	statusparm.dwItem     = MCI_STATUS_MODE;
 
 	mciSendCommand(currcd->id, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)&statusparm);
