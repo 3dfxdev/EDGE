@@ -324,26 +324,6 @@ void ClearScreen (void)
 	I_Printf("\n");
 }
 
-// -KM- 1998/10/29 Use all of screen, not just first 25 rows.
-void I_PutTitle(const char *title)
-{
-	char string[81];
-	int centre;
-
-	memset(string, ' ', 80);
-	string[80] = 0;
-
-	// Build the title
-	centre = (80 - strlen(title)) / 2;
-	memcpy(&string[centre], title, strlen(title));
-
-	// Print the title
-	TextAttr(0x07);
-	ClearScreen();
-	I_Printf("%s\n\n", string);
-	TextAttr(0x07);
-}
-
 //
 // I_DisplayExitScreen
 //
@@ -544,15 +524,6 @@ bool I_GetModifiedTime(const char *filename, epi::timestamp_c *t)
 		   timeinf.tm_hour, timeinf.tm_min, timeinf.tm_sec);
 
 	return true;
-}
-
-//
-// I_Loop
-//
-void I_Loop(void)
-{
-	while (1)
-		engine::Tick();
 }
 
 //
