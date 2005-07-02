@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE Linux Controller Stuff
+//  EDGE SDL Controller Stuff
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2005  The EDGE Team.
@@ -16,76 +16,266 @@
 //
 //----------------------------------------------------------------------------
 
-#ifdef MACOSX
-#include <SDL.h>
+#include "../i_defs.h"
+#include "i_sdlinc.h"
+
+#include "../e_main.h"
+#include "../e_event.h"
+#include "../v_res.h"
+
+#include "../epi/macros.h"
+
+// FIXME: Combine all these SDL bool vars into an int/enum'd flags structure
+
+// Work around for alt-tabbing
+bool alt_is_down;
+bool eat_mouse_motion = true;
+bool use_grab = true;
+
+#if defined(MACOSX) || defined(BeOS) || defined(WIN32)
+bool use_warp_mouse = true;
 #else
-#include <SDL/SDL.h>
+bool use_warp_mouse = false;
 #endif
 
-#include "i_defs.h"
-
-#include "dm_defs.h"
-#include "m_argv.h"
-#include "e_main.h"
-#include "e_event.h"
-#include "v_res.h"
-
-extern bool use_warp_mouse;
-
-static bool got_first_mouse_motion = false;
-
-
-/****** Input Event Generation ******/
-
-void I_StartupControl(void)
-{
-	I_Printf("I_StartupJoystick\n");
-	//  I_StartupJoystick();
-
-	I_Printf("I_StartupMouse\n");
-	//  I_StartupMouse();
-
-	I_Printf("I_StartupKeyboard\n");
-	//  I_StartupKeyboard();
-
-  return;
-}
-
-#if 0 //!!! actually in l_vid_x.c
-void I_ControlGetEvents(void)
-{
-//  I_ReadMouse(usemouse);
-//  I_ReadJoystick(usejoystick);
-//  I_ReadKeyboard();
-}
-#endif
+void HandleFocusGain();
+void HandleFocusLost();
+void HandleKeyEvent(SDL_Event* ev);
+void HandleMouseButtonEvent(SDL_Event* ev);
+void HandleMouseMotionEvent(SDL_Event* ev);
+int TranslateSDLKey(int key);
 
 //
-// I_ShutdownControl
+// ActiveEventProcess
 //
-// Return input devices to system control
+// Event handling while the application is active
 //
-void I_ShutdownControl(void)
+void ActiveEventProcess(SDL_Event *sdl_ev)
 {
-	// I_ShutdownJoystick();
-	// I_ShutdownMouse();
-	// I_ShutdownKeyboard();
+	switch(sdl_ev->type)
+	{
+		case SDL_ACTIVEEVENT:
+		{
+			if ((sdl_ev->active.state & SDL_APPINPUTFOCUS) &&
+				(sdl_ev->active.gain == 0))
+			{
+				HandleFocusLost();
+			}
+			
+			break;
+		}
+		
+		case SDL_KEYDOWN:
+		case SDL_KEYUP:
+			HandleKeyEvent(sdl_ev);
+			break;
+				
+		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONUP:
+			HandleMouseButtonEvent(sdl_ev);
+			break;
+			
+		case SDL_MOUSEMOTION:
+			if (eat_mouse_motion) 
+			{
+				eat_mouse_motion = false; // One motion needs to be discarded
+				break;
+			}
+
+			HandleMouseMotionEvent(sdl_ev);
+			break;
+		
+		case SDL_QUIT:
+			// Note we deliberate clear all other flags here. Its our method of 
+			// ensuring nothing more is done with events.
+			app_state = APP_STATE_PENDING_QUIT;
+			break;
+				
+		default:
+			break; // Don't care
+	}
 }
 
-void I_CalibrateJoystick (int ch)
+//
+// InactiveEventProcess
+//
+// Event handling while the application is not active
+//
+void InactiveEventProcess(SDL_Event *sdl_ev)
 {
+	switch(sdl_ev->type)
+	{
+		case SDL_ACTIVEEVENT:
+			if (app_state & APP_STATE_PENDING_QUIT)
+				break; // Don't care: we're going to exit
+			
+			if (!sdl_ev->active.gain)
+				break;
+				
+			if (sdl_ev->active.state & (SDL_APPINPUTFOCUS|SDL_APPACTIVE))
+				HandleFocusGain();
+			break;
+
+		case SDL_QUIT:
+			// Note we deliberate clear all other flags here. Its our method of 
+			// ensuring nothing more is done with events.
+			app_state = APP_STATE_PENDING_QUIT;
+			break;
+					
+		default:
+			break; // Don't care
+	}
 }
 
+//
+// HandleFocusGain
+//
+void HandleFocusGain(void)
+{
+	// Hide cursor and grab input
+	SDL_ShowCursor(0);
+	SDL_WM_GrabInput(SDL_GRAB_ON);
+	
+	// Ignore any pending mouse motion
+	eat_mouse_motion = true;
+
+	// Now active again
+	app_state |= APP_STATE_ACTIVE;
+}
+
+//
+// HandleFocusLost
+//
+void HandleFocusLost(void)
+{
+	SDL_ShowCursor(1);
+	SDL_WM_GrabInput(SDL_GRAB_OFF);
+
+	engine::Idle();
+
+	// No longer active
+	app_state &= ~APP_STATE_ACTIVE;							
+}
+
+//
+// HandleKeyEvent
+//
+void HandleKeyEvent(SDL_Event* ev)
+{
+	if (ev->type != SDL_KEYDOWN && ev->type != SDL_KEYUP) 
+		return;
+
+	event_t event;
+
+	event.type  = (ev->type == SDL_KEYDOWN) ? ev_keydown : ev_keyup;
+	event.value.key = TranslateSDLKey((int)ev->key.keysym.sym);
+
+	if (event.value.key < 0 || (event.value.key == KEYD_TAB && alt_is_down))
+		return;
+		
+	if (event.value.key == KEYD_LALT)
+		alt_is_down = (event.type == ev_keydown);
+		
+	E_PostEvent(&event);
+}
+
+//
+// HandleMouseButtonEvent
+//
+void HandleMouseButtonEvent(SDL_Event * ev)
+{
+	event_t event;
+	
+	if (ev->type == SDL_MOUSEBUTTONDOWN) 
+		event.type = ev_keydown;
+	else if (ev->type == SDL_MOUSEBUTTONUP) 
+		event.type = ev_keyup;
+	else 
+		return;
+
+	switch (ev->button.button)
+	{
+		case 1:
+			event.value.key = KEYD_MOUSE1; break;
+
+		case 2:
+			event.value.key = KEYD_MOUSE2; break;
+
+		case 3:
+			event.value.key = KEYD_MOUSE3; break;
+
+		// handle the mouse wheel
+		case 4: 
+			event.value.key = KEYD_MWHEEL_UP; break; 
+
+		case 5: 
+			event.value.key = KEYD_MWHEEL_DN; break; 
+
+		default:
+			return;
+	}
+
+	E_PostEvent(&event);
+}
+
+//
+// HandleMouseMotionEvent
+//
+void HandleMouseMotionEvent(SDL_Event * ev)
+{
+	int dx, dy;
+
+	if (use_warp_mouse)
+	{
+		// -DEL- 2001/01/29 SDL_WarpMouse doesn't work properly on beos so
+		// calculate relative movement manually.
+
+		dx = ev->motion.x - (SCREENWIDTH/2);
+		dy = ev->motion.y - (SCREENHEIGHT/2);
+
+		// don't warp if we don't need to
+		if (dx || dy)
+			I_CentreMouse();
+	}
+	else
+	{
+		dx = ev->motion.xrel;
+		dy = ev->motion.yrel;
+	}
+
+	if (dx)
+	{
+		event_t event;
+
+		event.type = ev_analogue;
+		event.value.analogue.axis = mouse_xaxis;
+		event.value.analogue.amount = dx * mouseSensitivity;
+		
+		E_PostEvent(&event);
+	}
+
+	if (dy)
+	{
+		if (!invertmouse)
+			dy = -dy;
+
+		event_t event;
+
+		event.type = ev_analogue;
+		event.value.analogue.axis = mouse_yaxis;
+		event.value.analogue.amount = dy * mouseSensitivity;
+
+		E_PostEvent(&event);
+	}
+}
 
 //
 // Translates a key from SDL -> EDGE
 // Returns -1 if no suitable translation exists.
-
-static int TranslateSDLKey(SDL_KeyboardEvent ev)
+//
+int TranslateSDLKey(int key)
 {
-	int label = ev.keysym.sym;
-
-	switch (label) 
+	switch (key) 
 	{
 		case SDLK_TAB: return KEYD_TAB;
 		case SDLK_RETURN: return KEYD_ENTER;
@@ -154,127 +344,38 @@ static int TranslateSDLKey(SDL_KeyboardEvent ev)
 		default: break;
 	}
 
-	if (label <= 0x7f)
-		return tolower(label);
+	if (key <= 0x7f)
+		return tolower(key);
 
 	return -1;
 }
 
-static void HandleKeyEvent(SDL_Event* ev)
+void I_CentreMouse(void)
 {
-	if (ev->type != SDL_KEYDOWN && ev->type != SDL_KEYUP) 
-		return;
-
-	event_t event;
-
-	event.type  = (ev->type == SDL_KEYDOWN) ? ev_keydown : ev_keyup;
-	event.value.key = TranslateSDLKey(ev->key);
-
-	if (event.value.key < 0)
-		return;
-
-	E_PostEvent(&event);
+	SDL_WarpMouse(SCREENWIDTH/2, SCREENHEIGHT/2);
 }
 
-static void HandleMouseEvent(SDL_Event * ev)
+/****** Input Event Generation ******/
+
+void I_StartupControl(void)
 {
-	int dx, dy;
-	event_t event;
-
-	if (ev->type == SDL_MOUSEMOTION)
-	{
-		// workaround for SDL bug:
-		if (! got_first_mouse_motion)
-		{
-			got_first_mouse_motion = true;
-			return;
-		}
-
-		event.type = ev_analogue;
-
-		if (use_warp_mouse)
-		{
-			// -DEL- 2001/01/29 SDL_WarpMouse doesn't work properly on beos so
-			// calculate relative movement manually.
-
-			dx = ev->motion.x - (SCREENWIDTH/2);
-			dy = ev->motion.y - (SCREENHEIGHT/2);
-
-			// don't warp if we don't need to
-			if (dx || dy)
-				SDL_WarpMouse(SCREENWIDTH/2, SCREENHEIGHT/2);
-		}
-		else
-		{
-			dx = ev->motion.xrel;
-			dy = ev->motion.yrel;
-		}
-
-		if (dx)
-		{
-			event.value.analogue.axis = mouse_xaxis;
-			event.value.analogue.amount = dx * mouseSensitivity;
-			E_PostEvent(&event);
-		}
-
-		if (dy)
-		{
-			if (!invertmouse)
-				dy = -dy;
-
-			event.value.analogue.axis = mouse_yaxis;
-			event.value.analogue.amount = dy * mouseSensitivity;
-			E_PostEvent(&event);
-		}
-
-		return;
-	}
-
-	if (ev->type == SDL_MOUSEBUTTONDOWN) 
-		event.type = ev_keydown;
-	else if (ev->type == SDL_MOUSEBUTTONUP) 
-		event.type = ev_keyup;
-	else 
-		return;
-
-	switch (ev->button.button)
-	{
-		case 1:
-			event.value.key = KEYD_MOUSE1; break;
-
-		case 2:
-			event.value.key = KEYD_MOUSE2; break;
-
-		case 3:
-			event.value.key = KEYD_MOUSE3; break;
-
-			// handle the mouse wheel
-		case 4: 
-			event.value.key = KEYD_MWHEEL_UP; break; 
-
-		case 5: 
-			event.value.key = KEYD_MWHEEL_DN; break; 
-
-		default:
-			return;
-	}
-
-	E_PostEvent(&event);
+	alt_is_down = false;
 }
 
-//
-// I_ControlGetEvents
-//
 void I_ControlGetEvents(void)
 {
-	for (;;) 
+	SDL_Event sdl_ev;
+
+	while(SDL_PollEvent(&sdl_ev))
 	{
-		SDL_Event ev;
-
-		if (SDL_PollEvent(&ev) == 0)
-			break;
-
-		HandleKeyEvent(&ev);
-		HandleMouseEvent(&ev);
+		if (app_state & APP_STATE_ACTIVE)
+			ActiveEventProcess(&sdl_ev);
+		else
+			InactiveEventProcess(&sdl_ev);		
 	}
 }
+
+void I_ShutdownControl(void)
+{
+}
+
