@@ -18,6 +18,8 @@
 //
 
 #include "..\i_defs.h"
+#include "..\SDL\i_sdlinc.h"
+
 #include "i_sysinc.h"
 
 typedef unsigned short int UWORD;
@@ -337,7 +339,7 @@ void I_MUSTicker(void)
 	scoreEnd = 0;
 
 	// Sanity Checks...
-	if (!appactive || !midiavailable || !song || !playing)
+	if (!(app_state & APP_STATE_ACTIVE) || !midiavailable || !song || !playing)
 		return;
 
 	// This is the wait counter.
