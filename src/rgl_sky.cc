@@ -224,6 +224,7 @@ void RGL_DrawSkyBox(void)
 
 	// top
 	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_T));
+        glNormal3i(0, 0, -1);
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(v0, v0); glVertex3f(-dist,  dist, +dist);
@@ -234,6 +235,7 @@ void RGL_DrawSkyBox(void)
 
 	// bottom
 	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_B));
+        glNormal3i(0, 0, +1);
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(v0, v0); glVertex3f(-dist, -dist, -dist);
@@ -244,6 +246,7 @@ void RGL_DrawSkyBox(void)
 
 	// north
 	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_N));
+        glNormal3i(0, -1, 0);
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(v0, v0); glVertex3f(-dist,  dist, -dist);
@@ -254,6 +257,7 @@ void RGL_DrawSkyBox(void)
 
 	// east
 	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_E));
+        glNormal3i(-1, 0, 0);
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(v0, v0); glVertex3f( dist,  dist, -dist);
@@ -264,6 +268,7 @@ void RGL_DrawSkyBox(void)
 
 	// south
 	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_S));
+        glNormal3i(0, +1, 0);
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(v0, v0); glVertex3f( dist, -dist, -dist);
@@ -274,6 +279,7 @@ void RGL_DrawSkyBox(void)
 
 	// west
 	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_W));
+        glNormal3i(+1, 0, 0);
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(v0, v0); glVertex3f(-dist, -dist, -dist);
