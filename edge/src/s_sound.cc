@@ -2397,7 +2397,9 @@ namespace sound
             I_Printf("I_StartupSound: Requested channels %d, Min is %d, Max is %d\n",
                      num_sources, MIN_SOURCES, MAX_SOURCES);
              
-            I_Printf("sound::Init : Using default %d\n", DEFAULT_SOURCES); 
+            I_Printf("sound::Init : Using default %d\n", DEFAULT_SOURCES);
+
+            num_sources = DEFAULT_SOURCES;
         }
         
 
