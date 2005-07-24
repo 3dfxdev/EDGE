@@ -19,11 +19,13 @@
 // -ACB- 1999/11/13 Written
 //
 
-#include "..\i_defs.h"
+#include "../i_defs.h"
 #include "i_sysinc.h"
 
 #include "../AL/oggplayer.h"
 #include "../SDL/i_sdlinc.h"
+
+#include "../s_sound.h"
 
 // #defines for handle information
 #define GETLIBHANDLE(_handle) (_handle&0xFF)
@@ -49,6 +51,7 @@ static bool musicpaused;
 static char errordesc[MUSICERRLEN];
 
 oggplayer_c *oggplayer = NULL;
+int res_fx_handle = 0;
 
 //
 // I_StartupMusic
@@ -148,6 +151,13 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping,
 
 		case MUS_OGG:
 		{
+            res_fx_handle = sound::ReserveFX(SNCAT_Music);
+            if (!res_fx_handle)
+            {
+                handle = -1;
+                break;
+            }
+
 			if (musdat->format == IMUSSF_DATA)
 				oggplayer->Open(musdat->info.data.ptr, musdat->info.data.size);
 			else // if (musdat->format == IMUSSF_FILE)
@@ -259,7 +269,13 @@ void I_MusicKill(int *handle)
 		case MUS_CD:   { I_CDStopPlayback(); break; }
 		case MUS_MIDI: { break; }
 		case MUS_MUS:  { I_MUSStop(); break; }
-		case MUS_OGG:  { oggplayer->Close(); break; }
+
+		case MUS_OGG:  
+        { 
+            oggplayer->Close(); 
+            sound::UnreserveFX(res_fx_handle); // We no longer need this 
+            break; 
+        }
 
 		default:
 			break;
@@ -415,7 +431,8 @@ win32_mixer_t *I_MusicLoadMixer(DWORD type)
 			mixline.cbStruct = sizeof(MIXERLINE);
 			mixline.dwComponentType = type;
 
-			res = mixerGetLineInfo((HMIXEROBJ)mixer.handle, &mixline, MIXER_GETLINEINFOF_COMPONENTTYPE);
+			res = mixerGetLineInfo((HMIXEROBJ)mixer.handle, 
+                                   &mixline, MIXER_GETLINEINFOF_COMPONENTTYPE);
 			if (res != MMSYSERR_NOERROR)
 			{
 				mixerClose(mixer.handle);
@@ -436,7 +453,9 @@ win32_mixer_t *I_MusicLoadMixer(DWORD type)
 			mixlinectrls.cbmxctrl = sizeof(MIXERCONTROL);
 			mixlinectrls.pamxctrl = &mixctrl;
 
-			res = mixerGetLineControls((HMIXEROBJ)mixer.handle, &mixlinectrls, MIXER_GETLINECONTROLSF_ONEBYTYPE);
+			res = mixerGetLineControls((HMIXEROBJ)mixer.handle, 
+                                       &mixlinectrls, 
+                                       MIXER_GETLINECONTROLSF_ONEBYTYPE);
 			if (res != MMSYSERR_NOERROR)
 			{
 				mixerClose(mixer.handle);
@@ -515,7 +534,8 @@ bool I_MusicGetMixerVol(win32_mixer_t* mixer, DWORD *vol)
 	ctrldetails.cbDetails = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
 	ctrldetails.paDetails = details;
 
-	res = mixerGetControlDetails((HMIXEROBJ)mixer->handle, &ctrldetails, MIXER_GETCONTROLDETAILSF_VALUE);
+	res = mixerGetControlDetails((HMIXEROBJ)mixer->handle, 
+                                 &ctrldetails, MIXER_GETCONTROLDETAILSF_VALUE);
 	if (res != MMSYSERR_NOERROR)
 	{
 		delete [] details;
@@ -555,7 +575,8 @@ bool I_MusicSetMixerVol(win32_mixer_t* mixer, DWORD vol)
 	ctrldetails.cbDetails = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
 	ctrldetails.paDetails = details;
 
-	res = mixerSetControlDetails((HMIXEROBJ)mixer->handle, &ctrldetails, MIXER_SETCONTROLDETAILSF_VALUE);
+	res = mixerSetControlDetails((HMIXEROBJ)mixer->handle, 
+                                 &ctrldetails, MIXER_SETCONTROLDETAILSF_VALUE);
 	if (res != MMSYSERR_NOERROR)
 	{
 		delete [] details;

@@ -31,6 +31,7 @@
 // Forward declarations
 typedef struct mobj_s mobj_t;
 typedef struct sec_sfxorig_s sec_sfxorig_t;
+typedef struct sfx_s sfx_t;
 
 // Sound Categories
 typedef enum
@@ -68,7 +69,8 @@ namespace sound
     // FX Flags
     typedef enum
     {
-        FXFLAG_IGNOREPAUSE = 0x1
+        FXFLAG_SYMBOLIC    = 0x1,
+        FXFLAG_IGNOREPAUSE = 0x2
     }
     fx_flag_t;
 
@@ -96,6 +98,10 @@ namespace sound
     
     void ResumeAllFX();
     void PauseAllFX();
+
+    // Your effect reservation, sir...
+    int ReserveFX(int category);
+    void UnreserveFX(int handle);
 
     // Ticker
     void Ticker();

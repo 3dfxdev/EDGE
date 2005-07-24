@@ -31,6 +31,7 @@
 
 #include "errorcodes.h"
 
+#include "m_argv.h"
 #include "m_random.h"
 #include "p_mobj.h"
 #include "r_defs.h"
@@ -56,7 +57,10 @@ float slider_to_gain[20] =
 #define DEFAULT_REFERENCE_DISTANCE 128.0f
 
 #define NO_BUFFER ((ALuint)-1)
-#define NO_SOURCE ((ALuint)-1)
+
+#define MIN_SOURCES 12
+#define DEFAULT_SOURCES 32
+#define MAX_SOURCES 255
 
 namespace sound
 {
@@ -190,15 +194,19 @@ namespace sound
 
             data = GetEntry(sfx_id);
             if (data->buffer_id != NO_BUFFER)
-                throw epi::error_c(ERR_SOUND, "AL buffer in use on Load() attempt");
+            {
+                throw epi::error_c(ERR_SOUND, 
+                                   "AL buffer in use on Load() attempt");
+            }
 
             // Allocate a buffer
-            {
-                alGetError();  // clear any existing error
+            alGetError();  // clear any existing error
 	
-                alGenBuffers(1, &data->buffer_id);
-                if (alGetError() != AL_NO_ERROR)
-                    throw epi::error_c(ERR_SOUND, "Couldn't generate AL buffer");
+            alGenBuffers(1, &data->buffer_id);
+            if (alGetError() != AL_NO_ERROR)
+            {
+                throw epi::error_c(ERR_SOUND, 
+                                   "Couldn't generate AL buffer");
             }
 
             // Cache the lump
@@ -215,7 +223,9 @@ namespace sound
                 }
                 else
                 {
-                    I_Warning("Unknown sound lump %s, trying DSPISTOL.\n", name);
+                    I_Warning("Unknown sound lump %s, trying DSPISTOL.\n", 
+                              name);
+
                     name = "DSPISTOL";
                     lumpnum = W_CheckNumForName(name);
                     if (lumpnum == -1)
@@ -251,9 +261,10 @@ namespace sound
                     throw epi::error_c(ERR_SOUND, s);
                 }                
 
-                // the lump is particularly useless, since it won't be needed until
-                // the sound itself has been flushed. It should be flushed sometime
-                // before the sound, so why not just flush it as early as possible.
+                // the lump is particularly useless, since it won't be 
+                // needed until the sound itself has been flushed. It should 
+                // be flushed sometime before the sound, so why not just 
+                // flush it as early as possible.
                 W_DoneWithLump_Flushable(lump);
             }
 
@@ -358,7 +369,11 @@ namespace sound
         void SetAllocatedSize(int size)
         {
             Size(size);
-            memset(array, 0, sizeof(epi::array_block_t)*array_block_objsize*array_entries);
+
+            memset(array, 0, 
+                   sizeof(epi::array_block_t)*
+                   (array_block_objsize*array_entries));
+
             SetCount(size);
         }
 
@@ -681,6 +696,8 @@ namespace sound
     fx_list_c playing_fx;        // List of playing effects
     test_fx_list_c test_fx;      // List of effects being tested
 
+    int cat_limit[SNCAT_NUMTYPES];
+
     int pending_state;          
 
     mobj_t *listener = NULL;
@@ -700,29 +717,59 @@ namespace sound
     // ==============================================================
 
     //
-    // GetNewPendingPlaybackFX
+    // GetNewFXHandle
     //
-    pending_fx_t *GetNewPendingPlaybackFX()
+    int GetNewFXHandle()
     {
-        int new_handle = last_fx_handle + 1;
+        epi::array_iterator_c it;
+        pending_fx_t* pfx;
+        fx_t* fx;
+
+        int new_handle = last_fx_handle;
+        int reset_count = 0;
+
         bool ok = false;
 
         while (!ok)
         {
-            if (new_handle > 0)
+            new_handle = new_handle + 1;
+            if (new_handle < 1 || new_handle > 10240)
             {
-                ok = true; // SFX_FIXME: Test for handle being in use...
-            }
-            else
-            {
+                // Bail as opposed to going into an infinite loop
+                if (reset_count > 1)
+                    I_Error("[sound::GetNewFXHandle] Out of handles!");
+
+                reset_count++;
                 new_handle = 1;
             }
+
+            ok = true;
+            for (it = pending_fx.GetBaseIterator(); it.IsValid() && ok; it++)
+            {
+                pfx = ITERATOR_TO_PTR(it, pending_fx_t);
+                if (pfx->handle > 0 && pfx->handle == new_handle)
+                    ok = false;
+            }            
+
+            for (it = playing_fx.GetBaseIterator(); it.IsValid() && ok; it++)
+            {
+                fx = ITERATOR_TO_PTR(it, fx_t);
+                if (fx->handle > 0 && fx->handle == new_handle)
+                    ok = false;
+            }            
         }
 
         last_fx_handle = new_handle;
+        return new_handle;
+    }
 
+    //
+    // GetNewPendingPlaybackFX
+    //
+    pending_fx_t *GetNewPendingPlaybackFX()
+    {
         pending_fx_t *new_fx = pending_fx.GetNew();
-        new_fx->handle = new_handle;
+        new_fx->handle = GetNewFXHandle();
 
         return new_fx;
     }
@@ -791,7 +838,10 @@ namespace sound
 
         pos[CX] = 0.0f;
         pos[CY] = 0.0f;
-        pos[CZ] = swapstereo ? 1.0f : -1.0f; // implement swap-stereo by negating the UP vector
+
+        // swap-stereo by negating the UP vector
+        pos[CZ] = swapstereo ? 1.0f : -1.0f; 
+
         CoordPlaysimToAudio(pos, ori);     // Vertical adjustment (Up)
         alListenerfv(AL_ORIENTATION, ori); 
 
@@ -799,6 +849,29 @@ namespace sound
     }
 
     // ==============================================================
+
+    //
+    // DoAllocSymbolicFX
+    //
+    void DoAllocSymbolicFX(int handle, int category)
+    {
+        fx_t *fx = playing_fx.GetSpareEntry();
+        DEV_ASSERT2(fx != NULL);
+
+        fx->pos_type = FXPOSTYPE_NOTUSED;
+        fx->category = category;
+        fx->handle = handle;
+        fx->flags = FXFLAG_SYMBOLIC | FXFLAG_IGNOREPAUSE;
+    }
+
+    //
+    // DoDeallocSymbolicFX
+    //
+    void DoDeallocSymbolicFX(fx_t* fx)
+    {
+        DEV_ASSERT2(fx->flags & FXFLAG_SYMBOLIC);
+        fx->handle = 0;
+    }
 
     //
     // DoStartFX
@@ -901,6 +974,7 @@ namespace sound
     void DoStopFX(fx_t *fx)
     {
         DEV_ASSERT2(fx != NULL);
+        DEV_ASSERT2(!(fx->flags & FXFLAG_SYMBOLIC));
 
         fx_data_t *data = fx_datacache.GetEntry(fx->def);
 
@@ -962,7 +1036,8 @@ namespace sound
 
         alSourcef(fx->source_id, 
                   AL_GAIN, 
-                  slider_to_gain[master_fx_volume] * PERCENT_2_FLOAT(def->volume));
+                  (slider_to_gain[master_fx_volume] * 
+                   PERCENT_2_FLOAT(def->volume)));
     }
 
     //
@@ -1373,6 +1448,91 @@ namespace sound
     // ==============================================================
 
     //
+    // ReserveFX
+    //
+    // Used by external entities to stick a reserved sign
+    // on one of the playback entries. Intended to be
+    // used by the music code which is pumped through
+    // an OpenAL source.
+    //
+    int ReserveFX(int category)
+    {
+        if (category < 0 || category >= SNCAT_NUMTYPES)
+            return 0;
+
+        // The upper limit of reserved effects is the category 
+        // limit since the sound system does not manage them. This
+        // prevents reserve fx's hogging more effect channels
+        // than is due to them.
+        if (!cat_limit[category])
+            return 0;
+
+        // Look for a valid 
+        if (playing_fx.GetSize())
+        {
+            epi::array_iterator_c it;
+            fx_t *fx;
+            int playing_fx_max = playing_fx.GetAllocatedSize();
+            int count = 0;
+
+            for (it = playing_fx.GetBaseIterator(); it.IsValid(); it++)
+            {
+                fx = ITERATOR_TO_PTR(it, fx_t);
+                if (fx->handle <= 0)
+                    continue;
+
+                //DEV_ASSERT2(fx->category >= 0 && fx->category < SNCAT_NUMTYPES)                    
+                //cat_count[fx->category]++;
+
+                count++;
+            }
+
+            // Max'ed out?
+            if (count >= playing_fx_max)
+            {
+                // Since this code is initially only going to be used
+                // for reserving fx channels for music playback and
+                // this only occurs at the beginning of a level, we
+                // simple bail if the number of effects playing is
+                // at its max. We should tyr to make space here by
+                // removing an effect.
+                return 0;
+            }
+        }
+
+        int handle = GetNewFXHandle();
+        DoAllocSymbolicFX(handle, category);
+        return handle;
+    }
+
+    //
+    // UnreserveFX
+    //
+    // Reversal of the above.
+    //
+    void UnreserveFX(int handle)
+    {
+        epi::array_iterator_c it;
+        fx_t* fx;
+
+        // Reserved FXs are only carried in the playing effect list
+        for (it = playing_fx.GetBaseIterator(); it.IsValid(); it++)
+        {
+            fx = ITERATOR_TO_PTR(it, fx_t);
+            if (fx->handle > 0 && fx->handle == handle)
+            {
+                DoDeallocSymbolicFX(fx);
+                return;
+            }
+        }            
+
+        return;
+
+    }
+
+    // ==============================================================
+
+    //
     // ClearTestFXFlag
     //
     void ClearTestFXFlag(test_fx_t* head)
@@ -1412,18 +1572,6 @@ namespace sound
                         I_Printf("->");
                     }
 
-                    //if (tfx2->link_type == FXLINKTYPE_PENDING)
-                    //{
-                    //   pending_fx_t* pfx = (pending_fx_t*)tfx->link;
-                    //    memcpy(&pos_data2, &pfx->pos_data, sizeof(fx_posdata_u));
-                    //    pos_type2 = pfx->pos_type;
-                    //}
-                    //else // implied: if (tfx->link_type == FXLINKTYPE_PLAYING)
-                    //{
-                    //   fx_t* fx = (fx_t*)tfx->link;
-                    //    memcpy(&pos_data2, &fx->pos_data, sizeof(fx_posdata_u));
-                    //    pos_type2 = fx->pos_type;
-                    //}
 
                     I_Printf("[%d]", count);
 
@@ -1455,6 +1603,10 @@ namespace sound
             if (tfx->flags & TESTFX_USE)
             {
                 int pos_type = FXPOSTYPE_NOTUSED;
+
+                // Since symbolic effects are not linked, we
+                // need not take any special provisions for
+                // them here.
 
                 if (tfx->link_type == FXLINKTYPE_PENDING)
                 {
@@ -1528,15 +1680,25 @@ namespace sound
                             {
                                 if (tfx2->link_type == FXLINKTYPE_PENDING)
                                 {
-                                    pending_fx_t* pfx = (pending_fx_t*)tfx2->link;
-                                    memcpy(&pos_data2, &pfx->pos_data, sizeof(fx_posdata_u));
+                                    pending_fx_t* pfx = 
+                                        (pending_fx_t*)tfx2->link;
+
+                                    memcpy(&pos_data2, &pfx->pos_data, 
+                                           sizeof(fx_posdata_u));
+
                                     pos_type2 = pfx->pos_type;
                                     def_id2 = pfx->def;
                                 }
-                                else // implied: if (tfx->link_type == FXLINKTYPE_PLAYING)
+                                else 
                                 {
+                                    // implied: 
+                                    // if (tfx->link_type == 
+                                    //     FXLINKTYPE_PLAYING)
                                     fx_t* fx = (fx_t*)tfx2->link;
-                                    memcpy(&pos_data2, &fx->pos_data, sizeof(fx_posdata_u));
+
+                                    memcpy(&pos_data2, &fx->pos_data, 
+                                           sizeof(fx_posdata_u));
+
                                     pos_type2 = fx->pos_type;
                                     def_id2 = fx->def;
                                 }
@@ -1556,17 +1718,22 @@ namespace sound
                                         {
                                             sfxdef_c* def2 = sfxdefs[def_id2];
                                             
-                                            match = (def->singularity == def2->singularity);
+                                            match = (def->singularity == 
+                                                     def2->singularity);
                                         }
                                     
                                         if (match) 
                                         {
-                                            tfx2->flags |= TESTFX_SINGULARLINKED;
+                                            tfx2->flags |= 
+                                                TESTFX_SINGULARLINKED;
+
                                             tfx2->tmp_next = NULL;
-                                            
-                                            last->tmp_next = tfx2; // Add to the previous entry
-                                            
-                                            last = tfx2;       // Now this our last entry
+
+                                            // Add to the previous entry
+                                            last->tmp_next = tfx2; 
+
+                                            // Now this our last entry
+                                            last = tfx2;
                                         } // match[2]
                                     } // match[1]
                                 } // pos_type == pos_type2
@@ -1600,18 +1767,23 @@ namespace sound
                     {
                         if (best_tfx_pending)
                         {
-                            pending_fx_t* pfx = (pending_fx_t*)best_tfx_pending->link;
-                            pending_fx_t* pfx2 = (pending_fx_t*)tfx2->link;
+                            pending_fx_t* pfx = 
+                                (pending_fx_t*)best_tfx_pending->link;
+                            pending_fx_t* pfx2 = 
+                                (pending_fx_t*)tfx2->link;
 
                             if (pfx->def != pfx2->def)
                             {
-                                // Note that we only care if these effects differ, there is
-                                // currently little point in evaluating the same effect being
-                                // played at exactly the same point by the same thing.
+                                // Note that we only care if these 
+                                // effects differ, there is currently little 
+                                // point in evaluating the same effect being
+                                // played at exactly the same point by the 
+                                // same thing.
                                 sfxdef_c* def = sfxdefs[pfx->def];
                                 if (!def->precious)
                                 {
-                                    // The last entry is not precious therefore this is now the best
+                                    // The last entry is not precious 
+                                    // therefore this is now the best
                                     best_tfx_pending = tfx2;
                                 }
                             }
@@ -1637,13 +1809,16 @@ namespace sound
 
                             if (fx->def != fx2->def)
                             {
-                                // Note that we only care if these effects differ, there is
-                                // currently little point in evaluating the same effect being
-                                // played at exactly the same point by the same thing.
+                                // Note that we only care if these 
+                                // effects differ, there is currently little 
+                                // point in evaluating the same effect being
+                                // played at exactly the same point by the 
+                                // same thing.
                                 sfxdef_c* def = sfxdefs[fx->def];
                                 if (!def->precious)
                                 {
-                                    // The last entry is not precious therefore this is now the best
+                                    // The last entry is not precious 
+                                    // therefore this is now the best
                                     best_tfx_playing = tfx2;
                                 }
                             }
@@ -1661,7 +1836,9 @@ namespace sound
                         }
                     }
                     
-                    tfx2->flags &= ~TESTFX_SINGULARLINKED; // No need to test twice
+                    // No need to test twice
+                    tfx2->flags &= ~TESTFX_SINGULARLINKED; 
+                    
                     tfx2 = tfx2->tmp_next;
                 }//while(tfx2)
 
@@ -1709,12 +1886,13 @@ namespace sound
             for (it = playing_fx.GetBaseIterator(); it.IsValid(); it++)
             {
                 fx = ITERATOR_TO_PTR(it, fx_t);
-                if (fx->handle <= 0)
+                if (fx->handle <= 0 || fx->flags & FXFLAG_SYMBOLIC)
                     continue;
 
                 if (!IsFXPlaying(fx))
                 {
-                    DoStopFX(fx); // Ensure we cleanup the source and tidy up structs
+                    // Ensure we cleanup the source and tidy up structs
+                    DoStopFX(fx); 
                     continue;
                 }
 
@@ -1734,53 +1912,14 @@ namespace sound
             }
         }
         
-        /*
-        I_Printf("[A] Current Effect List (%d/%d)\n",
-                 playing_fx.GetSize(),
-                 playing_fx.GetAllocatedSize());
-
-        for (it = playing_fx.GetBaseIterator(); it.IsValid(); it++)
-        {
-            fx = ITERATOR_TO_PTR(it, fx_t);
-            if (fx->handle <= 0)
-                continue;
-
-            I_Printf("Fx (%d) - H: %d  Pos: %.2f %.2f %.2f\n", 
-                     it.GetPos(), fx->handle, fx->x, fx->y, fx->z);
-        }
-        I_Printf("\n");
-        */
-
         test_fx.Reset();
 
         if (pending_fx.GetSize())
         {
             float dist;
             pending_fx_t* pfx;
-            //sfxdef_c* def;
             bool use;
         
-            // Output pending effects
-            /*
-            I_Printf("Starting Effect List (%d/%d)\n",
-                     pending_fx.GetSize(),
-                     pending_fx.GetActualSize());
-
-            for (it = pending_fx.GetBaseIterator(); it.IsValid(); it++)
-            {
-                pfx = ITERATOR_TO_PTR(it, pending_fx_t);
-                if (pfx->handle <= 0)
-                    continue;
-
-                def = sfxdefs[pfx->def];
-
-                I_Printf("Fx (%d) - H: %d  Pos: %.2f %.2f %.2f  Effect: %s\n", 
-                         it.GetPos(), pfx->handle, pfx->x, pfx->y, pfx->z,
-                         def->ddf.name.GetString());
-            }
-            I_Printf("\n");
-            */
-
             // Add Pending Effects to the test array
             for (it = pending_fx.GetBaseIterator(); it.IsValid(); it++)
             {
@@ -1807,9 +1946,9 @@ namespace sound
 
                     dist = CalcApproxDistFromListener(pfx->x, pfx->y, pfx->z);
 
-                    //def = sfxdefs[pfx->def];
-                    //if (dist > ((def->dist*def->dist)*2))
-                    //    use = false; // Out of hearing range                    
+                    sfxdef_c* def = sfxdefs[pfx->def];
+                    if (dist > ((def->max_distance*def->max_distance)*2))
+                        use = false; // Out of hearing range
                 }
                 else
                 {
@@ -1844,70 +1983,193 @@ namespace sound
                 test_fx.Add(dist, (void*)fx, FXLINKTYPE_PLAYING);
             }
 
-            // SFX_FIXME: Singularity Testing goes here
+            // Singularity Handling
             HandleSingularity(test_fx.GetLinkedListHead());
             ClearTestFXFlag(test_fx.GetLinkedListHead());
-            //DumpTestFXLink(test_fx.GetLinkedListHead());
 
-            //if (test_fx.GetSize() > playing_fx.GetAllocatedSize())
-            //{
-                /*
-                // The number of effects we want to play (or continue playing) 
-                // has exceed the number we can play. Therefore we need to
-                // prioritise as appropriate.
-                int cat_count[SNCAT_NUMTYPES];
-                int i;
-                
-                for (i=0; i<SNCAT_NUMTYPES; i++)
-                    cat_count[i] = 0;
+            // Count the effects used
+            int count = 0;
+            int playing_fx_max = playing_fx.GetAllocatedSize();
 
-                tfx = test_fx.GetLinkedListHead();
-                while (tfx)
-                {
-                    if (tfx->category >= 0 && tfx->category < SNCAT_NUMTYPES)
-                        cat_count[tfx->category]++;
-                    else
-                        I_Printf("tfx: %d is out of cat range (%d)\n", (int)tfx, tfx->category);
-                    tfx = tfx->next;
-                }
-
-                I_Printf("Category Count:-\n");
-                for (i=0; i<SNCAT_NUMTYPES; i++)
-                    I_Printf("    Cat %d has %d entries\n", i, cat_count[i]);
-                I_Printf("\n");
-                */
-            //}
-
-            // Output pending effects
-            //I_Printf("Starting Test Effect List (%d/%d)\n",
-            //         test_fx.GetSize(),
-            //         test_fx.GetActualSize());
-
-            int alloc_count = playing_fx.GetAllocatedSize();
-
-            //I_Printf("Got an allocated count of %d\n", alloc_count);
-
-            // Allocate
             tfx = test_fx.GetLinkedListHead();
             while (tfx)
             {
                 if (tfx->flags & TESTFX_USE)
-                {
-                    if (alloc_count > 0)
-                        alloc_count--;
-                    else
-                        tfx->flags &= ~TESTFX_USE;
-                }
+                    count++;
 
                 tfx = tfx->next;
+            }
+
+            if (count > playing_fx_max)
+            {
+                // The number of effects we want to play (or continue playing) 
+                // has exceeded the number we can play. Therefore we need to
+                // prioritise as appropriate.
+                int cat_count[SNCAT_NUMTYPES];
+                int cat_rescount[SNCAT_NUMTYPES];
+                int i;
+
+                // Zeroise the category counts
+                for (i=0; i<SNCAT_NUMTYPES; i++)
+                {
+                    cat_count[i] = 0;
+                    cat_rescount[i] = 0;
+                }
+
+                // Populate the category count array
+                tfx = test_fx.GetLinkedListHead();
+                while (tfx)
+                {
+                    if (tfx->flags & TESTFX_USE)
+                    {
+                        int category = -1; 
+
+                        if (tfx->link_type == FXLINKTYPE_PENDING)
+                        {
+                            pending_fx_t* pfx = (pending_fx_t*)tfx->link;
+                            category = pfx->category;
+
+                            DEV_ASSERT2(category >= 0 && category < SNCAT_NUMTYPES);
+                        }
+                        else if (tfx->link_type == FXLINKTYPE_PLAYING)
+                        {
+                            fx_t* fx = (fx_t*)tfx->link;
+                            category = fx->category;
+
+                            DEV_ASSERT2(category >= 0 && category < SNCAT_NUMTYPES);
+
+                            if (fx->flags & FXFLAG_SYMBOLIC)
+                            { 
+                                // Keep a count of inert "effects"
+                                cat_rescount[category]++;
+                            }
+                        }
+                        
+                        cat_count[category]++;
+                    }
+
+                    tfx = tfx->next;
+                }
+
+#if 0
+                I_Printf("[A] Category Count: [%d] ", count);
+                for (i=0; i<SNCAT_NUMTYPES; i++)
+                    I_Printf("%d(%d) ", cat_count[i], cat_rescount[i]);
+                I_Printf("\n");
+#endif
+
+                i = SNCAT_NUMTYPES - 1;
+                while (i >= 0 && count > playing_fx_max)
+                {
+                    if (cat_count[i] > cat_limit[i])
+                    {
+                        int fx_gap = count - playing_fx_max;
+                        int pos_gap = cat_count[i] - cat_limit[i];
+                        int adj = MIN(pos_gap, fx_gap);
+
+                        cat_count[i] -= adj;
+                        count -= adj;
+
+                        // Reserved effects can't be dealloced, so we have a problem
+                        // if the category count is smaller than the reserved count.
+                        DEV_ASSERT2(cat_count[i] >= cat_rescount[i]);
+                    }
+
+                    i--;
+                }
+
+                // Strip out the effects
+                tfx = test_fx.GetLinkedListHead();
+                while (tfx)
+                {
+                    if (tfx->flags & TESTFX_USE)
+                    {
+                        int category = -1; 
+
+                        if (tfx->link_type == FXLINKTYPE_PENDING)
+                        {
+                            pending_fx_t* pfx = (pending_fx_t*)tfx->link;
+                            category = pfx->category;
+                            DEV_ASSERT2(category >= 0 && category < SNCAT_NUMTYPES);
+                        }
+                        else if (tfx->link_type == FXLINKTYPE_PLAYING)
+                        {
+                            fx_t* fx = (fx_t*)tfx->link;
+                            category = fx->category;
+
+                            DEV_ASSERT2(category >= 0 && category < SNCAT_NUMTYPES);
+
+                            if (fx->flags & FXFLAG_SYMBOLIC)
+                            {
+                                // Got one the reserved effects
+                                DEV_ASSERT2(cat_rescount[category]);
+                                cat_rescount[category]--;
+                            }
+                        }
+                
+                        
+                        // A potential minefield here.
+                        if (cat_count[category] > cat_rescount[category])
+                            cat_count[category]--;
+                        else
+                            tfx->flags &= ~TESTFX_USE;
+         
+                    }
+                    tfx = tfx->next;
+                }
+
+#if 0
+                // Zeroise the category counts
+                for (i=0; i<SNCAT_NUMTYPES; i++)
+                {
+                    cat_count[i] = 0;
+                    cat_rescount[i] = 0;
+                }
+
+                // Populate the category count array
+                tfx = test_fx.GetLinkedListHead();
+                while (tfx)
+                {
+                    if (tfx->flags & TESTFX_USE)
+                    {
+                        int category = -1; 
+
+                        if (tfx->link_type == FXLINKTYPE_PENDING)
+                        {
+                            pending_fx_t* pfx = (pending_fx_t*)tfx->link;
+                            category = pfx->category;
+                        }
+                        else if (tfx->link_type == FXLINKTYPE_PLAYING)
+                        {
+                            fx_t* fx = (fx_t*)tfx->link;
+                            category = fx->category;
+
+                            if (fx->flags & FXFLAG_SYMBOLIC)
+                                cat_rescount[category]++;
+                        }
+                
+                        cat_count[category]++;
+                    }
+
+                    tfx = tfx->next;
+                }
+
+                I_Printf("[B] Category Count: [%d] ", count);
+                for (i=0; i<SNCAT_NUMTYPES; i++)
+                    I_Printf("%d(%d) ", cat_count[i], cat_rescount[i]);
+                I_Printf("\n\n");
+#endif
             }
 
             // Destroy those playing but deselected
             tfx = test_fx.GetLinkedListHead();
             while (tfx)
             {
-                if (!(tfx->flags & TESTFX_USE) && tfx->link_type == FXLINKTYPE_PLAYING)
+                if (!(tfx->flags & TESTFX_USE) && 
+                    tfx->link_type == FXLINKTYPE_PLAYING)
+                {
                     DoStopFX((fx_t*)tfx->link);
+                }
 
                 tfx = tfx->next;
             }
@@ -1916,23 +2178,17 @@ namespace sound
             tfx = test_fx.GetLinkedListHead();
             while (tfx)
             {
-                if ((tfx->flags & TESTFX_USE) && tfx->link_type == FXLINKTYPE_PENDING)
+                if ((tfx->flags & TESTFX_USE) && 
+                    tfx->link_type == FXLINKTYPE_PENDING)
                 {
                     DoStartFX((pending_fx_t*)tfx->link);
-                    //I_Printf
                 }
 
                 tfx = tfx->next;
             }
-
-            //I_Printf("\n");
         }
 
         pending_fx.ZeroiseCount(); // Empty the list
-
-        //        I_Printf("[B] Current Effect List (%d/%d)\n",
-        //         playing_fx.GetSize(),
-        //         playing_fx.GetAllocatedSize());
 
         // Post 
         for (it = playing_fx.GetBaseIterator(); it.IsValid(); it++)
@@ -1941,8 +2197,9 @@ namespace sound
             if (fx->handle <= 0)
                 continue;
 
+            // SFX_FIXME: Support updates for static 
             if (fx->pos_type == FXPOSTYPE_OBJECT ||
-                fx->pos_type == FXPOSTYPE_SECTOR) // SFX_FIXME: Support updates for static 
+                fx->pos_type == FXPOSTYPE_SECTOR) 
             {
                 SetFXPos(fx);
             }
@@ -1971,11 +2228,7 @@ namespace sound
                 if (state == AL_PAUSED)
                     alSourcePlay(fx->source_id);
             }
-
-            //I_Printf("Fx (%d) - H: %d  Pos: %.2f %.2f %.2f\n", 
-            //         it.GetPos(), fx->handle, fx->x, fx->y, fx->z);
         }
-        //I_Printf("\n");
 
         if (pending_state != PENDINGSTATE_NONE) 
         { 
@@ -2128,7 +2381,44 @@ namespace sound
     void Init(void)
     {
         pending_fx.Clear();
-        playing_fx.SetAllocatedSize(32); // <-- Maximum playing fx
+
+        // Work out the number of sources required
+        int num_sources;
+        const char* p = M_GetParm("-maxaudiochan");
+        if (p)
+            num_sources = atoi(p);
+        else
+            num_sources = DEFAULT_SOURCES;
+        
+        if (num_sources < MIN_SOURCES || num_sources > MAX_SOURCES) 
+        {
+            I_Printf("I_StartupSound: Requested number of channels is out of range\n"); 
+
+            I_Printf("I_StartupSound: Requested channels %d, Min is %d, Max is %d\n",
+                     num_sources, MIN_SOURCES, MAX_SOURCES);
+             
+            I_Printf("sound::Init : Using default %d\n", DEFAULT_SOURCES); 
+        }
+        
+
+        playing_fx.SetAllocatedSize(num_sources); // <-- Maximum playing fx
+
+        // Sort out category limits from the source count
+        int i;
+        for (i=0; i<SNCAT_NUMTYPES; i++)
+            cat_limit[i] = 0;
+
+        while (num_sources)
+        {
+            for (i=0; i<SNCAT_NUMTYPES && num_sources; i++)
+            {
+                cat_limit[i]++;
+                num_sources--;
+            }
+        }
+
+        for (i=0; i<SNCAT_NUMTYPES; i++)
+            I_Printf("Category %d - Limit %d\n", i, cat_limit[i]);
 
         pending_state = PENDINGSTATE_NONE;
         return;
@@ -2155,7 +2445,7 @@ namespace sound
         for (it = playing_fx.GetBaseIterator(); it.IsValid(); it++)
         {
             fx = ITERATOR_TO_PTR(it, fx_t);
-            if (fx->handle > 0)
+            if (fx->handle > 0 && !(fx->flags & FXFLAG_SYMBOLIC))
                 DoStopFX(fx);
         }            
 

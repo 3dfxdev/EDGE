@@ -22,11 +22,14 @@
 
 #include "../i_defs.h"
 #include "i_sysinc.h"
+
 #include "../AL/oggplayer.h"
 
 #ifdef USE_HUMID
 #include "../AL/humdinger.h"
 #endif
+
+#include "../s_sound.h"
 
 // #defines for handle information
 #define GETLIBHANDLE(_handle) (_handle&0xFF)
@@ -57,6 +60,8 @@ humdinger_c *humdinger = NULL;
 static char errordesc[MUSICERRLEN];
 
 bool musicpaused = false;
+
+int res_fx_handle;
 
 //
 // I_StartupMusic
@@ -134,18 +139,30 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping,
 #ifdef USE_HUMID
 			handle = -1;
 
-			if (humdinger)
-			{
-				int track = humdinger->Open((byte*)musdat->info.data.ptr,
-					musdat->info.data.size);
-
-				if (track == -1)
-					handle = -1;
-				else
-				{
-					humdinger->Play(looping, gain);
-					handle = MAKEHANDLE(type, looping, track);
-				}
+            res_fx_handle = 0;
+            if (humdinger)
+            {
+                res_fx_handle = sound::ReserveFX(SNCAT_Music);
+                if (res_fx_handle)
+                {
+                    int track = humdinger->Open((byte*)musdat->info.data.ptr,
+                                                musdat->info.data.size);
+                    
+                    if (track == -1)
+                    {
+                        handle = -1;
+                    }
+                    else
+                    {
+                        humdinger->Play(looping, gain);
+                        handle = MAKEHANDLE(type, looping, track);
+                    }
+                }
+                else
+                {
+                    I_PostMusicError("I_MusicPlayback: No free channels for HUM playback.\n");
+                    break;
+                }
 			}
 #else
 			I_PostMusicError("I_MusicPlayback: MUS/MIDI not supported.\n");
@@ -156,11 +173,19 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping,
 
 		case MUS_OGG:
 		{
+            handle = -1;
+
+            res_fx_handle = sound::ReserveFX(SNCAT_Music);
+            if (!res_fx_handle)
+            {
+                I_PostMusicError("I_MusicPlayback: No free channels for OGG playback.\n");
+                break;
+            }
+
             if (musdat->format != IMUSSF_DATA &&
                 musdat->format != IMUSSF_FILE)
             {
                 I_PostMusicError("I_MusicPlayback: OGG given in unsupported format.\n");
-                handle = -1;
                 break;
             }
 
@@ -300,7 +325,11 @@ void I_MusicKill(int *handle)
 		case MUS_MUS:
 		case MUS_MIDI:
 		{
-			if (humdinger) humdinger->Close();
+			if (humdinger) 
+            {
+                humdinger->Close();
+                sound::UnreserveFX(res_fx_handle);
+            }
 			break;
 		}
 #endif
@@ -308,6 +337,7 @@ void I_MusicKill(int *handle)
 		case MUS_OGG:
 		{
 			oggplayer->Close();
+            sound::UnreserveFX(res_fx_handle);
 			break;
 		}
 
