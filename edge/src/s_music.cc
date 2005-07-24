@@ -31,26 +31,8 @@ static int musichandle = -1;
 // music slider value (range is 0 to 19)
 static int musicvolume;
 
-int mix_music_chan = -1;
-
 bool nomusic = false;
 
-// =================== INTERNALS ====================
-// HELPER Functions
-static INLINE int edgemin(int a, int b)
-{
-	return (a < b) ? a : b;
-}
-
-static INLINE int edgemax(int a, int b)
-{
-	return (a > b) ? a : b;
-}
-
-static INLINE int edgemid(int a, int b, int c)
-{
-	return edgemax(a, edgemin(b, c));
-}
 // ================ END OF INTERNALS =================
 
 //
