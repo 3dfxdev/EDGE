@@ -727,8 +727,6 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 	}
 	else if (IsC_START(lump_p->name))
 	{
-		df->compat_mode |= WAD_CM_Boom;
-
 		lump_p->kind = LMKIND_Marker;
 		within_colmap_list = true;
 		return;
