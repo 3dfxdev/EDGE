@@ -446,6 +446,10 @@ static void RunPickupEffects(player_t *player, mobj_t *special,
 				P_PlayerSwitchWeapon(player, list->sub.weap);
 				break;
 
+			case PUFX_KeepPowerup:
+				player->keep_powers |= (1 << list->sub.type);
+				break;
+
 			case PUFX_PowerupEffect:
 				// FIXME
 				break;

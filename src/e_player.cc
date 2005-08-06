@@ -113,6 +113,8 @@ void G_PlayerFinishLevel(player_t *p)
 	for (i = 0; i < NUMPOWERS; i++)
 		p->powers[i] = 0;
 
+	p->keep_powers = 0;
+
 	p->cards = KF_NONE;
 
 	p->mo->flags &= ~MF_FUZZY;  // cancel invisibility 
@@ -144,6 +146,7 @@ void player_s::Reborn()
 	memset(armours, 0, sizeof(armours));
 	memset(powers,  0, sizeof(powers));
 
+	keep_powers = 0;
 	totalarmour = 0;
 	cards = KF_NONE;
 

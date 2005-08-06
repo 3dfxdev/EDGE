@@ -1122,6 +1122,20 @@ void BA_ParseSwitchWeapon(pickup_effect_c **list,
 	AddPickupEffect(list, new pickup_effect_c(PUFX_SwitchWeapon, weap, 0, 0));
 }
 
+void BA_ParseKeepPowerup(pickup_effect_c **list,
+	int pnum, float par1, float par2, const char *word_par)
+{
+	if (pnum != -1)
+		DDF_Error("KEEP_POWERUP: missing powerup name !\n");
+
+	DEV_ASSERT2(word_par && word_par[0]);
+
+	if (DDF_CompareName(word_par, "BERSERK") != 0)
+		DDF_Error("KEEP_POWERUP: %s is not supported\n", word_par);
+
+	AddPickupEffect(list, new pickup_effect_c(PUFX_KeepPowerup, PW_Berserk, 0, 0));
+}
+
 typedef struct pick_fx_parser_s
 {
 	const char *name;
@@ -1135,6 +1149,7 @@ static const pick_fx_parser_t pick_fx_parsers[] =
 {
 	{ "SCREEN EFFECT",  2, BA_ParseScreenEffect },
 	{ "SWITCH WEAPON", -1, BA_ParseSwitchWeapon },
+	{ "KEEP POWERUP",  -1, BA_ParseKeepPowerup },
 
 	// that's all, folks.
 	{ NULL, 0, NULL }
@@ -1564,8 +1579,13 @@ static void CheckPowerupCompatibility(void)
 			int idx = weapondefs.FindFirst("FIST", weapondefs.GetDisabledCount());
 
 			if (idx >= 0)
+			{
 				AddPickupEffect(&buffer_mobj.pickup_effects,
 					new pickup_effect_c(PUFX_SwitchWeapon, weapondefs[idx], 0, 0));
+
+				AddPickupEffect(&buffer_mobj.pickup_effects,
+					new pickup_effect_c(PUFX_KeepPowerup, PW_Berserk, 0, 0));
+			}
 			break;
 		}
 	}

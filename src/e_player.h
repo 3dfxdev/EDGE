@@ -172,6 +172,9 @@ typedef struct player_s
 	// Power ups. invinc and invis are tic counters.
 	float powers[NUMPOWERS];
 
+	// bitflag of powerups to be kept (esp. BERSERK)
+	int keep_powers;
+
 	// Set of keys held
 	keys_e cards;
 
