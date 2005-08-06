@@ -88,6 +88,7 @@ static const commandlist_t attack_commands[] =
 	DF("SLOPE OFFSET", slope_offset, DDF_MainGetSlope),
 	DF("ATTACKRANGE", range, DDF_MainGetFloat),
 	DF("TOO CLOSE RANGE", tooclose, DDF_MainGetNumeric),
+	DF("BERSERK MULTIPLY", berserk_mul, DDF_MainGetFloat),
 	DF("NO TRACE CHANCE", notracechance, DDF_MainGetPercent),
 	DF("KEEP FIRING CHANCE", keepfirechance, DDF_MainGetPercent),
 	DF("TRACE ANGLE", trace_angle, DDF_MainGetAngle),
@@ -206,6 +207,13 @@ static void AttackFinishEntry(void)
 
 		if (a_damage_multi > 0)
 			buffer_atk.damage.linear_max = a_damage_range * a_damage_multi;
+	}
+
+	// -AJA- 2005/08/06: Berserk backwards compatibility
+	if (DDF_CompareName(dynamic_atk->ddf.name.GetString(), "PLAYER PUNCH") == 0
+		&& buffer_atk.berserk_mul == 1.0f)
+	{
+		buffer_atk.berserk_mul = 10.0f;
 	}
 
 	// transfer static entry to dynamic entry
@@ -444,6 +452,7 @@ void atkdef_c::CopyDetail(atkdef_c &src)
 	range = src.range;
 	count = src.count;
 	tooclose = src.tooclose;
+	berserk_mul = src.berserk_mul;
 
 	damage = src.damage;
 
@@ -482,6 +491,7 @@ void atkdef_c::Default()
 	range = 0;
 	count = 0;
 	tooclose = 0;
+	berserk_mul = 1.0f;
 
 	damage.Default(damage_c::DEFAULT_Attack);
 
