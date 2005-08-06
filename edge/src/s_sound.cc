@@ -812,6 +812,9 @@ namespace sound
  
         listener = ::players[displayplayer]->mo;
 
+		if (! listener)
+			return;
+
         // Position
 		pos[CX] = listener->x;
 		pos[CY] = listener->y;
