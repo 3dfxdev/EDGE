@@ -202,7 +202,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 		x2t += tr_x * range_x; y2t += tr_y * range_y;
 		x2b += br_x * range_x;
 
-		L_r = L_g = L_b = 0;
+		L_r = L_g = L_b = 50;
 	}
 
 	// clip psprite to view window
@@ -757,7 +757,7 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 	// fix for sprites that sit wrongly into the floor/ceiling
 	int clip_vert = 0;
 
-	if (mo->flags & MF_FUZZY)
+	if ((mo->flags & MF_FUZZY) || (mo->hyperflags & HF_HOVER))
 	{
 		clip_vert = -1;
 	}
@@ -1057,7 +1057,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		x2t += tr * range_x; y2t += tr * range_y; z2t += ztr * range_z;
 		x2b += br * range_x; y2b += br * range_y; z2b += zbr * range_z;
 
-		L_r = L_g = L_b = 0;
+		L_r = L_g = L_b = 50;
 	}
 
 	const cached_image_t *cim = W_ImageCache(image, false, dthing->mo->info->palremap);
@@ -1071,7 +1071,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	if (dthing->mo->hyperflags & HF_NOZBUFFER)
 		blending |= BL_NoZBuf;
-
+	
 	local_gl_vert_t *vert, *orig;
 
 	vert = orig = RGL_BeginUnit(GL_QUADS, 4, tex_id,0, /* pass */ 0, blending);
