@@ -449,14 +449,18 @@ static void P_UpdatePowerups(player_t *player)
 
 		float& qty_r = player->powers[pw];
 
-		if (qty_r > limit)   qty_r = limit;
-		else if (qty_r >= 1) qty_r -= 1;
-		else if (qty_r > 0)  qty_r = 0;
+		if (qty_r > limit)
+			qty_r = limit;
+		else if (qty_r > 1)
+			qty_r -= 1;
+		else if (qty_r > 0)
+		{
+			if (player->keep_powers & (1 << pw))
+				qty_r = -1;
+			else
+				qty_r = 0;
+		}
 	}
-
-	// -AJA- 2004/09/29: FIXME: temp kludge to make berserk last a level
-	if (player->powers[PW_Berserk] > 1.0f && player->powers[PW_Berserk] < 2.1f)
-		player->powers[PW_Berserk] = -1.0f;
 
 	if (player->powers[PW_PartInvis] >= 128 ||
 		fmod(player->powers[PW_PartInvis], 16) >= 8)

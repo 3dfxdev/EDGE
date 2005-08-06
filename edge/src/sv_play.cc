@@ -91,6 +91,7 @@ static savefield_t sv_fields_player[] =
 	SF(health, "health", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(armours[0], "armours", NUMARMOUR, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(powers[0],  "powers",  NUMPOWERS, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
+	SF(keep_powers,  "keep_powers", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(cards, "cards_ke", 1, SVT_ENUM, SR_GetEnum, SR_PutEnum),
 	SF(frags, "frags", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(totalfrags, "totalfrags", 1, SVT_INT, SR_GetInt, SR_PutInt),
