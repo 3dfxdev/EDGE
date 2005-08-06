@@ -779,6 +779,17 @@ static void LoadSectors(int lump)
 		Z_StrNCpy(buffer, ms->ceilingpic, 8);
 		ss->ceil.image = W_ImageLookup(buffer, INS_Flat);
 
+		if (! ss->floor.image)
+		{
+			I_Warning("Bad Level: sector #%d has missing floor texture.\n", i);
+			ss->floor.image = W_ImageLookup("FLAT1", INS_Flat);
+		}
+		if (! ss->ceil.image)
+		{
+			I_Warning("Bad Level: sector #%d has missing ceiling texture.\n", i);
+			ss->ceil.image = ss->floor.image;
+		}
+
 		// convert negative tags to zero
 		ss->tag = MAX(0, EPI_LE_S16(ms->tag));
 
