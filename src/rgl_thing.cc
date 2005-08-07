@@ -1057,7 +1057,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		x2t += tr * range_x; y2t += tr * range_y; z2t += ztr * range_z;
 		x2b += br * range_x; y2b += br * range_y; z2b += zbr * range_z;
 
-		L_r = L_g = L_b = 50;
+		L_r = L_g = L_b = 0;
 	}
 
 	const cached_image_t *cim = W_ImageCache(image, false, dthing->mo->info->palremap);
