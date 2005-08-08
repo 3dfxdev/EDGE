@@ -368,13 +368,17 @@ namespace sound
 
         void SetAllocatedSize(int size)
         {
+            int oldsize = array_entries;
+
             Size(size);
-
-            memset(array, 0, 
-                   sizeof(epi::array_block_t)*
-                   (array_block_objsize*array_entries));
-
             SetCount(size);
+
+            if (oldsize < size)
+            {
+                memset(array + (array_block_objsize*oldsize), 0, 
+                       sizeof(epi::array_block_t)*
+                       (array_block_objsize*array_entries));
+            }
         }
 
         fx_t* operator[](int idx) const
