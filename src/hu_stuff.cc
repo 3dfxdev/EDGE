@@ -468,11 +468,11 @@ bool HU_Responder(event_t * ev)
 
 	if (!chat_on)
 	{
-		if (c == HU_MSGREFRESH)
+		if (c == KEYD_ENTER)
 		{
 			message_on = true;
 			message_counter = HU_MSGTIMEOUT;
-			eatkey = true;
+			eatkey = false;
 		}
 		else if (netgame && c && ((c == (HU_INPUTTOGGLE >> 16)) || (c == (HU_INPUTTOGGLE & 0xffff))))
 		{
@@ -498,10 +498,9 @@ bool HU_Responder(event_t * ev)
 		if (c == KEYD_ENTER)
 		{
 			chat_on = false;
+
 			if (w_chat.L.len)
-			{
 				CON_PlayerMessage(consoleplayer, lastmessage, w_chat.L.ch);
-			}
 		}
 		else if (c == KEYD_ESCAPE)
 			chat_on = false;
