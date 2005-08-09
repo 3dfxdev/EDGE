@@ -420,25 +420,33 @@ Console commands:
     known variables (and their values), or just the cvar name, which
     displays the value of that variable.
 
-
-List of Contributors:
+**** Credits ****
 
 Current EDGE Team:
-	Andrew Baker (aka "Darkknight")  : project manager, programmer
-    Andrew Apted (aka "Ajapted")     : programmer
-	Luke Brennan (aka "Lobo")        : support, documentation
-	Marc Pullen  (aka "Fanatic")     : support, music
+    Andrew Apted (aka "Ajapted")     : programmer (good cop)
+	Andrew Baker (aka "Darkknight")  : programmer (bad cop)
+	Luke Brennan (aka "Lobo")        : support & documentation
+	Marc Pullen  (aka "Fanatic")     : support & music
 
 Former EDGE Members:
-    Erik Sandberg        : programmer
+    Erik Sandberg                    : programming
+    David Leatherdale                : support & programming
 
-???
-    Martin Howe          : programmer, all round nice guy
+Patches:
+    Darren Salt  (aka "dsalt")       : programming
 
-Former DOSDOOM Members:
-	Captain Mellow       : support
+DOSDoom Contributors:
+    John Cole                        : programmer
+ 	Captain Mellow                   : support
+    Martin Howe                      : programmer, all round nice guy
+    Kester Maddock                   : programmer
+
+Special Thanks:
+    Chi Hoang                        : DOSDoom Author
+    id Software                      : The Original Doom Engine
 
 @@@ FIXME !!!!
+
 
 
 --- END OF README.TXT ---
