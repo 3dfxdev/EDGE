@@ -415,16 +415,16 @@ Console commands:
   SET  <cvar> <val>    Set console variable to a new value.
   TYPEOF  <cvar>       Displays the type of a console variable.
 
-
   * The SET command can be used with no options, which displays all
     known variables (and their values), or just the cvar name, which
     displays the value of that variable.
 
+
 **** Credits ****
 
 Current EDGE Team:
-    Andrew Apted (aka "Ajapted")     : programmer (good cop)
-	Andrew Baker (aka "Darkknight")  : programmer (bad cop)
+    Andrew Apted (aka "Ajapted")     : programming (good cop)
+	Andrew Baker (aka "Darkknight")  : programming (bad cop)
 	Luke Brennan (aka "Lobo")        : support & documentation
 	Marc Pullen  (aka "Fanatic")     : support & music
 
@@ -436,17 +436,16 @@ Patches:
     Darren Salt  (aka "dsalt")       : programming
 
 DOSDoom Contributors:
-    John Cole                        : programmer
- 	Captain Mellow                   : support
-    Martin Howe                      : programmer, all round nice guy
-    Kester Maddock                   : programmer
+    Kester Maddock                   : programming
+    Martin Howe                      : programming, cat lover
+	John Cole, Rasem Brsiq           : programming
+ 	Captain Mellow, CowMonster       : support, graphics
+	Ziggy Gnarly & Sidearm Joe       : support, graphics
+	Matt Cooke, Eric Simpson         : support
 
 Special Thanks:
     Chi Hoang                        : DOSDoom Author
     id Software                      : The Original Doom Engine
-
-@@@ FIXME !!!!
-
 
 
 --- END OF README.TXT ---
