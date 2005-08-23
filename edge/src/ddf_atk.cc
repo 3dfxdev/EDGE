@@ -314,6 +314,7 @@ static const specflags_t attack_specials[] =
     {"PLAYER ATTACK", AF_Player, 0},
     {"TRIGGER LINES", AF_NoTriggerLines, 1},
     {"SILENT TO MONSTERS", AF_SilentToMon, 0},
+    {"TARGET", AF_NoTarget, 1},
 
     // -AJA- backwards compatibility cruft...
     {"!NOAMMO", AF_None, 0},
