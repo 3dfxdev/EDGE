@@ -606,7 +606,7 @@ rad_trigger_t;
 //
 // Tip Displayer info
 //
-#define MAXTIPSLOT    30
+#define MAXTIPSLOT    45
 #define TIP_LINE_MAX  10
 
 typedef struct drawtip_s
