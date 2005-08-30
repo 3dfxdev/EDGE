@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: MARCH 11th 2005)
+(Date: AUGUST 30th 2005)
 
 
 Bugs fixed
@@ -34,6 +34,8 @@ Bugs fixed
 - some problems handling the mouse-wheel were fixed.
 - rotated automap could omit parts of a map, fixed.
 - fixed an issue with window positioning on Win32.
+- fixed MUS playback on certain devices in Win32
+- some continuous floors had wrong heights, fixed.
 
 
 Old Fixes (from EDGE 1.28A)
@@ -62,6 +64,9 @@ Features removed / changed
 + the demo format has changed, and previously recorded demos won't
   work anymore.  The new format has the ".EDM" extension (but omit
   this when using the -record and -playdemo options).
+
+- screenshots are now in JPEG format.  New "screenshot" console
+  command (Note: it does not capture the console itself).
 
 - using { } comments in DDF files, and ';' comments in RTS scripts
   is now deprecated, since these characters will probably be needed
@@ -123,6 +128,7 @@ General improvements
 - source code uses more C++ features, and more of the EPI (Edge Platform
   Interface).  The "Zone" memory manager has mostly been replaced.
 
+- emulation for Doom's original lighting (optional).
 - can toggle window/fullscreen mode in set-resolution screen.
 - new gameplay option to disable automatic weapon switches.
 - sky looks a bit better, with a stretch option in Video menu.
@@ -131,15 +137,22 @@ General improvements
 - missing wad files (given with -file) now produce an error.
 - monster spawning will keep the parent's AMBUSH status.
 - night vision and god-mode effects use colour from colourmap.
+- correct map names for TNT Evilution and Plutonia Experiment.
+- detects and repairs TNT's MAP31 bug (missing yellow key).
 - intermission text screens can now be skipped.
 - console now slides up/down, smaller font.
 - can disable mouse-look in the gameplay options.
+- number of RTS tip slots increased to 45.
 - RTS tips are sent to the console.
+- support for V5 GL-Nodes.
 - smaller savegame files.
 
 
 New DDF features:
 -----------------
+
++ can load DDF files (with ".ddf" or ".ldf" extension) directly from the
+  command line.  Drag and dropping them should also work.
 
 + new IMAGES.DDF file.  The corresponding wad lump is DDFIMAGE.  You
   can define any type of images in this file (textures, flats, sprites
@@ -208,9 +221,12 @@ New DDF features:
   compatibility), and it might even be scrapped!  USE AT OWN RISK.
 
 - RELOAD states for monsters.  This is controlled by the new command
-  RELOAD_SHOTS and the new action RELOAD_CHECK, which tests if the
-  monster needs to reload, and if yes then enters its RELOAD states.
-  For players, RELOAD states are used whenever the weapon reloads.
+  RELOAD_SHOTS and the new action RELOAD_CHECK, which increases the
+  monster's shot count and if the limit has been reached, it enters
+  the RELOAD states.  RELOAD_RESET will reset the shot count to zero
+  (not normally needed, but could be handy for special effects).
+
+  For players, RELOAD states are used whenever their weapon reloads.
   They are optional though.
 
 - new SEQUENCE command for ANIMS.DDF.  Use it to specify the full
@@ -223,9 +239,12 @@ New DDF features:
   versions it will be added for you to maintain compatibility).
 
 - able to specify a colour directly in COLMAP.DDF, without needing any
-  lumps.  The command is:
+  wad lumps.  The command is:
 
     GL_COLOUR = #FF9030;   // orange
+
+- NOTARGET attack special, causes the bullet or missile to go straight
+  ahead and ignore the monster/player being aimed at.
 
 - ULTRA_LOYAL thing special.  Friendly monsters don't turn into enemies
   when hurt by your weapon fire.
@@ -241,6 +260,17 @@ New DDF features:
 - EXPLODE_IMMUNE and ALWAYS_LOUD thing specials.  These attributes
   are both set by the BOSSMAN special, but now they can be specified
   individually.
+
+- NOZBUFFER thing special for "particles" (smoke puffs etc) which
+  prevents visual glitches when many are floating near each other.
+
+- HOVER thing special, like in Heretic.  Sprite must be above the
+  ground for it to work properly.
+
+@@@ GHOST STUFF
+
+- BERSERK_MULTIPLY for attacks.ddf controls how much damage the
+  attack causes when the player has the Berserk powerup.
 
 - SILENT_TO_MONSTERS is now an attack special too.
 - FORCE_PICKUP special for thing.ddf (items).
@@ -369,14 +399,27 @@ New weapon stuff
 New command-line options | console variables
 --------------------------------------------
 
-  -deh     Specify a DeHackEd (or BEX) patch file.  You can have
-           multiple patch files after the -deh option.
+  -deh  <file>         Specify a DeHackEd (or BEX) patch file.  You can have
+                       multiple patch files after the -deh option.
 
-  -(no)diskicon   DISKICON    Turn on/off the flashing disk icon.
+  -audiodev  <name>    Forces OpenAL to select <device-name> device
+  -forceds             Forces OpenAL to select "DirectSound" device
+  -maxaudiochan <n>    Maximum number of audio channels to use
 
-  -(no)fadepower  FADEPOWER   Turn on/off fading of powerup effects.
+  -nearclip <n>   NEARCLIP    Control the OpenGL distance clipping.
+  -farclip <n>    FARCLIP     Increasing farclip allows a huge level
+                              to be fully seen, but decreases depth
+                              accuracy (may cause glitches).
+
+  -(no)hqscale    HQSCALE     Turn on/off "High Quality" image scaling.
+  -(no)hqall      HQALL       Use HQ2X on _all_ images (textures and
+                              sprites).  Normally only the HUD gfx are
+                              scaled.  This option can slow things down,
+                              since it needs 4 times more video memory.
 
   -(no)smoothmap  SMOOTHMAP   Turn on/off anti-aliasing of automap.
+  -(no)diskicon   DISKICON    Turn on/off the flashing disk icon.
+  -(no)fadepower  FADEPOWER   Turn on/off fading of powerup effects.
 
   -(no)hogcpu     HOGCPU      Turn on/off the behaviour of hogging
                               the CPU.  When enabled, gameplay may
