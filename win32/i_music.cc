@@ -90,10 +90,16 @@ bool I_StartupMusic(void *sysinfo)
 		errordesc[0] = '\0';
 	}
 
-	oggplayer = new oggplayer_c;
-	capable |= support_OGG;
+	if (! nosound)
+	{
+		oggplayer = new oggplayer_c;
+		capable |= support_OGG;
 
-	I_Printf("I_StartupMusic: OGG Music Init OK\n");
+		I_Printf("I_StartupMusic: OGG Music Init OK\n");
+	}
+	else
+		I_Printf("I_StartupMusic: OGG Music Disabled (no sound)\n");
+
 	return true;
 }
 
