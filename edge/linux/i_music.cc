@@ -79,24 +79,34 @@ bool I_StartupMusic(void *sysinfo)
 	else
 		I_Printf("%s\n", I_MusicReturnError());
 
-	oggplayer = new oggplayer_c;
-	capable |= support_OGG;
-
-	I_Printf("I_StartupMusic: OGG Music Init OK\n");
-
-#ifdef USE_HUMID
-	humdinger = HumDingerInit();
-
-	if (humdinger)
+	if (! nosound)
 	{
-		I_Printf("I_StartupMusic: Humidity Init OK\n");
-		capable |= support_MUS | support_MIDI;
+		oggplayer = new oggplayer_c;
+		capable |= support_OGG;
+
+		I_Printf("I_StartupMusic: OGG Music Init OK\n");
 	}
 	else
+		I_Printf("I_StartupMusic: OGG Music Disabled (no sound)\n");
+
+#ifdef USE_HUMID
+	if (! nosound)
 	{
-		I_Printf("I_StartupMusic: Humidity Init FAILED: %s\n",
-			HumDingerGetError());
+		humdinger = HumDingerInit();
+
+		if (humdinger)
+		{
+			I_Printf("I_StartupMusic: Humidity Init OK\n");
+			capable |= support_MUS | support_MIDI;
+		}
+		else
+		{
+			I_Printf("I_StartupMusic: Humidity Init FAILED: %s\n",
+				HumDingerGetError());
+		}
 	}
+	else
+		I_Printf("I_StartupMusic: Humidity Disabled (no sound)\n");
 #endif  // USE_HUMID
 
 	// Music is not paused by default
