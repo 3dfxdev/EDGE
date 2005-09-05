@@ -666,7 +666,7 @@ void RAD_SpawnTriggers(const char *map_name)
 	for (scr=r_scripts; scr; scr=scr->next)
 	{
 		// This is from a different map!
-		if (strcmp(map_name, scr->mapid) != 0)
+		if (strcmp(map_name, scr->mapid) != 0 && strcmp(scr->mapid, "ALL") != 0)
 			continue;
 
 		// -AJA- 1999/09/25: Added skill checks.
