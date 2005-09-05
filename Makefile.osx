@@ -55,8 +55,8 @@ FLTK_LIBS=$(prefix)/lib/libfltk_images.a $(prefix)/lib/libfltk.a
 # HUM_FLAGS=
 # HUM_LIBS=
 HUM_OBJS=$(AL_DIR)/humdinger.o
-HUM_FLAGS=-I./humidity-0.50 -DUSE_HUMID
-HUM_LIBS=./humidity-0.50/libhumidity.a  # -lpthread
+HUM_FLAGS=-I./humidity-0.56 -DUSE_HUMID
+HUM_LIBS=./humidity-0.56/libhumidity.a  # -lpthread
 
 HAWK_FLAGS=
 HAWK_LDFLAGS=
@@ -74,7 +74,7 @@ CFLAGS=-Wall $(OPTIM) -DMACOSX -DDEVELOPERS -DUSE_FLTK -D__BIG_ENDIAN__  \
 	   $(FLTK_FLAGS) $(HUM_FLAGS) $(HAWK_FLAGS) \
 	   -I$(prefix)/include
 
-CXXFLAGS=-Wall $(OPTIM) -DMACOSX -DDEVELOPERS -DUSE_FLTK -D__BIG_ENDIAN__ \
+CXXFLAGS=-Wall $(OPTIM) -ffast-math -DMACOSX -DDEVELOPERS -DUSE_FLTK -D__BIG_ENDIAN__ \
        $(ASM_FLAGS) $(VIDEO_FLAGS) $(SOUND_FLAGS) \
 	   $(FLTK_FLAGS) $(HUM_FLAGS) $(HAWK_FLAGS) \
 	   -I$(prefix)/include
