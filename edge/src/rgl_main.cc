@@ -576,6 +576,7 @@ void RGL_DrawProgress(int perc, int glbsp_perc)
 //
 void RGL_DrawBeta(void)
 {
+#if 0
 	int bw, bh;
 
 	const byte *beta_lum = RGL_BetaImage(&bw, &bh);
@@ -588,5 +589,6 @@ void RGL_DrawBeta(void)
 	glRasterPos2i(x, y);
 	glPixelZoom(zoom, zoom);
 	glDrawPixels(bw, bh, GL_LUMINANCE, GL_UNSIGNED_BYTE, beta_lum);
+#endif
 }
 
