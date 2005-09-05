@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: AUGUST 30th 2005)
+(Date: SEPTEMBER 5th 2005)
 
 
 Bugs fixed
@@ -92,7 +92,7 @@ General improvements
   WAD file, as these examples (for playlist.ddf) show:
 
      [01] MUSICINFO=OGG:FILE:"d_runnin.ogg";
-     [02] MUSICINFO=OGG:LUMP:"OMGITROX";
+     [02] MUSICINFO=OGG:LUMP:"OGGRULEZ";
 
 + native support for DeHackEd and BEX patches, both as normal files
   (with .DEH or .BEX extension), and also as DEHACKED lump in a wad.
@@ -111,9 +111,9 @@ General improvements
 - Linux: fatal errors produce a pop-up dialog box.  EDGE can now be
   run by double clicking the executable.  Support for CD music.
 
-- support V3 of GL-NODES.  EDGE now includes glBSP 2.10, which can
-  handle very complex levels (which overflow the old limits), e.g.
-  Deus Vult MAP05.
+- support V3 and V5 GL-NODES.  EDGE now includes glBSP 2.10, which
+  can handle very complex levels (which overflow the old limits),
+  e.g. Deus Vult MAP05.
 
 - Boom compatibility changes: the type of level (Edge or Boom) is
   detected when starting a new game, and if it doesn't match the
@@ -144,7 +144,6 @@ General improvements
 - can disable mouse-look in the gameplay options.
 - number of RTS tip slots increased to 45.
 - RTS tips are sent to the console.
-- support for V5 GL-Nodes.
 - smaller savegame files.
 
 
@@ -187,32 +186,23 @@ New DDF features:
 
   The following general purpose specials are available:
 
-     CROSSHAIR // for weapon crosshair sprites: center it on screen
-
-  These specials should NOT normally be used, they are only required
-  for very specialized purposes (e.g. dynamic light images).  People
-  will hate you if you use the SMOOTH special to override their
-  preferences (the "Smoothing" option in the Video Options menu).
-
-     NOMIP     // force mipmapping to be disabled
-     SMOOTH    // force smoothing to be enabled
-     CLAMP     // force clamping (image cannot repeat)
+     CROSSHAIR   // for weapon crosshair sprites: center it on screen
 
 + new FONTS.DDF file.  The equivalent wad lump is DDFFONT.  This is used
   to define fonts (the set of character images for drawing text).  The
   following example shows the available features:
 
     [FOO]
-    TYPE=PATCH;   // PATCH is the only type so far
-    PATCHES=FONTP33("!"),  // put a character in "" quotes
+    TYPE=PATCH;                 // PATCH is the only type so far
+    PATCHES=FONTP33("!"),       // put a character in "" quotes
             FONTP65("A":"Z");   // use : for a range of characters
     MISSING_PATCH=FONTP00;
 
-  where the FONTPxx names above are the patch names.  For ranges it
-  is the first patch, and should end with digits in order for EDGE
-  to work out the other patches properly (FONTP66 will be "B", etc).
-  The missing patch is optional.  Having a patch for a space (" ")
-  is also optional.
+  where the FONTPxx names above are the patch names.  When using
+  ranges, the name (e.g. FONTP65) is for the first character.  It
+  must end with digits so that EDGE can work out the other patches
+  properly (FONTP66 will be "B", etc).  The missing patch is optional.
+  Having a patch for a space (" ") is also optional.
 
 - new STYLES.DDF file.  THIS IS EXPERIMENTAL !!  The idea is to
   define the background colour/image and text font/colour/scaling
@@ -252,6 +242,12 @@ New DDF features:
 - SIDE_IMMUNE thing special.  Friendly monsters are completely immune
   from your weapon fire.
 
+- support for "Ghosts", which means that a bullet or projectile attack
+  will pass straight through an enemy.  The new things.ddf GHOST_CLASS
+  command takes a set of letter flags (just like IMMUNITY_CLASS).  The
+  new SIDE_GHOST special is similar to SIDE_IMMUNE, except that it makes
+  bullets/missiles from "friendly fire" pass straight through.
+
 - EXPLODE_RADIUS command for things and attacks.  Normally the explosion
   radius is the same as the damage caused, but this command forces the
   explosion radius to a particular value (e.g. 200).  The amount of
@@ -266,8 +262,6 @@ New DDF features:
 
 - HOVER thing special, like in Heretic.  Sprite must be above the
   ground for it to work properly.
-
-@@@ GHOST STUFF
 
 - BERSERK_MULTIPLY for attacks.ddf controls how much damage the
   attack causes when the player has the Berserk powerup.
@@ -306,6 +300,9 @@ New RTS features:
   titles.  Newlines don't work in the options however.  The MENU_STYLE
   command gives the style for the next SHOW_MENU command.  If you don't
   specify a style, the default style is [RTS_MENU].
+
+- "ALL" keyword for the START_MAP line, which causes the script to be
+  spawned on every map.
 
 - lines in RTS scripts can be extended over two (or more) actual lines
   by placing the \ character at the end.  A silly example:
@@ -353,7 +350,7 @@ New weapon stuff
 
   When using the ANIMATED special, the weapon sprite doesn't raise up
   or lower down.  Instead the UP and DOWN states should show an
-  animation.  The RAISE and LOWER commands must occur once, in the
+  animation.  The RAISE and LOWER commands _must_ occur once, in the
   very last frame.
 
 - there are now empty states.  These are shown (instead of ready
