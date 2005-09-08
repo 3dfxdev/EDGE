@@ -99,6 +99,10 @@ namespace sound
     void ResumeAllFX();
     void PauseAllFX();
 
+    bool IsFXPlaying(int handle); 
+    bool IsFXPlaying(sec_sfxorig_t *orig); 
+    bool IsFXPlaying(mobj_t *mo); 
+
     // Your effect reservation, sir...
     int ReserveFX(int category);
     void UnreserveFX(int handle);
@@ -114,9 +118,8 @@ namespace sound
     int GetVolume();
     void SetVolume(int volume);
 
-    // Non-rejigged-stuff
+    // Effect lookup
 	int LookupEffectDef(const sfx_t *s);
-    void SetListener();
 };
 
 #endif

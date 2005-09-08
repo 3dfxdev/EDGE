@@ -12,6 +12,16 @@
 // * DOOM2 scripts *
 // *****************
 
+
+start_map map01
+
+  radiustrigger 1601 3898 -1
+    playsound dspopain
+//    tagged_repeatable 0 35T
+  end_radiustrigger
+
+end_map
+
 start_map map07
 
 // lower the outer walls when all Mancubi are killed

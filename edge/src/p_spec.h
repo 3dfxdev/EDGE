@@ -230,6 +230,9 @@ extern linetype_c donut[2];
 // at map load
 void P_SpawnSpecials(int autotag);
 
+// at map exit
+void P_StopAmbientSectorSfx(void);
+
 // every tic
 void P_UpdateSpecials(void);
 
