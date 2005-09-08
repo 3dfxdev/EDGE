@@ -1146,7 +1146,13 @@ namespace sound
     int StartFX(sfx_t *info, int category, mobj_t *mo, int flags)
     {
         if (!info)
-            return 0; // SFX_FIXME: Should never happen
+        {
+            // Historic code handling. Attempting to start a NULL effect
+            // linked to a mobj is intepreted as a StopLoopingFX
+            // call on the given origin. 
+            StopLoopingFX(mo);
+            return 0; 
+        }
 
         pending_fx_t *fx = GetNewPendingPlaybackFX();
 
@@ -1172,7 +1178,13 @@ namespace sound
     int StartFX(sfx_t *info, int category, sec_sfxorig_t *sec, int flags)
     {
         if (!info)
-            return 0; // SFX_FIXME: Should never happen
+        {
+            // Historic code handling. Attempting to start a NULL effect
+            // linked to a sector is intepreted as a StopLoopingFX
+            // call on the given origin. 
+            StopLoopingFX(sec);
+            return 0; 
+        }
 
         pending_fx_t *fx = GetNewPendingPlaybackFX();
 
@@ -1337,46 +1349,6 @@ namespace sound
     }
 
     //
-    // StopLoopingFX (Using Object)
-    //
-    void StopLoopingFX(mobj_t *mo)
-    {
-        DEV_ASSERT2(mo != NULL);
-
-        epi::array_iterator_c it;
-        pending_fx_t* pfx;
-        fx_t* fx;
-
-        for (it = pending_fx.GetBaseIterator(); it.IsValid(); it++)
-        {
-            pfx = ITERATOR_TO_PTR(it, pending_fx_t);
-            if (pfx->handle <= 0)
-                continue;
-
-            if (pfx->pos_type == FXPOSTYPE_OBJECT &&
-                pfx->pos_data.mo == mo)
-            {
-                DoStopPendingFX(pfx); // Never started, so don't
-            }
-        }            
-
-        for (it = playing_fx.GetBaseIterator(); it.IsValid(); it++)
-        {
-            fx = ITERATOR_TO_PTR(it, fx_t);
-            if (fx->handle <= 0)
-                continue;
-
-            if (fx->pos_type == FXPOSTYPE_OBJECT &&
-                fx->pos_data.mo == mo)
-            {
-                DoStopLoopingFX(fx); 
-            }
-        }            
-
-        return;
-    }
-
-    //
     // StopLoopingFX (Using Sector Origin)
     //
     void StopLoopingFX(sec_sfxorig_t *orig)
@@ -1417,6 +1389,46 @@ namespace sound
     }
 
     //
+    // StopLoopingFX (Using Object)
+    //
+    void StopLoopingFX(mobj_t *mo)
+    {
+        DEV_ASSERT2(mo != NULL);
+
+        epi::array_iterator_c it;
+        pending_fx_t* pfx;
+        fx_t* fx;
+
+        for (it = pending_fx.GetBaseIterator(); it.IsValid(); it++)
+        {
+            pfx = ITERATOR_TO_PTR(it, pending_fx_t);
+            if (pfx->handle <= 0)
+                continue;
+
+            if (pfx->pos_type == FXPOSTYPE_OBJECT &&
+                pfx->pos_data.mo == mo)
+            {
+                DoStopPendingFX(pfx); // Never started, so don't
+            }
+        }            
+
+        for (it = playing_fx.GetBaseIterator(); it.IsValid(); it++)
+        {
+            fx = ITERATOR_TO_PTR(it, fx_t);
+            if (fx->handle <= 0)
+                continue;
+
+            if (fx->pos_type == FXPOSTYPE_OBJECT &&
+                fx->pos_data.mo == mo)
+            {
+                DoStopLoopingFX(fx); 
+            }
+        }            
+
+        return;
+    }
+
+    //
     // PauseAllFX
     //
     void PauseAllFX()
@@ -1450,6 +1462,123 @@ namespace sound
         
         pending_state = PENDINGSTATE_RESUME;
         return;
+    }
+
+    //
+    // IsFXPlaying (Using Handle)
+    //
+    bool IsFXPlaying(int handle) 
+    {
+        epi::array_iterator_c it;
+        pending_fx_t* pfx;
+        fx_t* fx;
+
+        for (it = pending_fx.GetBaseIterator(); it.IsValid(); it++)
+        {
+            pfx = ITERATOR_TO_PTR(it, pending_fx_t);
+            if (pfx->handle > 0 && pfx->handle == handle)
+            {
+                // We don't actually know here, but we presume it
+                // is since when pending
+                return true; 
+            }
+        }            
+
+        for (it = playing_fx.GetBaseIterator(); it.IsValid(); it++)
+        {
+            fx = ITERATOR_TO_PTR(it, fx_t);
+            if (fx->handle > 0 && fx->handle == handle)
+            {
+               return IsFXPlaying(fx);
+            }
+        }            
+
+        return false;
+    }
+
+    //
+    // IsFXPlaying (Using Sector)
+    //
+    bool IsFXPlaying(sec_sfxorig_t *orig)
+    {
+        DEV_ASSERT2(orig != NULL);
+
+        epi::array_iterator_c it;
+        pending_fx_t* pfx;
+        fx_t* fx;
+
+        for (it = pending_fx.GetBaseIterator(); it.IsValid(); it++)
+        {
+            pfx = ITERATOR_TO_PTR(it, pending_fx_t);
+            if (pfx->handle <= 0)
+                continue;
+
+            if (pfx->pos_type == FXPOSTYPE_SECTOR &&
+                pfx->pos_data.sec == orig)
+            {
+                // We assume it is playing at this point even
+                // though it has not been processed.
+                return true;
+            }
+        }            
+
+        for (it = playing_fx.GetBaseIterator(); it.IsValid(); it++)
+        {
+            fx = ITERATOR_TO_PTR(it, fx_t);
+            if (fx->handle <= 0)
+                continue;
+
+            if (fx->pos_type == FXPOSTYPE_SECTOR &&
+                fx->pos_data.sec == orig)
+            {
+                if (IsFXPlaying(fx))
+                    return true;
+            }
+        }            
+
+        return false;
+    }
+
+    //
+    // IsFXPlaying (Using Object)
+    //
+    bool IsFXPlaying(mobj_t *mo)
+    {
+        DEV_ASSERT2(mo != NULL);
+
+        epi::array_iterator_c it;
+        pending_fx_t* pfx;
+        fx_t* fx;
+
+        for (it = pending_fx.GetBaseIterator(); it.IsValid(); it++)
+        {
+            pfx = ITERATOR_TO_PTR(it, pending_fx_t);
+            if (pfx->handle <= 0)
+                continue;
+
+            if (pfx->pos_type == FXPOSTYPE_OBJECT &&
+                pfx->pos_data.mo == mo)
+            {
+                // Anything pending is assumed to be played 
+                return true;
+            }
+        }            
+
+        for (it = playing_fx.GetBaseIterator(); it.IsValid(); it++)
+        {
+            fx = ITERATOR_TO_PTR(it, fx_t);
+            if (fx->handle <= 0)
+                continue;
+
+            if (fx->pos_type == FXPOSTYPE_OBJECT &&
+                fx->pos_data.mo == mo)
+            {
+                if (IsFXPlaying(fx))
+                    return true;
+            }
+        }            
+
+        return false;
     }
 
     // ==============================================================

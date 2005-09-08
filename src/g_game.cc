@@ -624,6 +624,8 @@ static void G_DoCompleted(void)
 
 	BOT_EndLevel();
 
+    P_StopLevel(); // -ACB- 2005/09/08 Any required cleanup without level shutdown
+
 	// handle "no stat" levels
 	if (currmap->wistyle == WISTYLE_None || exit_skipall)
 	{

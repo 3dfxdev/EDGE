@@ -2235,6 +2235,14 @@ void P_RemoveSectors(void)
 	Z_Free(sectors);
 }
 
+//
+// P_StopLevel
+//
+void P_StopLevel(void)
+{
+    P_StopAmbientSectorSfx();
+}
+
 static bool level_active = false;
 
 //
@@ -2242,7 +2250,7 @@ static bool level_active = false;
 //
 // Destroys everything on the level.
 //
-static void ShutdownLevel(void)
+void ShutdownLevel(void)
 {
 #ifdef DEVELOPERS
 	if (!level_active)

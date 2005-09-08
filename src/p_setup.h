@@ -43,6 +43,10 @@ void P_Init(void);
 //   triggered.
 void P_SetupLevel(skill_t skill, int autotag);
 
+// Stop a level playing (but not killing it). At the 
+// moment it just stops sector effects looping. -ACB- 2005/09/08
+void P_StopLevel(void);
+
 // Needed by savegame code.
 void P_RemoveMobjs(void);
 void P_RemoveItemsInQue(void);

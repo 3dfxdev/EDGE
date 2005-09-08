@@ -67,7 +67,6 @@ typedef struct sectorsfx_s
 {
 	sector_t *sector;
 	sfx_t *sfx;
-	bool sfxstarted;
 
 	// tics to go before next update
 	int count;
@@ -160,13 +159,17 @@ void P_DestroyAllSectorSFX(void)
 //
 static void DoSectorSFX(sectorsfx_t *sec)
 {
-	if (--sec->count)
+	if (sec->count > 0)
+    {
+        sec->count--;
 		return;
+    }
 
 	sec->count = SECSFX_TIME;
 
-	if (!sec->sfxstarted)
-        sound::StartFX(sec->sfx, SNCAT_Level, &sec->sector->sfx_origin);
+    sec_sfxorig_t *orig = &sec->sector->sfx_origin;
+	if (!sound::IsFXPlaying(orig))
+        sound::StartFX(sec->sfx, SNCAT_Level, orig);
 }
 
 //
@@ -176,11 +179,26 @@ void P_RunSectorSFX(void)
 {
 	// -AJA- FIXME: 
 
-	sectorsfx_t *sfx;
+	sectorsfx_t *sec_sfx;
 
-	for (sfx = sectorsfx_list; sfx; sfx = sfx->next)
+	for (sec_sfx = sectorsfx_list; sec_sfx; sec_sfx = sec_sfx->next)
 	{
-		DoSectorSFX(sfx);
+		DoSectorSFX(sec_sfx);
+	}
+}
+
+//
+// P_StopAmbientSectorSfx
+//
+void P_StopAmbientSectorSfx(void)
+{
+	sectorsfx_t *sec_sfx;
+
+	for (sec_sfx = sectorsfx_list; sec_sfx; sec_sfx = sec_sfx->next)
+	{
+        sec_sfxorig_t *orig = &sec_sfx->sector->sfx_origin;
+        if (sound::IsFXPlaying(orig))
+            sound::StopFX(orig);
 	}
 }
 
@@ -1137,7 +1155,6 @@ static bool P_ActivateSpecialLine(line_t * line,
 			sfx->count = SECSFX_TIME;
 			sfx->sector = tsec;
 			sfx->sfx = special->ambient_sfx;
-			sfx->sfxstarted = false;
 
 			texSwitch = true;
 		}
@@ -1647,7 +1664,6 @@ void P_SpawnSpecials(int autotag)
 			sfx->count = SECSFX_TIME;
 			sfx->sector = sector;
 			sfx->sfx = secSpecial->ambient_sfx;
-			sfx->sfxstarted = false;
 		}
 
 		// - Plats/Floors -
