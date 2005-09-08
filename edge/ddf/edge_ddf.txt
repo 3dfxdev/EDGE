@@ -1,4 +1,15 @@
 
+EDGE DDF 4.6: (2005-09-08)
+==========================
+
+1) ATTACKS.DDF: added BERSERK_MULTIPLY to PLAYER_PUNCH entry.
+
+2) THINGS.DDF: added KEEP_POWERUP(BERSERK) to the BERSERK pickup item.
+
+3) THINGS.DDF: added NOZBUFFER special for the "particle" things:
+               [BLOOD], [PUFF] and [SMOKE].
+
+
 EDGE DDF 4.5: (2005-05-13)
 ==========================
 
