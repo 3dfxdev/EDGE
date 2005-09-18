@@ -323,7 +323,14 @@ static void MovePlane(plane_move_t *plane)
     switch (plane->direction)
     {
         case DIRECTION_STASIS:
-            plane->sfxstarted = false;
+            if (plane->sfxstarted) 
+            {
+                // We've in stasis, therefore stop making any sound
+                // -ACB- 2005/09/17 (Unashamed 11th hour hacking)
+                sound::StopLoopingFX(&plane->sector->sfx_origin);
+                plane->sfxstarted = false;
+            }
+
             break;
 
         case DIRECTION_DOWN:
