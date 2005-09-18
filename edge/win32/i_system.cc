@@ -40,9 +40,6 @@ bool systemup = false;
 #define MSGBUFSIZE 4096
 static char msgbuf[MSGBUFSIZE];
 
-// This annoys me....
-extern bool demorecording;
-
 // MicroTimer
 unsigned long microtimer_granularity = 1000;
 
@@ -55,6 +52,23 @@ static int ticcount = 0;                // Engine tick count
 static int actualticcount = 0;          // Actual tick count
 
 // ================ INTERNALS =================
+
+//
+// FlushMessageQueue
+//
+// Hacktastic work around for SDL_Quit() 
+//
+void FlushMessageQueue()
+{
+	MSG msg;
+
+	while ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
+	{
+		if ( msg.message == WM_QUIT ) break;
+		TranslateMessage( &msg );
+		DispatchMessage( &msg );
+	}
+}
 
 //
 // SysTicker
@@ -197,10 +211,12 @@ void I_Error(const char *error,...)
 		fflush(debugfile);
 	}
 
+	I_SystemShutdown();
+
 	//ShowCursor(TRUE);
+	FlushMessageQueue();
 	MessageBox(NULL, msgbuf, TITLE, MB_OK);
 
-	I_SystemShutdown();
 	I_CloseProgram(-1);
 	return;
 }
