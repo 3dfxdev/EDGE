@@ -215,7 +215,6 @@ int PASCAL WinMain (HINSTANCE curr, HINSTANCE prev, LPSTR cmdline, int show)
 	engine::Main(edgeargc, edgeargv);
 
 	// Cleanup on exit
-	SDL_Quit();
 	CleanupParameters();
 
 	return 0;
