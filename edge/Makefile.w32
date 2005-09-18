@@ -5,7 +5,7 @@
 # 
 
 BIN=gledge32.exe
-RES=edge_private.res
+RES=gledge32.res
 
 SHELL=bash.exe
 
@@ -233,8 +233,8 @@ lzo:
 $(BIN): $(OBJS)
 	$(CPP) $(OBJS) -o gledge32.exe $(LIBS)
 
-edge_private.res: edge_private.rc win32/edge32.rc 
-	$(WINDRES) -i edge_private.rc --input-format=rc -o edge_private.res -O coff 
+gledge32.res: win32/edge32.rc 
+	$(WINDRES) -i win32/edge32.rc --input-format=rc -o gledge32.res -O coff 
 
 .PHONY: all clean $(SUBDIRS)
 
