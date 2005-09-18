@@ -4,7 +4,25 @@
 #ifndef __RESOURCE_HEADER__
 #define __RESOURCE_HEADER__
 
+// VERSION DEFINITIONS
+#define VER_STRING	"1.29"
+#define VER_MAJOR	1
+#define VER_MINOR	29
+#define VER_RELEASE	1
+#define VER_BUILD	1
+#define COMPANY_NAME	"The EDGE Team"
+#define FILE_VERSION	""
+#define FILE_DESCRIPTION	""
+#define INTERNAL_NAME	""
+#define LEGAL_COPYRIGHT	"GNU Public License"
+#define LEGAL_TRADEMARKS	""
+#define ORIGINAL_FILENAME	""
+#define PRODUCT_NAME	"EDGE"
+#define PRODUCT_VERSION	""
+
 #define MAIN_MENU            100
 #define MAIN_MENU_FILE_EXIT  1001
+
+#define MAIN_ICON            1
 
 #endif /* __RESOURCE_HEADER__ */
