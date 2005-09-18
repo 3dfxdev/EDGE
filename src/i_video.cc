@@ -200,5 +200,6 @@ void I_ShutdownGraphics(void)
 
 	graphics_shutdown = 1;
 
-	SDL_Quit ();
+	if (SDL_WasInit(SDL_INIT_EVERYTHING))
+		SDL_Quit ();
 }
