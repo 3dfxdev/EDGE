@@ -912,7 +912,8 @@ namespace sound
         bool looping;
 	
         if (pfx->pos_type == FXPOSTYPE_STATIC ||
-            pfx->pos_type == FXPOSTYPE_NOTUSED)
+            pfx->pos_type == FXPOSTYPE_NOTUSED ||
+			pfx->flags & FXFLAG_IGNORELOOP)
         {
             looping = false;
         }
@@ -1156,9 +1157,8 @@ namespace sound
 
         pending_fx_t *fx = GetNewPendingPlaybackFX();
 
-        // SFX_FIXME: Insert dev_assert once testing complete
         if (!mo)
-            return StartFX(info, category);
+            return StartFX(info, category, flags);
 
         fx->category = category;
         fx->def = LookupEffectDef(info);
@@ -1188,9 +1188,8 @@ namespace sound
 
         pending_fx_t *fx = GetNewPendingPlaybackFX();
 
-        // SFX_FIXME: Insert dev_assert once testing complete
         if (!sec)
-            return StartFX(info, category);
+            return StartFX(info, category, flags);
 
         fx->category = category;
         fx->def = LookupEffectDef(info);
@@ -1330,7 +1329,7 @@ namespace sound
             pfx = ITERATOR_TO_PTR(it, pending_fx_t);
             if (pfx->handle > 0 && pfx->handle == handle)
             {
-                DoStopPendingFX(pfx); // Never started, so don't ever start
+                pfx->flags |= FXFLAG_IGNORELOOP; // Only loop once
                 return;
             }
         }            
@@ -1368,7 +1367,7 @@ namespace sound
             if (pfx->pos_type == FXPOSTYPE_SECTOR &&
                 pfx->pos_data.sec == orig)
             {
-                DoStopPendingFX(pfx); // Never started, so don't start
+                pfx->flags |= FXFLAG_IGNORELOOP; // Only loop once
             }
         }            
 
@@ -1408,7 +1407,7 @@ namespace sound
             if (pfx->pos_type == FXPOSTYPE_OBJECT &&
                 pfx->pos_data.mo == mo)
             {
-                DoStopPendingFX(pfx); // Never started, so don't
+                pfx->flags |= FXFLAG_IGNORELOOP; // Only loop once
             }
         }            
 
@@ -2537,7 +2536,6 @@ namespace sound
 
             num_sources = DEFAULT_SOURCES;
         }
-        
 
         playing_fx.SetAllocatedSize(num_sources); // <-- Maximum playing fx
 
@@ -2555,8 +2553,10 @@ namespace sound
             }
         }
 
+#if 0
         for (i=0; i<SNCAT_NUMTYPES; i++)
             I_Printf("Category %d - Limit %d\n", i, cat_limit[i]);
+#endif
 
         pending_state = PENDINGSTATE_NONE;
         return;

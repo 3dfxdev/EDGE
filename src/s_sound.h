@@ -70,7 +70,8 @@ namespace sound
     typedef enum
     {
         FXFLAG_SYMBOLIC    = 0x1,
-        FXFLAG_IGNOREPAUSE = 0x2
+        FXFLAG_IGNOREPAUSE = 0x2,
+        FXFLAG_IGNORELOOP  = 0x4
     }
     fx_flag_t;
 
