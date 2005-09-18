@@ -8,7 +8,7 @@ Archive listing:
   * gledge32.exe       - Windows Executable (OpenGL rendering)
   * OpenALwEAX.exe     - Installer for OpenAL sound system
   * edge.wad           - EDGE WAD Information
-  * edge-ddf-4.5.zip   - EDGE DDF files (not required to play)
+  * edge-ddf-4.6.zip   - EDGE DDF files (not required to play)
   * changelog-129.txt  - Full list of changes for 1.29
   * edge-readme.txt    - Guess what you reading?
 
@@ -196,7 +196,6 @@ New DDF/RTS features in 1.29:
   - WHEN_APPEAR in DDF and RTS now accepts simpler syntax.
 
   * That was just a summary.  See the 1.29 ChangeLog for more...
-
 
 Known Issues:
   - Multiplayer (networking) does not work yet.  We have made a
@@ -398,14 +397,17 @@ Command line options:
   -fastsprites         Load sprite images at start of level.
   -newmap OR -newhud   Automap overlay.
   -noconhistory        Disable console history (save some memory).
+  -nograb              Don't grab the mouse cursor.
+  -warpmouse           Use special mouse handling code.
 
   Win32 options:
-    (none)
+    -bestaudio         Allow OpenAL to select best driver as opposed to forcing 
+                       the DirectSound implementation. (DirectSound is forced 
+					   since there are numerous issues with a large number of 
+					   3D sound drivers).
 
   Linux / MacOS X options:
-    -warpmouse           Use special mouse handling code.
-    -nograb              Don't grab the mouse cursor.
-
+	(None)
 
 Console commands:
   CRC  <lump>          Computes the CRC value of a wad lump.
