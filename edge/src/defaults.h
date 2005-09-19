@@ -43,7 +43,7 @@
 #define CFGDEF_KEY_LOOKUP       (KEYD_PGUP)
 #define CFGDEF_KEY_LOOKDOWN     (KEYD_PGDN)
 #define CFGDEF_KEY_LOOKCENTER   (KEYD_HOME)
-#define CFGDEF_KEY_MLOOK        (1)
+#define CFGDEF_KEY_MLOOK        ('m')
 #define CFGDEF_KEY_ZOOM         ('\\')
 #define CFGDEF_KEY_JUMP         ('/')
 #define CFGDEF_KEY_MAP          (KEYD_TAB)
