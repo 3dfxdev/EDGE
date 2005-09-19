@@ -57,6 +57,8 @@
 #include "wp_main.h"
 #include "z_zone.h"
 
+#include "defaults.h"
+
 #include "epi/utility.h"
 #include "epi/endianess.h"
 #include "epi/files.h"
@@ -67,9 +69,6 @@
 //
 // DEFAULTS
 //
-int usemouse;
-int usejoystick;
-
 int cfgnormalfov;
 int cfgzoomedfov;
 
@@ -79,7 +78,7 @@ bool autorunning = false;
 bool var_diskicon = true;
 bool display_disk = false;
 static const image_t *disk_image = NULL;
-static const image_t *air_images[21] = { NULL, };
+static const image_t *air_images[21] = { NULL };
 
 bool var_fadepower = true;
 bool var_smoothmap = true;
@@ -92,142 +91,137 @@ bool save_screenshot_valid = false;
 char *config_language = NULL;
 
 // -ACB- 1999/09/19 Sound API
-int dummysndchan;
 static int cfgsound;
 static int cfgmusic;
 
 static default_t defaults[] =
 {
-    {CFGT_Int,		"screenwidth",		&SCREENWIDTH,	DEFAULTSCREENWIDTH},
-    {CFGT_Int,		"screenheight",		&SCREENHEIGHT,	DEFAULTSCREENHEIGHT},
-    {CFGT_Int,		"screendepth",		&SCREENBITS,	DEFAULTSCREENBITS},
-    {CFGT_Boolean,	"windowed",			&SCREENWINDOW,	DEFAULTSCREENWINDOW},
+    {CFGT_Int,		"screenwidth",		 &SCREENWIDTH,	  CFGDEF_SCREENWIDTH},
+    {CFGT_Int,		"screenheight",		 &SCREENHEIGHT,	  CFGDEF_SCREENHEIGHT},
+    {CFGT_Int,		"screendepth",		 &SCREENBITS,	  CFGDEF_SCREENBITS},
+    {CFGT_Boolean,	"windowed",			 &SCREENWINDOW,	  CFGDEF_SCREENWINDOW},
 
-    {CFGT_Enum,		"boom_compatility", &global_flags.compat_mode, 0},
+    {CFGT_Enum,		"boom_compatility",  &global_flags.compat_mode, 0},
  
-    {CFGT_Int, "mouse_sensitivity", &mouseSensitivity, 5},
-    {CFGT_Int, "sfx_volume",        &cfgsound,         8},
-    {CFGT_Int, "music_volume",      &cfgmusic,         8},
-    {CFGT_Int, "show_messages",     &showMessages,     1},
+    {CFGT_Int,      "mouse_sensitivity", &mouseSensitivity, CFGDEF_MOUSESENSITIVITY},
+    {CFGT_Int,      "sfx_volume",        &cfgsound,       CFGDEF_SOUND_VOLUME},
+    {CFGT_Int,      "music_volume",      &cfgmusic,       CFGDEF_MUSIC_VOLUME},
+    {CFGT_Int,      "show_messages",     &showMessages,   CFGDEF_SHOWMESSAGES},
 
-    {CFGT_Boolean, "autorun", &autorunning, 0},
-    {CFGT_Boolean, "swapstereo", &swapstereo, 0},
-    {CFGT_Boolean, "invertmouse", &invertmouse, 0},
-    {CFGT_Int, "mlookspeed", &mlookspeed, 1000 / 64},
+    {CFGT_Boolean,  "autorun",           &autorunning,    0},
+    {CFGT_Boolean,  "swapstereo",        &swapstereo,     CFGDEF_SWAPSTEREO},
+    {CFGT_Boolean,  "invertmouse",       &invertmouse,    CFGDEF_INVERTMOUSE},
+    {CFGT_Int,      "mlookspeed",        &mlookspeed,     CFGDEF_MLOOKSPEED},
 
     // -ES- 1998/11/28 Save fade settings
-    {CFGT_Enum, "telept_effect", &telept_effect, 0},
-    {CFGT_Int, "telept_reverse", &telept_reverse, 0},
-    {CFGT_Int, "telept_flash", &telept_flash, 1},
-    {CFGT_Enum, "wipe_method", &wipe_method, WIPE_Melt},
-    {CFGT_Int, "wipe_reverse", &wipe_reverse, 0},
-    {CFGT_Enum, "crosshair", &crosshair, 0},
-    {CFGT_Enum, "sky_stretch", &sky_stretch, 1},
-    {CFGT_Boolean, "rotatemap", &rotatemap, 0},
-    {CFGT_Boolean, "newhud", &map_overlay, 0},
-    {CFGT_Boolean, "respawnsetting", &global_flags.res_respawn, 0},
-    {CFGT_Boolean, "itemrespawn", &global_flags.itemrespawn, 0},
-    {CFGT_Boolean, "respawn", &global_flags.respawn, 0},
-    {CFGT_Boolean, "fastparm", &global_flags.fastparm, 0},
-    {CFGT_Int, "grav", &global_flags.menu_grav, MENU_GRAV_NORMAL},
-    {CFGT_Boolean, "true3dgameplay", &global_flags.true3dgameplay, 1},
-    {CFGT_Enum, "autoaim", &global_flags.autoaim, 1},
-    {CFGT_Boolean, "missileteleport", &missileteleport, 0},
-    {CFGT_Int, "teleportdelay", &teleportdelay, 0},
-    {CFGT_Boolean, "doom_fading", &doom_fading, 1},
+    {CFGT_Enum,     "telept_effect",     &telept_effect,  CFGDEF_TELEPT_EFFECT},
+    {CFGT_Int,      "telept_reverse",    &telept_reverse, CFGDEF_TELEPT_REVERSE},
+    {CFGT_Int,      "telept_flash",      &telept_flash,   CFGDEF_TELEPT_FLASH},
+    {CFGT_Enum,     "wipe_method",       &wipe_method,    CFGDEF_WIPE_METHOD},
+    {CFGT_Int,      "wipe_reverse",      &wipe_reverse,   CFGDEF_WIPE_REVERSE},
+    {CFGT_Enum,     "crosshair",         &crosshair,      CFGDEF_CROSSHAIR},
+    {CFGT_Enum,     "sky_stretch",       &sky_stretch,    CFGDEF_SKY_STRETCH},
+    {CFGT_Boolean,  "rotatemap",         &rotatemap,      CFGDEF_ROTATEMAP},
+    {CFGT_Boolean,  "newhud",            &map_overlay,    CFGDEF_MAP_OVERLAY},
+    {CFGT_Boolean,  "respawnsetting",    &global_flags.res_respawn, CFGDEF_RES_RESPAWN},
+    {CFGT_Boolean,  "itemrespawn",       &global_flags.itemrespawn, CFGDEF_ITEMRESPAWN},
+    {CFGT_Boolean,  "respawn",           &global_flags.respawn, CFGDEF_RESPAWN},
+    {CFGT_Boolean,  "fastparm",          &global_flags.fastparm, CFGDEF_FASTPARM},
+    {CFGT_Int,      "grav",              &global_flags.menu_grav, CFGDEF_MENU_GRAV},
+    {CFGT_Boolean,  "true3dgameplay",    &global_flags.true3dgameplay, CFGDEF_TRUE3DGAMEPLAY},
+    {CFGT_Enum,     "autoaim",           &global_flags.autoaim, CFGDEF_AUTOAIM},
+    {CFGT_Boolean,  "doom_fading",       &doom_fading,    CFGDEF_DOOM_FADING},
 
     // -KM- 1998/07/21 Save the blood setting
-    {CFGT_Boolean, "blood", &global_flags.more_blood, 0},
-    {CFGT_Boolean, "extra", &global_flags.have_extra, 1},
-    {CFGT_Boolean, "shadows", &global_flags.shadows, 0},
-    {CFGT_Boolean, "halos", &global_flags.halos, 0},
-    {CFGT_Boolean, "weaponkick", &global_flags.kicking, 1},
-    {CFGT_Boolean, "weaponswitch", &global_flags.weapon_switch, 1},
-    {CFGT_Boolean, "mlook", &global_flags.mlook, 1},
-    {CFGT_Boolean, "jumping", &global_flags.jump, 1},
-    {CFGT_Boolean, "crouching", &global_flags.crouch, 1},
-    {CFGT_Boolean, "mipmapping", &use_mipmapping, 1},
-    {CFGT_Boolean, "smoothing", &use_smoothing, 0},
-    {CFGT_Boolean, "dither", &use_dithering, 0},
-    {CFGT_Int, "dlights", &use_dlights, 1},
-    {CFGT_Int, "detail_level", &detail_level, 1},
+    {CFGT_Boolean,  "blood",             &global_flags.more_blood, CFGDEF_MORE_BLOOD},
+    {CFGT_Boolean,  "extra",             &global_flags.have_extra, CFGDEF_HAVE_EXTRA},
+    {CFGT_Boolean,  "shadows",           &global_flags.shadows, CFGDEF_SHADOWS},
+    {CFGT_Boolean,  "halos",             &global_flags.halos, 0},
+    {CFGT_Boolean,  "weaponkick",        &global_flags.kicking, CFGDEF_KICKING},
+    {CFGT_Boolean,  "weaponswitch",      &global_flags.weapon_switch, CFGDEF_WEAPON_SWITCH},
+    {CFGT_Boolean,  "mlook",             &global_flags.mlook, CFGDEF_MLOOK},
+    {CFGT_Boolean,  "jumping",           &global_flags.jump, CFGDEF_JUMP},
+    {CFGT_Boolean,  "crouching",         &global_flags.crouch, CFGDEF_CROUCH},
+    {CFGT_Boolean,  "mipmapping",        &use_mipmapping, CFGDEF_USE_MIPMAPPING},
+    {CFGT_Boolean,  "smoothing",         &use_smoothing,  CFGDEF_USE_SMOOTHING},
+    {CFGT_Boolean,  "dither",            &use_dithering, 0},
+    {CFGT_Int,      "dlights",           &use_dlights,    CFGDEF_USE_DLIGHTS},
+    {CFGT_Int,      "detail_level",      &detail_level,   CFGDEF_DETAIL_LEVEL},
 
     // -KM- 1998/09/01 Useless mouse/joy stuff removed,
     //                 analogue binding added
-    {CFGT_Int, "use_mouse",   &usemouse,    1},
-    {CFGT_Int, "mouse_xaxis", &mouse_xaxis, 0},
-    {CFGT_Int, "mouse_yaxis", &mouse_yaxis, 0},
+    {CFGT_Int,      "mouse_xaxis",       &mouse_xaxis,    CFGDEF_MOUSE_XAXIS},
+    {CFGT_Int,      "mouse_yaxis",       &mouse_yaxis,    CFGDEF_MOUSE_YAXIS},
 
     // -ACB- 1998/09/06 Two-stage turning & Speed controls added
-    {CFGT_Boolean, "twostage_turning",  &stageturn, 0},
-    {CFGT_Int, "forwardmove_speed", &forwardmovespeed, 0},
-    {CFGT_Int, "angleturn_speed",   &angleturnspeed,   0},
-    {CFGT_Int, "sidemove_speed",    &sidemovespeed,    0},
+    {CFGT_Boolean,  "twostage_turning",  &stageturn,      CFGDEF_STAGETURN},
+    {CFGT_Int,      "forwardmove_speed", &forwardmovespeed, CFGDEF_FORWARDMOVESPEED},
+    {CFGT_Int,      "angleturn_speed",   &angleturnspeed, CFGDEF_ANGLETURNSPEED},
+    {CFGT_Int,      "sidemove_speed",    &sidemovespeed,  CFGDEF_SIDEMOVESPEED},
 
-    {CFGT_Int, "use_joystick", &usejoystick, 0},
-    {CFGT_Int, "joy_xaxis", &joy_xaxis, 0},
-    {CFGT_Int, "joy_yaxis", &joy_yaxis, 0},
+    {CFGT_Int,      "joy_xaxis",         &joy_xaxis,      CFGDEF_JOY_XAXIS},
+    {CFGT_Int,      "joy_yaxis",         &joy_yaxis,      CFGDEF_JOY_YAXIS},
 
-    {CFGT_Int, "screen_hud", &screen_hud, HUD_Full},
+    {CFGT_Int,      "screen_hud",        &screen_hud,     CFGDEF_SCREEN_HUD},
     // -ES- 1999/03/30 Added fov stuff.
-    {CFGT_Int, "fieldofview", &cfgnormalfov, 90},
-    {CFGT_Int, "zoomedfieldofview", &cfgzoomedfov, 10},
+    {CFGT_Int,      "fieldofview",       &cfgnormalfov,   CFGDEF_NORMALFOV},
+    {CFGT_Int,      "zoomedfieldofview", &cfgzoomedfov,   CFGDEF_ZOOMEDFOV},
 
-    {CFGT_Int, "snd_channels",  &dummysndchan, 3},
-    {CFGT_Int, "usegamma",      &current_gamma, 2},
-    {CFGT_Int, "save_page",     &save_page, 0},
+    {CFGT_Int,      "usegamma",          &current_gamma,  CFGDEF_CURRENT_GAMMA},
+    {CFGT_Int,      "save_page",         &save_page, 0},
+
+    {CFGT_Boolean,  "png_scrshots",      &png_scrshots,   CFGDEF_PNG_SCRSHOTS},
 
 	// -------------------- VARS --------------------
 
-	{CFGT_Boolean, "var_diskicon",  &var_diskicon,  1},
-	{CFGT_Boolean, "var_hogcpu",    &var_hogcpu,    1},
-	{CFGT_Boolean, "var_fadepower", &var_fadepower, 1},
-	{CFGT_Boolean, "var_smoothmap", &var_smoothmap, 1},
-	{CFGT_Boolean, "var_hq_scale",  &var_hq_scale,  1},
+	{CFGT_Boolean,  "var_diskicon",      &var_diskicon,   1},
+	{CFGT_Boolean,  "var_hogcpu",        &var_hogcpu,     1},
+	{CFGT_Boolean,  "var_fadepower",     &var_fadepower,  1},
+	{CFGT_Boolean,  "var_smoothmap",     &var_smoothmap,  1},
+	{CFGT_Boolean,  "var_hq_scale",      &var_hq_scale,   1},
 
-	{CFGT_Int, "var_nearclip",  &var_nearclip,  4},
-	{CFGT_Int, "var_farclip",   &var_farclip,   32000},
+	{CFGT_Int,      "var_nearclip",      &var_nearclip,   4},
+	{CFGT_Int,      "var_farclip",       &var_farclip,    32000},
 
 	// -------------------- KEYS --------------------
 
-    {CFGT_Key, "key_right",      &key_right,      0},
-    {CFGT_Key, "key_left",       &key_left,       0},
-    {CFGT_Key, "key_up",         &key_up,         0},
-    {CFGT_Key, "key_down",       &key_down,       0},
-    {CFGT_Key, "key_lookup",     &key_lookup,     0},
-    {CFGT_Key, "key_lookdown",   &key_lookdown,   0},
-    {CFGT_Key, "key_lookcenter", &key_lookcenter, 0},
+    {CFGT_Key,      "key_right",         &key_right,      0},
+    {CFGT_Key,      "key_left",          &key_left,       0},
+    {CFGT_Key,      "key_up",            &key_up,         0},
+    {CFGT_Key,      "key_down",          &key_down,       0},
+    {CFGT_Key,      "key_lookup",        &key_lookup,     0},
+    {CFGT_Key,      "key_lookdown",      &key_lookdown,   0},
+    {CFGT_Key,      "key_lookcenter",    &key_lookcenter, 0},
 
     // -ES- 1999/03/28 Zoom Key
-    {CFGT_Key, "key_zoom",        &key_zoom,        0},
-    {CFGT_Key, "key_strafeleft",  &key_strafeleft,  0},
-    {CFGT_Key, "key_straferight", &key_straferight, 0},
+    {CFGT_Key,      "key_zoom",          &key_zoom,       0},
+    {CFGT_Key,      "key_strafeleft",    &key_strafeleft, 0},
+    {CFGT_Key,      "key_straferight",   &key_straferight, 0},
 
     // -ACB- for -MH- 1998/07/02 Flying Keys
-    {CFGT_Key, "key_flyup",   &key_flyup,           0},
-    {CFGT_Key, "key_flydown", &key_flydown,         0},
+    {CFGT_Key,      "key_flyup",         &key_flyup,      0},
+    {CFGT_Key,      "key_flydown",       &key_flydown,    0},
 
-    {CFGT_Key, "key_fire",       &key_fire,         0},
-    {CFGT_Key, "key_use",        &key_use,          0},
-    {CFGT_Key, "key_strafe",     &key_strafe,       0},
-    {CFGT_Key, "key_speed",      &key_speed,        0},
-    {CFGT_Key, "key_autorun",    &key_autorun,      0},
-    {CFGT_Key, "key_nextweapon", &key_nextweapon,   0},
-    {CFGT_Key, "key_prevweapon", &key_prevweapon,   0},
+    {CFGT_Key,      "key_fire",          &key_fire,       0},
+    {CFGT_Key,      "key_use",           &key_use,        0},
+    {CFGT_Key,      "key_strafe",        &key_strafe,     0},
+    {CFGT_Key,      "key_speed",         &key_speed,      0},
+    {CFGT_Key,      "key_autorun",       &key_autorun,    0},
+    {CFGT_Key,      "key_nextweapon",    &key_nextweapon, 0},
+    {CFGT_Key,      "key_prevweapon",    &key_prevweapon, 0},
 
-    {CFGT_Key, "key_jump",      &key_jump,          0},
-    {CFGT_Key, "key_180",       &key_180,           0},
-    {CFGT_Key, "key_map",       &key_map,           0},
-    {CFGT_Key, "key_talk",      &key_talk,          0},
-    {CFGT_Key, "key_mlook",     &key_mlook,         0},  // -AJA- 1999/07/27.
-    {CFGT_Key, "key_secondatk", &key_secondatk,     0},  // -AJA- 2000/02/08.
-    {CFGT_Key, "key_reload",    &key_reload,        0},  // -AJA- 2004/11/11.
+    {CFGT_Key,      "key_jump",          &key_jump,       0},
+    {CFGT_Key,      "key_180",           &key_180,        0},
+    {CFGT_Key,      "key_map",           &key_map,        0},
+    {CFGT_Key,      "key_talk",          &key_talk,       0},
+    {CFGT_Key,      "key_mlook",         &key_mlook,      0},  // -AJA- 1999/07/27.
+    {CFGT_Key,      "key_secondatk",     &key_secondatk,  0},  // -AJA- 2000/02/08.
+    {CFGT_Key,      "key_reload",        &key_reload,     0},  // -AJA- 2004/11/11.
 };
-
-int numdefaults;
 
 epi::strent_c cfgfile;
 
+#if 0
 // TGA Graphics Header
 typedef enum
 {
@@ -248,7 +242,6 @@ tgaheader_e;
 
 // ======================= INTERNALS =======================
 
-#if 0
 //
 // WriteTGAFile
 //
@@ -354,6 +347,9 @@ void M_SaveDefaults(void)
 	if (netgame)
 		return;
 
+    // Set the number of defaults
+	int numdefaults = sizeof(defaults) / sizeof(defaults[0]);
+
 	// -ACB- 1999/09/24 idiot proof checking as required by MSVC
 	DEV_ASSERT2(cfgfile);
 
@@ -426,7 +422,7 @@ bool M_LoadDefaults(void)
 	bool isstring;
 
 	// set everything to base values
-	numdefaults = sizeof(defaults) / sizeof(defaults[0]);
+	int numdefaults = sizeof(defaults) / sizeof(defaults[0]);
 	for (i = 0; i < numdefaults; i++)
 		SetToBaseValue(defaults + i);
 
@@ -628,10 +624,14 @@ void M_DisplayAir(void)
 //
 void M_ScreenShot(bool show_msg)
 {
-	char filename[20];
+	char filename[13];
 
 	// find a file name to save it to
-	strcpy(filename,"SHOT0000.png");
+	strcpy(filename,"shot0000");
+    if (png_scrshots) 
+        strcat(filename, ".png");
+    else
+        strcat(filename, ".jpg");
 
 	for (int i = 0; i <= 9999; i++)
 	{
@@ -656,14 +656,18 @@ void M_ScreenShot(bool show_msg)
 
 	RGL_ReadScreen(0, 0, SCREENWIDTH, SCREENHEIGHT, img.pixels);
 
-	bool result = epi::PNG::Save(img, fp);
+	bool result;
+    if (png_scrshots)
+        result = epi::PNG::Save(img, fp);
+    else
+        result = epi::JPEG::Save(img, fp);
 
 	if (show_msg)
 	{
 		if (result)
-			I_Printf("Captured to jpeg file: %s\n", filename);
+			I_Printf("Captured to file: %s\n", filename);
 		else
-			I_Printf("Error saving jpeg file: %s\n", filename);
+			I_Printf("Error saving file: %s\n", filename);
 	}
 
 	fclose(fp);
