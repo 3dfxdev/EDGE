@@ -164,6 +164,7 @@ bool showstats = false;
 bool swapstereo = false;
 bool mus_pause_stop = false;
 bool infight = false;
+bool png_scrshots = false;
 
 bool external_ddf = false;
 bool strict_errors = false;
@@ -182,8 +183,6 @@ char *savedir;
 char *ddfdir;
 
 int crosshair = 0;
-int missileteleport = 0;
-int teleportdelay = 0;
 
 layer_t *backbg_layer = NULL;
 layer_t *conplayer_layer = NULL;
