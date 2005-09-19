@@ -527,6 +527,21 @@ void G_CoopSpawnPlayer(player_t *p)
 	P_SpawnPlayer(p, sp);
 }
 
+//
+// G_CoopSpawnVoodooDolls
+//
+// Spawns lots of voodoo dolls (except at the start location of the player).
+// Called at level load.
+//
+void G_CoopSpawnVoodooDolls(player_t *p)
+{
+	int skip = -1;
+	spawnpoint_t *sp;
+	while ((sp = voodoo_doll_starts.FindPlayer (p->pnum + 1, ++skip)) != NULL)
+		if (G_CheckSpot(p, sp))
+			P_SpawnPlayer(p, sp);
+}
+
 
 //
 // G_CheckConditions

@@ -558,6 +558,8 @@ void G_SpawnInitialPlayers(void)
 		player_t *p = players[pnum];
 		if (! p) continue;
 
+		if (!DEATHMATCH())
+			G_CoopSpawnVoodooDolls(p);
 		G_DoReborn(p);
 	}
 
