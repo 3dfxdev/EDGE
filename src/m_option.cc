@@ -99,6 +99,8 @@
 #include "w_wad.h"
 #include "wp_main.h"
 
+#include "defaults.h"
+
 #include "epi/strings.h"
 
 int optionsmenuon = 0;
@@ -154,13 +156,18 @@ static void M_ChangeStoredMode(int keypressed);
 static void M_LanguageDrawer(int x, int y, int deltay);
 static void M_ChangeLanguage(int keypressed);
 
-static char YesNo[] = "Off/On";  // basic on/off
+static char YesNo[]     = "Off/On";  // basic on/off
 static char CompatSet[] = "EDGE/Boom";
-static char CrosO[] = "None/Cross/Dot/Angle";  // crosshair options
-static char Respw[] = "Teleport/Resurrect";  // monster respawning
-static char Axis[] = "Turn/Forward/Strafe/MLook/Fly/Disable";
-static char SkySq[] = "Small/Medium/Large/Mirror/Original";
-static char DLMode[] = "Off/On/Compat";
+static char CrosO[]     = "None/Cross/Dot/Angle";  // crosshair options
+static char Respw[]     = "Teleport/Resurrect";  // monster respawning
+static char Axis[]      = "Turn/Forward/Strafe/MLook/Fly/Disable";
+static char SkySq[]     = "Small/Medium/Large/Mirror/Original";
+static char DLMode[]    = "Off/On/Compat";
+static char JpgPng[]    = "JPEG/PNG";  // basic on/off
+static char AAim[]      = "Off/On/Mlook";
+static char Huds[]      = "Full/None/Overlay";
+static char MipMaps[]   = "None/Good/Best";
+static char Details[]   = "Low/Medium/High";
 
 // Screen resolution changes
 static int prevscrmode;
@@ -173,10 +180,6 @@ static int menusoundvol;
 
 // -ES- 1998/11/28 Wipe and Faded teleportation options
 //static char FadeT[] = "Off/On, flash/On, no flash";
-static char AAim[] = "Off/On/Mlook";
-static char Huds[] = "Full/None/Overlay";
-static char MipMaps[] = "None/Good/Best";
-static char Details[] = "Low/Medium/High";
 
 
 //
@@ -286,6 +289,7 @@ static void M_ChangeSfxVol(int keypressed)
 	return;
 }
 
+#if 0
 //
 // M_ChangeNormalFOV
 //
@@ -298,6 +302,7 @@ static void M_ChangeZoomedFOV(int keypressed)
 {
 	R_SetZoomedFOV((ANG45 / 9) * (menuzoomedfov + 1));
 }
+#endif
 
 static int M_GetCurrentSwitchValue(optmenuitem_t *item)
 {
@@ -360,20 +365,25 @@ static void M_DefaultMenuItem(optmenuitem_t *item)
 
 static optmenuitem_t mainmenu[] =
 {
-	{OPT_Function, "Keyboard Controls", NULL, 0, 0, NULL, M_KeyboardOptions, "Controls"},
-	{OPT_Function, "Mouse Options", NULL, 0, 0, NULL, M_AnalogueOptions, "AnalogueOptions"},
-	{OPT_Function, "Gameplay Options", NULL, 0, 0, NULL, M_GameplayOptions, "GameplayOptions"},
-	{OPT_Function, "Video Options", NULL, 0, 0, NULL, M_VideoOptions, "VideoOptions"},
-	{OPT_Function, "Set Resolution", NULL, 0, 0, NULL, M_ResolutionOptions, "ChangeRes"},
-	{OPT_Function, "Leave Game", NULL, 0, 0, NULL, M_EndGame, NULL},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Function, "Language", NULL, 0, 0, NULL, M_ChangeLanguage, NULL},
-	{OPT_Switch, "Messages", YesNo, 2, 1, &showMessages, NULL, "Messages"},
-	{OPT_Boolean, "Swap Stereo", YesNo, 2, 0, &swapstereo, NULL, "SwapStereo"},
-	{OPT_Slider, "Sound Volume", NULL, SND_SLIDER_NUM, 12,  &menusoundvol, M_ChangeSfxVol, NULL},
-	{OPT_Slider, "Music Volume", NULL, SND_SLIDER_NUM, 12,  &menumusicvol, M_ChangeMusVol, NULL},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Function, "Reset to Defaults", NULL, 0, 0, NULL, M_ResetToDefaults, "ResetToDefaults"}
+	{OPT_Function, "Keyboard Controls", NULL,  0, 0, NULL, M_KeyboardOptions, "Controls"},
+	{OPT_Function, "Mouse Options",     NULL,  0, 0, NULL, M_AnalogueOptions, "AnalogueOptions"},
+	{OPT_Function, "Gameplay Options",  NULL,  0, 0, NULL, M_GameplayOptions, "GameplayOptions"},
+	{OPT_Function, "Video Options",     NULL,  0, 0, NULL, M_VideoOptions, "VideoOptions"},
+	{OPT_Function, "Set Resolution",    NULL,  0, 0, NULL, M_ResolutionOptions, "ChangeRes"},
+	{OPT_Function, "Leave Game",        NULL,  0, 0, NULL, M_EndGame, NULL},
+	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
+	{OPT_Function, "Language",          NULL,  0, CFGDEF_MENULANGUAGE, NULL, M_ChangeLanguage, NULL},
+	{OPT_Switch,   "Messages",          YesNo, 2, CFGDEF_SHOWMESSAGES, &showMessages, NULL, "Messages"},
+	{OPT_Boolean,  "Swap Stereo",       YesNo, 2, CFGDEF_SWAPSTEREO, &swapstereo, NULL, "SwapStereo"},
+
+	{OPT_Slider,   "Sound Volume",      NULL, SND_SLIDER_NUM, 
+                                                  CFGDEF_SOUND_VOLUME, &menusoundvol, M_ChangeSfxVol, NULL},
+
+	{OPT_Slider,   "Music Volume",      NULL, SND_SLIDER_NUM, 
+                                                  CFGDEF_MUSIC_VOLUME, &menumusicvol, M_ChangeMusVol, NULL},
+
+	{OPT_Plain,    "",                  NULL,  0,              0, NULL, NULL, NULL},
+	{OPT_Function, "Reset to Defaults", NULL,  0, 0, NULL, M_ResetToDefaults, "ResetToDefaults"}
 };
 
 static menuinfo_t mainmenuinfo = 
@@ -390,29 +400,50 @@ static menuinfo_t mainmenuinfo =
 // -ES- 1999/03/29 New fov stuff
 static optmenuitem_t vidoptions[] =
 {
-	{OPT_Slider, "Brightness", NULL, 5, 2, &current_gamma, M_ChangeGamma, NULL},
-	{OPT_Slider, "Field Of View", NULL, 35, 17, &menunormalfov, M_ChangeNormalFOV, NULL},
-	{OPT_Slider, "Zoomed FOV", NULL, 35, 1, &menuzoomedfov, M_ChangeZoomedFOV, NULL},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Switch, "HUD", Huds, 3, HUD_Full, &screen_hud, M_ChangeScreenHud, NULL},
-	{OPT_Boolean, "Smoothing", YesNo, 2, 1, &use_smoothing, M_ChangeMipMap, NULL},
-	{OPT_Switch, "Dynamic Lighting", DLMode, 2, 0, &use_dlights, M_ChangeDLights, NULL},
-	{OPT_Boolean, "Doom-like fading", YesNo, 2, 1, &doom_fading, NULL, NULL},
-	{OPT_Switch, "Detail Level", Details, 3, 1, &detail_level, M_ChangeMipMap, NULL},
-	{OPT_Switch, "Mipmapping", MipMaps, 3, 1, &use_mipmapping, M_ChangeMipMap, NULL},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Switch, "Sky stretch", SkySq, 5, 1, &sky_stretch, M_ChangeMipMap, NULL},
-	{OPT_Boolean, "Shadows", YesNo, 2, 0, &global_flags.shadows, M_ChangeShadows, NULL},
-	{OPT_Switch, "Crosshair", CrosO, 4, 0, &crosshair, NULL, NULL},
-	{OPT_Boolean, "Map Overlay", YesNo, 2, 0, &map_overlay, NULL, NULL},
-	{OPT_Boolean, "Map Rotation", YesNo, 2, 0, &rotatemap, NULL, NULL},
-	{OPT_Switch, "Teleport Flash", YesNo, 2, 1, &telept_flash, NULL, NULL},
-	{OPT_Switch, "Wipe method", WIPE_EnumStr, WIPE_NUMWIPES, 1, &wipe_method, NULL, NULL} 
+	{OPT_Slider,  "Brightness",    NULL,  5,  CFGDEF_CURRENT_GAMMA,  &current_gamma, M_ChangeGamma, NULL},
+
+#if 0 // Really don't get the reason for these - a map developers 
+	{OPT_Slider,  "Field Of View", NULL,  35, 17,      &menunormalfov, M_ChangeNormalFOV, NULL},
+	{OPT_Slider,  "Zoomed FOV",    NULL,  35, 1,      &menuzoomedfov, M_ChangeZoomedFOV, NULL},
+#endif 
+
+	{OPT_Plain,   "",              NULL,  0,  0, NULL, NULL, NULL},
+
+	{OPT_Boolean, "Smoothing",     YesNo, 2,  CFGDEF_USE_SMOOTHING,  &use_smoothing, M_ChangeMipMap, NULL},
+
+	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, 
+                                              CFGDEF_USE_DLIGHTS,    &use_dlights, M_ChangeDLights, NULL},
+
+	{OPT_Boolean, "Doom-like fading", YesNo, 2, 
+                                              CFGDEF_DOOM_FADING,    &doom_fading, NULL, NULL},
+
+	{OPT_Switch,  "Detail Level",  Details, 3, 
+                                              CFGDEF_DETAIL_LEVEL,   &detail_level, M_ChangeMipMap, NULL},
+
+	{OPT_Switch,  "Mipmapping", MipMaps, 3,   CFGDEF_USE_MIPMAPPING, &use_mipmapping, M_ChangeMipMap, NULL},
+
+	{OPT_Plain,   "",              NULL, 0,   0,                      NULL, NULL, NULL},
+
+	{OPT_Switch,  "HUD",           Huds,  3,  CFGDEF_SCREEN_HUD,     &screen_hud, M_ChangeScreenHud, NULL},
+	{OPT_Switch,  "Sky stretch",   SkySq, 5,  CFGDEF_SKY_STRETCH,    &sky_stretch, M_ChangeMipMap, NULL},
+	{OPT_Boolean, "Shadows",       YesNo, 2,  CFGDEF_SHADOWS,  &global_flags.shadows, M_ChangeShadows, NULL},
+	{OPT_Switch,  "Crosshair",     CrosO, 4,  CFGDEF_CROSSHAIR,      &crosshair, NULL, NULL},
+	{OPT_Boolean, "Map Overlay",   YesNo, 2,  CFGDEF_MAP_OVERLAY,    &map_overlay, NULL, NULL},
+	{OPT_Boolean, "Map Rotation",  YesNo, 2,  CFGDEF_ROTATEMAP,      &rotatemap, NULL, NULL},
+	{OPT_Switch,  "Teleport Flash",YesNo, 2,  CFGDEF_TELEPT_FLASH,   &telept_flash, NULL, NULL},
+
+	{OPT_Switch,  "Wipe method",   WIPE_EnumStr, WIPE_NUMWIPES, 
+                                              CFGDEF_WIPE_METHOD,    &wipe_method, NULL, NULL},
   
+	{OPT_Boolean, "Screenshot Format",  JpgPng, 2, 
+                                              CFGDEF_PNG_SCRSHOTS,   &png_scrshots, NULL, NULL}
+
 #if 0  // TEMPORARILY DISABLED (we need an `Advanced Options' menu)
-	{OPT_Switch, "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 0, &telept_effect, NULL, NULL},
-    {OPT_Switch, "Reverse effect", YesNo, 2, 0, &telept_reverse, NULL, NULL},
-    {OPT_Switch, "Reversed wipe", YesNo, 2, 0, &wipe_reverse, NULL, NULL},
+	{OPT_Switch,  "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 
+                                              CFGDEF_TELEPT_EFFECT,  &telept_effect, NULL, NULL},
+
+    {OPT_Switch,  "Reverse effect", YesNo, 2, CFGDEF_TELEPT_REVERSE, &telept_reverse, NULL, NULL},
+    {OPT_Switch,  "Reversed wipe",  YesNo, 2, CFGDEF_WIPE_REVERSE, &wipe_reverse, NULL, NULL},
 #endif
 };
 
@@ -456,23 +487,23 @@ static menuinfo_t resoptionsinfo =
 //
 static optmenuitem_t analogueoptions[] =
 {
-	{OPT_Boolean, "Invert Mouse", YesNo, 2, false, &invertmouse, NULL, NULL},
-	{OPT_Switch, "Mouse X Axis", Axis, 6, AXIS_TURN, &mouse_xaxis, NULL, NULL},
-	{OPT_Switch, "Mouse Y Axis", Axis, 6, AXIS_FORWARD, &mouse_yaxis, NULL, NULL},
-	{OPT_Slider, "MouseSpeed", NULL, 20, 8, &mouseSensitivity, NULL, NULL},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Slider, "MLook Speed", NULL, 20, 8, &mlookspeed, NULL, NULL},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Boolean, "Two-Stage Turning", YesNo, 2, 0, &stageturn, NULL, NULL},
-	{OPT_Slider, "Turning Speed", NULL, 9, 0, &angleturnspeed, NULL, NULL},
-	{OPT_Slider, "Side Move Speed", NULL, 9, 0, &sidemovespeed, NULL, NULL},
-	{OPT_Slider, "Forward Move Speed", NULL, 9, 0, &forwardmovespeed, NULL, NULL}
+	{OPT_Boolean,  "Invert Mouse",       YesNo, 2, CFGDEF_INVERTMOUSE,      &invertmouse, NULL, NULL},
+	{OPT_Switch,   "Mouse X Axis",       Axis, 6,  CFGDEF_MOUSE_XAXIS,      &mouse_xaxis, NULL, NULL},
+	{OPT_Switch,   "Mouse Y Axis",       Axis, 6,  CFGDEF_MOUSE_YAXIS,      &mouse_yaxis, NULL, NULL},
+	{OPT_Slider,   "MouseSpeed",         NULL, 20, CFGDEF_MOUSESENSITIVITY, &mouseSensitivity, NULL, NULL},
+	{OPT_Plain,    "",                   NULL, 0,  0,                        NULL, NULL, NULL},
+	{OPT_Slider,   "MLook Speed",        NULL, 20, CFGDEF_MLOOKSPEED,       &mlookspeed, NULL, NULL},
+	{OPT_Plain,    "",                   NULL, 0,  0,                        NULL, NULL, NULL},
+	{OPT_Boolean,  "Two-Stage Turning",  YesNo, 2, CFGDEF_STAGETURN,        &stageturn, NULL, NULL},
+	{OPT_Slider,   "Turning Speed",      NULL, 9,  CFGDEF_ANGLETURNSPEED,   &angleturnspeed, NULL, NULL},
+	{OPT_Slider,   "Side Move Speed",    NULL, 9,  CFGDEF_SIDEMOVESPEED,    &sidemovespeed, NULL, NULL},
+	{OPT_Slider,   "Forward Move Speed", NULL, 9,  CFGDEF_FORWARDMOVESPEED, &forwardmovespeed, NULL, NULL}
 
 #if 0  // DISABLED, Because no joystick support yet
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Switch, "Joystick X Axis", Axis, 6, AXIS_TURN, &joy_xaxis, NULL, NULL},
-	{OPT_Switch, "Joystick Y Axis", Axis, 6, AXIS_FORWARD, &joy_yaxis, NULL, NULL},
-	{OPT_Function, "Calibrate Joystick", NULL, 0, 0, NULL, M_CalibrateJoystick, NULL}
+	{OPT_Plain,    "",                   NULL, 0,  0,                        NULL, NULL, NULL},
+	{OPT_Switch,   "Joystick X Axis",    Axis, 6,  CFGDEF_JOY_XAXIS,        &joy_xaxis, NULL, NULL},
+	{OPT_Switch,   "Joystick Y Axis",    Axis, 6,  CFGDEF_JOY_YAXIS,        &joy_yaxis, NULL, NULL},
+	{OPT_Function, "Calibrate Joystick", NULL, 0,  0,                        NULL, M_CalibrateJoystick, NULL}
 #endif
 };
 
@@ -490,23 +521,69 @@ static menuinfo_t analogueoptionsinfo =
 //
 static optmenuitem_t playoptions[] =
 {
-	{OPT_Switch, "Compatibility", CompatSet, 2, 0, &global_flags.compat_mode, M_ChangeCompatMode, NULL},
-	{OPT_Switch, "AutoAiming", AAim, 3, 1, &global_flags.autoaim, M_ChangeAutoAim, NULL},
-	{OPT_Boolean, "Mouse Look", YesNo, 2, 0, &global_flags.mlook, M_ChangeMLook, NULL},
-	{OPT_Boolean, "Jumping", YesNo, 2, 0, &global_flags.jump, M_ChangeJumping, NULL},
-	{OPT_Boolean, "Crouching", YesNo, 2, 0, &global_flags.crouch, M_ChangeCrouching, NULL},
-	{OPT_Boolean, "Weapon Kick", YesNo, 2, 1, &global_flags.kicking, M_ChangeKicking, NULL},
-	{OPT_Boolean, "Weapon Auto-Switch", YesNo, 2, 1, &global_flags.weapon_switch, M_ChangeWeaponSwitch, NULL},
-	{OPT_Boolean, "More Blood", YesNo, 2, 0, &global_flags.more_blood, M_ChangeBlood, "Blood"},
-	{OPT_Boolean, "Extras", YesNo, 2, 1, &global_flags.have_extra, M_ChangeExtra, NULL},
-	{OPT_Boolean, "True 3D Gameplay", YesNo, 2, 1, &global_flags.true3dgameplay, M_ChangeTrue3d, "True3d"},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Slider, "Gravity", NULL, 20, 8, &global_flags.menu_grav, NULL, "Gravity"},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Boolean, "Enemy Respawn Mode", Respw, 2, 0, &global_flags.res_respawn, M_ChangeMonsterRespawn, NULL},
-	{OPT_Boolean, "Item Respawn", YesNo, 2, 0, &global_flags.itemrespawn, M_ChangeItemRespawn, NULL},
-	{OPT_Boolean, "Fast Monsters", YesNo, 2, 0, &global_flags.fastparm, M_ChangeFastparm, NULL},
-	{OPT_Boolean, "Respawn", YesNo, 2, 0, &global_flags.respawn, M_ChangeRespawn, NULL}
+	{OPT_Switch,  "Compatibility",      CompatSet, 2, 
+     CFGDEF_COMPAT_MODE, 
+     &global_flags.compat_mode, M_ChangeCompatMode, NULL},
+
+	{OPT_Switch,  "AutoAiming",         AAim, 3, 
+     CFGDEF_AUTOAIM,     
+     &global_flags.autoaim, M_ChangeAutoAim, NULL},
+
+	{OPT_Boolean, "Mouse Look",         YesNo, 2, 
+     CFGDEF_MLOOK,       
+     &global_flags.mlook, M_ChangeMLook, NULL},
+
+	{OPT_Boolean, "Jumping",            YesNo, 2, 
+     CFGDEF_JUMP,        
+     &global_flags.jump, M_ChangeJumping, NULL},
+
+	{OPT_Boolean, "Crouching",          YesNo, 2, 
+     CFGDEF_CROUCH,      
+     &global_flags.crouch, M_ChangeCrouching, NULL},
+
+	{OPT_Boolean, "Weapon Kick",        YesNo, 2, 
+     CFGDEF_KICKING,        
+     &global_flags.kicking, M_ChangeKicking, NULL},
+
+	{OPT_Boolean, "Weapon Auto-Switch", YesNo, 2, 
+     CFGDEF_WEAPON_SWITCH, 
+     &global_flags.weapon_switch, M_ChangeWeaponSwitch, NULL},
+
+	{OPT_Boolean, "More Blood",         YesNo, 2, 
+     CFGDEF_MORE_BLOOD, 
+     &global_flags.more_blood, M_ChangeBlood, "Blood"},
+
+	{OPT_Boolean, "Extras",             YesNo, 2, 
+     CFGDEF_HAVE_EXTRA, 
+     &global_flags.have_extra, M_ChangeExtra, NULL},
+
+	{OPT_Boolean, "True 3D Gameplay",   YesNo, 2, 
+     CFGDEF_TRUE3DGAMEPLAY, 
+     &global_flags.true3dgameplay, M_ChangeTrue3d, "True3d"},
+
+	{OPT_Plain,   "", NULL, 0, 0, NULL, NULL, NULL},
+
+	{OPT_Slider,  "Gravity",            NULL, 20, 
+     CFGDEF_MENU_GRAV, 
+     &global_flags.menu_grav, NULL, "Gravity"},
+
+	{OPT_Plain,   "", NULL, 0, 0, NULL, NULL, NULL},
+
+	{OPT_Boolean, "Enemy Respawn Mode", Respw, 2, 
+     CFGDEF_RES_RESPAWN, 
+     &global_flags.res_respawn, M_ChangeMonsterRespawn, NULL},
+
+	{OPT_Boolean, "Item Respawn",       YesNo, 2, 
+     CFGDEF_ITEMRESPAWN, 
+     &global_flags.itemrespawn, M_ChangeItemRespawn, NULL},
+	
+    {OPT_Boolean, "Fast Monsters",      YesNo, 2, 
+     CFGDEF_FASTPARM, 
+     &global_flags.fastparm, M_ChangeFastparm, NULL},
+	
+    {OPT_Boolean, "Respawn",            YesNo, 2, 
+     CFGDEF_RESPAWN, 
+     &global_flags.respawn, M_ChangeRespawn, NULL}
 };
 
 static menuinfo_t playoptionsinfo = 
@@ -523,21 +600,21 @@ static menuinfo_t playoptionsinfo =
 //
 static optmenuitem_t stdkeyconfig[] =
 {
-	{OPT_KeyConfig, "Primary Attack", NULL, 0, KEYD_RCTRL + (KEYD_MOUSE1 << 16), &key_fire, NULL, NULL},
-    {OPT_KeyConfig, "Secondary Atk", NULL, 0, 'E', &key_secondatk, NULL, NULL},
-	{OPT_KeyConfig, "Use Item", NULL, 0, ' ', &key_use, NULL, NULL},
-	{OPT_KeyConfig, "Walk Forward", NULL, 0, KEYD_UPARROW, &key_up, NULL, NULL},
-	{OPT_KeyConfig, "Walk Backwards", NULL, 0, KEYD_DOWNARROW, &key_down, NULL, NULL},
-	{OPT_KeyConfig, "Turn Left", NULL, 0, KEYD_LEFTARROW, &key_left, NULL, NULL},
-	{OPT_KeyConfig, "Turn Right", NULL, 0, KEYD_RIGHTARROW, &key_right, NULL, NULL},
-	{OPT_KeyConfig, "Move Up", NULL, 0, KEYD_INSERT, &key_flyup, NULL, NULL},
-	{OPT_KeyConfig, "Move Down", NULL, 0, KEYD_DELETE, &key_flydown, NULL, NULL},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_KeyConfig, "Run", NULL, 0, KEYD_RSHIFT, &key_speed, NULL, NULL},
-	{OPT_KeyConfig, "Strafe", NULL, 0, KEYD_RALT + (KEYD_MOUSE2 << 16), &key_strafe, NULL, NULL},
-	{OPT_KeyConfig, "Strafe Left", NULL, 0, ',', &key_strafeleft, NULL, NULL},
-	{OPT_KeyConfig, "Strafe Right", NULL, 0, '.', &key_straferight, NULL, NULL},
-	{OPT_KeyConfig, "Toggle Autorun", NULL, 0, KEYD_CAPSLOCK, &key_autorun, NULL, NULL}
+	{OPT_KeyConfig, "Primary Attack", NULL, 0, CFGDEF_KEY_FIRE,        &key_fire, NULL, NULL},
+    {OPT_KeyConfig, "Secondary Atk",  NULL, 0, CFGDEF_KEY_SECONDATK,   &key_secondatk, NULL, NULL},
+	{OPT_KeyConfig, "Use Item",       NULL, 0, CFGDEF_KEY_USE,         &key_use, NULL, NULL},
+	{OPT_KeyConfig, "Walk Forward",   NULL, 0, CFGDEF_KEY_UP,          &key_up, NULL, NULL},
+	{OPT_KeyConfig, "Walk Backwards", NULL, 0, CFGDEF_KEY_DOWN,        &key_down, NULL, NULL},
+	{OPT_KeyConfig, "Turn Left",      NULL, 0, CFGDEF_KEY_LEFT,        &key_left, NULL, NULL},
+	{OPT_KeyConfig, "Turn Right",     NULL, 0, CFGDEF_KEY_RIGHT,       &key_right, NULL, NULL},
+	{OPT_KeyConfig, "Move Up",        NULL, 0, CFGDEF_KEY_FLYUP,       &key_flyup, NULL, NULL},
+	{OPT_KeyConfig, "Move Down",      NULL, 0, CFGDEF_KEY_FLYDOWN,     &key_flydown, NULL, NULL},
+	{OPT_Plain,      "",              NULL, 0, 0,                       NULL, NULL, NULL},
+	{OPT_KeyConfig, "Run",            NULL, 0, CFGDEF_KEY_SPEED,       &key_speed, NULL, NULL},
+	{OPT_KeyConfig, "Strafe",         NULL, 0, CFGDEF_KEY_STRAFE,      &key_strafe, NULL, NULL},
+	{OPT_KeyConfig, "Strafe Left",    NULL, 0, CFGDEF_KEY_STRAFELEFT,  &key_strafeleft, NULL, NULL},
+	{OPT_KeyConfig, "Strafe Right",   NULL, 0, CFGDEF_KEY_STRAFERIGHT, &key_straferight, NULL, NULL},
+	{OPT_KeyConfig, "Toggle Autorun", NULL, 0, CFGDEF_KEY_AUTORUN,     &key_autorun, NULL, NULL}
 };
 
 static menuinfo_t stdkeyconfiginfo = 
@@ -554,19 +631,19 @@ static menuinfo_t stdkeyconfiginfo =
 //
 static optmenuitem_t extkeyconfig[] =
 {
-	{OPT_KeyConfig, "Look Up", NULL, 0, KEYD_PGUP, &key_lookup, NULL, NULL},
-	{OPT_KeyConfig, "Look Down", NULL, 0, KEYD_PGDN, &key_lookdown, NULL, NULL},
-	{OPT_KeyConfig, "Center View", NULL, 0, KEYD_HOME, &key_lookcenter, NULL, NULL},
-	{OPT_KeyConfig, "Mouse Look", NULL, 0, 0, &key_mlook, NULL, NULL},
-	{OPT_KeyConfig, "Zoom in/out", NULL, 0, '\\', &key_zoom, NULL, NULL},
-	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_KeyConfig, "Jump", NULL, 0, '/', &key_jump, NULL, NULL},
-	{OPT_KeyConfig, "Map Toggle", NULL, 0, KEYD_TAB, &key_map, NULL, NULL},
-	{OPT_KeyConfig, "180 degree turn", NULL, 0, 0, &key_180, NULL, NULL},
-    {OPT_KeyConfig, "Weapon Reload", NULL, 0, 0, &key_reload, NULL, NULL},
-    {OPT_KeyConfig, "Next Weapon", NULL, 0, 0, &key_nextweapon, NULL, NULL},
-    {OPT_KeyConfig, "Previous Weapon", NULL, 0, 0, &key_prevweapon, NULL, NULL},
-	{OPT_KeyConfig, "Multiplay Talk", NULL, 0, 't', &key_talk, NULL, NULL}
+	{OPT_KeyConfig, "Look Up",         NULL, 0, CFGDEF_KEY_LOOKUP,     &key_lookup, NULL, NULL},
+	{OPT_KeyConfig, "Look Down",       NULL, 0, CFGDEF_KEY_LOOKDOWN,   &key_lookdown, NULL, NULL},
+	{OPT_KeyConfig, "Center View",     NULL, 0, CFGDEF_KEY_LOOKCENTER, &key_lookcenter, NULL, NULL},
+	{OPT_KeyConfig, "Mouse Look",      NULL, 0, CFGDEF_KEY_MLOOK,      &key_mlook, NULL, NULL},
+	{OPT_KeyConfig, "Zoom in/out",     NULL, 0, CFGDEF_KEY_ZOOM,       &key_zoom, NULL, NULL},
+	{OPT_Plain,     "",                NULL, 0, 0,                      NULL, NULL, NULL},
+	{OPT_KeyConfig, "Jump",            NULL, 0, CFGDEF_KEY_JUMP,       &key_jump, NULL, NULL},
+	{OPT_KeyConfig, "Map Toggle",      NULL, 0, CFGDEF_KEY_MAP,        &key_map, NULL, NULL},
+	{OPT_KeyConfig, "180 degree turn", NULL, 0, CFGDEF_KEY_180,        &key_180, NULL, NULL},
+    {OPT_KeyConfig, "Weapon Reload",   NULL, 0, CFGDEF_KEY_RELOAD,     &key_reload, NULL, NULL},
+    {OPT_KeyConfig, "Next Weapon",     NULL, 0, CFGDEF_KEY_NEXTWEAPON, &key_nextweapon, NULL, NULL},
+    {OPT_KeyConfig, "Previous Weapon", NULL, 0, CFGDEF_KEY_PREVWEAPON, &key_prevweapon, NULL, NULL},
+	{OPT_KeyConfig, "Multiplay Talk",  NULL, 0, CFGDEF_KEY_TALK,       &key_talk, NULL, NULL}
 };
 
 static menuinfo_t extkeyconfiginfo = 
