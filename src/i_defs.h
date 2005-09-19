@@ -85,12 +85,6 @@ typedef enum { false, true } bool;
 // which should have exactly the same type as memcpy, and should declared here.
 #define I_MoveData memmove
 
-// Default resolutions
-#define DEFAULTSCREENWIDTH  640
-#define DEFAULTSCREENHEIGHT 400
-#define DEFAULTSCREENBITS   16
-#define DEFAULTSCREENWINDOW false
-
 // include headers to compensate for missing standard functions.
 #include ".\null\i_compen.h"
 #include "i_system.h"
@@ -126,11 +120,6 @@ typedef enum { false, true } bool;
 #define MAXPATH _MAX_PATH
 
 #define I_MoveData memmove
-
-#define DEFAULTSCREENWIDTH  640
-#define DEFAULTSCREENHEIGHT 400
-#define DEFAULTSCREENBITS   16
-#define DEFAULTSCREENWINDOW false
 
 #include ".\win32\i_compen.h"
 #include "i_system.h"
@@ -175,11 +164,6 @@ typedef enum { false, true } bool;
 
 #define I_MoveData memmove
 
-#define DEFAULTSCREENWIDTH  640
-#define DEFAULTSCREENHEIGHT 400
-#define DEFAULTSCREENBITS   16
-#define DEFAULTSCREENWINDOW false
-
 #include ".\win32\i_compen.h"
 #include "i_system.h"
 
@@ -219,11 +203,6 @@ typedef enum { false, true } bool;
 
 #define I_MoveData memmove
 
-#define DEFAULTSCREENWIDTH  640
-#define DEFAULTSCREENHEIGHT 400
-#define DEFAULTSCREENBITS   16
-#define DEFAULTSCREENWINDOW false
-
 #include ".\win32\i_compen.h"
 #include "i_system.h"
 
@@ -252,11 +231,6 @@ typedef enum { false, true } bool;
 #define I_TmpFree(ptr) do { } while (0)
 
 #define I_MoveData memmove
-
-#define DEFAULTSCREENWIDTH  640
-#define DEFAULTSCREENHEIGHT 400
-#define DEFAULTSCREENBITS   16
-#define DEFAULTSCREENWINDOW false
 
 #include "linux/i_compen.h"
 #include "i_system.h"
@@ -312,11 +286,6 @@ typedef enum { false, true } bool;
 
 #define I_MoveData memmove
 
-#define DEFAULTSCREENWIDTH  640
-#define DEFAULTSCREENHEIGHT 400
-#define DEFAULTSCREENBITS   16
-#define DEFAULTSCREENWINDOW false
-
 #include "i_system.h"
 #include "beos/b_compen.h"
 
@@ -346,11 +315,6 @@ typedef enum { false, true } bool;
 #define I_TmpFree(ptr) do { } while (0)
 
 #define I_MoveData memmove
-
-#define DEFAULTSCREENWIDTH  640
-#define DEFAULTSCREENHEIGHT 400
-#define DEFAULTSCREENBITS   16
-#define DEFAULTSCREENWINDOW false
 
 // moved; compile failure if ASSEM=Y
 #include "linux/i_compen.h"
