@@ -398,7 +398,7 @@ public:
 	
 	spawnpoint_t* operator[](int idx) { return (spawnpoint_t*)FetchObject(idx); } 
 
-	spawnpoint_t* FindPlayer(int pnum);
+	spawnpoint_t* FindPlayer(int pnum, int skip = 0);
 };
 
 // Map Object definition.
