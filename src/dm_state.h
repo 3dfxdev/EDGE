@@ -147,6 +147,7 @@ extern int displayplayer;
 // Player spawn spots for deathmatch, coop.
 extern spawnpointarray_c dm_starts;
 extern spawnpointarray_c coop_starts;
+extern spawnpointarray_c voodoo_doll_starts;
 
 // Intermission stats.
 // Parameters for world map / intermission.
@@ -220,6 +221,7 @@ extern bool rotatemap;
 extern bool showstats;
 extern bool swapstereo;
 extern bool infight;
+extern bool png_scrshots;
 
 typedef enum
 {
@@ -235,25 +237,6 @@ extern int crosshair;
 extern int screen_hud;
 extern int sky_stretch;
 extern int menunormalfov, menuzoomedfov;
-extern int usemouse;
-extern int usejoystick;
-
-extern int missileteleport;
-extern int teleportdelay;
-
-//cd-audio stuff
-typedef enum
-{
-    CD_OFF = 0,
-    CD_ON,
-    CD_ATMOS
-}
-cdType_t;
-
-extern cdType_t cdaudio;
-extern int cdtrack;
-extern int cdnumtracks;
-extern int cdcounter;
 
 // -ES- 1999/08/15 Added teleport effects
 extern int telept_effect;
