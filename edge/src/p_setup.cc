@@ -153,6 +153,7 @@ const byte *rejectmatrix;
 // Maintain single and multi player starting spots.
 spawnpointarray_c dm_starts;
 spawnpointarray_c coop_starts;
+spawnpointarray_c voodoo_doll_starts;
 
 static bool hexen_level;
 static bool v5_nodes;
@@ -982,7 +983,10 @@ static void SpawnMapThing(const mobjtype_c *info,
 		spawnpoint_t *prev = coop_starts.FindPlayer(info->playernum);
 
 		if (prev)
+		{
+			voodoo_doll_starts.Insert (prev);
 			memcpy(prev, &point, sizeof(point));
+		}
 		else
 			coop_starts.Insert(&point);
 		return;
@@ -2468,6 +2472,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 	// -AJA- 1999/10/21: Clear out player starts (ready to load).
 	dm_starts.Clear();
 	coop_starts.Clear();
+	voodoo_doll_starts.Clear();
 
 	if (hexen_level)
 		LoadHexenThings(lumpnum + ML_THINGS);
@@ -2649,6 +2654,7 @@ void P_Init(void)
 
 	dm_starts.Clear();
 	coop_starts.Clear();
+	voodoo_doll_starts.Clear();
 }
 
 namespace playsim
