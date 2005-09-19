@@ -62,6 +62,7 @@
 #include "epi/files.h"
 #include "epi/filesystem.h"
 #include "epi/image_jpeg.h"
+#include "epi/image_png.h"
 
 //
 // DEFAULTS
@@ -630,7 +631,7 @@ void M_ScreenShot(bool show_msg)
 	char filename[20];
 
 	// find a file name to save it to
-	strcpy(filename,"SHOT0000.jpg");
+	strcpy(filename,"SHOT0000.png");
 
 	for (int i = 0; i <= 9999; i++)
 	{
@@ -655,7 +656,7 @@ void M_ScreenShot(bool show_msg)
 
 	RGL_ReadScreen(0, 0, SCREENWIDTH, SCREENHEIGHT, img.pixels);
 
-	bool result = epi::JPEG::Save(img, fp);
+	bool result = epi::PNG::Save(img, fp);
 
 	if (show_msg)
 	{
