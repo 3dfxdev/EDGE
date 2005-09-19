@@ -65,7 +65,7 @@ Features removed / changed
   work anymore.  The new format has the ".EDM" extension (but omit
   this when using the -record and -playdemo options).
 
-- screenshots are now in JPEG format.  New "screenshot" console
+- screenshots are now in PNG format.  New "screenshot" console
   command (Note: it does not capture the console itself).
 
 - using { } comments in DDF files, and ';' comments in RTS scripts
