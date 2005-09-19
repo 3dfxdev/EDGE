@@ -36,6 +36,7 @@ Bugs fixed
 - fixed an issue with window positioning on Win32.
 - fixed MUS playback on certain devices in Win32
 - some continuous floors had wrong heights, fixed.
+- spawning of Voodoo dolls (Thanks to dsalt)
 
 
 Old Fixes (from EDGE 1.28A)
@@ -65,8 +66,9 @@ Features removed / changed
   work anymore.  The new format has the ".EDM" extension (but omit
   this when using the -record and -playdemo options).
 
-- screenshots are now in PNG format.  New "screenshot" console
-  command (Note: it does not capture the console itself).
+- screenshots are now available in JPEG or PNG format.  New 
+  "screenshot" console command (Note: it does not capture the 
+  console itself).
 
 - using { } comments in DDF files, and ';' comments in RTS scripts
   is now deprecated, since these characters will probably be needed
@@ -400,7 +402,11 @@ New command-line options | console variables
                        multiple patch files after the -deh option.
 
   -audiodev  <name>    Forces OpenAL to select <device-name> device
-  -forceds             Forces OpenAL to select "DirectSound" device
+
+  -bestaudio           Make OpenAL to select the best device in
+                       windows. Normally the "DirectSound" device is
+                       selected.
+
   -maxaudiochan <n>    Maximum number of audio channels to use
 
   -nearclip <n>   NEARCLIP    Control the OpenGL distance clipping.
