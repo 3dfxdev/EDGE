@@ -83,10 +83,10 @@ void Z_Free(void *ptr)
 		// -ES- 2000/04/08 Trash all data.
 		memset(h, -1, h->size + sizeof(mallocheader_t) + sizeof(int));
 #endif
-		free(h);
+		dlfree(h);
 	}
 #else
-	free(ptr);
+	dlfree(ptr);
 #endif
 }
 
