@@ -318,13 +318,13 @@ void RAD_DisplayTips(void)
 			int x = (int)(SCREENWIDTH  * PERCENT_2_FLOAT(current->p.x_pos));
 			int y = (int)(SCREENHEIGHT * PERCENT_2_FLOAT(current->p.y_pos));
 
-			int w = (int)(sc * FROM_320(IM_WIDTH(image)));
-			int h = (int)(sc * FROM_200(IM_HEIGHT(image)));
+			int w = (int)(0.5f + sc * FROM_320(IM_WIDTH(image)));
+			int h = (int)(0.5f + sc * FROM_200(IM_HEIGHT(image)));
 
 			y -= h / 2;
 
 			if (! current->p.left_just)
-				x -= h / 2;
+				x -= w / 2;
 
 			RGL_DrawImage(x, y, w, h, image,
 				0, 0, IM_RIGHT(image), IM_BOTTOM(image), NULL, alpha);
