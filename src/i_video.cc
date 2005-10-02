@@ -40,6 +40,8 @@ static i_scrmode_t possresmode[] =
 	{ 640, 480, 16, false},
 	{ 800, 600, 16, false},
 	{1024, 768, 16, false},
+	{1280,1024, 16, false},
+	{1600,1200, 16, false},
 
 	{ 320, 200, 32, false}, // TRUECOLOR
 	{ 320, 240, 32, false},
@@ -49,6 +51,8 @@ static i_scrmode_t possresmode[] =
 	{ 640, 480, 32, false},
 	{ 800, 600, 32, false},
 	{1024, 768, 32, false},
+	{1280,1024, 32, false},
+	{1600,1200, 32, false},
 
 	// windowed modes
 	{ 320, 200, 16, true},
@@ -59,6 +63,8 @@ static i_scrmode_t possresmode[] =
 	{ 640, 480, 16, true},
 	{ 800, 600, 16, true},
 	{1024, 768, 16, true},
+	{1280,1024, 16, true},
+	{1600,1200, 16, true},
 
 	{ 320, 200, 32, true},  // TRUECOLOR
 	{ 320, 240, 32, true},
@@ -68,6 +74,8 @@ static i_scrmode_t possresmode[] =
 	{ 640, 480, 32, true},
 	{ 800, 600, 32, true},
 	{1024, 768, 32, true},
+	{1280,1024, 32, true},
+	{1600,1200, 32, true},
 
 	{  -1,  -1, -1}
 };
