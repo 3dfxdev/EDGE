@@ -643,10 +643,14 @@ namespace Things
 		
 		if (target_version >= 129)
 		{
-			WAD::Printf("    DAGGERS.LIMIT(%d), ",   100);
-			WAD::Printf(    "ARROWS.LIMIT(%d), ",    200);
-			WAD::Printf(    "TORPEDOES.LIMIT(%d), ",  50);
-			WAD::Printf(    "CRYSTALS.LIMIT(%d),\n", 300);
+			WAD::Printf("    AMMO9.LIMIT(%d), ",   100);
+			WAD::Printf(    "AMMO10.LIMIT(%d), ",  200);
+			WAD::Printf(    "AMMO11.LIMIT(%d), ",  50);
+			WAD::Printf(    "AMMO12.LIMIT(%d),\n", 300);
+			WAD::Printf("    AMMO13.LIMIT(%d), ",  100);
+			WAD::Printf(    "AMMO14.LIMIT(%d), ",  200);
+			WAD::Printf(    "AMMO15.LIMIT(%d), ",  50);
+			WAD::Printf(    "AMMO16.LIMIT(%d),\n", 300);
 		}
 
 		WAD::Printf("    BULLETS(%d);\n",      Misc::init_ammo);
