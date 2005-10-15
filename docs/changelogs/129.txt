@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: SEPTEMBER 5th 2005)
+(Date: OCTOBER 15th 2005)
 
 
 Bugs fixed
@@ -304,7 +304,7 @@ New RTS features:
   command sets the style for the next SHOW_MENU command.  If you don't
   specify a style, the default style is [RTS_MENU].
 
-- "ALL" keyword for the START_MAP line, which causes the script to be
++ "ALL" keyword for the START_MAP line, which causes the script to be
   spawned on every map.
 
 - lines in RTS scripts can be extended over two (or more) actual lines
@@ -399,14 +399,14 @@ New weapon stuff
 New command-line options | console variables
 --------------------------------------------
 
-  -deh  <file>         Specify a DeHackEd (or BEX) patch file.  You can have
-                       multiple patch files after the -deh option.
+  -deh  <file>         Specify a DeHackEd (or BEX) patch file.  You can
+                       have multiple patch files after the -deh option.
 
   -audiodev  <name>    Forces OpenAL to select <device-name> device
 
   -bestaudio           Make OpenAL to select the best device in
-                       windows. Normally the "DirectSound" device is
-                       selected.
+                       windows. Normally the "DirectSound" device
+					   is selected.
 
   -maxaudiochan <n>    Maximum number of audio channels to use
 
