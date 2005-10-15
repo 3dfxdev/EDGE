@@ -74,10 +74,14 @@ bool I_StartupMusic(void *sysinfo)
 	if (nomusic)
 		return true;
 
-	if (I_StartupCD())
-		capable = support_CD;
-	else
-		I_Printf("%s\n", I_MusicReturnError());
+	capable = 0;
+	if (!nocdmusic)
+	{
+		if (I_StartupCD())
+			capable = support_CD;
+		else
+			I_Printf("%s\n", I_MusicReturnError());
+	}
 
 	if (! nosound)
 	{
