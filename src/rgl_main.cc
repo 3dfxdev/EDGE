@@ -46,7 +46,7 @@ bool glcap_paletted = false;
 bool glcap_edgeclamp = false;
 
 int var_nearclip = 4;
-int var_farclip  = 32000;
+int var_farclip  = 64000;
 
 angle_t oned_side_angle;
 

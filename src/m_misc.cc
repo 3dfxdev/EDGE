@@ -181,7 +181,7 @@ static default_t defaults[] =
 	{CFGT_Boolean,  "var_hq_scale",      &var_hq_scale,   1},
 
 	{CFGT_Int,      "var_nearclip",      &var_nearclip,   4},
-	{CFGT_Int,      "var_farclip",       &var_farclip,    32000},
+	{CFGT_Int,      "var_farclip",       &var_farclip,    64000},
 
 	// -------------------- KEYS --------------------
 
