@@ -285,22 +285,23 @@ New RTS features:
 
 + new RTS menu system:
 
-    SHOW_MENU      title option1 option2 ...
-    SHOW_MENU_LDF  title option1 option2 ...
+    SHOW_MENU      title choice1 choice2 ...
+    SHOW_MENU_LDF  title choice1 choice2 ...
          
     JUMP_ON  MENU  label1 label2 ...
 
     MENU_STYLE  style_name
 
   The RTS menu will pause the game (including all scripts) until the user
-  presses a valid number key.  Savegames are also disabled while the RTS
-  menu is shown.  Once the menu is finished, the JUMP_ON command will
-  test the result, and jump to the matching label.  It will fail to jump
-  if there aren't enough labels, or menu could not be shown (netgame).
+  presses a valid number key (or SPACE/ENTER when less than two choices).
+  Savegames are disabled while the RTS menu is shown.  Once the menu is
+  finished, the JUMP_ON command will test the result, and jump to the
+  matching label.  It will fail to jump if there aren't enough labels,
+  or if the user cancels (with 'Q' or 'X' keys).
 
   The title can contain newlines (given by "\n"), to make multi-line
-  titles.  Newlines don't work in the options however.  The MENU_STYLE
-  command gives the style for the next SHOW_MENU command.  If you don't
+  titles.  Newlines don't work in the choices however.  The MENU_STYLE
+  command sets the style for the next SHOW_MENU command.  If you don't
   specify a style, the default style is [RTS_MENU].
 
 - "ALL" keyword for the START_MAP line, which causes the script to be
@@ -310,9 +311,9 @@ New RTS features:
   by placing the \ character at the end.  A silly example:
 
      SHOW_MENU "title" \
-         "option one"  \
-         "option two"  \
-         "option three"
+         "choice one"  \
+         "choice two"  \
+         "choice three"
 
   Note: there must not be any spaces after the \ character, otherwise
   it doesn't work.
