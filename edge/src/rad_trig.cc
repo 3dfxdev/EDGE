@@ -71,7 +71,7 @@ rad_trigger_t *r_triggers = NULL;
 class rts_menu_c
 {
 private:
-	static const int MAX_TITLE  = 9;
+	static const int MAX_TITLE  = 24;
 	static const int MAX_CHOICE = 9;
 
 	rad_trigger_t *trigger;
@@ -91,8 +91,10 @@ public:
 
 		AddTitle(&y, menu->title, menu->use_ldf);
 
+		bool no_choices = (! menu->options[0] || ! menu->options[1]);
+
 		for (int idx = 0; (idx < 9) && menu->options[idx]; idx++)
-			AddChoice(&y, '1' + idx, menu->options[idx], menu->use_ldf);
+			AddChoice(&y, no_choices ? 0 : ('1' + idx), menu->options[idx], menu->use_ldf);
 
 		// center the menu vertically
 		int adjust_y = (200 - y) / 2;
@@ -188,6 +190,24 @@ public:
 
 		for (int c = 0; c < choice_num; c++)
 			HL_DrawTextLine(choice_lines + c, false);
+	}
+
+	int CheckKey(int key)
+	{
+		if ('a' <= key && key <= 'z')
+			key = toupper(key);
+
+		if (key == 'Q' || key == 'X')  // cancel
+			return 0;
+
+		if ('1' <= key && key <= ('0' + choice_num))
+			return key - '0';
+
+		if (choice_num < 2 &&
+			(key == KEYD_SPACE || key == KEYD_ENTER || key == 'Y'))
+			return 1;
+
+		return -1;  /* invalid */
 	}
 };
 
@@ -959,7 +979,7 @@ void RAD_FinishMenu(int result)
 	DEV_ASSERT2(rts_curr_menu);
 
 	// zero is cancelled, otherwise result is 1..N
-	if (result < 0 || result > rts_curr_menu->NumChoices())
+	if (result < 0 || result > MAX(1, rts_curr_menu->NumChoices()))
 		return;
 
 	rts_curr_menu->NotifyResult(result);
@@ -994,17 +1014,19 @@ void RAD_Drawer(void)
 //
 bool RAD_Responder(event_t * ev)
 {
-	if (! rts_menuactive)
-		return false;
-		
 	if (ev->type != ev_keydown)
 		return false;
 
-	int key = ev->value.key;
+	if (! rts_menuactive)
+		return false;
+		
+	DEV_ASSERT2(rts_curr_menu);
 
-	if ('1' <= key && key <= '9')
+	int check = rts_curr_menu->CheckKey(ev->value.key);
+
+	if (check >= 0)
 	{
-		RAD_FinishMenu(key - '0');
+		RAD_FinishMenu(check);
 		return true;
 	}
 
