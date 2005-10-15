@@ -365,6 +365,7 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("hom", &hom_detect, false);
 	M_CheckBooleanParm("sound", &nosound, true);
 	M_CheckBooleanParm("music", &nomusic, true);
+	M_CheckBooleanParm("cdmusic", &nocdmusic, true);
 	M_CheckBooleanParm("devparm", &devparm, false);
 	M_CheckBooleanParm("itemrespawn", &global_flags.itemrespawn, false);
 	M_CheckBooleanParm("mlook", &global_flags.mlook, false);

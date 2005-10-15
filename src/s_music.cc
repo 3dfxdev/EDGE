@@ -32,6 +32,7 @@ static int musichandle = -1;
 static int musicvolume;
 
 bool nomusic = false;
+bool nocdmusic = false;
 
 // ================ END OF INTERNALS =================
 

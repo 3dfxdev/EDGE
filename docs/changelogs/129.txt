@@ -409,6 +409,8 @@ New command-line options | console variables
 
   -maxaudiochan <n>    Maximum number of audio channels to use
 
+  -nocdmusic           Disable CD music.
+
   -nearclip <n>   NEARCLIP    Control the OpenGL distance clipping.
   -farclip <n>    FARCLIP     Increasing farclip allows a huge level
                               to be fully seen, but decreases depth

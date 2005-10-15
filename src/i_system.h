@@ -192,6 +192,9 @@ extern bool nomusic;
 // to true by the "-nomusic" option.  Can also be set to true by the
 // platform code when no working music device is found.
 
+extern bool nocdmusic;
+// Similarly for CD music. Ignored if nomusic is true.
+
 typedef enum 
 {
 	IMUSSF_DATA,

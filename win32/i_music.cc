@@ -62,12 +62,12 @@ bool I_StartupMusic(void *sysinfo)
 	memset(errordesc, 0, sizeof(char)*MUSICERRLEN);
 
 	// MCI CD Support
-	if (I_StartupCD())
+	if (!nocdmusic && I_StartupCD())
 	{
 		capable |= support_CD;
 		I_Printf("I_StartupMusic: CD Music Init OK\n");
 	}
-	else
+	else if (!nocdmusic)
 	{
 		I_Printf("I_StartupMusic: CD Music Failed\n");
 		I_Printf("%s\n",errordesc);
