@@ -624,34 +624,32 @@ void M_DisplayAir(void)
 //
 void M_ScreenShot(bool show_msg)
 {
-	char filename[13];
+	char* extension;
+	epi::string_c filename;
+
+    if (png_scrshots) 
+		extension = "png";
+	else
+		extension = "jpg";
 
 	// find a file name to save it to
-	strcpy(filename,"shot0000");
-    if (png_scrshots) 
-        strcat(filename, ".png");
-    else
-        strcat(filename, ".jpg");
-
 	for (int i = 0; i <= 9999; i++)
 	{
-		filename[4] =  i / 1000 + '0';
-		filename[5] = (i % 1000) / 100 + '0';
-		filename[6] = (i % 100) / 10 + '0';
-		filename[7] = i % 10 + '0';
+		filename.Format("shot%04d.%s", i, extension);
   
-		if (!I_Access(filename))
+		if (!I_Access(filename.GetString()))
 			break; // file doesn't exist
 	}
 
-	FILE *fp = fopen(filename, "wb");
+	FILE *fp = fopen(filename.GetString(), "wb");
 	if (fp == NULL)
 	{
 		if (show_msg)
-			I_Printf("Unable to create file: %s\n", filename);
+			I_Printf("Unable to create file: %s\n", filename.GetString());
+
 		return;
 	}
-	
+
 	epi::basicimage_c img(SCREENWIDTH, SCREENHEIGHT, 3);
 
 	RGL_ReadScreen(0, 0, SCREENWIDTH, SCREENHEIGHT, img.pixels);
@@ -665,9 +663,9 @@ void M_ScreenShot(bool show_msg)
 	if (show_msg)
 	{
 		if (result)
-			I_Printf("Captured to file: %s\n", filename);
+			I_Printf("Captured to file: %s\n", filename.GetString());
 		else
-			I_Printf("Error saving file: %s\n", filename);
+			I_Printf("Error saving file: %s\n", filename.GetString());
 	}
 
 	fclose(fp);
