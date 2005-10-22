@@ -32,8 +32,8 @@ EPI_DIR=epi
 SDL_DIR=SDL
 AL_DIR=AL
 LZO_DIR=lzo
-GLBSP_DIR=glbsp-2.10
-DEH_DIR=deh_edge_1.3
+GLBSP_DIR=glbsp
+DEH_DIR=deh_edge
 
 VIDEO_FLAGS=$(shell $(prefix)/bin/sdl-config --cflags)
 VIDEO_LDFLAGS=
@@ -55,8 +55,8 @@ FLTK_LIBS=$(prefix)/lib/libfltk_images.a $(prefix)/lib/libfltk.a
 # HUM_FLAGS=
 # HUM_LIBS=
 HUM_OBJS=$(AL_DIR)/humdinger.o
-HUM_FLAGS=-I./humidity-0.56 -DUSE_HUMID
-HUM_LIBS=./humidity-0.56/libhumidity.a  # -lpthread
+HUM_FLAGS=-I./humidity -DUSE_HUMID
+HUM_LIBS=./humidity/libhumidity.a  # -lpthread
 
 HAWK_FLAGS=
 HAWK_LDFLAGS=
@@ -101,6 +101,7 @@ LIBS=-lm  \
 SDL_OBJS= \
 		$(SDL_DIR)/i_ctrl.o \
         $(SDL_DIR)/i_cd.o \
+        $(SDL_DIR)/i_loop.o \
 		$(SDL_DIR)/i_net.o
  
 SYSTEM_OBJS= \
