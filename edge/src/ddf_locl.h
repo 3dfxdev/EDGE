@@ -22,7 +22,7 @@
 #include "p_weapon.h"
 #include "dm_defs.h"
 
-#include "epi/strings.h"
+#include <epi/strings.h>
 
 // defines for parser stuff.
 #define BACKSLASH   '\\'

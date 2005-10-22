@@ -35,7 +35,7 @@
 #include "w_image.h"
 #include "w_wad.h"
 
-#include "deh_edge_1.3/dh_plugin.h"
+#include "deh_edge/dh_plugin.h"
 
 static char dh_message[1024];
 

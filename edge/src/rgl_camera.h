@@ -19,9 +19,9 @@
 #ifndef __RGL_CAMERA__
 #define __RGL_CAMERA__
 
-#include "epi/math_angle.h"
-#include "epi/math_bbox.h"
-#include "epi/math_vector.h"
+#include <epi/math_angle.h>
+#include <epi/math_bbox.h>
+#include <epi/math_vector.h>
 
 class camera_c
 {

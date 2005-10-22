@@ -36,7 +36,7 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include "glbsp-2.10/glbsp.h"
+#include <glbsp/glbsp.h>
 
 
 #define PROGRESS_STEP  2  // percent
