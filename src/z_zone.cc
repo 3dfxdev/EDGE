@@ -26,8 +26,6 @@
 #include "i_defs.h"
 #include "z_zone.h"
 
-#include "epi/memalloc.h"
-
 static cache_flusher_f **cache_flushers = NULL;
 static int num_flushers = 0;
 
@@ -83,10 +81,10 @@ void Z_Free(void *ptr)
 		// -ES- 2000/04/08 Trash all data.
 		memset(h, -1, h->size + sizeof(mallocheader_t) + sizeof(int));
 #endif
-		dlfree(h);
+		free(h);
 	}
 #else
-	dlfree(ptr);
+	free(ptr);
 #endif
 }
 
@@ -214,9 +212,9 @@ void *Z_ReMalloc2(void *ptr, int size)
 #endif
 
 #ifdef DEVELOPERS
-	while (NULL == (newp = (mallocheader_t*)dlrealloc(h, allocsize)))
+	while (NULL == (newp = (mallocheader_t*)realloc(h, allocsize)))
 #else
-	while (NULL == (newp = dlrealloc(h, allocsize)))
+	while (NULL == (newp = realloc(h, allocsize)))
 #endif
 	{
 		if (flush_urge == Z_UrgencyExtreme)
@@ -260,9 +258,9 @@ void *Z_Malloc2(int size)
 #endif
 
 #ifdef DEVELOPERS
-	while (NULL == (p = (mallocheader_t*)dlmalloc(allocsize)))
+	while (NULL == (p = (mallocheader_t*)malloc(allocsize)))
 #else
-	while (NULL == (p = dlmalloc(allocsize)))
+	while (NULL == (p = malloc(allocsize)))
 #endif
 	{
 		if (flush_urge == Z_UrgencyExtreme)
