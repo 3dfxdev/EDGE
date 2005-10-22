@@ -204,7 +204,7 @@ static int FontParseCharacter(const char *buf)
 	}
 #endif
 
-	if (isdigit(buf[0]) && isdigit(buf[1]))
+	if (buf[0]>0 && isdigit(buf[0]) && isdigit(buf[1]))
 		return atoi(buf);
 	
 	return buf[0];
