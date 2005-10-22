@@ -25,7 +25,10 @@
 
 #include "i_sysinc.h"
 
-#include <SDL/SDL.h>
+
+#include "../epi/strings.h"
+
+#include <SDL.h>
 
 // -ACB- 2003/10/05 We need these outside the function, so we can delete them on exit
 static const char **edgeargv = NULL;
@@ -160,16 +163,12 @@ void ChangeToExeDir(const char *full_path)
 	if (r == NULL || r == full_path)
 		return;
 
-	int length = (r - full_path) + 1;
+	int length = (r - full_path);
 
-	char *buf = new char[length];
+	epi::string_c str;
+	str.AddChars(full_path, 0, length);
 
-	memcpy(buf, full_path, length);
-	buf[length] = 0;
-
-	SetCurrentDirectory(buf);
-
-	delete[] buf;
+	SetCurrentDirectory(str.GetString());
 }
 
 //
