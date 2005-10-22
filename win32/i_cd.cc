@@ -25,7 +25,7 @@
 #include "i_sysinc.h"
 
 
-#include <SDL/SDL_syswm.h>
+#include <SDL_syswm.h>
 
 #define CDDEVICE "cdaudio"
 
