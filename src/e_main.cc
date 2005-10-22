@@ -1700,6 +1700,8 @@ namespace engine
 
 		DoSystemStartup();
 
+        V_DumpResList();
+
 		I_PutTitle(E_TITLE); // Needs to be done once the system is up and running
 
 		// RGL_FontStartup();

@@ -29,7 +29,8 @@
 #include "i_defs.h"
 #include "p_local.h"
 #include "sv_main.h"
-#include "epi/files.h"
+
+#include <epi/files.h>
 
 saveglobals_t *DEM_NewGLOB(void);
 saveglobals_t *DEM_LoadGLOB(void);

@@ -31,7 +31,7 @@
 
 #include "i_defs.h"
 
-#include "./epi/arrays.h"
+#include <epi/arrays.h>
 
 // Screen mode information.
 typedef struct scrmode_s
@@ -87,6 +87,7 @@ public:
 // Exported Func
 void V_InitResolution(void);
 void V_AddAvailableResolution(i_scrmode_t *mode);
+void V_DumpResList();
 void V_GetSysRes(scrmode_t *src, i_scrmode_t *dest);
 
 // Exported Vars

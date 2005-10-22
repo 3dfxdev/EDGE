@@ -97,7 +97,7 @@ typedef enum { false, true } bool;
 
 #define WIN32_LEAN_AND_MEAN
 
-#include "epi/epi.h"
+#include <epi/epi.h>
 
 #define EDGECONFIGFILE "EDGE.CFG"
 #define EDGELOGFILE    "EDGE.LOG"
@@ -133,7 +133,7 @@ typedef enum { false, true } bool;
 
 #define WIN32_LEAN_AND_MEAN
 
-#include "epi/epi.h"
+#include <epi/epi.h>
 
 #define EDGECONFIGFILE "EDGE.CFG"
 #define EDGELOGFILE    "EDGE.LOG"
@@ -174,7 +174,7 @@ typedef enum { false, true } bool;
 #ifdef WIN32 
 #ifdef __BORLANDC__
 
-#include "epi/epi.h"
+#include <epi/epi.h>
 
 #define EDGECONFIGFILE "EDGE.CFG"
 #define EDGELOGFILE    "EDGE.LOG"
@@ -212,7 +212,7 @@ typedef enum { false, true } bool;
 // LINUX GCC
 #ifdef LINUX
 
-#include "epi/epi.h"
+#include <epi/epi.h>
 
 #define EDGECONFIGFILE "edge.cfg"
 #define EDGELOGFILE    "edge.log"
@@ -294,7 +294,7 @@ typedef enum { false, true } bool;
 // MacOSX GCC
 #ifdef MACOSX
 
-#include "epi/epi.h"
+#include <epi/epi.h>
 
 #define EDGECONFIGFILE "edge.cfg"
 #define EDGELOGFILE    "edge.log"
