@@ -19,7 +19,7 @@
 #ifndef __SDL_SYSTEM_INTERNAL_H__
 #define __SDL_SYSTEM_INTERNAL_H__
 
-#ifdef MACOSX
+#ifndef LINUX
 #include <SDL.h>
 #else
 #include <SDL/SDL.h>
