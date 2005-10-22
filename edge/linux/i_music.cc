@@ -25,6 +25,8 @@
 
 #include "../AL/oggplayer.h"
 
+#define USE_HUMID 
+
 #ifdef USE_HUMID
 #include "../AL/humdinger.h"
 #endif
