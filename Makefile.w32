@@ -19,7 +19,7 @@ DX_DIR="c:/program files/Microsoft DirectX 9.0 SDK"
 OGG_DIR="c:/program files/oggvorbis-win32sdk-1.0.1"
 JPEG_DIR="c:/program files/gnuwin32"
 PNG_DIR="c:/program files/gnuwin32"
-SDL_DIR="c:/program files/SDL-1.2.8"
+SDL_DIR="c:/program files/SDL-1.2.9"
 ZLIB_DIR="c:/program files/gnuwin32"
 ## HAWK_DIR="hawknl1.68"
 
@@ -35,10 +35,7 @@ GLBSP_DIR=./glbsp-2.10
 
 INCS=-Iinclude
         
-CXXINCS = -Iinclude/c++/3.2.3/ \
-          -Iinclude/c++/3.2.3/backward \
-          -Iinclude/c++/3.2.3/bits \
-		  -Ilib/gcc-lib/mingw32/3.2.3/include \
+CXXINCS = -Iinclude \
 		  -I$(AL_DIR)/include \
 		  -I$(DX_DIR)/include \
 		  -I$(OGG_DIR)/include \
@@ -49,11 +46,11 @@ CXXINCS = -Iinclude/c++/3.2.3/ \
 
 CFLAGS=$(INCS) $(OPTIM) \
        -Wall -fexceptions \
-	   -DWIN32 -DDEVELOPERS -DUSE_DL_PREFIX
+	   -DWIN32 -DDEVELOPERS
 
 CXXFLAGS=$(CXXINCS) $(INCS) $(OPTIM) \
-         -Wall -fexceptions -fno-rtti \
-         -DWIN32 -DDEVELOPERS -DUSE_DL_PREFIX
+         -Wall -fexceptions \
+         -DWIN32 -DDEVELOPERS
 
 # ----- LIBRARIES ------------------------------------------------------
 
@@ -74,6 +71,7 @@ LIBS= \
 	$(ZLIB_DIR)/lib/libz.a \
 	-lwsock32 -lopengl32 -lwinmm -lgdi32 \
 	-ldxguid -ldinput 
+	
 # ----- OBJECTS ------------------------------------------------------
 
 OBJS= \
@@ -81,7 +79,7 @@ OBJS= \
 	AL/i_sound.o \
 	AL/oggplayer.o \
 	SDL/i_ctrl.o \
-	SDL/i_system.o \
+	SDL/i_loop.o \
 	SDL/i_video.o \
 	am_map.o \
 	con_con.o \
