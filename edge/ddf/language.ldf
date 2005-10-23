@@ -735,7 +735,7 @@ NeedBlueForObject = "Bu objeyi aktif etmek icin mavi anahtara ihtiyac var";
 NeedRedForObject = "Bu objeyi aktif etmek icin kirmizi anahtara ihtiyac var";
 NeedYellowForObject = "Bu objeyi aktif hale getirmek icin sari anahtara ihtiyac var";
 NeedBlueForDoor = "Kapinin acilmasi icin mavi anahtara ihtiyac var";
-NeedYelloForDoor = "Kapinin acilmasi icin sari anahtara ihtiyac var";
+NeedYellowForDoor = "Kapinin acilmasi icin sari anahtara ihtiyac var";
 NeedRedForDoor = "Kapinin acilmasi icin kirmizi anahtara ihtiyac var";
 
 GameSaved = "oyun kaydedildi.";
@@ -1186,7 +1186,7 @@ NeedBlueForObject = "IL VOUS FAUT UNE CLEF BLEUE";
 NeedRedForObject = "IL VOUS FAUT UNE CLEF ROUGE";
 NeedYellowForObject = "IL VOUS FAUT UNE CLEF JAUNE";
 NeedBlueForDoor = "IL VOUS FAUT UNE CLEF BLEUE";
-NeedYelloForDoor = "IL VOUS FAUT UNE CLEF JAUNE";
+NeedYellowForDoor = "IL VOUS FAUT UNE CLEF JAUNE";
 NeedRedForDoor = "IL VOUS FAUT UNE CLEF ROUGE";
 
 GameSaved = "JEU SAUVEGARDE.";
@@ -1618,7 +1618,7 @@ NeedBlueForObject = "Necesitas una tarjeta-llave azul para activar este objeto";
 NeedRedForObject = "Necesitas una tarjeta-llave roja para activar este objeto";
 NeedYellowForObject = "Necesitas una tarjeta-llave amarilla para activar este objeto";
 NeedBlueForDoor = "Necesitas una llave azul para abrir esta puerta";
-NeedYelloForDoor = "Necesitas una llave amarilla para abrir esta puerta";
+NeedYellowForDoor = "Necesitas una llave amarilla para abrir esta puerta";
 NeedRedForDoor = "Necesitas una llave roja para abrir esta puerta";
 
 GameSaved = "Juego salvado.";
@@ -1731,7 +1731,7 @@ Episode1Text="Una vez que has vencido a los malos y\n"
      "Las Playas del Infierno y su sorprendente\n"
      "sequela, Inferno!\n";
 
-Episode2Text="Lo has hecho! El horrible se�or\n"
+Episode2Text="Lo has hecho! El horrible senor\n"
      "cyber-demonio que goberno la perdida base\n"
      "lunar de Deimos ha sido eliminado y tu eres\n"
      "el triunfador! Pero ... Donde estas?\n"
@@ -1749,7 +1749,7 @@ Episode2Text="Lo has hecho! El horrible se�or\n"
      "Ahora, estas en el capitulo final de\n"
      "DOOM! -- Inferno.";
 
-Episode3Text="La repugnate ara�a-demonio que\n"
+Episode3Text="La repugnate arana-demonio que\n"
      "comando la invasion de la bases\n"
      "lunares y causo tanta muerte ha recibido\n"
      "una patada en su culo para siempre.\n"
@@ -1767,7 +1767,7 @@ Episode3Text="La repugnate ara�a-demonio que\n"
      "reencarnacion infernal haya atravezado\n"
      "la puerta contigo ...";
 
-Episode4Text="la ara�a mente maestra debe ser enviada delante\n"
+Episode4Text="la arana mente maestra debe ser enviada delante\n"
      "de sus legiones infernales antes de tu\n"
      "confrontacion final con esa terrible\n"
      "bestia del infierno.  Pero tu das un paso\n"
@@ -2505,7 +2505,7 @@ NeedBlueForObject = "Je hebt een blauwe sleutel nodig.";
 NeedRedForObject = "Je hebt een rode sleutel nodig.";
 NeedYellowForObject = "Je hebt een gele sleutel nodig.";
 NeedBlueForDoor = "Je hebt een blauwe sleutel nodig.";
-NeedYelloForDoor = "Je hebt een gele sleutel nodig.";
+NeedYellowForDoor = "Je hebt een gele sleutel nodig.";
 NeedRedForDoor = "Je hebt een rode sleutel nodig.";
 
 GameSaved = "spel opgeslagen.";
@@ -2942,7 +2942,7 @@ NeedBlueForObject = "Um dieses Objekt zu aktivieren brauchst du eine blaue Zugan
 NeedRedForObject = "Um dieses Objekt zu aktivieren brauchst du eine rote Zugangskarte!";
 NeedYellowForObject = "Um dieses Objekt zu aktivieren brauchst du eine gelbe Zugangskarte!";
 NeedBlueForDoor = "Du brauchst die blaue Zugangskarte";
-NeedYelloForDoor = "Du brauchst die gelbe Zugangskarte";
+NeedYellowForDoor = "Du brauchst die gelbe Zugangskarte";
 NeedRedForDoor = "Du brauchst die rote Zugangskarte";
 
 GameSaved = "Spiel gespeichert.";
@@ -3055,7 +3055,7 @@ Episode1Text="Nun, da du die ganzen Schweine\n"
      "\n"
      "Um das DOOM Erlebnis fortzusetzen,\n"
      "spiel 'The Shores of Hell' und die\n"
-     "gro�artige Folge, 'Inferno'!\n";
+     "grossartige Folge, 'Inferno'!\n";
 
 Episode2Text="Du habst es vollbracht! Der riesige\n"
      "Cyber Demon Lord, der die Lost Deimos\n"
@@ -3074,9 +3074,10 @@ Episode2Text="Du habst es vollbracht! Der riesige\n"
      "Nun liegt es am letzten Kapitel von\n"
      "DOOM -- 'Inferno'.";
 
-Episode3Text="Der verha�te Spider Demon,\n"
+Episode3Text="Der verhasste Spider Demon,\n"
      "der die ganze Invasion auf die Erde\n"
-     "angefuehrt, und so viel Tod und Zerstoerung zu verantworten hat, ist endlich tot.\n"
+     "angefuehrt, und so viel Tod und Zerstoerung\n
+	 "zu verantworten hat, ist endlich tot.\n"
      "\n"
      "Du betrittst eine versteckte Tuer, die\n"
      "sich vor dir oeffnet. Du hast\n"
@@ -3091,14 +3092,14 @@ Episode3Text="Der verha�te Spider Demon,\n"
      "Es ist gut, das nichts mit dir\n"
      "durch die Tuer kommen konnte ...";
 
-Episode4Text="Der Spider Demon mu� seine Legionen\n"
-     "der Hoelle vor eurer letzten Konfrontation ausgesendet haben.\n"
+Episode4Text="Der Spider Demon muss seine Legionen der\n"
+     "Hoelle vor eurer letzten Konfrontation ausgesendet haben.\n"
      "Aber du bist weitergelaufen, und brachtest\n"
      "ewige Verdammnis und Leiden ueber die\n"
      "Horden, wie es ein Held im Gesicht des Boesen tut...\n"
      "\n"
      "Nebenbei, jemand wird fuer das, was\n"
-     "deinem Hasen Daisy passiert ist, bue�en!\n"
+     "deinem Hasen Daisy passiert ist, buessen!\n"
      "\n"
      "Aber nun beeil' dich lieber, und\n"
      "vernichte die Horde Daemonen, die in\n"
