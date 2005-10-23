@@ -25,17 +25,18 @@ ZLIB_DIR="c:/program files/gnuwin32"
 
 # Optimisation level
 #OPTIM=-g3
-OPTIM=-O2
+OPTIM=-O2 -ffast-math
 
 # Generated library directories
-DEH_DIR=./deh_edge_1.3
+DEH_DIR=./deh_edge
 EPI_DIR=./epi
 LZO_DIR=./lzo
-GLBSP_DIR=./glbsp-2.10
+GLBSP_DIR=./glbsp
 
 INCS=-Iinclude
         
 CXXINCS = -Iinclude \
+		  -I./ \
 		  -I$(AL_DIR)/include \
 		  -I$(DX_DIR)/include \
 		  -I$(OGG_DIR)/include \
