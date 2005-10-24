@@ -174,10 +174,10 @@ bool I_StartupMUS()
 	I_MusicSetMixerVol(mixer, 0);
     
 	// Non-mixer defaults
+	playing       = false;
 	midiavailable = true;
 	song          = NULL;
-	playpos       = 0;
-	playing       = false;
+	playpos       = NULL;
 	return true;
 }
 
@@ -193,6 +193,13 @@ int I_MUSPlayTrack(byte *data, int length, bool loopy, float gain)
 	if (song)
 		I_MUSStop();
 
+	if (length < 16 ||
+		! (data[0] == 'M' && data[1] == 'U' && data[2] == 'S' && data[3] == 0x1A))
+	{
+		I_PostMusicError("I_MUSPlayTrack: wrong format (not MUS)");
+		return -1;
+	}
+
 	song = (musheader_t*)new byte[length];
 	if (!song)
 	{
@@ -203,8 +210,8 @@ int I_MUSPlayTrack(byte *data, int length, bool loopy, float gain)
 	memcpy(song, data, length);
 
 	playpos = SongStartAddress();       // Go to the beginning of the song.
-	playing = true;
 	looping = loopy;
+	playing = true;
 
 	I_MUSSetVolume(gain);
 	return 1;
@@ -246,13 +253,16 @@ void I_MUSStop(void)
 
 	midiOutReset(midioutput); 
 
+	// -AJA- 2005/10/25: must set 'playing' to false _before_ deleting the
+	//       song data, to prevent a race condition (I_MUSTicker may get
+	//       called in-between deleting the data and setting 'song' to NULL).
+	playing = false;
+	playpos = NULL;
+
 	// Free resources
 	data = (byte*)song;
 	delete [] data;
 	song = NULL;
-
-	playing = false;
-	playpos = 0;
 }
 
 //
@@ -287,10 +297,10 @@ void I_ShutdownMUS(void)
 	midiOutClose(midioutput);
 
 	// Switch off...
+	playing       = false;
 	midiavailable = false;
 	song          = NULL;
-	playpos       = 0;
-	playing       = false;
+	playpos       = NULL;
 	
 	return;
 }
