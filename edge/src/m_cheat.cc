@@ -390,6 +390,9 @@ bool M_CheatResponder(event_t * ev)
 			else
 				pl->powers[i] = 0;
 
+			if (i == PW_Berserk)
+				pl->keep_powers |= (1 << PW_Berserk);
+
 			CON_MessageLDF("BeholdUsed");
 		}
 	}
