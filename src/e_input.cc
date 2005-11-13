@@ -37,6 +37,8 @@
 #include "r_main.h"
 #include "z_zone.h"
 
+#include <string.h>
+
 //
 // controls (have defaults) 
 // 

@@ -31,24 +31,17 @@
 #include "p_spec.h"
 
 #include "con_main.h"
-#include "dm_defs.h"
-#include "dm_state.h"
 #include "g_game.h"
 #include "m_argv.h"
-#include "m_inline.h"
 #include "m_random.h"
 #include "p_local.h"
-#include "r_local.h"
-#include "r_state.h"
-#include "r2_defs.h"
 #include "rad_trig.h"
 #include "s_sound.h"
-#include "v_colour.h"
-#include "w_textur.h"
-#include "w_wad.h"
 #include "z_zone.h"
 
-#include "ddf_main.h"  // -KM- 1998/07/31 Need animation definitions
+#include <limits.h>
+#include <stdlib.h>
+#include <string.h>
 
 // Level exit timer
 bool levelTimer;

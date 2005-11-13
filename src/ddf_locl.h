@@ -130,7 +130,7 @@ typedef struct readinfo_s
 	char *tag;		// the file has to start with <tag>
 
 	char *memfile;
-	size_t memsize;
+	unsigned int memsize;
 
 	// number of entries per displayed `.'
 	int entries_per_dot;

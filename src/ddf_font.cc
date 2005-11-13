@@ -25,6 +25,10 @@
 #include "ddf_main.h"
 #include "ddf_font.h"
 
+#include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
+
 #undef  DF
 #define DF  DDF_CMD
 

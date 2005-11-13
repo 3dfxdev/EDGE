@@ -25,23 +25,17 @@
 
 #include "i_defs.h"
 
-#include "ddf_main.h"
 #include "ddf_colm.h"
-#include "e_event.h"
 #include "e_input.h"
-#include "dm_defs.h"
-#include "dm_state.h"
-#include "g_game.h"
-#include "m_inline.h"
 #include "p_bot.h"
 #include "p_local.h"
-#include "p_mobj.h"
 #include "rad_trig.h"
 #include "s_sound.h"
-#include "st_stuff.h"
-#include "w_wad.h"
-
 #include "z_zone.h"
+
+#include <float.h>
+#include <stdio.h>
+#include <string.h>
 
 static void P_UpdatePowerups(player_t *player);
 

@@ -25,6 +25,10 @@
 // -KM- 1998/12/16 No limit on number of ammo types.
 //
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "i_defs.h"
 
 #include "ddf_locl.h"
@@ -34,7 +38,16 @@
 #include "rgl_fx.h"
 #include "z_zone.h"
 
-#include "./epi/strings.h"
+#include <epi/strings.h>
+
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 
 #undef  DF
 #define DF  DDF_CMD

@@ -32,24 +32,19 @@
 #include "i_defs.h"
 #include "wi_stuff.h"
 
-#include "dm_state.h"
 #include "g_game.h"
 #include "hu_lib.h"
-#include "hu_style.h"
-#include "m_random.h"
-#include "m_menu.h"
 #include "p_local.h"
-#include "r_local.h"
-#include "r_view.h"
 #include "s_sound.h"
+#include "r_main.h"
+#include "r_view.h"
 #include "v_ctx.h"
-#include "v_colour.h"
 #include "v_res.h"
-#include "w_image.h"
-#include "w_wad.h"
-#include "z_zone.h"
 
-#include "./epi/strings.h"
+#include <epi/strings.h>
+
+#include <stdio.h>
+#include <string.h>
 
 //
 // Data needed to add patches to full screen intermission pics.

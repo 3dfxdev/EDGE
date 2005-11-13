@@ -57,6 +57,9 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
 
 #define MAXRTSLINE  1024
 

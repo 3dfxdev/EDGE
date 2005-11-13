@@ -20,6 +20,9 @@
 //
 // -KM- 1998/11/25 File Written
 //
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include "i_defs.h"
 
@@ -30,6 +33,12 @@
 
 #undef  DF
 #define DF  DDF_CMD
+
+#include <string.h>
+
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 
 static weapondef_c buffer_weapon;
 static weapondef_c *dynamic_weapon;

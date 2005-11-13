@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Demo Code
+//  EDGE Non-Interface to assembler code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2005  The EDGE Team.
+//  Copyright (c) 1999-2004  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -15,32 +15,18 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
+
+#include "../i_defs.h"
+#include "../i_system.h"
+
+#include "../con_cvar.h"
+
 //
-//  Based on the DOOM source code, released by Id Software under the
-//  following copyright:
+// I_CheckCPU
 //
-//    Copyright (C) 1993-1996 by id Software, Inc.
+// This should do all detection of the CPU's features, and choose which
+// routines we should use by default.
 //
-//----------------------------------------------------------------------------
-
-#ifndef __E_DEMO_H__
-#define __E_DEMO_H__
-
-extern bool demo_notbegun;
-extern bool netdemo;
-
-void G_DeferredPlayDemo(const char *filename);
-void G_DeferredTimeDemo(const char *filename);
-
-void G_DoPlayDemo(void);
-
-// Only called by startup code.
-void G_RecordDemo(const char *filename);
-
-void G_BeginRecording(void);
-bool G_FinishDemo(void);
-
-void E_DemoReadTick(void);
-void E_DemoWriteTick(void);
-
-#endif  /* __E_DEMO_H__ */
+void I_CheckCPU(void)
+{
+}

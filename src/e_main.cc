@@ -60,13 +60,12 @@
 #include "r_layers.h"
 #include "r_vbinit.h"
 #include "r2_defs.h"
-#include "wp_main.h"   // need wipetype_e in rgl_defs.h
 #include "rgl_defs.h"
+#include "rgl_wipe.h"
 #include "s_sound.h"
 #include "st_stuff.h"
 #include "sv_chunk.h"
 #include "sv_main.h"
-#include "version.h"
 #include "v_colour.h"
 #include "v_ctx.h"
 #include "v_res.h"
@@ -77,11 +76,20 @@
 #include "z_zone.h"
 
 #include "errorcodes.h"
+#include "version.h"
 
-#include "./epi/asserts.h"
-#include "./epi/errors.h"
-#include "./epi/strings.h"
+#include <epi/asserts.h>
+#include <epi/errors.h>
+#include <epi/strings.h>
 
+#include <alloca.h> // FIXME: I_TmpAlloc
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <time.h>
 
 #define DEFAULT_LANGUAGE  "ENGLISH"
 

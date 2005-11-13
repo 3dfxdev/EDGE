@@ -26,18 +26,14 @@
 #include "i_defs.h"
 #include "l_glbsp.h"
 
-#include "dm_type.h"
 #include "e_main.h"
-#include "m_menu.h"
-#include "v_ctx.h"
-#include "v_colour.h"
-#include "v_res.h"
-#include "w_image.h"
-#include "w_wad.h"
-#include "z_zone.h"
+#include "version.h"
 
 #include <glbsp/glbsp.h>
 
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
 
 #define PROGRESS_STEP  2  // percent
 

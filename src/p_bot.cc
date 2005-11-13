@@ -39,6 +39,10 @@
 #include "p_action.h"
 #include "rad_trig.h"
 
+#include <limits.h>
+#include <stdio.h>
+#include <string.h>
+
 static float bot_atkrange;
 static mobj_t *bot_shooter = NULL;
 

@@ -164,6 +164,8 @@ typedef enum { false, true } bool;
 
 #define I_MoveData memmove
 
+#define DIRSEPARATOR '\\'
+
 #include ".\win32\i_compen.h"
 #include "i_system.h"
 
@@ -203,6 +205,8 @@ typedef enum { false, true } bool;
 
 #define I_MoveData memmove
 
+#define DIRSEPARATOR '\\'
+
 #include ".\win32\i_compen.h"
 #include "i_system.h"
 
@@ -232,64 +236,12 @@ typedef enum { false, true } bool;
 
 #define I_MoveData memmove
 
+#define DIRSEPARATOR '/'
+
 #include "linux/i_compen.h"
 #include "i_system.h"
 
 #endif // LINUX GCC
-
-// BeOS GCC
-#ifdef BeOS
-
-typedef long long Int64;
-#define FLOAT_IEEE_754
-#ifndef __cplusplus
-typedef enum { false, true } bool;
-#endif
-
-#include <ctype.h>
-#include <dirent.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <math.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <sys/stat.h>
-
-
-#include <GL/gl.h>
-
-#define EDGECONFIGFILE "edge.cfg"
-#define EDGELOGFILE    "edge.log"
-#define EDGEHOMESUBDIR ".edge"
-#define EDGEWADDIR     "EDGEWADDIR"
-#define EDGEWADEXT     "wad"
-#define EDGEGWAEXT     "gwa"
-#define REQUIREDWAD    "edge"
-
-#define DIRSEPARATOR '/'
-
-#define NAME        "EDGE"
-#define OUTPUTNAME  "EDGECONSOLE"
-#define TITLE       "EDGE Engine"
-#define OUTPUTTITLE "EDGE Engine console"
-
-#define GCCATTR(a) __attribute__((a))
-#define INLINE inline
-#define EDGE_INLINE(decl, body) extern inline decl body
-
-#define I_TmpMalloc(size) alloca(size)
-#define I_TmpFree(ptr) do { } while (0)
-
-#define I_MoveData memmove
-
-#include "i_system.h"
-#include "beos/b_compen.h"
-
-#endif // BeOS GCC
 
 // MacOSX GCC
 #ifdef MACOSX
@@ -315,6 +267,8 @@ typedef enum { false, true } bool;
 #define I_TmpFree(ptr) do { } while (0)
 
 #define I_MoveData memmove
+
+#define DIRSEPARATOR '/'
 
 // moved; compile failure if ASSEM=Y
 #include "linux/i_compen.h"

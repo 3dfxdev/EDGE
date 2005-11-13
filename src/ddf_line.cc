@@ -33,6 +33,10 @@
 #include "ddf_locl.h"
 #include "ddf_main.h"
 
+#include <limits.h>
+#include <stdlib.h>
+#include <string.h>
+
 #undef  DF
 #define DF  DDF_CMD
 

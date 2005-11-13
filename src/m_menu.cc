@@ -60,6 +60,10 @@
 #include "wi_stuff.h"
 #include "z_zone.h"
 
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+
 //
 // defaulted values
 //

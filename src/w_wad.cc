@@ -44,23 +44,26 @@
 #include "ddf_style.h"
 #include "ddf_swth.h"
 
-#include "dm_type.h"
 #include "e_main.h"
 #include "e_search.h"
 #include "l_deh.h"
 #include "l_glbsp.h"
-#include "m_argv.h"
 #include "m_misc.h"
-#include "e_player.h"
 #include "rad_trig.h"
-#include "rgl_defs.h"
-#include "w_textur.h"
-#include "w_image.h"
 #include "z_zone.h"
 
-#include "epi/endianess.h"
-#include "epi/strings.h"
-#include "epi/utility.h"
+#include <epi/endianess.h>
+#include <epi/strings.h>
+#include <epi/utility.h>
+
+#include <ctype.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 // -KM- 1999/01/31 Order is important, Languages are loaded before sfx, etc...
 typedef struct ddf_reader_s

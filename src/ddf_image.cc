@@ -29,6 +29,8 @@
 #include "p_spec.h"
 #include "r_local.h"
 
+#include <string.h>
+
 #undef  DF
 #define DF  DDF_CMD
 

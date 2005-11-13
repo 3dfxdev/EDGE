@@ -23,19 +23,17 @@
 //
 //----------------------------------------------------------------------------
 
-// this conditional applies to the whole file
 #include "i_defs.h"
+#include "i_defs_gl.h"
 
 #include "m_random.h"
-#include "r2_defs.h"
-#include "wp_main.h"   // need wipetype_e in rgl_defs.h
 #include "rgl_defs.h"
-#include "v_colour.h"
-#include "v_res.h"
+#include "rgl_wipe.h"
 #include "w_image.h"
-#include "w_wad.h"
+#include "v_res.h"
 #include "z_zone.h"
 
+#include <math.h>
 
 // we're limited to one wipe at a time...
 static int cur_wipe_reverse = 0;

@@ -50,6 +50,9 @@
 #include "w_wad.h"
 #include "wi_stuff.h"
 
+#include <stdio.h>
+#include <string.h>
+
 typedef enum
 {
 	f_text,
@@ -60,12 +63,10 @@ typedef enum
 }
 finalestage_e;
 
-#ifdef __cplusplus
 void operator++ (finalestage_e& f, int blah)
 {
 	f = (finalestage_e)(f + 1);
 }
-#endif
 
 // Stage of animation:
 //  0 = text, 1 = art screen, 2 = character cast

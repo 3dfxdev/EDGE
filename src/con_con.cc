@@ -26,22 +26,18 @@
 #include "i_defs.h"
 #include "con_defs.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
 #include "gui_gui.h"
-#include "gui_ctls.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"
 #include "hu_style.h"
 #include "m_argv.h"
-#include "m_menu.h"
-#include "v_colour.h"
-#include "v_ctx.h"
 #include "v_res.h"
-#include "w_wad.h"
 #include "wp_main.h"
 #include "z_zone.h"
 
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
 
 #define CON_WIPE_TICS  12
 

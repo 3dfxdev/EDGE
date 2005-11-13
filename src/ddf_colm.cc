@@ -19,11 +19,19 @@
 // Colourmap handling.
 //
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "i_defs.h"
 
 #include "ddf_locl.h"
 #include "ddf_main.h"
 #include "ddf_colm.h"
+
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 
 #undef  DF
 #define DF  DDF_CMD

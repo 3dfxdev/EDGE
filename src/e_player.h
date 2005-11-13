@@ -41,7 +41,7 @@
 // as commands per game tick.
 #include "e_ticcmd.h"
 
-#include "ddf_main.h"  // colmap.ddf stuff
+#include "ddf_colm.h"  // colmap.ddf stuff
 
 // Networking and tick handling related.
 #define BACKUPTICS 12

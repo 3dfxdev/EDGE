@@ -27,20 +27,14 @@
 #include "i_defs.h"
 #include "sv_chunk.h"
 
-#include "dm_state.h"
-#include "e_main.h"
 #include "g_game.h"
-#include "m_math.h"
-#include "m_random.h"
-#include "p_local.h"
-#include "p_spec.h"
-#include "r_state.h"
-#include "sv_chunk.h"
 #include "sv_main.h"
-#include "w_wad.h"
-#include "wi_stuff.h"
 #include "z_zone.h"
 
+#include <epi/strings.h>
+
+#include <stdio.h>
+#include <string.h>
 
 //----------------------------------------------------------------------------
 //

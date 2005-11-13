@@ -39,6 +39,9 @@
 
 #include "r2_defs.h"
 
+#include <math.h>
+#include <string.h>
+
 // arrays of stuff
 #define DEFAULT_DRAWARRAY_SIZE
 

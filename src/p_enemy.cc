@@ -31,17 +31,15 @@
 
 #include "i_defs.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
 #include "g_game.h"
 #include "m_random.h"
 #include "p_action.h"
 #include "p_local.h"
-#include "r_state.h"
-#include "rad_trig.h"
 #include "s_sound.h"
 #include "w_wad.h"
 #include "z_zone.h"
+
+#include <float.h>
 
 dirtype_e opposite[] =
 {

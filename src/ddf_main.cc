@@ -36,6 +36,13 @@
 #include "z_zone.h"
 #include "version.h"
 
+#include <ctype.h>
+#include <limits.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #define DEBUG_DDFREAD  0
 
 int ddf_version;  // global

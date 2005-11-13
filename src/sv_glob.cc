@@ -24,8 +24,8 @@
 //
 
 #include "i_defs.h"
-#include "sv_chunk.h"
 
+/*
 #include "dm_state.h"
 #include "e_main.h"
 #include "g_game.h"
@@ -39,7 +39,14 @@
 #include "w_wad.h"
 #include "wi_stuff.h"
 #include "z_zone.h"
+*/
+#include "sv_chunk.h"
+#include "sv_main.h"
+#include "z_zone.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // forward decls:
 static void GV_GetInt(const char *info, void *storage);

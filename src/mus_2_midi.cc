@@ -31,6 +31,8 @@
 //
 //----------------------------------------------------------------------------
 
+#include "mus_2_midi.h"
+
 #include <epi/bytearray.h>
 #include <epi/endianess.h>
 
@@ -38,8 +40,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-
-#include "mus_2_midi.h"
 
 namespace Mus2Midi
 {

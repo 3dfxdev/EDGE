@@ -19,39 +19,24 @@
 // -AJA- 2000/10/09: Began work on this new unit system.
 //
 
-// this conditional applies to the whole file
 #include "i_defs.h"
+#include "i_defs_gl.h"
 
 #include "con_cvar.h"
-#include "dm_defs.h"
-#include "dm_state.h"
 #include "e_search.h"
 #include "m_argv.h"
-#include "m_bbox.h"
-#include "m_random.h"
-#include "p_local.h"
-#include "p_mobj.h"
-#include "r_defs.h"
-#include "r_main.h"
-#include "r_sky.h"
-#include "r_state.h"
-#include "r_things.h"
 #include "r2_defs.h"
-#include "rgl_defs.h"
-#include "v_colour.h"
-#include "v_res.h"
-#include "w_textur.h"
-#include "w_wad.h"
-#include "v_ctx.h"
+#include "rgl_unit.h"
 #include "z_zone.h"
 
+#include <math.h>
+#include <string.h>
 
 bool use_lighting = true;
 bool use_color_material = true;
 bool use_vertex_array = true;
 
 bool dumb_sky = false;
-
 
 #define MAX_L_VERT  4096
 #define MAX_L_UNIT  (MAX_L_VERT / 4)

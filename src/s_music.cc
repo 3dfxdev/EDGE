@@ -25,6 +25,8 @@
 #include "s_sound.h"
 #include "w_wad.h"
 
+#include <stdlib.h>
+
 // Current music handle
 static int musichandle = -1;
 

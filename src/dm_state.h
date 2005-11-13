@@ -165,8 +165,6 @@ extern char *gamedir;
 extern char *savedir;
 extern char *ddfdir;
 extern epi::strent_c cfgfile;
-extern FILE *logfile;
-extern FILE *debugfile;
 
 // if true, load DDF/RTS as external files (instead of from EDGE.WAD)
 extern bool external_ddf;

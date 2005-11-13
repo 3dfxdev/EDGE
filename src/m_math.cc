@@ -26,6 +26,8 @@
 #include "i_defs.h"
 #include "m_math.h"
 
+#include <math.h>
+
 float M_Sin (angle_t ang)
 {
 	return (float) sin ((double) ang * M_PI / (float) ANG180);

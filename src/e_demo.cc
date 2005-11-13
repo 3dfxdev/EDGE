@@ -31,52 +31,25 @@
 #include "i_defs.h"
 #include "e_demo.h"
 
-#include "am_map.h"
-#include "con_cvar.h"
-#include "con_main.h"
 #include "dem_chunk.h"
 #include "dem_glob.h"
-#include "dm_defs.h"
-#include "dm_state.h"
-#include "dstrings.h"
 #include "e_main.h"
-#include "e_input.h"
-#include "f_finale.h"
 #include "g_game.h"
 #include "m_argv.h"
-#include "m_cheat.h"
-#include "m_inline.h"
 #include "m_misc.h"
-#include "m_menu.h"
-#include "m_random.h"
 #include "n_network.h"
-#include "hu_stuff.h"
-#include "p_bot.h"
-#include "p_local.h"
 #include "p_setup.h"
-#include "p_tick.h"
-#include "r_data.h"
-#include "r_layers.h"
-#include "r_sky.h"
-#include "r_view.h"
-#include "rad_trig.h"
-#include "s_sound.h"
-#include "sv_chunk.h"
-#include "sv_main.h"
-#include "st_stuff.h"
 #include "version.h"
-#include "v_res.h"
-#include "w_image.h"
-#include "w_textur.h"
-#include "w_wad.h"
-#include "wi_stuff.h"
 #include "z_zone.h"
 
-#include "epi/epi.h"
-#include "epi/endianess.h"
-#include "epi/files.h"
-#include "epi/filesystem.h"
+#include <epi/epi.h>
+#include <epi/endianess.h>
+#include <epi/files.h>
+#include <epi/filesystem.h>
 
+#include <ctype.h>
+#include <string.h>
+#include <time.h>
 
 // if true, exit with report on completion 
 static bool timingdemo;

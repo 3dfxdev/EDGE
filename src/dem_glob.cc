@@ -23,21 +23,14 @@
 //
 
 #include "i_defs.h"
+
 #include "dem_glob.h"
 #include "dem_chunk.h"
-
-#include "dm_state.h"
-#include "e_main.h"
-#include "g_game.h"
-#include "m_math.h"
-#include "m_random.h"
-#include "p_local.h"
-#include "p_spec.h"
-#include "r_state.h"
-#include "w_wad.h"
-#include "wi_stuff.h"
 #include "z_zone.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // forward decls:
 static void DG_GetInt(const char *info, void *storage);

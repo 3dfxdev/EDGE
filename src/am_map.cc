@@ -24,30 +24,28 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
+#include "i_defs_gl.h"
+
 #include "am_map.h"
 
 #include "con_cvar.h"
 #include "con_main.h"
-#include "dm_defs.h"
-#include "dm_state.h"
-#include "dstrings.h"
 #include "e_input.h"
 #include "hu_lib.h"
-#include "hu_style.h"
 #include "m_argv.h"
 #include "m_bbox.h"
 #include "m_cheat.h"
 #include "m_misc.h"
 #include "n_network.h"
 #include "p_local.h"
-#include "r_state.h"
-#include "rgl_defs.h"
 #include "st_stuff.h"
 #include "v_ctx.h"
-#include "v_res.h"
 #include "v_colour.h"
-#include "w_image.h"
-#include "w_wad.h"
+#include "v_res.h"
+
+#include <stdio.h>
+#include <float.h>
+#include <math.h>
 
 #define DEBUG_TRUEBSP  0
 #define DEBUG_COLLIDE  0

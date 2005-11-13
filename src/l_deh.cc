@@ -24,18 +24,14 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
+#include "l_deh.h"
 
-#include "dm_type.h"
-#include "e_main.h"
-#include "m_menu.h"
-#include "v_ctx.h"
-#include "v_colour.h"
-#include "v_res.h"
 #include "version.h"
-#include "w_image.h"
-#include "w_wad.h"
 
 #include "deh_edge/dh_plugin.h"
+
+#include <stdio.h>
+#include <stdarg.h>
 
 static char dh_message[1024];
 
