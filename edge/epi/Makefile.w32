@@ -1,0 +1,72 @@
+#
+# EPI Makefile for Win32 + MinGW
+#
+# (Note: requires GNU make)
+# 
+
+BIN=libepi.a
+
+CC=mingw32-gcc.exe
+CPP=mingw32-g++.exe
+AR=ar r
+RANLIB=ranlib
+
+# External library directories
+JPEG_DIR="c:/program files/gnuwin32"
+PNG_DIR="c:/program files/gnuwin32"
+ZLIB_DIR="c:/program files/gnuwin32"
+
+INCS=-Iinclude -I$(JPEG_DIR)/include -I$(PNG_DIR)/include -I$(ZLIB_DIR)/include 
+
+CXXINCS = -Iinclude \
+		  -I$(JPEG_DIR)/include \
+		  -I$(PNG_DIR)/include \
+		  -I$(ZLIB_DIR)/include
+
+CFLAGS=$(INCS) -O2 -Wall -ffast-math -DWIN32
+CXXFLAGS=$(CXXINCS) $(INCS) -O2 -Wall -ffast-math -DWIN32 -DJPEG_STATIC
+           
+# ----- OBJECTS ------------------------------------------------------
+
+OBJS= \
+    archive_wad.o \
+    archive.o \
+    arrays.o \
+    asserts.o \
+    basicimage.o \
+    bytearray.o \
+    errors.o \
+    filesystem.o \
+    image_jpeg.o \
+    image_png.o \
+	image_hq2x.o \
+    math_angle.o \
+    math_colour.o \
+    math_crc.o \
+    math_md5.o \
+	math_vector.o \
+	math_bbox.o \
+    memfile.o \
+    memmanager.o \
+    soundsystem.o \
+    stacks.o \
+    strings.o \
+    timestamp.o \
+    utility.o \
+    epi_win32.o \
+    files_win32.o \
+    filesystem_win32.o
+
+# ----- TARGETS ------------------------------------------------------
+
+all: $(BIN)
+
+clean:
+	rm -f $(OBJS) $(BIN) 
+	
+$(BIN): $(OBJS)
+	$(AR) $(BIN) $(OBJS)
+	$(RANLIB) $(BIN)
+ 
+.PHONY: all clean
+
