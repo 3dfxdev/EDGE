@@ -26,6 +26,9 @@
 #include "i_defs.h"
 #include "z_zone.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 static cache_flusher_f **cache_flushers = NULL;
 static int num_flushers = 0;
 

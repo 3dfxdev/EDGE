@@ -44,6 +44,7 @@
 
 #include "z_zone.h"
 
+#include <math.h>
 
 #define DEBUG_SIGHT  0
 

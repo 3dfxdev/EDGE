@@ -26,8 +26,6 @@
 #ifndef __RGL_DEFS__
 #define __RGL_DEFS__
 
-#include "v_ctx.h"
-
 //
 //  RGL_MAIN
 //
@@ -100,16 +98,6 @@ extern int var_farclip;
 
 #define APPROX_DIST3(dx,dy,dz)  \
 	APPROX_DIST2(APPROX_DIST2(dx,dy),dz)
-
-
-
-// FIXME: temp hack
-#include "rgl_fx.h"
-#include "rgl_occ.h"
-#include "rgl_sky.h"
-#include "rgl_thing.h"
-#include "rgl_unit.h"
-#include "rgl_wipe.h"
 
 
 #endif  // __RGL_DEFS__

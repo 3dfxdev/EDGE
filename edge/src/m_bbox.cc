@@ -26,6 +26,9 @@
 #include "i_defs.h"
 #include "m_bbox.h"
 
+#include <float.h>
+#include <string.h>
+
 void M_ClearBox(float * box)
 {
 	box[BOXTOP] = box[BOXRIGHT] = -FLT_MAX;

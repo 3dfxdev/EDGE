@@ -28,6 +28,9 @@
 #include "v_res.h"
 #include "w_image.h"
 
+#include <ctype.h>
+#include <string.h>
+
 #define DUMMY_WIDTH  4
 
 

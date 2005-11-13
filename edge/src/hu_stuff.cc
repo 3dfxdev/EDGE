@@ -27,26 +27,15 @@
 #include "hu_stuff.h"
 
 #include "con_main.h"
-#include "dm_defs.h"
-#include "dm_state.h"
-#include "dstrings.h"
 #include "e_input.h"
 #include "e_main.h"
 #include "g_game.h"
-#include "hu_lib.h"
-#include "hu_style.h"
-#include "m_misc.h"
 #include "n_network.h"
-#include "r_defs.h"
-#include "r_things.h"
-#include "rad_trig.h"
 #include "s_sound.h"
-#include "st_stuff.h"
-#include "v_colour.h"
-#include "v_ctx.h"
-#include "v_res.h"
 #include "w_wad.h"
 #include "z_zone.h"
+
+#include <stdio.h>
 
 #define FONT_HEIGHT  7  //!!!! FIXME temp hack
 

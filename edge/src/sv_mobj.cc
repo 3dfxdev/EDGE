@@ -27,15 +27,14 @@
 
 #include "i_defs.h"
 
-#include "ddf_locl.h"
-#include "dm_state.h"
-#include "e_player.h"
-#include "p_local.h"
 #include "p_setup.h"
 #include "sv_chunk.h"
 #include "sv_main.h"
-#include "r_state.h"
 #include "z_zone.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #undef SF
 #define SF  SVFIELD

@@ -29,26 +29,17 @@
 #include "i_defs.h"
 #include "st_stuff.h"
 
-#include "am_map.h"
-#include "dm_defs.h"
-#include "dm_state.h"
-#include "dstrings.h"
-#include "ddf_main.h"
 #include "e_main.h"
-#include "g_game.h"
-#include "m_random.h"
-#include "st_lib.h"
-#include "r_local.h"
-#include "p_local.h"
-#include "p_mobj.h"
 #include "m_cheat.h"
-#include "m_menu.h"
-#include "s_sound.h"
+#include "m_random.h"
+#include "r_main.h"
+#include "st_lib.h"
+#include "v_colour.h"
 #include "v_ctx.h"
 #include "v_res.h"
-#include "v_colour.h"
-#include "w_image.h"
-#include "w_wad.h"
+
+#include <math.h>
+#include <stdio.h>
 
 //
 // STATUS BAR DATA

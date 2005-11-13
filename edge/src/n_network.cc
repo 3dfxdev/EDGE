@@ -22,23 +22,18 @@
 #include "nl.h"
 #endif
 
-#include "epi/types.h"
-#include "epi/endianess.h"
-
 #include "protocol.h"
 #include "n_packet.h"
 #include "n_network.h"
 
 #include "e_input.h"
 #include "e_main.h"
-#include "e_player.h"
-#include "g_game.h"
-#include "m_argv.h"
-#include "p_bot.h"
-#include "p_local.h"
-#include "version.h"
-#include "z_zone.h"
 
+#include <epi/types.h>
+#include <epi/endianess.h>
+
+#include <limits.h>
+#include <stdlib.h>
 
 // only true if packets are exchanged with a server
 bool netgame = false;

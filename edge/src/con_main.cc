@@ -20,18 +20,21 @@
 #include "con_main.h"
 
 #include "con_defs.h"
-#include "dm_state.h"
-#include "dm_defs.h"
 #include "g_game.h"
 #include "gui_gui.h"
 #include "gui_ctls.h"
+#include "m_menu.h"
 #include "s_sound.h"
-#include "v_res.h"
 #include "w_wad.h"
 #include "z_zone.h"
-#include "m_menu.h"
 
-#include "epi/math_crc.h"
+#include <epi/math_crc.h>
+
+#include <ctype.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define SCREENROWS 100
 #define SCREENCOLS 80
@@ -230,10 +233,12 @@ int CON_CMDExec(const char *args)
 		KillArgs(argc, argv);
 		return 1;
 	}
+
 	while (fgets(buffer, SCREENCOLS - 1, script))
 	{
 		CON_TryCommand(buffer);
 	}
+
 	fclose(script);
 	KillArgs(argc, argv);
 	return 0;

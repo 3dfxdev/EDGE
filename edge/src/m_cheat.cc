@@ -50,6 +50,9 @@
 #include "st_stuff.h"
 #include "w_wad.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+
 //
 // CHEAT SEQUENCE PACKAGE
 //

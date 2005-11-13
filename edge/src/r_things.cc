@@ -31,17 +31,13 @@
 #include "i_defs.h"
 #include "r_things.h"
 
-#include "e_search.h"
-#include "dm_defs.h"
-#include "dm_state.h"
 #include "e_main.h"
-#include "m_argv.h"
-#include "m_inline.h"
-#include "p_local.h"
-#include "r_local.h"
-#include "v_colour.h"
+#include "e_search.h"
+#include "w_image.h"
 #include "w_wad.h"
 #include "z_zone.h"
+
+#include <string.h>
 
 // The minimum distance between player and a visible sprite.
 // FIXME: Decrease value, lower values are valid when float is used.
@@ -63,6 +59,13 @@ int numsprites = 0;
 static spritedef_c ** sprite_map = NULL;
 static int sprite_map_len;
 
+//
+// spritedef_c constructor
+//
+spritedef_c::spritedef_c(const char* _name)  : numframes(0), frames(NULL), weapon_frames(0)
+{
+    strcpy(name, _name);
+}
 
 //
 // INITIALISATION FUNCTIONS

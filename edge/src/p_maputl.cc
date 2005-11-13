@@ -47,6 +47,10 @@
 // State.
 #include "r_state.h"
 
+#include <float.h>
+#include <math.h>
+#include <string.h>
+
 // stats
 #ifdef DEVELOPERS
 int touchstat_moves;

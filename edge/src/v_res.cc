@@ -29,7 +29,10 @@
 #include "st_stuff.h"
 #include "v_res.h"
 
-#include "./epi/strings.h"
+#include <epi/strings.h>
+
+#include <limits.h>
+#include <string.h>
 
 // Globals
 int SCREENWIDTH;
@@ -99,6 +102,15 @@ void V_AddAvailableResolution(i_scrmode_t *mode)
 
     scrmodelist.Add(&sm);
 	return;
+}
+
+//
+// V_DumpResList
+//
+void V_DumpResList()
+{
+    I_Printf("Resolution List:\n");
+    scrmodelist.Dump();
 }
 
 //
@@ -201,7 +213,7 @@ void scrmodelist_c::Dump()
     {
         sm = ITERATOR_TO_TYPE(it, scrmode_t*);
         
-        s.Format("(%d x %d x %d [%d]) - %s\n", 
+        s.Format("  (%d x %d x %d [%d]) - %s\n", 
                  sm->width, sm->height, sm->depth, sm->sysdepth, 
                  sm->windowed ? "Windowed" : "Fullscreen");
 

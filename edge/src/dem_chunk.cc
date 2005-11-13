@@ -24,21 +24,15 @@
 
 #include "i_defs.h"
 #include "dem_chunk.h"
-
-#include "dm_state.h"
-#include "m_math.h"
-#include "p_local.h"
-#include "p_spec.h"
-#include "r_state.h"
-#include "w_wad.h"
-#include "wi_stuff.h"
 #include "z_zone.h"
 
-#include "epi/math_crc.h"
-#include "lzo/minilzo.h"
+#include <epi/math_crc.h>
+#include <lzo/minilzo.h>
 
+#include <ctype.h>
 #include <math.h>
-
+#include <stdio.h>
+#include <string.h>
 
 #define DEBUG_GETBYTE  0
 #define DEBUG_PUTBYTE  0
@@ -49,7 +43,6 @@
 
 #define EDGEDEMO_MAGIC   "EdgeDemo"
 #define FIRST_CHUNK_OFS  16L
-
 
 int demo_version;
 

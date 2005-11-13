@@ -20,6 +20,9 @@
 #include "dm_defs.h"
 #include "ddf_locl.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 static pl_entry_c buffer_plentry;
 static pl_entry_c *dynamic_plentry;
 

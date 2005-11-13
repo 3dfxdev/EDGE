@@ -18,22 +18,16 @@
 
 #include "i_defs.h"
 
+#include "ddf_locl.h"
 #include "ddf_main.h"
 
-#include "e_search.h"
-#include "ddf_locl.h"
-#include "dm_state.h"
-#include "dstrings.h"
-#include "m_argv.h"
-#include "m_inline.h"
-#include "m_math.h"
-#include "m_misc.h"
 #include "p_action.h"
-#include "p_mobj.h"
-#include "r_state.h"
 #include "r_things.h"
 #include "z_zone.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 static const state_t template_state =
 {

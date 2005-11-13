@@ -17,16 +17,21 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
+#include "i_defs_gl.h"
 
 #include "g_game.h"
 #include "r_main.h"
 #include "r2_defs.h"
 #include "rgl_defs.h"
+#include "rgl_unit.h"
 #include "v_colour.h"
 #include "v_ctx.h"
 #include "v_res.h"
+#include "w_image_gl.h"
 
-#include "epi/strings.h"
+#include <epi/strings.h>
+
+#include <string.h>
 
 #define DEBUG  0
 

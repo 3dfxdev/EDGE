@@ -25,22 +25,16 @@
 #include "w_textur.h"
 
 #include "e_search.h"
-#include "dm_state.h"
-#include "dm_defs.h"
 #include "e_main.h"
-#include "m_argv.h"
-#include "m_misc.h"
-#include "p_local.h"
-#include "r_local.h"
-#include "r_sky.h"
-#include "rgl_defs.h"
-#include "v_colour.h"
+#include "w_image.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include "epi/arrays.h"
-#include "epi/endianess.h"
-#include "epi/utility.h"
+#include <epi/arrays.h>
+#include <epi/endianess.h>
+#include <epi/utility.h>
+
+#include <string.h>
 
 class texture_set_c
 {

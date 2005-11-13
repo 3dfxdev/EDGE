@@ -38,6 +38,7 @@
 #include "wi_stuff.h"
 #include "z_zone.h"
 
+#include <string.h>
 
 savestruct_t *sv_known_structs;
 savearray_t  *sv_known_arrays;

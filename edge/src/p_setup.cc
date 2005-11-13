@@ -43,6 +43,7 @@
 #include "p_bot.h"
 #include "r2_defs.h"
 #include "rgl_defs.h"
+#include "rgl_sky.h"
 #include "r_sky.h"
 #include "s_sound.h"
 #include "w_image.h"
@@ -50,8 +51,11 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include "epi/endianess.h"
-#include "epi/math_crc.h"
+#include <epi/endianess.h>
+#include <epi/math_crc.h>
+
+#include <stdio.h>
+#include <string.h>
 
 // debugging aide:
 #define FORCE_LOCATION  0

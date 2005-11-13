@@ -77,7 +77,6 @@ void M_MakeSaveScreenShot(void);
 exttype_e M_CheckExtension(const char *ext, const char* filename);
 byte *M_GetFileData(const char *filename, int *length);
 void M_ComposeFileName(epi::string_c& fn, const char *dir, const char *file);
-FILE *M_OpenComposedFile(const char *dir, const char *file);
 epi::file_c *M_OpenComposedEPIFile(const char *dir, const char *file);
 void M_WarnError(const char *error,...) GCCATTR(format(printf, 1, 2));
 int L_CompareFileTimes(const char *wad_file, const char *gwa_file);

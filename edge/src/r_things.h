@@ -91,10 +91,7 @@ public:
 class spritedef_c
 {
 public:
-	spritedef_c(const char *_name) : numframes(0), frames(NULL), weapon_frames(0)
-	{
-		strcpy(name, _name);
-	}
+	spritedef_c(const char *_name);
 
 	// four letter sprite name (e.g. "TROO").
 	char name[6];

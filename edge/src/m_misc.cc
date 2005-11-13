@@ -32,39 +32,39 @@
 #include "m_misc.h"
 
 #include "con_cvar.h"
-#include "con_main.h"
-#include "dm_defs.h"
-#include "dm_state.h"
-#include "dstrings.h"
 #include "e_input.h"
 #include "hu_stuff.h"  // only for showMessages
 #include "m_argv.h"
-#include "m_menu.h"
 #include "m_option.h"
-#include "m_random.h"
 #include "n_network.h"
 #include "p_spec.h"
-#include "w_wad.h"
-#include "r_main.h"
 #include "r2_defs.h"
 #include "rgl_defs.h"
 #include "s_sound.h"
+#include "v_colour.h"
 #include "v_ctx.h"
 #include "v_res.h"
-#include "v_colour.h"
 #include "w_image.h"
-#include "w_wad.h"
 #include "wp_main.h"
 #include "z_zone.h"
 
 #include "defaults.h"
 
-#include "epi/utility.h"
-#include "epi/endianess.h"
-#include "epi/files.h"
-#include "epi/filesystem.h"
-#include "epi/image_jpeg.h"
-#include "epi/image_png.h"
+#include <epi/utility.h>
+#include <epi/endianess.h>
+#include <epi/files.h>
+#include <epi/filesystem.h>
+#include <epi/image_jpeg.h>
+#include <epi/image_png.h>
+
+#include <ctype.h>
+#include <fcntl.h>     // FIXME: Use file_c!!
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 
 //
 // DEFAULTS
@@ -220,68 +220,6 @@ static default_t defaults[] =
 };
 
 epi::strent_c cfgfile;
-
-#if 0
-// TGA Graphics Header
-typedef enum
-{
-	tga_id = 0,
-	tga_cmaptype = 1,
-	tga_imgtype = 2,
-	tga_cmapfirst = 3,
-	tga_cmaplen = 5,
-	tga_cmapsize = 7,
-	tga_imgorgx = 8,
-	tga_imgorgy = 10,
-	tga_imgwidth = 12,
-	tga_imgheight = 14,
-	tga_imgbpp = 16,
-	tga_imgbits = 17
-}
-tgaheader_e;
-
-// ======================= INTERNALS =======================
-
-//
-// WriteTGAFile
-//
-// Each pixel in `buffer' is three bytes (R,G,B).
-//
-static void WriteTGAFile(const char *filename, int width, int height, 
-						 byte *buffer)
-{
-	FILE *fp;
-	byte tgahead[18], *cr, *cb, tmp;
-	int i;
-
-	if ((fp = fopen(filename, "wb")) != NULL)
-	{
-		Z_Clear(tgahead, byte, 18);
-    
-		tgahead[tga_imgtype] = 2;  // Unmapped RGB
-		tgahead[tga_imgbpp] = 24;  // 3 byte colours (B,G,R)
-    
-		*((short *) &tgahead[tga_imgwidth])  = EPI_LE_S16(width);
-		*((short *) &tgahead[tga_imgheight]) = EPI_LE_S16(height);
-
-		// flip the blue and red color components
-
-		cr = &buffer[2];
-		cb = &buffer[0];
-    
-		for (i=0; i < (width*height); i++, cr += 3, cb += 3)
-		{
-			tmp = *cb;
-			*cb = *cr;
-			*cr = tmp;
-		}
-
-		fwrite(tgahead, 18, 1, fp);
-		fwrite(buffer, sizeof(byte)*width*height*3, 1, fp);
-		fclose(fp);
-	}
-}
-#endif
 
 // ===================== END OF INTERNALS =====================
 
@@ -842,18 +780,6 @@ void M_ComposeFileName(epi::string_c& fn, const char *dir, const char *file)
 }
 
 //
-// M_OpenComposedFile
-//
-FILE *M_OpenComposedFile(const char *dir, const char *file)
-{
-	epi::string_c fullname;
-
-	M_ComposeFileName(fullname, dir, file);
-
-	return fopen(fullname.GetString(), "rb");
-}
-
-//
 // M_OpenComposedEPIFile
 //
 epi::file_c *M_OpenComposedEPIFile(const char *dir, const char *file)
@@ -932,6 +858,8 @@ void M_WarnError(const char *error,...)
 		I_Warning("%s", message_buf);
 }
 
+extern FILE* debugfile; // FIXME
+
 //
 // L_WriteDebug
 //
@@ -962,6 +890,9 @@ void L_WriteDebug(const char *message,...)
 	fprintf(debugfile, "%s", message_buf);
 	fflush(debugfile);
 }
+
+
+extern FILE* logfile; // FIXME: make file_c and unify with debugfile
 
 //
 // L_WriteLog

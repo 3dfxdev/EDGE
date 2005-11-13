@@ -25,20 +25,15 @@
 #include "i_defs.h"
 #include "sv_chunk.h"
 
-#include "dm_state.h"
-#include "m_math.h"
-#include "p_local.h"
-#include "p_spec.h"
-#include "r_state.h"
-#include "w_wad.h"
-#include "wi_stuff.h"
 #include "z_zone.h"
 
-#include "epi/math_crc.h"
-#include "lzo/minilzo.h"
+#include <epi/math_crc.h>
+#include <lzo/minilzo.h>
 
+#include <ctype.h>
 #include <math.h>
-
+#include <stdio.h>
+#include <string.h>
 
 // Note: only disable this for debugging purposes
 #define COMPRESS_ENABLE  1

@@ -24,7 +24,10 @@
 #include "ddf_locl.h"
 #include "ddf_main.h"
 
-#include "./epi/strings.h"
+#include <epi/strings.h>
+
+#include <stdlib.h>
+#include <string.h>
 
 #undef  DF
 #define DF  DDF_CMD

@@ -16,32 +16,9 @@
 //
 //----------------------------------------------------------------------------
 
-// this conditional applies to the whole file
 #include "i_defs.h"
 
-#include "con_cvar.h"
-#include "dm_defs.h"
-#include "dm_state.h"
-#include "e_search.h"
-#include "m_argv.h"
-#include "m_bbox.h"
-#include "m_random.h"
-#include "p_local.h"
-#include "p_mobj.h"
-#include "r_defs.h"
-#include "r_main.h"
-#include "r_sky.h"
-#include "r_state.h"
-#include "r_things.h"
-#include "r2_defs.h"
-#include "rgl_defs.h"
-#include "v_colour.h"
-#include "v_res.h"
-#include "w_textur.h"
-#include "w_wad.h"
-#include "v_ctx.h"
-#include "z_zone.h"
-
+#include <string.h>
 
 //----------------------------------------------------------------------------
 //

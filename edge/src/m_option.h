@@ -26,7 +26,6 @@
 #ifndef __M_OPTION__
 #define __M_OPTION__
 
-#include "dm_type.h"
 #include "e_event.h"
 
 extern int optionsmenuon;

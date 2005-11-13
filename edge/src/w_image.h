@@ -145,9 +145,6 @@ void W_ImageCreateUser(void);
 void W_AnimateImageSet(const image_t ** images, int number, int speed);
 void W_DrawSavePic(const byte *pixels);
 
-void W_LockImagesOGL(void);
-void W_UnlockImagesOGL(void);
-
 const cached_image_t *W_ImageCache(const image_t *image, 
 								   bool anim = true,
 								   const colourmap_c *trans = NULL);
@@ -156,8 +153,6 @@ void W_ImagePreCache(const image_t *image);
 
 // -AJA- planned....
 // epi::basicimage_c *W_ImageGetEpiBlock(const cached_image_t *c);
-
-GLuint W_ImageGetOGL(const cached_image_t *c);
 
 const char *W_ImageGetName(const image_t *image);
 

@@ -26,6 +26,11 @@
 #include "i_defs.h"
 #include "m_argv.h"
 
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 static int myargc;
 static const char **myargv = NULL;
 

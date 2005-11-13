@@ -27,9 +27,8 @@
 // -MH- 1998/08/18 Flyup and flydown logic
 //
 
-#include "i_defs.h"
-#include "g_game.h"
 
+/*
 #include "am_map.h"
 #include "con_cvar.h"
 #include "con_main.h"
@@ -47,6 +46,9 @@
 #include "m_menu.h"
 #include "m_random.h"
 #include "hu_stuff.h"
+
+#include "n_network.h"
+
 #include "p_bot.h"
 #include "p_local.h"
 #include "p_setup.h"
@@ -67,12 +69,25 @@
 #include "w_wad.h"
 #include "wi_stuff.h"
 #include "z_zone.h"
+*/
 
-#include "epi/endianess.h"
+#include "i_defs.h"
 
-#ifdef USE_HAWKNL
-#include "n_network.h"
-#endif
+#include "con_cvar.h"
+#include "g_game.h"
+#include "hu_stuff.h"
+#include "m_argv.h"
+#include "m_random.h"
+#include "p_bot.h"
+#include "p_local.h"
+#include "st_stuff.h"
+
+#include <epi/endianess.h>
+
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
+
 
 //
 // PLAYER ARRAY

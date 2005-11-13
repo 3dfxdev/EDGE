@@ -37,6 +37,7 @@
 #include "wi_stuff.h"
 #include "z_zone.h"
 
+#include <string.h>
 
 static savestruct_t *loaded_struct_list;
 static savearray_t  *loaded_array_list;

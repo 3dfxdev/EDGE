@@ -16,31 +16,13 @@
 //
 //----------------------------------------------------------------------------
 
-// this conditional applies to the whole file
 #include "i_defs.h"
+#include "i_defs_gl.h"
 
-#include "am_map.h"
-#include "dm_defs.h"
-#include "dm_state.h"
-#include "e_search.h"
-#include "m_bbox.h"
 #include "m_misc.h"
-#include "m_random.h"
-#include "p_local.h"
-#include "p_mobj.h"
-#include "r_defs.h"
 #include "r_main.h"
-#include "r_sky.h"
-#include "r_state.h"
-#include "r_things.h"
-#include "r2_defs.h"
-#include "rgl_defs.h"
 #include "v_colour.h"
-#include "v_ctx.h"
 #include "v_res.h"
-#include "w_textur.h"
-#include "w_wad.h"
-#include "z_zone.h"
 
 #define DEBUG  0
 

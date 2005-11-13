@@ -35,6 +35,8 @@
 #include "s_sound.h"
 #include "w_textur.h"
 
+#include <string.h>
+
 buttonlist_c buttonlist;
 
 //

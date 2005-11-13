@@ -40,7 +40,7 @@
 #include "ddf_locl.h"
 #include "ddf_main.h"
 
-#include "epi/strings.h"
+#include <epi/strings.h>
 
 // ---> ddf buildinfo for language class
 class ddf_bi_lang_c
@@ -120,7 +120,7 @@ public:
 			currnode = node;
 			
 			if (act != ADD)
-				cmp = strcmp(ref.GetString(), node->ref.GetString());
+				cmp = ref.Compare(node->ref);
 			else
 				cmp = 0;	// Has to be a match if the last act was ADD
 					

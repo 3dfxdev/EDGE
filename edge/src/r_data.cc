@@ -42,6 +42,8 @@
 #include "w_textur.h"
 #include "z_zone.h"
 
+#include <string.h>
+
 //
 // R_AddFlatAnim
 //

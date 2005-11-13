@@ -27,29 +27,25 @@
 //
 
 #include "i_defs.h"
+#include "i_defs_gl.h"
 #include "r_main.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
 #include "e_main.h"
 #include "gui_main.h"
-#include "m_argv.h"
-#include "m_bbox.h"
 #include "m_misc.h"
-#include "m_menu.h"
 #include "n_network.h"
-#include "p_local.h"
-#include "r_local.h"
-#include "r_sky.h"
 #include "r_vbinit.h"
 #include "r_view.h"
-#include "r2_defs.h"
 #include "rgl_defs.h"
-
+#include "rgl_unit.h"
+#include "p_mobj.h"
+#include "p_local.h"
 #include "st_stuff.h"
+#include "v_ctx.h"
 #include "v_colour.h"
-#include "w_wad.h"
-#include "wp_main.h"
+#include "v_res.h"
+
+#include <math.h>
 
 #define RESDELAY_MAXLOOP 18081979
 

@@ -38,15 +38,15 @@
 
 #include "i_defs.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
 #include "g_game.h"
 #include "m_bbox.h"
 #include "m_random.h"
 #include "p_local.h"
-#include "r_state.h"
 #include "s_sound.h"
 #include "z_zone.h"
+
+#include <float.h>
+#include <string.h>
 
 static float tmbbox[4];
 

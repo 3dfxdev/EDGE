@@ -37,7 +37,11 @@
 #include "r_defs.h"
 #include "w_wad.h"
 
-#include "epi/strings.h"
+#include <epi/errors.h>
+#include <epi/strings.h>
+
+#include <stdlib.h>
+#include <string.h>
 
 // If true, sound system is off/not working. Changed to false if sound init ok.
 bool nosound = false;
