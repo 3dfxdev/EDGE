@@ -26,8 +26,9 @@
 #include "dem_chunk.h"
 #include "z_zone.h"
 
+#include "lzo/minilzo.h"
+
 #include <epi/math_crc.h>
-#include <lzo/minilzo.h>
 
 #include <ctype.h>
 #include <math.h>

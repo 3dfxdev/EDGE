@@ -34,8 +34,16 @@
 #include "z_zone.h"
 #include "version.h"
 
+#ifdef HAVE_ALLOCA
 #include <alloca.h> // FIXME: I_TmpAlloc
+#endif 
+
 #include <ctype.h>
+
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
+#endif
+
 #include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>

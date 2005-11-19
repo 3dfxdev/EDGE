@@ -36,8 +36,17 @@
 #include "z_zone.h"
 #include "version.h"
 
+#ifdef HAVE_ALLOCA
+#include <alloca.h>
+#endif
+
 #include <ctype.h>
 #include <limits.h>
+
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
+#endif
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>

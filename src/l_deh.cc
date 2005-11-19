@@ -28,7 +28,7 @@
 
 #include "version.h"
 
-#include "deh_edge/dh_plugin.h"
+#include "deh/dh_plugin.h"
 
 #include <stdio.h>
 #include <stdarg.h>

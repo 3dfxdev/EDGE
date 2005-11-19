@@ -119,6 +119,7 @@ typedef enum { false, true } bool;
 
 #define MAXPATH _MAX_PATH
 
+#define alloca _alloca
 #define I_MoveData memmove
 
 #include ".\win32\i_compen.h"
