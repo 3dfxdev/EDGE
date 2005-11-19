@@ -23,7 +23,9 @@
 #include "../e_event.h"
 #include "../v_res.h"
 
-#include "../epi/macros.h"
+#include <epi/macros.h>
+
+#include <ctype.h>
 
 // FIXME: Combine all these SDL bool vars into an int/enum'd flags structure
 
