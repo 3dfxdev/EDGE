@@ -16,10 +16,9 @@ JPEG_DIR="c:/program files/gnuwin32"
 PNG_DIR="c:/program files/gnuwin32"
 ZLIB_DIR="c:/program files/gnuwin32"
 
-INCS=-Iinclude -I$(JPEG_DIR)/include -I$(PNG_DIR)/include -I$(ZLIB_DIR)/include 
+INCS=-I$(JPEG_DIR)/include -I$(PNG_DIR)/include -I$(ZLIB_DIR)/include 
 
-CXXINCS = -Iinclude \
-		  -I$(JPEG_DIR)/include \
+CXXINCS = -I$(JPEG_DIR)/include \
 		  -I$(PNG_DIR)/include \
 		  -I$(ZLIB_DIR)/include
 
@@ -28,9 +27,9 @@ CXXFLAGS=$(CXXINCS) $(INCS) -O2 -Wall -ffast-math -DWIN32 -DJPEG_STATIC
            
 # ----- OBJECTS ------------------------------------------------------
 
+#    archive_wad.o 
+#    archive.o 
 OBJS= \
-    archive_wad.o \
-    archive.o \
     arrays.o \
     asserts.o \
     basicimage.o \
