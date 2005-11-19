@@ -82,8 +82,20 @@
 #include <epi/errors.h>
 #include <epi/strings.h>
 
+#ifdef HAVE_ALLOCA
 #include <alloca.h> // FIXME: I_TmpAlloc
+#endif
+
 #include <ctype.h>
+
+#ifdef HAVE_DIRECT_H
+#include <direct.h>
+#endif
+
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

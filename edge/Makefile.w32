@@ -28,15 +28,15 @@ ZLIB_DIR="c:/program files/gnuwin32"
 OPTIM=-O2 -ffast-math
 
 # Generated library directories
-DEH_DIR=./deh_edge
-EPI_DIR=./epi
+GENLIB_DIR=../cvsroot
+DEH_DIR=./deh
+EPI_DIR=$(GENLIB_DIR)/epi
+GLBSP_DIR=$(GENLIB_DIR)/glbsp
 LZO_DIR=./lzo
-GLBSP_DIR=./glbsp
 
-INCS=-Iinclude
-        
-CXXINCS = -Iinclude \
-		  -I./ \
+INCS = -I$(GENLIB_DIR) 
+
+CXXINCS = -I$(GENLIB_DIR) \
 		  -I$(AL_DIR)/include \
 		  -I$(DX_DIR)/include \
 		  -I$(OGG_DIR)/include \
@@ -45,13 +45,7 @@ CXXINCS = -Iinclude \
 		  -I$(SDL_DIR)/include \
 		  -I$(ZLIB_DIR)/include
 
-CFLAGS=$(INCS) $(OPTIM) \
-       -Wall -fexceptions \
-	   -DWIN32 -DDEVELOPERS
-
-CXXFLAGS=$(CXXINCS) $(INCS) $(OPTIM) \
-         -Wall -fexceptions \
-         -DWIN32 -DDEVELOPERS
+CXXFLAGS=$(CXXINCS) $(OPTIM) -Wall -DWIN32 -DDEVELOPERS -DHAVE_DIRECT_H -DHAVE_MALLOC_H
 
 # ----- LIBRARIES ------------------------------------------------------
 
@@ -77,8 +71,7 @@ LIBS= \
 
 OBJS= \
 	$(RES) \
-	AL/i_sound.o \
-	AL/oggplayer.o \
+	oggplayer.o \
 	SDL/i_ctrl.o \
 	SDL/i_loop.o \
 	SDL/i_video.o \
@@ -197,6 +190,7 @@ OBJS= \
 	win32/i_music.o \
 	win32/i_mus.o \
 	win32/i_net.o \
+	win32/i_sound.o \
 	win32/i_system.o \
 	wi_stuff.o \
 	wp_wipe.o \
@@ -206,7 +200,7 @@ OBJS= \
 
 # ----- TARGETS ------------------------------------------------------
 
-SUBDIRS=dehedge epi glbsp lzo
+SUBDIRS=dehedge glbsp lzo
 
 all: $(SUBDIRS) $(BIN)
 
@@ -214,7 +208,6 @@ clean:
 	rm -f $(OBJS) $(BIN)
 	$(MAKE) -C $(DEH_DIR)   -f Plugin_w32.mak clean
 	$(MAKE) -C $(GLBSP_DIR) -f Plugin_w32.mak clean
-	$(MAKE) -C $(EPI_DIR)   -f Makefile.w32 clean
 	$(MAKE) -C $(LZO_DIR)   -f Makefile.w32 clean
 
 dehedge: 
@@ -222,9 +215,6 @@ dehedge:
 	
 glbsp: 
 	$(MAKE) -C $(GLBSP_DIR) -f Plugin_w32.mak
-	
-epi: 
-	$(MAKE) -C $(EPI_DIR) -f Makefile.w32
 	
 lzo: 
 	$(MAKE) -C $(LZO_DIR) -f Makefile.w32
