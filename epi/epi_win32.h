@@ -26,48 +26,17 @@
 #define __EPI_HEADER_SYSTEM_SPECIFIC__
 #endif
 
-// Borland C++ V5.5 for Win32
-#ifdef __BORLANDC__
-
-#define STRICT
-#define _WINDOWS
-#define WIN32_LEAN_AND_MEAN
-
-typedef __int64 i64_t;
-#define FLOAT_IEEE_754
-
-#include <windows.h>
-
-#include <ctype.h>
-#include <direct.h>
-#include <fcntl.h>
-#include <float.h>
-#include <io.h>
-#include <limits.h>
-#include <math.h>
-#include <malloc.h>
-#include <mem.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys\stat.h>
-#include <time.h>
-
-#include <gl/gl.h>
-
-#define DIRSEPARATOR '\\'
-
-#define GCCATTR(a)
-#define INLINE 
-#define EDGE_INLINE(decl, body) extern decl;
-
-#endif /* __BORLAND_C__ */
+#ifndef NULL
+#define NULL 0
+#endif
 
 // GNU C
 #ifdef __GNUC__
 
+#ifndef STRICT
 #define STRICT
+#endif 
+
 #define _WINDOWS
 #define WIN32_LEAN_AND_MEAN
 
@@ -75,6 +44,7 @@ typedef __int64 i64_t;
 
 typedef long long i64_t;
 
+/*
 #include <windows.h>
 
 #include <ctype.h>
@@ -96,6 +66,7 @@ typedef long long i64_t;
 #include <gl/gl.h>
 
 #define DIRSEPARATOR '\\'
+*/
 
 #define GCCATTR(a) __attribute__((a))
 #define INLINE inline
