@@ -105,6 +105,8 @@ public:
 	void RemoveLeft(unsigned int count);
 	void RemoveMiddle(unsigned int start, unsigned int count);
 	void RemoveRight(unsigned int count);
+    void Set(const char* s);
+    void Set(const string_c& obj);
 	void ToLower(void);
 	void ToUpper(void);
 	void TruncateAt(unsigned int idx);
@@ -171,6 +173,18 @@ inline string_c::string_c()
 	SET_DATA_EMPTY();
 }
 
+/*********************************************************************
+* Proc:		string_c::Set
+*********************************************************************/
+inline void string_c::Set(const char* s)
+{
+    *this = s;
+}
+
+inline void string_c::Set(const string_c& obj)
+{
+    *this = obj;
+}
 
 /*********************************************************************
 * Proc:		string_c::GetFirstChar
