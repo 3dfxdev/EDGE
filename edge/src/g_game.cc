@@ -666,8 +666,9 @@ void G_WorldDone(void)
 //
 void G_FileNameFromSlot(epi::string_c& fn, int slot)
 {
+    // FIXME: epi::the_filesystem->PathJoin()
 	fn.Format("%s%c%s%04d.%s", 
-				savedir, DIRSEPARATOR, SAVEGAMEBASE, 
+				save_dir.GetString(), DIRSEPARATOR, SAVEGAMEBASE, 
 				slot + 1, SAVEGAMEEXT);
 
 	return;

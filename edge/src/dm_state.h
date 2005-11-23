@@ -158,13 +158,14 @@ extern wbstartstruct_t wminfo;
 //
 
 // File handling stuff.
-extern char *iwaddir;
-extern char *iwad_base;
-extern char *homedir;
-extern char *gamedir;
-extern char *savedir;
-extern char *ddfdir;
 extern epi::strent_c cfgfile;
+
+extern epi::strent_c iwad_base;
+
+extern epi::strent_c cache_dir;
+extern epi::strent_c ddf_dir;
+extern epi::strent_c game_dir;
+extern epi::strent_c save_dir;
 
 // if true, load DDF/RTS as external files (instead of from EDGE.WAD)
 extern bool external_ddf;

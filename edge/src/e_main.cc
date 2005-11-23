@@ -80,22 +80,11 @@
 
 #include <epi/asserts.h>
 #include <epi/errors.h>
+#include <epi/filesystem.h>
 #include <epi/strings.h>
-
-#ifdef HAVE_ALLOCA
-#include <alloca.h> // FIXME: I_TmpAlloc
-#endif
+#include <epi/utility.h>
 
 #include <ctype.h>
-
-#ifdef HAVE_DIRECT_H
-#include <direct.h>
-#endif
-
-#ifdef HAVE_MALLOC_H
-#include <malloc.h>
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -107,8 +96,6 @@
 
 #define E_TITLE  "EDGE v" EDGEVERSTR
 
-
-bool devparm;  // started game with -devparm
 bool singletics = false;  // debug flag to cancel adaptiveness
 
 int maketic;
@@ -195,12 +182,12 @@ bool no_obsoletes = false;
 bool autoquickload = false;
 
 // FIXME!! Strbox this lot...
-char *iwaddir;
-char *iwad_base;
-char *homedir;
-char *gamedir;
-char *savedir;
-char *ddfdir;
+epi::strent_c iwad_base;
+
+epi::strent_c cache_dir;
+epi::strent_c ddf_dir;
+epi::strent_c game_dir;
+epi::strent_c save_dir;
 
 int crosshair = 0;
 
@@ -386,7 +373,6 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("sound", &nosound, true);
 	M_CheckBooleanParm("music", &nomusic, true);
 	M_CheckBooleanParm("cdmusic", &nocdmusic, true);
-	M_CheckBooleanParm("devparm", &devparm, false);
 	M_CheckBooleanParm("itemrespawn", &global_flags.itemrespawn, false);
 	M_CheckBooleanParm("mlook", &global_flags.mlook, false);
 	M_CheckBooleanParm("monsters", &global_flags.nomonsters, true);
@@ -960,104 +946,82 @@ void E_StartTitle(void)
 // InitDirectories
 //
 // Detects which directories to search for DDFs, WADs and other files in.
-// Does not set iwaddir though (E_IdentifyVersion does that).
 //
 // -ES- 2000/01/01 Written.
 //
-static void InitDirectories(void)
+void InitDirectories(void)
 {
-	const char *location;
-	const char *p;
-	char *parmfile;
+    epi::string_c home_dir;
+    epi::string_c path;
 
-	location = M_GetParm("-home");
+	const char *s = M_GetParm("-home");
+    if (s)
+    {
+        path.Set(s);
+        I_PreparePath(path);
+        home_dir.Set(path.GetString());
+    }
 
 	// Get the Home Directory from environment if set
-	if (!location)
-		location = getenv(EDGEWADDIR);  // !!! FIXME: doesn't work! (EDGE.WAD not found in homedir)
+    if (home_dir.IsEmpty())
+    {
+        s = getenv("HOME");
+        if (s)
+        {
+            path.Set(s);
 
-	if (location)
-	{
-		homedir = I_PreparePath(location);
-	}
-	else
-	{
-		char *home = getenv("HOME");
-		if (home)
-		{
-			bool valid = true;
-			char *tempdir;
+            // FIXME: Use epi filesystem joinpath method
+            I_PreparePath(path);
 
-			tempdir = I_PreparePath(home);
+            path.AddChar(DIRSEPARATOR);
+            path.AddString(EDGEHOMESUBDIR);
 
-			homedir = Z_New(char, strlen(tempdir) + strlen(EDGEHOMESUBDIR) + 2);
-			sprintf(homedir, "%s%c%s", tempdir, DIRSEPARATOR, EDGEHOMESUBDIR);
-
-			Z_Free(tempdir);
-
-			if (!I_PathIsDirectory(homedir))
+            const char *test_dir = path.GetString();
+			if (!epi::the_filesystem->IsDir(test_dir))
 			{
-				// Hack with define before we stick in the epi
-#ifdef WIN32
-				mkdir(homedir);
-#else
-				mkdir(homedir, SAVEGAMEMODE);
-#endif
-				// Check whether the directory was created
-				if (!I_PathIsDirectory(homedir))
-				{
-					valid = false;
-				}
+                epi::the_filesystem->MakeDir(test_dir);
+
+                // Check whether the directory was created
+                if (!epi::the_filesystem->IsDir(test_dir))
+                    test_dir = NULL; // Make invalid since it clearly isn't
 			}
 
-			if (!valid)
-			{
-				Z_Free(homedir);
-				homedir = NULL;
-			}
-		}
-		
-		if (!homedir)
-		{
-			homedir = Z_StrDup(".");
-		}
-	}
+            if (test_dir)
+                home_dir.Set(test_dir);
+        }
+    }
+
+    if (home_dir.IsEmpty())
+        home_dir.Set("."); // Default to current directory
+
 
 	// Get the Game Directory from parameter.
-	location = M_GetParm("-game");
-	if (location)
+	s = M_GetParm("-game");
+	if (s)
     {
-		gamedir = I_PreparePath(location);
+        path.Set(s);
+		I_PreparePath(path);
+        game_dir.Set(path.GetString());
 	}
 	else
 	{
-		gamedir = getenv("EDGEDATA");
-		if (gamedir)
-		{
-			gamedir = I_PreparePath(gamedir);
-		}
-		else
-		{
-			//gamedir = Z_StrDup(homedir);
-			gamedir = Z_StrDup(".");
-		}
+        game_dir.Set(".");
 	}
 
 	// add parameter file "gamedir/parms" if it exists.
-	parmfile = (char*)I_TmpMalloc(strlen(gamedir) + strlen("parms") + 2);
-	sprintf(parmfile, "%s%cparms", gamedir, DIRSEPARATOR);
+    path.Format("%s%cparms", game_dir.GetString(), DIRSEPARATOR);
 
 #ifdef DEVELOPERS
-	L_WriteDebug("Response file '%s' ", parmfile);
+	L_WriteDebug("Response file '%s' ", path.GetString());
 #endif
 
-	if (I_Access(parmfile))
+	if (I_Access(path.GetString()))
 	{
 #ifdef DEVELOPERS
 		L_WriteDebug("found.\n");
 #endif
 		// Insert it right after the game parameter
-		M_ApplyResponseFile(parmfile, M_CheckParm("-game") + 2);
+		M_ApplyResponseFile(path.GetString(), M_CheckParm("-game") + 2);
 	}
 	else
 	{
@@ -1066,54 +1030,58 @@ static void InitDirectories(void)
 #endif
 	}
 
-	I_TmpFree(parmfile);
-
-	location = M_GetParm("-ddf");
-	if (location)
+	s = M_GetParm("-ddf");
+	if (s)
 	{
 		external_ddf = true;
-		ddfdir = I_PreparePath(location);
+
+        path.Set(s);
+        I_PreparePath(path);
+
+		ddf_dir.Set(path.GetString());
 	} 
 	else
 	{
-		ddfdir = Z_StrDup(gamedir);
+		ddf_dir.Set(game_dir.GetString());
 	}
 
 	// config file
-	p = M_GetParm("-config");
-	if (p)
+	s = M_GetParm("-config");
+	if (s)
 	{
-		epi::string_c fn;
-		
-		M_ComposeFileName(fn, homedir, p);
-		cfgfile.Set(fn.GetString());
+	    path.Empty();
+		M_ComposeFileName(path, home_dir.GetString(), s);
+		cfgfile.Set(path.GetString());
 	}
 	else
-	{
-		epi::string_c fn;
+    {
+	    path.Format("%s%c%s", 
+                    home_dir.GetString(), DIRSEPARATOR, EDGECONFIGFILE);
 
-	    fn.Format("%s%c%s", homedir, DIRSEPARATOR, EDGECONFIGFILE);
-		cfgfile.Set(fn.GetString());
+		cfgfile.Set(path.GetString());
 	}
 	
+	// cache directory
+    // FIXME: epi filesystem joinpath
+    path.Set(home_dir.GetString());
+    path += DIRSEPARATOR;
+    path += CACHEDIR;
+		
+    if (!epi::the_filesystem->IsDir(path.GetString()))
+        epi::the_filesystem->MakeDir(path.GetString());
+
+    cache_dir.Set(path.GetString());
+
 	// savegame directory
-	{
-		epi::string_c dir;
-		
-		dir = homedir;
-		dir += DIRSEPARATOR;
-		dir += SAVEGAMEDIR;
-		
-		// FIXME!! Replace with epi::strent_c
-		savedir = new char[dir.GetLength()+1];
-		strcpy(savedir, dir.GetString());
-		
-#ifdef WIN32
-	    mkdir(savedir);
-#else
-	    mkdir(savedir, SAVEGAMEMODE);
-#endif
-	}
+    // FIXME: epi filesystem joinpath
+    path.Set(home_dir.GetString());
+    path += DIRSEPARATOR;
+    path += SAVEGAMEDIR;
+	
+    if (!epi::the_filesystem->IsDir(path.GetString()))
+        epi::the_filesystem->MakeDir(path.GetString());
+
+    save_dir.Set(path.GetString());
 }
 
 //
@@ -1127,22 +1095,20 @@ static void InitDirectories(void)
 //
 #define EXTERN_FILE  "things.ddf"
 
-static void CheckExternal(void)
+void CheckExternal(void)
 {
-	char *testfile;
+    epi::string_c test_filename;
   
 	// too simplistic ?
 
-	testfile = (char*)I_TmpMalloc(strlen(gamedir) + strlen(EXTERN_FILE) + 2);
-	sprintf(testfile, "%s%c%s", gamedir, DIRSEPARATOR, EXTERN_FILE);
+	test_filename.Format("%s%c%s", game_dir.GetString(), DIRSEPARATOR, EXTERN_FILE);
 
-	if (I_Access(testfile))
+	if (I_Access(test_filename.GetString()))
 		external_ddf = true;
-  
-	I_TmpFree(testfile);
 }
 
-static char *ExtractIWadBase(const char *path)
+// FIXME: Really needs to be boiled down to an EPI filesystem method
+void ExtractIWadBase(const char *path, epi::strent_c& result)
 {
 	const char *start = path + strlen(path) - 1;
 
@@ -1164,12 +1130,8 @@ static char *ExtractIWadBase(const char *path)
 	if (length == 0)
 		I_Error("ExtractIWadBase: zero length basename: %s\n", path);
 	
-	char *result = Z_New(char, length+1);
-
-	memcpy(result, start, length);
-	result[length] = 0;
-
-	return result;
+    result.Set(start, length); 
+	return;
 }
 
 
@@ -1182,75 +1144,86 @@ const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "freedoom", NULL }
 
 static void IdentifyVersion(void)
 {
-	bool done;
-	const char *location;
-	char *iwad;
-	int i;
-	epi::string_c fn;
+	// Check -iwad parameter, find out if it is the IWADs directory
+    epi::string_c iw_param;
+    epi::string_c iw_filename;
+    epi::string_c iw_dir;
 
-	// Check -iwad parameter, find out if we are talking directory or file
-	location = M_GetParm("-iwad");
+    iw_param.Set(M_GetParm("-iwad"));
 
-	if (!location)
-		location = getenv("DOOMWADDIR");
+    if (!iw_param.IsEmpty())
+    {
+        I_PreparePath(iw_param);
+        if (epi::the_filesystem->IsDir(iw_param.GetString()))
+        {
+            iw_dir.Set(iw_param.GetString());
+            iw_param.Empty(); // Discard 
+        }
+    }   
 
-	if (location)
-	{
-		iwad = I_PreparePath(location);
+    // If we haven't yet set the IWAD directory, then we check
+    // the DOOMWADDIR environment variable
+    if (iw_dir.IsEmpty())
+    {
+        epi::string_c iwad_envdir;
 
-		if (I_PathIsDirectory(iwad))
+        iwad_envdir.Set(getenv("DOOMWADDIR"));
+
+        I_PreparePath(iwad_envdir);
+        if (epi::the_filesystem->IsDir(iwad_envdir.GetString()))
+        {
+            iw_dir.Set(iwad_envdir.GetString());
+        }
+    }
+
+    // Should the IWAD directory not be set by now, then we
+    // use our standby option of the game directory.
+    if (iw_dir.IsEmpty())
+    {
+        iw_dir.Set(game_dir.GetString());
+    }
+
+    // Should the IWAD Parameter not be empty then it means
+    // that one was given which is not a directory. Therefore
+    // we assume it to be a name
+    if (!iw_param.IsEmpty())
+    {
+        epi::string_c fn;
+
+        fn = iw_param;
+        
+        // FIXME: Implement as EPI filesystem func ReplaceExtension()
+        if (M_CheckExtension(EDGEWADEXT, iw_param.GetString()) != EXT_MATCHING)
+        {
+            fn.AddChar('.');
+            fn.AddString(EDGEWADEXT);
+        }
+
+        if (!I_Access(fn.GetString()))
+        {
+			I_Error("IdentifyVersion: Unable to add specified '%s'", fn.GetString());
+        }
+
+        iw_filename = fn;
+    }
+    else
+    {
+        const char *location;
+        epi::string_c fn;
+        int max = 1;
+
+        if (iw_dir.Compare(game_dir.GetString())) 
+        {
+            // IWAD directory & game directory differ 
+            // therefore do a second loop which will
+            // mean we check both.
+            max++;
+        } 
+
+		bool done = false;
+		for (int i = 0; i < max && !done; i++)
 		{
-			// it was a directory
-			iwaddir = iwad;
-			iwad = NULL;
-		}
-		else
-		{
-			// it was a file
-			iwaddir = Z_StrDup(gamedir);
-		}
-	}
-	else
-	{
-		iwaddir = Z_StrDup(gamedir);
-		iwad = NULL;
-	}
-
-	// Has an iwad name been specified?
-	if (iwad)
-	{
-		epi::string_c fn;
-		
-		if (M_CheckExtension(EDGEWADEXT, iwad) != EXT_MATCHING)
-		{
-			fn.Format("%s.%s", iwad, EDGEWADEXT);
-		}
-		else
-		{
-			fn = iwad;
-		}
-
-		if (I_Access(fn.GetString()))
-		{
-			W_AddRawFilename(fn.GetString(), FLKIND_IWad);
-		}
-		else
-		{
-			I_Error("IdentifyVersion: Unable to add specified '%s'", 
-					fn.GetString());
-		}
-
-		iwad_base = ExtractIWadBase(iwad);
-		strupr(iwad_base);
-
-		Z_Free(iwad);
-	}
-	else // cycle through default wad names and add them if they exist
-	{
-		done = false;
-		for (i = 0; i < 3 && !done; i++)
-		{
-			location = (i == 0 ? iwaddir : gamedir);
+			location = (i == 0 ? iw_dir.GetString() : game_dir.GetString());
 
 			//
 			// go through the available wad names constructing an access
@@ -1261,53 +1234,54 @@ static void IdentifyVersion(void)
 			//
 			for (int w_idx=0; wadname[w_idx]; w_idx++)
 			{
-				fn.Format("%s%c%s.%s", location, DIRSEPARATOR, 
-						wadname[w_idx], EDGEWADEXT);
+				fn.Format("%s%c%s.%s", 
+                          location, DIRSEPARATOR,
+                          wadname[w_idx], EDGEWADEXT);
 
 				if (I_Access(fn.GetString()))
 				{
-					W_AddRawFilename(fn.GetString(), FLKIND_IWad);
-
-					iwad_base = Z_StrDup(wadname[w_idx]);
-					strupr(iwad_base);
-
+                    iw_filename = fn;
 					done = true;
 					break;
 				}
 			}
 		}
-	}
+        
+    }
 
-	L_WriteDebug("IWAD BASE = [%s]\n", iwad_base);
+    W_AddRawFilename(iw_filename.GetString(), FLKIND_IWad);
 
-	if (!addwadnum)
-		I_Error("IdentifyVersion: No IWADS found!\n");
+    // FIXME! Use epi filesystem
+    iw_filename.ToUpper(); // Make uppercase
+    ExtractIWadBase(iw_filename.GetString(), iwad_base);
 
-	done = false;
-	for (i = 0; i < 2 && !done; i++)
-	{
-		location = (i == 0 ? iwaddir : gamedir);
+	L_WriteDebug("IWAD BASE = [%s]\n", iwad_base.GetString());
 
-		if (location)
-		{
-			fn.Format("%s%c%s.%s", location, DIRSEPARATOR, REQUIREDWAD, EDGEWADEXT);
+    // Emulate this behaviour?
+	//if (!addwadnum)
+	//	I_Error("IdentifyVersion: No IWADS found!\n");
 
-			if (I_Access(fn.GetString()))
-			{
-				// Only read the DDF/RTS lumps in EDGE.WAD if we are not in
-				// external-ddf mode.
+    // Look for the required wad in the IWADs dir and then the gamedir
+    epi::string_c reqwad_filename;
 
-				W_AddRawFilename(fn.GetString(), FLKIND_EWad);
-				done = true;
-			}
-		}
-	}
+    reqwad_filename.Format("%s%c%s.%s", 
+                           iw_dir.GetString(), 
+                           DIRSEPARATOR, REQUIREDWAD, EDGEWADEXT);
 
-	if (!done)
-		I_Error("IdentifyVersion: Could not find required %s.%s!\n", REQUIREDWAD, EDGEWADEXT);
+    if (!I_Access(reqwad_filename.GetString()))
+    {
+        reqwad_filename.Format("%s%c%s.%s", 
+                               game_dir.GetString(), 
+                               DIRSEPARATOR, REQUIREDWAD, EDGEWADEXT);
 
-	if (devparm)
-		I_Printf("%s", language["DevelopmentMode"]);
+        if (!I_Access(reqwad_filename.GetString()))
+        {
+            I_Error("IdentifyVersion: Could not find required %s.%s!\n", 
+                    REQUIREDWAD, EDGEWADEXT);
+        }
+    }
+
+    W_AddRawFilename(reqwad_filename.GetString(), FLKIND_EWad);
 }
 
 static void CheckCPU(void)
@@ -1499,7 +1473,7 @@ static void AddSingleCmdLineFile(const char *name)
 
 	epi::string_c fn;
 
-	M_ComposeFileName(fn, gamedir, name);
+	M_ComposeFileName(fn, game_dir.GetString(), name);
 	W_AddRawFilename(fn.GetString(), kind);
 }
 
@@ -1556,7 +1530,7 @@ static void AddCommandLineFiles(void)
 				I_Error("Illegal filename for -script: %s\n", ps);
 			}
 
-			M_ComposeFileName(fn, gamedir, ps);
+			M_ComposeFileName(fn, game_dir.GetString(), ps);
 			W_AddRawFilename(fn.GetString(), FLKIND_Script);
 		}
 
@@ -1585,7 +1559,7 @@ static void AddCommandLineFiles(void)
 				I_Error("Illegal filename for -deh: %s\n", ps);
 			}
 
-			M_ComposeFileName(fn, gamedir, ps);
+			M_ComposeFileName(fn, game_dir.GetString(), ps);
 			W_AddRawFilename(fn.GetString(), FLKIND_Deh);
 		}
 

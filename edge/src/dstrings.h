@@ -28,6 +28,12 @@
 
 
 // Misc. other strings.
+#define CACHEDIR "cache"
+
+#define EDGEGWAEXT     "gwa"
+#define EDGEHWAEXT     "hwa"
+#define EDGEWADEXT     "wad"
+
 #define SAVEGAMEBASE	"save"
 #define SAVEGAMEDIR	"savegame"
 #define SAVEGAMEEXT    "esg"

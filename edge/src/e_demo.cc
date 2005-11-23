@@ -210,7 +210,7 @@ void G_RecordDemo(const char *filename)
 {
 	epi::string_c demoname;
 
-	M_ComposeFileName(demoname, gamedir, filename);
+	M_ComposeFileName(demoname, game_dir.GetString(), filename);
 
 	if (M_CheckExtension("edm", demoname.GetString()) == EXT_NONE)
 		demoname += ".edm";
@@ -290,7 +290,7 @@ void G_DeferredPlayDemo(const char *filename)
 {
 	epi::string_c demoname;
 
-	M_ComposeFileName(demoname, gamedir, filename);
+	M_ComposeFileName(demoname, game_dir.GetString(), filename);
 
 	if (M_CheckExtension("edm", demoname.GetString()) == EXT_NONE)
 		demoname += ".edm";

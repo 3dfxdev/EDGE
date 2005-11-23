@@ -36,16 +36,8 @@
 #include "z_zone.h"
 #include "version.h"
 
-#ifdef HAVE_ALLOCA
-#include <alloca.h>
-#endif
-
 #include <ctype.h>
 #include <limits.h>
-
-#ifdef HAVE_MALLOC_H
-#include <malloc.h>
-#endif
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -404,27 +396,20 @@ static void *DDF_MainCacheFile(readinfo_t * readinfo)
 {
 	FILE *file;
 	char *memfile;
-	char *filename;
+	epi::string_c filename;
 	size_t size;
 
 	if (!readinfo->filename)
 		I_Error("DDF_MainReadFile: No file to read");
 
-	filename = (char*)I_TmpMalloc(strlen(ddfdir) + strlen(readinfo->filename) + (2*sizeof(char)));
+	filename.Format("%s%c%s", ddf_dir.GetString(), DIRSEPARATOR, readinfo->filename);
 
-	sprintf(filename, "%s%c%s", ddfdir, DIRSEPARATOR, readinfo->filename);
-
-	file = fopen(filename, "rb");
-
+	file = fopen(filename.GetString(), "rb");
 	if (file == NULL)
 	{
-		I_Warning("DDF_MainReadFile: Unable to open: '%s'\n", filename);
-
-		I_TmpFree(filename);
+		I_Warning("DDF_MainReadFile: Unable to open: '%s'\n", filename.GetString());
 		return NULL;
 	}
-
-	I_TmpFree(filename);
 
 #if (DEBUG_DDFREAD)
 	L_WriteDebug("\nDDF Parser Output:\n");

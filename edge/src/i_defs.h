@@ -49,9 +49,6 @@ typedef enum { false, true } bool;
 #define EDGECONFIGFILE "EDGE.CFG"
 #define EDGELOGFILE    "EDGE.LOG"
 #define EDGEHOMESUBDIR ".edge"
-#define EDGEWADDIR     "EDGEWADDIR"
-#define EDGEWADEXT     "wad"
-#define EDGEGWAEXT     "gwa"
 #define REQUIREDWAD    "EDGE"
 
 //
@@ -102,9 +99,6 @@ typedef enum { false, true } bool;
 #define EDGECONFIGFILE "EDGE.CFG"
 #define EDGELOGFILE    "EDGE.LOG"
 #define EDGEHOMESUBDIR "Application Data\\Edge"
-#define EDGEWADDIR     "EDGEWADDIR"
-#define EDGEWADEXT     "wad"
-#define EDGEGWAEXT     "gwa"
 #define REQUIREDWAD    "EDGE"
 
 #define DIRSEPARATOR '\\'
@@ -139,9 +133,6 @@ typedef enum { false, true } bool;
 #define EDGECONFIGFILE "EDGE.CFG"
 #define EDGELOGFILE    "EDGE.LOG"
 #define EDGEHOMESUBDIR "Application Data\\Edge"
-#define EDGEWADDIR     "EDGEWADDIR"
-#define EDGEWADEXT     "wad"
-#define EDGEGWAEXT     "gwa"
 #define REQUIREDWAD    "EDGE"
 
 #define DIRSEPARATOR '\\'
@@ -182,9 +173,6 @@ typedef enum { false, true } bool;
 #define EDGECONFIGFILE "EDGE.CFG"
 #define EDGELOGFILE    "EDGE.LOG"
 #define EDGEHOMESUBDIR "Application Data\\Edge"
-#define EDGEWADDIR     "EDGEWADDIR"
-#define EDGEWADEXT     "wad"
-#define EDGEGWAEXT     "gwa"
 #define REQUIREDWAD    "EDGE"
 
 #define DIRSEPARATOR '\\'
@@ -222,9 +210,6 @@ typedef enum { false, true } bool;
 #define EDGECONFIGFILE "edge.cfg"
 #define EDGELOGFILE    "edge.log"
 #define EDGEHOMESUBDIR ".edge"
-#define EDGEWADDIR     "EDGEWADDIR"
-#define EDGEWADEXT     "wad"
-#define EDGEGWAEXT     "gwa"
 #define REQUIREDWAD    "edge"
 
 #define NAME        "EDGE"
@@ -252,9 +237,6 @@ typedef enum { false, true } bool;
 #define EDGECONFIGFILE "edge.cfg"
 #define EDGELOGFILE    "edge.log"
 #define EDGEHOMESUBDIR ".edge"
-#define EDGEWADDIR     "EDGEWADDIR"
-#define EDGEWADEXT     "wad"
-#define EDGEGWAEXT     "gwa"
 #define REQUIREDWAD    "edge"
 
 #define DIRSEPARATOR '/'
