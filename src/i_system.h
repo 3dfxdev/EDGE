@@ -32,6 +32,7 @@
 #include "e_event.h"
 #include "e_ticcmd.h"
 
+#include <epi/strings.h>
 #include <epi/timestamp.h>
 
 //--------------------------------------------------------
@@ -99,7 +100,7 @@ bool I_Access(const char *filename);
 // Returns true if the given file or directory exists.  For files it
 // should check if it readable.
 
-char *I_PreparePath(const char *path);
+void I_PreparePath(epi::string_c& path);
 // Prepares the end of the path name, so it will be possible to
 // concatenate a DIRSEPARATOR and a file name to it.  Allocates and
 // returns the new string.  Doesn't fail.

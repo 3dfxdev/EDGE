@@ -44,6 +44,7 @@
 #include "ddf_style.h"
 #include "ddf_swth.h"
 
+#include "dstrings.h"
 #include "e_main.h"
 #include "e_search.h"
 #include "l_deh.h"
@@ -168,10 +169,42 @@ public:
 // Raw filenames
 typedef struct raw_filename_s
 {
-	const char *file_name;
+	epi::strent_c file_name;
 	int kind;
 }
 raw_filename_t;
+
+class raw_filename_container_c : public epi::array_c
+{
+public:
+	raw_filename_container_c() : epi::array_c(sizeof(raw_filename_t*)) { }
+	~raw_filename_container_c() { Clear(); }
+
+private:
+	void CleanupObject(void *obj)  { delete *(raw_filename_t**)obj; }
+
+public:
+    // List Management
+	int GetSize() { return array_entries; }
+
+	int Insert(const char *file_name, int kind) 
+    { 
+        if (file_name == NULL)
+            return -1;
+
+        raw_filename_t *rf = new raw_filename_t;
+        rf->file_name.Set(file_name);
+        rf->kind = kind;
+
+        return InsertObject((void*)&rf); 
+    }
+
+	raw_filename_t* operator[](int idx) 
+    { 
+        return (raw_filename_t*)FetchObject(idx); 
+    }
+};
+
 
 typedef enum
 {
@@ -253,9 +286,7 @@ bool within_flat_list;
 bool within_patch_list;
 bool within_colmap_list;
 
-int addwadnum = 0;
-static int maxwadfiles = 0;
-static raw_filename_t *wadfiles = NULL;
+raw_filename_container_c wadfiles;
 
 static void W_ReadLump(int lump, void *dest);
 
@@ -615,7 +646,7 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 
 	Z_StrNCpy(lump_p->name, name, 8);
 	strupr(lump_p->name);
-
+ 
 	// -- handle special names --
 
 	if (!strncmp(name, "PLAYPAL", 8))
@@ -691,7 +722,7 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 	}
 	else if (IsS_END(lump_p->name))
 	{
-		if (!within_sprite_list)
+	  	if (!within_sprite_list)
 			I_Warning("Unexpected S_END marker in wad.\n");
 
 		lump_p->kind = LMKIND_Marker;
@@ -866,6 +897,7 @@ static bool HasInternalGLNodes(data_file_c *df, int datafile)
 	return levels == glnodes;
 }
 
+/*
 // add the .hwa extension (FIXME: put filename manipulation into EPI)
 const char *MakeHwaFilename(const char *filename)
 {
@@ -897,6 +929,7 @@ const char *MakeHwaFilename(const char *filename)
 	strcat(result, ".hwa");
 	return result;
 }
+*/
 
 //
 // AddFile
@@ -1037,36 +1070,43 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	{
 		if (HasInternalGLNodes(df, datafile))
 		{
-			df->companion_gwa = datafile;
+		    df->companion_gwa = datafile;
 		}
 		else
 		{
-			char gwa_file[1024];
-
-			int len = strlen(filename);
-
 			DEV_ASSERT2(dyn_index < 0);
 
-			// replace WAD extension with GWA
-			strcpy(gwa_file, filename);
+            epi::string_c gwa_filename = filename;
 
-			Z_StrNCpy(gwa_file + len - 3, EDGEGWAEXT, 3);
+            gwa_filename.RemoveRight(3);          // Remove Extension
+            gwa_filename.AddString(EDGEGWAEXT);   // Add GL friendly nodes extension
 
 			// create the GWA file if it doesn't exist, or recreate it
 			// if the time and date don't match (the WAD file has been
 			// updated in the meantime).
 
-			if (! I_Access(gwa_file) || L_CompareFileTimes(filename, gwa_file) > 0)
+            // Check for the existance of this file (use the EPI)
+
+            // Check for the existance of this file in the cache directory
+
+            // If both exist, use one in root. if neither exist create
+            // one in the cache directory
+
+            // Check the timestamp of the wad against the gwa, build
+            // gwa if out of date.
+
+			if (! I_Access(gwa_filename.GetString()) || 
+                L_CompareFileTimes(filename, gwa_filename.GetString()) > 0)
 			{
 				I_Printf("Building GL Nodes for: %s\n", filename);
 
-				if (! GB_BuildNodes(filename, gwa_file))
+				if (! GB_BuildNodes(filename, gwa_filename))
 					I_Error("Failed to build GL nodes for: %s\n", filename);
 			}
 
 			// Load it.  This recursion bit is rather sneaky,
 			// hopefully it doesn't break anything...
-			AddFile(gwa_file, FLKIND_GWad, datafile);
+			AddFile(gwa_filename.GetString(), FLKIND_GWad, datafile);
 
 			df->companion_gwa = datafile + 1;
 		}
@@ -1075,16 +1115,34 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	// handle DeHackEd patch files
 	if (kind == FLKIND_Deh || df->deh_lump >= 0)
 	{
-		const char *hwa_file = MakeHwaFilename(filename);
+        epi::string_c hwa_filename = filename;
+
+        hwa_filename.RemoveRight(3);          // Remove Extension
+        hwa_filename.AddString(EDGEHWAEXT);   // Add GL friendly nodes extension
+
+        // create the GWA file if it doesn't exist, or recreate it
+        // if the time and date don't match (the WAD file has been
+        // updated in the meantime).
+
+        // Check for the existance of this file (use the EPI)
+
+        // Check for the existance of this file in the cache directory
+
+        // If both exist, use one in root. if neither exist create
+        // one in the cache directory
+
+        // Check the timestamp of the wad against the gwa, build
+        // gwa if out of date.
+		//const char *hwa_filename = MakeHwaFilename(filename);
 
 		// optimisation: use existing HWA file when possible
-		if (! I_Access(hwa_file) || L_CompareFileTimes(filename, hwa_file) > 0)
+		if (! I_Access(hwa_filename.GetString()) || L_CompareFileTimes(filename, hwa_filename.GetString()) > 0)
 		{
 			if (kind == FLKIND_Deh)
 			{
 				I_Printf("Converting DEH file: %s\n", filename);
 
-				if (! DH_ConvertFile(filename, hwa_file))
+				if (! DH_ConvertFile(filename, hwa_filename.GetString()))
 					I_Error("Failed to convert DeHackEd patch: %s\n", filename);
 			}
 			else
@@ -1096,7 +1154,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 				const byte *data = (const byte *)W_CacheLumpNum(df->deh_lump);
 				int length = W_LumpLength(df->deh_lump);
 
-				if (! DH_ConvertLump(data, length, lump_name, hwa_file))
+				if (! DH_ConvertLump(data, length, lump_name, hwa_filename.GetString()))
 					I_Error("Failed to convert DeHackEd LUMP in: %s\n", filename);
 
 				W_DoneWithLump(data);
@@ -1104,7 +1162,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		}
 
 		// Load it (using good ol' recursion again).
-		AddFile(hwa_file, FLKIND_HWad, -1);
+		AddFile(hwa_filename.GetString(), FLKIND_HWad, -1);
 	}
 }
 
@@ -1149,17 +1207,9 @@ static void InitCaches(void)
 //
 void W_AddRawFilename(const char *file, int kind)
 {
-	raw_filename_t *r;
-
 	L_WriteDebug("Added filename: %s\n", file);
 
-	if (addwadnum == maxwadfiles)
-		Z_Resize(wadfiles, raw_filename_t, ++maxwadfiles + 1);
-
-	r = &wadfiles[addwadnum++];
-
-	r->file_name = Z_StrDup(file);
-	r->kind = kind;
+    wadfiles.Insert(file, kind);
 }
 
 //
@@ -1182,14 +1232,17 @@ void W_InitMultipleFiles(void)
 	// will be realloced as lumps are added
 	lumpinfo = NULL;
 
-	for (int r = 0; r < addwadnum; r++)
-		AddFile(wadfiles[r].file_name, wadfiles[r].kind, -1);
+	for (epi::array_iterator_c it = wadfiles.GetBaseIterator(); it.IsValid(); it++)
+    {
+        raw_filename_t *r = ITERATOR_TO_TYPE(it, raw_filename_t*);
+		AddFile(r->file_name.GetString(), r->kind, -1);
+    }
 
 	if (!numlumps)
 		I_Error("W_InitMultipleFiles: no files found");
 }
 
-static bool TryLoadExtraLanguage(const char *name)
+bool TryLoadExtraLanguage(const char *name)
 {
 	int lumpnum = W_CheckNumForName(name);
 
@@ -1209,12 +1262,13 @@ static bool TryLoadExtraLanguage(const char *name)
 	return true;
 }
 
-static void LoadTntPlutStrings(void)
+// MUNDO HACK, but if only fixable by a new wad structure...
+void LoadTntPlutStrings(void)
 {
-	if (strncmp(iwad_base, "TNT", 3) == 0)
+	if (strcmp(iwad_base.GetString(), "TNT") == 0)
 		TryLoadExtraLanguage("TNTLANG");
 
-	if (strncmp(iwad_base, "PLUT", 4) == 0)
+	if (strcmp(iwad_base.GetString(), "PLUTONIA") == 0)
 		TryLoadExtraLanguage("PLUTLANG");
 }
 

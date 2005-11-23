@@ -918,7 +918,7 @@ bool RAD_ReadScript(void *data, int size)
 	if (data == NULL)
 	{
 		epi::string_c fn;
-		M_ComposeFileName(fn, ddfdir, "edge.scr");
+		M_ComposeFileName(fn, ddf_dir.GetString(), "edge.scr");
 
 		if (! I_Access(fn.GetString()))
 			return false;

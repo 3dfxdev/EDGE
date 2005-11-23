@@ -87,7 +87,7 @@ void S_ChangeMusic(int entrynum, bool looping)
 		if (play->type != MUS_OGG)
 		{
 			// -AJA- 2005/01/15: filenames in DDF relative to GAMEDIR
-			M_ComposeFileName(fn, gamedir, play->info.GetString());
+			M_ComposeFileName(fn, game_dir.GetString(), play->info.GetString());
 
 			data = M_GetFileData(fn.GetString(), &datlength);
 
@@ -104,7 +104,7 @@ void S_ChangeMusic(int entrynum, bool looping)
 		else
 		{
 			// -AJA- 2005/01/15: filenames in DDF relative to GAMEDIR
-			M_ComposeFileName(fn, gamedir, play->info.GetString());
+			M_ComposeFileName(fn, game_dir.GetString(), play->info.GetString());
 
 			if (! I_Access(fn.GetString()))
 			{
