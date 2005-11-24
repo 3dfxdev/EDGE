@@ -34,6 +34,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <string.h>
+#include <unistd.h>
+
 // cleanup handling -- killough:
 
 static void I_SignalHandler(int s)

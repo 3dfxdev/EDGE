@@ -22,6 +22,8 @@
 
 #include "../m_argv.h"
 
+#include <stdlib.h>
+
 ALCdevice *alc_dev;
 ALCcontext *alc_ctx;
 
