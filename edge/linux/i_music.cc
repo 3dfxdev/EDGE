@@ -23,15 +23,16 @@
 #include "../i_defs.h"
 #include "i_sysinc.h"
 
-#include "../AL/oggplayer.h"
-
-#define USE_HUMID 
+#include "../oggplayer.h"
 
 #ifdef USE_HUMID
-#include "../AL/humdinger.h"
+#include "../humdinger.h"
 #endif
 
 #include "../s_sound.h"
+
+#include <string.h>
+
 
 // #defines for handle information
 #define GETLIBHANDLE(_handle) (_handle&0xFF)

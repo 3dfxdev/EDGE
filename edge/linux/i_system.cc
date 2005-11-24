@@ -16,17 +16,6 @@
 //
 //----------------------------------------------------------------------------
 
-#include <stdio.h>
-
-#include <stdarg.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <signal.h>
-#include <errno.h>
-#include <sys/time.h>
-#include <sys/stat.h>
-#include <ctype.h>
-
 #include "./i_sysinc.h"
 #include "i_defs.h"
 
@@ -40,6 +29,22 @@
 #include "m_random.h"
 #include "w_wad.h"
 #include "z_zone.h"
+
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <unistd.h>
+#include <signal.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <time.h>
+
+// FIXME: Use file_c handles
+extern FILE *logfile;
+extern FILE *debugfile;
 
 #ifdef USE_FLTK
 
@@ -416,30 +421,25 @@ bool I_PathIsAbsolute(const char *path)
 // a DIRSEPARATOR and a file name to it.
 // Allocates and returns the new string.
 //
-char *I_PreparePath(const char *path)
+void I_PreparePath(epi::string_c &path)
 {
-	int len = strlen(path);
-	char *s;
-
-	if (len == 0)
+	if (path.IsEmpty())
 	{
-		// empty string means "./"
-		return Z_StrDup(".");
+ 		// empty string means current directory
+        path.AddString(".");
+		return;
 	}
 
-	if (path[len - 1] == '/')
+	if (path.GetAt(path.GetLength() - 1) == '/')
 	{
-		// cut off the last separator
-		s = (char*)Z_Malloc(len);
-		memcpy(s, path, len - 1);
-		s[len - 1] = 0;
-
-		return s;
+        // Remove the leading slash
+        path.RemoveRight(1);
+        return;
 	}
 
-	return Z_StrDup(path);
+    // Nothing to do
+	return;
 }
-
 
 //
 // I_PureRandom
