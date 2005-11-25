@@ -69,15 +69,6 @@ typedef enum { false, true } bool;
 // See m_inline.h for usage. This is the ANSI C compliant definition.
 #define EDGE_INLINE(decl, body) extern decl;
 
-//
-// TmpMalloc is a memory allocater which can be used for temporary allocations.
-// Memory allocated with I_TmpMalloc has to be freed with I_TmpFree before the
-// procedure containing the I_TmpMalloc call exits. Its advantage is that it
-// gets much faster on all systems that support alloca.
-//
-#define I_TmpMalloc(size) Z_Malloc(size)
-#define I_TmpFree(ptr) Z_Free(ptr)
-
 // If memmove is not optimal on your system, you can use your own I_MoveData,
 // which should have exactly the same type as memcpy, and should declared here.
 #define I_MoveData memmove
@@ -107,9 +98,6 @@ typedef enum { false, true } bool;
 #define OUTPUTNAME  "EDGECONSOLE"
 #define TITLE       "EDGE Engine"
 #define OUTPUTTITLE "EDGE System Console"
-
-#define I_TmpMalloc(size) alloca(size)
-#define I_TmpFree(ptr) do { } while (0)
 
 #define MAXPATH _MAX_PATH
 
@@ -149,9 +137,6 @@ typedef enum { false, true } bool;
 // PI define. Nicked from DJGPP's <math.h>
 #define M_PI 3.14159265358979323846
 
-#define I_TmpMalloc(size) alloca(size)
-#define I_TmpFree(ptr) do { } while (0)
-
 #define MAXPATH _MAX_PATH
 
 #define I_MoveData memmove
@@ -189,9 +174,6 @@ typedef enum { false, true } bool;
 // PI define. Nicked from DJGPP's <math.h>
 #define M_PI 3.14159265358979323846
 
-#define I_TmpMalloc(size) alloca(size)
-#define I_TmpFree(ptr) do { } while (0)
-
 #define I_MoveData memmove
 
 #define DIRSEPARATOR '\\'
@@ -216,9 +198,6 @@ typedef enum { false, true } bool;
 #define OUTPUTNAME  "EDGECONSOLE"
 #define TITLE       "EDGE Engine"
 #define OUTPUTTITLE "EDGE Engine console"
-
-#define I_TmpMalloc(size) alloca(size)
-#define I_TmpFree(ptr) do { } while (0)
 
 #define I_MoveData memmove
 
@@ -246,9 +225,6 @@ typedef enum { false, true } bool;
 #define TITLE       "EDGE Engine"
 #define OUTPUTTITLE "EDGE Engine console"
 
-#define I_TmpMalloc(size) alloca(size)
-#define I_TmpFree(ptr) do { } while (0)
-
 #define I_MoveData memmove
 
 #define DIRSEPARATOR '/'
@@ -259,33 +235,6 @@ typedef enum { false, true } bool;
 //#include "linux/i_compen.h"
 
 #endif // MACOSX GCC
-
-#ifdef LEAK_HUNT
-
-#undef I_TmpMalloc
-#undef I_TmpFree
-
-#ifdef __GNUC__
-
-//
-// use __FUNCTION__: This will check that the corresponding Z_TmpFree is done
-// within the function.
-//
-#define I_TmpMalloc(size) Z_RegisterMalloc(Z_Malloc2(size), __FUNCTION__, __LINE__)
-#define I_TmpFree(ptr) Z_Free(Z_UnRegisterTmpMalloc(ptr, __FUNCTION__))
-
-#else
-
-//
-// Can not use __FUNCTION__, so we can only check whether it is freed within
-// the same file
-//
-#define I_TmpMalloc(size) Z_RegisterMalloc(Z_Malloc2(size), __FILE__, __LINE__)
-#define I_TmpFree(ptr) Z_Free(Z_UnRegisterTmpMalloc(ptr, __FILE__))
-
-#endif
-
-#endif
 
 #endif /*__SYSTEM_SPECIFIC_DEFS__*/
 
