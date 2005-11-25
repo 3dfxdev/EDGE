@@ -22,6 +22,7 @@
 #include "../i_defs.h"
 #include "i_sdlinc.h"
 
+#include <stdarg.h>
 
 static SDL_CD *cd_dev;  // NULL when CD system is inactive
 
