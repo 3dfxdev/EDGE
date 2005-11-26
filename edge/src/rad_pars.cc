@@ -34,15 +34,7 @@
 #include "z_zone.h"
 #include "version.h"
 
-#ifdef HAVE_ALLOCA
-#include <alloca.h> // FIXME: I_TmpAlloc
-#endif 
-
 #include <ctype.h>
-
-#ifdef HAVE_MALLOC_H
-#include <malloc.h>
-#endif
 
 #include <limits.h>
 #include <stdarg.h>
@@ -361,10 +353,11 @@ static void RAD_CheckForTime(const char *info, void *storage)
 	if (s)
 	{
 		i = s-info;
-		s = (char*)I_TmpMalloc(i + 1);
-		Z_StrNCpy(s, info, i);
-		RAD_CheckForInt(s, (int*)storage);
-		I_TmpFree(s);
+
+        epi::string_c tmp_str;
+        tmp_str.AddChars(info, 0, i);
+		RAD_CheckForInt(tmp_str.GetString(), (int*)storage);
+
 		return;
 	}
 
