@@ -57,6 +57,9 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+#include <epi/files.h>
+#include <epi/filesystem.h>
+
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -920,7 +923,7 @@ bool RAD_ReadScript(void *data, int size)
 		epi::string_c fn;
 		M_ComposeFileName(fn, ddf_dir.GetString(), "edge.scr");
 
-		if (! I_Access(fn.GetString()))
+		if (!epi::the_filesystem->Access(fn.GetString(), epi::file_c::ACCESS_READ))
 			return false;
 
 		RAD_LoadFile(fn.GetString());

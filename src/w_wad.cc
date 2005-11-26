@@ -54,6 +54,8 @@
 #include "z_zone.h"
 
 #include <epi/endianess.h>
+#include <epi/files.h>
+#include <epi/filesystem.h>
 #include <epi/strings.h>
 #include <epi/utility.h>
 
@@ -1076,8 +1078,9 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		{
 			DEV_ASSERT2(dyn_index < 0);
 
-            epi::string_c gwa_filename = filename;
+            epi::string_c gwa_filename;
 
+            gwa_filename.Set(filename);
             gwa_filename.RemoveRight(3);          // Remove Extension
             gwa_filename.AddString(EDGEGWAEXT);   // Add GL friendly nodes extension
 
@@ -1095,7 +1098,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
             // Check the timestamp of the wad against the gwa, build
             // gwa if out of date.
 
-			if (! I_Access(gwa_filename.GetString()) || 
+			if (!epi::the_filesystem->Access(gwa_filename.GetString(), epi::file_c::ACCESS_READ) || 
                 L_CompareFileTimes(filename, gwa_filename.GetString()) > 0)
 			{
 				I_Printf("Building GL Nodes for: %s\n", filename);
@@ -1115,8 +1118,9 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	// handle DeHackEd patch files
 	if (kind == FLKIND_Deh || df->deh_lump >= 0)
 	{
-        epi::string_c hwa_filename = filename;
+        epi::string_c hwa_filename;
 
+        hwa_filename.Set(filename);
         hwa_filename.RemoveRight(3);          // Remove Extension
         hwa_filename.AddString(EDGEHWAEXT);   // Add GL friendly nodes extension
 
@@ -1136,7 +1140,8 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		//const char *hwa_filename = MakeHwaFilename(filename);
 
 		// optimisation: use existing HWA file when possible
-		if (! I_Access(hwa_filename.GetString()) || L_CompareFileTimes(filename, hwa_filename.GetString()) > 0)
+		if (!epi::the_filesystem->Access(hwa_filename.GetString(), epi::file_c::ACCESS_READ) || 
+            L_CompareFileTimes(filename, hwa_filename.GetString()) > 0)
 		{
 			if (kind == FLKIND_Deh)
 			{

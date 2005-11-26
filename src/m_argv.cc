@@ -26,6 +26,9 @@
 #include "i_defs.h"
 #include "m_argv.h"
 
+#include <epi/files.h>
+#include <epi/filesystem.h>
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -224,7 +227,7 @@ void M_InitArguments(int argc, const char **argv)
 	// argv[0] should always be placed before the response file.
 	AddArgument(argv[0], 0);
 
-	if (I_Access("edge.cmd"))
+	if (epi::the_filesystem->Access("edge.cmd", epi::file_c::ACCESS_READ))
 		M_ApplyResponseFile("edge.cmd", 1);
 
 	// scan through the arguments

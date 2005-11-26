@@ -341,21 +341,6 @@ char *I_PreparePath(const char *path)
 }
 
 //
-// I_Access
-//
-bool I_Access(const char *filename)
-{
-	int handle = open(filename, O_RDONLY | O_BINARY);
-
-	if (handle == -1)
-		return false;
-
-	close(handle);
-
-	return true;
-}
-
-//
 // I_PureRandom
 //
 long I_PureRandom(void)
