@@ -37,6 +37,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <epi/strings.h>
+
 // cleanup handling -- killough:
 
 static void I_SignalHandler(int s)
@@ -65,7 +67,7 @@ static void I_SignalHandler(int s)
 	I_Error("EDGE: Terminated by signal %d", s);
 }
 
-static void I_ChangeToExeDir(const char *full_path)
+void ChangeToExeDir(const char *full_path)
 {
 	const char *r = strrchr(full_path, '/');
 
@@ -95,14 +97,10 @@ static void I_ChangeToExeDir(const char *full_path)
 #endif
 	int length = (r - full_path) + 1;
 
-	char *buf = new char[length];
+	epi::string_c str;
+	str.AddChars(full_path, 0, length);
 
-	memcpy(buf, full_path, length);
-	buf[length] = 0;
-
-	chdir(buf);
-
-	delete[] buf;
+	chdir(str.GetString());
 }
 
 
@@ -129,8 +127,13 @@ int main(int argc, const char **argv)
 	signal(SIGABRT, I_SignalHandler);
 #endif
 
+
+    // -ACB- 2005/11/26 We don't do on LINUX since we assume the 
+    //                  executable is globally installed
+#ifdef MACOSX
 	// -AJA- change current dir to match executable (just like Win32)
-	I_ChangeToExeDir(argv[0]);
+    ChangeToExeDir(argv[0]);
+#endif
 
 	// Run EDGE. it never returns
 	engine::Main(argc, (const char **) argv);
