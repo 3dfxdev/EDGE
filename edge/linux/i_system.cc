@@ -490,15 +490,6 @@ bool I_PathIsDirectory(const char *path)
 }
 
 //
-// I_Access
-//
-bool I_Access(const char *filename)
-{
-	return (access(filename, R_OK) == 0) ? true : false;
-}
-
-
-//
 // I_GetModifiedTime
 //
 // -ACB- 2001/06/14

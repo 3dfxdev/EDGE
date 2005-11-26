@@ -80,6 +80,7 @@
 
 #include <epi/asserts.h>
 #include <epi/errors.h>
+#include <epi/files.h>
 #include <epi/filesystem.h>
 #include <epi/strings.h>
 #include <epi/utility.h>
@@ -1015,7 +1016,7 @@ void InitDirectories(void)
 	L_WriteDebug("Response file '%s' ", path.GetString());
 #endif
 
-	if (I_Access(path.GetString()))
+	if (epi::the_filesystem->Access(path.GetString(), epi::file_c::ACCESS_READ))
 	{
 #ifdef DEVELOPERS
 		L_WriteDebug("found.\n");
@@ -1103,7 +1104,7 @@ void CheckExternal(void)
 
 	test_filename.Format("%s%c%s", game_dir.GetString(), DIRSEPARATOR, EXTERN_FILE);
 
-	if (I_Access(test_filename.GetString()))
+	if (epi::the_filesystem->Access(test_filename.GetString(), epi::file_c::ACCESS_READ))
 		external_ddf = true;
 }
 
@@ -1199,7 +1200,7 @@ static void IdentifyVersion(void)
             fn.AddString(EDGEWADEXT);
         }
 
-        if (!I_Access(fn.GetString()))
+        if (!epi::the_filesystem->Access(fn.GetString(), epi::file_c::ACCESS_READ))
         {
 			I_Error("IdentifyVersion: Unable to add specified '%s'", fn.GetString());
         }
@@ -1238,7 +1239,7 @@ static void IdentifyVersion(void)
                           location, DIRSEPARATOR,
                           wadname[w_idx], EDGEWADEXT);
 
-				if (I_Access(fn.GetString()))
+				if (epi::the_filesystem->Access(fn.GetString(), epi::file_c::ACCESS_READ))
 				{
                     iw_filename = fn;
 					done = true;
@@ -1268,13 +1269,13 @@ static void IdentifyVersion(void)
                            iw_dir.GetString(), 
                            DIRSEPARATOR, REQUIREDWAD, EDGEWADEXT);
 
-    if (!I_Access(reqwad_filename.GetString()))
+    if (!epi::the_filesystem->Access(reqwad_filename.GetString(), epi::file_c::ACCESS_READ))
     {
         reqwad_filename.Format("%s%c%s.%s", 
                                game_dir.GetString(), 
                                DIRSEPARATOR, REQUIREDWAD, EDGEWADEXT);
 
-        if (!I_Access(reqwad_filename.GetString()))
+        if (!epi::the_filesystem->Access(reqwad_filename.GetString(), epi::file_c::ACCESS_READ))
         {
             I_Error("IdentifyVersion: Could not find required %s.%s!\n", 
                     REQUIREDWAD, EDGEWADEXT);
@@ -1422,7 +1423,7 @@ static void SetupLogAndDebugFiles(void)
 		{
 			// -KM- 1999/01/29 Consoleplayer is always 0 at this stage.
 			fn = "debug0.txt";
-			while (I_Access(fn.GetString()))
+			while (epi::the_filesystem->Access(fn.GetString(), epi::file_c::ACCESS_READ))
 			{
 				fn.Format("debug%d.txt", i++);
 

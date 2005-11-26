@@ -575,8 +575,11 @@ void M_ScreenShot(bool show_msg)
 	{
 		filename.Format("shot%04d.%s", i, extension);
   
-		if (!I_Access(filename.GetString()))
+		if (!epi::the_filesystem->Access(filename.GetString(), 
+                                         epi::file_c::ACCESS_READ))
+        {
 			break; // file doesn't exist
+        }
 	}
 
 	FILE *fp = fopen(filename.GetString(), "wb");

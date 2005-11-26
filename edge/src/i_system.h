@@ -96,10 +96,6 @@ void I_TraceBack(void);
 // "-traceback" option, and when present call this routine instead of
 // I_CloseProgram() whenever a fatal error occurs.
 
-bool I_Access(const char *filename);
-// Returns true if the given file or directory exists.  For files it
-// should check if it readable.
-
 void I_PreparePath(epi::string_c& path);
 // Prepares the end of the path name, so it will be possible to
 // concatenate a DIRSEPARATOR and a file name to it.  Allocates and
