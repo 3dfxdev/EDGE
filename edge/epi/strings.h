@@ -178,7 +178,10 @@ inline string_c::string_c()
 *********************************************************************/
 inline void string_c::Set(const char* s)
 {
-    *this = s;
+    if (s)
+        *this = s;
+    else
+        Empty();
 }
 
 inline void string_c::Set(const string_c& obj)
