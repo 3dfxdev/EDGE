@@ -24,6 +24,8 @@
 //
 #include "..\i_defs.h"
 
+#include <ctype.h>
+
 #ifndef __GNUC__
 int strcasecmp(const char *s1, const char *s2)
 {

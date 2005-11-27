@@ -33,6 +33,17 @@
 
 #include "i_sysinc.h"
 
+#include <epi/strings.h>
+
+#include <ctype.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <time.h>
+
+extern FILE* debugfile;
+extern FILE* logfile;
+
 // has system been setup?
 bool systemup = false;
 
@@ -305,39 +316,37 @@ bool I_PathIsDirectory(const char *path)
 //
 // Allocates and returns the new string.
 //
-char *I_PreparePath(const char *path)
+void I_PreparePath(epi::string_c &path)
 {
-	int len = (int)strlen(path);
-	char *s;
-
-	if (len == 0)
+	if (path.IsEmpty())
 	{
-		// empty string means ".\"
-		return Z_StrDup(".");
+ 		// empty string means current directory
+        path.AddString(".");
+		return;
 	}
 
-	if (path[0] >= 'A' && path[0] <= 'z' && path[1] == ':' && len == 2)
+	// special case: "c:" turns into "c:."
+	if (path.GetLength() == 2) 
 	{
-		// special case: "c:" turns into "c:."
-		s = (char*)Z_Malloc(4);
-		s[0] = path[0];
-		s[1] = path[1];
-		s[2] = '.';
-		s[3] = 0;
-		return s;
+		const char *s = path.GetString();
+		
+		if (s[1] == ':'  && isalpha(s[0]))
+		{
+			path.AddChar('.');
+			return;
+		}
+	}
+	
+	const char c = path.GetAt(path.GetLength() - 1);
+	if (c == '/' || c == '\\')
+	{
+        // Remove the leading slash
+        path.RemoveRight(1);
+        return;
 	}
 
-	if (path[len - 1] == '\\')
-	{
-		// cut off the last separator
-		s = (char*)Z_Malloc(len);
-		memcpy(s, path, len - 1);
-		s[len - 1] = 0;
-
-		return s;
-	}
-
-	return Z_StrDup(path);
+    // Nothing to do
+	return;
 }
 
 //
