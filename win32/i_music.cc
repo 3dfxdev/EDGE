@@ -22,9 +22,9 @@
 #include "../i_defs.h"
 #include "i_sysinc.h"
 
-#include "../AL/oggplayer.h"
 #include "../SDL/i_sdlinc.h"
 
+#include "../oggplayer.h"
 #include "../s_sound.h"
 
 // #defines for handle information
