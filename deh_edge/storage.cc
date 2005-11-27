@@ -31,6 +31,8 @@
 #include "dh_plugin.h"
 #include "system.h"
 
+#include <assert.h>
+#include <stdio.h>
 
 // DESCRIPTION:
 //
@@ -48,7 +50,6 @@
 //    Addendum: since DEH_EDGE can now be used as a plugin module, it
 //    needs to remember the old values and restore them afterwards.
 //    Luckily this doesn't require any more storage.
-
 
 namespace Deh_Edge
 {

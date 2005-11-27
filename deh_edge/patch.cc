@@ -45,6 +45,10 @@
 #include "util.h"
 #include "weapons.h"
 
+#include <assert.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
 
 namespace Deh_Edge
 {
