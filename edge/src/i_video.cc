@@ -24,41 +24,18 @@
 
 #include <signal.h>
 
-static SDL_Surface *my_vis;
+SDL_Surface *my_vis;
 
-static int graphics_shutdown = 0;
+int graphics_shutdown = 0;
 
-// Possible Screen Modes
-static i_scrmode_t possresmode[] =
+// Possible Windowed Screen Modes
+i_scrmode_t posswinmode[] =
 {
-	// fullscreen modes
-	{ 320, 200, 16, false},
-	{ 320, 240, 16, false},
-	{ 400, 300, 16, false},
-	{ 512, 384, 16, false},
-	{ 640, 400, 16, false},
-	{ 640, 480, 16, false},
-	{ 800, 600, 16, false},
-	{1024, 768, 16, false},
-	{1280,1024, 16, false},
-	{1600,1200, 16, false},
-
-	{ 320, 200, 32, false}, // TRUECOLOR
-	{ 320, 240, 32, false},
-	{ 400, 300, 32, false},
-	{ 512, 384, 32, false},
-	{ 640, 400, 32, false},
-	{ 640, 480, 32, false},
-	{ 800, 600, 32, false},
-	{1024, 768, 32, false},
-	{1280,1024, 32, false},
-	{1600,1200, 32, false},
-
 	// windowed modes
 	{ 320, 200, 16, true},
 	{ 320, 240, 16, true},
-	{ 400, 300, 16, true},
-	{ 512, 384, 16, true},
+	{ 400, 300, 32, true},
+	{ 512, 384, 32, true},
 	{ 640, 400, 16, true},
 	{ 640, 480, 16, true},
 	{ 800, 600, 16, true},
@@ -77,13 +54,13 @@ static i_scrmode_t possresmode[] =
 	{1280,1024, 32, true},
 	{1600,1200, 32, true},
 
-	{  -1,  -1, -1}
+	{  -1,  -1, -1, false}
 };
 
 
 // ====================== INTERNALS ======================
 
-static void VideoModeCommonStuff(void)
+void VideoModeCommonStuff(void)
 {
 	// -AJA- turn off cursor -- BIG performance increase.
 	//       Plus, the combination of no-cursor + grab gives 
@@ -121,10 +98,30 @@ void I_StartupGraphics(void)
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
 
-	// -ACB- 2000/03/16 Detect Possible Resolutions
-	for (int i = 0; possresmode[i].width != -1; i++)
+    // -DS- 2005/06/27 Detect SDL Resolutions
+	const SDL_VideoInfo *info = SDL_GetVideoInfo ();
+
+	SDL_Rect **modes = SDL_ListModes (info->vfmt,
+					  SDL_OPENGL | SDL_DOUBLEBUF |
+					  SDL_FULLSCREEN);
+
+	if (modes && modes != (SDL_Rect **)-1)
 	{
-		i_scrmode_t *mode = possresmode + i;
+		for (; *modes; ++modes)
+		{
+			i_scrmode_t test_mode = {
+			  (*modes)->w, (*modes)->h,
+			  info->vfmt->BitsPerPixel, false
+			};
+
+			V_AddAvailableResolution(&test_mode);
+		}
+	}
+
+	// -ACB- 2000/03/16 Test for possible windowed resolutions
+	for (int i = 0; posswinmode[i].width != -1; i++)
+	{
+		i_scrmode_t *mode = posswinmode + i;
 
 		int got_depth = SDL_VideoModeOK(mode->width, mode->height,
 				mode->depth, SDL_OPENGL | SDL_DOUBLEBUF |
