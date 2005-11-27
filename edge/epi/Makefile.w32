@@ -12,9 +12,9 @@ AR=ar r
 RANLIB=ranlib
 
 # External library directories
-JPEG_DIR="c:/program files/gnuwin32"
-PNG_DIR="c:/program files/gnuwin32"
-ZLIB_DIR="c:/program files/gnuwin32"
+JPEG_DIR=c:/program\ files/gnuwin32
+PNG_DIR=c:/program\ files/gnuwin32
+ZLIB_DIR=c:/program\ files/gnuwin32
 
 INCS=-I$(JPEG_DIR)/include -I$(PNG_DIR)/include -I$(ZLIB_DIR)/include 
 
@@ -27,8 +27,6 @@ CXXFLAGS=$(CXXINCS) $(INCS) -O2 -Wall -ffast-math -DWIN32 -DJPEG_STATIC
            
 # ----- OBJECTS ------------------------------------------------------
 
-#    archive_wad.o 
-#    archive.o 
 OBJS= \
     arrays.o \
     asserts.o \
