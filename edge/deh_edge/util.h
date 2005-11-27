@@ -13,6 +13,8 @@
 #ifndef __UTIL_HDR__
 #define __UTIL_HDR__
 
+#include <stdio.h>
+
 namespace Deh_Edge
 {
 

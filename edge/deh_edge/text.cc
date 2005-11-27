@@ -41,6 +41,9 @@
 #include "util.h"
 #include "wad.h"
 
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 namespace Deh_Edge
 {

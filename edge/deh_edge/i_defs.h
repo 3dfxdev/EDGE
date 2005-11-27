@@ -20,6 +20,7 @@ namespace Deh_Edge
 	typedef unsigned char byte;
 }
 
+/*
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -34,6 +35,7 @@ namespace Deh_Edge
 #include <dirent.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+*/
 
 // DOS GCC
 #if defined(DJGPP)
@@ -42,10 +44,6 @@ namespace Deh_Edge
 {
 	typedef long long Int64;
 }
-
-#include <values.h>
-#include <unistd.h>
-#include <dos.h>
 
 // Windows
 #elif defined(WIN32)
@@ -63,13 +61,6 @@ namespace Deh_Edge
 #endif
 }
 
-#include <values.h>
-
-#include <windows.h>
-#include <io.h>
-#include <malloc.h>
-#include <mem.h>
-
 // Access() define values. Nicked from DJGPP's <unistd.h>
 #ifndef R_OK
 #define R_OK    0x02
@@ -79,9 +70,6 @@ namespace Deh_Edge
 // LINUX
 #elif defined(LINUX)
 
-#include <values.h>
-#include <unistd.h>
-
 namespace Deh_Edge
 {
 	typedef long long Int64;
@@ -89,8 +77,6 @@ namespace Deh_Edge
 
 // MacOS X
 #elif defined (MACOSX)
-
-#include <unistd.h>
 
 namespace Deh_Edge
 {

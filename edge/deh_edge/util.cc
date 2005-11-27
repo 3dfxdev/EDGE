@@ -31,6 +31,12 @@
 #include "dh_plugin.h"
 #include "system.h"
 
+#include <assert.h>
+#include <ctype.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+
 
 namespace Deh_Edge
 {

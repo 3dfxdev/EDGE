@@ -36,6 +36,7 @@
 #include "util.h"
 #include "wad.h"
 
+#include <assert.h>
 
 namespace Deh_Edge
 {

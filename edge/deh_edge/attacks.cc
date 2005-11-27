@@ -38,6 +38,8 @@
 #include "things.h"
 #include "wad.h"
 
+#include <stdio.h>
+#include <string.h>
 
 namespace Deh_Edge
 {

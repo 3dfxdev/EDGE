@@ -38,6 +38,9 @@
 #include "things.h"
 #include "util.h"
 
+#include <assert.h>
+#include <string.h>
+
 namespace Deh_Edge
 {
 

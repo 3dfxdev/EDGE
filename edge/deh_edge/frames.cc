@@ -42,6 +42,9 @@
 #include "wad.h"
 #include "weapons.h"
 
+#include <assert.h>
+#include <ctype.h>
+#include <string.h>
 
 namespace Deh_Edge
 {
