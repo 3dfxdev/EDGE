@@ -32,7 +32,6 @@
 #include "e_event.h"
 #include "e_ticcmd.h"
 
-#include <epi/strings.h>
 #include <epi/timestamp.h>
 
 //--------------------------------------------------------
@@ -95,19 +94,6 @@ void I_TraceBack(void);
 // useful for debugging).  The system code should check for the
 // "-traceback" option, and when present call this routine instead of
 // I_CloseProgram() whenever a fatal error occurs.
-
-void I_PreparePath(epi::string_c& path);
-// Prepares the end of the path name, so it will be possible to
-// concatenate a DIRSEPARATOR and a file name to it.  Allocates and
-// returns the new string.  Doesn't fail.
-
-bool I_PathIsAbsolute(const char *path);
-// Returns true if the path should be treated as an absolute path,
-// otherwise false.
-
-bool I_PathIsDirectory(const char *path);
-// Returns true if the given path refers to a directory, otherwise
-// false (e.g. the path is a file, _or_ doesn't exist).
 
 void I_Warning(const char *warning,...) GCCATTR(format(printf, 1, 2));
 // Writes a warning to the console and the debug file (if any).  This

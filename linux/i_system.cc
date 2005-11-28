@@ -400,48 +400,6 @@ void I_SystemShutdown(void)
 }
 
 //
-// I_PathIsAbsolute
-//
-// Returns true if the path should be treated as an absolute path.
-//
-// -ES- 2000/01/01 Written.
-//
-bool I_PathIsAbsolute(const char *path)
-{
-	if (path[0] == '/' || path[0] == '.')
-		return true;
-	else
-		return false;
-}
-
-//
-// I_PreparePath
-//
-// Prepares the end of the path name, so it will be possible to concatenate
-// a DIRSEPARATOR and a file name to it.
-// Allocates and returns the new string.
-//
-void I_PreparePath(epi::string_c &path)
-{
-	if (path.IsEmpty())
-	{
- 		// empty string means current directory
-        path.AddString(".");
-		return;
-	}
-
-	if (path.GetAt(path.GetLength() - 1) == '/')
-	{
-        // Remove the leading slash
-        path.RemoveRight(1);
-        return;
-	}
-
-    // Nothing to do
-	return;
-}
-
-//
 // I_PureRandom
 //
 // Returns as-random-as-possible 32 bit values.
@@ -474,19 +432,6 @@ void I_Sleep(unsigned long millisecs)
 {
 	//!!!! FIXME: use nanosleep ?
 	usleep(millisecs * 1000);
-}
-
-//
-// I_PathIsDirectory
-//
-bool I_PathIsDirectory(const char *path)
-{
-	struct stat buf;
-
-	if (stat(path, &buf) != 0)
-		return false;
-
-	return S_ISDIR(buf.st_mode);
 }
 
 //
