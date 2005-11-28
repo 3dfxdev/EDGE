@@ -19,14 +19,15 @@
 #define __EPI_FILESYSTEM_CLASS__
 
 #include "epi.h"
+
 #include "arrays.h"
+#include "strings.h"
 
 namespace epi
 {
 
 // Forward declarations
 class file_c;
-class string_c;
 
 // A Filesystem directory entry
 struct filesystem_direntry_s
@@ -89,6 +90,10 @@ public:
 	virtual bool Delete(const char *name) = 0;
 	virtual file_c *Open(const char *name, unsigned int flags) = 0;
 	virtual bool Rename(const char *oldname, const char *newname) = 0;
+
+    // Path Manipulation Functions
+    virtual bool IsAbsolutePath(const char *path) = 0;
+    virtual string_c JoinPath(const char *lhs, const char *rhs) = 0;
 };
 
 };
