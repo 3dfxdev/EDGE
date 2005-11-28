@@ -776,10 +776,10 @@ exttype_e M_CheckExtension(const char *ext, const char* filename)
 //
 void M_ComposeFileName(epi::string_c& fn, const char *dir, const char *file)
 {
-	if (I_PathIsAbsolute(file))
+	if (!epi::the_filesystem->IsAbsolutePath(file))
+		fn = epi::the_filesystem->JoinPath(dir, file);
+    else
 		fn = file;
-	else
-		fn.Format("%s%c%s", dir, DIRSEPARATOR, file);
 }
 
 //

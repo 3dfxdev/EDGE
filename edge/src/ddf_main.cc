@@ -36,6 +36,8 @@
 #include "z_zone.h"
 #include "version.h"
 
+#include <epi/filesystem.h>
+
 #include <ctype.h>
 #include <limits.h>
 
@@ -402,7 +404,7 @@ static void *DDF_MainCacheFile(readinfo_t * readinfo)
 	if (!readinfo->filename)
 		I_Error("DDF_MainReadFile: No file to read");
 
-	filename.Format("%s%c%s", ddf_dir.GetString(), DIRSEPARATOR, readinfo->filename);
+    filename = epi::the_filesystem->JoinPath(ddf_dir.GetString(), readinfo->filename);
 
 	file = fopen(filename.GetString(), "rb");
 	if (file == NULL)

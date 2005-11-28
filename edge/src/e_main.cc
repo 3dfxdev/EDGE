@@ -35,7 +35,7 @@
 #include "e_main.h"
 
 #include "am_map.h"
-#include "con_defs.h" // Ansi C++ wants to know what funclist_s is.
+#include "con_defs.h"
 #include "con_main.h"
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -957,11 +957,7 @@ void InitDirectories(void)
 
 	const char *s = M_GetParm("-home");
     if (s)
-    {
-        path.Set(s);
-        I_PreparePath(path);
-        home_dir.Set(path.GetString());
-    }
+        home_dir.Set(s);
 
 	// Get the Home Directory from environment if set
     if (home_dir.IsEmpty())
@@ -969,13 +965,7 @@ void InitDirectories(void)
         s = getenv("HOME");
         if (s)
         {
-            path.Set(s);
-
-            // FIXME: Use epi filesystem joinpath method
-            I_PreparePath(path);
-
-            path.AddChar(DIRSEPARATOR);
-            path.AddString(EDGEHOMESUBDIR);
+            path = epi::the_filesystem->JoinPath(s, EDGEHOMESUBDIR); 
 
             const char *test_dir = path.GetString();
 			if (!epi::the_filesystem->IsDir(test_dir))
@@ -1000,9 +990,7 @@ void InitDirectories(void)
 	s = M_GetParm("-game");
 	if (s)
     {
-        path.Set(s);
-		I_PreparePath(path);
-        game_dir.Set(path.GetString());
+        game_dir.Set(s);
 	}
 	else
 	{
@@ -1010,7 +998,7 @@ void InitDirectories(void)
 	}
 
 	// add parameter file "gamedir/parms" if it exists.
-    path.Format("%s%cparms", game_dir.GetString(), DIRSEPARATOR);
+    path = epi::the_filesystem->JoinPath(game_dir.GetString(), "parms");
 
 #ifdef DEVELOPERS
 	L_WriteDebug("Response file '%s' ", path.GetString());
@@ -1036,10 +1024,7 @@ void InitDirectories(void)
 	{
 		external_ddf = true;
 
-        path.Set(s);
-        I_PreparePath(path);
-
-		ddf_dir.Set(path.GetString());
+		ddf_dir.Set(s);
 	} 
 	else
 	{
@@ -1056,28 +1041,20 @@ void InitDirectories(void)
 	}
 	else
     {
-	    path.Format("%s%c%s", 
-                    home_dir.GetString(), DIRSEPARATOR, EDGECONFIGFILE);
-
+        path = epi::the_filesystem->JoinPath(home_dir.GetString(), EDGECONFIGFILE);
 		cfgfile.Set(path.GetString());
 	}
 	
 	// cache directory
-    // FIXME: epi filesystem joinpath
-    path.Set(home_dir.GetString());
-    path += DIRSEPARATOR;
-    path += CACHEDIR;
-		
+    path = epi::the_filesystem->JoinPath(home_dir.GetString(), CACHEDIR);
+
     if (!epi::the_filesystem->IsDir(path.GetString()))
         epi::the_filesystem->MakeDir(path.GetString());
 
     cache_dir.Set(path.GetString());
 
 	// savegame directory
-    // FIXME: epi filesystem joinpath
-    path.Set(home_dir.GetString());
-    path += DIRSEPARATOR;
-    path += SAVEGAMEDIR;
+    path = epi::the_filesystem->JoinPath(home_dir.GetString(), SAVEGAMEDIR);
 	
     if (!epi::the_filesystem->IsDir(path.GetString()))
         epi::the_filesystem->MakeDir(path.GetString());
@@ -1102,7 +1079,7 @@ void CheckExternal(void)
   
 	// too simplistic ?
 
-	test_filename.Format("%s%c%s", game_dir.GetString(), DIRSEPARATOR, EXTERN_FILE);
+	test_filename = epi::the_filesystem->JoinPath(game_dir.GetString(), EXTERN_FILE);
 
 	if (epi::the_filesystem->Access(test_filename.GetString(), epi::file_c::ACCESS_READ))
 		external_ddf = true;
@@ -1154,7 +1131,6 @@ static void IdentifyVersion(void)
 
     if (!iw_param.IsEmpty())
     {
-        I_PreparePath(iw_param);
         if (epi::the_filesystem->IsDir(iw_param.GetString()))
         {
             iw_dir.Set(iw_param.GetString());
@@ -1166,23 +1142,16 @@ static void IdentifyVersion(void)
     // the DOOMWADDIR environment variable
     if (iw_dir.IsEmpty())
     {
-        epi::string_c iwad_envdir;
+        const char *s = getenv("DOOMWADDIR");
 
-        iwad_envdir.Set(getenv("DOOMWADDIR"));
-
-        I_PreparePath(iwad_envdir);
-        if (epi::the_filesystem->IsDir(iwad_envdir.GetString()))
-        {
-            iw_dir.Set(iwad_envdir.GetString());
-        }
+        if (s && epi::the_filesystem->IsDir(s))
+            iw_dir.Set(s);
     }
 
     // Should the IWAD directory not be set by now, then we
     // use our standby option of the game directory.
     if (iw_dir.IsEmpty())
-    {
         iw_dir.Set(game_dir.GetString());
-    }
 
     // Should the IWAD Parameter not be empty then it means
     // that one was given which is not a directory. Therefore
@@ -1235,9 +1204,8 @@ static void IdentifyVersion(void)
 			//
 			for (int w_idx=0; wadname[w_idx]; w_idx++)
 			{
-				fn.Format("%s%c%s.%s", 
-                          location, DIRSEPARATOR,
-                          wadname[w_idx], EDGEWADEXT);
+				fn = epi::the_filesystem->JoinPath(location, wadname[w_idx]);
+                fn.AddString("." EDGEWADEXT);
 
 				if (epi::the_filesystem->Access(fn.GetString(), epi::file_c::ACCESS_READ))
 				{
@@ -1265,16 +1233,10 @@ static void IdentifyVersion(void)
     // Look for the required wad in the IWADs dir and then the gamedir
     epi::string_c reqwad_filename;
 
-    reqwad_filename.Format("%s%c%s.%s", 
-                           iw_dir.GetString(), 
-                           DIRSEPARATOR, REQUIREDWAD, EDGEWADEXT);
-
+    reqwad_filename = epi::the_filesystem->JoinPath(iw_dir.GetString(), REQUIREDWAD "." EDGEWADEXT);
     if (!epi::the_filesystem->Access(reqwad_filename.GetString(), epi::file_c::ACCESS_READ))
     {
-        reqwad_filename.Format("%s%c%s.%s", 
-                               game_dir.GetString(), 
-                               DIRSEPARATOR, REQUIREDWAD, EDGEWADEXT);
-
+        reqwad_filename = epi::the_filesystem->JoinPath(game_dir.GetString(), REQUIREDWAD "." EDGEWADEXT);
         if (!epi::the_filesystem->Access(reqwad_filename.GetString(), epi::file_c::ACCESS_READ))
         {
             I_Error("IdentifyVersion: Could not find required %s.%s!\n", 
