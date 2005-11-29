@@ -52,7 +52,8 @@ OBJS= \
     utility.o \
     epi_win32.o \
     files_win32.o \
-    filesystem_win32.o
+    filesystem_win32.o \
+    path_win32.o 
 
 # ----- TARGETS ------------------------------------------------------
 
