@@ -90,10 +90,6 @@ public:
 	virtual bool Delete(const char *name) = 0;
 	virtual file_c *Open(const char *name, unsigned int flags) = 0;
 	virtual bool Rename(const char *oldname, const char *newname) = 0;
-
-    // Path Manipulation Functions
-    virtual bool IsAbsolutePath(const char *path) = 0;
-    virtual string_c JoinPath(const char *lhs, const char *rhs) = 0;
 };
 
 };

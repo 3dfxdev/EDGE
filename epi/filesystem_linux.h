@@ -51,10 +51,6 @@ public:
 	bool Delete(const char *name);
 	file_c *Open(const char *name, unsigned int flags);
 	bool Rename(const char *oldname, const char *newname);
-
-    // Path Manipulation Functions
-    bool IsAbsolutePath(const char *path);
-    string_c JoinPath(const char *lhs, const char *rhs);
 };
 
 };

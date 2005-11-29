@@ -56,6 +56,7 @@
 #include <epi/filesystem.h>
 #include <epi/image_jpeg.h>
 #include <epi/image_png.h>
+#include <epi/path.h>
 
 #include <ctype.h>
 #include <fcntl.h>     // FIXME: Use file_c!!
@@ -776,8 +777,8 @@ exttype_e M_CheckExtension(const char *ext, const char* filename)
 //
 void M_ComposeFileName(epi::string_c& fn, const char *dir, const char *file)
 {
-	if (!epi::the_filesystem->IsAbsolutePath(file))
-		fn = epi::the_filesystem->JoinPath(dir, file);
+	if (!epi::path::IsAbsolute(file))
+		fn = epi::path::Join(dir, file);
     else
 		fn = file;
 }
