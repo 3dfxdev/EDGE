@@ -16,8 +16,10 @@
 //
 //----------------------------------------------------------------------------
 //
-#include "epi.h"
-#include "path.h"
+#ifndef __EPI_PATH_MODULE__
+#define __EPI_PATH_MODULE__
+
+#include "strings.h"
 
 namespace epi
 {
@@ -33,3 +35,5 @@ namespace path
 }; 
 
 }; // namespace epi
+
+#endif /* __EPI_PATH_MODULE__ */

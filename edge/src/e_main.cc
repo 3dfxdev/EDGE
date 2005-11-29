@@ -82,6 +82,7 @@
 #include <epi/errors.h>
 #include <epi/files.h>
 #include <epi/filesystem.h>
+#include <epi/path.h>
 #include <epi/strings.h>
 #include <epi/utility.h>
 
@@ -965,7 +966,7 @@ void InitDirectories(void)
         s = getenv("HOME");
         if (s)
         {
-            path = epi::the_filesystem->JoinPath(s, EDGEHOMESUBDIR); 
+            path = epi::path::Join(s, EDGEHOMESUBDIR); 
 
             const char *test_dir = path.GetString();
 			if (!epi::the_filesystem->IsDir(test_dir))
@@ -998,7 +999,7 @@ void InitDirectories(void)
 	}
 
 	// add parameter file "gamedir/parms" if it exists.
-    path = epi::the_filesystem->JoinPath(game_dir.GetString(), "parms");
+    path = epi::path::Join(game_dir.GetString(), "parms");
 
 #ifdef DEVELOPERS
 	L_WriteDebug("Response file '%s' ", path.GetString());
@@ -1041,12 +1042,12 @@ void InitDirectories(void)
 	}
 	else
     {
-        path = epi::the_filesystem->JoinPath(home_dir.GetString(), EDGECONFIGFILE);
+        path = epi::path::Join(home_dir.GetString(), EDGECONFIGFILE);
 		cfgfile.Set(path.GetString());
 	}
 	
 	// cache directory
-    path = epi::the_filesystem->JoinPath(home_dir.GetString(), CACHEDIR);
+    path = epi::path::Join(home_dir.GetString(), CACHEDIR);
 
     if (!epi::the_filesystem->IsDir(path.GetString()))
         epi::the_filesystem->MakeDir(path.GetString());
@@ -1054,7 +1055,7 @@ void InitDirectories(void)
     cache_dir.Set(path.GetString());
 
 	// savegame directory
-    path = epi::the_filesystem->JoinPath(home_dir.GetString(), SAVEGAMEDIR);
+    path = epi::path::Join(home_dir.GetString(), SAVEGAMEDIR);
 	
     if (!epi::the_filesystem->IsDir(path.GetString()))
         epi::the_filesystem->MakeDir(path.GetString());
@@ -1079,7 +1080,7 @@ void CheckExternal(void)
   
 	// too simplistic ?
 
-	test_filename = epi::the_filesystem->JoinPath(game_dir.GetString(), EXTERN_FILE);
+	test_filename = epi::path::Join(game_dir.GetString(), EXTERN_FILE);
 
 	if (epi::the_filesystem->Access(test_filename.GetString(), epi::file_c::ACCESS_READ))
 		external_ddf = true;
@@ -1204,7 +1205,7 @@ static void IdentifyVersion(void)
 			//
 			for (int w_idx=0; wadname[w_idx]; w_idx++)
 			{
-				fn = epi::the_filesystem->JoinPath(location, wadname[w_idx]);
+				fn = epi::path::Join(location, wadname[w_idx]);
                 fn.AddString("." EDGEWADEXT);
 
 				if (epi::the_filesystem->Access(fn.GetString(), epi::file_c::ACCESS_READ))
@@ -1233,10 +1234,10 @@ static void IdentifyVersion(void)
     // Look for the required wad in the IWADs dir and then the gamedir
     epi::string_c reqwad_filename;
 
-    reqwad_filename = epi::the_filesystem->JoinPath(iw_dir.GetString(), REQUIREDWAD "." EDGEWADEXT);
+    reqwad_filename = epi::path::Join(iw_dir.GetString(), REQUIREDWAD "." EDGEWADEXT);
     if (!epi::the_filesystem->Access(reqwad_filename.GetString(), epi::file_c::ACCESS_READ))
     {
-        reqwad_filename = epi::the_filesystem->JoinPath(game_dir.GetString(), REQUIREDWAD "." EDGEWADEXT);
+        reqwad_filename = epi::path::Join(game_dir.GetString(), REQUIREDWAD "." EDGEWADEXT);
         if (!epi::the_filesystem->Access(reqwad_filename.GetString(), epi::file_c::ACCESS_READ))
         {
             I_Error("IdentifyVersion: Could not find required %s.%s!\n", 

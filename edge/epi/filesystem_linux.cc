@@ -383,44 +383,4 @@ bool linux_filesystem_c::Rename(const char *oldname,
 	return (bool)(rename(oldname, newname) != -1);
 }
 
-// Path Manipulation Functions
-
-//
-// bool linux_filesystem_c::IsAbsolutePath()
-//
-bool linux_filesystem_c::IsAbsolutePath(const char *path)
-{
-    // FIXME: Catch null parameters
-
-	if (path[0] == '/')
-		return true;
-
-    return false;
-}
-
-//
-// string_c linux_filesystem_c::JoinPath()
-//
-string_c linux_filesystem_c::JoinPath(const char *lhs, const char *rhs)
-{
-    epi::string_c s;
-
-    // FIXME: Catch null parameters
-
-    if (IsAbsolutePath(rhs))
-    {
-        s.Set(rhs);
-        return s;
-    }
-
-    s.Set(lhs);
-
-    if (s.GetLastChar() != '/')
-        s.AddChar('/');
-
-    s.AddString(rhs);
-
-    return s;
-}
-
 };

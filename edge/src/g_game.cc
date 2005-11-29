@@ -53,7 +53,7 @@
 #include "z_zone.h"
 
 #include <epi/endianess.h>
-#include <epi/filesystem.h>
+#include <epi/path.h>
 
 #include <ctype.h>
 #include <string.h>
@@ -671,7 +671,7 @@ void G_FileNameFromSlot(epi::string_c& fn, int slot)
 
     s.Format("%s%04d.%s", SAVEGAMEBASE, slot + 1, SAVEGAMEEXT);
 
-	fn = epi::the_filesystem->JoinPath(save_dir.GetString(), s.GetString());
+	fn = epi::path::Join(save_dir.GetString(), s.GetString());
 	return;
 }
 

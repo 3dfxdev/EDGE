@@ -59,7 +59,7 @@ string_c Join(const char *lhs, const char *rhs)
 
     // FIXME: Catch null parameters
 
-    if (IsAbsolutePath(rhs))
+    if (IsAbsolute(rhs))
     {
         s.Set(rhs);
         return s;
