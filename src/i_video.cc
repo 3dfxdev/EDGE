@@ -34,8 +34,8 @@ i_scrmode_t posswinmode[] =
 	// windowed modes
 	{ 320, 200, 16, true},
 	{ 320, 240, 16, true},
-	{ 400, 300, 32, true},
-	{ 512, 384, 32, true},
+	{ 400, 300, 16, true},
+	{ 512, 384, 16, true},
 	{ 640, 400, 16, true},
 	{ 640, 480, 16, true},
 	{ 800, 600, 16, true},
