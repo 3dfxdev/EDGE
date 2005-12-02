@@ -89,6 +89,7 @@ public:
 	void Compact(unsigned int only_above = 0);
 	static void CompactFree();
 	void Format(const char* fmt, ...);
+	void FormatWithArgList(const char* fmt, va_list& marker);
 
     // Catenation, truncation
 	void operator += (const string_c& obj);
@@ -271,6 +272,16 @@ inline bool operator !=(char* s1, const string_c& s2)
     return !(s2 == s1);
 }
 
+
+/*********************************************************************
+* Proc:		string_c::FormatWithArgList - synonyms for FormatCore
+*********************************************************************/
+
+inline void string_c::FormatWithArgList(const char *fmt, va_list& marker)
+{
+    Empty();
+    FormatCore(fmt, marker);
+}
 
 /*********************************************************************
 * Proc:		string_c::AddString - synonyms for operators +=
