@@ -61,13 +61,9 @@
 #include <epi/utility.h>
 
 #include <ctype.h>
-#include <fcntl.h>
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 // -KM- 1999/01/31 Order is important, Languages are loaded before sfx, etc...
 typedef struct ddf_reader_s
@@ -107,8 +103,8 @@ static ddf_reader_t DDF_Readers[] =
 class data_file_c
 {
 public:
-	data_file_c(const char *_fname, int _kind, int _handle) :
-		file_name(_fname), kind(_kind), handle(_handle), compat_mode(0),
+	data_file_c(const char *_fname, int _kind, epi::file_c* _file) :
+		file_name(_fname), kind(_kind), file(_file), compat_mode(0),
 		sprite_lumps(), flat_lumps(), patch_lumps(),
 		colmap_lumps(), level_markers(), skin_markers(),
 		wadtex(), deh_lump(-1), companion_gwa(-1)
@@ -122,8 +118,8 @@ public:
 	// type of file (FLKIND_XXX)
 	int kind;
 
-	// file handle, as returned from open().
-	int handle;
+	// file object
+    epi::file_c *file;
 
 	// any engine-specific features (WAD_CM_XXX)
 	int compat_mode;
@@ -430,16 +426,6 @@ static bool IsSkin(const char *name)
 static INLINE bool IsGL_Prefix(const char *name)
 {
 	return name[0] == 'G' && name[1] == 'L' && name[2] == '_';
-}
-
-static int FileLength(int handle)
-{
-	struct stat fileinfo;
-
-	if (fstat(handle, &fileinfo) == -1)
-		I_Error("Error fstating");
-
-	return fileinfo.st_size;
 }
 
 //
@@ -871,40 +857,6 @@ static bool HasInternalGLNodes(data_file_c *df, int datafile)
 	return levels == glnodes;
 }
 
-/*
-// add the .hwa extension (FIXME: put filename manipulation into EPI)
-const char *MakeHwaFilename(const char *filename)
-{
-	static char result[1024];
-
-	DEV_ASSERT2(strlen(filename) < 1020);
-
-	strcpy(result, filename);
-
-	int pos = strlen(result) - 1;
-
-	DEV_ASSERT2(pos >= 0);
-
-	for (; pos >= 0; pos--)
-	{
-		// path separator ?
-		if (result[pos] == '/' || result[pos] == '\\' || result[pos] == ':')
-			break;
-
-		// existing extension ?
-		if (result[pos] == '.')
-		{
-			strcpy(result + pos, ".hwa");
-			return result;
-		}
-	}
-
-	// no extension found
-	strcat(result, ".hwa");
-	return result;
-}
-*/
-
 //
 // AddFile
 //
@@ -919,20 +871,19 @@ const char *MakeHwaFilename(const char *filename)
 static void AddFile(const char *filename, int kind, int dyn_index)
 {
 	int j;
-	int handle;
 	int length;
 	int startlump;
 
 	wad_header_t header;
-	wad_entry_t *fileinfo, *curinfo;
+	wad_entry_t *curinfo;
 
 	// reset the sprite/flat/patch list stuff
 	within_sprite_list = within_flat_list = false;
 	within_patch_list  = within_colmap_list = false;
 
 	// open the file and add to directory
-
-	if ((handle = open(filename, O_RDONLY | O_BINARY)) == -1)
+    epi::file_c *file = epi::the_filesystem->Open(filename, epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
+	if (file == NULL)
 	{
 		I_Error("Couldn't open file %s\n", filename);
 		return;
@@ -944,7 +895,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 	int datafile = data_files.GetSize();
 
-	data_file_c *df = new data_file_c(Z_StrDup(filename), kind, handle);
+	data_file_c *df = new data_file_c(Z_StrDup(filename), kind, file);
 	data_files.Insert(df);
 
 	// for RTS scripts, adding the data_file is enough
@@ -954,7 +905,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	if (kind <= FLKIND_HWad)
 	{
 		// WAD file
-		read(handle, &header, sizeof(wad_header_t));
+        file->Read(&header, sizeof(wad_header_t));
 
 		if (strncmp(header.identification, "IWAD", 4))
 		{
@@ -969,10 +920,11 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		header.infotableofs = EPI_LE_S32(header.infotableofs);
 
 		length = header.numlumps * sizeof(wad_entry_t);
-		fileinfo = Z_New(wad_entry_t, header.numlumps);
 
-		lseek(handle, header.infotableofs, SEEK_SET);
-		read(handle, fileinfo, length);
+        wad_entry_t *fileinfo = new wad_entry_t[header.numlumps];
+
+        file->Seek(header.infotableofs, epi::file_c::SEEKPOINT_START);
+        file->Read(fileinfo, length);
 
 		// Fill in lumpinfo
 		numlumps += header.numlumps;
@@ -981,7 +933,8 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		for (j=startlump, curinfo=fileinfo; j < numlumps; j++,curinfo++)
 		{
 			AddLump(df, j, EPI_LE_S32(curinfo->pos), EPI_LE_S32(curinfo->size),
-					datafile, (dyn_index >= 0) ? dyn_index : datafile, 
+					datafile, 
+                    (dyn_index >= 0) ? dyn_index : datafile, 
 					curinfo->name,
 					(kind == FLKIND_PWad) || (kind == FLKIND_HWad) ||
 					(kind == FLKIND_EWad && ! external_ddf));
@@ -990,7 +943,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 				CheckForLevel(df, j, lumpinfo[j].name, curinfo, numlumps-1 - j);
 		}
 
-		Z_Free(fileinfo);
+		delete [] fileinfo;
 	}
 	else  /* single lump file */
 	{
@@ -1017,7 +970,8 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		numlumps++;
 		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
 
-		AddLump(df, startlump, 0, FileLength(handle), datafile, datafile, 
+		AddLump(df, startlump, 0, 
+                file->GetLength(), datafile, datafile, 
 				lump_name, true);
 	}
 
@@ -1060,38 +1014,63 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		{
 			DEV_ASSERT2(dyn_index < 0);
 
+            epi::string_c cached_gwa_filename;
             epi::string_c gwa_filename;
+            epi::string_c wad_dir;
+            
+            // Get the directory which the wad is currently stored
+            wad_dir = epi::path::GetDir(filename);
+            
+            // Initially work out the name of the GWA file
+            gwa_filename = epi::path::GetBasename(filename);
+            gwa_filename.AddString("." EDGEGWAEXT);
+            
+            // Determine the full path filename for the cached and current directory versions
+            cached_gwa_filename = epi::path::Join(cache_dir.GetString(), gwa_filename.GetString());
+            gwa_filename = epi::path::Join(wad_dir.GetString(), gwa_filename.GetString());
 
-            gwa_filename.Set(filename);
-            gwa_filename.RemoveRight(3);          // Remove Extension
-            gwa_filename.AddString(EDGEGWAEXT);   // Add GL friendly nodes extension
-
-			// create the GWA file if it doesn't exist, or recreate it
-			// if the time and date don't match (the WAD file has been
-			// updated in the meantime).
-
-            // Check for the existance of this file (use the EPI)
-
-            // Check for the existance of this file in the cache directory
+            // Check for the existance of the waddir and cached dir files
+            bool cached_gwa = epi::the_filesystem->Access(cached_gwa_filename.GetString(), epi::file_c::ACCESS_READ);
+            bool waddir_gwa = epi::the_filesystem->Access(gwa_filename.GetString(), epi::file_c::ACCESS_READ);
 
             // If both exist, use one in root. if neither exist create
             // one in the cache directory
+            bool build_gwa = false;
 
-            // Check the timestamp of the wad against the gwa, build
-            // gwa if out of date.
+            // Check whether the waddir gwa is out of date
+            if (waddir_gwa) 
+                waddir_gwa = (L_CompareFileTimes(filename, gwa_filename.GetString()) <= 0);
 
-			if (!epi::the_filesystem->Access(gwa_filename.GetString(), epi::file_c::ACCESS_READ) || 
-                L_CompareFileTimes(filename, gwa_filename.GetString()) > 0)
-			{
+            // Check whether the cached gwa is out of date
+            if (cached_gwa) 
+                cached_gwa = (L_CompareFileTimes(filename, cached_gwa_filename.GetString()) <= 0);
+
+            const char *actual_gwa_filename = NULL;
+            
+            if (!waddir_gwa && !cached_gwa)
+            {
+                // Neither is valid so create one in the cached directory
+                actual_gwa_filename = cached_gwa_filename.GetString();
+
 				I_Printf("Building GL Nodes for: %s\n", filename);
 
-				if (! GB_BuildNodes(filename, gwa_filename))
+				if (! GB_BuildNodes(filename, actual_gwa_filename))
 					I_Error("Failed to build GL nodes for: %s\n", filename);
-			}
+            }
+            else if (waddir_gwa)
+            {
+                // The wad directory GWA is valid - use it
+                actual_gwa_filename = gwa_filename.GetString();
+            }
+            else if (cached_gwa)
+            {
+                // The cached directory GWA is valid - use it
+                actual_gwa_filename = cached_gwa_filename.GetString();
+            }
 
 			// Load it.  This recursion bit is rather sneaky,
 			// hopefully it doesn't break anything...
-			AddFile(gwa_filename.GetString(), FLKIND_GWad, datafile);
+			AddFile(actual_gwa_filename, FLKIND_GWad, datafile);
 
 			df->companion_gwa = datafile + 1;
 		}
@@ -1100,34 +1079,47 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	// handle DeHackEd patch files
 	if (kind == FLKIND_Deh || df->deh_lump >= 0)
 	{
+        epi::string_c cached_hwa_filename;
         epi::string_c hwa_filename;
+        epi::string_c wad_dir;
+            
+        // Get the directory which the wad is currently stored
+        wad_dir = epi::path::GetDir(filename);
+            
+        // Initially work out the name of the HWA file
+        hwa_filename = epi::path::GetBasename(filename);
+        hwa_filename.AddString("." EDGEHWAEXT);
+            
+        // Determine the full path filename for the cached and current directory versions
+        cached_hwa_filename = epi::path::Join(cache_dir.GetString(), hwa_filename.GetString());
+        hwa_filename = epi::path::Join(wad_dir.GetString(), hwa_filename.GetString());
 
-        hwa_filename.Set(filename);
-        hwa_filename.RemoveRight(3);          // Remove Extension
-        hwa_filename.AddString(EDGEHWAEXT);   // Add GL friendly nodes extension
-
-        // create the GWA file if it doesn't exist, or recreate it
-        // if the time and date don't match (the WAD file has been
-        // updated in the meantime).
-
-        // Check for the existance of this file (use the EPI)
-
-        // Check for the existance of this file in the cache directory
+        // Check for the existance of the waddir and cached dir files
+        bool cached_hwa = epi::the_filesystem->Access(cached_hwa_filename.GetString(), epi::file_c::ACCESS_READ);
+        bool waddir_hwa = epi::the_filesystem->Access(hwa_filename.GetString(), epi::file_c::ACCESS_READ);
 
         // If both exist, use one in root. if neither exist create
         // one in the cache directory
+        bool build_hwa = false;
 
-        // Check the timestamp of the wad against the gwa, build
-        // gwa if out of date.
-		//const char *hwa_filename = MakeHwaFilename(filename);
+        // Check whether the waddir hwa is out of date
+        if (waddir_hwa) 
+            waddir_hwa = (L_CompareFileTimes(filename, hwa_filename.GetString()) <= 0);
 
-		// optimisation: use existing HWA file when possible
-		if (!epi::the_filesystem->Access(hwa_filename.GetString(), epi::file_c::ACCESS_READ) || 
-            L_CompareFileTimes(filename, hwa_filename.GetString()) > 0)
-		{
+        // Check whether the cached hwa is out of date
+        if (cached_hwa) 
+            cached_hwa = (L_CompareFileTimes(filename, cached_hwa_filename.GetString()) <= 0);
+
+        const char *actual_hwa_filename = NULL;
+        
+        if (!waddir_hwa && !cached_hwa)
+        {
+            // Neither is valid so create one in the cached directory
 			if (kind == FLKIND_Deh)
 			{
-				I_Printf("Converting DEH file: %s\n", filename);
+                actual_hwa_filename = cached_hwa_filename.GetString();
+				
+                I_Printf("Converting DEH file: %s\n", filename);
 
 				if (! DH_ConvertFile(filename, hwa_filename.GetString()))
 					I_Error("Failed to convert DeHackEd patch: %s\n", filename);
@@ -1146,10 +1138,20 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 				W_DoneWithLump(data);
 			}
-		}
+        }
+        else if (waddir_hwa)
+        {
+            // The wad directory GWA is valid - use it
+            actual_hwa_filename = hwa_filename.GetString();
+        }
+        else if (cached_hwa)
+        {
+            // The cached directory GWA is valid - use it
+            actual_hwa_filename = cached_hwa_filename.GetString();
+        }
 
 		// Load it (using good ol' recursion again).
-		AddFile(hwa_filename.GetString(), FLKIND_HWad, -1);
+		AddFile(actual_hwa_filename, FLKIND_HWad, -1);
 	}
 }
 
@@ -1680,9 +1682,9 @@ static void W_ReadLump(int lump, void *dest)
 	// -KM- 1998/07/31 This puts the loading icon in the corner of the screen :-)
 	display_disk = true;
 
-	lseek(df->handle, L->position, SEEK_SET);
+    df->file->Seek(L->position, epi::file_c::SEEKPOINT_START);
 
-	int c = read(df->handle, dest, L->size);
+    int c = df->file->Read(dest, L->size);
 
 	if (c < L->size)
 		I_Error("W_ReadLump: only read %i of %i on lump %i", c, L->size, lump);
@@ -1872,4 +1874,3 @@ const char *W_GetLumpName(int lump)
 {
 	return lumpinfo[lump].name;
 }
-
