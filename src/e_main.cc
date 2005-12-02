@@ -431,7 +431,7 @@ void SetLanguage(void)
 	const char *want_lang = M_GetParm("-lang");
 
 	if (! want_lang)
-		want_lang = config_language;  // m_misc
+		want_lang = config_language.GetString();  // m_misc
 
 	if (want_lang)
 	{
@@ -1122,9 +1122,9 @@ static void IdentifyVersion(void)
     }
 
     // Should the IWAD directory not be set by now, then we
-    // use our standby option of the game directory.
+    // use our standby option of the current directory.
     if (iw_dir.IsEmpty())
-        iw_dir.Set(game_dir.GetString());
+        iw_dir.Set(".");
 
     // Should the IWAD Parameter not be empty then it means
     // that one was given which is not a directory. Therefore
@@ -1140,16 +1140,20 @@ static void IdentifyVersion(void)
         if (ext.Compare(EDGEWADEXT))
         {
             // Add one
-            fn.AddChar('.');
-            fn.AddString(EDGEWADEXT);
+            fn.AddString("." EDGEWADEXT);
         }
 
-        if (!epi::the_filesystem->Access(fn.GetString(), epi::file_c::ACCESS_READ))
+        // If no directory given use the IWAD directory
+        epi::string_c dir = epi::path::GetDir(fn.GetString());
+        if (!dir.GetLength())
+            iw_filename = epi::path::Join(iw_dir.GetString(), fn.GetString()); 
+        else
+            iw_filename = fn;
+
+        if (!epi::the_filesystem->Access(iw_filename.GetString(), epi::file_c::ACCESS_READ))
         {
 			I_Error("IdentifyVersion: Unable to add specified '%s'", fn.GetString());
         }
-
-        iw_filename = fn;
     }
     else
     {
