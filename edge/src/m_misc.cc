@@ -46,7 +46,6 @@
 #include "v_res.h"
 #include "w_image.h"
 #include "wp_main.h"
-#include "z_zone.h"
 
 #include "defaults.h"
 
@@ -59,13 +58,9 @@
 #include <epi/path.h>
 
 #include <ctype.h>
-#include <fcntl.h>     // FIXME: Use file_c!!
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 
 //
 // DEFAULTS
@@ -89,7 +84,7 @@ bool var_hq_all    = false;
 unsigned short save_screenshot[160][100];
 bool save_screenshot_valid = false;
 
-char *config_language = NULL;
+epi::strent_c config_language;
 
 // -ACB- 1999/09/19 Sound API
 static int cfgsound;
@@ -225,55 +220,6 @@ epi::strent_c cfgfile;
 // ===================== END OF INTERNALS =====================
 
 //
-// M_WriteFile
-//
-bool M_WriteFile(char const *name, void *source, int length)
-{
-	int handle;
-	int count;
-
-	handle = open(name, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
-
-	if (handle == -1)
-		return false;
-
-	count = write(handle, source, length);
-	close(handle);
-
-	if (count < length)
-		return false;
-
-	return true;
-}
-
-//
-// M_ReadFile
-//
-int M_ReadFile(char const *name, byte ** buffer)
-{
-	int handle, count, length;
-	struct stat fileinfo;
-	byte *buf;
-
-	handle = open(name, O_RDONLY | O_BINARY);
-
-	if (handle == -1)
-		I_Error("Couldn't read file %s", name);
-	if (fstat(handle, &fileinfo) == -1)
-		I_Error("Couldn't read file %s", name);
-	length = fileinfo.st_size;
-	buf = Z_New(byte, length);
-	count = read(handle, buf, length);
-	close(handle);
-
-	if (count < length)
-		I_Error("Couldn't read file %s", name);
-
-	*buffer = buf;
-	return length;
-}
-
-//
 // M_SaveDefaults
 //
 void M_SaveDefaults(void)
@@ -356,7 +302,7 @@ bool M_LoadDefaults(void)
 	FILE *f;
 	char def[80];
 	char strparm[100];
-	char *newstring = 0;
+    epi::string_c newstr;
 	int parm;
 	bool isstring;
 
@@ -384,7 +330,7 @@ bool M_LoadDefaults(void)
 				// overwrite the last "
 				strparm[strlen(strparm) - 1] = 0;
 				// skip the first "
-				newstring = Z_StrDup(strparm + 1);
+				newstr.Set(strparm + 1);
 			}
 			else if (strparm[0] == '0' && strparm[1] == 'x')
 				sscanf(strparm + 2, "%x", &parm);
@@ -404,7 +350,7 @@ bool M_LoadDefaults(void)
 				if (!isstring)
 					continue;  // FIXME: show warning
 				
-				config_language = Z_StrDup(newstring);
+				config_language.Set(newstr.GetString());
 				continue;
 			}
 
@@ -619,12 +565,12 @@ void M_ScreenShot(bool show_msg)
 void M_MakeSaveScreenShot(void)
 {
 #if 0 /// FIXME:
-	// buffer = (byte*)Z_Malloc(SCREENWIDTH*SCREENHEIGHT*4);
+	// byte* buffer = new byte[SCREENWIDTH*SCREENHEIGHT*4];
 	// glReadBuffer(GL_FRONT);
 	// glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	// glReadPixels(0, 0, SCREENWIDTH, SCREENHEIGHT, GL_RGB, GL_UNSIGNED_BYTE, buffer);
 	// ...
-	// Z_Free(buffer);
+	// delete [] buffer;
 #endif
 
 #if 0  // OLD SOFTWARE VERSION
@@ -802,24 +748,18 @@ extern FILE* debugfile; // FIXME
 //
 void L_WriteDebug(const char *message,...)
 {
-	va_list argptr;
-	char message_buf[4096];
-
 	if (!debugfile)
 		return;
 
-	// -ACB- 2001/02/08 Clear the message buffer
-	memset(message_buf, 0, sizeof(message_buf));
+    epi::string_c output;
+	va_list argptr;
 
 	// Print the message into a text string
 	va_start(argptr, message);
-	vsprintf(message_buf, message, argptr);
+	output.FormatWithArgList(message, argptr);
 	va_end(argptr);
 
-	// I hope nobody is printing strings longer than 4096 chars...
-	DEV_ASSERT2(message_buf[4095] == 0);
-
-	fprintf(debugfile, "%s", message_buf);
+	fprintf(debugfile, "%s", output.GetString());
 	fflush(debugfile);
 }
 

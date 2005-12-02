@@ -31,8 +31,9 @@
 
 #include "dm_type.h"
 
-#include <epi/strings.h>
 #include <epi/files.h>
+#include <epi/strings.h>
+#include <epi/utility.h>
 
 //
 // MISC
@@ -56,10 +57,8 @@ typedef struct
 }
 default_t;
 
-bool M_WriteFile(char const *name, void *source, int length);
 bool M_LoadDefaults(void);
 void M_SaveDefaults(void);
-int M_ReadFile(char const *name, byte **buffer);
 void M_InitMiscConVars(void);
 void M_DisplayDisk(void);
 void M_DisplayAir(void);
@@ -83,6 +82,6 @@ extern bool var_hq_all;
 
 extern int cfgnormalfov, cfgzoomedfov;
 
-extern char *config_language;
+extern epi::strent_c config_language;
 
 #endif  /* __M_MISC__ */
