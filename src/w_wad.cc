@@ -56,6 +56,7 @@
 #include <epi/endianess.h>
 #include <epi/files.h>
 #include <epi/filesystem.h>
+#include <epi/path.h>
 #include <epi/strings.h>
 #include <epi/utility.h>
 
@@ -439,35 +440,6 @@ static int FileLength(int handle)
 		I_Error("Error fstating");
 
 	return fileinfo.st_size;
-}
-
-static void ExtractFileBase(const char *path, char *dest)
-{
-	const char *src;
-	int length;
-
-	src = path + strlen(path) - 1;
-
-	// back up until a \ or the start
-	while (src != path
-		   && *(src - 1) != '\\'
-		   && *(src - 1) != '/'
-		   && *(src - 1) != ':')  // Kester added :
-	{
-		src--;
-	}
-
-	// copy up to eight characters
-	Z_Clear(dest, char, 8);
-	length = 0;
-
-	while (*src && *src != '.')
-	{
-		if (++length == 9)
-			I_Error("Filename base of %s >8 chars", path);
-
-		*dest++ = toupper((int)*src++);
-	}
 }
 
 //
@@ -1027,9 +999,19 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		DEV_ASSERT2(dyn_index < 0);
 
 		if (kind == FLKIND_DDF)
+        {
 			DDF_GetLumpNameForFile(filename, lump_name);
-		else
-			ExtractFileBase(filename, lump_name);
+		}
+        else
+        {
+            epi::string_c s = epi::path::GetBasename(filename);
+            if (s.GetLength() > 8)
+                I_Error("Filename base of %s >8 chars", filename);
+
+            s.ToUpper();    // Required to be uppercase
+
+            strcpy(lump_name, s);
+        }
 
 		// Fill in lumpinfo
 		numlumps++;

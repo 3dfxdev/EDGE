@@ -25,9 +25,10 @@
 #include "ddf_main.h"
 #include "ddf_image.h"
 #include "dm_state.h"
-#include "m_misc.h"  // M_CheckExtension
 #include "p_spec.h"
 #include "r_local.h"
+
+#include <epi/path.h>
 
 #include <string.h>
 
@@ -168,18 +169,19 @@ static void ImageFinishEntry(void)
 {
 	if (buffer_image.type == IMGDT_File)  //  || buffer_image.type == IMGDT_Package)
 	{
-		// determine format
-		const char *basename = buffer_image.name.GetString();
+        const char *filename = buffer_image.name.GetString();
 
-		if (M_CheckExtension("png", basename) == EXT_MATCHING)
+		// determine format
+        epi::string_c ext = epi::path::GetExtension(filename);
+
+        ext.ToLower();
+
+		if (!ext.Compare("png"))
 			buffer_image.format = LIF_PNG;
-		else if (M_CheckExtension("jpg", basename) == EXT_MATCHING ||
-		         M_CheckExtension("jpeg", basename) == EXT_MATCHING)
-		{
+		else if (!ext.Compare("jpg") || !ext.Compare("jpeg"))
 			buffer_image.format = LIF_JPEG;
-		}
 		else
-			DDF_Error("Unknown image extension for '%s'\n", basename);
+			DDF_Error("Unknown image extension for '%s'\n", filename);
 	}
 
 	// check stuff...
