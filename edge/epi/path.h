@@ -27,8 +27,23 @@ namespace epi
 // Path Manipulation Functions
 namespace path
 {
+    // Returns the basename (filename minus extension) if it exists
+    string_c GetBasename(const char *path);
+
+    // Returns the directory from the path if it exists
+    string_c GetDir(const char *path);
+
+    // Returns a filename extension from the path if it exists
+    string_c GetExtension(const char *path);
+
+    // Returns a filename from the path if it exists
+    string_c GetFilename(const char *path);
+
     // Returns true if the given is an absolute path
     bool IsAbsolute(const char *path);
+
+    // Returns true if the character could act as a seperator
+    bool IsDirSeperator(const char c);
 
     // Join two paths together
     string_c Join(const char *lhs, const char *rhs);

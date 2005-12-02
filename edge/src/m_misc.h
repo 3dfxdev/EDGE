@@ -56,15 +56,6 @@ typedef struct
 }
 default_t;
 
-typedef enum
-{
-	EXT_WEIRD       = 0x00,
-	EXT_NONE        = 0x01,
-	EXT_NOTMATCHING = 0x02,
-	EXT_MATCHING    = 0x04
-}
-exttype_e;
-
 bool M_WriteFile(char const *name, void *source, int length);
 bool M_LoadDefaults(void);
 void M_SaveDefaults(void);
@@ -74,7 +65,6 @@ void M_DisplayDisk(void);
 void M_DisplayAir(void);
 void M_ScreenShot(bool show_msg);
 void M_MakeSaveScreenShot(void);
-exttype_e M_CheckExtension(const char *ext, const char* filename);
 byte *M_GetFileData(const char *filename, int *length);
 void M_ComposeFileName(epi::string_c& fn, const char *dir, const char *file);
 epi::file_c *M_OpenComposedEPIFile(const char *dir, const char *file);

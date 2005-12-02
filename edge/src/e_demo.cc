@@ -46,6 +46,7 @@
 #include <epi/endianess.h>
 #include <epi/files.h>
 #include <epi/filesystem.h>
+#include <epi/path.h>
 
 #include <ctype.h>
 #include <string.h>
@@ -212,8 +213,9 @@ void G_RecordDemo(const char *filename)
 
 	M_ComposeFileName(demoname, game_dir.GetString(), filename);
 
-	if (M_CheckExtension("edm", demoname.GetString()) == EXT_NONE)
-		demoname += ".edm";
+    epi::string_c ext = epi::path::GetExtension(demoname.GetString());
+	if (ext.Compare("edm")) 
+		demoname += ".edm"; // No Match - Add Extension
 
 	usergame = false;
 
@@ -292,8 +294,9 @@ void G_DeferredPlayDemo(const char *filename)
 
 	M_ComposeFileName(demoname, game_dir.GetString(), filename);
 
-	if (M_CheckExtension("edm", demoname.GetString()) == EXT_NONE)
-		demoname += ".edm";
+    epi::string_c ext = epi::path::GetExtension(demoname.GetString());
+	if (ext.Compare("edm")) 
+		demoname += ".edm"; // No Match - Add Extension
 
 	defdemoname.Set(demoname.GetString());
 

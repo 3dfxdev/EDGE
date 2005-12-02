@@ -1086,34 +1086,6 @@ void CheckExternal(void)
 		external_ddf = true;
 }
 
-// FIXME: Really needs to be boiled down to an EPI filesystem method
-void ExtractIWadBase(const char *path, epi::strent_c& result)
-{
-	const char *start = path + strlen(path) - 1;
-
-	// back up until a \ or the start
-	while (start != path
-		   && *(start - 1) != '\\'
-		   && *(start - 1) != '/'
-		   && *(start - 1) != ':')  // Kester added :
-	{
-		start--;
-	}
-
-	int length = 0;
-
-	// move forward until extension or end
-	while (start[length] && start[length] != '.')
-		length++;
-
-	if (length == 0)
-		I_Error("ExtractIWadBase: zero length basename: %s\n", path);
-	
-    result.Set(start, length); 
-	return;
-}
-
-
 //
 // E_IdentifyVersion
 //
@@ -1163,9 +1135,11 @@ static void IdentifyVersion(void)
 
         fn = iw_param;
         
-        // FIXME: Implement as EPI filesystem func ReplaceExtension()
-        if (M_CheckExtension(EDGEWADEXT, iw_param.GetString()) != EXT_MATCHING)
+        // Is it missing the extension?
+        epi::string_c ext = epi::path::GetExtension(iw_param.GetString());
+        if (ext.Compare(EDGEWADEXT))
         {
+            // Add one
             fn.AddChar('.');
             fn.AddString(EDGEWADEXT);
         }
@@ -1219,17 +1193,19 @@ static void IdentifyVersion(void)
         
     }
 
+	if (iw_filename.IsEmpty())
+		I_Error("IdentifyVersion: No IWADS found!\n");
+
     W_AddRawFilename(iw_filename.GetString(), FLKIND_IWad);
 
-    // FIXME! Use epi filesystem
     iw_filename.ToUpper(); // Make uppercase
-    ExtractIWadBase(iw_filename.GetString(), iwad_base);
+    
+    iw_param = epi::path::GetBasename(iw_filename.GetString());
+    iwad_base.Set(iw_param.GetString());
 
 	L_WriteDebug("IWAD BASE = [%s]\n", iwad_base.GetString());
 
     // Emulate this behaviour?
-	//if (!addwadnum)
-	//	I_Error("IdentifyVersion: No IWADS found!\n");
 
     // Look for the required wad in the IWADs dir and then the gamedir
     epi::string_c reqwad_filename;
@@ -1411,9 +1387,12 @@ static void SetupLogAndDebugFiles(void)
 
 static void AddSingleCmdLineFile(const char *name)
 {
+    epi::string_c ext = epi::path::GetExtension(name);
 	int kind = FLKIND_Lump;
 
-	if (M_CheckExtension("edm", name) == EXT_MATCHING)
+    ext.ToLower(); // Presume it is in lowercase
+
+	if (!ext.Compare("edm"))
 	{
 		singledemo = true;
 		G_DeferredPlayDemo(name);
@@ -1422,17 +1401,15 @@ static void AddSingleCmdLineFile(const char *name)
 
 	// no need to check for GWA (shouldn't be added manually)
 
-	if (M_CheckExtension("wad", name) == EXT_MATCHING)
+	if (!ext.Compare("wad"))
 		kind = FLKIND_PWad;
-	else if (M_CheckExtension("hwa", name) == EXT_MATCHING)
+	else if (!ext.Compare("hwa"))
 		kind = FLKIND_HWad;
-	else if (M_CheckExtension("scr", name) == EXT_MATCHING)
+	else if (!ext.Compare("scr"))
 		kind = FLKIND_Script;
-	else if (M_CheckExtension("ddf", name) == EXT_MATCHING ||
-	         M_CheckExtension("ldf", name) == EXT_MATCHING)
+	else if (!ext.Compare("ddf") || !ext.Compare("ldf"))
 		kind = FLKIND_DDF;
-	else if (M_CheckExtension("deh", name) == EXT_MATCHING ||
-	         M_CheckExtension("bex", name) == EXT_MATCHING)
+	else if (!ext.Compare("deh") || !ext.Compare("bex"))
 		kind = FLKIND_Deh;
 
 	epi::string_c fn;
@@ -1443,6 +1420,7 @@ static void AddSingleCmdLineFile(const char *name)
 
 static void AddCommandLineFiles(void)
 {
+    epi::string_c ext;
 	epi::string_c fn;
 
 	// first handle "loose" files (arguments before the first option)
@@ -1483,13 +1461,16 @@ static void AddCommandLineFiles(void)
 
 		for (p++; p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0]; p++)
 		{
+            ext = epi::path::GetExtension(ps);
+            ext.ToLower();
+
 			// sanity check...
-			if (M_CheckExtension("wad", ps) == EXT_MATCHING ||
-			    M_CheckExtension("gwa", ps) == EXT_MATCHING ||
-			    M_CheckExtension("hwa", ps) == EXT_MATCHING ||
-			    M_CheckExtension("ddf", ps) == EXT_MATCHING ||
-			    M_CheckExtension("deh", ps) == EXT_MATCHING ||
-			    M_CheckExtension("bex", ps) == EXT_MATCHING)
+			if (!ext.Compare("wad") || 
+                !ext.Compare("gwa") ||
+			    !ext.Compare("hwa") ||
+                !ext.Compare("ddf") ||
+			    !ext.Compare("deh") ||
+			    !ext.Compare("bex"))
 			{
 				I_Error("Illegal filename for -script: %s\n", ps);
 			}
@@ -1513,12 +1494,15 @@ static void AddCommandLineFiles(void)
 
 		for (p++; p < M_GetArgCount() && '-' != (ps = M_GetArgument(p))[0]; p++)
 		{
+            ext = epi::path::GetExtension(ps);
+            ext.ToLower();
+
 			// sanity check...
-			if (M_CheckExtension("wad", ps) == EXT_MATCHING ||
-			    M_CheckExtension("gwa", ps) == EXT_MATCHING ||
-			    M_CheckExtension("hwa", ps) == EXT_MATCHING ||
-			    M_CheckExtension("ddf", ps) == EXT_MATCHING ||
-			    M_CheckExtension("scr", ps) == EXT_MATCHING)
+			if (!ext.Compare("wad") || 
+                !ext.Compare("gwa") ||
+			    !ext.Compare("hwa") ||
+                !ext.Compare("ddf") ||
+			    !ext.Compare("scr"))
 			{
 				I_Error("Illegal filename for -deh: %s\n", ps);
 			}
