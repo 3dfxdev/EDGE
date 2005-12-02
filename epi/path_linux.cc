@@ -211,7 +211,7 @@ string_c Join(const char *lhs, const char *rhs)
 
         s.Set(lhs);
 
-        if (s.GetLastChar() != '/')
+        if (s.GetLength() && s.GetLastChar() != '/')
             s.AddChar('/');
 
         s.AddString(rhs);

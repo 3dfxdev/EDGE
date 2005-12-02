@@ -227,9 +227,12 @@ string_c Join(const char *lhs, const char *rhs)
 
         s.Set(lhs);
 
-        const char c = s.GetLastChar();
-        if (c != '\\' && c != '/')
-            s.AddChar('\\');
+        if (s.GetLength())
+        {
+            const char c = s.GetLastChar();
+            if (c != '\\' && c != '/')
+                s.AddChar('\\');
+        }
 
         s.AddString(rhs);
     }
