@@ -29,7 +29,7 @@
 #include "e_main.h"
 #include "version.h"
 
-#include <glbsp/glbsp.h>
+#include <glbsp.h>
 
 #include <stdio.h>
 #include <stdarg.h>
