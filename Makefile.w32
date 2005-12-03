@@ -39,6 +39,7 @@ INCS = -I$(GENLIB_DIR)
 CXXINCS = -I$(GENLIB_DIR) \
 		  -I$(AL_DIR)/include \
 		  -I$(DX_DIR)/include \
+		  -I$(GLBSP_DIR) \
 		  -I$(OGG_DIR)/include \
 		  -I$(JPEG_DIR)/include \
 		  -I$(PNG_DIR)/include \
