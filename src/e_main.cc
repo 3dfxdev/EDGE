@@ -189,6 +189,7 @@ epi::strent_c iwad_base;
 epi::strent_c cache_dir;
 epi::strent_c ddf_dir;
 epi::strent_c game_dir;
+epi::strent_c home_dir;
 epi::strent_c save_dir;
 
 int crosshair = 0;
@@ -953,7 +954,6 @@ void E_StartTitle(void)
 //
 void InitDirectories(void)
 {
-    epi::string_c home_dir;
     epi::string_c path;
 
 	const char *s = M_GetParm("-home");
@@ -986,7 +986,6 @@ void InitDirectories(void)
     if (home_dir.IsEmpty())
         home_dir.Set("."); // Default to current directory
 
-
 	// Get the Game Directory from parameter.
 	s = M_GetParm("-game");
 	if (s)
@@ -1001,23 +1000,10 @@ void InitDirectories(void)
 	// add parameter file "gamedir/parms" if it exists.
     path = epi::path::Join(game_dir.GetString(), "parms");
 
-#ifdef DEVELOPERS
-	L_WriteDebug("Response file '%s' ", path.GetString());
-#endif
-
 	if (epi::the_filesystem->Access(path.GetString(), epi::file_c::ACCESS_READ))
 	{
-#ifdef DEVELOPERS
-		L_WriteDebug("found.\n");
-#endif
 		// Insert it right after the game parameter
 		M_ApplyResponseFile(path.GetString(), M_CheckParm("-game") + 2);
-	}
-	else
-	{
-#ifdef DEVELOPERS
-		L_WriteDebug("not found.\n");
-#endif
 	}
 
 	s = M_GetParm("-ddf");
@@ -1331,7 +1317,9 @@ static void SetupLogAndDebugFiles(void)
 	//                  I_Warnings and I_Errors.
 	if (! M_CheckParm("-nolog"))
 	{
-		logfile = fopen(EDGELOGFILE, "w");
+        epi::string_c logfn = epi::path::Join(home_dir.GetString(), EDGELOGFILE);
+
+		logfile = fopen(logfn.GetString(), "w");
 
 		if (!logfile)
 			I_Error("[engine::Startup] Unable to create log file");
@@ -1632,14 +1620,14 @@ namespace engine
 		// -AJA- 2000/02/02: initialise global gameflags to defaults
 		global_flags = default_gameflags;
 
+		InitDirectories();
+
 		SetupLogAndDebugFiles();
 
 		// -ACB- 1999/09/20 defines to be used?
 		CON_InitConsole(79, 25, false);  // AJA: FIXME: init later (in startcode[])
 
 		ShowDateAndVersion();
-
-		InitDirectories();
 
 		M_LoadDefaults();
 		SetGlobalVars();
