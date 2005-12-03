@@ -1035,8 +1035,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
             // If both exist, use one in root. if neither exist create
             // one in the cache directory
-            bool build_gwa = false;
-
+ 
             // Check whether the waddir gwa is out of date
             if (waddir_gwa) 
                 waddir_gwa = (L_CompareFileTimes(filename, gwa_filename.GetString()) <= 0);
@@ -1100,8 +1099,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
         // If both exist, use one in root. if neither exist create
         // one in the cache directory
-        bool build_hwa = false;
-
+ 
         // Check whether the waddir hwa is out of date
         if (waddir_hwa) 
             waddir_hwa = (L_CompareFileTimes(filename, hwa_filename.GetString()) <= 0);
