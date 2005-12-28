@@ -98,7 +98,9 @@ bool I_StartupMusic(void *sysinfo)
 		I_Printf("I_StartupMusic: OGG Music Init OK\n");
 	}
 	else
+    {
 		I_Printf("I_StartupMusic: OGG Music Disabled (no sound)\n");
+    }
 
 	return true;
 }
