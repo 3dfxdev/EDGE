@@ -1123,7 +1123,7 @@ static void IdentifyVersion(void)
         
         // Is it missing the extension?
         epi::string_c ext = epi::path::GetExtension(iw_param.GetString());
-        if (ext.Compare(EDGEWADEXT))
+        if (ext.CompareNoCase(EDGEWADEXT))
         {
             // Add one
             fn.AddString("." EDGEWADEXT);
