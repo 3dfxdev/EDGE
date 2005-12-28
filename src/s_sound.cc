@@ -1108,6 +1108,9 @@ namespace sound
     //
     int StartFX(sfx_t *info, int category, int flags)
     {
+        if (nosound)
+            return 0;
+
         if (!info)
             return 0; // SFX_FIXME: Should never happen
 
@@ -1129,6 +1132,9 @@ namespace sound
     //
     int StartFX(sfx_t *info, int category, const epi::vec3_c pos, int flags) 
     {
+        if (nosound)
+            return 0;
+
         if (!info)
             return 0; // SFX_FIXME: Should never happen
 
@@ -1150,6 +1156,9 @@ namespace sound
     //
     int StartFX(sfx_t *info, int category, mobj_t *mo, int flags)
     {
+        if (nosound)
+            return 0;
+
         if (!info)
         {
             // Historic code handling. Attempting to start a NULL effect
@@ -1181,6 +1190,9 @@ namespace sound
     //
     int StartFX(sfx_t *info, int category, sec_sfxorig_t *sec, int flags)
     {
+        if (nosound)
+            return 0;
+
         if (!info)
         {
             // Historic code handling. Attempting to start a NULL effect
@@ -1212,6 +1224,9 @@ namespace sound
     //
     void StopFX(int handle)
     {
+        if (nosound)
+            return;
+
         epi::array_iterator_c it;
         pending_fx_t* pfx;
         fx_t* fx;
@@ -1245,6 +1260,9 @@ namespace sound
     void StopFX(mobj_t *mo)
     {
         DEV_ASSERT2(mo != NULL);
+
+        if (nosound)
+            return;
 
         epi::array_iterator_c it;
         pending_fx_t* pfx;
@@ -1286,6 +1304,9 @@ namespace sound
     {
         DEV_ASSERT2(orig != NULL);
 
+        if (nosound)
+            return;
+
         epi::array_iterator_c it;
         pending_fx_t* pfx;
         fx_t* fx;
@@ -1324,6 +1345,9 @@ namespace sound
     //
     void StopLoopingFX(int handle)
     {
+        if (nosound)
+            return;
+
         epi::array_iterator_c it;
         pending_fx_t* pfx;
         fx_t* fx;
@@ -1357,6 +1381,9 @@ namespace sound
     void StopLoopingFX(sec_sfxorig_t *orig)
     {
         DEV_ASSERT2(orig != NULL);
+
+        if (nosound)
+            return;
 
         epi::array_iterator_c it;
         pending_fx_t* pfx;
@@ -1397,6 +1424,9 @@ namespace sound
     void StopLoopingFX(mobj_t *mo)
     {
         DEV_ASSERT2(mo != NULL);
+
+        if (nosound)
+            return;
 
         epi::array_iterator_c it;
         pending_fx_t* pfx;
@@ -1472,6 +1502,9 @@ namespace sound
     //
     bool IsFXPlaying(int handle) 
     {
+        if (nosound)
+            return false;
+
         epi::array_iterator_c it;
         pending_fx_t* pfx;
         fx_t* fx;
@@ -1504,6 +1537,9 @@ namespace sound
     //
     bool IsFXPlaying(sec_sfxorig_t *orig)
     {
+        if (nosound)
+            return false;
+
         DEV_ASSERT2(orig != NULL);
 
         epi::array_iterator_c it;
@@ -1547,6 +1583,9 @@ namespace sound
     //
     bool IsFXPlaying(mobj_t *mo)
     {
+        if (nosound)
+            return false;
+
         DEV_ASSERT2(mo != NULL);
 
         epi::array_iterator_c it;
@@ -1596,6 +1635,9 @@ namespace sound
     //
     int ReserveFX(int category)
     {
+        if (nosound)
+            return 0;
+
         if (category < 0 || category >= SNCAT_NUMTYPES)
             return 0;
 
@@ -1651,6 +1693,9 @@ namespace sound
     //
     void UnreserveFX(int handle)
     {
+        if (nosound)
+            return;
+
         epi::array_iterator_c it;
         fx_t* fx;
 
@@ -2012,6 +2057,9 @@ namespace sound
     //
     void Ticker(void)
     {
+        if (nosound)
+            return;
+
         epi::array_iterator_c it;
         fx_t *fx;
 
@@ -2499,6 +2547,9 @@ namespace sound
 
         master_fx_volume = volume;
 
+        if (nosound)
+            return;
+
         // Adjust the gain of any playing fx
         epi::array_iterator_c it;
         fx_t* fx;
@@ -2518,7 +2569,10 @@ namespace sound
     // Init
     //
     void Init(void)
-    {
+    { 
+        if (nosound)
+            return;
+
         pending_fx.Clear();
 
         // Work out the number of sources required
@@ -2531,9 +2585,9 @@ namespace sound
         
         if (num_sources < MIN_SOURCES || num_sources > MAX_SOURCES) 
         {
-            I_Printf("I_StartupSound: Requested number of channels is out of range\n"); 
+            I_Printf("sound::Init : Requested number of channels is out of range\n"); 
 
-            I_Printf("I_StartupSound: Requested channels %d, Min is %d, Max is %d\n",
+            I_Printf("sound::Init : Requested channels %d, Min is %d, Max is %d\n",
                      num_sources, MIN_SOURCES, MAX_SOURCES);
              
             I_Printf("sound::Init : Using default %d\n", DEFAULT_SOURCES);
