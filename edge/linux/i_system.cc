@@ -59,6 +59,9 @@ extern FILE *debugfile;
 #endif // USE_FLTK
 
 #ifndef USE_FLTK
+
+#include "v_res.h"
+
 static char cp437_to_ascii[160] =
 { 
 	'.', '.', '.', '.', '.', '.', '.', '.',   // 0x00 - 0x07

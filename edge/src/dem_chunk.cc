@@ -26,7 +26,11 @@
 #include "dem_chunk.h"
 #include "z_zone.h"
 
+#ifdef HAVE_LZO1X_H
+#include <lzo1x.h>
+#else
 #include "lzo/minilzo.h"
+#endif
 
 #include <epi/math_crc.h>
 
