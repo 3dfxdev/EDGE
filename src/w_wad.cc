@@ -954,7 +954,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		if (kind == FLKIND_DDF)
         {
 			DDF_GetLumpNameForFile(filename, lump_name);
-		}
+        }
         else
         {
             epi::string_c s = epi::path::GetBasename(filename);
