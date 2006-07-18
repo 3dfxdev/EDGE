@@ -408,7 +408,10 @@ static void WeaponClearAll(void)
 		weapondef_c *wd = ITERATOR_TO_TYPE(it, weapondef_c*);
 
 		if (wd)
+		{
 			wd->no_cheat = true;
+			wd->autogive = false;
+		}
 	}
 }
 
