@@ -505,7 +505,6 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 
 	// -KM- 1998/09/27 Sounds.ddf
 	sound = special->info->activesound;
-	toucher->flags |= MF_JUSTPICKEDUP;
 
 	if (special->hyperflags & HF_FORCEPICKUP)
 		pickup |= true;

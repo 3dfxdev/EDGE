@@ -214,8 +214,7 @@ typedef enum
 	// Monster grows (in)visible at certain times.
 	MF_STEALTH = 0x4000000,
 
-	// Used so bots know they have picked up their target item.
-	MF_JUSTPICKEDUP = 0x8000000,
+	MF_UNUSED_8000000 = 0x8000000, // was: JUSTPICKEDUP
 
 	// Object reacts to being touched (often violently :->)
 	MF_TOUCHY = 0x10000000
