@@ -926,7 +926,7 @@ void newgame_params_c::SinglePlayer(int num_bots)
 	total_players = 1 + num_bots;
 	players[0] = PFL_Zero;  // i.e. !BOT and !NETWORK
 
-	for (int pnum = 1; pnum < num_bots; pnum++)
+	for (int pnum = 1; pnum <= num_bots; pnum++)
 		players[pnum] = PFL_Bot;
 }
 
@@ -1020,7 +1020,7 @@ void G_InitNew(newgame_params_c& params)
 	}
 
 	if (numplayers != params.total_players)
-		I_Error("Internal Error: G_InitNew: player miscount (%d != %d\n",
+		I_Error("Internal Error: G_InitNew: player miscount (%d != %d)\n",
 			numplayers, params.total_players);
 
 	if (consoleplayer < 0)
