@@ -529,7 +529,7 @@ void DDF_LineGetScroller(const char *info, void *storage)
 {
 	for (int i = 0; s_scroll[i].s; i++)
 	{
-		if (!stricmp(info, s_scroll[i].s))
+		if (DDF_CompareName(info, s_scroll[i].s) == 0)
 		{
 			s_dir = (scrolldirs_e)(s_dir | s_scroll[i].dir);
 			return;
@@ -562,7 +562,7 @@ void DDF_LineGetSecurity(const char *info, void *storage)
 
 	for (i = sizeof(s_keys) / sizeof(s_keys[0]); i--;)
 	{
-		if (!stricmp(info, s_keys[i].s))
+		if (DDF_CompareName(info, s_keys[i].s) == 0)
 		{
 			buffer_line.keys = (keys_e)(buffer_line.keys | s_keys[i].n);
 
@@ -587,7 +587,7 @@ void DDF_LineGetTrigType(const char *info, void *storage)
 
 	for (i = sizeof(s_trigger) / sizeof(s_trigger[0]); i--;)
 	{
-		if (!stricmp(info, s_trigger[i].s))
+		if (DDF_CompareName(info, s_trigger[i].s) == 0)
 		{
 			buffer_line.type = (trigger_e)s_trigger[i].n;
 			return;
@@ -608,7 +608,7 @@ void DDF_LineGetActivators(const char *info, void *storage)
 
 	for (i = sizeof(s_activators) / sizeof(s_activators[0]); i--;)
 	{
-		if (!stricmp(info, s_activators[i].s))
+		if (DDF_CompareName(info, s_activators[i].s) == 0)
 		{
 			buffer_line.obj = (trigacttype_e)(buffer_line.obj | s_activators[i].n);
 			return;
