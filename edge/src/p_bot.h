@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE Play Simulation Action routines: 'DeathBots'
+//  EDGE: DeathBots
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2005  The EDGE Team.
@@ -31,51 +31,13 @@
 // This describes what action the bot wants to do.
 // It will be translated to a ticcmd_t by P_BotPlayerBuilder.
 
-//
-// -ACB- 2003/05/15 Moved followtype and face enum outside the structure. This is to fixed 
-// issues with declaring enums in structures for GCC3 and VC.NET
-//
-typedef enum
-{
-	BOTCMD_FOLLOW_NONE = 0,
-	BOTCMD_FOLLOW_MOBJ,
-	BOTCMD_FOLLOW_XY,
-	BOTCMD_FOLLOW_DIR
-} 
-botcmd_follow_e;
-
-typedef enum
-{
-	BOTCMD_FACE_NONE = 0,
-	BOTCMD_FACE_MOBJ,
-	BOTCMD_FACE_XYZ,
-	BOTCMD_FACE_ANGLE
-}
-botcmd_face_e;
-	
 typedef struct botcmd_s
 {
-	int followtype;
+	int move_speed;
+	angle_t move_angle;
 
-	union
-	{
-		struct {float x,y;} xyz;
-		struct {angle_t angle; float distance;} dir;
-		mobj_t *mo;
-	} 
-	followobj;
-
-	// If we want to face someone, do this here.
-	// Either face a mobj, a specified map coordinate, or a given angle.
-	int	facetype;
-
-	union
-	{
-		struct {float x,y,z;} xyz;
-		struct {angle_t angle; float slope;} angle;
-		mobj_t *mo;
-	}
-	faceobj;
+	// Object which we want to face, NULL if none
+	mobj_t *face_mobj;
 
 	// The weapon we want to use. -1 if the current one is fine.
 	int new_weapon;
@@ -90,16 +52,21 @@ botcmd_t;
 
 typedef struct bot_s
 {
-	const player_t *pl;
+	player_t *pl;
 
-	bool strafedir;
 	int confidence;
-	int threshold;
-	int movecount;
+	int patience;
 
-	mobj_t *target;
-	mobj_t *supportobj;
 	angle_t angle;
+
+	int weapon_count;
+	int move_count;
+	int use_count;
+
+	// last position, to check if we actually moved
+	float last_x, last_y;
+
+	angle_t strafedir;
 
 	botcmd_t cmd;
 }

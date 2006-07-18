@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE Play Simulation Action routines: 'DeathBots'
+//  EDGE: DeathBots
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2005  The EDGE Team.
@@ -26,6 +26,7 @@
 #include "i_defs.h"
 #include "p_bot.h"
 
+#include "con_main.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "g_game.h"
@@ -43,68 +44,101 @@
 #include <stdio.h>
 #include <string.h>
 
-static float bot_atkrange;
-static mobj_t *bot_shooter = NULL;
+#define DEBUG  0
 
 static bot_t *looking_bot;
 static mobj_t *lkbot_target;
+static int lkbot_score;
 
-static void NewBotChaseDir(bot_t * bot)
+static void BOT_SetTarget(bot_t *bot, mobj_t *target)
 {
+	P_MobjSetTarget(bot->pl->mo, target);
+}
+
+static bool BOT_HasWeapon(bot_t *bot, benefit_t *benefit)
+{
+	for (int i=0; i < MAXWEAPONS; i++)
+	{
+		if (bot->pl->weapons[i].owned &&
+			bot->pl->weapons[i].info == benefit->sub.weap)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+static bool BOT_MeleeWeapon(bot_t *bot)
+{
+	int wp_num = bot->pl->ready_wp;
+
+	if (bot->pl->pending_wp >= 0)
+		wp_num = bot->pl->pending_wp;
+
+	return bot->pl->weapons[wp_num].info->ammo[0] == AM_NoAmmo;
+}
+
+static void BOT_NewChaseDir(bot_t * bot, bool move_ok)
+{
+	mobj_t *mo = bot->pl->mo;
+
 	// FIXME: This is not very intelligent...
 	int r = M_Random();
 
-	if (bot->target && (r % 3 == 0))
+	if (mo->target && (r % 3 == 0))
 	{
-		bot->angle = R_PointToAngle(bot->pl->mo->x, bot->pl->mo->y,
-			bot->target->x, bot->target->y);
+		bot->angle = R_PointToAngle(mo->x, mo->y,
+			mo->target->x, mo->target->y);
 	}
-	else if (bot->supportobj && (r % 3 == 1))
+	else if (mo->supportobj && (r % 3 == 1))
 	{
-		bot->angle = R_PointToAngle(bot->pl->mo->x, bot->pl->mo->y,
-			bot->supportobj->x, bot->supportobj->y);
+		bot->angle = R_PointToAngle(mo->x, mo->y,
+			mo->supportobj->x, mo->supportobj->y);
+	}
+	else if (move_ok)
+	{
+		angle_t diff = r - M_Random();
+
+		bot->angle += (diff << 21);
 	}
 	else
-		bot->angle = M_Random() << 24;
+		bot->angle = (r << 24);
+
 }
 
-static void Confidence(bot_t * bot)
+static void BOT_Confidence(bot_t * bot)
 {
 	const player_t *p = bot->pl;
 	const mobj_t *mo = p->mo;
+
+	bot->confidence = 0;
 
 	if (p->powers[PW_Invulnerable])
 		bot->confidence = 1;
 	else if (mo->health < mo->info->spawnhealth / 3)
 		bot->confidence = -1;
-	else if (mo->health > 3 * mo->info->spawnhealth / 4 && p->ready_wp >= 0 &&
-		p->weapons[p->ready_wp].info->ammo[0] != AM_NoAmmo)
+	else if (mo->health > mo->info->spawnhealth * 3 / 4 && ! BOT_MeleeWeapon(bot))
 	{
-	        ammotype_e ammo = p->weapons[p->ready_wp].info->ammo[0];
+        ammotype_e ammo = p->weapons[p->ready_wp].info->ammo[0];
 
 		if (p->ammo[ammo].num > p->ammo[ammo].max / 2)
 			bot->confidence = 1;
 	}
-
-	bot->confidence = 0;
 }
 
-static int EvaluateWeapon(player_t *p, int w_num)
+static int BOT_EvaluateWeapon(player_t *p, int w_num)
 {
 	playerweapon_t *wp = p->weapons + w_num;
-	weapondef_c *weapon;
-	atkdef_c *attack;
-	float value;
 
 	// Don't have this weapon
 	if (! wp->owned)
 		return INT_MIN;
 
-	weapon = wp->info;
+	weapondef_c *weapon = wp->info;
 	DEV_ASSERT2(weapon);
 
-	attack = weapon->attack[0];
-
+	atkdef_c *attack = weapon->attack[0];
 	if (!attack)
 		return INT_MIN;
 
@@ -115,7 +149,7 @@ static int EvaluateWeapon(player_t *p, int w_num)
 			return INT_MIN;
 	}
 
-	value = 64 * attack->damage.nominal;
+	float value = 64 * attack->damage.nominal;
 
 	switch (attack->attackstyle)
 	{
@@ -149,26 +183,23 @@ static int EvaluateWeapon(player_t *p, int w_num)
 			break;
 	}
 
-	//  value -= (attack->accuracy_angle + attack->x_accuracy_slope + 1) / 2;
 	value -= weapon->ammopershot[0] * 8;
 
-	if (w_num == p->ready_wp)
-		value += 2048;
+	if (w_num == p->ready_wp || w_num == p->pending_wp)
+		value += 1024;
 
 	value += (M_Random() - 128) * 16;
+
 	return (int)value;
 }
 
 static bool PTR_BotLook(intercept_t * in)
 {
-	line_t *li;
-	mobj_t *th;
-
 	if (in->type == INCPT_Line)
 	{
-		li = in->d.line;
+		line_t *li = in->d.line;
 
-		if (!(li->flags & ML_TwoSided))
+		if (! (li->flags & ML_TwoSided))
 			return false;  // stop
 
 		// Crosses a two sided line.
@@ -179,222 +210,192 @@ static bool PTR_BotLook(intercept_t * in)
 		if (li->gap_num == 0)
 			return false;  // stop
 
-		if (li->frontsector->f_h != li->backsector->f_h)
-		{
-			if (fabs(li->frontsector->f_h - li->backsector->f_h) > 24.0f)
-				return false;
-		}
+		if (fabs(li->frontsector->f_h - li->backsector->f_h) > 24.0f)
+			return false;
 
-		return true;  // shot continues
-
+		return true;  // sight continues
 	}
 
 	DEV_ASSERT2(in->type == INCPT_Thing);
 
-	// shoot a thing
-	th = in->d.thing;
+	mobj_t *th = in->d.thing;
 
-	if (th == bot_shooter)
-		return true;  // can't shoot self
+	if (! (th->flags & MF_SPECIAL))
+		return true;  // has to be able to be got
 
-	if (!(th->flags & MF_SPECIAL))
-		return true;  // has to be able to be shot
+	if (th->health <= 0)
+		return true;  // already been picked up
 
-#if 0 //!!!! FIXME
-	int ammotype;
-	ammotype = th->info->benefitammo;
-	switch (th->info->benefittype)
+	player_t *pl = looking_bot->pl;
+	int score = 0;
+	int ammo;
+
+	for (benefit_t *list = th->info->pickup_benefits;
+		list != NULL; list=list->next)
 	{
-			// -KM- 1998/11/25 New weapon handling
-		case WEAPON:  // WEAPON
-			if (!bot_shooter->player->weapons[th->info->benefitweapon].owned)
+		switch (list->type)
+		{
+			case BENEFIT_Weapon:
+				if (! BOT_HasWeapon(looking_bot, list))
+					score = score + 50;
 				break;
-			ammotype = bot_shooter->player->weapons[th->info->benefitweapon].info->ammo;
-		case AMMO_TYPE:
-			if (bot_shooter->player->ammo[ammotype].num ==
-				bot_shooter->player->ammo[ammotype].max)
-				return true;
-			break;
-		case KEY_BLUECARD:
-			if (bot_shooter->player->cards[KEY_BlueCard])
-				return true;
-			break;
-		case KEY_REDCARD:
-			if (bot_shooter->player->cards[KEY_RedCard])
-				return true;
-			break;
-		case KEY_YELLOWCARD:
-			if (bot_shooter->player->cards[KEY_YellowCard])
-				return true;
-			break;
-		case KEY_BLUESKULL:
-			if (bot_shooter->player->cards[KEY_BlueSkull])
-				return true;
-			break;
-		case KEY_REDSKULL:
-			if (bot_shooter->player->cards[KEY_RedSkull])
-				return true;
-			break;
-		case KEY_YELLOWSKULL:
-			if (bot_shooter->player->cards[KEY_YellowSkull])
-				return true;
-			break;
-		case POWERUP_ACIDSUIT:
-			if (bot_shooter->player->powers[PW_AcidSuit] >= th->info->benefitamount * TICRATE / 3)
-				return true;
-			break;
-		case POWERUP_ARMOUR:
-			if (bot_shooter->player->armourpoints >= th->info->limit)
-				return true;
-			break;
-		case POWERUP_AUTOMAP:
-			return true;
-		case POWERUP_BACKPACK:
-			break;
-		case POWERUP_BERSERK:
-			if (bot_shooter->player->powers[PW_Berserk])
-				return true;
-			break;
 
-		case POWERUP_HEALTH:
-			if (bot_shooter->health >= th->info->limit)
-				return true;
-			break;
+			case BENEFIT_Ammo:
+				ammo = list->sub.type;
+				if (ammo != AM_NoAmmo && pl->ammo[ammo].num < pl->ammo[ammo].max)
+					score = score + 10;
+				break;
 
-		case POWERUP_HEALTHARMOUR:
-			if ((bot_shooter->health >= th->info->limit) &&
-				(bot_shooter->player->armourpoints >= th->info->limit))
-				return true;
-			break;
+			case BENEFIT_Health:
+				if (looking_bot->confidence < 0)
+					score = score + 40 + (int)list->amount;
+				else if (pl->health < list->limit)
+					score = score + 20;
+				break;
 
-		case POWERUP_INVULNERABLE:
-			break;
+			case BENEFIT_Armour:
+				score = score + 5 + (int)list->amount / 10;
+				break;
 
-		case POWERUP_JETPACK:
-			if (bot_shooter->player->powers[PW_Jetpack] >= th->info->benefitamount * TICRATE / 3)
-				return true;
-			break;
+			case BENEFIT_Powerup:
+				switch (list->sub.type)
+				{
+					case PW_Invulnerable: score = 18; break;
+					case PW_PartInvis:    score = 14; break;
+					case PW_Berserk:      score = 12; break;
+					case PW_AcidSuit:     score = 11; break;
 
-		case POWERUP_LIGHTGOGGLES:
-			if (bot_shooter->player->powers[PW_Infrared] >= th->info->benefitamount * TICRATE / 3)
-				return true;
-			break;
-
-		case POWERUP_NIGHTVISION:
-			if (bot_shooter->player->powers[PW_NightVision] >= th->info->benefitamount * TICRATE / 3)
-				return true;
-			break;
-
-		case POWERUP_PARTINVIS:
-			if (bot_shooter->player->powers[PW_PartInvis] >= th->info->benefitamount * TICRATE / 3)
-				return true;
-			break;
-
+					default: break;
+				}
+				break;
+			
+			default: break;
+		}
 	}
-#endif
 
-	lkbot_target = th;
+	if (score == 0)
+		return true;
+	
+	if (!lkbot_target || score > lkbot_score)
+	{
+		lkbot_target = th;
+		lkbot_score  = score;
+	}
 
-	return false;  // don't go any farther
+	return false;  // found something
+}
+
+static mobj_t *BOT_LineOfSight(bot_t *bot, angle_t angle)
+{
+	looking_bot = bot;
+
+	lkbot_target = NULL;
+	lkbot_score  = 0;
+
+	float x1 = bot->pl->mo->x;
+	float y1 = bot->pl->mo->y;
+	float x2 = x1 + 1024 * M_Cos(angle);
+	float y2 = y1 + 1024 * M_Sin(angle);
+
+	P_PathTraverse(x1, y1, x2, y2, PT_ADDLINES | PT_ADDTHINGS, PTR_BotLook);
+
+	looking_bot = NULL;
 }
 
 // Finds items for the bot to get.
-static mobj_t *LookForStuff(bot_t *bot, angle_t angle)
+static bool BOT_LookForItems(bot_t *bot)
 {
-	float x2;
-	float y2;
+	mobj_t *best_item  = NULL;
+	int     best_score = 0;
 
-	bot_shooter = bot->pl->mo;
-	looking_bot = bot;
+	int search = 6;
 
-	x2 = bot->pl->mo->x + 1024 * M_Cos(angle);
-	y2 = bot->pl->mo->y + 1024 * M_Sin(angle);
+	// If we are confident, hunt more than gather.
+	if (bot->confidence > 0)
+		search = 1;
 
-	lkbot_target = NULL;
-	bot_atkrange = 1024.0f;
+	// Find some stuff!
+	for (int i = -search; i <= search; i++)
+	{
+		angle_t diff = (int)(ANG45/4) * i;
 
-	P_PathTraverse(bot->pl->mo->x, bot->pl->mo->y, x2, y2, 
-		PT_ADDLINES | PT_ADDTHINGS, PTR_BotLook);
+		BOT_LineOfSight(bot, bot->angle + diff);
+			
+		if (lkbot_target)
+		{
+			if (!best_item || lkbot_score > best_score)
+			{
+				best_item  = lkbot_target;
+				best_score = lkbot_score;
+			}
+		}
+	}
 
-	looking_bot = NULL;
+	if (best_item)
+	{
+		BOT_SetTarget(bot, best_item);
 
-	return lkbot_target;
-}
+#if (DEBUG > 0)
+I_Printf("BOT %d: WANT item %s, score %d\n",
+bot->pl->pnum, best_item->info->ddf.name.GetString(), best_score);
+#endif
 
-static void MoveBot(bot_t *bot, angle_t angle)
-{
-	bot->cmd.followtype = BOTCMD_FOLLOW_DIR;
-	bot->cmd.followobj.dir.angle = angle;
-	bot->cmd.followobj.dir.distance = 1024;
+		return true;
+	}
+
+	return false;
 }
 
 // Based on P_LookForTargets from p_enemy.c
-static bool LookForBotTargets(bot_t *bot)
+static bool BOT_LookForEnemies(bot_t *bot)
 {
 	mobj_t *we = bot->pl->mo;
 	mobj_t *them;
 
 	for (them = mobjlisthead; them; them = them->next)
 	{
-		if (them == we)
+		if (! (them->flags & MF_SHOOTABLE))
 			continue;
 
-		bool same_side = ((them->side & we->side) != 0);
+		if (them == we)
+			continue;
 
 		// only target monsters or players (not barrels)
 		if (! (them->extendedflags & EF_MONSTER) && ! them->player)
 			continue;
 
-		if (! (them->flags & MF_SHOOTABLE))
-			continue;
+		bool same_side = ((them->side & we->side) != 0);
 
-		if (them->player && them != we && same_side &&
+		if (them->player && same_side &&
 			!we->supportobj && them->supportobj != we)
 		{
 			if (them->supportobj && P_CheckSight(we, them->supportobj))
 			{
-				bot->supportobj = them->supportobj;
+				P_MobjSetSupportObj(we, them->supportobj);
 				return true;
 			}
 			else if (P_CheckSight(we, them))
 			{
-				bot->supportobj = them;
+				P_MobjSetSupportObj(we, them->supportobj);
 				return true;
 			}
 		}
 
 		// The following must be true to justify that you attack a target:
 		// 1. The target may not be yourself or your support obj.
-		// 2. The target's type must be different from your, if you aren't disloyal.
-		// 3. The target must either want to attack you, or be on a different side
-		// 4. The target may not have the same supportobj as you.
-		// 5. You must be able to see and shoot the target.
+		// 2. The target must either want to attack you, or be on a different side
+		// 3. The target may not have the same supportobj as you.
+		// 4. You must be able to see and shoot the target.
 
-		if (we->info == them->info && ! (we->extendedflags & EF_DISLOYALTYPE)) 
-			continue;
-
-#if 0  // OLD CODE (TO BE REMOVED)
-		if ((((them->target == we->supportobj || them->target == we)
-			&& them->target)
-			|| (we->side && !(them->side & we->side)))
-			&& ((them != we) &&
-			(them != we->supportobj) &&
-			(we->info != them->info || (we->extendedflags & EF_DISLOYALTYPE)) &&
-			((we->supportobj == NULL) || we->supportobj != them->supportobj)))
-		{
-			if ((them->flags & MF_SHOOTABLE) && P_CheckSight(we, them))
-			{
-				bot->target = them;
-				return true;
-			}
-		}
-#endif
-		if (! same_side || (them->target &&
-			(them->target == we || them->target == we->supportobj)))
+		if (!same_side || (them->target && them->target == we))
 		{
 			if (P_CheckSight(we, them))
 			{
-				bot->target = them;
+				BOT_SetTarget(bot, them);
+#if (DEBUG > 0)
+I_Printf("BOT %d: Targeting Agent: %s\n", bot->pl->pnum,
+them->info->ddf.name.GetString());
+#endif
 				return true;
 			}
 		}
@@ -403,189 +404,221 @@ static bool LookForBotTargets(bot_t *bot)
 	return false;
 }
 
-static void BotThink(bot_t * bot)
+static void BOT_SelectWeapon(bot_t *bot)
 {
-	bool move_ok;
-	bool seetarget = false;
-	int best;
+	int best = bot->pl->ready_wp;
 	int best_val = INT_MIN;
-	unsigned int i, j;
 
-	DEV_ASSERT2(bot->pl);
-	DEV_ASSERT2(bot->pl->mo);
-
-	bot->target = bot->pl->mo->target;
-
-	best = bot->pl->ready_wp;
-
-	move_ok = P_ApproxDistance(bot->pl->mo->mom.x, bot->pl->mo->mom.y) > STOPSPEED;
-	if (bot->pl->health <= 0)
+	for (int i=0; i < MAXWEAPONS; i++)
 	{
-		// Dead. Respawn.
-		bot->cmd.use = true;
+		int val = BOT_EvaluateWeapon((player_t*)bot->pl, i);
+
+		if (val > best_val)
+		{
+			best = i;
+			best_val = val;
+		}
+	}
+
+	if (best != bot->pl->ready_wp &&
+		best != bot->pl->pending_wp)
+	{
+		bot->cmd.new_weapon = best;
+	}
+}
+
+static void BOT_Move(bot_t *bot)
+{
+	bot->cmd.move_speed = 0x32;
+	bot->cmd.move_angle = bot->angle + bot->strafedir;
+}
+
+static void BOT_Chase(bot_t *bot, bool seetarget, bool move_ok)
+{
+	mobj_t *mo = bot->pl->mo;
+
+#if (DEBUG > 1)
+		I_Printf("BOT %d: Chase %s dist %1.1f angle %1.0f | %s\n",
+			bot->pl->pnum, mo->target->info->ddf.name.GetString(),
+			P_ApproxDistance(mo->x - mo->target->x, mo->y - mo->target->y),
+			ANG_2_FLOAT(bot->angle), move_ok ? "move_ok" : "NO_MOVE");
+#endif
+
+	// Got a special (item) target?
+	if (mo->target->flags & MF_SPECIAL)
+	{
+		// If there is a wall or something in the way, pick a new direction.
+		if (!move_ok || bot->move_count < 0)
+		{
+			if (seetarget && move_ok)
+				bot->cmd.face_mobj = mo->target;
+
+			bot->angle = R_PointToAngle(mo->x, mo->y, mo->target->x, mo->target->y);
+			bot->strafedir = 0;
+			bot->move_count = 10 + (M_Random() & 31);
+
+			if (!move_ok)
+			{
+				int r = M_Random();
+
+				if (r < 10)
+					bot->angle = M_Random() << 24;
+				else if (r < 60)
+					bot->strafedir = ANG90;
+				else if (r < 110)
+					bot->strafedir = ANG270;
+			}
+		}
+		else if (bot->move_count < 0)
+		{
+			// Move in the direction of the item.
+			bot->angle = R_PointToAngle(mo->x, mo->y, mo->target->x, mo->target->y);
+			bot->strafedir = 0;
+
+			bot->move_count = 10 + (M_Random() & 31);
+		}
+
+		BOT_Move(bot);
 		return;
 	}
 
-	// Check if we can see the target
-	if (bot->target)
-		seetarget = P_CheckSight(bot->pl->mo, bot->target);
-
-	bot->threshold--;
-	bot->movecount--;
-
-	// Select a suitable weapon
-	if (bot->confidence <= 0 && (bot->threshold < 0 || bot->movecount < 0))
+	// Target can be killed.
+	if (mo->target->flags & MF_SHOOTABLE)
 	{
-		for (i=0; i < MAXWEAPONS; i++)
+		// Can see a target,
+		if (seetarget)
 		{
-			j = EvaluateWeapon((player_t*)bot->pl, i);
+			// So face it,
+			bot->angle = R_PointToAngle(mo->x, mo->y,
+				mo->target->x, mo->target->y);
 
-			if (j > (unsigned int)best_val)
+			bot->cmd.face_mobj = mo->target;
+			// Shoot it,
+			bot->cmd.attack = true;
+
+			if (bot->move_count < 0)
 			{
-				best_val = (int)j;
-				best = i;
+				bot->move_count = 20 + (M_Random() & 63);
+
+				if (BOT_MeleeWeapon(bot))
+					// run directly toward target
+					bot->strafedir = 0;
+				else
+					// strafe it.
+					bot->strafedir = (M_Random()%5 - 2) * (int)ANG45;
 			}
 		}
 
-		if (best != bot->pl->ready_wp)
-			bot->cmd.new_weapon = best;
+		// chase towards target
+		if (bot->move_count < 0 || !move_ok)
+		{
+			BOT_NewChaseDir(bot, move_ok);
+
+			bot->move_count = 10 + (M_Random() & 31);
+			bot->strafedir = 0;
+		}
+
+		BOT_Move(bot);
+		return;
 	}
 
-	// Look for enemies
-	// If we aren't confident gather more than hunt.
-	if (!seetarget && bot->confidence >= 0)
+	// Target died
+	BOT_SetTarget(bot, NULL);
+}
+
+static void BOT_Think(bot_t * bot)
+{
+	DEV_ASSERT2(bot->pl);
+	DEV_ASSERT2(bot->pl->mo);
+
+	mobj_t *mo = bot->pl->mo;
+
+	// press USE button sometimes (open doors, respawn)
+	bot->use_count--;
+	if (bot->use_count < 0)
 	{
-		if (bot->threshold < 0)
+		bot->cmd.use = true;
+		bot->use_count = 30 + M_Random()/2;
+	}
+
+	// Dead?
+	if (mo->health <= 0)
+		return;
+
+	BOT_Confidence(bot);
+
+	float move_dx = bot->last_x - mo->x;
+	float move_dy = bot->last_y - mo->y;
+
+	bot->last_x = mo->x;
+	bot->last_y = mo->y;
+	
+	bool move_ok = (move_dx*move_dx + move_dy*move_dy) > 0.2;
+
+	// Check if we can see the target
+	bool seetarget = false;
+	if (mo->target)
+		seetarget = P_CheckSight(mo, mo->target);
+	
+	// Select a suitable weapon
+	if (bot->confidence <= 0)
+	{
+		bot->weapon_count--;
+		if (bot->weapon_count < 0)
 		{
-			LookForBotTargets(bot);
-			if (bot->target)
-				bot->threshold = M_Random() & 31;
+			BOT_SelectWeapon(bot);
+			bot->weapon_count = 30 + (M_Random() & 31) * 4;
 		}
+	}
+
+	bot->patience--;
+	bot->move_count--;
+
+	// Look for enemies
+	// If we aren't confident, gather more than fight.
+	if (!seetarget && bot->patience < 0 && bot->confidence >= 0)
+	{
+		seetarget = BOT_LookForEnemies(bot);
+
+		if (mo->target)
+			bot->patience = 20 + (M_Random() & 31) * 4;
 	}
 
 	// Can't see a target || don't have a suitable weapon to take it out with?
-	if (!seetarget)
+	if (!seetarget && bot->patience < 0)
 	{
-		mobj_t *newtarget = NULL;
+		seetarget = BOT_LookForItems(bot);
 
-		if (bot->threshold < 0)
-		{
-			angle_t search = ANG180;
-
-			// If we are confident, hunt more than gather.
-			if (bot->confidence == 0)
-				search = ANG90;
-			else if (bot->confidence > 0)
-				search = ANG45 / 2;
-
-			// Find some stuff!
-			for (i = (search / (5 * TICRATE)) * (leveltime % TICRATE); i < search; i += search / 5)
-			{
-				newtarget = LookForStuff(bot, bot->angle + i);
-
-				if (!newtarget)
-					newtarget = LookForStuff(bot, bot->angle - i);
-
-				if (newtarget)
-				{
-					bot->target = newtarget;
-					P_MobjSetTarget(bot->pl->mo, newtarget); // Fixme
-					bot->threshold = M_Random() & 31;
-					seetarget = true;
-					break;
-				}
-			}
-		}
+		if (mo->target)
+			bot->patience = 30 + (M_Random() & 31) * 8;
 	}
 
-	Confidence(bot);
-
-	if (bot->target)
+	if (mo->target)
 	{
-		// Got a special (item) target?
-		if (bot->target->flags & MF_SPECIAL)
-		{
-			if ((bot->pl->mo->flags & MF_JUSTPICKEDUP))
-			{
-				// Just got the item.
-				bot->target = NULL;
-			}
-			else if (bot->movecount < 0)
-			{
-				// Move in the direction of the item.
-				bot->angle = R_PointToAngle(bot->pl->mo->x, bot->pl->mo->y,
-					bot->target->x, bot->target->y);
-
-				bot->movecount = (M_Random() & 15) * 16;
-			}
-
-			// If there is a wall or something in the way, pick a new direction.
-			if (!move_ok)
-				NewBotChaseDir(bot); // fixme: check out
-
-			// Move the bot.
-			MoveBot(bot, bot->angle);
-			return;
-		}
-
-		// Target can be killed.
-		if (bot->target->flags & MF_SHOOTABLE)
-		{
-			// Can see a target,
-			if (seetarget)
-			{
-				// So face it,
-				bot->angle = R_PointToAngle(bot->pl->mo->x, bot->pl->mo->y,
-					bot->target->x, bot->target->y);
-				bot->cmd.facetype = BOTCMD_FACE_MOBJ;
-				bot->cmd.faceobj.mo = bot->target;
-				// Shoot it,
-				bot->cmd.attack = true;
-				// strafe it.
-				MoveBot(bot, bot->angle + (bot->strafedir ? ANG90 : -ANG90));
-				if (bot->movecount < 0)
-				{
-					bot->movecount = M_Random() & 63;
-					bot->strafedir = M_Random() & 1;
-				}
-			}
-			else
-				MoveBot(bot, bot->angle);
-
-			// chase towards player
-			if (bot->movecount < 0 || !move_ok)
-			{
-				NewBotChaseDir(bot);
-
-				if (!move_ok)
-					bot->strafedir = M_Random() & 1;
-			}
-			return;
-		}
+		BOT_Chase(bot, seetarget, move_ok);
 	}
-
-	// Wander around.
-	MoveBot(bot, bot->angle);
-
-	if (!move_ok || (bot->target && bot->target->health <= 0)
-		|| bot->movecount < 0)
+	else
 	{
-		bot->target = NULL;
-		P_MobjSetTarget(bot->pl->mo, NULL);
-		NewBotChaseDir(bot);
-		bot->strafedir = M_Random() & 1;
+		// Wander around.
+		if (!move_ok || bot->move_count < 0)
+		{
+			BOT_NewChaseDir(bot, move_ok);
+
+			bot->move_count = 10 + (M_Random() & 31);
+			bot->strafedir = 0;
+		}
+
+		BOT_Move(bot);
 	}
 }
 
 //
 // Reads the botcmd_t, converts it to ticcmd_t and stores the result in dest.
 //
-static void ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
+static void BOT_ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 {
-	float s,d,x,y;
-	angle_t a, new_angle;
+	mobj_t *mo = bot->pl->mo;
 
-	dest->buttons = dest->extbuttons = 0;
 	if (src->attack)
 		dest->buttons |= BT_ATTACK;
 	if (src->second_attack)
@@ -599,154 +632,56 @@ static void ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 
 	dest->buttons |= BT_IN_GAME;
 
-	switch (src->facetype)
+	angle_t new_angle = bot->angle;
+	float   new_slope = 0;		
+
+	if (src->face_mobj)
 	{
-		case BOTCMD_FACE_MOBJ:
-			x = src->faceobj.mo->x - bot->pl->mo->x;
-			y = src->faceobj.mo->y - bot->pl->mo->y;
-			new_angle = R_PointToAngle(bot->pl->mo->x, bot->pl->mo->y, src->faceobj.mo->x, src->faceobj.mo->y);
-			s = (float)sqrt(x * x + y * y);
-			
-			if (s < 0.1f)
-				s = 0.1f;
+		float dx = src->face_mobj->x - mo->x;
+		float dy = src->face_mobj->y - mo->y;
+		float dz = src->face_mobj->z - mo->z;
 
-			s = (src->faceobj.mo->z - bot->pl->mo->z) / s;
-			break;
-
-		case BOTCMD_FACE_XYZ:
-			x = src->faceobj.xyz.x - bot->pl->mo->x;
-			y = src->faceobj.xyz.y - bot->pl->mo->y;
-			new_angle = R_PointToAngle(bot->pl->mo->x, bot->pl->mo->y, src->faceobj.xyz.x, src->faceobj.xyz.y);
-			s = (float)sqrt(x * x + y * y);
-
-			if (s < 0.1f)
-				s = 0.1f;
-
-			s = (src->faceobj.xyz.z - bot->pl->mo->z) / s;
-			break;
-
-		case BOTCMD_FACE_ANGLE:
-			new_angle = src->faceobj.angle.angle;
-			s = src->faceobj.angle.slope;
-
-		default:
-			s = 0;
-			new_angle = bot->pl->mo->angle;
-
-			break;
+		new_angle = R_PointToAngle(0,0, dx,dy);
+		new_slope = P_ApproxSlope(dx, dy, dz);
 	}
 
-	dest->angleturn = (new_angle - bot->pl->mo->angle) >> 16;
-	dest->mlookturn = (M_ATan(s) - bot->pl->mo->vertangle) >> 16;
+	dest->angleturn = (new_angle - mo->angle) >> 16;
+	dest->mlookturn = (M_ATan(new_slope) - mo->vertangle) >> 16;
 
-	if (src->followtype == BOTCMD_FOLLOW_NONE)
-	{
-		dest->sidemove = dest->forwardmove = 0;
-	}
-	else
+	dest->sidemove = dest->forwardmove = 0;
+
+	if (src->move_speed != 0)
 	{
 		// set a to the angle relative the player.
-		switch (src->followtype)
-		{
-			case BOTCMD_FOLLOW_MOBJ:
-				x = src->followobj.mo->x - bot->pl->mo->x;
-				y = src->followobj.mo->y - bot->pl->mo->y;
-				d = x * x + y * y;
-				a = R_PointToAngle(src->followobj.mo->x, src->followobj.mo->y,
-					bot->pl->mo->x, bot->pl->mo->y) - new_angle;
-				break;
+		angle_t a = src->move_angle - new_angle;
 
-			case BOTCMD_FOLLOW_XY:
-				x = src->followobj.xyz.x - bot->pl->mo->x;
-				y = src->followobj.xyz.y - bot->pl->mo->y;
-				d = x * x + y * y;
-				a = R_PointToAngle(src->followobj.xyz.x, src->followobj.xyz.y,
-					bot->pl->mo->x, bot->pl->mo->y) - new_angle;
-				break;
+		float fm = M_Cos(a) * src->move_speed;
+		float sm = M_Sin(a) * src->move_speed;
 
-			case BOTCMD_FOLLOW_DIR:
-				d = src->followobj.dir.distance;
-				a = src->followobj.dir.angle - new_angle;
-				d *= d;
-				break;
-
-			default:
-				a = 0;
-				d = 0.0f;
-				break;
-		}
-
-		// -ES- Fixme: Improve this code. Take momx and momy into consideration.
-
-		// d is squared distance. Don't move if we are very close.
-		if (d < 64)
-		{
-			dest->sidemove = dest->forwardmove = 0;
-		}
-		else
-		{
-			// if we don't have to face a specific object, diagonal strafe.
-			if (src->facetype == BOTCMD_FACE_NONE)
-			{
-				DEV_ASSERT2(dest->angleturn == 0);
-				dest->angleturn = (a - ANG45) >> 16;
-				a = ANG45;
-			}
-
-			// decide direction
-			if ((a + ANG45) % ANG180 < ANG90)
-			{
-				if (a + ANG45 < ANG90)
-				{
-					// forward
-					dest->forwardmove = 0x32;
-				}
-				else
-				{
-					// backward
-					dest->forwardmove = -0x32;
-				}
-				dest->sidemove = (char)(dest->forwardmove * M_Tan(a));
-			}
-			else
-			{
-				if (a - ANG45 < ANG90)
-				{
-					// left
-					dest->sidemove = 0x32;
-				}
-				else
-				{
-					// right
-					dest->sidemove = -0x32;
-				}
-				dest->forwardmove = (char)(dest->sidemove * M_Tan(a - ANG90));
-			}
-		}
+		dest->forwardmove = (int)fm;
+		dest->sidemove    = (int)sm;
 	}
-
-	// L_WriteDebug("BOT %d  thr %d  mv %d  conf %d  ftype %d\n",
-	// bot->pl->pnum+1, bot->threshold, bot->movecount,
-	// bot->confidence, bot->cmd.followtype);
-
-	// L_WriteDebug("  CMD: fwd=%d side=%d\n", dest->forwardmove, dest->sidemove);
 }
+
+
+//----------------------------------------------------------------------------
+
 
 void P_BotPlayerBuilder(const player_t *p, void *data, ticcmd_t *cmd)
 {
+	Z_Clear(cmd, ticcmd_t, 1);
+
 	if (gamestate != GS_LEVEL)
 		return;
 
 	bot_t *bot = (bot_t *)data;
-
 	DEV_ASSERT2(bot);
 
 	Z_Clear(&bot->cmd, botcmd_t, 1);
 	bot->cmd.new_weapon = -1;
 
-	BotThink(bot);
-
-	ConvertToTiccmd(bot, cmd, &bot->cmd);
+	BOT_Think(bot);
+	BOT_ConvertToTiccmd(bot, cmd, &bot->cmd);
 }
 
 //
