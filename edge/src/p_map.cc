@@ -1254,7 +1254,7 @@ static bool PTR_AimTraverse(intercept_t * in)
 	if (! (th->flags & MF_SHOOTABLE))
 		return true;  // has to be able to be shot
 	
-	if (aim_I.source && !aim_I.forced && (aim_I.source->side && th->side) != 0)
+	if (aim_I.source && !aim_I.forced && (aim_I.source->side & th->side) != 0)
 		return true;  // don't aim at our good friend
 
 	// check angles to see if the thing can be aimed at
