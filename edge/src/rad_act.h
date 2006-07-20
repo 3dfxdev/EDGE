@@ -42,6 +42,7 @@ void RAD_ActLightSector(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActEnableScript(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActActivateLinetype(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActUnblockLines(rad_trigger_t *R, mobj_t *actor, void *param);
+void RAD_ActBlockLines(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActJump(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActSleep(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActRetrigger(rad_trigger_t *R, mobj_t *actor, void *param);

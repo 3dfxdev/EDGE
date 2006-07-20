@@ -979,6 +979,24 @@ void RAD_ActUnblockLines(rad_trigger_t *R, mobj_t *actor, void *param)
 	}
 }
 
+void RAD_ActBlockLines(rad_trigger_t *R, mobj_t *actor, void *param)
+{
+	s_lineunblocker_t *ub = (s_lineunblocker_t *) param;
+
+	int i;
+
+	for (i=0; i < numlines; i++)
+	{
+		line_t *ld = lines + i;
+
+		if (ld->tag != ub->tag)
+			continue;
+
+		// set standard flags
+		ld->flags |= ~(ML_Blocking | ML_BlockMonsters);
+	}
+}
+
 void RAD_ActJump(rad_trigger_t *R, mobj_t *actor, void *param)
 {
 	s_jump_t *t = (s_jump_t *) param;
