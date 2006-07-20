@@ -993,7 +993,7 @@ void RAD_ActBlockLines(rad_trigger_t *R, mobj_t *actor, void *param)
 			continue;
 
 		// set standard flags
-		ld->flags |= ~(ML_Blocking | ML_BlockMonsters);
+		ld->flags |= (ML_Blocking | ML_BlockMonsters);
 	}
 }
 
