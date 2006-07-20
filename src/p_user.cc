@@ -150,6 +150,10 @@ static void MovePlayer(player_t * player)
 				player->mo->vertangle = LOOKDOWNLIMIT;
 		}
 	}
+	else
+	{
+		player->mo->vertangle = 0;
+	}
 
 	// compute XY and Z speeds, taking swimming (etc) into account
 	// (we try to swim in view direction -- assumes no gravity).
