@@ -1926,6 +1926,19 @@ static void RAD_ParseUnblockLines(int pnum, const char **pars)
 	AddStateToScript(this_rad, 0, RAD_ActUnblockLines, lineact);
 }
 
+static void RAD_ParseBlockLines(int pnum, const char **pars)
+{
+	// Block_Lines <tag>
+
+	s_lineunblocker_t *lineact;
+
+	lineact = Z_ClearNew(s_lineunblocker_t, 1);
+
+	RAD_CheckForInt(pars[1], &lineact->tag);
+
+	AddStateToScript(this_rad, 0, RAD_ActBlockLines, lineact);
+}
+
 static void RAD_ParseWait(int pnum, const char **pars)
 {
 	// Wait <time>
@@ -2148,6 +2161,7 @@ static rts_parser_t radtrig_parsers[] =
 	{2, "DISABLE_TAGGED", 2,2, RAD_ParseEnableTagged},
 	{2, "ACTIVATE_LINETYPE", 3,3, RAD_ParseActivateLinetype},
 	{2, "UNBLOCK_LINES", 2,2, RAD_ParseUnblockLines},
+	{2, "BLOCK_LINES", 2,2, RAD_ParseBlockLines},
 	{2, "WAIT",  2,2, RAD_ParseWait},
 	{2, "JUMP",  2,3, RAD_ParseJump},
 	{2, "SLEEP", 1,1, RAD_ParseSleep},
