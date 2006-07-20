@@ -1,4 +1,12 @@
 
+EDGE DDF 4.7: (2006-07-22)
+==========================
+
+1) LINES.DDF: fixed linetype 195 to be repeatable.
+
+2) THINGS.DDF: use consistent key names.
+
+
 EDGE DDF 4.6: (2005-09-08)
 ==========================
 
