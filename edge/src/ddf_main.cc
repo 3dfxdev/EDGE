@@ -1061,9 +1061,9 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
       
 			// Sprite Data - more than a few exceptions....
 			if (isalnum(character) || character == SPACE || character == '-' ||
-				character == ':' || character == '.' || character == '[' ||
+				character == ':' || character == '.'  || character == '[' ||
 				character == ']' || character == '\\' || character == '!' ||
-				character == '#' || character == '%' || 
+				character == '#' || character == '%'  || character == '+' ||
 				character == '@' || character == '?')
 			{
 				buffer.AddChar(toupper(character));
