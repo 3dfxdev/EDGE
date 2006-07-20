@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: OCTOBER 15th 2005)
+(Date: JULY 20th 2006)
 
 
 Bugs fixed
@@ -36,7 +36,8 @@ Bugs fixed
 - fixed an issue with window positioning on Win32.
 - fixed MUS playback on certain devices in Win32
 - some continuous floors had wrong heights, fixed.
-- spawning of Voodoo dolls (Thanks to dsalt)
+- spawning of voodoo dolls (Thanks to dsalt)
+- the '+' syntax for KEYS had long been broken.
 
 
 Old Fixes (from EDGE 1.28A)
@@ -130,11 +131,15 @@ General improvements
 - source code uses more C++ features, and more of the EPI (Edge Platform
   Interface).  The "Zone" memory manager has mostly been replaced.
 
+- the old DeathBot is back in working order, though still dumb.
+  Use the option "-bots #" (where # is the number of bots) to
+  add bots to a deathmatch game.
+
 - emulation for Doom's original lighting (optional).
 - can toggle window/fullscreen mode in set-resolution screen.
 - new gameplay option to disable automatic weapon switches.
 - sky looks a bit better, with a stretch option in Video menu.
-- the old "sky flooding" trick is now emulated.
+- the old "sky flooding" mapping trick is now emulated.
 - emulate the FRIEND bit on things in the map.
 - missing wad files (given with -file) now produce an error.
 - monster spawning will keep the parent's AMBUSH status.
@@ -144,9 +149,9 @@ General improvements
 - intermission text screens can now be skipped.
 - console now slides up/down, smaller font.
 - can disable mouse-look in the gameplay options.
-- number of RTS tip slots increased to 45.
-- RTS tips are sent to the console.
-- smaller savegame files.
+- number of RTS tip slots has increased to 45.
+- RTS tip messages are shown on the console.
+- savegame files are smaller.
 
 
 New DDF features:
