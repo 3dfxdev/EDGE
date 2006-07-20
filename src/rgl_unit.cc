@@ -26,6 +26,7 @@
 #include "e_search.h"
 #include "m_argv.h"
 #include "r2_defs.h"
+#include "rgl_defs.h"
 #include "rgl_unit.h"
 #include "z_zone.h"
 
@@ -40,6 +41,11 @@ bool dumb_sky = false;
 
 #define MAX_L_VERT  4096
 #define MAX_L_UNIT  (MAX_L_VERT / 4)
+
+// -AJA- FIXME
+#ifndef GL_CLAMP_TO_EDGE
+#define GL_CLAMP_TO_EDGE  0x812F
+#endif
 
 // a single unit (polygon, quad, etc) to pass to the GL
 typedef struct local_gl_unit_s
@@ -266,6 +272,8 @@ void RGL_DrawUnits(void)
 	GLuint cur_tex2 = 0x76543210;
 #endif
 
+	GLint old_tmode = 0;
+
 	int cur_pass = -1;
 	int cur_blending = -1;
 
@@ -379,6 +387,14 @@ void RGL_DrawUnits(void)
 			glBindTexture(GL_TEXTURE_2D, cur_tex);
 		}
 
+		if (cur_blending & BL_ClampY)
+		{
+			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &old_tmode);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+				glcap_edgeclamp ? GL_CLAMP_TO_EDGE : GL_CLAMP);
+		}
+
+
 		if (use_vertex_array)
 		{
 			glDrawArrays(unit->mode, unit->first, unit->count);
@@ -392,6 +408,10 @@ void RGL_DrawUnits(void)
 
 			glEnd();
 		}
+
+		// restore the clamping mode
+		if (cur_blending & BL_ClampY)
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, old_tmode);
 	}
 
 	// all done
