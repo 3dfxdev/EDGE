@@ -1,0 +1,301 @@
+#
+# Makefile for EDGE/Linux
+#
+# (Note: requires GNU make)
+#
+
+# --- variables that can be overridden ---
+
+BIN=gledge
+
+# compiler
+CXX=g++
+
+# assembler (for the .asm files)
+AS=nasm -f elf
+
+# optimisation
+OPTIM=-O2 -ffast-math
+#OPTIM=-g -O
+#OPTIM=-g3
+
+# --- internal stuff from here on ------
+
+LX_DIR=linux
+EPI_DIR=epi
+SDL_DIR=SDL
+AL_DIR=AL
+LZO_DIR=lzo
+GLBSP_DIR=glbsp
+DEH_DIR=deh_edge
+
+SOUND_FLAGS=
+SOUND_LDFLAGS=
+SOUND_OBJS=$(AL_DIR)/i_sound.o $(AL_DIR)/oggplayer.o
+SOUND_LIBS=-lopenal -logg -lvorbis -lvorbisfile
+
+SDL_FLAGS=$(shell sdl-config --cflags)
+SDL_LDFLAGS=-L/usr/X11R6/lib
+SDL_LIBS=$(shell sdl-config --libs) -lGL
+
+ASM_DIR=noasm
+ASM_FLAGS=
+
+FLTK_FLAGS=-I/usr/include/fltk-1.1 -DUSE_FLTK
+FLTK_LIBS=-L/usr/lib/fltk-1.1 -lfltk -lX11 -lXext -lpng -ljpeg
+
+# HUM_OBJS=
+# HUM_FLAGS=
+# HUM_LIBS=
+HUM_DIR=humidity
+HUM_OBJS=$(AL_DIR)/humdinger.o
+HUM_FLAGS=-I../
+HUM_LIBS=$(HUM_DIR)/libhumidity.a  # -lpthread
+
+HAWK_FLAGS=
+HAWK_LDFLAGS=
+HAWK_LIBS=
+# HAWK_FLAGS=-I./hawknl1.68/include -DUSE_HAWKNL
+# HAWK_LDFLAGS=-L./hawknl1.68/src
+# HAWK_LIBS=-lpthread -lNL
+
+# --- putting it all together ---------
+
+CPPFLAGS=-I$(LX_DIR) -I.
+
+CFLAGS=-Wall $(OPTIM) -DLINUX -DDEVELOPERS  \
+       $(ASM_FLAGS) $(SDL_FLAGS)  \
+       $(SOUND_FLAGS) $(FLTK_FLAGS) $(HUM_FLAGS) $(HAWK_FLAGS)
+
+CXXFLAGS=-Wall $(OPTIM) -DLINUX -DDEVELOPERS \
+       $(ASM_FLAGS) $(SDL_FLAGS)  \
+       $(SOUND_FLAGS) $(FLTK_FLAGS) $(HUM_FLAGS) $(HAWK_FLAGS)
+
+LDFLAGS=-Xlinker --warn-common $(SDL_LDFLAGS)  \
+        $(SOUND_LDFLAGS) $(HAWK_LDFLAGS)
+
+# ----- LIBRARIES --------------------------------------------------------
+
+LIBS=-lm  \
+	$(EPI_DIR)/libepi.a \
+	$(LZO_DIR)/liblzo.a \
+	$(GLBSP_DIR)/libglbsp.a  \
+	$(DEH_DIR)/libdehedge.a  \
+	$(SDL_LIBS) \
+	$(SOUND_LIBS)  \
+	$(HAWK_LIBS) \
+	$(FLTK_LIBS) \
+	$(HUM_LIBS)
+
+# ----- OBJECTS --------------------------------------------------------
+
+SDL_OBJS= \
+	    $(SDL_DIR)/i_cd.o \
+	    $(SDL_DIR)/i_ctrl.o \
+	    $(SDL_DIR)/i_loop.o \
+	    $(SDL_DIR)/i_video.o
+
+SYSTEM_OBJS= \
+        $(LX_DIR)/i_main.o \
+		$(LX_DIR)/i_music.o \
+		$(LX_DIR)/i_net.o \
+		$(LX_DIR)/i_compen.o \
+		$(LX_DIR)/i_system.o
+
+COMMON_OBJS= \
+        am_map.o \
+		con_con.o \
+        con_cvar.o \
+		con_main.o \
+        ddf_anim.o \
+		ddf_atk.o \
+        ddf_boom.o \
+		ddf_colm.o \
+		ddf_font.o \
+        ddf_game.o \
+		ddf_image.o \
+		ddf_lang.o \
+        ddf_levl.o \
+		ddf_line.o \
+        ddf_main.o \
+		ddf_mobj.o \
+        ddf_mus.o \
+        ddf_sect.o \
+		ddf_sfx.o \
+		ddf_stat.o \
+		ddf_style.o \
+        ddf_swth.o \
+		ddf_weap.o \
+		dem_chunk.o \
+		dem_glob.o \
+        dm_defs.o \
+		dm_state.o \
+		e_demo.o \
+		e_input.o \
+        e_main.o \
+		e_player.o \
+        f_finale.o \
+		g_game.o \
+		gui_ctls.o \
+        gui_main.o \
+		hu_font.o \
+        hu_lib.o \
+		hu_stuff.o \
+		hu_style.o \
+		l_deh.o \
+        l_glbsp.o \
+        lu_gamma.o \
+        m_argv.o \
+        m_bbox.o \
+		m_cheat.o \
+        m_math.o \
+        m_menu.o \
+        m_misc.o \
+		m_option.o \
+		m_random.o \
+		n_network.o \
+		n_packet.o \
+		n_proto.o \
+        p_action.o \
+		p_enemy.o \
+        p_inter.o \
+		p_lights.o \
+        p_map.o \
+		p_maputl.o \
+		p_mobj.o \
+        p_plane.o \
+        p_setup.o \
+		p_sight.o \
+        p_spec.o \
+		p_switch.o \
+        p_tick.o \
+		p_user.o \
+		p_weapon.o \
+        r2_util.o \
+        rad_act.o \
+		rad_pars.o \
+        rad_trig.o \
+        r_bsp.o \
+		r_data.o \
+        rgl_bsp.o \
+        rgl_fx.o \
+		rgl_main.o \
+		rgl_occ.o \
+        rgl_sky.o \
+		rgl_tex.o \
+        rgl_thing.o \
+		rgl_unit.o \
+        rgl_wipe.o \
+		r_layers.o \
+        r_main.o \
+        r_sky.o \
+		r_things.o \
+		r_vbinit.o \
+        r_view.o \
+		s_music.o \
+        s_sound.o \
+        st_lib.o \
+		st_stuff.o \
+		sv_chunk.o \
+        sv_dump.o \
+		sv_glob.o \
+        sv_level.o \
+        sv_load.o \
+        sv_main.o \
+		sv_misc.o \
+		sv_mobj.o \
+        sv_play.o \
+		sv_save.o \
+		v_colour.o \
+        v_res.o \
+        w_image.o \
+		wi_stuff.o \
+        wp_wipe.o \
+        w_textur.o \
+        w_wad.o \
+		z_zone.o \
+		p_bot.o
+
+ASM_OBJS= \
+        noasm/i_asm.o 
+
+OBJS=$(SYSTEM_OBJS) \
+     $(SDL_OBJS) \
+	 $(ASM_OBJS) \
+	 $(SOUND_OBJS) \
+	 $(HUM_OBJS) \
+     $(COMMON_OBJS)
+
+# ----- RULES --------------------------------------------------------
+
+%.o: %.asm
+	$(AS) $< -o $@
+
+# ----- TARGETS ------------------------------------------------------
+
+SUBDIRS = epi glbsp dehedge lzo
+
+all: $(SUBDIRS) $(BIN)
+
+clean:
+	rm -f $(BIN) core *.o $(AL_DIR)/*.o ERRS \
+	    $(LX_DIR)/*.o $(SDL_DIR)/*.o $(EPI_DIR)/*.o $(ASM_DIR)/*.o \
+		$(EPI_DIR)/libepi.a $(LZO_DIR)/liblzo.a
+
+epi lzo:
+	$(MAKE) -C $@
+
+glbsp:
+	$(MAKE) -C $(GLBSP_DIR) -f Plugin_unx.mak
+
+dehedge:
+	$(MAKE) -C $(DEH_DIR) -f Plugin_unx.mak
+
+$(BIN): $(OBJS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJS) -o $(BIN) $(LIBS)
+	cp $(BIN) ./bin/$(BIN)
+
+.PHONY: all clean $(SUBDIRS)
+
+# ----- RELEASES --------------------------------------------
+
+BIN_FILES=djgpp/edge.* win32/[eE]dge.*
+
+SRC_FILES=*.[ch] djgpp/*.[ch] djgpp/*.bat win32/*.[ch] win32/*.bat  \
+          win32/Debug win32/Release win32/*.bcc win32/edge32.r*  \
+          linux/*.[ch]  linux/Makefile linux/README null/*.[ch]  \
+          noasm/*.[ch] i386/*.[ch]  djgpp/Makefile  README  \
+          i386/*.asm contrib/* docs/* log/*  \
+          djgpp/obj djgpp/obj/i386 win32/obj  \
+          lzo/COPYING lzo/README* lzo/*.[ch]
+
+tar:
+	cd ../..; make -f edge/linux/Makefile do_good_tarball
+
+zip:
+	cd ..; make -f linux/Makefile do_zipball
+
+tags:
+	rm -f tags
+	ctags --extra=+q *.[ch]* linux/*.[ch]* win32/*.[ch]* SDL/*.[ch]* AL/*.[ch]* epi/*.[ch]* lzo/*.[ch]*
+
+do_tarball:
+	rm -f /tmp/edge.zip
+	-zip -0 /tmp/edge.zip $(BIN_FILES)
+	zip -0 -l /tmp/edge.zip $(SRC_FILES)
+	mkdir /tmp/edge_temp
+	cd /tmp/edge_temp; unzip /tmp/edge.zip
+	cd /tmp/edge_temp; tar cf /tmp/edge.tar .
+	bzip2 /tmp/edge.tar
+
+do_good_tarball:
+	rm -f /tmp/edge.tgz
+	tar czf /tmp/edge.tgz  \
+        $(patsubst %,edge/%,$(BIN_FILES) $(SRC_FILES))
+
+do_zipball:
+	rm -f /tmp/edge.zip
+	-zip /tmp/edge.zip $(BIN_FILES)
+	zip -l /tmp/edge.zip $(SRC_FILES)
+
+.PHONY: zip tar tags tarball do_tarball do_good_tarball zipball do_zipball
