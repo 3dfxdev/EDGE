@@ -18,10 +18,10 @@
 //
 // -ACB- 1999/04/02
 //
-#include "..\i_defs.h"
+#include "../i_defs.h"
 
-#include "..\m_argv.h"
-#include "..\e_main.h"
+#include "../m_argv.h"
+#include "../e_main.h"
 
 #include "i_sysinc.h"
 

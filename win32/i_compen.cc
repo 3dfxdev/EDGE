@@ -22,7 +22,7 @@
 //
 // -ACB- 1999/09/22
 //
-#include "..\i_defs.h"
+#include "../i_defs.h"
 
 #include <ctype.h>
 

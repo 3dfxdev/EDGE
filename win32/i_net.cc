@@ -16,7 +16,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "..\i_defs.h"
+#include "../i_defs.h"
 #include "i_sysinc.h"
 
 #ifdef USE_HAWKNL
