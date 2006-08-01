@@ -26,21 +26,6 @@
 #ifndef __EDGETYPES__
 #define __EDGETYPES__
 
-typedef unsigned char byte;
-typedef unsigned int angle_t;
-
-// -AJA- 1999/07/19: Just can't cope without these... :)
-
-#ifndef MAX
-#define MAX(x,y)  ((x) > (y) ? (x) : (y))
-#endif
-
-#ifndef MIN
-#define MIN(x,y)  ((x) < (y) ? (x) : (y))
-#endif
-
-#ifndef ABS
-#define ABS(x)  ((x) >= 0 ? (x) : -(x))
-#endif
+typedef u32_t angle_t;
 
 #endif
