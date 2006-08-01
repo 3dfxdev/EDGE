@@ -25,11 +25,11 @@
 // -KM- 1998/12/16 No limit on number of ammo types.
 //
 
+#include "i_defs.h"
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-#include "i_defs.h"
 
 #include "ddf_locl.h"
 #include "ddf_main.h"
