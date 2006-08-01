@@ -34,23 +34,25 @@
 
 typedef long long i64_t;
 
-//#include <ctype.h>
-//#include <dirent.h>
-//#include <fcntl.h>
-//#include <limits.h>
-//#include <math.h>
-//#include <stdarg.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <time.h>
-//#include <unistd.h>
-//#include <values.h>
-//#include <sys/stat.h>
-//#include <sys/types.h>
-//#include <fnmatch.h>
+/*
+#include <ctype.h>
+#include <dirent.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <math.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
+#include <values.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fnmatch.h>
+*/
 
-//#include <GL/gl.h>
+#include <GL/gl.h>
 
 //#define DIRSEPARATOR '/'
 
