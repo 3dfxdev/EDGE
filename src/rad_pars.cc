@@ -458,11 +458,10 @@ static bool CheckForBoolean(const char *s)
 	return false;
 }
 
-static void DoParsePlayerSet(const char *info, unsigned long *set)
+static void DoParsePlayerSet(const char *info, u32_t *set)
 {
 	const char *p = info;
 	const char *next;
-	int num;
 
 	*set = 0;
 
@@ -477,7 +476,7 @@ static void DoParsePlayerSet(const char *info, unsigned long *set)
 		if (! isdigit(p[0]))
 			RAD_Error("Bad number in set of players: %s\n", info);
 
-		num = strtol(p, (char **) &next, 10);
+		int num = strtol(p, (char **) &next, 10);
 
 		*set |= (1 << (num-1));
 

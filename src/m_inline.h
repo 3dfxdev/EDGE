@@ -26,12 +26,12 @@
 // Use routines written for the usual 32-bit float format
 
 EDGE_INLINE(
-long M_FloatToInt(float fl),
+s32_t M_FloatToInt(float fl),
 {
-  long i;
+  s32_t i;
   int sign;
 
-  i = *(long*)&fl;
+  i = *(s32_t*)&fl;
   sign = i >> 31;
   i &= 0x7FFFFFFF;
   if (i >= 0x4f000000)
@@ -49,15 +49,15 @@ long M_FloatToInt(float fl),
 // Some other kind of float is used, so we have to use the portable versions
 
 EDGE_INLINE(
-long M_FloatToInt(float fl),
+s32_t M_FloatToInt(float fl),
 {
   if (fl >= INT_MAX)
-    return (long)INT_MAX;
+    return (s32_t)INT_MAX;
 
   if (fl <= INT_MIN)
-    return (long)INT_MIN;
+    return (s32_t)INT_MIN;
 
-  return (long)fl;
+  return (s32_t)fl;
 })
 
 #endif

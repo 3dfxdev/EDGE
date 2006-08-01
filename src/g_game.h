@@ -33,7 +33,7 @@
 
 #include <epi/strings.h>
 
-extern long random_seed;  // for demo code
+extern int random_seed;  // for demo code
 extern int starttime;     //
 
 // -KM- 1998/11/25 Added support for finales before levels
@@ -66,8 +66,7 @@ public:
 	const mapdef_c *map;
 	const gamedef_c *game;
 
-	long random_seed;
-
+	int random_seed;
 	int total_players;
 	playerflag_e players[MAXPLAYERS];
 
