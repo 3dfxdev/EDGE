@@ -17,27 +17,27 @@ start_map map07
 
 // lower the outer walls when all Mancubi are killed
 
-  radiustrigger 0 0 -1
-    ondeath MANCUBUS
+  radius_trigger 0 0 -1
+    on_death MANCUBUS
     activate_linetype 38 666
-  end_radiustrigger
+  end_radius_trigger
 
 // raise inner step when all Aracnotron are killed
 
-  radiustrigger 0 0 -1
-    ondeath ARACHNOTRON
+  radius_trigger 0 0 -1
+    on_death ARACHNOTRON
     activate_linetype 30 667
-  end_radiustrigger
+  end_radius_trigger
 
 end_map
 
 // open door behind Commander Keen when all KEEN's are killed
 
 start_map map32
-  radiustrigger 0 0 -1
-    ondeath COMMANDER_KEEN
+  radius_trigger 0 0 -1
+    on_death COMMANDER_KEEN
     activate_linetype 2 666
-  end_radiustrigger
+  end_radius_trigger
 end_map
 
 // *****************
@@ -47,46 +47,46 @@ end_map
 // lower the star shaped wall when all Baron's are killed
 
 start_map e1m8
-  radiustrigger 0 0 -1
-    ondeath BARON_OF_HELL
+  radius_trigger 0 0 -1
+    on_death BARON_OF_HELL
     activate_linetype 38 666
-  end_radiustrigger
+  end_radius_trigger
 end_map
 
 // end the map when the Cyberdemon is killed
 
 start_map e2m8
-  radiustrigger 0 0 -1
-    ondeath THE_CYBERDEMON
-    exitlevel 5
-  end_radiustrigger
+  radius_trigger 0 0 -1
+    on_death THE_CYBERDEMON
+    exit_level 5
+  end_radius_trigger
 end_map
 
 // end the map when the Spider Demon is killed
 
 start_map e3m8
-  radiustrigger 0 0 -1
-    ondeath THE_SPIDER_MASTERMIND
+  radius_trigger 0 0 -1
+    on_death THE_SPIDER_MASTERMIND
     exitlevel 5
-  end_radiustrigger
+  end_radius_trigger
 end_map
 
 // open the 4 South bars when the Cyberdemon is killed
 
 start_map e4m6
-  radiustrigger 0 0 -1
-    ondeath THE_CYBERDEMON
+  radius_trigger 0 0 -1
+    on_death THE_CYBERDEMON
     activate_linetype 2 666
-  end_radiustrigger
+  end_radius_trigger
 end_map
 
 // raise center circular floor when Spider Demon is killed
 
 start_map e4m8
-  radiustrigger 0 0 -1
-    ondeath THE_SPIDER_MASTERMIND
+  radius_trigger 0 0 -1
+    on_death THE_SPIDER_MASTERMIND
     activate_linetype 38 666
-  end_radiustrigger
+  end_radius_trigger
 end_map
 
 // --------EOF-----------
