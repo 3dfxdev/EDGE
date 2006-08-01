@@ -31,6 +31,7 @@
 #include "ddf_colm.h"
 #include "dm_defs.h"
 #include "dm_state.h"
+#include "dm_structs.h"
 #include "e_main.h"
 #include "g_game.h"
 #include "l_glbsp.h"
@@ -206,7 +207,7 @@ static void LoadVertexes(int lump)
 {
 	const void *data;
 	int i;
-	const mapvertex_t *ml;
+	const raw_vertex_t *ml;
 	vertex_t *li;
 
 	if (! W_VerifyLumpName(lump, "VERTEXES"))
@@ -215,7 +216,7 @@ static void LoadVertexes(int lump)
 
 	// Determine number of lumps:
 	//  total lump length / vertex record length.
-	numvertexes = W_LumpLength(lump) / sizeof(mapvertex_t);
+	numvertexes = W_LumpLength(lump) / sizeof(raw_vertex_t);
 
 	if (numvertexes == 0)
 		I_Error("Bad WAD: level %s contains 0 vertexes.\n", 
@@ -227,7 +228,7 @@ static void LoadVertexes(int lump)
 	// Load data into cache.
 	data = W_CacheLumpNum(lump);
 
-	ml = (const mapvertex_t *) data;
+	ml = (const raw_vertex_t *) data;
 	li = vertexes;
 
 	// Copy and convert vertex coordinates,
@@ -248,13 +249,13 @@ static void LoadVertexes(int lump)
 static void LoadV2Vertexes(const byte *data, int length)
 {
 	int i;
-	const map_gl2vertex_t *ml2;
+	const raw_v2_vertex_t *ml2;
 	vertex_t *vert;
 
-	num_gl_vertexes = length / sizeof(map_gl2vertex_t);
+	num_gl_vertexes = length / sizeof(raw_v2_vertex_t);
 	gl_vertexes = Z_ClearNew(vertex_t, num_gl_vertexes);
 
-	ml2 = (const map_gl2vertex_t *) data;
+	ml2 = (const raw_v2_vertex_t *) data;
 	vert = gl_vertexes;
 
 	// Copy and convert vertex coordinates,
@@ -275,7 +276,7 @@ static void LoadGLVertexes(int lump)
 {
 	const byte *data;
 	int i, length;
-	const mapvertex_t *ml;
+	const raw_vertex_t *ml;
 	vertex_t *vert;
 
 	if (!W_VerifyLumpName(lump, "GL_VERT"))
@@ -309,11 +310,11 @@ static void LoadGLVertexes(int lump)
 
 	// Determine number of vertices:
 	//  total lump length / vertex record length.
-	num_gl_vertexes = length / sizeof(mapvertex_t);
+	num_gl_vertexes = length / sizeof(raw_vertex_t);
 
 	gl_vertexes = Z_ClearNew(vertex_t, num_gl_vertexes);
 
-	ml = (const mapvertex_t *) data;
+	ml = (const raw_vertex_t *) data;
 	vert = gl_vertexes;
 
 	// Copy and convert vertex coordinates,
@@ -333,13 +334,13 @@ static void LoadGLVertexes(int lump)
 //
 static void LoadV3Segs(const byte *data, int length)
 {
-	const map_gl3seg_t *ml;
+	const raw_v3_seg_t *ml;
 	seg_t *seg;
 	int linedef;
 	int side;
 	int partner;
 
-	numsegs = length / sizeof(map_gl3seg_t);
+	numsegs = length / sizeof(raw_v3_seg_t);
 
 	if (numsegs == 0)
 		I_Error("Bad WAD: level %s contains 0 gl-segs (v3).\n",
@@ -347,7 +348,7 @@ static void LoadV3Segs(const byte *data, int length)
 
 	segs = Z_ClearNew(seg_t, numsegs);
 
-	ml = (const map_gl3seg_t *) data;
+	ml = (const raw_v3_seg_t *) data;
 	seg = segs;
 
 	// check both V3 and V5 bits
@@ -355,8 +356,8 @@ static void LoadV3Segs(const byte *data, int length)
 
 	for (int i = 0; i < numsegs; i++, seg++, ml++)
 	{
-		unsigned int v1num = EPI_LE_U32(ml->v1);
-		unsigned int v2num = EPI_LE_U32(ml->v2);
+		unsigned int v1num = EPI_LE_U32(ml->start);
+		unsigned int v2num = EPI_LE_U32(ml->end);
 
 		// FIXME: check if indices are valid
 		if (v1num & VERTEX_V3_OR_V5)
@@ -426,7 +427,7 @@ static void LoadGLSegs(int lump)
 
 	const byte *data;
 	int i, length;
-	const map_glseg_t *ml;
+	const raw_gl_seg_t *ml;
 	seg_t *seg;
 	int linedef;
 	int side;
@@ -456,20 +457,20 @@ static void LoadGLSegs(int lump)
 		return;
 	}
 
-	numsegs = length / sizeof(map_glseg_t);
+	numsegs = length / sizeof(raw_gl_seg_t);
 
 	if (numsegs == 0)
 		I_Error("Bad WAD: level %s contains 0 gl-segs.\n", currmap->lump.GetString());
 
 	segs = Z_ClearNew(seg_t, numsegs);
 
-	ml = (const map_glseg_t *) data;
+	ml = (const raw_gl_seg_t *) data;
 	seg = segs;
 
 	for (i = 0; i < numsegs; i++, seg++, ml++)
 	{
-		int v1num = EPI_LE_U16(ml->v1);
-		int v2num = EPI_LE_U16(ml->v2);
+		int v1num = EPI_LE_U16(ml->start);
+		int v2num = EPI_LE_U16(ml->end);
 
 		// FIXME: check if indices are valid, abort loading
 
@@ -555,10 +556,10 @@ static void LoadGLSegs(int lump)
 static void LoadV3Subsectors(const byte *data, int length)
 {
 	int i, j;
-	const map_gl3subsec_t *ms;
+	const raw_v3_subsec_t *ms;
 	subsector_t *ss;
 
-	numsubsectors = length / sizeof(map_gl3subsec_t);
+	numsubsectors = length / sizeof(raw_v3_subsec_t);
 
 	if (numsubsectors == 0)
 		I_Error("Bad WAD: level %s contains 0 ssectors (v3).\n",
@@ -566,13 +567,13 @@ static void LoadV3Subsectors(const byte *data, int length)
 
 	subsectors = Z_ClearNew(subsector_t, numsubsectors);
 
-	ms = (const map_gl3subsec_t *) data;
+	ms = (const raw_v3_subsec_t *) data;
 	ss = subsectors;
 
 	for (i = 0; i < numsubsectors; i++, ss++, ms++)
 	{
-		int countsegs = EPI_LE_S32(ms->numsegs);
-		int firstseg  = EPI_LE_S32(ms->firstseg);
+		int countsegs = EPI_LE_S32(ms->num);
+		int firstseg  = EPI_LE_S32(ms->first);
 
 		// -AJA- 1999/09/23: New linked list for the segs of a subsector
 		//       (part of true bsp rendering).
@@ -624,7 +625,7 @@ static void LoadSubsectors(int lump, const char *name)
 	int i, j;
 	int length;
 	const byte *data;
-	const mapsubsector_t *ms;
+	const raw_subsec_t *ms;
 	subsector_t *ss;
 
 	if (! W_VerifyLumpName(lump, name))
@@ -652,20 +653,20 @@ static void LoadSubsectors(int lump, const char *name)
 		return;
 	}
 
-	numsubsectors = length / sizeof(mapsubsector_t);
+	numsubsectors = length / sizeof(raw_subsec_t);
 
 	if (numsubsectors == 0)
 		I_Error("Bad WAD: level %s contains 0 ssectors.\n", currmap->lump.GetString());
 
 	subsectors = Z_ClearNew(subsector_t, numsubsectors);
 
-	ms = (const mapsubsector_t *) data;
+	ms = (const raw_subsec_t *) data;
 	ss = subsectors;
 
 	for (i = 0; i < numsubsectors; i++, ss++, ms++)
 	{
-		int countsegs = EPI_LE_U16(ms->numsegs);
-		int firstseg  = EPI_LE_U16(ms->firstseg);
+		int countsegs = EPI_LE_U16(ms->num);
+		int firstseg  = EPI_LE_U16(ms->first);
 
 		// -AJA- 1999/09/23: New linked list for the segs of a subsector
 		//       (part of true bsp rendering).
@@ -745,14 +746,14 @@ static void LoadSectors(int lump)
 {
 	const void *data;
 	int i;
-	const mapsector_t *ms;
+	const raw_sector_t *ms;
 	sector_t *ss;
 
 	if (! W_VerifyLumpName(lump, "SECTORS"))
 		I_Error("Bad WAD: level %s missing SECTORS.\n", 
 				currmap->lump.GetString());
 
-	numsectors = W_LumpLength(lump) / sizeof(mapsector_t);
+	numsectors = W_LumpLength(lump) / sizeof(raw_sector_t);
 
 	if (numsectors == 0)
 		I_Error("Bad WAD: level %s contains 0 sectors.\n", 
@@ -763,14 +764,14 @@ static void LoadSectors(int lump)
 	data = W_CacheLumpNum(lump);
 	mapsector_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 
-	ms = (const mapsector_t *) data;
+	ms = (const raw_sector_t *) data;
 	ss = sectors;
 	for (i = 0; i < numsectors; i++, ss++, ms++)
 	{
 		char buffer[10];
 
-		ss->f_h = EPI_LE_S16(ms->floorheight);
-		ss->c_h = EPI_LE_S16(ms->ceilingheight);
+		ss->f_h = EPI_LE_S16(ms->floor_h);
+		ss->c_h = EPI_LE_S16(ms->ceil_h);
 
 		ss->floor.translucency = VISIBLE;
 		ss->floor.x_mat.x = 1;  ss->floor.x_mat.y = 0;
@@ -778,10 +779,10 @@ static void LoadSectors(int lump)
 
 		ss->ceil = ss->floor;
 
-		Z_StrNCpy(buffer, ms->floorpic, 8);
+		Z_StrNCpy(buffer, ms->floor_tex, 8);
 		ss->floor.image = W_ImageLookup(buffer, INS_Flat);
 
-		Z_StrNCpy(buffer, ms->ceilingpic, 8);
+		Z_StrNCpy(buffer, ms->ceil_tex, 8);
 		ss->ceil.image = W_ImageLookup(buffer, INS_Flat);
 
 		if (! ss->floor.image)
@@ -798,7 +799,7 @@ static void LoadSectors(int lump)
 		// convert negative tags to zero
 		ss->tag = MAX(0, EPI_LE_S16(ms->tag));
 
-		ss->props.lightlevel = EPI_LE_S16(ms->lightlevel);
+		ss->props.lightlevel = EPI_LE_S16(ms->light);
 		ss->props.special = (EPI_LE_S16(ms->special) <= 0) ? NULL :
 		playsim::LookupSectorType(EPI_LE_S16(ms->special));
 
@@ -854,13 +855,13 @@ static void SetupRootNode(void)
 static void LoadV5Nodes(const void *data, int length)
 {
 	int i, j, k;
-	const map_gl5node_t *mn;
+	const raw_v5_node_t *mn;
 	node_t *nd;
 
-	numnodes = length / sizeof(map_gl5node_t);
+	numnodes = length / sizeof(raw_v5_node_t);
 	nodes = Z_ClearNew(node_t, numnodes);
 
-	mn = (const map_gl5node_t *) data;
+	mn = (const raw_v5_node_t *) data;
 	nd = nodes;
 
 	for (i = 0; i < numnodes; i++, nd++, mn++)
@@ -876,8 +877,10 @@ static void LoadV5Nodes(const void *data, int length)
 		{
 			nd->children[j] = EPI_LE_U32(mn->children[j]);
 
-			for (k = 0; k < 4; k++)
-				nd->bbox[j][k] = (float) EPI_LE_S16(mn->bbox[j][k]);
+			nd->bbox[j][BOXTOP]    = (float) EPI_LE_S16(mn->bbox[j].maxy);
+			nd->bbox[j][BOXBOTTOM] = (float) EPI_LE_S16(mn->bbox[j].miny);
+			nd->bbox[j][BOXLEFT]   = (float) EPI_LE_S16(mn->bbox[j].minx);
+			nd->bbox[j][BOXRIGHT]  = (float) EPI_LE_S16(mn->bbox[j].maxx);
 
 			// update bbox pointers in subsector
 			if (nd->children[j] & NF_V5_SUBSECTOR)
@@ -897,7 +900,7 @@ static void LoadV5Nodes(const void *data, int length)
 static void LoadNodes(int lump, char *name)
 {
 	int i, j, k;
-	const mapnode_t *mn;
+	const raw_node_t *mn;
 	node_t *nd;
 
 	if (! W_VerifyLumpName(lump, name))
@@ -915,10 +918,10 @@ static void LoadNodes(int lump, char *name)
 		return;
 	}
 
-	numnodes = length / sizeof(mapnode_t);
+	numnodes = length / sizeof(raw_node_t);
 	nodes = Z_ClearNew(node_t, numnodes);
 
-	mn = (const mapnode_t *) data;
+	mn = (const raw_node_t *) data;
 	nd = nodes;
 
 	for (i = 0; i < numnodes; i++, nd++, mn++)
@@ -934,8 +937,10 @@ static void LoadNodes(int lump, char *name)
 		{
 			nd->children[j] = EPI_LE_U16(mn->children[j]);
 
-			for (k = 0; k < 4; k++)
-				nd->bbox[j][k] = (float) EPI_LE_S16(mn->bbox[j][k]);
+			nd->bbox[j][BOXTOP]    = (float) EPI_LE_S16(mn->bbox[j].maxy);
+			nd->bbox[j][BOXBOTTOM] = (float) EPI_LE_S16(mn->bbox[j].miny);
+			nd->bbox[j][BOXLEFT]   = (float) EPI_LE_S16(mn->bbox[j].minx);
+			nd->bbox[j][BOXRIGHT]  = (float) EPI_LE_S16(mn->bbox[j].maxx);
 
 			// change to correct bit, and update bbox pointers
 			if (nd->children[j] & NF_SUBSECTOR)
@@ -1063,7 +1068,7 @@ static void LoadThings(int lump)
 	int i;
 
 	const void *data;
-	const mapthing_t *mt;
+	const raw_thing_t *mt;
 	const mobjtype_c *objtype;
 	int numthings;
 
@@ -1071,7 +1076,7 @@ static void LoadThings(int lump)
 		I_Error("Bad WAD: level %s missing THINGS.\n", 
 				currmap->lump.GetString());
 
-	numthings = W_LumpLength(lump) / sizeof(mapthing_t);
+	numthings = W_LumpLength(lump) / sizeof(raw_thing_t);
 
 	if (numthings == 0)
 		I_Error("Bad WAD: level %s contains 0 things.\n", 
@@ -1090,7 +1095,7 @@ static void LoadThings(int lump)
 
 	bool limit_options = false;
 
-	mt = (const mapthing_t *) data;
+	mt = (const raw_thing_t *) data;
 
 	for (i = 0; i < numthings; i++)
 	{
@@ -1152,7 +1157,7 @@ static void LoadHexenThings(int lump)
 	int i;
 
 	const void *data;
-	const maphexenthing_t *mt;
+	const raw_hexen_thing_t *mt;
 	const mobjtype_c *objtype;
 	int numthings;
 
@@ -1160,7 +1165,7 @@ static void LoadHexenThings(int lump)
 		I_Error("Bad WAD: level %s missing THINGS.\n", 
 				currmap->lump.GetString());
 
-	numthings = W_LumpLength(lump) / sizeof(maphexenthing_t);
+	numthings = W_LumpLength(lump) / sizeof(raw_hexen_thing_t);
 
 	if (numthings == 0)
 		I_Error("Bad WAD: level %s contains 0 things.\n", 
@@ -1170,12 +1175,12 @@ static void LoadHexenThings(int lump)
 	mapthing_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 	mapthing_NUM = numthings;
 
-	mt = (const maphexenthing_t *) data;
+	mt = (const raw_hexen_thing_t *) data;
 	for (i = 0; i < numthings; i++, mt++)
 	{
 		x = (float) EPI_LE_S16(mt->x);
 		y = (float) EPI_LE_S16(mt->y);
-		z = (float) EPI_LE_S16(mt->z);
+		z = (float) EPI_LE_S16(mt->height);
 		angle = FLOAT_2_ANG((float) EPI_LE_S16(mt->angle));
 		typenum = EPI_LE_U16(mt->type);
 		options = EPI_LE_U16(mt->options) & 0x000F;
@@ -1247,7 +1252,7 @@ static INLINE void ComputeLinedefData(line_t *ld, int side0, int side1)
 	if (side0 == -1)
 	{
 		I_Warning("Bad WAD: level %s linedef #%d is missing RIGHT side\n",
-			currmap->lump.GetString(), ld - lines);
+			currmap->lump.GetString(), (int)(ld - lines));
 		side0 = 0;
 	}
 
@@ -1255,7 +1260,7 @@ static INLINE void ComputeLinedefData(line_t *ld, int side0, int side1)
 	{
 		I_Warning("Bad WAD: level %s has linedef #%d marked TWOSIDED, "
 			"but it has only one side.\n", 
-			currmap->lump.GetString(), ld - lines);
+			currmap->lump.GetString(), (int)(ld - lines));
 
 		ld->flags &= ~ML_TwoSided;
 	}
@@ -1278,7 +1283,7 @@ static INLINE void ComputeLinedefData(line_t *ld, int side0, int side1)
 static void LoadLineDefs(int lump)
 {
 	const void *data;
-	const maplinedef_t *mld;
+	const raw_linedef_t *mld;
 	line_t *ld;
 	int side0, side1;
 	int i;
@@ -1287,7 +1292,7 @@ static void LoadLineDefs(int lump)
 		I_Error("Bad WAD: level %s missing LINEDEFS.\n", 
 				currmap->lump.GetString());
 
-	numlines = W_LumpLength(lump) / sizeof(maplinedef_t);
+	numlines = W_LumpLength(lump) / sizeof(raw_linedef_t);
 
 	if (numlines == 0)
 		I_Error("Bad WAD: level %s contains 0 linedefs.\n", 
@@ -1299,20 +1304,20 @@ static void LoadLineDefs(int lump)
 	data = W_CacheLumpNum(lump);
 	mapline_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 
-	mld = (const maplinedef_t *) data;
+	mld = (const raw_linedef_t *) data;
 	ld = lines;
 	for (i = 0; i < numlines; i++, mld++, ld++)
 	{
 		ld->flags = EPI_LE_U16(mld->flags);
 		ld->tag = MAX(0, EPI_LE_S16(mld->tag));
-		ld->v1 = &vertexes[EPI_LE_U16(mld->v1)];
-		ld->v2 = &vertexes[EPI_LE_U16(mld->v2)];
+		ld->v1 = &vertexes[EPI_LE_U16(mld->start)];
+		ld->v2 = &vertexes[EPI_LE_U16(mld->end)];
 
 		ld->special = (EPI_LE_S16(mld->special) <= 0) ? NULL :
-		playsim::LookupLineType(EPI_LE_S16(mld->special));
+			playsim::LookupLineType(EPI_LE_S16(mld->special));
 
-		side0 = EPI_LE_U16(mld->sidenum[0]);
-		side1 = EPI_LE_U16(mld->sidenum[1]);
+		side0 = EPI_LE_U16(mld->side_R);
+		side1 = EPI_LE_U16(mld->side_L);
 
 		ComputeLinedefData(ld, side0, side1);
 
@@ -1344,7 +1349,7 @@ static void LoadLineDefs(int lump)
 static void LoadHexenLineDefs(int lump)
 {
 	const void *data;
-	const maphexenlinedef_t *mld;
+	const raw_hexen_linedef_t *mld;
 	line_t *ld;
 	int side0, side1;
 	int i;
@@ -1353,7 +1358,7 @@ static void LoadHexenLineDefs(int lump)
 		I_Error("Bad WAD: level %s missing LINEDEFS.\n", 
 				currmap->lump.GetString());
 
-	numlines = W_LumpLength(lump) / sizeof(maphexenlinedef_t);
+	numlines = W_LumpLength(lump) / sizeof(raw_hexen_linedef_t);
 
 	if (numlines == 0)
 		I_Error("Bad WAD: level %s contains 0 linedefs.\n", 
@@ -1365,21 +1370,21 @@ static void LoadHexenLineDefs(int lump)
 	data = W_CacheLumpNum(lump);
 	mapline_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
 
-	mld = (const maphexenlinedef_t *) data;
+	mld = (const raw_hexen_linedef_t *) data;
 	ld = lines;
 	for (i = 0; i < numlines; i++, mld++, ld++)
 	{
 		ld->flags = EPI_LE_U16(mld->flags) & 0x00FF;
 		ld->tag = 0;
-		ld->v1 = &vertexes[EPI_LE_U16(mld->v1)];
-		ld->v2 = &vertexes[EPI_LE_U16(mld->v2)];
+		ld->v1 = &vertexes[EPI_LE_U16(mld->start)];
+		ld->v2 = &vertexes[EPI_LE_U16(mld->end)];
 
 		// this ignores the activation bits -- oh well
-		ld->special = (mld->special[0] == 0) ? NULL :
-		linetypes.Lookup(1000 + mld->special[0]);
+		ld->special = (mld->args[0] == 0) ? NULL :
+			linetypes.Lookup(1000 + mld->args[0]);
 
-		side0 = EPI_LE_U16(mld->sidenum[0]);
-		side1 = EPI_LE_U16(mld->sidenum[1]);
+		side0 = EPI_LE_U16(mld->side_R);
+		side1 = EPI_LE_U16(mld->side_L);
 
 		ComputeLinedefData(ld, side0, side1);
 	}
@@ -1387,7 +1392,7 @@ static void LoadHexenLineDefs(int lump)
 	W_DoneWithLump(data);
 }
 
-static void TransferMapSideDef(const mapsidedef_t *msd, side_t *sd,
+static void TransferMapSideDef(const raw_sidedef_t *msd, side_t *sd,
 							   bool two_sided)
 {
 	char buffer[10];
@@ -1395,8 +1400,8 @@ static void TransferMapSideDef(const mapsidedef_t *msd, side_t *sd,
 	int sec_num = EPI_LE_S16(msd->sector);
 
 	sd->top.translucency = VISIBLE;
-	sd->top.offset.x = EPI_LE_S16(msd->textureoffset);
-	sd->top.offset.y = EPI_LE_S16(msd->rowoffset);
+	sd->top.offset.x = EPI_LE_S16(msd->x_offset);
+	sd->top.offset.y = EPI_LE_S16(msd->y_offset);
 	sd->top.x_mat.x = 1;  sd->top.x_mat.y = 0;
 	sd->top.y_mat.x = 0;  sd->top.y_mat.y = 1;
 
@@ -1411,13 +1416,13 @@ static void TransferMapSideDef(const mapsidedef_t *msd, side_t *sd,
 	}
 	sd->sector = &sectors[sec_num];
 
-	Z_StrNCpy(buffer, msd->toptexture, 8);
+	Z_StrNCpy(buffer, msd->upper_tex, 8);
 	sd->top.image = W_ImageLookup(buffer, INS_Texture);
 
-	Z_StrNCpy(buffer, msd->midtexture, 8);
+	Z_StrNCpy(buffer, msd->mid_tex, 8);
 	sd->middle.image = W_ImageLookup(buffer, INS_Texture);
 
-	Z_StrNCpy(buffer, msd->bottomtexture, 8);
+	Z_StrNCpy(buffer, msd->lower_tex, 8);
 	sd->bottom.image = W_ImageLookup(buffer, INS_Texture);
 
 	if (sd->middle.image && two_sided)
@@ -1451,7 +1456,7 @@ static void LoadSideDefs(int lump)
 {
 	int i;
 	const void *data;
-	const mapsidedef_t *msd;
+	const raw_sidedef_t *msd;
 	side_t *sd;
 
 	int nummapsides;
@@ -1460,7 +1465,7 @@ static void LoadSideDefs(int lump)
 		I_Error("Bad WAD: level %s missing SIDEDEFS.\n", 
 				currmap->lump.GetString());
 
-	nummapsides = W_LumpLength(lump) / sizeof(mapsidedef_t);
+	nummapsides = W_LumpLength(lump) / sizeof(raw_sidedef_t);
 
 	if (nummapsides == 0)
 		I_Error("Bad WAD: level %s contains 0 sidedefs.\n", 
@@ -1469,7 +1474,7 @@ static void LoadSideDefs(int lump)
 	sides = Z_ClearNew(side_t, numsides);
 
 	data = W_CacheLumpNum(lump);
-	msd = (const mapsidedef_t *) data;
+	msd = (const raw_sidedef_t *) data;
 
 	sd = sides;
 
@@ -2512,12 +2517,12 @@ static void DetectSectorCompat(int lump, int *edge_cnt, int *boom_cnt)
 	if (! W_VerifyLumpName(lump, "SECTORS"))
 		return;
 
-	numsectors = W_LumpLength(lump) / sizeof(mapsector_t);
+	numsectors = W_LumpLength(lump) / sizeof(raw_sector_t);
 	if (numsectors == 0)
 		return;
 
 	const void *data = W_CacheLumpNum(lump);
-	const mapsector_t *ms = (const mapsector_t *) data;
+	const raw_sector_t *ms = (const raw_sector_t *) data;
 
 	for (; numsectors > 0; numsectors--, ms++)
 	{
@@ -2548,12 +2553,12 @@ static void DetectLineDefCompat(int lump, int *edge_cnt, int *boom_cnt)
 	if (! W_VerifyLumpName(lump, "LINEDEFS"))
 		return;
 
-	numlines = W_LumpLength(lump) / sizeof(maplinedef_t);
+	numlines = W_LumpLength(lump) / sizeof(raw_linedef_t);
 	if (numlines == 0)
 		return;
 
 	const void *data = W_CacheLumpNum(lump);
-	const maplinedef_t *mld = (const maplinedef_t *) data;
+	const raw_linedef_t *mld = (const raw_linedef_t *) data;
 
 	for (; numlines > 0; numlines--, mld++)
 	{

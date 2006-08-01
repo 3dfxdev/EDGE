@@ -23,6 +23,7 @@
 
 #include "i_defs.h"
 #include "w_textur.h"
+#include "dm_structs.h"
 
 #include "e_search.h"
 #include "e_main.h"
@@ -77,8 +78,8 @@ static texset_array_c tex_sets;
 //
 static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 {
-	const maptexture_t *mtexture;
-	const mappatch_t *mpatch;
+	const raw_texture_t *mtexture;
+	const raw_patchdef_t *mpatch;
 
 	texturedef_t *texture;
 	texpatch_t *patch;
@@ -165,10 +166,10 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 		if (offset < 0 || offset > maxoff)
 			I_Error("W_InitTextures: bad texture directory");
 
-		mtexture = (const maptexture_t *) ((const byte *) maptex + offset);
+		mtexture = (const raw_texture_t *) ((const byte *) maptex + offset);
 
 		// -ES- 2000/02/10 Texture must have patches.
-		patchcount = EPI_LE_S16(mtexture->patchcount);
+		patchcount = EPI_LE_S16(mtexture->patch_count);
 		if (!patchcount)
 			I_Error("W_InitTextures: Texture '%.8s' has no patches", mtexture->name);
 
@@ -199,9 +200,9 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 
 		for (j = 0; j < texture->patchcount; j++, mpatch++, patch++)
 		{
-			patch->originx = EPI_LE_S16(mpatch->originx);
-			patch->originy = EPI_LE_S16(mpatch->originy);
-			patch->patch = patchlookup[EPI_LE_S16(mpatch->patch)];
+			patch->originx = EPI_LE_S16(mpatch->x_origin);
+			patch->originy = EPI_LE_S16(mpatch->y_origin);
+			patch->patch = patchlookup[EPI_LE_S16(mpatch->pname)];
 
 			// work-around for strange Y offset in SKY1 of DOOM 1 
 			if (is_sky && patch->originy < 0)
