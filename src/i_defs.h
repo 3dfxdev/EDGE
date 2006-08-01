@@ -74,7 +74,7 @@ typedef enum { false, true } bool;
 #define I_MoveData memmove
 
 // include headers to compensate for missing standard functions.
-#include ".\null\i_compen.h"
+#include "./null/i_compen.h"
 #include "i_system.h"
 
 #endif // NULL port
@@ -104,7 +104,7 @@ typedef enum { false, true } bool;
 #define alloca _alloca
 #define I_MoveData memmove
 
-#include ".\win32\i_compen.h"
+#include "./win32/i_compen.h"
 #include "i_system.h"
 
 #endif
@@ -143,7 +143,7 @@ typedef enum { false, true } bool;
 
 #define DIRSEPARATOR '\\'
 
-#include ".\win32\i_compen.h"
+#include "./win32/i_compen.h"
 #include "i_system.h"
 
 #endif
@@ -178,7 +178,7 @@ typedef enum { false, true } bool;
 
 #define DIRSEPARATOR '\\'
 
-#include ".\win32\i_compen.h"
+#include "./win32/i_compen.h"
 #include "i_system.h"
 
 #endif

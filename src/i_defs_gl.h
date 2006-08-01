@@ -34,7 +34,7 @@
 #endif
 
 #ifdef WIN32
-#include <gl/gl.h>
+#include <GL/gl.h>
 #endif
 
 #endif // __SYSTEM_SPECIFIC_DEFS_OPENGL__
