@@ -20,11 +20,11 @@
 //
 // -KM- 1998/11/25 File Written
 //
+#include "i_defs.h"
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-#include "i_defs.h"
 
 #include "ddf_locl.h"
 #include "ddf_main.h"
