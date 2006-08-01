@@ -20,15 +20,15 @@
 //      Main program, simply calls E_Main high level loop.
 //
 
+#include "../i_defs.h"
+
 #ifdef MACOSX
 #include <SDL.h>  // needed for proper SDL main linkage
 #endif
 
-#include "i_defs.h"
-
-#include "dm_defs.h"
-#include "m_argv.h"
-#include "e_main.h"
+#include "../dm_defs.h"
+#include "../m_argv.h"
+#include "../e_main.h"
 
 #include <signal.h>
 #include <stdio.h>

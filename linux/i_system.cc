@@ -16,19 +16,21 @@
 //
 //----------------------------------------------------------------------------
 
-#include "./i_sysinc.h"
-#include "i_defs.h"
+#include "../i_defs.h"
+#include "i_sysinc.h"
 
-#include "version.h"
-#include "con_main.h"
-#include "dm_state.h"
-#include "e_main.h"
-#include "g_game.h"
-#include "m_argv.h"
-#include "m_misc.h"
-#include "m_random.h"
-#include "w_wad.h"
-#include "z_zone.h"
+#include "../version.h"
+#include "../con_main.h"
+#include "../dm_state.h"
+#include "../e_main.h"
+#include "../g_game.h"
+#include "../m_argv.h"
+#include "../m_misc.h"
+#include "../m_random.h"
+#include "../v_res.h"
+#include "../w_wad.h"
+
+#include "../z_zone.h"
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -60,8 +62,6 @@ extern FILE *debugfile;
 
 #ifndef USE_FLTK
 
-#include "v_res.h"
-
 static char cp437_to_ascii[160] =
 { 
 	'.', '.', '.', '.', '.', '.', '.', '.',   // 0x00 - 0x07
@@ -89,8 +89,6 @@ static char cp437_to_ascii[160] =
 	'.', '.', '.', '.', '.', '.', '.', '.'    // 0xF8 - 0xFF
 };
 #endif
-
-unsigned long microtimer_granularity = 1000000;
 
 
 void I_RemoveGrab(void);  // in SDL/i_video.cpp
@@ -407,31 +405,27 @@ void I_SystemShutdown(void)
 //
 // Returns as-random-as-possible 32 bit values.
 //
-long I_PureRandom(void)
+int I_PureRandom(void)
 {
-	// FIXME: use /dev/random
-
-	return (long)time(NULL) ^ (long)I_ReadMicroSeconds();
+	return ((int)time(NULL) ^ (int)I_ReadMicroSeconds()) & 0x7FFFFFFF;
 }
 
 //
 // I_ReadMicroSeconds
 //
-unsigned long I_ReadMicroSeconds(void)
+u32_t I_ReadMicroSeconds(void)
 {
 	struct timeval tv;
 
 	gettimeofday(&tv, NULL);
 
-	// FIXME: this is probably wrong...
-
-	return tv.tv_usec;
+	return (u32_t)tv.tv_usec;
 }
 
 //
 // I_Sleep
 //
-void I_Sleep(unsigned long millisecs)
+void I_Sleep(int millisecs)
 {
 	//!!!! FIXME: use nanosleep ?
 	usleep(millisecs * 1000);
