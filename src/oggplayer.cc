@@ -22,8 +22,9 @@
 // http://www.devmaster.net/articles/openal-tutorials/lesson8.php
 //
 
-#include "errorcodes.h"
+#include "i_defs.h"
 #include "i_defs_al.h"
+#include "errorcodes.h"
 
 #include "oggplayer.h"
 
