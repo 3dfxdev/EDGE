@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28)
 ===============================
 
-(Date: JULY 20th 2006)
+(Date: AUGUST 1st 2006)
 
 
 Bugs fixed
@@ -114,26 +114,30 @@ General improvements
 - Linux: fatal errors produce a pop-up dialog box.  EDGE can now be
   run by double clicking the executable.  Support for CD music.
 
-- support V3 and V5 GL-NODES.  EDGE now includes glBSP 2.10, which
+- GWA and HWA files are stored in a separate cache folder,
+  allowing EDGE to run wads from read-only media (CDROM) or
+  read-only locations (/usr/share).
+
+- support V3 and V5 GL-NODES.  EDGE now includes glBSP 2.20, which
   can handle very complex levels (which overflow the old limits),
   e.g. Deus Vult MAP05.
 
 - Boom compatibility changes: the type of level (Edge or Boom) is
   detected when starting a new game, and if it doesn't match the
   current mode (or the result was mixed), then a dialog asks you
-  whether to change mode.  When using -warp, the mode is changed
-  automatically.
+  whether to change mode.  When using -warp, the most likely mode
+  is selected.
 
   Two Boom features were also added: line-to-line teleporters and
   platform toggle linetypes.  A couple of Boom-related bugs were
   fixed (e.g. P1/PR doors with the lighting effect).
 
+- the DeathBot is back!  He is still pretty dumb though.  Use
+  the option "-bots #" (where # is the number of bots) to add
+  bots to a deathmatch game.
+
 - source code uses more C++ features, and more of the EPI (Edge Platform
   Interface).  The "Zone" memory manager has mostly been replaced.
-
-- the old DeathBot is back in working order, though still dumb.
-  Use the option "-bots #" (where # is the number of bots) to
-  add bots to a deathmatch game.
 
 - emulation for Doom's original lighting (optional).
 - can toggle window/fullscreen mode in set-resolution screen.
