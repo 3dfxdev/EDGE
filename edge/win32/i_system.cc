@@ -17,19 +17,19 @@
 //----------------------------------------------------------------------------
 //
 
-#include "..\i_defs.h"
-#include "..\SDL\i_sdlinc.h"
+#include "../i_defs.h"
+#include "../SDL/i_sdlinc.h"
 
-#include "..\con_main.h"
-#include "..\dm_defs.h"
-#include "..\e_main.h"
-#include "..\g_game.h"
-#include "..\m_argv.h"
-#include "..\m_menu.h"
-#include "..\m_misc.h"
-#include "..\s_sound.h"
-#include "..\w_wad.h"
-#include "..\z_zone.h"
+#include "../con_main.h"
+#include "../dm_defs.h"
+#include "../e_main.h"
+#include "../g_game.h"
+#include "../m_argv.h"
+#include "../m_menu.h"
+#include "../m_misc.h"
+#include "../s_sound.h"
+#include "../w_wad.h"
+#include "../z_zone.h"
 
 #include "i_sysinc.h"
 
@@ -50,9 +50,6 @@ bool systemup = false;
 // output string buffer
 #define MSGBUFSIZE 4096
 static char msgbuf[MSGBUFSIZE];
-
-// MicroTimer
-unsigned long microtimer_granularity = 1000;
 
 // Timer Control
 #define ACTUAL_TIMER_HZ   140
@@ -277,23 +274,23 @@ void I_Printf(const char *message,...)
 //
 // I_PureRandom
 //
-long I_PureRandom(void)
+int I_PureRandom(void)
 {
-	return (long)time(NULL) ^ (long)I_ReadMicroSeconds();
+	return ((int)time(NULL) ^ (int)I_ReadMicroSeconds()) & 0x7FFFFFFF;
 }
 
 //
 // I_ReadMicroSeconds
 //
-unsigned long I_ReadMicroSeconds(void)
+u32_t I_ReadMicroSeconds(void)
 {
-	return timeGetTime()*1000;
+	return (u32_t) (timeGetTime() * 1000);
 }
 
 //
 // I_Sleep
 //
-void I_Sleep(unsigned long millisecs)
+void I_Sleep(int millisecs)
 {
 	::Sleep(millisecs);
 }
