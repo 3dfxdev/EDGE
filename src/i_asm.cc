@@ -16,12 +16,3 @@
 //
 //----------------------------------------------------------------------------
 
-//
-// I_CheckCPU
-//
-// This should do all detection of the CPU's features, and choose which
-// routines we should use by default.
-//
-void I_CheckCPU(void)
-{
-}

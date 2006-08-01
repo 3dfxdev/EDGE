@@ -103,17 +103,8 @@ bool I_GetModifiedTime(const char *filename, epi::timestamp_c *time);
 // -ACB- 2000/06/05 The returns the time of when the filename passed
 // was modified.
 
-void I_Sleep(unsigned long millisecs);
+void I_Sleep(int millisecs);
 // -AJA- 2005/01/21: sleep for the given number of milliseconds.
-
-//--------------------------------------------------------
-//  ASM functions.
-//--------------------------------------------------------
-//
-// -ES- 1999/10/30 i_asm.c
-
-void I_CheckCPU(void);
-// Determines the CPU type that EDGE is running under.
 
 
 //--------------------------------------------------------
@@ -139,7 +130,7 @@ void I_ShutdownControl(void);
 // I_StartupControl().  Should be called from I_SystemShutdown(), the
 // main code never calls this function.
 
-long I_PureRandom(void);
+int I_PureRandom(void);
 // Returns a fairly random value, used as seed for EDGE's internal
 // random engine.  If this function would return a constant value,
 // everything would still work great, except that random events before
@@ -151,17 +142,12 @@ int I_GetTime(void);
 // should increase by TICRATE every second (TICRATE is currently 35).
 // The starting value should be close to zero.
 
-unsigned long I_ReadMicroSeconds(void);
+u32_t I_ReadMicroSeconds(void);
 // Like I_GetTime(), this function returns a value that increases
 // monotonically over time, but in this case the value increases by
 // 1000000 every second (i.e. each unit is 1 microsecond).  Since this
 // value will overflow regularly (assuming `long' is 32 bits), the
 // caller should check for this situation.
-
-extern unsigned long microtimer_granularity;
-// This variable specifies the granularity of the I_ReadMicroSeconds()
-// function.  It is the minimum difference (other than 0) that any two
-// calls to I_ReadMicroSeconds() will have.
 
 
 //--------------------------------------------------------

@@ -1214,11 +1214,6 @@ static void IdentifyVersion(void)
     W_AddRawFilename(reqwad_filename.GetString(), FLKIND_EWad);
 }
 
-static void CheckCPU(void)
-{
-	I_CheckCPU();
-}
-
 static void CheckTurbo(void)
 {
 	int turbo_scale = 100;
@@ -1535,7 +1530,6 @@ startuporder_t startcode[] =
 	{  1, CheckExternal,       },
 	{  1, DDF_Init,            },
 	{  1, IdentifyVersion,     },
-	{  1, CheckCPU,            },
 	{  1, AddCommandLineFiles, },
 	{  1, CheckTurbo,          },
 	{  1, CheckSkillEtc,       },
