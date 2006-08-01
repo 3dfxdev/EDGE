@@ -21,7 +21,7 @@
 
 #define DUMMYUNIONNAMEN(n)
 
-#include "..\i_defs.h"
+#include "../i_defs.h"
 
 #include <objbase.h>
 #include <wchar.h>
