@@ -285,7 +285,7 @@ static bool PTR_BotLook(intercept_t * in)
 	return false;  // found something
 }
 
-static mobj_t *BOT_LineOfSight(bot_t *bot, angle_t angle)
+static void BOT_LineOfSight(bot_t *bot, angle_t angle)
 {
 	looking_bot = bot;
 
