@@ -107,7 +107,7 @@ int deathmatch;
 
 int gametic;
 
-long random_seed;
+int random_seed;
 
 // if true, load all graphics at start 
 bool precache = true;

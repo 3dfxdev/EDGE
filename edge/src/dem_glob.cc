@@ -140,7 +140,7 @@ static void DG_GetCheckCRC(const char *info, void *storage)
 
 	DEV_ASSERT2(info && storage);
 
-	sscanf(info, "%d %ld", &dest->count, &dest->crc);
+	sscanf(info, "%d %u", &dest->count, &dest->crc);
 }
 
 static void DG_GetLevelFlags(const char *info, void *storage)
@@ -220,7 +220,7 @@ static const char *DG_PutCheckCRC(void *storage)
 
 	DEV_ASSERT2(storage);
 
-	sprintf(buffer, "%d %ld", src->count, src->crc);
+	sprintf(buffer, "%d %u", src->count, src->crc);
 
 	return Z_StrDup(buffer);
 }

@@ -543,7 +543,7 @@ struct mobj_s
 	int shot_count;
 
 	// hash values for TUNNEL missiles
-	unsigned long tunnel_hash[2];
+	u32_t tunnel_hash[2];
 
 	// touch list: sectors this thing is in or touches
 	struct touch_node_s *touch_sectors;

@@ -84,10 +84,6 @@ static epi::file_c *read_fp = NULL;
 static FILE *write_fp = NULL;
 static epi::crc32_c current_crc;
 
-#if 0 // (COMPRESS_ENABLE)
-static long compress_wrkmem[LZO1X_1_MEM_COMPRESS/sizeof(long) + 2];
-#endif
-
 
 static bool CheckMagic(void)
 {

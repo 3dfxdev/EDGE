@@ -32,12 +32,12 @@
 // 1 bit per angle, packed into 32 bit values.
 // (NOTE: for speed reasons, 1 is "clear", and 0 is "blocked")
 //
-static unsigned long oned_oculus_buffer[ONED_TOTAL];
+static u32_t oned_oculus_buffer[ONED_TOTAL];
 
 // -AJA- these values could be computed (rather than looked-up)
 // without too much trouble.  For now I want to get the logic correct.
 //
-static unsigned long oned_low_masks[32] =
+static u32_t oned_low_masks[32] =
 {
 	0xFFFFFFFF, 0x7FFFFFFF, 0x3FFFFFFF, 0x1FFFFFFF,
 	0x0FFFFFFF, 0x07FFFFFF, 0x03FFFFFF, 0x01FFFFFF,
@@ -49,7 +49,7 @@ static unsigned long oned_low_masks[32] =
 	0x0000000F, 0x00000007, 0x00000003, 0x00000001
 };
 
-static unsigned long oned_high_masks[32] =
+static u32_t oned_high_masks[32] =
 {
 	0x80000000, 0xC0000000, 0xE0000000, 0xF0000000,
 	0xF8000000, 0xFC000000, 0xFE000000, 0xFF000000,

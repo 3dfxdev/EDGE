@@ -505,7 +505,7 @@ typedef struct rad_script_s
 	int tag;
 
 	// for SEPARATE mode, bit field of players to spawn trigger
-	unsigned long what_players;
+	u32_t what_players;
 
 	// ABSOLUTE mode: minimum players needed to trigger, -1 for ALL
 	int absolute_req_players;
@@ -575,7 +575,7 @@ typedef struct rad_trigger_s
 	bool activated;
 
 	// players who activated it (bit field)
-	unsigned long acti_players;
+	u32_t acti_players;
 
 	// repeat info
 	int repeats_left;

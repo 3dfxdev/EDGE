@@ -242,7 +242,7 @@ typedef struct crc_check_s
 	int count;
 
 	// CRC computed over all the items
-	unsigned long crc;
+	u32_t crc;
 }
 crc_check_t;
 

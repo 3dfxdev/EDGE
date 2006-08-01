@@ -731,7 +731,7 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 	if (mo->hyperflags & HF_HOVER)
 	{
 		// compute a different phase for different objects
-		angle_t phase = (angle_t) mo;
+		angle_t phase = (angle_t)(long)mo;
 		phase ^= (angle_t)(phase << 19);
 		phase += (angle_t)(leveltime << (ANGLEBITS-6));
 
@@ -1027,7 +1027,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		float range_y = fabs(dthing->right_dy - dthing->left_dy) / 12.0f;
 		float range_z = fabs(z1t - z1b) / 24.0f / 2;
 
-		angle_t adjust = (angle_t)(dthing->mo) << (ANGLEBITS - 14);
+		angle_t adjust = (angle_t)(long)dthing->mo << (ANGLEBITS - 14);
 
 		float tl = M_Sin(fuzz_ang_tl + adjust);
 		float tr = M_Sin(fuzz_ang_tr + adjust);

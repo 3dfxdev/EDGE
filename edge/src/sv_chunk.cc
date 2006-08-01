@@ -93,7 +93,7 @@ static FILE *current_fp = NULL;
 static epi::crc32_c current_crc;
 
 #if (COMPRESS_ENABLE)
-static long compress_wrkmem[LZO1X_1_MEM_COMPRESS/sizeof(long) + 2];
+static byte compress_wrkmem[LZO1X_1_MEM_COMPRESS + 16];
 #endif
 
 
