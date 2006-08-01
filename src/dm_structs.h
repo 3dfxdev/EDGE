@@ -70,25 +70,25 @@ raw_v2_vertex_t;
 
 typedef struct raw_linedef_s
 {
-	u16_t start;     // from this vertex...
-	u16_t end;       // ... to this vertex
-	u16_t flags;     // linedef flags (impassible, etc)
-	u16_t type;      // linedef type (0 for none, 97 for teleporter, etc)
-	s16_t tag;       // this linedef activates the sector with same tag
-	u16_t sidedef1;  // right sidedef
-	u16_t sidedef2;  // left sidedef (only if this line adjoins 2 sectors)
+	u16_t start;    // from this vertex...
+	u16_t end;      // ... to this vertex
+	u16_t flags;    // linedef flags (impassible, etc)
+	u16_t special;  // special type (0 for none, 97 for teleporter, etc)
+	s16_t tag;      // this linedef activates the sector with same tag
+	u16_t side_R;   // right sidedef
+	u16_t side_L;   // left sidedef (only if this line adjoins 2 sectors)
 }
 raw_linedef_t;
 
 typedef struct raw_hexen_linedef_s
 {
-	u16_t start;        // from this vertex...
-	u16_t end;          // ... to this vertex
-	u16_t flags;        // linedef flags (impassible, etc)
-	u8_t  type;         // linedef type
-	u8_t  specials[5];  // hexen specials
-	u16_t sidedef1;     // right sidedef
-	u16_t sidedef2;     // left sidedef
+	u16_t start;      // from this vertex...
+	u16_t end;        // ... to this vertex
+	u16_t flags;      // linedef flags (impassible, etc)
+	u8_t  special;    // special type
+	u8_t  args[5];    // special arguments
+	u16_t side_R;     // right sidedef
+	u16_t side_L;     // left sidedef
 }
 raw_hexen_linedef_t;
 
@@ -143,7 +143,7 @@ typedef struct raw_hexen_thing_s
 	u16_t options;   // when appears, deaf, dormant, etc..
 
 	u8_t special;    // special type
-	u8_t arg[5];     // special arguments
+	u8_t args[5];    // special arguments
 } 
 raw_hexen_thing_t;
 
@@ -172,6 +172,9 @@ typedef struct raw_gl_seg_s
 }
 raw_gl_seg_t;
 
+// Indicates a GL-specific vertex
+#define	SF_GL_VERTEX  (u16_t)(1 << 15)
+
 
 typedef struct raw_v3_seg_s
 {
@@ -182,6 +185,10 @@ typedef struct raw_v3_seg_s
 	u32_t partner;    // partner seg number, or -1
 }
 raw_v3_seg_t;
+
+// Indicates a GL-specific vertex (V3 and V5 formats)
+#define	SF_GL_VERTEX_V3   (u32_t)(1 << 30)
+#define	SF_GL_VERTEX_V5   (u32_t)(1 << 31)
 
 
 typedef struct raw_bbox_s
@@ -194,12 +201,15 @@ raw_bbox_t;
 
 typedef struct raw_node_s
 {
-	s16_t x, y;         // starting point
-	s16_t dx, dy;       // offset to ending point
-	raw_bbox_t b1, b2;     // bounding rectangles
-	u16_t right, left;  // children: Node or SSector (if high bit is set)
+	s16_t x, y;          // starting point
+	s16_t dx, dy;        // offset to ending point
+	raw_bbox_t bbox[2];  // bounding rectangles
+	u16_t children[2];   // children: Node or SSector (if high bit is set)
 }
 raw_node_t;
+
+// Indicate a leaf.
+#define	NF_SUBSECTOR  (u16_t)(1 << 15)
 
 
 typedef struct raw_subsec_s
@@ -220,12 +230,48 @@ raw_v3_subsec_t;
 
 typedef struct raw_v5_node_s
 {
-	s16_t x, y;         // starting point
-	s16_t dx, dy;       // offset to ending point
-	raw_bbox_t b1, b2;     // bounding rectangles
-	u32_t right, left;  // children: Node or SSector (if high bit is set)
+	s16_t x, y;          // starting point
+	s16_t dx, dy;        // offset to ending point
+	raw_bbox_t bbox[2];  // bounding rectangles
+	u32_t children[2];   // children: Node or SSector (if high bit is set)
 }
 raw_v5_node_t;
 
+// Indicate a leaf.
+#define	NF_V5_SUBSECTOR  (u32_t)(1 << 31)
+
+
+/* ----- Graphical structures ---------------------- */
+
+typedef struct
+{
+	s16_t x_origin;
+	s16_t y_origin;
+
+	u16_t pname;    // index into PNAMES
+	u16_t stepdir;  // NOT USED
+	u16_t colormap; // NOT USED
+}
+raw_patchdef_t;
+
+
+// Texture definition.
+//
+// Each texture is composed of one or more patches,
+// with patches being lumps stored in the WAD.
+//
+typedef struct
+{
+	char name[8];
+
+	u32_t masked;      // NOT USED
+	u16_t width;
+	u16_t height;
+	u32_t column_dir;  // NOT USED
+	u16_t patch_count;
+
+	raw_patchdef_t patches[1];
+}
+raw_texture_t;
 
 #endif /* __DM_STRUCTS_H__ */
