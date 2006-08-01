@@ -30,6 +30,9 @@
 #include "epi_macosx.h"
 #endif
 
+#include "types.h"
+#include "macros.h"
+
 namespace epi
 {
 	// Forward Declarations
