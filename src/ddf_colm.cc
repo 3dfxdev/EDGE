@@ -21,16 +21,14 @@
 
 #include "i_defs.h"
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "ddf_locl.h"
 #include "ddf_main.h"
 #include "ddf_colm.h"
 
-#if 1 // def HAVE_STRINGS_H
 #include <string.h>
+
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
 #endif
 
 #undef  DF
