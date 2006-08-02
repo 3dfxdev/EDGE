@@ -150,6 +150,7 @@ General improvements
 - night vision and god-mode effects use colour from colourmap.
 - correct map names for TNT Evilution and Plutonia Experiment.
 - detects and repairs TNT's MAP31 bug (missing yellow key).
+- can use numbers with -warp and IDCLEV cheats again.
 - intermission text screens can now be skipped.
 - console now slides up/down, smaller font.
 - can disable mouse-look in the gameplay options.
@@ -414,7 +415,7 @@ New command-line options | console variables
 
   -bestaudio           Make OpenAL to select the best device in
                        windows. Normally the "DirectSound" device
-					   is selected.
+                       is selected.
 
   -maxaudiochan <n>    Maximum number of audio channels to use
 

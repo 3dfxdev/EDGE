@@ -57,6 +57,8 @@
 
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
 
 #define SAVEGAMESIZE    0x50000
@@ -1125,11 +1127,32 @@ mapdef_c* G_LookupMap(const char *refname)
 	mapdef_c* m;
 	
 	m = mapdefs.Lookup(refname);
-	if (m)
+	if (m && W_CheckNumForName(m->lump) != -1)
+		return m;
+
+	// -AJA- handle numbers (like original DOOM)
+	if (strlen(refname) <= 2 &&
+		isdigit(refname[0]) &&
+		(!refname[1] || isdigit(refname[1])))
 	{
-		if (W_CheckNumForName(m->lump) != -1)
+		int num = atoi(refname);
+		char new_ref[20];
+
+		// try MAP## first
+		sprintf(new_ref, "MAP%02d", num);
+
+		m = mapdefs.Lookup(new_ref);
+		if (m && W_CheckNumForName(m->lump) != -1)
+			return m;
+
+		// otherwise try E#M#
+		if (1 <= num && num <= 9) num = num + 10;
+		sprintf(new_ref, "E%dM%d", num/10, num%10);
+
+		m = mapdefs.Lookup(new_ref);
+		if (m && W_CheckNumForName(m->lump) != -1)
 			return m;
 	}
-	
+
 	return NULL;
 }
