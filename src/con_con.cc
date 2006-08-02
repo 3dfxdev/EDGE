@@ -607,7 +607,7 @@ void CON_Drawer(gui_t * gui)
 	
 	if (conwipeactive)
 	{
-		wiping_y = CON_GFX_HT * (CON_WIPE_TICS - conwipepos) / CON_WIPE_TICS;
+		wiping_y = (CON_GFX_HT-4) * (CON_WIPE_TICS - conwipepos) / CON_WIPE_TICS;
 	}
 
 	console_style->DrawBackground(0, 0, SCREENWIDTH, CON_GFX_HT - wiping_y, 1);
