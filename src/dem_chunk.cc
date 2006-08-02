@@ -19,18 +19,12 @@
 // See the file "docs/demo_fmt.txt" for a description of the new
 // demo system.
 //
-// FIXME: merge common code!! (demo and savegame)
+// TODO: merge common code
 //
 
 #include "i_defs.h"
 #include "dem_chunk.h"
 #include "z_zone.h"
-
-#ifdef HAVE_LZO1X_H
-#include <lzo1x.h>
-#else
-#include "lzo/minilzo.h"
-#endif
 
 #include "epi/math_crc.h"
 
@@ -52,10 +46,6 @@
 int demo_version;
 
 static int last_error = 0;
-
-
-// maximum size that compressing could give (worst-case scenario)
-#define MAX_COMP_SIZE(orig)  ((orig) + (orig)/16 + 20)
 
 
 // The chunk stack will never get any deeper than this
@@ -287,42 +277,6 @@ bool DEM_PushReadChunk(const char *id)
 	{
 		unsigned int i;
 
-#if 0 // (COMPRESS_ENABLE)
-		unsigned int orig_len;
-		unsigned int decomp_len;
-		byte *file_data;
-
-		// read uncompressed size
-		orig_len = DEM_GetInt();
-
-		DEV_ASSERT2(file_len <= MAX_COMP_SIZE(orig_len));
-
-		file_data = Z_New(byte, file_len);
-
-		for (i=0; (i < file_len) && !last_error; i++)
-			file_data[i] = DEM_GetByte();
-
-		DEV_ASSERT2(!last_error);
-
-		cur->start = Z_New(byte, orig_len);
-		cur->end = cur->start + orig_len;
-
-		// decompress data
-		decomp_len = orig_len;
-
-		i = lzo1x_decompress_safe(file_data, file_len,
-			cur->start, &decomp_len, NULL);
-
-		if (i != LZO_E_OK)
-		{
-			I_Error("LOAD_DEMO: ReadChunk [%s] failed: Decompress error.\n", id);
-		}
-
-		DEV_ASSERT2(decomp_len == orig_len);
-
-		for (i=0; i < decomp_len; i++)
-			cur->start[i] ^= (byte)(XOR_STRING[i % XOR_LEN]);
-#else
 		cur->start = Z_New(byte, file_len);
 		cur->end = cur->start + file_len;
 
@@ -330,7 +284,6 @@ bool DEM_PushReadChunk(const char *id)
 			cur->start[i] = DEM_GetByte();
 
 		DEV_ASSERT2(!last_error);
-#endif
 	}
 	else
 	{
@@ -522,49 +475,15 @@ bool DEM_PopWriteChunk(void)
 	// firstly, write out marker
 	DEM_PutMarker(cur->s_mark);
 
-	// write out data.  For top-level chunks, compress it.
+	// write out data.
 
 	if (chunk_stack_size == 0)
 	{
-#if 0 // (COMPRESS_ENABLE)
-		unsigned char *out_buf;
-		unsigned int out_len;   // unsigned due to LZO
-
-		for (i=0; i < len; i++)
-			cur->start[i] ^= (byte)(XOR_STRING[i % XOR_LEN]);
-
-		out_buf = Z_New(byte, MAX_COMP_SIZE(len));
-
-		i = lzo1x_1_compress(cur->start, len, out_buf, &out_len,
-			compress_wrkmem);
-
-		if (i != LZO_E_OK)
-		{
-			I_Error("SAVE_DEMO: WriteChunk [%s] failed: Decompress error.\n",
-				cur->e_mark);
-		}
-
-		DEV_ASSERT2((int)out_len <= MAX_COMP_SIZE(len));
-
-		// write compressed length
-		DEM_PutInt(out_len);
-
-		// write original length to parent
-		DEM_PutInt(len);
-
-		for (i=0; (i < (int)out_len) && !last_error; i++)
-			DEM_PutByte(out_buf[i]);
-
-		DEV_ASSERT2(!last_error);
-
-		Z_Free(out_buf);
-#else
 		// write chunk length to parent
 		DEM_PutInt(len);
 
 		for (i=0; i < len; i++)
 			DEM_PutByte(cur->start[i]);
-#endif
 	}
 	else
 	{
