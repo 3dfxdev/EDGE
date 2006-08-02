@@ -40,7 +40,7 @@ static int cur_wipe_reverse = 0;
 static wipetype_e cur_wipe_effect = WIPE_None;
 static int cur_wipe_start;
 
-static GLuint cur_wipe_tex  = 0;
+static GLuint cur_wipe_tex = 0;
 
 #define MELT_DIVS  128
 static int melt_yoffs[MELT_DIVS+1];
@@ -195,6 +195,9 @@ static void RGL_Update_Melt(int tics)
 // 
 void RGL_InitWipe(int reverse, wipetype_e effect)
 {
+	if (cur_wipe_effect == WIPE_None)
+		return;
+
 	cur_wipe_reverse = reverse;
 	cur_wipe_effect  = effect;
 
@@ -202,7 +205,8 @@ void RGL_InitWipe(int reverse, wipetype_e effect)
 	cur_wipe_tex = CaptureScreenAsTexture(effect == WIPE_Pixelfade,
 		effect == WIPE_Spooky);
 
-	RGL_Init_Melt();
+	if (cur_wipe_effect == WIPE_Melt)
+		RGL_Init_Melt();
 }
 
 //
@@ -215,6 +219,7 @@ void RGL_StopWipe(void)
 	if (cur_wipe_tex != 0)
 	{
 		glDeleteTextures(1, &cur_wipe_tex);
+		cur_wipe_tex = 0;
 	}
 }
 
