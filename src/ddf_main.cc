@@ -36,7 +36,7 @@
 #include "z_zone.h"
 #include "version.h"
 
-#include <epi/path.h>
+#include "epi/path.h"
 
 #include <ctype.h>
 #include <limits.h>

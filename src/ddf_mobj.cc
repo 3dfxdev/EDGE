@@ -38,7 +38,7 @@
 #include "rgl_fx.h"
 #include "z_zone.h"
 
-#include <epi/strings.h>
+#include "epi/strings.h"
 
 #include <ctype.h>
 #include <stdio.h>

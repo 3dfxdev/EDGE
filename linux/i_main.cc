@@ -37,7 +37,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <epi/strings.h>
+#include "../epi/strings.h"
 
 // cleanup handling -- killough:
 

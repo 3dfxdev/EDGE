@@ -21,7 +21,7 @@
 
 #include "dm_defs.h"
 
-#include <epi/utility.h>
+#include "epi/utility.h"
 
 //
 // -AJA- 2004/11/25 HUD.ddf

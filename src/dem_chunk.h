@@ -29,7 +29,7 @@
 #include "i_defs.h"
 #include "p_local.h"
 
-#include <epi/files.h>
+#include "epi/files.h"
 
 #define DEMO_END_MARKER  "ENDE"
 

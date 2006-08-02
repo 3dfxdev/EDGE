@@ -24,7 +24,7 @@
 #include "i_defs.h"
 #include "i_defs_al.h"
 
-#include <epi/strings.h>
+#include "epi/strings.h"
 #include <vorbis/vorbisfile.h>
 
 class oggplayer_c

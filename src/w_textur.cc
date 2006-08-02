@@ -31,9 +31,9 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include <epi/arrays.h>
-#include <epi/endianess.h>
-#include <epi/utility.h>
+#include "epi/arrays.h"
+#include "epi/endianess.h"
+#include "epi/utility.h"
 
 #include <string.h>
 

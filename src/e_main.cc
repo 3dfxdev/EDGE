@@ -78,13 +78,13 @@
 #include "errorcodes.h"
 #include "version.h"
 
-#include <epi/asserts.h>
-#include <epi/errors.h>
-#include <epi/files.h>
-#include <epi/filesystem.h>
-#include <epi/path.h>
-#include <epi/strings.h>
-#include <epi/utility.h>
+#include "epi/asserts.h"
+#include "epi/errors.h"
+#include "epi/files.h"
+#include "epi/filesystem.h"
+#include "epi/path.h"
+#include "epi/strings.h"
+#include "epi/utility.h"
 
 #include <ctype.h>
 #include <stdio.h>

@@ -82,7 +82,7 @@
 #include "p_local.h"
 #include "st_stuff.h"
 
-#include <epi/endianess.h>
+#include "epi/endianess.h"
 
 #include <math.h>
 #include <stdio.h>

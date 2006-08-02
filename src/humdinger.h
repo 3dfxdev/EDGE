@@ -21,7 +21,7 @@
 
 #include "i_defs_al.h"
 
-#include <humidity/humidity.h>
+#include "humidity/humidity.h"
 
 class humdinger_c
 {

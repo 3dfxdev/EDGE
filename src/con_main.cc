@@ -28,7 +28,7 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include <epi/math_crc.h>
+#include "epi/math_crc.h"
 
 #include <ctype.h>
 #include <stdarg.h>

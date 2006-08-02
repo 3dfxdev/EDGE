@@ -52,8 +52,8 @@
 #include "wi_stuff.h"
 #include "z_zone.h"
 
-#include <epi/endianess.h>
-#include <epi/path.h>
+#include "epi/endianess.h"
+#include "epi/path.h"
 
 #include <ctype.h>
 #include <string.h>

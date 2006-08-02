@@ -57,8 +57,8 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include <epi/files.h>
-#include <epi/filesystem.h>
+#include "epi/files.h"
+#include "epi/filesystem.h"
 
 #include <ctype.h>
 #include <stdio.h>

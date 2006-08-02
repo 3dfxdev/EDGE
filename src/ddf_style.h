@@ -22,7 +22,7 @@
 #include "dm_defs.h"
 #include "ddf_font.h"
 
-#include <epi/utility.h>
+#include "epi/utility.h"
 
 //
 // -AJA- 2004/11/14 Styles.ddf
