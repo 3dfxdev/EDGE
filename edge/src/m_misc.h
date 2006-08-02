@@ -31,9 +31,9 @@
 
 #include "dm_type.h"
 
-#include <epi/files.h>
-#include <epi/strings.h>
-#include <epi/utility.h>
+#include "epi/files.h"
+#include "epi/strings.h"
+#include "epi/utility.h"
 
 //
 // MISC

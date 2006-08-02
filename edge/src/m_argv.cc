@@ -26,8 +26,8 @@
 #include "i_defs.h"
 #include "m_argv.h"
 
-#include <epi/files.h>
-#include <epi/filesystem.h>
+#include "epi/files.h"
+#include "epi/filesystem.h"
 
 #include <ctype.h>
 #include <stdio.h>

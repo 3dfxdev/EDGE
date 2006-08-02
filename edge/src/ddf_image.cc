@@ -28,8 +28,8 @@
 #include "p_spec.h"
 #include "r_local.h"
 
-#include <epi/path.h>
-#include <epi/strings.h>
+#include "epi/path.h"
+#include "epi/strings.h"
 
 #include <string.h>
 

@@ -24,7 +24,7 @@
 #ifndef __EPI_MUS2MIDI_H
 #define __EPI_MUS2MIDI_H
 
-#include <epi/types.h>
+#include "epi/types.h"
 
 namespace Mus2Midi
 {

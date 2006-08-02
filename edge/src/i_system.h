@@ -32,7 +32,7 @@
 #include "e_event.h"
 #include "e_ticcmd.h"
 
-#include <epi/timestamp.h>
+#include "epi/timestamp.h"
 
 //--------------------------------------------------------
 //  SYSTEM functions.

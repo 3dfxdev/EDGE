@@ -26,7 +26,7 @@
 #ifndef __S_SOUND__
 #define __S_SOUND__
 
-#include <epi/math_vector.h>
+#include "epi/math_vector.h"
 
 // Forward declarations
 typedef struct mobj_s mobj_t;

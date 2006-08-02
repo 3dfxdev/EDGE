@@ -31,7 +31,7 @@
 #include "sv_main.h"
 #include "z_zone.h"
 
-#include <epi/strings.h>
+#include "epi/strings.h"
 
 #include <stdio.h>
 #include <string.h>

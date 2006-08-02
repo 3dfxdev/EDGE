@@ -29,7 +29,7 @@
 #include "v_res.h"
 #include "w_image_gl.h"
 
-#include <epi/strings.h>
+#include "epi/strings.h"
 
 #include <string.h>
 
@@ -377,7 +377,8 @@ void RGL_CheckExtensions(void)
 	// --- Detect buggy drivers, enable workarounds ---
 	// FIXME: put the driver specifics into a table.
 
-	if (strstr(glstr_renderer, "Radeon") != NULL)
+	if (strstr(glstr_renderer, "Radeon") != NULL ||
+	    strstr(glstr_renderer, "RADEON") != NULL)
 	{
 		I_Printf("OpenGL: Enabling workarounds for Radeon card.\n");
 		use_lighting = false;

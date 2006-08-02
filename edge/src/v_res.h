@@ -31,7 +31,7 @@
 
 #include "i_defs.h"
 
-#include <epi/arrays.h>
+#include "epi/arrays.h"
 
 // Screen mode information.
 typedef struct scrmode_s

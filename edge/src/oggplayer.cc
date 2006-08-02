@@ -28,9 +28,9 @@
 
 #include "oggplayer.h"
 
-#include <epi/epi.h>
-#include <epi/errors.h>
-#include <epi/endianess.h>
+#include "epi/epi.h"
+#include "epi/errors.h"
+#include "epi/endianess.h"
 
 #include <string.h>
 

@@ -25,8 +25,8 @@
 #include "s_sound.h"
 #include "w_wad.h"
 
-#include <epi/files.h>
-#include <epi/filesystem.h>
+#include "epi/files.h"
+#include "epi/filesystem.h"
 
 #include <stdlib.h>
 

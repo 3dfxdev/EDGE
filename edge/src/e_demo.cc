@@ -42,11 +42,11 @@
 #include "version.h"
 #include "z_zone.h"
 
-#include <epi/epi.h>
-#include <epi/endianess.h>
-#include <epi/files.h>
-#include <epi/filesystem.h>
-#include <epi/path.h>
+#include "epi/epi.h"
+#include "epi/endianess.h"
+#include "epi/files.h"
+#include "epi/filesystem.h"
+#include "epi/path.h"
 
 #include <ctype.h>
 #include <string.h>

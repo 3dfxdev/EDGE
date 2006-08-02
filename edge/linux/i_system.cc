@@ -44,6 +44,8 @@
 #include <sys/time.h>
 #include <time.h>
 
+#include "../epi/timestamp.h"
+
 // FIXME: Use file_c handles
 extern FILE *logfile;
 extern FILE *debugfile;

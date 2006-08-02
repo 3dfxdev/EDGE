@@ -25,7 +25,8 @@
 
 #include "i_sysinc.h"
 
-#include <epi/strings.h>
+#include "../epi/strings.h"
+
 #include <SDL.h>
 
 // -ACB- 2003/10/05 We need these outside the function, so we can delete them on exit

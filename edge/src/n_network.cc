@@ -29,8 +29,8 @@
 #include "e_input.h"
 #include "e_main.h"
 
-#include <epi/types.h>
-#include <epi/endianess.h>
+#include "epi/types.h"
+#include "epi/endianess.h"
 
 #include <limits.h>
 #include <stdlib.h>

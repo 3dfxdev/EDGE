@@ -16,12 +16,12 @@ env.Append(CCFLAGS = ['-O', '-g3', '-ffast-math'])
 #----- LIBRARIES ----------------------------------
 
 # epi
-env.Append(CPPPATH = ['../epi'])
-env.Append(LIBPATH = ['../epi'])
+# env.Append(CPPPATH = ['../epi'])
+env.Append(LIBPATH = ['./epi'])
 env.Append(LIBS = ['epi'])
 
 # GLBSP
-env.Append(LIBPATH = ['../glbsp'])
+env.Append(LIBPATH = ['./glbsp'])
 env.Append(LIBS = ['glbsp'])
 
 # Deh_Edge
@@ -49,10 +49,8 @@ env.Append(LIBS = ['ogg', 'vorbis', 'vorbisfile'])
 
 #------- OBJECTS -----------------------------------
 
-glbsp_obj = env.StaticObject('l_glbsp.cpp', CPPPATH = env['CPPPATH'] + ['../glbsp'])
-
 source_list = [
- glbsp_obj,
+ 'l_glbsp.cpp',
  'linux/i_main.cpp',
  'linux/i_compen.cpp', 'linux/i_music.cpp', 
  'linux/i_net.cpp', 'linux/i_sound.cpp', 'linux/i_system.cpp', 

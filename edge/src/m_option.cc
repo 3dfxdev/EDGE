@@ -101,7 +101,7 @@
 
 #include "defaults.h"
 
-#include <epi/strings.h>
+#include "epi/strings.h"
 
 #include <ctype.h>
 #include <stdio.h>

@@ -53,12 +53,12 @@
 #include "rad_trig.h"
 #include "z_zone.h"
 
-#include <epi/endianess.h>
-#include <epi/files.h>
-#include <epi/filesystem.h>
-#include <epi/path.h>
-#include <epi/strings.h>
-#include <epi/utility.h>
+#include "epi/endianess.h"
+#include "epi/files.h"
+#include "epi/filesystem.h"
+#include "epi/path.h"
+#include "epi/strings.h"
+#include "epi/utility.h"
 
 #include <ctype.h>
 #include <limits.h>

@@ -32,7 +32,7 @@
 #include "lzo/minilzo.h"
 #endif
 
-#include <epi/math_crc.h>
+#include "epi/math_crc.h"
 
 #include <ctype.h>
 #include <math.h>

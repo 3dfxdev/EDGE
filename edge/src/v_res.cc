@@ -29,7 +29,7 @@
 #include "st_stuff.h"
 #include "v_res.h"
 
-#include <epi/strings.h>
+#include "epi/strings.h"
 
 #include <limits.h>
 #include <string.h>

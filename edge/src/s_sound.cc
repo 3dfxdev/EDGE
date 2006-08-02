@@ -37,8 +37,8 @@
 #include "r_defs.h"
 #include "w_wad.h"
 
-#include <epi/errors.h>
-#include <epi/strings.h>
+#include "epi/errors.h"
+#include "epi/strings.h"
 
 #include <stdlib.h>
 #include <string.h>

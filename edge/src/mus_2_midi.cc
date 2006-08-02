@@ -33,8 +33,8 @@
 
 #include "mus_2_midi.h"
 
-#include <epi/bytearray.h>
-#include <epi/endianess.h>
+#include "epi/bytearray.h"
+#include "epi/endianess.h"
 
 #include <stdio.h>
 #include <stdlib.h>
