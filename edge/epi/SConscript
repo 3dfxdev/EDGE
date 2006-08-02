@@ -1,0 +1,37 @@
+#
+# SConscript (sub) file for the EPI
+#
+import os
+
+env = Environment()
+
+# warnings
+env.Append(CCFLAGS = ['-Wall'])
+
+# optimisation
+env.Append(CCFLAGS = ['-O2', '-g', '-ffast-math'])
+
+epi_sources = [
+	'arrays.cpp', 'asserts.cpp', 'basicimage.cpp',
+	'bytearray.cpp', 'errors.cpp', 'filesystem.cpp',
+	'image_hq2x.cpp', 'image_jpeg.cpp', 'image_png.cpp',
+	'math_angle.cpp', 'math_bbox.cpp', 'math_colour.cpp',
+	'math_crc.cpp', 'math_md5.cpp', 'math_point.cpp', 'math_vector.cpp',
+	'memfile.cpp', 'memmanager.cpp', 'mersenne_twist.cpp',
+	'stacks.cpp', 'strings.cpp', 'timestamp.cpp', 'utility.cpp']
+
+# operating system specifics
+if os.name == "nt":
+	epi_sources += ['epi_win32.cpp', 'files_win32.cpp', 'filesystem_win32.cpp', 'path_win32.cpp']
+	env.Append(CCFLAGS = '-DWIN32')
+
+elif os.name == "posix":
+	epi_sources += ['epi_linux.cpp', 'files_linux.cpp', 'filesystem_linux.cpp', 'path_linux.cpp']
+	env.Append(CCFLAGS = '-DLINUX')
+
+else:
+	print 'Unknown OS type: ' + os.name
+	Exit(1)
+
+env.StaticLibrary('epi', epi_sources)
+
