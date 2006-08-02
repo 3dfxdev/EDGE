@@ -1,4 +1,3 @@
-deh
 EDGE.LOG
 ERRS
 TODO
@@ -9,7 +8,6 @@ savegame
 update.log
 edge_private.res
 bin
-*.68
 autom4te.cache
 config.log
 config.status
