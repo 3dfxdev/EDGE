@@ -155,7 +155,6 @@ General improvements
 - can disable mouse-look in the gameplay options.
 - number of RTS tip slots has increased to 45.
 - RTS tip messages are shown on the console.
-- savegame files are smaller.
 
 
 New DDF features:

@@ -27,6 +27,8 @@
 
 #include "z_zone.h"
 
+#include <zlib.h>
+
 #ifdef HAVE_LZO1X_H
 #include <lzo1x.h>
 #else
@@ -64,7 +66,7 @@ static int last_error = 0;
 
 
 // maximum size that compressing could give (worst-case scenario)
-#define MAX_COMP_SIZE(orig)  ((orig) + (orig)/16 + 20)
+#define MAX_COMP_SIZE(orig)  (compressBound(orig) + 4)
 
 
 // The chunk stack will never get any deeper than this
@@ -91,10 +93,6 @@ static int chunk_stack_size = 0;
 
 static FILE *current_fp = NULL;
 static epi::crc32_c current_crc;
-
-#if (COMPRESS_ENABLE)
-static byte compress_wrkmem[LZO1X_1_MEM_COMPRESS + 16];
-#endif
 
 
 static bool CheckMagic(void)
@@ -139,6 +137,8 @@ void SV_ChunkInit(void)
 {
 	if (lzo_init() != LZO_E_OK)
 		I_Error("SV_ChunkInit: LZO initialisation error !\n");
+
+	/* ZLib doesn't need to be initialised */
 }
 
 //
@@ -460,12 +460,25 @@ bool SV_PushReadChunk(const char *id)
 		// decompress data
 		decomp_len = orig_len;
 
-		i = lzo1x_decompress_safe(file_data, file_len,
-			cur->start, &decomp_len, NULL);
-
-		if (i != LZO_E_OK)
+		if (savegame_version < 0x12902)
 		{
-			I_Error("LOADGAME: ReadChunk [%s] failed: Decompress error.\n", id);
+			int res = lzo1x_decompress_safe(file_data, file_len,
+				cur->start, &decomp_len, NULL);
+
+			if (res != LZO_E_OK)
+				I_Error("LOADGAME: ReadChunk [%s] failed: LZO Decompress error.\n", id);
+		}
+		else // use ZLIB
+		{
+			uLongf out_len = orig_len;
+
+			int res = uncompress(cur->start, &out_len,
+					file_data, file_len);
+
+			if (res != Z_OK)
+				I_Error("LOADGAME: ReadChunk [%s] failed: ZLIB Decompress error.\n", id);
+
+			decomp_len = (unsigned int)out_len;
 		}
 
 		DEV_ASSERT2(decomp_len == orig_len);
@@ -692,23 +705,21 @@ bool SV_PopWriteChunk(void)
 	{
 #if (COMPRESS_ENABLE)
 		unsigned char *out_buf;
-		unsigned int out_len;   // unsigned due to LZO
+		uLongf out_len;
 
 		out_buf = Z_New(byte, MAX_COMP_SIZE(len));
 
-		i = lzo1x_1_compress(cur->start, len, out_buf, &out_len,
-			compress_wrkmem);
+		int Z_level = 1;  // fastest
 
-		if (i != LZO_E_OK)
-		{
-			I_Error("SAVEGAME: WriteChunk [%s] failed: Decompress error.\n",
-				cur->e_mark);
-		}
+		int res = compress2(out_buf, &out_len, cur->start, len, Z_level);
+
+		if (res != Z_OK)
+			I_Error("SAVEGAME: WriteChunk [%s] failed: Compress error.\n", cur->e_mark);
 
 		DEV_ASSERT2((int)out_len <= MAX_COMP_SIZE(len));
 
 		// write compressed length
-		SV_PutInt(out_len);
+		SV_PutInt((int)out_len);
 
 		// write original length to parent
 		SV_PutInt(len);
