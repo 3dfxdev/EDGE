@@ -1,0 +1,31 @@
+#
+# SConscript (sub) file for Deh_Edge plugin
+#
+import os
+
+env = Environment()
+
+env.Append(CCFLAGS = ['-DDEH_EDGE_PLUGIN'])
+
+# warnings
+env.Append(CCFLAGS = ['-Wall'])
+
+# optimisation
+env.Append(CCFLAGS = ['-O'])
+
+deh_sources = [
+	'convert.cpp', 'main.cpp', 'system.cpp', 'util.cpp', 'wad.cpp', 'info.cpp', 'mobj.cpp',
+	'sounds.cpp', 'frames.cpp', 'things.cpp', 'attacks.cpp', 'weapons.cpp', 'ammo.cpp',
+	'misc.cpp', 'text.cpp', 'storage.cpp', 'patch.cpp', 'rscript.cpp', 'buffer.cpp']
+
+# operating system specifics
+if os.name == "nt":
+	env.Append(CCFLAGS = '-DWIN32')
+elif os.name == "posix":
+	env.Append(CCFLAGS = '-DLINUX')
+else:
+	print 'Unknown OS type: ' + os.name
+	Exit(1)
+
+env.StaticLibrary('dehedge', deh_sources)
+
