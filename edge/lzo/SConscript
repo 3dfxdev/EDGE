@@ -1,0 +1,15 @@
+#
+# SConscript (sub) file for MiniLZO
+#
+import os
+
+env = Environment()
+
+# warnings
+env.Append(CCFLAGS = ['-Wall'])
+
+# optimisation
+env.Append(CCFLAGS = ['-O2', '-fomit-frame-pointer', '-fno-strength-reduce'])
+
+env.StaticLibrary('lzo', ['minilzo.c'])
+
