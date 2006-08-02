@@ -1,11 +1,15 @@
 #
 # SConstruct file for EDGE
 #
+import os
+
+SConscript('epi/SConscript')
+SConscript('deh_edge/SConscript.plugin')
+SConscript('glbsp/SConscript.plugin')
+SConscript('lzo/SConscript')
+# SConscript('humidity/SConscript.plugin')
 
 env = Environment()
-
-# OS
-env.Append(CCFLAGS = ['-DLINUX'])
 
 # warnings
 env.Append(CCFLAGS = ['-Wall'])
@@ -25,7 +29,7 @@ env.Append(LIBPATH = ['./glbsp'])
 env.Append(LIBS = ['glbsp'])
 
 # Deh_Edge
-env.Append(LIBPATH = ['./deh'])
+env.Append(LIBPATH = ['./deh_edge'])
 env.Append(LIBS = ['dehedge'])
 
 # LZO
@@ -51,9 +55,6 @@ env.Append(LIBS = ['ogg', 'vorbis', 'vorbisfile'])
 
 source_list = [
  'l_glbsp.cpp',
- 'linux/i_main.cpp',
- 'linux/i_compen.cpp', 'linux/i_music.cpp', 
- 'linux/i_net.cpp', 'linux/i_sound.cpp', 'linux/i_system.cpp', 
  'SDL/i_cd.cpp', 'SDL/i_ctrl.cpp', 'SDL/i_loop.cpp', 'SDL/i_video.cpp',
  'mus_2_midi.cpp', 'oggplayer.cpp', 
  'am_map.cpp', 'con_con.cpp', 'con_cvar.cpp', 'con_main.cpp', 'ddf_anim.cpp',
@@ -82,5 +83,23 @@ source_list = [
  'wp_wipe.cpp', 'w_textur.cpp', 'w_wad.cpp', 'z_zone.cpp', 
  ]
 
-env.Program('edge129', source_list)
+# operating system specifics
+if os.name == "nt":
+	env.Append(CCFLAGS = '-DWIN32')
+	source_list += ['win32/i_cd.cpp', 'win32/i_compen.cpp',
+		'win32/i_main.cpp', 'win32/i_music.cpp',
+		'win32/i_mus.cpp', 'win32/i_net.cpp',
+		'win32/i_sound.cpp', 'win32/i_system.cpp']
+
+elif os.name == "posix":
+	env.Append(CCFLAGS = '-DLINUX')
+	source_list += ['linux/i_main.cpp', 'linux/i_compen.cpp', 'linux/i_music.cpp', 
+		 'linux/i_net.cpp', 'linux/i_sound.cpp', 'linux/i_system.cpp']
+	# source_list += ['humdinger.cpp']
+
+else:
+	print 'Unknown OS type: ' + os.name
+	Exit(1)
+
+env.Program('gledge', source_list)
 
