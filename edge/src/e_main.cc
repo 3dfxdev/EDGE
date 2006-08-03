@@ -585,7 +585,7 @@ static void DoSystemStartup(void)
 void E_PostEvent(event_t * ev)
 {
 	events[eventhead] = *ev;
-	eventhead = (++eventhead) & (MAXEVENTS - 1);
+	eventhead = (eventhead + 1) % MAXEVENTS;
 }
 
 //
@@ -597,7 +597,7 @@ void E_ProcessEvents(void)
 {
 	event_t *ev;
 
-	for (; eventtail != eventhead; eventtail = (++eventtail) & (MAXEVENTS - 1))
+	for (; eventtail != eventhead; eventtail = (eventtail + 1) % MAXEVENTS)
 	{
 		ev = &events[eventtail];
 		if (chat_on && HU_Responder(ev))
@@ -1333,9 +1333,12 @@ static void SetupLogAndDebugFiles(void)
 	//
 	// -ACB- 1999/10/02 Don't print to console, since we don't have a console yet.
 	//
-	int p = M_CheckParm("-debugfile");
+	int p = M_CheckParm("-debug");
 	if (p)
 	{
+        epi::string_c debugfn = epi::path::Join(home_dir.GetString(), "debug.txt");
+
+#if 0 // OLD CODE -- REMOVE
 		epi::string_c fn;
 		int i = 1;
 		const char *ps;
@@ -1359,12 +1362,11 @@ static void SetupLogAndDebugFiles(void)
 					I_Error("[engine::Startup] Couldn't create debug file!");
 			}
 		}
-		debugfile = fopen(fn.GetString(), "w");
+#endif
+		debugfile = fopen(debugfn.GetString(), "w");
 
 		if (!debugfile)
 			I_Error("[engine::Startup] Unable to create debugfile");
-	
-		L_WriteDebug("%s\n", E_TITLE);
 	}
 	else
 	{
