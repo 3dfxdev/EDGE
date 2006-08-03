@@ -323,7 +323,7 @@ Command line options:
   -script  <file>      Load external RTS script from the file.
   -deh     <file>      Load external DeHackEd/BEX patch file.
   -config  <file>      Config file (normally EDGE.CFG).
-  -debugfile  <file>   Write messages into the given file.
+  -debug               Enable debug output to file (DEBUG.TXT).
   -nolog               Disable creating the log file (EDGE.LOG).
 
   -warp  <map>         Warp to map (use full name e.g. E1M1 or MAP01).
@@ -403,11 +403,11 @@ Command line options:
   Win32 options:
     -bestaudio         Allow OpenAL to select best driver as opposed to forcing 
                        the DirectSound implementation. (DirectSound is forced 
-					   since there are numerous issues with a large number of 
-					   3D sound drivers).
+                       since there are numerous issues with a large number of 
+                       3D sound drivers).
 
   Linux / MacOS X options:
-	(None)
+    (None)
 
 Console commands:
   CRC  <lump>          Computes the CRC value of a wad lump.
@@ -425,12 +425,12 @@ Console commands:
 **** Credits ****
 
 Current EDGE Team:
-    Andrew Apted (aka "Ajapted")     : programming (good cop)
-	Andrew Baker (aka "Darkknight")  : programming (bad cop)
-	Luke Brennan (aka "Lobo")        : support & documentation
-	Marc Pullen  (aka "Fanatic")     : support & music
+    Andrew Apted (aka "Ajapted")     : programming
+    Luke Brennan (aka "Lobo")        : support & documentation
 
 Former EDGE Members:
+    Andrew Baker (aka "Darkknight")  : programming
+    Marc Pullen  (aka "Fanatic")     : support & music
     Erik Sandberg                    : programming
     David Leatherdale                : support & programming
 
@@ -440,10 +440,10 @@ Patches:
 DOSDoom Contributors:
     Kester Maddock                   : programming
     Martin Howe                      : programming, cat lover
-	John Cole, Rasem Brsiq           : programming
- 	Captain Mellow, CowMonster       : support, graphics
-	Ziggy Gnarly & Sidearm Joe       : support, graphics
-	Matt Cooke, Eric Simpson         : support
+    John Cole, Rasem Brsiq           : programming
+    Captain Mellow, CowMonster       : support, graphics
+    Ziggy Gnarly & Sidearm Joe       : support, graphics
+    Matt Cooke, Eric Simpson         : support
 
 Special Thanks:
     Chi Hoang                        : DOSDoom Author
