@@ -509,31 +509,34 @@ void M_DisplayAir(void)
 //
 void M_ScreenShot(bool show_msg)
 {
-	char* extension;
-	epi::string_c filename;
+	char *extension;
 
     if (png_scrshots) 
 		extension = "png";
 	else
 		extension = "jpg";
 
+	epi::string_c fn;
+	epi::string_c base;
+
 	// find a file name to save it to
-	for (int i = 0; i <= 9999; i++)
+	for (int i = 1; i <= 9999; i++)
 	{
-		filename.Format("shot%04d.%s", i, extension);
+		base.Format("shot%02d.%s", i, extension);
+
+		fn = epi::path::Join(shot_dir.GetString(), base.GetString());
   
-		if (!epi::the_filesystem->Access(filename.GetString(), 
-                                         epi::file_c::ACCESS_READ))
+		if (!epi::the_filesystem->Access(fn.GetString(), epi::file_c::ACCESS_READ))
         {
 			break; // file doesn't exist
         }
 	}
 
-	FILE *fp = fopen(filename.GetString(), "wb");
+	FILE *fp = fopen(fn.GetString(), "wb");
 	if (fp == NULL)
 	{
 		if (show_msg)
-			I_Printf("Unable to create file: %s\n", filename.GetString());
+			I_Printf("Unable to create file: %s\n", fn.GetString());
 
 		return;
 	}
@@ -551,9 +554,9 @@ void M_ScreenShot(bool show_msg)
 	if (show_msg)
 	{
 		if (result)
-			I_Printf("Captured to file: %s\n", filename.GetString());
+			I_Printf("Captured to file: %s\n", fn.GetString());
 		else
-			I_Printf("Error saving file: %s\n", filename.GetString());
+			I_Printf("Error saving file: %s\n", fn.GetString());
 	}
 
 	fclose(fp);

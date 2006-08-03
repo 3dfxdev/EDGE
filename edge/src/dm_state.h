@@ -166,6 +166,7 @@ extern epi::strent_c cache_dir;
 extern epi::strent_c ddf_dir;
 extern epi::strent_c game_dir;
 extern epi::strent_c save_dir;
+extern epi::strent_c shot_dir;
 
 // if true, load DDF/RTS as external files (instead of from EDGE.WAD)
 extern bool external_ddf;
