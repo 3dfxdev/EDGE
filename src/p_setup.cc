@@ -854,7 +854,7 @@ static void SetupRootNode(void)
 //
 static void LoadV5Nodes(const void *data, int length)
 {
-	int i, j, k;
+	int i, j;
 	const raw_v5_node_t *mn;
 	node_t *nd;
 
@@ -899,7 +899,7 @@ static void LoadV5Nodes(const void *data, int length)
 //
 static void LoadNodes(int lump, char *name)
 {
-	int i, j, k;
+	int i, j;
 	const raw_node_t *mn;
 	node_t *nd;
 
