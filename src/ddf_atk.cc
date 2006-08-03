@@ -99,6 +99,7 @@ static const commandlist_t attack_commands[] =
 	DF("ENGAGED SOUND", sound, DDF_MainLookupSound),
 	DF("SPAWNED OBJECT", spawnedobj_ref, DDF_MainGetString),
 	DF("SPAWN OBJECT STATE", objinitstate_ref, DDF_MainGetString),
+	DF("SPAWN LIMIT", spawn_limit, DDF_MainGetNumeric),
 	DF("PUFF", puff_ref, DDF_MainGetString),
 	DF("ATTACK CLASS", attack_class, DDF_MainGetBitSet),
 
@@ -467,6 +468,7 @@ void atkdef_c::CopyDetail(atkdef_c &src)
 	atk_mobj = src.atk_mobj;
 	spawnedobj = src.spawnedobj;
 	spawnedobj_ref = src.spawnedobj_ref;
+	spawn_limit = src.spawn_limit;
 	puff = src.puff;
 	puff_ref = src.puff_ref;
 }
@@ -506,6 +508,7 @@ void atkdef_c::Default()
 	atk_mobj = NULL;
 	spawnedobj = NULL;
 	spawnedobj_ref.Clear();
+	spawn_limit = 0;  // unlimited
 	puff = NULL;
 	puff_ref.Clear();
 }

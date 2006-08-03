@@ -154,6 +154,7 @@ General improvements
 - intermission text screens can now be skipped.
 - console now slides up/down, smaller font.
 - can disable mouse-look in the gameplay options.
+- limit the number of skulls from pain elementals.
 - number of RTS tip slots has increased to 45.
 - RTS tip messages are shown on the console.
 
