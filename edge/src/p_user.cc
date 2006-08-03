@@ -544,10 +544,9 @@ bool P_PlayerSwitchWeapon(player_t *player, weapondef_c *choice)
 //
 void P_PlayerThink(player_t * player)
 {
-	mobj_t *mo = player->mo;
 	ticcmd_t *cmd;
 
-	DEV_ASSERT2(mo);
+	DEV_ASSERT2(player->mo);
 
 #if 0  // DEBUG ONLY
 	{
