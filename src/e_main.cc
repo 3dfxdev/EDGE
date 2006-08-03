@@ -191,6 +191,7 @@ epi::strent_c ddf_dir;
 epi::strent_c game_dir;
 epi::strent_c home_dir;
 epi::strent_c save_dir;
+epi::strent_c shot_dir;
 
 int crosshair = 0;
 
@@ -1047,6 +1048,14 @@ void InitDirectories(void)
         epi::the_filesystem->MakeDir(path.GetString());
 
     save_dir.Set(path.GetString());
+
+	// screenshot directory
+    path = epi::path::Join(home_dir.GetString(), SCRNSHOTDIR);
+
+    if (!epi::the_filesystem->IsDir(path.GetString()))
+        epi::the_filesystem->MakeDir(path.GetString());
+
+    shot_dir.Set(path.GetString());
 }
 
 //

@@ -39,4 +39,6 @@
 #define SAVEGAMEEXT    "esg"
 #define SAVEGAMEMODE   0755
 
+#define SCRNSHOTDIR	"screenshot"
+
 #endif
