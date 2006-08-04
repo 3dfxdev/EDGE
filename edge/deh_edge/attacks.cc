@@ -243,6 +243,10 @@ namespace Attacks
 		WAD::Printf("ATTACK_SPECIAL = PRESTEP_SPAWN,FACE_TARGET;\n");
 		WAD::Printf("SPAWNED_OBJECT = LOST_SOUL;\n");
 		WAD::Printf("SPAWN_OBJECT_STATE = %s;\n", spawn_at);
+
+		if (target_version >= 129)
+			WAD::Printf("SPAWN_LIMIT = 21;\n");
+
 		WAD::Printf("\n");
 		WAD::Printf("[ELEMENTAL_DEATHSPAWN]\n");
 		WAD::Printf("ATTACKTYPE = TRIPLE_SPAWNER;\n");
