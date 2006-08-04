@@ -688,9 +688,6 @@ static void RAD_CollectParameters(const char *line, int *pnum,
 		if (in_string)
 			comment = false;
 
-		if (comment && ch == ';' && rts_version >= 0x129)
-			RAD_Warning("Comments with ';' deprecated, use // instead.\n");
-
 		if (ch == 0 && in_string)
 			RAD_Error("Nonterminated string found.\n");
 
@@ -816,7 +813,7 @@ static void RAD_ParseVersion(int pnum, const char **pars)
 
 	// backwards compat (old scripts have #VERSION 1.1 in them)
 	if (rts_version < 0x123)
-		return;
+		rts_version = 0x127;
 
 	if (rts_version > EDGEVER)
 		RAD_Error("This version of EDGE cannot handle this RTS script\n");
@@ -1372,9 +1369,6 @@ static void RAD_ParseTip(int pnum, const char **pars)
 
 	if (pnum >= 5)
 	{
-		if (rts_version < 0x128)
-			RAD_Error("%s: Scaling only available with #VERSION 1.28 or higher.\n", pars[0]);
-
 		if (! tip->tip_graphic)
 			RAD_Error("%s: scale value only works with TIP_GRAPHIC.\n", pars[0]);
 
@@ -1801,13 +1795,11 @@ static void RAD_ParseGotoMap(int pnum, const char **pars)
 	{
 		if (DDF_CompareName(pars[2], "SKIP_ALL") == 0)
 		{
-			if (rts_version < 0x128)
-				RAD_Error("%s: SKIP_ALL only available with #VERSION 1.28 or higher.\n", pars[0]);
 			go->skip_all = true;
 		}
 		else
 			RAD_WarnError2(0x128, "%s: expected `SKIP_ALL' but got `%s'.\n",
-			pars[0], pars[2]);
+				pars[0], pars[2]);
 	}
 
 	AddStateToScript(this_rad, 0, RAD_ActGotoMap, go);
@@ -2017,9 +2009,6 @@ static void RAD_ParseShowMenu(int pnum, const char **pars)
 	// Show_Menu     <title> <option1> ...
 	// Show_Menu_LDF <title> <option1> ...
 
-	if (rts_version < 0x129)
-		RAD_Error("%s only available with #VERSION 1.29 or higher.\n", pars[0]);
-
 	s_show_menu_t *menu = Z_ClearNew(s_show_menu_t, 1);
 
 	if (pnum > 11)
@@ -2050,9 +2039,6 @@ static void RAD_ParseMenuStyle(int pnum, const char **pars)
 {
 	// Menu_Style  <style>
 
-	if (rts_version < 0x129)
-		RAD_Error("%s only available with #VERSION 1.29 or higher.\n", pars[0]);
-
 	s_menu_style_t *mm = Z_ClearNew(s_menu_style_t, 1);
 
 	if (pars[1][0] == '"')
@@ -2068,9 +2054,6 @@ static void RAD_ParseJumpOn(int pnum, const char **pars)
 	// Jump_On <VAR> <label1> <label2> ...
 	//
 	// "MENU" is the only variable supported so far.
-
-	if (rts_version < 0x129)
-		RAD_Error("%s only available with #VERSION 1.29 or higher.\n", pars[0]);
 
 	s_jump_on_t *jump = Z_ClearNew(s_jump_on_t, 1);
 
@@ -2216,9 +2199,6 @@ void RAD_ParseLine(char *s)
 
 		if (obsolete)
 		{
-			if (rts_version >= 0x128)
-				RAD_Error("%s: is not supported with #VERSION 1.28 or higher.\n", cur_name);
-
 			if (no_obsoletes)
 				RAD_WarnError("The rts %s command is obsolete !\n", cur_name);
 		}
