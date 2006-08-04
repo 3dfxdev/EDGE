@@ -345,7 +345,7 @@ static void WeaponFinishEntry(void)
 		}
 	}
 
-	// backwards compatibility (REMOVE for 1.26)
+	// backwards compatibility
 	if (buffer_weapon.priority < 0)
 	{
 		DDF_WarnError2(0x129, "Using PRIORITY=-1 in weapons.ddf is obsolete !\n");
