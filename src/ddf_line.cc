@@ -624,7 +624,7 @@ static specflags_t extrafloor_types[] =
 	{"SIDE MIDY",     EXFL_SideMidY,     0},
 	{"BOOMTEX",       EXFL_BoomTex,      0},
 
-	// backwards compat...
+	// backwards compatibility...
 	{"FALL THROUGH",  EXFL_Liquid, 0},
 	{"SHOOT THROUGH", 0, 0},
 	{NULL, 0, 0}
