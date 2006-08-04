@@ -291,17 +291,6 @@ static void WeaponParseField(const char *field, const char *contents,
 	if (WeaponTryParseState(field, contents, index, is_last))
 		return;
 
-	if (ddf_version < 0x128)
-	{
-		// handle properties (old piece of crud)
-		if (index == 0 && DDF_CompareName(contents, "TRUE") == 0)
-		{
-			L_WriteDebug("WEAPON PROPERTY CRUD: %s = %s\n", field, contents);
-			DDF_WGetSpecialFlags(field, &buffer_weapon.specials[0]);
-			return;
-		}
-	}
-
 	DDF_WarnError2(0x128, "Unknown weapons.ddf command: %s\n", field);
 }
 
@@ -573,9 +562,6 @@ static void DDF_WGetSpecialFlags(const char *info, void *storage)
 			DDF_WarnError2(0x128, "DDF_WGetSpecialFlags: Unknown Special: %s", info);
 			return;
 	}
-
-	if (ddf_version < 0x129 && (flag_value & 0xFFFE) != 0)
-		DDF_Error("New weapon specials require #VERSION 1.29 or later.\n");
 }
 
 //

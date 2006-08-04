@@ -71,10 +71,6 @@ Features removed / changed
   "screenshot" console command (Note: it does not capture the 
   console itself).
 
-- using { } comments in DDF files, and ';' comments in RTS scripts
-  is now deprecated, since these characters will probably be needed
-  in the future when improving DDF/RTS.  Use // comments instead.
-
 - the "CONSTANT" dynamic lighting type (in DDF) was removed.
 
 

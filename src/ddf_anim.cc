@@ -114,9 +114,6 @@ static void AnimParseField(const char *field, const char *contents, int index, b
 	L_WriteDebug("ANIM_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (DDF_CompareName(field, "SEQUENCE") == 0 && ddf_version < 0x129)
-		DDF_Error("SEQUENCE command requires #VERSION 1.29.\n");
-
 	if (! DDF_MainParseField(anim_commands, field, contents))
 		DDF_WarnError2(0x128, "Unknown anims.ddf command: %s\n", field);
 }

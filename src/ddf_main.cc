@@ -722,9 +722,6 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 		switch (response)
 		{
 			case remark_start:
-				if (ddf_version >= 0x129)
-					DDF_Warning("Comments in { } deprecated, use // instead.\n");
-
 				if (comment_level == 0)
 				{
 					formerstatus = status;

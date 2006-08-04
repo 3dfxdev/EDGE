@@ -138,17 +138,6 @@ static void SectorParseField(const char *field, const char *contents,
 	if (DDF_MainParseField(sect_commands, field, contents))
 		return;
 
-	if (ddf_version < 0x128)
-	{
-		// handle properties (old crud)
-		if (index == 0 && DDF_CompareName(contents, "TRUE") == 0)
-		{
-			L_WriteDebug("SECTOR PROPERTY CRUD: %s = %s\n", field, contents);
-			DDF_SectGetSpecialFlags(field, NULL);  // FIXME FOR OFFSETS
-			return;
-		}
-	}
-
 	DDF_WarnError2(0x128, "Unknown sectors.ddf command: %s\n", field);
 }
 
