@@ -1347,31 +1347,6 @@ static void SetupLogAndDebugFiles(void)
 	{
         epi::string_c debugfn = epi::path::Join(home_dir.GetString(), "debug.txt");
 
-#if 0 // OLD CODE -- REMOVE
-		epi::string_c fn;
-		int i = 1;
-		const char *ps;
-
-		// -ES- 1999/03/29 allow -debugfile <file>
-		if (p + 1 < M_GetArgCount() && (ps = M_GetArgument(p + 1))[0] != '-')
-		{
-			fn = ps;
-		}
-		else
-		{
-			// -KM- 1999/01/29 Consoleplayer is always 0 at this stage.
-			fn = "debug0.txt";
-			while (epi::the_filesystem->Access(fn.GetString(), epi::file_c::ACCESS_READ))
-			{
-				fn.Format("debug%d.txt", i++);
-
-				// give up: File system is probably corrupt. If not, there are 1000
-				// debug files already, and it's about time to delete some of them...
-				if (i >= 1000)
-					I_Error("[engine::Startup] Couldn't create debug file!");
-			}
-		}
-#endif
 		debugfile = fopen(debugfn.GetString(), "w");
 
 		if (!debugfile)
@@ -1557,7 +1532,6 @@ startuporder_t startcode[] =
 	{ 20, W_ReadDDF,           },
 	{  1, DDF_CleanUp,         },
 	{  1, SetLanguage,         },
-	{  1, ShowNotice,          },
 	{  1, SV_MainInit,         },
 	{ 15, W_ImageCreateUser,   },
 	{ 20, R_InitSprites,       },
@@ -1570,6 +1544,7 @@ startuporder_t startcode[] =
 	{  1, sound::Init,         },
 	{  1, N_InitNetwork,       },
 	{  2, ST_Init,             },
+	{  1, ShowNotice,          },
 	{  0, NULL,                }
 };
 

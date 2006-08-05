@@ -60,7 +60,7 @@ void DDF_MobjGetBenefit(const char *info, void *storage);
 void DDF_MobjGetPickupEffect(const char *info, void *storage);
 void DDF_MobjGetDLight(const char *info, void *storage);
 
-static void CheckPowerupCompatibility(void);
+static void AddPickupEffect(pickup_effect_c **list, pickup_effect_c *cur);
 
 static dlightinfo_c buffer_dlight;
 static haloinfo_c buffer_halo;
@@ -359,6 +359,7 @@ const specflags_t armourtype_names[] =
 const specflags_t powertype_names[] =
 {
 	{"POWERUP INVULNERABLE", PW_Invulnerable, 0},
+	{"POWERUP BARE BERSERK", PW_Berserk,      0},
 	{"POWERUP BERSERK",      PW_Berserk,      0},
 	{"POWERUP PARTINVIS",    PW_PartInvis,    0},
 	{"POWERUP ACIDSUIT",     PW_AcidSuit,     0},
@@ -602,9 +603,6 @@ static void ThingFinishEntry(void)
 		DDF_WarnError2(0x128, "Bad CHOKE_DAMAGE.VAL value %f in DDF.\n",
 			buffer_mobj.choke_damage.nominal);
 	}
-
-	if (ddf_version < 0x129)
-		CheckPowerupCompatibility();
 
 	// FIXME: check more stuff
 
@@ -958,6 +956,22 @@ static bool BenefitTryPowerup(const char *name, benefit_t *be,
 
 	if (num_vals < 2)
 		be->limit = 999999.0f;
+
+	// -AJA- backwards compatibility (need Fist for Berserk)
+	if (be->sub.type == PW_Berserk &&
+		DDF_CompareName(name, "POWERUP_BERSERK") == 0)
+	{
+		int idx = weapondefs.FindFirst("FIST", weapondefs.GetDisabledCount());
+
+		if (idx >= 0)
+		{
+			AddPickupEffect(&buffer_mobj.pickup_effects,
+				new pickup_effect_c(PUFX_SwitchWeapon, weapondefs[idx], 0, 0));
+
+			AddPickupEffect(&buffer_mobj.pickup_effects,
+				new pickup_effect_c(PUFX_KeepPowerup, PW_Berserk, 0, 0));
+		}
+	}
 
 	return true;
 }
@@ -1553,29 +1567,6 @@ static bool ConditionTryPlayerState(const char *name, const char *sub,
 {
 	return (CHKF_Positive == DDF_MainCheckSpecialFlag(name, 
 		simplecond_names, (int *)&cond->cond_type, false, false));
-}
-
-static void CheckPowerupCompatibility(void)
-{
-	// when using BERSERK, need to switch to the FIST
-
-	for (benefit_t *b = buffer_mobj.pickup_benefits; b; b = b->next)
-	{
-		if (b->type == BENEFIT_Powerup && b->sub.type == PW_Berserk)
-		{
-			int idx = weapondefs.FindFirst("FIST", weapondefs.GetDisabledCount());
-
-			if (idx >= 0)
-			{
-				AddPickupEffect(&buffer_mobj.pickup_effects,
-					new pickup_effect_c(PUFX_SwitchWeapon, weapondefs[idx], 0, 0));
-
-				AddPickupEffect(&buffer_mobj.pickup_effects,
-					new pickup_effect_c(PUFX_KeepPowerup, PW_Berserk, 0, 0));
-			}
-			break;
-		}
-	}
 }
 
 //

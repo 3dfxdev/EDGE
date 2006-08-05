@@ -354,14 +354,6 @@ static void WeaponFinishEntry(void)
 		buffer_weapon.priority = 10;
 	}
 
-	// backwards compatibility
-	if (ddf_version < 0x129)
-	{
-		if (buffer_weapon.specials[0] & WPSP_SilentToMon)
-			buffer_weapon.specials[1] = (weapon_flag_e)
-				(buffer_weapon.specials[1] | WPSP_SilentToMon);
-	}
-
 	// transfer static entry to dynamic entry
 	dynamic_weapon->CopyDetail(buffer_weapon);
 
