@@ -254,12 +254,12 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_t *image,
 //
 // RGL_SolidBox
 //
-void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t colour, float alpha)
+void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t col, float alpha)
 {
 	if (alpha < 0.99f)
 		glEnable(GL_BLEND);
   
-	glColor4f(RGB_RED(colour), RGB_GRN(colour), RGB_BLU(colour), alpha);
+	glColor4f(RGB_RED(col), RGB_GRN(col), RGB_BLU(col), alpha);
   
 	glBegin(GL_QUADS);
 
@@ -275,9 +275,9 @@ void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t colour, float alpha)
 //
 // RGL_SolidLine
 //
-void RGL_SolidLine(int x1, int y1, int x2, int y2, int colour)
+void RGL_SolidLine(int x1, int y1, int x2, int y2, rgbcol_t col, float alpha)
 {
-	glColor3f(PAL_RED(colour), PAL_GRN(colour), PAL_BLU(colour));
+	glColor4f(RGB_RED(col), RGB_GRN(col), RGB_BLU(col), alpha);
   
 	glBegin(GL_LINES);
 
@@ -501,19 +501,25 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 	int ph = 30;
 	int py = *y - ph - 20;
 
-	int x = (pw-6) * perc / 100;
+	int x = (pw-8) * perc / 100;
 
-	glColor4f(1.0f, 1.0f, 1.0f, alpha);
-	glBegin(GL_LINE_LOOP);
+	glColor4f(0.6f, 0.6f, 0.6f, alpha);
+	glBegin(GL_POLYGON);
 	glVertex2i(px, py);  glVertex2i(px, py+ph);
 	glVertex2i(px+pw, py+ph); glVertex2i(px+pw, py);
 	glVertex2i(px, py);
 	glEnd();
 
+	glColor4f(0.0f, 0.0f, 0.0f, alpha);
+	glBegin(GL_POLYGON);
+	glVertex2i(px+2, py+2);  glVertex2i(px+2, py+ph-2);
+	glVertex2i(px+pw-2, py+ph-2); glVertex2i(px+pw-2, py+2);
+	glEnd();
+
 	glColor4f(cr, cg, cb, alpha);
 	glBegin(GL_POLYGON);
-	glVertex2i(px+3, py+3);  glVertex2i(px+3, py+ph-3);
-	glVertex2i(px+3+x, py+ph-3); glVertex2i(px+3+x, py+3);
+	glVertex2i(px+4, py+4);  glVertex2i(px+4, py+ph-4);
+	glVertex2i(px+4+x, py+ph-4); glVertex2i(px+4+x, py+4);
 	glEnd();
 
 	(*y) = py;

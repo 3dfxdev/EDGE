@@ -39,6 +39,8 @@ void V_InitColour(void);
 // -ACB- 1999/10/11 Gets an RGB colour from the current palette
 void V_IndexColourToRGB(int indexcol, byte *returncol);
 
+rgbcol_t V_LookupColour(int col);
+
 // -AJA- 1999/07/03: moved here from v_res.h.
 extern byte gammatable[5][256];
 extern int usegamma;

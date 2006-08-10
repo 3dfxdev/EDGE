@@ -823,7 +823,18 @@ static void DrawMline(mline_t * ml, int colour)
 		return;
 	}
 
-	RGL_SolidLine(x1, y1, x2, y2, colour);
+	rgbcol_t rgb = V_LookupColour(colour);
+		
+	if (!var_smoothmap)
+	{
+		if (x1 == x2 or y1 == y2)
+		{
+			RGL_SolidBox(x1, y1, x2-x1+1, y2-y1+1, rgb);
+			return;
+		}
+	}
+
+	RGL_SolidLine(x1, y1, x2, y2, rgb);
 }
 
 //
