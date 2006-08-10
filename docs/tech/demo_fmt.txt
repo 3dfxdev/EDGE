@@ -14,7 +14,7 @@ General overview
 Demo files have the extension '.EDM'.
 
 Demo files begin with a header, then some chunks which contain
-the info about the game, and then a stream chunks for the
+the info about the game, and then a stream of chunks for the
 events of each game tic.
 
 Chunks begin with a four letter marker and are followed by a
@@ -45,21 +45,12 @@ File Format
 -  Tic Area: stream of [TICK] chunks
 
    +  player ticcmds.   [PCMD]
-   +  synchronisation.  [SYNC]  (often absent)
+   +  synchronisation.  [SYNC]  (optional)
 
 -  TRAILER (Non-chunked)
 
    +  End marker [ENDE].
    +  Data CRC (32 bits, every data byte in file before this CRC).
-
-
-Compression
------------
-
-Instead of [TICK] chunks, allow a compression chunk which
-contains a group of [TICK] chunks (e.g. one second's worth),
-which are then compressed.  The marker type is [PACK].  The
-compression method is LZO (using the minilzo library).
 
 
 Player Synchronisation
@@ -152,14 +143,6 @@ Multiple lots (one per player) of :-
 2 bytes for ticcmd buttons (normal, extended).
 3 bytes for ticcmd other stuff.
 
-PACK
-----
-
-32 bits for Original length.
-32 bits for CRC32 of original data (zero if not computed).
-
-compressed data....
-
 SYNC
 ----
 
@@ -245,10 +228,4 @@ per tic, and in the odd case where it happens, it won't matter.
 
 Assumption 2: it doesn't matter that different subsystems are
 (potentially) using the same set of values.
-
-An improvement which solves both these issues (at the expense of
-slower computation) is to apply a static table of random values,
-TABLE[] of size K (like 256), in a subsystem specific way:
-
-    value ^= TABLE[(SUB * 29 + IDX) % K];
 
