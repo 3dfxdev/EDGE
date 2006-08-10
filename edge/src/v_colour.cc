@@ -599,3 +599,11 @@ void V_IndexColourToRGB(int indexcol, byte *returncol)
 	returncol[2] = playpal_data[cur_palette][indexcol][2];
 }
 
+rgbcol_t V_LookupColour(int col)
+{
+	int r = playpal_data[0][col][0];
+	int g = playpal_data[0][col][1];
+	int b = playpal_data[0][col][2];
+
+	return RGB_MAKE(r,g,b);
+}
