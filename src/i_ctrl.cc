@@ -174,8 +174,23 @@ void HandleKeyEvent(SDL_Event* ev)
 
 	event_t event;
 
-	event.type  = (ev->type == SDL_KEYDOWN) ? ev_keydown : ev_keyup;
-	event.value.key = TranslateSDLKey((int)ev->key.keysym.sym);
+	int sym = (int)ev->key.keysym.sym;
+
+	// handle certain keys which don't behave normally
+	if (sym == SDLK_CAPSLOCK || sym == SDLK_NUMLOCK)
+	{
+		event.type = ev_keydown;
+		event.value.key = TranslateSDLKey(sym);
+		E_PostEvent(&event);
+
+		event.type = ev_keyup;
+		E_PostEvent(&event);
+
+		return;
+	}
+
+	event.type = (ev->type == SDL_KEYDOWN) ? ev_keydown : ev_keyup;
+	event.value.key = TranslateSDLKey(sym);
 
 	if (event.value.key < 0)
 		return;
@@ -188,7 +203,7 @@ void HandleKeyEvent(SDL_Event* ev)
 
 	if (event.value.key == KEYD_LALT)
 		alt_is_down = (event.type == ev_keydown);
-		
+
 	E_PostEvent(&event);
 }
 
@@ -306,7 +321,6 @@ int TranslateSDLKey(int key)
 		case SDLK_PAGEUP:   return KEYD_PGUP;
 		case SDLK_PAGEDOWN:   return KEYD_PGDN;
 		case SDLK_INSERT: return KEYD_INSERT;
-		case SDLK_PAUSE: return KEYD_PAUSE;
 		case SDLK_PRINT: return KEYD_PRTSCR;
 
 		case SDLK_F1:  return KEYD_F1;
@@ -341,9 +355,10 @@ int TranslateSDLKey(int key)
 		case SDLK_KP_MULTIPLY:  return '*';
 		case SDLK_KP_EQUALS: return '=';
 
-		case SDLK_NUMLOCK:    return KEYD_NUMLOCK;
+		case SDLK_NUMLOCK:   return KEYD_NUMLOCK;
 		case SDLK_SCROLLOCK: return KEYD_SCRLOCK;
-		case SDLK_CAPSLOCK:   return KEYD_CAPSLOCK;
+		case SDLK_CAPSLOCK:  return KEYD_CAPSLOCK;
+		case SDLK_PAUSE:     return KEYD_PAUSE;
 
 		case SDLK_LSHIFT:
 		case SDLK_RSHIFT: return KEYD_RSHIFT;
