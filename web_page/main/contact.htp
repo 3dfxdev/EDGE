@@ -1,0 +1,31 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: Contact">
+
+<block name="content">
+
+  <h2 class="page_title"> Contact </h2>
+
+  The best way to contact us is to use the SourceForge
+  forums or bug tracking system.
+  You can find links to these in the navigation menu on the left.
+  Reporting bugs this way is especially important so we
+  can keep track of them (otherwise we may forget about it).
+  You may need to create a SourceForge account, but this
+  is absolutely free and pretty easy too.
+
+  <p>
+
+  You can also email me (Andrew Apted) using the
+  following address:
+  
+  <div class="email">
+    <a href="mailto:ajapted@users.sourceforge.net">
+      ajapted@users.sourceforge.net
+    </a>
+  </div>
+
+</block>
+
+<!--- template --->
+<file include="main_page.tpl">

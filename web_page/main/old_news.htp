@@ -1,0 +1,14 @@
+<file include="../common/common.inc">
+
+<set title="Old News">
+
+<block name="content">
+
+  <h2 class="page_title"> Old News </h2>
+
+  <!--- move old news items here --->
+
+</block>
+
+<!--- template --->
+<file include="main_page.tpl">

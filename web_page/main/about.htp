@@ -1,0 +1,53 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: About">
+
+<block name="content">
+
+<h2 class="page_title"> About EDGE </h2>
+
+<p class="features">
+The EDGE project is a programming project to develop a
+DOOM<SUP>tm</SUP> style engine aimed at Total Conversion developer,
+but still able to play the original DOOM games.
+This project started with the DOOM source released by
+id software.
+
+<p>
+<b>Notable EDGE features:</b>
+
+<ul class="features">
+<li>
+Extrafloors (3D floors), removing the original DOOM limitation
+which didn't allow rooms over rooms.  EDGE supports real 3D
+room-over-room, bridges, and liquids.
+
+<li>
+DDF (Doom Definition Files), allow Mod/TC/PC creators to
+completely customise monsters, attacks, weapons, pickup and
+scenery items, linetypes, sectortypes, intermissions, ETC...
+using fairly simple to understand text files.
+
+<li>
+RTS (Radius Trigger Scripting), provides per-level scripting
+support, allowing custom scripts to run when the player enters
+certain parts of the map, or performs certain actions, or when
+certain monsters have been killed (to name a few possibilities).
+
+<li>
+GLEDGE takes advantage of hardware 3D acceleration via
+the OpenGL library.
+
+<li>
+Jumping, Looking up/down, Flying (JetPack), Zooming.
+
+<li>
+Many limits and bugs from original DOOM removed (e.g. no more
+visplane overflow or medusa effect).
+
+</ul>
+
+</block>
+
+<!--- template --->
+<file include="main_page.tpl">

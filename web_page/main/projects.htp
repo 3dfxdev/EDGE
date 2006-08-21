@@ -1,0 +1,237 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: Projects">
+
+<block name="content">
+
+<h2 class="page_title"> Known Projects </h2>
+
+<table width="99%" border="0" cellspacing="0" cellpadding="0" bgcolor="#999999" align="center">
+  <tr> 
+   <td> 
+    <table width="100%" border="0" cellspacing="1" cellpadding="3" align="center">
+     
+     <tr> 
+      <td bgcolor="#00AEEA" colspan="2"><b>Finished EDGE Projects</b></td>
+     </tr>
+     
+	 <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www.doomworld.com/fanatic/qdoom.htm" target="escapeframe">QDoom</A>
+      </td>
+	  <td bgcolor="#F1EFE2">Quake for Doom! One of the best TCs out there!</td>
+
+     </tr>
+
+	 <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www.doomworld.com/covert/" target="escapeframe">Covert Ops</A>
+      </td>
+	  <td bgcolor="#F1EFE2">Great TC that has lots of interesting features.<BR></td>
+     </tr>
+     
+	  <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www.purge.demon.co.uk/games/doom/" target="escapeframe">PlanetFall</A>
+
+      </td>
+	  <td bgcolor="#F1EFE2">Pretty cool TC based on Star Wars.</td>
+     </tr>
+     
+     
+
+	 <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www.newdoom.com/hosted/goldeneye" target="escapeframe">GoldenEye TC</A>
+      </td>
+
+	  <td bgcolor="#F1EFE2">This James bond TC is looking good!</td>
+     </tr>
+     
+     <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www.doomworld.com/immoralconduct" target="escapeframe">Immoral Conduct</A>
+      </td>
+	  <td bgcolor="#F1EFE2">Great weapons PC with some of the coolest guns around!</td>
+
+     </tr>
+     
+
+     
+     <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www.iespana.es/cyberkiller/" target="escapeframe">Cyberkillers web site</A>
+      </td>
+	  <td bgcolor="#F1EFE2">This is the home of UAC en Hapal, probably one of the most ambitious TCs ever made for EDGE.<BR></td>
+     </tr>
+     
+    
+     
+     
+     <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www.geocities.com/lizardcommando/enter.html" target="escapeframe">Lizard Commando</A>
+      </td>
+	  <td bgcolor="#F1EFE2">Very original TC for Edge.</td>
+     </tr>
+     
+
+     <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www.geocities.com/beanovsky_doom/" target="escapeframe">Beanovskis Site</A>
+      </td>
+	  <td bgcolor="#F1EFE2">Home of the Big Freak Day Out TC by Beanovski (in spanish)<BR></td>
+     </tr>
+     
+     
+     <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://nick_the_doomer.tripod.com/mouac" target="escapeframe">Marines Of UAC</A>
+      </td>
+	  <td bgcolor="#F1EFE2">A weapons PC with a touch of realism and plenty of firepower.</td>
+
+     </tr>
+     
+     <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://apocsoft01.250free.com/Apocsoft.html" target="escapeframe">Napalm TC</A>
+      </td>
+	  <td bgcolor="#F1EFE2">A TC for Edge based on a Vietnam/Platoon theme.</td>
+     </tr>
+     
+
+<!--- -------------------------------------------------------- --->   
+
+     <tr>
+      <td bgcolor="#00AEEA" colspan="2"><b>In-Progress EDGE Projects</b></td>
+     </tr>
+
+	<tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://ca.geocities.com/pilottobombadier/doom.htm" target="escapeframe">Lock N Load</A>
+
+      </td>
+	  <td bgcolor="#F1EFE2">A TC based on the Aliens/Predators universe.</td>
+     </tr>
+
+	<tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www.geocities.com/jayextee/" target="escapeframe">Jxt's Lost Lexicon</A>
+      </td>
+	  <td bgcolor="#F1EFE2">Could be a VERY interesting TC, but it's still very early days yet!!</td>
+     </tr>
+
+	
+     
+     <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www.zxdware.net/ebdoom" target="escapeframe">EB Doom</A>
+      </td>
+	  <td bgcolor="#F1EFE2">Never heard of Earthbound but the TC looks interesting!<BR></td>
+     </tr>
+
+     
+     <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www.newdoom.com/hosted/espi/" target="escapeframe">Espi's Site</A>
+      </td>
+	  <td bgcolor="#F1EFE2">Nice weapons PC.</td>
+     </tr>
+     
+     <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www13.brinkster.com/koolkat42000" target="escapeframe">G.I. Joe</A>
+
+      </td>
+	  <td bgcolor="#F1EFE2">A TC based around the GI joe cartoons!</td>
+     </tr>
+     
+
+     <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://deathbringer.0catch.com/bughunt/" target="escapeframe">BugHunt</A>
+      </td>
+	  <td bgcolor="#F1EFE2">Still <EM>VERY </EM>early days for this one!<BR></td>
+
+     </tr>
+     
+     <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://commanderdoom.fateback.com/" target="escapeframe">Commander Doom TC</A>
+      </td>
+	  <td bgcolor="#F1EFE2">A Doom TC featuring Commander Keen.<BR></td>
+     </tr>
+
+	<tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www.relapse.barrysworld.net/" target="escapeframe">Relapse</A>
+      </td>
+	  <td bgcolor="#F1EFE2">A weapons PC, still being developed.</td>
+     </tr>
+     
+     
+     
+     <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www.tmaniak.com" target="escapeframe">tmaniaks Home Page</A>
+
+      </td>
+	  <td bgcolor="#F1EFE2"><P>Home page of the Kaos Total TC&nbsp;by tmaniak(in spanish)</td>
+     </tr>
+     
+     <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www.geocities.com/deathbringer666uk/" target="escapeframe">Ultimate Hell TC</A>
+      </td>
+
+	  <td bgcolor="#F1EFE2">Early days for this TC...</td>
+     </tr>
+     
+     <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://wildweasel4.tripod.com/files.htm" target="escapeframe">Wild Weasel</A>
+      </td>
+	  <td bgcolor="#F1EFE2">A cool weapons PC among other stuff.</td>
+
+     </tr>
+
+	<tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www.freewebs.com/cqbmod/" target="escapeframe">CQB</A>
+      </td>
+	  <td bgcolor="#F1EFE2">Great looking TC from the one of the guys who brought you Covert Ops and Twilight Warrior.<BR></td>
+     </tr>
+<!--- -------------------------------------------------------- --->     
+	  <tr> 
+      <td bgcolor="#00AEEA" colspan="2"><b>Abandoned EDGE Projects</b></td>
+     </tr>
+     
+	  <tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://www.geocities.com/dum2k/" target="escapeframe">Dum II</A>
+      </td>
+	  <td bgcolor="#F1EFE2">Not sure if this one is still in development or not.<BR></td>
+
+     </tr>
+    
+	<tr> 
+      <td width="25%" bgcolor="#F1EFE2">
+
+       &nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://reu.150m.com/" target="escapeframe">Resident Evil: Unleashed</A>
+      </td>
+	  <td bgcolor="#F1EFE2">Resident Evil TC. This would have been the coolest TC if it had been finished.</td>
+     </tr>
+     
+    </table>
+   </td>
+
+  </tr>
+</table>
+
+</block>
+
+<!--- template --->
+<file include="main_page.tpl">
