@@ -1,0 +1,11 @@
+
+a { color: #862; }
+
+a:hover { color: #eb2; }
+
+.banner {
+	background-image: url(../images/red_plasm_4.jpg);
+	}
+
+.menus { width: 250px; }
+
