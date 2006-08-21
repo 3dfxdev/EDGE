@@ -1,0 +1,42 @@
+<file include="../common/common.inc">
+
+<set title="EDGE Home">
+
+<block name="content">
+
+  <h2 class="page_title"> Latest News </h2>
+
+  <use BeginNews title="New site" date="25-Aug-2006">
+
+  The brand spanking new EDGE website is now up!
+  Many sections are still being developed (all the
+  grayed-out links in the navigation menu), and
+  will be added as soon as they are completed.
+
+  <use EndNews>
+
+
+  <use BeginNews title="DarkKnight departs" date="15-Jul-2006">
+
+  Andrew "DarkKnight" Baker has decided that it's time to move on.
+  He was the project leader of EDGE since the beginning,
+  and before that was a very active member of DosDOOM
+  (the forerunner to EDGE).
+
+  <p>
+  Everyone here wishes Andy all the best in his
+  future endeavours, and we thank him for his immense
+  contribution.
+
+  <p>
+  Picking up the baton is Andrew Apted, with
+  Luke "Lobo" Brennan in a supporting role, and
+  everything is rolling to get the 1.29 release
+  over the finish line.
+
+  <use EndNews>
+
+</block>
+
+<!--- template --->
+<file include="main_page.tpl">

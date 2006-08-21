@@ -1,0 +1,40 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: Screenshots">
+
+<block name="custom_styles">
+body { min-width: 768; }
+</block>
+
+<block name="content">
+
+  <h2 class="page_title"> Screenshots </h2>
+
+  <div style="float:left">
+  <use thumb file="thumb01.jpg" dest="shot01.htm" title="Map01">
+  </div>
+
+  <div >
+  <use thumb file="thumb02.jpg" dest="shot02.htm" title="Map02">
+  </div>
+
+  <div >
+  <use thumb file="thumb03.jpg" dest="shot03.htm" title="Map03">
+  </div>
+
+  <div >
+  <use thumb file="thumb01.jpg" dest="shot01.htm" title="Map11">
+  </div>
+
+  <div style="float:right">
+  <use thumb file="thumb02.jpg" dest="shot02.htm" title="Map12">
+  </div>
+
+  <div >
+  <use thumb file="thumb03.jpg" dest="shot03.htm" title="Map13">
+  </div>
+ 
+</block>
+
+<!--- template --->
+<file include="main_page.tpl">

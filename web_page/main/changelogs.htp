@@ -1,0 +1,14 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: Changelogs">
+
+<block name="content">
+
+  <h2 class="page_title"> Changelogs </h2>
+
+  Blah....
+
+</block>
+
+<!--- template --->
+<file include="main_page.tpl">

@@ -1,0 +1,37 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: FAQ">
+
+<block name="content">
+
+  <h2 class="page_title"> Frequently Asked Questions </h2>
+
+  <div class="faq_q">Q1: Will slopes be added to EDGE?</div>
+
+  <div class="faq_a">Slopes would be nice to have, for sure.
+  But it's a huge job to make everything work 100% properly,
+  and I consider other stuff to be more important,
+  that's why I don't plan to implement slopes any time soon.
+  </div>
+
+  <div class="faq_q">Q2: When will multiplayer be added?</div>
+  
+  <div class="faq_a">
+  LAN-based multiplayer (like the original DOOM had) is planned
+  for version 1.30. The code is partly done and just needs to
+  be finished.
+  <p>
+
+  Internet multiplayer works in a
+  completely different way, called "client/server", and
+  it requires massive changes to the code.
+  Also the whole culture surrounding online games is really not my scene.
+  Hence internet play won't be added.
+  Other DOOM ports (like ZDaemon or Skulltag) are good for this.
+  </div>
+  <p>
+
+</block>
+
+<!--- template --->
+<file include="main_page.tpl">
