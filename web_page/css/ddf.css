@@ -1,0 +1,19 @@
+
+a { color: #228; }
+
+a:hover { color: #28e; }
+
+.banner {
+	background-image: url(../images/blue_plasm_4.jpg);
+	}
+
+.menus {
+	width: 240px;
+	}
+
+.synopsis {
+	background-color: #e0f0ff;
+	font-family: monospace;
+	border: 1px solid #888;
+	}
+

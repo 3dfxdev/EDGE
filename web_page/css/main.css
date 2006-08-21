@@ -1,0 +1,235 @@
+/* ----- Contents ------------------ */
+
+body {	
+	background-color: white;
+	font-family:palatino, verdana, sans-serif;
+	margin: 0; 
+	padding: 0;
+	}
+
+/* a { color: #828; }
+
+a:hover { color: #d7d; }  */
+
+.content {
+	background-color: white;
+
+  margin: 15px 10px 10px 250px;  /* 250 = menu width */
+	}
+
+h2 {
+	color: #22c;
+	font-family: sans-serif;
+	font-weight: normal;
+	}
+
+h3 {
+	color: #22c;
+	font-family: sans-serif;
+	font-weight: normal;
+	}
+
+page_title {
+	font-size: xx-large;
+	}
+
+.news {
+	/* margin-left: 222px; // .menu width + 2 */
+	}
+	
+.news_date {
+	background-color: #4cf;
+	border: 1px solid black;
+	border-left: 0;
+	color: black;
+	/* font-weight: bold; */
+
+	float: right;
+	text-align: right;
+	width: 160px;
+	padding-right: 10px;
+	}
+
+.news_title {
+	clear: right;
+	background-color: #fd8;
+	border: 1px solid black;
+	color: black;
+	font-weight: bold;
+
+	padding-left: 10px;
+	padding-right: 10px;
+	}
+
+.news_body {
+	text-align: justify;
+	border: 0px solid red;
+	margin-top: 10px;
+	margin-right: 10px;
+	margin-bottom: 26px;
+	}
+
+.shot_back {
+	text-align: center;
+	font-size: larger;
+	}
+
+.features p {
+	text-align: justify;
+  }
+
+.features li {
+	text-align: justify;
+	margin: 10px;
+  }
+
+.faq_q {
+  margin: 20px 10px 10px 10px;
+  font-weight: bold;
+  }
+
+.faq_a {
+  margin: 20px 10px 10px 10px;
+  text-align: justify;
+  }
+
+.money_shot {
+  text-align: right;
+  padding: 4px;
+  border: 1px solid black;
+  }
+
+.thumb_tab caption {
+  position: bottom;
+  }
+
+/* ----- Menu ------------------ */
+
+.menus {
+	background-color: #ddd;
+	color: black;  /* color of list squares */
+	font-family: sans-serif;
+	line-height: 0.9em;
+	float: left;
+	width: 220px;
+	clear: both;
+	font-size: large;
+
+	margin: 10px;
+	
+	border: 1px solid black;
+	/*border-left: 1px solid;
+	border-top: 1px solid;
+	border-bottom: 1px solid;
+	border-color: black;*/
+
+	padding-top: 10px;
+	padding-bottom: 10px;
+	}
+
+.menus em {
+	color: #622;
+  font-style: normal;
+	text-decoration: bold;
+	}
+
+.menus a {
+	color: #622;
+	text-decoration: none;
+	}
+
+.menus a:visited {
+	color: #622;
+	text-decoration: none;
+	}
+
+.menus a:hover {
+	color: #d72;
+	text-decoration: none;
+	}
+
+.menus ul {
+	list-style-type: none;
+	}
+
+.menus li {
+	margin-bottom: 7px;
+	}
+
+.menus ul ul {
+	list-style-type: square;
+	font-size: smaller;
+	}
+
+.menus li li {
+	margin-bottom: 3px;
+	margin-top: 3px;
+	}
+
+.notdone {
+	margin-bottom: 3px;
+	margin-top: 3px;
+  color: #999;
+	}
+
+/* ----- Banner and Footer ------------------ */
+
+.banner {
+	background-image: url(../images/purple_plasm_4.jpg);
+	height: 96px;
+	clear: both;
+
+	/*font-family: serif;
+	font-size: large;*/
+	color: white;
+
+	border: 0;
+	margin: 0;
+	padding: 0;
+	/*border-bottom: 5px solid;
+	border-color: black; */
+	padding-left: 10px;
+	padding-right: 10px;
+	}
+
+.ban_center {
+	display: table-cell; /* hack */
+	height: 96px;
+	/*vertical-align: middle;*/
+	padding: 14px;
+	/*font-size: x-large;*/
+	}
+
+.logo {
+	font-family: serif;
+	font-size: 50px;
+	color: white;
+	}
+
+.ban_text {
+	font-size: 22px;
+	padding-top: 22px;
+	/* vertical-align: baseline; */
+	}
+
+.footer {
+	clear: both;
+	background-color: black;
+	color: white;
+	border: 0px;
+	margin: 0px;
+	padding: 26px 1px;
+	height: 2em;
+	}
+
+.ft_row {
+	font-size: large;
+	}
+
+.ft_left { }
+
+.ft_right {
+	position:absolute;
+	right: 20px;
+	}
+
