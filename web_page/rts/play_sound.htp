@@ -1,7 +1,7 @@
 <file include="../common/common.inc">
 
 <set title="RTS: Sound & Music">
-<set RTSreference="sound">
+<set RTSreference="level">
 
 <block name="content">
 

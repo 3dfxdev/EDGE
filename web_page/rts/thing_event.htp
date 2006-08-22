@@ -22,26 +22,22 @@ This is used to force a thing to certain states (defined in it's things.ddf entr
 </p>
 
 <p>
-<TABLE>
-<TR>
-	<TD><B>Example:</B>
-	<br>
-	<CODE>
-	<PRE>
-	RADIUS_TRIGGER 0 0 -1
-		TAGGED_USE
 
-		TIP "Jump in the air!" 3 TRUE
+<B>Example:</B>
+<br>
 
-		//Suppose playerup is a custom state defined in things.ddf
-		THING_EVENT OUR_HERO playerUp 
+<PRE>
+  RADIUS_TRIGGER 0 0 -1
+    TAGGED_USE
 
-	END_RADIUS_TRIGGER
-	</PRE>
-	</CODE>
-	</TD>
-</TR>
-</TABLE>
+    TIP "Jump in the air!" 3 TRUE
+
+    //Suppose playerup is a custom state defined in things.ddf
+    THING_EVENT OUR_HERO playerUp 
+
+  END_RADIUS_TRIGGER
+</PRE>
+
 </p>
 
 

@@ -1,7 +1,7 @@
 <file include="../common/common.inc">
 
 <set title="RTS: Menu commands">
-<set RTSreference="menu">
+<set RTSreference="tips">
 
 <block name="content">
 
@@ -20,45 +20,40 @@ Must be used with the SHOW_MENU or SHOW_MENU_LDF commands. Once a menu selection
 <p> It will fail to jump if there aren't enough labels, or menu could not be shown (netgame).</p>
 
 <p>
-<TABLE>
-<TR>
-	<TD><B>Example:</B>
-	<br>
-	<CODE>
-	<PRE>
-	//Step 1: what we want to show
-	SHOW_MENU "What Can I do for you?" \
-	"Health" \
-	"Ammo" \
-	"Nothing" 
 
-	//Step 2: where we want to jump to in the script in each case
-	JUMP_ON MENU option1 option2 option3
+<B>Example:</B>
+<br>
 
-	//Some labeled RTS
-	LABEL option1
-		HEALPLAYER 150 200
-		TIP "Have some health" 2 FALSE
-		JUMP finishstuff
+<PRE>
+  //Step 1: what we want to show
+  SHOW_MENU "What Can I do for you?" \
+    "Health" \
+    "Ammo" \
+    "Nothing" 
 
-	LABEL option2
-		GIVE_BENEFIT BULLETS(100)
-		TIP "Have some ammo" 2 FALSE
-		JUMP finishstuff
+  //Step 2: where we want to jump to in the script in each case
+  JUMP_ON MENU option1 option2 option3
 
-	LABEL option3
-		TIP "OK then. Have a nice Day" 2 FALSE
-		JUMP finishstuff
+  //Some labeled RTS
+  LABEL option1
+    HEALPLAYER 150 200
+    TIP "Have some health" 2 FALSE
+    JUMP finishstuff
 
-	LABEL finishstuff
-		//We do nothing else 
-	</PRE>
-	</CODE>
-	</TD>
-</TR>
-</TABLE>
+  LABEL option2
+    GIVE_BENEFIT BULLETS(100)
+    TIP "Have some ammo" 2 FALSE
+    JUMP finishstuff
+
+  LABEL option3
+    TIP "OK then. Have a nice Day" 2 FALSE
+    JUMP finishstuff
+
+  LABEL finishstuff
+    //We do nothing else 
+</PRE>
+
 </p>
-<p>&nbsp;</p>
 
 
 </block>
