@@ -1,7 +1,9 @@
+<!--- navigation menu --->
 
 <div class="menus">
 
 <ul>
+
 <li><a href="http://edge.sourceforge.net/index.htm">Home</a>
 <li><a href="about.htm">About</a>
 <li><span class="notdone" hhref="screenshots.htm">Screenshots</span>
@@ -20,7 +22,7 @@
     <li><span class="notdone" hhref="README.txt">User Guide</span>
     <li><span class="notdone" hhref="tutorials.htm">Tutorials</span>
     <li><span class="notdone" hhref="ddf_online/index.htm">DDF Online</span>
-    <li><span class="notdone" hhref="rts_online/index.htm">RTS Online</span>
+    <li><a href="rts_online/start.htm">RTS Online</a>
     <li><span class="notdone" hhref="changelogs.htm">Changelogs</span>
     <li><a href="faq.htm">F.A.Q</a>
   </ul>
