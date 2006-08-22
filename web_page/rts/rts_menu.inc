@@ -7,7 +7,7 @@
 <li><a href="http://edge.sourceforge.net/index.htm">EDGE Home</a>
 <li>&nbsp;
 
-<li> <xem>General</xem>
+<li> <em>General</em>
 <ul>
     <li> <a href="start.htm">About RTS</a>
     <li> <a href="format.htm">Script Format</a>
