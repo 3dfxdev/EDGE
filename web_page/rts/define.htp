@@ -1,0 +1,49 @@
+<file include="../common/common.inc">
+
+<set title="RTS: # Directives">
+<set RTSreference="directives">
+
+<block name="content">
+
+<h3 class="page_title"> #DEFINE </h3>
+
+<p><B>Usage:</B><br>
+#DEFINE &lt;identifier&gt; &lt;value&gt;
+
+<P><B>Description:</B><br>
+This is used to define things to use globally in your script. 
+It should be at the top of your script, but below #CLEARALL (if used).</P>
+
+<P><B>Details:</B><br>
+The &lt;identifier&gt; is any name up to 80 characters long.
+<br>The &lt;value&gt; could be an offset value for your RTS tips for example:<br>
+<code>
+<br>#DEFINE TIPTXTX 12%
+<br>#DEFINE TIPTXTY 12%
+<br>
+<br>TIP_SET_POS TIPTXTX TIPTXTY  <I>//using the constants we've #defined</I>
+</code>
+<br>
+<br>
+or it could be a things mapnumber from THINGS.DDF you want to associate the identifier with, 
+so instead of using a spawnthing trigger and using "16" for the thing to spawn, 
+you can define "cyberdemon" to reference thingid of "16". 
+Then you can use a descriptive name for the thing to spawn, e.g. "cyberdemon", 
+instead of a non-descriptive value of "16". For example:<br>
+<code>
+<br>#DEFINE cyberdemon 16
+<br>
+<br>SPAWN_THING cyberdemon 10 20 0 0 0
+</code>
+
+
+
+</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

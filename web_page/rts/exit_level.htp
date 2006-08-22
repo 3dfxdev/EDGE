@@ -1,0 +1,30 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Level commands">
+<set RTSreference="level">
+
+<block name="content">
+
+<h3 class="page_title">EXIT_LEVEL</h3>
+
+<P>
+<B>Usage:</B><br>
+EXIT_LEVEL [delay]</P>
+
+<P><B>Description:</B><br>
+This causes the level to end.</P>
+
+<P><B>Details:</B><br>
+[delay] is an optional time value indicating how long before the level exits after this trigger is activated (in either ticks or seconds).
+<br>16t = half a second
+<br>2 = two seconds
+<br>
+</p>
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

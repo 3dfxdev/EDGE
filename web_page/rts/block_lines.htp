@@ -1,0 +1,27 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Level commands">
+<set RTSreference="level">
+
+<block name="content">
+
+<h3 class="page_title">BLOCK_LINES</h3>
+
+<P>
+<B>Usage:</B><br>
+BLOCK_LINES &lt;line tag&gt;</P>
+
+<P><B>Description:</B><br>
+Almost the same as UNBLOCKLINES except that all lines on the map with the same tag will be blocked, and will NOT allow players and monsters to pass. Only affects two-sided lines. 
+<br><br>
+<B>NOTE:</B> Any things (including the player) touching the line will get permanently stuck.</P>
+
+<P>
+<B>Details:</B><br>
+	&lt;line tag&gt; is the line tag in your map editor.
+<br><br>
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

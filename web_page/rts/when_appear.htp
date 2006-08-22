@@ -1,0 +1,61 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Properties">
+<set RTSreference="properties">
+
+<block name="content">
+
+<h3 class="page_title">WHEN_APPEAR</h3>
+
+<P>
+<B>Usage:</B><br>
+WHEN_APPEAR &lt;skill level&gt; &lt;game type&gt;</P>
+
+<P><B>Description:</B><br>
+Define when triggers exist on your map. It is <B>not</B> required if you want the trigger to exist on all skills and all gameplay types. </P>
+
+<P><B>Details:</B><br>
+<U>You must use either &lt;skill level&gt; or &lt;game type&gt;.</U> Both can also be used at the same time.
+
+<TABLE>
+<TR>
+	<TD>
+	&lt;skill level&gt; is the skill level needed for this script to be available. 
+	<br>Values range from 1 to 5 and multiple values must be separated by ":" (for example "WHEN_APPEAR 1:2:3:4:5")
+	<br><br>
+	</TD>
+</TR>
+<TR>
+	<TD>
+	&lt;game type&gt; is the netmode of the game (i.e. single player, Co-operative or Deathmatch). 
+	<br>Valid values are "sp", "coop" and "dm", and multiple values must be separated by ":" (for example "WHEN_APPEAR sp:coop:dm")<br><br>
+	</TD>
+</TR>
+<TR>
+	<TD>Finally, you can add the '!' character to the beginning to negate it, e.g. "WHEN_APPEAR !SP" means never in single-player, and "WHEN_APPEAR !4:5" means never in skills 4 or 5.
+	</TD>
+</TR>
+</TABLE>
+
+</P>
+
+<p>
+<B>Example:</B><br>
+This script will only appear and run if we are playing a single player game on skill 1.
+<CODE>
+<PRE>
+RECT_TRIGGER 652 1440 780 1456
+	WHEN_APPEAR 1:sp
+	TAGGED_IMMEDIATE
+
+	TIP "You're using a low skill setting!" 3 TRUE
+
+END_RADIUS_TRIGGER
+</PRE>
+</CODE>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

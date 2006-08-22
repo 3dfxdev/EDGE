@@ -1,0 +1,27 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Maps & Triggers">
+<set RTSreference="triggers">
+
+<block name="content">
+
+<h3 class="page_title">START_MAP</h3>
+
+<P>
+<B>Usage:</B><br>
+START_MAP &lt;Map Name&gt;</P>
+
+<P><B>Description:</B><br>
+ All triggers after this tag are associated with the specified map number.</P>
+
+<P><B>Details:</B><br>
+&lt;Map Name&gt; is the same as the lump name, for example e#m# for DOOM1, and map## for DOOM2.
+
+<p>If you use the keyword "ALL" (without quotes) instead of a mapname then the trigger will apply to ALL the maps, almost like a global function.</p>
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

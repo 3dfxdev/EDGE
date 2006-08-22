@@ -1,0 +1,45 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Conditions">
+<set RTSreference="conditions">
+
+<block name="content">
+
+<h2 class="page_title"> Conditions </h2>
+
+<p>Radius trigger scripts can be affected by different
+conditions, such as whether all existing monsters of
+a certain type are dead.  Every condition must be
+satisfied before the script can run.  The script will
+be stopped again if any one of the conditions becomes
+false.</p> 
+<br>
+<h3>List of commands</h3>
+
+<B><A HREF="on_death.htm">ON_DEATH</A></B> 
+<br>
+Script will only run when certain things are killed. 
+
+<br><br>
+
+<B><A HREF="on_height.htm">ON_HEIGHT</A></B> 
+<br>
+Script will only run when a sectors floor or ceiling gets to a certain height. 
+
+<br><br>
+
+<B><A HREF="on_condition.htm">ON_CONDITION</A></B> 
+<br>
+Script will only run when a specified condition has been met.
+
+<br><br>
+
+<B><A HREF="tagged_use.htm">TAGGED_USE</A></B> 
+<br>
+Script will only run when player presses USE inside the scripts radius. 
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

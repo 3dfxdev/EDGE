@@ -1,0 +1,48 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Thing commands">
+<set RTSreference="thing">
+
+<block name="content">
+
+<h3 class="page_title">DAMAGE_PLAYER</h3>
+
+<P>
+<B>Usage:</B><br>
+DAMAGE_PLAYER &lt;amount&gt;</P>
+
+<P><B>Description:</B><br>
+This takes away from the players health and armor within the radius of the trigger. Combine a low &lt;amount&gt; with TAGGED_REPEATABLE if you want to do damage in increments.</P>
+
+<P><B>Details:</B><br>
+&lt;amount&gt; is the amount of damage to be inflicted. In higher skills, this does more damage, so be sure to test how much damage you do on all skill levels. For example, on skill 5, "DAMAGE_PLAYER 50" would likely clobber the player, instead of just hurting him a bit.
+
+</p>
+
+<p>
+<TABLE>
+<TR>
+	<TD><B>Example:</B>
+	<br>
+	<CODE>
+	<PRE>
+	RADIUS_TRIGGER 0 0 -1
+		TAGGED_USE
+
+		TIP "Take that!" 3 TRUE
+		DAMAGE_PLAYER 50
+
+	END_RADIUS_TRIGGER
+	</PRE>
+	</CODE>
+	</TD>
+</TR>
+</TABLE>
+</p>
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

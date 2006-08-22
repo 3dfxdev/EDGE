@@ -1,0 +1,70 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Conditions">
+<set RTSreference="conditions">
+
+<block name="content">
+
+<h3 class="page_title">ON_CONDITION</h3>
+
+<P>
+<B>Usage:</B><br>
+ON_CONDITION &lt;condition&gt;<br><br>
+
+<P><B>Description:</B><br>
+Use this to activate a line trigger only when a specified condition has been met.<br> 
+Works in a similar manner to the ON_DEATH and ON_HEIGHT commands.</P>
+
+<P><B>Details:</B><br>
+&lt;Condition&gt; is something that the player is holding or is
+doing. It is one of these:
+
+<br>HEALTH(num)
+<br>BULLETS(num) <i>// and the other ammo names</i>
+<br>GREEN_ARMOUR(num) <I>// and the other armours</I>
+<br>ARMOUR(num) <I>//checks against total armour</I>
+<br>KEY_BLUECARD <I>// and the other keys</I>
+<br>CHAINGUN <I>// and the other weapons</I>
+<br>POWERUP_PARTINVIS(num) <I>// and the other powerups</I>
+
+or one of these states:
+<br>JUMPING ATTACKING
+<br>CROUCHING RAMPAGING
+<br>SWIMMING USING
+<br>WALKING
+</p>
+<p>For health, ammo, armour and POWERUP_* conditions the value (in brackets) is optional. 
+When present it is the minimum needed to activate the trigger, 
+e.g. HEALTH(50) requires health 50 or higher to run. 
+<br>Without a value, the trigger activates with "any value above zero".
+<p>
+Any condition can be prefixed with "NOT_", which negates the
+condition, e.g. NOT_KEY_REDSKULL means that the trigger will only
+run when the player *doesn't* have the red skull key.
+</p>
+<p>Multiple ON_CONDITION lines can be used in each trigger script, and
+they <U><B>all</B></U> have to be satisfied before the trigger will run.
+</p>
+
+<p>
+<B>Example:</B><br>
+This radius trigger script checks to see if the player has too much armor for a certain map. 
+<CODE>
+<PRE>
+RADIUS_TRIGGER 0 0 -1   // this makes the script apply to the whole map
+
+    ONCONDITION BLUE_ARMOUR(200) //only runs if he has 200% blue armour
+
+    TIP "I think you used IDKFA!" 3 TRUE
+
+END_RADIUS_TRIGGER
+</PRE>
+</CODE></P>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

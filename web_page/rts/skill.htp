@@ -1,0 +1,36 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Level commands">
+<set RTSreference="level">
+
+<block name="content">
+
+<h3 class="page_title">SKILL</h3>
+
+<P>
+<B>Usage:</B><br>
+SKILL &lt;skill level&gt; &lt;respawn monsters&gt; &lt;fast monsters&gt;</P>
+
+<P><B>Description:</B><br>
+Use this to change the skill setting in mid-game.</P>
+
+<P>
+
+<B>Details:</B><br>
+	&lt;skill level&gt; is a number from 1 to 5, where 1 would be "I'm too young to die" and 5 would be "Nightmare"
+<br><br>
+
+&lt;respawn monsters&gt; is either TRUE or FALSE.
+<br><br>
+
+&lt;fast monsters&gt; is either TRUE or FALSE.
+
+<br><br>
+
+For Nightmare/Skill 5, you should also set &lt;respawn monsters&gt; and &lt;fast monsters&gt; to TRUE.
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

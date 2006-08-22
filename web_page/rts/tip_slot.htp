@@ -1,0 +1,64 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Tip commands">
+<set RTSreference="tips">
+
+<block name="content">
+
+<h3 class="page_title">TIP_SLOT</h3>
+
+<P>
+<B>Usage:</B><br>
+TIP_SLOT &lt;slot number&gt;</P>
+
+<P><B>Description:</B><br>
+Defines a slot for a tip, which, once defined, can then be formatted using the rest of the TIP commands. Primarily useful for displaying more than one TIP at a time (by using a different slot for each TIP).</P>
+
+<P><B>Details:</B><br>
+&lt;slot number&gt; is a number from 1 to 45 (There are 45 available slots total).
+<br>NOTE: the default slot for tips is 1 (white centered) if left undefined.
+</P>
+<TABLE>
+<TR>
+	<TD>If you want to display two independant tips on the screen at the same time, set the first to slot 10, and the second to slot 11 (different slots). Then you can use TIP_SET_POS and TIP_SET_COLOUR to change just those tips position and color.
+	<P>Likewise, if all tips displayed that exist in the same slot, the newest displayed tip will take the place of the previous (they won't overlap). You'll probably want to use TIP_SET_POS with TIP_SLOT, otherwise the tips will show on top of each other, and will be unreadable. </P>
+	<p>Slots 1-9 are pre-defined to three colors and three positions: white, blue, and yellow, centered, left upper, and left lower.</p>
+	<p>NOTE: if you set the TIP_SLOT at any point in your script, all tips will use that same slot for the rest of your script. So if you want to make one tip blue and upper left aligned, set the TIP_SLOT to 5, then in the next trigger or before the next tip, set the TIP_SLOT back to 1 for the default of white and centered.</p>
+	</TD>
+</TR>
+<TR>
+	<TD><B>Example:</B>
+	<br>
+	<CODE>
+	<PRE>
+	RADIUS_TRIGGER 0 0 -1
+		TAGGED_IMMEDIATE
+
+		TIP_SLOT 11
+			TIP_SET_POS 12% 12%
+			TIP_SET_ALIGN LEFT
+			TIP "Hello..." 4 TRUE
+
+		TIP_SLOT 12
+			TIP_SET_POS 12% 35%
+			TIP_SET_ALIGN LEFT
+			TIP "...World." 4 TRUE
+		WAIT 4
+
+	END_RADIUS_TRIGGER
+	</PRE>
+	</CODE>
+	</TD>
+</TR>
+</TABLE>
+
+
+
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

@@ -1,0 +1,70 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Properties">
+<set RTSreference="properties">
+
+<block name="content">
+
+<h3 class="page_title">TAG</h3>
+
+<P>
+<B>Usage:</B><br>
+TAG &lt;Number&gt;</P>
+
+<P><B>Description:</B><br>
+This allows a script to be identified with a number. This would then allow the script to be called from DDF, usually from lines.ddf, though it could also be from things.ddf or even weapons.ddf.
+</P>
+
+<P><B>Details:</B><br>
+&lt;number&gt; is an integer which we can use to make reference to this script.
+</p>
+
+There are two uses for the TAG we assign:
+<UL>
+<LI>In Lines.ddf: 
+<br>This is the exact same thing as assigning a LineDef type number to a line and matching sector in your map editor (like you would to trigger an opening door by walking over a line).
+<p> You must create a special line type in LINES.DDF that uses the function RADIUS_TRIGGER=ENABLE_TAGGED; or  RADIUS_TRIGGER=DISABLE_TAGGED; (you can enable or disable a radius trigger).
+<br>
+Then, assign this linetype in your map editor: for the sector number in your map editor, use the &lt;number&gt; we've assigned to the script.</p>
+<br><br>
+<LI>In weapons.ddf and things.ddf: 
+<br>We can use the Action <I>RTS_ENABLE_TAGGED(tagnumber)</I> or <I>RTS_DISABLE_TAGGED(tagnumber)</I> in an objects States, thereby allowing us to call a script everytime a certain weapon is raised for example, or whenever a certain object enters it's <I>Touch</I> states.
+</UL>
+
+<P><B>Example using lines.ddf:</B><br><br>
+
+<u>LINES.DDF:</u>
+	<CODE>
+	<PRE>
+	[200]
+	type=walk;
+	radius_trigger=enable_script;
+	</PRE>
+	</CODE>
+	<U>MAP EDITOR:</U>
+	<br>
+	Tag a line with line type 200, and a target #, like 25
+	<br><br>
+	<U>SCRIPT:
+	</U>
+	<CODE>
+	<pre>
+	RADIUS_TRIGGER 0 0 -1
+		TAG 25
+		TAGGED_IMMEDIATE
+
+		TIP "a door opens nearby." 3 TRUE
+
+	END_RADIUS_TRIGGER
+	</pre>
+	</CODE>
+	<br>
+	When the line with linetype of 200 assigned to it is triggered, the assigned number 25, which matches your tag number in your script, causes that trigger to activate.
+
+<p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

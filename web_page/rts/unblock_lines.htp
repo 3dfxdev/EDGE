@@ -1,0 +1,26 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Level commands">
+<set RTSreference="level">
+
+<block name="content">
+
+<h3 class="page_title">UNBLOCK_LINES</h3>
+
+<P>
+<B>Usage:</B><br>
+UNBLOCK_LINES &lt;line tag&gt;</P>
+
+<P><B>Description:</B><br>
+All lines on the map with the same tag will be unblocked, allowing players and monsters to pass. Only affects two-sided lines. </P>
+
+<P>
+
+<B>Details:</B><br>
+	&lt;line tag&gt; is the line tag in your map editor.
+<br><br>
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

@@ -1,0 +1,35 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Level commands">
+<set RTSreference="level">
+
+<block name="content">
+
+<h3 class="page_title">ACTIVATE_LINETYPE</h3>
+
+<P>
+<B>Usage:</B><br>
+ACTIVATE_LINETYPE &lt;linetype&gt; &lt;sector tag&gt;</P>
+
+<P><B>Description:</B><br>
+Use this to activate a line trigger that is tagged to a sector.
+</P>
+
+<P><B>Details:</B><br>
+&lt;linetype&gt; is the trigger number in LINES.DDF.
+<br><br>
+
+&lt;sector tag&gt; is the sector tag you give a sector in your map editor
+<br><br>
+This is most useful for triggering multiple line types with one trigger. You can have multiple ACTIVATE_LINETYPE entries as well. So you could trigger dozens of different line types all with one trigger.
+</P>
+
+
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

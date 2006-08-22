@@ -1,0 +1,47 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Maps & Triggers">
+<set RTSreference="triggers">
+
+<block name="content">
+
+<h3 class="page_title">RADIUS_TRIGGER</h3>
+
+<P>
+<B>Usage:</B><br>
+RADIUS_TRIGGER &lt;X&gt; &lt;Y&gt; &lt;Radius&gt; [Low Z] [High Z]</P>
+
+<P><B>Description:</B><br>
+This defines where the center point of your trigger is, how large it's radius is, and optionally, where it's high and low trigger areas are.</P>
+
+<P><B>Details:</B><br>
+It's best to use your map editor to determine the exact points for the X and Y values you want (most map editors show the grid location in real time).</p>
+
+<p>To create a trigger that covers the entire map, use x=0, y=0, and radius=-1 (-1 means everywhere).</p>
+
+<p>The optional [low Z] and [high Z] values are to create a "3d" trigger -one that can be walked over or under without being triggered. The [low Z] must be a value below [high Z] (you cannot invert the low and high Z values). If you use Low Z then high Z is required.</P>
+
+<br>
+<TABLE>
+<TR><TD><B>Example:</B>
+<CODE>
+<br>START_MAP map01
+<br>&nbsp;&nbsp;RADIUS_TRIGGER 0 0 -1
+<br>&nbsp;&nbsp;&nbsp;&nbsp;TAGGED_IMMEDIATE
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;TIP "Hello world!" 3 TRUE
+<br>	
+<br>&nbsp;&nbsp;END_RADIUS_TRIGGER
+<br>END_MAP
+</CODE>
+</TD></TR>
+</TABLE>
+
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

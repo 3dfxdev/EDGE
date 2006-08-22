@@ -1,0 +1,69 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Tips and Menus">
+<set RTSreference="tips">
+
+<block name="content">
+
+<h2 class="page_title"> Tips and Menus </h2>
+
+<p>For defining the appearance and behaviour of RTS tips.</p> 
+
+
+<h3>List of commands</h3>
+
+<B><a href="tip.htm">TIP</a></B> 
+<br>
+Display an onscreen message.
+<br><br>
+
+
+<B><a href="tip_slot.htm">TIP_SLOT</a></B> 
+<br>
+Defines a slot for a tip.
+<br><br>
+
+
+<B><a href="tip_graphic.htm">TIP_GRAPHIC</a></B> 
+<br>
+Display an onscreen graphic.
+<br><br>
+
+
+<B><a href="tip_set_align.htm">TIP_SET_ALIGN</a></B> 
+<br>
+Align existing tips on-screen.
+<br><br>
+
+<B><a href="tip_set_colour.htm">TIP_SET_COLOUR</a></B> 
+<br>
+Set the color of a tip.
+<br><br>
+
+<B><a href="tip_set_pos.htm">TIP_SET_POS</a></B> 
+<br>
+Position existing tips on-screen.
+<br><br>
+
+<B><a href="tip_set_trans.htm">TIP_SET_TRANS</a></B> 
+<br>
+Fade tips in or out.
+<br><br>
+
+
+<B><a href="show_menu.htm">SHOW_MENU</a></B> 
+<br>
+Display a menu to the player.
+<br><br>
+
+
+<B><a href="jump_on.htm">JUMP_ON</a></B> 
+<br>
+Jump to a label in the script depending on the choice made in the menu.
+<br><br>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

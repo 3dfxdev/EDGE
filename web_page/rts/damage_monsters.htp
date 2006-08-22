@@ -1,0 +1,52 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Thing commands">
+<set RTSreference="thing">
+
+<block name="content">
+
+<h3 class="page_title">DAMAGE_MONSTERS</h3>
+
+<P>
+<B>Usage:</B><br>
+DAMAGE_MONSTERS &lt;thing id&gt; &lt;amount&gt;</P>
+
+<P><B>Description:</B><br>
+This takes away health from a specific species of monster, or all monsters within the trigger radius. Combine a low &lt;amount&gt; with TAGGED_REPEATABLE if you want to do damage in increments.</P>
+
+<P><B>Details:</B><br>
+&lt;thing id&gt; is to specify a species of monster to be damaged. Can be the name or number from THINGS.DDF, like IMP or 3001. For example, 3001 will cause only Imps within the radius trigger to be damaged, but no other monsters will be harmed. 
+<br>If you use the value ANY instead of a thing ID then <B>all</B> monsters within the trigger radius will be damaged.
+</P>
+<p>
+&lt;amount&gt; is the amount of damage to be inflicted. In higher skills, this does more damage, so be sure to test how much damage you do on all skill levels. For example, on skill 5, "DAMAGE_MONSTERS ANY 50" would likely clobber all monsters, instead of just hurt them a bit.
+
+</p>
+
+<p>
+<TABLE>
+<TR>
+	<TD><B>Example:</B>
+	<br>
+	<CODE>
+	<PRE>
+	RADIUS_TRIGGER 0 0 -1
+		TAGGED_USE
+
+		TIP "Damage to Imps!" 3 TRUE
+		DAMAGE_MONSTERS 3001 50
+
+	END_RADIUS_TRIGGER
+	</PRE>
+	</CODE>
+	</TD>
+</TR>
+</TABLE>
+</p>
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">
