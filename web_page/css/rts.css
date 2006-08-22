@@ -7,5 +7,16 @@ a:hover { color: #eb2; }
 	background-image: url(../images/red_plasm_4.jpg);
 	}
 
-.menus { width: 250px; }
+.menus { width: 300px; }
 
+.content {
+  margin: 15px 10px 10px 330px;  /* 330 = menu width + 30 */
+	}
+
+.rts_example {
+  background-color: #fec;
+  color: black;
+  padding: 10px;
+	border: 1px solid black;
+  font-size: smaller;
+ }
