@@ -14,7 +14,7 @@ a:hover { color: #d7d; }  */
 .content {
 	background-color: white;
 
-  margin: 15px 10px 10px 250px;  /* 250 = menu width */
+  margin: 15px 10px 10px 250px;  /* 250 = menu width + 30 */
 	}
 
 h2 {
@@ -164,6 +164,7 @@ page_title {
 .menus li li {
 	margin-bottom: 3px;
 	margin-top: 3px;
+	font-size: smaller;
 	}
 
 .notdone {
