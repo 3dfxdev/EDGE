@@ -1,0 +1,68 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Properties">
+<set RTSreference="properties">
+
+<block name="content">
+
+<h2 class="page_title"> Properties </h2>
+
+<p>Properties for defining the behaviour of an RTS script.</p> 
+
+
+<h3>List of commands</h3>
+
+<B><A HREF="tag.htm">TAG</A></B> 
+<br>
+For calling scripts from DDF.
+<br><br>
+
+<B><A HREF="name.htm">NAME</A></B> 
+<br>
+For calling scripts from other scripts.
+<br><br>
+
+<B><A HREF="tagged_disabled.htm">TAGGED_DISABLED</A></B> 
+<br>
+Make a script inactive till activated from somewhere else.
+<br><br>
+
+<B><A HREF="tagged_immediate.htm">TAGGED_IMMEDIATE</A></B> 
+<br>
+Script will run immediately on starting the map.
+<br><br>
+
+<B><A HREF="tagged_independent.htm">TAGGED_INDEPENDENT</A></B> 
+<br>
+Script completes even if player leaves the trigger area.
+<br><br>
+
+<B><A HREF="tagged_repeatable.htm">TAGGED_REPEATABLE</A></B> 
+<br>
+To make looping scripts.
+<br><br>
+
+<B><A HREF="when_appear.htm">WHEN_APPEAR</A></B> 
+<br>
+Define when a script exists on your map based on skill and gametype.
+<br><br>
+
+<B><A HREF="when_player_num.htm">WHEN_PLAYER_NUM</A></B> 
+<br>
+Define when a script exists on your map based on the number of players.
+<br><br>
+
+<B><A HREF="tagged_path.htm">TAGGED_PATH</A></B> 
+<br>
+Define a path which a "path following" monster will follow.
+<br><br>
+
+<B><A HREF="path_event.htm">PATH_EVENT</A></B> 
+<br>
+Make "path following" monsters go into certain states.
+<br><br>
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

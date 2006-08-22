@@ -1,0 +1,66 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Thing commands">
+<set RTSreference="thing">
+
+<block name="content">
+
+<h3 class="page_title">GIVE_BENEFIT</h3>
+
+<P>
+<B>Usage:</B><br>
+GIVE_BENEFIT &lt;benefit&gt; [amount]</P>
+
+<P><B>Description:</B><br>
+Use this to give the player ammo, weapons, powerups etc. </P>
+
+<TABLE>
+<TR>
+	<TD><P><B>Details:</B><br>
+&lt;benefit&gt; is the type of benefit to give the player (ammo names, armours, keys, weapons and powerups). 
+<br><br>Example benefits would be: 
+<br>BULLETS
+<br>GREEN_ARMOUR
+<br>KEY_BLUECARD
+<br>CHAINGUN
+<br>POWERUP_PARTINVIS
+</P>
+
+<p>
+[amount] is how much of the benefit is given, and is only required in the case of ammo types, armours and powerups. Note that the amount must be enclosed in (), for example GIVE_BENEFIT ROCKETS(10).
+<br>Examples would be: 
+<br>BULLETS(50)
+<br>GREEN_ARMOUR(40)
+<br>POWERUP_PARTINVIS(30)
+<br><br>Note that for powerups, if you don't specify an [amount] you will get a level-long benefit.
+</p>
+<br>
+</TD>
+</TR>
+<TR>
+	<TD><B>Example:</B>
+	<br>
+	<CODE>
+	<PRE>
+	RADIUS_TRIGGER 0 0 -1
+		TAGGED_USE
+
+		TIP "You got a chaingun, ammo and a blue key!" 3 TRUE
+		GIVE_BENEFIT CHAINGUN
+		GIVE_BENEFIT KEY_BLUECARD
+		GIVE_BENEFIT BULLETS(50)
+
+	END_RADIUS_TRIGGER
+	</PRE>
+	</CODE></TD>
+</TR>
+</TABLE>
+
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

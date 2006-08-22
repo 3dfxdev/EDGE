@@ -1,0 +1,105 @@
+; 
+; General
+;
+start.htp ../out/rts_online/start.htm
+format.htp ../out/rts_online/format.htm
+changelog.htp ../out/rts_online/changelog.htm
+;
+; Launch pages
+;
+directives.htp ../out/rts_online/directives.htm
+triggers.htp ../out/rts_online/triggers.htm
+properties.htp ../out/rts_online/properties.htm
+conditions.htp ../out/rts_online/conditions.htm
+flow_cmd.htp ../out/rts_online/flow_cmd.htm
+level_cmd.htp ../out/rts_online/level_cmd.htm
+tip_cmd.htp ../out/rts_online/tip_cmd.htm
+thing_cmd.htp ../out/rts_online/thing_cmd.htm
+;
+; Directives
+;
+clear_all.htp ../out/rts_online/clear_all.htm
+version.htp ../out/rts_online/version.htm
+define.htp ../out/rts_online/define.htm
+;
+; Triggers
+;
+radius_trigger.htp ../out/rts_online/radius_trigger.htm
+rect_trigger.htp ../out/rts_online/rect_trigger.htm
+end_radius_trigger.htp ../out/rts_online/end_radius_trigger.htm
+;
+; Conditions
+;
+on_condition.htp ../out/rts_online/on_condition.htm
+on_death.htp ../out/rts_online/on_death.htm
+on_height.htp ../out/rts_online/on_height.htm
+tagged_use.htp ../out/rts_online/tagged_use.htm
+start_map.htp ../out/rts_online/start_map.htm
+extend_map.htp ../out/rts_online/extend_map.htm
+end_map.htp ../out/rts_online/end_map.htm
+;
+; Properties
+;
+tag.htp ../out/rts_online/tag.htm
+name.htp ../out/rts_online/name.htm
+tagged_disabled.htp ../out/rts_online/tagged_disabled.htm
+tagged_immediate.htp ../out/rts_online/tagged_immediate.htm
+tagged_independent.htp ../out/rts_online/tagged_independent.htm
+tagged_repeatable.htp ../out/rts_online/tagged_repeatable.htm
+when_appear.htp ../out/rts_online/when_appear.htm
+when_player_num.htp ../out/rts_online/when_player_num.htm
+tagged_path.htp ../out/rts_online/tagged_path.htm
+path_event.htp ../out/rts_online/path_event.htm
+;
+; Flow control
+;
+jump.htp ../out/rts_online/jump.htm
+label.htp ../out/rts_online/label.htm
+disable_script.htp ../out/rts_online/disable_script.htm
+enable_script.htp ../out/rts_online/enable_script.htm
+sleep.htp ../out/rts_online/sleep.htm
+wait.htp ../out/rts_online/wait.htm
+retrigger.htp ../out/rts_online/retrigger.htm
+;
+; Map stuff
+;
+activate_linetype.htp ../out/rts_online/activate_linetype.htm
+change_tex.htp ../out/rts_online/change_tex.htm
+light_sector.htp ../out/rts_online/light_sector.htm
+move_sector.htp ../out/rts_online/move_sector.htm
+unblock_lines.htp ../out/rts_online/unblock_lines.htm
+block_lines.htp ../out/rts_online/block_lines.htm
+skill.htp ../out/rts_online/skill.htm
+goto_map.htp ../out/rts_online/goto_map.htm
+exit_level.htp ../out/rts_online/exit_level.htm
+;
+; Menus
+;
+show_menu.htp ../out/rts_online/show_menu.htm
+jump_on.htp ../out/rts_online/jump_on.htm
+;
+; Sound/Music
+;
+play_sound.htp ../out/rts_online/play_sound.htm
+change_music.htp ../out/rts_online/change_music.htm
+;
+; Tips
+;
+tip.htp ../out/rts_online/tip.htm
+tip_slot.htp ../out/rts_online/tip_slot.htm
+tip_graphic.htp ../out/rts_online/tip_graphic.htm
+tip_set_align.htp ../out/rts_online/tip_set_align.htm
+tip_set_colour.htp ../out/rts_online/tip_set_colour.htm
+tip_set_pos.htp ../out/rts_online/tip_set_pos.htm
+tip_set_trans.htp ../out/rts_online/tip_set_trans.htm
+;
+; Thing stuff
+;
+damage_monsters.htp ../out/rts_online/damage_monsters.htm
+damage_player.htp ../out/rts_online/damage_player.htm
+give_armour.htp ../out/rts_online/give_armour.htm
+give_benefit.htp ../out/rts_online/give_benefit.htm
+lose_benefit.htp ../out/rts_online/lose_benefit.htm
+heal_player.htp ../out/rts_online/heal_player.htm
+spawn_thing.htp ../out/rts_online/spawn_thing.htm
+thing_event.htp ../out/rts_online/thing_event.htm

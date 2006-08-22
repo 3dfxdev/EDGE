@@ -1,0 +1,40 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Changelog">
+
+<block name="content">
+
+<h2 class="page_title"> RTS Online changelog </h2>
+
+<TABLE>
+<TR>
+	<TD><p>20/August/2006
+	<ol>
+		<li>RTS Online converted to plain HTML
+		<li>Entries restructured and grouped
+		<li>Many entries rewritten and more examples added
+		<li>RTS docs brought up to EDGE 1.29 RC5 compliance
+	</ol>
+	</p></TD>
+</TR>
+</TABLE>
+
+<TABLE>
+<TR>
+	<TD><p> 25/September/2005
+<ol>
+	<li>Added <B>PATH_EVENT</B>
+	<li>Modified <B>WHEN_APPEAR</B>
+	<li>Added <B>SHOW_MENU</B>
+	<li>Added <B>SHOW_MENU_LDF</B>
+	<li>Modified <B>START_MAP</B>
+</ol>
+</p></TD>
+</TR>
+</TABLE>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

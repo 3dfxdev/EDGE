@@ -1,0 +1,66 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Properties">
+<set RTSreference="flow">
+
+<block name="content">
+
+<h3 class="page_title">WAIT</h3>
+
+<P>
+<B>Usage:</B><br>
+WAIT &lt;time&gt;</P>
+
+<P><B>Description:</B><br>
+Use this where you want to create a pause in your script. Since the script is read like a book, from top down, place it exactly where you want it to wait.</P>
+
+<TABLE>
+	<P><B>Details:</B><br>
+	&lt;time&gt; a time value indicating how long to wait (in either ticks or seconds).
+	<TR>
+		<TD>0 = no delay
+		<br>16t = half a second
+		<br>2 = two seconds<br><br>
+		</TD>
+	</TR>
+	<TR><TD>
+	For example, if you have a script that gives a tip that says "something wicked this way comes.", and you want to make it pause for 4 seconds before going to the next line to spawn a Cyberdemon, add WAIT 4 after the TIP, but before the SPAWN_THING functions.
+	</TD></TR>
+
+	<TR><TD>
+	<p>
+<B>Example:</B><br> 
+WAIT is especially useful for when you have various TIPS, one after the other. Without WAIT, the TIPs would be shown simultaneously and "run over" each other, so you would only see the final TIP.
+<CODE>
+<PRE>
+START_MAP MAP01
+
+	RADIUS_TRIGGER 0 0 -1   // this makes the script apply to the whole map
+		TAGGED_IMMEDIATE 
+
+		TIP "Here for 3 seconds" 3 TRUE
+		WAIT 3 // the wait time is the same as the TIPs display time
+
+		TIP "Here for 2 seconds" 2 TRUE
+		WAIT 2 // the wait time is the same as the TIPs display time
+
+		TIP "Last tip" 5 TRUE
+
+	END_RADIUS_TRIGGER
+
+END_MAP
+</PRE>
+</CODE></P>
+	</TD></TR>
+</TABLE>
+</p>
+
+
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

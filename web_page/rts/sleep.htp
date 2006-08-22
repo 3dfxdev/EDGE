@@ -1,0 +1,49 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Properties">
+<set RTSreference="flow">
+
+<block name="content">
+
+<h3 class="page_title">SLEEP</h3>
+
+<P>
+<B>Usage:</B><br>
+SLEEP</P>
+
+<P><B>Description:</B><br>
+This is similar to WAIT, but instead causes this trigger to be disabled until triggered again by another line or radiustrigger.</P>
+
+<P><B>Example:</B><br>
+<CODE>
+<PRE>
+START_MAP map01
+
+	RADIUS_TRIGGER 0 0 128
+		TAGGED_IMMEDIATE
+
+		SLEEP
+		TIP "one" 1
+
+		SLEEP
+		TIP "two" 1
+
+		SLEEP
+		TIP "three" 1
+
+	END_RADIUS_TRIGGER
+
+END_MAP
+</PRE>
+</CODE>
+</p>
+
+
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

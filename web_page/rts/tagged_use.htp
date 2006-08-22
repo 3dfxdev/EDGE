@@ -1,0 +1,34 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Conditions">
+<set RTSreference="conditions">
+
+<block name="content">
+
+<h3 class="page_title"> TAGGED_USE </h3>
+
+
+<P><B>Description:</B><br>
+This make a radius trigger script activate only when the player is within the radius, and presses the USE key. </P>
+
+<p>
+<B>Example:</B><br>
+This radius trigger script will fire off once if we are inside it and press the Use key. 
+<CODE>
+<PRE>
+//** message when we look at something**
+RECT_TRIGGER 652 1440 780 1456
+    TAGGED_USE
+
+    TIP "Nothing of interest." 3 TRUE
+
+END_RADIUS_TRIGGER
+</PRE>
+</CODE></P>
+<br><br>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

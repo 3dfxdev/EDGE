@@ -1,0 +1,31 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Properties">
+<set RTSreference="flow">
+
+<block name="content">
+
+<h3 class="page_title">LABEL</h3>
+
+<P>
+<B>Usage:</B><br>
+LABEL &lt;Name&gt;</P>
+
+<P><B>Description:</B><br>
+This creates a point inside a script you can JUMP to from another part of your script. It's similar to the NAME function, but refers to <B>part</B> of a script, not a whole script.
+</P>
+
+<P><B>Details:</B><br>
+&lt;Name&gt; is the name we want to give to this point in the script. 
+<br>The LABEL command is used with the following other RTS functions: JUMP, JUMP_ON MENU.
+</p>
+
+
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

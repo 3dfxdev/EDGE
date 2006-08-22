@@ -1,0 +1,38 @@
+<file include="../common/common.inc">
+
+<set title="RTS: What is RTS">
+
+<block name="content">
+
+<h2 class="page_title"> What is RTS </h2>
+
+RTS stands for "radius trigger script".
+<p>
+
+RTS is not intended to replace DDF, but accents and enhances DDF. Using both
+DDF and RTS together, you can create amazing events that even Quake 2 cannot.
+<p>
+
+With RTS, you can create scripted events that cannot be controlled by linedef
+triggers alone, such as a simple onscreen tip message, multiple line types
+being triggered by one switch, or a complex event where an entire structure is
+destroyed, monsters are spawned, sounds are played, and light levels are
+changed dramatically. 
+<p>
+
+<h2 class="page_title"> EDGE 1.29 RC5 Compliant 
+<br><A HREF="changelog.htm">Last updated: 20/August/2006</A> </h2>
+
+
+<h2 class="page_title"> Acknowledgements </h2>
+
+The original RTS Online was written by Marc "Fanatic" Pullen.
+It was pretty cool, allowing you to build actual working scripts
+by entering values into certain forms.
+Luke "Lobo" Brennen updated it for EDGE 1.29.
+Andrew Apted converted it to this plain old documentation.
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

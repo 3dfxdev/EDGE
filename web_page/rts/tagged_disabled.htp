@@ -1,0 +1,27 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Properties">
+<set RTSreference="properties">
+
+<block name="content">
+
+<h3 class="page_title">TAGGED_DISABLED</h3>
+
+<P>
+<B>Usage:</B><br>
+TAGGED_DISABLED</P>
+
+<P><B>Description:</B><br>
+Use this to make a radius trigger script inactive until another radius trigger script activates it (see ENABLE_SCRIPT in the <I>Flow Control</I> section) 
+</P>
+
+
+
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

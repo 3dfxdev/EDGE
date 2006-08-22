@@ -1,0 +1,78 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Sound & Music">
+<set RTSreference="sound">
+
+<block name="content">
+
+<h3 class="page_title">PLAY_SOUND</h3>
+
+<P>
+<B>Usage:</B><br>
+PLAY_SOUND &lt;sound&gt; [X] [Y] [Z]</P>
+
+<P>
+<B>Variants:</B><BR>
+PLAY_SOUND_BOSSMAN &lt;sound&gt; [X] [Y] [Z]</P>
+</P>
+
+<P><B>Description:</B>
+<br>Play a sound and, optionally, define the location from where the sound will come.  
+<br>There are two types of PLAY_SOUND command:
+<br>-normal = plays a sound which will be fainter the farther away you are
+<br>-BOSSMAN = the sound is played at max volume throughout the entire level
+<br>
+<br>Combine with TAGGED_REPEATABLE for a looping sound.</P>
+
+<P><B>Details:</B><br>
+&lt;sound&gt; references a sound name from SOUNDS.DDF. 
+</P>
+
+<p>It's best to use your map editor to determine the exact points for the [X] and [Y] values you want (most map editors show the grid location in real time). 
+<br>Note that if you define [X] then obviously [Y] is required.
+<br>If [X] and [Y] are omitted, the sound will be played at the origin of the trigger.</p>
+
+<p>The optional [Z] value is to create a sound in the air for example. If you use [Z] then [X] and [Y] are required.</P>
+
+<br>
+<TABLE>
+<TR><TD><B>Example of PLAY_SOUND:</B>
+<CODE>
+<br>START_MAP map01
+<br>&nbsp;&nbsp;RADIUS_TRIGGER 0 0 80
+<br>&nbsp;&nbsp;&nbsp;&nbsp;TAGGED_IMMEDIATE
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;//the sound will come from the center of the radius trigger
+<br>&nbsp;&nbsp;&nbsp;&nbsp;PLAY_SOUND DBOPN 
+<br>	
+<br>&nbsp;&nbsp;&nbsp;&nbsp;//the sound will come from a specific X Y location
+<br>&nbsp;&nbsp;&nbsp;&nbsp;PLAY_SOUND DBOPN 123 543
+<br>
+<br>&nbsp;&nbsp;END_RADIUS_TRIGGER
+<br>END_MAP
+</CODE>
+</TD></TR>
+<TR><TD>
+<br>
+<br><B>Example of PLAY_SOUND_BOSSMAN:</B>
+<CODE>
+<br>START_MAP map01
+<br>&nbsp;&nbsp;RADIUS_TRIGGER 0 0 80
+<br>&nbsp;&nbsp;&nbsp;&nbsp;TAGGED_IMMEDIATE
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;PLAY_SOUND_BOSSMAN DBOPN 
+<br>
+<br>&nbsp;&nbsp;END_RADIUS_TRIGGER
+<br>END_MAP
+</CODE>
+</TD></TR>
+</TABLE>
+
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

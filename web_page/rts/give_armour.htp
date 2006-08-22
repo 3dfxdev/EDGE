@@ -1,0 +1,63 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Thing commands">
+<set RTSreference="thing">
+
+<block name="content">
+
+<h3 class="page_title">GIVE_ARMOUR</h3>
+
+<P>
+<B>Usage:</B><br>
+GIVE_ARMOUR &lt;armor class&gt; &lt;amount&gt; &lt;limit&gt;</P>
+
+<P><B>Description:</B><br>
+ This gives armour to the player. Combine a low &lt;amount&gt; with TAGGED_REPEATABLE if you want to give armour in increments.</P>
+
+<TABLE>
+<TR>
+	<TD><P><B>Details:</B><br>
+&lt;armor class&gt; is the strength of armor to give. Higher absorption results in less damage to the player. 
+<br>Possible values are: ARMOUR_GREEN, ARMOUR_BLUE, ARMOUR_YELLOW or ARMOUR_RED.
+<br><br>ARMOUR_GREEN - 33% absorption
+<br>ARMOUR_BLUE - 50% absorption
+<br>ARMOUR_YELLOW - 75% absorption
+<br>ARMOUR_RED - 90% absorption
+</P>
+<br>
+<p>
+&lt;amount&gt; is how much armour is awarded.
+</p>
+<br>
+<p>
+&lt;limit&gt; sets the max the players armour can reach based on the amount. 
+<br>If you want to award 100 armour, but not allow the player to exceed 100 max armour, set the &lt;amount&gt; and &lt;limit&gt; to 100. That would mean that if the player has 30 armour, they are awarded only 70 armour, since the &lt;limit&gt; is set to 100.
+<br> NOTE: the &lt;limit&gt; can not exceed 200 (rules of normal DOOM).
+</p>
+</TD>
+</TR>
+<TR>
+	<TD><B>Example:</B>
+	<br>
+	<CODE>
+	<PRE>
+	RADIUS_TRIGGER 0 0 -1
+		TAGGED_USE
+
+		TIP "Given 50% red armor!" 3 TRUE
+		GIVE_ARMOUR ARMOUR_RED 50 100
+
+	END_RADIUS_TRIGGER
+	</PRE>
+	</CODE></TD>
+</TR>
+</TABLE>
+
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

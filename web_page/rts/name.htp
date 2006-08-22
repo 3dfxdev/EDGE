@@ -1,0 +1,31 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Properties">
+<set RTSreference="properties">
+
+<block name="content">
+
+<h3 class="page_title">NAME</h3>
+
+<P>
+<B>Usage:</B><br>
+NAME &lt;Name&gt;</P>
+
+<P><B>Description:</B><br>
+This associates a radius trigger script with a &lt;Name&gt;. It's similar to the LABEL function, but refers to a <B>whole</B> radius trigger script, not just a part of one.
+</P>
+
+<P><B>Details:</B><br>
+&lt;Name&gt; is the name which we can use to make reference to this script. 
+<br>This then allows the radius trigger script to be interacted with from other scripts using TAGGED_PATH, TAGGED_DISABLED, ENABLE_SCRIPT, and DISABLE_SCRIPT.
+</p>
+
+
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

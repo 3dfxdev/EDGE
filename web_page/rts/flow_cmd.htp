@@ -1,0 +1,55 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Flow control">
+<set RTSreference="flow">
+
+
+<block name="content">
+
+<h2 class="page_title"> Flow Control </h2>
+
+<p>For defining the flow of an RTS script.</p> 
+
+
+<h3>List of commands</h3>
+
+<B><a href="jump.htm">JUMP</a></B> 
+<br>
+For jumping from one part of your script to another.
+<br><br>
+
+<B><a href="label.htm">LABEL</a></B> 
+<br>
+Define a part of script to jump to.
+<br><br>
+
+<B><a href="disable_script.htm">DISABLE_SCRIPT</a></B> 
+<br>
+Use this in a script to disable another script.
+<br><br>
+
+<B><a href="enable_script.htm">ENABLE_SCRIPT</a></B> 
+<br>
+Use this in a script to enable another script.
+<br><br>
+
+<B><a href="sleep.htm">SLEEP</a></B> 
+<br>
+Temporarily disable a script till it's called again.
+<br><br>
+
+<B><a href="wait.htm">WAIT</a></B> 
+<br>
+Create a pause in your script.
+<br><br>
+
+<B><a href="retrigger.htm">RETRIGGER</a></B> 
+<br>
+Causes the conditions that activated a trigger to be re-checked.
+<br><br>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

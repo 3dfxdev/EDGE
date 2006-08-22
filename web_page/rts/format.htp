@@ -1,0 +1,38 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Format">
+
+<block name="content">
+
+<h2 class="page_title"> RTS Format </h2>
+
+Before we begin, I would like to mention that many RTS commands have optional arguments 
+which may or may not need to be used. 
+Throughout this documentation these optional parameters are encased in [] (square brackets).
+
+<h4>General points about RTS scripting:</h4>
+1) #CLEAR_ALL, if used, must be at the top of your script, or else everything before it will be cleared
+<br>
+2) #VERSION and #DEFINE values, if used, must be after #CLEARALL, but before the rest of your script
+<br>
+3) A radiustrigger can only exist between START_MAP and END_MAP
+<br>
+4) All other functions can be in any order, but can only exist between RADIUS_TRIGGER (or RECT_TRIGGER) 
+and END_RADIUS_TRIGGER
+<br>
+5) You can include comments (text which will be ignored by EDGE) by simply placing a double slash ( // ) at the beginning of a line and then typing your text after it. For example:<br>
+<CODE>
+//This is a comment
+<br>//and this is another
+</CODE>
+<P>
+Check your spelling and values carefully, and add a few functions at a time, then test.
+</P>
+<P>Just like DDF development, adding a lot of entries without testing makes it much harder to find problems. 
+If you add a little and test often, you have less scripting to rummage through to find errors.
+</P>
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

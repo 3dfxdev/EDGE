@@ -1,0 +1,28 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Maps & Triggers">
+<set RTSreference="triggers">
+
+<block name="content">
+
+<h3 class="page_title">EXTEND_MAP</h3>
+
+<P>
+<B>Usage:</B><br>
+EXTEND_MAP &lt;Map Name&gt;</P>
+
+<P><B>Description:</B><br>
+ This is exactly the same as start_map, but adds to an existing script, versus replacing it. 
+ However, the map you are extending *must* already exist (you cannot extend a script that does not exist). </P>
+
+<P><B>Details:</B><br>
+&lt;Map Name&gt; is the same as the lump name, for example e#m# for DOOM1, and map## for DOOM2.
+
+<p>All triggers after this tag are associated with the specified map name. </p>
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

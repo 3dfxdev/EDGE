@@ -1,0 +1,29 @@
+<file include="../common/common.inc">
+
+<set title="RTS: # Directives">
+<set RTSreference="directives">
+
+
+<block name="content">
+
+<h3 class="page_title"> #CLEAR_ALL </h3>
+
+<P><B>Description:</B><br>
+It clears all scripts that are contained within the DOOM or DOOM2 game 
+that might mess up your map and script. <br>
+For example, DOOM2 MAP07's functions that lower the four outer walls 
+and raise the exit step being triggered by certain monsters deaths probably 
+wouldn't be good to have if map07 in your TC doesn't need this effect.
+<br><br>
+Note: if you put #CLEAR_ALL in the middle of your script, all scripts above this point will be cleared. 
+For this reason it is usually placed at the top of your script.<P>
+
+</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

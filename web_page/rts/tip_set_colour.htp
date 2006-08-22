@@ -1,0 +1,48 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Tip commands">
+<set RTSreference="tips">
+
+<block name="content">
+
+<h3 class="page_title">TIP_SET_COLOUR</h3>
+
+<P>
+<B>Usage:</B><br>
+TIP_SET_COLOUR &lt;colour map entry&gt;</P>
+
+<P><B>Description:</B><br>
+Use this command to set the color of existing tips.</P>
+
+<P><B>Details:</B><br>
+&lt;colour map entry&gt; is one of the default tip colormaps defined in COLMAP.DDF (TEXT_WHITE, TEXT_GREEN, TEXT_BLUE etc.) or a custom colormap name in your COLMAP.DDF.</P>
+<p>NOTE: the default colormap is TEXT_WHITE, in case you change colors and want to set it back to the default at some point.</p>
+
+<p>
+<TABLE>
+<TR>
+	<TD><B>Example:</B>
+	<br>
+	<CODE>
+	<PRE>
+	RADIUS_TRIGGER 0 0 -1
+		TAGGED_IMMEDIATE
+
+		TIP_SLOT 11
+			TIP_SET_COLOUR TEXT_BLUE
+			TIP "Hello world!" 4 TRUE
+
+	END_RADIUS_TRIGGER
+	</PRE>
+	</CODE>
+	</TD>
+</TR>
+</TABLE>
+</p>
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

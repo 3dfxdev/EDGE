@@ -1,0 +1,59 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Tip commands">
+<set RTSreference="tips">
+
+<block name="content">
+
+<h3 class="page_title">TIP_SET_TRANS</h3>
+
+<P>
+<B>Usage:</B><br>
+TIP_SET_TRANS &lt;target translucency&gt; [fade time]</P>
+
+<P><B>Description:</B><br>
+Use this command to make onscreen tips fade in or out, or just set a translucency value instantly. Should be used with the TIP_SLOT command.</P>
+
+<P><B>Details:</B><br>
+&lt;target translucency&gt; percentages are: 0% - invisible, 100% - solid. 
+<br>Also, the translucency affects all tip types, even graphics, but only those assigned to a particular slot (see TIP_SLOT).  </P>
+<TABLE>
+[fade time] a time value indicating how long it takes for the TIP to reach the desired translucency (in either ticks or seconds). To make it fade instantly, leave the fade time blank.
+<TR>
+	<TD>0 = no delay
+	<br>16t = half a second
+	<br>2 = two seconds
+	</TD>
+</TR>
+</TABLE>
+
+<p>
+<TABLE>
+<TR>
+	<TD><B>Example:</B>
+	<br>
+	<CODE>
+	<PRE>
+	RADIUS_TRIGGER 0 0 -1
+		TAGGED_IMMEDIATE
+
+		//Fade from solid black to normal
+		TIP_SLOT 15
+			TIP_SET_POS 0% 0%
+			TIP_GRAPHIC SOLID_BLACK 10 FALSE 64
+			TIP_SET_TRANS 0% 10
+
+	END_RADIUS_TRIGGER
+	</PRE>
+	</CODE>
+	</TD>
+</TR>
+</TABLE>
+</p>
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

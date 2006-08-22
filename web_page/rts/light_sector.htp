@@ -1,0 +1,49 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Level commands">
+<set RTSreference="level">
+
+<block name="content">
+
+<h3 class="page_title">LIGHT_SECTOR</h3>
+
+<P>
+<B>Usage:</B><br>
+LIGHT_SECTOR &lt;sector tag&gt; &lt;light change&gt;</P>
+
+<P><B>Description:</B><br>
+Use this to change the light level of a sector.
+</P>
+
+<P>
+<TABLE>
+<TR>
+	<TD><B>Details:</B><br>
+	&lt;sector tag&gt; is the sector tag in your map editor.
+<br><br></TD>
+</TR>
+<TR>
+	<TD>&lt;light change&gt; is the amount to add to or take away from. Use a positive number to raise, and a negative number to lower the light level. The maximum is <B>255</B>, the minimum is <B>-255</B>. 0 (zero) is no change.
+<br><br></TD>
+</TR>
+<TR>
+	<TD>You can use multiple entries as well, for example, allowing you to raise or lower the light level of multiple sectors at the same time.
+	<br><br>
+	Combine a low &lt;light change&gt; with TAGGED_REPEATBLE for a faded light change, instead of an instant change to the specified light level.
+	<br><br>
+	To create a fading light change, set the &lt;light change&gt; to 10 or 16.</TD>
+</TR>
+</TABLE>
+
+
+</P>
+
+
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

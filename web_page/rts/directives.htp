@@ -1,0 +1,37 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Directives">
+<set RTSreference="directives">
+
+<block name="content">
+
+<h2 class="page_title"> # Directives </h2>
+
+<p># Directives are preprocessed before anything else in your RTS 
+and should be placed at the beginning of your scripts. 
+</p>
+
+<br>
+<h3>List of commands</h3>
+
+<B><A HREF="clear_all.htm">#CLEAR_ALL</A></B> 
+<br>
+Clears all previous scripts that might mess up the current one.
+
+<br><br>
+
+<B><A HREF="version.htm">#VERSION</A></B> 
+<br>
+The version of EDGE that the RTS is for, e.g. "#VERSION 1.29". 
+
+<br><br>
+
+<A HREF="define.htm"><B>#DEFINE</B></A> 
+<br>
+This is used to define values to use globally in your script. 
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

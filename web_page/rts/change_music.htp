@@ -1,0 +1,45 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Sound & Music">
+<set RTSreference="sound">
+
+<block name="content">
+
+<h3 class="page_title">CHANGE_MUSIC</h3>
+
+<P>
+<B>Usage:</B><br>
+CHANGE_MUSIC &lt;music entry number&gt;</P>
+
+<P><B>Description:</B><br>
+When this is triggered, the music changes in the game, just like using IDMUS ##.</P>
+
+<P><B>Details:</B><br>
+&lt;music entry number&gt; references a music entry number from PLAYLIST.DDF. 
+<br>You can only have numbers for music references in PLAYLIST.DDF!)</P>
+
+<P>Useful for triggering music changes for special events, like action music for a fight area (same way Unreal handled music).</P>
+
+<TABLE>
+<TR><TD><B>Example:</B>
+<CODE>
+<br>START_MAP map01
+<br>&nbsp;&nbsp;RADIUS_TRIGGER 0 0 80
+<br>&nbsp;&nbsp;&nbsp;&nbsp;TAGGED_USE
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;CHANGE_MUSIC 02 
+<br>
+<br>&nbsp;&nbsp;END_RADIUS_TRIGGER
+<br>END_MAP
+</CODE>
+</TD></TR>
+</TABLE>
+
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

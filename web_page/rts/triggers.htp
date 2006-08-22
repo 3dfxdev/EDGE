@@ -1,0 +1,48 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Maps and Triggers">
+<set RTSreference="triggers">
+
+
+<block name="content">
+
+<h2 class="page_title"> Maps &amp; Triggers </h2>
+
+<p>All of the following commands are used to define the range or scope of a script.</p> 
+<br>
+<h3>List of commands</h3>
+
+<B><A HREF="start_map.htm">START_MAP</A></B> 
+<br>
+To specify the map that the scripts will run on.
+<br><br>
+
+<B><A HREF="extend_map.htm">EXTEND_MAP</A></B> 
+<br>
+Same as START_MAP but adds to an existing script, versus replacing it.
+<br><br>
+<B><A HREF="end_map.htm">END_MAP</A></B> 
+<br>
+This labels the end of a block of particular map scripts.
+<br><br>
+
+<B><A HREF="radius_trigger.htm">RADIUS_TRIGGER</A></B> 
+<br>
+Defines the center position and radius of your trigger.
+<br><br>
+
+<B><A HREF="rect_trigger.htm">RECT_TRIGGER</A></B> 
+<br>
+Defines a rectangular trigger instead of a circular one.
+<br><br>
+
+<B><A HREF="end_radius_trigger.htm">END_RADIUS_TRIGGER</A></B> 
+<br>
+This labels the end of a particular trigger.
+<br><br>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

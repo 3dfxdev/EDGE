@@ -1,0 +1,48 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Tip commands">
+<set RTSreference="tips">
+
+<block name="content">
+
+<h3 class="page_title">TIP_SET_ALIGN</h3>
+
+<P>
+<B>Usage:</B><br>
+TIP_SET_ALIGN &lt;alignment&gt;</P>
+
+<P><B>Description:</B><br>
+Use this command to reposition existing tips either centered (the default) or left aligned.</P>
+
+<P><B>Details:</B><br>
+&lt;alignment&gt; can be either CENTER or LEFT. </P>
+
+<p>
+<TABLE>
+<TR>
+	<TD><B>Example:</B>
+	<br>
+	<CODE>
+	<PRE>
+	RADIUS_TRIGGER 0 0 -1
+		TAGGED_IMMEDIATE
+
+		TIP_SLOT 11
+			TIP_SET_POS 12% 12%
+			TIP_SET_ALIGN LEFT
+			TIP "Hello world!" 4 TRUE
+
+	END_RADIUS_TRIGGER
+	</PRE>
+	</CODE>
+	</TD>
+</TR>
+</TABLE>
+</p>
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

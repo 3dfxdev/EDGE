@@ -1,0 +1,63 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Thing commands">
+<set RTSreference="thing">
+
+<block name="content">
+
+<h3 class="page_title">LOSE_BENEFIT</h3>
+
+<P>
+<B>Usage:</B><br>
+LOSE_BENEFIT &lt;benefit&gt; [amount]</P>
+
+<P><B>Description:</B><br>
+Use this to take away ammo, weapons, powerups etc. from the player. </P>
+
+<TABLE>
+<TR>
+	<TD><P><B>Details:</B><br>
+&lt;benefit&gt; is the type of benefit to take from player (ammo names, armours, keys, and weapons). 
+<br><br>Examples of benefits would be: 
+<br>BULLETS
+<br>GREEN_ARMOUR
+<br>KEY_BLUECARD
+<br>CHAINGUN
+</P>
+
+<p>
+[amount] is how much of the benefit to be taken, and is only required in the case of ammo types and armours. Note that the amount must be enclosed in (), for example LOSE_BENEFIT ROCKETS(10).
+<br>Examples would be: 
+<br>BULLETS(50)
+<br>GREEN_ARMOUR(40)
+</p>
+<br>
+</TD>
+</TR>
+<TR>
+	<TD><B>Example:</B>
+	<br>
+	<CODE>
+	<PRE>
+	RADIUS_TRIGGER 0 0 -1
+		TAGGED_USE
+
+		TIP "You just lost a chaingun, 50 bullets and a blue key!" 3 TRUE
+		LOSE_BENEFIT CHAINGUN
+		LOSE_BENEFIT KEY_BLUECARD
+		LOSE_BENEFIT BULLETS(50)
+
+	END_RADIUS_TRIGGER
+	</PRE>
+	</CODE></TD>
+</TR>
+</TABLE>
+
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

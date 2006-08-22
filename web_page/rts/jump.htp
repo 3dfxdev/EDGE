@@ -1,0 +1,63 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Flow Control">
+<set RTSreference="flow">
+
+<block name="content">
+
+<h3 class="page_title">JUMP</h3>
+
+<P>
+<B>Usage:</B><br>
+JUMP &lt;Label name&gt; [Jump Chance]</P>
+
+<P><B>Description:</B><br>
+ This function is used to define a point in your script, JUMP, where you want to have a chance of going to another point, LABEL.  
+</P>
+
+<P><B>Details:</B><br>
+&lt;Label name&gt; is the point in your script you want to jump to. (See the LABEL command)
+<br>[Jump Chance] is a percentage value which represents the likelyhood of the jump taking place. A value of 0% would mean that it would never jump to the Label, and 100% would mean it would always jump. If no [Jump Chance] is specified then it will always Jump.
+</p>
+
+<TABLE>
+<TR>
+	<TD>
+	<p>
+	<B>Example:</B><br>
+	This script can have two possible outcomes
+	<CODE>
+	<PRE>
+RECT_TRIGGER 652 1440 780 1456
+	TAGGED_USE
+	TAGGED_REPEATABLE 0 4
+
+	JUMP message01 50%  //1 out of 2 times we'll show message 1
+	JUMP message02 100% //if we haven't jumped on the previous line, we do now
+
+	LABEL message01
+		TIP "Nothing of interest." 3 TRUE
+		JUMP EndStuff // force a jump so we don't reach the next LABEL
+	
+	LABEL message02
+		TIP "Thats interesting!" 3 TRUE
+		JUMP EndStuff
+	
+	LABEL EndStuff
+		//end of script
+
+END_RADIUS_TRIGGER
+	</PRE>
+	</CODE></P>
+	</TD>
+</TR>
+</TABLE>
+
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

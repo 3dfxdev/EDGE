@@ -1,0 +1,30 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Properties">
+<set RTSreference="flow">
+
+<block name="content">
+
+<h3 class="page_title">ENABLE_SCRIPT</h3>
+
+<P>
+<B>Usage:</B><br>
+ENABLE_SCRIPT &lt;Name&gt;</P>
+
+<P><B>Description:</B><br>
+Use this in a script to enable another script. Must be used with the NAME command (See properties section)
+</P>
+
+<P><B>Details:</B><br>
+&lt;Name&gt; is the NAME of another script which we wish to enable. 
+</p>
+
+
+
+<p>&nbsp;</p>
+
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">
