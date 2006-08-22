@@ -1,7 +1,7 @@
 <file include="../common/common.inc">
 
 <set title="RTS: Menu commands">
-<set RTSreference="menu">
+<set RTSreference="tips">
 
 <block name="content">
 
@@ -30,99 +30,89 @@ SHOW_MENU &lt;title&gt; [option 1] [option 2] [option 3] etc.</P>
 
 <p>Savegames are disabled while the RTS menu is shown. Once the menu is finished, the JUMP_ON command will test the result, and jump to the matching label. It will fail to jump if there aren't enough labels, or menu could not be shown (netgame).</p>
 
-<p>The title can contain newlines (given by "\n"), to make multi-line titles. Newlines don't work in the options however. </p>
+<p>The title can contain newlines (given by "\n"), to make multi-line titles. Newlines don't work in the options however.
 <p>
-<TABLE>
-<TR>
-	<TD>Lines in RTS scripts can be extended over two (or more) actual lines by placing the \ character at the end.  Note: there must not be any spaces after the \ character, otherwise it doesn't work. See the example below to how it would be done.<br><br>
-	</TD>
-</TR>
-<TR>
-	<TD><B>Example of a repeatable SHOW_MENU:</B>
-	<br>
-	<CODE>
-	<PRE>
-	TAGGED_INDEPENDENT
-	TAGGED_USE
-	TAGGED_REPEATABLE
 
-	//Step 1: what we want to show
-	SHOW_MENU "What can I do for you?" \
-	"Health" \
-	"Ammo" \
-	"Nothing" 
+Lines in RTS scripts can be extended over two (or more) actual lines by placing the \ character at the end.  Note: there must not be any spaces after the \ character, otherwise it doesn't work. See the example below to how it would be done.
+<br><br>
 
-	//Step 2: where we want to jump to in the script in each case
-	JUMP_ON MENU option1 option2 option3
+<B>Example of a repeatable SHOW_MENU:</B>
+<br>
 
-	//Some labeled RTS
-	LABEL option1
-		HEAL_PLAYER 150 200
-		TIP "Have some health" 2 FALSE
-		JUMP finishstuff
+<PRE class="rts_example">
+  TAGGED_INDEPENDENT
+  TAGGED_USE
+  TAGGED_REPEATABLE
 
-	LABEL option2
-		GIVE_BENEFIT BULLETS(100)
-		TIP "Have some ammo" 2 FALSE
-		JUMP finishstuff
+  //Step 1: what we want to show
+  SHOW_MENU "What can I do for you?" \
+  "Health" \
+  "Ammo" \
+  "Nothing" 
 
-	LABEL option3
-		TIP "OK then. Have a nice Day" 2 FALSE
-		JUMP finishstuff
+  //Step 2: where we want to jump to
+  JUMP_ON MENU option1 option2 option3
 
-	LABEL finishstuff
-		//We do nothing else
+  //Some labeled RTS
+  LABEL option1
+    HEAL_PLAYER 150 200
+    TIP "Have some health" 2 FALSE
+    JUMP finishstuff
 
-	RETRIGGER //Reset the trigger
-	</PRE>
-	</CODE>
-	</TD>
-</TR>
-<TR>
-	<TD><br><B>Example of a repeatable SHOW_MENU_LDF:</B>
-	<br>
-	<CODE>
-	<PRE>
-	TAGGED_INDEPENDENT
-	TAGGED_USE
-	TAGGED_REPEATABLE
+  LABEL option2
+    GIVE_BENEFIT BULLETS(100)
+    TIP "Have some ammo" 2 FALSE
+    JUMP finishstuff
 
-	//Step 1: what we want to show
-	SHOW_MENU_LDF ldfTitle01 \
-	ldfoption01 \
-	ldfoption02 \
-	ldfoption03 
+  LABEL option3
+    TIP "OK then. Have a nice Day" 2 FALSE
+    JUMP finishstuff
 
-	//Step 2: where we want to jump to in the script in each case
-	JUMP_ON MENU option1 option2 option3
+  LABEL finishstuff
+    //We do nothing else
 
-	//Some labeled RTS
-	LABEL option1
-		HEAL_PLAYER 150 200
-		TIP "Have some health" 2 FALSE
-		JUMP finishstuff
+  RETRIGGER //Reset the trigger
+</PRE>
 
-	LABEL option2
-		GIVE_BENEFIT BULLETS(100)
-		TIP "Have some ammo" 2 FALSE
-		JUMP finishstuff
+<p>
 
-	LABEL option3
-		TIP "OK then. Have a nice Day" 2 FALSE
-		JUMP finishstuff
+<B>Example of a repeatable SHOW_MENU_LDF:</B>
+<br>
 
-	LABEL finishstuff
-		//We do nothing else
-		
-	RETRIGGER //Reset the trigger
-	</PRE>
-	</CODE>
-	</TD>
-</TR>
-</TABLE>
-</p>
-<p>&nbsp;</p>
+<PRE class="rts_example">
+  TAGGED_INDEPENDENT
+  TAGGED_USE
+  TAGGED_REPEATABLE
 
+  //Step 1: what we want to show
+  SHOW_MENU_LDF ldfTitle01 \
+  ldfoption01 \
+  ldfoption02 \
+  ldfoption03 
+
+  //Step 2: where we want to jump to
+  JUMP_ON MENU option1 option2 option3
+
+  //Some labeled RTS
+  LABEL option1
+    HEAL_PLAYER 150 200
+    TIP "Have some health" 2 FALSE
+    JUMP finishstuff
+
+  LABEL option2
+    GIVE_BENEFIT BULLETS(100)
+    TIP "Have some ammo" 2 FALSE
+    JUMP finishstuff
+
+  LABEL option3
+    TIP "OK then. Have a nice Day" 2 FALSE
+    JUMP finishstuff
+
+  LABEL finishstuff
+    //We do nothing else
+    
+  RETRIGGER //Reset the trigger
+</PRE>
 
 </block>
 
