@@ -5,31 +5,31 @@
 
 <block name="content">
 
-<h2 class="page_title"> # Directives </h2>
+<h2 class="page_title"> Directives </h2>
 
-<p># Directives are preprocessed before anything else in your RTS 
-and should be placed at the beginning of your scripts. 
-</p>
+Directives are lines which begin with a '#' character,
+immediately followed by the directive name.
+These are used to specify something very special about
+the script, e.g. the EDGE version which the script needs.
 
-<br>
+<p>
+Directives should be placed at the beginning of your scripts,
+before everything else (e.g. start_map).  It is OK though
+to have comments before the directives.
+
 <h3>List of commands</h3>
 
-<B><A HREF="clear_all.htm">#CLEAR_ALL</A></B> 
-<br>
+<a class="rts" HREF="clear_all.htm">#CLEAR_ALL</a>
 Clears all previous scripts that might mess up the current one.
+<p>
 
-<br><br>
-
-<B><A HREF="version.htm">#VERSION</A></B> 
-<br>
+<a class="rts" HREF="version.htm">#VERSION</a> 
 The version of EDGE that the RTS is for, e.g. "#VERSION 1.29". 
+<p>
 
-<br><br>
-
-<A HREF="define.htm"><B>#DEFINE</B></A> 
-<br>
+<a class="rts" HREF="define.htm">#DEFINE</a> 
 This is used to define values to use globally in your script. 
-
+<p>
 
 </block>
 
