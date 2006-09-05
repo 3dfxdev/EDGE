@@ -9,15 +9,15 @@
 
 <li> <em>General</em>
 <ul>
-    <li> <a href="start.htm">About RTS</a>
+    <li> <a href="start.htm">What is RTS</a>
     <li> <a href="format.htm">Script Format</a>
     <li> <span class="notdone" hhref="tutorial.htm">Tutorial</span>
 </ul>
 
-<li>&nbsp;
+<!--- [li] &nbsp; --->
 
 
-<li> <A HREF="directives.htm"># Directives </A>
+<li> <A HREF="directives.htm"> Directives </A>
 <if RTSreference="directives">
   <UL>
     <li><a href="clear_all.htm">#CLEAR_ALL</a>
