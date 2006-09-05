@@ -14,11 +14,11 @@ all:
 
 clean:
 	rm -f out/*.htm out/*.txt
-	rm -f out/shots/*
+	rm -f out/shots/*.*
 	rm -f out/ddf_online/*.htm
 	rm -f out/rts_online/*.htm
 	rm -f out/css/*.css
-	rm -f out/images/*
+	rm -f out/images/*.*
 
 zip:
 	cd .. && zip -rl web_page.zip web_page
