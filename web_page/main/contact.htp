@@ -4,26 +4,28 @@
 
 <block name="content">
 
-  <h2 class="page_title"> Contact </h2>
+<h2 class="page_title"> Contact </h2>
 
-  The best way to contact us is to use the SourceForge
-  forums or bug tracking system.
-  You can find links to these in the navigation menu on the left.
-  Reporting bugs this way is especially important so we
-  can keep track of them (otherwise we may forget about it).
-  You may need to create a SourceForge account, but this
-  is absolutely free and pretty easy too.
+<p class="justify">
+The best way to contact us is to use the SourceForge
+forums or bug tracking system.
+You can find links to these in the navigation menu on the left.
+Reporting bugs that way is especially important so we
+can keep track of them (otherwise we may forget about it).
+You'll need to create a SourceForge account, but that is
+pretty easy and doesn't cost anything.
 
-  <p>
 
-  You can also email me (Andrew Apted) using the
-  following address:
-  
-  <div class="email">
-    <a href="mailto:ajapted@users.sourceforge.net">
-      ajapted@users.sourceforge.net
-    </a>
-  </div>
+<h3 class="page_title"> Email </h3>
+
+You could also send an email to one of these developers:
+
+<ul>
+<li class="email">Andrew Apted
+  <a href="mailto:ajapted@users.sf.net">
+    &lt;ajapted@users.sf.net&gt;
+  </a>
+</ul>
 
 </block>
 
