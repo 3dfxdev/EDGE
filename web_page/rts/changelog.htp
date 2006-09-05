@@ -4,35 +4,247 @@
 
 <block name="content">
 
-<h2 class="page_title"> RTS Online changelog </h2>
+<h2 class="page_title"> RTS Online Changelog </h2>
 
-<TABLE>
-<TR>
-	<TD><p>20/August/2006
-	<ol>
-		<li>RTS Online converted to plain HTML
-		<li>Entries restructured and grouped
-		<li>Many entries rewritten and more examples added
-		<li>RTS docs brought up to EDGE 1.29 RC5 compliance
-	</ol>
-	</p></TD>
-</TR>
-</TABLE>
+<UL>
 
-<TABLE>
-<TR>
-	<TD><p> 25/September/2005
-<ol>
-	<li>Added <B>PATH_EVENT</B>
-	<li>Modified <B>WHEN_APPEAR</B>
-	<li>Added <B>SHOW_MENU</B>
-	<li>Added <B>SHOW_MENU_LDF</B>
-	<li>Modified <B>START_MAP</B>
-</ol>
-</p></TD>
-</TR>
-</TABLE>
+<LI><span class="changelog">Version 3.6: 20/August/2006 by Lobo</span>
+<ul class="changelog">
+  <li>RTS Online converted to plain HTML
+  <li>Entries restructured and grouped
+  <li>Many entries rewritten and more examples added
+  <li>RTS docs brought up to EDGE 1.29 RC5 compliance
+</ul>
+	
+<LI><span class="changelog">Version 3.5: 25/September/2005 by Lobo</span>
+<ul class="changelog">
+  <li>Added <B>PATH_EVENT</B>
+  <li>Modified <B>WHEN_APPEAR</B>
+  <li>Added <B>SHOW_MENU</B>
+  <li>Added <B>SHOW_MENU_LDF</B>
+  <li>Modified <B>START_MAP</B>
+</ul>
 
+<LI><span class="changelog">Version 3.4: 20/August/2004 by Lobo</span>
+<ul class="changelog">
+  <li>modified <B>TIP_SET_TRANS</B>, it was wrong command (tip_fade),
+      and corrected description (translucent percentages wrong)
+      - thanks to Carnage for pointing this out.
+</ul>
+
+<LI><span class="changelog">Version 3.3: 05/July/2004 by Lobo</span>
+<ul class="changelog">
+  <li>modified <B>#VERSION</B>
+  <li>ONCONDITION <B>POWERUP(quantity)</B>
+  <li>ONCONDITION (<B>WALKING</B>)
+  <li>Add <B>GIVE_BENEFIT</B>
+  <li>Add <B>LOSE_BENEFIT</B>
+  <li>modified <B>GOTOMAP</B>, adding option (SKIP_ALL etc.)
+  <li>modified <B>TIP_GRAPHIC</B>, adding tipscale argument 
+</ul>
+
+<LI><span class="changelog"> version 3.2: 16/June/2003 by Grimwold</span>
+<ul class="changelog">
+  <li>added support for Mozilla/Netscape type browsers
+  <li>fine-tuned the <b>oncondition </b>function 
+</ul>
+
+<LI><span class="changelog">Version 3.1: 23/September/2002 by Cyberkiller</span>
+</p>
+<ul class="changelog">
+<li>added new <b>oncondition </b>function 
+  
+<li>added new <b>move_sector </b>function
+<li>added new <b>light_sector </b>function
+<li>added new <b>unblock_lines </b>function
+<li>removed <b>sectorv</b> and <b>sectorl<br>
+  </b>
+</ul>
+
+<LI><span class="changelog">Version 3.0: 19/March/2001  by Fanatic</span>
+</p>
+<ul class="changelog">
+  <li>added check for <b>spawnthing</b> to prevent spawning a player entry with RTS
+  <li>updated IE menu, so last clicked stays hilighted
+  <li>cleaned up select list for <b>tip_set_color</b> (only has font colormaps as it should)
+  <li>corrected <b>tip_set_pos</b> (removed alignment, moved to next new function)
+  <li>added new <b>tip_set_align</b> function
+
+ </ul>
+
+<LI><span class="changelog">Version 2.9: 3/January/2001 by Fanatic</span>
+<ul class="changelog">
+  <li>added new <b>change_music</b> function
+  <li>updated buttons width again, but properly using style tags
+  <li>seperated menus for IE and NS (IE uses fancy mouseovers, NS uses the old menu)
+  <li>further simplified the Code Output box by using DHTML to size it to fit the frame, no matter what resolution is used
+ </ul>
+
+<LI><span class="changelog">Version 2.8: December/16/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>added new <b>tip_slot</b> function
+  <li>added new <b>tip_set_pos</b> function
+  <li>added new <b>tip_set_colour</b> function
+  <li>added new <b>tip_set_trans</b> function
+  <li>added new <b>rect_trigger</b> function
+  <li>added new <b>change_tex</b> function
+  <li>added new <b>thing_event</b> function 
+  <li>added new <b>playsound_bossman</b> function 
+  <li>links are now white for mouseover for 4.x+ version browsers
+  <li>resized the tutorial window (smaller)
+  <li>sized form buttons to be same width
+  <li>fixed clear fields reference in <b>tip</b>
+  <li>fixed error checking for <b>playsound</b>
+  <li>added error checking for several entries that require one value to be less than the other
+  <li>added error checking for all fields that require a number
+  <li>optimized internal javascript code again
+  <li>fixed code output to scroll down when output is longer than the textarea height (IE ONLY!)
+  <li>cleaned up this list, using ordered list (easier to update and read)
+  <li>removed the code output title frame, merged the title into the code output document
+  <li>optimized code output textarea for each resolution
+  <li>added "What is RTS Online?" to the main page
+ </ul>
+
+<LI><span class="changelog">Version 2.7: September/30/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>fixed internal submit problem: forms with one input box cannot be cleared by hitting enter now
+  <li>corrected <b>go_to_level</b> to <b>gotomap</b>
+  <li>vastly improved intrernal code for setting code output window size, source format is cleaned up and readable now
+  <li>added 'Clear Fields' button to all forms with two or more input boxes
+  <li><b>tip</b> uses a different method in Netscape 3.x for implementing \n's, but instructions automaticaly load (just an FYI here...)
+  <li>corrected <b>start_level</b> and <b>end_level</b>'s \r spacing
+ </ul>
+
+<LI><span class="changelog">Version 2.6: September/14/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>now Opera 4.02 compliant
+  <li>changed color scheme of mouseOver links (STYLE tag cleanup)
+ </ul>
+
+<LI><span class="changelog">Version 2.5: August/22/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>corrected <b>radiustrigger high z </b>and <b>low z values</b> (they were backwards)
+ </ul>
+
+<LI><span class="changelog">Version 2.4: April/2/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>corrected <b>go_to_level</b> output
+  <li>updated <b>jump and label</b> (jump chance is optional)
+ </ul>
+
+<LI><span class="changelog">Version 2.3: March/27/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>updated <b>jump</b> to use % for chance
+ </ul>
+
+<LI><span class="changelog">Version 2.2: March/24/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>updated <b>playsound</b> to 30 characters max for sound name
+ </ul>
+
+<LI><span class="changelog">Version 2.1: March/23/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>merged <b>spawnthing</b> types into one
+  <li>moved <b>ondeath</b> to mover section in the menu
+  <li>fixed screen detect stuff
+ </ul>
+
+<LI><span class="changelog">Version 2.0: March/22/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>reworked internal structure (cleanup)
+  <li>updated <b>exitlevel</b> time
+  <li>updated <b>wait</b> time
+  <li>updated <b>tip</b> time
+  <li>updated <b>tip_graphic</b> time
+  <li>updated <b>tip_ldf</b> time
+ </ul>
+
+<LI><span class="changelog">Version 1.9: March/19/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>updated documentation on <b>playsound</b>
+  <li>made <b>limit</b> optional for <b>healplayer</b>
+  <li>updated time for <b>tagged_repeatable</b>
+  <li>added autodetect for screen size, loads Code Output box that fits for 800x600 resolution
+  <li>corrected <b>tip_graphic</b> output
+  <li>added 'check all' button to <b>when_appear</b>
+ </ul>
+
+<LI><span class="changelog">Version 1.8: March/8/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>updated documentation on <b>sectorv</b> and <b>givearmor</b>
+ </ul>
+
+<LI><span class="changelog">Version 1.7: March/2/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>added delay to <b>exitlevel</b>
+ </ul>
+
+<LI><span class="changelog">Version 1.6: March/1/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>corrected the description of <b>#clearall</b>
+  <li>corrected <b>tip</b> to use DSTINK, not DSRADIO
+  <li>updated <b>tip</b> for colored text being planned
+  <li>removed EXTRA from <b>when_appear</b> (engine change)
+  <li>updated the description for <b>tagged_path</b>
+  <li>added z value to <b>playsound</b> (engine change)
+  <li>updated description for <b>givearmor</b> and <b>healplayer</b>
+  <li>updated <b>skill</b> (engine change for skill 1-5, not 0-4)
+  <li>updated description for <b>sleep</b>
+  <li>added <b>tagged_use</b>
+  <li>added <b>on_height</b>
+  <li>added <b>tip_ldf</b>
+  <li>added <b>tip_graphic</b>
+ </ul>
+
+<LI><span class="changelog">Version 1.5: February/27/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>changed damage_monsters from "all" to "any"
+ </ul>
+
+<LI><span class="changelog">Version 1.4: February/22/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>now Netscape 3.04 friendly!! :)
+  <li>when hitting reset buttons, sets focus back to first vield
+ </ul>
+
+<LI><span class="changelog">Version 1.3: February/20/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>corrected <b>sectorv</b> height description
+  <li>fixed the internal script for <b>when_appear</b> (it properly detects the checkbox combinations)
+  <li>fixed copyright for Netscape (forgot ';')
+  <li>added a 'select all' button to code output
+  <li>added to welcome page 'how to run a script'
+  <li>fixed <b>playsound</b> for sound name (use full name now, e.g. DSPOPAIN)
+  <li>flip-flopped code output buttons
+  <li>corrected spelling of 'independ*e*nt' :)
+ </ul>
+
+<LI><span class="changelog">Version 1.2: February/19/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>added 4 tutorials
+  <li>changed the functions to the real names (versus what is means, like sectorv means 'sector movement')
+  <li>changed true to false 'checked' for <b>skill</b>
+  <li>fixed name for <b>go_to_level</b>
+  <li>changed user_input.htm to welcome.htm
+  <li>added mouseover descriptions to the functions menu
+ </ul>
+
+<LI><span class="changelog">Version 1.1: February/18/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>now Netscape friendly!
+  <li>fixed pop-up messages
+  <li>removed some extra "\r" in code
+ </ul>
+
+<LI><span class="changelog">Version 1.0: February/17/2000 by Fanatic</span>
+<ul class="changelog">
+  <li>this is an internal EDGE-team test
+  <li>tutorial page is pending
+</ul>
+
+</UL>
+ 
+<p>
 
 </block>
 
