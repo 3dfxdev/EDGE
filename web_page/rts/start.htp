@@ -10,27 +10,46 @@ RTS stands for "radius trigger script".
 <p>
 
 RTS is not intended to replace DDF, but accents and enhances DDF. Using both
-DDF and RTS together, you can create amazing events that even Quake 2 cannot.
+DDF and RTS together, you can create amazing events that even Quake 2 is not capable of.
 <p>
 
 With RTS, you can create scripted events that cannot be controlled by linedef
-triggers alone, such as a simple onscreen tip message, multiple line types
+triggers alone, such as a simple on-screen tip message, multiple linetypes
 being triggered by one switch, or a complex event where an entire structure is
 destroyed, monsters are spawned, sounds are played, and light levels are
 changed dramatically. 
 <p>
 
-<h2 class="page_title"> EDGE 1.29 RC5 Compliant 
-<br><A HREF="changelog.htm">Last updated: 20/August/2006</A> </h2>
+<h2 class="page_title"> Applicability </h2>
 
+These documents apply to <b>EDGE 1.29-RC5</b>.
+Some features described here will not work in earlier EDGE
+versions.
+<p>
 
-<h2 class="page_title"> Acknowledgements </h2>
+There are some commands are not described here,
+because they are only kept for backwards compatibility
+with old mods.
+<p>
 
-The original RTS Online was written by Marc "Fanatic" Pullen.
-It was pretty cool, allowing you to build actual working scripts
-by entering values into certain forms.
-Luke "Lobo" Brennen updated it for EDGE 1.29.
-Andrew Apted converted it to this plain old documentation.
+<h2 class="page_title"> Credits </h2>
+
+This RTS documentation has been written and modified by many
+people.  Rather than trying to state exactly who has written what,
+we simply list the contributors in roughly cronological order:
+
+<ul class="credit_list">
+  <li>Marc "Fanatic" Pullen
+  <li>Cyberkiller
+  <li>Grimwold
+  <li>Andrew Apted
+  <li>Luke "Lobo" Brennan
+</ul>
+<p>
+
+Last updated: 20/August/2006
+&nbsp;&nbsp;&nbsp;
+<A HREF="changelog.htm">Changelog</A>
 
 </block>
 
