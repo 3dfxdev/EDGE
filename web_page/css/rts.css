@@ -1,22 +1,33 @@
 
-a { color: #862; }
-
-a:hover { color: #eb2; }
-
 .banner {
 	background-image: url(../images/red_plasm_4.jpg);
 	}
 
-.menus { width: 300px; }
+.menus { width: 280px; }
 
 .content {
-  margin: 15px 10px 10px 330px;  /* 330 = menu width + 30 */
+  margin: 15px 10px 10px 310px;  /* 330 = menu width + 30 */
 	}
 
-.rts_example {
+a { color: #862; }
+
+a:hover { color: #eb2; }
+
+a.rts { font-weight: bold }
+
+pre.rts {
   background-color: #fec;
   color: black;
   padding: 10px;
 	border: 1px solid black;
   font-size: smaller;
  }
+
+span.changelog {
+  color: blue;
+ }
+
+ul.changelog {
+  margin-bottom: 1.2em;
+ }
+

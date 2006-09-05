@@ -7,9 +7,9 @@ body {
 	padding: 0;
 	}
 
-/* a { color: #828; }
+/* a { color: #828; } */
 
-a:hover { color: #d7d; }  */
+/* a:hover { color: #d7d; }  */
 
 .content {
 	background-color: white;
@@ -32,6 +32,10 @@ h3 {
 page_title {
 	font-size: xx-large;
 	}
+
+.justify { 
+	text-align: justify;
+  }
 
 .news {
 	/* margin-left: 222px; // .menu width + 2 */
@@ -102,6 +106,10 @@ page_title {
 .thumb_tab caption {
   position: bottom;
   }
+
+li.nobullet {
+	list-style-type: none;
+	}
 
 /* ----- Menu ------------------ */
 
