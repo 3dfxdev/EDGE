@@ -38,6 +38,7 @@
 
 <li><span class="notdone" hhref="projects.htm">Projects</span>
 <li><a href="contact.htm">Contact</a>
+<li><a href="credits.htm">Credits</a>
 
 </ul>
 </div>
