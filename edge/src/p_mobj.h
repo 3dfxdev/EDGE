@@ -339,6 +339,12 @@ typedef enum
 
 	// -AJA- 2005/05/15: the sprite hovers up and down
 	HF_HOVER = 32,
+
+	// -AJA- 2006/08/17: object can be pushed (wind/current/point)
+	HF_PUSHABLE = 64,
+
+	// -AJA- 2006/08/17: used by MT_PUSH and MT_PULL objects
+	HF_POINT_FORCE = 128
 }
 mobjhyperflag_t;
 
@@ -378,6 +384,9 @@ typedef struct
 
 	// certain flags (mainly MF_AMBUSH).
 	int flags;
+
+	// tag number (from Hexen map format)
+	int tag;
 }
 spawnpoint_t;
 
@@ -462,6 +471,9 @@ struct mobj_s
 	int flags;
 	int extendedflags;
 	int hyperflags;
+
+	// tag ID (for special operations)
+	int tag;
 
 	// Movement direction, movement generation (zig-zagging).
 	dirtype_e movedir;  // 0-7
