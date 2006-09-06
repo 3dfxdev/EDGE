@@ -614,10 +614,8 @@ void RAD_ActDamageMonsters(rad_trigger_t *R, mobj_t *actor, void *param)
 {
 	s_damage_monsters_t *mon = (s_damage_monsters_t *) param;
 
-	// -AJA- FIXME: this is _so_ non-optimal...
-
-	mobj_t *mo;
 	const mobjtype_c *info = NULL;
+	int tag = mon->thing_tag;
 
 	if (mon->thing_name)
 	{
@@ -632,9 +630,14 @@ void RAD_ActDamageMonsters(rad_trigger_t *R, mobj_t *actor, void *param)
 	}
 
 	// scan the mobj list
-	for (mo=mobjlisthead; mo != NULL; mo=mo->next)
+	// FIXME: optimise for fixed-sized triggers
+
+	for (mobj_t *mo = mobjlisthead; mo != NULL; mo = mo->next)
 	{
 		if (info && mo->info != info)
+			continue;
+
+		if (tag && (mo->tag != tag))
 			continue;
 
 		if (! (mo->extendedflags & EF_MONSTER) || mo->health <= 0)
@@ -661,7 +664,7 @@ void RAD_ActThingEvent(rad_trigger_t *R, mobj_t *actor, void *param)
 		if (info == NULL)
 			I_Error("RTS THING_EVENT: Unknown thing name '%s'.\n", tev->thing_name);
 	}
-	else if (tev->thing_type)
+	else if (tev->thing_type > 0)
 	{
 		info = mobjtypes.Lookup(tev->thing_type);
 
@@ -670,9 +673,9 @@ void RAD_ActThingEvent(rad_trigger_t *R, mobj_t *actor, void *param)
 	}
 
 	// scan the mobj list
-	// OPTIMISE: this is very slow...
+	// FIXME: optimise for fixed-sized triggers
 
-	for (mobj_t *mo = mobjlisthead; mo != NULL; mo=mo->next)
+	for (mobj_t *mo = mobjlisthead; mo != NULL; mo = mo->next)
 	{
 		if (info && (mo->info != info))
 			continue;

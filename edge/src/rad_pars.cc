@@ -1755,6 +1755,11 @@ static void RAD_ParseGiveLoseBenefit(int pnum, const char **pars)
 static void RAD_ParseDamageMonsters(int pnum, const char **pars)
 {
 	// Damage_Monsters <monster> <amount>
+	//
+	// keyword parameters:
+	//   TAG=<num>
+	//
+	// The monster can be 'ANY' to match all monsters.
 
 	s_damage_monsters_t *mon;
 
@@ -1772,18 +1777,26 @@ static void RAD_ParseDamageMonsters(int pnum, const char **pars)
 
 	RAD_CheckForFloat(pars[2], &mon->damage_amount);
 
+	// parse the tag value
+	if (pnum >= 4)
+	{
+		if (strncasecmp(pars[3], "TAG=", 4) != 0)
+			RAD_Error("%s: Bad keyword parameter: %s\n", pars[0], pars[3]);
+
+		RAD_CheckForInt(pars[3]+4, &mon->thing_tag);
+	}
+
 	AddStateToScript(this_rad, 0, RAD_ActDamageMonsters, mon);
 }
 
 static void RAD_ParseThingEvent(int pnum, const char **pars)
 {
 	// Thing_Event <thing> <label>
-	// Thing_Event <thing> <label>
 	//
 	// keyword parameters:
 	//   TAG=<num>
 	//
-	// The thing can be '*' to match all things.
+	// The thing can be 'ANY' to match all things.
 
 	s_thing_event_t *tev;
 	const char *div;
@@ -1793,8 +1806,8 @@ static void RAD_ParseThingEvent(int pnum, const char **pars)
 
 	if (pars[1][0] == '-' || pars[1][0] == '+' || isdigit(pars[1][0]))
 		RAD_CheckForInt(pars[1], &tev->thing_type);
-	else if (pars[1][0] == '*')
-		{ /* do nothing, leave both fields empty */ }
+	else if (DDF_CompareName(pars[1], "ANY") == 0)
+		tev->thing_type = -1;
 	else
 		tev->thing_name = Z_StrDup(pars[1]);
 
