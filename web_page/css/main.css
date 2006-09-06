@@ -7,15 +7,15 @@ body {
 	padding: 0;
 	}
 
-/* a { color: #828; } */
-
-/* a:hover { color: #d7d; }  */
-
 .content {
 	background-color: white;
 
   margin: 15px 10px 10px 250px;  /* 250 = menu width + 30 */
 	}
+
+/* a { color: #828; } */
+
+/* a:hover { color: #d7d; }  */
 
 h2 {
 	color: #22c;
@@ -110,6 +110,38 @@ page_title {
 li.nobullet {
 	list-style-type: none;
 	}
+
+UL.credits {
+  margin-left: 0;
+  padding-left: 0;
+	}
+
+UL.credits B {
+  color: #862;
+  font-weight: bold;
+  text-decoration: underline;
+  }
+
+UL.credits LI {
+	list-style-type: none;
+  margin-left: 0;
+	}
+
+UL.credits LI ul {
+  margin-bottom: 1.2em;
+	}
+
+UL.credits span {
+	display: table-cell; /* hack */
+  width: 300px;
+  background-color: red;
+	}
+
+pre.credits {
+  font-family: serif;
+  font-size: smaller;
+ }
+
 
 /* ----- Menu ------------------ */
 
