@@ -503,6 +503,8 @@ void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param)
 
 	P_SetMobjDirAndSpeed(mo, t->angle, t->slope, 0);
 
+	mo->tag = t->tag;
+
 	mo->spawnpoint.x = t->x;
 	mo->spawnpoint.y = t->y;
 	mo->spawnpoint.z = t->z;
@@ -510,6 +512,7 @@ void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param)
 	mo->spawnpoint.vertangle = M_ATan(t->slope);
 	mo->spawnpoint.info = minfo;
 	mo->spawnpoint.flags = t->ambush ? MF_AMBUSH : 0;
+	mo->spawnpoint.tag = t->tag;
 
 	if (t->ambush)
 		mo->flags |= MF_AMBUSH;
@@ -620,13 +623,12 @@ void RAD_ActDamageMonsters(rad_trigger_t *R, mobj_t *actor, void *param)
 	{
 		info = mobjtypes.Lookup(mon->thing_name);
 	}
-	else if (mon->thing_type >= 0)
+	else if (mon->thing_type > 0)
 	{
 		info = mobjtypes.Lookup(mon->thing_type);
 
 		if (info == NULL)
-			I_Error("RTS DAMAGE_MONSTERS: Unknown thing type %d.\n",
-			mon->thing_type);
+			I_Error("RTS DAMAGE_MONSTERS: Unknown thing type %d.\n", mon->thing_type);
 	}
 
 	// scan the mobj list
@@ -649,31 +651,35 @@ void RAD_ActThingEvent(rad_trigger_t *R, mobj_t *actor, void *param)
 {
 	s_thing_event_t *tev = (s_thing_event_t *) param;
 
-	// -AJA- FIXME: this is very sub-optimal...
-
-	mobj_t *mo;
 	const mobjtype_c *info = NULL;
-	statenum_t state;
+	int tag = tev->thing_tag;
 
 	if (tev->thing_name)
 	{
 		info = mobjtypes.Lookup(tev->thing_name);
+
+		if (info == NULL)
+			I_Error("RTS THING_EVENT: Unknown thing name '%s'.\n", tev->thing_name);
 	}
-	else
+	else if (tev->thing_type)
 	{
 		info = mobjtypes.Lookup(tev->thing_type);
 
 		if (info == NULL)
-			I_Error("RTS THING_EVENT: Unknown thing type %d.\n",
-			tev->thing_type);
+			I_Error("RTS THING_EVENT: Unknown thing type %d.\n", tev->thing_type);
 	}
 
 	// scan the mobj list
-	for (mo=mobjlisthead; mo != NULL; mo=mo->next)
+	// OPTIMISE: this is very slow...
+
+	for (mobj_t *mo = mobjlisthead; mo != NULL; mo=mo->next)
 	{
-		if (mo->info != info)
+		if (info && (mo->info != info))
 			continue;
 
+		if (tag && (mo->tag != tag))
+			continue;
+		
 		// ignore certain things (e.g. corpses)
 		if (mo->health <= 0)
 			continue;
@@ -681,7 +687,7 @@ void RAD_ActThingEvent(rad_trigger_t *R, mobj_t *actor, void *param)
 		if (! RAD_WithinRadius(mo, R->info))
 			continue;
 
-		state = P_MobjFindLabel(mo, tev->label);
+		statenum_t state = P_MobjFindLabel(mo, tev->label);
 
 		if (state)
 			P_SetMobjStateDeferred(mo, state + tev->offset, 0);

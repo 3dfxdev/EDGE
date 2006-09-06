@@ -109,6 +109,7 @@ typedef struct s_thing_s
 
 	angle_t angle;
 	float slope;
+	int tag;
 
 	// -AJA- 1999/09/11: since the RSCRIPT lump can be loaded before
 	//       DDF* lumps, we can't store a pointer to a mobjtype_c here
@@ -370,6 +371,7 @@ typedef struct s_thing_event_s
 	// thing map number is used instead.
 	const char *thing_name;
 	int thing_type;
+	int thing_tag;
 
 	// label to jump to
 	const char *label;
