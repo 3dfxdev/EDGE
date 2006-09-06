@@ -168,6 +168,7 @@ typedef struct s_damage_monsters_s
 	// monster's mapnumber, or if -1 then ANY monster can be damaged.
 	char *thing_name;
 	int thing_type;
+	int thing_tag;
 
 	// how much damage to do
 	float damage_amount;
