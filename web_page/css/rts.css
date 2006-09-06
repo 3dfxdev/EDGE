@@ -13,7 +13,10 @@ a { color: #862; }
 
 a:hover { color: #eb2; }
 
-a.rts { font-weight: bold }
+a.rts {
+  font-weight: bold;
+  /* text-decoration: none; */
+  }
 
 pre.rts {
   background-color: #fec;
@@ -21,13 +24,25 @@ pre.rts {
   padding: 10px;
 	border: 1px solid black;
   font-size: smaller;
- }
+  }
+
+ul.params li {
+  margin-bottom: 1.0em;
+  }
+
+ul.params li li {
+  margin-bottom: 0;
+  }
+
+ol.format li {
+  margin-bottom: 1.2em;
+  }
 
 span.changelog {
   color: blue;
- }
+  }
 
 ul.changelog {
   margin-bottom: 1.2em;
- }
+  }
 
