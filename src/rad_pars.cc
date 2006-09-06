@@ -1479,6 +1479,37 @@ static void RAD_ParseTipAlign(int pnum, const char ** pars)
 	AddStateToScript(this_rad, 0, RAD_ActTipProps, tp);
 }
 
+static void HandleSpawnKeyword(const char *par, s_thing_t *t)
+{
+	if (strncasecmp(par, "X=", 2) != 0)
+		RAD_CheckForFloat(par+2, &t->x);
+	else if (strncasecmp(par, "Y=", 2) != 0)
+		RAD_CheckForFloat(par+2, &t->y);
+	else if (strncasecmp(par, "Z=", 2) != 0)
+		RAD_CheckForFloat(par+2, &t->z);
+	else if (strncasecmp(par, "TAG=", 4) != 0)
+		RAD_CheckForInt(par+4, &t->tag);
+	else if (strncasecmp(par, "ANGLE=", 6) != 0)
+	{
+		int val;
+		RAD_CheckForInt(par+6, &val);
+
+		if (ABS(val) <= 360)
+			t->angle = FLOAT_2_ANG((float) val);
+		else
+			t->angle = val << 16;
+	}
+	else if (strncasecmp(par, "SLOPE=", 6) != 0)
+	{
+		RAD_CheckForFloat(par+6, &t->slope);
+		t->slope /= 45.0f;
+	}
+	else
+	{
+		RAD_Error("SPAWN_THING: unknown keyword parameter: %s\n", par);
+	}
+}
+
 static void RAD_ParseSpawnThing(int pnum, const char **pars)
 {
 	// SpawnThing <thingid>
@@ -1490,6 +1521,14 @@ static void RAD_ParseSpawnThing(int pnum, const char **pars)
 	//
 	// (likewise for SpawnThing_Ambush)
 	// (likewise for SpawnThing_Flash)
+	//
+	// Keyword parameters (after all positional parameters)
+	//   X=<num>
+	//   Y=<num>
+	//   Z=<num>
+	//   ANGLE=<num>
+	//   SLOPE=<num>
+	//   TAG=<num>
 	//
 	// -ACB- 1998/08/06 Use mobjtype_c linked list
 	// -AJA- 1999/09/11: Extra fields for Z and slope.
@@ -1522,9 +1561,15 @@ static void RAD_ParseSpawnThing(int pnum, const char **pars)
 	else
 		t->thing_name = Z_StrDup(pars[1]);
 
+	// handle keyword parameters
+	while (pnum >= 3 && strchr(pars[pnum-1],'=') != NULL)
+	{
+		HandleSpawnKeyword(pars[pnum-1], t);
+		pnum--;
+	}
+
 	// get angle
-	angle_str = (pnum == 3) ? pars[2] : 
-	(pnum >= 5) ? pars[4] : NULL;
+	angle_str = (pnum == 3) ? pars[2] : (pnum >= 5) ? pars[4] : NULL;
 
 	if (angle_str) 
 	{
@@ -1536,7 +1581,7 @@ static void RAD_ParseSpawnThing(int pnum, const char **pars)
 			t->angle = val << 16;
 	}
 
-	// check for x & y, z, slope
+	// check for x, y, z, slope
 
 	if (pnum >= 4)
 	{
@@ -1733,6 +1778,12 @@ static void RAD_ParseDamageMonsters(int pnum, const char **pars)
 static void RAD_ParseThingEvent(int pnum, const char **pars)
 {
 	// Thing_Event <thing> <label>
+	// Thing_Event <thing> <label>
+	//
+	// keyword parameters:
+	//   TAG=<num>
+	//
+	// The thing can be '*' to match all things.
 
 	s_thing_event_t *tev;
 	const char *div;
@@ -1740,9 +1791,10 @@ static void RAD_ParseThingEvent(int pnum, const char **pars)
 
 	tev = Z_ClearNew(s_thing_event_t, 1);
 
-	// parse the object type
 	if (pars[1][0] == '-' || pars[1][0] == '+' || isdigit(pars[1][0]))
 		RAD_CheckForInt(pars[1], &tev->thing_type);
+	else if (pars[1][0] == '*')
+		{ /* do nothing, leave both fields empty */ }
 	else
 		tev->thing_name = Z_StrDup(pars[1]);
 
@@ -1758,6 +1810,15 @@ static void RAD_ParseThingEvent(int pnum, const char **pars)
 	Z_StrNCpy((char *)tev->label, pars[2], i);
 
 	tev->offset = div ? MAX(0, atoi(div+1) - 1) : 0;
+
+	// parse the tag value
+	if (pnum >= 4)
+	{
+		if (strncasecmp(pars[3], "TAG=", 4) != 0)
+			RAD_Error("%s: Bad keyword parameter: %s\n", pars[0], pars[3]);
+
+		RAD_CheckForInt(pars[3]+4, &tev->thing_tag);
+	}
 
 	AddStateToScript(this_rad, 0, RAD_ActThingEvent, tev);
 }
@@ -2120,9 +2181,9 @@ static rts_parser_t radtrig_parsers[] =
 	{2, "TIP_SET_TRANS",  2,3, RAD_ParseTipTrans},
 	{2, "TIP_SET_ALIGN",  2,2, RAD_ParseTipAlign},
 	{2, "EXITLEVEL", 1,2, RAD_ParseExitLevel},
-	{2, "SPAWNTHING", 2,7, RAD_ParseSpawnThing},
-	{2, "SPAWNTHING_AMBUSH", 2,7, RAD_ParseSpawnThing},
-	{2, "SPAWNTHING_FLASH",  2,7, RAD_ParseSpawnThing},
+	{2, "SPAWNTHING", 2,22, RAD_ParseSpawnThing},
+	{2, "SPAWNTHING_AMBUSH", 2,22, RAD_ParseSpawnThing},
+	{2, "SPAWNTHING_FLASH",  2,22, RAD_ParseSpawnThing},
 	{2, "PLAYSOUND", 2,5, RAD_ParsePlaySound},
 	{2, "PLAYSOUND_BOSSMAN", 2,5, RAD_ParsePlaySound},
 	{2, "KILLSOUND", 1,1, RAD_ParseKillSound},
@@ -2132,7 +2193,7 @@ static rts_parser_t radtrig_parsers[] =
 	{2, "GIVE_BENEFIT", 2,2, RAD_ParseGiveLoseBenefit},
 	{2, "LOSE_BENEFIT", 2,2, RAD_ParseGiveLoseBenefit},
 	{2, "DAMAGE_MONSTERS", 3,3, RAD_ParseDamageMonsters},
-	{2, "THING_EVENT", 3,3, RAD_ParseThingEvent},
+	{2, "THING_EVENT", 3,4, RAD_ParseThingEvent},
 	{2, "SKILL",   4,4, RAD_ParseSkill},
 	{2, "GOTOMAP", 2,3, RAD_ParseGotoMap},
 	{2, "MOVE_SECTOR", 4,5, RAD_ParseMoveSector},
