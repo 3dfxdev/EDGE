@@ -36,8 +36,9 @@ Bugs fixed
 - fixed an issue with window positioning on Win32.
 - fixed MUS playback on certain devices in Win32
 - some continuous floors had wrong heights, fixed.
-- spawning of voodoo dolls (Thanks to dsalt)
-- the '+' syntax for KEYS had long been broken.
+- '+' syntax for KEYS in DDF was finally fixed.
+- the CAPSLOCK and NUMLOCK keys work a bit better.
+- spawning of voodoo dolls (Darren Salt).
 
 
 Old Fixes (from EDGE 1.28A)
@@ -100,7 +101,7 @@ General improvements
   in files with the .HWA extension, which are loaded automatically.
 
 - ability to use 32-bit screen modes (16.7 million colours).  You
-  may have to change your desktop to 32-bit mode for this to work.
+  may need to change your desktop to 32-bit mode for this to work.
 
 - new startup, with progress bar.  The console window that used to
   appear (Win32) is gone, and under Linux messages are no longer
@@ -112,7 +113,7 @@ General improvements
 
 - GWA and HWA files are stored in a separate cache folder,
   allowing EDGE to run wads from read-only media (CDROM) or
-  read-only locations (/usr/share).
+  from read-only locations (/usr/share).
 
 - support V3 and V5 GL-NODES.  EDGE now includes glBSP 2.20, which
   can handle very complex levels (which overflow the old limits),
@@ -153,6 +154,7 @@ General improvements
 - limit the number of skulls from pain elementals.
 - number of RTS tip slots has increased to 45.
 - RTS tip messages are shown on the console.
+- fixes for 64-bit architectures (Darren Salt).
 
 
 New DDF features:
@@ -232,9 +234,9 @@ New DDF features:
 
     SEQUENCE = TEX1, TEX2, TEX3, TEX5, TEX8;
  
-- PICKUP_EFFECT = SWITCH_WEAPON(xxx)  Required for #VERSION 1.29 and
-  higher to make the Berserk powerup switch to the fist (in earlier
-  versions it will be added for you to maintain compatibility).
+- PICKUP_EFFECT = SWITCH_WEAPON(xxx).  The standard POWERUP_BERSERK
+  will use this automatically to change to the FIST, there is also a
+  new keyword POWERUP_BARE_BERSERK which doesn't do that.
 
 - able to specify a colour directly in COLMAP.DDF, without needing any
   wad lumps.  The command is:
@@ -321,8 +323,7 @@ New RTS features:
          "choice two"  \
          "choice three"
 
-  Note: there must not be any spaces after the \ character, otherwise
-  it doesn't work.
+  Note: there must not be any spaces after the \ character.
 
 
 New weapon stuff
