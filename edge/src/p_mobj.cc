@@ -321,6 +321,7 @@ static void TeleportRespawn(mobj_t * mobj)
 	new_mo->spawnpoint = mobj->spawnpoint;
 	new_mo->angle = mobj->spawnpoint.angle;
 	new_mo->vertangle = mobj->spawnpoint.vertangle;
+	new_mo->tag = mobj->spawnpoint.tag;
 
 	if (mobj->spawnpoint.flags & MF_AMBUSH)
 		new_mo->flags |= MF_AMBUSH;
@@ -397,6 +398,8 @@ static void ResurrectRespawn(mobj_t * mobj)
 
 	P_MobjSetSource(mobj, NULL);
 	P_MobjSetTarget(mobj, NULL);
+
+	mobj->tag = mobj->spawnpoint.tag;
 
 	if (mobj->spawnpoint.flags & MF_AMBUSH)
 		mobj->flags |= MF_AMBUSH;
@@ -673,8 +676,7 @@ static INLINE void AddRegionProperties(const mobj_t *mo,
 									   float bz, float tz, region_properties_t *new_p, 
 									   float f_h, float c_h, const region_properties_t *p)
 {
-	int flags = p->special ? p->special->special_flags : 
-	SECSP_PushConstant;
+	int flags = p->special ? p->special->special_flags : SECSP_PushConstant;
 
 	float factor = 1.0f;
 	float push_mul;
@@ -742,6 +744,8 @@ void P_CalcFullProperties(const mobj_t *mo, region_properties_t *new_p)
 
 	new_p->push.x = new_p->push.y = new_p->push.z = 0;
 
+	new_p->flags = sector->props.flags;
+		
 	// Note: friction not averaged: comes from region foot is in
 	new_p->friction = sector->p->friction;
 
