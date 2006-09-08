@@ -2239,11 +2239,29 @@ FLOOR.SPEED_DOWN=4;
 FLOOR.DEST_REF=NEXTLOWESTFLOOR;
 FLOOR.SFX_DOWN=STNMOV;
 
-// 223 Friction (Boom)  --  Not yet supported
+[223] // Friction (Boom)
+TYPE=PUSH;
+ACTIVATORS=PLAYER;
+AUTO=TRUE;
+SECTOR_EFFECT=SET_FRICTION;
 
-// 224 Set wind force (Boom)  --  Unsupported
-// 225 Set current force (Boom)  --  Unsupported
-// 226 Set point push/pull force (Boom)  --  Unsupported
+[224] // Set wind force (Boom)
+TYPE=PUSH;
+ACTIVATORS=PLAYER;
+AUTO=TRUE;
+SECTOR_EFFECT=WIND_FORCE;
+
+[225] // Set current force (Boom)
+TYPE=PUSH;
+ACTIVATORS=PLAYER;
+AUTO=TRUE;
+SECTOR_EFFECT=CURRENT_FORCE;
+
+[226] // Set point push/pull force (Boom)
+TYPE=PUSH;
+ACTIVATORS=PLAYER;
+AUTO=TRUE;
+SECTOR_EFFECT=POINT_FORCE;
 
 // 227 ELEVATOR TO NEXT HIGHEST W1 (Boom)  --  Pending new code
 // 228 ELEVATOR TO NEXT HIGHEST WR (Boom)  --  Pending new code
