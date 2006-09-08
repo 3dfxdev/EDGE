@@ -935,7 +935,7 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 	bool flipped = (def->special & TELSP_Flipped) ? true : false;
 
 	player_t *player = thing->player;
-	if (player->mo != thing)  // exclude voodoo dolls
+	if (player && player->mo != thing)  // exclude voodoo dolls
 		player = NULL;
 
     if (def->special & TELSP_Line)
