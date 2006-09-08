@@ -175,10 +175,7 @@ bool SV_OpenReadFile(const char *filename)
 	current_fp = fopen(filename, "rb");
 
 	if (! current_fp)
-	{
-		/// I_Warning("LOADGAME: Couldn't open file: %s\n", filename);
 		return false;
-	}
 
 	return true;
 }
@@ -384,7 +381,6 @@ unsigned char SV_GetByte(void)
 
 	if (cur->pos == cur->end)
 	{
-		//!!!
 		I_Error("LOADGAME: Corrupt Savegame (reached end of [%s] chunk).\n", cur->s_mark);
 		last_error = 2;
 		return 0;
@@ -513,9 +509,7 @@ bool SV_PushReadChunk(const char *id)
 		SV_GetMarker(marker);
 
 		if (strcmp(cur->e_mark, marker) != 0)
-		{
-			I_Error("LOADGAME: ReadChunk [%s] failed: Bad markers.\n", id);
-		}
+			I_Warning("LOADGAME: ReadChunk [%s]: Bad end marker.\n", id);
 	}
 
 	// let the SV_GetByte routine (etc) see the new chunk
