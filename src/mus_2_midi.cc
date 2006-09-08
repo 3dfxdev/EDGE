@@ -419,7 +419,7 @@ bool Mus2Midi::DecodeMUS(const byte *mus, MIDI_c& info, int division, int nocomp
 					note &= 0x7f;
 					T->velocity = (*musptr++) & 0x7f;
 				}
-				
+
 				T->WriteEvent2(MID_PLAY_NOTE, MIDIchannel, note, T->velocity, nocomp?true:false);
 				break;
 			}
