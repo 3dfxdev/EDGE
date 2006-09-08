@@ -96,8 +96,6 @@ static default_t defaults[] =
     {CFGT_Int,		"screenheight",		 &SCREENHEIGHT,	  CFGDEF_SCREENHEIGHT},
     {CFGT_Int,		"screendepth",		 &SCREENBITS,	  CFGDEF_SCREENBITS},
     {CFGT_Boolean,	"windowed",			 &SCREENWINDOW,	  CFGDEF_SCREENWINDOW},
-
-    {CFGT_Enum,		"boom_compatility",  &global_flags.compat_mode, 0},
  
     {CFGT_Int,      "mouse_sensitivity", &mouseSensitivity, CFGDEF_MOUSESENSITIVITY},
     {CFGT_Int,      "sfx_volume",        &cfgsound,       CFGDEF_SOUND_VOLUME},

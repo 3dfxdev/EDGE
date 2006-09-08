@@ -552,6 +552,10 @@ static void ThingFinishEntry(void)
 	if (buffer_mobj.flags & MF_COUNTITEM)
 		buffer_mobj.hyperflags |= HF_FORCEPICKUP;
 
+	// shootable things are always pushable
+	if (buffer_mobj.flags & MF_SHOOTABLE)
+		buffer_mobj.hyperflags |= HF_PUSHABLE;
+
 	// check stuff...
 
 	if (buffer_mobj.mass < 1)
@@ -1237,7 +1241,7 @@ static const specflags_t normal_specials[] =
 	{"SLIDER", MF_SLIDE, 0},
 	{"FLOAT", MF_FLOAT, 0},
 	{"TELEPORT", MF_TELEPORT, 0},
-	{"MISSILE", MF_MISSILE, 0},
+	{"MISSILE", MF_MISSILE, 0},   // has a special check
 	{"BARE MISSILE", MF_MISSILE, 0},
 	{"DROPPED", MF_DROPPED, 0},
 	{"CORPSE", MF_CORPSE, 0},
@@ -1282,6 +1286,8 @@ static specflags_t hyper_specials[] =
 	{"ULTRA LOYAL", HF_ULTRALOYAL, 0},
 	{"ZBUFFER", HF_NOZBUFFER, 1},
 	{"HOVER", HF_HOVER, 0},
+	{"PUSHABLE", HF_PUSHABLE, 0},
+	{"POINT FORCE", HF_POINT_FORCE, 0},
 	{NULL, 0, 0}
 };
 

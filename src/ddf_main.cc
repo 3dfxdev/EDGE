@@ -49,7 +49,6 @@
 #define DEBUG_DDFREAD  0
 
 int ddf_version;  // global
-bool boom_conflict;
 
 static readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status);
 
@@ -384,11 +383,6 @@ void DDF_GetLumpNameForFile(const char *filename, char *lumpname)
 
 	fclose(fp);
 	I_Error("Missing <..> marker in DDF file: %s\n", filename);
-}
-
-void DDF_SetBoomConflict(bool enabled)
-{
-	boom_conflict = enabled;
 }
 
 // -KM- 1998/12/16 This loads the ddf file into memory for parsing.
@@ -1597,7 +1591,7 @@ void DDF_MainGetRGB(const char *info, void *storage)
 
 	// silently change if matches the "none specified" value
 	if (*result == RGB_NO_VALUE)
-		*result ^= 0x010101;
+		*result ^= RGB_MAKE(1,1,1);
 }
 
 //
@@ -2257,7 +2251,7 @@ void dlightinfo_c::Default()
 {
 	type = DLITE_None;
 	intensity = 32;
-	colour = 0xFFFFFF;    // White (RGB 8:8:8)
+	colour = RGB_NO_VALUE;
 	height = PERCENT_MAKE(50);
 }
 

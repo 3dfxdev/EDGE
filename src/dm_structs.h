@@ -25,7 +25,7 @@
 // wad header
 typedef struct raw_wad_header_s
 {
-	char type[4];
+	char identification[4];
 
 	u32_t num_entries;
 	u32_t dir_start;
@@ -36,8 +36,8 @@ raw_wad_header_t;
 // directory entry
 typedef struct raw_wad_entry_s
 {
-	u32_t start;
-	u32_t length;
+	u32_t pos;
+	u32_t size;
 
 	char name[8];
 }
@@ -135,7 +135,7 @@ raw_thing_t;
 // -JL- Hexen thing definition
 typedef struct raw_hexen_thing_s
 {
-	s16_t tid;       // thing tag id (for scripts/specials)
+	s16_t tid;       // tag id (for scripts/specials)
 	s16_t x, y;      // position
 	s16_t height;    // start height above floor
 	s16_t angle;     // angle thing faces

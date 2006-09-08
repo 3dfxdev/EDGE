@@ -138,7 +138,6 @@ static void M_ChangeCrouching(int keypressed);
 static void M_ChangeExtra(int keypressed);
 static void M_ChangeGamma(int keypressed);
 static void M_ChangeShadows(int keypressed);
-static void M_ChangeCompatMode(int keypressed);
 static void M_ChangeKicking(int keypressed);
 static void M_ChangeWeaponSwitch(int keypressed);
 static void M_ChangeMipMap(int keypressed);
@@ -161,12 +160,11 @@ static void M_LanguageDrawer(int x, int y, int deltay);
 static void M_ChangeLanguage(int keypressed);
 
 static char YesNo[]     = "Off/On";  // basic on/off
-static char CompatSet[] = "EDGE/Boom";
 static char CrosO[]     = "None/Cross/Dot/Angle";  // crosshair options
 static char Respw[]     = "Teleport/Resurrect";  // monster respawning
 static char Axis[]      = "Turn/Forward/Strafe/MLook/Fly/Disable";
 static char SkySq[]     = "Small/Medium/Large/Mirror/Original";
-static char DLMode[]    = "Off/On/Compat";
+static char DLMode[]    = "Off/On";
 static char JpgPng[]    = "JPEG/PNG";  // basic on/off
 static char AAim[]      = "Off/On/Mlook";
 static char Huds[]      = "Full/None/Overlay";
@@ -415,14 +413,11 @@ static optmenuitem_t vidoptions[] =
 
 	{OPT_Boolean, "Smoothing",     YesNo, 2,  CFGDEF_USE_SMOOTHING,  &use_smoothing, M_ChangeMipMap, NULL},
 
-	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, 
-                                              CFGDEF_USE_DLIGHTS,    &use_dlights, M_ChangeDLights, NULL},
+	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, CFGDEF_USE_DLIGHTS,    &use_dlights, M_ChangeDLights, NULL},
 
-	{OPT_Boolean, "Doom-like fading", YesNo, 2, 
-                                              CFGDEF_DOOM_FADING,    &doom_fading, NULL, NULL},
+	{OPT_Boolean, "Doom-like fading", YesNo, 2, CFGDEF_DOOM_FADING,    &doom_fading, NULL, NULL},
 
-	{OPT_Switch,  "Detail Level",  Details, 3, 
-                                              CFGDEF_DETAIL_LEVEL,   &detail_level, M_ChangeMipMap, NULL},
+	{OPT_Switch,  "Detail Level",  Details, 3, CFGDEF_DETAIL_LEVEL,   &detail_level, M_ChangeMipMap, NULL},
 
 	{OPT_Switch,  "Mipmapping", MipMaps, 3,   CFGDEF_USE_MIPMAPPING, &use_mipmapping, M_ChangeMipMap, NULL},
 
@@ -525,10 +520,6 @@ static menuinfo_t analogueoptionsinfo =
 //
 static optmenuitem_t playoptions[] =
 {
-	{OPT_Switch,  "Compatibility",      CompatSet, 2, 
-     CFGDEF_COMPAT_MODE, 
-     &global_flags.compat_mode, M_ChangeCompatMode, NULL},
-
 	{OPT_Switch,  "AutoAiming",         AAim, 3, 
      CFGDEF_AUTOAIM,     
      &global_flags.autoaim, M_ChangeAutoAim, NULL},
@@ -1619,17 +1610,6 @@ static void M_ChangeHalos(int keypressed)
 	level_flags.halos = global_flags.halos;
 }
 #endif
-
-static void M_ChangeCompatMode(int keypressed)
-{
-	if (currmap && ((currmap->force_on | currmap->force_off) & MPF_BoomCompat))
-		return;
-
-	level_flags.compat_mode = global_flags.compat_mode;
-
-	// clear line/sector lookup caches
-	DDF_BoomClearGenTypes();
-}
 
 static void M_ChangeKicking(int keypressed)
 {

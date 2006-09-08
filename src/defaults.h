@@ -97,7 +97,6 @@
 #define CFGDEF_WIPE_REVERSE     (0)
 
 // Gameplay Options
-#define CFGDEF_COMPAT_MODE      (CM_EDGE)
 #define CFGDEF_AUTOAIM          (0)
 #define CFGDEF_MLOOK            (1)
 #define CFGDEF_JUMP             (1)

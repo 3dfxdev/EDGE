@@ -105,8 +105,9 @@ typedef struct region_properties_s
 	int lightlevel;
 	const colourmap_c *colourmap;
 
-	// special type (e.g. damaging)
+	// special type (e.g. damaging) and flags
 	const sectortype_c *special;
+	int flags;
 
 	// -KM- 1998/10/29 Added gravity + friction
 	float gravity;

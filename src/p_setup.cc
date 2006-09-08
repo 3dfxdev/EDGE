@@ -800,8 +800,13 @@ static void LoadSectors(int lump)
 		ss->tag = MAX(0, EPI_LE_S16(ms->tag));
 
 		ss->props.lightlevel = EPI_LE_S16(ms->light);
-		ss->props.special = (EPI_LE_S16(ms->special) <= 0) ? NULL :
-		playsim::LookupSectorType(EPI_LE_S16(ms->special));
+
+		int spec = EPI_LE_S16(ms->special);
+
+		ss->props.special = (spec <= 0) ? NULL :
+			playsim::LookupSectorType(spec);
+		ss->props.flags = (spec <= 0 || spec > 0xFFF) ? 0 :
+			(spec & MSF_BoomFlags);
 
 		ss->exfloor_max = 0;
 
@@ -962,7 +967,8 @@ static void LoadNodes(int lump, char *name)
 // SpawnMapThing
 //
 static void SpawnMapThing(const mobjtype_c *info,
-						  float x, float y, float z, angle_t angle, int options)
+						  float x, float y, float z,
+						  angle_t angle, int options, int tag)
 {
 	int bit;
 	mobj_t *mobj;
@@ -975,6 +981,7 @@ static void SpawnMapThing(const mobjtype_c *info,
 	point.vertangle = 0;
 	point.info = info;
 	point.flags = 0;
+	point.tag = tag;
 
 	// -KM- 1999/01/31 Use playernum property.
 	// count deathmatch start positions
@@ -1138,7 +1145,7 @@ static void LoadThings(int lump)
 
 		z = (objtype->flags & MF_SPAWNCEILING) ? ONCEILINGZ : ONFLOORZ;
 
-		SpawnMapThing(objtype, x, y, z, angle, options);
+		SpawnMapThing(objtype, x, y, z, angle, options, 0);
 	}
 
 	W_DoneWithLump(data);
@@ -1154,6 +1161,7 @@ static void LoadHexenThings(int lump)
 	float x, y, z;
 	angle_t angle;
 	int options, typenum;
+	int tag;
 	int i;
 
 	const void *data;
@@ -1182,6 +1190,8 @@ static void LoadHexenThings(int lump)
 		y = (float) EPI_LE_S16(mt->y);
 		z = (float) EPI_LE_S16(mt->height);
 		angle = FLOAT_2_ANG((float) EPI_LE_S16(mt->angle));
+
+		tag = EPI_LE_S16(mt->tid);
 		typenum = EPI_LE_U16(mt->type);
 		options = EPI_LE_U16(mt->options) & 0x000F;
 
@@ -1198,7 +1208,7 @@ static void LoadHexenThings(int lump)
 
 		z += R_PointInSubsector(x, y)->sector->f_h;
 
-		SpawnMapThing(objtype, x, y, z, angle, options);
+		SpawnMapThing(objtype, x, y, z, angle, options, tag);
 	}
 
 	W_DoneWithLump(data);
@@ -2512,6 +2522,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 	level_active = true;
 }
 
+#if 0  // OLD STUFF, REMOVE !!
 static void DetectSectorCompat(int lump, int *edge_cnt, int *boom_cnt)
 {
 	if (! W_VerifyLumpName(lump, "SECTORS"))
@@ -2650,6 +2661,7 @@ int P_DetectWadGameCompat(const mapdef_c *first)
 
 	return result;
 }
+#endif
 
 //
 // P_Init
@@ -2679,10 +2691,8 @@ namespace playsim
 		if (def)
 			return def;
 
-  		if (level_flags.compat_mode == CM_BOOM && DDF_IsBoomLineType(num))
-		{
+  		if (DDF_IsBoomLineType(num))
 			return DDF_BoomGetGenLine(num);
-		}
 
 		I_Warning("playsim::LookupLineType(): Unknown linedef type %d\n", num);
 		return linetypes[0];	// Return template line
@@ -2695,16 +2705,19 @@ namespace playsim
 	{
 		sectortype_c* def = sectortypes.Lookup(num);
 
-  		// check for BOOM generalised sector types
-		// new DDF types (i.e. not in EDGE.WAD) always override
-		if (level_flags.compat_mode == CM_BOOM && DDF_IsBoomSectorType(num))
-		{
-			if (! def || def->boom_conflict)
-				return DDF_BoomGetGenSector(num);
-		}
-
+		// DDF types always override
 		if (def)
 			return def;
+
+		if (level_flags.sector_compat && (num>0) && (num < 100))
+		{
+			sectortype_c* def = sectortypes.Lookup(4400 + num);
+			if (def)
+				return def;
+		}
+
+		if (DDF_IsBoomSectorType(num))
+			return DDF_BoomGetGenSector(num);
 
 		I_Warning("playsim::LookupSectorType(): Unknown sector type %d", num);
 		return sectortypes[0];	// Return template sector
