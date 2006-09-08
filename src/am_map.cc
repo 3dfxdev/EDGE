@@ -449,6 +449,10 @@ static void LevelInit(void)
 //
 void AM_Stop(void)
 {
+	m_paninc.x = 0;
+	m_paninc.y = 0;
+	mtof_zoommul = 1.0f;
+	ftom_zoommul = 1.0f;
 	automapactive = 0;
 	stopped = true;
 }
@@ -486,6 +490,10 @@ void AM_InitResolution(void)
 //
 static void AM_Hide(void)
 {
+	m_paninc.x = 0;
+	m_paninc.y = 0;
+	mtof_zoommul = 1.0f;
+	ftom_zoommul = 1.0f;
 	automapactive = 0;
 	viewactive = true;
 }
