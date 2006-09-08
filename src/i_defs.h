@@ -57,8 +57,8 @@ typedef enum { false, true } bool;
 //
 #define DIRSEPARATOR '/'
 
-// If GCC is used, this one is defined as __attribute__((a)).
-#define GCCATTR(a)
+// If GCC is used, this one is defined as __attribute__ (a).
+#define GCCATTR(xyz)  /* nothing */
 
 //
 // INLINE can be defined to a keyword which hints the compiler to inline a
