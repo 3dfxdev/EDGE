@@ -42,9 +42,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// Note: only disable this for debugging purposes
-#define COMPRESS_ENABLE  1
-
 #define DEBUG_GETBYTE  0
 #define DEBUG_PUTBYTE  0
 
@@ -250,9 +247,7 @@ bool SV_VerifyContents(void)
 	// skip top-level chunks until end...
 	for (;;)
 	{
-#if (COMPRESS_ENABLE)
 		unsigned int orig_len;
-#endif
 		unsigned int file_len;
 
 		char start_marker[6];
@@ -273,7 +268,6 @@ bool SV_VerifyContents(void)
 		// read chunk length
 		file_len = SV_GetInt();
 
-#if (COMPRESS_ENABLE)
 		// read original, uncompressed size
 		orig_len = SV_GetInt();
 
@@ -283,7 +277,6 @@ bool SV_VerifyContents(void)
 				"(file=%d orig=%d)\n", file_len, orig_len);
 			return false;
 		}
-#endif
 
 		// skip data bytes (merely compute the CRC)
 		for (; (file_len > 0) && !last_error; file_len--)
@@ -437,7 +430,6 @@ bool SV_PushReadChunk(const char *id)
 	{
 		unsigned int i;
 
-#if (COMPRESS_ENABLE)
 		unsigned int orig_len;
 		unsigned int decomp_len;
 		byte *file_data;
@@ -468,15 +460,24 @@ bool SV_PushReadChunk(const char *id)
 			if (res != LZO_E_OK)
 				I_Error("LOADGAME: ReadChunk [%s] failed: LZO Decompress error.\n", id);
 		}
+		else if (orig_len == file_len)
+		{
+			// no compression
+			memcpy(cur->start, file_data, file_len);
+			decomp_len = file_len;
+		}
 		else // use ZLIB
 		{
+			DEV_ASSERT2(file_len > 0);
+			DEV_ASSERT2(file_len < orig_len);
+
 			uLongf out_len = orig_len;
 
 			int res = uncompress(cur->start, &out_len,
 					file_data, file_len);
 
 			if (res != Z_OK)
-				I_Error("LOADGAME: ReadChunk [%s] failed: ZLIB Decompress error.\n", id);
+				I_Error("LOADGAME: ReadChunk [%s] failed: ZLIB uncompress error.\n", id);
 
 			decomp_len = (unsigned int)out_len;
 		}
@@ -488,15 +489,6 @@ bool SV_PushReadChunk(const char *id)
 			for (i=0; i < decomp_len; i++)
 				cur->start[i] ^= (byte)(XOR_STRING[i % XOR_LEN]);
 		}
-#else
-		cur->start = Z_New(byte, file_len);
-		cur->end = cur->start + file_len;
-
-		for (i=0; (i < file_len) && !last_error; i++)
-			cur->start[i] = SV_GetByte();
-
-		DEV_ASSERT2(!last_error);
-#endif
 	}
 	else
 	{
@@ -703,18 +695,25 @@ bool SV_PopWriteChunk(void)
 
 	if (chunk_stack_size == 0)
 	{
-#if (COMPRESS_ENABLE)
 		unsigned char *out_buf;
-		uLongf out_len;
+		uLongf out_len = MAX_COMP_SIZE(len);
 
-		out_buf = Z_New(byte, MAX_COMP_SIZE(len));
+		out_buf = Z_New(byte, out_len);
 
-		int Z_level = 1;  // fastest
+		int res = compress2(out_buf, &out_len, cur->start, len, Z_BEST_SPEED);
 
-		int res = compress2(out_buf, &out_len, cur->start, len, Z_level);
-
-		if (res != Z_OK)
-			I_Error("SAVEGAME: WriteChunk [%s] failed: Compress error.\n", cur->e_mark);
+		if (res != Z_OK || (int)out_len >= len)
+		{
+L_WriteDebug("WriteChunk UNCOMPRESSED (res %d != %d, out_len %d > %d)\n",
+res, Z_OK, (int)out_len, len);
+			// compression failed, so write uncompressed
+			memcpy(out_buf, cur->start, len);
+			out_len = len;
+		}
+else {
+L_WriteDebug("WriteChunk compress (res %d == %d, out_len %d < %d)\n",
+res, Z_OK, (int)out_len, len);
+}
 
 		DEV_ASSERT2((int)out_len <= MAX_COMP_SIZE(len));
 
@@ -724,19 +723,12 @@ bool SV_PopWriteChunk(void)
 		// write original length to parent
 		SV_PutInt(len);
 
-		for (i=0; (i < (int)out_len) && !last_error; i++)
+		for (i=0; i < (int)out_len && !last_error; i++)
 			SV_PutByte(out_buf[i]);
 
 		DEV_ASSERT2(!last_error);
 
 		Z_Free(out_buf);
-#else
-		// write chunk length to parent
-		SV_PutInt(len);
-
-		for (i=0; i < len; i++)
-			SV_PutByte(cur->start[i]);
-#endif
 	}
 	else
 	{
