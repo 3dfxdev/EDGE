@@ -1,4 +1,17 @@
 
+EDGE DDF 4.8: (2006-09-08)
+==========================
+
+1) SECTORS.DDF: renumbered EDGE types to the 4400-4499 range.
+
+2) LINES.DDF: added BOOM linetypes: 223 (Friction), 224 (Wind Force),
+              225 (Current Force) and 226 (Point push/pull Force).
+
+3) THINGS.DDF: added BOOM's point push/pull types (5001/2).
+
+4) LANGUAGE.LDF: remove unneeded CompatChange & CompatBoth entries.
+
+
 EDGE DDF 4.7: (2006-07-22)
 ==========================
 
