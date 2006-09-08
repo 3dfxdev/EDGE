@@ -684,7 +684,7 @@ static void P_LineEffect(line_t *target, line_t *source,
 static void P_SectorEffect(sector_t *target, line_t *source,
 		const linetype_c *special)
 {
-	float length = R_PointToDist(0, 0, source->dx, source->dy);
+	float length  = R_PointToDist( 0, 0, source->dx, source->dy);
 	angle_t angle = R_PointToAngle(0, 0, source->dx, source->dy);
 
 	if (special->sector_effect & SECTFX_LightFloor)
@@ -712,6 +712,25 @@ static void P_SectorEffect(sector_t *target, line_t *source,
 	{
 		target->props.push.x += source->dx / 320.0f;
 		target->props.push.y += source->dy / 320.0f;
+	}
+
+	if (special->sector_effect & SECTFX_SetFriction)
+	{
+		if (target->props.flags & MSF_Friction)
+			target->props.friction = MIN(1.0f, 0.8125 + length / 1066.7f);
+	}
+
+	if (special->sector_effect & SECTFX_PointForce)
+	{
+		P_AddPointForce(target, length);
+	}
+	if (special->sector_effect & SECTFX_WindForce)
+	{
+		P_AddSectorForce(target, true /* is_wind */, source->dx, source->dy);
+	}
+	if (special->sector_effect & SECTFX_CurrentForce)
+	{
+		P_AddSectorForce(target, false /* is_wind */, source->dx, source->dy);
 	}
 
 	if (special->sector_effect & SECTFX_ResetFloor)
@@ -1638,6 +1657,7 @@ void P_SpawnSpecials(int autotag)
 		if (! G_CheckWhenAppear(secSpecial->appear))
 		{
 			sector->props.special = NULL;
+			sector->props.flags = 0;
 			continue;
 		}
 

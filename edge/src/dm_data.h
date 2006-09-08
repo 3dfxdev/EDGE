@@ -129,25 +129,19 @@ typedef enum
 }
 lineflag_e;
 
-
-// Wad header definition
-typedef struct wad_header_s
+typedef enum
 {
-	// should be "IWAD" or "PWAD".
-	char identification[4];
-	long numlumps;
-	long infotableofs;
+	MSF_DamageMask = 0x0060,
+	MSF_Secret     = 0x0080,
+	MSF_Friction   = 0x0100,
+	MSF_Push       = 0x0200,
+	MSF_NoSounds   = 0x0400,
+	MSF_QuietPlane = 0x0800
 }
-wad_header_t;
+sectorflag_e;
 
-// Wad table entry
-typedef struct wad_entry_s
-{
-	long pos;
-	long size;
-	char name[8];
-}
-wad_entry_t;
+#define MSF_BoomFlags  0x0FE0
+
 
 // Patches.
 //

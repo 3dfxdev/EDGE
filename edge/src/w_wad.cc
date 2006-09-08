@@ -104,7 +104,7 @@ class data_file_c
 {
 public:
 	data_file_c(const char *_fname, int _kind, epi::file_c* _file) :
-		file_name(_fname), kind(_kind), file(_file), compat_mode(0),
+		file_name(_fname), kind(_kind), file(_file),
 		sprite_lumps(), flat_lumps(), patch_lumps(),
 		colmap_lumps(), level_markers(), skin_markers(),
 		wadtex(), deh_lump(-1), companion_gwa(-1)
@@ -120,9 +120,6 @@ public:
 
 	// file object
     epi::file_c *file;
-
-	// any engine-specific features (WAD_CM_XXX)
-	int compat_mode;
 
 	// lists for sprites, flats, patches (stuff between markers)
 	epi::u32array_c sprite_lumps;
@@ -643,10 +640,9 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 	}
 	
 	if (strncmp(name, "SWITCHES", 8) == 0 ||
-		strncmp(name, "ANIMATED", 8) == 0 ||
-	    strncmp(name, "TRANMAP", 8) == 0)
+		strncmp(name, "ANIMATED", 8) == 0)
 	{
-		df->compat_mode |= WAD_CM_Boom;
+		/* FIXME */
 	}
 
 	// -KM- 1998/12/16 Load DDF/RSCRIPT file from wad.
@@ -656,8 +652,6 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 		{
 			if (!strncmp(name, DDF_Readers[j].name, 8))
 			{
-				df->compat_mode |= WAD_CM_Edge;
-
 				lump_p->kind = LMKIND_DDFRTS;
 				df->ddf_lumps[j] = lump;
 				return;
@@ -773,7 +767,7 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 // order is fixed (e.g. THINGS is always first).
 //
 static void CheckForLevel(data_file_c *df, int lump, const char *name,
-	const wad_entry_t *raw, int remaining)
+	const raw_wad_entry_t *raw, int remaining)
 {
 	// we only test four lumps (it is enough), but fewer definitely
 	// means this is not a level marker.
@@ -874,8 +868,8 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	int length;
 	int startlump;
 
-	wad_header_t header;
-	wad_entry_t *curinfo;
+	raw_wad_header_t header;
+	raw_wad_entry_t *curinfo;
 
 	// reset the sprite/flat/patch list stuff
 	within_sprite_list = within_flat_list = false;
@@ -905,7 +899,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	if (kind <= FLKIND_HWad)
 	{
 		// WAD file
-        file->Read(&header, sizeof(wad_header_t));
+        file->Read(&header, sizeof(raw_wad_header_t));
 
 		if (strncmp(header.identification, "IWAD", 4))
 		{
@@ -916,18 +910,18 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 			}
 		}
 
-		header.numlumps = EPI_LE_S32(header.numlumps);
-		header.infotableofs = EPI_LE_S32(header.infotableofs);
+		header.num_entries = EPI_LE_S32(header.num_entries);
+		header.dir_start = EPI_LE_S32(header.dir_start);
 
-		length = header.numlumps * sizeof(wad_entry_t);
+		length = header.num_entries * sizeof(raw_wad_entry_t);
 
-        wad_entry_t *fileinfo = new wad_entry_t[header.numlumps];
+        raw_wad_entry_t *fileinfo = new raw_wad_entry_t[header.num_entries];
 
-        file->Seek(header.infotableofs, epi::file_c::SEEKPOINT_START);
+        file->Seek(header.dir_start, epi::file_c::SEEKPOINT_START);
         file->Read(fileinfo, length);
 
 		// Fill in lumpinfo
-		numlumps += header.numlumps;
+		numlumps += header.num_entries;
 		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
 
 		for (j=startlump, curinfo=fileinfo; j < numlumps; j++,curinfo++)
@@ -974,10 +968,6 @@ static void AddFile(const char *filename, int kind, int dyn_index)
                 file->GetLength(), datafile, datafile, 
 				lump_name, true);
 	}
-
-	L_WriteDebug("Compat mode: %s %s\n",
-		(df->compat_mode & WAD_CM_Edge) ? "EDGE" : "-",
-		(df->compat_mode & WAD_CM_Boom) ? "BOOM" : "-");
 
 	SortLumps();
 	SortSpriteLumps(df);
@@ -1274,8 +1264,6 @@ void W_ReadDDF(void)
 
 		if (external_ddf)
 		{
-			DDF_SetBoomConflict(true);
-
 			// call read function
 			ext_loaded = (* DDF_Readers[d].func)(NULL, 0);
 		}
@@ -1309,8 +1297,6 @@ void W_ReadDDF(void)
 			W_ReadLump(lump, data);
 			data[length] = 0;
 
-			DDF_SetBoomConflict(df->kind == FLKIND_EWad);
-
 			// call read function
 			(* DDF_Readers[d].func)(data, length);
 
@@ -1320,8 +1306,6 @@ void W_ReadDDF(void)
 			if (d == LANG_READER && df->kind == FLKIND_EWad)
 				LoadTntPlutStrings();
 		}
-
-		DDF_SetBoomConflict(false);
 
 		epi::string_c msg_buf;
 
@@ -1643,14 +1627,6 @@ epi::u32array_c& W_GetListLumps(int file, lumplist_e which)
 int W_GetNumFiles(void)
 {
 	return data_files.GetSize();
-}
-
-//
-// W_GetFileCompatMode
-//
-int W_GetFileCompatMode(int file)
-{
-	return data_files[file]->compat_mode;
 }
 
 //

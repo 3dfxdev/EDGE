@@ -94,13 +94,6 @@ typedef enum
 }
 autoaim_t;
 
-typedef enum
-{
-	CM_EDGE,
-	CM_BOOM
-}
-compat_mode_t;
-
 typedef struct gameflags_s
 {
 	// checkparm of -nomonsters
@@ -128,7 +121,7 @@ typedef struct gameflags_s
 	bool shadows;
 	bool halos;
 
-	compat_mode_t compat_mode;
+	bool sector_compat;
 	bool kicking;
 	bool weapon_switch;
 }

@@ -117,11 +117,6 @@ static bool SectorStartEntry(const char *name)
 	// instantiate the static entry
 	buffer_sector.Default();
 
-	if (boom_conflict && number < 96 && DDF_IsBoomSectorType(number))
-	{
-		buffer_sector.boom_conflict = true;
-	}
-
 	return (existing != NULL);
 }
 
@@ -475,7 +470,6 @@ void sectortype_c::Copy(sectortype_c &src)
 //
 void sectortype_c::CopyDetail(sectortype_c &src)
 {
-	boom_conflict = src.boom_conflict;
 	secret = src.secret;
 	crush = src.crush;
 
@@ -515,7 +509,6 @@ void sectortype_c::Default()
 {
 	ddf.Default();
 	
-	boom_conflict = false;
 	secret = false;
 	crush = false;
 

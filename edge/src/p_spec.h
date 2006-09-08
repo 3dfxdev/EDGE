@@ -286,6 +286,9 @@ void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_c * s);
 bool EV_DoPlane(sector_t * sec, const movplanedef_c * type, sector_t * model);
 bool EV_DoElevator(sector_t * sec, const elevatordef_c * type, sector_t * model);
 
+void P_AddPointForce(sector_t *sec, float length);
+void P_AddSectorForce(sector_t *sec, bool is_wind, float x_mag, float y_mag);
+
 //
 //  P_SWITCH
 //

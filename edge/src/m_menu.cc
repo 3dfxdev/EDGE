@@ -134,7 +134,7 @@ int quickSavePage;
 
 // 25-6-98 KM Lots of save games... :-)
 int save_page = 0;
-static int save_slot = 0;
+int save_slot = 0;
 
 // we are going to be entering a savegame string
 static int saveStringEnter;
@@ -850,6 +850,8 @@ static void M_DoSave(int page, int slot)
 		quickSavePage = page;
 		quickSaveSlot = slot;
 	}
+
+	LoadDef.lastOn = SaveDef.lastOn;
 }
 
 //
@@ -1191,23 +1193,6 @@ static void ReallyDoStartLevel(skill_t skill, gamedef_c *g)
 	M_ClearMenus();
 }
 
-static skill_t vcc_skill;
-static gamedef_c *vcc_game;
-
-static void VerifyCompatChange(int ch)
-{
-	if (ch != 'y' && ch != 'n')
-		return;
-
-	if (ch == 'y')
-	{
-		global_flags.compat_mode =
-			(global_flags.compat_mode != CM_EDGE) ? CM_EDGE : CM_BOOM;
-	}
-
-	ReallyDoStartLevel(vcc_skill, vcc_game);
-}
-
 static void DoStartLevel(skill_t skill)
 {
 	// -KM- 1998/12/17 Clear the intermission.
@@ -1243,31 +1228,6 @@ static void DoStartLevel(skill_t skill)
 			g->firstmap.GetString(),
 			EpisodeMenu[chosen_epi].patch_name);
 		M_ClearMenus();
-		return;
-	}
-
-	// Compatibility check (EDGE vs BOOM)
-	int compat = P_DetectWadGameCompat(map);
-	int cur_compat = (global_flags.compat_mode == CM_EDGE) ?
-			MAP_CM_Edge : MAP_CM_Boom;
-
-	if (compat != 0 && compat != cur_compat)
-	{
-		char msg_buf[2048];
-
-		if (compat == (MAP_CM_Edge|MAP_CM_Boom))
-			sprintf(msg_buf, language["CompatBoth"],
-				(cur_compat == MAP_CM_Edge) ? "EDGE" : "BOOM");
-		else
-			sprintf(msg_buf, language["CompatChange"],
-				(cur_compat != MAP_CM_Edge) ? "EDGE" : "BOOM",
-				(cur_compat == MAP_CM_Edge) ? "EDGE" : "BOOM");
-
-		// remember settings (Ugh!)
-		vcc_skill = skill;
-		vcc_game  = g;
-
-		M_StartMessage(msg_buf, VerifyCompatChange, true);
 		return;
 	}
 
@@ -1919,7 +1879,7 @@ bool M_Responder(event_t * ev)
 		case KEYD_UPARROW:
 			do
 			{
-				if (!itemOn)
+				if (itemOn == 0)
 					itemOn = currentMenu->numitems - 1;
 				else
 					itemOn--;

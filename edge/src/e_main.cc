@@ -138,7 +138,7 @@ gameflags_t default_gameflags =
 	false,  // shadows
 	false,  // halos
 
-	CM_EDGE,  // compat_mode
+	false,    // sector_compat
 	true,     // kicking
 	true      // weapon_switch
 };
@@ -400,10 +400,8 @@ static void SetGlobalVars(void)
 	else if (M_CheckParm("nodlights"))
 		use_dlights = 0;
 
-	if (M_CheckParm("-boom"))
-		global_flags.compat_mode = CM_BOOM;
-	else if (M_CheckParm("-edge") || M_CheckParm("-noboom"))
-		global_flags.compat_mode = CM_EDGE;
+	if (M_CheckParm("-ecompat"))
+		global_flags.sector_compat = true;
 
 	if (!global_flags.respawn)
 	{
@@ -547,6 +545,7 @@ static void SpecialWadVerify(void)
 static void ShowNotice(void)
 {
 	I_Printf("%s", language["Notice"]);
+
 }
 
 static void DoSystemStartup(void)
@@ -587,6 +586,16 @@ void E_PostEvent(event_t * ev)
 {
 	events[eventhead] = *ev;
 	eventhead = (eventhead + 1) % MAXEVENTS;
+
+#ifdef DEBUG_KEY_EV  //!!!!
+if (ev->type == ev_keydown || ev->type == ev_keyup)
+{
+	L_WriteDebug("EVENT @ %08x %d %s\n",
+		I_ReadMicroSeconds()/1000,
+		ev->value.key,
+		(ev->type == ev_keyup) ? "DOWN" : "up");
+}
+#endif
 }
 
 //
@@ -1532,6 +1541,7 @@ startuporder_t startcode[] =
 	{ 20, W_ReadDDF,           },
 	{  1, DDF_CleanUp,         },
 	{  1, SetLanguage,         },
+	{  1, ShowNotice,          },
 	{  1, SV_MainInit,         },
 	{ 15, W_ImageCreateUser,   },
 	{ 20, R_InitSprites,       },
@@ -1544,7 +1554,6 @@ startuporder_t startcode[] =
 	{  1, sound::Init,         },
 	{  1, N_InitNetwork,       },
 	{  2, ST_Init,             },
-	{  1, ShowNotice,          },
 	{  0, NULL,                }
 };
 

@@ -177,7 +177,7 @@ static void DG_GetLevelFlags(const char *info, void *storage)
 
 #undef HANDLE_FLAG
 
-	dest->compat_mode = (flags & MPF_BoomCompat) ? CM_BOOM : CM_EDGE;
+	dest->sector_compat = (flags & MPF_BoomCompat) ? false : true;
 
 	dest->autoaim = (flags & MPF_AutoAim) ? 
 		((flags & MPF_AutoAimMlook) ? AA_MLOOK : AA_ON) : AA_OFF;
@@ -257,7 +257,7 @@ static const char *DG_PutLevelFlags(void *storage)
 
 #undef HANDLE_FLAG
 
-	if (src->compat_mode == CM_BOOM)
+	if (!src->sector_compat)
 		flags |= MPF_BoomCompat;
 
 	if (src->autoaim != AA_OFF)

@@ -1846,8 +1846,6 @@ static void MoveElevator(elev_move_t *elev)
 //
 // EV_DoElevator
 //
-// Do Elevators
-//
 bool EV_DoElevator(sector_t * sec, const elevatordef_c * def, sector_t * model)
 {
 #if 0

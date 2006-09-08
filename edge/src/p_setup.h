@@ -51,14 +51,4 @@ void P_StopLevel(void);
 void P_RemoveMobjs(void);
 void P_RemoveItemsInQue(void);
 
-typedef enum
-{
-	MAP_CM_Edge = 0x0001,  // uses EDGE features
-	MAP_CM_Boom = 0x0002,  // uses BOOM features
-}
-mapcompat_e;
-
-int P_DetectMapCompat(const mapdef_c *map);
-int P_DetectWadGameCompat(const mapdef_c *first);
-
 #endif

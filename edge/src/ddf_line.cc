@@ -937,9 +937,14 @@ static specflags_t sector_effect_names[] =
 	{"SCROLL FLOOR",    SECTFX_ScrollFloor,    0},
 	{"SCROLL CEILING",  SECTFX_ScrollCeiling,  0},
 	{"PUSH THINGS",     SECTFX_PushThings,     0},
+
+	{"SET FRICTION",    SECTFX_SetFriction,    0},
+	{"WIND FORCE",      SECTFX_WindForce,      0},
+	{"CURRENT FORCE",   SECTFX_CurrentForce,   0},
+	{"POINT FORCE",     SECTFX_PointForce,     0},
+
 	{"RESET FLOOR",     SECTFX_ResetFloor,     0},
 	{"RESET CEILING",   SECTFX_ResetCeiling,   0},
-
 	{"ALIGN FLOOR",     SECTFX_AlignFloor,     0},
 	{"ALIGN CEILING",   SECTFX_AlignCeiling,   0},
 	{"SCALE FLOOR",     SECTFX_ScaleFloor,     0},

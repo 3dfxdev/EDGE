@@ -208,9 +208,9 @@ void G_DoLoadLevel(void)
 #undef HANDLE_FLAG
 
 	if (currmap->force_on & MPF_BoomCompat)
-		level_flags.compat_mode = CM_BOOM;
+		level_flags.sector_compat = false;
 	else if (currmap->force_off & MPF_BoomCompat)
-		level_flags.compat_mode = CM_EDGE;
+		level_flags.sector_compat = true;
 
 	if (currmap->force_on & MPF_AutoAim)
 	{
@@ -777,8 +777,8 @@ static void G_DoLoadGame(void)
 	if (globs->sky_image)  // backwards compat (sky_image added 2003/12/19)
 		sky_image = globs->sky_image;
 
-	// clear line/sector lookup caches, in case level_flags.compat_mode
-	// has changed (e.g. CM_BOOM -> CM_EDGE).
+	// clear line/sector lookup caches, in case level_flags.sector_compat
+	// has changed.
 	DDF_BoomClearGenTypes();
 
 	if (SV_LoadEverything() && SV_GetError() == 0)
@@ -949,19 +949,6 @@ bool G_DeferredInitNew(newgame_params_c& params, bool compat_check)
 
 	if (W_CheckNumForName(params.map->lump) == -1)
 		return false;
-
-	if (compat_check)
-	{
-		// compatibility check (EDGE vs BOOM)
-		int compat = P_DetectWadGameCompat(params.map);
-
-		if (compat == MAP_CM_Edge)
-			global_flags.compat_mode = CM_EDGE;
-		else if (compat == MAP_CM_Boom)
-			global_flags.compat_mode = CM_BOOM;
-		else if (compat != 0)
-			I_Warning("Detected both EDGE and BOOM features - check compatibility\n");
-	}
 
 	d_params = new newgame_params_c(params);
 
