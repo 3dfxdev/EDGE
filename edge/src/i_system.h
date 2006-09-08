@@ -56,7 +56,7 @@ void I_Loop(void);
 // simulation, keeps sound and music playing, and most importantly
 // renders a single frame of graphics.
 
-void I_Printf(const char *message,...) GCCATTR(format(printf, 1, 2));
+void I_Printf(const char *message,...) GCCATTR((format(printf, 1, 2)));
 // The generic print function.  If in text mode, the message should be
 // displayed on the text mode screen.  This function should also call
 // L_WriteDebug() and CON_Printf().
@@ -66,7 +66,7 @@ void I_PutTitle(const char *title);
 // write the given title in a banner at the top (in a stand-out way,
 // e.g. bright white on a red background).
 
-void I_Error(const char *error,...) GCCATTR(format(printf, 1, 2));
+void I_Error(const char *error,...) GCCATTR((format(printf, 1, 2)));
 // The error function.  All fatal errors call I_Error().  This
 // function should shut things down (e.g. via I_SystemShutdown),
 // display the error message to the user (and possibly debugging info,
@@ -84,7 +84,7 @@ void I_SystemShutdown(void);
 // I_ShutdownGraphics and I_ShutdownControl), and doing anything else
 // the platform code needs to (e.g. freeing all other resources).
 
-void I_CloseProgram(int exitnum) GCCATTR(noreturn);
+void I_CloseProgram(int exitnum) GCCATTR((noreturn));
 // Exit the program immediately, using the given `exitnum' as the
 // program's exit status.  This is the very last thing done, and
 // I_SystemShutdown() is guaranteed to have already been called.
@@ -95,7 +95,7 @@ void I_TraceBack(void);
 // "-traceback" option, and when present call this routine instead of
 // I_CloseProgram() whenever a fatal error occurs.
 
-void I_Warning(const char *warning,...) GCCATTR(format(printf, 1, 2));
+void I_Warning(const char *warning,...) GCCATTR((format(printf, 1, 2)));
 // Writes a warning to the console and the debug file (if any).  This
 // function should call CON_Printf().
 
@@ -441,8 +441,8 @@ void I_ShutdownGraphics(void);
 #define CHECKVAL(x)  do {} while(0)
 #endif
 
-void L_WriteLog(const char *message,...) GCCATTR(format(printf, 1, 2));
-void L_WriteDebug(const char *message,...) GCCATTR(format(printf, 1, 2));
+void L_WriteLog(const char *message,...) GCCATTR((format(printf, 1, 2)));
+void L_WriteDebug(const char *message,...) GCCATTR((format(printf, 1, 2)));
 
 // TEMP: another temporary "common lib" thing.
 int L_ConvertToDB(int volume, int min, int max);
