@@ -934,6 +934,10 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 
 	bool flipped = (def->special & TELSP_Flipped) ? true : false;
 
+	player_t *player = thing->player;
+	if (player->mo != thing)  // exclude voodoo dolls
+		player = NULL;
+
     if (def->special & TELSP_Line)
     {
         if (!line || tag <= 0)
@@ -1050,23 +1054,12 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
         return false;
     
     // FIXME: deltaviewheight may need adjustment
-    if (thing->player)
-        thing->player->viewz = thing->z + thing->player->viewheight;
+    if (player)
+        player->viewz = thing->z + player->viewheight;
 
     /* --- Momentum handling --- */
 
-    if (thing->player && !(def->special & TELSP_SameSpeed))
-    {
-        // don't move for a bit
-        thing->reactiontime = def->delay;
-
-        // -ES- 1998/10/29 Start the fading
-        if (telept_effect && thing->player == players[displayplayer])
-            R_StartFading(0, (def->delay * 5) / 2);
-
-        thing->mom.x = thing->mom.y = thing->mom.z = 0;
-    }
-    else if (thing->flags & MF_MISSILE)
+    if (thing->flags & MF_MISSILE)
     {
         thing->mom.x = thing->speed * M_Cos(new_ang);
         thing->mom.y = thing->speed * M_Sin(new_ang);
@@ -1084,6 +1077,17 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 
         thing->mom.x = mx * c - my * s;
         thing->mom.y = my * c + mx * s;
+    }
+	else if (player)
+    {
+        // don't move for a bit
+        thing->reactiontime = def->delay;
+
+        // -ES- 1998/10/29 Start the fading
+        if (telept_effect && player == players[displayplayer])
+            R_StartFading(0, (def->delay * 5) / 2);
+
+        thing->mom.x = thing->mom.y = thing->mom.z = 0;
     }
 
     thing->angle = new_ang;
@@ -1123,7 +1127,7 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
             if (fog->info->chase_state)
                 P_SetMobjStateDeferred(fog, fog->info->chase_state, 0);
 
-            if (thing->player && !telept_flash)
+            if (player == players[displayplayer] && !telept_flash)
                 fog->vis_target = fog->visibility = INVISIBLE;
         }
     }
