@@ -421,9 +421,16 @@ static bool DoExecuteChangeResolution(void)
 	// -ACB- 1999/09/20
 	// parameters needed for I_SetScreenMode - returns false on failure
 	sm = scrmodelist[res_idx];
+
+	L_WriteDebug("-  ChangeRes: attempting %dx%d %d bpp (%s)\n",
+			sm->width, sm->height, sm->depth,
+			sm->windowed ? "Windowed" : "FULLSCREEN");
+	
 	V_GetSysRes(scrmodelist[res_idx], &sys_sm); // Set the system mode struct
 	if (!I_SetScreenSize(&sys_sm))
 	{
+		L_WriteDebug("-  Failed, changing back...\n");
+
 		// wait one second before changing res again, gfx card doesn't like to
 		// switch mode too rapidly.
 		int count, t, t1, t2;
@@ -445,6 +452,8 @@ static bool DoExecuteChangeResolution(void)
 		}
 		while (t2 >= t);
 
+		L_WriteDebug("-  returning false.\n");
+
 		return false;
 	}
 
@@ -453,6 +462,8 @@ static bool DoExecuteChangeResolution(void)
 	SCREENBITS   = sm->depth;
 	SCREENWINDOW = sm->windowed;
 	
+	L_WriteDebug("-  Succeeded, resetting stuff...\n");
+
 	V_InitResolution();
 
 	RGL_NewScreenSize(SCREENWIDTH, SCREENHEIGHT, SCREENBITS);
@@ -469,6 +480,8 @@ static bool DoExecuteChangeResolution(void)
 	RGL_SoftInitUnits();	// -ACB- 2004/02/15 Needed to sort vars lost in res change
 	W_ResetImages();
 
+	L_WriteDebug("-  returning true.\n");
+
 	graphicsmode = true;
 
 	// -AJA- 1999/07/03: removed PLAYPAL reference.
@@ -484,6 +497,8 @@ void R_ExecuteChangeResolution(void)
     setresfailed = !DoExecuteChangeResolution();
 	if (!setresfailed)
 		return; // Everything's fine...
+
+	L_WriteDebug("- Looking for another mode to try...\n");
 
 	int oldres_idx = scrmodelist.Find(SCREENWIDTH, 
                                       SCREENHEIGHT, 
@@ -514,6 +529,8 @@ void R_ExecuteChangeResolution(void)
 
 	if (DoExecuteChangeResolution())
 		return; // Worked, so lets bail.
+
+	L_WriteDebug("- Getting desperate!\n");
 
     // This ain't good - current and previous resolutions do not work. Lets
     // start from the beginning and find a working resolution.
