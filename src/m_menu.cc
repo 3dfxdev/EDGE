@@ -277,7 +277,7 @@ void M_StartControlPanel(void);
 //
 // DOOM MENU
 //
-enum
+typedef enum
 {
 	newgame = 0,
 	options,
@@ -361,7 +361,7 @@ static menu_t SkillDef =
 //
 // OPTIONS MENU
 //
-enum
+typedef enum
 {
 	endgame,
 	messages,
@@ -413,7 +413,7 @@ static menu_t ReadDef2 =
 //
 // SOUND VOLUME MENU
 //
-enum
+typedef enum
 {
 	sfx_vol,
 	sfx_empty1,
