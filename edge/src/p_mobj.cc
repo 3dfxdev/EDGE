@@ -104,21 +104,17 @@ mobj_t *mobjlisthead;
 // Where objects go to die...
 iteminque_t *itemquehead;
 
-spawnpoint_t* spawnpointarray_c::FindPlayer(int pnum, int skip)
+spawnpoint_t* spawnpointarray_c::FindPlayer(int pnum)
 {
 	epi::array_iterator_c it;
-	
+
 	for (it=GetBaseIterator(); it.IsValid(); it++)
 	{
 		spawnpoint_t *point = ITERATOR_TO_PTR(it, spawnpoint_t);
 		DEV_ASSERT2(point->info);
 
 		if (point->info->playernum == pnum)
-		{
-			if (!skip)
-				return point;
-			--skip;
-		}
+			return point;
 	}
 
 	return NULL;  // not found

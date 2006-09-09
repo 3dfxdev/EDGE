@@ -455,6 +455,30 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 }
 
 //
+// P_SpawnVoodooDoll
+//
+static void P_SpawnVoodooDoll(player_t *p, const spawnpoint_t *point)
+{
+	const mobjtype_c *info = point->info;
+
+	DEV_ASSERT2(info);
+	DEV_ASSERT2(info->playernum > 0);
+
+	mobj_t *mobj = P_MobjCreateObject(point->x, point->y, point->z, info);
+
+	mobj->angle = point->angle;
+	mobj->vertangle = point->vertangle;
+	mobj->player = p;
+	mobj->health = p->health;
+
+	if (COOP_MATCH())
+		mobj->side = ~0;
+
+	// Don't get stuck spawned in things: telefrag them.
+	P_TeleportMove(mobj, mobj->x, mobj->y, mobj->z);
+}
+
+//
 // G_DeathMatchSpawnPlayer 
 //
 // Spawns a player at one of the random deathmatch spots.
@@ -509,7 +533,7 @@ void G_DeathMatchSpawnPlayer(player_t *p)
 //
 void G_CoopSpawnPlayer(player_t *p)
 {
-	spawnpoint_t *sp = coop_starts.FindPlayer(p->pnum + 1);
+	spawnpoint_t *sp = coop_starts.FindPlayer(p->pnum+1);
 
 	if (sp == NULL)
 		I_Error("Missing player %d start !\n", p->pnum+1);
@@ -543,18 +567,22 @@ void G_CoopSpawnPlayer(player_t *p)
 }
 
 //
-// G_CoopSpawnVoodooDolls
+// G_SpawnVoodooDolls
 //
-// Spawns lots of voodoo dolls (except at the start location of the player).
-// Called at level load.
-//
-void G_CoopSpawnVoodooDolls(player_t *p)
+void G_SpawnVoodooDolls(player_t *p)
 {
-	int skip = -1;
-	spawnpoint_t *sp;
-	while ((sp = voodoo_doll_starts.FindPlayer (p->pnum + 1, ++skip)) != NULL)
-		if (G_CheckSpot(p, sp))
-			P_SpawnPlayer(p, sp);
+	for (int i = 0; i < voodoo_doll_starts.GetSize(); i++)
+	{
+		spawnpoint_t *sp = voodoo_doll_starts[i];
+
+		if (sp->info->playernum != p->pnum + 1)
+			continue;
+
+		if (! G_CheckSpot(p, sp))
+			continue;
+
+		P_SpawnVoodooDoll(p, sp);
+	}
 }
 
 

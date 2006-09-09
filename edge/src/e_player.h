@@ -318,7 +318,7 @@ void P_BotPlayerBuilder(const player_t *p, void *data, ticcmd_t *dest);
 
 void G_DeathMatchSpawnPlayer(player_t *p);
 void G_CoopSpawnPlayer(player_t *p);
-void G_CoopSpawnVoodooDolls(player_t *p);
+void G_SpawnVoodooDolls(player_t *p);
 
 void G_SetConsolePlayer(int pnum);
 void G_SetDisplayPlayer(int pnum);
