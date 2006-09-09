@@ -21,6 +21,8 @@
 
 #include "i_defs.h"
 
+#include <string.h>
+
 #include "ddf_locl.h"
 #include "ddf_main.h"
 #include "ddf_swth.h"
@@ -192,6 +194,42 @@ void DDF_SwitchCleanUp(void)
 {
 	switchdefs.Trim();
 }
+
+void DDF_ParseSWITCHES(const byte *data, int size)
+{
+	for (; size >= 20; data += 20, size -= 20)
+	{
+		if (data[18] == 0)  // end marker
+			break;
+
+		char off_name[10];
+		char  on_name[10];
+
+		// make sure names are NUL-terminated
+		memcpy(off_name, data+0, 9); off_name[8] = 0;
+		memcpy( on_name, data+9, 9);  on_name[8] = 0;
+
+		L_WriteDebug("- SWITCHES LUMP: off '%s' : on '%s'\n", off_name, on_name);
+				
+		// ignore zero-length names
+		if (!off_name[0] || !on_name[0])
+			continue;
+
+		switchdef_c *def = new switchdef_c;
+
+		def->ddf.SetUniqueName("BOOM_SWITCH", switchdefs.GetSize());
+		def->ddf.number = 0;
+		def->ddf.crc.Reset();
+
+		def->Default();
+		
+		def->name1.Set( on_name);
+		def->name2.Set(off_name);
+
+		switchdefs.Insert(def);
+	}
+}
+
 
 // ---> switchdef_c class
 
