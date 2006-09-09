@@ -551,9 +551,10 @@ void G_SpawnInitialPlayers(void)
 		player_t *p = players[pnum];
 		if (! p) continue;
 
-		if (!DEATHMATCH())
-			G_CoopSpawnVoodooDolls(p);
 		G_DoReborn(p);
+
+		if (!DEATHMATCH())
+			G_SpawnVoodooDolls(p);
 	}
 
 	// check for missing player start.
