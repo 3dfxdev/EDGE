@@ -98,21 +98,13 @@ static ddf_reader_t DDF_Readers[] =
 #define NUM_DDF_READERS  (int)(sizeof(DDF_Readers) / sizeof(ddf_reader_t))
 
 #define LANG_READER  0
-#define RTS_READER  (NUM_DDF_READERS-1)
+#define SWTH_READER  12
+#define ANIM_READER  13
+#define RTS_READER   16
 
 class data_file_c
 {
 public:
-	data_file_c(const char *_fname, int _kind, epi::file_c* _file) :
-		file_name(_fname), kind(_kind), file(_file),
-		sprite_lumps(), flat_lumps(), patch_lumps(),
-		colmap_lumps(), level_markers(), skin_markers(),
-		wadtex(), deh_lump(-1), companion_gwa(-1)
-	{
-		for (int d = 0; d < NUM_DDF_READERS; d++)
-			ddf_lumps[d] = -1;
-	}
-
 	const char *file_name;
 
 	// type of file (FLKIND_XXX)
@@ -140,10 +132,26 @@ public:
 	// DeHackEd support
 	int deh_lump;
 
+	// BOOM stuff
+	int animated, switches;
+
 	// file containing the GL nodes for the levels in this WAD.
 	// -1 when none (usually when this WAD has no levels, but also
 	// temporarily before a new GWA files has been built and added).
 	int companion_gwa;
+
+public:
+	data_file_c(const char *_fname, int _kind, epi::file_c* _file) :
+		file_name(_fname), kind(_kind), file(_file),
+		sprite_lumps(), flat_lumps(), patch_lumps(),
+		colmap_lumps(), level_markers(), skin_markers(),
+		wadtex(), deh_lump(-1), animated(-1), switches(-1),
+		companion_gwa(-1)
+	{
+		for (int d = 0; d < NUM_DDF_READERS; d++)
+			ddf_lumps[d] = -1;
+	}
+
 };
 
 class datafile_array_c : public epi::array_c
@@ -284,7 +292,7 @@ bool within_colmap_list;
 
 raw_filename_container_c wadfiles;
 
-static void W_ReadLump(int lump, void *dest);
+static byte *W_ReadLumpAlloc(int lump, int *length);
 
 //
 // Is the name a sprite list start flag?
@@ -638,11 +646,17 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 		df->deh_lump = lump;
 		return;
 	}
-	
-	if (strncmp(name, "SWITCHES", 8) == 0 ||
-		strncmp(name, "ANIMATED", 8) == 0)
+	else if (!strncmp(name, "ANIMATED", 8))
 	{
-		/* FIXME */
+		lump_p->kind = LMKIND_DDFRTS;
+		df->animated = lump;
+		return;
+	}
+	else if (!strncmp(name, "SWITCHES", 8))
+	{
+		lump_p->kind = LMKIND_DDFRTS;
+		df->switches = lump;
+		return;
 	}
 
 	// -KM- 1998/12/16 Load DDF/RSCRIPT file from wad.
@@ -937,7 +951,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 				CheckForLevel(df, j, lumpinfo[j].name, curinfo, numlumps-1 - j);
 		}
 
-		delete [] fileinfo;
+		delete[] fileinfo;
 	}
 	else  /* single lump file */
 	{
@@ -1219,28 +1233,24 @@ void W_InitMultipleFiles(void)
 		I_Error("W_InitMultipleFiles: no files found");
 }
 
-bool TryLoadExtraLanguage(const char *name)
+static bool TryLoadExtraLanguage(const char *name)
 {
 	int lumpnum = W_CheckNumForName(name);
 
 	if (lumpnum < 0)
 		return false;
 
-	int length = W_LumpLength(lumpnum);
-	char *data = new char[length + 1];
-
-	W_ReadLump(lumpnum, data);
-	data[length] = 0;
+	int length;
+	char *data = (char *) W_ReadLumpAlloc(lumpnum, &length);
 
 	DDF_ReadLangs(data, length);
-
 	delete[] data;
 
 	return true;
 }
 
 // MUNDO HACK, but if only fixable by a new wad structure...
-void LoadTntPlutStrings(void)
+static void LoadTntPlutStrings(void)
 {
 	if (strcmp(iwad_base.GetString(), "TNT") == 0)
 		TryLoadExtraLanguage("TNTLANG");
@@ -1264,6 +1274,8 @@ void W_ReadDDF(void)
 
 		if (external_ddf)
 		{
+			L_WriteDebug("- Loading external %s\n", DDF_Readers[d].name);
+
 			// call read function
 			ext_loaded = (* DDF_Readers[d].func)(NULL, 0);
 		}
@@ -1275,6 +1287,8 @@ void W_ReadDDF(void)
 			// all script files get parsed here
 			if (d == RTS_READER && df->kind == FLKIND_Script)
 			{
+				L_WriteDebug("- Loading RTS script: %s\n", df->file_name);
+
 				RAD_LoadFile(df->file_name);
 				continue;
 			}
@@ -1287,24 +1301,43 @@ void W_ReadDDF(void)
 
 			int lump = df->ddf_lumps[d];
 
-			if (lump < 0)
-				continue;
+			if (lump >= 0)
+			{
+				L_WriteDebug("- Loading %s from: %s\n", DDF_Readers[d].name, df->file_name);
 
-			char *data;
-			int length = W_LumpLength(lump);
+				int length;
+				char *data = (char *) W_ReadLumpAlloc(lump, &length);
 
-			data = new char[length + 1];
-			W_ReadLump(lump, data);
-			data[length] = 0;
+				// call read function
+				(* DDF_Readers[d].func)(data, length);
+				delete[] data;
 
-			// call read function
-			(* DDF_Readers[d].func)(data, length);
+				// special handling for TNT and Plutonia
+				if (d == LANG_READER && df->kind == FLKIND_EWad)
+					LoadTntPlutStrings();
+			}
 
-			delete [] data;
+			// handle Boom's ANIMATED and SWITCHES lumps
+			if (d == ANIM_READER && df->animated >= 0)
+			{
+				L_WriteDebug("- Loading ANIMATED from: %s\n", df->file_name);
 
-			// special handling for TNT and Plutonia
-			if (d == LANG_READER && df->kind == FLKIND_EWad)
-				LoadTntPlutStrings();
+				int length;
+				byte *data = W_ReadLumpAlloc(df->animated, &length);
+
+				DDF_ParseANIMATED(data, length);
+				delete[] data;
+			}
+			if (d == SWTH_READER && df->switches >= 0)
+			{
+				L_WriteDebug("- Loading SWITCHES from: %s\n", df->file_name);
+
+				int length;
+				byte *data = W_ReadLumpAlloc(df->switches, &length);
+
+				DDF_ParseSWITCHES(data, length);
+				delete[] data;
+			}
 		}
 
 		epi::string_c msg_buf;
@@ -1662,6 +1695,19 @@ static void W_ReadLump(int lump, void *dest)
 
 	if (c < L->size)
 		I_Error("W_ReadLump: only read %i of %i on lump %i", c, L->size, lump);
+}
+
+static byte *W_ReadLumpAlloc(int lump, int *length)
+{
+	*length = W_LumpLength(lump);
+
+	byte *data = new byte[*length + 1];
+
+	W_ReadLump(lump, data);
+
+	data[*length] = 0;
+
+	return data;
 }
 
 //
