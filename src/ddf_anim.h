@@ -59,8 +59,8 @@ public:
 	epi::strlist_c pics;
 
 	// first and last names in TEXTURE1/2 lump
-	lumpname_c endname;
 	lumpname_c startname;
+	lumpname_c endname;
 
 	// how many 1/35s ticks each frame lasts
 	int speed;
@@ -85,5 +85,7 @@ public:
 extern animdef_container_c animdefs;		// -ACB- 2004/06/03 Implemented 
 
 bool DDF_ReadAnims(void *data, int size);
+
+void DDF_ParseANIMATED(const byte *data, int size);
 
 #endif  /* __DDF_ANIM__ */
