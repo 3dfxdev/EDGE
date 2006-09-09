@@ -44,6 +44,7 @@
 
 #define DEBUG_GETBYTE  0
 #define DEBUG_PUTBYTE  0
+#define DEBUG_COMPRESS 0
 
 
 #define XOR_STRING  "EDGE!"
@@ -698,16 +699,21 @@ bool SV_PopWriteChunk(void)
 
 		if (res != Z_OK || (int)out_len >= len)
 		{
-L_WriteDebug("WriteChunk UNCOMPRESSED (res %d != %d, out_len %d > %d)\n",
-res, Z_OK, (int)out_len, len);
+#if (DEBUG_COMPRESS)
+			L_WriteDebug("WriteChunk UNCOMPRESSED (res %d != %d, out_len %d >= %d)\n",
+					res, Z_OK, (int)out_len, len);
+#endif
 			// compression failed, so write uncompressed
 			memcpy(out_buf, cur->start, len);
 			out_len = len;
 		}
-else {
-L_WriteDebug("WriteChunk compress (res %d == %d, out_len %d < %d)\n",
-res, Z_OK, (int)out_len, len);
-}
+#if (DEBUG_COMPRESS)
+		else
+		{
+			L_WriteDebug("WriteChunk compress (res %d == %d, out_len %d < %d)\n",
+					res, Z_OK, (int)out_len, len);
+		}
+#endif
 
 		DEV_ASSERT2((int)out_len <= MAX_COMP_SIZE(len));
 
