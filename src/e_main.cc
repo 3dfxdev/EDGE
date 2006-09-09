@@ -554,6 +554,8 @@ static void DoSystemStartup(void)
 	W_InitImages();
 	GUI_MainInit();
 
+	L_WriteDebug("- System startup begun.\n");
+
 	I_SystemStartup();
 
 	// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
@@ -569,9 +571,13 @@ static void DoSystemStartup(void)
 
 	// -KM- 1998/09/27 Change res now, so music doesn't start before
 	// screen.  Reset clock too.
+	L_WriteDebug("- Changing Resolution...\n");
+
 	R_ExecuteChangeResolution();
 
 	RGL_Init();
+
+	L_WriteDebug("- System startup done.\n");
 }
 
 // ===============End of Internals================
@@ -1677,6 +1683,8 @@ namespace engine
 			G_DeferredLoadGame(atoi(ps));
 		}
 
+		L_WriteDebug("- Startup: ready to play.\n");
+
 		if (gameaction != ga_loadgame && gameaction != ga_playdemo)
 		{
 			if (netgame)
@@ -1719,6 +1727,8 @@ namespace engine
 		{
 			// Startup function will throw an error if something goes wrong
 			Startup();
+
+			L_WriteDebug("- Entering game loop...\n");
 
 			// -ACB- 1999/09/24 Call System Specific Looping function. Some
 			//                  systems don't loop forever.
