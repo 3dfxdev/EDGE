@@ -138,7 +138,6 @@ static void AnimFinishEntry(void)
 
 		if (buffer_anim.type == animdef_c::A_Graphic)
 			DDF_Error("TYPE=GRAPHIC animations must use the SEQUENCE command.\n");
-
 	}
 
 	// transfer static entry to dynamic entry
@@ -241,17 +240,17 @@ void DDF_ParseANIMATED(const byte *data, int size)
 
 		int speed = data[19] + (data[20] << 8);
 
-		char name1[10];
-		char name2[10];
+		char first[10];
+		char  last[10];
 
 		// make sure names are NUL-terminated
-		memcpy(name1, data+ 1, 9); name1[8] = 0;
-		memcpy(name2, data+10, 9); name2[8] = 0;
+		memcpy(first, data+10, 9);  last[8] = 0;
+		memcpy( last, data+ 1, 9); first[8] = 0;
 
-		L_WriteDebug("- ANIMATED LUMP: start '%s' : end '%s'\n", name1,name2);
+		L_WriteDebug("- ANIMATED LUMP: start '%s' : end '%s'\n", first, last);
 
 		// ignore zero-length names
-		if (!name1[0] || !name2[0])
+		if (!first[0] || !last[0])
 			continue;
 
 		animdef_c *def = new animdef_c;
@@ -265,8 +264,8 @@ void DDF_ParseANIMATED(const byte *data, int size)
 		def->type = (data[0] & 1) ? animdef_c::A_Texture : animdef_c::A_Flat;
 		def->speed = MAX(1, speed);
 
-		def->startname.Set(name1);
-		def->endname  .Set(name2);
+		def->startname.Set(first);
+		def->endname  .Set(last);
 
 		animdefs.Insert(def);
 	}

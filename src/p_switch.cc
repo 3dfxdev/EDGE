@@ -121,12 +121,12 @@ void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 
 		pos = BWH_None;
 
-		switchdef_c *sw;
-		for (it = switchdefs.GetBaseIterator(); 
+		// Note: reverse order, give priority to newer switches.
+		for (it = switchdefs.GetTailIterator(); 
              it.IsValid() && (pos == BWH_None); 
              it++)
 		{
-			sw = ITERATOR_TO_TYPE(it, switchdef_c*);
+			switchdef_c *sw = ITERATOR_TO_TYPE(it, switchdef_c*);
 
 			if (!sw->cache.image[0] && !sw->cache.image[1])
 				continue;
@@ -184,12 +184,11 @@ void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 int buttonlist_c::Find(button_t *b)
 {
 	epi::array_iterator_c it;
-	button_t *b2;
 	
 	for (it=GetBaseIterator(); it.IsValid(); it++)
 	{
-		b2 = ITERATOR_TO_PTR(it, button_t);
-		
+		button_t *b2 = ITERATOR_TO_PTR(it, button_t);
+
 		if (b == b2)
 			return it.GetPos();
 	}
@@ -223,12 +222,11 @@ button_t* buttonlist_c::GetNew()
 bool buttonlist_c::IsPressed(line_t* line)
 {
 	epi::array_iterator_c it;
-	button_t *b;
 	
 	for (it=GetBaseIterator(); it.IsValid(); it++)
 	{
-		b = ITERATOR_TO_PTR(it, button_t);
-		
+		button_t *b = ITERATOR_TO_PTR(it, button_t);
+
 		if (b->line == line && b->btimer)
 			return true;
 	}

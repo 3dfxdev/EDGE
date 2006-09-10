@@ -202,12 +202,12 @@ void DDF_ParseSWITCHES(const byte *data, int size)
 		if (data[18] == 0)  // end marker
 			break;
 
-		char off_name[10];
 		char  on_name[10];
+		char off_name[10];
 
 		// make sure names are NUL-terminated
-		memcpy(off_name, data+0, 9); off_name[8] = 0;
 		memcpy( on_name, data+9, 9);  on_name[8] = 0;
+		memcpy(off_name, data+0, 9); off_name[8] = 0;
 
 		L_WriteDebug("- SWITCHES LUMP: off '%s' : on '%s'\n", off_name, on_name);
 				
