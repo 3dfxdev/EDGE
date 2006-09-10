@@ -37,18 +37,7 @@ bool DDF_IsBoomLineType(int num)
 //
 bool DDF_IsBoomSectorType(int num)
 {
-	if (num < 0x20 || num > 0xFFF)
-		return false;
-	
-	switch (num & 31)
-	{
-		case 0: case 1: case  2: case  3:
-		case 4: case 8: case 12: case 13: case 17:
-			return true;
-	
-		default:
-			return false;
-	}
+	return (num >= 0x20 && num <= 0xFFF);
 }
 
 //
@@ -75,6 +64,8 @@ void DDF_BoomClearGenTypes(void)
 // 
 void DDF_BoomMakeGenSector(sectortype_c *sec, int number)
 {
+//  L_WriteDebug("- Making Generalized Sector 0x%03x\n", number);
+
 	// handle lower 5 bits: Lighting
 	switch (number & 0x1F)
 	{
@@ -598,6 +589,8 @@ static void MakeBoomCrusher(linetype_c *line, int number)
 // 
 void DDF_BoomMakeGenLine(linetype_c *line, int number)
 {
+//	L_WriteDebug("- Making Generalized Linedef 0x%04x\n", number);
+
 	// trigger values are the same for all ranges
 	HandleLineTrigger(line, number & 0x7);
 
