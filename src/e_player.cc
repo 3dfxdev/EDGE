@@ -464,6 +464,9 @@ static void P_SpawnVoodooDoll(player_t *p, const spawnpoint_t *point)
 	DEV_ASSERT2(info);
 	DEV_ASSERT2(info->playernum > 0);
 
+	L_WriteDebug("- P_SpawnVoodooDoll %d @ %1.0f,%1.0f\n",
+			p->pnum+1, point->x, point->y);
+		
 	mobj_t *mobj = P_MobjCreateObject(point->x, point->y, point->z, info);
 
 	mobj->angle = point->angle;
@@ -538,31 +541,27 @@ void G_CoopSpawnPlayer(player_t *p)
 	if (sp == NULL)
 		I_Error("Missing player %d start !\n", p->pnum+1);
 
-	if (G_CheckSpot(p, sp))
+	if (! G_CheckSpot(p, sp))
 	{
-		P_SpawnPlayer(p, sp);
-		return;
+		I_Warning("Player %d start is invalid.\n", p->pnum+1);
+
+		int begin = p->pnum;
+
+		// try to spawn at one of the other players spots
+		for (int j = 0; j < coop_starts.GetSize(); j++)
+		{
+			int i = (begin + j) % coop_starts.GetSize();
+
+			spawnpoint_t *new_sp = coop_starts[i];
+
+			if (G_CheckSpot(p, new_sp))
+			{
+				sp = new_sp;
+				break;
+			}
+		}
 	}
 
-	I_Warning("Player %d start is invalid.\n", p->pnum+1);
-
-	sp = NULL;
-	int begin = p->pnum;
-
-	// try to spawn at one of the other players spots
-	for (int j = 0; j < coop_starts.GetSize(); j++)
-	{
-		int i = (begin + j) % coop_starts.GetSize();
-
-		sp = coop_starts[i];
-
-		if (G_CheckSpot(p, sp))
-			break;
-	}
-
-	DEV_ASSERT2(sp);
-
-	// they're going to be inside something.  Too bad.
 	P_SpawnPlayer(p, sp);
 }
 
@@ -577,10 +576,10 @@ void G_SpawnVoodooDolls(player_t *p)
 
 		if (sp->info->playernum != p->pnum + 1)
 			continue;
-
+#if 0
 		if (! G_CheckSpot(p, sp))
 			continue;
-
+#endif
 		P_SpawnVoodooDoll(p, sp);
 	}
 }
