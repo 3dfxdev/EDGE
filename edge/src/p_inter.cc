@@ -587,6 +587,13 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 //
 void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype)
 {
+	// -AJA- 2006/09/10: Voodoo doll handling for coop
+	if (target->player && target->player->mo != target)
+	{
+		P_KillMobj(source, target->player->mo, damtype);
+		target->player = NULL;
+	}
+
 	const mobjtype_c *item;
 	statenum_t state;
 	bool overkill;

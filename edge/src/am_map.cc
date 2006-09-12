@@ -1132,7 +1132,7 @@ static void AM_WalkThing(mobj_t *mo)
 {
 	int colour = THING_COL;
 
-	if (mo->player)
+	if (mo->player && mo->player->mo == mo)
 	{
 		AM_DrawPlayer(mo);
 		return;
