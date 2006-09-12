@@ -381,10 +381,6 @@ void G_ToggleDisplayPlayer(void)
 //
 static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 {
-	float x, y, z;
-
-	mobj_t *mobj;
-
 	// -KM- 1998/11/25 This is in preparation for skins.  The creatures.ddf
 	//   will hold player start objects, sprite will be taken for skin.
 	// -AJA- 2004/04/14: Use DDF entry from level thing.
@@ -394,6 +390,9 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 
 	const mobjtype_c *info = point->info;
 
+	L_WriteDebug("* P_SpawnPlayer %d @ %1.0f,%1.0f\n",
+			point->info->playernum, point->x, point->y);
+		
 	if (info->playernum <= 0)
 		info = mobjtypes.LookupPlayer(p->pnum + 1);
 
@@ -404,11 +403,7 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point)
 		P_GiveInitialBenefits(p, info);
 	}
 
-	x = point->x;
-	y = point->y;
-	z = point->z;
-
-	mobj = P_MobjCreateObject(x, y, z, info);
+	mobj_t *mobj = P_MobjCreateObject(point->x, point->y, point->z, info);
 
 	mobj->angle = point->angle;
 	mobj->vertangle = point->vertangle;
@@ -464,7 +459,7 @@ static void P_SpawnVoodooDoll(player_t *p, const spawnpoint_t *point)
 	DEV_ASSERT2(info);
 	DEV_ASSERT2(info->playernum > 0);
 
-	L_WriteDebug("- P_SpawnVoodooDoll %d @ %1.0f,%1.0f\n",
+	L_WriteDebug("* P_SpawnVoodooDoll %d @ %1.0f,%1.0f\n",
 			p->pnum+1, point->x, point->y);
 		
 	mobj_t *mobj = P_MobjCreateObject(point->x, point->y, point->z, info);
