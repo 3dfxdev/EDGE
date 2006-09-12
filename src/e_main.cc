@@ -1106,47 +1106,47 @@ const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "freedoom", NULL }
 static void IdentifyVersion(void)
 {
 	// Check -iwad parameter, find out if it is the IWADs directory
-    epi::string_c iw_param;
-    epi::string_c iw_filename;
-    epi::string_c iw_dir;
+    epi::string_c iwad_par;
+    epi::string_c iwad_file;
+    epi::string_c iwad_dir;
 
-    iw_param.Set(M_GetParm("-iwad"));
+    iwad_par.Set(M_GetParm("-iwad"));
 
-    if (!iw_param.IsEmpty())
+    if (!iwad_par.IsEmpty())
     {
-        if (epi::the_filesystem->IsDir(iw_param.GetString()))
+        if (epi::the_filesystem->IsDir(iwad_par.GetString()))
         {
-            iw_dir.Set(iw_param.GetString());
-            iw_param.Empty(); // Discard 
+            iwad_dir.Set(iwad_par.GetString());
+            iwad_par.Empty(); // Discard 
         }
     }   
 
     // If we haven't yet set the IWAD directory, then we check
     // the DOOMWADDIR environment variable
-    if (iw_dir.IsEmpty())
+    if (iwad_dir.IsEmpty())
     {
         const char *s = getenv("DOOMWADDIR");
 
         if (s && epi::the_filesystem->IsDir(s))
-            iw_dir.Set(s);
+            iwad_dir.Set(s);
     }
 
     // Should the IWAD directory not be set by now, then we
     // use our standby option of the current directory.
-    if (iw_dir.IsEmpty())
-        iw_dir.Set(".");
+    if (iwad_dir.IsEmpty())
+        iwad_dir.Set(".");
 
     // Should the IWAD Parameter not be empty then it means
     // that one was given which is not a directory. Therefore
     // we assume it to be a name
-    if (!iw_param.IsEmpty())
+    if (!iwad_par.IsEmpty())
     {
         epi::string_c fn;
 
-        fn = iw_param;
+        fn = iwad_par;
         
         // Is it missing the extension?
-        epi::string_c ext = epi::path::GetExtension(iw_param.GetString());
+        epi::string_c ext = epi::path::GetExtension(iwad_par.GetString());
         if (ext.CompareNoCase(EDGEWADEXT))
         {
             // Add one
@@ -1156,11 +1156,11 @@ static void IdentifyVersion(void)
         // If no directory given use the IWAD directory
         epi::string_c dir = epi::path::GetDir(fn.GetString());
         if (!dir.GetLength())
-            iw_filename = epi::path::Join(iw_dir.GetString(), fn.GetString()); 
+            iwad_file = epi::path::Join(iwad_dir.GetString(), fn.GetString()); 
         else
-            iw_filename = fn;
+            iwad_file = fn;
 
-        if (!epi::the_filesystem->Access(iw_filename.GetString(), epi::file_c::ACCESS_READ))
+        if (!epi::the_filesystem->Access(iwad_file.GetString(), epi::file_c::ACCESS_READ))
         {
 			I_Error("IdentifyVersion: Unable to add specified '%s'", fn.GetString());
         }
@@ -1171,7 +1171,7 @@ static void IdentifyVersion(void)
         epi::string_c fn;
         int max = 1;
 
-        if (iw_dir.Compare(game_dir.GetString())) 
+        if (iwad_dir.Compare(game_dir.GetString())) 
         {
             // IWAD directory & game directory differ 
             // therefore do a second loop which will
@@ -1182,7 +1182,7 @@ static void IdentifyVersion(void)
 		bool done = false;
 		for (int i = 0; i < max && !done; i++)
 		{
-			location = (i == 0 ? iw_dir.GetString() : game_dir.GetString());
+			location = (i == 0 ? iwad_dir.GetString() : game_dir.GetString());
 
 			//
 			// go through the available wad names constructing an access
@@ -1198,24 +1198,23 @@ static void IdentifyVersion(void)
 
 				if (epi::the_filesystem->Access(fn.GetString(), epi::file_c::ACCESS_READ))
 				{
-                    iw_filename = fn;
+                    iwad_file = fn;
 					done = true;
 					break;
 				}
 			}
 		}
-        
     }
 
-	if (iw_filename.IsEmpty())
+	if (iwad_file.IsEmpty())
 		I_Error("IdentifyVersion: No IWADS found!\n");
 
-    W_AddRawFilename(iw_filename.GetString(), FLKIND_IWad);
+    W_AddRawFilename(iwad_file.GetString(), FLKIND_IWad);
 
-    iw_filename.ToUpper(); // Make uppercase
+    iwad_file.ToUpper(); // Make uppercase
     
-    iw_param = epi::path::GetBasename(iw_filename.GetString());
-    iwad_base.Set(iw_param.GetString());
+    iwad_par = epi::path::GetBasename(iwad_file.GetString());
+    iwad_base.Set(iwad_par.GetString());
 
 	L_WriteDebug("IWAD BASE = [%s]\n", iwad_base.GetString());
 
@@ -1224,7 +1223,7 @@ static void IdentifyVersion(void)
     // Look for the required wad in the IWADs dir and then the gamedir
     epi::string_c reqwad_filename;
 
-    reqwad_filename = epi::path::Join(iw_dir.GetString(), REQUIREDWAD "." EDGEWADEXT);
+    reqwad_filename = epi::path::Join(iwad_dir.GetString(), REQUIREDWAD "." EDGEWADEXT);
     if (!epi::the_filesystem->Access(reqwad_filename.GetString(), epi::file_c::ACCESS_READ))
     {
         reqwad_filename = epi::path::Join(game_dir.GetString(), REQUIREDWAD "." EDGEWADEXT);
