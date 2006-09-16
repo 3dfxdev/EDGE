@@ -7,49 +7,50 @@
 
 <h3 class="page_title">TAGGED_REPEATABLE</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
-TAGGED_REPEATABLE &lt;Number to repeat&gt; &lt;Rate&gt;</P>
+TAGGED_REPEATABLE &lt;Number to repeat&gt; &lt;Rate&gt;
 
-<P><B>Description:</B><br>
-Use this to make looping radius trigger scripts.  It's most useful when used with TIP and MOVE_SECTOR.
-</P>
+<p>
+<B>Description:</B><br>
+Use this to make looping radius trigger scripts.
+It is most useful when used with TIP and MOVE_SECTOR commands.
 
-<P><B>Details:</B><br>
-&lt;Number to repeat&gt; is the number of times we want the script to execute. If we specify 0 then it will repeat forever.
-<br><br>
-<TABLE>
-&lt;Rate&gt; a time value indicating how long before it repeats (in either ticks or seconds).
-<TR>
-	<TD>0 = no delay
-	<br>16t = half a second
-	<br>2 = two seconds
-	</TD>
-</TR>
-</TABLE>
+<p>
+<B>Details:</B><br>
+&lt;Number to repeat&gt; is the number of times we want the script
+to execute. If we specify 0 then it will repeat forever.
 
-</P>
+<p>
+&lt;Rate&gt; a time value indicating how long before it repeats
+(in either ticks or seconds).
+<ul>
+	<li>0 = no delay
+	<li>0.5 = half a second
+	<li>2 = two seconds
+</ul>
 
 <p>
 <B>Example:</B><br>
-This radius trigger script will fire off everytime we are inside it and press the Use key. It waits 4 seconds before "reactivating"
-<CODE>
-<PRE>
-//**repeatable message when we look at something**
-RECT_TRIGGER 652 1440 780 1456
+
+This radius trigger script will fire off everytime we
+stand on the green-armor pedestal (in DOOM's E1M1)
+and press the USE button.
+It waits 4 seconds before "reactivating".
+
+<PRE class="rts">
+START_MAP e1m1
+  RECT_TRIGGER -256 -3264  -192 -3200
     TAGGED_USE
     TAGGED_REPEATABLE 0 4
 
     TIP "Nothing of interest." 3 TRUE
 
-END_RADIUS_TRIGGER
+  END_RADIUS_TRIGGER
+END_MAP
 </PRE>
-</CODE></P>
 
-
-
-<p>&nbsp;</p>
-
+<p>
 
 </block>
 
