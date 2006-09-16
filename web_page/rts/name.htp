@@ -7,23 +7,23 @@
 
 <h3 class="page_title">NAME</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
 NAME &lt;Name&gt;</P>
 
-<P><B>Description:</B><br>
-This associates a radius trigger script with a &lt;Name&gt;. It's similar to the LABEL function, but refers to a <B>whole</B> radius trigger script, not just a part of one.
-</P>
+<p>
+<B>Description:</B><br>
+This associates a radius trigger script with a &lt;Name&gt;.
+It's similar to the LABEL function, but refers to a <B>whole</B>
+radius trigger script, not just a part of one.
 
-<P><B>Details:</B><br>
-&lt;Name&gt; is the name which we can use to make reference to this script. 
-<br>This then allows the radius trigger script to be interacted with from other scripts using TAGGED_PATH, TAGGED_DISABLED, ENABLE_SCRIPT, and DISABLE_SCRIPT.
-</p>
+<P>
+<B>Details:</B><br>
+&lt;Name&gt; is the name which we can use to make reference to this script.
+This then allows the radius trigger script to be affected by other
+scripts using TAGGED_PATH, TAGGED_DISABLED, ENABLE_SCRIPT, and DISABLE_SCRIPT.
 
-
-
-<p>&nbsp;</p>
-
+<p>
 
 </block>
 

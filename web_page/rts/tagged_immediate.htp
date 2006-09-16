@@ -7,25 +7,33 @@
 
 <h3 class="page_title">TAGGED_IMMEDIATE</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
-TAGGED_IMMEDIATE</P>
+TAGGED_IMMEDIATE
 
-<P><B>Description:</B><br>
+<p>
+<B>Description:</B><br>
 Use this to make a radius trigger script run immediately
 upon starting the map, without waiting until the player
 enters the trigger area.
-</P>
 
-<P><B>Details:</B><br>
-Useful to spawn a monster or weapon on top of an extrafloor. 
-</P>
+<p>
+Note: if the script has conditions (like ON_DEATH),
+then it still waits for them.
 
+<p>
+<B>Details:</B><br>
+TAGGED_IMMEDIATE has the same effect as using "0&nbsp;0&nbsp;-1"
+on the RADIUS_TRIGGER line. It can be useful, though, when you
+want to make the trigger cover a certain part of the map, e.g.
+to damage all the monsters in that area, but you don't want
+the trigger to wait for the player to enter that area.
 
+<p>
+Immediate trigger scripts are also useful for setting things up
+on the map, e.g. spawning monsters or items on top of an extrafloor. 
 
-
-<p>&nbsp;</p>
-
+<p>
 
 </block>
 
