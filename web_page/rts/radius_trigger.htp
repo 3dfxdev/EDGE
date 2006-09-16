@@ -37,8 +37,9 @@ If you use Low Z then high Z is also required.
 <p>
 <b>Example:</b><br>
 
+
 <pre class="rts">
-START_MAP map01
+START_MAP
   RADIUS_TRIGGER 0 0 -1
     TIP "Hello world!" 3 TRUE
   END_RADIUS_TRIGGER
@@ -46,6 +47,20 @@ END_MAP
 </pre>
 
 <p>
+<b>Height Example:</b>
+<p>
+This script is designed for DOOM2 MAP29 ("The Living End").
+Hop on the lowering floor near the start and wait.
+When you get to the bottom, the monsters near the start
+will get a nasty surprise.
+
+<pre class="rts">
+START_MAP map29
+  RADIUS_TRIGGER 1120 544 250  304 312
+    TIP "Die monsters!" 3
+    DAMAGE_MONSTERS ANY 200
+  END_RADIUS_TRIGGER
+END_MAP
 
 </block>
 
