@@ -216,7 +216,7 @@ pre.credits {
 /* ----- Banner and Footer ------------------ */
 
 .banner {
-	background-image: url(../images/purple_plasm_4.jpg);
+	background: #606 url(../images/purple_plasm_4.jpg);
 	height: 96px;
 	clear: both;
 
