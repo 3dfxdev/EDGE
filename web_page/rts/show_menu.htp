@@ -39,7 +39,7 @@ Lines in RTS scripts can be extended over two (or more) actual lines by placing 
 <B>Example of a repeatable SHOW_MENU:</B>
 <br>
 
-<PRE class="rts_example">
+<PRE class="rts">
   TAGGED_INDEPENDENT
   TAGGED_USE
   TAGGED_REPEATABLE
@@ -75,44 +75,6 @@ Lines in RTS scripts can be extended over two (or more) actual lines by placing 
 </PRE>
 
 <p>
-
-<B>Example of a repeatable SHOW_MENU_LDF:</B>
-<br>
-
-<PRE class="rts_example">
-  TAGGED_INDEPENDENT
-  TAGGED_USE
-  TAGGED_REPEATABLE
-
-  //Step 1: what we want to show
-  SHOW_MENU_LDF ldfTitle01 \
-  ldfoption01 \
-  ldfoption02 \
-  ldfoption03 
-
-  //Step 2: where we want to jump to
-  JUMP_ON MENU option1 option2 option3
-
-  //Some labeled RTS
-  LABEL option1
-    HEAL_PLAYER 150 200
-    TIP "Have some health" 2 FALSE
-    JUMP finishstuff
-
-  LABEL option2
-    GIVE_BENEFIT BULLETS(100)
-    TIP "Have some ammo" 2 FALSE
-    JUMP finishstuff
-
-  LABEL option3
-    TIP "OK then. Have a nice Day" 2 FALSE
-    JUMP finishstuff
-
-  LABEL finishstuff
-    //We do nothing else
-    
-  RETRIGGER //Reset the trigger
-</PRE>
 
 </block>
 

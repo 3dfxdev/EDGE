@@ -3,44 +3,38 @@
 <set title="RTS: Maps and Triggers">
 <set RTSreference="triggers">
 
-
 <block name="content">
 
 <h2 class="page_title"> Maps &amp; Triggers </h2>
 
-<p>All of the following commands are used to define the range or scope of a script.</p> 
-<br>
+All of the following commands are used to define the range or scope of a script.</p> 
+<p>
+
 <h3>List of commands</h3>
 
-<B><A HREF="start_map.htm">START_MAP</A></B> 
-<br>
+<a class="rts" href="start_map.htm">START_MAP</A> <br>
 To specify the map that the scripts will run on.
-<br><br>
+<p>
 
-<B><A HREF="extend_map.htm">EXTEND_MAP</A></B> 
-<br>
-Same as START_MAP but adds to an existing script, versus replacing it.
-<br><br>
-<B><A HREF="end_map.htm">END_MAP</A></B> 
-<br>
+<a class="rts" href="extend_map.htm">EXTEND_MAP</A> <br>
+Like START_MAP but adds to an existing map, versus replacing it.
+<p>
+
+<a class="rts" href="end_map.htm">END_MAP</A> <br>
 This labels the end of a block of particular map scripts.
-<br><br>
+<p>
 
-<B><A HREF="radius_trigger.htm">RADIUS_TRIGGER</A></B> 
-<br>
+<a class="rts" href="radius_trigger.htm">RADIUS_TRIGGER</A> <br>
 Defines the center position and radius of your trigger.
-<br><br>
+<p>
 
-<B><A HREF="rect_trigger.htm">RECT_TRIGGER</A></B> 
-<br>
+<a class="rts" href="rect_trigger.htm">RECT_TRIGGER</A> <br>
 Defines a rectangular trigger instead of a circular one.
-<br><br>
+<p>
 
-<B><A HREF="end_radius_trigger.htm">END_RADIUS_TRIGGER</A></B> 
-<br>
+<a class="rts" href="end_radius_trigger.htm">END_RADIUS_TRIGGER</A> <br>
 This labels the end of a particular trigger.
-<br><br>
-
+<p>
 
 </block>
 

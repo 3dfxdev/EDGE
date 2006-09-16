@@ -19,15 +19,15 @@ to have comments before the directives.
 
 <h3>List of commands</h3>
 
-<a class="rts" HREF="clear_all.htm">#CLEAR_ALL</a>
+<a class="rts" HREF="clear_all.htm">#CLEAR_ALL</a> <br>
 Clears all previous scripts that might mess up the current one.
 <p>
 
-<a class="rts" HREF="version.htm">#VERSION</a> 
+<a class="rts" HREF="version.htm">#VERSION</a> <br>
 The version of EDGE that the RTS is for, e.g. "#VERSION 1.29". 
 <p>
 
-<a class="rts" HREF="define.htm">#DEFINE</a> 
+<a class="rts" HREF="define.htm">#DEFINE</a> <br>
 This is used to define values to use globally in your script. 
 <p>
 

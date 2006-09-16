@@ -7,60 +7,61 @@
 
 <h2 class="page_title"> Properties </h2>
 
-<p>Properties for defining the behaviour of an RTS script.</p> 
+Properties declare something special about the current radius trigger,
+or give it a certain attribute (name, tag, etc).
+For example, TAGGED_DISABLED says that this script will not run
+straight away but will start off in a disabled state.
 
+<p>
+Because properties are not commands, it doesn't matter where in
+the script they are or what order they are in.
+To keep scripts readable it is highly recommended to place all
+properties at the beginning of the script,
+before the very first action command.
+
+<p>
 
 <h3>List of commands</h3>
 
-<B><A HREF="tag.htm">TAG</A></B> 
-<br>
+<a class="rts" HREF="tag.htm">TAG</a> <br>
 For calling scripts from DDF.
-<br><br>
+<p>
 
-<B><A HREF="name.htm">NAME</A></B> 
-<br>
+<a class="rts" HREF="name.htm">NAME</a> <br>
 For calling scripts from other scripts.
-<br><br>
+<p>
 
-<B><A HREF="tagged_disabled.htm">TAGGED_DISABLED</A></B> 
-<br>
+<a class="rts" HREF="tagged_disabled.htm">TAGGED_DISABLED</a> <br>
 Make a script inactive till activated from somewhere else.
-<br><br>
+<p>
 
-<B><A HREF="tagged_immediate.htm">TAGGED_IMMEDIATE</A></B> 
-<br>
+<a class="rts" HREF="tagged_immediate.htm">TAGGED_IMMEDIATE</a> <br>
 Script will run immediately on starting the map.
-<br><br>
+<p>
 
-<B><A HREF="tagged_independent.htm">TAGGED_INDEPENDENT</A></B> 
-<br>
+<a class="rts" HREF="tagged_independent.htm">TAGGED_INDEPENDENT</a> <br>
 Script completes even if player leaves the trigger area.
-<br><br>
+<p>
 
-<B><A HREF="tagged_repeatable.htm">TAGGED_REPEATABLE</A></B> 
-<br>
+<a class="rts" HREF="tagged_repeatable.htm">TAGGED_REPEATABLE</a> <br>
 To make looping scripts.
-<br><br>
+<p>
 
-<B><A HREF="when_appear.htm">WHEN_APPEAR</A></B> 
-<br>
+<a class="rts" HREF="when_appear.htm">WHEN_APPEAR</a> <br>
 Define when a script exists on your map based on skill and gametype.
-<br><br>
+<p>
 
-<B><A HREF="when_player_num.htm">WHEN_PLAYER_NUM</A></B> 
-<br>
+<a class="rts" HREF="when_player_num.htm">WHEN_PLAYER_NUM</a> <br>
 Define when a script exists on your map based on the number of players.
-<br><br>
+<p>
 
-<B><A HREF="tagged_path.htm">TAGGED_PATH</A></B> 
-<br>
+<a class="rts" HREF="tagged_path.htm">TAGGED_PATH</a> <br>
 Define a path which a "path following" monster will follow.
-<br><br>
+<p>
 
-<B><A HREF="path_event.htm">PATH_EVENT</A></B> 
-<br>
+<a class="rts" HREF="path_event.htm">PATH_EVENT</a> <br>
 Make "path following" monsters go into certain states.
-<br><br>
+<p>
 
 </block>
 

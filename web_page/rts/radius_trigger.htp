@@ -7,39 +7,45 @@
 
 <h3 class="page_title">RADIUS_TRIGGER</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
-RADIUS_TRIGGER &lt;X&gt; &lt;Y&gt; &lt;Radius&gt; [Low Z] [High Z]</P>
+RADIUS_TRIGGER &lt;X&gt; &lt;Y&gt; &lt;Radius&gt; [Low Z] [High Z]
 
-<P><B>Description:</B><br>
-This defines where the center point of your trigger is, how large it's radius is, and optionally, where it's high and low trigger areas are.</P>
+<p>
+<B>Description:</B><br>
+This defines where the center point of your trigger is, how large
+its radius is, and optionally, where its high and low trigger areas
+are.
 
-<P><B>Details:</B><br>
-It's best to use your map editor to determine the exact points for the X and Y values you want (most map editors show the grid location in real time).</p>
+<p>
+<B>Details:</B><br>
+It's best to use your map editor to determine the exact points
+for the X and Y values you want
+(most map editors show the grid location in real time).
 
-<p>To create a trigger that covers the entire map, use x=0, y=0, and radius=-1 (-1 means everywhere).</p>
+<p>
+To create a trigger that covers the entire map, use x=0, y=0,
+and radius=-1 (-1 means everywhere).
 
-<p>The optional [low Z] and [high Z] values are to create a "3d" trigger -one that can be walked over or under without being triggered. The [low Z] must be a value below [high Z] (you cannot invert the low and high Z values). If you use Low Z then high Z is required.</P>
+<p>
+The optional [low Z] and [high Z] values are to create
+a "3D" trigger: one that can be walked over or under without
+being triggered. The [low Z] must be a value below [high Z]
+(you cannot invert the low and high Z values).
+If you use Low Z then high Z is also required.
 
-<br>
-<TABLE>
-<TR><TD><B>Example:</B>
-<CODE>
-<br>START_MAP map01
-<br>&nbsp;&nbsp;RADIUS_TRIGGER 0 0 -1
-<br>&nbsp;&nbsp;&nbsp;&nbsp;TAGGED_IMMEDIATE
-<br>
-<br>&nbsp;&nbsp;&nbsp;&nbsp;TIP "Hello world!" 3 TRUE
-<br>	
-<br>&nbsp;&nbsp;END_RADIUS_TRIGGER
-<br>END_MAP
-</CODE>
-</TD></TR>
-</TABLE>
+<p>
+<b>Example:</b><br>
 
+<pre class="rts">
+START_MAP map01
+  RADIUS_TRIGGER 0 0 -1
+    TIP "Hello world!" 3 TRUE
+  END_RADIUS_TRIGGER
+END_MAP
+</pre>
 
-<p>&nbsp;</p>
-
+<p>
 
 </block>
 

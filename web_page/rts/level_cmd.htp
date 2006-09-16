@@ -3,72 +3,60 @@
 <set title="RTS: Level commands">
 <set RTSreference="level">
 
-
 <block name="content">
 
 <h2 class="page_title"> Level Commands </h2>
 
-<p>Commands used to change a map.</p>
+Commands used to change a map.
+<p>
 
 
 <h3>List of commands</h3>
 
-<B><a href="activate_linetype.htm">ACTIVATE_LINETYPE</a></B>
-<br>
-To activate a line that is tagged to a sector.
-<br><br>
+<a class="rts" href="activate_linetype.htm">ACTIVATE_LINETYPE</a> <br>
+Activate a line that is tagged to a sector.
+<p>
 
-<B><a href="change_music.htm">CHANGE_MUSIC</a></B> 
-<br>
+<a class="rts" href="change_music.htm">CHANGE_MUSIC</a> <br>
 Change music in-game.
-<br><br>
+<p>
 
-<B><a href="change_tex.htm">CHANGE_TEX</a></B>
-<br>
+<a class="rts" href="change_tex.htm">CHANGE_TEX</a> <br>
 For changing textures on the fly.
-<br><br>
+<p>
 
-<B><a href="light_sector.htm">LIGHT_SECTOR</a></B>
-<br>
+<a class="rts" href="light_sector.htm">LIGHT_SECTOR</a> <br>
 Change the light level of a sector on the fly.
-<br><br>
+<p>
 
-<B><a href="move_sector.htm">MOVE_SECTOR</a></B>
-<br>
+<a class="rts" href="move_sector.htm">MOVE_SECTOR</a> <br>
 Move a sectors floor or ceiling.
-<br><br>
+<p>
 
-<B><a href="unblock_lines.htm">UNBLOCK_LINES</a></B>
-<br>
+<a class="rts" href="unblock_lines.htm">UNBLOCK_LINES</a> <br>
 Unblock 2-sided blocking lines.
-<br><br>
+<p>
 
-<B><a href="block_lines.htm">BLOCK_LINES</a></B>
+<a class="rts" href="block_lines.htm">BLOCK_LINES</a>
 <br>
 Convert 2-sided lines to blocking.
-<br><br>
+<p>
 
-<B><a href="play_sound.htm">PLAY_SOUND</a></B> 
-<br>
+<a class="rts" href="play_sound.htm">PLAY_SOUND</a> <br>
 Play a certain sound.
-<br><br>
+<p>
 
-
-<B><a href="skill.htm">SKILL</a></B>
-<br>
+<a class="rts" href="skill.htm">SKILL</a> <br>
 Change skill level on the fly.
-<br><br>
+<p>
 
-<B><a href="goto_map.htm">GOTO_MAP</a></B>
-<br>
-Finish map and go to another.
-<br><br>
+<a class="rts" href="goto_map.htm">GOTO_MAP</a> <br>
+Finish current map and go to another.
+<p>
 
-<B><a href="exit_level.htm">EXIT_LEVEL</a></B>
-<br>
+<a class="rts" href="exit_level.htm">EXIT_LEVEL</a> <br>
 End the level.
-<br><br>
-
+<p>
 
 </block>
 
