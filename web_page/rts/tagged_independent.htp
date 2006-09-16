@@ -7,23 +7,33 @@
 
 <h3 class="page_title">TAGGED_INDEPENDENT</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
-TAGGED_INDEPENDENT</P>
+TAGGED_INDEPENDENT
 
-<P><B>Description:</B><br>
-This makes a radius trigger script complete even if the player leaves the trigger area.
-</P>
+<p>
+<B>Description:</B><br>
+This makes a radius trigger script complete even if the
+player leaves the trigger area.
 
-<P><B>Details:</B><br>
-Useful if you use a radius trigger script to open a door completely. If the player walks into the radius trigger area, then backs out, TAGGED_INDEPENDENT will allow the radius trigger script to complete.
-</P>
+<p>
+Without the TAGGED_INDEPENDENT property, the
+script will become paused whenever the player leaves the trigger
+area, and only starts again if the player re-enters that area.
 
+<p>
+Note: TAGGED_INDEPENDENT is not needed when using "0&nbsp;0&nbsp;-1"
+or TAGGED_IMMEDIATE scripts, because the player can never get
+outside of the script to make it pause.
 
+<p>
+<B>Details:</B><br>
+Useful if you use a radius trigger script to open a door
+completely. If the player walks into the radius trigger area,
+then backs out, TAGGED_INDEPENDENT will allow the radius trigger
+script to keep going.
 
-
-<p>&nbsp;</p>
-
+<p>
 
 </block>
 
