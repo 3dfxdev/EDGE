@@ -18,23 +18,23 @@ There are a number of different ways to load it into EDGE:
 onto the EDGE binary.
 
 <li>The script can be inserted into a WAD file,
-    with "RSCRIPT" as the lump name. You need a WAD manager
+    using "RSCRIPT" as the lump name. You need a WAD manager
     program to do this, for example: XWE.
 </OL>
 
 <p>
-<b>Script Example</b>
+<b>Script Example:</b>
 <p>
 This simple example will show a tip message on the screen
 after you kill all the IMPs in MAP01 of DOOM 2:
 
 <pre class="rts">
-start_map MAP01
-  radius_trigger 0 0 -1
-    on_death IMP
-    tip "All Imps are dead!" 5
-  end_radius_trigger
-end_map
+START_MAP map01
+  RADIUS_TRIGGER 0 0 -1
+    ON_DEATH imp
+    TIP "All imps are dead!" 5
+  END_RADIUS_TRIGGER
+END_MAP
 </pre>
 
 <p>
