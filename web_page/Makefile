@@ -3,12 +3,12 @@
 #
 
 all:
+	cp css/*.* out/css
+	cp images/*.* out/images
 	cd main  && htp -quiet @main_build.rsp
 	cd shots && htp -quiet @shots_build.rsp
 	echo // cd ddf   AND  htp -quiet @ddf_build.rsp
 	cd rts   && htp -quiet @rts_build.rsp
-	cp css/*.* out/css
-	cp images/*.* out/images
 	echo // cp shots/*.jpg shots/*.png out/shots
 	echo // cp main/README.txt out
 
