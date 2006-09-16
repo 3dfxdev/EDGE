@@ -6,22 +6,32 @@
 
 <h2 class="page_title"> RTS Format </h2>
 
-Before we begin, I would like to mention that many RTS commands have optional arguments 
-which may or may not need to be used. 
-Throughout this documentation any optional parameters are enclosed in [] (square brackets).
+RTS scripts are simple text files.  On Windows you can create them
+with Notepad or another text editor.  You <b>cannot</b> use
+word processor files ("DOC" files) like Microsoft Word creates,
+because these are not text files and EDGE cannot read them.
 
-<h4>General points about RTS scripting:</h4>
+<p>
+Some general points about RTS scripting:
 
 <OL class="format">
-<li>#CLEAR_ALL, if used, must be at the top of your script, or else everything before it will be cleared.
+<li>#CLEAR_ALL (if used) must be at the top of your script,
+    or else everything before it will be cleared.
 
-<li>#VERSION and #DEFINE values, if used, must be after #CLEARALL, but before the rest of your script
+<li>#VERSION and #DEFINE values (if used) must be after #CLEARALL,
+    but before the rest of your script
 
-<li>A radiustrigger can only exist between START_MAP and END_MAP.
+<li>You must place all your radius triggers between START_MAP
+    (or EXTEND_MAP) and END_MAP.
 
-<li>All other commands can only exist between RADIUS_TRIGGER (or RECT_TRIGGER) 
-and END_RADIUS_TRIGGER.
+<li>All other commands can only exist between RADIUS_TRIGGER
+    (or RECT_TRIGGER) and END_RADIUS_TRIGGER.
 </OL>
+
+<p>
+Commands are not case sensitive, hence "start_map", "Start_Map" and
+"START_MAP" are all acceptable.  Whether you use lowercase or uppercase
+is just a matter of personal taste.
 
 <p>
 You can include comments (text which will be ignored by EDGE) by simply
