@@ -1,0 +1,45 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Loading">
+
+<block name="content">
+
+<h2 class="page_title"> Loading Scripts </h2>
+
+Let's say you have written your RTS script
+(perhaps the example given at the bottom of this page),
+and are ready to try it out. But how??
+There are a number of different ways to load it into EDGE:
+
+<OL class="format">
+<li>Run EDGE with this command line option: -script &lt;Filename&gt;
+
+<li>Drag'n'drop the script file, which must have the ".scr" extension,
+onto the EDGE binary.
+
+<li>The script can be inserted into a WAD file,
+    with "RSCRIPT" as the lump name. You need a WAD manager
+    program to do this, for example: XWE.
+</OL>
+
+<p>
+<b>Script Example</b>
+<p>
+This simple example will show a tip message on the screen
+after you kill all the IMPs in MAP01 of DOOM 2:
+
+<pre class="rts">
+start_map MAP01
+  radius_trigger 0 0 -1
+    on_death IMP
+    tip "All Imps are dead!" 5
+  end_radius_trigger
+end_map
+</pre>
+
+<p>
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">
