@@ -3,6 +3,7 @@
 ;
 start.htp ../out/rts_online/start.htm
 format.htp ../out/rts_online/format.htm
+loading.htp ../out/rts_online/loading.htm
 changelog.htp ../out/rts_online/changelog.htm
 ;
 ; Launch pages
