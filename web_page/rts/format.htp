@@ -8,11 +8,11 @@
 
 Before we begin, I would like to mention that many RTS commands have optional arguments 
 which may or may not need to be used. 
-Throughout this documentation these optional parameters are encased in [] (square brackets).
+Throughout this documentation any optional parameters are enclosed in [] (square brackets).
 
 <h4>General points about RTS scripting:</h4>
 
-<OL>
+<OL class="format">
 <li>#CLEAR_ALL, if used, must be at the top of your script, or else everything before it will be cleared.
 
 <li>#VERSION and #DEFINE values, if used, must be after #CLEARALL, but before the rest of your script
@@ -25,7 +25,7 @@ and END_RADIUS_TRIGGER.
 
 <p>
 You can include comments (text which will be ignored by EDGE) by simply
-placing a double slash ("//") at the beginning of a line and then typing
+placing a double slash "//" at the beginning of a line and then typing
 your text after it. For example:
 
 <p>
@@ -36,6 +36,9 @@ your text after it. For example:
 </PRE>
 
 <p>
+
+<h3 class="page_title"> General Tips </h3>
+
 Check your spelling and values carefully, and add a few functions at a time, then test.
 
 <p>

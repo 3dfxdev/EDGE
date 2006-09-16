@@ -7,50 +7,46 @@
 
 <h2 class="page_title"> Thing Commands </h2>
 
-<p>Radius trigger scripts can be used to interact with players and monsters, by making them enter certain states, giving benefits to players, or damaging monsters or players.</p> 
-<br>
+Radius trigger scripts can be used to interact with players or
+monsters, by making them enter certain states,
+giving benefits to players, and damaging monsters or players.
+Monsters and items can also be dynamically spawned, which
+can be useful for placing them onto ExtraFloors.
+<p>
+
 <h3>List of commands</h3>
 
-<B><a href="damage_monsters.htm">DAMAGE_MONSTERS</a></B> 
-<br>
-Takes away health from a specific species of monster.
-<br><br>
+<a class="rts" href="damage_monsters.htm">DAMAGE_MONSTERS</a> <br>
+Take away health from a specific species of monster.
+<p>
 
-<B><a href="damage_player.htm">DAMAGE_PLAYER</a></B> 
-<br>
-Takes away from the players health and armor.
-<br><br>
+<a class="rts" href="damage_player.htm">DAMAGE_PLAYER</a> <br>
+Take away health from the player.
+<p>
 
-<B><a href="heal_player.htm">HEAL_PLAYER</a></B> 
-<br>
-Gives the player health.
-<br><br>
+<a class="rts" href="heal_player.htm">HEAL_PLAYER</a> <br>
+Give the player health.
+<p>
 
-<B><a href="give_armour.htm">GIVE_ARMOUR</a></B> 
-<br>
-Gives armour to the player.
-<br><br>
+<a class="rts" href="give_armour.htm">GIVE_ARMOUR</a> <br>
+Give armour to the player.
+<p>
 
-<B><a href="give_benefit.htm">GIVE_BENEFIT</a></B> 
-<br>
+<a class="rts" href="give_benefit.htm">GIVE_BENEFIT</a> <br>
 Give the player ammo, weapons, powerups etc.
-<br><br>
+<p>
 
-<B><a href="lose_benefit.htm">LOSE_BENEFIT</a></B> 
-<br>
+<a class="rts" href="lose_benefit.htm">LOSE_BENEFIT</a> <br>
 Take away ammo, weapons, powerups etc.
-<br><br>
+<p>
 
-<B><a href="spawn_thing.htm">SPAWN_THING</a></B> 
-<br>
-To spawn a monster or item on the map.
-<br><br>
+<a class="rts" href="spawn_thing.htm">SPAWN_THING</a> <br>
+Spawn a monster or item on the map.
+<p>
 
-<B><a href="thing_event.htm">THING_EVENT</a></B> 
-<br>
-Force a thing to certain states.
-<br><br>
-
+<a class="rts" href="thing_event.htm">THING_EVENT</a> <br>
+Force a thing to go into certain states.
+<p>
 
 </block>
 

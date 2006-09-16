@@ -7,53 +7,59 @@
 
 <h3 class="page_title">WHEN_APPEAR</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
-WHEN_APPEAR &lt;skill level&gt; &lt;game type&gt;</P>
+WHEN_APPEAR &lt;appear flags&gt;
 
-<P><B>Description:</B><br>
-Define when triggers exist on your map. It is <B>not</B> required if you want the trigger to exist on all skills and all gameplay types. </P>
+<p>
+<B>Description:</B><br>
+Controls when triggers exist on your map, based on skill level and game mode.
+It's <B>not</B> required if you want the trigger to exist on every skill
+and net mode, since that is the default setting for scripts.
 
-<P><B>Details:</B><br>
-<U>You must use either &lt;skill level&gt; or &lt;game type&gt;.</U> Both can also be used at the same time.
+<p>
+<B>Details:</B><br>
+The &lt;appear flags&gt; is a bunch of numbers and/or keywords, which must
+be separated by the colon (':') character.  These values can be:
 
-<TABLE>
-<TR>
-	<TD>
-	&lt;skill level&gt; is the skill level needed for this script to be available. 
-	<br>Values range from 1 to 5 and multiple values must be separated by ":" (for example "WHEN_APPEAR 1:2:3:4:5")
-	<br><br>
-	</TD>
-</TR>
-<TR>
-	<TD>
-	&lt;game type&gt; is the netmode of the game (i.e. single player, Co-operative or Deathmatch). 
-	<br>Valid values are "sp", "coop" and "dm", and multiple values must be separated by ":" (for example "WHEN_APPEAR sp:coop:dm")<br><br>
-	</TD>
-</TR>
-<TR>
-	<TD>Finally, you can add the '!' character to the beginning to negate it, e.g. "WHEN_APPEAR !SP" means never in single-player, and "WHEN_APPEAR !4:5" means never in skills 4 or 5.
-	</TD>
-</TR>
-</TABLE>
+<ul class="params">
+<li>the <B>skill levels</B> which this script will be run on.
+	These are numbers in the range 1 to 5,
+  and there can be multiple skill levels present.
+  <p>
+  E.g. <code class="rts">WHEN_APPEAR 1:2:3:4:5</code>
 
-</P>
+<li>the <B>net mode</b> of the current game.
+	Valid values are:
+  <ul class="none">
+    <li>"sp" for Single-Player,
+    <li>"coop" for Co-operative,
+    <li>"dm" for Death-Match.
+  </ul>
+  <p>
+  E.g. <code class="rts">WHEN_APPEAR sp:coop:dm</code>
+
+<li>you can <B>negate</B> the flags by adding the '!' character to the beginning.
+  <p>
+  E.g. <code class="rts">WHEN_APPEAR !4:5<code>
+</ul>
 
 <p>
 <B>Example:</B><br>
-This script will only appear and run if we are playing a single player game on skill 1.
-<CODE>
-<PRE>
-RECT_TRIGGER 652 1440 780 1456
-	WHEN_APPEAR 1:sp
-	TAGGED_IMMEDIATE
+This script will only appear and run if we are playing
+a single player game on skill 1.
 
-	TIP "You're using a low skill setting!" 3 TRUE
+<PRE class="rts">
+RADIUS_TRIGGER 0 0 -1
+  WHEN_APPEAR 1:sp
+  TAGGED_IMMEDIATE
+
+  TIP "You're using a low skill setting!" 3 TRUE
 
 END_RADIUS_TRIGGER
 </PRE>
-</CODE>
 
+<p>
 
 </block>
 

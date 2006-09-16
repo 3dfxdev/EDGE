@@ -12,7 +12,9 @@
 TAGGED_IMMEDIATE</P>
 
 <P><B>Description:</B><br>
-Use this to make a radius trigger script run immediately upon starting the map.
+Use this to make a radius trigger script run immediately
+upon starting the map, without waiting until the player
+enters the trigger area.
 </P>
 
 <P><B>Details:</B><br>
