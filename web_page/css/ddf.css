@@ -1,11 +1,11 @@
 
+.banner {
+	background: #008 url(../images/blue_plasm_4.jpg);
+	}
+
 a { color: #228; }
 
 a:hover { color: #28e; }
-
-.banner {
-	background-image: url(../images/blue_plasm_4.jpg);
-	}
 
 .menus {
 	width: 240px;
