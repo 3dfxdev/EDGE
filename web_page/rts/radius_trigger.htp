@@ -41,7 +41,7 @@ If you use Low Z then high Z is also required.
 <pre class="rts">
 START_MAP
   RADIUS_TRIGGER 0 0 -1
-    TIP "Hello world!" 3 TRUE
+    TIP "Hello world!"
   END_RADIUS_TRIGGER
 END_MAP
 </pre>
@@ -57,7 +57,7 @@ will get a nasty surprise.
 <pre class="rts">
 START_MAP map29
   RADIUS_TRIGGER 1120 544 250  304 312
-    TIP "Die monsters!" 3
+    TIP "Die monsters!"
     DAMAGE_MONSTERS ANY 200
   END_RADIUS_TRIGGER
 END_MAP

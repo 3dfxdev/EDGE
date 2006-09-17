@@ -9,20 +9,17 @@
 
 <P>
 <B>Usage:</B><br>
-DISABLE_SCRIPT &lt;Name&gt;</P>
+DISABLE_SCRIPT &lt;Name&gt;
 
 <P><B>Description:</B><br>
 Use this in a script to disable another script. Must be used with the NAME command (See properties section)
-</P>
+
 
 <P><B>Details:</B><br>
 &lt;Name&gt; is the NAME of another script which we wish to disable. 
-</p>
 
 
-
-<p>&nbsp;</p>
-
+<p>
 
 </block>
 

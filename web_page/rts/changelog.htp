@@ -50,7 +50,7 @@
 </ul>
 
 <LI><span class="changelog">Version 3.1: 23/September/2002 by Cyberkiller</span>
-</p>
+
 <ul class="changelog">
 <li>added new <b>oncondition </b>function 
   
@@ -62,7 +62,7 @@
 </ul>
 
 <LI><span class="changelog">Version 3.0: 19/March/2001  by Fanatic</span>
-</p>
+
 <ul class="changelog">
   <li>added check for <b>spawnthing</b> to prevent spawning a player entry with RTS
   <li>updated IE menu, so last clicked stays hilighted

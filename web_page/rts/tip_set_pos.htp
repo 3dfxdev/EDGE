@@ -9,42 +9,37 @@
 
 <P>
 <B>Usage:</B><br>
-TIP_SET_POS &lt;horizontal offset&gt; &lt;vertical offset&gt;</P>
+TIP_SET_POS &lt;horizontal offset&gt; &lt;vertical offset&gt;
 
 <P><B>Description:</B><br>
-Use this command to reposition existing tips that are onscreen.</P>
+Use this command to reposition existing tips that are onscreen.
 
 <P><B>Details:</B><br>
 &lt;horizontal offset&gt; is a percentage value, where 0% would be the very left of the screen and 100% the very right. <br>
-&lt;vertical offset&gt; is a percentage value, where 0% would be the very top of the screen and 100% the very bottom.</P>
+&lt;vertical offset&gt; is a percentage value, where 0% would be the very top of the screen and 100% the very bottom.
 
-<TABLE>
-<TR>
-	<TD>NOTE: the default positioning for tips is centered and in the middle of the screen (50% 50% center). So this command is only useful if you want to display tips somewhere else on the screen.
-	<p> For example, using a series of these commands and wait commands, you can make text scroll across the screen, or make an entire sentence move from the center point up to the top of the screen.</p>
-	</TD>
-</TR>
-<TR>
-	<TD><B>Example:</B>
-	<br>
-	<CODE>
-	<PRE>
-	RADIUS_TRIGGER 0 0 -1
-		TAGGED_IMMEDIATE
 
-		TIP_SLOT 11
-			TIP_SET_POS 12% 50%
-			TIP_SET_ALIGN LEFT
-			TIP "Hello world!" 4 TRUE
+<p>
+NOTE: the default positioning for tips is centered and in the middle of the screen (50% 50% center). So this command is only useful if you want to display tips somewhere else on the screen.
 
-	END_RADIUS_TRIGGER
-	</PRE>
-	</CODE>
-	</TD>
-</TR>
-</TABLE>
-<p>&nbsp;</p>
+<p>
+For example, using a series of these commands and wait commands, you can make text scroll across the screen, or make an entire sentence move from the center point up to the top of the screen.
 
+<p>
+<B>Example:</B> <br>
+
+<PRE class="rts">
+RADIUS_TRIGGER 0 0 -1
+  TAGGED_IMMEDIATE
+
+  TIP_SET_POS 12% 50%
+  TIP_SET_ALIGN LEFT
+  TIP "Hello world!"
+
+END_RADIUS_TRIGGER
+</PRE>
+
+<p>
 
 </block>
 

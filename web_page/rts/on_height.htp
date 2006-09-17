@@ -7,15 +7,16 @@
 
 <h3 class="page_title"> ON_HEIGHT </h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
 ON_HEIGHT &lt;low z&gt; &lt;high z&gt; [sector]
 
-<P><B>Description:</B><br>
-Use this to activate a line trigger when a sectors floor or ceiling is within the specified height. </P>
+<p>
+<B>Description:</B><br>
+Use this to activate a line trigger when a sectors floor or ceiling
+is within the specified height. 
 
-<br><br>
-
+<p>
 
 </block>
 

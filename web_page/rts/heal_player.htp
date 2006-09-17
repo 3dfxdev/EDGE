@@ -9,42 +9,34 @@
 
 <P>
 <B>Usage:</B><br>
-HEAL_PLAYER &lt;amount&gt; [limit]</P>
+HEAL_PLAYER &lt;amount&gt; [limit]
 
 <P><B>Description:</B><br>
-This gives the players health within the radius of the trigger. Combine a low &lt;amount&gt; with TAGGED_REPEATABLE if you want to give health in increments.</P>
+This gives the players health within the radius of the trigger. Combine a low &lt;amount&gt; with TAGGED_REPEATABLE if you want to give health in increments.
 
 <P><B>Details:</B><br>
 &lt;amount&gt; is the amount of health to give. 
-</p>
+
 <p>
 &lt;limit&gt; sets the max the players health can reach based on the amount. 
 <br>If you want to award 100 health, but not allow the player to exceed 100 max health, set the &lt;amount&gt; and &lt;limit&gt; to 100. That would mean that if the player has 30 health, they are awarded only 70 health, since the &lt;limit&gt; is set to 100.
 <br> NOTE: &lt;limit&gt; is optional, but defaults to 200 if left empty. Also note that the &lt;limit&gt; can not exceed 200 (rules of normal DOOM)
-</p>
+
 
 <p>
-<TABLE>
-<TR>
-	<TD><B>Example:</B>
-	<br>
-	<CODE>
-	<PRE>
-	RADIUS_TRIGGER 0 0 -1
-		TAGGED_USE
+<B>Example:</B> <br>
 
-		TIP "Full health restored!" 3 TRUE
-		HEAL_PLAYER 100 100
+<PRE class="rts">
+RADIUS_TRIGGER 0 0 -1
+  TAGGED_USE
 
-	END_RADIUS_TRIGGER
-	</PRE>
-	</CODE>
-	</TD>
-</TR>
-</TABLE>
-</p>
-<p>&nbsp;</p>
+  TIP "Full health restored!"
+  HEAL_PLAYER 100 100
 
+END_RADIUS_TRIGGER
+</PRE>
+
+<p>
 
 </block>
 

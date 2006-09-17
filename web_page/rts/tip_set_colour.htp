@@ -9,38 +9,28 @@
 
 <P>
 <B>Usage:</B><br>
-TIP_SET_COLOUR &lt;colour map entry&gt;</P>
+TIP_SET_COLOUR &lt;colour map entry&gt;
 
 <P><B>Description:</B><br>
-Use this command to set the color of existing tips.</P>
+Use this command to set the color of existing tips.
 
 <P><B>Details:</B><br>
-&lt;colour map entry&gt; is one of the default tip colormaps defined in COLMAP.DDF (TEXT_WHITE, TEXT_GREEN, TEXT_BLUE etc.) or a custom colormap name in your COLMAP.DDF.</P>
-<p>NOTE: the default colormap is TEXT_WHITE, in case you change colors and want to set it back to the default at some point.</p>
+&lt;colour map entry&gt; is one of the default tip colormaps defined in COLMAP.DDF (TEXT_WHITE, TEXT_GREEN, TEXT_BLUE etc.) or a custom colormap name in your COLMAP.DDF.
+<p>NOTE: the default colormap is TEXT_WHITE, in case you change colors and want to set it back to the default at some point.
 
 <p>
-<TABLE>
-<TR>
-	<TD><B>Example:</B>
-	<br>
-	<CODE>
-	<PRE>
-	RADIUS_TRIGGER 0 0 -1
-		TAGGED_IMMEDIATE
+<B>Example:</B> <br>
 
-		TIP_SLOT 11
-			TIP_SET_COLOUR TEXT_BLUE
-			TIP "Hello world!" 4 TRUE
+<PRE class="rts">
+RADIUS_TRIGGER 0 0 -1
 
-	END_RADIUS_TRIGGER
-	</PRE>
-	</CODE>
-	</TD>
-</TR>
-</TABLE>
-</p>
-<p>&nbsp;</p>
+  TIP_SET_COLOUR TEXT_BLUE
+  TIP "Hello world!"
 
+END_RADIUS_TRIGGER
+</PRE>
+
+<p>
 
 </block>
 

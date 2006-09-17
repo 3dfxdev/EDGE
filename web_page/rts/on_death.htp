@@ -7,54 +7,49 @@
 
 <h3 class="page_title"> ON_DEATH  </h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
 ON_DEATH &lt;ThingID&gt; [count]
 
-<P><B>Description:</B><br>
-This will cause a trigger to not activate until all things of &lt;ThingID&gt; are killed or are no longer on the map. </P>
+<p>
+<B>Description:</B><br>
+This will cause a trigger to not activate until all things of &lt;ThingID&gt; are killed or are no longer on the map. 
 
-<P><B>Details:</B><br>
+<p>
+<B>Details:</B><br>
 &lt;ThingID&gt; can be the name or number from THINGS.DDF, like IMP or 3001.
-<br><br>
+
+<p>
 The optional [count] is a numerical value which causes a counter based on how many 
 &lt;ThingID&gt; are left to kill. If used, the values should be greatest to lowest as you read down your script.
-</p>
 
-<TABLE>
-<TR>
-	<TD>
 <p>
 <B>Example:</B><br> 
-<CODE>
-<PRE>
+
+<PRE class="rts">
 START_MAP MAP01
 
-	RADIUS_TRIGGER 0 0 -1   // this makes the script apply to the whole map
-		
-	    ON_DEATH IMP 1 // runs when only 1 Imp is left alive
+  RADIUS_TRIGGER 0 0 -1
+    
+    ON_DEATH IMP 1 // runs when only 1 Imp is left alive
 
-	    TIP "Only 1 Imp left!" 3 TRUE
+    TIP "Only 1 Imp left!"
 
-	END_RADIUS_TRIGGER
+  END_RADIUS_TRIGGER
 
 
-	RADIUS_TRIGGER 0 0 -1   // this makes the script apply to the whole map
-		
-	    ON_DEATH IMP //since we don't specify a [count] argument ALL imps must be killed
+  RADIUS_TRIGGER 0 0 -1
+    
+    ON_DEATH IMP //@@@@ since we don't specify a [count] argument ALL imps must be killed
 
-	    TIP "All Imps killed!" 3 TRUE
+    TIP "All Imps killed!"
 
-	END_RADIUS_TRIGGER
+  END_RADIUS_TRIGGER
 
 END_MAP
 </PRE>
-</CODE></P></TD>
-</TR>
-</TABLE>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
 
+<p>
 
 </block>
 

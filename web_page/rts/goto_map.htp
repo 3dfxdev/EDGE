@@ -9,10 +9,10 @@
 
 <P>
 <B>Usage:</B><br>
-GOTO_MAP &lt;Map Name&gt; [options]</P>
+GOTO_MAP &lt;Map Name&gt; [options]
 
 <P><B>Description:</B><br>
-This causes the level to end when triggered, but goes to the next level entered as &lt;Map Name&gt; instead of the one defined in LEVELS.DDF.</P>
+This causes the level to end when triggered, but goes to the next level entered as &lt;Map Name&gt; instead of the one defined in LEVELS.DDF.
 
 <P><B>Details:</B><br>
 &lt;Map Name&gt; is the same as the lump name, for example e#m# for DOOM1, and map## for DOOM2.
@@ -25,7 +25,7 @@ This causes the level to end when triggered, but goes to the next level entered 
 </TR>
 </TABLE>
 
-<p>&nbsp;</p>
+<p>
 
 
 </block>

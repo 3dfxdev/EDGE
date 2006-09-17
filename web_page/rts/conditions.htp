@@ -12,7 +12,7 @@ conditions, such as whether all existing monsters of
 a certain type are dead.  Every condition must be
 satisfied before the script can run.  The script will
 be stopped again if any one of the conditions becomes
-false.</p> 
+false. 
 <br>
 <h3>List of commands</h3>
 

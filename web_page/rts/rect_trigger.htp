@@ -52,7 +52,7 @@ reload the map, this script will only run once).
 START_MAP map01
   RECT_TRIGGER 1280 3200  1920 3648
     TAGGED_USE
-    TIP "You pressed use!" 3 TRUE
+    TIP "You pressed use!"
   END_RADIUS_TRIGGER
 END_MAP
 </PRE>

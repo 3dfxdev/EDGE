@@ -7,46 +7,52 @@
 
 <h3 class="page_title">MOVE_SECTOR</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
-MOVE_SECTOR &lt;sector tag&gt; &lt;height change&gt; &lt;surface&gt;</P>
+MOVE_SECTOR &lt;sector tag&gt; &lt;height change&gt; &lt;surface&gt;
 
-<P><B>Description:</B><br>
-Use this to move a sectors floor or ceiling.
- </P>
+<p>
+<B>Description:</B><br>
+Use this to move the floor or ceiling of a sector
+(or multiple sectors, if they share the same tag).
 
-<P>
-<TABLE>
-<TR>
-	<TD><B>Details:</B><br>
-	&lt;sector tag&gt; is the sector tag in your map editor.
-<br><br></TD>
-</TR>
-<TR>
-	<TD>&lt;height change&gt; is how far the sector is to move. Use a positive number to raise, and a negative number to lower.
-<br><br></TD>
-</TR>
-<TR>
-	<TD>&lt;surface&gt; specifies whether you want to move the floor or the ceiling. Possible values are:
-	<br>* ceiling
-	<br>* floor
-<br><br></TD>
-</TR>
-<TR>
-	<TD>You can use multiple entries as well, for example, allowing you to raise or lower the floor and ceiling of a sector at the same time.
-	<br><br>
-	Combine a low &lt;height change&gt; with TAGGED_REPEATABLE for a gradual movement (like a door or platform), instead of an instant movement to the specified height.
-</TD>
-</TR>
-</TABLE>
+<p>
+<B>Details:</B><br>
+&lt;sector tag&gt; is the sector tag in your map editor.
 
+<p>
+&lt;height change&gt; is how far the sector is to move.
+Use a positive number to raise, and a negative number to lower.
 
-</P>
+<p>
+&lt;surface&gt; specifies whether you want to move the floor or the ceiling.
+Possible values are:
+<ul>
+	<li>FLOOR
+	<li>CEILING
+</ul>
 
+<p>
+You can use MOVE_SECTOR multiple times,
+for example to raise or lower the floor <b>and</b> ceiling
+of a sector at the same time.
 
+<p>
+Combine a small &lt;height change&gt; with TAGGED_REPEATABLE
+for a gradual movement (like a door or platform),
+instead of an instant movement to the specified height.
 
-<p>&nbsp;</p>
+<p>
+<b>Example:</b><br>
+This script will slowly raise the starting area on DOOM2's MAP08 (Tricks and Traps).
+<PRE class="rts">
+RADIUS_TRIGGER 0 0 -1
+  TAGGED_REPEATABLE 64 1T
+  MOVE_SECTOR 8 1 floor
+END_RADIUS_TRIGGER
+</PRE>
 
+<p>
 
 </block>
 

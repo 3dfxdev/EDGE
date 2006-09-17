@@ -9,38 +9,34 @@
 
 <P>
 <B>Usage:</B><br>
-TIP_SET_ALIGN &lt;alignment&gt;</P>
+TIP_SET_ALIGN &lt;alignment&gt;
 
 <P><B>Description:</B><br>
-Use this command to reposition existing tips either centered (the default) or left aligned.</P>
+Use this command to reposition existing tips either centered (the default) or left aligned.
 
 <P><B>Details:</B><br>
-&lt;alignment&gt; can be either CENTER or LEFT. </P>
+&lt;alignment&gt; can be either CENTER or LEFT. 
 
 <p>
-<TABLE>
-<TR>
-	<TD><B>Example:</B>
-	<br>
-	<CODE>
-	<PRE>
-	RADIUS_TRIGGER 0 0 -1
-		TAGGED_IMMEDIATE
+<B>Example:</B> <br>
 
-		TIP_SLOT 11
-			TIP_SET_POS 12% 12%
-			TIP_SET_ALIGN LEFT
-			TIP "Hello world!" 4 TRUE
+<PRE class="rts">
+RADIUS_TRIGGER 0 0 -1
 
-	END_RADIUS_TRIGGER
-	</PRE>
-	</CODE>
-	</TD>
-</TR>
-</TABLE>
-</p>
-<p>&nbsp;</p>
+  TIP_SLOT 11
+  TIP_SET_POS 12% 12%
+  TIP_SET_ALIGN LEFT
+  TIP "Hello world!"
 
+  TIP_SLOT 12
+  TIP_SET_POS 12% 65%
+  TIP_SET_ALIGN LEFT
+  TIP "Viva la France!"
+
+END_RADIUS_TRIGGER
+</PRE>
+
+<p>
 
 </block>
 

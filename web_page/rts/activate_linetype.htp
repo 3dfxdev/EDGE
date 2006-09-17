@@ -7,27 +7,46 @@
 
 <h3 class="page_title">ACTIVATE_LINETYPE</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
-ACTIVATE_LINETYPE &lt;linetype&gt; &lt;sector tag&gt;</P>
+ACTIVATE_LINETYPE &lt;linetype&gt; &lt;sector tag&gt;
 
-<P><B>Description:</B><br>
-Use this to activate a line trigger that is tagged to a sector.
-</P>
+<p>
+<B>Description:</B><br>
+Use this to activate a line effect that is tagged to a sector,
+just as if the player had walked over (or pushed) a linedef with
+the same type and tag numbers.
 
-<P><B>Details:</B><br>
-&lt;linetype&gt; is the trigger number in LINES.DDF.
-<br><br>
+<p>
+<B>Details:</B><br>
+&lt;linetype&gt; is the type number from LINES.DDF.
 
-&lt;sector tag&gt; is the sector tag you give a sector in your map editor
-<br><br>
-This is most useful for triggering multiple line types with one trigger. You can have multiple ACTIVATE_LINETYPE entries as well. So you could trigger dozens of different line types all with one trigger.
-</P>
+<p>
+&lt;sector tag&gt; is the tag number you give a sector in your map editor.
 
+<p>
+This is most useful for triggering multiple line types with one trigger,
+using multiple ACTIVATE_LINETYPE commands in the script.
 
+<p>
+<b>Example:</b><br>
+This example will teleport the player to the sector with tag 4444
+whenever he presses the USE button.
+(The target sector must also contain the teleport object, type 14,
+like you need for normal teleporter linedefs).
+<PRE class="rts">
+RADIUS_TRIGGER 0 0 -1
+  TAGGED_USE
+  TAGGED_INDEPENDENT
+  TAGGED_REPEATABLE
 
-<p>&nbsp;</p>
+  TIP "Prepare for teleport!" 2
+  WAIT 2
+  ACTIVATE_LINETYPE 97 4444
+END_RADIUS_TRIGGER
+</PRE>
 
+<p>
 
 </block>
 
