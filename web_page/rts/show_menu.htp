@@ -17,66 +17,93 @@ SHOW_MENU_LDF &lt;ldf reference&gt; [option 1] [option 2] [option 3] etc.
 
 <p>
 <B>Description:</B><br>
-Display a menu to the player which will pause the game (including all scripts) until the user makes a valid selection. You must use TAGGED_INDEPENDENT with this command. Also note that if the menu is repeatable (i.e. TAGGED_REPEATABLE) you must use RETRIGGER at the end of your radius trigger script (see example script below for an example).
-<br><br>You have two types of SHOW_MENU commands:
-<br>-normal = the text shown is what you specify inside quotes via the &lt;title&gt; argument.
-<br>-LDF = the text shown comes from an entry in language.ldf which you specify via the &lt;ldf reference&gt; argument.
+Displays a menu to the player, which pauses the game
+(including all scripts) until the user makes a valid selection.
+You must use TAGGED_INDEPENDENT with this command.
+Also note that if the menu is repeatable (i.e. TAGGED_REPEATABLE)
+you must use RETRIGGER at the end of your radius trigger script
+(see script below for an example).
 
+<p>
+You have two types of SHOW_MENU commands:
+<ul>
+  <li>normal = the text shown is what you specify inside quotes
+  via the &lt;title&gt; argument.
+  <li>LDF = the text shown comes from an entry in LANGUAGE.LDF
+  which you specify via the &lt;ldf reference&gt; argument.
+</ul>
 
 <p>
 <B>Details:</B><br>
-&lt;title&gt; or &lt;ldf reference&gt; is the main text which will be shown to the player.
+&lt;title&gt; or &lt;ldf reference&gt; is the main text which
+will be shown to the player.
 
 <p>
-[option 1] and the other [option X] are the available choices for the user to select. If only one option is available then the menu option is NOT prefixed with "1.", and SPACE/ENTER keys can be used to accept.
-
-
-<p>
-Savegames are disabled while the RTS menu is shown. Once the menu is finished, the JUMP_ON command will test the result, and jump to the matching label. It will fail to jump if there aren't enough labels, or menu could not be shown (netgame).
-
-<p>
-The title can contain newlines (given by "\n"), to make multi-line titles. Newlines don't work in the options however.
+[option 1] and the other [option X] are the available choices
+for the user to select. If only one option is available then the
+menu option is NOT prefixed with "1.", and SPACE/ENTER keys can
+be used to accept it.
 
 <p>
-Lines in RTS scripts can be extended over two (or more) actual lines by placing the \ character at the end.  Note: there must not be any spaces after the \ character, otherwise it doesn't work. See the example below to how it would be done.
+Savegames are disabled while the RTS menu is shown.
 
+<p>
+Once the menu is finished,
+the JUMP_ON&nbsp;MENU command will test the result, and
+jump to the matching label. It will fail to jump if there aren't
+enough labels, or menu could not be shown (e.g. multiplayer game).
+
+<p>
+The title can contain newlines (given by "\n"), to make
+multi-line titles. Newlines don't work in the options however.
+
+<p>
+Tip: to keep the SHOW_MENU command readable, you can split it
+across multiple lines by placing the \ character at the end
+of each partial line.
 
 <p>
 <B>Example:</B> <br>
 
 <PRE class="rts">
-  TAGGED_INDEPENDENT
+RADIUS_TRIGGER 0 0 -1
   TAGGED_USE
+  TAGGED_INDEPENDENT
   TAGGED_REPEATABLE
 
-  //Step 1: what we want to show
+  //step 1: what we want to show
   SHOW_MENU "What can I do for you?" \
-  "Health" \
-  "Ammo" \
-  "Nothing" 
+     "Give me Health" \
+     "Give me Ammo" \
+     "Nothing" 
 
-  //Step 2: where we want to jump to
+  //step 2: where we want to jump to
   JUMP_ON MENU option1 option2 option3
 
-  //Some labeled RTS
+  // we only get here if the menu failed
+  TIP "WTF?? Menu failed!"
+  JUMP finished
+
+  //some labeled RTS
   LABEL option1
     HEAL_PLAYER 150 200
-    TIP "Have some health" 2 FALSE
-    JUMP finishstuff
+    TIP "Have some health"
+    JUMP finished
 
   LABEL option2
     GIVE_BENEFIT BULLETS(100)
-    TIP "Have some ammo" 2 FALSE
-    JUMP finishstuff
+    TIP "Have some ammo"
+    JUMP finished
 
   LABEL option3
-    TIP "OK then. Have a nice Day" 2 FALSE
-    JUMP finishstuff
+    TIP "OK then. Have a nice day"
+    JUMP finished
 
-  LABEL finishstuff
-    //We do nothing else
+  LABEL finished
+    WAIT 3
+    RETRIGGER //reset the trigger
 
-  RETRIGGER //Reset the trigger
+END_RADIUS_TRIGGER
 </PRE>
 
 <p>

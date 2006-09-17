@@ -12,16 +12,25 @@
 HEAL_PLAYER &lt;amount&gt; [limit]
 
 <P><B>Description:</B><br>
-This gives the players health within the radius of the trigger. Combine a low &lt;amount&gt; with TAGGED_REPEATABLE if you want to give health in increments.
+This gives the players health within the radius of the trigger.
+Combine a low &lt;amount&gt; with TAGGED_REPEATABLE if you want
+to give health in increments.
 
 <P><B>Details:</B><br>
 &lt;amount&gt; is the amount of health to give. 
 
 <p>
-&lt;limit&gt; sets the max the players health can reach based on the amount. 
-<br>If you want to award 100 health, but not allow the player to exceed 100 max health, set the &lt;amount&gt; and &lt;limit&gt; to 100. That would mean that if the player has 30 health, they are awarded only 70 health, since the &lt;limit&gt; is set to 100.
-<br> NOTE: &lt;limit&gt; is optional, but defaults to 200 if left empty. Also note that the &lt;limit&gt; can not exceed 200 (rules of normal DOOM)
+&lt;limit&gt; sets the max the players health can reach based on
+the amount.  If you want to award 100 health, but not allow the
+player to exceed 100 max health, set the &lt;amount&gt; and
+&lt;limit&gt; to 100. That would mean that if the player has 30
+health, they are awarded only 70 health, since the &lt;limit&gt;
+is set to 100. That is how the health pick-ups work.
 
+<p>
+NOTE: &lt;limit&gt; is optional, but defaults to 200 if left
+empty. Also note that the &lt;limit&gt; cannot exceed 200
+(rules of normal DOOM)
 
 <p>
 <B>Example:</B> <br>

@@ -13,14 +13,21 @@ THING_EVENT &lt;thing id&gt; &lt;State&gt;
 
 <p>
 <B>Description:</B><br>
-This is used to force a thing to certain states (defined in it's things.ddf entry). 
-
+This is used to force a thing to certain states (defined in its
+THINGS.DDF entry). 
 
 <p>
 <B>Details:</B><br>
-&lt;thing id&gt; can be the name or number from THINGS.DDF, like IMP or 3001.
-<br><br>
-&lt;State&gt; is the state we want the monster to go into. Most useful for special events, like walking up to a human, pressing space (or the use button) which causes a friendly monster to enter states that make him talk, give advice, or a hint. You could also do events like make a weapons house, and a merchant inside that talks to you, or sells weapons and ammo.
+&lt;thing id&gt; can be the name or number from THINGS.DDF, like
+"IMP" or "3001".
+
+<p>
+&lt;State&gt; is the state we want the monster to go into. Most
+useful for special events, like walking up to a human, pressing
+space (the use button) which causes a friendly monster to
+enter states that make him talk, give advice, or a hint. You
+could also do events like make a weapons house, and a merchant
+inside that talks to you, or sells weapons and ammo.
 
 <p>
 <B>Example:</B> <br>

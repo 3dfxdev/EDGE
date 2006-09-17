@@ -7,26 +7,33 @@
 
 <h3 class="page_title">GOTO_MAP</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
 GOTO_MAP &lt;Map Name&gt; [options]
 
-<P><B>Description:</B><br>
-This causes the level to end when triggered, but goes to the next level entered as &lt;Map Name&gt; instead of the one defined in LEVELS.DDF.
-
-<P><B>Details:</B><br>
-&lt;Map Name&gt; is the same as the lump name, for example e#m# for DOOM1, and map## for DOOM2.
-<br>
-<TABLE>
-<TR>
-	<TD>[options] At the moment the only value allowed is SKIP_ALL. If used this allows you to HIDE the Level PreText, EndText or Stats screen which you would normally see when you finish a level.
-
-<br><br>This is useful when you are using GOTO_MAP to "punish a player" and make him repeat the same map: in this case you don't want to see the maps' PRETEXT screen again.</TD>
-</TR>
-</TABLE>
+<p>
+<B>Description:</B><br>
+This causes the level to end when triggered, but goes to the
+next level entered as &lt;Map Name&gt; instead of the one
+defined in LEVELS.DDF.
 
 <p>
+<B>Details:</B><br>
+&lt;Map Name&gt; is the same as the lump name, for example e#m#
+for DOOM1, and map## for DOOM2.
 
+<p>
+[options] At the moment the only value allowed is SKIP_ALL. If
+used this allows you to HIDE the level's PreText, EndText and
+Intermission screens which you would normally see when you
+finish a level.
+
+<p>
+This is useful when you are using GOTO_MAP to "punish a player"
+and make him repeat the same map. In this case you don't want to
+see the map's PRETEXT screen again.
+
+<p>
 
 </block>
 

@@ -18,11 +18,15 @@ place it exactly where you want it to wait.
 <p>
 
 <B>Details:</B><br>
-&lt;time&gt; a time value indicating how long to wait (in either ticks or seconds).
+&lt;time&gt; a time value indicating how long to wait (in either
+ticks or seconds).
 <ul>
   <li class="nobullet">0 = no delay
   <li class="nobullet">0.5 = half a second
   <li class="nobullet">2 = two seconds
+  <li class="nobullet">&nbsp;
+  <li class="nobullet">1T = one tick (shortest possible time)
+  <li class="nobullet">35T = one second
 </ul>
 
 <p>
@@ -34,9 +38,10 @@ but before the SPAWN_THING commands.
 
 <p>
 <B>Example:</B><br> 
-WAIT is especially useful for when you have various TIPS, one after the other.
-Without WAIT, the TIPs would be shown simultaneously and "run over" each other,
-so you would only see the final TIP.
+WAIT is especially useful for when you have various TIPS,
+one after the other.  Without WAIT, the TIPs would be shown
+simultaneously and "run over" each other, so you would only
+see the final TIP.
 
 <p>
 <pre class="rts">

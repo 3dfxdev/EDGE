@@ -20,8 +20,9 @@ but refers to <B>part</B> of a script, not a whole script.
 
 <p>
 <B>Details:</B><br>
-&lt;Name&gt; is the name we want to give to this point in the script. 
-The LABEL command is used with the following other RTS commands: JUMP, JUMP_ON MENU.
+&lt;Name&gt; is the name we want to give to this point in the
+script.  The LABEL command is used with the JUMP and JUMP_ON
+commands.
 
 <p>
 

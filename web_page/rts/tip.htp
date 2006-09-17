@@ -7,67 +7,63 @@
 
 <h3 class="page_title">TIP</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
 TIP &lt;text&gt; &lt;display time&gt; &lt;audible tip&gt;
 
-<P>
+<p>
 <B>Variants:</B>
 <br>TIP_LDF &lt;ldf reference&gt; &lt;display time&gt; &lt;audible tip&gt;
 
-
-
-<P><B>Description:</B>
-<br>Display an onscreen message. 
-<br>You have two types of TIP command:
-<br>-normal = the text shown is what you specify inside quotes via the &lt;text&gt; argument.
-<br>-LDF = the text shown comes from an entry in language.ldf which you specify via the &lt;ldf reference&gt; argument.
-<br>
-<br>The player that triggers this is the only one that will see it. Combine with tagged_repeatable for a repeating tip.
-
-<P><B>Details:</B><br>
-&lt;text&gt; or &lt;ldf reference&gt; is the text which will be shown to the player. 
-<br>The text is limited to 80 characters across, and 8 lines down. Default is centered and 50% from top, 50% from the side (see TIP_SET_POS to change the position on the screen).
-<TABLE>
-&lt;display time&gt; a time value indicating how long it stays on screen (in either ticks or seconds).
-<TR>
-	<TD>0 = no delay
-	<br>0.5 = half a second
-	<br>2 = two seconds
-	</TD>
-</TR>
-</TABLE>
-<br>&lt;audible tip&gt; can be set to TRUE or FALSE. If true, DSTINK is played as the sound. If you want to use a custom sound, set it to FALSE, and add a playsound entry.
-
+<p>
+<B>Description:</B><br>
+Displays an on-screen message. 
+There are two types of TIP commands:
+<ul>
+  <li>normal = the text shown is what you specify inside quotes
+  via the &lt;text&gt; argument.
+  <li>LDF = the text shown comes from an entry in LANGUAGE.LDF
+  which you specify via the &lt;ldf reference&gt; argument.
+</ul>
 
 <p>
-<TR>
-	<TD><B>Example of TIP:</B>
-	<br>
+Combine with TAGGED_REPEATABLE for a repeating tip.
 
-	<PRE class="rts">
-	RADIUS_TRIGGER 0 0 -1
-		TAGGED_IMMEDIATE
+<p>
+NOTE: only the player(s) which trigger the script will see the
+message and hear the sound.
 
-		TIP "Hello world!" 3 TRUE
+<p>
+<B>Details:</B><br>
+&lt;text&gt; or &lt;ldf reference&gt; is the text which will be shown to the player. 
+<br>The text is limited to 80 characters across, and 8 lines down. Default is centered and 50% from top, 50% from the side (see TIP_SET_POS to change the position on the screen).
 
-	END_RADIUS_TRIGGER
-	</PRE>
+<p>
+&lt;display time&gt; a time value indicating how long it stays on screen (in either ticks or seconds).
+<ul>
+  <li class="nobullet">0 = no delay
+  <li class="nobullet">0.5 = half a second
+  <li class="nobullet">2 = two seconds
+  <li class="nobullet">&nbsp;
+  <li class="nobullet">1T = one tick (shortest possible time)
+  <li class="nobullet">35T = one second
+</ul>
 
-	</TD>
-</TR>
-<TR>
-	<TD><B>Example of TIP_LDF:</B>
-	<br>
+<p>
+&lt;audible tip&gt; can be set to TRUE or FALSE. If true, [TINK]
+sound is played.  If you want to use a custom sound, set it to
+false, and add a PLAY_SOUND command.
 
-	<PRE class="rts">
-	RADIUS_TRIGGER 0 0 -1
-		TAGGED_IMMEDIATE
+<p>
+<B>Example:</B> <br>
 
-		TIP_LDF MyLDFTip01 4 FALSE
+<PRE class="rts">
+RADIUS_TRIGGER 0 0 -1
 
-	END_RADIUS_TRIGGER
-	</PRE>
+  TIP "Hello world!" 5 TRUE
+
+END_RADIUS_TRIGGER
+</PRE>
 
 <p>
 

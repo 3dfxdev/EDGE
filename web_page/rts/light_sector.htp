@@ -27,15 +27,15 @@ and a negative number to lower it.
 The maximum is <B>255</B>, the minimum is <B>-255</B>.
 
 <p>
-You can use this command multiple times,
-for example to change the light level of multiple sectors
-in a single script.
-You could also combine it with TAGGED_REPEATABLE for a faded light
-change instead of an instant change to the desired level.
+You can use this command multiple times, for example to change
+the light level of multiple sectors in a single script.
+You could also combine it with TAGGED_REPEATABLE for a faded
+light change instead of an instant change to the desired level.
 
 <p>
 <b>Example:</b><br>
-This script will slowly darken the starting area on DOOM2's MAP08 (Tricks and Traps).
+This script will slowly darken the starting area on DOOM2's
+MAP08 (Tricks and Traps).
 <PRE class="rts">
 RADIUS_TRIGGER 0 0 -1
   TAGGED_REPEATABLE 255 1T

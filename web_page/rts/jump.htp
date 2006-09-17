@@ -18,32 +18,39 @@ where you want to have a chance of going to another point, LABEL.
 
 <p>
 <B>Details:</B><br>
-&lt;Label name&gt; is the point in your script you want to jump to. (See the LABEL command)
-<br>[Jump Chance] is a percentage value which represents the likelyhood of the jump taking place. A value of 0% would mean that it would never jump to the Label, and 100% would mean it would always jump. If no [Jump Chance] is specified then it will always Jump.
+&lt;Label name&gt; is the point in your script you want to jump
+to. (See the LABEL command)
 
+<p>
+[Jump Chance] is a percentage value which represents the
+likelyhood of the jump taking place. A value of 0% would mean
+that it would never jump to the Label, and 100% would mean it
+would always jump. If no [Jump Chance] is specified then it will
+always Jump.
 
 <p>
 <B>Example:</B><br>
 This script can have two possible outcomes...
 
 <PRE class="RTS">
-RECT_TRIGGER 652 1440 780 1456
+RECT_TRIGGER 0 0 -1
   TAGGED_USE
   TAGGED_REPEATABLE 0 4
 
-  JUMP message01 50%  //1 out of 2 times we'll show message 1
-  JUMP message02      //if we haven't jumped on the previous line, we do now
+  JUMP message01 50%  // 1 out of 2 times we'll show message 1
+  JUMP message02      // if we didn't jump before, do it now
 
   LABEL message01
     TIP "Nothing of interest."
-    JUMP EndStuff // force a jump so we don't reach the next LABEL
-  
+    // force a jump so we don't reach the next LABEL
+    JUMP finished
+
   LABEL message02
-    TIP "Thats interesting!"
-    JUMP EndStuff
+    TIP "That is interesting!"
+    JUMP finished
   
-  LABEL EndStuff
-    //end of script
+  LABEL finished
+    // end of script
 
 END_RADIUS_TRIGGER
 </PRE>

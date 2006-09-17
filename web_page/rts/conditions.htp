@@ -24,7 +24,8 @@ Script will only run when certain things are killed.
 
 <B><A HREF="on_height.htm">ON_HEIGHT</A></B> 
 <br>
-Script will only run when a sectors floor or ceiling gets to a certain height. 
+Script will only run when a sectors floor or ceiling gets to a
+certain height. 
 
 <br><br>
 

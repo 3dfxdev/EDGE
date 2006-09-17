@@ -13,14 +13,16 @@ WHEN_APPEAR &lt;appear flags&gt;
 
 <p>
 <B>Description:</B><br>
-Controls when triggers exist on your map, based on skill level and game mode.
-It's <B>not</B> required if you want the trigger to exist on every skill
-and net mode, since that is the default setting for scripts.
+Controls when triggers exist on your map, based on skill level
+and game mode.  It's <B>not</B> required if you want the trigger
+to exist on every skill and net mode, since that is the default
+setting for scripts.
 
 <p>
 <B>Details:</B><br>
-The &lt;appear flags&gt; is a bunch of numbers and/or keywords, which must
-be separated by the colon (':') character.  These values can be:
+The &lt;appear flags&gt; is a bunch of numbers and/or keywords,
+which must be separated by the colon (':') character.  These
+values can be:
 
 <ul class="params">
 <li>the <B>skill levels</B> which this script will be run on.
@@ -39,7 +41,8 @@ be separated by the colon (':') character.  These values can be:
   <p>
   E.g. <code class="rts">WHEN_APPEAR sp:coop:dm</code>
 
-<li>you can <B>negate</B> the flags by adding the '!' character to the beginning.
+<li>you can <B>negate</B> the flags by adding the '!' character
+to the beginning.
   <p>
   E.g. <code class="rts">WHEN_APPEAR !4:5<code>
 </ul>
@@ -52,7 +55,6 @@ a single player game on skill 1.
 <PRE class="rts">
 RADIUS_TRIGGER 0 0 -1
   WHEN_APPEAR 1:sp
-  TAGGED_IMMEDIATE
 
   TIP "You're using a low skill setting!"
 

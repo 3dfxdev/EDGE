@@ -7,32 +7,45 @@
 
 <h3 class="page_title">GIVE_ARMOUR</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
 GIVE_ARMOUR &lt;armor class&gt; &lt;amount&gt; &lt;limit&gt;
 
-<P><B>Description:</B><br>
- This gives armour to the player. Combine a low &lt;amount&gt; with TAGGED_REPEATABLE if you want to give armour in increments.
+<p>
+<B>Description:</B><br>
+This gives armour to the player. Combine a low &lt;amount&gt;
+with TAGGED_REPEATABLE if you want to give armour in increments.
 
 <TABLE>
 <TR>
 	<TD><P><B>Details:</B><br>
-&lt;armor class&gt; is the strength of armor to give. Higher absorption results in less damage to the player. 
-<br>Possible values are: ARMOUR_GREEN, ARMOUR_BLUE, ARMOUR_YELLOW or ARMOUR_RED.
-<br><br>ARMOUR_GREEN - 33% absorption
-<br>ARMOUR_BLUE - 50% absorption
-<br>ARMOUR_YELLOW - 75% absorption
-<br>ARMOUR_RED - 90% absorption
+&lt;armor class&gt; is the strength of armor to give. Higher
+absorption results in less damage to the player. 
+<br>Possible values are:
 
-<br>
+<ul>
+  <li><code>ARMOUR_GREEN </code> - 33% absorption
+  <li><code>ARMOUR_BLUE  </code> - 50% absorption
+  <li><code>ARMOUR_YELLOW</code> - 75% absorption
+  <li><code>ARMOUR_RED   </code> - 90% absorption
+</ul>
+
 <p>
 &lt;amount&gt; is how much armour is awarded.
 
-<br>
 <p>
-&lt;limit&gt; sets the max the players armour can reach based on the amount. 
-<br>If you want to award 100 armour, but not allow the player to exceed 100 max armour, set the &lt;amount&gt; and &lt;limit&gt; to 100. That would mean that if the player has 30 armour, they are awarded only 70 armour, since the &lt;limit&gt; is set to 100.
-<br> NOTE: the &lt;limit&gt; can not exceed 200 (rules of normal DOOM).
+&lt;limit&gt; sets the max the players armour can reach based on
+the amount. 
+
+<p>
+If you want to award 100 armour, but not allow the player to
+exceed 100 max armour, set the &lt;amount&gt; and &lt;limit&gt;
+to 100. That would mean that if the player has 30 armour, they
+are awarded only 70 armour, since the &lt;limit&gt; is set to
+100. This is how the pick-up armour works.
+
+<p>
+NOTE: the &lt;limit&gt; can not exceed 200 (rules of normal DOOM).
 
 <p>
 <B>Example:</B> <br>

@@ -7,29 +7,28 @@
 
 <h3 class="page_title">LOSE_BENEFIT</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
 LOSE_BENEFIT &lt;benefit&gt; [amount]
 
-<P><B>Description:</B><br>
+<p>
+<B>Description:</B><br>
 Use this to take away ammo, weapons, powerups etc. from the player. 
 
-<TABLE>
-<TR>
-	<TD><P><B>Details:</B><br>
-&lt;benefit&gt; is the type of benefit to take from player (ammo names, armours, keys, and weapons). 
-<br><br>Examples of benefits would be: 
-<br>BULLETS
-<br>GREEN_ARMOUR
-<br>KEY_BLUECARD
-<br>CHAINGUN
-
+<p>
+<B>Details:</B><br>
+&lt;benefit&gt; is the type of benefit to take from player (ammo
+names, armour types, keys, and weapons). 
 
 <p>
-[amount] is how much of the benefit to be taken, and is only required in the case of ammo types and armours. Note that the amount must be enclosed in (), for example LOSE_BENEFIT ROCKETS(10).
-<br>Examples would be: 
-<br>BULLETS(50)
-<br>GREEN_ARMOUR(40)
+[amount] is how much of the benefit to be taken, and is only
+required in the case of ammo types, armour and powerups.
+The amount must be enclosed in ().
+
+<p>
+<B>See Also:</B><br>
+<a class="rts" HREF="give_benefit.htm">GIVE_BENEFIT</a>
+has some examples of benefit names.
 
 <p>
 <B>Example:</B> <br>

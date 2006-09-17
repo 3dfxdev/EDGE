@@ -22,11 +22,13 @@ the same type and tag numbers.
 &lt;linetype&gt; is the type number from LINES.DDF.
 
 <p>
-&lt;sector tag&gt; is the tag number you give a sector in your map editor.
+&lt;sector tag&gt; is the tag number you give a sector in your
+map editor.
 
 <p>
-This is most useful for triggering multiple line types with one trigger,
-using multiple ACTIVATE_LINETYPE commands in the script.
+This is most useful for triggering multiple line types with one
+trigger, using multiple ACTIVATE_LINETYPE commands in the
+script.
 
 <p>
 <b>Example:</b><br>

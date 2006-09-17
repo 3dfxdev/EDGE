@@ -13,7 +13,8 @@ CHANGE_MUSIC &lt;music number&gt;
 
 <p>
 <B>Description:</B><br>
-When this is triggered, the music changes in the game, just like using IDMUS ##.
+When this is triggered, the music changes in the game, just like
+using IDMUS ##.
 
 <p>
 <B>Details:</B><br>
