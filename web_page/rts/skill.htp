@@ -11,24 +11,38 @@
 <B>Usage:</B><br>
 SKILL &lt;skill level&gt; &lt;respawn monsters&gt; &lt;fast monsters&gt;
 
-<P><B>Description:</B><br>
+<p>
+<B>Description:</B><br>
 Use this to change the skill setting in mid-game.
+This won't have much effect until the next level is
+loaded.
 
-<P>
-
+<p>
 <B>Details:</B><br>
-	&lt;skill level&gt; is a number from 1 to 5, where 1 would be "I'm too young to die" and 5 would be "Nightmare"
-<br><br>
+&lt;skill level&gt; is a number from 1 to 5, as follows:
+<ol>
+  <li>I'm too young to die
+  <li>Hey not too rough
+  <li>Hurt me plenty
+  <li>Ultra violence
+  <li>Nightmare!
+</ol>
 
+<p>
 &lt;respawn monsters&gt; is either TRUE or FALSE.
-<br><br>
 
+<p>
 &lt;fast monsters&gt; is either TRUE or FALSE.
 
-<br><br>
+<p>
+For Skill 5 (Nightmare), you should also set &lt;respawn
+monsters&gt; and &lt;fast monsters&gt; to TRUE.
 
-For Nightmare/Skill 5, you should also set &lt;respawn monsters&gt; and &lt;fast monsters&gt; to TRUE.
+<p>
+The main usage for this command is to make a skill
+selection level like in Quake 1.
 
+<p>
 
 </block>
 

@@ -13,11 +13,17 @@ DAMAGE_PLAYER &lt;amount&gt;
 
 <p>
 <B>Description:</B><br>
-This takes away from the players health and armor within the radius of the trigger. Combine a low &lt;amount&gt; with TAGGED_REPEATABLE if you want to do damage in increments.
+This takes away from the players health and armor within the
+radius of the trigger. Combine a low &lt;amount&gt; with
+TAGGED_REPEATABLE if you want to do damage in increments.
 
 <p>
 <B>Details:</B><br>
-&lt;amount&gt; is the amount of damage to be inflicted. In higher skills, this does more damage, so be sure to test how much damage you do on all skill levels. For example, on skill 5, "DAMAGE_PLAYER 50" would likely clobber the player, instead of just hurting him a bit.
+&lt;amount&gt; is the amount of damage to be inflicted. In
+higher skills, this does more damage, so be sure to test how
+much damage you do on all skill levels. For example, on skill 5,
+"DAMAGE_PLAYER 50" would likely clobber the player, instead of
+just hurting him a bit.
 
 <p>
 <B>Example:</B> <br>

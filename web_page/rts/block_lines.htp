@@ -11,15 +11,21 @@
 <B>Usage:</B><br>
 BLOCK_LINES &lt;line tag&gt;
 
-<P><B>Description:</B><br>
-Almost the same as UNBLOCKLINES except that all lines on the map with the same tag will be blocked, and will NOT allow players and monsters to pass. Only affects two-sided lines. 
-<br><br>
-<B>NOTE:</B> Any things (including the player) touching the line will get permanently stuck.
+<p>
+<B>Description:</B><br>
+Almost the same as UNBLOCKLINES except that all lines on the map
+with the same tag will be blocked, and will NOT allow players
+and monsters to pass. Only affects two-sided lines. 
 
-<P>
+<p>
+<B>NOTE:</B> Any things (including the player) touching the line
+will get permanently stuck. Use with care!
+
+<p>
 <B>Details:</B><br>
-	&lt;line tag&gt; is the line tag in your map editor.
-<br><br>
+&lt;line tag&gt; is the line tag in your map editor.
+
+<p>
 
 </block>
 

@@ -15,8 +15,21 @@ TIP_SET_COLOUR &lt;colour map entry&gt;
 Use this command to set the color of existing tips.
 
 <P><B>Details:</B><br>
-&lt;colour map entry&gt; is one of the default tip colormaps defined in COLMAP.DDF (TEXT_WHITE, TEXT_GREEN, TEXT_BLUE etc.) or a custom colormap name in your COLMAP.DDF.
-<p>NOTE: the default colormap is TEXT_WHITE, in case you change colors and want to set it back to the default at some point.
+&lt;colour map entry&gt; is one of the colormaps names
+defined in COLMAP.DDF, some examples:
+<ul>
+  <li>TEXT_WHITE
+  <li>TEXT_RED
+  <li>TEXT_BLUE
+  <li>TEXT_GREEN
+  <li>TEXT_YELLOW
+  <li>TEXT_BROWN
+  <li>NORMAL <I>-- applyies no colouring to the font</I>
+</ul> 
+
+<p>
+NOTE: the default colormap is TEXT_WHITE, in case you change
+colors and want to set it back to the default at some point.
 
 <p>
 <B>Example:</B> <br>

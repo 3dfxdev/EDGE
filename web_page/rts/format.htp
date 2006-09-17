@@ -39,6 +39,11 @@ placing a double slash "//" at the beginning of a line and then typing
 your text after it. For example:
 
 <p>
+Commands in RTS scripts can be extended over two (or more) actual
+lines by placing the \ character at the end.  There must not be
+any spaces after the \ character, otherwise it doesn't work.
+
+<p>
 <PRE class="rts">
 //This is a comment
 
@@ -49,12 +54,14 @@ your text after it. For example:
 
 <h3 class="page_title"> General Tips </h3>
 
-Check your spelling and values carefully, and add a few functions at a time, then test.
+Check your spelling and values carefully, and add a few
+functions at a time, then test.
 
 <p>
-Just like DDF development, adding a lot of entries without testing
-makes it much harder to find problems.  If you add a little and test often,
-you have less scripting to rummage through to find errors.
+Just like DDF development, adding a lot of entries without
+testing makes it much harder to find problems.  If you add a
+little and test often, you have less scripting to rummage
+through to find errors.
 
 <p>
 

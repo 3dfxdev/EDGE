@@ -5,52 +5,41 @@
 
 <block name="content">
 
-<h3 class="page_title">JUMP_ON MENU</h3>
+<h3 class="page_title">JUMP_ON</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
-JUMP_ON MENU &lt;label 1&gt; [label 2] [label 3] etc.
-
-<P><B>Description:</B><br>
-Must be used with the SHOW_MENU or SHOW_MENU_LDF commands. Once a menu selection has been made, the JUMP_ON MENU command will test the result, and jump to the corresponding label.
-
-<P><B>Details:</B><br>
-&lt;label 1&gt; and the other [label X] are the labels to jump to depending on the option chosen in the menu.
+JUMP_ON &lt;Variable&gt; &lt;label 1&gt; [label 2] [label 3] etc...
 
 <p>
-It will fail to jump if there aren't enough labels, or menu could not be shown (netgame).
+<B>Description:</B><br>
+The JUMP_ON command will test the value in the variable
+and jump to the corresponding label. When the variable is 1,
+it jumps to &lt;label 1&gt;, when the variable is 2, it jumps
+to &lt;label 2&gt;, and so forth.
+<p>
 
 <p>
-<B>Example:</B> <br>
+<B>Details:</B><br>
 
-<PRE class="rts">
-// Step 1: what we want to show
-SHOW_MENU "What Can I do for you?" \
-  "Health" \
-  "Ammo" \
-  "Nothing" 
+&lt;Variable&gt; can only be "MENU" currently. This variable
+is set by the SHOW_MENU or SHOW_MENU_LDF commands. Once
+a menu selection has been made, the JUMP_ON&nbsp;MENU command
+will test the result, and jump to the corresponding label.
 
-// Step 2: where we want to jump to in the script in each case
-JUMP_ON MENU option1 option2 option3
+<p>
+&lt;label 1&gt; and the other [label X] are the labels to jump
+to depending on the option chosen in the menu.
 
-// Some labeled RTS
-LABEL option1
-  HEALPLAYER 150 200
-  TIP "Have some health" 2 FALSE
-  JUMP finished
+<p>
+It will fail to jump if there aren't enough labels, or the
+variable is zero (which happens when the menu could not be
+shown, e.g. the game is multiplayer).
 
-LABEL option2
-  GIVE_BENEFIT BULLETS(100)
-  TIP "Have some ammo" 2 FALSE
-  JUMP finished
-
-LABEL option3
-  TIP "OK then. Have a nice Day" 2 FALSE
-  JUMP finished
-
-LABEL finished
-  // We do nothing else 
-</PRE>
+<p>
+<B>See Also</B><br>
+The <a class="rts" HREF="show_menu.htm">SHOW_MENU</a> page
+has a complete example of using menus and JUMP_ON.
 
 <p>
 

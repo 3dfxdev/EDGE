@@ -11,21 +11,22 @@
 <B>Usage:</B><br>
 TIP_SET_TRANS &lt;target translucency&gt; [fade time]
 
-<P><B>Description:</B><br>
-Use this command to make onscreen tips fade in or out, or just set a translucency value instantly. Should be used with the TIP_SLOT command.
+<p>
+<B>Description:</B><br>
+Use this command to make onscreen tips fade in or out, or just
+set a translucency value instantly.
 
-<P><B>Details:</B><br>
-&lt;target translucency&gt; percentages are: 0% - invisible, 100% - solid. 
-<br>Also, the translucency affects all tip types, even graphics, but only those assigned to a particular slot (see TIP_SLOT).  
-<TABLE>
-[fade time] a time value indicating how long it takes for the TIP to reach the desired translucency (in either ticks or seconds). To make it fade instantly, leave the fade time blank.
-<TR>
-	<TD>0 = no delay
-	<br>0.5 = half a second
-	<br>2 = two seconds
-	</TD>
-</TR>
-</TABLE>
+<p>
+<B>Details:</B><br>
+&lt;target translucency&gt; is a percentage value, from 0% (invisible)
+to 100% (solid).
+The translucency affects all tip types, even graphics,
+but only those using the same slot (see TIP_SLOT).  
+
+<p>
+[fade time] a time value indicating how long it takes for the
+TIP to reach the desired translucency (in either ticks or
+seconds). To make it fade instantly, leave the fade time blank.
 
 <p>
 <B>Example:</B> <br>
@@ -33,7 +34,7 @@ Use this command to make onscreen tips fade in or out, or just set a translucenc
 <PRE class="rts">
 RADIUS_TRIGGER 0 0 -1
 
-  // Fade from solid black to normal
+  // fade whole screen from solid black to normal
   TIP_SET_POS 0% 0%
   TIP_GRAPHIC SOLID_BLACK 10 FALSE 64
   TIP_SET_TRANS 0% 10

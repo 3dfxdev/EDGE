@@ -18,24 +18,36 @@ PLAY_SOUND_BOSSMAN &lt;sound name&gt; [X] [Y] [Z]
 <p>
 <B>Description:</B>
 Play a sound and (optionally) define the location from where the
-sound will come.  
-There are two types of PLAY_SOUND command:
-xx<br>-normal = plays a sound which will be fainter the farther away you are
-<br>-BOSSMAN = the sound is played at max volume throughout the entire level
+sound will come.  There are two types of PLAY_SOUND command:
+<ul>
+  <li>normal = plays a sound using normal attenuation
+(the farther away you are, the softer the sound is)
+  <li>BOSSMAN = the sound is played at max volume
+  throughout the entire level
+</ul>
 
 <p>
 <B>Details:</B><br>
 &lt;sound&gt; references a sound name from SOUNDS.DDF. 
 
-
-<p>It's best to use your map editor to determine the exact points for the [X] and [Y] values you want (most map editors show the grid location in real time). 
-<br>Note that if you define [X] then obviously [Y] is required.
-<br>If [X] and [Y] are omitted, the sound will be played at the origin of the trigger.
-
-<p>The optional [Z] value is to create a sound in the air for example. If you use [Z] then [X] and [Y] are required.
+<p>
+It's best to use your map editor to determine the exact points
+for the [X] and [Y] values you want (most map editors show the
+grid location in real time). 
 
 <p>
-Combine with TAGGED_REPEATABLE to make a looping sound.
+NOTE: if you define [X] then obviously [Y] is required.
+
+<p>
+The optional [Z] value is to create a sound in the air for
+example. If you use [Z] then both [X] and [Y] are required.
+
+<p>
+When the coordinates are omitted, the sound will be played at
+the origin of the trigger.
+
+<p>
+Tip: Combine with TAGGED_REPEATABLE to make a looping sound.
 
 <p>
 <B>Example:</B><br>
@@ -45,11 +57,11 @@ START_MAP map01
   RADIUS_TRIGGER 0 0 80
     TAGGED_IMMEDIATE
 
-    //the sound will come from the center of the radius trigger
+    // the sound will come from the center of the radius trigger
     PLAY_SOUND DBOPN 
     WAIT 2
 
-    //the sound will come from a specific X Y location
+    // the sound will come from a specific X/Y location
     PLAY_SOUND DBOPN 1000 3000
 
   END_RADIUS_TRIGGER

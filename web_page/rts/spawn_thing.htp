@@ -7,50 +7,75 @@
 
 <h3 class="page_title">SPAWN_THING</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
 SPAWN_THING &lt;thing id&gt; &lt;X&gt; &lt;Y&gt; &lt;Angle&gt; &lt;Z&gt; &lt;mlook&gt;
 
-<P>
+<p>
 <B>Variants:</B>
-<br>SPAWN_THING_AMBUSH &lt;thing id&gt; &lt;X&gt; &lt;Y&gt; &lt;Angle&gt; &lt;Z&gt; &lt;mlook&gt;
 <br>SPAWN_THING_FLASH &lt;thing id&gt; &lt;X&gt; &lt;Y&gt; &lt;Angle&gt; &lt;Z&gt; &lt;mlook&gt;
+<br>SPAWN_THING_AMBUSH &lt;thing id&gt; &lt;X&gt; &lt;Y&gt; &lt;Angle&gt; &lt;Z&gt; &lt;mlook&gt;
 
+<p>
+<B>Description:</B><br>
+This command spawns a new monster or item on the map.
+You can set the point where you want the monster to spawn, the
+angle to face, the z height to spawn, and the mlook angle.
+There are three types of SPAWN_THING command:
+<ul>
+  <li>normal = spawns the thing with no flash 
+  <li>FLASH = makes the thing spawn as if it teleported in,
+      displaying the flash associated with the event
+  <li>AMBUSH = spawns the thing in ambush mode
+  (some editors call this deaf mode) 
+</ul>
 
-<P><B>Description:</B><br>
-This defines the point where you want a monster to spawn, the angle to face, the z height to spawn, and mlook angle. <br>You have three types of SPAWN_THING command:
-<br>-normal = spawns the thing with no flash 
-<br>-ambush = spawns the thing in ambush mode, some editors call this deaf 
-<br>-flash = makes the thing spawn as if it is teleported in, displaying the flash associated with the event
+<p>
+<B>Details:</B><br>
+&lt;thing id&gt; specifies the type of monster or item to be
+spawned, and can be either the name or the number from THINGS.DDF,
+like "IMP" or "3001".
 
+<p>
+&lt;X&gt; &lt;Y&gt; is the spawn coordinates.
+It's best to use your map editor to determine the exact points
+for the &lt;X&gt; and &lt;Y&gt; values you want (most map
+editors show the grid location in real time). 
 
-<P><B>Details:</B><br>
-&lt;thing id&gt; specifies the monster to be spawned and can be the name or number from THINGS.DDF, like IMP or 3001.
+<p>
+&lt;Angle&gt; the monster will be facing.
+Common map angles are:
+<ul>
+  <li class="nobullet"><code>0&nbsp;&nbsp;</code> - East
+  <li class="nobullet"><code>90&nbsp;</code> - North
+  <li class="nobullet"><code>180</code> - West
+  <li class="nobullet"><code>270</code> - South
+  <li class="nobullet"><code>45&nbsp;</code> - North East
+  <li class="nobullet"><code>135</code> - North West
+  <li class="nobullet"><code>225</code> - South West
+  <li class="nobullet"><code>315</code> - South East
+</ul>
 
-&lt;X&gt; &lt;Y&gt; It's best to use your map editor to determine the exact points for the &lt;X&gt; and &lt;Y&gt; values you want (most map editors show the grid location in real time). 
+but you can fine-tune where the angle is facing using any number
+between 0 (zero) and 359. 
 
-<p>&lt;Angle&gt; the monster will be facing.
-<br>Common map angles are:
-<br>0 - East
-<br>315 - South East
-<br>270 - South
-<br>225 - South West
-<br>180 - West
-<br>135 - North West
-<br>90 - North
-<br>45 - North East
-<br>but you can fine tune where the angle is facing using any number between 0 (zero) and 315. 
+<p>
+&lt;Z&gt; is the vertical coordinate, useful to spawn monsters
+or items on top of extrafloors, where the &lt;Z&gt; can equal
+the top of an extrafloor.
+Most things spawned above the floor will fall with gravity,
+just like a Quake entity).
 
+<p>
+NOTE: you cannot spawn players anywhere (OUR_HERO or PLAYER2-8).
+You must use a level editor to spawn players.
 
-<P>&lt;Z&gt; is useful to spawn monsters or items on top of extrafloors, where the &lt;Z&gt; can equal the top of an extrafloor, or above (a normal object will fall on top of an extrafloor, just like a Quake entity).
-<br>NOTE: <B>you canot spawn players anywhere</B> (OUR_HERO, or PLAYER2-8). You must use a level editor to spawn players.
-<br>
-However, you can spawn a teleport destination on top of an extrafloor, then use ACTIVATE_LINETYPE to trigger a teleport linetype to cause the player to instantly teleport above an extrafloor.
-
-<P>&lt;mlook&gt; there are two types of mlook angles and the possible value to use for this parameter will depend on which we are using:
-<br>1) For non-viewing angles: max up is 89, max down is -89, and 0 (zero) is straight ahead. Use this for laser shooters, aiming attacks for special events, etc. These angles will not work with a camera.
-<br>2) For viewing angles: max up is 45, max down is -45, and 0 (zero) is straight ahead. Use this for end of map cameras, players, and monsters. It's mostly used for end of map cameras, and isn't very useful for monsters. 
-
+<p>
+&lt;mlook&gt; this is the vertical looking angle of the
+thing, which ranges from -89 to 89, and 0 (zero) is straight
+ahead.
+Use this for laser shooters, special aiming attacks, and for
+end of map cameras.
 
 <p>
 <B>Example:</B><br>
@@ -59,8 +84,8 @@ However, you can spawn a teleport destination on top of an extrafloor, then use 
 START_MAP map01
   RADIUS_TRIGGER 0 0 -1
 
-    //spawn an Imp at x=0, y=0, angle=180 (west), z=128
-    SPAWN_THING 3001 0 0 180 128
+    // x=64, y=224, angle=180 (West), z=128
+    SPAWN_THING IMP 64 224 180 128
 
   END_RADIUS_TRIGGER
 END_MAP

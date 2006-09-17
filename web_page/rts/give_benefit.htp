@@ -7,35 +7,49 @@
 
 <h3 class="page_title">GIVE_BENEFIT</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
 GIVE_BENEFIT &lt;benefit&gt; [amount]
 
-<P><B>Description:</B><br>
+<p>
+<B>Description:</B><br>
 Use this to give the player ammo, weapons, powerups etc. 
 
-<TABLE>
-<TR>
-	<TD><P><B>Details:</B><br>
-&lt;benefit&gt; is the type of benefit to give the player (ammo names, armours, keys, weapons and powerups). 
-<br><br>Example benefits would be: 
-<br>BULLETS
-<br>GREEN_ARMOUR
-<br>KEY_BLUECARD
-<br>CHAINGUN
-<br>POWERUP_PARTINVIS
-
+<p>
+<B>Details:</B><br>
+&lt;benefit&gt; is the type of benefit to give the player (ammo
+names, armour types, keys, weapons and powerups). 
 
 <p>
-[amount] is how much of the benefit is given, and is only required in the case of ammo types, armours and powerups. Note that the amount must be enclosed in (), for example GIVE_BENEFIT ROCKETS(10).
-<br>Examples would be: 
-<br>BULLETS(50)
-<br>GREEN_ARMOUR(40)
-<br>POWERUP_PARTINVIS(30)
-<br><br>Note that for powerups, if you don't specify an [amount] you will get a level-long benefit.
+Some examples:
+
+<ul>
+  <li>BULLETS
+  <li>GREEN_ARMOUR
+  <li>KEY_BLUECARD
+  <li>CHAINGUN
+  <li>POWERUP_PARTINVIS
+</ul>
 
 <p>
-<B>Example:</B><br>
+[amount] is how much of the benefit is given, and is only
+required in the case of ammo types, armour and powerups. Note
+that the amount must be enclosed in ().
+
+<p>
+Some examples:
+<ul>
+  <li>ROCKETS(10)
+  <li>BLUE_ARMOUR(40)
+  <li>POWERUP_JETPACK(30)
+</ul>
+
+<p>
+Note: for powerups, if you don't specify an [amount] the
+powerup will last the entire level.
+
+<p>
+<B>Complete Example:</B><br>
 
 <PRE class="rts">
 RADIUS_TRIGGER 0 0 -1

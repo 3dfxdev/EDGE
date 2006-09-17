@@ -19,9 +19,10 @@ radius trigger script, not just a part of one.
 
 <P>
 <B>Details:</B><br>
-&lt;Name&gt; is the name which we can use to make reference to this script.
-This then allows the radius trigger script to be affected by other
-scripts using TAGGED_PATH, TAGGED_DISABLED, ENABLE_SCRIPT, and DISABLE_SCRIPT.
+&lt;Name&gt; is the name which we can use to make reference to
+this script.
+This then allows the radius trigger script to be affected by
+other scripts using TAGGED_PATH, ENABLE_SCRIPT and DISABLE_SCRIPT.
 
 <p>
 

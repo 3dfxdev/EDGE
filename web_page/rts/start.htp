@@ -9,22 +9,26 @@
 RTS stands for "radius trigger script".
 
 <p>
-RTS is not intended to replace DDF, but accents and enhances DDF. Using both
-DDF and RTS together, you can create amazing events that even Quake 2 is not capable of.
+RTS is not intended to replace DDF, but accents and enhances
+DDF. Using both DDF and RTS together, you can create amazing
+events that even Quake 2 is not capable of.
 
 <p>
-With RTS, you can create scripted events that cannot be controlled by linedef
-triggers alone, such as a simple on-screen tip message, multiple linetypes
-being triggered by one switch, or a complex event where an entire structure is
-destroyed, monsters are spawned, sounds are played, and light levels are
+With RTS, you can create scripted events that cannot be
+controlled by linedef triggers alone, such as a simple on-screen
+tip message, multiple linetypes being triggered by one switch,
+or a complex event where an entire structure is destroyed,
+monsters are spawned, sounds are played, and light levels are
 changed dramatically. 
 
 <p>
 <h2 class="page_title"> Conventions </h2>
 
-Most RTS commands take one or more parameters.  Some parameters must be given,
-and the remaining parameters are optional (may be left out).
-Throughout this documentation the following bracket styles are used:
+Most RTS commands take one or more parameters.  Some parameters
+must be given, and the remaining parameters are optional (may be
+left out).  Throughout this documentation the following bracket
+styles are used:
+
 <ul class="brackets">
   <li class="nobullet"><code>&lt;Name&gt;</code> : a compulsory parameter
   <li class="nobullet"><code>[Name]</code> : an optional parameter

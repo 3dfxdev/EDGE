@@ -7,54 +7,52 @@
 
 <h3 class="page_title">CHANGE_TEX</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
 CHANGE_TEX &lt;surface&gt; &lt;new texture&gt; &lt;line tag&gt;
 
-<P><B>Description:</B><br>
+<p>
+<B>Description:</B><br>
 Use this to change textures.
 
+<p>
+<B>Details:</B><br>
 
-<P>
-<TABLE>
-<TR>
-	<TD><B>Details:</B><br>
-	&lt;surface&gt; is what surface we want to change.
-	<br>Allowed values are: 
-	<BR>* floor
-	<BR>* ceiling
-	<BR>* sky
-	<BR>* right_upper
-	<BR>* right_middle
-	<BR>* right_lower
-	<BR>* left_upper
-	<BR>* left_middle
-	<BR>* left_lower.
-<br><br></TD>
-</TR>
-<TR>
-	<TD>&lt;new texture&gt; is the texture or flat we want to assign (Note that in EDGE flats and textures are interchangeable).
-<br><br></TD>
-</TR>
-<TR>
-	<TD>&lt;line tag&gt; is the line (or sector) tag in your map editor.
-<br><br></TD>
-</TR>
-<TR>
-	<TD>Useful mostly for special events, like making the sky change from day to night, making a TV that is switched on or off (or shows different programs), special animations, etc.
-	<br><br> Also, you can only change one surface texture at a time. For example, if you want to change an entire right side of a wall (upper/middle/lower), you must use three different entries. Same if you want to change the ceiling and floor, you'll need to use two seperate entries.</TD>
-</TR>
-</TABLE>
+&lt;surface&gt; is what surface we want to change.
+<br>Allowed values are: 
+<ul>
+	<LI>FLOOR
+	<LI>CEILING
+	<LI>SKY
+	<LI>RIGHT_UPPER
+	<LI>RIGHT_MIDDLE
+	<LI>RIGHT_LOWER
+	<LI>LEFT_UPPER
+	<LI>LEFT_MIDDLE
+	<LI>LEFT_LOWER
+</ul>
 
+<p>
+&lt;new texture&gt; is the texture or flat we want to
+  assign (Note that in EDGE flats and textures are
+  interchangeable).
 
+<p>
+&lt;line tag&gt; is the line (or sector) tag in your map editor.
 
+<p>
+Useful mostly for special events, like making the sky
+change from day to night, making a TV that is switched on or
+off (or shows different programs), special animations, etc.
 
+<p>
+Also, you can only change one surface texture at a time. For
+example, if you want to change an entire right side of a wall
+(upper/middle/lower), you must use three different entries.
+Same if you want to change the ceiling and floor, you'll need
+to use two seperate entries.
 
-
-
-
-<p>&nbsp;
-
+<p>
 
 </block>
 

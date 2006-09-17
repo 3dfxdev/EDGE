@@ -13,23 +13,32 @@ TIP_GRAPHIC &lt;graphic name&gt; &lt;display time&gt; &lt;audible tip&gt; [scale
 
 <p>
 <B>Description:</B><br>
-Display an onscreen graphic. Almost exactly the same as the TIP command except that the it shows a graphic instead of a text.
+Display an onscreen graphic. Almost exactly the same as the TIP
+command except that the it shows a picture instead of text.
+
+<p>
+The graphic is drawn as if the screen resolution was 320x200
+(which was the screen size of the original DOOM binaries).
 
 <p>
 <B>Details:</B><br>
-&lt;graphic name&gt; is a reference to a graphic in a wadfile. 
-<TABLE>
-&lt;display time&gt; a time value indicating how long it stays on screen (in either ticks or seconds).
-<TR>
-	<TD>0 = no delay
-	<br>0.5 = half a second
-	<br>2 = two seconds
-	</TD>
-</TR>
-</TABLE>
-<p>&lt;audible tip&gt; can be set to true or false. If true, DSTINK is played as the sound. If you want to use a custom sound, set it to false, and add a playsound entry.
+&lt;graphic name&gt; is a reference to a graphic in a wad file. 
 
-<p>[scale] stretches or shrinks the total size (width and height) of the tip graphic. 1 is normal perspective, 0.5 will make the tip graphic half normal size. Used when you wish to use larger and more detailed tip graphics 
+<p>
+&lt;display time&gt; a time value indicating how long it stays
+on screen (in either ticks or seconds).
+
+<p>
+&lt;audible tip&gt; can be set to true or false. If true, [TINK]
+sound is played. If you want to use a custom sound, set this
+to false, and add a PLAY_SOUND command.
+
+<p>
+[scale] stretches or shrinks the total size
+(both width and height) of the tip graphic.
+1.0 is normal perspective,
+2.0 will make the graphic twice as big,
+0.5 will make the graphic half normal size.
 
 <p>
 <B>Example:</B> <br>

@@ -10,13 +10,14 @@
 <b>Description:</b> <br>
 This entry specifies the version of EDGE that the RTS is for.
 It should be at the top of your script, but below #CLEAR_ALL (if used).
-<p>
 
-It's intended to keep users from running your script if they have an older version of EDGE, 
-and hence an older version of the RTS parser that might be incompatible with your script.
 <p>
+It's intended to keep users from running your script if they
+have an older version of EDGE, and hence an older version of the
+RTS parser which may be incompatible with your script.
 
-<b>Example:</b>
+<p>
+<B>Example:</B>
 
 <PRE class="rts">
 #VERSION 1.29

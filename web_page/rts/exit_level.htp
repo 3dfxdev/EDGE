@@ -7,22 +7,21 @@
 
 <h3 class="page_title">EXIT_LEVEL</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
 EXIT_LEVEL [delay]
 
-<P><B>Description:</B><br>
+<p>
+<B>Description:</B><br>
 This causes the level to end.
 
-<P><B>Details:</B><br>
-[delay] is an optional time value indicating how long before the level exits after this trigger is activated (in either ticks or seconds).
-<br>16t = half a second
-<br>2 = two seconds
-<br>
-
+<p>
+<B>Details:</B><br>
+[delay] is an optional time value indicating how long before the
+level exits after this trigger is activated (in either ticks or
+seconds).
 
 <p>
-
 
 </block>
 

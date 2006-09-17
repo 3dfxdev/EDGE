@@ -12,19 +12,40 @@
 TIP_SLOT &lt;slot number&gt;
 
 <P><B>Description:</B><br>
-Defines a slot for a tip, which, once defined, can then be formatted using the rest of the TIP commands. Primarily useful for displaying more than one TIP at a time (by using a different slot for each TIP).
+Defines a slot for a tip, which, once defined, can then be
+formatted using the rest of the TIP commands. Primarily useful
+for displaying more than one TIP at a time (by using a different
+slot for each TIP).
 
 <P><B>Details:</B><br>
-&lt;slot number&gt; is a number from 1 to 45 (There are 45 available slots total).
-<br>NOTE: the default slot for tips is 1 (white centered) if left undefined.
+&lt;slot number&gt; is a number from 1 to 45 (There are 45
+available slots total).
 
 <p>
-If you want to display two independant tips on the screen at the same time, set the first to slot 10, and the second to slot 11 (different slots). Then you can use TIP_SET_POS and TIP_SET_COLOUR to change just those tips position and color.
+NOTE: the default slot for tips is 1 (white centered) if left undefined.
 
 <p>
-Likewise, if all tips displayed that exist in the same slot, the newest displayed tip will take the place of the previous (they won't overlap). You'll probably want to use TIP_SET_POS with TIP_SLOT, otherwise the tips will show on top of each other, and will be unreadable. 
-	<p>Slots 1-9 are pre-defined to three colors and three positions: white, blue, and yellow, centered, left upper, and left lower.
-	<p>NOTE: if you set the TIP_SLOT at any point in your script, all tips will use that same slot for the rest of your script. So if you want to make one tip blue and upper left aligned, set the TIP_SLOT to 5, then in the next trigger or before the next tip, set the TIP_SLOT back to 1 for the default of white and centered.
+If you want to display two independant tips on the screen at the
+same time, set the first to slot 10, and the second to slot 11
+(different slots). Then you can use TIP_SET_POS and TIP_SET_COLOUR
+to change just those tips position and color.
+
+<p>
+Likewise, if all tips displayed that exist in the same slot, the newest
+displayed tip will take the place of the previous (they won't overlap).
+You'll probably want to use TIP_SET_POS with TIP_SLOT, otherwise the
+tips will show on top of each other, and will be unreadable. 
+
+<p>
+Slots 1-9 are pre-defined to three colors and three positions:
+white, blue, and yellow, centered, left upper, and left lower.
+
+<p>
+NOTE: if you set the TIP_SLOT at any point in your script,
+all tips in the rest of your script will use that same slot.
+So if you want to make one tip blue and upper left aligned,
+set the TIP_SLOT to 5, then in the next trigger or before the next tip,
+set the TIP_SLOT back to 1 for the default of white and centered.
 
 <p>
 <B>Example:</B> <br>
