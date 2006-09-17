@@ -9,11 +9,11 @@
 
 <P>
 <B>Usage:</B><br>
-CHANGE_TEX &lt;surface&gt; &lt;new texture&gt; &lt;line tag&gt;</P>
+CHANGE_TEX &lt;surface&gt; &lt;new texture&gt; &lt;line tag&gt;
 
 <P><B>Description:</B><br>
 Use this to change textures.
-</P>
+
 
 <P>
 <TABLE>
@@ -49,11 +49,11 @@ Use this to change textures.
 
 
 
-</P>
 
 
 
-<p>&nbsp;</p>
+
+<p>&nbsp;
 
 
 </block>

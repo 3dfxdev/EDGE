@@ -7,37 +7,42 @@
 
 <h3 class="page_title">SHOW_MENU</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
-SHOW_MENU &lt;title&gt; [option 1] [option 2] [option 3] etc.</P>
+SHOW_MENU &lt;title&gt; [option 1] [option 2] [option 3] etc.
 
-<P>
-<B>Variants:</B>
-<br>SHOW_MENU_LDF &lt;ldf reference&gt; [option 1] [option 2] [option 3] etc.</P>
-</P>
+<p>
+<B>Variants:</B> <br>
+SHOW_MENU_LDF &lt;ldf reference&gt; [option 1] [option 2] [option 3] etc.
 
-<P><B>Description:</B>
-<br>Display a menu to the player which will pause the game (including all scripts) until the user makes a valid selection. You must use TAGGED_INDEPENDENT with this command. Also note that if the menu is repeatable (i.e. TAGGED_REPEATABLE) you must use RETRIGGER at the end of your radius trigger script (see example script below for an example).
+<p>
+<B>Description:</B><br>
+Display a menu to the player which will pause the game (including all scripts) until the user makes a valid selection. You must use TAGGED_INDEPENDENT with this command. Also note that if the menu is repeatable (i.e. TAGGED_REPEATABLE) you must use RETRIGGER at the end of your radius trigger script (see example script below for an example).
 <br><br>You have two types of SHOW_MENU commands:
 <br>-normal = the text shown is what you specify inside quotes via the &lt;title&gt; argument.
 <br>-LDF = the text shown comes from an entry in language.ldf which you specify via the &lt;ldf reference&gt; argument.
-</P>
-
-<P><B>Details:</B><br>
-&lt;title&gt; or &lt;ldf reference&gt; is the main text which will be shown to the player.
-<br><br>[option 1] and the other [option X] are the available choices for the user to select. If only one option is available then the menu option is NOT prefixed with "1.", and SPACE/ENTER keys can be used to accept.</p>
 
 
-<p>Savegames are disabled while the RTS menu is shown. Once the menu is finished, the JUMP_ON command will test the result, and jump to the matching label. It will fail to jump if there aren't enough labels, or menu could not be shown (netgame).</p>
-
-<p>The title can contain newlines (given by "\n"), to make multi-line titles. Newlines don't work in the options however.
 <p>
+<B>Details:</B><br>
+&lt;title&gt; or &lt;ldf reference&gt; is the main text which will be shown to the player.
 
+<p>
+[option 1] and the other [option X] are the available choices for the user to select. If only one option is available then the menu option is NOT prefixed with "1.", and SPACE/ENTER keys can be used to accept.
+
+
+<p>
+Savegames are disabled while the RTS menu is shown. Once the menu is finished, the JUMP_ON command will test the result, and jump to the matching label. It will fail to jump if there aren't enough labels, or menu could not be shown (netgame).
+
+<p>
+The title can contain newlines (given by "\n"), to make multi-line titles. Newlines don't work in the options however.
+
+<p>
 Lines in RTS scripts can be extended over two (or more) actual lines by placing the \ character at the end.  Note: there must not be any spaces after the \ character, otherwise it doesn't work. See the example below to how it would be done.
-<br><br>
 
-<B>Example of a repeatable SHOW_MENU:</B>
-<br>
+
+<p>
+<B>Example:</B> <br>
 
 <PRE class="rts">
   TAGGED_INDEPENDENT

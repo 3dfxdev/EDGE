@@ -30,7 +30,7 @@ For example, if you have a script that gives a tip that
 says "something wicked this way comes.", and you want to
 make it pause for 4 seconds before going to the next line
 to spawn a Cyberdemon, add WAIT 4 after the TIP,
-but before the SPAWN_THING functions.
+but before the SPAWN_THING commands.
 
 <p>
 <B>Example:</B><br> 
@@ -46,10 +46,10 @@ START_MAP MAP01
     TAGGED_IMMEDIATE 
 
     TIP "Here for 3 seconds" 3 TRUE
-    WAIT 3 // the wait time is the same as the TIPs display time
+    WAIT 3 // wait time is same as TIP's display time
 
     TIP "Here for 2 seconds" 2 TRUE
-    WAIT 2 // the wait time is the same as the TIPs display time
+    WAIT 2 // wait time is same as TIP's display time
 
     TIP "Last tip" 5 TRUE
 

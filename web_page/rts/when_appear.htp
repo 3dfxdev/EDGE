@@ -54,7 +54,7 @@ RADIUS_TRIGGER 0 0 -1
   WHEN_APPEAR 1:sp
   TAGGED_IMMEDIATE
 
-  TIP "You're using a low skill setting!" 3 TRUE
+  TIP "You're using a low skill setting!"
 
 END_RADIUS_TRIGGER
 </PRE>

@@ -7,7 +7,9 @@
 
 <h2 class="page_title"> Level Commands </h2>
 
-Commands used to change a map.
+RTS contains many commands for interacting with the
+current level.  You can move sectors, change the lighting,
+modify the textures on linedefs, and even play sounds.
 <p>
 
 

@@ -7,24 +7,22 @@
 
 <h3 class="page_title">RETRIGGER</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
-RETRIGGER</P>
+RETRIGGER
 
-<P><B>Description:</B><br>
-Causes the conditions that activated the radius trigger script to be re-checked (possibly pausing the trigger again). Must be used in conjunction with TAGGED_INDEPENDENT.
-</P>
+<p>
+<B>Description:</B><br>
+Causes the conditions that activated the radius trigger
+script to be re-checked (possibly pausing the trigger again).
+Must be used in conjunction with TAGGED_INDEPENDENT.
 
-<P><B>Details:</B><br>
-Most useful used at the bottom of a TAGGED_REPEATABLE sleep-less script (for example a repeatable trigger script which uses SHOW_MENU).
-</P>
+<p>
+<B>Details:</B><br>
+Most useful used at the bottom of a TAGGED_REPEATABLE sleep-less
+script (for example a repeatable trigger script which uses SHOW_MENU).
 
-
-
-
-
-<p>&nbsp;</p>
-
+<p>
 
 </block>
 

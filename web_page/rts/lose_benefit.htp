@@ -9,10 +9,10 @@
 
 <P>
 <B>Usage:</B><br>
-LOSE_BENEFIT &lt;benefit&gt; [amount]</P>
+LOSE_BENEFIT &lt;benefit&gt; [amount]
 
 <P><B>Description:</B><br>
-Use this to take away ammo, weapons, powerups etc. from the player. </P>
+Use this to take away ammo, weapons, powerups etc. from the player. 
 
 <TABLE>
 <TR>
@@ -23,39 +23,30 @@ Use this to take away ammo, weapons, powerups etc. from the player. </P>
 <br>GREEN_ARMOUR
 <br>KEY_BLUECARD
 <br>CHAINGUN
-</P>
+
 
 <p>
 [amount] is how much of the benefit to be taken, and is only required in the case of ammo types and armours. Note that the amount must be enclosed in (), for example LOSE_BENEFIT ROCKETS(10).
 <br>Examples would be: 
 <br>BULLETS(50)
 <br>GREEN_ARMOUR(40)
-</p>
-<br>
-</TD>
-</TR>
-<TR>
-	<TD><B>Example:</B>
-	<br>
-	<CODE>
-	<PRE>
-	RADIUS_TRIGGER 0 0 -1
-		TAGGED_USE
 
-		TIP "You just lost a chaingun, 50 bullets and a blue key!" 3 TRUE
-		LOSE_BENEFIT CHAINGUN
-		LOSE_BENEFIT KEY_BLUECARD
-		LOSE_BENEFIT BULLETS(50)
+<p>
+<B>Example:</B> <br>
 
-	END_RADIUS_TRIGGER
-	</PRE>
-	</CODE></TD>
-</TR>
-</TABLE>
+<PRE class="rts">
+RADIUS_TRIGGER 0 0 -1
+  TAGGED_USE
 
+  TIP "You lose a chaingun, 50 bullets and a blue key!"
+  LOSE_BENEFIT CHAINGUN
+  LOSE_BENEFIT KEY_BLUECARD
+  LOSE_BENEFIT BULLETS(50)
 
-<p>&nbsp;</p>
+END_RADIUS_TRIGGER
+</PRE>
 
+<p>
 
 </block>
 

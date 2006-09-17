@@ -44,7 +44,7 @@ START_MAP e1m1
     TAGGED_USE
     TAGGED_REPEATABLE 0 4
 
-    TIP "Nothing of interest." 3 TRUE
+    TIP "Nothing of interest."
 
   END_RADIUS_TRIGGER
 END_MAP

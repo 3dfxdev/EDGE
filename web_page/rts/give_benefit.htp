@@ -9,10 +9,10 @@
 
 <P>
 <B>Usage:</B><br>
-GIVE_BENEFIT &lt;benefit&gt; [amount]</P>
+GIVE_BENEFIT &lt;benefit&gt; [amount]
 
 <P><B>Description:</B><br>
-Use this to give the player ammo, weapons, powerups etc. </P>
+Use this to give the player ammo, weapons, powerups etc. 
 
 <TABLE>
 <TR>
@@ -24,7 +24,7 @@ Use this to give the player ammo, weapons, powerups etc. </P>
 <br>KEY_BLUECARD
 <br>CHAINGUN
 <br>POWERUP_PARTINVIS
-</P>
+
 
 <p>
 [amount] is how much of the benefit is given, and is only required in the case of ammo types, armours and powerups. Note that the amount must be enclosed in (), for example GIVE_BENEFIT ROCKETS(10).
@@ -33,32 +33,23 @@ Use this to give the player ammo, weapons, powerups etc. </P>
 <br>GREEN_ARMOUR(40)
 <br>POWERUP_PARTINVIS(30)
 <br><br>Note that for powerups, if you don't specify an [amount] you will get a level-long benefit.
-</p>
-<br>
-</TD>
-</TR>
-<TR>
-	<TD><B>Example:</B>
-	<br>
-	<CODE>
-	<PRE>
-	RADIUS_TRIGGER 0 0 -1
-		TAGGED_USE
 
-		TIP "You got a chaingun, ammo and a blue key!" 3 TRUE
-		GIVE_BENEFIT CHAINGUN
-		GIVE_BENEFIT KEY_BLUECARD
-		GIVE_BENEFIT BULLETS(50)
+<p>
+<B>Example:</B><br>
 
-	END_RADIUS_TRIGGER
-	</PRE>
-	</CODE></TD>
-</TR>
-</TABLE>
+<PRE class="rts">
+RADIUS_TRIGGER 0 0 -1
+  TAGGED_USE
 
+  TIP "You got a chaingun, ammo and a blue key!"
+  GIVE_BENEFIT CHAINGUN
+  GIVE_BENEFIT KEY_BLUECARD
+  GIVE_BENEFIT BULLETS(50)
 
-<p>&nbsp;</p>
+END_RADIUS_TRIGGER
+</PRE>
 
+<p>
 
 </block>
 

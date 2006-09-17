@@ -9,39 +9,37 @@
 
 <P>
 <B>Usage:</B><br>
-SLEEP</P>
+SLEEP
 
 <P><B>Description:</B><br>
-This is similar to WAIT, but instead causes this trigger to be disabled until triggered again by another line or radiustrigger.</P>
+This is similar to WAIT, but instead causes this trigger
+to be disabled until triggered again by another line
+or radius_trigger.
 
-<P><B>Example:</B><br>
-<CODE>
-<PRE>
+<p>
+<B>Example:</B><br>
+
+<PRE class="rts">
 START_MAP map01
 
-	RADIUS_TRIGGER 0 0 128
-		TAGGED_IMMEDIATE
+  RADIUS_TRIGGER 0 0 128
+    TAGGED_IMMEDIATE
 
-		SLEEP
-		TIP "one" 1
+    SLEEP
+    TIP "one" 1
 
-		SLEEP
-		TIP "two" 1
+    SLEEP
+    TIP "two" 1
 
-		SLEEP
-		TIP "three" 1
+    SLEEP
+    TIP "three" 1
 
-	END_RADIUS_TRIGGER
+  END_RADIUS_TRIGGER
 
 END_MAP
 </PRE>
-</CODE>
-</p>
 
-
-
-<p>&nbsp;</p>
-
+<p>
 
 </block>
 

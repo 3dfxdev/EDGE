@@ -7,22 +7,21 @@
 
 <h3 class="page_title">PATH_EVENT</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
-PATH_EVENT &lt;State&gt;</P>
+PATH_EVENT &lt;State&gt;
 
 <P><B>Description:</B><br>
-When the "node_following" monster reaches this node it will enter the &lt;State&gt; we've defined. Must be used with TAGGED_PATH.
-</P>
+When the "path-following" monster reaches this node it will enter
+the &lt;State&gt; we have defined. Must be used with TAGGED_PATH.
 
-<P><B>Details:</B><br>
-&lt;State&gt; is the state we want the monster to go into when he reaches this path-node. Useful for making a thing "talk" when he gets to certain points on the map for example.
-</p>
+<p>
+<B>Details:</B><br>
+&lt;State&gt; is the state we want the monster to go into
+when he reaches this path-node. Useful for making a thing
+"talk" when he gets to certain points on the map for example.
 
-
-
-<p>&nbsp;</p>
-
+<p>
 
 </block>
 

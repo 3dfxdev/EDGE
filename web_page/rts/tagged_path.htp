@@ -7,63 +7,82 @@
 
 <h3 class="page_title">TAGGED_PATH</h3>
 
-<P>
-<B>Usage:</B><br>
-TAGGED_PATH &lt;Name&gt;</P>
-
-<P><B>Description:</B><br>
-Used for defining a path which a monster with "path_follow" in it's states will follow.
-</P>
-<TABLE>
-<TR>
-	<TD>
-<P><B>Details:</B><br>
-&lt;Name&gt; references the name of another radius trigger script. This allows us to "daisy chain" the paths' nodes together.
-<br><br> Use the NAME function to name your radius trigger script, then use the TAGGED_PATH function to create a path for a monster to follow. This is similar to how Quake makes monsters follow a path before they encounter the player.
-</p>
-<p>Use a SPAWN_THING function to spawn the monster you want to walk the path in the first radius trigger script, as well as TAGGED_IMMEDIATE -the monster will go to this trigger first, and then follow the path based on the TAGGED_PATH names. 
-</p>
-<p>To make them non-looping, omit the last radius trigger's "TAGGED_PATH" entry, and the monster will stop there.
-<br><br>
-You *must* have "path_follow" in the monsters states in THINGS.DDF -these are the frames used for the TAGGED_PATH function. (see DDF Online/THINGS.DDF for more info)
-</p>
 <p>
-NOTE: it's best to make the radius of this trigger about 10, otherwise the monster following the path will move to the next tagged path as soon as it hits the outer radius. Making the radius a small area forces the monster to a more precise path.
-</p>
-<P><B>Example:</B><br>
-<CODE>
-<PRE>
+<B>Usage:</B><br>
+TAGGED_PATH &lt;Name&gt;
+
+<p>
+<B>Description:</B><br>
+Used for defining a path which a monster with the "PATH_FOLLOW" action
+in its states will follow.
+
+<p>
+<B>Details:</B><br>
+&lt;Name&gt; references the name of another radius trigger script.
+This allows us to "daisy chain" the path nodes together.
+
+<p>
+Use the NAME command to name your radius triggers,
+then use the TAGGED_PATH property to create a path
+for a monster to follow. This is similar to how Quake
+makes monsters follow a path before they encounter
+the player.
+
+<p>
+All monsters spawned in a TAGGED_PATH script will be able
+to follow the path.
+Use the SPAWN_THING command to spawn the monster
+you want to walk the path in the first radius trigger script
+(using TAGGED_IMMEDIATE too), the monster will start here
+and then follow the path based on the TAGGED_PATH names. 
+
+<p>
+You <b>must</b> use the "PATH_FOLLOW" action in the
+monster's states in THINGS.DDF (normally the IDLE states).
+This action makes the monster follow the path.
+(See DDF Online/THINGS.DDF for more info)
+
+<p>
+To make a looping path, the last radius trigger should use
+TAGGED_PATH with the name of the first node.
+Omitting the last TAGGED_PATH means that the monster will
+stop there.
+
+<p>
+NOTE: it's best to make the radius of this trigger about 10,
+otherwise the monster following the path will starting moving
+to the next node as soon as it hits the outer radius.
+Making the radius a small area forces the monster
+along a more precise path.
+
+<p>
+<B>Example:</B><br>
+
+<PRE class="rts">
 START_MAP map01
 
-	RADIUS_TRIGGER 0 0 1
-		SPAWN_THING imp 0 0 0 0 0
-		TAGGED_IMMEDIATE
-		NAME walk_01
-		TAGGED_PATH walk_02
-	END_RADIUS_TRIGGER
+  RADIUS_TRIGGER 0 0 10
+    NAME walk_1
+    TAGGED_PATH walk_2
 
-	RADIUS_TRIGGER 100 200 1
-		NAME walk_02
-		TAGGED_PATH walk_03
-	END_RADIUS_TRIGGER
+    TAGGED_IMMEDIATE
+    SPAWN_THING imp
+  END_RADIUS_TRIGGER
 
-	RADIUS_TRIGGER 200 400 1
-		NAME walk_03
-		TAGGED_PATH walk_01
-	END_RADIUS_TRIGGER
+  RADIUS_TRIGGER 150 200 10
+    NAME walk_2
+    TAGGED_PATH walk_3
+  END_RADIUS_TRIGGER
+
+  RADIUS_TRIGGER 300 0 10
+    NAME walk_3
+    TAGGED_PATH walk_1
+  END_RADIUS_TRIGGER
 
 END_MAP
 </PRE>
-</CODE>
 
-</p>
-
-</TD>
-</TR>
-</TABLE>
-
-<p>&nbsp;</p>
-
+<p>
 
 </block>
 

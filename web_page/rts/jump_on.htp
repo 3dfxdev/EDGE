@@ -9,52 +9,50 @@
 
 <P>
 <B>Usage:</B><br>
-JUMP_ON MENU &lt;label 1&gt; [label 2] [label 3] etc.</P>
+JUMP_ON MENU &lt;label 1&gt; [label 2] [label 3] etc.
 
 <P><B>Description:</B><br>
-Must be used with the SHOW_MENU or SHOW_MENU_LDF commands. Once a menu selection has been made, the JUMP_ON MENU command will test the result, and jump to the corresponding label.</P>
+Must be used with the SHOW_MENU or SHOW_MENU_LDF commands. Once a menu selection has been made, the JUMP_ON MENU command will test the result, and jump to the corresponding label.
 
 <P><B>Details:</B><br>
-&lt;label 1&gt; and the other [label X] are the labels to jump to depending on the option chosen in the menu.</p>
-
-<p> It will fail to jump if there aren't enough labels, or menu could not be shown (netgame).</p>
+&lt;label 1&gt; and the other [label X] are the labels to jump to depending on the option chosen in the menu.
 
 <p>
+It will fail to jump if there aren't enough labels, or menu could not be shown (netgame).
 
-<B>Example:</B>
-<br>
+<p>
+<B>Example:</B> <br>
 
-<PRE>
-  //Step 1: what we want to show
-  SHOW_MENU "What Can I do for you?" \
-    "Health" \
-    "Ammo" \
-    "Nothing" 
+<PRE class="rts">
+// Step 1: what we want to show
+SHOW_MENU "What Can I do for you?" \
+  "Health" \
+  "Ammo" \
+  "Nothing" 
 
-  //Step 2: where we want to jump to in the script in each case
-  JUMP_ON MENU option1 option2 option3
+// Step 2: where we want to jump to in the script in each case
+JUMP_ON MENU option1 option2 option3
 
-  //Some labeled RTS
-  LABEL option1
-    HEALPLAYER 150 200
-    TIP "Have some health" 2 FALSE
-    JUMP finishstuff
+// Some labeled RTS
+LABEL option1
+  HEALPLAYER 150 200
+  TIP "Have some health" 2 FALSE
+  JUMP finished
 
-  LABEL option2
-    GIVE_BENEFIT BULLETS(100)
-    TIP "Have some ammo" 2 FALSE
-    JUMP finishstuff
+LABEL option2
+  GIVE_BENEFIT BULLETS(100)
+  TIP "Have some ammo" 2 FALSE
+  JUMP finished
 
-  LABEL option3
-    TIP "OK then. Have a nice Day" 2 FALSE
-    JUMP finishstuff
+LABEL option3
+  TIP "OK then. Have a nice Day" 2 FALSE
+  JUMP finished
 
-  LABEL finishstuff
-    //We do nothing else 
+LABEL finished
+  // We do nothing else 
 </PRE>
 
-</p>
-
+<p>
 
 </block>
 

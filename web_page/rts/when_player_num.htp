@@ -7,31 +7,32 @@
 
 <h3 class="page_title">WHEN_PLAYER_NUM</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
-WHEN_PLAYER_NUM &lt;number of players&gt; [maximum players]</P>
+WHEN_PLAYER_NUM &lt;minimum players&gt; [maximum players]
 
-<P><B>Description:</B><br>
-Use this to define how many COOP or DM players have to be in a game for this trigger to exist. </P>
+<p>
+<B>Description:</B><br>
+Use this to define how many COOP or DM players have to be in a game
+for this trigger to exist. 
 
-<P><B>Details:</B><br>
+<p>
+<B>Details:</B><br>
+
+&lt;minimum players&gt; gives the minimum number of players.<br>
+[maximum players] gives the maximum number of players, with no limit when
+this value is absent.
+
+<p>
 Valid numbers are 1 to 8, since EDGE can handle up to 8 players.
-<br><br>&lt;number of players&gt;: 
-<br>if used <B>without</B> [maximum players] then it is the exact number of players that must exist in the game for this trigger to exist. 
-<br>If used <B>with</B> [maximum players] then it is the lower boundary of a range.
-<br><br>
-[maximum players]: 
-<br>if this argument is used, a range of players will be used instead of an exact number. For example, if you set &lt;number of players&gt; to 2 and [maximum players] to 6 then this script will exist if there are between 2 and 6 players in the game.
 
-<br><br>
+<p>
+<B>See Also:</B><br>
+<a class="rts" HREF="when_appear.htm">WHEN_APPEAR</a>
+for defining what game modes (DeathMatch etc)
+the script appears in,
 
-
-</P>
-
-
-
-<p>&nbsp;</p>
-
+<p>
 
 </block>
 

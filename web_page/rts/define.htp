@@ -13,7 +13,7 @@
 <p>
 <b>Description:</b><br>
 This is used to define things to use globally in your script. 
-It should be at the top of your script, but below #CLEARALL (if used).</P>
+It should be at the top of your script, but below #CLEARALL (if used).
 
 <p>
 <b>Details:</b><br>

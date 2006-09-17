@@ -9,13 +9,13 @@
 
 <P>
 <B>Usage:</B><br>
-TIP &lt;text&gt; &lt;display time&gt; &lt;audible tip&gt;</P>
+TIP &lt;text&gt; &lt;display time&gt; &lt;audible tip&gt;
 
 <P>
 <B>Variants:</B>
-<br>TIP_LDF &lt;ldf reference&gt; &lt;display time&gt; &lt;audible tip&gt;</P>
+<br>TIP_LDF &lt;ldf reference&gt; &lt;display time&gt; &lt;audible tip&gt;
 
-</P>
+
 
 <P><B>Description:</B>
 <br>Display an onscreen message. 
@@ -23,31 +23,29 @@ TIP &lt;text&gt; &lt;display time&gt; &lt;audible tip&gt;</P>
 <br>-normal = the text shown is what you specify inside quotes via the &lt;text&gt; argument.
 <br>-LDF = the text shown comes from an entry in language.ldf which you specify via the &lt;ldf reference&gt; argument.
 <br>
-<br>The player that triggers this is the only one that will see it. Combine with tagged_repeatable for a repeating tip.</P>
+<br>The player that triggers this is the only one that will see it. Combine with tagged_repeatable for a repeating tip.
 
 <P><B>Details:</B><br>
 &lt;text&gt; or &lt;ldf reference&gt; is the text which will be shown to the player. 
-<br>The text is limited to 80 characters across, and 8 lines down. Default is centered and 50% from top, 50% from the side (see TIP_SET_POS to change the position on the screen).</P>
+<br>The text is limited to 80 characters across, and 8 lines down. Default is centered and 50% from top, 50% from the side (see TIP_SET_POS to change the position on the screen).
 <TABLE>
 &lt;display time&gt; a time value indicating how long it stays on screen (in either ticks or seconds).
 <TR>
 	<TD>0 = no delay
-	<br>16t = half a second
+	<br>0.5 = half a second
 	<br>2 = two seconds
 	</TD>
 </TR>
 </TABLE>
 <br>&lt;audible tip&gt; can be set to TRUE or FALSE. If true, DSTINK is played as the sound. If you want to use a custom sound, set it to FALSE, and add a playsound entry.
-</p>
 
 
 <p>
-<TABLE>
 <TR>
 	<TD><B>Example of TIP:</B>
 	<br>
-	<CODE>
-	<PRE>
+
+	<PRE class="rts">
 	RADIUS_TRIGGER 0 0 -1
 		TAGGED_IMMEDIATE
 
@@ -55,28 +53,23 @@ TIP &lt;text&gt; &lt;display time&gt; &lt;audible tip&gt;</P>
 
 	END_RADIUS_TRIGGER
 	</PRE>
-	</CODE>
+
 	</TD>
 </TR>
 <TR>
 	<TD><B>Example of TIP_LDF:</B>
 	<br>
-	<CODE>
-	<PRE>
+
+	<PRE class="rts">
 	RADIUS_TRIGGER 0 0 -1
 		TAGGED_IMMEDIATE
 
-		TIP_LDF MyLDFTip01 3 TRUE
+		TIP_LDF MyLDFTip01 4 FALSE
 
 	END_RADIUS_TRIGGER
 	</PRE>
-	</CODE>
-	</TD>
-</TR>
-</TABLE>
-</p>
-<p>&nbsp;</p>
 
+<p>
 
 </block>
 

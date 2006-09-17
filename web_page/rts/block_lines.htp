@@ -9,12 +9,12 @@
 
 <P>
 <B>Usage:</B><br>
-BLOCK_LINES &lt;line tag&gt;</P>
+BLOCK_LINES &lt;line tag&gt;
 
 <P><B>Description:</B><br>
 Almost the same as UNBLOCKLINES except that all lines on the map with the same tag will be blocked, and will NOT allow players and monsters to pass. Only affects two-sided lines. 
 <br><br>
-<B>NOTE:</B> Any things (including the player) touching the line will get permanently stuck.</P>
+<B>NOTE:</B> Any things (including the player) touching the line will get permanently stuck.
 
 <P>
 <B>Details:</B><br>
