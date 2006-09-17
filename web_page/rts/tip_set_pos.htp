@@ -39,20 +39,20 @@ This example moves the message steadily down the screen:
 <PRE class="rts">
 RADIUS_TRIGGER 0 0 -1
 
-  TIP_SET_POS 12% 12%
+  TIP_SET_POS 50% 20%
   TIP "Hello world!" 5
 
   WAIT 1
-  TIP_SET_POS 12% 33%
+  TIP_SET_POS 50% 35%
 
   WAIT 1
-  TIP_SET_POS 12% 50%
+  TIP_SET_POS 50% 50%
 
   WAIT 1
-  TIP_SET_POS 12% 66%
+  TIP_SET_POS 50% 65%
 
   WAIT 1
-  TIP_SET_POS 12% 88%
+  TIP_SET_POS 50% 80%
 
 END_RADIUS_TRIGGER
 </PRE>
