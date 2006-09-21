@@ -7,65 +7,90 @@
 
 <h3 class="page_title">TAG</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
 TAG &lt;Number&gt;
 
-<P><B>Description:</B><br>
+<p>
+<B>Description:</B><br>
 This allows a script to be identified with a number,
 similar to how lines and sectors can be given tags in your
 level editor.
-
-
-@@@ This would then allow the script to be called from DDF,
-usually from lines.ddf, though it could also be from
-things.ddf or even weapons.ddf.
-
-
-@@@ use with TAGGED_DISABLED or the SLEEP command
-
-
-<P><B>Details:</B><br>
-&lt;number&gt; is an integer which we can use to make
-reference to this script.
-
-There are two uses for the TAG we assign:
-<UL>
-<LI>In Lines.ddf: 
-<br>This is the exact same thing as assigning a LineDef type number to a line and matching sector in your map editor (like you would to trigger an opening door by walking over a line).
-<p> You must create a special line type in LINES.DDF that uses the function RADIUS_TRIGGER=ENABLE_TAGGED; or  RADIUS_TRIGGER=DISABLE_TAGGED; (you can enable or disable a radius trigger).
-<br>
-Then, assign this linetype in your map editor: for the sector number in your map editor, use the &lt;number&gt; we've assigned to the script.
-<br><br>
-<LI>In weapons.ddf and things.ddf: 
-<br>We can use the Action <I>RTS_ENABLE_TAGGED(tagnumber)</I> or <I>RTS_DISABLE_TAGGED(tagnumber)</I> in an objects States, thereby allowing us to call a script everytime a certain weapon is raised for example, or whenever a certain object enters it's <I>Touch</I> states.
-</UL>
-
-<P>
-<B>Example using lines.ddf:</B><br>
-
-	<U>MAP EDITOR:</U>
-	<br>
-	Tag a line with line type 200, and a target #, like 25
-	<br><br>
-	<U>SCRIPT:
-	</U>
-
-<PRE class="rts">
-RADIUS_TRIGGER 0 0 -1
-  TAG 25
-  TAGGED_IMMEDIATE
-
-  SLEEP
-  TIP "A door opens nearby."
-
-END_RADIUS_TRIGGER
-</pre>
+It should be used in conjunction with TAGGED_DISABLED
+or the SLEEP command.
 
 <p>
-When the line with linetype of 200 assigned to it is triggered,
-the assigned number 25, which matches your tag number in your script,
-causes that trigger to activate.
+<B>Details:</B><br>
+&lt;Number&gt; is an integer tag number to assign to this script.
+
+<p>
+The tag allows the script to be enabled from an external source,
+which could be another script, a linedef on the map, or
+even a custom DDF thing or weapon using the RTS_ENABLE_TAG()
+action.
+
+<p>
+The following are some common line-types which
+can be used to enable the script:
+
+<div align="center">
+<TABLE class="rts" rules="all">
+  <TR>
+    <TD>Type</TD>
+    <TD>Description</TD>
+    <TD>Activator</TD>
+    <TD>Mode</TD>
+  </TR>
+
+  <TR>
+    <TD>418</TD>
+    <TD>Enable Tagged RTS</TD>
+    <TD>Player</TD>
+    <TD>S1</TD>
+  </TR>
+
+  <TR>
+    <TD>419</TD>
+    <TD>Enable Tagged RTS</TD>
+    <TD>Player</TD>
+    <TD>SR</TD>
+  </TR>
+
+  <TR>
+    <TD>420</TD>
+    <TD>Enable Tagged RTS</TD>
+    <TD>Player</TD>
+    <TD>W1</TD>
+  </TR>
+
+  <TR>
+    <TD>421</TD>
+    <TD>Enable Tagged RTS</TD>
+    <TD>Player</TD>
+    <TD>WR</TD>
+  </TR>
+
+  <TR>
+    <TD>454</TD>
+    <TD>Enable Tagged RTS</TD>
+    <TD>Monster</TD>
+    <TD>W1</TD>
+  </TR>
+
+  <TR>
+    <TD>455</TD>
+    <TD>Enable Tagged RTS</TD>
+    <TD>Monster</TD>
+    <TD>WR</TD>
+  </TR>
+
+</TABLE>
+</div>
+
+<p>
+There are additional line-types
+(e.g. ones which can DISABLE scripts).
+See LINES.DDF for the full list.
 
 <p>
 
