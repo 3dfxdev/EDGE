@@ -21,9 +21,23 @@ Use this in a script to enable another script.
 
 <p>
 <B>Details:</B><br>
-&lt;Name&gt; is the NAME of another script which we wish to enable. 
+&lt;Name&gt; is the NAME of the other script which we
+wish to enable.
 
+<p>
+&lt;Tag Number&gt; is the TAG of the other script(s),
+when using ENABLE_TAGGED.
+This method allows multiple scripts to be
+enabled (every one with a matching tag number).
 
+<p>
+NOTE: if the other script(s) are already enabled, then
+nothing will happen.
+
+<p>
+<B>See Also:</B><br>
+The <a class="rts" HREF="sleep.htm">SLEEP</a> page has
+a complete example.
 
 <p>
 

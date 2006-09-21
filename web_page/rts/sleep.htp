@@ -7,14 +7,18 @@
 
 <h3 class="page_title">SLEEP</h3>
 
-<P>
+<p>
 <B>Usage:</B><br>
 SLEEP
 
-<P><B>Description:</B><br>
-This is similar to WAIT, but instead causes this trigger
-to be disabled until triggered again by another line
-or radius_trigger.
+<p>
+<B>Description:</B><br>
+This command causes the trigger to be disabled.
+The script will not run again until another script enables
+it (with the ENABLE_SCRIPT or ENABLE_TAGGED commands).
+You can also enable scripts with certain line-types
+and with the RTS_ENABLE_TAGGED action in a custom DDF
+thing or weapon.
 
 <p>
 <B>Example:</B><br>
@@ -22,20 +26,35 @@ or radius_trigger.
 <PRE class="rts">
 START_MAP map01
 
-  RADIUS_TRIGGER 0 0 128
-    TAGGED_IMMEDIATE
+  RADIUS_TRIGGER 0 0 -1
+    NAME Jeff
 
     SLEEP
-    TIP "one" 1
+    TIP "First script: one" 1
 
     SLEEP
-    TIP "two" 1
+    TIP "First script: two" 1
 
     SLEEP
-    TIP "three" 1
+    TIP "First script: three" 1
 
   END_RADIUS_TRIGGER
 
+  // this second script will wake up the first one
+  RADIUS_TRIGGER 0 0 -1
+    
+    TIP_SLOT 10 // red text
+    TIP "Second script begun..." 2
+    
+    WAIT 3
+    ENABLE_SCRIPT Jeff
+    
+    WAIT 3
+    ENABLE_SCRIPT Jeff
+    
+    WAIT 3
+    ENABLE_SCRIPT Jeff
+    
 END_MAP
 </PRE>
 

@@ -25,9 +25,12 @@ to execute. If we specify 0 then it will repeat forever.
 &lt;Rate&gt; a time value indicating how long before it repeats
 (in either ticks or seconds).
 <ul>
-	<li>0 = no delay
-	<li>0.5 = half a second
-	<li>2 = two seconds
+	<li class="nobullet">0 = no delay
+	<li class="nobullet">0.5 = half a second
+	<li class="nobullet">2 = two seconds
+  <li class="nobullet">&nbsp;
+  <li class="nobullet">1T = one tick (shortest possible time)
+  <li class="nobullet">35T = one second
 </ul>
 
 <p>

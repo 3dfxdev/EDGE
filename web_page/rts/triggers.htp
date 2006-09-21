@@ -15,26 +15,27 @@ of a script.
 
 <a class="rts" href="start_map.htm">START_MAP</A> <br>
 To specify the map that the scripts will run on.
-<p>
 
+<p>
 <a class="rts" href="extend_map.htm">EXTEND_MAP</A> <br>
 Like START_MAP but adds to an existing map, versus replacing it.
-<p>
 
+<p>
 <a class="rts" href="end_map.htm">END_MAP</A> <br>
 This labels the end of a block of particular map scripts.
-<p>
 
+<p>
 <a class="rts" href="radius_trigger.htm">RADIUS_TRIGGER</A> <br>
 Defines the center position and radius of your trigger.
-<p>
 
+<p>
 <a class="rts" href="rect_trigger.htm">RECT_TRIGGER</A> <br>
-Defines a rectangular trigger instead of a circular one.
-<p>
+Defines a trigger which has a rectangular shape.
 
+<p>
 <a class="rts" href="end_radius_trigger.htm">END_RADIUS_TRIGGER</A> <br>
 This labels the end of a particular trigger.
+
 <p>
 
 </block>

@@ -32,7 +32,7 @@ always Jump.
 <B>Example:</B><br>
 This script can have two possible outcomes...
 
-<PRE class="RTS">
+<PRE class="rts">
 RECT_TRIGGER 0 0 -1
   TAGGED_USE
   TAGGED_REPEATABLE 0 4

@@ -34,7 +34,7 @@ Use this in a script to enable another script.
 <p>
 
 <a class="rts" href="sleep.htm">SLEEP</a> <br>
-Temporarily disable a script till it's called again.
+Temporarily disable a script until it's called again.
 <p>
 
 <a class="rts" href="wait.htm">WAIT</a> <br>

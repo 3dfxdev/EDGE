@@ -9,7 +9,7 @@
 
 <p>
 <B>Usage:</B><br>
-CHANGE_TEX &lt;surface&gt; &lt;new texture&gt; &lt;line tag&gt;
+CHANGE_TEX &lt;surface&gt; &lt;new texture&gt; &lt;map tag&gt;
 
 <p>
 <B>Description:</B><br>

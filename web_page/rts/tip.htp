@@ -35,11 +35,15 @@ message and hear the sound.
 
 <p>
 <B>Details:</B><br>
-&lt;text&gt; or &lt;ldf reference&gt; is the text which will be shown to the player. 
-<br>The text is limited to 80 characters across, and 8 lines down. Default is centered and 50% from top, 50% from the side (see TIP_SET_POS to change the position on the screen).
+&lt;text&gt; or &lt;ldf reference&gt; is the text which will be
+shown to the player. 
+The text is limited to 80 characters across, and 8 lines down.
+Default position is exactly centered on the screen
+(see TIP_SET_POS command to change the position).
 
 <p>
-&lt;display time&gt; a time value indicating how long it stays on screen (in either ticks or seconds).
+&lt;display time&gt; a time value indicating how long it stays on
+screen (in either ticks or seconds).
 <ul>
   <li class="nobullet">0 = no delay
   <li class="nobullet">0.5 = half a second
