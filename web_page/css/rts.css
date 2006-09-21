@@ -6,7 +6,7 @@
 .menus { width: 280px; }
 
 .content {
-  margin: 15px 10px 10px 310px;  /* 330 = menu width + 30 */
+  margin: 15px 10px 10px 310px;  /* 310 = menu width + 30 */
 	}
 
 a { color: #862; }
@@ -39,10 +39,22 @@ ol.format li {
   }
 
 span.changelog {
-  color: blue;
+  color: #484;
   }
 
 ul.changelog {
   margin-bottom: 1.2em;
   }
 
+table.rts {
+  border: 1px solid black;
+  background-color: #ffc;
+  color: black;
+  text-align: center;
+  /* font-size: smaller; */
+  }
+
+table.rts tbody td {
+  padding: 2px;
+  }
+ 
