@@ -47,7 +47,7 @@ When the coordinates are omitted, the sound will be played at
 the origin of the trigger.
 
 <p>
-Tip: Combine with TAGGED_REPEATABLE to make a looping sound.
+TIP: Combine with TAGGED_REPEATABLE to make a looping sound.
 
 <p>
 <B>Example:</B><br>
@@ -57,11 +57,11 @@ START_MAP map01
   RADIUS_TRIGGER 0 0 80
     TAGGED_IMMEDIATE
 
-    // the sound will come from the center of the radius trigger
+    // sound will come from center of the trigger
     PLAY_SOUND DBOPN 
     WAIT 2
 
-    // the sound will come from a specific X/Y location
+    // sound will come from specific X/Y location
     PLAY_SOUND DBOPN 1000 3000
 
   END_RADIUS_TRIGGER

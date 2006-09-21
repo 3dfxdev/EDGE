@@ -12,14 +12,14 @@ and are ready to try it out. But how??
 There are a number of different ways to load it into EDGE:
 
 <OL class="format">
-<li>Run EDGE with this command line option: -script &lt;Filename&gt;
+<li>Run EDGE with the command line option: -script &lt;Filename&gt;
 
 <li>Drag'n'drop the script file, which must have the ".scr" extension,
 onto the EDGE binary.
 
 <li>The script can be inserted into a WAD file,
     using "RSCRIPT" as the lump name. You need a WAD manager
-    program to do this, for example: XWE.
+    program to do this, for example: XWE or SlumpEd.
 </OL>
 
 <p>

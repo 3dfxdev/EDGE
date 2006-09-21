@@ -29,7 +29,7 @@ Intermission screens which you would normally see when you
 finish a level.
 
 <p>
-This is useful when you are using GOTO_MAP to "punish a player"
+SKIP_ALL is useful when you are using GOTO_MAP to "punish a player"
 and make him repeat the same map. In this case you don't want to
 see the map's PRETEXT screen again.
 

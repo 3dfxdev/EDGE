@@ -16,29 +16,27 @@ false.
 <br>
 <h3>List of commands</h3>
 
-<B><A HREF="on_death.htm">ON_DEATH</A></B> 
+<A class="rts" HREF="on_death.htm">ON_DEATH</A>
 <br>
 Script will only run when certain things are killed. 
 
-<br><br>
-
-<B><A HREF="on_height.htm">ON_HEIGHT</A></B> 
+<p>
+<A class="rts" HREF="on_height.htm">ON_HEIGHT</A>
 <br>
 Script will only run when a sectors floor or ceiling gets to a
 certain height. 
 
-<br><br>
-
-<B><A HREF="on_condition.htm">ON_CONDITION</A></B> 
+<p>
+<A class="rts" HREF="on_condition.htm">ON_CONDITION</A>
 <br>
 Script will only run when a specified condition has been met.
 
-<br><br>
-
-<B><A HREF="tagged_use.htm">TAGGED_USE</A></B> 
+<p>
+<A class="rts" HREF="tagged_use.htm">TAGGED_USE</A> 
 <br>
-Script will only run when player presses USE inside the scripts radius. 
+Script will only run when player presses USE inside the scripts radius.
 
+<p>
 
 </block>
 

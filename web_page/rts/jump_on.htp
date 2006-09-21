@@ -14,7 +14,7 @@ JUMP_ON &lt;Variable&gt; &lt;label 1&gt; [label 2] [label 3] etc...
 <p>
 <B>Description:</B><br>
 The JUMP_ON command will test the value in the variable
-and jump to the corresponding label. When the variable is 1,
+and jumps to the corresponding label. When the variable is 1,
 it jumps to &lt;label 1&gt;, when the variable is 2, it jumps
 to &lt;label 2&gt;, and so forth.
 <p>
@@ -39,7 +39,7 @@ shown, e.g. the game is multiplayer).
 <p>
 <B>See Also</B><br>
 The <a class="rts" HREF="show_menu.htm">SHOW_MENU</a> page
-has a complete example of using menus and JUMP_ON.
+has a complete example of using JUMP_ON with menus.
 
 <p>
 

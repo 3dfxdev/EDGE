@@ -28,9 +28,9 @@ Valid numbers are 1 to 8, since EDGE can handle up to 8 players.
 
 <p>
 <B>See Also:</B><br>
-<a class="rts" HREF="when_appear.htm">WHEN_APPEAR</a>
-for defining what game modes (DeathMatch etc)
-the script appears in,
+Use <a class="rts" HREF="when_appear.htm">WHEN_APPEAR</a>
+to define what game modes (Death-Match etc)
+the script appears in.
 
 <p>
 

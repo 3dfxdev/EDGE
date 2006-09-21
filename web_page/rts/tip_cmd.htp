@@ -7,12 +7,18 @@
 
 <h2 class="page_title"> Tips and Menus </h2>
 
-For defining the appearance and behaviour of RTS tips.
-
-@@@@ SLOTS...
+RTS can be very useful for displaying messages to the
+player.  The tip system is quite powerful, you can define
+how long to show the tip, as well as the color/position/size
+of the message.  Multiple tips can be active at the same
+time on different "slots".
 
 <p>
+You can also show custom menus to the player, and act upon
+their choices.  This allows RPG elements like dialogs with
+NPCs, or vending machines, etc.
 
+<p>
 <h3>List of commands</h3>
 
 <a class="rts" href="tip.htm">TIP</a> <br>

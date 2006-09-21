@@ -13,7 +13,7 @@ BLOCK_LINES &lt;line tag&gt;
 
 <p>
 <B>Description:</B><br>
-Almost the same as UNBLOCKLINES except that all lines on the map
+Almost the same as UNBLOCK_LINES except that all lines on the map
 with the same tag will be blocked, and will NOT allow players
 and monsters to pass. Only affects two-sided lines. 
 
