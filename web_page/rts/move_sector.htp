@@ -44,12 +44,16 @@ instead of an instant movement to the specified height.
 
 <p>
 <b>Example:</b><br>
-This script will slowly raise the starting area on DOOM2's MAP08 (Tricks and Traps).
+This script will slowly raise the starting area on
+DOOM2's MAP08 (Tricks and Traps).
+
 <PRE class="rts">
-RADIUS_TRIGGER 0 0 -1
-  TAGGED_REPEATABLE 64 1T
-  MOVE_SECTOR 8 1 floor
-END_RADIUS_TRIGGER
+START_MAP map08
+  RADIUS_TRIGGER 0 0 -1
+    TAGGED_REPEATABLE 64 1T
+    MOVE_SECTOR 8 1 floor
+  END_RADIUS_TRIGGER
+END_MAP
 </PRE>
 
 <p>

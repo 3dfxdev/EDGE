@@ -36,11 +36,14 @@ light change instead of an instant change to the desired level.
 <b>Example:</b><br>
 This script will slowly darken the starting area on DOOM2's
 MAP08 (Tricks and Traps).
+
 <PRE class="rts">
-RADIUS_TRIGGER 0 0 -1
-  TAGGED_REPEATABLE 255 1T
-  LIGHT_SECTOR 8 -2
-END_RADIUS_TRIGGER
+START_MAP map08
+  RADIUS_TRIGGER 0 0 -1
+    TAGGED_REPEATABLE 255 1T
+    LIGHT_SECTOR 8 -2
+  END_RADIUS_TRIGGER
+END_MAP
 </PRE>
 
 <p>
