@@ -8,6 +8,15 @@
 
 <UL>
 
+<LI><span class="changelog">Version 3.7: 16/September/2006 by Ajapted</span>
+<ul class="changelog">
+  <li>Wrote new page about how to load scripts
+  <li>Various tidying and reworking of the HTML
+  <li>Added <B>ENABLE_TAGGED</B> and <B>DISABLE_TAGGED</B>
+  <li>Added <B>BLOCK_LINES</B>
+  <li>Added <B>THING_EVENT</B>
+</ul>
+	
 <LI><span class="changelog">Version 3.6: 20/August/2006 by Lobo</span>
 <ul class="changelog">
   <li>RTS Online converted to plain HTML
@@ -46,35 +55,35 @@
 <LI><span class="changelog"> version 3.2: 16/June/2003 by Grimwold</span>
 <ul class="changelog">
   <li>added support for Mozilla/Netscape type browsers
-  <li>fine-tuned the <b>oncondition </b>function 
+  <li>fine-tuned the <b>ONCONDITION </b>function 
 </ul>
 
 <LI><span class="changelog">Version 3.1: 23/September/2002 by Cyberkiller</span>
 
 <ul class="changelog">
-<li>added new <b>oncondition </b>function 
+<li>added new <b>ONCONDITION </b>function 
   
-<li>added new <b>move_sector </b>function
-<li>added new <b>light_sector </b>function
-<li>added new <b>unblock_lines </b>function
-<li>removed <b>sectorv</b> and <b>sectorl<br>
+<li>added new <b>MOVE_SECTOR </b>function
+<li>added new <b>LIGHT_SECTOR </b>function
+<li>added new <b>UNBLOCK_LINES </b>function
+<li>removed <b>SECTORV</b> and <b>sectorl<br>
   </b>
 </ul>
 
 <LI><span class="changelog">Version 3.0: 19/March/2001  by Fanatic</span>
 
 <ul class="changelog">
-  <li>added check for <b>spawnthing</b> to prevent spawning a player entry with RTS
+  <li>added check for <b>SPAWNTHING</b> to prevent spawning a player entry with RTS
   <li>updated IE menu, so last clicked stays hilighted
   <li>cleaned up select list for <b>tip_set_color</b> (only has font colormaps as it should)
-  <li>corrected <b>tip_set_pos</b> (removed alignment, moved to next new function)
-  <li>added new <b>tip_set_align</b> function
+  <li>corrected <b>TIP_SET_POS</b> (removed alignment, moved to next new function)
+  <li>added new <b>TIP_SET_ALIGN</b> function
 
  </ul>
 
 <LI><span class="changelog">Version 2.9: 3/January/2001 by Fanatic</span>
 <ul class="changelog">
-  <li>added new <b>change_music</b> function
+  <li>added new <b>CHANGE_MUSIC</b> function
   <li>updated buttons width again, but properly using style tags
   <li>seperated menus for IE and NS (IE uses fancy mouseovers, NS uses the old menu)
   <li>further simplified the Code Output box by using DHTML to size it to fit the frame, no matter what resolution is used
@@ -82,14 +91,14 @@
 
 <LI><span class="changelog">Version 2.8: December/16/2000 by Fanatic</span>
 <ul class="changelog">
-  <li>added new <b>tip_slot</b> function
-  <li>added new <b>tip_set_pos</b> function
-  <li>added new <b>tip_set_colour</b> function
-  <li>added new <b>tip_set_trans</b> function
-  <li>added new <b>rect_trigger</b> function
-  <li>added new <b>change_tex</b> function
-  <li>added new <b>thing_event</b> function 
-  <li>added new <b>playsound_bossman</b> function 
+  <li>added new <b>TIP_SLOT</b> function
+  <li>added new <b>TIP_SET_POS</b> function
+  <li>added new <b>TIP_SET_COLOUR</b> function
+  <li>added new <b>TIP_SET_TRANS</b> function
+  <li>added new <b>RECT_TRIGGER</b> function
+  <li>added new <b>CHANGE_TEX</b> function
+  <li>added new <b>THING_EVENT</b> function 
+  <li>added new <b>PLAYSOUND_BOSSMAN</b> function 
   <li>links are now white for mouseover for 4.x+ version browsers
   <li>resized the tutorial window (smaller)
   <li>sized form buttons to be same width
