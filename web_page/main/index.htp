@@ -6,6 +6,23 @@
 
   <h2 class="page_title"> Latest News </h2>
 
+  <use BeginNews title="RTS back Online!" date="22-Sep-2006">
+
+  I'm very pleased to announce that the RTS documentation
+  is back online.
+  It has been rewritten as normal documentation,
+  replacing the "build-your-own-script" functionality that
+  Fanatic's original version had.
+  Plus everything has been updated for the latest version
+  of EDGE.
+
+  <p>
+  A big thanks to Lobo for doing most of the grunt-work of
+  converting this documentation from the old format.
+
+  <use EndNews>
+
+
   <use BeginNews title="New site" date="5-Sep-2006">
 
   The brand spanking new EDGE website is now up!
