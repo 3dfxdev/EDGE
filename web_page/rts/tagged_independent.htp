@@ -22,9 +22,10 @@ script will become paused whenever the player leaves the trigger
 area, and only starts again if the player re-enters that area.
 
 <p>
-Note: TAGGED_INDEPENDENT is not needed when using "0&nbsp;0&nbsp;-1"
-or TAGGED_IMMEDIATE scripts, because the player can never get
-outside of the script to make it pause.
+Note: TAGGED_INDEPENDENT is not needed when using TAGGED_IMMEDIATE
+or "RADIUS_TRIGGER 0&nbsp;0&nbsp;-1" scripts,
+because the player can never get outside of the
+script to make it pause.
 
 <p>
 <B>Details:</B><br>

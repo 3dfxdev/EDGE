@@ -9,27 +9,30 @@
 
 <p>
 <B>Usage:</B><br>
-TIP_GRAPHIC &lt;graphic name&gt; &lt;display time&gt; &lt;audible tip&gt; [scale]
+TIP_GRAPHIC &lt;graphic name&gt; [display time] [audible tip] [scale]
 
 <p>
 <B>Description:</B><br>
-Display an onscreen graphic. Almost exactly the same as the TIP
-command except that the it shows a picture instead of text.
+Display an on-screen graphic. Almost exactly the same as the
+plain TIP command except that the it shows a picture instead of text.
 
 <p>
-The graphic is drawn as if the screen resolution was 320x200
-(which was the screen size of the original DOOM binaries).
+The graphic is drawn as if the screen resolution was 320x200.
+This means that a 320x200 picture will exactly cover the
+screen (regardless of the current resolution), and a 160x100
+picture could fit four times on the screen.  This can be
+changed by the [scale] parameter (see below).
 
 <p>
 <B>Details:</B><br>
 &lt;graphic name&gt; is a reference to a graphic in a wad file. 
 
 <p>
-&lt;display time&gt; a time value indicating how long it stays
+[display time] a time value indicating how long it stays
 on screen (in either ticks or seconds).
 
 <p>
-&lt;audible tip&gt; can be set to true or false. If true, [TINK]
+[audible tip] can be set to true or false. If true, the [TINK]
 sound is played. If you want to use a custom sound, set this
 to false, and add a PLAY_SOUND command.
 
