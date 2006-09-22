@@ -1,0 +1,91 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Colormaps">
+
+<block name="content">
+
+<h2 class="page_title"> Colormaps </h2>
+
+<use synopsis file="colmap.ddf" lump="DDFCOLM" tag="COLOURMAPS">
+
+
+Colmap.ddf allows you to modify how colourmaps are used in the game, and are useful for creating
+interesting lighting and other special effects such as fog.
+<P>
+
+Each entry describes a "colourmap" and consists of a unique name, enclosed in square brackets, followed by a series of commands that specify a sequence of "coltables".  A coltable is a single 256 byte section of a colourmap lump (such as the "COLORMAP" lump in EDGE.WAD), which maps a set of
+256 palette colours to another set of palette colours.
+<P>
+The name should be descriptive of the effect it creates and is used in other DDF files to refer to that particular colourmap. See also the sectors.ddf and lines.ddf pages.
+<P>
+To edit colourmap lumps you can use a program such as inkworks (available from most
+doom ftp sites). Alternatively, <A HREF="http://www.teamtnt.com">TeamTNT</A> (the guys who
+made the boom engine) created a nifty little colourmap editor called cmaptool. It is packaged up in a tools/utility package on the
+TeamTNT web site.
+<br>
+&nbsp
+<p>
+<B><FONT SIZE=+1>COMMANDS</font></b>
+<p>
+The following is a list of the commands that are accepted by each colourmap entry:
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TR><TH>COMMAND</TH><TH>TYPE</TH><TH>EXPLANATION</TH></TR>
+
+<TR><TD>LUMP</TD><TD>[string]</TD><TD>
+The lump name which contains this colourmap.</TD></TR>
+
+<TR><TD>START</TD><TD>[integer]</TD><TD>
+The offset into the lump where this colourmap begins, in terms of
+whole coltables (0, 1, 2, etc).</TD></TR>
+
+<TR><TD>LENGTH</TD><TD>[integer]</TD><TD>
+The number of coltables in this colourmap. Defaults to 1 if omitted.</TD></TR>
+
+<TR><TD>GL_COLOUR</TD><TD>[hex]</TD><TD>
+Specify a colour directly without needing any lumps.
+<br>Example: 
+GL_COLOUR = #FF9030; //Orange</TD></TR>
+
+<TR><TD>SPECIAL</TD><TD>[special]</TD><TD>
+A comma separated list of special flags. See below.</td></tr>
+</table>
+
+&nbsp
+<p>
+<B><FONT SIZE=+1>SPECIALS</font></b>
+<P>
+These allow some control over the ways the colourmap is used.
+<P>
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TR><TH>SPECIAL</TH><TH>EXPLANATION</TH></TR>
+
+<TR><TD>NO_FLASH</TD><TD>
+Usually when the player fires a weapon, there is a brief flash of
+light.  When using a fog effect (for example), this flash can look
+weird.  This flag disables the gun flash for all sectors using this
+colourmap.</TD></TR>
+
+</TABLE>
+&nbsp
+<p>
+<B>Example:</B></br>
+
+The following is an example of a complete colourmap entry:
+
+<p>
+<PRE class="ddf">
+[WATER]
+LUMP=WATERMAP;
+START=0;
+LENGTH=32;
+SPECIAL=NO_FLASH;
+</pre>
+
+<p>
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

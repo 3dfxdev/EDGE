@@ -1,0 +1,65 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Fonts">
+
+<block name="content">
+
+<h2 class="page_title"> Fonts </h2>
+
+<use synopsis file="fonts.ddf" lump="DDFFONT" tag="FONTS">
+
+
+Fonts.ddf allows you to define fonts (the set of character images for drawing text).
+<p>
+Names should be descriptive of what the font is and/or when it is used.
+<br>
+&nbsp
+<p>
+<B><FONT SIZE=+1>COMMANDS</font></b>
+<p>
+The commands used for font entries are as follows:
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TR><TH>COMMAND</TH><TH>TYPE</TH><TH>DESCRIPTION</TH></TR>
+
+<TR><TD>TYPE</TD><TD>[string]</TD><TD>
+PATCH is the only type so far.</TD></TR>
+
+<TR><TD>PATCHES</TD><TD>[string]</TD><TD>
+What patch will be used for a character or range of characters. Put a character in "" quotes or use : for a range of characters e.g. FONTP33("!") or FONTP65("A":"Z")</TD></TR>
+
+<TR><TD>MISSING_PATCH</TD><TD>[string]</TD><TD>
+Optional. The patch to be used when we're missing a character. </td></tr>
+
+</TABLE>
+&nbsp
+<p>
+<B><FONT SIZE=+1>EXAMPLES</font></b>
+<p>
+The following is an example of a complete font entry:
+<p>
+<TABLE WIDTH=95% BORDER=1 CELLSPACING=0 CELLPADDING=2 FRAME="box">
+<TR><TD>
+<FONT SIZE=2>
+[FOO]
+<br>TYPE=PATCH;   // PATCH is the only type so far
+<br>PATCHES=FONTP33("!"),  // put a character in "" quotes
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FONTP65("A":"Z");   // use : for a range of characters
+<br>MISSING_PATCH=FONTP00;
+<br>
+</FONT>
+<p>
+  where the FONTPxx names above are the patch names.  For ranges it
+  is the first patch, and should end with digits in order for EDGE
+  to work out the other patches properly (FONTP66 will be "B", etc).
+  The missing patch is optional.  Having a patch for a space (" ")
+  is also optional.
+</TD></TR>
+</TABLE>
+
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

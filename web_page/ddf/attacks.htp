@@ -1,0 +1,687 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Attacks">
+
+<block name="content">
+
+<h2 class="page_title"> Attacks </h2>
+
+<use synopsis file="attacks.ddf" lump="DDFATK" tag="ATTACKS">
+
+
+Attacks.ddf allows you to define and modify all weapon and creature attacks in EDGE, as well as using them for ejecting shell cases, or spawning gibs. Each entry consists of a unique name, enclosed in square brackets, plus a series of commands that specify the type and characteristics of the attack.
+<p>
+
+The attack name should be descriptive of what it does and/or who uses it, and is referred to in the weapons.ddf and things.ddf files.
+<p>
+There are three general types of attacks. Closecombat
+attacks (e.g punch, beserk, chainsaw), bullet attacks (e.g chaingun,
+pistol etc) and projectile attacks (plasma, bfg, rockets, many monster
+attacks). There are a number of other attacks too, which are normally associated with specific
+monsters (e.g archvile flames, lost souls, mancubus attacks). Anyway,
+if you want to create the world's coolest flamethrower, this is the
+place to start!
+<br>
+&nbsp
+<p>
+<B><FONT SIZE=+1>COMMANDS</font></b>
+<p>
+The commands used for attack entries are as follows:
+<p>
+
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>COMMAND</th><th>TYPE</th><th>DESCRIPTION</th></tr>
+
+<tr><td>ACCURACY_ANGLE</td><td>[float]</td><td>
+How accurate the attack is across the horizontal plane. The value is an angle.</td></tr>
+
+<tr><td>ACCURACY_SLOPE</td><td>[float]</td><td>
+How accurate the attack is over the vertical plane. The value is an angle.</td></tr>
+
+<tr><td>ACTIVE_SOUND</td><td>[sound]</td><td>
+The sound to make while a projectile is in flight.</td></tr>
+
+<tr><td>ANGLE_OFFSET</td><td>[integer]</td><td>
+Angles an attack in the horizontal plane. +ve values send the attack right, while -ve values send it left. E.g a value of 45 will make
+your attack fly off 45 degrees to your right hand side.</td></tr>
+
+<tr><td>ASSAULT_SPEED</td><td>[integer]</td><td>
+Used for <A HREF="#skullfly">SKULLFLY</A> attacks -- the speed at
+which the skull will fly.</td></tr>
+
+<tr><td>ATTACK_CLASS</td><td>[bitset]</td><td>
+Give an attack a certain class. Only useful in conjunction with IMMUNITY_CLASS in Things.ddf
+<BR>There are 26 possible classes, A thru Z.
+Three are reserved: `M' is the default for missile
+attacks, `B' is the default ATTACK_CLASS for
+bullet/shot attacks, and `C' is the default for
+close-combat attacks.
+<br>Examples:
+<br>ATTACK_CLASS=U; or ATTACK_CLASS=UV;
+</td></tr>
+
+<tr><td>ATTACK_HEIGHT</td><td>[float]</td><td>
+How high above the attacking creature the attack is. If it is 0, the
+attack will come from the creature's foot, so it is generally a good
+idea to make it bigger. Most DOOM creatures have this set at
+32.</td></tr>
+
+<tr><td>ATTACK_SPECIAL</td><td><A HREF="#attackspec">[flags]</A></td><td>
+Flags for this attack.</td></tr>
+
+<tr><td>ATTACKRANGE</td><td>[integer]</td><td>
+The target must be inside this fixed range, or the attacking creature
+won't bother shooting, but will attempt to get closer. In player
+weapon attacks, this is used for autoaim purposes. (removing this value will
+permanently disable autoaim on that weapon) Close attacks must have an
+ATTACKRANGE to work properly. Make sure the attackrange is greater
+than the creature's radius.</td></tr>
+
+<tr><td>ATTACKTYPE</td><td><A HREF="#attacktypes">[special]</A></td><td>
+The type of attack this is, eg close combat, projectile etc</td></tr>
+
+<tr><td>ATTEMPT_SOUND</td><td>[sound]</td><td>
+The sound to make just an attack is launched.</td></tr>
+
+<tr><td>BERSERK_MULTIPLY</td><td>[float]</td><td>
+How much this attack is improved by picking up a Berserk pack.</td></tr>
+
+<tr><td>BOUNCE_SPEED</td><td>[float]</td><td>
+Value which sets how much a projectile will bounce off walls. 1 never
+loses speed, 0 completely stops, 0.5 loses 50% speed each time it
+bounces.</td></tr>
+
+<tr><td>DAMAGE.DEATH_STATE</td><td>[STATE]</td><td>
+The custom states to be used (defined in things.ddf) when this attack causes the death of a creature. Ideal for having a flamethrower attack which sets the monster on fire!
+<br>Example of use: In the attack you have DAMAGE.DEATH_STATE=BURNKILL and in your monsters DDF entry you create a STATES(BURNKILL)=.....  with some burning monsters sprites.</td></tr>
+
+<tr><td>DAMAGE.ERROR</td><td>[float]</td><td>
+When combined with the DAMAGE.VAL command this forces the attack damage to be calculated on a weighted average basis in the range from (DAMAGE.VAL - DAMAGE.ERROR) to (DAMAGE.VAL + DAMAGE.ERROR). The value for DAMAGE.ERROR should be less than the value for DAMAGE.VAL otherwise this won't work properly.</td></tr>
+
+<tr><td>DAMAGE.MAX</td><td>[float]</td><td>
+When combined with the DAMAGE.VAL command this forces the attack damage to be calculated in the range from DAMAGE.VAL to DAMAGE.MAX. The value for DAMAGE.MAX should be more than the value for DAMAGE.VAL otherwise this won't work.</td></tr>
+
+<tr><td>DAMAGE.OVERKILL_STATE&nbsp;&nbsp;</td><td>[STATE]</td><td>
+The custom states to be used (defined in things.ddf) when this attack causes overkill to a creature.</td></tr>
+
+<tr><td>DAMAGE.PAIN_STATE</td><td>[STATE]</td><td>
+The custom states to be used (defined in things.ddf) when this attack causes pain to a creature.</td></tr>
+
+<tr><td>DAMAGE.VAL</td><td>[float]</td><td>
+On it's own this command sets a fixed amount of damage done by the attack. It can also be combined with either the DAMAGE.MAX or DAMAGE.ERROR commands to allow a range of possible damage values.</td></tr>
+
+
+<tr><td>DEATH_SOUND</td><td>[sound]</td><td>
+The sound played when the projectile explodes.</td></tr>
+
+
+<tr><td>DLIGHT.COLOUR</td><td>[special]</td><td>
+This value is the colour to use for any dynamic lighting associated with the projectile. It's value takes the form of three pairs of digits in hexadecimal E.g. #RRGGBB to specify the proportion of each of the three colours in the mix. So for example #FF0000 would be pure red, #990000 would be a darker red and #FFFFFF would be a bright white. Experimentation is probably the best way to find the colour you want.</td></tr>
+
+<tr><td>DLIGHT.INTENSITY</td><td>[float]</td><td>
+This value is the starting dynamic light intensity of the projectile. This can be modified as the projetile moves using the <a href="#dlight">DLIGHT</a> SET and FADE actions.</td></tr>
+
+
+<tr><td>DLIGHT.TYPE</td><td>[special]</td><td>
+This value is the type of dynamic lighting to use for the projectile. At present only QUADRATIC lighting is known about, though there may be others.</td></tr>
+
+<tr><td>ENGAGED_SOUND</td><td>[sound]</td><td>
+The sound to make when attacking.</td></tr>
+
+<tr><td>EXPLODE_DAMAGE.ERROR</td><td>[float]</td><td>
+Same as DAMAGE.ERROR, except for explosion damage rather than ordinary attack damage..</td></tr>
+
+<tr><td>EXPLODE_DAMAGE.MAX</td><td>[float]</td><td>
+Same as DAMAGE.MAX, except for explosion damage rather than ordinary attack damage..</td></tr>
+
+<tr><td>EXPLODE_DAMAGE.VAL</td><td>[float]</td><td>
+Same as DAMAGE.VAL, except for explosion damage rather than ordinary attack damage..</td></tr>
+
+<tr><td>EXPLODE_RADIUS</td><td>[float]</td><td>
+Normally the explosion radius is the same as the damage caused, but this command forces the explosion radius to a particular value (e.g. 200).  The amount of damage is not affected.</td></tr>
+
+
+<tr><td>FAST</td><td>[float]</td><td>
+The attack speed will be multiplied by this value in nightmare mode or
+when using -fastparm from the command line. Therefore, if speed=2,
+this will make that attack twice as fast as normal if you play in
+nightmare mode.</td></tr>
+
+<tr><td>FUSE</td><td>[time]</td><td>
+For projectile weapons only. Projectiles will explode on contact with
+an object, or after the fuse time has elapsed. Hence, can be used to
+limit the distance projectiles can travel. The time can be specified
+in seconds or tics (e.g to make the projectile explode after two
+seconds, set this value to 2 or 70T).</td></tr>
+
+<tr><td>HEIGHT</td><td>[float]</td><td>
+The height of the projectile.</td></tr>
+
+<tr><td>KEEP_FIRING_CHANCE </td><td>[percentage]</td><td>
+Specifies the chance that a creature using this attack will keep
+firing as opposed to finding a better spot/moving etc.</td></tr>
+
+<tr><td>LAUNCH_SOUND</td><td>[sound]</td><td>
+The sound to play when the projectile is launched.</td></tr>
+
+<tr><td>LIFESPAN</td><td>[time]</td><td>
+Another word for FUSE (see above).</td></tr>
+
+<TR><TD>MASS</TD><TD>[float]</TD><TD>
+How heavy this projectile is. (E.g heavy objects won't be shoved around or tossed into the air by explosions. Used primarily for boss brain spawn cube projectiles.</TD></TR>
+
+<tr><td>NO_TRACE_CHANCE</td><td>[percentage]</td><td>
+Specifies the chance that a homing missile will lock onto target. 0% is lock every time, 100% is fail every time.</td></tr>
+
+<tr><td><A href="#projspec">PROJECTILE_SPECIAL</a></td><td>[flags]</td><td>
+Flags that should be added to a missile.</td></tr>
+
+<tr><td>PUFF</td><td>[special]</td><td>
+The name of an animation to play when a bullet weapon strikes a wall.
+(this must be defined in things.ddf) Hence, different puff animations
+can be created for different weapons.  If you set a rocket or other
+projectile as `smoking', the puff animation is used as a smoke trail.
+</td></tr>
+
+<tr><td>RADIUS</td><td>[float]</td><td>
+The radius of the projectile.</td></tr>
+
+<tr><td>REACTIONTIME</td><td>[time]</td><td> ??? Used for boss brain spawn cube attack in DDF 3.7.</td></tr>
+
+<tr><td>SHOTCOUNT</td><td>[integer]</td><td>
+Determines the actual number of bullets fired when you use a bullet
+weapons. For instance, the shotguns use a high shotcount value. Note,
+this value does <B>not</B> effect how much ammo each weapon
+uses.</td></tr>
+
+<tr><td>SLOPE_OFFSET</td><td>[integer]</td><td>
+Changes vertical angle of attack (up or down). Good for giving
+grenades a realistic arc.</td></tr>
+
+<TR><TD>SPARE_ATTACK</TD><TD>[attack]</TD><TD>
+Default attack to use when the SPARE_ATTACK action is called from the STATES.</TD></TR>
+
+<tr><td>SPAWN_OBJECT_STATE</td><td><A HREF="#spawn">[special]</A></td><td>
+Sets the state that the spawned object will be spawned in (e.g chase,
+spawn or attack state) </td></tr>
+
+<tr><td>SPAWNED_OBJECT</td><td><A HREF="#spawn">[special]</A></td><td>
+Object that is generated by a spawn attack. Must be the name of an
+object defined in things.ddf</td></tr>
+
+<TR><TD>SPAWNHEALTH</TD><TD>[float]</TD><TD>
+The amount of health this object begins with. Used for boss brain spawn cube.</TD></TR>
+
+<tr><td>SPEED</td><td>[float]</td><td>
+How fast the spawned object moves. Values from 0 to 100 will work.
+Most doom projectile attacks are of a speed between 20-30. High values
+can make projectiles behave strangely.</td></tr>
+
+<TR><TD>SPRITE_ASPECT</TD><TD>[float]</TD><TD>
+Alters the aspect ratio of the projectiles graphic by affecting the horizontal image size. Values beween 0 and 1 make the object look narrower, whereas values above 1 make it look fatter.</TD></TR>
+
+<TR><TD>SPRITE_SCALE</TD><TD>[float]</TD><TD>
+Alters the size of the projectiles graphic. Values beween 0 and 1 make the object look smaller, whereas values above 1 make it look bigger. Much bigger!</TD></TR>
+
+<TR><TD>STEP_SIZE</TD><TD>[float]</TD><TD>
+Used for bouncing projectiles in QDoom. ??</TD></TR>
+
+<tr><td>TOO_CLOSE_RANGE</td><td>[integer]</td><td>
+The attacking creature won't use this attack if the target is inside
+this range. Used if this is a ranged attack and the creature should
+close for a close combat attack.</td></tr>
+
+<tr><td>TRANSLUCENCY</td><td>[percentage]</td><td>
+Specifies how translucent the missile is.. 100% is invisible, whereas 0% is completely solid.</td></tr>
+
+
+<tr><td>X_OFFSET</td><td>[integer]</td><td>
+Normally attacks are spawned from the centre of the attacking
+creature. Positive values shift the attack to the right, negative to
+the left. If you set the offset too wide for player attacks,
+projectiles and/or shots can be absorbed by nearby walls, objects
+etc.</td></tr>
+
+<tr><td>Y_OFFSET</td><td>[integer]</td><td>
+Similar to X_OFFSET, but moves an attack forwards or backwards
+relative to the target. Positive is forwards, negative is
+backwards.</td></tr>
+
+
+</TABLE>
+
+
+&nbsp
+<p>
+
+<p>
+<A NAME="states">
+<FONT SIZE=+1><B>STATES</B></FONT>
+<p>
+Each named STATES entry defines an animation sequence to play when an attack is in progress, as well as calling the actions required at the appropriate frames in the animation. These consist of a series of states, which are individual frames of the animation. A state is defined like this:<br>
+&nbsp;&nbsp;&nbsp;<CODE>Sprite:Frame:Tics:Bright:Action</code>
+<br>
+as follows:
+<p>
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+
+<tr><td>Sprite</td><td>
+The four letter name of the sprite to use.</td></tr>
+
+<tr><td>Frame</td><td>
+The frame reference, A-Z, '[', '\', ']' If you need more than this,
+use another sprite.</td></tr>
+
+<tr><td>Tics</td><td>
+Number of tics to spend on this frame. -1 means the frame should last
+forever.</td></tr>
+
+<tr><td>Bright</td><td>
+Can be 'BRIGHT' or 'NORMAL' Bright frames are always drawn full
+brightness.</td></tr>
+
+<tr><td>Action</td><td>
+Action to be carried out. <a href="#actions">Actions</a> are listed below.</td></tr>
+</table>
+<p>
+
+
+Each frame ends with either a semincolon <b>;</b> if it is the last frame in the animation or a comma <b>,</b> if it is not. 
+<p>
+In addition, any line may include a <tt>#Command</tt> at the end. This will either be <tt>#STATENAME</tt> which causes a jump to the first frame in the animation of the named state. <tt>#STATENAME:FRAME</tt> causing a jump to the specified frame number in the animation of the named state. OR <tt>#REMOVE</tt> to remove the animation shown from the HUD.
+<p>
+
+
+
+
+<p>
+&nbsp
+
+
+<A NAME="Speshstates">
+<font size=+1><B>Special STATES</B></font></A>
+<p>
+The following are predefined state names that have specifc purposes:
+<p>
+<TABLE BORDER=1  CELLSPACING=0 CELLPADDING=1>
+<tr><th>STATE NAME</th><th>SPECIAL USE</th></tr>
+
+<tr><td>SPAWN</td><td>
+Animation to play when projectile is spawned.</td></tr>
+
+<tr><td>IDLE</td><td>
+Frames to play when projectile is in air.</td></tr>
+
+<tr><td>BOUNCE</td><td>
+States that a projectile enters when bouncing.</td></tr>
+
+<tr><td>DEATH</td><td>
+Frames to play when a projectile explodes/dies.</td></tr>
+</TABLE>
+<p>
+Note that states can have a single rotation (like the plasma shots that look identical from any angle) or multiple
+rotations (e.g rocket in flight).
+<br>
+&nbsp
+<p>
+<A NAME="attacktypes"><B><FONT SIZE=+1>ATTACKTYPES</B></FONT></A>
+<p>
+In DDF, player and monster attacks are completely interchangeable. You
+could make a Baron of Hell fire BFG blasts, the cyberdemon fire a
+stream of plasma, and give yourself a homing rocket launcher to fight
+back with. However, you cannot create new attack types, you can only
+pick from the list of attack types below. 
+<p>
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>TYPE</th><th>DESCRIPTION</th></tr>
+
+<tr><td>CLOSECOMBAT</td><td>
+Any close combat attack, like the demon's bite, the baron's scratch,
+or the chainsaw.</td></tr>
+
+<tr><td>FIXED_SPREADER</td><td>
+Launches missiles in an ordered way like the Mancubus.</td></tr>
+
+<tr><td>PROJECTILE</td><td>
+Launch a single missile at the target. E.g. Rockets, Imp Fireballs.</td></tr>
+
+<tr><td>RANDOM_SPREADER</td><td>
+Launches a spread of missiles in a random pattern</td></tr>
+
+<tr><td>SHOOTTOSPOT</td><td>
+Used for Spawn Cubes (used in Doom2, map30 to regularly spawn random
+monsters).</td></tr>
+
+<tr><td>SHOT</td><td>
+Fires a bullet weapon. E.g. pistol, shotgun, chaingun.</td></tr>
+
+<tr><td><A HREF="#skullfly">SKULLFLY</A></td><td>
+For an object that launches itself at the target.</td></tr>
+
+<tr><td>SMARTPROJECTILE</td><td>
+Launch a missile at the target on an intercept course based on the
+target's current speed and direction. (Makes circle strafing a
+dangerous sport! Don't try this with a cyberdemon unless you like
+outrageous pain!).</td></tr>
+
+<tr><td><A HREF="#spawn">SPAWNER</A></td><td>
+Launch a creature at the target. E.g. Pain Elementals</td></tr>
+
+<tr><td>SPRAY</td><td>
+Instantly do damage to every monster in sight. E.g. the BFG.</td></tr>
+
+<tr><td>TRACKER</td><td>
+remote attack which tracks it's target. E.g. arch-vile. </td></tr>
+
+<tr><td>TRIPLE_SPAWNER</td><td>
+Launches three creatures of the same type. E.g. Pain Elemental death.</td></tr>
+
+</TABLE>
+&nbsp
+<p>
+<A NAME="attackspec"><B><FONT SIZE=+1>ATTACK SPECIALS</B></FONT></A>
+<p>
+These are flags that are used to modify an attack in some way. <br>
+ You can combine one or more terms as such
+<br>
+ATTACK_SPECIAL=NEED_SIGHT,FACE_TARGET;
+
+<p>
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>SPECIAL</th><th>DESCRIPTION</th></tr>
+
+<tr><td>ANGLED_SPAWN</td><td>
+Causes a spawner attack to have the initial angle, slope and moving
+speed of the spawner object.</td></tr>
+
+<tr><td>FACE_TARGET</td><td>
+The attacker will be turned to face it's target.</td></tr>
+
+<tr><td>FORCE_AIM</td><td>
+The attacker will automatically aim at it's target.</td></tr>
+
+<tr><td>KILL_FAILED_SPAWN</td><td>
+For SPAWNER attacktypes, if the spawned object doesn't fit it will be
+killed. Use this for rockets, so that when players shoot directly into
+a wall, the rocket explodes and does the damage the player
+deserves.</td></tr>
+
+<tr><td>NEED_SIGHT</td><td>
+The attack will only take place if the attacker can see it's target.</td></tr>
+
+
+<tr><td>NOTARGET</td><td>
+The attack will NOT auto-aim. For object spawners (like the Pain
+Elemental), the spawned things won't automatically hate the
+player (or whatever their parent has a grudge against)</td></tr>
+
+<tr><td>NO_TRIGGER_LINES</td><td>
+This attack will not trigger any special linedef types it passes or strikes.</td></tr>
+
+
+<tr><td>PRESTEP_SPAWN</td><td>
+Moves a SPAWNED object slightly forward so it is not spawned on top of
+it's master.</td></tr>
+
+<tr><td>REMOVE_FAILED_SPAWN</td><td>
+For SPAWNER attacktypes, if the spawned object doesn't fit it will be
+removed. This is the default.</td></tr>
+
+<tr><td>SILENT_TO_MONSTERS</td><td>
+Monsters cannot hear this attack. Used for punch or other weapon you'd like to silence</td></tr>
+ 
+
+<tr><td>SMOKING_TRACER</td><td>
+Homing missile with a line of smoke behind it.</td></tr>
+
+</TABLE>
+&nbsp
+<p>
+<A NAME="projspec"><B><FONT SIZE=+1>PROJECTILE_SPECIAL</B></FONT></A>
+<p>
+Used in a very similar way to ATTACK_SPECIAL. <br>
+For example PROJECTILE_SPECIAL=MISSILE, DROPOFF, NOBLOCKMAP;
+<p>
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>SPECIAL</th><th>DESCRIPTION</th></tr>
+
+<tr><td>BARE_MISSILE</td><td>
+Identifies the projectile as a missile.</td></tr>
+
+<tr><td>BOSSMAN</td><td>
+Identifies the projectile as a bossman (e.g. boss brain spawn cube). Explosions do little damage and there is no volume change.</td></tr>
+
+<tr><td>BOUNCE</td><td>
+Object will bounce off walls and ceilings/floors, and enters BOUNCE
+states too.</td></tr>
+
+<tr><td>CROSSLINES</td><td>
+Allows the projectile to travel over any line in a map. Main use is
+for spawner attacks, so the spawned monsters can cross lines marked
+'blockmonster' in a map editor. </td></tr>
+
+<tr><td>DROPOFF</td><td>
+Missiles can travel over cliffs (a cliff is any part of a map where
+sector height varies by 32 units or so). Always specify this.</td></tr>
+
+<tr><td>MISSILE</td><td>
+Combination of MISSILE + CROSSLINES + NOFRICTION.</td></tr>
+
+<tr><td>NOBLOCKMAP</td><td>
+Allows projectiles to cross lines in a map (important!).</td></tr>
+
+<tr><td>NOCLIP</td><td>
+? - used in Qdoom</td></tr>
+
+<tr><td>NOFRICTION</td><td>
+Projectile is never slowed down by air or ground friction.</td></tr>
+
+
+<tr><td>NOGRAVITY</td><td>
+This means that projectiles are unaffected by gravity (e.g rockets
+don't drop). Remove this setting from rocket attacks to make yourself
+an instant grenade</td></tr>
+
+<tr><td>NOSHADOW</td><td>
+Projectile does not cast a shadow.</td></tr>
+
+<tr><td>SLIDER</td><td>
+Will make projectile slide when it hits a wall.</td></tr>
+
+<tr><td>TUNNEL</td><td>
+Missile can tunnel through enemies. Causes missiles to pass through enemies rather than blowing up on impact. Still damaging them though, but only once and then keep on going. Handy for a railgun.</td></tr>
+
+<tr><td>WATERWALKER</td><td>
+Projectile will not pass through liquid extrafloors.</td></tr>
+
+
+
+</TABLE>
+&nbsp
+<p>
+<A NAME="actions"><B><FONT SIZE=+1>ACTIONS</B></FONT></A>
+<p>
+The following actions can be used in the attacks.ddf STATES:
+
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>ACTION</th><th>DESCRIPTION</th></tr>
+
+<tr><td>BOUNCE_REARM</td><td>
+Ready projectile to bounce again</td></tr>
+
+<tr><td>CUBE_SPAWN</td><td>
+Spawn boss brain cub projectile</td></tr>
+
+<tr><td>CUBE_TRACER</td><td>
+Track boss brain cube to spawn spot</td></tr>
+
+<tr><td>DIE</td><td>
+Mainly for Bex compatibility</td></tr>
+
+<tr><td><a name="dlight">DLIGHT_FADE</td><td>
+Fade dynamic lighting to specified value. Used like DLIGHT_FADE(500).</td></tr>
+
+<tr><td>DLIGHT_SET</td><td>
+Set dynamic lighting to specified value. Used like DLIGHT_SET(1000).</td></tr>
+
+<tr><td>DROPITEM</td><td>
+Causes the attack to drop the a specified item. The dropped item is non-solid (but may be pick-up-able), and is dropped a random distance away from the attack (so multiple drops don't all land on the exact same spot).</td></tr>
+
+<tr><td>EXPLOSIONDAMAGE</td><td>
+Makes projectile explode and deals appropriate damage.</td></tr>
+
+<tr><td>JUMP</td><td>
+Used like JUMP(IDLE:7,20%) and gives an % chance that the animation will skip to the listed frame of the specified state. Useful for adding randomness to a projectiles animation</td></tr>
+
+<tr><td>KILLSOUND</td><td>
+Stop sounds associated with the projectile.</td></tr>
+
+<tr><td>MAKEACTIVESOUND</td><td>
+Plays the projectiles active sound</td></tr>
+
+<tr><td>MOVE_UP</td><td>
+Causes the projectile to drift upwards by the specified amount. Used like MOVE_UP(6)</td></tr>
+
+<tr><td>NOTHING</td><td>
+Does nothing. This is the action to use if a frame has no other action.</td></tr>
+
+<tr><td>PLAYSOUND</td><td>
+Used like PLAYSOUND(EXPLD) to play the specified sound.</td></tr>
+
+<tr><td>RANDOM_TRACER</td><td>
+IF this is a tracer projectile, this action will randomly lock the projectile onto a target.</td></tr>
+
+<tr><td>SMOKING</td><td>
+Makes the projectile trail smoke.</td></tr>
+
+<tr><td>SPARE_ATTACK</td><td>
+This action launches an additional attack. Used like SPARE_ATTACK(SPAWN_GIBS) to call the specified attack in attacks.ddf file.</td></tr>
+
+<tr><td>TRACER</td><td>
+IF this is a tracer projectile, this action will keep the projectile locked onto it's target.</td></tr>
+
+<tr><td>TRACKERACTIVE</td><td>
+Follow target's movement and play sound?????
+</td></tr>
+
+<tr><td>TRACKERFOLLOW</td><td>
+Follow target's movement with tracker attack
+</td></tr>
+
+<tr><td>TRACKERSTART</td><td>
+Start tracker attack and follow target's movement.
+</td></tr>
+
+<tr><td>TRANS_ALTERNATE</td><td>
+Used like TRANS_ALTERNATE(10%) and causes the projectile to alternate between visible and invisible at the rate specified.
+</td></tr>
+
+<tr><td>TRANS_FADE</td><td>
+Used like TRANS_FADE(10%) to fade the transparency of the projectile to the specified amount.
+</td></tr>
+
+<tr><td>TRANS_LESS</td><td>
+Used like TRANS_LESS(10%) to make the projectile less transparent by the specified amount.
+</td></tr>
+
+<tr><td>TRANS_MORE</td><td>
+Used like TRANS_MORE(10%) to make the projectile more transparent by the specified amount.
+</td></tr>
+
+<tr><td>TRANS_SET</td><td>
+Used like TRANS_SET(10%) to set the projectiles transparency to the specified amount.
+
+</td></tr>
+
+
+</TABLE>
+<p>
+
+&nbsp
+<p>
+<B><FONT SIZE=+1>EXAMPLES</font></b>
+<p>
+The following are examples of complete weapon entries:
+<p>
+<TABLE WIDTH=95% BORDER=1 CELLSPACING=0 CELLPADDING=2 FRAME="box">
+<tr><td>
+<FONT SIZE=2>
+[PLAYER_SHOTGUN]<br>
+ATTACKTYPE=SHOT;<br>
+SHOTCOUNT=7;<br>
+DAMAGE.VAL=5;<br>
+DAMAGE.MAX=15;<br>
+ATTACK_HEIGHT=32;<br>
+ACCURACY_ANGLE=6;<br>
+ACCURACY_SLOPE=0;<br>
+ENGAGED_SOUND=SHOTGN;<br>
+ATTACKRANGE=1024;<br>
+PUFF=PUFF;<br>
+&nbsp
+<p>
+<A NAME="spawn">[ELEMENTAL_SPAWNER]</A><br>
+ATTACKTYPE=SPAWNER;<br>
+ATTACK_HEIGHT=8;<br>
+ATTACK_SPECIAL=PRESTEP_SPAWN;<br>
+SPAWNED_OBJECT=LOST_SOUL;<br>
+SPAWN_OBJECT_STATE=MISSILE:2;<br>
+ATTACK_SPECIAL=FACE_TARGET;<br>
+&nbsp
+<p>
+[PLAYER_MISSILE]<br>
+ATTACKTYPE=PROJECTILE;<br>
+HEIGHT=8;<br>
+RADIUS=11;<br>
+SPEED=20;<br>
+DAMAGE.VAL=20;<br>
+DAMAGE.MAX=160;<br>
+ATTACKRANGE=1024;<br>
+ATTACK_SPECIAL=KILL_FAILED_SPAWN;<br>
+PROJECTILE_SPECIAL=NOBLOCKMAP,DROPOFF,NOGRAVITY,MISSILE,NOSHADOW;<br>
+ATTACK_HEIGHT=32;<br>
+EXPLODE_DAMAGE.VAL=128;<br>
+LAUNCH_SOUND=RLAUNC;<br>
+DLIGHT.TYPE=QUADRATIC;<br>
+DLIGHT.INTENSITY=300;<br>
+DLIGHT.COLOUR=#FFFF00;<br>
+STATES(IDLE)=MISL:A:1:BRIGHT:NOTHING;<br>
+STATES(DEATH)=MISL:B:0:BRIGHT:DLIGHT_SET(1000),<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp MISL:B:0:BRIGHT:DLIGHT_FADE(0),<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp MISL:B:0:BRIGHT:TRANS_FADE(0%),<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp MISL:B:0:BRIGHT:KILLSOUND,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp MISL:B:0:BRIGHT:PLAYSOUND(BAREXP),<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp MISL:B:8:BRIGHT:EXPLOSIONDAMAGE,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp MISL:C:6:BRIGHT:NOTHING,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp MISL:D:4:BRIGHT:NOTHING,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp #REMOVE;<br>
+&nbsp
+<p>
+<A NAME="skullfly">[SKULL_ASSAULT]</A><br>
+ATTACKTYPE=SKULLFLY;<br>
+DAMAGE.VAL=3;<br>
+DAMAGE.MAX=24;<br>
+ASSAULT_SPEED=20;<br>
+ATTEMPT_SOUND=SKLATK;<br>
+ATTACK_SPECIAL=FACE_TARGET;<br>
+&nbsp
+<p>
+<A NAME="closecombat">[BARON_CLOSECOMBAT]</A><br>
+ATTACKTYPE=CLOSECOMBAT;<br>
+DAMAGE.VAL=10;<br>
+DAMAGE.MAX=80;<br>
+ENGAGED_SOUND=CLAW;<br>
+ATTACKRANGE=64;<br>
+ATTACK_SPECIAL=NEED_SIGHT,FACE_TARGET;<br>
+
+</FONT>
+</td></tr>
+</TABLE>
+
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

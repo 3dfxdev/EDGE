@@ -1,0 +1,219 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Games">
+
+<block name="content">
+
+<h2 class="page_title"> Games </h2>
+
+<use synopsis file="games.ddf" lump="DDFGAME" tag="GAMES">
+
+
+Each entry represents an episode of Doom, for example the four 9-level episodes of Doom or the 30 level episodes of Doom 2, TNT or Plutonia, and consists of a unique name enclosed in square brackets, plus a series of commands that specify the intermission screens, title
+graphics, sounds and levels of the episode.
+
+<p>
+
+
+The episode name should be descriptive and is referred to in the levels.ddf file.
+<br>
+&nbsp
+<p>
+<B><FONT SIZE=+1>COMMANDS</font></b>
+<p>
+The commands used for game entries are as follows:
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+
+<TR><TH>COMMAND</TH><TH>TYPE</TH><TH>DESCRIPTION</TH></TR>
+
+
+<TR><TD>ACCEL_SOUND</TD><TD>[sound]</TD><TD>
+Sound played during the intermission screen.</TD></TR>
+
+<TR><TD><A HREF="#anim">ANIM</A></TD><TD>[special]</TD><TD>
+An animation to play -- Used in Doom and Ultimate Doom episodes.</TD></TR>
+
+<TR><TD>DONE_SOUND</TD><TD>[sound]</TD><TD>
+Sound played during the intermission screen when the scoring finishes.</TD></TR>
+
+<TR><TD>ENDMAP_SOUND</TD><TD>[sound]</TD><TD>
+Sound played during the intermission screen when the map is completed.</TD></TR>
+
+<TR><TD>FIRSTMAP</TD><TD>[lumpname]</TD><TD>
+Specifies the first level in this game. (Does not have to be in
+e1m1 or map01 format). Level name is limited to an 8 letter string.
+However creating non standard map names usually creates problems with
+map editors. However, the limits on the number of maps that can appear
+should now have been removed. (E.g you could put 50 maps in a
+wad).</TD></TR>
+
+<TR><TD>FRAG_SOUND</TD><TD>[sound]</TD><TD>
+Sound played during the intermission screen when scoring frags in a multiplayer game.</TD></TR>
+
+<TR><TD>INTERMISSION_CAMERA</TD><TD>[thing]</TD><TD>
+The first thing in the map to have this DDF name will be used as a
+camera to generate the intermission screen at the end of the level.
+(similar to the camera views seen in quake) If no such object exists,
+the normal background is used. For best results, you should ensure
+your camera is tagged as NOBLOCKMAP and NOSECTOR in things.ddf (so it
+cannot move or be killed).  </TD></TR>
+
+<TR><TD>INTERMISSION_GRAPHIC</TD><TD>[lumpname]</TD><TD>
+This is the background picture for intermissions.</TD></TR>
+
+<TR><TD>INTERMISSION_MUSIC</TD><TD>[music]</TD><TD>
+The music to play during this intermission, refer to [ENTRY
+NUMBER] in PLAYLIST.DDF.</TD></TR>
+
+<TR><TD><A HREF="#map">MAP</A></TD><TD>[special]</TD><TD>
+Specifies where to place SPLATs for levels completed -- Used in Doom and Ultimate Doom episodes.</TD></TR>
+
+<TR><TD>NAME_GRAPHIC</TD><TD>[lumpname]</TD><TD>
+Specifies a picture of the episodes's name to go into the start new
+game menu.</TD></TR>
+
+<TR><TD>NEXTMAP_SOUND</TD><TD>[sound]</TD><TD>
+Sound played during the intermission screen before loading the next map.</TD></TR>
+
+<TR><TD>PERCENT_SOUND</TD><TD>[sound]</TD><TD>
+Sound played during the intermission screen while scoring kills, items and secrets etc.</TD></TR>
+
+<TR><TD>SPLAT_GRAPHIC</TD><TD>[lumpname]</TD><TD>
+This is the picture placed over levels that are finished -- Used in Doom and Ultimate Doom episodes.</TD></TR>
+
+<TR><TD>TITLE_GRAPHIC</TD><TD>[lumpname]</TD><TD>
+Specifies a picture to add to the sequence when the game starts. You
+can specify more than one graphic, separated commas.</TD></TR>
+
+<TR><TD>TITLE_MUSIC</TD><TD>[music]</TD><TD>
+Some music to play when the TITLE_GRAPHIC is displayed. Note that the
+game is assumed not to exist if this music does not exist,
+refer to [ENTRY NUMBER] in PLAYLIST.DDF.</TD></TR>
+
+<TR><TD>TITLE_TIME</TD><TD>[time]</TD><TD>
+Specifies how long to leave the titlepic graphic/s displayed before
+changing it.</TD></TR>
+
+<TR><TD>YAH1_GRAPHIC</TD><TD>[lumpname]</TD><TD>
+This is the picture placed over the level you are at. (You are Here) -- Used in Doom and Ultimate Doom episodes.</TD></TR>
+
+<TR><TD>YAH2_GRAPHIC</TD><TD>[lumpname]</TD><TD>
+If YAH1 doesn't fit on the page, this pic will be used instead  -- Used in Doom and Ultimate Doom episodes.</TD></TR>
+
+</TABLE>
+&nbsp
+<p>
+<B><FONT SIZE=+1>NOTES</font></b>
+<p>
+
+<P>
+
+<A NAME="anim"><B>ANIM Command</B></A>
+<P>
+A frame in the animation is specified by: <tt>picture:tics:x:y</tt>
+<br> 
+where <tt>picture</tt> is the name of the graphic, <tt>tics</tt> is how long to wait before
+the next frame, and <tt>x</tt> and <tt>y</tt> are the screen coordinates to place the
+animation. The screen coordinates are based on a 320x200 screen and are automatically adjusted for different resolutions.
+<p>
+Use #END to end the animation and loop back to the start.
+<p>
+Eg ANIM=ADOOM:3:224:104,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp BDOOM:3:224:104,#END;<BR>
+Plays 2 different graphics for a period of 3 tics each (about 1/10th second) at coordinates 224, 104.
+<P>
+<A NAME="map"><B>MAP Command</B></A>
+<P>
+Specifies the position to draw splats on maps: <tt>mapname:x:y</tt><br>
+where <tt>mapname</tt> is the name of the map, and <tt>x</tt> and <tt>y</tt> are the screen coordinates to place the splat. These coordinates are also used for the "You are Here" graphic.
+
+
+&nbsp
+<p>
+<B><FONT SIZE=+1>EXAMPLES</font></b>
+<p>
+The following are examples of complete games entries:
+<p>
+
+<TABLE WIDTH=95% BORDER=1 CELLSPACING=0 CELLPADDING=2 FRAME="box">
+<TR><TD>
+<FONT SIZE=2>
+[THY_FLESH_CONSUMED]<br>
+INTERMISSION_GRAPHIC="INTERPIC";<br>
+INTERMISSION_MUSIC=63;<br>
+NAME_GRAPHIC="M_EPI4";<br>
+PERCENT_SOUND=PISTOL;<br>
+DONE_SOUND=BAREXP;<br>
+ACCEL_SOUND="SLOP";<br>
+FRAG_SOUND="PLDETH";<br>
+FIRSTMAP=E4M1;<br>
+&nbsp
+<p>
+
+[KNEE_DEEP_IN_THE_DEAD]<br>
+INTERMISSION_GRAPHIC="WIMAP0";<br>
+INTERMISSION_MUSIC=63;<br>
+SPLAT_GRAPHIC="WISPLAT";<br>
+YAH1_GRAPHIC="WIURH0";<br>
+YAH2_GRAPHIC="WIURH1";<br>
+NAME_GRAPHIC="M_EPI1";<br>
+PERCENT_SOUND=PISTOL;<br>
+DONE_SOUND=BAREXP;<br>
+ENDMAP_SOUND=BAREXP;<br>
+NEXTMAP_SOUND=SGCOCK;<br>
+ACCEL_SOUND="SLOP";<br>
+FRAG_SOUND="PLDETH";<br>
+FIRSTMAP=E1M1;<br>
+TITLE_GRAPHIC="TITLEPIC","HELP2","CREDIT";<br>
+TITLE_TIME=170T;<br>
+TITLE_MUSIC=62;<br>
+MAP=E1M1:185:164,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp E1M2:148:143,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp E1M3:69:122,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp E1M4:209:102,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp E1M5:116:89,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp E1M6:166:55,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp E1M7:71:56,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp E1M8:135:29,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp E1M9:71:24;<br>
+ANIM=WIA00000:3:224:104,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00001:3:224:104,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00002:3:224:104,#END,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00100:4:184:160,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00101:4:184:160,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00102:4:184:160,#END,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00200:3:112:136,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00201:2:112:136,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00202:3:112:136,#END,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00300:3:72:112,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00301:3:72:112,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00302:4:72:112,#END,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00400:5:88:96,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00401:5:88:96,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00402:3:88:96,#END,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00500:2:64:48,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00501:3:64:48,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00502:2:64:48,#END,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00600:3:192:40,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00601:2:192:40,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00602:3:192:40,#END,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00700:3:136:16,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00701:5:136:16,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00702:3:136:16,#END,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00800:3:80:16,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00801:7:80:16,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00802:3:80:16,#END,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00900:3:64:24,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00901:2:64:24,<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp WIA00902:3:64:24,#END;<br>
+</FONT>
+</TD></TR>
+</TABLE>
+
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

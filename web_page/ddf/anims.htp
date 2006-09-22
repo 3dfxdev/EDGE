@@ -1,0 +1,113 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Animations">
+
+<block name="content">
+
+<h2 class="page_title"> Animations </h2>
+
+<use synopsis file="anims.ddf" lump="DDFANIM" tag="ANIMATIONS">
+
+<p>
+
+Anims.ddf allows you to change floor and ceiling animation or wall animation sequences. Each entry consists of a unique name, enclosed in square brackets, plus a series of commands that specify the first and last frames of the animation, as well as how frequently it changes.
+<P>
+Names should be descriptive, but are used in the map editor when adding animations to your maps, so should be no longer than 8 characters (without spaces).
+<br>
+&nbsp
+<p>
+<B><FONT SIZE=+1>COMMANDS</font></b>
+<p>
+The commands used for animation entries are as follows:
+<p>
+
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2 BGCOLOR="#00AEEA">
+<TR><TH><B>COMMAND</B></TH><TH><B>TYPE</B></TH><TH><B>EXPLANATION</B></TH></TR>
+
+<TR><TD>TYPE</TD><TD>[special] </TD><TD>
+Either 'FLAT' for a floor texture animation, or 'TEXTURE' for a wall
+texture animation.</TD></TR>
+
+<TR><TD>FIRST</TD><TD>[string]</TD><TD>
+The first texture in the animation -- Refer to name of entry in wadfile.</TD></TR>
+
+<TR><TD>LAST</TD><TD>[string]</TD><TD>
+The last texture in the animation -- Refer to name of entry in wadfile.</TD></TR>
+
+<TR><TD>SPEED</TD><TD>[time] </TD><TD>
+The time to display each frame in tics(T). Where 8T is normal Doom speed and 4T is double normal speed.</TD></TR>
+
+<TR><TD>SEQUENCE</TD><TD>[string] </TD><TD>
+Use it to specify the full animation sequence.  Names cannot be used twice.  <br>For example: SEQUENCE = TEX1, TEX2, TEX3, TEX5, TEX8;
+</TD></TR>
+
+
+</TABLE>
+&nbsp
+<p>
+<B><FONT SIZE=+1>NOTES</font></b>
+<p>
+The full animation sequence consists of all the flats / textures
+in the WAD file between the first and last entry.
+<P>
+You should make sure that you don't muddle up your entries in the wad. 
+<p>
+E.g 
+<br>
+MYANIMA
+<br>
+MYANIMB<br>
+MYANIMC
+
+<p>
+ rather than 
+<P>
+MYANIMB
+<br>
+MYANIMA
+<br>
+MYANIMC
+<p>
+If you don't do your flats/ textures properly, EDGE will give you an
+error message.
+<P>
+
+
+</font>
+
+<P>
+You can also use quotes around names with an underscore in it:<BR>
+
+<PRE>	[MY_ANIM]
+        TYPE  = FLAT;
+	FIRST = "MY_AN_1";
+	LAST  = "MY_AN_2";
+	SPEED = 8T;
+</PRE>
+
+If you leave out the quotes, DDF converts an underscore to a space, so the
+name MY_AN_1 would be read as "MY AN 1". The other obvious solution is to
+never use an underscore in texture names you plan on animating.
+
+<p>
+<B>Example:</B><br>
+
+The following are examples of complete animation entries:
+
+<PRE class="ddf">
+[NUKAGE1]
+TYPE = FLAT; // floor or ceiling animation
+SPEED = 8T;
+SEQUENCE = "NUKAGE1", "NUKAGE2", "NUKAGE3";
+
+[WALL_BLUE]
+TYPE = TEXTURE; // wall animation
+SPEED = 8T;
+SEQUENCE = "BLUEY1", "BLUEY2", "BLUEY3";
+</PRE>
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

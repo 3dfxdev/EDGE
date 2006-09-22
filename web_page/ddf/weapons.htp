@@ -1,0 +1,592 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Weapons">
+
+<block name="content">
+
+<h2 class="page_title"> Weapons </h2>
+
+<use synopsis file="weapons.ddf" lump="DDFWEAP" tag="WEAPONS">
+
+
+Weapons.ddf allows you to define and modify weapons for the player to
+use. Each entry consists of a unique name, enclosed in square brackets,
+plus a series of commands that specify the characteristics of the
+weapon, such as ammo, damage, range, speed and HUD animation.
+</p><p>
+Names should be descriptive of what the weapon does, and are referred to from the things.ddf file.
+<br>
+&nbsp;
+</p><p>
+<b><font size="+1">COMMANDS</font></b>
+</p><p>
+The commands used for weapon entries are as follows:
+</p><p>
+<table border="1" cellpadding="1" cellspacing="0">
+<tbody><tr><th>COMMAND</th><th>TYPE</th><th>DESCRIPTION</th></tr>
+
+<tr><td>AMMOPERSHOT</td><td>[integer]</td><td>
+The amount of ammo of the weapons type that is expended each time the weapon
+is fired. Eg for the BFG it's 40, the Super Shotgun is 2, and most other things are 1.</td></tr>
+
+<tr><td>AMMOTYPE</td><td>[special]</td><td>
+Type of ammo the weapon uses. There are 12 different types of ammo in EDGE. See the section on <a href="#ammo">AMMO types</a> for details.</td></tr>
+
+<tr><td>ATTACK</td><td>[attack]</td><td>
+Attack type to use when the weapon is fired. Must refer to a
+valid entry in the attacks.ddf file.</td></tr>
+
+<tr><td>AUTOMATIC</td><td>[boolean]</td><td>
+If TRUE, the Weapon is fully automatic. If FALSE then the weapon is only semi automatic.
+A semi-automatic weapon must <b>not</b> use the REFIRE action in it's attack states. The SHOOT action should be used instead.</td></tr>
+
+<tr><td>BOBBING</td><td>[percentage]</td><td>
+How much the weapon should bob up and down while walking</td></tr>
+
+<tr><td>BINDKEY</td><td>[integer]</td><td>
+The key this weapon binds to. Valid values are 0 - 9. Any number of
+weapons can bind to a single key, so it is recommended you group them
+accordingly, e.g key 1 for close combat weapons, key 5 for
+missile/grenade weapons etc. Note only the normal six weapon lights
+will be shown in the status bar.</td></tr>
+
+<tr><td>CLIPSIZE</td><td>[integer]</td><td>
+The amount of ammo that a weapon will use before going into its
+RELOAD state. Weapon must have RELOAD states and use the CHECKRELOAD action for this to work.</td></tr>
+
+<tr><td>DANGEROUS</td><td>[boolean]</td><td>If TRUE, this weapon will
+not be automatically selected when another runs our of ammo, regardles
+of the weapons PRIORITY. This is because it is considered dangerous to
+the player. E.g. the Rocket Launcher</td></tr>
+
+<tr><td>EJECT_ATTACK</td><td>[attack]</td><td>
+Attack type used by default when the EJECT action is encountered in the
+weapon states. Primarily used for ejecting shell casings.</td></tr>
+
+<tr><td>ENGAGED_SOUND</td><td>[sound]</td><td>
+Sound to play when the trigger is pulled, but the target missed. Used primarily for the chainsaw.</td></tr>
+
+<tr><td>FEEDBACK</td><td>[boolean]</td><td>
+If TRUE, then the Player will be thrown around by this weapon. Used originally for the chainsaw.</td></tr>
+
+<tr><td>FORCE_AIM</td><td>[boolean]</td><td>
+Only required with closecombat weapons. Set to TRUE to make
+closecombat attacks work (fixes bug with chainsaw/punch)</td></tr>
+
+<tr><td>FREE</td><td>[boolean]</td><td>
+If TRUE, then the player starts with this weapon. E.g Fist, pistol</td></tr>
+
+<tr><td>HIT_SOUND</td><td>[sound]</td><td>
+Sound played when the trigger is pulled and a target is found. Used originally for the chainsaw.</td></tr>
+
+<tr><td>IDLE_WAIT</td><td>[time]</td><td>
+The minimum time before entering the IDLE states.</td></tr>
+
+<tr><td>IDLE_CHANCE</td><td>[percentage]</td><td>
+The chance to enter the idle states when the timer runs out. If the
+timer runs out and the random test fails, then the timer is reset to
+1/10th of IDLE_WAIT</td></tr>
+
+<tr><td>IDLE_SOUND</td><td>[sound]</td><td>
+Sound played while the weapon is idle. Used originally for the chainsaw weapon.</td></tr>
+
+<tr><td>KICK</td><td>[float]</td><td>
+Amount the player receives as kick from the weapon, making the weapon
+aim and view `jiggle'. Values between 0 and 0.2 are best.Works well on
+weapons like the shotgun, or auto bullet weapons (i.e
+chaingun).</td></tr>
+
+<tr><td>NOTHRUST</td><td>[boolean]</td><td>
+If TRUE, then targets will not be pushed away by a hit from this weapon. Used originally for the chainsaw.</td></tr>
+
+<tr><td>PRIORITY</td><td>[integer]</td><td>
+This is used for selecting another weapon when the current weapon runs
+out of ammo. When this happens, the weapon with the highest priority
+value that has enough ammo to shoot will be selected. (-1 means that you
+will need to manually select the weapon)</td></tr>
+
+<tr><td>REFIRE_INACCURATE</td><td>[boolean]</td><td>
+If TRUE, then shots from this weapon in, automatic firing mode, will
+become less accurate E.g The Chaingun. Attack states must contain the
+REFIRE action for this to work.</td></tr>
+
+<tr><td>SEC_AMMOPERSHOT</td><td>[integer]</td><td>
+Like AMMOPERSHOT but for the weapon's secondary attack.</td></tr>
+
+<tr><td>SEC_AMMOTYPE</td><td>[special]</td><td>
+Like AMMOTYPE but for the weapon's secondary attack.</td></tr>
+
+<tr><td>SEC_AUTOMATIC</td><td>[boolean]</td><td>
+Like AUTOMATIC but for the weapon's secondary attack.</td></tr>
+
+<tr><td>SEC_CLIPSIZE</td><td>[integer]</td><td>
+Like CLIPSIZE but for the weapon's secondary attack.</td></tr>
+
+<tr><td>SEC_REFIRE_INACCURATE</td><td>[boolean]</td><td>
+Like REFIRE_INACCURATE but for the weapon's secondary attack.</td></tr>
+
+<tr><td>SECOND_ATTACK</td><td>[attack]</td><td>
+Attack type to use by default for the weapon's secondary attack. Weapon
+must have SECATTACK states and use the SEC_SHOOT and/or SEC_REFIRE
+actions.</td></tr>
+
+<tr><td>SHOW_CLIP</td><td>[boolean]</td><td>
+If TRUE, then shows clipsize remaining on the status bar instead of total ammo of that type.</td></tr>
+
+<tr><td><a href="#special">SPECIAL</a></td><td>[special]</td><td>
+Special characteristics of the weapon. See 'list' of specials below.</td></tr>
+
+<tr><td><a href="#special">SEC_SPECIAL</a></td><td>[special]</td><td>
+Special characteristics of the secondary attack. See 'list' of specials below.</td></tr>
+
+ 
+<tr><td>START_SOUND</td><td>[sound]</td><td>
+Sound played when the weapon is selected.</td></tr>
+
+
+<tr><td><a href="#states">STATES</a><a>(state_name)</a></td><td>[state]</td><td>States
+are used to create weapon animations in the HUD, E.g. when a weapon is
+fired or when it reloads. The 'state_name' can be any string, or one of
+the <a href="#Speshstates">special STATES</a> lited below.</td></tr>
+
+<tr><td>SWAYING</td><td>[percentage]</td><td>
+How much the weapon should sway left and right while walking</td></tr>
+
+<tr><td>UPGRADES</td><td>[special]</td><td>
+A previously declared weapon name that this weapon should replace. E.g
+a silencer for a pistol, or homing rocket for the rocket
+launcher.</td></tr>
+
+<tr><td>ZOOM_FOV</td><td>[float]</td><td>
+When this is used, the weapon has a zoom capability. The value is the
+FOV angle, for example 10.  Should be used in conjunction with the
+levels.ddf special LIMIT_ZOOM, which prevents zooming unless the
+player is holding a weapon with zoom capability.
+</td></tr></tbody></table>
+
+
+
+
+&nbsp;
+</p><p>
+
+</p><p>
+<a name="states">
+<font size="+1"><b>STATES</b></font>
+</a></p><p>
+<a name="states">Each named STATES entry defines an animation sequence
+to play when a weapon is performing particular function, as well as
+calling the actions required at the appropriate frames in the
+animation. These consist of a series of states, which are individual
+frames of the animation. A state is defined like this:<br>
+&nbsp;&nbsp;&nbsp;<code>Sprite:Frame:Tics:Bright:Action</code>
+<br>
+as follows:
+</a></p><p>
+<table border="1" cellpadding="2" cellspacing="0">
+
+<tbody><tr><td>Sprite</td><td>
+The four letter name of the sprite to use.</td></tr>
+
+<tr><td>Frame</td><td>
+The frame reference, A-Z, '[', '\', ']' If you need more than this,
+use another sprite.</td></tr>
+
+<tr><td>Tics</td><td>
+Number of tics to spend on this frame. -1 means the frame should last
+forever.</td></tr>
+
+<tr><td>Bright</td><td>
+Can be 'BRIGHT' or 'NORMAL' Bright frames are always drawn full
+brightness.</td></tr>
+
+<tr><td>Action</td><td>
+Action to be carried out. Actions are listed below.</td></tr>
+</tbody></table>
+</p><p>
+
+
+<a name="states">Each frame ends with either a semincolon <b>;</b> if it is the last frame in the animation or a comma <b>,</b> if it is not. 
+</a></p><p>
+<a name="states">In addition, any line may include a <tt>#Command</tt> at the end. This will either be <tt>#STATENAME</tt> which causes a jump to the first frame in the animation of the named state. <tt>#STATENAME:FRAME</tt> causing a jump to the specified frame number in the animation of the named state. OR <tt>#REMOVE</tt> to remove the animation shown from the HUD.
+</a></p><p>
+
+
+
+
+</p><p>
+<a name="states">&nbsp;
+
+
+</a><a name="Speshstates">
+<font size="+1"><b>Special STATES</b></font></a>
+</p><p>
+The following are predefined state names that have specifc purposes:
+</p><p>
+
+<table border="1" cellpadding="1" cellspacing="0">
+<tbody><tr><th>STATE NAME</th><th>SPECIAL USE</th></tr>
+
+<tr><td>ATTACK</td><td>
+The state to use when the trigger is pulled.</td></tr>
+
+<tr><td>CROSSHAIR</td><td>
+Used to create custom crosshairs, can be static or animated.
+</td></tr>
+
+<tr><td>DOWN</td><td>
+The states to use when this weapon is deselected. (Usually, but not
+necessarily the same as the upstate)</td></tr>
+
+<tr><td>DISCARD</td><td>
+Similar to the PARTIAL special: if you press the reload key with a
+half-empty clip (i.e. neither empty nor full), then the clip is
+discarded and the DISCARD states are entered. These states must end
+with the CHECKRELOAD action to cause the weapon to reload</td></tr>
+
+
+<tr><td>EMPTY</td><td>
+The states to use when the primary attack runs out of ammo.  You must use the "EMPTY" action in the empty states, for example:
+<br> STATES(EMPTY) = ABCD:E:1:NORMAL:EMPTY;</td></tr>
+
+<tr><td>FLASH</td><td>
+Miscellaneous state for use of muzzle flashes etc...</td></tr>
+
+<tr><td>IDLE</td><td>
+These are entered from the READY or EMPTY states after a certain time
+has elapsed. Used in conjunction with IDLE_WAIT and IDLE_CHANCE
+commands.</td></tr>
+
+<tr><td>READY</td><td>
+The normal state for a weapon, when it is ready to be fired.</td></tr>
+
+<tr><td>RELOAD</td><td>
+State for reloading weapon. (See shotgun)</td></tr>
+
+<tr><td>UP</td><td>The states to use when this weapon is selected.</td></tr>
+
+<tr><td>SECATTACK</td><td>
+State for when user triggers secondary attack.</td></tr>
+
+<tr><td>SECDISCARD</td><td>
+Same as DISCARD, but for secondary attack.</td></tr>
+
+<tr><td>SECRELOAD</td><td>
+Like RELOAD, but for the secondary attack.</td></tr>
+
+<tr><td>SECFLASH</td><td>
+Like FLASH, but for the secondary attack.</td></tr>
+
+<tr><td>ZOOM</td><td>
+States used for this weapon in zoomed field of view mode.</td></tr>
+
+</tbody></table>
+</p><p>
+&nbsp;
+
+
+<a name="action">
+<font size="+1"><b>ACTIONS</b></font></a>
+</p><p>
+The following actions can be used in weapon states:</p><p>
+
+<table border="1" cellpadding="1" cellspacing="0">
+<tbody><tr><th>ACTION</th><th>DESCRIPTION</th></tr>
+
+
+<tr><td>CHECKRELOAD</td><td>
+Checks whether the player has used up the clip quantity of ammo.  If
+yes, then force a reload by jumping into the RELOAD states.
+</td></tr>
+
+<tr><td>EJECT</td><td>
+Like SHOOT, but without any kick, flash or change in player
+state, and without using any ammo. Used to create ejecting shells from
+weapons. Used like EJECT(attack_name), but will use the weapons EJECT_ATTACK (if defined) if no attack_name is specified.</td></tr>
+
+<tr><td>FLASH</td><td>
+Starts the weapon's FLASH states.</td></tr>
+
+<tr><td>JUMP</td><td>Used like JUMP(state_name:frame,xx%), this
+activates with a xx% chance of causing a switch to the specified frame
+of the named state. Useful for adding a random aspect to the animations</td></tr>
+
+<tr><td>KICK</td><td>
+This action generates and additional kick effect to that specified in
+the commands. It is used like so KICK(value), where the value will
+usually be between 0 and 0.2, though higher values are possible.</td></tr>
+
+<tr><td>KILLSOUND</td><td> 
+Stops any sound playing that is associated with this weapon.</td></tr>
+
+<tr><td>LIGHT0</td><td>
+Sets light around player to normal.  </td></tr>
+
+<tr><td>LIGHT1</td><td>
+Sets light around player to bright.  </td></tr>
+
+<tr><td>LIGHT2</td><td>
+Sets light around player to brightest.  </td></tr>
+
+<tr><td>LOWER</td><td>
+Lowers the player's weapon sprite off the screen when selecting a new
+weapon or dead.</td></tr>
+
+<tr><td>NOFIRE</td><td>
+When using more than one attack per weapon, the firing sequence is
+reset once the player stops firing. e.g the quake super nailgun.
+</td></tr>
+
+<tr><td>NOFIRE_RETURN</td><td>
+When using more than one attack per weapon, this will 'remember' the
+firing sequence.</td></tr>
+
+<tr><td>NOTHING</td><td>
+Like the sign says... Do nothing. This is the most common 'action' in weapon states.</td></tr>
+
+<tr><td>PLAYSOUND</td><td>
+Used like PLAYSOUND(sound_name), this plays the specified sound referred to in sounds.ddf</td></tr>
+
+<tr><td>RAISE</td><td>
+Raises the player's weapon sprite onto the screen when selecting a new
+weapon.</td></tr>
+
+<tr><td>READY</td><td>
+Checks for trigger pulled, and enters the ATTACK states if it
+is (or SECATTACK states for the secondary attack key).</td></tr>
+
+<tr><td>REFIRE</td><td>
+Checks whether the player has stopped firing.  If yes, then the weapon
+returns to the READY states.  If not, the weapon goes back to the
+ATTACK states.  Only needed for automatic weapons.
+</td></tr>
+
+<tr><td>RTS_ENABLE_TAGGED(tagnum)</td><td>
+Trigger an RTS script with this tag number.</td></tr>
+
+<tr><td>RTS_DISABLE_TAGGED(tagnum)</td><td>
+Disable an RTS script with this tag number.</td></tr>
+
+<tr><td>SEC_CHECKRELOAD</td><td>
+Same as CHECKRELOAD, but used for the secondary attack.</td></tr>
+
+
+<tr><td>SEC_FLASH</td><td>
+Starts the weapon's SEC_FLASH states.</td></tr>
+
+<tr><td>SEC_NOFIRE</td><td>
+Same as NOFIRE, but used for the secondary attack.</td></tr>
+
+<tr><td>SEC_NOFIRE_RETURN</td><td>
+Same as NOFIRE_RETURN, but used for the secondary attack.</td></tr>
+
+<tr><td>SEC_REFIRE</td><td>
+Same as REFIRE, but used for the secondary attack.</td></tr>
+
+<tr><td>SEC_SHOOT</td><td>
+Same as SHOOT, but used for the secondary attack.</td></tr>
+
+
+<tr><td>SHOOT</td><td>
+Starts attack associated with weapon.  If the FLASH action hasn't been
+called, starts the flash state. The SHOOT action uses the weapon's
+default attack, but a valid attack can be placed in brackets after the
+statement, for example: SHOOT(GRENADE).</td></tr>
+
+<tr><td>TRANS_SET</td><td>
+Used like TRANS_SET(xx%) to set the transparency of the animation as a percentage of it's original.</td></tr>
+
+<tr><td>TRANS_FADE</td><td>
+Used like TRANS_FADE(xx%) to fade the transparency of the animation from it's previous level to that specified.</td></tr>
+
+
+<tr><td>SETCROSS(FRAME)</td><td>
+Crosshair jumps to the given frame</td></tr>
+
+<tr><td>TARGET_JUMP(FRAME)</td><td>
+The action will check if there is something that the autoaiming can
+lock onto, and change the crosshair accordingly. Crosshair jumps to the
+given frame IF player has a target. Can only be used in the crosshair
+states.
+<br>Example: 
+<br>
+<table>
+<tbody><tr>
+	<td>STATES(CROSSHAIR)&nbsp;=&nbsp;</td>
+	<td>CROS:A:0:NORMAL:<b>TARGET_JUMP</b>(C_ENEMY),</td>
+</tr>
+<tr>
+	<td></td>
+	<td>CROS:A:5:NORMAL:NOTHING; </td>
+</tr>
+<tr>
+	<td><br>STATES(C_ENEMY)&nbsp;=&nbsp;</td>
+	<td><br>CROS:B:5:NORMAL:NOTHING,#CROSSHAIR;  </td>
+</tr>
+</tbody></table>
+
+
+</td></tr>
+
+<tr><td>FRIEND_JUMP(FRAME)</td><td>Similar to TARGET_JUMP, but for
+friendlies. Crosshair jumps to the given frame IF player target is a
+friend. Can only be used in the crosshair states</td></tr>
+
+
+
+<!---  RANDOMJUMP 
+Used for the plasma rifle, to make it flash in a random kind of way.
+The action is followed by misc1 and misc2. Misc 1 is a probability of
+jumping (lower value is less likely to jump).  Ranges from 0 to 255.
+The second value is  the number of states after the current one to
+jump ahead.  Thus 128:2 gives a 50% chance of skipping the next 2
+states.  --->
+
+
+
+</tbody></table>
+
+
+</p><p>
+<a name="ammo">
+<font size="+1"><b>AMMO Types</b></font></a>
+</p><p>
+The following ammo types are available in edge. These include the
+regular Doom and Doom2 ammo types, as well as 12 new ones specially for
+use in EDGE:
+</p><p>
+
+<table border="1" cellpadding="2" cellspacing="0">
+<tbody><tr><th>AMMO Type</th><th>DESCRIPTION</th></tr>
+<tr><td>NOAMMO</td><td>For weapons like the chainsaw and fist -- Used in Doom and Doom 2</td></tr>
+<tr><td>BULLETS or AMMO1</td><td>Normally used for the pistol and chaingun -- Used in Doom and Doom 2</td></tr>
+<tr><td>SHELLS or AMMO2</td><td>Used for the Shotgun and Super Shotgun -- Used in Doom and Doom 2</td></tr>
+<tr><td>ROCKETS or AMMO3</td><td>For the Rocket Launcher -- Used in Doom and Doom 2</td></tr>
+<tr><td>CELLS or AMMO4</td><td>Usually for the Plasmagun and BFG -- Used in Doom and Doom 2</td></tr>
+<tr><td>AMMO5 (aka PELLETS) </td><td>Can be for anything</td></tr>
+<tr><td>AMMO6 (aka NAILS) </td><td>Can be for anything</td></tr>
+<tr><td>AMMO7 (aka GRENADES)</td><td>Can be for anything </td></tr>
+<tr><td>AMMO8 (aka GAS)</td><td>Can be for anything</td></tr>
+<tr><td>AMMO9</td><td>Can be for anything</td></tr>
+<tr><td>AMMO10</td><td>Can be for anything</td></tr>
+<tr><td>AMMO11</td><td>Can be for anything</td></tr>
+<tr><td>AMMO12</td><td>Can be for anything</td></tr>
+<tr><td>AMMO13</td><td>Can be for anything</td></tr>
+<tr><td>AMMO14</td><td>Can be for anything</td></tr>
+<tr><td>AMMO15</td><td>Can be for anything</td></tr>
+<tr><td>AMMO16</td><td>Can be for anything</td></tr>
+</tbody></table>
+
+
+</p><p>
+<a name="special"> <font size="+1"><b>SPECIAL Flags</b></font></a>
+</p><p>
+
+<table border="1" cellpadding="2" cellspacing="0">
+<tbody><tr><th>SPECIAL</th><th>DESCRIPTION</th></tr>
+<tr><td>SILENT_TO_MONSTERS</td><td>Monsters cannot hear this attack.
+Used for punch or other weapon you'd like to silence.</td></tr>
+
+<tr><td>ANIMATED</td><td>UP and DOWN states are animated. When using
+this special, the weapon sprite doesn't raise up or lower down. Instead
+the UP and DOWN states should show an animation. The RAISE and LOWER
+commands must occur once, in the very last frame</td></tr>
+<tr><td>NO_SWITCH</td><td>don't switch to new weapon if ammo runs out</td></tr>
+
+<tr><td>NO_TRIGGER</td><td>prevent reloading by pressing fire button</td></tr>
+<tr><td>FRESH </td><td> reload empty clip when fresh ammo is picked up</td></tr>
+<tr><td>NO_MANUAL </td><td>disable manual reloading key</td></tr>
+<tr><td>NO_PARTIAL </td><td>manual reload: clip must be empty to refill it</td></tr>
+
+</tbody></table>
+
+&nbsp;
+</p><p>
+<b><font size="+1">EXAMPLES</font></b>
+</p><p>
+The following are examples of complete weapon entries:
+</p><p>
+<table border="1" cellpadding="2" cellspacing="0" frame="box" width="95%">
+<tbody><tr><td>
+<font size="2">
+[FIST]<br>
+AMMOTYPE=NOAMMO;<br>
+AUTOMATIC=TRUE;<br>
+FREE=TRUE;<br>
+BINDKEY=1;<br>
+PRIORITY=0;<br>
+ATTACK=PLAYER_PUNCH;<br>
+STATES(UP)=PUNG:A:1:NORMAL:RAISE;<br>
+STATES(DOWN)=PUNG:A:1:NORMAL:LOWER;<br>
+STATES(READY)=PUNG:A:1:NORMAL:READY;<br>
+STATES(ATTACK)=PUNG:B:4:NORMAL:NOTHING,<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+PUNG:C:4:NORMAL:SHOOT,<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+PUNG:D:5:NORMAL:NOTHING,<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+PUNG:C:4:NORMAL:NOTHING,<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+PUNG:B:5:NORMAL:REFIRE;<br>
+&nbsp; 
+</font><p>
+<font size="2">[SUPERSHOTGUN]<br>
+AMMOTYPE=SHELLS;<br>
+AMMOPERSHOT=2;<br>
+AUTOMATIC=TRUE;<br>
+BINDKEY=3;<br>
+PRIORITY=4;<br>
+ATTACK=PLAYER_SHOTGUN2;<br>
+SOUND1=DBOPN;<br>
+SOUND2=DBLOAD;<br>
+SOUND3=DBCLS;<br>
+KICK=0.1;<br>
+STATES(UP)=SHT2:A:1:NORMAL:RAISE;<br>
+STATES(DOWN)=SHT2:A:1:NORMAL:LOWER;<br>
+STATES(READY)=SHT2:A:1:NORMAL:READY;<br>
+STATES(ATTACK)=SHT2:A:3:NORMAL:NOTHING,<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+SHT2:A:7:NORMAL:SHOOT,<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+SHT2:B:7:NORMAL:NOTHING,<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+SHT2:C:7:NORMAL:CHECKRELOAD;<br>
+STATES(RELOAD)=SHT2:D:7:NORMAL:SOUND1, // OPEN Sound<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+SHT2:E:7:NORMAL:NOTHING,<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+SHT2:F:7:NORMAL:SOUND2, // reload sound<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+SHT2:G:6:NORMAL:NOTHING,<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+SHT2:H:6:NORMAL:SOUND3, // close sound <br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+SHT2:A:5:NORMAL:REFIRE;<br>
+STATES(FLASH)=SHT2:I:5:BRIGHT:LIGHT1,<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SHT2:J:4:BRIGHT:LIGHT2,<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+SHT2:J:0:NORMAL:LIGHT0,#REMOVE;<br>
+
+</font>
+</p></td></tr>
+</tbody></table>
+
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

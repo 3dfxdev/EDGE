@@ -1,0 +1,70 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Switches">
+
+<block name="content">
+
+<h2 class="page_title"> Switches </h2>
+
+<use synopsis file="switch.ddf" lump="DDFSWTH" tag="SWITCHES">
+
+
+switch.ddf allows you to change the animations shown when switches are activated. Each entry consists of a unique name, enclosed in square brackets, plus a series of commands that specify the on and off frames of animation and switching sounds.
+
+<p>
+Names should be descriptive of the background and switch textures, but are used in the map editor when adding switches to your maps, so should be no longer than 8 characters (without spaces).
+<br>
+&nbsp
+<p>
+<B><FONT SIZE=+1>COMMANDS</font></b>
+<p>
+The commands used for switch entries are as follows:
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TR><TH>COMMAND</TH><TH>TYPE</TH><TH>EXPLANATION</TH></TR>
+
+<TR><TD>ON_TEXTURE</TD><TD>[string]</TD><TD>
+The texture shown when the switch is 'on' -- Refer to name of entry in wadfile.</TD></TR>
+
+<TR><TD>OFF_TEXTURE</TD><TD>[string]</TD><TD>
+The texture shown when the switch is 'off' -- Refer to name of entry in wadfile.</TD></TR>
+
+<TR><TD>ON_SOUND</TD><TD>[sound]</TD><TD>
+The sound the switch makes when switched to the 'on' position -- Refer to entry in sounds.ddf</TD></TR>
+
+<TR><TD>OFF_SOUND</TD><TD>[sound]</TD><TD>
+The sound the switch makes when switched to the 'off' position -- Refer to entry in sounds.ddf</TD></TR>
+
+<TR><TD>TIME</TD><TD>[time]</TD><TD>
+How long the button stays with the ON texture until it
+changes back to the OFF texture</TD></TR>
+
+</TABLE>
+&nbsp
+<p>
+<B><FONT SIZE=+1>NOTES</font></b>
+<p>
+Exit-level switches always use the [SWTCHX] sound regardless of the sounds listed in this file.
+
+
+<p>
+<B>Example:</B><br>
+
+The following is an example of a complete switch entry:
+
+<p>
+<PRE class="ddf">
+[SW1BRCOM]
+ON_TEXTURE = "SW1BRCOM";
+OFF_TEXTURE = "SW2BRCOM";
+ON_SOUND = SWTCHN1;
+OFF_SOUND = SWTCHN2;
+</PRE>
+
+<p>
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

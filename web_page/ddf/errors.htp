@@ -1,0 +1,431 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Errors">
+
+<block name="content">
+
+<h2 class="page_title"> Error messages </h2>
+
+
+Ok so you've written that all important new bit of ddf code and you come to run EDGE and it crashes, or it doesn't do what you want. Frustrating I know. So how can you work out why? Well there's three possibilities:
+<p> The first is creating a debug file so that EDGE will output all the information it can about what happened.
+<p> The second is to check the list below of commonly experienced crashes and see if any fit the bill.
+<p> And the third is to post as much info as you can on the edge message board and perhaps someone there can help you out.
+
+
+<p>
+<font size=+1><b>Debug info</b></font>
+<p>
+To create a debug file, you will need to include the <font size=+1><tt>-debug filename.txt</tt></font> command-line option when you start EDGE. This tells the engine to create a debug file in your EDGE directory called filename.txt. You can then open this debug file in any text editor and find out what went wrong
+
+
+The contents of a healthy looking debug file will be as follows.
+
+<p>
+<table BORDER=1 width=95% CELLSPACING=0 CELLPADDING=2 FRAME="box">
+<TR><TD>
+<font size=2>
+<br>
+
+
+EDGE v1.27<br>
+EDGE v1.27 compiled on Nov 11 2001 at 15:20:25<br>
+EDGE homepage is at http://edge.sourceforge.net/<br>
+EDGE is based on DOOM by id Software http://www.idsoftware.com/<br>
+Data Definition v1.20<br>
+  DDF_InitLanguage........<br>
+  DDF_InitSounds...............<br>
+  DDF_InitColourMaps........................<br>
+  DDF_InitAttacks..................<br>
+  DDF_InitWeapons...........<br>
+  DDF_InitThings........................<br>
+  DDF_InitLinedefs.................................................<br>
+  DDF_InitSectors.....................................................................<br>
+  DDF_InitSwitches....................<br>
+  DDF_InitAnimations...........<br>
+  DDF_InitGames......<br>
+  DDF_InitLevels..................................<br>
+  DDF_InitMusicPlaylist......................<br>
+Added: .\doom2.wad<br>
+Added: .\EDGE.wad<br>
+Added: .\doom.wad<br>
+M_LoadDefaults: Loaded system defaults.<br>
+  from .\EDGE.CFG<br>
+Radius Triggers v1.1RTS: Loading File DDF37\edge.scr........<br>
+W_Init: Init WADfiles.<br>
+  adding .\doom2.wad<br>
+  adding .\doom2.gwa<br>
+  adding .\EDGE.wad<br>
+  adding .\doom.wad<br>
+  adding .\doom.gwa<br>
+Loaded global palette.<br>
+R_InitFlats...<br>
+W_InitTextures...<br>
+EDGE.WAD version 2.6.0 found.<br>
+==============================================================================<br>
+ This is EDGE: a project that is based upon the Doom Source Code released by  <br>
+ John Carmack of Id Software in December 1997. The work on this project is    <br>
+ designed, and implemented by the EDGE Team (http://edge.sourceforge.net/).    <br>
+==============================================================================<br>
+V_Init: allocate screens.<br>
+Resolution: 1024 x 768 x 65536c<br>
+I_Init: Setting up machine state.<br>
+StartupKeyboard: DirectInput KeyboardInit OK<br>
+StartupMouse: DirectInput MouseInit OK<br>
+I_StartupSound: Initialised OK.<br>
+I_StartupMusic: MUS Music Init OK<br>
+I_StartupMusic: MP3 Music Init OK<br>
+V_AddAvailableResolution: Res 640 x 480 - 16bpp<br>
+V_AddAvailableResolution: Res 640 x 480 - 16bpp<br>
+V_AddAvailableResolution: Res 640 x 480 - 16bpp<br>
+V_AddAvailableResolution: Res 640 x 480 - 16bpp<br>
+V_AddAvailableResolution: Res 640 x 480 - 16bpp<br>
+V_AddAvailableResolution: Res 640 x 480 - 16bpp<br>
+V_AddAvailableResolution: Res 640 x 480 - 16bpp<br>
+V_AddAvailableResolution: Res 320 x 240 - 16bpp<br>
+V_AddAvailableResolution: Res 320 x 240 - 16bpp<br>
+V_AddAvailableResolution: Res 320 x 240 - 16bpp<br>
+V_AddAvailableResolution: Res 320 x 240 - 16bpp<br>
+V_AddAvailableResolution: Res 400 x 300 - 16bpp<br>
+V_AddAvailableResolution: Res 400 x 300 - 16bpp<br>
+V_AddAvailableResolution: Res 400 x 300 - 16bpp<br>
+V_AddAvailableResolution: Res 400 x 300 - 16bpp<br>
+V_AddAvailableResolution: Res 480 x 360 - 16bpp<br>
+V_AddAvailableResolution: Res 480 x 360 - 16bpp<br>
+V_AddAvailableResolution: Res 480 x 360 - 16bpp<br>
+V_AddAvailableResolution: Res 480 x 360 - 16bpp<br>
+V_AddAvailableResolution: Res 512 x 384 - 16bpp<br>
+V_AddAvailableResolution: Res 512 x 384 - 16bpp<br>
+V_AddAvailableResolution: Res 512 x 384 - 16bpp<br>
+V_AddAvailableResolution: Res 512 x 384 - 16bpp<br>
+V_AddAvailableResolution: Res 640 x 400 - 16bpp<br>
+V_AddAvailableResolution: Res 640 x 400 - 16bpp<br>
+V_AddAvailableResolution: Res 640 x 400 - 16bpp<br>
+V_AddAvailableResolution: Res 640 x 400 - 16bpp<br>
+V_AddAvailableResolution: Res 640 x 400 - 16bpp<br>
+V_AddAvailableResolution: Res 640 x 400 - 16bpp<br>
+V_AddAvailableResolution: Res 320 x 200 - 16bpp<br>
+V_AddAvailableResolution: Res 320 x 200 - 16bpp<br>
+V_AddAvailableResolution: Res 320 x 200 - 16bpp<br>
+V_AddAvailableResolution: Res 800 x 600 - 16bpp<br>
+V_AddAvailableResolution: Res 800 x 600 - 16bpp<br>
+V_AddAvailableResolution: Res 800 x 600 - 16bpp<br>
+V_AddAvailableResolution: Res 800 x 600 - 16bpp<br>
+V_AddAvailableResolution: Res 800 x 600 - 16bpp<br>
+V_AddAvailableResolution: Res 800 x 600 - 16bpp<br>
+V_AddAvailableResolution: Res 800 x 600 - 16bpp<br>
+V_AddAvailableResolution: Res 1024 x 768 - 16bpp<br>
+V_AddAvailableResolution: Res 1024 x 768 - 16bpp<br>
+V_AddAvailableResolution: Res 1024 x 768 - 16bpp<br>
+V_AddAvailableResolution: Res 1024 x 768 - 16bpp<br>
+V_AddAvailableResolution: Res 1024 x 768 - 16bpp<br>
+V_AddAvailableResolution: Res 1024 x 768 - 16bpp<br>
+V_AddAvailableResolution: Res 1024 x 768 - 16bpp<br>
+V_AddAvailableResolution: Res 1152 x 864 - 16bpp<br>
+V_AddAvailableResolution: Res 1152 x 864 - 16bpp<br>
+V_AddAvailableResolution: Res 1152 x 864 - 16bpp<br>
+V_AddAvailableResolution: Res 1152 x 864 - 16bpp<br>
+V_AddAvailableResolution: Res 1152 x 864 - 16bpp<br>
+V_AddAvailableResolution: Res 1152 x 864 - 16bpp<br>
+V_AddAvailableResolution: Res 1152 x 864 - 16bpp<br>
+V_AddAvailableResolution: Res 1280 x 1024 - 16bpp<br>
+V_AddAvailableResolution: Res 1280 x 1024 - 16bpp<br>
+V_AddAvailableResolution: Res 1280 x 1024 - 16bpp<br>
+V_AddAvailableResolution: Res 1280 x 1024 - 16bpp<br>
+V_AddAvailableResolution: Res 1280 x 1024 - 16bpp<br>
+V_AddAvailableResolution: Res 1280 x 1024 - 16bpp<br>
+V_AddAvailableResolution: Res 1280 x 1024 - 16bpp<br>
+V_AddAvailableResolution: Res 1600 x 1200 - 16bpp<br>
+V_AddAvailableResolution: Res 1600 x 1200 - 16bpp<br>
+V_AddAvailableResolution: Res 1600 x 1200 - 16bpp<br>
+V_AddAvailableResolution: Res 1600 x 1200 - 16bpp<br>
+V_AddAvailableResolution: Res 1600 x 1200 - 16bpp<br>
+V_AddAvailableResolution: Res 1920 x 1080 - 16bpp<br>
+V_AddAvailableResolution: Res 1920 x 1080 - 16bpp<br>
+V_AddAvailableResolution: Res 1920 x 1080 - 16bpp<br>
+V_AddAvailableResolution: Res 1920 x 1080 - 16bpp<br>
+V_AddAvailableResolution: Res 1920 x 1080 - 16bpp<br>
+V_AddAvailableResolution: Res 1920 x 1200 - 16bpp<br>
+V_AddAvailableResolution: Res 1920 x 1200 - 16bpp<br>
+V_AddAvailableResolution: Res 1920 x 1200 - 16bpp<br>
+V_AddAvailableResolution: Res 1920 x 1200 - 16bpp<br>
+V_AddAvailableResolution: Res 640 x 480 - 16bpp<br>
+V_AddAvailableResolution: Res 800 x 600 - 16bpp<br>
+V_AddAvailableResolution: Res 640 x 400 - 16bpp<br>
+V_AddAvailableResolution: Res 640 x 480 - 16bpp<br>
+V_AddAvailableResolution: Res 800 x 600 - 16bpp<br>
+V_AddAvailableResolution: Res 1024 x 768 - 16bpp<br>
+V_AddAvailableResolution: Res 1152 x 864 - 16bpp<br>
+V_AddAvailableResolution: Res 1280 x 1024 - 16bpp<br>
+V_AddAvailableResolution: Res 1600 x 1200 - 16bpp<br>
+I_StartupGraphics: Win32 OpenGL Init OK<br>
+M_Init: Init Miscellaneous Info.<br>
+R_Init: Init DOOM refresh daemon - ......<br>
+P_Init: Init Playloop state.<br>
+R_InitSprites: Finding sprite patches<br>
+S_Init: Setting up sound.<br>
+HU_Init: Setting up heads up display.<br>
+D_CheckNetGame: Checking network game status.<br>
+  startmap: MAP01  startskill: 2  deathmatch: 0<br>
+  Console: Player 1 of 1 (1 nodes)<br>
+ST_Init: Init status bar.<br>
+Tried: 1024x768x16<br>
+I_SetScreenSize: Win32 OpenGL Screen Size OK<br>
+V_AddAvailableResolution: Res 1024 x 768 - 16bpp<br>
+Calculating translucency table...............<br>
+OpenGL: Initialising...<br>
+OpenGL: Version: 1.1.3<br>
+OpenGL: Vendor: NVIDIA Corporation<br>
+OpenGL: Renderer: RIVA TNT2/AGP<br>
+OpenGL: Multitexture extension found.<br>
+OpenGL: Lights: 8  Clippers: 6  Max_tex: 1024<br>
+&nbsp
+<p>
+</font>
+</td></tr>
+</table>
+<p>
+
+The place to look for errors relating to DDF, is up near the top, with the lines that begin <tt>DDF</tt>. If there's an error in a particular file then the error message will appear after the name of the relevant file. Like so
+<p>
+<table BORDER=1 width=95% CELLSPACING=0 CELLPADDING=2 FRAME="box">
+<TR><TD>
+<font size=2>
+<br>
+
+
+DDF_InitWeapons..........WARNING:<br>
+WARNING: Found problem near line 218 of weapons.ddf<br>
+WARNING: occurred in entry: [HORNET]<br>
+WARNING: with line contents: KICK=0.002;<br>
+WARNING: Unknown Attack: PLAYER PISTOLKICK=0.002<br>
+&nbsp
+<p>
+</font>
+</td></tr>
+</table>
+<p>
+
+The warning tells you which file is causing the problem and also which line it is, so that should make it super easy to fix the problem. 
+<p>In this case the problem was caused by a missing <b>;</b> after the line ATTACK=PLAYER_PISTOL.
+
+&nbsp
+<p>
+<font size=+1><b>Common errors</b></font></a>
+<p>
+
+This section includes an historical list of errors that were sent in to Fanatic, and his answers to them. As Fanatic no longer works on EDGE, it's probably best not to send him your errors anymore, but to post them in the forum on the project page of the sourceforge site.
+
+<font size="3"><a name="1">
+<PRE>
+1) Incomplete THINGS.DDF entries can cause EDGE 
+    to instantly reboot your system
+
+    -missing pain frames when the thing has the ability to be hurt
+    -missing death frames when the thing has the ability to die
+    -missing walking frames when the thing has the ability to walk or awaken
+    -missing idle frames
+
+
+2) "Bad states: "&lt;sprite name&gt;"
+	- check for missing duration
+	ex. "TROO:A::NORMAL:NOTHING,"
+                    ^- duration # is missing, ex. "8"
+
+
+3) EDGE crashes from within the game back to DOS with a stack 
+    dump and "Allegro shutting down" message
+	-this would occur as soon as one of your custom sprites is 
+	used in the game, like if you added a new weapon to key 5, hit 
+	key 5 in the game, and then EDGE crashes
+	 -check that your WAD file with custom sprites in it have the entries
+	S_START and S_END instead of SS_START and SS_END
+
+
+4) RANDOM_SPREADER and FIXED_SPREADER won't bounce when they 
+    don't have NOGRAVITY set and have a SPARE_ATTACK of SKULLFLY
+	
+	-it just doesn't work, I tried it too :)
+	-use a SPAWNER or TRIPLE_SPAWNER instead, you won't 
+	get the spread, but you will get the bounce, use multiple things 
+	instead of one thing in the map to get the "spread" effect
+
+
+5) "DDF_ItemGetType: Unknown Type: 'CHAINSAW'"
+	
+	-you don't have an attack called "CHAINSAW" in ATTACKS.DDF
+	-if you look at the last DDF file loaded, it is being called from
+	 "DDF_InitThings", therefore something in THINGS.DDF is calling for it
+	-check your spelling
+	-add the attack if it doesn't exist
+
+
+6) After I added some stuff to my ATTACKS.DDF, it crashes back 
+    to DOS upon loading the ATTACK.DDF file like  this:
+
+	DDF_InitAttacks.................Exiting due to signal SIGSEGV
+	Page fault at eip=000aa540, error=0004
+	eax=0000004f ebx=000bd4c4 ecx=554f5247 edx=001e1800 
+	esi=00000001 edi=0000842c ebp=001b501c esp=001b501c	
+	program=D:\NEWBREED\EDGE.EXE
+	cs: sel=00a7  base=83b6a000  limit=ffcdafff
+	ds: sel=00af  base=83b6a000  limit=ffcdafff
+	es: sel=00af  base=83b6a000  limit=ffcdafff
+	fs: sel=0087  base=00011e30  limit=0000ffff
+	gs: sel=00bf  base=00000000  limit=ffffffff
+	ss: sel=00af  base=83b6a000  limit=ffcdafff
+	Call frame traceback EIPs:
+	0x000aa540
+	0x000086c6
+	0x0000b243
+	0x00008657
+	0x0000c62f
+	0x000056be
+	0x00015268
+	0x000a95f2
+
+	-most likely you've added a non-attack special to your ATTACKS.DDF, 
+	 like "ON_CEILING", which is not a valid "ATTACK_SPECIAL"
+	-if you want something to spawn on the ceiling, use a SPAWNER or
+	TRIPLE_SPAWNER, let the thing calling for it be "ON_CEILING" (like
+	the Pain Elemental attack or death, make a Pain Elements that is on
+	the ceiling and attacks from there)
+
+
+7) "DDF_AtkCheckType: No such attack type 'SSPAWNER'"
+	-check your spelling and make sure you have entered a valid entry to
+	ATTACKS.DDF and "ATTACKTYPE"
+	-in the error above, I spelled "SPAWNER" as "SSPAWNER" causing the
+	error
+
+
+8) When I use one of my new monsters or weapons, I see some odd 
+    shrunken, and semi-transparent sprites offset somewhere on the 
+    screen that doesn't look quite right
+
+	-check that your newly added sprite names are spelled correctly in 
+	your DDF code sections and your WAD file
+	-chances are they are incorrectly spelled in your code or are missing
+	from your WAD file
+
+
+9) My new animated wall textures with names like LFALL_01 won't animate
+
+	-do your texture names have an underscore in them? (LFALL_01)
+	-if yes, use quotes around the names in 
+	ANIMS.DDF (FIRST = "LFALL_01";)
+	-or, rename the textures you want to animate
+	excluding the underscore (LFALL01)
+
+
+10) My textures won't scroll up or down, only left or right
+	
+	-if you have Dosdoom (now EDGE) version 0.653 or less, that's why -it's broken
+	-later versions have this fixed
+
+
+11) I added a new weapon, an Uzi, but when I run it in the game 
+      I get an error from DDF "UZIG frame A is missing rotations"
+
+	-weapon frames can only have a zero direction (same view 
+	from all angles)
+	-check your WAD file and the sprite name
+	-in this case, it's probably UZIGA1 -change it to UZIGA0
+
+
+12) I added a new weapon, an Uzi, and I want a monster to drop it when
+       it dies, but instead it's dropping an Imp
+	
+	-in this case, the dropped item's sprite nane was only 3
+	characters long (M23A0 or UZIA0)
+	-all sprites MUST be 4 characters long (MG23A0 or UZIGA0)
+	-this is something Wintex should check/capture as an error, 
+	but it doesn't, same as running DEUSF -CHECK &lt;WADFILE&gt;,
+	it doesn't catch it either.
+
+
+13) I get an error "unknown command: PUFF"
+	
+	-make sure you have DOS DOOM (now EDGE) version 0.653 or better
+	-the PUFF modification was broken prior to this version
+
+
+14) I added a new sound to my WAD file and THINGS.DDF, but when I 
+      run the game I get "Unknown SFX: 'DEMON1'"
+
+	-this is most likely because you didn't add the sound to SOUND.DDF
+	-did you declare the sound name in SOUNDS.DDF?
+	-did you omit the "DS" (DDF puts that in for you)
+
+
+15) I tried running doom, and it crashes on level 12, when it tries to
+      play the text screen. I get a message like: 
+
+     "DDF Language Lookup - Level12Text not defined"
+
+	-not actually a DDF error, dosdoom 0.65 (now EDGE) had a bug with the level 12 
+	text. Go download the most recent version. 
+
+
+16) I've been playing EDGE, but I don't like how the weapons
+      jump around on the screen. How do I turn this off?
+
+	-you probably have older DDF files which have the string "kick=0.2;"
+	in weapons.ddf. Simply comment out that line as such:
+	// kick=0.2;  It's that easy!
+
+
+17) I've made a custom texture animation, but when I try running it with
+      EDGE, I get a message "bad cycles". If I merge my pwad with
+      the iwad, the problem disappears.
+
+	-not actually a problem with your DDF. The animation frames 
+	in your wad are out of order (e.g TEXTURE2 appears before
+	TEXTURE1) Order your textures properly, and it will work
+	without any problems.	 
+
+
+18) I've removed the chainsaw / punch weapon, and when I run out of ammo, the game crashes.
+      The game also crashes if I try to use IDGIVE1.
+
+	-You should always make sure that there is a weapon in the punch / chainsaw
+	slot. Make sure this weapon doesn't require ammunition (AMMOTYPE=NOAMMO)
+	This appears to be a doom limitation that may be changed in later versions of EDGE.
+
+19) I've removed some sound entries in sounds.ddf. Now EDGE 
+      keeps stopping duirng the load up with an error. 
+
+     - A number of sounds are hardcoded into the EDGE engine, and 
+     should never be removed from your sounds.ddf file as this will 
+     only cause problems.
+<P>
+<B>Hard-coded sounds:</B>
+<P>
+    swtchn, tink, radio, oof, slop, itmbk, pstop, stnmov, pistol, 
+    swtchx, noway, bossit, bospn, bosdth, bospit, telept, 
+    boscub, pldeth, pdiehi, shotgn, barexp, sgcock, jpmove, 
+    jpidle, jprise, jpdown, jpflow
+
+</pre>
+
+
+&nbsp
+<p>
+<font size=+1><b>EDGE Public Forums</b></font></a>
+<p>
+
+The best place to post any unresolved errors you have is at one of the <a href="http://sourceforge.net/forum/?group_id=2232" target=_top>public forums</a>. 
+<p>
+To find out the latest info on edge you can also visit the <a href="http://edge.sourceforge.net/" target=_top>project page</a>.
+
+
+<p>
+
+	
+</font>
+
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

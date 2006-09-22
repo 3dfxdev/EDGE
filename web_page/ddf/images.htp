@@ -1,0 +1,157 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Images">
+
+<block name="content">
+
+<h2 class="page_title"> Images </h2>
+
+<use synopsis file="images.ddf" lump="DDFIMAGE" tag="IMAGES">
+
+
+Images.ddf allows you to define images to be used in the game, and is mainly useful for using PNG and JPG images inside EDGE. Once defined here, you can then use this image in all other DDF definitions.
+<P>
+Each entry describes an "image" and consists of an image type and a name separated by a colon (:), enclosed in square brackets, followed by a series of commands that specify additional properties. 
+
+<p>
+NOTE: When using filenames, directories must be separated by / instead of the \ character which is normally used under Windows.  The reason is because the \ character has a special meaning in DDF: it is the escape character, and "\n" is used to put newlines into DDF strings.
+
+<p>
+<font size=+1><b>Format</b></font></a>
+<p>
+IMAGE_DATA entries have the following format:
+<p>
+<table BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><td>
+<blockquote>
+<br>
+<b> [ENTRY_TYPE:ENTRY_NAME] 
+<br>IMAGE_DATA=[IMAGE TYPE]:[FORMAT]:[IMAGE NAME];</b>
+<p>
+</blockquote>
+</td></tr>
+</table>
+
+&nbsp
+<p>
+Where each command is as follows:
+<p>
+<table BORDER=1  CELLSPACING=0 CELLPADDING=1>
+<tr><th>COMMAND</th><th>DESCRIPTION</th></tr>
+
+<tr><td>[ENTRY_TYPE]</td><td>
+This can be either GFX, SPR, TEX or FLAT depending on whether the image is a graphic, a sprite, a texture or a flat. </td></tr>
+<tr><td>[ENTRY_NAME]</td><td>
+The name can be something entirely new e.g. MYJPG01 or it can replace an existing entry e.g. TITLEPIC. </td></tr>
+
+<tr><td>[IMAGE_TYPE]</td><td>
+This can be either COLOUR, BUILTIN, FILE, or LUMP. The most useful two are FILE for external images and LUMP for internal wad lump images.</td></tr>
+
+<tr><td>[FORMAT]</td><td>
+Only used if the image type is LUMP and must be JPEG or JPG or PNG depending on the image to be used. 
+</td></tr>
+
+<tr><td>[IMAGE_NAME]</td><td>
+In the case of:
+<br>- LUMP and FILE it's the name of the actual file in the wadfile or on the hard drive.
+<br>- COLOUR it's a hexadecimal value to define an RGB colour.
+<br>- BUILTIN it's a type of lighting.</td></tr>
+
+</table>
+
+<p>Here are some examples of IMAGE_DATA entries:
+<br>
+<TABLE border=1>
+<TR>
+	<TD><u>Solid colours</u> 
+	<p>IMAGE_DATA = <b>COLOUR</b>:#FF7F00; <br><br></TD>
+</TR>
+<TR>
+	<TD><u>Built-in (only used to create special images for dynamic lighting and shadows)</u>
+  <p>IMAGE_DATA = <b>BUILTIN</b>:QUADRATIC; <br><br></TD>
+</TR>
+<TR>
+	<TD><u>Internal/External Images</u> 
+	<p>IMAGE_DATA = <b>FILE</b>:"retex/startan3.png"; //External image file
+     <p>IMAGE_DATA = <b>LUMP</b>:[JPEG or JPG or PNG]:"JFLOOR48"; //Internal wad lump
+	</TD>
+</TR>
+</TABLE>
+
+<br>
+&nbsp
+<p>
+<B><FONT SIZE=+1>ADDITIONAL COMMANDS</font></b>
+<p>
+The following is a list of additional commands that are accepted by each image entry:
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TR><TH>COMMAND</TH><TH>TYPE</TH><TH>EXPLANATION</TH></TR>
+
+<TR><TD>X_OFFSET</TD><TD>[integer]</TD><TD>
+The X offset for sprites.</TD></TR>
+
+<TR><TD>Y_OFFSET </TD><TD>[integer]</TD><TD>
+The Y offset for sprites.</TD></TR>
+
+<TR><TD>SCALE</TD><TD>[float]</TD><TD>
+Bigger scale makes the image bigger (cover more space)</TD></TR>
+
+<TR><TD>ASPECT</TD><TD>[float]</TD><TD>
+Bigger aspect makes the image wider (height is unchanged)</TD></TR>
+
+
+<TR><TD>SPECIAL</TD><TD><a href="#special">[special]</a></TD><TD>
+A comma separated list of special flags. See below.</td></tr>
+</table>
+
+&nbsp
+<p><a name="special">
+
+<B><FONT SIZE=+1>SPECIALS</font></b>
+<P>
+These allow some control over the ways the image is used.
+<P>
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TR><TH>SPECIAL</TH><TH>EXPLANATION</TH></TR>
+
+<TR><TD>CROSSHAIR </TD><TD>
+For weapon crosshair sprites: center it on screen</TD></TR>
+
+<TR><TD>FORCE_NOMIP</TD><TD>
+Force mipmapping to be disabled. For internal use only.</TD></TR>
+
+<TR><TD>FORCE_SMOOTH</TD><TD>
+Force smoothing to be enabled. For internal use only.</TD></TR>
+
+<TR><TD>FORCE_CLAMP</TD><TD>
+Force clamping (image cannot repeat). For internal use only.</TD></TR>
+</TABLE>
+&nbsp
+<p>
+<B>Example:</B><br>
+
+The following are examples of complete image entries:
+
+<p>
+<PRE class="ddf">
+// a normal PNG image for the title screen
+[gfx:EDGETTL]
+IMAGE_DATA = LUMP:PNG:"PNG001";
+
+// a JPG image file for a floor tile
+[flat:GRASS2]
+IMAGE_DATA = FILE:"mygrass.jpg";
+
+// solid color for a wall texture
+[tex:STARTAN3]
+IMAGE_DATA = COLOUR:#FF9933;
+</pre>
+
+<p>
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

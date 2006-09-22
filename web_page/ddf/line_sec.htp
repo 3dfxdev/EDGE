@@ -1,0 +1,661 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Lines/Sectors">
+
+<block name="content">
+
+<h2 class="page_title"> Lines &amp; Sectors </h2>
+
+<use synopsis file="lines.ddf"   lump="DDFLINE" tag="LINES">
+<use synopsis file="sectors.ddf" lump="DDFSECT" tag="SECTORS">
+
+
+Much of the line and sector ddf code is related or identical, so their descriptions are 
+combined in this one section.
+<p>
+These files are used to create and modify map effects, such as doors, elevators, platforms etc.
+<p>
+In both lines.ddf and sectors.ddf each entry consists of a unique mapnumber, enclosed in square brackets, followed by a series of commands to define the properties of the line or sector. These numbers are the ones used in your map editor, and for ease they are often grouped together according to their type.
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>WHAT</th><th>COMMAND</th>
+<th>TYPE</th><th>DESCRIPTION</th></tr>
+
+
+<tr><td>L</td><td>ACTIVATE_SOUND</td><td>[sound]</td><td>
+The sound played when when the line is activated.</td></tr>
+
+<tr><td>L</td><td>ACTIVATORS</td><td>[special]</td><td>
+Specifies what can activate the line, in the form of a comma seperated list. Can be either "PLAYER", "MONSTER" or "OTHER"</td></tr>
+
+<tr><td>L,S</td><td>AMBIENT_SOUND</td><td>[sound]</td><td>
+Plays an ambient sound in a sector. (Can be a looping or single
+sound).  You don't necessarily have to be inside the sector to hear
+the sound.</td></tr>
+
+<tr><td>L</td><td>AUTO</td><td>[boolean]</td><td>
+Triggers this line automatically at level start.  This line must be
+pushable.</td></tr>
+
+<tr><td>L,S</td><td>CEILING.DEST_OFFSET</td><td>[float]</td><td>
+Specifies an offset to where the fixed ceiling moves to. This number
+will be added to CEILING_DESTREF to get the end height.</td></tr>
+
+<tr><td>L,S</td><td>CEILING.DEST_REF</td><td>[special]</td><td>
+Specifies where the ceiling moves to. E.g CEILING, NEXTNEIGHBOUR etc. See the list of possible <a href="#ref">DEST_REF</a>'s below.</td></tr>
+
+<tr><td>L,S</td><td>CEILING.OTHER_OFFSET</td><td>[float]</td><td>
+For PLAT and CONTINUOUS ceiling types. If specified, this offset is used to modify the return position. I.e. The ceiling can start at one position, but when set in motion it can move between 2 different positions.
+ </td></tr>
+
+<tr><td>L,S</td><td>CEILING.OTHER_REF</td><td>[float]</td><td>
+For PLAT and CONTINUOUS ceiling types, Specifies the return position of the ceiling as a <a href="#ref">DEST_REF</a>.
+ </td></tr>
+
+<tr><td>L,S</td><td>CEILING.PAUSE_TIME</td><td>[time]</td><td>
+Specifies the time that MOVEWAITRETURN and CONTINUOUS ceilings wait
+between moves.</td></tr>
+
+<tr><td>S</td><td>CEILING.SCROLL_ANGLE</td><td>[float]</td><td>
+The direction that the ceiling texture will scroll. 0 for East, 90 for
+North, 180 for West, 270 for South, etc..</td></tr>
+
+<tr><td>S</td><td>CEILING.SCROLL_SPEED</td><td>[float]</td><td>
+The speed that the ceiling texture scrolls at. 0 means no scrolling,
+higher values are faster, and 32.0 means one pixel per tic.
+</td></tr>
+
+<tr><td>L,S</td><td>CEILING.SFX_DOWN</td><td>[sound]</td><td>
+The sound to make while the ceiling is moving down. Should be a looping
+sound.</td></tr>
+
+<tr><td>L,S</td><td>CEILING.SFX_START</td><td>[sound]</td><td>
+The sound to make when the ceiling starts moving.</td></tr>
+
+<tr><td>L,S</td><td>CEILING.SFX_STOP</td><td>[sound]</td><td>
+The sound to make when the ceiling stops moving. </td></tr>
+
+<tr><td>L,S</td><td>CEILING.SFX_UP</td><td>[sound]</td><td>
+The sound to make while the ceiling is moving up, should be a looping sound.</td></tr>
+
+<tr><td>L,S</td><td>CEILING.SPEED_DOWN</td><td>[float]</td><td>
+Specifies how fast the ceiling moves down (see above).</td></tr>
+
+<tr><td>L,S</td><td>CEILING.SPEED_UP</td><td>[float]</td><td>
+Specifies how fast the ceiling moves up. Floors normally move at 1 unit
+per tic, plats move at 4 units per tic. Fractional values are allowed,
+e.g. 0.1 for an ultra-slow mover. </td></tr>
+
+<tr><td>L,S</td><td>CEILING.TEXTURE</td><td>[string]</td><td>
+Specifies what texture to change the ceiling to. This can either be specified as a texture from a wadfile or as one of the following special referances "-" or "+". E.g. if CEILING.TEXTURE is "-" the ceiling texture will change to a surrounding sector's ceiling texture, ori f it is "+" the ceiling texture will change to the sector on
+the front side of the activating line's ceiling texture.</td></tr>
+
+<tr><td>L,S</td><td>CEILING.TYPE</A></td><td>[special]</td><td>
+Specifies how the ceiling moves. See the list of <A HREF="#floor_type">ceiling types</a> below.</td></tr>
+
+<tr><td>L,S</td><td>CEILING.WAIT_TIME</td><td>[time]</td><td>
+The time to wait before ceiling begins moving at all.</td></tr>
+
+<tr><td>L</td><td>COUNT</td><td>[integer]</td><td>
+The number of times this line can be activated (-1 is infinite).</td></tr>
+
+<tr><td>L,S</td><td>CRUSH</td><td>[boolean]</td><td>
+If TRUE then sector movement will crush and kill creatures. If FALSE
+then sector will return instead of crushing.</td></tr>
+
+
+<tr><td>S</td><td>DAMAGE.DEATH_STATE</td><td>[state]</td><td>What STATES to use if something dies from this sectors damage. E.g. CRUSHDEATH</td></tr>
+
+<tr><td>S</td><td>DAMAGE.DELAY</td><td>[tics]</td><td>How often creatures take damage from this sector.</td></tr>
+
+<tr><td>S</td><td>DAMAGE.PAIN_STATE</td><td>[state]</td><td>What STATES to use if something is in pain because of damage from this sector. E.g. ACIDPAIN</td></tr>
+
+<tr><td>S</td><td>DAMAGE.VAL</td><td>[float]</td><td>Simple damage dealt by this sector.</td></tr>
+
+<tr><td>L,S</td><td>DONUT</td><td>[boolean]</td><td>
+Command to keep compatibility with DOOM. Centre moves down, outside
+loop moves up and changes texture.</td></tr>
+
+<tr><td>L,S</td><td>DONUT_IN_SFX</td><td>[sound]</td><td>
+The sound to make while the central pillar is moving.</td></tr>
+
+<tr><td>L,S</td><td>DONUT_OUT_SFX</td><td>[sound]</td><td>
+The sound to make while the outside loop is moving.</td></tr>
+
+<tr><td>S</td><td>DRAG</td><td>[float]</td><td>Speciifies the amount of drag there is in this sector, when a player is moving without being in contact with the ground. 1 is normal</td></tr>
+
+<tr><td>L,S</td><td>EXIT</td><td>[special]</td><td>
+Activating this line exits the level. Can be "EXIT" for a normal exit
+or "SECRET" to exit to the secret level.</td></tr>
+
+<tr><td>L,S</td><td>EXTRAFLOOR_TRANSLUCENCY</td><td>[float]</td><td>
+Number between 0 and 1 (0 is fully see through, 1 is fully
+opaque). (?? May be depricated ??).</td></tr>
+
+<tr><td>L</td><td>EXTRAFLOOR_TYPE</a></td><td>[special]</td><td>
+Adds an extra floor to the tagged sector(s). See the list of <a href="#extrafloor">extrafloor types</a> below.</td></tr>
+
+<tr><td>L</td><td>FAILED_MESSAGE</td><td>[special]</td><td>message to print when a player fails to activate an object. Refers to entry in languages.ddf</td></tr>
+
+<tr><td>L,S</td><td>FLOOR.DEST_OFFSET</td><td>[float]</td><td>
+Specifies an offset to where the fixed floor moves to. This value will modify the destination specified in DEST_REF. </td></tr>
+
+<tr><td>L,S</td><td>FLOOR.DEST_REF</td><td>[special]</td><td>
+Specifies where the floor moves to. E.g CEILING, NEXTNEIGHBOUR etc. See the list of possible <a href="#ref">DEST_REF</a>'s below.</td></tr>
+
+<tr><td>L,S</td><td>FLOOR.OTHER_OFFSET</td><td>[float]</td><td>
+For PLAT and CONTINUOUS floor types. If specified, this offset is used to modify the return position. I.e. The platform can start at one position, but when set in motion it can move between 2 different positions.
+ </td></tr>
+
+<tr><td>L,S</td><td>FLOOR.OTHER_REF</td><td>[float]</td><td>
+For PLAT and CONTINUOUS floor types, Specifies the return position of the floor as a <a href="#ref">DEST_REF</a>.
+ </td></tr>
+
+<tr><td>L,S</td><td>FLOOR.PAUSE_TIME</td><td>[time]</td><td>
+Specifies the time that MOVEWAITRETURN and CONTINUOUS floors wait
+between moves.</td></tr>
+
+<tr><td>S</td><td>FLOOR.SCROLL_ANGLE</td><td>[float]</td><td>
+The direction that the floor texture will scroll. 0 for East, 90 for
+North, 180 for West, 270 for South, etc..</td></tr>
+
+<tr><td>S</td><td>FLOOR.SCROLL_SPEED</td><td>[float]</td><td>
+The speed that the floor texture scrolls at. 0 means no scrolling,
+higher values are faster, and 32.0 means one pixel per tic.
+</td></tr>
+
+<tr><td>L,S</td><td>FLOOR.SFX_DOWN</td><td>[sound]</td><td>
+The sound to make while the floor is moving down. Should be a looping
+sound.</td></tr>
+
+<tr><td>L,S</td><td>FLOOR.SFX_START</td><td>[sound]</td><td>
+The sound to make when the floor starts moving.</td></tr>
+
+<tr><td>L,S</td><td>FLOOR.SFX_STOP</td><td>[sound]</td><td>
+The sound to make when the floor stops moving. </td></tr>
+
+<tr><td>L,S</td><td>FLOOR.SFX_UP</td><td>[sound]</td><td>
+The sound to make while the floor is moving up, should be a looping sound.</td></tr>
+
+<tr><td>L,S</td><td>FLOOR.SPEED_DOWN</td><td>[float]</td><td>
+Specifies how fast the floor moves down (see above).</td></tr>
+
+<tr><td>L,S</td><td>FLOOR.SPEED_UP</td><td>[float]</td><td>
+Specifies how fast the floor moves up. Floors normally move at 1 unit
+per tic, plats move at 4 units per tic. Fractional values are allowed,
+e.g. 0.1 for an ultra-slow mover. </td></tr>
+
+<tr><td>L,S</td><td>FLOOR.TEXTURE</td><td>[string]</td><td>
+Specifies what texture to change the floor to. This can either be specified as a texture from a wadfile or as one of the following special referances "-" or "+". E.g. if FLOOR.TEXTURE is "-" the floor texture will change to a surrounding sector's floor texture, ori f it is "+" the floor texture will change to the sector on the front side of the activating line's floor texture.</td></tr>
+
+<tr><td>L,S</td><td>FLOOR.TYPE</td><td>[special]</td><td>
+Specifies how the floor moves. See the list of <A HREF="#floor_type">floor types</a> below.</td></tr>
+
+<tr><td>L,S</td><td>FLOOR.WAIT_TIME</td><td>[time]</td><td>
+The time to wait before floor begins moving at all.</td></tr>
+
+<tr><td>S</td><td>FRICTION</td><td>[float]</td><td>Speciifies the amount of friction there is to moving through this sector. 1 is normal. Less than this and you slide like crazy, more than this and you get bogged.</td></tr>
+
+<tr><td>S</td><td>GRAVITY</td><td>[float]</td><td>Speciifies the level of gravity there is in this sector. 1 is normal however 0.5 allows swimming.</td></tr>
+
+<tr><td>L</td><td>KEYS</td><td>[special]</td><td>
+This linedef requires one or more keys to operate, specified in a comma seperated list. See the list of <a href="#keys">keys</a> below for what can be included here. If a + prefixes the key then that key is required, eg BLUE_CARD, BLUE_SKULL is blue keycard OR blue skull,but +BLUE_CARD, +BLUE_SKULL is blue keycard AND blue skullkey.</td></tr>
+
+<tr><td>L</td><td>LADDER</td><td>[float]</td><td>Turns the linedef into a climbable ladder with the height specified.</td></tr>
+
+<tr><td>L,S</td><td>LIGHT_BRIGHT_TIME</td><td>[time]</td><td>
+Specifies how long the light is bright/gets bright for. (can also use LIGHT_BRIGHTTIME). Only really useful if LIGHT_DARK_TIME is also used.</td></tr>
+
+<tr><td>S</td><td>LIGHT_CHANCE</td><td>[percentage]</td><td>
+The chance that the lights will change if type is set to FLASH. This check is made at the end of each period of LIGHT_TIME. Needs both LIGHT_BRIGHT_TIME and LIGHT_DARK_TIME to be specified to work properly.</td></tr>
+
+<tr><td>L,S</td><td>LIGHT_DARK_TIME</td><td>[time]</td><td>
+Specifies how long the light is dark/gets dark for. (can also use LIGHT_DARKTIME) Only really useful if LIGHT_BRIGHT_TIME is also used.</td></tr>
+
+<tr><td>L,S</td><td>LIGHT_LEVEL</td><td>[integer]</td><td>
+Specifies the lighting level to change to.</td></tr>
+
+<tr><td>L,S</td><td>LIGHT_SYNC</td><td>[time]</td><td>
+The period of gametime to syncronise changes in lighting to. With a value of 2, the light will start glowing/flashing when the level time is a multiple of two seconds.</td></tr>
+
+<tr><td>L,S</td><td>LIGHT_TYPE</td><td>[special]</td><td>
+Specifies what type of light it is. Options are GLOW, FLASH, FLICKER, SET or STROBE</td></tr>
+
+<tr><td>L</td><td>LINE_EFFECT</td><td>[special]</td><td>
+Specifies the type of line to line effect to use. Primarily for Boom compatability. Options are TRANSLUCENT, VECTOR_SCROLL, OFFSET_SCROLL, SCALE_TEX, SKEW_TEX, LIGHT_WALL, UNBLOCK_THINGS, BLOCK_SHOTS and BLOCK_SIGHT. A comma seperated list can be used to specify multiple effects.</td></tr>
+
+<tr><td>L</td><td>MUSIC</td><td>[music]</td><td>
+When this line is activated, the current music changes to that of the playlist entry specified.</td></tr>
+
+<tr><td>L</td><td>NEWTRIGGER</td><td>[integer]</td><td>
+Once this linetype has been activited it changes to the type specified by the NEWTRIGGER command. This is so you can do things like a switch you push once to turn on, push again to turn off.</td></tr>
+
+<tr><td>S</td><td>PUSH_ANGLE</td><td>[float]</td><td>The direction that objects are pushed while in this sector. 0 is East, 90 is north and so on.</td></tr>
+
+<tr><td>S</td><td>PUSH_SPEED</td><td>[float]</td><td>The speed with which objects are pushed.</td></tr>
+
+<tr><td>S</td><td>PUSH_ZSPEED</td><td>[float]</td><td>The vertical direction that objects are pushed while in this sector. 0&nbsp;is&nbsp;normal, >&nbsp;0&nbsp;is&nbsp;upwards.</td></tr>
+
+<tr><td>L</td><td>RADIUS_TRIGGER</td><td>[special]</td><td>
+Used to provide a link between linedefs and radius trigger scipt effects. Values are 'ENABLE_TAGGED' or 'DISABLE_TAGGED'.  When a such linedef with a tag of 17, is activated (via shoot, push or walk), all radius triggers with the tag number of 17 would either be enabled or disabled as appropriate.</td></tr>
+
+<tr><td>L</td><td>SCROLL_PARTS</td><td>[special]</td><td>
+Specifies the texture parts to scroll. Values can be LEFT, LEFT_UPPER, LEFT_MIDDLE, LEFT_LOWER, RIGHT, RIGHT_UPPER, RIGHT_MIDDLE, and RIGHT_LOWER . A comma seperated list can be used to specify multiple scroll parts.</td></tr>
+
+<tr><td>L,S</td><td>SCROLL_XSPEED <br> SCROLL_YSPEED</td><td>[float]</td><td>
+Specifies the exact direction that the texture should scroll, e.g
+<br><br>
+scroll fast down & slowly left<br>
+SCROLL_XSPEED =  0.5;<br>
+SCROLL_YSPEED = -3.0;<br>
+<br>
+scroll fast down & slowly right<br>
+SCROLL_XSPEED = -0.5;<br>
+SCROLL_YSPEED = -3.0;<br>
+</td></tr>
+
+<tr><td>L</td><td>SCROLL</td><td>[special]</td><td>
+Specifies which directions to scroll the wall texture. These can be UP,
+DOWN, LEFT or RIGHT. You can specify more than one direction by
+using a comma seperated list, eg SCROLL=LEFT,RIGHT; </td></tr>
+
+<tr><td>L</td><td>SCROLLING_SPEED</td><td>[float]</td><td>
+How fast the wall scrolls. (Normal value is 1).</td></tr>
+
+<tr><td>S</td><td>SECRET</td><td>[boolean]</td><td>
+This sector is counted as part of the level's secret percentage.</td></tr>
+
+<tr><td>L</td><td>SECSPECIAL</td><td>[float]</td><td>
+Refers to a sector special in sectors.ddf.</td></tr>
+
+<tr><td>L</td><td>SECTOR_EFFECT</td><td>[special]</td><td>
+Specifies the type of line to sector effect to use. Primarily for Boom compatability. Options are LIGHT_CEILING, LIGHT_FLOOR, PUSH_THINGS, SCROLL_CEILING, SCROLL_FLOOR, RESET FLOOR, RESET CEILING, ALIGN FLOOR, ALIGN CEILING, SCALE FLOOR and SCALE CEILING. A comma seperated list can be used to specify multiple effects.</td></tr>
+
+<tr><td>L</td><td>SINGLESIDED</td><td>[boolean]</td><td>
+Single sided lines can only be activated from the front. (Usually used to allow player to exit from a teleporter).</td></tr>
+
+<tr><td>L</td><td>SLIDER.DISTANCE</td><td>[float]</td><td>
+How far the slider opens, specified as a percentage of the total line length.</td></tr>
+
+<tr><td>L</td><td>SLIDER.PAUSE_TIME</td><td>[time]</td><td>
+The length of time the slider should remain open, before closing again
+</td></tr>
+
+<tr><td>L</td><td>SLIDER.SEE_THROUGH</td><td>[boolean]</td><td>
+Denotes whether the slider is see-through or not. If so, then monsters line of sight will not be blocked by this line.</td></tr>
+
+<tr><td>L</td><td>SLIDER.SFX_CLOSE</td><td>[sound]</td><td>
+The sound to play while the slider is closing.</td></tr>
+
+<tr><td>L</td><td>SLIDER.SFX_OPEN</td><td>[sound]</td><td>
+The sound to play while the slider is opening.</td></tr>
+
+<tr><td>L</td><td>SLIDER.SFX_START</td><td>[sound]</td><td>
+The sound to play when the slider starts moving.</td></tr>
+
+<tr><td>L</td><td>SLIDER.SFX_STOP</td><td>[sound]</td><td>
+The sound to play when the slider stops moving.</td></tr>
+
+<tr><td>L</td><td>SLIDER.SPEED</td><td>[float]</td><td>
+How fast the slider moves when it opens and closes. Specified in distance per tics.</td></tr>
+
+<tr><td>L</td><td>SLIDER.TYPE</td><td>[special]</td><td>
+Specifies where the slider opens from. Can be either LEFT, RIGHT or CENTER.</td></tr>
+
+<tr><td>L</td><td>SPECIAL</td><td>[special]</td><td>
+<A HREF="#linespecial">Special</a> tags for lines.</td></tr>
+
+<tr><td>S</td><td>SPECIAL</td><td>[special]</td><td>
+<A HREF="#sectorspecial">Special</a> tags for sectors.</td></tr>
+
+<tr><td>L</td><td>TELEIN_EFFECTOBJ</td><td>[string]</td><td>
+The object to make where the object teleported from. The object will
+enter its CHASE states (if they exist) to make the flash effect.
+</td></tr>
+
+<tr><td>L</td><td>TELEOUT_EFFECTOBJ</td><td>[string]</td><td>
+The object where the object will land. This object must exist in the
+destination sector (and there should be only one). The object will
+enter its CHASE states (e.g. to make a flash effect).</td></tr>
+
+<tr><td>L</td><td>TELEPORT_DELAY</td><td>[time]</td><td>
+The time before an object can start moving again after being
+teleported.</td></tr>
+
+<tr><td>L</td><td>TELEPORT_SPECIAL</td><td>[special]</td><td>
+<A HREF="#teleport_special">Special</a> tags for teleport.</td></tr>
+
+<tr><td>L</td><td>TELEPORT</td><td>[boolean]</td><td>
+Teleport the activating thing to the tagged sector.</td></tr>
+
+<tr><td>L,S</td><td>TRANSLUCENCY</td><td>[float]</td><td>
+Specifies how translucent the mid-masked texture on this linedef will be.</td></tr>
+
+<tr><td>L</td><td>TYPE</td><td>[special]</td><td>
+Specifies how the line is activated. Can be either "WALK", "PUSH" or
+"SHOOT".</td></tr>
+
+<tr><td>L,S</td><td>USE_COLOURMAP</td><td>[colourmap]</td><td>
+Specifies which colourmap to use for lighting in this sector, or extrafloor sectors taggged to this line. </td></tr>
+
+<tr><td>S</td><td>VISCOSITY</td><td>[float]</td><td>
+Specifies the sector's viscosity. 1.0 is normal, 0.5 slows you down to half speed, 2.0 makes you move twice as fast.</td></tr>
+
+<tr><td>L,S</td><td>WHEN_APPEAR</td><td>[special]</td><td>
+Used to enable or disable a particlar property of a lindef or sector depending on the game options currently being used. Format is identical to RTS usage e.g WHEN_APPEAR=1:2:3:4:5:sp:coop:dm means that the line or sector will work in single player, coop or dm and across all skill levels. </td></tr>
+</TABLE>
+&nbsp
+<p>
+
+
+<p>
+<A NAME="floor_type"><FONT SIZE=+1><b>FLOOR.TYPE and CEILING.TYPEs</b></FONT></A>
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>TYPE</th><th>DESCRIPTION</th></tr>
+
+
+<tr><td>BUILDSTAIRS</td><td>
+Builds a staircase of step height DEST_OFFSET.</td></tr>
+
+<tr><td>CONTINUOUS</td><td>
+The floor/ceiling will move repeatedly between it's destination and
+it's starting position. If specified, it will pause for PAUSE_TIME at each position.</td></tr>
+
+<tr><td>MOVE</td><td>
+The floor/ceiling will move to the destination and stop.</td></tr>
+
+<tr><td>MOVEWAITRETURN</td><td>
+The floor/ceiling will move to the destination, wait for PAUSE_TIME
+then return to it's starting position.</td></tr>
+
+<tr><td>PLAT</td><td>
+The floor/ceiling will move to the destination, wait for PAUSE_TIME
+then return to it's starting position for PAUSE_TIME before moving again.</td></tr>
+
+<tr><td>STOP</td><td>
+Stops a continuous floor/ceiling from moving.</td></tr>
+</TABLE>
+&nbsp
+<p>
+<A NAME="ref"><FONT SIZE=+1><b>DEST_REFs</b></FONT></A>
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=1>
+<tr><th>DEST REF</th><th>DESCRIPTION</th></tr>
+
+<tr><td>ABSOLUTE</td><td>
+Moves to the exact position specified by DEST_OFFSET.</td></tr>
+
+<tr><td>CEILING</td><td>
+The sector's current ceiling height.</td></tr>
+
+<tr><td>FLOOR</td><td>
+The sector's current floor height.</td></tr>
+
+<tr><td>HISURROUNDINGCEILING</td><td>
+The highest surrounding ceiling height.</td></tr>
+
+<tr><td>HISURROUNDINGFLOOR</td><td>
+The highest surrounding floor.</td></tr>
+
+<tr><td>LOSURROUNDINGCEILING</td><td>
+The lowest surrounding ceiling height.</td></tr>
+
+<tr><td>LOSURROUNDINGFLOOR</td><td>
+The lowest surrounding floor.</td></tr>
+
+<tr><td>LOWESTBOTTOMTEXTURE</td><td>
+Aligns with the shortest bottom texture surrounding.</td></tr>
+
+<tr><td>NEXTLOWESTFLOOR</td><td>
+The floor surrounding that is next lowest.</td></tr>
+
+<tr><td>NEXTHIGHESTFLOOR</td><td>
+The floor surrounding that is next highest.</td></tr>
+
+<tr><td>NEXTLOWESTCEILING</td><td>
+The ceiling surrounding that is next lowest.</td></tr>
+
+<tr><td>NEXTHIGHESTCEILING</td><td>
+The ceiling surrounding that is next highest.</td></tr>
+
+</TABLE>
+&nbsp
+<p>
+<A NAME="light_types"><FONT SIZE=+1><b>LIGHT_TYPEs</b></FONT></A>
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>LIGHT TYPE</th><th>DESCRIPTION</th></tr>
+
+<tr><td>FLASH</td><td>
+Light alternates ramdomly between light and dark according to
+LIGHT_PROBABILITY, LIGHT_BRIGHT_TIME, and LIGHT_DARK_TIME.</td></tr>
+
+<tr><td>FLICKER</td><td>
+The light will flicker randomly (like fire).</td></tr>
+
+<tr><td>GLOW</td><td>
+The light will smoothly alternate between light and dark.</td></tr>
+
+<tr><td>SET</td><td>
+The light will be set instantly.</td></tr>
+
+<tr><td>STROBE</td><td>
+Light alternates between light and dark according to LIGHT_BRIGHT_TIME
+and LIGHT_DARK_TIME.</td></tr>
+
+</TABLE>
+&nbsp
+<p>
+<A NAME="teleport_special"><FONT SIZE=+1><b>TELEPORT_SPECIAL</b></FONT></A>
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>SPECIAL</th><th>DESCRIPTION</th></tr>
+
+<tr><td>SAME_HEIGHT</td><td>
+Keep the same floor-relative height that you entered the teleporter
+with.</td></tr>
+
+<tr><td>SAME_OFFSET</td><td>
+Keep the same centre-of-line-relative offset (between the teleporter
+line and the landing site).</td></tr>
+
+<tr><td>SAME_SPEED</td><td>
+Keep the original speed that you entered the teleporter with.</td></tr>
+
+<tr><td>ALL_SAME</td><td>
+Just a shorthand for all of the above. </td></tr>
+
+<tr><td>LINE</td><td>
+Line-to-line teleporting (target is a linedef with same tag
+as the teleport linedef).</td></tr>
+
+<tr><td>FLIPPED</td><td>
+Your direction after teleporting is flipped 180 degrees.</td></tr>
+
+<tr><td>SILENT</td><td>
+No fog, no noise.</td></tr>
+
+<tr><td>RELATIVE</td><td>
+Affects the angle you face after teleporting. It maintains the relative angle difference
+between the source linedef and the target linedef.</td></tr>
+
+</TABLE>
+&nbsp
+<p>
+<A NAME="linespecial"><FONT SIZE=+1><b>LINE SPECIALS</b></FONT></A>
+<p>
+The following can be used with the SPECIAL commmand in lines.ddf
+<p>
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>SPECIAL</th>
+<th>DESCRIPTION</th></tr>
+
+<tr><td>MUST_REACH</td><td>
+The Linedef for a switch must be vertically reachable by the player,
+otherwise it cannot be activated.  Only works if you indent the switch
+in a niche (the engine has no concept of the switch image on the
+texture).</td></tr>
+
+<tr><td>SWITCH_SEPARATE</td><td>
+The switch will only change the texture on the pushed linedef, and not
+all the other linedefs with the same tag.</td></tr>
+</table>
+&nbsp
+<p>
+<A NAME="sectorspecial"><FONT SIZE=+1><b>SECTOR SPECIALS</b></FONT></A>
+<p>
+The following can be used with the SPECIAL commmand in sectors.ddf
+<p>
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>SPECIAL</th>
+<th>DESCRIPTION</th></tr>
+
+<tr><td>AIRLESS</td><td>Enables airless mode in this sector. When a player is fully submerged in a sector with this special, the air meter appears in the corner of the HUD, which indicates how much air the player has left.
+</td></tr>
+
+<tr><td>PROPORTIONAL</td><td>
+Use with WHOLE_REGION, and when you're vertically half-in/half-out of
+the damaging sector, then damage is only 50%, and so on.</td></tr>
+
+<tr><td>PUSH_ALL</td><td>
+Makes sure <B>all</B> objects are pushed, including NOGRAVITY ones.</td></tr>
+
+<tr><td>PUSH_CONSTANT</td><td>
+The push is a constant amount.  Good for conveyor belts.  Without this flag the push is like a force and things with more MASS will move slower..</td></tr>
+
+<tr><td>SWIM</td><td>
+Activates swimming mode when a player is in a sector assigned this special. This allows up and down movement in the sector, plus forward motion in the mlook directon. Jump also works differently. For this to work well, the sector should have a lower GRAVITY than normal and have similar FRICTION and DRAG values. VISCOSITY could also be used.</td></tr>
+
+<tr><td>WHOLE_REGION</td><td>
+Makes damage apply to the whole sector (and not just when you're
+standing on the floor). Also affects pushing sectors: without this flag the push only happens when the object is touching the floor</td></tr>
+
+</table>
+&nbsp
+<p>
+<A NAME="extrafloor"><FONT SIZE=+1><b>EXTRAFLOOR</b></FONT></A>
+<p>
+<p>
+The following are the different types of extrafloor that can be used.
+<p>
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>SPECIAL</th><th>DESCRIPTION</th></tr>
+
+<tr><td>BOOMTEX</td><td>
+Use BOOM's texture model (where the real sector's flats are used for
+the upper part, and the control sector's flats are used for the lower
+part). Normally the real flats are used for the lowest floor & highest
+ceiling, and the control flats are used for the extra floor & any
+ceiling underneath it.</td></tr>
+
+<tr><td>FLOODER</td><td>
+Such an extrafloor will "flood" all vertical regions below it with
+the same sector properties.  Useful for liquids that raise/lower past
+other extra floors.</td></tr>
+
+<tr><td>LIQUID</td><td>
+Defines a liquid extrafloor, which is not solid and can be passed
+through (by players, monsters, missiles and other objects).  Normally
+it is thin (just a surface, like the surface of water or lava), but
+can be used with the THICK keyword too.</td></tr>
+
+<tr><td>SEE_THROUGH</td><td>
+Use this to make a translucent extrafloor (even one that is totally
+invisible). </td></tr>
+
+<tr><td>SHOOT_THROUGH</td><td>
+Specifies that bullets can pass through this extrafloor. (Always true
+for when LIQUID is used).
+</td></tr>
+
+<tr><td>SIDE_UPPER<br>SIDE_LOWER</td><td>
+Extrafloors usually take the side texture from the tagged line of the
+dummy sector. Instead, this makes it use the upper/lower texture from
+the line where the extrafloor appears. Useful if the textures on the
+extrafloor's side need to change often.</td></tr>
+
+<tr><td>THICK</td><td>
+Defines a thick solid extrafloor, which has a top, bottom and sides.
+</td></tr>
+
+<tr><td>THIN</td><td>
+Defines a thin solid extrafloor - it is just a surface (a single
+plane, with no sides).  This is the default.</td></tr>
+
+<tr><td>WATER</td><td>
+Objects tagged WATERWALKER cannot penetrate extrafloors tagged as
+WATER. (Can be used to keep creatures like fish under
+water).</td></tr>
+
+</TABLE>
+&nbsp
+
+<p>
+<A NAME="keys"><FONT SIZE=+1><b>KEYS</b></FONT></A>
+<p>
+
+The following key types can be used in EDGE.
+<p>
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>TYPE</th><th>DESCRIPTION</th></tr>
+
+<tr><td>RED_CARD</td><td>
+Red keycard.</td></tr>
+
+<tr><td>BLUE_CARD</td><td>
+Blue keycard.</td></tr>
+
+<tr><td>YELLOW_CARD</td><td>
+Yellow keycard.</td></tr>
+
+<tr><td>RED_SKULL</td><td>
+Red skull key.</td></tr>
+
+<tr><td>BLUE_SKULL</td><td>
+Blue skull key.</td></tr>
+
+<tr><td>YELLOW_SKULL</td><td>
+Yellow skull key.</td></tr>
+
+<tr><td>GREEN_CARD</td><td>
+Green keycard.</td></tr>
+
+<tr><td>GREEN_SKULL</td><td>
+Green skull key.</td></tr>
+
+<tr><td>GOLD_KEY</td><td>
+Gold key.</td></tr>
+
+<tr><td>SILVER_KEY</td><td>
+Silver key.</td></tr>
+
+<tr><td>BRASS_KEY</td><td>
+Brass key.</td></tr>
+
+<tr><td>COPPER_KEY</td><td>
+Copper key.</td></tr>
+
+<tr><td>STEEL_KEY</td><td>
+Steel key.</td></tr>
+
+<tr><td>WOODEN_KEY</td><td>
+Wooden key.</td></tr>
+
+<tr><td>FIRE_KEY </td><td>
+Fire key.</td></tr>
+
+<tr><td>WATER_KEY</td><td>
+Water key.</td></tr>
+</TABLE>
+
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">
