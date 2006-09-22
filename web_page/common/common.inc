@@ -35,20 +35,19 @@
   ==============
   file  : filename of DDF file
   lump  : WAD lump name
+  tag   : tag name
 --->
 
 <block synopsis>
-  <div>
-    <table class="synopsis">
-	  <tr>
-	    <td>Filename:</td> <td><use file></td>
-	  </tr>
-	  <tr>
-	    <td>WAD lump:</td> <td><use lump></td>
-	  </tr>
-    </table>
-  </div>
-  <p>
+
+<div>
+<pre class="synopsis">
+Filename : <use file>
+Wad lump : <use lump>
+Data tag : &lt;<use tag>&gt;
+</pre>
+</div>
+
 </block>
 
 
