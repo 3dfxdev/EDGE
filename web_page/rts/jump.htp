@@ -19,7 +19,7 @@ where you want to have a chance of going to another point, LABEL.
 <p>
 <B>Details:</B><br>
 &lt;Label name&gt; is the point in your script you want to jump
-to. (See the LABEL command)
+to.
 
 <p>
 [Jump Chance] is a percentage value which represents the
@@ -27,6 +27,10 @@ likelyhood of the jump taking place. A value of 0% would mean
 that it would never jump to the Label, and 100% would mean it
 would always jump. If no [Jump Chance] is specified then it will
 always Jump.
+
+<p>
+<B>See Also:</B><br>
+<a class="rts" HREF="label.htm">LABEL</a>
 
 <p>
 <B>Example:</B><br>

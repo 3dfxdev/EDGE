@@ -23,6 +23,11 @@ Most useful used at the bottom of a TAGGED_REPEATABLE sleep-less
 script (for example a repeatable trigger script which uses SHOW_MENU).
 
 <p>
+<B>See Also:</B><br>
+<a class="rts" HREF="tagged_independent.htm">TAGGED_INDEPENDENT</a>
+in the <I>Properties</I> section.
+
+<p>
 
 </block>
 

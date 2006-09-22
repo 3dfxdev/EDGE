@@ -38,7 +38,7 @@ Use this to change textures.
   interchangeable).
 
 <p>
-&lt;line tag&gt; is the line (or sector) tag in your map editor.
+&lt;map tag&gt; is the line or sector tag in your map editor.
 
 <p>
 Useful mostly for special events, like making the sky

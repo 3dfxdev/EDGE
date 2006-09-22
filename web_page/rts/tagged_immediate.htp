@@ -23,15 +23,19 @@ then it still waits for them.
 
 <p>
 <B>Details:</B><br>
-TAGGED_IMMEDIATE has the same effect as using "0&nbsp;0&nbsp;-1"
-on the RADIUS_TRIGGER line. It can be useful, though, when you
-want to make the trigger cover a certain part of the map, e.g.
-to damage all the monsters in that area, but you don't want
-the trigger to wait for the player to enter that area.
+Useful when you want the trigger to cover a certain part
+of the map (for example, to damage all the monsters in that area)
+but you don't want the trigger to wait for the player
+to enter that area.
 
 <p>
 Immediate trigger scripts are also useful for setting things up
 on the map, e.g. spawning monsters or items on top of an extrafloor. 
+
+<p>
+TIP: you don't need to use TAGGED_IMMEDIATE in a script which
+begins with "RADIUS_TRIGGER 0 0 -1". They both mean the same
+thing, basically "ignore where the player is".
 
 <p>
 

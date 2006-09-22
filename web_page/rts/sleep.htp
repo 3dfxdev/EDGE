@@ -17,8 +17,12 @@ This command causes the trigger to be disabled.
 The script will not run again until another script enables
 it (with the ENABLE_SCRIPT or ENABLE_TAGGED commands).
 You can also enable scripts with certain line-types
-and with the RTS_ENABLE_TAGGED action in a custom DDF
-thing or weapon.
+on the map, and with the RTS_ENABLE_TAGGED action
+in a custom DDF thing or weapon.
+
+<p>
+<B>See Also:</B><br>
+<a class="rts" HREF="enable_script.htm">ENABLE_SCRIPT</a>
 
 <p>
 <B>Example:</B><br>
