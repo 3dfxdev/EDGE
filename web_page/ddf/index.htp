@@ -1,0 +1,38 @@
+<file include="../common/common.inc">
+
+<set title="DDF: What is DDF">
+
+<block name="content">
+
+<h2 class="page_title"> What is DDF </h2>
+
+DDF stands for Doom Definition File, and is EDGE's answer to DehackEd
+(a utility that allowed you to alter the gameplay of DOOM and DOOM 2).
+However, DDF is much easier to learn than dehacked,
+and allows you to do a number of unique things
+were simply not possible with dehacked.
+
+<p>
+Indeed DDF has more in common with say, the .CON files that enabled
+users to modify the gameplay of Duke Nukem 3D.
+Unlike dehacked, which could be complex and not particularly intuitive,
+DDF uses fairly simple, easily understood commands
+(although it might seem intimidating at first) 
+
+<p>
+Click on the links to the right to learn more...
+
+<p>
+<h2 class="page_title"> Credits </h2>
+
+These DDF documentation was written by Andy Baker and Ziggy Gnarly, with updates by Andrew Apted,
+Andy Brewood and Luke Brennan.
+Original design was by Marc "Fanatic" Pullen, reworked for the new EDGE website
+by Andrew Apted.
+Comments about the docs (including errors) should be directed to the EDGE team.
+
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

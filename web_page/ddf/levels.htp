@@ -1,0 +1,287 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Levels">
+
+<block name="content">
+
+<h2 class="page_title"> Levels </h2>
+
+<use synopsis file="levels.ldf" lump="DDFLEVL" tag="LEVELS">
+
+
+Levels.ddf allows you to specify what order maps are play in, and what the settings are for each one. Each entry consists of a unique name, enclosed in square brackets, plus a series of commands that specify the wadfile entry, episode it belongs to, music played during the level etc.
+<p>
+The level name should refer to the episode and where in the order it appears e.g QD04. This will often be the same name used in the wadfile to identify the level.
+<br>
+&nbsp
+<p>
+<b><font SIZE=+1>COMMANDS</font></b>
+<p>
+The commands used for level entries are as follows:
+<p>
+
+<table BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>COMMAND</th><th>TYPE</th><th>DESCRIPTION</th></tr>
+
+<tr><td>AUTOTAG</td><td>[integer]</td><td>
+When the level is started, find a linedef with this tag and push it.
+(As seen in Doom2 MAP07)</td></tr>
+
+<tr><td>DESCRIPTION</td><td>[lang]</td><td>
+Description of the level for the automap.</td></tr>
+
+<tr><td>END.BUNNY</td><td>[boolean]</td><td>
+Show the bunny. (Doom 1 ending).</td></tr>
+
+<tr><td>END.CAST</td><td>[boolean]</td><td>
+Show the cast list. (Doom 2 ending).</td></tr>
+
+<tr><td>END.COLOURMAP</td><td>[colmap]</td><td>
+Use this colourmap for the text.</td></tr>
+
+<tr><td>END.GRAPHIC</td><td>[lumpname]</td><td>
+Picture to draw after all text has been written.</td></tr>
+
+<tr><td>END.GRAPHIC_WAIT</td><td>[time]</td><td>
+Time to wait on each picture.</td></tr>
+
+<tr><td>END.MUSIC</td><td>[music]</td><td>
+Music to play while writing text / drawing pics, reference the [ENTRY
+NUMBER] in PLAYLIST.DDF.</td></tr>
+
+<tr><td>END.TEXT</td><td>[lang]</td><td>
+Some text to display when the level is finished.</td></tr>
+
+<tr><td>END.TEXT_FLAT</td><td>[flat]</td><td>
+Floor texture to be drawn behind the text, as an alternative to
+TEXT_GRAPHIC. Note: don't use TEXT_FLAT and TEXT_GRAPHIC at the same
+time !</td></tr>
+
+<tr><td>END.TEXT_GRAPHIC</td><td>[lumpname]</td><td>
+Picture to display behind the text.</td></tr>
+
+<tr><td>END.TEXT_SPEED</td><td>[integer]</td><td>
+How fast the end text should be written to the screen, in tics.</td></tr>
+
+<tr><td>END.TEXT_WAIT</td><td>[integer]</td><td>
+How long to wait after writing all the text before proceeding, in
+tics.</td></tr>
+
+<tr><td>EPISODE</td><td>[string]</td><td>
+Specifies which episode the map belongs to. E.g always HELL_ON_EARTH
+for Doom2.</td></tr>
+
+<tr><td>LIGHTING</td><td>[special]</td><td>
+Specifies the type of lighting to use for the level. Options are DOOM, DOOMISH or FLAT.(Possibly VERTEX as well?)</td></tr>
+
+<tr><td>LUMPNAME</td><td>[lumpname]</td><td>
+The lump to load the level from. (Can be different from E1M1 and MAP03
+format).</td></tr>
+
+<tr><td>MUSIC_ENTRY</td><td>[music]</td><td>
+The level's background music, reference the [ENTRY NUMBER] in
+PLAYLIST.DDF.</td></tr>
+
+<tr><td>NAME_GRAPHIC</td><td>[lumpname]</td><td>
+Picture of the level's name for the intermissions.</td></tr>
+
+<tr><td>NEXT_MAP</td><td>[string]</td><td>
+The level to go to when this level is finished.</td></tr>
+
+<tr><td>PARTIME</td><td>[time]</td><td>
+The par time for this level.</td></tr>
+
+<tr><td>PRE.COLOURMAP</td><td>[colmap]</td><td>
+Use this colourmap for the text.</td></tr>
+
+<tr><td>PRE.GRAPHIC</td><td>[lumpname]</td><td>
+Picture to draw after all pre-text has been printed on the screen.</td></tr>
+
+<tr><td>PRE.GRAPHIC_WAIT</td><td>[time]</td><td>
+Time to wait on each picture.</td></tr>
+
+<tr><td>PRE.MUSIC</td><td>[music]</td><td>
+Music to play while writing text / drawing pics, reference the [ENTRY
+NUMBER] in PLAYLIST.DDF.</td></tr>
+
+<tr><td>PRE.TEXT</td><td>[lang]</td><td>
+Some text to display before the level starts.</td></tr>
+
+<tr><td>PRE.TEXT_FLAT</td><td>[flat]</td><td>
+Floor texture to be drawn behind the text, as an alternative to
+TEXT_GRAPHIC. Note: don't use TEXT_FLAT and TEXT_GRAPHIC at the same
+time !</td></tr>
+
+<tr><td>PRE.TEXT_GRAPHIC</td><td>[lumpname]</td><td>
+Picture to display behind the text.</td></tr>
+
+<tr><td>PRE.TEXT_SPEED</td><td>[integer]</td><td>
+How fast, in tics, the text should be printed on the screen.</td></tr>
+
+<tr><td>PRE.TEXT_WAIT</td><td>[integer]</td><td>
+How long, in tics, to wait after writing all the text.</td></tr>
+
+<tr><td>SECRET_MAP</td><td>[string]</td><td>
+The level to go to if the secret exit is found.</td></tr>
+
+<tr><td>SKY_TEXTURE</td><td>[lumpname]</td><td>
+The texture for the sky for this level.</td></tr>
+
+<tr><td><A HREF="#special">SPECIAL</A></td><td>[flags]</td><td>
+See below</td></tr>
+
+<tr><td>STATS</td><td>[special]</td><td>
+What format of end of level statistics to use. Either DOOM or NONE at present</td></tr>
+
+<tr><td>SURROUND_FLAT</td><td>[flat]</td><td>
+The floor texture to be drawn as a border for the screen.</td></tr>
+
+</table>
+&nbsp
+<p>
+<A NAME="special"> <font size=+1><b>SPECIAL Flags</b></font></A>
+<P>
+These special flags allow full control over various aspects of a
+level.  Most of the time you will use the same flags in all of your
+levels (e.g NO_JUMPING).
+<p>
+
+<table BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>SPECIAL</th><th>DESCRIPTION</th></tr>
+
+<tr><td>AA_MLOOK</td><td>
+Enables/disables combined autoaim / mlook.</td></tr>
+
+<tr><td>AUTOAIM</td><td>
+Enables/disables autoaiming for this level.</td></tr>
+
+
+<tr><td>BOOM_COMPAT</td><td>
+Forces Boom compatability mode for the level.</td></tr>
+
+<tr><td>CHEATS</td><td>
+Enables/disables cheating for this level.</td></tr>
+
+<tr><td>CROUCHING</td><td>
+Enables/disables crouching for this level.</td></tr>
+
+<tr><td>ENEMY_STOMP</td><td>
+Enables/disables monsters being able to telefrag other
+monsters and players.</td></tr>
+
+<tr><td>FAST_MONSTERS</td><td>
+Enables/disables fast monsters for this level.</td></tr>
+
+<tr><td>ITEM_RESPAWN</td><td>
+Enables/disables item respawning for this level.</td></tr>
+
+<tr><td>JUMPING</td><td>
+Enables/disables jumping for this level.</td></tr>
+
+<tr><td>LIMIT_ZOOM</td><td>
+Enables/disables zoomed in view.</td></tr>
+
+<tr><td>MLOOK</td><td>
+Enables/disables look up/look down for this level.</td></tr>
+
+<tr><td>MORE_BLOOD</td><td>
+Turns extra blood on for this level.</td></tr>
+
+<tr><td>NORMAL_BLOOD</td><td>
+Turns extra blood off for this level.</td></tr>
+
+<tr><td>NORMAL_SKY</td><td>
+Turns off stretching the sky for mlook.</td></tr>
+
+<tr><td>RESET_PLAYER</td><td>
+Starting this level resets a players stats to the default state: health and armour are reset, all extra weapons
+and ammo are lost, etc. </td></tr>
+
+<tr><td>RESPAWN</td><td>
+Enables/disables respawning for this level.</td></tr>
+
+<tr><td>RESURRECT_RESPAWN</td><td>
+Sets monsters to respawn by resurrecting themselves.</td></tr>
+
+<tr><td>SHADOWS</td><td>
+Enables/disables Shadows for this level.</td></tr>
+
+<tr><td>STRETCH_SKY</td><td>
+Stretches the sky for mlook.</td></tr>
+
+<tr><td>TELEPORT_RESPAWN</td><td>
+Sets monsters to respawn by teleporting back to their start location.</td></tr>
+
+<tr><td>TRANSLUCENCY</td><td>
+Enables/disables translucency for this level.</td></tr>
+
+<tr><td>TRUE3D</td><td>
+Enables/disables True3Dgameplay for this level.</td></tr>
+
+
+<tr><td>WEAPON_KICK</td><td>
+Turns Weapon Kick effects on for the level.</td></tr>
+
+</table>
+&nbsp
+<p>
+
+Most flags can be used with a modifying
+prefix, as follows:
+<UL>
+<li>none or "ENABLE_" : forces the setting <I>on</I> for the
+level, e.g ENABLE_RESPAWN turns on respawning.</li><br><br>
+<li>"NO_" or "DISABLE_" : forces the setting <I>off</I> for the level,
+e.g NO_JUMPING - players aren't allowed to jump.</li><br><br>
+<li>"USER_" : the user's preference (set via the option menu) is used
+for the level. This is the default when the flag is not mentioned at
+all.</li></ul>
+
+
+<p>
+<B>Example:</B><br>
+
+The following are examples of complete level entries:
+
+<p>
+<PRE class="ddf">
+[MAP07]
+LUMPNAME=MAP07;
+NAME_GRAPHIC=CWILV06;
+DESCRIPTION=Map07Desc;
+SKY_TEXTURE=SKY1;
+MUSIC_ENTRY=7;
+SURROUND_FLAT=GRNROCK;
+SPECIAL=NO_ENEMY_STOMP;
+NEXT_MAP=MAP08;
+PARTIME=120;
+PRE.TEXT=Level7Text;
+PRE.TEXT_FLAT=SLIME16;
+PRE.MUSIC=35;
+EPISODE=HELL_ON_EARTH;
+
+[E2M8]
+LUMPNAME=E2M8;
+NAME_GRAPHIC=WILV17;
+DESCRIPTION=E2M8Desc;
+SKY_TEXTURE=SKY2;
+SURROUND_FLAT="FLOOR7_2";
+SPECIAL=NO_ENEMY_STOMP;
+SECRET_MAP=E2M9;
+PARTIME=30;
+MUSIC_ENTRY=49;
+EPISODE=THE_SHORES_OF_HELL;
+END.TEXT=Episode2Text;
+END.TEXT_FLAT="SFLR6_1";
+END.MUSIC=61;
+END.GRAPHIC="VICTORY2";
+END.GRAPHIC_WAIT=MAXT;
+
+</pre>
+
+<p>
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

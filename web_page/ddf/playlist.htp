@@ -1,0 +1,82 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Playlist">
+
+<block name="content">
+
+<h2 class="page_title"> Playlist </h2>
+
+<use synopsis file="playlist.ddf" lump="DDFPLAY" tag="PLAYLISTS">
+
+
+Playlist.ddf is used to define music entries in EDGE. Each entry begins with a unique reference number, in square brackets, and represents a piece of music that can be played at some point in the game. Either during a level, or as one of the intermission or title pieces of music. These entries are then referred to from the other ddf files, such as levels.ddf or game.ddf.
+
+<p>NOTE: When using filenames, directories must be separated by / instead
+  of the \ character which is normally used under Windows.  The reason
+  is because the \ character has a special meaning in DDF: it is the
+  escape character, and "\n" is used to put newlines into DDF strings.
+
+<p>
+<font size=+1><b>Format</b></font></a>
+<p>
+Entries in playlist.ddf have the following format:
+<p>
+<table BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><td>
+<blockquote>
+<br>
+<b>[ENTRY NUMBER] MUSICINFO=[TYPE]:[FORMAT]:[SONG NAME];</b>
+<p>
+</blockquote>
+</td></tr>
+</table>
+&nbsp
+<p>
+Where each command is as follows:
+<p>
+<table BORDER=1  CELLSPACING=0 CELLPADDING=1>
+<tr><th>COMMAND</th><th>DESCRIPTION</th></tr>
+
+<tr><td>[ENTRY_NUMBER]</td><td>
+A two digit number, used to reference this entry in games.ddf and level.ddf.</td></tr>
+
+
+<tr><td>[TYPE]</td><td>
+This can be either CD, MIDI, MUS, or OGG and should refer to the type of music source that is being used.</td></tr>
+
+<tr><td>[FORMAT]</td><td>
+If the music is in a wadfile, this must be LUMP, if the music is a file on the hard drive this must be FILE, or if it's a CD track, this must be TRACK.</td></tr>
+
+<tr><td>[SONG NAME]</td><td>
+Name of the actual file in the wadfile or on the hard drive, or the CD track number. Entries with an underscore "_" in <b>require</b> quotes around the name (e.g. "D_DEAD").</td></tr>
+
+</table>
+&nbsp
+<p>
+<font size=+1><b>Examples</b></font></a>
+<p>
+The following are examples of different playlist entries: 
+<p>
+<table BORDER=1 width=95% CELLSPACING=0 CELLPADDING=2 FRAME="box">
+<TR><TD>
+<FONT SIZE=2>
+<br>
+[01] MUSICINFO=CD:TRACK:1; &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp // NOTE: CD tracks do not require quotes
+<p>
+[10] MUSICINFO=MUS:LUMP:"D_DEAD";&nbsp &nbsp &nbsp // NOTE: names with "_" in them <b>require</b> quotes
+<p>
+
+<p>
+[23] MUSICINFO=OGG:FILE:"music/QOTSA/A_Song_for_the_dead.ogg";&nbsp &nbsp &nbsp
+<p>
+
+</font>
+</td>
+</tr>
+</table>
+
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

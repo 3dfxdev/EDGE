@@ -1,0 +1,83 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Sounds">
+
+<block name="content">
+
+<h2 class="page_title"> Sounds </h2>
+
+<use synopsis file="sounds.ddf" lump="DDFSFX" tag="SOUNDS">
+
+
+Sounds.ddf allows you to change the various sounds that are played as things happen in the game. Each entry consists of a unique name, enclosed in square brackets, plus a series of commands that specify the sound lump in the wadfile and the characteristics of how it's played.
+<p>
+Names should be descriptive of what the sound is and/or when it is used, and will be referred to in the other ddf files, such as weapons.ddf, attacks.ddf and things.ddf amongst others.
+<br>
+&nbsp
+<p>
+<B><FONT SIZE=+1>COMMANDS</font></b>
+<p>
+The commands used for sound entries are as follows:
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TR><TH>COMMAND</TH><TH>TYPE</TH><TH>DESCRIPTION</TH></TR>
+
+<TR><TD>LOOP</TD><TD>[boolean]</TD><TD>
+Makes the sound play over and over again. The only place where this is
+important is in sector moving, or when creating an ambient
+sound.</TD></TR>
+
+<TR><TD>LUMP_NAME</TD><TD>[lumpname]</TD><TD>
+The name of the SFX lump in the wad file. Sound lumps usually start with
+"DS", which must be included. </TD></TR>
+
+<TR><TD>MAX_DISTANCE</TD><TD>[float]</TD><TD>
+The maximum distance away from the sound where it can still be heard.
+Used to make sounds that can only be heard when the player is close to
+the source. </td></tr>
+
+<TR><TD>PRECIOUS</TD><TD>[boolean]</TD><TD>
+When TRUE, this sound would rather to keep playing instead of being
+cut (by an equal priority or equal singularity sound).  Default is
+FALSE.</td></tr>
+
+<TR><TD>PRIORITY</TD><TD>[integer]</TD><TD>
+Specifies how important the sound is. Lower priorities are more
+important. If a sound channel cannot be found to play the sound on,
+EDGE will look for a channel playing a less important sound and cut
+it. 0 means the sound has highest priority, 255 means sound has lowest
+priority.
+<BR>(NOTE: this strange priority scheme may be fixed is a future
+release of EDGE).</td></tr>
+
+
+<TR><TD>SINGULAR</TD><TD>[integer]</TD><TD>
+If a thing is making a noise with the same singularity it will be cut.
+(See chainsaw).</TD></TR>
+
+<TR><TD>VOLUME</TD><TD>[percentage]</TD><TD>
+Sound volume</TD></TR>
+
+</TABLE>
+
+
+<p>
+<B>Example:</B><br>
+
+The following is an example of a complete sound entry:
+
+<p>
+<PRE class="ddf">
+[SOUND]
+LUMP_NAME="DSMYGUN";
+PRIORITY=2;
+SINGULAR=33;
+</PRE>
+
+<p>
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

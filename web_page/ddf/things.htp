@@ -1,0 +1,1075 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Things">
+
+<block name="content">
+
+<h2 class="page_title"> Things </h2>
+
+<use synopsis file="things.ddf" lump="DDFTHING" tag="THINGS">
+
+
+Things.ddf allows you to define and modify all the creatures and objects in EDGE. Each entry consists of a unique name and mapnumber, enclosed in square brackets, followed by a series of commands that specify the characteristics of the object or monster. Both the name portion and the mapnumber should be unique and are included together in the square brackets at the beginning of the commands for that thing. 
+<p>
+The map number is referred to from the map in the wadfile, or from an rts script, whilst the name will be referred to in other ddf files where necessary E.g. spawner attacks.
+<br>
+&nbsp
+<p>
+<b><FONT SIZE=+1>COMMANDS</font></b>
+<p>
+
+The commands that can be used to specify properties of a thing are as follows:
+<p>
+
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+
+<tr><th>COMMAND</th><th>TYPE</th><th>DESCRIPTION</th></tr>
+
+<tr><td>ACTIVE_SOUND</td><td>[sound]</td><td>
+Sound made randomly while a thing is active.</td></tr>
+
+<tr><td>AMBIENT_SOUND</td><td>[sound]</td><td>
+Sound made by action pointers MAKESOUND and MAKESOUNDRANDOM.</td></tr>
+
+<tr><td>BLOOD</td><td>[special]</td><td>
+The name of a special sprite animation (defined in things.ddf) to play
+when a creature is hurt. Hence, different animations can be set to
+make different sized or coloured blood. By default it calls an object
+called BLOOD. All blood animations need at least 3 frames.</td></tr>
+
+<tr><td>BOBBING</td><td>[percentage]</td><td>
+How much the player's head should bob up and down while walking</td></tr>
+
+<tr><td>BOUNCE_SPEED</td><td>[float] </td><td>
+Speed object will retain after it has bounced. Where 1 is original speed and 0 is stopped dead.</td></tr>
+
+<tr><td>BOUNCE_UP</td><td>[float] </td><td>
+Specifies how far an object bounces from the surface it strikes E.g. floor, ceiling etc. Default value is 0.5</td></tr>
+
+<tr><td>CASTORDER</td><td>[integer]</td><td>
+The order this object appears in the cast list. (The cast list is the
+sequence that follows Doom2 MAP30).</td></tr>
+
+<tr><td>CHOKE_DAMAGE.DEATH_STATE</td><td>[state]</td><td>What STATES this object should use if it dies from choking underwater. E.g. DEATHDROWN</td></tr>
+
+<tr><td>CHOKE_DAMAGE.DELAY</td><td>[tics]</td><td>How often this creature takes damage due to choking.</td></tr>
+
+<tr><td>CHOKE_DAMAGE.PAIN_STATE</td><td>[state]</td><td>What STATES this object should use if it is in pain because of choking underwater. E.g. PAINDROWN</td></tr>
+
+<tr><td>CHOKE_DAMAGE.VAL</td><td>[float]</td><td>Simple damage value for when this creature is choking.</td></tr>
+
+<tr><td>CLOSE_ATTACK</td><td>[attack]</td><td>
+Attack to use when attacking from close range.</td></tr>
+
+<tr><td>CROUCH_HEIGHT</td><td>[float]</td><td>
+Height of the creature (player) when crouching.</td></tr>
+
+<tr><td>DEATH_SOUND</td><td>[sound]</td><td>
+Sound made by action pointer MAKEDEATHSOUND.</td></tr>
+
+<tr><td>DLIGHT.COLOUR</td><td>[special]</td><td>
+This value is the colour to use for any dynamic lighting associated with the object. It's value takes the form of three pairs of digits in hexadecimal E.g. #RRGGBB to specify the proportion of each of the three colours in the mix. So for example #FF0000 would be pure red, #990000 would be a darker red and #FFFFFF would be a bright white. Experimentation is probably the best way to find the colour you want.</td></tr>
+
+<tr><td>DLIGHT.INTENSITY</td><td>[float]</td><td>
+This value is the starting dynamic light intensity of the object. This can be modified as the object changes, using the <a href="#dlight">DLIGHT</a> SET and FADE actions.</td></tr>
+
+<tr><td>DLIGHT.TYPE</td><td>[special]</td><td>
+This value is the type of dynamic lighting to use for the object. At present only QUADRATIC lighting has been used, though there is also CONSTANT and LINEAR.</td></tr>
+
+<tr><td>DROPITEM</td><td>[special]</td><td>
+The thing dropped when the object dies. (usually ammo or a weapon).</td></tr>
+
+<tr><td>EXPLODE_DAMAGE.DEATH_STATE</td><td>[state]</td><td>What STATES this object should use if it dies from explosion. E.g. DEATHDROWN</td></tr>
+
+<tr><td>EXPLODE_DAMAGE.PAIN_STATE</td><td>[state]</td><td>What STATES this object should use if it is in pain because of explosions. E.g. PAINEXPLO</td></tr>
+
+<tr><td>EXPLODE_DAMAGE.OVERKILL_STATE</td><td>[state]</td><td>What STATES this object should use if it is gibbed because of explosions.</td></tr>
+
+<tr><td>EXPLODE_DAMAGE.VAL</td><td>[float]</td><td>
+Damage experienced if this object explodes. (e.g used for barrels).</td></tr>
+
+<tr><td>EXPLODE_RADIUS</td><td>[float]</td><td>
+Normally the explosion radius is the same as the damage caused, but this command forces the explosion radius to a particular value (e.g. 200).  The amount of damage is not affected.</td></tr>
+
+
+<tr><td>EXTRA</td><td>[special]</td><td>
+Extra options to identify the object. Options used in QDoom include are LOOPING_SOUND and RAIN. </td></tr>
+
+<tr><td>FAST</td><td>[float] </td><td>
+Multiplier for nightmare mode and -fastparm.</td></tr>
+
+<tr><td>FLOAT_SPEED</td><td>[float]</td><td>
+How fast a creature will float up or down. Can also be used with
+bullet puffs. 1 is normal for puffs, 4 is normal for creatures (e.g
+cacodemon).</td></tr>
+
+<tr><td>FUSE</td><td>[tics]</td><td>Force object into it's DEATH states after a period of time. Useful for spawned objects such as grenades.</td></tr>
+
+<tr><td>GASP_SOUND</td><td>[sound]</td><td>Sound made when this creature emerges from a choking environment.</td></tr>
+
+<tr><td>GASP_START</td><td>[time]</td><td>How long underwater before we gasp when leaving it. Default is 2 seconds</td></tr>
+
+<tr><td>GHOST_CLASS</td><td>[bitset]</td><td>
+Makes this creature a ghost (bullets/missiles pass through him) against a corresponding attack class in ATTACKS.DDF
+<BR>There are 26 possible classes, A thru Z.
+Three are reserved: `M' is the default for missile
+attacks, `B' is the default ATTACK_CLASS for
+bullet/shot attacks, and `C' is the default for
+close-combat attacks.
+<br>Examples:
+<br>GHOST_CLASS=B; //this would mean that bullets pass through this thing.
+<BR>or 
+<BR>GHOST_CLASS=MV; //missile attacks and attacks of a custom Attack_class V would pass through this thing.
+</td></tr>
+
+<tr><td>GIB</td><td>[special]</td><td>
+The object to create when a creature is gibbed (e.g. gets whacked by a
+crusher). This must be an object defined in things.ddf</td></tr>
+
+<!--- 
+<tr><td>HALO.HEIGHT</td><td>[float]</td><td>
+Height of this objects' halo</td></tr>
+<tr><td>HALO.SIZE</td><td>[float]</td><td>
+Size of this objects' halo</td></tr>
+<tr><td>HALO.MINSIZE</td><td>[float]</td><td>
+Minimum size of this objects' halo</td></tr>
+<tr><td>HALO.MAXSIZE</td><td>[float]</td><td>
+Maximum size of this objects' halo</td></tr>
+<tr><td>HALO.TRANSLUCENCY</td><td>[percentage]</td><td>
+Transparency of this objects' halo</td></tr>
+<tr><td>HALO.COLOUR</td><td>[special]</td><td>
+This value is the colour to use for any halo associated with the object. It's value takes the form of three pairs of digits in hexadecimal E.g. #RRGGBB to specify the proportion of each of the three colours in the mix. So for example #FF0000 would be pure red, #990000 would be a darker red and #FFFFFF would be a bright white. Experimentation is probably the best way to find the colour you want.</td></tr>
+<tr><td>HALO.GRAPHIC</td><td>[lumpname]</td><td>
+A graphic to use for this objects' halo.</td></tr>
+--->
+
+<tr><td>HEIGHT</td><td>[float]</td><td>
+How tall this thing is. (You may have to fiddle around with new items
+so that item heights and item graphics match up properly) </td></tr>
+
+<tr><td>IMMUNITY_CLASS</td><td>[bitset]</td><td>
+Gives immunity against a corresponding attack class in ATTACKS.DDF
+<BR>There are 26 possible classes, A thru Z.
+Three are reserved: `M' is the default for missile
+attacks, `B' is the default ATTACK_CLASS for
+bullet/shot attacks, and `C' is the default for
+close-combat attacks.
+<br>Examples:
+<br>IMMUNITY_CLASS=B; //this would mean that bullets won't hurt this thing 
+<BR>or 
+<BR>IMMUNITY_CLASS=CV; //immune against close attacks and attacks of a custom Attack_class V
+</td></tr>
+
+<tr><td>INITIAL_BENEFIT</td><td>[benefit]</td><td>
+A list of benefits (separated by commas) which a player will normally
+begin with.  See below for benefit format.</td></tr>
+
+<tr><td>JUMP DELAY</td><td>[tics]</td><td>Delay before being allowed to jump again</td></tr>
+
+<tr><td>JUMP_HEIGHT</td><td>[float]</td><td>
+How high this thing can jump. (Default 10) (only really useful for
+setting how high a player or bot can leap).</td></tr>
+
+<tr><td>JUMP_SOUND</td><td>[sound]</td><td>
+Sound played when player uses jump key.</td></tr>
+
+<tr><td>LAUNCH_SOUND</td><td>[sound]</td><td>Sound made when the creature/object launches a ranged attack.</td></tr>
+
+<tr><td>LUNG_CAPACITY</td><td>[time]</td><td>How long player can hold out before choking.(Default is 20 seconds)</td></tr>
+
+<tr><td>MASS</td><td>[float]</td><td>
+How heavy this thing is. (E.g heavy creatures like the Mancubus won't
+be shoved around or tossed into the air by explosions. Imps however
+can fly for miles when hit with a rocket).</td></tr>
+
+<tr><td>MAX_FALL</td><td>[float]</td><td>
+Max force this object can take after a high fall before taking damage. This value is multiplied by gravity. Deprecated???</td></tr>
+
+<tr><td>MINATTACK_CHANCE</td><td>[percentage]</td><td>
+Used in deciding whether a monster should attack now, or move closer
+to get a better shot. Valid values are between 1% and 100%. 1% = move,
+100% = shoot. 0% = ignore</td></tr>
+
+<tr><td>NOWAY_SOUND</td><td>[sound]</td><td>Sound the creature (player) makes when they try to use an object they can't.</td></tr>
+
+<tr><td>OOF_SOUND</td><td>[sound]</td><td>Sound the creature (player) makes when they walk into a wall.</td></tr>
+
+<tr><td>OVERKILL_SOUND</td><td>[sound]</td><td>Sound the creature (player) makes when they are seriously killed. Used by the action pointer MAKEOVERKILLSOUND</td></tr>
+
+<tr><td>PAIN_SOUND</td><td>[sound]</td><td>
+Sound played when the creature is in pain. Used by the action pointer MAKEPAINSOUND.</td></tr>
+
+<tr><td>PAINCHANCE</td><td>[percentage]</td><td>
+The probability that the thing will go into pain state. 100% is
+certain, 0% is never.</td></tr>
+
+<tr><td>PALETTE_REMAP</td><td>[colourmap]</td><td>
+Used to remap sprite colours. The value is a reference to an entry in
+colmap.ddf. Examples: 'PLAYER_BROWN', 'SKIN_BLUE', 'ALLWHITE',
+'ALLGREEN'.</td></tr>
+
+<tr><td>PICKUP_BENEFIT</td><td>[benefit]</td><td>
+A list of benefits (separated by commas) which a player receives when
+they pickup this item. See below for benefit format.  </td></tr>
+
+
+<tr><td>PICKUP_EFFECT &nbsp;</td><td>[weapon name]&nbsp;</td><td>
+Required for #VERSION 1.29 and higher to make the Berserk powerup switch to the fist (in earlier versions it will be added for you to maintain compatibility) <br>Example: PICKUP_EFFECT=SWITCH_WEAPON(FIST);</td></tr>
+
+
+<tr><td>PICKUP_MESSAGE</td><td>[lang]</td><td>
+The message the player sees when they pick up this item.</td></tr>
+
+<tr><td>PICKUP_SOUND</td><td>[sound]</td><td>
+Sound made when the object is picked up</td></tr>
+
+<tr><td>PLAYER</td><td>[float]</td><td>
+The player number. This can be either 1 to 8 for a player or -1 for a deathmatch start.</td></tr>
+
+<tr><td>RADIUS</td><td>[float]</td><td>How wide this thing is.</td></tr>
+
+<tr><td>RANGE_ATTACK</td><td>[attack]</td><td>
+Attack to use when attacking from a distance.</td></tr>
+
+<tr><td>REACTION_TIME</td><td>[time] </td><td>
+How long after sighting, teleporting etc that this object must wait
+before reacting.</td></tr>
+
+<tr><td>RELOAD_SHOTS</td><td>[integer] </td><td>
+How many shots the monster can fire before entering the RELOAD states.</td></tr>
+
+
+<tr><td>RESISTANCE_CLASS</td><td>[bitset]</td><td>
+Gives resistance(only suffers 40% of the original damage) against a corresponding attack class in ATTACKS.DDF
+<BR>There are 26 possible classes, A thru Z.
+Three are reserved: `M' is the default for missile
+attacks, `B' is the default ATTACK_CLASS for
+bullet/shot attacks, and `C' is the default for
+close-combat attacks.
+<br>Examples:
+<br>RESISTANCE_CLASS=B; //this would mean that bullets hurt this thing 60% less than normal
+<BR>or 
+<BR>RESISTANCE_CLASS=CV; //resistant against close attacks and attacks of a custom Attack_class V
+</td></tr>
+
+<tr><td>RESPAWN_EFFECT</td><td>[special]</td><td>
+The name of an animation to play when an object respawns. Hence, it is
+possible to create custom respawn effects for different
+objects</td></tr>
+
+<tr><td>RESPAWN_TIME</td><td>[time]</td><td>
+Time it takes before this item respawns.</td></tr>
+
+<tr><td>RIDE_FRICTION</td><td>[float]</td><td>
+How easy this object is to ride on. Values should be in the range from 0 to 1. </td></tr>
+
+<tr><td>SHOT_HEIGHT</td><td>[percentage]</td><td>
+At what height the creatures attack comes from.</td></tr>
+
+<tr><td>SHADOW_TRANSLUCENCY</td><td>[percentage]</td><td>
+The translucency of this things shadow (0%&nbsp;=&nbsp;no shadow)</td></tr>
+
+<tr><td>SIDE</td><td>[float]</td><td>
+Valid values are 0,1,2,4,8,16,32,64 and 128 (or the sum of any of
+these values) Objects on the same side don't attack each other. 0 (or
+omitted) is neutral. Side is a binary value, so side 6 is an alliance
+between sides 4 + 2.  Players on the same side don't get frags for
+killing their own side.The side value is required for creating
+friendly monsters. If the friendly monster is not given a side tag, it
+will not know which player/s to support. Note that you can set
+friendly monsters to support individual players, or teams of players.
+</td></tr>
+
+<tr><td>SIGHT_ANGLE</td><td>[float]</td><td>
+Sets the left and right field of view for a monster. A value of 180
+means the monster will see in all directions (180 degrees left, 180
+degrees right for a total of 360 degrees)  </td></tr>
+
+<tr><td>SIGHT_SLOPE</td><td>[float]</td><td>
+Sets the up/down field of view for a monster. </td></tr>
+
+<tr><td>SIGHTING_SOUND</td><td>[sound]</td><td>
+Sound made when a thing sees a target or by action pointers MAKESOUND
+and MAKESOUNDRANDOM.</td></tr>
+
+<tr><td>SPARE_ATTACK</td><td>[attack]</td><td>
+Miscellaneous attack. Used by the SPARE_ATTACK action pointer.</td></tr>
+
+<tr><td>SPAWNHEALTH</td><td>[float]</td><td>
+The amount of health this object begins with.</td></tr>
+
+<tr><td>SPECIAL</td><td>[flags]</td><td>
+Flags for this thing. See <a href="#flags">flags</a> section below.</td></tr>
+
+<tr><td>SPEED</td><td>[float]</td><td>
+How fast this thing moves. Values of up to 100 are supported. Numbers
+around 10 are normal for most doom monsters</td></tr>
+
+<tr><td>SPRITE_ASPECT</td><td>[float]</td><td>
+Adjusts the width of sprite graphics. See above. 1 is normal, 0.5
+makes for tall and skinny sprites, 2.0 makes for obese sprites.</td></tr>
+
+<tr><td>SPRITE_SCALE</td><td>[float]</td><td>
+Stretches or shrinks the total size (width and height) of sprite
+graphics. 1 is normal perspective, 0.5 will make graphics half normal
+size. Used when you wish to use larger and more detailed sprites than
+normal DOOM.</td></tr>
+
+<tr><td>STARTCOMBAT_SOUND</td><td>[sound]</td><td>
+Sound made when starting a melee attack.</td></tr>
+
+<tr><td>TRANSLUCENCY</td><td>[percentage]</td><td>
+The percentage of translucency this object is. 0% is invisible, while 100% is visible.
+</td></tr>
+
+<tr><td>VIEW_HEIGHT</td><td>[float]</td><td>
+Used to set what height the creature (player) sees things from.</td></tr>
+
+<tr><td>WALK_SOUND</td><td>[sound]</td><td>
+Sound made by the action pointer WALKSOUND_CHASE.</td></tr>
+
+</TABLE>
+
+
+
+<p>
+<a name="flags">
+<FONT SIZE=+1><b>Flags:</b></FONT> 
+<p>
+(most can also apply to projectiles in attacks ddf.)
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>FLAG</th><th>DESCRIPTION</th></tr>
+
+<tr><td>AMBUSH</td><td>
+Not to be activated by sound, deaf monster.</td></tr>
+
+<tr><td>ALWAYS_LOUD</td><td>
+No sound volume change due to distance.</td></tr>
+
+<tr><td>ATTACK_HURTS</td><td>
+Monster can be harmed by it's own species.</td></tr>
+
+<tr><td>BARE_MISSILE</td><td>
+Object explodes and dies when it hits something.</td></tr>
+
+<tr><td>BLOCK_SHOTS</td><td>
+This object stops bullets.</td></tr>
+
+<tr><td>BOSSMAN</td><td>
+ALWAYS_LOUD + EXPLODE_IMMUNE.</td></tr>
+
+<tr><td>BOUNCE</td><td>
+Object will bounce when it hits floor or wall. Very trippy if you add
+it to a creature - bouncing gibs!!</td></tr>
+
+<tr><td>CLIMBABLE</td><td>
+Player can climb on top of this object or monster.</td></tr>
+
+<tr><td>CORPSE</td><td>
+Object is dead.</td></tr>
+
+<tr><td>COUNT_AS_ITEM</td><td>
+Counts towards the item percent at end of level.</td></tr>
+
+<tr><td>COUNT_AS_KILL</td><td>
+Counts towards the kill percent at end of level. This flag
+automatically implies the MONSTER flag.</td></tr>
+
+<tr><td>CROSSLINES</td><td>
+Object can cross lines that are marked as blocking.</td></tr>
+
+<tr><td>DAMAGESMOKE</td><td>
+Object doesn't bleed, uses bullet puffs instead. (Such as
+barrels).</td></tr>
+
+<tr><td>DISLOYAL</td><td>
+Monster will attack its own species.</td></tr>
+
+<tr><td>DROPOFF</td><td>
+Object can travel over cliffs greater than 24 high.</td></tr>
+
+<tr><td>DROPPED</td><td>
+Object has been dropped. Only give half benefit.</td></tr>
+
+<tr><td>EDGEWALKER</td><td>
+Monster will walk over deep gaps and along cliff edges.</td></tr>
+
+<tr><td>EXPLODE_IMMUNE</td><td>
+No damage from explosions.</td></tr>
+
+<tr><td>FLOAT</td><td>
+Monster can fly. (E.g pain elemental, lost soul). Should be used with
+the NOGRAVITY flag.</td></tr>
+
+<tr><td>FLOATER</td><td>
+Combination of FLOAT + NOGRAVITY</td></tr>
+
+<tr><td>FORCE_PICKUP</td><td>
+Item will be picked up, even if no benefit is specified</td></tr>
+
+
+<tr><td>FUZZY</td><td>
+Partial invisibility, like spectres.</td></tr>
+
+<tr><td>GRAVFALL</td><td>
+Monster will fall with gravity. Without this flag, non-flying monsters
+will always stick to the floor.</td></tr>
+
+<tr><td>HOVER</td><td>
+Item will bob up and down.</td></tr>
+
+<tr><td>INERT</td><td>
+Another name for NOBLOCKMAP. The brain stem, and pools of blood are
+declared as INERT, as they are completely unaffected by
+surroundings.</td></tr>
+
+<tr><td>INVISIBLE</td><td>
+Completely translucent, can't be seen.</td></tr>
+
+<tr><td>MISSILE</td><td>
+Object is a missile. Just a combination of the BARE_MISSILE +
+CROSSLINES + NOFRICTION flags.</td></tr>
+
+<tr><td>MONSTER</td><td>
+Object is a monster (i.e. not a player or scenery). </td></tr>
+
+<tr><td>NEVERTARGETED</td><td>
+Monsters never target this object.</td></tr>
+
+<tr><td>NO_GRUDGE</td><td>
+If this object is attacked it will switch targets to it's attacker
+rather than pursuing a grudge against a current target.</td></tr>
+
+<tr><td>NO_RESPAWN</td><td>
+Object cannot respawn.</td></tr>
+
+<tr><td>NO_RESURRECT</td><td>
+Object cannot be resurrected (by Archvile).</td></tr>
+
+<tr><td>NOBLOCKMAP</td><td>
+Object is visible but cannot be interacted with.</td></tr>
+
+<tr><td>NOCLIP</td><td>
+Allows things to go through solid walls.</td></tr>
+
+<tr><td>NODEATHMATCH</td><td>
+Object will not be spawned in deathmatch.</td></tr>
+
+<tr><td>NOFRICTION</td><td>
+Friction does not apply to this object.</td></tr>
+
+<tr><td>NOGRAV_KILL</td><td>
+When the object dies it will not fall to the ground.</td></tr>
+
+<tr><td>NOGRAVITY</td><td>
+Gravity does not apply to this object.</td></tr>
+
+<tr><td>NOSECTOR</td><td>
+Object can be interacted with, but is completely invisible</td></tr>
+
+<tr><td>NOSHADOW</td><td>
+Object casts no shadow.</td></tr>
+
+<tr><td>NOZBUFFER</td><td>
+Allows a bunch of small objects close to each other (and with this special) to get fully drawn. Mainly useful for stuff like smoke puffs or blood to prevent Z-fighting when there are many of them in a small area.</td></tr>
+
+<tr><td>ON_CEILING</td><td>
+Combination of SPAWNCEILING + NOGRAVITY</td></tr>
+
+<tr><td>PICKUP</td><td>
+Object can pick up other items. Only for players or bots.</td></tr>
+
+<tr><td>SHOOTABLE</td><td>
+Object can be damaged.</td></tr>
+
+<tr><td>SIDE_GHOST</td><td>
+Friendly monsters will be like ghosts for your weapon fire. i.e. your shots will pass through them.</td></tr>
+
+<tr><td>SIDE_IMMUNE</td><td>
+Friendly monsters are completely immune from your weapon fire.</td></tr>
+
+<tr><td>SLIDER</td><td>
+This flag stops players/creatures getting stuck on walls. (Can also be
+used to affect the behaviour of grenades when they hit a
+wall)</td></tr>
+
+<tr><td>SOLID</td><td>
+This object blocks movement.</td></tr>
+
+<tr><td>SPAWNCEILING</td><td>
+Object will be spawned on the ceiling.</td></tr>
+
+<tr><td>SPECIAL</td><td>
+Object can be picked up.</td></tr>
+
+<tr><td>STEALTH</td><td>
+Monster goes invisible on chase, visible on attack/pain (scary).</td></tr>
+
+<tr><td>TELEPORT</td><td>
+Monster teleports over cliffs, i.e. will instantly go up or down the
+edge of a tall cliff.</td></tr>
+
+<tr><td>TELEPORT_TYPE</td><td>
+Indicates this object is a type of teleport effect.</td></tr>
+
+<tr><td>TOUCHY</td><td>
+Object reacts when another object collides with it. If the object has
+TOUCH states, then those are used, otherwise the object goes into its
+death states. The action pointer TOUCHY_REARM is needed to re-enable
+the object.</td></tr>
+
+<tr><td>TRIGGER_HAPPY</td><td>
+Doubles the chance the monster will attack over moving.</td></tr>
+
+<tr><td>ULTRA_LOYAL</td><td>
+Friendly monsters don't turn into enemies when hurt by your weapon fire</td></tr>
+
+<tr><td>USABLE</td><td>
+Object reacts when you press the USE key against it. Must be used in conjunction with TOUCHY. The objects TOUCH states will be used. The action pointer TOUCHY_REARM is needed to re-enable
+the object.</td></tr>
+
+<tr><td>WATERWALKER</td><td>
+Object cannot penetrate an extrafloor which is tagged as WATER.</td></tr>
+
+
+
+
+</TABLE>
+
+
+&nbsp
+<p>
+
+<p>
+<A NAME="states">
+<FONT SIZE=+1><b>STATES</b></FONT>
+<p>
+Each named STATES entry defines an animation sequence to play when an attack is in progress, as well as calling the actions required at the appropriate frames in the animation. These consist of a series of states, which are individual frames of the animation. A state is defined like this:<br>
+&nbsp;&nbsp;&nbsp;<CODE>Sprite:Frame:Tics:Bright:Action</code>
+<br>
+as follows:
+<p>
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+
+<tr><td>Sprite</td><td>
+The four letter name of the sprite to use.</td></tr>
+
+<tr><td>Frame</td><td>
+The frame reference, A-Z, '[', '\', ']' If you need more than this,
+use another sprite.</td></tr>
+
+<tr><td>Tics</td><td>
+Number of tics to spend on this frame. -1 means the frame should last
+forever.</td></tr>
+
+<tr><td>Bright</td><td>
+Can be 'BRIGHT' or 'NORMAL' Bright frames are always drawn full
+brightness.</td></tr>
+
+<tr><td>Action</td><td>
+Action to be carried out. <a href="#actions">Actions</a> are listed below.</td></tr>
+</table>
+<p>
+
+
+Each frame ends with either a semincolon <b>;</b> if it is the last frame in the animation or a comma <b>,</b> if it is not. 
+<p>
+In addition, any line may include a <tt>#Command</tt> at the end. This will either be <tt>#STATENAME</tt> which causes a jump to the first frame in the animation of the named state. <tt>#STATENAME:FRAME</tt> causing a jump to the specified frame number in the animation of the named state. OR <tt>#REMOVE</tt> to remove the animation shown from the HUD.
+<p>
+
+
+
+
+<p>
+&nbsp
+
+
+<A NAME="Speshstates">
+<font size=+1><b>Special STATES</b></font></A>
+<p>
+The following are predefined state names that have specifc purposes:
+<p>
+<TABLE BORDER=1  CELLSPACING=0 CELLPADDING=1>
+<tr><th>STATE NAME</th><th>SPECIAL USE</th></tr>
+
+
+<tr><td>BOUNCE</td><td>
+States that the object enters when it's bouncing.</td></tr>
+
+<tr><td>CHASE</td><td>
+States that a creature enters when chasing a target.</td></tr>
+
+<tr><td>DEATH</td><td>
+States used when an object explodes/dies.</td></tr>
+
+<tr><td>GIB</td><td>
+States for an object when it has been gibbed.</td></tr>
+
+<tr><td>IDLE</td><td>
+States for when the object isn't doing anything.</td></tr>
+
+<tr><td>JUMP</td><td>
+States that a thing (player) uses when it's jumping.</td></tr>
+
+<tr><td>MEANDER</td><td>
+States for when the creature is wandering around aimlessly.</td></tr>
+
+<tr><td>MELEE</td><td>
+States for when the creature is using a close combat attack.</td></tr>
+
+<tr><td>MISSILE</td><td>
+States for when the creature is using a ranged attack.</td></tr>
+
+<tr><td>OVERKILL</td><td>
+States for when a creature dies by a spectacular amount of damage.</td></tr>
+
+<tr><td>PAIN</td><td>
+States that a projectile enters when bouncing.</td></tr>
+
+<tr><td>RELOAD</td><td>
+States for when the creature is reloading.</td></tr>
+
+<tr><td>RESPAWN</td><td>
+States to use when a creature is resurrected by another creature.</td></tr>
+
+<tr><td>RESURRECT</td><td>
+States used for a creature while it resurrects a fallen comrade.</td></tr>
+
+<tr><td>SPAWN</td><td>
+States to play when an object is spawned.</td></tr>
+
+<tr><td>TOUCH</td><td>
+States that an object enters when it has been touched.</td></tr>
+
+
+</TABLE>
+<p>
+Note that states can have a single rotation (like the plasma shots that look identical from any angle) or multiple
+rotations (e.g rocket in flight).
+<br>
+&nbsp
+<p>
+
+<FONT SIZE=+1><b><A NAME="actions">Actions:</A></b></FONT>
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>ACTION</th><th>DESCRIPTION</th></tr>
+
+<tr><td>BOT_THINK</td><td>
+An action associated with the DeathBot. This may be depricated. ?</td></tr>
+
+<tr><td>BOUNCE_DISARM</td><td>
+Prevents a bouncing object from entering its BOUNCE states.</td></tr>
+
+<tr><td>BOUNCE_REARM</td><td>
+Allows a bouncing object to enter its BOUNCE states. When an object
+bounces, it enters its BOUNCE states and automatically disables
+further entries into the bounce states, preventing an action sequence
+from being interrupted by future bounces. Use this action to
+re-enable the bounce states.</td></tr>
+
+<tr><td>BRAINDIE</td><td>
+Boss brain action. Causes the brain to enter it's dead state.</td></tr>
+
+<tr><td>BRAINMISSILEEXPLODE</td><td>
+Boss brain action, Causes the brain to explode when the final missile hits.</td></tr>
+
+<tr><td>BRAINSCREAM</td><td>
+Boss brain action, the boss brain screams when it dies.</td></tr>
+
+<tr><td>BRAINSPIT</td><td>
+Boss brain action, the brain launches a spawn cube.</td></tr>
+
+<tr><td>CHASE</td><td>
+Runs after a target, possibly attacks.</td></tr>
+
+<tr><td>CHECKBLOOD</td><td>
+CheckBlood action stops blood from disappearing in blood mode (when
+applied to `blood' animations )</td></tr>
+
+<tr><td>CHECKMOVING</td><td>
+CheckMoving action returns an object to its spawn state when it ceases
+moving. (see player objects)</td></tr>
+
+<tr><td>CLOSE_ATTACK</td><td>
+Starts a melee attack.</td></tr>
+
+<tr><td>CLOSEATTEMPTSND</td><td>
+Makes the object's close attack ATTEMPT_SOUND</td></tr>
+
+<tr><td>COMBOATTACK</td><td>
+Will start a melee attack if the object is in range, or a ranged
+attack if it is not.</td></tr>
+
+<tr><td>DIE</td><td>
+Mainly for Bex compatibility</td></tr>
+
+
+<tr><td>DLIGHT_FADE</td><td>
+Fades the objects dynamic lighting to the specified level. Used like DLIGHT_FADE(500).</td></tr>
+
+<tr><td>DLIGHT_RANDOM</td><td>
+Randomly set the objects dynamic lighting between the specified levels. Used like DLIGHT_RANDOM(200,800)</td></tr>
+
+<tr><td>DLIGHT_SET</td><td>
+Sets the objects dynamic lighting to the specified level. Used like DLIGHT_SET(1000).</td></tr>
+
+<tr><td>DROPITEM</td><td>
+Causes the monster to drop the a specified item. The dropped item is non-solid (but may be pick-up-able), and is dropped a random distance away from the monster (so multiple drops don't all land on the exact same spot).</td></tr>
+
+<tr><td>EFFECTTRACKER</td><td>
+Does the damage associated with the tracker.</td></tr>
+
+<tr><td>EXPLOSIONDAMAGE</td><td>
+Does a fixed amount of damage to all monsters within the explosion
+range.</td></tr>
+
+<tr><td>FACE</td><td>
+Turns the object to face the angle specified in brackets.</td></tr>
+
+<tr><td>FACETARGET</td><td>
+Turns the object to face it's target.</td></tr>
+
+<tr><td>JUMP</td><td>
+Used like so.. JUMP(state:frame,xx%) and gives a xx% chance that the object jumps to the specified frame of the specified state.</td></tr>
+
+<tr><td>KILLSOUND</td><td>
+Stops any sound playing that is associated with this thing.</td></tr>
+
+<tr><td>LOOKOUT</td><td>
+Looks for players to kill. Enters the CHASE states if it finds one.</td></tr>
+
+<tr><td>MAKEACTIVESOUND</td><td>
+Makes the object's active sound</td></tr>
+
+<tr><td>MAKEDEAD</td><td>
+Makes the object dead: Visible if stealth, and not solid.</td></tr>
+
+<tr><td>MAKEDEATHSOUND</td><td>
+Makes the object's death sound</td></tr>
+
+<tr><td>MAKEOVERKILLSOUND</td><td>
+Makes a slopping noise...</td></tr>
+
+<tr><td>MAKEPAINSOUND</td><td>
+Makes the object's pain sound.</td></tr>
+
+<tr><td>MAKESOUND</td><td>
+Starts the object's AMBIENT_SOUND/SIGHTING_SOUND</td></tr>
+
+<tr><td>MAKESOUNDRANDOM</td><td>
+Gives a 20% chance of making the object's
+AMBIENT_SOUND/SIGHTING_SOUND.</td></tr>
+
+<tr><td>MEANDER</td><td>
+Walk around aimlessly. Find targets to attack.</td></tr>
+
+<tr><td>MLOOK_FACE</td><td>Causes this object to face the MLOOK angle specified in brackets.</td></tr>
+
+<tr><td>MLOOK_TURN</td><td>Causes this object to turn by the MLOOK angle specified in brackets.</td></tr>
+
+<tr><td>MOVE_DOWN</td><td>Causes this object to move down by the amount specified in brackets.</td></tr>
+
+<tr><td>MOVE_FWD</td><td>Causes this object to move forward by the amount specified in brackets.</td></tr>
+
+<tr><td>MOVE_RIGHT</td><td>Causes this object to move right by the amount specified in brackets. Use a negative value to move left.</td></tr>
+
+<tr><td>MOVE_UP</td><td>Causes this object to move up by the amount specified in brackets.</td></tr>
+
+<tr><td>NOTHING</td><td>Does nothing.</td></tr>
+
+<tr><td>PATH_FOLLOW</td><td>
+Follows the monster's path (if any). Note: doesn't do anything else,
+so use LOOKOUT to make the monster look for players.</td></tr>
+
+<tr><td>PATH_CHECK</td><td>
+Check whether this monster is a path follower (path followers are
+spawned by RTS path nodes). If it is, then it jumps to the MEANDER
+states. Typically used as the first action of the IDLE states. Useful
+for allowing a single monster entry to be both (normal and path
+follower). </td></tr>
+
+<tr><td>PLAYER_SCREAM</td><td>Makes the player's death scream.</td></tr>
+
+<tr><td>PLAYSOUND</td><td>Makes the sound specified in brackets.</td></tr>
+
+<tr><td>RANGE_ATTACK</td><td>
+Starts a range attack</td></tr>
+
+<tr><td>RANGEATTEMPTSND</td><td>
+Starts the object's range attack ATTEMPT_SOUND.</td></tr>
+
+<tr><td>REFIRE_CHECK</td><td>
+Checks to see whether the object can keep firing: can it see it's
+target? is it's target still alive? (Basically stops a monster
+shooting at a target that has moved or died).</td></tr>
+
+<tr><td>RELOAD_CHECK</td><td>
+Checks to see whether the object needs to reload, and if yes then enters the objects RELOAD states</td></tr>
+
+<tr><td>RELOAD_RESET</td><td>
+Resets the RELOAD_SHOTS counter for this monster.</td></tr>
+
+
+<tr><td>RESCHASE</td><td>
+CHASE + look for bodies to resurrect.</td></tr>
+
+<tr><td>RESET_SPREADER</td><td>
+Resets a spreader attack.</td></tr>
+
+<tr><td>SMOKING</td><td>
+Creates a smoke trail behind the object.</td></tr>
+
+<tr><td>SPARE_ATTACK</td><td>
+Starts the spare attack.</td></tr>
+
+<tr><td>STOP</td><td>
+Stops the object from moving.</td></tr>
+
+<tr><td>SUPPORT_LOOKOUT</td><td>
+Looks for a player to support.</td></tr>
+
+<tr><td>SUPPORT_MEANDER</td><td>
+Follow a supporting player. Find targets to attack.</td></tr>
+
+<tr><td>TOUCHY_DISARM</td><td>
+Prevents a touchy object from entering its TOUCH states.</td></tr>
+
+<tr><td>TOUCHY_REARM</td><td>
+Rearms a touchy object, allowing it to react to future collisions.
+When a touchy object is touched, it enters its TOUCH states and is
+automatically disarmed, preventing an action sequence from being
+interrupted by further collisions. </td></tr>
+
+<tr><td>TRANS_FADE</td><td>
+Fades the objects translucency to the percentage value specified in brackets.</td></tr>
+
+<tr><td>TRANS_SET</td><td>
+Sets the objects translucency to the percentage value specified in brackets.</td></tr>
+
+<tr><td>TURN</td><td>
+Turns the object to the angle specified in brackets.</td></tr>
+
+<tr><td>TURN_RANDOM</td><td>
+Turns the object randomly between the current angle and that specified in brackets.</td></tr>
+
+<tr><td>WALKSOUND_CHASE</td><td>
+CHASE + play walksound.</td></tr>
+
+</TABLE>
+<p>
+* Note: RANGE_ATTACK, CLOSE_ATTACK and SPARE_ATTACK can have an attack
+name in between brackets, e.g RANGE_ATTACK(CACO_FIREBALL), and it will
+use that attack instead of the normal one.
+<p>
+
+<p>
+<FONT SIZE=+1><b>Benefits:</b></FONT> 
+<p>
+Benefits are used by the INITIAL_BENEFIT and PICKUP_BENEFIT commands
+in things.ddf.  Each benefit is a name, possibly followed by one or
+two values in brackets.  Examples: KEY_REDCARD, BULLETS(10),
+HEALTH(15:100). There are 7 different types of benefits:
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>BENEFIT TYPE</th><th>DESCRIPTION</th></tr>
+
+<tr><td>Ammo</td><td>
+Specifies weapon ammunition. The player receives the ammunition (value
+in brackets is how much), upto the current limit for that type.
+</td></tr>
+
+<tr><td>AmmoLimit</td><td>
+Specifies the limit for ammo. The player's current limit for the ammo
+type is increased upto the value in brackets (or unchanged if it was
+already that high).</td></tr>
+
+<tr><td>Health</td><td>
+Specifies health that the player receives, the first value in brackets
+in how much health, the second value in the brackets is the limit, if
+the player already has that much, nothing happens, otherwise the
+player receives the health but no more than the limit.</td></tr>
+
+<tr><td>Armour</td><td>
+Specifies armour. It works like health, there are two values: the
+amount of armour to give, and the limit.</td></tr>
+
+<tr><td>Key</td><td>
+Specifies the name of a key. </td></tr>
+
+<tr><td>Weapon</td><td>
+Specifies the name of a weapon (must be an entry in weapons.ddf).
+</td></tr>
+
+<tr><td>Powerup</td><td>
+Specifies the name of a powerup (e.g. invulnerability). The first
+number in brackets is the number of seconds that the powerup will
+last. The second number is a limit value -- e.g. 30 will limit
+multiple pickups of the same powerup to last no longer than 30
+seconds.
+</td></tr>
+</TABLE>
+
+<p>
+Ammo and AmmoLimit:
+<p>
+
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>AMMO TYPE</th><th>AMMO LIMIT TYPE</th></tr>
+<tr><td>BULLETS</td> <td>BULLETS.LIMIT</td></tr>
+<tr><td>SHELLS</td>  <td>SHELLS.LIMIT</td></tr>
+<tr><td>ROCKETS</td> <td>ROCKETS.LIMIT</td></tr>
+<tr><td>CELLS</td>   <td>CELLS.LIMIT</td></tr>
+<tr><td>PELLETS</td>   <td>PELLETS.LIMIT</td></tr>
+<tr><td>NAILS</td>   <td>NAILS.LIMIT</td></tr>
+<tr><td>GRENADES</td>   <td>GRENADES.LIMIT</td></tr>
+<tr><td>GAS</td>   <td>GAS.LIMIT</td></tr>
+<tr><td>AMMO9</td>   <td>AMMO9.LIMIT</td></tr>
+<tr><td>AMMO10</td>   <td>AMMO10.LIMIT</td></tr>
+<tr><td>AMMO11</td>   <td>AMMO11.LIMIT</td></tr>
+<tr><td>AMMO12</td>   <td>AMMO12.LIMIT</td></tr>
+<tr><td>AMMO13</td>   <td>AMMO13.LIMIT</td></tr>
+<tr><td>AMMO14</td>   <td>AMMO14.LIMIT</td></tr>
+<tr><td>AMMO15</td>   <td>AMMO15.LIMIT</td></tr>
+<tr><td>AMMO16</td>   <td>AMMO16.LIMIT</td></tr>
+</TABLE>
+
+<p>
+Health and Armour:
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>TYPE</th><th>DESCRIPTION</th></tr>
+
+<tr><td>HEALTH</td><td>
+Health for the player.</td></tr>
+
+<tr><td>GREEN_ARMOUR</td><td>
+Green armour is the weakest (saves 33% of damage). 
+<br>64% damage absorbed by player, 33% damage absorbed by Armor</td></tr>
+
+<tr><td>BLUE_ARMOUR</td><td>
+Blue armour is next (saves 50% of damage).
+<br>50% damage absorbed by player, 50% damage absorbed by Armor</td></tr>
+
+<tr><td>YELLOW_ARMOUR</td><td>
+Yellow armour is next (saves 75% of damage).
+<br>25% damage absorbed by player, 75% damage absorbed by Armor</td></tr>
+
+<tr><td>RED_ARMOUR</td><td>
+Red armour is the strongest (Saves 90% of damage). 
+<br>10% damage absorbed by player, 90% damage absorbed by Armor</td></tr>
+</TABLE>
+
+<p>
+Keys:
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>TYPE</th><th>DESCRIPTION</th></tr>
+
+<tr><td>REDCARD</td><td>
+Red keycard.</td></tr>
+
+<tr><td>BLUECARD</td><td>
+Blue keycard.</td></tr>
+
+<tr><td>YELLOWCARD</td><td>
+Yellow keycard.</td></tr>
+
+<tr><td>REDSKULL</td><td>
+Red skull key.</td></tr>
+
+<tr><td>BLUESKULL</td><td>
+Blue skull key.</td></tr>
+
+<tr><td>YELLOWSKULL</td><td>
+Yellow skull key.</td></tr>
+
+<tr><td>GREENCARD</td><td>
+Green keycard.</td></tr>
+
+<tr><td>GREENSKULL</td><td>
+Green skull key.</td></tr>
+
+<tr><td>GOLDKEY</td><td>
+Gold key.</td></tr>
+
+<tr><td>SILVERKEY</td><td>
+Silver key.</td></tr>
+
+<tr><td>BRASSKEY</td><td>
+Brass key.</td></tr>
+
+<tr><td>COPPERKEY</td><td>
+Copper key.</td></tr>
+
+<tr><td>STEELKEY</td><td>
+Steel key.</td></tr>
+
+<tr><td>WOODENKEY</td><td>
+Wooden key.</td></tr>
+
+<tr><td>FIREKEY </td><td>
+Fire key.</td></tr>
+
+<tr><td>WATERKEY</td><td>
+Water key.</td></tr>
+</TABLE>
+
+<p>
+Powerups:
+<p>
+
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>TYPE</th><th>DESCRIPTION</th></tr>
+
+<tr><td>POWERUP_ACIDSUIT</td><td>
+Provides the player with protection against slime (and damaging
+sectors in general - but not crushers).</td></tr>
+
+<tr><td>POWERUP_AUTOMAP</td><td>
+Player gets to see everything on the automap.</td></tr>
+
+<tr><td>POWERUP_BERSERK</td><td>
+Gives the player extra strength for the time period. Only affects
+strength-related weapons (just the punch).</td></tr>
+
+<tr><td>POWERUP_INVULNERABLE</td><td>
+Makes the player completely invulernable for the time period. Also
+makes everything look white.</td></tr>
+
+<tr><td>POWERUP_JETPACK</td><td>
+The jetpack allows the player to fly! Be warned though, the fuel does
+not last forever (something to keep in mind whilst flying over that
+lava canyon).</td></tr>
+
+<tr><td>POWERUP_LIGHTGOGGLES</td><td>
+Allows the player to see with light goggles, making all dark areas
+look like they are fully lit up.</td></tr>
+
+<tr><td>POWERUP_NIGHTVISION</td><td>
+Gives the player night vision goggles, similiar to LIGHTGOGGLES but
+everything gets a more realistic green shade.</td></tr>
+
+<tr><td>POWERUP_PARTINVIS</td><td>
+Makes the player partially invisible for a while. Monsters will have
+a harder time trying to shoot you.</td></tr>
+
+<tr><td>POWERUP_SCUBA</td><td>
+The scuba allows the player to breathe underwater! Be warned though, the air does
+not last forever.</td></tr>
+
+</TABLE>
+
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

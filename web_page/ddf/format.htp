@@ -1,0 +1,110 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Format">
+
+<block name="content">
+
+<h2 class="page_title"> Format of DDF </h2>
+
+
+Now we take a quick look at the general format of a DDF
+file. Some of what follows may not initially make a lot of sense.
+Don't worry, it becomes easier to understand, especially when you
+actually see it in action.
+<P>
+This guide to DDF is probably best used in one of two ways. If you
+have already used DDF extensively, you can search through it to check
+the correct usage of a command, or to review new features. However, if
+this is your first introduction to DDF, this guide will probably be
+more effective if you read it in conjunction with the relevant DDF
+files. That way, you can see how all the various commands are
+structured and get a good understanding of how all the different files
+work. The other thing you should do is experiment. Make a backup of
+the original DDF files and then try changing around different values
+and seeing what happens. If something goes terribly wrong, you can
+always restore the original DDF files (or see the  <A
+HREF="hints.htm">hints & tips section</A>.) Anyway, let's launch into
+things.
+<P>
+A DDF file is a simple text file that describes an object.
+<P>
+Comments: Anything after // are comments. They are
+ignored by the parser. 
+<BR>eg // This is ignored.
+<P>
+Spaces are ignored. So this means that calling your monster [EVIL
+MONSTER] is exactly the same as calling it [EVILMONSTER] since the DDF
+parser will ignore the space. <P> The underscore '_' character is
+converted to a space. So you'd use EVIL_MONSTER if you wanted the DDF
+parser to recognise a monster called EVIL MONSTER.  
+<P>
+Upper and lower case is ignored (so writing SHOTGUN is the same as
+writing shotgun). 
+<P>
+Anything between quotes '"' is parsed as is eg "MAP01: Containment
+area" This means that spaces and upper and lower case characters will
+be recognised.  This is especially important for names of lumps or
+textures, since any '_' characters would normally be converted to
+spaces and EDGE would complain about a missing lump/texture.
+<P>
+The main structure to define an object is<BR>
+<BLOCKQUOTE><CODE>
+[name]<BR>
+param1=data1;<BR>
+param2=data2;<BR>
+</CODE></BLOCKQUOTE>
+<P>
+The name of the object is the name used to refer to it. Names should
+be unique, since when there are two entries with the same the later
+one will override the earlier one.
+In some DDF files the names are ignored.
+Param1 and data1 etc are dependent on what type of object you are
+trying to define. Put a semicolon after each
+define.<BR> param=data1,data2,data3;<BR>
+is the same as<BR>
+param=data1;<BR>
+param=data2;<BR>
+param=data3;<BR>
+<P>
+Datatypes:
+<P>
+
+<UL>
+<LI>Boolean: can be 'true' or 'false'.</LI>
+<LI>Integer: any whole number.</LI>
+<LI>Float: any floating-point number, eg 123.45 or -0.017.</LI>
+<LI>Time: a timing value in seconds. Can also be specified in tics,
+there are 35 tics in a second.
+To specify tics, put a 'T' after the number, eg 35T.
+The special value 'MAXT' means an infinite delay. </LI>
+<LI>Percentage: an integer value following by %. Range is 0% to 100%.</LI>
+<LI>Music: an integer value that will be looked up in PLAYLIST.DDF</LI>
+<LI>Sound: a name that will be looked up in SOUNDS.DDF.
+The wild card character '?' is handled specially, so 'PODTH?' will
+match the PODTH1, PODTH2, and PODTH3 entries. When it is time to play
+an SFX with a wild card, a matching SFX will be played at random.</LI>
+<LI>String: a string of characters eg "MAP01: Containment area"</LI>
+<LI>LumpName: an eight letter string, referring to something stored in
+the wad datafile.</LI>
+<LI>Special: a special format only used by that DDF file.</LI>
+<LI>Flags: a whole series of properties you can add.</LI>
+<LI>States: a series of sprites, eg the sequence of sprites to display
+when something dies.</LI>
+<LI>Language Ref: a string that should be looked up in the language
+DDF file to get the translation.</LI>
+</UL>
+<P>
+You will probably find that this doesn't make a whole lot of sense.
+But as you begin to
+play around with DDF files, it will become less abstract, and you
+should soon have a handle on things. DDF is actually a very simple
+concept. You use a plain text file to name an object (be it a weapon,
+monster, sound, animation etc) that you can then use in the game. Then
+according to the particular object, you change various values to
+determine how your object will work in the game. 
+
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">
