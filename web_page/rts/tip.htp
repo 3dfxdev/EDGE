@@ -9,11 +9,11 @@
 
 <p>
 <B>Usage:</B><br>
-TIP &lt;text&gt; &lt;display time&gt; &lt;audible tip&gt;
+TIP &lt;text&gt; [display time] [audible tip]
 
 <p>
 <B>Variants:</B>
-<br>TIP_LDF &lt;ldf reference&gt; &lt;display time&gt; &lt;audible tip&gt;
+<br>TIP_LDF &lt;ldf reference&gt; [display time] [audible tip]
 
 <p>
 <B>Description:</B><br>
@@ -42,19 +42,19 @@ Default position is exactly centered on the screen
 (see TIP_SET_POS command to change the position).
 
 <p>
-&lt;display time&gt; a time value indicating how long it stays on
-screen (in either ticks or seconds).
+[display time] a time value indicating how long it stays on
+screen (in either ticks or seconds).  The default time is 3 seconds.
 <ul>
-  <li class="nobullet">0 = no delay
-  <li class="nobullet">0.5 = half a second
-  <li class="nobullet">2 = two seconds
+  <li>0 = no delay
+  <li>0.5 = half a second
+  <li>2 = two seconds
   <li class="nobullet">&nbsp;
-  <li class="nobullet">1T = one tick (shortest possible time)
-  <li class="nobullet">35T = one second
+  <li>1T = one tick (shortest possible time)
+  <li>35T = one second
 </ul>
 
 <p>
-&lt;audible tip&gt; can be set to TRUE or FALSE. If true, [TINK]
+[audible tip] can be set to TRUE or FALSE. If true, the [TINK]
 sound is played.  If you want to use a custom sound, set it to
 false, and add a PLAY_SOUND command.
 
