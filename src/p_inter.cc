@@ -42,6 +42,20 @@
 #define DAMAGE_LIMIT  100
 
 
+typedef struct
+{
+	mobj_t *mo;       // object to pick up
+	player_t *pl;     // player picking it up
+	bool lose_em;     // lose stuff if true
+
+	int new_weap;     // index (for player) of a new weapon, -1 = none
+	int new_ammo;     // ammotype of new ammo, -1 = none
+
+	// TODO
+}
+pickup_info_t;
+
+
 //
 // P_GiveAmmo
 //
@@ -506,9 +520,6 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 	// -KM- 1998/09/27 Sounds.ddf
 	sound = special->info->activesound;
 
-	if (special->hyperflags & HF_FORCEPICKUP)
-		pickup |= true;
-
 	int new_weap = -1;  // the most recently added weapon (must be new)
 	int new_ammo = -1;  // got fresh ammo (old count was zero).
 
@@ -523,6 +534,10 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 	if (special->flags & MF_COUNTITEM)
 	{
 		player->itemcount++;
+		pickup = true;
+	}
+	else if (special->hyperflags & HF_FORCEPICKUP)
+	{
 		pickup = true;
 	}
 
@@ -545,7 +560,6 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 		if (player->bonuscount > BONUS_LIMIT)
 			player->bonuscount = BONUS_LIMIT;
 
-		// -AJA- FIXME: OPTIMISE THIS!
 		if (special->info->pickup_message &&
 			language.IsValidRef(special->info->pickup_message))
 		{
