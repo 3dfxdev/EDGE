@@ -124,7 +124,7 @@ void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 		// Note: reverse order, give priority to newer switches.
 		for (it = switchdefs.GetTailIterator(); 
              it.IsValid() && (pos == BWH_None); 
-             it++)
+             it--)
 		{
 			switchdef_c *sw = ITERATOR_TO_TYPE(it, switchdef_c*);
 
