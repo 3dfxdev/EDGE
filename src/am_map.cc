@@ -1120,7 +1120,7 @@ static void AM_DrawPlayer(mobj_t *mo)
 #endif
 
 	if (mo->player->powers[PW_PartInvis])
-		colour = (DBLUE + DBLUE_LEN - 1);  // *close* to black
+		colour = (GRAY + GRAY_LEN*3/4);
 	else
 		colour = player_colours[mo->player->pnum & 0x07];
 
@@ -1142,7 +1142,9 @@ static void AM_WalkThing(mobj_t *mo)
 		return;
 
 	// -AJA- more colourful things
-	if (mo->flags & MF_SPECIAL)
+	if ((mo->flags & MF_FUZZY) || mo->visibility < 0.1f)
+		colour = (GRAY + GRAY_LEN*3/4);
+	else if (mo->flags & MF_SPECIAL)
 		colour = ITEM_COL;
 	else if (mo->flags & MF_MISSILE)
 		colour = MISSL_COL;
