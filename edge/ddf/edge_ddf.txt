@@ -11,6 +11,13 @@ EDGE DDF 4.8: (2006-09-08)
 
 4) LANGUAGE.LDF: remove unneeded CompatChange & CompatBoth entries.
 
+5) ATTACKS.DDF: added DOG_BITE attack for the [DOG] entry, which
+                was previously using the pinky Demon's attack.
+
+6) LINES.DDF: added new line-types (454 to 461) for better RTS
+              interaction, including Monster-activated types
+              and RTS_DISABLE_TAGGED types.
+
 
 EDGE DDF 4.7: (2006-07-22)
 ==========================
