@@ -700,11 +700,8 @@ void RAD_SpawnTriggers(const char *map_name)
 			continue;
 
 		// -AJA- 2000/02/03: Added player num checks.
-		if (numplayers < scr->min_players ||
-			numplayers > scr->max_players)
-		{
+		if (numplayers < scr->min_players || numplayers > scr->max_players)
 			continue;
-		}
 
 		// ignore empty scripts (e.g. path nodes)
 		if (! scr->first_state)
