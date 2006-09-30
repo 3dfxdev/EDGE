@@ -60,7 +60,7 @@ typedef struct rts_parser_s
 	//   -1 : don't care
 	//    0 : outside any block
 	//    1 : within START_MAP block
-	//    2 : within RADIUSTRIGGER block
+	//    2 : within RADIUS_TRIGGER block
 	int level;
 
 	// name
@@ -571,6 +571,10 @@ static void ClearOneScript(rad_script_t *scr)
 // 
 static void ClearPreviousScripts(const char *mapid)
 {
+	// the "ALL" keyword is not a valid map name
+	if (DDF_CompareName(mapid, "ALL") == 0)
+		return;
+
 	rad_script_t *scr, *next;
 
 	for (scr=r_scripts; scr; scr=next)
@@ -870,23 +874,25 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 	// -AJA- 1999/09/12: Reworked for having Z-restricted triggers.
 
 	if (rad_cur_level == 2)
-		RAD_Error("%s found, but previous END_RADIUSTRIGGER missing !\n",
+		RAD_Error("%s found, but previous END_RADIUS_TRIGGER missing !\n",
 		pars[0]);
 
 	if (rad_cur_level == 0)
 		RAD_Error("%s found, but without any START_MAP !\n", pars[0]);
 
-	// Set the node up, from now on we can use rscript as it points
-	// to the new node.
+	// Set the node up,..
 
 	this_rad = Z_ClearNew(rad_script_t, 1);
 
 	// set defaults
+	this_rad->x = 0;
+	this_rad->y = 0;
 	this_rad->z = 0;
+	this_rad->rad_x = -1;
 	this_rad->rad_z = -1;
 	this_rad->appear = DEFAULT_APPEAR;
 	this_rad->min_players = 0;
-	this_rad->max_players = INT_MAX;
+	this_rad->max_players = MAXPLAYERS;
 	this_rad->netmode = RNET_Separate;
 	this_rad->what_players = ~0;  // "ALL"
 	this_rad->absolute_req_players = 1;
@@ -951,7 +957,7 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 
 			if (z1 > z2)
 				RAD_WarnError2(0x128, "%s: bad height range %1.1f to %1.1f\n",
-				pars[0], z1, z2);
+          pars[0], z1, z2);
 
 			this_rad->z = (z1 + z2) / 2.0f;
 			this_rad->rad_z = fabs(z1 - z2) / 2.0f;
@@ -975,7 +981,7 @@ static void RAD_ParseEndRadiusTrigger(int pnum, const char **pars)
 	// End_RadiusTrigger
 
 	if (rad_cur_level != 2)
-		RAD_Error("%s found, but without any RADIUSTRIGGER !\n", pars[0]);
+		RAD_Error("%s found, but without any RADIUS_TRIGGER !\n", pars[0]);
 
 	// --- check stuff ---
 
@@ -997,7 +1003,7 @@ static void RAD_ParseEndMap(int pnum, const char **pars)
 	// End_Map
 
 	if (rad_cur_level == 2)
-		RAD_Error("%s found, but previous END_RADIUSTRIGGER missing !\n",
+		RAD_Error("%s found, but previous END_RADIUS_TRIGGER missing !\n",
 		pars[0]);
 
 	if (rad_cur_level == 0)
@@ -1037,19 +1043,18 @@ static void RAD_ParseWhenAppear(int pnum, const char **pars)
 
 static void RAD_ParseWhenPlayerNum(int pnum, const char **pars)
 {
-	// When_Player_Num <num>
-	// When_Player_Num <min> <max>
+	// When_Player_Num <min> [max]
 
 	RAD_CheckForInt(pars[1], &this_rad->min_players);
-	this_rad->max_players = this_rad->min_players;
+
+	this_rad->max_players = MAXPLAYERS;
 
 	if (pnum >= 3)
 		RAD_CheckForInt(pars[2], &this_rad->max_players);
 
-	if (this_rad->min_players < 0 || 
-		this_rad->min_players > this_rad->max_players)
+	if (this_rad->min_players < 0 || this_rad->min_players > this_rad->max_players)
 	{
-		RAD_Error("Illegal playernum range: %d..%d\n",
+		RAD_Error("%s: Illegal range: %d..%d\n", pars[0],
 			this_rad->min_players, this_rad->max_players);
 	}
 }
@@ -2162,7 +2167,7 @@ static rts_parser_t radtrig_parsers[] =
 	{-1, "START_MAP", 2,2, RAD_ParseStartMap},
 	{-1, "RADIUS_TRIGGER", 4,6, RAD_ParseRadiusTrigger},
 	{-1, "RECT_TRIGGER", 5,7, RAD_ParseRadiusTrigger},
-	{-1, "END_RADIUSTRIGGER", 1,1, RAD_ParseEndRadiusTrigger},
+	{-1, "END_RADIUS_TRIGGER", 1,1, RAD_ParseEndRadiusTrigger},
 	{-1, "END_MAP",  1,1, RAD_ParseEndMap},
 
 	// properties...
@@ -2329,7 +2334,7 @@ void RAD_ParserBegin(void)
 void RAD_ParserDone(void)
 {
 	if (rad_cur_level >= 2)
-		RAD_Error("RADIUSTRIGGER: block not terminated !\n");
+		RAD_Error("RADIUS_TRIGGER: block not terminated !\n");
 
 	if (rad_cur_level == 1)
 		RAD_Error("START_MAP: block not terminated !\n");
