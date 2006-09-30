@@ -37,6 +37,7 @@
 #include "v_colour.h"
 #include "v_ctx.h"
 #include "v_res.h"
+#include "w_wad.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -728,7 +729,10 @@ static void LoadGraphics(void)
 	}
 
 	// status bar background bits
-	sbar_image = W_ImageLookup("STBAR");
+	if (W_CheckNumForName("BARBACK") >= 0)
+		sbar_image = W_ImageLookup("BARBACK");
+	else
+		sbar_image = W_ImageLookup("STBAR");
 
 	// face states
 	facenum = 0;
