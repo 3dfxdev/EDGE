@@ -152,7 +152,7 @@ static void M_ChangeLevelCheat(const char *string)
 	newgame_params_c params;
 
 	params.skill = gameskill;	
-	params.deathmatch = 0;
+	params.deathmatch = deathmatch;
 
 	params.map = G_LookupMap(string);
 	if (! params.map)
