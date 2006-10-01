@@ -127,11 +127,12 @@ static void BOT_Confidence(bot_t * bot)
 	}
 }
 
-static int BOT_EvaluateWeapon(player_t *p, int w_num)
+static int BOT_EvaluateWeapon(bot_t *bot, int w_num)
 {
+	player_t *p = bot->pl;
 	playerweapon_t *wp = p->weapons + w_num;
 
-	// Don't have this weapon
+	// don't have this weapon
 	if (! wp->owned)
 		return INT_MIN;
 
@@ -193,6 +194,62 @@ static int BOT_EvaluateWeapon(player_t *p, int w_num)
 	return (int)value;
 }
 
+static int BOT_EvaluateItem(bot_t *bot, mobj_t *mo)
+{
+	player_t *pl = bot->pl;
+
+	int score = 0;
+	int ammo;
+
+	for (benefit_t *list = mo->info->pickup_benefits;
+		list != NULL; list=list->next)
+	{
+		switch (list->type)
+		{
+			case BENEFIT_Weapon:
+				if (! BOT_HasWeapon(bot, list))
+					score = score + 50;
+				else if (numplayers > 1 && deathmatch != 2 && !(mo->flags & MF_DROPPED))
+					// cannot pick up in CO-OP or OLD DeathMatch
+					score = -999;
+				break;
+
+			case BENEFIT_Ammo:
+				ammo = list->sub.type;
+				if (ammo != AM_NoAmmo && pl->ammo[ammo].num < pl->ammo[ammo].max)
+					score = score + 10;
+				break;
+
+			case BENEFIT_Health:
+				if (bot->confidence < 0)
+					score = score + 40 + (int)list->amount;
+				else if (pl->health < list->limit)
+					score = score + 20;
+				break;
+
+			case BENEFIT_Armour:
+				score = score + 5 + (int)list->amount / 10;
+				break;
+
+			case BENEFIT_Powerup:
+				switch (list->sub.type)
+				{
+					case PW_Invulnerable: score = 18; break;
+					case PW_PartInvis:    score = 14; break;
+					case PW_Berserk:      score = 12; break;
+					case PW_AcidSuit:     score = 11; break;
+
+					default: break;
+				}
+				break;
+			
+			default: break;
+		}
+	}
+
+	return score;
+}
+
 static bool PTR_BotLook(intercept_t * in)
 {
 	if (in->type == INCPT_Line)
@@ -226,56 +283,11 @@ static bool PTR_BotLook(intercept_t * in)
 	if (th->health <= 0)
 		return true;  // already been picked up
 
-	player_t *pl = looking_bot->pl;
-	int score = 0;
-	int ammo;
+	int score = BOT_EvaluateItem(looking_bot, th);
 
-	for (benefit_t *list = th->info->pickup_benefits;
-		list != NULL; list=list->next)
-	{
-		switch (list->type)
-		{
-			case BENEFIT_Weapon:
-				if (! BOT_HasWeapon(looking_bot, list))
-					score = score + 50;
-				break;
-
-			case BENEFIT_Ammo:
-				ammo = list->sub.type;
-				if (ammo != AM_NoAmmo && pl->ammo[ammo].num < pl->ammo[ammo].max)
-					score = score + 10;
-				break;
-
-			case BENEFIT_Health:
-				if (looking_bot->confidence < 0)
-					score = score + 40 + (int)list->amount;
-				else if (pl->health < list->limit)
-					score = score + 20;
-				break;
-
-			case BENEFIT_Armour:
-				score = score + 5 + (int)list->amount / 10;
-				break;
-
-			case BENEFIT_Powerup:
-				switch (list->sub.type)
-				{
-					case PW_Invulnerable: score = 18; break;
-					case PW_PartInvis:    score = 14; break;
-					case PW_Berserk:      score = 12; break;
-					case PW_AcidSuit:     score = 11; break;
-
-					default: break;
-				}
-				break;
-			
-			default: break;
-		}
-	}
-
-	if (score == 0)
+	if (score <= 0)
 		return true;
-	
+
 	if (!lkbot_target || score > lkbot_score)
 	{
 		lkbot_target = th;
@@ -411,7 +423,7 @@ static void BOT_SelectWeapon(bot_t *bot)
 
 	for (int i=0; i < MAXWEAPONS; i++)
 	{
-		int val = BOT_EvaluateWeapon((player_t*)bot->pl, i);
+		int val = BOT_EvaluateWeapon(bot, i);
 
 		if (val > best_val)
 		{
@@ -447,6 +459,14 @@ static void BOT_Chase(bot_t *bot, bool seetarget, bool move_ok)
 	// Got a special (item) target?
 	if (mo->target->flags & MF_SPECIAL)
 	{
+		// have we stopped needed it? (maybe it is old DM and we
+		// picked up the weapon).
+		if (BOT_EvaluateItem(bot, mo->target) <= 0)
+		{
+			BOT_SetTarget(bot, NULL);
+			return;
+		}
+
 		// If there is a wall or something in the way, pick a new direction.
 		if (!move_ok || bot->move_count < 0)
 		{
