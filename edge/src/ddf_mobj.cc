@@ -765,7 +765,6 @@ static bool BenefitTryAmmo(const char *name, benefit_t *be,
 	}
 
 	be->type = BENEFIT_Ammo;
-	be->limit = 0;
 
 	if ((ammotype_e)be->sub.type == AM_NoAmmo)
 	{
@@ -779,10 +778,9 @@ static bool BenefitTryAmmo(const char *name, benefit_t *be,
 		return false;
 	}
 
-	if (num_vals > 1)
+	if (num_vals < 2)
 	{
-		DDF_WarnError2(0x128, "Ammo benefit cannot have a limit value.\n");
-		return false;
+		be->limit = be->amount;
 	}
 
 	return true;
