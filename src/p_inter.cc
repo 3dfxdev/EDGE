@@ -57,11 +57,12 @@ typedef struct
 	bool got_it;      // player actually got the benefit
 	bool keep_it;     // don't remove the thing from map
 	bool silent;      // don't make sound/flash/effects
+	bool no_ammo;     // skip ammo
 }
 pickup_info_t;
 
 
-static bool CheckHasBenefit(benefit_t *list, int kind)
+bool P_CheckForBenefit(benefit_t *list, int kind)
 {
 	for (benefit_t *be = list; be != NULL; be = be->next)
 	{
@@ -83,18 +84,16 @@ static bool CheckHasBenefit(benefit_t *list, int kind)
 //
 static void GiveAmmo(pickup_info_t *pu, benefit_t *be)
 {
+	if (pu->no_ammo)
+		return;
+
 	int ammo  = be->sub.type;  
 	int num   = I_ROUND(be->amount);
 
 	// -AJA- in old deathmatch, weapons give 2.5 times more ammo
-	if (deathmatch == 1 && CheckHasBenefit(pu->list, BENEFIT_Weapon) &&
+	if (deathmatch == 1 && P_CheckForBenefit(pu->list, BENEFIT_Weapon) &&
 		pu->special && !pu->dropped)
 	{
-		// cannot get the ammo "out" of the weapon, you must be
-		// picking up the weapon to get it.
-		if (pu->new_weap < 0)
-			return;
-
 		num = I_ROUND(be->amount * 2.5);
 	}
 
@@ -163,7 +162,6 @@ static void GiveAmmo(pickup_info_t *pu, benefit_t *be)
 		pu->player->ammo[ammo].num = pu->player->ammo[ammo].max;
 
 	pu->got_it = true;
-	return;
 }
 
 //
@@ -189,7 +187,6 @@ static void GiveAmmoLimit(pickup_info_t *pu, benefit_t *be)
 	pu->player->ammo[ammo].max = limit;
 
 	pu->got_it = true;
-	return;
 }
 
 //
@@ -213,17 +210,27 @@ static void GiveWeapon(pickup_info_t *pu, benefit_t *be)
 		return;
 	}
 
+	// special handling for CO-OP and OLD DeathMatch
+	if (numplayers > 1 && deathmatch != 2 &&
+		pu->special && ! pu->dropped)
+	{
+		if (! P_AddWeapon(pu->player, info, &pw_index))
+		{
+			pu->no_ammo = true;
+			return;
+		}
+
+		pu->new_weap = pw_index;
+		pu->keep_it = true;
+		pu->got_it = true;
+		return;
+	}
+
 	if (! P_AddWeapon(pu->player, info, &pw_index))
 		return;
 
 	pu->new_weap = pw_index;
-
-	// -AJA- leave placed weapons in old DeathMatch
-	if (deathmatch == 1 && pu->special && !pu->dropped)
-		pu->keep_it = true;
-
 	pu->got_it = true;
-	return;
 }
 
 //
@@ -253,7 +260,6 @@ static void GiveHealth(pickup_info_t *pu, benefit_t *be)
 	pu->player->mo->health = pu->player->health;
 
 	pu->got_it = true;
-	return;
 }
 
 //
@@ -346,7 +352,6 @@ static void GiveArmour(pickup_info_t *pu, benefit_t *be)
 	P_UpdateTotalArmour(pu->player);
 
 	pu->got_it = true;
-	return;
 }
 
 //
@@ -376,7 +381,6 @@ static void GiveKey(pickup_info_t *pu, benefit_t *be)
 		pu->keep_it = true;
 
 	pu->got_it = true;
-	return;
 }
 
 //
@@ -424,7 +428,6 @@ static void GivePower(pickup_info_t *pu, benefit_t *be)
 	}
 
 	pu->got_it = true;
-	return;
 }
 
 void DoGiveBenefitList(pickup_info_t *pu)
@@ -510,6 +513,7 @@ bool P_GiveBenefitList(player_t *player, mobj_t * special,
 	info.got_it  = false;
 	info.keep_it = false;
 	info.silent  = false;
+	info.no_ammo = false;
 
 	DoGiveBenefitList(&info);
 
@@ -584,6 +588,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 	info.got_it  = false;
 	info.keep_it = false;
 	info.silent  = false;
+	info.no_ammo = false;
 
 	// First handle lost benefits
 	info.list    = special->info->lose_benefits;
@@ -595,22 +600,21 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 	info.lose_em = false;
 	DoGiveBenefitList(&info);
 
-	bool pickup = info.got_it;
-
 	if (special->flags & MF_COUNTITEM)
 	{
 		info.player->itemcount++;
-		pickup = true;
+		info.got_it = true;
 	}
 	else if (special->hyperflags & HF_FORCEPICKUP)
 	{
-		pickup = true;
+		info.got_it  = true;
+		info.keep_it = false;
 	}
 
-	if (! pickup)
+	if (! info.got_it)
 		return;
 
-	if (! info.keep_it || (special->hyperflags & HF_FORCEPICKUP))
+	if (! info.keep_it)
 	{
 		special->health = 0;
 		P_KillMobj(info.player->mo, special, NULL);
