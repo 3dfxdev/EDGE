@@ -32,7 +32,7 @@ typedef long long i64_t;
 
 #define DIRSEPARATOR '/'
 
-#define GCCATTR(a) __attribute__((a))
+#define GCCATTR(xyz) __attribute__ (xyz)
 #define INLINE inline
 #define EDGE_INLINE(decl, body) extern inline decl body
 

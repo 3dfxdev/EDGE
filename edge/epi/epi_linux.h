@@ -60,7 +60,7 @@ typedef long long i64_t;
 #define INLINE inline
 #endif
 
-#define GCCATTR(a) __attribute__((a))
+#define GCCATTR(xyz) __attribute__ (xyz)
 #define EDGE_INLINE(decl, body) extern inline decl body
 
 #endif /* __LINUX_EPI_HEADER__ */
