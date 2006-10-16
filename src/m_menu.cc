@@ -2211,12 +2211,16 @@ void M_Init(void)
 	menu_loadg    = W_ImageLookup("M_LOADG");
 	menu_saveg    = W_ImageLookup("M_SAVEG");
 	menu_svol     = W_ImageLookup("M_SVOL");
-	menu_doom     = W_ImageLookup("M_DOOM");
 	menu_newgame  = W_ImageLookup("M_NEWG");
 	menu_skill    = W_ImageLookup("M_SKILL");
 	menu_episode  = W_ImageLookup("M_EPISOD");
 	menu_skull[0] = W_ImageLookup("M_SKULL1");
 	menu_skull[1] = W_ImageLookup("M_SKULL2");
+
+	if (W_CheckNumForName("M_HTIC") >= 0)
+		menu_doom = W_ImageLookup("M_HTIC");
+	else
+		menu_doom = W_ImageLookup("M_DOOM");
 
 	// Here we could catch other version dependencies,
 	//  like HELP1/2, and four episodes.
