@@ -421,7 +421,7 @@ u32_t I_ReadMicroSeconds(void)
 
 	gettimeofday(&tv, NULL);
 
-	return (u32_t)tv.tv_usec;
+	return (u32_t)tv.tv_sec * 1000000 + (u32_t)tv.tv_usec;
 }
 
 //
