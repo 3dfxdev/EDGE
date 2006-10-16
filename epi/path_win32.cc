@@ -20,6 +20,7 @@
 #include "path.h"
 
 #include <string.h>
+#include <ctype.h>
 
 namespace epi
 {
