@@ -9,84 +9,83 @@
 #VERSION 1.29
 
 // *****************
-// * DOOM2 scripts *
-// *****************
-
-
-start_map map07
-
-// lower the outer walls when all Mancubi are killed
-
-  radius_trigger 0 0 -1
-    on_death MANCUBUS
-    activate_linetype 38 666
-  end_radius_trigger
-
-// raise inner step when all Aracnotron are killed
-
-  radius_trigger 0 0 -1
-    on_death ARACHNOTRON
-    activate_linetype 30 667
-  end_radius_trigger
-
-end_map
-
-// open door behind Commander Keen when all KEEN's are killed
-
-start_map map32
-  radius_trigger 0 0 -1
-    on_death COMMANDER_KEEN
-    activate_linetype 2 666
-  end_radius_trigger
-end_map
-
-// *****************
 // * DOOM1 scripts *
 // *****************
 
 // lower the star shaped wall when all Baron's are killed
 
-start_map e1m8
-  radius_trigger 0 0 -1
-    on_death BARON_OF_HELL
-    activate_linetype 38 666
-  end_radius_trigger
-end_map
+START_MAP e1m8
+  RADIUS_TRIGGER 0 0 -1
+    ON_DEATH Baron_of_Hell
+    ACTIVATE_LINETYPE 38 666
+  END_RADIUS_TRIGGER
+END_MAP
 
 // end the map when the Cyberdemon is killed
 
-start_map e2m8
-  radius_trigger 0 0 -1
-    on_death THE_CYBERDEMON
-    exit_level 5
-  end_radius_trigger
-end_map
+START_MAP e2m8
+  RADIUS_TRIGGER 0 0 -1
+    ON_DEATH The_Cyberdemon
+    EXIT_LEVEL 5
+  END_RADIUS_TRIGGER
+END_MAP
 
 // end the map when the Spider Demon is killed
 
-start_map e3m8
-  radius_trigger 0 0 -1
-    on_death THE_SPIDER_MASTERMIND
-    exitlevel 5
-  end_radius_trigger
-end_map
+START_MAP e3m8
+  RADIUS_TRIGGER 0 0 -1
+    ON_DEATH The_Spider_Mastermind
+    EXIT_LEVEL 5
+  END_RADIUS_TRIGGER
+END_MAP
 
 // open the 4 South bars when the Cyberdemon is killed
 
-start_map e4m6
-  radius_trigger 0 0 -1
-    on_death THE_CYBERDEMON
-    activate_linetype 2 666
-  end_radius_trigger
-end_map
+START_MAP e4m6
+  RADIUS_TRIGGER 0 0 -1
+    ON_DEATH The_Cyberdemon
+    ACTIVATE_LINETYPE 2 666
+  END_RADIUS_TRIGGER
+END_MAP
 
 // raise center circular floor when Spider Demon is killed
 
-start_map e4m8
-  radius_trigger 0 0 -1
-    on_death THE_SPIDER_MASTERMIND
-    activate_linetype 38 666
-  end_radius_trigger
-end_map
+START_MAP e4m8
+  RADIUS_TRIGGER 0 0 -1
+    ON_DEATH The_Spider_Mastermind
+    ACTIVATE_LINETYPE 38 666
+  END_RADIUS_TRIGGER
+END_MAP
+
+// *****************
+// * DOOM2 scripts *
+// *****************
+
+START_MAP map07
+
+// lower the outer walls when all Mancubi are killed
+
+  RADIUS_TRIGGER 0 0 -1
+    ON_DEATH Mancubus
+    ACTIVATE_LINETYPE 38 666
+  END_RADIUS_TRIGGER
+
+// raise inner step when all Aracnotron are killed
+
+  RADIUS_TRIGGER 0 0 -1
+    ON_DEATH Arachnotron
+    ACTIVATE_LINETYPE 30 667
+  END_RADIUS_TRIGGER
+
+END_MAP
+
+// open door behind Commander Keen when all KEEN's are killed
+
+START_MAP map32
+  RADIUS_TRIGGER 0 0 -1
+    ON_DEATH Commander_Keen
+    ACTIVATE_LINETYPE 2 666
+  END_RADIUS_TRIGGER
+END_MAP
 
 // --------EOF-----------
