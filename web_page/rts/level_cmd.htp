@@ -9,7 +9,7 @@
 
 RTS contains many commands for interacting with the
 current level.  You can move sectors, change the lighting,
-modify the textures on linedefs, and even play sounds.
+modify the textures on walls and floors, and even play sounds.
 <p>
 
 
