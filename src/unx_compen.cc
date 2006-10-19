@@ -23,8 +23,8 @@
 // -ACB- 1999/10/10
 //
 
-#include "../i_defs.h"
-#include "../dm_defs.h"
+#include "i_defs.h"
+#include "dm_defs.h"
 
 #include <ctype.h>
 #include <stdlib.h>

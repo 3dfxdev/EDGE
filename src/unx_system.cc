@@ -16,21 +16,21 @@
 //
 //----------------------------------------------------------------------------
 
-#include "../i_defs.h"
-#include "i_sysinc.h"
+#include "i_defs.h"
+#include "unx_sysinc.h"
 
-#include "../version.h"
-#include "../con_main.h"
-#include "../dm_state.h"
-#include "../e_main.h"
-#include "../g_game.h"
-#include "../m_argv.h"
-#include "../m_misc.h"
-#include "../m_random.h"
-#include "../v_res.h"
-#include "../w_wad.h"
+#include "version.h"
+#include "con_main.h"
+#include "dm_state.h"
+#include "e_main.h"
+#include "g_game.h"
+#include "m_argv.h"
+#include "m_misc.h"
+#include "m_random.h"
+#include "v_res.h"
+#include "w_wad.h"
 
-#include "../z_zone.h"
+#include "z_zone.h"
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -44,7 +44,7 @@
 #include <sys/time.h>
 #include <time.h>
 
-#include "../epi/timestamp.h"
+#include "epi/timestamp.h"
 
 // FIXME: Use file_c handles
 extern FILE *logfile;

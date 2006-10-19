@@ -16,10 +16,10 @@
 //
 //----------------------------------------------------------------------------
 
-#include "../i_defs.h"
+#include "i_defs.h"
 #include "i_sdlinc.h"
 
-#include "../e_main.h"
+#include "e_main.h"
 
 // Application active?
 int app_state = APP_STATE_ACTIVE;

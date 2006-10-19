@@ -24,7 +24,7 @@
 #include "ddf_locl.h"
 #include "ddf_main.h"
 
-#include "./epi/utility.h"
+#include "epi/utility.h"
 
 #undef  DF
 #define DF  DDF_CMD

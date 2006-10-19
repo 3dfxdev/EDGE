@@ -16,12 +16,12 @@
 //
 //----------------------------------------------------------------------------
 
-#include "../i_defs.h"
+#include "i_defs.h"
 #include "i_sdlinc.h"
 
-#include "../e_main.h"
-#include "../e_event.h"
-#include "../v_res.h"
+#include "e_main.h"
+#include "e_event.h"
+#include "v_res.h"
 
 #include <ctype.h>
 

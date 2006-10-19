@@ -16,11 +16,11 @@
 //
 //----------------------------------------------------------------------------
 
-#include "../i_defs.h"
+#include "i_defs.h"
 #include "i_sdlinc.h"
 
-#include "../m_argv.h"
-#include "../v_res.h"
+#include "m_argv.h"
+#include "v_res.h"
 
 #include <signal.h>
 
