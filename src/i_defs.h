@@ -22,63 +22,6 @@
 #ifndef __SYSTEM_SPECIFIC_DEFS__
 #define __SYSTEM_SPECIFIC_DEFS__
 
-// NULL port
-// Template for new ports. It is as close to ANSI C as possible, and comments
-// have been added to show what code you have to add to make it work.
-#if 0
-
-//typedef long long Int64;
-
-//
-// Define USE_INT64 if the system supports 64 bit integers.
-//#define USE_INT64
-//
-
-//
-// define FLOAT_IEEE_754 if the float is IEEE_754 compliant, i.e. 1 bit
-// sign + 8 bits exponent + 23 bits mantissa.
-//
-//#define FLOAT_IEEE_754
-typedef enum { false, true } bool;
-
-//
-// Add any system includes here, e.g.
-// #include <stdio.h>
-//
-
-#define EDGECONFIGFILE "EDGE.CFG"
-#define EDGELOGFILE    "EDGE.LOG"
-#define EDGEHOMESUBDIR ".edge"
-#define REQUIREDWAD    "EDGE"
-
-//
-// This is the default directory separator. It is '\\' in DOS, and '/' on
-// most other systems.
-//
-#define DIRSEPARATOR '/'
-
-// If GCC is used, this one is defined as __attribute__ (a).
-#define GCCATTR(xyz)  /* nothing */
-
-//
-// INLINE can be defined to a keyword which hints the compiler to inline a
-// function.
-//
-#define INLINE
-
-// See m_inline.h for usage. This is the ANSI C compliant definition.
-#define EDGE_INLINE(decl, body) extern decl;
-
-// If memmove is not optimal on your system, you can use your own I_MoveData,
-// which should have exactly the same type as memcpy, and should declared here.
-#define I_MoveData memmove
-
-// include headers to compensate for missing standard functions.
-#include "./null/i_compen.h"
-#include "i_system.h"
-
-#endif // NULL port
-
 // MinGW 
 #ifdef WIN32
 #ifdef __GNUC__
@@ -104,7 +47,7 @@ typedef enum { false, true } bool;
 #define alloca _alloca
 #define I_MoveData memmove
 
-#include "./win32/i_compen.h"
+#include "w32_compen.h"
 #include "i_system.h"
 
 #endif
@@ -143,7 +86,7 @@ typedef enum { false, true } bool;
 
 #define DIRSEPARATOR '\\'
 
-#include "./win32/i_compen.h"
+#include "w32_compen.h"
 #include "i_system.h"
 
 #endif
@@ -178,7 +121,7 @@ typedef enum { false, true } bool;
 
 #define DIRSEPARATOR '\\'
 
-#include "./win32/i_compen.h"
+#include "w32_compen.h"
 #include "i_system.h"
 
 #endif
@@ -203,7 +146,7 @@ typedef enum { false, true } bool;
 
 #define DIRSEPARATOR '/'
 
-#include "linux/i_compen.h"
+#include "unx_compen.h"
 #include "i_system.h"
 
 #endif // LINUX GCC
@@ -230,12 +173,11 @@ typedef enum { false, true } bool;
 #define DIRSEPARATOR '/'
 
 // moved; compile failure if ASSEM=Y
-#include "linux/i_compen.h"
+#include "unx_compen.h"
 #include "i_system.h"
 //#include "linux/i_compen.h"
 
 #endif // MACOSX GCC
 
 #endif /*__SYSTEM_SPECIFIC_DEFS__*/
-
 
