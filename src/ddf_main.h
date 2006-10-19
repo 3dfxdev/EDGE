@@ -15,9 +15,6 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-//
-// $Id: ddf_main.h,v 1.171 2006/09/08 11:00:42 ajapted Exp $
-//
 
 #ifndef __DDF_MAIN__
 #define __DDF_MAIN__
@@ -2740,81 +2737,3 @@ bool DDF_ReadWeapons(void *data, int size);
 
 #endif
 
-//
-// $Log: ddf_main.h,v $
-// Revision 1.171  2006/09/08 11:00:42  ajapted
-// Preliminaries for 'out of the box' BOOM compatibility, including
-// removing the Edge/Boom auto-detection crud, removing the compatibility
-// menu option, renumbering EDGE sector types, adding an '-ecompat'
-// cmd-line option for old mods, and initial implementation for some
-// BOOM features (Wind/Current/Point pushers).
-//
-// Revision 1.170  2006/08/03 15:50:39  ajapted
-// New SPAWN_LIMIT command for attacks.ddf, used to limit the
-// number of lost souls produced by pain elementals.
-//
-// Revision 1.169  2006/08/02 04:01:23  ajapted
-// Changed #includes from <epi/xxx.h> to "epi/xxx.h"
-// (same goes for glbsp and humidity).
-//
-// Revision 1.168  2006/08/01 12:15:12  ajapted
-// Fixes for 64-bit systems (orig by Darren Salt).
-//
-// Revision 1.167  2005/11/13 15:12:39  darkknight
-// Rejig of headers for configure script
-//
-// Revision 1.166  2005/10/22 21:32:24  darkknight
-// Treat epi, glbsp & humidity headers as if in the global space
-//
-// Revision 1.165  2005/08/23 13:07:57  ajapted
-// Implemented new NOTARGET attack special.
-//
-// Revision 1.164  2005/08/06 06:33:07  ajapted
-// DDF control over whether the Berserk powerup lasts the entire level,
-// via new PICKUP_EFFECT called "KEEP_POWERUP(BERSERK)".
-//
-// Revision 1.163  2005/08/06 04:00:26  ajapted
-// Fixed problem of Berserk powerup applying to all melee weapons,
-// with new Attacks.DDF command BERSERK_MULTIPLY.
-//
-// Revision 1.162  2005/06/27 08:51:08  darkknight
-// Initial new-SFX system commit
-//
-// Revision 1.161  2005/05/15 13:58:35  ajapted
-// Added new HOVER thing special, and support for "Ghosts"
-// (certain attacks passing straight through an object).
-//
-// Revision 1.160  2005/05/14 06:38:39  ajapted
-// Added support for loading DDF files specified directly on the
-// command line (with the extension ".ddf" or ".ldf").
-// For TNT and Plutonia iwads, implemented loading their specific
-// language lumps (TNTLANG and PLUTLANG, stored in edge.wad).
-//
-// Revision 1.159  2005/04/07 03:07:59  ajapted
-// Make #CLEARALL in Weapons.ddf affect what you get by cheating.
-//
-// Revision 1.158  2005/04/02 20:41:47  darkknight
-// Removed transluc flag
-//
-// Revision 1.157  2005/03/12 01:42:37  ajapted
-// Replaced new ammo names with plain old AMMO9, AMMO10 ... AMMO16.
-//
-// Revision 1.156  2005/03/11 03:01:16  ajapted
-// Added four new ammo types (total now 16).
-//
-// Revision 1.155  2005/03/07 11:59:02  darkknight
-// Copyright header update
-//
-// Revision 1.154  2005/03/04 09:13:25  ajapted
-// Fixed demos when using -nomonsters (the flag wasn't written).
-//
-// Revision 1.153  2005/02/26 11:32:31  ajapted
-// Comment update.
-//
-// Revision 1.152  2005/02/19 08:12:17  darkknight
-// crc & md5 files now math_ prefixed
-//
-// Revision 1.151  2005/02/18 16:28:21  darkknight
-// id/log test 2
-//
-//
