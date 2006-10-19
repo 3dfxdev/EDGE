@@ -8,7 +8,7 @@
 
 RTS scripts are simple text files.  On Windows you can create them
 with Notepad or another text editor.  You <b>cannot</b> use
-word processor files ("DOC" files) like Microsoft Word creates,
+word processor files (like "DOC" files),
 because these are not text files and EDGE cannot read them.
 
 <p>

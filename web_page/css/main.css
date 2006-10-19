@@ -119,7 +119,7 @@ UL.credits {
 UL.credits B {
   color: #862;
   font-weight: bold;
-  text-decoration: underline;
+  text-decoration: none; /* underline; */
   }
 
 UL.credits LI {
