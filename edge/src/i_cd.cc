@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
-//  EDGE MACOSX CD Handling Code (Empty Stubs)
+//  EDGE SDL CD Handling Code
 //-----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2005  The EDGE Team.
+//  Copyright (c) 1999-2006  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -14,12 +14,9 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
 //
-//  DESCRIPTION:
-// 	-AJA- Empty stubs, to get MacOSX version to compile.
-// 	      Using SDL's CD functions might be the way to go...
-//
+//-----------------------------------------------------------------------------
 
-#include "../i_defs.h"
+#include "i_defs.h"
 #include "i_sdlinc.h"
 
 #include <stdarg.h>

@@ -19,13 +19,13 @@
 // -ACB- 1999/11/13 Written
 //
 
-#include "../i_defs.h"
-#include "i_sysinc.h"
+#include "i_defs.h"
+#include "w32_sysinc.h"
 
-#include "../SDL/i_sdlinc.h"
+#include "i_sdlinc.h"
 
-#include "../oggplayer.h"
-#include "../s_sound.h"
+#include "oggplayer.h"
+#include "s_sound.h"
 
 // #defines for handle information
 #define GETLIBHANDLE(_handle) (_handle&0xFF)

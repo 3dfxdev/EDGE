@@ -19,10 +19,10 @@
 // -ACB- 1999/11/09 Written
 //
 
-#include "../i_defs.h"
-#include "../SDL/i_sdlinc.h"
+#include "i_defs.h"
+#include "i_sdlinc.h"
 
-#include "i_sysinc.h"
+#include "w32_sysinc.h"
 
 #include <SDL_syswm.h>
 

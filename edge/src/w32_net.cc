@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "../i_defs.h"
-#include "i_sysinc.h"
+#include "i_defs.h"
+#include "w32_sysinc.h"
 
 #ifdef USE_HAWKNL
 #include "nl.h"

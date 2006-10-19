@@ -19,7 +19,7 @@
 //  -AJA- 2000/07/07: Began work on SDL sound support.
 //
 
-#include "../i_defs.h"
+#include "i_defs.h"
 
 #ifdef MACOSX
 #include <SDL.h>
@@ -27,11 +27,11 @@
 #include <SDL/SDL.h>
 #endif
 
-#include "i_sysinc.h"
+///??? #include "i_sysinc.h"
 
-#include "../m_argv.h"
-#include "../m_swap.h"
-#include "../w_wad.h"
+#include "m_argv.h"
+#include "m_swap.h"
+#include "w_wad.h"
 
 #include <stdio.h>
 #include <stdlib.h>

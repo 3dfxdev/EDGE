@@ -17,24 +17,24 @@
 //----------------------------------------------------------------------------
 //
 
-#include "../i_defs.h"
-#include "../SDL/i_sdlinc.h"
+#include "i_defs.h"
+#include "i_sdlinc.h"
 
-#include "../con_main.h"
-#include "../dm_defs.h"
-#include "../e_main.h"
-#include "../g_game.h"
-#include "../m_argv.h"
-#include "../m_menu.h"
-#include "../m_misc.h"
-#include "../s_sound.h"
-#include "../w_wad.h"
-#include "../z_zone.h"
+#include "con_main.h"
+#include "dm_defs.h"
+#include "e_main.h"
+#include "g_game.h"
+#include "m_argv.h"
+#include "m_menu.h"
+#include "m_misc.h"
+#include "s_sound.h"
+#include "w_wad.h"
+#include "z_zone.h"
 
-#include "i_sysinc.h"
+#include "w32_sysinc.h"
 
-#include "../epi/strings.h"
-#include "../epi/timestamp.h"
+#include "epi/strings.h"
+#include "epi/timestamp.h"
 
 #include <ctype.h>
 #include <fcntl.h>

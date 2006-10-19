@@ -19,7 +19,7 @@
 #ifndef __SYSTEM_INTERNAL_H__
 #define __SYSTEM_INTERNAL_H__
 
-#include "../i_defs.h"
+#include "i_defs.h"
 
 #include <sys/ioctl.h>
 

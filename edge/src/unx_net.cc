@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "../i_defs.h"
-#include "i_sysinc.h"
+#include "i_defs.h"
+#include "unx_sysinc.h"
 
 #include <stdio.h>
 #include <unistd.h>

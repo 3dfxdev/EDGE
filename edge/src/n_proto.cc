@@ -19,5 +19,5 @@
 #include "i_defs.h"
 #include "version.h"
 
-#include "protocol.cpp"
+#include "protocol.cc"
 

@@ -24,8 +24,8 @@
 //                  excellent Port of the Doom Engine for X (every flavour
 //                  known to man) - XDoom.
 //
-#include "../i_defs.h"
-#include "i_sysinc.h"
+#include "i_defs.h"
+#include "unx_sysinc.h"
 
 #define DRIVE "/dev/cdrom"
 

@@ -20,16 +20,16 @@
 // -ACB- 2001/01/14 Replaced I_WriteDebug() with I_PostMusicError()
 //
 
-#include "../i_defs.h"
-#include "i_sysinc.h"
+#include "i_defs.h"
+#include "unx_sysinc.h"
 
-#include "../oggplayer.h"
+#include "oggplayer.h"
 
 #ifdef USE_HUMID
-#include "../humdinger.h"
+#include "humdinger.h"
 #endif
 
-#include "../s_sound.h"
+#include "s_sound.h"
 
 #include <string.h>
 

@@ -17,10 +17,10 @@
 //----------------------------------------------------------------------------
 //
 
-#include "../i_defs.h"
-#include "../i_defs_al.h"
+#include "i_defs.h"
+#include "i_defs_al.h"
 
-#include "../m_argv.h"
+#include "m_argv.h"
 
 #include <stdlib.h>
 
