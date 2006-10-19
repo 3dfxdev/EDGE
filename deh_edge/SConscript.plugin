@@ -3,20 +3,16 @@
 #
 import os
 
-env = Environment()
+Import('base_env')
+
+env = base_env.Copy()
 
 env.Append(CCFLAGS = ['-DDEH_EDGE_PLUGIN'])
 
-# warnings
-env.Append(CCFLAGS = ['-Wall'])
-
-# optimisation
-env.Append(CCFLAGS = ['-O'])
-
 deh_sources = [
-	'convert.cpp', 'main.cpp', 'system.cpp', 'util.cpp', 'wad.cpp', 'info.cpp', 'mobj.cpp',
-	'sounds.cpp', 'frames.cpp', 'things.cpp', 'attacks.cpp', 'weapons.cpp', 'ammo.cpp',
-	'misc.cpp', 'text.cpp', 'storage.cpp', 'patch.cpp', 'rscript.cpp', 'buffer.cpp']
+	'convert.cc', 'main.cc', 'system.cc', 'util.cc', 'wad.cc', 'info.cc', 'mobj.cc',
+	'sounds.cc', 'frames.cc', 'things.cc', 'attacks.cc', 'weapons.cc', 'ammo.cc',
+	'misc.cc', 'text.cc', 'storage.cc', 'patch.cc', 'rscript.cc', 'buffer.cc']
 
 # operating system specifics
 if os.name == "nt":
