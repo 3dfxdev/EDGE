@@ -1286,6 +1286,7 @@ static specflags_t hyper_specials[] =
 	{"HOVER", HF_HOVER, 0},
 	{"PUSHABLE", HF_PUSHABLE, 0},
 	{"POINT FORCE", HF_POINT_FORCE, 0},
+	{"PASS MISSILE", HF_PASSMISSILE, 0},
 	{NULL, 0, 0}
 };
 
