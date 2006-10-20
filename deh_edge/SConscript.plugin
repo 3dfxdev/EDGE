@@ -3,6 +3,7 @@
 #
 import os
 
+Import('build_info')
 Import('base_env')
 
 env = base_env.Copy()
@@ -10,18 +11,12 @@ env = base_env.Copy()
 env.Append(CCFLAGS = ['-DDEH_EDGE_PLUGIN'])
 
 deh_sources = [
-	'convert.cc', 'main.cc', 'system.cc', 'util.cc', 'wad.cc', 'info.cc', 'mobj.cc',
-	'sounds.cc', 'frames.cc', 'things.cc', 'attacks.cc', 'weapons.cc', 'ammo.cc',
-	'misc.cc', 'text.cc', 'storage.cc', 'patch.cc', 'rscript.cc', 'buffer.cc']
-
-# operating system specifics
-if os.name == "nt":
-	env.Append(CCFLAGS = '-DWIN32')
-elif os.name == "posix":
-	env.Append(CCFLAGS = '-DLINUX')
-else:
-	print 'Unknown OS type: ' + os.name
-	Exit(1)
+    'convert.cc', 'main.cc', 'system.cc', 'util.cc', 'wad.cc', 'info.cc', 'mobj.cc',
+    'sounds.cc', 'frames.cc', 'things.cc', 'attacks.cc', 'weapons.cc', 'ammo.cc',
+    'misc.cc', 'text.cc', 'storage.cc', 'patch.cc', 'rscript.cc',
+    'buffer.cc' ]
 
 env.StaticLibrary('dehedge', deh_sources)
 
+##--- editor settings ---
+## vi:ts=4:sw=4:expandtab
