@@ -344,7 +344,10 @@ typedef enum
 	HF_PUSHABLE = 64,
 
 	// -AJA- 2006/08/17: used by MT_PUSH and MT_PULL objects
-	HF_POINT_FORCE = 128
+	HF_POINT_FORCE = 128,
+
+	// -AJA- 2006/10/19: scenery items don't block missiles
+	HF_PASSMISSILE = 256,
 }
 mobjhyperflag_t;
 

@@ -343,13 +343,17 @@ static bool PIT_CheckAbsThing(mobj_t * thing)
 
 	if (tm_I.flags & MF_MISSILE)
 	{
+		// ignore the missile's shooter
+		if (tm_I.mover->source && tm_I.mover->source == thing)
+			return true;
+
+    if ((thing->hyperflags & HF_PASSMISSILE) &&
+        ! level_flags.true3dgameplay)  // FIXME: separate option?
+      return true;
+
 		// thing isn't shootable, return depending on if the thing is solid.
 		if (!(thing->flags & MF_SHOOTABLE))
 			return !solid;
-
-		// don't hurt the missile's shooter:
-		if (tm_I.mover->source && tm_I.mover->source == thing)
-			return true;
 
 		if (P_MissileContact(tm_I.mover, thing) < 0)
 			return true;
@@ -683,13 +687,17 @@ static bool PIT_CheckRelThing(mobj_t * thing)
 		if (tm_I.z + tm_I.mover->height < thing->z)
 			return true;  // underneath
 
+		// ignore the missile's shooter
+		if (tm_I.mover->source && tm_I.mover->source == thing)
+			return true;
+
+    if ((thing->hyperflags & HF_PASSMISSILE) &&
+        ! level_flags.true3dgameplay)  // FIXME: separate option?
+      return true;
+
 		// thing isn't shootable, return depending on if the thing is solid.
 		if (!(thing->flags & MF_SHOOTABLE))
 			return !solid;
-
-		// don't hurt the missile's shooter:
-		if (tm_I.mover->source && tm_I.mover->source == thing)
-			return true;
 
 		if (P_MissileContact(tm_I.mover, thing) < 0)
 			return true;
