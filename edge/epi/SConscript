@@ -3,33 +3,34 @@
 #
 import os
 
+Import('build_info')
 Import('base_env')
 
 env = base_env.Copy()
 
 env.Append(CCFLAGS = ['-ffast-math'])
 
+# FIXME: jpeg, png & zlib include directory
+
 epi_sources = [
-	'arrays.cc', 'asserts.cc', 'basicimage.cc',
-	'bytearray.cc', 'errors.cc', 'filesystem.cc',
-	'image_hq2x.cc', 'image_jpeg.cc', 'image_png.cc',
-	'math_angle.cc', 'math_bbox.cc', 'math_colour.cc',
-	'math_crc.cc', 'math_md5.cc', 'math_point.cc', 'math_vector.cc',
-	'memfile.cc', 'memmanager.cc', 'mersenne_twist.cc',
-	'stacks.cc', 'strings.cc', 'timestamp.cc', 'utility.cc']
+    'arrays.cc', 'asserts.cc', 'basicimage.cc',
+    'bytearray.cc', 'errors.cc', 'filesystem.cc',
+    'image_hq2x.cc', 'image_jpeg.cc', 'image_png.cc',
+    'math_angle.cc', 'math_bbox.cc', 'math_colour.cc',
+    'math_crc.cc', 'math_md5.cc', 'math_point.cc', 'math_vector.cc',
+    'memfile.cc', 'memmanager.cc', 'mersenne_twist.cc',
+    'stacks.cc', 'strings.cc', 'timestamp.cc', 'utility.cc']
 
 # operating system specifics
-if os.name == "nt":
-	epi_sources += ['epi_win32.cc', 'files_win32.cc', 'filesystem_win32.cc', 'path_win32.cc']
-	env.Append(CCFLAGS = '-DWIN32')
+if build_info['platform'] == "win32":
+    epi_sources += ['epi_win32.cc', 'files_win32.cc', 'filesystem_win32.cc', 'path_win32.cc']
+    ###--- env.Append(CCFLAGS = '-DWIN32')
 
-elif os.name == "posix":
-	epi_sources += ['epi_linux.cc', 'files_linux.cc', 'filesystem_linux.cc', 'path_linux.cc']
-	env.Append(CCFLAGS = '-DLINUX')
-
-else:
-	print 'Unknown OS type: ' + os.name
-	Exit(1)
+else: # linux
+    epi_sources += ['epi_linux.cc', 'files_linux.cc', 'filesystem_linux.cc', 'path_linux.cc']
+    ###--- env.Append(CCFLAGS = '-DLINUX')
 
 env.StaticLibrary('epi', epi_sources)
 
+##--- editor settings ---
+## vi:ts=4:sw=4:expandtab

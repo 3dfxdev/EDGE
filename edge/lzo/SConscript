@@ -3,13 +3,15 @@
 #
 import os
 
-env = Environment()
+Import('build_info')
+Import('base_env')
 
-# warnings
-env.Append(CCFLAGS = ['-Wall'])
+env = base_env.Copy()
 
-# optimisation
-env.Append(CCFLAGS = ['-O2', '-fomit-frame-pointer', '-fno-strength-reduce'])
+# extra optimisation
+env.Append(CCFLAGS = ['-fomit-frame-pointer', '-fno-strength-reduce'])
 
 env.StaticLibrary('lzo', ['minilzo.c'])
 
+##--- editor settings ---
+## vi:ts=4:sw=4:expandtab
