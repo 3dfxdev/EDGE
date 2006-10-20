@@ -383,7 +383,11 @@ namespace Things
 	   MT_MISC41, 96, MT_MISC42, 96, MT_MISC43, 96, MT_MISC44, 72,
 	   MT_MISC45, 72, MT_MISC46, 72, MT_MISC70, 64, MT_MISC72, 52,
 	   MT_MISC73, 40, MT_MISC74, 64, MT_MISC75, 64, MT_MISC76, 120,
-	   -1 /* the end */
+
+	   MT_MISC36, 56, MT_MISC37, 56, MT_MISC47, 56, MT_MISC48, 128,
+	   MT_MISC35, 56, MT_MISC40, 56, MT_MISC50, 56, MT_MISC77, 42,
+
+     -1 /* the end */
 	};
 
 	void FixHeights(void)
