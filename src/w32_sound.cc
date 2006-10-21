@@ -39,7 +39,7 @@ bool I_StartupSound(void *sysinfo)
 
 	if (nosound)
 		return true;
-			
+
 	p = M_GetParm("-freq");
 	if (p)
 		want_freq = atoi(p);
@@ -55,7 +55,7 @@ bool I_StartupSound(void *sysinfo)
 			p = "DirectSound";
 	}
 
-	alc_dev = alcOpenDevice((const ALubyte*)p);
+	alc_dev = alcOpenDevice((const ALCchar*)p);
 	if (alc_dev == NULL)
 	{
 		I_Printf("I_StartupSound: Couldn't init OpenAL.\n");
