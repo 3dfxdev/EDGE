@@ -42,6 +42,8 @@
 #include <sys/stat.h>
 #include <time.h>
 
+#define INTOLERANT_MATH 1  // -AJA- FIXME: temp fix to get to compile
+
 extern FILE* debugfile;
 extern FILE* logfile;
 
