@@ -39,8 +39,89 @@ else:
 # platform
 base_env.Append(CCFLAGS = ['-D' + build_info['platform'].upper()])
 
+if build_info['platform'] == 'win32':
+    base_env.Append(CPPPATH = ['#jpeg-6b'])
+    base_env.Append(CPPPATH = ['#libpng-1.2.12'])
+    base_env.Append(CPPPATH = ['#zlib-1.2.3'])
+
 Export('base_env')
 
+
+#----- LIBRARIES ----------------------------------
+
+env = base_env.Copy()
+
+# EDGE itself
+###--- env.Append(CPPPATH = ['#src'])
+env.Append(LIBPATH = ['#src'])
+env.Append(LIBS = ['edge1', 'edge2', 'edge3'])
+## need to duplicate these, because the GNU linker is a piece of shit!
+env.Append(LIBS = ['edge1', 'edge2'])
+
+# epi
+env.Append(LIBPATH = ['#epi'])
+env.Append(LIBS = ['epi'])
+env.Append(LIBS = ['epi'])
+
+# GLBSP
+env.Append(LIBPATH = ['#glbsp'])
+env.Append(LIBS = ['glbsp'])
+
+# Deh_Edge
+env.Append(LIBPATH = ['#deh_edge'])
+env.Append(LIBS = ['dehedge'])
+
+# LZO
+env.Append(LIBPATH = ['#lzo'])
+env.Append(LIBS = ['lzo'])
+
+# JPEG, PNG and ZLIB
+env.Append(LIBS = ['png', 'jpeg', 'z'])
+
+# SDL
+if build_info['platform'] == 'win32':
+    env.Append(LIBS = ['libSDL'])
+    # the following is a HACK (stupid fucking linker!)
+    env.Append(LINKFLAGS = ['./SDL-1.2.11/build/SDL_win32_main.o'])
+else: # linux
+    env.ParseConfig('sdl-config --cflags --libs')
+
+# OpenGL and OpenAL
+if build_info['platform'] == 'win32':
+    env.Append(LIBS = ['opengl32'])
+    env.Append(LIBS = ['OpenAL32'])
+else:
+    env.Append(LIBS = ['GL'])
+    env.Append(LIBS = ['openal'])
+
+# Ogg/Vorbis
+env.Append(LIBS = ['ogg', 'vorbis', 'vorbisfile'])
+## need to duplicate these (TWICE!), because the GNU linker is a piece of shit!
+env.Append(LIBS = ['ogg', 'vorbis', 'vorbisfile'])
+env.Append(LIBS = ['ogg', 'vorbis', 'vorbisfile'])
+
+if build_info['platform'] == 'win32':
+    env.Append(CPPPATH = ['#AL_SDK/include'])
+    env.Append(CPPPATH = ['#libogg-1.1.3/include'])
+    env.Append(CPPPATH = ['#libvorbis-1.1.2/include'])
+    env.Append(CPPPATH = ['#SDL-1.2.11/include'])
+    #
+    env.Append(LIBPATH = ['#jpeg-6b'])
+    env.Append(LIBPATH = ['#libpng-1.2.12'])
+    env.Append(LIBPATH = ['#zlib-1.2.3'])
+    #
+    env.Append(LIBPATH = ['#AL_SDK/libs/Win32'])
+    env.Append(LIBPATH = ['#libogg-1.1.3/src'])
+    env.Append(LIBPATH = ['#libvorbis-1.1.2/lib'])
+    env.Append(LIBPATH = ['#SDL-1.2.11/build'])
+    env.Append(LIBPATH = ['#SDL-1.2.11/build/.libs'])
+    #
+    env.Append(LIBS = ['wsock32', 'winmm', 'gdi32', 'dxguid', 'dinput'])
+    env.Append(LINKFLAGS = ['-mwindows'])
+
+main_env = env
+
+Export('main_env')  # for src/SConscript
 
 #------------------------------------------------
 
@@ -50,47 +131,6 @@ SConscript('deh_edge/SConscript.plugin')
 SConscript('glbsp/SConscript.plugin')
 SConscript('lzo/SConscript')
 # SConscript('humidity/SConscript.plugin')
-
-
-#----- LIBRARIES ----------------------------------
-
-env = base_env.Copy()
-
-# EDGE itself
-env.Append(CPPPATH = ['./src'])
-env.Append(LIBPATH = ['./src'])
-env.Append(LIBS = ['edge'])
-
-# epi
-env.Append(LIBPATH = ['./epi'])
-env.Append(LIBS = ['epi'])
-
-# GLBSP
-env.Append(LIBPATH = ['./glbsp'])
-env.Append(LIBS = ['glbsp'])
-
-# Deh_Edge
-env.Append(LIBPATH = ['./deh_edge'])
-env.Append(LIBS = ['dehedge'])
-
-# LZO
-env.Append(LIBPATH = ['./lzo'])
-env.Append(LIBS = ['lzo'])
-
-# JPEG, PNG and ZLIB
-env.Append(LIBS = ['png', 'jpeg', 'z'])
-
-# SDL
-env.ParseConfig('sdl-config --cflags --libs')
-
-# OpenGL
-env.Append(LIBS = ['GL'])
-
-# OpenAL
-env.Append(LIBS = ['openal'])
-
-# Ogg/Vorbis
-env.Append(LIBS = ['ogg', 'vorbis', 'vorbisfile'])
 
 env.Program('gledge', [])
 
