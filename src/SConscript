@@ -16,38 +16,38 @@ env.Append(CPPPATH = ['#.'])
 #------- OBJECTS -----------------------------------
 
 sources_1 = [
- 'l_glbsp.cc',
- 'i_main.cc', 'i_cd.cc', 'i_ctrl.cc', 'i_video.cc',
- 'mus_2_midi.cc', 'oggplayer.cc', 
- 'am_map.cc', 'con_con.cc', 'con_cvar.cc', 'con_main.cc', 'ddf_anim.cc',
- 'ddf_atk.cc', 'ddf_boom.cc', 'ddf_colm.cc', 'ddf_font.cc', 
- 'ddf_game.cc', 'ddf_image.cc', 'ddf_lang.cc', 'ddf_levl.cc', 
- 'ddf_line.cc', 'ddf_main.cc', 'ddf_mobj.cc', 'ddf_mus.cc', 
- 'ddf_sect.cc', 'ddf_sfx.cc', 'ddf_stat.cc', 'ddf_style.cc', 
- 'ddf_swth.cc', 'ddf_weap.cc', 'dem_chunk.cc', 'dem_glob.cc', 
- 'dm_defs.cc', 'dm_state.cc', 'e_demo.cc', 'e_input.cc', 'e_main.cc', 
- 'e_player.cc', 'f_finale.cc', 'g_game.cc', 'gui_ctls.cc', 'gui_main.cc', 
- 'hu_font.cc', 'hu_lib.cc', 'hu_stuff.cc', 'hu_style.cc',
- 'i_asm.cc' ] 
+    'i_main.cc', 'i_cd.cc', 'i_ctrl.cc', 'i_video.cc',
+    'am_map.cc', 'con_con.cc', 'con_cvar.cc', 'con_main.cc', 'ddf_anim.cc',
+    'ddf_atk.cc', 'ddf_boom.cc', 'ddf_colm.cc', 'ddf_font.cc', 
+    'ddf_game.cc', 'ddf_image.cc', 'ddf_lang.cc', 'ddf_levl.cc', 
+    'ddf_line.cc', 'ddf_main.cc', 'ddf_mobj.cc', 'ddf_mus.cc', 
+    'ddf_sect.cc', 'ddf_sfx.cc', 'ddf_stat.cc', 'ddf_style.cc', 
+    'ddf_swth.cc', 'ddf_weap.cc', 'dem_chunk.cc', 'dem_glob.cc', 
+    'dm_defs.cc', 'dm_state.cc', 'e_demo.cc', 'e_input.cc', 'e_main.cc', 
+    'e_player.cc', 'f_finale.cc', 'g_game.cc', 'gui_ctls.cc', 'gui_main.cc', 
+    'hu_font.cc', 'hu_lib.cc', 'hu_stuff.cc', 'hu_style.cc',
+    'i_asm.cc' ] 
 
 sources_2 = [
- 'l_deh.cc', 'lu_gamma.cc', 'm_argv.cc', 'm_bbox.cc', 
- 'm_cheat.cc', 'm_math.cc', 'm_menu.cc', 'm_misc.cc', 'm_option.cc', 
- 'm_random.cc', 'n_network.cc', 'n_packet.cc', 'n_proto.cc', 
- 'p_action.cc', 'p_bot.cc', 'p_enemy.cc', 'p_inter.cc', 'p_lights.cc', 
- 'p_map.cc', 'p_maputl.cc', 'p_mobj.cc', 'p_plane.cc', 'p_setup.cc', 
- 'p_sight.cc', 'p_spec.cc', 'p_switch.cc', 'p_tick.cc', 'p_user.cc', 
- 'p_forces.cc', 'p_weapon.cc',
- 'r2_util.cc', 'rad_act.cc', 'rad_pars.cc', 'rad_trig.cc', 
- 'r_bsp.cc', 'r_data.cc', 'rgl_bsp.cc', 'rgl_fx.cc', 'rgl_main.cc', 
- 'rgl_occ.cc', 'rgl_sky.cc', 'rgl_tex.cc', 'rgl_thing.cc', 'rgl_unit.cc', 
- 'rgl_wipe.cc', 'r_layers.cc', 'r_main.cc', 'r_sky.cc', 'r_things.cc', 
- 'r_vbinit.cc', 'r_view.cc', 's_music.cc', 's_sound.cc', 'st_lib.cc', 
- 'st_stuff.cc', 'sv_chunk.cc', 'sv_dump.cc', 'sv_glob.cc', 'sv_level.cc', 
- 'sv_load.cc', 'sv_main.cc', 'sv_misc.cc', 'sv_mobj.cc', 'sv_play.cc', 
- 'sv_save.cc', 'v_colour.cc', 'v_res.cc', 'w_image.cc', 'wi_stuff.cc', 
- 'wp_wipe.cc', 'w_textur.cc', 'w_wad.cc', 'z_zone.cc', 
- ]
+    'l_glbsp.cc',
+    'l_deh.cc', 'lu_gamma.cc', 'm_argv.cc', 'm_bbox.cc', 
+    'm_cheat.cc', 'm_math.cc', 'm_menu.cc', 'm_misc.cc', 'm_option.cc', 
+    'm_random.cc', 'n_network.cc', 'n_packet.cc', 'n_proto.cc', 
+    'mus_2_midi.cc',
+    'p_action.cc', 'p_bot.cc', 'p_enemy.cc', 'p_inter.cc', 'p_lights.cc', 
+    'p_map.cc', 'p_maputl.cc', 'p_mobj.cc', 'p_plane.cc', 'p_setup.cc', 
+    'p_sight.cc', 'p_spec.cc', 'p_switch.cc', 'p_tick.cc', 'p_user.cc', 
+    'p_forces.cc', 'p_weapon.cc',
+    'r2_util.cc', 'rad_act.cc', 'rad_pars.cc', 'rad_trig.cc', 
+    'r_bsp.cc', 'r_data.cc', 'rgl_bsp.cc', 'rgl_fx.cc', 'rgl_main.cc', 
+    'rgl_occ.cc', 'rgl_sky.cc', 'rgl_tex.cc', 'rgl_thing.cc', 'rgl_unit.cc', 
+    'rgl_wipe.cc', 'r_layers.cc', 'r_main.cc', 'r_sky.cc', 'r_things.cc', 
+    'r_vbinit.cc', 'r_view.cc', 's_music.cc', 's_sound.cc', 'st_lib.cc', 
+    'st_stuff.cc', 'sv_chunk.cc', 'sv_dump.cc', 'sv_glob.cc', 'sv_level.cc', 
+    'sv_load.cc', 'sv_main.cc', 'sv_misc.cc', 'sv_mobj.cc', 'sv_play.cc', 
+    'sv_save.cc', 'v_colour.cc', 'v_res.cc', 'w_image.cc', 'wi_stuff.cc', 
+    'wp_wipe.cc', 'w_textur.cc', 'w_wad.cc', 'z_zone.cc', 
+    ]
 
 # operating system specifics
 if build_info['platform'] == "win32":
@@ -62,6 +62,9 @@ else: # linux
         'unx_net.cc', 'unx_sound.cc', 'unx_system.cc']
         # source_list += ['humdinger.cc']
         ###---  env.Append(CCFLAGS = '-DLINUX')
+
+# another HACK (stupid fucking linker!)
+sources_3 += ['oggplayer.cc'] 
 
 env.StaticLibrary('edge1', sources_1)
 env.StaticLibrary('edge2', sources_2)
