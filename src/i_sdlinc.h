@@ -19,10 +19,10 @@
 #ifndef __SDL_SYSTEM_INTERNAL_H__
 #define __SDL_SYSTEM_INTERNAL_H__
 
-#ifndef LINUX
-#include <SDL.h>
-#else
+#ifdef LINUX
 #include <SDL/SDL.h>
+#else
+#include <SDL.h>
 #endif 
 
 typedef enum
