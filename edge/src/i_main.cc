@@ -166,10 +166,12 @@ void ChangeToExeDir(const char *full_path)
 
 #endif
 
+extern "C" {
+
 #ifdef MACOSX
 int main(int argc, char *argv[])
 #else
-int main(int argc, const char **argv)
+int main(int argc, char **argv)
 #endif
 {
     SetupSignalHandlers(); 
@@ -187,6 +189,9 @@ int main(int argc, const char **argv)
 
 	return 0;
 }
+
+} // extern "C"
+
 
 // Application active?
 int app_state = APP_STATE_ACTIVE;
