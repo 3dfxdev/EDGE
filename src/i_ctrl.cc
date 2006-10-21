@@ -407,3 +407,21 @@ void I_ShutdownControl(void)
 {
 }
 
+
+int I_GetTime(void)
+{
+    Uint32 t = SDL_GetTicks();
+
+    // more complex than "t*35/1000" to give more accuracy
+    return (t / 1000) * 35 + (t % 1000) * 35 / 1000;
+}
+
+
+//
+// Same as I_GetTime, but returns time in milliseconds
+//
+int I_GetMillies(void)
+{
+    return SDL_GetTicks();
+}
+

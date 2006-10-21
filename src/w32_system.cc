@@ -15,7 +15,6 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-//
 
 #include "i_defs.h"
 #include "i_sdlinc.h"
@@ -56,11 +55,9 @@ static char msgbuf[MSGBUFSIZE];
 
 // Timer Control
 #define ACTUAL_TIMER_HZ   140
-#define ENGINE_TIMER_TICS 4             // In comparision with about timer...
+
 #define TIMER_RES 7                     // Timer resolution.
 static int timerID;                     // Timer ID
-static int ticcount = 0;                // Engine tick count
-static int actualticcount = 0;          // Actual tick count
 
 // ================ INTERNALS =================
 
@@ -88,19 +85,70 @@ void FlushMessageQueue()
 //
 void CALLBACK SysTicker(UINT id, UINT msg, DWORD user, DWORD dw1, DWORD dw2)
 {
-	if (app_state & APP_STATE_ACTIVE)
-	{
-		actualticcount++;
-
-		if (!(actualticcount%ENGINE_TIMER_TICS))
-			ticcount++;
-	}
-
+	I_MUSTicker();         // Called to handle MUS Code
+	I_MUSTicker();         // Called to handle MUS Code
+	I_MUSTicker();         // Called to handle MUS Code
 	I_MUSTicker();         // Called to handle MUS Code
 	return;
 }
 
 // ============ END OF INTERNALS ==============
+
+void I_SetupSignalHandlers(void)
+{
+  /* nothing needed */
+}
+
+void I_CheckAlreadyRunning(void)
+{
+	HANDLE edgemap;
+
+	// Check we've not already running
+	edgemap = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READONLY, 0, 8, TITLE);
+	if (edgemap)
+	{
+		DWORD lasterror = GetLastError();
+		if (lasterror == ERROR_ALREADY_EXISTS)
+		{
+			MessageBox(NULL, "EDGE is already running!", TITLE, MB_ICONSTOP|MB_OK);
+      exit(9);
+		}
+	}
+}
+
+void I_ChangeToExeDir(const char *argv0)
+{
+#if 1
+	argv0 = _pgmptr;
+
+#elif 1
+  // alternate method: assume argv0 is OK
+
+#else
+  // yet another way...
+
+  char path[MAX_PATH];
+
+  DWORD path_len = GetModuleFileName(NULL, path, MAX_PATH);
+  
+  if (path_len <= 0 && path_len >= MAX_PATH)
+    return; // FAILED
+
+  argv0 = path;
+#endif
+
+	const char *r = strrchr(argv0, '/');
+
+	if (r == NULL || r == argv0)
+		return;
+
+	int length = (r - argv0) + 1;
+
+	epi::string_c str;
+	str.AddChars(argv0, 0, length);
+
+	chdir(str.GetString());
+}
 
 //
 // I_SystemStartup
@@ -133,14 +181,10 @@ bool I_SystemStartup(void)
 	if (!I_StartupMusic((void*)NULL))
 		I_Warning("%s\n", I_MusicReturnError());
 
-#ifndef DEVELOPERS
-
 #ifndef INTOLERANT_MATH
 	// -ACB- 2000/06/05 This switches off x87 signalling error
 	_control87(EM_ZERODIVIDE | EM_INVALID, EM_ZERODIVIDE | EM_INVALID);
 #endif /* INTOLERANT_MATH */
-
-#endif /* DEVELOPERS */
 
 	return true;
 }
@@ -171,15 +215,14 @@ void I_TraceBack(void)
 	I_CloseProgram(-1);
 }
 
-//
-// I_GetTime
-//
-// returns time in 1/TICRATE second tics
-//
-int I_GetTime(void)
-{
-	return ticcount;
-}
+
+///---//
+///---// returns time in 1/TICRATE second tics
+///---//
+///---int I_GetTime(void)
+///---{
+///---	return ticcount;
+///---}
 
 //
 // I_Warning
@@ -375,9 +418,4 @@ void I_SystemShutdown(void)
 		fclose(debugfile);
 #endif
 }
-
-
-
-
-
 
