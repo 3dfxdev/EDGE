@@ -23,6 +23,8 @@
 
 #include "i_defs.h"
 
+#include <windows.h>  // -AJA- added
+
 #include <objbase.h>
 #include <wchar.h>
 #include <winbase.h>
