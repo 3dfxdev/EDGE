@@ -55,12 +55,9 @@ env = base_env.Copy()
 ###--- env.Append(CPPPATH = ['#src'])
 env.Append(LIBPATH = ['#src'])
 env.Append(LIBS = ['edge1', 'edge2', 'edge3'])
-## need to duplicate these, because the GNU linker is a piece of shit!
-env.Append(LIBS = ['edge1', 'edge2'])
 
 # epi
 env.Append(LIBPATH = ['#epi'])
-env.Append(LIBS = ['epi'])
 env.Append(LIBS = ['epi'])
 
 # GLBSP
@@ -95,10 +92,7 @@ else:
     env.Append(LIBS = ['openal'])
 
 # Ogg/Vorbis
-env.Append(LIBS = ['ogg', 'vorbis', 'vorbisfile'])
-## need to duplicate these (TWICE!), because the GNU linker is a piece of shit!
-env.Append(LIBS = ['ogg', 'vorbis', 'vorbisfile'])
-env.Append(LIBS = ['ogg', 'vorbis', 'vorbisfile'])
+env.Append(LIBS = ['vorbisfile', 'vorbis', 'ogg'])
 
 if build_info['platform'] == 'win32':
     env.Append(CPPPATH = ['#AL_SDK/include'])
