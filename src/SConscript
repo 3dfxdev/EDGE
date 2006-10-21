@@ -4,9 +4,9 @@
 import os
 
 Import('build_info')
-Import('base_env')
+Import('main_env')
 
-env = base_env.Copy()
+env = main_env.Copy()
 
 env.Append(CCFLAGS = ['-ffast-math'])
 
@@ -15,9 +15,9 @@ env.Append(CPPPATH = ['#.'])
 
 #------- OBJECTS -----------------------------------
 
-source_list = [
+sources_1 = [
  'l_glbsp.cc',
- 'i_cd.cc', 'i_ctrl.cc', 'i_loop.cc', 'i_video.cc',
+ 'i_main.cc', 'i_cd.cc', 'i_ctrl.cc', 'i_video.cc',
  'mus_2_midi.cc', 'oggplayer.cc', 
  'am_map.cc', 'con_con.cc', 'con_cvar.cc', 'con_main.cc', 'ddf_anim.cc',
  'ddf_atk.cc', 'ddf_boom.cc', 'ddf_colm.cc', 'ddf_font.cc', 
@@ -27,7 +27,10 @@ source_list = [
  'ddf_swth.cc', 'ddf_weap.cc', 'dem_chunk.cc', 'dem_glob.cc', 
  'dm_defs.cc', 'dm_state.cc', 'e_demo.cc', 'e_input.cc', 'e_main.cc', 
  'e_player.cc', 'f_finale.cc', 'g_game.cc', 'gui_ctls.cc', 'gui_main.cc', 
- 'hu_font.cc', 'hu_lib.cc', 'hu_stuff.cc', 'hu_style.cc', 'i_asm.cc', 
+ 'hu_font.cc', 'hu_lib.cc', 'hu_stuff.cc', 'hu_style.cc',
+ 'i_asm.cc' ] 
+
+sources_2 = [
  'l_deh.cc', 'lu_gamma.cc', 'm_argv.cc', 'm_bbox.cc', 
  'm_cheat.cc', 'm_math.cc', 'm_menu.cc', 'm_misc.cc', 'm_option.cc', 
  'm_random.cc', 'n_network.cc', 'n_packet.cc', 'n_proto.cc', 
@@ -48,19 +51,21 @@ source_list = [
 
 # operating system specifics
 if build_info['platform'] == "win32":
-    source_list += ['w32_cd.cc', 'w32_compen.cc',
-        'w32_main.cc', 'w32_music.cc',
+    sources_3 = ['w32_cd.cc', 'w32_compen.cc',
+        'w32_music.cc',
         'w32_mus.cc', 'w32_net.cc',
         'w32_sound.cc', 'w32_system.cc']
         ###--- env.Append(CCFLAGS = '-DWIN32')
 
 else: # linux
-    source_list += ['unx_main.cc', 'unx_compen.cc', 'unx_music.cc', 
+    sources_3 = ['unx_compen.cc', 'unx_music.cc', 
         'unx_net.cc', 'unx_sound.cc', 'unx_system.cc']
         # source_list += ['humdinger.cc']
         ###---  env.Append(CCFLAGS = '-DLINUX')
 
-env.StaticLibrary('edge', source_list)
+env.StaticLibrary('edge1', sources_1)
+env.StaticLibrary('edge2', sources_2)
+env.StaticLibrary('edge3', sources_3)
 
 ##--- editor settings ---
 ## vi:ts=4:sw=4:expandtab
