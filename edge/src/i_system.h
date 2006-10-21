@@ -37,8 +37,13 @@
 //--------------------------------------------------------
 //  SYSTEM functions.
 //--------------------------------------------------------
-//
+
 // -ACB- 1999/09/20 Removed system specific attribs.
+
+void I_SetupSignalHandlers(void);
+void I_CheckAlreadyRunning(void);
+
+void I_ChangeToExeDir(const char *full_path);
 
 bool I_SystemStartup(void);
 // This routine is responsible for getting things off the ground, in

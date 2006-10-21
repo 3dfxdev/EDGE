@@ -92,6 +92,96 @@ static char cp437_to_ascii[160] =
 };
 #endif
 
+// cleanup handling -- killough:
+
+static void I_SignalHandler(int s)
+{
+	// CPhipps - report but don't crash on SIGPIPE
+	if (s == SIGPIPE)
+	{
+		// -AJA- linux signals reset when raised.
+		signal(SIGPIPE, I_SignalHandler);
+
+		fprintf(stderr, "EDGE: Broken pipe\n");
+		return;
+	}
+
+	signal(s, SIG_IGN);    // Ignore future instances of this signal.
+
+	switch (s)
+	{
+		case SIGSEGV: I_Error("EDGE: Segmentation Violation"); break;
+		case SIGINT:  I_Error("EDGE: Interrupted by User"); break;
+		case SIGILL:  I_Error("EDGE: Illegal Instruction"); break;
+		case SIGFPE:  I_Error("EDGE: Floating Point Exception"); break;
+		case SIGTERM: I_Error("EDGE: Killed"); break;
+	}
+
+	I_Error("EDGE: Terminated by signal %d", s);
+}
+
+
+void I_SetupSignalHandlers()
+{
+	signal(SIGPIPE, I_SignalHandler); // CPhipps - add SIGPIPE, as this is fatal
+
+#ifdef DEVELOPERS
+
+	// -AJA- Disable signal handlers, otherwise we don't get core dumps
+	//       and core dumps are _DAMN_ useful for debugging.
+
+#else
+	signal(SIGSEGV, I_SignalHandler);
+	signal(SIGTERM, I_SignalHandler);
+	signal(SIGILL,  I_SignalHandler);
+	signal(SIGFPE,  I_SignalHandler);
+	signal(SIGILL,  I_SignalHandler);
+	signal(SIGINT,  I_SignalHandler);  // killough 3/6/98: allow CTRL-BRK during init
+	signal(SIGABRT, I_SignalHandler);
+#endif
+}
+
+void I_CheckAlreadyRunning(void)
+{
+  /* nothing needed */
+}
+
+void I_ChangeToExeDir(const char *argv0)
+{
+	const char *r = strrchr(argv0, '/');
+
+	if (r == NULL || r == argv0)
+		return;
+
+#ifdef MACOSX
+        // -AJA- It seems argv[0] points directly to the "gledge" binary
+        //       inside of the Edge.app folder (when run from the Finder).
+        //       Hence we need to strip the extra bits off.
+        const char *app = r - 4;
+
+        for (; app > argv0; app--)
+        {
+            if (app[0] == '.' && app[1] == 'a' && app[2] == 'p' &&
+                app[3] == 'p' && app[4] == '/')
+              break;
+        }
+        if (app > argv0)
+        {
+          for (; app > argv0; app--)
+            if (app[0] == '/')
+              break;
+        }
+        if (app > argv0)
+          r = app;
+#endif
+	int length = (r - argv0) + 1;
+
+	epi::string_c str;
+
+	str.AddChars(argv0, 0, length);
+
+	chdir(str.GetString());
+}
 
 void I_RemoveGrab(void);  // in SDL/i_video.cpp
 
@@ -120,27 +210,27 @@ unsigned long I_GetMicroSec (void)
 
 static unsigned long lasttimereply;
 
-int I_GetTime (void)
-{
-	struct timeval tv;
-	struct timezone tz;
-	static unsigned long basetime = 0;
-	unsigned long thistimereply;
-
-	gettimeofday (&tv, &tz);
-
-	// Fix for time problem
-	thistimereply = (tv.tv_sec * TICRATE + (tv.tv_usec * TICRATE) / 1000000);
-
-	if (!basetime)
-		basetime = thistimereply;
-	thistimereply -= basetime;
-
-	if (thistimereply < lasttimereply)
-		thistimereply = lasttimereply;
-
-	return (lasttimereply = thistimereply);
-}
+///---int I_GetTime (void)
+///---{
+///---	struct timeval tv;
+///---	struct timezone tz;
+///---	static unsigned long basetime = 0;
+///---	unsigned long thistimereply;
+///---
+///---	gettimeofday (&tv, &tz);
+///---
+///---	// Fix for time problem
+///---	thistimereply = (tv.tv_sec * TICRATE + (tv.tv_usec * TICRATE) / 1000000);
+///---
+///---	if (!basetime)
+///---		basetime = thistimereply;
+///---	thistimereply -= basetime;
+///---
+///---	if (thistimereply < lasttimereply)
+///---		thistimereply = lasttimereply;
+///---
+///---	return (lasttimereply = thistimereply);
+///---}
 
 
 extern int autorun;  // Autorun state
