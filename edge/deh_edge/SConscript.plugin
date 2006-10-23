@@ -1,5 +1,5 @@
 #
-# SConscript (sub) file for Deh_Edge plugin
+# SConscript, builds DEH_EDGE plugin for EDGE
 #
 import os
 
