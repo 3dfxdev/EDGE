@@ -121,10 +121,10 @@ Export('main_env')  # for src/SConscript
 
 SConscript('src/SConscript')
 SConscript('epi/SConscript')
-SConscript('deh_edge/SConscript.plugin')
-SConscript('glbsp/SConscript.plugin')
+SConscript('deh_edge/SConscript.edge')
+SConscript('glbsp/SConscript.edge')
 SConscript('lzo/SConscript')
-# SConscript('humidity/SConscript.plugin')
+# SConscript('humidity/SConscript.edge')
 
 env.Program('gledge', [])
 
