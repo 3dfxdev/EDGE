@@ -5,8 +5,8 @@ Andrew Apted's Log
 More compatibility with original DOOM.  When 'True 3D gameplay'
 option is disabled, missiles can pass through scenery items
 (like trees, lamps and torches).  This happened in the original
-because the heights were wrong (16 units high).  For EDGE I've
-added a new special "PASS_MISSILE" to achieve the same effect.
+because the heights were wrong (16 units high).  For EDGE a new
+special "PASS_MISSILE" has been added to achieve the same effect.
 
 2006/10/01:
 
@@ -18,6 +18,17 @@ to also give 2.5 times the normal ammo.
 Fixed bots to cope better with old DeathMatch pickup rules.
 
 Fixed IDCLEV cheat to work in DeathMatch mode.
+
+2006/09/23:
+
+Moved EDGE code from CVS to SVN repository, restructuring the
+directory layout, renamed ".cpp" files to ".cc", and moved
+stuff that was in sub-dirs (SDL/*, linux/*, win32/*) into the
+same directory as the rest of the source code ("src").
+
+Worked on build system, fixing it for the new directory
+layout, creating a SConscript file for the "src" directory,
+and integrating the Windows cross-compiling stuff.
 
 2006/09/16:
 
