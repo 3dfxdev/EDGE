@@ -338,6 +338,7 @@ void I_MUSSetVolume(float gain)
 void I_MUSTicker(void)
 {
 	museventdesc_t *evDesc;
+
 	byte midiStatus;
 	byte midiChan;
 	byte midiParm1;
