@@ -86,9 +86,6 @@ void FlushMessageQueue()
 void CALLBACK SysTicker(UINT id, UINT msg, DWORD user, DWORD dw1, DWORD dw2)
 {
 	I_MUSTicker();         // Called to handle MUS Code
-	I_MUSTicker();         // Called to handle MUS Code
-	I_MUSTicker();         // Called to handle MUS Code
-	I_MUSTicker();         // Called to handle MUS Code
 	return;
 }
 
