@@ -511,7 +511,8 @@ static void LoadGLSegs(int lump)
 			seg->miniseg = 1;
 		else
 		{
-			DEV_ASSERT2(linedef < numlines);  // sanity check
+			if (linedef >= numlines)  // sanity check
+				I_Error("Bad GWA file: seg #%d has invalid linedef.\n", i);
 
 			float sx, sy;
 
@@ -524,6 +525,10 @@ static void LoadGLSegs(int lump)
 			seg->offset = R_PointToDist(sx, sy, seg->v1->x, seg->v1->y);
 
 			seg->sidedef = seg->linedef->side[side];
+
+			if (! seg->sidedef)
+				I_Error("Bad GWA file: missing side for seg #%d\n", i);
+
 			seg->frontsector = seg->sidedef->sector;
 
 			if (seg->linedef->flags & ML_TwoSided)
