@@ -1050,7 +1050,17 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
             const char *actual_gwa_filename = NULL;
             
-            if (!waddir_gwa && !cached_gwa)
+            if (cached_gwa)
+            {
+                // The cached directory GWA is valid - use it
+                actual_gwa_filename = cached_gwa_filename.GetString();
+            }
+            else if (waddir_gwa)
+            {
+                // The wad directory GWA is valid - use it
+                actual_gwa_filename = gwa_filename.GetString();
+            }
+			else
             {
                 // Neither is valid so create one in the cached directory
                 actual_gwa_filename = cached_gwa_filename.GetString();
@@ -1060,16 +1070,8 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 				if (! GB_BuildNodes(filename, actual_gwa_filename))
 					I_Error("Failed to build GL nodes for: %s\n", filename);
             }
-            else if (waddir_gwa)
-            {
-                // The wad directory GWA is valid - use it
-                actual_gwa_filename = gwa_filename.GetString();
-            }
-            else if (cached_gwa)
-            {
-                // The cached directory GWA is valid - use it
-                actual_gwa_filename = cached_gwa_filename.GetString();
-            }
+
+			L_WriteDebug("Actual_GWA_filename: %s\n", actual_gwa_filename);
 
 			// Load it.  This recursion bit is rather sneaky,
 			// hopefully it doesn't break anything...
@@ -1085,7 +1087,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
         epi::string_c cached_hwa_filename;
         epi::string_c hwa_filename;
         epi::string_c wad_dir;
-            
+
         // Get the directory which the wad is currently stored
         wad_dir = epi::path::GetDir(filename);
             
@@ -1114,16 +1116,26 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
         const char *actual_hwa_filename = NULL;
         
-        if (!waddir_hwa && !cached_hwa)
+        if (cached_hwa)
+        {
+            // The cached directory GWA is valid - use it
+            actual_hwa_filename = cached_hwa_filename.GetString();
+        }
+		else if (waddir_hwa)
+        {
+            // The wad directory GWA is valid - use it
+            actual_hwa_filename = hwa_filename.GetString();
+        }
+		else
         {
             // Neither is valid so create one in the cached directory
+			actual_hwa_filename = cached_hwa_filename.GetString();
+
 			if (kind == FLKIND_Deh)
 			{
-                actual_hwa_filename = cached_hwa_filename.GetString();
-				
                 I_Printf("Converting DEH file: %s\n", filename);
 
-				if (! DH_ConvertFile(filename, hwa_filename.GetString()))
+				if (! DH_ConvertFile(filename, actual_hwa_filename))
 					I_Error("Failed to convert DeHackEd patch: %s\n", filename);
 			}
 			else
@@ -1135,22 +1147,14 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 				const byte *data = (const byte *)W_CacheLumpNum(df->deh_lump);
 				int length = W_LumpLength(df->deh_lump);
 
-				if (! DH_ConvertLump(data, length, lump_name, hwa_filename.GetString()))
+				if (! DH_ConvertLump(data, length, lump_name, actual_hwa_filename))
 					I_Error("Failed to convert DeHackEd LUMP in: %s\n", filename);
 
 				W_DoneWithLump(data);
 			}
         }
-        else if (waddir_hwa)
-        {
-            // The wad directory GWA is valid - use it
-            actual_hwa_filename = hwa_filename.GetString();
-        }
-        else if (cached_hwa)
-        {
-            // The cached directory GWA is valid - use it
-            actual_hwa_filename = cached_hwa_filename.GetString();
-        }
+
+		L_WriteDebug("Actual_HWA_filename: %s\n", actual_hwa_filename);
 
 		// Load it (using good ol' recursion again).
 		AddFile(actual_hwa_filename, FLKIND_HWad, -1);

@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2006/11/06:
+
+Fixed (fatal) bug with handling of DeHackEd patches (more
+specifically: it has the wrong cached HWA filename).
+
 2006/10/19:
 
 More compatibility with original DOOM.  When 'True 3D gameplay'
