@@ -13,10 +13,13 @@ env.Append(CCFLAGS = ['-ffast-math'])
 # allow #include "epi/xxxx.h" to find the correct file
 env.Append(CPPPATH = ['#.'])
 
+if build_info['debug']:
+  env.Append(CCFLAGS = ['-DDEVELOPERS'])
+
 #------- OBJECTS -----------------------------------
 
 sources_1 = [
-    'i_main.cc', 'i_cd.cc', 'i_ctrl.cc', 'i_video.cc',
+    'i_main.cc',  'i_cd.cc',  'i_ctrl.cc', 'i_video.cc',
     'am_map.cc', 'con_con.cc', 'con_cvar.cc', 'con_main.cc', 'ddf_anim.cc',
     'ddf_atk.cc', 'ddf_boom.cc', 'ddf_colm.cc', 'ddf_font.cc', 
     'ddf_game.cc', 'ddf_image.cc', 'ddf_lang.cc', 'ddf_levl.cc', 
@@ -55,20 +58,15 @@ if build_info['platform'] == "win32":
         'w32_music.cc',
         'w32_mus.cc', 'w32_net.cc',
         'w32_sound.cc', 'w32_system.cc']
-        ###--- env.Append(CCFLAGS = '-DWIN32')
-
 else: # linux
     sources_3 = ['unx_compen.cc', 'unx_music.cc', 
         'unx_net.cc', 'unx_sound.cc', 'unx_system.cc']
-        # source_list += ['humdinger.cc']
-        ###---  env.Append(CCFLAGS = '-DLINUX')
 
-# another HACK (stupid fucking linker!)
+# another HACK (stupid linker!)
 sources_3 += ['oggplayer.cc'] 
+# sources_1 += ['humdinger.cc'] 
 
-env.StaticLibrary('edge1', sources_1)
-env.StaticLibrary('edge2', sources_2)
-env.StaticLibrary('edge3', sources_3)
+env.StaticLibrary('edge1', sources_1 + sources_2 + sources_3)
 
 ##--- editor settings ---
 ## vi:ts=4:sw=4:expandtab

@@ -54,7 +54,7 @@ env = base_env.Copy()
 # EDGE itself
 ###--- env.Append(CPPPATH = ['#src'])
 env.Append(LIBPATH = ['#src'])
-env.Append(LIBS = ['edge1', 'edge2', 'edge3'])
+env.Append(LIBS = ['edge1'])
 
 # epi
 env.Append(LIBPATH = ['#epi'])
