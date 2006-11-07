@@ -24,6 +24,16 @@
 
 #include <signal.h>
 
+#include <string.h>
+
+// workaround for old SDL version (< 1.2.10)
+#if (SDL_PATCHLEVEL < 10)
+#include <stdlib.h>
+#define SDL_getenv  getenv
+#define SDL_putenv  putenv
+#endif
+
+
 SDL_Surface *my_vis;
 
 int graphics_shutdown = 0;
@@ -85,7 +95,40 @@ void VideoModeCommonStuff(void)
 //
 void I_StartupGraphics(void)
 {
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0)
+	const char *driver = M_GetParm("-videodriver");
+
+	if (! driver)
+		driver = SDL_getenv("SDL_VIDEODRIVER");
+
+	// FIXME:
+	// if (! driver)
+	//   driver = CFG variable
+
+#ifdef WIN32
+	if (! driver)
+		driver = "directx";
+#endif
+
+	if (! driver)
+		driver = "default";
+
+	if (strcasecmp(driver, "default") != 0)
+	{
+		char buffer[200];
+		snprintf(buffer, sizeof(buffer), "SDL_VIDEODRIVER=%s", driver);
+		SDL_putenv(buffer);
+	}
+
+	I_Printf("SDL_Video_Driver: %s\n", driver);
+
+	// FIXME: CFG variable = driver
+
+	Uint32 flags = SDL_INIT_VIDEO;
+
+	if (M_CheckParm("-core"))
+		flags |= SDL_INIT_NOPARACHUTE;
+
+	if (SDL_Init(flags) < 0)
 		I_Error("Couldn't init SDL\n");
 
 	M_CheckBooleanParm("warpmouse", &use_warp_mouse, false);
