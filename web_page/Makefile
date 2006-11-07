@@ -2,13 +2,13 @@
 # MAKEFILE
 #
 
-all:
+all: out
 	cp css/*.* out/css
 	cp images/*.* out/images
 	cd main  && htp -quiet @main_build.rsp
 	cd shots && htp -quiet @shots_build.rsp
-	echo // cd ddf   AND  htp -quiet @ddf_build.rsp
-	cd rts   && htp -quiet @rts_build.rsp
+	cd ddf   && htp -quiet @ddf_build.rsp
+	echo // cd rts   AND  htp -quiet @rts_build.rsp
 	echo // cp shots/*.jpg shots/*.png out/shots
 	echo // cp main/README.txt out
 
@@ -19,6 +19,14 @@ clean:
 	rm -f out/rts_online/*.htm
 	rm -f out/css/*.css
 	rm -f out/images/*.*
+
+out:
+	mkdir $@
+	mkdir $@/css
+	mkdir $@/images
+	mkdir $@/shots
+	mkdir $@/rts_online
+	mkdir $@/ddf_online
 
 zip:
 	cd .. && zip -rl web_page.zip web_page
