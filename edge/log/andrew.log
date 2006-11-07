@@ -1,5 +1,17 @@
 Andrew Apted's Log
 
+2006/11/07:
+
+Added new option '-videodriver'.
+
+Win32: made default SDL video driver be DirectX (instead of the
+default, which is GDI aka "windib").  This can be overridden by
+the -videodriver option, e.g. -videodriver default.
+
+Linux: added new '-core' option, which causes EDGE to dump core
+when a fatal error (especially an assertion failure) or a
+segmentation fault occurs.
+
 2006/11/06:
 
 Fixed (fatal) bug with handling of DeHackEd patches (more
@@ -58,7 +70,7 @@ the skull cursor will be on the slot you just saved.
 2006/09/05:
 
 Added 'tag' numbers for things on the map.  These values can
-be loaded directly for Hexen map format.
+be loaded directly from the Hexen map format.
 
 RTS work: keyword parameters for SPAWN_THING command, of the
 form "XXX=value".  They must be placed after all the normal
