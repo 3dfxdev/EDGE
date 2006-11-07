@@ -40,7 +40,13 @@ extern "C" {
 
 int main(int argc, char *argv[])
 {
-    I_SetupSignalHandlers(); 
+	// FIXME: setup argument handler NOW
+	bool allow_coredump = false;
+	for (int i = 1; i < argc; i++)
+		if (strcmp(argv[i], "-core") == 0)
+			allow_coredump = true;
+
+    I_SetupSignalHandlers(allow_coredump);
 
     I_CheckAlreadyRunning();
 

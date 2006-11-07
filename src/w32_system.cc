@@ -91,9 +91,9 @@ void CALLBACK SysTicker(UINT id, UINT msg, DWORD user, DWORD dw1, DWORD dw2)
 
 // ============ END OF INTERNALS ==============
 
-void I_SetupSignalHandlers(void)
+void I_SetupSignalHandlers(bool allow_coredump)
 {
-  /* nothing needed */
+	/* nothing needed */
 }
 
 void I_CheckAlreadyRunning(void)

@@ -40,7 +40,7 @@
 
 // -ACB- 1999/09/20 Removed system specific attribs.
 
-void I_SetupSignalHandlers(void);
+void I_SetupSignalHandlers(bool allow_coredump);
 void I_CheckAlreadyRunning(void);
 
 void I_ChangeToExeDir(const char *full_path);

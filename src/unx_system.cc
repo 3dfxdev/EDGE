@@ -121,16 +121,17 @@ static void I_SignalHandler(int s)
 }
 
 
-void I_SetupSignalHandlers()
+void I_SetupSignalHandlers(bool allow_coredump)
 {
 	signal(SIGPIPE, I_SignalHandler); // CPhipps - add SIGPIPE, as this is fatal
 
-#ifdef DEVELOPERS
+	if (allow_coredump)
+	{
+		// -AJA- Disable signal handlers, otherwise we don't get core dumps
+		//       and core dumps are _DAMN_ useful for debugging.
+		return;
+	}
 
-	// -AJA- Disable signal handlers, otherwise we don't get core dumps
-	//       and core dumps are _DAMN_ useful for debugging.
-
-#else
 	signal(SIGSEGV, I_SignalHandler);
 	signal(SIGTERM, I_SignalHandler);
 	signal(SIGILL,  I_SignalHandler);
@@ -138,7 +139,6 @@ void I_SetupSignalHandlers()
 	signal(SIGILL,  I_SignalHandler);
 	signal(SIGINT,  I_SignalHandler);  // killough 3/6/98: allow CTRL-BRK during init
 	signal(SIGABRT, I_SignalHandler);
-#endif
 }
 
 void I_CheckAlreadyRunning(void)
@@ -318,25 +318,21 @@ void I_Error (const char *error, ...)
 		fflush(debugfile);
 	}
 
-#ifdef USE_FLTK
-	I_SystemShutdown();
-	I_MessageBox(errmsg, "EDGE Error", 0);
-
-	exit(-1);
-#endif
-
-	//
 	// -AJA- Commit suicide, thereby producing a core dump which may
-	//       well come in handy for debugging the code that called
-	//       I_Error().
-	//
-#ifdef DEVELOPERS
-	I_RemoveGrab();
-	raise(11);
-	/* NOTREACHED */
-#endif
+	//       come in handy for debugging the code that called I_Error().
+	if (M_CheckParm("-core"))
+	{
+		I_RemoveGrab();
+		raise(11);
+		/* NOTREACHED */
+	}
 
 	I_SystemShutdown();
+
+#ifdef USE_FLTK
+	I_MessageBox(errmsg, "EDGE Error", 0);
+#endif
+
 	exit (-1);
 }
 
