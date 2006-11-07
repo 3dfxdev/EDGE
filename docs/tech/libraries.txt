@@ -2,35 +2,34 @@
 Edge Libraries
 ==============
 
-Internal (in CVS)
+Internal (in SVN)
 -----------------
 
-EPI : Edge Platform Interface (utility code)
-LZO : Compression library
+EPI      : Edge Platform Interface (utility code)
+Deh_Edge : DeHackEd/BEX patch to DDF converter
+LZO      : Compression library
 
 
-Affiliated (in snapshots, not in CVS)
+Affiliated (in snapshots, not in SVN)
 -------------------------------------
 
 glBSP    : GL-Nodes builder
-Deh_Edge : DeHackEd/BEX patch to DDF converter
 Humidity : MIDI playback library
 
 
 External
 --------
 
-LibSDL  : Linux / MacOSX: Simple DirectMedia Library (video and input)
-DirectX : Windows only: video and input handling
+LibSDL  : Simple DirectMedia Library (video and input)
 
 OpenGL  : 3D Graphics library
 OpenAL  : 3D Sound library
 
 OGG + Vorbis + VorbisFile : Compressed sound and music
 
-HawkNL  : Networking library
+FLTK    : Fast Light ToolKit, for error dialogs [Linux only]
 
-FLTK    : Linux (MacOSX ?): Fast Light ToolKit (for dialogs)
+HawkNL  : Networking library [NOTE: not currently used]
 
 LibPNG  : PNG image handling (Portable Network Graphics)
 Jpeglib : JPEG image handling
