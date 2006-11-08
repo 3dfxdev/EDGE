@@ -167,7 +167,7 @@ const actioninfo_t action_info[NUMACTIONS_BEX] =
     { "RANGE_ATTACK", 0, "R:CYBERDEMON_MISSILE", NULL, "A_CyberAttack" },
     { "RANGE_ATTACK", 0, "R:ELEMENTAL_SPAWNER", NULL,  "A_PainAttack" },
     { "SPARE_ATTACK", AF_MAKEDEAD, "S:ELEMENTAL_DEATHSPAWN", NULL, "A_PainDie" },
-    { "NOTHING", AF_KEENDIE | AF_MAKEDEAD, NULL, NULL, "A_KeenDie" },
+    { "KEEN_DIE", AF_SPECIAL | AF_KEENDIE | AF_MAKEDEAD, NULL, NULL, "A_KeenDie" },
     { "MAKEPAINSOUND", 0, NULL, NULL,       "A_BrainPain" },
     { "BRAINSCREAM", 0, NULL, NULL,         "A_BrainScream" },
     { "BRAINDIE", 0, NULL, NULL,            "A_BrainDie" },
@@ -837,6 +837,13 @@ void Frames::SpecialAction(char *act_name, state_t *st, bool use_spawn)
 				PrintWarn("Action A_DIE only supported in v1.29 and higher.\n");
 				strcpy(act_name, "EXPLODE");
 			}
+			break;
+
+		case A_KeenDie:
+			if (target_version >= 129)
+				strcpy(act_name, "KEEN_DIE");
+			else
+				strcpy(act_name, "NOTHING");
 			break;
 
 		case A_RandomJump:

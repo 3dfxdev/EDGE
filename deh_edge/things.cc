@@ -1016,7 +1016,7 @@ void Things::ConvertMobj(const mobjinfo_t *info, int mt_num, int player)
 	else if (Frames::act_flags & AF_DETONATE)
 		WAD::Printf("EXPLODE_DAMAGE.VAL = %d;\n", info->damage);
 
-	if (Frames::act_flags & AF_KEENDIE)
+	if ((Frames::act_flags & AF_KEENDIE) && target_version < 129)
 		Rscript::MarkKeenDie(mt_num);
 
 	WAD::Printf("\n");

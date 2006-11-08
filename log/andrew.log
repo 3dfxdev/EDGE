@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2006/11/08:
+
+Re-implemented a "KEEN_DIE" action, fixing a very horrible hack
+in DEH_EDGE which had to create a huge number of RTS scripts to
+achieve the same effect, and potentially messing up other stuff.
+
 2006/11/07:
 
 Added new option '-videodriver'.
