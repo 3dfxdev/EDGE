@@ -95,7 +95,17 @@ void VideoModeCommonStuff(void)
 //
 void I_StartupGraphics(void)
 {
-	const char *driver = M_GetParm("-videodriver");
+	const char *driver = NULL;
+
+#ifdef WIN32
+	if (M_CheckParm("-directx"))
+		driver = "directx";
+	else if (M_CheckParm("-gdi"))
+		driver = "default";
+#endif
+
+	if (! driver)
+		driver = M_GetParm("-videodriver");
 
 	if (! driver)
 		driver = SDL_getenv("SDL_VIDEODRIVER");
@@ -104,13 +114,14 @@ void I_StartupGraphics(void)
 	// if (! driver)
 	//   driver = CFG variable
 
+	if (! driver)
+	{
 #ifdef WIN32
-	if (! driver)
 		driver = "directx";
-#endif
-
-	if (! driver)
+#else
 		driver = "default";
+#endif
+	}
 
 	if (strcasecmp(driver, "default") != 0)
 	{

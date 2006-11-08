@@ -12,7 +12,8 @@ Added new option '-videodriver'.
 
 Win32: made default SDL video driver be DirectX (instead of the
 default, which is GDI aka "windib").  This can be overridden by
-the -videodriver option, e.g. -videodriver default.
+the -videodriver option, and also two new options '-gdi' and
+'-directx'.
 
 Linux: added new '-core' option, which causes EDGE to dump core
 when a fatal error (especially an assertion failure) or a
