@@ -3331,6 +3331,31 @@ void P_ActDie(mobj_t * mo)
 }
 
 //
+// P_ActKeenDie
+//
+void P_ActKeenDie(mobj_t * mo)
+{
+	P_ActMakeIntoCorpse(mo);
+
+	// see if all other Keens are dead
+	for (mobj_t *cur = mobjlisthead; cur != NULL; cur = cur->next)
+	{
+		if (cur == mo)
+			continue;
+
+		if (cur->info != mo->info)
+			continue;
+
+		if (cur->health > 0)
+			return; // other Keen not dead
+	}
+
+  L_WriteDebug("P_ActKeenDie: ALL DEAD, activating...\n");
+
+	P_RemoteActivation(NULL, 2 /* door type */, 666 /* tag */, 0, line_Any);
+}
+
+//
 // P_ActCheckMoving
 //
 // -KM- 1999/01/31 Returns a player to spawnstate when not moving.

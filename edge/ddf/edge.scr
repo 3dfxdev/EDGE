@@ -79,13 +79,4 @@ START_MAP map07
 
 END_MAP
 
-// open door behind Commander Keen when all KEEN's are killed
-
-START_MAP map32
-  RADIUS_TRIGGER 0 0 -1
-    ON_DEATH Commander_Keen
-    ACTIVATE_LINETYPE 2 666
-  END_RADIUS_TRIGGER
-END_MAP
-
 // --------EOF-----------
