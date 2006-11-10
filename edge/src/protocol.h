@@ -2,7 +2,7 @@
 //  Protocol structures
 //------------------------------------------------------------------------
 //
-//  Edge MultiPlayer Server (C) 2005  Andrew Apted
+//  Copyright (c) 2005-2006  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,9 +19,7 @@
 #ifndef __PROTOCOL_H__
 #define __PROTOCOL_H__
 
-#define MP_PROTOCOL_VER  0x076  /* 0.76 */
-
-#define MP_PLAYER_MAX  30
+#define MP_PROTOCOL_VER  0x080  /* 0.80 */
 
 #define MP_SAVETICS  6  // past and future
 
@@ -31,27 +29,22 @@
 // types are an alphanumeric pair, generally Verb+Noun.  They should
 // start with lowercase for packets from the client (e.g. "cs"), and
 // uppercase for ones from the server (e.g. "Er").  Data length does
-// not include the header, e.g. data_len = sizeof(connect_proto_t).
+// NOT include the header, e.g. data_len = sizeof(connect_proto_t).
 //
-typedef struct header_proto_s
+typedef struct
 {
 	char type[2];
 
-	s16_t flags;
 	s16_t data_len;
-	s16_t client;
+	s16_t flags;
 	s16_t request;   // use to match requests with replies
 
-	s16_t reserved;  // (future expansion)
+	enum // flags
+	{
+		FL_Retransmit = 0x4000,
+	};
 
 	void ByteSwap();
-
-	// flags:
-	enum
-	{
-		FL_MeToo = 0x0010,   // for message packets: include sender
-		FL_Retransmission = 0x4000,
-	};
 }
 header_proto_t;
 
@@ -63,387 +56,183 @@ header_proto_t;
 // Current error codes:
 //
 //   ac : Already Connected
+//   lc : Late Connection (game in progress)
 //   bc : Bad Client info
 //   bg : Bad Game info
-//   np : Not Playiing
-//   nq : Not in Queue
 //   ps : Packet too Short (data_len)
 //   pl : Packet too Long  (data_len)
-//   xc : non-eXisting Client
-//   xg : non-eXisting Game
 //
-typedef struct error_proto_s
+typedef struct
 {
 	char type[2];
 
-	u32_t reserved;
-
-	static const int ERR_STR_MAX = 200;
-
+	enum
+	{
+		ERR_STR_MAX = 200
+	};
+	
 	char message[1];  // as big as needed (upto ERR_STR_MAX)
-
-	void ByteSwap();
 }
 error_proto_t;
 
 
+/* BROADCAST-DISCOVERY-UDP ("bd") */
+
+
 //
-// BROADCAST-DISCOVERY-UDP ("bd")
+// CONNECT ("cn")
 //
-#if 0
-typedef struct broadcast_discover_s
+typedef struct
 {
-	u16_t tcp_port;
+	u16_t client_ver;  // MP_PROTOCOL_VER from client
 
-	void ByteSwap();
-}
-broadcast_discover_t;
-#endif
+	char player_name[16];
 
-
-//
-// Client information
-//
-typedef struct client_info_s
-{
-	static const int NAME_LEN = 16;
-
-	char name[NAME_LEN];
-
-	u32_t reserved[2];
-
-	/* --- query output --- */
-
-	s16_t game;
-
-	char state;
-
-	enum  // state values:
-	{
-		CS_NotExist = 'N',
-		CS_Browsing = 'B',
-		CS_Queueing = 'Q',
-		CS_Voted    = 'V',  // implies Queueing
-		CS_Playing  = 'P',
-	};
-
-	void ByteSwap();
-}
-client_info_t;
-
-//
-// CONNECT ("cs")
-//
-typedef struct connect_proto_s
-{
-	s16_t server_ver;    // OUTPUT: three-digit hex (0x025 means 0.2.5)
-	s16_t protocol_ver;  //
-
-	s16_t reserved[2];
-
-	client_info_t info;
+	byte reserved[32];
 
 	void ByteSwap();
 }
 connect_proto_t;
 
 
-/* LEAVE-SERVER ("ls") has no data */
-
-/* KEEP-ALIVE ("ka") has no data */
-
-
 //
-// QUERY-CLIENT ("qc")
+// WELCOME ("we")
 //
-typedef struct query_client_proto_s 
+typedef struct
 {
-	s16_t first_client;
-	s16_t last_client;
+	u16_t host_ver;  // MP_PROTOCOL_VER from host
 
-	s16_t total_clients;  // output value
-	s16_t reserved;
+	enum
+	{
+		GAME_STR_MAX = 32
+	};
 
-	static const int CLIENT_FIT = 16;
+	char game_name[GAME_STR_MAX];     // e.g. HELL_ON_EARTH
 
-	client_info_t info[1];  // upto CLIENT_FIT structs
+	enum
+	{
+		LEVEL_STR_MAX = 8
+	};
 
-	void ByteSwap();
-	void ByteSwapInfo(int num_info);
-}
-query_client_proto_t;
-
-
-//
-// Game information
-//
-typedef struct game_info_s
-{
-	static const int ENGINE_STR_MAX = 12;
-	static const int GAME_STR_MAX   = 12;
-	static const int LEVEL_STR_MAX  = 8;
-
-	char engine_name[ENGINE_STR_MAX]; // e.g. EDGE130 (Note: includes version)
-	char game_name[GAME_STR_MAX];     // e.g. DOOM2
 	char level_name[LEVEL_STR_MAX];   // e.g. MAP01
-
-	char mode;
-	byte skill;  // 1 to 5
 
 	enum  // mode values:
 	{
-		MD_Coop       = 'C',
-		MD_DeathMatch = 'D',
-		MD_AltDeath   = 'A',
-		MD_CatchFlag  = 'F',
-		MD_LastMan    = 'L',
+		MODE_Coop       = 'C',
+		MODE_New_DM     = 'N',
+		MODE_Old_DM     = 'O',  // weapons stay on map (etc)
+		MODE_LastMan    = 'L',
+		MODE_CTF        = 'F',
 	};
 
-	byte min_players;  // real players
-	byte num_players;  // --> (output field)
+	byte mode;
+	byte skill;  // 1 to 5
 
-	byte num_bots;
-	byte num_votes;  // (OUTPUT)
-
-	u32_t gameplay;
-	u32_t features;
-	u32_t reserved;  // (future expansion)
+	byte bots;
+	byte teams;  // 0 = no teams
 
 	enum  // gameplay bitflags:
 	{
-		GP_Jumping    = (1 << 0),
-		GP_Crouching  = (1 << 1),
-		GP_Zooming    = (1 << 2),
-		GP_MLook      = (1 << 3),
-		GP_AutoAim    = (1 << 4),
+		GP_NoMonsters = (1 << 0),
+
+		GP_Jumping    = (1 << 1),
+		GP_Crouching  = (1 << 2),
+		GP_Zooming    = (1 << 3),
+		GP_MLook      = (1 << 4),
+		GP_AutoAim    = (1 << 5),
 	};
 
-	enum  // feature bitflags:
-	{
-		FT_BoomCompat = (1 << 0), // compatibility mode
-		FT_HelpBots   = (1 << 1), // bots will help each player
-	};
+	u32_t gameplay;
+	u32_t random_seed;
 
 	u16_t wad_checksum;  // checksum over all loaded wads
 	u16_t def_checksum;  // checksum over all definitions
 
-	/* --- query output --- */
-
-	char state;
-
-	enum  // state values:
-	{
-		GS_NotExist = 'N',
-		GS_Queued   = 'Q',
-		GS_Playing  = 'P',
-	};
+	byte reserved[16];  // (future expansion)
 
 	void ByteSwap();
 }
-game_info_t;
+welcome_proto_t;
 
-//
-// NEW-GAME ("ng")
-//
-typedef struct new_game_proto_s
+
+/* DISCONNECT ("dc") has no data */
+
+
+typedef struct
 {
-	s16_t game;  // output game ID
+	u16_t player_flags;  // PFL_xxx values
 
-	game_info_t info;
+	char name[16];
 
-	void ByteSwap();
-}
-new_game_proto_t;
-
-
-//
-// QUERY-GAME ("qg")
-//
-typedef struct query_game_proto_s
-{
-	s16_t first_game;
-	s16_t last_game;
-
-	s16_t total_games;  // out value
-	s16_t reserved;
-
-	static const int GAME_FIT = 8;
-
-	game_info_t info[1];  // upto GAME_FIT structures
-
-	void ByteSwap();
-	void ByteSwapInfo(int num_info);
-}
-query_game_proto_t;
-
-
-//
-// JOIN-QUEUE ("jq")
-//
-typedef struct join_queue_proto_s
-{
-	s16_t game;
-	s16_t reserved;
+	byte reserved[6];
 
 	void ByteSwap();
 }
-join_queue_proto_t;
-
-
-/* LEAVE-GAME ("lg") has no data */
-
-/* VOTE-to-PLAY ("vp") has no data */
-
+player_info_t;
 
 //
-// PLAY-GAME ("Pg")
+// PLAYER-LIST ("pl")
 //
-typedef struct play_game_proto_s
+typedef struct
 {
 	byte real_players;
-	byte bots_each;  // how many bots handled by each client
-
-	u32_t random_seed;
-	u32_t reserved;
+	byte total_players;
 
 	byte first_player;
 	byte last_player;
 
-	// client IDs for each player (upto MP_PLAYER_MAX).
-	// bots are NOT included here.
-	s16_t client_list[1];
+	byte reserved[4];
 
-	void ByteSwap();
+	static const int PLAYER_FIT = 8;
+
+	player_info_t players[1];  // upto PLAYER_FIT entries
+
+//	void ByteSwap();
 	void ByteSwapPlayers(int num_players);
 }
-play_game_proto_t;
+player_list_proto_t;
 
 
-//
-// raw TICCMD (contents are engine-specific)
-//
-// engines may use less that what's here.
-//
-typedef struct raw_ticcmd_s
-{
-	u16_t shorts[4];
-	u8_t  bytes [8];
+/* START-GAME ("sg") has no data */
 
-	// only clients need to byte-swap, the server doesn't care about
-	// the contents of ticcmds.
-	void ByteSwap();
-}
-raw_ticcmd_t;
+
+///--- //
+///--- // raw TICCMD
+///--- //
+///--- typedef struct
+///--- {
+///--- 	u16_t shorts[4];
+///--- 	u8_t  bytes [8];
+///--- 
+///--- 	void ByteSwap();
+///--- }
+///--- raw_ticcmd_t;
 
 
 //
 // TICCMD ("tc")
 //
-// Holds the ticcmds send from client to server.  'count' is the
-// number of tics (starting at tic_num).  Bot ticcmds must follow
-// the real player's ticcmds, for example when count is three and
-// there are two bots:
+// Holds a group of ticcmds, both CL->SV and SV->CL.
 //
-//    (tic +0)  Player,Bot1,Bot2,
-//    (tic +1)  Player,Bot1,Bot2,
-//    (tic +2)  Player,Bot1,Bot2.
-//
-// The gametic field is where the engine has reached.  The server
-// needs this to know how many packets to keep saved (in case it
-// has to retransmit them).  Packets < gametic don't need saving.
-//
-typedef struct ticcmd_proto_s
+typedef struct
 {
 	u32_t gametic;
-	s8_t  offset;  // tic_num == gametic + offset
+	byte  offset;  // start_tic = gametic + offset
+	byte  count;   // end_tic = start_tic + count - 1
 
-	byte  count;
-	s16_t reserved;
+	byte first_player;
+	byte last_player;
+
+	byte reserved[2];
 
 	static const int TICCMD_FIT = 24;
 
-	raw_ticcmd_t tic_cmds[1];  // upto TICCMD_FIT commands
+	ticcmd_t cmds[1];  // upto TICCMD_FIT commands
 
 	void ByteSwap();
 	void ByteSwapCmds(int num_cmds);
 }
 ticcmd_proto_t;
 
-
-//
-// TIC-GROUP ("Tg")
-//
-// Holds the ticcmds for a SINGLE tic.  Bot ticcmds must follow
-// each player, for example with two players and three bots each:
-//
-//    Player0, Bot1, Bot2, Bot3,
-//    Player4, Bot5, Bot6, Bot7.
-//
-// The gametic field shows where the server thinks the gametic
-// in the engine should be (_before_ the tics in this packet are
-// applied).  When gametic is greater than the engine's gametic,
-// you know that you have missed a TIC-GROUP packet.
-//
-typedef struct tic_group_proto_s
-{
-	u32_t gametic;
-	s8_t  offset;  // tic_num == gametic + offset
-
-	byte first_player;
-	byte last_player;
-
-	s16_t reserved;
-
-	static const int TICCMD_FIT = 24;
-
-	raw_ticcmd_t tic_cmds[1];  // as big as needed (upto TICCMD_FIT)
-
-	void ByteSwap();
-	void ByteSwapCmds(int num_cmds);
-}
-tic_group_proto_t;
-
-
-//
-// TIC-RETRANSMIT REQUEST ("tr")
-//
-typedef struct tic_retransmit_proto_s
-{
-	u32_t gametic;
-	s8_t  offset;  // tic_num == gametic + offset
-	byte  count;
-
-	// player range
-	byte first_player;
-	byte last_player;
-
-	s16_t reserved[2];
-
-	void ByteSwap();
-}
-tic_retransmit_proto_t;
-
-
-//
-// MESSAGE ("ms")
-//
-typedef struct message_proto_s
-{
-	s16_t dest;
-
-	enum  // special destinations
-	{
-		D_ALL_BROWSING = -1,
-		D_ALL_NOT_PLAYING = -2,
-		D_OTHER_QUEUERS = -3,
-		D_OTHER_PLAYERS = -4,
-		D_ABSOLUTELY_EVERYONE = -5,  // try to avoid this!
-	};
-
-	void ByteSwap();
-
-	char msg_data[1];  /* data is engine-specific (we don't care!) */
-}
-message_proto_t;
 
 #endif /* __PROTOCOL_H__ */
