@@ -53,12 +53,6 @@ bool systemup = false;
 #define MSGBUFSIZE 4096
 static char msgbuf[MSGBUFSIZE];
 
-// Timer Control
-#define ACTUAL_TIMER_HZ   140
-
-#define TIMER_RES 7                     // Timer resolution.
-static int timerID;                     // Timer ID
-
 // ================ INTERNALS =================
 
 //
@@ -76,17 +70,6 @@ void FlushMessageQueue()
 		TranslateMessage( &msg );
 		DispatchMessage( &msg );
 	}
-}
-
-//
-// SysTicker
-//
-// System Ticker Routine
-//
-void CALLBACK SysTicker(UINT id, UINT msg, DWORD user, DWORD dw1, DWORD dw2)
-{
-	I_MUSTicker();         // Called to handle MUS Code
-	return;
 }
 
 // ============ END OF INTERNALS ==============
@@ -154,14 +137,7 @@ void I_ChangeToExeDir(const char *argv0)
 //
 bool I_SystemStartup(void)
 {
-	int clockspeed;
-
 	systemup = true;
-
-	// Startup system clock
-	timeBeginPeriod(TIMER_RES);
-	clockspeed = 1000 / ACTUAL_TIMER_HZ;
-	timerID = timeSetEvent(clockspeed, TIMER_RES, SysTicker, 0, TIME_PERIODIC);
 
 	I_StartupNetwork();
 
@@ -398,10 +374,6 @@ void I_SystemShutdown(void)
 	I_ShutdownControl();
 	I_ShutdownGraphics();
 	I_ShutdownNetwork();
-
-	// Kill timer
-	timeKillEvent(timerID);
-	timeEndPeriod(TIMER_RES);
 
 	if (logfile)
 	{
