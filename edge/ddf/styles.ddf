@@ -5,8 +5,8 @@
 //
 //    NOTE: STYLES.DDF IS EXPERIMENTAL !!
 //
-//          It may change completely in the next version,
-//          or could even be scrapped!  USE AT OWN RISK.
+//    It may change completely in the next version,
+//    or could even be scrapped!  USE AT OWN RISK.
 //
 
 <STYLES>
@@ -123,4 +123,8 @@ TEXT.COLOURMAP="TEXT_YELLOW";
 // [VIDEO_OPTIONS]
 // [SET_RESOLUTION]
 // [SOUND_VOLUME]
+//
+// [HOST_NETGAME]
+// [JOIN_NETGAME]
+// [NET_PLAYER_LIST]
 

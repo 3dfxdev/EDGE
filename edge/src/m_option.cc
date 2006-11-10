@@ -85,6 +85,7 @@
 #include "hu_style.h"
 #include "m_menu.h"
 #include "m_misc.h"
+#include "m_netgame.h"
 #include "n_network.h"
 #include "p_local.h"
 #include "r_main.h"
@@ -107,7 +108,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int optionsmenuon = 0;
+int option_menuon = 0;
 
 //submenus
 static void M_KeyboardOptions(int keypressed);
@@ -155,6 +156,8 @@ static void M_RestoreResSettings(int keypressed);
 static void M_ChangeStoredRes(int keypressed);
 static void M_ChangeStoredBpp(int keypressed);
 static void M_ChangeStoredMode(int keypressed);
+static void M_HostNetGame(int keypressed);
+static void M_JoinNetGame(int keypressed);
 
 static void M_LanguageDrawer(int x, int y, int deltay);
 static void M_ChangeLanguage(int keypressed);
@@ -362,8 +365,8 @@ static void M_DefaultMenuItem(optmenuitem_t *item)
 //
 //  MAIN MENU
 //
-#define LEAVE_POS  5
-#define LANGUAGE_POS  7
+#define LANGUAGE_POS  6
+#define HOSTNET_POS   12
 
 static optmenuitem_t mainmenu[] =
 {
@@ -372,7 +375,7 @@ static optmenuitem_t mainmenu[] =
 	{OPT_Function, "Gameplay Options",  NULL,  0, 0, NULL, M_GameplayOptions, "GameplayOptions"},
 	{OPT_Function, "Video Options",     NULL,  0, 0, NULL, M_VideoOptions, "VideoOptions"},
 	{OPT_Function, "Set Resolution",    NULL,  0, 0, NULL, M_ResolutionOptions, "ChangeRes"},
-	{OPT_Function, "Leave Game",        NULL,  0, 0, NULL, M_EndGame, NULL},
+
 	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Language",          NULL,  0, CFGDEF_MENULANGUAGE, NULL, M_ChangeLanguage, NULL},
 	{OPT_Switch,   "Messages",          YesNo, 2, CFGDEF_SHOWMESSAGES, &showMessages, NULL, "Messages"},
@@ -384,6 +387,9 @@ static optmenuitem_t mainmenu[] =
 	{OPT_Slider,   "Music Volume",      NULL, SND_SLIDER_NUM, 
                                                   CFGDEF_MUSIC_VOLUME, &menumusicvol, M_ChangeMusVol, NULL},
 
+	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
+	{OPT_Function, "Host NetGame",      NULL,  0, 0, NULL, M_HostNetGame, NULL},
+	{OPT_Function, "Join NetGame",      NULL,  0, 0, NULL, M_JoinNetGame, NULL},
 	{OPT_Plain,    "",                  NULL,  0,              0, NULL, NULL, NULL},
 	{OPT_Function, "Reset to Defaults", NULL,  0, 0, NULL, M_ResetToDefaults, "ResetToDefaults"}
 };
@@ -707,30 +713,36 @@ static specialkey_t specialkeylist[] =  // terminate on -1
 //
 void M_OptCheckNetgame(void)
 {
-#if 0
 	if (usergame)
 	{
-		strcpy(mainmenu[LEAVE_POS].name, "Leave Game");
-		mainmenu[LEAVE_POS].routine = &M_EndGame;
-		mainmenu[LEAVE_POS].help = NULL;
+		strcpy(mainmenu[HOSTNET_POS+0].name, "Leave Game");
+		mainmenu[HOSTNET_POS+0].routine = &M_EndGame;
+		mainmenu[HOSTNET_POS+0].help = NULL;
+
+		strcpy(mainmenu[HOSTNET_POS+1].name, "");
+		mainmenu[HOSTNET_POS+1].type = OPT_Plain;
+		mainmenu[HOSTNET_POS+1].routine = NULL;
+		mainmenu[HOSTNET_POS+1].help = NULL;
 	}
 	else
 	{
-		strcpy(mainmenu[LEAVE_POS].name, "Multiplayer Game");
-		mainmenu[LEAVE_POS].routine = &M_MultiplayerGame;
-		mainmenu[LEAVE_POS].help = NULL;
+		strcpy(mainmenu[HOSTNET_POS+0].name, "Host Net Game");
+		mainmenu[HOSTNET_POS+0].routine = &M_HostNetGame;
+		mainmenu[HOSTNET_POS+0].help = NULL;
+
+		strcpy(mainmenu[HOSTNET_POS+1].name, "Join Net Game");
+		mainmenu[HOSTNET_POS+1].type = OPT_Function;
+		mainmenu[HOSTNET_POS+1].routine = &M_JoinNetGame;
+		mainmenu[HOSTNET_POS+1].help = NULL;
 	}
-#endif
 }
 
 //
-// M_InitOptmenu
-//
 // Menu Initialisation
 //
-void M_InitOptmenu()
+void M_OptMenuInit()
 {
-	optionsmenuon = 0;
+	option_menuon = 0;
 	curr_menu = &mainmenuinfo;
 	curr_item = curr_menu->items + curr_menu->pos;
 	keyscan = 0;
@@ -1270,7 +1282,7 @@ bool M_OptResponder(event_t * ev, int ch)
 		{
 			if (curr_menu == &mainmenuinfo)
 			{
-				optionsmenuon = 0;
+				option_menuon = 0;
 			}
 			else
 			{
@@ -1759,5 +1771,17 @@ static void M_OptionTestResolution(int keypressed)
 static void M_RestoreResSettings(int keypressed)
 {
     R_ChangeResolution(prevscrmode);
+}
+
+static void M_HostNetGame(int keypressed)
+{
+	option_menuon  = 0;
+	netgame_menuon = 1;
+}
+
+static void M_JoinNetGame(int keypressed)
+{
+	option_menuon  = 0;
+	netgame_menuon = 2;
 }
 
