@@ -69,8 +69,7 @@ void M_StartMessageInput(const char *string,
 
 void M_EndGame(int choice);
 void M_QuitEDGE(int choice);
-void M_MultiplayerGame(int choice);
-
 void M_DrawThermo(int x, int y, int thermWidth, int thermDot, int div);
+void M_ClearMenus(void);
 
 #endif

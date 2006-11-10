@@ -44,6 +44,7 @@
 #include "m_argv.h"
 #include "m_inline.h"
 #include "m_misc.h"
+#include "m_netgame.h"
 #include "m_option.h"
 #include "m_random.h"
 #include "n_network.h"
@@ -236,7 +237,6 @@ static void M_Episode(int choice);
 static void M_ChooseSkill(int choice);
 static void M_LoadGame(int choice);
 static void M_SaveGame(int choice);
-static void M_NewMultiGame(int choice);
 
 // 25-6-98 KM
 static void M_LoadSavePage(int choice);
@@ -264,13 +264,12 @@ static void M_DrawReadThis2(void);
 static void M_DrawNewGame(void);
 static void M_DrawEpisode(void);
 static void M_DrawSound(void);
-static void M_DrawMultiPlayer(void);
 static void M_DrawLoad(void);
 static void M_DrawSave(void);
 
 static void M_DrawSaveLoadBorder(float x, float y, int len);
 static void M_SetupNextMenu(menu_t * menudef);
-static void M_ClearMenus(void);
+void M_ClearMenus(void);
 void M_StartControlPanel(void);
 // static void M_StopMessage(void);
 
@@ -439,26 +438,6 @@ static menu_t SoundDef =
 	&sound_vol_style,
 	M_DrawSound,
 	80, 64,
-	0
-};
-
-//
-// MULTIPLAYER MENU
-//
-
-static menuitem_t MultiPlayerMenu[] =
-{
-	{2, "M_NGAME", NULL, M_NewMultiGame, 'n'},
-};
-
-static menu_t MultiPlayerDef =
-{
-	1,
-	&MainDef,
-	MultiPlayerMenu,
-	&dialog_style,
-	M_DrawMultiPlayer,
-	80, 104,
 	0
 };
 
@@ -1264,7 +1243,7 @@ void M_Episode(int choice)
 //
 void M_Options(int choice)
 {
-	optionsmenuon = 1;
+	option_menuon = 1;
 }
 
 //
@@ -1305,7 +1284,8 @@ void M_EndGame(int choice)
 		return;
 	}
 
-	optionsmenuon = false;
+	option_menuon  = 0;
+	netgame_menuon = 0;
 
 	if (netgame)
 	{
@@ -1469,35 +1449,6 @@ void M_SizeDisplay(int choice)
 	R_SetViewSize(screen_hud);
 }
 
-void M_NewMultiGame(int choice)
-{
-	M_NewGame(choice); //!!!!
-}
-
-//
-// M_DrawMultiPlayer
-//
-void M_DrawMultiPlayer(void)
-{
-	HL_WriteText(dialog_style,0, 80, 10, "MULTIPLAYER SETUP");
-
-	HL_WriteText(dialog_style,1, 40, 40, "(Networking not implemented yet)");
-
-	// @@@
-}
-
-void M_MultiplayerGame(int choice)
-{
-	if (usergame)  // shouldn't happen
-	{
-		sound::StartFX(sfx_oof, SNCAT_UI);
-		return;
-	}
-
-	optionsmenuon = false;
-
-	M_SetupNextMenu(&MultiPlayerDef);
-}
 
 //----------------------------------------------------------------------------
 //   MENU FUNCTIONS
@@ -1699,8 +1650,11 @@ bool M_Responder(event_t * ev)
 	}
 
 	// new options menu on - use that responder
-	if (optionsmenuon)
+	if (option_menuon)
 		return M_OptResponder(ev, ch);
+
+	if (netgame_menuon)
+		return M_NetGameResponder(ev, ch);
 
 	// Save Game string input
 	if (saveStringEnter)
@@ -2073,9 +2027,15 @@ void M_Drawer(void)
 	}
 
 	// new options menu enable, use that drawer instead
-	if (optionsmenuon)
+	if (option_menuon)
 	{
 		M_OptDrawer();
+		return;
+	}
+
+	if (netgame_menuon)
+	{
+		M_NetGameDrawer();
 		return;
 	}
 
@@ -2142,7 +2102,13 @@ void M_SetupNextMenu(menu_t * menudef)
 //
 void M_Ticker(void)
 {
-	if (optionsmenuon)
+	if (option_menuon)
+	{
+		M_OptTicker();
+		return;
+	}
+
+	if (netgame_menuon)
 	{
 		M_OptTicker();
 		return;
@@ -2254,6 +2220,7 @@ void M_Init(void)
 		ReadMenu1[0].select_func = M_FinishReadThis;
 	}
 
-	M_InitOptmenu();
+	M_OptMenuInit();
+	M_NetGameInit();
 }
 

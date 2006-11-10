@@ -23,18 +23,16 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __M_OPTION__
-#define __M_OPTION__
+#ifndef __M_NETGAME_H__
+#define __M_NETGAME_H__
 
 #include "e_event.h"
 
-extern int option_menuon;
+extern int netgame_menuon;  // 1 = HOST, 2 = JOIN, 3 = PLAYERS
 
-void M_OptMenuInit(void);
-void M_OptDrawer(void);
-void M_OptTicker(void);
-bool M_OptResponder(event_t * ev, int ch);
-void M_ResetToDefaults(int keypressed);
-void M_OptCheckNetgame(void);
+void M_NetGameInit(void);
+void M_NetGameDrawer(void);
+void M_NetGameTicker(void);
+bool M_NetGameResponder(event_t * ev, int ch);
 
-#endif
+#endif /* __M_NETGAME_H__ */
