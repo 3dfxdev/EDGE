@@ -112,6 +112,12 @@ static bool looping       = false;		// The song is looping.
 static int waitticks = 0;
 static byte chanVols[16];				// Last volume for each channel.
 
+// Timer Control
+#define ACTUAL_TIMER_HZ   70  // -AJA- was 140 !!
+
+#define TIMER_RES 7                     // Timer resolution.
+static int timerID;                     // Timer ID
+
 // ================ INTERNALS =================
 
 //
@@ -125,6 +131,18 @@ static byte *SongStartAddress(void)
 		return 0;
 
 	return (byte*)song + song->scorestart;
+}
+
+//
+// SysTicker
+//
+// System Ticker Routine
+//
+void CALLBACK SysTicker(UINT id, UINT msg, DWORD user, DWORD dw1, DWORD dw2)
+{
+	I_MUSTicker();         // Called to handle MUS Code
+	I_MUSTicker();         // Called to handle MUS Code
+	return;
 }
 
 // ============ END OF INTERNALS ==============
@@ -178,6 +196,14 @@ bool I_StartupMUS()
 	midiavailable = true;
 	song          = NULL;
 	playpos       = NULL;
+
+	// Startup music clock
+	int clockspeed;
+
+	timeBeginPeriod(TIMER_RES);
+	clockspeed = 1000 / ACTUAL_TIMER_HZ;
+	timerID = timeSetEvent(clockspeed, TIMER_RES, SysTicker, 0, TIME_PERIODIC);
+
 	return true;
 }
 
@@ -281,6 +307,10 @@ void I_ShutdownMUS(void)
 	if (!midiavailable)
 		return;
 
+	// Kill timer
+	timeKillEvent(timerID);
+	timeEndPeriod(TIMER_RES);
+
 	// If there is a registered song, unregister it.
 	I_MUSStop();
 
@@ -301,8 +331,6 @@ void I_ShutdownMUS(void)
 	midiavailable = false;
 	song          = NULL;
 	playpos       = NULL;
-	
-	return;
 }
 
 //
@@ -495,3 +523,4 @@ void I_MUSTicker(void)
 		}
 	}
 }
+
