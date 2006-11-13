@@ -158,7 +158,7 @@ static bool N_BroadcastToServer(NLsocket sock)
 		{
 			L_WriteDebug("READ A PACKET: [%c%c]\n", pk.hd().type[0], pk.hd().type[1]);
 
-			if (pk.CheckType("Bd"))
+			if (pk.CheckType("bd"))
 				break;
 			else
 				continue;
@@ -601,8 +601,6 @@ static int last_tryrun_tic;
 
 void N_InitNetwork(void)
 {
-	DEV_ASSERT2(sizeof(ticcmd_t) == sizeof(raw_ticcmd_t));
-
 	srand(I_PureRandom());
 
 	N_ResetTics();
@@ -688,7 +686,7 @@ static void GetPackets(bool do_delay)
 		return;
 	}
 
-	raw_ticcmd_t *raw_cmd = tg.tic_cmds;
+	ticcmd_t *raw_cmd = tg.tic_cmds;
 
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
@@ -715,7 +713,7 @@ static void DoSendTiccmds(int tic)
 
 	pk.SetType("tc");
 	pk.hd().flags = 0;
-	pk.hd().data_len = sizeof(ticcmd_proto_t) - sizeof(raw_ticcmd_t);
+	pk.hd().data_len = sizeof(ticcmd_proto_t) - sizeof(ticcmd_t);
 	pk.hd().client = client_id;
 
     ticcmd_proto_t& tc = pk.tc_p();
@@ -726,7 +724,7 @@ static void DoSendTiccmds(int tic)
 	tc.offset  = tic - gametic;
 	tc.count   = 1;
 
-	raw_ticcmd_t *raw_cmd = tc.tic_cmds;
+	ticcmd_t *raw_cmd = tc.tic_cmds;
 
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
@@ -734,11 +732,11 @@ static void DoSendTiccmds(int tic)
 
 		if (! p || ! p->builder) continue;
 
-		memcpy(raw_cmd, p->out_cmds + (tic % (MP_SAVETICS*2)), sizeof(raw_ticcmd_t));
+		memcpy(raw_cmd, p->out_cmds + (tic % (MP_SAVETICS*2)), sizeof(ticcmd_t));
 
 		raw_cmd++;
 
-		pk.hd().data_len += sizeof(raw_ticcmd_t);
+		pk.hd().data_len += sizeof(ticcmd_t);
 	}
 
 	DEV_ASSERT2((raw_cmd - tc.tic_cmds) == (1 + bots_each));

@@ -738,8 +738,8 @@ void DEM_PutTiccmd(const ticcmd_t *cmd)
 	DEM_PutByte(cmd->extbuttons);
 
 	DEM_PutByte(cmd->chatchar);
-	DEM_PutByte(cmd->special[0]);
-	DEM_PutByte(cmd->special[1]);
+	DEM_PutByte(cmd->unused2);
+	DEM_PutByte(cmd->unused3);
 }
 
 void DEM_GetTiccmd(ticcmd_t *cmd)
@@ -757,8 +757,8 @@ void DEM_GetTiccmd(ticcmd_t *cmd)
     cmd->extbuttons = DEM_GetByte();
 
     cmd->chatchar   = DEM_GetByte();
-    cmd->special[0] = DEM_GetByte();
-    cmd->special[1] = DEM_GetByte();
+    cmd->unused2    = DEM_GetByte();
+    cmd->unused3    = DEM_GetByte();
 }
 
 
