@@ -899,7 +899,7 @@ static void G_DoSaveGame(void)
 newgame_params_c::newgame_params_c() :
 	skill(sk_medium), deathmatch(0),
 	map(NULL), game(NULL), random_seed(0),
-	total_players(0)
+	total_players(0), flags(NULL)
 {
 	for (int i = 0; i < MAXPLAYERS; i++)
 		players[i] = PFL_NOPLAYER;
@@ -918,10 +918,17 @@ newgame_params_c::newgame_params_c(const newgame_params_c& src)
 
 	for (int i = 0; i < MAXPLAYERS; i++)
 		players[i] = src.players[i];
+
+	flags = NULL;
+
+	if (src.flags)
+		CopyFlags(src.flags);
 }
 
 newgame_params_c::~newgame_params_c()
 {
+	if (flags)
+		delete flags;
 }
 
 void newgame_params_c::SinglePlayer(int num_bots)
@@ -931,6 +938,16 @@ void newgame_params_c::SinglePlayer(int num_bots)
 
 	for (int pnum = 1; pnum <= num_bots; pnum++)
 		players[pnum] = PFL_Bot;
+}
+
+void newgame_params_c::CopyFlags(const gameflags_t *F)
+{
+	if (flags)
+		delete flags;
+
+	flags = new gameflags_t;
+
+	memcpy(flags, F, sizeof(gameflags_t));
 }
 
 //
@@ -1046,15 +1063,15 @@ void G_InitNew(newgame_params_c& params)
 // L_WriteDebug("G_InitNew: Deathmatch %d Skill %d\n", params.deathmatch, (int)params.skill);
 
 	// copy global flags into the level-specific flags
-	level_flags = global_flags;
+	if (params.flags)
+		level_flags = *params.flags;
+	else
+		level_flags = global_flags;
 
 	if (params.skill == sk_nightmare)
 	{
 		level_flags.fastparm = true;
 		level_flags.respawn = true;
-#ifdef NO_NIGHTMARE_CHEATS
-		level_flags.cheats = false;
-#endif
 	}
 
 	N_ResetTics();

@@ -90,7 +90,7 @@ bool packet_c::Read(NLsocket sock)
 			hd().type[0], hd().type[1]);
 		return false;
 	}
-	
+
 	hd().ByteSwap();
 
 	if (hd().data_len < 0 || ! CanHold(hd().data_len))

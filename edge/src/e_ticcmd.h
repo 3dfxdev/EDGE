@@ -36,30 +36,33 @@
 typedef struct
 {
 	// horizontal turning, *65536 for angle delta
-	short angleturn;
+	s16_t angleturn;
 
 	// vertical angle for mlook, *65536 for angle delta
-	short mlookturn;
+	s16_t mlookturn;
 
 	// checks for net game
-	short consistency;
+	s16_t consistency;
 
-	short unused1;
+	s16_t unused1;
 
-	// /32 for move
-	signed char forwardmove;
 
 	// /32 for move
-	signed char sidemove;
+	s8_t forwardmove;
+
+	// /32 for move
+	s8_t sidemove;
 
 	// -MH- 1998/08/23 upward movement
-	signed char upwardmove;
+	s8_t upwardmove;
 
-	byte buttons;
-	byte extbuttons;
+	byte buttons, extbuttons;
 
 	byte chatchar;
-	byte special[2];  // currently unused
+
+	byte unused2, unused3;
+
+	void ByteSwap();
 }
 ticcmd_t;
 

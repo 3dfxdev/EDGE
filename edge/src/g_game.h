@@ -70,11 +70,15 @@ public:
 	int total_players;
 	playerflag_e players[MAXPLAYERS];
 
+	gameflags_t *flags;  // can be NULL
+
 public:
 	/* methods */
 
 	void SinglePlayer(int num_bots = 0);
 	// setup for single player (no netgame) and possibly some bots.
+
+	void CopyFlags(const gameflags_t *F);
 };
 
 //
