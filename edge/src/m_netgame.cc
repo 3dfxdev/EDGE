@@ -125,6 +125,40 @@ bool M_NetJoinResponder(event_t * ev, int ch)
 
 //----------------------------------------------------------------------------
 
+static void NetGameStartLevel(void)
+{
+	skill_t skill = sk_medium;  // FIXME: from packet
+
+	gamedef_c *g = gamedefs.Lookup("HELL ON EARTH"); // FIXME: from packet
+
+	DEV_ASSERT2(g);
+
+
+	// -KM- 1998/12/17 Clear the intermission.
+	WI_Clear();
+
+
+	// create parameters
+
+	newgame_params_c params;
+
+	params.skill = skill;
+	params.deathmatch = 2;
+
+	params.random_seed = 1; // FIXME: from packet
+
+	params.SinglePlayer(3);  // FIXME!!!!
+
+	params.game = g;
+	params.map = G_LookupMap(g->firstmap.GetString());
+
+	if (! params.map || ! G_DeferredInitNew(params))
+	{
+		M_StartMessage(language["EpisodeNonExist"], NULL, false);
+		return;
+	}
+}
+
 void M_DrawPlayerList(void)
 {
 	ng_list_style->DrawBackground();
@@ -142,7 +176,14 @@ bool M_NetListResponder(event_t * ev, int ch)
 {
 	if (ch == KEYD_ENTER && netgame_we_host)
 	{
-		// FIXME: start game
+		sound::StartFX(sfx_swtchn, SNCAT_UI);
+
+		netgame_menuon = 0;
+		M_ClearMenus();
+
+		NetGameStartLevel();
+
+		return true;
 	}
 
 	return false;
