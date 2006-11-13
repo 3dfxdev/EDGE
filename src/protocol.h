@@ -135,11 +135,13 @@ typedef struct
 	{
 		GP_NoMonsters = (1 << 0),
 
-		GP_Jumping    = (1 << 1),
-		GP_Crouching  = (1 << 2),
-		GP_Zooming    = (1 << 3),
-		GP_MLook      = (1 << 4),
-		GP_AutoAim    = (1 << 5),
+		GP_True3D     = (1 << 1),
+		GP_Jumping    = (1 << 2),
+		GP_Crouching  = (1 << 3),
+
+		GP_AutoAim    = (1 << 4),
+		GP_MLook      = (1 << 5),
+		GP_Zooming    = (1 << 6),
 	};
 
 	u32_t gameplay;
