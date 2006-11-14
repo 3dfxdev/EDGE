@@ -76,7 +76,6 @@ static sectorsfx_t *sectorsfx_list;
 static bool P_DoSectorsFromTag(int tag, const void *p1, void *p2,
 		bool(*func) (sector_t *, const void *, void *));
 
-#if 0	// -ACB- Unfinished
 //
 // DoElevator_wrapper
 //
@@ -86,7 +85,6 @@ static bool DoElevator_wrapper(sector_t *s, const void *p1, void *p2)
 {
 	return EV_DoElevator(s, (const elevatordef_c*)p1, (sector_t*)p2);
 }
-#endif
 
 //
 // DoPlane_wrapper
