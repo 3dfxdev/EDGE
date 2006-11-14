@@ -140,11 +140,6 @@ void GUI_MainSetMouseVisibility(bool visible);
 // Sets the mouse lump
 bool GUI_SetMouse(char *name);
 
-#ifdef CON_MAIN_H
-// include the gui parts of con_main.h if con_main earlier has been included.
-#include "con_main.h"
-#endif
-
 #endif // __GUI_GUI_H__
 
 //--- editor settings ---
