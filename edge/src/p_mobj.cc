@@ -740,8 +740,9 @@ void P_CalcFullProperties(const mobj_t *mo, region_properties_t *new_p)
 
 	new_p->push.x = new_p->push.y = new_p->push.z = 0;
 
-	new_p->flags = sector->props.flags;
-		
+	new_p->type = 0;  // these shouldn't be used
+	new_p->special = NULL;
+
 	// Note: friction not averaged: comes from region foot is in
 	new_p->friction = sector->p->friction;
 

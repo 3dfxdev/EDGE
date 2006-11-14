@@ -715,7 +715,7 @@ bool SV_PopWriteChunk(void)
 		}
 #endif
 
-		DEV_ASSERT2((int)out_len <= MAX_COMP_SIZE(len));
+		DEV_ASSERT2((int)out_len <= (int)MAX_COMP_SIZE(len));
 
 		// write compressed length
 		SV_PutInt((int)out_len);

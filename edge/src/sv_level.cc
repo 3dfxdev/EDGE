@@ -736,7 +736,7 @@ void SV_SectorFinaliseElems(void)
 		if (savegame_version < 0x12903)
 		{
 			sec->props.type = sec->props.special ?
-				sec->props.special->ddf.num : 0;
+				sec->props.special->ddf.number : 0;
 		}
 	}
 
