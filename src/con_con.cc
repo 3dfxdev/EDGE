@@ -26,7 +26,7 @@
 #include "i_defs.h"
 #include "con_defs.h"
 
-#include "gui_gui.h"
+#include "con_gui.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"
 #include "hu_style.h"

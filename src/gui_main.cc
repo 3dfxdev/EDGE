@@ -22,6 +22,7 @@
 #include "dm_type.h"
 #include "dm_state.h"
 #include "gui_gui.h"
+#include "con_gui.h"
 #include "con_main.h"
 #include "con_cvar.h"
 #include "v_res.h"
