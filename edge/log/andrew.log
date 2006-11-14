@@ -1,10 +1,23 @@
 Andrew Apted's Log
 
+2006/11/13:
+
+Made the region_properties_t hold the full sector type number
+(as loaded from the WAD).  Added some fix-up code for this to
+the savegame loader, and bumped up the EDGEPATCH.
+
+2006/11/10:
+
+Added initial menus for multiplayer games, only skeletons so far.
+
 2006/11/08:
 
 Re-implemented a "KEEN_DIE" action, fixing a very horrible hack
 in DEH_EDGE which had to create a huge number of RTS scripts to
 achieve the same effect, and potentially messing up other stuff.
+
+Moved WIN32 timer stuff into w32_mus.cc, and reduced frequency
+from 140Hz to 70Hz (which might be more stable).
 
 2006/11/07:
 
