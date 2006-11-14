@@ -20,7 +20,7 @@
 #define EDGEVERSTR  "1.29"
 
 // patch level
-#define EDGEPATCH  0x02  // Savegames/Demos now at 1.29.02
+#define EDGEPATCH  0x03  // Savegames/Demos now at 1.29.03
 
 // -ES- 2000/03/04 The version of EDGE.WAD we require.
 #define EDGE_WAD_VERSION 3
