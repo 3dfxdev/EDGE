@@ -379,3 +379,6 @@ void DDF_MainLookupFont(const char *info, void *storage)
 		DDF_Error("Unknown font: %s\n", info);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

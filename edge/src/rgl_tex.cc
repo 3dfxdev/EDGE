@@ -754,3 +754,6 @@ const byte *RGL_BetaImage(int *w, int *h)
 	return unpacked_logo;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

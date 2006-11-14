@@ -134,3 +134,6 @@ camera_t *R_CreateCamera(void)
 
 	return c;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -275,3 +275,6 @@ typedef struct
 raw_texture_t;
 
 #endif /* __DM_STRUCTS_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -2722,3 +2722,6 @@ sectortype_c *P_LookupSectorType(int num)
 	I_Warning("P_LookupSectorType(): Unknown sector type %d", num);
 	return sectortypes[0];	// Return template sector
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

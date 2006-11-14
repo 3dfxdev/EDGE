@@ -743,3 +743,6 @@ void BOT_EndLevel(void)
 	// FIXME bot data never freed
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

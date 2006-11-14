@@ -453,3 +453,6 @@ void L_WriteDebug(const char *message,...) GCCATTR((format(printf, 1, 2)));
 int L_ConvertToDB(int volume, int min, int max);
 
 #endif // __I_SYSTEM__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

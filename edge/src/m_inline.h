@@ -60,5 +60,8 @@ s32_t M_FloatToInt(float fl),
   return (s32_t)fl;
 })
 
-#endif
+#endif // FLOAT_IEEE_754
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

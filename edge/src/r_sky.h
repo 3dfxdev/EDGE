@@ -34,4 +34,7 @@ extern const struct image_s *sky_image;
 // Used by GL renderer
 void R_ComputeSkyHeights(void);
 
-#endif
+#endif // __R_SKY__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -171,3 +171,6 @@ void I_ShutdownCD()
 	ioctl(fd, CDROMSTOP);
 	close(fd);
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

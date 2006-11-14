@@ -493,3 +493,6 @@ void SV_MainTestPrimitives(void)
 }
 
 #endif  // TEST CODE
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

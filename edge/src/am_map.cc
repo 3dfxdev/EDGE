@@ -1315,3 +1315,6 @@ void AM_Drawer(void)
 	am_colmap = NULL;
 #endif
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

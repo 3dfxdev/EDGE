@@ -113,3 +113,6 @@
 #define CFGDEF_RESPAWN          (0)
 
 #endif /* __CFGDEF_SETTINGS__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

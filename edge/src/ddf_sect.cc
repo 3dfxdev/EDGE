@@ -627,3 +627,6 @@ void sectortype_container_c::Reset()
 	Clear();
 	memset(lookup_cache, 0, sizeof(sectortype_c*) * LOOKUP_CACHESIZE);
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

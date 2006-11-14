@@ -607,3 +607,6 @@ rgbcol_t V_LookupColour(int col)
 
 	return RGB_MAKE(r,g,b);
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

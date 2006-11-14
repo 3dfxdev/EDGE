@@ -163,3 +163,6 @@ void R_ComputeSkyHeights(void)
 
 	Z_Free(rings);
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

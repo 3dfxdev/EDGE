@@ -569,3 +569,6 @@ mapdef_c* mapdef_container_c::Lookup(const char *refname)
 	// FIXME!!! Throw an epi:error_c here
 	return NULL;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

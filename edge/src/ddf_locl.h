@@ -420,3 +420,6 @@ extern const commandlist_t floor_commands[];
 extern const commandlist_t damage_commands[];
 
 #endif // __DDF_LOCAL__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

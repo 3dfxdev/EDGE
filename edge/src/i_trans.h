@@ -27,4 +27,7 @@
 
 #include "dm_type.h"
 
-#endif
+#endif _L_VIDEO_TRANS_H_
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

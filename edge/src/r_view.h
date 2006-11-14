@@ -91,4 +91,7 @@ extern void R_CallCallbackList(callback_t * list);
 void R_DestroyCamera(camera_t * c);
 camera_t *R_CreateCamera(void);
 
-#endif
+#endif // __R_VIEW__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

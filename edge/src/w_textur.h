@@ -110,4 +110,7 @@ typedef struct texturedef_s
 }
 texturedef_t;
 
-#endif
+#endif // __W_TEXTURE__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

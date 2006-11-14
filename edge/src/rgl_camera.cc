@@ -366,3 +366,6 @@ void Test_Camera(void)
 
 #endif // TEST_CAMERA_CLASS
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

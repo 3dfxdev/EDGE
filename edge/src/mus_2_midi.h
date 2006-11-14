@@ -40,3 +40,6 @@ namespace Mus2Midi
 }
 
 #endif  // __EPI_MUS2MIDI_H
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

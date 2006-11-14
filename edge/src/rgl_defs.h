@@ -101,3 +101,6 @@ extern int var_farclip;
 
 
 #endif  // __RGL_DEFS__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

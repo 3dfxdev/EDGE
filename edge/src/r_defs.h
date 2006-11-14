@@ -591,3 +591,6 @@ typedef post_t column_t;
 
 
 #endif  // __R_DEFS__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

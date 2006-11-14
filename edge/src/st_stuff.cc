@@ -962,3 +962,6 @@ void ST_Init(void)
 	LoadData();
 	M_CheatInit();
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

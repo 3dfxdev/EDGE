@@ -507,3 +507,6 @@ char *I_MusicReturnError(void)
 	return errordesc;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

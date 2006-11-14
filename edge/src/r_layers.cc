@@ -613,3 +613,6 @@ void R_DrawLayers(void)
 }
 
 #endif // USE_LAYERS
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

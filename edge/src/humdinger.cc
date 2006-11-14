@@ -484,3 +484,6 @@ const char *HumDingerGetError(void)
 {
 	return "Unknown problem"; //!!!! FIXME
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

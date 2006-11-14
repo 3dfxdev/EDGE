@@ -188,3 +188,6 @@ void R_ResizeLayers(void);
 
 
 #endif  // __R_LAYERS__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

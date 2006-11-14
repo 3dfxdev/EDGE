@@ -469,3 +469,6 @@ void imagedef_container_c::CleanupObject(void *obj)
 	if (a) delete a;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -217,3 +217,6 @@ int PASCAL WinMain (HINSTANCE curr, HINSTANCE prev, LPSTR cmdline, int show)
 
 	return 0;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

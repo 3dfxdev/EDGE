@@ -56,4 +56,7 @@ void E_LocalProgress(int step, int total);
 void E_NodeMessage(const char *message);
 void E_NodeProgress(int perc);
 
-#endif
+#endif // __E_MAIN__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

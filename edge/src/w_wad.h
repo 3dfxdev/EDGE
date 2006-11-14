@@ -140,4 +140,8 @@ static void *W_CacheLumpName3(const char *name, const char *file, int line)
 #define W_CacheLumpNum(x) W_CacheLumpNum2(x)
 #define W_CacheLumpName(x) W_CacheLumpName2(x)
 #endif
-#endif
+
+#endif // __W_WAD__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

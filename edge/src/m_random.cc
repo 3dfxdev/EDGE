@@ -144,3 +144,6 @@ void P_WriteRandomState(int value)
 	p_step  = 1 + ((value >> 8) & 0xfe);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

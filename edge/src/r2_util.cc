@@ -201,3 +201,6 @@ int R2_GetBBoxLOD(float x1, float y1, float z1,
 	return 1 + (int)(x1 / lod_base_cube);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

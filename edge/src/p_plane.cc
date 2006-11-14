@@ -1941,3 +1941,6 @@ static elev_move_t *P_SetupElevatorAction(sector_t * sector,
     return elev;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -125,3 +125,6 @@ void G_DoLoadLevel(void);         // for demo code
 void G_SpawnInitialPlayers(void); //
 
 #endif  /* __G_GAME__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

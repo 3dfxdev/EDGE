@@ -591,3 +591,6 @@ iteminque_t;
 #define MO_MIDZ(mo)  ((mo)->z + (mo)->height / 2)
 
 #endif  // __P_MOBJ__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

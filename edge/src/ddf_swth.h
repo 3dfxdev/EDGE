@@ -86,3 +86,6 @@ bool DDF_ReadSwitch(void *data, int size);
 void DDF_ParseSWITCHES(const byte *data, int size);
 
 #endif  /* __DDF_SWTH__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

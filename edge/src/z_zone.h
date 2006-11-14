@@ -138,4 +138,7 @@ while(0) \
 
 #endif	/* EPI_MEM_USAGE */
 
-#endif
+#endif  /* __Z_ZONE__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

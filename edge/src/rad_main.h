@@ -649,4 +649,7 @@ drawtip_t;
 
 extern drawtip_t tip_slots[MAXTIPSLOT];
 
-#endif
+#endif // __RAD_MAIN__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

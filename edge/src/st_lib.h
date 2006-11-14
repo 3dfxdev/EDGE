@@ -160,3 +160,6 @@ void STLIB_InitBinIcon(st_binicon_t * b, int x, int y,
 void STLIB_DrawBinIcon(st_binicon_t * bi);
 
 #endif  /* __STLIB__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

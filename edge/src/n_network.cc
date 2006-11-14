@@ -950,3 +950,6 @@ void N_QuitNetGame(void)
 	// !!!! FIXME: N_QuitNetGame
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

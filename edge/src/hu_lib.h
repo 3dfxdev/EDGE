@@ -179,3 +179,6 @@ void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
 	const colourmap_c *colmap, const char *str, float scale = 1.0f);
 
 #endif  // __HULIB__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

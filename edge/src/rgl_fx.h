@@ -54,3 +54,6 @@ void RGL_PaletteEffect(player_t *player);
 
 
 #endif  // __RGL_FX__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

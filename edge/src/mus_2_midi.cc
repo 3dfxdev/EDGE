@@ -671,3 +671,6 @@ const char *Mus2Midi::ReturnError(void)
 	return scratch_error;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

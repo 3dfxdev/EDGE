@@ -80,3 +80,6 @@ void M_Angle2Matrix(angle_t ang, vec2_t *x, vec2_t *y);
 
 #endif //__M_MATH_H__
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

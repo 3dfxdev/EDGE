@@ -132,4 +132,7 @@ extern int pal_yellow, pal_green1, pal_brown1;
 #define DBLUE        0xF0
 #define DBLUE_LEN    8
 
-#endif
+#endif // __V_COLOUR_H__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

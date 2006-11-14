@@ -72,3 +72,6 @@ public:
 #endif  // USE_HAWKNL
 
 #endif /* __N_PACKET_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

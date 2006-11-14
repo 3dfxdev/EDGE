@@ -2340,3 +2340,6 @@ void RAD_ParserDone(void)
 		RAD_Error("START_MAP: block not terminated !\n");
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

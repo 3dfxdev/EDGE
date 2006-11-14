@@ -88,3 +88,6 @@ void RGL_SolidLine(int x1, int y1, int x2, int y2, rgbcol_t col, float alpha = 1
 
 #endif  // __V_CTX__
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

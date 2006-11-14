@@ -158,3 +158,6 @@ extern styledef_c *default_style;
 bool DDF_ReadStyles(void *data, int size);
 
 #endif  /* __DDF_STYLE__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

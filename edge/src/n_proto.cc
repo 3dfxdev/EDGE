@@ -21,3 +21,6 @@
 
 #include "protocol.cc"
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

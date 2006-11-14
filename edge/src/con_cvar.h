@@ -88,3 +88,6 @@ void CON_AddCVarCallback(cvar_t * var, void (*callback) (cvar_t * var, void *use
 void CON_ChooseFunctionFromList(funclist_t *fl, const char *funcname);
 
 #endif // __CON_CVAR__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

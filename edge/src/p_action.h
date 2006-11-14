@@ -182,3 +182,6 @@ void P_ActJump(mobj_t * object);
 void P_ActPlayerScream(mobj_t * object);
 
 #endif //__P_ACTION_H__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

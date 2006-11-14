@@ -1091,3 +1091,6 @@ void RAD_ActJumpOn(rad_trigger_t *R, mobj_t *actor, void *param)
 	R->wait_tics += 1;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

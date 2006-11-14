@@ -1898,3 +1898,6 @@ const char *W_GetLumpName(int lump)
 {
 	return lumpinfo[lump].name;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -252,3 +252,6 @@ void R2_Init(void);
 
 #endif  // __R2_DEFS__
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

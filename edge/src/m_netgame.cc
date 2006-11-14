@@ -257,3 +257,6 @@ void M_NetGameTicker(void)
 	// FIXME
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -556,3 +556,6 @@ void R_InitSprites(void)
 	sprite_map = NULL;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

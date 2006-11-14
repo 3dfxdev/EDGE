@@ -581,3 +581,6 @@ void SV_SaveGLOB(saveglobals_t *globs)
 	// all done
 	SV_PopWriteChunk();
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -995,3 +995,6 @@ void P_GiveInitialBenefits(player_t *p, const mobjtype_c *info)
 	P_UpdateAvailWeapons(p);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

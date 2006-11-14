@@ -69,3 +69,6 @@ extern int wipe_reverse;
 extern const char WIPE_EnumStr[];
 
 #endif  // __F_WIPE_H__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -48,4 +48,7 @@ int M_CheckCheat(cheatseq_t * cht, char key);
 bool M_CheatResponder(event_t * ev);
 void M_CheatInit(void);
 
-#endif
+#endif // __M_CHEAT__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

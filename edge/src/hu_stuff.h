@@ -64,4 +64,7 @@ void HU_QueueChatChar(char c);
 char HU_DequeueChatChar(void);
 void HU_Erase(void);
 
-#endif
+#endif // __HU_STUFF_H__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

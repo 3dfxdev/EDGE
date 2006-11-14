@@ -39,4 +39,7 @@ void GUI_MainDrawer(void);
 // Reinits the gui system for a new resolution
 void GUI_InitResolution(void);
 
-#endif
+#endif // __GUI_MAIN_H__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

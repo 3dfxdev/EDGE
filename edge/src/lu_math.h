@@ -69,4 +69,7 @@
 #define I_ROUND(n)  ((int) (((n) < 0.0f) ? ((n) - 0.5f) : ((n) + 0.5f)))
 #define I_FLOOR(n)  ((int) (floor(n) + 0.25f))
 
-#endif
+#endif // __TABLES__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

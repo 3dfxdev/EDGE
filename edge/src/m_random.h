@@ -41,4 +41,7 @@ void P_WriteRandomState(int value);
 // This is used in various places:
 extern unsigned char rndtable[256];
 
-#endif
+#endif // __M_RANDOM__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

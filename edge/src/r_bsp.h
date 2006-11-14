@@ -35,4 +35,7 @@ extern sector_t *backsector;
 
 extern unsigned int root_node;
 
-#endif
+#endif // __R_BSP__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

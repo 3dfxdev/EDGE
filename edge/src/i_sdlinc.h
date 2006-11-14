@@ -54,3 +54,6 @@ extern bool use_grab;
 extern bool use_warp_mouse;
 
 #endif /* __SDL_SYSTEM_INTERNAL_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

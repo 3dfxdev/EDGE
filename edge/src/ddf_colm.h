@@ -111,3 +111,6 @@ extern colourmap_container_c colourmaps;	// -ACB- 2004/06/10 Implemented
 bool DDF_ReadColourMaps(void *data, int size);
 
 #endif  /* __DDF_COLM__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

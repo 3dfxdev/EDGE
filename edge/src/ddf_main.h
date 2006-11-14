@@ -2735,5 +2735,7 @@ bool DDF_ReadSFX(void *data, int size);
 bool DDF_ReadThings(void *data, int size);
 bool DDF_ReadWeapons(void *data, int size);
 
-#endif
+#endif // __DDF_MAIN__
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

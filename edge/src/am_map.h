@@ -60,4 +60,7 @@ void AM_Drawer(void);
 // if the level is completed while it is up.
 void AM_Stop(void);
 
-#endif
+#endif /* __AMMAP_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

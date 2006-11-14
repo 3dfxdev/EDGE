@@ -68,3 +68,6 @@ void P_Ticker(void)
 	// for par times
 	leveltime++;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

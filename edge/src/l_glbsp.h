@@ -29,3 +29,6 @@
 bool GB_BuildNodes(const char *filename, const char *outname);
 
 #endif  // __L_GLBSP__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

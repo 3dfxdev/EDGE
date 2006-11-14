@@ -38,3 +38,6 @@ void RGL_LightUpPlayerWeapon(player_t *p, drawfloor_t *dfloor);
 
 
 #endif  // __RGL_THING__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

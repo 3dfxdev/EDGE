@@ -476,3 +476,6 @@ bool G_FinishDemo(void)
 	return false;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

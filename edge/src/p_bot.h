@@ -77,4 +77,7 @@ void P_BotCreate(player_t *p, bool recreate);
 void BOT_BeginLevel(void);
 void BOT_EndLevel(void);
 
-#endif
+#endif // __P_BOT_H__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

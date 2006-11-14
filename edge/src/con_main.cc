@@ -605,3 +605,6 @@ void CON_PlayerMessageLDF(int plyr, const char *lookup, ...)
 	CON_Message("%s", buffer);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

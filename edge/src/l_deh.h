@@ -31,3 +31,6 @@ bool DH_ConvertLump(const byte *data, int length, const char *lumpname,
 	const char *outname);
 
 #endif  // __L_DEH__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

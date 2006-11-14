@@ -171,3 +171,6 @@ int strncasecmpwild(const char *s1, const char *s2, int n);
 #define rds8moffs1         _rds8moffs1
 #endif
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

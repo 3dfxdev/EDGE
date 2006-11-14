@@ -49,3 +49,6 @@
 #include "v_res.h"
 
 #endif // __R_LOCAL__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

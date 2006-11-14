@@ -105,4 +105,7 @@ void R_StartFading(int start, int range);
 void R_ExecuteChangeResolution(void);
 void R_ExecuteSetViewSize(void);
 
-#endif
+#endif // __R_MAIN__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

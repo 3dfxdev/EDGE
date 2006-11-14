@@ -305,3 +305,6 @@ bool GUI_SetMouse(char *name)
 	}
 	return true;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

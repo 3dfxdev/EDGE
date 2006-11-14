@@ -90,4 +90,7 @@ extern angle_t clipscope;
 // the most extreme angles of the view
 extern float topslope, bottomslope, rightslope, leftslope;
 
-#endif
+#endif // __R_STATE__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

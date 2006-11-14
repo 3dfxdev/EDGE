@@ -758,3 +758,6 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 	return true;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

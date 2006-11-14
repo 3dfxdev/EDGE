@@ -2179,3 +2179,6 @@ void RGL_RenderTrueBSP(void)
 #endif
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -1211,3 +1211,6 @@ void RGL_DrawSortThings(drawfloor_t *dfloor)
 		RGL_DrawThing(dfloor, dt);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

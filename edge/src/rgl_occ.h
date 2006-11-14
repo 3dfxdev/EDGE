@@ -36,3 +36,6 @@ void RGL_1DOcclusionPop(void);
 
 
 #endif  // __RGL_OCC_
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

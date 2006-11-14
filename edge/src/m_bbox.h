@@ -68,5 +68,7 @@ void M_CleanMatrix(void);
 void M_DirtyMatrix(void);
 void M_DirtyRegion(int x1, int y1, int x2, int y2);
 
+#endif // __M_BBOX__
 
-#endif
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

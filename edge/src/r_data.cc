@@ -468,3 +468,6 @@ void R_PrecacheLevel(void)
 
 	delete[] images;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

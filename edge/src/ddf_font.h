@@ -94,3 +94,6 @@ void DDF_MainLookupFont(const char *info, void *storage);
 bool DDF_ReadFonts(void *data, int size);
 
 #endif  /* __DDF_FONT__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

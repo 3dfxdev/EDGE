@@ -408,3 +408,6 @@ sfxdef_c* sfxdef_container_c::Lookup(const char *name)
 	
 	return NULL;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

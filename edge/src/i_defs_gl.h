@@ -38,3 +38,6 @@
 #endif
 
 #endif // __SYSTEM_SPECIFIC_DEFS_OPENGL__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -39,4 +39,7 @@ void M_CheckBooleanParm(const char *parm, bool *boolval, bool reverse);
 const char *M_GetArgument(int argnum);
 int M_GetArgCount(void);
 
-#endif
+#endif // __M_ARGV__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

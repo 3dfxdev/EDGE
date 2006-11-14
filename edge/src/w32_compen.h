@@ -27,4 +27,7 @@
 int strncasecmp(const char *s1, const char *s2, int max);
 int strncasecmpwild(const char *s1, const char *s2, int n);
 
-#endif
+#endif // __I_COMPEN__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

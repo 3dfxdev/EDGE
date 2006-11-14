@@ -36,3 +36,6 @@
 #define NO_SOURCE  ((ALuint)-1)
 
 #endif // __SYSTEM_SPECIFIC_DEFS_OPENAL__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

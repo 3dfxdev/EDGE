@@ -480,3 +480,6 @@ void RGL_PreCacheSky(void)
 	if (box_info.bottom != box_info.top)
 		W_ImagePreCache(box_info.bottom);
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

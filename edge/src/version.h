@@ -27,3 +27,6 @@
 #define EDGE_WAD_VERSION_FRAC 6
 #define EDGE_WAD_SUB_VERSION 0
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

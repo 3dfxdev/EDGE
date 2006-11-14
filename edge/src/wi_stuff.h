@@ -54,4 +54,7 @@ void WI_Clear(void);
 
 bool WI_CheckForAccelerate(void);
 
-#endif
+#endif // __WI_STUFF__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
