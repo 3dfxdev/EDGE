@@ -326,3 +326,6 @@ pl_entry_c* pl_entry_container_c::Find(int number)
 
 	return NULL;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

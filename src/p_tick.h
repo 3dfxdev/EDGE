@@ -31,4 +31,7 @@
 // Carries out all thinking of monsters and players.
 void P_Ticker(void);
 
-#endif
+#endif // __P_TICK__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -658,3 +658,6 @@ void R_StartFading(int start, int range)
 	telept_starttic = start + leveltime;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

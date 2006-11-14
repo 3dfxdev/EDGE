@@ -355,3 +355,6 @@ void animdef_container_c::CleanupObject(void *obj)
 	return;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

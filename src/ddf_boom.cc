@@ -639,3 +639,6 @@ linetype_c *DDF_BoomGetGenLine(int number)
 	return line;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

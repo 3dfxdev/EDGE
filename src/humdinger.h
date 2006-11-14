@@ -73,3 +73,6 @@ void HumDingerTerm(void);
 const char *HumDingerGetError(void);  // when HumDingerInit fails.
 
 #endif  // __HUMDINGER__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

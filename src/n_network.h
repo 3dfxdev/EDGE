@@ -46,3 +46,6 @@ bool N_BuildTiccmds(void);
 void N_ResetTics(void);
 
 #endif /* __N_NETWORK_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

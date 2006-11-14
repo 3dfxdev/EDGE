@@ -89,3 +89,6 @@ bool DDF_ReadAnims(void *data, int size);
 void DDF_ParseANIMATED(const byte *data, int size);
 
 #endif  /* __DDF_ANIM__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

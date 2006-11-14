@@ -71,4 +71,7 @@ extern event_t events[MAXEVENTS];
 extern int eventhead;
 extern int eventtail;
 
-#endif
+#endif // __E_EVENT_H__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

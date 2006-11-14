@@ -2322,3 +2322,6 @@ haloinfo_c& haloinfo_c::operator=(haloinfo_c &rhs)
 
 	return *this;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

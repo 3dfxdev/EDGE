@@ -35,3 +35,6 @@ GLuint W_ImageGetOGL(const cached_image_t *c);
 
 #endif  // __W_IMAGE_OGL__
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

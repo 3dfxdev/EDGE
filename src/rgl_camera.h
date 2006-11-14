@@ -156,3 +156,6 @@ inline void camera_c::SetPosDir(epi::vec3_c _pos, epi::angle_c _turn, epi::angle
 }
 
 #endif  /* __RGL_CAMERA__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

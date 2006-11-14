@@ -61,3 +61,6 @@ void RAD_ActMenuStyle(rad_trigger_t *R, mobj_t *actor, void *param);
 void RAD_ActJumpOn(rad_trigger_t *R, mobj_t *actor, void *param);
 
 #endif  /* __RAD_ACT__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -158,3 +158,6 @@ void DDF_MainLookupImage(const char *info, void *storage);
 bool DDF_ReadImages(void *data, int size);
 
 #endif  /* __DDF_IMAGE__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

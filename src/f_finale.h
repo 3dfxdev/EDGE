@@ -43,4 +43,7 @@ void F_Drawer(void);
 // -KM- 1998/11/25 Finales generalised.
 void F_StartFinale(const map_finaledef_c * f, gameaction_e newaction);
 
-#endif
+#endif // __F_FINALE__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

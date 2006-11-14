@@ -382,3 +382,6 @@ linetype_c* P_LookupLineType(int num);
 sectortype_c* P_LookupSectorType(int num);
 
 #endif // __P_LOCAL__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

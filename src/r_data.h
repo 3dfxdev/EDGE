@@ -42,3 +42,6 @@ void R_InitPicAnims(void);
 void R_PrecacheLevel(void);
 
 #endif /* __R_DATA__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

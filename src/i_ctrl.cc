@@ -425,3 +425,6 @@ int I_GetMillies(void)
     return SDL_GetTicks();
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

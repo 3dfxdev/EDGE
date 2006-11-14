@@ -512,3 +512,6 @@ void DEM_SaveGLOB(saveglobals_t *globs)
 	// all done
 	DEM_PopWriteChunk();
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

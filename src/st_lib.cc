@@ -207,3 +207,6 @@ void STLIB_DrawBinIcon(st_binicon_t * bi)
 
 	bi->oldval = *bi->val;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

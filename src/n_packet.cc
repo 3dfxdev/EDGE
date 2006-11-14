@@ -156,3 +156,6 @@ bool packet_c::CheckType(const char *str)
 }
 
 #endif  // USE_HAWKNL
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

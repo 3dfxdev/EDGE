@@ -46,3 +46,6 @@ void RGL_PreCacheSky(void);
 void RGL_CalcSkyCoord(float sx, float sy, float sz, bool narrow, float *tx, float *ty);
 
 #endif  // __RGL_SKY__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -88,3 +88,6 @@ extern int num_cvars;
 cvar_t *CON_CVarPtrFromName(const char *name);
 
 #endif // __CON_LOCL_H__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

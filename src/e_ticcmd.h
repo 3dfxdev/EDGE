@@ -117,4 +117,7 @@ typedef enum
 }
 extbuttoncode_e;
 
-#endif
+#endif // __E_TICCMD_H__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -1055,3 +1055,6 @@ void P_TelefragMobj(mobj_t * target, mobj_t * inflictor, const damage_c * damtyp
 
 	P_KillMobj(inflictor, target, damtype);
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

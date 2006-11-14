@@ -65,3 +65,6 @@ public:
 extern style_container_c hu_styles;
 
 #endif  // __HU_STYLE__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

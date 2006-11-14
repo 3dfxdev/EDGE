@@ -75,3 +75,6 @@ extern int rad_cur_linenum;
 extern char *rad_cur_filename;
 
 #endif  /* __RAD_TRIG__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

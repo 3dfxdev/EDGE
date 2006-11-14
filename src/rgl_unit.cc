@@ -1369,3 +1369,6 @@ void RGL_TestPolyQuads(void)
 	RGL_DumpPolyQuad(test, false);
 }
 #endif  // DEBUG
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

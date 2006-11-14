@@ -1785,3 +1785,6 @@ static void M_JoinNetGame(int keypressed)
 	netgame_menuon = 2;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

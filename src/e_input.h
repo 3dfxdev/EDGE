@@ -74,3 +74,6 @@ extern int key_secondatk;
 extern int key_reload;  // -AJA- 2004/11/10.
 
 #endif  /* __E_INPUT_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

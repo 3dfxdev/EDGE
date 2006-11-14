@@ -97,4 +97,7 @@ typedef struct
 }
 playerweapon_t;
 
-#endif
+#endif // __P_PSPR__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

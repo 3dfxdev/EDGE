@@ -840,3 +840,6 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	SV_PutString(swizzle);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -95,3 +95,6 @@ public:
 extern font_container_c hu_fonts;
 
 #endif  // __HU_FONT__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

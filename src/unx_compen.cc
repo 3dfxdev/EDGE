@@ -60,3 +60,6 @@ int strncasecmpwild(const char *s1, const char *s2, int n)
 	return s1[i] - s2[i];
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

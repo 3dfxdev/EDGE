@@ -36,3 +36,6 @@ void M_NetGameTicker(void);
 bool M_NetGameResponder(event_t * ev, int ch);
 
 #endif /* __M_NETGAME_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

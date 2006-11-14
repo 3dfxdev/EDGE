@@ -85,3 +85,6 @@ extern int cfgnormalfov, cfgzoomedfov;
 extern epi::strent_c config_language;
 
 #endif  /* __M_MISC__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

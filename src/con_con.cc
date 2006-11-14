@@ -992,3 +992,6 @@ void CON_Start(gui_t ** gui)
 	GUI_Start(gui, &console);
 	CON_SetVisible(vs_maximal);
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -296,4 +296,7 @@ void P_AddSectorForce(sector_t *sec, bool is_wind, float x_mag, float y_mag);
 void P_InitSwitchList(void);
 void P_ChangeSwitchTexture(line_t * line, bool useAgain, line_special_e specials, bool noSound);
 
-#endif
+#endif // __P_SPEC__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

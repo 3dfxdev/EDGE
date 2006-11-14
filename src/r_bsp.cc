@@ -66,3 +66,6 @@ int checkcoord[12][4] =
   {BOXLEFT, BOXBOTTOM, BOXRIGHT, BOXTOP}
 };
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

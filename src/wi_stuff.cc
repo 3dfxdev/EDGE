@@ -1650,3 +1650,6 @@ void wi_anim_c::Reset()
 	count = 0;
 	frameon = -1;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

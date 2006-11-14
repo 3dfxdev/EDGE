@@ -390,3 +390,6 @@ const char *W_TextureNameInSet(int set, int offset)
 	return tex_sets[set]->textures[offset]->name;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

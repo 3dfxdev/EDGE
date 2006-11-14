@@ -577,3 +577,6 @@ atkdef_c* atkdef_container_c::Lookup(const char *refname)
 
 	return NULL;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -342,3 +342,6 @@ void HL_EraseIText(hu_itext_t * it)
 	HL_EraseTextLine(&it->L);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

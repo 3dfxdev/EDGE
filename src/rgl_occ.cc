@@ -239,3 +239,6 @@ void RGL_1DOcclusionPop(void)
 	delete cur;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

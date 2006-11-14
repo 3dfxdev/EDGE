@@ -129,3 +129,6 @@ void I_ShutdownSound(void)
 		alc_dev = 0;
 	}
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

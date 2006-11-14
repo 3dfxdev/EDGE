@@ -84,3 +84,6 @@ public:
 };
 
 #endif  // __OGGPLAYER__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

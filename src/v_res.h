@@ -103,3 +103,6 @@ extern scrmodelist_c scrmodelist;
 #define FROM_200(y)  ((y) * SCREENHEIGHT / 200)
 
 #endif // __VIDEORES_H__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

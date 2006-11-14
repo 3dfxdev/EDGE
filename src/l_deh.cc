@@ -173,3 +173,6 @@ bool DH_ConvertLump(const byte *data, int length, const char *lumpname,
 	return (ret == DEH_OK);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

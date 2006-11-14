@@ -3448,3 +3448,6 @@ void P_PlayerAttack(mobj_t * p_obj, const atkdef_c * attack)
 	P_DoAttack(p_obj);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

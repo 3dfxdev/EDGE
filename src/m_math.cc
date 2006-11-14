@@ -57,3 +57,6 @@ void M_Angle2Matrix (angle_t ang, vec2_t * x, vec2_t * y)
     y->y =  x->x;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

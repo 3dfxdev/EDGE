@@ -388,3 +388,6 @@ void I_SystemShutdown(void)
 #endif
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

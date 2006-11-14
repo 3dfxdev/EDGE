@@ -168,3 +168,6 @@ patch_t;
 
 
 #endif // __DOOMDATA__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

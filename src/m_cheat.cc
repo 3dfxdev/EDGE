@@ -502,3 +502,6 @@ void M_CheatInit(void)
 		cheat_giveweapon[i].sequence = language[temp];
 	}
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

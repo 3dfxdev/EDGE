@@ -55,4 +55,7 @@ gui_t *GUI_DRAGStart(gui_t ** g, gui_t * parent, int id);
 // doesn't scale to 320x200.
 void GUI_WriteText(int x, int y, char *string);
 
-#endif
+#endif // __GUI_CTLS_H__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

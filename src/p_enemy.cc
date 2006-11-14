@@ -700,3 +700,6 @@ void P_ActPlayerScream(mobj_t * mo)
 	sound::StartFX(sound, P_MobjGetSfxCategory(mo), mo);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

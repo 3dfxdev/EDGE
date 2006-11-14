@@ -86,3 +86,6 @@ void DEM_PutTiccmd(const ticcmd_t *cmd);
 void DEM_PutPlayerSync(const player_t *p);
 
 #endif  // __DEM_CHUNK__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

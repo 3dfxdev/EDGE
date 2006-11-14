@@ -498,3 +498,6 @@ bool HU_Responder(event_t * ev)
 	return eatkey;
 
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

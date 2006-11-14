@@ -145,4 +145,7 @@ bool GUI_SetMouse(char *name);
 #include "con_main.h"
 #endif
 
-#endif
+#endif // __GUI_GUI_H__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

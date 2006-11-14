@@ -479,3 +479,6 @@ bool SV_LoadEverything(void)
 	return true;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

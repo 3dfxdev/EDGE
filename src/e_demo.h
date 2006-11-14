@@ -44,3 +44,6 @@ void E_DemoReadTick(void);
 void E_DemoWriteTick(void);
 
 #endif  /* __E_DEMO_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

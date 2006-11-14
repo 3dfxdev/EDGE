@@ -139,3 +139,6 @@ void R_InitCamera_ViewOffs(camera_t * c, angle_t offs)
 	R_AddStartCallback(&c->frame_start, CameraFrameInit_ViewOffs, data, Z_Free);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

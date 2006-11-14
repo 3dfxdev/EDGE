@@ -1278,3 +1278,6 @@ void SR_PlaneMovePutType(void *storage, int index, void *extra)
 	SV_PutString("L:C:1");
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -46,3 +46,6 @@ void I_PostMusicError(const char *message);
 void I_MessageBox(const char *message, const char *title, int mode);
 
 #endif // __SYSTEM_INTERNAL_H__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -164,3 +164,6 @@ int W_MakeValidSize(int value);
 
 #endif  // __W_IMAGE__
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -595,3 +595,6 @@ bool I_MusicSetMixerVol(win32_mixer_t* mixer, DWORD vol)
 	return true;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -622,3 +622,6 @@ bool P_CheckSightApproxVert(mobj_t * src, mobj_t * dest)
 	return CheckSightSameSubsector(src, dest);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

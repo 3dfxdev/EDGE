@@ -37,4 +37,7 @@ bool M_OptResponder(event_t * ev, int ch);
 void M_ResetToDefaults(int keypressed);
 void M_OptCheckNetgame(void);
 
-#endif
+#endif // __M_OPTION__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

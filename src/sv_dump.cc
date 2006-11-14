@@ -392,3 +392,6 @@ void SV_DumpSaveGame(int slot)
 	L_WriteDebug("*  DUMP FINISHED\n");
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -47,3 +47,6 @@ void DEM_DumpDemo(epi::file_c *fp);
 
 
 #endif  // __DEM_GLOB__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

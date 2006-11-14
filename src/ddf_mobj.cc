@@ -2193,3 +2193,6 @@ const mobjtype_c* mobjtype_container_c::LookupPlayer(int playernum)
 	I_Error("Missing DDF entry for player number %d\n", playernum);
 	return NULL; /* NOT REACHED */
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

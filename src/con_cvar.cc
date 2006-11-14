@@ -796,3 +796,6 @@ void CON_AddFunctionToList(funclist_t * fl, const char *name, const char *descri
 	}
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

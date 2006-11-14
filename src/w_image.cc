@@ -3605,3 +3605,6 @@ void W_ImageClearMergingSky(void)
 
 	merging_sky_image = NULL;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

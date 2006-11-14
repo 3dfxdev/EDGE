@@ -244,3 +244,6 @@ void buttonlist_c::SetSize(int count)
 	
 	memset(array, 0, array_entries*array_objsize);
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

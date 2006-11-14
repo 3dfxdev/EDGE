@@ -851,3 +851,6 @@ void weaponkey_c::Load(weapondef_container_c *wc)
 }
 
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

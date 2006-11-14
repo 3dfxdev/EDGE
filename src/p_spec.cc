@@ -1822,3 +1822,6 @@ void P_SectorChangeSpecial(sector_t *sec, int new_type)
 	sec->props.special = P_LookupSectorType(sec->props.type);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

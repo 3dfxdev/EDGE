@@ -264,4 +264,7 @@ extern int forwardmovespeed;
 extern int angleturnspeed;
 extern int sidemovespeed;
 
-#endif
+#endif // __D_STATE__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

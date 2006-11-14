@@ -1161,3 +1161,6 @@ mapdef_c* G_LookupMap(const char *refname)
 
 	return NULL;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

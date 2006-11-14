@@ -86,3 +86,6 @@ void SV_PutString(const char *str);
 void SV_PutMarker(const char *id);
 
 #endif  // __SV_CHUNK_
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

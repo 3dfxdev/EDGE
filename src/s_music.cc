@@ -227,3 +227,6 @@ void S_SetMusicVolume(int volume)
 	I_SetMusicVolume(&musichandle, slider_to_gain[musicvolume]);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

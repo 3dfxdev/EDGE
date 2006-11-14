@@ -161,3 +161,6 @@ style_c* style_container_c::Lookup(styledef_c *def)
 	return new_st;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

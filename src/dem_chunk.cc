@@ -788,3 +788,6 @@ void DEM_PutPlayerSync(const player_t *p)
 	DEM_PutFloat(p->mo->health);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

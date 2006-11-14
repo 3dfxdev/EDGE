@@ -371,3 +371,6 @@ gui_t *GUI_BARStart(gui_t ** g, char *watch, int max)
 	GUI_Start(g, gui);
 	return gui;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

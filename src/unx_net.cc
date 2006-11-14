@@ -167,3 +167,6 @@ const char * I_LocalIPAddrString(const char *eth_name)
 	return buffer;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

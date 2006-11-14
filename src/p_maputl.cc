@@ -2266,3 +2266,6 @@ bool P_ThingsOnLine(line_t *ld)
 	return ! P_SubsecThingIterator(ld->bbox, PST_CheckThingLine);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

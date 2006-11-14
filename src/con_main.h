@@ -19,9 +19,9 @@
 #include "dm_type.h"
 
 #ifdef __GUI_GUI_H__
-#ifndef CON_MAIN_GUI_H
+#ifndef __CON_MAIN_GUI_H
 // console stuff that needs gui stuff. Included if you include gui_gui.h.
-#define CON_MAIN_GUI_H
+#define __CON_MAIN_GUI_H
 // The console 'application' functions.
 // Adds the console to the gui.
 void CON_Start(gui_t ** gui);
@@ -41,11 +41,11 @@ bool CON_InitResolution(void);
 // Inits the console for the given dimensions.
 void CON_InitConsole(int width, int height, int gfxmode);
 
-#endif
-#endif
+#endif // __CON_MAIN_GUI_H
+#endif // __GUI_GUI_H__
 
-#ifndef CON_MAIN_H
-#define CON_MAIN_H
+#ifndef __CON_MAIN_H
+#define __CON_MAIN_H
 
 void CON_TryCommand(const char *cmd);
 
@@ -78,4 +78,7 @@ visible_t;
 // Displays/Hides the console.
 void CON_SetVisible(visible_t v);
 
-#endif
+#endif // __CON_MAIN_H
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

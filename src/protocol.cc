@@ -77,3 +77,6 @@ void ticcmd_proto_t::ByteSwapCmds(int num_cmds)
 		cmds[t].ByteSwap();
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

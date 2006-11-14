@@ -117,3 +117,6 @@ byte gammatable[5][256] =
     }
 };
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -137,3 +137,6 @@ void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
 
 
 #endif  // __RGL_UNIT__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

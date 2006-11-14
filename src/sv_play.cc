@@ -728,3 +728,6 @@ void SR_PlayerPutState(void *storage, int index, void *extra)
 	SV_PutString(buf.GetString());
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

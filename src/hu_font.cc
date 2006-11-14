@@ -357,3 +357,6 @@ font_c* font_container_c::Lookup(fontdef_c *def)
 	return new_f;
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -837,3 +837,6 @@ int L_CompareFileTimes(const char *A, const char *B)
 	return A_time.Cmp(B_time);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

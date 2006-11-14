@@ -960,3 +960,6 @@ bool SV_GetMarker(char id[5])
 	return VerifyMarker(id);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

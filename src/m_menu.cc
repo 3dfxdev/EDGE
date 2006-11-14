@@ -2224,3 +2224,6 @@ void M_Init(void)
 	M_NetGameInit();
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

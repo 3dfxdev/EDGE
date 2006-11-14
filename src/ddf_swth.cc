@@ -333,3 +333,6 @@ switchdef_c* switchdef_container_c::Find(const char *name)
 
 	return NULL;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -238,3 +238,6 @@ ticcmd_proto_t;
 
 
 #endif /* __PROTOCOL_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

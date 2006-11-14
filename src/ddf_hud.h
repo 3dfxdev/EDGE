@@ -97,3 +97,6 @@ void DDF_MainLookupHUD(const char *info, void *storage);
 bool DDF_ReadHuds(void *data, int size);
 
 #endif  /* __DDF_HUD__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

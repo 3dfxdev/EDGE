@@ -35,3 +35,6 @@ bool RGL_DoWipe(void);
 
 
 #endif  // __RGL_WIPE__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

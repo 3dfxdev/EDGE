@@ -28,4 +28,7 @@
 
 typedef u32_t angle_t;
 
-#endif
+#endif // __EDGETYPES__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

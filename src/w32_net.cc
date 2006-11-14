@@ -103,3 +103,6 @@ const char *I_NetworkReturnError(void)
 #endif
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

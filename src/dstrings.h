@@ -41,4 +41,7 @@
 
 #define SCRNSHOTDIR	"screenshot"
 
-#endif
+#endif // __DOOM_STRINGS__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

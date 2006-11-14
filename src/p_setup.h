@@ -51,4 +51,7 @@ void P_StopLevel(void);
 void P_RemoveMobjs(void);
 void P_RemoveItemsInQue(void);
 
-#endif
+#endif // __P_SETUP__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

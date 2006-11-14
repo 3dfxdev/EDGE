@@ -30,4 +30,7 @@ enum error_e
 	ERR_NUMTYPES
 };
 
-#endif
+#endif // __ERRORCODES__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

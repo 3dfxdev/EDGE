@@ -198,3 +198,6 @@ void P_RunForces(void)
 		DoForce(f);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

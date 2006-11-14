@@ -137,3 +137,6 @@ void M_DirtyRegion(int x1, int y1, int x2, int y2)
 	}
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -372,3 +372,6 @@ void SR_TriggerPutScript(void *storage, int index, void *extra);
 
 
 #endif  // __SV_MAIN_
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

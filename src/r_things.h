@@ -143,4 +143,7 @@ extern int numsprites;  // same as sprites.GetSize()
 int R_AddSpriteName(const char *name, int frame, bool is_weapon);
 void R_InitSprites(void);
 
-#endif
+#endif // __R_THINGS__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

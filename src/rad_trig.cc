@@ -1035,3 +1035,6 @@ bool RAD_Responder(event_t * ev)
 
 	return false;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

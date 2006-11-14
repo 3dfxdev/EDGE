@@ -1232,3 +1232,6 @@ void SR_SectorPutEF(void *storage, int index, void *extra)
 	SV_PutInt(swizzle);
 }
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

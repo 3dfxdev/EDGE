@@ -123,4 +123,7 @@ namespace sound
 	int LookupEffectDef(const sfx_t *s);
 };
 
-#endif
+#endif // __S_SOUND__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

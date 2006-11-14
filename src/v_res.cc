@@ -527,3 +527,6 @@ int scrmodelist_c::Next(int idx, scrmodelist_c::incrementtype_e type)
     return sel_mode;
 }
 	
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

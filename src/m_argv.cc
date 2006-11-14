@@ -292,3 +292,6 @@ int M_GetArgCount(void)
 {
 	return myargc;
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -262,3 +262,6 @@ void I_ShutdownGraphics(void)
 	if (SDL_WasInit(SDL_INIT_EVERYTHING))
 		SDL_Quit ();
 }
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
