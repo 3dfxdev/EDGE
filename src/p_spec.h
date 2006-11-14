@@ -269,6 +269,7 @@ extern line_t * line_speciallist;
 extern sector_t * sect_speciallist;
 void P_AddSpecialLine(line_t *ld);
 void P_AddSpecialSector(sector_t *sec);
+void P_SectorChangeSpecial(sector_t *sec, int new_type);
 
 void P_RunLights(void);
 light_t *P_NewLight(void);

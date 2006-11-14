@@ -716,8 +716,13 @@ static void P_SectorEffect(sector_t *target, line_t *source,
 
 	if (special->sector_effect & SECTFX_SetFriction)
 	{
-		if (target->props.flags & MSF_Friction)
+		// TODO: this is not 100% correct, because the MSF_Friction flag is
+		//       supposed to turn the custom friction on/off, but with this
+		//       code, the custom value is either permanent or forgotten.
+		if (target->props.type & MSF_Friction)
+		{
 			target->props.friction = MIN(1.0f, 0.8125 + length / 1066.7f);
+		}
 	}
 
 	if (special->sector_effect & SECTFX_PointForce)
@@ -1017,7 +1022,6 @@ static bool P_ActivateSpecialLine(line_t * line,
 		}
 	}
 
-#if 0  // -AJA- DISABLED (Unfinished)
 	//
 	// - Elevators -
 	//
@@ -1036,7 +1040,6 @@ static bool P_ActivateSpecialLine(line_t * line,
 					line ? line->frontsector : NULL, DoElevator_wrapper);
 		}
 	}
-#endif
 
 	if (special->use_colourmap && tag > 0)
 	{
@@ -1216,8 +1219,10 @@ static bool P_ActivateSpecialLine(line_t * line,
 		}
 		// -KM- 1998/09/27 Reversable linedefs.
 		if (line->special && special->newtrignum)
+		{
 			line->special = (special->newtrignum <= 0) ? NULL :
-				playsim::LookupLineType(special->newtrignum);
+				P_LookupLineType(special->newtrignum);
+		}
 
 		P_ChangeSwitchTexture(line, line->special && (special->newtrignum == 0),
 				special->special_flags, playedSound);
@@ -1288,7 +1293,7 @@ bool P_UseSpecialLine(mobj_t * thing, line_t * line, int side,
 void P_RemoteActivation(mobj_t * thing, int typenum, int tag, 
 		int side, trigger_e method)
 {
-	const linetype_c *spec = playsim::LookupLineType(typenum);
+	const linetype_c *spec = P_LookupLineType(typenum);
 
 	P_ActivateSpecialLine(NULL, spec, tag, side, thing, method, 1,
 			(thing == NULL));
@@ -1306,10 +1311,7 @@ static INLINE void PlayerInProperties(player_t *player,
 		return;
 
 	if (!G_CheckWhenAppear(special->appear))
-	{
-		props->special = NULL;
 		return;
-	}
 
 	// breathing support
 	// (Mouth is where the eye is !)
@@ -1382,12 +1384,15 @@ static INLINE void PlayerInProperties(player_t *player,
 	if (special->secret)
 	{
 		player->secretcount++;
+
+		props->type = 0;
 		props->special = NULL;
 	}
 
-	if (special->e_exit == EXIT_Normal)
+	if (special->e_exit != EXIT_None)
 	{
 		player->cheats &= ~CF_GODMODE;
+
 		if (player->health <= special->damage.nominal)
 		{
             sound::StartFX(player->mo->info->deathsound,
@@ -1397,22 +1402,11 @@ static INLINE void PlayerInProperties(player_t *player,
 			// -KM- 1998/12/16 We don't want to alter the special type,
 			//   modify the sector's attributes instead.
 			props->special = NULL;
-			G_ExitLevel(1);
-			return;
-		}
-	}
-	else if (special->e_exit == EXIT_Secret)
-	{
-		player->cheats &= ~CF_GODMODE;
-		if (player->health <= special->damage.nominal)
-		{
-            sound::StartFX(player->mo->info->deathsound,
-                           P_MobjGetSfxCategory(player->mo),
-                           player->mo);
 
-			props->special = NULL;
-			G_SecretExitLevel(1);
-			return;
+			if (special->e_exit == EXIT_Secret)
+				G_SecretExitLevel(1);
+			else
+				G_ExitLevel(1);
 		}
 	}
 }
@@ -1656,8 +1650,7 @@ void P_SpawnSpecials(int autotag)
 
 		if (! G_CheckWhenAppear(secSpecial->appear))
 		{
-			sector->props.special = NULL;
-			sector->props.flags = 0;
+			P_SectorChangeSpecial(sector, 0);
 			continue;
 		}
 
@@ -1820,3 +1813,12 @@ static bool P_DoSectorsFromTag(int tag, const void *p1, void *p2,
 
 	return rtn;
 }
+
+
+void P_SectorChangeSpecial(sector_t *sec, int new_type)
+{
+	sec->props.type = MAX(0, new_type);
+
+	sec->props.special = P_LookupSectorType(sec->props.type);
+}
+
