@@ -806,12 +806,10 @@ static void LoadSectors(int lump)
 
 		ss->props.lightlevel = EPI_LE_S16(ms->light);
 
-		int spec = EPI_LE_S16(ms->special);
+		int type = EPI_LE_S16(ms->special);
 
-		ss->props.special = (spec <= 0) ? NULL :
-			playsim::LookupSectorType(spec);
-		ss->props.flags = (spec <= 0 || spec > 0xFFF) ? 0 :
-			(spec & MSF_BoomFlags);
+		ss->props.type = MAX(0, type);
+		ss->props.special = P_LookupSectorType(ss->props.type);
 
 		ss->exfloor_max = 0;
 
@@ -1328,8 +1326,7 @@ static void LoadLineDefs(int lump)
 		ld->v1 = &vertexes[EPI_LE_U16(mld->start)];
 		ld->v2 = &vertexes[EPI_LE_U16(mld->end)];
 
-		ld->special = (EPI_LE_S16(mld->special) <= 0) ? NULL :
-			playsim::LookupLineType(EPI_LE_S16(mld->special));
+		ld->special = P_LookupLineType(MAX(0, EPI_LE_S16(mld->special)));
 
 		side0 = EPI_LE_U16(mld->side_R);
 		side1 = EPI_LE_U16(mld->side_L);
@@ -2668,9 +2665,7 @@ int P_DetectWadGameCompat(const mapdef_c *first)
 }
 #endif
 
-//
-// P_Init
-//
+
 void P_Init(void)
 {
 	E_ProgressMessage(language["PlayState"]);
@@ -2683,48 +2678,47 @@ void P_Init(void)
 	voodoo_doll_starts.Clear();
 }
 
-namespace playsim
+
+linetype_c *P_LookupLineType(int num)
 {
-	//
-	// linetype_c* LookupLineType()
-	//
-	linetype_c* LookupLineType(int num)
-	{
-		linetype_c* def = linetypes.Lookup(num);
+	if (num <= 0)
+		return NULL;
 
-		// DDF types always override
+	linetype_c* def = linetypes.Lookup(num);
+
+	// DDF types always override
+	if (def)
+		return def;
+
+	if (DDF_IsBoomLineType(num))
+		return DDF_BoomGetGenLine(num);
+
+	I_Warning("P_LookupLineType(): Unknown linedef type %d\n", num);
+	return linetypes[0];	// Return template line
+}	
+
+
+sectortype_c *P_LookupSectorType(int num)
+{
+	if (num <= 0)
+		return NULL;
+
+	sectortype_c* def = sectortypes.Lookup(num);
+
+	// DDF types always override
+	if (def)
+		return def;
+
+	if (level_flags.sector_compat && (num > 0) && (num < 100))
+	{
+		sectortype_c* def = sectortypes.Lookup(4400 + num);
 		if (def)
 			return def;
-
-  		if (DDF_IsBoomLineType(num))
-			return DDF_BoomGetGenLine(num);
-
-		I_Warning("playsim::LookupLineType(): Unknown linedef type %d\n", num);
-		return linetypes[0];	// Return template line
-	}	
-
-	//
-	// sectortype_c* LookupSectorType()
-	//	
-	sectortype_c* LookupSectorType(int num)
-	{
-		sectortype_c* def = sectortypes.Lookup(num);
-
-		// DDF types always override
-		if (def)
-			return def;
-
-		if (level_flags.sector_compat && (num>0) && (num < 100))
-		{
-			sectortype_c* def = sectortypes.Lookup(4400 + num);
-			if (def)
-				return def;
-		}
-
-		if (DDF_IsBoomSectorType(num))
-			return DDF_BoomGetGenSector(num);
-
-		I_Warning("playsim::LookupSectorType(): Unknown sector type %d", num);
-		return sectortypes[0];	// Return template sector
 	}
+
+	if (DDF_IsBoomSectorType(num))
+		return DDF_BoomGetGenSector(num);
+
+	I_Warning("P_LookupSectorType(): Unknown sector type %d", num);
+	return sectortypes[0];	// Return template sector
 }

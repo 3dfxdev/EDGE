@@ -821,12 +821,12 @@ bool SR_LightGetType(void *storage, int index, void *extra)
 
 	if (str[0] == 'S')
 	{
-		const sectortype_c *special = playsim::LookupSectorType(number);
+		const sectortype_c *special = P_LookupSectorType(number);
 		(*dest) = &special->l;
 	}
 	else if (str[0] == 'L')
 	{
-		const linetype_c *special = playsim::LookupLineType(number);
+		const linetype_c *special = P_LookupLineType(number);
 		(*dest) = &special->l;
 	}
 	else
@@ -1159,12 +1159,12 @@ bool SR_PlaneMoveGetType(void *storage, int index, void *extra)
 
 	if (str[0] == 'S')
 	{
-		const sectortype_c *special = playsim::LookupSectorType(number);
+		const sectortype_c *special = P_LookupSectorType(number);
 		(*dest) = is_ceil ? &special->c : &special->f;
 	}
 	else if (str[0] == 'L')
 	{
-		const linetype_c *special = playsim::LookupLineType(number);
+		const linetype_c *special = P_LookupLineType(number);
 		(*dest) = is_ceil ? &special->c : &special->f;
 	}
 	else if (str[0] == 'D')

@@ -378,11 +378,7 @@ bool P_GiveBenefitList(player_t *player, mobj_t *special, benefit_t *list, bool 
 //
 #include "p_spec.h"
 
-// playsim namespace
-namespace playsim
-{
-	linetype_c* LookupLineType(int num);
-	sectortype_c* LookupSectorType(int num);
-};
+linetype_c* P_LookupLineType(int num);
+sectortype_c* P_LookupSectorType(int num);
 
 #endif // __P_LOCAL__

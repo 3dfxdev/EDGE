@@ -358,8 +358,7 @@ static void MovePlane(plane_move_t *plane)
 
                 if (plane->newspecial != -1)
                 {
-                    plane->sector->props.special = (plane->newspecial <= 0) ? NULL :
-                        playsim::LookupSectorType(plane->newspecial);
+					P_SectorChangeSpecial(plane->sector, plane->newspecial);
                 }
 
                 SECPIC(plane->sector, plane->is_ceiling, plane->new_image);
@@ -472,8 +471,7 @@ static void MovePlane(plane_move_t *plane)
 
                 if (plane->newspecial != -1)
                 {
-                    plane->sector->props.special = (plane->newspecial <= 0) ? 
-                        NULL : sectortypes.Lookup(plane->newspecial);
+					P_SectorChangeSpecial(plane->sector, plane->newspecial);
                 }
 
                 SECPIC(plane->sector, plane->is_ceiling, plane->new_image);
@@ -791,8 +789,7 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
             SECPIC(sector, def->is_ceiling, plane->new_image);
             if (plane->newspecial != -1)
             {
-                sector->props.special = (plane->newspecial <= 0) ? NULL :
-                    sectortypes.Lookup(plane->newspecial);
+				P_SectorChangeSpecial(sector, plane->newspecial);
             }
         }
     }
@@ -820,8 +817,7 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
 
                 if (plane->newspecial != -1)
                 {
-                    sector->props.special = (plane->newspecial <= 0) ? NULL :
-                        sectortypes.Lookup(plane->newspecial);
+					P_SectorChangeSpecial(sector, plane->newspecial);
                 }
             }
         }
@@ -1457,7 +1453,9 @@ bool EV_DoDonut(sector_t * s1, sfx_t *sfx[4])
         {
             sec->destheight = s3->f_h;
             s2->floor.image = sec->new_image = s3->floor.image;
-            s2->props.special = s3->props.special;
+
+            /// s2->props.special = s3->props.special;
+			P_SectorChangeSpecial(s2, s3->props.type);
         }
 
         // Spawn lowering donut-hole

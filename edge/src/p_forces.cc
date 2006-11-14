@@ -106,20 +106,20 @@ static void DoForce(force_t * f)
 {
 	sector_t *sec = f->sector;
 
-    if (! (sec->props.flags & MSF_Push))
-        return;
-
-	if (f->is_point)
+    if (sec->props.type & MSF_Push)
 	{
-		// FIXME: point forces  : BlockThingIterator
-	}
-	else // wind/current
-	{
-		touch_node_t *nd;
+		if (f->is_point)
+		{
+			// FIXME: point forces : BlockThingIterator
+		}
+		else // wind/current
+		{
+			touch_node_t *nd;
 
-		for (nd = sec->touch_things; nd; nd = nd->sec_next)
-			if (nd->mo->hyperflags & HF_PUSHABLE)
-				WindCurrentForce(f, nd->mo);
+			for (nd = sec->touch_things; nd; nd = nd->sec_next)
+				if (nd->mo->hyperflags & HF_PUSHABLE)
+					WindCurrentForce(f, nd->mo);
+		}
 	}
 }
 

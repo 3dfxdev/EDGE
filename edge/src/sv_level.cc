@@ -249,9 +249,11 @@ static savefield_t sv_fields_regprops[] =
 {
 	SF(lightlevel, "lightlevel_i", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(colourmap,  "colourmap", 1, SVT_STRING, SR_LevelGetColmap, 
-	SR_LevelPutColmap),
+		SR_LevelPutColmap),
+
+	SF(type, "type", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(special, "special", 1, SVT_STRING, SR_SectorGetSpecial, 
-	SR_SectorPutSpecial),
+		SR_SectorPutSpecial),
 
 	SF(gravity, "gravity", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(friction, "friction", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
@@ -694,9 +696,8 @@ int SV_SectorFindElem(sector_t *elem)
 //
 void SV_SectorCreateElems(int num_elems)
 {
-	/* nothing much to do -- sectors are created from level load, and
-	* defaults are initialised there.
-	*/
+	// nothing much to do -- sectors are created from level load,
+	// and defaults are initialised there.
 
 	if (num_elems != numsectors)
 		I_Error("LOADGAME: SECTOR MISMATCH !  (%d != %d)\n",
@@ -729,6 +730,13 @@ void SV_SectorFinaliseElems(void)
 			sec->ceil.scroll.x  || sec->ceil.scroll.y)
 		{
 			P_AddSpecialSector(sec);
+		}
+
+		// fix 'type' field for older save-games
+		if (savegame_version < 0x12903)
+		{
+			sec->props.type = sec->props.special ?
+				sec->props.special->ddf.num : 0;
 		}
 	}
 
@@ -974,7 +982,7 @@ bool SR_LineGetSpecial(void *storage, int index, void *extra)
 	if (str[0] != ':')
 		I_Error("SR_LineGetSpecial: invalid special `%s'\n", str);
 
-	(*dest) = playsim::LookupLineType(strtol(str+1, NULL, 0));
+	(*dest) = P_LookupLineType(strtol(str+1, NULL, 0));
 
 	Z_Free((char *)str);
 	return true;
@@ -1023,7 +1031,7 @@ bool SR_SectorGetSpecial(void *storage, int index, void *extra)
 	if (str[0] != ':')
 		I_Error("SR_SectorGetSpecial: invalid special `%s'\n", str);
 
-	(*dest) = playsim::LookupSectorType(strtol(str+1, NULL, 0));
+	(*dest) = P_LookupSectorType(strtol(str+1, NULL, 0));
 
 	Z_Free((char *)str);
 	return true;
@@ -1223,134 +1231,4 @@ void SR_SectorPutEF(void *storage, int index, void *extra)
 
 	SV_PutInt(swizzle);
 }
-
-
-#if 0  // NOT NEEDED AFTER ALL
-//
-// SR_ExtrafloorGetInfo
-//
-bool SR_ExtrafloorGetInfo(void *storage, int index, void *extra)
-{
-	const extrafloordef_c ** dest = 
-		(const extrafloordef_c **)storage + index;
-
-	const char *str = SV_GetString();
-
-	if (! str)
-	{
-		(*dest) = NULL;
-		return true;
-	}
-
-	if (str[0] != ':')
-		I_Error("SR_ExtrafloorGetInfo: invalid string `%s'\n", str);
-
-	(*dest) = playsim::LookupLineType(strtol(str+1, NULL, 0))->ef;
-
-	Z_Free((char *)str);
-	return true;
-}
-
-//
-// SR_ExtrafloorPutInfo
-//
-// Format of the string is a colon followed by the linedef number that
-// defines the extrafloor, for example ":123".
-//
-void SR_ExtrafloorPutInfo(void *storage, int index, void *extra)
-{
-	const extrafloordef_c *src = 
-		((const extrafloordef_c **)storage)[index];
-
-//	char buffer[64];
-//	int i;
-
-	if (! src)
-	{
-		SV_PutString(NULL);
-		return;
-	}
-
-	// find the correct linedeftype
-	for (i=0; i < num_ddf_linetypes; i++)
-	{
-		if (src == &ddf_linetypes[i]->ef)
-		{
-			sprintf(buffer, ":%d", ddf_linetypes[i]->ddf.number);
-			SV_PutString(buffer);
-		}
-	}
-
-	I_Error("SR_ExtrafloorPutInfo: could not find info %p\n", src);
-}
-#endif
-
-
-#if 0  // NOT NEEDED AFTER ALL
-//
-// SR_SectorGetGenMove
-//
-bool SR_SectorGetGenMove(void *storage, int index, void *extra)
-{
-	gen_move_t ** dest = (gen_move_t **)storage + index;
-	gen_move_t *cur;
-
-	const char *str;
-	int i, num;
-
-	str = SV_GetString();
-
-	if (! str)
-	{
-		(*dest) = NULL;
-		return true;
-	}
-
-	num = strtol(str, NULL, 0);
-
-	for (i=0, cur=active_movparts; i < num && cur; i++, cur=cur->next)
-	{ /* nothing here */ }
-
-	if (! cur)
-	{
-		I_Warning("SR_SectorGetGenMove: bad gen_move ref %s\n", str);
-	}
-
-	(*dest) = cur;
-
-	Z_Free((char *)str);
-	return true;
-}
-
-//
-// SR_SectorPutGenMove
-//
-// Format of the string: the index into the active_part list, starting
-// at zero.
-//
-void SR_SectorPutGenMove(void *storage, int index, void *extra)
-{
-	gen_move_t *src = ((gen_move_t **)storage)[index];
-	gen_move_t *cur;
-
-	char buffer[64];
-	int i;
-
-	if (! src)
-	{
-		SV_PutString(NULL);
-		return;
-	}
-
-	// compute index
-	for (i=0, cur=src; cur->prev; i++, cur=cur->prev)
-	{ /* nothing here */ }
-
-	if (cur != active_movparts)
-		I_Error("SR_SectorPutGenMove: could not find gen_move %p\n", src);
-
-	sprintf(buffer, "%d", i);
-	SV_PutString(buffer);
-}
-#endif
 
