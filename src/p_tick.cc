@@ -35,6 +35,7 @@
 #include "dm_state.h"
 #include "n_network.h"
 #include "p_local.h"
+#include "p_spec.h"
 
 int leveltime;
 
@@ -58,10 +59,12 @@ void P_Ticker(void)
 		if (players[pnum])
 			P_PlayerThink(players[pnum]);
 
+	P_RunForces();
 	P_RunMobjThinkers();
 	P_RunLights();
 	P_RunActiveSectors();
 	P_RunSectorSFX();
+
 	P_UpdateSpecials();
 	P_MobjItemRespawn();
 

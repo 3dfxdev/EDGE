@@ -431,7 +431,7 @@ static bool CheckSightSameSubsector(mobj_t *src, mobj_t *dest)
 // Returns true if a straight line between t1 and t2 is unobstructed.
 // Uses the REJECT info.
 //
-bool P_CheckSight(mobj_t * src, mobj_t * dest)
+static bool DoCheckSight(mobj_t * src, mobj_t * dest)
 {
 	int n, num_div;
 
@@ -604,6 +604,22 @@ bool P_CheckSight(mobj_t * src, mobj_t * dest)
 	return false;
 }
 
+bool P_CheckSight(mobj_t * src, mobj_t * dest)
+{
+	return DoCheckSight(src, dest);
+}
+
+bool P_CheckSightToPoint(mobj_t * src, float x, float y, float z)
+{
+	subsector_t *dest_sub = R_PointInSubsector(x, y);
+
+	if (dest_sub == src->subsector)
+		return true;
+
+	// !!!! FIXME
+	return true;
+}
+
 //
 // P_CheckSightApproxVert
 //
@@ -621,7 +637,6 @@ bool P_CheckSightApproxVert(mobj_t * src, mobj_t * dest)
 
 	return CheckSightSameSubsector(src, dest);
 }
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
