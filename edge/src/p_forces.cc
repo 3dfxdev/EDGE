@@ -52,21 +52,31 @@ static force_t *tm_force;  // for PIT_PushThing
 
 static void WindCurrentForce(force_t *f, mobj_t *mo)
 {
-	float qty = 1.0f;
+	float z1 = mo->z;
+	float z2 = z1 + mo->height;
 
-	// !!!! FIXME: check extrafloors (i.e. 242 effect)
+	sector_t *sec = f->sector;
+
+	// NOTE: assumes that BOOM's [242] linetype was used
+	extrafloor_t *ef = sec->bottom_liq ? sec->bottom_liq : sec->bottom_ef;
+
+	float qty = 0.5f;
 
 	if (f->is_wind)
 	{
-		if (mo->z > f->sector->f_h + 4.0f)
-			qty = 0.5f;
-	}
-	else // current
-	{
-		if (mo->z > f->sector->f_h + 4.0f)
+		if (ef && z2 < ef->bottom_h)
 			return;
 
-		qty = 0.5f;
+		if (z1 > (ef ? ef->bottom_h : sec->f_h) + 2.0f)
+			qty = 1.0f;
+	}
+	else  // Current
+	{
+		if (z1 > (ef ? ef->bottom_h : sec->f_h) + 2.0f)
+			return;
+
+		if (z2 < (ef ? ef->bottom_h : sec->c_h))
+			qty = 1.0f;
 	}
 
 	mo->mom.x += qty * f->mag.x;
