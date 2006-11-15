@@ -25,13 +25,6 @@
 #include <SDL.h>
 #endif 
 
-typedef enum
-{
-	APP_STATE_ACTIVE       = 0x1,
-	APP_STATE_PENDING_QUIT = 0x2
-}
-app_state_flags_e;
-
 // I_CD
 bool I_StartupCD(void);
 bool I_CDStartPlayback(int tracknum, bool loopy, float gain);
@@ -49,7 +42,6 @@ void I_CentreMouse();
 // I_MUSIC
 void I_PostMusicError(const char *message);
 
-extern int app_state;
 extern bool use_grab;
 extern bool use_warp_mouse;
 

@@ -24,8 +24,8 @@
 //----------------------------------------------------------------------------
 //
 // DESCRIPTION:
-//      EDGE main program (engine::Main),
-//      game loop (engine::Loop) and startup functions.
+//      EDGE main program (E_Main),
+//      game loop (E_Loop) and startup functions.
 //
 // -MH- 1998/07/02 "shootupdown" --> "true3dgameplay"
 // -MH- 1998/08/19 added up/down movement variables
@@ -98,6 +98,9 @@
 #define DEFAULT_LANGUAGE  "ENGLISH"
 
 #define E_TITLE  "EDGE v" EDGEVERSTR
+
+// Application active?
+int app_state = APP_STATE_ACTIVE;
 
 bool singletics = false;  // debug flag to cancel adaptiveness
 
@@ -1341,7 +1344,7 @@ static void SetupLogAndDebugFiles(void)
 		logfile = fopen(logfn.GetString(), "w");
 
 		if (!logfile)
-			I_Error("[engine::Startup] Unable to create log file");
+			I_Error("[E_Startup] Unable to create log file");
 	}
 	else
 	{
@@ -1365,7 +1368,7 @@ static void SetupLogAndDebugFiles(void)
 		debugfile = fopen(debugfn.GetString(), "w");
 
 		if (!debugfile)
-			I_Error("[engine::Startup] Unable to create debugfile");
+			I_Error("[E_Startup] Unable to create debugfile");
 	}
 	else
 	{
@@ -1563,253 +1566,252 @@ startuporder_t startcode[] =
 	{  0, NULL,                }
 };
 
-// The engine namespace
-namespace engine
+
+// Local Prototypes
+static void E_Startup();
+static void E_Shutdown(void);
+
+//
+// AutoStart
+//
+void AutoStart()
 {
-	// Local Prototypes
-	void Startup();
-	void Shutdown(void);
+	newgame_params_c params;
 
-    //
-    // AutoStart
-    //
-	void AutoStart()
+	params.skill = startskill;	
+	params.deathmatch = deathmatch;	
+
+	params.map = G_LookupMap(startmap);
+
+	if (! params.map)
+		I_Error("-warp: no such level '%s'\n", startmap);
+
+	params.game = gamedefs.Lookup(params.map->episode_name);
+	if (! params.game)
+		I_Error("-warp: no gamedef for level '%s'\n", startmap);
+
+	params.random_seed = I_PureRandom();
+
+	params.SinglePlayer(startbots);
+
+	if (! G_DeferredInitNew(params, true /* compat_check */))
+		I_Error("-warp: cannot init level '%s'\n", startmap);
+}
+
+
+static void E_Startup()
+{
+	int p;
+	const char *ps;
+
+	// Version check ?
+	if (M_CheckParm("-version"))
 	{
-		newgame_params_c params;
-
-		params.skill = startskill;	
-		params.deathmatch = deathmatch;	
-
-		params.map = G_LookupMap(startmap);
-
-		if (! params.map)
-			I_Error("-warp: no such level '%s'\n", startmap);
-
-		params.game = gamedefs.Lookup(params.map->episode_name);
-		if (! params.game)
-			I_Error("-warp: no gamedef for level '%s'\n", startmap);
-
-		params.random_seed = I_PureRandom();
-
-		params.SinglePlayer(startbots);
-
-		if (! G_DeferredInitNew(params, true /* compat_check */))
-			I_Error("-warp: cannot init level '%s'\n", startmap);
+		// -AJA- using I_Error here, since I_Printf crashes this early on
+		I_Error("\nEDGE version is " EDGEVERSTR "\n");
 	}
 
-	//
-	// Startup
-	//
-	void Startup()
+	// -AJA- 2000/02/02: initialise global gameflags to defaults
+	global_flags = default_gameflags;
+
+	InitDirectories();
+
+	SetupLogAndDebugFiles();
+
+	// -ACB- 1999/09/20 defines to be used?
+	CON_InitConsole(79, 25, false);  // AJA: FIXME: init later (in startcode[])
+
+	ShowDateAndVersion();
+
+	M_LoadDefaults();
+	SetGlobalVars();
+
+	DoSystemStartup();
+
+	I_PutTitle(E_TITLE); // Needs to be done once the system is up and running
+
+	// RGL_FontStartup();
+
+	E_GlobalProgress(0, 0, 1);
+
+	int total=0;
+	int cur=0;
+
+	for (p=0; startcode[p].function != NULL; p++)
+		total += startcode[p].prog_time;
+
+	// Cycle through all the startup functions
+	for (p=0; startcode[p].function != NULL; p++)
 	{
-		int p;
-		const char *ps;
+		E_GlobalProgress(cur, startcode[p].prog_time, total);
 
-		// Version check ?
-		if (M_CheckParm("-version"))
-		{
-			// -AJA- using I_Error here, since I_Printf crashes this early on
-			I_Error("\nEDGE version is " EDGEVERSTR "\n");
-		}
+		startcode[p].function();
 
-		// -AJA- 2000/02/02: initialise global gameflags to defaults
-		global_flags = default_gameflags;
-
-		InitDirectories();
-
-		SetupLogAndDebugFiles();
-
-		// -ACB- 1999/09/20 defines to be used?
-		CON_InitConsole(79, 25, false);  // AJA: FIXME: init later (in startcode[])
-
-		ShowDateAndVersion();
-
-		M_LoadDefaults();
-		SetGlobalVars();
-
-		DoSystemStartup();
-
-		I_PutTitle(E_TITLE); // Needs to be done once the system is up and running
-
-		// RGL_FontStartup();
-
-		E_GlobalProgress(0, 0, 1);
-
-		int total=0;
-		int cur=0;
-
-		for (p=0; startcode[p].function != NULL; p++)
-			total += startcode[p].prog_time;
-
-		// Cycle through all the startup functions
-		for (p=0; startcode[p].function != NULL; p++)
-		{
-			E_GlobalProgress(cur, startcode[p].prog_time, total);
-
-			startcode[p].function();
-
-			cur += startcode[p].prog_time;
-		}
-
-		E_GlobalProgress(100, 0, 100);
-
-		CON_SetVisible(vs_notvisible);
-
-		// start the appropriate game based on parms
-		ps = M_GetParm("-record");
-		if (ps)
-		{
-			G_RecordDemo(ps);
-			autostart = true;
-		}
-
-		ps = M_GetParm("-playdemo");
-		if (ps)
-		{
-			// quit after one demo
-			singledemo = true;
-			G_DeferredPlayDemo(ps);
-		}
-
-		ps = M_GetParm("-timedemo");
-		if (ps)
-		{
-			G_DeferredTimeDemo(ps);
-		}
-
-		ps = M_GetParm("-loadgame");
-		if (ps)
-		{
-			G_DeferredLoadGame(atoi(ps));
-		}
-
-		L_WriteDebug("- Startup: ready to play.\n");
-
-		if (gameaction != ga_loadgame && gameaction != ga_playdemo)
-		{
-			if (netgame)
-				N_InitiateNetGame();
-			else if (autostart)
-				AutoStart();
-			else
-				E_StartTitle();  // start up intro loop
-		}
-
-		Z_Free(startmap);
+		cur += startcode[p].prog_time;
 	}
 
-	//
-	// Main
-	//
-	// -ACB- 1998/08/10 Removed all reference to a gamemap, episode and mission
-	//                  Used LanguageLookup() for lang specifics.
-	//
-	// -ACB- 1998/09/06 Removed all the unused code that no longer has
-	//                  relevance.    
-	//
-	// -ACB- 1999/09/04 Removed statcopy parm check - UNUSED
-	//
-	// -ACB- 2004/05/31 Moved into a namespace, the c++ revolution begins....
-	//
-	void Main(int argc, const char **argv)
+	E_GlobalProgress(100, 0, 100);
+
+	CON_SetVisible(vs_notvisible);
+
+	// start the appropriate game based on parms
+	ps = M_GetParm("-record");
+	if (ps)
 	{
-		// Start the EPI Interface 
-		epi::Init();
-
-		// Start memory allocation system at the very start (SCHEDULED FOR REMOVAL)
-		Z_Init();
-
-		// Implemented here - since we need to bring the memory manager up first
-		// -ACB- 2004/05/31
-		M_InitArguments(argc, argv);
-
-		try
-		{
-			// Startup function will throw an error if something goes wrong
-			Startup();
-
-			L_WriteDebug("- Entering game loop...\n");
-
-			// -ACB- 1999/09/24 Call System Specific Looping function. Some
-			//                  systems don't loop forever.
-			I_Loop();
-		}
-		catch(epi::error_c err)
-		{
-			I_Error("%s\n", err.GetInfo());
-		}
-		catch(...)
-		{
-			I_Error("Unexpected internal failure occurred !\n");
-		}
-
-		Shutdown();    // Shutdown whatever at this point
-
-		// Kill the epi interface
-		epi::Shutdown();
+		G_RecordDemo(ps);
+		autostart = true;
 	}
 
-	//
-	// Idle
-	//
-	// Called when this application has lost focus (i.e. an ALT+TAB event)
-	//
-	void Idle(void)
+	ps = M_GetParm("-playdemo");
+	if (ps)
 	{
-		E_ReleaseAllKeys();
+		// quit after one demo
+		singledemo = true;
+		G_DeferredPlayDemo(ps);
 	}
-	
-	//
-	// Tick
-	//
-	// This Function is called by I_Loop for a single loop in the
-	// system.
-	//
-	// -ACB- 1999/09/24 Written
-	// -ACB- 2004/05/31 Namespace'd
-	//
-	void Tick(void)
+
+	ps = M_GetParm("-timedemo");
+	if (ps)
 	{
-		// -ES- 1998/09/11 It's a good idea to frequently check the heap
+		G_DeferredTimeDemo(ps);
+	}
+
+	ps = M_GetParm("-loadgame");
+	if (ps)
+	{
+		G_DeferredLoadGame(atoi(ps));
+	}
+
+	L_WriteDebug("- Startup: ready to play.\n");
+
+	if (gameaction != ga_loadgame && gameaction != ga_playdemo)
+	{
+		if (netgame)
+			N_InitiateNetGame();
+		else if (autostart)
+			AutoStart();
+		else
+			E_StartTitle();  // start up intro loop
+	}
+
+	Z_Free(startmap);
+}
+
+
+static void E_Shutdown()
+{
+	/* ... */
+}
+
+
+//
+// Main
+//
+// -ACB- 1998/08/10 Removed all reference to a gamemap, episode and mission
+//                  Used LanguageLookup() for lang specifics.
+//
+// -ACB- 1998/09/06 Removed all the unused code that no longer has
+//                  relevance.    
+//
+// -ACB- 1999/09/04 Removed statcopy parm check - UNUSED
+//
+// -ACB- 2004/05/31 Moved into a namespace, the c++ revolution begins....
+//
+void E_Main(int argc, const char **argv)
+{
+	// Start the EPI Interface 
+	epi::Init();
+
+	// Start memory allocation system at the very start (SCHEDULED FOR REMOVAL)
+	Z_Init();
+
+	// Implemented here - since we need to bring the memory manager up first
+	// -ACB- 2004/05/31
+	M_InitArguments(argc, argv);
+
+	try
+	{
+		// Startup function will throw an error if something goes wrong
+		E_Startup();
+
+		L_WriteDebug("- Entering game loop...\n");
+
+		while (! (app_state & APP_STATE_PENDING_QUIT))
+		{
+			// We always do this once here, although the engine may
+			// makes in own calls to keep on top of the event processing
+			I_ControlGetEvents(); 
+
+			if (app_state & APP_STATE_ACTIVE)
+				E_Tick();
+		}
+	}
+	catch(epi::error_c err)
+	{
+		I_Error("%s\n", err.GetInfo());
+	}
+	catch(...)
+	{
+		I_Error("Unexpected internal failure occurred !\n");
+	}
+
+	E_Shutdown();    // Shutdown whatever at this point
+
+	// Kill the epi interface
+	epi::Shutdown();
+}
+
+//
+// Idle
+//
+// Called when this application has lost focus (i.e. an ALT+TAB event)
+//
+void E_Idle(void)
+{
+	E_ReleaseAllKeys();
+}
+
+//
+// Tick
+//
+// This Function is called for a single loop in the system.
+//
+// -ACB- 1999/09/24 Written
+// -ACB- 2004/05/31 Namespace'd
+//
+void E_Tick(void)
+{
+	// -ES- 1998/09/11 It's a good idea to frequently check the heap
 #ifdef DEVELOPERS
-		//Z_CheckHeap();
+	//Z_CheckHeap();
 //		L_WriteDebug("[0] Mem size: %ld\n", epi::the_mem_manager->GetAllocatedSize());
 #endif
 
-		bool fresh_game_tic;
+	bool fresh_game_tic;
 
-		int counts = N_TryRunTics(&fresh_game_tic);
+	int counts = N_TryRunTics(&fresh_game_tic);
 
-		DEV_ASSERT2(counts > 0);
+	DEV_ASSERT2(counts > 0);
 
-		for (; counts > 0; counts--)  // run the tics
-		{
-			if (advance_title)
-				E_DoAdvanceTitle();
-
-			GUI_MainTicker();
-			M_Ticker();
-
-			G_Ticker(fresh_game_tic);
-
-			sound::Ticker(); 
-			S_MusicTicker(); // -ACB- 1999/11/13 Improved music update routines
-
-			N_NetUpdate();  // check for new console commands
-		}
-
-		// Update display, next frame, with current state.
-		E_Display();
-	}
-
-	//
-	// Shutdown
-	//
-	void Shutdown()
+	for (; counts > 0; counts--)  // run the tics
 	{
-		/* ... */
+		if (advance_title)
+			E_DoAdvanceTitle();
+
+		GUI_MainTicker();
+		M_Ticker();
+
+		G_Ticker(fresh_game_tic);
+
+		sound::Ticker(); 
+		S_MusicTicker(); // -ACB- 1999/11/13 Improved music update routines
+
+		N_NetUpdate();  // check for new console commands
 	}
-};
+
+	// Update display, next frame, with current state.
+	E_Display();
+}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

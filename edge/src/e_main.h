@@ -28,15 +28,9 @@
 
 #include "e_event.h"
 
-extern bool m_screenshot_required;
-extern bool need_save_screenshot;
-
-namespace engine
-{
-	void Main(int argc, const char **argv);
-	void Idle(void);
-	void Tick(void);
-};
+void E_Main(int argc, const char **argv);
+void E_Idle(void);
+void E_Tick(void);
 
 void E_ProcessEvents(void);
 void E_DoAdvanceDemo(void);
@@ -55,6 +49,18 @@ void E_LocalProgress(int step, int total);
 
 void E_NodeMessage(const char *message);
 void E_NodeProgress(int perc);
+
+typedef enum
+{
+	APP_STATE_ACTIVE       = 0x1,
+	APP_STATE_PENDING_QUIT = 0x2
+}
+app_state_flags_e;
+
+extern int app_state;
+
+extern bool m_screenshot_required;
+extern bool need_save_screenshot;
 
 #endif // __E_MAIN__
 

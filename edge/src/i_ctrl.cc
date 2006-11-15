@@ -158,7 +158,7 @@ void HandleFocusLost(void)
         SDL_WM_GrabInput(SDL_GRAB_OFF);
     }
 
-	engine::Idle();
+	E_Idle();
 
 	// No longer active
 	app_state &= ~APP_STATE_ACTIVE;							

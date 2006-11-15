@@ -210,7 +210,7 @@ int PASCAL WinMain (HINSTANCE curr, HINSTANCE prev, LPSTR cmdline, int show)
 	SDL_SetModuleHandle(GetModuleHandle(NULL));
 
 	// Run Game....
-	engine::Main(edgeargc, edgeargv);
+	E_Main(edgeargc, edgeargv);
 
 	// Cleanup on exit
 	CleanupParameters();
