@@ -33,9 +33,6 @@
 
 #include "epi/strings.h"
 
-// Application active?
-int app_state = APP_STATE_ACTIVE;
-
 extern "C" {
 
 int main(int argc, char *argv[])
@@ -58,29 +55,13 @@ int main(int argc, char *argv[])
 #endif
 
 	// Run EDGE. it never returns
-	engine::Main(argc, (const char **) argv);
+	E_Main(argc, (const char **) argv);
 
 	return 0;
 }
 
 } // extern "C"
 
-
-void I_Loop(void)
-{
-	for (;;)
-	{
-		// We always do this once here, although the engine may makes in own
-		// calls to keep on top of the event processing
-		I_ControlGetEvents(); 
-		
-		if (app_state & APP_STATE_ACTIVE)
-			engine::Tick();
-			
-		if (app_state & APP_STATE_PENDING_QUIT) // Engine may have set this 
-			break;
-	}
-}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

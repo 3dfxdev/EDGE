@@ -136,7 +136,7 @@ int main(int argc, const char **argv)
 #endif
 
 	// Run EDGE. it never returns
-	engine::Main(argc, (const char **) argv);
+	E_Main(argc, (const char **) argv);
 
 	return 0;
 }
