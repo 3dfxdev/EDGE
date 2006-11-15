@@ -1,5 +1,19 @@
 Andrew Apted's Log
 
+2006/11/15:
+
+Found a bug in P_RadiusAttack(), which didn't add MAXRADIUS to
+the radius to search, meaning some things would be missed.  The
+bug was present as far back as 1.27, maybe earlier.  Strange
+that it was never noticed before.
+
+Simplified some code with P_RadiusThingsIterator() function.
+
+Worked on the Wind/Current/Point pushing code, which is now all
+basically working, and the force equation for point pushers
+matches very well in testing against PrBoom.  Also updated
+friction code, Ice and Mud now give reasonable results.
+
 2006/11/13:
 
 Made the region_properties_t hold the full sector type number
