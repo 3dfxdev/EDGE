@@ -216,6 +216,24 @@ typedef struct slider_move_s
 }
 slider_move_t;
 
+typedef struct force_s
+{
+	bool is_point;
+	bool is_wind;
+
+	vec3_t point;
+
+	float radius;
+	float magnitude;
+
+	vec2_t mag;  // wind/current
+
+	sector_t *sector;  // the affected sector
+
+	struct force_s *next;
+}
+force_t;
+
 // End-level timer (-TIMER option)
 extern bool levelTimer;
 extern int levelTimeCount;
@@ -287,6 +305,7 @@ void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_c * s);
 bool EV_DoPlane(sector_t * sec, const movplanedef_c * type, sector_t * model);
 bool EV_DoElevator(sector_t * sec, const elevatordef_c * type, sector_t * model);
 
+void P_RunForces(void);
 void P_AddPointForce(sector_t *sec, float length);
 void P_AddSectorForce(sector_t *sec, bool is_wind, float x_mag, float y_mag);
 

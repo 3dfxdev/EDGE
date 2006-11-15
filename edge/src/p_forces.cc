@@ -43,25 +43,7 @@
 #include "r_state.h"
 #include "z_zone.h"
 
-#define PUSH_FACTOR  128.0f
-
-typedef struct force_s
-{
-	bool is_point;
-	bool is_wind;
-
-	vec3_t point;
-
-	float radius;
-	float magnitude;
-
-	vec2_t mag;  // wind/current
-
-	sector_t *sector;  // the affected sector
-
-	struct force_s *next, *prev;
-}
-force_t;
+#define PUSH_FACTOR  64.0f  // should be 128 ??
 
 force_t *forces = NULL;
 
@@ -72,14 +54,16 @@ static void WindCurrentForce(force_t *f, mobj_t *mo)
 {
 	float qty = 1.0f;
 
+	// !!!! FIXME: check extrafloors (i.e. 242 effect)
+
 	if (f->is_wind)
 	{
-		if (mo->z > f->sector->f_h + 1.0f)
+		if (mo->z > f->sector->f_h + 4.0f)
 			qty = 0.5f;
 	}
 	else // current
 	{
-		if (mo->z > f->sector->f_h + 1.0f)
+		if (mo->z > f->sector->f_h + 4.0f)
 			return;
 
 		qty = 0.5f;
@@ -92,9 +76,37 @@ static void WindCurrentForce(force_t *f, mobj_t *mo)
 static bool PIT_PushThing(mobj_t *mo)
 {
 	if (! (mo->hyperflags & HF_PUSHABLE))
-	{
-		// FIXME FIXME @@@
-	}
+		return true;
+
+	if (mo->flags & MF_NOCLIP)
+		return true;
+
+	float dx = mo->x - tm_force->point.x;
+	float dy = mo->y - tm_force->point.y;
+
+	float d_unit = P_ApproxDistance(dx, dy);
+	float dist   = d_unit * 2.0f / tm_force->radius;
+
+	if (dist >= 2.0f)
+		return true;
+
+	// don't apply the force through walls
+	if (! P_CheckSightToPoint(mo, tm_force->point.x, tm_force->point.y, tm_force->point.z))
+		return true;
+
+	float speed;
+	
+	if (dist >= 1.0f)
+		speed = (2.0f - dist);
+	else
+		speed = 1.0 / MAX(0.05f, dist);
+
+	// the speed factor is squared, giving similar results to BOOM.
+	// NOTE: magnitude is negative for PULL mode.
+	speed = tm_force->magnitude * speed * speed;
+
+	mo->mom.x += speed * (dx / d_unit);
+	mo->mom.y += speed * (dy / d_unit);
 
 	return true;
 }
@@ -110,7 +122,9 @@ static void DoForce(force_t * f)
 	{
 		if (f->is_point)
 		{
-			// FIXME: point forces : BlockThingIterator
+			tm_force = f;
+
+			P_RadiusThingsIterator(f->point.x, f->point.y, f->radius, PIT_PushThing);
 		}
 		else // wind/current
 		{
@@ -124,9 +138,6 @@ static void DoForce(force_t * f)
 }
 
 
-//
-// P_DestroyAllForces
-//
 void P_DestroyAllForces(void)
 {
 	force_t *f, *next;
@@ -136,6 +147,7 @@ void P_DestroyAllForces(void)
 		next = f->next;
 		Z_Free(f);
 	}
+
 	forces = NULL;
 }
 
@@ -147,10 +159,6 @@ static force_t *P_NewForce(void)
 	force_t *f = Z_ClearNew(force_t, 1);
 
 	f->next = forces;;
-	f->prev = NULL;
-
-	if (forces)
-		forces->prev = f;
 
 	forces = f;
 
@@ -169,9 +177,9 @@ void P_AddPointForce(sector_t *sec, float length)
 				f->is_point = true;
 				f->point.x = mo->x;
 				f->point.y = mo->y;
-				f->point.z = MO_MIDZ(mo);
+				f->point.z = mo->z + 28.0f;
 				f->radius = length * 2.0f;
-				f->magnitude = length * mo->info->speed;
+				f->magnitude = length * mo->info->speed / PUSH_FACTOR / 24.0f;
 				f->sector = sec;
 			}
 }
@@ -182,15 +190,16 @@ void P_AddSectorForce(sector_t *sec, bool is_wind, float x_mag, float y_mag)
 
 	f->is_point = false;
 	f->is_wind  = is_wind;
-	f->mag.x  = x_mag * PUSH_FACTOR;
-	f->mag.y  = y_mag * PUSH_FACTOR;
+
+	f->mag.x  = x_mag / PUSH_FACTOR;
+	f->mag.y  = y_mag / PUSH_FACTOR;
 	f->sector = sec;
 }
 
 //
 // P_RunForces
 //
-// Executes all force effects for this tic.
+// Executes all force effects for the current tic.
 //
 void P_RunForces(void)
 {

@@ -253,6 +253,7 @@ void P_FreeSectorTouchNodes(sector_t *sec);
 
 bool P_BlockLinesIterator(int x, int y, bool(*func) (line_t *));
 bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *));
+bool P_RadiusThingsIterator(float x, float y, float r, bool(*func) (mobj_t *));
 bool P_ThingsInArea(float *bbox);
 bool P_ThingsOnLine(line_t *ld);
 
@@ -324,6 +325,7 @@ bool P_SolidSectorMove(sector_t *sec, bool is_ceiling, float dh, bool crush, boo
 void P_ChangeThingSize(mobj_t *mo);
 bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z);
 bool P_CheckSight(mobj_t * src, mobj_t * dest);
+bool P_CheckSightToPoint(mobj_t * src, float x, float y, float z);
 bool P_CheckSightApproxVert(mobj_t * src, mobj_t * dest);
 void P_RadiusAttack(mobj_t * spot, mobj_t * source, float radius, float damage, const damage_c * damtype, bool thrust_only);
 
