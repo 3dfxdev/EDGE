@@ -187,13 +187,10 @@ static bool PIT_StompThing(mobj_t * thing)
 //
 // P_TeleportMove
 //
+// Kill anything occupying the position
+//
 bool P_TeleportMove(mobj_t * thing, float x, float y, float z)
 {
-	int xl, xh;
-	int yl, yh;
-	int bx, by;
-
-	// kill anything occupying the position
 	tm_I.mover = thing;
 	tm_I.flags = thing->flags;
 	tm_I.extflags = thing->extendedflags;
@@ -201,11 +198,6 @@ bool P_TeleportMove(mobj_t * thing, float x, float y, float z)
 	tm_I.x = x;
 	tm_I.y = y;
 	tm_I.z = z;
-
-	tmbbox[BOXTOP] = y + tm_I.mover->radius;
-	tmbbox[BOXBOTTOM] = y - tm_I.mover->radius;
-	tmbbox[BOXRIGHT] = x + tm_I.mover->radius;
-	tmbbox[BOXLEFT] = x - tm_I.mover->radius;
 
 	tm_I.sub = R_PointInSubsector(x, y);
 
@@ -220,18 +212,10 @@ bool P_TeleportMove(mobj_t * thing, float x, float y, float z)
 	validcount++;
 	
 	// -ACB- 2004/08/01 Don't think this is needed
-//	spechit.ZeroiseCount();
+	//	spechit.ZeroiseCount();
 
-	// stomp on any things contacted
-	xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]   - MAXRADIUS);
-	xh = BLOCKMAP_GET_X(tmbbox[BOXRIGHT]  + MAXRADIUS);
-	yl = BLOCKMAP_GET_Y(tmbbox[BOXBOTTOM] - MAXRADIUS);
-	yh = BLOCKMAP_GET_Y(tmbbox[BOXTOP]    + MAXRADIUS);
-
-	for (bx = xl; bx <= xh; bx++)
-		for (by = yl; by <= yh; by++)
-			if (!P_BlockThingsIterator(bx, by, PIT_StompThing))
-				return false;
+	if (!P_RadiusThingsIterator(x, y, thing->radius, PIT_StompThing))
+		return false;
 
 	// everything on the spot has been stomped,
 	// so link the thing into its new position
@@ -381,10 +365,6 @@ static bool PIT_CheckAbsThing(mobj_t * thing)
 //
 bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z)
 {
-	int xl, xh;
-	int yl, yh;
-	int bx, by;
-
 	// can go anywhere
 	if (thing->flags & MF_NOCLIP)
 		return true;
@@ -397,11 +377,6 @@ bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z)
 	tm_I.y = y;
 	tm_I.z = z;
 
-	tmbbox[BOXTOP] = y + tm_I.mover->radius;
-	tmbbox[BOXBOTTOM] = y - tm_I.mover->radius;
-	tmbbox[BOXRIGHT] = x + tm_I.mover->radius;
-	tmbbox[BOXLEFT] = x - tm_I.mover->radius;
-
 	tm_I.sub = R_PointInSubsector(x, y);
 
 	validcount++;
@@ -412,27 +387,27 @@ bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z)
 	// based on their origin point, and can overlap
 	// into adjacent blocks by up to MAXRADIUS units.
 
-	xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]   - MAXRADIUS);
-	xh = BLOCKMAP_GET_X(tmbbox[BOXRIGHT]  + MAXRADIUS);
-	yl = BLOCKMAP_GET_Y(tmbbox[BOXBOTTOM] - MAXRADIUS);
-	yh = BLOCKMAP_GET_Y(tmbbox[BOXTOP]    + MAXRADIUS);
-
-	for (bx = xl; bx <= xh; bx++)
-		for (by = yl; by <= yh; by++)
-			if (!P_BlockThingsIterator(bx, by, PIT_CheckAbsThing))
-				return false;
+	if (!P_RadiusThingsIterator(x, y, thing->radius, PIT_CheckAbsThing))
+		return false;
 
 	// check lines
 
-	xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]);
-	xh = BLOCKMAP_GET_X(tmbbox[BOXRIGHT]);
-	yl = BLOCKMAP_GET_Y(tmbbox[BOXBOTTOM]);
-	yh = BLOCKMAP_GET_Y(tmbbox[BOXTOP]);
+	tmbbox[BOXLEFT]   = x - tm_I.mover->radius;
+	tmbbox[BOXRIGHT]  = x + tm_I.mover->radius;
+	tmbbox[BOXBOTTOM] = y - tm_I.mover->radius;
+	tmbbox[BOXTOP]    = y + tm_I.mover->radius;
 
-	for (bx = xl; bx <= xh; bx++)
-		for (by = yl; by <= yh; by++)
-			if (!P_BlockLinesIterator(bx, by, PIT_CheckAbsLine))
-				return false;
+	int xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]);
+	int xh = BLOCKMAP_GET_X(tmbbox[BOXRIGHT]);
+	int yl = BLOCKMAP_GET_Y(tmbbox[BOXBOTTOM]);
+	int yh = BLOCKMAP_GET_Y(tmbbox[BOXTOP]);
+
+	for (int bx = xl; bx <= xh; bx++)
+	for (int by = yl; by <= yh; by++)
+	{
+		if (!P_BlockLinesIterator(bx, by, PIT_CheckAbsLine))
+			return false;
+	}
 
 	return true;
 }
@@ -756,10 +731,6 @@ static bool PIT_CheckRelThing(mobj_t * thing)
 //
 static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 {
-	int xl, xh;
-	int yl, yh;
-	int bx, by;
-
 	mobj_hit_sky = false;
 	blockline = NULL;
 
@@ -770,11 +741,6 @@ static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 	tm_I.x = x;
 	tm_I.y = y;
 	tm_I.z = thing->z;
-
-	tmbbox[BOXTOP] = y + tm_I.mover->radius;
-	tmbbox[BOXBOTTOM] = y - tm_I.mover->radius;
-	tmbbox[BOXRIGHT] = x + tm_I.mover->radius;
-	tmbbox[BOXLEFT] = x - tm_I.mover->radius;
 
 	tm_I.sub = R_PointInSubsector(x, y);
 
@@ -804,30 +770,30 @@ static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 		// based on their origin point, and can overlap
 		// into adjacent blocks by up to MAXRADIUS units.
 
-		xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]   - MAXRADIUS);
-		xh = BLOCKMAP_GET_X(tmbbox[BOXRIGHT]  + MAXRADIUS);
-		yl = BLOCKMAP_GET_Y(tmbbox[BOXBOTTOM] - MAXRADIUS);
-		yh = BLOCKMAP_GET_Y(tmbbox[BOXTOP]    + MAXRADIUS);
-
-		for (bx = xl; bx <= xh; bx++)
-			for (by = yl; by <= yh; by++)
-				if (!P_BlockThingsIterator(bx, by, PIT_CheckRelThing))
-					return false;
+		if (!P_RadiusThingsIterator(x, y, thing->radius, PIT_CheckRelThing))
+			return false;
 	}
 
 	// check lines
 
-	xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]);
-	xh = BLOCKMAP_GET_X(tmbbox[BOXRIGHT]);
-	yl = BLOCKMAP_GET_Y(tmbbox[BOXBOTTOM]);
-	yh = BLOCKMAP_GET_Y(tmbbox[BOXTOP]);;
+	tmbbox[BOXLEFT]   = x - tm_I.mover->radius;
+	tmbbox[BOXRIGHT]  = x + tm_I.mover->radius;
+	tmbbox[BOXBOTTOM] = y - tm_I.mover->radius;
+	tmbbox[BOXTOP]    = y + tm_I.mover->radius;
+
+	int xl = BLOCKMAP_GET_X(tmbbox[BOXLEFT]);
+	int xh = BLOCKMAP_GET_X(tmbbox[BOXRIGHT]);
+	int yl = BLOCKMAP_GET_Y(tmbbox[BOXBOTTOM]);
+	int yh = BLOCKMAP_GET_Y(tmbbox[BOXTOP]);;
 
 	thing->on_ladder = -1;
 
-	for (bx = xl; bx <= xh; bx++)
-		for (by = yl; by <= yh; by++)
-			if (!P_BlockLinesIterator(bx, by, PIT_CheckRelLine))
-				return false;
+	for (int bx = xl; bx <= xh; bx++)
+	for (int by = yl; by <= yh; by++)
+	{
+		if (!P_BlockLinesIterator(bx, by, PIT_CheckRelLine))
+			return false;
+	}
 
 	return true;
 }
@@ -1901,14 +1867,6 @@ static bool PIT_RadiusAttack(mobj_t * thing)
 void P_RadiusAttack(mobj_t * spot, mobj_t * source, float radius,
 					float damage, const damage_c * damtype, bool thrust_only)
 {
-	int x, y;
-	int xl, xh, yl, yh;
-
-	xl = BLOCKMAP_GET_X(spot->x - radius);
-	xh = BLOCKMAP_GET_X(spot->x + radius);
-	yl = BLOCKMAP_GET_Y(spot->y - radius);
-	yh = BLOCKMAP_GET_Y(spot->y + radius);
-
 	bomb_I.range = radius;
 	bomb_I.spot  = spot;
 	bomb_I.source = source;
@@ -1922,9 +1880,7 @@ void P_RadiusAttack(mobj_t * spot, mobj_t * source, float radius,
 	//                  a radius regards of height, however true 3D uses
 	//                  a sphere attack, which checks height.
 	//
-	for (y = yl; y <= yh; y++)
-		for (x = xl; x <= xh; x++)
-			P_BlockThingsIterator(x, y, PIT_RadiusAttack);
+	P_RadiusThingsIterator(spot->x, spot->y, radius, PIT_RadiusAttack);
 }
 
 
@@ -1938,9 +1894,6 @@ static int crush_time;
 static float crush_damage;
 
 
-//
-// PIT_ChangeSector
-//
 static bool PIT_ChangeSector(mobj_t * thing, bool widening)
 {
 	mobj_t *mo;
@@ -2399,17 +2352,8 @@ mobj_t *P_MapFindCorpse(mobj_t * thing)
 		raisertryx = thing->x + thing->speed * xspeed[thing->movedir];
 		raisertryy = thing->y + thing->speed * yspeed[thing->movedir];
 
-		int xl = BLOCKMAP_GET_X(raisertryx - MAXRADIUS * 2);
-		int xh = BLOCKMAP_GET_X(raisertryx + MAXRADIUS * 2);
-		int yl = BLOCKMAP_GET_Y(raisertryy - MAXRADIUS * 2);
-		int yh = BLOCKMAP_GET_Y(raisertryy + MAXRADIUS * 2);
-
-		int x, y;
-
-		for (x = xl; x <= xh; x++)
-			for (y = yl; y <= yh; y++)
-				if (!P_BlockThingsIterator(x, y, PIT_CorpseCheck))
-					return corpsehit;  // got one - return it
+		if (!P_RadiusThingsIterator(raisertryx, raisertryy, MAXRADIUS, PIT_CorpseCheck))
+			return corpsehit;  // got one - return it
 	}
 
 	return NULL;

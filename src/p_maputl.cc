@@ -1730,9 +1730,7 @@ bool P_BlockLinesIterator (int x, int y, bool(*func) (line_t *))
 	return true;
 }
 
-//
-// P_BlockThingsIterator
-//
+
 bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *))
 {
 	mobj_t *mobj;
@@ -1748,6 +1746,30 @@ bool P_BlockThingsIterator(int x, int y, bool(*func) (mobj_t *))
 
 	return true;
 }
+
+bool P_RadiusThingsIterator(float x, float y, float r, bool(*func) (mobj_t *))
+{
+	int bx, by;
+	int xl, xh, yl, yh;
+
+	// -AJA- 2006/11/15: restored this (was broken for a long time!).
+	r += MAXRADIUS;
+
+	xl = BLOCKMAP_GET_X(x - r);
+	xh = BLOCKMAP_GET_X(x + r);
+	yl = BLOCKMAP_GET_Y(y - r);
+	yh = BLOCKMAP_GET_Y(y + r);
+
+	for (by = yl; by <= yh; by++)
+	for (bx = xl; bx <= xh; bx++)
+	{
+		if (! P_BlockThingsIterator(bx, by, func))
+			return false;
+	}
+
+	return true;
+}
+
 
 //
 // INTERCEPT ROUTINES
