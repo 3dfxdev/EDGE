@@ -53,10 +53,7 @@ gen_move_t *active_movparts = NULL;
 static bool P_StasifySector(sector_t * sec);
 static bool P_ActivateInStasis(int tag);
 
-static elev_move_t *P_SetupElevatorAction(sector_t * sector, 
-                                          const elevatordef_c * type, sector_t * model);
-
-static void MoveElevator(elev_move_t *elev);
+/// static void MoveElevator(elev_move_t *elev);
 static void MovePlane(plane_move_t *plane);
 static void MoveSlider(slider_move_t *smov);
 
@@ -100,12 +97,19 @@ static const image_t * SECPIC(sector_t * sec, bool is_ceiling,
 // -ACB- 1998/09/06 Remarked and Reformatted.
 // -ACB- 2001/02/04 Move to p_plane.c
 //
-static float GetSecHeightReference(heightref_e ref, sector_t * sec)
+static float GetSecHeightReference(heightref_e ref,
+	sector_t * sec, sector_t * model)
 {
     switch (ref & REF_MASK)
     {
         case REF_Absolute:
             return 0;
+
+        case REF_Trigger:
+			if (model)
+				return (ref & REF_CEILING) ? model->c_h : model->f_h;
+
+			return 0; // ick!
 
         case REF_Current:
             return (ref & REF_CEILING) ? sec->c_h : sec->f_h;
@@ -122,22 +126,6 @@ static float GetSecHeightReference(heightref_e ref, sector_t * sec)
 
     return 0;
 }
-
-#if 0   // Unfinished
-//
-// GetElevatorHeightReference
-//
-// This is essentially the same as above, but used for elevator
-// calculations. The reason behind this is that elevators have to
-// work as dummy sectors.
-//
-// -ACB- 2001/02/04 Written
-//
-static float GetElevatorHeightReference(heightref_e ref, sector_t * sec)
-{
-    return -1;
-}
-#endif
 
 //
 // P_AddActivePart
@@ -169,23 +157,24 @@ void P_AddActivePart(gen_move_t *movpart)
 //
 static void P_RemoveActivePart(gen_move_t *movpart)
 {
-    elev_move_t *elev;
+///---    elev_move_t *elev;
     plane_move_t *plane;
     slider_move_t *slider;
 
     switch(movpart->whatiam)
     {
-        case MDT_ELEVATOR:
-            elev = (elev_move_t*)movpart;
-            elev->sector->ceil_move = NULL;
-            elev->sector->floor_move = NULL;
-            break;
+///---        case MDT_ELEVATOR:
+///---            elev = (elev_move_t*)movpart;
+///---            elev->sector->ceil_move = NULL;
+///---            elev->sector->floor_move = NULL;
+///---            break;
 
         case MDT_PLANE:
             plane = (plane_move_t*)movpart;
-            if (plane->is_ceiling)
+            if (plane->is_ceiling || plane->is_elevator)
                 plane->sector->ceil_move = NULL;
-            else
+            
+            if (!plane->is_ceiling)
                 plane->sector->floor_move = NULL;
             break;
 
@@ -391,8 +380,6 @@ static void MovePlane(plane_move_t *plane)
                         break;
 
                     default:
-                    case mov_Stairs:
-                    case mov_Once:
                         P_RemoveActivePart((gen_move_t*)plane);
                         break;
                 }
@@ -504,8 +491,6 @@ static void MovePlane(plane_move_t *plane)
                         break;
 
                     default:
-                    case mov_Once:
-                    case mov_Stairs:
                         P_RemoveActivePart((gen_move_t*)plane);
                         break;
                 }
@@ -554,10 +539,6 @@ void P_RunActiveSectors(void)
 
         switch (part->whatiam)
         {
-            case MDT_ELEVATOR:
-                MoveElevator((elev_move_t*)part);
-                break;
-
             case MDT_PLANE:
                 MovePlane((plane_move_t*)part);
                 break;
@@ -703,13 +684,13 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
 
     start = HEIGHT(sector, def->is_ceiling);
 
-    dest = GetSecHeightReference(def->destref, sector);
+    dest = GetSecHeightReference(def->destref, sector, model);
     dest += def->dest;
 
     if (def->type == mov_Plat || def->type == mov_Continuous ||
         def->type == mov_Toggle)
     {
-        start = GetSecHeightReference(def->otherref, sector);
+        start = GetSecHeightReference(def->otherref, sector, model);
         start += def->other;
     }
 
@@ -738,7 +719,6 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
 
         plane->destheight = dest;
         plane->startheight = start;
-
     }
     else if (start != dest)
     {
@@ -760,6 +740,7 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
     plane->new_image = SECPIC(sector, def->is_ceiling, NULL);
     plane->newspecial = -1;
     plane->is_ceiling = def->is_ceiling;
+	plane->is_elevator = (def->type == mov_Elevator);
 
     // -ACB- 10/01/2001 Trigger starting sfx
     sound::StopLoopingFX(&sector->sfx_origin);
@@ -1244,7 +1225,7 @@ static bool EV_BuildStairs(sector_t * sec, const movplanedef_c * def)
 //
 // EV_DoPlane
 //
-// Do Platforms/Floors/Stairs/Ceilings/Doors
+// Do Platforms/Floors/Stairs/Ceilings/Doors/Elevators
 //
 bool EV_DoPlane(sector_t * sec, const movplanedef_c * def, sector_t * model)
 {
@@ -1268,12 +1249,13 @@ bool EV_DoPlane(sector_t * sec, const movplanedef_c * def, sector_t * model)
             break;
     }
 
-    if (def->is_ceiling)
+    if (def->is_ceiling || def->type == mov_Elevator)
     {
         if (sec->ceil_move)
             return false;
     }
-    else
+
+    if (!def->is_ceiling)
     {
         if (sec->floor_move)
             return false;
@@ -1510,7 +1492,7 @@ static void MoveSlider(slider_move_t *smov)
             }
             break;
 
-            // OPENING
+		// OPENING
         case 1:
             if (! smov->sfxstarted)
             {
@@ -1557,7 +1539,7 @@ static void MoveSlider(slider_move_t *smov)
             }
             break;
 
-            // CLOSING
+		// CLOSING
         case -1:
             if (! smov->sfxstarted)
             {
@@ -1642,6 +1624,10 @@ void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_c * s)
     if (line->count > 0)
         line->count--;
 }
+
+
+#if 0  // ELEVATOR CRUD
+
 
 //
 // AttemptMoveElevator
@@ -1845,102 +1831,7 @@ static void MoveElevator(elev_move_t *elev)
     return;
 }
 
-//
-// EV_DoElevator
-//
-bool EV_DoElevator(sector_t * sec, const elevatordef_c * def, sector_t * model)
-{
-#if 0
-    if (!sec->controller)
-        return false;
-#endif
-
-    if (sec->ceil_move || sec->floor_move)
-        return false;
-
-    // Do Elevator action
-    return P_SetupElevatorAction(sec, def, model) ? true : false;
-}
-
-//
-// EV_ManualElevator
-//
-bool EV_ManualElevator(line_t * line, mobj_t * thing,  const elevatordef_c * def)
-{
-    return false;
-}
-
-//
-// P_SetupElevatorAction
-//
-static elev_move_t *P_SetupElevatorAction(sector_t * sector,
-                                          const elevatordef_c * def, sector_t * model)
-{
-    elev_move_t *elev;
-    float start, dest;
-
-    // new door thinker
-    elev = Z_New(elev_move_t, 1);
-
-    sector->ceil_move = (gen_move_t*)elev;
-    sector->floor_move = (gen_move_t*)elev;
-
-    elev->whatiam = MDT_ELEVATOR;
-    elev->sector = sector;
-    elev->sfxstarted = false;
-
-// -ACB- BEGINNING OF THE HACKED TO FUCK BIT (START)
-
-    start = sector->c_h;
-    dest  = 192.0f;
-
-// -ACB- FINISH OF THE HACKED TO FUCK BIT (END)
-
-    if (dest > start)
-    {
-        elev->direction = DIRECTION_UP;
-
-        if (def->speed_up >= 0)
-            elev->speed = def->speed_up;
-        else
-            elev->speed = dest - start;
-    }
-    else if (start > dest)
-    {
-        elev->direction = DIRECTION_DOWN;
-
-        if (def->speed_down >= 0)
-            elev->speed = def->speed_down;
-        else
-            elev->speed = start - dest;
-    }
-    else
-    {
-        sector->ceil_move = NULL;
-        sector->floor_move = NULL;
-
-        Z_Free(elev);
-        return NULL;
-    }
-
-    elev->destheight = dest;
-    elev->startheight = start;
-    elev->tag = sector->tag;
-    elev->type = def;
-
-    // -ACB- 10/01/2001 Trigger starting sfx
-    sound::StopLoopingFX(&sector->sfx_origin);
-    if (def->sfxstart)
-    {
-        sound::StartFX(def->sfxstart, 
-                       SNCAT_Level, 
-                       &sector->sfx_origin);
-    }
-
-    P_AddActivePart((gen_move_t*)elev);
-    return elev;
-}
-
+#endif  // ELEVATOR CRUD
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

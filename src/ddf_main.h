@@ -1598,6 +1598,7 @@ typedef enum
 	REF_Current,       // Measure from current sector height
 	REF_Surrounding,   // Measure from surrounding heights
 	REF_LowestLoTexture,
+	REF_Trigger,       // Use the triggering linedef
 
 	// additive flags
 	REF_MASK    = 0x00FF,
@@ -1618,7 +1619,8 @@ typedef enum
 	mov_Plat,
 	mov_Stairs,
 	mov_Stop,
-	mov_Toggle   // -AJA- 2004/10/07: added this.
+	mov_Toggle,    // -AJA- 2004/10/07: added this.
+	mov_Elevator   // -AJA- 2006/11/17: added this.
 }
 movetype_e;
 
@@ -1842,37 +1844,8 @@ public:
 	float scroll_speed;
 };
 
-// --> Elevator definition class 
-class elevatordef_c
-{
-public:
-	elevatordef_c();
-	elevatordef_c(elevatordef_c &rhs);
-	~elevatordef_c();
-	
-private:
-	void Copy(elevatordef_c &src);
 
-public:
-	void Default(void);
-	elevatordef_c& operator=(elevatordef_c &rhs);
-
-	// Type of floor: raise/lower/etc
-	movetype_e type;
-  
-    // How fast the elevator moves.
-	float speed_up;
-	float speed_down;
-
-    // Wait times.
-	int wait;       
-	int prewait;
-
-    // Up/Down/Stop sfx
-	sfx_t *sfxstart, *sfxup, *sfxdown, *sfxstop;  
-};
-
-// --> Donut definition class
+// --> Sliding door definition class
 
 // FIXME Move inside sliding_door_c?
 typedef enum
@@ -2261,9 +2234,6 @@ public:
 	// Ceiling - FIXME!!! Pointer/reference to table?
 	movplanedef_c c;
 
-	// Elevator (moving sector) -ACB- 2001/01/11 - FIXME!!! Pointer/reference to table?
-	elevatordef_c e;
-
 	// Donut - FIXME!!! Pointer/reference to table?
 	donutdef_c d;
 
@@ -2419,9 +2389,6 @@ public:
 
 	// Movement
 	movplanedef_c f, c;
-
-	// Elevator: Added -ACB- 2001/01/11
-	elevatordef_c e;
 
 	// Lighting
 	lightdef_c l;

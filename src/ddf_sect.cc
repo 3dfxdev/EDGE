@@ -47,7 +47,6 @@ static const commandlist_t sect_commands[] =
 {
   	DDF_SUB_LIST("FLOOR",    f,      floor_commands,    buffer_floor),
   	DDF_SUB_LIST("CEILING",  c,      floor_commands,    buffer_floor),
-  	DDF_SUB_LIST("ELEVATOR", e,      elevator_commands, buffer_elevator),
   	DDF_SUB_LIST("DAMAGE",   damage, damage_commands,   buffer_damage),
 
 	DF("SECRET", secret, DDF_MainGetBoolean),
@@ -339,6 +338,7 @@ static specflags_t movement_types[] =
 	{"BUILDSTAIRS", mov_Stairs, 0},
 	{"STOP", mov_Stop, 0},
 	{"TOGGLE", mov_Toggle, 0},
+	{"ELEVATOR", mov_Elevator, 0},
 	{NULL, 0, 0}
 };
 
@@ -373,6 +373,9 @@ static specflags_t reference_types[] =
 
 	{"FLOOR", REF_Current, false},
 	{"CEILING", REF_Current + REF_CEILING, false},
+
+	{"TRIGGERFLOOR", REF_Trigger, false},
+	{"TRIGGERCEILING", REF_Trigger + REF_CEILING, false},
 
 	// Note that LOSURROUNDINGFLOOR has the REF_INCLUDE flag, but the
 	// others do not.  It's there to maintain backwards compatibility.
@@ -480,7 +483,6 @@ void sectortype_c::CopyDetail(sectortype_c &src)
 
 	f = src.f;
 	c = src.c;
-	e = src.e;
 	l = src.l;
 
 	damage = src.damage;
@@ -519,8 +521,7 @@ void sectortype_c::Default()
 	
 	f.Default(movplanedef_c::DEFAULT_FloorSect);
 	c.Default(movplanedef_c::DEFAULT_CeilingSect);
-	
-	e.Default();
+
 	l.Default();
 
 	damage.Default(damage_c::DEFAULT_Sector);
