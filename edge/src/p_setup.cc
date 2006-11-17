@@ -2506,8 +2506,6 @@ void P_SetupLevel(skill_t skill, int autotag)
 		mapsector_CRC.crc, mapline_CRC.crc, mapthing_CRC.crc);
 #endif
 
-///--- spawn the active players
-
 	// set up world state
 	P_SpawnSpecials(autotag);
 
