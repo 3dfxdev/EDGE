@@ -1895,6 +1895,12 @@ static void RGL_WalkSubsector(int num)
 	S = sector->bottom_ef;
 	L = sector->bottom_liq;
 
+	// Handle the BOOMTEX flag (Boom compatibility)
+	extrafloor_t *boom_ef = sector->bottom_liq ? sector->bottom_liq : sector->bottom_ef;
+
+	if (boom_ef && (boom_ef->ef_info->type & EXFL_BoomTex))
+		floor_s = &boom_ef->ef_line->frontsector->floor;
+
 	while (S || L)
 	{
 		if (!L || (S && S->bottom_h < L->bottom_h))
