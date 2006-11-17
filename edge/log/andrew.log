@@ -1,5 +1,13 @@
 Andrew Apted's Log
 
+2006/11/17:
+
+Implemented P_CheckSightToPoint(), which prevents push/pull
+things from affecting things through solid walls.
+
+Fixed the flats rendered by the BOOM [242] linetype when used
+to make liquids areas.
+
 2006/11/15:
 
 Found a bug in P_RadiusAttack(), which didn't add MAXRADIUS to
