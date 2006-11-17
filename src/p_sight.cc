@@ -431,22 +431,8 @@ static bool CheckSightSameSubsector(mobj_t *src, mobj_t *dest)
 // Returns true if a straight line between t1 and t2 is unobstructed.
 // Uses the REJECT info.
 //
-static bool DoCheckSight(mobj_t * src, mobj_t * dest)
+static INLINE bool DoCheckReject(sector_t *sec1, sector_t *sec2)
 {
-	int n, num_div;
-
-	float dest_heights[5];
-	float dist_a;
-
-	// First check for trivial rejection.
-
-	// -ACB- 1998/07/20 t2 is Invisible, t1 cannot possibly see it.
-	if (dest->visibility == INVISIBLE)
-		return false;
-
-	DEV_ASSERT2(src->subsector);
-	DEV_ASSERT2(dest->subsector);
-
 #if 0  // PROFILING
 	{
 		static int lasttime = 0;
@@ -465,8 +451,8 @@ static bool DoCheckSight(mobj_t * src, mobj_t * dest)
 	// Determine subsector entries in REJECT table.
 	if (rejectmatrix)
 	{
-		int s1 = (src->subsector->sector - sectors);
-		int s2 = (dest->subsector->sector - sectors);
+		int s1 = sec1 - sectors;
+		int s2 = sec2 - sectors;
 		int pnum = s1 * numsectors + s2;
 		int bytenum = pnum >> 3;
 		int bitnum = 1 << (pnum & 7);
@@ -485,6 +471,28 @@ static bool DoCheckSight(mobj_t * src, mobj_t * dest)
 	sight_rej_miss++;
 #endif
 
+	return true;
+}
+
+bool P_CheckSight(mobj_t * src, mobj_t * dest)
+{
+	// -ACB- 1998/07/20 t2 is Invisible, t1 cannot possibly see it.
+	if (dest->visibility == INVISIBLE)
+		return false;
+
+	int n, num_div;
+
+	float dest_heights[5];
+	float dist_a;
+
+	// First check for trivial rejection.
+
+	DEV_ASSERT2(src->subsector);
+	DEV_ASSERT2(dest->subsector);
+
+	if (! DoCheckReject(src->subsector->sector, dest->subsector->sector))
+		return false;
+	
 	// An unobstructed LOS is possible.
 	// Now look from eyes of t1 to any part of t2.
 
@@ -604,11 +612,6 @@ static bool DoCheckSight(mobj_t * src, mobj_t * dest)
 	return false;
 }
 
-bool P_CheckSight(mobj_t * src, mobj_t * dest)
-{
-	return DoCheckSight(src, dest);
-}
-
 bool P_CheckSightToPoint(mobj_t * src, float x, float y, float z)
 {
 	subsector_t *dest_sub = R_PointInSubsector(x, y);
@@ -616,8 +619,54 @@ bool P_CheckSightToPoint(mobj_t * src, float x, float y, float z)
 	if (dest_sub == src->subsector)
 		return true;
 
-	// !!!! FIXME
-	return true;
+	if (! DoCheckReject(src->subsector->sector, dest_sub->sector))
+		return false;
+
+	validcount++;
+
+	sight_I.src.x = src->x;
+	sight_I.src.y = src->y;
+	sight_I.src_z = src->z + src->height * 
+		PERCENT_2_FLOAT(src->info->viewheight);
+	sight_I.src.dx = x - src->x;
+	sight_I.src.dy = y - src->y;
+	sight_I.src_sub = src->subsector;
+
+	sight_I.dest.x = x;
+	sight_I.dest.y = y;
+	sight_I.dest_z = z;
+	sight_I.dest_sub = dest_sub;
+
+	sight_I.bottom_slope = z - 1.0f - sight_I.src_z;
+	sight_I.top_slope    = z + 1.0f - sight_I.src_z;
+
+	sight_I.angle = R_PointToAngle(sight_I.src.x, sight_I.src.y,
+		sight_I.dest.x, sight_I.dest.y);
+
+	sight_I.bbox[BOXLEFT]   = MIN(sight_I.src.x, sight_I.dest.x);
+	sight_I.bbox[BOXRIGHT]  = MAX(sight_I.src.x, sight_I.dest.x);
+	sight_I.bbox[BOXBOTTOM] = MIN(sight_I.src.y, sight_I.dest.y);
+	sight_I.bbox[BOXTOP]    = MAX(sight_I.src.y, sight_I.dest.y);
+
+	wall_icpts.num = 0;
+	Z_BunchNewSize(wall_icpts, wall_intercept_t);
+
+	sight_I.exfloors = false;
+
+	if (! CheckSightBSP(root_node))
+		return false;
+
+#if 1
+	if (! sight_I.exfloors)
+		return true;
+#endif
+
+	float slope = z - sight_I.src_z;
+
+	if (slope > sight_I.top_slope || slope < sight_I.bottom_slope)
+		return false;
+
+	return CheckSightIntercepts(slope);
 }
 
 //
