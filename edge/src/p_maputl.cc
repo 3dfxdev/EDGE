@@ -771,6 +771,13 @@ void P_AddExtraFloor(sector_t *sec, line_t *line)
 	bottom = &ctrl->floor;
 	top = (ef_info->type & EXFL_Thick) ? &ctrl->ceil : bottom;
 
+	// Handle the BOOMTEX flag (Boom compatibility)
+	if (ef_info->type & EXFL_BoomTex)
+	{
+		bottom = &ctrl->ceil;
+		top = &sec->floor;
+	}
+
 	newbie->bottom_h = ctrl->f_h;
 	newbie->top_h = (ef_info->type & EXFL_Thick) ? ctrl->c_h : newbie->bottom_h;
 

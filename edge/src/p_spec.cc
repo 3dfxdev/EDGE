@@ -47,9 +47,6 @@
 bool levelTimer;
 int levelTimeCount;
 
-// -AJA- temp structure for BOOM water (compatibility)
-static const image_t ** sp_new_floors;
-
 //
 // Animating line and sector specials
 //
@@ -1096,16 +1093,6 @@ static bool P_ActivateSpecialLine(line_t * line,
 		{
 			P_AddExtraFloor(tsec, line);
 
-			// Handle the BOOMTEX flag (Boom compatibility)
-			if ((special->ef.type & EXFL_BoomTex) && sp_new_floors)
-			{
-				if (! sp_new_floors[ctrl - sectors])
-					sp_new_floors[ctrl - sectors] = tsec->floor.image;
-
-				if (! sp_new_floors[tsec - sectors])
-					sp_new_floors[tsec - sectors] = ctrl->floor.image;
-			}
-
 			// transfer any translucency
 			if (PERCENT_2_FLOAT(special->translucency) <= 0.99f)
 			{
@@ -1634,8 +1621,6 @@ void P_SpawnSpecials(int autotag)
 
 	buttonlist.Clear();
 
-	sp_new_floors = Z_ClearNew(const image_t *, numsectors);
-
 	//
 	// Init special SECTORs.
 	//
@@ -1781,15 +1766,6 @@ void P_SpawnSpecials(int autotag)
 					lines[i].tag, 0, NULL, line_pushable, 1, 1);
 		}
 	}
-
-	for (i=0; i < numsectors; i++)
-	{
-		if (sp_new_floors[i])
-			sectors[i].floor.image = sp_new_floors[i];
-	}
-
-	Z_Free(sp_new_floors);
-	sp_new_floors = NULL;
 }
 
 //
