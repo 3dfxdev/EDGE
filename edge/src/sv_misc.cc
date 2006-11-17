@@ -27,12 +27,10 @@
 //
 //    plane_move_t    [PMOV]
 //    slider_move_t   [SMOV]
-//    elev_move_t     [EMOV]
 //
 // TODO HERE:
 //   +  Fix donuts.
 //   +  Implement slider_move array.
-//   -  Implement elev_move array (when elevators are done).
 //   -  Button off_sound field.
 //
 
@@ -353,6 +351,7 @@ static savefield_t sv_fields_plane_move[] =
 	SR_SectorGetSector, SR_SectorPutSector),
 
 	SF(is_ceiling, "is_ceiling", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
+	SF(is_elevator, "is_elevator", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
 	SF(startheight, "startheight", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(destheight, "destheight", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(speed, "speed", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),

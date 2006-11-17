@@ -73,15 +73,6 @@ static sectorsfx_t *sectorsfx_list;
 static bool P_DoSectorsFromTag(int tag, const void *p1, void *p2,
 		bool(*func) (sector_t *, const void *, void *));
 
-//
-// DoElevator_wrapper
-//
-// -ACB- 2001/01/14 Added
-//
-static bool DoElevator_wrapper(sector_t *s, const void *p1, void *p2) 
-{
-	return EV_DoElevator(s, (const elevatordef_c*)p1, (sector_t*)p2);
-}
 
 //
 // DoPlane_wrapper
@@ -1017,25 +1008,6 @@ static bool P_ActivateSpecialLine(line_t * line,
 		{
 			texSwitch = P_DoSectorsFromTag(tag, &special->c,
 					line ? line->frontsector : NULL, DoPlane_wrapper);
-		}
-	}
-
-	//
-	// - Elevators -
-	//
-	// -ACB- 2001/01/14 Added
-	//
-	if (special->e.type != mov_undefined)
-	{
-		if (!tag || special->type == line_manual)
-		{
-			if (line)
-				texSwitch = EV_ManualElevator(line, thing, &special->e);
-		}
-		else
-		{
-			texSwitch = P_DoSectorsFromTag(tag, &special->e,
-					line ? line->frontsector : NULL, DoElevator_wrapper);
 		}
 	}
 

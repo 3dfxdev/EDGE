@@ -64,7 +64,6 @@ static scrolldirs_e s_dir;
 linetype_container_c linetypes;		// <-- User-defined
 
 movplanedef_c buffer_floor;
-elevatordef_c buffer_elevator;
 ladderdef_c buffer_ladder;
 sliding_door_c buffer_slider;
 
@@ -108,24 +107,6 @@ const commandlist_t floor_commands[] =
 };
 
 #undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_elevator
-
-const commandlist_t elevator_commands[] =
-{
-	DF("TYPE", type, DDF_SectGetMType),
-	DF("SPEED UP",   speed_up,   DDF_MainGetFloat),
-	DF("SPEED DOWN", speed_down, DDF_MainGetFloat),
-	DF("PAUSE TIME", wait, DDF_MainGetTime),
-	DF("WAIT TIME", prewait,   DDF_MainGetTime),
-	DF("SFX START", sfxstart,  DDF_MainLookupSound),
-	DF("SFX UP",    sfxup,     DDF_MainLookupSound),
-	DF("SFX DOWN",  sfxdown,   DDF_MainLookupSound),
-	DF("SFX STOP",  sfxstop,   DDF_MainLookupSound),
-
-	DDF_CMD_END
-};
-
-#undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  buffer_ladder
 
 const commandlist_t ladder_commands[] =
@@ -160,7 +141,6 @@ static const commandlist_t linedef_commands[] =
 	// sub-commands
 	DDF_SUB_LIST("FLOOR",    f, floor_commands,    buffer_floor),
 	DDF_SUB_LIST("CEILING",  c, floor_commands,    buffer_floor),
-	DDF_SUB_LIST("ELEVATOR", e, elevator_commands, buffer_elevator),
 	DDF_SUB_LIST("SLIDER",   s, slider_commands,   buffer_slider),
 	DDF_SUB_LIST("LADDER",   ladder, ladder_commands, buffer_ladder),
 
@@ -1046,75 +1026,6 @@ donutdef_c& donutdef_c::operator=(donutdef_c &rhs)
 	return *this;
 }
 
-// --> Elevator definition class
-
-//
-// elevatordef_c Constructor
-//
-elevatordef_c::elevatordef_c()
-{
-}
-
-//
-// elevatordef_c Copy constructor
-//
-elevatordef_c::elevatordef_c(elevatordef_c &rhs)
-{
-	Copy(rhs);
-}
-
-//
-// elevatordef_c Destructor
-//
-elevatordef_c::~elevatordef_c()
-{
-}
-
-//
-// elevatordef_c::Copy()
-//
-void elevatordef_c::Copy(elevatordef_c &src)
-{
-	type = src.type;
-  
-	speed_up = src.speed_up;
-	speed_down = src.speed_down;
-
-	wait = src.wait;       
-	prewait = src.prewait;
-
-	sfxstart = src.sfxstart;
-	sfxup = src.sfxup;
-	sfxdown = src.sfxdown;
-	sfxstop = src.sfxstop;
-}
-
-//
-// elevatordef_c::Default()
-//
-void elevatordef_c::Default()
-{
-	type = mov_undefined;
-	speed_up = -1;
-	speed_down = -1;
-	wait = 0;
-	prewait = 0;
-	sfxstart = sfx_None;
-	sfxup = sfx_None;
-	sfxdown = sfx_None;
-	sfxstop = sfx_None;
-}
-
-//
-// elevatordef_c assignment operator
-//
-elevatordef_c& elevatordef_c::operator=(elevatordef_c &rhs)
-{
-	if(&rhs != this)
-		Copy(rhs);
-
-	return *this;
-}
 
 // --> Extrafloor definition class
 
@@ -1610,7 +1521,6 @@ void linetype_c::CopyDetail(linetype_c &src)
 	crush = src.crush;
 	f = src.f;
 	c = src.c;
-	e = src.e;
 	d = src.d;
 	s = src.s;
 	ladder = src.ladder;
@@ -1661,7 +1571,6 @@ void linetype_c::Default(void)
 	f.Default(movplanedef_c::DEFAULT_FloorLine);		
 	c.Default(movplanedef_c::DEFAULT_CeilingLine);		
 	
-	e.Default();		// Elevator
 	d.Default();		// Donut
 	s.Default();		// Sliding Door
 	

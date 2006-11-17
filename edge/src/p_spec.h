@@ -41,7 +41,7 @@
 typedef enum
 {
 	MDT_INVALID  = 0,
-	MDT_ELEVATOR = 1,
+	/* removed: MDT_ELEVATOR = 1 */
 	MDT_PLANE    = 2,
 	MDT_SLIDER   = 3,
 	ENDOFMDTTYPES
@@ -127,35 +127,6 @@ typedef enum
 }
 plane_dir_e;
 
-typedef struct elev_move_s
-{
-	movedat_e whatiam;
-	struct elev_move_s *next, *prev;
-
-	const elevatordef_c *type;
-	sector_t *sector;
-
-	float startheight;
-	float destheight;
-	float speed;
-
-	// 1 = up, 0 = waiting at top, -1 = down
-	int direction;
-	int olddirection;
-
-	int tag;
-
-	// tics to wait when fully open
-	int waited;
-
-	bool sfxstarted;
-
-	int newspecial;
-
-	const image_t *new_ceiling_image;
-	const image_t *new_floor_image;
-}
-elev_move_t;
 
 typedef struct plane_move_s
 {
@@ -166,6 +137,7 @@ typedef struct plane_move_s
 	sector_t *sector;
 
 	bool is_ceiling;
+	bool is_elevator;
 
 	float startheight;
 	float destheight;
@@ -299,11 +271,11 @@ void EV_LightTurnOn(int tag, int bright);
 bool EV_DoDonut(sector_t * s1, sfx_t * sfx[4]);
 bool EV_Teleport(line_t * line, int tag, mobj_t *thing, const teleportdef_c *def);
 bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * type);
-bool EV_ManualElevator(line_t * line, mobj_t * thing, const elevatordef_c * type);
+// bool EV_ManualElevator(line_t * line, mobj_t * thing, const elevatordef_c * type);
 
 void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_c * s);
 bool EV_DoPlane(sector_t * sec, const movplanedef_c * type, sector_t * model);
-bool EV_DoElevator(sector_t * sec, const elevatordef_c * type, sector_t * model);
+// bool EV_DoElevator(sector_t * sec, const elevatordef_c * type, sector_t * model);
 
 void P_RunForces(void);
 void P_AddPointForce(sector_t *sec, float length);
