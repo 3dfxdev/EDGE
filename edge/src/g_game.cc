@@ -1021,9 +1021,6 @@ void G_InitNew(newgame_params_c& params)
 		{
 			G_SetConsolePlayer(pnum);
 		}
-
-///---		if (params.players[pnum] & PFL_Network)
-///---			netgame = true;
 	}
 
 	if (numplayers != params.total_players)

@@ -301,15 +301,6 @@ bool DEM_PushReadChunk(const char *id)
 
 	cur->pos = cur->start;
 
-///---	// check for matching markers
-///---
-///---	DEM_GetMarker(marker);
-///---
-///---	if (strcmp(cur->e_mark, marker) != 0)
-///---	{
-///---		I_Error("LOAD_DEMO: ReadChunk [%s] failed: Bad markers.\n", id);
-///---	}
-
 	// let the DEM_GetByte routine (etc) see the new chunk
 	chunk_stack_size++;
 	return true;
@@ -494,9 +485,6 @@ bool DEM_PopWriteChunk(void)
 		for (i=0; i < len; i++)
 			DEM_PutByte(cur->start[i]);
 	}
-
-///---	// write end marker
-///---	DEM_PutMarker(cur->e_mark);
 
 	// all done, free stuff
 	Z_Free(cur->start);

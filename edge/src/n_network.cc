@@ -781,7 +781,8 @@ bool N_BuildTiccmds(void)
 		{
 			ticcmd_t *cmd;
 
-///--- L_WriteDebug("N_BuildTiccmds: pnum %d netgame %c\n", pnum, netgame ? 'Y' : 'n');
+///     L_WriteDebug("N_BuildTiccmds: pnum %d netgame %c\n", pnum, netgame ? 'Y' : 'n');
+
 			if (netgame)
 				cmd = &p->out_cmds[maketic % (MP_SAVETICS*2)];
 			else
@@ -847,7 +848,6 @@ int DetermineLowTic(void)
 		if (p->playerflags & PFL_Bot)
 			continue;
 
-///--- L_WriteDebug("@@ DetermineLowTic: pnum %d in_tic %d\n", pnum, p->in_tic);
 		lowtic = MIN(lowtic, p->in_tic);
 	}
 

@@ -198,19 +198,6 @@ player_list_proto_t;
 /* START-GAME ("sg") has no data */
 
 
-///--- //
-///--- // raw TICCMD
-///--- //
-///--- typedef struct
-///--- {
-///--- 	u16_t shorts[4];
-///--- 	u8_t  bytes [8];
-///--- 
-///--- 	void ByteSwap();
-///--- }
-///--- raw_ticcmd_t;
-
-
 //
 // TICCMD ("tc")
 //
