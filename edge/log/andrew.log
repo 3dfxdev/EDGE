@@ -7,6 +7,23 @@ flag.  Added support for alternating stairs, which turned out
 to be a lot easier than expected, since I could use a feature
 already existing in EDGE: the "newtrignum" field!
 
+Moved teleport code into new file: p_telept.cc.
+
+Got elevators working.  Code is rather kludgy, it basically
+tries to instantly move the ceiling to be floor + HEIGHT,
+where HEIGHT was the original sector height (c_h - f_h).
+At least with this method, the floor and ceiling cannot get
+out-of-sync (while the elevator is active), although it's
+possible that they end up out-of-sync afterwards.
+
+LINES.DDF: Changed all the P1/PR doors (about ten in all)
+to use TYPE=MANUAL instead of TYPE=PUSH.  The difference is
+that MANUAL ignores the tag.  BOOM uses the tag for lighting
+effects, hence some doors in DAWNING.WAD were not working.
+There's a small chance that this could mess up an EDGE mod
+which relies on the old behaviour, hence the -ecompat option
+will silently convert "MANUAL" type to "PUSH".
+
 2006/11/17:
 
 Implemented P_CheckSightToPoint(), which prevents push/pull
