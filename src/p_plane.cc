@@ -1157,20 +1157,22 @@ static bool EV_BuildOneStair(sector_t * sec, const movplanedef_c * def)
         //
         for (i = 0; i < sec->linecount; i++)
         {
-            if (!(sec->lines[i]->flags & ML_TwoSided))
+            if (! (sec->lines[i]->flags & ML_TwoSided))
                 continue;
 
             if (sec != sec->lines[i]->frontsector)
                 continue;
 
+            if (sec == sec->lines[i]->backsector)
+                continue;
+
             tsec = sec->lines[i]->backsector;
 
-            if (tsec->floor.image != image)
+            if (tsec->floor.image != image && !def->ignore_texture)
                 continue;
 
             if (def->is_ceiling && tsec->ceil_move)
                 continue;
-
             if (!def->is_ceiling && tsec->floor_move)
                 continue;
 
@@ -1208,11 +1210,9 @@ static bool EV_BuildStairs(sector_t * sec, const movplanedef_c * def)
     for (; sec; sec = sec->tag_next)
     {
         // Already moving?  If so, keep going...
-        if (sec->ceil_move && def->is_ceiling)
+        if (def->is_ceiling && sec->ceil_move)
             continue;
-
-        // Already moving?  If so, keep going...
-        if (sec->floor_move && !def->is_ceiling)
+		if (!def->is_ceiling && sec->floor_move)
             continue;
 
         if (EV_BuildOneStair(sec, def))

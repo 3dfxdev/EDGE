@@ -1,5 +1,12 @@
 Andrew Apted's Log
 
+2006/11/18:
+
+Fixed Boom generalised stairs to handle the "ignore texture"
+flag.  Added support for alternating stairs, which turned out
+to be a lot easier than expected, since I could use a feature
+already existing in EDGE: the "newtrignum" field!
+
 2006/11/17:
 
 Implemented P_CheckSightToPoint(), which prevents push/pull
@@ -7,6 +14,13 @@ things from affecting things through solid walls.
 
 Fixed the flats rendered by the BOOM [242] linetype when used
 to make liquids areas.
+
+Began implementing BOOM Elevators.  I decided the code would
+be a lot simpler to just have an "ELEVATOR" move type for the
+FLOOR plane_mover, instead of an elaborate set of classes for
+elevators.  For linetypes 235-238, I've added new destination
+references "TRIGGERFLOOR" and "TRIGGERCEILING" which use the
+sector of the activating linedef.
 
 2006/11/15:
 
