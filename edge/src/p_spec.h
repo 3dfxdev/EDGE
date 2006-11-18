@@ -141,6 +141,7 @@ typedef struct plane_move_s
 
 	float startheight;
 	float destheight;
+	float elev_height;
 	float speed;
 	bool crush;
 
@@ -278,6 +279,7 @@ bool EV_DoPlane(sector_t * sec, const movplanedef_c * type, sector_t * model);
 // bool EV_DoElevator(sector_t * sec, const elevatordef_c * type, sector_t * model);
 
 void P_RunForces(void);
+void P_DestroyAllForces(void);
 void P_AddPointForce(sector_t *sec, float length);
 void P_AddSectorForce(sector_t *sec, bool is_wind, float x_mag, float y_mag);
 
