@@ -2317,6 +2317,7 @@ void ShutdownLevel(void)
 	Z_Free(bmap_lines); bmap_lines = NULL;
 	Z_Free(bmap_pointers); bmap_pointers = NULL;
 
+	P_DestroyAllForces();
 	P_DestroyAllLights();
 	P_RemoveAllActiveParts();
 	P_DestroyAllSectorSFX();
@@ -2566,7 +2567,7 @@ sectortype_c *P_LookupSectorType(int num)
 	if (def)
 		return def;
 
-	if (level_flags.sector_compat && (num > 0) && (num < 100))
+	if (level_flags.edge_compat && (num > 0) && (num < 100))
 	{
 		sectortype_c* def = sectortypes.Lookup(4400 + num);
 		if (def)

@@ -142,7 +142,7 @@ gameflags_t default_gameflags =
 	false,  // shadows
 	false,  // halos
 
-	false,    // sector_compat
+	false,    // edge_compat
 	true,     // kicking
 	true      // weapon_switch
 };
@@ -405,7 +405,7 @@ static void SetGlobalVars(void)
 		use_dlights = 0;
 
 	if (M_CheckParm("-ecompat"))
-		global_flags.sector_compat = true;
+		global_flags.edge_compat = true;
 
 	if (!global_flags.respawn)
 	{

@@ -121,7 +121,7 @@ typedef struct gameflags_s
 	bool shadows;
 	bool halos;
 
-	bool sector_compat;
+	bool edge_compat;
 	bool kicking;
 	bool weapon_switch;
 }

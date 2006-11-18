@@ -208,9 +208,9 @@ void G_DoLoadLevel(void)
 #undef HANDLE_FLAG
 
 	if (currmap->force_on & MPF_BoomCompat)
-		level_flags.sector_compat = false;
+		level_flags.edge_compat = false;
 	else if (currmap->force_off & MPF_BoomCompat)
-		level_flags.sector_compat = true;
+		level_flags.edge_compat = true;
 
 	if (currmap->force_on & MPF_AutoAim)
 	{
@@ -778,7 +778,7 @@ static void G_DoLoadGame(void)
 	if (globs->sky_image)  // backwards compat (sky_image added 2003/12/19)
 		sky_image = globs->sky_image;
 
-	// clear line/sector lookup caches, in case level_flags.sector_compat
+	// clear line/sector lookup caches, in case level_flags.edge_compat
 	// has changed.
 	DDF_BoomClearGenTypes();
 
