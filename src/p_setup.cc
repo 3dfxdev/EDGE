@@ -2577,7 +2577,7 @@ sectortype_c *P_LookupSectorType(int num)
 	if (DDF_IsBoomSectorType(num))
 		return DDF_BoomGetGenSector(num);
 
-	I_Warning("P_LookupSectorType(): Unknown sector type %d", num);
+	I_Warning("P_LookupSectorType(): Unknown sector type %d\n", num);
 	return sectortypes[0];	// Return template sector
 }
 
