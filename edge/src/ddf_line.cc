@@ -559,6 +559,12 @@ void DDF_LineGetTrigType(const char *info, void *storage)
 	{
 		if (DDF_CompareName(info, s_trigger[i].s) == 0)
 		{
+			if (global_flags.edge_compat && (trigger_e)s_trigger[i].n == line_manual)
+			{
+				buffer_line.type = line_pushable;
+				return;
+			}
+					
 			buffer_line.type = (trigger_e)s_trigger[i].n;
 			return;
 		}
