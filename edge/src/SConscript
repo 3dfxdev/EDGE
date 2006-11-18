@@ -40,7 +40,7 @@ sources_2 = [
     'p_action.cc', 'p_bot.cc', 'p_enemy.cc', 'p_inter.cc', 'p_lights.cc', 
     'p_map.cc', 'p_maputl.cc', 'p_mobj.cc', 'p_plane.cc', 'p_setup.cc', 
     'p_sight.cc', 'p_spec.cc', 'p_switch.cc', 'p_tick.cc', 'p_user.cc', 
-    'p_forces.cc', 'p_weapon.cc',
+    'p_forces.cc', 'p_telept.cc', 'p_weapon.cc',
     'r2_util.cc', 'rad_act.cc', 'rad_pars.cc', 'rad_trig.cc', 
     'r_bsp.cc', 'r_data.cc', 'rgl_bsp.cc', 'rgl_fx.cc', 'rgl_main.cc', 
     'rgl_occ.cc', 'rgl_sky.cc', 'rgl_tex.cc', 'rgl_thing.cc', 'rgl_unit.cc', 
