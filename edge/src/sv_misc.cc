@@ -354,6 +354,7 @@ static savefield_t sv_fields_plane_move[] =
 	SF(is_elevator, "is_elevator", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
 	SF(startheight, "startheight", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(destheight, "destheight", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
+	SF(elev_height, "elevheight", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(speed, "speed", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(crush, "crush", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
 
