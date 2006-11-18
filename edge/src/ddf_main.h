@@ -1619,8 +1619,8 @@ typedef enum
 	mov_Plat,
 	mov_Stairs,
 	mov_Stop,
-	mov_Toggle,    // -AJA- 2004/10/07: added this.
-	mov_Elevator   // -AJA- 2006/11/17: added this.
+	mov_Toggle,     // -AJA- 2004/10/07: added.
+	mov_Elevator,   // -AJA- 2006/11/17: added.
 }
 movetype_e;
 
@@ -1842,6 +1842,9 @@ public:
 	// Scrolling. -AJA- 2000/04/16
 	angle_t scroll_angle;
 	float scroll_speed;
+
+	// Boom compatibility bits
+	bool ignore_texture;
 };
 
 

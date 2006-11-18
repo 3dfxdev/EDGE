@@ -525,32 +525,28 @@ static void MakeBoomStair(linetype_c *line, int number)
 	line->obj = (trigacttype_e)(trig_player | (monster ? trig_monster : 0));
 
 	line->f.type = mov_Stairs;
-	line->f.destref = REF_Current;  // FLOOR
 
-	// speed values are 0.25, 0.5, 2.0, 4.0 (but no 1.0)
+	// generalized repeatable stairs alternate between up and down
+	if (number & 1)
+	{
+		line->newtrignum = number ^ 0x100;
+	}
+
+	line->f.destref = REF_Current;  // FLOOR
+	line->f.dest = ((dir == 0) ? -1 : 1) * (step ? 8 * step : 4);
+
+	// speed values are 0.25, 0.5, 2.0, 4.0 (never 1.0)
 	if (speed >= 2)
 		speed++;
 
-	switch (dir)
-	{
-		case 0:  // Down
-			line->f.dest = -(step ? 8 * step : 4);
-			line->f.speed_down = (1 << speed) / 4.0f;
-			line->f.sfxdown = sfxdefs.GetEffect("STNMOV");
-			break;
+	line->f.speed_down = (1 << speed) / 4.0f;
+	line->f.speed_up = line->f.speed_down;
 
-		case 1:  // Up
-			line->f.dest = (step ? 8 * step : 4);
-			line->f.speed_up = (1 << speed) / 4.0f;
-			line->f.sfxup = sfxdefs.GetEffect("STNMOV");
-			break;
-	}
+	line->f.sfxdown = sfxdefs.GetEffect("STNMOV");
+	line->f.sfxup = line->f.sfxdown;
 
-	// Not here: 
-	//   - igntxt (ignoring textures on the floor)
-	//   - retriggable stairs alternate between build directions
-
-	(void) igntxt;
+	if (igntxt)
+		line->f.ignore_texture = true;
 }
 
 static void MakeBoomCrusher(linetype_c *line, int number)

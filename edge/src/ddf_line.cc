@@ -102,6 +102,7 @@ const commandlist_t floor_commands[] =
 	DF("SFX STOP",  sfxstop,  DDF_MainLookupSound),
 	DF("SCROLL ANGLE", scroll_angle,DDF_MainGetAngle),
 	DF("SCROLL SPEED", scroll_speed,DDF_MainGetFloat),
+	DF("IGNORE TEXTURE", ignore_texture, DDF_MainGetBoolean),
 
 	DDF_CMD_END
 };
@@ -1242,6 +1243,7 @@ void movplanedef_c::Copy(movplanedef_c &src)
 	sfxstop = src.sfxstop;
 	scroll_angle = src.scroll_angle;
 	scroll_speed = src.scroll_speed;
+	ignore_texture = src.ignore_texture;
 }
 
 //
@@ -1324,6 +1326,8 @@ void movplanedef_c::Default(movplanedef_c::default_e def)
 	
 	scroll_angle = 0;
 	scroll_speed = 0.0f;
+
+	ignore_texture = false;
 }
 
 //
@@ -1570,7 +1574,7 @@ void linetype_c::Default(void)
 
 	f.Default(movplanedef_c::DEFAULT_FloorLine);		
 	c.Default(movplanedef_c::DEFAULT_CeilingLine);		
-	
+
 	d.Default();		// Donut
 	s.Default();		// Sliding Door
 	
