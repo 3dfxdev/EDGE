@@ -21,6 +21,7 @@
 #include "i_sdlinc.h"
 
 #include "w32_sysinc.h"
+#include "e_main.h"
 
 typedef unsigned short int UWORD;
 
