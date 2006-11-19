@@ -227,6 +227,45 @@ void DDF_ColmapGetSpecial(const char *info, void *storage)
 	}
 }
 
+
+// 
+// This is used to make entries for lumps between C_START and C_END
+// markers in a (BOOM) WAD file.
+//
+void DDF_ColourmapAddRaw(const char *lump_name, int size)
+{
+	if (size < 256)
+	{
+		I_Warning("WAD Colourmap '%s' too small (%d < %d)\n", lump_name, size, 256);
+		return;
+	}
+
+	colourmap_c *def = colourmaps.Lookup(lump_name);
+
+	// not found, create a new one
+	if (! def)
+	{
+		def = new colourmap_c;
+
+		colourmaps.Insert(def);
+	}
+
+	def->Default();
+
+	def->ddf.name.Set(lump_name);
+	def->ddf.number = 0;
+	def->ddf.crc.Reset();
+
+	def->lump_name.Set(lump_name);
+
+	def->start  = 0;
+	def->length = MIN(32, size / 256);
+
+	L_WriteDebug("- Added RAW colourmap '%s' start=%d length=%d\n",
+		lump_name, def->start, def->length);
+}
+
+
 // --> Colourmap Class
 
 //

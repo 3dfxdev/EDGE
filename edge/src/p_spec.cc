@@ -1063,6 +1063,17 @@ static bool P_ActivateSpecialLine(line_t * line,
 
 		for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
 		{
+			if (special->ef.type & EXFL_BoomTex)
+			{
+				if (ctrl->f_h <= tsec->f_h)
+				{
+					tsec->props.colourmap = ctrl->props.colourmap;
+
+					// FIXME: BOOM's invisible floor feature
+					continue;
+				}
+			}
+
 			P_AddExtraFloor(tsec, line);
 
 			// transfer any translucency
