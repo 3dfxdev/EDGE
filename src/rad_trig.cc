@@ -64,7 +64,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAXRTSLINE  1024
+#define MAXRTSLINE  2048
 
 
 // Static Scripts.  Never change once all scripts have been read in.
