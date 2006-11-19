@@ -221,7 +221,7 @@ int humdinger_c::Open(byte *data, int length)
 	// clear any previous AL error
 	alGetError();
 
-	format = AL_FORMAT_STEREO16; //!!!!!! FIXME AL_FORMAT_STEREO16;  // FIXME for mono
+	format = AL_FORMAT_STEREO16; //!!! FIXME for mono
 
     alGenBuffers(NUM_BUFFERS, buffers);
     int result = alGetError();
