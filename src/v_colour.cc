@@ -470,9 +470,7 @@ static int AnalyseColourmap(const byte *table, int alpha,
 	return total / 256;
 }
 
-//
-// TransformColourmap
-//
+
 void TransformColourmap(colourmap_c *colmap)
 {
 	const byte *table = colmap->cache.data;
@@ -537,9 +535,7 @@ void TransformColourmap(colourmap_c *colmap)
 	L_WriteDebug("- wash_colour = #%06x\n", colmap->wash_colour);
 }
 
-//
-// V_GetColmapRGB
-//
+
 void V_GetColmapRGB(const colourmap_c *colmap,
 					float *r, float *g, float *b,
 					bool font)

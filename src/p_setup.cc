@@ -1429,13 +1429,29 @@ static void TransferMapSideDef(const raw_sidedef_t *msd, side_t *sd,
 	sd->sector = &sectors[sec_num];
 
 	Z_StrNCpy(buffer, msd->upper_tex, 8);
-	sd->top.image = W_ImageLookup(buffer, INS_Texture);
+	sd->top.image = W_ImageLookup(buffer, INS_Texture, ILF_Null);
+
+	// handle air colourmaps with BOOM's [242] linetype
+	if (! sd->top.image)
+	{
+		sd->top.image = W_ImageLookup(buffer, INS_Texture);
+		colourmap_c *cmap = colourmaps.Lookup(buffer);
+		if (cmap) sd->sector->props.colourmap = cmap;
+	}
+
+	Z_StrNCpy(buffer, msd->lower_tex, 8);
+	sd->bottom.image = W_ImageLookup(buffer, INS_Texture, ILF_Null);
+
+	// handle water colourmaps with BOOM's [242] linetype
+	if (! sd->bottom.image)
+	{
+		sd->bottom.image = W_ImageLookup(buffer, INS_Texture);
+		colourmap_c *cmap = colourmaps.Lookup(buffer);
+		if (cmap) sd->sector->props.colourmap = cmap;
+	}
 
 	Z_StrNCpy(buffer, msd->mid_tex, 8);
 	sd->middle.image = W_ImageLookup(buffer, INS_Texture);
-
-	Z_StrNCpy(buffer, msd->lower_tex, 8);
-	sd->bottom.image = W_ImageLookup(buffer, INS_Texture);
 
 	if (sd->middle.image && two_sided)
 	{

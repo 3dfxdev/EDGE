@@ -98,6 +98,7 @@ static ddf_reader_t DDF_Readers[] =
 #define NUM_DDF_READERS  (int)(sizeof(DDF_Readers) / sizeof(ddf_reader_t))
 
 #define LANG_READER  0
+#define COLM_READER  2
 #define SWTH_READER  12
 #define ANIM_READER  13
 #define RTS_READER   16
@@ -886,7 +887,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	raw_wad_entry_t *curinfo;
 
 	// reset the sprite/flat/patch list stuff
-	within_sprite_list = within_flat_list = false;
+	within_sprite_list = within_flat_list   = false;
 	within_patch_list  = within_colmap_list = false;
 
 	// open the file and add to directory
@@ -1341,6 +1342,17 @@ void W_ReadDDF(void)
 
 				DDF_ParseSWITCHES(data, length);
 				delete[] data;
+			}
+
+			// handle BOOM Colourmaps (between C_START and C_END)
+			if (d == COLM_READER && df->colmap_lumps.GetSize() > 0)
+			{
+				for (int i=0; i < df->colmap_lumps.GetSize(); i++)
+				{
+					int lump = df->colmap_lumps[i];
+
+					DDF_ColourmapAddRaw(W_GetLumpName(lump), W_LumpLength(lump));
+				}
 			}
 		}
 
