@@ -1,4 +1,23 @@
 
+EDGE DDF 4.9: (2006-11-19)
+==========================
+
+1) LINES.DDF: added BOOM's elevator types.
+
+2) THINGS.DDF: give PASS_MISSILE special to many scenery items.
+
+3) THINGS.DDF: added more player entries: PLAYER9 to PLAYER16.
+
+4) LINES.DDF: for manual doors (ten in all), use TYPE=MANUAL.
+
+5) STYLES.DDF: added (in comments) HOST_NETGAME, HOST_JOINGAME and
+               NET_PLAYER_LIST styles.
+
+6) EDGE.SCR, THINGS.DDF: remove MAP32 script, since the KEEN_DIE
+                         action has been re-implemented and used
+                         in the [COMMANDER_KEEN] things.
+
+
 EDGE DDF 4.8: (2006-09-08)
 ==========================
 
@@ -14,7 +33,9 @@ EDGE DDF 4.8: (2006-09-08)
 5) ATTACKS.DDF: added DOG_BITE attack for the [DOG] entry, which
                 was previously using the pinky Demon's attack.
 
-6) LINES.DDF: added new line-types (454 to 461) for better RTS
+6) ATTACKS.DDF: give SPAWN_LIMIT=21 to the PAIN ELEMENTAL attack.
+
+7) LINES.DDF: added new line-types (454 to 461) for better RTS
               interaction, including Monster-activated types
               and RTS_DISABLE_TAGGED types.
 
