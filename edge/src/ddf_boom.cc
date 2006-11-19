@@ -252,12 +252,12 @@ static void MakeBoomFloor(linetype_c *line, int number)
 
 		case 6:  // 24
 			line->f.destref = REF_Current;  // FLOOR
-			line->f.dest = 24;  // maybe this: "dir ? 24 : -24"
+			line->f.dest = dir ? 24 : -24;
 			break;
 
 		case 7:  // 32
 			line->f.destref = REF_Current;  // FLOOR
-			line->f.dest = 32;
+			line->f.dest = dir ? 32 : -32;
 			break;
 	}
 
@@ -331,12 +331,12 @@ static void MakeBoomCeiling(linetype_c *line, int number)
 
 		case 6:  // 24
 			line->c.destref = (heightref_e)(REF_Current | REF_CEILING);
-			line->c.dest = 24;  // maybe this: "dir ? 24 : -24"
+			line->f.dest = dir ? 24 : -24;
 			break;
 
 		case 7:  // 32
 			line->c.destref = (heightref_e)(REF_Current | REF_CEILING);
-			line->c.dest = 32;
+			line->f.dest = dir ? 32 : -32;
 			break;
 	}
 
