@@ -1,5 +1,18 @@
 Andrew Apted's Log
 
+2006/11/19:
+
+Added code to create DDF colourmap entries for the lumps
+appearing between C_START and C_END markers in the WAD.
+
+Support for colourmaps on BOOM [242] linetypes.  This is
+another hack, because the texture names on the sidedefs are
+only known during LoadSideDefs() and are lost once we reach
+LoadLineDefs().
+
+Fixed the generalised floor/ceiling "move by 24/32 units"
+linetypes, which never went downwards (ignored dir flag).
+
 2006/11/18:
 
 Fixed Boom generalised stairs to handle the "ignore texture"
