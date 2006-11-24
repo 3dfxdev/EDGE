@@ -2,13 +2,12 @@
 
 <set title="EDGE: Screenshot">
 
-<set next="shot04">
-<set prev="shot02">
+<set prev="osiris_A"> <set next="osiris_C">
 
 <block name="content">
 
-<use screenshot file="large01.png"
- title="Screenshot: DOOM 2 Map01">
+<use screenshot file="osiris_B.png"
+ title="Screenshot: Osiris TC #2">
 
 </block>
 

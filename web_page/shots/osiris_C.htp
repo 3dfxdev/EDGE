@@ -1,0 +1,15 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: Screenshot">
+
+<set prev="osiris_B"> <set next="gothic_A">
+
+<block name="content">
+
+<use screenshot file="osiris_C.png"
+ title="Screenshot: Osiris TC #3">
+
+</block>
+
+<!--- template --->
+<file include="shots_page.tpl">
