@@ -15,6 +15,9 @@
  text="Enhanced Doom Gaming Engine">
 
 <div class="content">
+  <file include="shots_menu.inc">
+  <p>
+
   <use content>
   <p>
 

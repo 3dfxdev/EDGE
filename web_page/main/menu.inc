@@ -6,7 +6,7 @@
 
 <li><a href="http://edge.sourceforge.net/index.htm">Home</a>
 <li><a href="about.htm">About</a>
-<li><span class="notdone" hhref="screenshots.htm">Screenshots</span>
+<li><a href="screenshots.htm">Screenshots</a>
 
 <li> <em>Download</em>
     <ul>

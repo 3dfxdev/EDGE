@@ -10,29 +10,29 @@ body { min-width: 768; }
 
   <h2 class="page_title"> Screenshots </h2>
 
-  <div style="float:left">
-  <use thumb file="thumb01.jpg" dest="shot01.htm" title="Map01">
-  </div>
+  <use thumb_row base="doom1" title="Doom 1">
+  <p>
 
-  <div >
-  <use thumb file="thumb02.jpg" dest="shot02.htm" title="Map02">
-  </div>
+  <use thumb_row base="doom2" title="Doom 2">
+  <p>
 
-  <div >
-  <use thumb file="thumb03.jpg" dest="shot03.htm" title="Map03">
-  </div>
-
-  <div >
-  <use thumb file="thumb01.jpg" dest="shot01.htm" title="Map11">
-  </div>
-
-  <div style="float:right">
-  <use thumb file="thumb02.jpg" dest="shot02.htm" title="Map12">
-  </div>
-
-  <div >
-  <use thumb file="thumb03.jpg" dest="shot03.htm" title="Map13">
-  </div>
+  <use thumb_row base="demos" title="Edge Demos">
+  <p>
+ 
+  <use thumb_row base="batman" title="Batman TC">
+  <p>
+ 
+  <use thumb_row base="eternal" title="Eternal Doom">
+  <p>
+ 
+  <use thumb_row base="osiris" title="Osiris TC">
+  <p>
+ 
+  <use thumb_row base="gothic" title="GothicDM">
+  <p>
+ 
+  <use thumb_row base="qdoom" title="QDoom TC">
+  <p>
  
 </block>
 
