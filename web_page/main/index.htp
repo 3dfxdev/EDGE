@@ -6,6 +6,20 @@
 
   <h2 class="page_title"> Latest News </h2>
 
+  <use BeginNews title="Busy for a while" date="07-Nov-2006">
+
+  A quick note to say that I'm pretty busy right now,
+  with an exam next week and a six-week trip to China
+  shortly after that.
+  Hence there won't be much progress with EDGE until I get back,
+  although I'm hoping to at least get the RC5 binary out before I go.
+
+  <p>
+  -- Ajapted
+
+  <use EndNews>
+
+
   <use BeginNews title="RTS back Online!" date="22-Sep-2006">
 
   I'm very pleased to announce that the RTS documentation
