@@ -16,7 +16,7 @@
   <table class="news_title" width="95%">
   <tr>
     <td align="left">  <use title> </td>
-	  <td align="right"> <use date> </td>
+    <td align="right"> <use date> </td>
   </tr>
   </table>
   <div class="news_body">
@@ -70,10 +70,36 @@ Data tag : &lt;<use tag>&gt;
     <caption> <use title> </caption>
     <tr><td>
     <a class="thumb_link" href="shots/${dest}">
-      <img class="thumb_image" src="shots/${file}"
-       width="160" height="100" alt="Screenshot">
+      <img class="thumb_image" src="thumbs/${file}"
+       width="160" height="120" alt="Screenshot">
     </a>
-	</td></tr>
+  </td></tr>
+  </table>
+</block>
+
+<block thumb_row>
+  <table class="thumb_tab">
+    <caption> <use title> </caption>
+    <tr>
+      <td>
+        <a class="thumb_link" href="shots/${base}_A.htm">
+          <img class="thumb_image" src="thumbs/${base}_TA.png"
+           width="160" height="120" alt="Screenshot">
+        </a>
+      </td>
+      <td>
+        <a class="thumb_link" href="shots/${base}_B.htm">
+          <img class="thumb_image" src="thumbs/${base}_TB.png"
+           width="160" height="120" alt="Screenshot">
+        </a>
+      </td>
+      <td>
+        <a class="thumb_link" href="shots/${base}_C.htm">
+          <img class="thumb_image" src="thumbs/${base}_TC.png"
+           width="160" height="120" alt="Screenshot">
+        </a>
+      </td>
+    </tr>
   </table>
 </block>
 
@@ -92,8 +118,8 @@ Data tag : &lt;<use tag>&gt;
   <div>
     <h2 class="page_title"> <use title> </h2>
 
-    <img class="large_image" src="../shots/${file}"
-       width="640" height="400" alt=${title}>
+    <img class="large_image" src="../thumbs/${file}"
+       width="640" height="480" alt=${title}>
   </div>
 </block>
 
