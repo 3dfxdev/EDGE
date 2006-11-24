@@ -1,0 +1,15 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: Screenshot">
+
+<set prev="batman_C"> <set next="eternal_B">
+
+<block name="content">
+
+<use screenshot file="eternal_A.png"
+ title="Screenshot: Eternal Doom TC #1">
+
+</block>
+
+<!--- template --->
+<file include="shots_page.tpl">

@@ -1,0 +1,15 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: Screenshot">
+
+<set prev="demos_B"> <set next="batman_A">
+
+<block name="content">
+
+<use screenshot file="demos_C.png"
+ title="Screenshot: Multi.wad">
+
+</block>
+
+<!--- template --->
+<file include="shots_page.tpl">

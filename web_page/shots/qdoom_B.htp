@@ -2,14 +2,13 @@
 
 <set title="EDGE: Screenshot">
 
-<set next="shot02">
-<!--- no prev --->
+<set prev="qdoom_A"> <set next="qdoom_C">
 
 <block name="content">
 
-<use screenshot file="large01.png"
- title="Screenshot: DOOM 2 Map01">
- 
+<use screenshot file="qdoom_B.png"
+ title="Screenshot: QDoom TC #2">
+
 </block>
 
 <!--- template --->
