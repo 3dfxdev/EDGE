@@ -52,6 +52,8 @@ sound_category_e;
 // for the sliders
 #define SND_SLIDER_NUM  20
 
+extern int sound_dist;
+
 extern float slider_to_gain[SND_SLIDER_NUM];
 
 // S_MUSIC.C
