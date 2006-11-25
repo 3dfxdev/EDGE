@@ -38,6 +38,7 @@ void M_ApplyResponseFile(const char *name, int position);
 void M_CheckBooleanParm(const char *parm, bool *boolval, bool reverse);
 const char *M_GetArgument(int argnum);
 int M_GetArgCount(void);
+void M_DebugDumpArgs(void);
 
 #endif // __M_ARGV__
 
