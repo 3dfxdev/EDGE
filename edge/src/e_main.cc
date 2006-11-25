@@ -1331,6 +1331,9 @@ static void ShowDateAndVersion(void)
 	I_Printf("EDGE v" EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
 	I_Printf("EDGE homepage is at http://edge.sourceforge.net/\n");
 	I_Printf("EDGE is based on DOOM by id Software http://www.idsoftware.com/\n");
+
+	if (debugfile)
+		M_DebugDumpArgs();
 }
 
 static void SetupLogAndDebugFiles(void)
