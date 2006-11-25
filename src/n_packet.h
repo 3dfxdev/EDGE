@@ -56,17 +56,17 @@ public:
 	bool Write(NLsocket sock);
 
 	/* access to different packet types */
+
 	inline error_proto_t&        er_p() { return *((error_proto_t *)DataPtr()); }
-	inline connect_proto_t&      cs_p() { return *((connect_proto_t *)DataPtr()); }
-	inline query_client_proto_t& qc_p() { return *((query_client_proto_t *)DataPtr()); }
-	inline new_game_proto_t&     ng_p() { return *((new_game_proto_t *)DataPtr()); }
-	inline query_game_proto_t&   qg_p() { return *((query_game_proto_t *)DataPtr()); }
-	inline join_queue_proto_t&   jq_p() { return *((join_queue_proto_t *)DataPtr()); }
-	inline play_game_proto_t&    pg_p() { return *((play_game_proto_t *)DataPtr()); }
+	inline connect_proto_t&      cn_p() { return *((connect_proto_t *)DataPtr()); }
+	inline welcome_proto_t&      we_p() { return *((welcome_proto_t *)DataPtr()); }
+	inline player_list_proto_t&  pl_p() { return *((player_list_proto_t *)DataPtr()); }
 	inline ticcmd_proto_t&       tc_p() { return *((ticcmd_proto_t *)DataPtr()); }
-	inline tic_group_proto_t&    tg_p() { return *((tic_group_proto_t *)DataPtr()); }
-	inline tic_retransmit_proto_t& tr_p() { return *((tic_retransmit_proto_t *)DataPtr()); }
-	inline message_proto_t&      ms_p() { return *((message_proto_t *)DataPtr()); }
+
+	// "no" NO-OPERATION
+	// "bd" BROADCAST-DISCOVERY
+	// "dc" DISCONNECT
+	// "sg" START-GAME
 };
 
 #endif  // USE_HAWKNL

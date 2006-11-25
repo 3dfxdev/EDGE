@@ -36,7 +36,8 @@ void header_proto_t::ByteSwap()
 {
 	data_len = EPI_BE_S16(data_len);
 	flags    = EPI_BE_S16(flags);
-	request  = EPI_BE_S16(request);
+	seq_up   = EPI_BE_S16(seq_up);
+	seq_down = EPI_BE_S16(seq_down);
 }
 
 void connect_proto_t::ByteSwap()

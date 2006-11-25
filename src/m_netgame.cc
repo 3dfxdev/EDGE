@@ -25,6 +25,11 @@
 
 #include "i_defs.h"
 #include "m_netgame.h"
+#include "protocol.h"
+
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
 
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -56,9 +61,8 @@
 #include "wi_stuff.h"
 #include "z_zone.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
+
+extern gameflags_t default_gameflags;
 
 
 int netgame_menuon;
@@ -67,6 +71,8 @@ bool netgame_we_host;
 static style_c *ng_host_style;
 static style_c *ng_join_style;
 static style_c *ng_list_style;
+
+static newgame_params_c *ng_params;
 
 
 void M_DrawHostMenu(void)
@@ -125,34 +131,118 @@ bool M_NetJoinResponder(event_t * ev, int ch)
 
 //----------------------------------------------------------------------------
 
+static bool ParseWelcomePacket(newgame_params_c *par, welcome_proto_t *we)
+{
+	par->game = gamedefs.Lookup(we->game_name);
+
+	if (! par->game) return false;
+
+	par->map = G_LookupMap(we->level_name);
+
+	if (! par->map) return false;
+
+	par->skill = (skill_t)we->skill;
+
+	switch (we->mode)
+	{
+		case welcome_proto_t::MODE_Coop:
+			par->deathmatch = 0;
+			break;
+	
+		case welcome_proto_t::MODE_Old_DM:
+			par->deathmatch = 1;
+			break;
+	
+		case welcome_proto_t::MODE_New_DM:
+			par->deathmatch = 2;
+			break;
+	
+		default:
+			I_Error("Unknown game mode in welcome packet: %d\n", we->mode);
+			return false; /* NOT REACHED */
+	}
+
+	par->random_seed = we->random_seed;
+	par->total_players = 0;  // updated later
+
+	/* FIXME: we->bots, we->teams */
+
+	gameflags_t flags = default_gameflags;
+
+#define HANDLE_FLAG(field, testbit)  \
+	(flags.field) = (we->gameplay & (testbit)) ? true : false;
+
+	HANDLE_FLAG(nomonsters,     welcome_proto_t::GP_NoMonsters);
+	HANDLE_FLAG(fastparm,       welcome_proto_t::GP_FastMon);
+
+	HANDLE_FLAG(true3dgameplay, welcome_proto_t::GP_True3D);
+	HANDLE_FLAG(jump,           welcome_proto_t::GP_Jumping);
+	HANDLE_FLAG(crouch,         welcome_proto_t::GP_Crouching);
+	HANDLE_FLAG(mlook,          welcome_proto_t::GP_MLook);
+
+	flags.autoaim =
+		(we->gameplay & welcome_proto_t::GP_AutoAim) ? AA_ON : AA_OFF;
+
+	return true;
+}
+
+static void CreateHostPlayerList(newgame_params_c *par, int humans, int bots)
+{
+	int total = humans + bots;
+
+	DEV_ASSERT2(humans > 0);
+	DEV_ASSERT2(total <= MAXPLAYERS);
+
+	int bots_per_human = bots / humans;
+	int host_bots = bots - (bots_per_human * (humans - 1));
+
+	int p = 0;
+
+	par->players[p++] = PFL_Zero;
+
+	for (; host_bots > 0; host_bots--)
+		par->players[p++] = PFL_Bot;
+
+	for (int h = 1; h < humans; h++)
+	{
+		par->players[p++] = PFL_Network;
+
+		for (int b = bots_per_human; b > 0; b--)
+			par->players[p++] = (playerflag_e)(PFL_Bot | PFL_Network);
+	}
+
+	par->total_players = p;
+
+	DEV_ASSERT2(p == humans + bots);
+}
+
+static void UpdatePlayerList(newgame_params_c *par, player_list_proto_t *li)
+{
+	DEV_ASSERT2(li->real_players > 0);
+	DEV_ASSERT2(li->real_players <= li->total_players);
+	DEV_ASSERT2(li->total_players <= MAXPLAYERS);
+
+	par->total_players = li->total_players;
+
+	for (int p = li->first_player; p <= li->last_player; p++)
+	{
+		par->players[p] = (playerflag_e) li->players[p].player_flags;
+	}
+}
+
 static void NetGameStartLevel(void)
 {
-	skill_t skill = sk_medium;  // FIXME: from packet
-
-	gamedef_c *g = gamedefs.Lookup("HELL ON EARTH"); // FIXME: from packet
-
-	DEV_ASSERT2(g);
-
-
 	// -KM- 1998/12/17 Clear the intermission.
 	WI_Clear();
 
-
 	// create parameters
 
-	newgame_params_c params;
+	welcome_proto_t foo;  // FIXME
+	
+	ng_params = new newgame_params_c();
 
-	params.skill = skill;
-	params.deathmatch = 2;
-
-	params.random_seed = 1; // FIXME: from packet
-
-	params.SinglePlayer(3);  // FIXME!!!!
-
-	params.game = g;
-	params.map = G_LookupMap(g->firstmap.GetString());
-
-	if (! params.map || ! G_DeferredInitNew(params))
+	if (! ParseWelcomePacket(ng_params, &foo) ||
+		! G_DeferredInitNew(*ng_params))
 	{
 		M_StartMessage(language["EpisodeNonExist"], NULL, false);
 		return;
