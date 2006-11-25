@@ -1,5 +1,20 @@
 Andrew Apted's Log
 
+2006/11/25:
+
+Bit more work on the networking code.
+
+2006/11/20:
+
+Restored -gdi as the default SDL driver, due to keyboard not
+working with -directx on my machine.  Also, -directx will be
+saved in the config file so it doesn't need to be specified
+in the future when running EDGE.
+
+Discovered why many people consider the sound to be too quiet,
+the OpenAL 1.0 distance model is an inverse formula: (1 / d)
+but DOOM's distance model is linear: (1 - (d / max_d)).
+
 2006/11/19:
 
 Added code to create DDF colourmap entries for the lumps
