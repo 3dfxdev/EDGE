@@ -75,6 +75,18 @@ env.Append(LIBS = ['lzo'])
 # JPEG, PNG and ZLIB
 env.Append(LIBS = ['png', 'jpeg', 'z'])
 
+# FLTK
+if 0 and build_info['platform'] == 'linux':
+    env.Append(CCFLAGS = ['-DUSE_FLTK'])
+    # FIXME
+
+# HawkNL
+if 1:
+    env.Append(CCFLAGS = ['-DUSE_HAWKNL'])
+    env.Append(CPPPATH = ['#HawkNL1.70/include'])
+    env.Append(LIBPATH = ['#HawkNL1.70/src'])
+    env.Append(LIBS = ['NL'])
+
 # SDL
 if build_info['platform'] == 'win32':
     env.Append(LIBS = ['libSDL'])
