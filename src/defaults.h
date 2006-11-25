@@ -70,9 +70,12 @@
 // Misc
 #define CFGDEF_MENULANGUAGE     (0)
 #define CFGDEF_SHOWMESSAGES     (1)
+
+// Sound and Music
 #define CFGDEF_SWAPSTEREO       (0)
 #define CFGDEF_SOUND_VOLUME     (8)
 #define CFGDEF_MUSIC_VOLUME     (8)
+#define CFGDEF_SOUND_DIST       (100)
 
 // Video Options
 #define CFGDEF_CURRENT_GAMMA    (2)
@@ -97,9 +100,9 @@
 #define CFGDEF_WIPE_REVERSE     (0)
 
 // Gameplay Options
-#define CFGDEF_AUTOAIM          (0)
+#define CFGDEF_AUTOAIM          (1)
 #define CFGDEF_MLOOK            (1)
-#define CFGDEF_JUMP             (1)
+#define CFGDEF_JUMP             (0)
 #define CFGDEF_CROUCH           (0)
 #define CFGDEF_KICKING          (0)
 #define CFGDEF_WEAPON_SWITCH    (1)

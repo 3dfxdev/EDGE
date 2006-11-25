@@ -20,6 +20,7 @@
 #include "i_sdlinc.h"
 
 #include "m_argv.h"
+#include "m_misc.h"
 #include "v_res.h"
 
 #include <signal.h>
@@ -95,31 +96,24 @@ void VideoModeCommonStuff(void)
 //
 void I_StartupGraphics(void)
 {
-	const char *driver = NULL;
-
-#ifdef WIN32
 	if (M_CheckParm("-directx"))
-		driver = "directx";
-	else if (M_CheckParm("-gdi"))
-		driver = "default";
-#endif
+		force_directx = true;
 
-	if (! driver)
-		driver = M_GetParm("-videodriver");
+	if (M_CheckParm("-gdi") || M_CheckParm("-nodirectx"))
+		force_directx = false;
+
+	const char *driver = M_GetParm("-videodriver");
 
 	if (! driver)
 		driver = SDL_getenv("SDL_VIDEODRIVER");
 
-	// FIXME:
-	// if (! driver)
-	//   driver = CFG variable
-
 	if (! driver)
 	{
-#ifdef WIN32
-		driver = "directx";
-#else
 		driver = "default";
+
+#ifdef WIN32
+		if (force_directx)
+			driver = "directx";
 #endif
 	}
 
@@ -132,7 +126,6 @@ void I_StartupGraphics(void)
 
 	I_Printf("SDL_Video_Driver: %s\n", driver);
 
-	// FIXME: CFG variable = driver
 
 	Uint32 flags = SDL_INIT_VIDEO;
 
