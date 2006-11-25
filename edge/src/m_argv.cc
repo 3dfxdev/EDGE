@@ -293,5 +293,28 @@ int M_GetArgCount(void)
 	return myargc;
 }
 
+
+void M_DebugDumpArgs(void)
+{
+	int i;
+
+	L_WriteDebug("Command line Options:\n");
+
+	for (i = 0; i < myargc; i++)
+	{
+#if 0
+		if (myargv[i][0] == '-' && (i+1 < myargc) && myargv[i+1][0] != '-')
+		{
+			L_WriteDebug("|  %s %s\n", myargv[i], myargv[i+1]);
+			i++;
+		}
+		else
+#endif
+		L_WriteDebug("| %s\n", myargv[i]);
+	}
+
+	L_WriteDebug("\n");
+}
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
