@@ -81,6 +81,8 @@ bool var_smoothmap = true;
 bool var_hq_scale  = true;
 bool var_hq_all    = false;
 
+bool force_directx = false;
+
 unsigned short save_screenshot[160][100];
 bool save_screenshot_valid = false;
 
@@ -96,6 +98,7 @@ static default_t defaults[] =
     {CFGT_Int,		"screenheight",		 &SCREENHEIGHT,	  CFGDEF_SCREENHEIGHT},
     {CFGT_Int,		"screendepth",		 &SCREENBITS,	  CFGDEF_SCREENBITS},
     {CFGT_Boolean,	"windowed",			 &SCREENWINDOW,	  CFGDEF_SCREENWINDOW},
+    {CFGT_Boolean,	"directx",			 &force_directx,  0},
  
     {CFGT_Int,      "mouse_sensitivity", &mouseSensitivity, CFGDEF_MOUSESENSITIVITY},
     {CFGT_Int,      "sfx_volume",        &cfgsound,       CFGDEF_SOUND_VOLUME},
@@ -162,6 +165,7 @@ static default_t defaults[] =
     {CFGT_Int,      "zoomedfieldofview", &cfgzoomedfov,   CFGDEF_ZOOMEDFOV},
 
     {CFGT_Int,      "usegamma",          &current_gamma,  CFGDEF_CURRENT_GAMMA},
+    {CFGT_Int,      "sounddist",         &sound_dist,     CFGDEF_SOUND_DIST},
     {CFGT_Int,      "save_page",         &save_page, 0},
 
     {CFGT_Boolean,  "png_scrshots",      &png_scrshots,   CFGDEF_PNG_SCRSHOTS},
@@ -309,7 +313,7 @@ bool M_LoadDefaults(void)
 	for (i = 0; i < numdefaults; i++)
 		SetToBaseValue(defaults + i);
 
-	I_Printf("  from %s\n", cfgfile.GetString());
+	I_Printf("M_LoadDefaults from %s\n", cfgfile.GetString());
 
 	// read the file in, overriding any set defaults
 	f = fopen(cfgfile, "r");
@@ -429,6 +433,12 @@ void M_InitMiscConVars(void)
 
 	CON_CreateCVarInt("nearclip", cf_normal, &var_nearclip);
 	CON_CreateCVarInt("farclip",  cf_normal, &var_farclip);
+
+	s = M_GetParm("-sounddist");
+	if (s)
+		sound_dist = atoi(s);
+
+	CON_CreateCVarInt("sounddist",  cf_normal, &sound_dist);
 }
 
 //
