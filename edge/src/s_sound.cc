@@ -46,6 +46,9 @@
 // If true, sound system is off/not working. Changed to false if sound init ok.
 bool nosound = false;
 
+// distance factor for sounds, 100 is normal
+int sound_dist = 100;
+
 // -AJA- 2005/02/26: table to convert slider position to GAIN.
 //       Curve was hand-crafted to give useful distinctions of
 //       volume levels at the quiet end.  Entry zero always
@@ -715,11 +718,13 @@ namespace sound
 
     // ==============================================================
 
-    void CoordPlaysimToAudio(float *src, ALfloat *dest)
+    inline void CoordPlaysimToAudio(float *src, ALfloat *dest)
     {
-        dest[0] = src[0];
-        dest[1] = src[2];
-        dest[2] = src[1] * -1.0f;
+		float factor = sound_dist / 100.0f;
+
+        dest[0] = src[0] *  factor;
+        dest[1] = src[2] *  factor;
+        dest[2] = src[1] * -factor;
     }
 
     // ==============================================================
