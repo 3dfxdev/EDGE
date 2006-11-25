@@ -43,6 +43,8 @@ bool var_hogcpu = true;
 
 extern gameflags_t default_gameflags;
 
+#undef USE_HAWKNL //!!!!!!!!
+
 #ifdef USE_HAWKNL
 static int client_id;
 static int game_id;

@@ -26,18 +26,24 @@
 //
 // common packet header
 //
-// types are an alphanumeric pair, generally Verb+Noun.  They should
-// start with lowercase for packets from the client (e.g. "cs"), and
-// uppercase for ones from the server (e.g. "Er").  Data length does
-// NOT include the header, e.g. data_len = sizeof(connect_proto_t).
-//
+// types are an alphanumeric pair, e.g. "cn" for connect packet.
+// Data length does not include this header, e.g. sizeof(connect_proto_t).
+// 
+// Sequence values are used to detect missing packets.  For clients
+// sending to the host, seq_up is current packet number (always +1
+// from previous packet sent), where seq_down is the lowest numbered
+// packet we haven't received yet.  For the host sending to a client,
+// these meanings are swapped.
+// 
 typedef struct
 {
 	char type[2];
 
 	s16_t data_len;
 	s16_t flags;
-	s16_t request;   // use to match requests with replies
+
+	u16_t seq_up;
+	u16_t seq_down;
 
 	enum // flags
 	{
@@ -49,8 +55,11 @@ typedef struct
 header_proto_t;
 
 
+/* NO-OPERATION ("no") has no data */
+
+
 //
-// ERROR ("Er")
+// ERROR ("er")
 //
 // Error types are a lowercase alphanumeric pair.
 // Current error codes:
@@ -134,14 +143,14 @@ typedef struct
 	enum  // gameplay bitflags:
 	{
 		GP_NoMonsters = (1 << 0),
+		GP_FastMon    = (1 << 1),
 
-		GP_True3D     = (1 << 1),
-		GP_Jumping    = (1 << 2),
-		GP_Crouching  = (1 << 3),
+		GP_True3D     = (1 << 3),
+		GP_Jumping    = (1 << 4),
+		GP_Crouching  = (1 << 5),
 
-		GP_AutoAim    = (1 << 4),
-		GP_MLook      = (1 << 5),
-		GP_Zooming    = (1 << 6),
+		GP_AutoAim    = (1 << 7),
+		GP_MLook      = (1 << 8),
 	};
 
 	u32_t gameplay;
@@ -166,7 +175,7 @@ typedef struct
 
 	char name[16];
 
-	byte reserved[6];
+	byte reserved[10];
 
 	void ByteSwap();
 }
