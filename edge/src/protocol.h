@@ -15,6 +15,11 @@
 //  GNU General Public License for more details.
 //
 //------------------------------------------------------------------------
+//
+//  NOTE: the 'header_proto_s' and other struct names are really
+//        redundant, however GCC fucks up if you remove them, as
+//        the compiled .o file will lack the ByteSwap() methods!
+//  
 
 #ifndef __PROTOCOL_H__
 #define __PROTOCOL_H__
@@ -29,21 +34,23 @@
 // types are an alphanumeric pair, e.g. "cn" for connect packet.
 // Data length does not include this header, e.g. sizeof(connect_proto_t).
 // 
-// Sequence values are used to detect missing packets.  For clients
-// sending to the host, seq_up is current packet number (always +1
-// from previous packet sent), where seq_down is the lowest numbered
-// packet we haven't received yet.  For the host sending to a client,
-// these meanings are swapped.
+// Sequence values are used to detect missing packets:
+//
+//  -  seq_out is the current packet number (always +1 from previous
+//     packet sent)
+//
+//  -  seq_rcv is the lowest numbered packet we haven't received yet
+//     (i.e. the packet number we expect to get next).
 // 
-typedef struct
+typedef struct header_proto_s
 {
 	char type[2];
 
 	s16_t data_len;
 	s16_t flags;
 
-	u16_t seq_up;
-	u16_t seq_down;
+	u16_t seq_out;
+	u16_t seq_recv;
 
 	enum // flags
 	{
@@ -71,7 +78,7 @@ header_proto_t;
 //   ps : Packet too Short (data_len)
 //   pl : Packet too Long  (data_len)
 //
-typedef struct
+typedef struct error_proto_s
 {
 	char type[2];
 
@@ -91,7 +98,7 @@ error_proto_t;
 //
 // CONNECT ("cn")
 //
-typedef struct
+typedef struct connect_proto_s
 {
 	u16_t client_ver;  // MP_PROTOCOL_VER from client
 
@@ -107,7 +114,7 @@ connect_proto_t;
 //
 // WELCOME ("we")
 //
-typedef struct
+typedef struct welcome_proto_s
 {
 	u16_t host_ver;  // MP_PROTOCOL_VER from host
 
@@ -169,7 +176,7 @@ welcome_proto_t;
 /* DISCONNECT ("dc") has no data */
 
 
-typedef struct
+typedef struct player_info_s
 {
 	u16_t player_flags;  // PFL_xxx values
 
@@ -184,7 +191,7 @@ player_info_t;
 //
 // PLAYER-LIST ("pl")
 //
-typedef struct
+typedef struct player_list_proto_s
 {
 	byte real_players;
 	byte total_players;
@@ -212,7 +219,7 @@ player_list_proto_t;
 //
 // Holds a group of ticcmds, both CL->SV and SV->CL.
 //
-typedef struct
+typedef struct ticcmd_s
 {
 	u32_t gametic;
 	byte  offset;  // start_tic = gametic + offset

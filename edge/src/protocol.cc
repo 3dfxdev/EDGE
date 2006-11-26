@@ -18,10 +18,10 @@
 
 #include "i_defs.h"
 
-#include "protocol.h"
-
 #include "epi/types.h"
 #include "epi/endianess.h"
+
+#include "protocol.h"
 
 
 void ticcmd_t::ByteSwap()
@@ -36,8 +36,9 @@ void header_proto_t::ByteSwap()
 {
 	data_len = EPI_BE_S16(data_len);
 	flags    = EPI_BE_S16(flags);
-	seq_up   = EPI_BE_S16(seq_up);
-	seq_down = EPI_BE_S16(seq_down);
+
+	seq_out  = EPI_BE_S16(seq_out);
+	seq_recv = EPI_BE_S16(seq_recv);
 }
 
 void connect_proto_t::ByteSwap()
