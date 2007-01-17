@@ -29,20 +29,20 @@ New features:
  - scrolling flats.  The following entries in sectors.ddf do the
    trick:
 
-     FLOOR.SCROLL_ANGLE=<num>;    // 0 is east, 90 is north, etc..
-     FLOOR.SCROLL_SPEED=<num>;    // 32 is one pixel per tic
+     FLOOR.SCROLL_ANGLE=[num];    // 0 is east, 90 is north, etc..
+     FLOOR.SCROLL_SPEED=[num];    // 32 is one pixel per tic
 
-     CEILING.SCROLL_ANGLE=<num>;
-     CEILING.SCROLL_SPEED=<num>;
+     CEILING.SCROLL_ANGLE=[num];
+     CEILING.SCROLL_SPEED=[num];
 
    Note that they also work for extrafloors (when used in the dummy
    sector).
 
  - pushing sectors.  Looks like this in sectors.ddf:
 
-     PUSH_ANGLE=<num>;    // 0 is east, 90 is north, etc..
-     PUSH_SPEED=<num>;    // 0 is none, 50 is quite fast
-     PUSH_ZSPEED=<num>;   // 0 is normal, > 0 is upwards
+     PUSH_ANGLE=[num];    // 0 is east, 90 is north, etc..
+     PUSH_SPEED=[num];    // 0 is none, 50 is quite fast
+     PUSH_ZSPEED=[num];   // 0 is normal, positive is upwards
 
    only objects inside the sector are affected.  The following sector
    specials come into play (the last two are new) :

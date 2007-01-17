@@ -24,7 +24,7 @@ Bug fixes:
 -  problem with missing weapons (e.g. IDKFA) fixed.
 -  fixed another MP3 bug, not playing files with ID3 tags.
 -  thin sliding doors were broken in GLEDGE -- fixed.
--  closed sliding doors now block sight & sound properly.
+-  closed sliding doors now block sight/sound properly.
 
 
 Features removed:
@@ -84,7 +84,7 @@ New features:
 
 -  New command for radius triggers:
 
-      UNBLOCK_LINES  <tag>
+      UNBLOCK_LINES  [tag]
    
    All lines on the map with the same tag will be unblocked, allowing
    players and monsters to pass.  Only affects two-sided lines.

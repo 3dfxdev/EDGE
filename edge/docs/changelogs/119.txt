@@ -29,7 +29,7 @@ Features removed:
  - LUMPEXISTS in lines.ddf and sectors.ddf.
  - LINK field in sounds.ddf.
  - COLOURMAP= and COLOURMAPLUMP= in lines.ddf and sectors.ddf.
-   (use USE_COLOURMAP=<colmap name> instead).
+   (use USE_COLOURMAP=[colmap-name] instead).
  
 Changes:
 
@@ -87,14 +87,14 @@ Changes:
  
  - The format of the GIVEARMOUR RTS primitive has changed, it is now:
 
-       GIVEARMOUR  <type>  <amount>
+       GIVEARMOUR  [type]  [amount]
    or
-       GIVEARMOUR  <type>  <amount>  <limit>
+       GIVEARMOUR  [type]  [amount]  [limit]
  
-   The <type> is one of GREEN, BLUE, YELLOW or RED.  The limit is now
+   The [type] is one of GREEN, BLUE, YELLOW or RED.  The limit is now
    optional, it defaults to 200 when absent.
    
- - For the HEALPLAYERS RTS primitive, like above the <limit> is
+ - For the HEALPLAYERS RTS primitive, like above the [limit] is
    optional and defaults to 200 health points.  BTW, let me know if
    100 would be a better default limit.
  
@@ -103,10 +103,10 @@ Changes:
    height.  The new way adds the value to the ceiling height, it is
    now consistent with floors.
  
- - The initial ammo & ammo-limits for players is not longer fixed, the
+ - The initial ammo and ammo-limits for players is not longer fixed, the
    new method works just like the PICKUP_BENEFIT field, like this:
 
-       INITIAL_BENEFIT = <benefit> , <benefit> , ... ;
+       INITIAL_BENEFIT = [benefit] , [benefit] , ... ;
  
    You can give ammo and set ammo limits this way (used in things.ddf
    for the player things), but it is not limited to just ammo stuff
