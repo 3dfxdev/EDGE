@@ -1,20 +1,10 @@
 <file include="../common/common.inc">
 
-<set title="EDGE: About">
+<set title="EDGE: Features">
 
 <block name="content">
 
-<h2 class="page_title"> About EDGE </h2>
-
-<p class="features">
-The EDGE project is a programming project to develop a
-DOOM<SUP>tm</SUP> style engine aimed at Total Conversion developer,
-but still able to play the original DOOM games.
-This project started with the DOOM source released by
-id software.
-
-<p>
-<b>Notable EDGE features:</b>
+<h2 class="page_title"> Notable EDGE Features </h2>
 
 <ul class="features">
 <li>
@@ -25,7 +15,7 @@ room-over-room, bridges, and liquids.
 <li>
 DDF (Doom Definition Files), allow Mod/TC/PC creators to
 completely customise monsters, attacks, weapons, pickup and
-scenery items, linetypes, sectortypes, intermissions, ETC...
+scenery items, linetypes, sectortypes, intermissions, and so forth...
 using fairly simple to understand text files.
 
 <li>

@@ -73,6 +73,15 @@ page_title {
 	margin-bottom: 26px;
 	}
 
+.main_image {
+  float: right;
+  width: 160px;
+  height: 120px;
+	border: 1px solid black;
+  margin: 8px;
+  padding: 0;
+  }
+
 .shot_back {
 	text-align: center;
 	font-size: larger;
