@@ -1,0 +1,37 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: ChangeLogs">
+
+<block name="content">
+
+<h2 class="page_title">ChangeLog for EDGE 1.28A</h2>
+
+<PRE>
+Type: Bug-fix release
+
+Date: JUNE 12th 2004
+
+Bugs fixed
+----------
+
++ Windows 95 support.
++ fixed the unable to crouch bug.
+
+- handle ALT+TAB better under Windows.
+- handle non-power-of-two textures in GL mode.
+- allow brain-shooter without any shoot spots (Darren Salt).
+- allow compiling without DEVELOPERS define (Darren Salt).
+- fix for some memory trashing problems (Darren Salt).
+
+General Improvements
+--------------------
+
+- look for patch lumps first in between P_START/P_END.
+- added 12 STEALTH monsters (types 4050 to 4061) into THINGS.DDF.
+</PRE>
+<p>
+
+</block>
+
+<!--- template --->
+<file include="logs_page.tpl">

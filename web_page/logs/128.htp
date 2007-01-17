@@ -4,26 +4,12 @@
 
 <block name="content">
 
-<h2 class="page_title">ChangeLog for EDGE 1.28A</h2>
+<h2 class="page_title">ChangeLog for EDGE 1.28</h2>
 
 <PRE>
-Dates:
-      1.28 : NAY  24th 2004
-      1.28A: JUNE 12th 2004
+Type: Full release
 
-Bugs fixed in 1.28A
--------------------
-
-+ Windows 95 support.
-+ fix the crouching bug.
-
-- look for patch lumps first in between P_START/P_END.
-- handle ALT+TAB better under Windows.
-- handle non-power-of-two textures in GL mode.
-- allow brain-shooter without any shoot spots (Darren Salt).
-- allow compiling without DEVELOPERS define (Darren Salt).
-- fix for some memory trashing problems (Darren Salt).
-- added 12 STEALTH monsters (types 4050 to 4061) into THINGS.DDF.
+Dates: NAY 24th 2004
 
 Bugs fixed
 ----------
