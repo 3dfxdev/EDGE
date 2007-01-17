@@ -4,6 +4,20 @@
 
 <block name="content">
 
+  <h2 class="page_title"> Welcome to the EDGE! </h2>
+
+  <img class="main_image" src="thumbs/demos_C.png"
+       width="160" height="120" alt="Screenshot">
+ 
+  The EDGE project is a programming project to develop a
+  DOOM<SUP>tm</SUP> style engine aimed at Total Conversion developer,
+  but still able to play the original DOOM games.
+  This project started with the DOOM source released by
+  id software.
+
+  <p style="clear:right">
+  </p>
+
   <h2 class="page_title"> Latest News </h2>
 
   <use BeginNews title="Screenshots" date="25-Nov-2006">
