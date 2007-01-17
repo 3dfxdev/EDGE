@@ -33,23 +33,27 @@ Folders
 out/    :  where all the output goes.  Visit out/index.htm in
            your web browser to see the final pages.
 
+common/ :  common stuff.  Every htp file includes common/common.inc
+           which contains macros that are useful for many pages.
+
 main/   :  files which define the main area of the website,
            such as Home, About, Screenshots, etc..  Each of
            these pages have the same banner and menu.
+
+css/    :  cascading style sheets.
 
 ddf/    :  files for the DDF area.
 
 rts/    :  files for the RTS area.
 
-common/ :  common stuff.  Every htp file includes common/common.inc
-           which contains macros that many pages may use.
+logs/   :  boring old changelogs.
 
-shots/  :  contains the screenshot images, and htp files for
-           showing each large screenshot by itself.  The large
-           images must be 640x400 and thumbnail images must be
-           160x100 in size.
+shots/  :  contains the htp files for showing each large screenshot
+           by itself.  The large images must be 640x400 and the
+           thumbnail images must be 160x100 in size.
 
-css/    :  cascading style sheets.
+thumbs/ :  contains the actual screenshot images, both thumbnail
+           and full size.
 
 images/ :  miscellaneous images.
 
