@@ -103,6 +103,52 @@ Data tag : &lt;<use tag>&gt;
   </table>
 </block>
 
+<block thumb_mega>
+  <table class="thumb_tab">
+    <caption> <use title> </caption>
+    <tr>
+      <td>
+        <a class="thumb_link" href="shots/${base}_A.htm">
+          <img class="thumb_image" src="thumbs/${base}_TA.png"
+           width="160" height="120" alt="Screenshot">
+        </a>
+      </td>
+      <td>
+        <a class="thumb_link" href="shots/${base}_B.htm">
+          <img class="thumb_image" src="thumbs/${base}_TB.png"
+           width="160" height="120" alt="Screenshot">
+        </a>
+      </td>
+      <td>
+        <a class="thumb_link" href="shots/${base}_C.htm">
+          <img class="thumb_image" src="thumbs/${base}_TC.png"
+           width="160" height="120" alt="Screenshot">
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a class="thumb_link" href="shots/${base}_D.htm">
+          <img class="thumb_image" src="thumbs/${base}_TD.png"
+           width="160" height="120" alt="Screenshot">
+        </a>
+      </td>
+      <td>
+        <a class="thumb_link" href="shots/${base}_E.htm">
+          <img class="thumb_image" src="thumbs/${base}_TE.png"
+           width="160" height="120" alt="Screenshot">
+        </a>
+      </td>
+      <td>
+        <a class="thumb_link" href="shots/${base}_F.htm">
+          <img class="thumb_image" src="thumbs/${base}_TF.png"
+           width="160" height="120" alt="Screenshot">
+        </a>
+      </td>
+    </tr>
+  </table>
+</block>
+
 
 <!---
   Screenshot macro
