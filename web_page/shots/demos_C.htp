@@ -2,7 +2,7 @@
 
 <set title="EDGE: Screenshot">
 
-<set prev="demos_B"> <set next="batman_A">
+<set prev="demos_B"> <set next="qdoom_A">
 
 <block name="content">
 
