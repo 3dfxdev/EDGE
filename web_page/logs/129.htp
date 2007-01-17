@@ -1,8 +1,16 @@
+<file include="../common/common.inc">
 
-CHANGELOG FOR 1.29 (since 1.28)
-===============================
+<set title="EDGE: ChangeLogs">
 
-(Date: AUGUST 1st 2006)
+<block name="content">
+
+<h2 class="page_title">ChangeLog for EDGE 1.29</h2>
+
+<PRE>
+(NOTE: 1.29 is the version currently under development and
+has not been released yet).
+
+Last updated: JANUARY 2007
 
 
 Bugs fixed
@@ -406,21 +414,21 @@ New weapon stuff
 New command-line options | console variables
 --------------------------------------------
 
-  -deh  <file>         Specify a DeHackEd (or BEX) patch file.  You can
+  -deh  [file]         Specify a DeHackEd (or BEX) patch file.  You can
                        have multiple patch files after the -deh option.
 
-  -audiodev  <name>    Forces OpenAL to select <device-name> device
+  -audiodev  [name]    Forces OpenAL to select [device-name] device
 
   -bestaudio           Make OpenAL to select the best device in
                        windows. Normally the "DirectSound" device
                        is selected.
 
-  -maxaudiochan <n>    Maximum number of audio channels to use
+  -maxaudiochan [n]    Maximum number of audio channels to use
 
   -nocdmusic           Disable CD music.
 
-  -nearclip <n>   NEARCLIP    Control the OpenGL distance clipping.
-  -farclip <n>    FARCLIP     Increasing farclip allows a huge level
+  -nearclip [n]   NEARCLIP    Control the OpenGL distance clipping.
+  -farclip [n]    FARCLIP     Increasing farclip allows a huge level
                               to be fully seen, but decreases depth
                               accuracy (may cause glitches).
 
@@ -440,12 +448,10 @@ New command-line options | console variables
                               more time for other programs to run.
 
 
-Hats off to...
---------------
+</PRE>
+<p>
 
-Special mention to Erik Sandberg's contribution to EDGE. It's worth a
-note that he did a shedload of quality work and made a special effort
-to make sure we were GPL legal - something we maintain now.  We do
-this since because we have recently removed the software renderer,
-we removed about 90% of the work he put into EDGE.
+</block>
 
+<!--- template --->
+<file include="logs_page.tpl">

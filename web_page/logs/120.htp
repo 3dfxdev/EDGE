@@ -1,10 +1,15 @@
+<file include="../common/common.inc">
 
-CHANGELOG FOR 1.20 (since 1.19)
-===============================
+<set title="EDGE: ChangeLogs">
 
-(Date: MARCH 21st 2000)
+<block name="content">
 
-(Unreleased EDGE version)
+<h2 class="page_title">ChangeLog for EDGE 1.20</h2>
+
+<PRE>
+(NOTE: Unreleased EDGE version)
+
+Date: MARCH 21st 2000
 
 Bugs fixed:
 
@@ -21,7 +26,7 @@ Bugs fixed:
  - killing yourself no longer gives you a frag.
  - the WHOLE_REGION sector special was broken, fixed now.
  - bug with weapons changing when you pick up ammo fixed.
- - shadow, translated & translucent sprites now drawn in TrueBSP mode.
+ - shadow, translated &amp; translucent sprites now drawn in TrueBSP mode.
  - fixed y offsets for mid-masked textures in TrueBSP mode.
  - textures no longer slosh about horizontally in TrueBSP mode.
  - bug in OpenGL renderer not drawing certain uppers/lowers fixed.
@@ -72,3 +77,11 @@ New Features:
    weapon as having zoom capability.  The value is the "Field Of View"
    angle, e.g. 10 is the same as normal zooming.  The range is from 5
    to 90, smaller angles give greater magnification.
+
+</PRE>
+<p>
+
+</block>
+
+<!--- template --->
+<file include="logs_page.tpl">

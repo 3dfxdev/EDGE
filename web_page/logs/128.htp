@@ -1,8 +1,15 @@
+<file include="../common/common.inc">
 
-CHANGELOG FOR 1.28 (since 1.27)
-===============================
+<set title="EDGE: ChangeLogs">
 
-(Date: JUNE 12th 2004)
+<block name="content">
+
+<h2 class="page_title">ChangeLog for EDGE 1.28A</h2>
+
+<PRE>
+Dates:
+      1.28 : NAY  24th 2004
+      1.28A: JUNE 12th 2004
 
 Bugs fixed in 1.28A
 -------------------
@@ -181,4 +188,10 @@ New command-line options:
 
   -sound16  (Linux)  Force using 16 bit sound.  Default is to only
                      switch to 16 bit when 8 bits is unavailable.
+</PRE>
+<p>
 
+</block>
+
+<!--- template --->
+<file include="logs_page.tpl">

@@ -1,8 +1,15 @@
+<file include="../common/common.inc">
 
-CHANGELOG FOR 1.22 (since 1.21)
-===============================
+<set title="EDGE: ChangeLogs">
 
-(Date: APRIL 3rd 2000)
+<block name="content">
+
+<h2 class="page_title">ChangeLog for EDGE 1.22</h2>
+
+<PRE>
+(NOTE: Unreleased EDGE version)
+
+Date: APRIL 3rd 2000
 
 Bugs fixed:
 
@@ -12,7 +19,7 @@ Bugs fixed:
  - disappearing missiles when shooting right into a wall fixed.
  - shooting missiles right into a wall: you now thrust in right dir.
  - sprites in QDOOM should be visible in GL renderer now.
- - most transparent doors should work properly now in TrueBSP & GL.
+ - most transparent doors should work properly now in TrueBSP &amp; GL.
  
 Changes:
 
@@ -22,3 +29,11 @@ New features:
 
  none.
 
+
+</PRE>
+<p>
+
+</block>
+
+<!--- template --->
+<file include="logs_page.tpl">

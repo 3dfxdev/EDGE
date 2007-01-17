@@ -1,8 +1,13 @@
+<file include="../common/common.inc">
 
-CHANGELOG FOR 1.27 (since 1.26)
-===============================
+<set title="EDGE: ChangeLogs">
 
-(Date: NOVEMBER 11th 2001)
+<block name="content">
+
+<h2 class="page_title">ChangeLog for EDGE 1.27</h2>
+
+<PRE>
+Date: NOVEMBER 11th 2001
 
 Bug fixes:
 ----------
@@ -16,7 +21,7 @@ Bug fixes:
 -  timing problem in RTS (initial WAIT command) fixed.
 -  fixed bug with new 16-rotation sprite code.
 -  zooming no longer shows the weapon sprite.
--  rendering problems (HOM) in GLEDGE when FOV > 90 fixed.
+-  rendering problems (HOM) in GLEDGE when FOV &gt; 90 fixed.
 -  fixed automap bug not displaying the level's name.
 -  another timing problem in RTS (retriggerables) fixed.
 -  issues with the UPGRADES command in weapons.ddf fixed.
@@ -24,7 +29,7 @@ Bug fixes:
 -  problem with missing weapons (e.g. IDKFA) fixed.
 -  fixed another MP3 bug, not playing files with ID3 tags.
 -  thin sliding doors were broken in GLEDGE -- fixed.
--  closed sliding doors now block sight & sound properly.
+-  closed sliding doors now block sight &amp; sound properly.
 
 
 Features removed:
@@ -59,7 +64,7 @@ New features:
 -  New cmdline option "-fastsprites".  Causes sprite images to be
    pre-cached at the start of the level, making gameplay smoother.  It
    isn't enabled by default since it can cause long delays on slower
-   machines, and is not much use on machines with low memory (< 64K).
+   machines, and is not much use on machines with low memory (&lt; 64K).
 
 -  New DDF action for flickering dynamic lights:
 
@@ -84,7 +89,7 @@ New features:
 
 -  New command for radius triggers:
 
-      UNBLOCK_LINES  <tag>
+      UNBLOCK_LINES  [tag]
    
    All lines on the map with the same tag will be unblocked, allowing
    players and monsters to pass.  Only affects two-sided lines.
@@ -114,4 +119,10 @@ New features:
    be used to specify whether the level requires BOOM compatibility
    enabled or disabled.  This special overrides the user's preference
    in the Gameplay Option menu.
+</PRE>
+<p>
 
+</block>
+
+<!--- template --->
+<file include="logs_page.tpl">

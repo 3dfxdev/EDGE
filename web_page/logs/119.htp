@@ -6,12 +6,10 @@
 
 <h2 class="page_title">ChangeLog for EDGE 1.19</h2>
 
-<p>
 <PRE>
+(NOTE: Unreleased EDGE version)
 
-(Date: MARCH 8th 2000)
-
-(Unreleased EDGE version)
+Date: MARCH 8th 2000
 
 Bugs fixed:
 
@@ -36,7 +34,7 @@ Features removed:
  - LUMPEXISTS in lines.ddf and sectors.ddf.
  - LINK field in sounds.ddf.
  - COLOURMAP= and COLOURMAPLUMP= in lines.ddf and sectors.ddf.
-   (use USE_COLOURMAP=<colmap name> instead).
+   (use USE_COLOURMAP=[colmap-name] instead).
  
 Changes:
 
@@ -75,10 +73,10 @@ Changes:
    entries.  For now, the tag must coincide with the filename.  These
    are the supported tags:
 
-      <ANIMATIONS>   <ATTACKS>   <COLOURMAPS>  <GAMES>
-      <LANGUAGES>    <LEVELS>    <LINES>       <THINGS>
-      <PLAYLISTS>    <SECTORS>   <SOUNDS>      <SWITCHES>
-      <WEAPONS>
+      &lt;ANIMATIONS&gt;   &lt;ATTACKS&gt;   &lt;COLOURMAPS&gt;  &lt;GAMES&gt;
+      &lt;LANGUAGES&gt;    &lt;LEVELS&gt;    &lt;LINES&gt;       &lt;THINGS&gt;
+      &lt;PLAYLISTS&gt;    &lt;SECTORS&gt;   &lt;SOUNDS&gt;      &lt;SWITCHES&gt;
+      &lt;WEAPONS&gt;
 
  - New benefit/backpack system.  See the DDF docs for the full
    details, but in summary: the old fields (BENEFIT_TYPE,
@@ -94,14 +92,14 @@ Changes:
  
  - The format of the GIVEARMOUR RTS primitive has changed, it is now:
 
-       GIVEARMOUR  <type>  <amount>
+       GIVEARMOUR  [type]  [amount]
    or
-       GIVEARMOUR  <type>  <amount>  <limit>
+       GIVEARMOUR  [type]  [amount]  [limit]
  
-   The <type> is one of GREEN, BLUE, YELLOW or RED.  The limit is now
+   The [type] is one of GREEN, BLUE, YELLOW or RED.  The limit is now
    optional, it defaults to 200 when absent.
    
- - For the HEALPLAYERS RTS primitive, like above the <limit> is
+ - For the HEALPLAYERS RTS primitive, like above the [limit] is
    optional and defaults to 200 health points.  BTW, let me know if
    100 would be a better default limit.
  
@@ -110,10 +108,10 @@ Changes:
    height.  The new way adds the value to the ceiling height, it is
    now consistent with floors.
  
- - The initial ammo & ammo-limits for players is not longer fixed, the
+ - The initial ammo and ammo-limits for players is not longer fixed, the
    new method works just like the PICKUP_BENEFIT field, like this:
 
-       INITIAL_BENEFIT = <benefit> , <benefit> , ... ;
+       INITIAL_BENEFIT = [benefit] , [benefit] , ... ;
  
    You can give ammo and set ammo limits this way (used in things.ddf
    for the player things), but it is not limited to just ammo stuff
@@ -148,30 +146,30 @@ Changes:
  - The following DDF fields have been renamed:
 
    anims.ddf:
-     TICS -> SPEED
-     ISTEXTURE=0 -> TYPE=FLAT
-     ISTEXTURE=1 -> TYPE=TEXTURE
+     TICS -&gt; SPEED
+     ISTEXTURE=0 -&gt; TYPE=FLAT
+     ISTEXTURE=1 -&gt; TYPE=TEXTURE
 
    switches.ddf:
-     SWITCHON -> ON_TEXTURE
-     SWITCHOFF -> OFF_TEXTURE
-     SWITCHSOUND -> SOUND
+     SWITCHON -&gt; ON_TEXTURE
+     SWITCHOFF -&gt; OFF_TEXTURE
+     SWITCHSOUND -&gt; SOUND
 
    games.ddf:
-     BACKGROUND -> INTERMISSION_GRAPHIC
-     BACKGROUND_CAMERA -> INTERMISSION_CAMERA
-     MUSIC -> INTERMISSION_MUSIC
-     SPLAT -> SPLAT_GRAPHIC
-     YAH# -> YAH#_GRAPHIC
-     TITLE_PIC -> TITLE_GRAPHIC
-     GRAPHIC_NAME -> NAME_GRAPHIC
+     BACKGROUND -&gt; INTERMISSION_GRAPHIC
+     BACKGROUND_CAMERA -&gt; INTERMISSION_CAMERA
+     MUSIC -&gt; INTERMISSION_MUSIC
+     SPLAT -&gt; SPLAT_GRAPHIC
+     YAH# -&gt; YAH#_GRAPHIC
+     TITLE_PIC -&gt; TITLE_GRAPHIC
+     GRAPHIC_NAME -&gt; NAME_GRAPHIC
 
    levels.ddf:
-     GRAPHIC_NAME -> NAME_GRAPHIC
-     ENDPIC -> END.GRAPHIC
-     PREPIC -> PRE.GRAPHIC
-     ENDPICWAIT -> END.GRAPHIC_WAIT
-     PREPICWAIT -> PRE.GRAPHIC_WAIT
+     GRAPHIC_NAME -&gt; NAME_GRAPHIC
+     ENDPIC -&gt; END.GRAPHIC
+     PREPIC -&gt; PRE.GRAPHIC
+     ENDPICWAIT -&gt; END.GRAPHIC_WAIT
+     PREPICWAIT -&gt; PRE.GRAPHIC_WAIT
 
   - Default RTS scripts are now in the `edge.scr' file in the same
     directory as the DDF files.  (i.e. no longer in edge.wad).
