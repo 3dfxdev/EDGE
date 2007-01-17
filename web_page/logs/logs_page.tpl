@@ -3,6 +3,7 @@
 <block styles>
   <style type="text/css" title="currentStyle">
       @import "../css/main.css";
+      @import "../css/logs.css";
   </style>
 </block>
 
