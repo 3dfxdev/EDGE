@@ -5,16 +5,17 @@
 all: out
 	cp css/*.* out/css
 	cp images/*.* out/images
+	cp thumbs/*.* out/thumbs
 	cd main  && htp -quiet @main_build.rsp
+	cd logs  && htp -quiet @logs_build.rsp
 	cd shots && htp -quiet @shots_build.rsp
 	cd ddf   && htp -quiet @ddf_build.rsp
-	echo // cd rts   AND  htp -quiet @rts_build.rsp
-	echo // cp shots/*.jpg shots/*.png out/shots
-	echo // cp main/README.txt out
+	cd rts   && htp -quiet @rts_build.rsp
 
 clean:
 	rm -f out/*.htm out/*.txt
 	rm -f out/shots/*.*
+	rm -f out/logs/*.*
 	rm -f out/ddf_online/*.htm
 	rm -f out/rts_online/*.htm
 	rm -f out/css/*.css
@@ -24,7 +25,9 @@ out:
 	mkdir $@
 	mkdir $@/css
 	mkdir $@/images
+	mkdir $@/thumbs
 	mkdir $@/shots
+	mkdir $@/logs
 	mkdir $@/rts_online
 	mkdir $@/ddf_online
 
