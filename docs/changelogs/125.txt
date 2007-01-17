@@ -215,7 +215,7 @@ New Features:
    the jump key works differently.  For swimming mode to work well,
    the sectortype should a low GRAVITY value (e.g. 0), and have
    FRICTION and DRAG values the same and around 0.9 or so.  Viscosity
-   is an optional extra :->.
+   is an optional extra :-).
 
 -  Support for breathing under water.  The sector SPECIAL "AIRLESS"
    denotes the sector as not containing air, and while player is in
@@ -264,7 +264,7 @@ New Features:
    the trigger will not run unless the condition is satisfied.  Used
    like this:
 
-      ONCONDITION  <condition>
+      ONCONDITION  [condition]
 
    Where condition is something that the player is holding or is
    doing.  It is one of these:

@@ -25,9 +25,9 @@ Features removed:
 Changes:
 
  - beginnings of a new bot system.  Bots are considered to be
-   "simulated players".  Activating N bots is done with:
+   "simulated players".  Activating 4 bots is done like this:
 
-     edge -players <N+1> -bots <N>
+     edge -players 5 -bots 4
 
    The AI is being worked on (currently they are very dumb).
 
