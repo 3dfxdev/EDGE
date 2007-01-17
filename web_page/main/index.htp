@@ -6,6 +6,15 @@
 
   <h2 class="page_title"> Latest News </h2>
 
+  <use BeginNews title="Screenshots" date="25-Nov-2006">
+
+  Some screenshots of EDGE have been added to the website.
+  Suggestions for more screenshots (or better ones) are
+  welcome, just drop me a note on the forum or via email.
+
+  <use EndNews>
+
+
   <use BeginNews title="Busy for a while" date="07-Nov-2006">
 
   A quick note to say that I'm pretty busy right now,
