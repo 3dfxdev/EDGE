@@ -1,6 +1,6 @@
 <file include="../common/common.inc">
 
-<set title="EDGE: Screenshots">
+<set title="EDGE: Screenshot Gallery">
 
 <block name="custom_styles">
 body { min-width: 768; }
@@ -8,7 +8,33 @@ body { min-width: 768; }
 
 <block name="content">
 
-  <h2 class="page_title"> Screenshots </h2>
+  <h2 class="page_title"> Screenshots: Mods for EDGE </h2>
+
+  <use thumb_row base="demos" title="Edge Demos">
+  <p>
+ 
+  <use thumb_row base="qdoom" title="QDoom TC">
+  <p>
+ 
+  <use thumb_row base="doom2.5" title="Doom 2.5">
+  <p>
+ 
+  <use thumb_row base="firstgen" title="FirstGen TC">
+  <p>
+ 
+  <use thumb_row base="CQB" title="CQB">
+  <p>
+ 
+  <use thumb_row base="lonemead" title="Lonely Meadows">
+  <p>
+ 
+  <use thumb_mega base="fataldis" title="Fatal Disaster">
+  <p>
+ 
+
+  <div> &nbsp; </div> <p>
+
+  <h2 class="page_title"> Screenshots: Classic Doomin' </h2>
 
   <use thumb_row base="doom1" title="Doom 1">
   <p>
@@ -16,22 +42,16 @@ body { min-width: 768; }
   <use thumb_row base="doom2" title="Doom 2">
   <p>
 
-  <use thumb_row base="demos" title="Edge Demos">
+  <use thumb_row base="gothic" title="GothicDM">
   <p>
  
   <use thumb_row base="batman" title="Batman TC">
   <p>
  
-  <use thumb_row base="eternal" title="Eternal Doom">
-  <p>
- 
   <use thumb_row base="osiris" title="Osiris TC">
   <p>
  
-  <use thumb_row base="gothic" title="GothicDM">
-  <p>
- 
-  <use thumb_row base="qdoom" title="QDoom TC">
+  <use thumb_row base="eternal" title="Eternal Doom">
   <p>
  
 </block>
