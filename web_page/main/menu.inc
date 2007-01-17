@@ -23,7 +23,7 @@
     <li><span class="notdone" hhref="tutorials.htm">Tutorials</span>
     <li><span class="notdone" hhref="ddf_online/index.htm">DDF Online</span>
     <li><a href="rts_online/start.htm">RTS Online</a>
-    <li><span class="notdone" hhref="changelogs.htm">Changelogs</span>
+    <li><a href="logs/128.htm">Changelogs</a>
     <li><a href="faq.htm">F.A.Q</a>
   </ul>
 </li>
