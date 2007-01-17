@@ -1,10 +1,15 @@
+<file include="../common/common.inc">
 
-CHANGELOG FOR 1.25-WIP (since 1.24)
-===================================
+<set title="EDGE: ChangeLogs">
 
-(EDGE 1.25 was the WIP "Work in Progress" release)
+<block name="content">
 
-(Date: FEBRUARY 19th 2001)
+<h2 class="page_title">ChangeLog for EDGE 1.25-WIP</h2>
+
+<PRE>
+(NOTE: EDGE 1.25 was the WIP "Work in Progress" release)
+
+Date: FEBRUARY 19th 2001
 
 Bugs fixed
 ----------
@@ -215,7 +220,7 @@ New Features:
    the jump key works differently.  For swimming mode to work well,
    the sectortype should a low GRAVITY value (e.g. 0), and have
    FRICTION and DRAG values the same and around 0.9 or so.  Viscosity
-   is an optional extra :->.
+   is an optional extra :-).
 
 -  Support for breathing under water.  The sector SPECIAL "AIRLESS"
    denotes the sector as not containing air, and while player is in
@@ -240,7 +245,7 @@ New Features:
    They are placed on the screen just like weapon sprites.
 
 -  The #CLEARALL directive can be used in DDF files.  It must occur
-   after the <XXXX> file tag and before the first entry.  It will
+   after the &lt;XXXX&gt; file tag and before the first entry.  It will
    clear out all previous entries for that file type (e.g. THINGS).
 
    Mainly useful for TCs, and then mainly with the GAMES.DDF and
@@ -264,7 +269,7 @@ New Features:
    the trigger will not run unless the condition is satisfied.  Used
    like this:
 
-      ONCONDITION  <condition>
+      ONCONDITION  [condition]
 
    Where condition is something that the player is holding or is
    doing.  It is one of these:
@@ -336,4 +341,10 @@ New Features:
     
    Dynamic lighting can be enabled or disabled through the Video
    Options menu, or by running EDGE with the -dlights option.
+</PRE>
+<p>
 
+</block>
+
+<!--- template --->
+<file include="logs_page.tpl">

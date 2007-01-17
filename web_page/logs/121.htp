@@ -1,10 +1,15 @@
+<file include="../common/common.inc">
 
-CHANGELOG FOR 1.21 (since 1.20)
-===============================
+<set title="EDGE: ChangeLogs">
 
-(Date: MARCH 28th 2000)
+<block name="content">
 
-(Unreleased EDGE version)
+<h2 class="page_title">ChangeLog for EDGE 1.21</h2>
+
+<PRE>
+(NOTE: Unreleased EDGE version)
+
+Date: MARCH 28th 2000
 
 Bugs fixed:
 
@@ -95,3 +100,11 @@ New features:
    GRAVITY and FRICTION fields that were already available: transfers
    the new viscosity into the tagged sector.
  
+
+</PRE>
+<p>
+
+</block>
+
+<!--- template --->
+<file include="logs_page.tpl">

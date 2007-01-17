@@ -1,8 +1,15 @@
+<file include="../common/common.inc">
 
-CHANGELOG FOR 1.23 (since 1.22)
-===============================
+<set title="EDGE: ChangeLogs">
 
-(Date: APRIL 28th 2000)
+<block name="content">
+
+<h2 class="page_title">ChangeLog for EDGE 1.23</h2>
+
+<PRE>
+(NOTE: Unreleased EDGE version)
+
+Date: APRIL 28th 2000
 
 Bugs fixed:
 
@@ -29,20 +36,20 @@ New features:
  - scrolling flats.  The following entries in sectors.ddf do the
    trick:
 
-     FLOOR.SCROLL_ANGLE=<num>;    // 0 is east, 90 is north, etc..
-     FLOOR.SCROLL_SPEED=<num>;    // 32 is one pixel per tic
+     FLOOR.SCROLL_ANGLE=[num];    // 0 is east, 90 is north, etc..
+     FLOOR.SCROLL_SPEED=[num];    // 32 is one pixel per tic
 
-     CEILING.SCROLL_ANGLE=<num>;
-     CEILING.SCROLL_SPEED=<num>;
+     CEILING.SCROLL_ANGLE=[num];
+     CEILING.SCROLL_SPEED=[num];
 
    Note that they also work for extrafloors (when used in the dummy
    sector).
 
  - pushing sectors.  Looks like this in sectors.ddf:
 
-     PUSH_ANGLE=<num>;    // 0 is east, 90 is north, etc..
-     PUSH_SPEED=<num>;    // 0 is none, 50 is quite fast
-     PUSH_ZSPEED=<num>;   // 0 is normal, > 0 is upwards
+     PUSH_ANGLE=[num];    // 0 is east, 90 is north, etc..
+     PUSH_SPEED=[num];    // 0 is none, 50 is quite fast
+     PUSH_ZSPEED=[num];   // 0 is normal, positive is upwards
 
    only objects inside the sector are affected.  The following sector
    specials come into play (the last two are new) :
@@ -71,4 +78,10 @@ New features:
    singularity (or same priority, if all the channels are full), this
    sound should keep playing and the new sound is ignored.  Not
    terribly useful, but provided for completeness.
+</PRE>
+<p>
 
+</block>
+
+<!--- template --->
+<file include="logs_page.tpl">

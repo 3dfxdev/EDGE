@@ -1,8 +1,13 @@
+<file include="../common/common.inc">
 
-CHANGELOG FOR 1.24 (since 1.23)
-===============================
+<set title="EDGE: ChangeLogs">
 
-(Date: JUNE 2000)
+<block name="content">
+
+<h2 class="page_title">ChangeLog for EDGE 1.24</h2>
+
+<PRE>
+Date: JUNE 2000
 
 Bugs fixed:
 
@@ -25,9 +30,9 @@ Features removed:
 Changes:
 
  - beginnings of a new bot system.  Bots are considered to be
-   "simulated players".  Activating N bots is done with:
+   "simulated players".  Activating 4 bots is done like this:
 
-     edge -players <N+1> -bots <N>
+     edge -players 5 -bots 4
 
    The AI is being worked on (currently they are very dumb).
 
@@ -61,3 +66,11 @@ New features:
       EXTRAFLOOR_TYPE = THICK, LIQUID, ...;
       EXTRAFLOOR_TRANSLUCENCY = 0.5;  // or whatever
 
+
+</PRE>
+<p>
+
+</block>
+
+<!--- template --->
+<file include="logs_page.tpl">
