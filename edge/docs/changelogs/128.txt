@@ -2,21 +2,7 @@
 CHANGELOG FOR 1.28 (since 1.27)
 ===============================
 
-(Date: JUNE 12th 2004)
-
-Bugs fixed in 1.28A
--------------------
-
-+ Windows 95 support.
-+ fix the crouching bug.
-
-- look for patch lumps first in between P_START/P_END.
-- handle ALT+TAB better under Windows.
-- handle non-power-of-two textures in GL mode.
-- allow brain-shooter without any shoot spots (Darren Salt).
-- allow compiling without DEVELOPERS define (Darren Salt).
-- fix for some memory trashing problems (Darren Salt).
-- added 12 STEALTH monsters (types 4050 to 4061) into THINGS.DDF.
+(Date: MAY 24th 2004)
 
 Bugs fixed
 ----------
