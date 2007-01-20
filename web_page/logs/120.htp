@@ -6,12 +6,14 @@
 
 <h2 class="page_title">ChangeLog for EDGE 1.20</h2>
 
-<PRE>
 Type: Internal version, never released.
+<p>
 
 Date: MARCH 21st 2000
+<p>
 
-Bugs fixed:
+<PRE class="bugs">
+<u>Bugs fixed:</u>
 
  - the RTS parse problem with tics (e.g. 1T) should be fixed.
  - the RTS SLEEP primitive was broken but is fixed now.
@@ -30,8 +32,10 @@ Bugs fixed:
  - fixed y offsets for mid-masked textures in TrueBSP mode.
  - textures no longer slosh about horizontally in TrueBSP mode.
  - bug in OpenGL renderer not drawing certain uppers/lowers fixed.
+</PRE>
 
-Changes:
+<PRE class="changes">
+<u>Changes:</u>
 
  - the b.c. MAPNUMBER= field of things.ddf and TRIGGER= field of
    lines.ddf and sectors.ddf have been removed.
@@ -55,8 +59,10 @@ Changes:
    nailed down: the X offset comes from the "real" line and the Y
    offset comes from the "dummy" line.  The y offset on the real line
    and the x offset on the dummy line are ignored.
- 
-New Features:
+</PRE>
+
+<PRE class="features">
+<u>New Features:</u>
 
  - when you teleport, your MLOOK angle is set to the MLOOK angle of
    the teleport thing (mapnumber 14).  Just for kicks.
@@ -77,8 +83,8 @@ New Features:
    weapon as having zoom capability.  The value is the "Field Of View"
    angle, e.g. 10 is the same as normal zooming.  The range is from 5
    to 90, smaller angles give greater magnification.
-
 </PRE>
+
 <p>
 
 </block>

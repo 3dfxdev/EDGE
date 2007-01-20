@@ -6,12 +6,14 @@
 
 <h2 class="page_title">ChangeLog for EDGE 1.24</h2>
 
-<PRE>
 Type: Full release
+<p>
 
 Date: JUNE 2000
+<p>
 
-Bugs fixed:
+<PRE class="bugs">
+<u>Bugs fixed:</u>
 
  - many math bugs (like div-by-zero) fixed.
  - fixed a sound bug: Priority should now work better.
@@ -24,12 +26,16 @@ Bugs fixed:
  - the shotgun's shot now looks more like a horizontal line.
  - aspect and zooming now work in the GL renderer.
  - the GL screen can now be shrunk down.
+</PRE>
  
-Features removed:
+<PRE class="changes">
+<u>Features removed:</u>
 
  - the RTS primitive EXTEND_MAP.
+</PRE>
 
-Changes:
+<PRE class="changes">
+<u>Changes:</u>
 
  - beginnings of a new bot system.  Bots are considered to be
    "simulated players".  Activating 4 bots is done like this:
@@ -51,8 +57,10 @@ Changes:
    releases should move or delete the old DDF files.
  
  - the cursor in the option menus is now light blue.
+</PRE>
 
-New features:
+<PRE class="features">
+<u>New features:</u>
 
  - REFIRE_INACCURATE command in weapons.ddf, when set to TRUE then
    this weapon will lose accuracy while the trigger is held down.
@@ -62,13 +70,9 @@ New features:
 
       EXTRAFLOOR_TYPE = THICK, SEE_THROUGH, ...;
       EXTRAFLOOR_TRANSLUCENCY = 0.5;  // or whatever
-
    Or:
-
       EXTRAFLOOR_TYPE = THICK, LIQUID, ...;
       EXTRAFLOOR_TRANSLUCENCY = 0.5;  // or whatever
-
-
 </PRE>
 <p>
 

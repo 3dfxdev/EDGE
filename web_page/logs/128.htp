@@ -6,13 +6,14 @@
 
 <h2 class="page_title">ChangeLog for EDGE 1.28</h2>
 
-<PRE>
 Type: Full release
+<p>
 
-Dates: NAY 24th 2004
+Date: NAY 24th 2004
+<p>
 
-Bugs fixed
-----------
+<PRE class="bugs">
+<u>Bugs fixed:</u>
 
 + serious crash bug loading textures from PWads fixed.
 + savegame problem which could cause crashes fixed.
@@ -55,18 +56,21 @@ Bugs fixed
 - bugs when changing screensize with +/- and in the menu fixed.
 - night vision in GL mode was not lighting things up.
 - fix for console which was drawn behind the menus.
+</PRE>
 
-Features removed:
------------------
+
+<PRE class="changes">
+<u>Features removed:</u>
 
 * MP3 music support, due to MP3 licensing which is incompatible with
   open source software.
 
 - stretchsky option and related code.
+</PRE>
 
 
-General improvements
---------------------
+<PRE class="features">
+<u>General improvements</u>
 
 + new directories for config file and savegames.  If your machine support
   multiple users (newer versions of Windows, and Linux), then the config
@@ -104,10 +108,11 @@ General improvements
 - Pixelfade wipe has been implemented for OpenGL mode.
 - text strings look better in modes smaller than 640x400.
 - friendly monsters now work a bit better.
+</PRE>
 
 
-New features:
--------------
+<PRE class="features">
+<u>New features:</u>
 
 + very basic overlay HUD.  (Better one will be made when HUD.DDF is
   implemented).
@@ -154,10 +159,11 @@ New features:
 - the RTS command GOTOMAP now supports a "SKIP_ALL" keyword, placed after
   the map name, and causes the intermission stats and any pre/post text
   screens to be skipped.
+</PRE>
 
 
-New console variables:
-----------------------
+<PRE class="features">
+<u>New console variables:</u>
 
   LIGHTING       \   Allow debugging OpenGL driver bugs. Each takes
   COLORMATERIAL   |  a boolean value (TRUE or FALSE).  Some combinations
@@ -165,10 +171,11 @@ New console variables:
 
   DUMBSKY            Use a simpler method for OpenGL sky drawing.
                      (A few drivers have problems, e.g. Voodoo 3).
+</PRE>
 
 
-New command-line options:
--------------------------
+<PRE class="features">
+<u>New command-line options:</u>
 
   -nolog             Disables creation of EDGE.LOG file.
 

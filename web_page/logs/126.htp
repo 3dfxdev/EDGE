@@ -6,13 +6,14 @@
 
 <h2 class="page_title">ChangeLog for EDGE 1.26</h2>
 
-<PRE>
 Type: Full release
+<p>
 
 Date: AUGUST 17th 2001
+<p>
 
-Bug fixes:
-----------
+<PRE class="bugs">
+<u>Bugs fixed:</u>
 
 -  improved keyboard/mouse handling under Win32.
 -  a few issues with the Win32 console not updating correctly.
@@ -48,25 +49,20 @@ Bug fixes:
 -  a problem when quickly mlooking up/down fixed.
 -  the sound/music sliders in the main option menu now work properly.
 -  single frames of a sprite can now exist in a PWAD.
+</PRE>
 
 
-Features removed:
------------------
+<PRE class="changes">
+<u>Features removed:</u>
 
 -  the "MISSILE" tag for the ACTIVATORS line in lines.ddf.  The rule
    now is that missiles can activate _any_ TYPE=SHOOT linedef (but
    only missiles from players can trigger player-only lines, etc).
+</PRE>
 
 
-Changes to existing features
-----------------------------
-
--  the TAGGED_REPEATABLE command for RTS now accepts no parameters,
-   which means infinite repeats and zero delay.
-
-
-New features:
--------------
+<PRE class="features">
+<u>New features:</u>
 
 -  complete support for GL rendering.
 
@@ -142,10 +138,11 @@ New features:
    for sprites where 8 rots aren't enough.  The old flipping thing
    will work with these too, e.g. TROOA9AG, TROOAAAF, TROOABAE,
    TROOACAD.
+</PRE>
 
 
-New DDF features:
------------------
+<PRE class="features">
+<u>New DDF features:</u>
 
 -  new STATS command for LEVELS.DDF, determines the type of stats
    shown in the intermission.  Possible values are "DOOM" (normal) and
@@ -287,10 +284,11 @@ New DDF features:
    distance.  Objects that are not affected by friction or gravity
    will keep moving in the direction until they hit something solid or
    perform another movement action (e.g. STOP).
+</PRE>
 
 
-New RTS features:
------------------
+<PRE class="features">
+<u>New RTS features:</u>
 
 -  improved RTS tip system, with the following new commands:
 
@@ -370,25 +368,8 @@ New RTS features:
 -  new CHANGE_MUSIC command for RTS.  It takes a single parameter: a
    number which references an entry in PLAYLIST.DDF.
 
-
-Work-in-Progress features:
---------------------------
-
-(These are currently DISABLED)
-
--  TILESKY: new multi-layered scrolling 3D skies.
-
--  HALO stuff (aka coronas).
-
--  Elevators.  These move the floor and ceiling in perfect unison.
-   The DDF for Elevators is very much in the same way as floors, with
-   the following new commands:
-
-      ELEVATOR.TYPE 
-      ELEVATOR.SPEED_UP    ELEVATOR.SPEED_DOWN
-      ELEVATOR.PAUSE_TIME  ELEVATOR.WAIT_TIME
-      ELEVATOR.SFX_START   ELEVATOR.SFX_STOP
-      ELEVATOR.SFX_UP      ELEVATOR.SFX_DOWN
+-  the TAGGED_REPEATABLE command for RTS now accepts no parameters,
+   which means infinite repeats and zero delay.
 </PRE>
 <p>
 

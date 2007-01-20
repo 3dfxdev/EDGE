@@ -6,12 +6,14 @@
 
 <h2 class="page_title">ChangeLog for EDGE 1.19</h2>
 
-<PRE>
 Type: Internal version, never released.
+<p>
 
 Date: MARCH 8th 2000
+<p>
 
-Bugs fixed:
+<PRE class="bugs">
+<u>Bugs fixed:</u>
 
  - Problem with ammo icons in the status bar.
  - Problems with weapons (especially second attacks) fixed.
@@ -27,16 +29,20 @@ Bugs fixed:
  - Fixed the white-text-showing-up-as-red problem.
  - NoClip cheat no longer sinks down when running up stairs.
  - Plasma balls (etc) no longer hit monsters strangely above them.
- 
-Features removed:
+</PRE>
+
+<PRE class="changes">
+<u>Features removed:</u>
 
  - NO_BRIGHT special in colmap.ddf.
  - LUMPEXISTS in lines.ddf and sectors.ddf.
  - LINK field in sounds.ddf.
  - COLOURMAP= and COLOURMAPLUMP= in lines.ddf and sectors.ddf.
    (use USE_COLOURMAP=[colmap-name] instead).
- 
-Changes:
+</PRE>
+
+<PRE class="changes">
+<u>Changes:</u>
 
  - All weapon code pointers lost their "WEAPON_" prefix.
  - WEAPON_SPAWN() code pointer has become EJECT().
@@ -173,8 +179,10 @@ Changes:
 
   - Default RTS scripts are now in the `edge.scr' file in the same
     directory as the DDF files.  (i.e. no longer in edge.wad).
+</PRE>
 
-New features:
+<PRE class="features">
+<u>New features:</u>
 
  - Able to accelerate the text stage of the final final.
  
@@ -185,9 +193,8 @@ New features:
 
  - SPIT_SPOT= field for things.ddf, which defines the thing type where
    the SHOOT_TO_SPOT attack shoots to (for the MAP30 brain shooter).
-
-
 </PRE>
+
 <p>
 
 </block>

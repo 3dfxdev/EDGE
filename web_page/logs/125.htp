@@ -6,13 +6,14 @@
 
 <h2 class="page_title">ChangeLog for EDGE 1.25-WIP</h2>
 
-<PRE>
 Type: WIP "Work in Progress" release
+<p>
 
 Date: FEBRUARY 19th 2001
+<p>
 
-Bugs fixed
-----------
+<PRE class="bugs">
+<u>Bugs fixed:</u>
 
 -  fixed the extreme bobbing that was in the WIP-1.
 -  bouncing objects in WIP-1 didn't enter bounce states -- fixed.
@@ -32,10 +33,11 @@ Bugs fixed
 -  fixed monsters seeing you through thick extrafloors.
 -  bug causing the wrong switches to light up sometimes fixed.
 -  problems with some intermission screens (e.g. bunny) fixed.
+</PRE>
 
 
-Features removed:
------------------
+<PRE class="changes">
+<u>Features removed:</u>
 
 -  the NOAMMO attack special from DDF is gone.  It's only useful
    purpose was for ejecting shells, but the EJECT() code pointer
@@ -47,10 +49,11 @@ Features removed:
    anything.
 
 -  the colmap.ddf "NOSKY" special and "PRIORITY" command.
+</PRE>
 
 
-Changes to existing features
-----------------------------
+<PRE class="changes">
+<u>Changes to existing features</u>
 
 -  RANDOMJUMP action has been removed.  The new JUMP() code pointer
    should be used instead, like this:
@@ -150,9 +153,10 @@ Changes to existing features
 -  the GIB command in DDF has been removed, in favour of using
    STATES(GIB).
 
+</PRE>
 
-New Features:
--------------
+<PRE class="features">
+<u>New Features:</u>
 
 -  Ladders.  They are linedef based, if you are sitting on a ladder
    linedef (two-sided line) and the heights match, then pressing

@@ -1,5 +1,33 @@
 
 body { min-width: 880px; }
 
-PRE { font-size: smaller; }
+PRE.bugs {
+  background-color: #cef;
+  color: black;
+  padding: 10px;
+  border: 1px solid black;
+  font-size: smaller;
+  }
+
+PRE.changes {
+  background-color: #fcc;
+  color: black;
+  padding: 10px;
+  border: 1px solid black;
+  font-size: smaller;
+  }
+
+PRE.features {
+  background-color: #cfc;
+  color: black;
+  padding: 10px;
+  border: 1px solid black;
+  font-size: smaller;
+  }
+
+PRE U {
+  text-decoration: none;
+  font-weight: bold;
+  font-size: larger;
+  }
 
