@@ -10,8 +10,8 @@
        width="160" height="120" alt="Screenshot">
  
   The EDGE project is a programming project to develop a
-  DOOM<SUP>tm</SUP> style engine aimed at Total Conversion developer,
-  but still able to play the original DOOM games.
+  DOOM<SUP>tm</SUP> style engine aimed at the Total Conversion
+  developer, but still able to play the original DOOM games.
   This project started with the DOOM source released by
   id software.
 
@@ -19,6 +19,15 @@
   </p>
 
   <h2 class="page_title"> Latest News </h2>
+
+  <use BeginNews title="Back from China" date="18-Jan-2007">
+
+  I'm back from China and keen to get stuck into some EDGE
+  stuff. For starters, I have converted the ChangeLog files
+  into HTML and uploaded them to the new EDGE website.
+  
+  <use EndNews>
+
 
   <use BeginNews title="Screenshots" date="25-Nov-2006">
 
