@@ -6,12 +6,14 @@
 
 <h2 class="page_title">ChangeLog for EDGE 1.22</h2>
 
-<PRE>
-Type: Internal version, never released.
+Type: Internal bug-fix, never released.
+<p>
 
 Date: APRIL 3rd 2000
+<p>
 
-Bugs fixed:
+<PRE class="bugs">
+<u>Bugs fixed:</u>
 
  - the sprites disappearing on MAP26/MAP28/etc bug fixed.
  - problem with mid-masked textures in QDOOM MAP01 fixed.
@@ -20,17 +22,8 @@ Bugs fixed:
  - shooting missiles right into a wall: you now thrust in right dir.
  - sprites in QDOOM should be visible in GL renderer now.
  - most transparent doors should work properly now in TrueBSP &amp; GL.
- 
-Changes:
-
- none.
-
-New features:
-
- none.
-
-
 </PRE>
+
 <p>
 
 </block>

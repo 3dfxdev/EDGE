@@ -6,14 +6,14 @@
 
 <h2 class="page_title">ChangeLog for EDGE 1.29</h2>
 
-<PRE>
 Type: Still under development, not yet released 
+<p>
 
 Date: JANUARY 2007
+<p>
 
-
-Bugs fixed
-----------
+<PRE class="bugs">
+<u>Bugs fixed:</u>
 
 + crash loading a savegame with dynamic lights when D/L disabled.
 + fixed crash when starting a level in deathmatch mode.
@@ -46,24 +46,11 @@ Bugs fixed
 - '+' syntax for KEYS in DDF was finally fixed.
 - the CAPSLOCK and NUMLOCK keys work a bit better.
 - spawning of voodoo dolls (Darren Salt).
+</PRE>
 
 
-Old Fixes (from EDGE 1.28A)
----------------------------
-
-+ Windows 95 support.
-+ fix the crouching bug.
-
-- look for patch lumps first in between P_START/P_END.
-- handle ALT+TAB better under Windows.
-- handle non-power-of-two textures in GL mode.
-- allow brain-shooter without any shoot spots (Darren Salt).
-- allow compiling without DEVELOPERS define (Darren Salt).
-- fix for some memory trashing problems (Darren Salt).
-
-
-Features removed / changed
---------------------------
+<PRE class="changes">
+<u>Features removed / changed</u>
 
 + software rendering has been removed.  We don't have the time to
   maintain the software renderer anymore, and keeping two renderers
@@ -80,10 +67,11 @@ Features removed / changed
   console itself).
 
 - the "CONSTANT" dynamic lighting type (in DDF) was removed.
+</PRE>
 
 
-General improvements
---------------------
+<PRE class="features">
+<u>General improvements</u>
 
 + drag and drop support.  You no longer have to use the -file option
   to specify filenames (wad files etc).  Everything before the first
@@ -162,10 +150,11 @@ General improvements
 - number of RTS tip slots has increased to 45.
 - RTS tip messages are shown on the console.
 - fixes for 64-bit architectures (Darren Salt).
+</PRE>
 
 
-New DDF features:
------------------
+<PRE class="features">
+<u>New DDF features:</u>
 
 + can load DDF files (with ".ddf" or ".ldf" extension) directly from the
   command line.  Drag and dropping them should also work.
@@ -293,10 +282,11 @@ New DDF features:
   means Hurt-Me-Plenty on any netmode).  Finally, you can add the '!'
   character to the beginning to negate it, e.g. "!SP" means never in
   single-player, and "!4:5" means never in skills 4 or 5.
+</PRE>
 
 
-New RTS features:
------------------
+<PRE class="features">
+<u>New RTS features:</u>
 
 + new RTS menu system:
 
@@ -331,10 +321,11 @@ New RTS features:
          "choice three"
 
   Note: there must not be any spaces after the \ character.
+</PRE>
 
 
-New weapon stuff
-----------------
+<PRE class="features">
+<u>New weapon stuff</u>
 
 + weapon handling has been generally improved (especially the way clips
   work).  Anything using the CLIPSIZE command is considered a "clip weapon",
@@ -408,10 +399,11 @@ New weapon stuff
   a half-empty clip (i.e. neither empty nor full), then the clip is
   discarded and the DISCARD states are entered.  These states must
   end with the CHECKRELOAD action to cause the weapon to reload.
+</PRE>
 
 
-New command-line options | console variables
---------------------------------------------
+<PRE class="features">
+<u>New command-line options | console variables</u>
 
   -deh  [file]         Specify a DeHackEd (or BEX) patch file.  You can
                        have multiple patch files after the -deh option.
@@ -445,8 +437,6 @@ New command-line options | console variables
                               the CPU.  When enabled, gameplay may
                               be smoother, but disabling it gives
                               more time for other programs to run.
-
-
 </PRE>
 <p>
 

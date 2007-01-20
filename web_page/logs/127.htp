@@ -6,13 +6,14 @@
 
 <h2 class="page_title">ChangeLog for EDGE 1.27</h2>
 
-<PRE>
 Type: Full release
+<p>
 
 Date: NOVEMBER 11th 2001
+<p>
 
-Bug fixes:
-----------
+<PRE class="bugs">
+<u>Bugs fixed:</u>
 
 -  savegames enabled under DOS !
 -  glitches with shrunk-down view in software mode fixed.
@@ -32,22 +33,10 @@ Bug fixes:
 -  fixed another MP3 bug, not playing files with ID3 tags.
 -  thin sliding doors were broken in GLEDGE -- fixed.
 -  closed sliding doors now block sight &amp; sound properly.
+</PRE>
 
-
-Features removed:
------------------
-
-none.
-
-
-Changes to existing features
-----------------------------
-
-none.
-
-
-New features:
--------------
+<PRE class="features">
+<u>New features:</u>
 
 -  Wipes and crosshairs now work in GLEDGE.
 

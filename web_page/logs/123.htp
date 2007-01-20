@@ -6,12 +6,14 @@
 
 <h2 class="page_title">ChangeLog for EDGE 1.23</h2>
 
-<PRE>
 Type: Internal version, never released.
+<p>
 
 Date: APRIL 28th 2000
+<p>
 
-Bugs fixed:
+<PRE class="bugs">
+<u>Bugs fixed:</u>
 
  - problem with finding IWADs under Win32 fixed.
  - the -lang option now works again.
@@ -20,12 +22,16 @@ Bugs fixed:
  - projectile attacks no longer crash if there's no target.
  - fixed bugs with the RSCRIPT lump (loaded too early, etc).
  - TrueBSP and GL now ignore missing textures on one-sided walls.
+</PRE>
  
-Changes:
+<PRE class="changes">
+<u>Changes:</u>
 
  - the VFI span and column drawers were improved.
+</PRE>
 
-New features:
+<PRE class="features">
+<u>New features:</u>
 
  - new option in the standard control menu: `Toggle Autorun',
    defaulting to the capslock key.
