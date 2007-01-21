@@ -9,7 +9,7 @@
 Type: Full release
 <p>
 
-Date: NAY 24th 2004
+Date: MAY 24th 2004
 <p>
 
 <PRE class="bugs">
@@ -171,10 +171,7 @@ Date: NAY 24th 2004
 
   DUMBSKY            Use a simpler method for OpenGL sky drawing.
                      (A few drivers have problems, e.g. Voodoo 3).
-</PRE>
 
-
-<PRE class="features">
 <u>New command-line options:</u>
 
   -nolog             Disables creation of EDGE.LOG file.
