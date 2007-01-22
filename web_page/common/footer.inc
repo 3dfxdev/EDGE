@@ -4,7 +4,7 @@
 
   <table width="100%" height="100%">
   <tr class="ft_row">
-    <td align="left">&nbsp; &copy; 2006 The EDGE Team.</td>
+    <td align="left">&nbsp; &copy; 2007 The EDGE Team.</td>
 	<td align="right">Hosted by&nbsp;
 
       <a HREF="http://sourceforge.net">
