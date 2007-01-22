@@ -33,7 +33,7 @@
     <li><a href="http://sourceforge.net/projects/edge">Summary</a>
     <li><a href="http://sourceforge.net/forum/?group_id=2232">Forums</a>
     <li><a href="http://sourceforge.net/tracker/?group_id=2232&amp;atid=102232">Bugs</a>
-    <li><a href="http://sourceforge.net/tracker/?group_id=2232&amp;atid=352232">Features</a>
+    <li><a href="http://sourceforge.net/tracker/?group_id=2232&amp;atid=352232">Requests</a>
   </ul>
 
 <li><span class="notdone" hhref="projects.htm">Projects</span>
