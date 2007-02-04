@@ -1,6 +1,6 @@
 
-CHANGELOG FOR 1.29 (since 1.28)
-===============================
+CHANGELOG FOR 1.29 (since 1.28A)
+================================
 
 (Date: AUGUST 1st 2006)
 
@@ -39,20 +39,6 @@ Bugs fixed
 - '+' syntax for KEYS in DDF was finally fixed.
 - the CAPSLOCK and NUMLOCK keys work a bit better.
 - spawning of voodoo dolls (Darren Salt).
-
-
-Old Fixes (from EDGE 1.28A)
----------------------------
-
-+ Windows 95 support.
-+ fix the crouching bug.
-
-- look for patch lumps first in between P_START/P_END.
-- handle ALT+TAB better under Windows.
-- handle non-power-of-two textures in GL mode.
-- allow brain-shooter without any shoot spots (Darren Salt).
-- allow compiling without DEVELOPERS define (Darren Salt).
-- fix for some memory trashing problems (Darren Salt).
 
 
 Features removed / changed

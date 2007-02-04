@@ -364,22 +364,3 @@ New RTS features:
    number which references an entry in PLAYLIST.DDF.
 
 
-Work-in-Progress features:
---------------------------
-
-(These are currently DISABLED)
-
--  TILESKY: new multi-layered scrolling 3D skies.
-
--  HALO stuff (aka coronas).
-
--  Elevators.  These move the floor and ceiling in perfect unison.
-   The DDF for Elevators is very much in the same way as floors, with
-   the following new commands:
-
-      ELEVATOR.TYPE 
-      ELEVATOR.SPEED_UP    ELEVATOR.SPEED_DOWN
-      ELEVATOR.PAUSE_TIME  ELEVATOR.WAIT_TIME
-      ELEVATOR.SFX_START   ELEVATOR.SFX_STOP
-      ELEVATOR.SFX_UP      ELEVATOR.SFX_DOWN
-
