@@ -101,7 +101,7 @@ bool I_StartupMusic(void *sysinfo)
 	else
 #endif // USE_OGG
     {
-		I_Printf("I_StartupMusic: OGG Music Disabled (no sound)\n");
+		I_Printf("I_StartupMusic: OGG Music Disabled\n");
     }
 
 
@@ -124,7 +124,7 @@ bool I_StartupMusic(void *sysinfo)
 	else
 #endif  // USE_HUMID
     {
-		I_Printf("I_StartupMusic: Humidity Disabled (no sound)\n");
+		I_Printf("I_StartupMusic: Humidity Disabled\n");
     }
 
 	// Music is not paused by default
