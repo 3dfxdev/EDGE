@@ -39,8 +39,8 @@
 //  -  seq_out is the current packet number (always +1 from previous
 //     packet sent)
 //
-//  -  seq_rcv is the lowest numbered packet we haven't received yet
-//     (i.e. the packet number we expect to get next).
+//  -  seq_recv is the lowest numbered packet we haven't received yet
+//     (usually the packet number we expect to get next).
 // 
 typedef struct header_proto_s
 {
