@@ -60,6 +60,9 @@ Features removed / changed
 
 - the "CONSTANT" dynamic lighting type (in DDF) was removed.
 
+- replaced the [DOG] sprites and sounds in EDGE.WAD with a
+  colormapped demon, due to copyright/license concerns.
+
 
 General improvements
 --------------------
