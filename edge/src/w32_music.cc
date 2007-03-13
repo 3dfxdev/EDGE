@@ -24,7 +24,10 @@
 
 #include "i_sdlinc.h"
 
+#ifdef USE_OGG
 #include "oggplayer.h"
+#endif
+
 #include "s_sound.h"
 
 // #defines for handle information
@@ -50,7 +53,10 @@ static bool musicpaused;
 #define MUSICERRLEN 256
 static char errordesc[MUSICERRLEN];
 
+#ifdef USE_OGG
 oggplayer_c *oggplayer = NULL;
+#endif
+
 int res_fx_handle = 0;
 
 //
@@ -90,6 +96,7 @@ bool I_StartupMusic(void *sysinfo)
 		errordesc[0] = '\0';
 	}
 
+#ifdef USE_OGG
 	if (! nosound)
 	{
 		oggplayer = new oggplayer_c;
@@ -98,8 +105,9 @@ bool I_StartupMusic(void *sysinfo)
 		I_Printf("I_StartupMusic: OGG Music Init OK\n");
 	}
 	else
+#endif
     {
-		I_Printf("I_StartupMusic: OGG Music Disabled (no sound)\n");
+		I_Printf("I_StartupMusic: OGG Music Disabled\n");
     }
 
 	return true;
@@ -159,6 +167,7 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping,
 
 		case MUS_OGG:
 		{
+#ifdef USE_OGG
             res_fx_handle = sound::ReserveFX(SNCAT_Music);
             if (!res_fx_handle)
             {
@@ -174,6 +183,10 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping,
 			oggplayer->Play(looping, gain);
 
 			handle = MAKEHANDLE(MUS_OGG, looping, 1);
+#else // !USE_OGG
+			I_PostMusicError("I_MusicPlayback: OGG-Vorbis not supported.\n");
+			handle = -1
+#endif
 			break;
 		}
 
@@ -219,7 +232,9 @@ void I_MusicPause(int *handle)
 
 		case MUS_MIDI:	{ break; }
 		case MUS_MUS:	{ I_MUSPause(); break; }
+#ifdef USE_OGG
 		case MUS_OGG:	{ oggplayer->Pause(); break; }
+#endif
 
 		default:
 			break;
@@ -252,7 +267,9 @@ void I_MusicResume(int *handle)
 
 		case MUS_MIDI: { break; }
 		case MUS_MUS:  { I_MUSResume(); break; }
+#ifdef USE_OGG
 		case MUS_OGG:  { oggplayer->Resume(); break; }
+#endif
 
 		default:
 			break;
@@ -280,8 +297,10 @@ void I_MusicKill(int *handle)
 
 		case MUS_OGG:  
         { 
+#ifdef USE_OGG
             oggplayer->Close(); 
             sound::UnreserveFX(res_fx_handle); // We no longer need this 
+#endif
             break; 
         }
 
@@ -322,7 +341,9 @@ void I_MusicTicker(int *handle)
 
 		case MUS_MIDI:	{ break; }	// MIDI Not used
 		case MUS_MUS:	{ break; }	// MUS Ticker is called by a timer
+#ifdef USE_OGG
 		case MUS_OGG:	{ oggplayer->Ticker(); break; }
+#endif
 
 		default:
 			break;
@@ -358,7 +379,9 @@ void I_SetMusicVolume(int *handle, float gain)
 			break;
 		}
 
+#ifdef USE_OGG
 		case MUS_OGG: { oggplayer->SetVolume(gain); break; }
+#endif
 
 		default:
 			break;
@@ -370,11 +393,13 @@ void I_SetMusicVolume(int *handle, float gain)
 //
 void I_ShutdownMusic(void)
 {
+#ifdef USE_OGG
 	if (oggplayer)
 	{
 		delete oggplayer;
 		oggplayer = NULL;
 	}
+#endif
 
 	I_ShutdownMUS();
 	I_ShutdownCD();
