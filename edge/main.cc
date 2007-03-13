@@ -16,48 +16,15 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_sdlinc.h"  // needed for proper SDL main linkage
-
-#ifdef WIN32
-#include "w32_sysinc.h"  // for <windows.h>
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "dm_defs.h"
-#include "m_argv.h"
-#include "e_main.h"
-
-#include "epi/strings.h"
+#include "src/i_sdlinc.h"  // needed for proper SDL main linkage
 
 extern "C" {
 
-int I_Main(int argc, char *argv[])
+extern int I_Main(int argc, char *argv[]);
+
+int main(int argc, char *argv[])
 {
-	// FIXME: setup argument handler NOW
-	bool allow_coredump = false;
-	for (int i = 1; i < argc; i++)
-		if (strcmp(argv[i], "-core") == 0)
-			allow_coredump = true;
-
-    I_SetupSignalHandlers(allow_coredump);
-
-    I_CheckAlreadyRunning();
-
-    // -ACB- 2005/11/26 We don't do on LINUX since we assume the 
-    //                  executable is globally installed
-#ifndef LINUX
-    // -AJA- change current dir to match executable
-    I_ChangeToExeDir(argv[0]);
-#endif
-
-	// Run EDGE. it never returns
-	E_Main(argc, (const char **) argv);
-
-	return 0;
+	return I_Main(argc, argv);
 }
 
 } // extern "C"
