@@ -109,6 +109,7 @@
 #define CFGDEF_MORE_BLOOD       (0)
 #define CFGDEF_HAVE_EXTRA       (0)
 #define CFGDEF_TRUE3DGAMEPLAY   (1)
+#define CFGDEF_PASS_MISSILE     (1)
 #define CFGDEF_MENU_GRAV        (MENU_GRAV_NORMAL)
 #define CFGDEF_RES_RESPAWN      (1)       // Resurrect Mode 
 #define CFGDEF_ITEMRESPAWN      (0)

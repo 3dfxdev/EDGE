@@ -1219,7 +1219,8 @@ typedef enum
 	MPF_Kicking       = 0x100000, // Weapon recoil
 	MPF_BoomCompat    = 0x200000,
 	MPF_WeaponSwitch  = 0x400000,
-	MPF_NoMonsters    = 0x800000  // (Only for demos!)
+	MPF_NoMonsters    = 0x800000, // (Only for demos!)
+	MPF_PassMissile   = 0x1000000,
 }
 mapsettings_e;
 

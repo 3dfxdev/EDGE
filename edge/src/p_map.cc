@@ -331,8 +331,7 @@ static bool PIT_CheckAbsThing(mobj_t * thing)
 		if (tm_I.mover->source && tm_I.mover->source == thing)
 			return true;
 
-    if ((thing->hyperflags & HF_PASSMISSILE) &&
-        ! level_flags.true3dgameplay)  // FIXME: separate option?
+    if ((thing->hyperflags & HF_PASSMISSILE) && level_flags.pass_missile)
       return true;
 
 		// thing isn't shootable, return depending on if the thing is solid.
@@ -666,8 +665,7 @@ static bool PIT_CheckRelThing(mobj_t * thing)
 		if (tm_I.mover->source && tm_I.mover->source == thing)
 			return true;
 
-    if ((thing->hyperflags & HF_PASSMISSILE) &&
-        ! level_flags.true3dgameplay)  // FIXME: separate option?
+    if ((thing->hyperflags & HF_PASSMISSILE) && level_flags.pass_missile)
       return true;
 
 		// thing isn't shootable, return depending on if the thing is solid.
