@@ -28,6 +28,7 @@
 #include "protocol.h"
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -75,115 +76,44 @@ static style_c *ng_list_style;
 static newgame_params_c *ng_params;
 
 
-void M_DrawHostMenu(void)
+static int host_pos;
+
+static welcome_proto_t host_welcome;
+
+#define HOST_OPTIONS  6
+
+
+static int join_pos;
+
+static const char * join_host_addr;
+static int join_host_port;
+
+static welcome_proto_t join_welcome;
+
+
+static void CreateHostWelcome(welcome_proto_t *we)
 {
-	netgame_we_host = true;
+	we->host_ver = MP_PROTOCOL_VER;
 
-	ng_host_style->DrawBackground();
+	strcpy(we->game_name, "HELL ON EARTH");
 
-	HL_WriteText(ng_host_style,2, 80, 10, "HOST NET GAME");
+	strcpy(we->level_name, "MAP01");  // FIXME: game->firstmap
 
-	// FIXME
-}
+	we->mode  = welcome_proto_t::MODE_New_DM;
+	we->skill = sk_medium;
 
-bool M_NetHostResponder(event_t * ev, int ch)
-{
-	if (ch == KEYD_ENTER)
-	{
-		// FIXME: setup broadcast port
+	we->bots  = 0;
+	we->teams = 0;
 
-		sound::StartFX(sfx_swtchn, SNCAT_UI);
+	we->gameplay = welcome_proto_t::GP_True3D |
+		           welcome_proto_t::GP_MLook;
 
-		netgame_menuon = 3;
-		return true;
-	}
+	we->random_seed = I_PureRandom();
 
-	return false;
-}
+	we->wad_checksum = 0; // FIXME
+	we->def_checksum = 0; // FIXME
 
-
-//----------------------------------------------------------------------------
-
-void M_DrawJoinMenu(void)
-{
-	netgame_we_host = false;
-
-	ng_join_style->DrawBackground();
-
-	HL_WriteText(ng_join_style,2, 80, 10, "JOIN NET GAME");
-
-	// FIXME
-}
-
-bool M_NetJoinResponder(event_t * ev, int ch)
-{
-	if (ch == KEYD_ENTER)
-	{
-		sound::StartFX(sfx_swtchn, SNCAT_UI);
-
-		netgame_menuon = 3;
-		return true;
-	}
-
-	return false;
-}
-
-
-//----------------------------------------------------------------------------
-
-static bool ParseWelcomePacket(newgame_params_c *par, welcome_proto_t *we)
-{
-	par->game = gamedefs.Lookup(we->game_name);
-
-	if (! par->game) return false;
-
-	par->map = G_LookupMap(we->level_name);
-
-	if (! par->map) return false;
-
-	par->skill = (skill_t)we->skill;
-
-	switch (we->mode)
-	{
-		case welcome_proto_t::MODE_Coop:
-			par->deathmatch = 0;
-			break;
-	
-		case welcome_proto_t::MODE_Old_DM:
-			par->deathmatch = 1;
-			break;
-	
-		case welcome_proto_t::MODE_New_DM:
-			par->deathmatch = 2;
-			break;
-	
-		default:
-			I_Error("Unknown game mode in welcome packet: %d\n", we->mode);
-			return false; /* NOT REACHED */
-	}
-
-	par->random_seed = we->random_seed;
-	par->total_players = 0;  // updated later
-
-	/* FIXME: we->bots, we->teams */
-
-	gameflags_t flags = default_gameflags;
-
-#define HANDLE_FLAG(field, testbit)  \
-	(flags.field) = (we->gameplay & (testbit)) ? true : false;
-
-	HANDLE_FLAG(nomonsters,     welcome_proto_t::GP_NoMonsters);
-	HANDLE_FLAG(fastparm,       welcome_proto_t::GP_FastMon);
-
-	HANDLE_FLAG(true3dgameplay, welcome_proto_t::GP_True3D);
-	HANDLE_FLAG(jump,           welcome_proto_t::GP_Jumping);
-	HANDLE_FLAG(crouch,         welcome_proto_t::GP_Crouching);
-	HANDLE_FLAG(mlook,          welcome_proto_t::GP_MLook);
-
-	flags.autoaim =
-		(we->gameplay & welcome_proto_t::GP_AutoAim) ? AA_ON : AA_OFF;
-
-	return true;
+	memset(we->reserved, 0, sizeof(we->reserved));
 }
 
 static void CreateHostPlayerList(newgame_params_c *par, int humans, int bots)
@@ -216,7 +146,70 @@ static void CreateHostPlayerList(newgame_params_c *par, int humans, int bots)
 	DEV_ASSERT2(p == humans + bots);
 }
 
-static void UpdatePlayerList(newgame_params_c *par, player_list_proto_t *li)
+static bool ParseWelcomePacket(newgame_params_c *par, welcome_proto_t *we)
+{
+	par->game = gamedefs.Lookup(we->game_name);
+
+	if (! par->game)
+	{
+		I_Printf("Unknown game in welcome packet: %s\n", we->game_name);
+		return false;
+	}
+
+	par->map = G_LookupMap(we->level_name);
+
+	if (! par->map)
+	{
+		I_Printf("Unknown level in welcome packet: %s\n", we->level_name);
+		return false;
+	}
+
+	par->skill = (skill_t)we->skill;
+
+	switch (we->mode)
+	{
+		case welcome_proto_t::MODE_Coop:
+			par->deathmatch = 0;
+			break;
+	
+		case welcome_proto_t::MODE_Old_DM:
+			par->deathmatch = 1;
+			break;
+	
+		case welcome_proto_t::MODE_New_DM:
+			par->deathmatch = 2;
+			break;
+	
+		default:
+			I_Error("Unknown game mode in welcome packet: [%c]\n", we->mode);
+			return false; /* NOT REACHED */
+	}
+
+	par->random_seed = we->random_seed;
+	par->total_players = 0;  // updated later
+
+	/* FIXME: we->bots, we->teams */
+
+	gameflags_t flags = default_gameflags;
+
+#define HANDLE_FLAG(field, testbit)  \
+	(flags.field) = (we->gameplay & (testbit)) ? true : false;
+
+	HANDLE_FLAG(nomonsters,     welcome_proto_t::GP_NoMonsters);
+	HANDLE_FLAG(fastparm,       welcome_proto_t::GP_FastMon);
+
+	HANDLE_FLAG(true3dgameplay, welcome_proto_t::GP_True3D);
+	HANDLE_FLAG(jump,           welcome_proto_t::GP_Jumping);
+	HANDLE_FLAG(crouch,         welcome_proto_t::GP_Crouching);
+	HANDLE_FLAG(mlook,          welcome_proto_t::GP_MLook);
+
+	flags.autoaim =
+		(we->gameplay & welcome_proto_t::GP_AutoAim) ? AA_ON : AA_OFF;
+
+	return true;
+}
+
+static void ParsePlayerList(newgame_params_c *par, player_list_proto_t *li)
 {
 	DEV_ASSERT2(li->real_players > 0);
 	DEV_ASSERT2(li->real_players <= li->total_players);
@@ -230,6 +223,268 @@ static void UpdatePlayerList(newgame_params_c *par, player_list_proto_t *li)
 	}
 }
 
+static void DrawKeyword(int index, style_c *style, int y,
+		const char *keyword, const char *value)
+{
+	int x = 120;
+
+	HL_WriteText(style,0, x - 10 - style->fonts[0]->StringWidth(keyword), y, keyword);
+	HL_WriteText(style,1, x + 10, y, value);
+
+	if ((netgame_menuon == 1 && index == host_pos) ||
+	    (netgame_menuon == 2 && index == join_pos))
+	{
+		HL_WriteText(style,2, x - style->fonts[2]->StringWidth("*")/2, y, "*");
+	}
+}
+
+static const char *GetModeName(char mode)
+{
+	// FIXME: LDF these up
+	switch (mode)
+	{
+		case 'C': return "CO-OPERATIVE";
+		case 'O': return "OLD DEATHMATCH";
+		case 'N': return "NEW DEATHMATCH";
+		case 'L': return "LAST MAN STANDING";
+		case 'F': return "CATCH THE FLAG";
+
+		default: return "????";
+	}
+}
+
+static const char *GetSkillName(byte skill)
+{
+	// FIXME: LDF these up, OR BETTER: use shrunken images
+	switch (skill)
+	{
+		case 1: return "I'm Too Young To Die";
+		case 2: return "Hey, Not Too Rough";
+		case 3: return "Hurt Me Plenty";
+		case 4: return "Ultra-Violence";
+		case 5: return "Nightmare!";
+
+		default: return "????";
+	}
+}
+
+static const char *LocalPrintf(char *buf, int max_len, const char *str, ...)
+{
+	va_list argptr;
+
+	va_start (argptr, str);
+	vsnprintf (buf, max_len, str, argptr);
+	va_end (argptr);
+
+	return buf;
+}
+
+
+//----------------------------------------------------------------------------
+
+void M_NetHostBegun(void)
+{
+}
+
+#define MODE_LIST_STR  "CNO"  // "CNOLF"
+
+static bool HostChangeOption(int opt, int dir)
+{
+	switch (opt)
+	{
+		case 0: // Game
+			// FIXME
+			return true;
+
+		case 1: // Level
+			// FIXME !!!!
+			return true;
+
+		case 2: // Mode
+		{
+			const char *pos = strchr(MODE_LIST_STR, host_welcome.mode);
+			if (! pos) return 'C';
+
+			pos += dir;
+
+			if (pos < MODE_LIST_STR)
+				pos = MODE_LIST_STR + strlen(MODE_LIST_STR) - 1;
+			else if (*pos == 0)
+				pos = MODE_LIST_STR;
+
+			host_welcome.mode = *pos;
+
+			return true;
+		}
+
+		case 3: // Skill
+			host_welcome.skill += dir;
+			if (host_welcome.skill < 1 || host_welcome.skill > 250)
+				host_welcome.skill = 5;
+			else if (host_welcome.skill > 5)
+				host_welcome.skill = 1;
+
+			return true;
+
+		case 4: // Bots
+			host_welcome.bots += dir;
+///---		if (host_welcome.bots >= 5 && (host_welcome.bots & 1))
+///---			host_welcome.bots += dir;
+
+			if (host_welcome.bots & 0x80)
+				host_welcome.bots = 15;
+			else if (host_welcome.bots > 15)
+				host_welcome.bots = 0;
+
+			return true;
+
+		default:
+			return false;
+	}
+}
+
+void M_DrawHostMenu(void)
+{
+	netgame_we_host = true;
+
+	ng_host_style->DrawBackground();
+
+	HL_WriteText(ng_host_style,2, 80, 10, "HOST NET GAME");
+
+	char buffer[200];
+
+	int y = 30;
+	int idx = 0;
+	
+	DrawKeyword(idx, ng_host_style, y, "GAME", host_welcome.game_name);
+	y += 10; idx++,
+
+	DrawKeyword(idx, ng_host_style, y, "LEVEL", host_welcome.level_name);
+	y += 20; idx++,
+
+	DrawKeyword(idx, ng_host_style, y, "MODE", GetModeName(host_welcome.mode));
+	y += 10; idx++,
+
+	DrawKeyword(idx, ng_host_style, y, "SKILL", GetSkillName(host_welcome.skill));
+	y += 10; idx++,
+
+	DrawKeyword(idx, ng_host_style, y, "BOTS",
+			LocalPrintf(buffer, sizeof(buffer), "%d", host_welcome.bots));
+	y += 30; idx++,
+
+	// etc
+
+	HL_WriteText(ng_host_style,(host_pos==idx) ? 3:0, 20,  y, "Begin Accepting Connections");
+}
+
+bool M_NetHostResponder(event_t * ev, int ch)
+{
+	if (ch == KEYD_ENTER)
+	{
+		if (host_pos == (HOST_OPTIONS-1))
+		{
+			// FIXME: !!!! check for error
+			N_OpenBroadcastSocket(true);
+
+			sound::StartFX(sfx_swtchn, SNCAT_UI);
+
+			netgame_menuon = 3;
+		}
+		return true;
+	}
+
+	if (ch == KEYD_DOWNARROW)
+	{
+		host_pos = (host_pos + 1) % HOST_OPTIONS;
+		return true;
+	}
+	else if (ch == KEYD_UPARROW)
+	{
+		host_pos = (host_pos + HOST_OPTIONS - 1) % HOST_OPTIONS;
+		return true;
+	}
+
+	if (ch == KEYD_LEFTARROW || ch == KEYD_RIGHTARROW ||
+		ch == KEYD_ENTER)
+	{
+		int dir = +1;
+		if (ch == KEYD_LEFTARROW) dir = -1;
+
+		HostChangeOption(host_pos, dir);
+		return true;
+	}
+
+	return false;
+}
+
+
+//----------------------------------------------------------------------------
+
+void M_NetJoinBegun(void)
+{
+	// FIXME: check for -host option (short-circuit the BD spiel)
+
+	{
+		N_OpenBroadcastSocket(false);
+
+		N_SendBroadcastDiscovery();
+	}
+}
+
+void M_DrawJoinMenu(void)
+{
+	netgame_we_host = false;
+
+	ng_join_style->DrawBackground();
+
+	HL_WriteText(ng_join_style,2, 80, 10, "JOIN NET GAME");
+
+	char buffer[200];
+
+	if (! join_host_addr)
+	{
+		static int timeout = 8*TICRATE;
+
+		HL_WriteText(ng_join_style,0,  30, 30, "Looking for Host on LAN...");
+		HL_WriteText(ng_join_style,1, 240, 30,
+				LocalPrintf(buffer, sizeof(buffer), "%d", timeout/TICRATE));
+
+		timeout--;
+		return;
+	}
+
+	int y = 30;
+	int idx = 0;
+	
+	DrawKeyword(-1, ng_join_style, y, "HOST ADDRESS", join_host_addr);
+	y += 10;
+
+	DrawKeyword(-1, ng_join_style, y, "HOST PORT",
+			LocalPrintf(buffer, sizeof(buffer), "%d", join_host_port));
+	y += 10;
+
+	// FIXME....
+
+	y += 30;
+	HL_WriteText(ng_join_style,3, 30, y, "Connect to Host now");
+}
+
+bool M_NetJoinResponder(event_t * ev, int ch)
+{
+	if (ch == KEYD_ENTER)
+	{
+		sound::StartFX(sfx_swtchn, SNCAT_UI);
+
+		netgame_menuon = 3;
+		return true;
+	}
+
+	return false;
+}
+
+
+//----------------------------------------------------------------------------
+
 static void NetGameStartLevel(void)
 {
 	// -KM- 1998/12/17 Clear the intermission.
@@ -237,11 +492,7 @@ static void NetGameStartLevel(void)
 
 	// create parameters
 
-	welcome_proto_t foo;  // FIXME
-	
-	ng_params = new newgame_params_c();
-
-	if (! ParseWelcomePacket(ng_params, &foo) ||
+	if (! ParseWelcomePacket(ng_params, (netgame_we_host ? &host_welcome : &join_welcome)) ||
 		! G_DeferredInitNew(*ng_params))
 	{
 		M_StartMessage(language["EpisodeNonExist"], NULL, false);
@@ -255,11 +506,25 @@ void M_DrawPlayerList(void)
 
 	HL_WriteText(ng_list_style,2, 80, 10, "PLAYER LIST");
 
+	char buffer[200];
+
+	int y = 30;
+
+	for (int i = 0; i < ng_params->total_players; i++)
+	{
+		if (ng_params->players[i] & PFL_Bot)
+			continue;
+
+		DrawKeyword(-1, ng_list_style, y,
+				LocalPrintf(buffer, sizeof(buffer), "Player%d", i),
+				(ng_params->players[i] & PFL_Network) ? "IP 11.22.33.44" : "Local");
+		y += 10;
+	}
+	
 	if (netgame_we_host)
 	{
-		HL_WriteText(ng_list_style,2, 40, 140, "Press <ENTER> to start game");
+		HL_WriteText(ng_list_style,2, 40, 140, "Press <ENTER> to Start Game");
 	}
-
 }
 
 bool M_NetListResponder(event_t * ev, int ch)
@@ -285,6 +550,13 @@ bool M_NetListResponder(event_t * ev, int ch)
 void M_NetGameInit(void)
 {
 	netgame_menuon = 0;
+
+	ng_params = new newgame_params_c();
+
+	host_pos = 0;
+	CreateHostWelcome(&host_welcome);
+
+	join_pos = 0;
 
 	// load styles
 	styledef_c *def;
@@ -323,11 +595,13 @@ bool M_NetGameResponder(event_t * ev, int ch)
 		case KEYD_ESCAPE:
 		{
 			// FIXME: send packets (Unjoin / Unhost)
+			N_CloseBroadcastSocket();
 
 			netgame_menuon = 0;
 			M_ClearMenus();
 
 			sound::StartFX(sfx_swtchx, SNCAT_UI);
+
 			return true;
 		}
 	}
@@ -344,7 +618,16 @@ bool M_NetGameResponder(event_t * ev, int ch)
 
 void M_NetGameTicker(void)
 {
-	// FIXME
+	// FIXME: N_DoPacketStuff()
+
+#if 0
+	switch (netgame_menuon)
+	{
+		case 1: return M_NetHostTicker();
+		case 2: return M_NetJoinTicker();
+		case 3: return M_NetListTicker();
+	}
+#endif
 }
 
 
