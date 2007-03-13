@@ -1,5 +1,14 @@
 Andrew Apted's Log
 
+2007/03/13:
+
+Created a new build of EDGE.WAD, bumping the version number
+upto 5.0 (from now on it will match the DDF/RTS version).
+The [DOG] sprites were removed since they came from Wolf3d
+and hence we probably don't have the rights to use them.
+However the [DOG] entry (id #888) is still available, but
+it's just the DEMON sprite colormapped to brown.
+
 2006/11/25:
 
 Bit more work on the networking code.
