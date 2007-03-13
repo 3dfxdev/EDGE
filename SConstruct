@@ -85,7 +85,7 @@ if 1:
     env.Append(CCFLAGS = ['-DUSE_HAWKNL'])
     env.Append(CPPPATH = ['#HawkNL1.70/include'])
     env.Append(LIBPATH = ['#HawkNL1.70/src'])
-    env.Append(LIBS = ['NL'])
+    env.Append(LIBS = ['NL2'])
 
 # SDL
 if build_info['platform'] == 'win32':
@@ -95,19 +95,16 @@ if build_info['platform'] == 'win32':
 else: # linux
     env.ParseConfig('sdl-config --cflags --libs')
 
-# OpenGL and OpenAL
+# OpenGL
 if build_info['platform'] == 'win32':
     env.Append(LIBS = ['opengl32'])
-    env.Append(LIBS = ['OpenAL32'])
 else:
     env.Append(LIBS = ['GL'])
-    env.Append(LIBS = ['openal'])
 
 # Ogg/Vorbis
 env.Append(LIBS = ['vorbisfile', 'vorbis', 'ogg'])
 
 if build_info['platform'] == 'win32':
-    env.Append(CPPPATH = ['#AL_SDK/include'])
     env.Append(CPPPATH = ['#libogg-1.1.3/include'])
     env.Append(CPPPATH = ['#libvorbis-1.1.2/include'])
     env.Append(CPPPATH = ['#SDL-1.2.11/include'])
@@ -116,7 +113,6 @@ if build_info['platform'] == 'win32':
     env.Append(LIBPATH = ['#libpng-1.2.12'])
     env.Append(LIBPATH = ['#zlib-1.2.3'])
     #
-    env.Append(LIBPATH = ['#AL_SDK/libs/Win32'])
     env.Append(LIBPATH = ['#libogg-1.1.3/src'])
     env.Append(LIBPATH = ['#libvorbis-1.1.2/lib'])
     env.Append(LIBPATH = ['#SDL-1.2.11/build'])
@@ -138,7 +134,7 @@ SConscript('glbsp/SConscript.edge')
 SConscript('lzo/SConscript')
 # SConscript('humidity/SConscript.edge')
 
-env.Program('gledge', [])
+env.Program('gledge', ['main.cc'])
 
 ##--- editor settings ---
 ## vi:ts=4:sw=4:expandtab
