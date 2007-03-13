@@ -34,6 +34,16 @@ typedef struct sec_sfxorig_s sec_sfxorig_t;
 typedef struct sfx_s sfx_t;
 
 // Sound Categories
+//
+// Each category has a minimum number of channels (say N).
+// Sounds of a category are GUARANTEED to play when there
+// are less than N sounds of that category already playing.
+//
+// So while more than N sounds of a category can be active at
+// a time, the extra ones are "squatting" on channels belonging
+// to other categories, and will be kicked out (trumped) if the
+// owner category needs that channel.
+//
 typedef enum
 {
 	SNCAT_UI,           // for the user interface (menus, tips)
@@ -42,8 +52,7 @@ typedef enum
 	SNCAT_ConPlayer,    // for console player (pain, death, pickup)
 	SNCAT_ConWeapon,    // for console player's weapon
 	SNCAT_OtherPlayer,  // for all other players
-	SNCAT_MonstSig,     // for monster significant sounds
-	SNCAT_Monster,      // for all other monster sounds
+	SNCAT_Monster,      // for monster sounds
 	SNCAT_Object,       // for all other objects
 	SNCAT_NUMTYPES
 }
