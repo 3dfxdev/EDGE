@@ -124,6 +124,7 @@ typedef struct gameflags_s
 	bool edge_compat;
 	bool kicking;
 	bool weapon_switch;
+	bool pass_missile;
 }
 gameflags_t;
 

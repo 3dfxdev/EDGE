@@ -128,6 +128,7 @@ static default_t defaults[] =
     {CFGT_Boolean,  "true3dgameplay",    &global_flags.true3dgameplay, CFGDEF_TRUE3DGAMEPLAY},
     {CFGT_Enum,     "autoaim",           &global_flags.autoaim, CFGDEF_AUTOAIM},
     {CFGT_Boolean,  "doom_fading",       &doom_fading,    CFGDEF_DOOM_FADING},
+    {CFGT_Boolean,  "shootthru_scenery", &global_flags.pass_missile, CFGDEF_PASS_MISSILE},
 
     // -KM- 1998/07/21 Save the blood setting
     {CFGT_Boolean,  "blood",             &global_flags.more_blood, CFGDEF_MORE_BLOOD},

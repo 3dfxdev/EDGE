@@ -128,6 +128,7 @@ static void M_ChangeTrue3d(int keypressed);
 static void M_ChangeAutoAim(int keypressed);
 static void M_ChangeFastparm(int keypressed);
 static void M_ChangeRespawn(int keypressed);
+static void M_ChangePassMissile(int keypressed);
 
 //Special function declarations
 int menunormalfov, menuzoomedfov;
@@ -561,6 +562,10 @@ static optmenuitem_t playoptions[] =
 	{OPT_Boolean, "True 3D Gameplay",   YesNo, 2, 
      CFGDEF_TRUE3DGAMEPLAY, 
      &global_flags.true3dgameplay, M_ChangeTrue3d, "True3d"},
+
+	{OPT_Boolean, "Shoot-thru Scenery",   YesNo, 2, 
+     CFGDEF_PASS_MISSILE, 
+     &global_flags.pass_missile, M_ChangePassMissile, NULL},
 
 	{OPT_Plain,   "", NULL, 0, 0, NULL, NULL, NULL},
 
@@ -1599,6 +1604,11 @@ static void M_ChangeFastparm(int keypressed)
 	level_flags.fastparm = global_flags.fastparm;
 }
 
+static void M_ChangePassMissile(int keypressed)
+{
+	level_flags.pass_missile = global_flags.pass_missile;
+}
+
 // this used by both MIPMIP, SMOOTHING and DETAIL options
 static void M_ChangeMipMap(int keypressed)
 {
@@ -1773,16 +1783,23 @@ static void M_RestoreResSettings(int keypressed)
     R_ChangeResolution(prevscrmode);
 }
 
+extern void M_NetHostBegun(void);
+extern void M_NetJoinBegun(void);
+
 static void M_HostNetGame(int keypressed)
 {
 	option_menuon  = 0;
 	netgame_menuon = 1;
+
+	M_NetHostBegun();
 }
 
 static void M_JoinNetGame(int keypressed)
 {
 	option_menuon  = 0;
 	netgame_menuon = 2;
+
+	M_NetJoinBegun();
 }
 
 
