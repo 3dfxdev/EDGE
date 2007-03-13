@@ -28,8 +28,6 @@
 
 #include "dm_type.h"
 
-#ifndef EPI_MEM_USAGE
-
 #define ZONEID  0x1d4a11f1
 
 typedef enum
@@ -56,18 +54,9 @@ void *Z_Malloc2(int size);
 void *Z_ReMalloc2(void *ptr, int size);
 void Z_Free(void *ptr);
 
-// -ES- 1999/12/16 Leak Hunt
-#ifdef LEAK_HUNT
-void *Z_RegisterMalloc(void *ptr, const char *file, int row);
-void *Z_UnRegisterTmpMalloc(void *ptr, const char *func);
-#define Z_Malloc(size) Z_RegisterMalloc(Z_Malloc2(size),__FILE__,__LINE__)
-#define Z_Calloc(size) Z_RegisterMalloc(Z_Calloc2(size),__FILE__,__LINE__)
-#define Z_ReMalloc(ptr,size) Z_RegisterMalloc(Z_ReMalloc2(ptr,size),__FILE__,__LINE__)
-#else
 #define Z_Malloc Z_Malloc2
 #define Z_Calloc Z_Calloc2
 #define Z_ReMalloc Z_ReMalloc2
-#endif
 
 //
 // Z_New
@@ -119,24 +108,6 @@ void *Z_UnRegisterTmpMalloc(void *ptr, const char *func);
 //
 #define Z_StrNCpy(dest, src, max) \
 	(void)(strncpy((dest), (src), (max)), (dest)[(max)] = 0)
-
-// -AJA- 2001/07/24: New lightweight "Bunches"
-
-#define Z_Bunch(type)  \
-	struct { type *arr; int max; int num; }
-
-#define Z_BunchNewSize(var, type)  \
-do \
-{  \
-	if ((var).num > (var).max)  \
-	{								\
-		(var).max = (var).num + 16;				\
-		Z_Resize((var).arr, type, (var).max);	\
-	} \
-} \
-while(0) \
-
-#endif	/* EPI_MEM_USAGE */
 
 #endif  /* __Z_ZONE__ */
 

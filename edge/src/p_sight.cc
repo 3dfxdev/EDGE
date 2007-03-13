@@ -46,6 +46,8 @@
 
 #include <math.h>
 
+#include <vector>
+
 #define DEBUG_SIGHT  0
 
 
@@ -98,7 +100,7 @@ typedef struct wall_intercept_s
 wall_intercept_t;
 
 // intercept array
-static Z_Bunch(wall_intercept_t) wall_icpts;
+static std::vector<wall_intercept_t> wall_icpts;
 
 // for profiling...
 #ifdef DEVELOPERS
@@ -109,11 +111,12 @@ int sight_rej_miss;
 
 static INLINE void AddSightIntercept(float frac, sector_t *sec)
 {
-	wall_icpts.num++;
-	Z_BunchNewSize(wall_icpts, wall_intercept_t);
+	wall_intercept_t WI;
 
-	wall_icpts.arr[wall_icpts.num - 1].frac  = frac;
-	wall_icpts.arr[wall_icpts.num - 1].sector = sec;
+	WI.frac = frac;
+	WI.sector = sec;
+	
+	wall_icpts.push_back(WI);
 }
 
 //
@@ -342,20 +345,20 @@ static bool CheckSightIntercepts(float slope)
 	L_WriteDebug("INTERCEPTS  slope %1.0f\n", slope);
 #endif
 
-	for (i=0; i < wall_icpts.num; i++, last_h = cur_h)
+	for (i=0; i < (int)wall_icpts.size(); i++, last_h = cur_h)
 	{
 		bool blocked = true;
 
-		cur_h = sight_I.src_z + slope * wall_icpts.arr[i].frac;
+		cur_h = sight_I.src_z + slope * wall_icpts[i].frac;
 
 #if (DEBUG_SIGHT >= 1)
 		L_WriteDebug("  %d/%d  FRAC %1.4f  SEC %d  H=%1.4f/%1.4f\n", i+1,
-			wall_icpts.num, wall_icpts.arr[i].frac, 
-			wall_icpts.arr[i].sector - sectors, last_h, cur_h);
+			wall_icpts.size(), wall_icpts[i].frac, 
+			wall_icpts[i].sector - sectors, last_h, cur_h);
 #endif
 
 		// check all the sight gaps.
-		sec = wall_icpts.arr[i].sector;
+		sec = wall_icpts[i].sector;
 
 		for (j=0; j < sec->sight_gap_num; j++)
 		{
@@ -551,8 +554,7 @@ bool P_CheckSight(mobj_t * src, mobj_t * dest)
 	sight_I.bbox[BOXBOTTOM] = MIN(sight_I.src.y, sight_I.dest.y);
 	sight_I.bbox[BOXTOP]    = MAX(sight_I.src.y, sight_I.dest.y);
 
-	wall_icpts.num = 0;
-	Z_BunchNewSize(wall_icpts, wall_intercept_t);
+	wall_icpts.clear(); // FIXME
 
 	sight_I.exfloors = false;
 
@@ -648,8 +650,7 @@ bool P_CheckSightToPoint(mobj_t * src, float x, float y, float z)
 	sight_I.bbox[BOXBOTTOM] = MIN(sight_I.src.y, sight_I.dest.y);
 	sight_I.bbox[BOXTOP]    = MAX(sight_I.src.y, sight_I.dest.y);
 
-	wall_icpts.num = 0;
-	Z_BunchNewSize(wall_icpts, wall_intercept_t);
+	wall_icpts.clear();
 
 	sight_I.exfloors = false;
 
