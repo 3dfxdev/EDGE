@@ -19,7 +19,9 @@ if 1: # build_info['debug']:
 #------- OBJECTS -----------------------------------
 
 sources_1 = [
-    'i_main.cc',  'i_cd.cc',  'i_ctrl.cc', 'i_video.cc',
+    'i_main.cc',
+    'i_cd.cc',  'i_ctrl.cc', 'i_video.cc',
+    'i_sound.cc',
     'am_map.cc', 'con_con.cc', 'con_cvar.cc', 'con_main.cc', 'ddf_anim.cc',
     'ddf_atk.cc', 'ddf_boom.cc', 'ddf_colm.cc', 'ddf_font.cc', 
     'ddf_game.cc', 'ddf_image.cc', 'ddf_lang.cc', 'ddf_levl.cc', 
@@ -45,7 +47,7 @@ sources_2 = [
     'r_bsp.cc', 'r_data.cc', 'rgl_bsp.cc', 'rgl_fx.cc', 'rgl_main.cc', 
     'rgl_occ.cc', 'rgl_sky.cc', 'rgl_tex.cc', 'rgl_thing.cc', 'rgl_unit.cc', 
     'rgl_wipe.cc', 'r_layers.cc', 'r_main.cc', 'r_sky.cc', 'r_things.cc', 
-    'r_vbinit.cc', 'r_view.cc', 's_music.cc', 's_sound.cc', 'st_lib.cc', 
+    'r_vbinit.cc', 'r_view.cc', 's_music.cc',               'st_lib.cc', 
     'st_stuff.cc', 'sv_chunk.cc', 'sv_dump.cc', 'sv_glob.cc', 'sv_level.cc', 
     'sv_load.cc', 'sv_main.cc', 'sv_misc.cc', 'sv_mobj.cc', 'sv_play.cc', 
     'sv_save.cc', 'v_colour.cc', 'v_res.cc', 'w_image.cc', 'wi_stuff.cc', 
@@ -57,13 +59,13 @@ if build_info['platform'] == "win32":
     sources_3 = ['w32_cd.cc', 'w32_compen.cc',
         'w32_music.cc',
         'w32_mus.cc', 'w32_net.cc',
-        'w32_sound.cc', 'w32_system.cc']
+                        'w32_system.cc']
 else: # linux
     sources_3 = ['unx_compen.cc', 'unx_music.cc', 
-        'unx_net.cc', 'unx_sound.cc', 'unx_system.cc']
+        'unx_net.cc',                 'unx_system.cc']
 
 # another HACK (stupid linker!)
-sources_3 += ['oggplayer.cc'] 
+# sources_3 += ['oggplayer.cc'] 
 # sources_1 += ['humdinger.cc'] 
 
 env.StaticLibrary('edge1', sources_1 + sources_2 + sources_3)
