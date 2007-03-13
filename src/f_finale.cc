@@ -377,11 +377,12 @@ static void CAST_RangeAttack(const atkdef_c *range)
 	{
 		sfx = range->sound;
 
-		if (sfx && shotsfxchannel >= 0)
-			sound::StopFX(shotsfxchannel);
+//???		if (sfx && shotsfxchannel >= 0)
+//???		sound::StopFX(shotsfxchannel);
 
 		if (sfx)
-			shotsfxchannel = sound::StartFX(sfx, SNCAT_Monster);
+			// shotsfxchannel =
+			sound::StartFX(sfx, SNCAT_Monster);
 
 		return;
 	}

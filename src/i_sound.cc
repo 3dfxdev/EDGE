@@ -29,12 +29,10 @@
 
 ///??? #include "i_sysinc.h"
 
-#include "m_argv.h"
-#include "m_swap.h"
-#include "w_wad.h"
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include <fcntl.h>
 #include <signal.h>
 
@@ -42,6 +40,28 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+
+#include "m_argv.h"
+#include "m_swap.h"
+#include "w_wad.h"
+
+#include "s_sound.h"
+// #include "r_defs.h"  // sec_sfxorig_t
+
+// If true, sound system is off/not working. Changed to false if sound init ok.
+bool nosound = false;
+
+// -AJA- 2005/02/26: table to convert slider position to GAIN.
+//       Curve was hand-crafted to give useful distinctions of
+//       volume levels at the quiet end.  Entry zero always
+//       means total silence (in the table for completeness).
+float slider_to_gain[20] =
+{
+	0.00000, 0.00200, 0.00400, 0.00800, 0.01600,
+	0.03196, 0.05620, 0.08886, 0.12894, 0.17584,
+	0.22855, 0.28459, 0.34761, 0.41788, 0.49553,
+	0.58075, 0.67369, 0.77451, 0.88329, 1.00000
+};
 
 // We use a 22.10 fixed point for sound offsets.  It's a reasonable
 // compromise between longest sound and accumulated round-off error.
@@ -698,6 +718,58 @@ const char *I_SoundReturnError(void)
 	return scratcherror;
 }
 
+//----------------------------------------------------------------------------
+
+namespace sound
+{
+// Init/Shutdown
+void Init(void) { }
+void Shutdown(void) { }
+
+void Reset(void) { }
+
+// FX Control
+void SetFXFlags(int handle, int flags) { }
+
+void StartFX(sfx_t *sfx, int category, epi::vec3_c pos, int flags) { }
+void StartFX(sfx_t *sfx, int category, mobj_t *mo, int flags) { }
+void StartFX(sfx_t *sfx, int category, sec_sfxorig_t *orig, int flags) { }
+void StartFX(sfx_t *sfx, int category, int flags) { }
+
+void StopFX(int handle) { }
+void StopFX(sec_sfxorig_t *orig) { }
+void StopFX(mobj_t *mo) { }
+
+void StopLoopingFX(int handle) { }
+void StopLoopingFX(sec_sfxorig_t *orig) { }
+void StopLoopingFX(mobj_t *mo) { }
+
+void ResumeAllFX() { }
+void PauseAllFX() { }
+
+bool IsFXPlaying(int handle) { return false; } 
+bool IsFXPlaying(sec_sfxorig_t *orig) { return false; } 
+bool IsFXPlaying(mobj_t *mo) { return false; } 
+
+// Your effect reservation, sir...
+int ReserveFX(int category) { return 1; }
+void UnreserveFX(int handle) { }
+
+// Ticker
+void Ticker() { }
+
+// Playsim Object <-> Effect Linkage
+void UnlinkFX(mobj_t *mo) { }
+void UnlinkFX(sec_sfxorig_t *orig) { }
+
+// Volume Control
+int GetVolume() { return 1; }
+void SetVolume(int volume) { }
+
+// Effect lookup
+int LookupEffectDef(const sfx_t *s) { return 1; }
+
+} // namespace sound
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
