@@ -52,8 +52,6 @@ sound_category_e;
 // for the sliders
 #define SND_SLIDER_NUM  20
 
-extern int sound_dist;
-
 extern float slider_to_gain[SND_SLIDER_NUM];
 
 // S_MUSIC.C
@@ -86,10 +84,10 @@ namespace sound
     // FX Control
     void SetFXFlags(int handle, int flags);
 
-    int StartFX(sfx_t *sfx, int category, epi::vec3_c pos, int flags = 0); 
-    int StartFX(sfx_t *sfx, int category, mobj_t *mo, int flags = 0); 
-    int StartFX(sfx_t *sfx, int category, sec_sfxorig_t *orig, int flags = 0); 
-    int StartFX(sfx_t *sfx, int category = SNCAT_UI, int flags = 0);
+    void StartFX(sfx_t *sfx, int category, epi::vec3_c pos, int flags = 0); 
+    void StartFX(sfx_t *sfx, int category, mobj_t *mo, int flags = 0); 
+    void StartFX(sfx_t *sfx, int category, sec_sfxorig_t *orig, int flags = 0); 
+    void StartFX(sfx_t *sfx, int category = SNCAT_UI, int flags = 0);
 
     void StopFX(int handle);
     void StopFX(sec_sfxorig_t *orig);
