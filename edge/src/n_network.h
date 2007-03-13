@@ -45,6 +45,11 @@ bool N_BuildTiccmds(void);
 // restart tic counters (maketic, gametic) at zero.
 void N_ResetTics(void);
 
+
+bool N_OpenBroadcastSocket(bool is_host);
+void N_CloseBroadcastSocket(void);
+void N_SendBroadcastDiscovery(void);
+	
 #endif /* __N_NETWORK_H__ */
 
 //--- editor settings ---
