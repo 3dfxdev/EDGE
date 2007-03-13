@@ -9,6 +9,12 @@ and hence we probably don't have the rights to use them.
 However the [DOG] entry (id #888) is still available, but
 it's just the DEMON sprite colormapped to brown.
 
+Implemented 'Shoot-thru Scenery' option in GamePlay menu
+(see below about PASS_MISSILE flag).
+
+Began work removing OpenAL Sound support, to replace it
+with LibSDL sound.
+
 2006/11/25:
 
 Bit more work on the networking code.
