@@ -1,4 +1,17 @@
 
+EDGE DDF 5.0: (2007-02-15)
+==========================
+
+1) THINGS.DDF: changed the [DOG] entry to use SARGxx sprite instead
+               of DOGSxx (which have been removed), fixing death and
+               respawn frames to match.
+
+2) COLMAP.DDF, THINGS.DDF:
+               added colormaps for the [DOG] entry: SARG_BROWN is the
+               main one, as well as: SARG_BLACK, SARG_BLUE, SARG_GRAY,
+               SARG_GREEN and SARG_RED.
+
+
 EDGE DDF 4.9: (2006-11-19)
 ==========================
 
