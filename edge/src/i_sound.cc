@@ -63,28 +63,21 @@ float slider_to_gain[20] =
 	0.58075, 0.67369, 0.77451, 0.88329, 1.00000
 };
 
+/* See m_option.cc for corresponding menu items */
+static const int sample_rates[4]   = { 11025, 16000, 22050, 44100 };
+static const int sample_bits[2]    = { 8, 16 };
+static const int channel_counts[4] = { 16, 32, 64, 128 };
+
+
 // We use a 22.10 fixed point for sound offsets.  It's a reasonable
 // compromise between longest sound and accumulated round-off error.
 typedef long fixed22_t;
 
 static SDL_AudioSpec mydev;
+
 static int dev_bits;
 static int dev_bytes_per_sample;
 static int dev_frag_pairs;
-
-// Storage info
-typedef struct mix_sound_s
-{
-	int length;
-
-	// offset delta value, higher values mean higher pitch
-	fixed22_t delta;
-
-	// Note: signed 8 bit values
-	char *data_L;
-	char *data_R;
-}
-mix_sound_t;
 
 static mix_sound_t **stored_sfx = NULL;
 static unsigned int stored_sfx_num = 0;
@@ -92,6 +85,8 @@ static unsigned int stored_sfx_num = 0;
 // Channel info
 typedef struct mix_channel_s
 {
+	int category;
+
 	int priority;
 
 	int volume_L;
@@ -102,6 +97,8 @@ typedef struct mix_channel_s
 	int paused;
 
 	fixed22_t offset;
+
+	// offset delta value, higher values mean higher pitch
 	fixed22_t delta;
 }
 mix_channel_t;
@@ -109,10 +106,11 @@ mix_channel_t;
 #define PRI_NOSOUND   -1
 #define PRI_FINISHED  -2
 
-// Mixing info
-#define MIX_CHANNELS  64   // FIXME: option (16,32,64,128)
+#define MAX_CHANNELS  128
 
-static mix_channel_t mix_chan[MIX_CHANNELS];
+static mix_channel_t mix_chan[MAX_CHANNELS];
+static int num_chan;
+
 static int *mix_buffer_L = NULL;
 static int *mix_buffer_R = NULL;
 
@@ -567,7 +565,7 @@ static void MixChannel(mix_channel_t *chan, int want)
 			*dest_L++ += src_sample * chan->volume_L;
 			*dest_R++ += src_sample * chan->volume_R;
 
-			chan->offset += chan->sound->delta;
+			chan->offset += chan->delta;
 		}
 
 		want -= count;
@@ -723,7 +721,7 @@ const char *I_SoundReturnError(void)
 namespace sound
 {
 
-const int category_limits[2][8][3] =
+const int category_limit_table[2][8][3] =
 {
 	/* 16 channel */
 	{
@@ -752,15 +750,37 @@ const int category_limits[2][8][3] =
 	},
 };
 
-	
+int cat_limits[SNCAT_NUMTYPES];
+int cat_counts[SNCAT_NUMTYPES];
+
+void SetupCategoryLimits(void)
+{
+	// Assumes: num_chan to be already set, and the DEATHMATCH()
+	//          and COOP_MATCH() macros are working.
+
+	int mode = 0;
+	if (COOP_MATCH()) mode = 1;
+	if (DEATHMATCH()) mode = 2;
+
+	int idx = 0;
+	if (num_chan >= 32) idx=1;
+
+	int multiply = 1;
+	if (num_chan >= 64) multiply = num_chan / 32;
+
+	for (int t = 0; t < SNCAT_NUMTYPES; t++)
+	{
+		cat_limits[t] = category_limit_table[idx][t][mode] * multiply;
+		cat_counts[t] = 0;
+	}
+}
+
+
 // Init/Shutdown
 void Init(void) { }
 void Shutdown(void) { }
 
-void Reset(void) { }
-
-// FX Control
-void SetFXFlags(int handle, int flags) { }
+void ClearAllFX(void) { }
 
 void StartFX(sfx_t *sfx, int category, epi::vec3_c pos, int flags) { }
 void StartFX(sfx_t *sfx, int category, mobj_t *mo, int flags) { }
@@ -775,19 +795,19 @@ void StopLoopingFX(int handle) { }
 void StopLoopingFX(sec_sfxorig_t *orig) { }
 void StopLoopingFX(mobj_t *mo) { }
 
+// Ticker
+void Ticker() { }
+
+void PauseAllFX()  { }
 void ResumeAllFX() { }
-void PauseAllFX() { }
 
 bool IsFXPlaying(int handle) { return false; } 
 bool IsFXPlaying(sec_sfxorig_t *orig) { return false; } 
 bool IsFXPlaying(mobj_t *mo) { return false; } 
 
 // Your effect reservation, sir...
-int ReserveFX(int category) { return 1; }
+int ReserveFX(int category) { return -1; }
 void UnreserveFX(int handle) { }
-
-// Ticker
-void Ticker() { }
 
 // Playsim Object <-> Effect Linkage
 void UnlinkFX(mobj_t *mo) { }
@@ -796,9 +816,6 @@ void UnlinkFX(sec_sfxorig_t *orig) { }
 // Volume Control
 int GetVolume() { return 1; }
 void SetVolume(int volume) { }
-
-// Effect lookup
-int LookupEffectDef(const sfx_t *s) { return 1; }
 
 } // namespace sound
 
