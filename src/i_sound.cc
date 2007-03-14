@@ -110,7 +110,7 @@ mix_channel_t;
 #define PRI_FINISHED  -2
 
 // Mixing info
-#define MIX_CHANNELS  64
+#define MIX_CHANNELS  64   // FIXME: option (16,32,64,128)
 
 static mix_channel_t mix_chan[MIX_CHANNELS];
 static int *mix_buffer_L = NULL;
@@ -722,6 +722,37 @@ const char *I_SoundReturnError(void)
 
 namespace sound
 {
+
+const category_limits[2][8][3] =
+{
+	/* 16 channel */
+	{
+		{ 1, 1, 1 }, /* UI */
+		{ 1, 1, 1 }, /* Music */
+		{ 1, 1, 2 }, /* Player */
+		{ 2, 2, 2 }, /* Weapon */
+
+		{ 0, 2, 5 }, /* Opponent */
+		{ 7, 5, 0 }, /* Monster */
+		{ 0, 0, 0 }, /* Object */
+		{ 4, 4, 5 }, /* Level */
+	},
+
+	/* 32 channel */
+	{
+		{ 2, 2, 2 }, /* UI */
+		{ 2, 2, 2 }, /* Music */
+		{ 2, 2, 2 }, /* Player */
+		{ 3, 3, 3 }, /* Weapon */
+
+		{ 0, 4, 9 }, /* Opponent */
+		{13, 9, 3 }, /* Monster */
+		{ 5, 5, 5 }, /* Object */
+		{ 5, 5, 6 }, /* Level */
+	},
+};
+
+	
 // Init/Shutdown
 void Init(void) { }
 void Shutdown(void) { }
