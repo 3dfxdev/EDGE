@@ -13,7 +13,7 @@ env.Append(CCFLAGS = ['-ffast-math'])
 # allow #include "epi/xxxx.h" to find the correct file
 env.Append(CPPPATH = ['#.'])
 
-if 1: # build_info['debug']:
+if 1: # not build_info['release']:
   env.Append(CCFLAGS = ['-DDEVELOPERS'])
 
 #------- OBJECTS -----------------------------------
