@@ -29,8 +29,8 @@
 #include "epi/math_vector.h"
 
 // Forward declarations
+class position_c;
 typedef struct mobj_s mobj_t;
-typedef struct sec_sfxorig_s sec_sfxorig_t;
 typedef struct sfx_s sfx_t;
 
 // Sound Categories
@@ -95,24 +95,24 @@ namespace sound
 
     void ClearAllFX(void);
 
-    void StartFX(sfx_t *sfx, int category, epi::vec3_c pos, int flags = 0); 
+///---    void StartFX(sfx_t *sfx, int category, epi::vec3_c pos, int flags = 0); 
     void StartFX(sfx_t *sfx, int category, mobj_t *mo, int flags = 0); 
-    void StartFX(sfx_t *sfx, int category, sec_sfxorig_t *orig, int flags = 0); 
+    void StartFX(sfx_t *sfx, int category, position_c *sector, int flags = 0); 
     void StartFX(sfx_t *sfx, int category = SNCAT_UI, int flags = 0);
 
     void StopFX(int handle);
-    void StopFX(sec_sfxorig_t *orig);
+    void StopFX(position_c *sector);
     void StopFX(mobj_t *mo);
 
     void StopLoopingFX(int handle);
-    void StopLoopingFX(sec_sfxorig_t *orig);
+    void StopLoopingFX(position_c *sector);
     void StopLoopingFX(mobj_t *mo);
     
     void ResumeAllFX();
     void PauseAllFX();
 
     bool IsFXPlaying(int handle); 
-    bool IsFXPlaying(sec_sfxorig_t *orig); 
+    bool IsFXPlaying(position_c *sector); 
     bool IsFXPlaying(mobj_t *mo); 
 
     // Your effect reservation, sir...
@@ -124,7 +124,7 @@ namespace sound
 
     // Playsim Object <-> Effect Linkage
     void UnlinkFX(mobj_t *mo);
-    void UnlinkFX(sec_sfxorig_t *orig);
+    void UnlinkFX(position_c *sector);
 
     // Volume Control
     int GetVolume();

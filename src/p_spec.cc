@@ -146,7 +146,7 @@ static void DoSectorSFX(sectorsfx_t *sec)
 
 	sec->count = SECSFX_TIME;
 
-    sec_sfxorig_t *orig = &sec->sector->sfx_origin;
+    position_c *orig = &sec->sector->sfx_origin;
 	if (!sound::IsFXPlaying(orig))
         sound::StartFX(sec->sfx, SNCAT_Level, orig);
 }
@@ -175,7 +175,7 @@ void P_StopAmbientSectorSfx(void)
 
 	for (sec_sfx = sectorsfx_list; sec_sfx; sec_sfx = sec_sfx->next)
 	{
-        sec_sfxorig_t *orig = &sec_sfx->sector->sfx_origin;
+        position_c *orig = &sec_sfx->sector->sfx_origin;
         if (sound::IsFXPlaying(orig))
             sound::StopFX(orig);
 	}

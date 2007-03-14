@@ -718,7 +718,7 @@ void RAD_ActPlaySound(rad_trigger_t *R, mobj_t *actor, void *param)
 
 	if (ambient->kind == PSOUND_BossMan)
 	{
-        // SFX_FIXME: Use new style call  FIXME!!!!!
+        // SFX_FIXME: Use new style call  FIXME!!!!
 		R->sfx_handle = 1; sound::StartFX(ambient->sfx, SNCAT_Level);
 		return;
 	}
@@ -734,13 +734,15 @@ void RAD_ActPlaySound(rad_trigger_t *R, mobj_t *actor, void *param)
 	else
 		pos.z = ambient->z;
 
-    // SFX_FIXME: Use x,y,z position and return handle FIXME!!!!!
-	R->sfx_handle = 1; sound::StartFX(ambient->sfx, SNCAT_Level, pos);
+    // SFX_FIXME: Use x,y,z position and return handle
+	//
+	// FIXME!!!! store position_c field inside trigger
+	// R->sfx_handle = 1; sound::StartFX(ambient->sfx, SNCAT_Level, pos);
 }
 
 void RAD_ActKillSound(rad_trigger_t *R, mobj_t *actor, void *param)
 {
-	sound::StopFX(R->sfx_handle);
+//FIXME 	sound::StopFX(R->sfx_handle);
 }
 
 void RAD_ActChangeMusic(rad_trigger_t *R, mobj_t *actor, void *param)
