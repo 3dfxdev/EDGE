@@ -118,13 +118,33 @@ static void BlitToS16(const int *src, s16_t *dest, int length)
 
 static void MixMonoSamples(mix_channel_t *chan, int length)
 {
+	DEV_ASSERT2(count > 0);
 
+	const u16_t *src_L = chan->data->data_L;
+
+	int *dest = mix_buffer;
+	int d_end = dest + length;
+
+	fixed22_t offset = chan->offset;
+
+	while (dest < d_end)
+	{
+		*dest++ += src_L[offset >> 10] * chan->volume_L;
+
+		offset += chan->delta;
+	}
+
+	chan->offset = offset;
+
+	DEV_ASSERT2(offset - chan->delta < chan->length);
 }
 
 static void MixStereoSamples(mix_channel_t *chan, int count)
 {
-	u16_t *src_L = chan->data->data_L;
-	u16_t *src_R = chan->data->data_R;
+	DEV_ASSERT2(count > 0);
+
+	const u16_t *src_L = chan->data->data_L;
+	const u16_t *src_R = chan->data->data_R;
 
 	int *dest = mix_buffer;
 	int d_end = dest + length * 2;
@@ -133,20 +153,15 @@ static void MixStereoSamples(mix_channel_t *chan, int count)
 
 	while (dest < d_end)
 	{
-		s16_t sample = src_L[offset >> 10];
-
-		*dest++ += sample * chan->volume_L;
-		*dest++ += sample * chan->volume_R;
+		*dest++ += src_L[offset >> 10] * chan->volume_L;
+		*dest++ += src_R[offset >> 10] * chan->volume_R;
 
 		offset += chan->delta;
-
-		if (offset >= chan->length)
-			return (d_end - dest) / 2
 	}
 
 	chan->offset = offset;
 
-	return -1;
+	DEV_ASSERT2(offset - chan->delta < chan->length);
 }
 
 
@@ -186,41 +201,6 @@ static void MixChannel(mix_channel_t *chan, int want)
 	}
 }
 
-static INLINE unsigned char ClipSampleS8(int value)
-{
-	if (value < -0x7F) return 0x81;
-	if (value >  0x7F) return 0x7F;
-
-	return (unsigned char) value;
-}
-
-static INLINE unsigned char ClipSampleU8(int value)
-{
-	value += 0x80;
-
-	if (value < 0)    return 0;
-	if (value > 0xFF) return 0xFF;
-
-	return (unsigned char) value;
-}
-
-static INLINE unsigned short ClipSampleS16(int value)
-{
-	if (value < -0x7FFF) return 0x8001;
-	if (value >  0x7FFF) return 0x7FFF;
-
-	return (unsigned short) value;
-}
-
-static INLINE unsigned short ClipSampleU16(int value)
-{
-	value += 0x8000;
-
-	if (value < 0)      return 0;
-	if (value > 0xFFFF) return 0xFFFF;
-
-	return (unsigned short) value;
-}
 
 static void BlitToSoundDevice(unsigned char *dest, int pairs)
 {
