@@ -2,7 +2,7 @@
 //  EDGE Sound System for SDL
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2004  The EDGE Team.
+//  Copyright (c) 1999-2007  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -46,7 +46,11 @@
 #include "w_wad.h"
 
 #include "s_sound.h"
+#include "s_cache.h"
+
+
 // #include "r_defs.h"  // sec_sfxorig_t
+
 
 // If true, sound system is off/not working. Changed to false if sound init ok.
 bool nosound = false;
@@ -69,57 +73,19 @@ static const int sample_bits[2]    = { 8, 16 };
 static const int channel_counts[4] = { 16, 32, 64, 128 };
 
 
-// We use a 22.10 fixed point for sound offsets.  It's a reasonable
-// compromise between longest sound and accumulated round-off error.
-typedef long fixed22_t;
-
 static SDL_AudioSpec mydev;
 
 static int dev_bits;
 static int dev_bytes_per_sample;
 static int dev_frag_pairs;
 
-static mix_sound_t **stored_sfx = NULL;
-static unsigned int stored_sfx_num = 0;
-
-// Channel info
-typedef struct mix_channel_s
-{
-	int category;
-
-	int priority;
-
-	int volume_L;
-	int volume_R;
-	bool looping;
-
-	mix_sound_t *sound;
-	int paused;
-
-	fixed22_t offset;
-
-	// offset delta value, higher values mean higher pitch
-	fixed22_t delta;
-}
-mix_channel_t;
 
 #define PRI_NOSOUND   -1
 #define PRI_FINISHED  -2
 
-#define MAX_CHANNELS  128
-
-static mix_channel_t mix_chan[MAX_CHANNELS];
-static int num_chan;
-
-static int *mix_buffer_L = NULL;
-static int *mix_buffer_R = NULL;
-
 // Error Description
 static char errordesc[256] = "FOO";
 static char scratcherror[256];
-
-// Callback Stuff
-void InternalSoundFiller(void *udata, Uint8 *stream, int len);
 
 //
 // I_StartupSound
@@ -231,18 +197,6 @@ bool I_StartupSound(void *sysinfo)
 	return true;
 }
 
-static fixed22_t ComputeDelta(int data_freq, int device_freq)
-{
-	// sound data's frequency close enough ?
-	if (data_freq > device_freq - device_freq/100 &&
-			data_freq < device_freq + device_freq/100)
-	{
-		return 1024;
-	}
-
-	return (fixed22_t) floor((float)data_freq * 1024.0f / device_freq);
-}
-
 //
 // I_ShutdownSound
 //
@@ -276,99 +230,8 @@ void I_ShutdownSound(void)
 bool I_LoadSfx(const unsigned char *data, unsigned int length,
     unsigned int freq, unsigned int handle)
 {
-	unsigned int i;
-	mix_sound_t *sfx;
-
 	SDL_LockAudio();
-
-	if (handle >= stored_sfx_num)
-	{
-		i = stored_sfx_num;
-		stored_sfx_num = handle + 1;
-
-		stored_sfx = (mix_sound_t **) realloc(stored_sfx, stored_sfx_num *
-				sizeof(mix_sound_t *));
-
-		// FIXME: do the old-list new-list thing
-
-		if (! stored_sfx)
-		{
-			SDL_UnlockAudio();
-			I_Error("Out of memory in sound code.\n");
-			return false;
-		}
-
-		// clear any new elements
-		for (; i < stored_sfx_num; i++)
-			stored_sfx[i] = NULL;
-	}
-
-	DEV_ASSERT2(stored_sfx[handle] == NULL);
-
-	sfx = stored_sfx[handle] = (mix_sound_t *)
-		malloc(sizeof(mix_sound_t));
-
-	if (! sfx)
-	{
-		SDL_UnlockAudio();
-		I_Error("Out of memory in sound code.\n");
-		return false;
-	}
-
-	sfx->length = length;
-	sfx->delta  = ComputeDelta(freq, mydev.freq);
-
-	sfx->data_R = NULL;
-	sfx->data_L = (char*)malloc(length);
-
-	if (! sfx->data_L)
-	{
-		SDL_UnlockAudio();
-		I_Error("Out of memory in sound code.\n");
-		return false;
-	}
-
-	// convert to signed format
-	for (i=0; i < length; i++)
-	{
-		sfx->data_L[i] = (char) (data[i] ^ 0x80);
-	}
-
 	SDL_UnlockAudio();
-	return true;
-}
-
-//
-// I_UnloadSfx
-//
-bool I_UnloadSfx(unsigned int handle)
-{
-	int i;
-	mix_sound_t *sfx;
-
-	DEV_ASSERT(handle < stored_sfx_num,
-			("I_UnloadSfx: %d out of range", handle));
-
-	sfx = stored_sfx[handle];
-
-	DEV_ASSERT(sfx, ("I_UnloadSfx: NULL sample"));
-
-	// note: assumes locking is recursive
-	SDL_LockAudio();
-
-	// Kill playing sound effects
-	for (i = 0; i < MIX_CHANNELS; i++)
-	{
-		if (mix_chan[i].priority != PRI_NOSOUND && mix_chan[i].sound == sfx)
-			I_SoundKill(i);
-	}
-
-	// free sound data
-	free(sfx->data_L);
-	stored_sfx[handle] = NULL;
-
-	SDL_UnlockAudio();
-	return true;
 }
 
 //
@@ -542,159 +405,8 @@ bool I_SoundResume(unsigned int chanid)
 	return true;
 }
 
-static void MixChannel(mix_channel_t *chan, int want)
-{
-	int i;
+//----------------------------------------------------------------------------
 
-	int *dest_L = mix_buffer_L;
-	int *dest_R = mix_buffer_R;
-
-	char *src_L = chan->sound->data_L;
-	int length = chan->sound->length;
-
-	while (want > 0)
-	{
-		int count = MIN(chan->sound->length - (chan->offset >> 10), want);
-
-		DEV_ASSERT2(count > 0);
-
-		for (i=0; i < count && (chan->offset >> 10) < length; i++)
-		{
-			signed char src_sample = src_L[chan->offset >> 10];
-
-			*dest_L++ += src_sample * chan->volume_L;
-			*dest_R++ += src_sample * chan->volume_R;
-
-			chan->offset += chan->delta;
-		}
-
-		want -= count;
-
-		// return if sound hasn't finished yet
-		if ((chan->offset >> 10) < length)
-			return;
-
-		if (! chan->looping)
-		{
-			chan->priority = PRI_FINISHED;
-			return;
-		}
-
-		// loop back to beginning
-		src_L = chan->sound->data_L;
-		chan->offset = 0;
-	}
-}
-
-static INLINE unsigned char ClipSampleS8(int value)
-{
-	if (value < -0x7F) return 0x81;
-	if (value >  0x7F) return 0x7F;
-
-	return (unsigned char) value;
-}
-
-static INLINE unsigned char ClipSampleU8(int value)
-{
-	value += 0x80;
-
-	if (value < 0)    return 0;
-	if (value > 0xFF) return 0xFF;
-
-	return (unsigned char) value;
-}
-
-static INLINE unsigned short ClipSampleS16(int value)
-{
-	if (value < -0x7FFF) return 0x8001;
-	if (value >  0x7FFF) return 0x7FFF;
-
-	return (unsigned short) value;
-}
-
-static INLINE unsigned short ClipSampleU16(int value)
-{
-	value += 0x8000;
-
-	if (value < 0)      return 0;
-	if (value > 0xFFFF) return 0xFFFF;
-
-	return (unsigned short) value;
-}
-
-static void BlitToSoundDevice(unsigned char *dest, int pairs)
-{
-	int i;
-
-	if (dev_bits == 8)
-	{
-		if (mydev.channels == 2)
-		{
-			for (i=0; i < pairs; i++)
-			{
-				*dest++ = ClipSampleU8(mix_buffer_L[i] >> 16);
-				*dest++ = ClipSampleU8(mix_buffer_R[i] >> 16);
-			}
-		}
-		else
-		{
-			for (i=0; i < pairs; i++)
-			{
-				*dest++ = ClipSampleU8(mix_buffer_L[i] >> 16);
-			}
-		}
-	}
-	else
-	{
-		DEV_ASSERT2(dev_bits == 16);
-
-		unsigned short *dest2 = (unsigned short *) dest;
-
-		if (mydev.channels == 2)
-		{
-			for (i=0; i < pairs; i++)
-			{
-				*dest2++ = ClipSampleS16(mix_buffer_L[i] >> 8);
-				*dest2++ = ClipSampleS16(mix_buffer_R[i] >> 8);
-			}
-		}
-		else
-		{
-			for (i=0; i < pairs; i++)
-			{
-				*dest2++ = ClipSampleS16(mix_buffer_L[i] >> 8);
-			}
-		}
-	}
-}
-
-//
-// InternalSoundFiller
-//
-void InternalSoundFiller(void *udata, Uint8 *stream, int len)
-{
-	int i;
-	int pairs = len / dev_bytes_per_sample;
-
-	// check that we're not getting too much data
-	DEV_ASSERT2(pairs <= dev_frag_pairs);
-
-	if (nosound || pairs <= 0)
-		return;
-
-	// clear mixer buffer
-	memset(mix_buffer_L, 0, sizeof(int) * pairs);
-	memset(mix_buffer_R, 0, sizeof(int) * pairs);
-
-	// add each channel
-	for (i=0; i < MIX_CHANNELS; i++)
-	{
-		if (mix_chan[i].priority >= 0)
-			MixChannel(&mix_chan[i], pairs);
-	}
-
-	BlitToSoundDevice(stream, pairs);
-}
 
 //
 // I_SoundTicker

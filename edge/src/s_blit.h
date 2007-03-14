@@ -1,0 +1,64 @@
+//----------------------------------------------------------------------------
+//  Sound Blitter
+//----------------------------------------------------------------------------
+// 
+//  Copyright (c) 1999-2007  The EDGE Team.
+// 
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//----------------------------------------------------------------------------
+//
+//  Based on the DOOM source code, released by Id Software under the
+//  following copyright:
+//
+//    Copyright (C) 1993-1996 by id Software, Inc.
+//
+//----------------------------------------------------------------------------
+
+#ifndef __S_BLIT__
+#define __S_BLIT__
+
+// We use a 22.10 fixed point for sound offsets.  It's a reasonable
+// compromise between longest sound and accumulated round-off error.
+typedef unsigned long fixed22_t;
+
+// channel info
+class mix_channel_c
+{
+public:
+	fx_data_c *data;  // NULL means unused channel
+
+	int category;
+
+	int priority;
+
+	int volume_L;
+	int volume_R;
+	bool looping;
+
+	int paused;
+
+	fixed22_t offset;
+	fixed22_t length;
+	fixed22_t delta;
+
+public:
+	mix_channel_c()
+};
+
+
+extern mix_channel_c *mix_chan[];
+extern int num_chan;
+
+#endif // __S_BLIT__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
