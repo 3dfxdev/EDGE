@@ -49,9 +49,6 @@
 #include "s_cache.h"
 
 
-// #include "r_defs.h"  // sec_sfxorig_t
-
-
 // If true, sound system is off/not working. Changed to false if sound init ok.
 bool nosound = false;
 
@@ -608,17 +605,17 @@ void Shutdown(void) { }
 
 void ClearAllFX(void) { }
 
-void StartFX(sfx_t *sfx, int category, epi::vec3_c pos, int flags) { }
+///--- void StartFX(sfx_t *sfx, int category, epi::vec3_c pos, int flags) { }
 void StartFX(sfx_t *sfx, int category, mobj_t *mo, int flags) { }
-void StartFX(sfx_t *sfx, int category, sec_sfxorig_t *orig, int flags) { }
+void StartFX(sfx_t *sfx, int category, position_c *sec, int flags) { }
 void StartFX(sfx_t *sfx, int category, int flags) { }
 
 void StopFX(int handle) { }
-void StopFX(sec_sfxorig_t *orig) { }
+void StopFX(position_c *sec) { }
 void StopFX(mobj_t *mo) { }
 
 void StopLoopingFX(int handle) { }
-void StopLoopingFX(sec_sfxorig_t *orig) { }
+void StopLoopingFX(position_c *sec) { }
 void StopLoopingFX(mobj_t *mo) { }
 
 // Ticker
@@ -628,7 +625,7 @@ void PauseAllFX()  { }
 void ResumeAllFX() { }
 
 bool IsFXPlaying(int handle) { return false; } 
-bool IsFXPlaying(sec_sfxorig_t *orig) { return false; } 
+bool IsFXPlaying(position_c *sec) { return false; } 
 bool IsFXPlaying(mobj_t *mo) { return false; } 
 
 // Your effect reservation, sir...
@@ -637,7 +634,7 @@ void UnreserveFX(int handle) { }
 
 // Playsim Object <-> Effect Linkage
 void UnlinkFX(mobj_t *mo) { }
-void UnlinkFX(sec_sfxorig_t *orig) { }
+void UnlinkFX(position_c *sec) { }
 
 // Volume Control
 int GetVolume() { return 1; }

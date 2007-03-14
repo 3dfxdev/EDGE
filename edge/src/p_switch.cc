@@ -99,7 +99,7 @@ void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 	int tag = line->tag;
 	epi::array_iterator_c it;
 	const linetype_c *type = line->special;
-	sec_sfxorig_t *sfx_origin;
+	position_c *sfx_origin;
 	side_t *side;
 	bwhere_e pos;
 
