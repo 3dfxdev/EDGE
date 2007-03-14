@@ -79,7 +79,7 @@ void S_SetMusicVolume(int volume);
 // S_SOUND.C
 namespace sound
 {
-    // FX Flags
+    /* FX Flags
     typedef enum
     {
         FXFLAG_SYMBOLIC    = 0x1,
@@ -87,15 +87,13 @@ namespace sound
         FXFLAG_IGNORELOOP  = 0x4
     }
     fx_flag_t;
+	*/
 
     // Init/Shutdown
     void Init(void);
     void Shutdown(void);
 
-    void Reset(void);
-
-    // FX Control
-    void SetFXFlags(int handle, int flags);
+    void ClearAllFX(void);
 
     void StartFX(sfx_t *sfx, int category, epi::vec3_c pos, int flags = 0); 
     void StartFX(sfx_t *sfx, int category, mobj_t *mo, int flags = 0); 
@@ -131,9 +129,6 @@ namespace sound
     // Volume Control
     int GetVolume();
     void SetVolume(int volume);
-
-    // Effect lookup
-	int LookupEffectDef(const sfx_t *s);
 };
 
 #endif // __S_SOUND__
