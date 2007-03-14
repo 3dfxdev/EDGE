@@ -2532,7 +2532,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 	if (precache)
 		R_PrecacheLevel();
 	
-	sound::Reset(); // Clear out the playing sounds
+	sound::ClearAll(); // Clear out the playing sounds
 
 	S_ChangeMusic(currmap->music, true); // start level music
 
