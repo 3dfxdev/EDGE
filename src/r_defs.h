@@ -271,7 +271,6 @@ typedef struct sector_s
 
 	// origin for any sounds played by the sector
 	position_c sfx_origin;
-    int sfx_handle;
 
 	int linecount;
 	struct line_s **lines;  // [linecount] size

@@ -598,7 +598,7 @@ typedef struct rad_trigger_s
 	int menu_result;
 
     // Sound handle
-    int sfx_handle;
+	position_c sfx_origin;
 
 	// prevent repeating scripts from clogging the console
 	const char *last_con_message;
