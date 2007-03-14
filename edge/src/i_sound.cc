@@ -55,18 +55,6 @@
 // If true, sound system is off/not working. Changed to false if sound init ok.
 bool nosound = false;
 
-// -AJA- 2005/02/26: table to convert slider position to GAIN.
-//       Curve was hand-crafted to give useful distinctions of
-//       volume levels at the quiet end.  Entry zero always
-//       means total silence (in the table for completeness).
-float slider_to_gain[20] =
-{
-	0.00000, 0.00200, 0.00400, 0.00800, 0.01600,
-	0.03196, 0.05620, 0.08886, 0.12894, 0.17584,
-	0.22855, 0.28459, 0.34761, 0.41788, 0.49553,
-	0.58075, 0.67369, 0.77451, 0.88329, 1.00000
-};
-
 /* See m_option.cc for corresponding menu items */
 static const int sample_rates[4]   = { 11025, 16000, 22050, 44100 };
 static const int sample_bits[2]    = { 8, 16 };
@@ -86,6 +74,17 @@ static int dev_frag_pairs;
 // Error Description
 static char errordesc[256] = "FOO";
 static char scratcherror[256];
+
+
+void SoundFill_Callback(void *udata, Uint8 *stream, int len)
+{
+//!!!	S_MixAllChannels(stream, len);
+}
+
+bool I_StartupSound(void *sysinfo) { return true; }
+void I_ShutdownSound(void) { }
+
+#if 0
 
 //
 // I_StartupSound
@@ -120,7 +119,7 @@ bool I_StartupSound(void *sysinfo)
 	firstdev.format = (want_freq < 12) ? AUDIO_U8 : AUDIO_S16SYS;
 	firstdev.channels = want_stereo ? 2 : 1;
 	firstdev.samples = 512;
-	firstdev.callback = InternalSoundFiller;
+	firstdev.callback = SoundFill_Callback;
 
 	if (SDL_OpenAudio(&firstdev, &mydev) < 0)
 	{
@@ -407,6 +406,7 @@ bool I_SoundResume(unsigned int chanid)
 
 //----------------------------------------------------------------------------
 
+#endif
 
 //
 // I_SoundTicker
@@ -433,8 +433,23 @@ const char *I_SoundReturnError(void)
 namespace sound
 {
 
-const int category_limit_table[2][8][3] =
+const int category_limit_table[3][8][3] =
 {
+/* TEST:
+ */
+	{
+		{ 1, 1, 1 }, /* UI */
+		{ 1, 1, 1 }, /* Music */
+		{ 1, 1, 1 }, /* Player */
+		{ 1, 1, 1 }, /* Weapon */
+
+		{ 1, 1, 1 }, /* Opponent */
+		{ 1, 1, 1 }, /* Monster */
+		{ 1, 1, 1 }, /* Object */
+		{ 1, 1, 1 }, /* Level */
+	},
+
+	
 	/* 16 channel */
 	{
 		{ 1, 1, 1 }, /* UI */
@@ -465,8 +480,11 @@ const int category_limit_table[2][8][3] =
 int cat_limits[SNCAT_NUMTYPES];
 int cat_counts[SNCAT_NUMTYPES];
 
+
 void SetupCategoryLimits(void)
 {
+int num_chan=8; //!!!!
+	
 	// Assumes: num_chan to be already set, and the DEATHMATCH()
 	//          and COOP_MATCH() macros are working.
 
@@ -486,6 +504,102 @@ void SetupCategoryLimits(void)
 		cat_counts[t] = 0;
 	}
 }
+
+#if 0
+
+int FindPlayingFX(sfxdef_c *def, int cat, POSX pos)
+{
+	for (int i=0; i < (int)playing_fx.size(); i++)
+	{
+		if (playing_fx[i].def == def && playing_fx[i].use_cat == use_cat && SAME POS)
+			return i;
+
+	}
+
+	return -1;  // nope
+}
+
+int CountPlayingCats(int use_cat, bool petty_only = false)
+{
+	int count = 0;
+
+	for (int i=0; i < (int)playing_fx.size(); i++)
+	{
+		if (petty_only && (playing_fx[i].flags & FX_Petty))
+			continue;
+
+		if (playing_fx[i].def && playing_fx[i].use_cat == use_cat)
+			count++;
+	}
+
+	return count;
+}
+
+int FindCatToKill(int use_cat, float good_dist)
+{
+	int fx = -1;
+
+	for (int i=0; i < (int)playing_fx.size(); i++)
+	{
+		if (! playing_fx[i].def)
+			continue;
+
+		if (playing_fx[i].use_cat != use_cat)
+			continue;
+
+		float score = playing_fx[i].Score(XXX, YYY);
+
+		if (score > good_dist)
+		{
+			good_dist = score;
+			fx = i;
+		}
+	}
+
+	return fx;
+}
+
+int FindHogToKill(int use_cat)
+{
+	int i;
+	int hogs[CAT_NUMTYPES];
+
+	for (i=0; i < CAT_NUMTYPES; i++)
+		hogs[i] = 0;
+
+	for (int cat = 0; cat < CAT_NUMTYPES; cat++)
+	{
+		if (cat == use_cat)
+			continue;
+
+		int playing = CountPlayingCats(cat);
+
+		if (playing > cat_limit[cat])
+			hogs[cat] = playing - cat_limit[cat];
+	}
+
+	int hog_cat = -1;
+	int hog_score = 0;
+
+	for (int cat = CAT_NUMTYPES-1; cat >= 0; cat--)
+	{
+		if (hogs[cat] > hog_score)
+		{
+			hog_score = hogs[cat];
+			hog_cat = cat;
+		}
+	}
+
+	SYS_ASSERT(hog_cat >= 0);
+
+	int hog_fx = FindCatToKill(hog_cat, -1.0f);
+
+	SYS_ASSERT(hog_fx >= 0);
+
+	return hog_fx;
+}
+
+#endif
 
 
 // Init/Shutdown
@@ -530,6 +644,19 @@ int GetVolume() { return 1; }
 void SetVolume(int volume) { }
 
 } // namespace sound
+
+// -AJA- 2005/02/26: table to convert slider position to GAIN.
+//       Curve was hand-crafted to give useful distinctions of
+//       volume levels at the quiet end.  Entry zero always
+//       means total silence (in the table for completeness).
+float slider_to_gain[20] =
+{
+	0.00000, 0.00200, 0.00400, 0.00800, 0.01600,
+	0.03196, 0.05620, 0.08886, 0.12894, 0.17584,
+	0.22855, 0.28459, 0.34761, 0.41788, 0.49553,
+	0.58075, 0.67369, 0.77451, 0.88329, 1.00000
+};
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

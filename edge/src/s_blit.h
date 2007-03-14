@@ -58,6 +58,13 @@ public:
 extern mix_channel_c *mix_chan[];
 extern int num_chan;
 
+
+void S_MixAllChannels(void *stream, int len);
+// mix all active channels into the output stream.
+// 'len' is the number of samples (for stereo: pairs)
+// to mix into the stream.
+
+
 #endif // __S_BLIT__
 
 //--- editor settings ---

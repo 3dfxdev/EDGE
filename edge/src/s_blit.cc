@@ -249,7 +249,7 @@ static void BlitToSoundDevice(unsigned char *dest, int pairs)
 }
 
 
-void S_InternalSoundFiller(void *udata, Uint8 *stream, int len)
+void S_MixAllChannels(void *stream, int len)
 {
 	int i;
 	int pairs = len / dev_bytes_per_sample;
@@ -261,14 +261,13 @@ void S_InternalSoundFiller(void *udata, Uint8 *stream, int len)
 		return;
 
 	// clear mixer buffer
-	memset(mix_buffer_L, 0, sizeof(int) * pairs);
-	memset(mix_buffer_R, 0, sizeof(int) * pairs);
+	memset(mix_buffer, 0, sizeof(int) * pairs);
+	memset(mix_buffer, 0, sizeof(int) * pairs);
 
 	// add each channel
-	for (i=0; i < MIX_CHANNELS; i++)
+	for (int i=0; i < num_chan; i++)
 	{
-		if (mix_chan[i].priority >= 0)
-			MixChannel(&mix_chan[i], pairs);
+		MixChannel(mix_chan[i], pairs);
 	}
 
 	BlitToSoundDevice(stream, pairs);
