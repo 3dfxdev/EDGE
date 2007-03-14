@@ -34,26 +34,30 @@ typedef struct sec_sfxorig_s sec_sfxorig_t;
 typedef struct sfx_s sfx_t;
 
 // Sound Categories
+// ----------------
 //
 // Each category has a minimum number of channels (say N).
 // Sounds of a category are GUARANTEED to play when there
 // are less than N sounds of that category already playing.
 //
 // So while more than N sounds of a category can be active at
-// a time, the extra ones are "squatting" on channels belonging
-// to other categories, and will be kicked out (trumped) if the
-// owner category needs that channel.
+// a time, the extra ones are "hogging" channels belonging to
+// other categories, and will be kicked out (trumped) if there
+// are no other free channels.
+//
+// The order here is significant, if the channel limit for a
+// category is set to zero, then NEXT category is tried.
 //
 typedef enum
 {
-	SNCAT_UI,           // for the user interface (menus, tips)
-	SNCAT_Music,        // for OGG music and MIDI synthesis
-	SNCAT_Level,        // for doors, lifts and RTS -> STATIC LOC
-	SNCAT_ConPlayer,    // for console player (pain, death, pickup)
-	SNCAT_ConWeapon,    // for console player's weapon
-	SNCAT_OtherPlayer,  // for all other players
-	SNCAT_Monster,      // for monster sounds
-	SNCAT_Object,       // for all other objects
+	SNCAT_UI,         // for the user interface (menus, tips)
+	SNCAT_Music,      // for OGG music and MIDI synthesis
+	SNCAT_Player,     // for console player (pain, death, pickup)
+	SNCAT_Weapon,     // for console player's weapon
+	SNCAT_Opponent,   // for all other players (DM or COOP)
+	SNCAT_Monster,    // for all monster sounds
+	SNCAT_Object,     // for all other objects
+	SNCAT_Level,      // for doors, lifts and map scripts
 	SNCAT_NUMTYPES
 }
 sound_category_e;
