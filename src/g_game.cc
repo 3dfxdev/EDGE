@@ -310,7 +310,7 @@ bool G_Responder(event_t * ev)
 		}
 
 		// explicit as probably killed the initial effect
-		sound::StartFX(sfx_swtchn, SNCAT_UI, sound::FXFLAG_IGNOREPAUSE);
+		sound::StartFX(sfx_swtchn, SNCAT_UI); //!!!! TEST
 		return true;
 	}
 
