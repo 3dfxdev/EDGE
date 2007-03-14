@@ -218,9 +218,9 @@ static void MovePlayer(player_t * player)
         int sfx_cat;
 
         if (player == players[consoleplayer])
-            sfx_cat = SNCAT_ConPlayer;
+            sfx_cat = SNCAT_Player;
         else
-            sfx_cat = SNCAT_OtherPlayer;
+            sfx_cat = SNCAT_Opponent;
 
 		if (player->powers[PW_Jetpack] <= (5 * TICRATE))
 		{
@@ -306,9 +306,9 @@ static void MovePlayer(player_t * player)
                 int sfx_cat;
                 
                 if (player == players[consoleplayer])
-                    sfx_cat = SNCAT_ConPlayer;
+                    sfx_cat = SNCAT_Player;
                 else
-                    sfx_cat = SNCAT_OtherPlayer;
+                    sfx_cat = SNCAT_Opponent;
 
 				sound::StartFX(player->mo->info->jump_sound, sfx_cat, player->mo);
             }

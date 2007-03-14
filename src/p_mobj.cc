@@ -661,7 +661,7 @@ void P_MobjExplodeMissile(mobj_t * mo)
 	mo->extendedflags &= ~(EF_BOUNCE | EF_USABLE);
 
 	if (mo->info->deathsound)
-		sound::StartFX(mo->info->deathsound, P_MobjGetSfxCategory(mo), mo);
+		sound::StartFX(mo->info->deathsound, SNCAT_Object, mo);
 
 	// mobjdef used -ACB- 1998/08/06
 	P_SetMobjStateDeferred(mo, mo->info->death_state, P_Random() & 3);
@@ -1806,28 +1806,24 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 //
 // P_MobjGetSfxCategory
 //
-// Returns the sound category for
+// Returns the sound category for an object.
 //
 int P_MobjGetSfxCategory(mobj_t *mo)
 {
-    int sfx_cat;
-
     if (mo->player)
     {
         if (mo->player == players[consoleplayer])
-            sfx_cat = SNCAT_ConPlayer;
-        else
-            sfx_cat = SNCAT_OtherPlayer;
+            return SNCAT_Player;
+        
+		return SNCAT_Opponent;
     }
     else
     {
         if (mo->extendedflags & EF_MONSTER) 
-            sfx_cat = SNCAT_Monster;
-        else
-            sfx_cat = SNCAT_Object;
-    }
+            return SNCAT_Monster;
 
-    return sfx_cat;
+		return SNCAT_Object;
+    }
 }
 
 #if 0  // DEBUGGING
