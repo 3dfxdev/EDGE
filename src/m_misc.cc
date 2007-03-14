@@ -92,6 +92,11 @@ epi::strent_c config_language;
 static int cfgsound;
 static int cfgmusic;
 
+int var_sample_rate = 0;
+int var_sound_bits = 0;
+int var_sound_stereo = 0;
+int var_mix_channels = 0;
+
 static default_t defaults[] =
 {
     {CFGT_Int,		"screenwidth",		 &SCREENWIDTH,	  CFGDEF_SCREENWIDTH},
@@ -99,14 +104,18 @@ static default_t defaults[] =
     {CFGT_Int,		"screendepth",		 &SCREENBITS,	  CFGDEF_SCREENBITS},
     {CFGT_Boolean,	"windowed",			 &SCREENWINDOW,	  CFGDEF_SCREENWINDOW},
     {CFGT_Boolean,	"directx",			 &force_directx,  0},
+    {CFGT_Int,      "usegamma",          &current_gamma,  CFGDEF_CURRENT_GAMMA},
  
-    {CFGT_Int,      "mouse_sensitivity", &mouseSensitivity, CFGDEF_MOUSESENSITIVITY},
+    {CFGT_Int,      "sample_rate",       &var_sample_rate,  CFGDEF_SAMPLE_RATE},
+    {CFGT_Int,      "sound_bits",        &var_sound_bits,   CFGDEF_SOUND_BITS},
+    {CFGT_Int,      "sound_stereo",      &var_sound_stereo, CFGDEF_SOUND_STEREO},
+    {CFGT_Int,      "mix_channels",      &var_mix_channels, CFGDEF_MIX_CHANNELS},
     {CFGT_Int,      "sfx_volume",        &cfgsound,       CFGDEF_SOUND_VOLUME},
     {CFGT_Int,      "music_volume",      &cfgmusic,       CFGDEF_MUSIC_VOLUME},
     {CFGT_Int,      "show_messages",     &showMessages,   CFGDEF_SHOWMESSAGES},
 
     {CFGT_Boolean,  "autorun",           &autorunning,    0},
-    {CFGT_Boolean,  "swapstereo",        &swapstereo,     CFGDEF_SWAPSTEREO},
+    {CFGT_Int,      "mouse_sensitivity", &mouseSensitivity, CFGDEF_MOUSESENSITIVITY},
     {CFGT_Boolean,  "invertmouse",       &invertmouse,    CFGDEF_INVERTMOUSE},
     {CFGT_Int,      "mlookspeed",        &mlookspeed,     CFGDEF_MLOOKSPEED},
 
@@ -165,7 +174,6 @@ static default_t defaults[] =
     {CFGT_Int,      "fieldofview",       &cfgnormalfov,   CFGDEF_NORMALFOV},
     {CFGT_Int,      "zoomedfieldofview", &cfgzoomedfov,   CFGDEF_ZOOMEDFOV},
 
-    {CFGT_Int,      "usegamma",          &current_gamma,  CFGDEF_CURRENT_GAMMA},
     {CFGT_Int,      "save_page",         &save_page, 0},
 
     {CFGT_Boolean,  "png_scrshots",      &png_scrshots,   CFGDEF_PNG_SCRSHOTS},
@@ -343,6 +351,11 @@ bool M_LoadDefaults(void)
 			if (strcmp(def, "bpp") == 0)
 			{
 				SCREENBITS = parm * 8;
+				continue;
+			}
+			else if (strcmp(def, "swapstereo") == 0)
+			{
+				var_sound_stereo = parm ? 2 : 1;
 				continue;
 			}
 
