@@ -412,15 +412,19 @@ public:
 	spawnpoint_t* FindPlayer(int pnum);
 };
 
+struct position_c
+{
+public:
+	float x, y, z;
+};
+
+
 // Map Object definition.
 typedef struct mobj_s mobj_t;
 
-struct mobj_s
+struct mobj_s : public position_c
 {
 	// Info for drawing: position.
-	// NOTE: these three fields must be first, so mobj_t can be used
-	// anywhere that degenmobj_t is expected.
-	float x, y, z;
 
 	// More drawing info: to determine current sprite.
 	angle_t angle;  // orientation
