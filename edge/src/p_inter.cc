@@ -639,9 +639,9 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
             int sfx_cat;
 
             if (info.player == players[consoleplayer])
-                sfx_cat = SNCAT_ConPlayer;
+                sfx_cat = SNCAT_Player;
             else
-                sfx_cat = SNCAT_OtherPlayer;
+                sfx_cat = SNCAT_Opponent;
 
 			sound::StartFX(sound, sfx_cat, info.player->mo);
         }
