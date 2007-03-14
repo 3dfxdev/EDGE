@@ -6,7 +6,7 @@ import os
 build_info = {}
 
 build_info['cross'] = ('cross' in ARGUMENTS) and ARGUMENTS['cross']
-build_info['debug'] = ('debug' in ARGUMENTS) and ARGUMENTS['debug']
+build_info['release'] = ('release' in ARGUMENTS) and ARGUMENTS['release']
 
 # check platform
 if (os.name == "nt") or build_info['cross']:
@@ -31,10 +31,10 @@ if build_info['cross']:
 base_env.Append(CCFLAGS = ['-Wall'])
 
 # optimisation
-if build_info['debug']:
-  base_env.Append(CCFLAGS = ['-O', '-g3'])
-else:
+if build_info['release']:
   base_env.Append(CCFLAGS = ['-O2'])
+else:
+  base_env.Append(CCFLAGS = ['-O', '-g3'])
 
 # platform
 base_env.Append(CCFLAGS = ['-D' + build_info['platform'].upper()])
