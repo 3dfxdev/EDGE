@@ -605,18 +605,15 @@ void Shutdown(void) { }
 
 void ClearAllFX(void) { }
 
-///--- void StartFX(sfx_t *sfx, int category, epi::vec3_c pos, int flags) { }
-void StartFX(sfx_t *sfx, int category, mobj_t *mo, int flags) { }
-void StartFX(sfx_t *sfx, int category, position_c *sec, int flags) { }
-void StartFX(sfx_t *sfx, int category, int flags) { }
+void StartFX(sfx_t *sfx, int category, position_c *pos, int flags) { }
 
-void StopFX(int handle) { }
-void StopFX(position_c *sec) { }
-void StopFX(mobj_t *mo) { }
+void StopFX(position_c *pos) { }
+void StopLoopingFX(position_c *pos) { }
 
-void StopLoopingFX(int handle) { }
-void StopLoopingFX(position_c *sec) { }
-void StopLoopingFX(mobj_t *mo) { }
+bool IsFXPlaying(position_c *pos) { return false; } 
+
+// Playsim Object <-> Effect Linkage
+void UnlinkFX(position_c *pos) { }
 
 // Ticker
 void Ticker() { }
@@ -624,17 +621,9 @@ void Ticker() { }
 void PauseAllFX()  { }
 void ResumeAllFX() { }
 
-bool IsFXPlaying(int handle) { return false; } 
-bool IsFXPlaying(position_c *sec) { return false; } 
-bool IsFXPlaying(mobj_t *mo) { return false; } 
-
 // Your effect reservation, sir...
 int ReserveFX(int category) { return -1; }
 void UnreserveFX(int handle) { }
-
-// Playsim Object <-> Effect Linkage
-void UnlinkFX(mobj_t *mo) { }
-void UnlinkFX(position_c *sec) { }
 
 // Volume Control
 int GetVolume() { return 1; }

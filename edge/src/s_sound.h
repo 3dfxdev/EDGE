@@ -95,25 +95,17 @@ namespace sound
 
     void ClearAllFX(void);
 
-///---    void StartFX(sfx_t *sfx, int category, epi::vec3_c pos, int flags = 0); 
-    void StartFX(sfx_t *sfx, int category, mobj_t *mo, int flags = 0); 
-    void StartFX(sfx_t *sfx, int category, position_c *sector, int flags = 0); 
-    void StartFX(sfx_t *sfx, int category = SNCAT_UI, int flags = 0);
+    void StartFX(sfx_t *sfx, int category = SNCAT_UI, position_c *pos = NULL, int flags = 0);
 
-    void StopFX(int handle);
-    void StopFX(position_c *sector);
-    void StopFX(mobj_t *mo);
-
-    void StopLoopingFX(int handle);
-    void StopLoopingFX(position_c *sector);
-    void StopLoopingFX(mobj_t *mo);
+    void StopFX(position_c *pos);
+    void StopLoopingFX(position_c *pos);
+    bool IsFXPlaying(position_c *pos); 
     
+    // Playsim Object <-> Effect Linkage
+    void UnlinkFX(position_c *pos);
+
     void ResumeAllFX();
     void PauseAllFX();
-
-    bool IsFXPlaying(int handle); 
-    bool IsFXPlaying(position_c *sector); 
-    bool IsFXPlaying(mobj_t *mo); 
 
     // Your effect reservation, sir...
     int ReserveFX(int category);
@@ -121,10 +113,6 @@ namespace sound
 
     // Ticker
     void Ticker();
-
-    // Playsim Object <-> Effect Linkage
-    void UnlinkFX(mobj_t *mo);
-    void UnlinkFX(position_c *sector);
 
     // Volume Control
     int GetVolume();
