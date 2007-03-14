@@ -716,33 +716,32 @@ void RAD_ActPlaySound(rad_trigger_t *R, mobj_t *actor, void *param)
 {
 	s_sound_t *ambient = (s_sound_t *) param;
 
+	int flags = 0;
+
 	if (ambient->kind == PSOUND_BossMan)
 	{
         // SFX_FIXME: Use new style call  FIXME!!!!
-		R->sfx_handle = 1; sound::StartFX(ambient->sfx, SNCAT_Level);
+		// flags |= FX_Boss;
+
+		//???? sound::StartFX(ambient->sfx, SNCAT_Level);
 		return;
 	}
 
 	// Ambient sound
-    epi::vec3_c pos;
-
-	pos.x = ambient->x;
-	pos.y = ambient->y;
+    R->sfx_origin.x = ambient->x;
+    R->sfx_origin.y = ambient->y;
 
 	if (ambient->z == ONFLOORZ)
-		pos.z = R_PointInSubsector(ambient->x, ambient->y)->sector->f_h;
+		R->sfx_origin.z = R_PointInSubsector(ambient->x, ambient->y)->sector->f_h;
 	else
-		pos.z = ambient->z;
+		R->sfx_origin.z = ambient->z;
 
-    // SFX_FIXME: Use x,y,z position and return handle
-	//
-	// FIXME!!!! store position_c field inside trigger
-	// R->sfx_handle = 1; sound::StartFX(ambient->sfx, SNCAT_Level, pos);
+	sound::StartFX(ambient->sfx, SNCAT_Level, &R->sfx_origin, flags);
 }
 
 void RAD_ActKillSound(rad_trigger_t *R, mobj_t *actor, void *param)
 {
-//FIXME 	sound::StopFX(R->sfx_handle);
+ 	sound::StopFX(&R->sfx_origin);
 }
 
 void RAD_ActChangeMusic(rad_trigger_t *R, mobj_t *actor, void *param)
