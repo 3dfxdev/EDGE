@@ -723,7 +723,7 @@ const char *I_SoundReturnError(void)
 namespace sound
 {
 
-const category_limits[2][8][3] =
+const int category_limits[2][8][3] =
 {
 	/* 16 channel */
 	{

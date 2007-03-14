@@ -115,6 +115,7 @@ static void M_KeyboardOptions(int keypressed);
 static void M_VideoOptions(int keypressed);
 static void M_GameplayOptions(int keypressed);
 static void M_AnalogueOptions(int keypressed);
+static void M_SoundOptions(int keypressed);
 // static void M_CalibrateJoystick(int keypressed);
 
 void M_ResetToDefaults(int keypressed);
@@ -174,6 +175,11 @@ static char AAim[]      = "Off/On/Mlook";
 static char Huds[]      = "Full/None/Overlay";
 static char MipMaps[]   = "None/Good/Best";
 static char Details[]   = "Low/Medium/High";
+
+static char SampleRates[] = "11025 Hz/16000 Hz/22050 Hz/44100 Hz";
+static char SoundBits[]   = "8 bit/16 bit";
+static char StereoNess[]  = "Off/On/Swapped";
+static char MixChans[]    = "16/32/64/128";
 
 // Screen resolution changes
 static int prevscrmode;
@@ -366,28 +372,22 @@ static void M_DefaultMenuItem(optmenuitem_t *item)
 //
 //  MAIN MENU
 //
-#define LANGUAGE_POS  6
-#define HOSTNET_POS   12
+#define LANGUAGE_POS  8
+#define HOSTNET_POS   11
 
 static optmenuitem_t mainmenu[] =
 {
 	{OPT_Function, "Keyboard Controls", NULL,  0, 0, NULL, M_KeyboardOptions, "Controls"},
 	{OPT_Function, "Mouse Options",     NULL,  0, 0, NULL, M_AnalogueOptions, "AnalogueOptions"},
 	{OPT_Function, "Gameplay Options",  NULL,  0, 0, NULL, M_GameplayOptions, "GameplayOptions"},
+	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
+	{OPT_Function, "Sound Options",     NULL,  0, 0, NULL, M_SoundOptions, NULL},
 	{OPT_Function, "Video Options",     NULL,  0, 0, NULL, M_VideoOptions, "VideoOptions"},
 	{OPT_Function, "Set Resolution",    NULL,  0, 0, NULL, M_ResolutionOptions, "ChangeRes"},
 
 	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Language",          NULL,  0, CFGDEF_MENULANGUAGE, NULL, M_ChangeLanguage, NULL},
 	{OPT_Switch,   "Messages",          YesNo, 2, CFGDEF_SHOWMESSAGES, &showMessages, NULL, "Messages"},
-	{OPT_Boolean,  "Swap Stereo",       YesNo, 2, CFGDEF_SWAPSTEREO, &swapstereo, NULL, "SwapStereo"},
-
-	{OPT_Slider,   "Sound Volume",      NULL, SND_SLIDER_NUM, 
-                                                  CFGDEF_SOUND_VOLUME, &menusoundvol, M_ChangeSfxVol, NULL},
-
-	{OPT_Slider,   "Music Volume",      NULL, SND_SLIDER_NUM, 
-                                                  CFGDEF_MUSIC_VOLUME, &menumusicvol, M_ChangeMusVol, NULL},
-
 	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Host NetGame",      NULL,  0, 0, NULL, M_HostNetGame, NULL},
 	{OPT_Function, "Join NetGame",      NULL,  0, 0, NULL, M_JoinNetGame, NULL},
@@ -517,6 +517,31 @@ static menuinfo_t analogueoptionsinfo =
 {
 	analogueoptions, sizeof(analogueoptions) / sizeof(optmenuitem_t),
 	&mouse_style, 150, 75, "M_MSETTL", NULL, 0, "", NULL, NULL
+};
+
+//
+//  SOUND OPTIONS
+//
+// -AJA- 2007/03/14 Added new sound menu
+//
+static optmenuitem_t soundoptions[] =
+{
+	{OPT_Slider,   "Sound Volume",  NULL, SND_SLIDER_NUM, CFGDEF_SOUND_VOLUME, &menusoundvol, M_ChangeSfxVol, NULL},
+	{OPT_Slider,   "Music Volume",  NULL, SND_SLIDER_NUM, CFGDEF_MUSIC_VOLUME, &menumusicvol, M_ChangeMusVol, NULL},
+
+	{OPT_Plain,    "", NULL, 0,  0, NULL, NULL, NULL},
+	{OPT_Switch,   "Sample Rate",   SampleRates, 4, CFGDEF_SAMPLE_RATE,  &var_sample_rate,  NULL, NULL},
+	{OPT_Switch,   "Sample Size",   SoundBits, 2,   CFGDEF_SOUND_BITS,   &var_sound_bits,   NULL, NULL},
+	{OPT_Switch,   "Stereo",        StereoNess, 3,  CFGDEF_SOUND_STEREO, &var_sound_stereo, NULL, "SwapStereo"},
+
+	{OPT_Plain,    "", NULL, 0,  0, NULL, NULL, NULL},
+	{OPT_Switch,  "Mix Channels",   MixChans, 4, CFGDEF_MIX_CHANNELS, &var_mix_channels, NULL, NULL},
+};
+
+static menuinfo_t soundoptionsinfo = 
+{
+	soundoptions, sizeof(soundoptions) / sizeof(optmenuitem_t),
+	&mouse_style, 150, 75, "M_SVOL", NULL, 0, "", NULL, NULL
 };
 
 //
@@ -1351,6 +1376,15 @@ static void M_AnalogueOptions(int keypressed)
 }
 
 //
+// M_SoundOptions
+//
+static void M_SoundOptions(int keypressed)
+{
+	curr_menu = &soundoptionsinfo;
+	curr_item = curr_menu->items + curr_menu->pos;
+}
+
+//
 // M_GameplayOptions
 //
 static void M_GameplayOptions(int keypressed)
@@ -1393,6 +1427,9 @@ void M_ResetToDefaults(int keypressed)
 
 	for (i = 0; i < analogueoptionsinfo.item_num; i++)
 		M_DefaultMenuItem(&analogueoptions[i]);
+
+	for (i = 0; i < soundoptionsinfo.item_num; i++)
+		M_DefaultMenuItem(&soundoptions[i]);
 
 	for (i = 0; i < stdkeyconfiginfo.item_num; i++)
 		M_DefaultMenuItem(&stdkeyconfig[i]);
