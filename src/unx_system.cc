@@ -114,6 +114,7 @@ static void I_SignalHandler(int s)
 		case SIGINT:  I_Error("EDGE: Interrupted by User"); break;
 		case SIGILL:  I_Error("EDGE: Illegal Instruction"); break;
 		case SIGFPE:  I_Error("EDGE: Floating Point Exception"); break;
+		case SIGABRT: I_Error("EDGE: Aborted"); break;
 		case SIGTERM: I_Error("EDGE: Killed"); break;
 	}
 
