@@ -96,6 +96,7 @@ int var_sample_rate = 0;
 int var_sound_bits = 0;
 int var_sound_stereo = 0;
 int var_mix_channels = 0;
+int var_quiet_factor = 0;
 
 static default_t defaults[] =
 {
@@ -106,14 +107,15 @@ static default_t defaults[] =
     {CFGT_Boolean,	"directx",			 &force_directx,  0},
     {CFGT_Int,      "usegamma",          &current_gamma,  CFGDEF_CURRENT_GAMMA},
  
+    {CFGT_Int,      "sfx_volume",        &cfgsound,       CFGDEF_SOUND_VOLUME},
+    {CFGT_Int,      "music_volume",      &cfgmusic,       CFGDEF_MUSIC_VOLUME},
     {CFGT_Int,      "sample_rate",       &var_sample_rate,  CFGDEF_SAMPLE_RATE},
     {CFGT_Int,      "sound_bits",        &var_sound_bits,   CFGDEF_SOUND_BITS},
     {CFGT_Int,      "sound_stereo",      &var_sound_stereo, CFGDEF_SOUND_STEREO},
     {CFGT_Int,      "mix_channels",      &var_mix_channels, CFGDEF_MIX_CHANNELS},
-    {CFGT_Int,      "sfx_volume",        &cfgsound,       CFGDEF_SOUND_VOLUME},
-    {CFGT_Int,      "music_volume",      &cfgmusic,       CFGDEF_MUSIC_VOLUME},
-    {CFGT_Int,      "show_messages",     &showMessages,   CFGDEF_SHOWMESSAGES},
+    {CFGT_Int,      "quiet_factor",      &var_quiet_factor, CFGDEF_QUIET_FACTOR},
 
+    {CFGT_Int,      "show_messages",     &showMessages,   CFGDEF_SHOWMESSAGES},
     {CFGT_Boolean,  "autorun",           &autorunning,    0},
     {CFGT_Int,      "mouse_sensitivity", &mouseSensitivity, CFGDEF_MOUSESENSITIVITY},
     {CFGT_Boolean,  "invertmouse",       &invertmouse,    CFGDEF_INVERTMOUSE},
@@ -346,18 +348,6 @@ bool M_LoadDefaults(void)
 				sscanf(strparm + 2, "%x", &parm);
 			else
 				sscanf(strparm, "%i", &parm);
-
-			// backwards compatibility
-			if (strcmp(def, "bpp") == 0)
-			{
-				SCREENBITS = parm * 8;
-				continue;
-			}
-			else if (strcmp(def, "swapstereo") == 0)
-			{
-				var_sound_stereo = parm ? 2 : 1;
-				continue;
-			}
 
 			// -AJA- 2004/01/10: this doesn't fit in yet...
 			if (strcmp(def, "language") == 0)
