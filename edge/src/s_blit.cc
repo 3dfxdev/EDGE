@@ -29,6 +29,8 @@
 #include "s_cache.h"
 #include "s_blit.h"
 
+#include <string.h>
+
 
 // Sound must be clipped to prevent distortion (clipping is
 // a kind of distortion of course, but it's much better than
@@ -49,8 +51,8 @@
 
 #define MAX_CHANNELS  128
 
-static mix_channel_c *mix_chan[MAX_CHANNELS];
-static int num_chan;
+mix_channel_c *mix_chan[MAX_CHANNELS];
+int num_chan;
 
 static int *mix_buffer;
 static int mix_buf_len;
@@ -136,14 +138,14 @@ static void BlitToS16(const int *src, s16_t *dest, int length)
 }
 
 
-static void MixMono(mix_channel_t *chan, int *dest, int length)
+static void MixMono(mix_channel_c *chan, int *dest, int length)
 {
-	DEV_ASSERT2(count > 0);
+	DEV_ASSERT2(length > 0);
 
-	const u16_t *src_L = chan->data->data_L;
+	const s16_t *src_L = chan->data->data_L;
 
 	register int *d_pos = dest;
-	int d_end = d_pos + length;
+	int *d_end = d_pos + length;
 
 	fixed22_t offset = chan->offset;
 
@@ -159,15 +161,15 @@ static void MixMono(mix_channel_t *chan, int *dest, int length)
 	DEV_ASSERT2(offset - chan->delta < chan->length);
 }
 
-static void MixStereo(mix_channel_t *chan, int *dest, int count)
+static void MixStereo(mix_channel_c *chan, int *dest, int length)
 {
-	DEV_ASSERT2(count > 0);
+	DEV_ASSERT2(length > 0);
 
-	const u16_t *src_L = chan->data->data_L;
-	const u16_t *src_R = chan->data->data_R;
+	const s16_t *src_L = chan->data->data_L;
+	const s16_t *src_R = chan->data->data_R;
 
 	register int *d_pos = dest;
-	int d_end = d_pos + length * 2;
+	int *d_end = d_pos + length * 2;
 
 	fixed22_t offset = chan->offset;
 
@@ -186,7 +188,7 @@ static void MixStereo(mix_channel_t *chan, int *dest, int count)
 
 static bool game_paused = false; //!!!!!! FIXME
 
-static void MixChannel(mix_channel_t *chan, int pairs)
+static void MixChannel(mix_channel_c *chan, int pairs)
 {
 	// check if channel active
 	if (! chan->data)
@@ -240,7 +242,7 @@ void S_MixAllChannels(void *stream, int len)
 			delete[] mix_buffer;
 
 		mix_buf_len = samples;
-		mix_buffer = new int[mix_buf_len]
+		mix_buffer = new int[mix_buf_len];
 	}
 
 	// clear mixer buffer
