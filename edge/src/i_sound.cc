@@ -62,6 +62,7 @@ static const int channel_counts[4] = { 16, 32, 64, 128 };
 
 static SDL_AudioSpec mydev;
 
+int dev_freq;
 int dev_bits;
 int dev_bytes_per_sample;
 int dev_frag_pairs;
@@ -161,6 +162,7 @@ bool I_StartupSound(void *sysinfo)
 	DEV_ASSERT2(dev_bytes_per_sample > 0);
 	DEV_ASSERT2(dev_frag_pairs > 0);
 
+	dev_freq   = mydev.freq;
 	dev_stereo = (mydev.channels == 2);
 
 	return true;
@@ -624,15 +626,18 @@ I_Printf("Looked up def: %p, caching...\n", def);
 
 I_Printf("chan=%p data=%p\n", chan, chan->data);
 
-//!!! FIXME	chan->def = def;
-	chan->category = category; //!! store use_cat and orig_cat
+	chan->def = def;
+	chan->pos = pos;
+	chan->category = category; //?? store use_cat and orig_cat
 
-    chan->volume_L = 1023<<2;
-    chan->volume_R = 1023<<2;
+	// volume computed during mixing (?)
+    chan->volume_L = 0;
+    chan->volume_R = 0;
 
 	chan->offset   = 0;
 	chan->length   = chan->data->length << 10;
-	chan->delta    = S_ComputeDelta(chan->data->freq, 11025); //!!!!
+
+	chan->ComputeDelta();
 
 I_Printf("FINISHED: delta=0x%x\n", chan->delta);
 }
@@ -693,7 +698,22 @@ void UnlinkFX(position_c *pos)
 }
 
 // Ticker
-void Ticker() { }
+void Ticker()
+{
+	if (nosound) return;
+
+	if (::numplayers == 0) // FIXME: Yuck!
+	{
+		S_SetListener(NULL, 0);
+	}
+	else
+	{
+		mobj_t *pmo = ::players[displayplayer]->mo;
+		DEV_ASSERT2(pmo);
+	   
+		S_SetListener(pmo, pmo->angle);
+	}
+}
 
 void PauseAllFX()  { }
 void ResumeAllFX() { }
