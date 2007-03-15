@@ -42,11 +42,13 @@
 #include <sys/time.h>
 
 #include "m_argv.h"
+#include "m_random.h"
 #include "m_swap.h"
 #include "w_wad.h"
 
 #include "s_sound.h"
 #include "s_cache.h"
+#include "s_blit.h"
 
 
 // If true, sound system is off/not working. Changed to false if sound init ok.
@@ -76,11 +78,7 @@ static char scratcherror[256];
 
 void SoundFill_Callback(void *udata, Uint8 *stream, int len)
 {
-	stream[0] = 255;
-	stream[len/4] = 127;
-	stream[len/2-1] = 187;
-
-//!!!	S_MixAllChannels(stream, len);
+	S_MixAllChannels(stream, len);
 }
 
 //
@@ -91,7 +89,6 @@ bool I_StartupSound(void *sysinfo)
 	if (nosound)
 		return true;
 
-	int i;
 	const char *p;
 	SDL_AudioSpec firstdev;
 
@@ -99,11 +96,6 @@ bool I_StartupSound(void *sysinfo)
 	int want_bits;
 	int want_stereo;
 
-	// clear channels
-/*
-	for (i=0; i < MIX_CHANNELS; i++)
-		mix_chan[i].priority = PRI_NOSOUND;
-*/
 	p = M_GetParm("-freq");
 	if (p)
 		want_freq = atoi(p);
@@ -171,11 +163,6 @@ bool I_StartupSound(void *sysinfo)
 
 	dev_stereo = (mydev.channels == 2);
 
-	// !!!! S_InitMixChannels(16)
-
-	// okidoke, start things rolling
-	SDL_PauseAudio(0);
-
 	return true;
 }
 
@@ -187,11 +174,11 @@ void I_ShutdownSound(void)
 	if (nosound)
 		return;
 
-//!!!!	S_TermMixChannels();
-
 	nosound = true;
 
 	SDL_CloseAudio();
+
+	S_FreeChannels();
 }
 
 
@@ -395,7 +382,7 @@ const char *I_SoundReturnError(void)
 namespace sound
 {
 
-const int category_limit_table[3][8][3] =
+const int category_limit_table[2][8][3] =
 {
 /* TEST:
  */
@@ -411,7 +398,18 @@ const int category_limit_table[3][8][3] =
 		{ 1, 1, 1 }, /* Level */
 	},
 
-	
+	{
+		{ 0, 0, 0 }, /* UI */
+		{ 0, 0, 0 }, /* Music */
+		{ 0, 0, 0 }, /* Player */
+		{ 4, 4, 4 }, /* Weapon */
+
+		{ 0, 0, 0 }, /* Opponent */
+		{ 0, 0, 0 }, /* Monster */
+		{ 0, 0, 0 }, /* Object */
+		{ 4, 4, 4 }, /* Level */
+	},
+#if 0
 	/* 16 channel */
 	{
 		{ 1, 1, 1 }, /* UI */
@@ -437,6 +435,7 @@ const int category_limit_table[3][8][3] =
 		{ 5, 5, 5 }, /* Object */
 		{ 5, 5, 6 }, /* Level */
 	},
+#endif
 };
 
 int cat_limits[SNCAT_NUMTYPES];
@@ -445,8 +444,6 @@ int cat_counts[SNCAT_NUMTYPES];
 
 void SetupCategoryLimits(void)
 {
-int num_chan=8; //!!!!
-	
 	// Assumes: num_chan to be already set, and the DEATHMATCH()
 	//          and COOP_MATCH() macros are working.
 
@@ -564,21 +561,136 @@ int FindHogToKill(int use_cat)
 #endif
 
 
-// Init/Shutdown
-void Init(void) { }
-void Shutdown(void) { }
+// Init/Shutdown  FIXME: merge with I_Startup/I_ShutdownSound ?
+void Init(void)
+{
+	if (nosound) return;
 
-void ClearAllFX(void) { }
+	// setup channels
+	S_InitChannels(8);
 
-void StartFX(sfx_t *sfx, int category, position_c *pos, int flags) { }
+	SetupCategoryLimits();
 
-void StopFX(position_c *pos) { }
+	// okidoke, start the ball rolling!
+	SDL_PauseAudio(0);
+}
+
+void Shutdown(void)
+{
+	if (nosound) return;
+
+	SDL_PauseAudio(1);
+}
+
+void ClearAllFX(void)
+{
+	if (nosound) return;
+
+	// FIXME !!!
+}
+
+// Not-rejigged-yet stuff..
+sfxdef_c * LookupEffectDef(const sfx_t *s) 
+{ 
+	DEV_ASSERT2(s->num >= 1);
+
+	// -KM- 1999/01/31 Using P_Random here means demos and net games 
+	//  get out of sync.
+	// -AJA- 1999/07/19: That's why we use M_Random instead :).
+
+	int num;
+
+	if (s->num > 1)
+		num = s->sounds[M_Random() % s->num];
+	else
+		num = s->sounds[0];
+
+	DEV_ASSERT2(0 <= num && num < sfxdefs.GetSize());
+
+	return sfxdefs[num];
+}
+
+static void S_PlaySoundOnChannel(int idx, sfx_t *sfx, int category, position_c *pos)
+{
+I_Printf("S_PlaySoundOnChannel on idx #%d SFX:%p\n", idx, sfx);
+
+	mix_channel_c *chan = mix_chan[idx];
+
+	sfxdef_c *def = LookupEffectDef(sfx);
+		
+I_Printf("Looked up def: %p, caching...\n", def);
+	chan->data = S_CacheLoad(def);
+	DEV_ASSERT2(chan->data);
+
+I_Printf("chan=%p data=%p\n", chan, chan->data);
+
+//!!! FIXME	chan->def = def;
+	chan->category = category; //!! store use_cat and orig_cat
+
+    chan->volume_L = 1023<<2;
+    chan->volume_R = 1023<<2;
+
+	chan->offset   = 0;
+	chan->length   = chan->data->length << 10;
+	chan->delta    = S_ComputeDelta(chan->data->freq, 11025); //!!!!
+
+I_Printf("FINISHED: delta=0x%x\n", chan->delta);
+}
+
+void StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
+{
+I_Printf("StartFX CALLED! nosound=%d\n", nosound);
+
+	if (nosound) return;
+	if (!sfx) return;
+
+	DEV_ASSERT2(0 <= category && category < SNCAT_NUMTYPES);
+
+	int use_cat = category;
+
+	while (cat_limits[use_cat] == 0)
+		use_cat++;
+	
+	bool is_relative = (use_cat <= SNCAT_Weapon);
+
+I_Printf("Locking SDL Audio...\n");
+	SDL_LockAudio();
+I_Printf("DONE.\n");
+
+	for (int i=0; i < num_chan; i++)
+	{
+		DEV_ASSERT2(mix_chan[i]);
+
+		if (! mix_chan[i]->data)
+		{
+			S_PlaySoundOnChannel(i, sfx, category, pos);
+			break;
+		}
+	}
+
+I_Printf("Unlocking...\n");
+	SDL_UnlockAudio();
+I_Printf("Returning to your regular viewing.\n");
+}
+
+void StopFX(position_c *pos)
+{
+	if (nosound) return;
+
+	// FIXME !!!
+}
+
 void StopLoopingFX(position_c *pos) { }
 
 bool IsFXPlaying(position_c *pos) { return false; } 
 
 // Playsim Object <-> Effect Linkage
-void UnlinkFX(position_c *pos) { }
+void UnlinkFX(position_c *pos)
+{
+	if (nosound) return;
+
+	//!!!!! FIXME
+}
 
 // Ticker
 void Ticker() { }
@@ -595,6 +707,7 @@ int GetVolume() { return 1; }
 void SetVolume(int volume) { }
 
 } // namespace sound
+
 
 // -AJA- 2005/02/26: table to convert slider position to GAIN.
 //       Curve was hand-crafted to give useful distinctions of

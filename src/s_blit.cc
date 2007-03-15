@@ -40,7 +40,7 @@
 // output sum will overflow into white noise, but the less
 // precision you have left for the volume multiplier.
 #define SAFE_BITS  3
-#define CLIP_THRESHHOLD  ((1 << (31-SAFE_BITS)) - 1)
+#define CLIP_THRESHHOLD  ((1L << (31-SAFE_BITS)) - 1)
 
 // This value is how much breathing room there is until
 // sounds start clipping.  More bits means less chance
@@ -197,8 +197,9 @@ static void MixChannel(mix_channel_c *chan, int pairs)
 	if (game_paused && chan->category >= SNCAT_Player)
 		return;
 
+//I_Printf("MIXING!!! chan=%p data=%p pairs=%d\n", chan, chan->data, pairs);
 	int *dest = mix_buffer;
-
+	
 	while (pairs > 0)
 	{
 		// check if enough sound data is left
@@ -247,6 +248,9 @@ void S_MixAllChannels(void *stream, int len)
 
 	// clear mixer buffer
 	memset(mix_buffer, 0, mix_buf_len * sizeof(int));
+	mix_buffer[0] = CLIP_THRESHHOLD;
+	mix_buffer[32] = -CLIP_THRESHHOLD;
+
 
 	// add each channel
 	for (int i=0; i < num_chan; i++)
@@ -259,5 +263,36 @@ void S_MixAllChannels(void *stream, int len)
 		BlitToU8(mix_buffer, (u8_t *)stream, samples);
 	else
 		BlitToS16(mix_buffer, (s16_t *)stream, samples);
+}
+
+
+void S_InitChannels(int total)
+{
+	// NOTE: assumes audio is locked!
+
+	num_chan = total;
+
+	for (int i = 0; i < num_chan; i++)
+		mix_chan[i] = new mix_channel_c();
+}
+
+void S_FreeChannels(void)
+{
+	// NOTE: assumes audio is locked!
+	
+	for (int i = 0; i < num_chan; i++)
+	{
+		mix_channel_c *chan = mix_chan[i];
+
+		if (chan->data)
+		{
+			S_CacheRelease(chan->data);
+			chan->data = NULL;
+		}
+
+		delete chan;
+	}
+
+	memset(mix_chan, 0, sizeof(mix_chan));
 }
 
