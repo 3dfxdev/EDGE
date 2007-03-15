@@ -60,9 +60,10 @@ static const int channel_counts[4] = { 16, 32, 64, 128 };
 
 static SDL_AudioSpec mydev;
 
-static int dev_bits;
-static int dev_bytes_per_sample;
-static int dev_frag_pairs;
+int dev_bits;
+int dev_bytes_per_sample;
+int dev_frag_pairs;
+int dev_stereo;
 
 
 #define PRI_NOSOUND   -1
@@ -75,19 +76,21 @@ static char scratcherror[256];
 
 void SoundFill_Callback(void *udata, Uint8 *stream, int len)
 {
+	stream[0] = 255;
+	stream[len/4] = 127;
+	stream[len/2-1] = 187;
+
 //!!!	S_MixAllChannels(stream, len);
 }
-
-bool I_StartupSound(void *sysinfo) { return true; }
-void I_ShutdownSound(void) { }
-
-#if 0
 
 //
 // I_StartupSound
 //
 bool I_StartupSound(void *sysinfo)
 {
+	if (nosound)
+		return true;
+
 	int i;
 	const char *p;
 	SDL_AudioSpec firstdev;
@@ -96,13 +99,11 @@ bool I_StartupSound(void *sysinfo)
 	int want_bits;
 	int want_stereo;
 
-	if (nosound)
-		return true;
-
 	// clear channels
+/*
 	for (i=0; i < MIX_CHANNELS; i++)
 		mix_chan[i].priority = PRI_NOSOUND;
-
+*/
 	p = M_GetParm("-freq");
 	if (p)
 		want_freq = atoi(p);
@@ -110,10 +111,10 @@ bool I_StartupSound(void *sysinfo)
 		want_freq = 11025;
 
 	want_bits = (M_CheckParm("-sound16") > 0) ? 16 : 8;
-	want_stereo = (M_CheckParm("-mono") > 0) ? 0 : 1;
+	want_stereo = false; //!!!!! (M_CheckParm("-mono") > 0) ? 0 : 1;
 
 	firstdev.freq = want_freq;
-	firstdev.format = (want_freq < 12) ? AUDIO_U8 : AUDIO_S16SYS;
+	firstdev.format = (want_bits < 12) ? AUDIO_U8 : AUDIO_S16SYS;
 	firstdev.channels = want_stereo ? 2 : 1;
 	firstdev.samples = 512;
 	firstdev.callback = SoundFill_Callback;
@@ -139,7 +140,7 @@ bool I_StartupSound(void *sysinfo)
 		dev_bits = 8;
 	else
 	{
-		I_Printf("I_StartupSound: unsupported format ! (%d)\n", mydev.format);
+		I_Printf("I_StartupSound: unsupported format: %d\n", mydev.format);
 		nosound = true;
 		return false;
 	}
@@ -153,7 +154,7 @@ bool I_StartupSound(void *sysinfo)
 		I_Printf("I_StartupSound: mono sound not available.\n");
 
 	if (mydev.freq < (want_freq - want_freq/100) || 
-			mydev.freq > (want_freq + want_freq/100))
+		mydev.freq > (want_freq + want_freq/100))
 	{
 		I_Printf("I_StartupSound: %d Hz sound not available.\n", want_freq);
 	}
@@ -163,29 +164,14 @@ bool I_StartupSound(void *sysinfo)
 			mydev.freq, dev_bits, (mydev.channels==2) ? "Stereo" : "Mono");
 
 	dev_bytes_per_sample = (mydev.channels) * (dev_bits / 8);
-	DEV_ASSERT2(dev_bytes_per_sample > 0);
-
 	dev_frag_pairs = mydev.size / dev_bytes_per_sample;
+
+	DEV_ASSERT2(dev_bytes_per_sample > 0);
 	DEV_ASSERT2(dev_frag_pairs > 0);
 
-	// allocate mixing buffers
-	mix_buffer_L = (int *) malloc(dev_frag_pairs * sizeof(int));
+	dev_stereo = (mydev.channels == 2);
 
-	if (! mix_buffer_L)
-	{
-		SDL_CloseAudio();
-		I_Error("I_StartupSound: Out of memory.\n");
-		return false;
-	}
-
-	mix_buffer_R = (int *) malloc(dev_frag_pairs * sizeof(int));
-
-	if (! mix_buffer_R)
-	{
-		SDL_CloseAudio();
-		I_Error("I_StartupSound: Out of memory.\n");
-		return false;
-	}
+	// !!!! S_InitMixChannels(16)
 
 	// okidoke, start things rolling
 	SDL_PauseAudio(0);
@@ -201,35 +187,15 @@ void I_ShutdownSound(void)
 	if (nosound)
 		return;
 
-	SDL_CloseAudio();
-
-	if (mix_buffer_L)
-	{
-		free(mix_buffer_L);
-		mix_buffer_L = NULL;
-	}
-
-	if (mix_buffer_R)
-	{
-		free(mix_buffer_R);
-		mix_buffer_L = NULL;
-	}
-
-	// FIXME: free sounds
+//!!!!	S_TermMixChannels();
 
 	nosound = true;
+
+	SDL_CloseAudio();
 }
 
-//
-// I_LoadSfx
-//
-bool I_LoadSfx(const unsigned char *data, unsigned int length,
-    unsigned int freq, unsigned int handle)
-{
-	SDL_LockAudio();
-	SDL_UnlockAudio();
-}
 
+#if 0
 //
 // I_SoundPlayback
 //
@@ -400,10 +366,9 @@ bool I_SoundResume(unsigned int chanid)
 	mix_chan[chanid].paused = 0;
 	return true;
 }
+#endif
 
 //----------------------------------------------------------------------------
-
-#endif
 
 //
 // I_SoundTicker
