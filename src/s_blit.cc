@@ -29,6 +29,10 @@
 #include "s_cache.h"
 #include "s_blit.h"
 
+#include "m_misc.h"
+#include "r_main.h"  // R_PointToAngle
+#include "p_local.h"  // P_ApproxDistance
+
 #include <string.h>
 
 
@@ -57,25 +61,81 @@ int num_chan;
 static int *mix_buffer;
 static int mix_buf_len;
 
+static int sfxvolume = 19;  //!!!! FIXME
 
+position_c *listen_pos;
+angle_t listen_angle;
+
+extern int dev_freq;
 extern int dev_bits;
 extern int dev_bytes_per_sample;
 extern int dev_frag_pairs;
 extern int dev_stereo;
 
 
-fixed22_t S_ComputeDelta(int data_freq, int device_freq)
-{
-	// sound data's frequency close enough ?
-	if (data_freq > device_freq - device_freq/100 &&
-			data_freq < device_freq + device_freq/100)
-	{
-		return 1024;
-	}
+mix_channel_c::mix_channel_c() : data(NULL)
+{ }
 
-	return (fixed22_t) floor((float)data_freq * 1024.0f / device_freq);
+mix_channel_c::~mix_channel_c()
+{ }
+	
+void mix_channel_c::ComputeDelta()
+{
+	// frequency close enough ?
+	if (data->freq > (dev_freq - dev_freq/100) &&
+		data->freq < (dev_freq + dev_freq/100))
+	{
+		delta = (1 << 10);
+	}
+	else
+	{
+		delta = (fixed22_t) floor((float)data->freq * 1024.0f / dev_freq);
+	}
 }
 
+void mix_channel_c::ComputeVolume()
+{
+	float sep = 0.5f;
+	float mul = 1.0f;
+
+	if (pos && listen_pos)
+	{
+		angle_t angle = R_PointToAngle(listen_pos->x, listen_pos->y, pos->x, pos->y);
+
+		angle -= listen_angle; //!!!!
+
+		sep = 0.5 - (int)(0.4f * M_Sin(angle));
+
+
+		float dist = P_ApproxDistance(listen_pos->x - pos->x, listen_pos->y - pos->y);
+
+		dist += fabs(listen_pos->z - pos->z) / 3.3f;
+
+		// this equation is @@@
+		dist = MAX(1.0f, dist - 160.0f);
+
+		float mul = exp(-dist/800.0f);
+	}
+
+	double MAX_VOL = (1 << (16 - SAFE_BITS - QUIET_BITS)) - 2;
+
+//!!!!!	MAX_VOL *= slider_to_gain[sfxvolume];
+	MAX_VOL *= mul;
+
+	// strictly linear equations
+	volume_L = (int) (MAX_VOL * (1.0 - sep));
+	volume_R = (int) (MAX_VOL * (0.0 + sep));
+
+	if (var_sound_stereo == 2)  /* SWAP ! */
+	{
+		int tmp = volume_L;
+		volume_L = volume_R;
+		volume_R = tmp;
+	}
+}
+
+
+//----------------------------------------------------------------------------
 
 static void BlitToU8(const int *src, u8_t *dest, int length)
 {
@@ -197,6 +257,8 @@ static void MixChannel(mix_channel_c *chan, int pairs)
 	if (game_paused && chan->category >= SNCAT_Player)
 		return;
 
+	chan->ComputeVolume();
+	
 //I_Printf("MIXING!!! chan=%p data=%p pairs=%d\n", chan, chan->data, pairs);
 	int *dest = mix_buffer;
 	
@@ -294,5 +356,11 @@ void S_FreeChannels(void)
 	}
 
 	memset(mix_chan, 0, sizeof(mix_chan));
+}
+
+void S_SetListener(position_c *pos, angle_t angle)
+{
+	listen_pos = pos;
+	listen_angle = angle;
 }
 

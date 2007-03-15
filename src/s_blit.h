@@ -26,6 +26,10 @@
 #ifndef __S_BLIT__
 #define __S_BLIT__
 
+class sfxdef_c;
+class position_c;
+
+
 // We use a 22.10 fixed point for sound offsets.  It's a reasonable
 // compromise between longest sound and accumulated round-off error.
 typedef unsigned long fixed22_t;
@@ -37,22 +41,22 @@ public:
 	fx_data_c *data;  // NULL means unused channel
 
 	int category;
-
-	int priority;
-
-	int volume_L;
-	int volume_R;
-	bool looping;
-
-	int paused;
+	sfxdef_c *def;
+	position_c *pos;
 
 	fixed22_t offset;
 	fixed22_t length;
 	fixed22_t delta;
 
+	int volume_L;
+	int volume_R;
+
 public:
-	mix_channel_c() : data(NULL) { }
-	~mix_channel_c() { }
+	mix_channel_c();
+	~mix_channel_c();
+
+	void ComputeDelta();
+	void ComputeVolume();
 };
 
 
@@ -63,7 +67,7 @@ extern int num_chan;
 void S_InitChannels(int total);
 void S_FreeChannels(void);
 
-fixed22_t S_ComputeDelta(int data_freq, int device_freq);
+void S_SetListener(position_c *pos, angle_t angle);
 
 void S_MixAllChannels(void *stream, int len);
 // mix all active channels into the output stream.
