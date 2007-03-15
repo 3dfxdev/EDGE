@@ -61,7 +61,7 @@ fx_data_c::~fx_data_c()
 
 //----------------------------------------------------------------------------
 
-static std::vector<fx_data_c> fx_cache;
+static std::vector<fx_data_c *> fx_cache;
 
 
 //----------------------------------------------------------------------------
@@ -91,6 +91,9 @@ static void S_FlushData(fx_data_c *fx)
 
 void S_CacheClearAll(void)
 {
+	for (int i = 0; i < (int)fx_cache.size(); i++)
+		delete fx_cache[i];
+
 	fx_cache.erase(fx_cache.begin(), fx_cache.end());
 }
 
@@ -98,18 +101,18 @@ fx_data_c *S_CacheLoad(sfxdef_c *def)
 {
 	for (int i = 0; i < (int)fx_cache.size(); i++)
 	{
-		if (fx_cache[i].def == def)
+		if (fx_cache[i]->def == def)
 		{
-			fx_cache[i].ref_count++;
-			return &fx_cache[i];
+			fx_cache[i]->ref_count++;
+			return fx_cache[i];
 		}
 	}
 
 
 	// create data structure
-	fx_cache.push_back(fx_data_c());
+	fx_data_c *data = new fx_data_c();
 
-	fx_data_c *data = &fx_cache.back();
+	fx_cache.push_back(data);
 
 	data->def = def;
 	data->ref_count = 1;
@@ -140,7 +143,6 @@ fx_data_c *S_CacheLoad(sfxdef_c *def)
 
 	data->freq = lump[2] + (lump[3] << 8);
 
-	lump += 8;  // get to the data
 	length -= 8;
 
 	data->length = length;
@@ -150,17 +152,15 @@ fx_data_c *S_CacheLoad(sfxdef_c *def)
 	data->data_L = dest;
 	data->data_R = dest;
 
-	const byte *lump_end = lump + length;
-
 	// convert to signed 16-bit format
-	for (; lump < lump_end; lump++)
-		*dest++ = ((*lump) ^ 0x80) << 8;
+	for (int i=0; i < length; i++)
+		*dest++ = (lump[8+i] ^ 0x80) << 8;
 
 	// caching the LUMP data is rather useless (and inefficient),
 	// since it won't be needed again until the current sound
 	// has been flushed from the sound cache.  Hence we just
 	// flush the lump data as early as possible.
-	W_DoneWithLump_Flushable(lump);
+	W_DoneWithLump(lump); // FIXME: _Flushable
 
 	return data;
 }
