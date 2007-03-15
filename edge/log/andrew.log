@@ -1,5 +1,26 @@
 Andrew Apted's Log
 
+2007/03/15:
+
+Added 'Quiet Factor' to the Sound Options menu.
+
+More work on sound code, moved blitting stuff to s_blit.cc/h,
+and managed to get the most basic setup running and playing
+some sounds, but so much more to do...
+
+2007/03/14:
+
+Implemented new "Sound Options" menu, with settings for the
+sample rate, sample depth, stereoness, and number of channels
+to mix.
+
+Worked on the sound caching code, putting it in a separate
+file s_cache.cc/h to keep it out of the way.
+
+Made a position_c class (with x/y/z fields) which mobj_t
+inherits from, and which replaces sec_sfxorig_t.  Hopefully
+this will simplify the sound API.
+
 2007/03/13:
 
 Created a new build of EDGE.WAD, bumping the version number
