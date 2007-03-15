@@ -50,7 +50,7 @@
 // sounds start clipping.  More bits means less chance
 // of clipping, but every extra bit makes the sound half
 // as loud as before.
-#define QUIET_BITS  2
+#define QUIET_BITS  0
 
 
 #define MAX_CHANNELS  128
@@ -100,12 +100,16 @@ void mix_channel_c::ComputeVolume()
 
 	if (pos && listen_pos)
 	{
+		if (var_sound_stereo)
+		{
 		angle_t angle = R_PointToAngle(listen_pos->x, listen_pos->y, pos->x, pos->y);
 
 		angle -= listen_angle; //!!!!
 
-		sep = 0.5 - (int)(0.4f * M_Sin(angle));
-
+		sep = 0.5f - 0.38f * M_Sin(angle);
+I_Printf("Separation: %1.5f  Angle: 0x%x = %1.1f  (Listen:%1.1f)\n",
+sep, angle, ANG_2_FLOAT(angle), ANG_2_FLOAT(listen_angle));
+		}
 
 		float dist = P_ApproxDistance(listen_pos->x - pos->x, listen_pos->y - pos->y);
 
@@ -114,10 +118,15 @@ void mix_channel_c::ComputeVolume()
 		// this equation is @@@
 		dist = MAX(1.0f, dist - 160.0f);
 
-		float mul = exp(-dist/800.0f);
+		mul = exp(-dist/800.0f);
+I_Printf("Dist: %1.1f  mul: %1.4f\n", dist, mul);
 	}
 
-	double MAX_VOL = (1 << (16 - SAFE_BITS - QUIET_BITS)) - 2;
+	double MAX_VOL = (1 << (16 - SAFE_BITS - var_quiet_factor)) - 2;
+
+I_Printf("MAX_VOL = %1.1f  mul = %1.1f\n", MAX_VOL, mul);
+
+MAX_VOL *= 2; // BUGGER!
 
 //!!!!!	MAX_VOL *= slider_to_gain[sfxvolume];
 	MAX_VOL *= mul;
