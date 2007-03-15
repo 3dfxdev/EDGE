@@ -51,7 +51,8 @@ public:
 	fixed22_t delta;
 
 public:
-	mix_channel_c()
+	mix_channel_c() : data(NULL) { }
+	~mix_channel_c() { }
 };
 
 
