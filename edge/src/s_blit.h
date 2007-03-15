@@ -60,6 +60,9 @@ extern mix_channel_c *mix_chan[];
 extern int num_chan;
 
 
+void S_InitChannels(int total);
+void S_FreeChannels(void);
+
 fixed22_t S_ComputeDelta(int data_freq, int device_freq);
 
 void S_MixAllChannels(void *stream, int len);
