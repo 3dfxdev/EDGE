@@ -98,6 +98,9 @@ const int category_limit_table[2][8][3] =
 		{ 5, 5, 6 }, /* Level */
 	},
 #endif
+
+	// NOTE: never put a '0' on the WEAPON line, since the top
+	// four categories should never be merged with the rest.
 };
 
 int cat_limits[SNCAT_NUMTYPES];
@@ -196,7 +199,7 @@ void CountPlayingCats(void)
 int ChannelScore(sfxdef_c *def, int category, position_c *pos, bool boss)
 {
 	// for full-volume sounds, use the priority from DDF
-	if (category <= SNCAT_Weapon || boss)
+	if (category <= SNCAT_Weapon)
 	{
 		return 200 - def->priority;
 	}
@@ -204,9 +207,14 @@ int ChannelScore(sfxdef_c *def, int category, position_c *pos, bool boss)
 	// for stuff in the level, use the distance
 	DEV_ASSERT2(pos);
 
-	float dist = P_ApproxDistance(listen_x - pos->x, listen_y - pos->y);
+	float dist = boss ? 0 :
+		P_ApproxDistance(listen_x - pos->x, listen_y - pos->y);
 
-	return 9000 - (int)(dist / 5.0);
+I_Printf("listen @ (%1.0f,%1.0f)  |  pos @ (%1.0f,%1.0f)\n",
+listen_x, listen_y, pos->x, pos->y);
+	int base_score = 2000 - (int)(dist / 10.0);
+
+	return base_score * 100 - def->priority;
 }
 
 int FindChannelToKill(int kill_cat, int real_cat, int new_score)
@@ -214,6 +222,7 @@ int FindChannelToKill(int kill_cat, int real_cat, int new_score)
 	int kill_idx = -1;
 	int kill_score = (1<<30);
 
+I_Printf("FindChannelToKill: cat:%d new_score:%d\n", kill_cat, new_score);
 	for (int j=0; j < num_chan; j++)
 	{
 		mix_channel_c *chan = mix_chan[j];
@@ -226,73 +235,29 @@ int FindChannelToKill(int kill_cat, int real_cat, int new_score)
 		
 		int score = ChannelScore(chan->def, chan->category,
 								 chan->pos, chan->boss);
-
+I_Printf("> [%d] '%s' = %d\n", j, chan->def->lump_name.GetString(), score);
 		// find one with LOWEST score
-		if (kill_idx < 0 || score < kill_score)
+		if (score < kill_score)
 		{
 			kill_idx = j;
 			kill_score = score;
 		}
 	}
-
+I_Printf("kill_idx = %d\n", kill_idx);
 	DEV_ASSERT2(kill_idx >= 0);
 
 	if (kill_cat != real_cat)
 		return kill_idx;
 
-	// if the score for new sound doesn't beat any existing channel,
-	// then simply discard the new sound.
+	// if the score for new sound is worse than any existing
+	// channel, then simply discard the new sound.
 	if (new_score >= kill_score)
 		return kill_idx;
 
 	return -1;
 }
 
-#if 0
-int FindHogToKill(int use_cat)
-{
-	int i;
-	int hogs[CAT_NUMTYPES];
 
-	for (i=0; i < CAT_NUMTYPES; i++)
-		hogs[i] = 0;
-
-	for (int cat = 0; cat < CAT_NUMTYPES; cat++)
-	{
-		if (cat == use_cat)
-			continue;
-
-		int playing = CountPlayingCats(cat);
-
-		if (playing > cat_limit[cat])
-			hogs[cat] = playing - cat_limit[cat];
-	}
-
-	int hog_cat = -1;
-	int hog_score = 0;
-
-	for (int cat = CAT_NUMTYPES-1; cat >= 0; cat--)
-	{
-		if (hogs[cat] > hog_score)
-		{
-			hog_score = hogs[cat];
-			hog_cat = cat;
-		}
-	}
-
-	SYS_ASSERT(hog_cat >= 0);
-
-	int hog_fx = FindCatToKill(hog_cat, -1.0f);
-
-	SYS_ASSERT(hog_fx >= 0);
-
-	return hog_fx;
-}
-
-#endif
-
-
-// Init/Shutdown  FIXME: merge with I_Startup/I_ShutdownSound ?
 void Init(void)
 {
 	if (nosound) return;
@@ -341,9 +306,9 @@ sfxdef_c * LookupEffectDef(const sfx_t *s)
 	return sfxdefs[num];
 }
 
-static void S_PlaySoundOnChannel(int idx, sfxdef_c *def, int category, position_c *pos)
+static void S_PlaySound(int idx, sfxdef_c *def, int category, position_c *pos, int flags)
 {
-I_Printf("S_PlaySoundOnChannel on idx #%d DEF:%p\n", idx, def);
+I_Printf("S_PlaySound on idx #%d DEF:%p\n", idx, def);
 
 	mix_channel_c *chan = mix_chan[idx];
 
@@ -363,6 +328,9 @@ I_Printf("chan=%p data=%p\n", chan, chan->data);
 
 	chan->offset   = 0;
 	chan->length   = chan->data->length << 10;
+
+	chan->loop = (flags & FX_Loop) ? true : false;
+	chan->boss = (flags & FX_Boss) ? true : false;
 
 	chan->ComputeDelta();
 
@@ -397,7 +365,7 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 				return;
 
 			S_KillChannel(k);
-			S_PlaySoundOnChannel(k, def, category, pos);
+			S_PlaySound(k, def, category, pos, flags);
 
 			return;
 		}
@@ -441,7 +409,7 @@ k, kill_cat, category);
 		S_KillChannel(k);
 	}
 
-	S_PlaySoundOnChannel(k, def, category, pos);
+	S_PlaySound(k, def, category, pos, flags);
 }
 
 void StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
@@ -450,6 +418,8 @@ void StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 
 	sfxdef_c *def = LookupEffectDef(sfx);
 	DEV_ASSERT2(def);
+
+	// FIXME: ignore very far away sounds (> 5000 == S_CLIPPING_DIST)
 
 	if (def->looping)
 		flags |= FX_Loop;
