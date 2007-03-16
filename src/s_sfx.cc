@@ -33,6 +33,13 @@
 #include "s_cache.h"
 #include "s_blit.h"
 
+#include "p_local.h" // P_ApproxDistance
+
+
+static bool allow_hogs = false; //!!!
+
+extern float listen_x;
+extern float listen_y;
 
 namespace sound
 {
@@ -172,25 +179,37 @@ int FindBiggestHog(int real_cat)
 	return biggest_hog;
 }
 
-#if 0
-int CountPlayingCats(int use_cat, bool petty_only = false)
+void CountPlayingCats(void)
 {
-	int count = 0;
+	for (int c=0; c < SNCAT_NUMTYPES; c++)
+		cat_counts[c] = 0;
 
-	for (int i=0; i < (int)playing_fx.size(); i++)
+	for (int i=0; i < num_chan; i++)
 	{
-		if (petty_only && (playing_fx[i].flags & FX_Petty))
-			continue;
+		mix_channel_c *chan = mix_chan[i];
 
-		if (playing_fx[i].def && playing_fx[i].use_cat == use_cat)
-			count++;
+		if (chan->data)
+			cat_counts[chan->category] += 1;
+	}
+}
+
+int ChannelScore(sfxdef_c *def, int category, position_c *pos, bool boss)
+{
+	// for full-volume sounds, use the priority from DDF
+	if (category <= SNCAT_Weapon || boss)
+	{
+		return 200 - def->priority;
 	}
 
-	return count;
-}
-#endif
+	// for stuff in the level, use the distance
+	DEV_ASSERT2(pos);
 
-int FindChannelToKill(int use_cat, float good_dist)
+	float dist = P_ApproxDistance(listen_x - pos->x, listen_y - pos->y);
+
+	return 9000 - (int)(dist / 5.0);
+}
+
+int FindChannelToKill(int kill_cat, int real_cat, int new_score)
 {
 	int kill_idx = -1;
 	int kill_score = (1<<30);
@@ -205,7 +224,8 @@ int FindChannelToKill(int use_cat, float good_dist)
 		if (chan->category != kill_cat)
 			continue;
 		
-		int score = 200 - chan->def->priority; //!!!
+		int score = ChannelScore(chan->def, chan->category,
+								 chan->pos, chan->boss);
 
 		// find one with LOWEST score
 		if (kill_idx < 0 || score < kill_score)
@@ -346,11 +366,19 @@ I_Printf("chan=%p data=%p\n", chan, chan->data);
 
 	chan->ComputeDelta();
 
-I_Printf("FINISHED: delta=0x%x\n", chan->delta);
+I_Printf("FINISHED: delta=0x%lx\n", chan->delta);
+}
+
+static void S_KillChannel(int k)
+{
+	//!!!! FIXME WAY FUCKED UP!
+	mix_chan[k]->data = NULL;
 }
 
 static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 {
+	CountPlayingCats();
+
 	int k = FindPlayingFX(def, category, pos);
 
 	if (k >= 0)
@@ -373,31 +401,36 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 
 			return;
 		}
-
-		// QUESTION: if already playing, and have to kill a
-		// sound in existing channel -- what to do?
-		// (allow multiple sounds in this case??)
 	}
 
 	k = FindFreeChannel();
 
+	if (! allow_hogs)
+	{
+		if (cat_counts[category] >= cat_limits[category])
+			k = -1;
+	}
+
 	if (k < 0)
 	{
 		// all channels are in use.
-		int my_score = 200 - def->priority; //!!!!
+		// either kill one, or drop the new sound.
+
+		int new_score = ChannelScore(def, category, pos,
+							(flags & FX_Boss) ? true : false);
 
 		// decide which category to kill a sound in.
 		int kill_cat = category;
 			
 		if (cat_counts[category] < cat_limits[category])
 		{
-			// we haven't reached our quota yet, so kill a hog.
-			kill_cat = FindBiggestHog();
+			// we haven't reached our quota yet, hence kill a hog.
+			kill_cat = FindBiggestHog(category);
 		}
 
 		DEV_ASSERT2(cat_counts[kill_cat] > cat_limits[kill_cat]);
 
-		k = FindChannelToKill(  );
+		k = FindChannelToKill(kill_cat, category, new_score);
 
 		if (k < 0)
 			return;
@@ -420,15 +453,13 @@ I_Printf("StartFX CALLED! nosound=%d\n", nosound);
 	if (def->looping)
 		flags |= FX_Loop;
 
-	if (def->singularity)
+	if (def->singularity > 0)
 	{
 		flags |= FX_Single;
 		flags |= (def->precious ? 0 : FX_Cut);
 	}
 
 	DEV_ASSERT2(0 <= category && category < SNCAT_NUMTYPES);
-
-//	bool is_relative = (category <= SNCAT_Weapon);
 
 	while (cat_limits[category] == 0)
 		category++;
