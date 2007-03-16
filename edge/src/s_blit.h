@@ -67,13 +67,12 @@ extern int num_chan;
 void S_InitChannels(int total);
 void S_FreeChannels(void);
 
-void S_SetListener(position_c *pos, angle_t angle);
-
 void S_MixAllChannels(void *stream, int len);
 // mix all active channels into the output stream.
 // 'len' is the number of samples (for stereo: pairs)
 // to mix into the stream.
 
+void S_UpdateSounds(position_c *listener, angle_t angle);
 
 #endif // __S_BLIT__
 

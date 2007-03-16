@@ -278,8 +278,6 @@ static void MixChannel(mix_channel_c *chan, int pairs)
 	if (game_paused && chan->category >= SNCAT_Player)
 		return;
 
-	chan->ComputeVolume();
-	
 	int *dest = mix_buffer;
 	
 	while (pairs > 0)
@@ -378,12 +376,23 @@ void S_FreeChannels(void)
 	memset(mix_chan, 0, sizeof(mix_chan));
 }
 
-void S_SetListener(position_c *pos, angle_t angle)
+void S_UpdateSounds(position_c *listener, angle_t angle)
 {
-	listen_x = pos ? pos->x : 0;
-	listen_y = pos ? pos->y : 0;
-	listen_z = pos ? pos->z : 0;
+	// NOTE: assume SDL_LockAudio has been called
+
+	listen_x = listener ? listener->x : 0;
+	listen_y = listener ? listener->y : 0;
+	listen_z = listener ? listener->z : 0;
 
 	listen_angle = angle;
+
+	for (int i = 0; i < num_chan; i++)
+	{
+		mix_channel_c *chan = mix_chan[i];
+
+		if (chan->data)
+			chan->ComputeVolume();
+	}
 }
+
 
