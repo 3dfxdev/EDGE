@@ -67,10 +67,10 @@ static int sfxvolume = 19;  //!!!! FIXME
 static bool game_paused = false; //!!!!!! FIXME
 
 // these are analogous to viewx/y/z, viewangle
-static float listen_x;
-static float listen_y;
-static float listen_z;
-static angle_t listen_angle;
+float listen_x;
+float listen_y;
+float listen_z;
+angle_t listen_angle;
 
 // -AJA- 2005/02/26: table to convert slider position to GAIN.
 //       Curve was hand-crafted to give useful distinctions of
