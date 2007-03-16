@@ -537,7 +537,7 @@ static optmenuitem_t soundoptions[] =
 
 	{OPT_Plain,    "", NULL, 0,  0, NULL, NULL, NULL},
 	{OPT_Switch,  "Mix Channels",   MixChans,  4, CFGDEF_MIX_CHANNELS, &var_mix_channels, NULL, NULL},
-	{OPT_Switch,  "Quiet Factor",   QuietNess, 4, CFGDEF_QUIET_FACTOR, &var_quiet_factor, NULL, NULL},
+	{OPT_Switch,  "Quiet Factor",   QuietNess, 3, CFGDEF_QUIET_FACTOR, &var_quiet_factor, NULL, NULL},
 };
 
 static menuinfo_t soundoptionsinfo = 
@@ -1131,7 +1131,7 @@ bool M_OptResponder(event_t * ev, int ch)
 			}
 			while (curr_item->type == 0);
 
-			sound::StartFX(sfx_pstop, SNCAT_UI);
+			sound::StartFX(sfx_pstop);
 			return true;
 		}
 
@@ -1146,7 +1146,7 @@ bool M_OptResponder(event_t * ev, int ch)
 			}
 			while (curr_item->type == 0);
 
-			sound::StartFX(sfx_pstop, SNCAT_UI);
+			sound::StartFX(sfx_pstop);
 			return true;
 		}
 
@@ -1159,7 +1159,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					curr_menu = curr_menu->sister_prev;
 					curr_item = curr_menu->items + curr_menu->pos;
 
-					sound::StartFX(sfx_pstop, SNCAT_UI);
+					sound::StartFX(sfx_pstop);
 				}
 				return true;
 			}
@@ -1176,7 +1176,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					bool *boolptr = (bool*)curr_item->switchvar;
 					*boolptr = !(*boolptr);
 
-					sound::StartFX(sfx_pistol, SNCAT_UI);
+					sound::StartFX(sfx_pistol);
 
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
@@ -1191,7 +1191,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					if ((*(int*)(curr_item->switchvar)) < 0)
 						(*(int*)(curr_item->switchvar)) = curr_item->numtypes - 1;
 
-					sound::StartFX(sfx_pistol, SNCAT_UI);
+					sound::StartFX(sfx_pistol);
 
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
@@ -1204,7 +1204,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
 
-					sound::StartFX(sfx_pistol, SNCAT_UI);
+					sound::StartFX(sfx_pistol);
 					return true;
 				}
 
@@ -1213,7 +1213,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					if ((*(int*)(curr_item->switchvar)) > 0)
 					{
 						(*(int*)(curr_item->switchvar))--;
-						sound::StartFX(sfx_stnmov, SNCAT_UI);
+						sound::StartFX(sfx_stnmov);
 					}
 
 					if (curr_item->routine != NULL)
@@ -1235,7 +1235,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					curr_menu = curr_menu->sister_next;
 					curr_item = curr_menu->items + curr_menu->pos;
 
-					sound::StartFX(sfx_pstop, SNCAT_UI);
+					sound::StartFX(sfx_pstop);
 				}
 				return true;
 			}
@@ -1253,7 +1253,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					bool *boolptr = (bool*)curr_item->switchvar;
 					*boolptr = !(*boolptr);
 
-					sound::StartFX(sfx_pistol, SNCAT_UI);
+					sound::StartFX(sfx_pistol);
 
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
@@ -1268,7 +1268,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					if ((*(int*)(curr_item->switchvar)) >= curr_item->numtypes)
 						(*(int*)(curr_item->switchvar)) = 0;
 
-					sound::StartFX(sfx_pistol, SNCAT_UI);
+					sound::StartFX(sfx_pistol);
 
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
@@ -1281,7 +1281,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
 
-					sound::StartFX(sfx_pistol, SNCAT_UI);
+					sound::StartFX(sfx_pistol);
 					return true;
 				}
 
@@ -1290,7 +1290,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					if ((*(int*)(curr_item->switchvar)) < (curr_item->numtypes - 1))
 					{
 						(*(int*)(curr_item->switchvar))++;
-						sound::StartFX(sfx_stnmov, SNCAT_UI);
+						sound::StartFX(sfx_stnmov);
 					}
 
 					if (curr_item->routine != NULL)
@@ -1321,7 +1321,7 @@ bool M_OptResponder(event_t * ev, int ch)
 				curr_menu = &mainmenuinfo;
 				curr_item = curr_menu->items + curr_menu->pos;
 			}
-			sound::StartFX(sfx_swtchx, SNCAT_UI);
+			sound::StartFX(sfx_swtchx);
 			return true;
 		}
 	}
