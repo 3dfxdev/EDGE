@@ -386,7 +386,7 @@ bool M_NetHostResponder(event_t * ev, int ch)
 			// FIXME: !!!! check for error
 			N_OpenBroadcastSocket(true);
 
-			sound::StartFX(sfx_swtchn, SNCAT_UI);
+			sound::StartFX(sfx_swtchn);
 
 			netgame_menuon = 3;
 		}
@@ -473,7 +473,7 @@ bool M_NetJoinResponder(event_t * ev, int ch)
 {
 	if (ch == KEYD_ENTER)
 	{
-		sound::StartFX(sfx_swtchn, SNCAT_UI);
+		sound::StartFX(sfx_swtchn);
 
 		netgame_menuon = 3;
 		return true;
@@ -531,7 +531,7 @@ bool M_NetListResponder(event_t * ev, int ch)
 {
 	if (ch == KEYD_ENTER && netgame_we_host)
 	{
-		sound::StartFX(sfx_swtchn, SNCAT_UI);
+		sound::StartFX(sfx_swtchn);
 
 		netgame_menuon = 0;
 		M_ClearMenus();
@@ -600,7 +600,7 @@ bool M_NetGameResponder(event_t * ev, int ch)
 			netgame_menuon = 0;
 			M_ClearMenus();
 
-			sound::StartFX(sfx_swtchx, SNCAT_UI);
+			sound::StartFX(sfx_swtchx);
 
 			return true;
 		}
