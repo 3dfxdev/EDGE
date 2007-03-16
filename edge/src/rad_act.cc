@@ -719,13 +719,7 @@ void RAD_ActPlaySound(rad_trigger_t *R, mobj_t *actor, void *param)
 	int flags = 0;
 
 	if (ambient->kind == PSOUND_BossMan)
-	{
-        // SFX_FIXME: Use new style call  FIXME!!!!
-		// flags |= FX_Boss;
-
-		//???? sound::StartFX(ambient->sfx, SNCAT_Level);
-		return;
-	}
+		flags |= FX_Boss;
 
 	// Ambient sound
     R->sfx_origin.x = ambient->x;
