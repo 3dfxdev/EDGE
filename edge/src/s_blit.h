@@ -51,6 +51,9 @@ public:
 	int volume_L;
 	int volume_R;
 
+	bool loop;  // will loop *one* more time
+	bool boss;
+
 public:
 	mix_channel_c();
 	~mix_channel_c();
