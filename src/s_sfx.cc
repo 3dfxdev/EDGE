@@ -242,7 +242,7 @@ int FindChannelToKill(int kill_cat, int real_cat, int new_score)
 
 	// if the score for new sound doesn't beat any existing channel,
 	// then simply discard the new sound.
-	if (new_score > kill_score)
+	if (new_score >= kill_score)
 		return kill_idx;
 
 	return -1;
@@ -428,13 +428,16 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 			kill_cat = FindBiggestHog(category);
 		}
 
-		DEV_ASSERT2(cat_counts[kill_cat] > cat_limits[kill_cat]);
+		DEV_ASSERT2(cat_counts[kill_cat] >= cat_limits[kill_cat]);
 
 		k = FindChannelToKill(kill_cat, category, new_score);
 
+if (k<0) I_Printf("- new score too low\n");
 		if (k < 0)
 			return;
 
+I_Printf("- killing channel %d (kill_cat:%d)  my_cat:%d\n",
+k, kill_cat, category);
 		S_KillChannel(k);
 	}
 
@@ -443,8 +446,6 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 
 void StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 {
-I_Printf("StartFX CALLED! nosound=%d\n", nosound);
-
 	if (nosound || !sfx) return;
 
 	sfxdef_c *def = LookupEffectDef(sfx);
@@ -458,6 +459,9 @@ I_Printf("StartFX CALLED! nosound=%d\n", nosound);
 		flags |= FX_Single;
 		flags |= (def->precious ? 0 : FX_Cut);
 	}
+
+I_Printf("StartFX: '%s' cat:%d flags:0x%04x\n", def->lump_name.GetString(),
+	category, flags);
 
 	DEV_ASSERT2(0 <= category && category < SNCAT_NUMTYPES);
 
