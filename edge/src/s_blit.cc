@@ -62,9 +62,25 @@ static int *mix_buffer;
 static int mix_buf_len;
 
 static int sfxvolume = 19;  //!!!! FIXME
+static bool game_paused = false; //!!!!!! FIXME
 
-position_c *listen_pos;
-angle_t listen_angle;
+// these are analogous to viewx/y/z, viewangle
+static float listen_x;
+static float listen_y;
+static float listen_z;
+static angle_t listen_angle;
+
+// -AJA- 2005/02/26: table to convert slider position to GAIN.
+//       Curve was hand-crafted to give useful distinctions of
+//       volume levels at the quiet end.  Entry zero always
+//       means total silence (in the table for completeness).
+float slider_to_gain[20] =
+{
+	0.00000, 0.00200, 0.00400, 0.00800, 0.01600,
+	0.03196, 0.05620, 0.08886, 0.12894, 0.17584,
+	0.22855, 0.28459, 0.34761, 0.41788, 0.49553,
+	0.58075, 0.67369, 0.77451, 0.88329, 1.00000
+};
 
 extern int dev_freq;
 extern int dev_bits;
@@ -98,38 +114,36 @@ void mix_channel_c::ComputeVolume()
 	float sep = 0.5f;
 	float mul = 1.0f;
 
-	if (pos && listen_pos)
+	if (pos) // && pos != ::players[displayplayer]->mo
 	{
 		if (var_sound_stereo)
 		{
-		angle_t angle = R_PointToAngle(listen_pos->x, listen_pos->y, pos->x, pos->y);
+			angle_t angle = R_PointToAngle(listen_x, listen_y, pos->x, pos->y);
 
-		angle -= listen_angle; //!!!!
-
-		sep = 0.5f - 0.38f * M_Sin(angle);
-I_Printf("Separation: %1.5f  Angle: 0x%x = %1.1f  (Listen:%1.1f)\n",
-sep, angle, ANG_2_FLOAT(angle), ANG_2_FLOAT(listen_angle));
+			// same equation from original DOOM 
+			sep = 0.5f - 0.38f * M_Sin(angle - listen_angle);
 		}
 
-		float dist = P_ApproxDistance(listen_pos->x - pos->x, listen_pos->y - pos->y);
+		if (false) // ! AlwaysLoud  //!!!! FIXME
+		{
+			// approximate distance (with hack for Z)
+			float dist = P_ApproxDistance(listen_x - pos->x, listen_y - pos->y);
 
-		dist += fabs(listen_pos->z - pos->z) / 3.3f;
+			dist += fabs(listen_z - pos->z) / 4.0f;
 
-		// this equation is @@@
-		dist = MAX(1.0f, dist - 160.0f);
-
-		mul = exp(-dist/800.0f);
-I_Printf("Dist: %1.1f  mul: %1.4f\n", dist, mul);
+			// -AJA- this equation was chosen to mimic the DOOM falloff
+			//       function, but doesn't cut out @ dist=1600, instead
+			//       tapering off exponentially.
+			mul = exp(-MAX(1.0f, dist - 160.0f) / 800.0f);
+		}
 	}
 
-	double MAX_VOL = (1 << (16 - SAFE_BITS - var_quiet_factor)) - 2;
+	float MAX_VOL = (1 << (16 - SAFE_BITS - MAX(0,var_quiet_factor-1))) - 3;
 
-I_Printf("MAX_VOL = %1.1f  mul = %1.1f\n", MAX_VOL, mul);
+	if (var_quiet_factor == 0)
+		MAX_VOL *= 2.0;
 
-MAX_VOL *= 2; // BUGGER!
-
-//!!!!!	MAX_VOL *= slider_to_gain[sfxvolume];
-	MAX_VOL *= mul;
+	MAX_VOL = MAX_VOL * mul * slider_to_gain[sfxvolume];
 
 	// strictly linear equations
 	volume_L = (int) (MAX_VOL * (1.0 - sep));
@@ -255,8 +269,6 @@ static void MixStereo(mix_channel_c *chan, int *dest, int length)
 	DEV_ASSERT2(offset - chan->delta < chan->length);
 }
 
-static bool game_paused = false; //!!!!!! FIXME
-
 static void MixChannel(mix_channel_c *chan, int pairs)
 {
 	// check if channel active
@@ -268,7 +280,6 @@ static void MixChannel(mix_channel_c *chan, int pairs)
 
 	chan->ComputeVolume();
 	
-//I_Printf("MIXING!!! chan=%p data=%p pairs=%d\n", chan, chan->data, pairs);
 	int *dest = mix_buffer;
 	
 	while (pairs > 0)
@@ -369,7 +380,10 @@ void S_FreeChannels(void)
 
 void S_SetListener(position_c *pos, angle_t angle)
 {
-	listen_pos = pos;
+	listen_x = pos ? pos->x : 0;
+	listen_y = pos ? pos->y : 0;
+	listen_z = pos ? pos->z : 0;
+
 	listen_angle = angle;
 }
 
