@@ -52,8 +52,6 @@
 // as loud as before.
 #define QUIET_BITS  0
 
-#define S_CLOSE_DIST  160.0f
-
 
 #define MAX_CHANNELS  128
 

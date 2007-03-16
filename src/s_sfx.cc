@@ -407,10 +407,20 @@ void StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 {
 	if (nosound || !sfx) return;
 
+	DEV_ASSERT2(0 <= category && category < SNCAT_NUMTYPES);
+
+	// ignore very far away sounds
+	if (category >= SNCAT_Opponent && !(flags & FX_Boss))
+	{
+		DEV_ASSERT2(pos);
+
+		// TODO: take 'z' into account
+		if (P_ApproxDistance(listen_x - pos->x, listen_y - pos->y) > S_CLIPPING_DIST)
+			return;
+	}
+
 	sfxdef_c *def = LookupEffectDef(sfx);
 	DEV_ASSERT2(def);
-
-	// FIXME: ignore very far away sounds (> 5000 == S_CLIPPING_DIST)
 
 	if (def->looping)
 		flags |= FX_Loop;
@@ -423,8 +433,6 @@ void StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 
 I_Printf("StartFX: '%s' cat:%d flags:0x%04x\n", def->lump_name.GetString(),
 	category, flags);
-
-	DEV_ASSERT2(0 <= category && category < SNCAT_NUMTYPES);
 
 	while (cat_limits[category] == 0)
 		category++;

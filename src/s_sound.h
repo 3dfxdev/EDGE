@@ -28,6 +28,9 @@
 
 #include "epi/math_vector.h"
 
+#define S_CLOSE_DIST     160.0f
+#define S_CLIPPING_DIST  4000.0f
+
 // Forward declarations
 class position_c;
 typedef struct mobj_s mobj_t;
