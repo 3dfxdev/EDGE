@@ -126,7 +126,7 @@ void mix_channel_c::ComputeVolume()
 			sep = 0.5f - 0.38f * M_Sin(angle - listen_angle);
 		}
 
-		if (false) // ! boss  //!!!! FIXME
+		if (! boss)
 		{
 			// approximate distance (with hack for Z)
 			float dist = P_ApproxDistance(listen_x - pos->x, listen_y - pos->y);
