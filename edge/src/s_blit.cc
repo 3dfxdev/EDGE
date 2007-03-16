@@ -52,6 +52,8 @@
 // as loud as before.
 #define QUIET_BITS  0
 
+#define S_CLOSE_DIST  160.0f
+
 
 #define MAX_CHANNELS  128
 
@@ -134,7 +136,7 @@ void mix_channel_c::ComputeVolume()
 			// -AJA- this equation was chosen to mimic the DOOM falloff
 			//       function, but doesn't cut out @ dist=1600, instead
 			//       tapering off exponentially.
-			mul = exp(-MAX(1.0f, dist - 160.0f) / 800.0f);
+			mul = exp(-MAX(1.0f, dist - S_CLOSE_DIST) / 800.0f);
 		}
 	}
 
@@ -278,6 +280,9 @@ static void MixChannel(mix_channel_c *chan, int pairs)
 	if (game_paused && chan->category >= SNCAT_Player)
 		return;
 
+	if (chan->volume_L == 0 && chan->volume_R == 0)
+		return;
+
 	int *dest = mix_buffer;
 	
 	while (pairs > 0)
@@ -394,5 +399,4 @@ void S_UpdateSounds(position_c *listener, angle_t angle)
 			chan->ComputeVolume();
 	}
 }
-
 
