@@ -36,7 +36,7 @@
 #include "p_local.h" // P_ApproxDistance
 
 
-static bool allow_hogs = false; //!!!
+static bool allow_hogs = true;
 
 extern float listen_x;
 extern float listen_y;
@@ -45,48 +45,48 @@ namespace sound
 {
 
 /* See m_option.cc for corresponding menu items */
-const int channel_counts[5] = { 8, 16, 32, 64, 128 };
+const int channel_counts[5] = { 8, 16, 32, 64, 96 };
 
 
 const int category_limit_table[3][8][3] =
 {
-	/* 8 channel */
+	/* 8 channel (TEST) */
 	{
-		{ 1, 1, 1 }, /* UI */
-		{ 1, 1, 1 }, /* Music */
-		{ 0, 0, 0 }, /* Player */
-		{ 2, 2, 2 }, /* Weapon */
+		{ 1, 1, 1 }, // UI
+		{ 1, 1, 1 }, // Music
+		{ 1, 1, 1 }, // Player
+		{ 1, 1, 1 }, // Weapon
 
-		{ 0, 0, 0 }, /* Opponent */
-		{ 0, 0, 0 }, /* Monster */
-		{ 0, 0, 0 }, /* Object */
-		{ 4, 4, 4 }, /* Level */
+		{ 1, 1, 1 }, // Opponent
+		{ 1, 1, 1 }, // Monster
+		{ 1, 1, 1 }, // Object
+		{ 1, 1, 1 }, // Level
 	},
 
 	/* 16 channel */
 	{
-		{ 1, 1, 1 }, /* UI */
-		{ 1, 1, 1 }, /* Music */
-		{ 1, 1, 2 }, /* Player */
-		{ 2, 2, 2 }, /* Weapon */
+		{ 1, 1, 1 }, // UI
+		{ 1, 1, 1 }, // Music
+		{ 1, 1, 1 }, // Player
+		{ 2, 2, 2 }, // Weapon
 
-		{ 0, 2, 5 }, /* Opponent */
-		{ 7, 5, 0 }, /* Monster */
-		{ 0, 0, 0 }, /* Object */
-		{ 4, 4, 5 }, /* Level */
+		{ 0, 2, 6 }, // Opponent
+		{ 6, 4, 0 }, // Monster
+		{ 3, 3, 3 }, // Object
+		{ 2, 2, 2 }, // Level
 	},
 
 	/* 32 channel */
 	{
-		{ 2, 2, 2 }, /* UI */
-		{ 2, 2, 2 }, /* Music */
-		{ 2, 2, 2 }, /* Player */
-		{ 3, 3, 3 }, /* Weapon */
+		{ 2, 2, 2 }, // UI
+		{ 2, 2, 2 }, // Music
+		{ 2, 2, 2 }, // Player
+		{ 3, 3, 3 }, // Weapon
 
-		{ 0, 4, 9 }, /* Opponent */
-		{13, 9, 3 }, /* Monster */
-		{ 5, 5, 5 }, /* Object */
-		{ 5, 5, 6 }, /* Level */
+		{ 0, 4,10 }, // Opponent
+		{12, 9, 2 }, // Monster
+		{ 7, 6, 7 }, // Object
+		{ 4, 4, 4 }, // Level
 	},
 
 	// NOTE: never put a '0' on the WEAPON line, since the top
@@ -456,7 +456,17 @@ void UnlinkFX(position_c *pos)
 {
 	if (nosound) return;
 
-	//!!!!! FIXME
+	SDL_LockAudio();
+	{
+		for (int i = 0; i < num_chan; i++)
+		{
+			mix_channel_c *chan = mix_chan[i];
+
+			if (chan->data && chan->pos == pos)
+				S_KillChannel(i);
+		}
+	}
+	SDL_UnlockAudio();
 }
 
 // Ticker
