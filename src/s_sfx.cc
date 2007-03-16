@@ -24,20 +24,6 @@
 #include <SDL/SDL.h>
 #endif
 
-///??? #include "i_sysinc.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <fcntl.h>
-#include <signal.h>
-
-#include <sys/types.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <sys/time.h>
-
 #include "m_argv.h"
 #include "m_random.h"
 #include "m_swap.h"
@@ -279,14 +265,12 @@ sfxdef_c * LookupEffectDef(const sfx_t *s)
 	return sfxdefs[num];
 }
 
-static void S_PlaySoundOnChannel(int idx, sfx_t *sfx, int category, position_c *pos)
+static void S_PlaySoundOnChannel(int idx, sfxdef_c *def, int category, position_c *pos)
 {
-I_Printf("S_PlaySoundOnChannel on idx #%d SFX:%p\n", idx, sfx);
+I_Printf("S_PlaySoundOnChannel on idx #%d DEF:%p\n", idx, def);
 
 	mix_channel_c *chan = mix_chan[idx];
 
-	sfxdef_c *def = LookupEffectDef(sfx);
-		
 I_Printf("Looked up def: %p, caching...\n", def);
 	chan->data = S_CacheLoad(def);
 	DEV_ASSERT2(chan->data);
@@ -316,18 +300,26 @@ I_Printf("StartFX CALLED! nosound=%d\n", nosound);
 	if (nosound) return;
 	if (!sfx) return;
 
+	sfxdef_c *def = LookupEffectDef(sfx);
+	DEV_ASSERT2(def);
+
+	if (def->looping)
+		flags |= FX_Loop;
+
+	if (def->singularity)
+	{
+		flags |= FX_Single;
+		flags |= (def->precious ? 0 : FX_Cut);
+	}
+
 	DEV_ASSERT2(0 <= category && category < SNCAT_NUMTYPES);
 
-	int use_cat = category;
+//	bool is_relative = (category <= SNCAT_Weapon);
 
-	while (cat_limits[use_cat] == 0)
-		use_cat++;
-	
-	bool is_relative = (use_cat <= SNCAT_Weapon);
+	while (cat_limits[category] == 0)
+		category++;
 
-I_Printf("Locking SDL Audio...\n");
 	SDL_LockAudio();
-I_Printf("DONE.\n");
 
 	for (int i=0; i < num_chan; i++)
 	{
@@ -335,14 +327,12 @@ I_Printf("DONE.\n");
 
 		if (! mix_chan[i]->data)
 		{
-			S_PlaySoundOnChannel(i, sfx, category, pos);
+			S_PlaySoundOnChannel(i, def, category, pos);
 			break;
 		}
 	}
 
-I_Printf("Unlocking...\n");
 	SDL_UnlockAudio();
-I_Printf("Returning to your regular viewing.\n");
 }
 
 void StopFX(position_c *pos)
@@ -352,11 +342,15 @@ void StopFX(position_c *pos)
 	// FIXME !!!
 }
 
-void StopLoopingFX(position_c *pos) { }
+void StopLoopingFX(position_c *pos)
+{
+}
 
-bool IsFXPlaying(position_c *pos) { return false; } 
+bool IsFXPlaying(position_c *pos)
+{
+	return false;
+} 
 
-// Playsim Object <-> Effect Linkage
 void UnlinkFX(position_c *pos)
 {
 	if (nosound) return;
@@ -369,6 +363,8 @@ void Ticker()
 {
 	if (nosound) return;
 
+	SDL_LockAudio();
+
 	if (::numplayers == 0) // FIXME: Yuck!
 	{
 		S_UpdateSounds(NULL, 0);
@@ -380,18 +376,35 @@ void Ticker()
 	   
 		S_UpdateSounds(pmo, pmo->angle);
 	}
+
+	SDL_UnlockAudio();
 }
 
-void PauseAllFX()  { }
-void ResumeAllFX() { }
+void PauseAllFX()
+{
+}
 
-// Your effect reservation, sir...
-int ReserveFX(int category) { return -1; }
-void UnreserveFX(int handle) { }
+void ResumeAllFX()
+{
+}
 
-// Volume Control
-int GetVolume() { return 1; }
-void SetVolume(int volume) { }
+int ReserveFX(int category)
+{
+	return -1;
+}
+
+void UnreserveFX(int handle)
+{
+}
+
+int GetVolume()
+{
+	return 1;  // fixme ?
+}
+
+void SetVolume(int volume)
+{
+}
 
 } // namespace sound
 

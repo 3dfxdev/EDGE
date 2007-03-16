@@ -76,18 +76,33 @@ void S_MusicTicker(void);
 int S_GetMusicVolume(void);
 void S_SetMusicVolume(int volume);
 
+/* FX Flags */
+typedef enum
+{
+	FX_NORMAL = 0,
+
+	// pseudo-looping: if not playing, start it, otherwise the
+	// sound will repeat *once* more.
+	FX_Loop = (1 << 0),
+
+	// monster bosses: sound is not diminished by distance
+	FX_Boss = (1 << 1),
+	
+	// only play one instance of this sound at this location.
+	FX_Single = (1 << 2),
+
+	// combine with FX_Single: cut the already playing sound
+	// for the new sound.  Without this flag: the playing
+	// sound continues and the new sound is dropped.
+	// (has no effect without FX_Single).
+	FX_Cut = (1 << 3),
+
+}
+fx_flag_e;
+
 // S_SOUND.C
 namespace sound
 {
-    /* FX Flags
-    typedef enum
-    {
-        FXFLAG_SYMBOLIC    = 0x1,
-        FXFLAG_IGNOREPAUSE = 0x2,
-        FXFLAG_IGNORELOOP  = 0x4
-    }
-    fx_flag_t;
-	*/
 
     // Init/Shutdown
     void Init(void);
@@ -99,7 +114,6 @@ namespace sound
 
     void StopFX(position_c *pos);
     void StopLoopingFX(position_c *pos);
-    bool IsFXPlaying(position_c *pos); 
     
     // Playsim Object <-> Effect Linkage
     void UnlinkFX(position_c *pos);
