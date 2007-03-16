@@ -57,6 +57,27 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+
+static int P_AttackGetSfxCategory(const mobj_t *mo)
+{
+	int category = P_MobjGetSfxCategory(mo);
+
+	if (category == SNCAT_Player)
+		return SNCAT_Weapon;
+
+	return category;
+}
+
+static int SfxFlags(const mobjtype_c *info)
+{
+	int flags = 0;
+
+	if (info->extendedflags & EF_ALWAYSLOUD)
+		flags |= FX_Boss;
+
+	return flags;
+}
+
 //-----------------------------------------
 //--------------MISCELLANOUS---------------
 //-----------------------------------------
@@ -825,10 +846,8 @@ void P_ActMakeDyingSound(mobj_t * object)
 
 	if (sound)
 	{
-		if (object->info->extendedflags & EF_ALWAYSLOUD)
-			sound::StartFX(sound, P_MobjGetSfxCategory(object));
-		else
-			sound::StartFX(sound, P_MobjGetSfxCategory(object), object);
+		sound::StartFX(sound, P_MobjGetSfxCategory(object),
+				       object, SfxFlags(object->info));
 		return;
 	}
 
@@ -844,10 +863,8 @@ void P_ActMakePainSound(mobj_t * object)
 {
 	if (object->info->painsound)
 	{
-		if (object->info->extendedflags & EF_ALWAYSLOUD)
-			sound::StartFX(object->info->painsound, P_MobjGetSfxCategory(object), object);
-		else
-			sound::StartFX(object->info->painsound, P_MobjGetSfxCategory(object), object);
+		sound::StartFX(object->info->painsound, P_MobjGetSfxCategory(object),
+				       object, SfxFlags(object->info));
 	}
 #ifdef DEVELOPERS
 	else
@@ -866,10 +883,8 @@ void P_ActMakeOverKillSound(mobj_t * object)
 {
 	if (object->info->overkill_sound)
 	{
-		if (object->info->extendedflags & EF_ALWAYSLOUD)
-			sound::StartFX(object->info->overkill_sound, P_MobjGetSfxCategory(object));
-		else
-			sound::StartFX(object->info->overkill_sound, P_MobjGetSfxCategory(object), object);
+		sound::StartFX(object->info->overkill_sound, P_MobjGetSfxCategory(object),
+					   object, SfxFlags(object->info));
 	}
 #ifdef DEVELOPERS
 	else
@@ -1111,12 +1126,13 @@ static mobj_t *DoLaunchProjectile(mobj_t * source, float tx, float ty, float tz,
 		return NULL;
 	}
 
+	// launch sound
 	if (projectile->info && projectile->info->seesound)
 	{
-		if (projectile->info->extendedflags & EF_ALWAYSLOUD)
-			sound::StartFX(projectile->info->seesound, P_MobjGetSfxCategory(projectile));
-		else
-			sound::StartFX(projectile->info->seesound, P_MobjGetSfxCategory(projectile), projectile);
+		int category = P_AttackGetSfxCategory(source);
+		int flags = SfxFlags(projectile->info);
+
+		sound::StartFX(projectile->info->seesound, category, projectile, flags);
 	}
 
 	angle = R_PointToAngle(projx, projy, tx, ty);
@@ -1716,7 +1732,7 @@ static void ShotAttack(mobj_t * object)
 		P_AimLineAttack(object, objangle, range, &objslope);
 
 	if (attack->sound)
-		sound::StartFX(attack->sound, P_MobjGetSfxCategory(object), object);
+		sound::StartFX(attack->sound, P_AttackGetSfxCategory(object), object);
 
 	// -AJA- 1999/09/10: apply the attack's angle offsets.
 	objangle -= attack->angle_offset;
@@ -1817,7 +1833,7 @@ static void DoMeleeAttack(mobj_t * mo)
 	}
 
 	if (attack->sound)
-		sound::StartFX(attack->sound, P_MobjGetSfxCategory(mo), mo);
+		sound::StartFX(attack->sound, P_AttackGetSfxCategory(mo), mo);
 
 	float slope;
 
@@ -2121,7 +2137,7 @@ static void ObjectSpawning(mobj_t * parent, angle_t angle)
 	}
 
 	if (attack->sound)
-		sound::StartFX(attack->sound, P_MobjGetSfxCategory(parent), parent);
+		sound::StartFX(attack->sound, P_AttackGetSfxCategory(parent), parent);
 
 	// If the object cannot move from its position, remove it or kill it.
 	if (!P_TryMove(child, child->x, child->y))
@@ -3033,10 +3049,8 @@ void P_ActStandardLook(mobj_t * object)
 
 	if (object->info->seesound)
 	{
-		if (object->info->extendedflags & EF_ALWAYSLOUD)
-		    sound::StartFX(object->info->seesound, P_MobjGetSfxCategory(object));
-		else
-			sound::StartFX(object->info->seesound, P_MobjGetSfxCategory(object), object);
+		sound::StartFX(object->info->seesound, P_MobjGetSfxCategory(object),
+					   object, SfxFlags(object->info));
 	}
 
 	// -AJA- this will remove objects which have no chase states.
@@ -3069,10 +3083,8 @@ void P_ActPlayerSupportLook(mobj_t * object)
 
 		if (object->info->seesound)
 		{
-			if (object->info->extendedflags & EF_ALWAYSLOUD)
-				sound::StartFX(object->info->seesound, P_MobjGetSfxCategory(object));
-			else
-				sound::StartFX(object->info->seesound, P_MobjGetSfxCategory(object), object);
+			sound::StartFX(object->info->seesound, P_MobjGetSfxCategory(object),
+						   object, SfxFlags(object->info));
 		}
 	}
 

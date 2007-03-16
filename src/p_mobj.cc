@@ -1808,11 +1808,11 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 //
 // Returns the sound category for an object.
 //
-int P_MobjGetSfxCategory(mobj_t *mo)
+int P_MobjGetSfxCategory(const mobj_t *mo)
 {
     if (mo->player)
     {
-        if (mo->player == players[consoleplayer])
+        if (mo->player == players[displayplayer])
             return SNCAT_Player;
         
 		return SNCAT_Opponent;

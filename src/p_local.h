@@ -166,7 +166,7 @@ void P_MobjExplodeMissile(mobj_t * missile);
 mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c * type);
 
 // -ACB- 2005/05/06 Sound Effect Category Support
-int P_MobjGetSfxCategory(mobj_t* mo);
+int P_MobjGetSfxCategory(const mobj_t *mo);
 
 //
 // P_ENEMY
