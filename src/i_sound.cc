@@ -54,7 +54,6 @@ bool nosound = false;
 /* See m_option.cc for corresponding menu items */
 static const int sample_rates[4]   = { 11025, 16000, 22050, 44100 };
 static const int sample_bits[2]    = { 8, 16 };
-static const int channel_counts[4] = { 16, 32, 64, 128 };
 
 
 static SDL_AudioSpec mydev;

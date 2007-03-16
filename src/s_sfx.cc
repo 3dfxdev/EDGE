@@ -44,34 +44,25 @@ extern float listen_y;
 namespace sound
 {
 
-const int category_limit_table[2][8][3] =
+/* See m_option.cc for corresponding menu items */
+const int channel_counts[5] = { 8, 16, 32, 64, 128 };
+
+
+const int category_limit_table[3][8][3] =
 {
-/* TEST:
- */
+	/* 8 channel */
 	{
 		{ 1, 1, 1 }, /* UI */
 		{ 1, 1, 1 }, /* Music */
-		{ 1, 1, 1 }, /* Player */
-		{ 1, 1, 1 }, /* Weapon */
-
-		{ 1, 1, 1 }, /* Opponent */
-		{ 1, 1, 1 }, /* Monster */
-		{ 1, 1, 1 }, /* Object */
-		{ 1, 1, 1 }, /* Level */
-	},
-
-	{
-		{ 0, 0, 0 }, /* UI */
-		{ 0, 0, 0 }, /* Music */
 		{ 0, 0, 0 }, /* Player */
-		{ 4, 4, 4 }, /* Weapon */
+		{ 2, 2, 2 }, /* Weapon */
 
 		{ 0, 0, 0 }, /* Opponent */
 		{ 0, 0, 0 }, /* Monster */
 		{ 0, 0, 0 }, /* Object */
 		{ 4, 4, 4 }, /* Level */
 	},
-#if 0
+
 	/* 16 channel */
 	{
 		{ 1, 1, 1 }, /* UI */
@@ -97,7 +88,6 @@ const int category_limit_table[2][8][3] =
 		{ 5, 5, 5 }, /* Object */
 		{ 5, 5, 6 }, /* Level */
 	},
-#endif
 
 	// NOTE: never put a '0' on the WEAPON line, since the top
 	// four categories should never be merged with the rest.
@@ -117,7 +107,8 @@ void SetupCategoryLimits(void)
 	if (DEATHMATCH()) mode = 2;
 
 	int idx = 0;
-	if (num_chan >= 32) idx=1;
+	if (num_chan >= 16) idx=1;
+	if (num_chan >= 32) idx=2;
 
 	int multiply = 1;
 	if (num_chan >= 64) multiply = num_chan / 32;

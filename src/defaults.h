@@ -77,8 +77,8 @@
 #define CFGDEF_SAMPLE_RATE      (1)  // 22050Hz
 #define CFGDEF_SOUND_BITS       (0)  // 8-bit
 #define CFGDEF_SOUND_STEREO     (1)  // Stereo
-#define CFGDEF_MIX_CHANNELS     (1)  // 32 channels
-#define CFGDEF_QUIET_FACTOR     (1)  // 2 bits
+#define CFGDEF_MIX_CHANNELS     (2)  // 32 channels
+#define CFGDEF_QUIET_FACTOR     (1)
 
 // Video Options
 #define CFGDEF_CURRENT_GAMMA    (2)
