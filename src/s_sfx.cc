@@ -119,20 +119,60 @@ void SetupCategoryLimits(void)
 	}
 }
 
-#if 0
-
-int FindPlayingFX(sfxdef_c *def, int cat, POSX pos)
+int FindFreeChannel(void)
 {
-	for (int i=0; i < (int)playing_fx.size(); i++)
-	{
-		if (playing_fx[i].def == def && playing_fx[i].use_cat == use_cat && SAME POS)
+	for (int i=0; i < num_chan; i++)
+		if (! mix_chan[i]->data)
 			return i;
 
-	}
-
-	return -1;  // nope
+	return -1; // not found
 }
 
+int FindPlayingFX(sfxdef_c *def, int cat, position_c *pos)
+{
+	for (int i=0; i < num_chan; i++)
+	{
+		mix_channel_c *chan = mix_chan[i];
+
+		if (chan->data && chan->def == def && chan->category == cat &&
+			chan->pos == pos)
+		{
+			return i;
+		}
+	}
+
+	return -1; // not found
+}
+
+int FindBiggestHog(int real_cat)
+{
+	int biggest_hog = -1;
+	int biggest_extra = 0;
+
+	for (int hog = 0; hog < SNCAT_NUMTYPES; hog++)
+	{
+		if (hog == real_cat)
+			continue;
+
+		int extra = cat_counts[hog] - cat_limits[hog];
+
+		if (extra <= 0)
+			continue;
+
+		// found a hog!
+		if (biggest_hog < 0 || extra > biggest_extra)
+		{
+			biggest_hog = hog;
+			biggest_extra = extra;
+		}
+	}
+
+	DEV_ASSERT2(biggest_hog >= 0);
+
+	return biggest_hog;
+}
+
+#if 0
 int CountPlayingCats(int use_cat, bool petty_only = false)
 {
 	int count = 0;
@@ -148,31 +188,47 @@ int CountPlayingCats(int use_cat, bool petty_only = false)
 
 	return count;
 }
+#endif
 
-int FindCatToKill(int use_cat, float good_dist)
+int FindChannelToKill(int use_cat, float good_dist)
 {
-	int fx = -1;
+	int kill_idx = -1;
+	int kill_score = (1<<30);
 
-	for (int i=0; i < (int)playing_fx.size(); i++)
+	for (int j=0; j < num_chan; j++)
 	{
-		if (! playing_fx[i].def)
+		mix_channel_c *chan = mix_chan[j];
+
+		if (! chan->data)
 			continue;
-
-		if (playing_fx[i].use_cat != use_cat)
+		
+		if (chan->category != kill_cat)
 			continue;
+		
+		int score = 200 - chan->def->priority; //!!!
 
-		float score = playing_fx[i].Score(XXX, YYY);
-
-		if (score > good_dist)
+		// find one with LOWEST score
+		if (kill_idx < 0 || score < kill_score)
 		{
-			good_dist = score;
-			fx = i;
+			kill_idx = j;
+			kill_score = score;
 		}
 	}
 
-	return fx;
+	DEV_ASSERT2(kill_idx >= 0);
+
+	if (kill_cat != real_cat)
+		return kill_idx;
+
+	// if the score for new sound doesn't beat any existing channel,
+	// then simply discard the new sound.
+	if (new_score > kill_score)
+		return kill_idx;
+
+	return -1;
 }
 
+#if 0
 int FindHogToKill(int use_cat)
 {
 	int i;
@@ -293,12 +349,70 @@ I_Printf("chan=%p data=%p\n", chan, chan->data);
 I_Printf("FINISHED: delta=0x%x\n", chan->delta);
 }
 
+static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
+{
+	int k = FindPlayingFX(def, category, pos);
+
+	if (k >= 0)
+	{
+		mix_channel_c *chan = mix_chan[k];
+
+		if (flags & FX_Loop)
+		{
+			chan->loop = true;
+			return;
+		}
+
+		if (flags & FX_Single)
+		{
+			if (! (flags & FX_Cut))
+				return;
+
+			S_KillChannel(k);
+			S_PlaySoundOnChannel(k, def, category, pos);
+
+			return;
+		}
+
+		// QUESTION: if already playing, and have to kill a
+		// sound in existing channel -- what to do?
+		// (allow multiple sounds in this case??)
+	}
+
+	k = FindFreeChannel();
+
+	if (k < 0)
+	{
+		// all channels are in use.
+		int my_score = 200 - def->priority; //!!!!
+
+		// decide which category to kill a sound in.
+		int kill_cat = category;
+			
+		if (cat_counts[category] < cat_limits[category])
+		{
+			// we haven't reached our quota yet, so kill a hog.
+			kill_cat = FindBiggestHog();
+		}
+
+		DEV_ASSERT2(cat_counts[kill_cat] > cat_limits[kill_cat]);
+
+		k = FindChannelToKill(  );
+
+		if (k < 0)
+			return;
+
+		S_KillChannel(k);
+	}
+
+	S_PlaySoundOnChannel(k, def, category, pos);
+}
+
 void StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 {
 I_Printf("StartFX CALLED! nosound=%d\n", nosound);
 
-	if (nosound) return;
-	if (!sfx) return;
+	if (nosound || !sfx) return;
 
 	sfxdef_c *def = LookupEffectDef(sfx);
 	DEV_ASSERT2(def);
@@ -320,18 +434,9 @@ I_Printf("StartFX CALLED! nosound=%d\n", nosound);
 		category++;
 
 	SDL_LockAudio();
-
-	for (int i=0; i < num_chan; i++)
 	{
-		DEV_ASSERT2(mix_chan[i]);
-
-		if (! mix_chan[i]->data)
-		{
-			S_PlaySoundOnChannel(i, def, category, pos);
-			break;
-		}
+		DoStartFX(def, category, pos, flags);
 	}
-
 	SDL_UnlockAudio();
 }
 
@@ -364,19 +469,19 @@ void Ticker()
 	if (nosound) return;
 
 	SDL_LockAudio();
-
-	if (::numplayers == 0) // FIXME: Yuck!
 	{
-		S_UpdateSounds(NULL, 0);
+		if (::numplayers == 0) // FIXME: Yuck!
+		{
+			S_UpdateSounds(NULL, 0);
+		}
+		else
+		{
+			mobj_t *pmo = ::players[displayplayer]->mo;
+			DEV_ASSERT2(pmo);
+		   
+			S_UpdateSounds(pmo, pmo->angle);
+		}
 	}
-	else
-	{
-		mobj_t *pmo = ::players[displayplayer]->mo;
-		DEV_ASSERT2(pmo);
-	   
-		S_UpdateSounds(pmo, pmo->angle);
-	}
-
 	SDL_UnlockAudio();
 }
 
