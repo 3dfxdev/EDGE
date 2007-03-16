@@ -25,7 +25,7 @@
 #include "ddf_locl.h"
 #include "ddf_main.h"
 
-#define S_CLIPPING_DIST  4000.0f
+#include "s_sound.h"  // S_CLIPPING_DIST
 
 #undef  DF
 #define DF  DDF_CMD
