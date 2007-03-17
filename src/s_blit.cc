@@ -331,9 +331,11 @@ void S_MixAllChannels(void *stream, int len)
 
 	// clear mixer buffer
 	memset(mix_buffer, 0, mix_buf_len * sizeof(int));
+
+#if 0  // TESTING.. TESTING.. 1 2 3...
 	mix_buffer[0] = CLIP_THRESHHOLD;
 	mix_buffer[32] = -CLIP_THRESHHOLD;
-
+#endif
 
 	// add each channel
 	for (int i=0; i < num_chan; i++)
