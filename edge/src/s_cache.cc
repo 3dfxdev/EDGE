@@ -172,3 +172,5 @@ void S_CacheRelease(fx_data_c *data)
 	data->ref_count--;
 }
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
