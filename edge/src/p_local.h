@@ -231,6 +231,7 @@ typedef bool(*traverser_t) (intercept_t * in);
 extern divline_t trace;
 
 float P_ApproxDistance(float dx, float dy);
+float P_ApproxDistance(float dx, float dy, float dz);
 float P_ApproxSlope(float dx, float dy, float dz);
 int P_PointOnDivlineSide(float x, float y, divline_t *div);
 int P_PointOnDivlineThick(float x, float y, divline_t *div,
