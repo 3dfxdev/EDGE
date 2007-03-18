@@ -74,10 +74,18 @@ float P_ApproxDistance(float dx, float dy)
 	dx = fabs(dx);
 	dy = fabs(dy);
 
-	if (dx < dy)
-		return dx / 2 + dy;
+	return (dy > dx) ? dy + dx/2 : dx + dy/2;
+}
 
-	return dx + dy / 2;
+float P_ApproxDistance(float dx, float dy, float dz)
+{
+	dx = fabs(dx);
+	dy = fabs(dy);
+	dz = fabs(dz);
+
+	float dxy = (dy > dx) ? dy + dx/2 : dx + dy/2;
+
+	return (dz > dxy) ? dz + dxy/2 : dxy + dz/2;
 }
 
 //
