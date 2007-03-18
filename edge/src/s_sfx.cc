@@ -124,8 +124,10 @@ void SetupCategoryLimits(void)
 
 int FindFreeChannel(void)
 {
+	// FIXME: handle CHAN_Finished
+
 	for (int i=0; i < num_chan; i++)
-		if (! mix_chan[i]->data)
+		if (mix_chan[i]->state == CHAN_Empty)
 			return i;
 
 	return -1; // not found
@@ -137,8 +139,8 @@ int FindPlayingFX(sfxdef_c *def, int cat, position_c *pos)
 	{
 		mix_channel_c *chan = mix_chan[i];
 
-		if (chan->data && chan->def == def && chan->category == cat &&
-			chan->pos == pos)
+		if (chan->state == CHAN_Playing && chan->def == def &&
+			chan->category == cat && chan->pos == pos)
 		{
 			return i;
 		}
@@ -184,7 +186,7 @@ void CountPlayingCats(void)
 	{
 		mix_channel_c *chan = mix_chan[i];
 
-		if (chan->data)
+		if (chan->state == CHAN_Playing)
 			cat_counts[chan->category] += 1;
 	}
 }
@@ -218,9 +220,9 @@ I_Printf("FindChannelToKill: cat:%d new_score:%d\n", kill_cat, new_score);
 	{
 		mix_channel_c *chan = mix_chan[j];
 
-		if (! chan->data)
+		if (chan->state != CHAN_Playing)
 			continue;
-		
+
 		if (chan->category != kill_cat)
 			continue;
 		
@@ -307,6 +309,8 @@ I_Printf("S_PlaySound on idx #%d DEF:%p\n", idx, def);
 
 	mix_channel_c *chan = mix_chan[idx];
 
+	chan->state = CHAN_Playing;
+
 I_Printf("Looked up def: %p, caching...\n", def);
 	chan->data = S_CacheLoad(def);
 	DEV_ASSERT2(chan->data);
@@ -332,10 +336,17 @@ I_Printf("chan=%p data=%p\n", chan, chan->data);
 I_Printf("FINISHED: delta=0x%lx\n", chan->delta);
 }
 
-static void S_KillChannel(int k)
+void S_KillChannel(int k)
 {
-	//!!!! FIXME WAY FUCKED UP!
-	mix_chan[k]->data = NULL;
+	mix_channel_c *chan = mix_chan[k];
+
+	if (chan->state != CHAN_Empty)
+	{
+		S_CacheRelease(chan->data);
+
+		chan->data = NULL;
+		chan->state = CHAN_Empty;
+	}
 }
 
 static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
@@ -475,7 +486,7 @@ void UnlinkFX(position_c *pos)
 		{
 			mix_channel_c *chan = mix_chan[i];
 
-			if (chan->data && chan->pos == pos)
+			if (chan->state == CHAN_Playing && chan->pos == pos)
 				S_KillChannel(i);
 		}
 	}
