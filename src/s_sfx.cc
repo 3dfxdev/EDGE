@@ -41,6 +41,7 @@ static bool allow_hogs = true;
 
 extern float listen_x;
 extern float listen_y;
+extern float listen_z;
 
 namespace sound
 {
@@ -200,11 +201,9 @@ int ChannelScore(sfxdef_c *def, int category, position_c *pos, bool boss)
 	DEV_ASSERT2(pos);
 
 	float dist = boss ? 0 :
-		P_ApproxDistance(listen_x - pos->x, listen_y - pos->y);
+		P_ApproxDistance(listen_x - pos->x, listen_y - pos->y, listen_z - pos->z);
 
-I_Printf("listen @ (%1.0f,%1.0f)  |  pos @ (%1.0f,%1.0f)\n",
-listen_x, listen_y, pos->x, pos->y);
-	int base_score = 2000 - (int)(dist / 10.0);
+	int base_score = 999 - (int)(dist / 10.0);
 
 	return base_score * 100 - def->priority;
 }
@@ -419,8 +418,9 @@ void StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 	{
 		DEV_ASSERT2(pos);
 
-		// TODO: take 'z' into account
-		if (P_ApproxDistance(listen_x - pos->x, listen_y - pos->y) > S_CLIPPING_DIST)
+		float dist = P_ApproxDistance(listen_x - pos->x, listen_y - pos->y, listen_z - pos->z);
+
+		if (dist > S_CLIPPING_DIST)
 			return;
 	}
 
