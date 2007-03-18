@@ -53,14 +53,15 @@ typedef struct sfx_s sfx_t;
 //
 typedef enum
 {
-	SNCAT_UI,         // for the user interface (menus, tips)
+	SNCAT_UI = 0,     // for the user interface (menus, tips)
 	SNCAT_Music,      // for OGG music and MIDI synthesis
 	SNCAT_Player,     // for console player (pain, death, pickup)
 	SNCAT_Weapon,     // for console player's weapon
 	SNCAT_Opponent,   // for all other players (DM or COOP)
 	SNCAT_Monster,    // for all monster sounds
-	SNCAT_Object,     // for all other objects
+	SNCAT_Object,     // for all objects (esp. projectiles)
 	SNCAT_Level,      // for doors, lifts and map scripts
+
 	SNCAT_NUMTYPES
 }
 sound_category_e;

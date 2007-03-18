@@ -82,20 +82,22 @@ float slider_to_gain[20] =
 	0.58075, 0.67369, 0.77451, 0.88329, 1.00000
 };
 
+// FIXME: extern == hack
 extern int dev_freq;
 extern int dev_bits;
 extern int dev_bytes_per_sample;
 extern int dev_frag_pairs;
+
 extern bool dev_signed;
 extern bool dev_stereo;
 
 
-mix_channel_c::mix_channel_c() : data(NULL)
+mix_channel_c::mix_channel_c() : state(CHAN_Empty), data(NULL)
 { }
 
 mix_channel_c::~mix_channel_c()
 { }
-	
+
 void mix_channel_c::ComputeDelta()
 {
 	// frequency close enough ?
@@ -115,7 +117,7 @@ void mix_channel_c::ComputeVolume()
 	float sep = 0.5f;
 	float mul = 1.0f;
 
-	if (pos) // && pos != ::players[displayplayer]->mo
+	if (pos && category >= SNCAT_Opponent)
 	{
 		if (dev_stereo)
 		{
@@ -127,7 +129,6 @@ void mix_channel_c::ComputeVolume()
 
 		if (! boss)
 		{
-			// approximate distance (with hack for Z)
 			float dist = P_ApproxDistance(listen_x - pos->x, listen_y - pos->y, listen_z - pos->z);
 
 			// -AJA- this equation was chosen to mimic the DOOM falloff
@@ -270,10 +271,6 @@ static void MixStereo(mix_channel_c *chan, int *dest, int pairs)
 
 static void MixChannel(mix_channel_c *chan, int pairs)
 {
-	// check if channel active
-	if (! chan->data)
-		return;
-
 	if (game_paused && chan->category >= SNCAT_Player)
 		return;
 
@@ -288,8 +285,7 @@ static void MixChannel(mix_channel_c *chan, int pairs)
 		if (chan->offset + pairs * chan->delta >= chan->length)
 		{
 			// TEST CRAP !!!!! FIXME
-			// S_CacheRelease(chan->data);
-			chan->data = NULL;
+			chan->state = CHAN_Finished;
 			break;
 		}
 
@@ -322,28 +318,23 @@ void S_MixAllChannels(void *stream, int len)
 	// check that we're not getting too much data
 	DEV_ASSERT2(pairs <= dev_frag_pairs);
 
-	// allocate mixer buffer if needed  FIXME: move out of here!
-	if (! mix_buffer or mix_buf_len < samples)
-	{
-		if (mix_buffer)
-			delete[] mix_buffer;
-
-		mix_buf_len = samples;
-		mix_buffer = new int[mix_buf_len];
-	}
+	DEV_ASSERT2(mix_buffer && samples <= mix_buf_len);
 
 	// clear mixer buffer
 	memset(mix_buffer, 0, mix_buf_len * sizeof(int));
 
-#if 0  // TESTING.. TESTING.. 1 2 3...
-	mix_buffer[0] = CLIP_THRESHHOLD;
-	mix_buffer[32] = -CLIP_THRESHHOLD;
+#if 0  // TESTING.. TESTING..
+	mix_buffer[ 0] =  CLIP_THRESHHOLD;
+	mix_buffer[33] = -CLIP_THRESHHOLD;
 #endif
 
 	// add each channel
 	for (int i=0; i < num_chan; i++)
 	{
-		MixChannel(mix_chan[i], pairs);
+		if (mix_chan[i]->state == CHAN_Playing)
+		{
+			MixChannel(mix_chan[i], pairs);
+		}
 	} 
 
 	// blit to the SDL stream
@@ -372,6 +363,10 @@ void S_InitChannels(int total)
 
 	for (int i = 0; i < num_chan; i++)
 		mix_chan[i] = new mix_channel_c();
+
+	// allocate mixer buffer
+	mix_buf_len = dev_frag_pairs * (dev_stereo ? 2 : 1);
+	mix_buffer = new int[mix_buf_len];
 }
 
 void S_FreeChannels(void)
@@ -408,8 +403,16 @@ void S_UpdateSounds(position_c *listener, angle_t angle)
 	{
 		mix_channel_c *chan = mix_chan[i];
 
-		if (chan->data)
+		if (chan->state == CHAN_Playing)
 			chan->ComputeVolume();
+
+		else if (chan->state == CHAN_Finished)
+		{
+			S_CacheRelease(chan->data);
+
+			chan->state = CHAN_Empty;
+			chan->data  = NULL;
+		}
 	}
 }
 

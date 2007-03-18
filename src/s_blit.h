@@ -34,11 +34,21 @@ class position_c;
 // compromise between longest sound and accumulated round-off error.
 typedef unsigned long fixed22_t;
 
+typedef enum
+{
+	CHAN_Empty = 0,
+	CHAN_Playing = 1,
+	CHAN_Finished = 2
+}
+chan_state_e;
+
 // channel info
 class mix_channel_c
 {
 public:
-	fx_data_c *data;  // NULL means unused channel
+	int state;  // CHAN_xxx
+
+	fx_data_c *data;
 
 	int category;
 	sfxdef_c *def;
