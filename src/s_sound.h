@@ -94,11 +94,11 @@ typedef enum
 	// only play one instance of this sound at this location.
 	FX_Single = (1 << 2),
 
-	// combine with FX_Single: cut the already playing sound
-	// for the new sound.  Without this flag: the playing
-	// sound continues and the new sound is dropped.
+	// combine with FX_Single: the already playing sound is
+	// allowed to continue and the new sound it dropped.
+	// Without this flag: the playing sound is cut off.
 	// (has no effect without FX_Single).
-	FX_Cut = (1 << 3),
+	FX_Precious = (1 << 3),
 
 }
 fx_flag_e;

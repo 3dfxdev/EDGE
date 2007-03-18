@@ -86,7 +86,8 @@ extern int dev_freq;
 extern int dev_bits;
 extern int dev_bytes_per_sample;
 extern int dev_frag_pairs;
-extern int dev_stereo;
+extern bool dev_signed;
+extern bool dev_stereo;
 
 
 mix_channel_c::mix_channel_c() : data(NULL)
@@ -116,7 +117,7 @@ void mix_channel_c::ComputeVolume()
 
 	if (pos) // && pos != ::players[displayplayer]->mo
 	{
-		if (var_sound_stereo)
+		if (dev_stereo)
 		{
 			angle_t angle = R_PointToAngle(listen_x, listen_y, pos->x, pos->y);
 
@@ -345,9 +346,19 @@ void S_MixAllChannels(void *stream, int len)
 
 	// blit to the SDL stream
 	if (dev_bits == 8)
-		BlitToU8(mix_buffer, (u8_t *)stream, samples);
+	{
+		if (dev_signed)
+			BlitToS8(mix_buffer, (s8_t *)stream, samples);
+		else
+			BlitToU8(mix_buffer, (u8_t *)stream, samples);
+	}
 	else
-		BlitToS16(mix_buffer, (s16_t *)stream, samples);
+	{
+		if (dev_signed)
+			BlitToS16(mix_buffer, (s16_t *)stream, samples);
+		else
+			BlitToU16(mix_buffer, (u16_t *)stream, samples);
+	}
 }
 
 
