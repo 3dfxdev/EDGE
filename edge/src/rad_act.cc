@@ -38,6 +38,7 @@
 #include "r_defs.h"
 #include "r_sky.h"
 #include "s_sound.h"
+#include "s_music.h"
 #include "v_ctx.h"
 #include "v_colour.h"
 #include "v_res.h"

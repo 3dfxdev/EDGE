@@ -44,6 +44,7 @@
 #include "g_game.h"
 #include "m_menu.h"
 #include "s_sound.h"
+#include "s_music.h"
 #include "p_local.h"
 #include "p_mobj.h"
 #include "p_bot.h"
