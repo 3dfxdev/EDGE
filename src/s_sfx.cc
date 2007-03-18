@@ -122,13 +122,31 @@ void SetupCategoryLimits(void)
 	}
 }
 
+void S_KillChannel(int k)
+{
+	mix_channel_c *chan = mix_chan[k];
+
+	if (chan->state != CHAN_Empty)
+	{
+		S_CacheRelease(chan->data);
+
+		chan->data = NULL;
+		chan->state = CHAN_Empty;
+	}
+}
+
 int FindFreeChannel(void)
 {
-	// FIXME: handle CHAN_Finished
-
 	for (int i=0; i < num_chan; i++)
-		if (mix_chan[i]->state == CHAN_Empty)
+	{
+		mix_channel_c *chan = mix_chan[i];
+
+		if (chan->state == CHAN_Finished)
+			S_KillChannel(i);
+
+		if (chan->state == CHAN_Empty)
 			return i;
+	}
 
 	return -1; // not found
 }
@@ -279,7 +297,7 @@ void ClearAllFX(void)
 {
 	if (nosound) return;
 
-	// FIXME !!!
+	// FIXME !!!  ClearAllFX
 }
 
 // Not-rejigged-yet stuff..
@@ -325,28 +343,15 @@ I_Printf("chan=%p data=%p\n", chan, chan->data);
     chan->volume_L = 0;
     chan->volume_R = 0;
 
-	chan->offset   = 0;
-	chan->length   = chan->data->length << 10;
+	chan->offset = 0;
+	chan->length = chan->data->length << 10;
 
-	chan->loop = (flags & FX_Loop) ? true : false;
+	chan->loop = false;
 	chan->boss = (flags & FX_Boss) ? true : false;
 
 	chan->ComputeDelta();
 
 I_Printf("FINISHED: delta=0x%lx\n", chan->delta);
-}
-
-void S_KillChannel(int k)
-{
-	mix_channel_c *chan = mix_chan[k];
-
-	if (chan->state != CHAN_Empty)
-	{
-		S_CacheRelease(chan->data);
-
-		chan->data = NULL;
-		chan->state = CHAN_Empty;
-	}
 }
 
 static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
@@ -418,6 +423,7 @@ k, kill_cat, category);
 	S_PlaySound(k, def, category, pos, flags);
 }
 
+
 void StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 {
 	if (nosound || !sfx) return;
@@ -460,23 +466,8 @@ I_Printf("StartFX: '%s' cat:%d flags:0x%04x\n", def->lump_name.GetString(),
 	SDL_UnlockAudio();
 }
 
+
 void StopFX(position_c *pos)
-{
-	if (nosound) return;
-
-	// FIXME !!!
-}
-
-void StopLoopingFX(position_c *pos)
-{
-}
-
-bool IsFXPlaying(position_c *pos)
-{
-	return false;
-} 
-
-void UnlinkFX(position_c *pos)
 {
 	if (nosound) return;
 
@@ -493,7 +484,7 @@ void UnlinkFX(position_c *pos)
 	SDL_UnlockAudio();
 }
 
-// Ticker
+
 void Ticker()
 {
 	if (nosound) return;
@@ -515,6 +506,7 @@ void Ticker()
 	SDL_UnlockAudio();
 }
 
+
 void PauseAllFX()
 {
 }
@@ -522,6 +514,7 @@ void PauseAllFX()
 void ResumeAllFX()
 {
 }
+
 
 int ReserveFX(int category)
 {
