@@ -1519,9 +1519,8 @@ void E_EngineShutdown(void)
 	if (demorecording)
 		G_FinishDemo();
 
-	S_StopMusic();  // <--- FIXME: sound::StopMusic()?
-
-    sound::Shutdown();
+	S_StopMusic();
+    S_Shutdown();
 
 	N_QuitNetGame();
 }
@@ -1564,7 +1563,7 @@ startuporder_t startcode[] =
 	{  1, P_MapInit,           },
 	{  1, P_InitSwitchList,    },
 	{  1, R_InitPicAnims,      },
-	{  1, sound::Init,         },
+	{  1, S_Init,              },
 	{  1, N_InitNetwork,       },
 	{  2, ST_Init,             },
 	{  0, NULL,                }
@@ -1807,7 +1806,7 @@ void E_Tick(void)
 
 		G_Ticker(fresh_game_tic);
 
-		sound::Ticker(); 
+		S_SoundTicker(); 
 		S_MusicTicker(); // -ACB- 1999/11/13 Improved music update routines
 
 		N_NetUpdate();  // check for new console commands

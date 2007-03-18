@@ -359,7 +359,7 @@ static void MovePlane(plane_move_t *plane)
 
             if (!plane->sfxstarted)
             {
-                sound::StartFX(plane->type->sfxdown, 
+                S_StartFX(plane->type->sfxdown, 
                                SNCAT_Level,
                                &plane->sector->sfx_origin);
 
@@ -368,7 +368,7 @@ static void MovePlane(plane_move_t *plane)
 
             if (res == RES_PastDest)
             {
-                sound::StartFX(plane->type->sfxstop, 
+                S_StartFX(plane->type->sfxstop, 
                                SNCAT_Level,
                                &plane->sector->sfx_origin);
 
@@ -454,7 +454,7 @@ static void MovePlane(plane_move_t *plane)
 
                 if (dir)
                 {
-                    sound::StartFX(plane->type->sfxstart, 
+                    S_StartFX(plane->type->sfxstart, 
                                    SNCAT_Level,
                                    &plane->sector->sfx_origin);
                 }
@@ -471,7 +471,7 @@ static void MovePlane(plane_move_t *plane)
 
             if (!plane->sfxstarted)
             {
-                sound::StartFX(plane->type->sfxup, 
+                S_StartFX(plane->type->sfxup, 
                                SNCAT_Level,
                                &plane->sector->sfx_origin);
 
@@ -480,7 +480,7 @@ static void MovePlane(plane_move_t *plane)
 
             if (res == RES_PastDest)
             {
-                sound::StartFX(plane->type->sfxstop, 
+                S_StartFX(plane->type->sfxstop, 
                                SNCAT_Level,
                                &plane->sector->sfx_origin);
 
@@ -776,7 +776,7 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
 
     if (def->sfxstart)
     {
-        sound::StartFX(def->sfxstart, SNCAT_Level,
+        S_StartFX(def->sfxstart, SNCAT_Level,
                        &sector->sfx_origin);
     }
 
@@ -1037,7 +1037,7 @@ bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * def)
 
         if (dir != olddir)
         {
-            sound::StartFX(def->sfxstart, 
+            S_StartFX(def->sfxstart, 
                            SNCAT_Level,
                            &sec->sfx_origin);
 
@@ -1206,7 +1206,7 @@ static void MoveSlider(slider_move_t *smov)
             {
                 if (SliderCanClose(smov->line))
                 {
-                    sound::StartFX(smov->info->sfx_start, 
+                    S_StartFX(smov->info->sfx_start, 
                                    SNCAT_Level,
                                    &sec->sfx_origin);
 
@@ -1225,7 +1225,7 @@ static void MoveSlider(slider_move_t *smov)
         case 1:
             if (! smov->sfxstarted)
             {
-                sound::StartFX(smov->info->sfx_open, 
+                S_StartFX(smov->info->sfx_open, 
                                SNCAT_Level,
                                &sec->sfx_origin);
 
@@ -1239,7 +1239,7 @@ static void MoveSlider(slider_move_t *smov)
 
             if (smov->opening >= smov->target)
             {
-                sound::StartFX(smov->info->sfx_stop, 
+                S_StartFX(smov->info->sfx_stop, 
                                SNCAT_Level,
                                &sec->sfx_origin);
 
@@ -1272,7 +1272,7 @@ static void MoveSlider(slider_move_t *smov)
         case -1:
             if (! smov->sfxstarted)
             {
-                sound::StartFX(smov->info->sfx_close, 
+                S_StartFX(smov->info->sfx_close, 
                                SNCAT_Level,
                                &sec->sfx_origin);
 
@@ -1286,7 +1286,7 @@ static void MoveSlider(slider_move_t *smov)
 
             if (smov->opening <= 0.0f)
             {
-                sound::StartFX(smov->info->sfx_stop, 
+                S_StartFX(smov->info->sfx_stop, 
                                SNCAT_Level,
                                &sec->sfx_origin);
 
@@ -1344,7 +1344,7 @@ void EV_DoSlider(line_t * line, mobj_t * thing, const sliding_door_c * s)
 
     P_AddActivePart((gen_move_t*)smov);
 
-    sound::StartFX(s->sfx_start, SNCAT_Level, &sec->sfx_origin);
+    S_StartFX(s->sfx_start, SNCAT_Level, &sec->sfx_origin);
 
     // Must handle line count here, since the normal code in p_spec.c
     // will clear the line->special pointer, confusing various bits of
@@ -1490,7 +1490,7 @@ static void MoveElevator(elev_move_t *elev)
 
             if (!elev->sfxstarted)
             {    
-                sound::StartFX(elev->type->sfxdown, 
+                S_StartFX(elev->type->sfxdown, 
                                SNCAT_Level, 
                                &elev->sector->sfx_origin);
 
@@ -1499,7 +1499,7 @@ static void MoveElevator(elev_move_t *elev)
 
             if (res == RES_PastDest || res == RES_Impossible)
             {
-                sound::StartFX(elev->type->sfxstop, 
+                S_StartFX(elev->type->sfxstop, 
                                SNCAT_Level, 
                                &elev->sector->sfx_origin);
 
@@ -1527,7 +1527,7 @@ static void MoveElevator(elev_move_t *elev)
 
             if (!elev->sfxstarted)
             {
-                sound::StartFX(elev->type->sfxdown, 
+                S_StartFX(elev->type->sfxdown, 
                                SNCAT_Level, 
                                &elev->sector->sfx_origin);
 
@@ -1536,7 +1536,7 @@ static void MoveElevator(elev_move_t *elev)
 
             if (res == RES_PastDest || res == RES_Impossible)
             {
-                sound::StartFX(elev->type->sfxstop, 
+                S_StartFX(elev->type->sfxstop, 
                                SNCAT_Level, 
                                &elev->sector->sfx_origin);
 

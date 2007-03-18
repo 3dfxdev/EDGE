@@ -1725,7 +1725,7 @@ static bool PTR_UseTraverse(intercept_t * in)
 		if (line->gap_num == 0 || use_upper <= use_lower)
 		{
 			// can't use through a wall
-            sound::StartFX(usething->info->noway_sound, P_MobjGetSfxCategory(usething), usething);
+            S_StartFX(usething->info->noway_sound, P_MobjGetSfxCategory(usething), usething);
 			return false;
 		}
 

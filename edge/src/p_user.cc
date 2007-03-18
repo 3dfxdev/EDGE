@@ -225,16 +225,16 @@ static void MovePlayer(player_t * player)
 		if (player->powers[PW_Jetpack] <= (5 * TICRATE))
 		{
 			if (!(leveltime & 10))
-				sound::StartFX(sfx_jpflow, sfx_cat, player->mo);  // fuel low
+				S_StartFX(sfx_jpflow, sfx_cat, player->mo);  // fuel low
 		}
 		else if (cmd->upwardmove > 0)
-			sound::StartFX(sfx_jprise, sfx_cat, player->mo);
+			S_StartFX(sfx_jprise, sfx_cat, player->mo);
 		else if (cmd->upwardmove < 0)
-			sound::StartFX(sfx_jpdown, sfx_cat, player->mo);
+			S_StartFX(sfx_jpdown, sfx_cat, player->mo);
 		else if (cmd->forwardmove || cmd->sidemove)
-			sound::StartFX((onground ? sfx_jpidle : sfx_jpmove), sfx_cat, player->mo);
+			S_StartFX((onground ? sfx_jpidle : sfx_jpmove), sfx_cat, player->mo);
 		else
-			sound::StartFX(sfx_jpidle, sfx_cat, player->mo);
+			S_StartFX(sfx_jpidle, sfx_cat, player->mo);
 	}
 
 	if ((cmd->forwardmove || cmd->sidemove)
@@ -310,7 +310,7 @@ static void MovePlayer(player_t * player)
                 else
                     sfx_cat = SNCAT_Opponent;
 
-				sound::StartFX(player->mo->info->jump_sound, sfx_cat, player->mo);
+				S_StartFX(player->mo->info->jump_sound, sfx_cat, player->mo);
             }
 		}
 	}

@@ -388,7 +388,7 @@ static void P_BringUpWeapon(player_t * p)
 	}
 
 	if (info->start)
-		sound::StartFX(info->start, WeapSfxCat(p), p->mo);
+		S_StartFX(info->start, WeapSfxCat(p), p->mo);
 
 	P_SetPspriteDeferred(p, ps_weapon, info->up_state);
 	P_SetPsprite(p, ps_flash,  S_NULL);
@@ -846,7 +846,7 @@ void A_WeaponReady(mobj_t * mo)
 	if (info->idle && (psp->state == &states[info->ready_state] ||
 		(info->empty_state && psp->state == &states[info->empty_state])))
 	{
-		sound::StartFX(info->idle, WeapSfxCat(p), mo);
+		S_StartFX(info->idle, WeapSfxCat(p), mo);
 	}
 
 	bool fire_0 = ButtonDown(p, 0);
@@ -1329,7 +1329,7 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 	if (mo->target)
 	{
 		if (info->hit)
-			sound::StartFX(info->hit, WeapSfxCat(p), mo);
+			S_StartFX(info->hit, WeapSfxCat(p), mo);
 
 		if (info->feedback)
 			mo->flags |= MF_JUSTATTACKED;
@@ -1337,7 +1337,7 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 	else
 	{
 		if (info->engaged)
-			sound::StartFX(info->engaged, WeapSfxCat(p), mo);
+			S_StartFX(info->engaged, WeapSfxCat(p), mo);
 	}
 
 	// show the player making the shot/attack...
@@ -1412,7 +1412,7 @@ void A_WeaponPlaySound(mobj_t * mo)
 		return;
 	}
 
-	sound::StartFX(sound, WeapSfxCat(p), mo);
+	S_StartFX(sound, WeapSfxCat(p), mo);
 }
 
 //
@@ -1422,7 +1422,7 @@ void A_WeaponPlaySound(mobj_t * mo)
 //
 void A_WeaponKillSound(mobj_t * mo)
 {
-	sound::StopFX(mo);
+	S_StopFX(mo);
 }
 
 //
@@ -1431,19 +1431,19 @@ void A_WeaponKillSound(mobj_t * mo)
 void A_SFXWeapon1(mobj_t * mo)
 {
 	player_t *p = mo->player;
-	sound::StartFX(p->weapons[p->ready_wp].info->sound1, WeapSfxCat(p), mo);
+	S_StartFX(p->weapons[p->ready_wp].info->sound1, WeapSfxCat(p), mo);
 }
 
 void A_SFXWeapon2(mobj_t * mo)
 {
 	player_t *p = mo->player;
-	sound::StartFX(p->weapons[p->ready_wp].info->sound2, WeapSfxCat(p), mo);
+	S_StartFX(p->weapons[p->ready_wp].info->sound2, WeapSfxCat(p), mo);
 }
 
 void A_SFXWeapon3(mobj_t * mo)
 {
 	player_t *p = mo->player;
-	sound::StartFX(p->weapons[p->ready_wp].info->sound3, WeapSfxCat(p), mo);
+	S_StartFX(p->weapons[p->ready_wp].info->sound3, WeapSfxCat(p), mo);
 }
 
 //

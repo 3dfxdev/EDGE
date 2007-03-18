@@ -348,7 +348,6 @@ static bool castdeath;
 static int castframes;
 static int castonmelee;
 static bool castattacking;
-static int shotsfxchannel = -1;
 
 //
 // CastSetState, CastPerformAction
@@ -373,22 +372,11 @@ static void CAST_RangeAttack(const atkdef_c *range)
 
 	DEV_ASSERT2(range);
 
-	// special handling for shot attacks (AJA: dunno why)
 	if (range->attackstyle == ATK_SHOT)
 	{
 		sfx = range->sound;
-
-//???		if (sfx && shotsfxchannel >= 0)
-//???		sound::StopFX(shotsfxchannel);
-
-		if (sfx)
-			// shotsfxchannel =
-			sound::StartFX(sfx, SNCAT_Monster);
-
-		return;
 	}
-
-	if (range->attackstyle == ATK_SKULLFLY)
+	else if (range->attackstyle == ATK_SKULLFLY)
 	{
 		sfx = range->initsound;
 	}
@@ -406,8 +394,7 @@ static void CAST_RangeAttack(const atkdef_c *range)
 		sfx = range->atk_mobj->seesound;
 	}
 
-	if (sfx)
-		sound::StartFX(sfx, SNCAT_Monster);
+	S_StartFX(sfx);
 }
 
 static void CastPerformAction(void)
@@ -456,8 +443,7 @@ static void CastPerformAction(void)
 		sfx = castorder->walksound;
 	}
 
-	if (sfx)
-		sound::StartFX(sfx, SNCAT_Monster);
+	S_StartFX(sfx);
 }
 
 static void CastInitNew(int num)
@@ -514,7 +500,7 @@ static void CastTicker(void)
 		CastInitNew(castorder->castorder + 1);
 
 		if (castorder->seesound)
-			sound::StartFX(castorder->seesound);
+			S_StartFX(castorder->seesound);
 
 		return;
 	}
@@ -552,7 +538,7 @@ static void CastTicker(void)
 			CastSetState(st);
 
 			if (castorder->attacksound)
-				sound::StartFX(castorder->attacksound, SNCAT_Monster);
+				S_StartFX(castorder->attacksound);
 		}
 	}
 
@@ -590,7 +576,7 @@ static void CastSkip(void)
 	castattacking = false;
 
 	if (castorder->deathsound)
-		sound::StartFX(castorder->deathsound, SNCAT_Monster);
+		S_StartFX(castorder->deathsound);
 }
 
 static void CastPrint(const char *text)
@@ -675,7 +661,7 @@ static void BunnyScroll(void)
 
 	if (stage > laststage)
 	{
-		sound::StartFX(sfx_pistol, SNCAT_UI);
+		S_StartFX(sfx_pistol);
 		laststage = stage;
 	}
 

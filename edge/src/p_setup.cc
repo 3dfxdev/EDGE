@@ -2271,7 +2271,7 @@ void P_RemoveSectors(void)
 		P_FreeSectorTouchNodes(sectors + i);
 
 		// Might still be playing a sound.
-		sound::StopFX(&sectors[i].sfx_origin);
+		S_StopFX(&sectors[i].sfx_origin);
 	}
 
 	Z_Free(sectors);
@@ -2533,7 +2533,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 	if (precache)
 		R_PrecacheLevel();
 	
-	sound::ClearAllFX();
+	S_ClearAllFX();
 
 	S_ChangeMusic(currmap->music, true); // start level music
 

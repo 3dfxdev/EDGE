@@ -252,7 +252,7 @@ void M_SaveDefaults(void)
 
 	// -ACB- 1999/10/10 Sound API Values need to be set
 	cfgmusic = S_GetMusicVolume();
-	cfgsound = sound::GetVolume();
+	cfgsound = S_GetSoundVolume();
 
 	f = fopen(cfgfile, "w");
 	if (!f)
@@ -394,7 +394,7 @@ bool M_LoadDefaults(void)
 
 	// -ACB- 1999/10/10 Sound API Values need to be set
 	S_SetMusicVolume(cfgmusic);
-	sound::SetVolume(cfgsound);
+	S_SetSoundVolume(cfgsound);
 
 	return true;
 }

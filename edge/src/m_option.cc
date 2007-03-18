@@ -298,7 +298,7 @@ static void M_ChangeMusVol(int keypressed)
 //
 static void M_ChangeSfxVol(int keypressed)
 {
-	sound::SetVolume(menusoundvol);
+	S_SetSoundVolume(menusoundvol);
 	return;
 }
 
@@ -806,7 +806,7 @@ void M_OptMenuInit()
 	extkeyconfiginfo.sister_prev = &stdkeyconfiginfo;
 
 	menumusicvol = S_GetMusicVolume(); // -ACB- 1999/11/13 Music API Volume
-	menusoundvol = sound::GetVolume();   
+	menusoundvol = S_GetSoundVolume();   
 
 	// Restore the config setting.
 	M_ChangeBlood(-1);
@@ -866,7 +866,7 @@ void M_OptDrawer()
 
 	// make sure the local volume values are kept up-to-date
 	menumusicvol = S_GetMusicVolume();
-	menusoundvol = sound::GetVolume();
+	menusoundvol = S_GetSoundVolume();
  
 	int font_h = style->fonts[0]->NominalHeight(); // FIXME: fonts[0] maybe null
 
@@ -1131,7 +1131,7 @@ bool M_OptResponder(event_t * ev, int ch)
 			}
 			while (curr_item->type == 0);
 
-			sound::StartFX(sfx_pstop);
+			S_StartFX(sfx_pstop);
 			return true;
 		}
 
@@ -1146,7 +1146,7 @@ bool M_OptResponder(event_t * ev, int ch)
 			}
 			while (curr_item->type == 0);
 
-			sound::StartFX(sfx_pstop);
+			S_StartFX(sfx_pstop);
 			return true;
 		}
 
@@ -1159,7 +1159,7 @@ bool M_OptResponder(event_t * ev, int ch)
 					curr_menu = curr_menu->sister_prev;
 					curr_item = curr_menu->items + curr_menu->pos;
 
-					sound::StartFX(sfx_pstop);
+					S_StartFX(sfx_pstop);
 				}
 				return true;
 			}
@@ -1174,9 +1174,10 @@ bool M_OptResponder(event_t * ev, int ch)
 				case OPT_Boolean:
 				{
 					bool *boolptr = (bool*)curr_item->switchvar;
+
 					*boolptr = !(*boolptr);
 
-					sound::StartFX(sfx_pistol);
+					S_StartFX(sfx_pistol);
 
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
@@ -1186,12 +1187,14 @@ bool M_OptResponder(event_t * ev, int ch)
 
 				case OPT_Switch:
 				{
-					(*(int*)(curr_item->switchvar))--;
+					int *val_ptr = (int*)curr_item->switchvar;
 
-					if ((*(int*)(curr_item->switchvar)) < 0)
-						(*(int*)(curr_item->switchvar)) = curr_item->numtypes - 1;
+					*val_ptr -= 1;
 
-					sound::StartFX(sfx_pistol);
+					if (*val_ptr < 0)
+						*val_ptr = curr_item->numtypes - 1;
+
+					S_StartFX(sfx_pistol);
 
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
@@ -1204,16 +1207,19 @@ bool M_OptResponder(event_t * ev, int ch)
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
 
-					sound::StartFX(sfx_pistol);
+					S_StartFX(sfx_pistol);
 					return true;
 				}
 
 				case OPT_Slider:
 				{
-					if ((*(int*)(curr_item->switchvar)) > 0)
+					int *val_ptr = (int*)curr_item->switchvar;
+
+					if (*val_ptr > 0)
 					{
-						(*(int*)(curr_item->switchvar))--;
-						sound::StartFX(sfx_stnmov);
+						*val_ptr -= 1;
+
+						S_StartFX(sfx_stnmov);
 					}
 
 					if (curr_item->routine != NULL)
@@ -1235,10 +1241,11 @@ bool M_OptResponder(event_t * ev, int ch)
 					curr_menu = curr_menu->sister_next;
 					curr_item = curr_menu->items + curr_menu->pos;
 
-					sound::StartFX(sfx_pstop);
+					S_StartFX(sfx_pstop);
 				}
 				return true;
 			}
+
       /* FALL THROUGH... */
      
 		case KEYD_ENTER:
@@ -1251,9 +1258,10 @@ bool M_OptResponder(event_t * ev, int ch)
 				case OPT_Boolean:
 				{
 					bool *boolptr = (bool*)curr_item->switchvar;
+
 					*boolptr = !(*boolptr);
 
-					sound::StartFX(sfx_pistol);
+					S_StartFX(sfx_pistol);
 
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
@@ -1263,12 +1271,14 @@ bool M_OptResponder(event_t * ev, int ch)
 
 				case OPT_Switch:
 				{
-					(*(int*)(curr_item->switchvar))++;
+					int *val_ptr = (int*)curr_item->switchvar;
 
-					if ((*(int*)(curr_item->switchvar)) >= curr_item->numtypes)
-						(*(int*)(curr_item->switchvar)) = 0;
+					*val_ptr += 1;
 
-					sound::StartFX(sfx_pistol);
+					if (*val_ptr >= curr_item->numtypes)
+						*val_ptr = 0;
+
+					S_StartFX(sfx_pistol);
 
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
@@ -1281,16 +1291,19 @@ bool M_OptResponder(event_t * ev, int ch)
 					if (curr_item->routine != NULL)
 						curr_item->routine(ch);
 
-					sound::StartFX(sfx_pistol);
+					S_StartFX(sfx_pistol);
 					return true;
 				}
 
 				case OPT_Slider:
 				{
-					if ((*(int*)(curr_item->switchvar)) < (curr_item->numtypes - 1))
+					int *val_ptr = (int*)curr_item->switchvar;
+
+					if (*val_ptr < (curr_item->numtypes - 1))
 					{
-						(*(int*)(curr_item->switchvar))++;
-						sound::StartFX(sfx_stnmov);
+						*val_ptr += 1;
+
+						S_StartFX(sfx_stnmov);
 					}
 
 					if (curr_item->routine != NULL)
@@ -1321,7 +1334,7 @@ bool M_OptResponder(event_t * ev, int ch)
 				curr_menu = &mainmenuinfo;
 				curr_item = curr_menu->items + curr_menu->pos;
 			}
-			sound::StartFX(sfx_swtchx);
+			S_StartFX(sfx_swtchx);
 			return true;
 		}
 	}

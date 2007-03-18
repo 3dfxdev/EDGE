@@ -499,7 +499,7 @@ static void DoRemoveTrigger(rad_trigger_t *trig)
 	else
 		r_triggers = trig->next;
 
-    sound::StopFX(&trig->sfx_origin);
+    S_StopFX(&trig->sfx_origin);
 
 	// FIXME: delete !
     Z_Free(trig);
