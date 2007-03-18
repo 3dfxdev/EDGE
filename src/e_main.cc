@@ -64,6 +64,7 @@
 #include "rgl_defs.h"
 #include "rgl_wipe.h"
 #include "s_sound.h"
+#include "s_music.h"
 #include "st_stuff.h"
 #include "sv_chunk.h"
 #include "sv_main.h"
@@ -1689,7 +1690,7 @@ static void E_Startup()
 
 	if (gameaction != ga_loadgame && gameaction != ga_playdemo)
 	{
-		if (netgame)
+		if (false) //FIXME !!!! netgame
 			N_InitiateNetGame();
 		else if (autostart)
 			AutoStart();

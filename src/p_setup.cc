@@ -47,6 +47,7 @@
 #include "rgl_sky.h"
 #include "r_sky.h"
 #include "s_sound.h"
+#include "s_music.h"
 #include "w_image.h"
 #include "w_textur.h"
 #include "w_wad.h"

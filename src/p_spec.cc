@@ -37,6 +37,7 @@
 #include "p_local.h"
 #include "rad_trig.h"
 #include "s_sound.h"
+#include "s_music.h"
 #include "z_zone.h"
 
 #include <limits.h>
