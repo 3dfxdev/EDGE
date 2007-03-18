@@ -425,7 +425,7 @@ void P_BringCorpseToLife(mobj_t * corpse)
 	}
 
 	if (info->overkill_sound)
-		sound::StartFX(info->overkill_sound, P_MobjGetSfxCategory(corpse), corpse);
+		S_StartFX(info->overkill_sound, P_MobjGetSfxCategory(corpse), corpse);
 
 	if (info->raise_state)
 		P_SetMobjState(corpse, info->raise_state);
@@ -756,7 +756,7 @@ void P_ActPlaySound(mobj_t * mo)
 		return;
 	}
 
-	sound::StartFX(sound, P_MobjGetSfxCategory(mo), mo);
+	S_StartFX(sound, P_MobjGetSfxCategory(mo), mo);
 }
 
 //
@@ -766,7 +766,7 @@ void P_ActPlaySound(mobj_t * mo)
 //
 void P_ActKillSound(mobj_t * mo)
 {
-	sound::StopFX(mo);
+	S_StopFX(mo);
 }
 
 //
@@ -778,7 +778,7 @@ void P_ActKillSound(mobj_t * mo)
 void P_ActMakeAmbientSound(mobj_t * object)
 {
 	if (object->info->seesound)
-		sound::StartFX(object->info->seesound, P_MobjGetSfxCategory(object), object);
+		S_StartFX(object->info->seesound, P_MobjGetSfxCategory(object), object);
 
 #ifdef DEVELOPERS
 	else
@@ -799,7 +799,7 @@ void P_ActMakeAmbientSoundRandom(mobj_t * object)
 	if (object->info->seesound)
 	{
 		if (M_Random() < 50)
-			sound::StartFX(object->info->seesound, P_MobjGetSfxCategory(object), object);
+			S_StartFX(object->info->seesound, P_MobjGetSfxCategory(object), object);
 	}
 #ifdef DEVELOPERS
 	else
@@ -822,7 +822,7 @@ void P_ActMakeAmbientSoundRandom(mobj_t * object)
 void P_ActMakeActiveSound(mobj_t * object)
 {
 	if (object->info->activesound)
-		sound::StartFX(object->info->activesound, P_MobjGetSfxCategory(object), object);
+		S_StartFX(object->info->activesound, P_MobjGetSfxCategory(object), object);
 
 #ifdef DEVELOPERS
 	else
@@ -846,7 +846,7 @@ void P_ActMakeDyingSound(mobj_t * object)
 
 	if (sound)
 	{
-		sound::StartFX(sound, P_MobjGetSfxCategory(object),
+		S_StartFX(sound, P_MobjGetSfxCategory(object),
 				       object, SfxFlags(object->info));
 		return;
 	}
@@ -863,7 +863,7 @@ void P_ActMakePainSound(mobj_t * object)
 {
 	if (object->info->painsound)
 	{
-		sound::StartFX(object->info->painsound, P_MobjGetSfxCategory(object),
+		S_StartFX(object->info->painsound, P_MobjGetSfxCategory(object),
 				       object, SfxFlags(object->info));
 	}
 #ifdef DEVELOPERS
@@ -883,7 +883,7 @@ void P_ActMakeOverKillSound(mobj_t * object)
 {
 	if (object->info->overkill_sound)
 	{
-		sound::StartFX(object->info->overkill_sound, P_MobjGetSfxCategory(object),
+		S_StartFX(object->info->overkill_sound, P_MobjGetSfxCategory(object),
 					   object, SfxFlags(object->info));
 	}
 #ifdef DEVELOPERS
@@ -909,7 +909,7 @@ void P_ActMakeCloseAttemptSound(mobj_t * object)
 
 	if (sound)
 	{
-		sound::StartFX(sound, P_MobjGetSfxCategory(object), object);
+		S_StartFX(sound, P_MobjGetSfxCategory(object), object);
 	}
 #ifdef DEVELOPERS
 	else
@@ -933,7 +933,7 @@ void P_ActMakeRangeAttemptSound(mobj_t * object)
 	sound = object->info->rangeattack->initsound;
 
 	if (sound)
-		sound::StartFX(sound, P_MobjGetSfxCategory(object), object);
+		S_StartFX(sound, P_MobjGetSfxCategory(object), object);
 #ifdef DEVELOPERS
 	else
 		L_WriteDebug("%s has no range attack attempt sound\n", object->info->ddf.name.GetString());
@@ -1132,7 +1132,11 @@ static mobj_t *DoLaunchProjectile(mobj_t * source, float tx, float ty, float tz,
 		int category = P_AttackGetSfxCategory(source);
 		int flags = SfxFlags(projectile->info);
 
-		sound::StartFX(projectile->info->seesound, category, projectile, flags);
+		mobj_t *sfx_source = projectile;
+		if (category == SNCAT_Player || category == SNCAT_Weapon)
+			sfx_source = source;
+
+		S_StartFX(projectile->info->seesound, category, sfx_source, flags);
 	}
 
 	angle = R_PointToAngle(projx, projy, tx, ty);
@@ -1732,7 +1736,7 @@ static void ShotAttack(mobj_t * object)
 		P_AimLineAttack(object, objangle, range, &objslope);
 
 	if (attack->sound)
-		sound::StartFX(attack->sound, P_AttackGetSfxCategory(object), object);
+		S_StartFX(attack->sound, P_AttackGetSfxCategory(object), object);
 
 	// -AJA- 1999/09/10: apply the attack's angle offsets.
 	objangle -= attack->angle_offset;
@@ -1833,7 +1837,7 @@ static void DoMeleeAttack(mobj_t * mo)
 	}
 
 	if (attack->sound)
-		sound::StartFX(attack->sound, P_AttackGetSfxCategory(mo), mo);
+		S_StartFX(attack->sound, P_AttackGetSfxCategory(mo), mo);
 
 	float slope;
 
@@ -1890,7 +1894,7 @@ void P_ActTrackerFollow(mobj_t * tracker)
 void P_ActTrackerActive(mobj_t * tracker)
 {
 	if (tracker->info->activesound)
-		sound::StartFX(tracker->info->activesound, P_MobjGetSfxCategory(tracker), tracker);
+		S_StartFX(tracker->info->activesound, P_MobjGetSfxCategory(tracker), tracker);
 
 	P_ActTrackerFollow(tracker);
 }
@@ -1905,7 +1909,7 @@ void P_ActTrackerActive(mobj_t * tracker)
 void P_ActTrackerStart(mobj_t * tracker)
 {
 	if (tracker->info->seesound)
-		sound::StartFX(tracker->info->seesound, P_MobjGetSfxCategory(tracker), tracker);
+		S_StartFX(tracker->info->seesound, P_MobjGetSfxCategory(tracker), tracker);
 
 	P_ActTrackerFollow(tracker);
 }
@@ -1974,7 +1978,7 @@ void P_ActEffectTracker(mobj_t * object)
 	}
 
 	if (attack->sound)
-		sound::StartFX(attack->sound, P_MobjGetSfxCategory(object), object);
+		S_StartFX(attack->sound, P_MobjGetSfxCategory(object), object);
 
 	angle = object->angle;
 	tracker = object->tracer;
@@ -2137,7 +2141,7 @@ static void ObjectSpawning(mobj_t * parent, angle_t angle)
 	}
 
 	if (attack->sound)
-		sound::StartFX(attack->sound, P_AttackGetSfxCategory(parent), parent);
+		S_StartFX(attack->sound, P_AttackGetSfxCategory(parent), parent);
 
 	// If the object cannot move from its position, remove it or kill it.
 	if (!P_TryMove(child, child->x, child->y))
@@ -2221,7 +2225,7 @@ static void SkullFlyAssault(mobj_t * object)
 	sfx_t *sound = object->currentattack->initsound;
 
 	if (sound)
-		sound::StartFX(sound, P_MobjGetSfxCategory(object), object);
+		S_StartFX(sound, P_MobjGetSfxCategory(object), object);
 
 	object->flags |= MF_SKULLFLY;
 
@@ -2267,7 +2271,7 @@ void P_SlammedIntoObject(mobj_t * object, mobj_t * objecthit)
 
 		sound = object->currentattack->sound;
 		if (sound)
-			sound::StartFX(sound, P_MobjGetSfxCategory(object), object);
+			S_StartFX(sound, P_MobjGetSfxCategory(object), object);
 	}
 
 	object->flags &= ~MF_SKULLFLY;
@@ -3049,7 +3053,7 @@ void P_ActStandardLook(mobj_t * object)
 
 	if (object->info->seesound)
 	{
-		sound::StartFX(object->info->seesound, P_MobjGetSfxCategory(object),
+		S_StartFX(object->info->seesound, P_MobjGetSfxCategory(object),
 					   object, SfxFlags(object->info));
 	}
 
@@ -3083,7 +3087,7 @@ void P_ActPlayerSupportLook(mobj_t * object)
 
 		if (object->info->seesound)
 		{
-			sound::StartFX(object->info->seesound, P_MobjGetSfxCategory(object),
+			S_StartFX(object->info->seesound, P_MobjGetSfxCategory(object),
 						   object, SfxFlags(object->info));
 		}
 	}
@@ -3229,7 +3233,7 @@ void P_ActStandardChase(mobj_t * object)
 	if (object->info->melee_state && DecideMeleeAttack(object, object->info->closecombat))
 	{
 		if (sound)
-			sound::StartFX(sound, P_MobjGetSfxCategory(object), object);
+			S_StartFX(sound, P_MobjGetSfxCategory(object), object);
 
 		if (object->info->melee_state)
 			P_SetMobjStateDeferred(object, object->info->melee_state, 0);
@@ -3266,7 +3270,7 @@ void P_ActStandardChase(mobj_t * object)
 
 	// make active sound
 	if (object->info->activesound && M_Random() < 3)
-		sound::StartFX(object->info->activesound, P_MobjGetSfxCategory(object), object);
+		S_StartFX(object->info->activesound, P_MobjGetSfxCategory(object), object);
 }
 
 //
@@ -3328,7 +3332,7 @@ void P_ActWalkSoundChase(mobj_t * object)
 		return;
 	}
 
-	sound::StartFX(object->info->walksound, P_MobjGetSfxCategory(object), object);
+	S_StartFX(object->info->walksound, P_MobjGetSfxCategory(object), object);
 	P_ActStandardChase(object);
 }
 
