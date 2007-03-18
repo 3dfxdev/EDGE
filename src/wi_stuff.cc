@@ -622,7 +622,7 @@ static void UpdateDeathmatchStats(void)
 			dm_totals[i] = players[p]->totalfrags;
 		}
 
-		sound::StartFX(gd->done);
+		S_StartFX(gd->done);
 		dm_state = 4;
 	}
 
@@ -630,7 +630,7 @@ static void UpdateDeathmatchStats(void)
 	{
 		case 2:
 			if (!(bcnt & 3))
-				sound::StartFX(gd->percent);
+				S_StartFX(gd->percent);
 
 			stillticking = false;
 			for (int i = 0; i < NUM_SHOWN; i++)
@@ -654,7 +654,7 @@ static void UpdateDeathmatchStats(void)
 
 			if (!stillticking)
 			{
-				sound::StartFX(gd->done);
+				S_StartFX(gd->done);
 				dm_state++;
 			}
 			break;
@@ -662,7 +662,7 @@ static void UpdateDeathmatchStats(void)
 		case 4:
 			if (acceleratestage)
 			{
-				sound::StartFX(gd->accel_snd);
+				S_StartFX(gd->accel_snd);
 
 				// Skip next loc on no map -ACB- 2004/06/27
 				if (!worldint.nummappos || !wbs->next)	
@@ -808,7 +808,7 @@ static void UpdateCoopStats(void)
 			}
 		}
 
-		sound::StartFX(gd->done);
+		S_StartFX(gd->done);
 		ng_state = 10;
 	}
 
@@ -816,7 +816,7 @@ static void UpdateCoopStats(void)
 	{
 		case 2:
 			if (!(bcnt & 3))
-				sound::StartFX(gd->percent);
+				S_StartFX(gd->percent);
 
 			stillticking = false;
 
@@ -837,14 +837,14 @@ static void UpdateCoopStats(void)
 
 			if (!stillticking)
 			{
-				sound::StartFX(gd->done);
+				S_StartFX(gd->done);
 				ng_state++;
 			}
 			break;
 
 		case 4:
 			if (!(bcnt & 3))
-				sound::StartFX(gd->percent);
+				S_StartFX(gd->percent);
 
 			stillticking = false;
 
@@ -864,14 +864,14 @@ static void UpdateCoopStats(void)
 
 			if (!stillticking)
 			{
-				sound::StartFX(gd->done);
+				S_StartFX(gd->done);
 				ng_state++;
 			}
 			break;
 
 		case 6:
 			if (!(bcnt & 3))
-				sound::StartFX(gd->percent);
+				S_StartFX(gd->percent);
 
 			stillticking = false;
 
@@ -892,14 +892,14 @@ static void UpdateCoopStats(void)
 
 			if (!stillticking)
 			{
-				sound::StartFX(gd->done);
+				S_StartFX(gd->done);
 				ng_state += 1 + 2 * !dofrags;
 			}
 			break;
 
 		case 8:
 			if (!(bcnt & 3))
-				sound::StartFX(gd->percent);
+				S_StartFX(gd->percent);
 
 			stillticking = false;
 
@@ -923,7 +923,7 @@ static void UpdateCoopStats(void)
 
 			if (!stillticking)
 			{
-				sound::StartFX(gd->frag_snd);
+				S_StartFX(gd->frag_snd);
 				ng_state++;
 			}
 			break;
@@ -931,7 +931,7 @@ static void UpdateCoopStats(void)
 		case 10:
 			if (acceleratestage)
 			{
-				sound::StartFX(gd->nextmap);
+				S_StartFX(gd->nextmap);
 
 				// Skip next loc on no map -ACB- 2004/06/27
 				if (!worldint.nummappos || !wbs->next)
@@ -1053,7 +1053,7 @@ static void UpdateSinglePlayerStats(void)
 		cnt_secrets[0] = (con_plyr->secretcount * 100) / wbs->maxsecret;
 		cnt_time = con_plyr->leveltime / TICRATE;
 		cnt_par = wbs->partime / TICRATE;
-		sound::StartFX(gd->done);
+		S_StartFX(gd->done);
 		sp_state = sp_end;
 	}
 
@@ -1062,12 +1062,12 @@ static void UpdateSinglePlayerStats(void)
 		cnt_kills[0] += 2;
 
 		if (!(bcnt & 3))
-			sound::StartFX(gd->percent);
+			S_StartFX(gd->percent);
 
 		if (cnt_kills[0] >= (con_plyr->killcount * 100) / wbs->maxkills)
 		{
 			cnt_kills[0] = (con_plyr->killcount * 100) / wbs->maxkills;
-			sound::StartFX(gd->done);
+			S_StartFX(gd->done);
 			sp_state++;
 		}
 	}
@@ -1076,12 +1076,12 @@ static void UpdateSinglePlayerStats(void)
 		cnt_items[0] += 2;
 
 		if (!(bcnt & 3))
-			sound::StartFX(gd->percent);
+			S_StartFX(gd->percent);
 
 		if (cnt_items[0] >= (con_plyr->itemcount * 100) / wbs->maxitems)
 		{
 			cnt_items[0] = (con_plyr->itemcount * 100) / wbs->maxitems;
-			sound::StartFX(gd->done);
+			S_StartFX(gd->done);
 			sp_state++;
 		}
 	}
@@ -1090,12 +1090,12 @@ static void UpdateSinglePlayerStats(void)
 		cnt_secrets[0] += 2;
 
 		if (!(bcnt & 3))
-			sound::StartFX(gd->percent);
+			S_StartFX(gd->percent);
 
 		if (cnt_secrets[0] >= (con_plyr->secretcount * 100) / wbs->maxsecret)
 		{
 			cnt_secrets[0] = (con_plyr->secretcount * 100) / wbs->maxsecret;
-			sound::StartFX(gd->done);
+			S_StartFX(gd->done);
 			sp_state++;
 		}
 	}
@@ -1103,7 +1103,7 @@ static void UpdateSinglePlayerStats(void)
 	else if (sp_state == sp_time)
 	{
 		if (!(bcnt & 3))
-			sound::StartFX(gd->percent);
+			S_StartFX(gd->percent);
 
 		cnt_time += 3;
 
@@ -1118,7 +1118,7 @@ static void UpdateSinglePlayerStats(void)
 
 			if (cnt_time >= con_plyr->leveltime / TICRATE)
 			{
-				sound::StartFX(gd->done);
+				S_StartFX(gd->done);
 				sp_state++;
 			}
 		}
@@ -1127,7 +1127,7 @@ static void UpdateSinglePlayerStats(void)
 	{
 		if (acceleratestage)
 		{
-			sound::StartFX(gd->nextmap);
+			S_StartFX(gd->nextmap);
 
 			// Skip next loc on no map -ACB- 2004/06/27
 			if (!worldint.nummappos || !wbs->next)

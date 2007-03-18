@@ -159,7 +159,8 @@ void P_ChangeSwitchTexture(line_t * line, bool useAgain,
 				// -KM- 98/07/31 Implement sounds
 				if (! noSound && sw->on_sfx)
 				{
-					sound::StartFX(sw->on_sfx, SNCAT_Level, sfx_origin);
+					DEV_ASSERT2(sfx_origin);
+					S_StartFX(sw->on_sfx, SNCAT_Level, sfx_origin);
 					noSound = true;
 				}
 

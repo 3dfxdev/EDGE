@@ -129,6 +129,8 @@ void P_DestroyAllSectorSFX(void)
 	sectorsfx_list = NULL;
 }
 
+// FIXME: audit this DoSectorSFX stuff  | combine with plane pseudo-looping stuff?
+
 //
 // DoSectorSFX
 //
@@ -149,7 +151,7 @@ static void DoSectorSFX(sectorsfx_t *sec)
 
     position_c *orig = &sec->sector->sfx_origin;
 
-	sound::StartFX(sec->sfx, SNCAT_Level, orig, FX_Loop);
+	S_StartFX(sec->sfx, SNCAT_Level, orig, FX_Loop);
 }
 
 //
@@ -157,8 +159,6 @@ static void DoSectorSFX(sectorsfx_t *sec)
 //
 void P_RunSectorSFX(void)
 {
-	// -AJA- FIXME: 
-
 	sectorsfx_t *sec_sfx;
 
 	for (sec_sfx = sectorsfx_list; sec_sfx; sec_sfx = sec_sfx->next)
@@ -176,7 +176,7 @@ void P_StopAmbientSectorSfx(void)
 
 	for (sec_sfx = sectorsfx_list; sec_sfx; sec_sfx = sec_sfx->next)
 	{
-        sound::StopFX(&sec_sfx->sector->sfx_origin);
+        S_StopFX(&sec_sfx->sector->sfx_origin);
 	}
 }
 
@@ -840,8 +840,8 @@ static bool P_ActivateSpecialLine(line_t * line,
 	if (line && thing && thing->player && 
         (special->special_flags & LINSP_MustReach) && !can_reach)
 	{
-        sound::StartFX(thing->info->noway_sound, 
-                       P_MobjGetSfxCategory(thing), thing);
+        S_StartFX(thing->info->noway_sound, 
+                  P_MobjGetSfxCategory(thing), thing);
 
 		return false;
 	}
@@ -1155,13 +1155,13 @@ static bool P_ActivateSpecialLine(line_t * line,
 	{
 		if (line)
         {
-			sound::StartFX(special->activate_sfx, 
+			S_StartFX(special->activate_sfx, 
                            SNCAT_Level,
                            &line->frontsector->sfx_origin);
 		}
         else if (thing)
         {
-            sound::StartFX(special->activate_sfx, 
+            S_StartFX(special->activate_sfx, 
                            P_MobjGetSfxCategory(thing),
                            thing);
         }
@@ -1365,7 +1365,7 @@ static INLINE void PlayerInProperties(player_t *player,
 
 		if (player->health <= special->damage.nominal)
 		{
-            sound::StartFX(player->mo->info->deathsound,
+            S_StartFX(player->mo->info->deathsound,
                            P_MobjGetSfxCategory(player->mo),
                            player->mo);
 
@@ -1441,7 +1441,7 @@ void P_PlayerInSpecialSector(player_t * player, sector_t * sec)
 		{
 			if (player->mo->info->gasp_sound)
             {
-                sound::StartFX(player->mo->info->gasp_sound,
+                S_StartFX(player->mo->info->gasp_sound,
                                P_MobjGetSfxCategory(player->mo),
                                player->mo);
             }
@@ -1549,7 +1549,7 @@ void P_UpdateSpecials(void)
 
 		if (b->off_sound)
         {
-            sound::StartFX(b->off_sound, SNCAT_Level,
+            S_StartFX(b->off_sound, SNCAT_Level,
                            &b->line->frontsector->sfx_origin);
         }
 

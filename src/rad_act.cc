@@ -304,7 +304,7 @@ void RAD_DisplayTips(void)
 		if (current->playsound)
 		{
             // SFX_FIXME: Use new form
-			sound::StartFX(sfxdefs.GetEffect("TINK"));
+			S_StartFX(sfxdefs.GetEffect("TINK"));
 			current->playsound = false;
 		}
 
@@ -731,12 +731,12 @@ void RAD_ActPlaySound(rad_trigger_t *R, mobj_t *actor, void *param)
 	else
 		R->sfx_origin.z = ambient->z;
 
-	sound::StartFX(ambient->sfx, SNCAT_Level, &R->sfx_origin, flags);
+	S_StartFX(ambient->sfx, SNCAT_Level, &R->sfx_origin, flags);
 }
 
 void RAD_ActKillSound(rad_trigger_t *R, mobj_t *actor, void *param)
 {
- 	sound::StopFX(&R->sfx_origin);
+ 	S_StopFX(&R->sfx_origin);
 }
 
 void RAD_ActChangeMusic(rad_trigger_t *R, mobj_t *actor, void *param)

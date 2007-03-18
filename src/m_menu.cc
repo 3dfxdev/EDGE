@@ -520,7 +520,7 @@ void M_LoadSavePage(int choice)
 			break;
 	}
 
-	sound::StartFX(sfx_swtchn);
+	S_StartFX(sfx_swtchn);
 	M_ReadSaveStrings();
 }
 
@@ -893,7 +893,7 @@ static void QuickSaveResponse(int ch)
 	if (ch == 'y')
 	{
 		M_DoSave(quickSavePage, quickSaveSlot);
-		sound::StartFX(sfx_swtchx);
+		S_StartFX(sfx_swtchx);
 	}
 }
 
@@ -901,7 +901,7 @@ void M_QuickSave(void)
 {
 	if (!usergame)
 	{
-		sound::StartFX(sfx_oof);
+		S_StartFX(sfx_oof);
 		return;
 	}
 
@@ -939,7 +939,7 @@ static void QuickLoadResponse(int ch)
 		M_LoadSelect(quickSaveSlot);
 
 		save_page = tempsavepage;
-		sound::StartFX(sfx_swtchx);
+		S_StartFX(sfx_swtchx);
 	}
 }
 
@@ -993,7 +993,7 @@ void M_DrawSound(void)
 	int soundvol;
 
 	musicvol = S_GetMusicVolume();
-	soundvol = sound::GetVolume();
+	soundvol = S_GetSoundVolume();
 
 	RGL_ImageEasy320(60, 38, menu_svol);
 
@@ -1018,9 +1018,7 @@ void M_Sound(int choice)
 //
 void M_SfxVol(int choice)
 {
-	int soundvol;
-
-	soundvol = sound::GetVolume();
+	int soundvol = S_GetSoundVolume();
 
 	switch (choice)
 	{
@@ -1037,7 +1035,7 @@ void M_SfxVol(int choice)
 			break;
 	}
 
-	sound::SetVolume(soundvol);
+	S_SetSoundVolume(soundvol);
 }
 
 //
@@ -1047,9 +1045,7 @@ void M_SfxVol(int choice)
 //
 void M_MusicVol(int choice)
 {
-	int musicvol;
-
-	musicvol = S_GetMusicVolume();
+	int musicvol = S_GetMusicVolume();
 
 	switch (choice)
 	{
@@ -1280,7 +1276,7 @@ void M_EndGame(int choice)
 {
 	if (!usergame)
 	{
-		sound::StartFX(sfx_oof);
+		S_StartFX(sfx_oof);
 		return;
 	}
 
@@ -1354,7 +1350,7 @@ static void QuitResponse(int ch)
 				sprintf(sound, "DS%s", language[refname]);
 				if (W_CheckNumForName(sound) != -1)
 				{
-					sound::StartFX(sfxdefs.GetEffect(language[refname]));
+					S_StartFX(sfxdefs.GetEffect(language[refname]));
 					break;
 				}
 				i = (i + 1) % numsounds;
@@ -1578,7 +1574,7 @@ bool M_Responder(event_t * ev)
 		if (message_key_routine)
 			(* message_key_routine)(ch);
 
-		sound::StartFX(sfx_swtchx);
+		S_StartFX(sfx_swtchx);
 		return true;
 	}
 	else if (msg_mode == 2)
@@ -1594,7 +1590,7 @@ bool M_Responder(event_t * ev)
 			input_string.Clear();
 			
 			menuactive = false;
-			sound::StartFX(sfx_swtchx);
+			S_StartFX(sfx_swtchx);
 			return true;
 		}
 
@@ -1611,7 +1607,7 @@ bool M_Responder(event_t * ev)
 
 			input_string.Clear();
 			
-			sound::StartFX(sfx_swtchx);
+			S_StartFX(sfx_swtchx);
 			return true;
 		}
 		
@@ -1707,7 +1703,7 @@ bool M_Responder(event_t * ev)
 					return false;
 				// 98-7-10 KM Use new defines
 				M_SizeDisplay(SLIDERLEFT);
-				sound::StartFX(sfx_stnmov);
+				S_StartFX(sfx_stnmov);
 				return true;
 
 			case KEYD_EQUALS:  // Screen size up
@@ -1716,20 +1712,20 @@ bool M_Responder(event_t * ev)
 					return false;
 				// 98-7-10 KM Use new defines
 				M_SizeDisplay(SLIDERRIGHT);
-				sound::StartFX(sfx_stnmov);
+				S_StartFX(sfx_stnmov);
 				return true;
 
 			case KEYD_F2:  // Save
 
 				M_StartControlPanel();
-				sound::StartFX(sfx_swtchn);
+				S_StartFX(sfx_swtchn);
 				M_SaveGame(0);
 				return true;
 
 			case KEYD_F3:  // Load
 
 				M_StartControlPanel();
-				sound::StartFX(sfx_swtchn);
+				S_StartFX(sfx_swtchn);
 				M_LoadGame(0);
 				return true;
 
@@ -1738,44 +1734,44 @@ bool M_Responder(event_t * ev)
 				M_StartControlPanel();
 				currentMenu = &SoundDef;
 				itemOn = sfx_vol;
-				sound::StartFX(sfx_swtchn);
+				S_StartFX(sfx_swtchn);
 				return true;
 
 			case KEYD_F5:  // Detail toggle, now loads options menu
 				// -KM- 1998/07/31 F5 now loads options menu, detail is obsolete.
 
-				sound::StartFX(sfx_swtchn);
+				S_StartFX(sfx_swtchn);
 				M_StartControlPanel();
 				M_Options(0);
 				return true;
 
 			case KEYD_F6:  // Quicksave
 
-				sound::StartFX(sfx_swtchn);
+				S_StartFX(sfx_swtchn);
 				M_QuickSave();
 				return true;
 
 			case KEYD_F7:  // End game
 
-				sound::StartFX(sfx_swtchn);
+				S_StartFX(sfx_swtchn);
 				M_EndGame(0);
 				return true;
 
 			case KEYD_F8:  // Toggle messages
 
 				M_ChangeMessages(0);
-				sound::StartFX(sfx_swtchn);
+				S_StartFX(sfx_swtchn);
 				return true;
 
 			case KEYD_F9:  // Quickload
 
-				sound::StartFX(sfx_swtchn);
+				S_StartFX(sfx_swtchn);
 				M_QuickLoad();
 				return true;
 
 			case KEYD_F10:  // Quit DOOM
 
-				sound::StartFX(sfx_swtchn);
+				S_StartFX(sfx_swtchn);
 				M_QuitEDGE(0);
 				return true;
 
@@ -1809,7 +1805,7 @@ bool M_Responder(event_t * ev)
 		if (ch == KEYD_ESCAPE)
 		{
 			M_StartControlPanel();
-			sound::StartFX(sfx_swtchn);
+			S_StartFX(sfx_swtchn);
 			return true;
 		}
 		return false;
@@ -1825,7 +1821,7 @@ bool M_Responder(event_t * ev)
 					itemOn = 0;
 				else
 					itemOn++;
-				sound::StartFX(sfx_pstop);
+				S_StartFX(sfx_pstop);
 			}
 			while (currentMenu->menuitems[itemOn].status == -1);
 			return true;
@@ -1837,7 +1833,7 @@ bool M_Responder(event_t * ev)
 					itemOn = currentMenu->numitems - 1;
 				else
 					itemOn--;
-				sound::StartFX(sfx_pstop);
+				S_StartFX(sfx_pstop);
 			}
 			while (currentMenu->menuitems[itemOn].status == -1);
 			return true;
@@ -1847,7 +1843,7 @@ bool M_Responder(event_t * ev)
 			if (currentMenu->menuitems[itemOn].select_func &&
 				currentMenu->menuitems[itemOn].status == 2)
 			{
-				sound::StartFX(sfx_stnmov);
+				S_StartFX(sfx_stnmov);
 				// 98-7-10 KM Use new defines
 				(* currentMenu->menuitems[itemOn].select_func)(SLIDERLEFT);
 			}
@@ -1858,7 +1854,7 @@ bool M_Responder(event_t * ev)
 			if (currentMenu->menuitems[itemOn].select_func &&
 				currentMenu->menuitems[itemOn].status == 2)
 			{
-				sound::StartFX(sfx_stnmov);
+				S_StartFX(sfx_stnmov);
 				// 98-7-10 KM Use new defines
 				(* currentMenu->menuitems[itemOn].select_func)(SLIDERRIGHT);
 			}
@@ -1870,14 +1866,14 @@ bool M_Responder(event_t * ev)
 			{
 				currentMenu->lastOn = itemOn;
 				(* currentMenu->menuitems[itemOn].select_func)(itemOn);
-				sound::StartFX(sfx_pistol);
+				S_StartFX(sfx_pistol);
 			}
 			return true;
 
 		case KEYD_ESCAPE:
 			currentMenu->lastOn = itemOn;
 			M_ClearMenus();
-			sound::StartFX(sfx_swtchx);
+			S_StartFX(sfx_swtchx);
 			return true;
 
 		case KEYD_BACKSPACE:
@@ -1886,7 +1882,7 @@ bool M_Responder(event_t * ev)
 			{
 				currentMenu = currentMenu->prevMenu;
 				itemOn = currentMenu->lastOn;
-				sound::StartFX(sfx_swtchn);
+				S_StartFX(sfx_swtchn);
 			}
 			return true;
 
@@ -1895,14 +1891,14 @@ bool M_Responder(event_t * ev)
 				if (currentMenu->menuitems[i].alpha_key == ch)
 				{
 					itemOn = i;
-					sound::StartFX(sfx_pstop);
+					S_StartFX(sfx_pstop);
 					return true;
 				}
 			for (i = 0; i <= itemOn; i++)
 				if (currentMenu->menuitems[i].alpha_key == ch)
 				{
 					itemOn = i;
-					sound::StartFX(sfx_pstop);
+					S_StartFX(sfx_pstop);
 					return true;
 				}
 			break;

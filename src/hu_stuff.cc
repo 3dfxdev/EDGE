@@ -380,9 +380,9 @@ void HU_Ticker(void)
 						message_counter = HU_MSGTIMEOUT;
 
 						if (W_CheckNumForName("DSRADIO") >= 0)
-							sound::StartFX(sfx_radio, SNCAT_UI);
+							S_StartFX(sfx_radio, SNCAT_UI);
 						else
-							sound::StartFX(sfx_tink, SNCAT_UI);
+							S_StartFX(sfx_tink, SNCAT_UI);
 					}
 					HL_ResetIText(&w_inputbuffer[i]);
 				}

@@ -643,7 +643,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
             else
                 sfx_cat = SNCAT_Opponent;
 
-			sound::StartFX(sound, sfx_cat, info.player->mo);
+			S_StartFX(sound, sfx_cat, info.player->mo);
         }
 
 		if (info.new_weap >= 0 || info.new_ammo >= 0)

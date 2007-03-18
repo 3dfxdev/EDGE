@@ -277,7 +277,7 @@ bool G_Responder(event_t * ev)
 		if (ev->type == ev_keydown)
 		{
 			M_StartControlPanel();
-			sound::StartFX(sfx_swtchn, SNCAT_UI);
+			S_StartFX(sfx_swtchn, SNCAT_UI);
 			return true;
 		}
 
@@ -301,16 +301,16 @@ bool G_Responder(event_t * ev)
 		if (paused)
 		{
 			S_PauseMusic();
-			sound::PauseAllFX();
+			S_PauseSound();
 		}
 		else
 		{
 			S_ResumeMusic();
-			sound::ResumeAllFX();
+			S_ResumeSound();
 		}
 
 		// explicit as probably killed the initial effect
-		sound::StartFX(sfx_swtchn, SNCAT_UI); //!!!! TEST
+		S_StartFX(sfx_swtchn, SNCAT_UI);
 		return true;
 	}
 
@@ -1037,7 +1037,7 @@ void G_InitNew(newgame_params_c& params)
 	{
 		paused = false;
 		S_ResumeMusic(); // -ACB- 1999/10/07 New Music API
-		sound::ResumeAllFX();  
+		S_ResumeSound();  
 	}
 
 	currgamedef = params.game;
