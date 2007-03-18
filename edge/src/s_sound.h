@@ -2,7 +2,7 @@
 //  EDGE Sound FX Handling Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2005  The EDGE Team.
+//  Copyright (c) 1999-2007  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -104,38 +104,27 @@ typedef enum
 }
 fx_flag_e;
 
-// S_SOUND.C
-namespace sound
-{
 
-    // Init/Shutdown
-    void Init(void);
-    void Shutdown(void);
+// Init/Shutdown
+void S_Init(void);
+void S_Shutdown(void);
 
-    void ClearAllFX(void);
+void S_ClearAllFX(void);
 
-    void StartFX(sfx_t *sfx, int category = SNCAT_UI, position_c *pos = NULL, int flags = 0);
+void S_StartFX(sfx_t *sfx, int category = SNCAT_UI, position_c *pos = NULL, int flags = 0);
+void S_StopFX(position_c *pos);
 
-    void StopFX(position_c *pos);
-    void StopLoopingFX(position_c *pos);
-    
-    // Playsim Object <-> Effect Linkage
-    void UnlinkFX(position_c *pos);
+void S_ResumeAllFX();
+void S_PauseAllFX();
 
-    void ResumeAllFX();
-    void PauseAllFX();
+// Your effect reservation, sir...
+//??? int ReserveFX(int category);
+//??? void UnreserveFX(int handle);
 
-    // Your effect reservation, sir...
-    int ReserveFX(int category);
-    void UnreserveFX(int handle);
+void S_SoundTicker();
 
-    // Ticker
-    void Ticker();
-
-    // Volume Control
-    int GetVolume();
-    void SetVolume(int volume);
-};
+int  S_GetSoundVolume();
+void S_SetSoundVolume(int volume);
 
 #endif // __S_SOUND__
 
