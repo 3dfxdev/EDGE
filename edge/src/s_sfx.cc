@@ -43,8 +43,6 @@ extern float listen_x;
 extern float listen_y;
 extern float listen_z;
 
-namespace sound
-{
 
 /* See m_option.cc for corresponding menu items */
 const int channel_counts[5] = { 8, 16, 32, 64, 96 };
@@ -95,11 +93,12 @@ const int category_limit_table[3][8][3] =
 	// four categories should never be merged with the rest.
 };
 
-int cat_limits[SNCAT_NUMTYPES];
-int cat_counts[SNCAT_NUMTYPES];
+
+static int cat_limits[SNCAT_NUMTYPES];
+static int cat_counts[SNCAT_NUMTYPES];
 
 
-void SetupCategoryLimits(void)
+static void SetupCategoryLimits(void)
 {
 	// Assumes: num_chan to be already set, and the DEATHMATCH()
 	//          and COOP_MATCH() macros are working.
@@ -135,7 +134,7 @@ void S_KillChannel(int k)
 	}
 }
 
-int FindFreeChannel(void)
+static int FindFreeChannel(void)
 {
 	for (int i=0; i < num_chan; i++)
 	{
@@ -151,7 +150,7 @@ int FindFreeChannel(void)
 	return -1; // not found
 }
 
-int FindPlayingFX(sfxdef_c *def, int cat, position_c *pos)
+static int FindPlayingFX(sfxdef_c *def, int cat, position_c *pos)
 {
 	for (int i=0; i < num_chan; i++)
 	{
@@ -167,7 +166,7 @@ int FindPlayingFX(sfxdef_c *def, int cat, position_c *pos)
 	return -1; // not found
 }
 
-int FindBiggestHog(int real_cat)
+static int FindBiggestHog(int real_cat)
 {
 	int biggest_hog = -1;
 	int biggest_extra = 0;
@@ -195,7 +194,7 @@ int FindBiggestHog(int real_cat)
 	return biggest_hog;
 }
 
-void CountPlayingCats(void)
+static void CountPlayingCats(void)
 {
 	for (int c=0; c < SNCAT_NUMTYPES; c++)
 		cat_counts[c] = 0;
@@ -209,7 +208,7 @@ void CountPlayingCats(void)
 	}
 }
 
-int ChannelScore(sfxdef_c *def, int category, position_c *pos, bool boss)
+static int ChannelScore(sfxdef_c *def, int category, position_c *pos, bool boss)
 {
 	// for full-volume sounds, use the priority from DDF
 	if (category <= SNCAT_Weapon)
@@ -228,7 +227,7 @@ int ChannelScore(sfxdef_c *def, int category, position_c *pos, bool boss)
 	return base_score * 100 - def->priority;
 }
 
-int FindChannelToKill(int kill_cat, int real_cat, int new_score)
+static int FindChannelToKill(int kill_cat, int real_cat, int new_score)
 {
 	int kill_idx = -1;
 	int kill_score = (1<<30);
@@ -269,7 +268,7 @@ I_Printf("kill_idx = %d\n", kill_idx);
 }
 
 
-void Init(void)
+void S_Init(void)
 {
 	if (nosound) return;
 
@@ -286,14 +285,14 @@ void Init(void)
 	SDL_PauseAudio(0);
 }
 
-void Shutdown(void)
+void S_Shutdown(void)
 {
 	if (nosound) return;
 
 	SDL_PauseAudio(1);
 }
 
-void ClearAllFX(void)
+void S_ClearAllFX(void)
 {
 	if (nosound) return;
 
@@ -362,6 +361,7 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 
 	if (k >= 0)
 	{
+I_Printf("@ already playing on #%d\n", k);
 		mix_channel_c *chan = mix_chan[k];
 
 		if (flags & FX_Loop)
@@ -390,6 +390,7 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 			k = -1;
 	}
 
+I_Printf("@ free channel = #%d\n", k);
 	if (k < 0)
 	{
 		// all channels are in use.
@@ -405,6 +406,7 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 		{
 			// we haven't reached our quota yet, hence kill a hog.
 			kill_cat = FindBiggestHog(category);
+I_Printf("@ biggest hog: %d\n", kill_cat);
 		}
 
 		DEV_ASSERT2(cat_counts[kill_cat] >= cat_limits[kill_cat]);
@@ -424,17 +426,19 @@ k, kill_cat, category);
 }
 
 
-void StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
+void S_StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 {
 	if (nosound || !sfx) return;
 
 	DEV_ASSERT2(0 <= category && category < SNCAT_NUMTYPES);
 
+	if (category >= SNCAT_Opponent)
+		if (! pos)
+			I_Error("S_StartFX: position missing for category: %d\n", category);
+
 	// ignore very far away sounds
 	if (category >= SNCAT_Opponent && !(flags & FX_Boss))
 	{
-		DEV_ASSERT2(pos);
-
 		float dist = P_ApproxDistance(listen_x - pos->x, listen_y - pos->y, listen_z - pos->z);
 
 		if (dist > S_CLIPPING_DIST)
@@ -467,7 +471,7 @@ I_Printf("StartFX: '%s' cat:%d flags:0x%04x\n", def->lump_name.GetString(),
 }
 
 
-void StopFX(position_c *pos)
+void S_StopFX(position_c *pos)
 {
 	if (nosound) return;
 
@@ -478,14 +482,17 @@ void StopFX(position_c *pos)
 			mix_channel_c *chan = mix_chan[i];
 
 			if (chan->state == CHAN_Playing && chan->pos == pos)
+			{
+I_Printf("S_StopFX: killing #%d\n", i);
 				S_KillChannel(i);
+			}
 		}
 	}
 	SDL_UnlockAudio();
 }
 
 
-void Ticker()
+void S_SoundTicker(void)
 {
 	if (nosound) return;
 
@@ -505,36 +512,6 @@ void Ticker()
 	}
 	SDL_UnlockAudio();
 }
-
-
-void PauseAllFX()
-{
-}
-
-void ResumeAllFX()
-{
-}
-
-
-int ReserveFX(int category)
-{
-	return -1;
-}
-
-void UnreserveFX(int handle)
-{
-}
-
-int GetVolume()
-{
-	return 1;  // fixme ?
-}
-
-void SetVolume(int volume)
-{
-}
-
-} // namespace sound
 
 
 //--- editor settings ---
