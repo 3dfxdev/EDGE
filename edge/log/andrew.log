@@ -1,8 +1,54 @@
 Andrew Apted's Log
 
+2007/03/18:
+
+Fixed sound code to use the values from the Sound Options
+menu, which are updated if the SDL audio device doesn't
+support the requested settings.
+
+Fixed stereo sound.
+
+My analysis of sound::UnlinkFX() -- only real usage is to
+keep the rocket (etc) sound after the object has gone away
+(especially when hitting the sky).  Rather than saddle the
+sound code with this special case, I think the MOBJ code
+should simply keep removed mobjs around for a little while
+(a few seconds at most).
+
+Plans for looping sounds: I call it "pseudo-looping".
+In a nut shell: sounds don't automatically loop, instead
+they need to be "pumped" (started again) before they have
+finished playing.  This system makes the StopLoopingFX()
+unnecessary, since the sound will play-out by itself.
+
+Fixed a weird bug in new code: the plasma explosion sound
+was cutting off the launch sound, even though they are in
+different categories.  It turns out that the position for
+the launch sound was the plasma ball itself, therefor a
+KILLSOUND command in the DDF was killing the launch sfx!
+
+2007/03/17:
+
+Okidoke, new sound code is starting to look quite good.
+Got the category system working (one problem was that
+player attacks never got the SNCAT_Weapon category).
+
+The algorithm for finding the right channel to kill when
+all the channels are full is working (including the idea
+of "hogs", which is when a category is using more channels
+than his limit).
+
+One thing of note: the PRIORITY field (in SOUNDS.DDF) has
+a smaller role to play now.  For sounds on the level, it
+only has an effect when multiple sounds are played by a
+single thing.  The priority is still very useful for
+non-level sounds (UI and Player/Weapon categories).
+
 2007/03/15:
 
-Added 'Quiet Factor' to the Sound Options menu.
+Added 'Quiet Factor' to the Sound Options menu.  I figure
+that giving the user the control (louder = more chance of
+distortion) is better than hard-coding my own preference.
 
 More work on sound code, moved blitting stuff to s_blit.cc/h,
 and managed to get the most basic setup running and playing
