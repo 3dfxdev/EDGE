@@ -128,12 +128,10 @@ void mix_channel_c::ComputeVolume()
 		if (! boss)
 		{
 			// approximate distance (with hack for Z)
-			float dist = P_ApproxDistance(listen_x - pos->x, listen_y - pos->y);
-
-			dist += fabs(listen_z - pos->z) / 4.0f;
+			float dist = P_ApproxDistance(listen_x - pos->x, listen_y - pos->y, listen_z - pos->z);
 
 			// -AJA- this equation was chosen to mimic the DOOM falloff
-			//       function, but doesn't cut out @ dist=1600, instead
+			//       function, but not cutting out @ dist=1600, instead
 			//       tapering off exponentially.
 			mul = exp(-MAX(1.0f, dist - S_CLOSE_DIST) / 800.0f);
 		}
@@ -222,14 +220,14 @@ static void BlitToS16(const int *src, s16_t *dest, int length)
 }
 
 
-static void MixMono(mix_channel_c *chan, int *dest, int length)
+static void MixMono(mix_channel_c *chan, int *dest, int pairs)
 {
-	DEV_ASSERT2(length > 0);
+	DEV_ASSERT2(pairs > 0);
 
 	const s16_t *src_L = chan->data->data_L;
 
 	register int *d_pos = dest;
-	int *d_end = d_pos + length;
+	int *d_end = d_pos + pairs;
 
 	fixed22_t offset = chan->offset;
 
@@ -245,15 +243,15 @@ static void MixMono(mix_channel_c *chan, int *dest, int length)
 	DEV_ASSERT2(offset - chan->delta < chan->length);
 }
 
-static void MixStereo(mix_channel_c *chan, int *dest, int length)
+static void MixStereo(mix_channel_c *chan, int *dest, int pairs)
 {
-	DEV_ASSERT2(length > 0);
+	DEV_ASSERT2(pairs > 0);
 
 	const s16_t *src_L = chan->data->data_L;
 	const s16_t *src_R = chan->data->data_R;
 
 	register int *d_pos = dest;
-	int *d_end = d_pos + length * 2;
+	int *d_end = d_pos + pairs * 2;
 
 	fixed22_t offset = chan->offset;
 
@@ -290,7 +288,7 @@ static void MixChannel(mix_channel_c *chan, int pairs)
 		if (chan->offset + pairs * chan->delta >= chan->length)
 		{
 			// TEST CRAP !!!!! FIXME
-			S_CacheRelease(chan->data);
+			// S_CacheRelease(chan->data);
 			chan->data = NULL;
 			break;
 		}
@@ -315,12 +313,16 @@ void S_MixAllChannels(void *stream, int len)
 	if (nosound || len <= 0)
 		return;
 
-	int samples = len / dev_bytes_per_sample;
+	int pairs = len / dev_bytes_per_sample;
+
+	int samples = pairs;
+	if (dev_stereo)
+		samples *= 2;
 
 	// check that we're not getting too much data
-	DEV_ASSERT2(samples <= dev_frag_pairs);
+	DEV_ASSERT2(pairs <= dev_frag_pairs);
 
-	// allocate mixer buffer if needed
+	// allocate mixer buffer if needed  FIXME: move out of here!
 	if (! mix_buffer or mix_buf_len < samples)
 	{
 		if (mix_buffer)
@@ -341,7 +343,7 @@ void S_MixAllChannels(void *stream, int len)
 	// add each channel
 	for (int i=0; i < num_chan; i++)
 	{
-		MixChannel(mix_chan[i], samples);
+		MixChannel(mix_chan[i], pairs);
 	} 
 
 	// blit to the SDL stream
