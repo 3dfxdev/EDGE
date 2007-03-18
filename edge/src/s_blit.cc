@@ -61,10 +61,10 @@ int num_chan;
 static int *mix_buffer;
 static int mix_buf_len;
 
-static int sfxvolume = 19;  //!!!! FIXME
-static bool game_paused = false; //!!!!!! FIXME
+static int  sfxvolume = 0;
+static bool sfxpaused = false;
 
-// these are analogous to viewx/y/z, viewangle
+// these are analogous to viewx/y/z/angle
 float listen_x;
 float listen_y;
 float listen_z;
@@ -271,7 +271,7 @@ static void MixStereo(mix_channel_c *chan, int *dest, int pairs)
 
 static void MixChannel(mix_channel_c *chan, int pairs)
 {
-	if (game_paused && chan->category >= SNCAT_Player)
+	if (sfxpaused && chan->category >= SNCAT_Player)
 		return;
 
 	if (chan->volume_L == 0 && chan->volume_R == 0)
@@ -416,3 +416,25 @@ void S_UpdateSounds(position_c *listener, angle_t angle)
 	}
 }
 
+int S_GetSoundVolume(void)
+{
+	return sfxvolume;
+}
+
+void S_SetSoundVolume(int volume)
+{
+	sfxvolume = volume;
+}
+
+void S_PauseSound(void)
+{
+	sfxpaused = true;
+}
+
+void S_ResumeSound(void)
+{
+	sfxpaused = false;
+}
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
