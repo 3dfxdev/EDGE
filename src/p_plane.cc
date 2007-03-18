@@ -346,7 +346,7 @@ static void MovePlane(plane_move_t *plane)
             {
                 // We've in stasis, therefore stop making any sound
                 // -ACB- 2005/09/17 (Unashamed 11th hour hacking)
-                sound::StopLoopingFX(&plane->sector->sfx_origin);
+// UNNEEDED     sound::StopLoopingFX(&plane->sector->sfx_origin);
                 plane->sfxstarted = false;
             }
 
@@ -772,11 +772,11 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
 	plane->elev_height = sector->c_h - sector->f_h;
 
     // -ACB- 10/01/2001 Trigger starting sfx
-    sound::StopLoopingFX(&sector->sfx_origin);
+// UNNEEDED    sound::StopLoopingFX(&sector->sfx_origin);
+
     if (def->sfxstart)
     {
-        sound::StartFX(def->sfxstart, 
-                       SNCAT_Level,
+        sound::StartFX(def->sfxstart, SNCAT_Level,
                        &sector->sfx_origin);
     }
 

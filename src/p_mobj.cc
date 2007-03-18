@@ -496,10 +496,8 @@ static void DoRemoveMobj(mobj_t * mo)
 	// Sound might still be playing, so use remove the
     // link between object and effect
 
-    // SFX_FIXME: Stop any looping sound effect
-    //sound::StopLoopingFX(mo); 
-
-    sound::UnlinkFX(mo);
+    // FIXME: delay removal for a few seconds (allow sound to finish)
+    sound::StopFX(mo);
 
 	Z_Free(mo); // Finally destroy the object
 }
