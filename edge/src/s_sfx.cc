@@ -25,6 +25,7 @@
 #endif
 
 #include "m_argv.h"
+#include "m_misc.h"
 #include "m_random.h"
 #include "m_swap.h"
 #include "w_wad.h"
@@ -253,8 +254,12 @@ void Init(void)
 {
 	if (nosound) return;
 
+	int want_chan = channel_counts[var_mix_channels];
+
+	I_Printf("I_StartupSound: Init %d mixing channels\n", want_chan);
+			
 	// setup channels
-	S_InitChannels(8);
+	S_InitChannels(want_chan);
 
 	SetupCategoryLimits();
 
@@ -352,7 +357,7 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 
 		if (flags & FX_Single)
 		{
-			if (! (flags & FX_Cut))
+			if (flags & FX_Precious)
 				return;
 
 			S_KillChannel(k);
@@ -428,7 +433,7 @@ void StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 	if (def->singularity > 0)
 	{
 		flags |= FX_Single;
-		flags |= (def->precious ? 0 : FX_Cut);
+		flags |= (def->precious ? FX_Precious : 0);
 	}
 
 I_Printf("StartFX: '%s' cat:%d flags:0x%04x\n", def->lump_name.GetString(),

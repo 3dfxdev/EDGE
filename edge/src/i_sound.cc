@@ -39,6 +39,7 @@
 #include <sys/time.h>
 
 #include "m_argv.h"
+#include "m_misc.h"
 #include "m_random.h"
 #include "m_swap.h"
 #include "w_wad.h"
@@ -52,8 +53,8 @@
 bool nosound = false;
 
 /* See m_option.cc for corresponding menu items */
-static const int sample_rates[4]   = { 11025, 16000, 22050, 44100 };
-static const int sample_bits[2]    = { 8, 16 };
+static const int sample_rates[5] = { 11025, 16000, 22050, 32000, 44100 };
+static const int sample_bits[2]  = { 8, 16 };
 
 
 static SDL_AudioSpec mydev;
@@ -62,7 +63,8 @@ int dev_freq;
 int dev_bits;
 int dev_bytes_per_sample;
 int dev_frag_pairs;
-int dev_stereo;
+bool dev_signed;  // S8 vs U8, S16 vs U16
+bool dev_stereo;
 
 
 #define PRI_NOSOUND   -1
@@ -87,25 +89,27 @@ bool I_StartupSound(void *sysinfo)
 		return true;
 
 	const char *p;
-	SDL_AudioSpec firstdev;
 
-	int want_freq;
-	int want_bits;
-	int want_stereo;
+	int want_freq = sample_rates[var_sample_rate];
+	int want_bits = sample_bits [var_sound_bits];
+	bool want_stereo = (var_sound_stereo >= 1);
 
 	p = M_GetParm("-freq");
 	if (p)
 		want_freq = atoi(p);
-	else
-		want_freq = 11025;
 
-	want_bits = (M_CheckParm("-sound16") > 0) ? 16 : 8;
-	want_stereo = false; //!!!!! (M_CheckParm("-mono") > 0) ? 0 : 1;
+	if (M_CheckParm("-sound16") > 0)
+		want_bits = 16;
 
-	firstdev.freq = want_freq;
-	firstdev.format = (want_bits < 12) ? AUDIO_U8 : AUDIO_S16SYS;
+	if (M_CheckParm("-mono")   > 0) want_stereo = false;
+	if (M_CheckParm("-stereo") > 0) want_stereo = true;
+
+	SDL_AudioSpec firstdev;
+
+	firstdev.freq     = want_freq;
+	firstdev.format   = (want_bits < 12) ? AUDIO_U8 : AUDIO_S16SYS;
 	firstdev.channels = want_stereo ? 2 : 1;
-	firstdev.samples = 512;
+	firstdev.samples  = 512;
 	firstdev.callback = SoundFill_Callback;
 
 	if (SDL_OpenAudio(&firstdev, &mydev) < 0)
@@ -115,7 +119,7 @@ bool I_StartupSound(void *sysinfo)
 		return false;
 	}
 
-#ifdef DEVELOPERS
+#if 0
 	// get round SDL's signal handlers
 	signal(SIGFPE,  SIG_DFL);
 	signal(SIGSEGV, SIG_DFL);
@@ -123,15 +127,20 @@ bool I_StartupSound(void *sysinfo)
 
 	// check stuff...
 
-	if (mydev.format == AUDIO_S16SYS)
-		dev_bits = 16;
-	else if (mydev.format == AUDIO_U8)
-		dev_bits = 8;
-	else
+	switch (mydev.format)
 	{
-		I_Printf("I_StartupSound: unsupported format: %d\n", mydev.format);
-		nosound = true;
-		return false;
+		case AUDIO_S16SYS: dev_bits=16; dev_signed=true;  break;
+		case AUDIO_U16SYS: dev_bits=16; dev_signed=false; break;
+
+		case AUDIO_S8: dev_bits=8; dev_signed=true;  break;
+		case AUDIO_U8: dev_bits=8; dev_signed=false; break;
+
+	    default:				   
+			I_Printf("I_StartupSound: unsupported format: %d\n", mydev.format);
+			SDL_CloseAudio();
+
+			nosound = true;
+			return false;
 	}
 
 	if (dev_bits != want_bits)
@@ -148,10 +157,6 @@ bool I_StartupSound(void *sysinfo)
 		I_Printf("I_StartupSound: %d Hz sound not available.\n", want_freq);
 	}
 
-	// display some useful stuff
-	I_Printf("I_StartupSound: SDL Started: %d Hz, %d bits, %s\n",
-			mydev.freq, dev_bits, (mydev.channels==2) ? "Stereo" : "Mono");
-
 	dev_bytes_per_sample = (mydev.channels) * (dev_bits / 8);
 	dev_frag_pairs = mydev.size / dev_bytes_per_sample;
 
@@ -160,6 +165,31 @@ bool I_StartupSound(void *sysinfo)
 
 	dev_freq   = mydev.freq;
 	dev_stereo = (mydev.channels == 2);
+
+	// update Sound Options menu
+	if (dev_bits != sample_bits[var_sound_bits])
+		var_sound_bits = (dev_bits >= 16) ? 1 : 0;
+
+	if (dev_stereo != (var_sound_stereo >= 1))
+		var_sound_stereo = dev_stereo ? 1 : 0;
+
+	if (dev_freq != sample_rates[var_sample_rate])
+	{
+		if (dev_freq >= 38000)
+			var_sample_rate = 4; // 44 Khz
+		else if (dev_freq >= 27000)
+			var_sample_rate = 3; // 32 Khz
+		else if (dev_freq >= 19000)
+			var_sample_rate = 2; // 22 Khz
+		else if (dev_freq >= 13500)
+			var_sample_rate = 1; // 16 Khz
+		else
+			var_sample_rate = 0; // 11 Khz
+	}
+
+	// display some useful stuff
+	I_Printf("I_StartupSound: SDL Started: %d Hz, %d bits, %s\n",
+			dev_freq, dev_bits, dev_stereo ? "Stereo" : "Mono");
 
 	return true;
 }

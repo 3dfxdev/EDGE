@@ -176,7 +176,7 @@ static char Huds[]      = "Full/None/Overlay";
 static char MipMaps[]   = "None/Good/Best";
 static char Details[]   = "Low/Medium/High";
 
-static char SampleRates[] = "11025 Hz/16000 Hz/22050 Hz/44100 Hz";
+static char SampleRates[] = "11025 Hz/16000 Hz/22050 Hz/32000 Hz/44100 Hz";
 static char SoundBits[]   = "8 bit/16 bit";
 static char StereoNess[]  = "Off/On/Swapped";
 static char MixChans[]    = "8/16/32/64/96";
@@ -531,7 +531,7 @@ static optmenuitem_t soundoptions[] =
 	{OPT_Slider,   "Music Volume",  NULL, SND_SLIDER_NUM, CFGDEF_MUSIC_VOLUME, &menumusicvol, M_ChangeMusVol, NULL},
 
 	{OPT_Plain,    "", NULL, 0,  0, NULL, NULL, NULL},
-	{OPT_Switch,   "Sample Rate",   SampleRates, 4, CFGDEF_SAMPLE_RATE,  &var_sample_rate,  NULL, NULL},
+	{OPT_Switch,   "Sample Rate",   SampleRates, 5, CFGDEF_SAMPLE_RATE,  &var_sample_rate,  NULL, NULL},
 	{OPT_Switch,   "Sample Size",   SoundBits, 2,   CFGDEF_SOUND_BITS,   &var_sound_bits,   NULL, NULL},
 	{OPT_Switch,   "Stereo",        StereoNess, 3,  CFGDEF_SOUND_STEREO, &var_sound_stereo, NULL, NULL},
 
