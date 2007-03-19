@@ -85,10 +85,6 @@ typedef enum
 {
 	FX_NORMAL = 0,
 
-	// pseudo-looping: if not playing, start it, otherwise the
-	// sound will repeat *once* more.
-	FX_Loop = (1 << 0),
-
 	// monster bosses: sound is not diminished by distance
 	FX_Boss = (1 << 1),
 	

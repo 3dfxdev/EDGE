@@ -227,7 +227,7 @@ static void MixMono(mix_channel_c *chan, int *dest, int pairs)
 
 	const s16_t *src_L = chan->data->data_L;
 
-	register int *d_pos = dest;
+	int *d_pos = dest;
 	int *d_end = d_pos + pairs;
 
 	fixed22_t offset = chan->offset;
@@ -251,7 +251,7 @@ static void MixStereo(mix_channel_c *chan, int *dest, int pairs)
 	const s16_t *src_L = chan->data->data_L;
 	const s16_t *src_R = chan->data->data_R;
 
-	register int *d_pos = dest;
+	int *d_pos = dest;
 	int *d_end = d_pos + pairs * 2;
 
 	fixed22_t offset = chan->offset;
@@ -277,29 +277,51 @@ static void MixChannel(mix_channel_c *chan, int pairs)
 	if (chan->volume_L == 0 && chan->volume_R == 0)
 		return;
 
+	DEV_ASSERT2(chan->offset < chan->length);
+
 	int *dest = mix_buffer;
 	
 	while (pairs > 0)
 	{
-		// check if enough sound data is left
-		if (chan->offset + pairs * chan->delta >= chan->length)
-		{
-			// TEST CRAP !!!!! FIXME
-			chan->state = CHAN_Finished;
-			break;
-		}
-
 		int count = pairs;
+
+		// check if enough sound data is left
+		if (chan->offset + count * chan->delta >= chan->length)
+		{
+			// find minimum number of samples we can play
+			double avail = (chan->length - chan->offset + chan->delta - 1) /
+				           (double)chan->delta;
+
+			count = (int)floor(avail);
+
+			DEV_ASSERT2(count > 0);
+			DEV_ASSERT2(count <= pairs);
+
+			DEV_ASSERT2(chan->offset + count * chan->delta >= chan->length);
+		}
 
 		if (dev_stereo)
 			MixStereo(chan, dest, count);
 		else
 			MixMono(chan, dest, count);
 
-		dest += count * (dev_stereo ? 2 : 1);
+		if (chan->offset >= chan->length)
+		{
+			if (! chan->loop)
+			{
+				chan->state = CHAN_Finished;
+				break;
+			}
 
-		// FIXME
-		break;
+			// we are looping, so clear flag.  The sound needs to
+			// be "pumped" (played again) to continue looping.
+			chan->loop = false;
+
+			chan->offset = 0;
+		}
+
+		dest  += count * (dev_stereo ? 2 : 1);
+		pairs -= count;
 	}
 }
 
