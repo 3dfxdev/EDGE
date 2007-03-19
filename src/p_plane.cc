@@ -123,6 +123,27 @@ static float GetSecHeightReference(heightref_e ref,
     return 0;
 }
 
+#define RELOOP_TICKS  6
+
+static void MakeMovingSound(bool *started_var, sfx_t *sfx, position_c *pos)
+{
+	if (!sfx || sfx->num < 1)
+		return;
+
+	sfxdef_c *def = sfxdefs[sfx->sounds[0]];
+
+	// looping sounds need to be "pumped" to keep looping.
+	// The main one is STNMOV, which lasts a little over 0.25 seconds,
+	// hence we need to pump it every 6 tics or so.
+
+	if (! *started_var || (def->looping && (leveltime % RELOOP_TICKS)==0))
+	{
+		S_StartFX(sfx, SNCAT_Level, pos);
+
+		*started_var = true;
+	}
+}
+
 //
 // P_AddActivePart
 //
@@ -357,14 +378,8 @@ static void MovePlane(plane_move_t *plane)
                                    MIN(plane->startheight, plane->destheight),
                                    plane->crush && plane->is_ceiling);
 
-            if (!plane->sfxstarted)
-            {
-                S_StartFX(plane->type->sfxdown, 
-                               SNCAT_Level,
-                               &plane->sector->sfx_origin);
-
-                plane->sfxstarted = true;
-            }
+			MakeMovingSound(&plane->sfxstarted, plane->type->sfxdown,
+                            &plane->sector->sfx_origin);
 
             if (res == RES_PastDest)
             {
@@ -469,14 +484,8 @@ static void MovePlane(plane_move_t *plane)
                                    MAX(plane->startheight, plane->destheight),
                                    plane->crush && !plane->is_ceiling);
 
-            if (!plane->sfxstarted)
-            {
-                S_StartFX(plane->type->sfxup, 
-                               SNCAT_Level,
-                               &plane->sector->sfx_origin);
-
-                plane->sfxstarted = true;
-            }
+			MakeMovingSound(&plane->sfxstarted, plane->type->sfxup,
+                            &plane->sector->sfx_origin);
 
             if (res == RES_PastDest)
             {
@@ -776,8 +785,7 @@ static plane_move_t *P_SetupSectorAction(sector_t * sector,
 
     if (def->sfxstart)
     {
-        S_StartFX(def->sfxstart, SNCAT_Level,
-                       &sector->sfx_origin);
+        S_StartFX(def->sfxstart, SNCAT_Level, &sector->sfx_origin);
     }
 
     // change to surrounding
@@ -1037,11 +1045,9 @@ bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * def)
 
         if (dir != olddir)
         {
-            S_StartFX(def->sfxstart, 
-                           SNCAT_Level,
-                           &sec->sfx_origin);
+            S_StartFX(def->sfxstart, SNCAT_Level, &sec->sfx_origin);
 
-            msec->sfxstarted = !(thing->player);
+            msec->sfxstarted = ! thing->player;
             return true;
         }
 
@@ -1223,14 +1229,8 @@ static void MoveSlider(slider_move_t *smov)
 
 		// OPENING
         case 1:
-            if (! smov->sfxstarted)
-            {
-                S_StartFX(smov->info->sfx_open, 
-                               SNCAT_Level,
-                               &sec->sfx_origin);
-
-                smov->sfxstarted = true;
-            }
+			MakeMovingSound(&smov->sfxstarted, smov->info->sfx_open,
+                            &sec->sfx_origin);
 
             smov->opening += smov->info->speed;
 
@@ -1270,14 +1270,8 @@ static void MoveSlider(slider_move_t *smov)
 
 		// CLOSING
         case -1:
-            if (! smov->sfxstarted)
-            {
-                S_StartFX(smov->info->sfx_close, 
-                               SNCAT_Level,
-                               &sec->sfx_origin);
-
-                smov->sfxstarted = true;
-            }
+			MakeMovingSound(&smov->sfxstarted, smov->info->sfx_close,
+                            &sec->sfx_origin);
 
             smov->opening -= smov->info->speed;
 
@@ -1488,14 +1482,8 @@ static void MoveElevator(elev_move_t *elev)
                                       elev->destheight,
                                       elev->direction);
 
-            if (!elev->sfxstarted)
-            {    
-                S_StartFX(elev->type->sfxdown, 
-                               SNCAT_Level, 
-                               &elev->sector->sfx_origin);
-
-                elev->sfxstarted = true;
-            }
+			MakeMovingSound(&elev->sfxstarted, elev->type->sfxdown,
+                            &elev->sector->sfx_origin);
 
             if (res == RES_PastDest || res == RES_Impossible)
             {
@@ -1525,14 +1513,8 @@ static void MoveElevator(elev_move_t *elev)
                                       elev->destheight,
                                       elev->direction);
 
-            if (!elev->sfxstarted)
-            {
-                S_StartFX(elev->type->sfxdown, 
-                               SNCAT_Level, 
-                               &elev->sector->sfx_origin);
-
-                elev->sfxstarted = true;
-            }
+			MakeMovingSound(&elev->sfxstarted, elev->type->sfxup,
+                            &elev->sector->sfx_origin);
 
             if (res == RES_PastDest || res == RES_Impossible)
             {
