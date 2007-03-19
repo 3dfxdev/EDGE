@@ -304,9 +304,8 @@ sfxdef_c * LookupEffectDef(const sfx_t *s)
 { 
 	DEV_ASSERT2(s->num >= 1);
 
-	// -KM- 1999/01/31 Using P_Random here means demos and net games 
-	//  get out of sync.
-	// -AJA- 1999/07/19: That's why we use M_Random instead :).
+	// need to use M_Random here to prevent demos and net games 
+	// getting out of sync.
 
 	int num;
 
@@ -364,20 +363,19 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 I_Printf("@ already playing on #%d\n", k);
 		mix_channel_c *chan = mix_chan[k];
 
-		if (flags & FX_Loop)
+		if (def->looping)
 		{
+I_Printf("@@ RE-LOOPING\n");
 			chan->loop = true;
 			return;
 		}
-
-		if (flags & FX_Single)
+		else if (flags & FX_Single)
 		{
 			if (flags & FX_Precious)
 				return;
 
 			S_KillChannel(k);
 			S_PlaySound(k, def, category, pos, flags);
-
 			return;
 		}
 	}
@@ -447,9 +445,6 @@ void S_StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 
 	sfxdef_c *def = LookupEffectDef(sfx);
 	DEV_ASSERT2(def);
-
-	if (def->looping)
-		flags |= FX_Loop;
 
 	if (def->singularity > 0)
 	{
