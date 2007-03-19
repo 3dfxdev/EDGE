@@ -26,7 +26,7 @@
 #include "i_defs.h"
 #include "g_game.h"
 
-#include "am_map.h"
+#include "r_automap.h"
 #include "con_main.h"
 #include "dstrings.h"
 #include "e_demo.h"

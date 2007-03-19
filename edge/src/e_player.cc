@@ -29,7 +29,7 @@
 
 
 /*
-#include "am_map.h"
+#include "r_automap.h"
 #include "con_cvar.h"
 #include "con_main.h"
 #include "dm_defs.h"

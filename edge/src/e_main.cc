@@ -34,7 +34,7 @@
 #include "i_defs.h"
 #include "e_main.h"
 
-#include "am_map.h"
+#include "r_automap.h"
 #include "con_defs.h"
 #include "con_gui.h"
 #include "con_main.h"
