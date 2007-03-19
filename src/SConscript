@@ -66,8 +66,8 @@ else: # linux
         'unx_net.cc',                 'unx_system.cc']
 
 # another HACK (stupid linker!)
-# sources_3 += ['oggplayer.cc'] 
-# sources_1 += ['humdinger.cc'] 
+# sources_3 += ['s_ogg.cc'] 
+# sources_1 += ['s_humid.cc'] 
 
 env.StaticLibrary('edge1', sources_1 + sources_2 + sources_3)
 
