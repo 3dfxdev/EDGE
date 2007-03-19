@@ -21,7 +21,7 @@
 
 #ifdef USE_HAWKNL
 
-#include "protocol.h"
+#include "n_protocol.h"
 
 const char *N_GetAddrName(const NLaddress *addr);
 // utility method: return string for address (Note: static buffer)
