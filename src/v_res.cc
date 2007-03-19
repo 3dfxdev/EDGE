@@ -25,7 +25,7 @@
 
 #include "i_defs.h"
 
-#include "am_map.h"
+#include "r_automap.h"
 #include "st_stuff.h"
 #include "v_res.h"
 

@@ -160,7 +160,7 @@ fx_data_c *S_CacheLoad(sfxdef_c *def)
 	// since it won't be needed again until the current sound
 	// has been flushed from the sound cache.  Hence we just
 	// flush the lump data as early as possible.
-	W_DoneWithLump(lump); // FIXME: _Flushable
+	W_DoneWithLump_Flushable(lump);
 
 	return data;
 }
