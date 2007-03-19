@@ -2326,6 +2326,8 @@ void ShutdownLevel(void)
 
 	P_RemoveSectors();
 
+	S_StopLevelFX();
+
 	Z_Free(linebuffer);
 	Z_Free(blocklinks);
 	Z_Free(blocklights);
@@ -2532,7 +2534,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 	if (precache)
 		R_PrecacheLevel();
 	
-	S_ClearAllFX();
+	// FIXME: cache sounds (esp. for player)
 
 	S_ChangeMusic(currmap->music, true); // start level music
 

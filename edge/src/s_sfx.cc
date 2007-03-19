@@ -292,13 +292,6 @@ void S_Shutdown(void)
 	SDL_PauseAudio(1);
 }
 
-void S_ClearAllFX(void)
-{
-	if (nosound) return;
-
-	// FIXME !!!  ClearAllFX
-}
-
 // Not-rejigged-yet stuff..
 sfxdef_c * LookupEffectDef(const sfx_t *s) 
 { 
@@ -479,6 +472,25 @@ void S_StopFX(position_c *pos)
 			if (chan->state == CHAN_Playing && chan->pos == pos)
 			{
 I_Printf("S_StopFX: killing #%d\n", i);
+				S_KillChannel(i);
+			}
+		}
+	}
+	SDL_UnlockAudio();
+}
+
+void S_StopLevelFX(void)
+{
+	if (nosound) return;
+
+	SDL_LockAudio();
+	{
+		for (int i = 0; i < num_chan; i++)
+		{
+			mix_channel_c *chan = mix_chan[i];
+
+			if (chan->state != CHAN_Empty && chan->category != SNCAT_UI)
+			{
 				S_KillChannel(i);
 			}
 		}

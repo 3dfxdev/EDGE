@@ -105,17 +105,13 @@ fx_flag_e;
 void S_Init(void);
 void S_Shutdown(void);
 
-void S_ClearAllFX(void);
-
 void S_StartFX(sfx_t *sfx, int category = SNCAT_UI, position_c *pos = NULL, int flags = 0);
+
 void S_StopFX(position_c *pos);
+void S_StopLevelFX(void);
 
 void S_ResumeSound(void);
 void S_PauseSound(void);
-
-// Your effect reservation, sir...
-//??? int ReserveFX(int category);
-//??? void UnreserveFX(int handle);
 
 void S_SoundTicker(void);
 
