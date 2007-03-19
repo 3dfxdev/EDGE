@@ -1872,7 +1872,7 @@ void P_ActTrackerFollow(mobj_t * tracker)
 	if (!destination || !tracker->source)
 		return;
 
-	// Can the source of the tracker, see the destination target?
+	// Can the parent of the tracker see the target?
 	if (!P_CheckSight(tracker->source, destination))
 		return;
 
@@ -1918,7 +1918,7 @@ void P_ActTrackerStart(mobj_t * tracker)
 // LaunchTracker
 //
 // This procedure starts a tracking object off and links
-// the tracker and the object together.
+// the tracker and the monster together.
 //
 // -ACB- 1998/08/22
 //
