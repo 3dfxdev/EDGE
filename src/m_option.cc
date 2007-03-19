@@ -180,7 +180,7 @@ static char SampleRates[] = "11025 Hz/16000 Hz/22050 Hz/32000 Hz/44100 Hz";
 static char SoundBits[]   = "8 bit/16 bit";
 static char StereoNess[]  = "Off/On/Swapped";
 static char MixChans[]    = "8/16/32/64/96";
-static char QuietNess[]   = "Loud/Default/Soft";
+static char QuietNess[]   = "Loud (distorted)/Normal/Soft";
 
 // Screen resolution changes
 static int prevscrmode;
