@@ -54,22 +54,6 @@ int levelTimeCount;
 line_t * line_speciallist;
 sector_t * sect_speciallist;
 
-typedef struct sectorsfx_s
-{
-	sector_t *sector;
-	sfx_t *sfx;
-
-	// tics to go before next update
-	int count;
-
-	// link in list
-	struct sectorsfx_s *next;
-}
-sectorsfx_t;
-
-#define SECSFX_TIME  7  // every 7 tics (i.e. 5 times per second)
-
-static sectorsfx_t *sectorsfx_list;
 
 static bool P_DoSectorsFromTag(int tag, const void *p1, void *p2,
 		bool(*func) (sector_t *, const void *, void *));
@@ -99,86 +83,7 @@ static bool DoDonut_wrapper(sector_t *s, const void *p1, void *p2)
 	return EV_DoDonut(s, (sfx_t**)p2);
 }
 
-//
-// Creates a sector sfx and adds it to the list.
-//
-static sectorsfx_t *NewSectorSFX(void)
-{
-	sectorsfx_t *sfx;
 
-	sfx = Z_New(sectorsfx_t, 1);
-
-	sfx->next = sectorsfx_list;
-	sectorsfx_list = sfx;
-
-	return sfx;
-}
-
-//
-// P_DestroyAllSectorSFX
-//
-void P_DestroyAllSectorSFX(void)
-{
-	sectorsfx_t *sfx, *next;
-
-	for (sfx = sectorsfx_list; sfx; sfx = next)
-	{
-		next = sfx->next;
-		Z_Free(sfx);
-	}
-	sectorsfx_list = NULL;
-}
-
-// FIXME: audit this DoSectorSFX stuff  | combine with plane pseudo-looping stuff?
-
-//
-// DoSectorSFX
-//
-// -KM- 1998/09/27
-//
-// This function is called every so often to keep a sector's ambient
-// sound going.  The sound should be looped.
-//
-static void DoSectorSFX(sectorsfx_t *sec)
-{
-	if (sec->count > 0)
-    {
-        sec->count--;
-		return;
-    }
-
-	sec->count = SECSFX_TIME;
-
-    position_c *orig = &sec->sector->sfx_origin;
-
-	S_StartFX(sec->sfx, SNCAT_Level, orig, FX_Loop);
-}
-
-//
-// P_RunSectorSFX
-//
-void P_RunSectorSFX(void)
-{
-	sectorsfx_t *sec_sfx;
-
-	for (sec_sfx = sectorsfx_list; sec_sfx; sec_sfx = sec_sfx->next)
-	{
-		DoSectorSFX(sec_sfx);
-	}
-}
-
-//
-// P_StopAmbientSectorSfx
-//
-void P_StopAmbientSectorSfx(void)
-{
-	sectorsfx_t *sec_sfx;
-
-	for (sec_sfx = sectorsfx_list; sec_sfx; sec_sfx = sec_sfx->next)
-	{
-        S_StopFX(&sec_sfx->sector->sfx_origin);
-	}
-}
 
 //
 // UTILITIES
@@ -1131,6 +1036,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 		texSwitch = true;
 	}
 
+#if 0 // FEATURE REMOVED
 	if (special->ambient_sfx && tag > 0)
 	{
 		for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
@@ -1144,7 +1050,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 			texSwitch = true;
 		}
 	}
-
+#endif
 	if (special->music)
 	{
 		S_ChangeMusic(special->music, true);
@@ -1631,6 +1537,7 @@ void P_SpawnSpecials(int autotag)
 		if (secSpecial->use_colourmap)
 			sector->props.colourmap = secSpecial->use_colourmap;
 
+#if 0 // FEATURE REMOVED
 		if (secSpecial->ambient_sfx)
 		{
 			sectorsfx_t *sfx = NewSectorSFX();
@@ -1639,7 +1546,7 @@ void P_SpawnSpecials(int autotag)
 			sfx->sector = sector;
 			sfx->sfx = secSpecial->ambient_sfx;
 		}
-
+#endif
 		// - Plats/Floors -
 		if (secSpecial->f.type != mov_undefined)
 			EV_DoPlane(sector, &secSpecial->f, sector);

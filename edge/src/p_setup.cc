@@ -2282,7 +2282,6 @@ void P_RemoveSectors(void)
 //
 void P_StopLevel(void)
 {
-    P_StopAmbientSectorSfx();
 }
 
 static bool level_active = false;
@@ -2337,8 +2336,8 @@ void ShutdownLevel(void)
 	P_DestroyAllForces();
 	P_DestroyAllLights();
 	P_RemoveAllActiveParts();
-	P_DestroyAllSectorSFX();
 	P_FreeShootSpots();
+//###	P_DestroyAllSectorSFX();
 
 	if (rejectmatrix)
 		W_DoneWithLump(rejectmatrix);

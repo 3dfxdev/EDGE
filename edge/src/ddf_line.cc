@@ -186,7 +186,6 @@ static const commandlist_t linedef_commands[] =
 	DF("FRICTION", friction, DDF_MainGetFloat),
 	DF("VISCOSITY", viscosity, DDF_MainGetFloat),
 	DF("DRAG", drag, DDF_MainGetFloat),
-	DF("AMBIENT SOUND", ambient_sfx, DDF_MainLookupSound),
 	DF("ACTIVATE SOUND", activate_sfx, DDF_MainLookupSound),
 	DF("MUSIC", music, DDF_MainGetNumeric),
 	DF("AUTO", autoline, DDF_MainGetBoolean),
@@ -1548,7 +1547,6 @@ void linetype_c::CopyDetail(linetype_c &src)
 	friction = src.friction;
 	viscosity = src.viscosity;
 	drag = src.drag;
-	ambient_sfx = src.ambient_sfx;
 	activate_sfx = src.activate_sfx;
 	music = src.music;
 	autoline = src.autoline;
@@ -1601,7 +1599,6 @@ void linetype_c::Default(void)
 	friction = FLO_UNUSED;
 	viscosity = FLO_UNUSED;
 	drag = FLO_UNUSED;
-	ambient_sfx = sfx_None;
 	activate_sfx = sfx_None;
 	music = 0;
 	autoline = false;

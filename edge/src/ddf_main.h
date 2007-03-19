@@ -2275,8 +2275,8 @@ public:
 	float viscosity;
 	float drag;
 
-    // Ambient sound transfer
-	sfx_t *ambient_sfx;
+//###    // Ambient sound transfer
+//###	sfx_t *ambient_sfx;
 
 	// Activation sound (overrides the switch sound)
 	sfx_t *activate_sfx;
@@ -2410,8 +2410,8 @@ public:
 	// -AJA- 1999/07/09: Now uses colmap.ddf
 	const colourmap_c *use_colourmap;
 
-    // SFX
-	sfx_t *ambient_sfx;
+//###    // SFX
+//###	sfx_t *ambient_sfx;
 
 	// -AJA- 1999/10/24: Appearance control.
 	when_appear_e appear;

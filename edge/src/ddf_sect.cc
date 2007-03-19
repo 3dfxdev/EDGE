@@ -66,7 +66,6 @@ static const commandlist_t sect_commands[] =
 	DF("FRICTION", friction, DDF_MainGetFloat),
 	DF("VISCOSITY", viscosity, DDF_MainGetFloat),
 	DF("DRAG", drag, DDF_MainGetFloat),
-	DF("AMBIENT SOUND", ambient_sfx, DDF_MainLookupSound),
 	DF("WHEN APPEAR", appear, DDF_MainGetWhenAppear),
 	DF("PUSH ANGLE", push_angle, DDF_MainGetAngle),
 	DF("PUSH SPEED", push_speed, DDF_MainGetFloat),
@@ -492,8 +491,6 @@ void sectortype_c::CopyDetail(sectortype_c &src)
 	
 	use_colourmap = src.use_colourmap;
 	
-	ambient_sfx = src.ambient_sfx;
-
 	appear = src.appear;
 
 	crush_time = src.crush_time;
@@ -529,7 +526,7 @@ void sectortype_c::Default()
 	special_flags = SECSP_None;
 	e_exit = EXIT_None;
 	use_colourmap = NULL;
-	ambient_sfx = NULL;
+
 	appear = DEFAULT_APPEAR;
 	crush_time = 4;
 	crush_damage = 10.0f;
