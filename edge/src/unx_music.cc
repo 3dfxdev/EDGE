@@ -24,11 +24,11 @@
 #include "unx_sysinc.h"
 
 #ifdef USE_OGG
-#include "oggplayer.h"
+#include "s_ogg.h"
 #endif
 
 #ifdef USE_HUMID
-#include "humdinger.h"
+#include "s_humid.h"
 #endif
 
 #include "s_sound.h"

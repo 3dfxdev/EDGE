@@ -25,7 +25,7 @@
 #include "i_sdlinc.h"
 
 #ifdef USE_OGG
-#include "oggplayer.h"
+#include "s_ogg.h"
 #endif
 
 #include "s_sound.h"
