@@ -28,17 +28,17 @@ sources_1 = [
     'ddf_line.cc', 'ddf_main.cc', 'ddf_mobj.cc', 'ddf_mus.cc', 
     'ddf_sect.cc', 'ddf_sfx.cc', 'ddf_stat.cc', 'ddf_style.cc', 
     'ddf_swth.cc', 'ddf_weap.cc', 'dem_chunk.cc', 'dem_glob.cc', 
-    'dm_defs.cc', 'dm_state.cc', 'e_demo.cc', 'e_input.cc', 'e_main.cc', 
+    'e_demo.cc', 'e_input.cc', 'e_main.cc', 
     'e_player.cc', 'f_finale.cc', 'g_game.cc', 'gui_ctls.cc', 'gui_main.cc', 
     'hu_font.cc', 'hu_lib.cc', 'hu_stuff.cc', 'hu_style.cc',
-    'i_asm.cc' ] 
+    ] 
 
 sources_2 = [
     'l_glbsp.cc',
     'l_deh.cc', 'lu_gamma.cc', 'm_argv.cc', 'm_bbox.cc', 
     'm_cheat.cc', 'm_math.cc', 'm_menu.cc', 'm_misc.cc', 'm_option.cc', 
     'm_netgame.cc', 'm_random.cc', 'mus_2_midi.cc',
-    'n_network.cc', 'n_packet.cc', 'protocol.cc',
+    'n_network.cc', 'n_packet.cc', 'n_protocol.cc',
     'p_action.cc', 'p_bot.cc', 'p_enemy.cc', 'p_inter.cc', 'p_lights.cc', 
     'p_map.cc', 'p_maputl.cc', 'p_mobj.cc', 'p_plane.cc', 'p_setup.cc', 
     'p_sight.cc', 'p_spec.cc', 'p_switch.cc', 'p_tick.cc', 'p_user.cc', 

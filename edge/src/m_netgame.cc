@@ -25,7 +25,7 @@
 
 #include "i_defs.h"
 #include "m_netgame.h"
-#include "protocol.h"
+#include "n_protocol.h"
 
 #include <stdio.h>
 #include <stdarg.h>
