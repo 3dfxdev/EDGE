@@ -26,7 +26,7 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
-#include "am_map.h"
+#include "r_automap.h"
 
 #include "con_cvar.h"
 #include "con_main.h"
