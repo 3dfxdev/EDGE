@@ -107,7 +107,7 @@ fx_data_c * SQ_GetFreeBuffer(int samples, bool stereo);
 // updated to ensure they hold the requested number of
 // samples and conform to the wanted stereo-ness.
 
-void SQ_PushBuffer(fx_data_c *data);
+void SQ_PushBuffer(fx_data_c *buf, int freq);
 // add a new buffer to be end of the queue.
 
 #endif // __S_BLIT__

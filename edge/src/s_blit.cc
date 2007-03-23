@@ -357,9 +357,8 @@ static bool QueueNextBuffer(void)
 	}
 
 	fx_data_c *buf = playing_qbufs.front();
-	playing_qbufs.pop_front();
 
-	queue_chan->data = buf;  // WARNING WARNING WARNING
+	queue_chan->data = buf;
 
 	queue_chan->offset = 0;
 	queue_chan->length = buf->length << 10;
@@ -372,10 +371,62 @@ static bool QueueNextBuffer(void)
 
 static void MixQueues(int pairs)
 {
-	if (! queue_chan || queue_chan->state != CHAN_Playing)
+	mix_channel_c *chan = queue_chan;
+
+	if (! chan || chan->state != CHAN_Playing)
 		return;
 
-	// !!!! FIXME
+	if (chan->volume_L == 0 && chan->volume_R == 0)
+		return;
+
+	DEV_ASSERT2(chan->offset < chan->length);
+
+	int *dest = mix_buffer;
+
+	while (pairs > 0)
+	{
+		int count = pairs;
+
+		// check if enough sound data is left
+		if (chan->offset + count * chan->delta >= chan->length)
+		{
+			// find minimum number of samples we can play
+			double avail = (chan->length - chan->offset + chan->delta - 1) /
+				           (double)chan->delta;
+
+			count = (int)floor(avail);
+
+			DEV_ASSERT2(count > 0);
+			DEV_ASSERT2(count <= pairs);
+
+			DEV_ASSERT2(chan->offset + count * chan->delta >= chan->length);
+		}
+
+		if (dev_stereo)
+			MixStereo(chan, dest, count);
+		else
+			MixMono(chan, dest, count);
+
+		if (chan->offset >= chan->length)
+		{
+			// reached end of current queued buffer.
+			// Place current buffer onto free list,
+			// and enqueue the next buffer to play.
+
+			DEV_ASSERT2(! playing_qbufs.empty());
+
+			fx_data_c *buf = playing_qbufs.front();
+			playing_qbufs.pop_front();
+
+			free_qbufs.push_back(buf);
+
+			if (! QueueNextBuffer())
+				break;
+		}
+
+		dest  += count * (dev_stereo ? 2 : 1);
+		pairs -= count;
+	}
 }
 
 
@@ -664,15 +715,17 @@ fx_data_c * SQ_GetFreeBuffer(int samples, bool stereo)
 	return buf;
 }
 
-void SQ_PushBuffer(fx_data_c *data)
+void SQ_PushBuffer(fx_data_c *buf, int freq)
 {
 	if (nosound) return;
 
-	DEV_ASSERT2(data);
+	DEV_ASSERT2(buf);
 
 	SDL_LockAudio();
 	{
-		playing_qbufs.push_back(data);
+		buf->freq = freq;
+
+		playing_qbufs.push_back(buf);
 
 		if (queue_chan->state != CHAN_Playing)
 		{
