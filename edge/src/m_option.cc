@@ -542,7 +542,7 @@ static optmenuitem_t soundoptions[] =
 	{OPT_Switch,   "Stereo",        StereoNess, 3,  CFGDEF_SOUND_STEREO, &var_sound_stereo, NULL, NULL},
 
 	{OPT_Plain,    "", NULL, 0,  0, NULL, NULL, NULL},
-	{OPT_Switch,  "Mix Channels",   MixChans,  5, CFGDEF_MIX_CHANNELS, &var_mix_channels, M_ChangeMixChan, NULL},
+	{OPT_Switch,  "Mix Channels",   MixChans,  4, CFGDEF_MIX_CHANNELS, &var_mix_channels, M_ChangeMixChan, NULL},
 	{OPT_Switch,  "Quiet Factor",   QuietNess, 3, CFGDEF_QUIET_FACTOR, &var_quiet_factor, NULL, NULL},
 };
 
