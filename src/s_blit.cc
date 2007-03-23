@@ -24,6 +24,7 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
+#include "i_sdlinc.h"
 
 #include "s_sound.h"
 #include "s_cache.h"
@@ -34,6 +35,8 @@
 #include "p_local.h"  // P_ApproxDistance
 
 #include <string.h>
+
+#include <list>
 
 
 // Sound must be clipped to prevent distortion (clipping is
@@ -61,6 +64,15 @@ int num_chan;
 
 static int *mix_buffer;
 static int mix_buf_len;
+
+
+#define MAX_QUEUE_BUFS  16
+
+static std::list<fx_data_c *> free_qbufs;
+static std::list<fx_data_c *> playing_qbufs;
+
+static mix_channel_c *queue_chan;
+
 
 static int  sfxvolume = 0;
 static bool sfxpaused = false;
@@ -158,6 +170,15 @@ void mix_channel_c::ComputeVolume()
 	}
 }
 
+void mix_channel_c::ComputeMusicVolume()
+{
+	float MAX_VOL = (1 << (16 - SAFE_BITS - var_quiet_factor)) - 3;
+
+//!!!!! 	MAX_VOL = MAX_VOL * slider_to_gain[musvolume];
+
+	volume_L = (int) MAX_VOL;
+	volume_R = (int) MAX_VOL;
+}
 
 //----------------------------------------------------------------------------
 
@@ -327,6 +348,37 @@ static void MixChannel(mix_channel_c *chan, int pairs)
 }
 
 
+static bool QueueNextBuffer(void)
+{
+	if (playing_qbufs.empty())
+	{
+		queue_chan->state = CHAN_Finished;
+		return false;
+	}
+
+	fx_data_c *buf = playing_qbufs.front();
+	playing_qbufs.pop_front();
+
+	queue_chan->data = buf;  // WARNING WARNING WARNING
+
+	queue_chan->offset = 0;
+	queue_chan->length = buf->length << 10;
+
+	queue_chan->ComputeDelta();
+
+	queue_chan->state = CHAN_Playing;
+	return true;
+}
+
+static void MixQueues(int pairs)
+{
+	if (! queue_chan || queue_chan->state != CHAN_Playing)
+		return;
+
+	// !!!! FIXME
+}
+
+
 void S_MixAllChannels(void *stream, int len)
 {
 	if (nosound || len <= 0)
@@ -359,6 +411,8 @@ void S_MixAllChannels(void *stream, int len)
 			MixChannel(mix_chan[i], pairs);
 		}
 	} 
+
+	MixQueues(pairs);
 
 	// blit to the SDL stream
 	if (dev_bits == 8)
@@ -506,6 +560,9 @@ void S_UpdateSounds(position_c *listener, angle_t angle)
 		else if (chan->state == CHAN_Finished)
 			S_KillChannel(i);
 	}
+
+	if (queue_chan)
+		queue_chan->ComputeMusicVolume();
 }
 
 int S_GetSoundVolume(void)
@@ -526,6 +583,108 @@ void S_PauseSound(void)
 void S_ResumeSound(void)
 {
 	sfxpaused = false;
+}
+
+
+//----------------------------------------------------------------------------
+
+static void SiphonPlayingQueues(void)
+{
+	while (! playing_qbufs.empty())
+	{
+		fx_data_c *buf = playing_qbufs.front();
+		playing_qbufs.pop_front();
+
+		// FIXME: free sample data
+
+		free_qbufs.push_back(buf);
+	}
+}
+
+
+void SQ_Begin(void)
+{
+	if (nosound) return;
+
+	SDL_LockAudio();
+	{
+		SiphonPlayingQueues();
+
+		if (free_qbufs.empty())
+		{
+			for (int i=0; i < MAX_QUEUE_BUFS; i++)
+			{
+				fx_data_c *buf = new fx_data_c();
+
+				free_qbufs.push_back(buf);
+			}
+		}
+
+		if (! queue_chan)
+			queue_chan = new mix_channel_c();
+
+		queue_chan->state = CHAN_Empty;
+		queue_chan->data  = NULL;
+
+		queue_chan->ComputeMusicVolume();
+	}
+	SDL_UnlockAudio();
+}
+
+void SQ_Stop(void)
+{
+	if (nosound) return;
+
+	DEV_ASSERT2(queue_chan);
+
+	SDL_LockAudio();
+	{
+		SiphonPlayingQueues();
+
+		queue_chan->state = CHAN_Empty;
+		queue_chan->data  = NULL;
+	}
+	SDL_UnlockAudio();
+}
+
+fx_data_c * SQ_GetFreeBuffer(void)
+{
+	if (nosound) return NULL;
+
+	fx_data_c *result = NULL;
+
+	SDL_LockAudio();
+	{
+		if (! free_qbufs.empty())
+		{
+			result = free_qbufs.front();
+			free_qbufs.pop_front();
+
+			// FIXME: allocate sample data
+		}
+			
+	}
+	SDL_UnlockAudio();
+
+	return result;
+}
+
+void SQ_PushBuffer(fx_data_c *data)
+{
+	if (nosound) return;
+
+	DEV_ASSERT2(data);
+
+	SDL_LockAudio();
+	{
+		playing_qbufs.push_back(data);
+
+		if (queue_chan->state != CHAN_Playing)
+		{
+			QueueNextBuffer();
+		}
+	}
+	SDL_UnlockAudio();
 }
 
 //--- editor settings ---

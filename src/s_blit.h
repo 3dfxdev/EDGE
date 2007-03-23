@@ -70,6 +70,7 @@ public:
 
 	void ComputeDelta();
 	void ComputeVolume();
+	void ComputeMusicVolume();
 };
 
 
@@ -89,6 +90,23 @@ void S_MixAllChannels(void *stream, int len);
 // to mix into the stream.
 
 void S_UpdateSounds(position_c *listener, angle_t angle);
+
+
+//-------- API for Synthesised MUSIC --------------------
+
+void SQ_Begin(void);
+// begin the queueing system.
+
+void SQ_Stop(void);
+// stop the queuing system, stopping all playback.
+// Any existing buffers will call delete[] on the data memory.
+
+fx_data_c * SQ_GetFreeBuffer(void);
+// returns the next unused (or finished) buffer, or NULL
+// if there are none.
+
+void SQ_PushBuffer(fx_data_c *data);
+// add a new buffer to be end of the queue.
 
 #endif // __S_BLIT__
 
