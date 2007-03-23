@@ -99,6 +99,36 @@ static std::vector<fx_data_c *> fx_cache;
 
 //----------------------------------------------------------------------------
 
+static void Load_DOOM(fx_data_c *buf, const byte *lump, int length)
+{
+	buf->Allocate(length, false);
+	buf->freq = lump[2] + (lump[3] << 8);
+
+	if (buf->freq < 8000 || buf->freq >= 44100)
+		I_Error("Sound Load: weird frequency: %d Hz\n", buf->freq);
+
+	// convert to signed 16-bit format
+	const byte *src = lump + 8;
+	const byte *s_end = src + (length - 8);
+
+	s16_t *dest = buf->data_L;
+
+	for (; src < s_end; src++)
+		*dest++ = (*src ^ 0x80) << 8;
+}
+
+static void Load_WAV(fx_data_c *buf, const byte *lump, int length)
+{
+	I_Error("Sound Load: WAV format not supported!\n");
+}
+
+static void Load_OGG(fx_data_c *buf, const byte *lump, int length)
+{
+	I_Error("Sound Load: OGG/Vorbis format not supported!\n");
+}
+
+
+//----------------------------------------------------------------------------
 
 void S_CacheInit(void)
 {
@@ -167,16 +197,12 @@ fx_data_c *S_CacheLoad(sfxdef_c *def)
 	if (length < 8)
 		I_Error("Bad SFX lump '%s' : too short!", name);
 
-	length -= 8;
-
-	buf->Allocate(length, false);
-	buf->freq = lump[2] + (lump[3] << 8);
-
-	// convert to signed 16-bit format
-	s16_t *dest = buf->data_L;
-
-	for (int i=0; i < length; i++)
-		*dest++ = (lump[8+i] ^ 0x80) << 8;
+	if (memcmp(lump, "RIFF", 4) == 0)
+		Load_WAV(buf, lump, length);
+	else if (memcmp(lump, "Ogg", 3) == 0)
+		Load_OGG(buf, lump, length);
+	else
+		Load_DOOM(buf, lump, length);
 
 	// caching the LUMP data is rather useless (and inefficient)
 	// since it won't be needed again until the current sound
