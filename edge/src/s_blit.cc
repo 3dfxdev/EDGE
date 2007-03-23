@@ -53,6 +53,7 @@
 #define QUIET_BITS  0
 
 
+#define MIN_CHANNELS    8
 #define MAX_CHANNELS  128
 
 mix_channel_c *mix_chan[MAX_CHANNELS];
@@ -377,9 +378,14 @@ void S_MixAllChannels(void *stream, int len)
 }
 
 
+//----------------------------------------------------------------------------
+
 void S_InitChannels(int total)
 {
 	// NOTE: assumes audio is locked!
+
+	DEV_ASSERT2(total >= MIN_CHANNELS);
+	DEV_ASSERT2(total <= MAX_CHANNELS);
 
 	num_chan = total;
 
@@ -411,6 +417,75 @@ void S_FreeChannels(void)
 	memset(mix_chan, 0, sizeof(mix_chan));
 }
 
+void S_KillChannel(int k)
+{
+	mix_channel_c *chan = mix_chan[k];
+
+	if (chan->state != CHAN_Empty)
+	{
+		S_CacheRelease(chan->data);
+
+		chan->data = NULL;
+		chan->state = CHAN_Empty;
+	}
+}
+
+void S_ReallocChannels(int total)
+{
+	// NOTE: assumes audio is locked!
+
+	DEV_ASSERT2(total >= MIN_CHANNELS);
+	DEV_ASSERT2(total <= MAX_CHANNELS);
+
+	if (total > num_chan)
+	{
+		for (int i = num_chan; i < total; i++)
+			mix_chan[i] = new mix_channel_c();
+	}
+
+	if (total < num_chan)
+	{
+		// kill all non-UI sounds, pack the UI sounds into the
+		// remaining slots (normally there will be enough), and
+		// delete the unused channels
+		int i, j;
+
+		for (i = 0; i < num_chan; i++)
+		{
+			mix_channel_c *chan = mix_chan[i];
+
+			if (chan->state == CHAN_Playing)
+			{
+				if (chan->category != SNCAT_UI)
+					S_KillChannel(i);
+			}
+		}
+
+		for (i = j = 0; i < num_chan; i++)
+		{
+			if (mix_chan[i])
+			{
+				/* SWAP ! */
+				mix_channel_c *tmp = mix_chan[j];
+
+				mix_chan[j] = mix_chan[i];
+				mix_chan[i] = tmp;
+			}
+		}
+
+		for (i = total; i < num_chan; i++)
+		{
+			if (mix_chan[i]->state == CHAN_Playing)
+				S_KillChannel(i);
+
+			delete mix_chan[i];
+			mix_chan[i] = NULL;
+		}
+	}
+
+	num_chan = total;
+}
+	
 void S_UpdateSounds(position_c *listener, angle_t angle)
 {
 	// NOTE: assume SDL_LockAudio has been called
@@ -429,12 +504,7 @@ void S_UpdateSounds(position_c *listener, angle_t angle)
 			chan->ComputeVolume();
 
 		else if (chan->state == CHAN_Finished)
-		{
-			S_CacheRelease(chan->data);
-
-			chan->state = CHAN_Empty;
-			chan->data  = NULL;
-		}
+			S_KillChannel(i);
 	}
 }
 

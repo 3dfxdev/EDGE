@@ -80,6 +80,9 @@ extern int num_chan;
 void S_InitChannels(int total);
 void S_FreeChannels(void);
 
+void S_KillChannel(int k);
+void S_ReallocChannels(int total);
+
 void S_MixAllChannels(void *stream, int len);
 // mix all active channels into the output stream.
 // 'len' is the number of samples (for stereo: pairs)
