@@ -26,14 +26,16 @@
 #ifndef __S_MUSIC__
 #define __S_MUSIC__
 
+// Vars
+extern int mus_volume;  // 0 .. SND_SLIDER_NUM-1
+
 void S_ChangeMusic(int entrynum, bool looping);
 void S_ResumeMusic(void);
 void S_PauseMusic(void);
 void S_StopMusic(void);
 void S_MusicTicker(void);
 
-int  S_GetMusicVolume(void);
-void S_SetMusicVolume(int volume);
+void S_ChangeMusicVolume(void);
 
 #endif // __S_MUSIC__
 

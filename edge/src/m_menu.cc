@@ -51,6 +51,7 @@
 #include "p_setup.h"
 #include "r_local.h"
 #include "s_sound.h"
+#include "s_music.h"
 #include "st_stuff.h"
 #include "sv_chunk.h"
 #include "sv_main.h"
@@ -979,26 +980,13 @@ void M_DrawReadThis2(void)
 	RGL_Image(0, 0, SCREENWIDTH, SCREENHEIGHT, menu_readthis[1]);
 }
 
-//
-// M_DrawSound
-//
-// Change Sfx & Music volumes
-//
-// -ACB- 1999/10/10 Sound API Volume re-added
-// -ACB- 1999/11/13 Music API Volume re-added
-//
+
 void M_DrawSound(void)
 {
-	int musicvol;
-	int soundvol;
-
-	musicvol = S_GetMusicVolume();
-	soundvol = S_GetSoundVolume();
-
 	RGL_ImageEasy320(60, 38, menu_svol);
 
-	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol + 1),   SND_SLIDER_NUM, soundvol, 1);
-	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), SND_SLIDER_NUM, musicvol, 1);
+	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol   + 1), SND_SLIDER_NUM, sfx_volume, 1);
+	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), SND_SLIDER_NUM, mus_volume, 1);
 }
 
 #if 0
@@ -1018,24 +1006,22 @@ void M_Sound(int choice)
 //
 void M_SfxVol(int choice)
 {
-	int soundvol = S_GetSoundVolume();
-
 	switch (choice)
 	{
 		case SLIDERLEFT:
-			if (soundvol > 0)
-				soundvol--;
+			if (sfx_volume > 0)
+				sfx_volume--;
 
 			break;
 
 		case SLIDERRIGHT:
-			if (soundvol < SND_SLIDER_NUM-1)
-				soundvol++;
+			if (sfx_volume < SND_SLIDER_NUM-1)
+				sfx_volume++;
 
 			break;
 	}
 
-	S_SetSoundVolume(soundvol);
+	S_ChangeSoundVolume();
 }
 
 //
@@ -1045,24 +1031,22 @@ void M_SfxVol(int choice)
 //
 void M_MusicVol(int choice)
 {
-	int musicvol = S_GetMusicVolume();
-
 	switch (choice)
 	{
 		case SLIDERLEFT:
-			if (musicvol > 0)
-				musicvol--;
+			if (mus_volume > 0)
+				mus_volume--;
 
 			break;
 
 		case SLIDERRIGHT:
-			if (musicvol < SND_SLIDER_NUM-1)
-				musicvol++;
+			if (mus_volume < SND_SLIDER_NUM-1)
+				mus_volume++;
 
 			break;
 	}
 
-	S_SetMusicVolume(musicvol);
+	S_ChangeMusicVolume();
 }
 
 //

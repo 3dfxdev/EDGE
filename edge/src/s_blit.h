@@ -26,6 +26,7 @@
 #ifndef __S_BLIT__
 #define __S_BLIT__
 
+// Forward declarations
 class sfxdef_c;
 class position_c;
 

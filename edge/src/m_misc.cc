@@ -40,6 +40,7 @@
 #include "p_spec.h"
 #include "r2_defs.h"
 #include "rgl_defs.h"
+#include "s_music.h"  // mus_volume
 #include "s_sound.h"
 #include "v_colour.h"
 #include "v_ctx.h"
@@ -88,10 +89,6 @@ bool save_screenshot_valid = false;
 
 epi::strent_c config_language;
 
-// -ACB- 1999/09/19 Sound API
-static int cfgsound;
-static int cfgmusic;
-
 int var_sample_rate = 0;
 int var_sound_bits = 0;
 int var_sound_stereo = 0;
@@ -107,8 +104,8 @@ static default_t defaults[] =
     {CFGT_Boolean,	"directx",			 &force_directx,  0},
     {CFGT_Int,      "usegamma",          &current_gamma,  CFGDEF_CURRENT_GAMMA},
  
-    {CFGT_Int,      "sfx_volume",        &cfgsound,       CFGDEF_SOUND_VOLUME},
-    {CFGT_Int,      "music_volume",      &cfgmusic,       CFGDEF_MUSIC_VOLUME},
+    {CFGT_Int,      "sfx_volume",        &sfx_volume,     CFGDEF_SOUND_VOLUME},
+    {CFGT_Int,      "music_volume",      &mus_volume,     CFGDEF_MUSIC_VOLUME},
     {CFGT_Int,      "sample_rate",       &var_sample_rate,  CFGDEF_SAMPLE_RATE},
     {CFGT_Int,      "sound_bits",        &var_sound_bits,   CFGDEF_SOUND_BITS},
     {CFGT_Int,      "sound_stereo",      &var_sound_stereo, CFGDEF_SOUND_STEREO},
@@ -250,10 +247,6 @@ void M_SaveDefaults(void)
 	// -ACB- 1999/09/24 idiot proof checking as required by MSVC
 	DEV_ASSERT2(cfgfile);
 
-	// -ACB- 1999/10/10 Sound API Values need to be set
-	cfgmusic = S_GetMusicVolume();
-	cfgsound = S_GetSoundVolume();
-
 	f = fopen(cfgfile, "w");
 	if (!f)
 	{
@@ -391,10 +384,6 @@ bool M_LoadDefaults(void)
 
 		M_ResetToDefaults(0);
 	}
-
-	// -ACB- 1999/10/10 Sound API Values need to be set
-	S_SetMusicVolume(cfgmusic);
-	S_SetSoundVolume(cfgsound);
 
 	return true;
 }
