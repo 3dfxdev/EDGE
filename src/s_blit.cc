@@ -588,35 +588,17 @@ void S_ResumeSound(void)
 
 //----------------------------------------------------------------------------
 
-static void SiphonPlayingQueues(void)
-{
-	while (! playing_qbufs.empty())
-	{
-		fx_data_c *buf = playing_qbufs.front();
-		playing_qbufs.pop_front();
-
-		// FIXME: free sample data
-
-		free_qbufs.push_back(buf);
-	}
-}
-
-
 void SQ_Begin(void)
 {
 	if (nosound) return;
 
 	SDL_LockAudio();
 	{
-		SiphonPlayingQueues();
-
 		if (free_qbufs.empty())
 		{
 			for (int i=0; i < MAX_QUEUE_BUFS; i++)
 			{
-				fx_data_c *buf = new fx_data_c();
-
-				free_qbufs.push_back(buf);
+				free_qbufs.push_back(new fx_data_c());
 			}
 		}
 
@@ -635,38 +617,51 @@ void SQ_Stop(void)
 {
 	if (nosound) return;
 
-	DEV_ASSERT2(queue_chan);
-
 	SDL_LockAudio();
 	{
-		SiphonPlayingQueues();
+		if (queue_chan)
+		{
+			// free all data on the playing / free lists.
+			// The fx_data_c destructor takes care of data_L/R.
 
-		queue_chan->state = CHAN_Empty;
-		queue_chan->data  = NULL;
+			for (; ! playing_qbufs.empty(); playing_qbufs.pop_front())
+			{
+				delete playing_qbufs.front();
+			}
+			for (; ! free_qbufs.empty(); free_qbufs.pop_front())
+			{
+				delete free_qbufs.front();
+			}
+		}
+
+		queue_chan->data = NULL;
+
+		delete queue_chan;
+		queue_chan = NULL;
 	}
 	SDL_UnlockAudio();
 }
 
-fx_data_c * SQ_GetFreeBuffer(void)
+fx_data_c * SQ_GetFreeBuffer(int samples, bool stereo)
 {
 	if (nosound) return NULL;
 
-	fx_data_c *result = NULL;
+	fx_data_c *buf = NULL;
 
 	SDL_LockAudio();
 	{
 		if (! free_qbufs.empty())
 		{
-			result = free_qbufs.front();
+			buf = free_qbufs.front();
 			free_qbufs.pop_front();
 
-			// FIXME: allocate sample data
+			buf->Allocate(samples, stereo);
 		}
 			
 	}
 	SDL_UnlockAudio();
 
-	return result;
+	return buf;
 }
 
 void SQ_PushBuffer(fx_data_c *data)

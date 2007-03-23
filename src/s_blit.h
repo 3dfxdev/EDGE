@@ -99,11 +99,13 @@ void SQ_Begin(void);
 
 void SQ_Stop(void);
 // stop the queuing system, stopping all playback.
-// Any existing buffers will call delete[] on the data memory.
+// The data from all the buffers will be freed.
 
-fx_data_c * SQ_GetFreeBuffer(void);
+fx_data_c * SQ_GetFreeBuffer(int samples, bool stereo);
 // returns the next unused (or finished) buffer, or NULL
-// if there are none.
+// if there are none.  The data_L/data_R fields will be
+// updated to ensure they hold the requested number of
+// samples and conform to the wanted stereo-ness.
 
 void SQ_PushBuffer(fx_data_c *data);
 // add a new buffer to be end of the queue.
