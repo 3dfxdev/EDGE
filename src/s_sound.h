@@ -118,6 +118,8 @@ void S_SoundTicker(void);
 int  S_GetSoundVolume(void);
 void S_SetSoundVolume(int volume);
 
+void S_ChangeChannelNum(void);
+
 #endif // __S_SOUND__
 
 //--- editor settings ---

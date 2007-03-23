@@ -121,19 +121,6 @@ static void SetupCategoryLimits(void)
 	}
 }
 
-void S_KillChannel(int k)
-{
-	mix_channel_c *chan = mix_chan[k];
-
-	if (chan->state != CHAN_Empty)
-	{
-		S_CacheRelease(chan->data);
-
-		chan->data = NULL;
-		chan->state = CHAN_Empty;
-	}
-}
-
 static int FindFreeChannel(void)
 {
 	for (int i=0; i < num_chan; i++)
@@ -520,6 +507,20 @@ void S_SoundTicker(void)
 	SDL_UnlockAudio();
 }
 
+void S_ChangeChannelNum(void)
+{
+	if (nosound) return;
+
+	SDL_LockAudio();
+	{
+		int want_chan = channel_counts[var_mix_channels];
+
+		S_ReallocChannels(want_chan);
+
+		SetupCategoryLimits();
+	}
+	SDL_UnlockAudio();
+}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

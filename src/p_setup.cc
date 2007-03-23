@@ -2533,7 +2533,10 @@ void P_SetupLevel(skill_t skill, int autotag)
 	// preload graphics
 	if (precache)
 		R_PrecacheLevel();
-	
+
+	// setup categories based on game mode (SP/COOP/DM)
+	S_ChangeChannelNum();
+
 	// FIXME: cache sounds (esp. for player)
 
 	S_ChangeMusic(currmap->music, true); // start level music
