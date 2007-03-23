@@ -53,7 +53,6 @@ const int category_limit_table[3][8][3] =
 	/* 8 channel (TEST) */
 	{
 		{ 1, 1, 1 }, // UI
-		{ 1, 1, 1 }, // Music
 		{ 1, 1, 1 }, // Player
 		{ 1, 1, 1 }, // Weapon
 
@@ -66,12 +65,11 @@ const int category_limit_table[3][8][3] =
 	/* 16 channel */
 	{
 		{ 1, 1, 1 }, // UI
-		{ 1, 1, 1 }, // Music
 		{ 1, 1, 1 }, // Player
 		{ 2, 2, 2 }, // Weapon
 
-		{ 0, 2, 6 }, // Opponent
-		{ 6, 4, 0 }, // Monster
+		{ 0, 2, 7 }, // Opponent
+		{ 7, 5, 0 }, // Monster
 		{ 3, 3, 3 }, // Object
 		{ 2, 2, 2 }, // Level
 	},
@@ -79,12 +77,11 @@ const int category_limit_table[3][8][3] =
 	/* 32 channel */
 	{
 		{ 2, 2, 2 }, // UI
-		{ 2, 2, 2 }, // Music
 		{ 2, 2, 2 }, // Player
 		{ 3, 3, 3 }, // Weapon
 
-		{ 0, 4,10 }, // Opponent
-		{12, 9, 2 }, // Monster
+		{ 0, 5,12 }, // Opponent
+		{14,10, 2 }, // Monster
 		{ 7, 6, 7 }, // Object
 		{ 4, 4, 4 }, // Level
 	},
