@@ -17,12 +17,7 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-
-#ifdef MACOSX
-#include <SDL.h>
-#else
-#include <SDL/SDL.h>
-#endif
+#include "i_sdlinc.h"
 
 #include "m_argv.h"
 #include "m_misc.h"
