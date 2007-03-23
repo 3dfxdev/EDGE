@@ -52,11 +52,44 @@ fx_data_c::fx_data_c() : length(0), freq(0),
 
 fx_data_c::~fx_data_c()
 {
+	Free();
+}
+
+void fx_data_c::Free()
+{
+	length = 0;
+
 	if (data_R && data_R != data_L)
 		delete[] data_R;
 
 	if (data_L)
 		delete[] data_L;
+
+	data_L = NULL;
+	data_R = NULL;
+}
+
+void fx_data_c::Allocate(int samples, bool stereo)
+{
+	bool this_stereo = (data_L != data_R);
+
+	// early out when requirements are already met
+	if (data_L && length >= samples && this_stereo == stereo)
+		return;
+
+	if (data_L)
+	{
+		Free();
+	}
+
+	length = samples;
+
+	data_L = new s16_t[samples];
+
+	if (stereo)
+		data_R = new s16_t[samples];
+	else
+		data_R = data_L;
 }
 
 //----------------------------------------------------------------------------
@@ -76,17 +109,8 @@ static void S_FlushData(fx_data_c *fx)
 {
 	DEV_ASSERT2(fx->ref_count == 0);
 
-	if (fx->data_R && fx->data_R != fx->data_L)
-		delete[] fx->data_R;
+	fx->Free();
 
-	if (fx->data_L)
-		delete[] fx->data_L;
-
-	fx->length = 0;
-	fx->freq = 0;
-
-	fx->data_L = NULL;
-	fx->data_R = NULL;
 }
 
 void S_CacheClearAll(void)
@@ -110,12 +134,12 @@ fx_data_c *S_CacheLoad(sfxdef_c *def)
 
 
 	// create data structure
-	fx_data_c *data = new fx_data_c();
+	fx_data_c *buf = new fx_data_c();
 
-	fx_cache.push_back(data);
+	fx_cache.push_back(buf);
 
-	data->def = def;
-	data->ref_count = 1;
+	buf->def = def;
+	buf->ref_count = 1;
 
 	// load in the data from the WAD
 
@@ -128,12 +152,14 @@ fx_data_c *S_CacheLoad(sfxdef_c *def)
 			I_Error("SFX '%s' doesn't exist", name);
 		else
 		{
+			delete buf;
+
 			I_Warning("Unknown sound lump %s, ignoring.\n", name);
-			return data;
+			return NULL;
 		}
 	}
 
-	// Load the data into a buffer
+	// Load the data into the buffer
 
 	const byte *lump = (const byte*)W_CacheLumpNum(lumpnum);
 
@@ -141,28 +167,24 @@ fx_data_c *S_CacheLoad(sfxdef_c *def)
 	if (length < 8)
 		I_Error("Bad SFX lump '%s' : too short!", name);
 
-	data->freq = lump[2] + (lump[3] << 8);
-
 	length -= 8;
 
-	data->length = length;
-
-	s16_t *dest = new s16_t[length];
-
-	data->data_L = dest;
-	data->data_R = dest;
+	buf->Allocate(length, false);
+	buf->freq = lump[2] + (lump[3] << 8);
 
 	// convert to signed 16-bit format
+	s16_t *dest = buf->data_L;
+
 	for (int i=0; i < length; i++)
 		*dest++ = (lump[8+i] ^ 0x80) << 8;
 
-	// caching the LUMP data is rather useless (and inefficient),
+	// caching the LUMP data is rather useless (and inefficient)
 	// since it won't be needed again until the current sound
 	// has been flushed from the sound cache.  Hence we just
 	// flush the lump data as early as possible.
 	W_DoneWithLump_Flushable(lump);
 
-	return data;
+	return buf;
 }
 
 void S_CacheRelease(fx_data_c *data)

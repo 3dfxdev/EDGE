@@ -44,6 +44,9 @@ public:
 public:
 	fx_data_c();
 	~fx_data_c();
+
+	void Allocate(int samples, bool stereo);
+	void Free();
 };
 
 
@@ -58,7 +61,7 @@ void S_CacheClearAll(void);
 fx_data_c *S_CacheLoad(sfxdef_c *def);
 // load a sound into the cache.  If the sound has already
 // been loaded, then it is simply returned (increasing the
-// reference count).
+// reference count).  Returns NULL if the lump doesn't exist.
 
 void S_CacheRelease(fx_data_c *data);
 // we are finished with this data.  The cache system may
