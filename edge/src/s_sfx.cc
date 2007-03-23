@@ -295,13 +295,15 @@ static void S_PlaySound(int idx, sfxdef_c *def, int category, position_c *pos, i
 {
 I_Printf("S_PlaySound on idx #%d DEF:%p\n", idx, def);
 
+I_Printf("Looked up def: %p, caching...\n", def);
+	fx_data_c *buf = S_CacheLoad(def);
+	if (! buf)
+		return;
+
 	mix_channel_c *chan = mix_chan[idx];
 
 	chan->state = CHAN_Playing;
-
-I_Printf("Looked up def: %p, caching...\n", def);
-	chan->data = S_CacheLoad(def);
-	DEV_ASSERT2(chan->data);
+	chan->data  = buf;
 
 I_Printf("chan=%p data=%p\n", chan, chan->data);
 
