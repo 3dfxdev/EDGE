@@ -26,15 +26,18 @@
 #ifndef __S_SOUND__
 #define __S_SOUND__
 
-#include "epi/math_vector.h"
-
-#define S_CLOSE_DIST     160.0f
-#define S_CLIPPING_DIST  4000.0f
-
 // Forward declarations
 class position_c;
 typedef struct mobj_s mobj_t;
 typedef struct sfx_s sfx_t;
+
+#define S_CLOSE_DIST     160.0f
+#define S_CLIPPING_DIST  4000.0f
+
+// for the sliders
+#define SND_SLIDER_NUM  20
+
+extern float slider_to_gain[SND_SLIDER_NUM];
 
 // Sound Categories
 // ----------------
@@ -65,19 +68,6 @@ typedef enum
 }
 sound_category_e;
 
-// for the sliders
-#define SND_SLIDER_NUM  20
-
-extern float slider_to_gain[SND_SLIDER_NUM];
-
-// S_MUSIC.C
-void S_ChangeMusic(int entrynum, bool looping);
-void S_ResumeMusic(void);
-void S_PauseMusic(void);
-void S_StopMusic(void);
-void S_MusicTicker(void);
-int S_GetMusicVolume(void);
-void S_SetMusicVolume(int volume);
 
 /* FX Flags */
 typedef enum
@@ -100,6 +90,10 @@ typedef enum
 fx_flag_e;
 
 
+// Vars
+extern int sfx_volume;  // 0 .. SND_SLIDER_NUM-1
+
+
 // Init/Shutdown
 void S_Init(void);
 void S_Shutdown(void);
@@ -114,9 +108,7 @@ void S_PauseSound(void);
 
 void S_SoundTicker(void);
 
-int  S_GetSoundVolume(void);
-void S_SetSoundVolume(int volume);
-
+void S_ChangeSoundVolume(void);
 void S_ChangeChannelNum(void);
 
 #endif // __S_SOUND__

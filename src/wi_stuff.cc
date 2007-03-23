@@ -36,6 +36,7 @@
 #include "hu_lib.h"
 #include "p_local.h"
 #include "s_sound.h"
+#include "s_music.h"
 #include "r_main.h"
 #include "r_view.h"
 #include "v_ctx.h"

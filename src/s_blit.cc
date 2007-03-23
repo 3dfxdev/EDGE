@@ -29,6 +29,7 @@
 #include "s_sound.h"
 #include "s_cache.h"
 #include "s_blit.h"
+#include "s_music.h"
 
 #include "m_misc.h"
 #include "r_main.h"  // R_PointToAngle
@@ -74,7 +75,8 @@ static std::list<fx_data_c *> playing_qbufs;
 static mix_channel_c *queue_chan;
 
 
-static int  sfxvolume = 0;
+int sfx_volume = 0;
+
 static bool sfxpaused = false;
 
 // these are analogous to viewx/y/z/angle
@@ -87,7 +89,7 @@ angle_t listen_angle;
 //       Curve was hand-crafted to give useful distinctions of
 //       volume levels at the quiet end.  Entry zero always
 //       means total silence (in the table for completeness).
-float slider_to_gain[20] =
+float slider_to_gain[SND_SLIDER_NUM] =
 {
 	0.00000, 0.00200, 0.00400, 0.00800, 0.01600,
 	0.03196, 0.05620, 0.08886, 0.12894, 0.17584,
@@ -156,7 +158,7 @@ void mix_channel_c::ComputeVolume()
 	if (var_quiet_factor == 0)
 		MAX_VOL *= 2.0;
 
-	MAX_VOL = MAX_VOL * mul * slider_to_gain[sfxvolume];
+	MAX_VOL = MAX_VOL * mul * slider_to_gain[sfx_volume];
 
 	// strictly linear equations
 	volume_L = (int) (MAX_VOL * (1.0 - sep));
@@ -174,7 +176,7 @@ void mix_channel_c::ComputeMusicVolume()
 {
 	float MAX_VOL = (1 << (16 - SAFE_BITS - var_quiet_factor)) - 3;
 
-//!!!!! 	MAX_VOL = MAX_VOL * slider_to_gain[musvolume];
+ 	MAX_VOL = MAX_VOL * slider_to_gain[mus_volume];
 
 	volume_L = (int) MAX_VOL;
 	volume_R = (int) MAX_VOL;
@@ -617,14 +619,14 @@ void S_UpdateSounds(position_c *listener, angle_t angle)
 		queue_chan->ComputeMusicVolume();
 }
 
-int S_GetSoundVolume(void)
-{
-	return sfxvolume;
-}
+///---int S_GetSoundVolume(void)
+///---{
+///---	return sfxvolume;
+///---}
 
-void S_SetSoundVolume(int volume)
+void S_ChangeSoundVolume(void)
 {
-	sfxvolume = volume;
+	/* nothing to do */
 }
 
 void S_PauseSound(void)

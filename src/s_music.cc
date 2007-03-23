@@ -20,9 +20,11 @@
 //
 
 #include "i_defs.h"
+#include "s_sound.h"
+#include "s_music.h"
+
 #include "ddf_main.h"
 #include "m_misc.h"
-#include "s_sound.h"
 #include "w_wad.h"
 
 #include "epi/files.h"
@@ -33,8 +35,8 @@
 // Current music handle
 static int musichandle = -1;
 
-// music slider value (range is 0 to 19)
-static int musicvolume;
+// music slider value
+int mus_volume;
 
 bool nomusic = false;
 bool nocdmusic = false;
@@ -74,7 +76,7 @@ void S_ChangeMusic(int entrynum, bool looping)
 		return;
 	}
 
-	float volume = slider_to_gain[musicvolume];
+	float volume = slider_to_gain[mus_volume];
 
 	// -ACB- 2000/06/06 This is not system specific
 	if (play->infotype == MUSINF_FILE)
@@ -204,27 +206,24 @@ void S_MusicTicker(void)
 	return;
 }
 
-//
-// S_GetMusicVolume
-//
-int S_GetMusicVolume(void)
-{
-	return musicvolume;
-}
+///---//
+///---// S_GetMusicVolume
+///---//
+///---int S_GetMusicVolume(void)
+///---{
+///---	return musicvolume;
+///---}
 
-//
-// S_SetMusicVolume
-//
-void S_SetMusicVolume(int volume)
+void S_ChangeMusicVolume(void)
 {
-	DEV_ASSERT2(volume >= 0 && volume < SND_SLIDER_NUM);
-
-	musicvolume = volume;
+///---	DEV_ASSERT2(volume >= 0 && volume < SND_SLIDER_NUM);
+///---
+///---	musicvolume = volume;
 
 	if (nomusic || musichandle == -1)
 		return;
 
-	I_SetMusicVolume(&musichandle, slider_to_gain[musicvolume]);
+	I_SetMusicVolume(&musichandle, slider_to_gain[mus_volume]);
 }
 
 

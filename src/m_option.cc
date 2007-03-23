@@ -93,6 +93,7 @@
 #include "r2_defs.h"
 #include "rgl_defs.h"
 #include "s_sound.h"
+#include "s_music.h"
 #include "v_ctx.h"
 #include "v_res.h"
 #include "v_colour.h"
@@ -187,10 +188,6 @@ static int prevscrmode;
 static int selectedscrmode;
 static int testticker = -1;
 
-// Volume Changes
-static int menumusicvol;
-static int menusoundvol;
-
 // -ES- 1998/11/28 Wipe and Faded teleportation options
 //static char FadeT[] = "Off/On, flash/On, no flash";
 
@@ -280,32 +277,20 @@ static void M_ChangeScreenHud(int keypressed)
 	R_SetViewSize(screen_hud);
 }
 
-//
-// M_ChangeMusVol
-//
-// -ACB- 1999/11/13 Music API Change implemented
-//
+
 static void M_ChangeMusVol(int keypressed)
 {
-	S_SetMusicVolume(menumusicvol);
-	return;
+	S_ChangeMusicVolume();
 }
 
-//
-// M_ChangeSfxVol
-//
-// -ACB- 1999/10/07 Sound API Change implemented
-//
 static void M_ChangeSfxVol(int keypressed)
 {
-	S_SetSoundVolume(menusoundvol);
-	return;
+	S_ChangeSoundVolume();
 }
 
 static void M_ChangeMixChan(int keypressed)
 {
 	S_ChangeChannelNum();
-	return;
 }
 
 #if 0
@@ -533,8 +518,8 @@ static menuinfo_t analogueoptionsinfo =
 //
 static optmenuitem_t soundoptions[] =
 {
-	{OPT_Slider,   "Sound Volume",  NULL, SND_SLIDER_NUM, CFGDEF_SOUND_VOLUME, &menusoundvol, M_ChangeSfxVol, NULL},
-	{OPT_Slider,   "Music Volume",  NULL, SND_SLIDER_NUM, CFGDEF_MUSIC_VOLUME, &menumusicvol, M_ChangeMusVol, NULL},
+	{OPT_Slider,   "Sound Volume",  NULL, SND_SLIDER_NUM, CFGDEF_SOUND_VOLUME, &sfx_volume, M_ChangeSfxVol, NULL},
+	{OPT_Slider,   "Music Volume",  NULL, SND_SLIDER_NUM, CFGDEF_MUSIC_VOLUME, &mus_volume, M_ChangeMusVol, NULL},
 
 	{OPT_Plain,    "", NULL, 0,  0, NULL, NULL, NULL},
 	{OPT_Switch,   "Sample Rate",   SampleRates, 5, CFGDEF_SAMPLE_RATE,  &var_sample_rate,  NULL, NULL},
@@ -811,9 +796,6 @@ void M_OptMenuInit()
 	stdkeyconfiginfo.sister_next = &extkeyconfiginfo;
 	extkeyconfiginfo.sister_prev = &stdkeyconfiginfo;
 
-	menumusicvol = S_GetMusicVolume(); // -ACB- 1999/11/13 Music API Volume
-	menusoundvol = S_GetSoundVolume();   
-
 	// Restore the config setting.
 	M_ChangeBlood(-1);
 }
@@ -870,10 +852,6 @@ void M_OptDrawer()
 
 	style->DrawBackground();
 
-	// make sure the local volume values are kept up-to-date
-	menumusicvol = S_GetMusicVolume();
-	menusoundvol = S_GetSoundVolume();
- 
 	int font_h = style->fonts[0]->NominalHeight(); // FIXME: fonts[0] maybe null
 
 	// -ACB- 1998/06/15 Calculate height for menu and then center it.
