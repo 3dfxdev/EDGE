@@ -298,29 +298,6 @@ bool I_SoundResume(unsigned int chanid);
 // Resumes the previously paused sound on the specified channel.
 // Returns true on success, otherwise false.
 
-bool I_SoundSetListenerOrient(float *at, float *up);
-// Sets the listener orientation. The 'at' and 'up' vectors
-// are 3-entry tuples. Returns true if successful, otherwise false.
-
-bool I_SoundSetListenerPos(float *pos, float *veloc);
-// Sets the listener position in (x,y,z) format tuple. Returns true 
-// if successful, otherwise false.
-
-bool I_SoundSetPos(unsigned int chanid, float *pos, float *veloc);
-// Set the sound position in an (x,y,z) format tuple. Returns true if 
-// successful, otherwise false.
-
-bool I_SoundSetRelative(unsigned int chanid, bool relative);
-// Set the "position of sound is relative to listener" flag. Returns true if 
-// successful, otherwise false.
-
-bool I_SoundSetVolume(unsigned int chanid, float gain);
-// Alters the volume of a currently playing sound.  Returns true
-// if successful, otherwise false.
-
-bool I_SoundStopLooping(unsigned int chanid);
-// Stops the sound on this channel looping
-
 bool I_SoundKill(unsigned int chanid);
 // Kills a sound on the specified channel that was started with
 // I_SoundPlayback(), and frees the channel to be used for future
