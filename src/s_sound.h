@@ -54,7 +54,6 @@ typedef struct sfx_s sfx_t;
 typedef enum
 {
 	SNCAT_UI = 0,     // for the user interface (menus, tips)
-	SNCAT_Music,      // for OGG music and MIDI synthesis
 	SNCAT_Player,     // for console player (pain, death, pickup)
 	SNCAT_Weapon,     // for console player's weapon
 	SNCAT_Opponent,   // for all other players (DM or COOP)
