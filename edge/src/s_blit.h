@@ -94,20 +94,24 @@ void S_UpdateSounds(position_c *listener, angle_t angle);
 
 //-------- API for Synthesised MUSIC --------------------
 
-void SQ_Begin(void);
-// begin the queueing system.
+void S_QueueInit(void);
+// initialise the queueing system.
 
-void SQ_Stop(void);
-// stop the queuing system, stopping all playback.
+void S_QueueShutdown(void);
+// finalise the queuing system, stopping all playback.
 // The data from all the buffers will be freed.
 
-fx_data_c * SQ_GetFreeBuffer(int samples, bool stereo);
+void S_QueueStop(void);
+// stop the currently playing queue.  All playing buffers
+// are moved into the free list.
+
+fx_data_c * S_QueueGetFreeBuffer(int samples, bool stereo);
 // returns the next unused (or finished) buffer, or NULL
 // if there are none.  The data_L/data_R fields will be
 // updated to ensure they hold the requested number of
 // samples and conform to the wanted stereo-ness.
 
-void SQ_PushBuffer(fx_data_c *buf, int freq);
+void S_QueuePushBuffer(fx_data_c *buf, int freq);
 // add a new buffer to be end of the queue.
 
 #endif // __S_BLIT__
