@@ -353,6 +353,7 @@ static bool QueueNextBuffer(void)
 	if (playing_qbufs.empty())
 	{
 		queue_chan->state = CHAN_Finished;
+		queue_chan->data  = NULL;
 		return false;
 	}
 
@@ -639,7 +640,7 @@ void S_ResumeSound(void)
 
 //----------------------------------------------------------------------------
 
-void SQ_Begin(void)
+void S_QueueInit(void)
 {
 	if (nosound) return;
 
@@ -664,7 +665,7 @@ void SQ_Begin(void)
 	SDL_UnlockAudio();
 }
 
-void SQ_Stop(void)
+void S_QueueShutdown(void)
 {
 	if (nosound) return;
 
@@ -693,7 +694,26 @@ void SQ_Stop(void)
 	SDL_UnlockAudio();
 }
 
-fx_data_c * SQ_GetFreeBuffer(int samples, bool stereo)
+void S_QueueStop(void)
+{
+	if (nosound) return;
+
+	DEV_ASSERT2(queue_chan);
+
+	SDL_LockAudio();
+	{
+		for (; ! playing_qbufs.empty(); playing_qbufs.pop_front())
+		{
+			free_qbufs.push_back(playing_qbufs.front());
+		}
+
+		queue_chan->state = CHAN_Finished;
+		queue_chan->data  = NULL;
+	}
+	SDL_UnlockAudio();
+}
+
+fx_data_c * S_QueueGetFreeBuffer(int samples, bool stereo)
 {
 	if (nosound) return NULL;
 
@@ -715,7 +735,7 @@ fx_data_c * SQ_GetFreeBuffer(int samples, bool stereo)
 	return buf;
 }
 
-void SQ_PushBuffer(fx_data_c *buf, int freq)
+void S_QueuePushBuffer(fx_data_c *buf, int freq)
 {
 	if (nosound) return;
 
