@@ -1,5 +1,44 @@
 Andrew Apted's Log
 
+2007/03/25:
+
+Sound code: finished the QUEUEING system, including support
+for 'Interleaved' stereo buffers.  Converted the existing
+Ogg/Vorbis playing code to use the new system instead of
+OpenAL.
+
+Apart from tweaks & bug-fixes, the new sound code is done!
+
+2007/03/23:
+
+Sound code: support for dynamically changing the number of
+mixing channels.  When choosing fewer channels, all sounds
+except UI sounds are killed (hence the menu sounds should
+keep on playing).
+
+Removed SNCAT_Music category, the sound code will support
+music buffers directly.
+
+Sound code: Began work on QUEUEING system which is needed
+for Ogg/Vorbis playback (and eventually Humidity playback).
+It is modelled on the OpenAL system, hence the existing
+code for playing OGG/V should be fairly easy to migrate.
+
+Simplified the code using global sfx_volume and mus_volume
+variables, removing e.g. cfgsound, menusoundvol etc..
+
+2007/03/19:
+
+Removed the LINES/SECTORS.DDF AMBIENT_SOUND feature, which 
+has been rather messed up for a long time and seems rarely
+used in mods.
+
+Implemented the "pseudo-looping" code.
+
+Noticed the Archvile fire didn't crackle, seems the entry
+in ATTACKS.DDF has been missing the correct sounds (FLAMST
+and FLAME) for a long time!
+
 2007/03/18:
 
 Fixed sound code to use the values from the Sound Options
