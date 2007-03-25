@@ -45,7 +45,10 @@
 #include <vector>
 
 
-fx_data_c::fx_data_c() : length(0), freq(0),
+static std::vector<fx_data_c *> fx_cache;
+
+
+fx_data_c::fx_data_c() : length(0), freq(0), mode(0),
 						 data_L(NULL), data_R(NULL),
 						 def(NULL), ref_count(0)
 { }
@@ -69,43 +72,52 @@ void fx_data_c::Free()
 	data_R = NULL;
 }
 
-void fx_data_c::Allocate(int samples, bool stereo)
+void fx_data_c::Allocate(int samples, int buf_mode)
 {
-	bool this_stereo = (data_L != data_R);
-
 	// early out when requirements are already met
-	if (data_L && length >= samples && this_stereo == stereo)
+	if (data_L && length >= samples && mode == buf_mode)
 		return;
 
-	if (data_L)
+	if (data_L || data_R)
 	{
 		Free();
 	}
 
 	length = samples;
+	mode   = buf_mode;
 
-	data_L = new s16_t[samples];
+	switch (buf_mode)
+	{
+		case SBUF_Mono:
+			data_L = new s16_t[samples];
+			data_R = data_L;
+			break;
 
-	if (stereo)
-		data_R = new s16_t[samples];
-	else
-		data_R = data_L;
+		case SBUF_Stereo:
+			data_L = new s16_t[samples];
+			data_R = new s16_t[samples];
+			break;
+
+		case SBUF_Interleaved:
+			data_L = new s16_t[samples * 2];
+			data_R = data_L;
+			break;
+
+		default: break;
+	}
 }
-
-//----------------------------------------------------------------------------
-
-static std::vector<fx_data_c *> fx_cache;
 
 
 //----------------------------------------------------------------------------
 
 static void Load_DOOM(fx_data_c *buf, const byte *lump, int length)
 {
-	buf->Allocate(length, false);
 	buf->freq = lump[2] + (lump[3] << 8);
 
 	if (buf->freq < 8000 || buf->freq >= 44100)
 		I_Error("Sound Load: weird frequency: %d Hz\n", buf->freq);
+
+	buf->Allocate(length, SBUF_Mono);
 
 	// convert to signed 16-bit format
 	const byte *src = lump + 8;
