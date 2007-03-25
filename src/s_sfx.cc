@@ -260,6 +260,8 @@ void S_Init(void)
 
 	SetupCategoryLimits();
 
+	S_QueueInit();
+
 	// okidoke, start the ball rolling!
 	SDL_PauseAudio(0);
 }
@@ -269,6 +271,8 @@ void S_Shutdown(void)
 	if (nosound) return;
 
 	SDL_PauseAudio(1);
+
+	// FIXME: FreeChannels,   QueueShutdown
 }
 
 // Not-rejigged-yet stuff..
