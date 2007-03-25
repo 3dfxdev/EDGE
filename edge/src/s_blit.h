@@ -106,14 +106,18 @@ void S_QueueStop(void);
 // stop the currently playing queue.  All playing buffers
 // are moved into the free list.
 
-fx_data_c * S_QueueGetFreeBuffer(int samples, bool stereo);
+fx_data_c * S_QueueGetFreeBuffer(int samples, int buf_mode);
 // returns the next unused (or finished) buffer, or NULL
 // if there are none.  The data_L/data_R fields will be
 // updated to ensure they hold the requested number of
-// samples and conform to the wanted stereo-ness.
+// samples and conform to the wanted buffer mode.
 
-void S_QueuePushBuffer(fx_data_c *buf, int freq);
+void S_QueueAddBuffer(fx_data_c *buf, int freq);
 // add a new buffer to be end of the queue.
+
+void S_QueueReturnBuffer(fx_data_c *buf);
+// if something goes wrong and you cannot add the buffer,
+// then this call will return the buffer to the free list.
 
 #endif // __S_BLIT__
 
