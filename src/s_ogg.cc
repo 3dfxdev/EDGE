@@ -23,9 +23,7 @@
 //
 
 #include "i_defs.h"
-#include "i_defs_al.h"
 #include "errorcodes.h"
-
 #include "oggplayer.h"
 
 #include "epi/epi.h"
@@ -33,6 +31,11 @@
 #include "epi/endianess.h"
 
 #include <string.h>
+
+#include "s_cache.h"
+#include "s_blit.h"
+
+#define OGGV_BUFFER_SIZE  16384
 
 //
 // oggplayer datalump operation functions
@@ -120,68 +123,19 @@ long oggplayer_ftell(void *datasource)
 	return ftell((FILE*)datasource);
 }
 
-// ---> The OGG Player Class
-ALuint oggplayer_c::music_source = NO_SOURCE;
 
-//
-// oggplayer_c Constructor
-//
 oggplayer_c::oggplayer_c()
 {
 	status = NOT_LOADED;
 	vorbis_inf = NULL;
-	pcm_buf = new char[BUFFER_SIZE];
 }
 
-//
-// oggplayer_c Deconstructor
-//
 oggplayer_c::~oggplayer_c()
 {
 	Close();
-
-	delete[] pcm_buf;
-	pcm_buf = NULL;
 }
 
-//
-// oggplayer_c::CreateMusicSource()
-//
-bool oggplayer_c::CreateMusicSource() 
-{          
-    if (music_source != NO_SOURCE)
-        DeleteMusicSource();
-        
-    alGetError();  
-    alGenSources(1, &music_source);  
-     
-    if (alGetError() != AL_NO_ERROR)  
-    {  
-        music_source = NO_SOURCE;
-        return false;
-    }
 
-    alSource3f(music_source, AL_POSITION,        0.0, 0.0, 0.0);  
-    alSource3f(music_source, AL_VELOCITY,        0.0, 0.0, 0.0);  
-    alSource3f(music_source, AL_DIRECTION,       0.0, 0.0, 0.0);  
-    alSourcef (music_source, AL_ROLLOFF_FACTOR,  0.0          );  
-    alSourcei (music_source, AL_SOURCE_RELATIVE, AL_TRUE      );  
-
-    return true;
-}
-
-//
-// oggplayer_c::DeleteMusicSource
-//
-void oggplayer_c::DeleteMusicSource()
-{
-    alDeleteSources(1, &music_source);
-    music_source = NO_SOURCE;
-}
-
-//
-// epi::string_c oggplayer_c::GetError()
-//
 epi::string_c oggplayer_c::GetError(int code)
 {
     switch(code)
@@ -208,16 +162,11 @@ epi::string_c oggplayer_c::GetError(int code)
 	return epi::string_c("Unknown Ogg error.");
 }
 
-//
-// oggplayer_c::PostOpenInit()
-//
+
 void oggplayer_c::PostOpenInit()
 {
 	int result; 
 	
-	// clear any previous AL error
-	alGetError();
-
     vorbis_inf = ov_info(&ogg_stream, -1);
 
     if (vorbis_inf->channels == 1)
@@ -225,23 +174,19 @@ void oggplayer_c::PostOpenInit()
     else
         format = AL_FORMAT_STEREO16;
     
-    alGenBuffers(OGG_BUFFERS, buffers);
-    result = alGetError();
-	if (result != AL_NO_ERROR)
-	{
-		throw epi::error_c(ERR_MUSIC, 
-			"[oggplayer_c::PostOpenInit] alGenBuffers() Failed");
-	}
+///---    alGenBuffers(OGG_BUFFERS, buffers);
+///---    result = alGetError();
+///---	if (result != AL_NO_ERROR)
+///---	{
+///---		throw epi::error_c(ERR_MUSIC, 
+///---			"[oggplayer_c::PostOpenInit] alGenBuffers() Failed");
+///---	}
 
 	// Loaded, but not playing
 	status = STOPPED;
-	return;
 }
 
-//
-// oggplayer_c::StreamIntoBuffer()
-//
-bool oggplayer_c::StreamIntoBuffer(int buffer)
+bool oggplayer_c::StreamIntoBuffer(fx_data_c *buf)
 {
 #if EPI_BYTEORDER == EPI_LIL_ENDIAN
 	const int ogg_endian = 0;
@@ -294,12 +239,8 @@ bool oggplayer_c::StreamIntoBuffer(int buffer)
 //
 // oggplayer_c::SetVolume()
 //
-void oggplayer_c::SetVolume(float gain)
+void oggplayer_c::SetVolume(float gain) // FIXME: remove
 {
-    if (music_source == NO_SOURCE)
-        return;
-
-	alSourcef(music_source, AL_GAIN, gain);
 }
 
 //
@@ -312,21 +253,19 @@ void oggplayer_c::Open(const void *data, size_t size)
 	if (status != NOT_LOADED)
 		Close();
 
-	if (!CreateMusicSource())
-		return;
-
 	ogg_lump.data = new byte[size];
 	ogg_lump.pos = 0;
 	ogg_lump.size = size;
 	memcpy(ogg_lump.data, data, size);
 	
-	ov_callbacks cb;
-	cb.read_func  = oggplayer_dlread;
-	cb.seek_func  = oggplayer_dlseek;
-	cb.close_func = oggplayer_dlclose;
-	cb.tell_func  = oggplayer_dltell; 
+	ov_callbacks CB;
 
-    int result = ov_open_callbacks((void*)&ogg_lump, &ogg_stream, NULL, 0, cb);
+	CB.read_func  = oggplayer_dlread;
+	CB.seek_func  = oggplayer_dlseek;
+	CB.close_func = oggplayer_dlclose;
+	CB.tell_func  = oggplayer_dltell; 
+
+    int result = ov_open_callbacks((void*)&ogg_lump, &ogg_stream, NULL, 0, CB);
     if (result < 0)
     {
 		// Only time we have to kill this since OGG will deal with the handle
@@ -355,9 +294,6 @@ void oggplayer_c::Open(const char *name)
 	if (status != NOT_LOADED)
 		Close();
 
-	if (!CreateMusicSource())
-		return;
-
 	ogg_file = fopen(name, "rb");
     if (!ogg_file)
     {
@@ -365,13 +301,14 @@ void oggplayer_c::Open(const char *name)
 			"[oggplayer_c::Open](File) Could not open file.");
     }
 
-	ov_callbacks cb;
-	cb.read_func  = oggplayer_fread;
-	cb.seek_func  = oggplayer_fseek;
-	cb.close_func = oggplayer_fclose;
-	cb.tell_func  = oggplayer_ftell; 
+	ov_callbacks CB;
 
-    int result = ov_open_callbacks((void*)ogg_file, &ogg_stream, NULL, 0, cb);
+	CB.read_func  = oggplayer_fread;
+	CB.seek_func  = oggplayer_fseek;
+	CB.close_func = oggplayer_fclose;
+	CB.tell_func  = oggplayer_ftell; 
+
+    int result = ov_open_callbacks((void*)ogg_file, &ogg_stream, NULL, 0, CB);
     if (result < 0)
     {
 		// Only time we have to close this since OGG will deal with the handle
@@ -442,23 +379,25 @@ void oggplayer_c::Play(bool loop, float gain)
     if (status != NOT_LOADED && status != STOPPED)
         return;
         
-	// clear any previous AL error
-	alGetError();
-
 	// Load up initial buffer data
-	int buffer;
-	for (buffer=0; buffer < OGG_BUFFERS; buffer++)
+	Ticker();
+#if 0
+	for (;;)
 	{
-		if (!StreamIntoBuffer(buffers[buffer]))
+		fx_data_c *buf = S_QueueGetFreeBuffer(OGGV_BUFFER_SIZE, false);
+				
+		if (! buf)
+			break;
+
+		if (StreamIntoBuffer(buf))  // FIXME: !!! messed up
+			S_QueuePushBuffer(buf);
+		else
 			throw epi::error_c(ERR_MUSIC, "[oggplayer_c::Play] Failed to load into buffers");
 	}
+#endif
 
 	SetVolume(gain);
 
-	// Update OpenAL
-    alSourceQueueBuffers(music_source, OGG_BUFFERS, buffers);
-    alSourcePlay(music_source);
-    
 	looping = loop;
 	status = PLAYING;
 }
@@ -468,22 +407,12 @@ void oggplayer_c::Play(bool loop, float gain)
 //
 void oggplayer_c::Stop()
 {
-	ALuint buffer;
-	int queued;
-
 	if (status != PLAYING && status != PAUSED)
 		return;
 
 	// Stop playback
-	alSourceStop(music_source);
+	S_QueueStop();
 	
-	// Remove any queue buffer
-	alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
-	while (queued)
-	{
-		alSourceUnqueueBuffers(music_source, 1, &buffer);	
-		queued--;
-	}
 	status = STOPPED;
 }
 
@@ -499,52 +428,32 @@ void oggplayer_c::Ticker()
 	int processed;
 	bool active = true;
 
-	// clear any previous AL error
-	alGetError();
+	fx_data_c *buf;
 
-	alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
-
-	while (processed--)
+	for (;;)
 	{
-		ALuint buffer;
+		buf = S_QueueGetFreeBuffer(OGGV_BUFFER_SIZE, false);
+
+		if (! buf)
+			break;
 		
-		alSourceUnqueueBuffers(music_source, 1, &buffer);
-		result = alGetError();
+		active = StreamIntoBuffer(buf);
 
-		if (result != AL_NO_ERROR)
-			throw epi::error_c(ERR_MUSIC,
-				"[oggplayer_c::Ticker] alSourceUnqueueBuffers() Failed");
-
-		active = StreamIntoBuffer(buffer);
-
-		alSourceQueueBuffers(music_source, 1, &buffer);
-		result = alGetError();
-
-		if (result != AL_NO_ERROR)
-			throw epi::error_c(ERR_MUSIC,
-				"[oggplayer_c::Ticker] alSourceQueueBuffers() Failed");
-	}
-
-	// Check for underrun
-	if (active)
-	{
-		int state; 
-		
-		alGetSourcei(music_source, AL_SOURCE_STATE, &state);
-		if (state != AL_PLAYING)
+		if (! active)
 		{
-			alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
-			alSourcePlay(music_source);
-		}	
-	}		
-	else
-	{
-		// No more data. Seek to beginning and stop if not looping
-		ov_raw_seek(&ogg_stream, 0);
+			// No more data. Seek to beginning and stop if not looping
+			if (! looping)
+			{
+				Stop();
+				break;
+			}
 
-		if (!looping)
-			Stop();
+			ov_raw_seek(&ogg_stream, 0);
+		}
+		else
+			S_QueuePushBuffer(buf);
 	}
+
 }
 
 //--- editor settings ---
