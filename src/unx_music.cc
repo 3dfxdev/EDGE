@@ -68,7 +68,6 @@ static char errordesc[MUSICERRLEN];
 
 bool musicpaused = false;
 
-int res_fx_handle;
 
 //
 // I_StartupMusic
@@ -167,30 +166,20 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping,
 #ifdef USE_HUMID
 			handle = -1;
 
-            res_fx_handle = 0;
             if (humdinger)
             {
-                res_fx_handle = sound::ReserveFX(SNCAT_Music);
-                if (res_fx_handle)
-                {
-                    int track = humdinger->Open((byte*)musdat->info.data.ptr,
-                                                musdat->info.data.size);
-                    
-                    if (track == -1)
-                    {
-                        handle = -1;
-                    }
-                    else
-                    {
-                        humdinger->Play(looping, gain);
-                        handle = MAKEHANDLE(type, looping, track);
-                    }
-                }
-                else
-                {
-                    I_PostMusicError("I_MusicPlayback: No free channels for HUM playback.\n");
-                    break;
-                }
+				int track = humdinger->Open((byte*)musdat->info.data.ptr,
+											musdat->info.data.size);
+				
+				if (track == -1)
+				{
+					handle = -1;
+				}
+				else
+				{
+					humdinger->Play(looping, gain);
+					handle = MAKEHANDLE(type, looping, track);
+				}
 			}
 #else // !USE_HUMID
 			I_PostMusicError("I_MusicPlayback: MUS/MIDI not supported.\n");
@@ -204,13 +193,6 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping,
 #ifdef USE_OGG
             handle = -1;
 
-            res_fx_handle = sound::ReserveFX(SNCAT_Music);
-            if (!res_fx_handle)
-            {
-                I_PostMusicError("I_MusicPlayback: No free channels for OGG playback.\n");
-                break;
-            }
-
             if (musdat->format != IMUSSF_DATA &&
                 musdat->format != IMUSSF_FILE)
             {
@@ -222,7 +204,7 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping,
 				oggplayer->Open(musdat->info.data.ptr, musdat->info.data.size);
 			else if (musdat->format == IMUSSF_FILE)
 				oggplayer->Open(musdat->info.file.name);
-				
+
 			oggplayer->Play(looping, gain);
 			handle = MAKEHANDLE(MUS_OGG, looping, 1);
 #else // !USE_OGG
@@ -363,7 +345,6 @@ void I_MusicKill(int *handle)
 			if (humdinger) 
             {
                 humdinger->Close();
-                sound::UnreserveFX(res_fx_handle);
             }
 			break;
 		}
@@ -373,7 +354,6 @@ void I_MusicKill(int *handle)
 		case MUS_OGG:
 		{
 			oggplayer->Close();
-            sound::UnreserveFX(res_fx_handle);
 			break;
 		}
 #endif

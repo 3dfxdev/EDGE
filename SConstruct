@@ -103,6 +103,7 @@ else:
 
 # Ogg/Vorbis
 env.Append(LIBS = ['vorbisfile', 'vorbis', 'ogg'])
+env.Append(CCFLAGS = ['-DUSE_OGG'])
 
 if build_info['platform'] == 'win32':
     env.Append(CPPPATH = ['#libogg-1.1.3/include'])
