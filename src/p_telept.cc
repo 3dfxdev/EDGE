@@ -331,3 +331,5 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
     return true;
 }
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
