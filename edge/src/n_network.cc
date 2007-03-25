@@ -22,18 +22,19 @@
 #include "nl.h"
 #endif
 
-#include "protocol.h"
-#include "n_packet.h"
-#include "n_network.h"
-
-#include "e_input.h"
-#include "e_main.h"
+#include <limits.h>
+#include <stdlib.h>
 
 #include "epi/types.h"
 #include "epi/endianess.h"
 
-#include <limits.h>
-#include <stdlib.h>
+#include "n_packet.h"
+#include "n_network.h"
+#include "n_protocol.h"
+
+#include "e_input.h"
+#include "e_main.h"
+#include "m_argv.h"
 
 // only true if packets are exchanged with a server
 bool netgame = false;
@@ -43,21 +44,21 @@ bool var_hogcpu = true;
 
 extern gameflags_t default_gameflags;
 
-#undef USE_HAWKNL //!!!!!!!!
 
 #ifdef USE_HAWKNL
-static int client_id;
-static int game_id;
-static int bots_each;
 
-static NLaddress server;
-static NLint     port;
-static NLaddress local_addr;
-
+// static NLaddress host_addr;
+static NLint     host_port;
 static NLsocket  socket;
 static NLint     sk_group;
 
-static packet_c pk;
+static packet_c  pk;
+
+static NLaddress local_addr;
+
+static NLaddress bcast_addr;
+static NLsocket  bcast_socket;
+
 #endif
 
 
@@ -90,7 +91,7 @@ static bool N_DetermineLocalAddr(void)
 	{
 		if (! nlStringToAddr(p, &local_addr))
 		{
-			I_Error("Bad local address '%s'\n(%s)", p, I_NetworkReturnError());
+			I_Error("Bad local address '%s'\n| HawkNL error: %s", p, I_NetworkReturnError());
 		}
 
 		return true;
@@ -105,7 +106,7 @@ static bool N_DetermineLocalAddr(void)
 		{
 			const char *addr_name = N_GetAddrName(all_addrs +i);
 
-			L_WriteDebug("ALL-Local[%d] = %s\n", i, addr_name);
+			L_WriteDebug("- ALL-Local[%d] = %s\n", i, addr_name);
 
 			if (strncmp(addr_name, "127.", 4) == 0 ||
 				strncmp(addr_name, "0.0.", 4) == 0 ||
@@ -129,7 +130,7 @@ static bool N_DetermineLocalAddr(void)
 
 	if (local_ip)
 	{
-		L_WriteDebug("LINUX-Local-IP = %s\n", local_ip);
+		L_WriteDebug("- LINUX-Local-IP = %s\n", local_ip);
 
 		nlStringToAddr(local_ip, &local_addr);
 		return true;
@@ -138,6 +139,10 @@ static bool N_DetermineLocalAddr(void)
 
 	return false;
 }
+
+#endif // USE_HAWKNL
+
+#if 0
 
 
 static bool N_BroadcastToServer(NLsocket sock)
@@ -548,6 +553,8 @@ static void N_Vote(const game_info_t *gminfo, newgame_params_c *params)
 	printf("LET THE GAMES BEGIN !!!\n");
 }
 
+#if 0
+
 //
 // N_InitiateGame
 //
@@ -585,14 +592,15 @@ void N_InitiateNetGame(void)
 		I_Error("N_InitiateNetGame: init_new failed\n");
 }
 
-#else // USE_HAWKNL
+| else
 
 void N_InitiateNetGame(void)
 {
 	I_Error("Networking not supported (hawk has flown)\n");
 }
+#endif
 
-#endif // USE_HAWKNL
+#endif // USE_HAWKNL_XX
 
 //----------------------------------------------------------------------------
 //  TIC HANDLING
@@ -611,10 +619,30 @@ void N_InitNetwork(void)
 	if (nonet)
 		return;
 
+	I_Printf("NL_VERSION: %s\n", nlGetString(NL_VERSION));
+
+	L_WriteDebug("NL_NETWORK_TYPES: %s\n", nlGetString(NL_NETWORK_TYPES));
+	L_WriteDebug("NL_SOCKET_TYPES: %s\n", nlGetString(NL_CONNECTION_TYPES));
+
+	host_port = 26710;
+
+	const char *str = M_GetParm("-port");
+	if (str)
+		host_port = atoi(str);
+	
+	I_Printf("Network: host port is %d\n", host_port);
+
 	if (N_DetermineLocalAddr())
 	{
 		I_Printf("Network: local address is %s\n", N_GetAddrName(&local_addr));
-		nlSetLocalAddr(&local_addr);
+
+		// must create BROADCAST socket using special broadcast address
+		MakeBroadcastAddress(&bcast_addr, &local_addr);
+		nlSetAddrPort(&bcast_addr, host_port);
+
+		I_Printf("Network: broadcast address: %s\n", N_GetAddrName(&bcast_addr));
+
+/// ELSEWHERE		nlSetLocalAddr(&local_addr);
 	}
 	else
 	{
@@ -622,14 +650,79 @@ void N_InitNetwork(void)
 		nonet = true;
 	}
 
-	port = 26710;
+	sk_group = nlGroupCreate();
+	if (sk_group == NL_INVALID)
+		I_Error("Network: Unable to create socket group (no memory)\n");
 
-	const char *str = M_GetParm("-port");
-	if (str)
-		port = atoi(str);
-	
-	I_Printf("Network: server port is %d\n", port);
+#endif // USE_HAWKNL
+}
+
+bool N_OpenBroadcastSocket(bool is_host)
+{
+	if (! nlSetLocalAddr(&bcast_addr))
+	{
+		I_Printf("Network: nlSetLocalAddr(BC) failed.\n| HawkNL error: %s",
+				I_NetworkReturnError());
+//		return false;
+	}
+
+	bcast_socket = nlOpen(host_port, NL_BROADCAST);
+
+	if (bcast_socket == NL_INVALID)
+	{
+		I_Printf("Network: unable to open broadcast socket!\n| HawkNL error: %s",
+				I_NetworkReturnError());
+		return false;
+	}
+
+#if 0 // TEST CRAP
+	if (! is_host)
+	{
+		if (! nlSetRemoteAddr(bcast_socket, &bcast_addr))
+		{
+			I_Printf("Network: Set address on broadcast socket failed.\n  Hawk error: %s", I_NetworkReturnError());
+
+			nlClose(bcast_socket);
+			bcast_socket = NL_INVALID;
+			return false;
+		}
+	}
 #endif
+
+	if (! nlGroupAddSocket(sk_group, bcast_socket))
+		I_Error("Unable to add BC to socket group\n");
+
+	return true;
+}
+
+void N_CloseBroadcastSocket(void)
+{
+	if (bcast_socket == NL_INVALID)
+		return;
+
+	nlGroupDeleteSocket(sk_group, bcast_socket);
+
+	nlClose(bcast_socket);
+	bcast_socket = NL_INVALID;
+}
+
+void N_SendBroadcastDiscovery(void)
+{
+	if (bcast_socket == NL_INVALID)
+		return;
+
+	pk.SetType("bd");
+
+	pk.hd().flags    = 0;
+	pk.hd().data_len = 0;
+	pk.hd().seq_out  = 0;
+	pk.hd().seq_recv = 0;
+
+	if (! pk.Write(bcast_socket))
+		I_Error("Unable to write BD packet.\n| HawkNL error: %s",
+			I_NetworkReturnError());
+
+	L_WriteDebug("- Network: Wrote BD packet\n");
 }
 
 static void GetPackets(bool do_delay)
@@ -656,9 +749,10 @@ static void GetPackets(bool do_delay)
 	if (! pk.Read(socks[0]))
 		return;
 
-	L_WriteDebug("GOT PACKET [%c%c] len = %d\n", pk.hd().type[0], pk.hd().type[1],
+	L_WriteDebug("- GOT PACKET [%c%c] len = %d\n", pk.hd().type[0], pk.hd().type[1],
 		pk.hd().data_len);
 
+#if 0
 	if (! pk.CheckType("Tg"))
 		return;
 
@@ -705,12 +799,14 @@ static void GetPackets(bool do_delay)
 
 //	DEV_ASSERT2((raw_cmd - tg.tic_cmds) == (1 + bots_each));
 
+#endif
+
 #endif  // USE_HAWKNL
 }
 
 static void DoSendTiccmds(int tic)
 {
-#ifdef USE_HAWKNL
+#ifdef USE_HAWKNL_XX
 	pk.Clear();  // FIXME: TESTING ONLY
 
 	pk.SetType("tc");
@@ -753,7 +849,7 @@ static void DoSendTiccmds(int tic)
 	
 	// FIXME: need an 'out_tic' for resends....
 
-#endif  // USE_HAWKNL
+#endif  // USE_HAWKNL_XX
 }
 
 bool N_BuildTiccmds(void)
