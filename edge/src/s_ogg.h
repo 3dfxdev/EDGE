@@ -2,7 +2,7 @@
 //  EDGE OGG Music Player (HEADER)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2005  The EDGE Team.
+//  Copyright (c) 2004-2007  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -22,10 +22,13 @@
 #define __OGGPLAYER__
 
 #include "i_defs.h"
-#include "i_defs_al.h"
 
 #include "epi/strings.h"
 #include <vorbis/vorbisfile.h>
+
+// Forward declarations
+class fx_data_c;
+
 
 class oggplayer_c
 {
@@ -43,30 +46,19 @@ public:
 	};
 
 private:
-	static const int OGG_BUFFERS = 16;
-	static const int BUFFER_SIZE = 16384;
 
-	FILE* ogg_file;
+	FILE *ogg_file;
 	datalump_s ogg_lump;
 	OggVorbis_File ogg_stream;
-	vorbis_info* vorbis_inf;
-
-	char *pcm_buf;
-
-	ALuint buffers[OGG_BUFFERS];
-	ALenum format;
+	vorbis_info *vorbis_inf;
 
 	bool looping;
 	int status;
 
 	epi::string_c GetError(int code);
 
-    static ALuint music_source;
-
-    bool CreateMusicSource();
-    void DeleteMusicSource();
 	void PostOpenInit(void);
-	bool StreamIntoBuffer(int buffer);
+	bool StreamIntoBuffer(fx_data_c *buf);
 
 public:
 	void SetVolume(float gain);
