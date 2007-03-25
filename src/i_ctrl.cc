@@ -25,6 +25,9 @@
 
 #include <ctype.h>
 
+#undef DEBUG_KB
+
+
 // FIXME: Combine all these SDL bool vars into an int/enum'd flags structure
 
 // Work around for alt-tabbing
@@ -186,11 +189,19 @@ void HandleKeyEvent(SDL_Event* ev)
 		event.type = ev_keyup;
 		E_PostEvent(&event);
 
+#ifdef DEBUG_KB
+		L_WriteDebug("   HandleKey: CAPS or NUMLOCK\n");
+#endif
 		return;
 	}
 
 	event.type = (ev->type == SDL_KEYDOWN) ? ev_keydown : ev_keyup;
 	event.value.key = TranslateSDLKey(sym);
+
+#ifdef DEBUG_KB
+	L_WriteDebug("   HandleKey: sym=%d scan=%d unicode=%d --> key=%d\n",
+			sym, ev->key.keysym.scancode, ev->key.keysym.unicode, event.value.key);
+#endif
 
 	if (event.value.key < 0)
 		return;
@@ -394,8 +405,11 @@ void I_ControlGetEvents(void)
 {
 	SDL_Event sdl_ev;
 
-	while(SDL_PollEvent(&sdl_ev))
+	while (SDL_PollEvent(&sdl_ev))
 	{
+#ifdef DEBUG_KB
+		L_WriteDebug("#I_ControlGetEvents: type=%d\n", sdl_ev.type);
+#endif
 		if (app_state & APP_STATE_ACTIVE)
 			ActiveEventProcess(&sdl_ev);
 		else
