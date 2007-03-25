@@ -59,11 +59,15 @@ private:
 	vorbis_info *vorbis_inf;
 	bool is_stereo;
 
+	s16_t *mono_buffer;
+
 	epi::string_c GetError(int code);
 
 	void PostOpenInit(void);
 
 	bool StreamIntoBuffer(fx_data_c *buf);
+
+	void ConvertToMono(s16_t *dest, const s16_t *src, int len);
 
 public:
 	void SetVolume(float gain);
