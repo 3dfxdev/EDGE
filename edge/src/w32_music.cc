@@ -57,8 +57,6 @@ static char errordesc[MUSICERRLEN];
 oggplayer_c *oggplayer = NULL;
 #endif
 
-int res_fx_handle = 0;
-
 //
 // I_StartupMusic
 //
@@ -168,18 +166,11 @@ int I_MusicPlayback(i_music_info_t *musdat, int type, bool looping,
 		case MUS_OGG:
 		{
 #ifdef USE_OGG
-            res_fx_handle = sound::ReserveFX(SNCAT_Music);
-            if (!res_fx_handle)
-            {
-                handle = -1;
-                break;
-            }
-
 			if (musdat->format == IMUSSF_DATA)
 				oggplayer->Open(musdat->info.data.ptr, musdat->info.data.size);
 			else // if (musdat->format == IMUSSF_FILE)
 				oggplayer->Open(musdat->info.file.name);
-				
+
 			oggplayer->Play(looping, gain);
 
 			handle = MAKEHANDLE(MUS_OGG, looping, 1);
@@ -299,7 +290,6 @@ void I_MusicKill(int *handle)
         { 
 #ifdef USE_OGG
             oggplayer->Close(); 
-            sound::UnreserveFX(res_fx_handle); // We no longer need this 
 #endif
             break; 
         }
