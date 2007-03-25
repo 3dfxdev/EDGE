@@ -26,14 +26,26 @@
 #ifndef __S_CACHE__
 #define __S_CACHE__
 
+typedef enum
+{
+	SBUF_Mono = 0,
+	SBUF_Stereo = 1,
+	SBUF_Interleaved = 2
+}
+sfx_buffer_mode_e;
+
+
 class fx_data_c
 {
 public:
 	int length; // number of samples
 	int freq;   // frequency
+	int mode;   // one of the SBUF_xxx values
 
-	// signed 16-bit samples.  For MONO sounds, both
-	// pointers refer to the same memory.
+	// signed 16-bit samples.
+	// For SBUF_Mono, both pointers refer to the same memory.
+	// For SBUF_Interleaved, only data_L is used and contains
+	// both channels, left samples before right samples.
 	s16_t *data_L;
 	s16_t *data_R;
 
@@ -45,7 +57,7 @@ public:
 	fx_data_c();
 	~fx_data_c();
 
-	void Allocate(int samples, bool stereo);
+	void Allocate(int samples, int buf_mode);
 	void Free();
 };
 
