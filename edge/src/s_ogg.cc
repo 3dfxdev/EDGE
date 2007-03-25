@@ -24,7 +24,7 @@
 
 #include "i_defs.h"
 #include "errorcodes.h"
-#include "oggplayer.h"
+#include "s_ogg.h"
 
 #include "epi/epi.h"
 #include "epi/errors.h"
@@ -35,7 +35,10 @@
 #include "s_cache.h"
 #include "s_blit.h"
 
-#define OGGV_BUFFER_SIZE  16384
+#define OGGV_NUM_SAMPLES  8192
+
+extern bool dev_stereo;  // FIXME: encapsulation
+
 
 //
 // oggplayer datalump operation functions
@@ -124,17 +127,15 @@ long oggplayer_ftell(void *datasource)
 }
 
 
-oggplayer_c::oggplayer_c()
-{
-	status = NOT_LOADED;
-	vorbis_inf = NULL;
-}
+//----------------------------------------------------------------------------
+
+oggplayer_c::oggplayer_c() : status(NOT_LOADED), vorbis_inf(NULL)
+{ }
 
 oggplayer_c::~oggplayer_c()
 {
 	Close();
 }
-
 
 epi::string_c oggplayer_c::GetError(int code)
 {
@@ -165,14 +166,12 @@ epi::string_c oggplayer_c::GetError(int code)
 
 void oggplayer_c::PostOpenInit()
 {
-	int result; 
-	
     vorbis_inf = ov_info(&ogg_stream, -1);
 
     if (vorbis_inf->channels == 1)
-        format = AL_FORMAT_MONO16;
+        is_stereo = false;
     else
-        format = AL_FORMAT_STEREO16;
+        is_stereo = true;
     
 ///---    alGenBuffers(OGG_BUFFERS, buffers);
 ///---    result = alGetError();
@@ -188,52 +187,57 @@ void oggplayer_c::PostOpenInit()
 
 bool oggplayer_c::StreamIntoBuffer(fx_data_c *buf)
 {
-#if EPI_BYTEORDER == EPI_LIL_ENDIAN
-	const int ogg_endian = 0;
-#else
-	const int ogg_endian = 1;
-#endif
+	int ogg_endian = (EPI_BYTEORDER == EPI_LIL_ENDIAN) ? 0 : 1;
 
-    int size = 0;
+    int samples = 0;
 
-    while (size < BUFFER_SIZE)
+    while (samples < OGGV_NUM_SAMPLES)
     {
 		int section;
-        int result = ov_read(&ogg_stream, 
-						pcm_buf + size, BUFFER_SIZE - size, 
-						ogg_endian, 2 /* bytes per sample */,
-						1 /* signed data */, &section);
+
+        int result = ov_read(
+				&ogg_stream, 
+				(char*) (buf->data_L + samples * (is_stereo ? 2 : 1)),
+				(OGGV_NUM_SAMPLES - samples) * (is_stereo ? 4 : 2),
+				ogg_endian,
+				2 /* bytes per sample */,
+				1 /* signed data */,
+				&section);
 
 		if (result == 0)  /* EOF */
-			break;
-
-		if (result > 0)
 		{
-            size += result;
-			continue;
+			if (looping)
+			{
+				ov_raw_seek(&ogg_stream, 0);
+				continue; // try again
+			}
+
+			break;
 		}
 
-		// Construct an error message
-		epi::string_c s;
+		if (result < 0)  /* ERROR */
+		{
+			// Construct an error message
+			epi::string_c s;
+				
+			s = "[oggplayer_c::StreamIntoBuffer] Failed: ";
+			s += GetError(result);
 			
-		s = "[oggplayer_c::StreamIntoBuffer] Failed: ";
-		s += GetError(result);
-		
-		throw epi::error_c(ERR_MUSIC, s.GetString());
-		/* NOT REACHED */
+			throw epi::error_c(ERR_MUSIC, s.GetString());
+			/* NOT REACHED */
+		}
+
+		samples += (result / (is_stereo ? 4 : 2));
     }
 
-    if (size == 0)
-        return false;
+    return (samples > 0);
 
-    alBufferData(buffer, format, pcm_buf, size, vorbis_inf->rate);
-    int al_err = alGetError();
-
-	if (al_err != AL_NO_ERROR)
-		throw epi::error_c(ERR_MUSIC,
-			"[oggplayer_c::StreamIntoBuffer] alBufferData() Failed");
-
-	return true;
+///---    alBufferData(buffer, format, pcm_buf, size, vorbis_inf->rate);
+///---    int al_err = alGetError();
+///---
+///---	if (al_err != AL_NO_ERROR)
+///---		throw epi::error_c(ERR_MUSIC,
+///---			"[oggplayer_c::StreamIntoBuffer] alBufferData() Failed");
 }
 
 //
@@ -256,8 +260,9 @@ void oggplayer_c::Open(const void *data, size_t size)
 	ogg_lump.data = new byte[size];
 	ogg_lump.pos = 0;
 	ogg_lump.size = size;
-	memcpy(ogg_lump.data, data, size);
-	
+
+	memcpy(ogg_lump.data, data, size);  // OMG THE PAIN!!
+
 	ov_callbacks CB;
 
 	CB.read_func  = oggplayer_dlread;
@@ -266,18 +271,19 @@ void oggplayer_c::Open(const void *data, size_t size)
 	CB.tell_func  = oggplayer_dltell; 
 
     int result = ov_open_callbacks((void*)&ogg_lump, &ogg_stream, NULL, 0, CB);
+
     if (result < 0)
     {
-		// Only time we have to kill this since OGG will deal with the handle
-		// if ov_open_callbacks() succeeded
-        oggplayer_dlclose((void*)&ogg_lump);	
+		// Only time we have to kill this since OGG will deal with
+		// the handle when ov_open_callbacks() succeeds
+        oggplayer_dlclose((void*)&ogg_lump);
   
 		// Construct an error message
 		epi::string_c s;
 
 		s = "[oggplayer_c::Open](DataLump) Failed: ";
 		s += GetError(result);
-		
+
 		throw epi::error_c(ERR_MUSIC, s.GetString());
     }
 
@@ -289,12 +295,12 @@ void oggplayer_c::Open(const void *data, size_t size)
 //
 // File Version
 //
-void oggplayer_c::Open(const char *name)
+void oggplayer_c::Open(const char *filename)
 {
 	if (status != NOT_LOADED)
 		Close();
 
-	ogg_file = fopen(name, "rb");
+	ogg_file = fopen(filename, "rb");
     if (!ogg_file)
     {
 		throw epi::error_c(ERR_MUSIC, 
@@ -309,13 +315,11 @@ void oggplayer_c::Open(const char *name)
 	CB.tell_func  = oggplayer_ftell; 
 
     int result = ov_open_callbacks((void*)ogg_file, &ogg_stream, NULL, 0, CB);
+
     if (result < 0)
     {
-		// Only time we have to close this since OGG will deal with the handle
-		// if ov_open() succeeded
         oggplayer_fclose(ogg_file);	
   
-		// Construct an error message
 		epi::string_c s;
 
 		s = "[oggplayer_c::Open](File) Failed: ";
@@ -338,10 +342,6 @@ void oggplayer_c::Close()
 	// Stop playback
 	Stop();
 
-	// Release Resource
-	alDeleteBuffers(OGG_BUFFERS, buffers);
-    DeleteMusicSource();
-
 	ov_clear(&ogg_stream);
 	
 	status = NOT_LOADED;
@@ -355,7 +355,6 @@ void oggplayer_c::Pause()
 	if (status != PLAYING)
 		return;
 
-	alSourcePause(music_source);
 	status = PAUSED;
 }
 
@@ -367,7 +366,6 @@ void oggplayer_c::Resume()
 	if (status != PAUSED)
 		return;
 
-	alSourcePlay(music_source);
 	status = PLAYING;
 }
 
@@ -378,82 +376,47 @@ void oggplayer_c::Play(bool loop, float gain)
 {
     if (status != NOT_LOADED && status != STOPPED)
         return;
-        
+
+	status = PLAYING;
+	looping = loop;
+
 	// Load up initial buffer data
 	Ticker();
-#if 0
-	for (;;)
-	{
-		fx_data_c *buf = S_QueueGetFreeBuffer(OGGV_BUFFER_SIZE, false);
-				
-		if (! buf)
-			break;
-
-		if (StreamIntoBuffer(buf))  // FIXME: !!! messed up
-			S_QueuePushBuffer(buf);
-		else
-			throw epi::error_c(ERR_MUSIC, "[oggplayer_c::Play] Failed to load into buffers");
-	}
-#endif
-
-	SetVolume(gain);
-
-	looping = loop;
-	status = PLAYING;
 }
 
-//
-// oggplayer_c::Stop()
-//
+
 void oggplayer_c::Stop()
 {
 	if (status != PLAYING && status != PAUSED)
 		return;
 
-	// Stop playback
 	S_QueueStop();
-	
+
 	status = STOPPED;
 }
 
-//
-// oggplayer_c::Ticker()
-//
+
 void oggplayer_c::Ticker()
 {
-	if (status != PLAYING)
-		return;
-
-	int result;
-	int processed;
-	bool active = true;
-
-	fx_data_c *buf;
-
-	for (;;)
+	while (status == PLAYING)
 	{
-		buf = S_QueueGetFreeBuffer(OGGV_BUFFER_SIZE, false);
+		fx_data_c *buf = S_QueueGetFreeBuffer(OGGV_NUM_SAMPLES, 
+				is_stereo ? SBUF_Interleaved : SBUF_Mono);
 
 		if (! buf)
 			break;
-		
-		active = StreamIntoBuffer(buf);
 
-		if (! active)
+		if (StreamIntoBuffer(buf))
 		{
-			// No more data. Seek to beginning and stop if not looping
-			if (! looping)
-			{
-				Stop();
-				break;
-			}
-
-			ov_raw_seek(&ogg_stream, 0);
+			S_QueueAddBuffer(buf, vorbis_inf->rate);
 		}
 		else
-			S_QueuePushBuffer(buf);
+		{
+			// finished playing
+			S_QueueReturnBuffer(buf);
+			Stop();
+		}
 	}
-
 }
 
 //--- editor settings ---
