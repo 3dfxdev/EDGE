@@ -36,8 +36,6 @@ public:
 	oggplayer_c();
 	~oggplayer_c();
 
-	enum status_e { NOT_LOADED, PLAYING, PAUSED, STOPPED };
-	
 	struct datalump_s
 	{
 		byte *data;
@@ -47,32 +45,40 @@ public:
 
 private:
 
+	enum status_e
+	{
+		NOT_LOADED, PLAYING, PAUSED, STOPPED
+	};
+	
+	int status;
+	bool looping;
+
 	FILE *ogg_file;
 	datalump_s ogg_lump;
 	OggVorbis_File ogg_stream;
 	vorbis_info *vorbis_inf;
-
-	bool looping;
-	int status;
+	bool is_stereo;
 
 	epi::string_c GetError(int code);
 
 	void PostOpenInit(void);
+
 	bool StreamIntoBuffer(fx_data_c *buf);
 
 public:
 	void SetVolume(float gain);
 
-	void Open(const void* data, size_t size);
-	void Open(const char* name);
+	void Open(const void *data, size_t size);
+	void Open(const char *filename);
+	void Close(void);
 
 	void Play(bool loop, float gain);
+	void Stop(void);
+
 	void Pause(void);
 	void Resume(void);
-	void Stop(void);
-	void Ticker(void);
 
-	void Close(void);
+	void Ticker(void);
 };
 
 #endif  // __OGGPLAYER__
