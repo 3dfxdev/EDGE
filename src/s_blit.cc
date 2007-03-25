@@ -293,7 +293,36 @@ static void MixStereo(mix_channel_c *chan, int *dest, int pairs)
 	DEV_ASSERT2(offset - chan->delta < chan->length);
 }
 
-static void MixChannel(mix_channel_c *chan, int pairs)
+static void MixInterleaved(mix_channel_c *chan, int *dest, int pairs)
+{
+	if (! dev_stereo)
+		I_Error("INTERNAL ERROR: tried to mix an interleaved buffer in MONO mode.\n");
+
+	DEV_ASSERT2(pairs > 0);
+
+	const s16_t *src_L = chan->data->data_L;
+
+	int *d_pos = dest;
+	int *d_end = d_pos + pairs * 2;
+
+	fixed22_t offset = chan->offset;
+
+	while (d_pos < d_end)
+	{
+		register fixed22_t pos = (offset >> 9) & ~1;
+
+		*d_pos++ += src_L[pos  ] * chan->volume_L;
+		*d_pos++ += src_L[pos|1] * chan->volume_R;
+
+		offset += chan->delta;
+	}
+
+	chan->offset = offset;
+
+	DEV_ASSERT2(offset - chan->delta < chan->length);
+}
+
+static void MixOneChannel(mix_channel_c *chan, int pairs)
 {
 	if (sfxpaused && chan->category >= SNCAT_Player)
 		return;
@@ -324,7 +353,9 @@ static void MixChannel(mix_channel_c *chan, int pairs)
 			DEV_ASSERT2(chan->offset + count * chan->delta >= chan->length);
 		}
 
-		if (dev_stereo)
+		if (chan->data->mode == SBUF_Interleaved)
+			MixInterleaved(chan, dest, count);
+		else if (dev_stereo)
 			MixStereo(chan, dest, count);
 		else
 			MixMono(chan, dest, count);
@@ -405,7 +436,9 @@ static void MixQueues(int pairs)
 			DEV_ASSERT2(chan->offset + count * chan->delta >= chan->length);
 		}
 
-		if (dev_stereo)
+		if (chan->data->mode == SBUF_Interleaved)
+			MixInterleaved(chan, dest, count);
+		else if (dev_stereo)
 			MixStereo(chan, dest, count);
 		else
 			MixMono(chan, dest, count);
@@ -462,7 +495,7 @@ void S_MixAllChannels(void *stream, int len)
 	{
 		if (mix_chan[i]->state == CHAN_Playing)
 		{
-			MixChannel(mix_chan[i], pairs);
+			MixOneChannel(mix_chan[i], pairs);
 		}
 	} 
 
@@ -715,7 +748,7 @@ void S_QueueStop(void)
 	SDL_UnlockAudio();
 }
 
-fx_data_c * S_QueueGetFreeBuffer(int samples, bool stereo)
+fx_data_c * S_QueueGetFreeBuffer(int samples, int buf_mode)
 {
 	if (nosound) return NULL;
 
@@ -728,7 +761,7 @@ fx_data_c * S_QueueGetFreeBuffer(int samples, bool stereo)
 			buf = free_qbufs.front();
 			free_qbufs.pop_front();
 
-			buf->Allocate(samples, stereo);
+			buf->Allocate(samples, buf_mode);
 		}
 			
 	}
@@ -739,8 +772,7 @@ fx_data_c * S_QueueGetFreeBuffer(int samples, bool stereo)
 
 void S_QueuePushBuffer(fx_data_c *buf, int freq)
 {
-	if (nosound) return;
-
+	DEV_ASSERT2(! nosound);
 	DEV_ASSERT2(buf);
 
 	SDL_LockAudio();
@@ -753,6 +785,18 @@ void S_QueuePushBuffer(fx_data_c *buf, int freq)
 		{
 			QueueNextBuffer();
 		}
+	}
+	SDL_UnlockAudio();
+}
+
+void S_QueueReturnBuffer(fx_data_c *buf)
+{
+	DEV_ASSERT2(! nosound);
+	DEV_ASSERT2(buf);
+
+	SDL_LockAudio();
+	{
+		free_qbufs.push_back(buf);
 	}
 	SDL_UnlockAudio();
 }
