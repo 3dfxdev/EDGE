@@ -17,12 +17,7 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-
-#ifdef MACOSX
-#include <SDL.h>
-#else
-#include <SDL/SDL.h>
-#endif
+#include "i_sdlinc.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,9 +27,9 @@
 #include <signal.h>
 
 #include <sys/types.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
 #include <sys/time.h>
+///--- #include <sys/stat.h>
+///--- #include <sys/ioctl.h>
 
 #include "m_argv.h"
 #include "m_misc.h"
