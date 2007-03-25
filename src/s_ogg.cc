@@ -130,11 +130,16 @@ long oggplayer_ftell(void *datasource)
 //----------------------------------------------------------------------------
 
 oggplayer_c::oggplayer_c() : status(NOT_LOADED), vorbis_inf(NULL)
-{ }
+{
+	mono_buffer = new s16_t[OGGV_NUM_SAMPLES * 2];
+}
 
 oggplayer_c::~oggplayer_c()
 {
 	Close();
+
+	delete[] mono_buffer;
+	mono_buffer = NULL;
 }
 
 epi::string_c oggplayer_c::GetError(int code)
@@ -195,16 +200,23 @@ bool oggplayer_c::StreamIntoBuffer(fx_data_c *buf)
     {
 		int section;
 
-        int result = ov_read(
-				&ogg_stream, 
-				(char*) (buf->data_L + samples * (is_stereo ? 2 : 1)),
+		s16_t *data_buf;
+
+		if (is_stereo and !dev_stereo)
+			data_buf = mono_buffer;
+		else
+			data_buf = buf->data_L + samples * (is_stereo ? 2 : 1);
+
+        int got_size = ov_read(
+				&ogg_stream,
+				(char *)data_buf,
 				(OGGV_NUM_SAMPLES - samples) * (is_stereo ? 4 : 2),
 				ogg_endian,
 				2 /* bytes per sample */,
 				1 /* signed data */,
 				&section);
 
-		if (result == 0)  /* EOF */
+		if (got_size == 0)  /* EOF */
 		{
 			if (looping)
 			{
@@ -215,19 +227,22 @@ bool oggplayer_c::StreamIntoBuffer(fx_data_c *buf)
 			break;
 		}
 
-		if (result < 0)  /* ERROR */
+		if (got_size < 0)  /* ERROR */
 		{
 			// Construct an error message
 			epi::string_c s;
 				
 			s = "[oggplayer_c::StreamIntoBuffer] Failed: ";
-			s += GetError(result);
+			s += GetError(got_size);
 			
 			throw epi::error_c(ERR_MUSIC, s.GetString());
 			/* NOT REACHED */
 		}
 
-		samples += (result / (is_stereo ? 4 : 2));
+		if (is_stereo and !dev_stereo)
+			ConvertToMono(buf->data_L + samples, mono_buffer, got_size / 4);
+
+		samples += (got_size / (is_stereo ? 4 : 2));
     }
 
     return (samples > 0);
@@ -240,12 +255,20 @@ bool oggplayer_c::StreamIntoBuffer(fx_data_c *buf)
 ///---			"[oggplayer_c::StreamIntoBuffer] alBufferData() Failed");
 }
 
-//
-// oggplayer_c::SetVolume()
-//
-void oggplayer_c::SetVolume(float gain) // FIXME: remove
+void oggplayer_c::ConvertToMono(s16_t *dest, const s16_t *src, int len)
 {
+	const s16_t *s_end = src + len*2;
+
+	for (; src < s_end; src += 2)
+	{
+		// compute average of samples
+		*dest++ = ( (int)src[0] + (int)src[1] ) >> 1;
+	}
 }
+
+void oggplayer_c::SetVolume(float gain) // FIXME: remove
+{ }
+
 
 //
 // oggplayer_c::Open()
@@ -401,7 +424,7 @@ void oggplayer_c::Ticker()
 	while (status == PLAYING)
 	{
 		fx_data_c *buf = S_QueueGetFreeBuffer(OGGV_NUM_SAMPLES, 
-				is_stereo ? SBUF_Interleaved : SBUF_Mono);
+				(is_stereo && dev_stereo) ? SBUF_Interleaved : SBUF_Mono);
 
 		if (! buf)
 			break;
