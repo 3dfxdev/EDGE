@@ -770,7 +770,7 @@ fx_data_c * S_QueueGetFreeBuffer(int samples, int buf_mode)
 	return buf;
 }
 
-void S_QueuePushBuffer(fx_data_c *buf, int freq)
+void S_QueueAddBuffer(fx_data_c *buf, int freq)
 {
 	DEV_ASSERT2(! nosound);
 	DEV_ASSERT2(buf);
