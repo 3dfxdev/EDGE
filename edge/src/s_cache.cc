@@ -117,11 +117,13 @@ static void Load_DOOM(fx_data_c *buf, const byte *lump, int length)
 	if (buf->freq < 8000 || buf->freq >= 44100)
 		I_Error("Sound Load: weird frequency: %d Hz\n", buf->freq);
 
+	length -= 8;
+
 	buf->Allocate(length, SBUF_Mono);
 
 	// convert to signed 16-bit format
 	const byte *src = lump + 8;
-	const byte *s_end = src + (length - 8);
+	const byte *s_end = src + length;
 
 	s16_t *dest = buf->data_L;
 
