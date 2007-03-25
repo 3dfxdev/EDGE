@@ -29,7 +29,8 @@ Bugs fixed
 - autorun is remembered in the config file again.
 - fixed some missing mid-masked textures (Eternal MAP28).
 - smoking tracers sometimes wouldn't produce smoke.
-- revenant missiles fixed to match the original.
+- Revenant missiles fixed to match the original.
+- Archvile flame fixed to play the crackle sounds.
 - fixed stair-building bug (e.g. TNT MAP16).
 - some problems handling the mouse-wheel were fixed.
 - rotated automap could omit parts of a map, fixed.
@@ -60,6 +61,8 @@ Features removed / changed
 
 - the "CONSTANT" dynamic lighting type (in DDF) was removed.
 
+- the LINES.DDF/SECTORS.DDF AMBIENT_SOUND command was removed.
+
 - replaced the [DOG] sprites and sounds in EDGE.WAD with a
   colormapped demon, due to copyright/license concerns.
 
@@ -71,9 +74,6 @@ General improvements
   to specify filenames (wad files etc).  Everything before the first
   option is considered a filename to add.  This allows you to drag a
   (self-contained) WAD onto the EDGE executable to play it.
-
-+ OpenAL as the new sound system.  OpenAL is a 3D audio library which
-  can take advantage of hardware sound mixing.
 
 + support for OGG/Vorbis Music playing.  OGG/Vorbis is music format
   similar to MP3, but is free from patents and does not require any
