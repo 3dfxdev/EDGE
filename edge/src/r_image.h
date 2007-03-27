@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __W_IMAGE__
-#define __W_IMAGE__
+#ifndef __R_IMAGE__
+#define __R_IMAGE__
 
 #include "dm_type.h"
 #include "ddf_image.h"
@@ -162,8 +162,8 @@ const image_t ** W_ImageGetUserSprites(int *count);
 // internal routines -- only needed by rgl_wipe.c
 int W_MakeValidSize(int value);
 
-#endif  // __W_IMAGE__
 
+#endif  // __R_IMAGE__
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

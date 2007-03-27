@@ -23,17 +23,17 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __W_IMAGE_OGL__
-#define __W_IMAGE_OGL__
+#ifndef __R_IMAGE_OGL__
+#define __R_IMAGE_OGL__
 
-#include "w_image.h"
+#include "r_image.h"
 
 void W_LockImagesOGL(void);
 void W_UnlockImagesOGL(void);
 
 GLuint W_ImageGetOGL(const cached_image_t *c);
 
-#endif  // __W_IMAGE_OGL__
+#endif  // __R_IMAGE_OGL__
 
 
 //--- editor settings ---

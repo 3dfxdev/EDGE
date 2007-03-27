@@ -34,7 +34,7 @@
 
 #include "i_defs.h"
 #include "i_defs_gl.h"
-#include "w_image.h"
+#include "r_image.h"
 
 #include "e_search.h"
 #include "e_main.h"
