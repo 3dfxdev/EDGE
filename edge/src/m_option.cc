@@ -177,6 +177,9 @@ static char Huds[]      = "Full/None/Overlay";
 static char MipMaps[]   = "None/Good/Best";
 static char Details[]   = "Low/Medium/High";
 
+// for CVar enums
+const char WIPE_EnumStr[] = "none/melt/crossfade/pixelfade/top/bottom/left/right/spooky/doors";
+
 static char SampleRates[] = "11025 Hz/16000 Hz/22050 Hz/32000 Hz/44100 Hz";
 static char SoundBits[]   = "8 bit/16 bit";
 static char StereoNess[]  = "Off/On/Swapped";
