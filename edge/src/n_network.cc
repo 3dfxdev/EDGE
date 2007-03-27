@@ -797,7 +797,7 @@ static void GetPackets(bool do_delay)
 		p->in_tic++;
 	}
 
-//	DEV_ASSERT2((raw_cmd - tg.tic_cmds) == (1 + bots_each));
+//	SYS_ASSERT((raw_cmd - tg.tic_cmds) == (1 + bots_each));
 
 #endif
 
@@ -816,7 +816,7 @@ static void DoSendTiccmds(int tic)
 
     ticcmd_proto_t& tc = pk.tc_p();
 
-	DEV_ASSERT2(tic >= gametic);
+	SYS_ASSERT(tic >= gametic);
 
 	tc.gametic = gametic;
 	tc.offset  = tic - gametic;
@@ -837,7 +837,7 @@ static void DoSendTiccmds(int tic)
 		pk.hd().data_len += sizeof(ticcmd_t);
 	}
 
-	DEV_ASSERT2((raw_cmd - tc.tic_cmds) == (1 + bots_each));
+	SYS_ASSERT((raw_cmd - tc.tic_cmds) == (1 + bots_each));
 
     tc.ByteSwap();
     tc.ByteSwapCmds((1 + bots_each) * tc.count);
@@ -996,7 +996,7 @@ nowtime, nowtime - realtics, realtics);
 
 	// this shouldn't happen, since we can only run a gametic when
 	// the ticcmds for _all_ players have arrived (hence lowtic >= gametic);
-	DEV_ASSERT2(availabletics >= 0);
+	SYS_ASSERT(availabletics >= 0);
 
 	// decide how many tics to run
 	int counts;
@@ -1021,7 +1021,7 @@ nowtime, nowtime - realtics, realtics);
 
 		lowtic = DetermineLowTic();
 
-		DEV_ASSERT2(lowtic >= gametic);
+		SYS_ASSERT(lowtic >= gametic);
 
 		// don't stay in here forever -- give the menu a chance to work
 		if (wait_tics > TICRATE/2)

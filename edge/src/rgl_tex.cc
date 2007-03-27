@@ -684,7 +684,7 @@ static byte *Unpacker(const byte *src, int w, int h)
 			*dest++ = src[1];
 	}
 
-	DEV_ASSERT2((dest - buffer) == (w * h));
+	SYS_ASSERT((dest - buffer) == (w * h));
 
 	return buffer;
 }

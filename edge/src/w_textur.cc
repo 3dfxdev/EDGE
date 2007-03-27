@@ -244,7 +244,7 @@ void W_InitTextures(void)
 
 	I_Printf("W_InitTextures...\n");
 
-	DEV_ASSERT2(tex_sets.GetSize() == 0);
+	SYS_ASSERT(tex_sets.GetSize() == 0);
 
 	// iterate over each file, creating our sets of textures
 	// -ACB- 1998/09/09 Removed the Doom II SkyName change: unnecessary and not DDF.
@@ -384,8 +384,8 @@ int W_FindTextureSequence(const char *start, const char *end,
 //
 const char *W_TextureNameInSet(int set, int offset)
 {
-	DEV_ASSERT2(0 <= set && set < tex_sets.GetSize());
-	DEV_ASSERT2(0 <= offset && offset < tex_sets[set]->num_tex);
+	SYS_ASSERT(0 <= set && set < tex_sets.GetSize());
+	SYS_ASSERT(0 <= offset && offset < tex_sets[set]->num_tex);
 
 	return tex_sets[set]->textures[offset]->name;
 }

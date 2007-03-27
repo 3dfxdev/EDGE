@@ -445,7 +445,7 @@ humdinger_c *HumDingerInit(void)
 	//            Using zero gives us the highest priority device.
 
 	Humidity::output_device_c *dev = dev_list[0];
-	DEV_ASSERT2(dev);
+	SYS_ASSERT(dev);
 
 	// !!! FIXME: some control over stereoness, sample rate
 

@@ -306,12 +306,12 @@ static void TextWrite(void)
 	if (count < 0)
 		count = 0;
 
-	DEV_ASSERT2(finale_hack_style);
+	SYS_ASSERT(finale_hack_style);
 	HL_InitTextLine(&L, 10, cy, finale_hack_style, 0);
 
 	for (;;)
 	{
-		DEV_ASSERT2(finale);
+		SYS_ASSERT(finale);
 
 		if (count == 0 || !(*ch))
 		{
@@ -370,7 +370,7 @@ static void CAST_RangeAttack(const atkdef_c *range)
 {
 	sfx_t *sfx = NULL;
 
-	DEV_ASSERT2(range);
+	SYS_ASSERT(range);
 
 	if (range->attackstyle == ATK_SHOT)
 	{
@@ -462,7 +462,7 @@ static void CastInitNew(int num)
 	castonmelee = 0;
 	castattacking = false;
 
-	DEV_ASSERT2(castorder->chase_state);  // checked in ddf_mobj.c
+	SYS_ASSERT(castorder->chase_state);  // checked in ddf_mobj.c
 	CastSetState(castorder->chase_state);
 }
 
@@ -567,7 +567,7 @@ static void CastSkip(void)
 		caststate = &states[castorder->overkill_state];
 	else
 	{
-		DEV_ASSERT2(castorder->death_state);  // checked in ddf_mobj.c
+		SYS_ASSERT(castorder->death_state);  // checked in ddf_mobj.c
 		caststate = &states[castorder->death_state];
 	}
 

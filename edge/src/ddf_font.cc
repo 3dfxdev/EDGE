@@ -182,7 +182,7 @@ void DDF_FontCleanUp(void)
 //
 static void DDF_FontGetType(const char *info, void *storage)
 {
-	DEV_ASSERT2(storage);
+	SYS_ASSERT(storage);
 
 	fonttype_e *type = (fonttype_e *) storage;
 

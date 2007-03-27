@@ -102,7 +102,7 @@ void R_ComputeSkyHeights(void)
 		sec1 = ld->frontsector;
 		sec2 = ld->backsector;
 
-		DEV_ASSERT2(sec1 && sec2);
+		SYS_ASSERT(sec1 && sec2);
 
 		if (sec1 == sec2)
 			continue;

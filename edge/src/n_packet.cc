@@ -111,8 +111,8 @@ bool packet_c::Read(NLsocket sock)
 
 bool packet_c::Write(NLsocket sock)
 {
-	DEV_ASSERT2(hd().type[0] != 0 && hd().type[1] != 0);
-	DEV_ASSERT2(hd().data_len >= 0 && CanHold(hd().data_len));
+	SYS_ASSERT(hd().type[0] != 0 && hd().type[1] != 0);
+	SYS_ASSERT(hd().data_len >= 0 && CanHold(hd().data_len));
 
 	int len = HEADER_LEN + hd().data_len;
 
@@ -142,7 +142,7 @@ bool packet_c::Write(NLsocket sock)
 
 void packet_c::SetType(const char *str)
 {
-	DEV_ASSERT2(strlen(str) == 2);
+	SYS_ASSERT(strlen(str) == 2);
 
 	hd().type[0] = str[0];
 	hd().type[1] = str[1];
@@ -150,7 +150,7 @@ void packet_c::SetType(const char *str)
 
 bool packet_c::CheckType(const char *str)
 {
-	DEV_ASSERT2(strlen(str) == 2);
+	SYS_ASSERT(strlen(str) == 2);
 
 	return (hd().type[0] == str[0] && hd().type[1] == str[1]);
 }

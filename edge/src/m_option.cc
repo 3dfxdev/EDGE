@@ -851,7 +851,7 @@ void M_OptDrawer()
 	unsigned int k;
 
 	style_c *style = curr_menu->style_var[0];
-	DEV_ASSERT2(style);
+	SYS_ASSERT(style);
 
 	style->DrawBackground();
 
@@ -1351,7 +1351,7 @@ static void M_VideoOptions(int keypressed)
 static void M_ResolutionOptions(int keypressed)
 {
 	// Get a depth mask for resolution selection
-	DEV_ASSERT2(SCREENBITS == 16 || SCREENBITS == 32);
+	SYS_ASSERT(SCREENBITS == 16 || SCREENBITS == 32);
 
 	int i = scrmodelist.Find(SCREENWIDTH, 
 							 SCREENHEIGHT,

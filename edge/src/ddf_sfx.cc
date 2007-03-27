@@ -215,7 +215,7 @@ void DDF_MainLookupSound(const char *info, void *storage)
 {
 	sfx_t **dest = (sfx_t **)storage;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	*dest = sfxdefs.GetEffect(info);
 }
@@ -364,7 +364,7 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 		si = ITERATOR_TO_TYPE(last, sfxdef_c*);
 		r = &si->normal;
 
-		DEV_ASSERT2(r->num == 1);
+		SYS_ASSERT(r->num == 1);
 
 		return r;
 	}
@@ -386,7 +386,7 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 			r->sounds[r->num++] = it.GetPos();
 	}
 
-	DEV_ASSERT2(r->num == count);
+	SYS_ASSERT(r->num == count);
 
 	return r;
 }

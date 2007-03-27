@@ -295,7 +295,7 @@ static void DrawLevelFinished(void)
 	float y = WI_TITLEY;
 
 	// draw <LevelName> 
-	DEV_ASSERT2(lnames[0]);
+	SYS_ASSERT(lnames[0]);
 
 	float w = IM_WIDTH(lnames[0]);
 	float h = IM_HEIGHT(lnames[0]);
@@ -574,7 +574,7 @@ static int DeathmatchScore(int pl)
 
 static void InitDeathmatchStats(void)
 {
-	DEV_ASSERT2(NUM_SHOWN <= MAXPLAYERS);
+	SYS_ASSERT(NUM_SHOWN <= MAXPLAYERS);
 
 	state = StatCount;
 	acceleratestage = false;
@@ -745,7 +745,7 @@ static int CoopScore(int pl)
 
 static void InitCoopStats(void)
 {
-	DEV_ASSERT2(NUM_SHOWN <= MAXPLAYERS);
+	SYS_ASSERT(NUM_SHOWN <= MAXPLAYERS);
 
 	state = StatCount;
 	acceleratestage = false;

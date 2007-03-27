@@ -238,8 +238,8 @@ bool SV_LoadStruct(void *base, savestruct_t *info)
 			continue;
 		}
 
-		DEV_ASSERT2(actual->field_get);
-		DEV_ASSERT2(info->counterpart);
+		SYS_ASSERT(actual->field_get);
+		SYS_ASSERT(info->counterpart);
 
 		offset = actual->offset_p - info->counterpart->dummy_base;
 
@@ -289,7 +289,7 @@ static bool SV_LoadSTRU(void)
 	// make the counterparts refer to each other
 	if (S->counterpart)
 	{
-		DEV_ASSERT2(S->counterpart->counterpart == NULL);
+		SYS_ASSERT(S->counterpart->counterpart == NULL);
 		S->counterpart->counterpart = S;
 	}
 
@@ -349,7 +349,7 @@ static bool SV_LoadARRY(void)
 	// make the counterparts refer to each other
 	if (A->counterpart)
 	{
-		DEV_ASSERT2(A->counterpart->counterpart == NULL);
+		SYS_ASSERT(A->counterpart->counterpart == NULL);
 		A->counterpart->counterpart = A;
 	}
 

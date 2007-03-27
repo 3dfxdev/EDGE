@@ -146,7 +146,7 @@ static void SV_SaveDATA(savearray_t *A)
 	{
 		sv_current_elem = (* A->get_elem)(i);
 
-		DEV_ASSERT2(sv_current_elem);
+		SYS_ASSERT(sv_current_elem);
 
 		SV_SaveStruct(sv_current_elem, A->sdef);
 	}

@@ -342,8 +342,8 @@ int scrmodelist_c::FindWithWindowModeBias(int w, int h, int bpp, bool windowed)
 //
 int scrmodelist_c::Prev(int idx, scrmodelist_c::incrementtype_e type)
 {
-    DEV_ASSERT2(type == RES || type == DEPTH || type == WINDOWMODE);
-    DEV_ASSERT2(idx >= 0 && idx < GetSize());
+    SYS_ASSERT(type == RES || type == DEPTH || type == WINDOWMODE);
+    SYS_ASSERT(idx >= 0 && idx < GetSize());
 
     scrmode_t *orig_sm = GetAt(idx);
     int sel_mode = -1;
@@ -438,8 +438,8 @@ int scrmodelist_c::Prev(int idx, scrmodelist_c::incrementtype_e type)
 //
 int scrmodelist_c::Next(int idx, scrmodelist_c::incrementtype_e type)
 {
-    DEV_ASSERT2(type == RES || type == DEPTH || type == WINDOWMODE);
-    DEV_ASSERT2(idx >= 0 && idx < GetSize());
+    SYS_ASSERT(type == RES || type == DEPTH || type == WINDOWMODE);
+    SYS_ASSERT(idx >= 0 && idx < GetSize());
 
     scrmode_t *orig_sm = GetAt(idx);
     int sel_mode = -1;

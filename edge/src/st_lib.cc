@@ -111,7 +111,7 @@ static void DrawNum(st_number_t * n)
 	}
 	else
 	{
-		DEV_ASSERT2(num > 0);
+		SYS_ASSERT(num > 0);
 
 		// draw the new number
 		for (; num && (numdigits > 0); num /= 10, numdigits--)

@@ -655,7 +655,7 @@ static void M_DrawSaveLoadCommon(int row, int row2, style_c *style)
 						  "NEXT >");
  
 	info = ex_slots + itemOn;
-	DEV_ASSERT2(0 <= itemOn && itemOn < SAVE_SLOTS);
+	SYS_ASSERT(0 <= itemOn && itemOn < SAVE_SLOTS);
 
 	if (saveStringEnter || info->empty || info->corrupt)
 		return;
@@ -1621,7 +1621,7 @@ bool M_Responder(event_t * ev)
 			s += ch;
 			
 			// Set the input_string only if fits
-			DEV_ASSERT2(dialog_style);
+			SYS_ASSERT(dialog_style);
 			if (dialog_style->fonts[1]->StringWidth(s.GetString()) < 300)
 				input_string.Set(s.GetString());
 		}
@@ -1662,7 +1662,7 @@ bool M_Responder(event_t * ev)
 
 			default:
 				ch = toupper(ch);
-				DEV_ASSERT2(save_style);
+				SYS_ASSERT(save_style);
 				if (ch >= 32 && ch <= 127 &&
 					saveCharIndex < SAVESTRINGSIZE - 1 &&
 					save_style->fonts[1]->StringWidth(ex_slots[save_slot].desc) <
@@ -1948,7 +1948,7 @@ void M_Drawer(void)
 			input += "_";
 		
 		// Calc required height
-		DEV_ASSERT2(dialog_style);
+		SYS_ASSERT(dialog_style);
 		s = msg + input;
 		y = 100 - (dialog_style->fonts[0]->StringLines(s.GetString()) *
 			dialog_style->fonts[0]->NominalHeight()/ 2);
@@ -2020,7 +2020,7 @@ void M_Drawer(void)
 	}
 
 	style_c *style = currentMenu->style_var[0];
-	DEV_ASSERT2(style);
+	SYS_ASSERT(style);
 
 	style->DrawBackground();
 	

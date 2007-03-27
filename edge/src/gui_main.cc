@@ -247,8 +247,8 @@ bool GUI_MainResponder(event_t * ev)
 		}
 		else
 		{
-			//      DEV_ASSERT2(ev->type == gev_keydown);
-			DEV_ASSERT2(ev->type == ev_keydown);
+			//      SYS_ASSERT(ev->type == gev_keydown);
+			SYS_ASSERT(ev->type == ev_keydown);
 			ge.type = gev_keydown;
 		}
 

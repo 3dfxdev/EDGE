@@ -121,14 +121,14 @@ void M_DirtyRegion(int x1, int y1, int x2, int y2)
 	if (dirty_region_whole)
 		return;
 
-	DEV_ASSERT2(x1 >= 0);  DEV_ASSERT2(y1 >= 0);
-	DEV_ASSERT2(x1 <= x2); DEV_ASSERT2(y1 <= y2);
+	SYS_ASSERT(x1 >= 0);  SYS_ASSERT(y1 >= 0);
+	SYS_ASSERT(x1 <= x2); SYS_ASSERT(y1 <= y2);
 
 	x1 /= DIRT_X; y1 /= DIRT_Y;
 	x2 /= DIRT_X; y2 /= DIRT_Y;
 
-	DEV_ASSERT2(x2 < DIRT_REG_W); 
-	DEV_ASSERT2(y2 < DIRT_REG_H);
+	SYS_ASSERT(x2 < DIRT_REG_W); 
+	SYS_ASSERT(y2 < DIRT_REG_H);
 
 	for (; y1 <= y2; y1++)
 	{

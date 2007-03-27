@@ -87,7 +87,7 @@ void RGL_1DOcclusionClear(void)
 //
 void RGL_1DOcclusionSet(angle_t low, angle_t high)
 {
-	DEV_ASSERT2((angle_t)(high - low) < ANG180);
+	SYS_ASSERT((angle_t)(high - low) < ANG180);
 
 	unsigned int low_b, high_b;
 
@@ -154,7 +154,7 @@ if (rgl_1d_debug)
 //
 bool RGL_1DOcclusionTest(angle_t low, angle_t high)
 {
-	DEV_ASSERT2((angle_t)(high - low) < ANG180);
+	SYS_ASSERT((angle_t)(high - low) < ANG180);
 
 	unsigned int low_b, high_b;
 
@@ -230,7 +230,7 @@ void RGL_1DOcclusionPush(void)
 
 void RGL_1DOcclusionPop(void)
 {
-	DEV_ASSERT2(occ_stack != NULL);
+	SYS_ASSERT(occ_stack != NULL);
 
 	saved_occbuf_t *cur = occ_stack;
 	occ_stack = occ_stack->link;

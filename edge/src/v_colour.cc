@@ -488,7 +488,7 @@ void TransformColourmap(colourmap_c *colmap)
 			colmap->font_colour = colmap->gl_colour;
 		else
 		{
-			DEV_ASSERT2(table);
+			SYS_ASSERT(table);
 
 			// for fonts, we only care about the GRAY colour
 			int r = playpal_data[0][table[pal_gray239]][0] * 255 / 239;
@@ -505,7 +505,7 @@ void TransformColourmap(colourmap_c *colmap)
 
 	if (colmap->gl_colour == RGB_NO_VALUE)
 	{
-		DEV_ASSERT2(table);
+		SYS_ASSERT(table);
 
 		int r, g, b;
 
@@ -551,7 +551,7 @@ void V_GetColmapRGB(const colourmap_c *colmap,
 	rgbcol_t col = /* alt  ? colmap->alt_colour : */
 	               font ? colmap->font_colour : colmap->gl_colour;
 
-	DEV_ASSERT2(col != RGB_NO_VALUE);
+	SYS_ASSERT(col != RGB_NO_VALUE);
 
 	(*r) = GAMMA_CONV((col >> 16) & 0xFF) / 255.0f;
 	(*g) = GAMMA_CONV((col >>  8) & 0xFF) / 255.0f;

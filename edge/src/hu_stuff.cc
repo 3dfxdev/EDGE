@@ -281,7 +281,7 @@ void HU_Drawer(void)
 			HL_ClearTextLine(&textlinestats);
 
 			player_t *p = players[displayplayer];
-			DEV_ASSERT2(p);
+			SYS_ASSERT(p);
 
 			// Convert angle & x,y co-ordinates so they are easier to read.
 			// -KM- 1998/11/25 Added z co-ordinate

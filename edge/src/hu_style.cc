@@ -143,7 +143,7 @@ void style_container_c::CleanupObject(void *obj)
 //
 style_c* style_container_c::Lookup(styledef_c *def)
 {
-	DEV_ASSERT2(def);
+	SYS_ASSERT(def);
 
 	for (epi::array_iterator_c it = GetIterator(0); it.IsValid(); it++)
 	{
