@@ -396,15 +396,15 @@ void I_ShutdownGraphics(void);
 //  ASSERTION macros.
 //--------------------------------------------------------
 
-// -ES- 2000/02/07 DEV_ASSERT fails if the condition is false.
+// -ES- 2000/02/07 SYS_ASSERT_MSG fails if the condition is false.
 // The second parameter is the entire I_Error argument list, surrounded
 // by parentheses (which makes it possible to use an arbitrary number of
 // parameters even without GCC)
 #ifdef DEVELOPERS
-#define DEV_ASSERT(cond, arglist)  \
+#define SYS_ASSERT_MSG(cond, arglist)  \
 	((cond)?(void) 0 : I_Error arglist)
 #else
-#define DEV_ASSERT(cond, arglist)  ((void) 0)
+#define SYS_ASSERT_MSG(cond, arglist)  ((void) 0)
 #endif
 
 // -AJA- 2000/02/13: variation on a theme...
@@ -414,6 +414,14 @@ void I_ShutdownGraphics(void);
 #cond , __LINE__, __FILE__))
 #else
 #define DEV_ASSERT2(cond)  ((void) 0)
+#endif
+
+#ifdef DEVELOPERS
+#define SYS_ASSERT(cond)  \
+	((cond)? (void)0:I_Error("Assertion `%s' failed at line %d of %s.\n",  \
+#cond , __LINE__, __FILE__))
+#else
+#define SYS_ASSERT(cond)  ((void) 0)
 #endif
 
 #ifdef DEVELOPERS

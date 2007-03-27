@@ -146,8 +146,8 @@ bool DEM_CloseReadFile(void)
 {
 	DEV_ASSERT2(read_fp);
 
-	DEV_ASSERT(chunk_stack_size == 0,
-		("DEM_CloseReadFile: Too many Pushes (missing Pop somewhere).\n"));
+	if (chunk_stack_size != 0)
+		I_Error("DEM_CloseReadFile: Too many Pushes (missing Pop somewhere).\n");
 
 	// fclose(read_fp);
 
@@ -259,8 +259,8 @@ unsigned char DEM_GetByte(void)
 //
 bool DEM_PushReadChunk(const char *id)
 {
-	DEV_ASSERT(chunk_stack_size < MAX_CHUNK_DEPTH,
-		("DEM_PushReadChunk: Too many Pushes (missing Pop somewhere)."));
+	if (chunk_stack_size >= MAX_CHUNK_DEPTH)
+		I_Error("DEM_PushReadChunk: Too many Pushes (missing Pop somewhere).\n");
 
 	// read chunk length
 	unsigned int file_len = DEM_GetInt();
@@ -310,8 +310,8 @@ bool DEM_PushReadChunk(const char *id)
 //
 bool DEM_PopReadChunk(void)
 {
-	DEV_ASSERT(chunk_stack_size > 0, 
-		("DEM_PopReadChunk: Too many Pops (missing Push somewhere)."));
+	if (chunk_stack_size <= 0)
+		I_Error("DEM_PopReadChunk: Too many Pops (missing Push somewhere).\n");
 
 	chunk_t *cur = &chunk_stack[chunk_stack_size - 1];
 
@@ -394,8 +394,8 @@ bool DEM_CloseWriteFile(void)
 {
 	DEV_ASSERT2(write_fp);
 
-	DEV_ASSERT(chunk_stack_size == 0,
-		("DEM_CloseWriteFile: Too many Pushes (missing Pop somewhere).\n"));
+	if (chunk_stack_size != 0)
+		I_Error("DEM_CloseWriteFile: Too many Pushes (missing Pop somewhere).\n");
 
 	// write trailer
 
@@ -418,8 +418,8 @@ bool DEM_CloseWriteFile(void)
 //
 bool DEM_PushWriteChunk(const char *id)
 {
-	DEV_ASSERT(chunk_stack_size < MAX_CHUNK_DEPTH,
-		("DEM_PushWriteChunk: Too many Pushes (missing Pop somewhere)."));
+	if (chunk_stack_size >= MAX_CHUNK_DEPTH)
+		I_Error("DEM_PushWriteChunk: Too many Pushes (missing Pop somewhere).\n");
 
 	// create new chunk_t
 	chunk_t *cur = &chunk_stack[chunk_stack_size];
@@ -445,8 +445,8 @@ bool DEM_PopWriteChunk(void)
 	int i;
 	int len;
 
-	DEV_ASSERT(chunk_stack_size > 0, 
-		("DEM_PopWriteChunk: Too many Pops (missing Push somewhere)."));
+	if (chunk_stack_size <= 0)
+		I_Error("DEM_PopWriteChunk: Too many Pops (missing Push somewhere).\n");
 
 	chunk_t *cur = &chunk_stack[chunk_stack_size - 1];
 

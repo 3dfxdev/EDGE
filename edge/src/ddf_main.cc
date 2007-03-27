@@ -102,7 +102,8 @@ void DDF_Error(const char *err, ...)
 	}
 
 	// check for buffer overflow
-	DEV_ASSERT(buffer[2047] == 0, ("Buffer overflow in DDF_Error"));
+	if (buffer[2047] != 0)
+		I_Error("Buffer overflow in DDF_Error\n");
   
 	// add a blank line for readability under DOS/Linux.
 	I_Printf("\n");

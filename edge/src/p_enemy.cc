@@ -524,8 +524,7 @@ void P_LookForShootSpots(const mobjtype_c *spot_type)
 			brain_spots.targets[i++] = cur;
 	}
 
-	DEV_ASSERT(i == brain_spots.number, 
-		("P_LookForShootSpots miscount: %d != %d", i, brain_spots.number));
+	SYS_ASSERT(i == brain_spots.number);
 }
 
 //

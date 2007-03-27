@@ -1025,7 +1025,7 @@ static void HitSlideLine(line_t * ld)
 //
 static bool PTR_SlideTraverse(intercept_t * in)
 {
-	DEV_ASSERT(in->type == INCPT_Line, ("PTR_SlideTraverse: not a line?"));
+	SYS_ASSERT(in->type == INCPT_Line);
 
 	line_t *li = in->d.line;
 

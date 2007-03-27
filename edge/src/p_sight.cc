@@ -302,8 +302,7 @@ static bool CheckSightBSP(unsigned int bspnum)
 
 	bspnum &= ~NF_V5_SUBSECTOR;
 
-	DEV_ASSERT((0 <= bspnum && int(bspnum) < numsubsectors),
-		("CrossSubsector: sub %u with numsub = %i", bspnum, numsubsectors));
+	SYS_ASSERT(0 <= bspnum && int(bspnum) < numsubsectors);
 
 	{
 		subsector_t *sub = subsectors + bspnum;

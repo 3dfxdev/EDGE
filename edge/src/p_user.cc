@@ -694,7 +694,7 @@ void P_CreatePlayer(int pnum, bool is_bot)
 {
 	DEV_ASSERT2(0 <= pnum && pnum < MAXPLAYERS);
 
-	DEV_ASSERT(! players[pnum], ("P_CreatePlayer: %d already there", pnum));
+	SYS_ASSERT_MSG(! players[pnum], ("P_CreatePlayer: %d already there", pnum));
 
 	player_t *p = Z_ClearNew(player_t, 1);
 

@@ -188,8 +188,8 @@ bool SV_CloseReadFile(void)
 {
 	DEV_ASSERT2(current_fp);
 
-	DEV_ASSERT(chunk_stack_size == 0,
-		("SV_CloseReadFile: Too many Pushes (missing Pop somewhere).\n"));
+	if (chunk_stack_size > 0)
+		I_Error("SV_CloseReadFile: Too many Pushes (missing Pop somewhere).\n");
 
 	fclose(current_fp);
 
@@ -409,8 +409,8 @@ bool SV_PushReadChunk(const char *id)
 	unsigned int file_len;
 	char marker[6];
 
-	DEV_ASSERT(chunk_stack_size < MAX_CHUNK_DEPTH,
-		("SV_PushReadChunk: Too many Pushes (missing Pop somewhere)."));
+	if (chunk_stack_size >= MAX_CHUNK_DEPTH)
+		I_Error("SV_PushReadChunk: Too many Pushes (missing Pop somewhere).\n");
 
 	// read chunk length
 	file_len = SV_GetInt();
@@ -524,8 +524,8 @@ bool SV_PopReadChunk(void)
 {
 	chunk_t *cur;
 
-	DEV_ASSERT(chunk_stack_size > 0, 
-		("SV_PopReadChunk: Too many Pops (missing Push somewhere)."));
+	if (chunk_stack_size != 0)
+		I_Error("SV_PopReadChunk: Too many Pops (missing Push somewhere).\n");
 
 	cur = &chunk_stack[chunk_stack_size - 1];
 
@@ -610,8 +610,8 @@ bool SV_CloseWriteFile(void)
 {
 	DEV_ASSERT2(current_fp);
 
-	DEV_ASSERT(chunk_stack_size == 0,
-		("SV_CloseWriteFile: Too many Pushes (missing Pop somewhere).\n"));
+	if (chunk_stack_size != 0)
+		I_Error("SV_CloseWriteFile: Too many Pushes (missing Pop somewhere).\n");
 
 	// write trailer
 
@@ -637,8 +637,8 @@ bool SV_PushWriteChunk(const char *id)
 {
 	chunk_t *cur;
 
-	DEV_ASSERT(chunk_stack_size < MAX_CHUNK_DEPTH,
-		("SV_PushWriteChunk: Too many Pushes (missing Pop somewhere)."));
+	if (chunk_stack_size >= MAX_CHUNK_DEPTH)
+		I_Error("SV_PushWriteChunk: Too many Pushes (missing Pop somewhere).\n");
 
 	// create new chunk_t
 	cur = &chunk_stack[chunk_stack_size];
@@ -665,8 +665,8 @@ bool SV_PopWriteChunk(void)
 	chunk_t *cur;
 	int len;
 
-	DEV_ASSERT(chunk_stack_size > 0, 
-		("SV_PopWriteChunk: Too many Pops (missing Push somewhere)."));
+	if (chunk_stack_size != 0)
+		I_Error("SV_PopWriteChunk: Too many Pops (missing Push somewhere).\n");
 
 	cur = &chunk_stack[chunk_stack_size - 1];
 
