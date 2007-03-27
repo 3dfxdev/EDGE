@@ -53,7 +53,12 @@ sources_2 = [
     'sv_chunk.cc', 'sv_dump.cc', 'sv_glob.cc', 'sv_level.cc', 
     'sv_load.cc', 'sv_main.cc', 'sv_misc.cc', 'sv_mobj.cc', 'sv_play.cc', 
     'sv_save.cc', 'v_colour.cc', 'v_res.cc', 'r_image.cc', 'wi_stuff.cc', 
-    'wp_wipe.cc', 'w_textur.cc', 'w_wad.cc', 'z_zone.cc', 
+    'w_textur.cc', 'w_wad.cc', 'z_zone.cc', 
+    ]
+
+if 0:
+    sources_2 = sources_2 + [
+    'wf_util.cc', 'wf_colors.cc', # 'wf_maps.cc'
     ]
 
 # operating system specifics
