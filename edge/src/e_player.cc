@@ -64,7 +64,7 @@
 #include "st_stuff.h"
 #include "version.h"
 #include "v_res.h"
-#include "w_image.h"
+#include "r_image.h"
 #include "w_textur.h"
 #include "w_wad.h"
 #include "wi_stuff.h"

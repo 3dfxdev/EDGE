@@ -28,7 +28,7 @@
 
 // We are referring to patches.
 #include "r_defs.h"
-#include "w_image.h"
+#include "r_image.h"
 #include "hu_font.h"
 #include "hu_style.h"
 

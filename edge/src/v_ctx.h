@@ -28,7 +28,7 @@
 
 #include "dm_type.h"
 #include "ddf_main.h"
-#include "w_image.h"
+#include "r_image.h"
 
 // Move to somewhere appropriate later -ACB- 2004/08/19
 void RGL_DrawImage(float x, float y, float w, float h, const image_t *image,

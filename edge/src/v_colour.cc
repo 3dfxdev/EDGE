@@ -34,7 +34,7 @@
 #include "rgl_defs.h"
 #include "st_stuff.h"
 #include "v_res.h"
-#include "w_image.h"
+#include "r_image.h"
 #include "w_wad.h"
 #include "z_zone.h"
 

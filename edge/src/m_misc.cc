@@ -45,7 +45,7 @@
 #include "v_colour.h"
 #include "v_ctx.h"
 #include "v_res.h"
-#include "w_image.h"
+#include "r_image.h"
 #include "wp_main.h"
 
 #include "defaults.h"

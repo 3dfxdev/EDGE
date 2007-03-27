@@ -29,7 +29,7 @@
 #include "m_random.h"
 #include "rgl_defs.h"
 #include "rgl_wipe.h"
-#include "w_image.h"
+#include "r_image.h"
 #include "v_res.h"
 #include "z_zone.h"
 

@@ -43,7 +43,7 @@
 #include "rgl_sky.h"
 #include "rgl_thing.h"
 #include "rgl_unit.h"
-#include "w_image_gl.h"
+#include "r_image_gl.h"
 #include "v_colour.h"
 
 #include <math.h>
