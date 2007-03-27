@@ -410,7 +410,7 @@ const image_t * R2_GetThingSprite(mobj_t *mo, bool *flip)
 		rot = frame->CalcRot(mo->angle,
 			R_PointToAngle(viewx, viewy, mo->x, mo->y));
 
-	DEV_ASSERT2(0 <= rot && rot < 16);
+	SYS_ASSERT(0 <= rot && rot < 16);
 
 	(*flip) = frame->flip[rot] ? true : false;
 
@@ -485,7 +485,7 @@ void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing)
 			break;
 	}
 
-	DEV_ASSERT2(dfloor);
+	SYS_ASSERT(dfloor);
 
 	// link in sprite.  We'll shrink it if it gets clipped.
 	LinkDrawthingIntoDrawfloor(dthing, dfloor);
@@ -538,7 +538,7 @@ void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing)
 			(dthing->top    <  f1 + SY_FUDGE))
 			break;
 
-		DEV_ASSERT2(dfloor->lower->ef && dfloor->lower->ef->ef_info);
+		SYS_ASSERT(dfloor->lower->ef && dfloor->lower->ef->ef_info);
 
 		if (! (dfloor->lower->ef->ef_info->type & EXFL_Liquid))
 			break;
@@ -554,14 +554,14 @@ void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing)
 
 		dthing->bottom = f1;
 
-		DEV_ASSERT2(dthing->bottom < dthing->top);
+		SYS_ASSERT(dthing->bottom < dthing->top);
 
 		// shorten new sprite
 
 		dnew->y_offset += (dnew->top - f1);
 		dnew->top = f1;
 
-		DEV_ASSERT2(dnew->bottom < dnew->top);
+		SYS_ASSERT(dnew->bottom < dnew->top);
 
 		// time to move on...
 
@@ -592,7 +592,7 @@ void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing)
 
 		dthing->bottom = f1;
 
-		DEV_ASSERT2(dthing->bottom < dthing->top);
+		SYS_ASSERT(dthing->bottom < dthing->top);
 	}
 
 	dfloor = df_orig;
@@ -611,7 +611,7 @@ void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing)
 			(dthing->top    <  c1 + SY_FUDGE))
 			break;
 
-		DEV_ASSERT2(dfloor->ef && dfloor->ef->ef_info);
+		SYS_ASSERT(dfloor->ef && dfloor->ef->ef_info);
 
 		if (! (dfloor->ef->ef_info->type & EXFL_Liquid))
 			break;
@@ -628,13 +628,13 @@ void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing)
 		dthing->y_offset += (dthing->top - c1);
 		dthing->top = c1;
 
-		DEV_ASSERT2(dthing->bottom < dthing->top);
+		SYS_ASSERT(dthing->bottom < dthing->top);
 
 		// shorten new sprite
 
 		dnew->bottom = c1;
 
-		DEV_ASSERT2(dnew->bottom < dnew->top);
+		SYS_ASSERT(dnew->bottom < dnew->top);
 
 		// time to move on...
 
@@ -666,7 +666,7 @@ void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing)
 		dthing->y_offset += dthing->top - c1;
 		dthing->top = c1;
 
-		DEV_ASSERT2(dthing->bottom < dthing->top);
+		SYS_ASSERT(dthing->bottom < dthing->top);
 	}
 }
 

@@ -89,8 +89,8 @@ void font_c::LoadPatches()
 
 	int total = p_cache.last - p_cache.first + 1;
 
-	DEV_ASSERT2(def->patches);
-	DEV_ASSERT2(total >= 1);
+	SYS_ASSERT(def->patches);
+	SYS_ASSERT(total >= 1);
 
 	p_cache.images = new const image_t *[total];
 	memset(p_cache.images, 0, sizeof(const image_t *) * total);
@@ -100,7 +100,7 @@ void font_c::LoadPatches()
 		// patch name
 		char pname[40];
 
-		DEV_ASSERT2(strlen(pat->patch1.GetString()) < 36);
+		SYS_ASSERT(strlen(pat->patch1.GetString()) < 36);
 		strcpy(pname, pat->patch1.GetString());
 
 		for (int ch = pat->char1; ch <= pat->char2; ch++, BumpPatchName(pname))
@@ -109,7 +109,7 @@ void font_c::LoadPatches()
 			L_WriteDebug("- LoadFont [%s] : char %d = %s\n", def->ddf.name.GetString(), ch, pname);
 #endif
 			int idx = ch - p_cache.first;
-			DEV_ASSERT2(0 <= idx && idx < total);
+			SYS_ASSERT(0 <= idx && idx < total);
 
 			p_cache.images[idx] = W_ImageLookup(pname, INS_Graphic, ILF_Font|ILF_Null);
 		}
@@ -177,7 +177,7 @@ int font_c::NominalHeight() const
 //
 bool font_c::HasChar(char ch) const
 {
-	DEV_ASSERT2(def->type == FNTYP_Patch);
+	SYS_ASSERT(def->type == FNTYP_Patch);
 
 	int idx = int(ch) & 0x00FF;
 
@@ -192,7 +192,7 @@ bool font_c::HasChar(char ch) const
 //
 const struct image_s *font_c::CharImage(char ch) const
 {
-	DEV_ASSERT2(def->type == FNTYP_Patch);
+	SYS_ASSERT(def->type == FNTYP_Patch);
 
 	if (! HasChar(ch))
 	{
@@ -206,7 +206,7 @@ const struct image_s *font_c::CharImage(char ch) const
 
 	int idx = int(ch) & 0x00FF;
 
-	DEV_ASSERT2(p_cache.first <= idx && idx <= p_cache.last);
+	SYS_ASSERT(p_cache.first <= idx && idx <= p_cache.last);
 	
 	return p_cache.images[idx - p_cache.first];
 }
@@ -218,7 +218,7 @@ const struct image_s *font_c::CharImage(char ch) const
 //
 int font_c::CharWidth(char ch) const  // XXX: return float ???
 {
-	DEV_ASSERT2(def->type == FNTYP_Patch);
+	SYS_ASSERT(def->type == FNTYP_Patch);
 
 	if (ch == ' ')
 		return p_cache.width * 3 / 5;
@@ -339,7 +339,7 @@ void font_container_c::CleanupObject(void *obj)
 //
 font_c* font_container_c::Lookup(fontdef_c *def)
 {
-	DEV_ASSERT2(def);
+	SYS_ASSERT(def);
 
 	for (epi::array_iterator_c it = GetIterator(0); it.IsValid(); it++)
 	{

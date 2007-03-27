@@ -207,7 +207,7 @@ static bool CrossSubsector(subsector_t *sub)
 		front = seg->frontsector;
 		back = seg->backsector;
 
-		DEV_ASSERT2(back);
+		SYS_ASSERT(back);
 
 		// compute intercept vector (fraction from 0 to 1)
 		{
@@ -267,7 +267,7 @@ static bool CrossSubsector(subsector_t *sub)
 //
 static bool CheckSightBSP(unsigned int bspnum)
 {
-	DEV_ASSERT2(bspnum >= 0);
+	SYS_ASSERT(bspnum >= 0);
 
 	while (! (bspnum & NF_V5_SUBSECTOR))
 	{
@@ -489,8 +489,8 @@ bool P_CheckSight(mobj_t * src, mobj_t * dest)
 
 	// First check for trivial rejection.
 
-	DEV_ASSERT2(src->subsector);
-	DEV_ASSERT2(dest->subsector);
+	SYS_ASSERT(src->subsector);
+	SYS_ASSERT(dest->subsector);
 
 	if (! DoCheckReject(src->subsector->sector, dest->subsector->sector))
 		return false;
@@ -501,7 +501,7 @@ bool P_CheckSight(mobj_t * src, mobj_t * dest)
 	validcount++;
 
 	// The "eyes" of a thing is 75% of its height.
-	DEV_ASSERT2(src->info);
+	SYS_ASSERT(src->info);
 	sight_I.src_z = src->z + src->height * 
 		PERCENT_2_FLOAT(src->info->viewheight);
 
@@ -679,7 +679,7 @@ bool P_CheckSightToPoint(mobj_t * src, float x, float y, float z)
 //
 bool P_CheckSightApproxVert(mobj_t * src, mobj_t * dest)
 {
-	DEV_ASSERT2(src->info);
+	SYS_ASSERT(src->info);
 
 	sight_I.src_z = src->z + src->height * 
 		PERCENT_2_FLOAT(src->info->viewheight);

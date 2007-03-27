@@ -435,7 +435,7 @@ void *SV_ButtonGetElem(int index)
 int SV_ButtonFindElem(button_t *elem)
 {
 	int idx = buttonlist.Find(elem);
-	DEV_ASSERT2(idx >= 0);
+	SYS_ASSERT(idx >= 0);
 	return idx;
 }
 
@@ -485,7 +485,7 @@ void *SV_LightGetElem(int index)
 	if (! cur)
 		I_Error("LOADGAME: Invalid Light: %d\n", index);
 
-	DEV_ASSERT2(index == 0);
+	SYS_ASSERT(index == 0);
 	return cur;
 }
 
@@ -570,7 +570,7 @@ void *SV_TriggerGetElem(int index)
 	if (! cur)
 		I_Error("LOADGAME: Invalid Trigger: %d\n", index);
 
-	DEV_ASSERT2(index == 0);
+	SYS_ASSERT(index == 0);
 	return cur;
 }
 
@@ -661,7 +661,7 @@ void *SV_TipGetElem(int index)
 //
 int SV_TipFindElem(drawtip_t *elem)
 {
-	DEV_ASSERT2(tip_slots <= elem && elem < (tip_slots + MAXTIPSLOT));
+	SYS_ASSERT(tip_slots <= elem && elem < (tip_slots + MAXTIPSLOT));
 
 	return elem - tip_slots;
 }
@@ -732,7 +732,7 @@ void *SV_PlaneMoveGetElem(int index)
 	if (! cur)
 		I_Error("LOADGAME: Invalid PlaneMove: %d\n", index);
 
-	DEV_ASSERT2(index == 0);
+	SYS_ASSERT(index == 0);
 	return cur;
 }
 
@@ -1013,7 +1013,7 @@ bool SR_TriggerGetScript(void *storage, int index, void *extra)
 	*base_p++ = 0;
 
 	idx_val = strtol(use_p, NULL, 0);
-	DEV_ASSERT2(idx_val >= 1);
+	SYS_ASSERT(idx_val >= 1);
 
 	// get CRC value
 

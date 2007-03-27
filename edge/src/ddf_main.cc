@@ -741,7 +741,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 				else
 					current_cmd.Clear();
 					
-				DEV_ASSERT2(current_index == 0);
+				SYS_ASSERT(current_index == 0);
 
 				buffer.Empty();
 				status = reading_data;
@@ -1136,7 +1136,7 @@ void DDF_MainGetNumeric(const char *info, void *storage)
 {
 	int *dest = (int *)storage;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	if (isalpha(info[0]))
 	{
@@ -1159,7 +1159,7 @@ void DDF_MainGetBoolean(const char *info, void *storage)
 {
 	bool *dest = (bool *)storage;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	if ((stricmp(info, "TRUE") == 0) || (strcmp(info, "1") == 0))
 	{
@@ -1189,7 +1189,7 @@ void DDF_MainGetString(const char *info, void *storage)
 {
 	epi::strent_c *dest = (epi::strent_c *)storage;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	dest->Set(info);
 }
@@ -1227,7 +1227,7 @@ bool DDF_MainParseSubField(const commandlist_t *sub_comms,
 			name++;
 
 			len = strlen(name);
-			DEV_ASSERT2(len > 0);
+			SYS_ASSERT(len > 0);
 
 			if (strncmp(field, name, len) == 0 && field[len] == '.' && 
 				isalnum(field[len+1]))
@@ -1256,7 +1256,7 @@ bool DDF_MainParseSubField(const commandlist_t *sub_comms,
 
 	// found it, so call parse routine
 
-	DEV_ASSERT2(sub_comms[i].parse_command);
+	SYS_ASSERT(sub_comms[i].parse_command);
 
 	int offset = ((char *) sub_comms[i].storage) - dummy_base;
 
@@ -1295,7 +1295,7 @@ bool DDF_MainParseField(const commandlist_t *commands,
 			name++;
 
 			len = strlen(name);
-			DEV_ASSERT2(len > 0);
+			SYS_ASSERT(len > 0);
 
 			if (strncmp(field, name, len) == 0 && field[len] == '.' && 
 				isalnum(field[len+1]))
@@ -1321,7 +1321,7 @@ bool DDF_MainParseField(const commandlist_t *commands,
 
 	// found it, so call parse routine
 
-	DEV_ASSERT2(commands[i].parse_command);
+	SYS_ASSERT(commands[i].parse_command);
 
 	(* commands[i].parse_command)(contents, commands[i].storage);
 
@@ -1337,7 +1337,7 @@ void DDF_MainGetInlineStr10(const char *info, void *storage)
 {
 	char *str = (char *)storage;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	if (strlen(info) > 9)
 		DDF_Error("Name %s too long (must be 9 characters or less)\n", info);
@@ -1354,7 +1354,7 @@ void DDF_MainGetInlineStr32(const char *info, void *storage)
 {
 	char *str = (char *)storage;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	if (strlen(info) > 31)
 		DDF_Error("Name %s too long (must be 31 characters or less)\n", info);
@@ -1366,7 +1366,7 @@ void DDF_MainRefAttack(const char *info, void *storage)
 {
 	atkdef_c **dest = (atkdef_c **)storage;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	*dest = (atkdef_c*)atkdefs.Lookup(info);
 	if (*dest == NULL)
@@ -1405,7 +1405,7 @@ void DDF_MainGetFloat(const char *info, void *storage)
 {
 	float *dest = (float *)storage;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	if (sscanf(info, "%f", dest) != 1)
 		DDF_Error("Bad floating point value: %s\n", info);
@@ -1418,7 +1418,7 @@ void DDF_MainGetAngle(const char *info, void *storage)
 	float val;
 	angle_t *dest = (angle_t *)storage;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	if (sscanf(info, "%f", &val) != 1)
 		DDF_Error("Bad angle value: %s\n", info);
@@ -1436,7 +1436,7 @@ void DDF_MainGetSlope(const char *info, void *storage)
 	float val;
 	float *dest = (float *)storage;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	if (sscanf(info, "%f", &val) != 1)
 		DDF_Error("Bad slope value: %s\n", info);
@@ -1527,7 +1527,7 @@ void DDF_MainGetTime(const char *info, void *storage)
 	float val;
 	int *dest = (int *)storage;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	// -ES- 1999/09/14 MAXT means that time should be maximal.
 	if (!stricmp(info, "maxt"))
@@ -1577,7 +1577,7 @@ void DDF_MainGetRGB(const char *info, void *storage)
 	rgbcol_t *result = (rgbcol_t *)storage;
 	int r, g, b;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	if (DDF_CompareName(info, "NONE") == 0)
 	{
@@ -1755,7 +1755,7 @@ void DDF_MainGetBitSet(const char *info, void *storage)
 	bitset_t *result = (bitset_t *)storage;
 	int start, end;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	// allow a numeric value
 	if (sscanf(info, " %i ", result) == 1)

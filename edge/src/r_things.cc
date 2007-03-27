@@ -106,7 +106,7 @@ int R_AddSpriteName(const char *name, int frame, bool is_weapon)
 
 	int index;
 
-	DEV_ASSERT2(strlen(name) == 4);
+	SYS_ASSERT(strlen(name) == 4);
 
 	// look in cache
 	if (strcmp(name, add_spr_cache[0].name) == 0)
@@ -183,7 +183,7 @@ static void InstallSpriteLump(spritedef_c *def, int lump,
 		   return;
 	}
 
-	DEV_ASSERT2(frame >= 0);
+	SYS_ASSERT(frame >= 0);
 
 	// ignore frames larger than what is used in DDF
 	if (frame >= def->numframes)
@@ -212,7 +212,7 @@ static void InstallSpriteLump(spritedef_c *def, int lump,
 	if (rot & 1)
 		def->frames[frame].extended = 1;
 
-	DEV_ASSERT2(0 <= rot && rot < 16);
+	SYS_ASSERT(0 <= rot && rot < 16);
 
 	if (def->frames[frame].images[rot])
 	{
@@ -249,7 +249,7 @@ static void InstallSpriteImage(spritedef_c *def, const image_t *img,
 	   return;
 	}
 
-	DEV_ASSERT2(frame >= 0);
+	SYS_ASSERT(frame >= 0);
 
 	// ignore frames larger than what is used in DDF
 	if (frame >= def->numframes)
@@ -278,7 +278,7 @@ static void InstallSpriteImage(spritedef_c *def, const image_t *img,
 	if (rot & 1)
 		def->frames[frame].extended = 1;
 
-	DEV_ASSERT2(0 <= rot && rot < 16);
+	SYS_ASSERT(0 <= rot && rot < 16);
 
 	if (def->frames[frame].images[rot])
 	{
@@ -356,7 +356,7 @@ static void FillSpriteFramesUser(int prog_base, int prog_total)
 	if (img_num == 0)
 		return;
 
-	DEV_ASSERT2(images);
+	SYS_ASSERT(images);
 
 	int S = 0, L = 0;
 
@@ -435,7 +435,7 @@ static void MarkCompletedFrames(void)
 				if (rot_count != 1)
 					I_Warning("Sprite %s:%c has extra rotations.\n", def->name, frame_ch);
 
-				DEV_ASSERT2(frame->images[0] != NULL);
+				SYS_ASSERT(frame->images[0] != NULL);
 				continue;
 			}
 
@@ -509,15 +509,15 @@ void R_InitSprites(void)
 	{
 		spritedef_c *def = sprites[i];
 
-		DEV_ASSERT2(strlen(def->name) == 4);
-		DEV_ASSERT2(def->numframes > 0);
+		SYS_ASSERT(strlen(def->name) == 4);
+		SYS_ASSERT(def->numframes > 0);
 
 		def->frames = new spriteframe_c[def->numframes];
 
 		// names in the sprite list should be unique
 		if (i > 0)
 		{
-			DEV_ASSERT2(strncmp(sprites[i-1]->name, def->name, 4) != 0);
+			SYS_ASSERT(strncmp(sprites[i-1]->name, def->name, 4) != 0);
 		}
 	}
 

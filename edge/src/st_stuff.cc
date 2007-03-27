@@ -356,7 +356,7 @@ static int ST_CalcPainOffset(player_t *p)
 
 	base = p->mo->info->spawnhealth;
 
-	DEV_ASSERT2(base > 0);
+	SYS_ASSERT(base > 0);
 
 	health = (base - MIN(base, p->health)) / base;
 	index = MIN(ST_NUMPAINFACES-1, (int)(health * ST_NUMPAINFACES));
@@ -375,7 +375,7 @@ static int ST_CalcPainOffset(player_t *p)
 static void ST_UpdateFaceWidget(void)
 {
 	player_t *p = players[displayplayer];
-	DEV_ASSERT2(p);
+	SYS_ASSERT(p);
 
 	angle_t badguyangle;
 	angle_t diffang;
@@ -491,7 +491,7 @@ static void UpdateWidgets(void)
 	keys_e cards;
 
 	player_t *p = players[displayplayer];
-	DEV_ASSERT2(p);
+	SYS_ASSERT(p);
 
 	// set health colour, as in BOOM.  -AJA- Experimental !!
 	if (stbar_colours)
@@ -606,7 +606,7 @@ static void UpdateWidgets(void)
 void ST_Ticker(void)
 {
 	player_t *p = players[displayplayer];
-	DEV_ASSERT2(p);
+	SYS_ASSERT(p);
 
     p->old_health = p->health;
 }
@@ -622,7 +622,7 @@ static void DoPaletteStuff(void)
 	float amount = 0;
 
 	player_t *p = players[displayplayer];
-	DEV_ASSERT2(p);
+	SYS_ASSERT(p);
 
 	int cnt = p->damagecount;
 
@@ -824,7 +824,7 @@ static void InitData(void)
 	st_oldchat = st_chat = false;
 	st_cursoron = false;
 
-	DEV_ASSERT2(players[displayplayer]);
+	SYS_ASSERT(players[displayplayer]);
 	players[displayplayer]->face_index = 0;
 
 	for (i = 0; i < 3; i++)
@@ -836,7 +836,7 @@ static void InitData(void)
 static void CreateWidgets(void)
 {
 	player_t *p = players[displayplayer];
-	DEV_ASSERT2(p);
+	SYS_ASSERT(p);
 
 	// ready weapon ammo
 	STLIB_InitNum(&w_ready, ST_AMMOX, ST_AMMOY, tallnum, sttminus,
@@ -953,7 +953,7 @@ void ST_ReInit(void)
 //
 void ST_Init(void)
 {
-	DEV_ASSERT2(veryfirsttime);
+	SYS_ASSERT(veryfirsttime);
 
 	veryfirsttime = 0;
 

@@ -193,7 +193,7 @@ static void SetupTip(drawtip_t *cur)
 			continue;
 		}
 
-		DEV_ASSERT2(HU);
+		SYS_ASSERT(HU);
 
 		HL_AddCharToTextLine(HU, *ch_ptr);
 	}
@@ -228,7 +228,7 @@ static void SendTip(rad_trigger_t *R, s_tip_t * tip, int slot)
 {
 	drawtip_t *current;
 
-	DEV_ASSERT2(0 <= slot && slot < MAXTIPSLOT);
+	SYS_ASSERT(0 <= slot && slot < MAXTIPSLOT);
 
 	current = tip_slots + slot;
 
@@ -414,7 +414,7 @@ void RAD_ActTipProps(rad_trigger_t *R, mobj_t *actor, void *param)
 	if (tp->slot_num >= 0)
 		R->tip_slot = tp->slot_num;
 
-	DEV_ASSERT2(0 <= R->tip_slot && R->tip_slot < MAXTIPSLOT);
+	SYS_ASSERT(0 <= R->tip_slot && R->tip_slot < MAXTIPSLOT);
 
 	current = tip_slots + R->tip_slot;
 
@@ -752,7 +752,7 @@ void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param)
 
 	const image_t *image;
 
-	DEV_ASSERT2(param);
+	SYS_ASSERT(param);
 
 	// find texture or flat
 	if (ctex->what >= CHTEX_Floor)
@@ -809,7 +809,7 @@ void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param)
 	}
 
 	// handle the line changers
-	DEV_ASSERT2(ctex->what < CHTEX_Sky);
+	SYS_ASSERT(ctex->what < CHTEX_Sky);
 
 	for (int i=0; i < numlines; i++)
 	{

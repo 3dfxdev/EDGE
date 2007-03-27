@@ -168,7 +168,7 @@ static int FindBiggestHog(int real_cat)
 		}
 	}
 
-	DEV_ASSERT2(biggest_hog >= 0);
+	SYS_ASSERT(biggest_hog >= 0);
 
 	return biggest_hog;
 }
@@ -196,7 +196,7 @@ static int ChannelScore(sfxdef_c *def, int category, position_c *pos, bool boss)
 	}
 
 	// for stuff in the level, use the distance
-	DEV_ASSERT2(pos);
+	SYS_ASSERT(pos);
 
 	float dist = boss ? 0 :
 		P_ApproxDistance(listen_x - pos->x, listen_y - pos->y, listen_z - pos->z);
@@ -233,7 +233,7 @@ static int FindChannelToKill(int kill_cat, int real_cat, int new_score)
 		}
 	}
 //I_Printf("kill_idx = %d\n", kill_idx);
-	DEV_ASSERT2(kill_idx >= 0);
+	SYS_ASSERT(kill_idx >= 0);
 
 	if (kill_cat != real_cat)
 		return kill_idx;
@@ -278,7 +278,7 @@ void S_Shutdown(void)
 // Not-rejigged-yet stuff..
 sfxdef_c * LookupEffectDef(const sfx_t *s) 
 { 
-	DEV_ASSERT2(s->num >= 1);
+	SYS_ASSERT(s->num >= 1);
 
 	// need to use M_Random here to prevent demos and net games 
 	// getting out of sync.
@@ -290,7 +290,7 @@ sfxdef_c * LookupEffectDef(const sfx_t *s)
 	else
 		num = s->sounds[0];
 
-	DEV_ASSERT2(0 <= num && num < sfxdefs.GetSize());
+	SYS_ASSERT(0 <= num && num < sfxdefs.GetSize());
 
 	return sfxdefs[num];
 }
@@ -385,7 +385,7 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 //I_Printf("@ biggest hog: %d\n", kill_cat);
 		}
 
-		DEV_ASSERT2(cat_counts[kill_cat] >= cat_limits[kill_cat]);
+		SYS_ASSERT(cat_counts[kill_cat] >= cat_limits[kill_cat]);
 
 		k = FindChannelToKill(kill_cat, category, new_score);
 
@@ -405,7 +405,7 @@ void S_StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 {
 	if (nosound || !sfx) return;
 
-	DEV_ASSERT2(0 <= category && category < SNCAT_NUMTYPES);
+	SYS_ASSERT(0 <= category && category < SNCAT_NUMTYPES);
 
 	if (category >= SNCAT_Opponent)
 		if (! pos)
@@ -421,7 +421,7 @@ void S_StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 	}
 
 	sfxdef_c *def = LookupEffectDef(sfx);
-	DEV_ASSERT2(def);
+	SYS_ASSERT(def);
 
 	if (def->singularity > 0)
 	{
@@ -495,7 +495,7 @@ void S_SoundTicker(void)
 		else
 		{
 			mobj_t *pmo = ::players[displayplayer]->mo;
-			DEV_ASSERT2(pmo);
+			SYS_ASSERT(pmo);
 		   
 			S_UpdateSounds(pmo, pmo->angle);
 		}

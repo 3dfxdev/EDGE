@@ -424,7 +424,7 @@ static void LoadV3Segs(const byte *data, int length)
 //
 static void LoadGLSegs(int lump)
 {
-	DEV_ASSERT2(lump < 0x10000);  // sanity check
+	SYS_ASSERT(lump < 0x10000);  // sanity check
 
 	const byte *data;
 	int i, length;
@@ -477,23 +477,23 @@ static void LoadGLSegs(int lump)
 
 		if (v1num & SF_GL_VERTEX)
 		{
-			DEV_ASSERT2((v1num & ~SF_GL_VERTEX) < num_gl_vertexes);  // sanity check
+			SYS_ASSERT((v1num & ~SF_GL_VERTEX) < num_gl_vertexes);  // sanity check
 			seg->v1 = &gl_vertexes[v1num & ~SF_GL_VERTEX];
 		}
 		else
 		{
-			DEV_ASSERT2(v1num < numvertexes);  // sanity check
+			SYS_ASSERT(v1num < numvertexes);  // sanity check
 			seg->v1 = &vertexes[v1num];
 		}
 
 		if (v2num & SF_GL_VERTEX)
 		{
-			DEV_ASSERT2((v2num & ~SF_GL_VERTEX) < num_gl_vertexes);  // sanity check
+			SYS_ASSERT((v2num & ~SF_GL_VERTEX) < num_gl_vertexes);  // sanity check
 			seg->v2 = &gl_vertexes[v2num & ~SF_GL_VERTEX];
 		}
 		else
 		{
-			DEV_ASSERT2(v2num < numvertexes);  // sanity check
+			SYS_ASSERT(v2num < numvertexes);  // sanity check
 			seg->v2 = &vertexes[v2num];
 		}
 
@@ -542,7 +542,7 @@ static void LoadGLSegs(int lump)
 			seg->partner = NULL;
 		else
 		{
-			DEV_ASSERT2(partner < numsegs);  // sanity check
+			SYS_ASSERT(partner < numsegs);  // sanity check
 			seg->partner = &segs[partner];
 		}
 
@@ -1507,7 +1507,7 @@ static void LoadSideDefs(int lump)
 
 	sd = sides;
 
-	DEV_ASSERT2(temp_line_sides);
+	SYS_ASSERT(temp_line_sides);
 
 	for (i = 0; i < numlines; i++)
 	{
@@ -1516,7 +1516,7 @@ static void LoadSideDefs(int lump)
 		int side0 = temp_line_sides[i*2 + 0];
 		int side1 = temp_line_sides[i*2 + 1];
 
-		DEV_ASSERT2(side0 != -1);
+		SYS_ASSERT(side0 != -1);
 
 		if (side0 >= nummapsides)
 		{
@@ -1545,11 +1545,11 @@ static void LoadSideDefs(int lump)
 			sd++;
 		}
 
-		DEV_ASSERT2(sd <= sides + numsides);
+		SYS_ASSERT(sd <= sides + numsides);
 
 	}
 
-	DEV_ASSERT2(sd == sides + numsides);
+	SYS_ASSERT(sd == sides + numsides);
 
 	W_DoneWithLump(data);
 
@@ -1582,10 +1582,10 @@ static void SetupExtrafloors(void)
 
 		ef_index += ss->exfloor_max;
 
-		DEV_ASSERT2(ef_index <= numextrafloors);
+		SYS_ASSERT(ef_index <= numextrafloors);
 	}
 
-	DEV_ASSERT2(ef_index == numextrafloors);
+	SYS_ASSERT(ef_index == numextrafloors);
 }
 
 //
@@ -1615,7 +1615,7 @@ static void SetupWallTiles(void)
 		}
 		else if (ld->frontsector->tag == ld->backsector->tag)
 		{
-			DEV_ASSERT2(ld->frontsector->exfloor_max ==
+			SYS_ASSERT(ld->frontsector->exfloor_max ==
 				ld->backsector->exfloor_max);
 
 			num_0 = 3;  /* lower + middle + upper */
@@ -1640,7 +1640,7 @@ static void SetupWallTiles(void)
 	// I_Printf("%dK used for wall tiles.\n", (numwalltiles *
 	//    sizeof(wall_tile_t) + 1023) / 1024);
 
-	DEV_ASSERT2(numwalltiles > 0);
+	SYS_ASSERT(numwalltiles > 0);
 
 	walltiles = Z_ClearNew(wall_tile_t, numwalltiles);
 
@@ -1657,10 +1657,10 @@ static void SetupWallTiles(void)
 			wt_index += ld->side[1]->tile_max;
 		}
 
-		DEV_ASSERT2(wt_index <= numwalltiles);
+		SYS_ASSERT(wt_index <= numwalltiles);
 	}
 
-	DEV_ASSERT2(wt_index == numwalltiles);
+	SYS_ASSERT(wt_index == numwalltiles);
 }
 
 //
@@ -1706,7 +1706,7 @@ static void SetupVertGaps(void)
 	//    sizeof(vgap_t) + 1023) / 1024);
 
 	// zero is now impossible
-	DEV_ASSERT2(numvertgaps > 0);
+	SYS_ASSERT(numvertgaps > 0);
 
 	vertgaps = Z_ClearNew(vgap_t, numvertgaps);
 
@@ -1721,7 +1721,7 @@ static void SetupVertGaps(void)
 		cur_gap += ld->max_gaps;
 	}
 
-	DEV_ASSERT2(cur_gap == (vertgaps + line_gaps));
+	SYS_ASSERT(cur_gap == (vertgaps + line_gaps));
 
 	for (i=0; i < numsectors; i++)
 	{
@@ -1734,7 +1734,7 @@ static void SetupVertGaps(void)
 		cur_gap += sec->max_gaps;
 	}
 
-	DEV_ASSERT2(cur_gap == (vertgaps + numvertgaps));
+	SYS_ASSERT(cur_gap == (vertgaps + numvertgaps));
 }
 
 static void DetectDeepWaterTrick(void)
@@ -1748,7 +1748,7 @@ static void DetectDeepWaterTrick(void)
 		if (seg->miniseg)
 			continue;
 
-		DEV_ASSERT2(seg->front_sub);
+		SYS_ASSERT(seg->front_sub);
 
 		if (seg->linedef->backsector &&
 		    seg->linedef->frontsector == seg->linedef->backsector)
@@ -1787,7 +1787,7 @@ static void DetectDeepWaterTrick(void)
 
 			for (seg = sub->segs; seg; seg = seg->sub_next)
 			{
-				DEV_ASSERT2(seg->back_sub);
+				SYS_ASSERT(seg->back_sub);
 
 				int k = seg->back_sub - subsectors;
 #if 0
@@ -1889,8 +1889,8 @@ static void BlockAdd(int bnum, unsigned short line_num)
 {
 	unsigned short *cur = blk_cur_lines[bnum];
 
-	DEV_ASSERT2(bnum >= 0);
-	DEV_ASSERT2(bnum < (bmapwidth * bmapheight));
+	SYS_ASSERT(bnum >= 0);
+	SYS_ASSERT(bnum < (bmapwidth * bmapheight));
 
 	if (! cur)
 	{
@@ -1912,8 +1912,8 @@ static void BlockAdd(int bnum, unsigned short line_num)
 		cur = blk_cur_lines[bnum];
 	}
 
-	DEV_ASSERT2(cur);
-	DEV_ASSERT2(cur[BCUR_SIZE] < cur[BCUR_MAX]);
+	SYS_ASSERT(cur);
+	SYS_ASSERT(cur[BCUR_SIZE] < cur[BCUR_MAX]);
 
 	cur[BCUR_FIRST + cur[BCUR_SIZE]] = line_num;
 	cur[BCUR_SIZE] += 1;
@@ -1950,10 +1950,10 @@ static void BlockAddLine(int line_num)
 		temp = y0; y0 = y1; y1 = temp;
 	}
 
-	DEV_ASSERT2(0 <= x0 && (x0 / MAPBLOCKUNITS) < bmapwidth);
-	DEV_ASSERT2(0 <= y0 && (y0 / MAPBLOCKUNITS) < bmapheight);
-	DEV_ASSERT2(0 <= x1 && (x1 / MAPBLOCKUNITS) < bmapwidth);
-	DEV_ASSERT2(0 <= y1 && (y1 / MAPBLOCKUNITS) < bmapheight);
+	SYS_ASSERT(0 <= x0 && (x0 / MAPBLOCKUNITS) < bmapwidth);
+	SYS_ASSERT(0 <= y0 && (y0 / MAPBLOCKUNITS) < bmapheight);
+	SYS_ASSERT(0 <= x1 && (x1 / MAPBLOCKUNITS) < bmapwidth);
+	SYS_ASSERT(0 <= y1 && (y1 / MAPBLOCKUNITS) < bmapheight);
 
 	// check if this line spans multiple blocks.
 
@@ -1984,7 +1984,7 @@ static void BlockAddLine(int line_num)
 
 	// -AJA- 2000/12/09: rewrote the general case
 
-	DEV_ASSERT2(x1 > x0);
+	SYS_ASSERT(x1 > x0);
 
 	slope = (float)(y1 - y0) / (float)(x1 - x0);
 
@@ -1998,7 +1998,7 @@ static void BlockAddLine(int line_num)
 		int sy = y0 + (int)(slope * (sx - x0));
 		int ey = y0 + (int)(slope * (ex - x0));
 
-		DEV_ASSERT2(sx <= ex);
+		SYS_ASSERT(sx <= ex);
 
 		y_dist = ABS((ey / 128) - (sy / 128));
 
@@ -2050,7 +2050,7 @@ void GenerateBlockMap(int min_x, int min_y, int max_x, int max_y)
 
 	for (bnum=0; bnum < btotal; bnum++)
 	{
-		DEV_ASSERT2(b_pos - bmap_lines < blk_total_lines);
+		SYS_ASSERT(b_pos - bmap_lines < blk_total_lines);
 
 		bmap_pointers[bnum] = b_pos;
 
@@ -2483,7 +2483,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 
 	DoBlockMap(lumpnum + ML_BLOCKMAP);
 
-	DEV_ASSERT2(gl_lumpnum >= 0);
+	SYS_ASSERT(gl_lumpnum >= 0);
 
 	LoadGLVertexes(gl_lumpnum + ML_GL_VERT);
 	LoadGLSegs(gl_lumpnum + ML_GL_SEGS);
@@ -2550,7 +2550,7 @@ void P_Init(void)
 	E_ProgressMessage(language["PlayState"]);
 	
 	// There should not yet exist a player
-	DEV_ASSERT2(numplayers == 0);
+	SYS_ASSERT(numplayers == 0);
 
 	dm_starts.Clear();
 	coop_starts.Clear();

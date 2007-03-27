@@ -2054,8 +2054,8 @@ static void ShootToSpot(mobj_t * object)
 	if (brain_spots.number == 0)
 		return;
 
-	DEV_ASSERT2(brain_spots.targets);
-	DEV_ASSERT2(brain_spots.number > 0);
+	SYS_ASSERT(brain_spots.targets);
+	SYS_ASSERT(brain_spots.number > 0);
 
 	current_spot += P_Random();
 	current_spot %= brain_spots.number;
@@ -2303,7 +2303,7 @@ bool P_UseThing(mobj_t * user, mobj_t * thing, float open_bottom,
 		return false;
   
   // OK, disarm and put into touch states  
-	DEV_ASSERT2(thing->info->touch_state > 0);
+	SYS_ASSERT(thing->info->touch_state > 0);
 
 	thing->flags &= ~MF_TOUCHY;
 	P_SetMobjStateDeferred(thing, thing->info->touch_state, 0);
@@ -2542,7 +2542,7 @@ static void P_DoAttack(mobj_t * object)
 {
 	const atkdef_c *attack = object->currentattack;
 
-	DEV_ASSERT2(attack);
+	SYS_ASSERT(attack);
 
 	switch (attack->attackstyle)
 	{
@@ -3294,7 +3294,7 @@ void P_ActResurrectChase(mobj_t * object)
 			P_SetMobjStateDeferred(object, object->info->res_state, 0);
 
 		// corpses without raise states should be skipped
-		DEV_ASSERT2(corpse->info->raise_state);
+		SYS_ASSERT(corpse->info->raise_state);
 
 		P_BringCorpseToLife(corpse);
 
@@ -3429,8 +3429,8 @@ void P_ActJump(mobj_t * object)
 
 	jump = (act_jump_info_t *) object->state->action_par;
 
-	DEV_ASSERT2(jump->chance >= 0);
-	DEV_ASSERT2(jump->chance <= 1);
+	SYS_ASSERT(jump->chance >= 0);
+	SYS_ASSERT(jump->chance <= 1);
 
 	if (P_RandomTest(jump->chance))
 	{
@@ -3446,7 +3446,7 @@ void P_ActJump(mobj_t * object)
 //
 void P_PlayerAttack(mobj_t * p_obj, const atkdef_c * attack)
 {
-	DEV_ASSERT2(attack);
+	SYS_ASSERT(attack);
 
 	p_obj->currentattack = attack;
 

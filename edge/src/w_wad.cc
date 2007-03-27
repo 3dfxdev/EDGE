@@ -439,8 +439,8 @@ static INLINE bool IsGL_Prefix(const char *name)
 //
 void W_GetTextureLumps(int file, wadtex_resource_c *res)
 {
-	DEV_ASSERT2(0 <= file && file < data_files.GetSize());
-	DEV_ASSERT2(res);
+	SYS_ASSERT(0 <= file && file < data_files.GetSize());
+	SYS_ASSERT(res);
 
 	data_file_c *df = data_files[file];
 
@@ -958,7 +958,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	{
 		char lump_name[32];
 
-		DEV_ASSERT2(dyn_index < 0);
+		SYS_ASSERT(dyn_index < 0);
 
 		if (kind == FLKIND_DDF)
         {
@@ -1017,7 +1017,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		}
 		else
 		{
-			DEV_ASSERT2(dyn_index < 0);
+			SYS_ASSERT(dyn_index < 0);
 
             epi::string_c cached_gwa_filename;
             epi::string_c gwa_filename;
@@ -1378,7 +1378,7 @@ const char *W_GetFileName(int lump)
 	lumpinfo_t *l;
 	data_file_c *df;
 
-	DEV_ASSERT2(0 <= lump && lump < numlumps);
+	SYS_ASSERT(0 <= lump && lump < numlumps);
 
 	l = lumpinfo + lump;
 	df = data_files[l->file];
@@ -1406,7 +1406,7 @@ const char *W_GetFileName(int lump)
 // 
 int W_GetPaletteForLump(int lump)
 {
-	DEV_ASSERT2(0 <= lump && lump < numlumps);
+	SYS_ASSERT(0 <= lump && lump < numlumps);
 
 	int f = lumpinfo[lump].file;
 
@@ -1653,7 +1653,7 @@ int W_FindFlatSequence(const char *start, const char *end,
 //
 epi::u32array_c& W_GetListLumps(int file, lumplist_e which)
 {
-	DEV_ASSERT2(0 <= file && file < data_files.GetSize());
+	SYS_ASSERT(0 <= file && file < data_files.GetSize());
 
 	data_file_c *df = data_files[file];
 
@@ -1683,7 +1683,7 @@ int W_GetNumFiles(void)
 //
 int W_GetFileForLump(int lump)
 {
-	DEV_ASSERT2(lump >= 0 && lump < numlumps);
+	SYS_ASSERT(lump >= 0 && lump < numlumps);
 
 	return lumpinfo[lump].file;
 }

@@ -1030,7 +1030,7 @@ void DDF_MobjGetBenefit(const char *info, void *storage)
 
 	benefit_t temp;
 
-	DEV_ASSERT2(storage);
+	SYS_ASSERT(storage);
 
 	num_vals = ParseBenefitString(info, namebuf, parambuf, &temp.amount, &temp.limit);
 
@@ -1091,7 +1091,7 @@ void BA_ParsePowerupEffect(pickup_effect_c **list,
 	int p_up = (int)par1;
 	int slot = (int)par2;
 
-	DEV_ASSERT2(0 <= p_up && p_up < NUMPOWERS);
+	SYS_ASSERT(0 <= p_up && p_up < NUMPOWERS);
 
 	if (slot < 0 || slot >= NUM_FX_SLOT)
 		DDF_Error("POWERUP_EFFECT: bad FX slot #%s\n", par1);
@@ -1119,7 +1119,7 @@ void BA_ParseSwitchWeapon(pickup_effect_c **list,
 	if (pnum != -1)
 		DDF_Error("SWITCH_WEAPON: missing weapon name !\n");
 
-	DEV_ASSERT2(word_par && word_par[0]);
+	SYS_ASSERT(word_par && word_par[0]);
 
 	weapondef_c *weap = weapondefs.Lookup(word_par);
 
@@ -1132,7 +1132,7 @@ void BA_ParseKeepPowerup(pickup_effect_c **list,
 	if (pnum != -1)
 		DDF_Error("KEEP_POWERUP: missing powerup name !\n");
 
-	DEV_ASSERT2(word_par && word_par[0]);
+	SYS_ASSERT(word_par && word_par[0]);
 
 	if (DDF_CompareName(word_par, "BERSERK") != 0)
 		DDF_Error("KEEP_POWERUP: %s is not supported\n", word_par);
@@ -1171,7 +1171,7 @@ void DDF_MobjGetPickupEffect(const char *info, void *storage)
 	char parambuf[200];
 	int num_vals;
 
-	DEV_ASSERT2(storage);
+	SYS_ASSERT(storage);
 
 	pickup_effect_c **fx_list = (pickup_effect_c **) storage;
 
@@ -1384,7 +1384,7 @@ void DDF_MobjGetDLight(const char *info, void *storage)
 	dlight_type_e *dtype = (dlight_type_e *)storage;
 	int flag_value;
 
-	DEV_ASSERT2(dtype);
+	SYS_ASSERT(dtype);
 
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info, 
 		dlight_type_names, &flag_value, false, false))

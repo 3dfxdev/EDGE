@@ -546,7 +546,7 @@ void P_PlayerThink(player_t * player)
 {
 	ticcmd_t *cmd;
 
-	DEV_ASSERT2(player->mo);
+	SYS_ASSERT(player->mo);
 
 #if 0  // DEBUG ONLY
 	{
@@ -558,10 +558,10 @@ void P_PlayerThink(player_t * player)
 				tn->sec_next ? tn->sec_next->mo->info->ddf.name :
 			tn->sec_prev ? tn->sec_prev->mo->info->ddf.name : "(None)");
 
-			DEV_ASSERT2(tn->mo == mo);
+			SYS_ASSERT(tn->mo == mo);
 			if (tn->mo_next)
 			{
-				DEV_ASSERT2(tn->mo_next->mo_prev == tn);
+				SYS_ASSERT(tn->mo_next->mo_prev == tn);
 			}
 		}
 	}
@@ -692,7 +692,7 @@ void P_PlayerThink(player_t * player)
 //
 void P_CreatePlayer(int pnum, bool is_bot)
 {
-	DEV_ASSERT2(0 <= pnum && pnum < MAXPLAYERS);
+	SYS_ASSERT(0 <= pnum && pnum < MAXPLAYERS);
 
 	SYS_ASSERT_MSG(! players[pnum], ("P_CreatePlayer: %d already there", pnum));
 
@@ -764,7 +764,7 @@ void P_UpdateAvailWeapons(player_t *p)
 		if (! p->weapons[i].owned)
 			continue;
 
-		DEV_ASSERT2(p->weapons[i].info);
+		SYS_ASSERT(p->weapons[i].info);
 
 		key = p->weapons[i].info->bind_key;
 

@@ -333,7 +333,7 @@ public:
 			if (rim->anim.speed == 0)  // not animated ?
 				continue;
 
-			DEV_ASSERT2(rim->anim.count > 0);
+			SYS_ASSERT(rim->anim.count > 0);
 
 			rim->anim.count--;
 
@@ -418,7 +418,7 @@ static real_cached_image_t imagecachehead;
 // tiny ring helpers
 static INLINE void InsertAtTail(real_cached_image_t *rc)
 {
-	DEV_ASSERT2(rc != &imagecachehead);
+	SYS_ASSERT(rc != &imagecachehead);
 
 	rc->prev =  imagecachehead.prev;
 	rc->next = &imagecachehead;
@@ -428,7 +428,7 @@ static INLINE void InsertAtTail(real_cached_image_t *rc)
 }
 static INLINE void Unlink(real_cached_image_t *rc)
 {
-	DEV_ASSERT2(rc != &imagecachehead);
+	SYS_ASSERT(rc != &imagecachehead);
 
 	rc->prev->next = rc->next;
 	rc->next->prev = rc->prev;
@@ -473,7 +473,7 @@ static byte dummy_graphic[DUMMY_X * DUMMY_Y] =
 
 int W_MakeValidSize(int value)
 {
-	DEV_ASSERT2(value > 0);
+	SYS_ASSERT(value > 0);
 
 	if (value <=    1) return    1;
 	if (value <=    2) return    2;
@@ -812,7 +812,7 @@ void W_ImageCreateFlats(int *lumps, int number)
 {
 	int i;
 
-	DEV_ASSERT2(lumps);
+	SYS_ASSERT(lumps);
 
 	for (i=0; i < number; i++)
 	{
@@ -838,7 +838,7 @@ void W_ImageCreateTextures(struct texturedef_s ** defs, int number)
 {
 	int i;
 
-	DEV_ASSERT2(defs);
+	SYS_ASSERT(defs);
 
 	for (i=0; i < number; i++)
 	{
@@ -861,7 +861,7 @@ void W_ImageCreateTextures(struct texturedef_s ** defs, int number)
 // 
 const image_t *W_ImageCreateSprite(const char *name, int lump, bool is_weapon)
 {
-	DEV_ASSERT2(lump >= 0);
+	SYS_ASSERT(lump >= 0);
 
 	real_image_t *rim = AddImageGraphic(name, IMSRC_Sprite, lump);
 	if (! rim)
@@ -995,7 +995,7 @@ const image_t ** W_ImageGetUserSprites(int *count)
 static void DrawColumnIntoEpiBlock(real_image_t *rim, epi::basicimage_c *img,
    const column_t *patchcol, int x, int y)
 {
-	DEV_ASSERT2(patchcol);
+	SYS_ASSERT(patchcol);
 
 	int w1 = rim->pub.actual_w;
 	int h1 = rim->pub.actual_h;
@@ -1046,7 +1046,7 @@ static void DrawColumnIntoEpiBlock(real_image_t *rim, epi::basicimage_c *img,
 
 static void CheckEpiBlockSolid(real_image_t *rim, epi::basicimage_c *img)
 {
-	DEV_ASSERT2(img->bpp == 1);
+	SYS_ASSERT(img->bpp == 1);
 
 	int w1 = rim->pub.actual_w;
 	int h1 = rim->pub.actual_h;
@@ -1124,12 +1124,12 @@ static byte *ShrinkBlockRGBA(byte *src, int total_w, int total_h,
 	int x, y, dx, dy;
 	int step_x, step_y;
 
-	DEV_ASSERT2(new_w > 0);
-	DEV_ASSERT2(new_h > 0);
-	DEV_ASSERT2(new_w <= glmax_tex_size);
-	DEV_ASSERT2(new_h <= glmax_tex_size);
-	DEV_ASSERT2((total_w % new_w) == 0);
-	DEV_ASSERT2((total_h % new_h) == 0);
+	SYS_ASSERT(new_w > 0);
+	SYS_ASSERT(new_h > 0);
+	SYS_ASSERT(new_w <= glmax_tex_size);
+	SYS_ASSERT(new_h <= glmax_tex_size);
+	SYS_ASSERT((total_w % new_w) == 0);
+	SYS_ASSERT((total_h % new_h) == 0);
 
 	dest = ShrinkGetBuffer(new_w * new_h * 4);
 
@@ -1223,12 +1223,12 @@ static byte *ShrinkNormalRGB(byte *rgb, int total_w, int total_h,
 	int i, x, y, dx, dy;
 	int step_x, step_y;
 
-	DEV_ASSERT2(new_w > 0);
-	DEV_ASSERT2(new_h > 0);
-	DEV_ASSERT2(new_w <= glmax_tex_size);
-	DEV_ASSERT2(new_h <= glmax_tex_size);
-	DEV_ASSERT2((total_w % new_w) == 0);
-	DEV_ASSERT2((total_h % new_h) == 0);
+	SYS_ASSERT(new_w > 0);
+	SYS_ASSERT(new_h > 0);
+	SYS_ASSERT(new_w <= glmax_tex_size);
+	SYS_ASSERT(new_h <= glmax_tex_size);
+	SYS_ASSERT((total_w % new_w) == 0);
+	SYS_ASSERT((total_h % new_h) == 0);
 
 	dest = ShrinkGetBuffer(new_w * new_h * 3);
 
@@ -1287,12 +1287,12 @@ static byte *ShrinkNormalRGBA(byte *rgba, int total_w, int total_h,
 	int i, x, y, dx, dy;
 	int step_x, step_y;
 
-	DEV_ASSERT2(new_w > 0);
-	DEV_ASSERT2(new_h > 0);
-	DEV_ASSERT2(new_w <= glmax_tex_size);
-	DEV_ASSERT2(new_h <= glmax_tex_size);
-	DEV_ASSERT2((total_w % new_w) == 0);
-	DEV_ASSERT2((total_h % new_h) == 0);
+	SYS_ASSERT(new_w > 0);
+	SYS_ASSERT(new_h > 0);
+	SYS_ASSERT(new_w <= glmax_tex_size);
+	SYS_ASSERT(new_h <= glmax_tex_size);
+	SYS_ASSERT((total_w % new_w) == 0);
+	SYS_ASSERT((total_h % new_h) == 0);
 
 	dest = ShrinkGetBuffer(new_w * new_h * 4);
 
@@ -1519,7 +1519,7 @@ static GLuint W_SendGLTexture(epi::basicimage_c *img,
 				break;
 		}
 
-		DEV_ASSERT2(rgba_src);
+		SYS_ASSERT(rgba_src);
     
 		glTexImage2D(GL_TEXTURE_2D, mip, (img->bpp == 3) ? GL_RGB : GL_RGBA,
 					 new_w, new_h, 0 /* border */,
@@ -1677,7 +1677,7 @@ static void PaletteRemapRGBA(epi::basicimage_c *img,
 //
 static epi::basicimage_c *ReadFlatAsEpiBlock(real_image_t *rim)
 {
-	DEV_ASSERT2(rim->source_type == IMSRC_Flat ||
+	SYS_ASSERT(rim->source_type == IMSRC_Flat ||
 				rim->source_type == IMSRC_Raw320x200);
 
 	int tw = MAX(rim->pub.total_w, 1);
@@ -1729,10 +1729,10 @@ static epi::basicimage_c *ReadFlatAsEpiBlock(real_image_t *rim)
 //
 static epi::basicimage_c *ReadTextureAsEpiBlock(real_image_t *rim)
 {
-	DEV_ASSERT2(rim->source_type == IMSRC_Texture);
+	SYS_ASSERT(rim->source_type == IMSRC_Texture);
 
 	texturedef_t *tdef = rim->source.texture.tdef;
-	DEV_ASSERT2(tdef);
+	SYS_ASSERT(tdef);
 
 	int tw = rim->pub.total_w;
 	int th = rim->pub.total_h;
@@ -1807,7 +1807,7 @@ static epi::basicimage_c *ReadTextureAsEpiBlock(real_image_t *rim)
 //
 static epi::basicimage_c *ReadPatchAsEpiBlock(real_image_t *rim)
 {
-	DEV_ASSERT2(rim->source_type == IMSRC_Graphic ||
+	SYS_ASSERT(rim->source_type == IMSRC_Graphic ||
 				rim->source_type == IMSRC_Sprite);
 
 	int tw = rim->pub.total_w;
@@ -1832,8 +1832,8 @@ static epi::basicimage_c *ReadPatchAsEpiBlock(real_image_t *rim)
 
 	int realsize = W_LumpLength(rim->source.graphic.lump);
 
-	DEV_ASSERT2(rim->pub.actual_w == EPI_LE_S16(realpatch->width));
-	DEV_ASSERT2(rim->pub.actual_h == EPI_LE_S16(realpatch->height));
+	SYS_ASSERT(rim->pub.actual_w == EPI_LE_S16(realpatch->width));
+	SYS_ASSERT(rim->pub.actual_h == EPI_LE_S16(realpatch->height));
   
 	for (int x=0; x < rim->pub.actual_w; x++)
 	{
@@ -1909,9 +1909,9 @@ static inline bool SkyIsNarrow(const image_t *sky)
 //
 static epi::basicimage_c *ReadSkyMergeAsEpiBlock(real_image_t *rim)
 {
-	DEV_ASSERT2(rim->source_type == IMSRC_SkyMerge);
-	DEV_ASSERT2(rim->pub.actual_w == rim->pub.total_w);
-	DEV_ASSERT2(rim->pub.actual_h == rim->pub.total_h);
+	SYS_ASSERT(rim->source_type == IMSRC_SkyMerge);
+	SYS_ASSERT(rim->pub.actual_w == rim->pub.total_w);
+	SYS_ASSERT(rim->pub.actual_h == rim->pub.total_h);
 
 	int tw = rim->pub.total_w;
 	int th = rim->pub.total_h;
@@ -2093,11 +2093,11 @@ static epi::basicimage_c *ReadSkyMergeAsEpiBlock(real_image_t *rim)
 //
 static epi::basicimage_c *ReadDummyAsEpiBlock(real_image_t *rim)
 {
-	DEV_ASSERT2(rim->source_type == IMSRC_Dummy);
-	DEV_ASSERT2(rim->pub.actual_w == rim->pub.total_w);
-	DEV_ASSERT2(rim->pub.actual_h == rim->pub.total_h);
-	DEV_ASSERT2(rim->pub.total_w == DUMMY_X);
-	DEV_ASSERT2(rim->pub.total_h == DUMMY_Y);
+	SYS_ASSERT(rim->source_type == IMSRC_Dummy);
+	SYS_ASSERT(rim->pub.actual_w == rim->pub.total_w);
+	SYS_ASSERT(rim->pub.actual_h == rim->pub.total_h);
+	SYS_ASSERT(rim->pub.total_w == DUMMY_X);
+	SYS_ASSERT(rim->pub.total_h == DUMMY_Y);
 
 	int tw = rim->pub.total_w;
 	int th = rim->pub.total_h;
@@ -2125,7 +2125,7 @@ static void NormalizeClearAreas(epi::basicimage_c *img)
 	// makes sure that any totally transparent pixel (alpha == 0)
 	// has a colour of black.  This shows up when smoothing is on.
 
-	DEV_ASSERT2(img->bpp == 4);
+	SYS_ASSERT(img->bpp == 4);
 
 	byte *dest = img->pixels;
 
@@ -2184,7 +2184,7 @@ static void EightWaySymmetry(epi::basicimage_c *img)
 	// the triangle piece is where x >= y.  The diagonal (x == y) must
 	// already be drawn.
 
-	DEV_ASSERT2(img->width == img->height);
+	SYS_ASSERT(img->width == img->height);
 
 	int hw = (img->width + 1) / 2;
 
@@ -2199,8 +2199,8 @@ static void EightWaySymmetry(epi::basicimage_c *img)
 
 static void CreateUserBuiltinLinear(epi::basicimage_c *img, imagedef_c *def)
 {
-	DEV_ASSERT2(img->bpp == 4);
-	DEV_ASSERT2(img->width == img->height);
+	SYS_ASSERT(img->bpp == 4);
+	SYS_ASSERT(img->width == img->height);
 
 	int hw = (img->width + 1) / 2;
 
@@ -2238,8 +2238,8 @@ static void CreateUserBuiltinLinear(epi::basicimage_c *img, imagedef_c *def)
 
 static void CreateUserBuiltinQuadratic(epi::basicimage_c *img, imagedef_c *def)
 {
-	DEV_ASSERT2(img->bpp == 4);
-	DEV_ASSERT2(img->width == img->height);
+	SYS_ASSERT(img->bpp == 4);
+	SYS_ASSERT(img->width == img->height);
 
 	int hw = (img->width + 1) / 2;
 
@@ -2279,8 +2279,8 @@ static void CreateUserBuiltinQuadratic(epi::basicimage_c *img, imagedef_c *def)
 
 static void CreateUserBuiltinShadow(epi::basicimage_c *img, imagedef_c *def)
 {
-	DEV_ASSERT2(img->bpp == 4);
-	DEV_ASSERT2(img->width == img->height);
+	SYS_ASSERT(img->bpp == 4);
+	SYS_ASSERT(img->width == img->height);
 
 	int hw = (img->width + 1) / 2;
 
@@ -2382,8 +2382,8 @@ static epi::basicimage_c *CreateUserFileImage(real_image_t *rim, imagedef_c *def
 	if (img->bpp == 4)
 		NormalizeClearAreas(img);
 
-	DEV_ASSERT2(rim->pub.total_w == img->width);
-	DEV_ASSERT2(rim->pub.total_h == img->height);
+	SYS_ASSERT(rim->pub.total_w == img->width);
+	SYS_ASSERT(rim->pub.total_h == img->height);
 
 	return img;
 }
@@ -2396,7 +2396,7 @@ static epi::basicimage_c *CreateUserFileImage(real_image_t *rim, imagedef_c *def
 //
 static epi::basicimage_c *ReadUserAsEpiBlock(real_image_t *rim)
 {
-	DEV_ASSERT2(rim->source_type == IMSRC_User);
+	SYS_ASSERT(rim->source_type == IMSRC_User);
 
 	int tw = MAX(rim->pub.total_w, 1);
 	int th = MAX(rim->pub.total_h, 1);
@@ -2511,7 +2511,7 @@ real_cached_image_t *LoadImageBlock(real_image_t *rim, int mip)
   
 	rc = ReadAsBlock(rim, mip);
 
-	DEV_ASSERT2(rc->mode == IMG_Block);
+	SYS_ASSERT(rc->mode == IMG_Block);
 
 	rc->users++;
 	InsertAtTail(rc);
@@ -2700,10 +2700,10 @@ static void UnloadImage(real_cached_image_t *rc)
 {
 	real_image_t *rim = rc->parent;
 
-	DEV_ASSERT2(rc);
-	DEV_ASSERT2(rc != &imagecachehead);
-	DEV_ASSERT2(rim);
-	DEV_ASSERT2(rc->users == 0);
+	SYS_ASSERT(rc);
+	SYS_ASSERT(rc != &imagecachehead);
+	SYS_ASSERT(rim);
+	SYS_ASSERT(rc->users == 0);
 
 	// unlink from the cache list
 	Unlink(rc);
@@ -2898,7 +2898,7 @@ const image_t *W_ImageLookup(const char *name, image_namespace_e type, int flags
 			break;
 	}
 
-	DEV_ASSERT2(rim);
+	SYS_ASSERT(rim);
 
 	return &rim->pub;
 }
@@ -2935,7 +2935,7 @@ const image_t *W_ImageFromSkyMerge(const image_t *sky, int face)
 	{
 		rim = ITERATOR_TO_TYPE(it, real_image_t*);
     
-		DEV_ASSERT2(rim->source_type == IMSRC_SkyMerge);
+		SYS_ASSERT(rim->source_type == IMSRC_SkyMerge);
 
 		if (sky != rim->source.merge.sky)
 			continue;
@@ -3152,8 +3152,8 @@ const cached_image_t *ImageCacheBlock(real_image_t *rim, int mip)
 		rc = rim->block_cache.mips[mip] = LoadImageBlock(rim, mip);
 	}
 
-	DEV_ASSERT2(rc);
-	DEV_ASSERT2(rc->mode == IMG_Block);
+	SYS_ASSERT(rc);
+	SYS_ASSERT(rc->mode == IMG_Block);
 
 	return (const cached_image_t *)(rc + 1);
 }
@@ -3188,8 +3188,8 @@ const cached_image_t *ImageCacheOGL(real_image_t *rim)
 		rc = rim->ogl_cache = LoadImageOGL(rim, NULL);
 	}
 
-	DEV_ASSERT2(rc);
-	DEV_ASSERT2(rc->mode == IMG_OGL);
+	SYS_ASSERT(rc);
+	SYS_ASSERT(rc->mode == IMG_OGL);
 
 	return (const cached_image_t *)(rc + 1);
 }
@@ -3254,8 +3254,8 @@ const cached_image_t *ImageCacheTransOGL(real_image_t *rim,
 		rc = rim->trans_cache.trans[free_slot] = LoadImageOGL(rim, trans);
 	}
 
-	DEV_ASSERT2(rc);
-	DEV_ASSERT2(rc->mode == IMG_OGL);
+	SYS_ASSERT(rc);
+	SYS_ASSERT(rc->mode == IMG_OGL);
 
 	return (const cached_image_t *)(rc + 1);
 }
@@ -3327,15 +3327,15 @@ const epi::basicimage_c *W_ImageGetEpiBlock(const cached_image_t *c)
 {
 	real_cached_image_t *rc;
  
-	DEV_ASSERT2(c);
+	SYS_ASSERT(c);
 
 	// Intentional Const Override
 	rc = ((real_cached_image_t *) c) - 1;
 
-	DEV_ASSERT2(rc->parent);
-	DEV_ASSERT2(rc->mode == IMG_Block);
+	SYS_ASSERT(rc->parent);
+	SYS_ASSERT(rc->mode == IMG_Block);
 
-	DEV_ASSERT2(rc->info.block.pixels);
+	SYS_ASSERT(rc->info.block.pixels);
 
 	return rc->info.block.pixels;
 }
@@ -3347,13 +3347,13 @@ const epi::basicimage_c *W_ImageGetEpiBlock(const cached_image_t *c)
 //
 GLuint W_ImageGetOGL(const cached_image_t *c)
 {
-	DEV_ASSERT2(c);
+	SYS_ASSERT(c);
 
 	// Intentional Const Override
 	real_cached_image_t *rc = ((real_cached_image_t *) c) - 1;
 
-	DEV_ASSERT2(rc->parent);
-	DEV_ASSERT2(rc->mode == IMG_OGL);
+	SYS_ASSERT(rc->parent);
+	SYS_ASSERT(rc->mode == IMG_OGL);
 
 	return rc->info.ogl.tex_id;
 }
@@ -3361,13 +3361,13 @@ GLuint W_ImageGetOGL(const cached_image_t *c)
 #if 0
 rgbcol_t W_ImageGetHue(const cached_image_t *c)
 {
-	DEV_ASSERT2(c);
+	SYS_ASSERT(c);
 
 	// Intentional Const Override
 	real_cached_image_t *rc = ((real_cached_image_t *) c) - 1;
 
-	DEV_ASSERT2(rc->parent);
-	DEV_ASSERT2(rc->mode == IMG_OGL);
+	SYS_ASSERT(rc->parent);
+	SYS_ASSERT(rc->mode == IMG_OGL);
 
 	return rc->hue;
 }
@@ -3565,8 +3565,8 @@ void W_AnimateImageSet(const image_t ** images, int number, int speed)
 	int i, total;
 	real_image_t *rim, *other;
 
-	DEV_ASSERT2(images);
-	DEV_ASSERT2(speed > 0);
+	SYS_ASSERT(images);
+	SYS_ASSERT(speed > 0);
 
 	// ignore images that are already animating
 	for (i=0, total=0; i < number; i++)

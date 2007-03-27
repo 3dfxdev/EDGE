@@ -732,7 +732,7 @@ exfloor_fit_e P_ExtraFloorFits(sector_t *sec, float z1, float z2)
 		float bottom = ef->bottom_h;
 		float top = ef->top_h;
 
-		DEV_ASSERT2(top >= bottom);
+		SYS_ASSERT(top >= bottom);
 
 		// here is another solid extrafloor, check for overlap
 		if (z2 > bottom && z1 < top)
@@ -756,8 +756,8 @@ void P_AddExtraFloor(sector_t *sec, line_t *line)
 	bool liquid;
 	exfloor_fit_e errcode;
 
-	DEV_ASSERT2(line->special);
-	DEV_ASSERT2(line->special->ef.type & EXFL_Present);
+	SYS_ASSERT(line->special);
+	SYS_ASSERT(line->special->ef.type & EXFL_Present);
 
 	ef_info = &line->special->ef;
 
@@ -765,7 +765,7 @@ void P_AddExtraFloor(sector_t *sec, line_t *line)
 	// -- create new extrafloor --
 	// 
 
-	DEV_ASSERT2(sec->exfloor_used <= sec->exfloor_max);
+	SYS_ASSERT(sec->exfloor_used <= sec->exfloor_max);
 
 	if (sec->exfloor_used == sec->exfloor_max)
 		I_Error("INTERNAL ERROR: extrafloor overflow in sector %d\n",
@@ -917,7 +917,7 @@ void P_FloodExtraFloors(sector_t *sector)
 			C = L;  L = L->lower;
 		}
 
-		DEV_ASSERT2(C);
+		SYS_ASSERT(C);
 
 		props = &C->ef_line->frontsector->props;
 
@@ -1090,7 +1090,7 @@ void P_ComputeWallTiles(line_t *ld, int sidenum)
 			C = L;  L = L->higher;
 		}
 
-		DEV_ASSERT2(C);
+		SYS_ASSERT(C);
 
 		// ignore liquids in the middle of THICK solids, or below real
 		// floor or above real ceiling
@@ -1279,7 +1279,7 @@ static void SetPositionBSP(setposbsp_t *info, int nodenum)
 			side = 1;
 		}
 
-		DEV_ASSERT2(side == 0 || side == 1);
+		SYS_ASSERT(side == 0 || side == 1);
 
 		nodenum = nd->children[side];
 	}
@@ -1338,7 +1338,7 @@ static void SetPositionBSP(setposbsp_t *info, int nodenum)
 			return;
 		}
 
-		DEV_ASSERT2(tn->mo == info->thing);
+		SYS_ASSERT(tn->mo == info->thing);
 
 		// sector already present ?
 		if (tn->sec == sec)
@@ -1461,13 +1461,13 @@ static void P_UnsetThingPosition(mobj_t * thing)
 	{
 		if (thing->dlnext)
 		{
-			DEV_ASSERT2(thing->dlnext->dlprev == thing);
+			SYS_ASSERT(thing->dlnext->dlprev == thing);
 			thing->dlnext->dlprev = thing->dlprev;
 		}
 
 		if (thing->dlprev)
 		{
-			DEV_ASSERT2(thing->dlprev->dlnext == thing);
+			SYS_ASSERT(thing->dlprev->dlnext == thing);
 			thing->dlprev->dlnext = thing->dlnext;
 		}
 		else
@@ -1480,7 +1480,7 @@ static void P_UnsetThingPosition(mobj_t * thing)
 			{
 				bnum = blocky * bmapwidth + blockx;
 
-				DEV_ASSERT2(blocklights[bnum] == thing);
+				SYS_ASSERT(blocklights[bnum] == thing);
 				blocklights[bnum] = thing->dlnext;
 			}
 		}
@@ -1533,7 +1533,7 @@ void P_SetThingPosition(mobj_t * thing)
 	if (thing->snext || thing->sprev || thing->bnext || thing->bprev)
 		I_Error("INTERNAL ERROR: Double P_SetThingPosition call.");
 
-	DEV_ASSERT2(! (thing->dlnext || thing->dlprev));
+	SYS_ASSERT(! (thing->dlnext || thing->dlprev));
 #endif  // DEVELOPERS
 
 	// link into subsector
@@ -1585,7 +1585,7 @@ void P_SetThingPosition(mobj_t * thing)
 			touch_node_t *cur = tn;
 			tn = tn->mo_next;
 
-			DEV_ASSERT2(! cur->mo);
+			SYS_ASSERT(! cur->mo);
 
 			TouchNodeUnlinkFromSector(cur);
 			TouchNodeFree(cur);

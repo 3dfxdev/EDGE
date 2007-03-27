@@ -245,7 +245,7 @@ void M_SaveDefaults(void)
 	int numdefaults = sizeof(defaults) / sizeof(defaults[0]);
 
 	// -ACB- 1999/09/24 idiot proof checking as required by MSVC
-	DEV_ASSERT2(cfgfile);
+	SYS_ASSERT(cfgfile);
 
 	f = fopen(cfgfile, "w");
 	if (!f)
@@ -466,7 +466,7 @@ void M_DisplayAir(void)
 	if (p->playerstate != PST_LIVE || ! p->underwater)
 		return;
 
-	DEV_ASSERT2(p->mo);
+	SYS_ASSERT(p->mo);
 
 	// load in patches for air indicator
 	if (!air_images[0])
@@ -488,7 +488,7 @@ void M_DisplayAir(void)
     
 		i = 1 + (20 * (denom - nom) / denom);
 
-		DEV_ASSERT2(1 <= i && i <= 20);
+		SYS_ASSERT(1 <= i && i <= 20);
 	}
   
 	RGL_ImageEasy320(0, 0, air_images[i - 1]);
@@ -596,8 +596,8 @@ void M_MakeSaveScreenShot(void)
 					ax = x * viewwindowwidth  / 160;
 					ay = y * viewwindowheight / 100;
 
-					DEV_ASSERT2(0 <= ax && ax < SCREENWIDTH);
-					DEV_ASSERT2(0 <= ay && ay < SCREENHEIGHT);
+					SYS_ASSERT(0 <= ax && ax < SCREENWIDTH);
+					SYS_ASSERT(0 <= ay && ay < SCREENHEIGHT);
 
 					pixel = top[ay * main_scr->pitch + ax];
 
@@ -622,8 +622,8 @@ void M_MakeSaveScreenShot(void)
 					ax = x * viewwindowwidth  / 160;
 					ay = y * viewwindowheight / 100;
 
-					DEV_ASSERT2(0 <= ax && ax < SCREENWIDTH);
-					DEV_ASSERT2(0 <= ay && ay < SCREENHEIGHT);
+					SYS_ASSERT(0 <= ax && ax < SCREENWIDTH);
+					SYS_ASSERT(0 <= ay && ay < SCREENHEIGHT);
 
 					rgb = top[ay * main_scr->pitch/2 + ax];
 
@@ -686,8 +686,8 @@ byte* M_GetFileData(const char *filename, int *length)
 	byte *data;
 
 	// Sanity Checks..
-	DEV_ASSERT2(filename);
-	DEV_ASSERT2(length);
+	SYS_ASSERT(filename);
+	SYS_ASSERT(length);
 
 	lumpfile = fopen(filename, "rb");  
 	if (!lumpfile)
@@ -725,7 +725,7 @@ void M_WarnError(const char *error,...)
 	va_end(argptr);
 
 	// I hope nobody is printing strings longer than 4096 chars...
-	DEV_ASSERT2(message_buf[4095] == 0);
+	SYS_ASSERT(message_buf[4095] == 0);
 
 	if (strict_errors)
 		I_Error("%s", message_buf);
@@ -784,7 +784,7 @@ void L_WriteLog(const char *message,...)
 	va_end(argptr);
 
 	// I hope nobody is printing strings longer than 4096 chars...
-	DEV_ASSERT2(message_buf[4095] == 0);
+	SYS_ASSERT(message_buf[4095] == 0);
 
 	fprintf(logfile, "%s", message_buf);
 	fflush(logfile);
@@ -802,7 +802,7 @@ int L_ConvertToDB(int volume, int min, int max)
 	float tmp;
 	int result;
 
-	DEV_ASSERT2(0 <= volume && volume <= 255);
+	SYS_ASSERT(0 <= volume && volume <= 255);
 
 	tmp = 1.0f - (float)log(256.0f / (volume + 1.0f)) / (float)log(256.0f);
 

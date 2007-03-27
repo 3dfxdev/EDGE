@@ -464,18 +464,18 @@ bool RAD_CheckReachedTrigger(mobj_t * thing)
 		choice = P_Random() % scr->next_path_total;
 
 	path = scr->next_in_path;
-	DEV_ASSERT2(path);
+	SYS_ASSERT(path);
 
 	for (; choice > 0; choice--)
 	{
 		path = path->next;
-		DEV_ASSERT2(path);
+		SYS_ASSERT(path);
 	}
 
 	if (! path->cached_scr)
 		path->cached_scr = RAD_FindScriptByName(scr->mapid, path->name);
 
-	DEV_ASSERT2(path->cached_scr);
+	SYS_ASSERT(path->cached_scr);
 
 	thing->path_trigger = path->cached_scr;
 	return true;
@@ -898,7 +898,7 @@ static void RAD_ParseScript(void)
 //
 void RAD_LoadFile(const char *name)
 {
-	DEV_ASSERT2(name);
+	SYS_ASSERT(name);
 
 	L_WriteDebug("RTS: Loading File %s\n", name);
 
@@ -960,7 +960,7 @@ void RAD_Init(void)
 
 void RAD_StartMenu(rad_trigger_t *R, s_show_menu_t *menu)
 {
-	DEV_ASSERT2(! rts_menuactive);
+	SYS_ASSERT(! rts_menuactive);
 
 	// find the right style
 	styledef_c *def = NULL;
@@ -981,7 +981,7 @@ void RAD_FinishMenu(int result)
 	if (! rts_menuactive)
 		return;
 	
-	DEV_ASSERT2(rts_curr_menu);
+	SYS_ASSERT(rts_curr_menu);
 
 	// zero is cancelled, otherwise result is 1..N
 	if (result < 0 || result > MAX(1, rts_curr_menu->NumChoices()))
@@ -997,7 +997,7 @@ void RAD_FinishMenu(int result)
 
 static void RAD_MenuDrawer(void)
 {
-	DEV_ASSERT2(rts_curr_menu);
+	SYS_ASSERT(rts_curr_menu);
 
 	rts_curr_menu->Drawer();
 }
@@ -1025,7 +1025,7 @@ bool RAD_Responder(event_t * ev)
 	if (! rts_menuactive)
 		return false;
 		
-	DEV_ASSERT2(rts_curr_menu);
+	SYS_ASSERT(rts_curr_menu);
 
 	int check = rts_curr_menu->CheckKey(ev->value.key);
 

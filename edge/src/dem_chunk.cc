@@ -144,7 +144,7 @@ bool DEM_OpenReadFile(epi::file_c *fp)
 //
 bool DEM_CloseReadFile(void)
 {
-	DEV_ASSERT2(read_fp);
+	SYS_ASSERT(read_fp);
 
 	if (chunk_stack_size != 0)
 		I_Error("DEM_CloseReadFile: Too many Pushes (missing Pop somewhere).\n");
@@ -229,9 +229,9 @@ unsigned char DEM_GetByte(void)
 
 	cur = &chunk_stack[chunk_stack_size - 1];
 
-	DEV_ASSERT2(cur->start);
-	DEV_ASSERT2(cur->pos >= cur->start);
-	DEV_ASSERT2(cur->pos <= cur->end);
+	SYS_ASSERT(cur->start);
+	SYS_ASSERT(cur->pos >= cur->start);
+	SYS_ASSERT(cur->pos <= cur->end);
 
 	if (cur->pos == cur->end)
 	{
@@ -283,7 +283,7 @@ bool DEM_PushReadChunk(const char *id)
 		for (i=0; (i < file_len) && !last_error; i++)
 			cur->start[i] = DEM_GetByte();
 
-		DEV_ASSERT2(!last_error);
+		SYS_ASSERT(!last_error);
 	}
 	else
 	{
@@ -295,8 +295,8 @@ bool DEM_PushReadChunk(const char *id)
 		// skip data in parent
 		parent->pos += file_len;
 
-		DEV_ASSERT2(parent->pos >= parent->start);
-		DEV_ASSERT2(parent->pos <= parent->end);
+		SYS_ASSERT(parent->pos >= parent->start);
+		SYS_ASSERT(parent->pos <= parent->end);
 	}
 
 	cur->pos = cur->start;
@@ -332,12 +332,12 @@ bool DEM_PopReadChunk(void)
 //
 int DEM_RemainingChunkSize(void)
 {
-	DEV_ASSERT2(chunk_stack_size > 0);
+	SYS_ASSERT(chunk_stack_size > 0);
 
 	chunk_t *cur = &chunk_stack[chunk_stack_size - 1];
 
-	DEV_ASSERT2(cur->pos >= cur->start);
-	DEV_ASSERT2(cur->pos <= cur->end);
+	SYS_ASSERT(cur->pos >= cur->start);
+	SYS_ASSERT(cur->pos <= cur->end);
 
 	return (cur->end - cur->pos);
 }
@@ -392,7 +392,7 @@ bool DEM_OpenWriteFile(const char *filename, int version)
 //
 bool DEM_CloseWriteFile(void)
 {
-	DEV_ASSERT2(write_fp);
+	SYS_ASSERT(write_fp);
 
 	if (chunk_stack_size != 0)
 		I_Error("DEM_CloseWriteFile: Too many Pushes (missing Pop somewhere).\n");
@@ -450,9 +450,9 @@ bool DEM_PopWriteChunk(void)
 
 	chunk_t *cur = &chunk_stack[chunk_stack_size - 1];
 
-	DEV_ASSERT2(cur->start);
-	DEV_ASSERT2(cur->pos >= cur->start);
-	DEV_ASSERT2(cur->pos <= cur->end);
+	SYS_ASSERT(cur->start);
+	SYS_ASSERT(cur->pos >= cur->start);
+	SYS_ASSERT(cur->pos <= cur->end);
 
 	len = cur->pos - cur->start;
 
@@ -527,9 +527,9 @@ void DEM_PutByte(unsigned char value)
 
 	chunk_t *cur = &chunk_stack[chunk_stack_size - 1];
 
-	DEV_ASSERT2(cur->start);
-	DEV_ASSERT2(cur->pos >= cur->start);
-	DEV_ASSERT2(cur->pos <= cur->end);
+	SYS_ASSERT(cur->start);
+	SYS_ASSERT(cur->pos >= cur->start);
+	SYS_ASSERT(cur->pos <= cur->end);
 
 	// space left in chunk ?  If not, resize it.
 	if (cur->pos == cur->end)
@@ -660,8 +660,8 @@ void DEM_PutMarker(const char *id)
 {
 	int i;
 
-	DEV_ASSERT2(id);
-	DEV_ASSERT2(strlen(id) == 4);
+	SYS_ASSERT(id);
+	SYS_ASSERT(strlen(id) == 4);
 
 	for (i=0; i < 4; i++)
 		DEM_PutByte((unsigned char) id[i]);
@@ -758,7 +758,7 @@ void DEM_GetTiccmd(ticcmd_t *cmd)
 
 void DEM_PutPlayerSync(const player_t *p)
 {
-	DEV_ASSERT2(p->mo);
+	SYS_ASSERT(p->mo);
 
 	DEM_PutShort(p->pnum);
 
