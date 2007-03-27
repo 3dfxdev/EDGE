@@ -211,7 +211,7 @@ static int FindChannelToKill(int kill_cat, int real_cat, int new_score)
 	int kill_idx = -1;
 	int kill_score = (1<<30);
 
-I_Printf("FindChannelToKill: cat:%d new_score:%d\n", kill_cat, new_score);
+//I_Printf("FindChannelToKill: cat:%d new_score:%d\n", kill_cat, new_score);
 	for (int j=0; j < num_chan; j++)
 	{
 		mix_channel_c *chan = mix_chan[j];
@@ -224,7 +224,7 @@ I_Printf("FindChannelToKill: cat:%d new_score:%d\n", kill_cat, new_score);
 		
 		int score = ChannelScore(chan->def, chan->category,
 								 chan->pos, chan->boss);
-I_Printf("> [%d] '%s' = %d\n", j, chan->def->lump_name.GetString(), score);
+//I_Printf("> [%d] '%s' = %d\n", j, chan->def->lump_name.GetString(), score);
 		// find one with LOWEST score
 		if (score < kill_score)
 		{
@@ -232,7 +232,7 @@ I_Printf("> [%d] '%s' = %d\n", j, chan->def->lump_name.GetString(), score);
 			kill_score = score;
 		}
 	}
-I_Printf("kill_idx = %d\n", kill_idx);
+//I_Printf("kill_idx = %d\n", kill_idx);
 	DEV_ASSERT2(kill_idx >= 0);
 
 	if (kill_cat != real_cat)
@@ -254,7 +254,7 @@ void S_Init(void)
 	int want_chan = channel_counts[var_mix_channels];
 
 	I_Printf("I_StartupSound: Init %d mixing channels\n", want_chan);
-			
+
 	// setup channels
 	S_InitChannels(want_chan);
 
@@ -297,9 +297,9 @@ sfxdef_c * LookupEffectDef(const sfx_t *s)
 
 static void S_PlaySound(int idx, sfxdef_c *def, int category, position_c *pos, int flags)
 {
-I_Printf("S_PlaySound on idx #%d DEF:%p\n", idx, def);
+//I_Printf("S_PlaySound on idx #%d DEF:%p\n", idx, def);
 
-I_Printf("Looked up def: %p, caching...\n", def);
+//I_Printf("Looked up def: %p, caching...\n", def);
 	fx_data_c *buf = S_CacheLoad(def);
 	if (! buf)
 		return;
@@ -309,7 +309,7 @@ I_Printf("Looked up def: %p, caching...\n", def);
 	chan->state = CHAN_Playing;
 	chan->data  = buf;
 
-I_Printf("chan=%p data=%p\n", chan, chan->data);
+//I_Printf("chan=%p data=%p\n", chan, chan->data);
 
 	chan->def = def;
 	chan->pos = pos;
@@ -327,7 +327,7 @@ I_Printf("chan=%p data=%p\n", chan, chan->data);
 
 	chan->ComputeDelta();
 
-I_Printf("FINISHED: delta=0x%lx\n", chan->delta);
+//I_Printf("FINISHED: delta=0x%lx\n", chan->delta);
 }
 
 static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
@@ -338,12 +338,12 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 
 	if (k >= 0)
 	{
-I_Printf("@ already playing on #%d\n", k);
+//I_Printf("@ already playing on #%d\n", k);
 		mix_channel_c *chan = mix_chan[k];
 
 		if (def->looping)
 		{
-I_Printf("@@ RE-LOOPING\n");
+//I_Printf("@@ RE-LOOPING\n");
 			chan->loop = true;
 			return;
 		}
@@ -366,7 +366,7 @@ I_Printf("@@ RE-LOOPING\n");
 			k = -1;
 	}
 
-I_Printf("@ free channel = #%d\n", k);
+//I_Printf("@ free channel = #%d\n", k);
 	if (k < 0)
 	{
 		// all channels are in use.
@@ -382,19 +382,18 @@ I_Printf("@ free channel = #%d\n", k);
 		{
 			// we haven't reached our quota yet, hence kill a hog.
 			kill_cat = FindBiggestHog(category);
-I_Printf("@ biggest hog: %d\n", kill_cat);
+//I_Printf("@ biggest hog: %d\n", kill_cat);
 		}
 
 		DEV_ASSERT2(cat_counts[kill_cat] >= cat_limits[kill_cat]);
 
 		k = FindChannelToKill(kill_cat, category, new_score);
 
-if (k<0) I_Printf("- new score too low\n");
+//if (k<0) I_Printf("- new score too low\n");
 		if (k < 0)
 			return;
 
-I_Printf("- killing channel %d (kill_cat:%d)  my_cat:%d\n",
-k, kill_cat, category);
+//I_Printf("- killing channel %d (kill_cat:%d)  my_cat:%d\n", k, kill_cat, category);
 		S_KillChannel(k);
 	}
 
@@ -430,8 +429,7 @@ void S_StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 		flags |= (def->precious ? FX_Precious : 0);
 	}
 
-I_Printf("StartFX: '%s' cat:%d flags:0x%04x\n", def->lump_name.GetString(),
-	category, flags);
+//I_Printf("StartFX: '%s' cat:%d flags:0x%04x\n", def->lump_name.GetString(), category, flags);
 
 	while (cat_limits[category] == 0)
 		category++;
@@ -456,7 +454,7 @@ void S_StopFX(position_c *pos)
 
 			if (chan->state == CHAN_Playing && chan->pos == pos)
 			{
-I_Printf("S_StopFX: killing #%d\n", i);
+//I_Printf("S_StopFX: killing #%d\n", i);
 				S_KillChannel(i);
 			}
 		}
