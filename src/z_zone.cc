@@ -65,7 +65,7 @@ typedef struct mallocheader_s
 	int size;
 } mallocheader_t;
 
-#define CHECK_PTR(h) DEV_ASSERT((*(int *)((char *)(h) + (h)->size + sizeof(mallocheader_t)) == ZONEID), ("Block without ZONEID"))
+#define CHECK_PTR(h) SYS_ASSERT_MSG((*(int *)((char *)(h) + (h)->size + sizeof(mallocheader_t)) == ZONEID), ("Block without ZONEID"))
 #endif
 
 //

@@ -490,7 +490,7 @@ bool SR_PlayerGetName(void *storage, int index, void *extra)
 	char *dest = (char *)storage;
 	const char *str;
 
-	DEV_ASSERT(index == 0, ("SR_PlayerGetName: index != 0"));
+	SYS_ASSERT(index == 0);
 
 	str = SV_GetString();
 	Z_StrNCpy(dest, str, MAX_PLAYNAME-1);
@@ -506,7 +506,7 @@ void SR_PlayerPutName(void *storage, int index, void *extra)
 {
 	char *src = (char *)storage;
 
-	DEV_ASSERT(index == 0, ("SR_PlayerGetName: index != 0"));
+	SYS_ASSERT(index == 0);
 
 	SV_PutString(src);
 }

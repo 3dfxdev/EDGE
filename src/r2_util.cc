@@ -78,7 +78,7 @@ void R2_FreeupBSP(void)
 //
 drawthing_t* drawthingarray_c::GetNew()
 {
-	DEV_ASSERT(!active_trans, ("[drawthingarray_c::GetNew] called twice"));	
+	SYS_ASSERT_MSG(!active_trans, ("[drawthingarray_c::GetNew] called twice"));	
 
 	drawthing_t *dt;
 
@@ -106,7 +106,7 @@ drawthing_t* drawthingarray_c::GetNew()
 //
 void drawthingarray_c::Commit(void)
 {
-	DEV_ASSERT(active_trans, ("[drawthingarray_c::Commit] no active trans"));
+	SYS_ASSERT_MSG(active_trans, ("[drawthingarray_c::Commit] no active trans"));
 	active_trans = false;
 }
 
@@ -115,7 +115,7 @@ void drawthingarray_c::Commit(void)
 //
 void drawthingarray_c::Rollback(void)
 {
-	DEV_ASSERT(active_trans, ("[drawthingarray_c::Rollback] no active trans"));
+	SYS_ASSERT_MSG(active_trans, ("[drawthingarray_c::Rollback] no active trans"));
 	active_trans = false;
 	commited--;
 }
@@ -129,7 +129,7 @@ void drawthingarray_c::Rollback(void)
 //
 drawfloor_t* drawfloorarray_c::GetNew()
 {
-	DEV_ASSERT(!active_trans, ("[drawfloorarray_c::GetNew] called twice"));	
+	SYS_ASSERT_MSG(!active_trans, ("[drawfloorarray_c::GetNew] called twice"));	
 
 	drawfloor_t *df;
 
@@ -157,7 +157,7 @@ drawfloor_t* drawfloorarray_c::GetNew()
 //
 void drawfloorarray_c::Commit(void)
 {
-	DEV_ASSERT(active_trans, ("[drawfloorarray_c::Commit] no active trans"));
+	SYS_ASSERT_MSG(active_trans, ("[drawfloorarray_c::Commit] no active trans"));
 	active_trans = false;
 }
 
@@ -166,7 +166,7 @@ void drawfloorarray_c::Commit(void)
 //
 void drawfloorarray_c::Rollback(void)
 {
-	DEV_ASSERT(active_trans, ("[drawfloorarray_c::Rollback] no active trans"));
+	SYS_ASSERT_MSG(active_trans, ("[drawfloorarray_c::Rollback] no active trans"));
 	active_trans = false;
 	commited--;
 }

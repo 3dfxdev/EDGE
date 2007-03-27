@@ -3292,12 +3292,12 @@ void W_ImageDone(const cached_image_t *c)
 {
 	real_cached_image_t *rc;
 
-	DEV_ASSERT2(c);
+	SYS_ASSERT(c);
 
 	// Intentional Const Override
 	rc = ((real_cached_image_t *) c) - 1;
 
-	DEV_ASSERT(rc->users > 0, ("W_ImageDone: No users"));
+	SYS_ASSERT(rc->users > 0);
 
 	rc->users--;
 
@@ -3537,7 +3537,7 @@ void W_ResetImages(void)
 //
 void W_LockImagesOGL(void)
 {
-	DEV_ASSERT(!w_locked_ogl, ("W_LockImagesOGL: Already locked."));
+	SYS_ASSERT(!w_locked_ogl);
 
 	w_locked_ogl = true;
 }
@@ -3547,7 +3547,7 @@ void W_LockImagesOGL(void)
 //
 void W_UnlockImagesOGL(void)
 {
-	DEV_ASSERT(w_locked_ogl, ("W_UnlockImagesOGL: NOT locked."));
+	SYS_ASSERT(w_locked_ogl);
 
 	w_locked_ogl = false;
 }
