@@ -28,8 +28,5 @@
 #include "dm_state.h"
 #include "wp_main.h"
 
-// for CVar enums
-const char WIPE_EnumStr[] = "none/melt/crossfade/pixelfade/top/bottom/left/right/spooky/doors";
-
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
