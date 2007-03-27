@@ -153,8 +153,8 @@ bool I_StartupSound(void *sysinfo)
 	dev_bytes_per_sample = (mydev.channels) * (dev_bits / 8);
 	dev_frag_pairs = mydev.size / dev_bytes_per_sample;
 
-	DEV_ASSERT2(dev_bytes_per_sample > 0);
-	DEV_ASSERT2(dev_frag_pairs > 0);
+	SYS_ASSERT(dev_bytes_per_sample > 0);
+	SYS_ASSERT(dev_frag_pairs > 0);
 
 	dev_freq   = mydev.freq;
 	dev_stereo = (mydev.channels == 2);

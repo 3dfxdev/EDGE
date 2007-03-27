@@ -337,7 +337,7 @@ public:
 	
 	void CompileLanguageValues(int lang)
 	{
-		DEV_ASSERT2(lang >=0 && lang <= langnames.GetSize());
+		SYS_ASSERT(lang >=0 && lang <= langnames.GetSize());
 			
 		comp_langvalues.Clear();
 		

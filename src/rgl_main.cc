@@ -170,7 +170,7 @@ void RGL_SetupMatrices3D(void)
 
 	/* glBlendFunc(GL_SRC_ALPHA, GL_ONE);  // Additive lighting */
 
-	DEV_ASSERT2(currmap);
+	SYS_ASSERT(currmap);
 	if (currmap->lighting != rgl_light_model)
 		SetupLightMap(currmap->lighting);
 }

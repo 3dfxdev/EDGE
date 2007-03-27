@@ -235,7 +235,7 @@ public:
 	{
 		int pp = (100 * g_step + (100 * g_size * l_step / l_total)) / g_total;
 
-		DEV_ASSERT2(0 <= pp && pp <= 100);
+		SYS_ASSERT(0 <= pp && pp <= 100);
 
 		if (pp != perc)
 		{
@@ -784,7 +784,7 @@ void E_Display(void)
 	}
 	else if (screenshot_rate && gamestate == GS_LEVEL)
 	{
-		DEV_ASSERT2(singletics);
+		SYS_ASSERT(singletics);
 
 		if (leveltime % screenshot_rate == 0)
 			M_ScreenShot(false);
@@ -1794,7 +1794,7 @@ void E_Tick(void)
 
 	int counts = N_TryRunTics(&fresh_game_tic);
 
-	DEV_ASSERT2(counts > 0);
+	SYS_ASSERT(counts > 0);
 
 	for (; counts > 0; counts--)  // run the tics
 	{

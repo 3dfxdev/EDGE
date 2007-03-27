@@ -201,7 +201,7 @@ static void GiveWeapon(pickup_info_t *pu, benefit_t *be)
 	weapondef_c *info = be->sub.weap;
 	int pw_index;
 
-	DEV_ASSERT2(info);
+	SYS_ASSERT(info);
 
 	if (pu->lose_em)
 	{
@@ -271,7 +271,7 @@ static void GiveArmour(pickup_info_t *pu, benefit_t *be)
 {
 	armour_type_e a_class = (armour_type_e)be->sub.type;
 
-	DEV_ASSERT2(0 <= a_class && a_class < NUMARMOUR);
+	SYS_ASSERT(0 <= a_class && a_class < NUMARMOUR);
 
 	if (pu->lose_em)
 	{
@@ -323,8 +323,8 @@ static void GiveArmour(pickup_info_t *pu, benefit_t *be)
 		if (amount > slack)
 			amount = slack;
 		
-		DEV_ASSERT2(amount  >= 0);
-		DEV_ASSERT2(upgrade >= 0);
+		SYS_ASSERT(amount  >= 0);
+		SYS_ASSERT(upgrade >= 0);
 
 		if (amount == 0 && upgrade == 0)
 			return;

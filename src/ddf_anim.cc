@@ -206,7 +206,7 @@ void DDF_AnimCleanUp(void)
 //
 static void DDF_AnimGetType(const char *info, void *storage)
 {
-	DEV_ASSERT2(storage);
+	SYS_ASSERT(storage);
 
 	int *type = (int *) storage;
 

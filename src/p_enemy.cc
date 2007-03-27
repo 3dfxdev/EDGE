@@ -436,7 +436,7 @@ bool P_LookForPlayers(mobj_t * actor, angle_t range)
 		if (!player)
 			continue;
 
-		DEV_ASSERT2(player->mo);
+		SYS_ASSERT(player->mo);
 
 		// done looking ?
 		if (c++ >= 2)
@@ -537,7 +537,7 @@ void P_FreeShootSpots(void)
 
 	if (brain_spots.targets > 0)
 	{
-		DEV_ASSERT2(brain_spots.targets);
+		SYS_ASSERT(brain_spots.targets);
 
 		Z_Free(brain_spots.targets);
 	}

@@ -964,8 +964,8 @@ void newgame_params_c::CopyFlags(const gameflags_t *F)
 //
 bool G_DeferredInitNew(newgame_params_c& params, bool compat_check)
 {
-	DEV_ASSERT2(params.map);
-	DEV_ASSERT2(params.game);
+	SYS_ASSERT(params.map);
+	SYS_ASSERT(params.game);
 
 	if (W_CheckNumForName(params.map->lump) == -1)
 		return false;
@@ -980,7 +980,7 @@ static void G_DoNewGame(void)
 {
 	gameaction = ga_nothing;
 
-	DEV_ASSERT2(d_params);
+	SYS_ASSERT(d_params);
 
 	demoplayback = false;
 	quickSaveSlot = -1;

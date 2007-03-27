@@ -1326,7 +1326,7 @@ void P_PlayerInSpecialSector(player_t * player, sector_t * sec)
 			C = L;  L = L->higher;
 		}
 
-		DEV_ASSERT2(C);
+		SYS_ASSERT(C);
 
 		// ignore "hidden" liquids
 		if (C->bottom_h < floor_h || C->bottom_h > sec->c_h)

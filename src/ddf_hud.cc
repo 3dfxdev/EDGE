@@ -171,7 +171,7 @@ void DDF_HudCleanUp(void)
 //
 static void DDF_HudGetUsage(const char *info, void *storage)
 {
-	DEV_ASSERT2(storage);
+	SYS_ASSERT(storage);
 
 	int *usage = (int *) storage;
 

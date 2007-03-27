@@ -293,7 +293,7 @@ void DDF_StateReadState(const char *info, const char *label,
 
 		cur = &states[(*last)];
 
-		DEV_ASSERT2(stateinfo[0]);
+		SYS_ASSERT(stateinfo[0]);
 
 		if (DDF_CompareName(stateinfo[0], "REMOVE") == 0)
 		{
@@ -741,7 +741,7 @@ bool DDF_CheckSprites(int st_low, int st_high)
 	if (st_low == S_NULL)
 		return true;
 	
-	DEV_ASSERT2(st_low <= st_high);
+	SYS_ASSERT(st_low <= st_high);
 
 	while (st_low <= st_high &&	states[st_low].sprite == SPR_NULL)
 		st_low++;

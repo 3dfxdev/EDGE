@@ -151,7 +151,7 @@ void S_CacheInit(void)
 
 static void S_FlushData(fx_data_c *fx)
 {
-	DEV_ASSERT2(fx->ref_count == 0);
+	SYS_ASSERT(fx->ref_count == 0);
 
 	fx->Free();
 
@@ -229,7 +229,7 @@ fx_data_c *S_CacheLoad(sfxdef_c *def)
 
 void S_CacheRelease(fx_data_c *data)
 {
-	DEV_ASSERT2(data->ref_count >= 1);
+	SYS_ASSERT(data->ref_count >= 1);
 
 	data->ref_count--;
 }

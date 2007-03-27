@@ -155,7 +155,7 @@ void DDF_BoomMakeGenSector(sectortype_c *sec, int number)
 // 
 sectortype_c *DDF_BoomGetGenSector(int number)
 {
-	DEV_ASSERT2(DDF_IsBoomSectorType(number));
+	SYS_ASSERT(DDF_IsBoomSectorType(number));
 
 	sectortype_c *sec = gensectortypes.Lookup(number);
 			
@@ -617,7 +617,7 @@ void DDF_BoomMakeGenLine(linetype_c *line, int number)
 //
 linetype_c *DDF_BoomGetGenLine(int number)
 {
-	DEV_ASSERT2(DDF_IsBoomLineType(number));
+	SYS_ASSERT(DDF_IsBoomLineType(number));
 
 	linetype_c *line = genlinetypes.Lookup(number);
 	

@@ -378,7 +378,7 @@ bool M_CheatResponder(event_t * ev)
 	{
 		if (pl->playerstate == PST_DEAD && (netgame==0))
 		{
-			DEV_ASSERT2(pl->mo);
+			SYS_ASSERT(pl->mo);
 			P_BringCorpseToLife(pl->mo);
 		}
 	}

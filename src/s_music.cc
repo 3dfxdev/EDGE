@@ -216,7 +216,7 @@ void S_MusicTicker(void)
 
 void S_ChangeMusicVolume(void)
 {
-///---	DEV_ASSERT2(volume >= 0 && volume < SND_SLIDER_NUM);
+///---	SYS_ASSERT(volume >= 0 && volume < SND_SLIDER_NUM);
 ///---
 ///---	musicvolume = volume;
 

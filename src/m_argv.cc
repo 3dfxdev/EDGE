@@ -61,7 +61,7 @@ static void AddArgument(const char *s, int pos)
 	L_WriteDebug("Adding parameter '%s'\n", s);
 #endif
 
-	DEV_ASSERT2(pos >= 0 && pos <= myargc);
+	SYS_ASSERT(pos >= 0 && pos <= myargc);
 
 	if (s[0] == '@')
 	{  // add it as a response file

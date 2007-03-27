@@ -52,8 +52,8 @@ static GLuint SendWipeTexture(byte *rgb_src, int total_w, int total_h,
 {
 	GLuint id;
 
-	DEV_ASSERT2(0 < total_w && total_w <= glmax_tex_size);
-	DEV_ASSERT2(0 < total_h && total_h <= glmax_tex_size);
+	SYS_ASSERT(0 < total_w && total_w <= glmax_tex_size);
+	SYS_ASSERT(0 < total_h && total_h <= glmax_tex_size);
 
 	glEnable(GL_TEXTURE_2D);
 

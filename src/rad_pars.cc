@@ -337,7 +337,7 @@ static void RAD_CheckForTime(const char *info, void *storage)
 	int i;
 	char *s;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	// -ES- 1999/09/14 MAXT means that time should be maximal.
 	if (!stricmp(info, "maxt"))
@@ -701,7 +701,7 @@ static void RAD_CollectParameters(const char *line, int *pnum,
 
 		if (tokenlen < 0)  // looking for a new token
 		{
-			DEV_ASSERT2(!in_expr && !in_string);
+			SYS_ASSERT(!in_expr && !in_string);
 
 			// end of line ?
 			if (ch == 0 || comment)
@@ -2097,7 +2097,7 @@ static void RAD_ParseShowMenu(int pnum, const char **pars)
 	if (DDF_CompareName(pars[0], "SHOW_MENU_LDF") == 0)
 		menu->use_ldf = true;
 
-	DEV_ASSERT2(2 <= pnum && pnum <= 11);
+	SYS_ASSERT(2 <= pnum && pnum <= 11);
 
 	if (pars[1][0] == '"')
 		menu->title = RAD_UnquoteString(pars[1]);
@@ -2146,7 +2146,7 @@ static void RAD_ParseJumpOn(int pnum, const char **pars)
 			pars[0], pars[1]);
 	}
 
-	DEV_ASSERT2(2 <= pnum && pnum <= 11);
+	SYS_ASSERT(2 <= pnum && pnum <= 11);
 
 	for (int p = 2; p < pnum; p++)
 		jump->labels[p-2] = Z_StrDup(pars[p]);

@@ -268,7 +268,7 @@ void SR_PutAngleToSlope(void *storage, int index, void *extra)
 {
 	angle_t val = ((angle_t *)storage)[index];
 
-	DEV_ASSERT2(val < ANG90 || val > ANG270);
+	SYS_ASSERT(val < ANG90 || val > ANG270);
 
 	SV_PutFloat(M_Tan(val));
 }

@@ -120,8 +120,8 @@ static void CreateHostPlayerList(newgame_params_c *par, int humans, int bots)
 {
 	int total = humans + bots;
 
-	DEV_ASSERT2(humans > 0);
-	DEV_ASSERT2(total <= MAXPLAYERS);
+	SYS_ASSERT(humans > 0);
+	SYS_ASSERT(total <= MAXPLAYERS);
 
 	int bots_per_human = bots / humans;
 	int host_bots = bots - (bots_per_human * (humans - 1));
@@ -143,7 +143,7 @@ static void CreateHostPlayerList(newgame_params_c *par, int humans, int bots)
 
 	par->total_players = p;
 
-	DEV_ASSERT2(p == humans + bots);
+	SYS_ASSERT(p == humans + bots);
 }
 
 static bool ParseWelcomePacket(newgame_params_c *par, welcome_proto_t *we)
@@ -211,9 +211,9 @@ static bool ParseWelcomePacket(newgame_params_c *par, welcome_proto_t *we)
 
 static void ParsePlayerList(newgame_params_c *par, player_list_proto_t *li)
 {
-	DEV_ASSERT2(li->real_players > 0);
-	DEV_ASSERT2(li->real_players <= li->total_players);
-	DEV_ASSERT2(li->total_players <= MAXPLAYERS);
+	SYS_ASSERT(li->real_players > 0);
+	SYS_ASSERT(li->real_players <= li->total_players);
+	SYS_ASSERT(li->total_players <= MAXPLAYERS);
 
 	par->total_players = li->total_players;
 

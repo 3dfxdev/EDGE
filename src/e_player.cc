@@ -321,7 +321,7 @@ void G_SetConsolePlayer(int pnum)
 {
 	consoleplayer = pnum;
 
-	DEV_ASSERT2(players[consoleplayer]);
+	SYS_ASSERT(players[consoleplayer]);
 
 	for (int i = 0; i < MAXPLAYERS; i++)
 		if (players[i])
@@ -347,7 +347,7 @@ void G_SetDisplayPlayer(int pnum)
 {
 	displayplayer = pnum;
 
-	DEV_ASSERT2(players[displayplayer]);
+	SYS_ASSERT(players[displayplayer]);
 
 	for (int i = 0; i < MAXPLAYERS; i++)
 		if (players[i])
@@ -456,8 +456,8 @@ static void P_SpawnVoodooDoll(player_t *p, const spawnpoint_t *point)
 {
 	const mobjtype_c *info = point->info;
 
-	DEV_ASSERT2(info);
-	DEV_ASSERT2(info->playernum > 0);
+	SYS_ASSERT(info);
+	SYS_ASSERT(info->playernum > 0);
 
 	L_WriteDebug("* P_SpawnVoodooDoll %d @ %1.0f,%1.0f\n",
 			p->pnum+1, point->x, point->y);

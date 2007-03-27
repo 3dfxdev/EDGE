@@ -416,7 +416,7 @@ static bool DoExecuteChangeResolution(void)
 	newres_idx = -1;
 
 	// Check for the insane...
-	DEV_ASSERT2(res_idx >= 0 && res_idx < scrmodelist.GetSize());
+	SYS_ASSERT(res_idx >= 0 && res_idx < scrmodelist.GetSize());
 	
 	// -ACB- 1999/09/20
 	// parameters needed for I_SetScreenMode - returns false on failure
@@ -515,7 +515,7 @@ void R_ExecuteChangeResolution(void)
         if (oldres_idx <= 0)
         {
             // Check for the insane...
-            DEV_ASSERT2(scrmodelist.GetSize() == 0);
+            SYS_ASSERT(scrmodelist.GetSize() == 0);
 
             // FindNearest() will always return with something unless we
             // have no resolutions to pick from...
@@ -630,7 +630,7 @@ region_properties_t *R_PointGetProps(subsector_t *sub, float z)
 			C = L;  L = L->higher;
 		}
 
-		DEV_ASSERT2(C);
+		SYS_ASSERT(C);
 
 		// ignore liquids in the middle of THICK solids, or below real
 		// floor or above real ceiling
