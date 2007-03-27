@@ -247,7 +247,7 @@ static void BlitToS16(const int *src, s16_t *dest, int length)
 
 static void MixMono(mix_channel_c *chan, int *dest, int pairs)
 {
-	DEV_ASSERT2(pairs > 0);
+	SYS_ASSERT(pairs > 0);
 
 	const s16_t *src_L = chan->data->data_L;
 
@@ -265,12 +265,12 @@ static void MixMono(mix_channel_c *chan, int *dest, int pairs)
 
 	chan->offset = offset;
 
-	DEV_ASSERT2(offset - chan->delta < chan->length);
+	SYS_ASSERT(offset - chan->delta < chan->length);
 }
 
 static void MixStereo(mix_channel_c *chan, int *dest, int pairs)
 {
-	DEV_ASSERT2(pairs > 0);
+	SYS_ASSERT(pairs > 0);
 
 	const s16_t *src_L = chan->data->data_L;
 	const s16_t *src_R = chan->data->data_R;
@@ -290,7 +290,7 @@ static void MixStereo(mix_channel_c *chan, int *dest, int pairs)
 
 	chan->offset = offset;
 
-	DEV_ASSERT2(offset - chan->delta < chan->length);
+	SYS_ASSERT(offset - chan->delta < chan->length);
 }
 
 static void MixInterleaved(mix_channel_c *chan, int *dest, int pairs)
@@ -298,7 +298,7 @@ static void MixInterleaved(mix_channel_c *chan, int *dest, int pairs)
 	if (! dev_stereo)
 		I_Error("INTERNAL ERROR: tried to mix an interleaved buffer in MONO mode.\n");
 
-	DEV_ASSERT2(pairs > 0);
+	SYS_ASSERT(pairs > 0);
 
 	const s16_t *src_L = chan->data->data_L;
 
@@ -319,7 +319,7 @@ static void MixInterleaved(mix_channel_c *chan, int *dest, int pairs)
 
 	chan->offset = offset;
 
-	DEV_ASSERT2(offset - chan->delta < chan->length);
+	SYS_ASSERT(offset - chan->delta < chan->length);
 }
 
 static void MixOneChannel(mix_channel_c *chan, int pairs)
@@ -330,7 +330,7 @@ static void MixOneChannel(mix_channel_c *chan, int pairs)
 	if (chan->volume_L == 0 && chan->volume_R == 0)
 		return;
 
-	DEV_ASSERT2(chan->offset < chan->length);
+	SYS_ASSERT(chan->offset < chan->length);
 
 	int *dest = mix_buffer;
 	
@@ -347,10 +347,10 @@ static void MixOneChannel(mix_channel_c *chan, int pairs)
 
 			count = (int)floor(avail);
 
-			DEV_ASSERT2(count > 0);
-			DEV_ASSERT2(count <= pairs);
+			SYS_ASSERT(count > 0);
+			SYS_ASSERT(count <= pairs);
 
-			DEV_ASSERT2(chan->offset + count * chan->delta >= chan->length);
+			SYS_ASSERT(chan->offset + count * chan->delta >= chan->length);
 		}
 
 		if (chan->data->mode == SBUF_Interleaved)
@@ -413,7 +413,7 @@ static void MixQueues(int pairs)
 	if (chan->volume_L == 0 && chan->volume_R == 0)
 		return;
 
-	DEV_ASSERT2(chan->offset < chan->length);
+	SYS_ASSERT(chan->offset < chan->length);
 
 	int *dest = mix_buffer;
 
@@ -430,10 +430,10 @@ static void MixQueues(int pairs)
 
 			count = (int)floor(avail);
 
-			DEV_ASSERT2(count > 0);
-			DEV_ASSERT2(count <= pairs);
+			SYS_ASSERT(count > 0);
+			SYS_ASSERT(count <= pairs);
 
-			DEV_ASSERT2(chan->offset + count * chan->delta >= chan->length);
+			SYS_ASSERT(chan->offset + count * chan->delta >= chan->length);
 		}
 
 		if (chan->data->mode == SBUF_Interleaved)
@@ -449,7 +449,7 @@ static void MixQueues(int pairs)
 			// Place current buffer onto free list,
 			// and enqueue the next buffer to play.
 
-			DEV_ASSERT2(! playing_qbufs.empty());
+			SYS_ASSERT(! playing_qbufs.empty());
 
 			fx_data_c *buf = playing_qbufs.front();
 			playing_qbufs.pop_front();
@@ -478,9 +478,9 @@ void S_MixAllChannels(void *stream, int len)
 		samples *= 2;
 
 	// check that we're not getting too much data
-	DEV_ASSERT2(pairs <= dev_frag_pairs);
+	SYS_ASSERT(pairs <= dev_frag_pairs);
 
-	DEV_ASSERT2(mix_buffer && samples <= mix_buf_len);
+	SYS_ASSERT(mix_buffer && samples <= mix_buf_len);
 
 	// clear mixer buffer
 	memset(mix_buffer, 0, mix_buf_len * sizeof(int));
@@ -525,8 +525,8 @@ void S_InitChannels(int total)
 {
 	// NOTE: assumes audio is locked!
 
-	DEV_ASSERT2(total >= MIN_CHANNELS);
-	DEV_ASSERT2(total <= MAX_CHANNELS);
+	SYS_ASSERT(total >= MIN_CHANNELS);
+	SYS_ASSERT(total <= MAX_CHANNELS);
 
 	num_chan = total;
 
@@ -575,8 +575,8 @@ void S_ReallocChannels(int total)
 {
 	// NOTE: assumes audio is locked!
 
-	DEV_ASSERT2(total >= MIN_CHANNELS);
-	DEV_ASSERT2(total <= MAX_CHANNELS);
+	SYS_ASSERT(total >= MIN_CHANNELS);
+	SYS_ASSERT(total <= MAX_CHANNELS);
 
 	if (total > num_chan)
 	{
@@ -733,7 +733,7 @@ void S_QueueStop(void)
 {
 	if (nosound) return;
 
-	DEV_ASSERT2(queue_chan);
+	SYS_ASSERT(queue_chan);
 
 	SDL_LockAudio();
 	{
@@ -772,8 +772,8 @@ fx_data_c * S_QueueGetFreeBuffer(int samples, int buf_mode)
 
 void S_QueueAddBuffer(fx_data_c *buf, int freq)
 {
-	DEV_ASSERT2(! nosound);
-	DEV_ASSERT2(buf);
+	SYS_ASSERT(! nosound);
+	SYS_ASSERT(buf);
 
 	SDL_LockAudio();
 	{
@@ -791,8 +791,8 @@ void S_QueueAddBuffer(fx_data_c *buf, int freq)
 
 void S_QueueReturnBuffer(fx_data_c *buf)
 {
-	DEV_ASSERT2(! nosound);
-	DEV_ASSERT2(buf);
+	SYS_ASSERT(! nosound);
+	SYS_ASSERT(buf);
 
 	SDL_LockAudio();
 	{

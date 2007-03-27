@@ -193,9 +193,9 @@ local_gl_vert_t *RGL_BeginUnit(GLuint mode, int max_vert,
 {
 	local_gl_unit_t *unit;
 
-	DEV_ASSERT2(max_vert > 0);
-	DEV_ASSERT2(tex_id != 0);
-	DEV_ASSERT2(pass >= 0);
+	SYS_ASSERT(max_vert > 0);
+	SYS_ASSERT(tex_id != 0);
+	SYS_ASSERT(pass >= 0);
 
 	// check for out-of-space
 	if (cur_vert + max_vert > MAX_L_VERT || cur_unit >= MAX_L_UNIT)
@@ -222,7 +222,7 @@ void RGL_EndUnit(int actual_vert)
 {
 	local_gl_unit_t *unit;
 
-	DEV_ASSERT2(actual_vert > 0);
+	SYS_ASSERT(actual_vert > 0);
 
 	unit = local_units + cur_unit;
 
@@ -231,8 +231,8 @@ void RGL_EndUnit(int actual_vert)
 	cur_vert += actual_vert;
 	cur_unit++;
 
-	DEV_ASSERT2(cur_vert <= MAX_L_VERT);
-	DEV_ASSERT2(cur_unit <= MAX_L_UNIT);
+	SYS_ASSERT(cur_vert <= MAX_L_VERT);
+	SYS_ASSERT(cur_unit <= MAX_L_UNIT);
 }
 
 void RGL_SendRawVector(const local_gl_vert_t *V)
@@ -315,8 +315,8 @@ void RGL_DrawUnits(void)
 	{
 		local_gl_unit_t *unit = local_units + local_unit_map[i];
 
-		DEV_ASSERT2(unit->count > 0);
-		DEV_ASSERT2(unit->tex_id != 0);
+		SYS_ASSERT(unit->count > 0);
+		SYS_ASSERT(unit->tex_id != 0);
 
 		// detect changes in texture/alpha/blending and change state
 
@@ -477,7 +477,7 @@ void RGL_BoundPolyQuad(raw_polyquad_t *poly)
 	raw_polyquad_t *cur = poly;
 	///    poly = poly->sisters;
 
-	DEV_ASSERT2(cur->num_verts > 0);
+	SYS_ASSERT(cur->num_verts > 0);
 
 	cur->min = cur->verts[0];
 	cur->max = cur->verts[0];
@@ -503,10 +503,10 @@ static void RGL_DoSplitQuadVertSep(raw_polyquad_t *quad, int extras)
 	float h1, h2;
 	float span_z;
 
-	DEV_ASSERT2(extras >= 1);
+	SYS_ASSERT(extras >= 1);
 
 	// Note: doesn't handle already split quads (i.e. num_verts > 4).
-	DEV_ASSERT2(quad->num_verts == 4);
+	SYS_ASSERT(quad->num_verts == 4);
 
 	// the original QUAD will end up being the top-most part, and we
 	// create the newbies from the bottom upwards.  Hence final order is
@@ -546,10 +546,10 @@ static void RGL_DoSplitQuadHorizSep(raw_polyquad_t *quad, int extras)
 	vec2_t p1, p2;
 	vec2_t span;
 
-	DEV_ASSERT2(extras >= 1);
+	SYS_ASSERT(extras >= 1);
 
 	// Note: doesn't handle already split quads (i.e. num_verts > 4).
-	DEV_ASSERT2(quad->num_verts == 4);
+	SYS_ASSERT(quad->num_verts == 4);
 
 	// the original QUAD will end up being the right-most part, and we
 	// create the newbies from the left.  Hence final order is right
@@ -596,10 +596,10 @@ static void RGL_DoSplitQuadHoriz(raw_polyquad_t *quad, int extras)
 	vec3_t p1, p2;
 	vec2_t span;
 
-	DEV_ASSERT2(extras >= 1);
+	SYS_ASSERT(extras >= 1);
 
 	// Note: doesn't handle already split quads (i.e. num_verts > 4).
-	DEV_ASSERT2(quad->num_verts == 4);
+	SYS_ASSERT(quad->num_verts == 4);
 
 	p1 = quad->verts[0];
 	p2 = quad->verts[3];
@@ -685,8 +685,8 @@ static void RGL_DoSplitQuad(raw_polyquad_t *quad, int division,
 static INLINE void AddPolyDynPoint(raw_polyquad_t *poly,
 								   float x, float y, float z)
 {
-	DEV_ASSERT2(poly);
-	DEV_ASSERT2(poly->num_verts <= poly->max_verts);
+	SYS_ASSERT(poly);
+	SYS_ASSERT(poly->num_verts <= poly->max_verts);
 
 	if (poly->num_verts == poly->max_verts)
 	{
@@ -694,7 +694,7 @@ static INLINE void AddPolyDynPoint(raw_polyquad_t *poly,
 		Z_Resize(poly->verts, vec3_t, poly->max_verts);
 	}
 
-	DEV_ASSERT2(poly->num_verts < poly->max_verts);
+	SYS_ASSERT(poly->num_verts < poly->max_verts);
 
 	PQ_ADD_VERT(poly, x, y ,z);
 }
@@ -704,8 +704,8 @@ static INLINE void AddPolyVertIntercept(raw_polyquad_t *poly,
 {
 	float frac;
 
-	DEV_ASSERT2(P->y != S->y);
-	DEV_ASSERT2(MIN(P->y, S->y)-1 <= y && y <= MAX(P->y, S->y)+1);
+	SYS_ASSERT(P->y != S->y);
+	SYS_ASSERT(MIN(P->y, S->y)-1 <= y && y <= MAX(P->y, S->y)+1);
 
 	frac = (y - P->y) / (S->y - P->y);
 
@@ -718,8 +718,8 @@ static INLINE void AddPolyHorizIntercept(raw_polyquad_t *poly,
 {
 	float frac;
 
-	DEV_ASSERT2(P->x != S->x);
-	DEV_ASSERT2(MIN(P->x, S->x)-1 <= x && x <= MAX(P->x, S->x)+1);
+	SYS_ASSERT(P->x != S->x);
+	SYS_ASSERT(MIN(P->x, S->x)-1 <= x && x <= MAX(P->x, S->x)+1);
 
 	frac = (x - P->x) / (S->x - P->x);
 
@@ -762,7 +762,7 @@ static void RGL_DoSplitPolyVert(raw_polyquad_t *poly, int extras)
 
 	// copy original vertices
 	orig_num = poly->num_verts;
-	DEV_ASSERT2(orig_num >= 3);
+	SYS_ASSERT(orig_num >= 3);
 
 	orig_verts = Z_New(vec3_t, orig_num);
 	Z_MoveData(orig_verts, poly->verts, vec3_t, orig_num);
@@ -824,7 +824,7 @@ static void RGL_DoSplitPolyHoriz(raw_polyquad_t *poly, int extras)
 
 	// copy original vertices
 	orig_num = poly->num_verts;
-	DEV_ASSERT2(orig_num >= 3);
+	SYS_ASSERT(orig_num >= 3);
 
 	orig_verts = Z_New(vec3_t, orig_num);
 	Z_MoveData(orig_verts, poly->verts, vec3_t, orig_num);
@@ -927,7 +927,7 @@ static void RGL_DoSplitPolyVertSep(raw_polyquad_t *poly, int extras)
 
 	// copy original vertices
 	orig_num = poly->num_verts;
-	DEV_ASSERT2(orig_num >= 3);
+	SYS_ASSERT(orig_num >= 3);
 
 	orig_verts = Z_New(vec3_t, orig_num);
 	Z_MoveData(orig_verts, poly->verts, vec3_t, orig_num);
@@ -1032,7 +1032,7 @@ static void RGL_DoSplitPolyHorizSep(raw_polyquad_t *poly, int extras)
 
 	// copy original vertices
 	orig_num = poly->num_verts;
-	DEV_ASSERT2(orig_num >= 3);
+	SYS_ASSERT(orig_num >= 3);
 
 	orig_verts = Z_New(vec3_t, orig_num);
 	Z_MoveData(orig_verts, poly->verts, vec3_t, orig_num);
@@ -1160,7 +1160,7 @@ static void RGL_DoSplitPolygon(raw_polyquad_t *poly, int division,
 	float span_x = poly->max.x - poly->min.x;
 	float span_y = poly->max.y - poly->min.y;
 
-	DEV_ASSERT2(division > 0);
+	SYS_ASSERT(division > 0);
 
 	if (span_x > division && span_y > division)
 	{
@@ -1235,7 +1235,7 @@ void RGL_SplitPolyQuadLOD(raw_polyquad_t *poly, int max_lod, int base_div)
 		for (tail = cur; tail->sisters; tail = tail->sisters)
 		{ /* nothing here */ }
 
-		DEV_ASSERT2(tail);
+		SYS_ASSERT(tail);
 		tail->sisters = trav;
 	}
 }
@@ -1253,8 +1253,8 @@ void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
 		raw_polyquad_t *cur = poly;
 		poly = poly->sisters;
 
-		DEV_ASSERT2(cur->num_verts > 0);
-		DEV_ASSERT2(cur->num_verts <= cur->max_verts);
+		SYS_ASSERT(cur->num_verts > 0);
+		SYS_ASSERT(cur->num_verts <= cur->max_verts);
 
 		vert = RGL_BeginUnit(cur->quad ? GL_QUAD_STRIP : GL_POLYGON,
 			cur->num_verts, tex_id, tex2_id, pass, blending);

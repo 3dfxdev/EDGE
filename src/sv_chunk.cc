@@ -186,7 +186,7 @@ bool SV_OpenReadFile(const char *filename)
 //
 bool SV_CloseReadFile(void)
 {
-	DEV_ASSERT2(current_fp);
+	SYS_ASSERT(current_fp);
 
 	if (chunk_stack_size > 0)
 		I_Error("SV_CloseReadFile: Too many Pushes (missing Pop somewhere).\n");
@@ -239,8 +239,8 @@ bool SV_VerifyHeader(int *version)
 //
 bool SV_VerifyContents(void)
 {
-	DEV_ASSERT2(current_fp);
-	DEV_ASSERT2(chunk_stack_size == 0);
+	SYS_ASSERT(current_fp);
+	SYS_ASSERT(chunk_stack_size == 0);
 
 	// skip top-level chunks until end...
 	for (;;)
@@ -376,9 +376,9 @@ unsigned char SV_GetByte(void)
 
 	cur = &chunk_stack[chunk_stack_size - 1];
 
-	DEV_ASSERT2(cur->start);
-	DEV_ASSERT2(cur->pos >= cur->start);
-	DEV_ASSERT2(cur->pos <= cur->end);
+	SYS_ASSERT(cur->start);
+	SYS_ASSERT(cur->pos >= cur->start);
+	SYS_ASSERT(cur->pos <= cur->end);
 
 	if (cur->pos == cur->end)
 	{
@@ -434,14 +434,14 @@ bool SV_PushReadChunk(const char *id)
 		// read uncompressed size
 		orig_len = SV_GetInt();
 
-		DEV_ASSERT2(file_len <= MAX_COMP_SIZE(orig_len));
+		SYS_ASSERT(file_len <= MAX_COMP_SIZE(orig_len));
 
 		file_data = Z_New(byte, file_len);
 
 		for (i=0; (i < file_len) && !last_error; i++)
 			file_data[i] = SV_GetByte();
 
-		DEV_ASSERT2(!last_error);
+		SYS_ASSERT(!last_error);
 
 		cur->start = Z_New(byte, orig_len);
 		cur->end = cur->start + orig_len;
@@ -465,8 +465,8 @@ bool SV_PushReadChunk(const char *id)
 		}
 		else // use ZLIB
 		{
-			DEV_ASSERT2(file_len > 0);
-			DEV_ASSERT2(file_len < orig_len);
+			SYS_ASSERT(file_len > 0);
+			SYS_ASSERT(file_len < orig_len);
 
 			uLongf out_len = orig_len;
 
@@ -479,7 +479,7 @@ bool SV_PushReadChunk(const char *id)
 			decomp_len = (unsigned int)out_len;
 		}
 
-		DEV_ASSERT2(decomp_len == orig_len);
+		SYS_ASSERT(decomp_len == orig_len);
 
 		if (savegame_version < 0x12901)
 		{
@@ -497,8 +497,8 @@ bool SV_PushReadChunk(const char *id)
 		// skip data in parent
 		parent->pos += file_len;
 
-		DEV_ASSERT2(parent->pos >= parent->start);
-		DEV_ASSERT2(parent->pos <= parent->end);
+		SYS_ASSERT(parent->pos >= parent->start);
+		SYS_ASSERT(parent->pos <= parent->end);
 	}
 
 	cur->pos = cur->start;
@@ -524,7 +524,7 @@ bool SV_PopReadChunk(void)
 {
 	chunk_t *cur;
 
-	if (chunk_stack_size != 0)
+	if (chunk_stack_size == 0)
 		I_Error("SV_PopReadChunk: Too many Pops (missing Push somewhere).\n");
 
 	cur = &chunk_stack[chunk_stack_size - 1];
@@ -548,12 +548,12 @@ int SV_RemainingChunkSize(void)
 {
 	chunk_t *cur;
 
-	DEV_ASSERT2(chunk_stack_size > 0);
+	SYS_ASSERT(chunk_stack_size > 0);
 
 	cur = &chunk_stack[chunk_stack_size - 1];
 
-	DEV_ASSERT2(cur->pos >= cur->start);
-	DEV_ASSERT2(cur->pos <= cur->end);
+	SYS_ASSERT(cur->pos >= cur->start);
+	SYS_ASSERT(cur->pos <= cur->end);
 
 	return (cur->end - cur->pos);
 }
@@ -608,7 +608,7 @@ bool SV_OpenWriteFile(const char *filename, int version)
 //
 bool SV_CloseWriteFile(void)
 {
-	DEV_ASSERT2(current_fp);
+	SYS_ASSERT(current_fp);
 
 	if (chunk_stack_size != 0)
 		I_Error("SV_CloseWriteFile: Too many Pushes (missing Pop somewhere).\n");
@@ -670,9 +670,9 @@ bool SV_PopWriteChunk(void)
 
 	cur = &chunk_stack[chunk_stack_size - 1];
 
-	DEV_ASSERT2(cur->start);
-	DEV_ASSERT2(cur->pos >= cur->start);
-	DEV_ASSERT2(cur->pos <= cur->end);
+	SYS_ASSERT(cur->start);
+	SYS_ASSERT(cur->pos >= cur->start);
+	SYS_ASSERT(cur->pos <= cur->end);
 
 	len = cur->pos - cur->start;
 
@@ -715,7 +715,7 @@ bool SV_PopWriteChunk(void)
 		}
 #endif
 
-		DEV_ASSERT2((int)out_len <= (int)MAX_COMP_SIZE(len));
+		SYS_ASSERT((int)out_len <= (int)MAX_COMP_SIZE(len));
 
 		// write compressed length
 		SV_PutInt((int)out_len);
@@ -726,7 +726,7 @@ bool SV_PopWriteChunk(void)
 		for (i=0; i < (int)out_len && !last_error; i++)
 			SV_PutByte(out_buf[i]);
 
-		DEV_ASSERT2(!last_error);
+		SYS_ASSERT(!last_error);
 
 		Z_Free(out_buf);
 	}
@@ -783,9 +783,9 @@ void SV_PutByte(unsigned char value)
 
 	cur = &chunk_stack[chunk_stack_size - 1];
 
-	DEV_ASSERT2(cur->start);
-	DEV_ASSERT2(cur->pos >= cur->start);
-	DEV_ASSERT2(cur->pos <= cur->end);
+	SYS_ASSERT(cur->start);
+	SYS_ASSERT(cur->pos >= cur->start);
+	SYS_ASSERT(cur->pos <= cur->end);
 
 	// space left in chunk ?  If not, resize it.
 	if (cur->pos == cur->end)
@@ -916,8 +916,8 @@ void SV_PutMarker(const char *id)
 {
 	int i;
 
-	DEV_ASSERT2(id);
-	DEV_ASSERT2(strlen(id) == 4);
+	SYS_ASSERT(id);
+	SYS_ASSERT(strlen(id) == 4);
 
 	for (i=0; i < 4; i++)
 		SV_PutByte((unsigned char) id[i]);

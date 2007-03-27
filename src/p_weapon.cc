@@ -143,7 +143,7 @@ static void ReloadWeapon(player_t *p, int idx, int ATK)
 	if (qty > p->ammo[info->ammo[ATK]].num)
 		qty = p->ammo[info->ammo[ATK]].num;
 
-	DEV_ASSERT2(qty > 0);
+	SYS_ASSERT(qty > 0);
 
 	p->weapons[idx].clip_size[ATK] += qty;
 	p->ammo[info->ammo[ATK]].num   -= qty;
@@ -345,7 +345,7 @@ static void SwitchAway(player_t * p, int ATK, int reload)
 //
 static void P_BringUpWeapon(player_t * p)
 {
-	DEV_ASSERT2(p->pending_wp != WPSEL_NoChange);
+	SYS_ASSERT(p->pending_wp != WPSEL_NoChange);
 
 	weapon_selection_e sel;
 	sel = p->ready_wp = p->pending_wp;
@@ -399,7 +399,7 @@ static void P_BringUpWeapon(player_t * p)
 
 static void UpdateWeaponChoice(player_t *p, int key)
 {
-	DEV_ASSERT2(p->pending_wp >= 0);
+	SYS_ASSERT(p->pending_wp >= 0);
 
 	weapondef_c *info = p->weapons[p->pending_wp].info;
 
@@ -579,7 +579,7 @@ void P_TrySwitchNewWeapon(player_t *p, int new_weap, ammotype_e new_ammo)
 		return;
 	}
 
-	DEV_ASSERT2(new_ammo >= 0);
+	SYS_ASSERT(new_ammo >= 0);
 	
 	// We were down to zero ammo, so select a new weapon.
 	// Choose the next highest priority weapon than the current one.
@@ -628,7 +628,7 @@ bool P_TryFillNewWeapon(player_t *p, int idx, ammotype_e ammo, int *qty)
 		if (ammo == AM_DontCare)
 			qty = &p->ammo[info->ammo[ATK]].num;
 
-		DEV_ASSERT2(qty);
+		SYS_ASSERT(qty);
 
 		if (info->clip_size[ATK] <= *qty)
 		{
@@ -820,7 +820,7 @@ void A_WeaponReady(mobj_t * mo)
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
-	DEV_ASSERT2(p->ready_wp != WPSEL_None);
+	SYS_ASSERT(p->ready_wp != WPSEL_None);
 
 	weapondef_c *info = p->weapons[p->ready_wp].info;
 
@@ -1256,7 +1256,7 @@ static void DoGunFlash(mobj_t * mo, int ATK)
 {
 	player_t *p = mo->player;
 	
-	DEV_ASSERT2(p->ready_wp >= 0);
+	SYS_ASSERT(p->ready_wp >= 0);
 
 	weapondef_c *info = p->weapons[p->ready_wp].info;
 
@@ -1284,7 +1284,7 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 	player_t *p = mo->player;
 	pspdef_t *psp = &p->psprites[p->action_psp];
 
-	DEV_ASSERT2(p->ready_wp >= 0);
+	SYS_ASSERT(p->ready_wp >= 0);
 
 	weapondef_c *info = p->weapons[p->ready_wp].info;
 	atkdef_c *attack = info->attack[ATK];
@@ -1310,12 +1310,12 @@ static void DoWeaponShoot(mobj_t * mo, int ATK)
 	if (info->clip_size[ATK] > 0)
 	{
 		p->weapons[p->ready_wp].clip_size[ATK] -= count;
-		DEV_ASSERT2(p->weapons[p->ready_wp].clip_size[ATK] >= 0);
+		SYS_ASSERT(p->weapons[p->ready_wp].clip_size[ATK] >= 0);
 	}
 	else if (ammo != AM_NoAmmo)
 	{
 		p->ammo[ammo].num -= count;
-		DEV_ASSERT2(p->ammo[ammo].num >= 0);
+		SYS_ASSERT(p->ammo[ammo].num >= 0);
 	}
 
 	P_PlayerAttack(mo, attack);
@@ -1474,8 +1474,8 @@ void A_WeaponJump(mobj_t * mo)
 
 	jump = (act_jump_info_t *) psp->state->action_par;
 
-	DEV_ASSERT2(jump->chance >= 0);
-	DEV_ASSERT2(jump->chance <= 1);
+	SYS_ASSERT(jump->chance >= 0);
+	SYS_ASSERT(jump->chance <= 1);
 
 	if (P_RandomTest(jump->chance))
 	{

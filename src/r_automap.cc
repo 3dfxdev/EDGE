@@ -379,7 +379,7 @@ static void ChangeWindowLoc(void)
 //
 static void InitVariables(player_t *p)
 {
-	DEV_ASSERT2(p);
+	SYS_ASSERT(p);
 
 	if (map_overlay == true)
 		automapactive = 1;
@@ -815,8 +815,8 @@ static void DrawMline(mline_t * ml, int colour)
 	int f_x2 = f_x + f_w - 1;
 	int f_y2 = f_y + f_h - 1;
 
-	DEV_ASSERT2(am_colmap);
-	DEV_ASSERT2(0 <= colour && colour <= 255);
+	SYS_ASSERT(am_colmap);
+	SYS_ASSERT(0 <= colour && colour <= 255);
 
 	// transform to frame-buffer coordinates.
 	x1 = CXMTOF(ml->a.x);
@@ -946,7 +946,7 @@ static void AM_WalkSeg(seg_t *seg, player_t *p)
 	}
 
 	line = seg->linedef;
-	DEV_ASSERT2(line);
+	SYS_ASSERT(line);
 
 	// only draw segs on the _right_ side of linedefs
 	if (line->side[1] == seg->sidedef)
@@ -1291,7 +1291,7 @@ void AM_Drawer(void)
 	if (!automapactive)
 		return;
 
-	DEV_ASSERT2(automap_style);
+	SYS_ASSERT(automap_style);
 
 	if (automapactive == 1)
 		am_colmap = am_overlay_colmap;

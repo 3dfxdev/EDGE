@@ -286,8 +286,8 @@ void *SV_MobjGetElem(int index)
 	if (!cur)
 		I_Error("LOADGAME: Invalid Mobj: %d\n", index);
 
-	DEV_ASSERT2(index == 0);
-	DEV_ASSERT2(cur->info);
+	SYS_ASSERT(index == 0);
+	SYS_ASSERT(cur->info);
 
 	return cur;
 }
@@ -408,7 +408,7 @@ void *SV_ItemqGetElem(int index)
 	if (!cur)
 		I_Error("LOADGAME: Invalid ItemInQue: %d\n", index);
 
-	DEV_ASSERT2(index == 0);
+	SYS_ASSERT(index == 0);
 	return cur;
 }
 
@@ -632,8 +632,8 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 	const mobj_t *mo = (mobj_t *) sv_current_elem;
 	const mobjtype_c *actual;
 
-	DEV_ASSERT2(mo);
-	DEV_ASSERT2(mo->info);
+	SYS_ASSERT(mo);
+	SYS_ASSERT(mo->info);
 
 	swizzle = SV_GetString();
 
@@ -744,8 +744,8 @@ void SR_MobjPutState(void *storage, int index, void *extra)
 	const mobj_t *mo = (mobj_t *) sv_current_elem;
 	const mobjtype_c *actual;
 
-	DEV_ASSERT2(mo);
-	DEV_ASSERT2(mo->info);
+	SYS_ASSERT(mo);
+	SYS_ASSERT(mo->info);
 
 	if (S == NULL)
 	{

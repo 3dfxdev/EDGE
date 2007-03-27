@@ -76,11 +76,11 @@ layer_t *R_LayerNew(int depth, int x1, int y1, int x2, int y2,
 {
 	layer_t *layer;
 
-	DEV_ASSERT2(x1 >= 0);
-	DEV_ASSERT2(y1 >= 0);
-	DEV_ASSERT2(x2 >= x1);
-	DEV_ASSERT2(y2 >= y1);
-	DEV_ASSERT2(depth >= 0);
+	SYS_ASSERT(x1 >= 0);
+	SYS_ASSERT(y1 >= 0);
+	SYS_ASSERT(x2 >= x1);
+	SYS_ASSERT(y2 >= y1);
+	SYS_ASSERT(depth >= 0);
 
 	layer = Z_ClearNew(layer_t, 1);
 
@@ -154,7 +154,7 @@ void R_LayerAdd(layer_t *parent, layer_t *layer)
 
 		layer_t *cur = (*parent_list);
 
-		DEV_ASSERT2(cur);
+		SYS_ASSERT(cur);
 
 		while (cur && cur->next && cur->next->depth < layer->depth)
 			cur = cur->next;
@@ -299,7 +299,7 @@ void R_LayerChangeContents(layer_t *layer)
 bool R_LayerClipRectToSolids(int solid_index, 
 		int *x1, int *y1, int *x2, int *y2)
 {
-	DEV_ASSERT2(solid_index >= 0);
+	SYS_ASSERT(solid_index >= 0);
 
 	for (solid_index--; solid_index >= 0; solid_index--)
 	{
@@ -341,7 +341,7 @@ bool R_LayerClipRectToSolids(int solid_index,
 					(*y2) = sy1 - 1;
 				}
 
-				DEV_ASSERT2((*y2) >= (*y1));
+				SYS_ASSERT((*y2) >= (*y1));
 				break;
 
 			case 2:
@@ -355,7 +355,7 @@ bool R_LayerClipRectToSolids(int solid_index,
 					(*x2) = sx1 - 1;
 				}
 
-				DEV_ASSERT2((*x2) >= (*x1));
+				SYS_ASSERT((*x2) >= (*x1));
 				break;
 
 #ifdef DEVELOPERS
@@ -421,7 +421,7 @@ static void ResizeLayerList(layer_t *list, int x1, int y1, int x2, int y2)
 {
 	for (; list; list = list->next)
 	{
-		DEV_ASSERT2(list->Resizer);
+		SYS_ASSERT(list->Resizer);
 
 		(* list->Resizer)(list, x1, y1, x2, y2);
 	}
@@ -495,8 +495,8 @@ static bool DL_Query(layer_t *list, int x1, int y1, int x2, int y2)
 		list->clip_x2 = MIN(list->x2, x2);
 		list->clip_y2 = MIN(list->y2, y2);
 
-		DEV_ASSERT2(list->clip_x2 >= list->clip_x1);
-		DEV_ASSERT2(list->clip_y2 >= list->clip_y1);
+		SYS_ASSERT(list->clip_x2 >= list->clip_x1);
+		SYS_ASSERT(list->clip_y2 >= list->clip_y1);
 
 		list->vis_x1 = list->clip_x1;
 		list->vis_y1 = list->clip_y1;
@@ -579,7 +579,7 @@ static void DL_Draw(layer_t *list)
 		if (list->invisible)
 			continue;
 
-		DEV_ASSERT2(list->solid_index >= 0);
+		SYS_ASSERT(list->solid_index >= 0);
 
 		if (list->Drawer)
 		{

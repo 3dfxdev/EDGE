@@ -137,7 +137,7 @@ static int BOT_EvaluateWeapon(bot_t *bot, int w_num)
 		return INT_MIN;
 
 	weapondef_c *weapon = wp->info;
-	DEV_ASSERT2(weapon);
+	SYS_ASSERT(weapon);
 
 	atkdef_c *attack = weapon->attack[0];
 	if (!attack)
@@ -273,7 +273,7 @@ static bool PTR_BotLook(intercept_t * in)
 		return true;  // sight continues
 	}
 
-	DEV_ASSERT2(in->type == INCPT_Thing);
+	SYS_ASSERT(in->type == INCPT_Thing);
 
 	mobj_t *th = in->d.thing;
 
@@ -548,8 +548,8 @@ static void BOT_Chase(bot_t *bot, bool seetarget, bool move_ok)
 
 static void BOT_Think(bot_t * bot)
 {
-	DEV_ASSERT2(bot->pl);
-	DEV_ASSERT2(bot->pl->mo);
+	SYS_ASSERT(bot->pl);
+	SYS_ASSERT(bot->pl->mo);
 
 	mobj_t *mo = bot->pl->mo;
 
@@ -695,7 +695,7 @@ void P_BotPlayerBuilder(const player_t *p, void *data, ticcmd_t *cmd)
 		return;
 
 	bot_t *bot = (bot_t *)data;
-	DEV_ASSERT2(bot);
+	SYS_ASSERT(bot);
 
 	Z_Clear(&bot->cmd, botcmd_t, 1);
 	bot->cmd.new_weapon = -1;

@@ -1215,7 +1215,7 @@ static bool PTR_AimTraverse(intercept_t * in)
 		return true;
 	}
 
-	DEV_ASSERT2(in->type == INCPT_Thing);
+	SYS_ASSERT(in->type == INCPT_Thing);
 
 	// shoot a thing
 	mobj_t *th = in->d.thing;
@@ -1363,7 +1363,7 @@ static bool PTR_ShootTraverse(intercept_t * in)
 		if ((li->flags & ML_TwoSided) && li->gap_num > 0 &&
 			!(li->flags & ML_ShootBlock))
 		{
-			DEV_ASSERT2(li->backsector);
+			SYS_ASSERT(li->backsector);
 
 			// check all line gaps
 			for (int i = 0; i < li->gap_num; i++)
@@ -1410,7 +1410,7 @@ static bool PTR_ShootTraverse(intercept_t * in)
 		return false;
 	}
 
-	DEV_ASSERT2(in->type == INCPT_Thing);
+	SYS_ASSERT(in->type == INCPT_Thing);
 
 	// shoot a thing
 	mobj_t *th = in->d.thing;
@@ -1702,7 +1702,7 @@ static bool PTR_UseTraverse(intercept_t * in)
 		return false;
 	}
 
-	DEV_ASSERT2(in->type == INCPT_Line);
+	SYS_ASSERT(in->type == INCPT_Line);
 
 	line = in->d.line;
 
@@ -1993,7 +1993,7 @@ static void ChangeSectorHeights(sector_t *sec, float f_h,
 		next = tn->sec_next;
 
 		mo = tn->mo;
-		DEV_ASSERT2(mo);
+		SYS_ASSERT(mo);
 
 #if 0
 		bz = mo->z;
@@ -2247,7 +2247,7 @@ void P_ChangeThingSize(mobj_t *mo)
 	{
 		next = tn->sec_next;
 
-		DEV_ASSERT2(tn->mo);
+		SYS_ASSERT(tn->mo);
 
 		P_ThingHeightClip(tn->mo);
 	}

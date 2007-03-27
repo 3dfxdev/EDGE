@@ -124,8 +124,8 @@ void R2_AddColourDLights(int num, int *r, int *g, int *b,
 	int G = (col >>  8) & 0xFF;
 	int B = (col      ) & 0xFF;
 
-	DEV_ASSERT2(num > 0);
-	DEV_ASSERT2(base_qty >= 0);
+	SYS_ASSERT(num > 0);
+	SYS_ASSERT(base_qty >= 0);
 
 	switch (mo->info->dlight.type)
 	{
@@ -318,7 +318,7 @@ static void FloodResetClipPlanes(void)
 
 int RGL_Light(int nominal)
 {
-	DEV_ASSERT2(currmap);
+	SYS_ASSERT(currmap);
 
 	if (currmap->lighting <= LMODEL_Doomish)
 	{
@@ -682,7 +682,7 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	if ((blended || mid_masked) == solid_mode)
 		return;
 
-	DEV_ASSERT2(currmap);
+	SYS_ASSERT(currmap);
 
 	// do the N/S/W/E bizzo...
 	if (currmap->lighting == LMODEL_Doom && lit_Nom > 0)
@@ -712,7 +712,7 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	data.dlights = dfloor->dlights;
 	data.image   = part->image;
 
-	DEV_ASSERT2(part->image);
+	SYS_ASSERT(part->image);
 	cim = W_ImageCache(part->image);
 	tex_id = W_ImageGetOGL(cim);
 
@@ -759,7 +759,7 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 			seg_start = seg_end - xy_len;
 		}
 
-		DEV_ASSERT2(smov);
+		SYS_ASSERT(smov);
 
 		switch (smov->info->type * 2 + (mid_masked & 1))
 		{
@@ -1072,7 +1072,7 @@ static void EmulateFlooding(const drawfloor_t *dfloor,
 	data.x_mat = info->x_mat;
 	data.y_mat = info->y_mat;
 
-	DEV_ASSERT2(info->image);
+	SYS_ASSERT(info->image);
 	cim = W_ImageCache(info->image);
 	tex_id = W_ImageGetOGL(cim);
 
@@ -1169,7 +1169,7 @@ static bool RGL_BuildWalls(drawfloor_t *dfloor)
 		if (f >= c)
 			continue;
 
-		DEV_ASSERT2(wt->surface->image);
+		SYS_ASSERT(wt->surface->image);
 
 		tex_top_h = wt->tex_z + wt->surface->offset.y;
 		x_offset  = wt->surface->offset.x;
@@ -1266,7 +1266,7 @@ static void RGL_DrawSeg(seg_t *seg)
 	L_WriteDebug("   DRAW SEG %p\n", seg);
 #endif
 
-	DEV_ASSERT2(!seg->miniseg && seg->linedef);
+	SYS_ASSERT(!seg->miniseg && seg->linedef);
 
 	// mark the segment on the automap
 	seg->linedef->flags |= ML_Mapped;
@@ -1626,7 +1626,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	data.normal.y = 0;
 	data.normal.z = (viewz > h) ? 1.0f : -1.0f;
 
-	DEV_ASSERT2(info->image);
+	SYS_ASSERT(info->image);
 	cim = W_ImageCache(info->image);
 	tex_id = W_ImageGetOGL(cim);
 
@@ -1912,7 +1912,7 @@ static void RGL_WalkSubsector(int num)
 			C = L;  L = L->higher;
 		}
 
-		DEV_ASSERT2(C);
+		SYS_ASSERT(C);
 
 		// ignore liquids in the middle of THICK solids, or below real
 		// floor or above real ceiling

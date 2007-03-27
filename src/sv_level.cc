@@ -448,7 +448,7 @@ void *SV_SideGetElem(int index)
 //
 int SV_SideFindElem(side_t *elem)
 {
-	DEV_ASSERT2(sides <= elem && elem < (sides + numsides));
+	SYS_ASSERT(sides <= elem && elem < (sides + numsides));
 
 	return elem - sides;
 }
@@ -505,7 +505,7 @@ void *SV_LineGetElem(int index)
 //
 int SV_LineFindElem(line_t *elem)
 {
-	DEV_ASSERT2(lines <= elem && elem < (lines + numlines));
+	SYS_ASSERT(lines <= elem && elem < (lines + numlines));
 
 	return elem - lines;
 }
@@ -573,7 +573,7 @@ void SV_LineFinaliseElems(void)
 			continue;
 
 		smov = (slider_move_t *)gen;
-		DEV_ASSERT2(smov->line);
+		SYS_ASSERT(smov->line);
 
 		smov->line->slider_move = smov;
 	}
@@ -609,7 +609,7 @@ void *SV_ExfloorGetElem(int index)
 //
 int SV_ExfloorFindElem(extrafloor_t *elem)
 {
-	DEV_ASSERT2(extrafloors <= elem && elem < (extrafloors + numextrafloors));
+	SYS_ASSERT(extrafloors <= elem && elem < (extrafloors + numextrafloors));
 
 	return elem - extrafloors;
 }
@@ -686,7 +686,7 @@ void *SV_SectorGetElem(int index)
 //
 int SV_SectorFindElem(sector_t *elem)
 {
-	DEV_ASSERT2(sectors <= elem && elem < (sectors + numsectors));
+	SYS_ASSERT(sectors <= elem && elem < (sectors + numsectors));
 
 	return elem - sectors;
 }
@@ -747,7 +747,7 @@ void SV_SectorFinaliseElems(void)
 		{
 		case MDT_PLANE:
 			pmov = (plane_move_t *)gen;
-			DEV_ASSERT2(pmov->sector);
+			SYS_ASSERT(pmov->sector);
 
 			if (pmov->is_ceiling)
 				pmov->sector->ceil_move = gen;
@@ -957,7 +957,7 @@ void SR_LevelPutColmap(void *storage, int index, void *extra)
 {
 	const colourmap_c *src = ((const colourmap_c **)storage)[index];
 
-	DEV_ASSERT2(src);
+	SYS_ASSERT(src);
 
 	SV_PutString(src->ddf.name);
 }

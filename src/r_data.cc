@@ -95,8 +95,8 @@ void R_AddFlatAnim(animdef_c *anim)
 		epi::u32array_c& lumps = W_GetListLumps(file, LMPLST_Flats);
 		int total = lumps.GetSize();
 
-		DEV_ASSERT2(s_offset <= e_offset);
-		DEV_ASSERT2(e_offset < total);
+		SYS_ASSERT(s_offset <= e_offset);
+		SYS_ASSERT(e_offset < total);
 
 		// determine animation sequence
 		total = e_offset - s_offset + 1;
@@ -175,7 +175,7 @@ void R_AddTextureAnim(animdef_c *anim)
 			return;
 		}
 
-		DEV_ASSERT2(s_offset <= e_offset);
+		SYS_ASSERT(s_offset <= e_offset);
 
 		int total = e_offset - s_offset + 1;
 		const image_t **texs = new const image_t* [total];
@@ -216,7 +216,7 @@ void R_AddGraphicAnim(animdef_c *anim)
 {
 	int total = anim->pics.GetSize();
 
-	DEV_ASSERT2(total != 0);
+	SYS_ASSERT(total != 0);
 
 	if (total == 1)
 		return;
@@ -311,7 +311,7 @@ void R_InitPicAnims(void)
 	{
 		A = ITERATOR_TO_TYPE(it, animdef_c*);
 
-		DEV_ASSERT2(A);
+		SYS_ASSERT(A);
 
 		switch (A->type)
 		{
@@ -339,7 +339,7 @@ static void R_PrecacheSprites(void)
 	byte *sprite_present;
 	mobj_t *mo;
 
-	DEV_ASSERT2(numsprites > 1);
+	SYS_ASSERT(numsprites > 1);
 
 	sprite_present = Z_ClearNew(byte, numsprites);
 
@@ -362,7 +362,7 @@ static void R_PrecacheSprites(void)
 		if (! sprite_present[i] || def->numframes == 0)
 			continue;
 
-		DEV_ASSERT2(def->frames);
+		SYS_ASSERT(def->frames);
 
 		for (fr=0; fr < def->numframes; fr++)
 		{
@@ -431,7 +431,7 @@ void R_PrecacheLevel(void)
 			images[count++] = sides[i].bottom.image;
 	}
 
-	DEV_ASSERT2(count <= max_image);
+	SYS_ASSERT(count <= max_image);
 
 	// add in planes
 	for (i=0; i < numsectors; i++)
@@ -443,7 +443,7 @@ void R_PrecacheLevel(void)
 			images[count++] = sectors[i].ceil.image;
 	}
 
-	DEV_ASSERT2(count <= max_image);
+	SYS_ASSERT(count <= max_image);
 
 	// Sort the images, so we can ignore the duplicates
 
@@ -453,7 +453,7 @@ void R_PrecacheLevel(void)
 
 	for (i=0; i < count; i++)
 	{
-		DEV_ASSERT2(images[i]);
+		SYS_ASSERT(images[i]);
 
 		if (i+1 < count && images[i] == images[i + 1])
 			continue;

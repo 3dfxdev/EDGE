@@ -111,7 +111,7 @@ spawnpoint_t* spawnpointarray_c::FindPlayer(int pnum)
 	for (it=GetBaseIterator(); it.IsValid(); it++)
 	{
 		spawnpoint_t *point = ITERATOR_TO_PTR(it, spawnpoint_t);
-		DEV_ASSERT2(point->info);
+		SYS_ASSERT(point->info);
 
 		if (point->info->playernum == pnum)
 			return point;
@@ -432,23 +432,23 @@ static void DoRemoveMobj(mobj_t * mo)
 
 	if (mo->prev == NULL)  // no previous, must be first item
 	{
-		DEV_ASSERT2(mobjlisthead == mo);
+		SYS_ASSERT(mobjlisthead == mo);
 		mobjlisthead = mo->next;
 
 		if (mobjlisthead != NULL)
 		{
-			DEV_ASSERT2(mobjlisthead->prev == mo);
+			SYS_ASSERT(mobjlisthead->prev == mo);
 			mobjlisthead->prev = NULL;
 		}
 	}
 	else
 	{
-		DEV_ASSERT2(mo->prev->next == mo);
+		SYS_ASSERT(mo->prev->next == mo);
 		mo->prev->next = mo->next;
 
 		if (mo->next != NULL)
 		{
-			DEV_ASSERT2(mo->next->prev == mo);
+			SYS_ASSERT(mo->next->prev == mo);
 			mo->next->prev = mo->prev;
 		}
 	}
@@ -675,7 +675,7 @@ static INLINE void AddRegionProperties(const mobj_t *mo,
 	float factor = 1.0f;
 	float push_mul;
 
-	DEV_ASSERT2(tz > bz);
+	SYS_ASSERT(tz > bz);
 
 	if (tz > c_h)
 		factor -= factor * (tz - c_h) / (tz-bz);
@@ -699,7 +699,7 @@ static INLINE void AddRegionProperties(const mobj_t *mo,
 
 	if (! (flags & SECSP_PushConstant))
 	{
-		DEV_ASSERT2(mo->info->mass > 0);
+		SYS_ASSERT(mo->info->mass > 0);
 		push_mul = 100.0f / mo->info->mass;
 	}
 
@@ -760,7 +760,7 @@ void P_CalcFullProperties(const mobj_t *mo, region_properties_t *new_p)
 			C = L;  L = L->higher;
 		}
 
-		DEV_ASSERT2(C);
+		SYS_ASSERT(C);
 
 		// ignore "hidden" liquids
 		if (C->bottom_h < floor_h || C->bottom_h > sector->c_h)
@@ -1304,7 +1304,7 @@ static void P_MobjThinker(mobj_t * mobj)
 
 	// determine properties, & handle push sectors
 
-	DEV_ASSERT2(mobj->props);
+	SYS_ASSERT(mobj->props);
 
 	if (mobj->player)
 	{
@@ -1330,7 +1330,7 @@ static void P_MobjThinker(mobj_t * mobj)
 			{
 				float push_mul = 1.0f;
 
-				DEV_ASSERT2(mobj->info->mass > 0);
+				SYS_ASSERT(mobj->info->mass > 0);
 				if (! (flags & SECSP_PushConstant))
 					push_mul = 100.0f / mobj->info->mass;
 
@@ -1625,7 +1625,7 @@ void P_MobjItemRespawn(void)
 		}
 
 		// spawn a teleport fog at the new spot
-		DEV_ASSERT2(objtype->respawneffect);
+		SYS_ASSERT(objtype->respawneffect);
 		P_MobjCreateObject(x, y, z, objtype->respawneffect);
 
 		// -ACB- 1998/08/06 Use MobjCreateObject

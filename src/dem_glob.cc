@@ -113,7 +113,7 @@ static void DG_GetInt(const char *info, void *storage)
 {
 	int *dest = (int *)storage;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	*dest = strtol(info, NULL, 0);
 }
@@ -122,7 +122,7 @@ static void DG_GetString(const char *info, void *storage)
 {
 	char **dest = (char **)storage;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	// free any previous string
 	if (*dest)
@@ -138,7 +138,7 @@ static void DG_GetCheckCRC(const char *info, void *storage)
 {
 	crc_check_t *dest = (crc_check_t *)storage;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	sscanf(info, "%d %u", &dest->count, &dest->crc);
 }
@@ -148,7 +148,7 @@ static void DG_GetLevelFlags(const char *info, void *storage)
 	gameflags_t *dest = (gameflags_t *)storage;
 	int flags;
 
-	DEV_ASSERT2(info && storage);
+	SYS_ASSERT(info && storage);
 
 	flags = strtol(info, NULL, 0);
 
@@ -195,7 +195,7 @@ static const char *DG_PutInt(void *storage)
 	int *src = (int *)storage;
 	char buffer[40];
 
-	DEV_ASSERT2(storage);
+	SYS_ASSERT(storage);
 
 	sprintf(buffer, "%d", *src);
 
@@ -206,7 +206,7 @@ static const char *DG_PutString(void *storage)
 {
 	char **src = (char **)storage;
 
-	DEV_ASSERT2(storage);
+	SYS_ASSERT(storage);
 
 	if (*src == NULL)
 		return (const char *) Z_ClearNew(char, 1);
@@ -219,7 +219,7 @@ static const char *DG_PutCheckCRC(void *storage)
 	crc_check_t *src = (crc_check_t *)storage;
 	char buffer[80];
 
-	DEV_ASSERT2(storage);
+	SYS_ASSERT(storage);
 
 	sprintf(buffer, "%d %u", src->count, src->crc);
 
@@ -231,7 +231,7 @@ static const char *DG_PutLevelFlags(void *storage)
 	gameflags_t *src = (gameflags_t *)storage;
 	int flags;
 
-	DEV_ASSERT2(storage);
+	SYS_ASSERT(storage);
 
 	flags = 0;
 
@@ -453,7 +453,7 @@ static void GlobWriteVARI(saveglobals_t *globs)
 		void *storage = ((char *) globs) + offset;
 
 		data = (* demo_globals[i].stringify_func)(storage);
-		DEV_ASSERT2(data);
+		SYS_ASSERT(data);
 
 		DEM_PushWriteChunk("Vari");
 		DEM_PutString(demo_globals[i].name);
@@ -486,7 +486,7 @@ static void GlobWriteWADS(saveglobals_t *globs)
 	if (! globs->wad_names)
 		return;
 
-	DEV_ASSERT2(globs->wad_num > 0);
+	SYS_ASSERT(globs->wad_num > 0);
 
 	DEM_PushWriteChunk("Wads");
 	DEM_PutInt(globs->wad_num);
