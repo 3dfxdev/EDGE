@@ -20,7 +20,7 @@
 #define __HU_FONT__
 
 #include "ddf_font.h"
-#include "w_image.h"
+#include "r_image.h"
 
 typedef struct
 {

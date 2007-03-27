@@ -26,7 +26,7 @@
 #include "v_colour.h"
 #include "v_ctx.h"
 #include "v_res.h"
-#include "w_image.h"
+#include "r_image.h"
 
 #include <ctype.h>
 #include <string.h>

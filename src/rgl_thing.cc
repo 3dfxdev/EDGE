@@ -34,7 +34,7 @@
 #include "st_stuff.h"
 #include "v_colour.h"
 #include "v_res.h"
-#include "w_image_gl.h"
+#include "r_image_gl.h"
 
 #include <math.h>
 

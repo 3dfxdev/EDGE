@@ -27,7 +27,7 @@
 #include "v_colour.h"
 #include "v_ctx.h"
 #include "v_res.h"
-#include "w_image_gl.h"
+#include "r_image_gl.h"
 
 #include "epi/strings.h"
 

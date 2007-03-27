@@ -21,7 +21,7 @@
 
 #include "ddf_style.h"
 #include "hu_font.h"
-#include "w_image.h"
+#include "r_image.h"
 
 class style_c
 {

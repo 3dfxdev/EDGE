@@ -34,7 +34,7 @@
 #include "e_player.h"
 #include "ddf_main.h"
 #include "r_defs.h"
-#include "w_image.h"
+#include "r_image.h"
 
 #define MENU_GRAV_NORMAL  8
 

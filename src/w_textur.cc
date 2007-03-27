@@ -27,7 +27,7 @@
 
 #include "e_search.h"
 #include "e_main.h"
-#include "w_image.h"
+#include "r_image.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
