@@ -1349,7 +1349,10 @@ static void QuitResponse(int ch)
 	M_SaveDefaults();
 
 	I_Printf("Exiting...\n");
+
+	E_EngineShutdown();
 	I_SystemShutdown();
+
 	I_DisplayExitScreen();
 	I_CloseProgram(0);
 }

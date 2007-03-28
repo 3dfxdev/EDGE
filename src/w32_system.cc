@@ -66,7 +66,9 @@ void FlushMessageQueue()
 
 	while ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
 	{
-		if ( msg.message == WM_QUIT ) break;
+		if ( msg.message == WM_QUIT )
+			break;
+
 		TranslateMessage( &msg );
 		DispatchMessage( &msg );
 	}
@@ -224,7 +226,7 @@ void I_Error(const char *error,...)
 	vsprintf(msgbuf, error, argptr);
 	va_end(argptr);
 
-	ChangeDisplaySettings(0, 0);
+///---	ChangeDisplaySettings(0, 0);
 
 	if (logfile)
 	{
@@ -240,12 +242,9 @@ void I_Error(const char *error,...)
 
 	I_SystemShutdown();
 
-	//ShowCursor(TRUE);
-	FlushMessageQueue();
 	MessageBox(NULL, msgbuf, TITLE, MB_OK);
 
 	I_CloseProgram(-1);
-	return;
 }
 
 //
@@ -358,16 +357,10 @@ bool I_GetModifiedTime(const char *filename, epi::timestamp_c *t)
 //
 void I_SystemShutdown(void)
 {
-	int waittime;
-
-	E_EngineShutdown();
-
 	if (!systemup)
 		return;
 
-	// Pause to allow sounds to finish
-	waittime = timeGetTime() + 2000;
-	while (waittime >= (int)timeGetTime());
+	systemup = false;
 
 	I_ShutdownMusic();
 	I_ShutdownSound();
@@ -386,6 +379,9 @@ void I_SystemShutdown(void)
 	if (debugfile != NULL)
 		fclose(debugfile);
 #endif
+
+	//ShowCursor(TRUE);
+	FlushMessageQueue();
 }
 
 

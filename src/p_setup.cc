@@ -2080,8 +2080,11 @@ static void DoBlockMap(int lump)
 	int i;
 	int map_width, map_height;
 
-	int min_x = (int)vertexes[0].x, min_y = (int)vertexes[0].y;
-	int max_x = (int)vertexes[0].x, max_y = (int)vertexes[0].y;
+	int min_x = (int)vertexes[0].x;
+	int min_y = (int)vertexes[0].y;
+
+	int max_x = (int)vertexes[0].x;
+	int max_y = (int)vertexes[0].y;
 
 	for (i=1; i < numvertexes; i++)
 	{
@@ -2368,6 +2371,10 @@ void P_SetupLevel(skill_t skill, int autotag)
 	if (level_active)
 		ShutdownLevel();
 
+	// -ACB- 1998/08/27 NULL the head pointers for the linked lists....
+	itemquehead = NULL;
+	mobjlisthead = NULL;
+
 	totalkills = totalitems = totalsecret = wminfo.maxfrags = 0;
 
 	wminfo.partime = currmap->partime;
@@ -2385,9 +2392,9 @@ void P_SetupLevel(skill_t skill, int autotag)
 	// will be set by player think.
 	players[consoleplayer]->viewz = FLO_UNUSED;
 
-	lumpnum = W_GetNumForName(currmap->lump);
-
 	leveltime = 0;
+
+	lumpnum = W_GetNumForName(currmap->lump);
 
 	// -AJA- 1999/12/20: Support for "GL-Friendly Nodes".
 	sprintf(gl_lumpname, "GL_%s", currmap->lump.GetString());
@@ -2438,10 +2445,6 @@ void P_SetupLevel(skill_t skill, int autotag)
 #undef SHOWLUMPNAME
 #endif
 
-	// -ACB- 1998/08/27 NULL the head pointers for the linked lists....
-	itemquehead = NULL;
-	mobjlisthead = NULL;
-
 	v5_nodes = false;
 	remove_slime_trails = true;
 
@@ -2490,6 +2493,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 	LoadSubsectors(gl_lumpnum + ML_GL_SSECT, "GL_SSECT");
 	LoadNodes(gl_lumpnum + ML_GL_NODES, "GL_NODES");
 	LoadReject(lumpnum + ML_REJECT);
+
 
 	GroupLines();
 
