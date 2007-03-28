@@ -272,7 +272,11 @@ void S_Shutdown(void)
 
 	SDL_PauseAudio(1);
 
-	// FIXME: FreeChannels,   QueueShutdown
+	// make sure mixing thread is not running our code
+	SDL_LockAudio();
+	SDL_UnlockAudio();
+
+	// FIXME: S_QueueQuit
 }
 
 // Not-rejigged-yet stuff..
