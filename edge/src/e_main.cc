@@ -1519,10 +1519,15 @@ void E_EngineShutdown(void)
 	if (demorecording)
 		G_FinishDemo();
 
-	S_StopMusic();
-    S_Shutdown();
-
 	N_QuitNetGame();
+
+	S_StopMusic();
+
+	// Pause to allow sounds to finish
+	I_Sleep(1000);
+	I_Sleep(1000);
+
+    S_Shutdown();
 }
 
 typedef struct
@@ -1569,6 +1574,7 @@ startuporder_t startcode[] =
 	{  0, NULL,                }
 };
 
+extern void WLF_InitMaps(void); //!!!
 
 // Local Prototypes
 static void E_Startup();

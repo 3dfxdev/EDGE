@@ -444,6 +444,7 @@ bool G_FinishDemo(void)
 		if (singledemo)
 		{
 			// -ACB- 1999/09/20 New code order, shutdown system then close program.
+			E_EngineShutdown();
 			I_SystemShutdown();
 			I_CloseProgram(0);
 		}

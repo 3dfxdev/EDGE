@@ -334,7 +334,7 @@ void I_Error (const char *error, ...)
 	I_MessageBox(errmsg, "EDGE Error", 0);
 #endif
 
-	exit (-1);
+	I_CloseProgram(-1);
 }
 
 // -AJA- Routine which emulates IBM charset.
@@ -468,12 +468,10 @@ bool I_SystemStartup(void)
 //
 void I_SystemShutdown(void)
 {
-	E_EngineShutdown();
-
 	I_ShutdownMusic();
 	I_ShutdownSound();
-	I_ShutdownGraphics();
 	I_ShutdownControl();
+	I_ShutdownGraphics();
 	I_ShutdownNetwork();
 
 	if (logfile)
