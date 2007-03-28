@@ -488,16 +488,18 @@ void S_SoundTicker(void)
 
 	SDL_LockAudio();
 	{
-		if (::numplayers == 0) // FIXME: Yuck!
+		if (gamestate == GS_LEVEL)
 		{
-			S_UpdateSounds(NULL, 0);
+			SYS_ASSERT(::numplayers > 0);
+
+			mobj_t *pmo = ::players[displayplayer]->mo;
+			SYS_ASSERT(pmo);
+
+			S_UpdateSounds(pmo, pmo->angle);
 		}
 		else
 		{
-			mobj_t *pmo = ::players[displayplayer]->mo;
-			SYS_ASSERT(pmo);
-		   
-			S_UpdateSounds(pmo, pmo->angle);
+			S_UpdateSounds(NULL, 0);
 		}
 	}
 	SDL_UnlockAudio();
