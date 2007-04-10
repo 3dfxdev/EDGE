@@ -1,5 +1,23 @@
 Andrew Apted's Log
 
+2007/04/10:
+
+Implemented a "-gamma" command-line option.
+
+Implemented a fix for the "jerk up/down" problem when the
+player runs up to a lowering lift and activates it.  The
+problem occurs because the player still has momentum, and
+the "step up" code kicks in when the lift reaches 24 units
+high.  My fix is simply to treat lowering sectors that are
+above the player Z as blocking.
+
+Created an M_SFXOPT graphic for the Sound Options menu.
+
+2007/03/28:
+
+Tweaked some system code (especially I_Error) to try and
+make them more robust.
+
 2007/03/25:
 
 Sound code: finished the QUEUEING system, including support
