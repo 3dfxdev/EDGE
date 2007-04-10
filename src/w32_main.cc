@@ -209,6 +209,9 @@ int PASCAL WinMain (HINSTANCE curr, HINSTANCE prev, LPSTR cmdline, int show)
 
 	SDL_SetModuleHandle(GetModuleHandle(NULL));
 
+	// -AJA- give us a proper name in the Task Manager
+	SDL_RegisterApp(TITLE, 0, 0);
+
 	// Run Game....
 	E_Main(edgeargc, edgeargv);
 
