@@ -11,4 +11,5 @@ MAIN_MENU MENU DISCARDABLE
   }
 }
 
-MAIN_ICON ICON "win32/icon128x128.ico"
+MAIN_ICON ICON "../data/icon128x128.ico"
+
