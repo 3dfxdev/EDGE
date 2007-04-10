@@ -15,8 +15,13 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-#ifndef __EPI_HEADER__
-#define __EPI_HEADER__
+
+#ifndef __EDGE_PLATFORM_INTERFACE__
+#define __EDGE_PLATFORM_INTERFACE__
+
+#include "headers.h"
+#include "types.h"
+#include "macros.h"
 
 #ifdef LINUX
 #include "epi_linux.h"
@@ -29,9 +34,6 @@
 #ifdef MACOSX
 #include "epi_macosx.h"
 #endif
-
-#include "types.h"
-#include "macros.h"
 
 namespace epi
 {
@@ -48,4 +50,4 @@ namespace epi
 	extern mem_manager_c* the_mem_manager;
 };
 
-#endif /* __EPI_HEADER__ */
+#endif /* __EDGE_PLATFORM_INTERFACE__ */
