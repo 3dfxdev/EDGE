@@ -1110,6 +1110,19 @@ static bool P_StasifySector(sector_t * sec)
     return rtn;
 }
 
+bool P_SectorIsLowering(sector_t *sec)
+{
+	if (! sec->floor_move)
+		return false;
+
+	if (sec->floor_move->whatiam != MDT_PLANE)
+		return false;
+
+    plane_move_t *plane = (plane_move_t*) sec->floor_move;
+
+	return plane->direction < 0;
+}
+
 // -AJA- 1999/12/07: cleaned up this donut stuff
 
 linetype_c donut[2];

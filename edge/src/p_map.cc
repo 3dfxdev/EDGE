@@ -476,6 +476,20 @@ static bool PIT_CheckRelLine(line_t * ld)
 		}
 	}
 
+	// -AJA- for players, disable stepping up onto a lowering sector
+	if (tm_I.mover->player && ld->frontsector->f_h != ld->backsector->f_h)
+	{
+		if ( (tm_I.mover->z < ld->frontsector->f_h &&
+			  P_SectorIsLowering(ld->frontsector))
+	    ||
+		     (tm_I.mover->z < ld->backsector->f_h &&
+			  P_SectorIsLowering(ld->backsector)) )
+		{
+			blockline = ld;
+			return false;
+		}
+	}
+
 	// handle ladders (players only !)
 	if (tm_I.mover->player && ld->special && 
 		ld->special->ladder.height > 0)
