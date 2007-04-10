@@ -537,7 +537,7 @@ static optmenuitem_t soundoptions[] =
 static menuinfo_t soundoptionsinfo = 
 {
 	soundoptions, sizeof(soundoptions) / sizeof(optmenuitem_t),
-	&mouse_style, 150, 75, "M_SVOL", NULL, 0, "", NULL, NULL
+	&mouse_style, 150, 75, "M_SFXOPT", NULL, 0, "", NULL, NULL
 };
 
 //
