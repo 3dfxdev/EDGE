@@ -1,27 +1,24 @@
 
-EDGE 1.29 README.TXT
-====================
+EDGE 1.29 RC#5 README.TXT
+=========================
 
 Welcome to EDGE, the Enhanced Doom Gaming Engine.
 
+** NOTE: This is only a Release Candidate version of EDGE.
+**       There a still many things left to do before the
+**       full release is made.  Thank you for testing it.
+
+
 Archive listing:
   * gledge32.exe       - Windows Executable (OpenGL rendering)
-  * OpenALwEAX.exe     - Installer for OpenAL sound system
   * edge.wad           - EDGE WAD Information
-  * edge-ddf-4.6.zip   - EDGE DDF files (not required to play)
-  * changelog-129.txt  - Full list of changes for 1.29
-  * edge-readme.txt    - Guess what you reading?
-
-  * ogg.dll            -
-  * vorbis.dll         - Libraries for OGG/Vorbis music.
-  * vorbisfile.dll     -
+  * edge-Readme.txt    - Guess what you reading?
 
 
 System Requirements:
   - Pentium 400 MHz CPU or later.
   - 64MB RAM (128MB RAM recommended).
-  - Hardware accelerated 3D card with OpenGL drivers
-  - OpenAL audio library with compatible soundcard.
+  - Hardware accelerated 3D card with OpenGL drivers.
 
   - Either a DOOM, DOOM II, or Final DOOM IWAD file.
     (See "Getting hold of a game data" below).
@@ -93,11 +90,6 @@ Notable EDGE features:
 
 Major changes in 1.29:
   * Software rendering removed.
-
-  * OpenAL as the new sound system.  OpenAL is a 3D audio library which
-    can take advantage of hardware sound mixing.  The Windows package
-    comes with an installer for it, and it is available for the other
-    platforms too.
 
   * MacOS X support.  This is the initial version, and there are some
     known problems (e.g. drag-and-drop is not working yet).
@@ -282,10 +274,6 @@ Troubleshooting:
       running the 'glxinfo' program in an xterm, and look for the line
       that says "direct rendering: Yes".
 
-  For MacOS X:
-    - OpenAL information and a link to the installer can be found
-      at http://developer.apple.com/audio/openal.html.
-
 
 Contact points:
   * For the latest news and developments visit the EDGE Website
@@ -400,14 +388,6 @@ Command line options:
   -nograb              Don't grab the mouse cursor.
   -warpmouse           Use special mouse handling code.
 
-  Win32 options:
-    -bestaudio         Allow OpenAL to select best driver as opposed to forcing 
-                       the DirectSound implementation. (DirectSound is forced 
-                       since there are numerous issues with a large number of 
-                       3D sound drivers).
-
-  Linux / MacOS X options:
-    (None)
 
 Console commands:
   CRC  <lump>          Computes the CRC value of a wad lump.
