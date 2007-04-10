@@ -24,8 +24,10 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "v_colour.h"
 
+#include <stdlib.h>  // atoi()
+
+#include "v_colour.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_main.h"
@@ -205,6 +207,13 @@ void V_InitColour(void)
 {
 	// check options
 	M_CheckBooleanParm("nointerp", &interpolate_colmaps, true);
+
+	const char *s = M_GetParm("-gamma");
+	if (s)
+	{
+		usegamma = MAX(0, MIN(4, atoi(s)));
+		current_gamma = usegamma;
+	}
 
 	InitTranslationTables();
 
