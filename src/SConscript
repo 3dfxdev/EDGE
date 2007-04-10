@@ -58,18 +58,19 @@ sources_2 = [
 
 if 0:
     sources_2 = sources_2 + [
-    'wf_util.cc', 'wf_colors.cc', # 'wf_maps.cc'
+    'wf_util.cc', 'wf_colors.cc', 'wf_maps.cc',
+#    'wf_setup.cc'
     ]
 
 # operating system specifics
 if build_info['platform'] == "win32":
     sources_3 = ['w32_cd.cc', 'w32_compen.cc',
-        'w32_music.cc',
-        'w32_mus.cc', 'w32_net.cc',
-                        'w32_system.cc']
+        'w32_music.cc', 'w32_mus.cc',
+        'w32_net.cc', 'w32_system.cc']
+
 else: # linux
     sources_3 = ['unx_compen.cc', 'unx_music.cc', 
-        'unx_net.cc',                 'unx_system.cc']
+        'unx_net.cc', 'unx_system.cc']
 
 # another HACK (stupid linker!)
 # sources_3 += ['s_ogg.cc'] 
