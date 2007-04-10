@@ -227,13 +227,17 @@ const nodebuildfuncs_t edge_build_funcs =
 //
 bool GB_BuildNodes(const char *filename, const char *outname)
 {
+	L_WriteDebug("GB_BuildNodes: STARTED\n");
+	L_WriteDebug("# source: '%s'\n", filename);
+	L_WriteDebug("#   dest:  '%s'\n", outname);
+
 	nodebuildinfo_t nb_info;
 	volatile nodebuildcomms_t nb_comms;
 
 	nb_info = default_buildinfo;
 
 	// nb_comms = default_buildcomms;
-	memcpy((void *)&nb_comms, (void *)&default_buildcomms, sizeof(nodebuildcomms_t));
+	memcpy((void *)&nb_comms, (void *)&default_buildcomms, sizeof(nb_comms));
 
 	nb_info.input_file  = GlbspStrDup(filename);
 	nb_info.output_file = GlbspStrDup(outname);
@@ -245,6 +249,8 @@ bool GB_BuildNodes(const char *filename, const char *outname)
 	{
 		GB_PrintMsg("Param Check FAILED:\n");
 		GB_PrintMsg("- %s\n", nb_comms.message);
+
+		L_WriteDebug("GB_BuildNodes: BUGGERED\n");
 
 		return false;
 	}
@@ -260,10 +266,14 @@ bool GB_BuildNodes(const char *filename, const char *outname)
 		GB_PrintMsg("Building FAILED:\n");
 		GB_PrintMsg("- %s\n\n", nb_comms.message);
 
+		L_WriteDebug("GB_BuildNodes: FAILED\n");
+
 		return false;
 	}
 
 	DEV_ASSERT2(nb_info.gwa_mode);
+
+	L_WriteDebug("GB_BuildNodes: SUCCESS\n");
 
 	return true;
 }
