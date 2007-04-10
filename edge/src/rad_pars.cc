@@ -1487,15 +1487,15 @@ static void RAD_ParseTipAlign(int pnum, const char ** pars)
 
 static void HandleSpawnKeyword(const char *par, s_thing_t *t)
 {
-	if (strncasecmp(par, "X=", 2) != 0)
+	if (strncasecmp(par, "X=", 2) == 0)
 		RAD_CheckForFloat(par+2, &t->x);
-	else if (strncasecmp(par, "Y=", 2) != 0)
+	else if (strncasecmp(par, "Y=", 2) == 0)
 		RAD_CheckForFloat(par+2, &t->y);
-	else if (strncasecmp(par, "Z=", 2) != 0)
+	else if (strncasecmp(par, "Z=", 2) == 0)
 		RAD_CheckForFloat(par+2, &t->z);
-	else if (strncasecmp(par, "TAG=", 4) != 0)
+	else if (strncasecmp(par, "TAG=", 4) == 0)
 		RAD_CheckForInt(par+4, &t->tag);
-	else if (strncasecmp(par, "ANGLE=", 6) != 0)
+	else if (strncasecmp(par, "ANGLE=", 6) == 0)
 	{
 		int val;
 		RAD_CheckForInt(par+6, &val);
@@ -1505,7 +1505,7 @@ static void HandleSpawnKeyword(const char *par, s_thing_t *t)
 		else
 			t->angle = val << 16;
 	}
-	else if (strncasecmp(par, "SLOPE=", 6) != 0)
+	else if (strncasecmp(par, "SLOPE=", 6) == 0)
 	{
 		RAD_CheckForFloat(par+6, &t->slope);
 		t->slope /= 45.0f;
