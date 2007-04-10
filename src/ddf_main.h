@@ -2459,7 +2459,7 @@ public:
 #define RIDE_FRICTION    	0.7f
 #define LADDER_FRICTION  	0.8f
 
-#define STOPSPEED   		0.15f
+#define STOPSPEED   		0.07f
 #define OOF_SPEED   		20.0f
 
 // ----------------------------------------------------------------
