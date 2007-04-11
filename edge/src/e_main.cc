@@ -1524,8 +1524,11 @@ void E_EngineShutdown(void)
 	S_StopMusic();
 
 	// Pause to allow sounds to finish
-	I_Sleep(1000);
-	I_Sleep(1000);
+	for (int loop=0; loop < 30; loop++)
+	{
+		S_SoundTicker(); 
+		I_Sleep(50);
+	}
 
     S_Shutdown();
 }
