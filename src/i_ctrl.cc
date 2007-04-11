@@ -21,9 +21,9 @@
 
 #include "e_main.h"
 #include "e_event.h"
+#include "m_argv.h"
 #include "v_res.h"
 
-#include <ctype.h>
 
 #undef DEBUG_KB
 
@@ -175,6 +175,13 @@ void HandleKeyEvent(SDL_Event* ev)
 	if (ev->type != SDL_KEYDOWN && ev->type != SDL_KEYUP) 
 		return;
 
+#ifdef DEBUG_KB
+	if (ev->type == SDL_KEYDOWN)
+		L_WriteDebug("  HandleKey: DOWN\n");
+	else if (ev->type == SDL_KEYUP)
+		L_WriteDebug("  HandleKey: UP\n");
+#endif
+
 	event_t event;
 
 	int sym = (int)ev->key.keysym.sym;
@@ -208,6 +215,9 @@ void HandleKeyEvent(SDL_Event* ev)
 
     if (event.value.key == KEYD_TAB && alt_is_down)
     {
+#ifdef DEBUG_KB
+		L_WriteDebug("   HandleKey: ALT-TAB\n");
+#endif
         alt_is_down = false;
 		return;
     }
@@ -399,6 +409,9 @@ void I_CentreMouse(void)
 void I_StartupControl(void)
 {
 	alt_is_down = false;
+
+	if (M_CheckParm("-unicode"))
+		SDL_EnableUNICODE(1);
 }
 
 void I_ControlGetEvents(void)
