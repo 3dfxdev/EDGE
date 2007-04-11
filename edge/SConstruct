@@ -89,9 +89,11 @@ if 1:
 
 # SDL
 if build_info['platform'] == 'win32':
-    env.Append(LIBS = ['libSDL'])
-    # the following is a HACK (stupid fucking linker!)
-    env.Append(LINKFLAGS = ['./SDL-1.2.11/build/SDL_win32_main.o'])
+    env.Append(CPPPATH = ['#SDL-1.2.11/include'])
+    env.Append(LIBPATH = ['#SDL-1.2.11/lib'])
+    # fucking stupid linker needs the next line
+    env.Append(LIBS = ['-lmingw32'])
+    env.Append(LIBS = ['-lSDLmain', '-lSDL.dll'])
 else: # linux
     env.ParseConfig('sdl-config --cflags --libs')
 
@@ -107,20 +109,18 @@ env.Append(CCFLAGS = ['-DUSE_OGG'])
 
 if build_info['platform'] == 'win32':
     env.Append(CPPPATH = ['#libogg-1.1.3/include'])
+    env.Append(LIBPATH = ['#libogg-1.1.3/src'])
     env.Append(CPPPATH = ['#libvorbis-1.1.2/include'])
-    env.Append(CPPPATH = ['#SDL-1.2.11/include'])
+    env.Append(LIBPATH = ['#libvorbis-1.1.2/lib'])
     #
     env.Append(LIBPATH = ['#jpeg-6b'])
     env.Append(LIBPATH = ['#libpng-1.2.12'])
     env.Append(LIBPATH = ['#zlib-1.2.3'])
     #
-    env.Append(LIBPATH = ['#libogg-1.1.3/src'])
-    env.Append(LIBPATH = ['#libvorbis-1.1.2/lib'])
-    env.Append(LIBPATH = ['#SDL-1.2.11/build'])
-    env.Append(LIBPATH = ['#SDL-1.2.11/build/.libs'])
-    #
     env.Append(LIBS = ['wsock32', 'winmm', 'gdi32', 'dxguid', 'dinput'])
     env.Append(LINKFLAGS = ['-mwindows'])
+    #
+    env.Append(LINKFLAGS = ['edge32_res.o'])
 
 main_env = env
 

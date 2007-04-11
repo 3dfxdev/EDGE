@@ -1,5 +1,16 @@
 Andrew Apted's Log
 
+2007/04/11:
+
+Fixed the quit-sound, which wasn't playing due to the new
+software sound code.
+
+Win32 build: change over to link LibSDL dynamically, using
+the SDL.DLL (as well as include files and archive files)
+from the standard SDL-devel-1.2.11-mingw32.tar.gz package.
+Hopefully that fixes the problem with -directx option not
+working...
+
 2007/04/10:
 
 Implemented a "-gamma" command-line option.
