@@ -1108,6 +1108,7 @@ bool M_OptResponder(event_t * ev, int ch)
 		}
 
 		case KEYD_DOWNARROW:
+		case KEYD_MWHEEL_DN:
 		{
 			do
 			{
@@ -1123,6 +1124,7 @@ bool M_OptResponder(event_t * ev, int ch)
 		}
 
 		case KEYD_UPARROW:
+		case KEYD_MWHEEL_UP:
 		{
 			do
 			{

@@ -393,12 +393,12 @@ bool M_NetHostResponder(event_t * ev, int ch)
 		return true;
 	}
 
-	if (ch == KEYD_DOWNARROW)
+	if (ch == KEYD_DOWNARROW || ch == KEYD_MWHEEL_DN)
 	{
 		host_pos = (host_pos + 1) % HOST_OPTIONS;
 		return true;
 	}
-	else if (ch == KEYD_UPARROW)
+	else if (ch == KEYD_UPARROW || ch == KEYD_MWHEEL_UP)
 	{
 		host_pos = (host_pos + HOST_OPTIONS - 1) % HOST_OPTIONS;
 		return true;
