@@ -164,7 +164,7 @@ bool I_StartupMUS()
 	mixer = I_MusicLoadMixer(MIXERLINE_COMPONENTTYPE_SRC_SYNTHESIZER);
 	if (!mixer)
 	{
-		I_PostMusicError("I_StartupMUS: Couldn't load the midi mixer");
+		I_PostMusicError("I_StartupMUS: Couldn't load the midi mixer\n");
 		return false;
 	}
 
@@ -175,7 +175,7 @@ bool I_StartupMUS()
 		I_MusicReleaseMixer(mixer);
 		mixer = NULL;
 		
-		I_PostMusicError("I_StartupMUS: Couldn't open the midi device");
+		I_PostMusicError("I_StartupMUS: Couldn't open the midi device\n");
 		return false;
 	}
 
@@ -185,7 +185,7 @@ bool I_StartupMUS()
 		mixer = NULL;
 		
 		midiOutClose(midioutput);
-		I_PostMusicError("I_StartupMUS: Unable to get original volume");
+		I_PostMusicError("I_StartupMUS: Unable to get original volume\n");
 		return false;
 	}
 	
@@ -223,14 +223,14 @@ int I_MUSPlayTrack(byte *data, int length, bool loopy, float gain)
 	if (length < 16 ||
 		! (data[0] == 'M' && data[1] == 'U' && data[2] == 'S' && data[3] == 0x1A))
 	{
-		I_PostMusicError("I_MUSPlayTrack: wrong format (not MUS)");
+		I_PostMusicError("I_MUSPlayTrack: wrong format (not MUS)\n");
 		return -1;
 	}
 
 	song = (musheader_t*)new byte[length];
 	if (!song)
 	{
-		I_PostMusicError("Unable to allocate for MUS Song");
+		I_PostMusicError("Unable to allocate for MUS Song\n");
 		return -1;
 	}
 
