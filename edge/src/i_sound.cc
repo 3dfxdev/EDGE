@@ -67,6 +67,8 @@ bool dev_stereo;
 static char errordesc[256] = "FOO";
 static char scratcherror[256];
 
+static bool audio_is_locked = false;
+
 
 void SoundFill_Callback(void *udata, Uint8 *stream, int len)
 {
@@ -76,7 +78,7 @@ void SoundFill_Callback(void *udata, Uint8 *stream, int len)
 //
 // I_StartupSound
 //
-bool I_StartupSound(void *sysinfo)
+bool I_StartupSound(void)
 {
 	if (nosound)
 		return true;
@@ -197,23 +199,42 @@ void I_ShutdownSound(void)
 
 	nosound = true;
 
+	S_Shutdown();
+
 	SDL_CloseAudio();
 
 	S_FreeChannels();
 }
 
 
-//----------------------------------------------------------------------------
-
-//
-// I_SoundReturnError
-//
 const char *I_SoundReturnError(void)
 {
 	memcpy(scratcherror, errordesc, sizeof(scratcherror));
 	memset(errordesc, '\0', sizeof(errordesc));
 
 	return scratcherror;
+}
+
+
+void I_LockAudio(void)
+{
+	if (audio_is_locked)
+	{
+		I_UnlockAudio();
+		I_Error("I_LockAudio: called twice without unlock!\n");
+	}
+
+	SDL_LockAudio();
+	audio_is_locked = true;
+}
+
+void I_UnlockAudio(void)
+{
+	if (audio_is_locked)
+	{
+		SDL_UnlockAudio();
+		audio_is_locked = false;
+	}
 }
 
 

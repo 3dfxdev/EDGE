@@ -195,12 +195,11 @@ i_music_info_t;
 // Struct for setting up music playback. This 
 // is here because it is an interface between engine and EPI Code.
 
-bool I_StartupMusic(void *sysinfo);
+bool I_StartupMusic(void);
 // Initialises the music system.  Returns true if successful,
 // otherwise false.  (You should set "nomusic" to true if it fails).
 // The main code never calls this function, it should be called by
-// I_SystemStartup(), and can be passed some platform-specific data
-// via the `sysinfo' parameter.
+// I_SystemStartup().
 
 int I_MusicPlayback(i_music_info_t* musdat, int type, bool looping,
 	float gain);
@@ -250,12 +249,11 @@ extern bool nosound;
 // to true by the "-nosound" option.  Can also be set to true by the
 // platform code when no working sound device is found.
 
-bool I_StartupSound(void *sysinfo);
+bool I_StartupSound(void);
 // Initialises the sound system.  Returns true if successful,
 // otherwise false if something went wrong (NOTE: you must set nosound
 // to false when it fails).   The main code never calls this function,
-// it should be called by I_SystemStartup(), and can be passed some
-// platform-specific data via the `sysinfo' parameter.
+// it should be called by I_SystemStartup().
 
 bool I_LoadSfx(const unsigned char *data, unsigned int length, 
 					unsigned int freq, unsigned int handle);
@@ -318,6 +316,12 @@ const char *I_SoundReturnError(void);
 // last sound function that failed.  It will return an empty string if
 // no errors have yet occurred, but never NULL.  This function may
 // clear the error message.
+
+void I_LockAudio(void);
+void I_UnlockAudio(void);
+// wrappers around the SDL functions of the same name,
+// however I_UnlockAudio() may be called at any time,
+// even when I_LockAudio() hasn't been called.
 
 
 //--------------------------------------------------------
