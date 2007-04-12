@@ -679,7 +679,7 @@ void S_QueueInit(void)
 {
 	if (nosound) return;
 
-	SDL_LockAudio();
+	I_LockAudio();
 	{
 		if (free_qbufs.empty())
 		{
@@ -697,14 +697,14 @@ void S_QueueInit(void)
 
 		queue_chan->ComputeMusicVolume();
 	}
-	SDL_UnlockAudio();
+	I_UnlockAudio();
 }
 
 void S_QueueShutdown(void)
 {
 	if (nosound) return;
 
-	SDL_LockAudio();
+	I_LockAudio();
 	{
 		if (queue_chan)
 		{
@@ -726,7 +726,7 @@ void S_QueueShutdown(void)
 		delete queue_chan;
 		queue_chan = NULL;
 	}
-	SDL_UnlockAudio();
+	I_UnlockAudio();
 }
 
 void S_QueueStop(void)
@@ -735,7 +735,7 @@ void S_QueueStop(void)
 
 	SYS_ASSERT(queue_chan);
 
-	SDL_LockAudio();
+	I_LockAudio();
 	{
 		for (; ! playing_qbufs.empty(); playing_qbufs.pop_front())
 		{
@@ -745,7 +745,7 @@ void S_QueueStop(void)
 		queue_chan->state = CHAN_Finished;
 		queue_chan->data  = NULL;
 	}
-	SDL_UnlockAudio();
+	I_UnlockAudio();
 }
 
 fx_data_c * S_QueueGetFreeBuffer(int samples, int buf_mode)
@@ -754,7 +754,7 @@ fx_data_c * S_QueueGetFreeBuffer(int samples, int buf_mode)
 
 	fx_data_c *buf = NULL;
 
-	SDL_LockAudio();
+	I_LockAudio();
 	{
 		if (! free_qbufs.empty())
 		{
@@ -765,7 +765,7 @@ fx_data_c * S_QueueGetFreeBuffer(int samples, int buf_mode)
 		}
 			
 	}
-	SDL_UnlockAudio();
+	I_UnlockAudio();
 
 	return buf;
 }
@@ -775,7 +775,7 @@ void S_QueueAddBuffer(fx_data_c *buf, int freq)
 	SYS_ASSERT(! nosound);
 	SYS_ASSERT(buf);
 
-	SDL_LockAudio();
+	I_LockAudio();
 	{
 		buf->freq = freq;
 
@@ -786,7 +786,7 @@ void S_QueueAddBuffer(fx_data_c *buf, int freq)
 			QueueNextBuffer();
 		}
 	}
-	SDL_UnlockAudio();
+	I_UnlockAudio();
 }
 
 void S_QueueReturnBuffer(fx_data_c *buf)
@@ -794,11 +794,11 @@ void S_QueueReturnBuffer(fx_data_c *buf)
 	SYS_ASSERT(! nosound);
 	SYS_ASSERT(buf);
 
-	SDL_LockAudio();
+	I_LockAudio();
 	{
 		free_qbufs.push_back(buf);
 	}
-	SDL_UnlockAudio();
+	I_UnlockAudio();
 }
 
 //--- editor settings ---

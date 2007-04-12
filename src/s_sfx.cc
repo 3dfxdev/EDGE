@@ -270,6 +270,9 @@ void S_Shutdown(void)
 {
 	if (nosound) return;
 
+	// just in case audio is locked (e.g. I_Error occurred)
+	I_UnlockAudio();
+
 	SDL_PauseAudio(1);
 
 	// make sure mixing thread is not running our code
@@ -438,11 +441,11 @@ void S_StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 	while (cat_limits[category] == 0)
 		category++;
 
-	SDL_LockAudio();
+	I_LockAudio();
 	{
 		DoStartFX(def, category, pos, flags);
 	}
-	SDL_UnlockAudio();
+	I_UnlockAudio();
 }
 
 
@@ -450,7 +453,7 @@ void S_StopFX(position_c *pos)
 {
 	if (nosound) return;
 
-	SDL_LockAudio();
+	I_LockAudio();
 	{
 		for (int i = 0; i < num_chan; i++)
 		{
@@ -463,14 +466,14 @@ void S_StopFX(position_c *pos)
 			}
 		}
 	}
-	SDL_UnlockAudio();
+	I_UnlockAudio();
 }
 
 void S_StopLevelFX(void)
 {
 	if (nosound) return;
 
-	SDL_LockAudio();
+	I_LockAudio();
 	{
 		for (int i = 0; i < num_chan; i++)
 		{
@@ -482,7 +485,7 @@ void S_StopLevelFX(void)
 			}
 		}
 	}
-	SDL_UnlockAudio();
+	I_UnlockAudio();
 }
 
 
@@ -490,7 +493,7 @@ void S_SoundTicker(void)
 {
 	if (nosound) return;
 
-	SDL_LockAudio();
+	I_LockAudio();
 	{
 		if (gamestate == GS_LEVEL)
 		{
@@ -506,14 +509,14 @@ void S_SoundTicker(void)
 			S_UpdateSounds(NULL, 0);
 		}
 	}
-	SDL_UnlockAudio();
+	I_UnlockAudio();
 }
 
 void S_ChangeChannelNum(void)
 {
 	if (nosound) return;
 
-	SDL_LockAudio();
+	I_LockAudio();
 	{
 		int want_chan = channel_counts[var_mix_channels];
 
@@ -521,7 +524,7 @@ void S_ChangeChannelNum(void)
 
 		SetupCategoryLimits();
 	}
-	SDL_UnlockAudio();
+	I_UnlockAudio();
 }
 
 //--- editor settings ---

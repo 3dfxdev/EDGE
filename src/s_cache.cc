@@ -114,6 +114,7 @@ static void Load_DOOM(fx_data_c *buf, const byte *lump, int length)
 {
 	buf->freq = lump[2] + (lump[3] << 8);
 
+	// FIXME: replace with warning and limiting freq
 	if (buf->freq < 8000 || buf->freq >= 44100)
 		I_Error("Sound Load: weird frequency: %d Hz\n", buf->freq);
 
