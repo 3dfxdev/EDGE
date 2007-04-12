@@ -572,6 +572,8 @@ static void DoSystemStartup(void)
 	if (idx < 0)
         I_Error("DoSystemStartup: No available resolutions"); // Must be valid
 
+	L_WriteDebug("- Found nearest: idx=%d\n", idx);
+
 	R_ChangeResolution(idx);
 
 	// -KM- 1998/09/27 Change res now, so music doesn't start before
