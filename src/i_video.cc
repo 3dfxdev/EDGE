@@ -145,6 +145,7 @@ void I_StartupGraphics(void)
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
 
+	
     // -DS- 2005/06/27 Detect SDL Resolutions
 	const SDL_VideoInfo *info = SDL_GetVideoInfo ();
 
@@ -183,6 +184,8 @@ void I_StartupGraphics(void)
 			V_AddAvailableResolution(mode);
 		}
 	}
+
+	I_Printf("I_StartupGraphics: initialisation OK\n");
 }
 
 //
@@ -190,6 +193,9 @@ void I_StartupGraphics(void)
 //
 bool I_SetScreenSize(i_scrmode_t *mode)
 {
+	I_Printf("I_SetScreenSize: trying mode %dx%d %dbpp\n",
+			 mode->width, mode->height, mode->depth);
+
 	if (mode->depth < 15)
 		return false;
 
@@ -198,10 +204,20 @@ bool I_SetScreenSize(i_scrmode_t *mode)
 					(mode->windowed ? 0 : SDL_FULLSCREEN));
 
 	if (my_vis == NULL)
+	{
+		I_Printf("I_SetScreenSize: (mode not possible)\n");
 		return false;
+	}
 
 	if (my_vis->format->BytesPerPixel <= 1)
+	{
+		I_Printf("I_SetScreenSize: (mode not suitable)\n");
 		return false;
+	}
+
+	I_Printf("I_SetScreenSize: new mode now %dx%d %dbpp flags:0x%x\n",
+			 my_vis->w, my_vis->h,
+			 my_vis->format->BitsPerPixel, my_vis->flags);
 
 	VideoModeCommonStuff();
 	SDL_GL_SwapBuffers();
