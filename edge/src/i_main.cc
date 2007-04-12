@@ -45,6 +45,9 @@ int I_Main(int argc, char *argv[])
 
     I_SetupSignalHandlers(allow_coredump);
 
+	// -AJA- give us a proper name in the Task Manager
+	SDL_RegisterApp(TITLE, 0, 0);
+
     I_CheckAlreadyRunning();
 
     // -ACB- 2005/11/26 We don't do on LINUX since we assume the 
