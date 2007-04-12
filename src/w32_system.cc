@@ -149,11 +149,11 @@ bool I_SystemStartup(void)
 	// Startup Sound
 	if (!M_CheckParm("-nosound"))
 	{
-		nosound = !(I_StartupSound((void*)NULL));
+		nosound = !I_StartupSound();
 	}
 
 	// Startup Music System
-	if (!I_StartupMusic((void*)NULL))
+	if (!I_StartupMusic())
 		I_Warning("%s\n", I_MusicReturnError());
 
 #ifndef INTOLERANT_MATH

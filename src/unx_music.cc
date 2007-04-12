@@ -72,7 +72,7 @@ bool musicpaused = false;
 //
 // I_StartupMusic
 //
-bool I_StartupMusic(void *sysinfo)
+bool I_StartupMusic(void)
 {
 	// Clear the error message
 	memset(errordesc, '\0', sizeof(char)*MUSICERRLEN);
