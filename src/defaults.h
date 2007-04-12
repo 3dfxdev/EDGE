@@ -19,8 +19,8 @@
 #define __DEFAULT_SETTINGS__
 
 // Screen resolution
-#define CFGDEF_SCREENWIDTH      (1024)
-#define CFGDEF_SCREENHEIGHT     (768)
+#define CFGDEF_SCREENWIDTH      (640)
+#define CFGDEF_SCREENHEIGHT     (480)
 #define CFGDEF_SCREENBITS       (32)
 #define CFGDEF_SCREENWINDOW     (0)
 
