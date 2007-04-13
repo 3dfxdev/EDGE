@@ -140,6 +140,7 @@ int scrmodelist_c::Add(scrmode_t *sm)
     // Find the nearest match
     diff = 0;
     nearest = FindNearest(sm->width, sm->height, sm->depth, sm->windowed);
+
     if (nearest >= 0)
     {
         scrmode_t *nsm = GetAt(nearest);
@@ -229,6 +230,7 @@ void scrmodelist_c::Dump()
 int scrmodelist_c::Find(int w, int h, int bpp, bool windowed)
 {
     scrmode_t testsm;
+
     testsm.width = w;
     testsm.height = h;
     testsm.depth = bpp;
@@ -251,40 +253,39 @@ int scrmodelist_c::Find(int w, int h, int bpp, bool windowed)
 //
 // int scrmodelist_c::FindNearest()
 //
-// Find the nearest match for the 
+// Find the nearest match for the desired mode.
 //
 int scrmodelist_c::FindNearest(int w, int h, int bpp, bool windowed)
 {
     scrmode_t testsm;
+
     testsm.width = w;
     testsm.height = h;
     testsm.depth = bpp;
     testsm.windowed = windowed;
 
     epi::array_iterator_c it;
-    scrmode_t *sm;
-    int lm, lmdiff, diff;
 
-    lmdiff = INT_MAX;
-    lm = -1;
+    int best_diff = INT_MAX;
+    int best_idx = -1;
 
     for (it = GetBaseIterator(); it.IsValid(); it++)
     {
-        sm = ITERATOR_TO_TYPE(it, scrmode_t*);
+		scrmode_t *sm = ITERATOR_TO_TYPE(it, scrmode_t*);
 
-        diff = Compare(&testsm, sm);
+        int diff = Compare(&testsm, sm);
         if (diff == 0)
             return it.GetPos(); // Exact match
 
         diff = ABS(diff);
-        if (lmdiff > diff)
+        if (diff < best_diff)
         {
-            lm = it.GetPos();
-            lmdiff = diff;
+            best_idx = it.GetPos();
+            best_diff = diff;
         }
     }
 
-	return lm;
+	return best_idx;
 }
 
 //
