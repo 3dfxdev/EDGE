@@ -197,13 +197,11 @@ void I_ShutdownSound(void)
 	if (nosound)
 		return;
 
-	nosound = true;
-
 	S_Shutdown();
 
-	SDL_CloseAudio();
+	nosound = true;
 
-	S_FreeChannels();
+	SDL_CloseAudio();
 }
 
 
