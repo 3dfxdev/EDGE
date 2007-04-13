@@ -425,32 +425,17 @@ static bool DoExecuteChangeResolution(void)
 	L_WriteDebug("-  ChangeRes: attempting %dx%d %d bpp (%s)\n",
 			sm->width, sm->height, sm->depth,
 			sm->windowed ? "Windowed" : "FULLSCREEN");
-	
+
 	V_GetSysRes(scrmodelist[res_idx], &sys_sm); // Set the system mode struct
+
 	if (!I_SetScreenSize(&sys_sm))
 	{
 		L_WriteDebug("-  Failed, changing back...\n");
 
-		// wait one second before changing res again, gfx card doesn't like to
-		// switch mode too rapidly.
-		int count, t, t1, t2;
-
-		count = 0;
-		t1 = I_GetTime();
-		t2 = t1 + TICRATE;
-
-		// -ACB- 2004/02/21 If the app is minimised, the clock won't tic. Handle this.
-		do 
-		{ 
-			t = I_GetTime();
-
-			if (t == t1)
-				count++;
-
-			if (count > RESDELAY_MAXLOOP)
-				break;
-		}
-		while (t2 >= t);
+		// wait one second before changing res again, gfx card doesn't
+		// like to switch mode too rapidly.
+		I_Sleep(500);
+		I_Sleep(500);
 
 		L_WriteDebug("-  returning false.\n");
 
