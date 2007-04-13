@@ -546,7 +546,7 @@ void S_FreeChannels(void)
 	{
 		mix_channel_c *chan = mix_chan[i];
 
-		if (chan->data)
+		if (chan && chan->data)
 		{
 			S_CacheRelease(chan->data);
 			chan->data = NULL;
@@ -719,12 +719,12 @@ void S_QueueShutdown(void)
 			{
 				delete free_qbufs.front();
 			}
+
+			queue_chan->data = NULL;
+
+			delete queue_chan;
+			queue_chan = NULL;
 		}
-
-		queue_chan->data = NULL;
-
-		delete queue_chan;
-		queue_chan = NULL;
 	}
 	I_UnlockAudio();
 }
