@@ -193,7 +193,7 @@ void I_StartupGraphics(void)
 //
 bool I_SetScreenSize(i_scrmode_t *mode)
 {
-	I_Printf("I_SetScreenSize: trying mode %dx%d %dbpp\n",
+	L_WriteDebug("I_SetScreenSize: trying mode %dx%d %dbpp\n",
 			 mode->width, mode->height, mode->depth);
 
 	if (mode->depth < 15)
@@ -215,12 +215,13 @@ bool I_SetScreenSize(i_scrmode_t *mode)
 		return false;
 	}
 
-	I_Printf("I_SetScreenSize: new mode now %dx%d %dbpp flags:0x%x\n",
+	I_Printf("I_SetScreenSize: mode now %dx%d %dbpp flags:0x%x\n",
 			 my_vis->w, my_vis->h,
 			 my_vis->format->BitsPerPixel, my_vis->flags);
 
 	VideoModeCommonStuff();
 	SDL_GL_SwapBuffers();
+
 	return true;
 }
 
