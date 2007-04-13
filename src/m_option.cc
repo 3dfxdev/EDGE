@@ -1238,6 +1238,7 @@ bool M_OptResponder(event_t * ev, int ch)
       /* FALL THROUGH... */
      
 		case KEYD_ENTER:
+		case KEYD_MOUSE1:
 		{
 			switch (curr_item->type)
 			{
@@ -1313,6 +1314,8 @@ bool M_OptResponder(event_t * ev, int ch)
 			I_Error("Invalid menu type!");
 		}
 		case KEYD_ESCAPE:
+		case KEYD_MOUSE2:
+		case KEYD_MOUSE3:
 		{
 			if (curr_menu == &mainmenuinfo)
 			{

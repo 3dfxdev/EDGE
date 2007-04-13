@@ -1850,6 +1850,7 @@ bool M_Responder(event_t * ev)
 			return true;
 
 		case KEYD_ENTER:
+		case KEYD_MOUSE1:
 			if (currentMenu->menuitems[itemOn].select_func &&
 				currentMenu->menuitems[itemOn].status)
 			{
@@ -1860,6 +1861,8 @@ bool M_Responder(event_t * ev)
 			return true;
 
 		case KEYD_ESCAPE:
+		case KEYD_MOUSE2:
+		case KEYD_MOUSE3:
 			currentMenu->lastOn = itemOn;
 			M_ClearMenus();
 			S_StartFX(sfx_swtchx);
