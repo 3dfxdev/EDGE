@@ -270,16 +270,15 @@ void S_Shutdown(void)
 {
 	if (nosound) return;
 
-	// just in case audio is locked (e.g. I_Error occurred)
-	I_UnlockAudio();
-
 	SDL_PauseAudio(1);
 
 	// make sure mixing thread is not running our code
 	SDL_LockAudio();
 	SDL_UnlockAudio();
 
-	// FIXME: S_QueueQuit
+	S_QueueQuit();
+
+	S_FreeChannels();
 }
 
 // Not-rejigged-yet stuff..

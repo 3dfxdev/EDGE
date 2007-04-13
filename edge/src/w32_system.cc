@@ -362,6 +362,9 @@ void I_SystemShutdown(void)
 
 	systemup = false;
 
+	// makre sure audio is unlocked (e.g. I_Error occurred)
+	I_UnlockAudio();
+
 	I_ShutdownMusic();
 	I_ShutdownSound();
 	I_ShutdownControl();
@@ -375,10 +378,11 @@ void I_SystemShutdown(void)
 	}
 
 	// -KM- 1999/01/31 Close the debugfile
-#ifdef DEVELOPERS
 	if (debugfile != NULL)
+	{
 		fclose(debugfile);
-#endif
+		debugfile = NULL;
+	}
 
 	//ShowCursor(TRUE);
 	FlushMessageQueue();
