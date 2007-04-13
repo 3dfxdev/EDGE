@@ -276,7 +276,7 @@ void S_Shutdown(void)
 	SDL_LockAudio();
 	SDL_UnlockAudio();
 
-	S_QueueQuit();
+	S_QueueShutdown();
 
 	S_FreeChannels();
 }
