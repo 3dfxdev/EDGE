@@ -133,7 +133,7 @@ void I_StartupGraphics(void)
 		flags |= SDL_INIT_NOPARACHUTE;
 
 	if (SDL_Init(flags) < 0)
-		I_Error("Couldn't init SDL\n");
+		I_Error("Couldn't init SDL\n%s\n", SDL_GetError());
 
 	M_CheckBooleanParm("warpmouse", &use_warp_mouse, false);
 	M_CheckBooleanParm("grab", &use_grab, false);

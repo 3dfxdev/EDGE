@@ -42,9 +42,6 @@ void I_ShutdownCD(void);
 extern bool musicpaused;
 void I_PostMusicError(const char *message);
 
-// I_USER.C
-void I_MessageBox(const char *message, const char *title, int mode);
-
 #endif // __SYSTEM_INTERNAL_H__
 
 //--- editor settings ---
