@@ -92,8 +92,8 @@ void I_CheckAlreadyRunning(void)
 		DWORD lasterror = GetLastError();
 		if (lasterror == ERROR_ALREADY_EXISTS)
 		{
-			MessageBox(NULL, "EDGE is already running!", TITLE, MB_ICONSTOP|MB_OK);
-      exit(9);
+			I_MessageBox("EDGE is already running!", "EDGE Error");
+			I_CloseProgram(9);
 		}
 	}
 }
@@ -232,7 +232,7 @@ void I_Error(const char *error,...)
 
 	I_SystemShutdown();
 
-	MessageBox(NULL, msgbuf, TITLE, MB_OK);
+	I_MessageBox(msgbuf, "EDGE Error");
 
 	I_CloseProgram(-1);
 }
@@ -278,6 +278,15 @@ void I_Printf(const char *message,...)
 
 	va_end(argptr);
 }
+
+
+void I_MessageBox(const char *message, const char *title)
+{
+	MessageBox(NULL, message, title,
+			   MB_ICONEXCLAMATION | MB_OK |
+			   MB_SYSTEMMODAL | MB_SETFOREGROUND);
+}
+
 
 //
 // I_PureRandom

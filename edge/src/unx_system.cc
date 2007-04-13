@@ -295,17 +295,13 @@ void I_Warning(const char *warning,...)
 //
 // I_Error
 //
-void I_Error (const char *error, ...)
+void I_Error(const char *error, ...)
 {
 	va_list argptr;
 
 	va_start (argptr, error);
 	vsprintf (errmsg, error, argptr);
 	va_end (argptr);
-
-#ifndef USE_FLTK
-	fprintf (stderr, "%s\n", errmsg);
-#endif
 
 	if (logfile)
 	{
@@ -323,16 +319,17 @@ void I_Error (const char *error, ...)
 	//       come in handy for debugging the code that called I_Error().
 	if (M_CheckParm("-core"))
 	{
+		fprintf(stderr, "%s\n", errmsg);
+
 		I_RemoveGrab();
+
 		raise(11);
 		/* NOTREACHED */
 	}
 
 	I_SystemShutdown();
 
-#ifdef USE_FLTK
-	I_MessageBox(errmsg, "EDGE Error", 0);
-#endif
+	I_MessageBox(errmsg, "EDGE Error");
 
 	I_CloseProgram(-1);
 }
@@ -551,14 +548,15 @@ bool I_GetModifiedTime(const char *filename, epi::timestamp_c *t)
 //
 // I_MessageBox
 //
-void I_MessageBox(const char *message, const char *title, int mode)
+void I_MessageBox(const char *message, const char *title)
 {
 #ifdef USE_FLTK
 	Fl::scheme(NULL);
 	fl_message_font(FL_HELVETICA /*_BOLD*/, 18);	
 	fl_message("%s", message);
+
 #else // USE_FLTK
-	fprintf(stderr, "%s", message);
+	fprintf(stderr, "\n%s\n", message);
 #endif // USE_FLTK
 }
 
