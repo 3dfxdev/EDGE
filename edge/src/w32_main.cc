@@ -170,6 +170,7 @@ void ChangeToExeDir(const char *full_path)
 	SetCurrentDirectory(str.GetString());
 }
 
+#if 0  // NO LONGER USED
 //
 // WinMain
 //
@@ -202,15 +203,13 @@ int PASCAL WinMain (HINSTANCE curr, HINSTANCE prev, LPSTR cmdline, int show)
 		ChangeToExeDir(edgeargv[0]);
 
 	// Load SDL dynamic link library
-	if ( SDL_Init(SDL_INIT_NOPARACHUTE) < 0 ) {
+	if ( SDL_Init(SDL_INIT_NOPARACHUTE) < 0 )
+	{
 		MessageBox(NULL, SDL_GetError(), TITLE, MB_ICONSTOP|MB_OK);
 		return -1;
 	}
 
 	SDL_SetModuleHandle(GetModuleHandle(NULL));
-
-	// -AJA- give us a proper name in the Task Manager
-	SDL_RegisterApp(TITLE, 0, 0);
 
 	// Run Game....
 	E_Main(edgeargc, edgeargv);
@@ -220,6 +219,7 @@ int PASCAL WinMain (HINSTANCE curr, HINSTANCE prev, LPSTR cmdline, int show)
 
 	return 0;
 }
+#endif
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
