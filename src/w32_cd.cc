@@ -53,6 +53,8 @@ HWND app_hwnd;
 //
 bool I_StartupCD()
 {
+	if (nocdmusic) return false;
+
 	SDL_SysWMinfo wm_info;
 
 	// Setup the application window handle 
@@ -63,7 +65,7 @@ bool I_StartupCD()
 	mixer = I_MusicLoadMixer(MIXERLINE_COMPONENTTYPE_SRC_COMPACTDISC);
 	if (!mixer)
 	{
-		I_PostMusicError("I_StartupCD: Couldn't load the cd mixer");
+		I_Printf("I_StartupCD: Couldn't load the cd mixer\n");
 		return false;
 	}
 
@@ -72,7 +74,7 @@ bool I_StartupCD()
 		I_MusicReleaseMixer(mixer);
 		mixer = NULL;
 		
-		I_PostMusicError("I_StartupCD: Unable to get original volume");
+		I_Printf("I_StartupCD: Unable to get original volume\n");
 		return false;
 	}
         

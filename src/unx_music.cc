@@ -69,24 +69,18 @@ static char errordesc[MUSICERRLEN];
 bool musicpaused = false;
 
 
-//
-// I_StartupMusic
-//
-bool I_StartupMusic(void)
+void I_StartupMusic(void)
 {
 	// Clear the error message
-	memset(errordesc, '\0', sizeof(char)*MUSICERRLEN);
+	memset(errordesc, '\0', sizeof(errordesc));
 
-	if (nomusic)
-		return true;
+	if (nomusic) return;
 
 	capable = 0;
 	if (!nocdmusic)
 	{
 		if (I_StartupCD())
 			capable = support_CD;
-		else
-			I_Printf("%s\n", I_MusicReturnError());
 	}
 
 #ifdef USE_OGG
@@ -130,7 +124,7 @@ bool I_StartupMusic(void)
 	musicpaused = false;
 
 	// Nothing went pear shaped
-	return true;
+	return;
 }
 
 //

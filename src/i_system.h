@@ -45,14 +45,11 @@ void I_CheckAlreadyRunning(void);
 
 void I_ChangeToExeDir(const char *full_path);
 
-bool I_SystemStartup(void);
+void I_SystemStartup(void);
 // This routine is responsible for getting things off the ground, in
 // particular calling all the other platform initialisers (i.e.
 // I_StartupControl, I_StartupGraphics, I_StartupMusic and
-// I_StartupSound).  Can do whatever else the platform code needs to
-// do.  Returns true for success, otherwise false (in which case any
-// partially completed actions should be undone, e.g. freeing all
-// resources obtained).
+// I_StartupSound).  Does whatever else the platform code needs.
 
 //--- void I_Loop(void);
 // This is called by EDGE to begin the main engine loop, and is not
@@ -73,9 +70,6 @@ void I_PutTitle(const char *title);
 
 void I_Error(const char *error,...) GCCATTR((format(printf, 1, 2)));
 // The error function.  All fatal errors call I_Error().  This
-// function should shut things down (e.g. via I_SystemShutdown),
-// display the error message to the user (and possibly debugging info,
-// like a traceback) and finally exit the program (e.g. by calling
 // I_CloseProgram).
 
 void I_DisplayExitScreen(void);
@@ -195,11 +189,16 @@ i_music_info_t;
 // Struct for setting up music playback. This 
 // is here because it is an interface between engine and EPI Code.
 
-bool I_StartupMusic(void);
+void I_StartupMusic(void);
 // Initialises the music system.  Returns true if successful,
 // otherwise false.  (You should set "nomusic" to true if it fails).
 // The main code never calls this function, it should be called by
 // I_SystemStartup().
+
+void I_ShutdownMusic(void);
+// Shuts down the music system.  This is the opposite to
+// I_StartupMusic().  Must be called by I_SystemShutdown(), the main
+// code never calls this function.
 
 int I_MusicPlayback(i_music_info_t* musdat, int type, bool looping,
 	float gain);
@@ -226,11 +225,6 @@ void I_SetMusicVolume(int *handle, float gain);
 void I_MusicTicker(int *handle);
 // Called once in a while.  Should keep the music going.
 
-void I_ShutdownMusic(void);
-// Shuts down the music system.  This is the opposite to
-// I_StartupMusic().  Must be called by I_SystemShutdown(), the main
-// code never calls this function.
-
 char *I_MusicReturnError(void);
 // Returns an error message string that describes the error from the
 // last music function that failed.  It may return an empty string if
@@ -249,11 +243,16 @@ extern bool nosound;
 // to true by the "-nosound" option.  Can also be set to true by the
 // platform code when no working sound device is found.
 
-bool I_StartupSound(void);
+void I_StartupSound(void);
 // Initialises the sound system.  Returns true if successful,
 // otherwise false if something went wrong (NOTE: you must set nosound
 // to false when it fails).   The main code never calls this function,
 // it should be called by I_SystemStartup().
+
+void I_ShutdownSound(void);
+// Shuts down the sound system.  This is the companion function to
+// I_StartupSound().  This must be called by I_SystemShutdown(), the
+// main code never calls this function.
 
 bool I_LoadSfx(const unsigned char *data, unsigned int length, 
 					unsigned int freq, unsigned int handle);
@@ -305,11 +304,6 @@ bool I_SoundKill(unsigned int chanid);
 
 void I_SoundTicker(void);
 // Called every tic to keep the sounds playing.
-
-void I_ShutdownSound(void);
-// Shuts down the sound system.  This is the companion function to
-// I_StartupSound().  This must be called by I_SystemShutdown(), the
-// main code never calls this function.
 
 const char *I_SoundReturnError(void);
 // Returns an error message string that describes the error from the

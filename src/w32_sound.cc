@@ -27,18 +27,15 @@
 ALCdevice *alc_dev;
 ALCcontext *alc_ctx;
 
-//
-// I_StartupSound
-//
-bool I_StartupSound(void *sysinfo) 
+
+void I_StartupSound(void *sysinfo) 
 { 
 	const char *p;
 
 	int want_freq;
 	int attr_list[4];
 
-	if (nosound)
-		return true;
+	if (nosound) return;
 
 	p = M_GetParm("-freq");
 	if (p)
@@ -60,7 +57,7 @@ bool I_StartupSound(void *sysinfo)
 	{
 		I_Printf("I_StartupSound: Couldn't init OpenAL.\n");
 		nosound = true;
-		return false;
+		return;
 	}
 
 	attr_list[0] = ALC_FREQUENCY;
@@ -74,7 +71,7 @@ bool I_StartupSound(void *sysinfo)
 		I_Printf("I_StartupSound: Couldn't create OpenAL context.\n");
 		alcCloseDevice(alc_dev);
 		nosound = true;
-		return false;
+		return;
 	}
 
 	alcMakeContextCurrent(alc_ctx);
@@ -104,7 +101,7 @@ bool I_StartupSound(void *sysinfo)
 
 	alGetError(); // Clear any error generated above...
 
-	return true;
+	return;
 }
 
 //

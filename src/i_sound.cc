@@ -78,10 +78,9 @@ void SoundFill_Callback(void *udata, Uint8 *stream, int len)
 //
 // I_StartupSound
 //
-bool I_StartupSound(void)
+void I_StartupSound(void)
 {
-	if (nosound)
-		return true;
+	if (nosound) return;
 
 	const char *p;
 
@@ -111,7 +110,7 @@ bool I_StartupSound(void)
 	{
 		I_Printf("I_StartupSound: Couldn't open sound: %s\n", SDL_GetError());
 		nosound = true;
-		return false;
+		return;
 	}
 
 #if 0
@@ -135,7 +134,7 @@ bool I_StartupSound(void)
 			SDL_CloseAudio();
 
 			nosound = true;
-			return false;
+			return;
 	}
 
 	if (dev_bits != want_bits)
@@ -186,7 +185,7 @@ bool I_StartupSound(void)
 	I_Printf("I_StartupSound: SDL Started: %d Hz, %d bits, %s\n",
 			dev_freq, dev_bits, dev_stereo ? "Stereo" : "Mono");
 
-	return true;
+	return;
 }
 
 //

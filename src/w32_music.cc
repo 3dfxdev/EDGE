@@ -60,22 +60,18 @@ oggplayer_c *oggplayer = NULL;
 //
 // I_StartupMusic
 //
-bool I_StartupMusic(void)
+void I_StartupMusic(void)
 {
 	// Clear the error message
-	memset(errordesc, 0, sizeof(char)*MUSICERRLEN);
+	memset(errordesc, 0, sizeof(errordesc));
+
+	if (nomusic) return;
 
 	// MCI CD Support
-	if (!nocdmusic && I_StartupCD())
+	if (I_StartupCD())
 	{
 		capable |= support_CD;
 		I_Printf("I_StartupMusic: CD Music Init OK\n");
-	}
-	else if (!nocdmusic)
-	{
-		I_Printf("I_StartupMusic: CD Music Failed\n");
-		I_Printf("%s\n",errordesc);
-		errordesc[0] = '\0';
 	}
 
 	// Music is not paused by default
@@ -86,12 +82,6 @@ bool I_StartupMusic(void)
 	{
 		capable |= support_MUS;
 		I_Printf("I_StartupMusic: MUS Music Init OK\n");
-	}
-	else
-	{
-		I_Printf("I_StartupMusic: MUS Music Failed\n");
-		I_Printf(errordesc);
-		errordesc[0] = '\0';
 	}
 
 #ifdef USE_OGG
@@ -108,7 +98,7 @@ bool I_StartupMusic(void)
 		I_Printf("I_StartupMusic: OGG Music Disabled\n");
     }
 
-	return true;
+	return;
 }
 
 //

@@ -61,7 +61,7 @@ bool I_StartupCD(void)
 
 	if (SDL_Init(SDL_INIT_CDROM) != 0)
 	{
-		MusicErrorPrintf("I_StartupCD: Can't init CDROM system in SDL");
+		I_Printf("I_StartupCD: Can't init CDROM system in SDL\n");
 		return false;
 	}
 
@@ -69,7 +69,7 @@ bool I_StartupCD(void)
 
 	if (cd_num_drives <= 0)
 	{
-		MusicErrorPrintf("I_StartupCD: no CDROM drives found");
+		I_Printf("I_StartupCD: no CDROM drives found\n");
 		return false;
 	}
 
@@ -82,13 +82,14 @@ bool I_StartupCD(void)
 
 	if (! cd_dev)
 	{
-		MusicErrorPrintf("I_StartupCD: Can't open CDROM drive: %s", SDL_GetError());
+		I_Printf("I_StartupCD: Can't open CDROM drive: %s", SDL_GetError());
 		return false;
 	}
 
 	I_Printf("I_StartupCD: Init OK, using drive #%d: %s\n", cd_drive_idx,
 		SDL_CDName(cd_drive_idx));
-	return true;	
+
+	return true;
 }
 
 //
