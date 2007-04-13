@@ -137,31 +137,21 @@ void I_ChangeToExeDir(const char *argv0)
 //
 // -ACB- 1998/07/11 Reformatted the code.
 //
-bool I_SystemStartup(void)
+void I_SystemStartup(void)
 {
 	systemup = true;
 
 	I_StartupNetwork();
-
 	I_StartupGraphics(); // SDL requires this to be called first
 	I_StartupControl();
-
-	// Startup Sound
-	if (!M_CheckParm("-nosound"))
-	{
-		nosound = !I_StartupSound();
-	}
-
-	// Startup Music System
-	if (!I_StartupMusic())
-		I_Warning("%s\n", I_MusicReturnError());
+	I_StartupSound();
+	I_StartupMusic(); // Startup Music System
 
 #ifndef INTOLERANT_MATH
 	// -ACB- 2000/06/05 This switches off x87 signalling error
 	_control87(EM_ZERODIVIDE | EM_INVALID, EM_ZERODIVIDE | EM_INVALID);
 #endif /* INTOLERANT_MATH */
 
-	return true;
 }
 
 //

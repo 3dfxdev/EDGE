@@ -164,7 +164,7 @@ bool I_StartupMUS()
 	mixer = I_MusicLoadMixer(MIXERLINE_COMPONENTTYPE_SRC_SYNTHESIZER);
 	if (!mixer)
 	{
-		I_PostMusicError("I_StartupMUS: Couldn't load the midi mixer\n");
+		I_Printf("I_StartupMUS: Couldn't load the midi mixer\n");
 		return false;
 	}
 
@@ -175,7 +175,7 @@ bool I_StartupMUS()
 		I_MusicReleaseMixer(mixer);
 		mixer = NULL;
 		
-		I_PostMusicError("I_StartupMUS: Couldn't open the midi device\n");
+		I_Printf("I_StartupMUS: Couldn't open the midi device\n");
 		return false;
 	}
 
@@ -185,7 +185,8 @@ bool I_StartupMUS()
 		mixer = NULL;
 		
 		midiOutClose(midioutput);
-		I_PostMusicError("I_StartupMUS: Unable to get original volume\n");
+
+		I_Printf("I_StartupMUS: Unable to get original volume\n");
 		return false;
 	}
 	

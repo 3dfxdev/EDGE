@@ -450,15 +450,13 @@ void I_TraceBack(void)
 //
 // -ACB- 1998/07/11 Reformatted the code.
 //
-bool I_SystemStartup(void)
+void I_SystemStartup(void)
 {
 	I_StartupNetwork();
 	I_StartupControl();
 	I_StartupGraphics();
 	I_StartupSound();    // -ACB- 1999/09/20 Sets nosound directly
 	I_StartupMusic();
-
-	return true;
 }
 
 //
