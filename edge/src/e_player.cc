@@ -27,50 +27,6 @@
 // -MH- 1998/08/18 Flyup and flydown logic
 //
 
-
-/*
-#include "r_automap.h"
-#include "con_cvar.h"
-#include "con_main.h"
-#include "dm_defs.h"
-#include "dm_state.h"
-#include "dstrings.h"
-#include "e_demo.h"
-#include "e_main.h"
-#include "e_input.h"
-#include "f_finale.h"
-#include "m_argv.h"
-#include "m_cheat.h"
-#include "m_inline.h"
-#include "m_misc.h"
-#include "m_menu.h"
-#include "m_random.h"
-#include "hu_stuff.h"
-
-#include "n_network.h"
-
-#include "p_bot.h"
-#include "p_local.h"
-#include "p_setup.h"
-#include "p_tick.h"
-#include "r_data.h"
-#include "r_layers.h"
-#include "r_sky.h"
-#include "r_view.h"
-#include "rad_trig.h"
-#include "s_sound.h"
-#include "sv_chunk.h"
-#include "sv_main.h"
-#include "st_stuff.h"
-#include "version.h"
-#include "v_res.h"
-#include "r_image.h"
-#include "w_textur.h"
-#include "w_wad.h"
-#include "wi_stuff.h"
-#include "z_zone.h"
-*/
-
 #include "i_defs.h"
 
 #include "con_cvar.h"
