@@ -2098,7 +2098,7 @@ void M_Ticker(void)
 
 	if (netgame_menuon)
 	{
-		M_OptTicker();
+		M_NetGameTicker();
 		return;
 	}
 
