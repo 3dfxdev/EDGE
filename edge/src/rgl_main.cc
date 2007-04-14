@@ -583,27 +583,6 @@ void RGL_DrawProgress(int perc, int glbsp_perc)
 	I_StartFrame();
 }
 
-//
-// RGL_DrawBeta
-//
-void RGL_DrawBeta(void)
-{
-#if 0
-	int bw, bh;
-
-	const byte *beta_lum = RGL_BetaImage(&bw, &bh);
-
-	float zoom = SCREENWIDTH / 1000.0f;
-
-	int x = SCREENWIDTH  - (int)(bw * zoom);
-	int y = SCREENHEIGHT - (int)(bh * zoom);
-
-	glRasterPos2i(x, y);
-	glPixelZoom(zoom, zoom);
-	glDrawPixels(bw, bh, GL_LUMINANCE, GL_UNSIGNED_BYTE, beta_lum);
-#endif
-}
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

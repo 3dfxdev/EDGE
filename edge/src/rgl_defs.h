@@ -46,7 +46,6 @@ extern angle_t oned_side_angle;  // ANG180 disables polar clipping
 void RGL_Init(void);
 void RGL_SoftInit(void);
 void RGL_DrawProgress(int perc, int glbsp_perc);
-void RGL_DrawBeta(void);
 void RGL_SetupMatrices2D(void);
 void RGL_SetupMatrices3D(void);
 
