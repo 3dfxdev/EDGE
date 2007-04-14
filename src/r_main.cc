@@ -135,7 +135,9 @@ void R_Render(void)
 	validcount++;
 	
 	N_NetUpdate();	// check for new console commands.
+
 	RGL_RenderTrueBSP();
+
 	N_NetUpdate();	// Check for new console commands.
 }
 
