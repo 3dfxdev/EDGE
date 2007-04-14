@@ -467,7 +467,7 @@ static optmenuitem_t resoptions[] =
 	{OPT_Function, "Change Mode", NULL, 0, 0, NULL, M_ChangeStoredMode, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Set Resolution", NULL, 0, 0, NULL, M_OptionSetResolution, NULL},
-	{OPT_Function, "Test Resolution", NULL, 0, 0, NULL, M_OptionTestResolution, NULL},
+/*	{OPT_Function, "Test Resolution", NULL, 0, 0, NULL, M_OptionTestResolution, NULL}, */
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL}
