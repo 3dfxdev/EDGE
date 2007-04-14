@@ -330,8 +330,8 @@ static void SetGlobalVars(void)
 	else if (SCREENBITS > 16)
 		SCREENBITS = 32;
 
-	M_CheckBooleanParm("windowed",   &SCREENWINDOW, false);
-	M_CheckBooleanParm("fullscreen", &SCREENWINDOW, true);
+	M_CheckBooleanParm("windowed",   &FULLSCREEN, true);
+	M_CheckBooleanParm("fullscreen", &FULLSCREEN, false);
 
 	// deathmatch check...
 	if (M_CheckParm("-altdeath"))
@@ -575,7 +575,7 @@ L_WriteDebug("- Finding nearest mode........\n");
 	int idx = scrmodelist.FindNearest(SCREENWIDTH, 
                                       SCREENHEIGHT, 
                                       SCREENBITS, 
-                                      SCREENWINDOW);
+                                      FULLSCREEN);
 
 	if (idx < 0)
         I_Error("DoSystemStartup: No available resolutions!"); // Must be valid
@@ -588,10 +588,10 @@ L_WriteDebug("- Finding nearest mode........\n");
 
 	scrmode_t mode;
 
-	mode.width    = SCREENWIDTH;
-	mode.height   = SCREENHEIGHT;
-	mode.depth    = SCREENBITS;
-	mode.windowed = SCREENWINDOW;
+	mode.width  = SCREENWIDTH;
+	mode.height = SCREENHEIGHT;
+	mode.depth  = SCREENBITS;
+	mode.full   = FULLSCREEN;
 
 	if (! R_ChangeResolution(idx))  //!!!!!! &mode
         I_Error("DoSystemStartup: Unable to set any resolutions!");

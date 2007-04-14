@@ -33,14 +33,13 @@
 
 #include "epi/arrays.h"
 
-// Screen mode information.
+// Screen mode information
 typedef struct scrmode_s
 {
 	int width;
 	int height;
 	int depth;
-	bool windowed;
-	int sysdepth;
+	bool full;
 }
 scrmode_t;
 
@@ -69,10 +68,10 @@ public:
 
 	void Dump(void);
 
-	int Find(int w, int h, int bpp, bool windowed);
-	int FindNearest(int w, int h, int bpp, bool windowed);
-	int FindWithDepthBias(int w, int h, int bpp, bool windowed);
-	int FindWithWindowModeBias(int w, int h, int bpp, bool windowed);
+	int Find(int w, int h, int bpp, bool full);
+	int FindNearest(int w, int h, int bpp, bool full);
+	int FindWithDepthBias(int w, int h, int bpp, bool full);
+	int FindWithWindowModeBias(int w, int h, int bpp, bool full);
 
 	scrmode_t* GetAt(int idx) { return *(scrmode_t**)FetchObject(idx); } 
 
@@ -85,8 +84,7 @@ public:
 };
 
 // Exported Func
-void V_AddAvailableResolution(i_scrmode_t *mode);
-void V_GetSysRes(scrmode_t *src, i_scrmode_t *dest);
+void V_AddAvailableResolution(scrmode_t *mode);
 
 // call this to change the resolution before the next frame.
 // -ACB- 2005/03/06: Now uses an index in the scrmodelist
@@ -103,7 +101,7 @@ void R_SoftInitResolution(void);
 extern int SCREENWIDTH;
 extern int SCREENHEIGHT;
 extern int SCREENBITS;
-extern bool SCREENWINDOW;
+extern bool FULLSCREEN;
 
 extern scrmodelist_c scrmodelist;
 

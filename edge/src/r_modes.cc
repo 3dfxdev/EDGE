@@ -45,7 +45,7 @@
 int SCREENWIDTH;
 int SCREENHEIGHT;
 int SCREENBITS;
-bool SCREENWINDOW;
+bool FULLSCREEN;
 
 scrmodelist_c scrmodelist;
 
@@ -58,7 +58,7 @@ scrmodelist_c scrmodelist;
 //
 // -ACB- 1999/10/03 Written
 //
-void V_AddAvailableResolution(i_scrmode_t *mode)
+void V_AddAvailableResolution(scrmode_t *mode)
 {
 #if 1  // FIXME !!!!!!
     int depth;
@@ -95,9 +95,9 @@ void V_AddAvailableResolution(i_scrmode_t *mode)
     sm.width = mode->width;
     sm.height = mode->height;
     sm.depth = depth;
-    sm.windowed = mode->windowed;
+    sm.full = mode->full;
 
-sm.sysdepth = mode->depth;
+///--- sm.sysdepth = mode->depth;
 
     scrmodelist.Add(&sm);
 	return;
@@ -112,20 +112,6 @@ void V_DumpResList()
     scrmodelist.Dump();
 }
 
-//
-// V_GetSysRes
-//
-// Helper function: gets us a i_scrmode_t from a scrmode_t. This is
-// not _yet_ done as part of the scrmodelist_c object since
-// the initial conversion is done in application code. Probably should change.
-//
-void V_GetSysRes(scrmode_t *src, i_scrmode_t *dest)
-{
-	dest->width = src->width;
-	dest->height = src->height;
-	dest->depth = src->sysdepth;
-	dest->windowed = src->windowed;
-}
 
 // ---> scrmodelist_c
 
@@ -138,7 +124,7 @@ int scrmodelist_c::Add(scrmode_t *sm)
 
     // Find the nearest match
     diff = 0;
-    nearest = FindNearest(sm->width, sm->height, sm->depth, sm->windowed);
+    nearest = FindNearest(sm->width, sm->height, sm->depth, sm->full);
 
     if (nearest >= 0)
     {
@@ -148,13 +134,13 @@ int scrmodelist_c::Add(scrmode_t *sm)
         if (diff == 0)
         {
             // Is the new entry a better match?
-            if (nsm->depth != nsm->sysdepth &&    // Nearest is not perfect
-                sm->sysdepth != nsm->sysdepth &&  // New entry is not duplicate
-                sm->depth == sm->sysdepth)        // New entry is perfect
-            {
-                // Update the nearest to be the new and more preferable entry
-                nsm->sysdepth = sm->sysdepth;
-            }
+//!!!!            if (nsm->depth != nsm->sysdepth &&    // Nearest is not perfect
+//!!!!                sm->sysdepth != nsm->sysdepth &&  // New entry is not duplicate
+//!!!!                sm->depth == sm->sysdepth)        // New entry is perfect
+//!!!!            {
+//!!!!                // Update the nearest to be the new and more preferable entry
+//!!!!                nsm->sysdepth = sm->sysdepth;
+//!!!!            }
       
             return nearest;
         }
@@ -196,8 +182,8 @@ int scrmodelist_c::Add(scrmode_t *sm)
 
 int scrmodelist_c::Compare(scrmode_t* sm1, scrmode_t* sm2)
 {
-    return MODE_AS_VALUE(sm1->width, sm1->height, sm1->depth, sm1->windowed) -
-           MODE_AS_VALUE(sm2->width, sm2->height, sm2->depth, sm2->windowed);
+    return MODE_AS_VALUE(sm1->width, sm1->height, sm1->depth, sm1->full) -
+           MODE_AS_VALUE(sm2->width, sm2->height, sm2->depth, sm2->full);
 }
 
 //
@@ -213,9 +199,9 @@ void scrmodelist_c::Dump()
     {
         sm = ITERATOR_TO_TYPE(it, scrmode_t*);
         
-        s.Format("  (%d x %d x %d [%d]) - %s\n", 
-                 sm->width, sm->height, sm->depth, sm->sysdepth, 
-                 sm->windowed ? "Windowed" : "Fullscreen");
+        s.Format("  (%dx%d %2dbpp) - %s\n", 
+                 sm->width, sm->height, sm->depth,
+                 sm->full ? "Fullscreen" : "Windowed");
 
         I_Printf(s);
      }	
@@ -226,14 +212,14 @@ void scrmodelist_c::Dump()
 //
 // Find an exact match for the given resolution
 //
-int scrmodelist_c::Find(int w, int h, int bpp, bool windowed)
+int scrmodelist_c::Find(int w, int h, int bpp, bool full)
 {
     scrmode_t testsm;
 
     testsm.width = w;
     testsm.height = h;
     testsm.depth = bpp;
-    testsm.windowed = windowed;
+    testsm.full = full;
 
     epi::array_iterator_c it;
     scrmode_t *sm;
@@ -254,14 +240,14 @@ int scrmodelist_c::Find(int w, int h, int bpp, bool windowed)
 //
 // Find the nearest match for the desired mode.
 //
-int scrmodelist_c::FindNearest(int w, int h, int bpp, bool windowed)
+int scrmodelist_c::FindNearest(int w, int h, int bpp, bool full)
 {
     scrmode_t testsm;
 
     testsm.width = w;
     testsm.height = h;
     testsm.depth = bpp;
-    testsm.windowed = windowed;
+    testsm.full = full;
 
     epi::array_iterator_c it;
 
@@ -293,14 +279,14 @@ int scrmodelist_c::FindNearest(int w, int h, int bpp, bool windowed)
 // Find a mode, but placing emphasis on the depth and
 // windowmode being correct
 //
-int scrmodelist_c::FindWithDepthBias(int w, int h, int bpp, bool windowed)
+int scrmodelist_c::FindWithDepthBias(int w, int h, int bpp, bool full)
 {
-    int sel_mode = FindNearest(w, h, bpp, windowed);
+    int sel_mode = FindNearest(w, h, bpp, full);
      
     if (sel_mode >= 0) // Should always be true
     {
         scrmode_t *sm = GetAt(sel_mode);
-        if (sm->windowed != windowed)
+        if (sm->full != full)
         {
             // A change in windowmode is unacceptable
             sel_mode = -1;
@@ -318,14 +304,14 @@ int scrmodelist_c::FindWithDepthBias(int w, int h, int bpp, bool windowed)
 //
 // FindWithWindowModeBias
 //
-int scrmodelist_c::FindWithWindowModeBias(int w, int h, int bpp, bool windowed)
+int scrmodelist_c::FindWithWindowModeBias(int w, int h, int bpp, bool full)
 {
-    int sel_mode = FindNearest(w, h, bpp, windowed);
+    int sel_mode = FindNearest(w, h, bpp, full);
             
     if (sel_mode >= 0) // Should always be true
     {
         scrmode_t *sm = GetAt(sel_mode);
-        if (sm->windowed != windowed)
+        if (sm->full != full)
         {
             // Not what we wanted
             sel_mode = -1;
@@ -369,7 +355,7 @@ int scrmodelist_c::Prev(int idx, scrmodelist_c::incrementtype_e type)
             {
                 sm = ITERATOR_TO_TYPE(it, scrmode_t*);
                 if (sm->depth == orig_sm->depth && 
-                    sm->windowed == orig_sm->windowed)
+                    sm->full == orig_sm->full)
                 {
                     sel_mode = it.GetPos();
                 }
@@ -386,7 +372,7 @@ int scrmodelist_c::Prev(int idx, scrmodelist_c::incrementtype_e type)
                     sm = ITERATOR_TO_TYPE(it, scrmode_t*);
                 	
                 	if (sm->depth != orig_sm->depth ||
-                        sm->windowed != orig_sm->windowed)
+                        sm->full != orig_sm->full)
                     {
                         break;
                     }
@@ -406,7 +392,7 @@ int scrmodelist_c::Prev(int idx, scrmodelist_c::incrementtype_e type)
             sel_mode = FindWithDepthBias(orig_sm->width,
                                          orig_sm->height,
                                          orig_sm->depth==32?16:32,
-                                         orig_sm->windowed);
+                                         orig_sm->full);
             break;
         }
 
@@ -416,7 +402,7 @@ int scrmodelist_c::Prev(int idx, scrmodelist_c::incrementtype_e type)
             sel_mode = FindWithWindowModeBias(orig_sm->width,
                                               orig_sm->height,
                                               orig_sm->depth,
-                                              !orig_sm->windowed);
+                                              !orig_sm->full);
             break;
         }
 
@@ -465,7 +451,7 @@ int scrmodelist_c::Next(int idx, scrmodelist_c::incrementtype_e type)
             {
                 sm = ITERATOR_TO_TYPE(it, scrmode_t*);
                 if (sm->depth == orig_sm->depth && 
-                    sm->windowed == orig_sm->windowed)
+                    sm->full == orig_sm->full)
                 {
                     sel_mode = it.GetPos();
                 }
@@ -482,7 +468,7 @@ int scrmodelist_c::Next(int idx, scrmodelist_c::incrementtype_e type)
                 	sm = ITERATOR_TO_TYPE(it, scrmode_t*);
                     
                     if (sm->depth != orig_sm->depth ||
-                        sm->windowed != orig_sm->windowed)
+                        sm->full != orig_sm->full)
                     {
                         break;
                     }
@@ -502,7 +488,7 @@ int scrmodelist_c::Next(int idx, scrmodelist_c::incrementtype_e type)
             sel_mode = FindWithDepthBias(orig_sm->width,
                                          orig_sm->height,
                                          orig_sm->depth==32?16:32,
-                                         orig_sm->windowed);
+                                         orig_sm->full);
             break;
         }
 
@@ -512,7 +498,7 @@ int scrmodelist_c::Next(int idx, scrmodelist_c::incrementtype_e type)
             sel_mode = FindWithWindowModeBias(orig_sm->width,
                                               orig_sm->height,
                                               orig_sm->depth,
-                                              !orig_sm->windowed);
+                                              !orig_sm->full);
             break;
         }
 
@@ -550,8 +536,8 @@ extern bool setsizeneeded; // FIXME
 //
 static bool DoExecuteChangeResolution(void)
 {
-	i_scrmode_t sys_sm;
-	scrmode_t* sm;
+	scrmode_t sys_sm;
+	scrmode_t *sm;
 	int res_idx = newres_idx;
 	
 	// We now changing the res, so lets clear this
@@ -566,9 +552,10 @@ static bool DoExecuteChangeResolution(void)
 
 	L_WriteDebug("-  ChangeRes: attempting %dx%d %d bpp (%s)\n",
 			sm->width, sm->height, sm->depth,
-			sm->windowed ? "Windowed" : "FULLSCREEN");
+			sm->full ? "FULLSCREEN" : "Windowed");
 
-	V_GetSysRes(scrmodelist[res_idx], &sys_sm); // Set the system mode struct
+	// Set the system mode struct
+	memcpy(&sys_sm, scrmodelist[res_idx], sizeof(sys_sm));
 
 	if (! I_SetScreenSize(&sys_sm))
 	{
@@ -587,7 +574,7 @@ static bool DoExecuteChangeResolution(void)
 	SCREENWIDTH  = sm->width;
 	SCREENHEIGHT = sm->height;
 	SCREENBITS   = sm->depth;
-	SCREENWINDOW = sm->windowed;
+	FULLSCREEN   = sm->full;
 	
 	return true;
 }
@@ -633,7 +620,7 @@ bool R_ExecuteChangeResolution(void)
 	int oldres_idx = scrmodelist.Find(SCREENWIDTH, 
                                       SCREENHEIGHT, 
                                       SCREENBITS, 
-                                      SCREENWINDOW);
+                                      FULLSCREEN);
     if (oldres_idx < 0)
     {
         I_Warning("Unable to find exact match for existing screen res...\n");
@@ -641,7 +628,7 @@ bool R_ExecuteChangeResolution(void)
         oldres_idx = scrmodelist.FindNearest(SCREENWIDTH,
                                              SCREENHEIGHT,
                                              SCREENBITS,
-                                             SCREENWINDOW);
+                                             FULLSCREEN);
         if (oldres_idx <= 0)
         {
             // Check for the insane...
@@ -664,18 +651,18 @@ bool R_ExecuteChangeResolution(void)
 
     // This ain't good - current and previous resolutions do not work. Lets
     // start from the beginning and find a working resolution.
-    bool windowed = SCREENWINDOW;
+    bool full = FULLSCREEN;
     int j;
     epi::array_iterator_c it;
     scrmode_t *sm;
 
     // Not pretty, not nice, not recommended. Oh well...
-	for (j=0; j < 2; j++, windowed = !windowed)
+	for (j=0; j < 2; j++, full = !full)
 	{
         for (it = scrmodelist.GetBaseIterator(); it.IsValid(); it++)
         {
             sm = ITERATOR_TO_TYPE(it, scrmode_t*);
-            if (sm->windowed == windowed)
+            if (sm->full == full)
             {
                 newres_idx = it.GetPos();
                 setsizeneeded = true;
@@ -701,7 +688,7 @@ bool R_ChangeResolution(int res_idx)
 	
 	L_WriteDebug("R_ChangeResolution: Trying %dx%dx%d (%s)\n", 
 		         sm->width, sm->height, sm->depth, 
-		         sm->windowed?"windowed":"fullscreen");
+		         sm->full ? "fullscreen" : "windowed");
 
 	// TEMP HACK !!!
 	return R_ExecuteChangeResolution();

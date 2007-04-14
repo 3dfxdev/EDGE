@@ -39,31 +39,19 @@ SDL_Surface *my_vis;
 
 int graphics_shutdown = 0;
 
-// Possible Windowed Screen Modes
-i_scrmode_t posswinmode[] =
+// Possible Screen Modes
+scrmode_t posswinmode[] =
 {
-	// windowed modes
-	{ 320, 200, 16, true},
-	{ 320, 240, 16, true},
-	{ 400, 300, 16, true},
-	{ 512, 384, 16, true},
-	{ 640, 400, 16, true},
-	{ 640, 480, 16, true},
-	{ 800, 600, 16, true},
-	{1024, 768, 16, true},
-	{1280,1024, 16, true},
-	{1600,1200, 16, true},
-
-	{ 320, 200, 32, true},  // TRUECOLOR
-	{ 320, 240, 32, true},
-	{ 400, 300, 32, true},
-	{ 512, 384, 32, true},
-	{ 640, 400, 32, true},
-	{ 640, 480, 32, true},
-	{ 800, 600, 32, true},
-	{1024, 768, 32, true},
-	{1280,1024, 32, true},
-	{1600,1200, 32, true},
+	{ 320, 200, 16, false},	{ 320, 200, 32, false},
+	{ 320, 240, 16, false},	{ 320, 240, 32, false},
+	{ 400, 300, 16, false},	{ 400, 300, 32, false},
+	{ 512, 384, 16, false},	{ 512, 384, 32, false},
+	{ 640, 400, 16, false},	{ 640, 400, 32, false},
+	{ 640, 480, 16, false},	{ 640, 480, 32, false},
+	{ 800, 600, 16, false},	{ 800, 600, 32, false},
+	{1024, 768, 16, false},	{1024, 768, 32, false},
+	{1280,1024, 16, false},	{1280,1024, 32, false},
+	{1600,1200, 16, false},	{1600,1200, 32, false},
 
 	{  -1,  -1, -1, false}
 };
@@ -91,9 +79,7 @@ void VideoModeCommonStuff(void)
 
 // =================== END OF INTERNALS ===================
 
-//
-// I_StartupGraphics
-//
+
 void I_StartupGraphics(void)
 {
 	if (M_CheckParm("-directx"))
@@ -150,17 +136,18 @@ void I_StartupGraphics(void)
 	const SDL_VideoInfo *info = SDL_GetVideoInfo ();
 
 	SDL_Rect **modes = SDL_ListModes (info->vfmt,
-					  SDL_OPENGL | SDL_DOUBLEBUF |
-					  SDL_FULLSCREEN);
+					  SDL_OPENGL | SDL_DOUBLEBUF | SDL_FULLSCREEN);
 
 	if (modes && modes != (SDL_Rect **)-1)
 	{
-		for (; *modes; ++modes)
+		for (; *modes; modes++)
 		{
-			i_scrmode_t test_mode = { //FIXME !!!!
-			  (*modes)->w, (*modes)->h,
-			  info->vfmt->BitsPerPixel, false
-			};
+			scrmode_t test_mode;
+
+			test_mode.width  = (*modes)->w;
+			test_mode.height = (*modes)->h;
+			test_mode.depth  = info->vfmt->BitsPerPixel;  // HMMMM ???
+			test_mode.full   = true;
 
 			if ((test_mode.width & 15) != 0)
 				continue;
@@ -174,38 +161,44 @@ void I_StartupGraphics(void)
 	}
 
 	// -ACB- 2000/03/16 Test for possible windowed resolutions
-	for (int i = 0; posswinmode[i].width != -1; i++)
+	for (int full = 0; full <= 1; full++)
 	{
-		i_scrmode_t *mode = posswinmode + i;
-
-		int got_depth = SDL_VideoModeOK(mode->width, mode->height,
-				mode->depth, SDL_OPENGL | SDL_DOUBLEBUF |
-				(mode->windowed ? 0 : SDL_FULLSCREEN));
-
-		int token = (got_depth * 100 + mode->depth);
-
-		if (got_depth == mode->depth ||
-			token == 1516 || token == 1615 ||
-			token == 2432 || token == 3224)
+		for (int i = 0; posswinmode[i].width != -1; i++)
 		{
-			V_AddAvailableResolution(mode);
+			scrmode_t mode;
+
+			mode.width  = posswinmode[i].width;
+			mode.height = posswinmode[i].height;
+			mode.depth  = posswinmode[i].depth;
+			mode.full   = full;
+
+			int got_depth = SDL_VideoModeOK(mode.width, mode.height,
+					mode.depth, SDL_OPENGL | SDL_DOUBLEBUF |
+					(mode.full ? SDL_FULLSCREEN : 0));
+
+			int token = (got_depth * 100 + mode.depth);
+
+			if (got_depth == mode.depth ||
+				token == 1516 || token == 1615 ||
+				token == 2432 || token == 3224)
+			{
+				V_AddAvailableResolution(&mode);
+			}
 		}
 	}
 
 	I_Printf("I_StartupGraphics: initialisation OK\n");
 }
 
-//
-// I_SetScreenSize
-//
-bool I_SetScreenSize(i_scrmode_t *mode)
+
+bool I_SetScreenSize(scrmode_t *mode)
 {
 	I_Printf("I_SetScreenSize: trying %dx%d %dbpp\n",
 			 mode->width, mode->height, mode->depth);
 
 	my_vis = SDL_SetVideoMode(mode->width, mode->height, mode->depth, 
 					SDL_OPENGL | SDL_DOUBLEBUF |
-					(mode->windowed ? 0 : SDL_FULLSCREEN));
+					(mode->full ? SDL_FULLSCREEN : 0));
 
 	if (my_vis == NULL)
 	{
@@ -224,36 +217,30 @@ bool I_SetScreenSize(i_scrmode_t *mode)
 			 my_vis->format->BitsPerPixel, my_vis->flags);
 
 	VideoModeCommonStuff();
+
 	SDL_GL_SwapBuffers();
 
 	return true;
 }
 
-//
-// I_StartFrame
-//
+
 void I_StartFrame(void)
 {
 }
 
-//
-// I_FinishFrame
-//
+
 void I_FinishFrame(void)
 {
 	SDL_GL_SwapBuffers();
 }
 
-//
-// I_PutTitle
-//
+
 void I_PutTitle(const char *title)
 {
 	SDL_WM_SetCaption(title, title);
 }
-//
-// I_RemoveGrab()
-//
+
+
 void I_RemoveGrab(void)
 {
 	if (my_vis && ! graphics_shutdown)
@@ -263,9 +250,7 @@ void I_RemoveGrab(void)
 	}
 }
 
-//
-// I_ShutdownGraphics
-//
+
 void I_ShutdownGraphics(void)
 {
 	if (graphics_shutdown)

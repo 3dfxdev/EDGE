@@ -997,8 +997,7 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 	HL_WriteText(style,1, centrex+15, y, tempstring);
 
 	y += dy;
-	sprintf(tempstring, "%s", cur_mode->windowed ?
-		 "Windowed" : "Fullscreen");
+	sprintf(tempstring, "%s", cur_mode->full ? "Fullscreen" : "Windowed");
 	HL_WriteText(style,1, centrex+15, y, tempstring);
 
 	// Draw selected resolution and mode:
@@ -1012,7 +1011,7 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 
 	sprintf(tempstring, "%d x %d at %d-bit %s",
 			SCREENWIDTH, SCREENHEIGHT, SCREENBITS,
-			SCREENWINDOW ? "Windowed" : "Fullscreen");
+			FULLSCREEN ? "Fullscreen" : "Windowed");
 
 	HL_WriteText(style,1, 160 - (style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
 }
@@ -1344,7 +1343,7 @@ static void M_ResolutionOptions(int keypressed)
 	int i = scrmodelist.Find(SCREENWIDTH, 
 							 SCREENHEIGHT,
 							 SCREENBITS,
-							 SCREENWINDOW);
+							 FULLSCREEN);
 							 
 	if (i < 0)
 		I_Error("M_ResolutionOptions: Graphics mode not listed!");
