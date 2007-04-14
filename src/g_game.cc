@@ -48,6 +48,7 @@
 #include "st_stuff.h"
 #include "sv_chunk.h"
 #include "sv_main.h"
+#include "v_colour.h"
 #include "version.h"
 #include "w_wad.h"
 #include "wi_stuff.h"
@@ -1099,6 +1100,8 @@ static void G_DoEndGame(void)
 	}
 
 	gamestate = GS_NOTHING;
+
+	V_SetPalette(PALETTE_NORMAL, 0);
 
 	E_StartTitle();
 }
