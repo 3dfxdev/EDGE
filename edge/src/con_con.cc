@@ -139,9 +139,6 @@ int cmdhistorysize = 0;
 // when browsing the cmdhistory, this shows the current index. Otherwise it's -1.
 int cmdhistorypos = -1;
 
-// Tells whether the console text needs to be updated.
-bool updateconsoleneeded = false;
-
 // The text of the console, with lines split up properly for the current
 // resolution.
 char **curlines = NULL;
@@ -334,12 +331,6 @@ static void UpdateConsole(void)
 	UpdateCmdLine();
 }
 
-// Call this whenever the console changes, otherwise it might not be rendered
-static void NeedConsoleUpdate(void)
-{
-	updateconsoleneeded = true;
-}
-
 //
 // CON_InitConsole
 //
@@ -445,10 +436,6 @@ static void PrintString(const char *s)
 
 	lastline[lastlineend] = 0;
 
-	// string is already printed if !graphicsmode.
-	if (graphicsmode)
-		NeedConsoleUpdate();
-
 	UpdateLastLine();
 }
 
@@ -518,7 +505,6 @@ void CON_Ticker(gui_t * gui)
 			if (bottomrow == -1)
 				bottomrow = numvislines - 2;  // numvislines-1 (commandline) is the last line
 
-			NeedConsoleUpdate();
 			break;
 
 		case SCROLLDN:
@@ -529,7 +515,6 @@ void CON_Ticker(gui_t * gui)
 				bottomrow++;
 			else
 				bottomrow = -1;
-			NeedConsoleUpdate();
 			break;
 
 		default:
@@ -909,7 +894,7 @@ bool CON_HandleKey(guievent_t * ev)
 	}
 	// something in the console has probably changed, so we update it
 	UpdateCmdLine();
-	NeedConsoleUpdate();
+
 	return true;
 }
 
@@ -969,7 +954,6 @@ bool CON_Responder(gui_t * gui, guievent_t * event)
 		RepeatEvent = *event;
 		if (CON_HandleKey(event))
 		{
-			NeedConsoleUpdate();
 			return true;
 		}
 	}
