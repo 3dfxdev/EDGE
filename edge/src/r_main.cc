@@ -277,7 +277,6 @@ float R_PointToDist(float x1, float y1, float x2, float y2)
 
 bool setsizeneeded;
 int set_hud;
-bool setresfailed = false;
 
 void R_SetViewSize(int hud)
 {
@@ -292,11 +291,10 @@ void R_SetViewSize(int hud)
 void R_ExecuteSetViewSize(void)
 {
 	float slopeoffset;
-	int sbar_height;
 
 	setsizeneeded = false;
 
-	sbar_height = FROM_200(ST_HEIGHT);
+	int sbar_height = FROM_200(ST_HEIGHT);
 
 	viewwidth  = SCREENWIDTH;
 	viewheight = SCREENHEIGHT;

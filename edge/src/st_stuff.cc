@@ -925,6 +925,8 @@ void ST_Start(void)
 	CreateWidgets();
 
 	st_stopped = false;
+
+	V_SetPalette(PALETTE_NORMAL, 0);
 }
 
 void ST_Stop(void)

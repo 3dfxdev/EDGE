@@ -49,18 +49,6 @@ bool SCREENWINDOW;
 
 scrmodelist_c scrmodelist;
 
-extern bool setresfailed; // FIXME
-
-//
-// V_InitResolution
-//
-// Inits everything resolution-dependent to SCREENWIDTH x SCREENHEIGHT x BPP
-//
-void V_InitResolution(void)
-{	
-	ST_ReInit();
-	AM_InitResolution();
-}
 
 //
 // V_AddAvailableResolution
@@ -72,6 +60,7 @@ void V_InitResolution(void)
 //
 void V_AddAvailableResolution(i_scrmode_t *mode)
 {
+#if 1  // FIXME !!!!!!
     int depth;
 
     depth = 0;
@@ -99,6 +88,7 @@ void V_AddAvailableResolution(i_scrmode_t *mode)
 
     if (!depth)
         return;
+#endif
 
     scrmode_t sm;
 
@@ -106,7 +96,8 @@ void V_AddAvailableResolution(i_scrmode_t *mode)
     sm.height = mode->height;
     sm.depth = depth;
     sm.windowed = mode->windowed;
-    sm.sysdepth = mode->depth;
+
+sm.sysdepth = mode->depth;
 
     scrmodelist.Add(&sm);
 	return;
@@ -549,18 +540,6 @@ int newres_idx = -1;
 
 extern bool setsizeneeded; // FIXME
 
-void R_ChangeResolution(int res_idx)
-{
-	scrmode_t* sm = scrmodelist[res_idx]; 
-
-	setsizeneeded = true;  // need to re-init some stuff
-
-	newres_idx = res_idx;
-	
-	L_WriteDebug("R_ChangeResolution: Trying %dx%dx%d (%s)\n", 
-		         sm->width, sm->height, sm->depth, 
-		         sm->windowed?"windowed":"fullscreen");
-}
 
 //
 // DoExecuteChangeResolution
@@ -591,7 +570,7 @@ static bool DoExecuteChangeResolution(void)
 
 	V_GetSysRes(scrmodelist[res_idx], &sys_sm); // Set the system mode struct
 
-	if (!I_SetScreenSize(&sys_sm))
+	if (! I_SetScreenSize(&sys_sm))
 	{
 		L_WriteDebug("-  Failed, changing back...\n");
 
@@ -610,9 +589,17 @@ static bool DoExecuteChangeResolution(void)
 	SCREENBITS   = sm->depth;
 	SCREENWINDOW = sm->windowed;
 	
+	return true;
+}
+
+
+void R_SoftInitResolution(void)
+{
 	L_WriteDebug("-  Succeeded, resetting stuff...\n");
 
-	V_InitResolution();
+	ST_ReInit();
+
+	AM_InitResolution();
 
 	RGL_NewScreenSize(SCREENWIDTH, SCREENHEIGHT, SCREENBITS);
 
@@ -626,23 +613,20 @@ static bool DoExecuteChangeResolution(void)
 	// re-initialise various bits of GL state
 	RGL_SoftInit();
 	RGL_SoftInitUnits();	// -ACB- 2004/02/15 Needed to sort vars lost in res change
+
 	W_ResetImages();
 
 	L_WriteDebug("-  returning true.\n");
 
-	// -AJA- 1999/07/03: removed PLAYPAL reference.
-	return true;
+	return ;
 }
 
-//
-// R_ExecuteChangeResolution
-//
-void R_ExecuteChangeResolution(void)
+
+bool R_ExecuteChangeResolution(void)
 {
     // First up: try the resolution change as requested
-    setresfailed = !DoExecuteChangeResolution();
-	if (!setresfailed)
-		return; // Everything's fine...
+    if (DoExecuteChangeResolution())
+		return true; // Everything's fine...
 
 	L_WriteDebug("- Looking for another mode to try...\n");
 
@@ -674,7 +658,7 @@ void R_ExecuteChangeResolution(void)
 	setsizeneeded = true;
 
 	if (DoExecuteChangeResolution())
-		return; // Worked, so lets bail.
+		return false; // Worked, so lets bail.
 
 	L_WriteDebug("- Getting desperate!\n");
 
@@ -697,15 +681,32 @@ void R_ExecuteChangeResolution(void)
                 setsizeneeded = true;
 
                 if (DoExecuteChangeResolution())
-                    return; // Worked, so lets bail.
+                    return false; // Worked, so lets bail.
             }
         }
     }
 
     // FOOBAR!
 	I_Error(language["ModeSelErrT"], SCREENWIDTH, SCREENHEIGHT, 1 << SCREENBITS);
-    return;
+    return false;
 }
+
+bool R_ChangeResolution(int res_idx)
+{
+	scrmode_t* sm = scrmodelist[res_idx]; 
+
+	setsizeneeded = true;  // need to re-init some stuff
+
+	newres_idx = res_idx;
+	
+	L_WriteDebug("R_ChangeResolution: Trying %dx%dx%d (%s)\n", 
+		         sm->width, sm->height, sm->depth, 
+		         sm->windowed?"windowed":"fullscreen");
+
+	// TEMP HACK !!!
+	return R_ExecuteChangeResolution();
+}
+
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

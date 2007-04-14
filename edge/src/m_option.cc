@@ -813,23 +813,6 @@ void M_OptMenuInit()
 //
 void M_OptTicker(void)
 {
-	if (setresfailed)
-	{
-		epi::string_c s;
-		
-		scrmode_t *sm = scrmodelist[selectedscrmode];
-		
-		s.Format(language["ModeSelErr"],
-				sm->width, sm->height, sm->depth);
-
-		M_StartMessage(s.GetString(), NULL, false);
-		
-///--  		testticker = -1;
-		
-		selectedscrmode = prevscrmode;
-		setresfailed = false;
-	}
-
 ///--  	if (testticker > 0)
 ///--  	{
 ///--  		testticker--;
@@ -1807,7 +1790,25 @@ static void M_ChangeStoredMode(int keypressed)
 //
 static void M_OptionSetResolution(int keypressed)
 {
-    R_ChangeResolution(selectedscrmode);
+	if (R_ChangeResolution(selectedscrmode))
+	{
+		R_SoftInitResolution();
+	}
+	else
+	{
+		epi::string_c s;
+		
+		scrmode_t *sm = scrmodelist[selectedscrmode];
+
+		s.Format(language["ModeSelErr"],
+				sm->width, sm->height, sm->depth);
+
+		M_StartMessage(s.GetString(), NULL, false);
+		
+///--  		testticker = -1;
+		
+		selectedscrmode = prevscrmode;
+	}
 }
 
 ///--  //

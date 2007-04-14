@@ -64,8 +64,6 @@ extern int newres_idx;
 
 extern int framecount;
 
-extern bool setresfailed;
-
 //
 // Utility functions.
 angle_t R_PointToAngle(float x1, float y1, float x2, float y2);
