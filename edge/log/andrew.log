@@ -1,5 +1,48 @@
 Andrew Apted's Log
 
+2007/04/14:
+
+Began reworking the mode selection code, using the following
+principles:
+
+   (a) the BPP given by -bpp and config file (and SCREENBITS var)
+       is the "true" one passed to SDL I_SetVideoMode().
+
+   (b) the BPP shown in options menu is either 16 or 32.
+
+   (c) for comparison purposes, 15 == 16 and 24 == 32,
+
+   (d) for the list of available modes, if both are possible
+       (e.g. 15 and 16) then only the power of two is stored.
+
+   (e) the initial video mode (from config or command-line)
+       will always be tried first, even when it isn't in the
+       list of available modes.
+
+   (f) modes are removed from the available list if the
+       I_SetScreenMode() fails.
+
+   (g) merge fucking scrmode_t and i_scrmode_t.
+
+2007/04/13:
+
+More tweaks to the startup and shutdown code, e.g. fixing
+a problem of I_LockAudio() called twice without an unlock.
+
+Added I_MessageBox() to the i_system.h API, and fixed the
+Win32 version to make sure the dialog window appears on
+top of other windows (MB_SYSTEMMODAL + MB_SETFOREGROUND).
+
+Added mouse-button support for menus: left button is same
+as ENTER key, and right button is same as ESCAPE key.
+
+Discovered why on my Voodoo3 the default video mode was
+being set to 1792x1344 no matter what -width or -height
+was given: the Compare() function in v_res.cc would
+subtract two composed integers, the wanted bpp was 32
+but all the available bpp=16, HENCE the largest 16-bit
+mode produced the lowest diff value.  Aieee!
+
 2007/04/11:
 
 Fixed the quit-sound, which wasn't playing due to the new
@@ -10,6 +53,10 @@ the SDL.DLL (as well as include files and archive files)
 from the standard SDL-devel-1.2.11-mingw32.tar.gz package.
 Hopefully that fixes the problem with -directx option not
 working...
+
+Yay!  Keyboard now works with the -directx option.
+
+Added mousewheel support for the menus.
 
 2007/04/10:
 
@@ -1371,15 +1418,15 @@ Created docs/tech/libraries.txt (keep track of dependencies).
 Networking: quick description of tic handling (client-side).
 There are three important variables:
     
-	gametic : the tic (time unit) upto which the game simulation
-	          has run (note that it increases during PAUSE and
-			  menus).
+    gametic : the tic (time unit) upto which the game simulation
+              has run (note that it increases during PAUSE and
+              menus).
 
-	maketic : the tic upto which the local player has built
-	          ticcmds (result of processing input events).
+    maketic : the tic upto which the local player has built
+              ticcmds (result of processing input events).
 
     lowtic  : the tic upto which we have got all the ticcmds
-	          from all players (local and over the network).
+              from all players (local and over the network).
 
 This equation is invariant:  gametic <= lowtic <= maketic
 
@@ -1691,17 +1738,17 @@ Started reworking weapons and clips, with these ideas in mind:
 
 (a) if clip_size == 0, weapon feeds directly out of the "ammo bucket",
     otherwise weapon holds some ammo in it (clip_size), even when not
-	in use.  For ammo in the HUD: total ammo + ammo in current clip.
+    in use.  For ammo in the HUD: total ammo + ammo in current clip.
 
 (b) the clip is filled when entering the reload states.  When there are
     no reload states, clip gets filled automatically.
 
-(c)	Reload states are entered: by CHECKRELOAD action, when pickup up
-	new ammo which can fill an empty clip, and by manual reload key.
+(c) Reload states are entered: by CHECKRELOAD action, when pickup up
+    new ammo which can fill an empty clip, and by manual reload key.
 
 (d) Picking up a new weapon (especially when it comes with ammo as
     a BENEFIT) should NOT enter reload states.  EDGE should not switch
-	to the new weapon if there is no ammo for it.
+    to the new weapon if there is no ammo for it.
 
 Second attacks are causing some headaches...
 
@@ -1762,10 +1809,10 @@ happens when the weapon is fired, not when the attack is launched.
 
 Reworked the WHEN_APPEAR parsing to allow more readable values, in
 particular: 
-	(a) support a skill range, e.g. "3-5",
-	(b) can have just skill values, "2:4" same as "2:4:sp:coop:dm",
-	(c) can have just net modes, e.g. "dm" implies "1-5:dm",
-	(d) prefix with '!' for negation: "!dm" means "1-5:sp:coop".
+  (a) support a skill range, e.g. "3-5",
+  (b) can have just skill values, "2:4" same as "2:4:sp:coop:dm",
+  (c) can have just net modes, e.g. "dm" implies "1-5:dm",
+  (d) prefix with '!' for negation: "!dm" means "1-5:sp:coop".
 
 Using '{ }' comments in DDF and ';' comments in RTS deprecated,
 since these characters could be useful in other contexts (curly
@@ -2109,10 +2156,10 @@ and header file rgl_thing.h.  Moved weapon sprite handling there too.
 
 Implemented basic RTS menu system, with the following new commands:
 
-	SHOW_MENU      title option1 option2 ...
-	SHOW_MENU_LDF  title option1 option2 ...
+    SHOW_MENU      title option1 option2 ...
+    SHOW_MENU_LDF  title option1 option2 ...
 
-	JUMP_ON  MENU  label1 label2 ...
+    JUMP_ON  MENU  label1 label2 ...
 
 The RTS menu will pause the game until the user presses a valid number
 key.  The RTS menu currently prevents savegames - maybe this makes sense,
@@ -11041,3 +11088,6 @@ Added some code to i_video.c which computes the lighting colourmaps
 (providing better shading on screen).  Had to fix it: the gamma handling
 was wrong (gamma should be applied _after_ the linear interpolation).
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:expandtab
