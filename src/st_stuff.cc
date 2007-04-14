@@ -31,6 +31,7 @@
 
 #include "e_main.h"
 #include "m_cheat.h"
+#include "m_misc.h"   // M_DisplayAir
 #include "m_random.h"
 #include "r_main.h"
 #include "st_lib.h"
@@ -672,6 +673,8 @@ void ST_Drawer()
 
 	// and refresh all widgets
 	DrawWidgets();
+
+	M_DisplayAir();
 }
 
 static void LoadGraphics(void)
