@@ -154,11 +154,12 @@ static void M_ChangeDLights(int keypressed);
 static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int centrex);
 static void M_ResolutionOptions(int keypressed);
 static void M_OptionSetResolution(int keypressed);
-static void M_OptionTestResolution(int keypressed);
-static void M_RestoreResSettings(int keypressed);
+///--  static void M_OptionTestResolution(int keypressed);
+///--  static void M_RestoreResSettings(int keypressed);
 static void M_ChangeStoredRes(int keypressed);
 static void M_ChangeStoredBpp(int keypressed);
 static void M_ChangeStoredMode(int keypressed);
+
 static void M_HostNetGame(int keypressed);
 static void M_JoinNetGame(int keypressed);
 
@@ -189,7 +190,9 @@ static char QuietNess[]   = "Loud (distorted)/Normal/Soft";
 // Screen resolution changes
 static int prevscrmode;
 static int selectedscrmode;
-static int testticker = -1;
+
+///--  static int testticker = -1;
+
 
 // -ES- 1998/11/28 Wipe and Faded teleportation options
 //static char FadeT[] = "Off/On, flash/On, no flash";
@@ -814,28 +817,28 @@ void M_OptTicker(void)
 	{
 		epi::string_c s;
 		
-		scrmode_t* sm = scrmodelist[selectedscrmode];
+		scrmode_t *sm = scrmodelist[selectedscrmode];
 		
 		s.Format(language["ModeSelErr"],
 				sm->width, sm->height, sm->depth);
 
 		M_StartMessage(s.GetString(), NULL, false);
 		
-		testticker = -1;
+///--  		testticker = -1;
 		
 		selectedscrmode = prevscrmode;
 		setresfailed = false;
 	}
 
-	if (testticker > 0)
-	{
-		testticker--;
-	}
-	else if (!testticker)
-	{
-		testticker--;
-		M_RestoreResSettings(-1);
-	}
+///--  	if (testticker > 0)
+///--  	{
+///--  		testticker--;
+///--  	}
+///--  	else if (!testticker)
+///--  	{
+///--  		testticker--;
+///--  		M_RestoreResSettings(-1);
+///--  	}
 }
 
 //
@@ -1053,8 +1056,8 @@ static void M_LanguageDrawer(int x, int y, int deltay)
 //
 bool M_OptResponder(event_t * ev, int ch)
 {
-	if (testticker != -1)
-		return true;
+///--  	if (testticker != -1)
+///--  		return true;
 
 	// Scan for keycodes
 	if (keyscan)
@@ -1807,22 +1810,22 @@ static void M_OptionSetResolution(int keypressed)
     R_ChangeResolution(selectedscrmode);
 }
 
-//
-// M_OptionTestResolution
-//
-static void M_OptionTestResolution(int keypressed)
-{
-    R_ChangeResolution(selectedscrmode);
-	testticker = TICRATE * 3;
-}
-
-//
-// M_RestoreResSettings
-//
-static void M_RestoreResSettings(int keypressed)
-{
-    R_ChangeResolution(prevscrmode);
-}
+///--  //
+///--  // M_OptionTestResolution
+///--  //
+///--  static void M_OptionTestResolution(int keypressed)
+///--  {
+///--      R_ChangeResolution(selectedscrmode);
+///--  	testticker = TICRATE * 3;
+///--  }
+///--  
+///--  //
+///--  // M_RestoreResSettings
+///--  //
+///--  static void M_RestoreResSettings(int keypressed)
+///--  {
+///--      R_ChangeResolution(prevscrmode);
+///--  }
 
 extern void M_NetHostBegun(void);
 extern void M_NetJoinBegun(void);
