@@ -52,7 +52,7 @@ sources_2 = [
     's_music.cc', 's_ogg.cc', 'st_lib.cc', 'st_stuff.cc',
     'sv_chunk.cc', 'sv_dump.cc', 'sv_glob.cc', 'sv_level.cc', 
     'sv_load.cc', 'sv_main.cc', 'sv_misc.cc', 'sv_mobj.cc', 'sv_play.cc', 
-    'sv_save.cc', 'v_colour.cc', 'v_res.cc', 'r_image.cc', 'wi_stuff.cc', 
+    'sv_save.cc', 'v_colour.cc', 'r_modes.cc', 'r_image.cc', 'wi_stuff.cc', 
     'w_textur.cc', 'w_wad.cc', 'z_zone.cc', 
     ]
 
