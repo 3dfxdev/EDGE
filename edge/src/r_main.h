@@ -94,16 +94,7 @@ void R_SetFOV(angle_t fov);
 void R_SetNormalFOV(angle_t newfov);
 void R_SetZoomedFOV(angle_t newfov);
 
-// call this to change the resolution before the next frame.
-// -ACB- 2005/03/06: Now uses an index in the scrmodelist
-void R_ChangeResolution(int res_idx); 
-
 void R_StartFading(int start, int range);
-
-// only call these when it really is time to do the actual resolution
-// or view size change, i.e. at the start of a frame.
-void R_ExecuteChangeResolution(void);
-void R_ExecuteSetViewSize(void);
 
 #endif // __R_MAIN__
 

@@ -25,14 +25,21 @@
 
 #include "i_defs.h"
 
-#include "r_automap.h"
-#include "st_stuff.h"
-#include "v_res.h"
-
 #include "epi/strings.h"
 
 #include <limits.h>
 #include <string.h>
+
+#include "r_modes.h"
+#include "rgl_defs.h"
+#include "st_stuff.h"
+#include "v_colour.h"
+
+#include "r_automap.h"
+#include "r_image.h"
+#include "rgl_unit.h"
+#include "gui_main.h"
+#include "v_ctx.h"
 
 // Globals
 int SCREENWIDTH;
@@ -41,6 +48,8 @@ int SCREENBITS;
 bool SCREENWINDOW;
 
 scrmodelist_c scrmodelist;
+
+extern bool setresfailed; // FIXME
 
 //
 // V_InitResolution
@@ -527,6 +536,176 @@ int scrmodelist_c::Next(int idx, scrmodelist_c::incrementtype_e type)
     return sel_mode;
 }
 	
+
+//----------------------------------------------------------------------------
+
+
+//
+// R_ChangeResolution
+//
+// Makes R_ExecuteChangeResolution execute at start of next refresh.
+//
+int newres_idx = -1;
+
+extern bool setsizeneeded; // FIXME
+
+void R_ChangeResolution(int res_idx)
+{
+	scrmode_t* sm = scrmodelist[res_idx]; 
+
+	setsizeneeded = true;  // need to re-init some stuff
+
+	newres_idx = res_idx;
+	
+	L_WriteDebug("R_ChangeResolution: Trying %dx%dx%d (%s)\n", 
+		         sm->width, sm->height, sm->depth, 
+		         sm->windowed?"windowed":"fullscreen");
+}
+
+//
+// DoExecuteChangeResolution
+//
+// Do the resolution change
+//
+// -ES- 1999/04/05 Changed this to work with the viewbitmap system
+//
+static bool DoExecuteChangeResolution(void)
+{
+	i_scrmode_t sys_sm;
+	scrmode_t* sm;
+	int res_idx = newres_idx;
+	
+	// We now changing the res, so lets clear this
+	newres_idx = -1;
+
+	// Check for the insane...
+	SYS_ASSERT(res_idx >= 0 && res_idx < scrmodelist.GetSize());
+	
+	// -ACB- 1999/09/20
+	// parameters needed for I_SetScreenMode - returns false on failure
+	sm = scrmodelist[res_idx];
+
+	L_WriteDebug("-  ChangeRes: attempting %dx%d %d bpp (%s)\n",
+			sm->width, sm->height, sm->depth,
+			sm->windowed ? "Windowed" : "FULLSCREEN");
+
+	V_GetSysRes(scrmodelist[res_idx], &sys_sm); // Set the system mode struct
+
+	if (!I_SetScreenSize(&sys_sm))
+	{
+		L_WriteDebug("-  Failed, changing back...\n");
+
+		// wait one second before changing res again, gfx card doesn't
+		// like to switch mode too rapidly.
+		I_Sleep(500);
+		I_Sleep(500);
+
+		L_WriteDebug("-  returning false.\n");
+
+		return false;
+	}
+
+	SCREENWIDTH  = sm->width;
+	SCREENHEIGHT = sm->height;
+	SCREENBITS   = sm->depth;
+	SCREENWINDOW = sm->windowed;
+	
+	L_WriteDebug("-  Succeeded, resetting stuff...\n");
+
+	V_InitResolution();
+
+	RGL_NewScreenSize(SCREENWIDTH, SCREENHEIGHT, SCREENBITS);
+
+	// -ES- 1999/08/29 Fixes the garbage palettes, and the blank 16-bit console
+	V_SetPalette(PALETTE_NORMAL, 0);
+	V_ColourNewFrame();
+
+	// -ES- 1999/08/20 Update GUI (resize stuff etc)
+	GUI_InitResolution();
+
+	// re-initialise various bits of GL state
+	RGL_SoftInit();
+	RGL_SoftInitUnits();	// -ACB- 2004/02/15 Needed to sort vars lost in res change
+	W_ResetImages();
+
+	L_WriteDebug("-  returning true.\n");
+
+	// -AJA- 1999/07/03: removed PLAYPAL reference.
+	return true;
+}
+
+//
+// R_ExecuteChangeResolution
+//
+void R_ExecuteChangeResolution(void)
+{
+    // First up: try the resolution change as requested
+    setresfailed = !DoExecuteChangeResolution();
+	if (!setresfailed)
+		return; // Everything's fine...
+
+	L_WriteDebug("- Looking for another mode to try...\n");
+
+	int oldres_idx = scrmodelist.Find(SCREENWIDTH, 
+                                      SCREENHEIGHT, 
+                                      SCREENBITS, 
+                                      SCREENWINDOW);
+    if (oldres_idx < 0)
+    {
+        I_Warning("Unable to find exact match for existing screen res...\n");
+
+        oldres_idx = scrmodelist.FindNearest(SCREENWIDTH,
+                                             SCREENHEIGHT,
+                                             SCREENBITS,
+                                             SCREENWINDOW);
+        if (oldres_idx <= 0)
+        {
+            // Check for the insane...
+            SYS_ASSERT(scrmodelist.GetSize() == 0);
+
+            // FindNearest() will always return with something unless we
+            // have no resolutions to pick from...
+            I_Error("R_ExecuteChangeResolution: No possible resolutions!");
+        }
+    }
+
+    // Now try with the previous resolution or near the previous res
+    newres_idx = oldres_idx;
+	setsizeneeded = true;
+
+	if (DoExecuteChangeResolution())
+		return; // Worked, so lets bail.
+
+	L_WriteDebug("- Getting desperate!\n");
+
+    // This ain't good - current and previous resolutions do not work. Lets
+    // start from the beginning and find a working resolution.
+    bool windowed = SCREENWINDOW;
+    int j;
+    epi::array_iterator_c it;
+    scrmode_t *sm;
+
+    // Not pretty, not nice, not recommended. Oh well...
+	for (j=0; j < 2; j++, windowed = !windowed)
+	{
+        for (it = scrmodelist.GetBaseIterator(); it.IsValid(); it++)
+        {
+            sm = ITERATOR_TO_TYPE(it, scrmode_t*);
+            if (sm->windowed == windowed)
+            {
+                newres_idx = it.GetPos();
+                setsizeneeded = true;
+
+                if (DoExecuteChangeResolution())
+                    return; // Worked, so lets bail.
+            }
+        }
+    }
+
+    // FOOBAR!
+	I_Error(language["ModeSelErrT"], SCREENWIDTH, SCREENHEIGHT, 1 << SCREENBITS);
+    return;
+}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
