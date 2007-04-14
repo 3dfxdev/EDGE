@@ -560,6 +560,7 @@ static void DoSystemStartup(void)
 {
 	// startup the system now
 	W_InitImages();
+
 	GUI_MainInit();
 
 	L_WriteDebug("- System startup begun.\n");
@@ -568,6 +569,8 @@ static void DoSystemStartup(void)
 
 	// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
 V_DumpResList();
+
+#if 1
 L_WriteDebug("- Finding nearest mode........\n");
 	int idx = scrmodelist.FindNearest(SCREENWIDTH, 
                                       SCREENHEIGHT, 
@@ -575,19 +578,27 @@ L_WriteDebug("- Finding nearest mode........\n");
                                       SCREENWINDOW);
 
 	if (idx < 0)
-        I_Error("DoSystemStartup: No available resolutions"); // Must be valid
+        I_Error("DoSystemStartup: No available resolutions!"); // Must be valid
 
 	L_WriteDebug("- Found nearest: idx=%d\n", idx);
-
-	R_ChangeResolution(idx);
-
+#endif
 	// -KM- 1998/09/27 Change res now, so music doesn't start before
 	// screen.  Reset clock too.
 	L_WriteDebug("- Changing Resolution...\n");
 
-	R_ExecuteChangeResolution();
+	scrmode_t mode;
+
+	mode.width    = SCREENWIDTH;
+	mode.height   = SCREENHEIGHT;
+	mode.depth    = SCREENBITS;
+	mode.windowed = SCREENWINDOW;
+
+	if (! R_ChangeResolution(idx))  //!!!!!! &mode
+        I_Error("DoSystemStartup: Unable to set any resolutions!");
 
 	RGL_Init();
+
+	R_SoftInitResolution();
 
 	L_WriteDebug("- System startup done.\n");
 }
@@ -680,23 +691,17 @@ void E_Display(void)
 	if (nodrawers)
 		return;  // for comparative timing / profiling
 
-	// -ES-  1998/08/20: Resolution Change Check
-	// -ACB- 2005/03/06: Now using the new res index
-	if (newres_idx >= 0)
-		R_ExecuteChangeResolution();
+///---	// -ES-  1998/08/20: Resolution Change Check
+///---	// -ACB- 2005/03/06: Now using the new res index
+///---	if (newres_idx >= 0)
+///---		R_ExecuteChangeResolution();
 
-	// Start the frame - should we need to.
-	I_StartFrame();
-
-	// change the view size if needed
+	// change the view size if needed  [FIXME!! bullcrap here]
 	if (setsizeneeded)
 		R_ExecuteSetViewSize();
 
-	// -AJA- 1999/07/03: removed PLAYPAL reference.
-	if (gamestate != GS_LEVEL)
-	{
-		V_SetPalette(PALETTE_NORMAL, 0);
-	}
+	// Start the frame - should we need to.
+	I_StartFrame();
 
 	// -AJA- 1999/08/02: Make sure palette/gamma is OK. This also should
 	//       fix (finally !) the "gamma too late on walls" bug.
@@ -709,6 +714,7 @@ void E_Display(void)
 	{
 		wipe = true;
 		wipe_gl_active = true;
+
 		RGL_InitWipe(wipe_reverse, wipe_method);
 	}
 
@@ -758,7 +764,6 @@ void E_Display(void)
 
 	// menus go directly to the screen
 	M_Drawer();  // menu is drawn even on top of everything (except console)
-	M_DisplayDisk();
 
 	N_NetUpdate();  // send out any new accumulation
 
@@ -778,23 +783,21 @@ void E_Display(void)
 	// draw console _after_ doing screenshots
 	GUI_MainDrawer();
 
-	// normal update
-	if (!wipe && !wipe_gl_active)
+	if (wipe || wipe_gl_active)
 	{
-		I_FinishFrame();  // page flip or blit buffer
-		return;
+		// -AJA- Wipe code for GL.  Sorry for all this ugliness, but it just
+		//       didn't fit into the existing wipe framework.
+		//
+		if (RGL_DoWipe())
+		{
+			RGL_StopWipe();
+			wipe_gl_active = false;
+		}
+
+		M_Drawer();  // menu is drawn even on top of wipes
 	}
 
-	// -AJA- Wipe code for GL.  Sorry for all this ugliness, but it just
-	//       didn't fit into the existing wipe framework.
-	//
-	if (RGL_DoWipe())
-	{
-		RGL_StopWipe();
-		wipe_gl_active = false;
-	}
-
-	M_Drawer();  // menu is drawn even on top of wipes
+	M_DisplayDisk();
 
 	I_FinishFrame();  // page flip or blit buffer
 }
