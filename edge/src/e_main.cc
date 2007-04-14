@@ -58,7 +58,6 @@
 #include "p_spec.h"
 #include "r_local.h"
 #include "rad_trig.h"
-#include "r_layers.h"
 #include "r_vbinit.h"
 #include "r2_defs.h"
 #include "rgl_defs.h"
@@ -200,10 +199,6 @@ epi::strent_c shot_dir;
 
 int crosshair = 0;
 
-layer_t *backbg_layer = NULL;
-layer_t *conplayer_layer = NULL;
-layer_t *pause_layer = NULL;
-
 //
 // EVENT HANDLING
 //
@@ -322,7 +317,12 @@ static void SetGlobalVars(void)
 	// Bits per pixel check....
 	s = M_GetParm("-bpp");
 	if (s)
-		SCREENBITS = atoi(s) * 8;
+	{
+		SCREENBITS = atoi(s);
+
+		if (SCREENBITS < 4) // backwards compat
+			SCREENBITS *= 8;
+	}
 
 	// restrict depth to allowable values
 	if (SCREENBITS < 15)
@@ -553,6 +553,9 @@ static void ShowNotice(void)
 
 }
 
+//!!!!!
+extern void V_DumpResList();
+
 static void DoSystemStartup(void)
 {
 	// startup the system now
@@ -564,6 +567,8 @@ static void DoSystemStartup(void)
 	I_SystemStartup();
 
 	// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
+V_DumpResList();
+L_WriteDebug("- Finding nearest mode........\n");
 	int idx = scrmodelist.FindNearest(SCREENWIDTH, 
                                       SCREENHEIGHT, 
                                       SCREENBITS, 
@@ -672,11 +677,6 @@ static bool wipe_gl_active = false;
 
 void E_Display(void)
 {
-	static bool fullscreen = false;
-
-	// for wiping
-	bool wipe;
-
 	if (nodrawers)
 		return;  // for comparative timing / profiling
 
@@ -702,6 +702,8 @@ void E_Display(void)
 	//       fix (finally !) the "gamma too late on walls" bug.
 	V_ColourNewFrame();
 
+	bool wipe = false;
+
 	// save the current screen if about to wipe
 	if (gamestate != wipegamestate)
 	{
@@ -709,22 +711,28 @@ void E_Display(void)
 		wipe_gl_active = true;
 		RGL_InitWipe(wipe_reverse, wipe_method);
 	}
-	else
-		wipe = false;
 
-	if (gamestate == GS_LEVEL)
-		HU_Erase();
 
-	// do buffered drawing
 	switch (gamestate)
 	{
 		case GS_LEVEL:
-			if (automapactive == 2)
+			HU_Erase();
+
+			if (automapactive < 2)
+				R_Render();
+
+			if (automapactive > 0)
 				AM_Drawer();
 
-			ST_Drawer();
+			if (need_save_screenshot)
+			{
+				M_MakeSaveScreenShot();
+				need_save_screenshot = false;
+			}
 
-			fullscreen = viewwindowheight == SCREENHEIGHT;
+			ST_Drawer();
+			HU_Drawer();
+			RAD_Drawer();
 			break;
 
 		case GS_INTERMISSION:
@@ -741,31 +749,6 @@ void E_Display(void)
 
 		case GS_NOTHING:
 			break;
-	}
-
-	if (need_save_screenshot)
-	{
-		R_Render();
-		M_MakeSaveScreenShot();
-
-		need_save_screenshot = false;
-	}
-
-	// draw the view directly
-	if (gamestate == GS_LEVEL && automapactive != 2)
-	{
-		R_Render();
-
-		if (automapactive != 2)
-			AM_Drawer();
-	}
-
-	if (gamestate == GS_LEVEL)
-	{
-		ST_Drawer();
-		HU_Drawer();
-		RAD_Drawer();
-		M_DisplayAir();
 	}
 
 	wipegamestate = gamestate;
@@ -798,7 +781,6 @@ void E_Display(void)
 	// normal update
 	if (!wipe && !wipe_gl_active)
 	{
-		RGL_DrawBeta();
 		I_FinishFrame();  // page flip or blit buffer
 		return;
 	}
@@ -814,7 +796,6 @@ void E_Display(void)
 
 	M_Drawer();  // menu is drawn even on top of wipes
 
-	RGL_DrawBeta();
 	I_FinishFrame();  // page flip or blit buffer
 }
 
