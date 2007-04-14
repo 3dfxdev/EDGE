@@ -193,11 +193,8 @@ void I_StartupGraphics(void)
 //
 bool I_SetScreenSize(i_scrmode_t *mode)
 {
-	L_WriteDebug("I_SetScreenSize: trying mode %dx%d %dbpp\n",
+	I_Printf("I_SetScreenSize: trying %dx%d %dbpp\n",
 			 mode->width, mode->height, mode->depth);
-
-	if (mode->depth < 15)
-		return false;
 
 	my_vis = SDL_SetVideoMode(mode->width, mode->height, mode->depth, 
 					SDL_OPENGL | SDL_DOUBLEBUF |
@@ -211,7 +208,7 @@ bool I_SetScreenSize(i_scrmode_t *mode)
 
 	if (my_vis->format->BytesPerPixel <= 1)
 	{
-		I_Printf("I_SetScreenSize: (mode not suitable)\n");
+		I_Printf("I_SetScreenSize: 8-bit mode set (not suitable)\n");
 		return false;
 	}
 
