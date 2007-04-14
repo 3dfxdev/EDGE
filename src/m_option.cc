@@ -462,9 +462,9 @@ static optmenuitem_t resoptions[] =
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Function, "Change Size", NULL, 0, 0, NULL, M_ChangeStoredRes, NULL},
-	{OPT_Function, "Change Depth", NULL, 0, 0, NULL, M_ChangeStoredBpp, NULL},
-	{OPT_Function, "Change Mode", NULL, 0, 0, NULL, M_ChangeStoredMode, NULL},
+	{OPT_Function, "New Size", NULL, 0, 0, NULL, M_ChangeStoredRes, NULL},
+	{OPT_Function, "New Depth", NULL, 0, 0, NULL, M_ChangeStoredBpp, NULL},
+	{OPT_Function, "New Mode", NULL, 0, 0, NULL, M_ChangeStoredMode, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Set Resolution", NULL, 0, 0, NULL, M_OptionSetResolution, NULL},
 /*	{OPT_Function, "Test Resolution", NULL, 0, 0, NULL, M_OptionTestResolution, NULL}, */
@@ -995,13 +995,8 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 
 	// Draw current resolution
 	int y = topy;
-	sprintf(tempstring, "Current Resolution:");
-	HL_WriteText(style,0, 160 - (style->fonts[0]->StringWidth(tempstring) / 2), y, tempstring);
 
 	y += dy;
-	sprintf(tempstring, "%d x %d at %d-bit %s", SCREENWIDTH, SCREENHEIGHT,
-			SCREENBITS, SCREENWINDOW ? "Windowed" : "Fullscreen");
-	HL_WriteText(style,1, 160 - (style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
 
 	scrmode_t* cur_mode = scrmodelist[selectedscrmode];
 
@@ -1022,14 +1017,16 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 
 	// Draw selected resolution and mode:
 	y = bottomy;
-	sprintf(tempstring, "Selected Resolution:");
-	HL_WriteText(style,0, 160 - (style->fonts[0]->StringWidth(tempstring) / 2), y, tempstring);
+	y += (dy/2);
+
+	sprintf(tempstring, "Current Resolution:");
+	HL_WriteText(style,3, 160 - (style->fonts[0]->StringWidth(tempstring) / 2), y, tempstring);
 
 	y += dy;
 
 	sprintf(tempstring, "%d x %d at %d-bit %s",
-			cur_mode->width, cur_mode->height, cur_mode->depth,
-			cur_mode->windowed ? "Windowed" : "Fullscreen");
+			SCREENWIDTH, SCREENHEIGHT, SCREENBITS,
+			SCREENWINDOW ? "Windowed" : "Fullscreen");
 
 	HL_WriteText(style,1, 160 - (style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
 }
