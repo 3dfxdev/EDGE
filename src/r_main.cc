@@ -467,8 +467,6 @@ static bool DoExecuteChangeResolution(void)
 
 	L_WriteDebug("-  returning true.\n");
 
-	graphicsmode = true;
-
 	// -AJA- 1999/07/03: removed PLAYPAL reference.
 	return true;
 }

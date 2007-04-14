@@ -434,7 +434,7 @@ void M_InitMiscConVars(void)
 //
 void M_DisplayDisk(void)
 {
-	if (!graphicsmode || !var_diskicon || !display_disk)
+	if (!var_diskicon || !display_disk)
 		return;
    
 	if (!disk_image)
@@ -458,7 +458,7 @@ void M_DisplayAir(void)
 {
 	int i;
   
-	if (!graphicsmode || numplayers == 0)
+	if (numplayers == 0)
 		return;
 
 	player_t *p = players[displayplayer];

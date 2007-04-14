@@ -39,7 +39,6 @@ int SCREENWIDTH;
 int SCREENHEIGHT;
 int SCREENBITS;
 bool SCREENWINDOW;
-bool graphicsmode = false;
 
 scrmodelist_c scrmodelist;
 

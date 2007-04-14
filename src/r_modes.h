@@ -94,7 +94,6 @@ extern int SCREENWIDTH;
 extern int SCREENHEIGHT;
 extern int SCREENBITS;
 extern bool SCREENWINDOW;
-extern bool graphicsmode;
 
 extern scrmodelist_c scrmodelist;
 

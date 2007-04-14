@@ -362,16 +362,16 @@ static void PrintString(char *str)
 }
 #endif
 
-void I_Printf (const char *message,...)
+void I_Printf(const char *message,...)
 {
 	va_list argptr;
 	char printbuf[2048];
 	char *string = printbuf;
 
-	va_start (argptr, message);
+	va_start(argptr, message);
 
 	// Print the message into a text string
-	vsprintf (printbuf, message, argptr);
+	vsprintf(printbuf, message, argptr);
 
 	L_WriteLog("%s", printbuf);
 
@@ -391,14 +391,11 @@ void I_Printf (const char *message,...)
 	}
 
 	// Send the message to the console.
-	CON_Printf (printbuf);
+	CON_Printf(printbuf);
 
 	// And the text screen if in text mode
 #ifndef USE_FLTK
-	if (!graphicsmode)
-	{
-		PrintString(printbuf);
-	}
+	PrintString(printbuf);
 #endif
 
 	va_end(argptr);
