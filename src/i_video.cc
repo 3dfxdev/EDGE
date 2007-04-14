@@ -157,12 +157,19 @@ void I_StartupGraphics(void)
 	{
 		for (; *modes; ++modes)
 		{
-			i_scrmode_t test_mode = {
+			i_scrmode_t test_mode = { //FIXME !!!!
 			  (*modes)->w, (*modes)->h,
 			  info->vfmt->BitsPerPixel, false
 			};
 
-			V_AddAvailableResolution(&test_mode);
+			if ((test_mode.width & 15) != 0)
+				continue;
+
+			if (test_mode.depth == 15 || test_mode.depth == 16 ||
+			    test_mode.depth == 24 || test_mode.depth == 32)
+			{
+				V_AddAvailableResolution(&test_mode);
+			}
 		}
 	}
 
