@@ -156,9 +156,9 @@ static void M_ResolutionOptions(int keypressed);
 static void M_OptionSetResolution(int keypressed);
 ///--  static void M_OptionTestResolution(int keypressed);
 ///--  static void M_RestoreResSettings(int keypressed);
-static void M_ChangeStoredRes(int keypressed);
-static void M_ChangeStoredBpp(int keypressed);
-static void M_ChangeStoredMode(int keypressed);
+static void M_ChangeResSize(int keypressed);
+static void M_ChangeResDepth(int keypressed);
+static void M_ChangeResFull(int keypressed);
 
 static void M_HostNetGame(int keypressed);
 static void M_JoinNetGame(int keypressed);
@@ -188,8 +188,7 @@ static char MixChans[]    = "8/16/32/64/96";
 static char QuietNess[]   = "Loud (distorted)/Normal/Soft";
 
 // Screen resolution changes
-static int prevscrmode;
-static int selectedscrmode;
+static scrmode_c new_scrmode;
 
 ///--  static int testticker = -1;
 
@@ -465,9 +464,9 @@ static optmenuitem_t resoptions[] =
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
-	{OPT_Function, "New Size", NULL, 0, 0, NULL, M_ChangeStoredRes, NULL},
-	{OPT_Function, "New Depth", NULL, 0, 0, NULL, M_ChangeStoredBpp, NULL},
-	{OPT_Function, "New Mode", NULL, 0, 0, NULL, M_ChangeStoredMode, NULL},
+	{OPT_Function, "New Size",  NULL, 0, 0, NULL, M_ChangeResSize, NULL},
+	{OPT_Function, "New Depth", NULL, 0, 0, NULL, M_ChangeResDepth, NULL},
+	{OPT_Function, "New Mode",  NULL, 0, 0, NULL, M_ChangeResFull, NULL},
 	{OPT_Plain, "", NULL, 0, 0, NULL, NULL, NULL},
 	{OPT_Function, "Set Resolution", NULL, 0, 0, NULL, M_OptionSetResolution, NULL},
 /*	{OPT_Function, "Test Resolution", NULL, 0, 0, NULL, M_OptionTestResolution, NULL}, */
@@ -984,20 +983,18 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 
 	y += dy;
 
-	scrmode_t* cur_mode = scrmodelist[selectedscrmode];
-
 	// Draw resolution selection option
 	y += (dy*2);
-	sprintf(tempstring, "%dx%d", cur_mode->width, cur_mode->height);
+	sprintf(tempstring, "%dx%d", new_scrmode.width, new_scrmode.height);
 	HL_WriteText(style,1, centrex+15, y, tempstring);
 
 	// Draw depth selection option
 	y += dy;
-	sprintf(tempstring, "%d bit", cur_mode->depth);
+	sprintf(tempstring, "%d bit", (new_scrmode.depth < 20) ? 16:32);
 	HL_WriteText(style,1, centrex+15, y, tempstring);
 
 	y += dy;
-	sprintf(tempstring, "%s", cur_mode->full ? "Fullscreen" : "Windowed");
+	sprintf(tempstring, "%s", new_scrmode.full ? "Fullscreen" : "Windowed");
 	HL_WriteText(style,1, centrex+15, y, tempstring);
 
 	// Draw selected resolution and mode:
@@ -1010,7 +1007,7 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 	y += dy;
 
 	sprintf(tempstring, "%d x %d at %d-bit %s",
-			SCREENWIDTH, SCREENHEIGHT, SCREENBITS,
+			SCREENWIDTH, SCREENHEIGHT, (SCREENBITS < 20) ? 16 : 32,
 			FULLSCREEN ? "Fullscreen" : "Windowed");
 
 	HL_WriteText(style,1, 160 - (style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
@@ -1337,20 +1334,25 @@ static void M_VideoOptions(int keypressed)
 //
 static void M_ResolutionOptions(int keypressed)
 {
-	// Get a depth mask for resolution selection
-	SYS_ASSERT(SCREENBITS == 16 || SCREENBITS == 32);
+	new_scrmode.width  = SCREENWIDTH;
+	new_scrmode.height = SCREENHEIGHT;
+	new_scrmode.depth  = SCREENBITS;
+	new_scrmode.full   = FULLSCREEN;
 
-	int i = scrmodelist.Find(SCREENWIDTH, 
-							 SCREENHEIGHT,
-							 SCREENBITS,
-							 FULLSCREEN);
-							 
-	if (i < 0)
-		I_Error("M_ResolutionOptions: Graphics mode not listed!");
-	
-	selectedscrmode = i;
-	prevscrmode = i;
-	
+///---	// Get a depth mask for resolution selection
+///---	SYS_ASSERT(SCREENBITS == 16 || SCREENBITS == 32);
+///---
+///---	int i = scrmodelist.Find(SCREENWIDTH, 
+///---							 SCREENHEIGHT,
+///---							 SCREENBITS,
+///---							 FULLSCREEN);
+///---							 
+///---	if (i < 0)
+///---		I_Error("M_ResolutionOptions: Graphics mode not listed!");
+///---	
+///---	selectedscrmode = i;
+///---	prevscrmode = i;
+
 	curr_menu = &resoptionsinfo;
 	curr_item = curr_menu->items + curr_menu->pos;
 }
@@ -1716,71 +1718,53 @@ static void M_ChangeLanguage(int keypressed)
 
 
 //
-// M_ChangeStoredRes
+// M_ChangeResSize
 //
 // -ACB- 1998/08/29 Resolution Changes...
 //
-static void M_ChangeStoredRes(int keypressed)
+static void M_ChangeResSize(int keypressed)
 {
-	// Ignore anything but LEFT and RIGHT arrow keys
-	if (keypressed != KEYD_LEFTARROW && keypressed != KEYD_RIGHTARROW)
-		return;
-
 	if (keypressed == KEYD_LEFTARROW)
 	{
-		int mode = selectedscrmode; 
-		selectedscrmode = scrmodelist.Prev(mode, scrmodelist_c::RES);
+		R_IncrementResolution(&new_scrmode, RESF_Size, -1);
 	}
-	else /* if (keypressed == KEYD_RIGHTARROW) */
+	else if (keypressed == KEYD_RIGHTARROW)
 	{
-		int mode = selectedscrmode; 
-		selectedscrmode = scrmodelist.Next(mode, scrmodelist_c::RES);
+		R_IncrementResolution(&new_scrmode, RESF_Size, +1);
 	}
 }
 
 //
-// M_ChangeStoredBpp
+// M_ChangeResDepth
 //
 // -ACB- 1998/08/29 Depth Changes...
 //
-static void M_ChangeStoredBpp(int keypressed)
+static void M_ChangeResDepth(int keypressed)
 {
-	// Ignore anything but LEFT and RIGHT arrow keys
-	if (keypressed != KEYD_LEFTARROW && keypressed != KEYD_RIGHTARROW)
-		return;
-
 	if (keypressed == KEYD_LEFTARROW)
 	{
-		int mode = selectedscrmode; 
-		selectedscrmode = scrmodelist.Prev(mode, scrmodelist_c::DEPTH);
+		R_IncrementResolution(&new_scrmode, RESF_Depth, -1);
 	}
-	else /* if (keypressed == KEYD_RIGHTARROW) */
+	else if (keypressed == KEYD_RIGHTARROW)
 	{
-		int mode = selectedscrmode; 
-		selectedscrmode = scrmodelist.Next(mode, scrmodelist_c::DEPTH);
+		R_IncrementResolution(&new_scrmode, RESF_Depth, +1);
 	}
 }
 
 //
-// M_ChangeStoredMode
+// M_ChangeResFull
 //
 // -AJA- 2005/01/02: Windowed vs Fullscreen
 //
-static void M_ChangeStoredMode(int keypressed)
+static void M_ChangeResFull(int keypressed)
 {
-	// Ignore anything but LEFT and RIGHT arrow keys
-	if (keypressed != KEYD_LEFTARROW && keypressed != KEYD_RIGHTARROW)
-		return;
-
 	if (keypressed == KEYD_LEFTARROW)
 	{
-		int mode = selectedscrmode; 
-		selectedscrmode = scrmodelist.Prev(mode, scrmodelist_c::WINDOWMODE);
+		R_IncrementResolution(&new_scrmode, RESF_Full, +1);
 	}
-	else /* if (keypressed == KEYD_RIGHTARROW) */
+	else if (keypressed == KEYD_RIGHTARROW)
 	{
-		int mode = selectedscrmode; 
-		selectedscrmode = scrmodelist.Next(mode, scrmodelist_c::WINDOWMODE);
+		R_IncrementResolution(&new_scrmode, RESF_Full, +1);
 	}
 }
 
@@ -1789,7 +1773,7 @@ static void M_ChangeStoredMode(int keypressed)
 //
 static void M_OptionSetResolution(int keypressed)
 {
-	if (R_ChangeResolution(selectedscrmode))
+	if (R_ChangeResolution(&new_scrmode))
 	{
 		R_SoftInitResolution();
 	}
@@ -1797,16 +1781,15 @@ static void M_OptionSetResolution(int keypressed)
 	{
 		epi::string_c s;
 		
-		scrmode_t *sm = scrmodelist[selectedscrmode];
-
 		s.Format(language["ModeSelErr"],
-				sm->width, sm->height, sm->depth);
+				new_scrmode.width, new_scrmode.height,
+				(new_scrmode.depth < 20) ? 16 : 32);
 
 		M_StartMessage(s.GetString(), NULL, false);
-		
+
 ///--  		testticker = -1;
 		
-		selectedscrmode = prevscrmode;
+///??	selectedscrmode = prevscrmode;
 	}
 }
 

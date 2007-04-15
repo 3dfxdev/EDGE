@@ -325,10 +325,8 @@ static void SetGlobalVars(void)
 	}
 
 	// restrict depth to allowable values
-	if (SCREENBITS < 15)
-		SCREENBITS = 15;
-	else if (SCREENBITS > 16)
-		SCREENBITS = 32;
+	if (SCREENBITS < 15) SCREENBITS = 15;
+	else if (SCREENBITS > 32) SCREENBITS = 32;
 
 	M_CheckBooleanParm("windowed",   &FULLSCREEN, true);
 	M_CheckBooleanParm("fullscreen", &FULLSCREEN, false);
@@ -570,34 +568,24 @@ static void DoSystemStartup(void)
 	// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
 V_DumpResList();
 
-#if 1
-L_WriteDebug("- Finding nearest mode........\n");
-	int idx = scrmodelist.FindNearest(SCREENWIDTH, 
-                                      SCREENHEIGHT, 
-                                      SCREENBITS, 
-                                      FULLSCREEN);
+///---L_WriteDebug("- Finding nearest mode........\n");
+///---	int idx = scrmodelist.FindNearest(SCREENWIDTH, 
+///---                                      SCREENHEIGHT, 
+///---                                      SCREENBITS, 
+///---                                      FULLSCREEN);
+///---
+///---	if (idx < 0)
+///---        I_Error("DoSystemStartup: No available resolutions!"); // Must be valid
+///---
+///---	L_WriteDebug("- Found nearest: idx=%d\n", idx);
 
-	if (idx < 0)
-        I_Error("DoSystemStartup: No available resolutions!"); // Must be valid
-
-	L_WriteDebug("- Found nearest: idx=%d\n", idx);
-#endif
 	// -KM- 1998/09/27 Change res now, so music doesn't start before
 	// screen.  Reset clock too.
 	L_WriteDebug("- Changing Resolution...\n");
 
-	scrmode_t mode;
-
-	mode.width  = SCREENWIDTH;
-	mode.height = SCREENHEIGHT;
-	mode.depth  = SCREENBITS;
-	mode.full   = FULLSCREEN;
-
-	if (! R_ChangeResolution(idx))  //!!!!!! &mode
-        I_Error("DoSystemStartup: Unable to set any resolutions!");
+	R_InitialResolution();
 
 	RGL_Init();
-
 	R_SoftInitResolution();
 
 	L_WriteDebug("- System startup done.\n");

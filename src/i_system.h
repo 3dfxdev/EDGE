@@ -353,7 +353,7 @@ const char * I_LocalIPAddrString(const char *eth_name);
 //
 // -ACB- 1999/09/20 Moved from I_Video.H
 
-typedef struct scrmode_s scrmode_t;
+class scrmode_c;
 
 void I_StartupGraphics(void);
 // Initialises the graphics system.  This should be called by
@@ -369,7 +369,7 @@ void I_FinishFrame(void);
 // routine typically copies the screen buffer to the video memory.  It
 // may also handle double/triple buffering here.
 
-bool I_SetScreenSize(scrmode_t *mode);
+bool I_SetScreenSize(scrmode_c *mode);
 // Tries to set the video card to the given mode (or open a window).
 // If there already was a valid mode (or open window), this call
 // should replace it.  The previous contents (including the palette)

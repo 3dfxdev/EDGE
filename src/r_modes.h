@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Video Code
+//  EDGE Resolution Handling
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2005  The EDGE Team.
+//  Copyright (c) 1999-2007  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -33,69 +33,75 @@
 
 #include "epi/arrays.h"
 
+// Macros
+#define FROM_320(x)  ((x) * SCREENWIDTH  / 320)
+#define FROM_200(y)  ((y) * SCREENHEIGHT / 200)
+
 // Screen mode information
-typedef struct scrmode_s
+class scrmode_c
 {
+public:
 	int width;
 	int height;
 	int depth;
 	bool full;
-}
-scrmode_t;
 
-// Screen mode list object
-class scrmodelist_c : public epi::array_c
-{
 public:
-	scrmodelist_c() : epi::array_c(sizeof(scrmode_t*)) {}
-	~scrmodelist_c() { Clear(); } 
-
-	enum incrementtype_e { RES, DEPTH, WINDOWMODE };
-
-private:
-	void CleanupObject(void *obj)
-	{
-		scrmode_t* sm = *(scrmode_t**)obj; 
+	scrmode_c() : width(0), height(0), depth(0), full(true)
+	{ }
 		
-		if (sm) 
-			delete sm;
-	};
-
-public:
-	int Add(scrmode_t *sm);
-
-    int Compare(scrmode_t *sm1, scrmode_t *sm2);
-
-	void Dump(void);
-
-	int Find(int w, int h, int bpp, bool full);
-	int FindNearest(int w, int h, int bpp, bool full);
-	int FindWithDepthBias(int w, int h, int bpp, bool full);
-	int FindWithWindowModeBias(int w, int h, int bpp, bool full);
-
-	scrmode_t* GetAt(int idx) { return *(scrmode_t**)FetchObject(idx); } 
-
-	int GetSize() {	return array_entries; } 
+	scrmode_c(int _w, int _h, int _depth, bool _full) :
+		width(_w), height(_h), depth(_depth), full(_full)
+	{ }
 	
-	int Prev(int idx, incrementtype_e type);
-	int Next(int idx, incrementtype_e type);
-	
-	scrmode_t* operator[](int idx) { return *(scrmode_t**)FetchObject(idx); } 
+	scrmode_c(const scrmode_c& other) :
+		width(other.width), height(other.height),
+		depth(other.depth), full(other.full)
+	{ }
+
+	~scrmode_c()
+	{ }
 };
 
-// Exported Func
-void V_AddAvailableResolution(scrmode_t *mode);
-
-// call this to change the resolution before the next frame.
-// -ACB- 2005/03/06: Now uses an index in the scrmodelist
-bool R_ChangeResolution(int res_idx); 
-
-// only call these when it really is time to do the actual resolution
-// or view size change, i.e. at the start of a frame.
-
-void R_ExecuteSetViewSize(void);
-void R_SoftInitResolution(void);
-
+///---// Screen mode list object
+///---class scrmodelist_c : public epi::array_c
+///---{
+///---public:
+///---	scrmodelist_c() : epi::array_c(sizeof(scrmode_t*)) {}
+///---	~scrmodelist_c() { Clear(); } 
+///---
+///---	enum incrementtype_e { RES, DEPTH, WINDOWMODE };
+///---
+///---private:
+///---	void CleanupObject(void *obj)
+///---	{
+///---		scrmode_t* sm = *(scrmode_t**)obj; 
+///---		
+///---		if (sm) 
+///---			delete sm;
+///---	};
+///---
+///---public:
+///---	int Add(scrmode_t *sm);
+///---
+///---    int Compare(scrmode_t *sm1, scrmode_t *sm2);
+///---
+///---	void Dump(void);
+///---
+///---	int Find(int w, int h, int bpp, bool full);
+///---	int FindNearest(int w, int h, int bpp, bool full);
+///---	int FindWithDepthBias(int w, int h, int bpp, bool full);
+///---	int FindWithWindowModeBias(int w, int h, int bpp, bool full);
+///---
+///---	scrmode_t* GetAt(int idx) { return *(scrmode_t**)FetchObject(idx); } 
+///---
+///---	int GetSize() {	return array_entries; } 
+///---	
+///---	int Prev(int idx, incrementtype_e type);
+///---	int Next(int idx, incrementtype_e type);
+///---	
+///---	scrmode_t* operator[](int idx) { return *(scrmode_t**)FetchObject(idx); } 
+///---};
 
 // Exported Vars
 extern int SCREENWIDTH;
@@ -103,11 +109,35 @@ extern int SCREENHEIGHT;
 extern int SCREENBITS;
 extern bool FULLSCREEN;
 
-extern scrmodelist_c scrmodelist;
+// Exported Func
+bool R_DepthIsEquivalent(int depth1, int depth2);
 
-// Macros
-#define FROM_320(x)  ((x) * SCREENWIDTH  / 320)
-#define FROM_200(y)  ((y) * SCREENHEIGHT / 200)
+void R_AddResolution(scrmode_c *mode);
+scrmode_c *R_FindResolution(int w, int h, int depth, bool full);
+
+typedef enum
+{
+	RESINC_Size = 0,
+	RESINC_Depth,
+	RESINC_Full,
+}
+increment_res_e;
+
+bool R_IncrementResolution(scrmode_c *mode, int what, int dir);
+// update the given screen mode with the next highest (dir=1)
+// or next lowest (dir=-1) attribute given by 'what' parameter,
+// either the size, depth or fullscreen/windowed mode.  Returns
+// true on succses.  If no such resolution exists (whether or
+// not the given mode exists) then false is returned.
+
+void R_InitialResolution(void);
+bool R_ChangeResolution(scrmode_c *mode); 
+
+void R_SoftInitResolution(void);
+
+void R_ExecuteSetViewSize(void);
+// only call these when it really is time to do the actual resolution
+// or view size change, i.e. at the start of a frame.
 
 #endif // __VIDEORES_H__
 
