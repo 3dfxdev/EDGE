@@ -57,7 +57,7 @@ typedef struct
 }
 default_t;
 
-bool M_LoadDefaults(void);
+void M_LoadDefaults(void);
 void M_SaveDefaults(void);
 void M_InitMiscConVars(void);
 void M_DisplayDisk(void);
