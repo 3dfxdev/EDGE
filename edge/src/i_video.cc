@@ -39,21 +39,22 @@ SDL_Surface *my_vis;
 
 int graphics_shutdown = 0;
 
-// Possible Screen Modes
-scrmode_t posswinmode[] =
-{
-	{ 320, 200, 16, false},	{ 320, 200, 32, false},
-	{ 320, 240, 16, false},	{ 320, 240, 32, false},
-	{ 400, 300, 16, false},	{ 400, 300, 32, false},
-	{ 512, 384, 16, false},	{ 512, 384, 32, false},
-	{ 640, 400, 16, false},	{ 640, 400, 32, false},
-	{ 640, 480, 16, false},	{ 640, 480, 32, false},
-	{ 800, 600, 16, false},	{ 800, 600, 32, false},
-	{1024, 768, 16, false},	{1024, 768, 32, false},
-	{1280,1024, 16, false},	{1280,1024, 32, false},
-	{1600,1200, 16, false},	{1600,1200, 32, false},
 
-	{  -1,  -1, -1, false}
+// Possible Screen Modes
+static struct { int w, h; } possible_modes[] =
+{
+	{  320, 200, },
+	{  320, 240, },
+	{  400, 300, },
+	{  512, 384, },
+	{  640, 400, },
+	{  640, 480, },
+	{  800, 600, },
+	{ 1024, 768, },
+	{ 1280,1024, },
+	{ 1600,1200, },
+
+	{  -1,  -1, }
 };
 
 
@@ -142,7 +143,7 @@ void I_StartupGraphics(void)
 	{
 		for (; *modes; modes++)
 		{
-			scrmode_t test_mode;
+			scrmode_c test_mode;
 
 			test_mode.width  = (*modes)->w;
 			test_mode.height = (*modes)->h;
@@ -155,7 +156,7 @@ void I_StartupGraphics(void)
 			if (test_mode.depth == 15 || test_mode.depth == 16 ||
 			    test_mode.depth == 24 || test_mode.depth == 32)
 			{
-				V_AddAvailableResolution(&test_mode);
+				R_AddResolution(&test_mode);
 			}
 		}
 	}
@@ -163,26 +164,25 @@ void I_StartupGraphics(void)
 	// -ACB- 2000/03/16 Test for possible windowed resolutions
 	for (int full = 0; full <= 1; full++)
 	{
-		for (int i = 0; posswinmode[i].width != -1; i++)
+		for (int depth = 16; depth <= 32; depth = depth+16)
 		{
-			scrmode_t mode;
-
-			mode.width  = posswinmode[i].width;
-			mode.height = posswinmode[i].height;
-			mode.depth  = posswinmode[i].depth;
-			mode.full   = full;
-
-			int got_depth = SDL_VideoModeOK(mode.width, mode.height,
-					mode.depth, SDL_OPENGL | SDL_DOUBLEBUF |
-					(mode.full ? SDL_FULLSCREEN : 0));
-
-			int token = (got_depth * 100 + mode.depth);
-
-			if (got_depth == mode.depth ||
-				token == 1516 || token == 1615 ||
-				token == 2432 || token == 3224)
+			for (int i = 0; possible_modes[i].w != -1; i++)
 			{
-				V_AddAvailableResolution(&mode);
+				scrmode_c mode;
+
+				mode.width  = possible_modes[i].w;
+				mode.height = possible_modes[i].h;
+				mode.depth  = depth;
+				mode.full   = full;
+
+				int got_depth = SDL_VideoModeOK(mode.width, mode.height,
+						mode.depth, SDL_OPENGL | SDL_DOUBLEBUF |
+						(mode.full ? SDL_FULLSCREEN : 0));
+
+				if (R_DepthIsEquivalent(got_depth, mode.depth))
+				{
+					R_AddResolution(&mode);
+				}
 			}
 		}
 	}
@@ -191,7 +191,7 @@ void I_StartupGraphics(void)
 }
 
 
-bool I_SetScreenSize(scrmode_t *mode)
+bool I_SetScreenSize(scrmode_c *mode)
 {
 	I_Printf("I_SetScreenSize: trying %dx%d %dbpp\n",
 			 mode->width, mode->height, mode->depth);

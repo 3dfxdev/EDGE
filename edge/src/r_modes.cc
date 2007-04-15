@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE Video Code  
+//  EDGE Resolution Handling
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2005  The EDGE Team.
+//  Copyright (c) 1999-2007  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -30,6 +30,9 @@
 #include <limits.h>
 #include <string.h>
 
+#include <vector>
+#include <algorithm>
+
 #include "r_modes.h"
 #include "rgl_defs.h"
 #include "st_stuff.h"
@@ -47,60 +50,75 @@ int SCREENHEIGHT;
 int SCREENBITS;
 bool FULLSCREEN;
 
-scrmodelist_c scrmodelist;
+extern bool setsizeneeded; // FIXME
+
+
+static std::vector<scrmode_c *> screen_modes;
+
+
+bool R_DepthIsEquivalent(int depth1, int depth2)
+{
+	if (depth1 == depth2)
+		return true;
+
+	if (MIN(depth1,depth2) == 15 && MAX(depth1,depth2) == 16)
+		return true;
+
+	if (MIN(depth1,depth2) == 24 && MAX(depth1,depth2) == 32)
+		return true;
+
+	return false;
+}
+
+static int SizeDiff(int w1, int h1, int w2, int h2)
+{
+	return (w1 * 10000 + h1) - (w2 * 10000 + h2);
+}
+
+
+scrmode_c *R_FindResolution(int w, int h, int depth, bool full)
+{
+	for (int i = 0; i < (int)screen_modes.size(); i++)
+	{
+		scrmode_c *cur = screen_modes[i];
+
+		if (cur->width == w && cur->height == h &&
+			R_DepthIsEquivalent(cur->depth, depth) &&
+			cur->full == full)
+		{
+			return cur;
+		}
+	}
+
+	return NULL;
+}
 
 
 //
-// V_AddAvailableResolution
+// R_AddResolution
 //
 // Adds a resolution to the scrmodes list. This is used so we can
 // select it within the video options menu.
 //
-// -ACB- 1999/10/03 Written
-//
-void V_AddAvailableResolution(scrmode_t *mode)
+void R_AddResolution(scrmode_c *mode)
 {
-#if 1  // FIXME !!!!!!
-    int depth;
+    scrmode_c *exist = R_FindResolution(mode->width, mode->height,
+							mode->depth, mode->full);
 
-    depth = 0;
-    switch(mode->depth)
-    {
-        case 15:
-        case 16:
-        {
-            depth = 16;
-            break;
-        }
+	if (exist)
+	{
+		if (mode->depth != exist->depth)
+		{
+			// depth is different but equivalent.  Update current
+			// member in list, giving preference to power-of-two.
+			if (mode->depth == 16 or mode->depth == 32)
+				exist->depth = mode->depth;
+		}
 
-        case 24:
-        case 32:
-        {
-            depth = 32;
-            break;
-        }
+		return;
+	}
 
-        default:
-        {
-            break;
-        }
-    }
-
-    if (!depth)
-        return;
-#endif
-
-    scrmode_t sm;
-
-    sm.width = mode->width;
-    sm.height = mode->height;
-    sm.depth = depth;
-    sm.full = mode->full;
-
-///--- sm.sysdepth = mode->depth;
-
-    scrmodelist.Add(&sm);
-	return;
+	screen_modes.push_back(new scrmode_c(*mode));
 }
 
 //
@@ -109,480 +127,92 @@ void V_AddAvailableResolution(scrmode_t *mode)
 void V_DumpResList()
 {
     I_Printf("Resolution List:\n");
-    scrmodelist.Dump();
+
+	for (int i = 0; i < (int)screen_modes.size(); i++)
+	{
+		scrmode_c *cur = screen_modes[i];
+
+        I_Printf("  %dx%d %2dbpp - %s\n", 
+                 cur->width, cur->height, cur->depth,
+                 cur->full ? "Fullscreen" : "Windowed");
+	}
 }
 
-
-// ---> scrmodelist_c
-
-//
-// int scrmodelist_c::Add()
-//
-int scrmodelist_c::Add(scrmode_t *sm)
+bool R_IncrementResolution(scrmode_c *mode, int what, int dir)
 {
-    int diff, nearest, retval;
+	// Algorithm:
+	//   for RESINC_Depth and RESINC_Full, we simply toggle the
+	//   value in question (depth or full), and find the mode
+	//   with matching depth/full and the closest size.
+	//
+	//   for RESINC_Size, we find modes with matching depth/full
+	//   and the *next* closest size (ignoring the same size or
+	//   sizes that are in opposite direction to 'dir' param).
 
-    // Find the nearest match
-    diff = 0;
-    nearest = FindNearest(sm->width, sm->height, sm->depth, sm->full);
+	SYS_ASSERT(dir == 1 || dir == -1);
 
-    if (nearest >= 0)
-    {
-        scrmode_t *nsm = GetAt(nearest);
+	int depth = mode->depth;
+	bool full = mode->full;
 
-        diff = Compare(sm, nsm);
-        if (diff == 0)
-        {
-            // Is the new entry a better match?
-//!!!!            if (nsm->depth != nsm->sysdepth &&    // Nearest is not perfect
-//!!!!                sm->sysdepth != nsm->sysdepth &&  // New entry is not duplicate
-//!!!!                sm->depth == sm->sysdepth)        // New entry is perfect
-//!!!!            {
-//!!!!                // Update the nearest to be the new and more preferable entry
-//!!!!                nsm->sysdepth = sm->sysdepth;
-//!!!!            }
-      
-            return nearest;
-        }
-    }
+	if (what == RESINC_Depth)
+		depth = (depth < 20) ? 32 : 16;
 
-    // OK, we've got to add a new entry
-    scrmode_t *new_sm = new scrmode_t;
-    memcpy(new_sm, sm, sizeof(scrmode_t));
+	if (what == RESINC_Full)
+		full = !full;
 
-    if (diff == 0)
-    {
-        // We got when diff was zero, must be a new entry in a blank list
-        retval = InsertObject((void*)&new_sm);
-    }
-    else if (diff < 0)
-    {
-        // Insert prior to nearest entry
-        retval = InsertObject((void*)&new_sm, nearest);
-    }
-    else // if (diff > 0)
-    {
-        // Insert after the nearest entry
-        retval = InsertObject((void*)&new_sm, nearest+1);
-    }
+	scrmode_c *best = NULL;
+	int best_diff = (1 << 30);
 
-	if (retval < 0)
-        delete new_sm; // Failed for some reason, dispose of new entry
-   
-    return retval;
+	for (int i = 0; i < (int)screen_modes.size(); i++)
+	{
+		scrmode_c *cur = screen_modes[i];
+
+		if (! R_DepthIsEquivalent(cur->depth, depth))
+			continue;
+
+		if (cur->full != full)
+			continue;
+
+		int diff = SizeDiff(cur->width, cur->height, mode->width, mode->height);
+
+		if (what == RESINC_Size)
+		{
+			if (diff * dir <= 0)
+				continue;
+		}
+
+		diff = ABS(diff);
+
+		if (diff < best_diff)
+		{
+			best_diff = diff;
+			best = cur;
+
+			if (diff == 0)
+				break;
+		}
+	}
+
+	if (best)
+	{
+		mode->width  = best->width;
+		mode->height = best->height;
+		mode->depth  = best->depth;
+		mode->full   = best->full;
+
+		return true;
+	}
+
+	return false;
 }
 
-//
-// int scrmodelist_c::Compare()
-//
-// Screen mode comparision function
-//
-#define MODE_AS_VALUE(w, h, bpp, win) \
-    ((h & 0x7FF) + ((w & 0x7FF) << 11) + ((bpp & 0x3F) << 22) + (win?(1<<28):0))
-
-int scrmodelist_c::Compare(scrmode_t* sm1, scrmode_t* sm2)
-{
-    return MODE_AS_VALUE(sm1->width, sm1->height, sm1->depth, sm1->full) -
-           MODE_AS_VALUE(sm2->width, sm2->height, sm2->depth, sm2->full);
-}
-
-//
-// void scrmodelist_c::Dump()
-// 
-void scrmodelist_c::Dump()
-{
-    epi::array_iterator_c it;
-	epi::string_c s;
-    scrmode_t *sm;
-
-    for (it = GetBaseIterator(); it.IsValid(); it++)
-    {
-        sm = ITERATOR_TO_TYPE(it, scrmode_t*);
-        
-        s.Format("  (%dx%d %2dbpp) - %s\n", 
-                 sm->width, sm->height, sm->depth,
-                 sm->full ? "Fullscreen" : "Windowed");
-
-        I_Printf(s);
-     }	
-}
-
-//
-// int scrmodelist_c::Find()
-//
-// Find an exact match for the given resolution
-//
-int scrmodelist_c::Find(int w, int h, int bpp, bool full)
-{
-    scrmode_t testsm;
-
-    testsm.width = w;
-    testsm.height = h;
-    testsm.depth = bpp;
-    testsm.full = full;
-
-    epi::array_iterator_c it;
-    scrmode_t *sm;
-
-    for (it = GetBaseIterator(); it.IsValid(); it++)
-    {
-        sm = ITERATOR_TO_TYPE(it, scrmode_t*);
-
-        if (Compare(&testsm, sm) == 0)
-            return it.GetPos(); // Exact match
-    }
-
-    return -1;
-}
-
-//
-// int scrmodelist_c::FindNearest()
-//
-// Find the nearest match for the desired mode.
-//
-int scrmodelist_c::FindNearest(int w, int h, int bpp, bool full)
-{
-    scrmode_t testsm;
-
-    testsm.width = w;
-    testsm.height = h;
-    testsm.depth = bpp;
-    testsm.full = full;
-
-    epi::array_iterator_c it;
-
-    int best_diff = INT_MAX;
-    int best_idx = -1;
-
-    for (it = GetBaseIterator(); it.IsValid(); it++)
-    {
-		scrmode_t *sm = ITERATOR_TO_TYPE(it, scrmode_t*);
-
-        int diff = Compare(&testsm, sm);
-        if (diff == 0)
-            return it.GetPos(); // Exact match
-
-        diff = ABS(diff);
-        if (diff < best_diff)
-        {
-            best_idx = it.GetPos();
-            best_diff = diff;
-        }
-    }
-
-	return best_idx;
-}
-
-//
-// FindWithDepthBias
-//
-// Find a mode, but placing emphasis on the depth and
-// windowmode being correct
-//
-int scrmodelist_c::FindWithDepthBias(int w, int h, int bpp, bool full)
-{
-    int sel_mode = FindNearest(w, h, bpp, full);
-     
-    if (sel_mode >= 0) // Should always be true
-    {
-        scrmode_t *sm = GetAt(sel_mode);
-        if (sm->full != full)
-        {
-            // A change in windowmode is unacceptable
-            sel_mode = -1;
-        }
-        else if (sm->depth != bpp)
-        {
-            // A depth change was not possible
-            sel_mode = -1;
-        }
-    }
-
-    return sel_mode;
-}
-
-//
-// FindWithWindowModeBias
-//
-int scrmodelist_c::FindWithWindowModeBias(int w, int h, int bpp, bool full)
-{
-    int sel_mode = FindNearest(w, h, bpp, full);
-            
-    if (sel_mode >= 0) // Should always be true
-    {
-        scrmode_t *sm = GetAt(sel_mode);
-        if (sm->full != full)
-        {
-            // Not what we wanted
-            sel_mode = -1;
-        }
-    }
-
-    return sel_mode;
-}
-
-//
-// int scrmodelist_c::Prev() 
-//
-// Get the next resolution using the given increment type 
-//
-int scrmodelist_c::Prev(int idx, scrmodelist_c::incrementtype_e type)
-{
-    SYS_ASSERT(type == RES || type == DEPTH || type == WINDOWMODE);
-    SYS_ASSERT(idx >= 0 && idx < GetSize());
-
-    scrmode_t *orig_sm = GetAt(idx);
-    int sel_mode = -1;
-
-    switch(type)
-    {
-        case RES:
-        {
-            //
-            // We make use of the sort order here: Since the list is
-            // break down by the window flag, depth and then the 
-            // the resolution we just need to look the prev in the 
-            // list. Failing that we'll work forwards and get
-            // the last possible size for the current depth and
-            // windowmode (fullscreen/window).
-            //
-            epi::array_iterator_c it = GetIterator(idx);
-            scrmode_t *sm = NULL;
-
-            it--; // Go to the previous entry
-
-            if (it.IsValid())
-            {
-                sm = ITERATOR_TO_TYPE(it, scrmode_t*);
-                if (sm->depth == orig_sm->depth && 
-                    sm->full == orig_sm->full)
-                {
-                    sel_mode = it.GetPos();
-                }
-            }
-
-            // There is no previous entry: Wrap around
-            if (sel_mode < 0)
-            {
-                it = GetIterator(idx);
-                it++;
-
-                while (it.IsValid())
-                {
-                    sm = ITERATOR_TO_TYPE(it, scrmode_t*);
-                	
-                	if (sm->depth != orig_sm->depth ||
-                        sm->full != orig_sm->full)
-                    {
-                        break;
-                    }
-
-                    sel_mode = it.GetPos();
-                    it++;
-                }
-            }
-
-            break;
-        }
-
-        case DEPTH:
-        {
-            // Since depth has only possible values we cheat a bit
-            // here and treat it as a toggle
-            sel_mode = FindWithDepthBias(orig_sm->width,
-                                         orig_sm->height,
-                                         orig_sm->depth==32?16:32,
-                                         orig_sm->full);
-            break;
-        }
-
-        case WINDOWMODE:
-        {
-            // Toggle..
-            sel_mode = FindWithWindowModeBias(orig_sm->width,
-                                              orig_sm->height,
-                                              orig_sm->depth,
-                                              !orig_sm->full);
-            break;
-        }
-
-        default:
-            break;
-    }
-
-    // Failure to find another res, just return the one we were given
-    if (sel_mode < 0)
-        sel_mode = idx;
-
-    return sel_mode;
-}
-
-//
-// int scrmodelist_c::Next() 
-//
-// Get the next resolution using the given increment type
-//
-int scrmodelist_c::Next(int idx, scrmodelist_c::incrementtype_e type)
-{
-    SYS_ASSERT(type == RES || type == DEPTH || type == WINDOWMODE);
-    SYS_ASSERT(idx >= 0 && idx < GetSize());
-
-    scrmode_t *orig_sm = GetAt(idx);
-    int sel_mode = -1;
-
-    switch(type)
-    {
-        case RES:
-        {
-            //
-            // We make use of the sort order here: Since the list is
-            // break down by the window flag, depth and then the 
-            // the resolution we just need to look the next in the 
-            // list. Failing that we'll work backwards and get
-            // the first possible size for the current depth and
-            // windowmode (fullscreen/window).
-            //
-            epi::array_iterator_c it = GetIterator(idx);
-            scrmode_t *sm = NULL;
-
-            it++; // Next!
-
-            if (it.IsValid())
-            {
-                sm = ITERATOR_TO_TYPE(it, scrmode_t*);
-                if (sm->depth == orig_sm->depth && 
-                    sm->full == orig_sm->full)
-                {
-                    sel_mode = it.GetPos();
-                }
-            }
-
-            // There is no next: Wrap around
-            if (sel_mode < 0)
-            {
-                it = GetIterator(idx);
-                it--;
-
-                while (it.IsValid())
-                {
-                	sm = ITERATOR_TO_TYPE(it, scrmode_t*);
-                    
-                    if (sm->depth != orig_sm->depth ||
-                        sm->full != orig_sm->full)
-                    {
-                        break;
-                    }
-
-                    sel_mode = it.GetPos();
-                    it--;
-                }
-            }
-
-            break;
-        }
-
-        case DEPTH:
-        {
-            // Since depth has only possible values we cheat a bit
-            // here and treat it as a toggle
-            sel_mode = FindWithDepthBias(orig_sm->width,
-                                         orig_sm->height,
-                                         orig_sm->depth==32?16:32,
-                                         orig_sm->full);
-            break;
-        }
-
-        case WINDOWMODE:
-        {
-            // Toggle..
-            sel_mode = FindWithWindowModeBias(orig_sm->width,
-                                              orig_sm->height,
-                                              orig_sm->depth,
-                                              !orig_sm->full);
-            break;
-        }
-
-        default:
-            break;
-    }
-
-    // Failure to find another res, just return the one we were given
-    if (sel_mode < 0)
-        sel_mode = idx;
-
-    return sel_mode;
-}
-	
 
 //----------------------------------------------------------------------------
 
 
-//
-// R_ChangeResolution
-//
-// Makes R_ExecuteChangeResolution execute at start of next refresh.
-//
-int newres_idx = -1;
-
-extern bool setsizeneeded; // FIXME
-
-
-//
-// DoExecuteChangeResolution
-//
-// Do the resolution change
-//
-// -ES- 1999/04/05 Changed this to work with the viewbitmap system
-//
-static bool DoExecuteChangeResolution(void)
-{
-	scrmode_t sys_sm;
-	scrmode_t *sm;
-	int res_idx = newres_idx;
-	
-	// We now changing the res, so lets clear this
-	newres_idx = -1;
-
-	// Check for the insane...
-	SYS_ASSERT(res_idx >= 0 && res_idx < scrmodelist.GetSize());
-	
-	// -ACB- 1999/09/20
-	// parameters needed for I_SetScreenMode - returns false on failure
-	sm = scrmodelist[res_idx];
-
-	L_WriteDebug("-  ChangeRes: attempting %dx%d %d bpp (%s)\n",
-			sm->width, sm->height, sm->depth,
-			sm->full ? "FULLSCREEN" : "Windowed");
-
-	// Set the system mode struct
-	memcpy(&sys_sm, scrmodelist[res_idx], sizeof(sys_sm));
-
-	if (! I_SetScreenSize(&sys_sm))
-	{
-		L_WriteDebug("-  Failed, changing back...\n");
-
-		// wait one second before changing res again, gfx card doesn't
-		// like to switch mode too rapidly.
-		I_Sleep(500);
-		I_Sleep(500);
-
-		L_WriteDebug("-  returning false.\n");
-
-		return false;
-	}
-
-	SCREENWIDTH  = sm->width;
-	SCREENHEIGHT = sm->height;
-	SCREENBITS   = sm->depth;
-	FULLSCREEN   = sm->full;
-	
-	return true;
-}
-
-
 void R_SoftInitResolution(void)
 {
-	L_WriteDebug("-  Succeeded, resetting stuff...\n");
+	L_WriteDebug("R_SoftInitResolution...\n");
 
 	ST_ReInit();
 
@@ -609,89 +239,121 @@ void R_SoftInitResolution(void)
 }
 
 
-bool R_ExecuteChangeResolution(void)
+static bool DoExecuteChangeResolution(scrmode_c *mode)
 {
-    // First up: try the resolution change as requested
-    if (DoExecuteChangeResolution())
-		return true; // Everything's fine...
+	bool was_ok = I_SetScreenSize(mode);
 
-	L_WriteDebug("- Looking for another mode to try...\n");
+	if (! was_ok)
+		return false;
 
-	int oldres_idx = scrmodelist.Find(SCREENWIDTH, 
-                                      SCREENHEIGHT, 
-                                      SCREENBITS, 
-                                      FULLSCREEN);
-    if (oldres_idx < 0)
-    {
-        I_Warning("Unable to find exact match for existing screen res...\n");
+	SCREENWIDTH  = mode->width;
+	SCREENHEIGHT = mode->height;
+	SCREENBITS   = mode->depth;
+	FULLSCREEN   = mode->full;
 
-        oldres_idx = scrmodelist.FindNearest(SCREENWIDTH,
-                                             SCREENHEIGHT,
-                                             SCREENBITS,
-                                             FULLSCREEN);
-        if (oldres_idx <= 0)
-        {
-            // Check for the insane...
-            SYS_ASSERT(scrmodelist.GetSize() == 0);
+	// gfx card doesn't like to switch too rapidly
+	I_Sleep(250);
+	I_Sleep(250);
 
-            // FindNearest() will always return with something unless we
-            // have no resolutions to pick from...
-            I_Error("R_ExecuteChangeResolution: No possible resolutions!");
-        }
-    }
-
-    // Now try with the previous resolution or near the previous res
-    newres_idx = oldres_idx;
-	setsizeneeded = true;
-
-	if (DoExecuteChangeResolution())
-		return false; // Worked, so lets bail.
-
-	L_WriteDebug("- Getting desperate!\n");
-
-    // This ain't good - current and previous resolutions do not work. Lets
-    // start from the beginning and find a working resolution.
-    bool full = FULLSCREEN;
-    int j;
-    epi::array_iterator_c it;
-    scrmode_t *sm;
-
-    // Not pretty, not nice, not recommended. Oh well...
-	for (j=0; j < 2; j++, full = !full)
-	{
-        for (it = scrmodelist.GetBaseIterator(); it.IsValid(); it++)
-        {
-            sm = ITERATOR_TO_TYPE(it, scrmode_t*);
-            if (sm->full == full)
-            {
-                newres_idx = it.GetPos();
-                setsizeneeded = true;
-
-                if (DoExecuteChangeResolution())
-                    return false; // Worked, so lets bail.
-            }
-        }
-    }
-
-    // FOOBAR!
-	I_Error(language["ModeSelErrT"], SCREENWIDTH, SCREENHEIGHT, 1 << SCREENBITS);
-    return false;
+	return true;
 }
 
-bool R_ChangeResolution(int res_idx)
+
+struct Compare_Res_pred
 {
-	scrmode_t* sm = scrmodelist[res_idx]; 
+	inline bool operator() (const scrmode_c * A, const scrmode_c * B) const
+	{
+		if (A->full != B->full)
+		{
+			return (FULLSCREEN == A->full);
+		}
+
+		if (! R_DepthIsEquivalent(A->depth, B->depth))
+		{
+			return R_DepthIsEquivalent(SCREENBITS, A->depth);
+		}
+
+		if (A->width != B->width)
+		{
+			int a_diff_w = ABS(SCREENWIDTH - A->width);
+			int b_diff_w = ABS(SCREENWIDTH - B->width);
+
+			return (a_diff_w < b_diff_w);
+		}
+		else
+		{
+			int a_diff_h = ABS(SCREENHEIGHT - A->height);
+			int b_diff_h = ABS(SCREENHEIGHT - B->height);
+
+			return (a_diff_h < b_diff_h);
+		}
+	}
+};
+
+
+void R_InitialResolution(void)
+{
+	L_WriteDebug("R_InitialResolution...\n");
 
 	setsizeneeded = true;  // need to re-init some stuff
 
-	newres_idx = res_idx;
-	
-	L_WriteDebug("R_ChangeResolution: Trying %dx%dx%d (%s)\n", 
-		         sm->width, sm->height, sm->depth, 
-		         sm->full ? "fullscreen" : "windowed");
+	scrmode_c mode;
 
-	// TEMP HACK !!!
-	return R_ExecuteChangeResolution();
+	mode.width  = SCREENWIDTH;
+	mode.height = SCREENHEIGHT;
+	mode.depth  = SCREENBITS;
+	mode.full   = FULLSCREEN;
+
+    if (DoExecuteChangeResolution(&mode))
+	{
+		// this mode worked, make sure it's in the list
+		R_AddResolution(&mode);
+		return;
+	}
+
+	L_WriteDebug("- Looking for another mode to try...\n");
+
+	// sort modes into a good order, choosing sizes near the
+	// request size first, and different depths/fullness last.
+
+	std::sort(screen_modes.begin(), screen_modes.end(),
+			  Compare_Res_pred());
+
+	for (int i = 0; i < (int)screen_modes.size(); i++)
+	{
+		if (DoExecuteChangeResolution(screen_modes[i]))
+			return;
+	}
+
+    // FOOBAR!
+	I_Error("Unable to set any resolutions!");
+}
+
+
+bool R_ChangeResolution(scrmode_c *mode)
+{
+	L_WriteDebug("R_ChangeResolution...\n");
+
+	setsizeneeded = true;  // need to re-init some stuff
+
+    if (DoExecuteChangeResolution(mode))
+		return true;
+
+	L_WriteDebug("- Failed : switching back...\n");
+
+	scrmode_c old_mode;
+
+	old_mode.width  = SCREENWIDTH;
+	old_mode.height = SCREENHEIGHT;
+	old_mode.depth  = SCREENBITS;
+	old_mode.full   = FULLSCREEN;
+
+    if (DoExecuteChangeResolution(&old_mode))
+		return false;
+
+	// This ain't good - current and previous resolutions do not work.
+	I_Error("Switch back to old resolution failed!\n");
+	return false; /* NOT REACHED */
 }
 
 
