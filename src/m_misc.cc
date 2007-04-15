@@ -234,7 +234,6 @@ epi::strent_c cfgfile;
 void M_SaveDefaults(void)
 {
 	int i;
-	FILE *f;
 
 	// Don't want to save settings in a network game: might not
 	// be ours.
@@ -247,7 +246,7 @@ void M_SaveDefaults(void)
 	// -ACB- 1999/09/24 idiot proof checking as required by MSVC
 	SYS_ASSERT(cfgfile);
 
-	f = fopen(cfgfile, "w");
+	FILE *f = fopen(cfgfile, "w");
 	if (!f)
 	{
 		I_Warning("Couldn't open config file %s for writing.", cfgfile.GetString());
@@ -301,91 +300,93 @@ static void SetToBaseValue(default_t *def)
 //
 // M_LoadDefaults
 //
-bool M_LoadDefaults(void)
+void M_LoadDefaults(void)
 {
 	int i;
-	FILE *f;
-	char def[80];
-	char strparm[100];
-    epi::string_c newstr;
-	int parm;
-	bool isstring;
 
 	// set everything to base values
 	int numdefaults = sizeof(defaults) / sizeof(defaults[0]);
+
 	for (i = 0; i < numdefaults; i++)
 		SetToBaseValue(defaults + i);
 
 	I_Printf("M_LoadDefaults from %s\n", cfgfile.GetString());
 
 	// read the file in, overriding any set defaults
-	f = fopen(cfgfile, "r");
-	if (f)
-	{
-		while (!feof(f))
-		{
-			isstring = false;
-			if (fscanf(f, "%79s %[^\n]\n", def, strparm) != 2)
-				continue;
+	FILE *f = fopen(cfgfile, "r");
 
-			if (strparm[0] == '"')
-			{
-				// get a string default
-				isstring = true;
-				// overwrite the last "
-				strparm[strlen(strparm) - 1] = 0;
-				// skip the first "
-				newstr.Set(strparm + 1);
-			}
-			else if (strparm[0] == '0' && strparm[1] == 'x')
-				sscanf(strparm + 2, "%x", &parm);
-			else
-				sscanf(strparm, "%i", &parm);
-
-			// -AJA- 2004/01/10: this doesn't fit in yet...
-			if (strcmp(def, "language") == 0)
-			{
-				if (!isstring)
-					continue;  // FIXME: show warning
-				
-				config_language.Set(newstr.GetString());
-				continue;
-			}
-
-			for (i = 0; i < numdefaults; i++)
-			{
-				if (0 == strcmp(def, defaults[i].name))
-				{
-					if (defaults[i].type == CFGT_Boolean)
-					{
-						*(bool*)defaults[i].location = parm?true:false;
-					}
-					else /* CFGT_Int and CFGT_Key */
-					{
-						*(int*)defaults[i].location = parm;
-					}
-					break;
-				}
-				else if (def[0] == 'o')
-				{
-					if (0 == strcmp(def + 1, defaults[i].name))
-						if (memcmp(defaults[i].name, "key_", 4) == 0)
-							*(int*)defaults[i].location |= parm << 16;
-				}
-			}
-		}
-
-		fclose(f);
-	}
-	else
+	if (! f)
 	{
 		I_Warning("Couldn't open config file %s for reading.\n", cfgfile.GetString());
 		I_Warning("Resetting config to RECOMMENDED values...\n");
 
 		M_ResetToDefaults(0);
+		return;
 	}
 
-	return true;
+	while (!feof(f))
+	{
+		char def[80];
+		char strparm[100];
+
+		int parm;
+
+		epi::string_c newstr;
+		bool isstring = false;
+
+		if (fscanf(f, "%79s %[^\n]\n", def, strparm) != 2)
+			continue;
+
+		if (strparm[0] == '"')
+		{
+			// get a string default
+			isstring = true;
+			// overwrite the last "
+			strparm[strlen(strparm) - 1] = 0;
+			// skip the first "
+			newstr.Set(strparm + 1);
+		}
+		else if (strparm[0] == '0' && strparm[1] == 'x')
+			sscanf(strparm + 2, "%x", &parm);
+		else
+			sscanf(strparm, "%i", &parm);
+
+		// -AJA- 2004/01/10: this doesn't fit in yet...
+		if (strcmp(def, "language") == 0)
+		{
+			if (!isstring)
+				continue;  // FIXME: show warning
+			
+			config_language.Set(newstr.GetString());
+			continue;
+		}
+
+		for (i = 0; i < numdefaults; i++)
+		{
+			if (0 == strcmp(def, defaults[i].name))
+			{
+				if (defaults[i].type == CFGT_Boolean)
+				{
+					*(bool*)defaults[i].location = parm?true:false;
+				}
+				else /* CFGT_Int and CFGT_Key */
+				{
+					*(int*)defaults[i].location = parm;
+				}
+				break;
+			}
+			else if (def[0] == 'o')
+			{
+				if (0 == strcmp(def + 1, defaults[i].name))
+					if (memcmp(defaults[i].name, "key_", 4) == 0)
+						*(int*)defaults[i].location |= parm << 16;
+			}
+		}
+	}
+
+	fclose(f);
+
+	return ;
 }
 
 //
