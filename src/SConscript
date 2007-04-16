@@ -20,7 +20,7 @@ if 1: # not build_info['release']:
 
 sources_1 = [
     'i_main.cc',
-    'i_cd.cc',  'i_ctrl.cc', 'i_video.cc',
+    'i_ctrl.cc', 'i_video.cc',
     'i_sound.cc',
     'con_con.cc', 'con_cvar.cc', 'con_main.cc', 'ddf_anim.cc',
     'ddf_atk.cc', 'ddf_boom.cc', 'ddf_colm.cc', 'ddf_font.cc', 
@@ -69,7 +69,7 @@ if build_info['platform'] == "win32":
         'w32_net.cc', 'w32_system.cc']
 
 else: # linux
-    sources_3 = ['unx_compen.cc', 'unx_music.cc', 
+    sources_3 = ['i_cd.cc', 'unx_compen.cc', 'unx_music.cc', 
         'unx_net.cc', 'unx_system.cc']
 
 # another HACK (stupid linker!)
