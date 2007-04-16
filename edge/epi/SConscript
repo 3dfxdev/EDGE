@@ -14,7 +14,8 @@ env.Append(CCFLAGS = ['-ffast-math'])
 
 epi_sources = [
     'arrays.cc', 'asserts.cc', 'basicimage.cc',
-    'bytearray.cc', 'errors.cc', 'filesystem.cc',
+    'bytearray.cc', 'errors.cc',
+    'exe_path.cc', 'filesystem.cc',
     'image_hq2x.cc', 'image_jpeg.cc', 'image_png.cc',
     'math_angle.cc', 'math_bbox.cc', 'math_colour.cc',
     'math_crc.cc', 'math_md5.cc', 'math_point.cc', 'math_vector.cc',
