@@ -1815,18 +1815,22 @@ extern void M_NetJoinBegun(void);
 
 static void M_HostNetGame(int keypressed)
 {
+#if 0  // TODO !!
 	option_menuon  = 0;
 	netgame_menuon = 1;
 
 	M_NetHostBegun();
+#endif
 }
 
 static void M_JoinNetGame(int keypressed)
 {
+#if 0  // TODO !!
 	option_menuon  = 0;
 	netgame_menuon = 2;
 
 	M_NetJoinBegun();
+#endif
 }
 
 
