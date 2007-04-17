@@ -320,7 +320,7 @@ static void SetGlobalVars(void)
 	{
 		SCREENBITS = atoi(s);
 
-		if (SCREENBITS < 4) // backwards compat
+		if (SCREENBITS <= 4) // backwards compat
 			SCREENBITS *= 8;
 	}
 

@@ -105,7 +105,6 @@ void R_AddResolution(scrmode_c *mode)
 {
     scrmode_c *exist = R_FindResolution(mode->width, mode->height,
 							mode->depth, mode->full);
-
 	if (exist)
 	{
 		if (mode->depth != exist->depth)
@@ -266,12 +265,16 @@ struct Compare_Res_pred
 	{
 		if (A->full != B->full)
 		{
-			return (FULLSCREEN == A->full);
+			return FULLSCREEN ? (A->full > B->full) : (A->full < B->full);
 		}
 
 		if (! R_DepthIsEquivalent(A->depth, B->depth))
 		{
-			return R_DepthIsEquivalent(SCREENBITS, A->depth);
+			int a_equiv = (A->depth < 20) ? 16 : 32;
+			int b_equiv = (B->depth < 20) ? 16 : 32;
+
+			return R_DepthIsEquivalent(SCREENBITS, 16) ?
+				(a_equiv < b_equiv) : (a_equiv > b_equiv);
 		}
 
 		if (A->width != B->width)
