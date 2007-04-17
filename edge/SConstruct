@@ -135,7 +135,9 @@ SConscript('glbsp/SConscript.edge')
 SConscript('lzo/SConscript')
 # SConscript('humidity/SConscript.edge')
 
-env.Program('gledge', ['main.cc'])
+env.Append(LINKFLAGS = ['-Wl,--warn-common'])
+
+env.Program('gledge32', ['main.cc'])
 
 ##--- editor settings ---
 ## vi:ts=4:sw=4:expandtab
