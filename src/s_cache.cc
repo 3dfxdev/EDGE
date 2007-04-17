@@ -114,9 +114,11 @@ static void Load_DOOM(fx_data_c *buf, const byte *lump, int length)
 {
 	buf->freq = lump[2] + (lump[3] << 8);
 
-	// FIXME: replace with warning and limiting freq
-	if (buf->freq < 8000 || buf->freq >= 44100)
-		I_Error("Sound Load: weird frequency: %d Hz\n", buf->freq);
+	if (buf->freq < 8000 || buf->freq > 44100)
+		I_Warning("Sound Load: weird frequency: %d Hz\n", buf->freq);
+
+	if (buf->freq < 8000)
+		buf->freq = 8000;
 
 	length -= 8;
 
@@ -150,12 +152,11 @@ void S_CacheInit(void)
 	// nothing to do
 }
 
-static void S_FlushData(fx_data_c *fx)
+void S_FlushData(fx_data_c *fx)
 {
 	SYS_ASSERT(fx->ref_count == 0);
 
 	fx->Free();
-
 }
 
 void S_CacheClearAll(void)
