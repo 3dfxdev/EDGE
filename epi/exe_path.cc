@@ -58,7 +58,8 @@ const char *GetExecutablePath(const char *argv0)
   {
     if (access(dir, 0) == 0)  // sanity check
     {
-      return path::GetDir(dir).GetString();
+      string_c *copy = new string_c(path::GetDir(dir));
+      return copy->GetString();
     }
   }
 
@@ -77,7 +78,8 @@ const char *GetExecutablePath(const char *argv0)
 
     if (access(dir, 0) == 0)  // sanity check
     {
-      return path::GetDir(dir).GetString();
+      string_c *copy = new string_c(path::GetDir(dir));
+      return copy->GetString();
     }
   }
 
@@ -104,7 +106,8 @@ const char *GetExecutablePath(const char *argv0)
   if (0 == _NSGetExecutablePath(dir, &pathlen))
   {
     // FIXME: will this be _inside_ the .app folder???
-    return path::GetDir(dir).GetString();
+    string_c *copy = new string_c(path::GetDir(dir));
+    return copy->GetString();
   }
 
   // didn't work, free the memory
@@ -117,7 +120,8 @@ const char *GetExecutablePath(const char *argv0)
   // FIXME: check if _inside_ the .app folder
 #endif
   
-  return path::GetDir(argv0).GetString();
+  string_c *copy = new string_c(path::GetDir(argv0));
+  return copy->GetString();
 }
 
 };  // namespace epi
