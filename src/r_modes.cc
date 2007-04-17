@@ -121,12 +121,10 @@ void R_AddResolution(scrmode_c *mode)
 	screen_modes.push_back(new scrmode_c(*mode));
 }
 
-//
-// V_DumpResList
-//
-void V_DumpResList()
+
+void R_DumpResList(void)
 {
-    I_Printf("Resolution List:\n");
+    I_Printf("Available Resolutions:\n");
 
 	for (int i = 0; i < (int)screen_modes.size(); i++)
 	{

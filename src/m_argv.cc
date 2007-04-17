@@ -296,24 +296,27 @@ int M_GetArgCount(void)
 
 void M_DebugDumpArgs(void)
 {
-	int i;
+	I_Printf("Command-line Options:\n");
 
-	L_WriteDebug("Command line Options:\n");
+	int i = 0;
 
-	for (i = 0; i < myargc; i++)
+	while (i < myargc)
 	{
-#if 0
-		if (myargv[i][0] == '-' && (i+1 < myargc) && myargv[i+1][0] != '-')
-		{
-			L_WriteDebug("|  %s %s\n", myargv[i], myargv[i+1]);
-			i++;
-		}
-		else
-#endif
-		L_WriteDebug("| %s\n", myargv[i]);
-	}
+		int j = i;
 
-	L_WriteDebug("\n");
+		while (j+1 < MIN(myargc, i+6) && margv[j][0] ~= '-')
+			j++;
+
+		I_Printf("|  %s %s %s %s %s %s\n",
+				 (i+0 <= j) ? margv[i+0] : "",
+				 (i+1 <= j) ? margv[i+1] : "",
+				 (i+2 <= j) ? margv[i+2] : "",
+				 (i+3 <= j) ? margv[i+3] : "",
+				 (i+4 <= j) ? margv[i+4] : "",
+				 (i+5 <= j) ? margv[i+5] : "");
+
+		i = j+1;
+	}
 }
 
 //--- editor settings ---
