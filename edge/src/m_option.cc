@@ -1726,11 +1726,11 @@ static void M_ChangeResSize(int keypressed)
 {
 	if (keypressed == KEYD_LEFTARROW)
 	{
-		R_IncrementResolution(&new_scrmode, RESF_Size, -1);
+		R_IncrementResolution(&new_scrmode, RESINC_Size, -1);
 	}
 	else if (keypressed == KEYD_RIGHTARROW)
 	{
-		R_IncrementResolution(&new_scrmode, RESF_Size, +1);
+		R_IncrementResolution(&new_scrmode, RESINC_Size, +1);
 	}
 }
 
@@ -1743,11 +1743,11 @@ static void M_ChangeResDepth(int keypressed)
 {
 	if (keypressed == KEYD_LEFTARROW)
 	{
-		R_IncrementResolution(&new_scrmode, RESF_Depth, -1);
+		R_IncrementResolution(&new_scrmode, RESINC_Depth, -1);
 	}
 	else if (keypressed == KEYD_RIGHTARROW)
 	{
-		R_IncrementResolution(&new_scrmode, RESF_Depth, +1);
+		R_IncrementResolution(&new_scrmode, RESINC_Depth, +1);
 	}
 }
 
@@ -1760,11 +1760,11 @@ static void M_ChangeResFull(int keypressed)
 {
 	if (keypressed == KEYD_LEFTARROW)
 	{
-		R_IncrementResolution(&new_scrmode, RESF_Full, +1);
+		R_IncrementResolution(&new_scrmode, RESINC_Full, +1);
 	}
 	else if (keypressed == KEYD_RIGHTARROW)
 	{
-		R_IncrementResolution(&new_scrmode, RESF_Full, +1);
+		R_IncrementResolution(&new_scrmode, RESINC_Full, +1);
 	}
 }
 
