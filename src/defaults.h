@@ -50,8 +50,8 @@
 #define CFGDEF_KEY_MAP          (KEYD_TAB)
 #define CFGDEF_KEY_180          (0)
 #define CFGDEF_KEY_RELOAD       ('r')
-#define CFGDEF_KEY_NEXTWEAPON   (KEYD_MWHEEL_DN)
-#define CFGDEF_KEY_PREVWEAPON   (KEYD_MWHEEL_UP)
+#define CFGDEF_KEY_NEXTWEAPON   (KEYD_MWHEEL_UP)
+#define CFGDEF_KEY_PREVWEAPON   (KEYD_MWHEEL_DN)
 #define CFGDEF_KEY_TALK         ('t')
 
 // Controls (Analogue)
