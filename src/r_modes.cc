@@ -130,10 +130,15 @@ void R_DumpResList(void)
 	{
 		scrmode_c *cur = screen_modes[i];
 
-        I_Printf("  %dx%d %2dbpp - %s\n", 
+		if (i > 0 && (i % 3) == 0)
+			I_Printf("\n");
+
+        I_Printf("  %4dx%4d @ %02d %s", 
                  cur->width, cur->height, cur->depth,
-                 cur->full ? "Fullscreen" : "Windowed");
+                 cur->full ? "FS " : "win");
 	}
+
+	I_Printf("\n");
 }
 
 bool R_IncrementResolution(scrmode_c *mode, int what, int dir)
