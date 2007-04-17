@@ -193,8 +193,9 @@ void I_StartupGraphics(void)
 
 bool I_SetScreenSize(scrmode_c *mode)
 {
-	I_Printf("I_SetScreenSize: trying %dx%d %dbpp\n",
-			 mode->width, mode->height, mode->depth);
+	I_Printf("I_SetScreenSize: trying %dx%d %dbpp (%s)\n",
+			 mode->width, mode->height, mode->depth,
+			 mode->full ? "fullscreen" : "windowed");
 
 	my_vis = SDL_SetVideoMode(mode->width, mode->height, mode->depth, 
 					SDL_OPENGL | SDL_DOUBLEBUF |
