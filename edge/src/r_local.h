@@ -46,7 +46,6 @@
 #include "r_main.h"
 #include "r_bsp.h"
 #include "r_things.h"
-#include "v_res.h"
 
 #endif // __R_LOCAL__
 

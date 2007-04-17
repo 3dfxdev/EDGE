@@ -95,7 +95,7 @@
 #include "s_sound.h"
 #include "s_music.h"
 #include "v_ctx.h"
-#include "v_res.h"
+#include "r_modes.h"
 #include "v_colour.h"
 #include "r_image.h"
 #include "w_wad.h"

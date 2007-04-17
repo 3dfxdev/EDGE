@@ -37,7 +37,7 @@
 #include "st_lib.h"
 #include "v_colour.h"
 #include "v_ctx.h"
-#include "v_res.h"
+#include "r_modes.h"
 #include "w_wad.h"
 
 #include <math.h>

@@ -35,7 +35,7 @@
 #include "r_defs.h"
 #include "r_state.h"
 #include "r_main.h"
-#include "v_res.h"
+#include "r_modes.h"
 
 #include "r2_defs.h"
 

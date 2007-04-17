@@ -21,7 +21,7 @@
 
 #include "m_argv.h"
 #include "m_misc.h"
-#include "v_res.h"
+#include "r_modes.h"
 
 #include <signal.h>
 

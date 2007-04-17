@@ -25,7 +25,7 @@
 #include "con_gui.h"
 #include "con_main.h"
 #include "con_cvar.h"
-#include "v_res.h"
+#include "r_modes.h"
 #include "w_wad.h"
 #include "z_zone.h"
 

@@ -29,7 +29,7 @@
 #include "p_spec.h"
 #include "r_defs.h"
 #include "s_sound.h"
-#include "v_res.h"
+#include "r_modes.h"
 #include "w_wad.h"
 #include "z_zone.h"
 #include "version.h"

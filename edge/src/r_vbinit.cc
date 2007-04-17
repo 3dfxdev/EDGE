@@ -36,7 +36,7 @@
 #include "r_state.h"
 #include "r_view.h"
 #include "v_colour.h"
-#include "v_res.h"
+#include "r_modes.h"
 #include "z_zone.h"
 
 /***** Camera routines *****/

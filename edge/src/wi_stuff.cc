@@ -40,7 +40,7 @@
 #include "r_main.h"
 #include "r_view.h"
 #include "v_ctx.h"
-#include "v_res.h"
+#include "r_modes.h"
 
 #include "epi/strings.h"
 

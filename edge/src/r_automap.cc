@@ -41,7 +41,7 @@
 #include "st_stuff.h"
 #include "v_ctx.h"
 #include "v_colour.h"
-#include "v_res.h"
+#include "r_modes.h"
 
 #include <stdio.h>
 #include <float.h>

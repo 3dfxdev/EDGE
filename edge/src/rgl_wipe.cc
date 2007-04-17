@@ -30,7 +30,7 @@
 #include "rgl_defs.h"
 #include "rgl_wipe.h"
 #include "r_image.h"
-#include "v_res.h"
+#include "r_modes.h"
 #include "z_zone.h"
 
 #include <math.h>

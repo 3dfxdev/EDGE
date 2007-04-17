@@ -43,6 +43,7 @@
 #include "rad_trig.h"
 #include "r_sky.h"
 #include "r_view.h"
+#include "r_modes.h"
 #include "s_sound.h"
 #include "s_music.h"
 #include "st_stuff.h"
