@@ -302,20 +302,14 @@ void M_DebugDumpArgs(void)
 
 	while (i < myargc)
 	{
-		int j = i+1;
+		bool pair_it_up = false;
 
-		while (j < MIN(myargc, i+6) && myargv[j][0] != '-')
-			j++;
+		if (i > 0 && i+1 < myargc && myargv[i+1][0] != '-')
+			pair_it_up = true;
 
-		I_Printf("|  %s %s %s %s %s %s\n",
-				 (i+0 < j) ? myargv[i+0] : "",
-				 (i+1 < j) ? myargv[i+1] : "",
-				 (i+2 < j) ? myargv[i+2] : "",
-				 (i+3 < j) ? myargv[i+3] : "",
-				 (i+4 < j) ? myargv[i+4] : "",
-				 (i+5 < j) ? myargv[i+5] : "");
+		I_Printf("| %s %s\n", myargv[i], pair_it_up ? myargv[i+1] : "");
 
-		i = j;
+		i += pair_it_up ? 2 : 1;
 	}
 }
 
