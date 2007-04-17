@@ -46,9 +46,6 @@
 extern FILE* debugfile;
 extern FILE* logfile;
 
-// has system been setup?
-bool systemup = false;
-
 // output string buffer
 #define MSGBUFSIZE 4096
 static char msgbuf[MSGBUFSIZE];
@@ -106,8 +103,6 @@ void I_CheckAlreadyRunning(void)
 //
 void I_SystemStartup(void)
 {
-	systemup = true;
-
 	I_StartupNetwork();
 	I_StartupGraphics(); // SDL requires this to be called first
 	I_StartupControl();
@@ -323,12 +318,7 @@ bool I_GetModifiedTime(const char *filename, epi::timestamp_c *t)
 //
 void I_SystemShutdown(void)
 {
-	if (!systemup)
-		return;
-
-	systemup = false;
-
-	// makre sure audio is unlocked (e.g. I_Error occurred)
+	// make sure audio is unlocked (e.g. I_Error occurred)
 	I_UnlockAudio();
 
 	I_ShutdownMusic();
