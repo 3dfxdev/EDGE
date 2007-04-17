@@ -44,7 +44,7 @@
 #include "s_sound.h"
 #include "v_colour.h"
 #include "v_ctx.h"
-#include "v_res.h"
+#include "r_modes.h"
 #include "r_image.h"
 #include "wp_main.h"
 

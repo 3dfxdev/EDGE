@@ -22,7 +22,7 @@
 #include "m_misc.h"
 #include "r_main.h"
 #include "v_colour.h"
-#include "v_res.h"
+#include "r_modes.h"
 
 #define DEBUG  0
 

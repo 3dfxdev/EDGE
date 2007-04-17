@@ -53,7 +53,7 @@
 #include "s_sound.h"
 #include "v_colour.h"
 #include "v_ctx.h"
-#include "v_res.h"
+#include "r_modes.h"
 #include "w_wad.h"
 #include "z_zone.h"
 

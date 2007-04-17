@@ -31,7 +31,7 @@
 #include "hu_stuff.h"
 #include "hu_style.h"
 #include "m_argv.h"
-#include "v_res.h"
+#include "r_modes.h"
 #include "wp_main.h"
 #include "z_zone.h"
 

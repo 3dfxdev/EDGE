@@ -56,7 +56,7 @@
 #include "sv_chunk.h"
 #include "sv_main.h"
 #include "v_ctx.h"
-#include "v_res.h"
+#include "r_modes.h"
 #include "v_colour.h"
 #include "w_wad.h"
 #include "wi_stuff.h"

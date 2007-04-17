@@ -25,7 +25,7 @@
 #include "rgl_sky.h"
 #include "rgl_unit.h"
 #include "v_colour.h"
-#include "v_res.h"
+#include "r_modes.h"
 #include "r_image_gl.h"
 
 #include <math.h>

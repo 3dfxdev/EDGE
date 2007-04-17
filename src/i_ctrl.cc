@@ -22,7 +22,7 @@
 #include "e_main.h"
 #include "e_event.h"
 #include "m_argv.h"
-#include "v_res.h"
+#include "r_modes.h"
 
 
 #undef DEBUG_KB

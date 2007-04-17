@@ -36,7 +36,7 @@
 #include "r_local.h"
 #include "v_colour.h"
 #include "v_ctx.h"
-#include "v_res.h"
+#include "r_modes.h"
 
 #define DUMMY_WIDTH(font)  (4)
 
