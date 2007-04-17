@@ -98,39 +98,6 @@ void I_CheckAlreadyRunning(void)
 	}
 }
 
-void I_ChangeToExeDir(const char *argv0)
-{
-#if 1
-	argv0 = _pgmptr;
-
-#elif 1
-  // alternate method: assume argv0 is OK
-
-#else
-  // yet another way...
-
-  char path[MAX_PATH];
-
-  DWORD path_len = GetModuleFileName(NULL, path, MAX_PATH);
-  
-  if (path_len <= 0 && path_len >= MAX_PATH)
-    return; // FAILED
-
-  argv0 = path;
-#endif
-
-	const char *r = strrchr(argv0, '/');
-
-	if (r == NULL || r == argv0)
-		return;
-
-	int length = (r - argv0) + 1;
-
-	epi::string_c str;
-	str.AddChars(argv0, 0, length);
-
-	chdir(str.GetString());
-}
 
 //
 // I_SystemStartup
