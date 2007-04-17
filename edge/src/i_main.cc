@@ -32,6 +32,9 @@
 #include "e_main.h"
 
 #include "epi/strings.h"
+#include "epi/exe_path.h"
+
+const char *exe_path;
 
 extern "C" {
 
@@ -52,11 +55,14 @@ int I_Main(int argc, char *argv[])
 
     I_CheckAlreadyRunning();
 
+    // -AJA- change current dir to match executable
+	exe_path = epi::GetExecutablePath(argv[0]);
+
+#ifdef WIN32
+    ::SetCurrentDirectory(exe_path);
+#else
     // -ACB- 2005/11/26 We don't do on LINUX since we assume the 
     //                  executable is globally installed
-#ifndef LINUX
-    // -AJA- change current dir to match executable
-    I_ChangeToExeDir(argv[0]);
 #endif
 
 	// Run EDGE. it never returns

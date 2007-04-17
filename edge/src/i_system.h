@@ -40,10 +40,10 @@
 
 // -ACB- 1999/09/20 Removed system specific attribs.
 
+extern const char *exe_path;
+
 void I_SetupSignalHandlers(bool allow_coredump);
 void I_CheckAlreadyRunning(void);
-
-void I_ChangeToExeDir(const char *full_path);
 
 void I_SystemStartup(void);
 // This routine is responsible for getting things off the ground, in
