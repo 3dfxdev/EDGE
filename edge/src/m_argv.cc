@@ -307,7 +307,7 @@ void M_DebugDumpArgs(void)
 		if (i > 0 && i+1 < myargc && myargv[i+1][0] != '-')
 			pair_it_up = true;
 
-		I_Printf("| %s %s\n", myargv[i], pair_it_up ? myargv[i+1] : "");
+		I_Printf("  %s %s\n", myargv[i], pair_it_up ? myargv[i+1] : "");
 
 		i += pair_it_up ? 2 : 1;
 	}
