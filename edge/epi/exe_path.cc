@@ -16,53 +16,73 @@
 //
 //------------------------------------------------------------------------
 
+#include "epi.h"
 #include "exe_path.h"
+#include "path.h"
 
-#include <string.h>
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <io.h>      // access()
+#else
+#include <unistd.h>  // access(), readlink()
+#endif
+
+#ifdef MACOSX
+#include <sys/param.h>
+#include <mach-o/dyld.h> // _NSGetExecutablePath
+#endif
+
+#include <limits.h>  // PATH_MAX
+
+#ifndef PATH_MAX
+#define PATH_MAX  2048
+#endif
 
 namespace epi
 {
 
 const char *GetExecutablePath(const char *argv0)
 {
-  char *path;
+  // NOTE: there are a few memory leaks here.  Because this
+  //       function is only called once, I don't care.
+
+  char *dir;
 
 #ifdef WIN32
-  path = StringNew(PATH_MAX+2);
+  dir = new char[PATH_MAX+2];
 
-  int length = GetModuleFileName(GetModuleHandle(NULL), path, PATH_MAX);
+  int length = GetModuleFileName(GetModuleHandle(NULL), dir, PATH_MAX);
 
   if (length > 0 && length < PATH_MAX)
   {
-    if (access(path, 0) == 0)  // sanity check
+    if (access(dir, 0) == 0)  // sanity check
     {
-      FilenameStripBase(path);
-      return path;
+      return path::GetDir(dir).GetString();
     }
   }
 
   // didn't work, free the memory
-  StringFree(path);
+  delete[] dir;
 #endif
 
 #ifdef LINUX
-  path = StringNew(PATH_MAX+2);
+  dir = new char[PATH_MAX+2];
 
-  int length = readlink("/proc/self/exe", path, PATH_MAX);
+  int length = readlink("/proc/self/exe", dir, PATH_MAX);
 
   if (length > 0)
   {
-    path[length] = 0; // add the missing NUL
+    dir[length] = 0; // add the missing NUL
 
-    if (access(path, 0) == 0)  // sanity check
+    if (access(dir, 0) == 0)  // sanity check
     {
-      FilenameStripBase(path);
-      return path;
+      return path::GetDir(dir).GetString();
     }
   }
 
   // didn't work, free the memory
-  StringFree(path);
+  delete[] dir;
 #endif
 
 #ifdef MACOSX
@@ -79,28 +99,25 @@ const char *GetExecutablePath(const char *argv0)
 */
   int pathlen = PATH_MAX * 2;
 
-  path = StringNew(pathlen+2);
+  dir = new char [pathlen+2];
 
-  if (0 == _NSGetExecutablePath(path, &pathlen))
+  if (0 == _NSGetExecutablePath(dir, &pathlen))
   {
     // FIXME: will this be _inside_ the .app folder???
-    FilenameStripBase(path);
-    return path;
+    return path::GetDir(dir).GetString();
   }
-  
+
   // didn't work, free the memory
-  StringFree(path);
+  delete[] dir;
 #endif
 
   // fallback method: use argv[0]
-  path = StringDup(argv0);
 
 #ifdef MACOSX
   // FIXME: check if _inside_ the .app folder
 #endif
   
-  FilenameStripBase(path);
-  return path;
+  return path::GetDir(argv0).GetString();
 }
 
 };  // namespace epi
