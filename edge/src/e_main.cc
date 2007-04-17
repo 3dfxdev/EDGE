@@ -69,7 +69,7 @@
 #include "sv_main.h"
 #include "v_colour.h"
 #include "v_ctx.h"
-#include "v_res.h"
+#include "r_modes.h"
 #include "r_image.h"
 #include "w_textur.h"
 #include "w_wad.h"
@@ -551,8 +551,6 @@ static void ShowNotice(void)
 
 }
 
-//!!!!!
-extern void V_DumpResList();
 
 static void DoSystemStartup(void)
 {
@@ -566,18 +564,8 @@ static void DoSystemStartup(void)
 	I_SystemStartup();
 
 	// -ES- 1998/09/11 Use R_ChangeResolution to enter gfx mode
-V_DumpResList();
 
-///---L_WriteDebug("- Finding nearest mode........\n");
-///---	int idx = scrmodelist.FindNearest(SCREENWIDTH, 
-///---                                      SCREENHEIGHT, 
-///---                                      SCREENBITS, 
-///---                                      FULLSCREEN);
-///---
-///---	if (idx < 0)
-///---        I_Error("DoSystemStartup: No available resolutions!"); // Must be valid
-///---
-///---	L_WriteDebug("- Found nearest: idx=%d\n", idx);
+	R_DumpResList();
 
 	// -KM- 1998/09/27 Change res now, so music doesn't start before
 	// screen.  Reset clock too.
@@ -1310,8 +1298,7 @@ static void ShowDateAndVersion(void)
 
 	I_Printf("Executable path: '%s'\n", exe_path);
 
-	if (debugfile)
-		M_DebugDumpArgs();
+	M_DebugDumpArgs();
 }
 
 static void SetupLogAndDebugFiles(void)

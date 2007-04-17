@@ -113,6 +113,7 @@ extern bool FULLSCREEN;
 bool R_DepthIsEquivalent(int depth1, int depth2);
 
 void R_AddResolution(scrmode_c *mode);
+void R_DumpResList(void);
 scrmode_c *R_FindResolution(int w, int h, int depth, bool full);
 
 typedef enum
