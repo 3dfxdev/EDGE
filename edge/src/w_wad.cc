@@ -56,6 +56,7 @@
 #include "epi/endianess.h"
 #include "epi/files.h"
 #include "epi/filesystem.h"
+#include "epi/math_md5.h"
 #include "epi/path.h"
 #include "epi/strings.h"
 #include "epi/utility.h"
@@ -141,13 +142,17 @@ public:
 	// temporarily before a new GWA files has been built and added).
 	int companion_gwa;
 
+	// MD5 hash of the contents of the WAD directory.
+	// This is used to disambiguate cached GWA/HWA filenames.
+	epi::md5hash_c dir_hash;
+
 public:
 	data_file_c(const char *_fname, int _kind, epi::file_c* _file) :
 		file_name(_fname), kind(_kind), file(_file),
 		sprite_lumps(), flat_lumps(), patch_lumps(),
 		colmap_lumps(), level_markers(), skin_markers(),
 		wadtex(), deh_lump(-1), animated(-1), switches(-1),
-		companion_gwa(-1)
+		companion_gwa(-1), dir_hash()
 	{
 		for (int d = 0; d < NUM_DDF_READERS; d++)
 			ddf_lumps[d] = -1;
@@ -866,6 +871,76 @@ static bool HasInternalGLNodes(data_file_c *df, int datafile)
 	return levels == glnodes;
 }
 
+static bool FindCacheFilename (epi::string_c& out_name,
+		const char *filename, data_file_c *df,
+		const char *extension)
+{
+	epi::string_c wad_dir;
+	epi::string_c hash_string;
+	epi::string_c local_name;
+	epi::string_c cache_name;
+
+	// Get the directory which the wad is currently stored
+	wad_dir = epi::path::GetDir(filename);
+
+	// Hash string used for files in the cache directory
+	hash_string.Format("-%02X%02X%02X-%02X%02X%02X",
+		df->dir_hash.hash[0], df->dir_hash.hash[1],
+		df->dir_hash.hash[2], df->dir_hash.hash[3],
+		df->dir_hash.hash[4], df->dir_hash.hash[5]);
+
+	// Determine the full path filename for "local" (same-directory) version
+	local_name = epi::path::GetBasename(filename);
+	local_name.AddString(".");
+	local_name.AddString(extension);
+
+	local_name = epi::path::Join(wad_dir.GetString(), local_name.GetString());
+
+	// Determine the full path filename for the cached version
+	cache_name = epi::path::GetBasename(filename);
+	cache_name.AddString(".");
+	cache_name.AddString(extension);
+
+	cache_name = epi::path::Join(cache_dir.GetString(), cache_name.GetString());
+
+	L_WriteDebug("FindCacheFilename: local_name = '%s'\n", local_name.GetString());
+	L_WriteDebug("FindCacheFilename: cache_name = '%s'\n", cache_name.GetString());
+	
+	// Check for the existance of the local and cached dir files
+	bool has_local = epi::the_filesystem->Access(local_name.GetString(), epi::file_c::ACCESS_READ);
+	bool has_cache = epi::the_filesystem->Access(cache_name.GetString(), epi::file_c::ACCESS_READ);
+
+	// If both exist, use the local one.
+	// If neither exist, create one in the cache directory.
+
+	// Check whether the waddir gwa is out of date
+	if (has_local) 
+		has_local = (L_CompareFileTimes(filename, local_name.GetString()) <= 0);
+
+	// Check whether the cached gwa is out of date
+	if (has_cache) 
+		has_cache = (L_CompareFileTimes(filename, cache_name.GetString()) <= 0);
+
+	L_WriteDebug("FindCacheFilename: has_local=%s  has_cache=%s\n",
+		has_local ? "YES" : "NO", has_cache ? "YES" : "NO");
+
+
+	if (has_local)
+	{
+		out_name = local_name;
+		return true;
+	}
+	else if (has_cache)
+	{
+		out_name = cache_name;
+		return true;
+	}
+
+	// Neither is valid so create one in the cached directory
+	out_name = cache_name;
+	return false;
+}
+
 //
 // AddFile
 //
@@ -935,6 +1010,14 @@ static void AddFile(const char *filename, int kind, int dyn_index)
         file->Seek(header.dir_start, epi::file_c::SEEKPOINT_START);
         file->Read(fileinfo, length);
 
+		df->dir_hash.Compute((const byte *)fileinfo, length);
+
+		L_WriteDebug("    md5hash = %02x%02x%02x%02x-%02x%02x%02x%02x (etc)\n",
+				df->dir_hash.hash[0], df->dir_hash.hash[1],
+				df->dir_hash.hash[2], df->dir_hash.hash[3],
+				df->dir_hash.hash[4], df->dir_hash.hash[5],
+				df->dir_hash.hash[6], df->dir_hash.hash[7]);
+
 		// Fill in lumpinfo
 		numlumps += header.num_entries;
 		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
@@ -974,6 +1057,8 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
             strcpy(lump_name, s);
         }
+
+		// FIXME!!! load file, dir_hash.Compute(), free data
 
 		// Fill in lumpinfo
 		numlumps++;
@@ -1019,64 +1104,23 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		{
 			SYS_ASSERT(dyn_index < 0);
 
-            epi::string_c cached_gwa_filename;
-            epi::string_c gwa_filename;
-            epi::string_c wad_dir;
-            
-            // Get the directory which the wad is currently stored
-            wad_dir = epi::path::GetDir(filename);
-            
-            // Initially work out the name of the GWA file
-            gwa_filename = epi::path::GetBasename(filename);
-            gwa_filename.AddString("." EDGEGWAEXT);
-            
-            // Determine the full path filename for the cached and current directory versions
-            cached_gwa_filename = epi::path::Join(cache_dir.GetString(), gwa_filename.GetString());
-            gwa_filename = epi::path::Join(wad_dir.GetString(), gwa_filename.GetString());
+			epi::string_c gwa_filename;
 
-            // Check for the existance of the waddir and cached dir files
-            bool cached_gwa = epi::the_filesystem->Access(cached_gwa_filename.GetString(), epi::file_c::ACCESS_READ);
-            bool waddir_gwa = epi::the_filesystem->Access(gwa_filename.GetString(), epi::file_c::ACCESS_READ);
+			bool exists = FindCacheFilename(gwa_filename, filename, df, EDGEGWAEXT);
 
-            // If both exist, use one in root. if neither exist create
-            // one in the cache directory
- 
-            // Check whether the waddir gwa is out of date
-            if (waddir_gwa) 
-                waddir_gwa = (L_CompareFileTimes(filename, gwa_filename.GetString()) <= 0);
+			L_WriteDebug("Actual_GWA_filename: %s\n", gwa_filename.GetString());
 
-            // Check whether the cached gwa is out of date
-            if (cached_gwa) 
-                cached_gwa = (L_CompareFileTimes(filename, cached_gwa_filename.GetString()) <= 0);
-
-            const char *actual_gwa_filename = NULL;
-            
-            if (cached_gwa)
-            {
-                // The cached directory GWA is valid - use it
-                actual_gwa_filename = cached_gwa_filename.GetString();
-            }
-            else if (waddir_gwa)
-            {
-                // The wad directory GWA is valid - use it
-                actual_gwa_filename = gwa_filename.GetString();
-            }
-			else
-            {
-                // Neither is valid so create one in the cached directory
-                actual_gwa_filename = cached_gwa_filename.GetString();
-
+			if (! exists)
+			{
 				I_Printf("Building GL Nodes for: %s\n", filename);
 
-				if (! GB_BuildNodes(filename, actual_gwa_filename))
+				if (! GB_BuildNodes(filename, gwa_filename.GetString()))
 					I_Error("Failed to build GL nodes for: %s\n", filename);
             }
 
-			L_WriteDebug("Actual_GWA_filename: %s\n", actual_gwa_filename);
-
 			// Load it.  This recursion bit is rather sneaky,
 			// hopefully it doesn't break anything...
-			AddFile(actual_gwa_filename, FLKIND_GWad, datafile);
+			AddFile(gwa_filename.GetString(), FLKIND_GWad, datafile);
 
 			df->companion_gwa = datafile + 1;
 		}
@@ -1085,58 +1129,19 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	// handle DeHackEd patch files
 	if (kind == FLKIND_Deh || df->deh_lump >= 0)
 	{
-        epi::string_c cached_hwa_filename;
-        epi::string_c hwa_filename;
-        epi::string_c wad_dir;
+		epi::string_c hwa_filename;
 
-        // Get the directory which the wad is currently stored
-        wad_dir = epi::path::GetDir(filename);
-            
-        // Initially work out the name of the HWA file
-        hwa_filename = epi::path::GetBasename(filename);
-        hwa_filename.AddString("." EDGEHWAEXT);
-            
-        // Determine the full path filename for the cached and current directory versions
-        cached_hwa_filename = epi::path::Join(cache_dir.GetString(), hwa_filename.GetString());
-        hwa_filename = epi::path::Join(wad_dir.GetString(), hwa_filename.GetString());
+		bool exists = FindCacheFilename(hwa_filename, filename, df, EDGEHWAEXT);
 
-        // Check for the existance of the waddir and cached dir files
-        bool cached_hwa = epi::the_filesystem->Access(cached_hwa_filename.GetString(), epi::file_c::ACCESS_READ);
-        bool waddir_hwa = epi::the_filesystem->Access(hwa_filename.GetString(), epi::file_c::ACCESS_READ);
+		L_WriteDebug("Actual_HWA_filename: %s\n", hwa_filename.GetString());
 
-        // If both exist, use one in root. if neither exist create
-        // one in the cache directory
- 
-        // Check whether the waddir hwa is out of date
-        if (waddir_hwa) 
-            waddir_hwa = (L_CompareFileTimes(filename, hwa_filename.GetString()) <= 0);
-
-        // Check whether the cached hwa is out of date
-        if (cached_hwa) 
-            cached_hwa = (L_CompareFileTimes(filename, cached_hwa_filename.GetString()) <= 0);
-
-        const char *actual_hwa_filename = NULL;
-        
-        if (cached_hwa)
-        {
-            // The cached directory GWA is valid - use it
-            actual_hwa_filename = cached_hwa_filename.GetString();
-        }
-		else if (waddir_hwa)
-        {
-            // The wad directory GWA is valid - use it
-            actual_hwa_filename = hwa_filename.GetString();
-        }
-		else
-        {
-            // Neither is valid so create one in the cached directory
-			actual_hwa_filename = cached_hwa_filename.GetString();
-
+		if (! exists)
+		{
 			if (kind == FLKIND_Deh)
 			{
                 I_Printf("Converting DEH file: %s\n", filename);
 
-				if (! DH_ConvertFile(filename, actual_hwa_filename))
+				if (! DH_ConvertFile(filename, hwa_filename.GetString()))
 					I_Error("Failed to convert DeHackEd patch: %s\n", filename);
 			}
 			else
@@ -1148,17 +1153,15 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 				const byte *data = (const byte *)W_CacheLumpNum(df->deh_lump);
 				int length = W_LumpLength(df->deh_lump);
 
-				if (! DH_ConvertLump(data, length, lump_name, actual_hwa_filename))
+				if (! DH_ConvertLump(data, length, lump_name, hwa_filename.GetString()))
 					I_Error("Failed to convert DeHackEd LUMP in: %s\n", filename);
 
 				W_DoneWithLump(data);
 			}
         }
 
-		L_WriteDebug("Actual_HWA_filename: %s\n", actual_hwa_filename);
-
 		// Load it (using good ol' recursion again).
-		AddFile(actual_hwa_filename, FLKIND_HWad, -1);
+		AddFile(hwa_filename.GetString(), FLKIND_HWad, -1);
 	}
 }
 
