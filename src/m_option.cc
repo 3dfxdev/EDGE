@@ -378,7 +378,7 @@ static optmenuitem_t mainmenu[] =
 	{OPT_Function, "Mouse Options",     NULL,  0, 0, NULL, M_AnalogueOptions, "AnalogueOptions"},
 	{OPT_Function, "Gameplay Options",  NULL,  0, 0, NULL, M_GameplayOptions, "GameplayOptions"},
 	{OPT_Plain,    "",                  NULL,  0, 0, NULL, NULL, NULL},
-	{OPT_Function, "Sound Options",     NULL,  0, 0, NULL, M_SoundOptions, NULL},
+	{OPT_Function, "Sound Options",     NULL,  0, 0, NULL, M_SoundOptions, "SoundOptions"},
 	{OPT_Function, "Video Options",     NULL,  0, 0, NULL, M_VideoOptions, "VideoOptions"},
 	{OPT_Function, "Set Resolution",    NULL,  0, 0, NULL, M_ResolutionOptions, "ChangeRes"},
 
@@ -527,9 +527,9 @@ static optmenuitem_t soundoptions[] =
 	{OPT_Slider,   "Music Volume",  NULL, SND_SLIDER_NUM, CFGDEF_MUSIC_VOLUME, &mus_volume, M_ChangeMusVol, NULL},
 
 	{OPT_Plain,    "", NULL, 0,  0, NULL, NULL, NULL},
-	{OPT_Switch,   "Sample Rate",   SampleRates, 5, CFGDEF_SAMPLE_RATE,  &var_sample_rate,  NULL, NULL},
-	{OPT_Switch,   "Sample Size",   SoundBits, 2,   CFGDEF_SOUND_BITS,   &var_sound_bits,   NULL, NULL},
-	{OPT_Switch,   "Stereo",        StereoNess, 3,  CFGDEF_SOUND_STEREO, &var_sound_stereo, NULL, NULL},
+	{OPT_Switch,   "Sample Rate",   SampleRates, 5, CFGDEF_SAMPLE_RATE,  &var_sample_rate,  NULL, "NeedRestart"},
+	{OPT_Switch,   "Sample Size",   SoundBits, 2,   CFGDEF_SOUND_BITS,   &var_sound_bits,   NULL, "NeedRestart"},
+	{OPT_Switch,   "Stereo",        StereoNess, 3,  CFGDEF_SOUND_STEREO, &var_sound_stereo, NULL, "NeedRestart"},
 
 	{OPT_Plain,    "", NULL, 0,  0, NULL, NULL, NULL},
 	{OPT_Switch,  "Mix Channels",   MixChans,  4, CFGDEF_MIX_CHANNELS, &var_mix_channels, M_ChangeMixChan, NULL},

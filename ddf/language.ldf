@@ -428,15 +428,16 @@ JoystickHATT=    "Move the hat to the %s position and press a key:";
 JoyThrottleMAXT= "Set the throttle to MAXIMUM and press a key:";
 JoyThrottleMINT= "Set the throttle to MINIMUM and press a key:";
 
-ModeSelErrT=      "Unable to Initialise Graphics Mode %d x %d x %dc!";
-ModeSelErr=       "Unable to Initialise\nGraphics Mode %d x %d x %dc!\n\npress a key.";
+ModeSelErrT=      "Unable to Initialise Graphics Mode %d x %d x %dbpp!";
+ModeSelErr=       "Unable to Initialise\nGraphics Mode %d x %d x %dbpp!\n\npress a key.";
 
-	// Menu option text (so menu's can change to other languages)
+// Menu option text (so menu's can change to other languages)
 
 OptStandardControls="Standard Controls";
 OptExtendedControls="Extended Controls";
 OptSetResolution="Set Resolution";
 OptVideoOptions="Video Options";
+OptSoundOptions="Video Options";
 OptGameplayOptions="Gameplay Options";
 OptAnalogueOptions="Analogue Options";
 OptLanguage="Language";
@@ -522,6 +523,7 @@ OptMultiplayTalk="Multiplay Talk";
 Controls="Setup Standard Doom Controls";
 Controls2="Setup Extended EDGE Controls";
 VideoOptions="Setup Translucency, Resolutions, etc...";
+SoundOptions="Setup Volume, Frequency, Stereo, etc...";
 GameplayOptions="Setup Respawn, Gravity, 3D Options etc...";
 AnalogueOptions="Setup mouse and joystick options";
 SwapStereo="Swap the left and right sound channels";
@@ -529,6 +531,7 @@ Messages="Show informational messages";
 CDOptions="CD Audio Config: Off/On/Atmosphere";
 ResetEDGE="Resets all configs to EDGE Extended mode";
 ResetDoom="Resets all configs to be like original DOOM";
+NeedRestart="This is applied when EDGE is restarted";
 
 Gravity="Changes the global gravity setting";
 Blood="Enables extra gore mode...";
