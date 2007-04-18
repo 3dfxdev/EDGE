@@ -1013,11 +1013,11 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 		df->dir_hash.Compute((const byte *)fileinfo, length);
 
-		L_WriteDebug("    md5hash = %02x%02x%02x%02x-%02x%02x%02x%02x (etc)\n",
+		L_WriteDebug("    md5hash = %02x%02x%02x%02x...%02x%02x%02x%02x\n",
 				df->dir_hash.hash[0], df->dir_hash.hash[1],
 				df->dir_hash.hash[2], df->dir_hash.hash[3],
-				df->dir_hash.hash[4], df->dir_hash.hash[5],
-				df->dir_hash.hash[6], df->dir_hash.hash[7]);
+				df->dir_hash.hash[12], df->dir_hash.hash[13],
+				df->dir_hash.hash[14], df->dir_hash.hash[15]);
 
 		// Fill in lumpinfo
 		numlumps += header.num_entries;
