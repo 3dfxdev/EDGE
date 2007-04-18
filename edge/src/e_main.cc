@@ -104,8 +104,6 @@ int app_state = APP_STATE_ACTIVE;
 
 bool singletics = false;  // debug flag to cancel adaptiveness
 
-int maketic;
-
 // -ES- 2000/02/13 Takes screenshot every screenshot_rate tics.
 // Must be used in conjunction with singletics.
 static int screenshot_rate;

@@ -45,6 +45,12 @@ bool var_hogcpu = true;
 extern gameflags_t default_gameflags;
 
 
+int maketic;
+
+static int last_update_tic;
+static int last_tryrun_tic;
+
+
 #ifdef USE_HAWKNL
 
 // static NLaddress host_addr;
@@ -605,9 +611,6 @@ void N_InitiateNetGame(void)
 //----------------------------------------------------------------------------
 //  TIC HANDLING
 //----------------------------------------------------------------------------
-
-static int last_update_tic;
-static int last_tryrun_tic;
 
 void N_InitNetwork(void)
 {
