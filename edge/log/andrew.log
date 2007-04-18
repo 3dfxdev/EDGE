@@ -1,5 +1,69 @@
 Andrew Apted's Log
 
+2007/04/18:
+
+Re-added the sound.ddf VOLUME and MAX_DISTANCE commands.
+
+Found the reason for the 'availabletics >= 0' assertion
+failure.  When the new level is loaded, N_ResetTics() is
+called to reset gametic and maketic to 0.  However, since
+this is called during G_Ticker(), the gametic is bumped
+up, breaking the "gametic <= maketic" invariant.
+
+Not really sure how to properly fix this.  Ideally the
+big game-state changing functions (like loading a level!)
+are *not* called deep in the heirarchy like in the middle
+of a ticker function.  For now I've put a band-aid on it.
+
+Improved edge.rc (the Win32 resource file), adding the
+VERSIONINFO block.
+
+When game is paused, release the mouse cursor.
+
+Mouse-wheel support for the automap, and tweaked zooming
+and panning speed.
+
+WAD code: merged the GWA and HWA cache checking stuff
+(which thankfully was mostly the same) into a single
+function FindCacheFilename().  Now the cached filenames
+include a 12-byte hexadecimal hash to prevent multiple
+files of the same name from colliding in the cache
+(getting the wrong GWA file causes level-load to fail).
+
+2007/04/17:
+
+Added GetExecutablePath() to the EPI (exe_path.cc/h),
+which replaced the old (unreliable) I_ChangeToExeDir
+code.  Drag-n-Drop now works again!
+
+Debugged the emergency Resolution selection code, which
+after a few tweaks is working fine.  Also improved the
+R_DumpResList() code, which now is always printed.
+
+Also always I_Printf the command-line options.
+
+2007/04/16:
+
+MAN I HATE LINKERS!!  There are two source files for CD
+playback under Win32: w32_cd.cc and i_cd.cc, both providing
+the same API such as I_StartupCD().  Both files were part
+of the Win32 build, but the stupid linker never noticed
+the conflicts like it should.  To cut a long rant short,
+I have removed i_cd.cc (the SDL version) from the Win32
+build, although I've no way of knowing which is better.
+
+2007/04/15:
+
+Continued reworking the resolution setting/changing code.
+Split it into two functions: R_InitialResolution() is
+responsible for setting the very first mode, trying a
+whole bunch of modes if the requested one fails, whereas
+R_ChangeResolution() is the one called by the menu code.
+
+The video mode is no longer changed from within E_Display(),
+which was one of those weird things inherited from the
+original DOOM sources.
+
 2007/04/14:
 
 Began reworking the mode selection code, using the following
@@ -23,6 +87,12 @@ principles:
        I_SetScreenMode() fails.
 
    (g) merge fucking scrmode_t and i_scrmode_t.
+
+   (h) use pointers to scrmode_t instead of index numbers.
+
+Disabled the 'TEST RESOLUTION' button in Set Resolution menu.
+This seems to hark back to the pre-SDL (or even the DOS) days
+when we never knew what modes would work.
 
 2007/04/13:
 
