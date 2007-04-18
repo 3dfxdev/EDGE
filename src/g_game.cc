@@ -344,11 +344,21 @@ bool G_Responder(event_t * ev)
 	return INP_Responder(ev);
 }
 
-//
-// G_TiccmdTicker
-//
+
 static void G_TiccmdTicker(void)
 {
+	// gametic <= maketic is a system-wide invariant.  However,
+	// new levels are loaded during G_Ticker(), resetting them
+	// both to zero, hence if we increment gametic here, we
+	// break the invariant.  The following is a workaround.
+	// TODO: this smells like a hack -- fix it properly!
+	if (gametic >= maketic)
+	{ 
+		if (! (gametic == 0 && maketic == 0))
+			I_Printf("WARNING: G_TiccmdTicker: gametic >= maketic (%d >= %d)\n", gametic, maketic);
+		return;
+	}
+
 	if (demoplayback)
 		E_DemoReadTick();
 
