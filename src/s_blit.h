@@ -59,7 +59,7 @@ public:
 	fixed22_t length;
 	fixed22_t delta;
 
-	int volume_L;
+	int volume_L;  // mixing volume
 	int volume_R;
 
 	bool loop;  // will loop *one* more time

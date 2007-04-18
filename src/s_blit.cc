@@ -160,6 +160,9 @@ void mix_channel_c::ComputeVolume()
 
 	MAX_VOL = MAX_VOL * mul * slider_to_gain[sfx_volume];
 
+	if (def)
+		MAX_VOL *= PERCENT_2_FLOAT(def->volume);
+
 	// strictly linear equations
 	volume_L = (int) (MAX_VOL * (1.0 - sep));
 	volume_R = (int) (MAX_VOL * (0.0 + sep));

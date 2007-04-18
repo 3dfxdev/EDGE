@@ -417,17 +417,17 @@ void S_StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 		if (! pos)
 			I_Error("S_StartFX: position missing for category: %d\n", category);
 
+	sfxdef_c *def = LookupEffectDef(sfx);
+	SYS_ASSERT(def);
+
 	// ignore very far away sounds
 	if (category >= SNCAT_Opponent && !(flags & FX_Boss))
 	{
 		float dist = P_ApproxDistance(listen_x - pos->x, listen_y - pos->y, listen_z - pos->z);
 
-		if (dist > S_CLIPPING_DIST)
+		if (dist > def->max_distance)
 			return;
 	}
-
-	sfxdef_c *def = LookupEffectDef(sfx);
-	SYS_ASSERT(def);
 
 	if (def->singularity > 0)
 	{
