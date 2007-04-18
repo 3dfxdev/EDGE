@@ -898,6 +898,7 @@ static bool FindCacheFilename (epi::string_c& out_name,
 
 	// Determine the full path filename for the cached version
 	cache_name = epi::path::GetBasename(filename);
+	cache_name.AddString(hash_string);
 	cache_name.AddString(".");
 	cache_name.AddString(extension);
 
