@@ -60,23 +60,23 @@ static struct { int w, h; } possible_modes[] =
 
 // ====================== INTERNALS ======================
 
-void VideoModeCommonStuff(void)
+void I_GrabCursor(bool enable)
 {
-	// -AJA- turn off cursor -- BIG performance increase.
-	//       Plus, the combination of no-cursor + grab gives 
-	//       continuous relative mouse motion.
-	if (use_grab)
+	if (my_vis && use_grab && ! graphics_shutdown)
 	{
-		SDL_ShowCursor(0);
-		SDL_WM_GrabInput(SDL_GRAB_ON);
+		if (enable)
+		{
+			SDL_ShowCursor(0);
+			SDL_WM_GrabInput(SDL_GRAB_ON);
+		}
+		else
+		{
+			SDL_ShowCursor(1);
+			SDL_WM_GrabInput(SDL_GRAB_OFF);
+		}
 	}
-
-#ifdef DEVELOPERS
-	// override SDL signal handlers (the so-called "parachute").
-	signal(SIGFPE,SIG_DFL);
-	signal(SIGSEGV,SIG_DFL);
-#endif
 }
+
 
 // =================== END OF INTERNALS ===================
 
@@ -217,7 +217,16 @@ bool I_SetScreenSize(scrmode_c *mode)
 			 my_vis->w, my_vis->h,
 			 my_vis->format->BitsPerPixel, my_vis->flags);
 
-	VideoModeCommonStuff();
+	// -AJA- turn off cursor -- BIG performance increase.
+	//       Plus, the combination of no-cursor + grab gives 
+	//       continuous relative mouse motion.
+	I_GrabCursor(true);
+
+#ifdef DEVELOPERS
+	// override SDL signal handlers (the so-called "parachute").
+	signal(SIGFPE,SIG_DFL);
+	signal(SIGSEGV,SIG_DFL);
+#endif
 
 	SDL_GL_SwapBuffers();
 
@@ -241,15 +250,6 @@ void I_PutTitle(const char *title)
 	SDL_WM_SetCaption(title, title);
 }
 
-
-void I_RemoveGrab(void)
-{
-	if (my_vis && ! graphics_shutdown)
-	{
-		SDL_ShowCursor(1);
-		SDL_WM_GrabInput(SDL_GRAB_OFF);
-	}
-}
 
 
 void I_ShutdownGraphics(void)

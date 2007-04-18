@@ -305,11 +305,13 @@ bool G_Responder(event_t * ev)
 		{
 			S_PauseMusic();
 			S_PauseSound();
+			I_GrabCursor(false);
 		}
 		else
 		{
 			S_ResumeMusic();
 			S_ResumeSound();
+			I_GrabCursor(true);
 		}
 
 		// explicit as probably killed the initial effect
