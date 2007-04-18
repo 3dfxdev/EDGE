@@ -27,7 +27,7 @@
 
 #include "math_md5.h"
 
-#include <string.h>  // for memcpy
+#include <string.h>  // for memcpy & memset
 
 /* The four core functions - F1 is optimized somewhat */
 
@@ -169,7 +169,17 @@ void md5hash_c::packhash_c::Encode(byte *hash)
 //------------------------------------------------------------------------
 
 
+md5hash_c::md5hash_c()
+{
+  memset(hash, 0, sizeof(hash));
+}
+
 md5hash_c::md5hash_c(const byte *message, unsigned int len)
+{
+  Compute(message, len);
+}
+
+void md5hash_c::Compute(const byte *message, unsigned int len)
 {
 	packhash_c packed;
 
@@ -226,7 +236,8 @@ md5hash_c::md5hash_c(const byte *message, unsigned int len)
 	packed.Encode(hash);
 }
 
-};
+} // namespace epi
+
 
 //------------------------------------------------------------------------
 //  
