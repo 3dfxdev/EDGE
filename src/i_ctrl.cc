@@ -136,12 +136,8 @@ void InactiveEventProcess(SDL_Event *sdl_ev)
 //
 void HandleFocusGain(void)
 {
-	if (use_grab)
-	{
-        // Hide cursor and grab input
-	    SDL_ShowCursor(0);
-        SDL_WM_GrabInput(SDL_GRAB_ON);
-	}
+	// Hide cursor and grab input
+	I_GrabCursor(true);
 
 	// Ignore any pending mouse motion
 	eat_mouse_motion = true;
@@ -155,11 +151,7 @@ void HandleFocusGain(void)
 //
 void HandleFocusLost(void)
 {
-	if (use_grab)
-	{
-        SDL_ShowCursor(1);
-        SDL_WM_GrabInput(SDL_GRAB_OFF);
-    }
+	I_GrabCursor(false);
 
 	E_Idle();
 

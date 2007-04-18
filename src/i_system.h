@@ -361,6 +361,11 @@ void I_StartupGraphics(void);
 // directly.  This function should determine what video modes are
 // available, and call V_AddAvailableResolution() for them.
 
+void I_ShutdownGraphics(void);
+// Shuts down the graphics system.  This is the companion function to
+// I_StartupGraphics.  Note that this should be called by
+// I_SystemStartup(), the main code never calls this function.
+
 void I_StartFrame(void);
 // Called to prepare the screen for rendering (if necessary).
 
@@ -380,10 +385,7 @@ bool I_SetScreenSize(scrmode_c *mode);
 // which case the values of the global variables SCREENWIDTH,
 // SCREENHEIGHT and SCREENBITS must be updated.
 
-void I_ShutdownGraphics(void);
-// Shuts down the graphics system.  This is the companion function to
-// I_StartupGraphics.  Note that this should be called by
-// I_SystemStartup(), the main code never calls this function.
+void I_GrabCursor(bool enable);
 
 
 //--------------------------------------------------------

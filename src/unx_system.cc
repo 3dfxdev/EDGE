@@ -184,8 +184,6 @@ void I_ChangeToExeDir(const char *argv0)
 	chdir(str.GetString());
 }
 
-void I_RemoveGrab(void);  // in SDL/i_video.cpp
-
 void I_WaitVBL (int count)
 {
 }
@@ -321,7 +319,7 @@ void I_Error(const char *error, ...)
 	{
 		fprintf(stderr, "%s\n", errmsg);
 
-		I_RemoveGrab();
+		I_GrabCursor(false);
 
 		raise(11);
 		/* NOTREACHED */
