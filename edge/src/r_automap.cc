@@ -101,14 +101,16 @@
 // scale on entry
 #define INITSCALEMTOF (0.2f)
 // how much the automap moves window per tic in frame-buffer coordinates
-// moves 140 pixels in 1 second
-#define F_PANINC 4
+// moves a whole screen-width in 1.5 seconds
+#define F_PANINC 6.1
 // how much zoom-in per tic
-// goes to 2x in 1 second
-#define M_ZOOMIN (1.02f)
-// how much zoom-out per tic
-// pulls out to 0.5x in 1 second
-#define M_ZOOMOUT (1/M_ZOOMIN)
+// goes to 3x in 1 second
+#define M_ZOOMIN  1.03f
+
+// how much zoom-in for each mouse-wheel click
+// goes to 3x in 4 clicks
+#define WHEEL_ZOOMIN  1.32f
+
 
 // translates between frame-buffer and map distances - moved down with rest of functions
 #define FTOM(x) ((float)((x) * scale_ftom))
@@ -196,7 +198,6 @@ static int f_w, f_h;
 static mpoint_t m_paninc;  // how far the window pans each tic (map coords)
 
 static float mtof_zoommul;  // how far the window zooms in each tic (map coords)
-static float ftom_zoommul;  // how far the window zooms in each tic (fb coords)
 
 static float m_x, m_y;  // LL x,y where the window is on the map (map coords)
 static float m_x2, m_y2;  // UR x,y where the window is on the map (map coords)
@@ -389,7 +390,6 @@ static void InitVariables(player_t *p)
 	f_oldloc.x = FLT_MAX; // -ACB- 2003/09/21 Max value was FLOAT_MAX; changed it to fall in line with its type
 
 	m_paninc.x = m_paninc.y = 0;
-	ftom_zoommul = 1.0f;
 	mtof_zoommul = 1.0f;
 
 	m_w = FTOM(f_w);
@@ -452,7 +452,6 @@ void AM_Stop(void)
 	m_paninc.x = 0;
 	m_paninc.y = 0;
 	mtof_zoommul = 1.0f;
-	ftom_zoommul = 1.0f;
 	automapactive = 0;
 	stopped = true;
 }
@@ -493,7 +492,6 @@ static void AM_Hide(void)
 	m_paninc.x = 0;
 	m_paninc.y = 0;
 	mtof_zoommul = 1.0f;
-	ftom_zoommul = 1.0f;
 	automapactive = 0;
 	viewactive = true;
 }
@@ -530,6 +528,24 @@ static void MaxOutWindowScale(void)
 	scale_ftom = 1 / scale_mtof;
 	ActivateNewScale();
 }
+
+//
+// Zooming
+//
+static void ChangeWindowScale(float factor)
+{
+	// Change the scaling multipliers
+	scale_mtof *= factor;
+	scale_ftom = 1.0f / scale_mtof;
+
+	if (scale_mtof < min_scale_mtof)
+		MinOutWindowScale();
+	else if (scale_mtof > max_scale_mtof)
+		MaxOutWindowScale();
+	else
+		ActivateNewScale();
+}
+
 
 //
 // Handle events (user inputs) in automap mode
@@ -591,14 +607,21 @@ bool AM_Responder(event_t * ev)
 
 		case AM_ZOOMOUTKEY:
 			// zoom out
-			mtof_zoommul = M_ZOOMOUT;
-			ftom_zoommul = M_ZOOMIN;
+			mtof_zoommul = 1.0 / M_ZOOMIN;
 			break;
 
 		case AM_ZOOMINKEY:
 			// zoom in
 			mtof_zoommul = M_ZOOMIN;
-			ftom_zoommul = M_ZOOMOUT;
+			break;
+
+		// -AJA- 2007/04/18: mouse-wheel support
+		case KEYD_MWHEEL_DN:
+			ChangeWindowScale(1.0 / WHEEL_ZOOMIN);
+			break;
+
+		case KEYD_MWHEEL_UP:
+			ChangeWindowScale(WHEEL_ZOOMIN);
 			break;
 
 		case AM_GOBIGKEY:
@@ -701,30 +724,12 @@ bool AM_Responder(event_t * ev)
 		case AM_ZOOMOUTKEY:
 		case AM_ZOOMINKEY:
 			mtof_zoommul = 1.0f;
-			ftom_zoommul = 1.0f;
 			break;
 		}
 	}
 
 	return rc;
 
-}
-
-//
-// Zooming
-//
-static void ChangeWindowScale(void)
-{
-	// Change the scaling multipliers
-	scale_mtof *= mtof_zoommul;
-	scale_ftom = 1.0f / scale_mtof;
-
-	if (scale_mtof < min_scale_mtof)
-		MinOutWindowScale();
-	else if (scale_mtof > max_scale_mtof)
-		MaxOutWindowScale();
-	else
-		ActivateNewScale();
 }
 
 static void DoFollowPlayer(player_t *p)
@@ -755,8 +760,8 @@ void AM_Ticker(void)
 		DoFollowPlayer(players[displayplayer]);
 
 	// Change the zoom if necessary
-	if (ftom_zoommul != 1.0f)
-		ChangeWindowScale();
+	if (mtof_zoommul != 1.0)
+		ChangeWindowScale(mtof_zoommul);
 
 	// Change x,y location
 	if (m_paninc.x != 0 || m_paninc.y != 0)
