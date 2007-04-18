@@ -1,4 +1,11 @@
 
+EDGE DDF 5.2: (2007-04-18)
+==========================
+
+1) LANGUAGE.LDF: added entries for new sound options menu,
+                 namely: SoundOptions and NeedRestart.
+
+
 EDGE DDF 5.0: (2007-03-13)
 ==========================
 
