@@ -507,10 +507,10 @@ static void GlobWriteVARIs(saveglobals_t *globs)
 
 	for (i=0; global_commands[i].name; i++)
 	{
-    int offset = global_commands[i].offset_p - (char *) &dummy_glob;
+		int offset = global_commands[i].offset_p - (char *) &dummy_glob;
 
 		const char *data;
-    void *storage = ((char *) globs) + offset;
+		void *storage = ((char *) globs) + offset;
 
 		data = (* global_commands[i].stringify_func)(storage);
 		SYS_ASSERT(data);
@@ -558,12 +558,14 @@ static void GlobWriteVIEW(saveglobals_t *globs)
 	SV_PutInt(globs->view_height);
 
 	for (y=0; y < globs->view_height; y++)
-		for (x=0; x < globs->view_width;  x++)
+	{
+		for (x=0; x < globs->view_width; x++)
 		{
 			SV_PutShort(globs->view_pixels[y * globs->view_width + x]);
 		}
+	}
 
-		SV_PopWriteChunk();
+	SV_PopWriteChunk();
 }
 
 
