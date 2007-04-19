@@ -871,6 +871,23 @@ static bool HasInternalGLNodes(data_file_c *df, int datafile)
 	return levels == glnodes;
 }
 
+static void ComputeFileMD5hash(epi::md5hash_c& hash, epi::file_c *file)
+{
+	int length = file->GetLength();
+
+	if (length <= 0)
+		return;
+
+	byte *buffer = new byte[length];
+
+	// TODO: handle Read failure
+	file->Read(buffer, length);
+	
+	hash.Compute(buffer, length);
+
+	delete[] buffer;
+}
+
 static bool FindCacheFilename (epi::string_c& out_name,
 		const char *filename, data_file_c *df,
 		const char *extension)
@@ -990,6 +1007,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	if (kind <= FLKIND_HWad)
 	{
 		// WAD file
+		// TODO: handle Read failure
         file->Read(&header, sizeof(raw_wad_header_t));
 
 		if (strncmp(header.identification, "IWAD", 4))
@@ -1009,15 +1027,11 @@ static void AddFile(const char *filename, int kind, int dyn_index)
         raw_wad_entry_t *fileinfo = new raw_wad_entry_t[header.num_entries];
 
         file->Seek(header.dir_start, epi::file_c::SEEKPOINT_START);
+		// TODO: handle Read failure
         file->Read(fileinfo, length);
 
+		// compute MD5 hash over wad directory
 		df->dir_hash.Compute((const byte *)fileinfo, length);
-
-		L_WriteDebug("    md5hash = %02x%02x%02x%02x...%02x%02x%02x%02x\n",
-				df->dir_hash.hash[0], df->dir_hash.hash[1],
-				df->dir_hash.hash[2], df->dir_hash.hash[3],
-				df->dir_hash.hash[12], df->dir_hash.hash[13],
-				df->dir_hash.hash[14], df->dir_hash.hash[15]);
 
 		// Fill in lumpinfo
 		numlumps += header.num_entries;
@@ -1059,7 +1073,8 @@ static void AddFile(const char *filename, int kind, int dyn_index)
             strcpy(lump_name, s);
         }
 
-		// FIXME!!! load file, dir_hash.Compute(), free data
+		// calculate MD5 hash over whole file
+		ComputeFileMD5hash(df->dir_hash, file);
 
 		// Fill in lumpinfo
 		numlumps++;
@@ -1069,6 +1084,12 @@ static void AddFile(const char *filename, int kind, int dyn_index)
                 file->GetLength(), datafile, datafile, 
 				lump_name, true);
 	}
+
+	L_WriteDebug("   md5hash = %02x%02x%02x%02x...%02x%02x%02x%02x\n",
+			df->dir_hash.hash[0], df->dir_hash.hash[1],
+			df->dir_hash.hash[2], df->dir_hash.hash[3],
+			df->dir_hash.hash[12], df->dir_hash.hash[13],
+			df->dir_hash.hash[14], df->dir_hash.hash[15]);
 
 	SortLumps();
 	SortSpriteLumps(df);
