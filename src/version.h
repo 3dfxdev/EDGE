@@ -17,7 +17,7 @@
 //----------------------------------------------------------------------------
 
 #define EDGEVER     0x129
-#define EDGEVERSTR  "1.29"
+#define EDGEVERSTR  "1.29RC#5"
 
 // patch level
 #define EDGEPATCH  0x03  // Savegames/Demos now at 1.29.03
