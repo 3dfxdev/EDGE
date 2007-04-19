@@ -665,7 +665,7 @@ bool SV_PopWriteChunk(void)
 	chunk_t *cur;
 	int len;
 
-	if (chunk_stack_size != 0)
+	if (chunk_stack_size == 0)
 		I_Error("SV_PopWriteChunk: Too many Pops (missing Push somewhere).\n");
 
 	cur = &chunk_stack[chunk_stack_size - 1];
