@@ -1,8 +1,15 @@
 Andrew Apted's Log
 
+2007/04/25:
+
+DDF: made the SHOW_CLIP option of WEAPONS.DDF divide the
+current clip by ammopershot when showing it on the HUD.
+
 2007/04/19:
 
 WAD code: compute MD5 hash of individual files.
+
+Fixed stupid bug that broke saving a savegame.
 
 2007/04/18:
 
