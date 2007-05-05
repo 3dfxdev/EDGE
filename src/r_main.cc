@@ -304,6 +304,9 @@ void R_ExecuteSetViewSize(void)
 		viewheight -= sbar_height;
 	}
 
+	L_WriteDebug("R_ExecuteSetViewSize: view=%dx%d SCREEN=%dx%d\n",
+				 viewwidth, viewheight, SCREENWIDTH, SCREENHEIGHT);
+
 	viewwindowwidth  = viewwidth;
 	viewwindowheight = viewheight;
 	viewwindowx = 0;

@@ -98,6 +98,9 @@ void I_StartupSound(void)
 	if (M_CheckParm("-mono")   > 0) want_stereo = false;
 	if (M_CheckParm("-stereo") > 0) want_stereo = true;
 
+	I_Printf("I_StartupSound: trying %d Hz, %d bit %s\n",
+			 want_freq, want_bits, want_stereo ? "Stereo" : "Mono");
+	
 	SDL_AudioSpec firstdev;
 
 	firstdev.freq     = want_freq;
@@ -182,7 +185,7 @@ void I_StartupSound(void)
 	}
 
 	// display some useful stuff
-	I_Printf("I_StartupSound: SDL Started: %d Hz, %d bits, %s\n",
+	I_Printf("I_StartupSound: success @ %d Hz, %d bit %s\n",
 			dev_freq, dev_bits, dev_stereo ? "Stereo" : "Mono");
 
 	return;
