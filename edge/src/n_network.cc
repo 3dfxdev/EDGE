@@ -36,6 +36,8 @@
 #include "e_main.h"
 #include "m_argv.h"
 
+// #define DEBUG_TICS 1
+
 // only true if packets are exchanged with a server
 bool netgame = false;
 
@@ -149,7 +151,6 @@ static bool N_DetermineLocalAddr(void)
 #endif // USE_HAWKNL
 
 #if 0
-
 
 static bool N_BroadcastToServer(NLsocket sock)
 {
@@ -662,6 +663,7 @@ void N_InitNetwork(void)
 
 bool N_OpenBroadcastSocket(bool is_host)
 {
+#ifdef USE_HAWKNL
 	if (! nlSetLocalAddr(&bcast_addr))
 	{
 		I_Printf("Network: nlSetLocalAddr(BC) failed.\n| HawkNL error: %s",
@@ -695,11 +697,14 @@ bool N_OpenBroadcastSocket(bool is_host)
 	if (! nlGroupAddSocket(sk_group, bcast_socket))
 		I_Error("Unable to add BC to socket group\n");
 
+#endif // USE_HAWKNL
+	
 	return true;
 }
 
 void N_CloseBroadcastSocket(void)
 {
+#ifdef USE_HAWKNL
 	if (bcast_socket == NL_INVALID)
 		return;
 
@@ -707,10 +712,12 @@ void N_CloseBroadcastSocket(void)
 
 	nlClose(bcast_socket);
 	bcast_socket = NL_INVALID;
+#endif // USE_HAWKNL
 }
 
 void N_SendBroadcastDiscovery(void)
 {
+#ifdef USE_HAWKNL
 	if (bcast_socket == NL_INVALID)
 		return;
 
@@ -726,6 +733,7 @@ void N_SendBroadcastDiscovery(void)
 			I_NetworkReturnError());
 
 	L_WriteDebug("- Network: Wrote BD packet\n");
+#endif // USE_HAWKNL
 }
 
 static void GetPackets(bool do_delay)
@@ -884,7 +892,7 @@ bool N_BuildTiccmds(void)
 
 ///     L_WriteDebug("N_BuildTiccmds: pnum %d netgame %c\n", pnum, netgame ? 'Y' : 'n');
 
-			if (netgame)
+			if (false) // FIXME: temp hack!!!  if (netgame)
 				cmd = &p->out_cmds[maketic % (MP_SAVETICS*2)];
 			else
 				cmd = &p->in_cmds[maketic % (MP_SAVETICS*2)];
@@ -949,7 +957,10 @@ int DetermineLowTic(void)
 		if (p->playerflags & PFL_Bot)
 			continue;
 
-		lowtic = MIN(lowtic, p->in_tic);
+		if (p->playerflags & PFL_Console)
+			lowtic = MIN(lowtic, maketic); // correct?????
+		else
+			lowtic = MIN(lowtic, p->in_tic);
 	}
 
 	return lowtic;
@@ -973,7 +984,7 @@ int N_TryRunTics(bool *is_fresh)
 	int realtics = nowtime - last_tryrun_tic;
 	last_tryrun_tic = nowtime;
 
-#if 0
+#ifdef DEBUG_TICS
 L_WriteDebug("N_TryRunTics: now %d last_tryrun %d --> real %d\n",
 nowtime, nowtime - realtics, realtics);
 #endif
@@ -1009,7 +1020,7 @@ nowtime, nowtime - realtics, realtics);
 	else
 		counts = MIN(realtics, availabletics);
 
-#if 0
+#ifdef DEBUG_TICS
 	L_WriteDebug("=== lowtic %d gametic %d | real %d avail %d raw-counts %d\n",
 		lowtic, gametic, realtics, availabletics, counts);
 #endif
