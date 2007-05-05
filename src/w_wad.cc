@@ -670,7 +670,7 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 	{
 		for (j=0; j < NUM_DDF_READERS; j++)
 		{
-			if (!strncmp(name, DDF_Readers[j].name, 8))
+			if (strncmp(name, DDF_Readers[j].name, 8) == 0)
 			{
 				lump_p->kind = LMKIND_DDFRTS;
 				df->ddf_lumps[j] = lump;
