@@ -273,7 +273,6 @@ void M_SaveDefaults(void)
 			case CFGT_Key:
 				v = *(int*)defaults[i].location;
 				fprintf(f,  "%s\t\t0x%X\n", defaults[i].name, v);
-				fprintf(f, "o%s\t\t0x%X\n", defaults[i].name, v << 16);
 				break;
 				
 		}
@@ -374,12 +373,6 @@ void M_LoadDefaults(void)
 					*(int*)defaults[i].location = parm;
 				}
 				break;
-			}
-			else if (def[0] == 'o')
-			{
-				if (0 == strcmp(def + 1, defaults[i].name))
-					if (memcmp(defaults[i].name, "key_", 4) == 0)
-						*(int*)defaults[i].location |= parm << 16;
 			}
 		}
 	}
