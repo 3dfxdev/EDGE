@@ -81,7 +81,7 @@ if 0 and build_info['platform'] == 'linux':
     # FIXME
 
 # HawkNL
-if 1:
+if 0:
     env.Append(CCFLAGS = ['-DUSE_HAWKNL'])
     env.Append(CPPPATH = ['#HawkNL1.70/include'])
     env.Append(LIBPATH = ['#HawkNL1.70/src'])

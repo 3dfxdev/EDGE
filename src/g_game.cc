@@ -356,7 +356,7 @@ static void G_TiccmdTicker(void)
 	// TODO: this smells like a hack -- fix it properly!
 	if (gametic >= maketic)
 	{ 
-		if (! (gametic == 0 && maketic == 0))
+		if (! (gametic == 0 && maketic == 0) && !netgame)
 			I_Printf("WARNING: G_TiccmdTicker: gametic >= maketic (%d >= %d)\n", gametic, maketic);
 		return;
 	}
