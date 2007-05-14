@@ -67,6 +67,9 @@ Date: JANUARY 2007
   console itself).
 
 - the "CONSTANT" dynamic lighting type (in DDF) was removed.
+
+- replaced the [DOG] sprites and sounds in EDGE.WAD with some
+  from FreeDOOM, due to concerns about the copyright/license.
 </PRE>
 
 
