@@ -1,4 +1,4 @@
-index.htp ../out/index.htm
+index.htp ../out/index.html
 about.htp ../out/about.htm
 faq.htp ../out/faq.htm
 contact.htp ../out/contact.htm

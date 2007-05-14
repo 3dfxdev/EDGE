@@ -4,8 +4,9 @@
 
 <ul>
 
-<li><a href="http://edge.sourceforge.net/index.htm">Home</a>
-<li><a href="about.htm">Features</a>
+<li><a href="http://edge.sourceforge.net/index.html">Home</a>
+<li><a href="about.htm">About</a>
+<li><a href="http://edge.sourceforge.net/phpBB2/">Forums</a>
 <li><a href="screenshots.htm">Screenshots</a>
 
 <li> <em>Download</em>

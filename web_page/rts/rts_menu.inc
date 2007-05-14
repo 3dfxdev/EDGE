@@ -4,7 +4,7 @@
 
 <ul>
 
-<li><a href="http://edge.sourceforge.net/index.htm">EDGE Home</a>
+<li><a href="http://edge.sourceforge.net/index.html">EDGE Home</a>
 <li>&nbsp;
 
 <li> <em>General</em>
