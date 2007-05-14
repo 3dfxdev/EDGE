@@ -6,7 +6,7 @@
 
   <h2 class="page_title"> Welcome to the EDGE! </h2>
 
-  <img class="main_image" src="thumbs/demos_C.png"
+  <img class="main_image" src="thumbs/demos_C.jpg"
        width="160" height="120" alt="Screenshot">
  
   The EDGE project is a programming project to develop a
@@ -19,6 +19,41 @@
   </p>
 
   <h2 class="page_title"> Latest News </h2>
+
+
+  <use BeginNews title="New Forums" date="13-May-2007">
+
+  EDGE now has its own forums!
+  This one is much better than the old SourceForge forums.
+  Just click on the "Forums" link near the top of the navigation menu.
+  Hope to see you there!
+
+  <use EndNews>
+
+
+  <use BeginNews title="1.29 RC#5 Available" date="21-Apr-2007">
+
+  We're very happy to announce that Release Candidate #5 for
+  EDGE 1.29 is now available for testing.  The two most
+  significant changes are: (1) replacing the OpenAL sound system
+  with new SDL-based sound code, and (2) much improved BOOM
+  compatibility.  Plus of course lots of bug fixing.
+  <br>
+
+  <p>
+  Download it here:
+  <a href="http://downloads.sourceforge.net/edge/edge-1.29RC5-win32.zip">
+  edge-1.29RC5-win32.zip
+  </a>
+
+  <p>
+  Full list of changes since RC#4 is here:
+  <a href="https://sourceforge.net/project/shownotes.php?release_id=502749&group_id=2232">
+  Change List.
+  </a>
+
+  <use EndNews>
+
 
   <use BeginNews title="Back from China" date="18-Jan-2007">
 
@@ -57,7 +92,7 @@
   I'm very pleased to announce that the RTS documentation
   is back online.
   It has been rewritten as normal documentation,
-  replacing the "build-your-own-script" functionality that
+  replacing the "build your own script" functionality that
   Fanatic's original version had.
   Plus everything has been updated for the latest version
   of EDGE.
