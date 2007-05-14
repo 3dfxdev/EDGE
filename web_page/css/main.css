@@ -66,7 +66,7 @@ page_title {
 	}
 
 .news_body {
-	text-align: justify;
+	/* text-align: justify; */
 	border: 0px solid red;
 	margin-top: 10px;
 	margin-right: 10px;
@@ -88,11 +88,11 @@ page_title {
 	}
 
 .features p {
-	text-align: justify;
+	/* text-align: justify; */
   }
 
 .features li {
-	text-align: justify;
+	/* text-align: justify; */
 	margin: 10px;
   }
 
@@ -103,7 +103,7 @@ page_title {
 
 .faq_a {
   margin: 20px 10px 10px 10px;
-  text-align: justify;
+  /* text-align: justify; */
   }
 
 .money_shot {
