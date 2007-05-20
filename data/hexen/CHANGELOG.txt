@@ -75,3 +75,6 @@ Note: none of these have any equivalent powerup in EDGE.
 Added entries for the monsters.  They are not animated
 however, so are like frozen in the level.
 
+Noticed the CPSx sprites in the IWAD, obviously Corpses
+of various kinds, so added entries for them to THINGS.DDF.
+
