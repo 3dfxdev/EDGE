@@ -57,6 +57,18 @@ match, whereas SWAMP KEY -> EDGE's WATER KEY, EMERALD KEY
 to EDGE's GREEN_CARD, etc...
 
 Added entries for mana (types 122,124 and 8004).  I don't
-know yet how much they should give you.
+know yet how much they should give you.  AMMO1 is used
+for blue mana and AMMO2 for green.
 
+Added the following artifact entries, and noticed that
+the Heretic MorphOvum has become the Porkulator in Hexen,
+and the Ring-o-Invulnerability is now called the Icon of
+the Defender, so and adjusted the entries accordingly.
+
+  [Repulser_Disc:8000]  [Krater_of_Might:8003]
+  [Speed_Boots:8002]    [Bracers:8041]
+  [Mystic_Incant:10120] [Dark_Servant:86]
+  [Flechette:10110]     [Banishment_Device:10040]
+
+Note: none of these have any equivalent powerup in EDGE.
 
