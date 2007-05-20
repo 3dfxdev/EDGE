@@ -217,22 +217,22 @@ PICKUP_SOUND=ITEMUP;
 PICKUP_MESSAGE=GotComboMana;
 SPECIAL=SPECIAL;
 
-STATES(IDLE)=MAN3:A:2:NORMAL:NOTHING,
-             MAN3:B:2:NORMAL:NOTHING,
-             MAN3:C:2:NORMAL:NOTHING,
-             MAN3:D:2:NORMAL:NOTHING,
-             MAN3:E:2:NORMAL:NOTHING,
-             MAN3:F:2:NORMAL:NOTHING,
-             MAN3:G:2:NORMAL:NOTHING,
-             MAN3:H:2:NORMAL:NOTHING,
-             MAN3:I:2:NORMAL:NOTHING,
-             MAN3:J:2:NORMAL:NOTHING,
-             MAN3:K:2:NORMAL:NOTHING,
-             MAN3:L:2:NORMAL:NOTHING,
-             MAN3:M:2:NORMAL:NOTHING,
-             MAN3:N:2:NORMAL:NOTHING,
-             MAN3:O:2:NORMAL:NOTHING,
-             MAN3:P:2:NORMAL:NOTHING;
+STATES(IDLE)=MAN3:A:3:NORMAL:NOTHING,
+             MAN3:B:3:NORMAL:NOTHING,
+             MAN3:C:3:NORMAL:NOTHING,
+             MAN3:D:3:NORMAL:NOTHING,
+             MAN3:E:3:NORMAL:NOTHING,
+             MAN3:F:3:NORMAL:NOTHING,
+             MAN3:G:3:NORMAL:NOTHING,
+             MAN3:H:3:NORMAL:NOTHING,
+             MAN3:I:3:NORMAL:NOTHING,
+             MAN3:J:3:NORMAL:NOTHING,
+             MAN3:K:3:NORMAL:NOTHING,
+             MAN3:L:3:NORMAL:NOTHING,
+             MAN3:M:3:NORMAL:NOTHING,
+             MAN3:N:3:NORMAL:NOTHING,
+             MAN3:O:3:NORMAL:NOTHING,
+             MAN3:P:3:NORMAL:NOTHING;
 
 
 // ----------------------- Artifacts ------------------------
