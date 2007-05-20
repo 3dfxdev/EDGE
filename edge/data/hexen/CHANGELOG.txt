@@ -85,3 +85,6 @@ Added Wall_Torch and Wall_Torch_Unlit things.
 
 Added Christmas_Tree, Crumple_Tree and Bell things.
 
+Fixed up PLAYLIST.DDF using the info from the MAPINFO
+lump extracted from the IWAD.
+
