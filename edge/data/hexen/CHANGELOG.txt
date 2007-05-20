@@ -82,9 +82,15 @@ Noticed the TRE# sprites in the IWAD and added Tree
 entries for them into THINGS.DDF.
 
 Added Wall_Torch and Wall_Torch_Unlit things.
+Added Twine_Torch and Twine_Torch_Unlit things.
 
 Added Christmas_Tree, Crumple_Tree and Bell things.
 
 Fixed up PLAYLIST.DDF using the info from the MAPINFO
 lump extracted from the IWAD.
+
+Added Wooden_Barrel thing (BARL:A).
+
+Added Candles and Blue_Candle things (CNDL and CAND).
+Added Chandelier (CDLR) thing and unlit version.
 
