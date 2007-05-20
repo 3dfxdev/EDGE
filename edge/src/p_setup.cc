@@ -1212,6 +1212,9 @@ static void LoadHexenThings(int lump)
 
 		z += R_PointInSubsector(x, y)->sector->f_h;
 
+		if (objtype->flags & MF_SPAWNCEILING)
+			z = ONCEILINGZ;
+
 		SpawnMapThing(objtype, x, y, z, angle, options, tag);
 	}
 
@@ -2246,7 +2249,7 @@ void P_RemoveMobjs(void)
 	for (mo = mobjlisthead; mo; mo = mo->next)
 		P_RemoveMobj(mo);
 
-	P_RemoveQueuedMobjs();
+	P_RemoveQueuedMobjs(true);
 }
 
 //

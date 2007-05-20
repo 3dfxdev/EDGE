@@ -1441,7 +1441,7 @@ void P_RunMobjThinkers(void)
 		P_MobjThinker(mo);
 	}
 
-	P_RemoveQueuedMobjs();
+	P_RemoveQueuedMobjs(false);
 }
 
 //
@@ -1451,7 +1451,7 @@ void P_RunMobjThinkers(void)
 //
 // -ES- 1999/10/24 Written.
 //
-void P_RemoveQueuedMobjs(void)
+void P_RemoveQueuedMobjs(bool force_all)
 {
 	epi::array_iterator_c it;
 	mobj_t *mo;

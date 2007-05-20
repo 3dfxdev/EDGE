@@ -148,7 +148,7 @@ void P_SetMobjDirAndSpeed(mobj_t * mobj, angle_t angle, float slope, float speed
 void P_RunMobjThinkers(void);
 void P_SpawnPuff(float x, float y, float z, const mobjtype_c * puff);
 void P_SpawnBlood(float x, float y, float z, float damage, angle_t angle, const mobjtype_c * blood);
-void P_RemoveQueuedMobjs(void);
+void P_RemoveQueuedMobjs(bool force_all);
 void P_CalcFullProperties(const mobj_t *mo, region_properties_t *newregp);
 
 void P_MobjSetTracer(mobj_t *mo, mobj_t *target);
