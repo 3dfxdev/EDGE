@@ -83,5 +83,5 @@ entries for them into THINGS.DDF.
 
 Added Wall_Torch and Wall_Torch_Unlit things.
 
-Added Christmas_Tree and Crumple_Tree things.
+Added Christmas_Tree, Crumple_Tree and Bell things.
 
