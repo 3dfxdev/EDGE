@@ -72,3 +72,6 @@ the Defender, so and adjusted the entries accordingly.
 
 Note: none of these have any equivalent powerup in EDGE.
 
+Added entries for the monsters.  They are not animated
+however, so are like frozen in the level.
+
