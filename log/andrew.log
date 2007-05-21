@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2007/05/20:
+
+Fixed loading Hexen format maps and not honoring the ON_CEILING
+special from THINGS.DDF.
+
 2007/04/25:
 
 DDF: made the SHOW_CLIP option of WEAPONS.DDF divide the
