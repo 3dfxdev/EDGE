@@ -108,4 +108,10 @@ Added CDRN (Cauldron) things.
 Added FBUL (Fire_Bull) things.
 Added BRTR (Brass_Torch) thing.
 
+According to the Hexen specs, there are quite a few Gargoyle
+sprites (using map ids 72-76 and 8044-8052).  Looking at the
+IWAD, they must use sprites STT2-STT5 and GAR1-GAR9.  Added
+entries for them, and also the Winged_Statue things and the
+Suit_of_Armor.
+
 
