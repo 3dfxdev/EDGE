@@ -94,3 +94,13 @@ Added Wooden_Barrel thing (BARL:A).
 Added Candles and Blue_Candle things (CNDL and CAND).
 Added Chandelier (CDLR) thing and unlit version.
 
+
+2007-MAY-21:
+
+Added TSMK object (Teleport_Smoke).
+Added FSKL object (Fire_Skull).
+
+Added ICM# and ICT# objects (ice stalagmites and stalactites).
+Added SGM# and SLC# things (cave stalagmites and stalactites).
+Added RCK# things (Rocks).
+
