@@ -104,3 +104,8 @@ Added ICM# and ICT# objects (ice stalagmites and stalactites).
 Added SGM# and SLC# things (cave stalagmites and stalactites).
 Added RCK# things (Rocks).
 
+Added CDRN (Cauldron) things.
+Added FBUL (Fire_Bull) things.
+Added BRTR (Brass_Torch) thing.
+
+
