@@ -899,8 +899,8 @@ bool P_TryMove(mobj_t * thing, float x, float y)
 
 	P_ChangeThingPosition(thing, x, y, z);
 
-	P_MobjSetAboveMo(thing, tm_I.above);
-	P_MobjSetBelowMo(thing, tm_I.below);
+	thing->SetAboveMo(tm_I.above);
+	thing->SetBelowMo(tm_I.below);
 
 	// if any special lines were hit, do the effect
 	if (spechit.GetSize() && !(thing->flags & (MF_TELEPORT | MF_NOCLIP)))
@@ -959,8 +959,8 @@ static bool P_ThingHeightClip(mobj_t * thing)
 	thing->ceilingz = tm_I.ceilnz;
 	thing->dropoffz = tm_I.dropoff;
 
-	P_MobjSetAboveMo(thing, tm_I.above);
-	P_MobjSetBelowMo(thing, tm_I.below);
+	thing->SetAboveMo(tm_I.above);
+	thing->SetBelowMo(tm_I.below);
 
 	if (onfloor)
 	{

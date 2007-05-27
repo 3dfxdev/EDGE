@@ -52,7 +52,7 @@ static int lkbot_score;
 
 static void BOT_SetTarget(bot_t *bot, mobj_t *target)
 {
-	P_MobjSetTarget(bot->pl->mo, target);
+	bot->pl->mo->SetTarget(target);
 }
 
 static bool BOT_HasWeapon(bot_t *bot, benefit_t *benefit)
@@ -383,12 +383,12 @@ static bool BOT_LookForEnemies(bot_t *bot)
 		{
 			if (them->supportobj && P_CheckSight(we, them->supportobj))
 			{
-				P_MobjSetSupportObj(we, them->supportobj);
+				we->SetSupportObj(them->supportobj);
 				return true;
 			}
 			else if (P_CheckSight(we, them))
 			{
-				P_MobjSetSupportObj(we, them->supportobj);
+				we->SetSupportObj(them->supportobj);
 				return true;
 			}
 		}

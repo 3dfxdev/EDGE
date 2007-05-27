@@ -47,10 +47,6 @@ void P_SetupLevel(skill_t skill, int autotag);
 // moment it just stops sector effects looping. -ACB- 2005/09/08
 void P_StopLevel(void);
 
-// Needed by savegame code.
-void P_RemoveMobjs(void);
-void P_RemoveItemsInQue(void);
-
 #endif // __P_SETUP__
 
 //--- editor settings ---

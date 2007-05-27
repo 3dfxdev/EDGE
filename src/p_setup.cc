@@ -2239,31 +2239,6 @@ static void LoadReject(int lump)
 	rejectmatrix = (const byte*)W_CacheLumpNum(lump);
 }
 
-//
-// P_RemoveMobjs
-//
-void P_RemoveMobjs(void)
-{
-	mobj_t *mo;
-
-	for (mo = mobjlisthead; mo; mo = mo->next)
-		P_RemoveMobj(mo);
-
-	P_RemoveQueuedMobjs(true);
-}
-
-//
-// P_RemoveItemsInQue
-//
-void P_RemoveItemsInQue(void)
-{
-	while (itemquehead)
-	{
-		iteminque_t *tmp = itemquehead;
-		itemquehead = itemquehead->next;
-		Z_Free(tmp);
-	}
-}
 
 //
 // P_RemoveSectors
