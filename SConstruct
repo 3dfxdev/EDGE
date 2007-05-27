@@ -78,7 +78,7 @@ env.Append(LIBS = ['png', 'jpeg', 'z'])
 # FLTK
 if 0 and build_info['platform'] == 'linux':
     env.Append(CCFLAGS = ['-DUSE_FLTK'])
-    # FIXME
+    env.ParseConfig('fltk-config --cflags --ldflags')
 
 # HawkNL
 if 0:
