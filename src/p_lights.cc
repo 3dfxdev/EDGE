@@ -33,6 +33,7 @@
 #include "m_random.h"
 #include "p_local.h"
 #include "r_state.h"
+#include "s_sound.h"
 #include "z_zone.h"
 
 #include <list>
@@ -381,7 +382,7 @@ void P_RunAmbientSFX(void)
 
 	for (S = ambient_sounds.begin(); S != ambient_sounds.end(); S++)
 	{
-		ambientsfx *amb = *S;
+		ambientsfx_c *amb = *S;
 		
 		if (amb->count > 0)
 			amb->count--;
@@ -389,7 +390,7 @@ void P_RunAmbientSFX(void)
 		{
 			amb->count = SECSFX_TIME;
 
-			S_StartFX(amb->sfx, SNCAT_Level, &amb->sector->sfx_origin, FX_Loop);
+			S_StartFX(amb->sfx, SNCAT_Level, &amb->sector->sfx_origin);
 		}
 	}
 }
