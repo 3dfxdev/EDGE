@@ -186,10 +186,8 @@ typedef struct player_s
 	// -AJA- 1999/08/11: Now uses playerweapon_t.
 	playerweapon_t weapons[MAXWEAPONS];
 
-	// current weapon choice for each key (1..9 and 0).  Note: the
-	// values are indexes into the `choices' array in the corresponding
-	// weaponkey[] structure (i.e. NOT indexes into weaponinfo[]).
-	int key_choices[10];
+	// current weapon choice for each key (1..9 and 0)
+	weapon_selection_e key_choices[10];
 
 	// for status bar: which numbers to light up
 	int avail_weapons[10];

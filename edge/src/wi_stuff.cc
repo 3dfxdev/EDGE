@@ -1457,6 +1457,7 @@ void WI_Start(wbstartstruct_t * wbstartstruct)
 				continue;
 
 			background_camera_mo = mo;
+
 			R_ExecuteSetViewSize();
 
 			// we don't want to see players

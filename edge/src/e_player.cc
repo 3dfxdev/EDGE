@@ -125,9 +125,11 @@ void player_s::Reborn()
 	pending_wp = WPSEL_NoChange;
 
 	memset(weapons, 0, sizeof(weapons));
-	memset(key_choices, 0, sizeof(key_choices));
 	memset(avail_weapons, 0, sizeof(avail_weapons));
 	memset(ammo, 0, sizeof(ammo));
+
+	for (int w=0; w <= 9; w++)
+		key_choices[w] = WPSEL_None;
 
 	cheats = 0;
 	refire = 0;

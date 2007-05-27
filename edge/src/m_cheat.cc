@@ -202,13 +202,32 @@ static void M_ChangeMusicCheat(const char *string)
 	CON_MessageLDF("MusChange");
 }
 
+static void CheatGiveWeapons(player_t *pl, int key = -2)
+{
+	epi::array_iterator_c it;
+	
+	for (it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
+		 it.IsValid(); it++)
+	{
+		weapondef_c *info = ITERATOR_TO_TYPE(it, weapondef_c*);
+
+		if (info && !info->no_cheat && (key<0 || info->bind_key==key))
+		{
+			P_AddWeapon(pl, info, NULL);
+
+			if (info->ammo[0] != AM_NoAmmo)
+				pl->ammo[info->ammo[0]].num = pl->ammo[info->ammo[0]].max;
+		}
+	}
+}
+
 bool M_CheatResponder(event_t * ev)
 {
 #ifdef NOCHEATS
 	return false;
 #endif
 
-	int i, j;
+	int i;
 	player_t *pl = players[consoleplayer];
 
 	// disable cheats while in RTS menu, or demos
@@ -254,19 +273,7 @@ bool M_CheatResponder(event_t * ev)
 	{
 		pl->armours[CHEATARMOURTYPE] = CHEATARMOUR;
 
-		epi::array_iterator_c it;
-		
-		for (it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
-			 it.IsValid(); it++)
-		{
-			weapondef_c* w = ITERATOR_TO_TYPE(it, weapondef_c*);
-
-			if (w && !w->no_cheat)
-				P_AddWeapon(pl, w, NULL);
-		}
-
-		for (i = 0; i < NUMAMMO; i++)
-			pl->ammo[i].num = pl->ammo[i].max;
+		CheatGiveWeapons(pl);
 
 		P_UpdateAvailWeapons(pl);
 		P_UpdateTotalArmour(pl);
@@ -282,19 +289,7 @@ bool M_CheatResponder(event_t * ev)
 	{
 		pl->armours[CHEATARMOURTYPE] = CHEATARMOUR;
 
-		epi::array_iterator_c it;
-
-		for (it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
-			 it.IsValid(); it++)
-		{
-			weapondef_c* w = ITERATOR_TO_TYPE(it, weapondef_c*);
-
-			if (w && !w->no_cheat)
-				P_AddWeapon(pl, w, NULL);
-		}
-
-		for (i = 0; i < NUMAMMO; i++)
-			pl->ammo[i].num = pl->ammo[i].max;
+		CheatGiveWeapons(pl);
 
 		pl->cards = KF_MASK;
 
@@ -336,17 +331,23 @@ bool M_CheatResponder(event_t * ev)
 	else if (M_CheckCheat(&cheat_killall, key))
 	{
 		int killcount = 0;
-		mobj_t *currmobj;
 
-		// Note: this may miss monsters spawned during death frames (like
-		// when the Pain Elemental dies).
-
-		for (currmobj=mobjlisthead; currmobj; currmobj=currmobj->next)
+		// multiple passes to kill Lost Souls spawned when the
+		// Pain Elemental dies.
+		for (int pass = 1; pass <= 3; pass++)
 		{
-			if ((currmobj->extendedflags & EF_MONSTER) && (currmobj->health > 0))
+			mobj_t *mo;
+			mobj_t *next;
+
+			for (mo = mobjlisthead; mo; mo = next)
 			{
-				P_TelefragMobj(currmobj, NULL, NULL);
-				killcount++;
+				next = mo->next;
+
+				if ((mo->extendedflags & EF_MONSTER) && (mo->health > 0))
+				{
+					P_TelefragMobj(mo, NULL, NULL);
+					killcount++;
+				}
 			}
 		}
 
@@ -415,15 +416,7 @@ bool M_CheatResponder(event_t * ev)
 		if (! M_CheckCheat(&cheat_giveweapon[i + 1], key))
 			continue;
 
-		for (j=0; j < weaponkey[i].numchoices; j++)
-		{
-			weapondef_c *info = weaponkey[i].choices[j];
-
-			P_AddWeapon(pl, info, NULL);
-
-			if (info->ammo[0] != AM_NoAmmo)
-				pl->ammo[info->ammo[0]].num = pl->ammo[info->ammo[0]].max;
-		}
+		CheatGiveWeapons(pl, i);
 	}
 
 	// 'choppers' invulnerability & chainsaw

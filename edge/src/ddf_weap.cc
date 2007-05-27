@@ -40,7 +40,7 @@ static weapondef_c buffer_weapon;
 static weapondef_c *dynamic_weapon;
 
 weapondef_container_c weapondefs;
-weaponkey_c weaponkey[WEAPON_KEYS];	// -KM- 1998/11/25 Always 10 weapon keys
+
 
 static void DDF_WGetAmmo(const char *info, void *storage);
 static void DDF_WGetUpgrade(const char *info, void *storage);
@@ -433,58 +433,6 @@ void DDF_WeaponInit(void)
 
 void DDF_WeaponCleanUp(void)
 {
-	// compute the weaponkey array
-	weapondef_container_c tmplist;
-	
-	for (int key = 0; key < WEAPON_KEYS; key++)
-	{
-		weaponkey_c *wk = &weaponkey[key];
-	
-		// Clear the list without destroying the contents
-		tmplist.ZeroiseCount();	
-
-		epi::array_iterator_c it;
-
-		for (it = weapondefs.GetIterator(weapondefs.GetDisabledCount());
-			it.IsValid(); it++)
-		{
-			weapondef_c *wd = ITERATOR_TO_TYPE(it, weapondef_c*);
-			if (!wd)
-				continue;
-				
-			if (wd->bind_key != key)
-				continue;
-				
-			tmplist.Insert(wd);
-		}
-		
-		wk->Load(&tmplist);
-	
-#if 0 // (DEBUG_DDF)
-		L_WriteDebug("DDF_Weap: CHOICES ON KEY %d:\n", key);
-		for (int i=0; i < wk->numchoices; i++)
-		{
-			L_WriteDebug("  %p [%s] pri=%d\n", wk->choices[i], wk->choices[i]->ddf.name.GetString(),
-					wk->choices[i]->priority);
-		}
-#endif
-
-		if (wk->numchoices < 2)
-			continue;
-
-		// sort choices based on weapon priority
-#define CMP(a, b)  ((a)->priority < (b)->priority)
-		QSORT(weapondef_c *, wk->choices, wk->numchoices, CUTOFF);
-#undef CMP
-	}
-	
-	//
-	// Clear the list without destroying the contents
-	// otherwise it'll destroy the weapondefs still
-	// in the tmplist on exit.
-	//
-	tmplist.ZeroiseCount();	
-	
 	// Trim down the required to size
 	weapondefs.Trim();
 }
@@ -833,23 +781,6 @@ weapondef_c* weapondef_container_c::Lookup(const char* refname)
 	//DDF_Error("Unknown weapon type: %s\n", refname);
 	return NULL;
 }
-
-//
-// weaponkey_c::Load()
-//
-void weaponkey_c::Load(weapondef_container_c *wc)
-{
-	Clear();
-	
-	choices = new weapondef_c*[wc->GetSize()];
-	numchoices = wc->GetSize();
-
-	for (int i = 0; i < numchoices; i++)
-	{
-		choices[i] = (*wc)[i];
-	}
-}
-
 
 
 //--- editor settings ---

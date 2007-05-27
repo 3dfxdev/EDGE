@@ -345,10 +345,11 @@ static void SwitchAway(player_t * p, int ATK, int reload)
 //
 static void P_BringUpWeapon(player_t * p)
 {
-	SYS_ASSERT(p->pending_wp != WPSEL_NoChange);
+	weapon_selection_e sel = p->pending_wp;
 
-	weapon_selection_e sel;
-	sel = p->ready_wp = p->pending_wp;
+	SYS_ASSERT(sel != WPSEL_NoChange);
+
+	p->ready_wp = sel;
 
 	p->pending_wp = WPSEL_NoChange;
 	p->psprites[ps_weapon].sy = WEAPONBOTTOM;
@@ -372,6 +373,10 @@ static void P_BringUpWeapon(player_t * p)
 	}
 
 	weapondef_c *info = p->weapons[sel].info;
+
+	// update current key choice
+	if (info->bind_key >= 0)
+		p->key_choices[info->bind_key] = sel;
 
 	if (info->specials[0] & WPSP_Animated)
 		p->psprites[ps_weapon].sy = WEAPONTOP;
@@ -397,20 +402,101 @@ static void P_BringUpWeapon(player_t * p)
 	p->refire = info->refire_inacc ? 0 : 1;
 }
 
-static void UpdateWeaponChoice(player_t *p, int key)
+
+void P_DesireWeaponChange(player_t * p, int key)
 {
-	SYS_ASSERT(p->pending_wp >= 0);
-
-	weapondef_c *info = p->weapons[p->pending_wp].info;
-
-	for (int j = 0; j < weaponkey[key].numchoices; j++)
+	// optimisation: don't keep calculating this over and over
+	// while the user holds down the same number key.
+	if (p->pending_wp >= 0)
 	{
-		if (weaponkey[key].choices[j] == info)
+		weapondef_c *info = p->weapons[p->pending_wp].info;
+
+		if (info->bind_key == key)
+			return;
+	}
+
+#if 0  // OLD CODE
+	int i, j;
+	weaponkey_c *wk = &weaponkey[key];
+
+	for (i=j=player->key_choices[key]; i < (j + wk->numchoices); i++)
+	{
+		weapondef_c *choice = wk->choices[i % wk->numchoices];
+
+		if (! P_PlayerSwitchWeapon(player, choice))
+			continue;
+
+		player->key_choices[key] = i % wk->numchoices;
+		break;
+	}
+#endif
+
+	// NEW CODE
+
+	weapondef_c *ready_info = NULL;
+	if (p->ready_wp >= 0)
+		ready_info = p->weapons[p->ready_wp].info;
+
+	int base_pri = 0;
+
+	if (p->ready_wp >= 0)
+		base_pri = p->weapons[p->ready_wp].info->KeyPri(p->ready_wp);
+
+	int close_idx = -1;
+	int close_pri = 99999999;
+	int wrap_idx  = -1;
+	int wrap_pri  = close_pri;
+
+	for (int i = 0; i < MAXWEAPONS; i++)
+	{
+		if (i == p->ready_wp)
+			continue;
+
+		if (! p->weapons[i].owned)
+			continue;
+
+		weapondef_c *info = p->weapons[i].info;
+
+		if (info->bind_key != key)
+			continue;
+
+		if (! P_CheckWeaponSprite(info))
+			continue;
+
+		// when key & priority are the same, use the index value
+		// to break the deadlock.
+		int new_pri = info->KeyPri(i);
+
+		// if the key is different, choose last weapon used on that key
+		if (ready_info && ready_info->bind_key != key)
 		{
-			p->key_choices[key] = j;
-			break;
+			if (p->key_choices[key] >= 0)
+			{
+				p->pending_wp = p->key_choices[key];
+				return;
+			}
+
+			// if no last weapon, choose HIGHEST priority
+			if (ready_info && ready_info->bind_key != key)
+			{
+				if (close_idx < 0 || new_pri > close_pri)
+					close_idx = i, close_pri = new_pri;
+			}
+		}
+		else  // on same key, use sequence logic
+		{
+			if (new_pri > base_pri && new_pri < close_pri)
+				close_idx = i, close_pri = new_pri;
+
+			if (new_pri < wrap_pri)
+				wrap_idx = i, wrap_pri = new_pri;
 		}
 	}
+
+	if (close_idx >= 0)
+		p->pending_wp = (weapon_selection_e) close_idx;
+	else if (wrap_idx >= 0)
+		p->pending_wp = (weapon_selection_e) wrap_idx;
 }
 
 //
@@ -431,13 +517,12 @@ void P_NextPrevWeapon(player_t * p, int dir)
 	int base_pri = 0;
 
 	if (p->ready_wp >= 0)
-		base_pri = p->weapons[p->ready_wp].info->KeyPri() * 100 + p->ready_wp;
+		base_pri = p->weapons[p->ready_wp].info->KeyPri(p->ready_wp);
 
 	int close_idx = -1;
 	int close_pri = dir * 99999999;
-
-	int wrap_idx = -1;
-	int wrap_pri = close_pri;
+	int wrap_idx  = -1;
+	int wrap_pri  = close_pri;
 
 	for (int i = 0; i < MAXWEAPONS; i++)
 	{
@@ -458,9 +543,9 @@ void P_NextPrevWeapon(player_t * p, int dir)
 		if (! P_CheckWeaponSprite(info))
 			continue;
 
-		// when key & priority are the same, use the index value (+ i)
+		// when key & priority are the same, use the index value
 		// to break the deadlock.
-		int new_pri = info->KeyPri() * 100 + i;
+		int new_pri = info->KeyPri(i);
 
 		if (dir > 0)
 		{
@@ -484,14 +569,6 @@ void P_NextPrevWeapon(player_t * p, int dir)
 		p->pending_wp = (weapon_selection_e) close_idx;
 	else if (wrap_idx >= 0)
 		p->pending_wp = (weapon_selection_e) wrap_idx;
-
-	if (p->pending_wp >= 0)
-	{
-		weapondef_c *info = p->weapons[p->pending_wp].info;
-
-		if (info->bind_key >= 0)
-			UpdateWeaponChoice(p, info->bind_key);
-	}
 }
 
 //
@@ -547,10 +624,6 @@ void P_SelectNewWeapon(player_t * p, int priority, ammotype_e ammo)
 		p->pending_wp = WPSEL_NoChange;
 		return;
 	}
-
-	// update current key choice
-	if (key >= 0)
-		UpdateWeaponChoice(p, key);
 }
 
 //
