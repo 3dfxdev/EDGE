@@ -1036,21 +1036,15 @@ static bool P_ActivateSpecialLine(line_t * line,
 		texSwitch = true;
 	}
 
-#if 0 // FEATURE REMOVED
 	if (special->ambient_sfx && tag > 0)
 	{
 		for (tsec = P_FindSectorFromTag(tag); tsec; tsec = tsec->tag_next)
 		{
-			sectorsfx_t *sfx = NewSectorSFX();
-
-			sfx->count = SECSFX_TIME;
-			sfx->sector = tsec;
-			sfx->sfx = special->ambient_sfx;
-
+			P_AddAmbientSFX(tsec, special->ambient_sfx);
 			texSwitch = true;
 		}
 	}
-#endif
+
 	if (special->music)
 	{
 		S_ChangeMusic(special->music, true);
@@ -1537,16 +1531,9 @@ void P_SpawnSpecials(int autotag)
 		if (secSpecial->use_colourmap)
 			sector->props.colourmap = secSpecial->use_colourmap;
 
-#if 0 // FEATURE REMOVED
 		if (secSpecial->ambient_sfx)
-		{
-			sectorsfx_t *sfx = NewSectorSFX();
+			P_AddAmbientSFX(sector, secSpecial->ambient_sfx);
 
-			sfx->count = SECSFX_TIME;
-			sfx->sector = sector;
-			sfx->sfx = secSpecial->ambient_sfx;
-		}
-#endif
 		// - Plats/Floors -
 		if (secSpecial->f.type != mov_undefined)
 			EV_DoPlane(sector, &secSpecial->f, sector);
