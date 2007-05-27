@@ -221,7 +221,7 @@ typedef struct real_image_s
 		struct { const struct image_s *sky; int face; } merge;
 
 		// case IMSRC_Dummy:
-		struct { byte fg, bg; } dummy;
+		struct { rgbcol_t fg; rgbcol_t bg; } dummy;
 
 		// case IMSRC_User:
 		struct { imagedef_c *def; } user;
@@ -509,7 +509,7 @@ static real_image_t *NewImage(int width, int height, bool solid)
 	return rim;
 }
 
-static image_t *AddDummyImage(const char *name, byte fg, byte bg)
+static image_t *AddDummyImage(const char *name, rgbcol_t fg, rgbcol_t bg)
 {
 	real_image_t *rim;
   
@@ -2080,22 +2080,35 @@ static epi::basicimage_c *ReadDummyAsEpiBlock(real_image_t *rim)
 	SYS_ASSERT(rim->pub.total_w == DUMMY_X);
 	SYS_ASSERT(rim->pub.total_h == DUMMY_Y);
 
-	int tw = rim->pub.total_w;
-	int th = rim->pub.total_h;
-
-	epi::basicimage_c *img = new epi::basicimage_c(tw, th, 1);
-
-	byte *dest = img->pixels;
+	epi::basicimage_c *img = new epi::basicimage_c(DUMMY_X, DUMMY_Y, 4);
 
 	// copy pixels
 	for (int y=0; y < DUMMY_Y; y++)
 	for (int x=0; x < DUMMY_X; x++)
 	{
-		byte src_pix = dummy_graphic[y * DUMMY_X + x];
+		byte *dest_pix = img->PixelAt(x, y);
 
-		byte *dest_pix = dest + (y * rim->pub.total_w) + x;
-
-		*dest_pix = src_pix ? rim->source.dummy.fg : rim->source.dummy.bg;
+		if (dummy_graphic[(DUMMY_Y-1 - y) * DUMMY_X + x])
+		{
+			*dest_pix++ = (rim->source.dummy.fg & 0xFF0000) >> 16;
+			*dest_pix++ = (rim->source.dummy.fg & 0x00FF00) >> 8;
+			*dest_pix++ = (rim->source.dummy.fg & 0x0000FF);
+			*dest_pix++ = 255;
+		}
+		else if (rim->source.dummy.bg == TRANS_PIXEL)
+		{
+			*dest_pix++ = 0;
+			*dest_pix++ = 0;
+			*dest_pix++ = 0;
+			*dest_pix++ = 0;
+		}
+		else
+		{
+			*dest_pix++ = (rim->source.dummy.bg & 0xFF0000) >> 16;
+			*dest_pix++ = (rim->source.dummy.bg & 0x00FF00) >> 8;
+			*dest_pix++ = (rim->source.dummy.bg & 0x0000FF);
+			*dest_pix++ = 255;
+		}
 	}
 
 	return img;
@@ -2480,6 +2493,25 @@ static epi::basicimage_c *ReadAsEpiBlock(real_image_t *rim)
 //  IMAGE LOADING / UNLOADING
 //
 
+static void DumpImage(epi::basicimage_c *img)
+{
+	L_WriteDebug("DUMP IMAGE: size=%dx%d bpp=%d\n",
+			img->width, img->height, img->bpp);
+
+	for (int y=img->height-1; y >= 0; y--)
+	{
+		for (int x=0; x < img->width; x++)
+		{
+			u8_t pixel = img->PixelAt(x,y)[0];
+
+			L_WriteDebug("%02x", pixel);
+			//L_WriteDebug("%c", 'A' + (pixel % 26));
+		}
+
+		L_WriteDebug("\n");
+	}
+}
+
 
 #if 0  // planned....
 static INLINE
@@ -2501,7 +2533,7 @@ real_cached_image_t *LoadImageBlock(real_image_t *rim, int mip)
 }
 #endif
 
-static INLINE
+static
 real_cached_image_t *LoadImageOGL(real_image_t *rim, const colourmap_c *trans)
 {
 	static byte trans_pal[256 * 3];
@@ -2741,6 +2773,13 @@ static const image_t *BackupTexture(const char *tex_name, int flags)
 		return NULL;
 
 	M_WarnError("Unknown texture found in level: '%s'\n", tex_name);
+
+   	if (strncasecmp(tex_name, "SKY", 3) == 0)
+	{
+		rim = dummies.Lookup("DUMMY_SKY");
+		if (rim)
+			return &rim->pub;
+	}
 
 	// return the texture dummy image
 	rim = dummies.Lookup("DUMMY_TEXTURE");
@@ -3440,6 +3479,19 @@ void W_ImagePreCache(const image_t *image)
 
 //----------------------------------------------------------------------------
 
+static void W_CreateDummyImages(void)
+{
+	// setup dummy images
+	AddDummyImage("DUMMY_TEXTURE", 0xAA5511, 0x663300);
+	AddDummyImage("DUMMY_FLAT",    0x11AA11, 0x115511);
+
+	AddDummyImage("DUMMY_GRAPHIC", 0xFF0000, TRANS_PIXEL);
+	AddDummyImage("DUMMY_SPRITE",  0xFFFF00, TRANS_PIXEL);
+	AddDummyImage("DUMMY_FONT",    0xFFFFFF, TRANS_PIXEL);
+
+	skyflatimage = AddDummyImage("DUMMY_SKY", 0x0000AA, 0x55AADD);
+}
+
 //
 // W_InitImages
 //
@@ -3460,16 +3512,6 @@ bool W_InitImages(void)
 	sky_merges.Clear();
 	dummies.Clear();
 
-	// setup dummy images
-	AddDummyImage("DUMMY_TEXTURE", pal_black, pal_brown1);
-	AddDummyImage("DUMMY_FLAT",    pal_black, pal_green1);
-
-	AddDummyImage("DUMMY_GRAPHIC", pal_red,    TRANS_PIXEL);
-	AddDummyImage("DUMMY_SPRITE",  pal_yellow, TRANS_PIXEL);
-	AddDummyImage("DUMMY_FONT",    pal_white,  TRANS_PIXEL);
-
-	skyflatimage = AddDummyImage("DUMMY_SKY", pal_white, pal_blue);
-
     // check options
 	M_CheckBooleanParm("smoothing", &use_smoothing, false);
 	M_CheckBooleanParm("dither", &use_dithering, false);
@@ -3480,6 +3522,8 @@ bool W_InitImages(void)
 		use_mipmapping = 1;
 	else if (M_CheckParm("-trilinear"))
 		use_mipmapping = 2;
+
+	W_CreateDummyImages();
 
 	return true;
 }
