@@ -135,10 +135,14 @@ static int FindPlayingFX(sfxdef_c *def, int cat, position_c *pos)
 	{
 		mix_channel_c *chan = mix_chan[i];
 
-		if (chan->state == CHAN_Playing && chan->def == def &&
-			chan->category == cat && chan->pos == pos)
+		if (chan->state == CHAN_Playing && chan->category == cat &&
+			chan->pos == pos)
 		{
-			return i;
+			if (chan->def == def)
+				return i;
+
+			if (chan->def->singularity > 0 && chan->def->singularity == def->singularity)
+				return i;
 		}
 	}
 
@@ -358,6 +362,7 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 			if (flags & FX_Precious)
 				return;
 
+//I_Printf("@@ Killing sound for SINGULAR\n");
 			S_KillChannel(k);
 			S_PlaySound(k, def, category, pos, flags);
 			return;
@@ -413,9 +418,8 @@ void S_StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 
 	SYS_ASSERT(0 <= category && category < SNCAT_NUMTYPES);
 
-	if (category >= SNCAT_Opponent)
-		if (! pos)
-			I_Error("S_StartFX: position missing for category: %d\n", category);
+	if (category >= SNCAT_Opponent && ! pos)
+		I_Error("S_StartFX: position missing for category: %d\n", category);
 
 	sfxdef_c *def = LookupEffectDef(sfx);
 	SYS_ASSERT(def);
