@@ -1920,8 +1920,15 @@ static epi::basicimage_c *ReadSkyMergeAsEpiBlock(real_image_t *rim)
 	const image_t *sky = rim->source.merge.sky;
 	real_image_t *sky_rim = (real_image_t *) sky; // Intentional Const Override
 
-	// FIXME: may be wrong palette
+	// get correct palette
 	const byte *what_palette = (const byte *) &playpal_data[0];
+	bool what_pal_cached = false;
+
+	if (sky_rim->source_palette >= 0)
+	{
+		what_palette = (const byte *) W_CacheLumpNum(sky_rim->source_palette);
+		what_pal_cached = true;
+	}
 
 	// big hack (see note near top of file)
 	if (! merging_sky_image)
@@ -2081,6 +2088,9 @@ static epi::basicimage_c *ReadSkyMergeAsEpiBlock(real_image_t *rim)
 		dest[(yy * ds_w + x) * 3 + 1] = g;
 		dest[(yy * ds_w + x) * 3 + 2] = b;
 	}
+
+	if (what_pal_cached)
+		W_DoneWithLump(what_palette);
 
 	return img;
 }
@@ -2625,7 +2635,8 @@ real_cached_image_t *LoadImageOGL(real_image_t *rim, const colourmap_c *trans)
 		   rim->source_type == IMSRC_Flat ||
 		   rim->source_type == IMSRC_Texture))))
 	{
-		epi::Hq2x::Setup(&playpal_data[0][0][0], TRANS_PIXEL);
+//		epi::Hq2x::Setup(&playpal_data[0][0][0], TRANS_PIXEL);
+		epi::Hq2x::Setup(what_palette, TRANS_PIXEL);
 
 		epi::basicimage_c *scaled_img =
 			epi::Hq2x::Convert(tmp_img, rim->pub.img_solid, true /* invert */);
