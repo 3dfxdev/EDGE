@@ -63,7 +63,7 @@ void P_Ticker(void)
 	P_RunMobjThinkers();
 	P_RunLights();
 	P_RunActiveSectors();
-//###	P_RunSectorSFX();
+	P_RunAmbientSFX();
 
 	P_UpdateSpecials();
 	P_MobjItemRespawn();
