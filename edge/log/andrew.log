@@ -1,5 +1,48 @@
 Andrew Apted's Log
 
+2007/05/26:
+
+Noticed weapon selection for multiple weapons on a key is
+different than standard DOOM, where pressing '3' always
+switches to the super shotgun (when you have it) and only
+goes to the ordinary shotgun from the super shotgun.
+
+EDGE has the principle (inherited from DOSDoom I think) where
+you switch back to the last weapon you were using on that key.
+I plan to keep that principle, but make it work better than
+it does now.
+
+Okidoke, reworked the weapon selection-by-key stuff, removing
+the now unneeded 'weaponkey' array.  Also made the next-weap/
+prev-weap code use the priority field as the primary sorting
+criteria (the same logic is used when cycling through weapons
+on the same key).
+
+Fixed HQ2X scaling using the wrong palette.
+Fixed pseudo-sky-boxes (SkyMerge) using the wrong palette.
+
+2007/05/25:
+
+Fixed weird assertion failures when a sound lump didn't exist,
+the caching code now creates 256 bytes of silence.
+
+Fixed the chainsaw sound problem, which occurred because the
+singularity feature was not implemented in the new sound code.
+
+Reworked way map objects (mobj_t) are removed from the playsim.
+In this new system, the map object is immediately removed from
+the mobjlist and blockmap, marked as REMOVED (state == NULL),
+and added to the remove_queue list.  The 'fuse' field is used
+to count down time on the remove_queue (three seconds), then
+the object is actually deleted.  Inside P_MobjThinker() we
+check for references to removed objects, and clear them.
+
+The impetus for this system is twofold: (1) allow sounds to
+play for a short time after removing an object (e.g. rockets
+hitting the sky), and (2) it should scale better when a large
+number of objects are being created and destroyed over small
+time-spans.
+
 2007/05/20:
 
 Fixed loading Hexen format maps and not honoring the ON_CEILING
