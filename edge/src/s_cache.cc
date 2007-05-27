@@ -110,6 +110,13 @@ void fx_data_c::Allocate(int samples, int buf_mode)
 
 //----------------------------------------------------------------------------
 
+static void Load_Silence(fx_data_c *buf)
+{
+	buf->Allocate(256, SBUF_Mono);
+
+	memset(buf->data_L, 0, 256);
+}
+
 static void Load_DOOM(fx_data_c *buf, const byte *lump, int length)
 {
 	buf->freq = lump[2] + (lump[3] << 8);
@@ -198,10 +205,9 @@ fx_data_c *S_CacheLoad(sfxdef_c *def)
 			I_Error("SFX '%s' doesn't exist", name);
 		else
 		{
-			delete buf;
-
 			I_Warning("Unknown sound lump %s, ignoring.\n", name);
-			return NULL;
+			Load_Silence(buf);
+			return buf;
 		}
 	}
 
