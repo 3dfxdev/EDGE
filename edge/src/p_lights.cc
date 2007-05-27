@@ -35,6 +35,8 @@
 #include "r_state.h"
 #include "z_zone.h"
 
+#include <list>
+
 light_t *lights = NULL;
 
 //
@@ -322,6 +324,73 @@ void P_RunLights(void)
 	{
 		if (l->count)
 			DoLight(l);
+	}
+}
+
+
+//----------------------------------------------------------------------------
+//  AMBIENT SOUND CODE
+//----------------------------------------------------------------------------
+
+#define SECSFX_TIME  7  // every 7 tics (i.e. 5 times per second)
+
+class ambientsfx_c
+{
+public:
+	sector_t *sector;
+
+	sfx_t *sfx;
+ 
+	// tics to go before next update
+	int count;
+
+public:
+	ambientsfx_c(sector_t *_sec, sfx_t *_fx) :
+		sector(_sec), sfx(_fx), count(SECSFX_TIME)
+	{ }
+
+	~ambientsfx_c()
+	{ }
+};
+
+std::list<ambientsfx_c *> ambient_sounds;
+
+
+void P_AddAmbientSFX(sector_t *sec, sfx_t *sfx)
+{
+	ambient_sounds.push_back(new ambientsfx_c(sec, sfx));
+}
+
+void P_DestroyAllAmbientSFX(void)
+{
+	while (! ambient_sounds.empty())
+	{
+		ambientsfx_c *amb = * ambient_sounds.begin();
+
+		ambient_sounds.pop_front();
+
+		S_StopFX(&amb->sector->sfx_origin);
+
+		delete amb;
+	}
+}
+
+void P_RunAmbientSFX(void)
+{
+	std::list<ambientsfx_c *>::iterator S;
+
+	for (S = ambient_sounds.begin(); S != ambient_sounds.end(); S++)
+	{
+		ambientsfx *amb = *S;
+		
+		if (amb->count > 0)
+			amb->count--;
+		else
+		{
+			amb->count = SECSFX_TIME;
+
+			S_StartFX(amb->sfx, SNCAT_Level, &amb->sector->sfx_origin, FX_Loop);
+		}
 	}
 }
 

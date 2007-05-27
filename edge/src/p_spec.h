@@ -284,6 +284,10 @@ void P_DestroyAllForces(void);
 void P_AddPointForce(sector_t *sec, float length);
 void P_AddSectorForce(sector_t *sec, bool is_wind, float x_mag, float y_mag);
 
+void P_RunAmbientSFX(void);
+void P_AddAmbientSFX(sector_t *sec, sfx_t *sfx);
+void P_DestroyAllAmbientSFX(void);
+
 //
 //  P_SWITCH
 //
