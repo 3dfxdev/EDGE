@@ -156,6 +156,9 @@ void V_InitPalette(void)
 	pal_brown1 = V_FindColour(192, 128, 74);
 
 	I_Printf("Loaded global palette.\n");
+
+	L_WriteDebug("Black:%d White:%d Red:%d Green:%d Blue:%d\n",
+				pal_black, pal_white, pal_red, pal_green, pal_blue);
 }
 
 //
