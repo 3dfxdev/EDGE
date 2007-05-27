@@ -2320,7 +2320,7 @@ void ShutdownLevel(void)
 	P_DestroyAllLights();
 	P_RemoveAllActiveParts();
 	P_FreeShootSpots();
-//###	P_DestroyAllSectorSFX();
+	P_DestroyAllAmbientSFX();
 
 	if (rejectmatrix)
 		W_DoneWithLump(rejectmatrix);
