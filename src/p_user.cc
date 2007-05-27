@@ -626,21 +626,9 @@ void P_PlayerThink(player_t * player)
 		{
 			P_NextPrevWeapon(player, -1);
 		}
-		else  /* numeric key */
+		else /* numeric key */
 		{
-			int i, j;
-			weaponkey_c *wk = &weaponkey[key];
-
-			for (i=j=player->key_choices[key]; i < (j + wk->numchoices); i++)
-			{
-				weapondef_c *choice = wk->choices[i % wk->numchoices];
-
-				if (! P_PlayerSwitchWeapon(player, choice))
-					continue;
-
-				player->key_choices[key] = i % wk->numchoices;
-				break;
-			}
+			P_DesireWeaponChange(player, key);
 		}
 	}
 
@@ -870,6 +858,11 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 	{
 		player->weapons[upgrade_slot].owned = false;
 
+		// check and update key_choices[]
+		for (int w=0; w <= 9; w++)
+			if (player->key_choices[w] == upgrade_slot)
+				player->key_choices[w] = (weapon_selection_e)slot;
+
 		// handle the case of holding the weapon which is being upgraded
 		// by the new one.  We mark the old weapon for removal.
 
@@ -881,7 +874,8 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 		else
 			player->weapons[upgrade_slot].info = NULL;
 
-		// !!! FIXME: check and update key_choices[]
+		if (player->pending_wp == upgrade_slot)
+			player->pending_wp = (weapon_selection_e) slot;
 	}
 
 	return true;
@@ -955,7 +949,7 @@ void P_GiveInitialBenefits(player_t *p, const mobjtype_c *info)
 	int i;
 
 	for (i=0; i < WEAPON_KEYS; i++)
-		p->key_choices[i] = 0;
+		p->key_choices[i] = WPSEL_None;
 
 	// clear out ammo & ammo-limits
 	for (i=0; i < NUMAMMO; i++)

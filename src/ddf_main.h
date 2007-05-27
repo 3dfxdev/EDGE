@@ -1086,12 +1086,12 @@ public:
 	percent_t idle_chance;
 
 public:
-	inline int KeyPri() const  // next/prev order value
+	inline int KeyPri(int idx) const  // next/prev order value
 	{
 		int key = 1 + MAX(-1, MIN(10, bind_key));
 		int pri = 1 + MAX(-1, MIN(900, priority));
 
-		return key * 1000 + pri;
+		return (pri * 20 + key) * 100 + idx;
 	}
 };
 
@@ -1125,31 +1125,6 @@ public:
 	weapondef_c* Lookup(const char* refname);
 };
 
-// -KM- 1998/11/25 Dynamic number of choices, 10 keys.
-class weaponkey_c
-{
-public:
-	weaponkey_c() { choices = NULL; numchoices = 0;	}
-	~weaponkey_c() { Clear(); }
-	
-private:
-	/* ... */
-	
-public:
-	void Clear() 
-	{
-		if (choices)
-			delete [] choices;
-		
-		choices = NULL;
-		numchoices = 0;
-	} 
-	
-	void Load(weapondef_container_c *wc);
-
-	weapondef_c **choices;
-	int numchoices;
-};
 
 // ------------------------------------------------------------------
 // ---------------MAP STRUCTURES AND CONFIGURATION-------------------
@@ -2664,9 +2639,6 @@ extern sfxdef_container_c sfxdefs;			// -ACB- 2004/07/25 Implemented
 extern weapondef_container_c weapondefs;	// -ACB- 2004/07/14 Implemented
 
 extern language_c language;				// -ACB- 2004/06/27 Implemented
-
-// -KM- 1998/11/25 Dynamic number of weapons, always 10 weapon keys.
-extern weaponkey_c weaponkey[WEAPON_KEYS];	
 
 void DDF_Init(void);
 void DDF_CleanUp(void);
