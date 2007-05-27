@@ -107,6 +107,8 @@ void P_MovePsprites(player_t * curplayer);
 void P_SetPsprite(player_t * p, int position, int stnum);
 void P_DropWeapon(player_t * player);
 bool P_CheckWeaponSprite(weapondef_c *info);
+
+void P_DesireWeaponChange(player_t * p, int key);
 void P_NextPrevWeapon(player_t * p, int dir);
 void P_SelectNewWeapon(player_t * player, int priority, ammotype_e ammo);
 void P_TrySwitchNewWeapon(player_t *p, int new_weap, ammotype_e new_ammo);
@@ -151,14 +153,6 @@ void P_SpawnBlood(float x, float y, float z, float damage, angle_t angle, const 
 void P_RemoveQueuedMobjs(bool force_all);
 void P_CalcFullProperties(const mobj_t *mo, region_properties_t *newregp);
 
-void P_MobjSetTracer(mobj_t *mo, mobj_t *target);
-void P_MobjSetSource(mobj_t *mo, mobj_t *target);
-void P_MobjSetTarget(mobj_t *mo, mobj_t *target);
-void P_MobjSetSupportObj(mobj_t *mo, mobj_t *target);
-void P_MobjSetAboveMo(mobj_t *mo, mobj_t *target);
-void P_MobjSetBelowMo(mobj_t *mo, mobj_t *target);
-void P_MobjSetRealSource(mobj_t *mo, mobj_t *source);
-
 // -ACB- 1998/08/02 New procedures for DDF etc...
 void P_MobjItemRespawn(void);
 void P_MobjRemoveMissile(mobj_t * missile);
@@ -167,6 +161,11 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c * type);
 
 // -ACB- 2005/05/06 Sound Effect Category Support
 int P_MobjGetSfxCategory(const mobj_t *mo);
+
+// Needed by savegame code.
+void P_RemoveAllMobjs(void);
+void P_RemoveItemsInQue(void);
+
 
 //
 // P_ENEMY

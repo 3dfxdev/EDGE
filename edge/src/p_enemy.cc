@@ -471,7 +471,7 @@ bool P_LookForPlayers(mobj_t * actor, angle_t range)
 		if (!P_CheckSight(actor, player->mo))
 			continue;
 
-		P_MobjSetTarget(actor, player->mo);
+		actor->SetTarget(player->mo);
 		return true;
 	}
 
@@ -562,7 +562,7 @@ static void SpawnDeathMissile(mobj_t *source, float x, float y, float z)
 	if (th->info->seesound)
 		S_StartFX(th->info->seesound, P_MobjGetSfxCategory(th), th);
 
-	P_MobjSetRealSource(th, source);
+	th->SetRealSource(source);
 
 	th->mom.x = (x - source->x) / 50.0f;
 	th->mom.y = -0.25f;

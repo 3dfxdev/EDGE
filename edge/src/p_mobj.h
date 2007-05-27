@@ -217,7 +217,7 @@ typedef enum
 	MF_UNUSED_8000000 = 0x8000000, // was: JUSTPICKEDUP
 
 	// Object reacts to being touched (often violently :->)
-	MF_TOUCHY = 0x10000000
+	MF_TOUCHY = 0x10000000,
 }
 mobjflag_t;
 
@@ -579,6 +579,22 @@ struct mobj_s : public position_c
 
 	// One more: link in dynamic light blockmap
 	mobj_t *dlnext, *dlprev;
+
+public:
+	inline bool isRemoved()
+	{
+		return (state == NULL);
+	}
+	
+	void SetTracer(mobj_t *ref);
+	void SetSource(mobj_t *ref);
+	void SetTarget(mobj_t *ref);
+	void SetSupportObj(mobj_t *ref);
+	void SetAboveMo(mobj_t *ref);
+	void SetBelowMo(mobj_t *ref);
+	void SetRealSource(mobj_t *ref);
+
+	void ClearStaleRefs();
 };
 
 // Item-in-Respawn-que Structure -ACB- 1998/07/30

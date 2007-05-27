@@ -318,9 +318,9 @@ void SV_MobjCreateElems(int num_elems)
 {
 	// free existing mobjs
 	if (mobjlisthead)
-		P_RemoveMobjs();
+		P_RemoveAllMobjs();
 
-	mobjlisthead = NULL;
+	SYS_ASSERT(mobjlisthead == NULL);
 
 	for (; num_elems > 0; num_elems--)
 	{

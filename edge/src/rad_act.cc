@@ -633,8 +633,13 @@ void RAD_ActDamageMonsters(rad_trigger_t *R, mobj_t *actor, void *param)
 	// scan the mobj list
 	// FIXME: optimise for fixed-sized triggers
 
-	for (mobj_t *mo = mobjlisthead; mo != NULL; mo = mo->next)
+	mobj_t *mo;
+	mobj_t *next;
+
+	for (mo = mobjlisthead; mo != NULL; mo = next)
 	{
+		next = mo->next;
+
 		if (info && mo->info != info)
 			continue;
 
@@ -676,8 +681,13 @@ void RAD_ActThingEvent(rad_trigger_t *R, mobj_t *actor, void *param)
 	// scan the mobj list
 	// FIXME: optimise for fixed-sized triggers
 
-	for (mobj_t *mo = mobjlisthead; mo != NULL; mo = mo->next)
+	mobj_t *mo;
+	mobj_t *next;
+
+	for (mo = mobjlisthead; mo != NULL; mo = next)
 	{
+		next = mo->next;
+
 		if (info && (mo->info != info))
 			continue;
 

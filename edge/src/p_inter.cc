@@ -1013,7 +1013,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 		! ultra_loyal)
 	{
 		// if not intent on another player, chase after this one
-		P_MobjSetTarget(target, source);
+		target->SetTarget(source);
 		target->threshold = BASETHRESHOLD;
 
 		if (target->state == &states[target->info->idle_state] &&

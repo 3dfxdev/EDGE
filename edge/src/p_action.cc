@@ -178,7 +178,7 @@ bool P_ActLookForTargets(mobj_t *we)
 
 			if (them)
 			{
-				P_MobjSetSupportObj(we, them);
+				we->SetSupportObj(them);
 				if (we->info->meander_state)
 					P_SetMobjStateDeferred(we, we->info->meander_state, 0);
 				return true;
@@ -202,7 +202,7 @@ bool P_ActLookForTargets(mobj_t *we)
 
 		if (P_CheckSight(we, them))
 		{
-			P_MobjSetTarget(we, them);
+			we->SetTarget(them);
 			if (we->info->chase_state)
 				P_SetMobjStateDeferred(we, we->info->chase_state, 0);
 			return true;
@@ -1117,7 +1117,7 @@ static mobj_t *DoLaunchProjectile(mobj_t * source, float tx, float ty, float tz,
 	// can shake off the attack or is damaged by it.
 	//
 	projectile->currentattack = attack;
-	P_MobjSetRealSource(projectile, source);
+	projectile->SetRealSource(source);
 
 	// check for blocking lines between source and projectile
 	if (P_MapCheckBlockingLine(source, projectile))
@@ -1147,7 +1147,7 @@ static mobj_t *DoLaunchProjectile(mobj_t * source, float tx, float ty, float tz,
 	// flag the missile not to trace: you cannot track a target that
 	// does not exist...
 
-	P_MobjSetTarget(projectile, target);
+	projectile->SetTarget(target);
 
 	if (! target)
 	{
@@ -1528,7 +1528,7 @@ void P_ActHomingProjectile(mobj_t * projectile)
 
 		if (P_RandomTest(attack->notracechance))
 		{
-			P_MobjSetTarget(projectile, NULL);
+			projectile->SetTarget(NULL);
 			return;
 		}
 	}
@@ -1794,7 +1794,7 @@ static void SprayAttack(mobj_t * mo)
 							   target->z + target->height / 4,
 							   attack->atk_mobj);
 
-		P_MobjSetTarget(ball, mo->target);
+		ball->SetTarget(mo->target);
 
 		// check for immunity against the attack
 		if (BITSET_EMPTY == (attack->attack_class & ~target->info->immunity))
@@ -1934,13 +1934,13 @@ static void LaunchTracker(mobj_t * object)
 								 attack->atk_mobj);
 
 	// link the tracker to the object
-	P_MobjSetTracer(object, tracker);
+	object->SetTracer(tracker);
 
 	// tracker source is the object
-	P_MobjSetRealSource(tracker, object);
+	tracker->SetRealSource(object);
 
 	// tracker's target is the object's target
-	P_MobjSetTarget(tracker, target);
+	tracker->SetTarget(target);
 
 	P_ActTrackerFollow(tracker);
 }
@@ -2155,9 +2155,9 @@ static void ObjectSpawning(mobj_t * parent, angle_t angle)
 	}
 
 	if (! (attack->flags & AF_NoTarget))
-		P_MobjSetTarget(child, parent->target);
+		child->SetTarget(parent->target);
 
-	P_MobjSetSupportObj(child, parent);
+	child->SetSupportObj(parent);
 
 	child->side = parent->side;
 
@@ -2329,7 +2329,7 @@ void P_TouchyContact(mobj_t *touchy, mobj_t *victim)
 	if (touchy->source == victim)
 		return;
 
-	P_MobjSetTarget(touchy, victim);
+	touchy->SetTarget(victim);
 	touchy->flags &= ~MF_TOUCHY;  // disarm
 
 	if (touchy->info->touch_state)
@@ -2890,23 +2890,16 @@ static mobj_t *SelectTarget(bool newlev)
 		return NULL;
 
 	// Find mobj in list 
-	count = P_Random();
-	while (count)
+	for (count = P_Random(); count > 0; count--)
 	{
-		if (targetobj)
-			targetobj = targetobj->next;
-		else
-			targetobj = mobjlisthead;
+		targetobj = targetobj->next;
 
-		count--;
+		if (! targetobj)
+			targetobj = mobjlisthead;
 	}
 
-	// Found end of list
-	if (!targetobj)
-		return NULL;
-
 	// Not a valid obj?
-	if (!(targetobj->info->extendedflags & EF_MONSTER) || targetobj->health<=0)
+	if (!(targetobj->info->extendedflags & EF_MONSTER) || targetobj->health <=0)
 		return NULL;
 
 	return targetobj;
@@ -2989,7 +2982,7 @@ static bool CreateAggression(mobj_t * object)
 		return false;
 	}
 
-	P_MobjSetTarget(object, target);
+	object->SetTarget(target);
 
 	if (object->info->chase_state)
 		P_SetMobjStateDeferred(object, object->info->chase_state, 0);
@@ -3036,7 +3029,7 @@ void P_ActStandardLook(mobj_t * object)
 
 	if (targ && (targ->flags & MF_SHOOTABLE))
 	{
-		P_MobjSetTarget(object, targ);
+		object->SetTarget(targ);
 
 		if (object->flags & MF_AMBUSH)
 		{
@@ -3209,7 +3202,7 @@ void P_ActStandardChase(mobj_t * object)
 			return;
 
 		// -ACB- 1998/09/06 Target is not relevant: NULLify.
-		P_MobjSetTarget(object, NULL);
+		object->SetTarget(NULL);
 
 		P_SetMobjStateDeferred(object, object->info->idle_state, 0);
 		return;
@@ -3301,13 +3294,13 @@ void P_ActResurrectChase(mobj_t * object)
 		// -ACB- 1998/09/05 Support Check: Res creatures to support that object
 		if (object->supportobj)
 		{
-			P_MobjSetSupportObj(corpse, object->supportobj);
-			P_MobjSetTarget(corpse, object->target);
+			corpse->SetSupportObj(object->supportobj);
+			corpse->SetTarget(object->target);
 		}
 		else
 		{
-			P_MobjSetSupportObj(corpse, NULL);
-			P_MobjSetTarget(corpse, NULL);
+			corpse->SetSupportObj(NULL);
+			corpse->SetTarget(NULL);
 		}
 
 		// -AJA- Resurrected creatures are on Archvile's side (like MBF)
@@ -3366,7 +3359,7 @@ void P_ActKeenDie(mobj_t * mo)
 			return; // other Keen not dead
 	}
 
-  L_WriteDebug("P_ActKeenDie: ALL DEAD, activating...\n");
+	L_WriteDebug("P_ActKeenDie: ALL DEAD, activating...\n");
 
 	P_RemoteActivation(NULL, 2 /* door type */, 666 /* tag */, 0, line_Any);
 }
@@ -3456,7 +3449,7 @@ void P_PlayerAttack(mobj_t * p_obj, const atkdef_c * attack)
 	mobj_t *target = P_MapTargetAutoAim(p_obj, p_obj->angle, range, 
 				 (attack->flags & AF_ForceAim) ? true : false);
 
-	P_MobjSetTarget(p_obj, target);
+	p_obj->SetTarget(target);
 
 	if (attack->flags & AF_FaceTarget)
 		P_ActFaceTarget(p_obj);

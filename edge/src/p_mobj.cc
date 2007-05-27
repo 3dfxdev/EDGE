@@ -69,7 +69,35 @@
 
 #include "epi/arrays.h"
 
+#include <list>
+
 #define DEBUG_MOBJ  0
+
+#if 1  // DEBUGGING
+void P_DumpMobjs(void)
+{
+	mobj_t *mo;
+
+	int index = 0;
+
+	L_WriteDebug("MOBJs:\n");
+
+	for (mo=mobjlisthead; mo; mo=mo->next, index++)
+	{
+		L_WriteDebug(" %4d: %p next:%p prev:%p [%s] at (%1.0f,%1.0f,%1.0f) states=%d > %d tics=%d\n",
+			index,
+			mo, mo->next, mo->prev,
+			mo->info->ddf.name.GetString(),
+			mo->x, mo->y, mo->z,
+			mo->state ? mo->state - states : -1,
+			mo->next_state ? mo->next_state - states : -1,
+			mo->tics);
+	}
+
+	L_WriteDebug("END OF MOBJs\n");
+}
+#endif
+
 
 // The Object Removal Que
 class mobjlist_c : public epi::array_c
@@ -96,12 +124,12 @@ public:
 	} 
 };
 
-mobjlist_c removeque;
-
 // List of all objects in map.
 mobj_t *mobjlisthead;
 
 // Where objects go to die...
+static std::list<mobj_t *> remove_queue;
+
 iteminque_t *itemquehead;
 
 spawnpoint_t* spawnpointarray_c::FindPlayer(int pnum)
@@ -158,6 +186,7 @@ static void EnterBounceStates(mobj_t * mo)
 	}
 
 	mo->extendedflags |= EF_JUSTBOUNCED;
+
 	P_SetMobjState(mo, mo->info->bounce_state);
 }
 
@@ -384,6 +413,8 @@ static void ResurrectRespawn(mobj_t * mobj)
 
 	P_SetMobjState(mobj, info->raise_state);
 
+	SYS_ASSERT(! mobj->isRemoved());
+
 	mobj->flags = info->flags;
 	mobj->extendedflags = info->extendedflags;
 	mobj->hyperflags = info->hyperflags;
@@ -392,8 +423,8 @@ static void ResurrectRespawn(mobj_t * mobj)
 	mobj->visibility = PERCENT_2_FLOAT(info->translucency);
 	mobj->movecount = 0;  // -ACB- 1998/08/03 Don't head off in any direction
 
-	P_MobjSetSource(mobj, NULL);
-	P_MobjSetTarget(mobj, NULL);
+	mobj->SetSource(NULL);
+	mobj->SetTarget(NULL);
 
 	mobj->tag = mobj->spawnpoint.tag;
 
@@ -404,125 +435,59 @@ static void ResurrectRespawn(mobj_t * mobj)
 	return;
 }
 
+void mobj_t::ClearStaleRefs()
+{
+	if (target && target->isRemoved()) SetTarget(NULL);
+	if (source && source->isRemoved()) SetSource(NULL);
+	if (tracer && tracer->isRemoved()) SetTracer(NULL);
+
+	if (supportobj && supportobj->isRemoved()) SetSupportObj(NULL);
+	if (above_mo   && above_mo->isRemoved())   SetAboveMo(NULL);
+	if (below_mo   && below_mo->isRemoved())   SetBelowMo(NULL);
+}
 
 //
-// DoRemoveMobj
+// Finally destroy the map object.
 //
-// Remove the map object.  This routine common to P_RemoveMobj and
-// P_MobjRemoveMissile.
-//
-// -AJA- 1999/09/15: written.
-//
-static void DoRemoveMobj(mobj_t * mo)
+static void DeleteMobj(mobj_t * mo)
 {
 #if (DEBUG_MOBJ > 0)
-	L_WriteDebug("tics=%05d  REMOVE %p [%s]\n", leveltime, mo, 
-		mo->info ? mo->info->ddf.name : "???");
+	L_WriteDebug("tics=%05d  DELETE %p [%s]\n", leveltime, mo, 
+		mo->info ? mo->info->ddf.name.GetString() : "???");
 #endif
 
-	// -------------------------------------------------------------------
-	// -ACB- 1998/08/27 Mobj Linked-List Removal
-	//
-	// A useful way of cycling through the current things without
-	// having to deref and search everything using thinkers.
-	//
-
-	// unlink from sector and block lists
-	P_UnsetThingFinally(mo);
-
-	if (mo->prev == NULL)  // no previous, must be first item
-	{
-		SYS_ASSERT(mobjlisthead == mo);
-		mobjlisthead = mo->next;
-
-		if (mobjlisthead != NULL)
-		{
-			SYS_ASSERT(mobjlisthead->prev == mo);
-			mobjlisthead->prev = NULL;
-		}
-	}
-	else
-	{
-		SYS_ASSERT(mo->prev->next == mo);
-		mo->prev->next = mo->next;
-
-		if (mo->next != NULL)
-		{
-			SYS_ASSERT(mo->next->prev == mo);
-			mo->next->prev = mo->prev;
-		}
-	}
-
-	// Clear all references to other mobjs
-	P_MobjSetTracer(mo, NULL);
-	P_MobjSetSource(mo, NULL);
-	P_MobjSetTarget(mo, NULL);
-	P_MobjSetSupportObj(mo, NULL);
-	P_MobjSetAboveMo(mo, NULL);
-	P_MobjSetBelowMo(mo, NULL);
-
-	// clear all references FROM other mobjs. A bit more tricky: We have to
-	// search through the reference list for links to this mobj. Luckily
-	// we have the refcount that tells us how many occurances we have to find.
-	if (mo->refcount)
-	{
-		mobj_t *ref;
-
-#define CHECK_REF(field)\
-	if (ref->field == mo)\
-		{\
-		*((mobj_t**) &ref->field) = NULL;\
-		mo->refcount--;\
-		}
-
-		for (ref = mobjlisthead; ref && mo->refcount; ref = ref->next)
-		{
-			CHECK_REF(tracer);
-			CHECK_REF(source);
-			CHECK_REF(target);
-			CHECK_REF(supportobj);
-			CHECK_REF(above_mo);
-			CHECK_REF(below_mo);
-		}
-#undef CHECK_REF
-
-#ifdef DEVELOPERS
-		// someone forgot to clear a reference after use
-		if (mo->refcount != 0)
-			I_Error("INTERNAL ERROR: Reference count %d", mo->refcount);
-#endif
-	}
+	if (mo->refcount != 0)
+		I_Error("INTERNAL ERROR: Reference count %d", mo->refcount);
 
 	// Sound might still be playing, so use remove the
     // link between object and effect
 
-    // FIXME: delay removal for a few seconds (allow sound to finish)
     S_StopFX(mo);
 
-	Z_Free(mo); // Finally destroy the object
+	Z_Free(mo);
 }
 
 // ======================== END OF INTERNALS ======================== 
 
-// Use these functions to set mobj entries. Never modify the entries directly.
-#define CREATE_FUNCTION(name, field)\
-	void name(mobj_t *mo, mobj_t *target)\
-{\
-	if (mo->field)\
-	mo->field->refcount--;\
-	mo->field = target;\
-	if (target)\
-	target->refcount++;\
+// Use these methods to set mobj entries.
+// NEVER EVER modify the entries directly.
+
+#define FUNCTION_BODY(field) \
+{ \
+	if (field) field->refcount--; \
+	field = ref; \
+	if (field) field->refcount++; \
 }
 
-CREATE_FUNCTION(P_MobjSetTracer, tracer)
-CREATE_FUNCTION(P_MobjSetSource, source)
-CREATE_FUNCTION(P_MobjSetTarget, target)
-CREATE_FUNCTION(P_MobjSetSupportObj, supportobj)
-CREATE_FUNCTION(P_MobjSetAboveMo, above_mo)
-CREATE_FUNCTION(P_MobjSetBelowMo, below_mo)
+void mobj_t::SetTarget(mobj_t *ref)  FUNCTION_BODY(target)
+void mobj_t::SetSource(mobj_t *ref)  FUNCTION_BODY(source)
+void mobj_t::SetTracer(mobj_t *ref)  FUNCTION_BODY(tracer)
 
-#undef CREATE_FUNCTION
+void mobj_t::SetSupportObj(mobj_t *ref)  FUNCTION_BODY(supportobj)
+void mobj_t::SetAboveMo(mobj_t *ref)     FUNCTION_BODY(above_mo)
+void mobj_t::SetBelowMo(mobj_t *ref)     FUNCTION_BODY(below_mo)
+
+#undef FUNCTION_BODY
 
 //
 // P_MobjSetRealSource
@@ -531,12 +496,12 @@ CREATE_FUNCTION(P_MobjSetBelowMo, below_mo)
 //       really want to know is who spawned the original missile
 //       (the "instigator" of all the mayhem :-).
 //
-void P_MobjSetRealSource(mobj_t *mo, mobj_t *source)
+void mobj_t::SetRealSource(mobj_t *ref)
 {
-	while (source && source->source && (source->flags & MF_MISSILE))
-		source = source->source;
+	while (ref && ref->source && (ref->flags & MF_MISSILE))
+		ref = ref->source;
 
-	P_MobjSetSource(mo, source);
+	SetSource(ref);
 }
 
 //
@@ -549,12 +514,11 @@ bool P_SetMobjState(mobj_t * mobj, statenum_t state)
 	state_t *st;
 
 	// ignore removed objects
-	if (! mobj->state)
+	if (mobj->isRemoved())
 		return false;
 
 	if (state == S_NULL)
 	{
-		mobj->state = mobj->next_state = NULL;
 		P_RemoveMobj(mobj);
 		return false;
 	}
@@ -567,7 +531,7 @@ bool P_SetMobjState(mobj_t * mobj, statenum_t state)
 	mobj->frame  = st->frame;
 	mobj->bright = st->bright;
 	mobj->next_state = (st->nextstate == S_NULL) ? NULL :
-	(states + st->nextstate);
+		(states + st->nextstate);
 
 	if (st->action)
 		(* st->action)(mobj);
@@ -590,15 +554,14 @@ bool P_SetMobjState(mobj_t * mobj, statenum_t state)
 bool P_SetMobjStateDeferred(mobj_t * mo, statenum_t stnum, int tic_skip)
 {
 	// ignore removed objects
-	if (!mo->state || !mo->next_state)
+	if (mo->isRemoved() || !mo->next_state)
 		return false;
 
-	if (stnum == S_NULL)
-	{
-		mo->state = mo->next_state = NULL;
-		P_RemoveMobj(mo);
-		return false;
-	}
+///???	if (stnum == S_NULL)
+///???	{
+///???		P_RemoveMobj(mo);
+///???		return false;
+///???	}
 
 	mo->next_state = (stnum == S_NULL) ? NULL : (states + stnum);
 
@@ -1285,9 +1248,14 @@ static void P_MobjThinker(mobj_t * mobj)
 	SYS_ASSERT_MSG(-1 != (int)mobj->next, 
 		("P_MobjThinker INTERNAL ERROR: mobj has been Z_Freed"));
 
-	// ignore removed objects
-	if (! mobj->state)
-		return;
+	SYS_ASSERT(mobj->state);
+	SYS_ASSERT(mobj->refcount >= 0);
+
+	mobj->ClearStaleRefs();
+
+///---	// ignore removed objects
+///---	if (! mobj->state)
+///---		return;
 
 	mobj->visibility = (15 * mobj->visibility + mobj->vis_target) / 16;
 	mobj->dlight_qty = (15 * mobj->dlight_qty + mobj->dlight_target) / 16;
@@ -1300,6 +1268,8 @@ static void P_MobjThinker(mobj_t * mobj)
 		mobj->mom.x = mobj->mom.y = mobj->mom.z = 0;
 
 		P_SetMobjState(mobj, mobj->info->idle_state);
+
+		if (mobj->isRemoved()) return;
 	}
 
 	// determine properties, & handle push sectors
@@ -1345,17 +1315,23 @@ static void P_MobjThinker(mobj_t * mobj)
 	if (mobj->mom.x != 0 || mobj->mom.y != 0) //  || mobj->ride_em)
 	{
 		P_XYMovement(mobj, props);
+
+		if (mobj->isRemoved()) return;
 	}
 
 	if ((mobj->z != mobj->floorz) || mobj->mom.z != 0) //  || mobj->ride_em)
 	{
 		P_ZMovement(mobj, props);
+
+		if (mobj->isRemoved()) return;
 	}
 
 	if (mobj->fuse >= 0)
 	{
 		if (!--mobj->fuse)
 			P_MobjExplodeMissile(mobj);
+
+		if (mobj->isRemoved()) return;
 	}
 
 	if (mobj->tics < 0)
@@ -1397,11 +1373,6 @@ static void P_MobjThinker(mobj_t * mobj)
 		return;
 	}
 
-	// this can only happen if one of the above movement routines caused
-	// the mobj to be removed (e.g. exploded missile).
-	if (! mobj->state)
-		return;
-
 	// Cycle through states, calling action functions at transitions.
 	// -AJA- 1999/09/12: reworked for deferred states.
 	// -AJA- 2000/10/17: reworked again.
@@ -1417,11 +1388,11 @@ static void P_MobjThinker(mobj_t * mobj)
 		// You can cycle through multiple states in a tic.
 		// NOTE: returns false if object freed itself.
 
-		if (! P_SetMobjState(mobj, mobj->next_state ?
-			(mobj->next_state - states) : S_NULL))
-		{
+		P_SetMobjState(mobj, mobj->next_state ?
+			(mobj->next_state - states) : S_NULL);
+
+		if (mobj->isRemoved())
 			return;
-		}
 
 		if (mobj->tics != 0)
 			break;
@@ -1432,12 +1403,16 @@ static void P_MobjThinker(mobj_t * mobj)
 // P_RunMobjThinkers
 //
 // Cycle through all mobjs and let them think.
+//
 void P_RunMobjThinkers(void)
 {
 	mobj_t *mo;
+	mobj_t *next;
 
-	for (mo = mobjlisthead; mo; mo = mo->next)
+	for (mo = mobjlisthead; mo; mo = next)
 	{
+		next = mo->next;
+
 		P_MobjThinker(mo);
 	}
 
@@ -1447,22 +1422,77 @@ void P_RunMobjThinkers(void)
 //
 // P_RemoveQueuedMobjs
 //
-// Removes all the mobjs in the removeque list.
+// Removes all the mobjs in the remove_queue list.
 //
 // -ES- 1999/10/24 Written.
 //
 void P_RemoveQueuedMobjs(bool force_all)
 {
-	epi::array_iterator_c it;
-	mobj_t *mo;
+	std::list<mobj_t *>::iterator M;
 
-	for (it = removeque.GetBaseIterator(); it.IsValid(); it++)
+	bool did_remove = false;
+
+	for (M = remove_queue.begin(); M != remove_queue.end(); M++)
 	{
-		mo = ITERATOR_TO_TYPE(it, mobj_t*);
-		DoRemoveMobj(mo);
+		mobj_t *mo = *M;
+
+		mo->fuse--;
+
+		if (mo->fuse <= 0 || force_all)
+		{
+			DeleteMobj(mo);
+
+			// cannot mess with the list while traversing it,
+			// hence set the current entry to NULL and remove
+			// those nodes afterwards.
+			*M = NULL; did_remove = true;
+		}
 	}
-	
-	removeque.ZeroiseCount();
+
+	if (did_remove)
+		remove_queue.remove(NULL);
+}
+
+static void AddMobjToList(mobj_t *mo)
+{
+	mo->prev = NULL;
+	mo->next = mobjlisthead;
+
+	if (mo->next != NULL)
+	{
+		SYS_ASSERT(mo->next->prev == NULL);
+		mo->next->prev = mo;
+	}
+
+	mobjlisthead = mo;
+
+#if (DEBUG_MOBJ > 0)
+	L_WriteDebug("tics=%05d  ADD %p [%s]\n", leveltime, mo, 
+		mo->info ? mo->info->ddf.name.GetString() : "???");
+#endif
+}
+
+static void RemoveMobjFromList(mobj_t *mo)
+{
+	if (mo->prev != NULL)
+	{
+		SYS_ASSERT(mo->prev->next == mo);
+		mo->prev->next = mo->next;
+	}
+	else // no previous, must be first item
+	{
+		SYS_ASSERT(mobjlisthead == mo);
+		mobjlisthead = mo->next;
+	}
+
+	if (mo->next != NULL)
+	{
+		SYS_ASSERT(mo->next->prev == mo);
+		mo->next->prev = mo->prev;
+	}
+
+	mo->next = (mobj_t *) -1;
+	mo->prev = (mobj_t *) -1;
 }
 
 //
@@ -1476,7 +1506,20 @@ void P_RemoveQueuedMobjs(bool force_all)
 //
 void P_RemoveMobj(mobj_t *mo)
 {
-	if ((deathmatch >= 2 || level_flags.itemrespawn) &&
+#if (DEBUG_MOBJ > 0)
+	L_WriteDebug("tics=%05d  REMOVE %p [%s]\n", leveltime, mo, 
+		mo->info ? mo->info->ddf.name.GetString() : "???");
+#endif
+
+	if (mo->isRemoved())
+	{
+		L_WriteDebug("Warning: Object %p (%s) REMOVED TWICE\n",
+		     mo, mo->info ? mo->info->ddf.name.GetString() : "???");
+		return;
+	}
+
+	if (! (mo->flags & MF_MISSILE) &&
+		(deathmatch >= 2 || level_flags.itemrespawn) &&
 		(mo->info->flags & MF_SPECIAL) && 
 		!(mo->extendedflags & EF_NORESPAWN) &&
 		!(mo->flags & MF_DROPPED))
@@ -1505,7 +1548,57 @@ void P_RemoveMobj(mobj_t *mo)
 		}
 	}
 
-	removeque.Insert(mo);
+	// mark as REMOVED
+	mo->state = NULL;
+	mo->next_state = NULL;
+
+	// Clear all references to other mobjs
+	mo->SetTarget(NULL);
+	mo->SetSource(NULL);
+	mo->SetTracer(NULL);
+
+	mo->SetSupportObj(NULL);
+	mo->SetAboveMo(NULL);
+	mo->SetBelowMo(NULL);
+
+	// unlink from sector and block lists
+	P_UnsetThingFinally(mo);
+
+	// remove from global list
+	RemoveMobjFromList(mo);
+
+	// set timer to keep in the remove queue ("IN LIMBO")
+	mo->fuse = TICRATE * 3;
+
+	remove_queue.push_back(mo);
+}
+
+void P_RemoveAllMobjs(void)
+{
+	while (mobjlisthead)
+	{
+		mobj_t *mo = mobjlisthead;
+
+		P_UnsetThingFinally(mo);
+
+		RemoveMobjFromList(mo);
+
+		mo->refcount = 0;
+		DeleteMobj(mo);
+	}
+}
+
+//
+// P_RemoveItemsInQue
+//
+void P_RemoveItemsInQue(void)
+{
+	while (itemquehead)
+	{
+		iteminque_t *tmp = itemquehead;
+		itemquehead = itemquehead->next;
+		Z_Free(tmp);
+	}
 }
 
 //
@@ -1639,8 +1732,8 @@ void P_MobjItemRespawn(void)
 		// any references by the previous and next items to
 		// the current one.....
 
-		if (next)
-			next->prev = cur->prev;
+		if (cur->next)
+			cur->next->prev = cur->prev;
 
 		if (cur->prev)
 			cur->prev->next = next;
@@ -1668,12 +1761,12 @@ void P_MobjItemRespawn(void)
 //
 void P_MobjRemoveMissile(mobj_t * missile)
 {
+	P_RemoveMobj(missile);
+
 	missile->mom.x = missile->mom.y = missile->mom.z = 0;
 
 	missile->flags &= ~(MF_MISSILE | MF_TOUCHY);
 	missile->extendedflags &= ~(EF_BOUNCE);
-
-	removeque.Insert(missile);
 }
 
 //
@@ -1695,7 +1788,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 
 #if (DEBUG_MOBJ > 0)
 	L_WriteDebug("tics=%05d  CREATE %p [%s]  AT %1.0f,%1.0f,%1.0f\n", 
-		leveltime, mobj, type->ddf.name, x, y, z);
+		leveltime, mobj, type->ddf.name.GetString(), x, y, z);
 #endif
 
 	mobj->info = type;
@@ -1748,6 +1841,8 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 	mobj->bright = st->bright;
 	mobj->next_state = st;
 
+	SYS_ASSERT(! mobj->isRemoved());
+
 	// enable usable items
 	if (mobj->extendedflags & EF_USABLE)
 		mobj->flags |= MF_TOUCHY;
@@ -1790,13 +1885,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 	//
 	// -AJA- 1999/09/15: now adds to _head_ of list (for speed).
 	//
-	mobj->prev = NULL;
-	mobj->next = mobjlisthead;
-
-	if (mobjlisthead != NULL)
-		mobjlisthead->prev = mobj;
-
-	mobjlisthead = mobj;
+	AddMobjToList(mobj);
 
 	return mobj;
 }
@@ -1823,28 +1912,6 @@ int P_MobjGetSfxCategory(const mobj_t *mo)
 		return SNCAT_Object;
     }
 }
-
-#if 0  // DEBUGGING
-void P_DumpMobjs(void)
-{
-	mobj_t *mo;
-	int index;
-
-	L_WriteDebug("MOBJs:\n");
-
-	for (mo=mobjlisthead,index=0; mo; mo=mo->next, index++)
-	{
-		L_WriteDebug("  %3d: [%s] at (%d,%d,%d) states=%d > %d tics=%d\n",
-			index, mo->info->ddf.name,
-			(int)mo->x, (int)mo->y, (int)mo->z,
-			mo->state ? mo->state - states : -1,
-			mo->next_state ? mo->next_state - states : -1,
-			mo->tics);
-	}
-
-	L_WriteDebug("END OF MOBJs\n");
-}
-#endif
 
 
 //--- editor settings ---
