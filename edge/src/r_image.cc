@@ -384,13 +384,6 @@ static real_image_container_c real_sprites;
 static real_image_container_c sky_merges;
 static real_image_container_c dummies;
 
-#define RIM_DUMMY_TEX     dummies[0]
-#define RIM_DUMMY_FLAT    dummies[1]
-#define RIM_SKY_FLAT      dummies[2]
-#define RIM_DUMMY_GFX     dummies[3]
-#define RIM_DUMMY_SPRITE  dummies[4]
-#define RIM_DUMMY_FONT    dummies[5]
-
 const struct image_s *skyflatimage;
 
 // -AJA- Another hack, this variable holds the current sky when
@@ -516,45 +509,23 @@ static real_image_t *NewImage(int width, int height, bool solid)
 	return rim;
 }
 
-static real_image_t *AddImageDummy(image_source_e realsrc, const char *name)
+static image_t *AddDummyImage(const char *name, byte fg, byte bg)
 {
 	real_image_t *rim;
   
-	rim = NewImage(DUMMY_X, DUMMY_Y, 
-				   (realsrc != IMSRC_Graphic) && (realsrc != IMSRC_Sprite));
+	rim = NewImage(DUMMY_X, DUMMY_Y, (bg == TRANS_PIXEL));
  
  	strcpy(rim->name, name);
 
 	rim->source_type = IMSRC_Dummy;
 	rim->source_palette = -1;
 
-	switch (realsrc)
-	{
-		case IMSRC_Texture:
-		case IMSRC_SkyMerge:
-			rim->source.dummy.fg = pal_black;
-			rim->source.dummy.bg = pal_brown1;
-			break;
-
-		case IMSRC_Flat:
-		case IMSRC_Raw320x200:
-			rim->source.dummy.fg = pal_black;
-			rim->source.dummy.bg = pal_green1;
-			break;
-
-		case IMSRC_Graphic:
-		case IMSRC_Sprite:
-			rim->source.dummy.fg = pal_yellow;
-			rim->source.dummy.bg = TRANS_PIXEL;
-			break;
-    
-		default:
-			I_Error("AddImageDummy: bad realsrc value %d !\n", realsrc);
-	}
+	rim->source.dummy.fg = fg;
+	rim->source.dummy.bg = bg;
 
 	dummies.Insert(rim);
 
-	return rim;
+	return &rim->pub;
 }
 
 static real_image_t *AddImageGraphic(const char *name,
@@ -2118,14 +2089,14 @@ static epi::basicimage_c *ReadDummyAsEpiBlock(real_image_t *rim)
 
 	// copy pixels
 	for (int y=0; y < DUMMY_Y; y++)
-		for (int x=0; x < DUMMY_X; x++)
-		{
-			byte src_pix = dummy_graphic[y * DUMMY_X + x];
+	for (int x=0; x < DUMMY_X; x++)
+	{
+		byte src_pix = dummy_graphic[y * DUMMY_X + x];
 
-			byte *dest_pix = dest + (y * rim->pub.total_w) + x;
+		byte *dest_pix = dest + (y * rim->pub.total_w) + x;
 
-			*dest_pix = src_pix ? rim->source.dummy.fg : rim->source.dummy.bg;
-		}
+		*dest_pix = src_pix ? rim->source.dummy.fg : rim->source.dummy.bg;
+	}
 
 	return img;
 }
@@ -2772,7 +2743,9 @@ static const image_t *BackupTexture(const char *tex_name, int flags)
 	M_WarnError("Unknown texture found in level: '%s'\n", tex_name);
 
 	// return the texture dummy image
-	rim = RIM_DUMMY_TEX;
+	rim = dummies.Lookup("DUMMY_TEXTURE");
+	SYS_ASSERT(rim);
+
 	return &rim->pub;
 }
 
@@ -2811,7 +2784,9 @@ static const image_t *BackupFlat(const char *flat_name, int flags)
 	M_WarnError("Unknown flat found in level: '%s'\n", flat_name);
 
 	// return the flat dummy image
-	rim = RIM_DUMMY_FLAT;
+	rim = dummies.Lookup("DUMMY_FLAT");
+	SYS_ASSERT(rim);
+
 	return &rim->pub;
 }
 
@@ -2853,7 +2828,9 @@ static const image_t *BackupGraphic(const char *gfx_name, int flags)
 	M_WarnError("Unknown graphic: '%s'\n", gfx_name);
 
 	// return the graphic dummy image
-	rim = (flags & ILF_Font) ? RIM_DUMMY_FONT : RIM_DUMMY_GFX;
+	rim = dummies.Lookup((flags & ILF_Font) ? "DUMMY_FONT" : "DUMMY_GRAPHIC");
+	SYS_ASSERT(rim);
+
 	return &rim->pub;
 }
 
@@ -2898,7 +2875,7 @@ const image_t *W_ImageLookup(const char *name, image_namespace_e type, int flags
 				if (flags & ILF_Null)
 					return NULL;
 				
-				rim = RIM_DUMMY_SPRITE;
+				return W_ImageForDummySprite();
 			}
 			break;
 
@@ -2993,7 +2970,9 @@ const image_t *W_ImageFromSkyMerge(const image_t *sky, int face)
 // 
 const image_t *W_ImageForDummySprite(void)
 {
-	const real_image_t *rim = RIM_DUMMY_SPRITE;
+	const real_image_t *rim = dummies.Lookup("DUMMY_SPRITE");
+	SYS_ASSERT(rim);
+
 	return &rim->pub;
 }
 
@@ -3030,9 +3009,9 @@ const image_t *W_ImageParseSaveString(char type, const char *name)
 
 		case 'd': /* dummy */
 			rim = dummies.Lookup(name);
-			if (! rim)
-				rim = RIM_DUMMY_TEX;
-			return &rim->pub;
+			if (rim)
+				return &rim->pub;
+			break;
 
 		default:
 			I_Warning("W_ImageParseSaveString: unknown type '%c'\n", type);
@@ -3047,7 +3026,9 @@ const image_t *W_ImageParseSaveString(char type, const char *name)
 	I_Warning("W_ImageParseSaveString: image [%c:%s] not found.\n", type, name);
 
 	// return the texture dummy image
-	rim = RIM_DUMMY_TEX;
+	rim = dummies.Lookup("DUMMY_TEXTURE");
+	SYS_ASSERT(rim);
+
 	return &rim->pub;
 }
 
@@ -3480,16 +3461,14 @@ bool W_InitImages(void)
 	dummies.Clear();
 
 	// setup dummy images
-	AddImageDummy(IMSRC_Texture, "DUMMY_TEXTURE");
-	AddImageDummy(IMSRC_Flat,    "DUMMY_FLAT");
-	AddImageDummy(IMSRC_Flat,    "DUMMY_SKY");
-	AddImageDummy(IMSRC_Graphic, "DUMMY_GRAPHIC");
-	AddImageDummy(IMSRC_Sprite,  "DUMMY_SPRITE");
+	AddDummyImage("DUMMY_TEXTURE", pal_black, pal_brown1);
+	AddDummyImage("DUMMY_FLAT",    pal_black, pal_green1);
 
-	real_image_t *rim = AddImageDummy(IMSRC_Graphic, "DUMMY_FONT");
-	rim->source.dummy.fg = pal_white;
+	AddDummyImage("DUMMY_GRAPHIC", pal_red,    TRANS_PIXEL);
+	AddDummyImage("DUMMY_SPRITE",  pal_yellow, TRANS_PIXEL);
+	AddDummyImage("DUMMY_FONT",    pal_white,  TRANS_PIXEL);
 
-	skyflatimage = &RIM_SKY_FLAT->pub;
+	skyflatimage = AddDummyImage("DUMMY_SKY", pal_white, pal_blue);
 
     // check options
 	M_CheckBooleanParm("smoothing", &use_smoothing, false);
