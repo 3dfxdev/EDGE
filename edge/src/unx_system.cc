@@ -17,6 +17,7 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
+#include "i_sdlinc.h"
 #include "unx_sysinc.h"
 
 #include "version.h"
@@ -444,9 +445,17 @@ void I_TraceBack(void)
 //
 void I_SystemStartup(void)
 {
+	Uint32 flags = 0;
+
+	if (M_CheckParm("-core"))
+		flags |= SDL_INIT_NOPARACHUTE;
+
+	if (SDL_Init(flags) < 0)
+		I_Error("Couldn't init SDL!!\n%s\n", SDL_GetError());
+
 	I_StartupNetwork();
-	I_StartupControl();
 	I_StartupGraphics();
+	I_StartupControl();
 	I_StartupSound();    // -ACB- 1999/09/20 Sets nosound directly
 	I_StartupMusic();
 }
