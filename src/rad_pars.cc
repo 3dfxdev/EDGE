@@ -207,7 +207,7 @@ void RAD_WarnError(const char *err, ...)
 		RAD_Warning("%s", buffer);
 }
 
-void RAD_WarnError2(int ver, const char *err, ...)
+static void RAD_WarnError2(int ver, const char *err, ...)
 {
 	va_list argptr;
 	char buffer[1024];

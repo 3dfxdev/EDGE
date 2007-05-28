@@ -265,10 +265,10 @@ extern epi::string_c cur_ddf_filename;
 extern epi::string_c cur_ddf_entryname;
 extern epi::string_c cur_ddf_linedata;
 
-void DDF_Error (const char *err, ...);
-void DDF_Warning (const char *err, ...);
-void DDF_WarnError (const char *err, ...);
-void DDF_WarnError2 (int ver, const char *err, ...);
+void DDF_Error    (const char *err, ...) GCCATTR((format (printf,1,2)));
+void DDF_Warning  (const char *err, ...) GCCATTR((format (printf,1,2)));
+void DDF_WarnError(const char *err, ...) GCCATTR((format (printf,1,2)));
+void DDF_WarnError2 (int ver, const char *err, ...) GCCATTR((format (printf,2,3)));
 
 void DDF_MainGetPercent (const char *info, void *storage);
 void DDF_MainGetPercentAny (const char *info, void *storage);

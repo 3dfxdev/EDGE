@@ -28,6 +28,7 @@
 
 #include "version.h"
 
+#include "epi/epi.h"
 #include "deh_edge/dh_plugin.h"
 
 #include <stdio.h>
@@ -38,7 +39,8 @@ static char dh_message[1024];
 //
 // DH_PrintMsg
 //
-void DH_PrintMsg(const char *str, ...)
+static void GCCATTR((format (printf,1,2)))
+	DH_PrintMsg(const char *str, ...)
 {
 	va_list args;
 
@@ -54,7 +56,8 @@ void DH_PrintMsg(const char *str, ...)
 //
 // Terminates the program reporting an error.
 //
-void DH_FatalError(const char *str, ...)
+static void GCCATTR((format (printf,1,2)))
+	DH_FatalError(const char *str, ...)
 {
 	va_list args;
 
@@ -66,17 +69,9 @@ void DH_FatalError(const char *str, ...)
 }
 
 //
-// DH_Ticker
-//
-void DH_Ticker(void)
-{
-	/* nothing needed */
-}
-
-//
 // DH_ProgressText
 //
-void DH_ProgressText(const char *str)
+static void DH_ProgressText(const char *str)
 {
 	/* nothing needed */
 }
@@ -84,12 +79,12 @@ void DH_ProgressText(const char *str)
 //
 // DH_ProgressBar
 //
-void DH_ProgressBar(int percentage)
+static void DH_ProgressBar(int percentage)
 {
 	/* nothing needed */
 }
 
-const dehconvfuncs_t edge_dehconv_funcs =
+static const dehconvfuncs_t edge_dehconv_funcs =
 {
 	DH_FatalError,
 	DH_PrintMsg,

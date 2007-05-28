@@ -274,7 +274,7 @@ void DDF_StateReadState(const char *info, const char *label,
 		if (strchr(info, '['))
 		{
 			// -ES- 2000/02/02 Probably unterminated state.
-			DDF_Error("DDF_MainLoadStates: Bad state '%s', possibly missing ';'\n");
+			DDF_Error("DDF_MainLoadStates: Bad state '%s', possibly missing ';'\n", info);
 		}
 		DDF_Error("Bad state '%s'\n", info);
 	}

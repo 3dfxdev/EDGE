@@ -99,7 +99,7 @@ void Storage::RememberMod(int *target, int value)
 
 		if (! box)
 			FatalError("Out of memory (%d storage bytes)\n",
-				sizeof(storagebox_t));
+				(int)sizeof(storagebox_t));
 
 		box->next = NULL;
 		box->prev = tail;

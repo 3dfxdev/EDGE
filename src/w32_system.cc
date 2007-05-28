@@ -239,7 +239,7 @@ void I_Printf(const char *message,...)
 	}
 
 	// Send the message to the console.
-	CON_Printf(printbuf);
+	CON_Printf("%s", printbuf);
 
 	va_end(argptr);
 }

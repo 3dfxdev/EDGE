@@ -176,7 +176,8 @@ void DDF_WarnError2(int ver, const char *err, ...)
 		DDF_Warning("%s", buffer);
 }
 
-void DDF_Obsolete(const char *err, ...)
+static void GCCATTR((format (printf,1,2)))
+	DDF_Obsolete(const char *err, ...)
 {
 	va_list argptr;
 	char buffer[1024];
@@ -823,7 +824,8 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 					DDF_Error("Unexpected comma `,'.\n");
 
 				if (firstgo)
-					DDF_WarnError2(0x128, "Command %s used outside of any entry\n");
+					DDF_WarnError2(0x128, "Command %s used outside of any entry\n",
+									current_cmd.GetString());
 				else
 				{  
 					(* readinfo->parse_field)(current_cmd.GetString(), 

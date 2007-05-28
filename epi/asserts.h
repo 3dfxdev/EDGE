@@ -54,7 +54,7 @@ namespace epi
 
 namespace Assert
 {
-	void fail(const char *msg, ...);
+	void fail(const char *msg, ...) GCCATTR((format (printf,1,2)));
 	// throw an assertion exception with the given message.
 }
 

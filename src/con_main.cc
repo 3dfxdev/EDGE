@@ -272,7 +272,7 @@ int CON_CMDType(const char *args)
 	}
 	while (fgets(buffer, SCREENCOLS - 1, script))
 	{
-		CON_Printf(buffer);
+		CON_Printf("%s", buffer);
 	}
 	fclose(script);
 	KillArgs(argc, argv);

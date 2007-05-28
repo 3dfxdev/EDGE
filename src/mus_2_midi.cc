@@ -33,6 +33,7 @@
 
 #include "mus_2_midi.h"
 
+#include "epi/epi.h"
 #include "epi/bytearray.h"
 #include "epi/endianess.h"
 
@@ -255,7 +256,7 @@ namespace Mus2Midi
 	char error_desc[256] = "FOO";
 	char scratch_error[256];
 
-	void SetError(const char *err, ...);
+	void SetError(const char *err, ...) GCCATTR((format (printf,1,2)));
 
 	int ReadTime(const byte **musptrp);
 

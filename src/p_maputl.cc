@@ -692,7 +692,7 @@ void P_DumpExtraFloors(const sector_t *sec)
 	const extrafloor_t *ef;
 
 	L_WriteDebug("EXTRAFLOORS IN Sector %d  (%d used, %d max)\n",
-		sec - sectors, sec->exfloor_used, sec->exfloor_max);
+		(int)(sec - sectors), sec->exfloor_used, sec->exfloor_max);
 
 	L_WriteDebug("  Basic height: %1.1f .. %1.1f\n", sec->f_h, sec->c_h);
 
