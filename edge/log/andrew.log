@@ -1,5 +1,22 @@
 Andrew Apted's Log
 
+2007/05/28:
+
+Sound startup: when requested sound mode doesn't work, try
+lots of other modes until we find a working sound mode.
+The stereoness has the highest priority, followed by the
+frequency, and bits per sample has the lowest priority.
+
+2007/05/27:
+
+Reimplemented the AMBIENT_SOUND feature (seems I was a bit
+hasty to remove it).
+
+Dummy textures (which are displayed when a texture of flat
+cannot be found) were broken and only displayed blackness,
+because the palette hadn't been loaded yet.  Fixed it and
+removed the dependency on the palette.
+
 2007/05/26:
 
 Noticed weapon selection for multiple weapons on a key is
