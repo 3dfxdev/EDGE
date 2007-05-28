@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __SYSTEM_INTERNAL_H__
-#define __SYSTEM_INTERNAL_H__
+#ifndef __WIN32_SYSTEM_INTERNAL_H__
+#define __WIN32_SYSTEM_INTERNAL_H__
 
 #define DUMMYUNIONNAMEN(n)
 
@@ -69,7 +69,7 @@ void I_MusicReleaseMixer(win32_mixer_t* mixer);
 bool I_MusicGetMixerVol(win32_mixer_t* mixer, DWORD *vol);
 bool I_MusicSetMixerVol(win32_mixer_t* mixer, DWORD vol);
 
-#endif /* __SYSTEM_INTERNAL_H__ */
+#endif /* __WIN32_SYSTEM_INTERNAL_H__ */
 
 
 //--- editor settings ---

@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __SYSTEM_INTERNAL_H__
-#define __SYSTEM_INTERNAL_H__
+#ifndef __UNIX_SYSTEM_INTERNAL_H__
+#define __UNIX_SYSTEM_INTERNAL_H__
 
 #include "i_defs.h"
 
@@ -27,22 +27,10 @@
 #include <linux/cdrom.h>
 #endif
 
-// I_CD.C
-bool I_StartupCD(void);
-bool I_CDStartPlayback(int tracknum, bool loop, float gain);
-void I_CDPausePlayback(void);
-void I_CDResumePlayback(void);
-void I_CDStopPlayback(void);
-void I_CDSetVolume(float gain);
-bool I_CDFinished(void);
-bool I_CDTicker(void);
-void I_ShutdownCD(void);
+#include "i_local.h"  // FIXME: remove
 
-// I_MUSIC.C
-extern bool musicpaused;
-void I_PostMusicError(const char *message);
 
-#endif // __SYSTEM_INTERNAL_H__
+#endif // __UNIX_SYSTEM_INTERNAL_H__
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
