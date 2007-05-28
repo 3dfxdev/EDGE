@@ -103,6 +103,9 @@ void I_CheckAlreadyRunning(void)
 //
 void I_SystemStartup(void)
 {
+	if (SDL_Init(0) < 0)
+		I_Error("Couldn't init SDL!!\n%s\n", SDL_GetError());
+
 	I_StartupNetwork();
 	I_StartupGraphics(); // SDL requires this to be called first
 	I_StartupControl();

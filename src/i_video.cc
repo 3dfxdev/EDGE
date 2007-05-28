@@ -27,13 +27,6 @@
 
 #include <string.h>
 
-// workaround for old SDL version (< 1.2.10)
-#if (SDL_PATCHLEVEL < 10)
-#include <stdlib.h>
-#define SDL_getenv  getenv
-#define SDL_putenv  putenv
-#endif
-
 
 SDL_Surface *my_vis;
 
@@ -114,13 +107,8 @@ void I_StartupGraphics(void)
 	I_Printf("SDL_Video_Driver: %s\n", driver);
 
 
-	Uint32 flags = SDL_INIT_VIDEO;
-
-	if (M_CheckParm("-core"))
-		flags |= SDL_INIT_NOPARACHUTE;
-
-	if (SDL_Init(flags) < 0)
-		I_Error("Couldn't init SDL\n%s\n", SDL_GetError());
+	if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0)
+		I_Error("Couldn't init SDL VIDEO!\n%s\n", SDL_GetError());
 
 	M_CheckBooleanParm("warpmouse", &use_warp_mouse, false);
 	M_CheckBooleanParm("grab", &use_grab, false);
