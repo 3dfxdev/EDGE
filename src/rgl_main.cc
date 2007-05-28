@@ -98,8 +98,6 @@ static const driver_bug_t driver_bugs[] =
 
 	{ "Velocity", NULL, NULL, PFT_VERTEX_ARRAY | PFT_COLOR_MATERIAL | PFT_SKY, 0 },
 	{ "Voodoo3",  NULL, NULL, PFT_VERTEX_ARRAY | PFT_SKY, 0 },
-
-	{ NULL, NULL, NULL }  // END OF LIST
 };
 
 #define NUM_DRIVER_BUGS  (sizeof(driver_bugs) / sizeof(driver_bug_t))
