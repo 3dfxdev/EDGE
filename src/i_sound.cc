@@ -60,6 +60,17 @@ bool dev_signed;  // S8 vs U8, S16 vs U16
 bool dev_stereo;
 
 
+typedef struct
+{
+	int freq;
+	int bits;
+	bool stereo;
+}
+sound_mode_t;
+
+static sound_mode_t mode_try_list[2*6*2];
+
+
 #define PRI_NOSOUND   -1
 #define PRI_FINISHED  -2
 
@@ -74,6 +85,85 @@ void SoundFill_Callback(void *udata, Uint8 *stream, int len)
 {
 	S_MixAllChannels(stream, len);
 }
+
+static bool I_TryOpenSound(const sound_mode_t *mode)
+{
+	SDL_AudioSpec firstdev;
+
+	int samples = 512;
+
+	if (mode->freq < 18000)
+		samples = 256;
+	else if (mode->freq >= 40000)
+		samples = 1024;
+
+	I_Printf("I_StartupSound: trying %d Hz, %d bit %s\n",
+			 mode->freq, mode->bits, mode->stereo ? "Stereo" : "Mono");
+	
+	firstdev.freq     = mode->freq;
+	firstdev.format   = (mode->bits < 12) ? AUDIO_U8 : AUDIO_S16SYS;
+	firstdev.channels = mode->stereo ? 2 : 1;
+	firstdev.samples  = samples;
+	firstdev.callback = SoundFill_Callback;
+
+	if (SDL_OpenAudio(&firstdev, &mydev) >= 0)
+		return true;
+
+	L_WriteDebug("  failed: %s\n", SDL_GetError());
+
+	// --- try again, but with the less common formats ---
+
+	firstdev.freq     = mode->freq;
+	firstdev.format   = (mode->bits < 12) ? AUDIO_S8 : AUDIO_U16SYS;
+	firstdev.channels = mode->stereo ? 2 : 1;
+	firstdev.samples  = samples;
+	firstdev.callback = SoundFill_Callback;
+
+	if (SDL_OpenAudio(&firstdev, &mydev) >= 0)
+		return true;
+
+	return false;
+}
+
+static int BuildSoundModeTryList(int want_freq, int want_bits, int want_stereo)
+{
+	// Ordering:
+	//   stereoness has highest priority
+	//   frequency has middle priority
+	//   bits has lowest priority
+	//
+	// Returns: number of modes to try.
+
+	int index = 0;
+
+	for (int S = 0; S < 2; S++)
+	for (int F = 0; F < 6; F++)
+	for (int B = 0; B < 2; B++)
+	{
+		int cur_freq = want_freq;
+
+		if (F > 0)
+		{
+			if (want_freq >= 27000)
+				cur_freq = sample_rates[5-F];
+			else
+				cur_freq = sample_rates[(8-F) % 5];
+
+			if (cur_freq == want_freq)
+				continue;
+		}
+
+		sound_mode_t *mode = &mode_try_list[index];
+		index++;
+
+		mode->freq   = cur_freq;
+		mode->bits   = (B == 0) ? want_bits : (want_bits < 12) ? 16 : 8;
+		mode->stereo = (S == 0) ? want_stereo : !want_stereo;
+	}
+
+	return index;
+}
+
 
 //
 // I_StartupSound
@@ -92,30 +182,31 @@ void I_StartupSound(void)
 	if (p)
 		want_freq = atoi(p);
 
-	if (M_CheckParm("-sound16") > 0)
-		want_bits = 16;
+	if (M_CheckParm("-sound8")  > 0) want_bits = 8;
+	if (M_CheckParm("-sound16") > 0) want_bits = 16;
 
 	if (M_CheckParm("-mono")   > 0) want_stereo = false;
 	if (M_CheckParm("-stereo") > 0) want_stereo = true;
 
-	I_Printf("I_StartupSound: trying %d Hz, %d bit %s\n",
-			 want_freq, want_bits, want_stereo ? "Stereo" : "Mono");
+	int count = BuildSoundModeTryList(want_freq, want_bits, want_stereo);
+
+	bool success = false;
 	
-	SDL_AudioSpec firstdev;
-
-	firstdev.freq     = want_freq;
-	firstdev.format   = (want_bits < 12) ? AUDIO_U8 : AUDIO_S16SYS;
-	firstdev.channels = want_stereo ? 2 : 1;
-	firstdev.samples  = 512;
-	firstdev.callback = SoundFill_Callback;
-
-	if (SDL_OpenAudio(&firstdev, &mydev) < 0)
+	for (int i=0; i < count; i++)
 	{
-		I_Printf("I_StartupSound: Couldn't open sound: %s\n", SDL_GetError());
+		if (I_TryOpenSound(mode_try_list + i))
+		{
+			success = true;
+			break;
+		}
+	}
+	
+	if (! success)
+	{
+		I_Printf("I_StartupSound: Unable to find a working sound mode!\n");
 		nosound = true;
 		return;
 	}
-
 #if 0
 	// get round SDL's signal handlers
 	signal(SIGFPE,  SIG_DFL);
@@ -138,6 +229,15 @@ void I_StartupSound(void)
 
 			nosound = true;
 			return;
+	}
+
+	if (mydev.channels >= 3)
+	{
+		I_Printf("I_StartupSound: unsupported channel num: %d\n", mydev.channels);
+		SDL_CloseAudio();
+
+		nosound = true;
+		return;
 	}
 
 	if (dev_bits != want_bits)
@@ -185,7 +285,7 @@ void I_StartupSound(void)
 	}
 
 	// display some useful stuff
-	I_Printf("I_StartupSound: success @ %d Hz, %d bit %s\n",
+	I_Printf("I_StartupSound: Success @ %d Hz, %d bit %s\n",
 			dev_freq, dev_bits, dev_stereo ? "Stereo" : "Mono");
 
 	return;
