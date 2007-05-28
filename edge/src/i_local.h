@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE SDL System Internal header
+//  EDGE System Local definitions
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2005  The EDGE Team.
+//  Copyright (c) 2005-2007  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -16,25 +16,31 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __SDL_SYSTEM_INTERNAL_H__
-#define __SDL_SYSTEM_INTERNAL_H__
+#ifndef __SYSTEM_LOCAL_H__
+#define __SYSTEM_LOCAL_H__
 
-#ifdef LINUX
-#include <SDL/SDL.h>
-#else
-#include <SDL.h>
-#endif 
+// I_CD
+bool I_StartupCD(void);
+bool I_CDStartPlayback(int tracknum, bool loopy, float gain);
+bool I_CDPausePlayback(void);
+bool I_CDResumePlayback(void);
+void I_CDStopPlayback(void);
+void I_CDSetVolume(float gain);
+bool I_CDFinished(void);
+bool I_CDTicker(void);
+void I_ShutdownCD();
 
-// workaround for old SDL version (< 1.2.10)
-#if (SDL_PATCHLEVEL < 10)
-#include <stdlib.h>
-#define SDL_getenv  getenv
-#define SDL_putenv  putenv
-#endif
+// I_CTRL
+void I_CentreMouse();
 
-#include "i_local.h"  // FIXME: remove
+// I_MUSIC
+extern bool musicpaused;
+void I_PostMusicError(const char *message);
 
-#endif /* __SDL_SYSTEM_INTERNAL_H__ */
+extern bool use_grab;
+extern bool use_warp_mouse;
+
+#endif /* __SYSTEM_LOCAL_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
