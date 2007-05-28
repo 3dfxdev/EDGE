@@ -103,9 +103,10 @@ bool I_CDStartPlayback(int tracknum)
 //
 // Paused the playing CD
 //
-void I_CDPausePlayback(void)
+bool I_CDPausePlayback(void)
 {
 	ioctl(fd, CDROMPAUSE);
+	return true;
 }
 
 //
@@ -113,9 +114,10 @@ void I_CDPausePlayback(void)
 //
 // Resumes the paused CD
 //
-void I_CDResumePlayback(void)
+bool I_CDResumePlayback(void)
 {
 	ioctl(fd, CDROMRESUME);
+	return true;
 }
 
 //
