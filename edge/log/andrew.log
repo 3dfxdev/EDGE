@@ -18,6 +18,13 @@ Moved the main SDL_Init() call out of I_StartupGraphics,
 and pass a zero value (with or without SDL_NOPARACHUTE).
 The video,sound and cd code now use SDL_InitSubSystem().
 
+Integrated patch #1624558 from Darren Salt, which fixes
+many compiler warnings.
+
+OpenGL: for workarounds for driver bugs, put them into a
+table and include some for R200 under Mesa 6.4 and 6.5.
+Code is based on a patch (pretty sure from Darren).
+
 2007/05/27:
 
 Reimplemented the AMBIENT_SOUND feature (seems I was a bit
