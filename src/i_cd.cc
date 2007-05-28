@@ -59,7 +59,7 @@ bool I_StartupCD(void)
 
 	// try to open the CD drive
 
-	if (SDL_Init(SDL_INIT_CDROM) != 0)
+	if (SDL_InitSubSystem(SDL_INIT_CDROM) != 0)
 	{
 		I_Printf("I_StartupCD: Can't init CDROM system in SDL\n");
 		return false;
