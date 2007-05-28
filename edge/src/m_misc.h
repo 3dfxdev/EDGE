@@ -76,6 +76,7 @@ extern bool save_screenshot_valid;
 extern bool autorunning;
 extern bool display_disk;
 extern bool force_directx;
+extern bool force_waveout;
 
 extern bool var_fadepower;
 extern bool var_smoothmap;
