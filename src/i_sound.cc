@@ -109,7 +109,7 @@ static bool I_TryOpenSound(const sound_mode_t *mode)
 	if (SDL_OpenAudio(&firstdev, &mydev) >= 0)
 		return true;
 
-	L_WriteDebug("  failed: %s\n", SDL_GetError());
+	I_Printf("  failed: %s\n", SDL_GetError());
 
 	// --- try again, but with the less common formats ---
 
