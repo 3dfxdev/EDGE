@@ -172,6 +172,44 @@ void I_StartupSound(void)
 {
 	if (nosound) return;
 
+	if (M_CheckParm("-waveout"))
+		force_waveout = true;
+
+	if (M_CheckParm("-dsound") || M_CheckParm("-nowaveout"))
+		force_waveout = false;
+
+	const char *driver = M_GetParm("-audiodriver");
+
+	if (! driver)
+		driver = SDL_getenv("SDL_AUDIODRIVER");
+
+	if (! driver)
+	{
+		driver = "default";
+
+#ifdef WIN32
+		if (force_waveout)
+			driver = "waveout";
+#endif
+	}
+
+	if (strcasecmp(driver, "default") != 0)
+	{
+		char buffer[200];
+		snprintf(buffer, sizeof(buffer), "SDL_AUDIODRIVER=%s", driver);
+		SDL_putenv(buffer);
+	}
+
+	I_Printf("SDL_Audio_Driver: %s\n", driver);
+
+	if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0)
+	{
+		I_Printf("I_StartupSound: Couldn't init SDL AUDIO! %s\n",
+				 SDL_GetError());
+		nosound = true;
+		return;
+	}
+
 	const char *p;
 
 	int want_freq = sample_rates[var_sample_rate];

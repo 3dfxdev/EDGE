@@ -83,6 +83,7 @@ bool var_hq_scale  = true;
 bool var_hq_all    = false;
 
 bool force_directx = false;
+bool force_waveout = false;
 
 unsigned short save_screenshot[160][100];
 bool save_screenshot_valid = false;
@@ -102,6 +103,7 @@ static default_t defaults[] =
     {CFGT_Int,		"screendepth",		 &SCREENBITS,	  CFGDEF_SCREENBITS},
     {CFGT_Boolean,	"fullscreen",		 &FULLSCREEN,	  CFGDEF_FULLSCREEN},
     {CFGT_Boolean,	"directx",			 &force_directx,  0},
+    {CFGT_Boolean,	"waveout",			 &force_waveout,  0},
     {CFGT_Int,      "usegamma",          &current_gamma,  CFGDEF_CURRENT_GAMMA},
  
     {CFGT_Int,      "sfx_volume",        &sfx_volume,     CFGDEF_SOUND_VOLUME},
