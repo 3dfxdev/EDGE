@@ -7,6 +7,17 @@ lots of other modes until we find a working sound mode.
 The stereoness has the highest priority, followed by the
 frequency, and bits per sample has the lowest priority.
 
+Sound startup part II: support for different SDL audio
+drivers (via SDL_putenv "SDL_AUDIODRIVER=xxx").  The logic
+is analogous to the video driver: the default driver should
+be "dsound", but the -waveout option forces the "waveout"
+driver, plus the user can specify the exact driver using
+the -audiodriver option (handy on other OSes).
+
+Moved the main SDL_Init() call out of I_StartupGraphics,
+and pass a zero value (with or without SDL_NOPARACHUTE).
+The video,sound and cd code now use SDL_InitSubSystem().
+
 2007/05/27:
 
 Reimplemented the AMBIENT_SOUND feature (seems I was a bit
