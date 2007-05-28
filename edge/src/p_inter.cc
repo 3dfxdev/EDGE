@@ -630,7 +630,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 		if (special->info->pickup_message &&
 			language.IsValidRef(special->info->pickup_message))
 		{
-			CON_PlayerMessage(info.player->pnum, 
+			CON_PlayerMessage(info.player->pnum, "%s",
 				language[special->info->pickup_message]);
 		}
 

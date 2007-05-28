@@ -1094,7 +1094,7 @@ void BA_ParsePowerupEffect(pickup_effect_c **list,
 	SYS_ASSERT(0 <= p_up && p_up < NUMPOWERS);
 
 	if (slot < 0 || slot >= NUM_FX_SLOT)
-		DDF_Error("POWERUP_EFFECT: bad FX slot #%s\n", par1);
+		DDF_Error("POWERUP_EFFECT: bad FX slot #%d\n", p_up);
 
 	AddPickupEffect(list, new pickup_effect_c(PUFX_PowerupEffect, p_up, slot, 0));
 }
@@ -1105,7 +1105,7 @@ void BA_ParseScreenEffect(pickup_effect_c **list,
 	int slot = (int)par1;
 
 	if (slot < 0 || slot >= NUM_FX_SLOT)
-		DDF_Error("SCREEN_EFFECT: bad FX slot #%s\n", par1);
+		DDF_Error("SCREEN_EFFECT: bad FX slot #%d\n", slot);
 
 	if (par2 <= 0)
 		DDF_Error("SCREEN_EFFECT: bad time value: %1.2f\n", par2);

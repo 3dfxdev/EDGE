@@ -13,6 +13,8 @@
 #ifndef __WAD_HDR__
 #define __WAD_HDR__
 
+#include "system.h"
+
 namespace Deh_Edge
 {
 
@@ -23,7 +25,7 @@ namespace WAD
 
 	void NewLump(const char *name);
 	void AddData(const byte *data, int len);
-	void Printf(const char *str, ...);
+	void Printf(const char *str, ...) GCCATTR((format (printf,1,2)));
 	void FinishLump(void);
 
 	dehret_e WriteFile(const char *name);

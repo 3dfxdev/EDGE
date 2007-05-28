@@ -179,9 +179,9 @@ inline bool Diff(const u8_t p1, const u8_t p2)
 	u32_t YUV2 = PixelYUV[p2];
 
 	return (YUV1 & Amask) != (YUV2 & Amask) ||
-		   abs((YUV1 & Ymask) - (YUV2 & Ymask)) > trY ||
-		   abs((YUV1 & Umask) - (YUV2 & Umask)) > trU ||
-		   abs((YUV1 & Vmask) - (YUV2 & Vmask)) > trV;
+		   (u32_t)abs((YUV1 & Ymask) - (YUV2 & Ymask)) > trY ||
+		   (u32_t)abs((YUV1 & Umask) - (YUV2 & Umask)) > trU ||
+		   (u32_t)abs((YUV1 & Vmask) - (YUV2 & Vmask)) > trV;
 }
 
 void Setup(const u8_t *palette, int trans_pixel)

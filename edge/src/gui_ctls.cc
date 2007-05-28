@@ -314,6 +314,7 @@ static bool BAR_Responder(gui_t * g, guievent_t * ev)
 //
 static void BAR_Drawer(gui_t * gui)
 {
+#if 0
 	bar_t *bar = (bar_t*)gui->process;
 	const int *valp;
 	unsigned int val;
@@ -339,6 +340,7 @@ static void BAR_Drawer(gui_t * gui)
 		g = 31;
 
 	b = 0;
+#endif
 }
 
 gui_t *GUI_BARStart(gui_t ** g, char *watch, int max)

@@ -29,6 +29,7 @@
 #include "e_main.h"
 #include "version.h"
 
+#include "epi/epi.h"
 #include "glbsp/src/glbsp.h"
 
 #include <stdio.h>
@@ -57,7 +58,8 @@ static int build_perc = -999;
 //
 // GB_PrintMsg
 //
-void GB_PrintMsg(const char *str, ...)
+static void GCCATTR((format (printf,1,2)))
+    GB_PrintMsg(const char *str, ...)
 {
 	va_list args;
 
@@ -73,7 +75,8 @@ void GB_PrintMsg(const char *str, ...)
 //
 // Terminates the program reporting an error.
 //
-void GB_FatalError(const char *str, ...)
+static void GCCATTR((format (printf,1,2)))
+	GB_FatalError(const char *str, ...)
 {
 	va_list args;
 
@@ -87,7 +90,7 @@ void GB_FatalError(const char *str, ...)
 //
 // GB_Ticker
 //
-void GB_Ticker(void)
+static void GB_Ticker(void)
 {
 	// Maybe do something here, e.g. check for 'ESCAPE' key press
 }
@@ -95,7 +98,7 @@ void GB_Ticker(void)
 //
 // GB_DisplayOpen
 //
-boolean_g GB_DisplayOpen(displaytype_e type)
+static boolean_g GB_DisplayOpen(displaytype_e type)
 {
 	display_mode = type;
 
@@ -109,15 +112,7 @@ boolean_g GB_DisplayOpen(displaytype_e type)
 //
 // GB_DisplaySetTitle
 //
-void GB_DisplaySetTitle(const char *str)
-{
-	/* does nothing */
-}
-
-//
-// GB_DisplaySetText
-//
-void GB_DisplaySetText(const char *str)
+static void GB_DisplaySetTitle(const char *str)
 {
 	/* does nothing */
 }
@@ -125,7 +120,7 @@ void GB_DisplaySetText(const char *str)
 //
 // GB_DisplaySetBarText
 //
-void GB_DisplaySetBarText(int barnum, const char *str)
+static void GB_DisplaySetBarText(int barnum, const char *str)
 {
 	if (display_mode != DIS_BUILDPROGRESS)
 	{
@@ -160,7 +155,7 @@ void GB_DisplaySetBarText(int barnum, const char *str)
 //
 // GB_DisplaySetBarLimit
 //
-void GB_DisplaySetBarLimit(int barnum, int limit)
+static void GB_DisplaySetBarLimit(int barnum, int limit)
 {
 	DEV_ASSERT2(1 <= barnum && barnum <= 2);
 
@@ -175,7 +170,7 @@ void GB_DisplaySetBarLimit(int barnum, int limit)
 //
 // GB_DisplaySetBar
 //
-void GB_DisplaySetBar(int barnum, int count)
+static void GB_DisplaySetBar(int barnum, int count)
 {
 	DEV_ASSERT2(1 <= barnum && barnum <= 2);
 
@@ -199,12 +194,12 @@ void GB_DisplaySetBar(int barnum, int count)
 //
 // GB_DisplayClose
 //
-void GB_DisplayClose(void)
+static void GB_DisplayClose(void)
 {
 	/* does nothing */
 }
 
-const nodebuildfuncs_t edge_build_funcs =
+static const nodebuildfuncs_t edge_build_funcs =
 {
 	GB_FatalError,
 	GB_PrintMsg,
