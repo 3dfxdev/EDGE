@@ -2890,6 +2890,16 @@ const image_t *W_ImageLookup(const char *name, image_namespace_e type, int flags
 	{
 		return skyflatimage;
 	}
+
+	// compatibility hack (first texture in IWAD is a dummy)
+	if (type == INS_Texture &&
+		( (stricmp(name, "AASTINKY") == 0) ||
+		  (stricmp(name, "AASHITTY") == 0) ||
+		  (stricmp(name, "BADPATCH") == 0) ||
+		  (stricmp(name, "ABADONE")  == 0)))
+	{
+	    return NULL;
+	}
   
 	const real_image_t *rim = NULL;
 
