@@ -48,7 +48,8 @@ typedef enum
 mussupport_e;
 
 static byte capable;
-static bool musicpaused;
+
+bool musicpaused;
 
 #define MUSICERRLEN 256
 static char errordesc[MUSICERRLEN];
