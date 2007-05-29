@@ -22,46 +22,6 @@
 #define EDGE_INLINE(decl,body) extern decl;
 #endif
 
-#ifdef FLOAT_IEEE_754
-// Use routines written for the usual 32-bit float format
-
-EDGE_INLINE(
-s32_t M_FloatToInt(float fl),
-{
-  s32_t i;
-  int sign;
-
-  i = *(s32_t*)&fl;
-  sign = i >> 31;
-  i &= 0x7FFFFFFF;
-  if (i >= 0x4f000000)
-  {
-    return 0x7FFFFFFF - sign;
-  }
-  if (i <= 0x3f000000)
-  {
-    return 0;
-  }
-
-  return (((((i & 0x007FFFFF) | 0x00800000) << 7) >> (0x7d - (i >> 23))) + sign) ^ sign;
-})
-#else
-// Some other kind of float is used, so we have to use the portable versions
-
-EDGE_INLINE(
-s32_t M_FloatToInt(float fl),
-{
-  if (fl >= INT_MAX)
-    return (s32_t)INT_MAX;
-
-  if (fl <= INT_MIN)
-    return (s32_t)INT_MIN;
-
-  return (s32_t)fl;
-})
-
-#endif // FLOAT_IEEE_754
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
