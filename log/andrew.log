@@ -1,5 +1,12 @@
 Andrew Apted's Log
 
+2007/05/29:
+
+Apparently the very first texture in the IWAD ("AASTINKY"
+for Doom 1 and "AASHITTY" for Doom 2) is treated just like
+no texture ("-") by the original EXE, and is never drawn.
+Added some hackish emulation code for it.
+
 2007/05/28:
 
 Sound startup: when requested sound mode doesn't work, try
