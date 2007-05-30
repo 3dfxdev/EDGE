@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28A)
 ================================
 
-(Date: AUGUST 1st 2006)
+(Date: MAY 2007)
 
 
 Bugs fixed
@@ -11,6 +11,7 @@ Bugs fixed
 + crash loading a savegame with dynamic lights when D/L disabled.
 + fixed crash when starting a level in deathmatch mode.
 + quotes (") usable in response files (for filenames with spaces).
++ fixed "jerk up/down" when player steps onto a lowering lift.
 
 - Arch-vile no longer resurrects monsters into itself.
 - don't display "Entering" on intermission when map is last one.
@@ -33,13 +34,15 @@ Bugs fixed
 - Archvile flame fixed to play the crackle sounds.
 - fixed stair-building bug (e.g. TNT MAP16).
 - some problems handling the mouse-wheel were fixed.
+- can use mouse-wheel in automap and in menus.
 - rotated automap could omit parts of a map, fixed.
 - fixed an issue with window positioning on Win32.
 - fixed MUS playback on certain devices in Win32
 - some continuous floors had wrong heights, fixed.
 - '+' syntax for KEYS in DDF was finally fixed.
 - the CAPSLOCK and NUMLOCK keys work a bit better.
-- spawning of voodoo dolls (Darren Salt).
+- improved spawning of voodoo dolls (Darren Salt).
+- fixed old deathmatch mode so weapons stay on the map.
 
 
 Features removed / changed
@@ -55,13 +58,24 @@ Features removed / changed
   work anymore.  The new format has the ".EDM" extension (but omit
   this when using the -record and -playdemo options).
 
++ Looping sounds have changed.  To keep a sound looping,
+  it must be continally replayed (in addition to having
+  LOOP=TRUE line in SOUNDS.DDF).  A good rule of thumb is
+  to wait half the length of the sound, e.g. if the sound
+  lasts 1.6 seconds then replay it every 0.8 seconds (28
+  ticks) to guarantee that it loops continuously.
+
 - screenshots are now available in JPEG or PNG format.  New 
   "screenshot" console command (Note: it does not capture the 
-  console itself).
+  console itself).  Screenshots are now placed in a folder
+  called "screenshots".
+
+- Set Resolution menu: removed 'TEST RESOLUTION' button.
+
+- renamed -debugfile option to -debug, and the filename is now
+  hardcoded as "debug.txt" (stored in same place as "edge.log").
 
 - the "CONSTANT" dynamic lighting type (in DDF) was removed.
-
-- the LINES.DDF/SECTORS.DDF AMBIENT_SOUND command was removed.
 
 - replaced the [DOG] sprites and sounds in EDGE.WAD with a
   colormapped demon, due to copyright/license concerns.
@@ -89,6 +103,18 @@ General improvements
   engines).  EDGE converts the patches to DDF, and stores the result
   in files with the .HWA extension, which are loaded automatically.
 
++ improved BOOM compatibility:
+  - handle the ELEVATOR linetypes.
+  - support for Current/Wind/Push/Pull forces.
+  - support for Icy/Muddy floors.
+  - handle BOOM colormaps.
+  - load the SWITCHES and ANIMATED lumps.
+  - support for line-to-line teleporters.
+  - support for platform toggle linetypes.
+  - the EDGE-specific sector numbers have been renumbered
+    to the range 4400-4499.  This may affect old mods, which
+    can be made to work using the new -ecompat option.
+
 - ability to use 32-bit screen modes (16.7 million colours).  You
   may need to change your desktop to 32-bit mode for this to work.
 
@@ -97,6 +123,15 @@ General improvements
   printed to the terminal.  When GL-Nodes must be built for a wad,
   this is also done during startup.
 
+- sound startup: try hard to find a working sound mode.
+  Also support for specifying the SDL audio driver, with
+  new -waveout, -dsound and -audiodriver options.  The
+  -audiodriver option is followed by the driver name.
+
+- new -directx, -gdi and -videodriver options, for selecting
+  what SDL video driver to use.  The -videodriver option
+  requires an extra argument: the name of the SDL driver.
+
 - Linux: fatal errors produce a pop-up dialog box.  EDGE can now be
   run by double clicking the executable.  Support for CD music.
 
@@ -104,19 +139,9 @@ General improvements
   allowing EDGE to run wads from read-only media (CDROM) or
   from read-only locations (/usr/share).
 
-- support V3 and V5 GL-NODES.  EDGE now includes glBSP 2.20, which
+- support V3 and V5 GL-NODES.  EDGE now includes glBSP 2.22, which
   can handle very complex levels (which overflow the old limits),
   e.g. Deus Vult MAP05.
-
-- Boom compatibility changes: the type of level (Edge or Boom) is
-  detected when starting a new game, and if it doesn't match the
-  current mode (or the result was mixed), then a dialog asks you
-  whether to change mode.  When using -warp, the most likely mode
-  is selected.
-
-  Two Boom features were also added: line-to-line teleporters and
-  platform toggle linetypes.  A couple of Boom-related bugs were
-  fixed (e.g. P1/PR doors with the lighting effect).
 
 - the DeathBot is back!  He is still pretty dumb though.  Use
   the option "-bots #" (where # is the number of bots) to add
@@ -130,6 +155,7 @@ General improvements
 - new gameplay option to disable automatic weapon switches.
 - sky looks a bit better, with a stretch option in Video menu.
 - the old "sky flooding" mapping trick is now emulated.
+- option 'Shoot-thru Scenery' emulates old missile behaviour.
 - emulate the FRIEND bit on things in the map.
 - missing wad files (given with -file) now produce an error.
 - monster spawning will keep the parent's AMBUSH status.
@@ -140,6 +166,7 @@ General improvements
 - intermission text screens can now be skipped.
 - console now slides up/down, smaller font.
 - can disable mouse-look in the gameplay options.
+- support for 16 players in a multiplayer game.
 - limit the number of skulls from pain elementals.
 - number of RTS tip slots has increased to 45.
 - RTS tip messages are shown on the console.
@@ -304,6 +331,10 @@ New RTS features:
 + "ALL" keyword for the START_MAP line, which causes the script to be
   spawned on every map.
 
+- @@@@ FIXME: TAG STUFF @@@@
+
+- new BLOCK_LINES command, does the opposite of UNBLOCK_LINES.
+
 - lines in RTS scripts can be extended over two (or more) actual lines
   by placing the \ character at the end.  A silly example:
 
@@ -385,6 +416,8 @@ New weapon stuff
   can only be used in the crosshair states.  The old "TARGET" action
   (disabled for a long time) has been made obsolete.
 
+- SHOW_CLIP weapons: hud shows clip divided by ammopershot.
+
 - Finally, there are now DISCARD and SECDISCARD states.  They are
   similar to the PARTIAL special: if you press the reload key with
   a half-empty clip (i.e. neither empty nor full), then the clip is
@@ -394,6 +427,8 @@ New weapon stuff
 
 New command-line options | console variables
 --------------------------------------------
+
+@@@@ videodriver , audiodriver @@@@
 
   -deh  <file>         Specify a DeHackEd (or BEX) patch file.  You can
                        have multiple patch files after the -deh option.
