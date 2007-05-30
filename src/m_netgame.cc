@@ -116,7 +116,7 @@ static void CreateHostWelcome(welcome_proto_t *we)
 	memset(we->reserved, 0, sizeof(we->reserved));
 }
 
-static void CreateHostPlayerList(newgame_params_c *par, int humans, int bots)
+void CreateHostPlayerList(newgame_params_c *par, int humans, int bots)
 {
 	int total = humans + bots;
 
@@ -209,7 +209,7 @@ static bool ParseWelcomePacket(newgame_params_c *par, welcome_proto_t *we)
 	return true;
 }
 
-static void ParsePlayerList(newgame_params_c *par, player_list_proto_t *li)
+void ParsePlayerList(newgame_params_c *par, player_list_proto_t *li)
 {
 	SYS_ASSERT(li->real_players > 0);
 	SYS_ASSERT(li->real_players <= li->total_players);
@@ -454,7 +454,7 @@ void M_DrawJoinMenu(void)
 	}
 
 	int y = 30;
-	int idx = 0;
+//	int idx = 0;
 	
 	DrawKeyword(-1, ng_join_style, y, "HOST ADDRESS", join_host_addr);
 	y += 10;
