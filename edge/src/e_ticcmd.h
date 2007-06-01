@@ -44,7 +44,8 @@ typedef struct
 	// checks for net game
 	s16_t consistency;
 
-	s16_t unused1;
+	// active player number, -1 for "dropped out" player
+	s16_t player_idx;
 
 
 	// /32 for move
@@ -84,11 +85,6 @@ typedef enum
 	// The 3bit weapon mask and shift, convenience.
 	BT_WEAPONMASK = (8 + 16 + 32 + 64),
 	BT_WEAPONSHIFT = 3,
-
-	// This flag will always be set for active players.
-	// An empty (all-zero) ticcmd_t from the server or demo file 
-	// indicates the player dropped out / end of demo.
-	BT_IN_GAME = 0x80
 }
 buttoncode_e;
 

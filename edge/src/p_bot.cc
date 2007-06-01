@@ -650,7 +650,7 @@ static void BOT_ConvertToTiccmd(bot_t *bot, ticcmd_t *dest, botcmd_t *src)
 	if (src->new_weapon != -1)
 		dest->buttons |= (src->new_weapon << BT_WEAPONSHIFT) & BT_WEAPONMASK;
 
-	dest->buttons |= BT_IN_GAME;
+	dest->player_idx = bot->pl->pnum;
 
 	angle_t new_angle = bot->angle;
 	float   new_slope = 0;		
