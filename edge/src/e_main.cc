@@ -166,7 +166,7 @@ int startplayers = 1;
 int startbots = 0;
 
 bool autostart;
-bool advance_title;
+static bool advance_title;
 
 int newnmrespawn = 0;
 
@@ -872,9 +872,12 @@ static void TitleNextPicture(void)
 static void E_DoAdvanceTitle(void)
 {
 	advance_title = false;
+
+	if (gameaction != ga_nothing)
+		return;
+	
 	usergame = false;     // no save or end game here
 	paused = false;
-	gameaction = ga_nothing;
 
 	demosequence = (demosequence + 1) % 2;  // - Kester
 
