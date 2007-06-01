@@ -1,0 +1,114 @@
+
+EDGE Networking
+===============
+
+Topology
+--------
+
+Each "client" will be connected to the "host" computer
+using a "reliable link", which will be TCP/IP.
+
+There is also the "broadcast link" which each client
+normally uses for sending/receiving "ticcmd" packets.
+
+The host always uses the broadcast link if any client does.
+
+When a client doesn't use the broadcast link, the host is
+responsible for emulating the broadcast, in two ways:
+  (1) ticcmds received from non-BC --> broadcasted to BC clients
+  (2) ticcmds received from BC --> transmitted to non-BC clients
+
+STATE: client: is_using_broadcast_link [true/false]
+       (host needs to know this state).
+
+We assume the broadcast link can be unreliable in two ways:
+  (1) a sent packet may not reach every client, or even any client
+  (2) sent packets may arrive out of order.
+
+When a client thinks it has missed a broadcast packet,
+it asks the host for the packet using the reliable link
+and receives that packet over the reliable link.
+
+When the host thinks it missed a broadcast packet,
+it asks the client directly via the reliable link,
+and the client responds over the reliable link.
+
+
+Formats
+-------
+
+There are two basic kinds of packets: ticcmds and
+text packets.
+
+Ticcmd packets are binary format and contain one or more
+full_ticcmd_t structures.  Each full_ticcmd_t describes
+the player input for the specified game tic.
+
+Ticcmd packets begins with:
+
+   "!TIC"  : these four bytes (identifier)
+   count   : 1 byte, count if full_ticcmd_t within
+   padding : 1 byte, always zero
+
+and are followed by full_ticcmd_ts, which consist of:
+
+   - gametic : 4 bytes
+
+   - rest of the ticcmd_h structure (16 bytes),
+     which includes player_idx field.
+
+
+Every other type of packet contains a payload using
+text format messages.  The text encoding is Unicode UTF-8
+and a single LF ('\n') character is used to break lines.
+For simplicity the packet is terminated with ^Z (code 26).
+
+The beginning of each text format packet is a single
+line with a keyword preceded by '@', such as:
+
+  @HOST?
+
+Each line in a text format packet is typically a
+series of keywords/values separated by a single space.
+
+
+
+Protocol
+--------
+
+For client to find the host via broadcasting:
+
+   client broadcasts:
+      @HOST?
+   
+   host broadcasts back:
+      @HERE
+      ADDRESS 192.168.0.151
+      PORT 26710
+
+For client connecting to host:
+
+   client makes TCP/IP connection
+
+   client sends:
+     @HELLO
+     PLAYER "Andrew"
+   
+   host replies:
+     @WELCOME
+
+     GAME "HELL ON EARTH"
+     LEVEL "MAP01"
+
+     @PLAYERS
+     1 YOU CONSOLE "Andrew"
+     2 YOU BOT "Bot1"
+     3 NET CONSOLE "Luke"
+     4 NET BOT "Bot2"
+
+     @PLAY
+
+   client sends:
+
+
+
