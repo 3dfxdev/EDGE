@@ -716,7 +716,7 @@ void DEM_PutTiccmd(const ticcmd_t *cmd)
 	DEM_PutShort((unsigned short) cmd->angleturn);
 	DEM_PutShort((unsigned short) cmd->mlookturn);
 	DEM_PutShort((unsigned short) cmd->consistency);
-	DEM_PutShort((unsigned short) cmd->unused1);
+	DEM_PutShort((unsigned short) cmd->player_idx);
 
 	DEM_PutByte((unsigned char) cmd->forwardmove);
 	DEM_PutByte((unsigned char) cmd->sidemove);
@@ -735,7 +735,7 @@ void DEM_GetTiccmd(ticcmd_t *cmd)
     cmd->angleturn   = (short) DEM_GetShort();
     cmd->mlookturn   = (short) DEM_GetShort();
     cmd->consistency = (short) DEM_GetShort();
-    cmd->unused1     = (short) DEM_GetShort();
+    cmd->player_idx  = (short) DEM_GetShort();
 
     cmd->forwardmove = (signed char) DEM_GetByte();
     cmd->sidemove    = (signed char) DEM_GetByte();

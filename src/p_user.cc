@@ -507,7 +507,7 @@ void P_ConsolePlayerBuilder(const player_t *p, void *data, ticcmd_t *dest)
 {
 	E_BuildTiccmd(dest);
 
-	dest->buttons |= BT_IN_GAME;
+	dest->player_idx = p->pnum;
 }
 
 bool P_PlayerSwitchWeapon(player_t *player, weapondef_c *choice)
