@@ -15,7 +15,7 @@ The host always uses the broadcast link if any client does.
 
 When a client doesn't use the broadcast link, the host is
 responsible for emulating the broadcast, in two ways:
-  (1) ticcmds received from non-BC --> broadcasted to BC clients
+  (1) ticcmds received from non-BC --> broadcasted to ALL clients
   (2) ticcmds received from BC --> transmitted to non-BC clients
 
 STATE: client: is_using_broadcast_link [true/false]
@@ -46,7 +46,7 @@ the player input for the specified game tic.
 
 Ticcmd packets begins with:
 
-   "!TIC"  : these four bytes (identifier)
+   "@TIC"  : these four bytes (identifier)
    count   : 1 byte, count if full_ticcmd_t within
    padding : 1 byte, always zero
 
@@ -64,9 +64,9 @@ and a single LF ('\n') character is used to break lines.
 For simplicity the packet is terminated with ^Z (code 26).
 
 The beginning of each text format packet is a single
-line with a keyword preceded by '@', such as:
+line with a keyword surrounded by square brackets, such as:
 
-  @HOST?
+  [HOST?]
 
 Each line in a text format packet is typically a
 series of keywords/values separated by a single space.
@@ -79,10 +79,10 @@ Protocol
 For client to find the host via broadcasting:
 
    client broadcasts:
-      @HOST?
+      [HOST?]
    
    host broadcasts back:
-      @HERE
+      [HERE]
       ADDRESS 192.168.0.151
       PORT 26710
 
@@ -91,24 +91,46 @@ For client connecting to host:
    client makes TCP/IP connection
 
    client sends:
-     @HELLO
+     [HELLO]
      PLAYER "Andrew"
-   
-   host replies:
-     @WELCOME
+     BROADCAST TRUE
 
+   host replies:
+     [WELCOME]
+
+   or
+     [ERROR]
+     MSG "You ain't welcome here fella!"
+
+
+Host will send to client before game starts:
+
+     [PARAMS]
      GAME "HELL ON EARTH"
      LEVEL "MAP01"
+     SKILL 3
+     MODE OLDDM    (NEWDM  COOP  CTF  LASTMAN)
+     RANDOMSEED 0x12345678
+     FLAGS 0x000104c7
 
-     @PLAYERS
+     [PLAYERS]
      1 YOU CONSOLE "Andrew"
      2 YOU BOT "Bot1"
      3 NET CONSOLE "Luke"
      4 NET BOT "Bot2"
 
-     @PLAY
-
-   client sends:
+     [BEGIN]
 
 
+Other packets:
+
+     [NOP]
+
+     [GOODBYE]   (client to host when quit)
+
+     [FUCKOFF]   (host to client)
+
+     [RETRANS?]   (can be sent both ways)
+     GAMETIC 123456
+     PLAYER  5
 
