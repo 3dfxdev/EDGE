@@ -32,6 +32,8 @@ SDL_Surface *my_vis;
 
 int graphics_shutdown = 0;
 
+bool use_grab = true;
+
 
 // Possible Screen Modes
 static struct { int w, h; } possible_modes[] =
@@ -181,6 +183,8 @@ void I_StartupGraphics(void)
 
 bool I_SetScreenSize(scrmode_c *mode)
 {
+	I_GrabCursor(false);
+
 	I_Printf("I_SetScreenSize: trying %dx%d %dbpp (%s)\n",
 			 mode->width, mode->height, mode->depth,
 			 mode->full ? "fullscreen" : "windowed");
