@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2007/06/01:
+
+Fixed IDFA and IDKFA cheats to give every type of ammo, and
+fill the clips of clip weapons.
+
 2007/05/29:
 
 Apparently the very first texture in the IWAD ("AASTINKY"
@@ -87,7 +92,7 @@ time-spans.
 
 2007/05/20:
 
-Fixed loading Hexen format maps and not honoring the ON_CEILING
+Fixed loading Hexen format maps not honoring the ON_CEILING
 special from THINGS.DDF.
 
 2007/04/25:

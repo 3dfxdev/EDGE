@@ -214,11 +214,16 @@ static void CheatGiveWeapons(player_t *pl, int key = -2)
 		if (info && !info->no_cheat && (key<0 || info->bind_key==key))
 		{
 			P_AddWeapon(pl, info, NULL);
-
-			if (info->ammo[0] != AM_NoAmmo)
-				pl->ammo[info->ammo[0]].num = pl->ammo[info->ammo[0]].max;
 		}
 	}
+
+	for (int slot=0; slot < MAXWEAPONS; slot++)
+	{
+		if (pl->weapons[slot].info)
+			P_TryFillNewWeapon(pl, slot, AM_DontCare, NULL);
+	}
+
+	P_UpdateAvailWeapons(pl);
 }
 
 bool M_CheatResponder(event_t * ev)
@@ -273,10 +278,12 @@ bool M_CheatResponder(event_t * ev)
 	{
 		pl->armours[CHEATARMOURTYPE] = CHEATARMOUR;
 
-		CheatGiveWeapons(pl);
-
-		P_UpdateAvailWeapons(pl);
 		P_UpdateTotalArmour(pl);
+
+		for (i = 0; i < NUMAMMO; i++)
+			pl->ammo[i].num = pl->ammo[i].max;
+
+		CheatGiveWeapons(pl);
 
 		CON_MessageLDF("AmmoAdded");
 	}
@@ -289,12 +296,14 @@ bool M_CheatResponder(event_t * ev)
 	{
 		pl->armours[CHEATARMOURTYPE] = CHEATARMOUR;
 
-		CheatGiveWeapons(pl);
+		P_UpdateTotalArmour(pl);
+
+		for (i = 0; i < NUMAMMO; i++)
+			pl->ammo[i].num = pl->ammo[i].max;
 
 		pl->cards = KF_MASK;
 
-		P_UpdateAvailWeapons(pl);
-		P_UpdateTotalArmour(pl);
+		CheatGiveWeapons(pl);
 
 		CON_MessageLDF("VeryHappyAmmo");
 	}
