@@ -444,6 +444,9 @@ New command-line options | console variables
   -dsound               for using -audiodriver with the same names.
                         The 'dsound' driver is the default on WIN32.
   
+  -sound16              Try to use 16-bit sound output.
+  -sound8               Try to use 8-bit sound output.
+  
   -deh  <file>          Specify a DeHackEd (or BEX) patch file.  You can
                         have multiple patch files after the -deh option.
 
