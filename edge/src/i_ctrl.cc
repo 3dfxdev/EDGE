@@ -33,7 +33,6 @@
 // Work around for alt-tabbing
 bool alt_is_down;
 bool eat_mouse_motion = true;
-bool use_grab = true;
 
 #if defined(MACOSX) || defined(BeOS) || defined(WIN32)
 bool use_warp_mouse = true;
