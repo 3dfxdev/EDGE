@@ -168,6 +168,8 @@ int SV_GetError(void)
 //
 bool SV_OpenReadFile(const char *filename)
 {
+	L_WriteDebug("Opening savegame file (R): %s\n", filename);
+			
 	chunk_stack_size = 0;
 	last_error = 0;
 
@@ -579,6 +581,8 @@ bool SV_SkipReadChunk(const char *id)
 //
 bool SV_OpenWriteFile(const char *filename, int version)
 {
+	L_WriteDebug("Opening savegame file (W): %s\n", filename);
+
 	chunk_stack_size = 0;
 	last_error = 0;
 
