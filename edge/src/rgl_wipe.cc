@@ -195,11 +195,11 @@ static void RGL_Update_Melt(int tics)
 // 
 void RGL_InitWipe(int reverse, wipetype_e effect)
 {
-	if (cur_wipe_effect == WIPE_None)
-		return;
-
 	cur_wipe_reverse = reverse;
 	cur_wipe_effect  = effect;
+
+	if (cur_wipe_effect == WIPE_None)
+		return;
 
 	cur_wipe_start = -1;
 	cur_wipe_tex = CaptureScreenAsTexture(effect == WIPE_Pixelfade,

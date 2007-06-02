@@ -1,5 +1,9 @@
 Andrew Apted's Log
 
+2007/06/02:
+
+Fixed silly bug preventing screen wipes from working.
+
 2007/06/01:
 
 Fixed IDFA and IDKFA cheats to give every type of ammo, and
@@ -9,6 +13,9 @@ Fixed problem of title pic changes preventing the user from
 starting a new game (under normal circumstances it is rare,
 but when the title pic is animating very quickly then the
 problem is much more apparent).
+
+Added 'player_idx' field to ticcmd_t (it replaces 'unused1'),
+and removed the now-redundant BT_IN_GAME flag.
 
 2007/05/29:
 
