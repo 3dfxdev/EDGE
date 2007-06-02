@@ -4,4 +4,5 @@ faq.htp ../out/faq.htm
 contact.htp ../out/contact.htm
 credits.htp ../out/credits.htm
 projects.htp ../out/projects.htm
+roadmap.htp ../out/roadmap.htm
 screenshots.htp ../out/screenshots.htm

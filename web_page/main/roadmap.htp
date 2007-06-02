@@ -1,0 +1,33 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: Road Map">
+
+<block name="content">
+
+<h2 class="page_title"> Road Map </h2>
+
+This document maps out the features we intend to
+implement in EDGE over the next two releases.
+
+<p>
+Note: the next release after 1.29 will be 1.31.
+
+
+<UL class="credits">
+<LI><B>RELEASE 1.31</B>
+  <ul>
+    <li>Foo
+  </ul>
+
+<LI><B>RELEASE 1.32</B>
+  <ul class="credit">
+    <li>Bar
+  </ul>
+</UL>
+
+<p>
+
+</block>
+
+<!--- template --->
+<file include="main_page.tpl">
