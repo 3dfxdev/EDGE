@@ -9,8 +9,15 @@
 
 <p>
 <B>Description:</B><br>
-This make a radius trigger script activate only when the player
-is within the radius, and presses the USE key. 
+This make a radius trigger script run only while the player
+is within the radius and is pressing the USE key. 
+
+<p>
+NOTE: you may need to add the
+<a class="rts" HREF="tagged_independent.htm">TAGGED_INDEPENDENT</a> property
+to your script, especially if it has any WAIT commands,
+otherwise the script stops running as soon as the player
+lets go of the USE key.
 
 <p>
 <B>Example:</B><br>
