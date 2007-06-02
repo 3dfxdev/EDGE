@@ -29,7 +29,7 @@ When a client thinks it has missed a broadcast packet,
 it asks the host for the packet using the reliable link
 and receives that packet over the reliable link.
 
-When the host thinks it missed a broadcast packet,
+When the _host_ thinks it missed a broadcast packet,
 it asks the client directly via the reliable link,
 and the client responds over the reliable link.
 
@@ -64,7 +64,9 @@ and a single LF ('\n') character is used to break lines.
 For simplicity the packet is terminated with ^Z (code 26).
 
 The beginning of each text format packet is a single
-line with a keyword surrounded by square brackets, such as:
+line with a keyword surrounded by square brackets, and
+if the packet expects a reply a '?' is also present.
+For example:
 
   [HOST?]
 
@@ -133,4 +135,31 @@ Other packets:
      [RETRANS?]   (can be sent both ways)
      GAMETIC 123456
      PLAYER  5
+
+
+Networking API
+--------------
+
+low level:
+
+N_OpenBroadcastLink
+N_CloseBroadcastLink
+
+N_BroadcastSend
+N_BroadcastRecv
+
+
+N_CreateReliableLink (host only)
+N_AcceptReliableConn (host only)
+
+N_OpenReliableLink
+N_CloseReliableLink
+
+N_ReliableSend
+N_ReliableRecv
+
+
+higher level:
+
+??
 
