@@ -21,6 +21,37 @@
   <h2 class="page_title"> Latest News </h2>
 
 
+  <use BeginNews title="EMUS v1.0 Released" date="3-June-2007">
+
+  EMUS stands for <b>E</b>dge <b>M</b>odders <b>U</b>tility <b>S</b>uite
+  and is a program written by Luke "Lobo" Brennan.
+
+  EMUS contains a whole bunch of utilities which are very handy for
+  developing EDGE-based projects, namely:
+
+  <ul>
+    <li> RTS-IDE
+    <li> DDF-Offline
+    <li> ToDo List
+    <li> FRT (File Renamer Tool)
+    <li> IDT (Images.DDF Tool)
+    <li> ELI (Edge Lump Importer)
+    <li> WMT (Wad Merging Tool)
+  </ul>
+
+  Download here:
+  <a href="http://firstgen.no-ip.com/download/lukedownload.asp?DownloadID=15">
+  EMUS v1.0</a> (638 Kb)
+
+  <p>
+  Please note you must have the
+  <a href="http://www.microsoft.com/downloads/details.aspx?FamilyID=0856EACB-4362-4B0D-8EDD-AAB15C5E04F5&displaylang=en">
+  Microsoft .Net Framework 2.0</a>
+  installed to run EMUS.
+
+  <use EndNews>
+
+
   <use BeginNews title="New Forums" date="13-May-2007">
 
   EDGE now has its own forums!
