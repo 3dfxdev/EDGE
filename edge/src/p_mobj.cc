@@ -1245,7 +1245,7 @@ static void P_MobjThinker(mobj_t * mobj)
 	const region_properties_t *props;
 	region_properties_t player_props;
 
-	SYS_ASSERT_MSG(-1 != (int)mobj->next, 
+	SYS_ASSERT_MSG(-1 != (intptr_t)mobj->next, 
 		("P_MobjThinker INTERNAL ERROR: mobj has been Z_Freed"));
 
 	SYS_ASSERT(mobj->state);
