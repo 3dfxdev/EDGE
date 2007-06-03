@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2007/06/03:
+
+Fixed problem with MUS music on Win32 'detuning' when
+restarting the level, by sending a RESET_ALL_CONTROLLERS
+event to the MIDI output channel.
+
 2007/06/02:
 
 Fixed silly bug preventing screen wipes from working.
