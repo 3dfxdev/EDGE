@@ -93,6 +93,7 @@ static const driver_bug_t driver_bugs[] =
 
 	{ "R200",     NULL, "Mesa 6.4", PFT_VERTEX_ARRAY, 0 },
 	{ "R200",     NULL, "Mesa 6.5", PFT_VERTEX_ARRAY, 0 },
+	{ "Intel",    NULL, "Mesa 6.5", PFT_VERTEX_ARRAY, 0 },
 
 	{ "TNT2",     NULL, NULL, PFT_VERTEX_ARRAY | PFT_COLOR_MATERIAL, 0 },
 
