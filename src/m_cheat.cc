@@ -341,22 +341,17 @@ bool M_CheatResponder(event_t * ev)
 	{
 		int killcount = 0;
 
-		// multiple passes to kill Lost Souls spawned when the
-		// Pain Elemental dies.
-		for (int pass = 1; pass <= 3; pass++)
+		mobj_t *mo;
+		mobj_t *next;
+
+		for (mo = mobjlisthead; mo; mo = next)
 		{
-			mobj_t *mo;
-			mobj_t *next;
+			next = mo->next;
 
-			for (mo = mobjlisthead; mo; mo = next)
+			if ((mo->extendedflags & EF_MONSTER) && (mo->health > 0))
 			{
-				next = mo->next;
-
-				if ((mo->extendedflags & EF_MONSTER) && (mo->health > 0))
-				{
-					P_TelefragMobj(mo, NULL, NULL);
-					killcount++;
-				}
+				P_TelefragMobj(mo, NULL, NULL);
+				killcount++;
 			}
 		}
 
