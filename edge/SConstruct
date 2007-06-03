@@ -44,12 +44,20 @@ if build_info['platform'] == 'win32':
     base_env.Append(CPPPATH = ['#libpng-1.2.12'])
     base_env.Append(CPPPATH = ['#zlib-1.2.3'])
 
+if build_info['platform'] == 'linux' and build_info['release']:
+    base_env.Append(CPPPATH = ['#linux_lib/jpeg-6b'])
+    base_env.Append(CPPPATH = ['#linux_lib/libpng-1.2.12'])
+    base_env.Append(CPPPATH = ['#linux_lib/zlib-1.2.3'])
+
 Export('base_env')
 
 
 #----- LIBRARIES ----------------------------------
 
 env = base_env.Copy()
+
+if os.name == "posix":
+    env.Append(LINKFLAGS = ['-Wl,--as-needed'])
 
 # EDGE itself
 ###--- env.Append(CPPPATH = ['#src'])
@@ -73,12 +81,24 @@ env.Append(LIBPATH = ['#lzo'])
 env.Append(LIBS = ['lzo'])
 
 # JPEG, PNG and ZLIB
+if build_info['platform'] == 'win32':
+    env.Append(LIBPATH = ['#jpeg-6b'])
+    env.Append(LIBPATH = ['#libpng-1.2.12'])
+    env.Append(LIBPATH = ['#zlib-1.2.3'])
+
+if build_info['platform'] == 'linux' and build_info['release']:
+    env.Append(LIBPATH = ['#linux_lib/zlib-1.2.3'])
+    env.Append(LIBPATH = ['#linux_lib/libpng-1.2.12'])
+    env.Append(LIBPATH = ['#linux_lib/jpeg-6b'])
+
 env.Append(LIBS = ['png', 'jpeg', 'z'])
 
 # FLTK
-if build_info['release'] and build_info['platform'] == 'linux':
+if build_info['platform'] == 'linux' and build_info['release']:
     env.Append(CCFLAGS = ['-DUSE_FLTK'])
-    env.ParseConfig('fltk-config --cflags --ldflags')
+    env.ParseConfig('#linux_lib/fltk-1.1.7/fltk-config --cflags')
+    env.Append(LIBPATH = ['#linux_lib/fltk-1.1.7/lib'])
+    env.Append(LIBS = ['fltk', 'fltk_images'])
 
 # HawkNL
 if 0:
@@ -112,14 +132,19 @@ if build_info['platform'] == 'win32':
     env.Append(LIBPATH = ['#libogg-1.1.3/src'])
     env.Append(CPPPATH = ['#libvorbis-1.1.2/include'])
     env.Append(LIBPATH = ['#libvorbis-1.1.2/lib'])
-    #
-    env.Append(LIBPATH = ['#jpeg-6b'])
-    env.Append(LIBPATH = ['#libpng-1.2.12'])
-    env.Append(LIBPATH = ['#zlib-1.2.3'])
-    #
+
+if build_info['platform'] == 'linux' and build_info['release']:
+    env.Append(CPPPATH = ['#linux_lib/libogg-1.1.3/include'])
+    env.Append(LIBPATH = ['#linux_lib/libogg-1.1.3/'])
+    env.Append(CPPPATH = ['#linux_lib/libvorbis-1.1.2/include'])
+    env.Append(LIBPATH = ['#linux_lib/libvorbis-1.1.2/'])
+
+
+# platform specifics
+
+if build_info['platform'] == 'win32':
     env.Append(LIBS = ['wsock32', 'winmm', 'gdi32', 'dxguid', 'dinput'])
     env.Append(LINKFLAGS = ['-mwindows'])
-    #
     env.Append(LINKFLAGS = ['edge32_res.o'])
 
 main_env = env
