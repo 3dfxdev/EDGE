@@ -85,6 +85,7 @@ musctrl_e;
 static char ctrl_mus2midi[NUM_MUS_CTRLS] =
 {
 	0,              // Not used.
+
 	0,              // Bank select.
 	1,              // Modulation.
 	7,              // Volume.
@@ -275,9 +276,12 @@ void I_MUSStop(void)
 	if (!midiavailable)
 		return;
 
-	// Reset channel settings.
-	for (i=0; i<=0xf; i++)              
-		midiOutShortMsg(midioutput, 0xe0+i); 
+	// Reset pitchwheel on all channels
+	for (i=0; i <= 15; i++)              
+		midiOutShortMsg(midioutput, 0xE0+i); 
+
+	// send RESET_ALL_CONTROLLERS message
+	midiOutShortMsg(midioutput, 0xB0+(121<<8));
 
 	midiOutReset(midioutput); 
 
