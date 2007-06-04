@@ -652,6 +652,9 @@ static bool need_wipe = false;
 
 void E_ForceWipe(void)
 {
+	if (gamestate == GS_NOTHING)
+		return;
+
 	need_wipe = true;
 
 	// capture screen now (before new level is loaded etc..)
