@@ -773,6 +773,12 @@ void M_LoadSelect(int choice)
 //
 void M_LoadGame(int choice)
 {
+	if (demorecording)
+	{
+		M_StartMessage("Cannot load a game while recording a demo", NULL, false);
+		return;
+	}
+
 	if (netgame)
 	{
 		M_StartMessage(language["NoLoadInNetGame"], NULL, false);
@@ -862,7 +868,13 @@ void M_SaveSelect(int choice)
 //
 void M_SaveGame(int choice)
 {
-	if (!usergame)
+	if (demorecording)
+	{
+		M_StartMessage("Cannot save a game while recording a demo", NULL, false);
+		return;
+	}
+
+	if (gamestate != GS_LEVEL)
 	{
 		M_StartMessage(language["SaveWhenNotPlaying"], NULL, false);
 		return;
@@ -874,9 +886,6 @@ void M_SaveGame(int choice)
 		M_StartMessage("You can't save during an RTS menu.\n\npress a key.", NULL, false);
 		return;
 	}
-
-	if (gamestate != GS_LEVEL)
-		return;
 
 	M_ReadSaveStrings();
 	M_SetupNextMenu(&SaveDef);
@@ -900,14 +909,11 @@ static void QuickSaveResponse(int ch)
 
 void M_QuickSave(void)
 {
-	if (!usergame)
+	if (gamestate != GS_LEVEL)
 	{
 		S_StartFX(sfx_oof);
 		return;
 	}
-
-	if (gamestate != GS_LEVEL)
-		return;
 
 	if (quickSaveSlot < 0)
 	{
@@ -1258,7 +1264,7 @@ static void EndGameResponse(int ch)
 
 void M_EndGame(int choice)
 {
-	if (!usergame)
+	if (gamestate != GS_LEVEL)
 	{
 		S_StartFX(sfx_oof);
 		return;
