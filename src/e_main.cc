@@ -785,7 +785,7 @@ void E_Display(void)
 //
 //  DEMO LOOP
 //
-int demosequence;
+static int demosequence;
 static int demo_num;
 static int page_map;
 static int page_pic;
@@ -799,8 +799,12 @@ static const image_t *page_image = NULL;
 //
 void E_PageTicker(void)
 {
-	if (--pagetic < 0)
-		E_AdvanceDemo();
+	if (pagetic > 0)
+	{
+		pagetic--;
+		if (pagetic == 0)
+			E_AdvanceTitle();
+	}
 }
 
 #define NOPAGE_COLOUR  0x303030
@@ -817,11 +821,11 @@ void E_PageDrawer(void)
 }
 
 //
-// E_AdvanceDemo
+// E_AdvanceTitle
 //
 // Called after each demo or intro demosequence finishes
 //
-void E_AdvanceDemo(void)
+void E_AdvanceTitle(void)
 {
 	advance_title = true;
 }
@@ -881,10 +885,14 @@ static void E_DoAdvanceTitle(void)
 
 	if (gameaction != ga_nothing)
 		return;
-	
+
 	paused = false;
 
+#if 0  // DISABLED FOR NOW -- ONLY SHOW PICS
 	demosequence = (demosequence + 1) % 2;  // - Kester
+#else
+	demosequence = 0;
+#endif
 
 	switch (demosequence)  // - Kester
 	{
@@ -931,7 +939,7 @@ void E_StartTitle(void)
 	page_map = gamedefs.GetSize() - 1;
 	page_pic = 999;
  
-	E_AdvanceDemo();
+	E_AdvanceTitle();
 }
 
 //

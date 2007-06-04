@@ -454,7 +454,7 @@ bool G_FinishDemo(void)
 		// P_ShutdownLevel();
 		P_DestroyAllPlayers();
 
-		E_AdvanceDemo();
+		E_AdvanceTitle();
 		return true;
 	}
 
