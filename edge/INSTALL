@@ -2,33 +2,52 @@
 EDGE 1.29 COMPILATION NOTES
 ===========================
 
-@@@ fixme: Needs rewriting !
+by Andrew Apted, June 2007.
 
-  For All Versions:
-      glBSP 2.10 is intended for use with this version of EDGE. All
-      those people who download the source from CVS will need to
-      add this to the source tree for the edge module. The directory
-      name is in the format glbsp-x.xx - with the x's replaced
-      with the version number.
+Note 1
+------
 
-      DEH_EDGE 1.3 is also required.  The directory name is in the
-      format deh_edge_x.x - with the x's replaced with the version
-      number.
+If you have used the SVN (Subversion) repository to download
+the EDGE source code, then you will also need a copy of the
+GLBSP source code, and possibly the other libraries which
+EDGE uses.  The easiest way to get them is to download the
+library package and move or copy the missing pieces from it.
+
+Note 2
+------
+
+I personally compile the Win32 binaries on Linux using what's
+called a "Cross Compiler".  That means I don't need to reboot
+out of Linux in order to compile Win32 binaries.
+
+If you want to compile EDGE on a Windows system, theoretically
+it should work because the tools (like SCons and MinGW) exist
+for the Win32 platform.  However: YOU ARE ON YOUR OWN!
 
 
-  For Windows:
-!!!!      - use the IDE project files: EDGE.VCPROJ for Microsoft Visual
-!!!!      Studio, or EDGE.DEV for Dev C++ (a free C/C++ IDE). Users
-!!!!      of the Dev C++ will also need to locate a version of the
-!!!!      DirectX libraries for 8.1. 
+Build System for EDGE
+---------------------
 
-  For Linux:
-      @@@@ todo: humidity
+EDGE uses the _SCons_ build tool to compile binaries.
 
-    - just type 'make' in the top-level dir.  This will create gledge.
-      edit the Makefile in order to create the S/W version.
+There is no autoconf/automake/libtool stuff here, because
+I tried really hard to get to grips with them but in the
+end found them extremely complex and frustrating to use.
 
-  For MacOS X:
-    - type 'make -f Makefile.osx' in the top-level dir.
-      NOTE: MacOS X support is broken right now.
+There are three basic configurations:
+
+ 1. Build Linux debugging + shared-lib binary:
+
+    > scons
+
+ 2. Build Linux statically-linked binary:
+
+    > scons release=true
+
+ 3. Build Win32 statically-linked binary:
+
+    > scons cross=true release=true
+
+
+@@@ fixme: write more...
 
