@@ -594,7 +594,7 @@ void P_ActBrainScream(mobj_t * bossbrain)
 	}
 
 	if (bossbrain->info->deathsound)
-		S_StartFX(bossbrain->info->deathsound, P_MobjGetSfxCategory(bossbrain));
+		S_StartFX(bossbrain->info->deathsound, P_MobjGetSfxCategory(bossbrain), bossbrain);
 }
 
 void P_ActBrainMissileExplode(mobj_t * mo)
