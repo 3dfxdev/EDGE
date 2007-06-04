@@ -258,6 +258,7 @@ typedef struct
 	int gravity;
 
 	int level_time;
+	int exit_time;
 	int p_random;
 	int total_kills;
 	int total_items;

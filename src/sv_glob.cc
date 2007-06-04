@@ -47,6 +47,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 // forward decls:
 static void GV_GetInt(const char *info, void *storage);
@@ -92,7 +93,9 @@ static const global_command_t global_commands[] =
 	{ "FLAGS", GV_GetLevelFlags, GV_PutLevelFlags, GLOB_OFF(flags) },
 	{ "GRAVITY", GV_GetInt, GV_PutInt, GLOB_OFF(gravity) },
 	{ "LEVEL_TIME", GV_GetInt, GV_PutInt, GLOB_OFF(level_time) },
+	{ "EXIT_TIME", GV_GetInt, GV_PutInt, GLOB_OFF(exit_time) },
 	{ "P_RANDOM", GV_GetInt, GV_PutInt, GLOB_OFF(p_random) },
+
 	{ "TOTAL_KILLS",   GV_GetInt, GV_PutInt, GLOB_OFF(total_kills) },
 	{ "TOTAL_ITEMS",   GV_GetInt, GV_PutInt, GLOB_OFF(total_items) },
 	{ "TOTAL_SECRETS", GV_GetInt, GV_PutInt, GLOB_OFF(total_secrets) },
@@ -334,6 +337,8 @@ saveglobals_t *SV_NewGLOB(void)
 	saveglobals_t *globs;
 
 	globs = Z_ClearNew(saveglobals_t, 1);
+
+	globs->exit_time = INT_MAX;
 
 	return globs;
 }
