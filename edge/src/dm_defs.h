@@ -40,11 +40,11 @@
 // the game final animation, or a demo. 
 typedef enum
 {
-	GS_NOTHING = -1,
+	GS_NOTHING = 0,
+	GS_TITLESCREEN,
 	GS_LEVEL,
 	GS_INTERMISSION,
 	GS_FINALE,
-	GS_DEMOSCREEN
 }
 gamestate_e;
 

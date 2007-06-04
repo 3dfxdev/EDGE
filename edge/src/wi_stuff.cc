@@ -32,7 +32,9 @@
 #include "i_defs.h"
 #include "wi_stuff.h"
 
+#include "e_main.h"
 #include "g_game.h"
+#include "f_finale.h"
 #include "hu_lib.h"
 #include "p_local.h"
 #include "s_sound.h"
@@ -466,8 +468,12 @@ static void DrawTime(float x, float y, int t)
 
 static void WI_End(void)
 {
+	E_ForceWipe();
+
 	background_camera_mo = NULL;
 	R_ExecuteSetViewSize();
+
+	F_StartFinale(&currmap->f_end, nextmap ? ga_briefing : ga_nothing);
 }
 
 static void InitNoState(void)
@@ -479,10 +485,11 @@ static void InitNoState(void)
 
 static void UpdateNoState(void)
 {
-	if (!--cnt)
+	cnt--;
+
+	if (cnt == 0)
 	{
 		WI_End();
-		G_WorldDone();
 	}
 }
 
