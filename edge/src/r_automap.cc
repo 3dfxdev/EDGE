@@ -493,7 +493,6 @@ static void AM_Hide(void)
 	m_paninc.y = 0;
 	mtof_zoommul = 1.0f;
 	automapactive = 0;
-	viewactive = true;
 }
 
 static void AM_Show(void)
@@ -505,8 +504,6 @@ static void AM_Show(void)
 		automapactive = 1;
 	else
 		automapactive = 2;
-
-	viewactive = false;
 }
 
 //
@@ -679,7 +676,6 @@ bool AM_Responder(event_t * ev)
 				else
 				{
 					bigstate = 0;
-					viewactive = true;
 					AM_Hide();
 				}
 			}
