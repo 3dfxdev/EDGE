@@ -7,25 +7,58 @@
 <h2 class="page_title"> Road Map </h2>
 
 This document maps out the features we intend to
-implement in EDGE over the next two releases.
-
+implement in EDGE in the future.  Of course there is
+no guarantee that any of this stuff will actually be
+done, but we will try our best.  Also note that
+whatever is shown here doesn't preclude other
+(especially smaller) features from being implemented.
 <p>
-Note: the next release after 1.29 will be 1.31.
 
+<hr>
 
-<UL class="credits">
-<LI><B>RELEASE 1.31</B>
+<h3 class="roadmap">RELEASE 1.31</h3>
   <ul>
-    <li>Foo
+    <li type="disc">Big
+    <li type="disc">Big
   </ul>
 
-<LI><B>RELEASE 1.32</B>
-  <ul class="credit">
-    <li>Bar
+  <ul>
+    <li type="circle">Small
+    <li type="circle">Small
   </ul>
-</UL>
 
-<p>
+<hr>
+
+<h3 class="roadmap">RELEASE 1.32</h3>
+  <ul>
+    <li type="disc">Big
+    <li type="disc">Big
+  </ul>
+
+  <ul>
+    <li type="circle">Small
+    <li type="circle">Small
+  </ul>
+
+<hr>
+
+Notes:
+
+<OL class="roadmap_notes">
+  <li>
+    Major features are shown with a solid circle, and
+    other features are shown with an empty circle.
+
+  <li>
+    The next release after 1.29 will be 1.31,
+    because version numbers with zeros are evil.
+    Besides, nobody likes to turn 30!
+
+  <li>
+    No timeframes are given here.
+    It will be done when it's done.
+
+</OL>
 
 </block>
 

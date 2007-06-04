@@ -152,6 +152,16 @@ pre.credits {
   font-size: smaller;
  }
 
+h3.roadmap {
+  color: #862;
+  font-weight: bold;
+  text-decoration: none; /* underline; */
+  }
+
+OL.roadmap_notes li {
+  margin-bottom: 1em;
+ }
+
 
 /* ----- Menu ------------------ */
 
