@@ -128,13 +128,13 @@ static finalestage_e FindValidFinale(const map_finaledef_c *F, finalestage_e cur
 {
 	SYS_ASSERT(F);
 
-	while (cur != f_done)
+	for (; cur != f_done; cur++)
 	{
-		if (! HasFinale(F, cur))
-			cur++;
+		if (HasFinale(F, cur))
+			return cur;
 	}
 
-	return cur;
+	return f_done;
 }
 
 static void DoStartFinale(void)
@@ -180,7 +180,8 @@ static void DoBumpFinale(void)
 
 	if (stage != f_done)
 	{
-		E_ForceWipe();
+		if (gamestate != GS_INTERMISSION)
+			E_ForceWipe();
 
 		finalestage = stage;
 
@@ -189,13 +190,13 @@ static void DoBumpFinale(void)
 	}
 
 	// capture the screen _before_ changing any global state
-	if (newgameaction == ga_loadlevel)
-		E_ForceWipe();
-
-	gamestate = GS_NOTHING;  // hack ???
-
 	if (newgameaction != ga_nothing)
+	{
+		E_ForceWipe();
 		gameaction = newgameaction;
+	}
+
+	gamestate = GS_NOTHING;  // hack ???  (cannot leave as GS_FINALE)
 }
 
 static void LookupFinaleStuff(void)
@@ -249,8 +250,7 @@ void F_StartFinale(const map_finaledef_c *F, gameaction_e newaction)
 	}
 
 	// capture the screen _before_ changing any global state
-	if (gamestate != GS_NOTHING)
-		E_ForceWipe();
+	//--- E_ForceWipe();   // CRASH with IDCLEV
 
 	finale = F;
 	finalestage = stage;
