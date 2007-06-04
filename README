@@ -1,18 +1,16 @@
 
-EDGE 1.29 RC#6 README.TXT
-=========================
+EDGE 1.29 README.TXT
+====================
 
 Welcome to EDGE, the Enhanced Doom Gaming Engine.
 
-** NOTE: This is only a Release Candidate version of EDGE.
-**       There a still many things left to do before the
-**       full release is made.  Thank you for testing it.
-
-
 Archive listing:
-  * gledge32.exe       - Windows Executable (OpenGL rendering)
-  * edge.wad           - EDGE WAD Information
-  * edge-Readme.txt    - Guess what you reading?
+  * gledge32.exe       - EDGE Executable (OpenGL rendering)
+  * gledge-linux       - EDGE Linux binary
+  * edge.wad           - EDGE WAD Information, version 5.2
+  * SDL.dll            - Simple DirectMedia Layer, version 1.2.11
+  * Changelog-129.txt  - Changes since 1.28a
+  * Edge-Readme.txt    - Guess what you reading?
 
 
 System Requirements:
@@ -81,18 +79,26 @@ Notable EDGE features:
 
   - Jumping, Look up/down, Flying (JetPack), Zooming.
 
-  - Many limits and bugs from original DOOM removed (e.g. no more
-    visplane overflow or medusa effect).
+  - Many limits and bugs from original DOOM removed.
 
 
 Major changes in 1.29:
-  * Software rendering removed.
+  + Drag 'n' Drop support.
+  + OGG/Vorbis music playback.
+  + Greatly improved BOOM compatibility.
+  + Added a Sound Options menu.
+
+  + Handle DeHackEd and BEX patches.
+  + IMAGES.DDF, supporting PNG and JPEG images.
+  + New startup with progress bar.
+  + Software rendering was removed.
 
 
 Bugs fixed in 1.29:
   + crash loading a savegame with dynamic lights when D/L disabled.
   + fixed crash when starting a level in deathmatch mode.
   + quotes (") usable in response files (for filenames with spaces).
+  + fixed "jerk up/down" when player steps onto a lowering lift.
 
   - arch-vile no longer resurrects monsters into itself.
   - fix for teleport on MAP06 (going to wrong place).
@@ -102,6 +108,7 @@ Bugs fixed in 1.29:
   - autorun is remembered in the config file again.
   - fixed some missing mid-masked textures (Eternal MAP28).
   - revenant missiles fixed to match the original.
+  - fixed 'detuning' problem with MUS music.
 
   * Many more... See the 1.29 ChangeLog for the complete list.
 
@@ -124,7 +131,7 @@ General improvements in 1.29:
 
   - new startup which shows a progress bar.
   - ability to use 32-bit screen modes (16.7 million colours).
-  - support V3 GL-NODES, for very complex levels (Deus Vult MAP05).
+  - V3 and V5 GL-NODES, for very complex levels (Deus Vult MAP05).
   - detect Boom maps, and ask whether to change compatability mode.
   - support Boom's line-to-line teleports and platform toggles.
   - sky improvements, including a stretch option in Video menu.
@@ -183,10 +190,12 @@ New DDF/RTS features in 1.29:
 
   * That was just a summary.  See the 1.29 ChangeLog for more...
 
+
 Known Issues:
   - Multiplayer (networking) does not work yet.  We have made a
-    little bit of progress recently, and hope to get LAN-based
-    multiplayer working again soon.
+    little bit of progress recently, for example you can play
+	deathmatch with bots.  We plan to get LAN-based multiplayer
+	working in the next release.
 
   - Drag-and-drop does not work in Linux.
 
@@ -207,12 +216,6 @@ Known Issues:
     work properly with EDGE's renderer.
 
   - Bullets can sometimes pass through solid extrafloors.
-
-  - Looping sounds tend to stop when you get too far away to hear
-    them, e.g. coming back to a flickering torch in QDOOM and it has
-    stopped making the flickering sound.  Also looping sounds are not
-    saved in a savegame, so after loading a level there are no looping
-    sounds being played at all.
 
   - The console has very limited functionality.
 
