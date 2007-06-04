@@ -35,6 +35,7 @@
 #include "dm_state.h"
 #include "g_game.h"
 #include "dstrings.h"
+#include "e_main.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"
 #include "hu_style.h"
@@ -60,7 +61,7 @@ typedef enum
 	f_pic,
 	f_bunny,
 	f_cast,
-	f_end
+	f_done
 }
 finalestage_e;
 
@@ -85,7 +86,8 @@ static const char *finaletext;
 
 static gameaction_e newgameaction;
 static const map_finaledef_c *finale;
-static void StartCast(void);
+
+static void CastInitNew(int num);
 static void CastTicker(void);
 static void CastSkip(void);
 
@@ -95,27 +97,110 @@ static float finale_textbackscale;
 static style_c *cast_style;
 static style_c *finale_hack_style;
 
-//
-// F_StartFinale
-//
-void F_StartFinale(const map_finaledef_c * f, gameaction_e newaction)
-{
-	gameaction = ga_nothing;
 
-	finalestage = f_text;
+static bool HasFinale(const map_finaledef_c *F, finalestage_e cur)
+{
+	SYS_ASSERT(F);
+
+	switch (cur)
+	{
+		case f_text:
+			return F->text ? true:false;
+
+		case f_pic:
+			return (F->pics.GetSize() > 0);
+
+		case f_bunny:
+			return F->dobunny;
+
+		case f_cast:
+			return F->docast;
+
+		default:
+			I_Error("Bad parameter passed to HasFinale().\n");
+	}
+
+	return false; /* NOT REACHED */
+}
+
+// returns f_done if nothing found
+static finalestage_e FindValidFinale(const map_finaledef_c *F, finalestage_e cur)
+{
+	SYS_ASSERT(F);
+
+	while (cur != f_done)
+	{
+		if (! HasFinale(F, cur))
+			cur++;
+	}
+
+	return cur;
+}
+
+static void DoStartFinale(void)
+{
 	finalecount = 0;
-	viewactive = false;
-	automapactive = false;
-	finale = f;
-	newgameaction = newaction;
-	picnum = 0;
+
+	switch (finalestage)
+	{
+		case f_text:
+			finaletext = language[finale->text];
+			S_ChangeMusic(finale->music, true);
+			break;
+
+		case f_pic:
+			picnum = 0;
+			break;
+
+		case f_bunny:
+			S_ChangeMusic(currgamedef->special_music, true);
+			break;
+
+		case f_cast:
+			CastInitNew(2);
+			S_ChangeMusic(currgamedef->special_music, true);
+			break;
+
+		default:
+			I_Error("DoStartFinale: bad stage #%d\n", (int)finalestage);
+			break;
+	}
 
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 		if (players[pnum])
 			players[pnum]->cmd.buttons = 0;
+}
 
+static void DoBumpFinale(void)
+{
+	// find next valid Finale stage
+	finalestage_e stage = finalestage;
+	stage++;
+	stage = FindValidFinale(finale, stage);
+
+	if (stage != f_done)
+	{
+		E_ForceWipe();
+
+		finalestage = stage;
+
+		DoStartFinale();
+		return;
+	}
+
+	// capture the screen _before_ changing any global state
+	if (newgameaction == ga_loadlevel)
+		E_ForceWipe();
+
+	gamestate = GS_NOTHING;  // hack ???
+
+	if (newgameaction != ga_nothing)
+		gameaction = newgameaction;
+}
+
+static void LookupFinaleStuff(void)
+{
 	// here is where we lookup the required images
-
 	if (! cast_style)
 	{
 		styledef_c *def = styledefs.Lookup("CAST SCREEN");
@@ -127,30 +212,63 @@ void F_StartFinale(const map_finaledef_c * f, gameaction_e newaction)
 	if (! finale_hack_style)
 		finale_hack_style = hu_styles.Lookup(default_style); //???
 
-	if (f->text_flat[0])
+	if (finale->text_flat[0])
 	{
-		finale_textback = W_ImageLookup(f->text_flat, INS_Flat);
+		finale_textback = W_ImageLookup(finale->text_flat, INS_Flat);
 		finale_textbackscale = 5.0f;
 	}
-	else if (f->text_back[0])
+	else if (finale->text_back[0])
 	{
-		finale_textback = W_ImageLookup(f->text_back, INS_Graphic);
+		finale_textback = W_ImageLookup(finale->text_back, INS_Graphic);
 		finale_textbackscale = 1.0f;
 	}
 	else
 	{
 		finale_textback = NULL;
 	}
+}
 
-	F_Ticker();
+//
+// F_StartFinale
+//
+void F_StartFinale(const map_finaledef_c *F, gameaction_e newaction)
+{
+	SYS_ASSERT(F);
+
+	newgameaction = newaction;
+	automapactive = false;
+
+	finalestage_e stage = FindValidFinale(F, f_text);
+
+	if (stage == f_done)
+	{
+		if (newgameaction != ga_nothing)
+			gameaction = newgameaction;
+
+		return /* false */;  //!!!!! BROKEN  newaction!!
+	}
+
+	// capture the screen _before_ changing any global state
+	if (gamestate != GS_NOTHING)
+		E_ForceWipe();
+
+	finale = F;
+	finalestage = stage;
+
+	LookupFinaleStuff();
+
+	gamestate = GS_FINALE;
+
+	DoStartFinale();
 }
 
 bool F_Responder(event_t * event)
 {
-	if (event->type != ev_keydown)
-		return false;
+	SYS_ASSERT(gamestate == GS_FINALE);
 
 	// FIXME: use WI_CheckAccelerate() in netgames
+	if (event->type != ev_keydown)
+		return false;
 
 	if (finalecount > TICRATE)
 	{
@@ -166,117 +284,78 @@ bool F_Responder(event_t * event)
 //
 void F_Ticker(void)
 {
-	finalestage_e orig_stage = finalestage;
+	SYS_ASSERT(gamestate == GS_FINALE);
 
-	if (finalestage == f_text)
+	// advance animation
+	finalecount++;
+
+	switch (finalestage)
 	{
-		if (! finale->text)
-			finalestage++;
-		else
-		{
-			gamestate = GS_FINALE;
-
-			if (finalecount == 0)
-			{
-				finaletext = language[finale->text];
-				S_ChangeMusic(finale->music, true);
-				wipegamestate = GS_NOTHING;
-			}
-			else if (skip_finale && finalecount < (int)strlen(finaletext) * TEXTSPEED)
+		case f_text:
+			if (skip_finale && finalecount < (int)strlen(finaletext) * TEXTSPEED)
 			{
 				finalecount = TEXTSPEED * strlen(finaletext);
 				skip_finale = false;
 			}
 			else if (skip_finale || finalecount > TEXTWAIT + (int)strlen(finaletext) * TEXTSPEED)
 			{
-				finalestage++;
-				finalecount = 0;
+				DoBumpFinale();
 				skip_finale = false;
 			}
-		}
-	}
+			break;
 
-	if (finalestage == f_pic)
-	{
-		if (finale->pics.GetSize() == 0)
-			finalestage++;
-		else
-		{
-			gamestate = GS_FINALE;
-
+		case f_pic:
 			if (skip_finale || finalecount > (int)finale->picwait)
 			{
 				picnum++;
 				finalecount = 0;
 				skip_finale = false;
 			}
-
 			if (picnum >= finale->pics.GetSize())
 			{
-				finalestage++;
-				finalecount = 0;
-				picnum = 0;
+				DoBumpFinale();
+				///--- picnum = 0;
 			}
-		}
-	}
+			break;
 
-	if (finalestage == f_bunny)
-	{
-		if (! finale->dobunny)
-			finalestage++;
-		else
-		{
-			gamestate = GS_FINALE;
-
-			if (finalecount == 0)
-			{
-				S_ChangeMusic(currgamedef->special_music, true);
-				wipegamestate = GS_NOTHING; // force a wipe
-			}
-
+		case f_bunny:
 			if (skip_finale && finalecount < 1100)
 			{
 				finalecount = 1100;
 				skip_finale = false;
 			}
-		}
-	}
+			break;
 
-	if (finalestage == f_cast)
-	{
-		if (! finale->docast)
-			finalestage++;
-		else
-		{
-			gamestate = GS_FINALE;
-
-			if (finalecount == 0)
-				StartCast();
-			else if (skip_finale)
+		case f_cast:
+			if (skip_finale)
 			{
 				CastSkip();
 				skip_finale = false;
 			}
 			else
 				CastTicker();
-		}
+
+			break;
+
+		default:
+			I_Error("F_Ticker: bad finalestage #%d\n", (int)finalestage);
+			break;
 	}
 
-	if (finalestage == f_end)
+
+	if (finalestage == f_done)
 	{
 		if (newgameaction != ga_nothing)
+		{
 			gameaction = newgameaction;
-#if 0  // -AJA Huh ???
-		else
-			finalestage = orig_stage;
-#endif
+
+			// don't come here again (for E_ForceWipe)
+			newgameaction = ga_nothing;
+
+			if (gamestate == GS_FINALE)
+				E_ForceWipe();
+		}
 	}
-
-	if (finalestage != orig_stage && finalestage != f_end)
-		wipegamestate = GS_NOTHING;
-
-	// advance animation
-	finalecount++;
 }
 
 //
@@ -466,17 +545,6 @@ static void CastInitNew(int num)
 	CastSetState(castorder->chase_state);
 }
 
-//
-// StartCast
-//
-static void StartCast(void)
-{
-	wipegamestate = GS_NOTHING;  // force a screen wipe
-
-	CastInitNew(2);
- 
-	S_ChangeMusic(currgamedef->special_music, true);
-}
 
 //
 // CastTicker
@@ -677,6 +745,8 @@ static void BunnyScroll(void)
 //
 void F_Drawer(void)
 {
+	SYS_ASSERT(gamestate == GS_FINALE);
+
 	switch (finalestage)
 	{
 		case f_text:
@@ -699,7 +769,8 @@ void F_Drawer(void)
 			CastDrawer();
 			break;
 
-		case f_end:
+		default:
+			I_Error("F_Drawer: bad finalestage #%d\n", (int)finalestage);
 			break;
 	}
 }
