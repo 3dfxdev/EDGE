@@ -34,7 +34,6 @@ Bugs fixed
 - Archvile flame fixed to play the crackle sounds.
 - fixed stair-building bug (e.g. TNT MAP16).
 - some problems handling the mouse-wheel were fixed.
-- can use mouse-wheel in automap and in menus.
 - rotated automap could omit parts of a map, fixed.
 - fixed an issue with window positioning on Win32.
 - fixed MUS playback on certain devices in Win32
@@ -43,6 +42,7 @@ Bugs fixed
 - the CAPSLOCK and NUMLOCK keys work a bit better.
 - improved spawning of voodoo dolls (Darren Salt).
 - fixed old deathmatch mode so weapons stay on the map.
+- fixed 'detuning' problem with MUS music.
 
 
 Features removed / changed
@@ -157,6 +157,7 @@ General improvements
 - correct map names for TNT Evilution and Plutonia Experiment.
 - detects and repairs TNT's MAP31 bug (missing yellow key).
 - can use numbers with -warp and IDCLEV cheats again.
+- can use mouse-wheel in automap and in menus.
 - intermission text screens can now be skipped.
 - console now slides up/down, smaller font.
 - can disable mouse-look in the gameplay options.
