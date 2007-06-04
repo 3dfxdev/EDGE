@@ -655,6 +655,9 @@ void E_ForceWipe(void)
 	if (gamestate == GS_NOTHING)
 		return;
 
+	if (wipe_method == WIPE_None)
+		return;
+
 	need_wipe = true;
 
 	// capture screen now (before new level is loaded etc..)
@@ -736,7 +739,6 @@ void E_Display(void)
 		//
 		if (RGL_DoWipe())
 		{
-L_WriteDebug("%4d: RGL_StopWipe\n", maketic);
 			RGL_StopWipe();
 			wipe_gl_active = false;
 		}
@@ -745,7 +747,6 @@ L_WriteDebug("%4d: RGL_StopWipe\n", maketic);
 	// save the current screen if about to wipe
 	if (need_wipe)
 	{
-L_WriteDebug("%4d: RGL_InitWipe\n", maketic);
 		need_wipe = false;
 		wipe_gl_active = true;
 
