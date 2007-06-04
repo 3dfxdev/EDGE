@@ -38,13 +38,15 @@
 // we're limited to one wipe at a time...
 static int cur_wipe_reverse = 0;
 static wipetype_e cur_wipe_effect = WIPE_None;
-static int cur_wipe_start;
+
+static int cur_wipe_progress;
+static int cur_wipe_lasttime;
 
 static GLuint cur_wipe_tex = 0;
 
+
 #define MELT_DIVS  128
 static int melt_yoffs[MELT_DIVS+1];
-static int melt_last_progress;
 
 
 static GLuint SendWipeTexture(byte *rgb_src, int total_w, int total_h,
@@ -155,8 +157,6 @@ static void RGL_Init_Melt(void)
 {
 	int x, r;
 
-	melt_last_progress = 0;
-
 	melt_yoffs[0] = - (M_Random() % 16);
 
 	for (x=1; x <= MELT_DIVS; x++)
@@ -195,13 +195,15 @@ static void RGL_Update_Melt(int tics)
 // 
 void RGL_InitWipe(int reverse, wipetype_e effect)
 {
-	cur_wipe_reverse = reverse;
-	cur_wipe_effect  = effect;
+	cur_wipe_reverse  = reverse;
+	cur_wipe_effect   = effect;
+
+	cur_wipe_progress =  0;
+	cur_wipe_lasttime = -1;
 
 	if (cur_wipe_effect == WIPE_None)
 		return;
 
-	cur_wipe_start = -1;
 	cur_wipe_tex = CaptureScreenAsTexture(effect == WIPE_Pixelfade,
 		effect == WIPE_Spooky);
 
@@ -407,33 +409,34 @@ static void RGL_Wipe_Doors(float how_far)
 //
 bool RGL_DoWipe(void)
 {
-	int progress;
-	float how_far;
-
 	if (cur_wipe_effect == WIPE_None || cur_wipe_tex == 0)
 		return true;
 
 	// determine how many tics since we started.  If this is the first
 	// call to DoWipe() since InitWipe(), then the clock starts now.
-	// 
-	progress = I_GetTime();
+	int nowtime = I_GetTime();
+	int tics = 0;
 
-	if (cur_wipe_start < 0)
-		cur_wipe_start = progress;
+	if (cur_wipe_lasttime >= 0)
+		tics = MAX(0, nowtime - cur_wipe_lasttime);
+	
+	cur_wipe_lasttime = nowtime;
 
-	progress = MAX(0, progress - cur_wipe_start);
+	// hack for large delays (like when loading a level)
+	tics = MIN(6, tics);
 
-	if (progress > 40)  // FIXME: have option for wipe speed
+	cur_wipe_progress += tics;
+
+	if (cur_wipe_progress > 40)  // FIXME: have option for wipe time
 		return true;
 
-	how_far = (float) progress / 40.0f;
+	float how_far = (float) cur_wipe_progress / 40.0f;
 
 	switch (cur_wipe_effect)
 	{
 		case WIPE_Melt:
 			RGL_Wipe_Melt();
-			RGL_Update_Melt(progress - melt_last_progress);
-			melt_last_progress = progress;
+			RGL_Update_Melt(tics);
 			break;
 
 		case WIPE_Top:
