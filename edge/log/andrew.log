@@ -1,10 +1,47 @@
 Andrew Apted's Log
 
+2007/06/04:
+
+Noticed 'exittime' was not saved in savegames, so fixed it
+(though it would be hard to trigger this potential bug).
+
+Renamed GS_DEMOSCREEN to more accurate GS_TITLE_SCREEN.
+Removed the 'usergame' global, the same info is contained
+in the gamestate + demoplayback globals.
+
+More reworking of the gamestate flow logic.  I'm nervous
+since it is likely something will break, and the breakage
+will inevitably cause a crash.
+
+Heavily reworked the Finale code (f_finale.cc), replacing
+the very kludgy way that F_Ticker() cycled through unused
+finale stages with a cleaner FindValidFinale() function.
+
+Fixed fatal error with Boss-Brain scream action.
+
+I have forgotten why I introduced the "fresh_game_tic"
+logic for the G_Ticker() code, and today's changes mean
+that it breaks the title screen progression.  Oh boy.
+
 2007/06/03:
 
 Fixed problem with MUS music on Win32 'detuning' when
 restarting the level, by sending a RESET_ALL_CONTROLLERS
 event to the MIDI output channel.
+
+Noticed that wipes sometimes flashed a 'wrong' frame,
+which I think is caused by capturing the old screen.
+Hence you get: (1) menu+old_level (2) old_level,
+(3) start of the wipe using (1) instead of (2).
+
+Trying to fix that problem really opened a can of worms!!
+The way that wipes were capturing the screen was plain
+wrong, another of those god awful hacks that managed to
+work OK with the original DOOM renderer but which fails
+miserably with OpenGL rendering.
+
+My new solution: E_ForceWipe(), which sets a flag and
+runs E_Display() directly to capture the screen.
 
 2007/06/02:
 
