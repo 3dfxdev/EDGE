@@ -475,18 +475,16 @@ void G_Ticker(bool fresh_game_tic)
 		}
 	}
 
-///---	if (gamestate == GS_DEMOSCREEN)
-///---	{
-///---		E_PageTicker();
-///---		return;
-///---	}
-
 	if (! fresh_game_tic)
 		return;
 
 	// do main actions
 	switch (gamestate)
 	{
+		case GS_TITLESCREEN:
+			E_PageTicker();
+			break;
+
 		case GS_LEVEL:
 			// get commands, check consistency,
 			// and build new consistency check.
@@ -511,10 +509,6 @@ void G_Ticker(bool fresh_game_tic)
 		case GS_FINALE:
 			G_TiccmdTicker();
 			F_Ticker();
-			break;
-
-		case GS_TITLESCREEN:
-			E_PageTicker();
 			break;
 
 		default:

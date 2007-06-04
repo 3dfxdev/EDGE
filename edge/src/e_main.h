@@ -33,11 +33,10 @@ void E_Idle(void);
 void E_Tick(void);
 
 void E_ProcessEvents(void);
-void E_DoAdvanceDemo(void);
 void E_PostEvent(event_t * ev);
 void E_PageTicker(void);
 void E_PageDrawer(void);
-void E_AdvanceDemo(void);
+void E_AdvanceTitle(void);
 void E_StartTitle(void);
 void E_EngineShutdown(void);
 void E_ForceWipe(void);
