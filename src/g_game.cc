@@ -63,6 +63,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <limits.h>
 
 #define SAVEGAMESIZE    0x50000
 #define SAVESTRINGSIZE  24
@@ -81,9 +82,6 @@ skill_t gameskill = sk_invalid;
 
 bool paused = false;
 
-// ok to save / end game 
-bool usergame;
-
 // for comparative timing purposes 
 bool nodrawers;
 bool noblit;
@@ -94,10 +92,8 @@ int starttime;
 // after hitting the exit switch/killing the boss.  So that you see the
 // switch change or the boss die.
 
-int exittime = 0x7fffffff;
+int exittime = INT_MAX;
 bool exit_skipall = false;  // -AJA- temporary (maybe become "exit_mode")
-
-bool viewactive = false;
 
 // GAMEPLAY MODES:
 //
@@ -143,8 +139,6 @@ static newgame_params_c *d_params = NULL;
 //
 void G_DoLoadLevel(void)
 {
-	gameaction = ga_nothing;
-
 	if (currmap == NULL)
 		I_Error("G_DoLoadLevel: No Current Map selected");
 
@@ -158,11 +152,7 @@ void G_DoLoadLevel(void)
 
 	sky_image = W_ImageLookup(currmap->sky, INS_Texture);
 
-	if (wipegamestate == GS_LEVEL)
-		wipegamestate = GS_NOTHING;  // force a wipe
-
-	// -AJA- need this for GLBSP plugin
-	gamestate = GS_NOTHING;
+	gamestate = GS_NOTHING; //FIXME: needed ???
 
 	// -AJA- FIXME: this background camera stuff is a mess
 	background_camera_mo = NULL;
@@ -248,7 +238,7 @@ void G_DoLoadLevel(void)
 	RAD_SpawnTriggers(currmap->ddf.name.GetString());
 
 	starttime = I_GetTime();
-	exittime = 0x7fffffff;
+	exittime = INT_MAX;
 	exit_skipall = false;
 
 	BOT_BeginLevel();
@@ -262,7 +252,6 @@ void G_DoLoadLevel(void)
 	E_ClearInput();
 
 	paused = false;
-	viewactive = true;
 }
 
 
@@ -275,7 +264,7 @@ bool G_Responder(event_t * ev)
 {
 	// any other key pops up menu if in demos
 	if (gameaction == ga_nothing && !singledemo &&
-		(demoplayback || gamestate == GS_DEMOSCREEN))
+		(demoplayback || gamestate == GS_TITLESCREEN))
 	{
 		if (ev->type == ev_keydown)
 		{
@@ -435,29 +424,17 @@ bool CheckPlayersReborn(void)
 //
 void G_Ticker(bool fresh_game_tic)
 {
-	// do player reborns if needed
-	if (gamestate == GS_LEVEL)
-	{
-		if (CheckPlayersReborn())
-		{
-			gameaction = ga_loadlevel;
-		}
-
-		if (exittime == leveltime)
-		{
-			gameaction = ga_completed;
-			exittime = 0x7fffffff;
-		}
-	}
+	if (leveltime >= exittime && gameaction == ga_nothing)
+		gameaction = ga_completed;
 
 	// do things to change the game state
 	while (gameaction != ga_nothing)
 	{
-		switch (gameaction)
-		{
-			case ga_nothing:
-				break;
+		gameaction_e action = gameaction;
+		gameaction = ga_nothing;
 
+		switch (action)
+		{
 			case ga_newgame:
 				G_DoNewGame();
 				break;
@@ -498,11 +475,11 @@ void G_Ticker(bool fresh_game_tic)
 		}
 	}
 
-	if (gamestate == GS_DEMOSCREEN)
-	{
-		E_PageTicker();
-		return;
-	}
+///---	if (gamestate == GS_DEMOSCREEN)
+///---	{
+///---		E_PageTicker();
+///---		return;
+///---	}
 
 	if (! fresh_game_tic)
 		return;
@@ -520,6 +497,10 @@ void G_Ticker(bool fresh_game_tic)
 			AM_Ticker();
 			HU_Ticker();
 			RAD_Ticker();
+
+			// do player reborns if needed
+			if (CheckPlayersReborn())
+				gameaction = ga_loadlevel;
 			break;
 
 		case GS_INTERMISSION:
@@ -532,9 +513,9 @@ void G_Ticker(bool fresh_game_tic)
 			F_Ticker();
 			break;
 
-//---		case GS_DEMOSCREEN:
-//---			E_PageTicker();
-//---			break;
+		case GS_TITLESCREEN:
+			E_PageTicker();
+			break;
 
 		default:
 			break;
@@ -615,7 +596,9 @@ void G_ExitToLevel(char *name, int time, bool skip_all)
 //
 static void G_DoCompleted(void)
 {
-	gameaction = ga_nothing;
+	E_ForceWipe();
+
+	exittime = INT_MAX;
 
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
@@ -630,7 +613,7 @@ static void G_DoCompleted(void)
 
 	if (automapactive)
 		AM_Stop();
-	
+
 	if (rts_menuactive)
 		RAD_FinishMenu(0);
 
@@ -641,10 +624,18 @@ static void G_DoCompleted(void)
 	// handle "no stat" levels
 	if (currmap->wistyle == WISTYLE_None || exit_skipall)
 	{
-		viewactive = false;
 		automapactive = false;
 
-		G_WorldDone();
+		if (exit_skipall && nextmap)
+		{
+			currmap = nextmap;
+			gameaction = ga_loadlevel;
+		}
+		else
+		{
+			F_StartFinale(&currmap->f_end, nextmap ? ga_briefing : ga_nothing);
+		}
+
 		return;
 	}
 
@@ -658,26 +649,12 @@ static void G_DoCompleted(void)
 	wminfo.partime = currmap->partime;
 
 	gamestate = GS_INTERMISSION;
-	viewactive = false;
+
 	automapactive = false;
 
 	WI_Start(&wminfo);
 }
 
-//
-// G_WorldDone 
-//
-void G_WorldDone(void)
-{
-	if (exit_skipall && nextmap)
-	{
-		currmap = nextmap;
-		gameaction = ga_loadlevel;
-		return;
-	}
-
-	F_StartFinale(&currmap->f_end, nextmap ? ga_briefing : ga_nothing);
-}
 
 //
 // G_FileNameFromSlot
@@ -707,7 +684,7 @@ void G_DeferredLoadGame(int slot)
 
 static void G_DoLoadGame(void)
 {
-	gameaction = ga_nothing;
+	E_ForceWipe();
 
 	epi::string_c fn;
 	saveglobals_t *globs;
@@ -781,12 +758,15 @@ static void G_DoLoadGame(void)
 		globs->mapthing.count != mapthing_NUM ||
 		globs->mapthing.crc != mapthing_CRC.crc)
 	{
+		SV_CloseReadFile();
+
 		I_Error("LOAD-GAME: Level data does not match !  Check WADs\n");
 	}
 
 	//!!! FIXME: Check DDF/RTS consistency (crc), warning only
 
 	leveltime   = globs->level_time;
+	exittime    = globs->exit_time;
 	totalkills  = globs->total_kills;
 	totalitems  = globs->total_items;
 	totalsecret = globs->total_secrets;
@@ -834,8 +814,6 @@ void G_DeferredSaveGame(int slot, const char *description)
 
 static void G_DoSaveGame(void)
 {
-	gameaction = ga_nothing;
-
 	epi::string_c fn;
 	time_t cur_time;
 	char timebuf[100];
@@ -864,6 +842,8 @@ static void G_DoSaveGame(void)
 	globs->console_player = consoleplayer; // NB: not used
 
 	globs->level_time = leveltime;
+	globs->exit_time  = exittime;
+
 	globs->total_kills   = totalkills;
 	globs->total_items   = totalitems;
 	globs->total_secrets = totalsecret;
@@ -992,7 +972,7 @@ bool G_DeferredInitNew(newgame_params_c& params, bool compat_check)
 
 static void G_DoNewGame(void)
 {
-	gameaction = ga_nothing;
+	E_ForceWipe();
 
 	SYS_ASSERT(d_params);
 
@@ -1065,8 +1045,6 @@ void G_InitNew(newgame_params_c& params)
 
 	P_WriteRandomState(random_seed);
 
-	usergame = true;  // will be set false if a demo 
-
 	demoplayback = false;
 	automapactive = false;
 
@@ -1101,7 +1079,7 @@ void G_DeferredEndGame(void)
 
 static void G_DoEndGame(void)
 {
-	gameaction = ga_nothing;
+	E_ForceWipe();
 
 	P_DestroyAllPlayers();
 

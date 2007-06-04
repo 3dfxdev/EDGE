@@ -645,18 +645,25 @@ static void M_DisplayPause(void)
                    IM_RIGHT(pause_image), IM_BOTTOM(pause_image), NULL, 1.0f);
 }
 
+wipetype_e wipe_method = WIPE_Melt;
+int wipe_reverse = 0;
+
+static bool need_wipe = false;
+
+void E_ForceWipe(void)
+{
+	need_wipe = true;
+
+	// capture screen now (before new level is loaded etc..)
+	E_Display();
+}
+
 //
 // E_Display
 //
 // Draw current display, possibly wiping it from the previous
 //
 // -ACB- 1998/07/27 Removed doublebufferflag check (unneeded).  
-
-// wipegamestate can be set to GS_NOTHING to force a wipe on the next draw
-
-gamestate_e wipegamestate = GS_DEMOSCREEN;
-wipetype_e wipe_method = WIPE_Melt;
-int wipe_reverse = 0;
 
 static bool wipe_gl_active = false;
 
@@ -680,18 +687,6 @@ void E_Display(void)
 	// -AJA- 1999/08/02: Make sure palette/gamma is OK. This also should
 	//       fix (finally !) the "gamma too late on walls" bug.
 	V_ColourNewFrame();
-
-	bool wipe = false;
-
-	// save the current screen if about to wipe
-	if (gamestate != wipegamestate)
-	{
-		wipe = true;
-		wipe_gl_active = true;
-
-		RGL_InitWipe(wipe_reverse, wipe_method);
-	}
-
 
 	switch (gamestate)
 	{
@@ -723,7 +718,7 @@ void E_Display(void)
 			F_Drawer();
 			break;
 
-		case GS_DEMOSCREEN:
+		case GS_TITLESCREEN:
 			E_PageDrawer();
 			break;
 
@@ -731,7 +726,28 @@ void E_Display(void)
 			break;
 	}
 
-	wipegamestate = gamestate;
+	if (wipe_gl_active)
+	{
+		// -AJA- Wipe code for GL.  Sorry for all this ugliness, but it just
+		//       didn't fit into the existing wipe framework.
+		//
+		if (RGL_DoWipe())
+		{
+L_WriteDebug("%4d: RGL_StopWipe\n", maketic);
+			RGL_StopWipe();
+			wipe_gl_active = false;
+		}
+	}
+
+	// save the current screen if about to wipe
+	if (need_wipe)
+	{
+L_WriteDebug("%4d: RGL_InitWipe\n", maketic);
+		need_wipe = false;
+		wipe_gl_active = true;
+
+		RGL_InitWipe(wipe_reverse, wipe_method);
+	}
 
 	if (paused)
 		M_DisplayPause();
@@ -746,7 +762,7 @@ void E_Display(void)
 		m_screenshot_required = false;
 		M_ScreenShot(true);
 	}
-	else if (screenshot_rate && gamestate == GS_LEVEL)
+	else if (screenshot_rate && (gamestate >= GS_LEVEL))
 	{
 		SYS_ASSERT(singletics);
 
@@ -756,20 +772,6 @@ void E_Display(void)
 
 	// draw console _after_ doing screenshots
 	GUI_MainDrawer();
-
-	if (wipe || wipe_gl_active)
-	{
-		// -AJA- Wipe code for GL.  Sorry for all this ugliness, but it just
-		//       didn't fit into the existing wipe framework.
-		//
-		if (RGL_DoWipe())
-		{
-			RGL_StopWipe();
-			wipe_gl_active = false;
-		}
-
-		M_Drawer();  // menu is drawn even on top of wipes
-	}
 
 	M_DisplayDisk();
 
@@ -876,7 +878,6 @@ static void E_DoAdvanceTitle(void)
 	if (gameaction != ga_nothing)
 		return;
 	
-	usergame = false;     // no save or end game here
 	paused = false;
 
 	demosequence = (demosequence + 1) % 2;  // - Kester
@@ -885,7 +886,7 @@ static void E_DoAdvanceTitle(void)
 	{
 		case 0:  // Title Picture
 		{
-			gamestate = GS_DEMOSCREEN;
+			gamestate = GS_TITLESCREEN;
 
 			TitleNextPicture();
 

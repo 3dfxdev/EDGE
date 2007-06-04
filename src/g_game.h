@@ -34,7 +34,9 @@
 #include "epi/strings.h"
 
 extern int random_seed;  // for demo code
-extern int starttime;     //
+extern int starttime;    //
+
+extern int exittime;  // for savegame code
 
 // -KM- 1998/11/25 Added support for finales before levels
 typedef enum
@@ -106,8 +108,6 @@ void G_DeferredEndGame(void);
 void G_ExitLevel(int time);
 void G_SecretExitLevel(int time);
 void G_ExitToLevel(char *name, int time, bool skip_all);
-
-void G_WorldDone(void);
 
 void G_Ticker(bool fresh_game_tic);
 bool G_Responder(event_t * ev);

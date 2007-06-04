@@ -217,8 +217,6 @@ void G_RecordDemo(const char *filename)
 	if (ext.Compare("edm")) 
 		demoname += ".edm"; // No Match - Add Extension
 
-	usergame = false;
-
 	// Write directly to file. Possibly a bit slower without disk cache, but
 	// uses less memory, and the demo can record EDGE crashes.
 	if (! DEM_OpenWriteFile(demoname.GetString(), (EDGEVER << 8) | EDGEPATCH))
@@ -329,8 +327,6 @@ void G_DeferredTimeDemo(const char *filename)
 //
 void G_DoPlayDemo(void)
 {
-	gameaction = ga_nothing;
-
 	epi::file_c *fp = epi::the_filesystem->Open(defdemoname.GetString(),
         epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
 
@@ -411,7 +407,6 @@ void G_DoPlayDemo(void)
 	//!!! FIXME: Check DDF/RTS consistency (crc), warning only
 
 	precache = true;
-	usergame = false;
 	demoplayback = true;
 }
 
