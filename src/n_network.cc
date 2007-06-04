@@ -968,14 +968,11 @@ int DetermineLowTic(void)
 
 int N_TryRunTics(bool *is_fresh)
 {
-	*is_fresh = false;
+	*is_fresh = true;
 
 	if (singletics)
 	{
 		N_BuildTiccmds();
-
-		if (numplayers > 0)
-			*is_fresh = true;
 
 		return 1;
 	}
@@ -1041,11 +1038,10 @@ nowtime, nowtime - realtics, realtics);
 		if (wait_tics > TICRATE/2)
 		{
 			L_WriteDebug("Waited %d tics IN VAIN !\n", wait_tics);
+			*is_fresh = false;
 			return 3;
 		}
 	}
-
-	*is_fresh = true;
 
 	return counts;
 }
