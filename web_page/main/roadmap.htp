@@ -11,38 +11,46 @@ implement in EDGE in the future.  Of course there is
 no guarantee that any of this stuff will actually be
 done, but we will try our best.  Also note that
 whatever is shown here doesn't preclude other
-(especially smaller) features from being implemented.
+(smaller) features from being implemented.
 <p>
 
 <hr>
 
 <h3 class="roadmap">RELEASE 1.31</h3>
   <ul>
-    <li type="disc">Big
-    <li type="disc">Big
+    <li type="disc">LAN-based multiplayer, CTF mode
+    <li type="disc">MUS/MIDI playback for Linux, MIDI for Win32
+    <li type="disc">Full support for Wolfenstein-3D
   </ul>
 
   <ul>
-    <li type="circle">Small
-    <li type="circle">Small
+    <li type="circle">Improved renderer, fog
+    <li type="circle">Vehicle support
+    <li type="circle">Inheritance for DDF
+    <li type="circle">Custom HUDs using LUA scripting
+    <li type="circle">OGG/Vorbis and WAV for sounds
+    <li type="circle">Updated DDF documentation
   </ul>
 
 <hr>
 
 <h3 class="roadmap">RELEASE 1.32</h3>
   <ul>
-    <li type="disc">Big
-    <li type="disc">Big
+    <li type="disc">Slopes
+    <li type="disc">LUA scripting within maps
+    <li type="disc">Full support for Heretic
   </ul>
 
   <ul>
-    <li type="circle">Small
-    <li type="circle">Small
+    <li type="circle">Improved physics code
+    <li type="circle">Hexen-style hub system
+    <li type="circle">Better console with truetype font
+    <li type="circle">Support for joysticks and gamepads
   </ul>
 
 <hr>
 
-Notes:
+<b>Notes:</b>
 
 <OL class="roadmap_notes">
   <li>
@@ -50,14 +58,39 @@ Notes:
     other features are shown with an empty circle.
 
   <li>
-    The next release after 1.29 will be 1.31,
-    because version numbers with zeros are evil.
-    Besides, nobody likes to turn 30!
+    The next release after 1.29 will be 1.31.
+    Why? Because nobody likes to turn 30!
 
   <li>
     No timeframes are given here.
     It will be done when it's done.
 
+  <li>
+    The multiplayer code will be designed for LAN-based play
+    (like the original DOOM networking).
+    Playing over the Internet might be possible,
+    but will probably be too laggy to be enjoyable.
+
+  <li>
+    Slopes will be supported on the floor and ceiling of a
+    sector, but <b>not</b> on extrafloors.
+    Making them work properly on 3D floors would
+    require too much extra work.
+
+  <li>
+    LUA scripting will play an important role in the future
+    development of EDGE.  In release 1.31 it will have a
+    fairly minor role of drawing custom HUDs and maybe to
+    define custom intermission screens.
+    After sorting that out, we will be ready in EDGE 1.32
+    to fully implement LUA for in-game scripting.
+
+  <li>
+    Finally, some things we <b>don't plan</b> on adding
+    into EDGE:
+    Hexen support, 3D Models,
+    Splitscreen mode, PAK/PK3/ZIP files,
+    Level editing, or an Email reader.
 </OL>
 
 </block>
