@@ -21,6 +21,32 @@
   <h2 class="page_title"> Latest News </h2>
 
 
+  <use BeginNews title="1.29 RC#6 is Out" date="6-Jun-2007">
+
+  Release Candidate #6 for
+  EDGE 1.29 is now out of the closet and ready for testing.
+  This is mainly a bug-fix release, but also includes new
+  sound startup code which tries hard to find a working
+  sound-mode, and options for setting what SDL sound driver
+  to use.  This package also contains a Linux binary
+  (note: experimental!).
+  <br>
+
+  <p>
+  Download it here:
+  <a href="http://downloads.sourceforge.net/edge/edge-1.29RC6.zip">
+  edge-1.29RC6.zip
+  </a>
+
+  <p>
+  List of changes since RC#5 is here:
+  <a href="http://sourceforge.net/project/shownotes.php?release_id=513629&group_id=2232">
+  Changelog.
+  </a>
+
+  <use EndNews>
+
+
   <use BeginNews title="EMUS v1.0 Released" date="3-June-2007">
 
   EMUS stands for <b>E</b>dge <b>M</b>odders <b>U</b>tility <b>S</b>uite
