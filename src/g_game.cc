@@ -397,7 +397,7 @@ static void G_TiccmdTicker(void)
 	gametic++;
 }
 
-bool CheckPlayersReborn(void)
+static bool CheckPlayersReborn(void)
 {
 	// returns TRUE if should reload the level
 
@@ -498,7 +498,10 @@ void G_Ticker(bool fresh_game_tic)
 
 			// do player reborns if needed
 			if (CheckPlayersReborn())
+			{
+				E_ForceWipe();
 				gameaction = ga_loadlevel;
+			}
 			break;
 
 		case GS_INTERMISSION:
