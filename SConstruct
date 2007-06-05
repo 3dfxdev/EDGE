@@ -40,9 +40,9 @@ else:
 base_env.Append(CCFLAGS = ['-D' + build_info['platform'].upper()])
 
 if build_info['platform'] == 'win32':
-    base_env.Append(CPPPATH = ['#jpeg-6b'])
-    base_env.Append(CPPPATH = ['#libpng-1.2.12'])
-    base_env.Append(CPPPATH = ['#zlib-1.2.3'])
+    base_env.Append(CPPPATH = ['#win32_lib/jpeg-6b'])
+    base_env.Append(CPPPATH = ['#win32_lib/libpng-1.2.12'])
+    base_env.Append(CPPPATH = ['#win32_lib/zlib-1.2.3'])
 
 if build_info['platform'] == 'linux' and build_info['release']:
     base_env.Append(CPPPATH = ['#linux_lib/jpeg-6b'])
@@ -60,7 +60,6 @@ if os.name == "posix":
     env.Append(LINKFLAGS = ['-Wl,--as-needed'])
 
 # EDGE itself
-###--- env.Append(CPPPATH = ['#src'])
 env.Append(LIBPATH = ['#src'])
 env.Append(LIBS = ['edge1'])
 
@@ -82,9 +81,9 @@ env.Append(LIBS = ['lzo'])
 
 # JPEG, PNG and ZLIB
 if build_info['platform'] == 'win32':
-    env.Append(LIBPATH = ['#jpeg-6b'])
-    env.Append(LIBPATH = ['#libpng-1.2.12'])
-    env.Append(LIBPATH = ['#zlib-1.2.3'])
+    env.Append(LIBPATH = ['#win32_lib/jpeg-6b'])
+    env.Append(LIBPATH = ['#win32_lib/libpng-1.2.12'])
+    env.Append(LIBPATH = ['#win32_lib/zlib-1.2.3'])
 
 if build_info['platform'] == 'linux' and build_info['release']:
     env.Append(LIBPATH = ['#linux_lib/zlib-1.2.3'])
@@ -109,8 +108,8 @@ if 0:
 
 # SDL
 if build_info['platform'] == 'win32':
-    env.Append(CPPPATH = ['#SDL-1.2.11/include'])
-    env.Append(LIBPATH = ['#SDL-1.2.11/lib'])
+    env.Append(CPPPATH = ['#win32_lib/SDL-1.2.11/include'])
+    env.Append(LIBPATH = ['#win32_lib/SDL-1.2.11/lib'])
     # fucking stupid linker needs the next line
     env.Append(LIBS = ['-lmingw32'])
     env.Append(LIBS = ['-lSDLmain', '-lSDL.dll'])
@@ -128,10 +127,10 @@ env.Append(LIBS = ['vorbisfile', 'vorbis', 'ogg'])
 env.Append(CCFLAGS = ['-DUSE_OGG'])
 
 if build_info['platform'] == 'win32':
-    env.Append(CPPPATH = ['#libogg-1.1.3/include'])
-    env.Append(LIBPATH = ['#libogg-1.1.3/src'])
-    env.Append(CPPPATH = ['#libvorbis-1.1.2/include'])
-    env.Append(LIBPATH = ['#libvorbis-1.1.2/lib'])
+    env.Append(CPPPATH = ['#win32_lib/libogg-1.1.3/include'])
+    env.Append(LIBPATH = ['#win32_lib/libogg-1.1.3/src'])
+    env.Append(CPPPATH = ['#win32_lib/libvorbis-1.1.2/include'])
+    env.Append(LIBPATH = ['#win32_lib/libvorbis-1.1.2/lib'])
 
 if build_info['platform'] == 'linux' and build_info['release']:
     env.Append(CPPPATH = ['#linux_lib/libogg-1.1.3/include'])
