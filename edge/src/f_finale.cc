@@ -246,7 +246,7 @@ void F_StartFinale(const map_finaledef_c *F, gameaction_e newaction)
 		if (newgameaction != ga_nothing)
 			gameaction = newgameaction;
 
-		return /* false */;  //!!!!! BROKEN  newaction!!
+		return /* false */;
 	}
 
 	// capture the screen _before_ changing any global state
