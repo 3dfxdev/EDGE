@@ -27,18 +27,16 @@ We assume the broadcast link can be unreliable in two ways:
 
 When a client thinks it has missed a broadcast packet,
 it asks the host for the packet using the reliable link
-and receives that packet over the reliable link.
+and receives that packet (possibly some time later) also
+over the reliable link.
 
-When the _host_ thinks it missed a broadcast packet,
+When the _HOST_ thinks it missed a broadcast packet,
 it asks the client directly via the reliable link,
 and the client responds over the reliable link.
 
 
 Formats
 -------
-
-There are two basic kinds of packets: ticcmds and
-text packets.
 
 Ticcmd packets are binary format and contain one or more
 full_ticcmd_t structures.  Each full_ticcmd_t describes
@@ -47,15 +45,15 @@ the player input for the specified game tic.
 Ticcmd packets begins with:
 
    "@TIC"  : these four bytes (identifier)
-   count   : 1 byte, count if full_ticcmd_t within
+   count   : 1 byte, number of full_ticcmd_t in the packet
    padding : 1 byte, always zero
 
-and are followed by full_ticcmd_ts, which consist of:
+which is followed by the full_ticcmd_t structures:
 
    - gametic : 4 bytes
 
    - rest of the ticcmd_h structure (16 bytes),
-     which includes player_idx field.
+     which includes a 'player_idx' field.
 
 
 Every other type of packet contains a payload using
@@ -64,8 +62,8 @@ and a single LF ('\n') character is used to break lines.
 For simplicity the packet is terminated with ^Z (code 26).
 
 The beginning of each text format packet is a single
-line with a keyword surrounded by square brackets, and
-if the packet expects a reply a '?' is also present.
+line with a keyword surrounded by square brackets.
+If the packet expects a reply a '?' is also present.
 For example:
 
   [HOST?]
@@ -73,12 +71,17 @@ For example:
 Each line in a text format packet is typically a
 series of keywords/values separated by a single space.
 
+String values are delimited by double quotes (""),
+and the '\' character can escape a single character.
+
+Integer values may be preceded by '0x' to denote
+hexadecimal numbers.
 
 
 Protocol
 --------
 
-For client to find the host via broadcasting:
+For clients to find the host via broadcasting:
 
    client broadcasts:
       [HOST?]
@@ -106,20 +109,21 @@ For client connecting to host:
 
 
 Host will send to client before game starts:
+(possibly multiple times)
 
      [PARAMS]
      GAME "HELL ON EARTH"
      LEVEL "MAP01"
      SKILL 3
      MODE OLDDM    (NEWDM  COOP  CTF  LASTMAN)
-     RANDOMSEED 0x12345678
+     RANDOM_SEED 0x12345678
      FLAGS 0x000104c7
 
      [PLAYERS]
-     1 YOU CONSOLE "Andrew"
-     2 YOU BOT "Bot1"
-     3 NET CONSOLE "Luke"
-     4 NET BOT "Bot2"
+     1 YOU "Matt" CONSOLE
+     2 YOU "Mark" BOT
+     3 NET "Luke" CONSOLE
+     4 NET "John" BOT
 
      [BEGIN]
 
@@ -128,9 +132,9 @@ Other packets:
 
      [NOP]
 
-     [GOODBYE]   (client to host when quit)
+     [GOODBYE]    (client to host when quit)
 
-     [FUCKOFF]   (host to client)
+     [PISSOFF]    (host to client)
 
      [RETRANS?]   (can be sent both ways)
      GAMETIC 123456
@@ -152,8 +156,8 @@ N_BroadcastRecv
 N_CreateReliableLink (host only)
 N_AcceptReliableConn (host only)
 
-N_OpenReliableLink
-N_CloseReliableLink
+N_OpenReliableLink   (client only)
+N_CloseReliableLink  (client only)
 
 N_ReliableSend
 N_ReliableRecv
