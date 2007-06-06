@@ -48,15 +48,17 @@ The broadcast port on the host will always be BASE+1.
 Formats
 -------
 
+Binary packets begin with a '@' character.  !!!!
+
+
 Ticcmd packets are binary format and contain one or more
 full_ticcmd_t structures.  Each full_ticcmd_t describes
 the player input for the specified game tic.
 
 Ticcmd packets begins with:
 
-   "@TIC"  : these four bytes (identifier)
-   count   : 1 byte, number of full_ticcmd_t in the packet
-   padding : 1 byte, always zero
+   "@TIC"   : these four bytes (identifier)
+   data len : four bytes, little endian, number of bytes in payload
 
 which is followed by the full_ticcmd_t structures:
 
@@ -107,7 +109,7 @@ For client connecting to host:
    client sends:
      [HELLO]
      PLAYER "Andrew"
-     BROADCAST TRUE
+     BROADCAST 1
 
    host replies:
      [WELCOME]
@@ -117,7 +119,7 @@ For client connecting to host:
      MSG "You ain't welcome here fella!"
 
 
-Host will send to client before game starts:
+Host will send to clients (and itself) before game starts:
 (possibly multiple times)
 
      [PARAMS]
@@ -175,4 +177,39 @@ N_ReliableRecv
 higher level:
 
 ??
+
+
+
+Ideas about In-Game Joining
+---------------------------
+
+client connects to host in usual way and sends [HELLO] packet.
+
+host replies with welcome packet and a special field:
+	[WELCOME]
+    GAME_IN_PROGRESS 1
+
+host sends [PARAMS] and [PLAYERS] as usual.
+
+host sends to all other clients (and itself) :
+
+	[PAUSE]
+	GAME_TIC 17839
+
+    [NEW_PLAYERS]
+	5 NET "Jimmy" CONSOLE
+	6 NET "Bot99" BOT
+
+host then sends a savegame to new client:
+
+    @SAV  (length)  (data................)
+
+the other clients then must wait until new client has
+finished receiving the savegame data.
+
+then: host sends to every client (old and new, and itself) :
+
+    [BEGIN]
+	GAME_TIC 17839
+
 
