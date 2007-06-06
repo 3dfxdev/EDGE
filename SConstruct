@@ -56,8 +56,10 @@ Export('base_env')
 
 env = base_env.Copy()
 
-if os.name == "posix":
-    env.Append(LINKFLAGS = ['-Wl,--as-needed'])
+env.Append(LINKFLAGS = ['-Wl,--warn-common'])
+
+## if build_info['platform'] == 'linux' and build_info['release']:
+##    env.Append(LINKFLAGS = ['-Wl,--as-needed'])
 
 # EDGE itself
 env.Append(LIBPATH = ['#src'])
@@ -123,8 +125,8 @@ else:
     env.Append(LIBS = ['GL'])
 
 # Ogg/Vorbis
-env.Append(LIBS = ['vorbisfile', 'vorbis', 'ogg'])
 env.Append(CCFLAGS = ['-DUSE_OGG'])
+env.Append(LIBS = ['vorbisfile', 'vorbis', 'ogg'])
 
 if build_info['platform'] == 'win32':
     env.Append(CPPPATH = ['#win32_lib/libogg-1.1.3/include'])
@@ -137,6 +139,10 @@ if build_info['platform'] == 'linux' and build_info['release']:
     env.Append(LIBPATH = ['#linux_lib/libogg-1.1.3/'])
     env.Append(CPPPATH = ['#linux_lib/libvorbis-1.1.2/include'])
     env.Append(LIBPATH = ['#linux_lib/libvorbis-1.1.2/'])
+    #
+    # env.Append(LINKFLAGS = ['linux_lib/libvorbis-1.1.2/libvorbisfile.a'])
+    # env.Append(LINKFLAGS = ['linux_lib/libvorbis-1.1.2/libvorbis.a'])
+    # env.Append(LINKFLAGS = ['linux_lib/libogg-1.1.3/libogg.a'])
 
 
 # platform specifics
@@ -158,8 +164,6 @@ SConscript('deh_edge/SConscript.edge')
 SConscript('glbsp/SConscript.edge')
 SConscript('lzo/SConscript')
 # SConscript('humidity/SConscript.edge')
-
-env.Append(LINKFLAGS = ['-Wl,--warn-common'])
 
 env.Program('gledge32', ['main.cc'])
 
