@@ -14,7 +14,7 @@ Affiliated (in snapshots, not in SVN)
 -------------------------------------
 
 glBSP    : GL-Nodes builder
-Humidity : MIDI playback library
+Humidity : MIDI playback library  [NOTE: not used in 1.29]
 
 
 External
@@ -27,13 +27,11 @@ OpenAL  : 3D Sound library
 
 OGG + Vorbis + VorbisFile : Compressed sound and music
 
-FLTK    : Fast Light ToolKit, for error dialogs [Linux only]
-
-HawkNL  : Networking library [NOTE: not currently used]
+FLTK    : Fast Light ToolKit, for error dialogs  [Linux only]
 
 LibPNG  : PNG image handling (Portable Network Graphics)
 Jpeglib : JPEG image handling
-Zlib    : Compression library (used by LibPNG)
+Zlib    : Compression library (used by LibPNG too)
 
 
 LINKS
@@ -51,7 +49,6 @@ http://www.openal.org/
 http://www.vorbis.com/
 
 http://www.fltk.org/
-http://www.hawksoft.com/hawknl
 http://www.oberhumer.com/opensource/lzo
 
 http://libpng.org/
