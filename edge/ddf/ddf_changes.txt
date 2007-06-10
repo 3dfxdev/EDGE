@@ -5,6 +5,9 @@ EDGE DDF 5.2: (2007-04-18)
 1) LANGUAGE.LDF: added entries for new sound options menu,
                  namely: SoundOptions and NeedRestart.
 
+2) THINGS.DDF: fixed DEAD_LOSTSOUL entry (doomnum 23) to match the
+               original DOOM.EXE, i.e. last for 6 tics then vanish.
+
 
 EDGE DDF 5.0: (2007-03-13)
 ==========================
@@ -256,7 +259,7 @@ EDGE DDF 3.2 (2001-01-10):
                STATES(GIB)=POL5:A:-1:NORMAL:PLAYSOUND(CRUSH);
                which is new for controlling what happens when a monster is
                crushed or is dead under a door (used to use the [GIB] entry,
-               which is now REMOVED)               
+               which is now REMOVED)
 3) SOUNDS.DDF: added [CRUSH], called when a thing is crushed
 
 
