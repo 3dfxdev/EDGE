@@ -4,6 +4,8 @@ EDGE 1.29 README.TXT
 
 Welcome to EDGE, the Enhanced Doom Gaming Engine.
 
+Website: http://edge.sourceforge.net
+
 Archive listing:
   * gledge32.exe       - EDGE Executable (OpenGL rendering)
   * gledge-linux       - EDGE Linux binary
@@ -247,7 +249,7 @@ Troubleshooting:
 
     - For EDGE to work, you need a 3D card *plus* OpenGL drivers for
       it installed on your computer.  A really low framerate (1 FPS)
-      usually means that the *software* GL driver is being used (not
+      usually means that the *software* OpenGL driver is being used (not
       what we want, of course ;).  Go to the website of your card's
       manufacturer and look for a recent 3D driver.  Another place to
       look is on Microsoft's site.  Basically, if Quake 3 (or some
