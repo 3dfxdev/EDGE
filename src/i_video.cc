@@ -18,6 +18,7 @@
 
 #include "i_defs.h"
 #include "i_sdlinc.h"
+#include "i_defs_gl.h"
 
 #include "m_argv.h"
 #include "m_misc.h"
@@ -219,6 +220,9 @@ bool I_SetScreenSize(scrmode_c *mode)
 	signal(SIGFPE,SIG_DFL);
 	signal(SIGSEGV,SIG_DFL);
 #endif
+
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	SDL_GL_SwapBuffers();
 
