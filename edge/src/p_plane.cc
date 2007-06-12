@@ -432,7 +432,10 @@ static void MovePlane(plane_move_t *plane)
             {
                 if (plane->crush)
                 {
-                    plane->speed = plane->type->speed_down / 8;
+                    plane->speed = plane->type->speed_down;
+
+					if (plane->speed < 1.5f)
+						plane->speed = plane->speed / 8.0f;
                 }
                 else if (plane->type->type == mov_MoveWaitReturn)  // Go back up
                 {
@@ -537,7 +540,10 @@ static void MovePlane(plane_move_t *plane)
             {
                 if (plane->crush)
                 {
-                    plane->speed = plane->type->speed_up / 8;
+                    plane->speed = plane->type->speed_up;
+
+					if (plane->speed < 1.5f)
+						plane->speed = plane->speed / 8.0f;
                 }
                 else if (plane->type->type == mov_MoveWaitReturn)  // Go back down
                 {
