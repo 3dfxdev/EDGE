@@ -1,12 +1,19 @@
 
+EDGE DDF 5.3: (2007-#####)
+==========================
+
+1) THINGS.DDF: fixed DEAD_LOSTSOUL entry (doomnum 23) to match the
+               original DOOM.EXE, i.e. last for 6 tics then vanish.
+
+2) WEAPONS.DDF: fixed PRIORITY values on ROCKET_LAUNCHER and
+                PLASMA_RIFLE (now 6 and 7 respectively).
+
+
 EDGE DDF 5.2: (2007-04-18)
 ==========================
 
 1) LANGUAGE.LDF: added entries for new sound options menu,
                  namely: SoundOptions and NeedRestart.
-
-2) THINGS.DDF: fixed DEAD_LOSTSOUL entry (doomnum 23) to match the
-               original DOOM.EXE, i.e. last for 6 tics then vanish.
 
 
 EDGE DDF 5.0: (2007-03-13)
