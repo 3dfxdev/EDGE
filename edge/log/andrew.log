@@ -1,5 +1,13 @@
 Andrew Apted's Log
 
+2007/06/13:
+
+Fixed new bug where loading a savegame would prevent weapon
+selection (using numeric keys) from working properly - they
+all would give the fist.  Cause: pl->key_choices[] is not
+saved in savegame files, that is OK, but it was being reset
+to the wrong values (0 == FIST).
+
 2007/06/12:
 
 Fixed bug #1734058 where fast (and turbo) crushers should not
