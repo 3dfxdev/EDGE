@@ -341,6 +341,9 @@ void SV_PlayerCreateElems(int num_elems)
 			p->psprites[j].sx = 1.0f;
 			p->psprites[j].sy = WEAPONTOP;
 		}
+
+		for (int k=0; k < WEAPON_KEYS; k++)
+			p->key_choices[k] = WPSEL_None;
 	}
 }
 
