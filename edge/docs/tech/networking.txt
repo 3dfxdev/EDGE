@@ -36,17 +36,17 @@ When the _HOST_ thinks it missed a broadcast packet,
 it asks the client directly via the reliable link,
 and the client responds over the reliable link.
 
-Clients are comparable to what the original DOOM networking
-code calls "Nodes".  Each client can be responsible for
-multiple players, however in practice there will only be a
+Clients are comparable to what was called "Nodes" in the
+original DOOM networking code.  Each client can be responsible
+for multiple players, however in practice there will only be a
 single _human_ player per client (and possibly some bots).
 
 
 Ports
 -----
 
-The BASE port is set via the -port option, and 26710 is the
-default value.
+The BASE port is set via the -port option.
+The default value is 26710.
 
 The reliable  port on the host will always be BASE+0.
 The broadcast port on the host will always be BASE+1.
@@ -60,17 +60,16 @@ and text packets, and each has their own structure.
 
 Binary packets begin with a '@' character followed by a
 three-letter identifier (e.g. @TIC).  Then follows a 4-byte
-little-endian for the number of data bytes in the payload.
-This is then followed by the payload data, and terminated
-with a ^Z (decimal 26) byte.
+little-endian count of the data bytes in the payload,
+followed by the payload itself.  As a sanity check the
+packet is terminated with a ^Z (decimal 26) byte.
 
-Text packets are UTF8 (Unicode) encoded text as a series of
-lines, which are separated using a single LF ('\n') character.
-The very first line begins with a keyword surrounded by
-square brackets ('[' and ']'), and the keyword ends with a
-question mark ('?') if the packet expects a reply.  Text
-packets are terminated the same way as binary packets:
-with a single ^Z (code 26) byte.
+Text packets are Unicode UTF-8 encoded, consisting of a
+series of lines which are terminated by a single LF ('\n').
+The very first line begins with a type keyword in square
+brackets ('[' and ']').  The keyword ends with a question
+mark ('?') if the packet expects a reply.  Text packets
+are terminated with a single ^Z (decimal 26) byte.
 
 Each line in a text format packet is typically a
 series of keywords/values separated by a single space.
@@ -84,8 +83,7 @@ broadcast links.  However the broadcast link is generally
 reserved for two packet types: host-discovery and ticcmds.
 
 Ticcmds are the basic aim/move/shoot messages exchanged
-between all the clients in the game, and are transmitted
-with binary packets.
+between all the clients in the game, and are binary format.
 
 
 Protocol
@@ -134,7 +132,10 @@ Host will send to clients (and itself) before game starts:
      3 NET "Luke" CONSOLE
      4 NET "John" BOT
 
+To begin the game, Host sends to everyone:
+
      [BEGIN]
+     GAME_TIC 0
 
 All clients + the host will exchange Ticcmd packets:
     
@@ -154,12 +155,10 @@ Other packets:
 
      [NOP]
 
-     [GOODBYE]    (client to host when quit)
+     [GOODBYE]    (can be sent both ways)
 
-     [PISSOFF]    (host to client)
-
-     [RETRANS?]   (can be sent both ways)
-     GAMETIC 123456
+     [RETRANSMIT?]   (can be sent both ways)
+     GAME_TIC 123456
      PLAYER  5
 
 
@@ -194,33 +193,36 @@ higher level:
 Ideas about In-Game Joining
 ---------------------------
 
-client connects to host in usual way and sends [HELLO] packet.
+Client connects to host in usual way and sends [HELLO] packet.
 
-host replies with welcome packet and a special field:
+Host replies with welcome packet and a special field:
     [WELCOME]
     GAME_IN_PROGRESS 1
 
-host sends [PARAMS] and [PLAYERS] as usual.
-
-host sends to all other clients (and itself) :
+Host sends to all other clients (and itself) :
 
     [PAUSE]
-    GAME_TIC 17839
+    GAME_TIC 17839      (NB: all maketics after this are forefeit)
 
     [NEW_PLAYERS]
     5 NET "Jimmy" CONSOLE
     6 NET "Bot99" BOT
 
-host then sends a savegame to new client:
+Host sends [PARAMS] and [PLAYERS] to new client.
+
+Host then sends a savegame to new client:
 
     @SAV  (length)  (data................)
 
 the other clients then must wait until new client has
-finished receiving the savegame data.
+finished receiving the savegame data.  Perhaps host could
+send progress messages to waiting clients:
+
+    [PROGRESS]
+    75
 
 then: host sends to every client (old, new, and itself) :
 
     [BEGIN]
     GAME_TIC 17839
-
 
