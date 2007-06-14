@@ -2,6 +2,7 @@
 EDGE Networking
 ===============
 
+
 Topology
 --------
 
@@ -34,6 +35,11 @@ When the _HOST_ thinks it missed a broadcast packet,
 it asks the client directly via the reliable link,
 and the client responds over the reliable link.
 
+Clients are comparable to what the original DOOM networking
+code calls "Nodes".  Each client can be responsible for
+multiple players, however in practice there will only be a
+single _human_ player per client (and possibly some bots).
+
 
 Ports
 -----
@@ -48,7 +54,23 @@ The broadcast port on the host will always be BASE+1.
 Formats
 -------
 
-Binary packets begin with a '@' character.  !!!!
+There are two fundamental types of packets: binary packets
+and text packets, and each has their own structure.
+
+
+Binary packets begin with a '@' character followed by a
+three-letter identifier (e.g. @TIC).  Then follows a 4-byte
+little-endian for the number of data bytes in the payload.
+This is then followed by the payload data, and terminated
+with a ^Z (decimal 26) byte.
+
+Text packets are UTF8 (Unicode) encoded text as a series of
+lines, which are separated using a single LF ('\n') character.
+The very first line begins with a keyword surrounded by
+square brackets ('[' and ']'), and the keyword ends with a
+question mark ('?') if the packet expects a reply.  Text
+packets are terminated the same way as binary packets:
+with a single ^Z (code 26) byte.
 
 
 Ticcmd packets are binary format and contain one or more
@@ -176,7 +198,7 @@ N_ReliableRecv
 
 higher level:
 
-??
+???
 
 
 
