@@ -21,10 +21,21 @@
   <h2 class="page_title"> Latest News </h2>
 
 
+  <use BeginNews title="EDGE Road Map" date="14-Jun-2007">
+
+  With the full release of 1.29 quickly approaching,
+  we have been thinking about what direction to take EDGE
+  in the future.
+  The new <a href="roadmap.htm">Road Map</a> document
+  gives an overview of the main features we have planned.
+
+  <use EndNews>
+
+
   <use BeginNews title="1.29 RC#6 is Out" date="6-Jun-2007">
 
   Release Candidate #6 for
-  EDGE 1.29 is now out of the closet and ready for testing.
+  EDGE 1.29 is now out of the lab and ready for testing.
   This is mainly a bug-fix release, but also includes new
   sound startup code which tries hard to find a working
   sound-mode, and options for setting what SDL sound driver
@@ -36,7 +47,7 @@
   Download it here:
   <a href="http://downloads.sourceforge.net/edge/edge-1.29RC6.zip">
   edge-1.29RC6.zip
-  </a>
+  </a> (3.1 MB)
 
   <p>
   List of changes since RC#5 is here:
@@ -67,7 +78,7 @@
 
   Download here:
   <a href="http://firstgen.no-ip.com/download/lukedownload.asp?DownloadID=15">
-  EMUS v1.0</a> (638 Kb)
+  EMUS v1.0</a> (638 KB)
 
   <p>
   Please note you must have the
@@ -101,7 +112,7 @@
   Download it here:
   <a href="http://downloads.sourceforge.net/edge/edge-1.29RC5-win32.zip">
   edge-1.29RC5-win32.zip
-  </a>
+  </a> (2.3 MB)
 
   <p>
   Full list of changes since RC#4 is here:
