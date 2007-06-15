@@ -11,6 +11,7 @@ Note 1
 If you downloaded the EDGE source code from the SVN (Subversion)
 repository, then you will need to add a copy of the GLBSP source
 code and possibly the other libraries which EDGE uses.
+
 The easiest way to get them is to download the 1.29 source code
 package and move/copy the missing pieces from there.
 
@@ -66,6 +67,8 @@ release=true builds and must be built manually before
 running scons: zlib, libpng, jpeglib, libogg, libvorbis
 and libvorbisfile.  Also FLTK for Linux binaries.
 
+@@@ win32_lib/ crud @@@
+
 
 Resource File
 -------------
@@ -75,11 +78,16 @@ various strings that the Win32 run-time system can use, as
 well as the EDGE Icon.  This must be built manually before
 running the scons build, like this:
 
-    > cd src
-	> i586-mingw32msvc-windres edge32.rc -o ../edge32_res.o
+   > cd src
+   > i586-mingw32msvc-windres edge32.rc -o ../edge32_res.o
 
 (The resource file is not essential, so if this step gives
  you big problems then simply remove the edge32_res.o line
  from the SConstruct file).
 
+
+LINKS
+=====
+
+http://www.scons.org     
 
