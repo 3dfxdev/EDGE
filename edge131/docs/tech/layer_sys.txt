@@ -1,0 +1,295 @@
+
+EDGE Layer System
+=================
+
+The screen is composed of many layers, and each layer exists at a
+certain depth: 0 is the lowest depth, and is drawn first, higher
+values are drawn later (and thus can obscure anything at a lower
+depth).  A dirty rectange system is used to only redraw layers (or
+parts of layers) when necessary (for performance).
+
+The table below describes the proposed order for all the various
+layers that EDGE needs.  Some of the layers are always present (e.g.
+final background), others are only drawn under certain circumstances
+(e.g. console is active).  For simplicity, most code will prefer to
+enable/disable layers rather than adding/removing them.
+
+Layers can be recursive (e.g. main rendering window contains many
+sub-layers), but for simplicity the initial system will only use two
+depth levels (i.e. no sub-sub-layers).  Sub-layers are shown below
+using the ##.# notation for the depth.  For the most part, the set of
+layers should be considered as a flat list (with sub-layers grouped
+together) rather than a tree.
+
+Each layer occupies a certain rectangular area of the screen (possibly
+the whole screen, e.g. for wiping).  Sub-layers are restricted to
+their parent rectangles, and top-level layers are restricted to the
+whole screen.
+
+Each layer or sub-layer may be flagged as being "solid" -- e.g. the
+player main rendering window -- allowing better performance since
+stuff behind the solid area doesn't need to be re-drawn.  All
+non-solid layers are assumed to be see-through (or have see-through
+parts).  NOTE: clipping to solid areas is not compulsory.  
+
+NOTE: some of this logic assumes the screen buffer remains unchanged
+between frames.  If this isn't true (e.g. double buffering into video
+memory, prolly isn't true for OpenGL either), then the dirty matrix
+can be assumed to be totally dirty all of the time.  (The solid
+rectangle logic still applies though).
+
+
+How it all works
+----------------
+
+There is a dirty rectangle matrix that marks each MxN block of
+on-screen pixels (e.g. 16x16 blocks) as being either dirty or clean.
+Clean blocks don't need to be redrawn, only the dirty blocks.
+
+Initially the dirty matrix is marked totally dirty.
+
+After each render process, the dirty matrix is marked totally clean.
+Any layers that get added/removed or enabled/disabled or changed in
+some way (moved, resized, or new contents) before the next render
+process causes the corresponding area in the dirty matrix to be marked
+dirty.  For example: if a layer moves, then both the original area and
+the new area are marked as dirty.
+
+The render process consist of two passes, the first one is "Query" and
+the second one is "Draw".
+
+The Query pass traverses the layer list from TOP->BOTTOM.  It marks as
+dirty any layers flagged as "volatile" (e.g. camera windows).  This
+pass also creates a list of solid rectangles, adding any layer flagged
+as "solid" to the list.  During the query pass, layers that lie
+completely under a solid rectangle are marked as "invisible" and are
+subsequently ignored.
+
+NOTE: Tests against the dirty region cannot happen during the QUERY
+pass since the dirty region can be changed during the pass,
+invalidating previous tests on higher layers.
+
+For each visible layer, an index into the solid rectangle list is
+stored within it -- so all solid rectangles ABOVE the current layer
+will be known.  The query pass can terminate early if a solid
+rectangle which covers the whole screen is encountered (all lower
+layers will be marked as invisible).
+
+The Draw pass traverses the layer list from BOTTOM->TOP, skipping any
+layers that are marked as invisible.  When drawing a layer, it uses
+the dirty matrix (and usually the ABOVE solid rectangles) to only draw
+where necessary.  Layers are NOT allowed to draw outside of their
+parent layer, NOR anywhere that is marked as clean.
+
+Layers can be flagged as "non-clippable".  Such layers cannot (or not
+easily) be clipped to the clean areas (which can be arbitrary).  For
+example, clipping the player tip message is non-trivial.  When reached
+in the Query pass, non-clippable layers which are visible are added
+*WHOLLY* to the dirty matrix.  NOTE: all layers must still be clipped
+to their parent layer.
+
+
+Video Interface
+---------------
+
+This section describes the interface used to render all the layers
+(and hence everything that the user will see) on the screen.  It is
+designed to allow both software and hardware rendering systems.
+Higher-level concepts (like drawing rows of text), including clipping
+to the dirty matrix and/or solid areas, will be implemented elsewhere
+using these primitive operations.
+
+Primitive Operations:
+
+  1. Render a scene as the view from a specified object (e.g. the
+     player mobj) inside a given rectangle.  No clipping needs to be
+     down (except for restricting drawing to inside the rectangle, of
+     course).
+
+  2. Draw a solid colour box inside a given rectangle.  Can be
+     translucent.  Also provided is the parent rectangle, the box must
+     be clipped to it.
+
+  3. Draw a graphic image inside a given rectangle, with texture
+     coordinates that give a sub-area of the image to draw, usually
+     just (0.0, 0.0) to (1.0, 1.0).  Texture coords can be outside of
+     the [0-1] range, in which case the image should tile.  For
+     tiling, the image is guaranteed to be a power of two size in the
+     dimension of tiling.
+
+     Can be translucent.  Also provided is the parent rectangle, the
+     image must be clipped to it.
+
+     ISSUE: source/format of image data ?
+
+  4. Draw a solid colour line between two points.  Can be translucent.
+     Also provided is the parent rectangle, the line must be clipped
+     to it.
+
+  5. Read the screen contents into an off-screen image.  This is
+     needed for (a) wiping effects and (b) making snapshots.
+
+  6. Set an overall "wash" colour, for palette effects like pain and
+     item-pickup.  The whole screen is affected.
+
+  7. Set the overall gamma, for the F11 key.  The whole screen is
+     affected.  May be very slow, therefore cannot be used for speciai
+     effects.
+ 
+  8. Set/Change the video mode.
+
+
+IDEA TO EXPLORE
+---------------
+
+Use the layers for event propagation as well (rather than being
+hardcoded like it is now).  Traversal is TOP->BOTTOM, so higher layers
+can eat events and thus starve lower layers of them.
+
+ISSUE: send events to layers marked as "invisible" ?  Yes.
+
+ISSUE: does this system need dummy (never drawn) layers which are just
+there for events ?  Prolly not, but the concept can be supported
+rather easily (and thus should be).
+
+
+Layer Table
+-----------
+
+Depth   Contains
+=====================================================================
+
+0       The final background, either: 
+
+        - a solid colour,
+        - a flat (or texture) that will be tiled.
+        - an image that will be stretched to fit.
+
+        It covers the whole screen.  There is nothing drawn
+        underneath, so images with transparent parts should not be
+        used.
+
+---------------------------------------------------------------------
+
+10      Full-screen automap.
+
+---------------------------------------------------------------------
+
+15      Intermission camera rendering window (usually fullscreen,
+        though could be optionally smaller).
+
+---------------------------------------------------------------------
+
+20      Intermission animation sprites (the splats and you-are-here
+        images for DOOM I).  Also used for the cast sprites.
+
+    |----------------------------------------------------------------
+
+20.1    Intermission text, such as the end-of-level stats, pre-level
+        and post-level text, and text for the DOOM 2 cast parade.
+
+---------------------------------------------------------------------
+
+30      Status bar container image.
+
+    |----------------------------------------------------------------
+
+30.1    Status bar text & icons.
+
+---------------------------------------------------------------------
+
+40      Player main rendering window.  There may be multiple of
+        these (for split-screen multi-user play), though they all have
+        the same depth (so overlapping is not allowed, with undefined
+        results if attempted).
+
+        Includes border.
+
+    |----------------------------------------------------------------
+
+40.1    Player PSprites (weapon & crosshair).
+
+    |----------------------------------------------------------------
+
+40.2    Player Automap overlay.
+
+|--------------------------------------------------------------------
+
+42      Player overlaid HUD items (like health/ammo/clipsize).
+
+|--------------------------------------------------------------------
+
+44      Player messages (for pickup, etc).  Includes the `idinfo'
+        message box.
+
+---------------------------------------------------------------------
+
+46      Player tip message.
+
+---------------------------------------------------------------------
+
+50      Alternative rendering windows.  Could be used to provide
+        another view from the player (e.g. rear vision mirrors), or to
+        provide small views from other players in a multiplayer game.
+
+        Includes borders.
+
+    |----------------------------------------------------------------
+
+50.1    Alternative rendering PSprites (if shown).
+
+---------------------------------------------------------------------
+
+60      The "PAUSED" icon when the game is paused.
+
+---------------------------------------------------------------------
+
+70      Wipe effect overlay.
+
+---------------------------------------------------------------------
+
+75      Console background, either:
+
+        - none,
+        - a solid colour,
+        - a flat (or texture) that will be tiled,
+        - an imaged that will be stretched to fit.
+
+        Allowed to be translucent for a see-through console effect.
+        
+    |----------------------------------------------------------------
+
+75.1    Console text.
+
+---------------------------------------------------------------------
+
+80      Menu background, either:
+
+        - none,
+        - a solid colour,
+        - a flat (or texture) that will be tiled,
+        - an imaged that will be stretched to fit.
+
+        Allowed to be translucent for a see-through menu effect.
+        Solid colour (black) + translucency (50%) is used to emulate
+        the current darkening effect.
+
+    |----------------------------------------------------------------
+
+80.1    Menu text.
+
+---------------------------------------------------------------------
+
+85      Pop-up requestor background (same options as the other
+        backgrounds).  Includes border.
+
+    |----------------------------------------------------------------
+
+85.1    Pop-up requestor text.
+
+---------------------------------------------------------------------
+
+90     The "DISK" icon when loading/saving occurs.
+
+---------------------------------------------------------------------
+

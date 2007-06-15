@@ -1,0 +1,433 @@
+
+EDGE 1.29 README.TXT
+====================
+
+Welcome to EDGE, the Enhanced Doom Gaming Engine.
+
+Website: http://edge.sourceforge.net
+
+Archive listing:
+  * gledge32.exe       - EDGE Executable (OpenGL rendering)
+  * gledge-linux       - EDGE Linux binary
+  * edge.wad           - EDGE WAD Information, version 5.2
+  * SDL.dll            - Simple DirectMedia Layer, version 1.2.11
+  * Changelog-129.txt  - Changes since 1.28a
+  * Edge-Readme.txt    - Guess what you reading?
+
+
+System Requirements:
+  - Pentium 400 MHz CPU or later.
+  - 64MB RAM (128MB RAM recommended).
+  - Hardware accelerated 3D card with OpenGL drivers.
+
+  - Either a DOOM, DOOM II, or Final DOOM IWAD file.
+    (See "Getting hold of a game data" below).
+
+  For Win32:
+    - DirectX 7.0 or higher.
+
+  For Linux:
+    - SDL (Simple DirectMedia Layer) version 1.2.
+    - glibc 2.
+
+
+Getting hold of game data:
+    You can get hold of FreeDoom from freedoom.sourceforge.net which 
+    is _free_ and has been produced by fans of the game in their
+    spare time, or you can purchase "The Ultimate Doom", "Doom II" or 
+    "Final Doom" (Plutonia/TNT) from id software at www.idsoftware.com. 
+    The shareware data will also work with EDGE. You need to copy the
+    .WAD file you want to use into your EDGE directory. The wad names 
+    and what game they belong to are listed below: 
+
+    doom1.wad    -> Shareware Doom.
+    doom.wad     -> Doom/Ultimate Doom.
+    doom2.wad    -> Doom II
+    plutonia.wad -> Final Doom (Plutonia)
+    tnt.wad      -> Final Doom (TNT)
+
+
+Useful Parameters:
+  * Screen size: -width [screenwidth] -height [screenheight]
+  * Colour depth: -bpp [depth]  (2 for 16-bit, 4 for 32-bit)
+  * Windowed mode: -windowed
+  * Fullscreen mode: -fullscreen
+  * Pick IWAD file: -iwad [main wad file]
+  * Play PWAD file: -file [addon wad file]
+  * Jump to level: -warp [mapname]  (in the form of MAP01 or E2M9 etc..) 
+  * External DDFs: -ddf [dirname]  (use external DDFs in 'dirname')
+  * Show EDGE version: -version
+  * Disable sound: -nosound
+  * Disable music: -nomusic
+  * Disable warnings: -nowarn
+
+
+Notable EDGE features:
+  - Extrafloors (3D floors), removing the original DOOM limitation
+    which didn't allow rooms over rooms.  EDGE supports real 3D
+    room-over-room, bridges, and liquids.
+
+  - DDF (Data Definition Files), allow Mod/TC/PC creators to
+    completely customise monsters, attacks, weapons, pickup and
+    scenery items, linetypes, sectortypes, intermissions, ETC...
+    using fairly simple to understand text files.
+
+  - RTS (Radius Trigger Scripting), provides per-level scripting
+    support, allowing custom scripts to run when the player enters
+    certain parts of the map, or performs certain actions, or when
+    certain monsters have been killed (to name a few possibilities).
+
+  - Hardware accelerated 3D rendering (via OpenGL).
+
+  - Jumping, Look up/down, Flying (JetPack), Zooming.
+
+  - Many limits and bugs from original DOOM removed.
+
+
+Major changes in 1.29:
+  + Drag 'n' Drop support.
+  + OGG/Vorbis music playback.
+  + Greatly improved BOOM compatibility.
+  + Added a Sound Options menu.
+
+  + Handle DeHackEd and BEX patches.
+  + IMAGES.DDF, supporting PNG and JPEG images.
+  + New startup with progress bar.
+  + Software rendering was removed.
+
+
+Bugs fixed in 1.29:
+  + crash loading a savegame with dynamic lights when D/L disabled.
+  + fixed crash when starting a level in deathmatch mode.
+  + quotes (") usable in response files (for filenames with spaces).
+  + fixed "jerk up/down" when player steps onto a lowering lift.
+
+  - arch-vile no longer resurrects monsters into itself.
+  - fix for teleport on MAP06 (going to wrong place).
+  - berserk strength now lasts the whole level.
+  - night vision wasn't affecting the sky, fixed.
+  - monsters on different sides now attack each other.
+  - autorun is remembered in the config file again.
+  - fixed some missing mid-masked textures (Eternal MAP28).
+  - revenant missiles fixed to match the original.
+  - fixed 'detuning' problem with MUS music.
+
+  * Many more... See the 1.29 ChangeLog for the complete list.
+
+
+General improvements in 1.29:
+  + drag and drop support.  You can pass wads, demos, scripts and
+    DeHackEd patches to EDGE by dragging them onto the executable.
+    Everything before the first option is considered a file to add.
+
+  + support for OGG/Vorbis Music playing.  OGG/Vorbis is music format
+    similar to MP3, but is free from patents and does not require any
+    royalty fees.
+
+  + built-in support for DeHackEd and BEX patches, using normal files
+    (with .DEH or .BEX extension), and also the DEHACKED lump.  Patch
+    files can be added with the -deh option (like in other ports).
+
+  - Linux: fatal errors produce a pop-up dialog box, and EDGE can be
+    run by double clicking the executable.
+
+  - new startup which shows a progress bar.
+  - ability to use 32-bit screen modes (16.7 million colours).
+  - V3 and V5 GL-NODES, for very complex levels (Deus Vult MAP05).
+  - detect Boom maps, and ask whether to change compatability mode.
+  - support Boom's line-to-line teleports and platform toggles.
+  - sky improvements, including a stretch option in Video menu.
+  - missing wad files (given with -file) now produce an error.
+  - intermission text screens can now be skipped.
+  - can disable mouse-look in the gameplay options.
+  - console now slides up/down, smaller font.
+
+  * See the 1.29 ChangeLog for more...
+
+
+New DDF/RTS features in 1.29:
+  + new IMAGES.DDF file.  The corresponding wad lump is DDFIMAGE.  You
+    can define any type of images in this file (textures, flats, sprites
+    and screen graphics), and they will override any from the WAD file
+    with the same name.  Supports PNG and JPEG formats, either as lumps
+    in a WAD or as external files.  Allows the full range of colours.
+
+  + new FONTS.DDF file.  The equivalent wad lump is DDFFONT.  This is
+    for defining fonts (the set of character images for drawing text).
+
+  - new STYLES.DDF file.  THIS IS EXPERIMENTAL !!  The idea is to
+    define the background colour/image and text font/colour/scaling
+    information (and sounds too) for various parts of EDGE's user
+    interface.  It may undergo significant changes (without keeping
+    compatibility), and it might even be scrapped!  USE AT OWN RISK.
+
+  + new RTS menu system.  A script can show a menu, which pauses the
+    game until the user selects an option.  The script can then see
+    what the user selected and perform some specific actions.
+
+  + weapon clip handling has been greatly improved (and made sane).
+
+  + support for manual reloading (new key in Keyboard Options), and
+    also next-weapon and previous-weapon keys.
+
+  + Eight new ammo types: AMMO9, AMMO10 ... upto AMMO16.
+
+  - There are new weapon specials, and they can be given to the primary
+    and secondary attack separately (e.g. SEC_SPECIAL command).  They
+    include: ANIMATED, NO_SWITCH, NO_TRIGGER, FRESH, NO_MANUAL and
+    NO_PARTIAL.  Many of these control reloading behaviour.
+
+  - Numerous new weapon states: EMPTY states for when the weapon has
+    run out of ammo (primary attack only), IDLE for when the player
+    hasn't used the weapon for a while, WARMUP and SECWARMUP for
+    showing a "spin-up" animation, and finally DISCARD / SECDISCARD
+    states for reloading a weapon which wasn't empty.
+
+  - RELOAD states for monsters.
+  - SEQUENCE command for ANIMS.DDF.
+  - can specify a colour directly in COLMAP.DDF (no lumps needed).
+  - flags for friendly monsters: ULTRA_LOYAL and SIDE_IMMUNE.
+  - better control over explosion damage (EXPLODE_RADIUS command).
+  - WHEN_APPEAR in DDF and RTS now accepts simpler syntax.
+
+  * That was just a summary.  See the 1.29 ChangeLog for more...
+
+
+Known Issues:
+  - Multiplayer (networking) does not work yet.  We have made a
+    little bit of progress recently, for example you can play
+	deathmatch with bots.  We plan to get LAN-based multiplayer
+	working in the next release.
+
+  - Drag-and-drop does not work in Linux.
+
+  - Joysticks do not work.  We haven't done any work in that area.
+
+  - Levels and TCs designed for EDGE 1.24 (or earlier) can produce a
+    bucket-load of warnings when starting up.  These warnings are
+    mostly about DDF features that have been removed or changed.
+    Hence some older stuff will not work 100%.  Use the -nowarn
+    option to turn off these warnings.
+
+  - Some sprites are designed to look sunk into the floor, typically
+    corpses, and can look like they are "floating" in EDGE.  This is a
+    limitation of using OpenGL rendering (if the sprites are lowered,
+    they get clipped and this looks a lot worse).
+
+    Certain other DOOM tricks, e.g. flat-flooding, sometimes don't
+    work properly with EDGE's renderer.
+
+  - Bullets can sometimes pass through solid extrafloors.
+
+  - The console has very limited functionality.
+
+  - Certain colourmaps (especially Fog) don't work.
+
+
+Troubleshooting:
+  - If EDGE crashes, or otherwise misbehaves, please help us by
+    reporting the problem.  To do this check out the EDGE website at
+    http://edge.sourceforge.net.  We appreciate input because if you
+    don't tell us about a bug, we can't deal with it.
+
+  - Post the EDGE.LOG file which EDGE creates along with your bug
+    report, as this contains lots of useful information to help us
+    track down the problem.
+
+  For Windows:
+    - Ensure you are running with virtual memory ENABLED.  This will
+      cause some real problems if it disabled.
+
+    - You can check the DirectX version by running the DirectX
+      diagnostic tool.  Click the Start button, then Run..., and 
+      type: dxdiag and press ENTER.  If that doesn't work, try looking
+      for DXDIAG.EXE in the following directories:
+
+         C:\windows\system
+         C:\program files\directx\setup\
+         C:\winnt\system32
+
+    - For EDGE to work, you need a 3D card *plus* OpenGL drivers for
+      it installed on your computer.  A really low framerate (1 FPS)
+      usually means that the *software* OpenGL driver is being used (not
+      what we want, of course ;).  Go to the website of your card's
+      manufacturer and look for a recent 3D driver.  Another place to
+      look is on Microsoft's site.  Basically, if Quake 3 (or some
+      other OpenGL game) works, then EDGE should work too.
+
+    - SHOULD YOU HAVE ANY PROBLEMS WITH GRAPHICAL PROBLEMS OR WITH
+      THE ENGINE LOCKING UP PLEASE ENSURE YOU HAVE THE LATEST VIDEO
+      AND OPENGL DRIVERS FOR YOUR MACHINE.
+
+      Users of the ATI Rage series are recommended to upgrade to the 
+      latest drivers since some older drivers (circa 2001) have been 
+      known to cause a lockup during startup.
+
+      Voodoo3 is known to have problems, since the only OpenGL
+      drivers that exist for it are very old and buggy.
+
+  For Linux:
+    - SDL 1.2 can be found at http://www.libsdl.org/.
+
+    - You can check whether hardware 3D rendering is available by
+      running the 'glxinfo' program in an xterm, and look for the line
+      that says "direct rendering: Yes".
+
+
+Contact points:
+  * For the latest news and developments visit the EDGE Website
+    at http://edge.sourceforge.net
+
+  * For Forums, Bug Reports and CVS Access visit the EDGE Project
+    site at http://sourceforge.net/projects/edge
+
+  * For more information on "GL Nodes", see the glBSP homepage at
+    http://glbsp.sourceforge.net
+
+
+Compiling EDGE:
+  Please read the file "INSTALL" in the source package.
+
+
+Command line options:
+  * Note that "(no)" here means that the option switch can optionally
+    be prefixed with the word "no", e.g. -shadows OR -noshadows.  The
+    plain option enables the feature, the one with "no" disables it.
+
+  -version             Show version of EDGE and exit.
+
+  -width  <wd>         Select video mode's width.
+  -height  <ht>        Select video mode's height.
+  -res  <wd> <ht>      Select video mode (width AND height).
+  -bpp  <depth>        Video depth: 1 for 8-bit, 2 for 16-bit.
+  -lang  <language>    Language for game messages.
+
+  -iwad  <file>        Select IWAD file (e.g. DOOM.WAD or TNT.WAD)
+  -file  <file> ...    Select PWAD (add-on) wad file(s) to play.
+  -home  <dir>         Home dir, can hold IWAD and EDGE.WAD.
+  -game  <dir>         Game dir, for PARMS, DDF, RTS, WADs, etc.
+  -ddf   <dir>         Load external DDF files from the directory.
+  -script  <file>      Load external RTS script from the file.
+  -deh     <file>      Load external DeHackEd/BEX patch file.
+  -config  <file>      Config file (normally EDGE.CFG).
+  -debug               Enable debug output to file (DEBUG.TXT).
+  -nolog               Disable creating the log file (EDGE.LOG).
+
+  -warp  <map>         Warp to map (use full name e.g. E1M1 or MAP01).
+  -loadgame  <slot>    Warp, loading game from slot.
+  -record  <file>      Record a demo into the given file.
+  -playdemo  <file>    Play the previously recorded demo.
+  -timedemo  <file>    Play and time the demo (test performance).
+  -skill  <num>        Skill level for warp (1 to 5).
+  -screenshot  <rate>  Movie mode ! Takes regular screenshots.
+  -turbo  <num>        Running speed, 100 is normal.
+  -vspeed  <num>       Look up/down speed, 1000 is normal.
+
+  -players  <num>      Number of real players.
+  -bots  <num>         Number of bots.
+  -deathmatch          Deathmatch game (otherwise COOP).
+  -altdeath            Alternate deathmatch mode.
+  -timer  <mins>       Time limited games, and specifies how long.
+  -avg                 Andy Virtual Gaming (same as -timer 20).
+  -respawn             Monster respawning.
+  -newnmrespawn        Monsters respawn as if resurrected.
+  -(no)itemrespawn     Item respawning.
+
+  -boom                Set compatibility to BOOM mode.
+  -edge                Set compatibility to EDGE mode.
+
+  -windowed            Run inside a window.
+  -fullscreen          Run fullscreen.
+  -(no)sound           Enable/disable sound effects.
+  -(no)music           Enable/disable music output.
+
+  -strict              Errors: be as strict as possible.
+  -lax                 Errors: be as lax/forgiving as possible.
+  -(no)warn            Enable/disable all warning messages.
+  -(no)obsolete        Enable/disable warnings about obsolete stuff.
+
+  -(no)smoothing       Smoothing for graphic images (mainly GL).
+  -(no)mipmap          Mipmapping enable/disable.
+  -(no)shadows         Shadows are drawn under things.
+  -(no)dither          Dither the graphics (in GL).
+  -(no)halos           (Unimplemented) Halos/coronas around lights.
+  -(no)dlights         Dynamic lighting enable/disable.
+  -(no)trans           Whether translucent stuff is rendered.
+  -(no)jumping         Whether player jumping is allowed.
+  -(no)crouching       Whether player crouching is allowed.
+  -(no)mlook           Whether Mouse-look up/down is allowed.
+  -(no)blood           More blood which lasts longer.
+  -(no)kick            Weapon kick effect.
+
+  -(no)monsters        Enable/disable monsters within the game.
+  -(no)fast            Fast monsters.
+  -(no)cheats          Cheat codes enabled or disabled.
+  -(no)rotatemap       Automap rotation.
+  -(no)smoothmap       Automap anti-aliasing.
+  -(no)invertmouse     Invert the mouse Y direction.
+  -(no)showstats       Shows on-screen statistics/info.
+  -(no)hom             HOM (Hall Of Mirrors) detection.
+
+  -(no)extras          Extra items (e.g. rain) appearing in levels.
+  -(no)infight         In-fighting between monsters.
+  -(no)true3d          Objects can pass above/below other objects.
+  -(no)diskicon        Whether to show the flashing disk icon.
+  -(no)fadepower       Powerup effects smoothly fade out.
+  -(no)hogcpu          Smoother gameplay vs less CPU utilisation.
+
+  -trilinear           Trilinear mipmapping.
+  -nointerp            Video: Don't interpolate colourmaps.
+  -nodraw              Disable rendering (for performance testing).
+  -nogfxmode           Disable all video (for performance testing).
+
+  -blockmap            Force EDGE to generate its own blockmap.
+  -fastsprites         Load sprite images at start of level.
+  -newmap OR -newhud   Automap overlay.
+  -noconhistory        Disable console history (save some memory).
+  -nograb              Don't grab the mouse cursor.
+  -warpmouse           Use special mouse handling code.
+
+
+Console commands:
+  CRC  <lump>          Computes the CRC value of a wad lump.
+  EXEC  <filename>     Executes the console commands in file.
+  PLAYSOUND  <sound>   Plays the sound.
+  QUIT                 Quit EDGE (pops up a query message).
+  SET  <cvar> <val>    Set console variable to a new value.
+  TYPEOF  <cvar>       Displays the type of a console variable.
+
+  * The SET command can be used with no options, which displays all
+    known variables (and their values), or just the cvar name, which
+    displays the value of that variable.
+
+
+**** Credits ****
+
+Current EDGE Team:
+    Andrew Apted (aka "Ajapted")     : programming
+    Luke Brennan (aka "Lobo")        : support & documentation
+
+Former EDGE Members:
+    Andrew Baker (aka "Darkknight")  : programming
+    Marc Pullen  (aka "Fanatic")     : support & music
+    Erik Sandberg                    : programming
+    David Leatherdale                : support & programming
+
+Patches:
+    Darren Salt  (aka "dsalt")       : programming
+
+DOSDoom Contributors:
+    Kester Maddock                   : programming
+    Martin Howe                      : programming, cat lover
+    John Cole, Rasem Brsiq           : programming
+    Captain Mellow, CowMonster       : support, graphics
+    Ziggy Gnarly & Sidearm Joe       : support, graphics
+    Matt Cooke, Eric Simpson         : support
+
+Special Thanks:
+    Chi Hoang                        : DOSDoom Author
+    id Software                      : The Original Doom Engine
+
+
+--- END OF README.TXT ---
+

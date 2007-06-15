@@ -1,0 +1,15 @@
+//
+// EDGE RESOURCE HEADER
+//
+#ifndef __RESOURCE_HEADER__
+#define __RESOURCE_HEADER__
+
+#define MAIN_MENU            100
+#define MAIN_MENU_FILE_EXIT  1001
+
+#define MAIN_ICON            1
+
+#endif /* __RESOURCE_HEADER__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab:filetype=rc

@@ -1,0 +1,56 @@
+//
+//    EDGE ANIMS.DDF -redefine or add new animated wall/floor textures.
+//    For documentation, see http://edge.sourceforge.net/
+//    DDF Version 4.6
+//
+
+<ANIMATIONS>
+
+#VERSION 1.29
+
+// ------ Flat Animations ------------------
+
+[SLUDGE]
+TYPE =FLAT;
+FIRST="FLTSLUD1";
+LAST ="FLTSLUD3";
+SPEED=8T;
+
+[WATER]
+TYPE =FLAT;
+FIRST="FLTWAWA1";
+LAST ="FLTWAWA3";
+SPEED=8T;
+
+[WATER2]
+TYPE =FLAT;
+FIRST="FLTFLWW1";
+LAST ="FLTFLWW3";
+SPEED=8T;
+
+[LAVA]
+TYPE =FLAT;
+FIRST="FLTLAVA1";
+LAST ="FLTLAVA4";
+SPEED=8T;
+
+[TELEPORT]
+TYPE =FLAT;
+FIRST="FLTTELE1";
+LAST ="FLTTELE4";
+SPEED=8T;
+
+// ------ Texture Animations ------------------
+
+[WATERFALL]
+TYPE =TEXTURE;
+FIRST="WATRWAL1";
+LAST ="WATRWAL3";
+SPEED=8T;
+
+[LAVAFALL]
+TYPE =TEXTURE;
+FIRST="LAVAFAL1";
+LAST ="LAVAFAL3";
+SPEED=8T;
+
