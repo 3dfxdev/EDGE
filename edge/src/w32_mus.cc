@@ -276,6 +276,12 @@ void I_MUSStop(void)
 	if (!midiavailable)
 		return;
 
+	// -AJA- 2005/10/25: must set 'playing' to false _before_ deleting the
+	//       song data, to prevent a race condition (I_MUSTicker may get
+	//       called in-between deleting the data and setting 'song' to NULL).
+	playing = false;
+	playpos = NULL;
+
 	// Reset pitchwheel on all channels
 	for (i=0; i <= 15; i++)              
 		midiOutShortMsg(midioutput, 0xE0+i); 
@@ -284,12 +290,6 @@ void I_MUSStop(void)
 	midiOutShortMsg(midioutput, 0xB0+(121<<8));
 
 	midiOutReset(midioutput); 
-
-	// -AJA- 2005/10/25: must set 'playing' to false _before_ deleting the
-	//       song data, to prevent a race condition (I_MUSTicker may get
-	//       called in-between deleting the data and setting 'song' to NULL).
-	playing = false;
-	playpos = NULL;
 
 	// Free resources
 	data = (byte*)song;
