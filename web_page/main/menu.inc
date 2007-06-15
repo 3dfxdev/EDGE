@@ -25,7 +25,7 @@
     <li><span class="notdone" hhref="ddf_online/index.htm">DDF Online</span>
     <li><a href="rts_online/start.htm">RTS Online</a>
     <li><a href="logs/128.htm">Changelogs</a>
-    <li><span class="notdone" hhref="roadmap.htm">Road Map</span>
+    <li><a href="roadmap.htm">Road Map</a>
     <li><a href="faq.htm">F.A.Q</a>
   </ul>
 </li>
