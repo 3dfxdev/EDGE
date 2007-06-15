@@ -11,23 +11,22 @@ implement in EDGE in the future.  Of course there is
 no guarantee that any of this stuff will actually be
 done, but we will try our best.  Also note that
 whatever is shown here doesn't preclude other
-(smaller) features from being implemented.
+features from being implemented.
 <p>
 
 <hr>
 
 <h3 class="roadmap">RELEASE 1.31</h3>
   <ul>
-    <li type="disc">LAN-based multiplayer, CTF mode
+    <li type="disc">LAN-based multiplayer
     <li type="disc">MUS/MIDI playback for Linux, MIDI for Win32
-    <li type="disc">Full support for Wolfenstein-3D
+    <li type="disc">Custom HUDs using LUA scripting
   </ul>
 
   <ul>
     <li type="circle">Improved renderer, fog
     <li type="circle">Vehicle support
     <li type="circle">Inheritance for DDF
-    <li type="circle">Custom HUDs using LUA scripting
     <li type="circle">OGG/Vorbis and WAV for sounds
     <li type="circle">Updated DDF documentation
   </ul>
@@ -38,12 +37,11 @@ whatever is shown here doesn't preclude other
   <ul>
     <li type="disc">Slopes
     <li type="disc">LUA scripting within maps
-    <li type="disc">Full support for Heretic
   </ul>
 
   <ul>
     <li type="circle">Improved physics code
-    <li type="circle">Hexen-style hub system
+    <li type="circle">Hexen-like hub system
     <li type="circle">Better console with truetype font
     <li type="circle">Support for joysticks and gamepads
   </ul>
@@ -59,7 +57,7 @@ whatever is shown here doesn't preclude other
 
   <li>
     The next release after 1.29 will be 1.31.
-    Why? Because nobody likes to turn 30!
+    Why? Just because.
 
   <li>
     No timeframes are given here.
