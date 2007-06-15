@@ -456,13 +456,16 @@ static void DeleteMobj(mobj_t * mo)
 		mo->info ? mo->info->ddf.name.GetString() : "???");
 #endif
 
-	if (mo->refcount != 0)
-		I_Error("INTERNAL ERROR: Reference count %d", mo->refcount);
-
 	// Sound might still be playing, so use remove the
     // link between object and effect
 
     S_StopFX(mo);
+
+	if (mo->refcount != 0)
+	{
+		I_Error("INTERNAL ERROR: Reference count %d", mo->refcount);
+		return;
+	}
 
 	Z_Free(mo);
 }
@@ -1245,7 +1248,7 @@ static void P_MobjThinker(mobj_t * mobj)
 	const region_properties_t *props;
 	region_properties_t player_props;
 
-	SYS_ASSERT_MSG(-1 != (intptr_t)mobj->next, 
+	SYS_ASSERT_MSG(mobj->next != (mobj_t *)-1,
 		("P_MobjThinker INTERNAL ERROR: mobj has been Z_Freed"));
 
 	SYS_ASSERT(mobj->state);
