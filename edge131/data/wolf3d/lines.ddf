@@ -1,0 +1,52 @@
+// 
+//    EDGE LINES.DDF -redefine or add new line triggers.
+//    For documentation, see http://edge.sourceforge.net/
+//    DDF Version 5.0
+//
+
+<LINES>
+
+#VERSION 1.29
+
+[2] // Exit Level
+TYPE=PUSH;
+ACTIVATORS=PLAYER;
+ACTIVATE_SOUND="SWTCHX";
+COUNT=1;
+EXIT=NORMAL;
+
+[3] // Exit to Secret Level
+TYPE=PUSH;
+ACTIVATORS=PLAYER;
+ACTIVATE_SOUND="SWTCHX";
+COUNT=1;
+EXIT=SECRET;
+
+
+[10] // Normal Door
+TYPE=PUSH;
+ACTIVATORS=PLAYER,MONSTER;
+SLIDER.TYPE=RIGHT;
+SLIDER.SPEED=2.0;
+
+
+[11] // Silver-Key Door
+TYPE=PUSH;
+ACTIVATORS=PLAYER;
+KEYS=SILVER_KEY;
+SLIDER.TYPE=RIGHT;
+SLIDER.SPEED=2.0;
+
+[12] // Gold-Key Door
+TYPE=PUSH;
+ACTIVATORS=PLAYER;
+KEYS=GOLD_KEY;
+SLIDER.TYPE=RIGHT;
+SLIDER.SPEED=2.0;
+
+[15] // Elevator Door
+TYPE=PUSH;
+ACTIVATORS=PLAYER;
+SLIDER.TYPE=RIGHT;
+SLIDER.SPEED=2.0;
+

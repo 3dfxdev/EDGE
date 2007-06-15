@@ -1,0 +1,62 @@
+#
+# EPI Makefile for MacOS X
+#
+# -AJA- NOTE: currently using Linux code for file/filesystem stuff,
+#       since MacOS X and Linux are both flavours of Unix.
+#
+
+prefix=/Users/aapted
+
+BIN=libepi.a
+
+CC=gcc
+CXX=g++
+RANLIB=ranlib
+
+CFLAGS=  -O2 -Wall -ffast-math -DMACOSX -D__BIG_ENDIAN__ -I$(prefix)/include
+CXXFLAGS=-O2 -Wall -ffast-math -DMACOSX -D__BIG_ENDIAN__ -I$(prefix)/include
+
+# ----- OBJECTS ------------------------------------------------------
+
+OBJS= \
+	arrays.o \
+    archive.o \
+    asserts.o \
+	basicimage.o \
+	bytearray.o \
+	errors.o \
+	filesystem.o \
+	image_jpeg.o \
+	image_png.o \
+	image_hq2x.o \
+	math_angle.o  \
+	math_colour.o  \
+	math_crc.o \
+	math_md5.o \
+	math_vector.o \
+	math_bbox.o \
+	memfile.o     \
+	memmanager.o \
+	mus_2_midi.o \
+	soundsystem.o \
+	stacks.o \
+	strings.o \
+	timestamp.o \
+	utility.o \
+	epi_macosx.o \
+	files_linux.o \
+	filesystem_linux.o \
+	path_linux.o
+
+# ----- TARGETS ------------------------------------------------------
+
+all:    $(BIN)
+
+clean:
+	rm -f $(BIN) *.o
+
+$(BIN): $(OBJS)
+	libtool -static -o $(BIN) - $(OBJS)
+	$(RANLIB) $(BIN)
+
+.PHONY: all clean
