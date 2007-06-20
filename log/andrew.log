@@ -1,5 +1,13 @@
 Andrew Apted's Log
 
+2007/06/20:
+
+Found a bug where some code passes ONFLOORZ in 'z' to the
+P_CheckAbsolutePos() function, which does not handle those
+special values.  Since the release is imminent and I don't
+want to muck up the physics code, an awful hack work-around
+has been made, which shall cleaned up in a later release.
+
 2007/06/13:
 
 Fixed new bug where loading a savegame would prevent weapon

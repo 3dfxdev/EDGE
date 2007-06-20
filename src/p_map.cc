@@ -277,9 +277,18 @@ static bool PIT_CheckAbsLine(line_t * ld)
 	// does the thing fit in one of the line gaps ?
 	for (int i = 0; i < ld->gap_num; i++)
 	{
-		if (ld->gaps[i].f <= tm_I.z &&
-			tm_I.z + tm_I.mover->height <= ld->gaps[i].c)
-			return true;
+		// -AJA- FIXME: this ONFLOORZ stuff is a DIRTY HACK!
+		if (tm_I.z == ONFLOORZ || tm_I.z == ONCEILINGZ)
+		{
+			if (tm_I.mover->height <= (ld->gaps[i].c - ld->gaps[i].f))
+				return true;
+		}
+		else
+		{
+			if (ld->gaps[i].f <= tm_I.z &&
+				tm_I.z + tm_I.mover->height <= ld->gaps[i].c)
+				return true;
+		}
 	}
 
 	return false;
@@ -305,16 +314,20 @@ static bool PIT_CheckAbsThing(mobj_t * thing)
 	if (fabs(thing->x - tm_I.x) >= blockdist || fabs(thing->y - tm_I.y) >= blockdist)
 		return true;  // no we missed this thing
 
-	// -KM- 1998/9/19 True 3d gameplay checks.
-	if ((tm_I.flags & MF_MISSILE) || level_flags.true3dgameplay)
+	// -AJA- FIXME: this ONFLOORZ stuff is a DIRTY HACK!
+	if (tm_I.z != ONFLOORZ && tm_I.z != ONCEILINGZ)
 	{
-		// overhead ?
-		if (tm_I.z >= thing->z + thing->height)
-			return true;
+		// -KM- 1998/9/19 True 3d gameplay checks.
+		if ((tm_I.flags & MF_MISSILE) || level_flags.true3dgameplay)
+		{
+			// overhead ?
+			if (tm_I.z >= thing->z + thing->height)
+				return true;
 
-		// underneath ?
-		if (tm_I.z + tm_I.mover->height <= thing->z)
-			return true;
+			// underneath ?
+			if (tm_I.z + tm_I.mover->height <= thing->z)
+				return true;
+		}
 	}
 
 	solid = (thing->flags & MF_SOLID)?true:false;
