@@ -1272,22 +1272,23 @@ static void CheckSkillEtc(void)
 		singletics = true;
 	}
 
-	ps = M_GetParm("-players");
-	if (ps)
-	{
-		startplayers = atoi(ps);
-		if (startplayers > 1)
-			netgame = true;
-	}
+///	ps = M_GetParm("-players");
+///	if (ps)
+///	{
+///		startplayers = atoi(ps);
+///		if (startplayers > 1)
+///			netgame = true;
+///	}
 
 	ps = M_GetParm("-bots");
 	if (ps)
 	{
 		startbots = atoi(ps);
+		startplayers = startbots + 1;
 	}
 
 	// force a net game
-	if (M_CheckParm("-netgame") > 0)
+	if (startplayers > 1 || M_CheckParm("-netgame") > 0)
 	{
 		netgame = true;
 	}

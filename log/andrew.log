@@ -1,5 +1,10 @@
 Andrew Apted's Log
 
+2007/06/21:
+
+For 1.29 release, simplified the bot-game options: you no
+longer need "-players", only the "-bots" option is needed.
+
 2007/06/20:
 
 Found a bug where some code passes ONFLOORZ in 'z' to the
