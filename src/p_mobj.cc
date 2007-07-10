@@ -1441,7 +1441,11 @@ void P_RemoveQueuedMobjs(bool force_all)
 
 		mo->fuse--;
 
-		if (mo->fuse <= 0 || force_all)
+		if (!force_all && mo->fuse == 1 && mo->refcount != 0)
+			I_Warning("Bad ref count for %s = %d.\n", 
+						mo->info->ddf.name.GetString(), mo->refcount);
+
+		if (force_all || (mo->fuse <= 0 && mo->refcount == 0))
 		{
 			DeleteMobj(mo);
 
