@@ -67,8 +67,6 @@ release=true builds and must be built manually before
 running scons: zlib, libpng, jpeglib, libogg, libvorbis
 and libvorbisfile.  Also FLTK for Linux binaries.
 
-@@@ win32_lib/ crud @@@
-
 
 Resource File
 -------------
