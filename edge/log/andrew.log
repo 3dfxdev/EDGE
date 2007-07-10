@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2007/07/10:
+
+Since the new object removal code gives some people errors
+about bad references, for the 1.29 release I have downgraded
+that to a warning.
+
 2007/06/21:
 
 For 1.29 release, simplified the bot-game options: you no
