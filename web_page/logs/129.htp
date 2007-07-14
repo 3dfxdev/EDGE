@@ -9,7 +9,7 @@
 Type: Still under development, not yet released 
 <p>
 
-Date: JANUARY 2007
+Date: JULY 2007
 <p>
 
 <PRE class="bugs">
@@ -18,6 +18,7 @@ Date: JANUARY 2007
 + crash loading a savegame with dynamic lights when D/L disabled.
 + fixed crash when starting a level in deathmatch mode.
 + quotes (") usable in response files (for filenames with spaces).
++ fixed "jerk up/down" when player steps onto a lowering lift.
 
 - Arch-vile no longer resurrects monsters into itself.
 - don't display "Entering" on intermission when map is last one.
@@ -36,7 +37,8 @@ Date: JANUARY 2007
 - autorun is remembered in the config file again.
 - fixed some missing mid-masked textures (Eternal MAP28).
 - smoking tracers sometimes wouldn't produce smoke.
-- revenant missiles fixed to match the original.
+- Revenant missiles fixed to match the original.
+- Archvile flame fixed to play the crackle sounds.
 - fixed stair-building bug (e.g. TNT MAP16).
 - some problems handling the mouse-wheel were fixed.
 - rotated automap could omit parts of a map, fixed.
@@ -45,7 +47,9 @@ Date: JANUARY 2007
 - some continuous floors had wrong heights, fixed.
 - '+' syntax for KEYS in DDF was finally fixed.
 - the CAPSLOCK and NUMLOCK keys work a bit better.
-- spawning of voodoo dolls (Darren Salt).
+- improved spawning of voodoo dolls (Darren Salt).
+- fixed old deathmatch mode so weapons stay on the map.
+- fixed 'detuning' problem with MUS playback on Win32.
 </PRE>
 
 
@@ -62,14 +66,27 @@ Date: JANUARY 2007
   work anymore.  The new format has the ".EDM" extension (but omit
   this when using the -record and -playdemo options).
 
++ looping sounds have changed.  To keep a sound looping,
+  it must be continally replayed (in addition to having
+  LOOP=TRUE line in SOUNDS.DDF).  A good rule of thumb is
+  to wait half the length of the sound, e.g. if the sound
+  lasts 1.6 seconds then replay it every 0.8 seconds (28
+  ticks) to guarantee that it loops continuously.
+
 - screenshots are now available in JPEG or PNG format.  New 
   "screenshot" console command (Note: it does not capture the 
-  console itself).
+  console itself).  Screenshots are now placed in a folder
+  called "screenshots".
+
+- Set Resolution menu: removed 'TEST RESOLUTION' button.
+
+- renamed -debugfile option to -debug, and the filename is now
+  hardcoded as "debug.txt" (stored in same place as "edge.log").
 
 - the "CONSTANT" dynamic lighting type (in DDF) was removed.
 
-- replaced the [DOG] sprites and sounds in EDGE.WAD with some
-  from FreeDOOM, due to concerns about the copyright/license.
+- replaced the [DOG] sprites and sounds in EDGE.WAD with a
+  colormapped demon, due to copyright/license concerns.
 </PRE>
 
 
@@ -81,8 +98,23 @@ Date: JANUARY 2007
   option is considered a filename to add.  This allows you to drag a
   (self-contained) WAD onto the EDGE executable to play it.
 
-+ OpenAL as the new sound system.  OpenAL is a 3D audio library which
-  can take advantage of hardware sound mixing.
++ improved BOOM compatibility:
+  - handle the ELEVATOR linetypes.
+  - support for Current/Wind/Push/Pull forces.
+  - support for Icy/Muddy floors.
+  - handle BOOM colormaps.
+  - load the SWITCHES and ANIMATED lumps.
+  - support for line-to-line teleporters.
+  - support for platform toggle linetypes.
+  - the EDGE-specific sector numbers have been renumbered
+    to the range 4400-4499.  This may affect old mods, which
+    can be made to work using the new -ecompat option.
+
++ native support for DeHackEd and BEX patches, both as normal files
+  (with .DEH or .BEX extension), and also as DEHACKED lump in a wad.
+  Patch files can be added with the -deh option (like in other Doom
+  engines).  EDGE converts the patches to DDF, and stores the result
+  in files with the .HWA extension, which are loaded automatically.
 
 + support for OGG/Vorbis Music playing.  OGG/Vorbis is music format
   similar to MP3, but is free from patents and does not require any
@@ -92,12 +124,6 @@ Date: JANUARY 2007
      [01] MUSICINFO=OGG:FILE:"d_runnin.ogg";
      [02] MUSICINFO=OGG:LUMP:"OGGRULEZ";
 
-+ native support for DeHackEd and BEX patches, both as normal files
-  (with .DEH or .BEX extension), and also as DEHACKED lump in a wad.
-  Patch files can be added with the -deh option (like in other Doom
-  engines).  EDGE converts the patches to DDF, and stores the result
-  in files with the .HWA extension, which are loaded automatically.
-
 - ability to use 32-bit screen modes (16.7 million colours).  You
   may need to change your desktop to 32-bit mode for this to work.
 
@@ -106,6 +132,13 @@ Date: JANUARY 2007
   printed to the terminal.  When GL-Nodes must be built for a wad,
   this is also done during startup.
 
+- video startup: new -directx, -gdi and -videodriver options
+  for better control over what SDL video driver to use.
+
+- sound startup: try hard to find a working sound mode.
+  Also support for specifying the SDL audio driver, with
+  new -waveout, -dsound and -audiodriver options.
+
 - Linux: fatal errors produce a pop-up dialog box.  EDGE can now be
   run by double clicking the executable.  Support for CD music.
 
@@ -113,19 +146,9 @@ Date: JANUARY 2007
   allowing EDGE to run wads from read-only media (CDROM) or
   from read-only locations (/usr/share).
 
-- support V3 and V5 GL-NODES.  EDGE now includes glBSP 2.20, which
+- support V3 and V5 GL-NODES.  EDGE now includes glBSP 2.22, which
   can handle very complex levels (which overflow the old limits),
   e.g. Deus Vult MAP05.
-
-- Boom compatibility changes: the type of level (Edge or Boom) is
-  detected when starting a new game, and if it doesn't match the
-  current mode (or the result was mixed), then a dialog asks you
-  whether to change mode.  When using -warp, the most likely mode
-  is selected.
-
-  Two Boom features were also added: line-to-line teleporters and
-  platform toggle linetypes.  A couple of Boom-related bugs were
-  fixed (e.g. P1/PR doors with the lighting effect).
 
 - the DeathBot is back!  He is still pretty dumb though.  Use
   the option "-bots #" (where # is the number of bots) to add
@@ -139,6 +162,7 @@ Date: JANUARY 2007
 - new gameplay option to disable automatic weapon switches.
 - sky looks a bit better, with a stretch option in Video menu.
 - the old "sky flooding" mapping trick is now emulated.
+- option 'Shoot-thru Scenery' emulates old missile behaviour.
 - emulate the FRIEND bit on things in the map.
 - missing wad files (given with -file) now produce an error.
 - monster spawning will keep the parent's AMBUSH status.
@@ -146,9 +170,11 @@ Date: JANUARY 2007
 - correct map names for TNT Evilution and Plutonia Experiment.
 - detects and repairs TNT's MAP31 bug (missing yellow key).
 - can use numbers with -warp and IDCLEV cheats again.
+- can use mouse-wheel in automap and in menus.
 - intermission text screens can now be skipped.
 - console now slides up/down, smaller font.
 - can disable mouse-look in the gameplay options.
+- support for 16 players in a multiplayer game.
 - limit the number of skulls from pain elementals.
 - number of RTS tip slots has increased to 45.
 - RTS tip messages are shown on the console.
@@ -315,6 +341,22 @@ Date: JANUARY 2007
 + "ALL" keyword for the START_MAP line, which causes the script to be
   spawned on every map.
 
+- each thing in the level can have a "tag number" (like the TID in
+  Hexen).  The RTS SPAWN_THING command can specify the tag number
+  to give a new thing, and the DAMAGE_MONSTERS and THING_EVENT
+  commands can take a tag number to limit what they apply to.
+
+  Tag numbers are given to these commands by using 'TAG=xxxx'
+  (where xxxx is the number) at the end of the command.
+  NOTE: there must not be any spaces before or after the '='.
+  Some examples:
+
+    SPAWN_THING Cacodemon 1376 3040 TAG=1234
+    DAMAGE_MONSTERS ANY 200 TAG=1234
+    THING_EVENT ANY PAIN TAG=1234
+
+- new BLOCK_LINES command, does the opposite of UNBLOCK_LINES.
+
 - lines in RTS scripts can be extended over two (or more) actual lines
   by placing the \ character at the end.  A silly example:
 
@@ -397,6 +439,8 @@ Date: JANUARY 2007
   can only be used in the crosshair states.  The old "TARGET" action
   (disabled for a long time) has been made obsolete.
 
+- SHOW_CLIP weapons: the HUD shows clip divided by ammopershot.
+
 - Finally, there are now DISCARD and SECDISCARD states.  They are
   similar to the PARTIAL special: if you press the reload key with
   a half-empty clip (i.e. neither empty nor full), then the clip is
@@ -408,18 +452,25 @@ Date: JANUARY 2007
 <PRE class="features">
 <u>New command-line options | console variables</u>
 
-  -deh  [file]         Specify a DeHackEd (or BEX) patch file.  You can
-                       have multiple patch files after the -deh option.
+  -videodriver [name]   Specify what SDL video driver to use.
+  -directx              The -directx and -gdi options are shortcuts
+  -gdi                  for using -videodriver with the same names.
+                        The 'gdi' driver is the default on WIN32.
 
-  -audiodev  [name]    Forces OpenAL to select [device-name] device
+  -audiodriver [name]   Specify what SDL audio driver to use.
+  -waveout              The -waveout and -dsound options are shortcuts
+  -dsound               for using -audiodriver with the same names.
+                        The 'dsound' driver is the default on WIN32.
 
-  -bestaudio           Make OpenAL to select the best device in
-                       windows. Normally the "DirectSound" device
-                       is selected.
+  -sound16              Try to use 16-bit sound output.
+  -sound8               Try to use 8-bit sound output.
 
-  -maxaudiochan [n]    Maximum number of audio channels to use
+  -deh  [file]          Specify a DeHackEd (or BEX) patch file.  You can
+                        have multiple patch files after the -deh option.
 
-  -nocdmusic           Disable CD music.
+  -gamma [n]            Give a gamma setting to use (from 0 to 4).
+
+  -nocdmusic            Disable CD music.
 
   -nearclip [n]   NEARCLIP    Control the OpenGL distance clipping.
   -farclip [n]    FARCLIP     Increasing farclip allows a huge level
