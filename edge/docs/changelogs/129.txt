@@ -2,7 +2,7 @@
 CHANGELOG FOR 1.29 (since 1.28A)
 ================================
 
-(Date: MAY 2007)
+(Date: JULY 2007)
 
 
 Bugs fixed
@@ -42,7 +42,7 @@ Bugs fixed
 - the CAPSLOCK and NUMLOCK keys work a bit better.
 - improved spawning of voodoo dolls (Darren Salt).
 - fixed old deathmatch mode so weapons stay on the map.
-- fixed 'detuning' problem with MUS music.
+- fixed 'detuning' problem with MUS playback on Win32.
 
 
 Features removed / changed
@@ -89,20 +89,6 @@ General improvements
   option is considered a filename to add.  This allows you to drag a
   (self-contained) WAD onto the EDGE executable to play it.
 
-+ support for OGG/Vorbis Music playing.  OGG/Vorbis is music format
-  similar to MP3, but is free from patents and does not require any
-  royalty fees.  You can use them as normal files, or as lumps in a
-  WAD file, as these examples (for playlist.ddf) show:
-
-     [01] MUSICINFO=OGG:FILE:"d_runnin.ogg";
-     [02] MUSICINFO=OGG:LUMP:"OGGRULEZ";
-
-+ native support for DeHackEd and BEX patches, both as normal files
-  (with .DEH or .BEX extension), and also as DEHACKED lump in a wad.
-  Patch files can be added with the -deh option (like in other Doom
-  engines).  EDGE converts the patches to DDF, and stores the result
-  in files with the .HWA extension, which are loaded automatically.
-
 + improved BOOM compatibility:
   - handle the ELEVATOR linetypes.
   - support for Current/Wind/Push/Pull forces.
@@ -115,6 +101,20 @@ General improvements
     to the range 4400-4499.  This may affect old mods, which
     can be made to work using the new -ecompat option.
 
++ native support for DeHackEd and BEX patches, both as normal files
+  (with .DEH or .BEX extension), and also as DEHACKED lump in a wad.
+  Patch files can be added with the -deh option (like in other Doom
+  engines).  EDGE converts the patches to DDF, and stores the result
+  in files with the .HWA extension, which are loaded automatically.
+
++ support for OGG/Vorbis Music playing.  OGG/Vorbis is music format
+  similar to MP3, but is free from patents and does not require any
+  royalty fees.  You can use them as normal files, or as lumps in a
+  WAD file, as these examples (for playlist.ddf) show:
+
+     [01] MUSICINFO=OGG:FILE:"d_runnin.ogg";
+     [02] MUSICINFO=OGG:LUMP:"OGGRULEZ";
+
 - ability to use 32-bit screen modes (16.7 million colours).  You
   may need to change your desktop to 32-bit mode for this to work.
 
@@ -123,8 +123,12 @@ General improvements
   printed to the terminal.  When GL-Nodes must be built for a wad,
   this is also done during startup.
 
+- video startup: new -directx, -gdi and -videodriver options
+  for better control over what SDL video driver to use.
+
 - sound startup: try hard to find a working sound mode.
   Also support for specifying the SDL audio driver, with
+  new -waveout, -dsound and -audiodriver options.
 
 - Linux: fatal errors produce a pop-up dialog box.  EDGE can now be
   run by double clicking the executable.  Support for CD music.
@@ -423,7 +427,7 @@ New weapon stuff
   can only be used in the crosshair states.  The old "TARGET" action
   (disabled for a long time) has been made obsolete.
 
-- SHOW_CLIP weapons: hud shows clip divided by ammopershot.
+- SHOW_CLIP weapons: the HUD shows clip divided by ammopershot.
 
 - Finally, there are now DISCARD and SECDISCARD states.  They are
   similar to the PARTIAL special: if you press the reload key with
@@ -435,12 +439,12 @@ New weapon stuff
 New command-line options | console variables
 --------------------------------------------
 
-  -videodriver <name>   Specify what SDL video driver to use.
+  -videodriver [name]   Specify what SDL video driver to use.
   -directx              The -directx and -gdi options are shortcuts
   -gdi                  for using -videodriver with the same names.
                         The 'gdi' driver is the default on WIN32.
   
-  -audiodriver <name>   Specify what SDL audio driver to use.
+  -audiodriver [name]   Specify what SDL audio driver to use.
   -waveout              The -waveout and -dsound options are shortcuts
   -dsound               for using -audiodriver with the same names.
                         The 'dsound' driver is the default on WIN32.
@@ -448,16 +452,16 @@ New command-line options | console variables
   -sound16              Try to use 16-bit sound output.
   -sound8               Try to use 8-bit sound output.
   
-  -deh  <file>          Specify a DeHackEd (or BEX) patch file.  You can
+  -deh  [file]          Specify a DeHackEd (or BEX) patch file.  You can
                         have multiple patch files after the -deh option.
 
-  -gamma <n>            Give a gamma setting to use (from 0 to 4).
+  -gamma [n]            Give a gamma setting to use (from 0 to 4).
 
   -nocdmusic            Disable CD music.
 
 
-  -nearclip <n>   NEARCLIP    Control the OpenGL distance clipping.
-  -farclip <n>    FARCLIP     Increasing farclip allows a huge level
+  -nearclip [n]   NEARCLIP    Control the OpenGL distance clipping.
+  -farclip [n]    FARCLIP     Increasing farclip allows a huge level
                               to be fully seen, but decreases depth
                               accuracy (may cause glitches).
 
