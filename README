@@ -9,9 +9,9 @@ Website: http://edge.sourceforge.net
 Archive listing:
   * gledge32.exe       - EDGE Executable (OpenGL rendering)
   * gledge-linux       - EDGE Linux binary
-  * edge.wad           - EDGE WAD Information, version 5.2
+  * edge.wad           - EDGE WAD Information, version 5.3
   * SDL.dll            - Simple DirectMedia Layer, version 1.2.11
-  * Changelog-129.txt  - Changes since 1.28a
+  * Changelog-129.txt  - Changes since 1.28A
   * Edge-Readme.txt    - Guess what you reading?
 
 
@@ -21,7 +21,7 @@ System Requirements:
   - Hardware accelerated 3D card with OpenGL drivers.
 
   - Either a DOOM, DOOM II, or Final DOOM IWAD file.
-    (See "Getting hold of a game data" below).
+    (See "Getting hold of game data" below).
 
   For Win32:
     - DirectX 7.0 or higher.
@@ -86,13 +86,13 @@ Notable EDGE features:
 
 Major changes in 1.29:
   + Drag 'n' Drop support.
-  + OGG/Vorbis music playback.
   + Greatly improved BOOM compatibility.
-  + Added a Sound Options menu.
-
   + Handle DeHackEd and BEX patches.
+  + New startup with a progress bar.
+
+  + OGG/Vorbis music playback.
   + IMAGES.DDF, supporting PNG and JPEG images.
-  + New startup with progress bar.
+  + Added a Sound Options menu.
   + Software rendering was removed.
 
 
@@ -108,9 +108,8 @@ Bugs fixed in 1.29:
   - night vision wasn't affecting the sky, fixed.
   - monsters on different sides now attack each other.
   - autorun is remembered in the config file again.
-  - fixed some missing mid-masked textures (Eternal MAP28).
   - revenant missiles fixed to match the original.
-  - fixed 'detuning' problem with MUS music.
+  - fixed 'detuning' problem with MUS playback.
 
   * Many more... See the 1.29 ChangeLog for the complete list.
 
@@ -119,6 +118,15 @@ General improvements in 1.29:
   + drag and drop support.  You can pass wads, demos, scripts and
     DeHackEd patches to EDGE by dragging them onto the executable.
     Everything before the first option is considered a file to add.
+
+  + improved BOOM compatibility:
+    - handle the ELEVATOR linetypes.
+    - support for Current/Wind/Push/Pull forces.
+    - support for Icy/Muddy floors.
+    - handle BOOM colormaps.
+    - load the SWITCHES and ANIMATED lumps.
+    - support for line-to-line teleporters.
+    - support for platform toggle linetypes.
 
   + support for OGG/Vorbis Music playing.  OGG/Vorbis is music format
     similar to MP3, but is free from patents and does not require any
@@ -131,14 +139,14 @@ General improvements in 1.29:
   - Linux: fatal errors produce a pop-up dialog box, and EDGE can be
     run by double clicking the executable.
 
-  - new startup which shows a progress bar.
+  - more robust sound initialisation code.
+  - emulation for Doom's original lighting.
   - ability to use 32-bit screen modes (16.7 million colours).
   - V3 and V5 GL-NODES, for very complex levels (Deus Vult MAP05).
-  - detect Boom maps, and ask whether to change compatability mode.
-  - support Boom's line-to-line teleports and platform toggles.
   - sky improvements, including a stretch option in Video menu.
+  - the DeathBot is back! and meaner than ever...
+  - correct map names for TNT Evilution and Plutonia Experiment.
   - missing wad files (given with -file) now produce an error.
-  - intermission text screens can now be skipped.
   - can disable mouse-look in the gameplay options.
   - console now slides up/down, smaller font.
 
@@ -164,6 +172,8 @@ New DDF/RTS features in 1.29:
   + new RTS menu system.  A script can show a menu, which pauses the
     game until the user selects an option.  The script can then see
     what the user selected and perform some specific actions.
+
+  - support for thing "TAG" numbers in RTS scripts.
 
   + weapon clip handling has been greatly improved (and made sane).
 
@@ -308,7 +318,7 @@ Command line options:
   -game  <dir>         Game dir, for PARMS, DDF, RTS, WADs, etc.
   -ddf   <dir>         Load external DDF files from the directory.
   -script  <file>      Load external RTS script from the file.
-  -deh     <file>      Load external DeHackEd/BEX patch file.
+  -deh     <file> ...  Load external DeHackEd/BEX patch file(s).
   -config  <file>      Config file (normally EDGE.CFG).
   -debug               Enable debug output to file (DEBUG.TXT).
   -nolog               Disable creating the log file (EDGE.LOG).
@@ -333,11 +343,18 @@ Command line options:
   -newnmrespawn        Monsters respawn as if resurrected.
   -(no)itemrespawn     Item respawning.
 
-  -boom                Set compatibility to BOOM mode.
-  -edge                Set compatibility to EDGE mode.
-
+  -videodriver <name>  Specify what SDL video driver to use.
+  -directx             shortcut for "-videodriver directx"
+  -gdi                 shortcut for "-videodriver gdi" (default)
   -windowed            Run inside a window.
   -fullscreen          Run fullscreen.
+
+  -audiodriver <name>  Specify what SDL audio driver to use.
+  -waveout             shortcut for "-audiodriver waveout"
+  -dsound              shortcut for "-audiodriver dsound" (default)
+  -sound16             Use 16-bit sound output.
+  -sound8              Use 8-bit sound output.
+
   -(no)sound           Enable/disable sound effects.
   -(no)music           Enable/disable music output.
 
