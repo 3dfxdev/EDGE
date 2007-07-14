@@ -12,7 +12,7 @@ Archive listing:
   * edge.wad           - EDGE WAD Information, version 5.3
   * SDL.dll            - Simple DirectMedia Layer, version 1.2.11
   * Changelog-129.txt  - Changes since 1.28A
-  * Edge-Readme.txt    - Guess what you reading?
+  * Edge-Readme.txt    - Guess what you are reading?
 
 
 System Requirements:
@@ -206,8 +206,8 @@ New DDF/RTS features in 1.29:
 Known Issues:
   - Multiplayer (networking) does not work yet.  We have made a
     little bit of progress recently, for example you can play
-	deathmatch with bots.  We plan to get LAN-based multiplayer
-	working in the next release.
+    deathmatch with bots.  We plan to get LAN-based multiplayer
+    working in the next release.
 
   - Drag-and-drop does not work in Linux.
 

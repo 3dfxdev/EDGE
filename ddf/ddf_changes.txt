@@ -1,5 +1,5 @@
 
-EDGE DDF 5.3: (2007-#####)
+EDGE DDF 5.3: (2007-07-14)
 ==========================
 
 1) THINGS.DDF: fixed DEAD_LOSTSOUL entry (doomnum 23) to match the
