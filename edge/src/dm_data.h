@@ -80,13 +80,13 @@ enum
 typedef enum
 {
 	// Solid, is an obstacle.
-	ML_Blocking = 0x0001,
+	MLF_Blocking = 0x0001,
 
 	// Blocks monsters only.
-	ML_BlockMonsters = 0x0002,
+	MLF_BlockMonsters = 0x0002,
 
 	// Backside will not be present at all if not two sided.
-	ML_TwoSided = 0x0004,
+	MLF_TwoSided = 0x0004,
 
 	// If a texture is pegged, the texture will have
 	// the end exposed to air held constant at the
@@ -98,34 +98,32 @@ typedef enum
 	// top and bottom textures (use next to windows).
 
 	// upper texture unpegged
-	ML_UpperUnpegged = 0x0008,
+	MLF_UpperUnpegged = 0x0008,
 
 	// lower texture unpegged
-	ML_LowerUnpegged = 0x0010,
+	MLF_LowerUnpegged = 0x0010,
 
 	// In AutoMap: don't map as two sided: IT'S A SECRET!
-	ML_Secret = 0x0020,
+	MLF_Secret = 0x0020,
 
 	// Sound rendering: don't let sound cross two of these.
-	ML_SoundBlock = 0x0040,
+	MLF_SoundBlock = 0x0040,
 
 	// Don't draw on the automap at all.
-	ML_DontDraw = 0x0080,
+	MLF_DontDraw = 0x0080,
 
 	// Set if already seen, thus drawn in automap.
-	ML_Mapped = 0x0100,
+	MLF_Mapped = 0x0100,
 
 	// -AJA- 1999/08/16: This one is from Boom. Allows multiple lines to
 	//       be pushed simultaneously.
-	ML_PassThru = 0x0200,
+	MLF_PassThru = 0x0200,
 
-	// -AJA- These three from XDoom.  Translucent one doesn't do
-	//       anything at present.
-	ML_Translucent = 0x0400,
-	ML_ShootBlock  = 0x0800,
-	ML_SightBlock  = 0x1000,
+	// -AJA- These two from XDoom.
+	MLF_ShootBlock  = 0x0800,
+	MLF_SightBlock  = 0x1000,
 
-	// --- internal flags ---
+	// ----- internal flags -----
 }
 lineflag_e;
 

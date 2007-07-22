@@ -256,7 +256,7 @@ static bool PTR_BotLook(intercept_t * in)
 	{
 		line_t *li = in->d.line;
 
-		if (! (li->flags & ML_TwoSided))
+		if (! (li->flags & MLF_TwoSided))
 			return false;  // stop
 
 		// Crosses a two sided line.

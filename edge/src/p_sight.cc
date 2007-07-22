@@ -188,13 +188,13 @@ static bool CrossSubsector(subsector_t *sub)
 			continue;
 
 		// stop because it is not two sided anyway
-		if (!(ld->flags & ML_TwoSided) || ld->blocked)
+		if (!(ld->flags & MLF_TwoSided) || ld->blocked)
 		{
 			return false;
 		}
 
 		// line explicitly blocks sight ?  (XDoom compatibility)
-		if (ld->flags & ML_SightBlock)
+		if (ld->flags & MLF_SightBlock)
 			return false;
 
 		// -AJA- 2001/11/11: closed Sliding door ?

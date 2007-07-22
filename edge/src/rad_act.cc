@@ -987,10 +987,10 @@ void RAD_ActUnblockLines(rad_trigger_t *R, mobj_t *actor, void *param)
 			continue;
 
 		// clear standard flags
-		ld->flags &= ~(ML_Blocking | ML_BlockMonsters);
+		ld->flags &= ~(MLF_Blocking | MLF_BlockMonsters);
 
 		// clear EDGE's extended lineflags too
-		ld->flags &= ~(ML_SightBlock | ML_ShootBlock);
+		ld->flags &= ~(MLF_SightBlock | MLF_ShootBlock);
 	}
 }
 
@@ -1008,7 +1008,7 @@ void RAD_ActBlockLines(rad_trigger_t *R, mobj_t *actor, void *param)
 			continue;
 
 		// set standard flags
-		ld->flags |= (ML_Blocking | ML_BlockMonsters);
+		ld->flags |= (MLF_Blocking | MLF_BlockMonsters);
 	}
 }
 

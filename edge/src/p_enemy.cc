@@ -103,7 +103,7 @@ static void RecursiveSound(sector_t * sec, int soundblocks, int player)
 	{
 		check = sec->lines[i];
 
-		if (!(check->flags & ML_TwoSided))
+		if (!(check->flags & MLF_TwoSided))
 			continue;
 
 		// -AJA- 1999/07/19: Gaps are now stored in line_t.
@@ -122,7 +122,7 @@ static void RecursiveSound(sector_t * sec, int soundblocks, int player)
 		else
 			other = check->frontsector;
 
-		if (check->flags & ML_SoundBlock)
+		if (check->flags & MLF_SoundBlock)
 		{
 			if (!soundblocks)
 				RecursiveSound(other, 1, player);
