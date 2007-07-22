@@ -124,7 +124,7 @@ sector_t *P_GetSector(int currentSector, int line, int side)
 //
 int P_TwoSided(int sector, int line)
 {
-	return (sectors[sector].lines[line])->flags & ML_TwoSided;
+	return (sectors[sector].lines[line])->flags & MLF_TwoSided;
 }
 
 //
@@ -134,7 +134,7 @@ int P_TwoSided(int sector, int line)
 //
 sector_t *P_GetNextSector(const line_t * line, const sector_t * sec)
 {
-	if (!(line->flags & ML_TwoSided))
+	if (!(line->flags & MLF_TwoSided))
 		return NULL;
 
 	if (line->frontsector == sec)
@@ -477,7 +477,7 @@ static void P_LineEffect(line_t *target, line_t *source,
 {
 	float length = R_PointToDist(0, 0, source->dx, source->dy);
 
-	if ((special->line_effect & LINEFX_Translucency) && (target->flags & ML_TwoSided))
+	if ((special->line_effect & LINEFX_Translucency) && (target->flags & MLF_TwoSided))
 	{
 		target->side[0]->middle.translucency = 0.5f;
 		target->side[1]->middle.translucency = 0.5f;
@@ -517,21 +517,21 @@ static void P_LineEffect(line_t *target, line_t *source,
 	if (special->line_effect & LINEFX_UnblockThings)
 	{
 		if (target->side[0] && target->side[1] && (target != source))
-			target->flags &= ~(ML_Blocking | ML_BlockMonsters);
+			target->flags &= ~(MLF_Blocking | MLF_BlockMonsters);
 	}
 
 	// experimental: block bullets/missiles
 	if (special->line_effect & LINEFX_BlockShots)
 	{
 		if (target->side[0] && target->side[1])
-			target->flags |= ML_ShootBlock;
+			target->flags |= MLF_ShootBlock;
 	}
 
 	// experimental: block monster sight
 	if (special->line_effect & LINEFX_BlockSight)
 	{
 		if (target->side[0] && target->side[1])
-			target->flags |= ML_SightBlock;
+			target->flags |= MLF_SightBlock;
 	}
 
 	// experimental: scale wall texture(s) by line length
@@ -767,7 +767,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 				return false;
 
 			// Monsters don't trigger secrets
-			if (line && (line->flags & ML_Secret))
+			if (line && (line->flags & MLF_Secret))
 				return false;
 		}
 		else
@@ -777,7 +777,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 				return false;
 
 			// Other stuff doesn't trigger secrets
-			if (line && (line->flags & ML_Secret))
+			if (line && (line->flags & MLF_Secret))
 				return false;
 		}
 	}

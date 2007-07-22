@@ -1269,7 +1269,7 @@ static void RGL_DrawSeg(seg_t *seg)
 	SYS_ASSERT(!seg->miniseg && seg->linedef);
 
 	// mark the segment on the automap
-	seg->linedef->flags |= ML_Mapped;
+	seg->linedef->flags |= MLF_Mapped;
 
 	// --- handle each floor ---
 

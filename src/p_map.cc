@@ -257,18 +257,18 @@ static bool PIT_CheckAbsLine(line_t * ld)
 
 	if (tm_I.extflags & EF_CROSSLINES)
 	{
-		if ((ld->flags & ML_ShootBlock) && (tm_I.flags & MF_MISSILE))
+		if ((ld->flags & MLF_ShootBlock) && (tm_I.flags & MF_MISSILE))
 			return false;
 	}
 	else
 	{
 		// explicitly blocking everything ?
-		if (ld->flags & ML_Blocking)
+		if (ld->flags & MLF_Blocking)
 			return false;
 
 		// block monsters only ?
 		if ((tm_I.extflags & EF_MONSTER) &&
-			(ld->flags & ML_BlockMonsters))
+			(ld->flags & MLF_BlockMonsters))
 		{
 			return false;
 		}
@@ -469,7 +469,7 @@ static bool PIT_CheckRelLine(line_t * ld)
 
 	if (tm_I.extflags & EF_CROSSLINES)
 	{
-		if ((ld->flags & ML_ShootBlock) && (tm_I.flags & MF_MISSILE))
+		if ((ld->flags & MLF_ShootBlock) && (tm_I.flags & MF_MISSILE))
 		{
 			blockline = ld;
 			return false;
@@ -480,8 +480,8 @@ static bool PIT_CheckRelLine(line_t * ld)
 		// explicitly blocking everything ?
 		// or just blocking monsters ?
 
-		if ((ld->flags & ML_Blocking) ||
-			((ld->flags & ML_BlockMonsters) &&
+		if ((ld->flags & MLF_Blocking) ||
+			((ld->flags & MLF_BlockMonsters) &&
 			(tm_I.extflags & EF_MONSTER)))
 		{
 			blockline = ld;
@@ -1056,7 +1056,7 @@ static bool PTR_SlideTraverse(intercept_t * in)
 
 	line_t *li = in->d.line;
 
-	if (! (li->flags & ML_TwoSided))
+	if (! (li->flags & MLF_TwoSided))
 	{
 		// hit the back side ?
 		if (PointOnLineSide(slidemo->x, slidemo->y, li))
@@ -1208,7 +1208,7 @@ static bool PTR_AimTraverse(intercept_t * in)
 	{
 		line_t *li = in->d.line;
 
-		if (!(li->flags & ML_TwoSided) || li->gap_num == 0)
+		if (!(li->flags & MLF_TwoSided) || li->gap_num == 0)
 			return false;  // stop
 
 		// Crosses a two sided line.
@@ -1387,8 +1387,8 @@ static bool PTR_ShootTraverse(intercept_t * in)
 		// shot doesn't go through a one-sided line, since one sided lines
 		// do not have a sector on the other side.
 
-		if ((li->flags & ML_TwoSided) && li->gap_num > 0 &&
-			!(li->flags & ML_ShootBlock))
+		if ((li->flags & MLF_TwoSided) && li->gap_num > 0 &&
+			!(li->flags & MLF_ShootBlock))
 		{
 			SYS_ASSERT(li->backsector);
 
@@ -1763,10 +1763,10 @@ static bool PTR_UseTraverse(intercept_t * in)
 	P_UseSpecialLine(usething, line, sidenum, use_lower, use_upper);
 
 	// can't use more than one special line in a row
-	// -AJA- 1999/09/25: ...unless the line has the ML_PASSTHRU flag
+	// -AJA- 1999/09/25: ...unless the line has the PASSTHRU flag
 	//       (Boom compatibility).
 
-	return (line->flags & ML_PassThru) ? true : false;
+	return (line->flags & MLF_PassThru) ? true : false;
 }
 
 //
@@ -2431,14 +2431,14 @@ static bool PIT_CheckBlockingLine(line_t * line)
 		return true;
 
 	// -KM- 1999/01/31 Save ceilingline for bounce.
-	if ((crosser && (line->flags & ML_ShootBlock)) || 
-		(!crosser && (line->flags & (ML_Blocking | ML_BlockMonsters))))
+	if ((crosser && (line->flags & MLF_ShootBlock)) || 
+		(!crosser && (line->flags & (MLF_Blocking | MLF_BlockMonsters))))
 	{
 		blockline = line;
 		return false;
 	}
 
-	if (!(line->flags & ML_TwoSided) || line->gap_num == 0)
+	if (!(line->flags & MLF_TwoSided) || line->gap_num == 0)
 	{
 		blockline = line;
 		return false;
@@ -2461,7 +2461,7 @@ static bool PIT_CheckBlockingLine(line_t * line)
 //
 // Checks for a blocking line between thing and the spawnthing coordinates
 // given. Return true if there is a line; crossable indicates whether or not
-// whether the ML_BLOCKING & ML_BLOCKMONSTERS should be ignored or not.
+// whether the MLF_BLOCKING & MLF_BLOCKMONSTERS should be ignored or not.
 //
 // -ACB- 1998/08/23
 //

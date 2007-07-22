@@ -956,9 +956,9 @@ static void AM_WalkSeg(seg_t *seg, player_t *p)
 	GetRotatedCoords(p,seg->v1->x, seg->v1->y, &l.a.x, &l.a.y);
 	GetRotatedCoords(p,seg->v2->x, seg->v2->y, &l.b.x, &l.b.y);
 
-	if (cheating || (line->flags & ML_Mapped))
+	if (cheating || (line->flags & MLF_Mapped))
 	{
-		if ((line->flags & ML_DontDraw) && !cheating)
+		if ((line->flags & MLF_DontDraw) && !cheating)
 			return;
 
 		if (!front || !back)
@@ -972,7 +972,7 @@ static void AM_WalkSeg(seg_t *seg, player_t *p)
 				// teleporters
 				DrawMline(&l, TELE_COL);
 			}
-			else if (line->flags & ML_Secret)
+			else if (line->flags & MLF_Secret)
 			{  
 				// secret door
 				if (cheating)
@@ -1005,7 +1005,7 @@ static void AM_WalkSeg(seg_t *seg, player_t *p)
 	}
 	else if (p->powers[PW_AllMap])
 	{
-		if (! (line->flags & ML_DontDraw))
+		if (! (line->flags & MLF_DontDraw))
 			DrawMline(&l, ALLMAP_COL);
 	}
 }

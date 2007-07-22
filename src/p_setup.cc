@@ -400,7 +400,7 @@ static void LoadV3Segs(const byte *data, int length)
 			seg->sidedef = seg->linedef->side[side];
 			seg->frontsector = seg->sidedef->sector;
 
-			if (seg->linedef->flags & ML_TwoSided)
+			if (seg->linedef->flags & MLF_TwoSided)
 				seg->backsector = seg->linedef->side[side^1]->sector;
 		}
 
@@ -532,7 +532,7 @@ static void LoadGLSegs(int lump)
 
 			seg->frontsector = seg->sidedef->sector;
 
-			if (seg->linedef->flags & ML_TwoSided)
+			if (seg->linedef->flags & MLF_TwoSided)
 				seg->backsector = seg->linedef->side[side^1]->sector;
 		}
 
@@ -1273,13 +1273,13 @@ static INLINE void ComputeLinedefData(line_t *ld, int side0, int side1)
 		side0 = 0;
 	}
 
-	if ((ld->flags & ML_TwoSided) && ((side0 == -1) || (side1 == -1)))
+	if ((ld->flags & MLF_TwoSided) && ((side0 == -1) || (side1 == -1)))
 	{
 		I_Warning("Bad WAD: level %s has linedef #%d marked TWOSIDED, "
 			"but it has only one side.\n", 
 			currmap->lump.GetString(), (int)(ld - lines));
 
-		ld->flags &= ~ML_TwoSided;
+		ld->flags &= ~MLF_TwoSided;
 	}
 
 	temp_line_sides[(ld-lines)*2 + 0] = side0;

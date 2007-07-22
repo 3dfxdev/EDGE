@@ -998,7 +998,7 @@ void P_ComputeWallTiles(line_t *ld, int sidenum)
 			return;
 
 		AddWallTile(sd, sec->f_h, sec->c_h, 
-			(ld->flags & ML_LowerUnpegged) ? 
+			(ld->flags & MLF_LowerUnpegged) ? 
 			sec->f_h + IM_HEIGHT(sd->middle.image) : sec->c_h,
 			&sd->middle, 0);
 		return;
@@ -1010,7 +1010,7 @@ void P_ComputeWallTiles(line_t *ld, int sidenum)
 	{
 		if (sd->bottom.image)
 			AddWallTile(sd, sec->f_h, other->f_h, 
-			(ld->flags & ML_LowerUnpegged) ? sec->c_h : other->f_h,
+			(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h,
 			&sd->bottom, 0);
 		else
 			lower_invis = true;
@@ -1021,7 +1021,7 @@ void P_ComputeWallTiles(line_t *ld, int sidenum)
 	{
 		if (sd->top.image)
 			AddWallTile(sd, other->c_h, sec->c_h, 
-			(ld->flags & ML_UpperUnpegged) ? sec->c_h : 
+			(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
 		other->c_h + IM_HEIGHT(sd->top.image), &sd->top, 0);
 		else
 			upper_invis = true;
@@ -1034,7 +1034,7 @@ void P_ComputeWallTiles(line_t *ld, int sidenum)
 
 		float f2, c2;
 
-		if (ld->flags & ML_LowerUnpegged)
+		if (ld->flags & MLF_LowerUnpegged)
 		{
 			f2 = f1 + sd->midmask_offset;
 			c2 = f2 + IM_HEIGHT(sd->middle.image);
@@ -1117,7 +1117,7 @@ void P_ComputeWallTiles(line_t *ld, int sidenum)
 					flags |= WTILF_ExtraY;
 			}
 
-			tex_z = (C->ef_line->flags & ML_LowerUnpegged) ?
+			tex_z = (C->ef_line->flags & MLF_LowerUnpegged) ?
 				C->bottom_h + IM_HEIGHT(surf->image) : C->top_h;
 
 			AddWallTile(sd, C->bottom_h, C->top_h, tex_z, surf, flags);

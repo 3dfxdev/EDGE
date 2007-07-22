@@ -900,7 +900,7 @@ static bool EV_BuildOneStair(sector_t * sec, const movplanedef_c * def)
         //
         for (i = 0; i < sec->linecount; i++)
         {
-            if (! (sec->lines[i]->flags & ML_TwoSided))
+            if (! (sec->lines[i]->flags & MLF_TwoSided))
                 continue;
 
             if (sec != sec->lines[i]->frontsector)
@@ -1172,7 +1172,7 @@ bool EV_DoDonut(sector_t * s1, sfx_t *sfx[4])
 
     for (i = 0; i < s2->linecount; i++)
     {
-        if (!(s2->lines[i]->flags & ML_TwoSided) || (s2->lines[i]->backsector == s1))
+        if (!(s2->lines[i]->flags & MLF_TwoSided) || (s2->lines[i]->backsector == s1))
             continue;
 
         s3 = s2->lines[i]->backsector;
