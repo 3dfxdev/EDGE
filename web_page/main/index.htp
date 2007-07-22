@@ -21,6 +21,49 @@
   <h2 class="page_title"> Latest News </h2>
 
 
+  <use BeginNews title="EDGE 1.29 Released!!" date="15-Jul-2007">
+
+  We are thrilled to announce the full release of EDGE 1.29.
+  It has been in development for a long time (too long actually),
+  and the EDGE Team has changed shape several times, but we
+  finally made it.
+  Thanks to everybody who helped with testing etc...
+  We hope you enjoy this release.
+
+  <p>
+  Major changes in 1.29:
+  <ul>
+    <li> Drag 'n' Drop support.
+    <li> Greatly improved BOOM compatibility.
+    <li> Handle DeHackEd and BEX patches.
+    <li> OGG/Vorbis music playback.
+    <li> IMAGES.DDF supporting PNG and JPEG images.
+
+  </ul><ul>
+    <li> Good emulation of DOOM lighting.
+    <li> New startup with a progress bar.
+    <li> Added a Sound Options menu.
+    <li> Software rendering was removed.
+  </ul>
+
+  Plus many many bug fixes and general improvements, and lots of
+  new DDF and RTS features.
+
+  <p>
+  See all changes since 1.28A:
+  <a href="http://edge.sourceforge.net/logs/129.htm">
+  ChangeLog
+  </a>
+
+  <p>
+  Download Win32 binary:
+  <a href="http://downloads.sourceforge.net/edge/edge-1.29-win32.zip">
+  edge-1.29-win32.zip
+  </a> (2.2 MB)
+
+  <use EndNews>
+
+
   <use BeginNews title="EDGE Road Map" date="14-Jun-2007">
 
   With the full release of 1.29 quickly approaching,
@@ -52,7 +95,7 @@
   <p>
   List of changes since RC#5 is here:
   <a href="http://sourceforge.net/project/shownotes.php?release_id=513629&group_id=2232">
-  Changelog.
+  ChangeLog
   </a>
 
   <use EndNews>
@@ -117,7 +160,7 @@
   <p>
   Full list of changes since RC#4 is here:
   <a href="https://sourceforge.net/project/shownotes.php?release_id=502749&group_id=2232">
-  Change List.
+  Change List
   </a>
 
   <use EndNews>
