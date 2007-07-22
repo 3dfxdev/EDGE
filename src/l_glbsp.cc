@@ -36,6 +36,7 @@
 #include <stdarg.h>
 #include <string.h>
 
+
 #define PROGRESS_STEP  2  // percent
 
 static void GB_InitProgress(void);
@@ -236,7 +237,8 @@ bool GB_BuildNodes(const char *filename, const char *outname)
 
 	nb_info.input_file  = GlbspStrDup(filename);
 	nb_info.output_file = GlbspStrDup(outname);
-	nb_info.quiet = true;
+	nb_info.fast  = 1;
+	nb_info.quiet = 1;
 
 	// FIXME: user-controllable build options (factor, fresh, etc).
 
