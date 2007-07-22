@@ -65,6 +65,10 @@ Features removed / changed
   lasts 1.6 seconds then replay it every 0.8 seconds (28
   ticks) to guarantee that it loops continuously.
 
+- the EDGE-specific sector types have been renumbered to the
+  range 4400-4499.  This may affect old mods, which can be
+  made to work using the new -ecompat option.
+
 - screenshots are now available in JPEG or PNG format.  New 
   "screenshot" console command (Note: it does not capture the 
   console itself).  Screenshots are now placed in a folder
@@ -97,9 +101,7 @@ General improvements
   - load the SWITCHES and ANIMATED lumps.
   - support for line-to-line teleporters.
   - support for platform toggle linetypes.
-  - the EDGE-specific sector numbers have been renumbered
-    to the range 4400-4499.  This may affect old mods, which
-    can be made to work using the new -ecompat option.
+  - always allow generalised sector types.
 
 + native support for DeHackEd and BEX patches, both as normal files
   (with .DEH or .BEX extension), and also as DEHACKED lump in a wad.
