@@ -124,8 +124,8 @@ static void Load_DOOM(fx_data_c *buf, const byte *lump, int length)
 	if (buf->freq < 8000 || buf->freq > 44100)
 		I_Warning("Sound Load: weird frequency: %d Hz\n", buf->freq);
 
-	if (buf->freq < 8000)
-		buf->freq = 8000;
+	if (buf->freq < 4000)
+		buf->freq = 4000;
 
 	length -= 8;
 
