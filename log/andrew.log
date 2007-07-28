@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2007/07/28:
+
+Fixed crash bug with Scuba Steve's flamethrower DeHackEd patch,
+which uses the BRAIN_CUBE firestates, but EDGE has an additional
+action (CUBESPAWN) that the original DOOM does not have.
+
 2007/07/15:
 
 * EDGE 1.29 was released *

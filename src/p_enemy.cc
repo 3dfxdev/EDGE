@@ -641,6 +641,11 @@ void P_ActCubeSpawn(mobj_t * cube)
 
 	targ = cube->target;
 
+	// -AJA- 2007/07/28: workaround for DeHackEd patches using S_SPAWNFIRE
+	if (!targ || !cube->currentattack ||
+		cube->currentattack->attackstyle != ATK_SHOOTTOSPOT)
+		return;
+	
 	// Randomly select monster to spawn.
 	r = P_Random();
 
