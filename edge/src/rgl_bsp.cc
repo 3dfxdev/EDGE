@@ -55,6 +55,8 @@
 #define FLOOD_DIST    1024.0f
 #define FLOOD_EXPAND  128.0f
 
+#define DLIGHT_PROTOTYPE  1
+
 
 // colour of the player's weapon
 extern int rgl_weapon_r;
@@ -75,6 +77,8 @@ static bool solid_mode;
 
 static subsector_t *drawsubs_head;
 static subsector_t *drawsubs_tail;
+
+static const image_t *fading_image = NULL;
 
 #ifdef SHADOW_PROTOTYPE
 static const image_t *shadow_image = NULL;
@@ -394,38 +398,34 @@ void WallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 	tx = data->tx + along * data->tdx;
 	ty = data->ty - z * data->ty_mul + along * data->ty_skew;
 
-	// emulated Doom lighting (fades away)
-	if (doom_fading)
+	// FADING CALC
+	float tx2, ty2;
 	{
-		float dist = APPROX_DIST3(fabs(x - viewx), fabs(y - viewy),
-								  fabs(z - viewz));
+		// distance from viewplane: (point - camera) . viewvec
 
-		int L = EMU_LIGHT(data->light, dist);
+		float lk_sin = M_Sin(viewvertangle);
+		float lk_cos = M_Cos(viewvertangle);
 
-		L = RGL_LightEmu((L < 0) ? 0 : (L > 255) ? 255 : L);
+		vec3_t viewvec;
 
-		R = (R * L) >> 8;
-		G = (G * L) >> 8;
-		B = (B * L) >> 8;
-	}
+		viewvec.x = lk_cos * viewcos;
+		viewvec.y = lk_cos * viewsin;
+		viewvec.z = lk_sin;
 
-	// dynamic lighting
-	if (use_dlights)  // == 2 (COMPAT)
-	{
-		drawthing_t *dl;
+		float vx = (x - viewx) * viewvec.x;
+		float vy = (y - viewy) * viewvec.y;
+		float vz = (z - viewz) * viewvec.z;
 
-		for (dl=data->dlights; dl; dl=dl->next)
-		{
-			// light behind seg ?    
-			if (P_PointOnDivlineSide(dl->mo->x, dl->mo->y, &data->div) != 0)
-				continue;
+		tx2 = (vx + vy + vz) / 2048.0;
 
-			R2_AddColourDLights(1, &R, &G, &B, &x, &y, &z, dl->mo);
-		}
+		ty2 = data->light / 256.0;
+		if (ty2 < 0.01) ty2 = 0.01;
+		if (ty2 > 0.99) ty2 = 0.99;
 	}
 
 	SET_COLOR(LT_RED(R), LT_GRN(G), LT_BLU(B), data->trans);
 	SET_TEXCOORD(tx, ty);
+	SET_TEX2COORD(tx2, ty2);
 	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
 	SET_EDGE_FLAG(GL_TRUE);
 	SET_VERTEX(x, y, z);
@@ -450,44 +450,34 @@ void PlaneCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 	int G = data->col[1];
 	int B = data->col[2];
 
-	// emulated Doom lighting (fades away)
-	if (doom_fading)
+	// FADING CALC
+	float tx2, ty2;
 	{
-		float dist;
+		// distance from viewplane: (point - camera) . viewvec
 
-		if (data->flood_emu) // -AJA- HORRIBLE HACK
-			dist = APPROX_DIST3(fabs(data->emu_mx - viewx), fabs(data->emu_my - viewy),
-								  fabs(z - viewz));
-		else
-			dist = APPROX_DIST3(fabs(x - viewx), fabs(y - viewy),
-								  fabs(z - viewz));
+		float lk_sin = M_Sin(viewvertangle);
+		float lk_cos = M_Cos(viewvertangle);
 
-		int L = EMU_LIGHT(data->light, dist);
+		vec3_t viewvec;
 
-		L = RGL_LightEmu((L < 0) ? 0 : (L > 255) ? 255 : L);
+		viewvec.x = lk_cos * viewcos;
+		viewvec.y = lk_cos * viewsin;
+		viewvec.z = lk_sin;
 
-		R = (R * L) >> 8;
-		G = (G * L) >> 8;
-		B = (B * L) >> 8;
-	}
+		float vx = (x - viewx) * viewvec.x;
+		float vy = (y - viewy) * viewvec.y;
+		float vz = (z - viewz) * viewvec.z;
 
-	// dynamic lighting
-	if (use_dlights)  // == 2 (COMPAT)
-	{
-		drawthing_t *dl;
+		tx2 = (vx + vy + vz) / 2048.0;
 
-		for (dl=data->dlights; dl; dl=dl->next)
-		{
-			// light behind the plane ?    
-			if ((dl->tz > z) != (data->normal.z > 0))
-				continue;
-
-			R2_AddColourDLights(1, &R, &G, &B, &x, &y, &z, dl->mo);
-		}
+		ty2 = data->light / 256.0;
+		if (ty2 < 0.01) ty2 = 0.01;
+		if (ty2 > 0.99) ty2 = 0.99;
 	}
 
 	SET_COLOR(LT_RED(R), LT_GRN(G), LT_BLU(B), data->trans);
 	SET_TEXCOORD(tx, ty);
+	SET_TEX2COORD(tx2, ty2);
 	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
 	SET_EDGE_FLAG(GL_TRUE);
 	SET_VERTEX(x, y, z);
@@ -664,7 +654,7 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	float trans = part->translucency;
 	bool blended;
 
-	GLuint tex_id;
+	GLuint tex_id=0, tex_id2=0;
 	const cached_image_t *cim;
 
 	raw_polyquad_t *poly;
@@ -703,9 +693,9 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 
 	V_GetColmapRGB(colmap, &c_r, &c_g, &c_b, false);
 
-	data.col[0] = (int)((doom_fading ? 255 : lit_Nom) * c_r);
-	data.col[1] = (int)((doom_fading ? 255 : lit_Nom) * c_g);
-	data.col[2] = (int)((doom_fading ? 255 : lit_Nom) * c_b);
+	data.col[0] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_r);
+	data.col[1] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_g);
+	data.col[2] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_b);
 
 	data.trans = trans;
 
@@ -720,6 +710,17 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	// texture ID later on (after W_ImageDone).  The W_LockImagesOGL
 	// call saves us though.
 	W_ImageDone(cim);
+
+	// FADING MAP
+	{
+		cim = W_ImageCache(fading_image);
+
+		tex_id2 = W_ImageGetOGL(cim);
+		// Note: normally this would be wrong, since we're using the GL
+		// texture ID later on (after W_ImageDone).  The W_LockImagesOGL
+		// call saves us though.
+		W_ImageDone(cim);
+	}
 
 	x_offset += xy_ofs;
 
@@ -886,17 +887,14 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	data.div.dx = cur_seg->v2->x - data.div.x;
 	data.div.dy = cur_seg->v2->y - data.div.y;
 
-	poly = RGL_NewPolyQuad(4, true);
+	poly = RGL_NewPolyQuad(4);
 
 	PQ_ADD_VERT(poly, x1, y1, bottom);
 	PQ_ADD_VERT(poly, x1, y1, top);
-	PQ_ADD_VERT(poly, x2, y2, bottom);
 	PQ_ADD_VERT(poly, x2, y2, top);
+	PQ_ADD_VERT(poly, x2, y2, bottom);
 
 	RGL_BoundPolyQuad(poly);
-
-	if ((use_dlights /* == 2 (COMPAT) */ && data.dlights) || doom_fading)
-		RGL_SplitPolyQuadLOD(poly, 1, 128 >> detail_level);
 
 	int blending = (blended ? BL_Alpha : 0) | (mid_masked ? BL_Masked : 0);
 
@@ -904,8 +902,8 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	if (mid_masked == 1)
 		blending |= BL_ClampY;
 
-	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, tex_id,0,
-		/* pass */ 0, blending);
+	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, tex_id,tex_id2,
+		/* pass */ 0, blending | BL_Multi);
 
 	RGL_FreePolyQuad(poly);
 
@@ -962,12 +960,12 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 
 			dat2.tdx = cur_seg->length * 1.0f / fx_radius;
 
-			poly = RGL_NewPolyQuad(4, true);
+			poly = RGL_NewPolyQuad(4);
 
 			PQ_ADD_VERT(poly, x1, y1, bottom);
 			PQ_ADD_VERT(poly, x1, y1, top);
-			PQ_ADD_VERT(poly, x2, y2, bottom);
 			PQ_ADD_VERT(poly, x2, y2, top);
+			PQ_ADD_VERT(poly, x2, y2, bottom);
 
 			RGL_BoundPolyQuad(poly);
 
@@ -1053,9 +1051,9 @@ static void EmulateFlooding(const drawfloor_t *dfloor,
 
 	V_GetColmapRGB(colmap, &c_r, &c_g, &c_b, false);
 
-	data.col[0] = (int)((doom_fading ? 255 : lit_Nom) * c_r);
-	data.col[1] = (int)((doom_fading ? 255 : lit_Nom) * c_g);
-	data.col[2] = (int)((doom_fading ? 255 : lit_Nom) * c_b);
+	data.col[0] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_r);
+	data.col[1] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_g);
+	data.col[2] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_b);
 
 	data.trans = 1.0f;
 
@@ -1544,7 +1542,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	wall_plane_data_t data;
 	raw_polyquad_t *poly;
 
-	GLuint tex_id;
+	GLuint tex_id=0, tex_id2=0;
 	const cached_image_t *cim;
 
 	int num_vert, i;
@@ -1613,9 +1611,9 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	V_GetColmapRGB(colmap, &c_r, &c_g, &c_b, false);
 
-	data.col[0] = (int)((doom_fading ? 255 : lit_Nom) * c_r);
-	data.col[1] = (int)((doom_fading ? 255 : lit_Nom) * c_g);
-	data.col[2] = (int)((doom_fading ? 255 : lit_Nom) * c_b);
+	data.col[0] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_r);
+	data.col[1] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_g);
+	data.col[2] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_b);
 
 	data.trans = trans;
 
@@ -1636,13 +1634,25 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	//
 	W_ImageDone(cim);
 
+	// FADING MAP
+	{
+		cim = W_ImageCache(fading_image);
+
+		tex_id2 = W_ImageGetOGL(cim);
+		// Note: normally this would be wrong, since we're using the GL
+		// texture ID later on (after W_ImageDone).  The W_LockImagesOGL
+		// call saves us though.
+		W_ImageDone(cim);
+	}
+
+
 	data.tx = info->offset.x;
 	data.ty = info->offset.y;
 
 	data.x_mat = info->x_mat;
 	data.y_mat = info->y_mat;
 
-	poly = RGL_NewPolyQuad(num_vert, false);
+	poly = RGL_NewPolyQuad(num_vert);
 
 	for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
 		seg=seg->sub_next, i++)
@@ -1652,13 +1662,10 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	RGL_BoundPolyQuad(poly);
 
-	if ((use_dlights /* == 2 (COMPAT) */ && data.dlights) || doom_fading)
-		RGL_SplitPolyQuadLOD(poly, 1, 128 >> detail_level);
-
 	int blending = (blended ? BL_Alpha : 0) | (mid_masked ? BL_Masked : 0);
 
-	RGL_RenderPolyQuad(poly, &data, PlaneCoordFunc, tex_id,0,
-		/* pass */ 0, blending);
+	RGL_RenderPolyQuad(poly, &data, PlaneCoordFunc, tex_id,tex_id2,
+		/* pass */ 0, blending | BL_Multi);
 
 	RGL_FreePolyQuad(poly);
 
@@ -1695,7 +1702,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 			dat2.y_mat.y = 0.5f / dthing->mo->radius;
 			dat2.y_mat.x = 0;
 
-			poly = RGL_NewPolyQuad(num_vert, false);
+			poly = RGL_NewPolyQuad(num_vert);
 
 			for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
 				seg=seg->sub_next, i++)
@@ -1759,7 +1766,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 			dat2.y_mat.y = 0.5f / fx_radius;
 			dat2.y_mat.x = 0;
 
-			poly = RGL_NewPolyQuad(num_vert, false);
+			poly = RGL_NewPolyQuad(num_vert);
 
 			for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
 				seg=seg->sub_next, i++)
@@ -2059,6 +2066,8 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 //
 void RGL_LoadLights(void)
 {
+	fading_image = W_ImageLookup("COLMAP_TEST");
+
 #ifdef DLIGHT_PROTOTYPE
 	linear_image = W_ImageLookup("DLIGHT_LINEAR");
 	quad_image   = W_ImageLookup("DLIGHT_QUAD");
