@@ -691,7 +691,7 @@ static real_image_t *AddImageUser(imagedef_c *def)
 			break;
 
 		case IMGDT_Builtin:
-			w = h = (detail_level == 2) ? 512 : 256;
+			w = h = 256; //!!!!! (detail_level == 2) ? 512 : 256;
 			solid = false;
 			break;
 
@@ -2307,6 +2307,33 @@ static void CreateUserBuiltinShadow(epi::basicimage_c *img, imagedef_c *def)
 	EightWaySymmetry(img);
 }
 
+static void CreateUserBuiltinCOLMAP(epi::basicimage_c *img, imagedef_c *def)
+{
+	SYS_ASSERT(img->bpp == 4);
+
+	for (int y = 0; y < img->height; y++)
+	for (int x = 0; x < img->width;  x++)
+	{
+		float dist = 2048.0f * x / img->width;
+		dist = MIN(2000.0f, dist);
+
+		float sec = 256.0f * y / img->height;
+
+		// DOOM lighting formula
+		float light = (sec - 128.0f) * 2 + 255*80.0f/MAX(1,dist);
+
+		byte *dest = img->pixels + (y * img->width + x) * 4;
+
+		dest[0] = (int) MAX(0, MIN(255.9f, light));
+
+		dest[1] = dest[0];
+		dest[2] = dest[0];
+		dest[3] = 255;
+
+		dest += 4;
+	}
+}
+
 static epi::file_c *OpenUserFileOrLump(imagedef_c *def)
 {
 	if (def->type == IMGDT_File)
@@ -2426,6 +2453,10 @@ static epi::basicimage_c *ReadUserAsEpiBlock(real_image_t *rim)
 
 				case BLTIM_Shadow:
 					CreateUserBuiltinShadow(img, def);
+					break;
+
+				case BLTIM_ColMapTest:
+					CreateUserBuiltinCOLMAP(img, def);
 					break;
 
 				default:
