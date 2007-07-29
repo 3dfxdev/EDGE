@@ -117,31 +117,6 @@ int telept_starttic;
 int telept_active = 0;
 
 //
-// R_Render
-//
-void R_Render(void)
-{
-	// Load the details for the camera
-	// FIXME!! Organise camera handling 
-	if (camera)
-		R_CallCallbackList(camera->frame_start);
-
-	// do some more stuff
-	viewsin = M_Sin(viewangle);
-	viewcos = M_Cos(viewangle);
-
-	// Profiling
-	framecount++;
-	validcount++;
-	
-	N_NetUpdate();	// check for new console commands.
-
-	RGL_RenderTrueBSP();
-
-	N_NetUpdate();	// Check for new console commands.
-}
-
-//
 // R_PointToAngle
 //
 // To get a global angle from cartesian coordinates,
