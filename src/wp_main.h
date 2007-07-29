@@ -23,50 +23,10 @@
 //
 //----------------------------------------------------------------------------
 //
-// DESCRIPTION:
-//   Mission start screen wipe/melt, special effects.
 // 
 
 #ifndef __F_WIPE_H__
 #define __F_WIPE_H__
-
-
-//
-//                       SCREEN WIPE PACKAGE
-//
-
-typedef enum
-{
-  // no wiping
-  WIPE_None,
-  // weird screen melt
-  WIPE_Melt,
-  // cross-fading
-  WIPE_Crossfade,
-  // pixel fading
-  WIPE_Pixelfade,
-
-  // new screen simply scrolls in from the given side of the screen
-  // (or if reversed, the old one scrolls out to the given side)
-  WIPE_Top,
-  WIPE_Bottom,
-  WIPE_Left,
-  WIPE_Right,
-
-  WIPE_Spooky,
-
-  // Opens like doors
-  WIPE_Doors,
-
-  WIPE_NUMWIPES
-}
-wipetype_e;
-
-extern wipetype_e wipe_method;
-extern int wipe_reverse;
-
-// for enum cvars
-extern const char WIPE_EnumStr[];
 
 #endif  // __F_WIPE_H__
 
