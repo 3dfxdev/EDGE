@@ -2314,21 +2314,37 @@ static void CreateUserBuiltinCOLMAP(epi::basicimage_c *img, imagedef_c *def)
 	for (int y = 0; y < img->height; y++)
 	for (int x = 0; x < img->width;  x++)
 	{
-		float dist = 2048.0f * x / img->width;
-		dist = MIN(2000.0f, dist);
-
-		float sec = 256.0f * y / img->height;
-
-		// DOOM lighting formula
-		float light = (sec - 128.0f) * 2 + 255*80.0f/MAX(1,dist);
-
 		byte *dest = img->pixels + (y * img->width + x) * 4;
 
-		dest[0] = (int) MAX(0, MIN(255.9f, light));
+		float dist = 2048.0f * x / img->width;
 
-		dest[1] = dest[0];
-		dest[2] = dest[0];
-		dest[3] = 255;
+		dist = MIN(2000.0f, dist);
+
+		if (y < img->height/2)
+		{
+			float sec = 256.0f * y / img->height * 2.0;
+
+			// DOOM lighting formula
+			float light = EMU_LIGHT(sec, dist);
+
+			dest[0] = (int) MAX(0, MIN(255.9f, light));
+
+			dest[1] = dest[0];
+			dest[2] = dest[0];
+			dest[3] = 255;
+		}
+		else
+		{
+			float sec = 256.0f * (y - img->height/2) / img->height * 2.0;
+
+			// DOOM lighting formula
+			float light = EMU_LIGHT(sec, dist);
+
+			dest[2] = 0; // (int) MAX(0, MIN(255.9f, 200 - light));
+			dest[0] = 0;
+			dest[1] = 0;
+			dest[3] = 255;
+		}
 
 		dest += 4;
 	}
