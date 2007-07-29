@@ -64,6 +64,8 @@ void HL_WriteTextTrans(style_c *style, int text_type, int x, int y,
 
 	font_c *font = style->fonts[text_type];
 
+	scale *= style->def->text[text_type].scale;
+
 	if (! font)
 		I_Error("Style [%s] is missing a font !\n", style->def->ddf.name.GetString());
 
@@ -173,6 +175,8 @@ void HL_DrawTextLineAlpha(hu_textline_t * L, bool drawcursor, const colourmap_c 
 	}
 
 	float scale = 1.0f;
+
+	scale *= L->style->def->text[L->text_type].scale;
 
 	for (i = 0; (i < L->len) && (x < 320); i++, x += w)
 	{
