@@ -2,7 +2,7 @@
 //  EDGE Sky Handling Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2005  The EDGE Team.
+//  Copyright (c) 1999-2007  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -26,6 +26,8 @@
 #ifndef __R_SKY__
 #define __R_SKY__
 
+#include "v_ctx.h"
+
 // The sky map is 256*4 wide (10 bits), and angles have 32 bits
 #define ANGLETOSKYSHIFT  (32 - 10)
 
@@ -33,6 +35,23 @@ extern const struct image_s *sky_image;
 
 // Used by GL renderer
 void R_ComputeSkyHeights(void);
+
+#define STRETCH_MIRROR    3
+#define STRETCH_ORIGINAL  4
+
+void RGL_SetupSkyMatrices(void);
+void RGL_RevertSkyMatrices(void);
+void RGL_BeginSky(void);
+void RGL_FinishSky(void);
+
+void RGL_DrawSkyBox(void);
+void RGL_DrawSkyOriginal(void);
+void RGL_DrawSkyPlane(subsector_t *sub, float h);
+void RGL_DrawSkyWall(seg_t *seg, float h1, float h2);
+
+void RGL_UpdateSkyBoxTextures(void);
+void RGL_PreCacheSky(void);
+void RGL_CalcSkyCoord(float sx, float sy, float sz, bool narrow, float *tx, float *ty);
 
 #endif // __R_SKY__
 
