@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __V_COLOUR_H__
-#define __V_COLOUR_H__
+#ifndef __R_COLORS_H__
+#define __R_COLORS_H__
 
 #include "dm_type.h"
 #include "dm_defs.h"
@@ -130,7 +130,7 @@ extern int pal_yellow, pal_green1, pal_brown1;
 #define DBLUE        0xF0
 #define DBLUE_LEN    8
 
-#endif // __V_COLOUR_H__
+#endif // __R_COLORS_H__
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
