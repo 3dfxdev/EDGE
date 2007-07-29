@@ -2241,5 +2241,28 @@ void RGL_RenderTrueBSP(void)
 }
 
 
+void R_Render(void)
+{
+	// Load the details for the camera
+	// FIXME!! Organise camera handling 
+	if (camera)
+		R_CallCallbackList(camera->frame_start);
+
+	// do some more stuff
+	viewsin = M_Sin(viewangle);
+	viewcos = M_Cos(viewangle);
+
+	// Profiling
+	framecount++;
+	validcount++;
+	
+	N_NetUpdate();	// check for new console commands.
+
+	RGL_RenderTrueBSP();
+
+	N_NetUpdate();	// Check for new console commands.
+}
+
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
