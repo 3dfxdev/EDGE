@@ -35,7 +35,6 @@
 
 bool use_lighting = true;
 bool use_color_material = true;
-bool use_vertex_array = true;
 
 bool dumb_sky = false;
 
@@ -91,12 +90,10 @@ bool rgl_1d_debug = false;
 void RGL_InitUnits(void)
 {
 	M_CheckBooleanParm("lighting",      &use_lighting, false);
-	M_CheckBooleanParm("vertexarray",   &use_vertex_array, false);
 	M_CheckBooleanParm("colormaterial", &use_color_material, false);
 	M_CheckBooleanParm("dumbsky",       &dumb_sky, false);
 
 	CON_CreateCVarBool("lighting",      cf_normal, &use_lighting);
-	CON_CreateCVarBool("vertexarray",   cf_normal, &use_vertex_array);
 	CON_CreateCVarBool("colormaterial", cf_normal, &use_color_material);
 	CON_CreateCVarBool("dumbsky",       cf_normal, &dumb_sky);
 
@@ -111,25 +108,6 @@ void RGL_InitUnits(void)
 //
 void RGL_SoftInitUnits()
 {
-	if (true)  /// XXX
-	{
-		// setup pointers to client state
-		glVertexPointer(3, GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].x);
-		glColorPointer (4, GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].col);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].t_x);
-		glNormalPointer(GL_FLOAT, sizeof(local_gl_vert_t), &local_verts[0].n_x);
-		glEdgeFlagPointer(sizeof(local_gl_vert_t), &local_verts[0].edge);
-
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glEnableClientState(GL_NORMAL_ARRAY);
-		glEnableClientState(GL_EDGE_FLAG_ARRAY);
-
-#if 0  // REQUIRES OPENGL 1.3
-		glClientActiveTexture(GL_TEXTURE0);
-#endif
-	}
 }
 
 void ComputeMiddle(vec3_t *mid, vec3_t *verts, int count)
@@ -197,7 +175,7 @@ local_gl_vert_t *RGL_BeginUnit(GLuint mode, int max_vert,
 	local_gl_unit_t *unit;
 
 	SYS_ASSERT(max_vert > 0);
-	SYS_ASSERT(tex_id != 0);
+//!!!!!	SYS_ASSERT(tex_id != 0);
 	SYS_ASSERT(pass >= 0);
 
 	// check for out-of-space
@@ -319,7 +297,7 @@ void RGL_DrawUnits(void)
 		local_gl_unit_t *unit = local_units + local_unit_map[i];
 
 		SYS_ASSERT(unit->count > 0);
-		SYS_ASSERT(unit->tex_id != 0);
+//!!!!!		SYS_ASSERT(unit->tex_id != 0);
 
 		// detect changes in texture/alpha/blending and change state
 
@@ -398,19 +376,12 @@ void RGL_DrawUnits(void)
 		}
 
 
-		if (use_vertex_array)
-		{
-			glDrawArrays(unit->mode, unit->first, unit->count);
-		}
-		else
-		{
-			glBegin(unit->mode);
+		glBegin(unit->mode);
 
-			for (j=0; j < unit->count; j++)
-				RGL_SendRawVector(local_verts + unit->first + j);
+		for (j=0; j < unit->count; j++)
+			RGL_SendRawVector(local_verts + unit->first + j);
 
-			glEnd();
-		}
+		glEnd();
 
 		// restore the clamping mode
 		if (cur_blending & BL_ClampY)

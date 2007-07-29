@@ -68,7 +68,6 @@ typedef enum
 {
 	PFT_LIGHTING       = (1 << 0),
 	PFT_COLOR_MATERIAL = (1 << 1),
-	PFT_VERTEX_ARRAY   = (1 << 2),
 	PFT_SKY            = (1 << 3),
 }
 problematic_feature_e;
@@ -91,14 +90,14 @@ static const driver_bug_t driver_bugs[] =
 	{ "Radeon",   NULL, NULL, PFT_LIGHTING | PFT_COLOR_MATERIAL, 0 },
 	{ "RADEON",   NULL, NULL, PFT_LIGHTING | PFT_COLOR_MATERIAL, 0 },
 
-	{ "R200",     NULL, "Mesa 6.4", PFT_VERTEX_ARRAY, 0 },
-	{ "R200",     NULL, "Mesa 6.5", PFT_VERTEX_ARRAY, 0 },
-	{ "Intel",    NULL, "Mesa 6.5", PFT_VERTEX_ARRAY, 0 },
+//	{ "R200",     NULL, "Mesa 6.4", PFT_VERTEX_ARRAY, 0 },
+//	{ "R200",     NULL, "Mesa 6.5", PFT_VERTEX_ARRAY, 0 },
+//	{ "Intel",    NULL, "Mesa 6.5", PFT_VERTEX_ARRAY, 0 },
 
-	{ "TNT2",     NULL, NULL, PFT_VERTEX_ARRAY | PFT_COLOR_MATERIAL, 0 },
+	{ "TNT2",     NULL, NULL, PFT_COLOR_MATERIAL, 0 },
 
-	{ "Velocity", NULL, NULL, PFT_VERTEX_ARRAY | PFT_COLOR_MATERIAL | PFT_SKY, 0 },
-	{ "Voodoo3",  NULL, NULL, PFT_VERTEX_ARRAY | PFT_SKY, 0 },
+	{ "Velocity", NULL, NULL, PFT_COLOR_MATERIAL | PFT_SKY, 0 },
+	{ "Voodoo3",  NULL, NULL, PFT_SKY, 0 },
 };
 
 #define NUM_DRIVER_BUGS  (sizeof(driver_bugs) / sizeof(driver_bug_t))
@@ -435,12 +434,10 @@ void RGL_CheckExtensions(void)
 
 		if (bug->disable & PFT_LIGHTING)       use_lighting = false;
 		if (bug->disable & PFT_COLOR_MATERIAL) use_color_material = false;
-		if (bug->disable & PFT_VERTEX_ARRAY)   use_vertex_array = false;
 		if (bug->disable & PFT_SKY)            dumb_sky = true;
 
 		if (bug->enable & PFT_LIGHTING)       use_lighting = true;
 		if (bug->enable & PFT_COLOR_MATERIAL) use_color_material = true;
-		if (bug->enable & PFT_VERTEX_ARRAY)   use_vertex_array = true;
 		if (bug->enable & PFT_SKY)            dumb_sky = false;
 	}
 }
