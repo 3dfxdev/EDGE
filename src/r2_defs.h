@@ -233,13 +233,6 @@ void R2_AddColourDLights(int num, int *r, int *g, int *b,
 void R2_InitUtil(void);
 void R2_ClearBSP(void);
 
-int R2_GetPointLOD(float x, float y, float z);
-int R2_GetBBoxLOD(float x1, float y1, float z1,
-    float x2, float y2, float z2);
-int R2_GetWallLOD(float x1, float y1, float z1,
-    float x2, float y2, float z2);
-int R2_GetPlaneLOD(subsector_t *sub, float h);
-
 extern drawthingarray_c drawthings;
 extern drawfloorarray_c drawfloors;
 
