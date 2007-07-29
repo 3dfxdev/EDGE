@@ -6,6 +6,9 @@ Fixed crash bug with Scuba Steve's flamethrower DeHackEd patch,
 which uses the BRAIN_CUBE firestates, but EDGE has an additional
 action (CUBESPAWN) that the original DOOM does not have.
 
+Reworked gamma handling, now using the SDL_SetGamma() function
+and hence relying on hardware gamma conversion to exist.
+
 2007/07/15:
 
 * EDGE 1.29 was released *
