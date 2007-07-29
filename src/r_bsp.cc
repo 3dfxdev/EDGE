@@ -37,35 +37,6 @@
 #include "r_state.h"
 #include "r_things.h"
 
-side_t *sidedef;
-line_t *linedef;
-sector_t *frontsector;
-sector_t *backsector;
-
-unsigned int root_node;
-
-
-//
-// R_CheckBBox
-//
-// Checks BSP node/subtree bounding box.
-// Returns true if some part of the bbox might be visible.
-
-int checkcoord[12][4] =
-{
-  {BOXRIGHT, BOXTOP, BOXLEFT, BOXBOTTOM},
-  {BOXRIGHT, BOXTOP, BOXLEFT, BOXTOP},
-  {BOXRIGHT, BOXBOTTOM, BOXLEFT, BOXTOP},
-  {0},
-  {BOXLEFT, BOXTOP, BOXLEFT, BOXBOTTOM},
-  {0},
-  {BOXRIGHT, BOXBOTTOM, BOXRIGHT, BOXTOP},
-  {0},
-  {BOXLEFT, BOXTOP, BOXRIGHT, BOXBOTTOM},
-  {BOXLEFT, BOXBOTTOM, BOXRIGHT, BOXBOTTOM},
-  {BOXLEFT, BOXBOTTOM, BOXRIGHT, BOXTOP}
-};
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

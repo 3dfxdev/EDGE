@@ -58,6 +58,31 @@
 #define DLIGHT_PROTOTYPE  1
 
 
+side_t *sidedef;
+line_t *linedef;
+sector_t *frontsector;
+sector_t *backsector;
+
+unsigned int root_node;
+
+
+static int checkcoord[12][4] =
+{
+  {BOXRIGHT, BOXTOP, BOXLEFT, BOXBOTTOM},
+  {BOXRIGHT, BOXTOP, BOXLEFT, BOXTOP},
+  {BOXRIGHT, BOXBOTTOM, BOXLEFT, BOXTOP},
+  {0},
+  {BOXLEFT, BOXTOP, BOXLEFT, BOXBOTTOM},
+  {0},
+  {BOXRIGHT, BOXBOTTOM, BOXRIGHT, BOXTOP},
+  {0},
+  {BOXLEFT, BOXTOP, BOXRIGHT, BOXBOTTOM},
+  {BOXLEFT, BOXBOTTOM, BOXRIGHT, BOXBOTTOM},
+  {BOXLEFT, BOXBOTTOM, BOXRIGHT, BOXTOP}
+};
+
+
+
 // colour of the player's weapon
 extern int rgl_weapon_r;
 extern int rgl_weapon_g;
@@ -95,7 +120,7 @@ static const image_t *quad_image = NULL;
 int detail_level = 1;
 int use_dlights = 0;
 
-bool doom_fading = true;
+int doom_fading = 1;
 
 
 //
@@ -351,6 +376,8 @@ typedef struct wall_plane_data_s
 	int col[3];
 	float trans;
 
+	int cmx;
+
 	drawthing_t *dlights;
 	const image_t *image;
 
@@ -418,7 +445,7 @@ void WallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 
 		tx2 = (vx + vy + vz) / 2048.0;
 
-		ty2 = data->light / 256.0;
+		ty2 = data->light / 256.0 / 2.0 + (data->cmx==1 ? 0.5 : 0);
 		if (ty2 < 0.01) ty2 = 0.01;
 		if (ty2 > 0.99) ty2 = 0.99;
 	}
@@ -470,7 +497,7 @@ void PlaneCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 
 		tx2 = (vx + vy + vz) / 2048.0;
 
-		ty2 = data->light / 256.0;
+		ty2 = data->light / 256.0 / 2.0 + (data->cmx==1 ? 0.5 : 0);
 		if (ty2 < 0.01) ty2 = 0.01;
 		if (ty2 > 0.99) ty2 = 0.99;
 	}
@@ -887,6 +914,8 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	data.div.dx = cur_seg->v2->x - data.div.x;
 	data.div.dy = cur_seg->v2->y - data.div.y;
 
+	data.cmx = 0;
+
 	poly = RGL_NewPolyQuad(4);
 
 	PQ_ADD_VERT(poly, x1, y1, bottom);
@@ -904,6 +933,14 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 
 	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, tex_id,tex_id2,
 		/* pass */ 0, blending | BL_Multi);
+
+#if 1  // COLORMAP ADD SHIT
+
+	data.cmx = 1;
+
+	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, 0,tex_id2,
+		/* pass */ 1, blending | BL_Multi | BL_Add);
+#endif
 
 	RGL_FreePolyQuad(poly);
 
@@ -970,7 +1007,7 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 			RGL_BoundPolyQuad(poly);
 
 			RGL_RenderPolyQuad(poly, &dat2, DLightWallCoordFunc, tex_id,tex2_id,
-				/* pass */ 1, BL_Multi|BL_Add);
+				/* pass */ 2, BL_Multi|BL_Add);
 
 			RGL_FreePolyQuad(poly);
 		}
@@ -1451,7 +1488,6 @@ static void RGL_WalkSeg(seg_t *seg)
 // Placed here to be close to RGL_WalkSeg(), which has similiar angle
 // clipping stuff in it.
 //
-extern int checkcoord[12][4];
 
 bool RGL_CheckBBox(float *bspcoord)
 {
@@ -1652,6 +1688,8 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	data.x_mat = info->x_mat;
 	data.y_mat = info->y_mat;
 
+	data.cmx = 0;
+
 	poly = RGL_NewPolyQuad(num_vert);
 
 	for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
@@ -1666,6 +1704,14 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	RGL_RenderPolyQuad(poly, &data, PlaneCoordFunc, tex_id,tex_id2,
 		/* pass */ 0, blending | BL_Multi);
+
+#if 1  // COLORMAP ADD SHIT
+
+	data.cmx = 1;
+
+	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, 0,tex_id2,
+		/* pass */ 1, blending | BL_Multi | BL_Add);
+#endif
 
 	RGL_FreePolyQuad(poly);
 
@@ -1713,7 +1759,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 			RGL_BoundPolyQuad(poly);
 
 			RGL_RenderPolyQuad(poly, &data, ShadowCoordFunc, tex_id,0,
-				/* pass */ 1, BL_Alpha);
+				/* pass */ 2, BL_Alpha);
 
 			RGL_FreePolyQuad(poly);
 		}
