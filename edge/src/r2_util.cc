@@ -170,36 +170,6 @@ void drawfloorarray_c::Rollback(void)
 	active_trans = false;
 	commited--;
 }
-	
-//----------------------------------------------------------------------------
-//
-//  LEVEL-OF-DETAIL STUFF
-//
-//  These functions return a "LOD" number.  1 means the maximum
-//  detail, 2 is half the detail, 4 is a quarter, etc...
-//
-
-int lod_base_cube = 256;
-
-//
-// R2_GetBBoxLOD
-//
-int R2_GetBBoxLOD(float x1, float y1, float z1,
-		float x2, float y2, float z2)
-{
-	x1 -= viewx;  x2 -= viewx;
-	y1 -= viewy;  y2 -= viewy;
-	z1 -= viewz;  z2 -= viewz;
-
-	// check signs to handle BBOX crossing the axis
-	x1 = ((x1<0) != (x2<0)) ? 0 : MIN(fabs(x1), fabs(x2));
-	y1 = ((y1<0) != (y2<0)) ? 0 : MIN(fabs(y1), fabs(y2));
-	z1 = ((z1<0) != (z2<0)) ? 0 : MIN(fabs(z1), fabs(z2));
-
-	x1 = MAX(x1, MAX(y1, z1));
-
-	return 1 + (int)(x1 / lod_base_cube);
-}
 
 
 //--- editor settings ---
