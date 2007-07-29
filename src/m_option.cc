@@ -406,7 +406,7 @@ static menuinfo_t mainmenuinfo =
 // -ES- 1999/03/29 New fov stuff
 static optmenuitem_t vidoptions[] =
 {
-	{OPT_Slider,  "Brightness",    NULL,  5,  CFGDEF_CURRENT_GAMMA,  &current_gamma, M_ChangeGamma, NULL},
+	{OPT_Slider,  "Brightness",    NULL,  5,  CFGDEF_CURRENT_GAMMA,  &var_gamma, M_ChangeGamma, NULL},
 
 #if 0 // Really don't get the reason for these - a map developers 
 	{OPT_Slider,  "Field Of View", NULL,  35, 17,      &menunormalfov, M_ChangeNormalFOV, NULL},

@@ -42,11 +42,9 @@ void V_IndexColourToRGB(int indexcol, byte *returncol);
 rgbcol_t V_LookupColour(int col);
 
 // -AJA- 1999/07/03: moved here from v_res.h.
-extern byte gammatable[5][256];
-extern int usegamma;
-extern int current_gamma;
+extern int var_gamma;
 
-#define GAMMA_CONV(light)  (gammatable[usegamma][light])
+#define GAMMA_CONV(light)  (light)
 
 // -AJA- 1999/07/03: Some palette stuff.
 extern byte playpal_data[14][256][3];

@@ -246,6 +246,11 @@ void I_PutTitle(const char *title)
 	SDL_WM_SetCaption(title, title);
 }
 
+void I_SetGamma(float gamma)
+{
+	if (SDL_SetGamma(gamma, gamma, gamma) < 0)
+		I_Printf("Failed to change gamma.\n");
+}
 
 
 void I_ShutdownGraphics(void)

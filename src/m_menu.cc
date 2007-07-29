@@ -1770,13 +1770,13 @@ bool M_Responder(event_t * ev)
 
 			case KEYD_F11:  // gamma toggle
 
-				current_gamma++;
-				if (current_gamma > 4)
-					current_gamma = 0;
-					
+				var_gamma++;
+				if (var_gamma > 4)
+					var_gamma = 0;
+
 				const char *msg = NULL;
 				
-				switch(current_gamma)
+				switch(var_gamma)
 				{
 					case 0: { msg = language["GammaOff"];  break; }
 					case 1: { msg = language["GammaLevelOne"];  break; }
