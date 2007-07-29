@@ -33,7 +33,6 @@
 
 extern bool use_lighting;
 extern bool use_color_material;
-extern bool use_vertex_array;
 extern bool dumb_sky;
 
 // a single vertex to pass to the GL 
@@ -98,11 +97,6 @@ void RGL_SendRawVector(const local_gl_vert_t *V);
 
 typedef struct raw_polyquad_s
 {
-	// Quad ?  When true, the number of vertices must be even, and the
-	// order must be the same as for glBegin(GL_QUADSTRIP).
-	// 
-	bool quad;
-
 	vec3_t *verts;
 	int num_verts;
 	int max_verts;
@@ -112,8 +106,9 @@ typedef struct raw_polyquad_s
 	//
 	struct raw_polyquad_s *sisters;
 
-	// 3D bounding box
-	vec3_t min, max;
+	// 3D bounding sphere
+	vec3_t bb_mid;
+	float  bb_rad;
 }
 raw_polyquad_t;
 
@@ -123,13 +118,9 @@ raw_polyquad_t;
 	(P)->verts[(P)->num_verts].z = (Z);  \
 	(P)->num_verts++; } while(0)
 
-raw_polyquad_t *RGL_NewPolyQuad(int maxvert, bool quad);
+raw_polyquad_t *RGL_NewPolyQuad(int maxvert);
 void RGL_FreePolyQuad(raw_polyquad_t *poly);
 void RGL_BoundPolyQuad(raw_polyquad_t *poly);
-
-void RGL_SplitPolyQuad(raw_polyquad_t *poly, int division, 
-					   bool separate);
-void RGL_SplitPolyQuadLOD(raw_polyquad_t *poly, int max_lod, int base_div);
 
 void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
 						void (* CoordFunc)(vec3_t *src, local_gl_vert_t *vert, void *data),
