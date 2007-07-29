@@ -35,7 +35,7 @@ sources_1 = [
 
 sources_2 = [
     'l_glbsp.cc',
-    'l_deh.cc', 'lu_gamma.cc', 'm_argv.cc', 'm_bbox.cc', 
+    'l_deh.cc', 'm_argv.cc', 'm_bbox.cc', 
     'm_cheat.cc', 'm_math.cc', 'm_menu.cc', 'm_misc.cc', 'm_option.cc', 
     'm_netgame.cc', 'm_random.cc', 'mus_2_midi.cc',
     'n_network.cc', 'n_packet.cc', 'n_protocol.cc',
@@ -52,7 +52,7 @@ sources_2 = [
     's_music.cc', 's_ogg.cc', 'st_lib.cc', 'st_stuff.cc',
     'sv_chunk.cc', 'sv_dump.cc', 'sv_glob.cc', 'sv_level.cc', 
     'sv_load.cc', 'sv_main.cc', 'sv_misc.cc', 'sv_mobj.cc', 'sv_play.cc', 
-    'sv_save.cc', 'v_colour.cc', 'r_modes.cc', 'r_image.cc', 'wi_stuff.cc', 
+    'sv_save.cc', 'r_colors.cc', 'r_modes.cc', 'r_image.cc', 'wi_stuff.cc', 
     'w_textur.cc', 'w_wad.cc', 'z_zone.cc', 
     ]
 
