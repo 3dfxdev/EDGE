@@ -104,7 +104,7 @@ static default_t defaults[] =
     {CFGT_Boolean,	"fullscreen",		 &FULLSCREEN,	  CFGDEF_FULLSCREEN},
     {CFGT_Boolean,	"directx",			 &force_directx,  0},
     {CFGT_Boolean,	"waveout",			 &force_waveout,  0},
-    {CFGT_Int,      "usegamma",          &current_gamma,  CFGDEF_CURRENT_GAMMA},
+    {CFGT_Int,      "usegamma",          &var_gamma,  CFGDEF_CURRENT_GAMMA},
  
     {CFGT_Int,      "sfx_volume",        &sfx_volume,     CFGDEF_SOUND_VOLUME},
     {CFGT_Int,      "music_volume",      &mus_volume,     CFGDEF_MUSIC_VOLUME},
@@ -137,7 +137,7 @@ static default_t defaults[] =
     {CFGT_Int,      "grav",              &global_flags.menu_grav, CFGDEF_MENU_GRAV},
     {CFGT_Boolean,  "true3dgameplay",    &global_flags.true3dgameplay, CFGDEF_TRUE3DGAMEPLAY},
     {CFGT_Enum,     "autoaim",           &global_flags.autoaim, CFGDEF_AUTOAIM},
-    {CFGT_Boolean,  "doom_fading",       &doom_fading,    CFGDEF_DOOM_FADING},
+    {CFGT_Int,      "doom_fading",       &doom_fading,    CFGDEF_DOOM_FADING},
     {CFGT_Boolean,  "shootthru_scenery", &global_flags.pass_missile, CFGDEF_PASS_MISSILE},
 
     // -KM- 1998/07/21 Save the blood setting

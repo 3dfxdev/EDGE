@@ -58,10 +58,9 @@ static bool loaded_playpal = false;
 #define RADIATION_PAL     13
 
 // -AJA- 1999/07/03: moved these here from v_res.c:
-int usegamma;
-int current_gamma;
+int var_gamma;
 
-bool interpolate_colmaps = true;
+static bool old_gamma = -1;
 
 
 // text translation tables
@@ -201,30 +200,19 @@ static void InitTranslationTables(void)
 }
 
 static int cur_palette = -1;
-static int new_palette = 0;
 
 //
 // V_InitColour
 //
 void V_InitColour(void)
 {
-	// check options
-	M_CheckBooleanParm("nointerp", &interpolate_colmaps, true);
-
 	const char *s = M_GetParm("-gamma");
 	if (s)
 	{
-		usegamma = MAX(0, MIN(4, atoi(s)));
-		current_gamma = usegamma;
+		var_gamma = MAX(0, MIN(4, atoi(s)));
 	}
 
 	InitTranslationTables();
-
-	// -AJA- 1999/11/07: fix for the "palette corrupt on res change"
-	//       bug.  Allegro does not remember the palette when changing
-	//       resolution, hence the problem.
-	//
-	cur_palette = -1;
 }
 
 //
@@ -327,9 +315,6 @@ void V_SetPalette(int type, float amount)
 
 	if (palette == cur_palette)
 		return;
-
-	// mark the palette change
-	new_palette++;
 
 	cur_palette = palette;
 }
@@ -579,18 +564,13 @@ void V_GetColmapRGB(const colourmap_c *colmap,
 //
 void V_ColourNewFrame(void)
 {
-	if (current_gamma != usegamma)
+	if (var_gamma != old_gamma)
 	{
-		W_ResetImages();
-	}
+		float gamma = 1.0 / (1.0 - var_gamma/8.0);
+			
+		I_SetGamma(gamma);
 
-	// -AJA- 1999/08/03: This fixes, once and for all, the now infamous
-	//       "gamma too late on walls" bug.
-	//
-	if (new_palette > 0 || current_gamma != usegamma)
-	{
-		new_palette = 0;
-		usegamma = current_gamma;
+		old_gamma = var_gamma;
 	}
 }
 

@@ -387,6 +387,8 @@ bool I_SetScreenSize(scrmode_c *mode);
 
 void I_GrabCursor(bool enable);
 
+void I_SetGamma(float gamma);
+
 
 //--------------------------------------------------------
 //  ASSERTION macros.
