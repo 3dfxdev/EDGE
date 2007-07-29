@@ -70,7 +70,7 @@ const byte *RGL_BetaImage(int *w, int *h);
 
 #define M_ROOT2  1.414213562f  // FIXME: move into m_math.h ?
 
-#define EMU_LIGHT(level,dist)  ((level) * 2 - 256 + int(80*256.0f / MAX(128.0f, (dist))))
+#define EMU_LIGHT(level,dist)  ((level) * 2 - 256 + 80*256.0f / MAX(128.0f, (dist)))
 
 // extra lighting on the player weapon
 extern int rgl_weapon_r;
@@ -88,7 +88,7 @@ extern float ren_red_mul;
 extern float ren_grn_mul;
 extern float ren_blu_mul;
 
-extern bool doom_fading;
+extern int doom_fading;
 extern int var_nearclip;
 extern int var_farclip;
 
