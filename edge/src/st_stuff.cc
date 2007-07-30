@@ -33,9 +33,9 @@
 #include "m_cheat.h"
 #include "m_misc.h"   // M_DisplayAir
 #include "m_random.h"
-#include "r_main.h"
+#include "r_misc.h"
 #include "st_lib.h"
-#include "v_colour.h"
+#include "r_colors.h"
 #include "v_ctx.h"
 #include "r_modes.h"
 #include "w_wad.h"

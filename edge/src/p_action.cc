@@ -46,7 +46,6 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "g_game.h"
-#include "m_inline.h"
 #include "m_misc.h"
 #include "m_random.h"
 #include "p_local.h"

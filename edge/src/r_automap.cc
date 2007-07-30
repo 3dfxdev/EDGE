@@ -40,7 +40,7 @@
 #include "p_local.h"
 #include "st_stuff.h"
 #include "v_ctx.h"
-#include "v_colour.h"
+#include "r_colors.h"
 #include "r_modes.h"
 
 #include <stdio.h>

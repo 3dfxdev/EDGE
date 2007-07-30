@@ -17,7 +17,7 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "rgl_camera.h"
+#include "r_camera.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -26,10 +26,9 @@
 #include "p_local.h"
 #include "p_mobj.h"
 #include "r_defs.h"
-#include "r_main.h"
+#include "r_misc.h"
 #include "r_state.h"
-#include "r2_defs.h"
-#include "rgl_defs.h"
+#include "r_gldefs.h"
 #include "v_ctx.h"
 #include "z_zone.h"
 

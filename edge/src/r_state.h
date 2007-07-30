@@ -28,7 +28,7 @@
 
 // Need data structure definitions.
 #include "e_player.h"
-#include "r_data.h"
+#include "w_flat.h"
 #include "m_math.h"
 
 //

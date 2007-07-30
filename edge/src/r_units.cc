@@ -25,9 +25,8 @@
 #include "con_cvar.h"
 #include "e_search.h"
 #include "m_argv.h"
-#include "r2_defs.h"
-#include "rgl_defs.h"
-#include "rgl_unit.h"
+#include "r_gldefs.h"
+#include "r_units.h"
 #include "z_zone.h"
 
 #include <math.h>

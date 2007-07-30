@@ -38,12 +38,12 @@
 #include "dm_defs.h"
 
 // Include the refresh/render data structs.
-#include "r_data.h"
+#include "w_flat.h"
 
 //
 // Separate header file for each module.
 //
-#include "r_main.h"
+#include "r_misc.h"
 #include "r_bsp.h"
 #include "r_things.h"
 

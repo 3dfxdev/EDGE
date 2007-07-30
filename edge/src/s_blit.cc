@@ -32,7 +32,7 @@
 #include "s_music.h"
 
 #include "m_misc.h"
-#include "r_main.h"  // R_PointToAngle
+#include "r_misc.h"  // R_PointToAngle
 #include "p_local.h"  // P_ApproxDistance
 
 #include <string.h>

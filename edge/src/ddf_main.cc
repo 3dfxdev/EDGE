@@ -27,7 +27,6 @@
 #include "dstrings.h"
 #include "g_game.h"
 #include "m_argv.h"
-#include "m_inline.h"
 #include "m_math.h"
 #include "m_misc.h"
 #include "p_action.h"

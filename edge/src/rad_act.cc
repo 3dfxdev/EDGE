@@ -30,7 +30,6 @@
 #include "hu_stuff.h"
 #include "g_game.h"
 #include "m_argv.h"
-#include "m_inline.h"
 #include "m_menu.h"
 #include "m_random.h"
 #include "p_local.h"
@@ -40,11 +39,11 @@
 #include "s_sound.h"
 #include "s_music.h"
 #include "v_ctx.h"
-#include "v_colour.h"
+#include "r_colors.h"
 #include "r_modes.h"
 #include "r_image.h"
 #include "w_wad.h"
-#include "w_textur.h"
+#include "w_texture.h"
 #include "z_zone.h"
 
 #include <limits.h>

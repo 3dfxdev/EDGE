@@ -38,15 +38,14 @@
 #include "m_option.h"
 #include "n_network.h"
 #include "p_spec.h"
-#include "r2_defs.h"
-#include "rgl_defs.h"
+#include "r_gldefs.h"
 #include "s_music.h"  // mus_volume
 #include "s_sound.h"
-#include "v_colour.h"
+#include "r_colors.h"
 #include "v_ctx.h"
 #include "r_modes.h"
 #include "r_image.h"
-#include "wp_main.h"
+#include "r_wipe.h"
 
 #include "defaults.h"
 

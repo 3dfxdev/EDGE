@@ -28,8 +28,8 @@
 
 #include "dm_state.h"
 #include "m_math.h"
-#include "r_data.h"
-#include "r_main.h"
+#include "w_flat.h"
+#include "r_misc.h"
 #include "r_things.h"
 #include "z_zone.h"
 

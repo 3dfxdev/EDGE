@@ -31,7 +31,7 @@
 #include "ddf_main.h"
 
 #include "p_action.h"
-#include "rgl_fx.h"
+#include "r_effects.h"
 #include "z_zone.h"
 
 #include "epi/strings.h"

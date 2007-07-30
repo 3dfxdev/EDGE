@@ -35,13 +35,13 @@
 #include <algorithm>
 
 #include "r_modes.h"
-#include "rgl_defs.h"
+#include "r_gldefs.h"
 #include "st_stuff.h"
-#include "v_colour.h"
+#include "r_colors.h"
 
 #include "r_automap.h"
 #include "r_image.h"
-#include "rgl_unit.h"
+#include "r_units.h"
 #include "gui_main.h"
 #include "v_ctx.h"
 
