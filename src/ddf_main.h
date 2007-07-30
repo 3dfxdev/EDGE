@@ -564,36 +564,36 @@ typedef int bitset_t;
 
 // dynamic light info
 
-// FIXME: Embed enum in dlightinfo class?
 typedef enum
 {
 	// dynamic lighting disabled
 	DLITE_None,
 
-	// lighting is proportional to 1 / distance
-	DLITE_Linear,
+	// light texture is modulated with wall texture
+	DLITE_Modulate,
 
-	// lighting is proportional to 1 / (distance^2)
-	DLITE_Quadratic
+	// light texture is simply added to wall
+	DLITE_Add,
 }
 dlight_type_e;
 
-class dlightinfo_c
+class dlight_info_c
 {
 public:
-	dlightinfo_c();
-	dlightinfo_c(dlightinfo_c &rhs);
-	~dlightinfo_c() {};
+	dlight_info_c();
+	dlight_info_c(dlight_info_c &rhs);
+	~dlight_info_c() {};
 
 private:
-	void Copy(dlightinfo_c &src);
+	void Copy(dlight_info_c &src);
 
 public:
 	void Default(void);
-	dlightinfo_c& operator=(dlightinfo_c &rhs);
+	dlight_info_c& operator=(dlight_info_c &rhs);
 
 	dlight_type_e type;
-	int intensity;
+	epi::strent_c shape;  // IMAGES.DDF reference
+	float radius;
 	rgbcol_t colour;
 	percent_t height;
 };
@@ -756,8 +756,9 @@ public:
 	// -ACB- 2003/05/15 Made haloinfo structure external to mobjtype_c
 	haloinfo_c halo;
 
-	// -ACB- 2003/05/15 Made dlightinfo structure external to mobjtype_c
-	dlightinfo_c dlight;
+	// -ACB- 2003/05/15 Made dlight_info structure external to mobjtype_c
+	dlight_info_c dlight1;
+	dlight_info_c dlight2;
 
 	// item to drop (or NULL).  The mobjdef pointer is only valid after
 	// DDF_MobjCleanUp() has been called.

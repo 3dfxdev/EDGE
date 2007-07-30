@@ -62,7 +62,7 @@ void DDF_MobjGetDLight(const char *info, void *storage);
 
 static void AddPickupEffect(pickup_effect_c **list, pickup_effect_c *cur);
 
-static dlightinfo_c buffer_dlight;
+static dlight_info_c buffer_dlight;
 static haloinfo_c buffer_halo;
 
 #undef  DDF_CMD_BASE
@@ -87,10 +87,11 @@ const commandlist_t halo_commands[] =
 const commandlist_t dlight_commands[] =
 {
 	DF("TYPE", type, DDF_MobjGetDLight),
-	DF("INTENSITY", intensity, DDF_MainGetNumeric),
+	DF("SHAPE", shape, DDF_MainGetString),
+	DF("INTENSITY", radius, DDF_MainGetFloat),
 	DF("COLOUR", colour, DDF_MainGetRGB),
 	DF("HEIGHT", height, DDF_MainGetPercent),
-  
+
 	DDF_CMD_END
 };
 
@@ -101,7 +102,8 @@ const commandlist_t thing_commands[] =
 {
 	// sub-commands
 	DDF_SUB_LIST("HALO",   halo,   halo_commands,   buffer_halo),
-	DDF_SUB_LIST("DLIGHT", dlight, dlight_commands, buffer_dlight),
+	DDF_SUB_LIST("DLIGHT",  dlight1, dlight_commands, buffer_dlight),
+	DDF_SUB_LIST("DLIGHT2", dlight2, dlight_commands, buffer_dlight),
 	DDF_SUB_LIST("EXPLODE DAMAGE", explode_damage, damage_commands, buffer_damage),
 	DDF_SUB_LIST("CHOKE DAMAGE", choke_damage, damage_commands, buffer_damage),
 
@@ -1367,12 +1369,15 @@ void DDF_MobjGetSpecial(const char *info, void *storage)
 
 static specflags_t dlight_type_names[] =
 {
-	{"NONE",      DLITE_None,      0},
-	{"LINEAR",    DLITE_Linear,    0},
-	{"QUADRATIC", DLITE_Quadratic, 0},
+	{"NONE",      DLITE_None, 0},
+	{"MODULATE",  DLITE_Modulate, 0},
+	{"ADD",       DLITE_Add, 0},
 
 	// backwards compatibility
-	{"CONSTANT",  DLITE_Quadratic, 0},
+	{"LINEAR",    DLITE_Modulate, 0},
+	{"QUADRATIC", DLITE_Modulate, 0},
+	{"CONSTANT",  DLITE_Add, 0},
+
 	{NULL, 0, 0}
 };
 
@@ -1781,7 +1786,8 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	halo = src.halo;
 
 	// dynamic light info
-	dlight = src.dlight;
+	dlight1 = src.dlight1;
+	dlight2 = src.dlight2;
 
 	dropitem = src.dropitem; 
 	dropitem_ref = src.dropitem_ref; 
@@ -1900,7 +1906,8 @@ void mobjtype_c::Default()
 	halo.Default();
 
 	// dynamic light info
-	dlight.Default();
+	dlight1.Default();
+	dlight2.Default();
 
 	dropitem = NULL;
 	dropitem_ref.Clear();

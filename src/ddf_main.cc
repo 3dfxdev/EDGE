@@ -2217,50 +2217,53 @@ label_offset_c& label_offset_c::operator=(label_offset_c& rhs)
 	return *this;
 }
 
-// ---> dlightinfo class
+// ---> dlight_info class
 
 //
-// dlightinfo_c() constructor
+// dlight_info_c() constructor
 //
-dlightinfo_c::dlightinfo_c()
+dlight_info_c::dlight_info_c()
 {
 	Default();
 }
 
 //
-// dlightinfo_c() Copy constructor
+// dlight_info_c() Copy constructor
 //
-dlightinfo_c::dlightinfo_c(dlightinfo_c &rhs)
+dlight_info_c::dlight_info_c(dlight_info_c &rhs)
 {
 	Copy(rhs);
 }
 
 //
-// dlightinfo_c::Copy()
+// dlight_info_c::Copy()
 //
-void dlightinfo_c::Copy(dlightinfo_c &src)
+void dlight_info_c::Copy(dlight_info_c &src)
 {
-	type = src.type;
-	intensity = src.intensity;
+	type   = src.type;
+	shape  = src.shape;
+	radius = src.radius;
 	colour = src.colour;
 	height = src.height;
 }
 
 //
-// dlightinfo_c::Default()
+// dlight_info_c::Default()
 //
-void dlightinfo_c::Default()
+void dlight_info_c::Default()
 {
-	type = DLITE_None;
-	intensity = 32;
+	type   = DLITE_None;
+	radius = 32;
 	colour = RGB_NO_VALUE;
 	height = PERCENT_MAKE(50);
+
+	shape.Clear();
 }
 
 //
-// dlightinfo_c assignment operator
+// dlight_info_c assignment operator
 //
-dlightinfo_c& dlightinfo_c::operator=(dlightinfo_c &rhs)
+dlight_info_c& dlight_info_c::operator=(dlight_info_c &rhs)
 {
 	if (&rhs != this)
 		Copy(rhs);
