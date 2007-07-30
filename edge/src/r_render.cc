@@ -135,10 +135,10 @@ int doom_fading = 1;
 void R2_AddColourDLights(int num, int *r, int *g, int *b, 
 						 float *x, float *y, float *z, mobj_t *mo)
 {
-	float base_qty = mo->dlight_qty;
-	float mo_z = mo->z + mo->height * PERCENT_2_FLOAT(mo->info->dlight.height);
+	float base_qty = mo->dlight[0].r;
+	float mo_z = mo->z + mo->height * PERCENT_2_FLOAT(mo->info->dlight0.height);
 
-	rgbcol_t col = mo->info->dlight.colour;
+	rgbcol_t col = mo->info->dlight0.colour;
 
 #if 0  // TEST CODE
 	if (col == RGB_NO_VALUE)
@@ -160,11 +160,12 @@ void R2_AddColourDLights(int num, int *r, int *g, int *b,
 	SYS_ASSERT(num > 0);
 	SYS_ASSERT(base_qty >= 0);
 
-	switch (mo->info->dlight.type)
+	switch (mo->info->dlight0.type)
 	{
 		case DLITE_None:
 			I_Error("R2_AddColourDLights: bad dynamic light\n");
 
+#if 0
 		case DLITE_Linear:
 			for (; num > 0; num--, r++, g++, b++, x++, y++, z++)
 			{
@@ -192,6 +193,7 @@ void R2_AddColourDLights(int num, int *r, int *g, int *b,
 				(*b) += qty * B / 255;
 			}
 			break;
+#endif
 	}
 }
 
@@ -221,7 +223,7 @@ static void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor)
 
 			for (mo=blocklights[by * bmapwidth + bx]; mo; mo = mo->dlnext)
 			{
-				if (! mo->bright || mo->dlight_qty <= 0)
+				if (! mo->bright || mo->dlight[0].r <= 0)
 					continue;
 
 				if (mo->ceilingz <= dfloor->f_h || mo->floorz >= dfloor->top_h)
@@ -233,7 +235,7 @@ static void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor)
 				drawthings.Commit();
 
 				dl->mo = mo;
-				dl->tz = mo->z + mo->height * PERCENT_2_FLOAT(mo->info->dlight.height);
+				dl->tz = mo->z + mo->height * PERCENT_2_FLOAT(mo->info->dlight0.height);
 
 				dl->next = dfloor->dlights;
 				dl->prev = NULL;  // NOTE: not used (singly linked)
@@ -633,10 +635,10 @@ static void ComputeDLParameters(float dist, mobj_t *mo,
 	if (dist < 4)
 		dist = 4;
 
-	if (mo->info->dlight.type == DLITE_Linear)
+	if (false) // mo->info->dlight0.type == DLITE_Linear)
 	{
 		*radius = DL_OUTER * dist;
-		*intensity = mo->dlight_qty / 8.0f / dist;
+		*intensity = mo->dlight[0].r / 8.0f / dist;
 
 		if (*intensity > 1.0f)
 		{
@@ -646,14 +648,14 @@ static void ComputeDLParameters(float dist, mobj_t *mo,
 	}
 	else  /* DLITE_Quadratic */
 	{
-		*radius = DL_OUTER_SQRT * dist;
-		*intensity = mo->dlight_qty * 2.0f / dist / dist;
-
-		if (*intensity > 1.0f)
-		{
-			*radius *= sqrt(*intensity);
-			*intensity = 1.0f;
-		}
+  		*radius = DL_OUTER_SQRT * dist;
+  		*intensity = mo->dlight[0].r * 2.0f / dist / dist;
+  
+  		if (*intensity > 1.0f)
+  		{
+  			*radius *= sqrt(*intensity);
+  			*intensity = 1.0f;
+  		}
 	}
 }
 
@@ -951,6 +953,8 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 #ifdef DLIGHT_PROTOTYPE
 	if (use_dlights == 1 && solid_mode)
 	{
+RGL_DrawUnits();
+
 		wall_plane_data_t dat2;
 		memcpy(&dat2, &data, sizeof(dat2));
 
@@ -970,50 +974,60 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 
 			dist /= cur_seg->length;
 
-			dl_R = (mo->info->dlight.colour >> 16) & 0xFF;
-			dl_G = (mo->info->dlight.colour >>  8) & 0xFF;
-			dl_B = (mo->info->dlight.colour      ) & 0xFF;
-			dl_WP = &data;
+			for (int DL=0; DL < 2; DL++)
+			{
+				const dlight_info_c *info = (DL == 0) ? &mo->info->dlight0 : &mo->info->dlight1;
 
-			cim = W_ImageCache((mo->info->dlight.type == DLITE_Linear) ?
-				linear_image : quad_image);
+				if (info->type == DLITE_None ||
+					mo->dlight[DL].r <= 0 || ! mo->dlight[DL].image)
+					continue;
 
-			GLuint tex2_id = W_ImageGetOGL(cim);
-			// Note: normally this would be wrong, since we're using the GL
-			// texture ID later on (after W_ImageDone).  The W_LockImagesOGL
-			// call saves us though.
-			W_ImageDone(cim);
+				dl_R = (info->colour >> 16) & 0xFF;
+				dl_G = (info->colour >>  8) & 0xFF;
+				dl_B = (info->colour      ) & 0xFF;
+				dl_WP = &data;
 
-			float fx_radius;
-			ComputeDLParameters(dist, mo, &fx_radius, &dat2.trans);
+				cim = W_ImageCache(mo->dlight[DL].image);
 
-			dat2.ty = (mo->z + mo->height * PERCENT_2_FLOAT(mo->info->dlight.height));
+				GLuint tex2_id = W_ImageGetOGL(cim);
+				// Note: normally this would be wrong, since we're using the GL
+				// texture ID later on (after W_ImageDone).  The W_LockImagesOGL
+				// call saves us though.
+				W_ImageDone(cim);
 
-			dat2.ty = (dat2.ty / fx_radius) + 0.5f;
-			dat2.ty_mul = 1.0f / fx_radius;
-			dat2.ty_skew = 0;
+				float fx_radius;
+				ComputeDLParameters(dist, mo, &fx_radius, &dat2.trans);
 
-			dat2.tx = (mo->x - dat2.div.x) * dat2.div.dx +
-			          (mo->y - dat2.div.y) * dat2.div.dy;
-			dat2.tx /= cur_seg->length;
+				dat2.ty = (mo->z + mo->height * PERCENT_2_FLOAT(info->height));
 
-			dat2.tx = (dat2.tx / -fx_radius) + 0.5f;
+				dat2.ty = (dat2.ty / fx_radius) + 0.5f;
+				dat2.ty_mul = 1.0f / fx_radius;
+				dat2.ty_skew = 0;
 
-			dat2.tdx = cur_seg->length * 1.0f / fx_radius;
+				dat2.tx = (mo->x - dat2.div.x) * dat2.div.dx +
+						  (mo->y - dat2.div.y) * dat2.div.dy;
+				dat2.tx /= cur_seg->length;
 
-			poly = RGL_NewPolyQuad(4);
+				dat2.tx = (dat2.tx / -fx_radius) + 0.5f;
 
-			PQ_ADD_VERT(poly, x1, y1, bottom);
-			PQ_ADD_VERT(poly, x1, y1, top);
-			PQ_ADD_VERT(poly, x2, y2, top);
-			PQ_ADD_VERT(poly, x2, y2, bottom);
+				dat2.tdx = cur_seg->length * 1.0f / fx_radius;
 
-			RGL_BoundPolyQuad(poly);
+				poly = RGL_NewPolyQuad(4);
 
-			RGL_RenderPolyQuad(poly, &dat2, DLightWallCoordFunc, tex_id,tex2_id,
-				/* pass */ 2, BL_Multi|BL_Add);
+				PQ_ADD_VERT(poly, x1, y1, bottom);
+				PQ_ADD_VERT(poly, x1, y1, top);
+				PQ_ADD_VERT(poly, x2, y2, top);
+				PQ_ADD_VERT(poly, x2, y2, bottom);
 
-			RGL_FreePolyQuad(poly);
+				RGL_BoundPolyQuad(poly);
+
+				RGL_RenderPolyQuad(poly, &dat2, DLightWallCoordFunc,
+(info->type == DLITE_Add ? 0 : tex_id),tex2_id,
+					/* pass */ 2+DL, BL_Multi|BL_Add);
+
+				RGL_FreePolyQuad(poly);
+RGL_DrawUnits();
+			}
 		}
 	}
 #endif // DLIGHT_PROTOTYPE
@@ -1770,9 +1784,11 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	}
 #endif
 
-#ifdef DLIGHT_PROTOTYPE
+#ifdef FUCK_DLIGHT_PROTOTYPE
 	if (use_dlights == 1 && solid_mode)
 	{
+RGL_DrawUnits();
+tex_id=0; //!!!!!!
 		wall_plane_data_t dat2;
 		memcpy(&dat2, &data, sizeof(dat2));
 
@@ -1794,8 +1810,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 			float dist = ABS(dl->tz - h);
 
-			cim = W_ImageCache((mo->info->dlight.type == DLITE_Linear) ?
-				linear_image : quad_image);
+			cim = W_ImageCache(quad_image);
 			GLuint tex2_id = W_ImageGetOGL(cim);
 			// Note: normally this would be wrong, since we're using the GL
 			// texture ID later on (after W_ImageDone).  The W_LockImagesOGL
@@ -1831,6 +1846,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 			RGL_FreePolyQuad(poly);
 		}
+RGL_DrawUnits();
 	}
 #endif // DLIGHT_PROTOTYPE
 }
@@ -2119,8 +2135,8 @@ void RGL_LoadLights(void)
 	fading_image = W_ImageLookup("COLMAP_TEST");
 
 #ifdef DLIGHT_PROTOTYPE
-	linear_image = W_ImageLookup("DLIGHT_LINEAR");
-	quad_image   = W_ImageLookup("DLIGHT_QUAD");
+//	linear_image = W_ImageLookup("DLIGHT_QUAD"); //!!!!!
+//	quad_image   = W_ImageLookup("DLIGHT_QUAD");
 #endif
 
 #ifdef SHADOW_PROTOTYPE
