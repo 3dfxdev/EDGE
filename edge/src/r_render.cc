@@ -44,7 +44,10 @@
 #include "rgl_thing.h"
 #include "rgl_unit.h"
 #include "r_image_gl.h"
-#include "v_colour.h"
+#include "r_view.h"
+#include "r_colors.h"
+
+#include "n_network.h"  // N_NetUpdate
 
 #include <math.h>
 
@@ -65,6 +68,7 @@ sector_t *backsector;
 
 unsigned int root_node;
 
+extern camera_t *camera;
 
 static int checkcoord[12][4] =
 {
