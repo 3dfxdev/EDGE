@@ -41,11 +41,10 @@
 #include "m_argv.h"
 #include "m_misc.h"
 #include "p_local.h"
-#include "r2_defs.h"
-#include "rgl_defs.h"
-#include "rgl_sky.h"
-#include "v_colour.h"
-#include "w_textur.h"
+#include "r_gldefs.h"
+#include "r_sky.h"
+#include "r_colors.h"
+#include "w_texture.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
@@ -2471,7 +2470,7 @@ static epi::basicimage_c *ReadUserAsEpiBlock(real_image_t *rim)
 					CreateUserBuiltinShadow(img, def);
 					break;
 
-				case BLTIM_ColMapTest:
+				case 123: //!!!!! BLTIM_ColMapTest:
 					CreateUserBuiltinCOLMAP(img, def);
 					break;
 

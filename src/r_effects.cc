@@ -20,8 +20,8 @@
 #include "i_defs_gl.h"
 
 #include "m_misc.h"
-#include "r_main.h"
-#include "v_colour.h"
+#include "r_misc.h"
+#include "r_colors.h"
 #include "r_modes.h"
 
 #define DEBUG  0

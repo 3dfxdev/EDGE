@@ -34,7 +34,7 @@
 #include "e_main.h"
 #include "hu_stuff.h"
 #include "m_misc.h"
-#include "r_main.h"
+#include "r_misc.h"
 #include "z_zone.h"
 
 #include <string.h>

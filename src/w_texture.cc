@@ -22,7 +22,7 @@
 // -ES- 2000/02/12 Written.
 
 #include "i_defs.h"
-#include "w_textur.h"
+#include "w_texture.h"
 #include "dm_structs.h"
 
 #include "e_search.h"

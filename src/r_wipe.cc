@@ -27,8 +27,8 @@
 #include "i_defs_gl.h"
 
 #include "m_random.h"
-#include "rgl_defs.h"
-#include "rgl_wipe.h"
+#include "r_gldefs.h"
+#include "r_wipe.h"
 #include "r_image.h"
 #include "r_modes.h"
 #include "z_zone.h"

@@ -32,7 +32,7 @@
 #include "hu_style.h"
 #include "m_argv.h"
 #include "r_modes.h"
-#include "wp_main.h"
+#include "r_wipe.h"
 #include "z_zone.h"
 
 #include <stdio.h>

@@ -27,7 +27,7 @@
 #define __RGL_THING__
 
 #include "r_defs.h"
-#include "r2_defs.h"
+#include "r_gldefs.h"
 #include "w_sprite.h"
 
 void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub);

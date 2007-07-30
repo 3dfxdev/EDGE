@@ -41,11 +41,11 @@
 #include "hu_style.h"
 #include "m_random.h"
 #include "p_action.h"
-#include "r2_defs.h"
 #include "r_state.h"
+#include "r_gldefs.h"
 #include "s_sound.h"
 #include "s_music.h"
-#include "v_colour.h"
+#include "r_colors.h"
 #include "v_ctx.h"
 #include "r_modes.h"
 

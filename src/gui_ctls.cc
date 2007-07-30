@@ -27,7 +27,7 @@
 #include "m_menu.h"
 #include "m_misc.h"
 #include "r_modes.h"
-#include "v_colour.h"
+#include "r_colors.h"
 #include "z_zone.h"
 
 typedef struct button_s

@@ -21,9 +21,8 @@
 
 #include "dm_defs.h"
 #include "dm_state.h"
-#include "m_inline.h"
 #include "r_local.h"
-#include "v_colour.h"
+#include "r_colors.h"
 #include "v_ctx.h"
 #include "r_modes.h"
 #include "r_image.h"
