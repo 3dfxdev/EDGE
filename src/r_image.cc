@@ -74,7 +74,7 @@
 
 
 // LIGHTING DEBUGGING
-// #define MAKE_TEXTURES_WHITE  1
+#define MAKE_TEXTURES_WHITE  1
 
 
 typedef enum
@@ -1661,7 +1661,7 @@ static epi::basicimage_c *ReadFlatAsEpiBlock(real_image_t *rim)
 	byte *dest = img->pixels;
 
 #ifdef MAKE_TEXTURES_WHITE
-	memset(dest, pal_white, tw * th);
+	memset(dest, pal_white*0+96, tw * th); //!!!!!!
 	return img;
 #endif
 
@@ -1712,7 +1712,7 @@ static epi::basicimage_c *ReadTextureAsEpiBlock(real_image_t *rim)
 	byte *dest = img->pixels;
 
 #ifdef MAKE_TEXTURES_WHITE
-	memset(dest, pal_white, tw * th);
+	memset(dest, pal_white*0+96, tw * th); //!!!!!!
 	return img;
 #endif
 
@@ -2257,7 +2257,7 @@ static void CreateUserBuiltinQuadratic(epi::basicimage_c *img, imagedef_c *def)
 // hor_p2 = cos(hor_p2*6.2)/2+0.5; //!!!! RING SHAPE ??
 sq = exp(-5.44 * hor_p2);
 		
-		int v = int(sq * 255.4f);
+		int v = int(sq * 255.4f * sin(hor_p2*7.7));
 
 		if (v < 0 ||
 			x == 0 || x == img->width-1 ||
@@ -2366,7 +2366,7 @@ static void CreateUserBuiltinCOLMAP(epi::basicimage_c *img, imagedef_c *def)
 	{
 		byte *dest = img->pixels + (y * img->width + x) * 4;
 
-		float dist = 2048.0f * x / img->width;
+		float dist = 400; //!!!!!!!!!! 2048.0f * x / img->width;
 
 		dist = MIN(2000.0f, dist);
 
