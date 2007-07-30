@@ -2,7 +2,7 @@
 //  EDGE OpenGL Rendering (BSP Traversal)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2005  The EDGE Team.
+//  Copyright (c) 1999-2007  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -2198,6 +2198,9 @@ void RGL_RenderTrueBSP(void)
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
+	// make sure we don't delete any GL textures
+	W_LockImagesOGL();
+
 	// needed for drawing the sky
 	RGL_BeginSky();
 
@@ -2205,9 +2208,6 @@ void RGL_RenderTrueBSP(void)
 	RGL_WalkBSPNode(root_node);
 
 	RGL_FinishSky();
-
-	// make sure we don't delete any GL textures
-	W_LockImagesOGL();
 
 	// draw all solid walls and planes
 	solid_mode = true;

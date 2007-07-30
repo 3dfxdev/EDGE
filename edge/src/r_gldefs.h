@@ -2,7 +2,7 @@
 //  EDGE OpenGL Rendering (Definitions)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2005  The EDGE Team.
+//  Copyright (c) 1999-2007  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 #ifndef __RGL_DEFS__
 #define __RGL_DEFS__
 
-/// #include "v_ctx.h"
+#include "v_ctx.h"
 
 //
 //  RGL_MAIN
