@@ -202,7 +202,8 @@ void R2_AddColourDLights(int num, int *r, int *g, int *b,
 //
 static void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor)
 {
-	float max_dlight_radius = 200.0f; // (use_dlights == 1) ? 300.0f : 200.0f;
+	//!!!!!
+	float max_dlight_radius = 5*200.0f; // (use_dlights == 1) ? 300.0f : 200.0f;
 
 	int xl, xh, yl, yh;
 	int bx, by;
@@ -632,10 +633,20 @@ void DLightPlaneCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 static void ComputeDLParameters(float dist, mobj_t *mo,
 	float *radius, float *intensity)
 {
-	if (dist < 4)
-		dist = 4;
+	*radius = mo->dlight[0].r;
 
-	if (false) // mo->info->dlight0.type == DLITE_Linear)
+	*intensity = 0;
+
+	if (dist > mo->dlight[0].r)
+		return;
+
+	dist /= mo->dlight[0].r;
+	dist = fabs(dist);  // needed???
+
+	*intensity = exp(-5.44*dist);
+
+#if 0
+	if (mo->info->dlight0.type == DLITE_Linear)
 	{
 		*radius = DL_OUTER * dist;
 		*intensity = mo->dlight[0].r / 8.0f / dist;
@@ -657,6 +668,7 @@ static void ComputeDLParameters(float dist, mobj_t *mo,
   			*intensity = 1.0f;
   		}
 	}
+#endif
 }
 
 #endif // DLIGHT_PROTOTYPE
@@ -1784,11 +1796,11 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	}
 #endif
 
-#ifdef FUCK_DLIGHT_PROTOTYPE
+#ifdef DLIGHT_PROTOTYPE
 	if (use_dlights == 1 && solid_mode)
 	{
 RGL_DrawUnits();
-tex_id=0; //!!!!!!
+
 		wall_plane_data_t dat2;
 		memcpy(&dat2, &data, sizeof(dat2));
 
@@ -1803,50 +1815,61 @@ tex_id=0; //!!!!!!
 			if ((dl->tz > h) != (dat2.normal.z > 0))
 				continue;
 
-			dl_R = (mo->info->dlight.colour >> 16) & 0xFF;
-			dl_G = (mo->info->dlight.colour >>  8) & 0xFF;
-			dl_B = (mo->info->dlight.colour      ) & 0xFF;
-			dl_WP = &data;
-
-			float dist = ABS(dl->tz - h);
-
-			cim = W_ImageCache(quad_image);
-			GLuint tex2_id = W_ImageGetOGL(cim);
-			// Note: normally this would be wrong, since we're using the GL
-			// texture ID later on (after W_ImageDone).  The W_LockImagesOGL
-			// call saves us though.
-			W_ImageDone(cim);
-
-			float fx_radius;
-			ComputeDLParameters(dist, mo, &fx_radius, &dat2.trans);
-
-            fx_radius /= 2.0f;
-
-			dat2.tx = -(mo->x - fx_radius);
-			dat2.ty = -(mo->y - fx_radius);
-
-			dat2.x_mat.x = 0.5f / fx_radius;
-			dat2.x_mat.y = 0;
-
-			dat2.y_mat.y = 0.5f / fx_radius;
-			dat2.y_mat.x = 0;
-
-			poly = RGL_NewPolyQuad(num_vert);
-
-			for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
-				seg=seg->sub_next, i++)
+			for (int DL=0; DL < 2; DL++)
 			{
-				PQ_ADD_VERT(poly, seg->v1->x, seg->v1->y, h);
-			}
+				const dlight_info_c *info = (DL == 0) ? &mo->info->dlight0 : &mo->info->dlight1;
 
-			RGL_BoundPolyQuad(poly);
+				if (info->type == DLITE_None ||
+					mo->dlight[DL].r <= 0 || ! mo->dlight[DL].image)
+					continue;
 
-			RGL_RenderPolyQuad(poly, &dat2, DLightPlaneCoordFunc, tex_id,tex2_id,
-				/* pass */ 2, BL_Multi|BL_Add);
+				dl_R = (info->colour >> 16) & 0xFF;
+				dl_G = (info->colour >>  8) & 0xFF;
+				dl_B = (info->colour      ) & 0xFF;
+				dl_WP = &data;
 
-			RGL_FreePolyQuad(poly);
-		}
+				float dist = ABS(dl->tz - h);
+
+				cim = W_ImageCache(mo->dlight[DL].image);
+				GLuint tex2_id = W_ImageGetOGL(cim);
+				// Note: normally this would be wrong, since we're using the GL
+				// texture ID later on (after W_ImageDone).  The W_LockImagesOGL
+				// call saves us though.
+				W_ImageDone(cim);
+
+				float fx_radius;
+				ComputeDLParameters(dist, mo, &fx_radius, &dat2.trans);
+
+				fx_radius /= 2.0f;
+
+				dat2.tx = -(mo->x - fx_radius);
+				dat2.ty = -(mo->y - fx_radius);
+
+				dat2.x_mat.x = 0.5f / fx_radius;
+				dat2.x_mat.y = 0;
+
+				dat2.y_mat.y = 0.5f / fx_radius;
+				dat2.y_mat.x = 0;
+
+				poly = RGL_NewPolyQuad(num_vert);
+
+				for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
+					seg=seg->sub_next, i++)
+				{
+					PQ_ADD_VERT(poly, seg->v1->x, seg->v1->y, h);
+				}
+
+				RGL_BoundPolyQuad(poly);
+
+				RGL_RenderPolyQuad(poly, &dat2, DLightPlaneCoordFunc,
+(info->type == DLITE_Add ? 0 : tex_id),tex2_id,
+					/* pass */ 2+DL, BL_Multi|BL_Add);
+
+				RGL_FreePolyQuad(poly);
 RGL_DrawUnits();
+
+			}
+		}
 	}
 #endif // DLIGHT_PROTOTYPE
 }
