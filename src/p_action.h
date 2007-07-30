@@ -144,6 +144,7 @@ void P_ActPathCheck(mobj_t * object);
 void P_ActPathFollow(mobj_t * object);
 void P_ActDropItem(mobj_t * object);
 void P_ActDLightSet(mobj_t * object);
+void P_ActDLightSet2(mobj_t * object);
 void P_ActDLightFade(mobj_t * object);
 void P_ActDLightRandom(mobj_t * object);
 void P_ActDie(mobj_t * object);

@@ -279,6 +279,7 @@ static const actioncode_t thing_actions[] =
 	{"TRANS LESS",        P_ActTransLess, DDF_StateGetPercent},
 	{"TRANS ALTERNATE",   P_ActTransAlternate, DDF_StateGetPercent},
 	{"DLIGHT SET",        P_ActDLightSet,  DDF_StateGetInteger},
+	{"DLIGHT SET2",       P_ActDLightSet2, DDF_StateGetIntPair},
 	{"DLIGHT FADE",       P_ActDLightFade, DDF_StateGetInteger},
 	{"DLIGHT RANDOM",     P_ActDLightRandom, DDF_StateGetIntPair},
 
