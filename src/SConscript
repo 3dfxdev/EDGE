@@ -43,17 +43,17 @@ sources_2 = [
     'p_map.cc', 'p_maputl.cc', 'p_mobj.cc', 'p_plane.cc', 'p_setup.cc', 
     'p_sight.cc', 'p_spec.cc', 'p_switch.cc', 'p_tick.cc', 'p_user.cc', 
     'p_forces.cc', 'p_telept.cc', 'p_weapon.cc',
-    'r2_util.cc', 'rad_act.cc', 'rad_pars.cc', 'rad_trig.cc', 
+    'rad_act.cc', 'rad_pars.cc', 'rad_trig.cc', 
     'r_automap.cc',
-    'r_render.cc', 'r_data.cc', 'r_effects.cc', 'rgl_main.cc', 
-    'r_occlude.cc', 'm_logo.cc', 'rgl_thing.cc', 'rgl_unit.cc', 
-    'r_wipe.cc', 'r_main.cc', 'r_sky.cc', 'r_things.cc', 
+    'r_render.cc', 'w_flat.cc', 'r_effects.cc', 'r_main.cc', 
+    'r_occlude.cc', 'm_logo.cc', 'r_things.cc', 'r_units.cc', 
+    'r_wipe.cc', 'r_misc.cc', 'r_sky.cc', 'w_sprite.cc', 
     'r_vbinit.cc', 'r_view.cc', 's_blit.cc', 's_cache.cc', 's_sfx.cc',
     's_music.cc', 's_ogg.cc', 'st_lib.cc', 'st_stuff.cc',
     'sv_chunk.cc', 'sv_dump.cc', 'sv_glob.cc', 'sv_level.cc', 
     'sv_load.cc', 'sv_main.cc', 'sv_misc.cc', 'sv_mobj.cc', 'sv_play.cc', 
     'sv_save.cc', 'r_colors.cc', 'r_modes.cc', 'r_image.cc', 'wi_stuff.cc', 
-    'w_textur.cc', 'w_wad.cc', 'z_zone.cc', 
+    'w_texture.cc', 'w_wad.cc', 'z_zone.cc', 
     ]
 
 if 0:
