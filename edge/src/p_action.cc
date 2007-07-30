@@ -577,9 +577,7 @@ void P_ActTransAlternate(mobj_t * object)
 	}
 }
 
-//
-// P_ActDLightSet
-//
+
 void P_ActDLightSet(mobj_t * mo)
 {
 	const state_t *st = mo->state;
@@ -595,9 +593,22 @@ void P_ActDLightSet(mobj_t * mo)
 	}
 }
 
-//
-// P_ActDLightFade
-//
+
+void P_ActDLightSet2(mobj_t * mo)
+{
+	const state_t *st = mo->state;
+
+	if (st && st->action_par)
+	{
+		mo->dlight[0].r = MAX(0.0f, ((int *)st->action_par)[0]);
+		mo->dlight[0].target = mo->dlight[0].r;
+
+		mo->dlight[0].r = MAX(0.0f, ((int *)st->action_par)[1]);
+		mo->dlight[1].target = mo->dlight[1].r;
+	}
+}
+
+
 void P_ActDLightFade(mobj_t * mo)
 {
 	const state_t *st = mo->state;
@@ -609,9 +620,7 @@ void P_ActDLightFade(mobj_t * mo)
 	}
 }
 
-//
-// P_ActDLightRandom
-//
+
 void P_ActDLightRandom(mobj_t * mo)
 {
 	const state_t *st = mo->state;

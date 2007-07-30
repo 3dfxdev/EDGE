@@ -1,10 +1,33 @@
 Andrew Apted's Log
 
+2007/07/30:
+
+Began reworking dynamic lights.  The "TYPE" field will have
+two main values: "MODULATE" or "ADD".  There is a new field
+called "SHAPE" which is the IMAGES.DDF reference, with the
+standard pattern built-in.  Perhaps the best feature of all
+will be: support for TWO dynamic lights per thing!
+
+Added new action "DLIGHT_SET2(X,Y)" which allows each dlight
+on the thing to be controlled independently.  The old action
+"DLIGHT_SET(X)" still works, and chooses the Y value so that
+the ratio of the two dlights matches the original settings.
+
+2007/07/29:
+
+Pulled out the vertex array code, since too many GL drivers
+don't work properly with them.
+
+Renamed a lot of files, mainly moving the rendering code into
+filenames with the plain "r_" prefix.
+
 2007/07/28:
 
 Fixed crash bug with Scuba Steve's flamethrower DeHackEd patch,
 which uses the BRAIN_CUBE firestates, but EDGE has an additional
 action (CUBESPAWN) that the original DOOM does not have.
+
+Began working on new rendering code that NEVER splits polygons.
 
 Reworked gamma handling, now using the SDL_SetGamma() function
 and hence relying on hardware gamma conversion to exist.
