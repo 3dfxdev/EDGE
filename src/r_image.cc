@@ -2254,6 +2254,9 @@ static void CreateUserBuiltinQuadratic(epi::basicimage_c *img, imagedef_c *def)
 		if (horiz > 0.80f)
 			sq = sq * (0.98f - horiz) / (0.98f - 0.80f);
 
+// hor_p2 = cos(hor_p2*6.2)/2+0.5; //!!!! RING SHAPE ??
+sq = exp(-5.44 * hor_p2);
+		
 		int v = int(sq * 255.4f);
 
 		if (v < 0 ||
@@ -2264,6 +2267,54 @@ static void CreateUserBuiltinQuadratic(epi::basicimage_c *img, imagedef_c *def)
 		}
 
 		dest[0] = dest[1] = dest[2] = v;
+		dest[3] = 255;
+	}
+
+	EightWaySymmetry(img);
+}
+
+static void CreateUserBuiltin_RING(epi::basicimage_c *img, imagedef_c *def)
+{
+	SYS_ASSERT(img->bpp == 4);
+	SYS_ASSERT(img->width == img->height);
+
+	int hw = (img->width + 1) / 2;
+
+	for (int y = 0; y < hw; y++)
+	for (int x = y; x < hw; x++)
+	{
+		byte *dest = img->pixels + (y * img->width + x) * 4;
+
+		float dx = (hw-1 - x) / float(hw);
+		float dy = (hw-1 - y) / float(hw);
+
+		float hor_p2 = dx * dx + dy * dy;
+
+		float sq = 0.3f / (1.0f + DL_OUTER * hor_p2) +
+		           0.7f * MIN(1.0f, 2.0f / (1.0f + DL_OUTER * 2.0f * hor_p2));
+
+		// ramp intensity down to zero at the outer edge
+		float horiz = sqrt(hor_p2);
+		if (horiz > 0.80f)
+			sq = sq * (0.98f - horiz) / (0.98f - 0.80f);
+
+//hor_p2 = hor_p2*2; if (hor_p2 > 1) hor_p2 = 2.0 - hor_p2;
+//hor_p2 = 1 - hor_p2;
+
+sq = exp(-5.44 * hor_p2);
+
+		int v = int(sq * 255.4f);
+
+		if (v < 0 ||
+			x == 0 || x == img->width-1 ||
+			y == 0 || y == img->height-1)
+		{
+			v = 0;
+		}
+
+		dest[0] = v;
+		dest[1] = v*v/255;
+		dest[2] = sqrt(v*255);
 		dest[3] = 255;
 	}
 
@@ -2459,7 +2510,7 @@ static epi::basicimage_c *ReadUserAsEpiBlock(real_image_t *rim)
 			switch (def->builtin)
 			{
 				case BLTIM_Linear:
-					CreateUserBuiltinLinear(img, def);
+					CreateUserBuiltin_RING(img, def); //!!!!!
 					break;
 
 				case BLTIM_Quadratic:
@@ -2467,7 +2518,7 @@ static epi::basicimage_c *ReadUserAsEpiBlock(real_image_t *rim)
 					break;
 
 				case BLTIM_Shadow:
-					CreateUserBuiltinShadow(img, def);
+					CreateUserBuiltinCOLMAP(img, def);
 					break;
 
 				case 123: //!!!!! BLTIM_ColMapTest:
