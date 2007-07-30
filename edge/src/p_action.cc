@@ -586,8 +586,12 @@ void P_ActDLightSet(mobj_t * mo)
 
 	if (st && st->action_par)
 	{
-		mo->dlight_qty = MAX(0.0f, ((int *)st->action_par)[0]);
-		mo->dlight_target = mo->dlight_qty;
+		mo->dlight[0].r = MAX(0.0f, ((int *)st->action_par)[0]);
+		mo->dlight[0].target = mo->dlight[0].r;
+
+		// maintain relative sizes
+		mo->dlight[1].r = mo->dlight[0].r * mo->info->dlight1.radius / MAX(1, mo->info->dlight0.radius);
+		mo->dlight[1].target = mo->dlight[1].r;
 	}
 }
 
@@ -600,7 +604,8 @@ void P_ActDLightFade(mobj_t * mo)
 
 	if (st && st->action_par)
 	{
-		mo->dlight_target = MAX(0.0f, ((int *)st->action_par)[0]);
+		mo->dlight[0].target = mo->dlight[1].target =
+			MAX(0.0f, ((int *)st->action_par)[0]);
 	}
 }
 
@@ -619,8 +624,12 @@ void P_ActDLightRandom(mobj_t * mo)
 		// Note: using M_Random so that gameplay is unaffected
 		int qty = low + (high - low) * M_Random() / 255;
     
-		mo->dlight_qty = MAX(0.0f, qty);
-		mo->dlight_target = mo->dlight_qty;
+		mo->dlight[0].r = MAX(0.0f, qty);
+		mo->dlight[0].target = mo->dlight[0].r;
+
+		// maintain relative sizes
+		mo->dlight[1].r = mo->dlight[0].r * mo->info->dlight1.radius / MAX(1, mo->info->dlight0.radius);
+		mo->dlight[1].target = mo->dlight[1].r;
 	}
 }
 

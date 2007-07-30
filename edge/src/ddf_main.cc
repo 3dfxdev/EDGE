@@ -2257,7 +2257,7 @@ void dlight_info_c::Default()
 	colour = RGB_NO_VALUE;
 	height = PERCENT_MAKE(50);
 
-	shape.Clear();
+	shape.Set("DLIGHT_STD");
 }
 
 //

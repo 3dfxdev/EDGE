@@ -1254,12 +1254,10 @@ static void P_MobjThinker(mobj_t * mobj)
 
 	mobj->ClearStaleRefs();
 
-///---	// ignore removed objects
-///---	if (! mobj->state)
-///---		return;
-
 	mobj->visibility = (15 * mobj->visibility + mobj->vis_target) / 16;
-	mobj->dlight_qty = (15 * mobj->dlight_qty + mobj->dlight_target) / 16;
+
+	for (int DL=0; DL < 2; DL++)
+		mobj->dlight[DL].r = (15 * mobj->dlight[DL].r + mobj->dlight[DL].target) / 16;
 
 	// handle SKULLFLY attacks
 	if ((mobj->flags & MF_SKULLFLY) && mobj->mom.x == 0 && mobj->mom.y == 0)
@@ -1853,9 +1851,15 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 		mobj->flags |= MF_TOUCHY;
 
 	// handle dynamic lights
-	if (type->dlight.type != DLITE_None)
+	for (int DL=0; DL < 2; DL++)
 	{
-		mobj->dlight_qty = mobj->dlight_target = (float)type->dlight.intensity;
+		const dlight_info_c *info = (DL == 0) ? &type->dlight0 : &type->dlight1;
+
+		if (info->type != DLITE_None)
+		{
+			mobj->dlight[DL].r = mobj->dlight[DL].target = info->radius;
+			mobj->dlight[DL].image = W_ImageLookup(info->shape, INS_Graphic, ILF_Null);
+		}
 	}
 
 	// set subsector and/or block links

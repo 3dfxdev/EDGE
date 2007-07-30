@@ -418,6 +418,14 @@ public:
 	float x, y, z;
 };
 
+typedef struct dlight_state_s
+{
+	float r;  // radius
+	float target;  // target radius
+	const struct image_s *image;
+}
+dlight_state_t;
+
 
 // Map Object definition.
 typedef struct mobj_s mobj_t;
@@ -555,8 +563,7 @@ struct mobj_s : public position_c
 	// if we're on a ladder, this is the linedef #, otherwise -1.
 	int on_ladder;
 
-	float dlight_qty;
-	float dlight_target;
+	dlight_state_t dlight[2];
 
 	// monster reload support: count the number of shots
 	int shot_count;

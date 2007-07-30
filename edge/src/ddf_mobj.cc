@@ -102,8 +102,8 @@ const commandlist_t thing_commands[] =
 {
 	// sub-commands
 	DDF_SUB_LIST("HALO",   halo,   halo_commands,   buffer_halo),
-	DDF_SUB_LIST("DLIGHT",  dlight1, dlight_commands, buffer_dlight),
-	DDF_SUB_LIST("DLIGHT2", dlight2, dlight_commands, buffer_dlight),
+	DDF_SUB_LIST("DLIGHT",  dlight0, dlight_commands, buffer_dlight),
+	DDF_SUB_LIST("DLIGHT2", dlight1, dlight_commands, buffer_dlight),
 	DDF_SUB_LIST("EXPLODE DAMAGE", explode_damage, damage_commands, buffer_damage),
 	DDF_SUB_LIST("CHOKE DAMAGE", choke_damage, damage_commands, buffer_damage),
 
@@ -1786,8 +1786,8 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	halo = src.halo;
 
 	// dynamic light info
+	dlight0 = src.dlight0;
 	dlight1 = src.dlight1;
-	dlight2 = src.dlight2;
 
 	dropitem = src.dropitem; 
 	dropitem_ref = src.dropitem_ref; 
@@ -1906,8 +1906,8 @@ void mobjtype_c::Default()
 	halo.Default();
 
 	// dynamic light info
+	dlight0.Default();
 	dlight1.Default();
-	dlight2.Default();
 
 	dropitem = NULL;
 	dropitem_ref.Clear();
