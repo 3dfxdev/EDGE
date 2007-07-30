@@ -125,8 +125,10 @@ static savefield_t sv_fields_mobj[] =
 	SF(on_ladder, "on_ladder", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(path_trigger, "path_trigger", 1, SVT_STRING,
 	    SR_TriggerGetScript, SR_TriggerPutScript),
-	SF(dlight_qty, "dlight_qty", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
-	SF(dlight_target, "dlight_target", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
+	SF(dlight[0].r, "dlight_qty", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
+	SF(dlight[1].r, "dlight_qty2", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
+	SF(dlight[0].target, "dlight_target", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
+	SF(dlight[1].target, "dlight_target2", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(shot_count, "shot_count", 1, SVT_INT, SR_GetInt, SR_PutInt),
 
 	// NOT HERE:
@@ -371,6 +373,15 @@ void SV_MobjFinaliseElems(void)
 		REF_COUNT_FIELD(below_mo);
 
 #undef REF_COUNT_FIELD
+		
+		// dynamic lights
+		for (int DL=0; DL < 2; DL++)
+		{
+			const dlight_info_c *info = (DL == 0) ? &mo->info->dlight0 : &mo->info->dlight1;
+
+			if (info->type != DLITE_None)
+				mo->dlight[DL].image = W_ImageLookup(info->shape, INS_Graphic, ILF_Null);
+		}
 
 		// sanity checks
 	}

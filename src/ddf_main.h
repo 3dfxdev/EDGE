@@ -757,8 +757,8 @@ public:
 	haloinfo_c halo;
 
 	// -ACB- 2003/05/15 Made dlight_info structure external to mobjtype_c
+	dlight_info_c dlight0;
 	dlight_info_c dlight1;
-	dlight_info_c dlight2;
 
 	// item to drop (or NULL).  The mobjdef pointer is only valid after
 	// DDF_MobjCleanUp() has been called.
