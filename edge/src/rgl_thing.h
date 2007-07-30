@@ -28,6 +28,7 @@
 
 #include "r_defs.h"
 #include "r2_defs.h"
+#include "w_sprite.h"
 
 void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub);
 void RGL_DrawSortThings(drawfloor_t *dfloor);
