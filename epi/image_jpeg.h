@@ -20,7 +20,7 @@
 #define __EPI_IMAGE_JPEG_H__
 
 #include "epi.h"
-#include "basicimage.h"
+#include "image_data.h"
 #include "files.h"
 
 #include <stdio.h>
@@ -34,7 +34,7 @@ namespace JPEG
 
 	/* ------ Functions ------------------------------------- */
 
-	basicimage_c *Load(file_c *f, bool invert = false, bool round_pow2 = false);
+	image_data_c *Load(file_c *f, bool invert = false, bool round_pow2 = false);
 	// loads the given JPEG image.  Returns 0 if something went wrong.
 	// The image will be RGB or RGBA (never paletted).  The size of
 	// image (width and height) are rounded to the next highest
@@ -49,7 +49,7 @@ namespace JPEG
 	// from the image returned by Load() which rounds to power-of-two.
 	// FIXME: throw exception on failure
 
-	bool Save(const basicimage_c& image, FILE *fp, int quality = DEF_QUALITY);
+	bool Save(const image_data_c& image, FILE *fp, int quality = DEF_QUALITY);
 	// saves the image (in JPEG format) to the given file.  Returns false if
 	// something went wrong.  The 'quality' parameter is a percentage, the
 	// range is roughly 70 to 95 (values outside of this are possible).

@@ -45,14 +45,14 @@ namespace PNG
 
 }  // namespace PNG
 
-basicimage_c *PNG::Load(file_c *f, bool invert, bool round_pow2)
+image_data_c *PNG::Load(file_c *f, bool invert, bool round_pow2)
 {
 	/* -AJA- all these volatiles here may seem strange.  They are needed
 	 * because the ANSI C standard (which GCC adheres to) says that when
 	 * setjmp/longjmp is being used, only volatile local variables are
 	 * guaranteed to keep their state if longjmp() gets called.
 	 */
-	basicimage_c * volatile img = 0;
+	image_data_c * volatile img = 0;
 
 	png_bytep * volatile row_pointers = 0;
 
@@ -123,7 +123,7 @@ basicimage_c *PNG::Load(file_c *f, bool invert, bool round_pow2)
 		tot_H = 1; while (tot_H < (int)height) tot_H <<= 1;
 	}
 
-	img = new basicimage_c(tot_W, tot_H, solid ? 3 : 4);
+	img = new image_data_c(tot_W, tot_H, solid ? 3 : 4);
 
 	/* tell libpng to strip 16 bits/color down to 8 bits/color */
 	png_set_strip_16(png_ptr);
@@ -285,7 +285,7 @@ failed:
 
 //------------------------------------------------------------------------
 
-bool PNG::Save(const basicimage_c& image, FILE *fp, int compress)
+bool PNG::Save(const image_data_c& image, FILE *fp, int compress)
 {
 	/// FIXME: asserts
 	/// ASSERT(compress >= Z_NO_COMPRESSION);

@@ -140,7 +140,7 @@ namespace JPEG
 
 //------------------------------------------------------------------------
 
-basicimage_c *JPEG::Load(file_c *f, bool invert, bool round_pow2)
+image_data_c *JPEG::Load(file_c *f, bool invert, bool round_pow2)
 {
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
@@ -171,7 +171,7 @@ basicimage_c *JPEG::Load(file_c *f, bool invert, bool round_pow2)
 		tot_H = 1; while (tot_H < (int)height) tot_H <<= 1;
 	}
 
-	basicimage_c *img = new basicimage_c(tot_W, tot_H, 3);
+	image_data_c *img = new image_data_c(tot_W, tot_H, 3);
 
 	/* read image pixels */
 
@@ -230,7 +230,7 @@ bool JPEG::GetInfo(file_c *f, int *width, int *height, bool *solid)
 
 namespace JPEG
 {
-	void convert_row_to_RGB(const basicimage_c& image, int y, u8_t *buf)
+	void convert_row_to_RGB(const image_data_c& image, int y, u8_t *buf)
 	{
 		/// ASSERT(buf);
 		/// ASSERT(image.bpp == 4);
@@ -248,7 +248,7 @@ namespace JPEG
 	}
 }
 
-bool JPEG::Save(const basicimage_c& image, FILE *fp, int quality)
+bool JPEG::Save(const image_data_c& image, FILE *fp, int quality)
 {
 	u8_t *row_data = 0;
 

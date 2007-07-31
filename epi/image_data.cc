@@ -16,7 +16,7 @@
 //
 //------------------------------------------------------------------------
 
-#include "basicimage.h"
+#include "image_data.h"
 
 #include <math.h>
 #include <string.h>
@@ -24,7 +24,7 @@
 namespace epi
 {
 
-basicimage_c::basicimage_c(int _w, int _h, int _bpp) :
+image_data_c::image_data_c(int _w, int _h, int _bpp) :
     width(_w), height(_h), bpp(_bpp)
 {
 	int size = width * height * bpp;
@@ -34,7 +34,7 @@ basicimage_c::basicimage_c(int _w, int _h, int _bpp) :
 	memset(pixels, 0, size);
 }
 
-basicimage_c::~basicimage_c()
+image_data_c::~image_data_c()
 {
 	delete[] pixels;
 
