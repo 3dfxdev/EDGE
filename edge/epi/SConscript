@@ -21,6 +21,7 @@ epi_sources = [
     'math_angle.cc', 'math_bbox.cc', 'math_colour.cc',
     'math_crc.cc', 'math_md5.cc', 'math_point.cc', 'math_vector.cc',
     'memfile.cc', 'mersenne_twist.cc',
+    'sound_data.cc',
     'stacks.cc', 'strings.cc', 'timestamp.cc', 'utility.cc']
 
 # operating system specifics
