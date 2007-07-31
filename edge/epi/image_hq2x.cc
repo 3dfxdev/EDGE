@@ -2944,12 +2944,12 @@ void StripAlpha(u8_t *dest, const u8_t *src, int width)
 	}
 }
 
-basicimage_c *Convert(basicimage_c *img, bool solid, bool invert)
+image_data_c *Convert(image_data_c *img, bool solid, bool invert)
 {
 	int w = img->width;
 	int h = img->height;
 
-	basicimage_c *result = new basicimage_c(w*2, h*2, solid ? 3 : 4);
+	image_data_c *result = new image_data_c(w*2, h*2, solid ? 3 : 4);
 
 	// for solid mode, we must strip off the alpha channel
 	u8_t *temp_buffer = NULL;

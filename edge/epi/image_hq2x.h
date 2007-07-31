@@ -27,7 +27,7 @@
 #define __EPI_IMAGE_HQ2X_H__
 
 #include "epi.h"
-#include "basicimage.h"
+#include "image_data.h"
 
 namespace epi
 {
@@ -40,7 +40,7 @@ namespace epi
 		// The 'trans_pixel' gives a pixel index which is fully
 		// transparent, or none when -1.
 
-		basicimage_c *Convert(basicimage_c *img, bool solid, bool invert = false);
+		image_data_c *Convert(image_data_c *img, bool solid, bool invert = false);
 		// converts a single palettised image into an RGB or RGBA
 		// image (depending on the solid parameter).  The Setup()
 		// method must be called sometime prior to calling this

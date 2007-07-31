@@ -20,7 +20,7 @@
 #define __EPI_IMAGE_PNG_H__
 
 #include "epi.h"
-#include "basicimage.h"
+#include "image_data.h"
 #include "files.h"
 
 #include <stdio.h>
@@ -34,7 +34,7 @@ namespace PNG
 
 	/* ------ Functions ------------------------------------- */
 
-	basicimage_c *Load(file_c *f, bool invert = false, bool round_pow2 = false);
+	image_data_c *Load(file_c *f, bool invert = false, bool round_pow2 = false);
 	// loads the given PNG image.  Returns 0 if something went wrong.
 	// The image will be RGB or RGBA (never paletted).  The size of
 	// image (width and height) are rounded to the next highest
@@ -49,7 +49,7 @@ namespace PNG
 	// from the image returned by Load() which rounds to power-of-two.
 	// FIXME: throw exception on failure
 
-	bool Save(const basicimage_c& image, FILE *fp, int compress = DEF_COMPRESS);
+	bool Save(const image_data_c& image, FILE *fp, int compress = DEF_COMPRESS);
 	// saves the image (in PNG format) to the given file.  The compression
 	// level should be between 1 (Z_BEST_SPEED) and 9 (Z_BEST_COMPRESSION).
 	// Returns false if failed to save (e.g. file already exists).

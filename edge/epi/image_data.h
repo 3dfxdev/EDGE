@@ -2,7 +2,7 @@
 //  Basic image storage
 //------------------------------------------------------------------------
 // 
-//  Copyright (c) 2003-2005  The EDGE Team.
+//  Copyright (c) 2003-2007  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -16,8 +16,8 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef __EPI_BASICIMAGE_H__
-#define __EPI_BASICIMAGE_H__
+#ifndef __EPI_IMAGEDATA_H__
+#define __EPI_IMAGEDATA_H__
 
 #include "epi.h"
 #include "types.h"
@@ -25,7 +25,7 @@
 namespace epi
 {
 
-class basicimage_c
+class image_data_c
 {
 public:
 	int width;
@@ -39,8 +39,8 @@ public:
   
 	u8_t *pixels;
 
-	basicimage_c(int _w, int _h, int _bpp = 3);
-	~basicimage_c();
+	image_data_c(int _w, int _h, int _bpp = 3);
+	~image_data_c();
 
 	inline u8_t *PixelAt(int x, int y) const
 	{
@@ -59,6 +59,6 @@ public:
 	}
 };
 
-}; // namespace epi
+} // namespace epi
 
-#endif  /* __EPI_BASICIMAGE_H__ */
+#endif  /* __EPI_IMAGEDATA_H__ */
