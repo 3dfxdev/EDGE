@@ -53,9 +53,11 @@
 #include "epi/endianess.h"
 #include "epi/files.h"
 #include "epi/filesystem.h"
+#include "epi/path.h"
+
+#include "epi/image_data.h"
 #include "epi/image_jpeg.h"
 #include "epi/image_png.h"
-#include "epi/path.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -530,7 +532,7 @@ void M_ScreenShot(bool show_msg)
 		return;
 	}
 
-	epi::basicimage_c img(SCREENWIDTH, SCREENHEIGHT, 3);
+	epi::image_data_c img(SCREENWIDTH, SCREENHEIGHT, 3);
 
 	RGL_ReadScreen(0, 0, SCREENWIDTH, SCREENHEIGHT, img.pixels);
 

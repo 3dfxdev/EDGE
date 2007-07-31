@@ -48,13 +48,12 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include "epi/basicimage.h"
 #include "epi/endianess.h"
-
 #include "epi/files.h"
 #include "epi/filesystem.h"
 #include "epi/memfile.h"
 
+#include "epi/image_data.h"
 #include "epi/image_hq2x.h"
 #include "epi/image_png.h"
 #include "epi/image_jpeg.h"
@@ -165,7 +164,7 @@ typedef struct real_cached_image_s
 		{
 			// RGB pixel block. MIP_SIZE(total_h,mip) * MIP_SIZE(total_w,mip)
 			// is the size. Transparent pixels are TRANS_PIXEL.
-			epi::basicimage_c *img;
+			epi::image_data_c *img;
 		}
 		block;
 
@@ -268,7 +267,7 @@ real_image_t;
 
 
 // needed for SKY
-static epi::basicimage_c *ReadAsEpiBlock(real_image_t *rim);
+static epi::image_data_c *ReadAsEpiBlock(real_image_t *rim);
 
 
 // Image container
@@ -390,7 +389,7 @@ const struct image_s *skyflatimage;
 // six sides to compute, and we don't want to load the original
 // image six times.  Removing this hack requires caching it in the
 // cache system (which is not possible right now).
-static epi::basicimage_c *merging_sky_image;
+static epi::image_data_c *merging_sky_image;
 
 // use a common buffer for image shrink operations, saving the
 // overhead of allocating a new buffer for every image.
@@ -962,7 +961,7 @@ const image_t ** W_ImageGetUserSprites(int *count)
 //
 // Clip and draw an old-style column from a patch into a block.
 //
-static void DrawColumnIntoEpiBlock(real_image_t *rim, epi::basicimage_c *img,
+static void DrawColumnIntoEpiBlock(real_image_t *rim, epi::image_data_c *img,
    const column_t *patchcol, int x, int y)
 {
 	SYS_ASSERT(patchcol);
@@ -1014,7 +1013,7 @@ static void DrawColumnIntoEpiBlock(real_image_t *rim, epi::basicimage_c *img,
 //
 #define MAX_STRAY_PIXELS  2
 
-static void CheckEpiBlockSolid(real_image_t *rim, epi::basicimage_c *img)
+static void CheckEpiBlockSolid(real_image_t *rim, epi::image_data_c *img)
 {
 	SYS_ASSERT(img->bpp == 1);
 
@@ -1419,7 +1418,7 @@ static GLuint minif_modes[2*3] =
 	GL_LINEAR_MIPMAP_LINEAR
 };
 
-static GLuint W_SendGLTexture(epi::basicimage_c *img,
+static GLuint W_SendGLTexture(epi::image_data_c *img,
 					   bool clamp, bool nomip, bool smooth,
 					   int max_pix, const byte *what_palette)
 {
@@ -1519,7 +1518,7 @@ static GLuint W_SendGLTexture(epi::basicimage_c *img,
 	return id;
 }
 
-static void FontWhitenRGBA(epi::basicimage_c *img)
+static void FontWhitenRGBA(epi::image_data_c *img)
 {
 	for (int y = 0; y < img->height; y++)
 		for (int x = 0; x < img->width; x++)
@@ -1534,7 +1533,7 @@ static void FontWhitenRGBA(epi::basicimage_c *img)
 		}
 }
 
-static void PaletteRemapRGBA(epi::basicimage_c *img,
+static void PaletteRemapRGBA(epi::image_data_c *img,
 	const byte *new_pal, const byte *old_pal)
 {
 	const int max_prev = 32;
@@ -1645,7 +1644,7 @@ static void PaletteRemapRGBA(epi::basicimage_c *img,
 // Loads a flat from the wad and returns the image block for it.
 // Doesn't do any mipmapping (this is too "raw" if you follow).
 //
-static epi::basicimage_c *ReadFlatAsEpiBlock(real_image_t *rim)
+static epi::image_data_c *ReadFlatAsEpiBlock(real_image_t *rim)
 {
 	SYS_ASSERT(rim->source_type == IMSRC_Flat ||
 				rim->source_type == IMSRC_Raw320x200);
@@ -1656,7 +1655,7 @@ static epi::basicimage_c *ReadFlatAsEpiBlock(real_image_t *rim)
 	int w = rim->pub.actual_w;
 	int h = rim->pub.actual_h;
 
-	epi::basicimage_c *img = new epi::basicimage_c(tw, th, 1);
+	epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
 
 	byte *dest = img->pixels;
 
@@ -1697,7 +1696,7 @@ static epi::basicimage_c *ReadFlatAsEpiBlock(real_image_t *rim)
 // This routine will also update the `solid' flag if texture turns
 // out to be solid.
 //
-static epi::basicimage_c *ReadTextureAsEpiBlock(real_image_t *rim)
+static epi::image_data_c *ReadTextureAsEpiBlock(real_image_t *rim)
 {
 	SYS_ASSERT(rim->source_type == IMSRC_Texture);
 
@@ -1707,7 +1706,7 @@ static epi::basicimage_c *ReadTextureAsEpiBlock(real_image_t *rim)
 	int tw = rim->pub.total_w;
 	int th = rim->pub.total_h;
 
-	epi::basicimage_c *img = new epi::basicimage_c(tw, th, 1);
+	epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
 
 	byte *dest = img->pixels;
 
@@ -1775,7 +1774,7 @@ static epi::basicimage_c *ReadTextureAsEpiBlock(real_image_t *rim)
 // mipmapping (this is too "raw" if you follow).  This routine will
 // also update the `solid' flag if it turns out to be 100% solid.
 //
-static epi::basicimage_c *ReadPatchAsEpiBlock(real_image_t *rim)
+static epi::image_data_c *ReadPatchAsEpiBlock(real_image_t *rim)
 {
 	SYS_ASSERT(rim->source_type == IMSRC_Graphic ||
 				rim->source_type == IMSRC_Sprite);
@@ -1783,7 +1782,7 @@ static epi::basicimage_c *ReadPatchAsEpiBlock(real_image_t *rim)
 	int tw = rim->pub.total_w;
 	int th = rim->pub.total_h;
 
-	epi::basicimage_c *img = new epi::basicimage_c(tw, th, 1);
+	epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
 
 	byte *dest = img->pixels;
 
@@ -1877,7 +1876,7 @@ static inline bool SkyIsNarrow(const image_t *sky)
 //
 // ReadSkyMergeAsBlock
 //
-static epi::basicimage_c *ReadSkyMergeAsEpiBlock(real_image_t *rim)
+static epi::image_data_c *ReadSkyMergeAsEpiBlock(real_image_t *rim)
 {
 	SYS_ASSERT(rim->source_type == IMSRC_SkyMerge);
 	SYS_ASSERT(rim->pub.actual_w == rim->pub.total_w);
@@ -1904,9 +1903,9 @@ static epi::basicimage_c *ReadSkyMergeAsEpiBlock(real_image_t *rim)
 	if (! merging_sky_image)
 		merging_sky_image = ReadAsEpiBlock(sky_rim);
 
-	epi::basicimage_c *sky_img = merging_sky_image;
+	epi::image_data_c *sky_img = merging_sky_image;
 
-	epi::basicimage_c *img = new epi::basicimage_c(tw, th, 3);
+	epi::image_data_c *img = new epi::image_data_c(tw, th, 3);
 
 #if 0 // DEBUG
 	I_Printf("SkyMerge: Image %p face %d\n", rim, rim->source.merge.face);
@@ -2071,7 +2070,7 @@ static epi::basicimage_c *ReadSkyMergeAsEpiBlock(real_image_t *rim)
 //
 // Creates a dummy image.
 //
-static epi::basicimage_c *ReadDummyAsEpiBlock(real_image_t *rim)
+static epi::image_data_c *ReadDummyAsEpiBlock(real_image_t *rim)
 {
 	SYS_ASSERT(rim->source_type == IMSRC_Dummy);
 	SYS_ASSERT(rim->pub.actual_w == rim->pub.total_w);
@@ -2079,7 +2078,7 @@ static epi::basicimage_c *ReadDummyAsEpiBlock(real_image_t *rim)
 	SYS_ASSERT(rim->pub.total_w == DUMMY_X);
 	SYS_ASSERT(rim->pub.total_h == DUMMY_Y);
 
-	epi::basicimage_c *img = new epi::basicimage_c(DUMMY_X, DUMMY_Y, 4);
+	epi::image_data_c *img = new epi::image_data_c(DUMMY_X, DUMMY_Y, 4);
 
 	// copy pixels
 	for (int y=0; y < DUMMY_Y; y++)
@@ -2113,7 +2112,7 @@ static epi::basicimage_c *ReadDummyAsEpiBlock(real_image_t *rim)
 	return img;
 }
 
-static void NormalizeClearAreas(epi::basicimage_c *img)
+static void NormalizeClearAreas(epi::image_data_c *img)
 {
 	// makes sure that any totally transparent pixel (alpha == 0)
 	// has a colour of black.  This shows up when smoothing is on.
@@ -2134,7 +2133,7 @@ static void NormalizeClearAreas(epi::basicimage_c *img)
 	}
 }
 
-static void CreateUserColourImage(epi::basicimage_c *img, imagedef_c *def)
+static void CreateUserColourImage(epi::image_data_c *img, imagedef_c *def)
 {
 	byte *dest = img->pixels;
 
@@ -2150,7 +2149,7 @@ static void CreateUserColourImage(epi::basicimage_c *img, imagedef_c *def)
 	}
 }
 
-static void FourWaySymmetry(epi::basicimage_c *img)
+static void FourWaySymmetry(epi::image_data_c *img)
 {
 	// the already-drawn corner has the lowest x and y values.  When
 	// width or height is odd, the middle column/row must already be
@@ -2171,7 +2170,7 @@ static void FourWaySymmetry(epi::basicimage_c *img)
 	}
 }
 
-static void EightWaySymmetry(epi::basicimage_c *img)
+static void EightWaySymmetry(epi::image_data_c *img)
 {
 	// Note: the corner already drawn has lowest x and y values, and
 	// the triangle piece is where x >= y.  The diagonal (x == y) must
@@ -2190,7 +2189,7 @@ static void EightWaySymmetry(epi::basicimage_c *img)
 	FourWaySymmetry(img);
 }
 
-static void CreateUserBuiltinLinear(epi::basicimage_c *img, imagedef_c *def)
+static void CreateUserBuiltinLinear(epi::image_data_c *img, imagedef_c *def)
 {
 	SYS_ASSERT(img->bpp == 4);
 	SYS_ASSERT(img->width == img->height);
@@ -2229,7 +2228,7 @@ static void CreateUserBuiltinLinear(epi::basicimage_c *img, imagedef_c *def)
 	EightWaySymmetry(img);
 }
 
-static void CreateUserBuiltinQuadratic(epi::basicimage_c *img, imagedef_c *def)
+static void CreateUserBuiltinQuadratic(epi::image_data_c *img, imagedef_c *def)
 {
 	SYS_ASSERT(img->bpp == 4);
 	SYS_ASSERT(img->width == img->height);
@@ -2273,7 +2272,7 @@ sq = exp(-5.44 * hor_p2);
 	EightWaySymmetry(img);
 }
 
-static void CreateUserBuiltin_RING(epi::basicimage_c *img, imagedef_c *def)
+static void CreateUserBuiltin_RING(epi::image_data_c *img, imagedef_c *def)
 {
 	SYS_ASSERT(img->bpp == 4);
 	SYS_ASSERT(img->width == img->height);
@@ -2321,7 +2320,7 @@ sq = exp(-5.44 * hor_p2);
 	EightWaySymmetry(img);
 }
 
-static void CreateUserBuiltinShadow(epi::basicimage_c *img, imagedef_c *def)
+static void CreateUserBuiltinShadow(epi::image_data_c *img, imagedef_c *def)
 {
 	SYS_ASSERT(img->bpp == 4);
 	SYS_ASSERT(img->width == img->height);
@@ -2357,7 +2356,7 @@ static void CreateUserBuiltinShadow(epi::basicimage_c *img, imagedef_c *def)
 	EightWaySymmetry(img);
 }
 
-static void CreateUserBuiltinCOLMAP(epi::basicimage_c *img, imagedef_c *def)
+static void CreateUserBuiltinCOLMAP(epi::image_data_c *img, imagedef_c *def)
 {
 	SYS_ASSERT(img->bpp == 4);
 
@@ -2437,14 +2436,14 @@ static void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f)
 	}
 }
 
-static epi::basicimage_c *CreateUserFileImage(real_image_t *rim, imagedef_c *def)
+static epi::image_data_c *CreateUserFileImage(real_image_t *rim, imagedef_c *def)
 {
 	epi::file_c *f = OpenUserFileOrLump(def);
 
 	if (! f)
 		I_Error("Missing image file: %s\n", def->name.GetString());
 
-	epi::basicimage_c *img;
+	epi::image_data_c *img;
 
 	if (def->format == LIF_JPEG)
 		img = epi::JPEG::Load(f, true /* invert */, true /* round_pow2 */);
@@ -2481,7 +2480,7 @@ static epi::basicimage_c *CreateUserFileImage(real_image_t *rim, imagedef_c *def
 // Loads or Creates the user defined image.
 // Doesn't do any mipmapping (this is too "raw" if you follow).
 //
-static epi::basicimage_c *ReadUserAsEpiBlock(real_image_t *rim)
+static epi::image_data_c *ReadUserAsEpiBlock(real_image_t *rim)
 {
 	SYS_ASSERT(rim->source_type == IMSRC_User);
 
@@ -2499,14 +2498,14 @@ static epi::basicimage_c *ReadUserAsEpiBlock(real_image_t *rim)
 	{
 		case IMGDT_Colour:
 		{
-			epi::basicimage_c *img = new epi::basicimage_c(tw, th, bpp);
+			epi::image_data_c *img = new epi::image_data_c(tw, th, bpp);
 			CreateUserColourImage(img, def);
 			return img;
 		}
 
 		case IMGDT_Builtin:
 		{
-			epi::basicimage_c *img = new epi::basicimage_c(tw, th, bpp);
+			epi::image_data_c *img = new epi::image_data_c(tw, th, bpp);
 			switch (def->builtin)
 			{
 				case BLTIM_Linear:
@@ -2546,14 +2545,14 @@ static epi::basicimage_c *ReadUserAsEpiBlock(real_image_t *rim)
 //
 // ReadAsEpiBlock
 //
-// Read the image from the wad into an epi::basicimage class.
+// Read the image from the wad into an image_data_c class.
 // The image returned is normally palettised (bpp == 1), and the
 // palette must be determined from rim->source_palette.  Mainly
 // just a switch to more specialised image readers.
 //
 // Never returns NULL.
 //
-static epi::basicimage_c *ReadAsEpiBlock(real_image_t *rim) 
+static epi::image_data_c *ReadAsEpiBlock(real_image_t *rim) 
 {
 	switch (rim->source_type)
 	{
@@ -2590,7 +2589,7 @@ static epi::basicimage_c *ReadAsEpiBlock(real_image_t *rim)
 //  IMAGE LOADING / UNLOADING
 //
 
-static void DumpImage(epi::basicimage_c *img)
+static void DumpImage(epi::image_data_c *img)
 {
 	L_WriteDebug("DUMP IMAGE: size=%dx%d bpp=%d\n",
 			img->width, img->height, img->bpp);
@@ -2725,7 +2724,7 @@ real_cached_image_t *LoadImageOGL(real_image_t *rim, const colourmap_c *trans)
 	rc->hue = RGB_NO_VALUE;
 	rc->size = size;
 
-	epi::basicimage_c *tmp_img = ReadAsEpiBlock(rim);
+	epi::image_data_c *tmp_img = ReadAsEpiBlock(rim);
 
 	if (var_hq_scale && (tmp_img->bpp == 1) &&
 		(rim->source_type == IMSRC_Raw320x200 ||
@@ -2738,7 +2737,7 @@ real_cached_image_t *LoadImageOGL(real_image_t *rim, const colourmap_c *trans)
 //		epi::Hq2x::Setup(&playpal_data[0][0][0], TRANS_PIXEL);
 		epi::Hq2x::Setup(what_palette, TRANS_PIXEL);
 
-		epi::basicimage_c *scaled_img =
+		epi::image_data_c *scaled_img =
 			epi::Hq2x::Convert(tmp_img, rim->pub.img_solid, true /* invert */);
 
 		delete tmp_img;
@@ -3461,7 +3460,7 @@ void W_ImageDone(const cached_image_t *c)
 // Never returns NULL.
 //
 #if 0  // planned...
-const epi::basicimage_c *W_ImageGetEpiBlock(const cached_image_t *c)
+const epi::image_data_c *W_ImageGetEpiBlock(const cached_image_t *c)
 {
 	real_cached_image_t *rc;
  
