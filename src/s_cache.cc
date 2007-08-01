@@ -25,6 +25,10 @@
 
 #include "i_defs.h"
 
+#include "epi/sound_data.h"
+#include "epi/errors.h"
+#include "epi/strings.h"
+
 #include "s_sound.h"
 #include "s_cache.h"
 
@@ -36,88 +40,23 @@
 #include "r_defs.h"
 #include "w_wad.h"
 
-#include "epi/errors.h"
-#include "epi/strings.h"
-
 #include <stdlib.h>
 #include <string.h>
 
 #include <vector>
 
 
-static std::vector<fx_data_c *> fx_cache;
+static std::vector<sound_data_c *> fx_cache;
 
 
-fx_data_c::fx_data_c() : length(0), freq(0), mode(0),
-						 data_L(NULL), data_R(NULL),
-						 def(NULL), ref_count(0)
-{ }
-
-fx_data_c::~fx_data_c()
-{
-	Free();
-}
-
-void fx_data_c::Free()
-{
-	length = 0;
-
-	if (data_R && data_R != data_L)
-		delete[] data_R;
-
-	if (data_L)
-		delete[] data_L;
-
-	data_L = NULL;
-	data_R = NULL;
-}
-
-void fx_data_c::Allocate(int samples, int buf_mode)
-{
-	// early out when requirements are already met
-	if (data_L && length >= samples && mode == buf_mode)
-		return;
-
-	if (data_L || data_R)
-	{
-		Free();
-	}
-
-	length = samples;
-	mode   = buf_mode;
-
-	switch (buf_mode)
-	{
-		case SBUF_Mono:
-			data_L = new s16_t[samples];
-			data_R = data_L;
-			break;
-
-		case SBUF_Stereo:
-			data_L = new s16_t[samples];
-			data_R = new s16_t[samples];
-			break;
-
-		case SBUF_Interleaved:
-			data_L = new s16_t[samples * 2];
-			data_R = data_L;
-			break;
-
-		default: break;
-	}
-}
-
-
-//----------------------------------------------------------------------------
-
-static void Load_Silence(fx_data_c *buf)
+static void Load_Silence(sound_data_c *buf)
 {
 	buf->Allocate(256, SBUF_Mono);
 
 	memset(buf->data_L, 0, 256);
 }
 
-static void Load_DOOM(fx_data_c *buf, const byte *lump, int length)
+static void Load_DOOM(sound_data_c *buf, const byte *lump, int length)
 {
 	buf->freq = lump[2] + (lump[3] << 8);
 
@@ -141,12 +80,12 @@ static void Load_DOOM(fx_data_c *buf, const byte *lump, int length)
 		*dest++ = (*src ^ 0x80) << 8;
 }
 
-static void Load_WAV(fx_data_c *buf, const byte *lump, int length)
+static void Load_WAV(sound_data_c *buf, const byte *lump, int length)
 {
 	I_Error("Sound Load: WAV format not supported!\n");
 }
 
-static void Load_OGG(fx_data_c *buf, const byte *lump, int length)
+static void Load_OGG(sound_data_c *buf, const byte *lump, int length)
 {
 	I_Error("Sound Load: OGG/Vorbis format not supported!\n");
 }
@@ -159,7 +98,7 @@ void S_CacheInit(void)
 	// nothing to do
 }
 
-void S_FlushData(fx_data_c *fx)
+void S_FlushData(sound_data_c *fx)
 {
 	SYS_ASSERT(fx->ref_count == 0);
 
@@ -174,11 +113,11 @@ void S_CacheClearAll(void)
 	fx_cache.erase(fx_cache.begin(), fx_cache.end());
 }
 
-fx_data_c *S_CacheLoad(sfxdef_c *def)
+sound_data_c *S_CacheLoad(sfxdef_c *def)
 {
 	for (int i = 0; i < (int)fx_cache.size(); i++)
 	{
-		if (fx_cache[i]->def == def)
+		if (fx_cache[i]->priv_data == (void*)def)
 		{
 			fx_cache[i]->ref_count++;
 			return fx_cache[i];
@@ -187,11 +126,11 @@ fx_data_c *S_CacheLoad(sfxdef_c *def)
 
 
 	// create data structure
-	fx_data_c *buf = new fx_data_c();
+	sound_data_c *buf = new sound_data_c();
 
 	fx_cache.push_back(buf);
 
-	buf->def = def;
+	buf->priv_data = def;
 	buf->ref_count = 1;
 
 	// load in the data from the WAD
@@ -235,7 +174,7 @@ fx_data_c *S_CacheLoad(sfxdef_c *def)
 	return buf;
 }
 
-void S_CacheRelease(fx_data_c *data)
+void S_CacheRelease(sound_data_c *data)
 {
 	SYS_ASSERT(data->ref_count >= 1);
 

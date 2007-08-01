@@ -27,7 +27,7 @@
 #include <vorbis/vorbisfile.h>
 
 // Forward declarations
-class fx_data_c;
+class sound_data_c;
 
 
 class oggplayer_c
@@ -65,7 +65,7 @@ private:
 
 	void PostOpenInit(void);
 
-	bool StreamIntoBuffer(fx_data_c *buf);
+	bool StreamIntoBuffer(sound_data_c *buf);
 
 	void ConvertToMono(s16_t *dest, const s16_t *src, int len);
 

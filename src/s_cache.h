@@ -26,41 +26,7 @@
 #ifndef __S_CACHE__
 #define __S_CACHE__
 
-typedef enum
-{
-	SBUF_Mono = 0,
-	SBUF_Stereo = 1,
-	SBUF_Interleaved = 2
-}
-sfx_buffer_mode_e;
-
-
-class fx_data_c
-{
-public:
-	int length; // number of samples
-	int freq;   // frequency
-	int mode;   // one of the SBUF_xxx values
-
-	// signed 16-bit samples.
-	// For SBUF_Mono, both pointers refer to the same memory.
-	// For SBUF_Interleaved, only data_L is used and contains
-	// both channels, left samples before right samples.
-	s16_t *data_L;
-	s16_t *data_R;
-
-	// internal values, DO NOT USE!
-	sfxdef_c *def;
-	int ref_count;
-
-public:
-	fx_data_c();
-	~fx_data_c();
-
-	void Allocate(int samples, int buf_mode);
-	void Free();
-};
-
+class sound_data_c;
 
 void S_CacheInit(void);
 // setup the sound cache system.
@@ -70,12 +36,12 @@ void S_CacheClearAll(void);
 // Must be called if the audio system parameters (sample_bits,
 // stereoness) are changed.
 
-fx_data_c *S_CacheLoad(sfxdef_c *def);
+sound_data_c *S_CacheLoad(sfxdef_c *def);
 // load a sound into the cache.  If the sound has already
 // been loaded, then it is simply returned (increasing the
 // reference count).  Returns NULL if the lump doesn't exist.
 
-void S_CacheRelease(fx_data_c *data);
+void S_CacheRelease(sound_data_c *data);
 // we are finished with this data.  The cache system may
 // free the memory when the number of references drops to 0.
 // Typically though the sound is kept, as it will likely
