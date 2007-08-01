@@ -2237,9 +2237,6 @@ void RGL_RenderTrueBSP(void)
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
-	// make sure we don't delete any GL textures
-	W_LockImagesOGL();
-
 	// needed for drawing the sky
 	RGL_BeginSky();
 
@@ -2266,8 +2263,6 @@ void RGL_RenderTrueBSP(void)
 
 	RGL_FinishUnits();
 	glDisable(GL_DEPTH_TEST);
-
-	W_UnlockImagesOGL();
 
 	// now draw 2D stuff like psprites, and add effects
 	RGL_SetupMatrices2D();
