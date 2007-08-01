@@ -28,20 +28,26 @@ namespace epi
 class image_data_c
 {
 public:
-	int width;
-	int height;
+	short width;
+	short height;
 
-	int bpp;
-	// bytes per pixel, determines image mode:
-	// 1 = palettised (NOTE: for w_image internal use only). 
-	// 3 = format is RGB, three bytes per pixel.
-	// 4 = format is RGBA, four bytes per pixel.
-  
+	short bpp;
+	// Bytes Per Pixel, determines image mode:
+	// 1 = palettised
+	// 3 = format is RGB
+	// 4 = format is RGBA
+
+  short flags;
+
 	u8_t *pixels;
+
+  // TODO: color_c *palette;
 
 public:
 	image_data_c(int _w, int _h, int _bpp = 3);
 	~image_data_c();
+
+  void Clear(u8_t val = 0);
 
 	inline u8_t *PixelAt(int x, int y) const
 	{
