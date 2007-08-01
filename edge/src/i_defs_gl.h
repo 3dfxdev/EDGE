@@ -2,7 +2,7 @@
 //  EDGE System Specific Header for OpenGL
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2005  The EDGE Team.
+//  Copyright (c) 2007  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -22,8 +22,11 @@
 //    Copyright (C) 1993-1996 by id Software, Inc.
 //
 //----------------------------------------------------------------------------
+
 #ifndef __SYSTEM_SPECIFIC_DEFS_OPENGL__
 #define __SYSTEM_SPECIFIC_DEFS_OPENGL__
+
+#define USING_GL_TYPES 1
 
 #ifdef MACOSX
 #include <OpenGL/gl.h>

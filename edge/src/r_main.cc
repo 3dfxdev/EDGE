@@ -26,7 +26,7 @@
 #include "r_colors.h"
 #include "v_ctx.h"
 #include "r_modes.h"
-#include "r_image_gl.h"
+#include "r_image.h"
 
 #include "epi/strings.h"
 

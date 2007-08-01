@@ -33,7 +33,7 @@
 #include "st_stuff.h"
 #include "r_colors.h"
 #include "r_modes.h"
-#include "r_image_gl.h"
+#include "r_image.h"
 
 #include <math.h>
 
