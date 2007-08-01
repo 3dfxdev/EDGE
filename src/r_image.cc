@@ -27,7 +27,6 @@
 //       Sandberg's w_textur.c/h code.
 //
 // TODO HERE:
-//   +  support an IMG_RGBBlock retrieve mode (use for glDrawPixels)
 //   -  faster search methods.
 //   -  do some optimisation
 //
@@ -104,21 +103,6 @@ typedef enum
 }
 image_source_e;
 
-typedef enum
-{
-    // Block o' RGB pixels.  Total size is MIP_SIZE(total_h, mip) *
-    // MIP_SIZE(total_w, mip).
-    // Transparent parts (if any) have `TRANS_PIXEL' values.
-	IMG_EpiBlock = 0,
-
-	// OpenGL support.  The image is not read directly, but referred to
-	// as a GL texture id number (which can be given to glBindTexture).
-	// The `mip' value must be 0.  Transparent parts (if any) are given
-	// an alpha of zero (otherwise alpha is 255).
-	IMG_OGL = 1
-}
-image_mode_e;
-
 
 struct real_image_s;
 
@@ -148,35 +132,14 @@ typedef struct real_cached_image_s
 	// mip value (>= 0)
 	unsigned short mip;
 
-	// current image mode
-	image_mode_e mode;
-
 	// colormap used for translated image, normally NULL.  (GL Only)
 	const colourmap_c *trans_map;
 
 	// general hue of image (skewed towards pure colors)
 	rgbcol_t hue;
 
-	union
-	{
-        // case IMG_EpiBlock:
-		struct
-		{
-			// RGB pixel block. MIP_SIZE(total_h,mip) * MIP_SIZE(total_w,mip)
-			// is the size. Transparent pixels are TRANS_PIXEL.
-			epi::image_data_c *img;
-		}
-		block;
-
-		// case IMG_OGL:
-		struct
-		{
-			// texture identifier within GL
-			GLuint tex_id;
-		}
-		ogl;
-	}
-	info;
+	// texture identifier within GL
+	GLuint tex_id;
 
 	// total memory size taken up by this image.  Includes this
 	// structure.
@@ -2607,26 +2570,6 @@ static void DumpImage(epi::image_data_c *img)
 }
 
 
-#if 0  // planned....
-static INLINE
-real_cached_image_t *LoadImageBlock(real_image_t *rim, int mip)
-{
-	// OPTIMISE: check if a blockified version at a lower mip already
-	// exists, saving us the trouble to read the stuff from the WAD.
- 
-	real_cached_image_t *rc;
-  
-	rc = ReadAsBlock(rim, mip);
-
-	SYS_ASSERT(rc->mode == IMG_Block);
-
-	rc->users++;
-	InsertAtTail(rc);
-
-	return rc;
-}
-#endif
-
 static
 real_cached_image_t *LoadImageOGL(real_image_t *rim, const colourmap_c *trans)
 {
@@ -2717,7 +2660,6 @@ real_cached_image_t *LoadImageOGL(real_image_t *rim, const colourmap_c *trans)
 	rc->mip = 0;
 	rc->users = 0;
 	rc->invalidated = false;
-	rc->mode = IMG_OGL;
 	rc->trans_map = trans;
 	rc->hue = RGB_NO_VALUE;
 	rc->size = size;
@@ -2750,7 +2692,7 @@ real_cached_image_t *LoadImageOGL(real_image_t *rim, const colourmap_c *trans)
 			PaletteRemapRGBA(tmp_img, what_palette, (const byte *) &playpal_data[0]);
 	}
 
-	rc->info.ogl.tex_id = W_SendGLTexture(tmp_img, clamp, nomip,
+	rc->tex_id = W_SendGLTexture(tmp_img, clamp, nomip,
 		smooth, max_pix, what_palette);
 
 	delete tmp_img;
@@ -2775,7 +2717,7 @@ void UnloadImageBlock(real_cached_image_t *rc, real_image_t *rim)
 static
 void UnloadImageOGL(real_cached_image_t *rc, real_image_t *rim)
 {
-	glDeleteTextures(1, &rc->info.ogl.tex_id);
+	glDeleteTextures(1, &rc->tex_id);
 
 	if (rc->trans_map == NULL)
 	{
@@ -2818,26 +2760,7 @@ static void UnloadImage(real_cached_image_t *rc)
 
 	cache_size -= rc->size;
 
-	switch (rc->mode)
-	{
-#if 0  // planned...
-		case IMG_EpiBlock:
-		{
-			UnloadImageBlock(rc, rim);
-			rim->block_cache.mips[rc->mip] = NULL;
-			break;
-		}
-#endif
-
-		case IMG_OGL:
-		{
-			UnloadImageOGL(rc, rim);
-		}
-		break;
-
-		default:
-			I_Error("UnloadImage: bad mode %d !\n", rc->mode);
-	}
+	UnloadImageOGL(rc, rim);
 
 	// finally, free the rest of the mem
 	Z_Free(rc);
@@ -3247,8 +3170,8 @@ const char *W_ImageGetName(const image_t *image)
 //
 
 
-static INLINE
-const cached_image_t *ImageCacheOGL(real_image_t *rim)
+static inline
+real_cached_image_t *ImageCacheOGL(real_image_t *rim)
 {
 	real_cached_image_t *rc;
 
@@ -3277,12 +3200,11 @@ const cached_image_t *ImageCacheOGL(real_image_t *rim)
 	}
 
 	SYS_ASSERT(rc);
-	SYS_ASSERT(rc->mode == IMG_OGL);
 
-	return (const cached_image_t *)(rc + 1);
+	return rc;
 }
 
-const cached_image_t *ImageCacheTransOGL(real_image_t *rim,
+real_cached_image_t *ImageCacheTransOGL(real_image_t *rim,
 	const colourmap_c *trans)
 {
 	// already cached ?
@@ -3343,9 +3265,8 @@ const cached_image_t *ImageCacheTransOGL(real_image_t *rim,
 	}
 
 	SYS_ASSERT(rc);
-	SYS_ASSERT(rc->mode == IMG_OGL);
 
-	return (const cached_image_t *)(rc + 1);
+	return rc;
 }
 
 
@@ -3365,34 +3286,28 @@ GLuint W_ImageCache(const image_t *image, bool anim,
 	if (anim)
 		rim = rim->anim.cur;
 
-	const cached_image_t *c;
+	real_cached_image_t *rc;
 
 	if (trans)
-		c = ImageCacheTransOGL(rim, trans);
+		rc = ImageCacheTransOGL(rim, trans);
 	else
-		c = ImageCacheOGL(rim);
-
-	SYS_ASSERT(c);
-
-	// Intentional Const Override
-	real_cached_image_t *rc = ((real_cached_image_t *) c) - 1;
+		rc = ImageCacheOGL(rim);
 
 	SYS_ASSERT(rc->parent);
-	SYS_ASSERT(rc->mode == IMG_OGL);
 
-	return rc->info.ogl.tex_id;
+	return rc->tex_id;
 }
 
 
 #if 0  // UNUSED
-void W_ImageDone(const cached_image_t *c)
+void W_ImageDone(real_cached_image_t *rc)
 {
-	real_cached_image_t *rc;
-
-	SYS_ASSERT(c);
-
-	// Intentional Const Override
-	rc = ((real_cached_image_t *) c) - 1;
+///---	real_cached_image_t *rc;
+///---
+///---	SYS_ASSERT(c);
+///---
+///---	// Intentional Const Override
+///---	rc = ((real_cached_image_t *) c) - 1;
 
 	SYS_ASSERT(rc->users > 0);
 
@@ -3414,34 +3329,8 @@ void W_ImageDone(const cached_image_t *c)
 #endif
 
 
-//
-// W_ImageGetEpiBlock
-//
-// Return the pixel block for the cached image.
-// Never returns NULL.
-//
-#if 0  // planned...
-const epi::image_data_c *W_ImageGetEpiBlock(const cached_image_t *c)
-{
-	real_cached_image_t *rc;
- 
-	SYS_ASSERT(c);
-
-	// Intentional Const Override
-	rc = ((real_cached_image_t *) c) - 1;
-
-	SYS_ASSERT(rc->parent);
-	SYS_ASSERT(rc->mode == IMG_Block);
-
-	SYS_ASSERT(rc->info.block.pixels);
-
-	return rc->info.block.pixels;
-}
-#endif
-
-
 #if 0
-rgbcol_t W_ImageGetHue(const cached_image_t *c)
+rgbcol_t W_ImageGetHue(const image_t *img)
 {
 	SYS_ASSERT(c);
 
@@ -3449,7 +3338,6 @@ rgbcol_t W_ImageGetHue(const cached_image_t *c)
 	real_cached_image_t *rc = ((real_cached_image_t *) c) - 1;
 
 	SYS_ASSERT(rc->parent);
-	SYS_ASSERT(rc->mode == IMG_OGL);
 
 	return rc->hue;
 }

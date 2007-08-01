@@ -73,8 +73,6 @@ typedef struct image_s  // FIXME: class image_c
 }
 image_t;
 
-// opaque structure for using images
-typedef byte cached_image_t;
 
 // macro for converting image_t sizes to cached_image_t sizes
 #define MIP_SIZE(size,mip)  MAX(1, (size) >> (mip))
@@ -153,7 +151,7 @@ void W_ImagePreCache(const image_t *image);
 
 
 // -AJA- planned....
-// rgbcol_t W_ImageGetHue(const cached_image_t *c);
+// rgbcol_t W_ImageGetHue(const image_t *c);
 
 const char *W_ImageGetName(const image_t *image);
 
