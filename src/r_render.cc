@@ -107,14 +107,14 @@ static bool solid_mode;
 static subsector_t *drawsubs_head;
 static subsector_t *drawsubs_tail;
 
-static const image_t *fading_image = NULL;
+static const image_c *fading_image = NULL;
 
 #ifdef SHADOW_PROTOTYPE
-static const image_t *shadow_image = NULL;
+static const image_c *shadow_image = NULL;
 #endif
 #ifdef DLIGHT_PROTOTYPE
-static const image_t *linear_image = NULL;
-static const image_t *quad_image = NULL;
+static const image_c *linear_image = NULL;
+static const image_c *quad_image = NULL;
 #endif
 
 // ============================================================================
@@ -144,7 +144,7 @@ void R2_AddColourDLights(int num, int *r, int *g, int *b,
 	if (col == RGB_NO_VALUE)
 	{
 		bool flip;
-		const image_t *img = R2_GetThingSprite(mo, &flip);
+		const image_c *img = R2_GetThingSprite(mo, &flip);
 		col = W_ImageGetHue(img);
 	}
 #endif
@@ -163,6 +163,8 @@ void R2_AddColourDLights(int num, int *r, int *g, int *b,
 		case DLITE_None:
 			I_Error("R2_AddColourDLights: bad dynamic light\n");
 
+		default:  //!!!!! FIXME
+			break;
 #if 0
 		case DLITE_Linear:
 			for (; num > 0; num--, r++, g++, b++, x++, y++, z++)
@@ -384,7 +386,7 @@ typedef struct wall_plane_data_s
 	int cmx;
 
 	drawthing_t *dlights;
-	const image_t *image;
+	const image_c *image;
 
 	float tx, tdx;
 	float ty, ty_mul, ty_skew;

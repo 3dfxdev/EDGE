@@ -27,8 +27,8 @@ typedef struct
 	// range of characters
 	int first, last;
 
-	const image_t **images;
-	const image_t *missing;
+	const image_c **images;
+	const image_c *missing;
 
 	// nominal width and height.  Characters can be larger or smaller
 	// than this, but these values give a good guess for formatting
@@ -67,7 +67,7 @@ public:
 		const colourmap_c *colmap, float alpha) const;
 
 	// FIXME: maybe shouldn't be public (assumes FNTYP_Patch !!)
-	const struct image_s *CharImage(char ch) const;
+	const image_c *CharImage(char ch) const;
 
 private:
 	void BumpPatchName(char *name);

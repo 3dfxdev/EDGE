@@ -31,7 +31,7 @@
 // The sky map is 256*4 wide (10 bits), and angles have 32 bits
 #define ANGLETOSKYSHIFT  (32 - 10)
 
-extern const struct image_s *sky_image;
+extern const image_c *sky_image;
 
 // Used by GL renderer
 void R_ComputeSkyHeights(void);

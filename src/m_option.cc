@@ -243,7 +243,7 @@ typedef struct menuinfo_s
 	// title information
 	int title_x;
 	char title_name[10];
-	const image_t *title_image;
+	const image_c *title_image;
 
 	// current position
 	int pos;
@@ -845,7 +845,7 @@ void M_OptDrawer()
 	menutop = 68 - ((curr_menu->item_num * font_h) / 2);
 
 	{
-		const image_t *image;
+		const image_c *image;
 
 		if (! curr_menu->title_image)
 			curr_menu->title_image = W_ImageLookup(curr_menu->title_name);

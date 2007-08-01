@@ -35,7 +35,6 @@ class mobjtype_c;
 class pl_entry_c;
 class weapondef_c;
 
-struct image_s;
 struct mobj_s;
 struct sfx_s;
 

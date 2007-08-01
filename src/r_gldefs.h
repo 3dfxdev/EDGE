@@ -141,7 +141,7 @@ typedef struct drawthing_s
 	int clip_vert;
 
 	// sprite image to use
-	const image_t *image;
+	const image_c *image;
 	bool flip;
 
 	// scaling
@@ -287,8 +287,8 @@ extern int detail_level;
 extern int use_dlights;  // 2 means compat_mode (FIXME: remove for EDGE 1.30)
 extern int sprite_kludge;
 
-const image_t * R2_GetThingSprite(mobj_t *mo, bool *flip);
-const image_t * R2_GetOtherSprite(int sprite, int frame, bool *flip);
+const image_c * R2_GetThingSprite(mobj_t *mo, bool *flip);
+const image_c * R2_GetOtherSprite(int sprite, int frame, bool *flip);
 void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing);
 
 void R2_AddDLights(int num, int *level, 

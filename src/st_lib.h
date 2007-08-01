@@ -52,10 +52,10 @@ typedef struct
 	int *num;
 
 	// list of images for 0-9
-	const image_t ** digits;
+	const image_c ** digits;
 
 	// minus, or NULL for none.
-	const image_t *minus;
+	const image_c *minus;
 
 	// colourmap
 	const colourmap_c *colmap;
@@ -79,7 +79,7 @@ typedef struct
 	st_float f;
 
 	// percent sign graphic
-	const image_t *percsign;
+	const image_c *percsign;
 }
 st_percent_t;
 
@@ -96,7 +96,7 @@ typedef struct
 	int *inum;
 
 	// list of icons
-	const image_t ** icons;
+	const image_c ** icons;
 }
 st_multicon_t;
 
@@ -114,7 +114,7 @@ typedef struct
 	bool *val;
 
 	// icon
-	const image_t *icon;
+	const image_c *icon;
 }
 st_binicon_t;
 
@@ -130,10 +130,10 @@ void STLIB_Init(void);
 
 // Number widget routines
 void STLIB_InitNum(st_number_t * n, int x, int y, 
-				   const image_t ** digits, const image_t *minus, int *num, 
+				   const image_c ** digits, const image_c *minus, int *num, 
 				   int width);
 
-void STLIB_InitFloat(st_float * n, int x, int y, const image_t ** digits, 
+void STLIB_InitFloat(st_float * n, int x, int y, const image_c ** digits, 
 					 float *num, int width);
 
 void STLIB_DrawNum(st_number_t * n);
@@ -141,21 +141,21 @@ void STLIB_DrawFloat(st_float * n);
 
 // Percent widget routines
 void STLIB_InitPercent(st_percent_t * p, int x, int y, 
-					   const image_t ** digits, const image_t *percsign,
+					   const image_c ** digits, const image_c *percsign,
 					   float *num);
 
 void STLIB_DrawPercent(st_percent_t * per);
 
 // Multiple Icon widget routines
 void STLIB_InitMultIcon(st_multicon_t * mi, int x, int y, 
-						const image_t ** icons, int *inum);
+						const image_c ** icons, int *inum);
 
 void STLIB_DrawMultIcon(st_multicon_t * mi);
 
 // Binary Icon widget routines
 
 void STLIB_InitBinIcon(st_binicon_t * b, int x, int y, 
-					   const image_t * icon, bool * val);
+					   const image_c * icon, bool * val);
 
 void STLIB_DrawBinIcon(st_binicon_t * bi);
 

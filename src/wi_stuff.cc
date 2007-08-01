@@ -138,55 +138,55 @@ static style_c *wi_net_style;
 // GRAPHICS
 
 // background
-static const image_t *bg_image;
+static const image_c *bg_image;
 
 // You Are Here graphic
-static const image_t *yah[2] = {NULL, NULL};
+static const image_c *yah[2] = {NULL, NULL};
 
 // splat
-static const image_t *splat[2] = {NULL, NULL};
+static const image_c *splat[2] = {NULL, NULL};
 
 // %, : graphics
-static const image_t *percent;
-static const image_t *colon;
+static const image_c *percent;
+static const image_c *colon;
 
 // 0-9 graphic
-static const image_t *digits[10];   //FIXME: use FONT/STYLE
+static const image_c *digits[10];   //FIXME: use FONT/STYLE
 
 // minus sign
-static const image_t *wiminus;
+static const image_c *wiminus;
 
 // "Finished!" graphics
-static const image_t *finished;
+static const image_c *finished;
 
 // "Entering" graphic
-static const image_t *entering;
+static const image_c *entering;
 
 // "secret"
-static const image_t *sp_secret;
+static const image_c *sp_secret;
 
  // "Kills", "Scrt", "Items", "Frags"
-static const image_t *kills;
-static const image_t *secret;
-static const image_t *items;
-static const image_t *frags;
+static const image_c *kills;
+static const image_c *secret;
+static const image_c *items;
+static const image_c *frags;
 
 // Time sucks.
-static const image_t *time_image; // -ACB- 1999/09/19 Removed Conflict with <time.h>
-static const image_t *par;
-static const image_t *sucks;
+static const image_c *time_image; // -ACB- 1999/09/19 Removed Conflict with <time.h>
+static const image_c *par;
+static const image_c *sucks;
 
 // "killers", "victims"
-static const image_t *killers;
-static const image_t *victims;
+static const image_c *killers;
+static const image_c *victims;
 
 // "Total", your face, your dead face
-static const image_t *total;
-static const image_t *star;
-static const image_t *bstar;
+static const image_c *total;
+static const image_c *star;
+static const image_c *bstar;
 
 // Name graphics of each level (centered)
-static const image_t *lnames[2];
+static const image_c *lnames[2];
 
 //
 // -ACB- 2004/06/25 Short-term containers for
@@ -218,7 +218,8 @@ private:
 
 public:
 	wi_framedef_c *info;
-	const struct image_s *image; 	// cached image
+
+	const image_c *image; 	// cached image
 };
 
 class wi_anim_c
@@ -326,7 +327,7 @@ static void DrawEnteringLevel(void)
 	RGL_ImageEasy320(160 - w2/2, y + h * 5/4, lnames[1]);
 }
 
-static void DrawOnLnode(wi_mappos_c* mappos, const image_t * images[2])
+static void DrawOnLnode(wi_mappos_c* mappos, const image_c * images[2])
 {
 	int i;
 

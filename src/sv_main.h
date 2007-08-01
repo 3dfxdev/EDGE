@@ -38,7 +38,7 @@
 #include "i_defs.h"
 #include "p_local.h"
 
-struct image_s;
+class image_c;
 
 //
 // STRUCTURE TABLE STUFF
@@ -268,7 +268,7 @@ typedef struct
 	int skill;
 	int netgame;
 
-	const struct image_s *sky_image;  // -AJA- added 2003/12/19
+	const image_c *sky_image;  // -AJA- added 2003/12/19
 
 	const char *description;
 	const char *desc_date;

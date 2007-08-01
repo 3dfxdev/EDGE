@@ -75,8 +75,8 @@ bool autorunning = false;
 
 bool var_diskicon = true;
 bool display_disk = false;
-static const image_t *disk_image = NULL;
-static const image_t *air_images[21] = { NULL };
+static const image_c *disk_image = NULL;
+static const image_c *air_images[21] = { NULL };
 
 bool var_fadepower = true;
 bool var_smoothmap = true;

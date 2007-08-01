@@ -30,7 +30,7 @@
 
 typedef struct switchcache_s
 {
-	const struct image_s *image[2];
+	const image_c *image[2];
 }
 switchcache_t;
 

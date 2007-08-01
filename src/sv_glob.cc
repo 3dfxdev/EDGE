@@ -207,7 +207,7 @@ static void GV_GetImage(const char *info, void *storage)
 {
 	// based on SR_LevelGetImage...
 
-	const image_t ** dest = (const image_t **)storage;
+	const image_c ** dest = (const image_c **)storage;
 
 	SYS_ASSERT(info && storage);
 
@@ -312,7 +312,7 @@ static const char *GV_PutImage(void *storage)
 {
 	// based on SR_LevelPutImage...
 
-	const image_t **src = (const image_t **)storage;
+	const image_c **src = (const image_c **)storage;
 	char buffer[64];
 
 	SYS_ASSERT(storage);

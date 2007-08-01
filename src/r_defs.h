@@ -39,7 +39,7 @@
 // -AJA- 1999/07/10: Need this for colourmap_c.
 #include "ddf_main.h"
 
-struct image_s;
+class image_c;
 
 
 //
@@ -129,7 +129,7 @@ region_properties_t;
 // 
 typedef struct surface_s
 {
-	const struct image_s *image;
+	const image_c *image;
 
 	float translucency;
 

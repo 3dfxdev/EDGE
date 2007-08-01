@@ -78,7 +78,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 {
 	// determine sprite patch
 	bool flip;
-	const image_t *image = R2_GetOtherSprite(state->sprite, state->frame, &flip);
+	const image_c *image = R2_GetOtherSprite(state->sprite, state->frame, &flip);
 
 	if (!image)
 		return;
@@ -368,7 +368,7 @@ static INLINE void LinkDrawthingIntoDrawfloor(drawthing_t *dthing,
 //
 // Can return NULL, for no image.
 //
-const image_t * R2_GetThingSprite(mobj_t *mo, bool *flip)
+const image_c * R2_GetThingSprite(mobj_t *mo, bool *flip)
 {
 	// decide which patch to use for sprite relative to player
 
@@ -417,7 +417,7 @@ const image_t * R2_GetThingSprite(mobj_t *mo, bool *flip)
 //
 // Used for non-object stuff, like weapons and finale.
 //
-const image_t * R2_GetOtherSprite(int spritenum, int framenum, bool *flip)
+const image_c * R2_GetOtherSprite(int spritenum, int framenum, bool *flip)
 {
 	spritedef_c *sprite;
 	spriteframe_c *frame;
@@ -700,7 +700,7 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 		return;
 
 	bool spr_flip;
-	const image_t *image = R2_GetThingSprite(mo, &spr_flip);
+	const image_c *image = R2_GetThingSprite(mo, &spr_flip);
 
 	if (!image)
 		return;
@@ -934,7 +934,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	if (trans < 0.04f)
 		return;
 
-	const image_t *image = dthing->image;
+	const image_c *image = dthing->image;
 
 //	float w = IM_WIDTH(image);
 	float h = IM_HEIGHT(image);
