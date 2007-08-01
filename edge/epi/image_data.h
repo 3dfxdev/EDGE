@@ -39,6 +39,7 @@ public:
   
 	u8_t *pixels;
 
+public:
 	image_data_c(int _w, int _h, int _bpp = 3);
 	~image_data_c();
 
@@ -57,6 +58,20 @@ public:
 		for (int i = 0; i < bpp; i++)
 			*dest++ = *src++;
 	}
+
+	void Whiten();
+	// convert all RGB(A) pixels to a greyscale equivalent.
+	
+	void Shrink(int new_w, int new_h);
+	// shrink an image to a smaller image.
+	// The old size and the new size must be powers of two.
+	// For RGB(A) images the pixel values are averaged.
+	//
+	// NOTE: Palettised images are not supported.
+
+	void Grow(int new_w, int new_h);
+	// scale the image up to a larger size.
+	// The old size and the new size must be powers of two.
 };
 
 } // namespace epi
