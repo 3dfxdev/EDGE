@@ -33,6 +33,7 @@
 
 struct texturedef_s;
 
+
 // the transparent pixel value we use
 #define TRANS_PIXEL  247
 
@@ -44,10 +45,11 @@ struct texturedef_s;
 #define DL_OUTER_SQRT   8.0f
 
 
-typedef struct image_s  // FIXME: class image_c
+class image_c
 {
+public:
 	// actual image size.  Images that are smaller than their total size
-	// are located in the top left corner, cannot tile, and are padded
+	// are located in the bottom left corner, cannot tile, and are padded
 	// with black pixels if solid, or transparent pixels otherwise.
 	unsigned short actual_w;
 	unsigned short actual_h;
@@ -69,12 +71,77 @@ typedef struct image_s  // FIXME: class image_c
     // transparent parts).
 	bool img_solid;
 
-	// ...rest of this structure is private...
-}
-image_t;
+//!!!!!! private:
+
+	// --- information about where this image came from ---
+	char name[16];
+
+	int source_type;  // image_source_e
+ 
+	union
+	{
+		// case IMSRC_Graphic:
+		// case IMSRC_Sprite:
+		struct { int lump; } graphic;
+
+		// case IMSRC_Flat:
+		// case IMSRC_Raw320x200:
+		struct { int lump; } flat;
+
+		// case IMSRC_Texture:
+		struct { struct texturedef_s *tdef; } texture;
+
+		// case IMSRC_SkyMerge:
+		struct { const image_c *sky; int face; } merge;
+
+		// case IMSRC_Dummy:
+		struct { rgbcol_t fg; rgbcol_t bg; } dummy;
+
+		// case IMSRC_User:
+		struct { imagedef_c *def; } user;
+	}
+	source;
+
+	// palette lump, or -1 to use the "GLOBAL" palette
+	int source_palette;
+
+	// --- information about caching ---
+
+	// no mipmapping here, GL does this itself
+	struct real_cached_image_s * ogl_cache;
+
+	// --- cached translated images (OpenGL only) ---
+
+	struct
+	{
+		int num_trans;
+		struct real_cached_image_s ** trans;
+	}
+	trans_cache;
+
+	// --- animation info ---
+
+	struct
+	{
+		// current version of this image in the animation.  Initially points
+		// to self.  For non-animated images, doesn't change.  Otherwise
+		// when the animation flips over, it becomes cur->next.
+		image_c *cur;
+
+		// next image in the animation, or NULL.
+		image_c *next;
+
+		// tics before next anim change, or 0 if non-animated.
+		unsigned short count;
+
+		// animation speed (in tics), or 0 if non-animated.
+		unsigned short speed;
+	}
+	anim;
+};
 
 
-// macro for converting image_t sizes to cached_image_t sizes
+// macro for converting image_c sizes to cached_image_t sizes
 #define MIP_SIZE(size,mip)  MAX(1, (size) >> (mip))
 
 // utility macros
@@ -114,14 +181,14 @@ typedef enum
 }
 image_lookup_flags_e;
 
-const image_t *W_ImageLookup(const char *name, image_namespace_e = INS_Graphic,
+const image_c *W_ImageLookup(const char *name, image_namespace_e = INS_Graphic,
 	int flags = 0);
-const image_t *W_ImageFromSkyMerge(const image_t *sky, int face);
-const image_t *W_ImageForDummySprite(void);
+const image_c *W_ImageFromSkyMerge(const image_c *sky, int face);
+const image_c *W_ImageForDummySprite(void);
 
 // savegame code (Only)
-const image_t *W_ImageParseSaveString(char type, const char *name);
-void W_ImageMakeSaveString(const image_t *image, char *type, char *namebuf);
+const image_c *W_ImageParseSaveString(char type, const char *name);
+void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf);
 
 
 //
@@ -138,28 +205,57 @@ void W_ResetImages(void);
 
 void W_ImageCreateFlats(int *lumps, int number);
 void W_ImageCreateTextures(struct texturedef_s ** defs, int number);
-const image_t *W_ImageCreateSprite(const char *name, int lump, bool is_weapon);
+const image_c *W_ImageCreateSprite(const char *name, int lump, bool is_weapon);
 void W_ImageCreateUser(void);
-void W_AnimateImageSet(const image_t ** images, int number, int speed);
+void W_AnimateImageSet(const image_c ** images, int number, int speed);
 void W_DrawSavePic(const byte *pixels);
 
 #ifdef USING_GL_TYPES
-GLuint W_ImageCache(const image_t *image, bool anim = true,
+GLuint W_ImageCache(const image_c *image, bool anim = true,
 					const colourmap_c *trans = NULL);
 #endif
-void W_ImagePreCache(const image_t *image);
+void W_ImagePreCache(const image_c *image);
 
 
 // -AJA- planned....
-// rgbcol_t W_ImageGetHue(const image_t *c);
+// rgbcol_t W_ImageGetHue(const image_c *c);
 
-const char *W_ImageGetName(const image_t *image);
+const char *W_ImageGetName(const image_c *image);
 
 // this only needed during initialisation -- r_things.cpp
-const image_t ** W_ImageGetUserSprites(int *count);
+const image_c ** W_ImageGetUserSprites(int *count);
 
 // internal routines -- only needed by rgl_wipe.c
 int W_MakeValidSize(int value);
+
+
+typedef enum
+{
+	// Source was a graphic name
+	IMSRC_Graphic = 0,
+
+	// INTERNAL ONLY: Source was a raw block of 320x200 bytes (Heretic/Hexen)
+	IMSRC_Raw320x200,
+
+	// Source was a sprite name
+	IMSRC_Sprite,
+
+	// Source was a flat name
+	IMSRC_Flat,
+
+	// Source was a texture name
+	IMSRC_Texture,
+
+	// INTERNAL ONLY: Source is from IMAGE.DDF
+	IMSRC_User,
+
+	// INTERNAL ONLY: Source was a sky texture, merged for a pseudo sky box
+	IMSRC_SkyMerge,
+
+	// INTERNAL ONLY: Source is dummy image
+	IMSRC_Dummy,
+}
+image_source_e;
 
 
 #endif  // __R_IMAGE__
