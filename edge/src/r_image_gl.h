@@ -28,9 +28,6 @@
 
 #include "r_image.h"
 
-void W_LockImagesOGL(void);
-void W_UnlockImagesOGL(void);
-
 GLuint W_ImageGetOGL(const cached_image_t *c);
 
 #endif  // __R_IMAGE_OGL__

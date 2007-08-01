@@ -1092,10 +1092,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	RGL_EndUnit(vert - orig);
 
-	// Note: normally this would be wrong, since we're using the GL
-	// texture ID later on (after W_ImageDone).  The W_LockImagesOGL
-	// call saves us though.
-	//
 	W_ImageDone(cim);
 }
 

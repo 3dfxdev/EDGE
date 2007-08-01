@@ -371,8 +371,6 @@ int use_mipmapping = 1;
 bool use_smoothing = true;
 bool use_dithering = false;
 
-static bool w_locked_ogl = false;
-
 // total set of images
 static real_image_container_c real_graphics;
 static real_image_container_c real_textures;
@@ -3510,50 +3508,6 @@ rgbcol_t W_ImageGetHue(const cached_image_t *c)
 }
 #endif
 
-static void FlushImageCaches(z_urgency_e urge)
-{
-	int bytes_to_free = 0;
-	real_cached_image_t *rc, *next;
-
-	if (img_shrink_buffer)
-	{
-		delete[] img_shrink_buffer;
-		img_shrink_buffer = NULL;
-		img_shrink_buf_size = 0;
-	}
-
-	if (w_locked_ogl)
-		return;
-
-	//!!! FIXME: make triple sure that if this is called from _within_
-	//!!! one of routines above, nothing bad will happen.
-
-	switch (urge)
-	{
-		case Z_UrgencyLow: bytes_to_free = cache_size / 16; break;
-		case Z_UrgencyMedium: bytes_to_free = cache_size / 8; break;
-		case Z_UrgencyHigh: bytes_to_free = cache_size / 2; break;
-		case Z_UrgencyExtreme: bytes_to_free = INT_MAX; break;
-
-		default:
-			I_Error("FlushImageCaches: Invalid urgency level %d\n", urge);
-	}
-
-	// the Least Recently Used (LRU) images are at the head of the image
-	// cache list, so we unload those ones first.
- 
-	for (rc = imagecachehead.next; 
-		 rc != &imagecachehead && bytes_to_free > 0; rc = next)
-	{
-		next = rc->next;
-
-		if (rc->users == 0)
-		{
-			bytes_to_free -= rc->size;
-			UnloadImage(rc);
-		}
-	}
-}
 
 //
 // W_ImagePreCache
@@ -3607,8 +3561,6 @@ bool W_InitImages(void)
 {
 	// the only initialisation the cache list needs
 	imagecachehead.next = imagecachehead.prev = &imagecachehead;
-
-	Z_RegisterCacheFlusher(FlushImageCaches);
 
 	real_graphics.Clear();
 	real_textures.Clear();
@@ -3668,29 +3620,6 @@ void W_ResetImages(void)
 	}
 }
 
-//
-// W_LockImagesOGL
-//
-// Prevents OGL texture ids from being deleted.  Essentially this
-// routine is like giving all cached images an extra user.  It is
-// needed due to the curreny way the RGL_UNIT code works.
-//
-void W_LockImagesOGL(void)
-{
-	SYS_ASSERT(!w_locked_ogl);
-
-	w_locked_ogl = true;
-}
-
-//
-// W_UnlockImagesOGL
-//
-void W_UnlockImagesOGL(void)
-{
-	SYS_ASSERT(w_locked_ogl);
-
-	w_locked_ogl = false;
-}
 
 //
 // W_AnimateImageSet

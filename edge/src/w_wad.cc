@@ -1187,40 +1187,9 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	}
 }
 
-//
-// FlushLumpCache
-//
-// Flushes parts of the cache. High urgency means more is flushed.
-static void FlushLumpCache(z_urgency_e urgency)
-{
-	int bytes_to_free = 0;
-	lumpheader_t *h;
-
-	switch (urgency)
-	{
-		case Z_UrgencyLow: bytes_to_free = cache_size / 16; break;
-		case Z_UrgencyMedium: bytes_to_free = cache_size / 8; break;
-		case Z_UrgencyHigh: bytes_to_free = cache_size / 2; break;
-		case Z_UrgencyExtreme: bytes_to_free = INT_MAX; break;
-		default: I_Error("FlushLumpCache: Invalid urgency level %d", urgency);
-	}
-
-	for (h = &lumphead; h->next != &lumphead && bytes_to_free > 0;)
-	{
-		if (h->next->users == 0)
-		{
-			bytes_to_free -= W_LumpLength(h->next->lumpindex);
-			FreeLump(h->next);
-		}
-		else
-			h = h->next;
-	}
-}
-
 static void InitCaches(void)
 {
 	lumphead.next = lumphead.prev = &lumphead;
-	Z_RegisterCacheFlusher(FlushLumpCache);
 }
 
 //
