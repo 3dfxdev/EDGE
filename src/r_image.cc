@@ -3353,11 +3353,10 @@ const cached_image_t *ImageCacheTransOGL(real_image_t *rim,
 // W_ImageCache
 //
 // The top-level routine for caching in an image.  Mainly just a
-// switch to more specialised routines.  Never returns NULL.
+// switch to more specialised routines.
 //
-const cached_image_t *W_ImageCache(const image_t *image, 
-								   bool anim,
-								   const colourmap_c *trans)
+GLuint W_ImageCache(const image_t *image, bool anim,
+				    const colourmap_c *trans)
 {
 	// Intentional Const Override
 	real_image_t *rim = (real_image_t *) image;
@@ -3366,16 +3365,26 @@ const cached_image_t *W_ImageCache(const image_t *image,
 	if (anim)
 		rim = rim->anim.cur;
 
-	if (trans)
-		return ImageCacheTransOGL(rim, trans);
+	const cached_image_t *c;
 
-	return ImageCacheOGL(rim);
+	if (trans)
+		c = ImageCacheTransOGL(rim, trans);
+	else
+		c = ImageCacheOGL(rim);
+
+	SYS_ASSERT(c);
+
+	// Intentional Const Override
+	real_cached_image_t *rc = ((real_cached_image_t *) c) - 1;
+
+	SYS_ASSERT(rc->parent);
+	SYS_ASSERT(rc->mode == IMG_OGL);
+
+	return rc->info.ogl.tex_id;
 }
 
 
-//
-// W_ImageDone
-//
+#if 0  // UNUSED
 void W_ImageDone(const cached_image_t *c)
 {
 	real_cached_image_t *rc;
@@ -3402,6 +3411,7 @@ void W_ImageDone(const cached_image_t *c)
 		InsertAtTail(rc);
 	}
 }
+#endif
 
 
 //
@@ -3430,22 +3440,6 @@ const epi::image_data_c *W_ImageGetEpiBlock(const cached_image_t *c)
 #endif
 
 
-//
-// W_ImageGetOGL
-//
-GLuint W_ImageGetOGL(const cached_image_t *c)
-{
-	SYS_ASSERT(c);
-
-	// Intentional Const Override
-	real_cached_image_t *rc = ((real_cached_image_t *) c) - 1;
-
-	SYS_ASSERT(rc->parent);
-	SYS_ASSERT(rc->mode == IMG_OGL);
-
-	return rc->info.ogl.tex_id;
-}
-
 #if 0
 rgbcol_t W_ImageGetHue(const cached_image_t *c)
 {
@@ -3467,7 +3461,7 @@ rgbcol_t W_ImageGetHue(const cached_image_t *c)
 // 
 void W_ImagePreCache(const image_t *image)
 {
-	W_ImageDone(W_ImageCache(image, false));
+	W_ImageCache(image, false);
 
 	// Intentional Const Override
 	real_image_t *rim = (real_image_t *) image;
@@ -3485,7 +3479,7 @@ void W_ImagePreCache(const image_t *image)
 		real_image_t *alt = real_textures.Lookup(alt_name);
 
 		if (alt)
-			W_ImageDone(W_ImageCache(&alt->pub, false));
+			W_ImageCache(&alt->pub, false);
 	}
 }
 

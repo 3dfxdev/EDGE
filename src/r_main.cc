@@ -248,11 +248,11 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_t *image,
 
 	float r = 1.0f, g = 1.0f, b = 1.0f;
 
-	const cached_image_t *cim = W_ImageCache(image, false,
+	GLuint tex_id = W_ImageCache(image, false,
 		(colmap && (colmap->special & COLSP_Whiten)) ? font_whiten_map : NULL);
 
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim));
+	glBindTexture(GL_TEXTURE_2D, tex_id);
  
 	if (alpha < 0.99f || !image->img_solid)
 		glEnable(GL_BLEND);
@@ -284,8 +284,6 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_t *image,
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
-
-	W_ImageDone(cim);
 }
 
 

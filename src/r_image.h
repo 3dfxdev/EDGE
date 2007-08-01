@@ -145,15 +145,11 @@ void W_ImageCreateUser(void);
 void W_AnimateImageSet(const image_t ** images, int number, int speed);
 void W_DrawSavePic(const byte *pixels);
 
-const cached_image_t *W_ImageCache(const image_t *image, 
-								   bool anim = true,
-								   const colourmap_c *trans = NULL);
-void W_ImageDone(const cached_image_t *c);
-void W_ImagePreCache(const image_t *image);
-
 #ifdef USING_GL_TYPES
-GLuint W_ImageGetOGL(const cached_image_t *c);
+GLuint W_ImageCache(const image_t *image, bool anim = true,
+					const colourmap_c *trans = NULL);
 #endif
+void W_ImagePreCache(const image_t *image);
 
 
 // -AJA- planned....

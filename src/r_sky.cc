@@ -321,15 +321,15 @@ void RGL_DrawSkyBox(void)
 		v1 = 1.0f - v0;
 	}
 
-	const cached_image_t *cim_N, *cim_E, *cim_S, *cim_W;
-	const cached_image_t *cim_T, *cim_B;
+	GLuint tex_N, tex_E, tex_S, tex_W;
+	GLuint tex_T, tex_B;
 
-	cim_N = W_ImageCache(box_info.north);
-	cim_E = W_ImageCache(box_info.east);
-	cim_S = W_ImageCache(box_info.south);
-	cim_W = W_ImageCache(box_info.west);
-	cim_T = W_ImageCache(box_info.top);
-	cim_B = W_ImageCache(box_info.bottom);
+	tex_N = W_ImageCache(box_info.north);
+	tex_E = W_ImageCache(box_info.east);
+	tex_S = W_ImageCache(box_info.south);
+	tex_W = W_ImageCache(box_info.west);
+	tex_T = W_ImageCache(box_info.top);
+	tex_B = W_ImageCache(box_info.bottom);
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -349,7 +349,7 @@ void RGL_DrawSkyBox(void)
 	}
 
 	// top
-	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_T));
+	glBindTexture(GL_TEXTURE_2D, tex_T);
         glNormal3i(0, 0, -1);
 
 	glBegin(GL_QUADS);
@@ -360,7 +360,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// bottom
-	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_B));
+	glBindTexture(GL_TEXTURE_2D, tex_B);
         glNormal3i(0, 0, +1);
 
 	glBegin(GL_QUADS);
@@ -371,7 +371,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// north
-	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_N));
+	glBindTexture(GL_TEXTURE_2D, tex_N);
         glNormal3i(0, -1, 0);
 
 	glBegin(GL_QUADS);
@@ -382,7 +382,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// east
-	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_E));
+	glBindTexture(GL_TEXTURE_2D, tex_E);
         glNormal3i(-1, 0, 0);
 
 	glBegin(GL_QUADS);
@@ -393,7 +393,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// south
-	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_S));
+	glBindTexture(GL_TEXTURE_2D, tex_S);
         glNormal3i(0, +1, 0);
 
 	glBegin(GL_QUADS);
@@ -404,7 +404,7 @@ void RGL_DrawSkyBox(void)
 	glEnd();
 
 	// west
-	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim_W));
+	glBindTexture(GL_TEXTURE_2D, tex_W);
         glNormal3i(+1, 0, 0);
 
 	glBegin(GL_QUADS);
@@ -413,10 +413,6 @@ void RGL_DrawSkyBox(void)
 	glTexCoord2f(v1, v1); glVertex3f(-dist,  dist, +dist);
 	glTexCoord2f(v1, v0); glVertex3f(-dist,  dist, -dist);
 	glEnd();
-
-	W_ImageDone(cim_N); W_ImageDone(cim_E);
-	W_ImageDone(cim_S); W_ImageDone(cim_W);
-	W_ImageDone(cim_T); W_ImageDone(cim_B);
 
 	glDisable(GL_TEXTURE_2D);
 
@@ -437,10 +433,10 @@ void RGL_DrawSkyOriginal(void)
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, white);
 	}
 
-	const cached_image_t *cim = W_ImageCache(sky_image);
+	GLuint tex_id = W_ImageCache(sky_image);
 
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, W_ImageGetOGL(cim));
+	glBindTexture(GL_TEXTURE_2D, tex_id);
  
 	// divide screen into 32 vertical strips, since mapping is non-linear
 	glBegin(GL_QUAD_STRIP);
@@ -480,7 +476,6 @@ I_Printf("[%i] --> %1.2f  tx %1.4f\n", i, ANG_2_FLOAT(ang), tx);
 
 	glDisable(GL_TEXTURE_2D);
 
-	W_ImageDone(cim);
 	RGL_RevertSkyMatrices();
 }
 
