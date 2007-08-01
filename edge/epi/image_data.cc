@@ -49,16 +49,18 @@ void image_data_c::Whiten()
 {
 	EPI_ASSERT(bpp >= 3);
 
+	// TODO: OPTIMISE this
+
 	for (int y = 0; y < height; y++)
 	for (int x = 0; x < width;  x++)
 	{
-		u8_t *cur = img->PixelAt(x, y);
+		u8_t *src = PixelAt(x, y);
 
-		int ity = MAX(cur[0], MAX(cur[1], cur[2]));
+		int ity = MAX(src[0], MAX(src[1], src[2]));
 
-		ity = (ity * 128 + cur[0] * 38 + cur[1] * 64 + cur[2] * 25) >> 8;
+		ity = (ity * 128 + src[0] * 38 + src[1] * 64 + src[2] * 26) >> 8;
 
-		cur[0] = cur[1] = cur[2] = ity; 
+		src[0] = src[1] = src[2] = ity; 
 	}
 }
 
@@ -78,16 +80,16 @@ void image_data_c::Shrink(int new_w, int new_h)
     for (int dy=0; dy < new_h; dy++)
     for (int dx=0; dx < new_w; dx++)
     {
-      u8_t *dest_pix = pixels + (dy * new_w + x) * 3;
+      u8_t *dest_pix = pixels + (dy * new_w + dx) * 3;
 
-      int sx = x * step_x;
-      int sy = y * step_y;
+      int sx = dx * step_x;
+      int sy = dy * step_y;
 
       int r=0, g=0, b=0;
 
       // compute average colour of block
-      for (int dx=0; x < step_x; x++)
-      for (int dy=0; y < step_y; y++)
+      for (int x=0; x < step_x; x++)
+      for (int y=0; y < step_y; y++)
       {
         u8_t *src_pix = PixelAt(sx+x, sy+y);
 
@@ -106,7 +108,7 @@ void image_data_c::Shrink(int new_w, int new_h)
     for (int dy=0; dy < new_h; dy++)
     for (int dx=0; dx < new_w; dx++)
     {
-      u8_t *dest_pix = pixels + (dy * new_w + x) * 4;
+      u8_t *dest_pix = pixels + (dy * new_w + dx) * 4;
 
       int sx = dx * step_x;
       int sy = dy * step_y;
