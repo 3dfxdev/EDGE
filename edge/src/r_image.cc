@@ -3247,53 +3247,6 @@ const char *W_ImageGetName(const image_t *image)
 //
 
 
-#if 0  // planned....
-static
-const cached_image_t *ImageCacheBlock(real_image_t *rim, int mip)
-{
-	real_cached_image_t *rc;
-  
-	if (mip >= rim->block_cache.num_mips)
-	{
-		// reallocate mip array
-    
-		Z_Resize(rim->block_cache.mips, real_cached_image_t *, mip+1);
-
-		while (rim->block_cache.num_mips <= mip)
-			rim->block_cache.mips[rim->block_cache.num_mips++] = NULL;
-	}
-
-	rc = rim->block_cache.mips[mip];
-
-	if (rc && rc->users == 0 && rc->invalidated)
-	{
-		UnloadImageBlock(rc, rim);
-		rc = rim->block_cache.mips[rc->mip] = NULL;
-	}
-
-	// already cached ?
-	if (rc)
-	{
-		if (rc->users == 0)
-		{
-			// no longer freeable
-			cache_size -= rc->size;
-		}
-		rc->users++;
-	}
-	else
-	{
-		// load into cache
-		rc = rim->block_cache.mips[mip] = LoadImageBlock(rim, mip);
-	}
-
-	SYS_ASSERT(rc);
-	SYS_ASSERT(rc->mode == IMG_Block);
-
-	return (const cached_image_t *)(rc + 1);
-}
-#endif
-
 static INLINE
 const cached_image_t *ImageCacheOGL(real_image_t *rim)
 {
