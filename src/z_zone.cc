@@ -29,15 +29,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static cache_flusher_f **cache_flushers = NULL;
-static int num_flushers = 0;
-
-#ifdef __cplusplus
-void operator++ (z_urgency_e& urg, int blah)
-{
-  urg = (z_urgency_e)(urg + 1);
-}
-#endif
 
 //
 // Z_StrDup
@@ -91,51 +82,6 @@ void Z_Free(void *ptr)
 #endif
 }
 
-//
-// Z_RegisterCacheFlusher
-//
-// Tells the memory system that f can be called to free up some memory.
-//
-void Z_RegisterCacheFlusher(cache_flusher_f *f)
-{
-	Z_Resize(cache_flushers, cache_flusher_f *, num_flushers + 1);
-	cache_flushers[num_flushers] = f;
-	num_flushers++;
-}
-
-//
-// FlushCaches
-//
-// Calls other parts of the code to trim any "cached" data, like
-// unused structures stored on an quick-alloc list.  It gets called
-// when the zone cannot fulfill a ZMalloc request, in the hope that
-// after flushing the memory will be available.
-//
-// `urge' is one of the Z_Urgency* values, and the more urgent the
-// request is, the harder that the cache flushing code should try to
-// free memory.  For example, sprites & textures can be reconstructed
-// (albeit slowly) from info in the WAD file(s), and in the worst case
-// scenario (urge == Z_UrgencyExtreme) the memory could be freed.
-//
-// -AJA- 1999/09/16: written.
-// -ES- 1999/12/18 Written.
-
-static void FlushCaches(z_urgency_e urge, int size)
-{
-	int i;
-
-	// Call all cache flusher at the current urgency level
-	for (i = 0; i < num_flushers; i++)
-		(*cache_flushers[i])(urge);
-
-#ifdef DEVELOPERS
-	{
-		// Output flush count.
-		static int count = 0;
-		L_WriteDebug("Flush %d", count++);
-	}
-#endif
-}
 
 //
 // Z_Calloc
@@ -188,7 +134,6 @@ void *Z_ReMalloc2(void *ptr, int size)
 	void *h, *newp;
 #endif
 	int allocsize;
-	z_urgency_e flush_urge = Z_UrgencyNone;
 
 	if (size == 0)
 	{
@@ -220,11 +165,7 @@ void *Z_ReMalloc2(void *ptr, int size)
 	while (NULL == (newp = realloc(h, allocsize)))
 #endif
 	{
-		if (flush_urge == Z_UrgencyExtreme)
-			I_Error("Z_ReMalloc: failed on allocation of %i bytes", size);
-
-		flush_urge++;
-		FlushCaches((z_urgency_e)flush_urge, allocsize);
+		I_Error("Z_ReMalloc: failed on allocation of %i bytes", size);
 	}
 
 #ifdef DEVELOPERS
@@ -249,7 +190,6 @@ void *Z_Malloc2(int size)
 	void *p;
 #endif
 	int allocsize;
-	z_urgency_e flush_urge = Z_UrgencyNone;
 
 	if (size == 0)
 		return NULL;
@@ -266,11 +206,7 @@ void *Z_Malloc2(int size)
 	while (NULL == (p = malloc(allocsize)))
 #endif
 	{
-		if (flush_urge == Z_UrgencyExtreme)
-			I_Error("Z_Malloc: failed on allocation of %i bytes", size);
-
-		flush_urge++;
-		FlushCaches((z_urgency_e)flush_urge, allocsize);
+		I_Error("Z_Malloc: failed on allocation of %i bytes", size);
 	}
 #ifdef DEVELOPERS
 	p->size = size;
