@@ -42,7 +42,7 @@ void STLIB_Init(void)
 }
 
 void STLIB_InitNum(st_number_t * n, int x, int y, 
-				   const image_t ** digits, const image_t *minus, int *num, 
+				   const image_c ** digits, const image_c *minus, int *num, 
 				   int width)
 {
 	n->x = x;
@@ -56,7 +56,7 @@ void STLIB_InitNum(st_number_t * n, int x, int y,
 }
 
 void STLIB_InitFloat(st_float * n, int x, int y, 
-					 const image_t ** digits, float *num, int width)
+					 const image_c ** digits, float *num, int width)
 {
 	STLIB_InitNum(&n->num, x,y, digits,NULL, NULL, width);
 	n->f = num;
@@ -150,7 +150,7 @@ void STLIB_DrawFloat(st_float * n)
 }
 
 void STLIB_InitPercent(st_percent_t * p, int x, int y, 
-					   const image_t ** digits, const image_t *percsign,
+					   const image_c ** digits, const image_c *percsign,
 					   float *num)
 {
 	STLIB_InitFloat(&p->f, x, y, digits, num, 3);
@@ -167,7 +167,7 @@ void STLIB_DrawPercent(st_percent_t * per)
 }
 
 void STLIB_InitMultIcon(st_multicon_t * i, int x, int y, 
-						const image_t ** icons, int *inum)
+						const image_c ** icons, int *inum)
 {
 	i->x = x;
 	i->y = y;
@@ -178,7 +178,7 @@ void STLIB_InitMultIcon(st_multicon_t * i, int x, int y,
 
 void STLIB_DrawMultIcon(st_multicon_t * mi)
 {
-	const image_t *image;
+	const image_c *image;
 
 	if (*mi->inum != -1)
 	{
@@ -191,7 +191,7 @@ void STLIB_DrawMultIcon(st_multicon_t * mi)
 }
 
 void STLIB_InitBinIcon(st_binicon_t * b, int x, int y, 
-					   const image_t * icon, bool * val)
+					   const image_c * icon, bool * val)
 {
 	b->x = x;
 	b->y = y;

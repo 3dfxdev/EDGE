@@ -85,7 +85,7 @@ typedef struct button_s
 {
 	line_t *line;
 	bwhere_e where;
-	const image_t *bimage;
+	const image_c *bimage;
 	int btimer;
 	sfx_t *off_sound;
 }
@@ -157,7 +157,7 @@ typedef struct plane_move_s
 	bool sfxstarted;
 
 	int newspecial;
-	const image_t *new_image;
+	const image_c *new_image;
 }
 plane_move_t;
 

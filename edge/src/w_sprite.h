@@ -69,7 +69,7 @@ public:
 	byte flip[16];
   
 	// Images for each view angle 0-15.
-	const struct image_s *images[16];
+	const image_c *images[16];
 
 	inline int CalcRot(angle_t obj_face, angle_t from_view) const
 	{

@@ -62,7 +62,7 @@ void P_InitSwitchList(void)
 // Start a button counting down till it turns off.
 //
 static void StartButton(switchdef_c *sw, line_t *line, bwhere_e w,
-		const image_t *image)
+		const image_c *image)
 {
 	// See if button is already pressed
 	if (buttonlist.IsPressed(line))

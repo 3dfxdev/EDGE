@@ -227,7 +227,7 @@ static void InstallSpriteLump(spritedef_c *def, int lump,
 	def->frames[frame].flip[rot] = flip;
 }
 
-static void InstallSpriteImage(spritedef_c *def, const image_t *img,
+static void InstallSpriteImage(spritedef_c *def, const image_c *img,
     const char *img_name, int pos, byte flip)
 {
 	int frame, rot;
@@ -351,7 +351,7 @@ static void FillSpriteFrames(int file, int prog_base, int prog_total)
 static void FillSpriteFramesUser(int prog_base, int prog_total)
 {
 	int img_num;
-	const image_t ** images = W_ImageGetUserSprites(&img_num);
+	const image_c ** images = W_ImageGetUserSprites(&img_num);
 
 	if (img_num == 0)
 		return;

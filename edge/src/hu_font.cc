@@ -91,8 +91,8 @@ void font_c::LoadPatches()
 	SYS_ASSERT(def->patches);
 	SYS_ASSERT(total >= 1);
 
-	p_cache.images = new const image_t *[total];
-	memset(p_cache.images, 0, sizeof(const image_t *) * total);
+	p_cache.images = new const image_c *[total];
+	memset(p_cache.images, 0, sizeof(const image_c *) * total);
 
 	for (pat = def->patches; pat; pat = pat->next)
 	{
@@ -117,7 +117,7 @@ void font_c::LoadPatches()
 	p_cache.missing = def->missing_patch ?
 		W_ImageLookup(def->missing_patch, INS_Graphic, ILF_Font|ILF_Null) : NULL;
 
-	const image_t *Nom = NULL;
+	const image_c *Nom = NULL;
 
 	if (HasChar('M'))
 		Nom = CharImage('M');
@@ -189,7 +189,7 @@ bool font_c::HasChar(char ch) const
 //
 // font_c::CharImage
 //
-const struct image_s *font_c::CharImage(char ch) const
+const image_c *font_c::CharImage(char ch) const
 {
 	SYS_ASSERT(def->type == FNTYP_Patch);
 
@@ -222,7 +222,7 @@ int font_c::CharWidth(char ch) const  // XXX: return float ???
 	if (ch == ' ')
 		return p_cache.width * 3 / 5;
 
-	const struct image_s *im = CharImage(ch);
+	const image_c *im = CharImage(ch);
 
 	if (! im)
 		return DUMMY_WIDTH;
@@ -302,7 +302,7 @@ int font_c::StringLines(const char *str) const
 void font_c::DrawChar(float x, float y, char ch, float scale, float aspect,
     const colourmap_c *colmap, float alpha) const
 {
-	const image_t *image = CharImage(ch);
+	const image_c *image = CharImage(ch);
 
 	if (! image)
 		return;

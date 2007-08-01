@@ -36,7 +36,7 @@
 #define DEBUG  0
 
 
-const struct image_s *sky_image;
+const image_c *sky_image;
 
 typedef struct sec_sky_ring_s
 {
@@ -184,9 +184,9 @@ typedef struct
 {
 	int last_stretch;
 
-	const image_t *base_sky;
-	const image_t *north, *east, *south, *west;
-	const image_t *top, *bottom;
+	const image_c *base_sky;
+	const image_c *north, *east, *south, *west;
+	const image_c *top, *bottom;
 }
 skybox_info_t;
 

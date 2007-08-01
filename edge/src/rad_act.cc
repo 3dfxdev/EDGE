@@ -316,7 +316,7 @@ void RAD_DisplayTips(void)
 		{
 			float sc = current->scale;
 
-			const image_t *image = current->tip_graphic;
+			const image_c *image = current->tip_graphic;
 
 			int x = (int)(SCREENWIDTH  * PERCENT_2_FLOAT(current->p.x_pos));
 			int y = (int)(SCREENHEIGHT * PERCENT_2_FLOAT(current->p.y_pos));
@@ -759,7 +759,7 @@ void RAD_ActChangeTex(rad_trigger_t *R, mobj_t *actor, void *param)
 {
 	s_changetex_t *ctex = (s_changetex_t *) param;
 
-	const image_t *image;
+	const image_c *image;
 
 	SYS_ASSERT(param);
 

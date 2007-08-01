@@ -65,8 +65,8 @@ static float HEIGHT(sector_t * sec, bool is_ceiling)
     return sec->f_h;
 }
 
-static const image_t * SECPIC(sector_t * sec, bool is_ceiling,
-                              const image_t *new_image)
+static const image_c * SECPIC(sector_t * sec, bool is_ceiling,
+                              const image_c *new_image)
 {
     if (new_image)
     {
@@ -879,7 +879,7 @@ static bool EV_BuildOneStair(sector_t * sec, const movplanedef_c * def)
     sector_t *tsec;
     float stairsize = def->dest;
 
-    const image_t *image = sec->floor.image;
+    const image_c *image = sec->floor.image;
 
     // new floor thinker
 

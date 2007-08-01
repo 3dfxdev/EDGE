@@ -91,7 +91,7 @@ static void CastInitNew(int num);
 static void CastTicker(void);
 static void CastSkip(void);
 
-static const image_t *finale_textback;
+static const image_c *finale_textback;
 static float finale_textbackscale;
 
 static style_c *cast_style;
@@ -658,7 +658,7 @@ static void CastPrint(const char *text)
 //
 static void CastDrawer(void)
 {
-	const image_t *image;
+	const image_c *image;
 	bool flip;
 
 	// erase the entire screen to a background
@@ -691,8 +691,8 @@ static void CastDrawer(void)
 static void BunnyScroll(void)
 {
 	int scrolled;
-	const image_t *p1;
-	const image_t *p2;
+	const image_c *p1;
+	const image_c *p2;
 	char name[10];
 	int stage;
 	static int laststage;
@@ -755,7 +755,7 @@ void F_Drawer(void)
 
 		case f_pic:
 			{
-				const image_t *image = W_ImageLookup(finale->pics[picnum]);
+				const image_c *image = W_ImageLookup(finale->pics[picnum]);
 
 				RGL_Image320(0, 0, 320, 200, image);
 			}

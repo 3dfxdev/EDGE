@@ -40,6 +40,8 @@
 
 #include "epi/utility.h"
 
+class image_c;
+
 extern bool devparm;  // DEBUG: launched with -devparm
 
 extern gameflags_t level_flags;
@@ -199,7 +201,7 @@ extern int bodyqueslot;
 // Needed to store the number of the dummy sky flat.
 // Used for rendering, as well as tracking projectiles etc.
 
-extern const struct image_s *skyflatimage;
+extern const image_c *skyflatimage;
 
 #define IS_SKY(plane)  ((plane).image == skyflatimage)
 

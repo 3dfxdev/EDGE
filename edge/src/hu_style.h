@@ -35,7 +35,7 @@ public:
 
 	font_c *fonts[styledef_c::NUM_TXST];
 
-	const image_t *bg_image;
+	const image_c *bg_image;
 
 public:
 	void Load();

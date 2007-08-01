@@ -234,7 +234,7 @@ void RGL_NewScreenSize(int width, int height, int bits)
 //
 // RGL_DrawImage
 //
-void RGL_DrawImage(float x, float y, float w, float h, const image_t *image, 
+void RGL_DrawImage(float x, float y, float w, float h, const image_c *image, 
 				   float tx1, float ty1, float tx2, float ty2,
 				   const colourmap_c *colmap, float alpha)
 {

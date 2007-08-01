@@ -203,33 +203,33 @@ static bool st_armson;
 static bool st_fragson;
 
 // main bar left
-static const image_t *sbar_image;
+static const image_c *sbar_image;
 
 // 0-9, tall numbers
-static const image_t *tallnum[10];
+static const image_c *tallnum[10];
 
 // tall % sign
-static const image_t *tallpercent;
+static const image_c *tallpercent;
 
-static const image_t *sttminus;
+static const image_c *sttminus;
 
 // 0-9, short, yellow (,different!) numbers
-static const image_t *shortnum[10];
+static const image_c *shortnum[10];
 
 // 3 key-cards, 3 skulls & 3 Combination -ACB- 1998/09/11
-static const image_t *keys[9];
+static const image_c *keys[9];
 
 // face status patches
-static const image_t *faces[ST_NUMFACES];
+static const image_c *faces[ST_NUMFACES];
 
 // face background
-static const image_t *faceback[8];
+static const image_c *faceback[8];
 
 // main bar right
-static const image_t *armsbg;
+static const image_c *armsbg;
 
 // weapon ownership patches
-static const image_t *arms[6][2];
+static const image_c *arms[6][2];
 
 // ready-weapon widget
 static st_number_t w_ready;

@@ -627,7 +627,7 @@ void E_ProcessEvents(void)
 
 static void M_DisplayPause(void)
 {
-	static const image_t *pause_image = NULL;
+	static const image_c *pause_image = NULL;
 
 	if (! pause_image)
 		pause_image = W_ImageLookup("M_PAUSE");
@@ -789,7 +789,7 @@ static int demo_num;
 static int page_map;
 static int page_pic;
 static int pagetic;
-static const image_t *page_image = NULL;
+static const image_c *page_image = NULL;
 
 //
 // E_PageTicker

@@ -31,15 +31,16 @@
 
 #include "i_defs.h"
 
-#include "ddf_colm.h"
-#include "sv_chunk.h"
-#include "sv_main.h"
-#include "z_zone.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "epi/strings.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "ddf_colm.h"
+#include "r_image.h"
+#include "sv_chunk.h"
+#include "sv_main.h"
+#include "z_zone.h"
 
 #undef SF
 #define SF  SVFIELD
@@ -878,7 +879,7 @@ void SR_LevelPutSurfPtr(void *storage, int index, void *extra)
 //
 bool SR_LevelGetImage(void *storage, int index, void *extra)
 {
-	const image_t ** dest = (const image_t **)storage + index;
+	const image_c ** dest = (const image_c **)storage + index;
 	const char *str;
 
 	str = SV_GetString();
@@ -911,7 +912,7 @@ bool SR_LevelGetImage(void *storage, int index, void *extra)
 //
 void SR_LevelPutImage(void *storage, int index, void *extra)
 {
-	const image_t *src = ((const image_t **)storage)[index];
+	const image_c *src = ((const image_c **)storage)[index];
 
 	char buffer[64];
 

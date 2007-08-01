@@ -36,6 +36,7 @@
 #include "m_argv.h"
 #include "m_misc.h"
 #include "p_local.h"
+#include "r_image.h"
 #include "r_sky.h"
 #include "w_wad.h"
 #include "w_texture.h"
@@ -100,7 +101,7 @@ void R_AddFlatAnim(animdef_c *anim)
 		// determine animation sequence
 		total = e_offset - s_offset + 1;
 
-		const image_t **flats = new const image_t* [total];
+		const image_c **flats = new const image_c* [total];
 
 		// lookup each flat
 		for (i=0; i < total; i++)
@@ -126,7 +127,7 @@ void R_AddFlatAnim(animdef_c *anim)
 	if (total == 1)
 		return;
 
-	const image_t **flats = new const image_t* [total];
+	const image_c **flats = new const image_c* [total];
 
 	for (int i = 0; i < total; i++)
 		flats[i] = W_ImageLookup(anim->pics[i], INS_Flat, ILF_Null|ILF_Exact);
@@ -177,7 +178,7 @@ void R_AddTextureAnim(animdef_c *anim)
 		SYS_ASSERT(s_offset <= e_offset);
 
 		int total = e_offset - s_offset + 1;
-		const image_t **texs = new const image_t* [total];
+		const image_c **texs = new const image_c* [total];
 
 		// lookup each texture
 		for (int i = 0; i < total; i++)
@@ -199,7 +200,7 @@ void R_AddTextureAnim(animdef_c *anim)
 	if (total == 1)
 		return;
 
-	const image_t **texs = new const image_t* [total];
+	const image_c **texs = new const image_c* [total];
 
 	for (int i = 0; i < total; i++)
 		texs[i] = W_ImageLookup(anim->pics[i], INS_Texture, ILF_Null|ILF_Exact);
@@ -220,7 +221,7 @@ void R_AddGraphicAnim(animdef_c *anim)
 	if (total == 1)
 		return;
 
-	const image_t **users = new const image_t* [total];
+	const image_c **users = new const image_c* [total];
 
 	for (int i = 0; i < total; i++)
 		users[i] = W_ImageLookup(anim->pics[i], INS_Graphic, ILF_Null|ILF_Exact);
@@ -355,8 +356,8 @@ static void R_PrecacheSprites(void)
 		spritedef_c *def = sprites[i];
 		int fr, rot;
 
-		const image_t *cur_image;
-		const image_t *last_image = NULL;  // an optimisation
+		const image_c *cur_image;
+		const image_c *last_image = NULL;  // an optimisation
 
 		if (! sprite_present[i] || def->numframes == 0)
 			continue;
@@ -412,7 +413,7 @@ void R_PrecacheLevel(void)
 	// maximum possible images
 	max_image = 1 + 3 * numsides + 2 * numsectors;
 
-	const image_t ** images = new const image_t* [max_image];
+	const image_c ** images = new const image_c* [max_image];
 
 	// Sky texture is always present.
 	images[count++] = sky_image;
@@ -447,7 +448,7 @@ void R_PrecacheLevel(void)
 	// Sort the images, so we can ignore the duplicates
 
 #define CMP(a, b)  (a < b)
-	QSORT(const image_t *, images, count, CUTOFF);
+	QSORT(const image_c *, images, count, CUTOFF);
 #undef CMP
 
 	for (i=0; i < count; i++)

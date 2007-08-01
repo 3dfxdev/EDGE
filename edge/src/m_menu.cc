@@ -97,20 +97,20 @@ static int chosen_epi;
 //
 //  IMAGES USED
 //
-static const image_t *therm_l;
-static const image_t *therm_m;
-static const image_t *therm_r;
-static const image_t *therm_o;
+static const image_c *therm_l;
+static const image_c *therm_m;
+static const image_c *therm_r;
+static const image_c *therm_o;
 
-static const image_t *menu_loadg;
-static const image_t *menu_saveg;
-static const image_t *menu_svol;
-static const image_t *menu_doom;
-static const image_t *menu_newgame;
-static const image_t *menu_skill;
-static const image_t *menu_episode;
-static const image_t *menu_skull[2];
-static const image_t *menu_readthis[2];
+static const image_c *menu_loadg;
+static const image_c *menu_saveg;
+static const image_c *menu_svol;
+static const image_c *menu_doom;
+static const image_c *menu_newgame;
+static const image_c *menu_skill;
+static const image_c *menu_episode;
+static const image_c *menu_skull[2];
+static const image_c *menu_readthis[2];
 
 static style_c *menu_def_style;
 static style_c *main_menu_style;
@@ -181,7 +181,7 @@ typedef struct
 
   	// image for menu entry
 	char patch_name[10];
-	const image_t *image;
+	const image_c *image;
 
   	// choice = menu item #.
   	// if status = 2, choice can be SLIDERLEFT or SLIDERRIGHT
@@ -738,9 +738,9 @@ void M_DrawLoad(void)
 //
 void M_DrawSaveLoadBorder(float x, float y, int len)
 {
-	const image_t *L = W_ImageLookup("M_LSLEFT");
-	const image_t *C = W_ImageLookup("M_LSCNTR");
-	const image_t *R = W_ImageLookup("M_LSRGHT");
+	const image_c *L = W_ImageLookup("M_LSLEFT");
+	const image_c *C = W_ImageLookup("M_LSCNTR");
+	const image_c *R = W_ImageLookup("M_LSRGHT");
 
 	RGL_ImageEasy320(x - IM_WIDTH(L), y + 7, L);
 
@@ -2048,7 +2048,7 @@ void M_Drawer(void)
 
 	for (i = 0; i < max; i++, y += LINEHEIGHT)
 	{
-		const image_t *image;
+		const image_c *image;
     
 		// ignore blank lines
 		if (! currentMenu->menuitems[i].patch_name[0])
