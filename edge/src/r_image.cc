@@ -129,10 +129,7 @@ typedef struct real_cached_image_s
 	// parent image
 	struct real_image_s *parent;
   
-	// mip value (>= 0)
-	unsigned short mip;
-
-	// colormap used for translated image, normally NULL.  (GL Only)
+	// colormap used for translated image, normally NULL
 	const colourmap_c *trans_map;
 
 	// general hue of image (skewed towards pure colors)
@@ -140,10 +137,6 @@ typedef struct real_cached_image_s
 
 	// texture identifier within GL
 	GLuint tex_id;
-
-	// total memory size taken up by this image.  Includes this
-	// structure.
-	int size;
 
 	// NOTE: Block data may follow this structure...
 }
@@ -385,11 +378,6 @@ static INLINE void Unlink(real_cached_image_t *rc)
 	rc->prev->next = rc->next;
 	rc->next->prev = rc->prev;
 }
-
-// the number of bytes of the texture cache that currently can be
-// freed.  Useful when we decide how much to flush.  This changes when
-// the number of users of a block changes from 1 to 0 or back.
-static int cache_size = 0;
 
 
 // Dummy image, for when texture/flat/graphic is unknown.  Row major
@@ -2651,18 +2639,12 @@ real_cached_image_t *LoadImageOGL(real_image_t *rim, const colourmap_c *trans)
 	real_cached_image_t *rc = (real_cached_image_t *)
 		Z_New(real_cached_image_t,1);
 
-	// compute approximate size (including mipmaps)
-	int size = sizeof(real_cached_image_t) +
-		rim->pub.total_w * rim->pub.total_h * 16 / 3;
-
 	rc->next = rc->prev = NULL;
 	rc->parent = rim;
-	rc->mip = 0;
 	rc->users = 0;
 	rc->invalidated = false;
 	rc->trans_map = trans;
 	rc->hue = RGB_NO_VALUE;
-	rc->size = size;
 
 	epi::image_data_c *tmp_img = ReadAsEpiBlock(rim);
 
@@ -2757,8 +2739,6 @@ static void UnloadImage(real_cached_image_t *rc)
 
 	// unlink from the cache list
 	Unlink(rc);
-
-	cache_size -= rc->size;
 
 	UnloadImageOGL(rc, rim);
 
@@ -3186,11 +3166,6 @@ real_cached_image_t *ImageCacheOGL(real_image_t *rim)
 	// already cached ?
 	if (rc)
 	{
-		if (rc->users == 0)
-		{
-			// no longer freeable
-			cache_size -= rc->size;
-		}
 		rc->users++;
 	}
 	else
@@ -3240,11 +3215,6 @@ real_cached_image_t *ImageCacheTransOGL(real_image_t *rim,
 
 	if (rc)
 	{
-		if (rc->users == 0)
-		{
-			// no longer freeable
-			cache_size -= rc->size;
-		}
 		rc->users++;
 	}
 	else
@@ -3315,8 +3285,6 @@ void W_ImageDone(real_cached_image_t *rc)
 
 	if (rc->users == 0)
 	{
-		cache_size += rc->size;
-
 		// move cached image to the end of the cache list.  This way,
 		// the Most Recently Used (MRU) images are at the tail of the
 		// list, and thus the Least Recently Used (LRU) images are at the
