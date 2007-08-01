@@ -1773,7 +1773,6 @@ void E_Tick(void)
 	// -ES- 1998/09/11 It's a good idea to frequently check the heap
 #ifdef DEVELOPERS
 	//Z_CheckHeap();
-//		L_WriteDebug("[0] Mem size: %ld\n", epi::the_mem_manager->GetAllocatedSize());
 #endif
 
 	bool fresh_game_tic;
