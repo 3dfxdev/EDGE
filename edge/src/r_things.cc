@@ -83,9 +83,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	if (!image)
 		return;
 
-	const cached_image_t *cim = W_ImageCache(image);
-
-	GLuint tex_id = W_ImageGetOGL(cim);
+	GLuint tex_id = W_ImageCache(image);
 
 	float w = IM_WIDTH(image);
 	float h = IM_HEIGHT(image);
@@ -229,8 +227,6 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 	glDisable(GL_SCISSOR_TEST);
-
-	W_ImageDone(cim);
 }
 
 static void DrawStdCrossHair(int sbarheight)
@@ -1046,9 +1042,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		L_r = L_g = L_b = 0;
 	}
 
-	const cached_image_t *cim = W_ImageCache(image, false, dthing->mo->info->palremap);
-
-	GLuint tex_id = W_ImageGetOGL(cim);
+	GLuint tex_id = W_ImageCache(image, false, dthing->mo->info->palremap);
 
 	// Blended sprites, even if opaque (trans > 0.99), have nicer edges
 	int blending = BL_Masked;
@@ -1091,8 +1085,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	vert++;
 
 	RGL_EndUnit(vert - orig);
-
-	W_ImageDone(cim);
 }
 
 //

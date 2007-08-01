@@ -145,9 +145,7 @@ void R2_AddColourDLights(int num, int *r, int *g, int *b,
 	{
 		bool flip;
 		const image_t *img = R2_GetThingSprite(mo, &flip);
-		const cached_image_t *cim = W_ImageCache(img);
-		col = W_ImageGetHue(cim);
-		W_ImageDone(cim);
+		col = W_ImageGetHue(img);
 	}
 #endif
 	if (col == RGB_NO_VALUE)
@@ -700,7 +698,6 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	bool blended;
 
 	GLuint tex_id=0, tex_id2=0;
-	const cached_image_t *cim;
 
 	raw_polyquad_t *poly;
 	wall_plane_data_t data;
@@ -748,23 +745,11 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	data.image   = part->image;
 
 	SYS_ASSERT(part->image);
-	cim = W_ImageCache(part->image);
-	tex_id = W_ImageGetOGL(cim);
-
-	// Note: normally this would be wrong, since we're using the GL
-	// texture ID later on (after W_ImageDone).  The W_LockImagesOGL
-	// call saves us though.
-	W_ImageDone(cim);
+	tex_id = W_ImageCache(part->image);
 
 	// FADING MAP
 	{
-		cim = W_ImageCache(fading_image);
-
-		tex_id2 = W_ImageGetOGL(cim);
-		// Note: normally this would be wrong, since we're using the GL
-		// texture ID later on (after W_ImageDone).  The W_LockImagesOGL
-		// call saves us though.
-		W_ImageDone(cim);
+		tex_id2 = W_ImageCache(fading_image);
 	}
 
 	x_offset += xy_ofs;
@@ -999,13 +984,7 @@ RGL_DrawUnits();
 				dl_B = (info->colour      ) & 0xFF;
 				dl_WP = &data;
 
-				cim = W_ImageCache(mo->dlight[DL].image);
-
-				GLuint tex2_id = W_ImageGetOGL(cim);
-				// Note: normally this would be wrong, since we're using the GL
-				// texture ID later on (after W_ImageDone).  The W_LockImagesOGL
-				// call saves us though.
-				W_ImageDone(cim);
+				GLuint tex2_id = W_ImageCache(mo->dlight[DL].image);
 
 				float fx_radius;
 				ComputeDLParameters(dist, mo, &fx_radius, &dat2.trans);
@@ -1104,7 +1083,6 @@ static void EmulateFlooding(const drawfloor_t *dfloor,
 	wall_plane_data_t data;
 
 	GLuint tex_id;
-	const cached_image_t *cim;
 
 	int lit_Nom = RGL_Light(props->lightlevel);
 	const colourmap_c *colmap = props->colourmap;
@@ -1138,8 +1116,7 @@ static void EmulateFlooding(const drawfloor_t *dfloor,
 	data.y_mat = info->y_mat;
 
 	SYS_ASSERT(info->image);
-	cim = W_ImageCache(info->image);
-	tex_id = W_ImageGetOGL(cim);
+	tex_id = W_ImageCache(info->image);
 
 	vec3_t vbox[4];
 
@@ -1182,8 +1159,6 @@ static void EmulateFlooding(const drawfloor_t *dfloor,
 	}
 
 	glEnd();
-
-	W_ImageDone(cim);
 
 	glDepthMask(GL_TRUE);
 	glDisable(GL_TEXTURE_2D);
@@ -1609,7 +1584,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	raw_polyquad_t *poly;
 
 	GLuint tex_id=0, tex_id2=0;
-	const cached_image_t *cim;
 
 	int num_vert, i;
 
@@ -1691,26 +1665,12 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	data.normal.z = (viewz > h) ? 1.0f : -1.0f;
 
 	SYS_ASSERT(info->image);
-	cim = W_ImageCache(info->image);
-	tex_id = W_ImageGetOGL(cim);
-
-	// Note: normally this would be wrong, since we're using the GL
-	// texture ID later on (after W_ImageDone).  The W_LockImagesOGL
-	// call saves us though.
-	//
-	W_ImageDone(cim);
+	tex_id = W_ImageCache(info->image);
 
 	// FADING MAP
 	{
-		cim = W_ImageCache(fading_image);
-
-		tex_id2 = W_ImageGetOGL(cim);
-		// Note: normally this would be wrong, since we're using the GL
-		// texture ID later on (after W_ImageDone).  The W_LockImagesOGL
-		// call saves us though.
-		W_ImageDone(cim);
+		tex_id2 = W_ImageCache(fading_image);
 	}
-
 
 	data.tx = info->offset.x;
 	data.ty = info->offset.y;
@@ -1755,14 +1715,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 		dat2.trans = 0.5;
 		dat2.image = shadow_image;
 
-		cim = W_ImageCache(dat2.image);
-		tex_id = W_ImageGetOGL(cim);
-
-		// Note: normally this would be wrong, since we're using the GL
-		// texture ID later on (after W_ImageDone).  The W_LockImagesOGL
-		// call saves us though.
-		//
-		W_ImageDone(cim);
+		tex_id = W_ImageCache(dat2.image);
 
 		for (drawthing_t *dthing=dfloor->things; dthing; dthing=dthing->next)
 		{
@@ -1830,12 +1783,7 @@ RGL_DrawUnits();
 
 				float dist = ABS(dl->tz - h);
 
-				cim = W_ImageCache(mo->dlight[DL].image);
-				GLuint tex2_id = W_ImageGetOGL(cim);
-				// Note: normally this would be wrong, since we're using the GL
-				// texture ID later on (after W_ImageDone).  The W_LockImagesOGL
-				// call saves us though.
-				W_ImageDone(cim);
+				GLuint tex2_id = W_ImageCache(mo->dlight[DL].image);
 
 				float fx_radius;
 				ComputeDLParameters(dist, mo, &fx_radius, &dat2.trans);
