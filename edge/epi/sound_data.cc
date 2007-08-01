@@ -16,11 +16,9 @@
 //
 //----------------------------------------------------------------------------
 
-#include "image_data.h"
+#include "sound_data.h"
 
-#include "epi/errors.h"
-#include "epi/strings.h"
-
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 

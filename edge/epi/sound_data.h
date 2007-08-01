@@ -19,6 +19,8 @@
 #ifndef __EPI_SOUNDDATA_H__
 #define __EPI_SOUNDDATA_H__
 
+#include "types.h"
+
 typedef enum
 {
 	SBUF_Mono = 0,
