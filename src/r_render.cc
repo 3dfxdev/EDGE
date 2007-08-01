@@ -43,7 +43,7 @@
 #include "r_sky.h"
 #include "r_things.h"
 #include "r_units.h"
-#include "r_image_gl.h"
+#include "r_image.h"
 #include "r_view.h"
 #include "r_colors.h"
 
