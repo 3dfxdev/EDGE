@@ -72,39 +72,18 @@
 
 
 // LIGHTING DEBUGGING
-#define MAKE_TEXTURES_WHITE  1
+// #define MAKE_TEXTURES_WHITE  1
 
+extern epi::image_data_c *ReadAsEpiBlock(image_c *rim);
 
-typedef enum
-{
-	// Source was a graphic name
-	IMSRC_Graphic = 0,
+extern epi::file_c *OpenUserFileOrLump(imagedef_c *def);
 
-	// INTERNAL ONLY: Source was a raw block of 320x200 bytes (Heretic/Hexen)
-	IMSRC_Raw320x200,
+extern void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f);
 
-	// Source was a sprite name
-	IMSRC_Sprite,
+// FIXME: duplicated in r_doomtex
+#define DUMMY_X  16
+#define DUMMY_Y  16
 
-	// Source was a flat name
-	IMSRC_Flat,
-
-	// Source was a texture name
-	IMSRC_Texture,
-
-	// INTERNAL ONLY: Source is from IMAGE.DDF
-	IMSRC_User,
-
-	// INTERNAL ONLY: Source was a sky texture, merged for a pseudo sky box
-	IMSRC_SkyMerge,
-
-	// INTERNAL ONLY: Source is dummy image
-	IMSRC_Dummy,
-}
-image_source_e;
-
-
-struct real_image_s;
 
 
 //
@@ -112,7 +91,7 @@ struct real_image_s;
 // rendering), and is the non-opaque version of cached_image_t.  A
 // single structure is used for all image modes (Block and OGL).
 //
-// Note: multiple modes and/or multiple mips of the same image_t can
+// Note: multiple modes and/or multiple mips of the same image_c can
 // indeed be present in the cache list at any one time.
 //
 typedef struct real_cached_image_s
@@ -127,7 +106,7 @@ typedef struct real_cached_image_s
 	bool invalidated;
  
 	// parent image
-	struct real_image_s *parent;
+	image_c *parent;
   
 	// colormap used for translated image, normally NULL
 	const colourmap_c *trans_map;
@@ -137,106 +116,22 @@ typedef struct real_cached_image_s
 
 	// texture identifier within GL
 	GLuint tex_id;
-
-	// NOTE: Block data may follow this structure...
 }
 real_cached_image_t;
 
-
-//
-// This structure is the full version of image_t.  It contains all the
-// information needed to create the actual cached images when needed.
-//
-typedef struct real_image_s
-{
-	// base is the publicly visible structure
-	image_t pub;
-
-	// --- information about where this image came from ---
-
-	char name[16];
-
-	image_source_e source_type;
- 
-	union
-	{
-		// case IMSRC_Graphic:
-		// case IMSRC_Sprite:
-		struct { int lump; } graphic;
-
-		// case IMSRC_Flat:
-		// case IMSRC_Raw320x200:
-		struct { int lump; } flat;
-
-		// case IMSRC_Texture:
-		struct { texturedef_t *tdef; } texture;
-
-		// case IMSRC_SkyMerge:
-		struct { const struct image_s *sky; int face; } merge;
-
-		// case IMSRC_Dummy:
-		struct { rgbcol_t fg; rgbcol_t bg; } dummy;
-
-		// case IMSRC_User:
-		struct { imagedef_c *def; } user;
-	}
-	source;
-
-	// palette lump, or -1 to use the "GLOBAL" palette
-	int source_palette;
-
-	// --- information about caching ---
-
-	// no mipmapping here, GL does this itself
-	real_cached_image_t * ogl_cache;
-
-	// --- cached translated images (OpenGL only) ---
-
-	struct
-	{
-		int num_trans;
-		real_cached_image_t ** trans;
-	}
-	trans_cache;
-
-	// --- animation info ---
-
-	struct
-	{
-		// current version of this image in the animation.  Initially points
-		// to self.  For non-animated images, doesn't change.  Otherwise
-		// when the animation flips over, it becomes cur->next.
-		struct real_image_s *cur;
-
-		// next image in the animation, or NULL.
-		struct real_image_s *next;
-
-		// tics before next anim change, or 0 if non-animated.
-		unsigned short count;
-
-		// animation speed (in tics), or 0 if non-animated.
-		unsigned short speed;
-	}
-	anim;
-}
-real_image_t;
-
-
-// needed for SKY
-static epi::image_data_c *ReadAsEpiBlock(real_image_t *rim);
 
 
 // Image container
 class real_image_container_c : public epi::array_c
 {
 public:
-	real_image_container_c() : epi::array_c(sizeof(real_image_t*)) {}
+	real_image_container_c() : epi::array_c(sizeof(image_c*)) {}
 	~real_image_container_c() { Clear(); }
 
 private:
 	void CleanupObject(void *obj)
 	{
-		real_image_t *rim = *(real_image_t**)obj;
+		image_c *rim = *(image_c**)obj;
 		
 		if (rim)
 			delete rim;
@@ -245,19 +140,19 @@ private:
 public:
 	// List Management
 	int GetSize() { return array_entries; } 
-	int Insert(real_image_t *rim) { return InsertObject((void*)&rim); }
+	int Insert(image_c *rim) { return InsertObject((void*)&rim); }
 	
-	real_image_t* operator[](int idx) 
+	image_c* operator[](int idx) 
 	{ 
-		return *(real_image_t**)FetchObject(idx); 
+		return *(image_c**)FetchObject(idx); 
 	} 
 
-	real_image_t *Lookup(const char *name, int source_type = -1)
+	image_c *Lookup(const char *name, int source_type = -1)
 	{
 		// for a normal lookup, we want USER images to override
 		if (source_type == -1)
 		{
-			real_image_t *rim = Lookup(name, IMSRC_User);  // recursion
+			image_c *rim = Lookup(name, IMSRC_User);  // recursion
 			if (rim)
 				return rim;
 		}
@@ -266,7 +161,7 @@ public:
 
 		for (it = GetBaseIterator(); it.IsValid(); it++)
 		{
-			real_image_t *rim = ITERATOR_TO_TYPE(it, real_image_t*);
+			image_c *rim = ITERATOR_TO_TYPE(it, image_c*);
 		
 			if (source_type != -1 && source_type != (int)rim->source_type)
 				continue;
@@ -282,7 +177,7 @@ public:
 	{
 		for (epi::array_iterator_c it = GetBaseIterator(); it.IsValid(); it++)
 		{
-			real_image_t *rim = ITERATOR_TO_TYPE(it, real_image_t*);
+			image_c *rim = ITERATOR_TO_TYPE(it, image_c*);
 
 			if (rim->anim.speed == 0)  // not animated ?
 				continue;
@@ -306,12 +201,12 @@ public:
 		epi::array_iterator_c it;
 		for (it = GetBaseIterator(); it.IsValid(); it++)
 		{
-			real_image_t *rim = ITERATOR_TO_TYPE(it, real_image_t*);
+			image_c *rim = ITERATOR_TO_TYPE(it, image_c*);
 		
 			L_WriteDebug("   [%s] type %d: %dx%d < %dx%d\n",
 				rim->name, rim->source_type,
-				rim->pub.actual_w, rim->pub.actual_h,
-				rim->pub.total_w, rim->pub.total_h);
+				rim->actual_w, rim->actual_h,
+				rim->total_w, rim->total_h);
 		}
 
 		L_WriteDebug("}\n");
@@ -336,24 +231,13 @@ static real_image_container_c real_sprites;
 static real_image_container_c sky_merges;
 static real_image_container_c dummies;
 
-const struct image_s *skyflatimage;
+const image_c *skyflatimage;
 
-// -AJA- Another hack, this variable holds the current sky when
-// compute sky merging.  We hold onto the image, because there are
-// six sides to compute, and we don't want to load the original
-// image six times.  Removing this hack requires caching it in the
-// cache system (which is not possible right now).
-static epi::image_data_c *merging_sky_image;
 
 // use a common buffer for image shrink operations, saving the
 // overhead of allocating a new buffer for every image.
 static byte *img_shrink_buffer;
 static int img_shrink_buf_size;
-
-
-// forward decls
-static epi::file_c *OpenUserFileOrLump(imagedef_c *def);
-static void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f);
 
 
 // image cache (actually a ring structure)
@@ -379,30 +263,6 @@ static INLINE void Unlink(real_cached_image_t *rc)
 	rc->next->prev = rc->prev;
 }
 
-
-// Dummy image, for when texture/flat/graphic is unknown.  Row major
-// order.  Could be packed, but why bother ?
-#define DUMMY_X  16
-#define DUMMY_Y  16
-static byte dummy_graphic[DUMMY_X * DUMMY_Y] =
-{
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,
-	0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,
-	0,0,1,1,1,1,0,0,0,0,0,1,1,1,0,0,
-	0,0,0,1,1,0,0,0,0,0,0,1,1,1,0,0,
-	0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,
-	0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,
-	0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,
-	0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,
-	0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-};
 
 
 //----------------------------------------------------------------------------
@@ -433,20 +293,20 @@ int W_MakeValidSize(int value)
 	return -1; /* NOT REACHED */
 }
 
-static real_image_t *NewImage(int width, int height, bool solid)
+static image_c *NewImage(int width, int height, bool solid)
 {
-	real_image_t *rim = new real_image_t;
+	image_c *rim = new image_c;
 
 	// clear newbie
-	memset(rim, 0, sizeof(real_image_t));
+	memset(rim, 0, sizeof(image_c));
 
-	rim->pub.actual_w = width;
-	rim->pub.actual_h = height;
-	rim->pub.total_w  = W_MakeValidSize(width);
-	rim->pub.total_h  = W_MakeValidSize(height);
-	rim->pub.offset_x = rim->pub.offset_y = 0;
-	rim->pub.scale_x  = rim->pub.scale_y = 1.0f;
-	rim->pub.img_solid = solid;
+	rim->actual_w = width;
+	rim->actual_h = height;
+	rim->total_w  = W_MakeValidSize(width);
+	rim->total_h  = W_MakeValidSize(height);
+	rim->offset_x = rim->offset_y = 0;
+	rim->scale_x  = rim->scale_y = 1.0f;
+	rim->img_solid = solid;
 
 	// set initial animation info
 	rim->anim.cur = rim;
@@ -456,9 +316,9 @@ static real_image_t *NewImage(int width, int height, bool solid)
 	return rim;
 }
 
-static image_t *AddDummyImage(const char *name, rgbcol_t fg, rgbcol_t bg)
+static image_c *AddDummyImage(const char *name, rgbcol_t fg, rgbcol_t bg)
 {
-	real_image_t *rim;
+	image_c *rim;
   
 	rim = NewImage(DUMMY_X, DUMMY_Y, (bg == TRANS_PIXEL));
  
@@ -472,10 +332,10 @@ static image_t *AddDummyImage(const char *name, rgbcol_t fg, rgbcol_t bg)
 
 	dummies.Insert(rim);
 
-	return &rim->pub;
+	return rim;
 }
 
-static real_image_t *AddImageGraphic(const char *name,
+static image_c *AddImageGraphic(const char *name,
 									 image_source_e type, int lump)
 {
 	/* used for Sprites too */
@@ -483,7 +343,7 @@ static real_image_t *AddImageGraphic(const char *name,
 	patch_t *pat;
 	int width, height, offset_x, offset_y;
   
-	real_image_t *rim;
+	image_c *rim;
 
 	pat = (patch_t *) W_CacheLumpNum(lump);
   
@@ -524,8 +384,8 @@ static real_image_t *AddImageGraphic(const char *name,
 	// create new image
 	rim = NewImage(width, height, false);
  
-	rim->pub.offset_x = offset_x;
-	rim->pub.offset_y = offset_y;
+	rim->offset_x = offset_x;
+	rim->offset_y = offset_y;
 
 	strcpy(rim->name, name);
 
@@ -541,10 +401,10 @@ static real_image_t *AddImageGraphic(const char *name,
 	return rim;
 }
 
-static real_image_t *AddImageTexture(const char *name, 
+static image_c *AddImageTexture(const char *name, 
 									 texturedef_t *tdef)
 {
-	real_image_t *rim;
+	image_c *rim;
  
 	// assume it is non-solid, we'll update it when we know for sure
 	rim = NewImage(tdef->width, tdef->height, false);
@@ -560,9 +420,9 @@ static real_image_t *AddImageTexture(const char *name,
 	return rim;
 }
 
-static real_image_t *AddImageFlat(const char *name, int lump)
+static image_c *AddImageFlat(const char *name, int lump)
 {
-	real_image_t *rim;
+	image_c *rim;
 	int len, size;
   
 	len = W_LumpLength(lump);
@@ -600,7 +460,7 @@ static real_image_t *AddImageFlat(const char *name, int lump)
 	return rim;
 }
 
-static real_image_t *AddImageSkyMerge(const image_t *sky, int face, int size)
+static image_c *AddImageSkyMerge(const image_c *sky, int face, int size)
 {
 	static const char *face_names[6] = 
 	{
@@ -609,7 +469,7 @@ static real_image_t *AddImageSkyMerge(const image_t *sky, int face, int size)
 		"SKYBOX_TOP",   "SKYBOX_BOTTOM"
 	};
 
-	real_image_t *rim;
+	image_c *rim;
  
 	rim = NewImage(size, size, true /* solid */);
  
@@ -625,7 +485,7 @@ static real_image_t *AddImageSkyMerge(const image_t *sky, int face, int size)
 	return rim;
 }
 
-static real_image_t *AddImageUser(imagedef_c *def)
+static image_c *AddImageUser(imagedef_c *def)
 {
 	int w, h;
 	bool solid;
@@ -678,13 +538,13 @@ static real_image_t *AddImageUser(imagedef_c *def)
 			return NULL; /* NOT REACHED */
 	}
  
-	real_image_t *rim = NewImage(w, h, solid);
+	image_c *rim = NewImage(w, h, solid);
  
-	rim->pub.offset_x = def->x_offset;
-	rim->pub.offset_y = def->y_offset;
+	rim->offset_x = def->x_offset;
+	rim->offset_y = def->y_offset;
 
-	rim->pub.scale_x = def->scale * def->aspect;
-	rim->pub.scale_y = def->scale;
+	rim->scale_x = def->scale * def->aspect;
+	rim->scale_y = def->scale;
 
 	strcpy(rim->name, def->ddf.name.GetString());
 
@@ -698,9 +558,9 @@ static real_image_t *AddImageUser(imagedef_c *def)
 
 	if (def->special & IMGSP_Crosshair)
 	{
-		float dy = (200.0f - rim->pub.actual_h * rim->pub.scale_y) / 2.0f - WEAPONTOP;
+		float dy = (200.0f - rim->actual_h * rim->scale_y) / 2.0f - WEAPONTOP;
 
-		rim->pub.offset_y += int(dy / rim->pub.scale_y);
+		rim->offset_y += int(dy / rim->scale_y);
 	}
 
 	switch (def->belong)
@@ -777,27 +637,27 @@ void W_ImageCreateTextures(struct texturedef_s ** defs, int number)
 // NOTE: it is assumed that each new sprite is unique i.e. the name
 // does not collide with any existing sprite image.
 // 
-const image_t *W_ImageCreateSprite(const char *name, int lump, bool is_weapon)
+const image_c *W_ImageCreateSprite(const char *name, int lump, bool is_weapon)
 {
 	SYS_ASSERT(lump >= 0);
 
-	real_image_t *rim = AddImageGraphic(name, IMSRC_Sprite, lump);
+	image_c *rim = AddImageGraphic(name, IMSRC_Sprite, lump);
 	if (! rim)
 		return NULL;
 
 	// adjust sprite offsets so that (0,0) is normal
 	if (is_weapon)
 	{
-		rim->pub.offset_x += (320 / 2 - rim->pub.actual_w / 2);  // loss of accuracy
-		rim->pub.offset_y += (200 - 32 - rim->pub.actual_h);
+		rim->offset_x += (320 / 2 - rim->actual_w / 2);  // loss of accuracy
+		rim->offset_y += (200 - 32 - rim->actual_h);
 	}
 	else
 	{
-		rim->pub.offset_x -= rim->pub.actual_w / 2;   // loss of accuracy
-		rim->pub.offset_y -= rim->pub.actual_h;
+		rim->offset_x -= rim->actual_w / 2;   // loss of accuracy
+		rim->offset_y -= rim->actual_h;
 	}
 
-	return &rim->pub;
+	return rim;
 }
 
 //
@@ -840,7 +700,7 @@ void W_ImageCreateUser(void)
 //
 // Use delete[] to free the returned array.
 //
-const image_t ** W_ImageGetUserSprites(int *count)
+const image_c ** W_ImageGetUserSprites(int *count)
 {
 	// count number of user sprites
 	(*count) = 0;
@@ -849,7 +709,7 @@ const image_t ** W_ImageGetUserSprites(int *count)
 
 	for (it=real_sprites.GetBaseIterator(); it.IsValid(); it++)
 	{
-		real_image_t *rim = ITERATOR_TO_TYPE(it, real_image_t*);
+		image_c *rim = ITERATOR_TO_TYPE(it, image_c*);
     
 		if (rim->source_type == IMSRC_User)
 			(*count) += 1;
@@ -861,19 +721,19 @@ const image_t ** W_ImageGetUserSprites(int *count)
 		return NULL;
 	}
 
-	const image_t ** array = new const image_t *[*count];
+	const image_c ** array = new const image_c *[*count];
 	int pos = 0;
 
 	for (it=real_sprites.GetBaseIterator(); it.IsValid(); it++)
 	{
-		real_image_t *rim = ITERATOR_TO_TYPE(it, real_image_t*);
+		image_c *rim = ITERATOR_TO_TYPE(it, image_c*);
     
 		if (rim->source_type == IMSRC_User)
-			array[pos++] = &rim->pub;
+			array[pos++] = rim;
 	}
 
 #define CMP(a, b)  (strcmp(W_ImageGetName(a), W_ImageGetName(b)) < 0)
-	QSORT(const image_t *, array, (*count), CUTOFF);
+	QSORT(const image_c *, array, (*count), CUTOFF);
 #undef CMP
 
 #if 0  // DEBUGGING
@@ -904,104 +764,6 @@ const image_t ** W_ImageGetUserSprites(int *count)
 #define GAMMA_RED(pix)  GAMMA_CONV(PIXEL_RED(pix))
 #define GAMMA_GRN(pix)  GAMMA_CONV(PIXEL_GRN(pix))
 #define GAMMA_BLU(pix)  GAMMA_CONV(PIXEL_BLU(pix))
-
-//
-// DrawColumnIntoBlock
-//
-// Clip and draw an old-style column from a patch into a block.
-//
-static void DrawColumnIntoEpiBlock(real_image_t *rim, epi::image_data_c *img,
-   const column_t *patchcol, int x, int y)
-{
-	SYS_ASSERT(patchcol);
-
-	int w1 = rim->pub.actual_w;
-	int h1 = rim->pub.actual_h;
-	int w2 = rim->pub.total_w;
-//	int h2 = rim->pub.total_h;
-
-	// clip horizontally
-	if (x < 0 || x >= w1)
-		return;
-
-	while (patchcol->topdelta != P_SENTINEL)
-	{
-		int top = y + (int) patchcol->topdelta;
-		int count = patchcol->length;
-
-		byte *src = (byte *) patchcol + 3;
-		byte *dest = img->pixels + x;
-
-		if (top < 0)
-		{
-			count += top;
-			top = 0;
-		}
-
-		if (top + count > h1)
-			count = h1 - top;
-
-		// copy the pixels, remapping any TRANS_PIXEL values
-		for (; count > 0; count--, src++, top++)
-		{
-			if (*src == TRANS_PIXEL)
-				dest[top * w2] = pal_black;
-			else
-				dest[top * w2] = *src;
-		}
-
-		patchcol = (const column_t *) ((const byte *) patchcol + 
-									   patchcol->length + 4);
-	}
-}
-
-//
-// CheckBlockSolid
-//
-// FIXME: Avoid future checks.
-//
-#define MAX_STRAY_PIXELS  2
-
-static void CheckEpiBlockSolid(real_image_t *rim, epi::image_data_c *img)
-{
-	SYS_ASSERT(img->bpp == 1);
-
-	int w1 = rim->pub.actual_w;
-	int h1 = rim->pub.actual_h;
-	int w2 = rim->pub.total_w;
-	int h2 = rim->pub.total_h;
-
-	int total_num = w1 * h1;
-	int stray_count=0;
-
-	int x, y;
-
-	for (x=0; x < w1; x++)
-		for (y=0; y < h1; y++)
-		{
-			byte src_pix = img->pixels[y * img->width + x];
-
-			if (src_pix != TRANS_PIXEL)
-				continue;
-
-			stray_count++;
-
-			// only ignore stray pixels on large images
-			if (total_num < 256 || stray_count > MAX_STRAY_PIXELS)
-				return;
-		}
-
-	// image is totally solid.  Blacken any transparent parts.
-	rim->pub.img_solid = true;
-
-	for (x=0; x < w2; x++)
-		for (y=0; y < h2; y++)
-			if (x >= w1 || y >= h1 ||
-				img->pixels[y * img->width + x] == TRANS_PIXEL)
-			{
-				img->pixels[y * img->width + x] = pal_black;
-			}
-}
 
 
 
@@ -1467,20 +1229,20 @@ static GLuint W_SendGLTexture(epi::image_data_c *img,
 	return id;
 }
 
-static void FontWhitenRGBA(epi::image_data_c *img)
-{
-	for (int y = 0; y < img->height; y++)
-		for (int x = 0; x < img->width; x++)
-		{
-			u8_t *cur = img->PixelAt(x, y);
-
-			int ity = MAX(cur[0], MAX(cur[1], cur[2]));
-
-			// ity = ((ity << 7) + cur[0] * 38 + cur[1] * 64 + cur[2] * 26) >> 8;
-			
-			cur[0] = cur[1] = cur[2] = ity; 
-		}
-}
+///---static void FontWhitenRGBA(epi::image_data_c *img)
+///---{
+///---	for (int y = 0; y < img->height; y++)
+///---		for (int x = 0; x < img->width; x++)
+///---		{
+///---			u8_t *cur = img->PixelAt(x, y);
+///---
+///---			int ity = MAX(cur[0], MAX(cur[1], cur[2]));
+///---
+///---			// ity = ((ity << 7) + cur[0] * 38 + cur[1] * 64 + cur[2] * 26) >> 8;
+///---			
+///---			cur[0] = cur[1] = cur[2] = ity; 
+///---		}
+///---}
 
 static void PaletteRemapRGBA(epi::image_data_c *img,
 	const byte *new_pal, const byte *old_pal)
@@ -1581,956 +1343,6 @@ static void PaletteRemapRGBA(epi::image_data_c *img,
 }
 
 
-//----------------------------------------------------------------------------
-
-//
-//  BLOCK READING STUFF
-//
-
-//
-// ReadFlatAsBlock
-//
-// Loads a flat from the wad and returns the image block for it.
-// Doesn't do any mipmapping (this is too "raw" if you follow).
-//
-static epi::image_data_c *ReadFlatAsEpiBlock(real_image_t *rim)
-{
-	SYS_ASSERT(rim->source_type == IMSRC_Flat ||
-				rim->source_type == IMSRC_Raw320x200);
-
-	int tw = MAX(rim->pub.total_w, 1);
-	int th = MAX(rim->pub.total_h, 1);
-
-	int w = rim->pub.actual_w;
-	int h = rim->pub.actual_h;
-
-	epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
-
-	byte *dest = img->pixels;
-
-#ifdef MAKE_TEXTURES_WHITE
-	memset(dest, pal_white*0+96, tw * th); //!!!!!!
-	return img;
-#endif
-
-	// clear initial image to black
-	memset(dest, pal_black, tw * th);
-
-	// read in pixels
-	const byte *src = (const byte*)W_CacheLumpNum(rim->source.flat.lump);
-
-	for (int y=0; y < h; y++)
-		for (int x=0; x < w; x++)
-		{
-			byte src_pix = src[y * w + x];
-
-			byte *dest_pix = &dest[x + y * tw];
-
-			// make sure TRANS_PIXEL values (which do not occur naturally in
-			// Doom images) are properly remapped.
-			if (src_pix != TRANS_PIXEL)
-				dest_pix[0] = src_pix;
-		}
-
-	W_DoneWithLump(src);
-
-	return img;
-}
-
-//
-// ReadTextureAsBlock
-//
-// Loads a texture from the wad and returns the image block for it.
-// Doesn't do any mipmapping (this is too "raw" if you follow).
-// This routine will also update the `solid' flag if texture turns
-// out to be solid.
-//
-static epi::image_data_c *ReadTextureAsEpiBlock(real_image_t *rim)
-{
-	SYS_ASSERT(rim->source_type == IMSRC_Texture);
-
-	texturedef_t *tdef = rim->source.texture.tdef;
-	SYS_ASSERT(tdef);
-
-	int tw = rim->pub.total_w;
-	int th = rim->pub.total_h;
-
-	epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
-
-	byte *dest = img->pixels;
-
-#ifdef MAKE_TEXTURES_WHITE
-	memset(dest, pal_white*0+96, tw * th); //!!!!!!
-	return img;
-#endif
-
-	// Clear initial pixels to either totally transparent, or totally
-	// black (if we know the image should be solid).  If the image turns
-	// out to be solid instead of transparent, the transparent pixels
-	// will be blackened.
-  
-	if (rim->pub.img_solid)
-		memset(dest, pal_black, (tw * th));
-	else
-		memset(dest, TRANS_PIXEL, (tw * th));
-
-	int i;
-	texpatch_t *patch;
-
-	// Composite the columns into the block.
-	for (i=0, patch=tdef->patches; i < tdef->patchcount; i++, patch++)
-	{
-		const patch_t *realpatch = (const patch_t*)W_CacheLumpNum(patch->patch);
-
-		int realsize = W_LumpLength(patch->patch);
-
-		int x1 = patch->originx;
-		int y1 = patch->originy;
-		int x2 = x1 + EPI_LE_S16(realpatch->width);
-
-		int x = MAX(0, x1);
-
-		x2 = MIN(tdef->width, x2);
-
-		for (; x < x2; x++)
-		{
-			int offset = EPI_LE_S32(realpatch->columnofs[x - x1]);
-
-			if (offset < 0 || offset >= realsize)
-				I_Error("Bad image offset 0x%08x in image [%s]\n", offset, rim->name);
-
-			const column_t *patchcol = (const column_t *)
-				((const byte *) realpatch + offset);
-
-			DrawColumnIntoEpiBlock(rim, img, patchcol, x, y1);
-		}
-
-		W_DoneWithLump(realpatch);
-	}
-
-	// update solid flag, if needed
-	if (! rim->pub.img_solid)
-		CheckEpiBlockSolid(rim, img);
-
-	return img;
-}
-
-//
-// ReadPatchAsBlock
-//
-// Loads a patch from the wad and returns the image block for it.
-// Very similiar to ReadTextureAsBlock() above.  Doesn't do any
-// mipmapping (this is too "raw" if you follow).  This routine will
-// also update the `solid' flag if it turns out to be 100% solid.
-//
-static epi::image_data_c *ReadPatchAsEpiBlock(real_image_t *rim)
-{
-	SYS_ASSERT(rim->source_type == IMSRC_Graphic ||
-				rim->source_type == IMSRC_Sprite);
-
-	int tw = rim->pub.total_w;
-	int th = rim->pub.total_h;
-
-	epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
-
-	byte *dest = img->pixels;
-
-	// Clear initial pixels to either totally transparent, or totally
-	// black (if we know the image should be solid).  If the image turns
-	// out to be solid instead of transparent, the transparent pixels
-	// will be blackened.
-  
-	if (rim->pub.img_solid)
-		memset(dest, pal_black, tw * th);
-	else
-		memset(dest, TRANS_PIXEL, tw * th);
-
-	// Composite the columns into the block.
-	const patch_t *realpatch = (const patch_t*)W_CacheLumpNum(rim->source.graphic.lump);
-
-	int realsize = W_LumpLength(rim->source.graphic.lump);
-
-	SYS_ASSERT(rim->pub.actual_w == EPI_LE_S16(realpatch->width));
-	SYS_ASSERT(rim->pub.actual_h == EPI_LE_S16(realpatch->height));
-  
-	for (int x=0; x < rim->pub.actual_w; x++)
-	{
-		int offset = EPI_LE_S32(realpatch->columnofs[x]);
-
-		if (offset < 0 || offset >= realsize)
-			I_Error("Bad image offset 0x%08x in image [%s]\n", offset, rim->name);
-
-		const column_t *patchcol = (const column_t *)
-			((const byte *) realpatch + offset);
-
-		DrawColumnIntoEpiBlock(rim, img, patchcol, x, 0);
-	}
-
-	W_DoneWithLump(realpatch);
-
-	// update solid flag, if needed
-	if (! rim->pub.img_solid)
-		CheckEpiBlockSolid(rim, img);
-
-	return img;
-}
-
-static void CalcSphereCoord(int px, int py, int pw, int ph, int face,
-	float *sx, float *sy, float *sz)
-{
-	float ax = ((float)px + 0.5f) / (float)pw * 2.0f - 1.0f;
-	float ay = ((float)py + 0.5f) / (float)ph * 2.0f - 1.0f;
-
-	ay = -ay;
-
-	switch (face)
-	{
-		case WSKY_North:
-			*sx = ax; *sy = 1.0f; *sz = ay; break;
-
-		case WSKY_South:
-			*sx = -ax; *sy = -1.0f; *sz = ay; break;
-
-		case WSKY_East:
-			*sx = 1.0f; *sy = -ax; *sz = ay; break;
-
-		case WSKY_West:
-			*sx = -1.0f; *sy = ax; *sz = ay; break;
-
-		case WSKY_Top:
-			*sx = ax; *sy = -ay; *sz = 1.0f; break;
-
-		case WSKY_Bottom:
-			*sx = ax; *sy = ay; *sz = -1.0f; break;
-
-		default:
-			*sx = *sy = *sz = 0; break;
-	}
-
-	// normalise the vector (FIXME: optimise the sqrt)
-	float len = sqrt((*sx) * (*sx) + (*sy) * (*sy) + (*sz) * (*sz));
-
-	if (len > 0)
-	{
-		*sx /= len; *sy /= len; *sz /= len;
-	}
-}
-
-static inline bool SkyIsNarrow(const image_t *sky)
-{
-	// check the aspect of the image
-	return (IM_WIDTH(sky) / IM_HEIGHT(sky)) < 2.28f;
-}
-
-//
-// ReadSkyMergeAsBlock
-//
-static epi::image_data_c *ReadSkyMergeAsEpiBlock(real_image_t *rim)
-{
-	SYS_ASSERT(rim->source_type == IMSRC_SkyMerge);
-	SYS_ASSERT(rim->pub.actual_w == rim->pub.total_w);
-	SYS_ASSERT(rim->pub.actual_h == rim->pub.total_h);
-
-	int tw = rim->pub.total_w;
-	int th = rim->pub.total_h;
-
-	// Yuck! Recursive call into image system. Hope nothing breaks...
-	const image_t *sky = rim->source.merge.sky;
-	real_image_t *sky_rim = (real_image_t *) sky; // Intentional Const Override
-
-	// get correct palette
-	const byte *what_palette = (const byte *) &playpal_data[0];
-	bool what_pal_cached = false;
-
-	if (sky_rim->source_palette >= 0)
-	{
-		what_palette = (const byte *) W_CacheLumpNum(sky_rim->source_palette);
-		what_pal_cached = true;
-	}
-
-	// big hack (see note near top of file)
-	if (! merging_sky_image)
-		merging_sky_image = ReadAsEpiBlock(sky_rim);
-
-	epi::image_data_c *sky_img = merging_sky_image;
-
-	epi::image_data_c *img = new epi::image_data_c(tw, th, 3);
-
-#if 0 // DEBUG
-	I_Printf("SkyMerge: Image %p face %d\n", rim, rim->source.merge.face);
-#endif
-	bool narrow = SkyIsNarrow(sky);
-
-	byte *src = sky_img->pixels;
-	byte *dest = img->pixels;
-
-	int sk_w = sky_img->width;
-	int ds_w = img->width;
-	int ds_h = img->height;
-
-	for (int y=0; y < rim->pub.total_h; y++)
-	for (int x=0; x < rim->pub.total_w; x++)
-	{
-		float sx, sy, sz;
-		float tx, ty;
-
-		CalcSphereCoord(x, y, rim->pub.total_w, rim->pub.total_h,
-			rim->source.merge.face, &sx, &sy, &sz);
-
-		RGL_CalcSkyCoord(sx, sy, sz, narrow, &tx, &ty);
-
-		int TX = (int)(tx * sky_img->width  * 16);
-		int TY = (int)(ty * sky_img->height * 16);
-
-		TX = (TX + sky_img->width  * 64) % (sky_img->width  * 16);
-		TY = (TY + sky_img->height * 64) % (sky_img->height * 16);
-
-		if (TX < 0) TX = 0;
-		if (TY < 0) TY = 0;
-
-		TX = sky_img->width*16-1-TX;
-
-		// FIXME: handle images everywhere with bottom-up coords
-		if (sky_img->bpp >= 3) TY = sky_img->height*16-1-TY;
-
-		int FX = TX % 16;
-		int FY = TY % 16;
-
-		TX = TX / 16;
-		TY = TY / 16;
-		
-#if 0 // DEBUG
-		if ((x==0 || x==rim->pub.total_w-1) && (y==0 || y==rim->pub.total_h-1))
-		{
-			I_Printf("At (%d,%d) : sphere (%1.2f,%1.2f,%1.2f)  tex (%1.4f,%1.4f)\n",
-			x, y, sx, sy, sz, tx, ty);
-		}
-#endif
-
-		// bilinear filtering
-
-		int TY2 = (TY >= sky_img->height-1) ? TY : (TY+1);
-		int TX2 = (TX + 1) % sky_img->width;
-
-		byte rA, rB, rC, rD;
-		byte gA, gB, gC, gD;
-		byte bA, bB, bC, bD;
-
-		switch (sky_img->bpp)
-		{
-			case 1:
-			{
-				byte src_A = src[TY  * sk_w + TX];
-				byte src_B = src[TY  * sk_w + TX2];
-				byte src_C = src[TY2 * sk_w + TX];
-				byte src_D = src[TY2 * sk_w + TX2];
-
-				rA = PIXEL_RED(src_A); rB = PIXEL_RED(src_B);
-				rC = PIXEL_RED(src_C); rD = PIXEL_RED(src_D);
-
-				gA = PIXEL_GRN(src_A); gB = PIXEL_GRN(src_B);
-				gC = PIXEL_GRN(src_C); gD = PIXEL_GRN(src_D);
-
-				bA = PIXEL_BLU(src_A); bB = PIXEL_BLU(src_B);
-				bC = PIXEL_BLU(src_C); bD = PIXEL_BLU(src_D);
-			}
-			break;
-
-			case 3:
-			{
-				rA = src[(TY * sk_w + TX) * 3 + 0];
-				gA = src[(TY * sk_w + TX) * 3 + 1];
-				bA = src[(TY * sk_w + TX) * 3 + 2];
-
-				rB = src[(TY * sk_w + TX2) * 3 + 0];
-				gB = src[(TY * sk_w + TX2) * 3 + 1];
-				bB = src[(TY * sk_w + TX2) * 3 + 2];
-
-				rC = src[(TY2 * sk_w + TX) * 3 + 0];
-				gC = src[(TY2 * sk_w + TX) * 3 + 1];
-				bC = src[(TY2 * sk_w + TX) * 3 + 2];
-
-				rD = src[(TY2 * sk_w + TX2) * 3 + 0];
-				gD = src[(TY2 * sk_w + TX2) * 3 + 1];
-				bD = src[(TY2 * sk_w + TX2) * 3 + 2];
-			}
-			break;
-
-			case 4:
-			{
-				rA = src[(TY * sk_w + TX) * 4 + 0];
-				gA = src[(TY * sk_w + TX) * 4 + 1];
-				bA = src[(TY * sk_w + TX) * 4 + 2];
-
-				rB = src[(TY * sk_w + TX2) * 4 + 0];
-				gB = src[(TY * sk_w + TX2) * 4 + 1];
-				bB = src[(TY * sk_w + TX2) * 4 + 2];
-
-				rC = src[(TY2 * sk_w + TX) * 4 + 0];
-				gC = src[(TY2 * sk_w + TX) * 4 + 1];
-				bC = src[(TY2 * sk_w + TX) * 4 + 2];
-
-				rD = src[(TY2 * sk_w + TX2) * 4 + 0];
-				gD = src[(TY2 * sk_w + TX2) * 4 + 1];
-				bD = src[(TY2 * sk_w + TX2) * 4 + 2];
-			}
-			break;
-
-			default:  // remove compiler warning
-				rA = rB = rC = rD = 0;
-				gA = gB = gC = gD = 0;
-				bA = bB = bC = bD = 0;
-				break;
-		}
-
-		int r = (int)rA * (15-FX) * (15-FY) +
-				(int)rB * (   FX) * (15-FY) +
-				(int)rC * (15-FX) * (   FY) +
-				(int)rD * (   FX) * (   FY);
-
-		int g = (int)gA * (15-FX) * (15-FY) +
-				(int)gB * (   FX) * (15-FY) +
-				(int)gC * (15-FX) * (   FY) +
-				(int)gD * (   FX) * (   FY);
-
-		int b = (int)bA * (15-FX) * (15-FY) +
-				(int)bB * (   FX) * (15-FY) +
-				(int)bC * (15-FX) * (   FY) +
-				(int)bD * (   FX) * (   FY);
-
-		r /= 225; g /= 225; b /= 225;
-
-		int yy = ds_h - 1 - y;
-
-		dest[(yy * ds_w + x) * 3 + 0] = r;
-		dest[(yy * ds_w + x) * 3 + 1] = g;
-		dest[(yy * ds_w + x) * 3 + 2] = b;
-	}
-
-	if (what_pal_cached)
-		W_DoneWithLump(what_palette);
-
-	return img;
-}
-
-
-//
-// ReadDummyAsBlock
-//
-// Creates a dummy image.
-//
-static epi::image_data_c *ReadDummyAsEpiBlock(real_image_t *rim)
-{
-	SYS_ASSERT(rim->source_type == IMSRC_Dummy);
-	SYS_ASSERT(rim->pub.actual_w == rim->pub.total_w);
-	SYS_ASSERT(rim->pub.actual_h == rim->pub.total_h);
-	SYS_ASSERT(rim->pub.total_w == DUMMY_X);
-	SYS_ASSERT(rim->pub.total_h == DUMMY_Y);
-
-	epi::image_data_c *img = new epi::image_data_c(DUMMY_X, DUMMY_Y, 4);
-
-	// copy pixels
-	for (int y=0; y < DUMMY_Y; y++)
-	for (int x=0; x < DUMMY_X; x++)
-	{
-		byte *dest_pix = img->PixelAt(x, y);
-
-		if (dummy_graphic[(DUMMY_Y-1 - y) * DUMMY_X + x])
-		{
-			*dest_pix++ = (rim->source.dummy.fg & 0xFF0000) >> 16;
-			*dest_pix++ = (rim->source.dummy.fg & 0x00FF00) >> 8;
-			*dest_pix++ = (rim->source.dummy.fg & 0x0000FF);
-			*dest_pix++ = 255;
-		}
-		else if (rim->source.dummy.bg == TRANS_PIXEL)
-		{
-			*dest_pix++ = 0;
-			*dest_pix++ = 0;
-			*dest_pix++ = 0;
-			*dest_pix++ = 0;
-		}
-		else
-		{
-			*dest_pix++ = (rim->source.dummy.bg & 0xFF0000) >> 16;
-			*dest_pix++ = (rim->source.dummy.bg & 0x00FF00) >> 8;
-			*dest_pix++ = (rim->source.dummy.bg & 0x0000FF);
-			*dest_pix++ = 255;
-		}
-	}
-
-	return img;
-}
-
-static void NormalizeClearAreas(epi::image_data_c *img)
-{
-	// makes sure that any totally transparent pixel (alpha == 0)
-	// has a colour of black.  This shows up when smoothing is on.
-
-	SYS_ASSERT(img->bpp == 4);
-
-	byte *dest = img->pixels;
-
-	for (int y = 0; y < img->height; y++)
-	for (int x = 0; x < img->width;  x++)
-	{
-		if (dest[3] == 0)
-		{
-			dest[0] = dest[1] = dest[2] = 0;
-		}
-
-		dest += 4;
-	}
-}
-
-static void CreateUserColourImage(epi::image_data_c *img, imagedef_c *def)
-{
-	byte *dest = img->pixels;
-
-	for (int y = 0; y < img->height; y++)
-	for (int x = 0; x < img->width;  x++)
-	{
-		*dest++ = (def->colour & 0xFF0000) >> 16;  // R
-		*dest++ = (def->colour & 0x00FF00) >>  8;  // G
-		*dest++ = (def->colour & 0x0000FF);        // B
-
-		if (img->bpp == 4)
-			*dest++ = 0xFF;
-	}
-}
-
-static void FourWaySymmetry(epi::image_data_c *img)
-{
-	// the already-drawn corner has the lowest x and y values.  When
-	// width or height is odd, the middle column/row must already be
-	// drawn.
-
-	int w2 = (img->width  + 1) / 2;
-	int h2 = (img->height + 1) / 2;
-
-	for (int y = 0; y < h2; y++)
-	for (int x = 0; x < w2; x++)
-	{
-		int ix = img->width  - 1 - x;
-		int iy = img->height - 1 - y;
-
-		img->CopyPixel(x, y, ix,  y);
-		img->CopyPixel(x, y,  x, iy);
-		img->CopyPixel(x, y, ix, iy);
-	}
-}
-
-static void EightWaySymmetry(epi::image_data_c *img)
-{
-	// Note: the corner already drawn has lowest x and y values, and
-	// the triangle piece is where x >= y.  The diagonal (x == y) must
-	// already be drawn.
-
-	SYS_ASSERT(img->width == img->height);
-
-	int hw = (img->width + 1) / 2;
-
-	for (int y = 0;   y < hw; y++)
-	for (int x = y+1; x < hw; x++)
-	{
-		img->CopyPixel(x, y, y, x);
-	}
-
-	FourWaySymmetry(img);
-}
-
-static void CreateUserBuiltinLinear(epi::image_data_c *img, imagedef_c *def)
-{
-	SYS_ASSERT(img->bpp == 4);
-	SYS_ASSERT(img->width == img->height);
-
-	int hw = (img->width + 1) / 2;
-
-	for (int y = 0; y < hw; y++)
-	for (int x = y; x < hw; x++)
-	{
-		byte *dest = img->pixels + (y * img->width + x) * 4;
-
-		float dx = (hw-1 - x) / float(hw);
-		float dy = (hw-1 - y) / float(hw);
-
-		float hor_p2 = dx * dx + dy * dy;
-		float sq = 1.0f / sqrt(1.0f + DL_OUTER * DL_OUTER * hor_p2);
-
-		// ramp intensity down to zero at the outer edge
-		float horiz = sqrt(hor_p2);
-		if (horiz > 0.80f)
-			sq = sq * (0.98f - horiz) / (0.98f - 0.80f);
-
-		int v = int(sq * 255.4f);
-
-		if (v < 0 || 
-			x == 0 || x == img->width-1 ||
-			y == 0 || y == img->height-1)
-		{
-			v = 0;
-		}
-
-		dest[0] = dest[1] = dest[2] = v;
-		dest[3] = 255;
-	}
-
-	EightWaySymmetry(img);
-}
-
-static void CreateUserBuiltinQuadratic(epi::image_data_c *img, imagedef_c *def)
-{
-	SYS_ASSERT(img->bpp == 4);
-	SYS_ASSERT(img->width == img->height);
-
-	int hw = (img->width + 1) / 2;
-
-	for (int y = 0; y < hw; y++)
-	for (int x = y; x < hw; x++)
-	{
-		byte *dest = img->pixels + (y * img->width + x) * 4;
-
-		float dx = (hw-1 - x) / float(hw);
-		float dy = (hw-1 - y) / float(hw);
-
-		float hor_p2 = dx * dx + dy * dy;
-
-		float sq = 0.3f / (1.0f + DL_OUTER * hor_p2) +
-		           0.7f * MIN(1.0f, 2.0f / (1.0f + DL_OUTER * 2.0f * hor_p2));
-
-		// ramp intensity down to zero at the outer edge
-		float horiz = sqrt(hor_p2);
-		if (horiz > 0.80f)
-			sq = sq * (0.98f - horiz) / (0.98f - 0.80f);
-
-// hor_p2 = cos(hor_p2*6.2)/2+0.5; //!!!! RING SHAPE ??
-sq = exp(-5.44 * hor_p2);
-		
-		int v = int(sq * 255.4f * sin(hor_p2*7.7));
-
-		if (v < 0 ||
-			x == 0 || x == img->width-1 ||
-			y == 0 || y == img->height-1)
-		{
-			v = 0;
-		}
-
-		dest[0] = dest[1] = dest[2] = v;
-		dest[3] = 255;
-	}
-
-	EightWaySymmetry(img);
-}
-
-static void CreateUserBuiltin_RING(epi::image_data_c *img, imagedef_c *def)
-{
-	SYS_ASSERT(img->bpp == 4);
-	SYS_ASSERT(img->width == img->height);
-
-	int hw = (img->width + 1) / 2;
-
-	for (int y = 0; y < hw; y++)
-	for (int x = y; x < hw; x++)
-	{
-		byte *dest = img->pixels + (y * img->width + x) * 4;
-
-		float dx = (hw-1 - x) / float(hw);
-		float dy = (hw-1 - y) / float(hw);
-
-		float hor_p2 = dx * dx + dy * dy;
-
-		float sq = 0.3f / (1.0f + DL_OUTER * hor_p2) +
-		           0.7f * MIN(1.0f, 2.0f / (1.0f + DL_OUTER * 2.0f * hor_p2));
-
-		// ramp intensity down to zero at the outer edge
-		float horiz = sqrt(hor_p2);
-		if (horiz > 0.80f)
-			sq = sq * (0.98f - horiz) / (0.98f - 0.80f);
-
-//hor_p2 = hor_p2*2; if (hor_p2 > 1) hor_p2 = 2.0 - hor_p2;
-//hor_p2 = 1 - hor_p2;
-
-sq = exp(-5.44 * hor_p2);
-
-		int v = int(sq * 255.4f);
-
-		if (v < 0 ||
-			x == 0 || x == img->width-1 ||
-			y == 0 || y == img->height-1)
-		{
-			v = 0;
-		}
-
-		dest[0] = v;
-		dest[1] = v*v/255;
-		dest[2] = sqrt(v*255);
-		dest[3] = 255;
-	}
-
-	EightWaySymmetry(img);
-}
-
-static void CreateUserBuiltinShadow(epi::image_data_c *img, imagedef_c *def)
-{
-	SYS_ASSERT(img->bpp == 4);
-	SYS_ASSERT(img->width == img->height);
-
-	int hw = (img->width + 1) / 2;
-
-	for (int y = 0; y < hw; y++)
-	for (int x = y; x < hw; x++)
-	{
-		byte *dest = img->pixels + (y * img->width + x) * 4;
-
-		float dx = (hw-1 - x) / float(hw);
-		float dy = (hw-1 - y) / float(hw);
-
-		float horiz = sqrt(dx * dx + dy * dy);
-		float sq = 1.0f - horiz;
-
-		int v = int(sq * 170.4f);
-
-		if (v < 0 ||
-			x == 0 || x == img->width-1 ||
-			y == 0 || y == img->height-1)
-		{
-			v = 0;
-		}
-
-		*dest++ = 0;
-		*dest++ = 0;
-		*dest++ = 0;
-		*dest   = v;
-	}
-
-	EightWaySymmetry(img);
-}
-
-static void CreateUserBuiltinCOLMAP(epi::image_data_c *img, imagedef_c *def)
-{
-	SYS_ASSERT(img->bpp == 4);
-
-	for (int y = 0; y < img->height; y++)
-	for (int x = 0; x < img->width;  x++)
-	{
-		byte *dest = img->pixels + (y * img->width + x) * 4;
-
-		float dist = 400; //!!!!!!!!!! 2048.0f * x / img->width;
-
-		dist = MIN(2000.0f, dist);
-
-		if (y < img->height/2)
-		{
-			float sec = 256.0f * y / img->height * 2.0;
-
-			// DOOM lighting formula
-			float light = EMU_LIGHT(sec, dist);
-
-			dest[0] = (int) MAX(0, MIN(255.9f, light));
-
-			dest[1] = dest[0];
-			dest[2] = dest[0];
-			dest[3] = 255;
-		}
-		else
-		{
-			float sec = 256.0f * (y - img->height/2) / img->height * 2.0;
-
-			// DOOM lighting formula
-			float light = EMU_LIGHT(sec, dist);
-
-			dest[2] = 0; // (int) MAX(0, MIN(255.9f, 200 - light));
-			dest[0] = 0;
-			dest[1] = 0;
-			dest[3] = 255;
-		}
-
-		dest += 4;
-	}
-}
-
-static epi::file_c *OpenUserFileOrLump(imagedef_c *def)
-{
-	if (def->type == IMGDT_File)
-	{
-		// -AJA- 2005/01/15: filenames in DDF relative to GAMEDIR
-		return M_OpenComposedEPIFile(game_dir.GetString(), def->name.GetString());
-	}
-	else  /* LUMP */
-	{
-		int lump = W_CheckNumForName(def->name.GetString());
-
-		if (lump < 0)
-			return NULL;
-
-		const byte *lump_data = (byte *)W_CacheLumpNum(lump);
-		int length = W_LumpLength(lump);
-
-		return new epi::mem_file_c(lump_data, length, false /* no copying */);
-	}
-}
-
-static void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f)
-{
-	if (def->type == IMGDT_File)
-	{
-		epi::the_filesystem->Close(f);
-	}
-	else  /* LUMP */
-	{
-		// FIXME: create sub-class of mem_file_c in WAD code
-		epi::mem_file_c *mf = (epi::mem_file_c *) f;
-		W_DoneWithLump(mf->GetNonCopiedDataPointer());
-
-		delete f;
-	}
-}
-
-static epi::image_data_c *CreateUserFileImage(real_image_t *rim, imagedef_c *def)
-{
-	epi::file_c *f = OpenUserFileOrLump(def);
-
-	if (! f)
-		I_Error("Missing image file: %s\n", def->name.GetString());
-
-	epi::image_data_c *img;
-
-	if (def->format == LIF_JPEG)
-		img = epi::JPEG::Load(f, true /* invert */, true /* round_pow2 */);
-	else
-		img = epi::PNG::Load (f, true /* invert */, true /* round_pow2 */);
-
-	CloseUserFileOrLump(def, f);
-
-	if (! img)
-		I_Error("Error occurred loading image file: %s\n",
-			def->name.GetString());
-
-#if 1  // DEBUGGING
-	L_WriteDebug("CREATE IMAGE [%s] %dx%d < %dx%d %s --> %p %dx%d bpp %d\n",
-	rim->name,
-	rim->pub.actual_w, rim->pub.actual_h,
-	rim->pub.total_w, rim->pub.total_h,
-	rim->pub.img_solid ? "SOLID" : "MASKED",
-	img, img->width, img->height, img->bpp);
-#endif
-
-	if (img->bpp == 4)
-		NormalizeClearAreas(img);
-
-	SYS_ASSERT(rim->pub.total_w == img->width);
-	SYS_ASSERT(rim->pub.total_h == img->height);
-
-	return img;
-}
-
-//
-// ReadUserAsBlock
-//
-// Loads or Creates the user defined image.
-// Doesn't do any mipmapping (this is too "raw" if you follow).
-//
-static epi::image_data_c *ReadUserAsEpiBlock(real_image_t *rim)
-{
-	SYS_ASSERT(rim->source_type == IMSRC_User);
-
-	int tw = MAX(rim->pub.total_w, 1);
-	int th = MAX(rim->pub.total_h, 1);
-
-	int bpp = rim->pub.img_solid ? 3 : 4;
-
-	// clear initial image to black / transparent
-	/// ALREADY DONE: memset(dest, pal_black, tw * th * bpp);
-
-	imagedef_c *def = rim->source.user.def;
-
-	switch (def->type)
-	{
-		case IMGDT_Colour:
-		{
-			epi::image_data_c *img = new epi::image_data_c(tw, th, bpp);
-			CreateUserColourImage(img, def);
-			return img;
-		}
-
-		case IMGDT_Builtin:
-		{
-			epi::image_data_c *img = new epi::image_data_c(tw, th, bpp);
-			switch (def->builtin)
-			{
-				case BLTIM_Linear:
-					CreateUserBuiltin_RING(img, def); //!!!!!
-					break;
-
-				case BLTIM_Quadratic:
-					CreateUserBuiltinQuadratic(img, def);
-					break;
-
-				case BLTIM_Shadow:
-					CreateUserBuiltinCOLMAP(img, def);
-					break;
-
-				case 123: //!!!!! BLTIM_ColMapTest:
-					CreateUserBuiltinCOLMAP(img, def);
-					break;
-
-				default:
-					I_Error("ReadUserAsEpiBlock: Unknown builtin %d\n", def->builtin);
-					break;
-			}
-			return img;
-		}
-
-		case IMGDT_File:
-		case IMGDT_Lump:
-		    return CreateUserFileImage(rim, def);
-
-		default:
-			I_Error("ReadUserAsEpiBlock: Coding error, unknown type %d\n", def->type);
-	}
-
-	return NULL;  /* NOT REACHED */
-}
-
-//
-// ReadAsEpiBlock
-//
-// Read the image from the wad into an image_data_c class.
-// The image returned is normally palettised (bpp == 1), and the
-// palette must be determined from rim->source_palette.  Mainly
-// just a switch to more specialised image readers.
-//
-// Never returns NULL.
-//
-static epi::image_data_c *ReadAsEpiBlock(real_image_t *rim) 
-{
-	switch (rim->source_type)
-	{
-		case IMSRC_Flat:
-		case IMSRC_Raw320x200:
-			return ReadFlatAsEpiBlock(rim);
-
-		case IMSRC_Texture:
-			return ReadTextureAsEpiBlock(rim);
-
-		case IMSRC_Graphic:
-		case IMSRC_Sprite:
-			return ReadPatchAsEpiBlock(rim);
-
-		case IMSRC_SkyMerge:
-			return ReadSkyMergeAsEpiBlock(rim);
-
-		case IMSRC_Dummy:
-			return ReadDummyAsEpiBlock(rim);
-    
-		case IMSRC_User:
-			return ReadUserAsEpiBlock(rim);
-      
-		default:
-			I_Error("ReadAsBlock: unknown source_type %d !\n", rim->source_type);
-			return NULL;
-	}
-}
-
 
 //----------------------------------------------------------------------------
 
@@ -2559,7 +1371,7 @@ static void DumpImage(epi::image_data_c *img)
 
 
 static
-real_cached_image_t *LoadImageOGL(real_image_t *rim, const colourmap_c *trans)
+real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 {
 	static byte trans_pal[256 * 3];
 
@@ -2660,7 +1472,7 @@ real_cached_image_t *LoadImageOGL(real_image_t *rim, const colourmap_c *trans)
 		epi::Hq2x::Setup(what_palette, TRANS_PIXEL);
 
 		epi::image_data_c *scaled_img =
-			epi::Hq2x::Convert(tmp_img, rim->pub.img_solid, true /* invert */);
+			epi::Hq2x::Convert(tmp_img, rim->img_solid, true /* invert */);
 
 		delete tmp_img;
 		tmp_img = scaled_img;
@@ -2669,7 +1481,7 @@ real_cached_image_t *LoadImageOGL(real_image_t *rim, const colourmap_c *trans)
 	if (tmp_img->bpp >= 3 && trans != NULL)
 	{
 		if (trans == font_whiten_map)
-			FontWhitenRGBA(tmp_img);
+			tmp_img->Whiten();
 		else
 			PaletteRemapRGBA(tmp_img, what_palette, (const byte *) &playpal_data[0]);
 	}
@@ -2689,15 +1501,8 @@ real_cached_image_t *LoadImageOGL(real_image_t *rim, const colourmap_c *trans)
 }
 
 
-static INLINE 
-void UnloadImageBlock(real_cached_image_t *rc, real_image_t *rim)
-{
-	// nothing to do, pixel data was allocated along with the
-	// real_cached_image_t structure.
-}
-
 static
-void UnloadImageOGL(real_cached_image_t *rc, real_image_t *rim)
+void UnloadImageOGL(real_cached_image_t *rc, image_c *rim)
 {
 	glDeleteTextures(1, &rc->tex_id);
 
@@ -2730,7 +1535,7 @@ void UnloadImageOGL(real_cached_image_t *rc, real_image_t *rim)
 //
 static void UnloadImage(real_cached_image_t *rc)
 {
-	real_image_t *rim = rc->parent;
+	image_c *rim = rc->parent;
 
 	SYS_ASSERT(rc);
 	SYS_ASSERT(rc != &imagecachehead);
@@ -2754,16 +1559,16 @@ static void UnloadImage(real_cached_image_t *rc)
 //
 // BackupTexture
 //
-static const image_t *BackupTexture(const char *tex_name, int flags)
+static const image_c *BackupTexture(const char *tex_name, int flags)
 {
-	const real_image_t *rim;
+	const image_c *rim;
 
 	// backup plan: try a flat with the same name
 	if (! (flags & ILF_Exact))
 	{
 		rim = real_flats.Lookup(tex_name);
 		if (rim)
-			return &rim->pub;
+			return rim;
 	}
 
 	if (flags & ILF_Null)
@@ -2775,23 +1580,23 @@ static const image_t *BackupTexture(const char *tex_name, int flags)
 	{
 		rim = dummies.Lookup("DUMMY_SKY");
 		if (rim)
-			return &rim->pub;
+			return rim;
 	}
 
 	// return the texture dummy image
 	rim = dummies.Lookup("DUMMY_TEXTURE");
 	SYS_ASSERT(rim);
 
-	return &rim->pub;
+	return rim;
 }
 
 //
 // BackupFlat
 //
 //
-static const image_t *BackupFlat(const char *flat_name, int flags)
+static const image_c *BackupFlat(const char *flat_name, int flags)
 {
-	const real_image_t *rim;
+	const image_c *rim;
 
 	// backup plan 1: if lump exists and is right size, add it.
 	if (! (flags & ILF_NoNew))
@@ -2802,7 +1607,7 @@ static const image_t *BackupFlat(const char *flat_name, int flags)
 		{
 			rim = AddImageFlat(flat_name, i);
 			if (rim)
-				return &rim->pub;
+				return rim;
 		}
 	}
 
@@ -2811,7 +1616,7 @@ static const image_t *BackupFlat(const char *flat_name, int flags)
 	{
 		rim = real_textures.Lookup(flat_name);
 		if (rim)
-			return &rim->pub;
+			return rim;
 	}
 
 	if (flags & ILF_Null)
@@ -2823,26 +1628,26 @@ static const image_t *BackupFlat(const char *flat_name, int flags)
 	rim = dummies.Lookup("DUMMY_FLAT");
 	SYS_ASSERT(rim);
 
-	return &rim->pub;
+	return rim;
 }
 
 //
 // BackupGraphic
 //
-static const image_t *BackupGraphic(const char *gfx_name, int flags)
+static const image_c *BackupGraphic(const char *gfx_name, int flags)
 {
-	const real_image_t *rim;
+	const image_c *rim;
 
 	// backup plan 1: look for sprites and heretic-background
 	if (! (flags & (ILF_Exact | ILF_Font)))
 	{
 		rim = real_graphics.Lookup(gfx_name, IMSRC_Raw320x200);
 		if (rim)
-			return &rim->pub;
+			return rim;
   
 		rim = real_sprites.Lookup(gfx_name);
 		if (rim)
-			return &rim->pub;
+			return rim;
 	}
   
 	// not already loaded ?  Check if lump exists in wad, if so add it.
@@ -2854,7 +1659,7 @@ static const image_t *BackupGraphic(const char *gfx_name, int flags)
 		{
 			rim = AddImageGraphic(gfx_name, IMSRC_Graphic, i);
 			if (rim)
-				return &rim->pub;
+				return rim;
 		}
 	}
 
@@ -2867,7 +1672,7 @@ static const image_t *BackupGraphic(const char *gfx_name, int flags)
 	rim = dummies.Lookup((flags & ILF_Font) ? "DUMMY_FONT" : "DUMMY_GRAPHIC");
 	SYS_ASSERT(rim);
 
-	return &rim->pub;
+	return rim;
 }
 
 //
@@ -2875,7 +1680,7 @@ static const image_t *BackupGraphic(const char *gfx_name, int flags)
 //
 // Note: search must be case insensitive.
 //
-const image_t *W_ImageLookup(const char *name, image_namespace_e type, int flags)
+const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags)
 {
 	// "NoTexture" marker.
 	if (!name || !name[0] || name[0] == '-')
@@ -2898,7 +1703,7 @@ const image_t *W_ImageLookup(const char *name, image_namespace_e type, int flags
 	    return NULL;
 	}
   
-	const real_image_t *rim = NULL;
+	const image_c *rim = NULL;
 
 	switch (type)
 	{
@@ -2934,7 +1739,7 @@ const image_t *W_ImageLookup(const char *name, image_namespace_e type, int flags
 
 	SYS_ASSERT(rim);
 
-	return &rim->pub;
+	return rim;
 }
 
 static const char *UserSkyFaceName(const char *base, int face)
@@ -2946,20 +1751,28 @@ static const char *UserSkyFaceName(const char *base, int face)
 	return buffer;
 }
 
+// FIXME: duplicated in r_doomtex
+static inline bool SkyIsNarrow(const image_c *sky)
+{
+	// check the aspect of the image
+	return (IM_WIDTH(sky) / IM_HEIGHT(sky)) < 2.28f;
+}
+
+
 //
 // W_ImageFromSkyMerge
 // 
-const image_t *W_ImageFromSkyMerge(const image_t *sky, int face)
+const image_c *W_ImageFromSkyMerge(const image_c *sky, int face)
 {
 	// check IMAGES.DDF for the face image
 	// (they need to be Textures)
 
-	const real_image_t *rim = (const real_image_t *)sky;
+	const image_c *rim = (const image_c *)sky;
 	const char *user_face_name = UserSkyFaceName(rim->name, face);
 
 	rim = real_textures.Lookup(user_face_name);
 	if (rim)
-		return &rim->pub;
+		return rim;
 
 	// nope, look for existing sky-merge image
 
@@ -2967,7 +1780,7 @@ const image_t *W_ImageFromSkyMerge(const image_t *sky, int face)
 
 	for (it=sky_merges.GetBaseIterator(); it.IsValid(); it++)
 	{
-		rim = ITERATOR_TO_TYPE(it, real_image_t*);
+		rim = ITERATOR_TO_TYPE(it, image_c*);
     
 		SYS_ASSERT(rim->source_type == IMSRC_SkyMerge);
 
@@ -2975,7 +1788,7 @@ const image_t *W_ImageFromSkyMerge(const image_t *sky, int face)
 			continue;
 
 		if (face == rim->source.merge.face)
-			return &rim->pub;
+			return rim;
 
 		// Optimisations:
 		//    1. in MIRROR mode, bottom is same as top.
@@ -2987,20 +1800,20 @@ const image_t *W_ImageFromSkyMerge(const image_t *sky, int face)
 		{
 #if 0  // DISABLED
 			L_WriteDebug("W_ImageFromSkyMerge: using TOP for BOTTOM.\n");
-			return &rim->pub;
+			return rim;
 #endif
 		}
 		else if (SkyIsNarrow(sky) &&
 			(face == WSKY_South && rim->source.merge.face == WSKY_North))
 		{
 			L_WriteDebug("W_ImageFromSkyMerge: using NORTH for SOUTH.\n");
-			return &rim->pub;
+			return rim;
 		}
 		else if (SkyIsNarrow(sky) &&
 			 (face == WSKY_West && rim->source.merge.face == WSKY_East))
 		{
 			L_WriteDebug("W_ImageFromSkyMerge: using EAST for WEST.\n");
-			return &rim->pub;
+			return rim;
 		}
 	}
 
@@ -3008,18 +1821,18 @@ const image_t *W_ImageFromSkyMerge(const image_t *sky, int face)
 	int size = (sky->actual_h < 228) ? 128 : 256;
 
 	rim = AddImageSkyMerge(sky, face, size);
-	return &rim->pub;
+	return rim;
 }
 
 //
 // W_ImageForDummySprite
 // 
-const image_t *W_ImageForDummySprite(void)
+const image_c *W_ImageForDummySprite(void)
 {
-	const real_image_t *rim = dummies.Lookup("DUMMY_SPRITE");
+	const image_c *rim = dummies.Lookup("DUMMY_SPRITE");
 	SYS_ASSERT(rim);
 
-	return &rim->pub;
+	return rim;
 }
 
 //
@@ -3027,7 +1840,7 @@ const image_t *W_ImageForDummySprite(void)
 //
 // Used by the savegame code.
 // 
-const image_t *W_ImageParseSaveString(char type, const char *name)
+const image_c *W_ImageParseSaveString(char type, const char *name)
 {
 	// this name represents the sky (historical reasons)
 	if (type == 'd' && stricmp(name, "DUMMY__2") == 0)
@@ -3035,7 +1848,7 @@ const image_t *W_ImageParseSaveString(char type, const char *name)
 		return skyflatimage;
 	}
 
-	const real_image_t *rim;
+	const image_c *rim;
 
 	switch (type)
 	{
@@ -3056,7 +1869,7 @@ const image_t *W_ImageParseSaveString(char type, const char *name)
 		case 'd': /* dummy */
 			rim = dummies.Lookup(name);
 			if (rim)
-				return &rim->pub;
+				return rim;
 			break;
 
 		default:
@@ -3064,10 +1877,10 @@ const image_t *W_ImageParseSaveString(char type, const char *name)
 			break;
 	}
 
-	rim = real_graphics.Lookup(name); if (rim) return &rim->pub;
-	rim = real_textures.Lookup(name); if (rim) return &rim->pub;
-	rim = real_flats.Lookup(name);    if (rim) return &rim->pub;
-	rim = real_sprites.Lookup(name);  if (rim) return &rim->pub;
+	rim = real_graphics.Lookup(name); if (rim) return rim;
+	rim = real_textures.Lookup(name); if (rim) return rim;
+	rim = real_flats.Lookup(name);    if (rim) return rim;
+	rim = real_sprites.Lookup(name);  if (rim) return rim;
 
 	I_Warning("W_ImageParseSaveString: image [%c:%s] not found.\n", type, name);
 
@@ -3075,7 +1888,7 @@ const image_t *W_ImageParseSaveString(char type, const char *name)
 	rim = dummies.Lookup("DUMMY_TEXTURE");
 	SYS_ASSERT(rim);
 
-	return &rim->pub;
+	return rim;
 }
 
 //
@@ -3083,7 +1896,7 @@ const image_t *W_ImageParseSaveString(char type, const char *name)
 //
 // Used by the savegame code.
 // 
-void W_ImageMakeSaveString(const image_t *image, char *type, char *namebuf)
+void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
 {
 	if (image == skyflatimage)
 	{
@@ -3093,7 +1906,7 @@ void W_ImageMakeSaveString(const image_t *image, char *type, char *namebuf)
 		return;
 	}
 
-	const real_image_t *rim = (const real_image_t *) image;
+	const image_c *rim = (const image_c *) image;
 
 	strcpy(namebuf, rim->name);
 
@@ -3133,11 +1946,11 @@ void W_ImageMakeSaveString(const image_t *image, char *type, char *namebuf)
 //
 // W_ImageGetName
 //
-const char *W_ImageGetName(const image_t *image)
+const char *W_ImageGetName(const image_c *image)
 {
-	const real_image_t *rim;
+	const image_c *rim;
 
-	rim = (const real_image_t *) image;
+	rim = (const image_c *) image;
 
 	return rim->name;
 }
@@ -3151,7 +1964,7 @@ const char *W_ImageGetName(const image_t *image)
 
 
 static inline
-real_cached_image_t *ImageCacheOGL(real_image_t *rim)
+real_cached_image_t *ImageCacheOGL(image_c *rim)
 {
 	real_cached_image_t *rc;
 
@@ -3179,7 +1992,7 @@ real_cached_image_t *ImageCacheOGL(real_image_t *rim)
 	return rc;
 }
 
-real_cached_image_t *ImageCacheTransOGL(real_image_t *rim,
+real_cached_image_t *ImageCacheTransOGL(image_c *rim,
 	const colourmap_c *trans)
 {
 	// already cached ?
@@ -3246,11 +2059,11 @@ real_cached_image_t *ImageCacheTransOGL(real_image_t *rim,
 // The top-level routine for caching in an image.  Mainly just a
 // switch to more specialised routines.
 //
-GLuint W_ImageCache(const image_t *image, bool anim,
+GLuint W_ImageCache(const image_c *image, bool anim,
 				    const colourmap_c *trans)
 {
 	// Intentional Const Override
-	real_image_t *rim = (real_image_t *) image;
+	image_c *rim = (image_c *) image;
  
 	// handle animations
 	if (anim)
@@ -3298,7 +2111,7 @@ void W_ImageDone(real_cached_image_t *rc)
 
 
 #if 0
-rgbcol_t W_ImageGetHue(const image_t *img)
+rgbcol_t W_ImageGetHue(const image_c *img)
 {
 	SYS_ASSERT(c);
 
@@ -3315,12 +2128,12 @@ rgbcol_t W_ImageGetHue(const image_t *img)
 //
 // W_ImagePreCache
 // 
-void W_ImagePreCache(const image_t *image)
+void W_ImagePreCache(const image_c *image)
 {
 	W_ImageCache(image, false);
 
 	// Intentional Const Override
-	real_image_t *rim = (real_image_t *) image;
+	image_c *rim = (image_c *) image;
 
 	// pre-cache alternative images for switches too
 	if (strlen(rim->name) >= 4 &&
@@ -3332,10 +2145,9 @@ void W_ImagePreCache(const image_t *image)
 		strcpy(alt_name, rim->name);
 		alt_name[2] = (alt_name[2] == '1') ? '2' : '1';
 
-		real_image_t *alt = real_textures.Lookup(alt_name);
+		image_c *alt = real_textures.Lookup(alt_name);
 
-		if (alt)
-			W_ImageCache(&alt->pub, false);
+		if (alt) W_ImageCache(alt, false);
 	}
 }
 
@@ -3432,10 +2244,10 @@ void W_ResetImages(void)
 //
 // NOTE: modifies the input array of images.
 // 
-void W_AnimateImageSet(const image_t ** images, int number, int speed)
+void W_AnimateImageSet(const image_c ** images, int number, int speed)
 {
 	int i, total;
-	real_image_t *rim, *other;
+	image_c *rim, *other;
 
 	SYS_ASSERT(images);
 	SYS_ASSERT(speed > 0);
@@ -3444,7 +2256,7 @@ void W_AnimateImageSet(const image_t ** images, int number, int speed)
 	for (i=0, total=0; i < number; i++)
 	{
 		// Intentional Const Override
-		rim = (real_image_t *) images[i];
+		rim = (image_c *) images[i];
 
 		if (! rim)
 			continue;
@@ -3462,20 +2274,12 @@ void W_AnimateImageSet(const image_t ** images, int number, int speed)
 	for (i=0; i < total; i++)
 	{
 		// Intentional Const Override
-		rim   = (real_image_t *) images[i];
-		other = (real_image_t *) images[(i+1) % total];
+		rim   = (image_c *) images[i];
+		other = (image_c *) images[(i+1) % total];
 
 		rim->anim.next = other;
 		rim->anim.speed = rim->anim.count = speed;
 	}
-}
-
-void W_ImageClearMergingSky(void)
-{
-	if (merging_sky_image)
-		delete merging_sky_image;
-
-	merging_sky_image = NULL;
 }
 
 //--- editor settings ---
