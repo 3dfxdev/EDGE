@@ -49,9 +49,7 @@ bool JPEG_Save(FILE *fp, const image_data_c *img, int quality = JPEG_DEF_QUALITY
 // saves the image (in JPEG format) to the given file.  Returns false if
 // something went wrong.  The 'quality' parameter is a percentage, the
 // range is roughly 70 to 95 (values outside of this are possible).
-// If there are transparent colors in the image, they will be mixed with
-// black in the output, since JPEG doesn't support transparency.
-// FIXME: throw exception on failure & use file_c instead of FILE*
+// The image _MUST_ be RGB (bpp == 3).
 
 }  // namespace epi
 

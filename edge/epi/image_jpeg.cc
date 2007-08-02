@@ -226,42 +226,13 @@ bool JPEG_GetInfo(file_c *f, int *width, int *height, bool *solid)
 	return true;
 }
 
+
 //------------------------------------------------------------------------
-
-namespace JPEG
-{
-	void convert_row_to_RGB(const image_data_c *img, int y, u8_t *buf)
-	{
-		/// ASSERT(buf);
-		/// ASSERT(img->bpp == 4);
-
-		const u8_t *col = img->PixelAt(0, y);
-
-		for (int x=0; x < img->width; x++, col += 4, buf += 3)
-		{
-			// blend alpha with BLACK
-
-			buf[0] = (int)col[0] * (int)col[3] / 255;
-			buf[1] = (int)col[1] * (int)col[3] / 255;
-			buf[2] = (int)col[2] * (int)col[3] / 255;
-		}
-	}
-}
 
 bool JPEG_Save(FILE *fp, const image_data_c *img, int quality)
 {
-	u8_t *row_data = 0;
-
-	if (img->bpp < 3)
+	if (img->bpp != 3)
 		throw error_c(EPI_ERRGEN_ASSERTION, "[epi::JPEG_Save] image.bpp < 3", true);
-
-	if (img->bpp == 4)
-	{
-		row_data = (u8_t *) malloc(img->used_w * 3);
-
-		if (! row_data)
-			return false;
-	}
 
 	struct jpeg_compress_struct cinfo;
 	struct jpeg_error_mgr jerr;
@@ -287,25 +258,13 @@ bool JPEG_Save(FILE *fp, const image_data_c *img, int quality)
 	{
 		int y = cinfo.next_scanline;
 
-		if (img->bpp == 3)
-			row_pointer[0] = (JSAMPROW) (img->pixels + (img->used_h-1-y) * img->width * 3);
-		else
-		{
-			row_pointer[0] = (JSAMPROW) row_data;
-			JPEG::convert_row_to_RGB(img, (img->used_h-1-y), row_data);
-		}
+		row_pointer[0] = (JSAMPROW) img->PixelAt(0, img->used_h-1 - y);
 
 		(void) jpeg_write_scanlines(&cinfo, row_pointer, (JDIMENSION) 1);
 	}
 
 	jpeg_finish_compress(&cinfo);
 	jpeg_destroy_compress(&cinfo);
-
-	if (row_data)
-	{
-		free(row_data);
-		row_data = 0;
-	}
 
 	return true;
 }
