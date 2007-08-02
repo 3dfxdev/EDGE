@@ -23,11 +23,10 @@
 
 #include "i_defs.h"
 
-#include "epi/strings.h"
 #include <vorbis/vorbisfile.h>
 
-// Forward declarations
-class sound_data_c;
+#include "epi/strings.h"
+#include "epi/sound_data.h"
 
 
 class oggplayer_c
@@ -65,7 +64,7 @@ private:
 
 	void PostOpenInit(void);
 
-	bool StreamIntoBuffer(sound_data_c *buf);
+	bool StreamIntoBuffer(epi::sound_data_c *buf);
 
 	void ConvertToMono(s16_t *dest, const s16_t *src, int len);
 

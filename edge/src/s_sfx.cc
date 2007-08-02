@@ -310,7 +310,7 @@ static void S_PlaySound(int idx, sfxdef_c *def, int category, position_c *pos, i
 //I_Printf("S_PlaySound on idx #%d DEF:%p\n", idx, def);
 
 //I_Printf("Looked up def: %p, caching...\n", def);
-	sound_data_c *buf = S_CacheLoad(def);
+	epi::sound_data_c *buf = S_CacheLoad(def);
 	if (! buf)
 		return;
 
