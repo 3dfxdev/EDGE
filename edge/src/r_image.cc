@@ -56,6 +56,7 @@
 #include "epi/image_hq2x.h"
 #include "epi/image_png.h"
 #include "epi/image_jpeg.h"
+#include "epi/image_tga.h"
 
 #include <limits.h>
 #include <math.h>
@@ -520,6 +521,8 @@ static image_c *AddImageUser(imagedef_c *def)
 
 			if (def->format == LIF_JPEG)
 				got_info = epi::JPEG_GetInfo(f, &w, &h, &solid);
+			else if (def->format == LIF_TGA)
+				got_info = epi::TGA_GetInfo(f, &w, &h, &solid);
 			else
 				got_info = epi::PNG_GetInfo(f, &w, &h, &solid);
 
@@ -1459,6 +1462,9 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	rc->hue = RGB_NO_VALUE;
 
 	epi::image_data_c *tmp_img = ReadAsEpiBlock(rim);
+
+/// if (strcmp(rim->name, "EDGETTL")==0)
+/// DumpImage(tmp_img);
 
 	if (var_hq_scale && (tmp_img->bpp == 1) &&
 		(rim->source_type == IMSRC_Raw320x200 ||

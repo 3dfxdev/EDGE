@@ -181,6 +181,8 @@ static void ImageFinishEntry(void)
 			buffer_image.format = LIF_PNG;
 		else if (!ext.Compare("jpg") || !ext.Compare("jpeg"))
 			buffer_image.format = LIF_JPEG;
+		else if (!ext.Compare("tga"))
+			buffer_image.format = LIF_TGA;
 		else
 			DDF_Error("Unknown image extension for '%s'\n", filename);
 	}
@@ -294,6 +296,10 @@ static void ImageParseLump(const char *spec)
 	         DDF_CompareName(keyword, "JPEG") == 0)
 	{
 		buffer_image.format = LIF_JPEG;
+	}
+	else if (DDF_CompareName(keyword, "TGA") == 0)
+	{
+		buffer_image.format = LIF_TGA;
 	}
 	else
 		DDF_Error("Unknown image format: %s (use PNG or JPEG)\n", keyword);
