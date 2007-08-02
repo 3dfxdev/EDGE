@@ -17,14 +17,14 @@
 //------------------------------------------------------------------------
 
 #include "epi.h"
-#include "math_colour.h"
+#include "math_color.h"
 
 #include "asserts.h"
 
 namespace epi
 {
 
-hsv_col_c::hsv_col_c(const colour_c& col)
+hsv_col_c::hsv_col_c(const color_c& col)
 {
 	int m = MIN(col.r, MIN(col.b, col.g));
 
@@ -60,7 +60,7 @@ hsv_col_c::hsv_col_c(const colour_c& col)
 	EPI_ASSERT(0 <= h && h <= 360);
 }
  
-colour_c hsv_col_c::GetRGBA() const
+color_c hsv_col_c::GetRGBA() const
 {
 	EPI_ASSERT(0 <= h && h <= 360);
 
@@ -93,7 +93,7 @@ colour_c hsv_col_c::GetRGBA() const
 	EPI_ASSERT(0 <= g && g <= 255);
 	EPI_ASSERT(0 <= b && b <= 255);
 
-	return colour_c(r, g, b);
+	return color_c(r, g, b);
 }
 
 
@@ -112,7 +112,7 @@ void Test_HSV_Col(const hsv_col_c hsv, const char *name)
 
 	cout << "[" << hsv.h << ", " << hsv.s << ", " << hsv.v << "]";
 
-	colour_c rgb = hsv.ToRGB();
+	color_c rgb = hsv.ToRGB();
 
 	cout << "   RGB : (" << int(rgb.r) << ", " << int(rgb.g) 
 		<< ", " << int(rgb.b) << ")\n";
