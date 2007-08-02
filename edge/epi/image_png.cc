@@ -45,7 +45,8 @@ namespace PNG
 
 }  // namespace PNG
 
-image_data_c *PNG::Load(file_c *f, bool invert, bool round_pow2)
+
+image_data_c *PNG_Load(file_c *f, int read_flags)
 {
 	/* -AJA- all these volatiles here may seem strange.  They are needed
 	 * because the ANSI C standard (which GCC adheres to) says that when
@@ -70,7 +71,7 @@ image_data_c *PNG::Load(file_c *f, bool invert, bool round_pow2)
 	if (f->Read(sig_buf, CHECK_PNG_BYTES) != CHECK_PNG_BYTES ||
 			(png_sig_cmp(sig_buf, (png_size_t)0, CHECK_PNG_BYTES) != 0))
 	{
-		fprintf(stderr, "PNG::Load - File is not a PNG image !\n");
+		fprintf(stderr, "PNG_Load - File is not a PNG image !\n");
 		goto failed;
 	}
 
@@ -89,11 +90,11 @@ image_data_c *PNG::Load(file_c *f, bool invert, bool round_pow2)
 	 */
 	if (setjmp(png_ptr->jmpbuf))
 	{
-		fprintf(stderr, "PNG::Load - Error loading PNG image !\n");
+		fprintf(stderr, "PNG_Load - Error loading PNG image !\n");
 		goto failed;
 	}
 
-	png_set_read_fn(png_ptr, (void *)f, &local_read_fn);
+	png_set_read_fn(png_ptr, (void *)f, &PNG::local_read_fn);
 	png_set_sig_bytes(png_ptr, CHECK_PNG_BYTES);
 
 	/* read the header information */
@@ -117,13 +118,16 @@ image_data_c *PNG::Load(file_c *f, bool invert, bool round_pow2)
 	tot_W = (int)width;
 	tot_H = (int)height;
 
-	if (round_pow2)
+	if (read_flags & IRF_Round_POW2)
 	{
 		tot_W = 1; while (tot_W < (int)width)  tot_W <<= 1;
 		tot_H = 1; while (tot_H < (int)height) tot_H <<= 1;
 	}
 
 	img = new image_data_c(tot_W, tot_H, solid ? 3 : 4);
+
+  img->used_w = width;
+  img->used_h = height;
 
 	/* tell libpng to strip 16 bits/color down to 8 bits/color */
 	png_set_strip_16(png_ptr);
@@ -155,14 +159,9 @@ image_data_c *PNG::Load(file_c *f, bool invert, bool round_pow2)
 
 	row_pointers = new png_bytep[height];
 
-	for (png_uint_32 y = 0; y < height; y++)
+	for (png_uint_32 y = 0; (short)y < img->used_h; y++)
 	{
-		if (invert)
-			row_pointers[y] = (png_bytep)
-				(img->pixels + (img->height - 1 - y) * img->width * img->bpp);
-		else
-			row_pointers[y] = (png_bytep)
-				(img->pixels + y * img->width * img->bpp);
+		row_pointers[y] = (png_bytep) img->PixelAt(0, img->used_h-1 - y);
 	}
 
 	/* now read in the image.  Yeah baby ! */
@@ -202,7 +201,7 @@ failed:
 	return 0;
 }
 
-bool PNG::GetInfo(file_c *f, int *width, int *height, bool *solid)
+bool PNG_GetInfo(file_c *f, int *width, int *height, bool *solid)
 {
 	png_structp /*volatile*/ png_ptr = 0;
 	png_infop   /*volatile*/ info_ptr = 0;
@@ -237,7 +236,7 @@ bool PNG::GetInfo(file_c *f, int *width, int *height, bool *solid)
 		goto failed;
 	}
 
-	png_set_read_fn(png_ptr, (void *)f, &local_read_fn);
+	png_set_read_fn(png_ptr, (void *)f, &PNG::local_read_fn);
 	png_set_sig_bytes(png_ptr, CHECK_PNG_BYTES);
 
 	/* read the header information */
@@ -285,14 +284,14 @@ failed:
 
 //------------------------------------------------------------------------
 
-bool PNG::Save(const image_data_c& image, FILE *fp, int compress)
+bool PNG_Save(FILE *fp, const image_data_c *img, int compress)
 {
 	/// FIXME: asserts
 	/// ASSERT(compress >= Z_NO_COMPRESSION);
 	/// ASSERT(compress <= Z_BEST_COMPRESSION);
 
-	if (image.bpp < 3)
-		throw error_c(EPI_ERRGEN_ASSERTION, "[epi::PNG::Save] image.bpp < 3", true);
+	if (img->bpp < 3)
+		throw error_c(EPI_ERRGEN_ASSERTION, "[epi::PNG_Save] image.bpp < 3", true);
 
 	png_bytep * volatile row_pointers = 0;
 
@@ -321,17 +320,16 @@ bool PNG::Save(const image_data_c& image, FILE *fp, int compress)
 	png_init_io(png_ptr, fp);
 	png_set_compression_level(png_ptr, compress);
 
-	png_set_IHDR(png_ptr, info_ptr, image.width, image.height, 8,
-			(image.bpp == 4) ? PNG_COLOR_TYPE_RGB_ALPHA : PNG_COLOR_TYPE_RGB,
+	png_set_IHDR(png_ptr, info_ptr, img->used_w, img->used_h, 8,
+			(img->bpp == 4) ? PNG_COLOR_TYPE_RGB_ALPHA : PNG_COLOR_TYPE_RGB,
 			PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
 			PNG_FILTER_TYPE_DEFAULT);
 
-	row_pointers = new png_bytep[image.height];
+	row_pointers = new png_bytep[img->used_h];
 
-	for (int y = 0; y < image.height; y++)
+	for (int y = 0; y < img->used_h; y++)
 	{
-		row_pointers[y] = (png_bytep)
-			(image.pixels + y * image.width * image.bpp);
+    row_pointers[y] = (png_bytep) img->PixelAt(0, img->used_h-1 - y);
 	}
 
 	png_set_rows(png_ptr, info_ptr, (png_bytep*) row_pointers);
@@ -359,4 +357,7 @@ failed:
 	return false;
 }
 
-};  // namespace epi
+}  // namespace epi
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -28,36 +28,31 @@
 namespace epi
 {
 
-namespace JPEG
-{
-	const int DEF_QUALITY = 90;
+const int JPEG_DEF_QUALITY = 90;
 
-	/* ------ Functions ------------------------------------- */
+image_data_c *JPEG_Load(file_c *f, int read_flags = IRF_NONE);
+// loads the given JPEG image.  Returns 0 if something went wrong.
+// The image will be RGB or RGBA (never paletted).  The size of
+// image (width and height) will be rounded to the next highest
+// power-of-two if read_flags contains IRF_Round_POW2.
+// FIXME: throw exception on failure
 
-	image_data_c *Load(file_c *f, bool invert = false, bool round_pow2 = false);
-	// loads the given JPEG image.  Returns 0 if something went wrong.
-	// The image will be RGB or RGBA (never paletted).  The size of
-	// image (width and height) are rounded to the next highest
-	// power-of-two when round_pow2 is set.
-	// FIXME: throw exception on failure
+bool JPEG_GetInfo(file_c *f, int *width, int *height, bool *solid);
+// reads the principle information from the PNG header.
+// (should be much faster than loading the whole image).
+// Returns false if something went wrong.
+// Note: size returned here is the real size, and may be different
+// from the image returned by Load() which rounds to power-of-two.
+// FIXME: throw exception on failure
 
-	bool GetInfo(file_c *f, int *width, int *height, bool *solid);
-	// reads the principle information from the PNG header.
-	// (should be much faster than loading the whole image).
-	// Returns false if something went wrong.
-	// Note: size returned here is the real size, and may be different
-	// from the image returned by Load() which rounds to power-of-two.
-	// FIXME: throw exception on failure
+bool JPEG_Save(FILE *fp, const image_data_c *img, int quality = JPEG_DEF_QUALITY);
+// saves the image (in JPEG format) to the given file.  Returns false if
+// something went wrong.  The 'quality' parameter is a percentage, the
+// range is roughly 70 to 95 (values outside of this are possible).
+// If there are transparent colors in the image, they will be mixed with
+// black in the output, since JPEG doesn't support transparency.
+// FIXME: throw exception on failure & use file_c instead of FILE*
 
-	bool Save(const image_data_c& image, FILE *fp, int quality = DEF_QUALITY);
-	// saves the image (in JPEG format) to the given file.  Returns false if
-	// something went wrong.  The 'quality' parameter is a percentage, the
-	// range is roughly 70 to 95 (values outside of this are possible).
-	// If there are transparent colors in the image, they will be mixed with
-	// black in the output, since JPEG doesn't support transparency.
-	// FIXME: throw exception on failure & use file_c instead of FILE*
-}
-
-};  // namespace epi
+}  // namespace epi
 
 #endif  /* __EPI_IMAGE_JPEG_H__ */

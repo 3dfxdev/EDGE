@@ -140,7 +140,7 @@ namespace JPEG
 
 //------------------------------------------------------------------------
 
-image_data_c *JPEG::Load(file_c *f, bool invert, bool round_pow2)
+image_data_c *JPEG_Load(file_c *f, int read_flags)
 {
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
@@ -148,7 +148,7 @@ image_data_c *JPEG::Load(file_c *f, bool invert, bool round_pow2)
 	cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_decompress(&cinfo);
 
-	setup_epifile_src(&cinfo, f);
+  JPEG::setup_epifile_src(&cinfo, f);
 
 	jpeg_read_header(&cinfo, 1);
 
@@ -165,13 +165,16 @@ image_data_c *JPEG::Load(file_c *f, bool invert, bool round_pow2)
 	int tot_W = width;
 	int tot_H = height;
 
-	if (round_pow2)
+	if (read_flags & IRF_Round_POW2)
 	{
 		tot_W = 1; while (tot_W < (int)width)  tot_W <<= 1;
 		tot_H = 1; while (tot_H < (int)height) tot_H <<= 1;
 	}
 
 	image_data_c *img = new image_data_c(tot_W, tot_H, 3);
+
+  img->used_w = width;
+  img->used_h = height;
 
 	/* read image pixels */
 
@@ -183,11 +186,8 @@ image_data_c *JPEG::Load(file_c *f, bool invert, bool round_pow2)
 	{
 		int y = cinfo.output_scanline;
 
-		if (invert)
-			row_pointer[0] = (JSAMPROW)
-				(img->pixels + (img->height - 1 - y) * img->width * 3);
-		else
-			row_pointer[0] = (JSAMPROW) (img->pixels + y * img->width * 3);
+    row_pointer[0] = (JSAMPROW)
+      (img->pixels + (img->height - 1 - y) * img->width * 3);
 
 		(void) jpeg_read_scanlines(&cinfo, row_pointer, (JDIMENSION) 1);
 	}
@@ -198,7 +198,7 @@ image_data_c *JPEG::Load(file_c *f, bool invert, bool round_pow2)
 	return img;
 }
 
-bool JPEG::GetInfo(file_c *f, int *width, int *height, bool *solid)
+bool JPEG_GetInfo(file_c *f, int *width, int *height, bool *solid)
 {
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
@@ -206,7 +206,7 @@ bool JPEG::GetInfo(file_c *f, int *width, int *height, bool *solid)
 	cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_decompress(&cinfo);
 
-	setup_epifile_src(&cinfo, f);
+  JPEG::setup_epifile_src(&cinfo, f);
 
 	jpeg_read_header(&cinfo, 1);
 
@@ -230,14 +230,14 @@ bool JPEG::GetInfo(file_c *f, int *width, int *height, bool *solid)
 
 namespace JPEG
 {
-	void convert_row_to_RGB(const image_data_c& image, int y, u8_t *buf)
+	void convert_row_to_RGB(const image_data_c *img, int y, u8_t *buf)
 	{
 		/// ASSERT(buf);
-		/// ASSERT(image.bpp == 4);
+		/// ASSERT(img->bpp == 4);
 
-		const u8_t *col = image.PixelAt(0, y);
+		const u8_t *col = img->PixelAt(0, y);
 
-		for (int x=0; x < image.width; x++, col += 4, buf += 3)
+		for (int x=0; x < img->width; x++, col += 4, buf += 3)
 		{
 			// blend alpha with BLACK
 
@@ -248,16 +248,16 @@ namespace JPEG
 	}
 }
 
-bool JPEG::Save(const image_data_c& image, FILE *fp, int quality)
+bool JPEG_Save(FILE *fp, const image_data_c *img, int quality)
 {
 	u8_t *row_data = 0;
 
-	if (image.bpp < 3)
-		throw error_c(EPI_ERRGEN_ASSERTION, "[epi::JPEG::Save] image.bpp < 3", true);
+	if (img->bpp < 3)
+		throw error_c(EPI_ERRGEN_ASSERTION, "[epi::JPEG_Save] image.bpp < 3", true);
 
-	if (image.bpp == 4)
+	if (img->bpp == 4)
 	{
-		row_data = (u8_t *) malloc(image.width * 3);
+		row_data = (u8_t *) malloc(img->used_w * 3);
 
 		if (! row_data)
 			return false;
@@ -271,8 +271,8 @@ bool JPEG::Save(const image_data_c& image, FILE *fp, int quality)
 
 	jpeg_stdio_dest(&cinfo, fp);
 
-	cinfo.image_width  = image.width;
-	cinfo.image_height = image.height;
+	cinfo.image_width  = img->used_w;
+	cinfo.image_height = img->used_h;
 	cinfo.in_color_space   = JCS_RGB;
 	cinfo.input_components = 3;
 
@@ -287,12 +287,12 @@ bool JPEG::Save(const image_data_c& image, FILE *fp, int quality)
 	{
 		int y = cinfo.next_scanline;
 
-		if (image.bpp == 3)
-			row_pointer[0] = (JSAMPROW) (image.pixels + y * image.width * 3);
+		if (img->bpp == 3)
+			row_pointer[0] = (JSAMPROW) (img->pixels + (img->used_h-1-y) * img->width * 3);
 		else
 		{
 			row_pointer[0] = (JSAMPROW) row_data;
-			convert_row_to_RGB(image, y, row_data);
+			JPEG::convert_row_to_RGB(img, (img->used_h-1-y), row_data);
 		}
 
 		(void) jpeg_write_scanlines(&cinfo, row_pointer, (JDIMENSION) 1);
@@ -310,4 +310,7 @@ bool JPEG::Save(const image_data_c& image, FILE *fp, int quality)
 	return true;
 }
 
-};  // namespace epi
+} // namespace epi
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
