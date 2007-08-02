@@ -180,30 +180,32 @@ static void CheckEpiBlockSolid(image_c *rim, epi::image_data_c *img)
 	int x, y;
 
 	for (x=0; x < w1; x++)
-		for (y=0; y < h1; y++)
-		{
-			byte src_pix = img->pixels[y * img->width + x];
+	for (y=0; y < h1; y++)
+	{
+		byte src_pix = img->pixels[y * img->width + x];
 
-			if (src_pix != TRANS_PIXEL)
-				continue;
+		if (src_pix != TRANS_PIXEL)
+			continue;
 
-			stray_count++;
+		stray_count++;
 
-			// only ignore stray pixels on large images
-			if (total_num < 256 || stray_count > MAX_STRAY_PIXELS)
-				return;
-		}
+		// only ignore stray pixels on large images
+		if (total_num < 256 || stray_count > MAX_STRAY_PIXELS)
+			return;
+	}
 
 	// image is totally solid.  Blacken any transparent parts.
 	rim->img_solid = true;
 
 	for (x=0; x < w2; x++)
-		for (y=0; y < h2; y++)
-			if (x >= w1 || y >= h1 ||
-				img->pixels[y * img->width + x] == TRANS_PIXEL)
-			{
-				img->pixels[y * img->width + x] = pal_black;
-			}
+	for (y=0; y < h2; y++)
+	{
+		if (x >= w1 || y >= h1 ||
+			img->pixels[y * img->width + x] == TRANS_PIXEL)
+		{
+			img->pixels[y * img->width + x] = pal_black;
+		}
+	}
 }
 
 //------------------------------------------------------------------------
@@ -245,17 +247,17 @@ static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
 	const byte *src = (const byte*)W_CacheLumpNum(rim->source.flat.lump);
 
 	for (int y=0; y < h; y++)
-		for (int x=0; x < w; x++)
-		{
-			byte src_pix = src[y * w + x];
+	for (int x=0; x < w; x++)
+	{
+		byte src_pix = src[y * w + x];
 
-			byte *dest_pix = &dest[x + y * tw];
+		byte *dest_pix = &dest[x + y * tw];
 
-			// make sure TRANS_PIXEL values (which do not occur naturally in
-			// Doom images) are properly remapped.
-			if (src_pix != TRANS_PIXEL)
-				dest_pix[0] = src_pix;
-		}
+		// make sure TRANS_PIXEL values (which do not occur naturally in
+		// Doom images) are properly remapped.
+		if (src_pix != TRANS_PIXEL)
+			dest_pix[0] = src_pix;
+	}
 
 	W_DoneWithLump(src);
 
