@@ -91,6 +91,10 @@ public:
 	void Grow(int new_w, int new_h);
 	// scale the image up to a larger size.
 	// The old size and the new size must be powers of two.
+
+  void RemoveAlpha();
+  // convert an RGBA image to RGB.  Partially transparent colors
+  // (alpha < 255) are blended with black.
 };
 
 
