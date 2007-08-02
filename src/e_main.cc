@@ -638,10 +638,11 @@ static void M_DisplayPause(void)
 	float h = FROM_200(IM_HEIGHT(pause_image));
 
 	float x = FROM_320(160) - w / 2;
-	float y = FROM_200(10);
+	float y = FROM_200(190) - h;
 
-    RGL_DrawImage(x, y, w, h, pause_image, 0, 0,
-                   IM_RIGHT(pause_image), IM_BOTTOM(pause_image), NULL, 1.0f);
+    RGL_DrawImage(x, y, w, h, pause_image,
+			      0, 0, IM_RIGHT(pause_image), IM_TOP(pause_image),
+				  NULL, 1.0f);
 }
 
 wipetype_e wipe_method = WIPE_Melt;

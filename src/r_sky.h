@@ -26,7 +26,6 @@
 #ifndef __R_SKY__
 #define __R_SKY__
 
-#include "v_ctx.h"
 
 // The sky map is 256*4 wide (10 bits), and angles have 32 bits
 #define ANGLETOSKYSHIFT  (32 - 10)

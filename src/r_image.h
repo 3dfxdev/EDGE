@@ -146,7 +146,7 @@ public:
 
 // utility macros
 #define IM_RIGHT(image)  (float((image)->actual_w) / (image)->total_w)
-#define IM_BOTTOM(image) (float((image)->actual_h) / (image)->total_h)
+#define IM_TOP(image)    (float((image)->actual_h) / (image)->total_h)
 
 #define IM_WIDTH(image)  ((image)->actual_w * (image)->scale_x)
 #define IM_HEIGHT(image) ((image)->actual_h * (image)->scale_y)
@@ -157,6 +157,9 @@ public:
 // deliberately long, should not be used (except for special cases)
 #define IM_TOTAL_WIDTH(image)  ((image)->total_w * (image)->scale_x)
 #define IM_TOTAL_HEIGHT(image) ((image)->total_h * (image)->scale_y)
+
+// TEMPORARY !!!
+#define IM_BOTTOM  IM_TOP
 
 typedef enum
 {

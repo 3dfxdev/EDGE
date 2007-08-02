@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __V_CTX__
-#define __V_CTX__
+#ifndef __R_DRAW_H__
+#define __R_DRAW_H__
 
 #include "dm_type.h"
 #include "ddf_main.h"
@@ -56,38 +56,12 @@ void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t col, float alpha = 1.0);
 // the current clipping rectangle.
 void RGL_SolidLine(int x1, int y1, int x2, int y2, rgbcol_t col, float alpha = 1.0);
 
-// Convenience macros
-#define RGL_Image(X,Y,W,H,Image)                                   \
-    RGL_DrawImage((X)-IM_OFFSETX(Image),                           \
-                   (Y)-IM_OFFSETY(Image),                          \
-                   (W),(H), (Image), 0, 0,                         \
-                   IM_RIGHT(Image),IM_BOTTOM(Image), NULL, 1.0f)
+// Convenience functions
+void RGL_Image(float x, float y, float w, float h, const image_c *image);
+void RGL_Image320(float x, float y, float w, float h, const image_c *image);
+void RGL_ImageEasy320(float x, float y, const image_c *image);
 
-
-#define RGL_Image320(X,Y,W,H,Image)                                \
-    RGL_DrawImage(FROM_320((X)-IM_OFFSETX(Image)),                 \
-                   FROM_200((Y)-IM_OFFSETY(Image)),                 \
-                   FROM_320(W), FROM_200(H),                        \
-                   (Image), 0, 0,                                   \
-                   IM_RIGHT(Image), IM_BOTTOM(Image), NULL, 1.0f)
-
-
-#define RGL_ImageEasy(X,Y,Image)                                   \
-    RGL_DrawImage((X)-IM_OFFSETX(Image),                           \
-                   (Y)-IM_OFFSETY(Image),                          \
-                   IM_WIDTH(Image), IM_HEIGHT(Image),              \
-                   (Image), 0, 0,                                  \
-                   IM_RIGHT(Image), IM_BOTTOM(Image), NULL, 1.0f)
-
-#define RGL_ImageEasy320(X,Y,Image)                                       \
-    RGL_DrawImage(FROM_320((X)-IM_OFFSETX(Image)),                        \
-                   FROM_200((Y)-IM_OFFSETY(Image)),                        \
-                   FROM_320(IM_WIDTH(Image)), FROM_200(IM_HEIGHT(Image)),  \
-                   (Image), 0, 0,                                          \
-                   IM_RIGHT(Image), IM_BOTTOM(Image), NULL, 1.0f)
-
-#endif  // __V_CTX__
-
+#endif /* __R_DRAW_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

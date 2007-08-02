@@ -33,10 +33,8 @@
 #include <string.h>
 
 
+static int glbsp_last_prog_time = 0;
 
-//
-//  VIDEO CONTEXT STUFF
-//
 
 //
 // RGL_NewcreenSize
@@ -87,17 +85,17 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 
 	glBegin(GL_QUADS);
   
-	glTexCoord2f(tx1, 1.0f - ty1);
-	glVertex2i(x1, SCREENHEIGHT - y1);
+	glTexCoord2f(tx1, ty1);
+	glVertex2i(x1, y1);
 
-	glTexCoord2f(tx2, 1.0f - ty1); 
-	glVertex2i(x2, SCREENHEIGHT - y1);
+	glTexCoord2f(tx2, ty1); 
+	glVertex2i(x2, y1);
   
-	glTexCoord2f(tx2, 1.0f - ty2);
-	glVertex2i(x2, SCREENHEIGHT - y2);
+	glTexCoord2f(tx2, ty2);
+	glVertex2i(x2, y2);
   
-	glTexCoord2f(tx1, 1.0f - ty2);
-	glVertex2i(x1, SCREENHEIGHT - y2);
+	glTexCoord2f(tx1, ty2);
+	glVertex2i(x1, y2);
   
 	glEnd();
 
@@ -106,6 +104,29 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 	glDisable(GL_BLEND);
 }
 
+void RGL_Image(float x, float y, float w, float h, const image_c *image)
+{
+    RGL_DrawImage(
+			x - IM_OFFSETX(image),
+            SCREENHEIGHT - ((y)-IM_OFFSETY(image)) - (h),
+            w, h, image, 0, 0, IM_RIGHT(image),IM_TOP(image),
+			NULL, 1.0f);
+}
+
+void RGL_Image320(float x, float y, float w, float h, const image_c *image)
+{
+    RGL_DrawImage(
+			FROM_320(x-IM_OFFSETX(image)),
+            SCREENHEIGHT - FROM_200(y-IM_OFFSETY(image)) - FROM_200(h),
+            FROM_320(w), FROM_200(h), image,
+			0, 0, IM_RIGHT(image), IM_TOP(image),
+			NULL, 1.0f);
+}
+
+void RGL_ImageEasy320(float x, float y, const image_c *image)
+{
+    RGL_Image320(x, y, IM_WIDTH(image), IM_HEIGHT(image), image);
+}
 
 //
 // RGL_SolidBox
@@ -119,10 +140,10 @@ void RGL_SolidBox(int x, int y, int w, int h, rgbcol_t col, float alpha)
   
 	glBegin(GL_QUADS);
 
-	glVertex2i(x,   (SCREENHEIGHT - y));
-	glVertex2i(x,   (SCREENHEIGHT - y - h));
-	glVertex2i(x+w, (SCREENHEIGHT - y - h));
-	glVertex2i(x+w, (SCREENHEIGHT - y));
+	glVertex2i(x,   y);
+	glVertex2i(x,   y+h);
+	glVertex2i(x+w, y+h);
+	glVertex2i(x+w, y);
   
 	glEnd();
 	glDisable(GL_BLEND);
@@ -137,8 +158,8 @@ void RGL_SolidLine(int x1, int y1, int x2, int y2, rgbcol_t col, float alpha)
   
 	glBegin(GL_LINES);
 
-	glVertex2i(x1, (SCREENHEIGHT - y1));
-	glVertex2i(x2, (SCREENHEIGHT - y2));
+	glVertex2i(x1, y1);
+	glVertex2i(x2, y2);
   
 	glEnd();
 }

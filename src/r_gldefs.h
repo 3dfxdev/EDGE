@@ -26,7 +26,7 @@
 #ifndef __RGL_DEFS__
 #define __RGL_DEFS__
 
-#include "v_ctx.h"
+#include "r_defs.h"
 
 //
 //  RGL_MAIN

@@ -54,8 +54,6 @@ int var_farclip  = 64000;
 
 angle_t oned_side_angle;
 
-static int glbsp_last_prog_time = 0;
-
 
 // -AJA- FIXME: temp hack
 #ifndef GL_MAX_TEXTURE_UNITS
