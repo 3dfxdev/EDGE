@@ -28,34 +28,29 @@
 namespace epi
 {
 
-namespace PNG
-{
-	const int DEF_COMPRESS = 4;
+const int PNG_DEF_COMPRESS = 4;
 
-	/* ------ Functions ------------------------------------- */
+image_data_c *PNG_Load(file_c *f, int read_flags);
+// loads the given PNG image.  Returns 0 if something went wrong.
+// The image will be RGB or RGBA (never paletted).  The size of
+// image (width and height) will be rounded to the next highest
+// power-of-two when 'read_flags' contains IRF_Round_POW2.
+// FIXME: throw exception on failure
 
-	image_data_c *Load(file_c *f, bool invert = false, bool round_pow2 = false);
-	// loads the given PNG image.  Returns 0 if something went wrong.
-	// The image will be RGB or RGBA (never paletted).  The size of
-	// image (width and height) are rounded to the next highest
-	// power-of-two when round_pow2 is set.
-	// FIXME: throw exception on failure
+bool PNG_GetInfo(file_c *f, int *width, int *height, bool *solid);
+// reads the principle information from the PNG header.
+// (should be much faster than loading the whole image).
+// Returns false if something went wrong.
+// Note: size returned here is the real size, and may be different
+// from the image returned by Load() which rounds to power-of-two.
+// FIXME: throw exception on failure
 
-	bool GetInfo(file_c *f, int *width, int *height, bool *solid);
-	// reads the principle information from the PNG header.
-	// (should be much faster than loading the whole image).
-	// Returns false if something went wrong.
-	// Note: size returned here is the real size, and may be different
-	// from the image returned by Load() which rounds to power-of-two.
-	// FIXME: throw exception on failure
+bool PNG_Save(FILE *fp, const image_data_c *img, int compress = PNG_DEF_COMPRESS);
+// saves the image (in PNG format) to the given file.  The compression
+// level should be between 1 (Z_BEST_SPEED) and 9 (Z_BEST_COMPRESSION).
+// Returns false if failed to save (e.g. file already exists).
+// FIXME: throw exception on failure & use file_c instead of FILE*
 
-	bool Save(const image_data_c& image, FILE *fp, int compress = DEF_COMPRESS);
-	// saves the image (in PNG format) to the given file.  The compression
-	// level should be between 1 (Z_BEST_SPEED) and 9 (Z_BEST_COMPRESSION).
-	// Returns false if failed to save (e.g. file already exists).
-	// FIXME: throw exception on failure & use file_c instead of FILE*
-}
-
-};  // namespace epi
+}  // namespace epi
 
 #endif  /* __EPI_IMAGE_PNG_H__ */

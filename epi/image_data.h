@@ -101,7 +101,7 @@ typedef enum
   IRF_NONE = 0,
 
   IRF_Round_POW2 = (1 << 0),  // convert width / height to powers of two
-  IRF_Invert_Y   = (1 << 1),  // invert the image vertically
+// IRF_Invert_Y   = (1 << 1),  // invert the image vertically
 }
 image_read_flags_e;
 
