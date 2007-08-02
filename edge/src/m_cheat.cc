@@ -217,10 +217,13 @@ static void CheatGiveWeapons(player_t *pl, int key = -2)
 		}
 	}
 
-	for (int slot=0; slot < MAXWEAPONS; slot++)
+	if (key < 0)
 	{
-		if (pl->weapons[slot].info)
-			P_TryFillNewWeapon(pl, slot, AM_DontCare, NULL);
+		for (int slot=0; slot < MAXWEAPONS; slot++)
+		{
+			if (pl->weapons[slot].info)
+				P_FillWeapon(pl, slot);
+		}
 	}
 
 	P_UpdateAvailWeapons(pl);

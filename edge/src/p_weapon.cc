@@ -715,6 +715,27 @@ bool P_TryFillNewWeapon(player_t *p, int idx, ammotype_e ammo, int *qty)
 	return result;
 }
 
+void P_FillWeapon(player_t *p, int slot)
+{
+	weapondef_c *info = p->weapons[slot].info;
+
+	for (int ATK = 0; ATK < 2; ATK++)
+	{
+		if (! info->attack_state[ATK])
+			continue;
+
+		if (info->ammo[ATK] == AM_NoAmmo)
+		{
+			if (info->clip_size[ATK] > 0)
+				p->weapons[slot].clip_size[ATK] = info->clip_size[ATK];
+
+			continue;
+		}
+
+		p->weapons[slot].clip_size[ATK] = info->clip_size[ATK];
+	}
+}
+	
 //
 // P_DropWeapon
 //
