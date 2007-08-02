@@ -166,5 +166,25 @@ void image_data_c::Grow(int new_w, int new_h)
 	height  = new_h;
 }
 
+void image_data_c::RemoveAlpha()
+{
+  EPI_ASSERT(bpp == 4);
+
+  u8_t *src   = pixels;
+	u8_t *s_end = src + (width * height * bpp);
+  u8_t *dest  = pixels;
+
+  for (; src < s_end; src += 4)
+  {
+    // blend alpha with BLACK
+
+    *dest++ = (int)src[0] * (int)src[3] / 255;
+    *dest++ = (int)src[1] * (int)src[3] / 255;
+    *dest++ = (int)src[2] * (int)src[3] / 255;
+  }
+
+  bpp = 3;
+}
+
 } // namespace epi
 
