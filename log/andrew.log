@@ -5,6 +5,16 @@ Andrew Apted's Log
 Fixed problem with ID(K)FA cheats and clip weapons not
 giving full ammo.
 
+Preliminary support for loading TGA images.  Only type '2'
+(uncompressed RGB) work so far.  These images can be loaded
+much faster than PNG or JPEG, which is why I'm adding it,
+but the tradeoff is that they are much larger.
+
+Began refactoring certain code to natively use the OpenGL
+coordinate system, where (0,0) is the BOTTOM LEFT corner of
+the screen.  I was planning to go the whole hog and do
+everything this way, however, too much stuff would break.
+
 2007/07/30:
 
 Began reworking dynamic lights.  The "TYPE" field will have
