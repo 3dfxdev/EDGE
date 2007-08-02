@@ -50,6 +50,9 @@
 // N/256*100% probability that the normal face state will change
 #define ST_FACEPROBABILITY   96
 
+#define ST_X   0
+#define ST_Y   (200 - ST_HEIGHT)
+
 #define ST_FX  143
 #define ST_FY  169
 

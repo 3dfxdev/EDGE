@@ -33,9 +33,6 @@
 #define ST_HEIGHT       32
 #define ST_WIDTH        320
 
-#define ST_X            0
-#define ST_Y            (200 - ST_HEIGHT)
-
 //
 // STATUS BAR
 //
