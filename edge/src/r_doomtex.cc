@@ -148,9 +148,9 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 		for (; count > 0; count--, src++, top++)
 		{
 			if (*src == TRANS_PIXEL)
-				dest[top * w2] = pal_black;
+				dest[(h1-1-top) * w2] = 165; //!!!!!! FIXME
 			else
-				dest[top * w2] = *src;
+				dest[(h1-1-top) * w2] = *src;
 		}
 
 		patchcol = (const column_t *) ((const byte *) patchcol + 
@@ -251,11 +251,13 @@ static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
 	{
 		byte src_pix = src[y * w + x];
 
-		byte *dest_pix = &dest[x + y * tw];
+		byte *dest_pix = &dest[(h-1-y) * tw + x];
 
 		// make sure TRANS_PIXEL values (which do not occur naturally in
 		// Doom images) are properly remapped.
-		if (src_pix != TRANS_PIXEL)
+		if (src_pix == TRANS_PIXEL)
+			dest_pix[0] = 165; //!!!!!! FIXME
+		else
 			dest_pix[0] = src_pix;
 	}
 
@@ -831,7 +833,7 @@ static void CreateUserBuiltinQuadratic(epi::image_data_c *img, imagedef_c *def)
 // hor_p2 = cos(hor_p2*6.2)/2+0.5; //!!!! RING SHAPE ??
 sq = exp(-5.44 * hor_p2);
 		
-		int v = int(sq * 255.4f * sin(hor_p2*7.7));
+ 	int v = int(sq * 255.4f);  ////  * sin(hor_p2*7.7));
 
 		if (v < 0 ||
 			x == 0 || x == img->width-1 ||

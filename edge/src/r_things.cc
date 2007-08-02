@@ -89,7 +89,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	float w = IM_WIDTH(image);
 	float h = IM_HEIGHT(image);
 	float right = IM_RIGHT(image);
-	float bottom = IM_TOP(image);
+	float top = IM_TOP(image);
 
 	int fuzzy = (player->mo->flags & MF_FUZZY);
 
@@ -114,8 +114,8 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex_id);
 
-	float tex_top_h = 1.00f; // 0.98;
-	float tex_bot_h = 1.00f - bottom;  // 1.02 - bottom;
+	float tex_top_h = top;  ///## 1.00f; // 0.98;
+	float tex_bot_h = 0.0f; ///## 1.00f - top;  // 1.02 - bottom;
 
 	float tex_x1 = 0.01f;
 	float tex_x2 = right - 0.01f;
@@ -941,8 +941,8 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 //	float w = IM_WIDTH(image);
 	float h = IM_HEIGHT(image);
-	float right  = IM_RIGHT(image);
-	float bottom = IM_TOP(image);
+	float right = IM_RIGHT(image);
+	float top   = IM_TOP(image);
 
 	float x1b, y1b, z1b, x1t, y1t, z1t;
 	float x2b, y2b, z2b, x2t, y2t, z2t;
@@ -983,8 +983,8 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	float tex_y2 = tex_y1 + (z1t - z1b) * dthing->iyscale;
 
 	CHECKVAL(h);
-	tex_y1 = 1.0f - tex_y1 / h * bottom;
-	tex_y2 = 1.0f - tex_y2 / h * bottom;
+	tex_y1 = top * tex_y1 / h; ///## 1.0f - tex_y1 / h * bottom;
+	tex_y2 = top * tex_y2 / h; ///## 1.0f - tex_y2 / h * bottom;
 
 	if (dthing->flip)
 	{
@@ -1060,28 +1060,28 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	vert = orig = RGL_BeginUnit(GL_QUADS, 4, tex_id,0, /* pass */ 0, blending);
 
 	SET_COLOR(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
-	SET_TEXCOORD(tex_x1, tex_y2);
+	SET_TEXCOORD(tex_x1, tex_y1);
 	SET_NORMAL(-viewcos, -viewsin, 0.0f);
 	SET_EDGE_FLAG(GL_TRUE);
 	SET_VERTEX(x1b+dx, y1b+dy, z1b);
 	vert++;
 
 	SET_COLOR(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
-	SET_TEXCOORD(tex_x1, tex_y1);
+	SET_TEXCOORD(tex_x1, tex_y2);
 	SET_NORMAL(-viewcos, -viewsin, 0.0f);
 	SET_EDGE_FLAG(GL_TRUE);
 	SET_VERTEX(x1t+dx, y1t+dy, z1t);
 	vert++;
 
 	SET_COLOR(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
-	SET_TEXCOORD(tex_x2, tex_y1);
+	SET_TEXCOORD(tex_x2, tex_y2);
 	SET_NORMAL(-viewcos, -viewsin, 0.0f);
 	SET_EDGE_FLAG(GL_TRUE);
 	SET_VERTEX(x2t+dx, y2t+dy, z2t);
 	vert++;
 
 	SET_COLOR(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
-	SET_TEXCOORD(tex_x2, tex_y2);
+	SET_TEXCOORD(tex_x2, tex_y1);
 	SET_NORMAL(-viewcos, -viewsin, 0.0f);
 	SET_EDGE_FLAG(GL_TRUE);
 	SET_VERTEX(x2b+dx, y2b+dy, z2b);

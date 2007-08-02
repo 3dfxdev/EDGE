@@ -430,7 +430,7 @@ void WallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 	}
 
 	tx = data->tx + along * data->tdx;
-	ty = data->ty - z * data->ty_mul + along * data->ty_skew;
+	ty = data->ty + z * data->ty_mul + along * data->ty_skew;
 
 	// FADING CALC
 	float tx2, ty2;
@@ -572,7 +572,7 @@ void DLightWallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 	}
 
 	float tx = data->tx + along * data->tdx;
-	float ty = data->ty - z * data->ty_mul + along * data->ty_skew;
+	float ty = data->ty + z * data->ty_mul + along * data->ty_skew;
 
 	// compute texture coord
 	if (fabs(dl_WP->div.dx) > fabs(dl_WP->div.dy))
@@ -586,7 +586,7 @@ void DLightWallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 		along = (y - dl_WP->div.y) / dl_WP->div.dy;
 	}
 	float tx0 = dl_WP->tx + along * dl_WP->tdx;
-	float ty0 = dl_WP->ty - z * dl_WP->ty_mul + along * dl_WP->ty_skew;
+	float ty0 = dl_WP->ty + z * dl_WP->ty_mul + along * dl_WP->ty_skew;
 
 	int R = int(dl_R * data->trans);
 	int G = int(dl_G * data->trans);
@@ -759,8 +759,8 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	tex_x1 = x_offset;
 	tex_x2 = tex_x1 + xy_len;
 
-	tex_y1 = tex_top_h - top;
-	tex_y2 = tex_top_h - bottom;
+	tex_y1 = tex_top_h - bottom;
+	tex_y2 = tex_top_h - top;
 	tex_dy = part->y_mat.x * xy_len;
 
 	// horizontal sliding door hack
@@ -897,12 +897,12 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	data.tx  = tex_x1;
 	data.tdx = tex_x2 - tex_x1;
 
-	tex_y1 = 1.0f - tex_y1 / total_h;
-	tex_y2 = 1.0f - tex_y2 / total_h;
-	tex_dy = 1.0f - tex_dy / total_h;
+	tex_y1 = tex_y1 / total_h;
+	tex_y2 = tex_y2 / total_h;
+	tex_dy = tex_dy / total_h;
 
-	data.ty_mul = -1.0f / total_h;
-	data.ty = 1.0f + tex_top_h * data.ty_mul;
+	data.ty_mul = 1.0f / total_h;
+	data.ty = IM_TOP(part->image) - tex_top_h * data.ty_mul;
 	data.ty_skew = 0;  //!!!! FIXME
 
 #if (DEBUG >= 3) 
@@ -994,7 +994,7 @@ RGL_DrawUnits();
 				dat2.ty = (mo->z + mo->height * PERCENT_2_FLOAT(info->height));
 
 				dat2.ty = (dat2.ty / fx_radius) + 0.5f;
-				dat2.ty_mul = 1.0f / fx_radius;
+				dat2.ty_mul = -1.0f / fx_radius;
 				dat2.ty_skew = 0;
 
 				dat2.tx = (mo->x - dat2.div.x) * dat2.div.dx +
@@ -1575,11 +1575,11 @@ bool RGL_CheckBBox(float *bspcoord)
 // RGL_DrawPlane
 //
 static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
-						  surface_t *info, int face_dir)
+						  surface_t *surf, int face_dir)
 {
 	seg_t *seg;
 
-	bool mid_masked = ! info->image->img_solid;
+	bool mid_masked = ! surf->image->img_solid;
 	bool blended;
 
 	wall_plane_data_t data;
@@ -1599,16 +1599,16 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 		props = &cur_sub->deep_ref->props;
 	}
 
-	if (info->override_p)
-		props = info->override_p;
+	if (surf->override_p)
+		props = surf->override_p;
 
 	const colourmap_c *colmap = props->colourmap;
 	float c_r, c_g, c_b;
 
-	float trans = info->translucency;
+	float trans = surf->translucency;
 
 	// ignore sky
-	if (IS_SKY(*info))
+	if (IS_SKY(*surf))
 		return;
 
 	// ignore invisible planes
@@ -1660,25 +1660,25 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	data.trans = trans;
 
 	data.dlights = dfloor->dlights;
-	data.image   = info->image;
+	data.image   = surf->image;
 
 	data.normal.x = 0;
 	data.normal.y = 0;
 	data.normal.z = (viewz > h) ? 1.0f : -1.0f;
 
-	SYS_ASSERT(info->image);
-	tex_id = W_ImageCache(info->image);
+	SYS_ASSERT(surf->image);
+	tex_id = W_ImageCache(surf->image);
 
 	// FADING MAP
 	{
 		tex_id2 = W_ImageCache(fading_image);
 	}
 
-	data.tx = info->offset.x;
-	data.ty = info->offset.y;
+	data.tx = surf->offset.x;
+	data.ty = surf->offset.y;
 
-	data.x_mat = info->x_mat;
-	data.y_mat = info->y_mat;
+	data.x_mat = surf->x_mat;
+	data.y_mat = surf->y_mat;
 
 	data.cmx = 0;
 
