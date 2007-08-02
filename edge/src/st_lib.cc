@@ -62,11 +62,27 @@ void STLIB_InitFloat(st_float * n, int x, int y,
 	n->f = num;
 }
 
+static void DrawDigit(float x, float y, const image_c *image, 
+		const colourmap_c *map)
+{
+	float w = IM_WIDTH(image);
+	float h = IM_HEIGHT(image);
+
+    RGL_DrawImage(
+			FROM_320(x-IM_OFFSETX(image)),
+            SCREENHEIGHT - FROM_200(y-IM_OFFSETY(image)) - FROM_200(h),
+            FROM_320(w), FROM_200(h), image,
+			0, 0, IM_RIGHT(image), IM_TOP(image),
+			map, 1.0f);
+}
+
+/*
 #define DrawDigit(X,Y,Image,Map)  \
 	RGL_DrawImage(FROM_320((X)-IM_OFFSETX(Image)), \
-	FROM_200((Y)-IM_OFFSETY(Image)), \
+	SCREENHEIGHT-FROM_200((Y)-IM_OFFSETY(Image)-FROM_200(IM_HEIGHT(Image)), \
 	FROM_320(IM_WIDTH(Image)), FROM_200(IM_HEIGHT(Image)),  \
 	(Image),0,0,IM_RIGHT(Image),IM_BOTTOM(Image),(Map),1.0f)
+*/
 
 static void DrawNum(st_number_t * n)
 {

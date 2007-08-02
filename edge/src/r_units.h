@@ -26,8 +26,6 @@
 #ifndef __RGL_UNIT__
 #define __RGL_UNIT__
 
-//#include "v_ctx.h"
-
 
 #define MAX_PLVERT  64
 

@@ -118,10 +118,10 @@
 
 // translates between frame-buffer and map coordinates
 #define CXMTOF(x)  (f_x + MTOF((x) - m_x))
-#define CYMTOF(y)  (f_y + f_h - MTOF((y) - m_y))
+#define CYMTOF(y)  (f_y + MTOF((y) - m_y))
 
 #define CXFTOM(x)  (m_x + FTOM((x) - f_x))
-#define CYFTOM(y)  (m_y + FTOM(f_y + f_h - (y)))
+#define CYFTOM(y)  (m_y + FTOM((y) - f_y))
 
 //
 // The vector graphics for the automap.

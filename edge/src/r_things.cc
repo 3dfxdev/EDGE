@@ -32,6 +32,7 @@
 #include "r_units.h"
 #include "st_stuff.h"
 #include "r_colors.h"
+#include "r_draw.h"
 #include "r_modes.h"
 #include "r_image.h"
 
@@ -88,7 +89,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	float w = IM_WIDTH(image);
 	float h = IM_HEIGHT(image);
 	float right = IM_RIGHT(image);
-	float bottom = IM_BOTTOM(image);
+	float bottom = IM_TOP(image);
 
 	int fuzzy = (player->mo->flags & MF_FUZZY);
 
@@ -247,6 +248,8 @@ static void DrawStdCrossHair(int sbarheight)
 
 	int x = SCREENWIDTH / 2;
 	int y = (SCREENHEIGHT - sbarheight) / 2;
+
+	y += sbarheight;
 
 	switch (crosshair)
 	{
@@ -939,7 +942,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 //	float w = IM_WIDTH(image);
 	float h = IM_HEIGHT(image);
 	float right  = IM_RIGHT(image);
-	float bottom = IM_BOTTOM(image);
+	float bottom = IM_TOP(image);
 
 	float x1b, y1b, z1b, x1t, y1t, z1t;
 	float x2b, y2b, z2b, x2t, y2t, z2t;
