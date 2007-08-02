@@ -310,3 +310,6 @@ inline bbox3_c& bbox3_c::Enlarge(float horiz_R, float vert_R)
 }  // namespace epi
 
 #endif  /* __EPI_MATH_BBOX_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

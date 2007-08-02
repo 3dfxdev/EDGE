@@ -83,3 +83,6 @@ namespace epi
 };
 
 #endif /* __EPI_BYTEARRAY_CLASS__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -27,3 +27,6 @@
 #include <math.h>
 
 #endif  /* __EPI_HEADERS_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

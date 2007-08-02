@@ -154,3 +154,6 @@ protected:
 }  // namespace epi
 
 #endif  /* __EPI_ARCHIVE_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -234,3 +234,6 @@ inline angle_c& angle_c::operator= (const angle_c& rhs)
 }  // namespace epi
 
 #endif  /* __EPI_ANGLE_CLASS__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

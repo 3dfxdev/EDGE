@@ -124,5 +124,7 @@ const char *GetExecutablePath(const char *argv0)
   return copy->GetString();
 }
 
-};  // namespace epi
+} // namespace epi
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

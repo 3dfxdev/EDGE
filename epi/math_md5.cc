@@ -293,3 +293,6 @@ namespace debugepi
 
 #endif  // DEBUG_EPI
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

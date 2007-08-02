@@ -67,4 +67,8 @@ namespace epi
 
 		inited = false;
     }
-};
+
+} // namespace epi
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

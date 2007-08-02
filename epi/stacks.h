@@ -58,3 +58,6 @@ public:
 };
 
 #endif /* __EPI_STACK_CLASS__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

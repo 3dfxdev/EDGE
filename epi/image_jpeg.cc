@@ -135,7 +135,7 @@ namespace JPEG
 		src->start_of_file = true;
 	}
 
-};  // namespace JPEG
+} // namespace JPEG
 
 //------------------------------------------------------------------------
 

@@ -148,3 +148,6 @@ void timestamp_c::operator=(const timestamp_c &Rhs)
 }
 
 };
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

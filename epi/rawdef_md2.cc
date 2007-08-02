@@ -194,3 +194,6 @@ float md2_normals[MD2_NUM_NORMALS][3] =
 
 }  // namespace epi
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

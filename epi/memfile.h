@@ -62,6 +62,9 @@ public:
 	}
 };
 
-}; // namespace epi
+} // namespace epi
 
 #endif /* __EPI_MEMFILE_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

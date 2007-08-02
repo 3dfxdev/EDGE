@@ -203,3 +203,6 @@ public:
 }  // namespace epi
 
 #endif  /* __EPI_ARCHIVE_WAD_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -212,4 +212,8 @@ void Test_Angles()
 }
 
 #endif  /* TEST_ANGLE_CLASS */
-}
+
+} // namespace epi
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

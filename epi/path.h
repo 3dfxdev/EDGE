@@ -49,6 +49,9 @@ namespace path
     string_c Join(const char *lhs, const char *rhs);
 }; 
 
-}; // namespace epi
+} // namespace epi
 
 #endif /* __EPI_PATH_MODULE__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

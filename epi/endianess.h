@@ -103,7 +103,9 @@ namespace epi
 			| (x << 24);
 	}
 
-}; // namespace epi
+} // namespace epi
 
 #endif  /* __EPI_ENDIAN_H__ */
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

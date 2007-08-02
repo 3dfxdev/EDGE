@@ -61,3 +61,6 @@ public:
 };
 #endif /* __WIN32_FILE_CLASS__ */
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

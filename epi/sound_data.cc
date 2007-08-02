@@ -24,7 +24,8 @@
 
 #include <vector>
 
-
+namespace epi
+{
 
 sound_data_c::sound_data_c() :
 	length(0), freq(0), mode(0),
@@ -86,6 +87,7 @@ void sound_data_c::Allocate(int samples, int buf_mode)
 	}
 }
 
+}  // namespace epi
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

@@ -95,3 +95,6 @@ vec3_c vec3_c::Cross(const vec3_c& rhs) const
 
 }  // namespace epi
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

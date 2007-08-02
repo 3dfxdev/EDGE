@@ -260,4 +260,7 @@ namespace epi
 		return Size(array_entries);
 	}
 
-};
+} // namespace epi
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

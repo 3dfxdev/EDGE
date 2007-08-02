@@ -394,3 +394,6 @@ inline int hsv_col_c::Dist(const hsv_col_c& other) const
 }  // namespace epi
 
 #endif  /* __EPI_MATH_COLOR_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

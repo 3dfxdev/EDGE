@@ -49,5 +49,7 @@ void Assert::fail(const char *msg, ...)
 	throw error_c(EPI_ERRGEN_ASSERTION, message_buf, false);
 }
 
-};
+} // namespace epi
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

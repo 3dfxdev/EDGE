@@ -54,3 +54,6 @@ bool JPEG_Save(FILE *fp, const image_data_c *img, int quality = JPEG_DEF_QUALITY
 }  // namespace epi
 
 #endif  /* __EPI_IMAGE_JPEG_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

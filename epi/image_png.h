@@ -54,3 +54,6 @@ bool PNG_Save(FILE *fp, const image_data_c *img, int compress = PNG_DEF_COMPRESS
 }  // namespace epi
 
 #endif  /* __EPI_IMAGE_PNG_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

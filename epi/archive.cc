@@ -56,3 +56,6 @@ bool archive_dir_c::Delete(int idx)
 
 }  // namespace epi
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

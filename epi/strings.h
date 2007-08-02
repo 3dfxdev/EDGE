@@ -316,3 +316,6 @@ inline void string_c::AllTrim(const char* charset /*= NULL*/)
 };
 
 #endif // __EPI_STRING_CLASS__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

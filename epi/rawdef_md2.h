@@ -114,3 +114,6 @@ extern float md2_normals[MD2_NUM_NORMALS][3];
 }  // namespace epi
 
 #endif /* __EPI_RAWDEF_MD2_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
