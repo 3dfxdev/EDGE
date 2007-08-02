@@ -190,7 +190,7 @@ void oggplayer_c::PostOpenInit()
 	status = STOPPED;
 }
 
-bool oggplayer_c::StreamIntoBuffer(sound_data_c *buf)
+bool oggplayer_c::StreamIntoBuffer(epi::sound_data_c *buf)
 {
 	int ogg_endian = (EPI_BYTEORDER == EPI_LIL_ENDIAN) ? 0 : 1;
 
@@ -423,8 +423,8 @@ void oggplayer_c::Ticker()
 {
 	while (status == PLAYING)
 	{
-		sound_data_c *buf = S_QueueGetFreeBuffer(OGGV_NUM_SAMPLES, 
-				(is_stereo && dev_stereo) ? SBUF_Interleaved : SBUF_Mono);
+		epi::sound_data_c *buf = S_QueueGetFreeBuffer(OGGV_NUM_SAMPLES, 
+				(is_stereo && dev_stereo) ? epi::SBUF_Interleaved : epi::SBUF_Mono);
 
 		if (! buf)
 			break;

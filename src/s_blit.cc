@@ -69,8 +69,8 @@ static int mix_buf_len;
 
 #define MAX_QUEUE_BUFS  16
 
-static std::list<sound_data_c *> free_qbufs;
-static std::list<sound_data_c *> playing_qbufs;
+static std::list<epi::sound_data_c *> free_qbufs;
+static std::list<epi::sound_data_c *> playing_qbufs;
 
 static mix_channel_c *queue_chan;
 
@@ -356,7 +356,7 @@ static void MixOneChannel(mix_channel_c *chan, int pairs)
 			SYS_ASSERT(chan->offset + count * chan->delta >= chan->length);
 		}
 
-		if (chan->data->mode == SBUF_Interleaved)
+		if (chan->data->mode == epi::SBUF_Interleaved)
 			MixInterleaved(chan, dest, count);
 		else if (dev_stereo)
 			MixStereo(chan, dest, count);
@@ -393,7 +393,7 @@ static bool QueueNextBuffer(void)
 		return false;
 	}
 
-	sound_data_c *buf = playing_qbufs.front();
+	epi::sound_data_c *buf = playing_qbufs.front();
 
 	queue_chan->data = buf;
 
@@ -439,7 +439,7 @@ static void MixQueues(int pairs)
 			SYS_ASSERT(chan->offset + count * chan->delta >= chan->length);
 		}
 
-		if (chan->data->mode == SBUF_Interleaved)
+		if (chan->data->mode == epi::SBUF_Interleaved)
 			MixInterleaved(chan, dest, count);
 		else if (dev_stereo)
 			MixStereo(chan, dest, count);
@@ -454,7 +454,7 @@ static void MixQueues(int pairs)
 
 			SYS_ASSERT(! playing_qbufs.empty());
 
-			sound_data_c *buf = playing_qbufs.front();
+			epi::sound_data_c *buf = playing_qbufs.front();
 			playing_qbufs.pop_front();
 
 			free_qbufs.push_back(buf);
@@ -688,7 +688,7 @@ void S_QueueInit(void)
 		{
 			for (int i=0; i < MAX_QUEUE_BUFS; i++)
 			{
-				free_qbufs.push_back(new sound_data_c());
+				free_qbufs.push_back(new epi::sound_data_c());
 			}
 		}
 
@@ -751,11 +751,11 @@ void S_QueueStop(void)
 	I_UnlockAudio();
 }
 
-sound_data_c * S_QueueGetFreeBuffer(int samples, int buf_mode)
+epi::sound_data_c * S_QueueGetFreeBuffer(int samples, int buf_mode)
 {
 	if (nosound) return NULL;
 
-	sound_data_c *buf = NULL;
+	epi::sound_data_c *buf = NULL;
 
 	I_LockAudio();
 	{
@@ -773,7 +773,7 @@ sound_data_c * S_QueueGetFreeBuffer(int samples, int buf_mode)
 	return buf;
 }
 
-void S_QueueAddBuffer(sound_data_c *buf, int freq)
+void S_QueueAddBuffer(epi::sound_data_c *buf, int freq)
 {
 	SYS_ASSERT(! nosound);
 	SYS_ASSERT(buf);
@@ -792,7 +792,7 @@ void S_QueueAddBuffer(sound_data_c *buf, int freq)
 	I_UnlockAudio();
 }
 
-void S_QueueReturnBuffer(sound_data_c *buf)
+void S_QueueReturnBuffer(epi::sound_data_c *buf)
 {
 	SYS_ASSERT(! nosound);
 	SYS_ASSERT(buf);

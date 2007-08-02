@@ -46,17 +46,17 @@
 #include <vector>
 
 
-static std::vector<sound_data_c *> fx_cache;
+static std::vector<epi::sound_data_c *> fx_cache;
 
 
-static void Load_Silence(sound_data_c *buf)
+static void Load_Silence(epi::sound_data_c *buf)
 {
-	buf->Allocate(256, SBUF_Mono);
+	buf->Allocate(256, epi::SBUF_Mono);
 
 	memset(buf->data_L, 0, 256);
 }
 
-static void Load_DOOM(sound_data_c *buf, const byte *lump, int length)
+static void Load_DOOM(epi::sound_data_c *buf, const byte *lump, int length)
 {
 	buf->freq = lump[2] + (lump[3] << 8);
 
@@ -68,7 +68,7 @@ static void Load_DOOM(sound_data_c *buf, const byte *lump, int length)
 
 	length -= 8;
 
-	buf->Allocate(length, SBUF_Mono);
+	buf->Allocate(length, epi::SBUF_Mono);
 
 	// convert to signed 16-bit format
 	const byte *src = lump + 8;
@@ -80,12 +80,12 @@ static void Load_DOOM(sound_data_c *buf, const byte *lump, int length)
 		*dest++ = (*src ^ 0x80) << 8;
 }
 
-static void Load_WAV(sound_data_c *buf, const byte *lump, int length)
+static void Load_WAV(epi::sound_data_c *buf, const byte *lump, int length)
 {
 	I_Error("Sound Load: WAV format not supported!\n");
 }
 
-static void Load_OGG(sound_data_c *buf, const byte *lump, int length)
+static void Load_OGG(epi::sound_data_c *buf, const byte *lump, int length)
 {
 	I_Error("Sound Load: OGG/Vorbis format not supported!\n");
 }
@@ -98,7 +98,7 @@ void S_CacheInit(void)
 	// nothing to do
 }
 
-void S_FlushData(sound_data_c *fx)
+void S_FlushData(epi::sound_data_c *fx)
 {
 	SYS_ASSERT(fx->ref_count == 0);
 
@@ -113,7 +113,7 @@ void S_CacheClearAll(void)
 	fx_cache.erase(fx_cache.begin(), fx_cache.end());
 }
 
-sound_data_c *S_CacheLoad(sfxdef_c *def)
+epi::sound_data_c *S_CacheLoad(sfxdef_c *def)
 {
 	for (int i = 0; i < (int)fx_cache.size(); i++)
 	{
@@ -126,7 +126,7 @@ sound_data_c *S_CacheLoad(sfxdef_c *def)
 
 
 	// create data structure
-	sound_data_c *buf = new sound_data_c();
+	epi::sound_data_c *buf = new epi::sound_data_c();
 
 	fx_cache.push_back(buf);
 
@@ -174,7 +174,7 @@ sound_data_c *S_CacheLoad(sfxdef_c *def)
 	return buf;
 }
 
-void S_CacheRelease(sound_data_c *data)
+void S_CacheRelease(epi::sound_data_c *data)
 {
 	SYS_ASSERT(data->ref_count >= 1);
 
