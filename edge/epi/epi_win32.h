@@ -121,3 +121,6 @@ typedef __int64 i64_t;
 #endif /* __GATESY__ */
 
 #endif /* __WIN32_EPI_HEADER__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

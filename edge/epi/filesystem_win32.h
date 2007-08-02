@@ -59,3 +59,6 @@ public:
 };
 #endif /* __WIN32_EPI_FILESYSTEM_CLASS__ */
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -55,3 +55,6 @@ namespace epi
 	};
 };
 #endif  /* __EPI_CRC_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

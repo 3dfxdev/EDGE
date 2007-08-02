@@ -50,3 +50,6 @@
 #endif
 
 #endif  /* __EPI_MACRO_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

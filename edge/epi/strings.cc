@@ -1280,3 +1280,6 @@ void string_c::ToUpper(void)
 }
 
 };
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

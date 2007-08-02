@@ -108,4 +108,7 @@ crc32_c& crc32_c::AddCStr(const char *str)
 	return *this;
 }
 
-};
+}  // namespace epi
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

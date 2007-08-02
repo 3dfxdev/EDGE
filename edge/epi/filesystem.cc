@@ -83,5 +83,7 @@ filesystem_c::~filesystem_c()
 {
 }
 
-};
+} // namespace epi
 
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

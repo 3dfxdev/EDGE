@@ -21,6 +21,9 @@
 
 #include "types.h"
 
+namespace epi
+{
+
 typedef enum
 {
 	SBUF_Mono = 0,
@@ -57,6 +60,7 @@ public:
 	void Free();
 };
 
+} // namespace epi
 
 #endif // __EPI_SOUNDDATA_H__
 

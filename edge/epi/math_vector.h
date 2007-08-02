@@ -497,3 +497,6 @@ inline vec3_c& vec3_c::operator/= (float scale)
 }  // namespace epi
 
 #endif  /* __EPI_MATH_VECTOR__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

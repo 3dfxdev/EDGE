@@ -349,4 +349,7 @@ bool win32_filesystem_c::Rename(const char *oldname, const char *newname)
 	return (::MoveFile(oldname, newname) != FALSE);
 }
 
-};
+} // namespace epi
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

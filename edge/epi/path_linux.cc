@@ -222,4 +222,7 @@ string_c Join(const char *lhs, const char *rhs)
 
 }; // namespace path
 
-}; // namespace epi
+} // namespace epi
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

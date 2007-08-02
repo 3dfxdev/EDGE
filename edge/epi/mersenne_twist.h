@@ -146,3 +146,6 @@ inline u32_t MTRand::rand()
 }  // namespace epi
 
 #endif  /* __EPI_MERSENNETWISTER_H */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -167,4 +167,7 @@ bool mem_file_c::Write32BitInt(void *src)
 	return false;  /* read only, cobber */
 }
 
-}; // namespace epi
+} // namespace epi
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

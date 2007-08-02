@@ -131,3 +131,6 @@ ZIP_end_central_dir_record;
 }  // namespace epi
 
 #endif  // __EPI_RAWDEF_ZIP__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

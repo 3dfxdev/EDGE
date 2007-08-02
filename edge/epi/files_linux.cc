@@ -177,4 +177,7 @@ bool linux_file_c::Write32BitInt(void *src)
     return (fwrite(src, sizeof(int), 1, file) == 1);
 }
 
-};
+} // namespace epi
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

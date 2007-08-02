@@ -64,3 +64,6 @@ typedef long long i64_t;
 #define EDGE_INLINE(decl, body) extern inline decl body
 
 #endif /* __LINUX_EPI_HEADER__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

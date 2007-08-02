@@ -31,6 +31,9 @@ const char *GetExecutablePath(const char *argv0);
 // when better methods fail.  The returned path never has a
 // trailing directory separator (and is never NULL).
 
-}; // namespace epi
+} // namespace epi
 
 #endif  /* __EPI_EXE_PATH_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

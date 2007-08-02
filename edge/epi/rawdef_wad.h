@@ -47,3 +47,6 @@ raw_wad_entry_t;
 }  // namespace epi
 
 #endif  // __EPI_RAWDEF_WAD__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -383,4 +383,7 @@ bool linux_filesystem_c::Rename(const char *oldname,
 	return (bool)(rename(oldname, newname) != -1);
 }
 
-};
+} // namespace epi
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -51,4 +51,7 @@ int bbox3_c::IntersectPlane(vec3_c loc, vec3_c face) const
 	return HIT_PARTIAL;
 }
 
-}
+} // namespace epi
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

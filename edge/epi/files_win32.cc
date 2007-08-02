@@ -203,4 +203,7 @@ bool win32_file_c::Write32BitInt(void *src)
     return (WriteFile(filehandle, src, sizeof(u32_t), &write_len, NULL) != 0);
 }
 
-};
+} // namespace epi
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -156,3 +156,6 @@ void bytearray_c::Append(const void *data, int count)
 }
 
 }  // namespace epi
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

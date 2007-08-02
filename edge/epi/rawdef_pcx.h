@@ -59,3 +59,6 @@ raw_pcx_header_t;
 }  // namespace epi
 
 #endif  /* __EPI_RAWDEF_PCX_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

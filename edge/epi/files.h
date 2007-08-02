@@ -75,3 +75,6 @@ public:
 };
 
 #endif /* __EPI_FILE_CLASS__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -67,7 +67,7 @@ private:
   };
 };
 
-}; // namespace epi
+} // namespace epi
 
 //------------------------------------------------------------------------
 //  
@@ -82,3 +82,6 @@ namespace debugepi
 #endif  // DEBUG_EPI
 
 #endif  /* __EPI_MD5_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -2977,3 +2977,6 @@ image_data_c *Convert(image_data_c *img, bool solid, bool invert)
 
 }  // namespace Hq2x
 }  // namespace epi
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

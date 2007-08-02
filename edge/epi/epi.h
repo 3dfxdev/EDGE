@@ -51,3 +51,6 @@ namespace epi
 };
 
 #endif /* __EDGE_PLATFORM_INTERFACE__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

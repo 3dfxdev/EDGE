@@ -46,3 +46,6 @@ bool TGA_GetInfo(file_c *f, int *width, int *height, bool *solid);
 } // namespace epi
 
 #endif  /* __EPI_IMAGE_TGA_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

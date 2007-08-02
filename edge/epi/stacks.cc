@@ -158,3 +158,6 @@ bool stack_c::PopObject(void *obj)
 
 };
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

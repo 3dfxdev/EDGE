@@ -113,3 +113,6 @@ image_read_flags_e;
 } // namespace epi
 
 #endif  /* __EPI_IMAGEDATA_H__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

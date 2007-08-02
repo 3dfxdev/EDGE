@@ -178,3 +178,6 @@ namespace epi
 	(*(_type*)((void*)(_it)))
 
 #endif /* __EPI_ARRAY_CLASS__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

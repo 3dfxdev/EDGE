@@ -188,3 +188,6 @@ void image_data_c::RemoveAlpha()
 
 } // namespace epi
 
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

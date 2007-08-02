@@ -238,3 +238,6 @@ inline pos3_c& pos3_c::operator-= (const vec3_c& rhs)
 }  // namespace epi
 
 #endif  /* __EPI_MATH_POINT__ */
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
