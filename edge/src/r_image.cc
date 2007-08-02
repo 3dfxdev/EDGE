@@ -519,9 +519,9 @@ static image_c *AddImageUser(imagedef_c *def)
 			bool got_info;
 
 			if (def->format == LIF_JPEG)
-				got_info = epi::JPEG::GetInfo(f, &w, &h, &solid);
+				got_info = epi::JPEG_GetInfo(f, &w, &h, &solid);
 			else
-				got_info = epi::PNG::GetInfo(f, &w, &h, &solid);
+				got_info = epi::PNG_GetInfo(f, &w, &h, &solid);
 
 			if (! got_info)
 				I_Error("Error occurred scanning image: %s\n", basename);
