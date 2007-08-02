@@ -1018,9 +1018,9 @@ static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
 	epi::image_data_c *img;
 
 	if (def->format == LIF_JPEG)
-		img = epi::JPEG::Load(f, true /* invert */, true /* round_pow2 */);
+		img = epi::JPEG_Load(f, IRF_Round_POW2);
 	else
-		img = epi::PNG::Load (f, true /* invert */, true /* round_pow2 */);
+		img = epi::PNG_Load (f, IRF_Round_POW2);
 
 	CloseUserFileOrLump(def, f);
 

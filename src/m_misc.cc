@@ -532,15 +532,15 @@ void M_ScreenShot(bool show_msg)
 		return;
 	}
 
-	epi::image_data_c img(SCREENWIDTH, SCREENHEIGHT, 3);
+	epi::image_data_c *img = new epi::image_data_c(SCREENWIDTH, SCREENHEIGHT, 3);
 
 	RGL_ReadScreen(0, 0, SCREENWIDTH, SCREENHEIGHT, img.pixels);
 
 	bool result;
     if (png_scrshots)
-        result = epi::PNG::Save(img, fp);
+        result = epi::PNG_Save(fp, img);
     else
-        result = epi::JPEG::Save(img, fp);
+        result = epi::JPEG_Save(fp, img);
 
 	if (show_msg)
 	{
@@ -549,6 +549,8 @@ void M_ScreenShot(bool show_msg)
 		else
 			I_Printf("Error saving file: %s\n", fn.GetString());
 	}
+
+	delete img;
 
 	fclose(fp);
 }
