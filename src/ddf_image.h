@@ -78,6 +78,7 @@ typedef enum
 {
 	LIF_PNG = 0,
 	LIF_JPEG,
+	LIF_TGA
 }
 L_image_format_e;
 

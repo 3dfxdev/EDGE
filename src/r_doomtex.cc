@@ -56,6 +56,7 @@
 #include "epi/image_hq2x.h"
 #include "epi/image_png.h"
 #include "epi/image_jpeg.h"
+#include "epi/image_tga.h"
 
 #include <limits.h>
 #include <math.h>
@@ -1018,9 +1019,11 @@ static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
 	epi::image_data_c *img;
 
 	if (def->format == LIF_JPEG)
-		img = epi::JPEG_Load(f, IRF_Round_POW2);
+		img = epi::JPEG_Load(f, epi::IRF_Round_POW2);
+	else if (def->format == LIF_TGA)
+		img = epi::TGA_Load (f, epi::IRF_Round_POW2);
 	else
-		img = epi::PNG_Load (f, IRF_Round_POW2);
+		img = epi::PNG_Load (f, epi::IRF_Round_POW2);
 
 	CloseUserFileOrLump(def, f);
 
