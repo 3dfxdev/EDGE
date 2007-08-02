@@ -25,19 +25,32 @@
 namespace epi
 {
 
+typedef enum
+{
+  IDF_NONE = 0,
+
+  IDF_ExtPalette = (1 << 0),  // palette is external (do not free)
+}
+image_data_flags_e;
+
+
 class image_data_c
 {
 public:
 	short width;
 	short height;
 
-	short bpp;
 	// Bytes Per Pixel, determines image mode:
 	// 1 = palettised
 	// 3 = format is RGB
 	// 4 = format is RGBA
+	short bpp;
 
   short flags;
+
+  // for image loading, these will be the actual image size
+  short used_w;
+  short used_h;
 
 	u8_t *pixels;
 
@@ -79,6 +92,19 @@ public:
 	// scale the image up to a larger size.
 	// The old size and the new size must be powers of two.
 };
+
+
+// IMAGE LOADING FLAGS
+
+typedef enum
+{
+  IRF_NONE = 0,
+
+  IRF_Round_POW2 = (1 << 0),  // convert width / height to powers of two
+  IRF_Invert_Y   = (1 << 1),  // invert the image vertically
+}
+image_read_flags_e;
+
 
 } // namespace epi
 
