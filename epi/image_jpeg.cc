@@ -62,9 +62,8 @@ namespace JPEG
 	boolean fill_input_buffer (j_decompress_ptr cinfo)
 	{
 		my_source_mgr * src = (my_source_mgr *) cinfo->src;
-		size_t nbytes;
 
-		nbytes = src->infile->Read(src->buffer, INPUT_BUF_SIZE);
+		size_t nbytes = src->infile->Read(src->buffer, INPUT_BUF_SIZE);
 
 		if (nbytes <= 0)
 		{
@@ -206,7 +205,7 @@ bool JPEG_GetInfo(file_c *f, int *width, int *height, bool *solid)
 	cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_decompress(&cinfo);
 
-  JPEG::setup_epifile_src(&cinfo, f);
+	JPEG::setup_epifile_src(&cinfo, f);
 
 	jpeg_read_header(&cinfo, 1);
 
