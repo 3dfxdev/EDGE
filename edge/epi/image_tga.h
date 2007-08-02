@@ -28,11 +28,11 @@
 namespace epi
 {
 
-image_data_c *TGA_Load(file_c *f, bool invert = false, bool round_pow2 = false);
+image_data_c *TGA_Load(file_c *f, int read_flags);
 // loads the given TGA image.  Returns 0 if something went wrong.
 // The image will be RGB or RGBA (never paletted).  The size of
-// image (width and height) are rounded to the next highest
-// power-of-two when round_pow2 is set.
+// image (width and height) will be rounded to the next highest
+// power-of-two when 'read_flags' contains IRF_Round_POW2.
 // FIXME: throw exception on failure
 
 bool TGA_GetInfo(file_c *f, int *width, int *height, bool *solid);
