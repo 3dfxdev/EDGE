@@ -76,7 +76,7 @@ image_data_c *TGA_Load(file_c *f, int read_flags)
 
 	size_t nbytes = f->Read((u8_t*) &header, sizeof(header));
 
-	if (nbytes <= sizeof(header))
+	if (nbytes < sizeof(header))
 		return NULL;
 
 	if (header.type != TGA_TYPE_INDEXED &&
@@ -101,6 +101,7 @@ image_data_c *TGA_Load(file_c *f, int read_flags)
 		tot_H = 1; while (tot_H < (int)height) tot_H <<= 1;
 	}
 
+
 	// skip the info field
 	if (header.info_len > 0)
 	{
@@ -110,6 +111,12 @@ image_data_c *TGA_Load(file_c *f, int read_flags)
 
 	int new_bpp = 3;
 	if (header.pixel_bits == 32) new_bpp = 4;
+
+#if 0 // DEBUG
+	fprintf(stderr, "WIDTH  = %d (%d)\n", width, tot_W);
+	fprintf(stderr, "HEIGHT = %d (%d)\n", height, tot_H);
+	fprintf(stderr, "BPP = %d\n", new_bpp);
+#endif
 
 	image_data_c *img = new image_data_c(tot_W, tot_H, new_bpp);
 
@@ -137,7 +144,7 @@ bool TGA_GetInfo(file_c *f, int *width, int *height, bool *solid)
 
 	size_t nbytes = f->Read((u8_t*) &header, sizeof(header));
 
-	if (nbytes <= sizeof(header))
+	if (nbytes < sizeof(header))
 		return false;
 
 	*width  = GET_U16_FIELD(header, width);
