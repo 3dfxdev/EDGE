@@ -88,6 +88,10 @@ image_data_c *TGA_Load(file_c *f, int read_flags)
 	int width  = GET_U16_FIELD(header, width);
 	int height = GET_U16_FIELD(header, height);
 
+	if (width  < 4 || width  > 4096 || 
+		height < 4 || height > 4096)
+		return NULL;
+
 	int tot_W = width;
 	int tot_H = height;
 
@@ -97,9 +101,32 @@ image_data_c *TGA_Load(file_c *f, int read_flags)
 		tot_H = 1; while (tot_H < (int)height) tot_H <<= 1;
 	}
 
-	image_data_c *img = new image_data_c(tot_W, tot_H, 3);
+	// skip the info field
+	if (header.info_len > 0)
+	{
+		if (! f->Seek(header.info_len, file_c::SEEKPOINT_CURRENT))
+			return NULL;
+	}
 
+	int new_bpp = 3;
+	if (header.pixel_bits == 32) new_bpp = 4;
+
+	image_data_c *img = new image_data_c(tot_W, tot_H, new_bpp);
+
+	img->used_w = width;
+	img->used_h = height;
+	
 	/* read image pixels */
+
+	//!!!!!! FIXME: assumes TGA_TYPE_RGB
+	
+	for (int y = 0; y < img->used_h; y++)
+	for (int x = 0; x < img->used_w; x++)
+	{
+		u8_t *dest = img->PixelAt(x, y);
+
+		f->Read(dest, new_bpp);
+	}
 
 	return img;
 }
