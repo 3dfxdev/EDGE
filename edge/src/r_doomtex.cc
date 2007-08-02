@@ -63,6 +63,8 @@
 #include <string.h>
 
 
+#define TRANS_REPLACE  pal_black
+
 
 // Dummy image, for when texture/flat/graphic is unknown.  Row major
 // order.  Could be packed, but why bother ?
@@ -148,7 +150,7 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 		for (; count > 0; count--, src++, top++)
 		{
 			if (*src == TRANS_PIXEL)
-				dest[(h1-1-top) * w2] = 165; //!!!!!! FIXME
+				dest[(h1-1-top) * w2] = TRANS_REPLACE;
 			else
 				dest[(h1-1-top) * w2] = *src;
 		}
@@ -256,7 +258,7 @@ static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
 		// make sure TRANS_PIXEL values (which do not occur naturally in
 		// Doom images) are properly remapped.
 		if (src_pix == TRANS_PIXEL)
-			dest_pix[0] = 165; //!!!!!! FIXME
+			dest_pix[0] = TRANS_REPLACE;
 		else
 			dest_pix[0] = src_pix;
 	}
