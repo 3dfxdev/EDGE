@@ -212,15 +212,6 @@ void GUI_Drawer(gui_t ** gui)
 	}
 	while (g != (*gui)->prev);
 
-#if 0  // V_DrawPatch no longer usable
-	if (mouse_visible)
-	{
-		const patch_t *p;
-		p = W_CacheLumpNum(mouse);
-		V_DrawPatch(main_scr, mouse_x, mouse_y, p);
-		W_DoneWithLump(p);
-	}
-#endif
 }
 
 void GUI_MainTicker(void)
