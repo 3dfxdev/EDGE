@@ -554,32 +554,35 @@ public:
 // FIXME!!! Move inside linetype_c
 typedef enum
 {
-	LINEFX_None = 0x0000,
+	LINEFX_NONE = 0,
 
 	// make tagged lines (inclusive) 50% translucent
-	LINEFX_Translucency = 0x0001,
+	LINEFX_Translucency = (1 << 0),
 
 	// make tagged walls (inclusive) scroll using vector
-	LINEFX_VectorScroll = 0x0002,
+	LINEFX_VectorScroll = (1 << 1),
 
 	// make source line scroll using sidedef offsets
-	LINEFX_OffsetScroll = 0x0004,
+	LINEFX_OffsetScroll = (1 << 2),
 
 	// experimental: tagged walls (inclusive) scaling & skewing
-	LINEFX_Scale = 0x0010,
-	LINEFX_Skew  = 0x0020,
+	LINEFX_Scale = (1 << 3),
+	LINEFX_Skew  = (1 << 4),
 
 	// experimental: transfer properties to tagged walls (incl)
-	LINEFX_LightWall = 0x0040,
+	LINEFX_LightWall = (1 << 5),
 
 	// experimental: make tagged lines (exclusive) non-blocking
-	LINEFX_UnblockThings = 0x0100,
+	LINEFX_UnblockThings = (1 << 6),
 
 	// experimental: make tagged lines (incl) block bullets/missiles
-	LINEFX_BlockShots = 0x0200,
+	LINEFX_BlockShots = (1 << 7),
 
 	// experimental: make tagged lines (incl) block monster sight
-	LINEFX_BlockSight = 0x0400
+	LINEFX_BlockSight = (1 << 8),
+
+	// make source line into a Mirror
+	LINEFX_Mirror = (1 << 9),
 }
 line_effect_type_e;
 

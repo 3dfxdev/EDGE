@@ -877,6 +877,7 @@ static specflags_t line_effect_names[] =
 	{"SCALE TEX",      LINEFX_Scale,         0},
 	{"SKEW TEX",       LINEFX_Skew,          0},
 	{"LIGHT WALL",     LINEFX_LightWall,     0},
+	{"MIRROR",         LINEFX_Mirror,        0},
 
 	{"UNBLOCK THINGS", LINEFX_UnblockThings, 0},
 	{"BLOCK SHOTS",    LINEFX_BlockShots,    0},
@@ -895,7 +896,7 @@ static void DDF_LineGetLineEffect(const char *info, void *storage)
 
 	if (DDF_CompareName(info, "NONE") == 0)
 	{
-		buffer_line.line_effect = LINEFX_None;
+		buffer_line.line_effect = LINEFX_NONE;
 		return;
 	}
 
@@ -1613,7 +1614,7 @@ void linetype_c::Default(void)
 	appear = DEFAULT_APPEAR;    
 	special_flags = LINSP_None;
 	trigger_effect = 0;
-	line_effect = LINEFX_None;
+	line_effect = LINEFX_NONE;
 	line_parts = SCPT_None;
 	sector_effect = SECTFX_None;
 }
