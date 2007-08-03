@@ -1,5 +1,11 @@
 Andrew Apted's Log
 
+2007/08/03:
+
+More rendering work, today removing the fields in seg_t and
+subsector_t which contain rendering info, instead using
+dynamically allocated classes.  Paves the way for mirrors.
+
 2007/08/02:
 
 Fixed problem with ID(K)FA cheats and clip weapons not
