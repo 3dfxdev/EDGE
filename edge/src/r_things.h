@@ -30,7 +30,7 @@
 #include "r_gldefs.h"
 #include "w_sprite.h"
 
-void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub);
+void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo);
 void RGL_DrawSortThings(drawfloor_t *dfloor);
 void RGL_UpdateTheFuzz(void);
 

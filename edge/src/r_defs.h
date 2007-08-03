@@ -457,29 +457,6 @@ typedef struct subsector_s
 
 	// -AJA- 2004/04/20: used when emulating deep-water TRICK
 	struct sector_s *deep_ref;
-
-	// -- Rendering stuff (only used during rendering) --
-
-    // link in render list (furthest to closest)
-	struct subsector_s *rend_next, *rend_prev;
-
-	// here we remember the 1D/2D occlusion buffer (for sprite
-	// clipping).
-	byte clip_left, clip_right;
-	short x_min, x_max;
-	struct Y_range_s *ranges;
-
-    // list of floors (sorted into drawing order)
-	struct drawfloor_s *floors;
-
-	// floors sorted in height order.
-	struct drawfloor_s *z_floors;
-
-	// list of sprites to draw (unsorted).  The sprites on this list are
-	// unclipped (both horizontally and vertically).  Later on in the
-	// rendering process they are clipped, whereby they get moved into
-	// the correct drawfloors.
-	struct drawthing_s *raw_things;
 }
 subsector_t;
 
@@ -528,15 +505,6 @@ typedef struct seg_s
 
 	sector_t *frontsector;
 	sector_t *backsector;
-
-	// -- Rendering stuff (only used during rendering) --
-
-	bool visible;
-	bool back;
-
-	// translated coords
-	float tx1, tz1;
-	float tx2, tz2;
 }
 seg_t;
 

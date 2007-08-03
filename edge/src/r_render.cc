@@ -61,6 +61,7 @@
 #define DLIGHT_PROTOTYPE  1
 
 
+
 side_t *sidedef;
 line_t *linedef;
 sector_t *frontsector;
@@ -69,6 +70,7 @@ sector_t *backsector;
 unsigned int root_node;
 
 extern camera_t *camera;
+
 
 static int checkcoord[12][4] =
 {
@@ -104,8 +106,7 @@ static seg_t *cur_seg;
 
 static bool solid_mode;
 
-static subsector_t *drawsubs_head;
-static subsector_t *drawsubs_tail;
+static std::list<drawsub_c *> drawsubs;
 
 static const image_c *fading_image = NULL;
 
@@ -214,36 +215,36 @@ static void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor)
 	yh = BLOCKMAP_GET_Y(sub->bbox[BOXTOP]    + max_dlight_radius);
 
 	for (bx = xl; bx <= xh; bx++)
-		for (by = yl; by <= yh; by++)
-		{
-			mobj_t *mo;
-			drawthing_t *dl;
+	for (by = yl; by <= yh; by++)
+	{
+		mobj_t *mo;
+		drawthing_t *dl;
 
-			if (bx < 0 || by < 0 || bx >= bmapwidth || by >= bmapheight)
+		if (bx < 0 || by < 0 || bx >= bmapwidth || by >= bmapheight)
+			continue;
+
+		for (mo=blocklights[by * bmapwidth + bx]; mo; mo = mo->dlnext)
+		{
+			if (! mo->bright || mo->dlight[0].r <= 0)
 				continue;
 
-			for (mo=blocklights[by * bmapwidth + bx]; mo; mo = mo->dlnext)
+			if (mo->ceilingz <= dfloor->f_h || mo->floorz >= dfloor->top_h)
 			{
-				if (! mo->bright || mo->dlight[0].r <= 0)
-					continue;
-
-				if (mo->ceilingz <= dfloor->f_h || mo->floorz >= dfloor->top_h)
-				{
-					continue;
-				}
-
-				dl = drawthings.GetNew();
-				drawthings.Commit();
-
-				dl->mo = mo;
-				dl->tz = mo->z + mo->height * PERCENT_2_FLOAT(mo->info->dlight0.height);
-
-				dl->next = dfloor->dlights;
-				dl->prev = NULL;  // NOTE: not used (singly linked)
-
-				dfloor->dlights = dl;
+				continue;
 			}
+
+			dl = R_GetDrawThing();
+			dl->Clear();
+
+			dl->mo = mo;
+			dl->tz = mo->z + mo->height * PERCENT_2_FLOAT(mo->info->dlight0.height);
+
+			dl->next = dfloor->dlights;
+			dl->prev = NULL;  // NOTE: not used (singly linked)
+
+			dfloor->dlights = dl;
 		}
+	}
 }
 
 // ============================================================================
@@ -1166,8 +1167,21 @@ static void EmulateFlooding(const drawfloor_t *dfloor,
 // Analyses floor/ceiling heights, and add corresponding walls/floors
 // to the drawfloor.  Returns true if the whole region was "solid".
 //
-static bool RGL_BuildWalls(drawfloor_t *dfloor)
+static bool RGL_BuildWalls(drawfloor_t *dfloor, seg_t *seg)
 {
+	cur_seg = seg;
+
+	SYS_ASSERT(!seg->miniseg && seg->linedef);
+
+	// mark the segment on the automap
+	seg->linedef->flags |= MLF_Mapped;
+
+	frontsector = seg->front_sub->sector;
+	backsector  = NULL;
+
+	if (seg->back_sub)
+		backsector = seg->back_sub->sector;
+
 	side_t *sd = cur_seg->sidedef;
 
 	float f1 = dfloor->f_h;
@@ -1287,37 +1301,37 @@ static bool RGL_BuildWalls(drawfloor_t *dfloor)
 	return false;
 }
 
-//
-// RGL_DrawSeg
-//
-static void RGL_DrawSeg(seg_t *seg)
-{
-	drawfloor_t *dfloor;
-
-	cur_seg = seg;
-
-#if (DEBUG >= 2)
-	L_WriteDebug("   DRAW SEG %p\n", seg);
-#endif
-
-	SYS_ASSERT(!seg->miniseg && seg->linedef);
-
-	// mark the segment on the automap
-	seg->linedef->flags |= MLF_Mapped;
-
-	// --- handle each floor ---
-
-	frontsector = seg->front_sub->sector;
-	backsector  = NULL;
-
-	if (seg->back_sub)
-		backsector = seg->back_sub->sector;
-
-	for (dfloor=cur_sub->floors; dfloor; dfloor=dfloor->next)
-	{
-		RGL_BuildWalls(dfloor);
-	}
-}
+///---//
+///---// RGL_DrawSeg
+///---//
+///---static void RGL_DrawSeg(seg_t *seg)
+///---{
+///---	drawfloor_t *dfloor;
+///---
+///---	cur_seg = seg;
+///---
+///---#if (DEBUG >= 2)
+///---	L_WriteDebug("   DRAW SEG %p\n", seg);
+///---#endif
+///---
+///---	SYS_ASSERT(!seg->miniseg && seg->linedef);
+///---
+///---	// mark the segment on the automap
+///---	seg->linedef->flags |= MLF_Mapped;
+///---
+///---	// --- handle each floor ---
+///---
+///---	frontsector = seg->front_sub->sector;
+///---	backsector  = NULL;
+///---
+///---	if (seg->back_sub)
+///---		backsector = seg->back_sub->sector;
+///---
+///---	for (dfloor=cur_sub->floors; dfloor; dfloor=dfloor->next)
+///---	{
+///---		RGL_BuildWalls(dfloor);
+///---	}
+///---}
 
 //
 // RGL_WalkSeg
@@ -1325,14 +1339,13 @@ static void RGL_DrawSeg(seg_t *seg)
 // Visit a single seg of the subsector, and for one-sided lines update
 // the 1D occlusion buffer.
 //
-static void RGL_WalkSeg(seg_t *seg)
+static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 {
 	angle_t angle1, angle2;
 	angle_t span, tspan1, tspan2;
 
-	seg->visible = false;
-
 	// compute distances
+#if 0
 	{
 		float tx1 = seg->v1->x - viewx;
 		float ty1 = seg->v1->y - viewy;
@@ -1345,6 +1358,7 @@ static void RGL_WalkSeg(seg_t *seg)
 		seg->tx2 = tx2 * viewsin - ty2 * viewcos;
 		seg->tz2 = tx2 * viewcos + ty2 * viewsin;
 	}
+#endif
 
 	angle1 = R_PointToAngle(viewx, viewy, seg->v1->x, seg->v1->y);
 	angle2 = R_PointToAngle(viewx, viewy, seg->v2->x, seg->v2->y);
@@ -1417,10 +1431,18 @@ static void RGL_WalkSeg(seg_t *seg)
 	}
 #endif
 
-	seg->visible = span > (ANG1 / 64);
+	dsub->visible = true;
 
 	if (seg->miniseg)
 		return;
+
+
+	drawseg_c *dseg = R_GetDrawSeg();
+	dseg->seg = seg;
+	dseg->mirror = NULL;
+
+	dsub->segs.push_back(dseg);
+
 
 	sector_t *frontsector = seg->front_sub->sector;
 	sector_t *backsector  = NULL;
@@ -1816,7 +1838,7 @@ RGL_DrawUnits();
 #endif // DLIGHT_PROTOTYPE
 }
 
-static INLINE void AddNewDrawFloor(extrafloor_t *ef,
+static INLINE void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 								   float f_h, float c_h, float top_h,
 								   surface_t *floor, surface_t *ceil,
 								   region_properties_t *props)
@@ -1824,8 +1846,8 @@ static INLINE void AddNewDrawFloor(extrafloor_t *ef,
 	drawfloor_t *dfloor;
 	drawfloor_t *tail;
 
-	dfloor = drawfloors.GetNew();
-	drawfloors.Commit();
+	dfloor = R_GetDrawFloor();
+	dfloor->Clear();
 
 	dfloor->f_h   = f_h;
 	dfloor->c_h   = c_h;
@@ -1835,9 +1857,9 @@ static INLINE void AddNewDrawFloor(extrafloor_t *ef,
 	dfloor->ef    = ef;
 	dfloor->props = props;
 
+#if 0
 	// link it in
 	// (order is very important)
-
 	if (cur_sub->floors == NULL || f_h > viewz)
 	{
 		// add to head
@@ -1860,18 +1882,21 @@ static INLINE void AddNewDrawFloor(extrafloor_t *ef,
 
 		tail->next = dfloor;
 	}
+#endif
 
-	// add to tail of height order list (for sprite clipping)
-	for (tail=cur_sub->z_floors; tail && tail->higher; tail=tail->higher)
-	{ /* nothing here */ }
+	dsub->floors.push_back(dfloor);
 
-	dfloor->higher = NULL;
-	dfloor->lower = tail;
-
-	if (tail)
-		tail->higher = dfloor;
-	else
-		cur_sub->z_floors = dfloor;
+///---	// add to tail of height order list (for sprite clipping)
+///---	for (tail=cur_sub->z_floors; tail && tail->higher; tail=tail->higher)
+///---	{ /* nothing here */ }
+///---
+///---	dfloor->higher = NULL;
+///---	dfloor->lower = tail;
+///---
+///---	if (tail)
+///---		tail->higher = dfloor;
+///---	else
+///---		cur_sub->z_floors = dfloor;
 
 	if (use_dlights)
 	{
@@ -1907,9 +1932,8 @@ static void RGL_WalkSubsector(int num)
 	cur_sub = sub;
 	sector = cur_sub->sector;
 
-	sub->ranges = NULL;
-	sub->floors = sub->z_floors = NULL;
-	sub->raw_things = NULL;
+	drawsub_c *K = R_GetDrawSub();
+	K->Clear(sub);
 
 	// --- handle sky (using the depth buffer) ---
 
@@ -1958,9 +1982,9 @@ static void RGL_WalkSubsector(int num)
 		if (C->bottom_h < floor_h || C->bottom_h > sector->c_h)
 			continue;
 
-		bool de_f = (cur_sub->deep_ref && cur_sub->z_floors == NULL);
+		bool de_f = (cur_sub->deep_ref && K->floors.size() == 0);
 
-		AddNewDrawFloor(C,
+		AddNewDrawFloor(K, C,
 			de_f ? cur_sub->deep_ref->f_h : floor_h,
 			C->bottom_h, C->top_h,
 			de_f ? &cur_sub->deep_ref->floor : floor_s,
@@ -1971,10 +1995,10 @@ static void RGL_WalkSubsector(int num)
 	}
 
 	// -AJA- 2004/04/22: emulate the Deep-Water TRICK (above too)
-	bool de_f = (cur_sub->deep_ref && cur_sub->z_floors == NULL);
+	bool de_f = (cur_sub->deep_ref && K->floors.size() == 0);
 	bool de_c = (cur_sub->deep_ref != NULL);
 
-	AddNewDrawFloor(NULL,
+	AddNewDrawFloor(K, NULL,
 		de_f ? cur_sub->deep_ref->f_h : floor_h,
 		de_c ? cur_sub->deep_ref->c_h : sector->c_h,
 		de_c ? cur_sub->deep_ref->c_h : sector->c_h,
@@ -1986,38 +2010,29 @@ static void RGL_WalkSubsector(int num)
 
 	for (mo=cur_sub->thinglist; mo; mo=mo->snext)
 	{
-		RGL_WalkThing(mo, cur_sub);
+		RGL_WalkThing(K, mo);
 	}
 
 	// clip 1D occlusion buffer.
 	for (seg=sub->segs; seg; seg=seg->sub_next)
 	{
-		RGL_WalkSeg(seg);
+		RGL_WalkSeg(K, seg);
 	}
 
 	// add drawsub to list
 	// (add to head, thus the eventual order is furthest -> closest)
 
-	sub->rend_next = drawsubs_head;
-	sub->rend_prev = NULL;
-
-	if (drawsubs_head)
-		drawsubs_head->rend_prev = sub;
-	else
-		drawsubs_tail = sub;
-
-	drawsubs_head = sub;
+	drawsubs.push_front(K);
 }
 
 
 //
 // RGL_DrawSubsector
 //
-static void RGL_DrawSubsector(subsector_t *sub)
+static void RGL_DrawSubsector(drawsub_c *dsub)
 {
+	subsector_t *sub = dsub->sub;
 	drawfloor_t *dfloor;
-	seg_t *seg;
-	int vis_num = 0;
 
 #if (DEBUG >= 1)
 	L_WriteDebug("\nREVISITING SUBSEC %d\n\n", (int)(sub - subsectors));
@@ -2025,25 +2040,23 @@ static void RGL_DrawSubsector(subsector_t *sub)
 
 	cur_sub = sub;
 
-	// handle each seg in the subsector
-	for (seg=sub->segs; seg; seg=seg->sub_next)
-	{
-		if (seg->visible)
-		{
-			vis_num++;
+	//!!!!! FIXME
+	// if (! dsub->sorted) std::sort(dsub->floors.begin(), dsub->floors.end(), SORTER)
 
-			if (! seg->miniseg)
-				RGL_DrawSeg(seg);
-		}
-	}
-
-	// are any segs visible ?  If not, abort now
-	if (vis_num == 0)
-		return;
+	std::vector<drawfloor_t *>::iterator DFI;
 
 	// handle each floor, drawing planes and things
-	for (dfloor=sub->floors; dfloor; dfloor=dfloor->next)
+	for (DFI = dsub->floors.begin(); DFI != dsub->floors.end(); DFI++)
 	{
+		drawfloor_t *dfloor = *DFI;
+
+		std::list<drawseg_c *>::iterator SEGI;
+
+		for (SEGI = dsub->segs.begin(); SEGI != dsub->segs.end(); SEGI++)
+		{
+			RGL_BuildWalls(dfloor, (*SEGI)->seg);
+		}
+
 		RGL_DrawPlane(dfloor, dfloor->c_h, dfloor->ceil,  -1);
 		RGL_DrawPlane(dfloor, dfloor->f_h, dfloor->floor, +1);
 
@@ -2119,8 +2132,6 @@ void RGL_LoadLights(void)
 //
 void RGL_RenderTrueBSP(void)
 {
-	subsector_t *cur;
-
 	// compute the 1D projection of the view angle
 	{
 		float k, d;
@@ -2163,7 +2174,7 @@ void RGL_RenderTrueBSP(void)
 	RGL_1DOcclusionClear();
 	RGL_UpdateTheFuzz();
 
-	drawsubs_head = drawsubs_tail = NULL;
+	drawsubs.clear();
 
 	// handle powerup effects
 	RGL_RainbowEffect(players[displayplayer]);
@@ -2191,8 +2202,10 @@ void RGL_RenderTrueBSP(void)
 	solid_mode = true;
 	RGL_StartUnits(solid_mode);
 
-	for (cur=drawsubs_head; cur; cur=cur->rend_next)
-		RGL_DrawSubsector(cur);
+	std::list<drawsub_c *>::iterator SI;
+
+	for (SI = drawsubs.begin(); SI != drawsubs.end(); SI++)
+		RGL_DrawSubsector(*SI);
 
 	RGL_FinishUnits();
 
@@ -2200,8 +2213,8 @@ void RGL_RenderTrueBSP(void)
 	solid_mode = false;
 	RGL_StartUnits(solid_mode);
 
-	for (cur=drawsubs_head; cur; cur=cur->rend_next)
-		RGL_DrawSubsector(cur);
+	for (SI = drawsubs.begin(); SI != drawsubs.end(); SI++)
+		RGL_DrawSubsector(*SI);
 
 	RGL_FinishUnits();
 	glDisable(GL_DEPTH_TEST);

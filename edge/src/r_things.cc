@@ -358,12 +358,6 @@ static INLINE void LinkDrawthingIntoDrawfloor(drawthing_t *dthing,
 		dfloor->things->prev = dthing;
 
 	dfloor->things = dthing;
-
-	//
-	// Dynamic Lighting
-	//
-	dthing->extra_light = 0;
-
 }
 
 //
@@ -455,12 +449,10 @@ const image_c * R2_GetOtherSprite(int spritenum, int framenum, bool *flip)
 	return frame->images[0];
 }
 
-//
-// R2_ClipSpriteVertically
-//
+
 #define SY_FUDGE  2
 
-void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing)
+static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 {
 	drawfloor_t *dfloor, *df_orig;
 	drawthing_t *dnew, *dt_orig;
@@ -477,9 +469,11 @@ void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing)
 	else
 		z = (dthing->top + dthing->bottom) / 2.0f;
 
-	for (dfloor = dsub->z_floors; dfloor->higher; dfloor = dfloor->higher)
+	std::vector<drawfloor_t *>::iterator DFI;
+
+	for (DFI = dsub->floors.begin(); DFI != dsub->floors.end(); DFI++)
 	{
-		if (z <= dfloor->top_h)
+		if (z <= (*DFI)->top_h)
 			break;
 	}
 
@@ -543,8 +537,7 @@ void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing)
 
 		// sprite's bottom must be clipped.  Make a copy.
 
-		dnew = drawthings.GetNew();
-		drawthings.Commit();
+		dnew = R_GetDrawThing();
 
 		dnew[0] = dthing[0];
 
@@ -616,8 +609,7 @@ void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing)
 
 		// sprite's top must be clipped.  Make a copy.
 
-		dnew = drawthings.GetNew();
-		drawthings.Commit();
+		dnew = R_GetDrawThing();
 
 		dnew[0] = dthing[0];
 
@@ -673,7 +665,7 @@ void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing)
 //
 // Visit a single thing that exists in the current subsector.
 //
-void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
+void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 {
 	// ignore the player him/herself
 	if (mo == players[displayplayer]->mo)
@@ -778,13 +770,12 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 
 	// create new draw thing
 
-	drawthing_t *dthing = drawthings.GetNew();
-	drawthings.Commit();
+	drawthing_t *dthing = R_GetDrawThing();
+	dthing->Clear();
 
 	dthing->mo = mo;
-	dthing->props = cur_sub->floors->props;
+	dthing->props = dsub->floors[0]->props;
 	dthing->clip_vert = clip_vert;
-	dthing->clipped_left = dthing->clipped_right = false;
 
 	dthing->image  = image;
 	dthing->flip   = spr_flip;
@@ -812,8 +803,7 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 	if (level_flags.shadows && mo->info->shadow_trans > 0 &&
 		mo->floorz < viewz && ! IS_SKY(mo->subsector->sector->floor))
 	{
-		drawthing_t *dshadow = drawthings.GetNew();
-		drawthings.Commit();
+		drawthing_t *dshadow = R_GetDrawThing();
 
 		dshadow[0] = dthing[0];
 
@@ -830,15 +820,14 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 		dshadow->top = gzt;
 		dshadow->bottom = gzb;
 
-		R2_ClipSpriteVertically(cur_sub, dshadow);
+		R2_ClipSpriteVertically(dsub, dshadow);
 	}
 
 #if 0  // DISABLED
 	// create halo
 	if (level_flags.halos && mo->info->halo.height > 0)
 	{
-		drawthing_t *dhalo = drawthings.GetNew();
-		drawthings.Commit();
+		drawthing_t *dhalo = R_GetDrawThing();
 
 		dhalo[0] = dthing[0];
 
@@ -866,11 +855,11 @@ void RGL_WalkThing(mobj_t *mo, subsector_t *cur_sub)
 
 		dhalo->iyscale = mo->info->halo.height / IM_HEIGHT(dhalo->image);
 
-		R2_ClipSpriteVertically(cur_sub, dhalo);
+		R2_ClipSpriteVertically(dsub, dhalo);
 	}
 #endif
 
-	R2_ClipSpriteVertically(cur_sub, dthing);
+	R2_ClipSpriteVertically(dsub, dthing);
 }
 
 //
