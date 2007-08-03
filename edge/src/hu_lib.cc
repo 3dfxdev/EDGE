@@ -34,7 +34,7 @@
 #include "hu_stuff.h"
 #include "r_local.h"
 #include "r_colors.h"
-#include "v_ctx.h"
+#include "r_draw.h"
 #include "r_modes.h"
 
 #define DUMMY_WIDTH(font)  (4)

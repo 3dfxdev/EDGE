@@ -41,7 +41,7 @@
 #include "s_music.h"
 #include "r_misc.h"
 #include "r_view.h"
-#include "v_ctx.h"
+#include "r_draw.h"
 #include "r_modes.h"
 
 #include "epi/strings.h"

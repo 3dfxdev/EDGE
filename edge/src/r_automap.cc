@@ -39,7 +39,7 @@
 #include "n_network.h"
 #include "p_local.h"
 #include "st_stuff.h"
-#include "v_ctx.h"
+#include "r_draw.h"
 #include "r_colors.h"
 #include "r_modes.h"
 
