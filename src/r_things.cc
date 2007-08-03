@@ -347,8 +347,8 @@ void RGL_LightUpPlayerWeapon(player_t *p, drawfloor_t *dfloor)
 
 int sprite_kludge = 0;
 
-static INLINE void LinkDrawthingIntoDrawfloor(drawthing_t *dthing,
-											  drawfloor_t *dfloor)
+static inline void LinkDrawthingIntoDrawfloor(
+		drawfloor_t *dfloor, drawthing_t *dthing)
 {
 	dthing->props = dfloor->props;
 	dthing->next  = dfloor->things;
@@ -454,7 +454,7 @@ const image_c * R2_GetOtherSprite(int spritenum, int framenum, bool *flip)
 
 static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 {
-	drawfloor_t *dfloor, *df_orig;
+	drawfloor_t *dfloor = NULL, *df_orig;
 	drawthing_t *dnew, *dt_orig;
 
 	float z;
@@ -473,14 +473,16 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 
 	for (DFI = dsub->floors.begin(); DFI != dsub->floors.end(); DFI++)
 	{
-		if (z <= (*DFI)->top_h)
+		dfloor = *DFI;
+
+		if (z <= dfloor->top_h)
 			break;
 	}
 
 	SYS_ASSERT(dfloor);
 
 	// link in sprite.  We'll shrink it if it gets clipped.
-	LinkDrawthingIntoDrawfloor(dthing, dfloor);
+	LinkDrawthingIntoDrawfloor(dfloor, dthing);
 
 	// handle never-clip things 
 	if (dthing->clip_vert < 0)
@@ -571,7 +573,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 		}
 
 		// link new piece in
-		LinkDrawthingIntoDrawfloor(dthing, dfloor);
+		LinkDrawthingIntoDrawfloor(dfloor, dthing);
 	}
 
 	// when clip_vert is > 0, we must clip to solids
@@ -643,7 +645,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 		}
 
 		// link new piece in
-		LinkDrawthingIntoDrawfloor(dthing, dfloor);
+		LinkDrawthingIntoDrawfloor(dfloor, dthing);
 	}
 
 	// when clip_vert is > 0, we must clip to solids

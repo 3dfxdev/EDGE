@@ -1838,7 +1838,7 @@ RGL_DrawUnits();
 #endif // DLIGHT_PROTOTYPE
 }
 
-static INLINE void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
+static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 								   float f_h, float c_h, float top_h,
 								   surface_t *floor, surface_t *ceil,
 								   region_properties_t *props)
