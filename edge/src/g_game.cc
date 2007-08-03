@@ -52,7 +52,7 @@
 #include "r_colors.h"
 #include "version.h"
 #include "w_wad.h"
-#include "wi_stuff.h"
+#include "f_stats.h"
 #include "z_zone.h"
 
 #include "epi/endianess.h"

@@ -50,7 +50,7 @@
 #include "r_modes.h"
 
 #include "w_wad.h"
-#include "wi_stuff.h"
+#include "f_stats.h"
 
 #include <stdio.h>
 #include <string.h>

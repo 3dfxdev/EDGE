@@ -30,7 +30,7 @@
 //
 
 #include "i_defs.h"
-#include "wi_stuff.h"
+#include "f_stats.h"
 
 #include "e_main.h"
 #include "g_game.h"
