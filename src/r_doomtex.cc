@@ -63,6 +63,21 @@
 #include <string.h>
 
 
+// posts are runs of non masked source pixels
+typedef struct
+{
+	// -1 is the last post in a column
+	byte topdelta;
+
+    // length data bytes follows
+	byte length;  // length data bytes follows
+}
+post_t;
+
+// column_t is a list of 0 or more post_t, (byte)-1 terminated
+typedef post_t column_t;
+
+
 #define TRANS_REPLACE  pal_black
 
 
