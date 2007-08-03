@@ -693,8 +693,8 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	float xy_ofs = cur_seg->offset;
 	float xy_len = cur_seg->length;
 
-	float tex_x1 = 0, tex_y1 = 0;
-	float tex_x2 = 0, tex_y2 = 0, tex_dy = 0;
+	float tex_x1 = 0;
+	float tex_x2 = 0;
 
 	float trans = part->translucency;
 	bool blended;
@@ -758,10 +758,6 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 
 	tex_x1 = x_offset;
 	tex_x2 = tex_x1 + xy_len;
-
-	tex_y1 = tex_top_h - bottom;
-	tex_y2 = tex_top_h - top;
-	tex_dy = part->y_mat.x * xy_len;
 
 	// horizontal sliding door hack
 	if (mid_masked >= 2)
@@ -897,13 +893,9 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	data.tx  = tex_x1;
 	data.tdx = tex_x2 - tex_x1;
 
-	tex_y1 = tex_y1 / total_h;
-	tex_y2 = tex_y2 / total_h;
-	tex_dy = tex_dy / total_h;
-
 	data.ty_mul = 1.0f / total_h;
 	data.ty = IM_TOP(part->image) - tex_top_h * data.ty_mul;
-	data.ty_skew = 0;  //!!!! FIXME
+	data.ty_skew = 0;
 
 #if (DEBUG >= 3) 
 	L_WriteDebug( "WALL (%d,%d,%d) -> (%d,%d,%d)\n", 
