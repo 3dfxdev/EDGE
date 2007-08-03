@@ -458,11 +458,18 @@ void R_StartFading(int start, int range)
 
 //----------------------------------------------------------------------------
 
-// arrays of stuff
-#define DEFAULT_DRAWARRAY_SIZE
+static std::vector<drawthing_t  *> drawthings;
+static std::vector<drawfloor_t  *> drawfloors;
+static std::vector<drawseg_c    *> drawsegs;
+static std::vector<drawsub_c    *> drawsubs;
+static std::vector<drawmirror_c *> drawmirrors;
 
-drawthingarray_c drawthings;
-drawfloorarray_c drawfloors;
+static int drawthing_pos;
+static int drawfloor_pos;
+static int drawseg_pos;
+static int drawsub_pos;
+static int drawmirror_pos;
+
 
 //
 // R2_InitUtil
@@ -477,114 +484,81 @@ void R2_InitUtil(void)
 
 void R2_ClearBSP(void)
 {
-	drawfloors.Init();
-	drawthings.Init();
+	drawthing_pos  = 0;
+	drawfloor_pos  = 0;
+	drawseg_pos    = 0;
+	drawsub_pos    = 0;
+	drawmirror_pos = 0;
 }
 
 void R2_FreeupBSP(void)
 {
-	drawfloors.Clear();
-	drawthings.Clear();
+	int i;
+
+	for (i=0; i < (int)drawthings .size(); i++) delete drawthings [i];
+	for (i=0; i < (int)drawfloors .size(); i++) delete drawfloors [i];
+	for (i=0; i < (int)drawsegs   .size(); i++) delete drawsegs   [i];
+	for (i=0; i < (int)drawsubs   .size(); i++) delete drawsubs   [i];
+	for (i=0; i < (int)drawmirrors.size(); i++) delete drawmirrors[i];
+
+	drawthings .erase(drawthings .begin(), drawthings .end());
+	drawfloors .erase(drawfloors .begin(), drawfloors .end());
+	drawsegs   .erase(drawsegs   .begin(), drawsegs   .end());
+	drawsubs   .erase(drawsubs   .begin(), drawsubs   .end());
+	drawmirrors.erase(drawmirrors.begin(), drawmirrors.end());
+
+	R2_ClearBSP();
 }
 
-// ---> Draw thing container class
 
-//
-// drawthingarray_c::GetNew()
-//
-drawthing_t* drawthingarray_c::GetNew()
+drawthing_t *R_GetDrawThing()
 {
-	SYS_ASSERT_MSG(!active_trans, ("[drawthingarray_c::GetNew] called twice"));	
-
-	drawthing_t *dt;
-
-	// Look for a spare entry
-	if (commited < array_entries)
+	if (drawthing_pos >= (int)drawthings.size())
 	{
-		dt = *(drawthing_t**)FetchObjectDirect(commited);
-		commited++;
+		drawthings.push_back(new drawthing_t);
 	}
-	else  
+
+	return drawthings[drawthing_pos++];
+}
+
+drawfloor_t *R_GetDrawFloor()
+{
+	if (drawfloor_pos >= (int)drawfloors.size())
 	{
-		dt = new drawthing_t;
-		InsertObject((void*)&dt);				
-		commited = array_entries;
+		drawfloors.push_back(new drawfloor_t);
 	}
-	
-	memset(dt, 0, sizeof(drawthing_t));
-	
-	active_trans = true; 	// We now have an active transaction 
-	return dt;
+
+	return drawfloors[drawfloor_pos++];
 }
 
-//
-// drawthingarray_c::Commit()
-//
-void drawthingarray_c::Commit(void)
+drawseg_c *R_GetDrawSeg()
 {
-	SYS_ASSERT_MSG(active_trans, ("[drawthingarray_c::Commit] no active trans"));
-	active_trans = false;
-}
-
-//
-// drawthingarray_c::Rollback()
-//
-void drawthingarray_c::Rollback(void)
-{
-	SYS_ASSERT_MSG(active_trans, ("[drawthingarray_c::Rollback] no active trans"));
-	active_trans = false;
-	commited--;
-}
-	
-// ---> Draw floor container class
-
-//
-// drawfloorarray_c::GetNew()
-//
-// -ACB- 2004/08/04 
-//
-drawfloor_t* drawfloorarray_c::GetNew()
-{
-	SYS_ASSERT_MSG(!active_trans, ("[drawfloorarray_c::GetNew] called twice"));	
-
-	drawfloor_t *df;
-
-	// Look for a spare entry
-	if (commited < array_entries)
+	if (drawseg_pos >= (int)drawsegs.size())
 	{
-		df = *(drawfloor_t**)FetchObjectDirect(commited);
-		commited++;
+		drawsegs.push_back(new drawseg_c);
 	}
-	else  
+
+	return drawsegs[drawseg_pos++];
+}
+
+drawsub_c *R_GetDrawSub()
+{
+	if (drawsub_pos >= (int)drawsubs.size())
 	{
-		df = new drawfloor_t;
-		InsertObject((void*)&df);				
-		commited = array_entries;
+		drawsubs.push_back(new drawsub_c);
 	}
-	
-	memset(df, 0, sizeof(drawfloor_t));
 
-	active_trans = true; 	// We now have an active transaction 
-	return df;
+	return drawsubs[drawsub_pos++];
 }
 
-//
-// drawfloorarray_c::Commit()
-//
-void drawfloorarray_c::Commit(void)
+drawmirror_c *R_GetDrawMirror()
 {
-	SYS_ASSERT_MSG(active_trans, ("[drawfloorarray_c::Commit] no active trans"));
-	active_trans = false;
-}
+	if (drawmirror_pos >= (int)drawmirrors.size())
+	{
+		drawmirrors.push_back(new drawmirror_c);
+	}
 
-//
-// drawfloorarray_c::Rollback()
-//
-void drawfloorarray_c::Rollback(void)
-{
-	SYS_ASSERT_MSG(active_trans, ("[drawfloorarray_c::Rollback] no active trans"));
-	active_trans = false;
-	commited--;
+	return drawmirrors[drawmirror_pos++];
 }
 
 

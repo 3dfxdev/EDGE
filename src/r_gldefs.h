@@ -28,6 +28,10 @@
 
 #include "r_defs.h"
 
+#include <list>
+#include <vector>
+
+
 //
 //  RGL_MAIN
 //
@@ -117,6 +121,7 @@ struct drawfloor_s;
 //
 typedef struct drawthing_s
 {
+public:
 	// link for list
 	struct drawthing_s *next;
 	struct drawthing_s *prev;
@@ -127,12 +132,6 @@ typedef struct drawthing_s
 	// vertical extent of sprite (world coords)
 	float top;
 	float bottom;
-
-	// these record whether this piece of a sprite has been clipped on
-	// the left or right side.  We can skip certain clipsegs when one of
-	// these is true (and stop when they both become true).
-	// 
-	bool clipped_left, clipped_right;
 
 	// +1 if this sprites should be vertically clipped at a solid
 	// floor or ceiling, 0 if just clip at translucent planes, or -1 if
@@ -145,16 +144,9 @@ typedef struct drawthing_s
 	bool flip;
 
 	// scaling
-	float xfrac;
-	float xscale;
-	float yscale;
-	float ixscale;
 	float iyscale;
 
 	float y_offset;
-
-	// distance
-	float dist_scale;
 
 	// translated coords
 	float tx, tz;
@@ -163,11 +155,6 @@ typedef struct drawthing_s
 	// colourmap/lighting
 	region_properties_t *props;
 	bool bright;
-
-	// dynamic lighting
-	int extra_light;
-
-	//...
 
 	// world offsets for GL
 	float left_dx,  left_dy;
@@ -180,6 +167,16 @@ typedef struct drawthing_s
 	
 	// Rendering order
 	struct drawthing_s *rd_l, *rd_r, *rd_prev, *rd_next; 
+
+public:
+	void Clear()
+	{
+		next = prev = NULL;
+		mo = NULL;
+		image = NULL;
+		props = NULL;
+		rd_l = rd_r = rd_prev = rd_next = NULL;
+	}
 }
 drawthing_t;
 
@@ -192,6 +189,7 @@ drawthing_t;
 //
 typedef struct drawfloor_s
 {
+public:
 	// link for list, drawing order
 	struct drawfloor_s *next, *prev;
 
@@ -208,80 +206,76 @@ typedef struct drawfloor_s
 	// properties used herein
 	region_properties_t *props;
 
-#if 0
-	// list of walls (includes midmasked textures)
-	drawwall_t *walls;
-
-	// list of planes (including translucent ones).
-	drawplane_t *planes;
-#endif
-
 	// list of things
 	// (not sorted until R2_DrawFloor is called).
 	drawthing_t *things;
 
 	// list of dynamic lights
 	drawthing_t *dlights;
+
+public:
+	void Clear()
+	{
+		next = prev = NULL;
+		higher = lower = NULL;
+		floor = ceil = NULL;
+		ef = NULL;
+		props = NULL;
+		things = dlights = NULL;
+	}
 }
 drawfloor_t;
 
-// -ACB- 2004/08/04: I could of done some funky inheritence 
-// for the following classes, but felt the duplication was the clear start
-// and we can cleanup later if needs be.
-//
-// In here we use an commited var to determine how many items
-// are actually used and its means we don't spend time reallocated
-// items, when we can reuse previously generated ones. The
-// array_entries reflects how many items are allocated.
-//
 
-// --> Draw thing container class
-class drawthingarray_c : public epi::array_c
+class drawmirror_c
 {
 public:
-	drawthingarray_c() : epi::array_c(sizeof(drawthing_t*)) 
-	{ 
-		active_trans = false; 
-	}
-	
-	~drawthingarray_c() { Clear(); }
+	line_t *line;
 
-private:
-	bool active_trans;
-	int commited;
-
-	void CleanupObject(void *obj) { delete *(drawthing_t**)obj; }
-
-public:
-	void Commit(void);
-	drawthing_t* GetNew(void);
-	void Init(void) { commited = 0; }
-	void Rollback(void);
 };
 
-// --> Draw floor container class
-class drawfloorarray_c : public epi::array_c
+
+class drawseg_c
 {
 public:
-	drawfloorarray_c() : epi::array_c(sizeof(drawfloor_t*)) 
-	{ 
-		active_trans = false; 
-	}
-	
-	~drawfloorarray_c() { Clear(); }
+	seg_t *seg;
 
-private:
-	bool active_trans;
-	int commited;
-	
-	void CleanupObject(void *obj) { delete *(drawfloor_t**)obj; }
+	drawmirror_c *mirror;
+};
+
+
+class drawsub_c
+{
+public:
+	subsector_t *sub;
+
+    // floors.  During the WALK phase they are sorted in
+	// height order (lowest to highest).
+	// For the DRAW phase they get sorted into rendering order
+	// (furthest to closest).
+	std::vector<drawfloor_t *> floors;
+
+	std::list<drawseg_c *> segs;
+
+	bool visible;
+	bool sorted;
 
 public:
-	void Commit(void);
-	drawfloor_t* GetNew(void);
-	void Init(void) { commited = 0; }
-	void Rollback(void);
+	drawsub_c() : sub(NULL), floors(), segs()
+	{ }
+
+	~drawsub_c()
+	{ /* !!!! FIXME */ }
+
+	void Clear(subsector_t *ss)
+	{
+		sub = ss;
+		floors.clear();
+		segs.clear();
+		visible = sorted = false;
+	}
 };
+
 
 extern int detail_level;
 extern int use_dlights;  // 2 means compat_mode (FIXME: remove for EDGE 1.30)
@@ -289,7 +283,6 @@ extern int sprite_kludge;
 
 const image_c * R2_GetThingSprite(mobj_t *mo, bool *flip);
 const image_c * R2_GetOtherSprite(int sprite, int frame, bool *flip);
-void R2_ClipSpriteVertically(subsector_t *dsub, drawthing_t *dthing);
 
 void R2_AddDLights(int num, int *level, 
     float *x, float *y, float *z, mobj_t *mo);
@@ -304,8 +297,12 @@ void R2_AddColourDLights(int num, int *r, int *g, int *b,
 void R2_InitUtil(void);
 void R2_ClearBSP(void);
 
-extern drawthingarray_c drawthings;
-extern drawfloorarray_c drawfloors;
+drawthing_t  *R_GetDrawThing();
+drawfloor_t  *R_GetDrawFloor();
+drawseg_c    *R_GetDrawSeg();
+drawsub_c    *R_GetDrawSub();
+drawmirror_c *R_GetDrawMirror();
+
 
 //
 //  R2_DRAW
@@ -314,7 +311,7 @@ extern drawfloorarray_c drawfloors;
 void R2_Init(void);
 
 
-#endif  // __RGL_DEFS__
+#endif /* __RGL_DEFS_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
