@@ -178,14 +178,6 @@ void oggplayer_c::PostOpenInit()
     else
         is_stereo = true;
     
-///---    alGenBuffers(OGG_BUFFERS, buffers);
-///---    result = alGetError();
-///---	if (result != AL_NO_ERROR)
-///---	{
-///---		throw epi::error_c(ERR_MUSIC, 
-///---			"[oggplayer_c::PostOpenInit] alGenBuffers() Failed");
-///---	}
-
 	// Loaded, but not playing
 	status = STOPPED;
 }
@@ -246,13 +238,6 @@ bool oggplayer_c::StreamIntoBuffer(epi::sound_data_c *buf)
     }
 
     return (samples > 0);
-
-///---    alBufferData(buffer, format, pcm_buf, size, vorbis_inf->rate);
-///---    int al_err = alGetError();
-///---
-///---	if (al_err != AL_NO_ERROR)
-///---		throw epi::error_c(ERR_MUSIC,
-///---			"[oggplayer_c::StreamIntoBuffer] alBufferData() Failed");
 }
 
 void oggplayer_c::ConvertToMono(s16_t *dest, const s16_t *src, int len)

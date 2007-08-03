@@ -1301,37 +1301,6 @@ static bool RGL_BuildWalls(drawfloor_t *dfloor, seg_t *seg)
 	return false;
 }
 
-///---//
-///---// RGL_DrawSeg
-///---//
-///---static void RGL_DrawSeg(seg_t *seg)
-///---{
-///---	drawfloor_t *dfloor;
-///---
-///---	cur_seg = seg;
-///---
-///---#if (DEBUG >= 2)
-///---	L_WriteDebug("   DRAW SEG %p\n", seg);
-///---#endif
-///---
-///---	SYS_ASSERT(!seg->miniseg && seg->linedef);
-///---
-///---	// mark the segment on the automap
-///---	seg->linedef->flags |= MLF_Mapped;
-///---
-///---	// --- handle each floor ---
-///---
-///---	frontsector = seg->front_sub->sector;
-///---	backsector  = NULL;
-///---
-///---	if (seg->back_sub)
-///---		backsector = seg->back_sub->sector;
-///---
-///---	for (dfloor=cur_sub->floors; dfloor; dfloor=dfloor->next)
-///---	{
-///---		RGL_BuildWalls(dfloor);
-///---	}
-///---}
 
 //
 // RGL_WalkSeg
@@ -1885,18 +1854,6 @@ static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 #endif
 
 	dsub->floors.push_back(dfloor);
-
-///---	// add to tail of height order list (for sprite clipping)
-///---	for (tail=cur_sub->z_floors; tail && tail->higher; tail=tail->higher)
-///---	{ /* nothing here */ }
-///---
-///---	dfloor->higher = NULL;
-///---	dfloor->lower = tail;
-///---
-///---	if (tail)
-///---		tail->higher = dfloor;
-///---	else
-///---		cur_sub->z_floors = dfloor;
 
 	if (use_dlights)
 	{
