@@ -29,7 +29,7 @@
 #include "r_misc.h"
 #include "r_state.h"
 #include "r_gldefs.h"
-#include "v_ctx.h"
+#include "r_draw.h"
 #include "z_zone.h"
 
 /* #define TEST_CAMERA_CLASS 1 */

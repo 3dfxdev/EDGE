@@ -43,7 +43,7 @@
 #include "r_image.h"
 #include "r_units.h"
 #include "gui_main.h"
-#include "v_ctx.h"
+#include "r_draw.h"
 
 // Globals
 int SCREENWIDTH;
