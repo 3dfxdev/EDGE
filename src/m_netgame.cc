@@ -58,7 +58,7 @@
 #include "r_modes.h"
 #include "r_colors.h"
 #include "w_wad.h"
-#include "wi_stuff.h"
+#include "f_stats.h"
 #include "z_zone.h"
 
 

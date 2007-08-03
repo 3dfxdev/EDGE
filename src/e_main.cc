@@ -72,7 +72,7 @@
 #include "r_image.h"
 #include "w_texture.h"
 #include "w_wad.h"
-#include "wi_stuff.h"
+#include "f_stats.h"
 #include "z_zone.h"
 
 #include "errorcodes.h"

@@ -34,7 +34,7 @@
 #include "sv_chunk.h"
 #include "sv_main.h"
 #include "w_wad.h"
-#include "wi_stuff.h"
+#include "f_stats.h"
 #include "z_zone.h"
 
 #include <string.h>
