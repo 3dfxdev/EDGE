@@ -154,20 +154,20 @@ public:
 }
 mirror_info_t;
 
-#define MAX_MIRRORS  3
+#define MAX_MIRRORS  1
 
 static mirror_info_t active_mirrors[MAX_MIRRORS];
 
-static int num_active_mirrors = 0;
+int num_active_mirrors = 0;
 
 
-static inline void MIR_Coordinate(float& x, float& y)
+void MIR_Coordinate(float& x, float& y)
 {
 	for (int i=0; i < num_active_mirrors; i++)
 		active_mirrors[i].Flip(x, y);
 }
 
-static void MIR_SetupClippers()
+static void MIR_SetClippers()
 {
 	if (num_active_mirrors == 0)
 	{
@@ -184,8 +184,8 @@ static void MIR_SetupClippers()
 	// FIXME: multiple mirrors
 	
 	glEnable(GL_CLIP_PLANE0);  // front
-	glEnable(GL_CLIP_PLANE1);  // left
-	glEnable(GL_CLIP_PLANE2);  // right
+  	glEnable(GL_CLIP_PLANE1);  // left
+   	glEnable(GL_CLIP_PLANE2);  // right
 
 	GLdouble front_p[4];
 	GLdouble  left_p[4];
@@ -193,13 +193,21 @@ static void MIR_SetupClippers()
 
 	line_t *ld = active_mirrors[num_active_mirrors-1].def->line;
 
-	vec2_t left_v;   left_v.Set(ld->v1->x, ld->v1->y);
-	vec2_t right_v; right_v.Set(ld->v2->x, ld->v2->y);
-	vec2_t eye_v;     eye_v.Set(viewx, viewy);
+	vec2_t left_v;
+	vec2_t right_v;
+	vec2_t eye_v;
 
-	ClipPlaneHorizontalLine(front_p, left_v, right_v, false);
+	 left_v.Set(ld->v1->x, ld->v1->y);
+	right_v.Set(ld->v2->x, ld->v2->y);
+	  eye_v.Set(viewx, viewy);
+
+	ClipPlaneHorizontalLine(front_p, left_v, right_v, true);
 	ClipPlaneHorizontalLine( left_p, eye_v,   left_v, false);
-	ClipPlaneHorizontalLine(right_p, eye_v,  right_v, true);
+  	ClipPlaneHorizontalLine(right_p, eye_v,  right_v, true);
+
+	glClipPlane(GL_CLIP_PLANE0, front_p);
+	glClipPlane(GL_CLIP_PLANE1, left_p);
+  	glClipPlane(GL_CLIP_PLANE2, right_p);
 }
 
 static bool MIR_Push(drawmirror_c *mir)
@@ -212,7 +220,7 @@ static bool MIR_Push(drawmirror_c *mir)
 
 	num_active_mirrors++;
 
-	MIR_SetupClippers();
+	MIR_SetClippers();
 
 	return true;
 }
@@ -223,7 +231,7 @@ static void MIR_Pop()
 
 	num_active_mirrors--;
 
-	MIR_SetupClippers();
+	MIR_SetClippers();
 }
 
 
@@ -800,6 +808,15 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	float y1 = cur_seg->v1->y;
 	float x2 = cur_seg->v2->x;
 	float y2 = cur_seg->v2->y;
+
+MIR_Coordinate(x1, y1);
+MIR_Coordinate(x2, y2);
+
+if (num_active_mirrors % 2)
+{
+	float tx = x1; x1 = x2; x2 = tx;
+	float ty = y1; y1 = y2; y2 = ty;
+}
 
 	float xy_ofs = cur_seg->offset;
 	float xy_len = cur_seg->length;
@@ -1417,6 +1434,28 @@ static bool RGL_BuildWalls(drawfloor_t *dfloor, seg_t *seg)
 static void RGL_WalkBSPNode(unsigned int bspnum);
 
 
+static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg)
+{
+	subsector_t *save_sub = cur_sub;
+
+	drawmirror_c *mir = R_GetDrawMirror();
+	mir->Clear(seg->linedef);
+
+	dsub->mirrors.push_back(mir);
+
+	// push mirror (translation matrix)
+	MIR_Push(mir);
+
+	// perform another BSP walk
+	RGL_WalkBSPNode(root_node);
+
+	// pop mirror
+	MIR_Pop();
+
+	cur_sub = save_sub;
+}
+
+
 //
 // RGL_WalkSeg
 //
@@ -1428,24 +1467,31 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 	angle_t angle1, angle2;
 	angle_t span, tspan1, tspan2;
 
-	// compute distances
-#if 0
+	// ignore segs sitting on current mirror
+	if (num_active_mirrors > 0 && seg->linedef ==
+		active_mirrors[num_active_mirrors-1].def->line)
+		return;
+
+//  float l_viewx = viewx, l_viewy = viewy;
+//	MIR_Coordinate(l_viewx, l_viewy);
+	
+	float sx1 = seg->v1->x;
+	float sy1 = seg->v1->y;
+
+	float sx2 = seg->v2->x;
+	float sy2 = seg->v2->y;
+
+	MIR_Coordinate(sx1, sy1);
+	MIR_Coordinate(sx2, sy2);
+
+	if (num_active_mirrors % 2)
 	{
-		float tx1 = seg->v1->x - viewx;
-		float ty1 = seg->v1->y - viewy;
-		float tx2 = seg->v2->x - viewx;
-		float ty2 = seg->v2->y - viewy;
-
-		seg->tx1 = tx1 * viewsin - ty1 * viewcos;
-		seg->tz1 = tx1 * viewcos + ty1 * viewsin;
-
-		seg->tx2 = tx2 * viewsin - ty2 * viewcos;
-		seg->tz2 = tx2 * viewcos + ty2 * viewsin;
+		float tx = sx1; sx1 = sx2; sx2 = tx;
+		float ty = sy1; sy1 = sy2; sy2 = ty;
 	}
-#endif
 
-	angle1 = R_PointToAngle(viewx, viewy, seg->v1->x, seg->v1->y);
-	angle2 = R_PointToAngle(viewx, viewy, seg->v2->x, seg->v2->y);
+	angle1 = R_PointToAngle(viewx, viewy, sx1, sy1);
+	angle2 = R_PointToAngle(viewx, viewy, sx2, sy2);
 
 #if (DEBUG >= 3)
 	L_WriteDebug( "INIT ANGLE1 = %1.2f  ANGLE2 = %1.2f\n", 
@@ -1524,22 +1570,11 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 		(num_active_mirrors < MAX_MIRRORS))
 	{
 		// FIXME: check if linedef already seen
+		// if (XXX) return;
 
-		drawmirror_c *mir = R_GetDrawMirror();
-		mir->Clear(seg->linedef);
+		RGL_WalkMirror(dsub, seg);
 
-		dsub->mirrors.push_back(mir);
-
-		// push mirror (translation matrix)
-		MIR_Push(mir);
-
-		// perform another BSP walk
-//!!!!!!		RGL_WalkBSPNode(root_node);
-
-		// pop mirror
-		MIR_Pop();
-
-		RGL_1DOcclusionSet(angle2, angle1);
+//!!!!!!		RGL_1DOcclusionSet(angle2, angle1);
 		return;
 	}
 
@@ -1559,7 +1594,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 
 	if (seg->linedef->blocked)
 	{
-		RGL_1DOcclusionSet(angle2, angle1);
+//!!!!!!		RGL_1DOcclusionSet(angle2, angle1);
 	}
 
 	// --- handle sky (using the depth buffer) ---
@@ -1617,6 +1652,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 
 bool RGL_CheckBBox(float *bspcoord)
 {
+return true; //!!!!!! MIRRORS
 	int boxx, boxy;
 	int boxpos;
 
@@ -1696,7 +1732,6 @@ bool RGL_CheckBBox(float *bspcoord)
 static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 						  surface_t *surf, int face_dir)
 {
-return; //!!!!!!
 	seg_t *seg;
 
 	bool mid_masked = ! surf->image->img_solid;
@@ -1807,7 +1842,12 @@ return; //!!!!!!
 	for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
 		seg=seg->sub_next, i++)
 	{
-		PQ_ADD_VERT(poly, seg->v1->x, seg->v1->y, h);
+		float x = seg->v1->x;
+		float y = seg->v1->y;
+			
+MIR_Coordinate(x, y);
+
+		PQ_ADD_VERT(poly, x, y, h);
 	}
 
 	RGL_BoundPolyQuad(poly);
@@ -2116,7 +2156,10 @@ static void RGL_WalkSubsector(int num)
 
 	// add drawsub to list (closest -> furthest)
 
-	drawsubs.push_back(K);
+	if (num_active_mirrors > 0)
+		active_mirrors[num_active_mirrors-1].def->drawsubs.push_back(K);
+	else
+		drawsubs.push_back(K);
 }
 
 
@@ -2131,7 +2174,7 @@ static void RGL_DrawSubList(std::list<drawsub_c *> &dsubs)
 
 	std::list<drawsub_c *>::iterator FI;  // Forward Iterator
 
-	for (FI = drawsubs.begin(); FI != drawsubs.end(); FI++)
+	for (FI = dsubs.begin(); FI != dsubs.end(); FI++)
 		RGL_DrawSubsector(*FI);
 
 	RGL_FinishUnits();
@@ -2142,7 +2185,7 @@ static void RGL_DrawSubList(std::list<drawsub_c *> &dsubs)
 
 	std::list<drawsub_c *>::reverse_iterator RI;
 
-	for (RI = drawsubs.rbegin(); RI != drawsubs.rend(); RI++)
+	for (RI = dsubs.rbegin(); RI != dsubs.rend(); RI++)
 		RGL_DrawSubsector(*RI);
 
 	RGL_FinishUnits();
@@ -2155,9 +2198,9 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	float alpha = 0.88 - 0.12 * num_active_mirrors;
+	float alpha = 0.1; //!!!! 0.12 * (num_active_mirrors + 1);
 
-	glColor4f(1.0, 0.0, 0.0, alpha);
+	glColor4f(0.0, 1.0, 0.0, alpha);
 
 	float x1 = mir->line->v1->x;
 	float y1 = mir->line->v1->y;
@@ -2221,6 +2264,8 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 		}
 	}
 
+	cur_sub = sub;
+
 	//!!!!! FIXME
 	// if (! dsub->sorted) std::sort(dsub->floors.begin(), dsub->floors.end(), SORTER)
 
@@ -2243,7 +2288,7 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 
 		if (! solid_mode)
 		{
-//!!!!!!		RGL_DrawSortThings(dfloor);
+			RGL_DrawSortThings(dfloor);
   		}
 	}
 }
@@ -2269,7 +2314,23 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 	node = &nodes[bspnum];
 
 	// Decide which side the view point is on.
-	side = P_PointOnDivlineSide(viewx, viewy, &node->div);
+
+//	float l_viewx = viewx, l_viewy = viewy;
+//  MIR_Coordinate(l_viewx, l_viewy);
+
+	divline_t nd_div;
+	nd_div.x = node->div.x;
+	nd_div.y = node->div.y;
+	nd_div.dx = node->div.x + node->div.dx;
+	nd_div.dy = node->div.y + node->div.dy;
+
+	MIR_Coordinate(nd_div.x, nd_div.y);
+	MIR_Coordinate(nd_div.dx, nd_div.dy);
+
+	nd_div.dx -= nd_div.x;
+	nd_div.dy -= nd_div.y;
+	
+	side = P_PointOnDivlineSide(viewx, viewy, &nd_div);
 
 #if (DEBUG >= 2)
 	L_WriteDebug( "NODE %d (%1.1f, %1.1f) -> (%1.1f, %1.1f)  SIDE %d\n",

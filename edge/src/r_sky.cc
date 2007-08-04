@@ -270,6 +270,7 @@ void RGL_FinishSky(void)
 {
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
+return; //!!!!!!
 	if (! need_to_draw_sky)
 		return;
 
