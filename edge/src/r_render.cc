@@ -154,7 +154,7 @@ public:
 }
 mirror_info_t;
 
-#define MAX_MIRRORS  1
+#define MAX_MIRRORS  2
 
 static mirror_info_t active_mirrors[MAX_MIRRORS];
 
@@ -1018,6 +1018,11 @@ if (num_active_mirrors % 2)
 	tex_x1 = tex_x1 / total_w;
 	tex_x2 = tex_x2 / total_w;
 
+//??	if (num_active_mirrors % 2)
+//??	{
+//??		float t = tex_x1; tex_x1 = tex_x2; tex_x2 = t;
+//??	}
+
 	data.tx  = tex_x1;
 	data.tdx = tex_x2 - tex_x1;
 
@@ -1034,10 +1039,10 @@ if (num_active_mirrors % 2)
 	data.normal.y = (x1 - x2);
 	data.normal.z = 0;
 
-	data.div.x  = cur_seg->v1->x;
-	data.div.y  = cur_seg->v1->y;
-	data.div.dx = cur_seg->v2->x - data.div.x;
-	data.div.dy = cur_seg->v2->y - data.div.y;
+	data.div.x  = x1; ///--- cur_seg->v1->x;
+	data.div.y  = y1; ///--- cur_seg->v1->y;
+	data.div.dx = x2 - x1; ///--- cur_seg->v2->x - data.div.x;
+	data.div.dy = y2 - y1; ///--- cur_seg->v2->y - data.div.y;
 
 	data.cmx = 0;
 
@@ -1434,12 +1439,21 @@ static bool RGL_BuildWalls(drawfloor_t *dfloor, seg_t *seg)
 static void RGL_WalkBSPNode(unsigned int bspnum);
 
 
-static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg)
+static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
+						   angle_t left, angle_t right)
 {
 	subsector_t *save_sub = cur_sub;
 
 	drawmirror_c *mir = R_GetDrawMirror();
 	mir->Clear(seg->linedef);
+
+	mir->left  = left;
+	mir->right = right;
+
+	if (num_active_mirrors > 0)
+	{
+		// UPDATE left and right : ARGH !!
+	}
 
 	dsub->mirrors.push_back(mir);
 
@@ -1572,7 +1586,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 		// FIXME: check if linedef already seen
 		// if (XXX) return;
 
-		RGL_WalkMirror(dsub, seg);
+		RGL_WalkMirror(dsub, seg, angle1, angle2);
 
 //!!!!!!		RGL_1DOcclusionSet(angle2, angle1);
 		return;
@@ -2198,9 +2212,9 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	float alpha = 0.1; //!!!! 0.12 * (num_active_mirrors + 1);
+	float alpha = 0.12 * (num_active_mirrors + 1);
 
-	glColor4f(0.0, 1.0, 0.0, alpha);
+	glColor4f(0.0, 0.0, 0.0, alpha);
 
 	float x1 = mir->line->v1->x;
 	float y1 = mir->line->v1->y;
@@ -2319,12 +2333,12 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 //  MIR_Coordinate(l_viewx, l_viewy);
 
 	divline_t nd_div;
-	nd_div.x = node->div.x;
-	nd_div.y = node->div.y;
-	nd_div.dx = node->div.x + node->div.dx;
-	nd_div.dy = node->div.y + node->div.dy;
+	nd_div.x  = node->div.x;
+	nd_div.y  = node->div.y;
+	nd_div.dx = node->div.dx + node->div.x;
+	nd_div.dy = node->div.dy + node->div.y;
 
-	MIR_Coordinate(nd_div.x, nd_div.y);
+	MIR_Coordinate(nd_div.x,  nd_div.y);
 	MIR_Coordinate(nd_div.dx, nd_div.dy);
 
 	nd_div.dx -= nd_div.x;
