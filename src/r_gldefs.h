@@ -236,6 +236,8 @@ class drawmirror_c
 public:
 	line_t *line;
 
+	angle_t left, right;
+
 	std::list<drawsub_c *> drawsubs;
 
 public:
