@@ -117,6 +117,9 @@ static const image_c *shadow_image = NULL;
 
 // ========= MIRROR STUFF ===========
 
+static void ClipPlaneHorizontalLine(GLdouble *p, const vec2_t& s,
+	const vec2_t& e, bool flip);
+
 typedef struct
 {
 	drawmirror_c *def;
@@ -127,18 +130,18 @@ typedef struct
 public:
 	void ComputeMirror()
 	{
-		line_t *ld = def->line;
+		line_t *line = def->line;
 
-		float len_p2 = ld->length * ld->length;
+		float len_p2 = line->length * line->length;
 
-		float A = (ld->dx * ld->dx - ld->dy * ld->dy) / len_p2;
-		float B = (ld->dx * ld->dy + ld->dx * ld->dy) / len_p2;
+		float A = (line->dx * line->dx - line->dy * line->dy) / len_p2;
+		float B = (line->dx * line->dy + line->dx * line->dy) / len_p2;
 
-		mir->xx = A; mir->xy =  B;
-		mir->yx = B; mir->yy = -A;
+		xx = A; xy =  B;
+		yx = B; yy = -A;
 
-		mir->xc = ld->v1->x * (1.0-A) - ld->v1->y * B;
-		mir->yc = ld->v1->y * (1.0+A) - ld->v1->x * B;
+		xc = line->v1->x * (1.0-A) - line->v1->y * B;
+		yc = line->v1->y * (1.0+A) - line->v1->x * B;
 	}
 
 	void Flip(float& x, float& y)
@@ -148,7 +151,80 @@ public:
 		x = xc + tx*xx + ty*xy;
 		y = yc + tx*yx + ty*yy;
 	}
-};
+}
+mirror_info_t;
+
+#define MAX_MIRRORS  3
+
+static mirror_info_t active_mirrors[MAX_MIRRORS];
+
+static int num_active_mirrors = 0;
+
+
+static inline void MIR_Coordinate(float& x, float& y)
+{
+	for (int i=0; i < num_active_mirrors; i++)
+		active_mirrors[i].Flip(x, y);
+}
+
+static void MIR_SetupClippers()
+{
+	if (num_active_mirrors == 0)
+	{
+		glDisable(GL_CLIP_PLANE0);
+		glDisable(GL_CLIP_PLANE1);
+		glDisable(GL_CLIP_PLANE2);
+		glDisable(GL_CLIP_PLANE3);
+		glDisable(GL_CLIP_PLANE4);
+		glDisable(GL_CLIP_PLANE5);
+
+		return;
+	}
+
+	// FIXME: multiple mirrors
+	
+	glEnable(GL_CLIP_PLANE0);  // front
+	glEnable(GL_CLIP_PLANE1);  // left
+	glEnable(GL_CLIP_PLANE2);  // right
+
+	GLdouble front_p[4];
+	GLdouble  left_p[4];
+	GLdouble right_p[4];
+
+	line_t *ld = active_mirrors[num_active_mirrors-1].def->line;
+
+	vec2_t left_v;   left_v.Set(ld->v1->x, ld->v1->y);
+	vec2_t right_v; right_v.Set(ld->v2->x, ld->v2->y);
+	vec2_t eye_v;     eye_v.Set(viewx, viewy);
+
+	ClipPlaneHorizontalLine(front_p, left_v, right_v, false);
+	ClipPlaneHorizontalLine( left_p, eye_v,   left_v, false);
+	ClipPlaneHorizontalLine(right_p, eye_v,  right_v, true);
+}
+
+static bool MIR_Push(drawmirror_c *mir)
+{
+	if (num_active_mirrors == MAX_MIRRORS)
+		return false;
+
+	active_mirrors[num_active_mirrors].def = mir;
+	active_mirrors[num_active_mirrors].ComputeMirror();
+
+	num_active_mirrors++;
+
+	MIR_SetupClippers();
+
+	return true;
+}
+
+static void MIR_Pop()
+{
+	SYS_ASSERT(num_active_mirrors > 0);
+
+	num_active_mirrors--;
+
+	MIR_SetupClippers();
+}
 
 
 // ============================================================================
@@ -1056,6 +1132,8 @@ RGL_DrawUnits();
 static void EmulateFlooding(const drawfloor_t *dfloor,
 	const sector_t *flood_ref, int face_dir, float h1, float h2)
 {
+	if (num_active_mirrors > 0) return;
+
 	const surface_t *info = (face_dir > 0) ? &flood_ref->floor :
 		&flood_ref->ceil;
 
@@ -1442,21 +1520,28 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 	if (seg->miniseg)
 		return;
 
-	if (seg->linedef->flags & MLF_Mirror)
+	if ((seg->linedef->flags & MLF_Mirror) &&
+		(num_active_mirrors < MAX_MIRRORS))
 	{
 		// FIXME: check if linedef already seen
 
+		drawmirror_c *mir = R_GetDrawMirror();
+		mir->Clear(seg->linedef);
+
+		dsub->mirrors.push_back(mir);
+
 		// push mirror (translation matrix)
+		MIR_Push(mir);
 
 		// perform another BSP walk
-		RGL_WalkBSPNode(root_node);
+//!!!!!!		RGL_WalkBSPNode(root_node);
 
 		// pop mirror
+		MIR_Pop();
 
 		RGL_1DOcclusionSet(angle2, angle1);
 		return;
 	}
-
 
 	drawseg_c *dseg = R_GetDrawSeg();
 	dseg->seg = seg;
@@ -2064,20 +2149,55 @@ static void RGL_DrawSubList(std::list<drawsub_c *> &dsubs)
 }
 
 
-static void RGL_DrawMirror(drawmirror_c *dmir)
+static void DrawMirrorPolygon(drawmirror_c *mir)
+{
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	float alpha = 0.88 - 0.12 * num_active_mirrors;
+
+	glColor4f(1.0, 0.0, 0.0, alpha);
+
+	float x1 = mir->line->v1->x;
+	float y1 = mir->line->v1->y;
+	float z1 = mir->line->frontsector->f_h;
+
+	float x2 = mir->line->v2->x;
+	float y2 = mir->line->v2->y;
+	float z2 = mir->line->frontsector->c_h;
+
+	MIR_Coordinate(x1, y1);
+	MIR_Coordinate(x2, y2);
+
+	glBegin(GL_POLYGON);
+
+	glVertex3f(x1, y1, z1);
+	glVertex3f(x1, y1, z2);
+	glVertex3f(x2, y2, z2);
+	glVertex3f(x2, y2, z1);
+
+	glEnd();
+
+	glDisable(GL_BLEND);
+}
+
+static void RGL_DrawMirror(drawmirror_c *mir)
 {
 	// FIXME: push mirror (clip planes | translation matrix)
 
+	MIR_Push(mir);
+
 	RGL_FinishUnits();
 
-	RGL_DrawSubList(dmir->drawsubs);
+	RGL_DrawSubList(mir->drawsubs);
 
-	// FIXME: draw polygon over mirror linedef
+	MIR_Pop();
 
 	solid_mode = true;
 	RGL_StartUnits(solid_mode);
 
-	// FIXME: pop mirror
+	DrawMirrorPolygon(mir);
 }
 
 
