@@ -60,6 +60,10 @@ int rgl_weapon_b;
 #define MINZ        (4.0f)
 
 
+extern void MIR_Coordinate(float& x, float& y);
+extern int num_active_mirrors;
+
+	
 void RGL_UpdateTheFuzz(void)
 {
 	// fuzzy warping effect
@@ -144,7 +148,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 		if (doom_fading)
 		{
-			L = EMU_LIGHT(L, 160.0f);
+			L = (int)EMU_LIGHT(L, 160.0f);
 			L = RGL_LightEmu((L < 0) ? 0 : (L > 255) ? 255 : L);
 		}
 		else
@@ -365,7 +369,7 @@ static inline void LinkDrawthingIntoDrawfloor(
 //
 // Can return NULL, for no image.
 //
-const image_c * R2_GetThingSprite(mobj_t *mo, bool *flip)
+static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *flip)
 {
 	// decide which patch to use for sprite relative to player
 
@@ -398,9 +402,21 @@ const image_c * R2_GetThingSprite(mobj_t *mo, bool *flip)
 
 	int rot = 0;
 
+angle_t ang = mo->angle;
+
+if (num_active_mirrors > 0)
+{
+	float nx = mo->x + M_Cos(ang);
+	float ny = mo->y + M_Sin(ang);
+
+	MIR_Coordinate(nx, ny);
+
+	ang = R_PointToAngle(mx, my, nx, ny);
+}
+
 	if (frame->rotated)
-		rot = frame->CalcRot(mo->angle,
-			R_PointToAngle(viewx, viewy, mo->x, mo->y));
+		rot = frame->CalcRot(ang,
+			R_PointToAngle(viewx, viewy, mx, my));
 
 	SYS_ASSERT(0 <= rot && rot < 16);
 
@@ -425,7 +441,7 @@ const image_c * R2_GetOtherSprite(int spritenum, int framenum, bool *flip)
 #ifdef DEVELOPERS
 	// this shouldn't happen
 	if ((unsigned int)spritenum >= (unsigned int)numsprites)
-		I_Error("R2_GetThingSprite: invalid sprite number %i.\n", spritenum);
+		I_Error("R2_GetOtherSprite: invalid sprite number %i.\n", spritenum);
 #endif
 
 	sprite = sprites[spritenum];
@@ -670,16 +686,24 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 {
 	// ignore the player him/herself
+if (num_active_mirrors == 0)
+{
 	if (mo == players[displayplayer]->mo)
 		return;
-
+}
 	// ignore invisible things
 	if (mo->visibility == INVISIBLE)
 		return;
 
 	// transform the origin point
-	float tr_x = mo->x - viewx;
-	float tr_y = mo->y - viewy;
+float mx = mo->x, my = mo->y;
+float vx = viewx, vy = viewy;
+
+MIR_Coordinate(mx, my);
+/// MIR_Coordinate(vx, vy);
+	
+	float tr_x = mx - vx;
+	float tr_y = my - vy;
 
 	float tz = tr_x * viewcos + tr_y * viewsin;
 
@@ -697,11 +721,13 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 		return;
 
 	bool spr_flip;
-	const image_c *image = R2_GetThingSprite(mo, &spr_flip);
+	const image_c *image = R2_GetThingSprite2(mo, mx, my, &spr_flip);
 
 	if (!image)
 		return;
 
+// if (num_active_mirrors % 2) spr_flip = !spr_flip;
+		
 	// calculate edges of the shape
 	float sprite_width  = IM_WIDTH(image);
 	float sprite_height = IM_HEIGHT(image);
@@ -776,6 +802,8 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	dthing->Clear();
 
 	dthing->mo = mo;
+	dthing->mx = mx;
+	dthing->my = my;
 	dthing->props = dsub->floors[0]->props;
 	dthing->clip_vert = clip_vert;
 
@@ -914,7 +942,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 			float dist = APPROX_DIST3(dx, dy, dz);
 
-			L = EMU_LIGHT(L, dist);
+			L = (int)EMU_LIGHT(L, dist);
 			L = RGL_LightEmu((L < 0) ? 0 : (L > 255) ? 255 : L);
 		}
 		else
@@ -938,10 +966,10 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	float x1b, y1b, z1b, x1t, y1t, z1t;
 	float x2b, y2b, z2b, x2t, y2t, z2t;
 
-	x1b = x1t = dthing->mo->x + dthing->left_dx;
-	y1b = y1t = dthing->mo->y + dthing->left_dy;
-	x2b = x2t = dthing->mo->x + dthing->right_dx;
-	y2b = y2t = dthing->mo->y + dthing->right_dy;
+	x1b = x1t = dthing->mx + dthing->left_dx;
+	y1b = y1t = dthing->my + dthing->left_dy;
+	x2b = x2t = dthing->mx + dthing->right_dx;
+	y2b = y2t = dthing->my + dthing->right_dy;
 
 	z1b = z2b = dthing->bottom;
 	z1t = z2t = dthing->top;

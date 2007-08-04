@@ -131,6 +131,8 @@ public:
 	// actual map object
 	mobj_t *mo;
 
+	float mx, my;
+
 	// vertical extent of sprite (world coords)
 	float top;
 	float bottom;

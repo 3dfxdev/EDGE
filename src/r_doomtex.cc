@@ -959,7 +959,7 @@ static void CreateUserBuiltinCOLMAP(epi::image_data_c *img, imagedef_c *def)
 	{
 		byte *dest = img->pixels + (y * img->width + x) * 4;
 
-		float dist = 2048.0f * x / img->width;
+		float dist = 160.0; //!!!!!! 2048.0f * x / img->width;
 
 		dist = MIN(2000.0f, dist);
 
