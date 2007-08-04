@@ -483,6 +483,11 @@ static void P_LineEffect(line_t *target, line_t *source,
 		target->side[1]->middle.translucency = 0.5f;
 	}
 
+	if ((special->line_effect & LINEFX_Mirror) && !source->side[1])
+	{
+		source->flags |= MLF_Mirror;
+	}
+
 	if (special->line_effect & LINEFX_VectorScroll)
 	{
 		// -AJA- Note: these values are the same as in BOOM, which doesn't

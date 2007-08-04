@@ -63,45 +63,6 @@ public:
 	{ }
 };
 
-///---// Screen mode list object
-///---class scrmodelist_c : public epi::array_c
-///---{
-///---public:
-///---	scrmodelist_c() : epi::array_c(sizeof(scrmode_t*)) {}
-///---	~scrmodelist_c() { Clear(); } 
-///---
-///---	enum incrementtype_e { RES, DEPTH, WINDOWMODE };
-///---
-///---private:
-///---	void CleanupObject(void *obj)
-///---	{
-///---		scrmode_t* sm = *(scrmode_t**)obj; 
-///---		
-///---		if (sm) 
-///---			delete sm;
-///---	};
-///---
-///---public:
-///---	int Add(scrmode_t *sm);
-///---
-///---    int Compare(scrmode_t *sm1, scrmode_t *sm2);
-///---
-///---	void Dump(void);
-///---
-///---	int Find(int w, int h, int bpp, bool full);
-///---	int FindNearest(int w, int h, int bpp, bool full);
-///---	int FindWithDepthBias(int w, int h, int bpp, bool full);
-///---	int FindWithWindowModeBias(int w, int h, int bpp, bool full);
-///---
-///---	scrmode_t* GetAt(int idx) { return *(scrmode_t**)FetchObject(idx); } 
-///---
-///---	int GetSize() {	return array_entries; } 
-///---	
-///---	int Prev(int idx, incrementtype_e type);
-///---	int Next(int idx, incrementtype_e type);
-///---	
-///---	scrmode_t* operator[](int idx) { return *(scrmode_t**)FetchObject(idx); } 
-///---};
 
 // Exported Vars
 extern int SCREENWIDTH;
