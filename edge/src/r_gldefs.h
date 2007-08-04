@@ -109,6 +109,8 @@ extern int var_farclip;
 
 struct drawfloor_s;
 
+class drawsub_c;
+
 
 //
 //  R2_BSP
@@ -232,15 +234,27 @@ class drawmirror_c
 public:
 	line_t *line;
 
+	std::list<drawsub_c *> drawsubs;
+
+public:
+	drawmirror_c() : line(NULL), drawsubs()
+	{ }
+
+	~drawmirror_c()
+	{ /* FIXME !!!! */ }
+
+	void Clear(line_t *ld)
+	{
+		line = ld;
+		drawsubs.clear();
+	}
 };
 
 
-class drawseg_c
+class drawseg_c   // HOPEFULLY this can go away
 {
 public:
 	seg_t *seg;
-
-	drawmirror_c *mirror;
 };
 
 
@@ -257,11 +271,13 @@ public:
 
 	std::list<drawseg_c *> segs;
 
+	std::list<drawmirror_c *> mirrors;
+
 	bool visible;
 	bool sorted;
 
 public:
-	drawsub_c() : sub(NULL), floors(), segs()
+	drawsub_c() : sub(NULL), floors(), segs(), mirrors()
 	{ }
 
 	~drawsub_c()
@@ -270,9 +286,12 @@ public:
 	void Clear(subsector_t *ss)
 	{
 		sub = ss;
+		visible = false;
+		sorted  = false;
+
 		floors.clear();
 		segs.clear();
-		visible = sorted = false;
+		mirrors.clear();
 	}
 };
 

@@ -124,6 +124,7 @@ typedef enum
 	MLF_SightBlock  = 0x1000,
 
 	// ----- internal flags -----
+	MLF_Mirror = (1 << 16),
 }
 lineflag_e;
 

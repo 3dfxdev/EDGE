@@ -113,10 +113,43 @@ static const image_c *fading_image = NULL;
 #ifdef SHADOW_PROTOTYPE
 static const image_c *shadow_image = NULL;
 #endif
-#ifdef DLIGHT_PROTOTYPE
-static const image_c *linear_image = NULL;
-static const image_c *quad_image = NULL;
-#endif
+
+
+// ========= MIRROR STUFF ===========
+
+typedef struct
+{
+	drawmirror_c *def;
+
+	float xc, xx, xy;  // x' = xc + x*xx + y*xy
+	float yc, yx, yy;  // y' = yc + x*yx + y*yy
+
+public:
+	void ComputeMirror()
+	{
+		line_t *ld = def->line;
+
+		float len_p2 = ld->length * ld->length;
+
+		float A = (ld->dx * ld->dx - ld->dy * ld->dy) / len_p2;
+		float B = (ld->dx * ld->dy + ld->dx * ld->dy) / len_p2;
+
+		mir->xx = A; mir->xy =  B;
+		mir->yx = B; mir->yy = -A;
+
+		mir->xc = ld->v1->x * (1.0-A) - ld->v1->y * B;
+		mir->yc = ld->v1->y * (1.0+A) - ld->v1->x * B;
+	}
+
+	void Flip(float& x, float& y)
+	{
+		float tx = x, ty = y;
+
+		x = xc + tx*xx + ty*xy;
+		y = yc + tx*yx + ty*yy;
+	}
+};
+
 
 // ============================================================================
 // R2_BSP START
@@ -136,6 +169,7 @@ int doom_fading = 1;
 void R2_AddColourDLights(int num, int *r, int *g, int *b, 
 						 float *x, float *y, float *z, mobj_t *mo)
 {
+#if 0
 	float base_qty = mo->dlight[0].r;
 	float mo_z = mo->z + mo->height * PERCENT_2_FLOAT(mo->info->dlight0.height);
 
@@ -166,7 +200,7 @@ void R2_AddColourDLights(int num, int *r, int *g, int *b,
 
 		default:  //!!!!! FIXME
 			break;
-#if 0
+
 		case DLITE_Linear:
 			for (; num > 0; num--, r++, g++, b++, x++, y++, z++)
 			{
@@ -194,8 +228,8 @@ void R2_AddColourDLights(int num, int *r, int *g, int *b,
 				(*b) += qty * B / 255;
 			}
 			break;
-#endif
 	}
+#endif
 }
 
 //
@@ -1079,7 +1113,7 @@ static void EmulateFlooding(const drawfloor_t *dfloor,
 
 	GLuint tex_id;
 
-	int lit_Nom = RGL_Light(props->lightlevel);
+//!!!!!!	int lit_Nom = RGL_Light(props->lightlevel);
 	const colourmap_c *colmap = props->colourmap;
 	float c_r, c_g, c_b;
 
@@ -1302,6 +1336,9 @@ static bool RGL_BuildWalls(drawfloor_t *dfloor, seg_t *seg)
 }
 
 
+static void RGL_WalkBSPNode(unsigned int bspnum);
+
+
 //
 // RGL_WalkSeg
 //
@@ -1405,10 +1442,24 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 	if (seg->miniseg)
 		return;
 
+	if (seg->linedef->flags & MLF_Mirror)
+	{
+		// FIXME: check if linedef already seen
+
+		// push mirror (translation matrix)
+
+		// perform another BSP walk
+		RGL_WalkBSPNode(root_node);
+
+		// pop mirror
+
+		RGL_1DOcclusionSet(angle2, angle1);
+		return;
+	}
+
 
 	drawseg_c *dseg = R_GetDrawSeg();
 	dseg->seg = seg;
-	dseg->mirror = NULL;
 
 	dsub->segs.push_back(dseg);
 
@@ -1560,6 +1611,7 @@ bool RGL_CheckBBox(float *bspcoord)
 static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 						  surface_t *surf, int face_dir)
 {
+return; //!!!!!!
 	seg_t *seg;
 
 	bool mid_masked = ! surf->image->img_solid;
@@ -1629,7 +1681,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	if (num_vert > MAX_PLVERT)
 		num_vert = MAX_PLVERT;
 
-	int lit_Nom = RGL_Light(props->lightlevel);
+//!!!!!!	int lit_Nom = RGL_Light(props->lightlevel);
 
 	data.light = props->lightlevel;
 	data.flood_emu = false;
@@ -1813,7 +1865,6 @@ static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 								   region_properties_t *props)
 {
 	drawfloor_t *dfloor;
-	drawfloor_t *tail;
 
 	dfloor = R_GetDrawFloor();
 	dfloor->Clear();
@@ -1827,6 +1878,8 @@ static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 	dfloor->props = props;
 
 #if 0
+	drawfloor_t *tail;
+
 	// link it in
 	// (order is very important)
 	if (cur_sub->floors == NULL || f_h > viewz)
@@ -1976,26 +2029,77 @@ static void RGL_WalkSubsector(int num)
 		RGL_WalkSeg(K, seg);
 	}
 
-	// add drawsub to list
-	// (add to head, thus the eventual order is furthest -> closest)
+	// add drawsub to list (closest -> furthest)
 
-	drawsubs.push_front(K);
+	drawsubs.push_back(K);
 }
 
 
-//
-// RGL_DrawSubsector
-//
+static void RGL_DrawSubsector(drawsub_c *dsub);
+
+
+static void RGL_DrawSubList(std::list<drawsub_c *> &dsubs)
+{
+	// draw all solid walls and planes
+	solid_mode = true;
+	RGL_StartUnits(solid_mode);
+
+	std::list<drawsub_c *>::iterator FI;  // Forward Iterator
+
+	for (FI = drawsubs.begin(); FI != drawsubs.end(); FI++)
+		RGL_DrawSubsector(*FI);
+
+	RGL_FinishUnits();
+
+	// draw all sprites and masked/translucent walls/planes
+	solid_mode = false;
+	RGL_StartUnits(solid_mode);
+
+	std::list<drawsub_c *>::reverse_iterator RI;
+
+	for (RI = drawsubs.rbegin(); RI != drawsubs.rend(); RI++)
+		RGL_DrawSubsector(*RI);
+
+	RGL_FinishUnits();
+}
+
+
+static void RGL_DrawMirror(drawmirror_c *dmir)
+{
+	// FIXME: push mirror (clip planes | translation matrix)
+
+	RGL_FinishUnits();
+
+	RGL_DrawSubList(dmir->drawsubs);
+
+	// FIXME: draw polygon over mirror linedef
+
+	solid_mode = true;
+	RGL_StartUnits(solid_mode);
+
+	// FIXME: pop mirror
+}
+
+
 static void RGL_DrawSubsector(drawsub_c *dsub)
 {
 	subsector_t *sub = dsub->sub;
-	drawfloor_t *dfloor;
 
 #if (DEBUG >= 1)
 	L_WriteDebug("\nREVISITING SUBSEC %d\n\n", (int)(sub - subsectors));
 #endif
 
 	cur_sub = sub;
+
+	if (solid_mode)
+	{
+		std::list<drawmirror_c *>::iterator MRI;
+
+		for (MRI = dsub->mirrors.begin(); MRI != dsub->mirrors.end(); MRI++)
+		{
+			RGL_DrawMirror(*MRI);
+		}
+	}
 
 	//!!!!! FIXME
 	// if (! dsub->sorted) std::sort(dsub->floors.begin(), dsub->floors.end(), SORTER)
@@ -2017,10 +2121,10 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 		RGL_DrawPlane(dfloor, dfloor->c_h, dfloor->ceil,  -1);
 		RGL_DrawPlane(dfloor, dfloor->f_h, dfloor->floor, +1);
 
-		if (solid_mode)
-			continue;
-
-		RGL_DrawSortThings(dfloor);
+		if (! solid_mode)
+		{
+//!!!!!!		RGL_DrawSortThings(dfloor);
+  		}
 	}
 }
 
@@ -2068,11 +2172,6 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 void RGL_LoadLights(void)
 {
 	fading_image = W_ImageLookup("COLMAP_TEST");
-
-#ifdef DLIGHT_PROTOTYPE
-//	linear_image = W_ImageLookup("DLIGHT_QUAD"); //!!!!!
-//	quad_image   = W_ImageLookup("DLIGHT_QUAD");
-#endif
 
 #ifdef SHADOW_PROTOTYPE
 	shadow_image = W_ImageLookup("SHADOW_STD");
@@ -2136,9 +2235,9 @@ void RGL_RenderTrueBSP(void)
 	// handle powerup effects
 	RGL_RainbowEffect(players[displayplayer]);
 
-	if (hom_detect)
+	if (true) //!!!!! hom_detect)
 	{
-		glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
+		glClearColor(0.5f, 0.0f, 0.5f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
@@ -2155,25 +2254,8 @@ void RGL_RenderTrueBSP(void)
 
 	RGL_FinishSky();
 
-	// draw all solid walls and planes
-	solid_mode = true;
-	RGL_StartUnits(solid_mode);
+	RGL_DrawSubList(drawsubs);
 
-	std::list<drawsub_c *>::iterator SI;
-
-	for (SI = drawsubs.begin(); SI != drawsubs.end(); SI++)
-		RGL_DrawSubsector(*SI);
-
-	RGL_FinishUnits();
-
-	// draw all sprites and masked/translucent walls/planes
-	solid_mode = false;
-	RGL_StartUnits(solid_mode);
-
-	for (SI = drawsubs.begin(); SI != drawsubs.end(); SI++)
-		RGL_DrawSubsector(*SI);
-
-	RGL_FinishUnits();
 	glDisable(GL_DEPTH_TEST);
 
 	// now draw 2D stuff like psprites, and add effects
