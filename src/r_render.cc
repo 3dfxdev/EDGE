@@ -1186,6 +1186,8 @@ RGL_DrawUnits();
 static void EmulateFlooding(const drawfloor_t *dfloor,
 	const sector_t *flood_ref, int face_dir, float h1, float h2)
 {
+	return; //!!!!!! FIXME: EmulateFlooding disabled for now (causes glitches)
+
 	if (num_active_mirrors > 0) return;
 
 	const surface_t *info = (face_dir > 0) ? &flood_ref->floor :
@@ -2258,9 +2260,9 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 		float B = RGB_BLU(mir->line->special->mirror_color);
 
 		// looks better with reduced color in multiple reflections
-		R *= 1.0 - 0.3 * num_active_mirrors;
-		G *= 1.0 - 0.3 * num_active_mirrors;
-		B *= 1.0 - 0.3 * num_active_mirrors;
+		R *= 1.0 - 0.35 * num_active_mirrors;
+		G *= 1.0 - 0.35 * num_active_mirrors;
+		B *= 1.0 - 0.35 * num_active_mirrors;
 
 		glColor4f(R, G, B, alpha);
 	}
