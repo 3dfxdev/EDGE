@@ -415,12 +415,18 @@ if (num_active_mirrors > 0)
 }
 
 	if (frame->rotated)
+{
 		rot = frame->CalcRot(ang,
 			R_PointToAngle(viewx, viewy, mx, my));
+
+if (num_active_mirrors % 2) rot = (16-rot) % 16;
+}
 
 	SYS_ASSERT(0 <= rot && rot < 16);
 
 	(*flip) = frame->flip[rot] ? true : false;
+
+if (num_active_mirrors % 2) (*flip) = !(*flip);
 
 	return frame->images[rot];
 }
@@ -726,8 +732,6 @@ MIR_Coordinate(mx, my);
 	if (!image)
 		return;
 
-// if (num_active_mirrors % 2) spr_flip = !spr_flip;
-		
 	// calculate edges of the shape
 	float sprite_width  = IM_WIDTH(image);
 	float sprite_height = IM_HEIGHT(image);
