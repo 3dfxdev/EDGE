@@ -2244,24 +2244,28 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	float alpha = 0.125 * (num_active_mirrors + 1);
+	float alpha = 0.1 * (num_active_mirrors + 1);
 
-	// TODO: set color in DDF
-	int IDX = (mir->line - lines);
-	if (IDX % 2)
+	if (mir->line->special)
 	{
-		if (IDX < 11)
-			glColor4f(0.0, 0.0, 1.0, alpha);
-		else
-			glColor4f(0.0, 1.0, 0.0, alpha);
+		float trans = PERCENT_2_FLOAT(mir->line->special->translucency);
+
+		// ignore the default value, which is 100%
+		if (trans < 0.95) alpha = MAX(alpha, trans);
+
+		float R = RGB_RED(mir->line->special->mirror_color);
+		float G = RGB_GRN(mir->line->special->mirror_color);
+		float B = RGB_BLU(mir->line->special->mirror_color);
+
+		// looks better with reduced color in multiple reflections
+		R *= 1.0 - 0.3 * num_active_mirrors;
+		G *= 1.0 - 0.3 * num_active_mirrors;
+		B *= 1.0 - 0.3 * num_active_mirrors;
+
+		glColor4f(R, G, B, alpha);
 	}
 	else
-	{
-		if (IDX < 11)
-			glColor4f(1.0, 0.0, 0.0, alpha);
-		else
-			glColor4f(1.0, 1.0, 0.0, alpha);
-	}
+		glColor4f(0.0, 0.0, 0.0, alpha);
 
 	float x1 = mir->line->v1->x;
 	float y1 = mir->line->v1->y;
