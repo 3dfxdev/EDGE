@@ -1,5 +1,22 @@
 Andrew Apted's Log
 
+2007/08/05:
+
+Continued working on mirrors, and finally nailed it, getting
+reflections of reflections working properly.  Now comes the
+next part (just as important): getting the occlusion culling
+working 100% so mirror levels are rendered at a decent speed.
+
+Added DDF commands to control the color and translucency of
+the mirror surfaces.
+
+2007/08/04:
+
+Let's talk about Mirrors.  The main insight I've had is they
+must be completely drawn (both hard and soft parts) BEFORE
+anything which can be drawn behind them.  This implies that
+the solid_mode rendering pass must go FRONT-to-BACK.
+
 2007/08/03:
 
 More rendering work, today removing the fields in seg_t and
