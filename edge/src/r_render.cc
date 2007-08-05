@@ -163,14 +163,13 @@ int num_active_mirrors = 0;
 
 void MIR_Coordinate(float& x, float& y)
 {
-	for (int i=0; i < num_active_mirrors; i++)
+//	for (int i=0; i < num_active_mirrors; i++)
+	for (int i=num_active_mirrors-1; i >= 0; i--)
 		active_mirrors[i].Flip(x, y);
 }
 
 static void MIR_SetClippers()
 {
-	if (num_active_mirrors == 0)
-	{
 		glDisable(GL_CLIP_PLANE0);
 		glDisable(GL_CLIP_PLANE1);
 		glDisable(GL_CLIP_PLANE2);
@@ -178,20 +177,22 @@ static void MIR_SetClippers()
 		glDisable(GL_CLIP_PLANE4);
 		glDisable(GL_CLIP_PLANE5);
 
+	if (num_active_mirrors == 0)
+	{
 		return;
 	}
 
 	// FIXME: multiple mirrors
-	
-	glEnable(GL_CLIP_PLANE0);  // front
-  	glEnable(GL_CLIP_PLANE1);  // left
-   	glEnable(GL_CLIP_PLANE2);  // right
 
-	GLdouble front_p[4];
 	GLdouble  left_p[4];
 	GLdouble right_p[4];
+	GLdouble front_p[4];
 
-	line_t *ld = active_mirrors[num_active_mirrors-1].def->line;
+  	glEnable(GL_CLIP_PLANE0);  // left
+   	glEnable(GL_CLIP_PLANE1);  // right
+	glEnable(GL_CLIP_PLANE2);  // front
+
+	line_t *ld = active_mirrors[0].def->line;
 
 	vec2_t left_v;
 	vec2_t right_v;
@@ -201,13 +202,44 @@ static void MIR_SetClippers()
 	right_v.Set(ld->v2->x, ld->v2->y);
 	  eye_v.Set(viewx, viewy);
 
-	ClipPlaneHorizontalLine(front_p, left_v, right_v, true);
 	ClipPlaneHorizontalLine( left_p, eye_v,   left_v, false);
   	ClipPlaneHorizontalLine(right_p, eye_v,  right_v, true);
+	ClipPlaneHorizontalLine(front_p, left_v, right_v, true);
 
-	glClipPlane(GL_CLIP_PLANE0, front_p);
-	glClipPlane(GL_CLIP_PLANE1, left_p);
-  	glClipPlane(GL_CLIP_PLANE2, right_p);
+	glClipPlane(GL_CLIP_PLANE0, left_p);
+  	glClipPlane(GL_CLIP_PLANE1, right_p);
+	glClipPlane(GL_CLIP_PLANE2, front_p);
+
+
+	if (num_active_mirrors == 2)
+	{
+		glEnable(GL_CLIP_PLANE3);  // left
+		glEnable(GL_CLIP_PLANE4);  // right
+		glEnable(GL_CLIP_PLANE5);  // front
+
+		line_t *ld = active_mirrors[1].def->line;
+
+		vec2_t left_v;
+		vec2_t right_v;
+		vec2_t eye_v;
+
+		 left_v.Set(ld->v2->x, ld->v2->y);
+		right_v.Set(ld->v1->x, ld->v1->y);
+		  eye_v.Set(viewx, viewy);
+
+		num_active_mirrors--;
+		MIR_Coordinate(left_v.x,  left_v.y);
+		MIR_Coordinate(right_v.x, right_v.y);
+		num_active_mirrors++;
+
+		ClipPlaneHorizontalLine( left_p, eye_v,   left_v, false);
+		ClipPlaneHorizontalLine(right_p, eye_v,  right_v, true);
+		ClipPlaneHorizontalLine(front_p, left_v, right_v, true);
+
+		glClipPlane(GL_CLIP_PLANE3, left_p);
+		glClipPlane(GL_CLIP_PLANE4, right_p);
+		glClipPlane(GL_CLIP_PLANE5, front_p);
+	}
 }
 
 static bool MIR_Push(drawmirror_c *mir)
@@ -2212,9 +2244,24 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	float alpha = 0.12 * (num_active_mirrors + 1);
+	float alpha = 0.125 * (num_active_mirrors + 1);
 
-	glColor4f(0.0, 0.0, 0.0, alpha);
+	// TODO: set color in DDF
+	int IDX = (mir->line - lines);
+	if (IDX % 2)
+	{
+		if (IDX < 11)
+			glColor4f(0.0, 0.0, 1.0, alpha);
+		else
+			glColor4f(0.0, 1.0, 0.0, alpha);
+	}
+	else
+	{
+		if (IDX < 11)
+			glColor4f(1.0, 0.0, 0.0, alpha);
+		else
+			glColor4f(1.0, 1.0, 0.0, alpha);
+	}
 
 	float x1 = mir->line->v1->x;
 	float y1 = mir->line->v1->y;
@@ -2346,6 +2393,9 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 	
 	side = P_PointOnDivlineSide(viewx, viewy, &nd_div);
 
+if (num_active_mirrors % 2)
+	side ^= 1;
+	
 #if (DEBUG >= 2)
 	L_WriteDebug( "NODE %d (%1.1f, %1.1f) -> (%1.1f, %1.1f)  SIDE %d\n",
 		bspnum, node->div.x, node->div.y, node->div.x +
