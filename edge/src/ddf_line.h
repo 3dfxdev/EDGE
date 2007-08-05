@@ -776,6 +776,9 @@ public:
 	line_effect_type_e line_effect;
 	scroll_part_e line_parts;
 	sector_effect_type_e sector_effect;
+
+	// -AJA- 2007/07/05: MIRROR rendering capability
+	rgbcol_t mirror_color;
 };
 
 // --> Linetype container class
