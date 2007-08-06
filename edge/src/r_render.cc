@@ -71,6 +71,12 @@ unsigned int root_node;
 
 extern camera_t *camera;
 
+///--- angle_t oned_side_angle;
+
+// -ES- 1999/03/20 Different right & left side clip angles, for asymmetric FOVs.
+angle_t clip_left, clip_right;
+angle_t clip_scope;
+
 
 static int checkcoord[12][4] =
 {
@@ -163,7 +169,6 @@ int num_active_mirrors = 0;
 
 void MIR_Coordinate(float& x, float& y)
 {
-//	for (int i=0; i < num_active_mirrors; i++)
 	for (int i=num_active_mirrors-1; i >= 0; i--)
 		active_mirrors[i].Flip(x, y);
 }
@@ -190,6 +195,8 @@ static void MIR_SetClippers()
 
   	glEnable(GL_CLIP_PLANE0);  // left
    	glEnable(GL_CLIP_PLANE1);  // right
+
+
 	glEnable(GL_CLIP_PLANE2);  // front
 
 	line_t *ld = active_mirrors[0].def->line;
@@ -354,7 +361,7 @@ void R2_AddColourDLights(int num, int *r, int *g, int *b,
 static void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor)
 {
 	//!!!!!
-	float max_dlight_radius = 5*200.0f; // (use_dlights == 1) ? 300.0f : 200.0f;
+	float max_dlight_radius = 4*200.0f; // (use_dlights == 1) ? 300.0f : 200.0f;
 
 	int xl, xh, yl, yh;
 	int bx, by;
@@ -1476,31 +1483,38 @@ static void RGL_WalkBSPNode(unsigned int bspnum);
 static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 						   angle_t left, angle_t right)
 {
-	subsector_t *save_sub = cur_sub;
-
 	drawmirror_c *mir = R_GetDrawMirror();
 	mir->Clear(seg->linedef);
 
-	mir->left  = left;
-	mir->right = right;
-
-	if (num_active_mirrors > 0)
-	{
-		// UPDATE left and right : ARGH !!
-	}
+	mir->left  = viewangle + left;
+	mir->right = viewangle + right;
 
 	dsub->mirrors.push_back(mir);
 
 	// push mirror (translation matrix)
 	MIR_Push(mir);
 
+	subsector_t *save_sub = cur_sub;
+
+	angle_t save_clip_L   = clip_left;
+	angle_t save_clip_R   = clip_right;
+	angle_t save_scope    = clip_scope;
+
+	clip_left  = left;
+	clip_right = right;
+	clip_scope = left - right;
+
 	// perform another BSP walk
 	RGL_WalkBSPNode(root_node);
 
+	cur_sub = save_sub;
+
+	clip_left  = save_clip_L;
+	clip_right = save_clip_R;
+	clip_scope = save_scope;
+
 	// pop mirror
 	MIR_Pop();
-
-	cur_sub = save_sub;
 }
 
 
@@ -1512,98 +1526,123 @@ static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 //
 static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 {
-	angle_t angle1, angle2;
-	angle_t span, tspan1, tspan2;
-
 	// ignore segs sitting on current mirror
 	if (num_active_mirrors > 0 && seg->linedef ==
 		active_mirrors[num_active_mirrors-1].def->line)
 		return;
 
-//  float l_viewx = viewx, l_viewy = viewy;
-//	MIR_Coordinate(l_viewx, l_viewy);
-	
 	float sx1 = seg->v1->x;
 	float sy1 = seg->v1->y;
 
 	float sx2 = seg->v2->x;
 	float sy2 = seg->v2->y;
 
-	MIR_Coordinate(sx1, sy1);
-	MIR_Coordinate(sx2, sy2);
-
-	if (num_active_mirrors % 2)
+	// when there are active mirror planes, segs not only need to
+	// be flipped across them but also clipped across them.
+	if (num_active_mirrors > 0)
 	{
-		float tx = sx1; sx1 = sx2; sx2 = tx;
-		float ty = sy1; sy1 = sy2; sy2 = ty;
+		for (int i=num_active_mirrors-1; i >= 0; i--)
+		{
+			line_t *ld = active_mirrors[i].def->line;
+
+			divline_t div;
+
+			div.x  = ld->v1->x;
+			div.y  = ld->v1->y;
+			div.dx = ld->dx;
+			div.dy = ld->dy;
+
+			int s1 = P_PointOnDivlineSide(sx1, sy1, &div);
+			int s2 = P_PointOnDivlineSide(sx2, sy2, &div);
+
+			// seg lies completely on the back?
+			if (s1 == 1 && s2 == 1)
+				return;
+
+			if (s1 != s2)
+			{
+				// seg crosses line, need to split
+				if (ld->dx == 0)
+				{
+					if (s2 == 1)
+						sx2 = ld->v1->x;
+					else
+						sx1 = ld->v1->x;
+				}
+				else if (ld->dy == 0)
+				{
+					if (s2 == 1)
+						sy2 = ld->v1->y;
+					else
+						sy1 = ld->v1->y;
+				}
+				else
+				{
+					//!!!! FIXME
+				}
+			}
+
+			active_mirrors[i].Flip(sx1, sy1);
+			active_mirrors[i].Flip(sx2, sy2);
+
+      		float tx = sx1; sx1 = sx2; sx2 = tx;
+      		float ty = sy1; sy1 = sy2; sy2 = ty;
+		}
 	}
 
-	angle1 = R_PointToAngle(viewx, viewy, sx1, sy1);
-	angle2 = R_PointToAngle(viewx, viewy, sx2, sy2);
+///---	MIR_Coordinate(sx1, sy1);
+///---	MIR_Coordinate(sx2, sy2);
+///---
+///---	if (num_active_mirrors % 2)
+///---	{
+///---		float tx = sx1; sx1 = sx2; sx2 = tx;
+///---		float ty = sy1; sy1 = sy2; sy2 = ty;
+///---	}
 
-#if (DEBUG >= 3)
-	L_WriteDebug( "INIT ANGLE1 = %1.2f  ANGLE2 = %1.2f\n", 
-		ANG_2_FLOAT(angle1), ANG_2_FLOAT(angle2));
-#endif
+	angle_t angle_L = R_PointToAngle(viewx, viewy, sx1, sy1);
+	angle_t angle_R = R_PointToAngle(viewx, viewy, sx2, sy2);
 
 	// Clip to view edges.
-	// -ES- 1999/03/20 Replaced clipangle with clipscope/leftclipangle/rightclipangle
 
-	span = angle1 - angle2;
+	angle_t span = angle_L - angle_R;
 
 	// back side ?
 	if (span >= ANG180)
 		return;
 
-	angle1 -= viewangle;
-	angle2 -= viewangle;
+	angle_L -= viewangle;
+	angle_R -= viewangle;
 
-#if (DEBUG >= 3)
-	L_WriteDebug( "ANGLE1 = %1.2f  ANGLE2 = %1.2f  (linedef %d)\n", 
-		ANG_2_FLOAT(angle1), ANG_2_FLOAT(angle2), seg->linedef - lines);
-#endif
-
-	if (oned_side_angle != ANG180)
+	if (clip_scope != ANG180)
 	{
-		tspan1 = angle1 - rightclipangle;
-		tspan2 = leftclipangle - angle2;
+		angle_t tspan1 = angle_L - clip_right;
+		angle_t tspan2 = clip_left - angle_R;
 
-		if (tspan1 > clipscope)
+		if (tspan1 > clip_scope)
 		{
 			// Totally off the left edge?
 			if (tspan2 >= ANG180)
 				return;
 
-			angle1 = leftclipangle;
+			angle_L = clip_left;
 		}
 
-		if (tspan2 > clipscope)
+		if (tspan2 > clip_scope)
 		{
 			// Totally off the left edge?
 			if (tspan1 >= ANG180)
 				return;
 
-			angle2 = rightclipangle;
+			angle_R = clip_right;
 		}
 	}
-
-#if (DEBUG >= 3)
-	L_WriteDebug( "CLIPPED ANGLE1 = %1.2f  ANGLE2 = %1.2f\n", 
-		ANG_2_FLOAT(angle1), ANG_2_FLOAT(angle2));
-#endif
 
 	// The seg is in the view range,
 	// but not necessarily visible.
 
-#if (DEBUG >= 2)
-	L_WriteDebug( "  %sSEG %p (%1.1f, %1.1f) -> (%1.1f, %1.1f)\n",
-		seg->miniseg ? "MINI" : "", seg, seg->v1->x, seg->v1->y, 
-		seg->v2->x, seg->v2->y);
-#endif
-
-	// check if visible
 #if 1
-	if (span > (ANG1/4) && RGL_1DOcclusionTest(angle2, angle1))
+	// check if visible
+	if (span > (ANG1/4) && RGL_1DOcclusionTest(angle_R, angle_L))
 	{
 		return;
 	}
@@ -1620,9 +1659,9 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 		// FIXME: check if linedef already seen
 		// if (XXX) return;
 
-		RGL_WalkMirror(dsub, seg, angle1, angle2);
+		RGL_WalkMirror(dsub, seg, angle_L, angle_R);
 
-//!!!!!!		RGL_1DOcclusionSet(angle2, angle1);
+		RGL_1DOcclusionSet(angle_R, angle_L);
 		return;
 	}
 
@@ -1642,7 +1681,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 
 	if (seg->linedef->blocked)
 	{
-//!!!!!!		RGL_1DOcclusionSet(angle2, angle1);
+		RGL_1DOcclusionSet(angle_R, angle_L);
 	}
 
 	// --- handle sky (using the depth buffer) ---
@@ -1700,14 +1739,28 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 
 bool RGL_CheckBBox(float *bspcoord)
 {
-return true; //!!!!!! MIRRORS
+	if (num_active_mirrors > 0)
+	{
+		// a flipped bbox may no longer be axis aligned, hence we
+		// need to find the bounding area of the transformed box.
+		static float new_bbox[4];
+
+		M_ClearBox(new_bbox);
+
+		for (int p=0; p < 4; p++)
+		{
+			float tx = bspcoord[(p & 1) ? BOXLEFT   : BOXRIGHT];
+			float ty = bspcoord[(p & 2) ? BOXBOTTOM : BOXTOP];
+
+			MIR_Coordinate(tx, ty);
+
+			M_AddToBox(new_bbox, tx, ty);
+		}
+
+		bspcoord = new_bbox;
+	}
+			
 	int boxx, boxy;
-	int boxpos;
-
-	float x1, y1, x2, y2;
-
-	angle_t angle1, angle2;
-	angle_t span, tspan1, tspan2;
 
 	// Find the corners of the box
 	// that define the edges from current viewpoint.
@@ -1725,53 +1778,54 @@ return true; //!!!!!! MIRRORS
 	else
 		boxy = 2;
 
-	boxpos = (boxy << 2) + boxx;
+	int boxpos = (boxy << 2) + boxx;
 
 	if (boxpos == 5)
 		return true;
 
-	x1 = bspcoord[checkcoord[boxpos][0]];
-	y1 = bspcoord[checkcoord[boxpos][1]];
-	x2 = bspcoord[checkcoord[boxpos][2]];
-	y2 = bspcoord[checkcoord[boxpos][3]];
+	float x1 = bspcoord[checkcoord[boxpos][0]];
+	float y1 = bspcoord[checkcoord[boxpos][1]];
+	float x2 = bspcoord[checkcoord[boxpos][2]];
+	float y2 = bspcoord[checkcoord[boxpos][3]];
 
 	// check clip list for an open space
-	angle1 = R_PointToAngle(viewx, viewy, x1, y1) - viewangle;
-	angle2 = R_PointToAngle(viewx, viewy, x2, y2) - viewangle;
+	angle_t angle_L = R_PointToAngle(viewx, viewy, x1, y1);
+	angle_t angle_R = R_PointToAngle(viewx, viewy, x2, y2);
 
-	span = angle1 - angle2;
+	angle_t span = angle_L - angle_R;
 
 	// Sitting on a line?
 	if (span >= ANG180)
 		return true;
 
-	// -ES- 1999/03/20 Replaced clipangle with clipscope/leftclipangle/rightclipangle
+	angle_L -= viewangle;
+	angle_R -= viewangle;
 
-	if (oned_side_angle != ANG180)
+	if (clip_scope != ANG180)
 	{
-		tspan1 = angle1 - rightclipangle;
-		tspan2 = leftclipangle - angle2;
+		angle_t tspan1 = angle_L - clip_right;
+		angle_t tspan2 = clip_left - angle_R;
 
-		if (tspan1 > clipscope)
+		if (tspan1 > clip_scope)
 		{
 			// Totally off the left edge?
 			if (tspan2 >= ANG180)
 				return false;
 
-			angle1 = leftclipangle;
+			angle_L = clip_left;
 		}
 
-		if (tspan2 > clipscope)
+		if (tspan2 > clip_scope)
 		{
 			// Totally off the right edge?
 			if (tspan1 >= ANG180)
 				return false;
 
-			angle2 = rightclipangle;
+			angle_R = clip_right;
 		}
 	}
 
-	return ! RGL_1DOcclusionTest(angle2, angle1);
+	return ! RGL_1DOcclusionTest(angle_R, angle_L);
 }
 
 //
@@ -2246,23 +2300,24 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	float alpha = 0.1 * (num_active_mirrors + 1);
+	float alpha = 0.15 * (num_active_mirrors + 1);
 
 	if (mir->line->special)
 	{
+#if 0 
 		float trans = PERCENT_2_FLOAT(mir->line->special->translucency);
 
 		// ignore the default value, which is 100%
 		if (trans < 0.95) alpha = MAX(alpha, trans);
-
+#endif
 		float R = RGB_RED(mir->line->special->mirror_color);
 		float G = RGB_GRN(mir->line->special->mirror_color);
 		float B = RGB_BLU(mir->line->special->mirror_color);
 
 		// looks better with reduced color in multiple reflections
-		R *= 1.0 - 0.35 * num_active_mirrors;
-		G *= 1.0 - 0.35 * num_active_mirrors;
-		B *= 1.0 - 0.35 * num_active_mirrors;
+		R *= 1.0 - 0.3 * num_active_mirrors;
+		G *= 1.0 - 0.3 * num_active_mirrors;
+		B *= 1.0 - 0.3 * num_active_mirrors;
 
 		glColor4f(R, G, B, alpha);
 	}
@@ -2294,8 +2349,6 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 
 static void RGL_DrawMirror(drawmirror_c *mir)
 {
-	// FIXME: push mirror (clip planes | translation matrix)
-
 	MIR_Push(mir);
 
 	RGL_FinishUnits();
@@ -2382,31 +2435,26 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 
 	// Decide which side the view point is on.
 
-//	float l_viewx = viewx, l_viewy = viewy;
-//  MIR_Coordinate(l_viewx, l_viewy);
-
 	divline_t nd_div;
+
 	nd_div.x  = node->div.x;
 	nd_div.y  = node->div.y;
-	nd_div.dx = node->div.dx + node->div.x;
-	nd_div.dy = node->div.dy + node->div.y;
+	nd_div.dx = node->div.x + node->div.dx;
+	nd_div.dy = node->div.y + node->div.dy;
 
 	MIR_Coordinate(nd_div.x,  nd_div.y);
 	MIR_Coordinate(nd_div.dx, nd_div.dy);
+
+	if (num_active_mirrors % 2)
+	{
+		float tx = nd_div.x; nd_div.x = nd_div.dx; nd_div.dx = tx;
+		float ty = nd_div.y; nd_div.y = nd_div.dy; nd_div.dy = ty;
+	}
 
 	nd_div.dx -= nd_div.x;
 	nd_div.dy -= nd_div.y;
 	
 	side = P_PointOnDivlineSide(viewx, viewy, &nd_div);
-
-if (num_active_mirrors % 2)
-	side ^= 1;
-	
-#if (DEBUG >= 2)
-	L_WriteDebug( "NODE %d (%1.1f, %1.1f) -> (%1.1f, %1.1f)  SIDE %d\n",
-		bspnum, node->div.x, node->div.y, node->div.x +
-		node->div.dx, node->div.y + node->div.dy, side);
-#endif
 
 	// Recursively divide front space.
 	if (RGL_CheckBBox(node->bbox[side]))
@@ -2440,6 +2488,7 @@ void RGL_LoadLights(void)
 void RGL_RenderTrueBSP(void)
 {
 	// compute the 1D projection of the view angle
+	angle_t oned_side_angle;
 	{
 		float k, d;
 
@@ -2462,16 +2511,16 @@ void RGL_RenderTrueBSP(void)
 	// setup clip angles
 	if (oned_side_angle != ANG180)
 	{
-		leftclipangle  = 0 + oned_side_angle;
-		rightclipangle = 0 - oned_side_angle;
-		clipscope = leftclipangle - rightclipangle;
+		clip_left  = 0 + oned_side_angle;
+		clip_right = 0 - oned_side_angle;
+		clip_scope = clip_left - clip_right;
 	}
 	else
 	{
 		// not clipping to the viewport.  Dummy values.
-		leftclipangle  = 0 + ANG5;
-		rightclipangle = 0 - ANG5;
-		clipscope = leftclipangle - rightclipangle;
+		clip_scope = ANG180;
+		clip_left  = 0 + ANG45;
+		clip_right = 0 - ANG45;
 	}
 
 	// clear extra light on player's weapon

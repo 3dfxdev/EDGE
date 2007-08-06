@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __R_STATE__
-#define __R_STATE__
+#ifndef __R_STATE_H__
+#define __R_STATE_H__
 
 // Need data structure definitions.
 #include "e_player.h"
@@ -82,15 +82,16 @@ extern angle_t viewangle;
 // viewangletox lookups, and converted to BAM format.
 
 // angles used for clipping
-extern angle_t leftclipangle, rightclipangle;
+extern angle_t clip_left, clip_right;
 
-// the scope of the clipped area (leftclipangle-rightclipangle)
-extern angle_t clipscope;
+// the scope of the clipped area (clip_left-clip_right).
+// ANG180 disables polar clipping
+extern angle_t clip_scope;
 
 // the most extreme angles of the view
 extern float topslope, bottomslope, rightslope, leftslope;
 
-#endif // __R_STATE__
+#endif /* __R_STATE_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

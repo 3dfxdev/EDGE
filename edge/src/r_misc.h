@@ -26,8 +26,8 @@
 // -KM- 1998/09/27 Dynamic Colourmaps.
 //
 
-#ifndef __R_MAIN__
-#define __R_MAIN__
+#ifndef __R_MAIN_H__
+#define __R_MAIN_H__
 
 #include "e_player.h"
 #include "w_flat.h"
@@ -94,7 +94,7 @@ void R_SetZoomedFOV(angle_t newfov);
 
 void R_StartFading(int start, int range);
 
-#endif // __R_MAIN__
+#endif /* __R_MAIN_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
