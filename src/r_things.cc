@@ -714,7 +714,7 @@ MIR_Coordinate(mx, my);
 	float tz = tr_x * viewcos + tr_y * viewsin;
 
 	// thing is behind view plane?
-	if (oned_side_angle != ANG180 && tz <= 0)
+	if (clip_scope != ANG180 && tz <= 0)
 		return;
 
 	float tx = tr_x * viewsin - tr_y * viewcos;

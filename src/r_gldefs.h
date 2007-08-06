@@ -47,7 +47,6 @@ extern bool glcap_multitex;
 extern bool glcap_edgeclamp;
 
 extern int rgl_light_map[256];
-extern angle_t oned_side_angle;  // ANG180 disables polar clipping
 
 void RGL_Init(void);
 void RGL_SoftInit(void);

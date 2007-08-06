@@ -106,10 +106,6 @@ mobj_t *background_camera_mo = NULL;
 // precalculated math tables
 //
 
-// -ES- 1999/03/20 Different right & left side clip angles, for asymmetric FOVs.
-angle_t leftclipangle, rightclipangle;
-angle_t clipscope;
-
 angle_t viewanglebaseoffset;
 angle_t viewangleoffset;
 
