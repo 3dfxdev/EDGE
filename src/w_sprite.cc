@@ -155,140 +155,147 @@ int R_AddSpriteName(const char *name, int frame, bool is_weapon)
 // SPRITE LOADING FUNCTIONS
 //
 
-static void InstallSpriteLump(spritedef_c *def, int lump,
-    const char *lumpname, int pos, byte flip)
+static spriteframe_c *WhatFrame(spritedef_c *def, const char *name, int pos)
 {
-	int frame, rot;
+	char frame_ch = name[pos];
 
-	char frame_ch = lumpname[pos];
-	char rot_ch   = lumpname[pos+1];
-
-	// convert frame & rotation characters
-	// NOTE: rotations 9 and A-G are EDGE specific.
+	int index;
 
 	if ('A' <= frame_ch && frame_ch <= 'Z')
 	{
-		frame = (frame_ch - 'A');
+		index = (frame_ch - 'A');
 	}
 	else switch (frame_ch)
 	{
-		case '[':  frame = 26; break;
-		case '\\': frame = 27; break;
-		case ']':  frame = 28; break;
-		case '^':  frame = 29; break;
-		case '_':  frame = 30; break;
+		case '[':  index = 26; break;
+		case '\\': index = 27; break;
+		case ']':  index = 28; break;
+		case '^':  index = 29; break;
+		case '_':  index = 30; break;
 
 		default:
-		   I_Warning("Sprite lump %s has illegal frame.\n", lumpname);
-		   return;
+		   I_Warning("Sprite lump %s has illegal frame.\n", name);
+		   return NULL;
 	}
 
-	SYS_ASSERT(frame >= 0);
+	SYS_ASSERT(index >= 0);
 
 	// ignore frames larger than what is used in DDF
-	if (frame >= def->numframes)
+	if (index >= def->numframes)
+		return NULL;
+
+	return & def->frames[index];
+}
+
+static void SetExtendedRots(spriteframe_c *frame)
+{
+	if (frame->rots == 16)
+		return;
+
+	frame->rots = 16;
+
+	for (int i = 1; i <= 7; i++)
+	{
+		frame->flip[2*i]   = frame->flip[i];
+		frame->images[2*i] = frame->images[i];
+
+		frame->flip[i]   = 0;
+		frame->images[i] = NULL;
+	}
+}
+
+static int WhatRot(spriteframe_c *frame, const char *name, int pos )
+{
+	char rot_ch = name[pos];
+
+	int rot;
+
+	// NOTE: rotations 9 and A-G are EDGE specific.
+
+	if ('0' <= rot_ch && rot_ch <= '9')
+		rot = (rot_ch - '0');
+	else if ('A' <= rot_ch && rot_ch <= 'G')
+		rot = (rot_ch - 'A') + 10;
+	else
+	{
+		I_Warning("Sprite lump %s has illegal rotation.\n", name);
+		return -1;
+	}
+
+	if (frame->rots == 0)
+		frame->rots = 1;
+
+	if (rot >= 1)
+		frame->rots = 8;
+
+	if (rot >= 9)
+		SetExtendedRots(frame);
+
+	if (frame->rots == 16)
+	{
+		if (rot >= 9)
+			return 1 + (rot-9) * 2;
+		else
+			return rot * 2;
+	}
+
+	return rot;
+}
+
+static void InstallSpriteLump(spritedef_c *def, int lump,
+    const char *lumpname, int pos, byte flip)
+{
+	spriteframe_c *frame = WhatFrame(def, lumpname, pos);
+	if (! frame)
 		return;
 
 	// don't disturb any frames already loaded
-	if (def->frames[frame].finished)
+	if (frame->finished)
 		return;
 
-	if ('0' == rot_ch)
-		rot = 0;
-	else if ('1' <= rot_ch && rot_ch <= '8')
-		rot = (rot_ch - '1') * 2;
-	else if ('9' == rot_ch)
-		rot = 1;
-	else if ('A' <= rot_ch && rot_ch <= 'G')
-		rot = (rot_ch - 'A') * 2 + 3;
-	else
-	{
-		I_Warning("Sprite lump %s has illegal rotation.\n", lumpname);
+	int rot = WhatRot(frame, lumpname, pos+1);
+	if (rot < 0)
 		return;
-	}
-
-	def->frames[frame].rotated = (rot_ch == '0') ? 0 : 1;
-
-	if (rot & 1)
-		def->frames[frame].extended = 1;
 
 	SYS_ASSERT(0 <= rot && rot < 16);
 
-	if (def->frames[frame].images[rot])
+	if (frame->images[rot])
 	{
-		I_Warning("Sprite %s:%c has two lumps mapped to it.\n", 
-				lumpname, frame_ch);
+		I_Warning("Sprite %s has two lumps mapped to it (frame %c).\n", 
+				lumpname, lumpname[pos]);
 		return;
 	}
 
-	def->frames[frame].images[rot] = W_ImageCreateSprite(lumpname, lump,
-		def->IsWeapon(frame));
+	frame->images[rot] = W_ImageCreateSprite(lumpname, lump,
+		def->IsWeapon(frame - def->frames));
 
-	def->frames[frame].flip[rot] = flip;
+	frame->flip[rot] = flip;
 }
 
 static void InstallSpriteImage(spritedef_c *def, const image_c *img,
     const char *img_name, int pos, byte flip)
 {
-	int frame, rot;
-
-	// don't need toupper() -- DDF entry names are always uppercase.
-	char frame_ch = img_name[pos];
-	char rot_ch   = img_name[pos+1];
-
-	// convert frame & rotation characters
-	// NOTE: rotations 9 and A-G are EDGE specific.
-
-	if ('A' <= frame_ch && frame_ch <= 'Z')
-	{
-		frame = (frame_ch - 'A');
-	}
-	else
-	{
-	   I_Warning("Sprite %s (IMAGES.DDF) has illegal frame.\n", img_name);
-	   return;
-	}
-
-	SYS_ASSERT(frame >= 0);
-
-	// ignore frames larger than what is used in DDF
-	if (frame >= def->numframes)
+	spriteframe_c *frame = WhatFrame(def, img_name, pos);
+	if (! frame)
 		return;
 
 	// don't disturb any frames already loaded
-	if (def->frames[frame].finished)
+	if (frame->finished)
 		return;
 
-	if ('0' == rot_ch)
-		rot = 0;
-	else if ('1' <= rot_ch && rot_ch <= '8')
-		rot = (rot_ch - '1') * 2;
-	else if ('9' == rot_ch)
-		rot = 1;
-	else if ('A' <= rot_ch && rot_ch <= 'G')
-		rot = (rot_ch - 'A') * 2 + 3;
-	else
+	int rot = WhatRot(frame, img_name, pos+1);
+	if (rot < 0)
+		return;
+
+	if (frame->images[rot])
 	{
-		I_Warning("Sprite %s (IMAGES.DDF) has illegal rotation.\n", img_name);
+		I_Warning("Sprite %s has two images mapped to it (frame %c)\n", 
+				img_name, img_name[pos]);
 		return;
 	}
 
-	def->frames[frame].rotated = (rot_ch == '0') ? 0 : 1;
-
-	if (rot & 1)
-		def->frames[frame].extended = 1;
-
-	SYS_ASSERT(0 <= rot && rot < 16);
-
-	if (def->frames[frame].images[rot])
-	{
-		I_Warning("Sprite %s:%c has two images mapped to it.\n", 
-				img_name, frame_ch);
-		return;
-	}
-
-	def->frames[frame].images[rot] = img;
-	def->frames[frame].flip[rot] = flip;
+	frame->images[rot] = img;
+	frame->flip[rot] = flip;
 }
 
 //
@@ -421,7 +428,7 @@ static void MarkCompletedFrames(void)
 			int rot_count = 0;
 
 			// check if all image pointers are NULL
-			for (int i=0; i < 16; i++)
+			for (int i=0; i < frame->rots; i++)
 				rot_count += frame->images[i] ? 1 : 0;
 
 			if (rot_count == 0)
@@ -430,27 +437,28 @@ static void MarkCompletedFrames(void)
 			frame->finished = 1;
 			finish_num++;
 
-			if (! frame->rotated)
-			{
-				if (rot_count != 1)
-					I_Warning("Sprite %s:%c has extra rotations.\n", def->name, frame_ch);
+			if (rot_count < frame->rots)
+				I_Warning("Sprite %s:%c is missing rotations (%d of %d).\n",
+					def->name, frame_ch, frame->rots - rot_count, frame->rots);
 
-				SYS_ASSERT(frame->images[0] != NULL);
-				continue;
-			}
+///##		if (frame->rots == 0)
+///##		{
+///##			if (rot_count != 1)
+///##				I_Warning("Sprite %s:%c has extra rotations.\n", def->name, frame_ch);
+///##
+///##			SYS_ASSERT(frame->images[0] != NULL);
+///##			continue;
+///##		}
 
-			if (rot_count != 8 && rot_count != 16)
-				I_Warning("Sprite %s:%c is missing rotations.\n", def->name, frame_ch);
-
-			// Note: two passes are needed
-			for (int j=0; j < (16 * 2); j++)
-			{
-				if (frame->images[j % 16] && !frame->images[(j+1) % 16])
-				{
-					frame->images[(j+1) % 16] = frame->images[j % 16];
-					frame->flip  [(j+1) % 16] = frame->flip  [j % 16];
-				}
-			}
+///##		// Note: two passes are needed
+///##		for (int j=0; j < (16 * 2); j++)
+///##		{
+///##			if (frame->images[j % 16] && !frame->images[(j+1) % 16])
+///##			{
+///##				frame->images[(j+1) % 16] = frame->images[j % 16];
+///##				frame->flip  [(j+1) % 16] = frame->flip  [j % 16];
+///##			}
+///##		}
 		}
 
 		// remove complete sprites from sprite_map
