@@ -1133,7 +1133,7 @@ void P_ComputeWallTiles(line_t *ld, int sidenum)
 
 		if (C->ef_info->type & EXFL_Thick)
 		{
-			int flags = 0;
+			int flags = WTILF_IsExtra;
 
 			// -AJA- 1999/09/25: Better DDF control of side texture.
 			if (C->ef_info->type & EXFL_SideUpper)

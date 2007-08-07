@@ -875,17 +875,53 @@ static void ComputeDLParameters(float dist, mobj_t *mo,
 #endif // DLIGHT_PROTOTYPE
 
 
+static inline void GreetNeighbourSector(float *hts, int& num, sector_t *sec)
+{
+	if (! sec)
+		return;
+
+	for (int i=0; i < 2; i++)
+	{
+		float h = i ? sec->c_h : sec->f_h;
+
+		// does not intersect current height range?
+		if (h-0.1 < hts[0] || h+0.1 > hts[num-1])
+			continue;
+
+		// check if new height already present
+		if (num >= 3 && fabs(hts[1] - h) < 0.1)
+			continue;
+
+		if (num >= 4 && fabs(hts[2] - h) < 0.1)
+			continue;
+		
+		// OK, got a new point, so add it in
+		hts[num]   = hts[num-1];
+		hts[num-1] = h;
+
+		num++;
+
+		if (num == 4 && hts[2] < hts[1])
+		{
+			float tmp = hts[2]; hts[2] = hts[1]; hts[1] = tmp;
+		}
+	}
+}
+
+
 //
 // RGL_DrawWall
 //
 // Note: mid_masked is 2 & 3 for horiz. sliding door.
 //
 static void RGL_DrawWall(drawfloor_t *dfloor, float top,
-						 float bottom, float tex_top_h, surface_t *part,
+						 float bottom, float tex_top_h, wall_tile_t *wt,
 						 int mid_masked, bool opaque, float x_offset,
 						 region_properties_t *masked_props)
 
 {
+	surface_t *part = wt->surface;
+
 	float x1 = cur_seg->v1->x;
 	float y1 = cur_seg->v1->y;
 	float x2 = cur_seg->v2->x;
@@ -969,6 +1005,15 @@ if (num_active_mirrors % 2)
 	tex_x1 = x_offset;
 	tex_x2 = tex_x1 + xy_len;
 
+	// which side is seg on ?
+	int side = 0;
+
+	if ((cur_seg->v2->x - cur_seg->v1->x) * cur_seg->linedef->dx < 0 ||
+		(cur_seg->v2->y - cur_seg->v1->y) * cur_seg->linedef->dy < 0)
+	{
+		side = 1;
+	}
+
 	// horizontal sliding door hack
 	if (mid_masked >= 2)
 	{
@@ -977,15 +1022,6 @@ if (num_active_mirrors % 2)
 
 		float start, end;
 		float seg_start, seg_end;
-
-		// which side is seg on ?
-		int side = 0;
-
-		if ((cur_seg->v2->x - cur_seg->v1->x) * cur_seg->linedef->dx < 0 ||
-			(cur_seg->v2->y - cur_seg->v1->y) * cur_seg->linedef->dy < 0)
-		{
-			side = 1;
-		}
 
 		if (side == 0)
 		{
@@ -1130,10 +1166,40 @@ if (num_active_mirrors % 2)
 
 	poly = RGL_NewPolyQuad(4);
 
-	PQ_ADD_VERT(poly, x1, y1, bottom);
-	PQ_ADD_VERT(poly, x1, y1, top);
-	PQ_ADD_VERT(poly, x2, y2, top);
-	PQ_ADD_VERT(poly, x2, y2, bottom);
+	// -AJA- 2007/08/07: ugly code here ensures polygon edges
+	//       match up with adjacent linedefs (otherwise small
+	//       gaps can appear which look bad).
+
+	float left_h[4];  int left_num=2;
+	float right_h[4]; int right_num=2;
+
+	left_h[0]  = bottom; left_h[1]  = top;
+	right_h[0] = bottom; right_h[1] = top;
+
+	if (solid_mode && mid_masked == 0 && ! (wt->flags & WTILF_IsExtra))
+	{
+		for (int vert=0; vert < 2; vert++)
+		{
+			// does this seg touch V1/V2 of the linedef?
+			if ((side == vert && cur_seg->offset < 0.1) ||
+				(side != vert && cur_seg->offset+cur_seg->length+0.1 > cur_seg->linedef->length))
+			{
+				for (int n = 0; n < 2; n++)
+				{
+					GreetNeighbourSector(
+						vert ? right_h : left_h,
+						vert ? right_num : left_num,
+						cur_seg->linedef->nb_sec[vert*2 + n]);
+				}
+			}
+		}
+	}
+
+	for (int LI = 0; LI < left_num; LI++)
+		PQ_ADD_VERT(poly, x1, y1, left_h[LI]);
+
+	for (int RI = right_num-1; RI >= 0; RI--)
+		PQ_ADD_VERT(poly, x2, y2, right_h[RI]);
 
 	RGL_BoundPolyQuad(poly);
 
@@ -1159,7 +1225,7 @@ if (num_active_mirrors % 2)
 #ifdef DLIGHT_PROTOTYPE
 	if (use_dlights == 1 && solid_mode)
 	{
-RGL_DrawUnits();
+RGL_DrawUnits(); //!!!!
 
 		wall_plane_data_t dat2;
 		memcpy(&dat2, &data, sizeof(dat2));
@@ -1408,8 +1474,6 @@ static bool RGL_BuildWalls(drawfloor_t *dfloor, seg_t *seg)
 	float f, c, x_offset;
 	float tex_top_h;
 
-	int j;
-	wall_tile_t *wt;
 	bool opaque;
 
 #if (DEBUG >= 3)
@@ -1424,9 +1488,9 @@ static bool RGL_BuildWalls(drawfloor_t *dfloor, seg_t *seg)
 		c1 = dfloor->ef->top_h;
 	}
 
-	for (j=0; j < sd->tile_used; j++)
+	for (int j=0; j < sd->tile_used; j++)
 	{
-		wt = sd->tiles + j;
+		wall_tile_t *wt = sd->tiles + j;
 
 		c = MIN(c1, wt->z2);
 		f = MAX(f1, wt->z1);
@@ -1459,18 +1523,18 @@ static bool RGL_BuildWalls(drawfloor_t *dfloor, seg_t *seg)
 			cur_seg->linedef->slider_move)
 		{
 			RGL_DrawWall(dfloor, c, f, tex_top_h,
-				wt->surface, 2, opaque, x_offset, NULL);
+				wt, 2, opaque, x_offset, NULL);
 
 			if (cur_seg->linedef->special->s.type == SLIDE_Center)
 			{
 				RGL_DrawWall(dfloor, c, f, tex_top_h,
-					wt->surface, 3, opaque, x_offset, NULL);
+					wt, 3, opaque, x_offset, NULL);
 			}
 			continue;
 		}
 
-		RGL_DrawWall(dfloor, c, f, tex_top_h,
-			wt->surface, (wt->flags & WTILF_MidMask) ? 1 : 0, 
+		RGL_DrawWall(dfloor, c, f, tex_top_h, wt,
+			(wt->flags & WTILF_MidMask) ? 1 : 0, 
 			opaque, x_offset, (wt->flags & WTILF_MidMask) ?
 			  &cur_seg->sidedef->sector->props : NULL);
 	}
@@ -2566,7 +2630,7 @@ void RGL_RenderTrueBSP(void)
 
 	if (true) //!!!!! hom_detect)
 	{
-		glClearColor(0.5f, 0.0f, 0.5f, 0.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
