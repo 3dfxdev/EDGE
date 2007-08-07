@@ -123,6 +123,8 @@ static const image_c *shadow_image = NULL;
 
 // ========= MIRROR STUFF ===========
 
+#define MAX_MIRRORS  3
+
 static inline void ClipPlaneHorizontalLine(GLdouble *p, const vec2_t& s,
 	const vec2_t& e)
 {
@@ -181,8 +183,6 @@ public:
 }
 mirror_info_t;
 
-#define MAX_MIRRORS  2 //!!!!!!
-
 static mirror_info_t active_mirrors[MAX_MIRRORS];
 
 int num_active_mirrors = 0;
@@ -237,7 +237,7 @@ static void MIR_SetClippers()
 		v1.Set(mir.def->seg->v1->x, mir.def->seg->v1->y);
 		v2.Set(mir.def->seg->v2->x, mir.def->seg->v2->y);
 
-		for (int k = i-1; i >= 0; i--)
+		for (int k = i-1; k >= 0; k--)
 		{
 			vec2_t tmp; tmp = v1; v1 = v2; v2 = tmp;
 
@@ -247,7 +247,7 @@ static void MIR_SetClippers()
 		
 		GLdouble front_p[4];
 
-		ClipPlaneHorizontalLine(front_p, v1, v2);
+		ClipPlaneHorizontalLine(front_p, v2, v1);
 
 		glEnable(GL_CLIP_PLANE2 + i);
 
