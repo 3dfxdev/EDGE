@@ -45,43 +45,31 @@
 class spriteframe_c
 {
 public:
-	spriteframe_c() : finished(false), rotated(false), extended(false)
-	{
-		for (int j = 0; j < 16; j++)
-		{
-			flip[j] = 0;
-			images[j] = NULL;
-		}
-	}
 
 	// whether this frame has been completed.  Completed frames cannot
 	// be replaced by sprite lumps in older wad files.
-	byte finished;
+	bool finished;
   
-    // if not rotated, we don't have to determine the angle for the
-    // sprite.  This is an optimisation.
-	byte rotated;
+    // 1  = not rotated, we don't have to determine the angle for the
+    //      sprite.  This is an optimisation.
+	// 8  = normal DOOM rotations.
+	// 16 = EDGE extended rotations using [9ABCDEFG].
+	int rots;
   
-	// normally zero, will be 1 if the [9ABCDEFG] rotations are used.
-	byte extended;
-    
 	// Flip bits (1 = flip) to use for view angles 0-15.
 	byte flip[16];
   
 	// Images for each view angle 0-15.
 	const image_c *images[16];
 
-	inline int CalcRot(angle_t obj_face, angle_t from_view) const
+public:
+	spriteframe_c() : finished(false), rots(0)
 	{
-		if (! rotated)
-			return 0;
-
-		if (extended)
-			return (unsigned int)(from_view - obj_face + ANG180 +
-					(ANG45 / 4)) >> (ANGLEBITS - 4);
-		else
-			return (unsigned int)(from_view - obj_face + ANG180 +
-					(ANG45 / 2)) >> (ANGLEBITS - 4);
+		for (int j = 0; j < 16; j++)
+		{
+			flip[j] = 0;
+			images[j] = NULL;
+		}
 	}
 };
 
