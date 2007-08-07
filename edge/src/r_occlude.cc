@@ -23,7 +23,7 @@
 
 #define ANGLE_MAX  ((angle_t) -1)
 
-#define DEBUG_OCC  1
+// #define DEBUG_OCC  1
 
 
 typedef struct angle_range_s
