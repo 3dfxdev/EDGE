@@ -231,15 +231,24 @@ static int WhatRot(spriteframe_c *frame, const char *name, int pos )
 	if (rot >= 9)
 		SetExtendedRots(frame);
 
-	if (frame->rots == 16)
+	switch (frame->rots)
 	{
-		if (rot >= 9)
-			return 1 + (rot-9) * 2;
-		else
-			return rot * 2;
-	}
+		case 1:
+			return 0;
 
-	return rot;
+		case 8:
+			return rot-1;
+
+		case 16:
+			if (rot >= 9)
+				return 1 + (rot-9) * 2;
+			else
+				return rot * 2;
+
+		default:
+			I_Error("INTERNAL ERROR: frame->rots = %d\n", frame->rots);
+			return -1; /* NOT REACHED */
+	}
 }
 
 static void InstallSpriteLump(spritedef_c *def, int lump,
