@@ -1676,7 +1676,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 
 	dsub->visible = true;
 
-	if (seg->miniseg) //!!!!!!! || span == 0)
+	if (seg->miniseg || span == 0)
 		return;
 
 	if ((seg->linedef->flags & MLF_Mirror) &&
@@ -1847,8 +1847,8 @@ bool RGL_CheckBBox(float *bspcoord)
 			angle_R = clip_right;
 		}
 
-//!!!!!!		if (angle_L == angle_R)
-//!!!!!!			return false;
+		if (angle_L == angle_R)
+			return false;
 	}
 
 	return ! RGL_1DOcclusionTest(angle_R, angle_L);
@@ -2592,7 +2592,6 @@ void RGL_RenderTrueBSP(void)
 
 	RGL_DrawPlayerSprites(players[displayplayer]);
 
-	// NOTE: this call will move for layer system (should be topmost).
 	RGL_ColourmapEffect(players[displayplayer]);
 	RGL_PaletteEffect(players[displayplayer]);
 
