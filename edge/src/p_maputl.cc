@@ -106,6 +106,39 @@ float P_ApproxSlope(float dx, float dy, float dz)
 	return dz / dist;
 }
 
+void P_ComputeIntersection(divline_t *div,
+		float x1, float y1, float x2, float y2,
+		float *ix, float *iy)
+{
+	if (div->dx == 0)
+	{
+		*ix = div->x;
+		*iy = y1 + (y2 - y1) * (div->x - x1) / (x2 - x1);
+	}
+	else if (div->dy == 0)
+	{
+		*iy = div->y;
+		*ix = x1 + (x2 - x1) * (div->y - y1) / (y2 - y1);
+	}
+	else
+	{
+///---		float len = sqrt(div->dx*div->dx + div->dy*div->dy);
+
+		// perpendicular distances (unnormalised)
+		float p1 = (x1 - div->x) * div->dy - (y1 - div->y) * div->dx;
+		float p2 = (x2 - div->x) * div->dy - (y2 - div->y) * div->dx;
+
+		// along distances
+///---		float a1 = (x1 * div->dx + y1 * div->dy) / len;
+///---		float a2 = (x2 * div->dx + y2 * div->dy) / len;
+///---
+///---		float a = a1 + (a2 - a1) * p1 / (p1 - p2);
+
+		*ix = x1 + (x2 - x1) * p1 / (p1 - p2);
+		*iy = y1 + (y2 - y1) * p1 / (p1 - p2);
+	}
+}
+
 //
 // P_PointOnDivlineSide
 //

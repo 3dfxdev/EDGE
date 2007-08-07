@@ -233,22 +233,23 @@ drawfloor_t;
 class drawmirror_c
 {
 public:
-	line_t *line;
+	seg_t *seg;
 
 	angle_t left, right;
 
 	std::list<drawsub_c *> drawsubs;
 
 public:
-	drawmirror_c() : line(NULL), drawsubs()
+	drawmirror_c() : seg(NULL), drawsubs()
 	{ }
 
 	~drawmirror_c()
 	{ /* FIXME !!!! */ }
 
-	void Clear(line_t *ld)
+	void Clear(seg_t *ss)
 	{
-		line = ld;
+		seg  = ss;
+
 		drawsubs.clear();
 	}
 };
