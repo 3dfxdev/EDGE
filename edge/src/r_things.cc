@@ -1089,7 +1089,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	
 	local_gl_vert_t *vert, *orig;
 
-	vert = orig = RGL_BeginUnit(GL_QUADS, 4, tex_id,0, /* pass */ 0, blending);
+	vert = orig = RGL_BeginUnit(GL_POLYGON, 4, tex_id,0, /* pass */ 0, blending);
 
 	SET_COLOR(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
 	SET_TEXCOORD(tex_x1, tex_y1);
