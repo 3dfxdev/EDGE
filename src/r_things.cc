@@ -402,31 +402,40 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 
 	int rot = 0;
 
-angle_t ang = mo->angle;
+	if (frame->rots >= 8)
+	{
+		angle_t ang = mo->angle;
 
-if (num_active_mirrors > 0)
-{
-	float nx = mo->x + M_Cos(ang);
-	float ny = mo->y + M_Sin(ang);
+		if (num_active_mirrors > 0)
+		{
+			// FIXME: optimise this (MIR_Angle).
+			float nx = mo->x + M_Cos(ang);
+			float ny = mo->y + M_Sin(ang);
 
-	MIR_Coordinate(nx, ny);
+			MIR_Coordinate(nx, ny);
 
-	ang = R_PointToAngle(mx, my, nx, ny);
-}
+			ang = R_PointToAngle(mx, my, nx, ny);
+		}
 
-	if (frame->rotated)
-{
-		rot = frame->CalcRot(ang,
-			R_PointToAngle(viewx, viewy, mx, my));
+		angle_t from_view = R_PointToAngle(viewx, viewy, mx, my);
 
-if (num_active_mirrors % 2) rot = (16-rot) % 16;
-}
+		ang = from_view - ang + ANG180;
+
+		if (num_active_mirrors % 2)
+			ang = (angle_t)0 - ang;
+
+		if (frame->rots == 16)
+			rot = (ang + (ANG45 / 4)) >> (ANGLEBITS - 4);
+		else
+			rot = (ang + (ANG45 / 2)) >> (ANGLEBITS - 3);
+	}
 
 	SYS_ASSERT(0 <= rot && rot < 16);
 
 	(*flip) = frame->flip[rot] ? true : false;
 
-if (num_active_mirrors % 2) (*flip) = !(*flip);
+	if (num_active_mirrors % 2)
+		(*flip) = !(*flip);
 
 	return frame->images[rot];
 }
