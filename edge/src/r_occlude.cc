@@ -18,7 +18,151 @@
 
 #include "i_defs.h"
 
-#include <string.h>
+#include "r_occlude.h"
+
+
+#define ANGLE_MAX  ((angle_t) -1)
+
+
+typedef struct angle_range_s;
+{
+	angle_t low, high;
+
+	struct angle_range_s *next, prev;
+}
+angle_range_t;
+
+
+static angle_range_t *occbuf_head = NULL;
+static angle_range_t *occbuf_tail = NULL;
+
+static angle_range_t *free_range_chickens = NULL;
+
+
+void RGL_1DOcclusionClear(void)
+{
+	// Clear all angles in the whole buffer
+	// )i.e. mark them as open / non-blocking).
+
+	if (occbuf_head)
+	{
+		occbuf_tail->next = free_range_chickens;
+
+		free_range_chickens = occbuf_head;
+
+		occbuf_head = NULL;
+		occbuf_tail = NULL;
+	}
+}
+
+static inline angle_range_t *GetNewRange(angle_t L, angle_t H)
+{
+	angle_range_t *NR;
+
+	if (free_range_chickens)
+	{
+		angle_range_t *NR = free_range_chickens;
+
+		free_range_chickens = NR->next;
+	}
+	else
+		NR = new angle_range_t;
+
+	NR->low  = L;
+	NR->high = H;
+
+	return NR;
+}
+
+static void DoSet(angle_t low, angle_t high)
+{
+	for (angle_range_t *AR = occbuf_head; AR; AR = AR->next)
+	{
+		if (high < AR->low)
+		{
+			angle_range_t *NR = GetNewRange(low, high);
+			LINK IN BEFORE
+			return;
+		}
+
+		if (low > AR->high)
+			continue;
+
+		// the new range overlaps the old range.
+		//
+		// The above test (i.e. low > AR->high) guarantees that if
+		// we reduce AR->low, it cannot touch the previous range.
+		//
+		// However by increasing AR->high we may touch or overlap
+		// the subsequent ranges in the list.  When that happens,
+		// we must remove them (and adjust the current range).
+
+		AR->low  = MIN(AR->low, low);
+		AR->high = MAX(AR->high, high);
+
+		if (AR->prev)
+		{
+			SYS_ASSERT(AR->low > AR->prev->high);
+		}
+
+		while (AR->next && AR->high >= AR->next->low)
+		{
+			@@@
+		}
+
+		return;
+	}
+
+	// the new range is greater than all existing ranges
+
+	angle_range_t *NR = GetNewRange(low, high);
+
+	@ LINK in tail
+}
+
+void RGL_1DOcclusionSet(angle_t low, angle_t high)
+{
+	// Set all angles in the given range, i.e. mark them as blocking.
+	// The angles are relative to the VIEW angle.
+
+	SYS_ASSERT((angle_t)(high - low) < ANG180);
+
+	if (low <= high)
+		DoSet(low, high);
+	else
+		{ DoSet(low, ANGLE_MAX); DoSet(0, high); }
+}
+
+static inline bool DoTest(angle_t low, angle_t high)
+{
+	for (angle_range_t *AR = occbuf_head; AR; AR = AR->next)
+	{
+		if (AR->low <= low && high <= AR->high)
+			return true;
+
+		if (AR->high > low)
+			break;
+	}
+
+	return false;
+}
+
+bool RGL_1DOcclusionTest(angle_t low, angle_t high)
+{
+	// Check whether all angles in the given range are set (i.e. blocked).
+	// Returns true if the entire range is blocked, false otherwise.
+	// Angles are relative to the VIEW angle.
+
+	SYS_ASSERT((angle_t)(high - low) < ANG180);
+
+	if (low <= high)
+		return DoTest(low, high);
+	else
+		return DoTest(low, ANGLE_MAX) && DoTest(0, high);
+}
+
+
+#if 0 // OLD CODE
 
 //----------------------------------------------------------------------------
 //
@@ -97,16 +241,6 @@ void RGL_1DOcclusionSet(angle_t low, angle_t high)
 	low_b  = low  & 0x1F;  low  >>= 5; 
 	high_b = high & 0x1F;  high >>= 5; 
 
-#if 0  // TEMP DEBUGGING CODE
-unsigned int low_orig = low;
-if (rgl_1d_debug)
-{
-	L_WriteDebug("> low = %d.%d  high = %d.%d\n", low, low_b, high, high_b);
-	L_WriteDebug("> Low mask = 0x%08x  High mask = 0x%08x\n",
-		LOW_MASK(low_b), HIGH_MASK(high_b));
-}
-#endif
-
 	if (low == high)
 	{
 		oned_oculus_buffer[low] &= ~(LOW_MASK(low_b) & HIGH_MASK(high_b));
@@ -121,28 +255,6 @@ if (rgl_1d_debug)
 		for (; low != high; low = (low+1) % ONED_TOTAL)
 			oned_oculus_buffer[low] = 0x00000000;
 	}
-
-#if 0  // TEMP DEBUGGING CODE
-if (rgl_1d_debug)
-{
-	low = low_orig;
-
-	L_WriteDebug("> ");
-	L_WriteDebug("0x%08x", oned_oculus_buffer[low]);
-
-	if (low != high)
-	{
-		low = (low+1) % ONED_TOTAL;
-
-		for (; low != high; low = (low+1) % ONED_TOTAL)
-			L_WriteDebug(" 0x%08x", oned_oculus_buffer[low]);
-
-		L_WriteDebug(" 0x%08x", oned_oculus_buffer[high]);
-	}
-
-	L_WriteDebug(" <\n");
-}
-#endif
 }
 
 //
@@ -164,33 +276,6 @@ bool RGL_1DOcclusionTest(angle_t low, angle_t high)
 	low_b  = low  & 0x1F;  low  >>= 5; 
 	high_b = high & 0x1F;  high >>= 5; 
 
-#if 0  // TEMP DEBUGGING CODE
-unsigned int low_orig = low;
-if (rgl_1d_debug)
-{
-	L_WriteDebug("? low = %d.%d  high = %d.%d\n", low, low_b, high, high_b);
-	L_WriteDebug("? Low mask = 0x%08x  High mask = 0x%08x\n",
-		LOW_MASK(low_b), HIGH_MASK(high_b));
-
-	L_WriteDebug("? ");
-	L_WriteDebug("0x%08x", oned_oculus_buffer[low]);
-
-	if (low != high)
-	{
-		low = (low+1) % ONED_TOTAL;
-
-		for (; low != high; low = (low+1) % ONED_TOTAL)
-			L_WriteDebug(" 0x%08x", oned_oculus_buffer[low]);
-
-		L_WriteDebug(" 0x%08x", oned_oculus_buffer[high]);
-	}
-
-	L_WriteDebug(".\n");
-
-	low = low_orig;
-}
-#endif
-
 	if (low == high)
 		return ! (oned_oculus_buffer[low] & (LOW_MASK(low_b) & HIGH_MASK(high_b)));
 
@@ -209,36 +294,7 @@ if (rgl_1d_debug)
 	return true;
 }
 
-typedef struct saved_occbuf_s
-{
-	struct saved_occbuf_s *link;
-	unsigned long buffer[ONED_TOTAL];
-}
-saved_occbuf_t;
-
-static saved_occbuf_t *occ_stack = NULL;
-
-void RGL_1DOcclusionPush(void)
-{
-	saved_occbuf_t *cur = new saved_occbuf_t;
-
-	memcpy(cur->buffer, oned_oculus_buffer, sizeof(oned_oculus_buffer));
-
-	cur->link = occ_stack;
-	occ_stack = cur;
-}
-
-void RGL_1DOcclusionPop(void)
-{
-	SYS_ASSERT(occ_stack != NULL);
-
-	saved_occbuf_t *cur = occ_stack;
-	occ_stack = occ_stack->link;
-
-	memcpy(oned_oculus_buffer, cur->buffer, sizeof(oned_oculus_buffer));
-	delete cur;
-}
-
+#endif  // OLD CODE
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

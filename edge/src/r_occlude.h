@@ -23,19 +23,14 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __RGL_OCC_
-#define __RGL_OCC_
-
+#ifndef __RGL_OCCLUDE_H__
+#define __RGL_OCCLUDE_H__
 
 void RGL_1DOcclusionClear(void);
 void RGL_1DOcclusionSet(angle_t low, angle_t high);
 bool RGL_1DOcclusionTest(angle_t low, angle_t high);
 
-void RGL_1DOcclusionPush(void);
-void RGL_1DOcclusionPop(void);
-
-
-#endif  // __RGL_OCC_
+#endif /* __RGL_OCCLUDE_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
