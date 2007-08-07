@@ -243,7 +243,7 @@ static int WhatRot(spriteframe_c *frame, const char *name, int pos )
 			if (rot >= 9)
 				return 1 + (rot-9) * 2;
 			else
-				return rot * 2;
+				return 0 + (rot-1) * 2;
 
 		default:
 			I_Error("INTERNAL ERROR: frame->rots = %d\n", frame->rots);
