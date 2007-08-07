@@ -123,8 +123,26 @@ static const image_c *shadow_image = NULL;
 
 // ========= MIRROR STUFF ===========
 
-static void ClipPlaneHorizontalLine(GLdouble *p, const vec2_t& s,
-	const vec2_t& e, bool flip);
+static inline void ClipPlaneHorizontalLine(GLdouble *p, const vec2_t& s,
+	const vec2_t& e)
+{
+	p[0] = e.y - s.y;
+	p[1] = s.x - e.x;
+	p[2] = 0.0f;
+	p[3] = e.x * s.y - s.x * e.y;
+}
+
+static inline void ClipPlaneEyeAngle(GLdouble *p, angle_t ang)
+{
+	vec2_t s, e;
+
+	s.Set(viewx, viewy);
+
+	e.Set(viewx + M_Cos(ang), viewy + M_Sin(ang));
+
+	ClipPlaneHorizontalLine(p, s, e);
+}
+
 
 typedef struct
 {
@@ -136,18 +154,21 @@ typedef struct
 public:
 	void ComputeMirror()
 	{
-		line_t *line = def->line;
+		seg_t *seg = def->seg;
 
-		float len_p2 = line->length * line->length;
+		float sdx = seg->v2->x - seg->v1->x;
+		float sdy = seg->v2->y - seg->v1->y;
 
-		float A = (line->dx * line->dx - line->dy * line->dy) / len_p2;
-		float B = (line->dx * line->dy + line->dx * line->dy) / len_p2;
+		float len_p2 = seg->length * seg->length;
+
+		float A = (sdx * sdx - sdy * sdy) / len_p2;
+		float B = (sdx * sdy * 2.0)       / len_p2;
 
 		xx = A; xy =  B;
 		yx = B; yy = -A;
 
-		xc = line->v1->x * (1.0-A) - line->v1->y * B;
-		yc = line->v1->y * (1.0+A) - line->v1->x * B;
+		xc = seg->v1->x * (1.0-A) - seg->v1->y * B;
+		yc = seg->v1->y * (1.0+A) - seg->v1->x * B;
 	}
 
 	void Flip(float& x, float& y)
@@ -160,7 +181,7 @@ public:
 }
 mirror_info_t;
 
-#define MAX_MIRRORS  2
+#define MAX_MIRRORS  2 //!!!!!!
 
 static mirror_info_t active_mirrors[MAX_MIRRORS];
 
@@ -175,82 +196,117 @@ void MIR_Coordinate(float& x, float& y)
 
 static void MIR_SetClippers()
 {
-		glDisable(GL_CLIP_PLANE0);
-		glDisable(GL_CLIP_PLANE1);
-		glDisable(GL_CLIP_PLANE2);
-		glDisable(GL_CLIP_PLANE3);
-		glDisable(GL_CLIP_PLANE4);
-		glDisable(GL_CLIP_PLANE5);
+	glDisable(GL_CLIP_PLANE0);
+	glDisable(GL_CLIP_PLANE1);
+	glDisable(GL_CLIP_PLANE2);
+	glDisable(GL_CLIP_PLANE3);
+	glDisable(GL_CLIP_PLANE4);
+	glDisable(GL_CLIP_PLANE5);
 
 	if (num_active_mirrors == 0)
-	{
 		return;
-	}
 
-	// FIXME: multiple mirrors
+	// setup planes for left and right sides of innermost mirror.
+	// Angle clipping has ensured that for multiple mirrors all
+	// later mirrors are limited to the earlier mirrors.
+
+	mirror_info_t& inner = active_mirrors[num_active_mirrors-1];
 
 	GLdouble  left_p[4];
 	GLdouble right_p[4];
-	GLdouble front_p[4];
 
-  	glEnable(GL_CLIP_PLANE0);  // left
-   	glEnable(GL_CLIP_PLANE1);  // right
+	ClipPlaneEyeAngle(left_p,  inner.def->left);
+	ClipPlaneEyeAngle(right_p, inner.def->right + ANG180);
 
-
-	glEnable(GL_CLIP_PLANE2);  // front
-
-	line_t *ld = active_mirrors[0].def->line;
-
-	vec2_t left_v;
-	vec2_t right_v;
-	vec2_t eye_v;
-
-	 left_v.Set(ld->v1->x, ld->v1->y);
-	right_v.Set(ld->v2->x, ld->v2->y);
-	  eye_v.Set(viewx, viewy);
-
-	ClipPlaneHorizontalLine( left_p, eye_v,   left_v, false);
-  	ClipPlaneHorizontalLine(right_p, eye_v,  right_v, true);
-	ClipPlaneHorizontalLine(front_p, left_v, right_v, true);
+  	glEnable(GL_CLIP_PLANE0);
+   	glEnable(GL_CLIP_PLANE1);
 
 	glClipPlane(GL_CLIP_PLANE0, left_p);
   	glClipPlane(GL_CLIP_PLANE1, right_p);
-	glClipPlane(GL_CLIP_PLANE2, front_p);
 
 
-	if (num_active_mirrors == 2)
+	// now for each mirror, setup a clip plane that removes
+	// everything that gets projected in front of that mirror.
+
+	for (int i=0; i < num_active_mirrors; i++)
 	{
-		glEnable(GL_CLIP_PLANE3);  // left
-		glEnable(GL_CLIP_PLANE4);  // right
-		glEnable(GL_CLIP_PLANE5);  // front
+		mirror_info_t& mir = active_mirrors[i];
 
-		line_t *ld = active_mirrors[1].def->line;
+		vec2_t v1, v2;
 
-		vec2_t left_v;
-		vec2_t right_v;
-		vec2_t eye_v;
+		v1.Set(mir.def->seg->v1->x, mir.def->seg->v1->y);
+		v2.Set(mir.def->seg->v2->x, mir.def->seg->v2->y);
 
-		 left_v.Set(ld->v2->x, ld->v2->y);
-		right_v.Set(ld->v1->x, ld->v1->y);
-		  eye_v.Set(viewx, viewy);
+		for (int k = i-1; i >= 0; i--)
+		{
+			vec2_t tmp; tmp = v1; v1 = v2; v2 = tmp;
 
-		num_active_mirrors--;
-		MIR_Coordinate(left_v.x,  left_v.y);
-		MIR_Coordinate(right_v.x, right_v.y);
-		num_active_mirrors++;
+			active_mirrors[k].Flip(v1.x, v1.y);
+			active_mirrors[k].Flip(v2.x, v2.y);
+		}
+		
+		GLdouble front_p[4];
 
-		ClipPlaneHorizontalLine( left_p, eye_v,   left_v, false);
-		ClipPlaneHorizontalLine(right_p, eye_v,  right_v, true);
-		ClipPlaneHorizontalLine(front_p, left_v, right_v, true);
+		ClipPlaneHorizontalLine(front_p, v1, v2);
 
-		glClipPlane(GL_CLIP_PLANE3, left_p);
-		glClipPlane(GL_CLIP_PLANE4, right_p);
-		glClipPlane(GL_CLIP_PLANE5, front_p);
+		glEnable(GL_CLIP_PLANE2 + i);
+
+		glClipPlane(GL_CLIP_PLANE2 + i, front_p);
 	}
+
+///---	seg_t *seg = active_mirrors[0].def->seg;
+///---
+///---	vec2_t left_v;
+///---	vec2_t right_v;
+///---	vec2_t eye_v;
+///---
+///---	 left_v.Set(seg->v1->x, seg->v1->y);
+///---	right_v.Set(seg->v2->x, seg->v2->y);
+///---	  eye_v.Set(viewx, viewy);
+///---
+///---	ClipPlaneHorizontalLine( left_p, eye_v,   left_v);
+///---  	ClipPlaneHorizontalLine(right_p, right_v, eye_v);
+///---	ClipPlaneHorizontalLine(front_p, right_v, left_v);
+///---
+///---	glClipPlane(GL_CLIP_PLANE2, front_p);
+///---
+///---
+///---	if (num_active_mirrors == 2)
+///---	{
+///---		glEnable(GL_CLIP_PLANE3);  // left
+///---		glEnable(GL_CLIP_PLANE4);  // right
+///---		glEnable(GL_CLIP_PLANE5);  // front
+///---
+///---		seg_t *seg = active_mirrors[1].def->seg;
+///---
+///---		vec2_t left_v;
+///---		vec2_t right_v;
+///---		vec2_t eye_v;
+///---
+///---		 left_v.Set(seg->v2->x, seg->v2->y);
+///---		right_v.Set(seg->v1->x, seg->v1->y);
+///---		  eye_v.Set(viewx, viewy);
+///---
+///---		num_active_mirrors--;
+///---		MIR_Coordinate(left_v.x,  left_v.y);
+///---		MIR_Coordinate(right_v.x, right_v.y);
+///---		num_active_mirrors++;
+///---
+///---		ClipPlaneHorizontalLine( left_p, eye_v,   left_v);
+///---		ClipPlaneHorizontalLine(right_p, right_v, eye_v);
+///---		ClipPlaneHorizontalLine(front_p, right_v, left_v);
+///---
+///---		glClipPlane(GL_CLIP_PLANE3, left_p);
+///---		glClipPlane(GL_CLIP_PLANE4, right_p);
+///---		glClipPlane(GL_CLIP_PLANE5, front_p);
+///---	}
 }
 
 static bool MIR_Push(drawmirror_c *mir)
 {
+	SYS_ASSERT(mir);
+	SYS_ASSERT(mir->seg);
+
 	if (num_active_mirrors == MAX_MIRRORS)
 		return false;
 
@@ -409,25 +465,7 @@ static void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor)
 // ============================================================================
 
 
-static void ClipPlaneHorizontalLine(GLdouble *p, const vec2_t& s,
-	const vec2_t& e, bool flip)
-{
-	if (! flip)
-	{
-		p[0] = e.y - s.y;
-		p[1] = s.x - e.x;
-		p[2] = 0.0f;
-		p[3] = e.x * s.y - s.x * e.y;
-	}
-	else
-	{
-		p[0] = s.y - e.y;
-		p[1] = e.x - s.x;
-		p[2] = 0.0f;
-		p[3] = - e.x * s.y + s.x * e.y;
-	}
-}
-
+#if 0  // DISABLED FOR TIME BEING
 static void ClipPlaneHorizontalEye(GLdouble *p, const vertex_t *v, bool flip)
 {
 	vec2_t s, e;
@@ -467,9 +505,11 @@ static void ClipPlaneVerticalEye(GLdouble *p, const seg_t *seg,
 		p[3] = 0.0f - p[3];
 	}
 }
+#endif
 
 static void FloodSetClipPlanes(const seg_t *seg, float h1, float h2)
 {
+#if 0
 	GLdouble left_p[4];
 	GLdouble right_p[4];
 	GLdouble bottom_p[4];
@@ -490,14 +530,17 @@ static void FloodSetClipPlanes(const seg_t *seg, float h1, float h2)
 	glClipPlane(GL_CLIP_PLANE1, right_p);
 	glClipPlane(GL_CLIP_PLANE2, bottom_p);
 	glClipPlane(GL_CLIP_PLANE3, top_p);
+#endif
 }
 
 static void FloodResetClipPlanes(void)
 {
+#if 0
 	glDisable(GL_CLIP_PLANE0);
 	glDisable(GL_CLIP_PLANE1);
 	glDisable(GL_CLIP_PLANE2);
 	glDisable(GL_CLIP_PLANE3);
+#endif
 }
 
 
@@ -1484,7 +1527,7 @@ static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 						   angle_t left, angle_t right)
 {
 	drawmirror_c *mir = R_GetDrawMirror();
-	mir->Clear(seg->linedef);
+	mir->Clear(seg);
 
 	mir->left  = viewangle + left;
 	mir->right = viewangle + right;
@@ -1527,8 +1570,8 @@ static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 {
 	// ignore segs sitting on current mirror
-	if (num_active_mirrors > 0 && seg->linedef ==
-		active_mirrors[num_active_mirrors-1].def->line)
+	if (num_active_mirrors > 0 && seg ==
+		active_mirrors[num_active_mirrors-1].def->seg)
 		return;
 
 	float sx1 = seg->v1->x;
@@ -1543,43 +1586,33 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 	{
 		for (int i=num_active_mirrors-1; i >= 0; i--)
 		{
-			line_t *ld = active_mirrors[i].def->line;
+			seg_t *seg = active_mirrors[i].def->seg;
 
 			divline_t div;
 
-			div.x  = ld->v1->x;
-			div.y  = ld->v1->y;
-			div.dx = ld->dx;
-			div.dy = ld->dy;
+			div.x  = seg->v1->x;
+			div.y  = seg->v1->y;
+			div.dx = seg->v2->x - div.x;
+			div.dy = seg->v2->y - div.y;
 
 			int s1 = P_PointOnDivlineSide(sx1, sy1, &div);
 			int s2 = P_PointOnDivlineSide(sx2, sy2, &div);
 
-			// seg lies completely on the back?
+			// seg lies completely in the back space?
 			if (s1 == 1 && s2 == 1)
 				return;
 
 			if (s1 != s2)
 			{
-				// seg crosses line, need to split
-				if (ld->dx == 0)
-				{
-					if (s2 == 1)
-						sx2 = ld->v1->x;
-					else
-						sx1 = ld->v1->x;
-				}
-				else if (ld->dy == 0)
-				{
-					if (s2 == 1)
-						sy2 = ld->v1->y;
-					else
-						sy1 = ld->v1->y;
-				}
+				// seg crosses line, need to split it
+				float ix, iy;
+
+				P_ComputeIntersection(&div, sx1, sy1, sx2, sy2, &ix, &iy);
+
+				if (s2 == 1)
+					sx2 = ix, sy2 = iy;
 				else
-				{
-					//!!!! FIXME
-				}
+					sx1 = ix, sy1 = iy;
 			}
 
 			active_mirrors[i].Flip(sx1, sy1);
@@ -1589,15 +1622,6 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
       		float ty = sy1; sy1 = sy2; sy2 = ty;
 		}
 	}
-
-///---	MIR_Coordinate(sx1, sy1);
-///---	MIR_Coordinate(sx2, sy2);
-///---
-///---	if (num_active_mirrors % 2)
-///---	{
-///---		float tx = sx1; sx1 = sx2; sx2 = tx;
-///---		float ty = sy1; sy1 = sy2; sy2 = ty;
-///---	}
 
 	angle_t angle_L = R_PointToAngle(viewx, viewy, sx1, sy1);
 	angle_t angle_R = R_PointToAngle(viewx, viewy, sx2, sy2);
@@ -1635,6 +1659,8 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 
 			angle_R = clip_right;
 		}
+
+		span = angle_L - angle_R;
 	}
 
 	// The seg is in the view range,
@@ -1650,15 +1676,12 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 
 	dsub->visible = true;
 
-	if (seg->miniseg)
+	if (seg->miniseg) //!!!!!!! || span == 0)
 		return;
 
 	if ((seg->linedef->flags & MLF_Mirror) &&
 		(num_active_mirrors < MAX_MIRRORS))
 	{
-		// FIXME: check if linedef already seen
-		// if (XXX) return;
-
 		RGL_WalkMirror(dsub, seg, angle_L, angle_R);
 
 		RGL_1DOcclusionSet(angle_R, angle_L);
@@ -1823,6 +1846,9 @@ bool RGL_CheckBBox(float *bspcoord)
 
 			angle_R = clip_right;
 		}
+
+//!!!!!!		if (angle_L == angle_R)
+//!!!!!!			return false;
 	}
 
 	return ! RGL_1DOcclusionTest(angle_R, angle_L);
@@ -2300,37 +2326,40 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	float alpha = 0.15 * (num_active_mirrors + 1);
+	float alpha = 0.14 * (num_active_mirrors + 1);
 
-	if (mir->line->special)
+	line_t *ld = mir->seg->linedef;
+	SYS_ASSERT(ld);
+
+	if (ld->special)
 	{
 #if 0 
-		float trans = PERCENT_2_FLOAT(mir->line->special->translucency);
+		float trans = PERCENT_2_FLOAT(ld->special->translucency);
 
 		// ignore the default value, which is 100%
 		if (trans < 0.95) alpha = MAX(alpha, trans);
 #endif
-		float R = RGB_RED(mir->line->special->mirror_color);
-		float G = RGB_GRN(mir->line->special->mirror_color);
-		float B = RGB_BLU(mir->line->special->mirror_color);
+		float R = RGB_RED(ld->special->mirror_color);
+		float G = RGB_GRN(ld->special->mirror_color);
+		float B = RGB_BLU(ld->special->mirror_color);
 
 		// looks better with reduced color in multiple reflections
-		R *= 1.0 - 0.3 * num_active_mirrors;
-		G *= 1.0 - 0.3 * num_active_mirrors;
-		B *= 1.0 - 0.3 * num_active_mirrors;
+		R *= 1.0 - 0.4 * num_active_mirrors;
+		G *= 1.0 - 0.4 * num_active_mirrors;
+		B *= 1.0 - 0.4 * num_active_mirrors;
 
 		glColor4f(R, G, B, alpha);
 	}
 	else
 		glColor4f(0.0, 0.0, 0.0, alpha);
 
-	float x1 = mir->line->v1->x;
-	float y1 = mir->line->v1->y;
-	float z1 = mir->line->frontsector->f_h;
+	float x1 = mir->seg->v1->x;
+	float y1 = mir->seg->v1->y;
+	float z1 = ld->frontsector->f_h;
 
-	float x2 = mir->line->v2->x;
-	float y2 = mir->line->v2->y;
-	float z2 = mir->line->frontsector->c_h;
+	float x2 = mir->seg->v2->x;
+	float y2 = mir->seg->v2->y;
+	float z2 = ld->frontsector->c_h;
 
 	MIR_Coordinate(x1, y1);
 	MIR_Coordinate(x2, y2);

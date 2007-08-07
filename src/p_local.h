@@ -236,6 +236,9 @@ float P_ApproxSlope(float dx, float dy, float dz);
 int P_PointOnDivlineSide(float x, float y, divline_t *div);
 int P_PointOnDivlineThick(float x, float y, divline_t *div,
 						  float div_len, float thickness);
+void P_ComputeIntersection(divline_t *div,
+		float x1, float y1, float x2, float y2,
+		float *ix, float *iy);
 float P_InterceptVector(divline_t * v2, divline_t * v1);
 int P_BoxOnLineSide(const float * tmbox, line_t * ld);
 int P_BoxOnDivLineSide(const float * tmbox, divline_t *div);
