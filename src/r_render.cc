@@ -60,6 +60,8 @@
 
 #define DLIGHT_PROTOTYPE  1
 
+// #define DEBUG_GREET_NEIGHBOUR
+
 
 
 side_t *sidedef;
@@ -875,6 +877,8 @@ static void ComputeDLParameters(float dist, mobj_t *mo,
 #endif // DLIGHT_PROTOTYPE
 
 
+#define MAX_EDGE_VERT  8
+
 static inline void GreetNeighbourSector(float *hts, int& num, sector_t *sec)
 {
 	if (! sec)
@@ -882,28 +886,40 @@ static inline void GreetNeighbourSector(float *hts, int& num, sector_t *sec)
 
 	for (int i=0; i < 2; i++)
 	{
+		if (num >= MAX_EDGE_VERT)
+			break;
+
 		float h = i ? sec->c_h : sec->f_h;
 
 		// does not intersect current height range?
-		if (h-0.1 < hts[0] || h+0.1 > hts[num-1])
+		if (h <= hts[0]+0.1 || h >= hts[num-1]-0.1)
 			continue;
 
-		// check if new height already present
-		if (num >= 3 && fabs(hts[1] - h) < 0.1)
-			continue;
-
-		if (num >= 4 && fabs(hts[2] - h) < 0.1)
-			continue;
+		// check if new height already present, and at same time
+		// find place to insert new height.
 		
-		// OK, got a new point, so add it in
-		hts[num]   = hts[num-1];
-		hts[num-1] = h;
+		int pos = 1;
 
-		num++;
-
-		if (num == 4 && hts[2] < hts[1])
+		for (; pos < num; pos++)
 		{
-			float tmp = hts[2]; hts[2] = hts[1]; hts[1] = tmp;
+			if (h < hts[pos] - 0.1)
+				break;
+
+			if (h < hts[pos] + 0.1)
+			{
+				pos = -1; // already present
+				break;
+			}
+		}
+
+		if (pos > 0 && pos < num)
+		{
+			for (int k = num; k >= pos+1; k--)
+				hts[k] = hts[k-1];
+
+			hts[pos] = h;
+
+			num++;
 		}
 	}
 }
@@ -1164,14 +1180,12 @@ if (num_active_mirrors % 2)
 
 	data.cmx = 0;
 
-	poly = RGL_NewPolyQuad(4);
-
 	// -AJA- 2007/08/07: ugly code here ensures polygon edges
 	//       match up with adjacent linedefs (otherwise small
 	//       gaps can appear which look bad).
 
-	float left_h[4];  int left_num=2;
-	float right_h[4]; int right_num=2;
+	float  left_h[MAX_EDGE_VERT]; int  left_num=2;
+	float right_h[MAX_EDGE_VERT]; int right_num=2;
 
 	left_h[0]  = bottom; left_h[1]  = top;
 	right_h[0] = bottom; right_h[1] = top;
@@ -1187,13 +1201,32 @@ if (num_active_mirrors % 2)
 				for (int n = 0; n < 2; n++)
 				{
 					GreetNeighbourSector(
-						vert ? right_h : left_h,
+						vert ? right_h   : left_h,
 						vert ? right_num : left_num,
 						cur_seg->linedef->nb_sec[vert*2 + n]);
 				}
 			}
 		}
+
+#if DEBUG_GREET_NEIGHBOUR
+		SYS_ASSERT(left_num  <= MAX_EDGE_VERT);
+		SYS_ASSERT(right_num <= MAX_EDGE_VERT);
+
+		for (int k = 0; k < MAX_EDGE_VERT; k++)
+		{
+			if (k+1 < left_num)
+			{
+				SYS_ASSERT(left_h[k]  <= left_h[k+1]);
+			}
+			if (k+1 < right_num)
+			{
+				SYS_ASSERT(right_h[k] <= right_h[k+1]);
+			}
+		}
+#endif
 	}
+
+	poly = RGL_NewPolyQuad(left_num + right_num);
 
 	for (int LI = 0; LI < left_num; LI++)
 		PQ_ADD_VERT(poly, x1, y1, left_h[LI]);

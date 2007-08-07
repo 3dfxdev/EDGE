@@ -2211,8 +2211,6 @@ void GroupLines(void)
 
 static void HandleNeighbours(int i, int vert, int k)
 {
-	vert = (vert-1) * 2;
-
 	for (int side = 0; side < 2; side++)
 	{
 		sector_t *sec = side ? lines[k].backsector : lines[k].frontsector;
@@ -2228,11 +2226,9 @@ static void HandleNeighbours(int i, int vert, int k)
 
 		for (int n=0; n < 2; n++)
 		{
-			if (! lines[i].nb_sec[vert+n])
+			if (! lines[i].nb_sec[vert*2+n])
 			{
-L_WriteDebug("Neighbour %s on line #%d --> sector #%d\n",
-(vert==0) ? "v1" : "v2", i, sec - sectors);
-				lines[i].nb_sec[vert+n] = sec;
+				lines[i].nb_sec[vert*2+n] = sec;
 				break;
 			}
 		}
@@ -2252,13 +2248,13 @@ static void FindLinedefNeighbours(void)
 		if (lines[i].v1 == lines[k].v1 ||
 			lines[i].v1 == lines[k].v2)
 		{
-			HandleNeighbours(i, 1, k);
+			HandleNeighbours(i, 0, k);
 		}
 
 		if (lines[i].v2 == lines[k].v1 ||
 			lines[i].v2 == lines[k].v2)
 		{
-			HandleNeighbours(i, 2, k);
+			HandleNeighbours(i, 1, k);
 		}
 	}
 }
