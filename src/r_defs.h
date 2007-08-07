@@ -308,10 +308,12 @@ sector_t;
 
 typedef enum
 {
-	WTILF_ExtraX   = 0x0001,  // side of an extrafloor
-	WTILF_ExtraY   = 0x0002,  //
+	WTILF_IsExtra  = (1 << 0),
+	WTILF_ExtraX   = (1 << 1),  // side of an extrafloor
+	WTILF_ExtraY   = (1 << 2),  //
 
-	WTILF_MidMask  = 0x0010,  // the mid-masked part (gratings etc)
+	WTILF_MidMask  = (1 << 4),  // the mid-masked part (gratings etc)
+
 }
 wall_tile_flag_e;
 
@@ -431,6 +433,9 @@ typedef struct line_s
 
 	// Keep animating lines in a linked list.
 	struct line_s *animate_next;
+
+	// neighbouring sectors on vertices, two each
+	sector_t *nb_sec[4];
 }
 line_t;
 

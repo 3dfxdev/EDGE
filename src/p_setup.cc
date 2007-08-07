@@ -56,6 +56,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <vector>
+
 // debugging aide:
 #define FORCE_LOCATION  0
 #define FORCE_LOC_X     12766
@@ -2207,6 +2209,61 @@ void GroupLines(void)
 	}
 }
 
+static void HandleNeighbours(int i, int vert, int k)
+{
+	vert = (vert-1) * 2;
+
+	for (int side = 0; side < 2; side++)
+	{
+		sector_t *sec = side ? lines[k].backsector : lines[k].frontsector;
+
+		if (!sec ||
+			sec == lines[i].frontsector    ||
+		    sec == lines[i].backsector     ||
+		    sec == lines[i].nb_sec[vert+0] ||
+		    sec == lines[i].nb_sec[vert+1])
+		{
+			continue;
+		}
+
+		for (int n=0; n < 2; n++)
+		{
+			if (! lines[i].nb_sec[vert+n])
+			{
+L_WriteDebug("Neighbour %s on line #%d --> sector #%d\n",
+(vert==0) ? "v1" : "v2", i, sec - sectors);
+				lines[i].nb_sec[vert+n] = sec;
+				break;
+			}
+		}
+	}
+}
+
+static void FindLinedefNeighbours(void)
+{
+	// FIXME OPTIMISE !!!
+
+	for (int i=0; i < numlines; i++)
+	for (int k=0; k < numlines; k++)
+	{
+		if (i == k)
+			continue;
+
+		if (lines[i].v1 == lines[k].v1 ||
+			lines[i].v1 == lines[k].v2)
+		{
+			HandleNeighbours(i, 1, k);
+		}
+
+		if (lines[i].v2 == lines[k].v1 ||
+			lines[i].v2 == lines[k].v2)
+		{
+			HandleNeighbours(i, 2, k);
+		}
+	}
+}
+
+
 //
 // LoadReject
 //
@@ -2469,7 +2526,6 @@ void P_SetupLevel(skill_t skill, int autotag)
 	LoadNodes(gl_lumpnum + ML_GL_NODES, "GL_NODES");
 	LoadReject(lumpnum + ML_REJECT);
 
-
 	GroupLines();
 
 	{
@@ -2477,6 +2533,8 @@ void P_SetupLevel(skill_t skill, int autotag)
 		for (j=0; j < numsectors; j++)
 			P_RecomputeTilesInSector(sectors + j);
 	}
+
+	FindLinedefNeighbours();
 
 	DetectDeepWaterTrick();
 
