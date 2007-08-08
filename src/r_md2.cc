@@ -290,7 +290,6 @@ static float md2_normals[MD2_NUM_NORMALS][3] =
 
 struct md2_vertex_c
 {
-public:
 	float x, y, z;
 
 	short normal_idx;
@@ -306,10 +305,10 @@ struct md2_frame_c
 
 struct md2_point_c
 {
+	float skin_s, skin_t;
+
 	// index into frame's vertex array (md2_frame_c::verts)
 	int vert_idx;
-
-	float skin_s, skin_t;
 };
 
 struct md2_strip_c
@@ -336,11 +335,12 @@ public:
 	md2_point_c *points;
 	md2_strip_c *strips;
 
+	int verts_per_frame;
+
 public:
 	md2_model_c(int _nframe, int _npoints, int _nstrip) :
-		num_frames(_nframes),
-		num_points(_npoints),
-		num_strips(_nstrip)
+		num_frames(_nframes), num_points(_npoints),
+		num_strips(_nstrip), verts_per_frame(0)
 	{
 		frames = new md2_frame_c[num_frames];
 		points = new md2_point_c[num_points];
@@ -360,6 +360,8 @@ public:
 
 md2_model_c *MD2_LoadModel(epi::file_c *f)
 {
+	int i;
+
 	raw_md2_header_t header;
 
 	/* read header */
@@ -377,6 +379,121 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 	int num_points = 0;
 	int num_strips = 0;
 
+	/* PARSE GLCMDS */
+
+	int num_glcmds = EPI_LE_S32(header.num_glcmds);
+
+	sint32_t *glcmds = new sint32_t[num_glcmds];
+
+	f->Seek(EPI_LE_S32(header.ofs_glcmds), epi::file_c::SEEKPOINT_START);
+	f->Read(glcmds, sizeof(sint32_t) * num_glcmds);
+
+	// determine total number of strips and points
+	for (i = 0; i < num_glcmds && glcmds[i] != 0; )
+	{
+		int count = EPI_LE_S32(glcmds[i]);
+
+		i++;
+
+		if (count < 0)
+			count = -count;
+
+		num_strips += 1;
+		num_points += count;
+
+		i += count*3;
+	}
+
+	md2_model_c *md = new md2_model_c(num_frames, num_points, num_strips);
+
+	md->verts_per_frame = EPI_LE_S32(header.verts_per_frame);
+
+	// convert glcmds into strips and points
+	int strip_idx = 0;
+	int point_idx = 0;
+
+	for (i = 0; i < num_glcmds && glcmds[i] != 0; )
+	{
+		int count = EPI_LE_S32(glcmds[i]);
+
+		i++;
+
+		md2_strip_c *strip = md->strips + strip_idx;
+		md2_point_c *point = md->points + point_idx;
+
+		strip->mode = (count < 0) ? GL_TRIANGLE_FAN : GL_TRIANGLE_STRIP;
+
+		if (count < 0)
+			count = -count;
+
+		strip->count = count;
+		strip->first = point_idx;
+
+		for (; count > 0; count--, point++, i += 3)
+		{
+			glcmds[i+0] = EPI_LE_U32(glcmds[i+0]);
+			glcmds[i+1] = EPI_LE_U32(glcmds[i+1]);
+			glcmds[i+2] = EPI_LE_U32(glcmds[i+2]);
+
+			float *f_ptr = (float *) &glcmds[i];
+
+			point->skin_s   = f_ptr[0];
+			point->skin_t   = f_ptr[1];
+			point->vert_idx = glcmds[i+2];
+		}
+	}
+
+	delete[] glcmds;
+
+	/* PARSE FRAMES */
+
+	raw_md2_vertex_t *raw_verts = new raw_md2_vertex_t[md->verts_per_frame];
+
+	f->Seek(EPI_LE_S32(header.ofs_frames), epi::file_c::SEEKPOINT_START);
+
+	for (i = 0; i < num_frames; i++)
+	{
+		raw_md2_frame_t raw_frame;
+
+		f->Read(&raw_frame, sizeof(raw_frame));
+
+		for (int j = 0; j < 3; j++)
+		{
+			raw_frame.scale[j]     = EPI_LE_U32(raw_frame.scale[j]);
+			raw_frame.translate[j] = EPI_LE_U32(raw_frame.translate[j]);
+		}
+
+		float *f_ptr = (float *) raw_frame.scale;
+
+		float scale[3];
+		float translate[3];
+
+		scale[0] = f_ptr[0];
+		scale[1] = f_ptr[1];
+		scale[2] = f_ptr[2];
+
+		translate[0] = f_ptr[3];
+		translate[1] = f_ptr[4];
+		translate[2] = f_ptr[5];
+
+		f->Read(raw_verts, sizeof(raw_md2_vertex_t) * md->verts_per_frame);
+
+		md2_frame_c *frame = md->frames + i;
+
+		frame->vertices = new md2_vertex_c[md->verts_per_frame];
+
+		raw_md2_vertex_t *raw_V = raw_verts;
+
+		for (int v = 0; v < md->verts_per_frame; v++)
+		{
+			md2_vertex_c *V = frame->vertices + v;
+
+			md->frames[
+		}
+	}
+
+	delete[] raw_verts;
+
 	/* memory allocation */
 	mdl->texcoords = (md2_texCoord_t *)malloc (sizeof (md2_texCoord_t) * mdl->header.num_st);
 	mdl->frames = (md2_frame_t *)malloc (sizeof(md2_frame_t) * mdl->header.num_frames);
@@ -385,9 +502,6 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 	/* read model data */
 	fseek (fp, mdl->header.offset_st, SEEK_SET);
 	fread (mdl->texcoords, sizeof (md2_texCoord_t), mdl->header.num_st, fp);
-
-	fseek (fp, mdl->header.offset_glcmds, SEEK_SET);
-	fread (mdl->glcmds, sizeof (int), mdl->header.num_glcmds, fp);
 
 	/* read frames */
 	fseek (fp, mdl->header.offset_frames, SEEK_SET);
