@@ -40,8 +40,6 @@
 
 #define DEBUG  0
 
-#define HALOS    0
-
 
 float sprite_skew;
 
@@ -516,12 +514,12 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 	LinkDrawthingIntoDrawfloor(dfloor, dthing);
 
 	// handle never-clip things 
-	if (dthing->clip_vert < 0)
+	if (dthing->y_clipping == YCLIP_Never)
 		return;
 
 	// Note that sprites are not clipped by the lowest floor or
 	// highest ceiling, OR by *solid* extrafloors (even translucent
-	// ones) -- UNLESS clip_vert is > 0.
+	// ones) -- UNLESS y_clipping == YCLIP_Hard.
 
 	f1 = dfloor->f_h;
 	c1 = dfloor->c_h;
@@ -568,7 +566,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 		if (! (dfloor->lower->ef->ef_info->type & EXFL_Liquid))
 			break;
 
-		// sprite's bottom must be clipped.  Make a copy.
+		// sprite must be split (bottom), make a copy.
 
 		dnew = R_GetDrawThing();
 
@@ -582,7 +580,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 
 		// shorten new sprite
 
-		dnew->y_offset += (dnew->top - f1);
+///----		dnew->y_offset += (dnew->top - f1);
 		dnew->top = f1;
 
 		SYS_ASSERT(dnew->bottom < dnew->top);
@@ -607,8 +605,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 		LinkDrawthingIntoDrawfloor(dfloor, dthing);
 	}
 
-	// when clip_vert is > 0, we must clip to solids
-	if (dthing->clip_vert > 0 &&
+	if (dthing->y_clipping == YCLIP_Hard &&
 		dthing->bottom <  f1 - SY_FUDGE &&
 		dthing->top    >= f1 + SY_FUDGE)
 	{
@@ -640,7 +637,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 		if (! (dfloor->ef->ef_info->type & EXFL_Liquid))
 			break;
 
-		// sprite's top must be clipped.  Make a copy.
+		// sprite must be split (top), make a copy.
 
 		dnew = R_GetDrawThing();
 
@@ -648,7 +645,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 
 		// shorten current sprite
 
-		dthing->y_offset += (dthing->top - c1);
+///----		dthing->y_offset += (dthing->top - c1);
 		dthing->top = c1;
 
 		SYS_ASSERT(dthing->bottom < dthing->top);
@@ -679,14 +676,13 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 		LinkDrawthingIntoDrawfloor(dfloor, dthing);
 	}
 
-	// when clip_vert is > 0, we must clip to solids
-	if (dthing->clip_vert > 0 &&
+	if (dthing->y_clipping == YCLIP_Hard &&
 		dthing->bottom <  c1 - SY_FUDGE &&
 		dthing->top    >= c1 + SY_FUDGE)
 	{
 		// shorten current sprite
 
-		dthing->y_offset += dthing->top - c1;
+///----		dthing->y_offset += dthing->top - c1;
 		dthing->top = c1;
 
 		SYS_ASSERT(dthing->bottom < dthing->top);
@@ -701,24 +697,20 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 {
 	// ignore the player him/herself
-if (num_active_mirrors == 0)
-{
-	if (mo == players[displayplayer]->mo)
+	if (mo == players[displayplayer]->mo && num_active_mirrors == 0)
 		return;
-}
+
 	// ignore invisible things
 	if (mo->visibility == INVISIBLE)
 		return;
 
 	// transform the origin point
-float mx = mo->x, my = mo->y;
-float vx = viewx, vy = viewy;
+	float mx = mo->x, my = mo->y;
 
-MIR_Coordinate(mx, my);
-/// MIR_Coordinate(vx, vy);
-	
-	float tr_x = mx - vx;
-	float tr_y = my - vy;
+	MIR_Coordinate(mx, my);
+
+	float tr_x = mx - viewx;
+	float tr_y = my - viewy;
 
 	float tz = tr_x * viewcos + tr_y * viewsin;
 
@@ -756,8 +748,31 @@ MIR_Coordinate(mx, my);
 	float tx1 = tx + pos1;
 	float tx2 = tx + pos2;
 
-	float gzt = mo->z + (sprite_height + top_offset) * mo->info->yscale;
-	float gzb = mo->z + top_offset * mo->info->yscale;
+	float gzt;
+	float gzb;
+
+	switch (mo->info->yalign)
+	{
+		case SPYA_TopDown:
+			gzt = mo->z + mo->height + top_offset * mo->info->yscale;
+			gzb = gzt - sprite_height * mo->info->yscale;
+			break;
+
+		case SPYA_Middle:
+		{
+			float mz = mo->z + mo->height * 0.5 + top_offset * mo->info->yscale;
+			float dz = sprite_height * 0.5 * mo->info->yscale;
+
+			gzt = mz + dz;
+			gzb = mz - dz;
+			break;
+		}
+
+		case SPYA_BottomUp: default:
+			gzb = mo->z +  top_offset * mo->info->yscale;
+			gzt = gzb + sprite_height * mo->info->yscale;
+			break;
+	}
 
 	if (mo->hyperflags & HF_HOVER)
 	{
@@ -773,18 +788,18 @@ MIR_Coordinate(mx, my);
 	}
 
 	// fix for sprites that sit wrongly into the floor/ceiling
-	int clip_vert = 0;
+	int y_clipping = YCLIP_Soft;
 
 	if ((mo->flags & MF_FUZZY) || (mo->hyperflags & HF_HOVER))
 	{
-		clip_vert = -1;
+		y_clipping = YCLIP_Never;
 	}
 	else if (sprite_kludge==0 && gzb < mo->floorz)
 	{
 		// explosion ?
 		if (mo->info->flags & MF_MISSILE)
 		{
-			clip_vert = +1;
+			y_clipping = YCLIP_Hard;
 		}
 		else
 		{
@@ -797,7 +812,7 @@ MIR_Coordinate(mx, my);
 		// explosion ?
 		if (mo->info->flags & MF_MISSILE)
 		{
-			clip_vert = +1;
+			y_clipping = YCLIP_Hard;
 		}
 		else
 		{
@@ -818,24 +833,22 @@ MIR_Coordinate(mx, my);
 	dthing->mx = mx;
 	dthing->my = my;
 	dthing->props = dsub->floors[0]->props;
-	dthing->clip_vert = clip_vert;
+	dthing->y_clipping = y_clipping;
 
 	dthing->image  = image;
 	dthing->flip   = spr_flip;
 	dthing->bright = mo->bright ? true : false;
 	dthing->is_shadow = false;
-	dthing->is_halo   = false;
-
-	dthing->iyscale = 1.0f / mo->info->yscale;
 
 	dthing->tx = tx;
 	dthing->tz = tz;
+
 	dthing->tx1 = tx1;
 	dthing->tx2 = tx2;
 
-	dthing->top = dthing->orig_top = gzt;
+	dthing->top    = dthing->orig_top    = gzt;
 	dthing->bottom = dthing->orig_bottom = gzb;
-	dthing->y_offset = 0;
+///----	dthing->y_offset = 0;
 
 	dthing->left_dx  = pos1 *  viewsin;
 	dthing->left_dy  = pos1 * -viewcos;
@@ -843,6 +856,7 @@ MIR_Coordinate(mx, my);
 	dthing->right_dy = pos2 * -viewcos;
 
 	// create shadow
+#if 0
 	if (level_flags.shadows && mo->info->shadow_trans > 0 &&
 		mo->floorz < viewz && ! IS_SKY(mo->subsector->sector->floor))
 	{
@@ -851,7 +865,7 @@ MIR_Coordinate(mx, my);
 		dshadow[0] = dthing[0];
 
 		dshadow->is_shadow = true;
-		dshadow->clip_vert = -1;
+		dshadow->y_clipping = -1;
 		dshadow->tz += 1.5f;
 
 		// shadows are 1/4 the height
@@ -864,41 +878,6 @@ MIR_Coordinate(mx, my);
 		dshadow->bottom = gzb;
 
 		R2_ClipSpriteVertically(dsub, dshadow);
-	}
-
-#if 0  // DISABLED
-	// create halo
-	if (level_flags.halos && mo->info->halo.height > 0)
-	{
-		drawthing_t *dhalo = R_GetDrawThing();
-
-		dhalo[0] = dthing[0];
-
-		dhalo->is_halo = true;
-		dhalo->image = W_ImageFromHalo(mo->info->halo.graphic);
-		dhalo->clip_vert = -1;
-		dhalo->tz -= 7.5f;
-
-		gzb = mo->z + mo->height * 0.75f - mo->info->halo.height / 2;
-		gzt = mo->z + mo->height * 0.75f + mo->info->halo.height / 2;
-
-		dhalo->top = gzt;
-		dhalo->bottom = gzb;
-
-		pos1 = - mo->info->halo.height / 2;
-		pos2 = + mo->info->halo.height / 2;
-
-		dhalo->tx1 = tx + pos1;
-		dhalo->tx2 = tx + pos2;
-
-		dhalo->left_dx  = pos1 *  viewsin;  // FIXME: move forward
-		dhalo->left_dy  = pos1 * -viewcos;
-		dhalo->right_dx = pos2 *  viewsin;
-		dhalo->right_dy = pos2 * -viewcos;
-
-		dhalo->iyscale = mo->info->halo.height / IM_HEIGHT(dhalo->image);
-
-		R2_ClipSpriteVertically(dsub, dhalo);
 	}
 #endif
 
@@ -929,17 +908,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		dx = viewcos * 2;
 		dy = viewsin * 2;
 	}
-#if 0  // HALO disabled
-	else if (dthing->is_halo)
-	{
-		L_r = L_g = L_b = 255;  //!!
-
-		trans = 0.5f;  //!!
-
-		dx = -viewcos * 5;
-		dy = -viewsin * 5;
-	}
-#endif
 	else
 	{
 		int L = dthing->bright ? 255 : dthing->props->lightlevel;
@@ -1011,12 +979,14 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	float tex_x1 = 0.01f;
 	float tex_x2 = right - 0.01f;
 
-	float tex_y1 = dthing->y_offset * dthing->iyscale;
-	float tex_y2 = tex_y1 + (z1t - z1b) * dthing->iyscale;
+	float tex_y1 = dthing->bottom - dthing->orig_bottom;
+	float tex_y2 = tex_y1 + (z1t - z1b);
+
+	float yscale = dthing->mo->info->yscale;
 
 	CHECKVAL(h);
-	tex_y1 = top * tex_y1 / h; ///## 1.0f - tex_y1 / h * bottom;
-	tex_y2 = top * tex_y2 / h; ///## 1.0f - tex_y2 / h * bottom;
+	tex_y1 = top * tex_y1 / (h * yscale);
+	tex_y2 = top * tex_y2 / (h * yscale);
 
 	if (dthing->flip)
 	{
@@ -1029,7 +999,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	//  Dynamic Lighting Stuff
 	//
 
-	if (use_dlights && !dthing->is_shadow && !dthing->is_halo && !fuzzy)
+	if (use_dlights && !dthing->is_shadow && !fuzzy)
 	{
 		drawthing_t *dl;
 		float wx[4], wy[4], wz[4];
@@ -1051,7 +1021,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	//
 	// Special FUZZY effect
 	//
-	if (fuzzy && !dthing->is_shadow && !dthing->is_halo)
+	if (fuzzy && !dthing->is_shadow)
 	{
 		float range_x = fabs(dthing->right_dx - dthing->left_dx) / 12.0f;
 		float range_y = fabs(dthing->right_dy - dthing->left_dy) / 12.0f;

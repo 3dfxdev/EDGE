@@ -53,8 +53,6 @@
 
 #define DEBUG  0
 
-#define HALOS    0
-
 #define FLOOD_DIST    1024.0f
 #define FLOOD_EXPAND  128.0f
 

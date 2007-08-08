@@ -59,6 +59,7 @@ mobjtype_container_c mobjtypes;
 void DDF_MobjGetBenefit(const char *info, void *storage);
 void DDF_MobjGetPickupEffect(const char *info, void *storage);
 void DDF_MobjGetDLight(const char *info, void *storage);
+static void DDF_MobjGetYAlign(const char *info, void *storage);
 
 static void AddPickupEffect(pickup_effect_c **list, pickup_effect_c *cur);
 
@@ -168,6 +169,7 @@ const commandlist_t thing_commands[] =
 	DF("STEP SIZE", step_size, DDF_MainGetFloat),
 	DF("SPRITE SCALE", yscale, DDF_MainGetFloat),
 	DF("SPRITE ASPECT", xscale, DDF_MainGetFloat),
+	DF("SPRITE YALIGN", yalign, DDF_MobjGetYAlign),  // -AJA- 2007/08/08
 	DF("BOUNCE SPEED", bounce_speed, DDF_MainGetFloat),
 	DF("BOUNCE UP", bounce_up, DDF_MainGetFloat),
 	DF("SIGHT SLOPE", sight_slope, DDF_MainGetSlope),
@@ -1435,8 +1437,26 @@ void DDF_MobjGetPlayer(const char *info, void *storage)
 	DDF_MainGetNumeric(info, storage);
 
 	if (*dest > MAXPLAYERS)
-		DDF_Error("Bad player number `%d'.  Maximum is %d\n", *dest,
-		MAXPLAYERS);
+		DDF_Error("Bad player number '%d', Maximum is %d\n", *dest, MAXPLAYERS);
+}
+
+
+static const specflags_t sprite_yalign_names[] =
+{
+	{"BOTTOM", SPYA_BottomUp, 0},
+	{"MIDDLE", SPYA_Middle,   0},
+	{"TOP",    SPYA_TopDown,  0},
+
+	{NULL, 0, 0}
+};
+
+static void DDF_MobjGetYAlign(const char *info, void *storage)
+{
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info,
+		sprite_yalign_names, (int *) storage, false, false))
+	{
+		DDF_WarnError("DDF_MobjGetYAlign: Unknown alignment: %s\n", info);
+	}
 }
 
 //
@@ -1745,6 +1765,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	fast = src.fast; 
 	xscale = src.xscale; 
 	yscale = src.yscale; 
+	yalign = src.yalign;
 	bounce_speed = src.bounce_speed; 
 	bounce_up = src.bounce_up; 
 	sight_slope = src.sight_slope; 
@@ -1866,6 +1887,7 @@ void mobjtype_c::Default()
 	fast = 1.0f;
 	xscale = 1.0f;
 	yscale = 1.0f;
+	yalign = SPYA_BottomUp;
 	bounce_speed = 0.5f;
 	bounce_up = 0.5f;
 	sight_slope = 16.0f;

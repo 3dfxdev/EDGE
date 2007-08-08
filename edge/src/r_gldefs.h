@@ -111,9 +111,14 @@ struct drawfloor_s;
 class drawsub_c;
 
 
-//
-//  R2_BSP
-//
+typedef enum
+{
+	YCLIP_Never = 0,
+	YCLIP_Soft  = 1, // only clip at translucent water
+	YCLIP_Hard  = 2, // vertically clip sprites at all solid surfaces
+}
+y_clip_mode_e;
+
 
 //
 // DrawThing
@@ -136,20 +141,13 @@ public:
 	float top;
 	float bottom;
 
-	// +1 if this sprites should be vertically clipped at a solid
-	// floor or ceiling, 0 if just clip at translucent planes, or -1 if
-	// shouldn't be vertically clipped at all.
-	//
-	int clip_vert;
+///----	float y_offset;
+
+	int y_clipping;
 
 	// sprite image to use
 	const image_c *image;
 	bool flip;
-
-	// scaling
-	float iyscale;
-
-	float y_offset;
 
 	// translated coords
 	float tx, tz;
@@ -166,8 +164,7 @@ public:
 
 	// EXPERIMENTAL
 	bool is_shadow;
-	bool is_halo;
-	
+
 	// Rendering order
 	struct drawthing_s *rd_l, *rd_r, *rd_prev, *rd_next; 
 
