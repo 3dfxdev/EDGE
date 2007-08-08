@@ -2218,8 +2218,8 @@ static void HandleNeighbours(int i, int vert, int k)
 		if (!sec ||
 			sec == lines[i].frontsector    ||
 		    sec == lines[i].backsector     ||
-		    sec == lines[i].nb_sec[vert+0] ||
-		    sec == lines[i].nb_sec[vert+1])
+		    sec == lines[i].nb_sec[vert*2+0] ||
+		    sec == lines[i].nb_sec[vert*2+1])
 		{
 			continue;
 		}
