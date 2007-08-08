@@ -2209,14 +2209,28 @@ void GroupLines(void)
 	}
 }
 
-static void HandleNeighbours(int i, int vert, int k)
+static void HandleNeighbours(int i, int vert, int pass, int k)
 {
 	for (int side = 0; side < 2; side++)
 	{
 		sector_t *sec = side ? lines[k].backsector : lines[k].frontsector;
 
-		if (!sec ||
-			sec == lines[i].frontsector    ||
+		if (! sec)
+			continue;
+
+		if (pass == 1)
+		{
+			if (sec->bottom_ef)
+				sec = sec->bottom_ef->ef_line->frontsector;
+			else if (sec->bottom_liq)
+				sec = sec->bottom_liq->ef_line->frontsector;
+			else
+				continue;
+
+			SYS_ASSERT(sec);
+		}
+		
+		if (sec == lines[i].frontsector    ||
 		    sec == lines[i].backsector     ||
 		    sec == lines[i].nb_sec[vert*2+0] ||
 		    sec == lines[i].nb_sec[vert*2+1])
@@ -2239,7 +2253,15 @@ static void FindLinedefNeighbours(void)
 {
 	// FIXME OPTIMISE !!!
 
+	// two passes for each linedef:
+	//   pass 0 takes care of plain sectors
+	//   pass 1 takes care of extrafloors
+	//
+	// Rationale: plain sectors are more important, hence
+	//            should eat up the limited slots first.
+	 
 	for (int i=0; i < numlines; i++)
+	for (int pass=0; pass < 2; pass++)
 	for (int k=0; k < numlines; k++)
 	{
 		if (i == k)
@@ -2248,13 +2270,13 @@ static void FindLinedefNeighbours(void)
 		if (lines[i].v1 == lines[k].v1 ||
 			lines[i].v1 == lines[k].v2)
 		{
-			HandleNeighbours(i, 0, k);
+			HandleNeighbours(i, 0, pass, k);
 		}
 
 		if (lines[i].v2 == lines[k].v1 ||
 			lines[i].v2 == lines[k].v2)
 		{
-			HandleNeighbours(i, 1, k);
+			HandleNeighbours(i, 1, pass, k);
 		}
 	}
 }
@@ -2530,8 +2552,6 @@ void P_SetupLevel(skill_t skill, int autotag)
 			P_RecomputeTilesInSector(sectors + j);
 	}
 
-	FindLinedefNeighbours();
-
 	DetectDeepWaterTrick();
 
 	R_ComputeSkyHeights();
@@ -2560,6 +2580,8 @@ void P_SetupLevel(skill_t skill, int autotag)
 
 	// set up world state
 	P_SpawnSpecials(autotag);
+
+	FindLinedefNeighbours();
 
 	RGL_UpdateSkyBoxTextures();
 
