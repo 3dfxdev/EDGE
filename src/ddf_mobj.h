@@ -381,6 +381,14 @@ public:
 	bool no_armour;
 };
 
+typedef enum
+{
+	SPYA_BottomUp = 0,
+	SPYA_Middle   = 1,
+	SPYA_TopDown  = 2,
+}
+sprite_y_alignment_e;
+
 // a bitset is a set of named bits, from `A' to `Z'.
 typedef int bitset_t;
 
@@ -559,6 +567,7 @@ public:
 
 	bitset_t side;
 	int playernum;
+	int yalign;  // -AJA- 2007/08/08: sprite Y alignment in bbox
 
 	// breathing support: lung_capacity is how many tics we can last
 	// underwater.  gasp_start is how long underwater before we gasp
