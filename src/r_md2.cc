@@ -24,6 +24,7 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
+#include "i_defs_gl.h"
 
 #include "epi/types.h"
 
@@ -79,7 +80,7 @@ raw_md2_triangle_t;
 
 typedef struct
 {
-	u8_t v[3];
+	s8_t v[3];
 	u8_t light_normal;
 } 
 raw_md2_vertex_t;
@@ -89,7 +90,7 @@ typedef struct
 	f32_t s, t;
 	s32_t vert_index;
 }
-raw_md2_gl_vertex_t;
+raw_md2_glcmd_t;
 
 typedef struct
 {
@@ -113,9 +114,7 @@ raw_md2_skin_t;
 
 #define MD2_NUM_NORMALS  162
 
-extern float md2_normals[MD2_NUM_NORMALS][3];
-
-float md2_normals[MD2_NUM_NORMALS][3] =
+static float md2_normals[MD2_NUM_NORMALS][3] =
 {
 	{-0.525731f,  0.000000f,  0.850651f},
 	{-0.442863f,  0.238856f,  0.864188f},
@@ -282,11 +281,63 @@ float md2_normals[MD2_NUM_NORMALS][3] =
 };
 
 
-/*============== STRUCTURE DEF ====================*/
+/*============== EDGE REPRESENTATION ====================*/
+
+class md2_vertex_c
+{
+public:
+	float x, y, z;
+
+	short normal_idx;
+
+public:
+	 md2_vertex_c() { }
+	~md2_vertex_c() { }
+};
+
+class md2_frame_c
+{
+public:
+///---	float scale[3];
+///---	float translate[3];
+
+	md2_vertex_c *verts;
+};
+
+class md2_point_c
+{
+public:
+	// index into frame-specific vertex array
+	int vertex_idx;
+
+	float skin_s, skin_t;
+};
+
+class md2_strip_c
+{
+public:
+	// either GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN
+	GLenum mode;
+
+	// number of points in this strip / fan
+	int count;
+
+	// index to the first point (within md2_model_c::points).
+	// All points for the strip are contiguous in that array.
+	int first;
+};
+
 
 class md2_model_c
 {
 public:
+	int num_frames;
+	int num_strips;
+	int num_points;
+
+	md2_frame_c *frames;
+	md2_point_c *points;
+	md2_strip_c *strips;
 
 public:
 	md2_model_c()
@@ -294,35 +345,31 @@ public:
 
 	~md2_model_c()
 	{ /* !!!! FIXME */ }
-}
+};
 
 
 /*============== LOADING CODE ====================*/
 
 md2_model_c *MD2_LoadModel(epi::file_c *f)
 {
-	/* read header */
-	fread (&mdl->header, 1, sizeof (raw_md2_header_t), fp);
+	raw_md2_header_t header;
 
-	if ((mdl->header.ident != 844121161) ||
-		(mdl->header.version != 8))
+	/* read header */
+	f->Read(&header, sizeof (raw_md2_header_t));
+
+	if ((header.ident != 844121161) ||
+		(header.version != 8))
 	{
-		/* error! */
-		fprintf (stderr, "error: bad version!");
-		fclose (fp);
-		return 0;
+		I_Error("MD2_LoadModel: bad header or version!");
+		return NULL;
 	}
 
 	/* memory allocation */
-	mdl->skins = (md2_skin_t *)malloc (sizeof (md2_skin_t) * mdl->header.num_skins);
 	mdl->texcoords = (md2_texCoord_t *)malloc (sizeof (md2_texCoord_t) * mdl->header.num_st);
 	mdl->frames = (md2_frame_t *)malloc (sizeof(md2_frame_t) * mdl->header.num_frames);
 	mdl->glcmds = (int *)malloc (sizeof (int) * mdl->header.num_glcmds);
 
 	/* read model data */
-	fseek (fp, mdl->header.offset_skins, SEEK_SET);
-	fread (mdl->skins, sizeof (md2_skin_t), mdl->header.num_skins, fp);
-
 	fseek (fp, mdl->header.offset_st, SEEK_SET);
 	fread (mdl->texcoords, sizeof (md2_texCoord_t), mdl->header.num_st, fp);
 
@@ -353,13 +400,12 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 {
 	int i, *pglcmds;
-	vec3_t v;
-	md2_frame_t *pframe;
-	md2_vertex_t *pvert;
-	md2_glcmd_t *packet;
+
+	static int n = -1;
+	n = (n + 1) % md->frames.size();
 
 	/* check if n is in a valid range */
-	if ((n < 0) || (n > mdl->header.num_frames - 1))
+	if (n < 0 || n >= md->frames.size())
 		return;
 
 	/* enable model's texture */
@@ -373,36 +419,43 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 	{
 		if (i < 0)
 		{
-			glBegin (GL_TRIANGLE_FAN);
+			glBegin(GL_TRIANGLE_FAN);
 			i = -i;
 		}
 		else
 		{
-			glBegin (GL_TRIANGLE_STRIP);
+			glBegin(GL_TRIANGLE_STRIP);
 		}
 
 		/* draw each vertex of this group */
-		for (/* nothing */; i > 0; --i, pglcmds += 3)
+
+		for (; i > 0; i--, pglcmds += 3)
 		{
-			packet = (md2_glcmd_t *)pglcmds;
-			pframe = &mdl->frames[n];
-			pvert = &pframe->verts[packet->index];
+			md2_gl_vert_t *packet = (md2_gl_vert_t *)pglcmds;
+			md2_frame_t *pframe = &mdl->frames[n];
+			md2_vertex_t *pvert = &pframe->verts[packet->index];
 
 			/* pass texture coordinates to OpenGL */
-			glTexCoord2f (packet->s, packet->t);
+//!!!!		glTexCoord2f(packet->s, packet->t);
 
 			/* normal vector */
-			glNormal3fv (anorms_table[pvert->normalIndex]);
+			glNormal3fv(md2_normals[pvert->normalIndex]);
+
+			GLfloat v[3];
 
 			/* calculate vertex real position */
-			v[0] = (pframe->scale[0] * pvert->v[0]) + pframe->translate[0];
-			v[1] = (pframe->scale[1] * pvert->v[1]) + pframe->translate[1];
-			v[2] = (pframe->scale[2] * pvert->v[2]) + pframe->translate[2];
+			v[0] = pvert->v[0] * pframe->scale[0] + pframe->translate[0];
+			v[1] = pvert->v[1] * pframe->scale[1] + pframe->translate[1];
+			v[2] = pvert->v[2] * pframe->scale[2] + pframe->translate[2];
 
-			glVertex3fv (v);
+			v[0] += mo->x;
+			v[1] += mo->y;
+			v[2] += mo->z;
+
+			glVertex3fv(v);
 		}
 
-		glEnd ();
+		glEnd();
 	}
 }
 
