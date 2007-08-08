@@ -1125,15 +1125,6 @@ if (num_active_mirrors % 2)
 	else if (mid_masked == 1 && cur_seg->linedef->special &&
 		cur_seg->linedef->special->s.type != SLIDE_None)
 	{
-		// which side is seg on ?
-		int side = 0;
-
-		if ((cur_seg->v2->x - cur_seg->v1->x) * cur_seg->linedef->dx < 0 ||
-			(cur_seg->v2->y - cur_seg->v1->y) * cur_seg->linedef->dy < 0)
-		{
-			side = 1;
-		}
-
 		if (side == 1)
 		{
 			tex_x1 = IM_WIDTH(part->image) - tex_x1;
@@ -1199,8 +1190,8 @@ if (num_active_mirrors % 2)
 				for (int n = 0; n < 2; n++)
 				{
 					GreetNeighbourSector(
-						vert ? right_h   : left_h,
-						vert ? right_num : left_num,
+						(side!=vert) ? right_h   : left_h,
+						(side!=vert) ? right_num : left_num,
 						cur_seg->linedef->nb_sec[vert*2 + n]);
 				}
 			}
@@ -1243,7 +1234,7 @@ if (num_active_mirrors % 2)
 	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, tex_id,tex_id2,
 		/* pass */ 0, blending | BL_Multi);
 
-#if 1  // COLORMAP ADD SHIT
+#if 0  // COLORMAP ADD SHIT
 
 	data.cmx = 1;
 
