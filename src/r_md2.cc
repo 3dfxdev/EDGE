@@ -27,7 +27,7 @@
 #include "i_defs_gl.h"
 
 #include "epi/types.h"
-#include "epi/endianness.h"
+#include "epi/endianess.h"
 
 #include "r_md2.h"
 
@@ -338,8 +338,8 @@ public:
 	int verts_per_frame;
 
 public:
-	md2_model_c(int _nframe, int _npoints, int _nstrip) :
-		num_frames(_nframes), num_points(_npoints),
+	md2_model_c(int _nframe, int _npoint, int _nstrip) :
+		num_frames(_nframe), num_points(_npoint),
 		num_strips(_nstrip), verts_per_frame(0)
 	{
 		frames = new md2_frame_c[num_frames];
@@ -368,7 +368,7 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 	f->Read(&header, sizeof (raw_md2_header_t));
 
 	//!!!! FIXME:
-	if ((header.ident != 844121161) ||
+	if ( /* (header.ident != 844121161) || */
 		(header.version != 8))
 	{
 		I_Error("MD2_LoadModel: bad header or version!");
@@ -383,10 +383,10 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 	int num_glcmds = EPI_LE_S32(header.num_glcmds);
 
-	sint32_t *glcmds = new sint32_t[num_glcmds];
+	s32_t *glcmds = new s32_t[num_glcmds];
 
 	f->Seek(EPI_LE_S32(header.ofs_glcmds), epi::file_c::SEEKPOINT_START);
-	f->Read(glcmds, sizeof(sint32_t) * num_glcmds);
+	f->Read(glcmds, sizeof(s32_t) * num_glcmds);
 
 	// determine total number of strips and points
 	for (i = 0; i < num_glcmds && glcmds[i] != 0; )
@@ -431,9 +431,9 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 		for (; count > 0; count--, point++, i += 3)
 		{
-			glcmds[i+0] = EPI_LE_U32(glcmds[i+0]);
-			glcmds[i+1] = EPI_LE_U32(glcmds[i+1]);
-			glcmds[i+2] = EPI_LE_U32(glcmds[i+2]);
+			glcmds[i+0] = EPI_LE_S32(glcmds[i+0]);
+			glcmds[i+1] = EPI_LE_S32(glcmds[i+1]);
+			glcmds[i+2] = EPI_LE_S32(glcmds[i+2]);
 
 			float *f_ptr = (float *) &glcmds[i];
 
@@ -482,8 +482,8 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 		for (int v = 0; v < md->verts_per_frame; v++)
 		{
-			raw_vertex_t *raw_V  = raw_verts + v;
-			md2_vertex_c *good_V = md->frames[i].vertices + v;
+			raw_md2_vertex_t *raw_V  = raw_verts + v;
+			md2_vertex_c     *good_V = md->frames[i].vertices + v;
 
 			good_V->x = (int)raw_V->x * scale[0] + translate[0];
 			good_V->y = (int)raw_V->y * scale[1] + translate[1];
@@ -503,19 +503,14 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 {
-	int i, *pglcmds;
-
 	int n = leveltime % md->num_frames;
 
 	/* check if n is in a valid range */
-	if (n < 0 || n >= md->frames.size())
+	if (n < 0 || n >= md->num_frames)
 		return;
 
 	/* enable model's texture */
 //!!!!	glBindTexture (GL_TEXTURE_2D, mdl->tex_id);
-
-	/* pglcmds points at the start of the command list */
-	pglcmds = mdl->glcmds;
 
 	/* draw the model */
 	for (int i = 0; i < md->num_strips; i++)
@@ -526,8 +521,8 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 
 		for (int k = 0; k < md->strips[i].count; k++)
 		{
-			md2_point_c *point = md->points[md->strips[i].first + k];
-			md2_vertex_c *vert = md->frames[n].vertices[point->vert_idx];
+			md2_point_c *point = &md->points[md->strips[i].first + k];
+			md2_vertex_c *vert = &md->frames[n].vertices[point->vert_idx];
 				
       		glTexCoord2f(point->skin_s, point->skin_t);
 
