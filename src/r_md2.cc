@@ -85,7 +85,7 @@ raw_md2_triangle_t;
 
 typedef struct
 {
-	s8_t v[3];
+	s8_t x, y, z;
 	u8_t light_normal;
 } 
 raw_md2_vertex_t;
@@ -478,47 +478,24 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 		f->Read(raw_verts, sizeof(raw_md2_vertex_t) * md->verts_per_frame);
 
-		md2_frame_c *frame = md->frames + i;
-
-		frame->vertices = new md2_vertex_c[md->verts_per_frame];
-
-		raw_md2_vertex_t *raw_V = raw_verts;
+		md->frames[i].vertices = new md2_vertex_c[md->verts_per_frame];
 
 		for (int v = 0; v < md->verts_per_frame; v++)
 		{
-			md2_vertex_c *V = frame->vertices + v;
+			raw_vertex_t *raw_V  = raw_verts + v;
+			md2_vertex_c *good_V = md->frames[i].vertices + v;
 
-			md->frames[
+			good_V->x = (int)raw_V->x * scale[0] + translate[0];
+			good_V->y = (int)raw_V->y * scale[1] + translate[1];
+			good_V->z = (int)raw_V->z * scale[2] + translate[2];
+
+			good_V->normal_idx = raw_V->light_normal;
 		}
 	}
 
 	delete[] raw_verts;
 
-	/* memory allocation */
-	mdl->texcoords = (md2_texCoord_t *)malloc (sizeof (md2_texCoord_t) * mdl->header.num_st);
-	mdl->frames = (md2_frame_t *)malloc (sizeof(md2_frame_t) * mdl->header.num_frames);
-	mdl->glcmds = (int *)malloc (sizeof (int) * mdl->header.num_glcmds);
-
-	/* read model data */
-	fseek (fp, mdl->header.offset_st, SEEK_SET);
-	fread (mdl->texcoords, sizeof (md2_texCoord_t), mdl->header.num_st, fp);
-
-	/* read frames */
-	fseek (fp, mdl->header.offset_frames, SEEK_SET);
-	for (i = 0; i < mdl->header.num_frames; ++i)
-	{
-		/* memory allocation for vertices of this frame */
-		mdl->frames[i].verts = (md2_vertex_t *)
-			malloc (sizeof (md2_vertex_t) * mdl->header.num_vertices);
-
-		/* read frame data */
-		fread (mdl->frames[i].scale, sizeof (vec3_t), 1, fp);
-		fread (mdl->frames[i].translate, sizeof (vec3_t), 1, fp);
-		fread (mdl->frames[i].name, sizeof (char), 16, fp);
-		fread (mdl->frames[i].verts, sizeof (md2_vertex_t), mdl->header.num_vertices, fp);
-	}
-
-	return 1
+	return md;
 }
 
 
