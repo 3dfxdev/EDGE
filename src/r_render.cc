@@ -2425,9 +2425,9 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 		// ignore the default value, which is 100%
 		if (trans < 0.95) alpha = MAX(alpha, trans);
 #endif
-		float R = RGB_RED(ld->special->mirror_color);
-		float G = RGB_GRN(ld->special->mirror_color);
-		float B = RGB_BLU(ld->special->mirror_color);
+		float R = RGB_RED(ld->special->fx_color);
+		float G = RGB_GRN(ld->special->fx_color);
+		float B = RGB_BLU(ld->special->fx_color);
 
 		// looks better with reduced color in multiple reflections
 		R *= 1.0 - 0.4 * num_active_mirrors;
