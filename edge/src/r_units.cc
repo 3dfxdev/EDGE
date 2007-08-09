@@ -48,6 +48,7 @@ bool dumb_sky = false;
 #define GL_CLAMP_TO_EDGE  0x812F
 #endif
 
+
 // a single unit (polygon, quad, etc) to pass to the GL
 typedef struct local_gl_unit_s
 {
@@ -403,106 +404,6 @@ void RGL_DrawUnits(void)
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
-}
-
-
-//----------------------------------------------------------------------------
-//
-//  RAW POLYQUAD CODE
-//
-//  Note: quads are always vertical rectangles, and currently the
-//  bottom and top lines are always horizontal (i.e. never sloped).
-//
-//  Note 2: polygons are always horizontal.
-//  
-
-raw_polyquad_t *RGL_NewPolyQuad(int maxvert)
-{
-	raw_polyquad_t *poly;
-
-	poly = Z_ClearNew(raw_polyquad_t, 1);
-
-	poly->verts = Z_New(vec3_t, maxvert);
-	poly->num_verts = 0;
-	poly->max_verts = maxvert;
-
-	return poly;
-}
-
-void RGL_FreePolyQuad(raw_polyquad_t *poly)
-{
-	while (poly)
-	{
-		raw_polyquad_t *cur = poly;
-		poly = poly->sisters;
-
-		Z_Free(cur->verts);
-		Z_Free(cur);
-	}
-}
-
-void RGL_BoundPolyQuad(raw_polyquad_t *poly)
-{
-	SYS_ASSERT(poly->num_verts > 0);
-
-	poly->bb_mid.x = 0;
-	poly->bb_mid.y = 0;
-	poly->bb_mid.z = 0;
-
-	poly->bb_rad = 0;
-
-	int j;
-
-	for (j=0; j < poly->num_verts; j++)
-	{
-		poly->bb_mid.x += poly->verts[j].x;
-		poly->bb_mid.y += poly->verts[j].y;
-		poly->bb_mid.z += poly->verts[j].z;
-	}
-
-	poly->bb_mid.x /= poly->num_verts;
-	poly->bb_mid.y /= poly->num_verts;
-	poly->bb_mid.z /= poly->num_verts;
-
-	for (j=0; j < poly->num_verts; j++)
-	{
-		float dist = APPROX_DIST3(
-						fabs(poly->bb_mid.x - poly->verts[j].x),
-						fabs(poly->bb_mid.y - poly->verts[j].y),
-						fabs(poly->bb_mid.z - poly->verts[j].z));
-
-		if (poly->bb_rad < dist)
-			poly->bb_rad = dist;
-	}
-}
-
-
-void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
-						void (* CoordFunc)(vec3_t *src, local_gl_vert_t *vert, void *data),
-						GLuint tex_id, GLuint tex2_id,
-						int pass, int blending)
-{
-	int j;
-	local_gl_vert_t *vert;
-
-	while (poly)
-	{
-		raw_polyquad_t *cur = poly;
-		poly = poly->sisters;
-
-		SYS_ASSERT(cur->num_verts > 0);
-		SYS_ASSERT(cur->num_verts <= cur->max_verts);
-
-		vert = RGL_BeginUnit(GL_POLYGON,
-			cur->num_verts, tex_id, tex2_id, pass, blending);
-
-		for (j=0; j < cur->num_verts; j++)
-		{
-			(* CoordFunc)(cur->verts + j, vert + j, data);
-		}
-
-		RGL_EndUnit(j);
-	}
 }
 
 
