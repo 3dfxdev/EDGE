@@ -130,13 +130,12 @@ static void GV_GetString(const char *info, void *storage)
 	SYS_ASSERT(info && storage);
 
 	// free any previous string
-	if (*dest)
-		Z_Free(*dest);
+	SV_FreeString(*dest);
 
 	if (info[0] == 0)
 		*dest = NULL;
 	else
-		*dest = Z_StrDup(info);
+		*dest = SV_DupString(info);
 }
 
 static void GV_GetCheckCRC(const char *info, void *storage)
@@ -223,7 +222,7 @@ static const char *GV_PutInt(void *storage)
 
 	sprintf(buffer, "%d", *src);
 
-	return Z_StrDup(buffer);
+	return SV_DupString(buffer);
 }
 
 static const char *GV_PutString(void *storage)
@@ -233,9 +232,9 @@ static const char *GV_PutString(void *storage)
 	SYS_ASSERT(storage);
 
 	if (*src == NULL)
-		return (const char *) Z_ClearNew(char, 1);
+		return SV_DupString("");
 
-	return Z_StrDup(*src);
+	return SV_DupString(*src);
 }
 
 static const char *GV_PutCheckCRC(void *storage)
@@ -247,7 +246,7 @@ static const char *GV_PutCheckCRC(void *storage)
 
 	sprintf(buffer, "%d %u", src->count, src->crc);
 
-	return Z_StrDup(buffer);
+	return SV_DupString(buffer);
 }
 
 static const char *GV_PutLevelFlags(void *storage)
@@ -303,12 +302,12 @@ static const char *GV_PutImage(void *storage)
 	SYS_ASSERT(storage);
 
 	if (*src == NULL)
-		return (const char *) Z_ClearNew(char, 1);
+		return SV_DupString("");
 
 	W_ImageMakeSaveString(*src, buffer, buffer + 2);
 	buffer[1] = ':';
 
-	return Z_StrDup(buffer);
+	return SV_DupString(buffer);
 }
 
 
@@ -321,7 +320,9 @@ saveglobals_t *SV_NewGLOB(void)
 {
 	saveglobals_t *globs;
 
-	globs = Z_ClearNew(saveglobals_t, 1);
+	globs = new saveglobals_t;
+	
+	Z_Clear(globs, saveglobals_t, 1);
 
 	globs->exit_time = INT_MAX;
 
@@ -336,12 +337,12 @@ void SV_FreeGLOB(saveglobals_t *globs)
 	SV_FreeString(globs->desc_date);
 
 	if (globs->view_pixels)
-		Z_Free(globs->view_pixels);
+		delete[] globs->view_pixels;
 
 	if (globs->wad_names)
-		Z_Free(globs->wad_names);
+		delete[] globs->wad_names;
 
-	Z_Free(globs);
+	delete globs;
 }
 
 
@@ -492,10 +493,9 @@ static void GlobWriteVARIs(saveglobals_t *globs)
 	{
 		int offset = global_commands[i].offset_p - (char *) &dummy_glob;
 
-		const char *data;
 		void *storage = ((char *) globs) + offset;
 
-		data = (* global_commands[i].stringify_func)(storage);
+		const char *data = (* global_commands[i].stringify_func)(storage);
 		SYS_ASSERT(data);
 
 		SV_PushWriteChunk("Vari");
@@ -503,7 +503,7 @@ static void GlobWriteVARIs(saveglobals_t *globs)
 		SV_PutString(data);
 		SV_PopWriteChunk();
 
-		Z_Free((char *)data);
+		SV_FreeString(data);
 	}
 }
 
