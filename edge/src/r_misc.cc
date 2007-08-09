@@ -31,7 +31,6 @@
 #include "r_misc.h"
 
 #include "e_main.h"
-#include "gui_main.h"
 #include "m_misc.h"
 #include "n_network.h"
 #include "r_vbinit.h"

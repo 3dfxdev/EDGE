@@ -42,7 +42,6 @@
 #include "r_automap.h"
 #include "r_image.h"
 #include "r_units.h"
-#include "gui_main.h"
 #include "r_draw.h"
 
 // Globals
@@ -226,9 +225,6 @@ void R_SoftInitResolution(void)
 	// -ES- 1999/08/29 Fixes the garbage palettes, and the blank 16-bit console
 	V_SetPalette(PALETTE_NORMAL, 0);
 	V_ColourNewFrame();
-
-	// -ES- 1999/08/20 Update GUI (resize stuff etc)
-	GUI_InitResolution();
 
 	// re-initialise various bits of GL state
 	RGL_SoftInit();

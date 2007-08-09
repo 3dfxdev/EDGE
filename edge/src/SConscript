@@ -29,7 +29,7 @@ sources_1 = [
     'ddf_sect.cc', 'ddf_sfx.cc', 'ddf_stat.cc', 'ddf_style.cc', 
     'ddf_swth.cc', 'ddf_weap.cc', 'dem_chunk.cc', 'dem_glob.cc', 
     'e_demo.cc', 'e_input.cc', 'e_main.cc', 
-    'e_player.cc', 'f_finale.cc', 'g_game.cc', 'gui_ctls.cc', 'gui_main.cc', 
+    'e_player.cc', 'f_finale.cc', 'g_game.cc',
     'hu_font.cc', 'hu_lib.cc', 'hu_stuff.cc', 'hu_style.cc',
     ] 
 
