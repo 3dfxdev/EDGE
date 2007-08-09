@@ -540,7 +540,8 @@ void R_InitSprites(void)
 
 	// create a sorted list (ignore NULL entry, #0)
 	sprite_map_len = numsprites - 1;
-	sprite_map = Z_New(spritedef_c *, sprite_map_len);
+
+	sprite_map = new spritedef_c* [sprite_map_len];
 
 	for (i=0; i < sprite_map_len; i++)
 		sprite_map[i] = sprites[i + 1];
@@ -569,7 +570,7 @@ void R_InitSprites(void)
 	for (i=1; i < numsprites; i++)
 		CheckSpriteFrames(sprites[i]);
 
-	Z_Free(sprite_map);
+	delete[] sprite_map;
 	sprite_map = NULL;
 }
 
