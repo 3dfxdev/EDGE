@@ -497,7 +497,7 @@ bool SR_PlayerGetName(void *storage, int index, void *extra)
 
 	str = SV_GetString();
 	Z_StrNCpy(dest, str, MAX_PLAYNAME-1);
-	Z_Free((char *)str);
+	SV_FreeString(str);
 
 	return true;
 }
@@ -525,7 +525,7 @@ bool SR_WeaponGetInfo(void *storage, int index, void *extra)
 	name = SV_GetString();
 
 	*dest = name ? weapondefs.Lookup(name) : NULL;
-	Z_Free((char *)name);
+	SV_FreeString(name);
 
 	return true;
 }
@@ -566,7 +566,7 @@ bool SR_PlayerGetState(void *storage, int index, void *extra)
 	}
 
 	Z_StrNCpy(buffer, swizzle, 256-1);
-	Z_Free((char *)swizzle);
+	SV_FreeString(swizzle);
 
 	// separate string at `:' characters
 

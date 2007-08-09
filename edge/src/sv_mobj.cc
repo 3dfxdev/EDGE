@@ -562,7 +562,7 @@ bool SR_MobjGetType(void *storage, int index, void *extra)
 	// Intentional Const Override
 	*dest = (name == NULL) ? NULL : (mobjtype_c *)mobjtypes.Lookup(name);
 
-	Z_Free((char *)name);
+	SV_FreeString(name);
 	return true;
 }
 
@@ -611,7 +611,7 @@ bool SR_MobjGetAttack(void *storage, int index, void *extra)
 	// Intentional Const Override
 	*dest = (name == NULL) ? NULL : (atkdef_c *)atkdefs.Lookup(name);
 
-	Z_Free((char *)name);
+	SV_FreeString(name);
 	return true;
 }
 
@@ -655,7 +655,7 @@ bool SR_MobjGetState(void *storage, int index, void *extra)
 	}
 
 	Z_StrNCpy(buffer, swizzle, 256-1);
-	Z_Free((char *)swizzle);
+	SV_FreeString(swizzle);
 
 	// separate string at `:' characters
 

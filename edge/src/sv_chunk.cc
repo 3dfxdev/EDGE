@@ -431,21 +431,20 @@ bool SV_PushReadChunk(const char *id)
 
 		unsigned int orig_len;
 		unsigned int decomp_len;
-		byte *file_data;
 
 		// read uncompressed size
 		orig_len = SV_GetInt();
 
 		SYS_ASSERT(file_len <= MAX_COMP_SIZE(orig_len));
 
-		file_data = Z_New(byte, file_len);
+		byte *file_data = new byte[file_len+1];
 
 		for (i=0; (i < file_len) && !last_error; i++)
 			file_data[i] = SV_GetByte();
 
 		SYS_ASSERT(!last_error);
 
-		cur->start = Z_New(byte, orig_len);
+		cur->start = new byte[orig_len+1];
 		cur->end = cur->start + orig_len;
 
 		// decompress data
@@ -488,6 +487,8 @@ bool SV_PushReadChunk(const char *id)
 			for (i=0; i < decomp_len; i++)
 				cur->start[i] ^= (byte)(XOR_STRING[i % XOR_LEN]);
 		}
+
+		delete[] file_data;
 	}
 	else
 	{
@@ -534,7 +535,7 @@ bool SV_PopReadChunk(void)
 	if (chunk_stack_size == 1)
 	{
 		// free the data
-		Z_Free(cur->start);
+		delete[] cur->start;
 	}
 
 	cur->start = cur->pos = cur->end = NULL;
@@ -653,7 +654,7 @@ bool SV_PushWriteChunk(const char *id)
 	strupr(cur->e_mark);
 
 	// create initial buffer
-	cur->start = Z_New(byte, 1024);
+	cur->start = new byte[1024];
 	cur->pos   = cur->start;
 	cur->end   = cur->start + 1024;
 
@@ -694,10 +695,9 @@ bool SV_PopWriteChunk(void)
 
 	if (chunk_stack_size == 0)
 	{
-		unsigned char *out_buf;
 		uLongf out_len = MAX_COMP_SIZE(len);
 
-		out_buf = Z_New(byte, out_len);
+		byte *out_buf = new byte[out_len+1];
 
 		int res = compress2(out_buf, &out_len, cur->start, len, Z_BEST_SPEED);
 
@@ -732,7 +732,7 @@ bool SV_PopWriteChunk(void)
 
 		SYS_ASSERT(!last_error);
 
-		Z_Free(out_buf);
+		delete[] out_buf;
 	}
 	else
 	{
@@ -745,7 +745,7 @@ bool SV_PopWriteChunk(void)
 	}
 
 	// all done, free stuff
-	Z_Free(cur->start);
+	delete[] cur->start;
 
 	cur->start = cur->pos = cur->end = NULL;
 	return true;
@@ -794,10 +794,15 @@ void SV_PutByte(unsigned char value)
 	// space left in chunk ?  If not, resize it.
 	if (cur->pos == cur->end)
 	{
+		int old_len = (cur->end - cur->start);
 		int new_len = (cur->end - cur->start) + 1024;
 		int pos_idx = (cur->pos - cur->start);
 
-		Z_Resize(cur->start, byte, new_len);
+		byte *new_start = new byte[new_len];
+		memcpy(new_start, cur->start, old_len);
+
+		delete[] cur->start;
+		cur->start = new_start;
 
 		cur->end = cur->start + new_len;
 		cur->pos = cur->start + pos_idx;
@@ -929,9 +934,6 @@ void SV_PutMarker(const char *id)
 
 const char *SV_GetString(void) 
 {
-	int len, i;
-	char *result;
-
 	int type = SV_GetByte();
 
 	if (type == NULLSTR_MARKER)
@@ -940,16 +942,21 @@ const char *SV_GetString(void)
 	if (type != STRING_MARKER)
 		I_Error("Corrupt savegame (invalid string).\n");
 
-	len = SV_GetShort();
+	int len = SV_GetShort();
 
-	result = Z_New(char, len + 1);
+	char *result = new char[len + 1];
 	result[len] = 0;
 
-	for (i = 0; i < len; i++)
+	for (int i = 0; i < len; i++)
 		result[i] = (char) SV_GetByte();
 
-	// Intentional Const Override
 	return (const char *) result;
+}
+
+void SV_FreeString(const char *str)
+{
+	if (str)
+		delete[] str;
 }
 
 bool SV_GetMarker(char id[5])

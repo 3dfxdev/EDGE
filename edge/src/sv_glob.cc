@@ -25,21 +25,6 @@
 
 #include "i_defs.h"
 
-/*
-#include "dm_state.h"
-#include "e_main.h"
-#include "g_game.h"
-#include "m_math.h"
-#include "m_random.h"
-#include "p_local.h"
-#include "p_spec.h"
-#include "r_state.h"
-#include "sv_chunk.h"
-#include "sv_main.h"
-#include "w_wad.h"
-#include "f_stats.h"
-#include "z_zone.h"
-*/
 #include "sv_chunk.h"
 #include "sv_main.h"
 #include "z_zone.h"
@@ -345,17 +330,10 @@ saveglobals_t *SV_NewGLOB(void)
 
 void SV_FreeGLOB(saveglobals_t *globs)
 {
-	if (globs->game)
-		Z_Free((char *)globs->game);
-
-	if (globs->level)
-		Z_Free((char *)globs->level);
-
-	if (globs->description)
-		Z_Free((char *)globs->description);
-
-	if (globs->desc_date)
-		Z_Free((char *)globs->desc_date);
+	SV_FreeString(globs->game);
+	SV_FreeString(globs->level);
+	SV_FreeString(globs->description);
+	SV_FreeString(globs->desc_date);
 
 	if (globs->view_pixels)
 		Z_Free(globs->view_pixels);
@@ -388,8 +366,8 @@ static bool GlobReadVARI(saveglobals_t *globs)
 
 	if (! SV_PopReadChunk() || !var_name || !var_data)
 	{
-		if (var_name) Z_Free((char *)var_name);
-		if (var_data) Z_Free((char *)var_data);
+		SV_FreeString(var_name);
+		SV_FreeString(var_data);
 
 		return false;
 	}
@@ -415,8 +393,8 @@ static bool GlobReadVARI(saveglobals_t *globs)
 		I_Warning("GlobReadVARI: unknown global: %s\n", var_name);
 	}
 
-	Z_Free((char *)var_name);
-	Z_Free((char *)var_data);
+	SV_FreeString(var_name);
+	SV_FreeString(var_data);
 
 	return true;
 }
