@@ -26,8 +26,8 @@
 // -AJA- 2000/07/13: Wrote this file.
 //
 
-#ifndef __SV_CHUNK_
-#define __SV_CHUNK_
+#ifndef __SV_CHUNK_H__
+#define __SV_CHUNK_H__
 
 #include "i_defs.h"
 #include "p_local.h"
@@ -63,6 +63,8 @@ angle_t SV_GetAngle(void);
 float SV_GetFloat(void);
 
 const char *SV_GetString(void);
+void SV_FreeString(const char *str);
+
 bool SV_GetMarker(char id[5]);
 
 //
@@ -85,7 +87,7 @@ void SV_PutFloat(float value);
 void SV_PutString(const char *str);
 void SV_PutMarker(const char *id);
 
-#endif  // __SV_CHUNK_
+#endif /* __SV_CHUNK_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

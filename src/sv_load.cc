@@ -121,15 +121,17 @@ void SV_BeginLoad(void)
 
 static void LoadFreeStruct(savestruct_t *cur)
 {
-	Z_Free((char *)cur->struct_name);
-	Z_Free((char *)cur->marker);
+	SV_FreeString(cur->struct_name);
+	SV_FreeString(cur->marker);
+
 	Z_Free(cur->fields);
 	Z_Free(cur);
 }
 
 static void LoadFreeArray(savearray_t *cur)
 {
-	Z_Free((char *)cur->array_name);
+	SV_FreeString(cur->array_name);
+
 	Z_Free(cur);
 }
 
@@ -193,8 +195,7 @@ static void StructSkipField(savefield_t *field)
 		break;
 
 	case SFKIND_String:
-		str = SV_GetString();
-		Z_Free((char *)str);
+		SV_FreeString(SV_GetString());
 		break;
 
 	case SFKIND_Numeric:
@@ -335,8 +336,6 @@ static bool SV_LoadSTRU(void)
 
 static bool SV_LoadARRY(void)
 {
-	const char *struct_name;
-
 	savearray_t *A;
 
 	A = Z_ClearNew(savearray_t, 1);
@@ -353,13 +352,14 @@ static bool SV_LoadARRY(void)
 		A->counterpart->counterpart = A;
 	}
 
-	struct_name = SV_GetString();
+	const char *struct_name = SV_GetString();
+
 	A->sdef = SV_LookupLoadedStruct(struct_name);
 
 	if (A->sdef == NULL)
 		I_Error("LOADGAME: Coding Error ! (no STRU `%s' for ARRY)\n", struct_name);
 
-	Z_Free((char *)struct_name);
+	SV_FreeString(struct_name);
 
 	// create array
 	if (A->counterpart)
@@ -386,7 +386,7 @@ static bool SV_LoadDATA(void)
 	if (! A)
 		I_Error("LOADGAME: Coding Error ! (no ARRY `%s' for DATA)\n", array_name);
 
-	Z_Free((char *)array_name);
+	SV_FreeString(array_name);
 
 	// nothing to load if not known
 	if (! A->counterpart)

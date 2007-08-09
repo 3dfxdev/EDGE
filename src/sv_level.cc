@@ -825,7 +825,7 @@ bool SR_LevelGetSurfPtr(void *storage, int index, void *extra)
 	else
 		I_Error("SR_LevelGetSurfPtr: invalid surface plane `%s'\n", str);
 
-	Z_Free((char *)str);
+	SV_FreeString(str);
 	return true;
 }
 
@@ -895,7 +895,7 @@ bool SR_LevelGetImage(void *storage, int index, void *extra)
 
 	(*dest) = W_ImageParseSaveString(str[0], str + 2);
 
-	Z_Free((char *)str);
+	SV_FreeString(str);
 	return true;
 }
 
@@ -944,7 +944,7 @@ bool SR_LevelGetColmap(void *storage, int index, void *extra)
 
 	(*dest) = colourmaps.Lookup(str);
 
-	Z_Free((char *)str);
+	SV_FreeString(str);
 	return true;
 }
 
@@ -985,7 +985,7 @@ bool SR_LineGetSpecial(void *storage, int index, void *extra)
 
 	(*dest) = P_LookupLineType(strtol(str+1, NULL, 0));
 
-	Z_Free((char *)str);
+	SV_FreeString(str);
 	return true;
 }
 
@@ -1034,7 +1034,7 @@ bool SR_SectorGetSpecial(void *storage, int index, void *extra)
 
 	(*dest) = P_LookupSectorType(strtol(str+1, NULL, 0));
 
-	Z_Free((char *)str);
+	SV_FreeString(str);
 	return true;
 }
 
@@ -1116,7 +1116,7 @@ bool SR_SectorGetPropRef(void *storage, int index, void *extra)
 
 	(*dest) = &sectors[num].props;
 
-	Z_Free((char *)str);
+	SV_FreeString(str);
 	return true;
 }
 

@@ -478,7 +478,7 @@ void SV_MainTestPrimitives(void)
 	{
 		const char *val = SV_GetString();
 		L_WriteDebug("TEST STRING: [%s]\n", val ? val : "--NULL--");
-		Z_Free((char *)val);
+		SV_FreeString(val);
 	}
 
 	for (i=0; i < 2; i++)

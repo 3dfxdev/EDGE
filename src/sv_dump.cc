@@ -54,16 +54,16 @@ static bool GlobDumpVARI(void)
 
 	if (! SV_PopReadChunk() || !var_name || !var_data)
 	{
-		if (var_name) Z_Free((char *)var_name);
-		if (var_data) Z_Free((char *)var_data);
+		SV_FreeString(var_name);
+		SV_FreeString(var_data);
 
 		return false;
 	}
 
 	L_WriteDebug("      Var: %s=%s\n", var_name, var_data);
 
-	Z_Free((char *)var_name);
-	Z_Free((char *)var_data);
+	SV_FreeString(var_name);
+	SV_FreeString(var_data);
 
 	return true;
 }
@@ -156,8 +156,8 @@ static bool SV_DumpSTRU(void)
 	L_WriteDebug("   Struct def: %s  Fields: %d  Marker: [%s]\n",
 			struct_name, fields, marker);
 
-	Z_Free((char *)struct_name);
-	Z_Free((char *)marker);
+	SV_FreeString(struct_name);
+	SV_FreeString(marker);
 
 	// -- now dump all the fields --
 
@@ -194,10 +194,8 @@ static bool SV_DumpSTRU(void)
 				(kind == SFKIND_Struct) ? "Struct " : "???",
 				sub_type ? sub_type : "", size);
 
-		Z_Free((char *)field_name);
-
-		if (sub_type)
-			Z_Free((char *)sub_type);
+		SV_FreeString(field_name);
+		SV_FreeString(sub_type);
 	}
 
 	return true;
@@ -217,8 +215,8 @@ static bool SV_DumpARRY(void)
 	L_WriteDebug("   Array def: %s  Count: %d  Struct: %s\n",
 			array_name, count, struct_name);
 
-	Z_Free((char *)array_name);
-	Z_Free((char *)struct_name);
+	SV_FreeString(array_name);
+	SV_FreeString(struct_name);
 
 	return true;
 }
@@ -230,7 +228,7 @@ static bool SV_DumpDATA(void)
 	L_WriteDebug("   Data for array %s  Size: %d\n", array_name,
 			SV_RemainingChunkSize());
 
-	Z_Free((char *)array_name);
+	SV_FreeString(array_name);
 
 	return true;
 }

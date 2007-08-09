@@ -832,7 +832,7 @@ bool SR_LightGetType(void *storage, int index, void *extra)
 	else
 		I_Error("SR_LightGetType: invalid lighttype `%s'\n", str);
 
-	Z_Free((char *)str);
+	SV_FreeString(str);
 	return true;
 }
 
@@ -986,7 +986,7 @@ bool SR_TriggerGetScript(void *storage, int index, void *extra)
 	}
 
 	Z_StrNCpy(buffer, swizzle, 256-1);
-	Z_Free((char *)swizzle);
+	SV_FreeString(swizzle);
 
 	if (buffer[0] != 'B' || buffer[1] != ':')
 		I_Error("Corrupt savegame: bad script ref 1/4: `%s'\n", buffer);
@@ -1106,8 +1106,7 @@ bool SR_TipGetString(void *storage, int index, void *extra)
 {
 	const char ** dest = (const char **)storage + index;
 
-	if (*dest)
-		Z_Free((char *)(*dest));
+	SV_FreeString(*dest);
 
 	(*dest) = SV_GetString();
 	return true;
@@ -1175,7 +1174,7 @@ bool SR_PlaneMoveGetType(void *storage, int index, void *extra)
 	else
 		I_Error("SR_PlaneMoveGetType: invalid srctype `%s'\n", str);
 
-	Z_Free((char *)str);
+	SV_FreeString(str);
 	return true;
 }
 
