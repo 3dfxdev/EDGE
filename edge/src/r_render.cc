@@ -959,9 +959,8 @@ if (num_active_mirrors % 2)
 	float trans = part->translucency;
 	bool blended;
 
-	GLuint tex_id=0, tex_id2=0;
+	GLuint tex_id=0, tex2_id=0;
 
-	raw_polyquad_t *poly;
 	wall_plane_data_t data;
 
 	region_properties_t *props = masked_props ? masked_props :
@@ -1011,7 +1010,7 @@ if (num_active_mirrors % 2)
 
 	// FADING MAP
 	{
-		tex_id2 = W_ImageCache(fading_image);
+		tex2_id = W_ImageCache(fading_image);
 	}
 
 	x_offset += xy_ofs;
@@ -1215,15 +1214,25 @@ if (num_active_mirrors % 2)
 #endif
 	}
 
-	poly = RGL_NewPolyQuad(left_num + right_num);
+	vec3_t vertices[MAX_EDGE_VERT * 2];
+
+	int v_count = 0;
 
 	for (int LI = 0; LI < left_num; LI++)
-		PQ_ADD_VERT(poly, x1, y1, left_h[LI]);
+	{
+		vertices[v_count].x = x1;
+		vertices[v_count].y = y1;
+		vertices[v_count].z = left_h[LI];
+		v_count++;
+	}
 
 	for (int RI = right_num-1; RI >= 0; RI--)
-		PQ_ADD_VERT(poly, x2, y2, right_h[RI]);
-
-	RGL_BoundPolyQuad(poly);
+	{
+		vertices[v_count].x = x2;
+		vertices[v_count].y = y2;
+		vertices[v_count].z = right_h[RI];
+		v_count++;
+	}
 
 	int blending = (blended ? BL_Alpha : 0) | (mid_masked ? BL_Masked : 0);
 
@@ -1231,20 +1240,37 @@ if (num_active_mirrors % 2)
 	if (mid_masked == 1)
 		blending |= BL_ClampY;
 
-	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, tex_id,tex_id2,
-		/* pass */ 0, blending | BL_Multi);
+
+	int pass = 0;
+
+	local_gl_vert_t *glvert = RGL_BeginUnit(GL_POLYGON, v_count,
+			tex_id, tex2_id, pass, blending);
+
+	for (int kk=0; kk < v_count; kk++)
+	{
+		WallCoordFunc(vertices + kk, glvert + kk, &data);
+	}
+
+	RGL_EndUnit(v_count);
+
+///---	poly = RGL_NewPolyQuad(left_num + right_num);
+///---
+///---	RGL_BoundPolyQuad(poly);
+///---
+///---	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, tex_id,tex2_id,
+///---		/* pass */ 0, blending | BL_Multi);
 
 #if 0  // COLORMAP ADD SHIT
 
 	data.cmx = 1;
 
-	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, 0,tex_id2,
+	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, 0,tex2_id,
 		/* pass */ 1, blending | BL_Multi | BL_Add);
-#endif
 
 	RGL_FreePolyQuad(poly);
+#endif
 
-#ifdef DLIGHT_PROTOTYPE
+#if 0 ///!!!! def DLIGHT_PROTOTYPE
 	if (use_dlights == 1 && solid_mode)
 	{
 RGL_DrawUnits(); //!!!!
@@ -1952,9 +1978,8 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	bool blended;
 
 	wall_plane_data_t data;
-	raw_polyquad_t *poly;
 
-	GLuint tex_id=0, tex_id2=0;
+	GLuint tex_id=0, tex2_id=0;
 
 	int num_vert, i;
 
@@ -2040,7 +2065,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	// FADING MAP
 	{
-		tex_id2 = W_ImageCache(fading_image);
+		tex2_id = W_ImageCache(fading_image);
 	}
 
 	data.tx = surf->offset.x;
@@ -2051,35 +2076,61 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	data.cmx = 0;
 
-	poly = RGL_NewPolyQuad(num_vert);
+
+	vec3_t vertices[MAX_PLVERT];
+
+	int v_count = 0;
 
 	for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
 		seg=seg->sub_next, i++)
 	{
-		float x = seg->v1->x;
-		float y = seg->v1->y;
-			
-MIR_Coordinate(x, y);
+		if (v_count < MAX_PLVERT)
+		{
+			float x = seg->v1->x;
+			float y = seg->v1->y;
 
-		PQ_ADD_VERT(poly, x, y, h);
+			MIR_Coordinate(x, y);
+
+			vertices[v_count].x = x;
+			vertices[v_count].y = y;
+			vertices[v_count].z = h;
+			v_count++;
+		}
 	}
-
-	RGL_BoundPolyQuad(poly);
 
 	int blending = (blended ? BL_Alpha : 0) | (mid_masked ? BL_Masked : 0);
 
-	RGL_RenderPolyQuad(poly, &data, PlaneCoordFunc, tex_id,tex_id2,
-		/* pass */ 0, blending | BL_Multi);
+	blended |= BL_Multi;
 
-#if 1  // COLORMAP ADD SHIT
+
+	int pass = 0;
+
+	local_gl_vert_t *glvert = RGL_BeginUnit(GL_POLYGON, v_count,
+			tex_id, tex2_id, pass, blending);
+
+	for (int kk=0; kk < v_count; kk++)
+	{
+		PlaneCoordFunc(vertices + kk, glvert + kk, &data);
+	}
+
+	RGL_EndUnit(v_count);
+
+///---	poly = RGL_NewPolyQuad(num_vert);
+///---
+///---	RGL_BoundPolyQuad(poly);
+///---
+///---	RGL_RenderPolyQuad(poly, &data, PlaneCoordFunc, tex_id,tex2_id,
+///---		/* pass */ 0, blending | BL_Multi);
+
+#if 0  // COLORMAP ADD SHIT
 
 	data.cmx = 1;
 
-	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, 0,tex_id2,
+	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, 0,tex2_id,
 		/* pass */ 1, blending | BL_Multi | BL_Add);
-#endif
 
 	RGL_FreePolyQuad(poly);
+#endif
 
 #ifdef SHADOW_PROTOTYPE
 	if (level_flags.shadows && solid_mode && face_dir > 0)
@@ -2125,7 +2176,7 @@ MIR_Coordinate(x, y);
 	}
 #endif
 
-#ifdef DLIGHT_PROTOTYPE
+#if 0 //!!!! def DLIGHT_PROTOTYPE
 	if (use_dlights == 1 && solid_mode)
 	{
 RGL_DrawUnits();
