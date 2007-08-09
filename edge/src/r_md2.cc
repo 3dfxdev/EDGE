@@ -52,10 +52,10 @@ typedef struct
 	s32_t skin_width;
 	s32_t skin_height;
 
-	s32_t verts_per_frame;
+	s32_t frame_size;
 
 	s32_t num_skins;
-	s32_t num_xyz;
+	s32_t num_vertices;  // per frame
 	s32_t num_st;
 	s32_t num_tris;
 	s32_t num_glcmds;
@@ -388,12 +388,13 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 	f->Seek(EPI_LE_S32(header.ofs_glcmds), epi::file_c::SEEKPOINT_START);
 	f->Read(glcmds, sizeof(s32_t) * num_glcmds);
 
+	for (int aa = 0; aa < num_glcmds; aa++)
+		glcmds[aa] = EPI_LE_S32(glcmds[aa]);
+
 	// determine total number of strips and points
 	for (i = 0; i < num_glcmds && glcmds[i] != 0; )
 	{
-		int count = EPI_LE_S32(glcmds[i]);
-
-		i++;
+		int count = glcmds[i++];
 
 		if (count < 0)
 			count = -count;
@@ -404,22 +405,26 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 		i += count*3;
 	}
 
+	L_WriteDebug("MODEL INFO:\n");
+	L_WriteDebug("  frames:%d  points:%d  strips: %d\n",
+			num_frames, num_points, num_strips);
+
 	md2_model_c *md = new md2_model_c(num_frames, num_points, num_strips);
 
-	md->verts_per_frame = EPI_LE_S32(header.verts_per_frame);
+	md->verts_per_frame = EPI_LE_S32(header.num_vertices);
+
+	L_WriteDebug("  verts_per_frame:%d  glcmds:%d\n", md->verts_per_frame, num_glcmds);
 
 	// convert glcmds into strips and points
-	int strip_idx = 0;
-	int point_idx = 0;
+	md2_strip_c *strip = md->strips;
+	md2_point_c *point = md->points;
 
 	for (i = 0; i < num_glcmds && glcmds[i] != 0; )
 	{
-		int count = EPI_LE_S32(glcmds[i]);
+		int count = glcmds[i++];
 
-		i++;
-
-		md2_strip_c *strip = md->strips + strip_idx;
-		md2_point_c *point = md->points + point_idx;
+		SYS_ASSERT(strip < md->strips + md->num_strips);
+		SYS_ASSERT(point < md->points + md->num_points);
 
 		strip->mode = (count < 0) ? GL_TRIANGLE_FAN : GL_TRIANGLE_STRIP;
 
@@ -427,21 +432,25 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 			count = -count;
 
 		strip->count = count;
-		strip->first = point_idx;
+		strip->first = point - md->points;
+
+		strip++;
 
 		for (; count > 0; count--, point++, i += 3)
 		{
-			glcmds[i+0] = EPI_LE_S32(glcmds[i+0]);
-			glcmds[i+1] = EPI_LE_S32(glcmds[i+1]);
-			glcmds[i+2] = EPI_LE_S32(glcmds[i+2]);
-
 			float *f_ptr = (float *) &glcmds[i];
 
 			point->skin_s   = f_ptr[0];
 			point->skin_t   = f_ptr[1];
 			point->vert_idx = glcmds[i+2];
+
+			SYS_ASSERT(point->vert_idx >= 0);
+			SYS_ASSERT(point->vert_idx < md->verts_per_frame);
 		}
 	}
+
+	SYS_ASSERT(strip == md->strips + md->num_strips);
+	SYS_ASSERT(point == md->points + md->num_points);
 
 	delete[] glcmds;
 
@@ -476,6 +485,10 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 		translate[1] = f_ptr[4];
 		translate[2] = f_ptr[5];
 
+		L_WriteDebug("  __FRAME_%d__\n", i);
+		L_WriteDebug("    scale: %1.2f, %1.2f, %1.2f\n", scale[0], scale[1], scale[2]);
+		L_WriteDebug("    translate: %1.2f, %1.2f, %1.2f\n", translate[0], translate[1], translate[2]);
+
 		f->Read(raw_verts, sizeof(raw_md2_vertex_t) * md->verts_per_frame);
 
 		md->frames[i].vertices = new md2_vertex_c[md->verts_per_frame];
@@ -489,7 +502,15 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 			good_V->y = (int)raw_V->y * scale[1] + translate[1];
 			good_V->z = (int)raw_V->z * scale[2] + translate[2];
 
+			L_WriteDebug("    __VERT_%d__\n", v);
+			L_WriteDebug("      raw: %d,%d,%d\n", raw_V->x, raw_V->y, raw_V->z);
+			L_WriteDebug("      normal: %d\n", raw_V->light_normal);
+			L_WriteDebug("      good: %1.2f, %1.2f, %1.2f\n", good_V->x, good_V->y, good_V->z);
+
 			good_V->normal_idx = raw_V->light_normal;
+			
+			SYS_ASSERT(good_V->normal_idx >= 0);
+			SYS_ASSERT(good_V->normal_idx < MD2_NUM_NORMALS);
 		}
 	}
 
@@ -512,6 +533,28 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 	/* enable model's texture */
 //!!!!	glBindTexture (GL_TEXTURE_2D, mdl->tex_id);
 
+	glColor3f(1, 1, 1);
+
+//TEST
+{
+	glBegin(GL_TRIANGLE_STRIP);
+
+	float x = mo->x;
+	float y = mo->y;
+	float z = mo->z;
+
+	glVertex3f(x, y, z);
+	glVertex3f(x, y, z+60);
+	glVertex3f(x+40, y, z);
+	glVertex3f(x+40, y, z+60);
+	glVertex3f(x+60, y+50, z);
+	glVertex3f(x+60, y+50, z+60);
+
+	glEnd();
+
+	return;
+}
+
 	/* draw the model */
 	for (int i = 0; i < md->num_strips; i++)
 	{
@@ -521,7 +564,18 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 
 		for (int k = 0; k < md->strips[i].count; k++)
 		{
+L_WriteDebug("STRIP %d/%d  VERT %d/%d\n",
+i, md->num_strips,
+k, md->strips[i].count);
+	
+			SYS_ASSERT(md->strips[i].first + k >= 0);
+			SYS_ASSERT(md->strips[i].first + k < md->num_points);
+
 			md2_point_c *point = &md->points[md->strips[i].first + k];
+
+			SYS_ASSERT(point->vert_idx >= 0);
+			SYS_ASSERT(point->vert_idx < md->verts_per_frame);
+
 			md2_vertex_c *vert = &md->frames[n].vertices[point->vert_idx];
 				
       		glTexCoord2f(point->skin_s, point->skin_t);
@@ -530,7 +584,7 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 
 			float x = mo->x + vert->x;
 			float y = mo->y + vert->y;
-			float z = mo->z + vert->z;
+			float z = mo->z + vert->z + 50;
 				
 			glVertex3f(x, y, z);
 		}
