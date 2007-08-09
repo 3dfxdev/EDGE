@@ -83,9 +83,7 @@ static style_c *rts_hack_style;
 //
 void RAD_InitTips(void)
 {
-	int i;
-
-	for (i=0; i < MAXTIPSLOT; i++)
+	for (int i=0; i < MAXTIPSLOT; i++)
 	{
 		drawtip_t *current = tip_slots + i;
 		s_tip_prop_t *src = fixed_props + (i % FIXEDSLOTS);
@@ -95,8 +93,9 @@ void RAD_InitTips(void)
 		Z_MoveData(&current->p, src, s_tip_prop_t, 1);
 
 		current->delay = -1;
+		current->colmap = NULL;
+
 		current->p.slot_num  = i;
-		current->p.colourmap_name = Z_StrDup(current->p.colourmap_name);
 	}
 }
 
@@ -107,15 +106,10 @@ void RAD_InitTips(void)
 //
 void RAD_ResetTips(void)
 {
-	int i;
-
-	// free any strings
-	for (i=0; i < MAXTIPSLOT; i++)
+	// free any text strings
+	for (int i=0; i < MAXTIPSLOT; i++)
 	{
 		drawtip_t *current = tip_slots + i;
-
-		if (current->p.colourmap_name)
-			Z_Free((char *)current->p.colourmap_name);
 
 		if (current->tip_text)
 			Z_Free((char *)current->tip_text);
@@ -149,14 +143,12 @@ static void SetupTip(drawtip_t *cur)
 	if (cur->tip_graphic)
 		return;
 
-	// lookup translation table
-	// FIXME!!! Catch lookup failure 
-	if (! cur->p.colourmap_name)
-		cur->colmap = text_white_map;
-	else if (DDF_CompareName(cur->p.colourmap_name, "NORMAL") == 0)
-		cur->colmap = NULL;
-	else
+	if (! cur->colmap)
+	{
 		cur->colmap = colourmaps.Lookup(cur->p.colourmap_name); 
+		if (! cur->colmap)
+			cur->colmap = text_white_map;
+	}
 
 	// build HULIB information
 
@@ -428,10 +420,8 @@ void RAD_ActTipProps(rad_trigger_t *R, mobj_t *actor, void *param)
 
 	if (tp->colourmap_name)
 	{
-		if (current->p.colourmap_name)
-			Z_Free((char *)current->p.colourmap_name);
-
-		current->p.colourmap_name = Z_StrDup(tp->colourmap_name);
+		// FIXME!!! Catch lookup failure 
+		current->colmap = colourmaps.Lookup(tp->colourmap_name); 
 	}
 
 	if (tp->translucency >= 0)
