@@ -1315,7 +1315,8 @@ static void LoadLineDefs(int lump)
 				currmap->lump.GetString());
 
 	lines = Z_ClearNew(line_t, numlines);
-	temp_line_sides = Z_ClearNew(int, numlines * 2);
+
+	temp_line_sides = new int[numlines * 2];
 
 	data = W_CacheLumpNum(lump);
 	mapline_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
@@ -1380,7 +1381,8 @@ static void LoadHexenLineDefs(int lump)
 				currmap->lump.GetString());
 
 	lines = Z_ClearNew(line_t, numlines);
-	temp_line_sides = Z_ClearNew(int, numlines * 2);
+
+	temp_line_sides = new int[numlines * 2];
 
 	data = W_CacheLumpNum(lump);
 	mapline_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
@@ -1741,7 +1743,9 @@ static void SetupVertGaps(void)
 
 static void DetectDeepWaterTrick(void)
 {
-	char *self_subs = Z_ClearNew(char, numsubsectors);
+	byte *self_subs = new byte[numsubsectors];
+
+	memset(self_subs, 0, numsubsectors);
 
 	for (int i = 0; i < numsegs; i++)
 	{
@@ -1819,7 +1823,7 @@ static void DetectDeepWaterTrick(void)
 	}
 	while (count > 0 && pass < 100);
 
-	Z_Free(self_subs);
+	delete[] self_subs;
 }
 
 
@@ -2531,8 +2535,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 	SetupWallTiles();
 	SetupVertGaps();
 
-	Z_Free(temp_line_sides);
-	temp_line_sides = NULL;
+	delete[] temp_line_sides;
 
 	DoBlockMap(lumpnum + ML_BLOCKMAP);
 
