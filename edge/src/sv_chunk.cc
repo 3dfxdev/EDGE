@@ -950,7 +950,19 @@ const char *SV_GetString(void)
 	for (int i = 0; i < len; i++)
 		result[i] = (char) SV_GetByte();
 
-	return (const char *) result;
+	return result;
+}
+
+const char *SV_DupString(const char *old)
+{
+	if (! old)
+		return NULL;
+
+	char *result = new char[strlen(old) + 1];
+
+	strcpy(result, old);
+
+	return result;
 }
 
 void SV_FreeString(const char *str)
