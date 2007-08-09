@@ -104,7 +104,7 @@ typedef struct
 
 	char name[16];
 
-	raw_md2_vertex_t verts[1];  /* variable sized */
+//	raw_md2_vertex_t verts[1];  /* variable sized */
 } 
 raw_md2_frame_t;
 
@@ -386,7 +386,7 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 	s32_t *glcmds = new s32_t[num_glcmds];
 
 	f->Seek(EPI_LE_S32(header.ofs_glcmds), epi::file_c::SEEKPOINT_START);
-	f->Read(glcmds, sizeof(s32_t) * num_glcmds);
+	f->Read(glcmds, num_glcmds * sizeof(s32_t));
 
 	for (int aa = 0; aa < num_glcmds; aa++)
 		glcmds[aa] = EPI_LE_S32(glcmds[aa]);
@@ -489,7 +489,7 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 		L_WriteDebug("    scale: %1.2f, %1.2f, %1.2f\n", scale[0], scale[1], scale[2]);
 		L_WriteDebug("    translate: %1.2f, %1.2f, %1.2f\n", translate[0], translate[1], translate[2]);
 
-		f->Read(raw_verts, sizeof(raw_md2_vertex_t) * md->verts_per_frame);
+		f->Read(raw_verts, md->verts_per_frame * sizeof(raw_md2_vertex_t));
 
 		md->frames[i].vertices = new md2_vertex_c[md->verts_per_frame];
 
@@ -502,10 +502,10 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 			good_V->y = (int)raw_V->y * scale[1] + translate[1];
 			good_V->z = (int)raw_V->z * scale[2] + translate[2];
 
-			L_WriteDebug("    __VERT_%d__\n", v);
-			L_WriteDebug("      raw: %d,%d,%d\n", raw_V->x, raw_V->y, raw_V->z);
-			L_WriteDebug("      normal: %d\n", raw_V->light_normal);
-			L_WriteDebug("      good: %1.2f, %1.2f, %1.2f\n", good_V->x, good_V->y, good_V->z);
+//		L_WriteDebug("    __VERT_%d__\n", v);
+//		L_WriteDebug("      raw: %d,%d,%d\n", raw_V->x, raw_V->y, raw_V->z);
+//		L_WriteDebug("      normal: %d\n", raw_V->light_normal);
+//		L_WriteDebug("      good: %1.2f, %1.2f, %1.2f\n", good_V->x, good_V->y, good_V->z);
 
 			good_V->normal_idx = raw_V->light_normal;
 			
@@ -535,7 +535,7 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 
 	glColor3f(1, 1, 1);
 
-//TEST
+#if 0 //TEST
 {
 	glBegin(GL_TRIANGLE_STRIP);
 
@@ -554,6 +554,7 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 
 	return;
 }
+#endif
 
 	/* draw the model */
 	for (int i = 0; i < md->num_strips; i++)
