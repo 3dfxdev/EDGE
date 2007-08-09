@@ -38,6 +38,7 @@
 #include "r_sky.h"
 #include "s_sound.h"
 #include "s_music.h"
+#include "sv_chunk.h"
 #include "r_draw.h"
 #include "r_colors.h"
 #include "r_modes.h"
@@ -111,8 +112,7 @@ void RAD_ResetTips(void)
 	{
 		drawtip_t *current = tip_slots + i;
 
-		if (current->tip_text)
-			Z_Free((char *)current->tip_text);
+		SV_FreeString(current->tip_text);
 	}
 
 	RAD_InitTips();
@@ -229,13 +229,12 @@ static void SendTip(rad_trigger_t *R, s_tip_t * tip, int slot)
 
 	current->delay = tip->display_time;
 
-	if (current->tip_text)
-		Z_Free((char *)current->tip_text);
+	SV_FreeString(current->tip_text);
 
 	if (tip->tip_ldf)
-		current->tip_text = Z_StrDup(language[tip->tip_ldf]);
+		current->tip_text = SV_DupString(language[tip->tip_ldf]);
 	else if (tip->tip_text)
-		current->tip_text = Z_StrDup(tip->tip_text);
+		current->tip_text = SV_DupString(tip->tip_text);
 	else
 		current->tip_text = NULL;
 
@@ -1053,10 +1052,9 @@ void RAD_ActMenuStyle(rad_trigger_t *R, mobj_t *actor, void *param)
 {
 	s_menu_style_t *mm = (s_menu_style_t *) param;
 
-	if (R->menu_style_name)
-		Z_Free((void*) R->menu_style_name);
+	SV_FreeString(R->menu_style_name);
 
-	R->menu_style_name = Z_StrDup(mm->style);
+	R->menu_style_name = SV_DupString(mm->style);
 }
 
 void RAD_ActJumpOn(rad_trigger_t *R, mobj_t *actor, void *param)
