@@ -322,7 +322,9 @@ void SV_PlayerCreateElems(int num_elems)
 
 	for (int pnum = 0; pnum < num_elems; pnum++)
 	{
-		player_t *p = Z_ClearNew(player_t, 1);
+		player_t *p = new player_t;
+
+		Z_Clear(p, player_t, 1);
 
 		// Note: while loading, we don't follow the normal principle
 		//       where players[p->pnum] == p.  This is fixed in the

@@ -1458,7 +1458,7 @@ void P_UpdateSpecials(void)
                            &b->line->frontsector->sfx_origin);
         }
 
-		memset(b, 0, sizeof(button_t));	
+		Z_Clear(b, button_t, 1);
 	}
 }
 
