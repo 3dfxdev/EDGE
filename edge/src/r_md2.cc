@@ -85,7 +85,7 @@ raw_md2_triangle_t;
 
 typedef struct
 {
-	s8_t x, y, z;
+	u8_t x, y, z;
 	u8_t light_normal;
 } 
 raw_md2_vertex_t;
@@ -502,10 +502,10 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 			good_V->y = (int)raw_V->y * scale[1] + translate[1];
 			good_V->z = (int)raw_V->z * scale[2] + translate[2];
 
-//		L_WriteDebug("    __VERT_%d__\n", v);
-//		L_WriteDebug("      raw: %d,%d,%d\n", raw_V->x, raw_V->y, raw_V->z);
-//		L_WriteDebug("      normal: %d\n", raw_V->light_normal);
-//		L_WriteDebug("      good: %1.2f, %1.2f, %1.2f\n", good_V->x, good_V->y, good_V->z);
+		L_WriteDebug("    __VERT_%d__\n", v);
+		L_WriteDebug("      raw: %d,%d,%d\n", raw_V->x, raw_V->y, raw_V->z);
+		L_WriteDebug("      normal: %d\n", raw_V->light_normal);
+		L_WriteDebug("      good: %1.2f, %1.2f, %1.2f\n", good_V->x, good_V->y, good_V->z);
 
 			good_V->normal_idx = raw_V->light_normal;
 			
@@ -524,7 +524,7 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 {
-	int n = leveltime % md->num_frames;
+	int n = (leveltime / 6) % md->num_frames;
 
 	/* check if n is in a valid range */
 	if (n < 0 || n >= md->num_frames)
@@ -559,6 +559,8 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 	/* draw the model */
 	for (int i = 0; i < md->num_strips; i++)
 	{
+		glColor3f((i&2)?1:0, (i&1)?1:0, (i&4)?1:0);
+
 		glBegin(md->strips[i].mode);
 
 		/* draw each vertex of this strip */
