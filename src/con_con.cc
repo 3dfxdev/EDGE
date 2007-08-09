@@ -26,7 +26,6 @@
 #include "i_defs.h"
 #include "con_defs.h"
 
-#include "con_gui.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"
 #include "hu_style.h"
@@ -58,15 +57,6 @@ coninfo_t;
 
 static coninfo_t con_info;
 
-gui_t console =
-{
-    0,
-	&CON_Ticker,
-	&CON_Responder,
-	&CON_Drawer,
-	(void *)&con_info,
-	0, 0, 0, 0, 0, 0, 0
-};
 
 // stores the console toggle effect
 /// wipeinfo_t *conwipe = NULL;
@@ -166,7 +156,7 @@ int bottomrow = -1;
 bool no_con_history = 0;
 
 // always type ev_keydown
-guievent_t RepeatEvent;
+int RepeatKey;
 int RepeatCountdown;
 
 // tells whether shift is pressed, and pgup/dn should scroll to top/bottom of linebuffer.
@@ -174,7 +164,7 @@ bool KeysShifted;
 
 bool TabbedLast;
 
-bool CON_HandleKey(guievent_t * ev);
+bool CON_HandleKey(int key);
 
 typedef enum
 {
@@ -385,7 +375,6 @@ void CON_SetVisible(visible_t v)
 
 	if (v == vs_maximal)
 	{
-		GUI_SetFocus(console.gui, &console);
 		cmdhistorypos = -1;
 		TabbedLast = false;
 	}
@@ -488,9 +477,9 @@ void CON_Message(const char *message,...)
 	va_end(argptr);
 }
 
-void CON_Ticker(gui_t * gui)
+void CON_Ticker(void)
 {
-	coninfo_t *info = (coninfo_t *)gui->process;
+	coninfo_t *info = &con_info; ///--- (coninfo_t *)gui->process;
 
 	info->cursor = (info->cursor + 1) & 31;
 
@@ -525,7 +514,7 @@ void CON_Ticker(gui_t * gui)
 				while (RepeatCountdown <= 0)
 				{
 					RepeatCountdown += KEYREPEATRATE;
-					CON_HandleKey(&RepeatEvent);
+					CON_HandleKey(RepeatKey);
 				}
 			}
 			break;
@@ -567,7 +556,7 @@ static void WriteText(int x, int y, char *s, int len, int text_type)
 //
 // Draws the console in graphics mode.
 //
-void CON_Drawer(gui_t * gui)
+void CON_Drawer(void)
 {
 	if (! console_style)
 	{
@@ -577,7 +566,8 @@ void CON_Drawer(gui_t * gui)
 		console_style = hu_styles.Lookup(def);
 	}
 
-	coninfo_t *info = (coninfo_t *)gui->process;
+	coninfo_t *info = &con_info; //--- (coninfo_t *)gui->process;
+
 	int i;
 	int y;
 	int bottom;
@@ -675,9 +665,9 @@ static void RemoveTabCommand(char *name)
 }
 #endif
 
-bool CON_HandleKey(guievent_t * ev)
+bool CON_HandleKey(int key)
 {
-	switch (ev->data1)
+	switch (key)
 	{
 #if 0  // -ES- fixme - implement tab stuff (need commands first, though)
 	case KEYD_TAB:
@@ -860,14 +850,14 @@ bool CON_HandleKey(guievent_t * ev)
 		break;
 	
 	default:
-		if (ev->data1 < 32 || ev->data1 > 126)
+		if (key < 32 || key > 126)
 		{
 			// Do nothing
 		}
 		else
 		{
 			// Add keypress to command line
-			char data = ev->data1;
+			char data = key;
 			char *c, *e;
 	
 			GrowLine(&cmdline, &cmdlinesize, cmdlineend + 2);
@@ -898,28 +888,23 @@ bool CON_HandleKey(guievent_t * ev)
 	return true;
 }
 
-bool CON_Responder(gui_t * gui, guievent_t * event)
+bool CON_Responder(event_t * ev)
 {
-	coninfo_t *info = (coninfo_t *)gui->process;
-
-	if (info->visible == vs_notvisible)
+	if (ev->type == ev_keydown && ev->value.key == KEYD_TILDE)
 	{
-#if 0  // CURRENTLY UNREACHABLE CODE
-		if (event->type == gev_keydown && event->data1 == KEYD_TILDE)
-		{
-			CON_SetVisible(vs_toggle);
-			return true;
-		}
-#endif
-		return false;
+		CON_SetVisible(vs_toggle);
+		return true;
 	}
 
-	if (event->type == gev_keyup)
+	if (con_info.visible == vs_notvisible)
+		return false;
+
+	if (ev->type == ev_keyup)
 	{
-		if (event->data1 == RepeatEvent.data1)
+		if (ev->value.key == RepeatKey)
 			RepeatCountdown = 0;
 
-		switch (event->data1)
+		switch (ev->value.key)
 		{
 			case KEYD_PGUP:
 			case KEYD_PGDN:
@@ -932,10 +917,10 @@ bool CON_Responder(gui_t * gui, guievent_t * event)
 				return false;
 		}
 	}
-	else if (event->type == gev_keydown)
+	else if (ev->type == ev_keydown)
 	{
 		// Okay, fine. Most keys don't repeat
-		switch (event->data1)
+		switch (ev->value.key)
 		{
 			case KEYD_RIGHTARROW:
 			case KEYD_LEFTARROW:
@@ -951,11 +936,9 @@ bool CON_Responder(gui_t * gui, guievent_t * event)
 				break;
 		}
 
-		RepeatEvent = *event;
-		if (CON_HandleKey(event))
-		{
-			return true;
-		}
+		RepeatKey = ev->value.key;
+
+		return CON_HandleKey(RepeatKey);
 	}
 
 	return false;
@@ -967,13 +950,12 @@ bool CON_InitResolution(void)
 	return true;
 }
 
-void CON_Start(gui_t ** gui)
+void CON_Start(void)
 {
 	CON_CreateCVarEnum("conwipemethod", cf_normal, &conwipemethod, WIPE_EnumStr, WIPE_NUMWIPES);
 	CON_CreateCVarInt("conwipeduration", cf_normal, &conwipeduration);
 	CON_CreateCVarBool("conwipereverse", cf_normal, &conwipereverse);
 
-	GUI_Start(gui, &console);
 	CON_SetVisible(vs_maximal);
 }
 

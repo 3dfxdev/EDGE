@@ -45,8 +45,6 @@
 #include "e_input.h"
 #include "f_finale.h"
 #include "g_game.h"
-#include "gui_main.h"
-#include "gui_gui.h"
 #include "hu_stuff.h"
 #include "l_glbsp.h"
 #include "m_argv.h"
@@ -554,8 +552,6 @@ static void DoSystemStartup(void)
 	// startup the system now
 	W_InitImages();
 
-	GUI_MainInit();
-
 	L_WriteDebug("- System startup begun.\n");
 
 	I_SystemStartup();
@@ -615,7 +611,7 @@ void E_ProcessEvents(void)
 		if (chat_on && HU_Responder(ev))
 			continue;  // let chat eat the event first of all
 
-		if (GUI_MainResponder(ev))
+		if (CON_Responder(ev))
 			continue;  // GUI ate the event
 
 		if (M_Responder(ev))
@@ -677,11 +673,6 @@ void E_Display(void)
 {
 	if (nodrawers)
 		return;  // for comparative timing / profiling
-
-///---	// -ES-  1998/08/20: Resolution Change Check
-///---	// -ACB- 2005/03/06: Now using the new res index
-///---	if (newres_idx >= 0)
-///---		R_ExecuteChangeResolution();
 
 	// change the view size if needed  [FIXME!! bullcrap here]
 	if (setsizeneeded)
@@ -775,7 +766,7 @@ void E_Display(void)
 	}
 
 	// draw console _after_ doing screenshots
-	GUI_MainDrawer();
+	CON_Drawer();
 
 	M_DisplayDisk();
 
@@ -1532,9 +1523,8 @@ startuporder_t startcode[] =
 	{  2, HU_Init              },
 	{  3, R_InitFlats          },
 	{ 10, W_InitTextures       },
-	{  1, GUI_ConInit          },
+	{  1, CON_Start            },
 	{  1, SpecialWadVerify     },
-	{  1, GUI_MouseInit        },
 	{  1, M_InitMiscConVars    },
 	{ 20, W_ReadDDF            },
 	{  1, DDF_CleanUp          },
@@ -1787,7 +1777,7 @@ void E_Tick(void)
 		if (advance_title)
 			E_DoAdvanceTitle();
 
-		GUI_MainTicker();
+		CON_Ticker();
 		M_Ticker();
 
 		G_Ticker(fresh_game_tic);

@@ -21,8 +21,6 @@
 
 #include "con_defs.h"
 #include "g_game.h"
-#include "gui_gui.h"
-#include "gui_ctls.h"
 #include "m_menu.h"
 #include "s_sound.h"
 #include "w_wad.h"
@@ -48,21 +46,17 @@ typedef struct
 }
 con_cmd_t;
 
-int CON_CMDToggleMouse(const char *args);
-int CON_CMDHelloWorld(const char *args);
-int CON_CMDEat(const char *args);
-int CON_CMDExec(const char *args);
-int CON_CMDArgText(const char *args);
-int CON_CMDType(const char *args);
-int CON_CMDTypeOf(const char *args);
-int CON_CMDScreenShot(const char *args);
-int CON_CMDSet(const char *args);
-int CON_CMDWatch(const char *args);
-int CON_CMDQuitEDGE(const char *args);
-int CON_CMDCrc(const char *args);
-int CON_CMDPlaySound(const char *args);
+int CMD_Eat(const char *args);
+int CMD_Exec(const char *args);
+int CMD_ArgText(const char *args);
+int CMD_Type(const char *args);
+int CMD_TypeOf(const char *args);
+int CMD_ScreenShot(const char *args);
+int CMD_Set(const char *args);
+int CMD_QuitEDGE(const char *args);
+int CMD_Crc(const char *args);
+int CMD_PlaySound(const char *args);
 
-bool CON_CMDHelloWorldResponder(gui_t * gui, guievent_t * ev);
 
 // Current console commands.  Needs extending badly.
 // 'Builtin' commands should be added here
@@ -72,19 +66,16 @@ bool CON_CMDHelloWorldResponder(gui_t * gui, guievent_t * ev);
 //   dynamic linking, on DOS they must be linked statically.
 con_cmd_t consolecommands[] =
 {
-	{"args", 0, CON_CMDArgText},
-	{"crc", 0, CON_CMDCrc},
-	{"playsound", 0, CON_CMDPlaySound},
-	{"eat", 0, CON_CMDEat},
-	{"exec", 0, CON_CMDExec},
-	{"mouse", 0, CON_CMDToggleMouse},
-	{"screenshot", 0, CON_CMDScreenShot},
-	{"set", 0, CON_CMDSet},
-	{"test", 0, CON_CMDHelloWorld},
-	{"type", 0, CON_CMDType},
-	{"typeof", 0, CON_CMDTypeOf},
-	{"quit", 0, CON_CMDQuitEDGE},
-	{"watch", 0, CON_CMDWatch},
+	{"args", 0, CMD_ArgText},
+	{"crc", 0, CMD_Crc},
+	{"playsound", 0, CMD_PlaySound},
+	{"eat", 0, CMD_Eat},
+	{"exec", 0, CMD_Exec},
+	{"screenshot", 0, CMD_ScreenShot},
+	{"set", 0, CMD_Set},
+	{"type", 0, CMD_Type},
+	{"typeof", 0, CMD_TypeOf},
+	{"quit", 0, CMD_QuitEDGE},
 };
 
 static int GetArgs(const char *args, int argc, char **argv)
@@ -177,37 +168,8 @@ void CON_TryCommand(const char *cmd)
 	CON_Printf("Bad Command.\n");
 }
 
-int CON_CMDToggleMouse(const char *args)
-{
-	bool vis = !GUI_MainGetMouseVisibility();
 
-	GUI_MainSetMouseVisibility(vis);
-	CON_Printf("Mouse: %s\n", vis ? "on" : "off");
-	return 0;
-}
-
-bool CON_CMDHelloWorldResponder(gui_t * gui, guievent_t * ev)
-{
-	switch (ev->type)
-	{
-	case 112:
-		GUI_Destroy(gui);
-		return true;
-	default:
-		return false;
-	}
-}
-
-int CON_CMDHelloWorld(const char *args)
-{
-	gui_t *gui = Z_ClearNew(gui_t, 1);
-	gui->Responder = &CON_CMDHelloWorldResponder;
-	GUI_Start(GUI_NULL(), gui);
-	gui->process = GUI_MSGStart(GUI_NULL(), gui, 112, 0, "Hello World");
-	return 0;
-}
-
-int CON_CMDExec(const char *args)
+int CMD_Exec(const char *args)
 {
 	FILE *script;
 	int argc;
@@ -244,7 +206,7 @@ int CON_CMDExec(const char *args)
 	return 0;
 }
 
-int CON_CMDType(const char *args)
+int CMD_Type(const char *args)
 {
 	FILE *script;
 	int argc;
@@ -279,7 +241,7 @@ int CON_CMDType(const char *args)
 	return 0;
 }
 
-int CON_CMDArgText(const char *args)
+int CMD_ArgText(const char *args)
 {
 	int argc;
 	int i;
@@ -297,7 +259,7 @@ int CON_CMDArgText(const char *args)
 //
 // Eats memory.
 //
-int CON_CMDEat(const char *args)
+int CMD_Eat(const char *args)
 {
 	int argc;
 	char *argv[2];
@@ -326,14 +288,14 @@ int CON_CMDEat(const char *args)
 	return 0;
 }
 
-int CON_CMDScreenShot(const char *args)
+int CMD_ScreenShot(const char *args)
 {
 	G_DeferredScreenShot();
 
 	return 0;
 }
 
-int CON_CMDSet(const char *args)
+int CMD_Set(const char *args)
 {
 	int argc;
 	cvar_t *var;
@@ -423,7 +385,7 @@ int CON_CMDSet(const char *args)
 	return e;
 }
 
-int CON_CMDTypeOf(const char *args)
+int CMD_TypeOf(const char *args)
 {
 	cvar_t *v;
 	char *argv[2];
@@ -458,26 +420,8 @@ int CON_CMDTypeOf(const char *args)
 	return e;
 }
 
-int CON_CMDWatch(const char *args)
-{
-	int argc;
-	char *argv[3];
 
-	argc = GetArgs(args, 3, argv);
-
-	if (argc != 3)
-	{
-		CON_Printf("Usage: watch <cvar> <max>\n");
-		return 1;
-	}
-
-	GUI_BARStart(GUI_NULL(), argv[1], strtol(argv[2], NULL, 0));
-
-	KillArgs(argc, argv);
-	return 0;
-}
-
-int CON_CMDQuitEDGE(const char *args)
+int CMD_QuitEDGE(const char *args)
 {
 	M_QuitEDGE(0);
 
@@ -485,7 +429,7 @@ int CON_CMDQuitEDGE(const char *args)
 }
 
 
-int CON_CMDCrc(const char *args)
+int CMD_Crc(const char *args)
 {
 	int argc;
 	char *argv[3];
@@ -526,7 +470,7 @@ int CON_CMDCrc(const char *args)
 	return 0;
 }
 
-int CON_CMDPlaySound(const char *args)
+int CMD_PlaySound(const char *args)
 {
 	int argc;
 	char *argv[3];
