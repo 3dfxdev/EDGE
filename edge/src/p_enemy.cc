@@ -516,7 +516,7 @@ void P_LookForShootSpots(const mobjtype_c *spot_type)
 	}
 
 	// create the spots
-	brain_spots.targets = Z_New(mobj_t *, brain_spots.number);
+	brain_spots.targets = new mobj_t* [brain_spots.number];
 
 	for (cur=mobjlisthead, i=0; cur != NULL; cur=cur->next)
 	{
@@ -539,7 +539,7 @@ void P_FreeShootSpots(void)
 	{
 		SYS_ASSERT(brain_spots.targets);
 
-		Z_Free(brain_spots.targets);
+		delete[] brain_spots.targets;
 	}
 
 	brain_spots.number = -1;
