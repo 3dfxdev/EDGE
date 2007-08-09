@@ -45,7 +45,6 @@
 #define TERMINATOR  ';'
 
 #define BUFFERSIZE 1024
-#define NUMSPLIT 10		// Max Number of sections a state is split info
 
 // enum thats gives the parser's current status
 typedef enum

@@ -58,6 +58,8 @@ int num_states;
 // fixup routine is called.
 epi::strlist_c redirs;
 
+#define NUMSPLIT 10	 // Max Number of sections a state is split info
+
 static char *stateinfo[NUMSPLIT + 1];
 
 
