@@ -63,6 +63,7 @@ angle_t SV_GetAngle(void);
 float SV_GetFloat(void);
 
 const char *SV_GetString(void);
+const char *SV_DupString(const char *old);
 void SV_FreeString(const char *str);
 
 bool SV_GetMarker(char id[5]);

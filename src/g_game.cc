@@ -827,8 +827,8 @@ static void G_DoSaveGame(void)
 
 	// --- fill in global structure ---
 
-	globs->game = Z_StrDup(currmap->episode_name);
-	globs->level = Z_StrDup(currmap->ddf.name);
+	globs->game  = SV_DupString(currmap->episode_name);
+	globs->level = SV_DupString(currmap->ddf.name);
 	globs->flags = level_flags;
 	globs->gravity = level_flags.menu_grav;
 
@@ -853,8 +853,8 @@ static void G_DoSaveGame(void)
 	if (timebuf[0] == '0' && isdigit(timebuf[1]))
 		timebuf[0] = ' ';
 
-	globs->description = Z_StrDup(savedescription);
-	globs->desc_date   = Z_StrDup(timebuf);
+	globs->description = SV_DupString(savedescription);
+	globs->desc_date   = SV_DupString(timebuf);
 
 	globs->mapsector.count = numsectors;
 	globs->mapsector.crc = mapsector_CRC.crc;
