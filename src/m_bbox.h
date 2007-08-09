@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __M_BBOX__
-#define __M_BBOX__
+#ifndef __M_BBOX_H__
+#define __M_BBOX_H__
 
 #include <limits.h>
 
@@ -44,31 +44,7 @@ void M_AddToBox(float * box, float x, float y);
 void M_CopyBox(float * box, float * other);
 void M_UnionBox(float * box, float * other);
 
-//
-//  DIRTY REGION HANDLING
-// 
-// Each byte in dirty_region[][] represents a block (DIRT_X x DIRT_Y)
-// on the screen.  When `dirty_region_whole' is true, then the whole
-// screen is considered dirty (simplifying some operations).  When
-// `dirty_region_always' is true, the whole screen is ALWAYS
-// considered to be dirty (e.g. double buffering & drawing into video
-// memory).
-
-#define DIRT_X  16
-#define DIRT_Y  16
-
-#define DIRT_REG_W  ((2048+DIRT_X-1) / DIRT_X)
-#define DIRT_REG_H  ((1536+DIRT_Y-1) / DIRT_X)
-
-extern byte dirty_region[DIRT_REG_H][DIRT_REG_W];
-extern bool dirty_region_whole;
-extern bool dirty_region_always;
-
-void M_CleanMatrix(void);
-void M_DirtyMatrix(void);
-void M_DirtyRegion(int x1, int y1, int x2, int y2);
-
-#endif // __M_BBOX__
+#endif /* __M_BBOX_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
