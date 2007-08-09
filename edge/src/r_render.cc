@@ -1240,6 +1240,8 @@ if (num_active_mirrors % 2)
 	if (mid_masked == 1)
 		blending |= BL_ClampY;
 
+	blending |= BL_Multi;
+
 
 	int pass = 0;
 
@@ -1252,13 +1254,6 @@ if (num_active_mirrors % 2)
 	}
 
 	RGL_EndUnit(v_count);
-
-///---	poly = RGL_NewPolyQuad(left_num + right_num);
-///---
-///---	RGL_BoundPolyQuad(poly);
-///---
-///---	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, tex_id,tex2_id,
-///---		/* pass */ 0, blending | BL_Multi);
 
 #if 0  // COLORMAP ADD SHIT
 
@@ -2100,7 +2095,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	int blending = (blended ? BL_Alpha : 0) | (mid_masked ? BL_Masked : 0);
 
-	blended |= BL_Multi;
+	blending |= BL_Multi;
 
 
 	int pass = 0;
@@ -2115,12 +2110,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	RGL_EndUnit(v_count);
 
-///---	poly = RGL_NewPolyQuad(num_vert);
-///---
-///---	RGL_BoundPolyQuad(poly);
-///---
-///---	RGL_RenderPolyQuad(poly, &data, PlaneCoordFunc, tex_id,tex2_id,
-///---		/* pass */ 0, blending | BL_Multi);
 
 #if 0  // COLORMAP ADD SHIT
 
