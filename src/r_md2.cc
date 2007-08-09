@@ -29,9 +29,23 @@
 #include "epi/types.h"
 #include "epi/endianess.h"
 
+#include "epi/image_data.h"
+#include "epi/image_jpeg.h"
+
 #include "r_md2.h"
 
+#include "m_misc.h"  //!!!!
+
 extern int leveltime; //!!!!
+
+//!!!!!
+extern GLuint W_SendGLTexture(epi::image_data_c *img,
+					   bool clamp, bool nomip, bool smooth,
+					   int max_pix, const byte *what_palette);
+
+static GLuint skin_tex = 0;
+
+// #define DEBUG_MD2_LOAD  1
 
 
 /*============== FORMAT DEFINITIONS ====================*/
@@ -360,6 +374,17 @@ public:
 
 md2_model_c *MD2_LoadModel(epi::file_c *f)
 {
+	if (! skin_tex)
+	{
+		epi::file_c *skf = M_OpenComposedEPIFile(game_dir.GetString(), "md2/knight/skin.jpg");
+		if (! f) I_Error("Cannot open skin.");
+
+		epi::image_data_c *img = epi::JPEG_Load(skf, epi::IRF_Round_POW2);
+		if (! img) I_Error("Cannot load skin.");
+		
+		skin_tex = W_SendGLTexture(img, true, true, false, 1024*1024, NULL);
+	}
+
 	int i;
 
 	raw_md2_header_t header;
@@ -441,7 +466,7 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 			float *f_ptr = (float *) &glcmds[i];
 
 			point->skin_s   = f_ptr[0];
-			point->skin_t   = f_ptr[1];
+			point->skin_t   = 1.0 - f_ptr[1];
 			point->vert_idx = glcmds[i+2];
 
 			SYS_ASSERT(point->vert_idx >= 0);
@@ -485,9 +510,11 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 		translate[1] = f_ptr[4];
 		translate[2] = f_ptr[5];
 
+#ifdef DEBUG_MD2_LOAD
 		L_WriteDebug("  __FRAME_%d__\n", i);
 		L_WriteDebug("    scale: %1.2f, %1.2f, %1.2f\n", scale[0], scale[1], scale[2]);
 		L_WriteDebug("    translate: %1.2f, %1.2f, %1.2f\n", translate[0], translate[1], translate[2]);
+#endif
 
 		f->Read(raw_verts, md->verts_per_frame * sizeof(raw_md2_vertex_t));
 
@@ -502,11 +529,12 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 			good_V->y = (int)raw_V->y * scale[1] + translate[1];
 			good_V->z = (int)raw_V->z * scale[2] + translate[2];
 
-		L_WriteDebug("    __VERT_%d__\n", v);
-		L_WriteDebug("      raw: %d,%d,%d\n", raw_V->x, raw_V->y, raw_V->z);
-		L_WriteDebug("      normal: %d\n", raw_V->light_normal);
-		L_WriteDebug("      good: %1.2f, %1.2f, %1.2f\n", good_V->x, good_V->y, good_V->z);
-
+#ifdef DEBUG_MD2_LOAD
+			L_WriteDebug("    __VERT_%d__\n", v);
+			L_WriteDebug("      raw: %d,%d,%d\n", raw_V->x, raw_V->y, raw_V->z);
+			L_WriteDebug("      normal: %d\n", raw_V->light_normal);
+			L_WriteDebug("      good: %1.2f, %1.2f, %1.2f\n", good_V->x, good_V->y, good_V->z);
+#endif
 			good_V->normal_idx = raw_V->light_normal;
 			
 			SYS_ASSERT(good_V->normal_idx >= 0);
@@ -524,14 +552,15 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 {
-	int n = (leveltime / 6) % md->num_frames;
+	int n = (leveltime / 8) % md->num_frames;
 
 	/* check if n is in a valid range */
 	if (n < 0 || n >= md->num_frames)
 		return;
 
 	/* enable model's texture */
-//!!!!	glBindTexture (GL_TEXTURE_2D, mdl->tex_id);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, skin_tex);
 
 	glColor3f(1, 1, 1);
 
@@ -559,7 +588,7 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 	/* draw the model */
 	for (int i = 0; i < md->num_strips; i++)
 	{
-		glColor3f((i&2)?1:0, (i&1)?1:0, (i&4)?1:0);
+///		glColor3f((i&2)?1:0, (i&1)?1:0, (i&4)?1:0);
 
 		glBegin(md->strips[i].mode);
 
@@ -567,10 +596,6 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 
 		for (int k = 0; k < md->strips[i].count; k++)
 		{
-L_WriteDebug("STRIP %d/%d  VERT %d/%d\n",
-i, md->num_strips,
-k, md->strips[i].count);
-	
 			SYS_ASSERT(md->strips[i].first + k >= 0);
 			SYS_ASSERT(md->strips[i].first + k < md->num_points);
 
@@ -587,8 +612,8 @@ k, md->strips[i].count);
 
 			float x = mo->x + vert->x;
 			float y = mo->y + vert->y;
-			float z = mo->z + vert->z + 50;
-				
+			float z = mo->z + vert->z + 24;
+
 			glVertex3f(x, y, z);
 		}
 

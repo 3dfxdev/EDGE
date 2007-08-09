@@ -36,6 +36,9 @@
 #include "r_modes.h"
 #include "r_image.h"
 
+#include "r_md2.h"
+#include "m_misc.h"  // !!!! model test
+
 #include <math.h>
 
 #define DEBUG  0
@@ -889,6 +892,26 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 //
 void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 {
+
+//!!!!!!
+if (dthing->mo->extendedflags & EF_MONSTER)
+{
+	static md2_model_c *md = NULL;
+	if (! md)
+	{
+		epi::file_c *f = M_OpenComposedEPIFile(game_dir.GetString(), "md2/knight/tris.md2");
+		if (! f) I_Error("Cannot open MD2 file.");
+
+		md = MD2_LoadModel(f);
+		if (! f) I_Error("Error loading MD2 file.");
+	}
+
+//RGL_DrawUnits();
+
+MD2_RenderModel(md, dthing->mo);
+return;
+}
+	
 	int fuzzy = (dthing->mo->flags & MF_FUZZY);
 	float trans = fuzzy ? FUZZY_TRANS : dthing->mo->visibility;
 
