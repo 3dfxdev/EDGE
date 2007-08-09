@@ -183,7 +183,6 @@ static savefield_t *StructFindField(savestruct_t *info, const char *name)
 static void StructSkipField(savefield_t *field)
 {
 	char marker[6];
-	const char *str;
 	int i;
 
 	switch (field->type.kind)
