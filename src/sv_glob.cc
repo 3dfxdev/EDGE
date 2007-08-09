@@ -135,7 +135,7 @@ static void GV_GetString(const char *info, void *storage)
 	if (info[0] == 0)
 		*dest = NULL;
 	else
-		*dest = SV_DupString(info);
+		*dest = (char *) SV_DupString(info);
 }
 
 static void GV_GetCheckCRC(const char *info, void *storage)
