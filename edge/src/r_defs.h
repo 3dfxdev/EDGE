@@ -373,6 +373,8 @@ slopetype_t;
 //
 // LINEDEF
 //
+#define NBSEC_MAX  3
+
 typedef struct line_s
 {
 	// Vertices, from v1 to v2.
@@ -435,7 +437,7 @@ typedef struct line_s
 	struct line_s *animate_next;
 
 	// neighbouring sectors on vertices, two each
-	sector_t *nb_sec[4];
+	sector_t *nb_sec[2][NBSEC_MAX];
 }
 line_t;
 
@@ -504,6 +506,8 @@ typedef struct seg_s
 
 	side_t *sidedef;
 	line_t *linedef;
+
+	int side;  // 0 for front, 1 for back
 
 	// Sector references.
 	// backsector is NULL for one sided lines

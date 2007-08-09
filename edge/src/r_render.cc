@@ -1018,15 +1018,6 @@ if (num_active_mirrors % 2)
 	tex_x1 = x_offset;
 	tex_x2 = tex_x1 + xy_len;
 
-	// which side is seg on ?
-	int side = 0;
-
-	if ((cur_seg->v2->x - cur_seg->v1->x) * cur_seg->linedef->dx < 0 ||
-		(cur_seg->v2->y - cur_seg->v1->y) * cur_seg->linedef->dy < 0)
-	{
-		side = 1;
-	}
-
 	// horizontal sliding door hack
 	if (mid_masked >= 2)
 	{
@@ -1036,7 +1027,7 @@ if (num_active_mirrors % 2)
 		float start, end;
 		float seg_start, seg_end;
 
-		if (side == 0)
+		if (cur_seg->side == 0)
 		{
 			seg_start = xy_ofs;
 			seg_end   = seg_start + xy_len;
@@ -1114,7 +1105,7 @@ if (num_active_mirrors % 2)
 			break;
 		}
 
-		if (side == 1)
+		if (cur_seg->side == 1)
 		{
 			float tex_tmp = tex_x1;
 			tex_x1 = tex_x2;
@@ -1124,7 +1115,7 @@ if (num_active_mirrors % 2)
 	else if (mid_masked == 1 && cur_seg->linedef->special &&
 		cur_seg->linedef->special->s.type != SLIDE_None)
 	{
-		if (side == 1)
+		if (cur_seg->side == 1)
 		{
 			tex_x1 = IM_WIDTH(part->image) - tex_x1;
 			tex_x2 = IM_WIDTH(part->image) - tex_x2;
@@ -1182,16 +1173,18 @@ if (num_active_mirrors % 2)
 	{
 		for (int vert=0; vert < 2; vert++)
 		{
+			bool at_left = (cur_seg->side == vert);
+
 			// does this seg touch V1/V2 of the linedef?
-			if ((side == vert && cur_seg->offset < 0.1) ||
-				(side != vert && cur_seg->offset+cur_seg->length+0.1 > cur_seg->linedef->length))
+			if (( at_left && cur_seg->offset < 0.1) ||
+				(!at_left && cur_seg->offset+cur_seg->length+0.1 > cur_seg->linedef->length))
 			{
-				for (int n = 0; n < 2; n++)
+				for (int s = 0; s < NBSEC_MAX; s++)
 				{
 					GreetNeighbourSector(
-						(side!=vert) ? right_h   : left_h,
-						(side!=vert) ? right_num : left_num,
-						cur_seg->linedef->nb_sec[vert*2 + n]);
+						at_left ? left_h   : right_h,
+						at_left ? left_num : right_num,
+						cur_seg->linedef->nb_sec[vert][s]);
 				}
 			}
 		}

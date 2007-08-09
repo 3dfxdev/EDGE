@@ -332,17 +332,49 @@ static void LoadGLVertexes(int lump)
 	W_DoneWithLump(data);
 }
 
+static void SegCommonStuff(seg_t *seg, int linedef  )
+{
+	seg->frontsector = seg->backsector = NULL;
+
+	if (linedef == 0xFFFF)
+	{
+		seg->miniseg = true;
+	}
+	else
+	{
+		if (linedef >= numlines)  // sanity check
+			I_Error("Bad GWA file: seg #%d has invalid linedef.\n", seg - segs);
+
+		seg->miniseg = false;
+		seg->linedef = &lines[linedef];
+
+		float sx = seg->side ? seg->linedef->v2->x : seg->linedef->v1->x;
+		float sy = seg->side ? seg->linedef->v2->y : seg->linedef->v1->y;
+
+		seg->offset = R_PointToDist(sx, sy, seg->v1->x, seg->v1->y);
+
+		seg->sidedef = seg->linedef->side[seg->side];
+
+		if (! seg->sidedef)
+			I_Error("Bad GWA file: missing side for seg #%d\n", seg - segs);
+
+		seg->frontsector = seg->sidedef->sector;
+
+		if (seg->linedef->flags & MLF_TwoSided)
+		{
+			side_t *other = seg->linedef->side[seg->side^1];
+
+			if (other)
+				seg->backsector = other->sector;
+		}
+	}
+}
+
 //
 // LoadV3Segs
 //
 static void LoadV3Segs(const byte *data, int length)
 {
-	const raw_v3_seg_t *ml;
-	seg_t *seg;
-	int linedef;
-	int side;
-	int partner;
-
 	numsegs = length / sizeof(raw_v3_seg_t);
 
 	if (numsegs == 0)
@@ -353,11 +385,11 @@ static void LoadV3Segs(const byte *data, int length)
 
 	Z_Clear(segs, seg_t, numsegs);
 
-	ml = (const raw_v3_seg_t *) data;
-	seg = segs;
-
 	// check both V3 and V5 bits
 	unsigned int VERTEX_V3_OR_V5 = SF_GL_VERTEX_V3 | SF_GL_VERTEX_V5;
+
+	seg_t *seg = segs;
+	const raw_v3_seg_t *ml = (const raw_v3_seg_t *) data;
 
 	for (int i = 0; i < numsegs; i++, seg++, ml++)
 	{
@@ -381,39 +413,21 @@ static void LoadV3Segs(const byte *data, int length)
 		seg->length = R_PointToDist(seg->v1->x, seg->v1->y,
 			seg->v2->x, seg->v2->y);
 
-		linedef = EPI_LE_U16(ml->linedef);
-		side = ml->side ? 1 : 0;
+		seg->side = ml->side ? 1 : 0;
 
-		seg->frontsector = seg->backsector = NULL;
+		int linedef = EPI_LE_U16(ml->linedef);
 
-		// FIXME: this chunk of code is duplicated - factor out ?
-		if (linedef == 0xFFFF)
-			seg->miniseg = 1;
-		else
-		{
-			float sx, sy;
+		SegCommonStuff(seg, linedef  );
 
-			seg->miniseg = 0;
-			seg->linedef = &lines[linedef];
-
-			sx = side ? seg->linedef->v2->x : seg->linedef->v1->x;
-			sy = side ? seg->linedef->v2->y : seg->linedef->v1->y;
-
-			seg->offset = R_PointToDist(sx, sy, seg->v1->x, seg->v1->y);
-
-			seg->sidedef = seg->linedef->side[side];
-			seg->frontsector = seg->sidedef->sector;
-
-			if (seg->linedef->flags & MLF_TwoSided)
-				seg->backsector = seg->linedef->side[side^1]->sector;
-		}
-
-		partner = EPI_LE_S32(ml->partner);
+		int partner = EPI_LE_S32(ml->partner);
 
 		if (partner == -1)
 			seg->partner = NULL;
 		else
+		{
+			SYS_ASSERT(partner < numsegs);  // sanity check
 			seg->partner = &segs[partner];
+		}
 
 		// The following fields are filled out elsewhere:
 		//     sub_next, front_sub, back_sub, frontsector, backsector.
@@ -430,20 +444,12 @@ static void LoadGLSegs(int lump)
 {
 	SYS_ASSERT(lump < 0x10000);  // sanity check
 
-	const byte *data;
-	int i, length;
-	const raw_gl_seg_t *ml;
-	seg_t *seg;
-	int linedef;
-	int side;
-	int partner;
-
 	if (! W_VerifyLumpName(lump, "GL_SEGS"))
 		I_Error("Bad WAD: level %s missing GL_SEGS.\n", currmap->lump.GetString());
 
-	data = (byte *) W_CacheLumpNum(lump);
+	const byte *data = (byte *) W_CacheLumpNum(lump);
 
-	length = W_LumpLength(lump);
+	int length = W_LumpLength(lump);
 
 	// Handle v3.0 of "GL Node" specs (new GL_SEGS format)
 	if (length >= 4 &&
@@ -471,10 +477,10 @@ static void LoadGLSegs(int lump)
 
 	Z_Clear(segs, seg_t, numsegs);
 
-	ml = (const raw_gl_seg_t *) data;
-	seg = segs;
+	seg_t *seg = segs;
+	const raw_gl_seg_t *ml = (const raw_gl_seg_t *) data;
 
-	for (i = 0; i < numsegs; i++, seg++, ml++)
+	for (int i = 0; i < numsegs; i++, seg++, ml++)
 	{
 		int v1num = EPI_LE_U16(ml->start);
 		int v2num = EPI_LE_U16(ml->end);
@@ -509,40 +515,13 @@ static void LoadGLSegs(int lump)
 		seg->length = R_PointToDist(seg->v1->x, seg->v1->y,
 			seg->v2->x, seg->v2->y);
 
-		linedef = EPI_LE_U16(ml->linedef);
-		side = EPI_LE_U16(ml->side);
+		seg->side = EPI_LE_U16(ml->side);
 
-		seg->frontsector = seg->backsector = NULL;
+		int linedef = EPI_LE_U16(ml->linedef);
 
-		if (linedef == 0xFFFF)
-			seg->miniseg = 1;
-		else
-		{
-			if (linedef >= numlines)  // sanity check
-				I_Error("Bad GWA file: seg #%d has invalid linedef.\n", i);
+		SegCommonStuff(seg, linedef  );
 
-			float sx, sy;
-
-			seg->miniseg = 0;
-			seg->linedef = &lines[linedef];
-
-			sx = side ? seg->linedef->v2->x : seg->linedef->v1->x;
-			sy = side ? seg->linedef->v2->y : seg->linedef->v1->y;
-
-			seg->offset = R_PointToDist(sx, sy, seg->v1->x, seg->v1->y);
-
-			seg->sidedef = seg->linedef->side[side];
-
-			if (! seg->sidedef)
-				I_Error("Bad GWA file: missing side for seg #%d\n", i);
-
-			seg->frontsector = seg->sidedef->sector;
-
-			if (seg->linedef->flags & MLF_TwoSided)
-				seg->backsector = seg->linedef->side[side^1]->sector;
-		}
-
-		partner = EPI_LE_U16(ml->partner);
+		int partner = EPI_LE_U16(ml->partner);
 
 		if (partner == 0xFFFF)
 			seg->partner = NULL;
@@ -2272,20 +2251,37 @@ static void HandleNeighbours(int i, int vert, int pass, int k)
 
 			SYS_ASSERT(sec);
 		}
-		
-		if (sec == lines[i].frontsector    ||
-		    sec == lines[i].backsector     ||
-		    sec == lines[i].nb_sec[vert*2+0] ||
-		    sec == lines[i].nb_sec[vert*2+1])
+		else if (pass == 2)
 		{
-			continue;
-		}
+			if (sec->top_ef && sec->top_ef != sec->bottom_ef)
+				sec = sec->top_ef->ef_line->frontsector;
+			else if (sec->top_liq && sec->top_liq != sec->bottom_liq)
+				sec = sec->top_liq->ef_line->frontsector;
+			else
+				continue;
 
-		for (int n=0; n < 2; n++)
+			SYS_ASSERT(sec);
+		}
+		
+		if (sec == lines[i].frontsector || sec == lines[i].backsector)
+			continue;
+
+		bool already_got = false;
+		int s;
+
+		for (s=0; s < NBSEC_MAX; s++)
+			if (lines[s].nb_sec[vert][s] == sec)
+				already_got = true;
+
+		if (already_got)
+			continue;
+
+		// try to add in the new sector
+		for (s=0; s < NBSEC_MAX; s++)
 		{
-			if (! lines[i].nb_sec[vert*2+n])
+			if (! lines[i].nb_sec[vert][s])
 			{
-				lines[i].nb_sec[vert*2+n] = sec;
+				lines[i].nb_sec[vert][s] = sec;
 				break;
 			}
 		}
@@ -2296,13 +2292,13 @@ static void FindLinedefNeighbours(void)
 {
 	// FIXME OPTIMISE !!!
 
-	// two passes for each linedef:
-	//   pass 0 takes care of plain sectors
-	//   pass 1 takes care of extrafloors
+	// multiple passes for each linedef:
+	//   pass 0 takes care of normal sectors
+	//   pass 1 and 2 handles extrafloors
 	//
-	// Rationale: plain sectors are more important, hence
+	// Rationale: normal sectors are more important, hence
 	//            should eat up the limited slots first.
-	 
+
 	for (int i=0; i < numlines; i++)
 	for (int pass=0; pass < 2; pass++)
 	for (int k=0; k < numlines; k++)
@@ -2310,16 +2306,20 @@ static void FindLinedefNeighbours(void)
 		if (i == k)
 			continue;
 
-		if (lines[i].v1 == lines[k].v1 ||
-			lines[i].v1 == lines[k].v2)
+		if (lines[i].v1 == lines[k].v1 || lines[i].v1 == lines[k].v2)
 		{
 			HandleNeighbours(i, 0, pass, k);
+
+			if (pass == 1)
+				HandleNeighbours(i, 0, pass+1, k);
 		}
 
-		if (lines[i].v2 == lines[k].v1 ||
-			lines[i].v2 == lines[k].v2)
+		if (lines[i].v2 == lines[k].v1 || lines[i].v2 == lines[k].v2)
 		{
 			HandleNeighbours(i, 1, pass, k);
+
+			if (pass == 1)
+				HandleNeighbours(i, 1, pass+1, k);
 		}
 	}
 }
