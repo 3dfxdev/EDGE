@@ -200,7 +200,7 @@ static const commandlist_t linedef_commands[] =
 	DF("LINE EFFECT", line_effect, DDF_LineGetLineEffect),
 	DF("LINE PARTS",  line_parts,  DDF_LineGetScrollPart),
 	DF("SECTOR EFFECT", sector_effect, DDF_LineGetSectorEffect),
-	DF("MIRROR COLOUR", mirror_color, DDF_MainGetRGB),
+	DF("COLOUR", fx_color, DDF_MainGetRGB),
 
 	// -AJA- backwards compatibility cruft...
 	DF("!EXTRAFLOOR TRANSLUCENCY", translucency, DDF_MainGetPercent),
@@ -1564,7 +1564,7 @@ void linetype_c::CopyDetail(linetype_c &src)
 	line_effect = src.line_effect;
 	line_parts = src.line_parts;
 	sector_effect = src.sector_effect;
-	mirror_color = src.mirror_color;
+	fx_color = src.fx_color;
 }
 
 //
@@ -1620,7 +1620,7 @@ void linetype_c::Default(void)
 	line_effect = LINEFX_NONE;
 	line_parts = SCPT_None;
 	sector_effect = SECTFX_None;
-	mirror_color = RGB_MAKE(0,0,0);
+	fx_color = RGB_MAKE(0,0,0);
 }
 
 //
