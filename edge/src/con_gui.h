@@ -20,20 +20,19 @@
 #define __CON_MAIN_GUI_H
 
 #include "dm_type.h"
-#include "gui_gui.h"
 
 // The console 'application' functions.
 // Adds the console to the gui.
-void CON_Start(gui_t ** gui);
+void CON_Start(void);
 
 // Ticker.  Animates the opening/closing effect of the console
-void CON_Ticker(gui_t * gui);
+void CON_Ticker(void);
 
 // Responder obeys events.
-bool CON_Responder(gui_t * gui, guievent_t * event);
+bool CON_Responder(event_t * ev);
 
 // Drawer. Draws the console.
-void CON_Drawer(gui_t * gui);
+void CON_Drawer(void);
 
 // Re-inits the console after a resolution change.
 bool CON_InitResolution(void);
@@ -41,7 +40,7 @@ bool CON_InitResolution(void);
 // Inits the console for the given dimensions.
 void CON_InitConsole(int width, int height, int gfxmode);
 
-#endif // __CON_MAIN_GUI_H
+#endif /* __CON_MAIN_GUI_H */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
