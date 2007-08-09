@@ -366,11 +366,17 @@ void DDF_StateReadState(const char *info, const char *label,
 	// look at the first character
 	j = stateinfo[1][0];
 
-	// check for bugger up
-	if (j < 'A' || j > ']')
-		DDF_Error("DDF_MainLoadStates: Illegal sprite index: %s\n", stateinfo[1]);
+	if (isdigit(j))
+	{
+		cur->frame = atol(stateinfo[1]) - 1;
+		if (cur->frame < 0)
+			DDF_Error("DDF_MainLoadStates: Illegal frame number: %s\n", stateinfo[1]);
+	}
+	else if ('A' <= j && j <= ']')
+		cur->frame = j - (int)'A';
+	else
+		DDF_Error("DDF_MainLoadStates: Illegal sprite frame: %s\n", stateinfo[1]);
 
-	cur->frame = (short)(j - 65);
 	cur->sprite = R_AddSpriteName(stateinfo[0], cur->frame, is_weapon);
 
 	//--------------------------------------------------
