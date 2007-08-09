@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __RGL_UNIT__
-#define __RGL_UNIT__
+#ifndef __R_UNITS_H__
+#define __R_UNITS_H__
 
 
 #define MAX_PLVERT  64
@@ -91,41 +91,7 @@ void RGL_SendRawVector(const local_gl_vert_t *V);
 	do { vert->x = (X); vert->y = (Y); vert->z = (Z); } while(0)
 
 
-// RAW STUFF
-
-typedef struct raw_polyquad_s
-{
-	vec3_t *verts;
-	int num_verts;
-	int max_verts;
-
-	// When a polyquad is split, the other pieces are linked from the
-	// original through this pointer.
-	//
-	struct raw_polyquad_s *sisters;
-
-	// 3D bounding sphere
-	vec3_t bb_mid;
-	float  bb_rad;
-}
-raw_polyquad_t;
-
-#define PQ_ADD_VERT(P,X,Y,Z)  do {  \
-	(P)->verts[(P)->num_verts].x = (X);  \
-	(P)->verts[(P)->num_verts].y = (Y);  \
-	(P)->verts[(P)->num_verts].z = (Z);  \
-	(P)->num_verts++; } while(0)
-
-raw_polyquad_t *RGL_NewPolyQuad(int maxvert);
-void RGL_FreePolyQuad(raw_polyquad_t *poly);
-void RGL_BoundPolyQuad(raw_polyquad_t *poly);
-
-void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
-						void (* CoordFunc)(vec3_t *src, local_gl_vert_t *vert, void *data),
-						GLuint tex_id, GLuint tex2_id, int pass, int blending);
-
-
-#endif  // __RGL_UNIT__
+#endif /* __R_UNITS_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
