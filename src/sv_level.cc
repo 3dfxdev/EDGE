@@ -939,10 +939,10 @@ bool SR_LevelGetColmap(void *storage, int index, void *extra)
 
 	str = SV_GetString();
 
-	if (! str)
-		I_Error("SR_LevelGetColmap: NULL found !\n");
-
-	(*dest) = colourmaps.Lookup(str);
+	if (str)
+		(*dest) = colourmaps.Lookup(str);
+	else
+		(*dest) = NULL;
 
 	SV_FreeString(str);
 	return true;
@@ -958,9 +958,10 @@ void SR_LevelPutColmap(void *storage, int index, void *extra)
 {
 	const colourmap_c *src = ((const colourmap_c **)storage)[index];
 
-	SYS_ASSERT(src);
-
-	SV_PutString(src->ddf.name);
+	if (src)
+		SV_PutString(src->ddf.name.GetString());
+	else
+		SV_PutString(NULL);
 }
 
 
