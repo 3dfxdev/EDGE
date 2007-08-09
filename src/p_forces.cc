@@ -36,6 +36,8 @@
 
 #include "i_defs.h"
 
+#include <vector>
+
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "m_random.h"
@@ -45,7 +47,8 @@
 
 #define PUSH_FACTOR  64.0f  // should be 128 ??
 
-force_t *forces = NULL;
+
+std::vector<force_t *> forces;
 
 static force_t *tm_force;  // for PIT_PushThing
 
@@ -150,15 +153,12 @@ static void DoForce(force_t * f)
 
 void P_DestroyAllForces(void)
 {
-	force_t *f, *next;
+	std::vector<force_t *>::iterator FI;
 
-	for (f = forces; f; f = next)
-	{
-		next = f->next;
-		Z_Free(f);
-	}
+	for (FI = forces.begin(); FI != forces.end(); FI++)
+		delete (*FI);
 
-	forces = NULL;
+	forces.clear();
 }
 
 //
@@ -166,12 +166,11 @@ void P_DestroyAllForces(void)
 //
 static force_t *P_NewForce(void)
 {
-	force_t *f = Z_ClearNew(force_t, 1);
+	force_t *f = new force_t;
 
-	f->next = forces;;
+	memset(f, 0, sizeof(force_t));
 
-	forces = f;
-
+	forces.push_back(f);
 	return f;
 }
 
@@ -213,8 +212,12 @@ void P_AddSectorForce(sector_t *sec, bool is_wind, float x_mag, float y_mag)
 //
 void P_RunForces(void)
 {
-	for (force_t *f = forces; f; f = f->next)
-		DoForce(f);
+	std::vector<force_t *>::iterator FI;
+
+	for (FI = forces.begin(); FI != forces.end(); FI++)
+	{
+		DoForce(*FI);
+	}
 }
 
 

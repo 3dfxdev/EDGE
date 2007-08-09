@@ -202,8 +202,6 @@ typedef struct force_s
 	vec2_t mag;  // wind/current
 
 	sector_t *sector;  // the affected sector
-
-	struct force_s *next;
 }
 force_t;
 

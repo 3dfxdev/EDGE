@@ -807,8 +807,7 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 		what_pal_cached = true;
 	}
 
-	real_cached_image_t *rc = (real_cached_image_t *)
-		Z_New(real_cached_image_t,1);
+	real_cached_image_t *rc = new real_cached_image_t;
 
 	rc->next = rc->prev = NULL;
 	rc->parent = rim;
@@ -909,8 +908,7 @@ static void UnloadImage(real_cached_image_t *rc)
 
 	UnloadImageOGL(rc, rim);
 
-	// finally, free the rest of the mem
-	Z_Free(rc);
+	delete rc;
 }
 
 
