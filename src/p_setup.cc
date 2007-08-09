@@ -69,6 +69,9 @@
 #define SUB_INVALID  ((subsector_t *) -3)
 
 
+static bool level_active = false;
+
+
 //
 // MAP related Lookup tables.
 // Store VERTEXES, LINEDEFS, SIDEDEFS, etc.
@@ -119,7 +122,7 @@ vgap_t *vertgaps;
 int bmapwidth;
 int bmapheight;  // size in mapblocks
 
-unsigned short *bmap_lines = NULL; 
+unsigned short *  bmap_lines = NULL; 
 unsigned short ** bmap_pointers = NULL;
 
 // offsets in blockmap are from here
@@ -222,8 +225,7 @@ static void LoadVertexes(int lump)
 		I_Error("Bad WAD: level %s contains 0 vertexes.\n", 
 				currmap->lump.GetString());
 
-	// Allocate zone memory for buffer.  Must be zeroed.
-	vertexes = Z_ClearNew(vertex_t, numvertexes);
+	vertexes = new vertex_t[numvertexes];
 
 	// Load data into cache.
 	data = W_CacheLumpNum(lump);
@@ -253,7 +255,8 @@ static void LoadV2Vertexes(const byte *data, int length)
 	vertex_t *vert;
 
 	num_gl_vertexes = length / sizeof(raw_v2_vertex_t);
-	gl_vertexes = Z_ClearNew(vertex_t, num_gl_vertexes);
+
+	gl_vertexes = new vertex_t[num_gl_vertexes];
 
 	ml2 = (const raw_v2_vertex_t *) data;
 	vert = gl_vertexes;
@@ -312,7 +315,7 @@ static void LoadGLVertexes(int lump)
 	//  total lump length / vertex record length.
 	num_gl_vertexes = length / sizeof(raw_vertex_t);
 
-	gl_vertexes = Z_ClearNew(vertex_t, num_gl_vertexes);
+	gl_vertexes = new vertex_t[num_gl_vertexes];
 
 	ml = (const raw_vertex_t *) data;
 	vert = gl_vertexes;
@@ -346,7 +349,9 @@ static void LoadV3Segs(const byte *data, int length)
 		I_Error("Bad WAD: level %s contains 0 gl-segs (v3).\n",
 			currmap->lump.GetString());
 
-	segs = Z_ClearNew(seg_t, numsegs);
+	segs = new seg_t[numsegs];
+
+	Z_Clear(segs, seg_t, numsegs);
 
 	ml = (const raw_v3_seg_t *) data;
 	seg = segs;
@@ -462,7 +467,9 @@ static void LoadGLSegs(int lump)
 	if (numsegs == 0)
 		I_Error("Bad WAD: level %s contains 0 gl-segs.\n", currmap->lump.GetString());
 
-	segs = Z_ClearNew(seg_t, numsegs);
+	segs = new seg_t[numsegs];
+
+	Z_Clear(segs, seg_t, numsegs);
 
 	ml = (const raw_gl_seg_t *) data;
 	seg = segs;
@@ -570,7 +577,9 @@ static void LoadV3Subsectors(const byte *data, int length)
 		I_Error("Bad WAD: level %s contains 0 ssectors (v3).\n",
 			currmap->lump.GetString());
 
-	subsectors = Z_ClearNew(subsector_t, numsubsectors);
+	subsectors = new subsector_t[numsubsectors];
+
+	Z_Clear(subsectors, subsector_t, numsubsectors);
 
 	ms = (const raw_v3_subsec_t *) data;
 	ss = subsectors;
@@ -663,7 +672,9 @@ static void LoadSubsectors(int lump, const char *name)
 	if (numsubsectors == 0)
 		I_Error("Bad WAD: level %s contains 0 ssectors.\n", currmap->lump.GetString());
 
-	subsectors = Z_ClearNew(subsector_t, numsubsectors);
+	subsectors = new subsector_t[numsubsectors];
+
+	Z_Clear(subsectors, subsector_t, numsubsectors);
 
 	ms = (const raw_subsec_t *) data;
 	ss = subsectors;
@@ -764,7 +775,9 @@ static void LoadSectors(int lump)
 		I_Error("Bad WAD: level %s contains 0 sectors.\n", 
 				currmap->lump.GetString());
 
-	sectors = Z_ClearNew(sector_t, numsectors);
+	sectors = new sector_t[numsectors];
+		
+	Z_Clear(sectors, sector_t, numsectors);
 
 	data = W_CacheLumpNum(lump);
 	mapsector_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
@@ -867,7 +880,10 @@ static void LoadV5Nodes(const void *data, int length)
 	node_t *nd;
 
 	numnodes = length / sizeof(raw_v5_node_t);
-	nodes = Z_ClearNew(node_t, numnodes);
+
+	nodes = new node_t[numnodes+1];
+		
+	Z_Clear(nodes, node_t, numnodes);
 
 	mn = (const raw_v5_node_t *) data;
 	nd = nodes;
@@ -927,7 +943,10 @@ static void LoadNodes(int lump, char *name)
 	}
 
 	numnodes = length / sizeof(raw_node_t);
-	nodes = Z_ClearNew(node_t, numnodes);
+
+	nodes = new node_t[numnodes+1];
+		
+	Z_Clear(nodes, node_t, numnodes);
 
 	mn = (const raw_node_t *) data;
 	nd = nodes;
@@ -1314,7 +1333,9 @@ static void LoadLineDefs(int lump)
 		I_Error("Bad WAD: level %s contains 0 linedefs.\n", 
 				currmap->lump.GetString());
 
-	lines = Z_ClearNew(line_t, numlines);
+	lines = new line_t[numlines];
+		
+	Z_Clear(lines, line_t, numlines);
 
 	temp_line_sides = new int[numlines * 2];
 
@@ -1380,7 +1401,9 @@ static void LoadHexenLineDefs(int lump)
 		I_Error("Bad WAD: level %s contains 0 linedefs.\n", 
 				currmap->lump.GetString());
 
-	lines = Z_ClearNew(line_t, numlines);
+	lines = new line_t[numlines];
+		
+	Z_Clear(lines, line_t, numlines);
 
 	temp_line_sides = new int[numlines * 2];
 
@@ -1504,7 +1527,9 @@ static void LoadSideDefs(int lump)
 		I_Error("Bad WAD: level %s contains 0 sidedefs.\n", 
 				currmap->lump.GetString());
 
-	sides = Z_ClearNew(side_t, numsides);
+	sides = new side_t[numsides];
+
+	Z_Clear(sides, side_t, numsides);
 
 	data = W_CacheLumpNum(lump);
 	msd = (const raw_sidedef_t *) data;
@@ -1578,7 +1603,9 @@ static void SetupExtrafloors(void)
 	if (numextrafloors == 0)
 		return;
 
-	extrafloors = Z_ClearNew(extrafloor_t, numextrafloors);
+	extrafloors = new extrafloor_t[numextrafloors];
+		
+	Z_Clear(extrafloors, extrafloor_t, numextrafloors);
 
 	for (i=0, ss=sectors; i < numsectors; i++, ss++)
 	{
@@ -1646,7 +1673,9 @@ static void SetupWallTiles(void)
 
 	SYS_ASSERT(numwalltiles > 0);
 
-	walltiles = Z_ClearNew(wall_tile_t, numwalltiles);
+	walltiles = new wall_tile_t[numwalltiles];
+		
+	Z_Clear(walltiles, wall_tile_t, numwalltiles);
 
 	for (i=0, wt_index=0; i < numlines; i++)
 	{
@@ -1712,7 +1741,9 @@ static void SetupVertGaps(void)
 	// zero is now impossible
 	SYS_ASSERT(numvertgaps > 0);
 
-	vertgaps = Z_ClearNew(vgap_t, numvertgaps);
+	vertgaps = new vgap_t[numvertgaps];
+	
+	Z_Clear(vertgaps, vgap_t, numvertgaps);
 
 	for (i=0, cur_gap=vertgaps; i < numlines; i++)
 	{
@@ -1847,7 +1878,7 @@ static void LoadBlockMap(int lump)
 
 	if (num_lines <= 4)
 		I_Error("Bad WAD: level %s missing BLOCKMAP.  Build the nodes !\n", 
-		currmap->lump.GetString());
+			currmap->lump.GetString());
 
 	bmaporgx = (float)EPI_LE_S16(data[0]);
 	bmaporgy = (float)EPI_LE_S16(data[1]);
@@ -1860,8 +1891,8 @@ static void LoadBlockMap(int lump)
 	num_ofs = bmapwidth * bmapheight;
 	num_lines -= (num_ofs + 4);
 
-	bmap_pointers = Z_New(unsigned short *, num_ofs);
-	bmap_lines = Z_New(unsigned short, num_lines);
+	bmap_pointers = new unsigned short* [num_ofs];
+	bmap_lines    = new unsigned short  [num_lines];
 
 	// Note: there is potential to skip the ever-present initial zero in
 	// the linedef list (which means that linedef #0 always gets checked
@@ -1870,7 +1901,7 @@ static void LoadBlockMap(int lump)
 
 	for (i=0; i < num_ofs; i++)
 		bmap_pointers[i] = bmap_lines +
-		((int)EPI_LE_U16(dat_pos[i]) - num_ofs - 4);
+			((int)EPI_LE_U16(dat_pos[i]) - num_ofs - 4);
 
 	// skip offsets
 	dat_pos += num_ofs;
@@ -2051,8 +2082,10 @@ void GenerateBlockMap(int min_x, int min_y, int max_x, int max_y)
 
 	// convert dynamic arrays to single array and free memory
 
-	bmap_pointers = Z_New(unsigned short *, btotal);
-	bmap_lines = b_pos = Z_New(unsigned short, blk_total_lines);
+	bmap_pointers = new unsigned short * [btotal];
+	bmap_lines    = new unsigned short   [blk_total_lines];
+
+	b_pos = bmap_lines;
 
 	for (bnum=0; bnum < btotal; bnum++)
 	{
@@ -2118,12 +2151,13 @@ static void DoBlockMap(int lump)
 		LoadBlockMap(lump);
 
 	// clear out mobj chains
-	blocklinks  = Z_ClearNew(mobj_t *, bmapwidth * bmapheight);
-	blocklights = Z_ClearNew(mobj_t *, bmapwidth * bmapheight);
+	blocklinks  = new mobj_t* [bmapwidth * bmapheight];
+	blocklights = new mobj_t* [bmapwidth * bmapheight];
+
+	Z_Clear(blocklinks,  mobj_t*, bmapwidth * bmapheight);
+	Z_Clear(blocklights, mobj_t*, bmapwidth * bmapheight);
 }
 
-// all sectors' line tables
-static line_t **linebuffer;
 
 //
 // GroupLines
@@ -2171,8 +2205,11 @@ void GroupLines(void)
 	}
 
 	// build line tables for each sector 
-	line_p = linebuffer = Z_New(line_t *, total);
+	line_t **linebuffer = new line_t* [total];
+
+	line_p = linebuffer;
 	sector = sectors;
+
 	for (i = 0; i < numsectors; i++, sector++)
 	{
 		M_ClearBox(bbox);
@@ -2211,6 +2248,8 @@ void GroupLines(void)
 		sector->blockbox[BOXRIGHT] = xh;
 		sector->blockbox[BOXLEFT] = xl;
 	}
+
+	delete[] linebuffer;
 }
 
 static void HandleNeighbours(int i, int vert, int pass, int k)
@@ -2316,10 +2355,7 @@ static void LoadReject(int lump)
 }
 
 
-//
-// P_RemoveSectors
-//
-void P_RemoveSectors(void)
+static void P_RemoveSectorStuff(void)
 {
 	int i;
 
@@ -2330,8 +2366,6 @@ void P_RemoveSectors(void)
 		// Might still be playing a sound.
 		S_StopFX(&sectors[i].sfx_origin);
 	}
-
-	Z_Free(sectors);
 }
 
 //
@@ -2340,8 +2374,6 @@ void P_RemoveSectors(void)
 void P_StopLevel(void)
 {
 }
-
-static bool level_active = false;
 
 //
 // P_ShutdownLevel
@@ -2355,42 +2387,13 @@ void ShutdownLevel(void)
 		I_Error("ShutdownLevel: no level to shut down!");
 #endif
 
+	level_active = false;
+
 	P_RemoveItemsInQue();
 
-	if (gl_vertexes)
-	{
-		Z_Free(gl_vertexes);
-		gl_vertexes = NULL;
-	}
-	Z_Free(segs);
-	Z_Free(nodes);
-	Z_Free(vertexes);
-	Z_Free(sides);
-	Z_Free(lines);
-	Z_Free(subsectors);
-
-	if (extrafloors)
-	{
-		Z_Free(extrafloors);
-		extrafloors = NULL;
-	}
-
-	if (vertgaps)
-	{
-		Z_Free(vertgaps);
-		vertgaps = NULL;
-	}
-
-	P_RemoveSectors();
+	P_RemoveSectorStuff();
 
 	S_StopLevelFX();
-
-	Z_Free(linebuffer);
-	Z_Free(blocklinks);
-	Z_Free(blocklights);
-
-	Z_Free(bmap_lines); bmap_lines = NULL;
-	Z_Free(bmap_pointers); bmap_pointers = NULL;
 
 	P_DestroyAllForces();
 	P_DestroyAllLights();
@@ -2398,12 +2401,27 @@ void ShutdownLevel(void)
 	P_FreeShootSpots();
 	P_DestroyAllAmbientSFX();
 
-	if (rejectmatrix)
-		W_DoneWithLump(rejectmatrix);
-
 	DDF_BoomClearGenTypes();
 
-	level_active = false;
+	delete[] segs;         segs = NULL;
+	delete[] nodes;        nodes = NULL;
+	delete[] vertexes;     vertexes = NULL;
+	delete[] sides;        sides = NULL;
+	delete[] lines;        lines = NULL;
+	delete[] sectors;      sectors = NULL;
+	delete[] subsectors;   subsectors = NULL;
+
+	delete[] gl_vertexes;  gl_vertexes = NULL;
+	delete[] extrafloors;  extrafloors = NULL;
+	delete[] vertgaps;     vertgaps = NULL;
+
+	delete[] blocklinks;    blocklinks = NULL;
+	delete[] blocklights;   blocklights = NULL;
+	delete[] bmap_lines;    bmap_lines = NULL;
+	delete[] bmap_pointers; bmap_pointers = NULL;
+
+	if (rejectmatrix)
+		W_DoneWithLump(rejectmatrix);
 }
 
 //

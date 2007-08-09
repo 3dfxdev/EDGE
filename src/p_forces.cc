@@ -168,7 +168,7 @@ static force_t *P_NewForce(void)
 {
 	force_t *f = new force_t;
 
-	memset(f, 0, sizeof(force_t));
+	Z_Clear(f, force_t, 1);
 
 	forces.push_back(f);
 	return f;

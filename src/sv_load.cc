@@ -124,15 +124,16 @@ static void LoadFreeStruct(savestruct_t *cur)
 	SV_FreeString(cur->struct_name);
 	SV_FreeString(cur->marker);
 
-	Z_Free(cur->fields);
-	Z_Free(cur);
+	delete[] cur->fields;
+
+	delete cur;
 }
 
 static void LoadFreeArray(savearray_t *cur)
 {
 	SV_FreeString(cur->array_name);
 
-	Z_Free(cur);
+	delete cur;
 }
 
 //
@@ -274,14 +275,11 @@ bool SV_LoadStruct(void *base, savestruct_t *info)
 
 static bool SV_LoadSTRU(void)
 {
-	savestruct_t *S;
-	savefield_t *F;
+	savestruct_t *S = new savestruct_t;
 
-	int i, numfields;
+	Z_Clear(S, savestruct_t, 1);
 
-	S = Z_ClearNew(savestruct_t, 1);
-
-	numfields = SV_GetInt();
+	int numfields = SV_GetInt();
 
 	S->struct_name = SV_GetString();
 	S->counterpart = SV_MainLookupStruct(S->struct_name);
@@ -298,11 +296,16 @@ static bool SV_LoadSTRU(void)
 	if (strlen(S->marker) != 4)
 		I_Error("LOADGAME: Corrupt savegame (STRU bad marker)\n");
 
-	S->fields = Z_ClearNew(savefield_t, numfields+1);
+	S->fields = new savefield_t[numfields+1];
+
+	Z_Clear(S->fields, savefield_t, numfields+1);
 
 	//
 	// -- now load in all the fields --
 	//
+
+	int i;
+	savefield_t *F;
 
 	for (i=0, F=S->fields; i < numfields; i++, F++)
 	{
@@ -335,9 +338,9 @@ static bool SV_LoadSTRU(void)
 
 static bool SV_LoadARRY(void)
 {
-	savearray_t *A;
+	savearray_t *A = new savearray_t;
 
-	A = Z_ClearNew(savearray_t, 1);
+	Z_Clear(A, savearray_t, 1);
 
 	A->loaded_size = SV_GetInt();
 

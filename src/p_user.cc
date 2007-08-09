@@ -684,7 +684,9 @@ void P_CreatePlayer(int pnum, bool is_bot)
 
 	SYS_ASSERT_MSG(! players[pnum], ("P_CreatePlayer: %d already there", pnum));
 
-	player_t *p = Z_ClearNew(player_t, 1);
+	player_t *p = new player_t;
+
+	Z_Clear(p, player_t, 1);
 
 	p->pnum = pnum;
 	p->playerstate = PST_DEAD;
@@ -723,7 +725,7 @@ void P_DestroyAllPlayers(void)
 		if (! players[pnum])
 			continue;
 
-		Z_Free(players[pnum]);
+		delete players[pnum];
 
 		players[pnum] = NULL;
 	}
