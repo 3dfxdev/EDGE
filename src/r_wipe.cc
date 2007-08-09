@@ -94,8 +94,6 @@ static GLuint CaptureScreenAsTexture(bool use_alpha, bool spooky)
 	int total_w, total_h;
 	int x, y, id;
 
-	byte *pixels;
-	byte *line_buf;
 
 	total_w = W_MakeValidSize(SCREENWIDTH);
 	total_h = W_MakeValidSize(SCREENHEIGHT);
@@ -106,9 +104,8 @@ static GLuint CaptureScreenAsTexture(bool use_alpha, bool spooky)
 	while (total_h > glmax_tex_size)
 		total_h /= 2;
 
-	pixels = Z_New(byte, total_w * total_h * 4);
-
-	line_buf = Z_New(byte, SCREENWIDTH * 4);
+	byte *pixels   = new byte[total_w * total_h * 4];
+	byte *line_buf = new byte[SCREENWIDTH * 4];
 
 	// read pixels from screen, scaling down to target size which must
 	// be both power-of-two and within the GL's tex_size limitation.
@@ -147,8 +144,8 @@ static GLuint CaptureScreenAsTexture(bool use_alpha, bool spooky)
 
 	id = SendWipeTexture(pixels, total_w, total_h, use_alpha);
 
-	Z_Free(line_buf);
-	Z_Free(pixels);
+	delete[] line_buf;
+	delete[] pixels;
 
 	return id;
 }

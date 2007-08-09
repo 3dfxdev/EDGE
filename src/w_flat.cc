@@ -336,12 +336,12 @@ void R_InitPicAnims(void)
 static void R_PrecacheSprites(void)
 {
 	int i;
-	byte *sprite_present;
 	mobj_t *mo;
 
 	SYS_ASSERT(numsprites > 1);
 
-	sprite_present = Z_ClearNew(byte, numsprites);
+	byte *sprite_present = new byte[numsprites];
+	memset(sprite_present, 0, numsprites);
 
 	for (mo = mobjlisthead; mo; mo = mo->next)
 	{
@@ -383,7 +383,7 @@ static void R_PrecacheSprites(void)
 		}
 	}
 
-	Z_Free(sprite_present);
+	delete[] sprite_present;
 }
 
 //
