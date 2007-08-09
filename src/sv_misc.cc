@@ -285,23 +285,25 @@ static savefield_t sv_fields_drawtip[] =
 	SF(p.x_pos, "x_pos", 1, SVT_PERCENT, SR_GetPercent, SR_PutPercent),
 	SF(p.y_pos, "y_pos", 1, SVT_PERCENT, SR_GetPercent, SR_PutPercent),
 	SF(p.left_just, "left_just", 1, SVT_INT, SR_GetInt, SR_PutInt),
-	SF(p.colourmap_name, "colourmap_name", 1, SVT_STRING,
-		SR_TipGetString, SR_TipPutString),
-	SF(p.translucency, "translucency", 1, SVT_PERCENT, 
-		SR_GetPercent, SR_PutPercent),
+	SF(p.translucency, "translucency", 1, SVT_PERCENT, SR_GetPercent, SR_PutPercent),
 
 	SF(delay, "delay", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(tip_text, "tip_text", 1, SVT_STRING, SR_TipGetString, SR_TipPutString),
-	SF(tip_graphic, "tip_graphic", 1, SVT_STRING,
-		SR_LevelGetImage, SR_LevelPutImage),
+	SF(tip_graphic, "tip_graphic", 1, SVT_STRING, SR_LevelGetImage, SR_LevelPutImage),
 	SF(playsound, "playsound", 1, SVT_BOOLEAN, SR_GetBoolean, SR_PutBoolean),
 	SF(fade_time, "fade_time", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(fade_target, "fade_target", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
+	SF(colmap, "colmap", 1, SVT_STRING, SR_LevelGetColmap, SR_LevelPutColmap),
+
+/* REMOVED:  SF(p.colourmap_name, "colourmap_name", 1, SVT_STRING,
+ *   			SR_TipGetString, SR_TipPutString),
+ */
 
 	// NOT HERE:
 	//    p.slot_num, p.time: not used withing drawtip_t
 	//    dirty: this is set in the finalizer
-	//    colmap, hu_*: these are regenerated on next display
+	//    hu_*: these are regenerated on next display
+	//    p.colourmap_name: deprecated field
 
 	SVFIELD_END
 };
