@@ -18,6 +18,8 @@
 
 #include "i_defs.h"
 
+#include <vector>
+
 #include "ddf_main.h"
 
 #include "e_search.h"
@@ -212,48 +214,55 @@ void DDF_Init(void)
 	DDF_MusicPlaylistInit();
 }
 
-// -KM- 1999/01/29 Fixed #define system.
-typedef struct
+
+class define_c
 {
+public:
+	// Note: these pointers only point inside the currently
+	//       loaded memfile.  Hence there is no need to
+	//       explicitly free them.
 	char *name;
 	char *value;
-}
-define_t;
+
+public:
+	define_c() : name(NULL), value(NULL)
+	{ }
+
+	define_c(char *_N, char *_V) : name(_N), value(_V)
+	{ }
+
+	~define_c()
+	{ }
+};
 
 // -AJA- 1999/09/12: Made these static.  The variable `defines' was
 //       clashing with the one in rad_trig.c.  Ugh.
 
-static define_t *defines = NULL;
-static int numDefines = 0;
+static std::vector<define_c> defines;
 
 static void DDF_MainAddDefine(char *name, char *value)
 {
-	int i;
-
-	for (i = 0; i < numDefines; i++)
+	for (int i = 0; i < (int)defines.size(); i++)
 	{
-		if (!strcmp(defines[i].name, name))
+		if (strcmp(defines[i].name, name) == 0)
+		{
 			DDF_Error("Redefinition of '%s'\n", name);
+			return;
+		}
 	}
 
-	Z_Resize(defines, define_t, numDefines + 1);
-
-	defines[numDefines].name = name;
-	defines[numDefines++].value = value;
+	defines.push_back(define_c(name, value));
 }
 
 static const char *DDF_MainGetDefine(const char *name)
 {
-	int i;
-
-	for (i = 0; i < numDefines; i++)
+	for (int i = 0; i < (int)defines.size(); i++)
 	{
-		if (!strcmp(defines[i].name, name))
+		if (strcmp(defines[i].name, name) == 0)
 			return defines[i].value;
 	}
 
-	// Not a define.
-	return name;
+	return name; // un-defined.
 }
 
 //
@@ -910,17 +919,10 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 	cur_ddf_entryname.Empty();
 	cur_ddf_filename.Empty();
 
-	if (defines)
-	{
-		Z_Free(defines);
-		numDefines = 0;
-		defines = NULL;
-	}
+	defines.clear();
 
 	if (readinfo->filename)
-	{
-		delete [] memfile;
-	}
+		delete[] memfile;
 
 	return true;
 }

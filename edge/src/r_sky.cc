@@ -69,11 +69,12 @@ void R_ComputeSkyHeights(void)
 	int i;
 	line_t *ld;
 	sector_t *sec;
-	sec_sky_ring_t *rings;
 
 	// --- initialise ---
 
-	rings = Z_ClearNew(sec_sky_ring_t, numsectors);
+	sec_sky_ring_t *rings = new sec_sky_ring_t[numsectors];
+
+	memset(rings, 0, numsectors * sizeof(sec_sky_ring_t));
 
 	for (i=0, sec=sectors; i < numsectors; i++, sec++)
 	{
@@ -166,7 +167,7 @@ void R_ComputeSkyHeights(void)
 #endif
 	}
 
-	Z_Free(rings);
+	delete[] rings;
 }
 
 //----------------------------------------------------------------------------
