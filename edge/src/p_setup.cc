@@ -138,6 +138,8 @@ mobj_t **blocklinks = NULL;
 // for dynamic lights
 mobj_t **blocklights = NULL;
 
+static line_t **linebuffer = NULL;
+
 // bbox used 
 static float dummy_bbox[4];
 
@@ -2178,13 +2180,13 @@ void GroupLines(void)
 
 		if (li->backsector && li->backsector != li->frontsector)
 		{
-			li->backsector->linecount++;
 			total++;
+			li->backsector->linecount++;
 		}
 	}
 
 	// build line tables for each sector 
-	line_t **linebuffer = new line_t* [total];
+	linebuffer = new line_t* [total];
 
 	line_p = linebuffer;
 	sector = sectors;
@@ -2227,8 +2229,6 @@ void GroupLines(void)
 		sector->blockbox[BOXRIGHT] = xh;
 		sector->blockbox[BOXLEFT] = xl;
 	}
-
-	delete[] linebuffer;
 }
 
 static void HandleNeighbours(int i, int vert, int pass, int k)
@@ -2414,6 +2414,7 @@ void ShutdownLevel(void)
 	delete[] gl_vertexes;  gl_vertexes = NULL;
 	delete[] extrafloors;  extrafloors = NULL;
 	delete[] vertgaps;     vertgaps = NULL;
+	delete[] linebuffer;   linebuffer = NULL;
 
 	delete[] blocklinks;    blocklinks = NULL;
 	delete[] blocklights;   blocklights = NULL;
