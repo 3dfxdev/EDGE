@@ -31,8 +31,9 @@
 #include "s_humid.h"
 #endif
 
-#include "ddf_main.h"
-#include "ddf_mus.h"
+#include "ddf/main.h"
+#include "ddf/playlist.h"
+
 #include "s_sound.h"
 
 #include <string.h>

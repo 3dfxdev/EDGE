@@ -26,7 +26,7 @@
 #ifndef __G_GAME__
 #define __G_GAME__
 
-#include "ddf_main.h"
+#include "ddf/main.h"
 #include "dm_defs.h"
 #include "e_event.h"
 #include "e_player.h"

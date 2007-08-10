@@ -23,7 +23,7 @@
 #include "s_sound.h"
 #include "s_music.h"
 
-#include "ddf_main.h"
+#include "ddf/main.h"
 #include "m_misc.h"
 #include "w_wad.h"
 

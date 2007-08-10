@@ -20,7 +20,7 @@
 #define __RAD_MAIN__
 
 #include "dm_type.h"
-#include "ddf_main.h"
+#include "ddf/main.h"
 #include "r_defs.h"
 #include "hu_stuff.h"
 

@@ -19,7 +19,7 @@
 #ifndef __HU_STYLE__
 #define __HU_STYLE__
 
-#include "ddf_style.h"
+#include "ddf/style.h"
 #include "hu_font.h"
 #include "r_image.h"
 

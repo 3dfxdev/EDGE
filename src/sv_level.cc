@@ -36,7 +36,8 @@
 
 #include "epi/strings.h"
 
-#include "ddf_colm.h"
+#include "ddf/colormap.h"
+
 #include "r_image.h"
 #include "sv_chunk.h"
 #include "sv_main.h"

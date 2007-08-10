@@ -31,7 +31,8 @@
 #include "i_defs.h"
 #include "f_finale.h"
 
-#include "ddf_main.h"
+#include "ddf/main.h"
+
 #include "dm_state.h"
 #include "g_game.h"
 #include "dstrings.h"

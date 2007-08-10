@@ -34,8 +34,8 @@
 #include "r_defs.h"
 #include "r_state.h"
 
-#include "ddf_main.h"
-#include "ddf_anim.h"
+#include "ddf/main.h"
+#include "ddf/anim.h"
 
 void R_InitFlats(void);
 void R_InitPicAnims(void);

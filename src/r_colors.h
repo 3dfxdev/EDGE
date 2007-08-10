@@ -29,8 +29,9 @@
 #include "dm_type.h"
 #include "dm_defs.h"
 
-#include "ddf_main.h"
-#include "ddf_colm.h"
+#include "ddf/main.h"
+#include "ddf/colormap.h"
+
 #include "r_defs.h"
 
 void V_InitPalette(void);

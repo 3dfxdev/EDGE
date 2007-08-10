@@ -26,9 +26,10 @@
 #include "i_defs.h"
 #include "p_setup.h"
 
+#include "ddf/main.h"
+#include "ddf/colormap.h"
+
 #include "con_cvar.h"
-#include "ddf_main.h"
-#include "ddf_colm.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "dm_structs.h"

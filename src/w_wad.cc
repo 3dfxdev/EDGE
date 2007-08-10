@@ -34,24 +34,11 @@
 //
 
 #include "i_defs.h"
-#include "w_wad.h"
 
-#include "ddf_main.h"
-#include "ddf_anim.h"
-#include "ddf_colm.h"
-#include "ddf_font.h"
-#include "ddf_image.h"
-#include "ddf_style.h"
-#include "ddf_swth.h"
-
-#include "dstrings.h"
-#include "e_main.h"
-#include "e_search.h"
-#include "l_deh.h"
-#include "l_glbsp.h"
-#include "m_misc.h"
-#include "rad_trig.h"
-#include "z_zone.h"
+#include <ctype.h>
+#include <limits.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "epi/endianess.h"
 #include "epi/files.h"
@@ -61,10 +48,23 @@
 #include "epi/strings.h"
 #include "epi/utility.h"
 
-#include <ctype.h>
-#include <limits.h>
-#include <stdio.h>
-#include <string.h>
+#include "ddf/main.h"
+#include "ddf/anim.h"
+#include "ddf/colormap.h"
+#include "ddf/font.h"
+#include "ddf/image.h"
+#include "ddf/style.h"
+#include "ddf/switch.h"
+
+#include "dstrings.h"
+#include "e_main.h"
+#include "e_search.h"
+#include "l_deh.h"
+#include "l_glbsp.h"
+#include "m_misc.h"
+#include "rad_trig.h"
+#include "w_wad.h"
+#include "z_zone.h"
 
 // -KM- 1999/01/31 Order is important, Languages are loaded before sfx, etc...
 typedef struct ddf_reader_s

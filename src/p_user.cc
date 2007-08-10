@@ -25,7 +25,8 @@
 
 #include "i_defs.h"
 
-#include "ddf_colm.h"
+#include "ddf/colormap.h"
+
 #include "e_input.h"
 #include "p_bot.h"
 #include "p_local.h"

@@ -30,7 +30,7 @@
 // Needs BAM angles.
 #include "lu_math.h"
 
-#include "ddf_main.h"
+#include "ddf/main.h"
 
 // maximum weapons player can hold at once
 #define MAXWEAPONS  64

@@ -36,7 +36,7 @@
 #include "dm_state.h"
 
 #include "con_main.h"
-#include "ddf_main.h"
+#include "ddf/main.h"
 #include "dstrings.h"
 #include "e_main.h"
 #include "g_game.h"
