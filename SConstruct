@@ -69,6 +69,10 @@ env.Append(LIBS = ['edge1'])
 env.Append(LIBPATH = ['#epi'])
 env.Append(LIBS = ['epi'])
 
+# DDF parser
+env.Append(LIBPATH = ['#ddf'])
+env.Append(LIBS = ['ddf'])
+
 # GLBSP
 env.Append(LIBPATH = ['#glbsp'])
 env.Append(LIBS = ['glbsp'])
@@ -159,6 +163,7 @@ Export('main_env')  # for src/SConscript
 #------------------------------------------------
 
 SConscript('src/SConscript')
+SConscript('ddf/SConscript')
 SConscript('epi/SConscript')
 SConscript('deh_edge/SConscript.edge')
 SConscript('glbsp/SConscript.edge')
