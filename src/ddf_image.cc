@@ -25,8 +25,6 @@
 #include "ddf_locl.h"
 #include "ddf_image.h"
 #include "dm_state.h"
-#include "p_spec.h"
-#include "r_local.h"
 
 #include "epi/path.h"
 #include "epi/strings.h"

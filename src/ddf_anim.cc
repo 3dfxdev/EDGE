@@ -28,8 +28,6 @@
 #include "ddf_anim.h"
 
 #include "dm_state.h"
-#include "p_spec.h"
-#include "r_local.h"
 
 #undef  DF
 #define DF  DDF_CMD
