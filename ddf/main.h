@@ -39,7 +39,6 @@ class pl_entry_c;
 class weapondef_c;
 
 
-
 #include "thing.h"
 #include "attack.h"
 #include "states.h"
@@ -84,6 +83,18 @@ act_jump_info_t;
 // ------------------------------------------------------------------
 // -------------------------EXTERNALISATIONS-------------------------
 // ------------------------------------------------------------------
+
+// if true, prefer to crash out on various errors
+extern bool strict_errors;
+
+// if true, prefer to ignore or fudge various (serious) errors
+extern bool lax_errors;
+
+// if true, disable warning messages
+extern bool no_warnings;
+
+// if true, disable obsolete warning messages
+extern bool no_obsoletes;
 
 void DDF_Init(void);
 void DDF_CleanUp(void);

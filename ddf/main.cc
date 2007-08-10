@@ -48,6 +48,11 @@ extern float M_Tan(angle_t ang)    GCCATTR((const));
 
 int ddf_version;  // global
 
+bool strict_errors = false;
+bool lax_errors = false;
+bool no_warnings = false;
+bool no_obsoletes = false;
+
 static readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status);
 
 //

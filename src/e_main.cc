@@ -175,11 +175,7 @@ bool infight = false;
 bool png_scrshots = false;
 
 bool external_ddf = false;
-bool strict_errors = false;
-bool lax_errors = false;
 bool hom_detect = false;
-bool no_warnings = false;
-bool no_obsoletes = false;
 bool autoquickload = false;
 
 // FIXME!! Strbox this lot...
