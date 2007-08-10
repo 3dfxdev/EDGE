@@ -23,14 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __I_SYSTEM__
-#define __I_SYSTEM__
-
-#include "dm_defs.h"
-#include "dm_type.h"
-#include "dm_state.h"
-#include "e_event.h"
-#include "e_ticcmd.h"
+#ifndef __I_SYSTEM_H__
+#define __I_SYSTEM_H__
 
 #include "epi/timestamp.h"
 
@@ -435,7 +429,7 @@ void L_WriteDebug(const char *message,...) GCCATTR((format(printf, 1, 2)));
 // TEMP: another temporary "common lib" thing.
 int L_ConvertToDB(int volume, int min, int max);
 
-#endif // __I_SYSTEM__
+#endif /*__I_SYSTEM_H__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
