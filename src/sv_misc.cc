@@ -460,18 +460,14 @@ void SV_ButtonFinaliseElems(void)
 
 //----------------------------------------------------------------------------
 
+extern std::vector<light_t *> lights;
+
 //
 // SV_LightCountElems
 //
 int SV_LightCountElems(void)
 {
-	light_t *cur;
-	int count;
-
-	for (cur=lights, count=0; cur; cur=cur->next, count++)
-	{ /* nothing here */ }
-
-	return count;
+	return (int)lights.size();
 }
 
 //
@@ -479,16 +475,10 @@ int SV_LightCountElems(void)
 //
 void *SV_LightGetElem(int index)
 {
-	light_t *cur;
-
-	for (cur=lights; cur && index > 0; cur=cur->next)
-		index--;
-
-	if (! cur)
+	if (index < 0 || index >= (int)lights.size())
 		I_Error("LOADGAME: Invalid Light: %d\n", index);
 
-	SYS_ASSERT(index == 0);
-	return cur;
+	return lights[index];
 }
 
 //
@@ -496,13 +486,14 @@ void *SV_LightGetElem(int index)
 //
 int SV_LightFindElem(light_t *elem)
 {
-	light_t *cur;
-	int index;
+	int index = 0;
 
-	for (cur=lights, index=0; cur && cur != elem; cur=cur->next)
+	std::vector<light_t *>::iterator LI;
+
+	for (LI=lights.begin(); LI != lights.end() && (*LI) != elem; LI++)
 		index++;
 
-	if (! cur)
+	if (LI == lights.end())
 		I_Error("LOADGAME: No such LightPtr: %p\n", elem);
 
 	return index;
@@ -517,16 +508,7 @@ void SV_LightCreateElems(int num_elems)
 
 	for (; num_elems > 0; num_elems--)
 	{
-		light_t *cur = Z_ClearNew(light_t, 1);
-
-		// link it in
-		cur->next = lights;
-		cur->prev = NULL;
-
-		if (lights)
-			lights->prev = cur;
-
-		lights = cur;
+		light_t *cur = P_NewLight();
 
 		// initialise defaults
 		cur->type = &sectortypes[0]->l;

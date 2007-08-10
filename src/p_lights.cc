@@ -28,6 +28,9 @@
 
 #include "i_defs.h"
 
+#include <list>
+#include <vector>
+
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "m_random.h"
@@ -36,9 +39,7 @@
 #include "s_sound.h"
 #include "z_zone.h"
 
-#include <list>
-
-light_t *lights = NULL;
+std::vector<light_t *> lights;
 
 //
 // GENERALISED LIGHT
@@ -47,6 +48,9 @@ light_t *lights = NULL;
 //
 static void DoLight(light_t * light)
 {
+	if (light->count == 0)
+		return;
+
 	const lightdef_c *type = light->type;
 
 	if (type->type == LITE_None || --light->count)
@@ -210,36 +214,19 @@ void EV_LightTurnOn(int tag, int bright)
 	}
 }
 
-#if 0 // Currently unused
-//
-// P_DestroyLight
-//
-// Unlink and destroy light.
-void P_DestroyLight(light_t *light)
-{
-	if (light->next)
-		light->next->prev = light->prev;
-	if (light->prev)
-		light->prev->next = light->next;
-	else
-		lights = light->next;
-	Z_Free(light);
-}
-#endif
-
 //
 // P_DestroyAllLights
 //
 void P_DestroyAllLights(void)
 {
-	light_t *l, *next;
+	std::vector<light_t *>::iterator LI;
 
-	for (l = lights; l; l = next)
+	for (LI = lights.begin(); LI != lights.end(); LI++)
 	{
-		next = l->next;
-		Z_Free(l);
+		delete (*LI);
 	}
-	lights = NULL;
+
+	lights.clear();
 }
 
 //
@@ -249,14 +236,9 @@ void P_DestroyAllLights(void)
 //
 light_t *P_NewLight(void)
 {
-	light_t *light;
+	light_t *light = new light_t;
 
-	light = Z_New(light_t, 1);
-	light->next = lights;
-	light->prev = NULL;
-	if (lights)
-		lights->prev = light;
-	lights = light;
+	lights.push_back(light);
 
 	return light;
 }
@@ -266,11 +248,15 @@ light_t *P_NewLight(void)
 //
 bool EV_Lights(sector_t * sec, const lightdef_c * type)
 {
-	light_t *light;
-
 	// check if a light effect already is running on this sector.
-	for (light=lights; light; light=light->next)
+	light_t *light = NULL;
+
+	std::vector<light_t *>::iterator LI;
+
+	for (LI = lights.begin(); LI != lights.end(); LI++)
 	{
+		light = *LI;
+
 		if (light->count == 0 || light->sector == sec)
 			break;
 	}
@@ -319,12 +305,11 @@ bool EV_Lights(sector_t * sec, const lightdef_c * type)
 //
 void P_RunLights(void)
 {
-	light_t *l;
+	std::vector<light_t *>::iterator LI;
 
-	for (l = lights; l; l = l->next)
+	for (LI = lights.begin(); LI != lights.end(); LI++)
 	{
-		if (l->count)
-			DoLight(l);
+		DoLight(*LI);
 	}
 }
 
