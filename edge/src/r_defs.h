@@ -37,7 +37,7 @@
 #include "p_mobj.h"
 
 // -AJA- 1999/07/10: Need this for colourmap_c.
-#include "ddf_main.h"
+#include "ddf/main.h"
 
 class image_c;
 

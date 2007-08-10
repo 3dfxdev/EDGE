@@ -34,13 +34,14 @@
 #include "epi/errors.h"
 #include "epi/strings.h"
 
+#include "ddf/main.h"
+#include "ddf/sfx.h"
+
 #include "s_sound.h"
 #include "s_cache.h"
 
 #include "errorcodes.h"
 
-#include "ddf_main.h"
-#include "ddf_sfx.h"
 #include "m_argv.h"
 #include "m_random.h"
 #include "p_mobj.h"

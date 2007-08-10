@@ -39,7 +39,7 @@
 #include "m_cheat.h"
 
 #include "con_main.h"
-#include "ddf_main.h"
+#include "ddf/main.h"
 #include "dstrings.h"
 #include "g_game.h"
 #include "m_menu.h"

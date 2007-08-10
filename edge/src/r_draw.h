@@ -27,7 +27,7 @@
 #define __R_DRAW_H__
 
 #include "dm_type.h"
-#include "ddf_main.h"
+#include "ddf/main.h"
 #include "r_image.h"
 
 // Move to somewhere appropriate later -ACB- 2004/08/19
