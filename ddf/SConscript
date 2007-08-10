@@ -4,16 +4,16 @@
 import os
 
 Import('build_info')
-Import('main_env')
+Import('base_env')
 
-env = main_env.Copy()
+env = base_env.Copy()
 
 # allow #include "epi/xxxx.h" to find the correct file
 env.Append(CPPPATH = ['#.'])
 
 #------- OBJECTS -----------------------------------
 
-sources = [
+ddf_sources = [
     'anim.cc', 'attack.cc', 'boom.cc', 'colormap.cc',
     'font.cc', 'game.cc', 'image.cc', 'language.cc',
     'level.cc', 'line.cc', 'main.cc', 'playlist.cc',
@@ -21,7 +21,7 @@ sources = [
     'switch.cc', 'thing.cc', 'weapon.cc',
     ] 
 
-env.StaticLibrary('ddf', sources)
+env.StaticLibrary('ddf', ddf_sources)
 
 ##--- editor settings ---
 ## vi:ts=4:sw=4:expandtab
