@@ -1146,8 +1146,7 @@ static void LoadThings(int lump)
 		// -ACB- 1998/07/21
 		if (objtype == NULL)
 		{
-			if (!no_warnings)
-				I_Warning("Unknown thing type %i at (%1.0f, %1.0f)\n", typenum, x, y);
+			I_Warning("Unknown thing type %i at (%1.0f, %1.0f)\n", typenum, x, y);
 			continue;
 		}
 
@@ -1209,8 +1208,7 @@ static void LoadHexenThings(int lump)
 		// -ACB- 1998/07/21
 		if (objtype == NULL)
 		{
-			if (!no_warnings)
-				I_Warning("Unknown thing type %i at (%1.0f, %1.0f)\n", typenum, x, y);
+			I_Warning("Unknown thing type %i at (%1.0f, %1.0f)\n", typenum, x, y);
 			continue;
 		}
 
