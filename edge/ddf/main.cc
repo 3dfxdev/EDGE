@@ -43,6 +43,9 @@
 ///--- #include "m_math.h"
 extern float M_Tan(angle_t ang)    GCCATTR((const));
 
+// FIXME: another unwanted link : create API to set this
+extern epi::strent_c ddf_dir;
+
 
 #define DEBUG_DDFREAD  0
 
