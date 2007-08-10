@@ -19,7 +19,8 @@
 #ifndef __DDF_SFX_H__
 #define __DDF_SFX_H__
 
-#include "dm_defs.h"
+#include "ddf_base.h"
+#include "ddf_type.h"
 
 
 #define S_CLOSE_DIST     160.0f

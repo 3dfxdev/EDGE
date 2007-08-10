@@ -22,8 +22,6 @@
 #include "epi/math_crc.h"
 #include "epi/utility.h"
 
-///---#include "dm_defs.h"
-
 #include "ddf_type.h"
 
 #define DEBUG_DDF  0

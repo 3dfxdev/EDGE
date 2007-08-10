@@ -27,7 +27,6 @@
 #include "ddf_locl.h"
 #include "ddf_anim.h"
 
-#include "dm_state.h"
 
 #undef  DF
 #define DF  DDF_CMD

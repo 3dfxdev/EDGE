@@ -19,7 +19,8 @@
 #ifndef __DDF_LEVEL_H__
 #define __DDF_LEVEL_H__
 
-#include "dm_defs.h"
+#include "ddf_base.h"
+#include "ddf_type.h"
 
 
 // ------------------------------------------------------------------

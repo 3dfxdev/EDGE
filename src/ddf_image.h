@@ -16,12 +16,13 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __DDF_IMAGE__
-#define __DDF_IMAGE__
-
-#include "dm_defs.h"
+#ifndef __DDF_IMAGE_H__
+#define __DDF_IMAGE_H__
 
 #include "epi/utility.h"
+
+#include "ddf_base.h"
+#include "ddf_type.h"
 
 typedef enum
 {
@@ -158,7 +159,7 @@ extern imagedef_container_c imagedefs;
 void DDF_MainLookupImage(const char *info, void *storage);
 bool DDF_ReadImages(void *data, int size);
 
-#endif  /* __DDF_IMAGE__ */
+#endif  /*__DDF_IMAGE_H__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

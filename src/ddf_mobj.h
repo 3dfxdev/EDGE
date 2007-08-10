@@ -16,10 +16,11 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __DDF_MAIN__
-#define __DDF_MAIN__
+#ifndef __DDF_MOBJ_H__
+#define __DDF_MOBJ_H__
 
-#include "dm_defs.h"
+#include "ddf_base.h"
+#include "ddf_type.h"
 
 
 //
@@ -904,7 +905,7 @@ void DDF_MobjGetBenefit(const char *info, void *storage);
 
 bool DDF_ReadThings(void *data, int size);
 
-#endif // __DDF_MAIN__
+#endif /*__DDF_MOBJ_H__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

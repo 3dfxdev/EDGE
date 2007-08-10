@@ -27,10 +27,6 @@
 #include "ddf_locl.h"
 #include "ddf_swth.h"
 
-#include "dm_state.h"
-#include "p_local.h"
-#include "p_spec.h"
-
 #undef  DF
 #define DF  DDF_CMD
 

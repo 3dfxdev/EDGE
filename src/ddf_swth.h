@@ -16,12 +16,13 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __DDF_SWTH__
-#define __DDF_SWTH__
-
-#include "dm_defs.h"
+#ifndef __DDF_SWTH_H__
+#define __DDF_SWTH_H__
 
 #include "epi/utility.h"
+
+#include "ddf_base.h"
+#include "ddf_type.h"
 
 //
 // SWITCHES
@@ -85,7 +86,7 @@ bool DDF_ReadSwitch(void *data, int size);
 
 void DDF_ParseSWITCHES(const byte *data, int size);
 
-#endif  /* __DDF_SWTH__ */
+#endif  /*__DDF_SWTH_H__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

@@ -21,15 +21,14 @@
 
 #include "i_defs.h"
 
-#include "ddf_main.h"
-#include "ddf_locl.h"
-#include "ddf_image.h"
-#include "dm_state.h"
+#include <string.h>
 
 #include "epi/path.h"
 #include "epi/strings.h"
 
-#include <string.h>
+#include "ddf_main.h"
+#include "ddf_locl.h"
+#include "ddf_image.h"
 
 #undef  DF
 #define DF  DDF_CMD

@@ -19,11 +19,10 @@
 #ifndef __DDF_LINE_H__
 #define __DDF_LINE_H__
 
-#include "dm_defs.h"
-
-#include "epi/math_crc.h"
 #include "epi/utility.h"
 
+#include "ddf_base.h"
+#include "ddf_type.h"
 
 // ------------------------------------------------------------------
 // ------------------------LINEDEF TYPES-----------------------------
