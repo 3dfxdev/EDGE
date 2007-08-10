@@ -1436,8 +1436,8 @@ void DDF_MobjGetPlayer(const char *info, void *storage)
 
 	DDF_MainGetNumeric(info, storage);
 
-	if (*dest > MAXPLAYERS)
-		DDF_Error("Bad player number '%d', Maximum is %d\n", *dest, MAXPLAYERS);
+	if (*dest > 32)
+		DDF_Warning("Player number '%d' will not work.", *dest);
 }
 
 
