@@ -42,8 +42,8 @@
 
 #include "errorcodes.h"
 
-#include "dm_state.h"  // strict_errors
 #include "m_argv.h"
+#include "m_misc.h"
 #include "m_random.h"
 #include "p_mobj.h"
 #include "r_defs.h"
@@ -144,14 +144,10 @@ epi::sound_data_c *S_CacheLoad(sfxdef_c *def)
 
 	if (lumpnum == -1)
 	{
-		if (strict_errors)
-			I_Error("SFX '%s' doesn't exist", name);
-		else
-		{
-			I_Warning("Unknown sound lump %s, ignoring.\n", name);
-			Load_Silence(buf);
-			return buf;
-		}
+		M_WarnError("Missing sound lump: %s\n", name);
+
+		Load_Silence(buf);
+		return buf;
 	}
 
 	// Load the data into the buffer
