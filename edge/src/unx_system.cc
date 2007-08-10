@@ -208,7 +208,7 @@ unsigned long I_GetMicroSec (void)
 	return (tv.tv_sec * 1000000 + tv.tv_usec);
 }
 
-static unsigned long lasttimereply;
+/// static unsigned long lasttimereply;
 
 ///---int I_GetTime (void)
 ///---{

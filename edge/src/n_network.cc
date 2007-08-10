@@ -34,6 +34,7 @@
 
 #include "e_input.h"
 #include "e_main.h"
+#include "e_player.h"
 #include "m_argv.h"
 
 // #define DEBUG_TICS 1

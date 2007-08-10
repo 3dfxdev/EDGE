@@ -71,6 +71,10 @@ int totalkills, totalitems, totalsecret;
 mobj_t *bodyque[BODYQUESIZE];
 int bodyqueslot;
 
+// Maintain single and multi player starting spots.
+spawnpointarray_c dm_starts;
+spawnpointarray_c coop_starts;
+spawnpointarray_c voodoo_doll_starts;
 
 //
 // G_PlayerFinishLevel
@@ -715,6 +719,23 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 	// all conditions succeeded
 	return true;
 }
+
+spawnpoint_t *spawnpointarray_c::FindPlayer(int pnum)
+{
+	epi::array_iterator_c it;
+
+	for (it=GetBaseIterator(); it.IsValid(); it++)
+	{
+		spawnpoint_t *point = ITERATOR_TO_PTR(it, spawnpoint_t);
+		SYS_ASSERT(point->info);
+
+		if (point->info->playernum == pnum)
+			return point;
+	}
+
+	return NULL;  // not found
+}
+
 
 
 //--- editor settings ---

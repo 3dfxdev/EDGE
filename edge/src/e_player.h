@@ -292,7 +292,7 @@ player_t;
 // Structure passed e.g. to WI_Start(wb)
 //
 
-typedef struct
+typedef struct wbstartstruct_s
 {
 	const char *level;  // episode # (0-2)
 

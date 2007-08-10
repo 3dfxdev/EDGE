@@ -27,6 +27,7 @@
 #define __R_IMAGE__
 
 #include "dm_type.h"
+#include "ddf_main.h"
 #include "ddf_image.h"
 #include "r_defs.h"
 #include "r_state.h"

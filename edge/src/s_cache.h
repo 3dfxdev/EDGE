@@ -23,10 +23,12 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __S_CACHE__
-#define __S_CACHE__
+#ifndef __S_CACHE_H__
+#define __S_CACHE_H__
 
 #include "epi/sound_data.h"
+
+class sfxdef_c;
 
 void S_CacheInit(void);
 // setup the sound cache system.
@@ -47,7 +49,7 @@ void S_CacheRelease(epi::sound_data_c *data);
 // Typically though the sound is kept, as it will likely
 // be needed again shortly.
 
-#endif // __S_CACHE__
+#endif /* __S_CACHE_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

@@ -21,18 +21,15 @@
 #include <vector>
 
 #include "ddf_main.h"
-
-#include "e_search.h"
 #include "ddf_locl.h"
 #include "ddf_colm.h"
+
+#include "e_search.h"
 #include "dm_state.h"
-#include "dstrings.h"
-#include "g_game.h"
 #include "m_argv.h"
 #include "m_math.h"
 #include "m_misc.h"
 #include "p_action.h"
-#include "p_mobj.h"
 #include "r_things.h"
 #include "z_zone.h"
 #include "version.h"
@@ -290,9 +287,6 @@ void DDF_CleanUp(void)
 	DDF_GameCleanUp();
 	DDF_LevelCleanUp();
 	DDF_MusicPlaylistCleanUp();
-	
-	// -AJA- FIXME: this belongs elsewhere...
-	currmap = mapdefs[0];
 }
 
 static const char *tag_conversion_table[] =

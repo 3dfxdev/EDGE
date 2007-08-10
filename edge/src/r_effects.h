@@ -23,11 +23,12 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __RGL_FX__
-#define __RGL_FX__
+#ifndef __RGL_FX_H__
+#define __RGL_FX_H__
 
 
-#define NUM_FX_SLOT  30
+class screen_effect_def_c;
+
 
 class screen_fx_slot_c
 {
@@ -52,8 +53,7 @@ void RGL_ColourmapEffect(player_t *player);
 void RGL_PaletteEffect(player_t *player);
 
 
-
-#endif  // __RGL_FX__
+#endif /* __RGL_FX_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

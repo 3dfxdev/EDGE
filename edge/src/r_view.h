@@ -26,7 +26,6 @@
 #ifndef __R_VIEW__
 #define __R_VIEW__
 
-#include "e_player.h"
 #include "m_math.h"
 
 typedef struct camera_s camera_t;
@@ -70,11 +69,11 @@ struct camera_s
 	// If the camera is attached to a player, this points to it. Otherwise
 	// it's NULL. It's used for psprite drawing.
 	// -AJA- 1999/09/11: Now a pointer to mobj_t instead of player_t.
-	mobj_t *view_obj;
+	struct mobj_s *view_obj;
 };
 
 extern camera_t *camera;
-extern mobj_t *background_camera_mo;
+extern struct mobj_s *background_camera_mo;
 
 // Adds a callback to the end of *list. Use this for start_frame lists.
 extern void R_AddStartCallback(callback_t ** list, void (*f) (void *), void *data, void (*kill_data) (void *));

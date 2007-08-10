@@ -33,6 +33,7 @@
 #include "e_event.h"
 #include "e_main.h"
 #include "hu_stuff.h"
+#include "lu_math.h"
 #include "m_misc.h"
 #include "r_misc.h"
 #include "z_zone.h"

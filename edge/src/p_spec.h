@@ -31,7 +31,6 @@
 #ifndef __P_SPEC__
 #define __P_SPEC__
 
-#include "e_player.h"
 #include "ddf_main.h"
 #include "r_defs.h"
 #include "r_image.h"
@@ -85,7 +84,7 @@ typedef struct button_s
 	bwhere_e where;
 	const image_c *bimage;
 	int btimer;
-	sfx_t *off_sound;
+	struct sfx_s *off_sound;
 }
 button_t;
 
@@ -229,7 +228,7 @@ bool P_CrossSpecialLine(line_t *ld, int side, mobj_t * thing);
 void P_ShootSpecialLine(line_t *ld, int side, mobj_t * thing);
 void P_RemoteActivation(mobj_t * thing, int typenum, int tag, 
     int side, trigger_e method);
-void P_PlayerInSpecialSector(player_t * player, sector_t *sec);
+void P_PlayerInSpecialSector(struct player_s * pl, sector_t *sec);
 
 // Utilities...
 int P_TwoSided(int sector, int line);
@@ -264,7 +263,7 @@ void P_RunSectorSFX(void);
 void P_DestroyAllSectorSFX(void);
 
 void EV_LightTurnOn(int tag, int bright);
-bool EV_DoDonut(sector_t * s1, sfx_t * sfx[4]);
+bool EV_DoDonut(sector_t * s1, struct sfx_s * sfx[4]);
 bool EV_Teleport(line_t * line, int tag, mobj_t *thing, const teleportdef_c *def);
 bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * type);
 // bool EV_ManualElevator(line_t * line, mobj_t * thing, const elevatordef_c * type);
@@ -280,7 +279,7 @@ void P_AddPointForce(sector_t *sec, float length);
 void P_AddSectorForce(sector_t *sec, bool is_wind, float x_mag, float y_mag);
 
 void P_RunAmbientSFX(void);
-void P_AddAmbientSFX(sector_t *sec, sfx_t *sfx);
+void P_AddAmbientSFX(sector_t *sec, struct sfx_s *sfx);
 void P_DestroyAllAmbientSFX(void);
 
 //

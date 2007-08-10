@@ -27,6 +27,7 @@
 #define __M_RANDOM__
 
 #include "dm_type.h"
+#include "ddf_main.h"  // PERCENT_T  (Ouch!!!)
 
 int M_Random(void);
 int P_Random(void);

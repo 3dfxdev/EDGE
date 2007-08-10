@@ -54,8 +54,8 @@ public:
 	lumpname_c name1;
 	lumpname_c name2;
 
-	sfx_t *on_sfx;
-	sfx_t *off_sfx;
+	struct sfx_s *on_sfx;
+	struct sfx_s *off_sfx;
 
 	int time;
 

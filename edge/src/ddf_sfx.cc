@@ -22,10 +22,9 @@
 #include "i_defs.h"
 #include "dm_defs.h"
 
-#include "ddf_locl.h"
 #include "ddf_main.h"
+#include "ddf_locl.h"
 
-#include "s_sound.h"  // S_CLIPPING_DIST
 
 #undef  DF
 #define DF  DDF_CMD

@@ -21,8 +21,8 @@
 
 #include "i_defs.h"
 
-#include "ddf_locl.h"
 #include "ddf_main.h"
+#include "ddf_locl.h"
 #include "ddf_image.h"
 #include "dm_state.h"
 #include "p_spec.h"

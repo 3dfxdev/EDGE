@@ -32,7 +32,7 @@ typedef int statenum_t;
 #define SPR_NULL  0   // sprite
 
 // State Struct
-typedef struct
+typedef struct state_s
 {
 	// sprite ref
 	int sprite;

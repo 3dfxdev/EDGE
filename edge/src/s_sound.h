@@ -23,16 +23,13 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __S_SOUND__
-#define __S_SOUND__
+#ifndef __S_SOUND_H__
+#define __S_SOUND_H__
 
 // Forward declarations
 class position_c;
-typedef struct mobj_s mobj_t;
-typedef struct sfx_s sfx_t;
-
-#define S_CLOSE_DIST     160.0f
-#define S_CLIPPING_DIST  4000.0f
+struct mobj_s;
+struct sfx_s;
 
 // for the sliders
 #define SND_SLIDER_NUM  20
@@ -98,7 +95,7 @@ extern int sfx_volume;  // 0 .. SND_SLIDER_NUM-1
 void S_Init(void);
 void S_Shutdown(void);
 
-void S_StartFX(sfx_t *sfx, int category = SNCAT_UI, position_c *pos = NULL, int flags = 0);
+void S_StartFX(struct sfx_s *sfx, int category = SNCAT_UI, position_c *pos = NULL, int flags = 0);
 
 void S_StopFX(position_c *pos);
 void S_StopLevelFX(void);
@@ -111,7 +108,7 @@ void S_SoundTicker(void);
 void S_ChangeSoundVolume(void);
 void S_ChangeChannelNum(void);
 
-#endif // __S_SOUND__
+#endif /* __S_SOUND_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

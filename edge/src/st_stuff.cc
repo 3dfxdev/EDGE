@@ -30,6 +30,7 @@
 #include "st_stuff.h"
 
 #include "e_main.h"
+#include "e_player.h"
 #include "m_cheat.h"
 #include "m_misc.h"   // M_DisplayAir
 #include "m_random.h"

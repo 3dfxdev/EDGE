@@ -21,7 +21,6 @@
 
 #include "dm_type.h"
 #include "ddf_main.h"
-#include "e_player.h"
 #include "r_defs.h"
 #include "hu_stuff.h"
 
@@ -211,7 +210,7 @@ typedef struct s_sound_s
 	// sound location.  z can be ONFLOORZ.
 	float x, y, z;
 
-	sfx_t *sfx;
+	struct sfx_s *sfx;
 }
 s_sound_t;
 

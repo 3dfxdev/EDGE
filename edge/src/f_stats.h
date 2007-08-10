@@ -27,7 +27,6 @@
 #define __WI_STUFF__
 
 #include "dm_defs.h"
-#include "e_player.h"
 
 // States for the intermission
 
@@ -47,7 +46,7 @@ void WI_Ticker(void);
 void WI_Drawer(void);
 
 // Setup for an intermission screen.
-void WI_Start(wbstartstruct_t * wbstartstruct);
+void WI_Start(struct wbstartstruct_s * wbstartstruct);
 
 // Clear Intermission Data
 void WI_Clear(void);
