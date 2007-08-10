@@ -2618,7 +2618,7 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 //
 void RGL_LoadLights(void)
 {
-	fading_image = W_ImageLookup("COLMAP_TEST");
+	fading_image = W_ImageLookup("SHADOW_STD");
 
 #ifdef SHADOW_PROTOTYPE
 	shadow_image = W_ImageLookup("SHADOW_STD");
