@@ -31,6 +31,8 @@
 
 #include "i_defs.h"
 
+#include "dm_data.h"
+#include "dm_state.h"
 #include "g_game.h"
 #include "m_random.h"
 #include "p_action.h"

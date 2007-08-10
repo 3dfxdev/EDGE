@@ -18,8 +18,9 @@
 
 #include "i_defs.h"
 
+#include "ddf/types.h"
+
 #include "r_occlude.h"
-#include "lu_math.h"
 
 
 #define ANGLE_MAX  ((angle_t) -1)

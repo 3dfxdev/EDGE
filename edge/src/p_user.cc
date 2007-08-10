@@ -25,18 +25,19 @@
 
 #include "i_defs.h"
 
+#include <float.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "ddf/colormap.h"
 
+#include "dm_state.h"
 #include "e_input.h"
 #include "p_bot.h"
 #include "p_local.h"
 #include "rad_trig.h"
 #include "s_sound.h"
 #include "z_zone.h"
-
-#include <float.h>
-#include <stdio.h>
-#include <string.h>
 
 static void P_UpdatePowerups(player_t *player);
 

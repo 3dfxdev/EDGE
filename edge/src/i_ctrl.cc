@@ -19,6 +19,8 @@
 #include "i_defs.h"
 #include "i_sdlinc.h"
 
+#include "dm_defs.h"
+#include "dm_state.h"
 #include "e_main.h"
 #include "e_event.h"
 #include "m_argv.h"

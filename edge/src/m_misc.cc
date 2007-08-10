@@ -29,13 +29,30 @@
 //
 
 #include "i_defs.h"
-#include "m_misc.h"
+
+#include <ctype.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "epi/utility.h"
+#include "epi/endianess.h"
+#include "epi/files.h"
+#include "epi/filesystem.h"
+#include "epi/path.h"
+
+#include "epi/image_data.h"
+#include "epi/image_jpeg.h"
+#include "epi/image_png.h"
 
 #include "con_cvar.h"
+#include "dm_defs.h"
+#include "dm_state.h"
 #include "e_input.h"
 #include "e_player.h"
 #include "hu_stuff.h"  // only for showMessages
 #include "m_argv.h"
+#include "m_misc.h"
 #include "m_option.h"
 #include "n_network.h"
 #include "p_spec.h"
@@ -49,21 +66,6 @@
 #include "r_wipe.h"
 
 #include "defaults.h"
-
-#include "epi/utility.h"
-#include "epi/endianess.h"
-#include "epi/files.h"
-#include "epi/filesystem.h"
-#include "epi/path.h"
-
-#include "epi/image_data.h"
-#include "epi/image_jpeg.h"
-#include "epi/image_png.h"
-
-#include <ctype.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
 //
 // DEFAULTS

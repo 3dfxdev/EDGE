@@ -37,16 +37,17 @@
 
 #include "i_defs.h"
 
-#include "dm_defs.h"
-#include "m_bbox.h"
-#include "p_local.h"
-#include "r_state.h"
-
-#include "z_zone.h"
-
 #include <math.h>
 
 #include <vector>
+
+#include "dm_data.h"
+#include "dm_defs.h"
+#include "dm_structs.h"
+#include "m_bbox.h"
+#include "p_local.h"
+#include "r_state.h"
+#include "z_zone.h"
 
 #define DEBUG_SIGHT  0
 

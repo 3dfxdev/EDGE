@@ -34,7 +34,9 @@
 
 #include "r_md2.h"
 
-#include "m_misc.h"  //!!!!
+#include "dm_state.h"  //!!!! game_dir
+
+#include "m_misc.h"  //!!!! M_OpenComposedEPIFile
 
 extern int leveltime; //!!!!
 

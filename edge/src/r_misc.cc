@@ -28,23 +28,26 @@
 
 #include "i_defs.h"
 #include "i_defs_gl.h"
-#include "r_misc.h"
 
+#include <math.h>
+
+#include "dm_defs.h"
+#include "dm_state.h"
 #include "e_main.h"
 #include "m_misc.h"
 #include "n_network.h"
+#include "p_local.h"
+#include "p_mobj.h"
+#include "r_colors.h"
+#include "r_defs.h"
+#include "r_draw.h"
+#include "r_gldefs.h"
+#include "r_misc.h"
+#include "r_modes.h"
+#include "r_units.h"
 #include "r_vbinit.h"
 #include "r_view.h"
-#include "r_gldefs.h"
-#include "r_units.h"
-#include "p_mobj.h"
-#include "p_local.h"
 #include "st_stuff.h"
-#include "r_draw.h"
-#include "r_colors.h"
-#include "r_modes.h"
-
-#include <math.h>
 
 
 // -ES- 1999/03/14 Dynamic Field Of View

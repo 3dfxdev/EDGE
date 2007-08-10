@@ -37,19 +37,18 @@
 
 #include "i_defs.h"
 
-#include "m_bbox.h"
-#include "dm_defs.h"
-#include "p_local.h"
-#include "p_spec.h"
-
-#include "z_zone.h"
-
-// State.
-#include "r_state.h"
-
 #include <float.h>
 #include <math.h>
 #include <string.h>
+
+#include "dm_data.h"
+#include "dm_defs.h"
+#include "dm_state.h"
+#include "m_bbox.h"
+#include "p_local.h"
+#include "p_spec.h"
+#include "r_state.h"
+#include "z_zone.h"
 
 // stats
 #ifdef DEVELOPERS

@@ -33,9 +33,15 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
+#include <math.h>
+
+#include "dm_data.h"
+#include "dm_defs.h"
+#include "dm_state.h"
 #include "g_game.h"
 #include "m_bbox.h"
 #include "p_local.h"
+#include "r_defs.h"
 #include "r_misc.h"
 #include "r_gldefs.h"
 #include "r_occlude.h"
@@ -48,8 +54,6 @@
 #include "r_colors.h"
 
 #include "n_network.h"  // N_NetUpdate
-
-#include <math.h>
 
 #define DEBUG  0
 

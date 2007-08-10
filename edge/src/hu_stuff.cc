@@ -27,6 +27,7 @@
 #include "hu_stuff.h"
 
 #include "con_main.h"
+#include "dm_state.h"
 #include "e_input.h"
 #include "e_main.h"
 #include "g_game.h"

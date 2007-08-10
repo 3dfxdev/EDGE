@@ -29,10 +29,22 @@
 // 
 
 #include "i_defs.h"
-#include "e_demo.h"
 
+#include <ctype.h>
+#include <string.h>
+#include <time.h>
+
+#include "epi/epi.h"
+#include "epi/endianess.h"
+#include "epi/files.h"
+#include "epi/filesystem.h"
+#include "epi/path.h"
+
+#include "dm_defs.h"
+#include "dm_state.h"
 #include "dem_chunk.h"
 #include "dem_glob.h"
+#include "e_demo.h"
 #include "e_main.h"
 #include "g_game.h"
 #include "m_argv.h"
@@ -41,16 +53,6 @@
 #include "p_setup.h"
 #include "version.h"
 #include "z_zone.h"
-
-#include "epi/epi.h"
-#include "epi/endianess.h"
-#include "epi/files.h"
-#include "epi/filesystem.h"
-#include "epi/path.h"
-
-#include <ctype.h>
-#include <string.h>
-#include <time.h>
 
 // if true, exit with report on completion 
 static bool timingdemo;

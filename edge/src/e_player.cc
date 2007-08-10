@@ -29,7 +29,16 @@
 
 #include "i_defs.h"
 
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+
+#include "epi/endianess.h"
+
 #include "con_cvar.h"
+#include "dm_defs.h"
+#include "dm_state.h"
+#include "e_player.h"
 #include "g_game.h"
 #include "hu_stuff.h"
 #include "m_argv.h"
@@ -37,12 +46,6 @@
 #include "p_bot.h"
 #include "p_local.h"
 #include "st_stuff.h"
-
-#include "epi/endianess.h"
-
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
 
 
 //

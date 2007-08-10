@@ -33,6 +33,7 @@
 
 #include "ddf/main.h"
 
+#include "dm_defs.h"
 #include "dm_state.h"
 #include "g_game.h"
 #include "dstrings.h"

@@ -28,17 +28,19 @@
 //
 
 #include "i_defs.h"
-#include "e_input.h"
 
+#include <string.h>
+
+#include "dm_defs.h"
+#include "dm_state.h"
 #include "e_event.h"
+#include "e_input.h"
 #include "e_main.h"
 #include "hu_stuff.h"
-#include "lu_math.h"
+#include "m_math.h"
 #include "m_misc.h"
 #include "r_misc.h"
 #include "z_zone.h"
-
-#include <string.h>
 
 //
 // controls (have defaults) 
