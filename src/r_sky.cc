@@ -20,6 +20,7 @@
 #include "i_defs_gl.h"
 
 #include "dm_state.h"
+#include "lu_math.h"
 #include "r_misc.h"
 #include "w_flat.h"
 #include "r_sky.h"

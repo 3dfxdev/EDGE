@@ -24,9 +24,11 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "m_math.h"
 
 #include <math.h>
+
+#include "m_math.h"
+#include "lu_math.h"
 
 float M_Sin (angle_t ang)
 {

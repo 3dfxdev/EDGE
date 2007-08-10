@@ -38,8 +38,6 @@ class weapondef_c;
 struct mobj_s;
 struct sfx_s;
 
-typedef struct sfx_s sfx_t;
-
 // RGB 8:8:8
 // (FIXME: use epi::colour_c)
 typedef unsigned int rgbcol_t;
@@ -222,6 +220,15 @@ public:
 
 #define STOPSPEED   		0.07f
 #define OOF_SPEED   		20.0f
+
+
+// Info for the JUMP action
+typedef struct act_jump_info_s
+{
+	// chance value
+	percent_t chance; 
+}
+act_jump_info_t;
 
 
 // ------------------------------------------------------------------

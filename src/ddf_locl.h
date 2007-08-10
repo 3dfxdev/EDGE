@@ -19,8 +19,9 @@
 #ifndef __DDF_LOCAL__
 #define __DDF_LOCAL__
 
-#include "p_weapon.h"
 #include "dm_defs.h"
+
+#include "ddf_stat.h"
 
 #include "epi/strings.h"
 
@@ -232,7 +233,7 @@ checkflag_result_e;
 typedef struct
 {
 	char *actionname;
-	void (*action) (mobj_t * object);
+	void (*action) (struct mobj_s * mo);
 
 	// -AJA- 1999/08/09: This function handles the argument when brackets
 	// are present (e.g. "WEAPON_SHOOT(FIREBALL)").  NULL if unused.

@@ -33,6 +33,7 @@
 
 #include "con_cvar.h"
 #include "e_input.h"
+#include "e_player.h"
 #include "hu_stuff.h"  // only for showMessages
 #include "m_argv.h"
 #include "m_option.h"

@@ -35,8 +35,8 @@
 //  for defining the global state variables.
 #include "dm_data.h"
 
-// We need the playr data structure as well.
-#include "e_player.h"
+///---// We need the playr data structure as well.
+///---#include "e_player.h"
 
 #include "epi/utility.h"
 
@@ -126,7 +126,7 @@ extern int gametic;
 #define MAXPLAYERS  30
 
 // Pointer to each player in the game.
-extern player_t *players[MAXPLAYERS];
+extern struct player_s *players[MAXPLAYERS];
 extern int numplayers;
 
 // Player taking events, and displaying.
@@ -143,14 +143,6 @@ extern int displayplayer;
 #define CHEATARMOUR      MAXARMOUR
 #define CHEATARMOURTYPE  ARMOUR_Blue
 
-// Player spawn spots for deathmatch, coop.
-extern spawnpointarray_c dm_starts;
-extern spawnpointarray_c coop_starts;
-extern spawnpointarray_c voodoo_doll_starts;
-
-// Intermission stats.
-// Parameters for world map / intermission.
-extern wbstartstruct_t wminfo;
 
 //-----------------------------------------
 // Internal parameters, used for engine.

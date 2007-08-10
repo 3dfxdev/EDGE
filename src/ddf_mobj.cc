@@ -27,15 +27,6 @@
 
 #include "i_defs.h"
 
-#include "ddf_locl.h"
-#include "ddf_main.h"
-
-#include "p_action.h"
-#include "r_effects.h"
-#include "z_zone.h"
-
-#include "epi/strings.h"
-
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,6 +35,16 @@
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
+
+#include "epi/strings.h"
+
+#include "ddf_main.h"
+#include "ddf_locl.h"
+#include "lu_math.h"
+
+#include "p_action.h"
+#include "z_zone.h"
+
 
 
 #undef  DF

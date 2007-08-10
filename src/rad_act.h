@@ -20,8 +20,6 @@
 #define __RAD_ACT__
 
 #include "dm_type.h"
-#include "e_player.h"
-#include "e_event.h"
 #include "rad_defs.h"
 
 //

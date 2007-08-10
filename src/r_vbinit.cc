@@ -32,6 +32,8 @@
 
 #include "con_defs.h"
 #include "dm_state.h"
+#include "e_player.h"
+#include "p_mobj.h"
 #include "r_misc.h"
 #include "r_state.h"
 #include "r_view.h"

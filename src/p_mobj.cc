@@ -130,22 +130,6 @@ static std::list<mobj_t *> remove_queue;
 
 iteminque_t *itemquehead;
 
-spawnpoint_t* spawnpointarray_c::FindPlayer(int pnum)
-{
-	epi::array_iterator_c it;
-
-	for (it=GetBaseIterator(); it.IsValid(); it++)
-	{
-		spawnpoint_t *point = ITERATOR_TO_PTR(it, spawnpoint_t);
-		SYS_ASSERT(point->info);
-
-		if (point->info->playernum == pnum)
-			return point;
-	}
-
-	return NULL;  // not found
-}
-
 // =========================== INTERNALS =========================== 
 
 // convenience function

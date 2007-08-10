@@ -29,7 +29,6 @@
 #ifndef __R_MAIN_H__
 #define __R_MAIN_H__
 
-#include "e_player.h"
 #include "w_flat.h"
 #include "r_defs.h"
 

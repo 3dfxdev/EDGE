@@ -19,6 +19,7 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
+#include "e_player.h"
 #include "m_misc.h"
 #include "r_misc.h"
 #include "r_colors.h"

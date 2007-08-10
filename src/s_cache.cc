@@ -25,6 +25,11 @@
 
 #include "i_defs.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+#include <vector>
+
 #include "epi/sound_data.h"
 #include "epi/errors.h"
 #include "epi/strings.h"
@@ -34,16 +39,13 @@
 
 #include "errorcodes.h"
 
+#include "ddf_main.h"
+#include "ddf_sfx.h"
 #include "m_argv.h"
 #include "m_random.h"
 #include "p_mobj.h"
 #include "r_defs.h"
 #include "w_wad.h"
-
-#include <stdlib.h>
-#include <string.h>
-
-#include <vector>
 
 
 static std::vector<epi::sound_data_c *> fx_cache;

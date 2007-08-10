@@ -20,7 +20,6 @@
 #define __RAD_TRIG__
 
 #include "dm_type.h"
-#include "e_player.h"
 #include "e_event.h"
 #include "rad_defs.h"
 
@@ -42,7 +41,7 @@ void RAD_SpawnTriggers(const char *map_name);
 void RAD_ClearTriggers(void);
 void RAD_GroupTriggerTags(rad_trigger_t *trig);
 
-void RAD_DoRadiTrigger(player_t * p);
+void RAD_DoRadiTrigger(struct player_s * p);
 void RAD_Ticker(void);
 void RAD_Drawer(void);
 bool RAD_Responder(event_t * ev);

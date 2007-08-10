@@ -26,8 +26,6 @@
 #ifndef __P_BOT_H__
 #define __P_BOT_H__
 
-#include "e_player.h"
-
 // This describes what action the bot wants to do.
 // It will be translated to a ticcmd_t by P_BotPlayerBuilder.
 
@@ -37,7 +35,7 @@ typedef struct botcmd_s
 	angle_t move_angle;
 
 	// Object which we want to face, NULL if none
-	mobj_t *face_mobj;
+	struct mobj_s *face_mobj;
 
 	// The weapon we want to use. -1 if the current one is fine.
 	int new_weapon;
@@ -52,7 +50,7 @@ botcmd_t;
 
 typedef struct bot_s
 {
-	player_t *pl;
+	struct player_s *pl;
 
 	int confidence;
 	int patience;
@@ -72,7 +70,7 @@ typedef struct bot_s
 }
 bot_t;
 
-void P_BotCreate(player_t *p, bool recreate);
+void P_BotCreate(struct player_s *pl, bool recreate);
 
 void BOT_BeginLevel(void);
 void BOT_EndLevel(void);

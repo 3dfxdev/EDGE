@@ -88,8 +88,8 @@ public:
 
 	attackstyle_e attackstyle;
 	attackflags_e flags;
-	sfx_t *initsound;
-	sfx_t *sound;
+	struct sfx_s *initsound;
+	struct sfx_s *sound;
 	float accuracy_slope;
 	angle_t accuracy_angle;
 	float xoffset;

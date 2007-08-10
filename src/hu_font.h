@@ -19,8 +19,10 @@
 #ifndef __HU_FONT__
 #define __HU_FONT__
 
-#include "ddf_font.h"
 #include "r_image.h"
+
+class fontdef_c;
+
 
 typedef struct
 {

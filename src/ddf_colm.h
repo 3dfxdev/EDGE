@@ -21,6 +21,8 @@
 
 #include "dm_defs.h"
 
+#include "ddf_main.h"  // rgbcol_t
+
 #include "epi/utility.h"
 
 // -AJA- 1999/07/09: colmap.ddf structures.

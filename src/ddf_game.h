@@ -173,12 +173,12 @@ public:
 	char bg_camera[32];
 
 	int music;
-	sfx_t *percent;
-	sfx_t *done;
-	sfx_t *endmap;
-	sfx_t *nextmap;
-	sfx_t *accel_snd;
-	sfx_t *frag_snd;
+	struct sfx_s *percent;
+	struct sfx_s *done;
+	struct sfx_s *endmap;
+	struct sfx_s *nextmap;
+	struct sfx_s *accel_snd;
+	struct sfx_s *frag_snd;
 
 	lumpname_c firstmap;
 	lumpname_c namegraphic;

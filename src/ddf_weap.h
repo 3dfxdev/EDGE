@@ -113,21 +113,21 @@ public:
   
 	// Sounds.
 	// Played at the start of every readystate
-	sfx_t *idle;
+	struct sfx_s *idle;
   
   	// Played while the trigger is held (chainsaw)
-	sfx_t *engaged;
+	struct sfx_s *engaged;
   
 	// Played while the trigger is held and it is pointed at a target.
-	sfx_t *hit;
+	struct sfx_s *hit;
   
 	// Played when the weapon is selected
-	sfx_t *start;
+	struct sfx_s *start;
   
 	// Misc sounds
-	sfx_t *sound1;
-	sfx_t *sound2;
-	sfx_t *sound3;
+	struct sfx_s *sound1;
+	struct sfx_s *sound2;
+	struct sfx_s *sound3;
   
 	// This close combat weapon should not push the target away (chainsaw)
 	bool nothrust;

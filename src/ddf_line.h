@@ -302,7 +302,7 @@ public:
 	int prewait;
 
     // Up/Down/Stop sfx
-	sfx_t *sfxstart, *sfxup, *sfxdown, *sfxstop;
+	struct sfx_s *sfxstart, *sfxup, *sfxdown, *sfxstop;
 
 	// Scrolling. -AJA- 2000/04/16
 	angle_t scroll_angle;
@@ -370,10 +370,10 @@ public:
 	percent_t distance;
 
 	// sound effects.
-	sfx_t *sfx_start;
-	sfx_t *sfx_open;
-	sfx_t *sfx_close;
-	sfx_t *sfx_stop;
+	struct sfx_s *sfx_start;
+	struct sfx_s *sfx_open;
+	struct sfx_s *sfx_close;
+	struct sfx_s *sfx_stop;
 };
 
 // --> Donut definition class
@@ -405,10 +405,10 @@ public:
 	// to differentiate them now?
 	 
 	// SFX for inner donut parts
-	sfx_t *d_sfxin, *d_sfxinstop;
+	struct sfx_s *d_sfxin, *d_sfxinstop;
 
 	// SFX for outer donut parts
-	sfx_t *d_sfxout, *d_sfxoutstop;
+	struct sfx_s *d_sfxout, *d_sfxoutstop;
 };
 
 // -AJA- 1999/07/12: teleporter special flags.
@@ -743,10 +743,10 @@ public:
 	float drag;
 
     // Ambient sound transfer
-	sfx_t *ambient_sfx;
+	struct sfx_s *ambient_sfx;
 
 	// Activation sound (overrides the switch sound)
-	sfx_t *activate_sfx;
+	struct sfx_s *activate_sfx;
 
 	int music;
 
@@ -881,7 +881,7 @@ public:
 	const colourmap_c *use_colourmap;
 
     // Ambient sound transfer
-	sfx_t *ambient_sfx;
+	struct sfx_s *ambient_sfx;
 
 	// -AJA- 1999/10/24: Appearance control.
 	when_appear_e appear;

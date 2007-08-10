@@ -20,9 +20,11 @@
 #define __DDF_STYLE__
 
 #include "dm_defs.h"
-#include "ddf_font.h"
+#include "ddf_main.h"
 
 #include "epi/utility.h"
+
+class fontdef_c;
 
 //
 // -AJA- 2004/11/14 Styles.ddf
@@ -78,13 +80,13 @@ public:
 	void Default();
 	soundstyle_c& operator= (const soundstyle_c& rhs);
 
-	sfx_t *begin;
-	sfx_t *end;
-	sfx_t *select;
-	sfx_t *back;
-	sfx_t *error;
-	sfx_t *move;
-	sfx_t *slider;
+	struct sfx_s *begin;
+	struct sfx_s *end;
+	struct sfx_s *select;
+	struct sfx_s *back;
+	struct sfx_s *error;
+	struct sfx_s *move;
+	struct sfx_s *slider;
 
 };
 

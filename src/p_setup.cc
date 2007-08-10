@@ -160,11 +160,6 @@ int mapthing_NUM;
 //
 const byte *rejectmatrix;
 
-// Maintain single and multi player starting spots.
-spawnpointarray_c dm_starts;
-spawnpointarray_c coop_starts;
-spawnpointarray_c voodoo_doll_starts;
-
 static bool hexen_level;
 static bool v5_nodes;
 
@@ -177,6 +172,15 @@ static bool remove_slime_trails;
 // a place to store sidedef numbers of the loaded linedefs.
 // There is two values for every line: side0 and side1.
 static int *temp_line_sides;
+
+
+extern spawnpointarray_c dm_starts;
+extern spawnpointarray_c coop_starts;
+extern spawnpointarray_c voodoo_doll_starts;
+
+// Intermission stats.
+// Parameters for world map / intermission.
+extern wbstartstruct_t wminfo;
 
 
 static void CheckEvilutionBug(byte *data, int length)
@@ -2628,6 +2632,8 @@ void P_Init(void)
 	
 	// There should not yet exist a player
 	SYS_ASSERT(numplayers == 0);
+
+	currmap = mapdefs[0];
 
 	dm_starts.Clear();
 	coop_starts.Clear();
