@@ -21,8 +21,8 @@
 
 #include "epi/utility.h"
 
-#include "ddf_base.h"
-#include "ddf_type.h"
+#include "base.h"
+#include "types.h"
 
 class fontdef_c;
 class colourmap_c;

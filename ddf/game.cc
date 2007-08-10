@@ -19,15 +19,15 @@
 // Overall Game Setup and Parser Code
 //
 
-#include "i_defs.h"
-
-#include "ddf_main.h"
-#include "ddf_locl.h"
-
-#include "epi/strings.h"
+#include "src/i_defs.h"
 
 #include <stdlib.h>
 #include <string.h>
+
+#include "epi/strings.h"
+
+#include "main.h"
+#include "local.h"
 
 #undef  DF
 #define DF  DDF_CMD

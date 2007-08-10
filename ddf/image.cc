@@ -19,16 +19,16 @@
 // Image Setup and Parser Code
 //
 
-#include "i_defs.h"
+#include "src/i_defs.h"
 
 #include <string.h>
 
 #include "epi/path.h"
 #include "epi/strings.h"
 
-#include "ddf_main.h"
-#include "ddf_locl.h"
-#include "ddf_image.h"
+#include "main.h"
+#include "local.h"
+#include "image.h"
 
 #undef  DF
 #define DF  DDF_CMD

@@ -19,14 +19,14 @@
 // Style Setup and Parser Code
 //
 
-#include "i_defs.h"
-
-#include "ddf_main.h"
-#include "ddf_locl.h"
-#include "ddf_font.h"
-#include "ddf_style.h"
+#include "src/i_defs.h"
 
 #include "epi/utility.h"
+
+#include "main.h"
+#include "local.h"
+#include "font.h"
+#include "style.h"
 
 #undef  DF
 #define DF  DDF_CMD

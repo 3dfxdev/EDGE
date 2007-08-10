@@ -22,8 +22,8 @@
 #include "epi/math_crc.h"
 #include "epi/utility.h"
 
-#include "ddf_base.h"
-#include "ddf_type.h"
+#include "base.h"
+#include "types.h"
 
 
 // ------------------------------------------------------------------

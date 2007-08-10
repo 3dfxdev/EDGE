@@ -16,10 +16,10 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "src/i_defs.h"
 
-#include "ddf_main.h"
-#include "ddf_locl.h"
+#include "main.h"
+#include "local.h"
 
 #include <stdlib.h>
 #include <string.h>

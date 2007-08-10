@@ -19,8 +19,8 @@
 #ifndef __DDF_ANIM_H_
 #define __DDF_ANIM_H_
 
-#include "ddf_base.h"
-#include "ddf_type.h"
+#include "base.h"
+#include "types.h"
 
 #include "epi/utility.h"
 
