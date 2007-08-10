@@ -86,8 +86,7 @@ features from being implemented.
   <li>
     Finally, some things we <b>don't plan</b> on adding
     into EDGE:
-    Hexen support, 3D Models,
-    Splitscreen mode, PAK/PK3/ZIP files,
+    Hexen support, Splitscreen mode, PAK/PK3/ZIP files,
     Level editing, or an Email reader.
 </OL>
 
