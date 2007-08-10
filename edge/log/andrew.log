@@ -1,5 +1,27 @@
 Andrew Apted's Log
 
+2007/08/10:
+
+Decided to split off the DDF parsing code (all ddf_* files)
+into a separate module / directory, and spent most of today
+just updating the usage of #include through the DDF code to
+remove most of the reliance on engine code (e.g. dm_defs.h
+and dm_state.h).
+
+Such a split was something Andrew Baker considered earlier
+(see his log entry @ 2004/07/23) and I feel it does make a
+lot of sense, seeing how the linkage with the main engine is
+almost 100% one-way (the engine uses the DDF structures, but
+the DDF code doesn't care about the engine stuff).  The big
+challenge will be namespacing it all under ddf::.
+
+2007/08/09:
+
+Worked on support for MD2 models.
+
+Did some code tidying, replacing some usage of the ZONE stuff
+with C++ new/delete.  Removed the crusty, dead GUI stuff.
+
 2007/08/08:
 
 Added new DDF command SPRITE_YALIGN which controls how sprites
