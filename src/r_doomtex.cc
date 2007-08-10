@@ -33,19 +33,10 @@
 
 #include "i_defs.h"
 #include "i_defs_gl.h"
-#include "r_image.h"
 
-#include "e_search.h"
-#include "e_main.h"
-#include "m_argv.h"
-#include "m_misc.h"
-#include "p_local.h"
-#include "r_gldefs.h"
-#include "r_sky.h"
-#include "r_colors.h"
-#include "w_texture.h"
-#include "w_wad.h"
-#include "z_zone.h"
+#include <limits.h>
+#include <math.h>
+#include <string.h>
 
 #include "epi/endianess.h"
 #include "epi/files.h"
@@ -58,9 +49,20 @@
 #include "epi/image_jpeg.h"
 #include "epi/image_tga.h"
 
-#include <limits.h>
-#include <math.h>
-#include <string.h>
+#include "dm_state.h"
+#include "e_search.h"
+#include "e_main.h"
+#include "m_argv.h"
+#include "m_misc.h"
+#include "p_local.h"
+#include "r_defs.h"
+#include "r_image.h"
+#include "r_gldefs.h"
+#include "r_sky.h"
+#include "r_colors.h"
+#include "w_texture.h"
+#include "w_wad.h"
+#include "z_zone.h"
 
 
 // posts are runs of non masked source pixels

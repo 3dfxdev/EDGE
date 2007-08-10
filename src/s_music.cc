@@ -20,17 +20,19 @@
 //
 
 #include "i_defs.h"
-#include "s_sound.h"
-#include "s_music.h"
 
-#include "ddf/main.h"
-#include "m_misc.h"
-#include "w_wad.h"
+#include <stdlib.h>
 
 #include "epi/files.h"
 #include "epi/filesystem.h"
 
-#include <stdlib.h>
+#include "ddf/main.h"
+
+#include "dm_state.h"
+#include "s_sound.h"
+#include "s_music.h"
+#include "m_misc.h"
+#include "w_wad.h"
 
 // Current music handle
 static int musichandle = -1;

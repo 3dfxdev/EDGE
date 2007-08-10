@@ -30,9 +30,11 @@
 //
 
 #include "i_defs.h"
-#include "f_stats.h"
 
+#include "dm_defs.h"
+#include "dm_state.h"
 #include "e_main.h"
+#include "f_stats.h"
 #include "g_game.h"
 #include "f_finale.h"
 #include "hu_lib.h"

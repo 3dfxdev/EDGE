@@ -28,21 +28,24 @@
 //
 
 #include "i_defs.h"
-#include "p_spec.h"
-
-#include "con_main.h"
-#include "g_game.h"
-#include "m_argv.h"
-#include "m_random.h"
-#include "p_local.h"
-#include "rad_trig.h"
-#include "s_sound.h"
-#include "s_music.h"
-#include "z_zone.h"
 
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "con_main.h"
+#include "dm_data.h"
+#include "dm_defs.h"
+#include "dm_state.h"
+#include "g_game.h"
+#include "m_argv.h"
+#include "m_random.h"
+#include "p_local.h"
+#include "p_spec.h"
+#include "rad_trig.h"
+#include "s_sound.h"
+#include "s_music.h"
+#include "z_zone.h"
 
 // Level exit timer
 bool levelTimer;

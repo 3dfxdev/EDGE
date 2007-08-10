@@ -26,20 +26,24 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
+#include <math.h>
+
+#include "dm_data.h"
+#include "dm_defs.h"
+#include "dm_state.h"
 #include "p_local.h"
-#include "r_misc.h"
+#include "r_colors.h"
+#include "r_defs.h"
+#include "r_draw.h"
 #include "r_gldefs.h"
+#include "r_image.h"
+#include "r_misc.h"
+#include "r_modes.h"
 #include "r_units.h"
 #include "st_stuff.h"
-#include "r_colors.h"
-#include "r_draw.h"
-#include "r_modes.h"
-#include "r_image.h"
 
 #include "r_md2.h"
 #include "m_misc.h"  // !!!! model test
-
-#include <math.h>
 
 #define DEBUG  0
 

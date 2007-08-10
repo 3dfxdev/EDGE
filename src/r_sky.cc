@@ -19,8 +19,10 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
+#include <math.h>
+
 #include "dm_state.h"
-#include "lu_math.h"
+#include "m_math.h"
 #include "r_misc.h"
 #include "w_flat.h"
 #include "r_sky.h"
@@ -31,8 +33,6 @@
 #include "r_modes.h"
 #include "r_image.h"
 #include "z_zone.h"
-
-#include <math.h>
 
 #define DEBUG  0
 

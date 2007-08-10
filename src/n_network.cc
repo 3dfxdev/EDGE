@@ -32,6 +32,7 @@
 #include "n_network.h"
 #include "n_protocol.h"
 
+#include "dm_state.h"
 #include "e_input.h"
 #include "e_main.h"
 #include "e_player.h"

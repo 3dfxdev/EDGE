@@ -17,22 +17,6 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "rad_trig.h"
-#include "rad_act.h"
-
-#include "dm_defs.h"
-#include "dm_state.h"
-#include "g_game.h"
-#include "lu_math.h"
-#include "m_argv.h"
-#include "p_local.h"
-#include "p_spec.h"
-#include "r_defs.h"
-#include "s_sound.h"
-#include "r_modes.h"
-#include "w_wad.h"
-#include "z_zone.h"
-#include "version.h"
 
 #include <ctype.h>
 
@@ -41,6 +25,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "dm_defs.h"
+#include "dm_state.h"
+#include "g_game.h"
+#include "m_argv.h"
+#include "m_math.h"
+#include "p_local.h"
+#include "p_spec.h"
+#include "rad_trig.h"
+#include "rad_act.h"
+#include "r_defs.h"
+#include "s_sound.h"
+#include "r_modes.h"
+#include "w_wad.h"
+#include "z_zone.h"
+#include "version.h"
 
 int rts_version;  // global
 

@@ -42,6 +42,7 @@
 
 #include "errorcodes.h"
 
+#include "dm_state.h"  // strict_errors
 #include "m_argv.h"
 #include "m_random.h"
 #include "p_mobj.h"
