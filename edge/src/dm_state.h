@@ -154,18 +154,6 @@ extern bool external_ddf;
 // if true, load all graphics at level load
 extern bool precache;
 
-// if true, prefer to crash out on various errors
-extern bool strict_errors;
-
-// if true, prefer to ignore or fudge various (serious) errors
-extern bool lax_errors;
-
-// if true, disable warning messages
-extern bool no_warnings;
-
-// if true, disable obsolete warning messages
-extern bool no_obsoletes;
-
 // if true, enable HOM detection (hall of mirrors effect)
 extern bool hom_detect;
 
