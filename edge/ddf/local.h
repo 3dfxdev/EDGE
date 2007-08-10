@@ -21,7 +21,7 @@
 
 #include "epi/strings.h"
 
-#include "ddf_stat.h"
+#include "states.h"
 
 // defines for parser stuff.
 #define BACKSLASH   '\\'

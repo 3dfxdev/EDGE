@@ -19,17 +19,17 @@
 // Colourmap handling.
 //
 
-#include "i_defs.h"
-
-#include "ddf_main.h"
-#include "ddf_locl.h"
-#include "ddf_colm.h"
+#include "src/i_defs.h"
 
 #include <string.h>
 
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
+
+#include "main.h"
+#include "local.h"
+#include "colormap.h"
 
 #undef  DF
 #define DF  DDF_CMD

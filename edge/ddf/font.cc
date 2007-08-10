@@ -19,15 +19,15 @@
 // Font Setup and Parser Code
 //
 
-#include "i_defs.h"
-
-#include "ddf_main.h"
-#include "ddf_locl.h"
-#include "ddf_font.h"
+#include "src/i_defs.h"
 
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "main.h"
+#include "local.h"
+#include "font.h"
 
 #undef  DF
 #define DF  DDF_CMD

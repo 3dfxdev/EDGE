@@ -25,7 +25,7 @@
 // -KM- 1998/12/16 No limit on number of ammo types.
 //
 
-#include "i_defs.h"
+#include "src/i_defs.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -38,11 +38,11 @@
 
 #include "epi/strings.h"
 
-#include "ddf_main.h"
-#include "ddf_locl.h"
+#include "main.h"
+#include "local.h"
 
-#include "p_action.h"
-#include "z_zone.h"
+#include "src/p_action.h"
+#include "src/z_zone.h"
 
 
 

@@ -21,13 +21,13 @@
 // 1998/10/29 -KM- Finalisation of sound code.  SmartProjectile.
 //
 
-#include "i_defs.h"
+#include "src/i_defs.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "ddf_main.h"
-#include "ddf_locl.h"
+#include "main.h"
+#include "local.h"
 
 #undef  DF
 #define DF  DDF_CMD

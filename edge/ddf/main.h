@@ -22,7 +22,7 @@
 #include "epi/math_crc.h"
 #include "epi/utility.h"
 
-#include "ddf_type.h"
+#include "types.h"
 
 #define DEBUG_DDF  0
 
@@ -40,18 +40,18 @@ class weapondef_c;
 
 
 
-#include "ddf_mobj.h"
-#include "ddf_atk.h"
-#include "ddf_stat.h"
-#include "ddf_weap.h"
+#include "thing.h"
+#include "attack.h"
+#include "states.h"
+#include "weapon.h"
 
-#include "ddf_line.h"
-#include "ddf_levl.h"
-#include "ddf_game.h"
+#include "line.h"
+#include "level.h"
+#include "game.h"
 
-#include "ddf_mus.h"
-#include "ddf_sfx.h"
-#include "ddf_lang.h"
+#include "playlist.h"
+#include "sfx.h"
+#include "language.h"
 
 
 // Misc playsim constants

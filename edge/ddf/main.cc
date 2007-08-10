@@ -16,7 +16,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "src/i_defs.h"
 
 #include <ctype.h>
 #include <limits.h>
@@ -30,13 +30,13 @@
 
 #include "epi/path.h"
 
-#include "ddf_main.h"
-#include "ddf_locl.h"
-#include "ddf_colm.h"
+#include "main.h"
+#include "local.h"
+#include "colormap.h"
 
-#include "p_action.h"
-#include "z_zone.h"
-#include "version.h"
+#include "src/p_action.h"
+#include "src/version.h"
+#include "src/z_zone.h"
 
 
 // FIXME: unwanted link to engine code (switch to epi::angle_c)

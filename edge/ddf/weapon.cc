@@ -20,20 +20,21 @@
 //
 // -KM- 1998/11/25 File Written
 //
-#include "i_defs.h"
-
-#include "ddf_main.h"
-#include "ddf_locl.h"
-#include "p_action.h"
-
-#undef  DF
-#define DF  DDF_CMD
+#include "src/i_defs.h"
 
 #include <string.h>
 
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
+
+#include "main.h"
+#include "local.h"
+
+#include "src/p_action.h"
+
+#undef  DF
+#define DF  DDF_CMD
 
 static weapondef_c buffer_weapon;
 static weapondef_c *dynamic_weapon;

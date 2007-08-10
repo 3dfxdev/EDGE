@@ -19,13 +19,13 @@
 // Switch Texture Setup and Parser Code
 //
 
-#include "i_defs.h"
+#include "src/i_defs.h"
 
 #include <string.h>
 
-#include "ddf_main.h"
-#include "ddf_locl.h"
-#include "ddf_swth.h"
+#include "main.h"
+#include "local.h"
+#include "switch.h"
 
 #undef  DF
 #define DF  DDF_CMD

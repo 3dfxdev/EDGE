@@ -28,10 +28,10 @@
 // -ACB- 2001/02/04 DDF_GetSecHeightReference moved to p_plane.c
 //
 
-#include "i_defs.h"
+#include "src/i_defs.h"
 
-#include "ddf_main.h"
-#include "ddf_locl.h"
+#include "main.h"
+#include "local.h"
 
 #include <limits.h>
 #include <stdlib.h>
