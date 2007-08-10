@@ -34,10 +34,14 @@
 #include "ddf_locl.h"
 #include "ddf_colm.h"
 
-#include "m_math.h"
 #include "p_action.h"
 #include "z_zone.h"
 #include "version.h"
+
+
+// FIXME: unwanted link to engine code (switch to epi::angle_c)
+///--- #include "m_math.h"
+extern float M_Tan(angle_t ang)    GCCATTR((const));
 
 
 #define DEBUG_DDFREAD  0
