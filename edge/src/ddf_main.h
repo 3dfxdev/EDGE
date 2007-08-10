@@ -147,48 +147,7 @@ public:
 
 #include "ddf_mus.h"
 #include "ddf_sfx.h"
-
-
-// ------------------------------------------------------------------
-// ---------------------------LANGUAGES------------------------------
-// ------------------------------------------------------------------
-
-class language_c
-{
-public:
-	language_c();
-	~language_c();
-
-private:
-	epi::strbox_c choices;
-	epi::strbox_c refs;
-	epi::strbox_c *values;
-	
-	int current;
-
-	int Find(const char *ref);
-
-public:
-	void Clear();
-	
-	int GetChoiceCount() { return choices.GetSize(); }
-	int GetChoice() { return current; }
-	
-	const char* GetName(int idx = -1);
-	bool IsValid() { return (current>=0 && current < choices.GetSize()); }
-	bool IsValidRef(const char *refname);
-	
-	void LoadLanguageChoices(epi::strlist_c& langnames);
-	void LoadLanguageReferences(epi::strlist_c& _refs);
-	void LoadLanguageValues(int lang, epi::strlist_c& _values);
-				
-	bool Select(const char *name);
-	bool Select(int idx);
-	
-	const char* operator[](const char *refname);
-	
-	//void Dump(void);
-};
+#include "ddf_lang.h"
 
 
 // Misc playsim constants
@@ -219,8 +178,6 @@ act_jump_info_t;
 // -------------------------EXTERNALISATIONS-------------------------
 // ------------------------------------------------------------------
 
-extern language_c language;				// -ACB- 2004/06/27 Implemented
-
 void DDF_Init(void);
 void DDF_CleanUp(void);
 bool DDF_MainParseCondition(const char *str, condition_check_t *cond);
@@ -241,12 +198,7 @@ void DDF_BoomClearGenTypes(void);
 linetype_c *DDF_BoomGetGenLine(int number);
 sectortype_c *DDF_BoomGetGenSector(int number);
 
-// -KM- 1998/12/16 If you have a ddf file to add, call
-//  this, passing the data and the size of the data in
-//  memory.  Returns false for files which cannot be found.
-bool DDF_ReadLangs(void *data, int size);
-
-#endif // __DDF_MAIN_H__
+#endif /* __DDF_MAIN_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
