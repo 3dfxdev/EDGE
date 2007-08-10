@@ -16,15 +16,16 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __DDF_STYLE__
-#define __DDF_STYLE__
-
-#include "dm_defs.h"
-#include "ddf_main.h"
+#ifndef __DDF_STYLE_H__
+#define __DDF_STYLE_H__
 
 #include "epi/utility.h"
 
+#include "ddf_base.h"
+#include "ddf_type.h"
+
 class fontdef_c;
+class colourmap_c;
 
 //
 // -AJA- 2004/11/14 Styles.ddf
@@ -159,7 +160,7 @@ extern styledef_c *default_style;
 
 bool DDF_ReadStyles(void *data, int size);
 
-#endif  /* __DDF_STYLE__ */
+#endif  /*__DDF_STYLE_H__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

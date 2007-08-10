@@ -18,21 +18,6 @@
 
 #include "i_defs.h"
 
-#include <vector>
-
-#include "ddf_main.h"
-#include "ddf_locl.h"
-#include "ddf_colm.h"
-
-#include "dm_state.h"
-#include "m_math.h"
-#include "lu_math.h"
-#include "p_action.h"
-#include "z_zone.h"
-#include "version.h"
-
-#include "epi/path.h"
-
 #include <ctype.h>
 #include <limits.h>
 
@@ -40,6 +25,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <vector>
+
+#include "epi/path.h"
+
+#include "ddf_main.h"
+#include "ddf_locl.h"
+#include "ddf_colm.h"
+
+#include "m_math.h"
+#include "p_action.h"
+#include "z_zone.h"
+#include "version.h"
+
 
 #define DEBUG_DDFREAD  0
 

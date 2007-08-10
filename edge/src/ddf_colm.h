@@ -19,11 +19,10 @@
 #ifndef __DDF_COLM__
 #define __DDF_COLM__
 
-#include "dm_defs.h"
-
-#include "ddf_main.h"  // rgbcol_t
-
 #include "epi/utility.h"
+
+#include "ddf_base.h"
+#include "ddf_type.h"
 
 // -AJA- 1999/07/09: colmap.ddf structures.
 

@@ -22,7 +22,7 @@
 #include "ddf_locl.h"
 
 #include "p_action.h"
-#include "r_things.h"
+#include "r_things.h"  // sprites[] and R_AddSpriteName
 #include "z_zone.h"
 
 #include <stdio.h>

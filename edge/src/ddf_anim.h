@@ -16,10 +16,11 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __DDF_ANIM__
-#define __DDF_ANIM__
+#ifndef __DDF_ANIM_H_
+#define __DDF_ANIM_H_
 
-#include "dm_defs.h"
+#include "ddf_base.h"
+#include "ddf_type.h"
 
 #include "epi/utility.h"
 

@@ -19,9 +19,10 @@
 #ifndef __DDF_HUD__
 #define __DDF_HUD__
 
-#include "dm_defs.h"
-
 #include "epi/utility.h"
+
+#include "ddf_base.h"
+#include "ddf_type.h"
 
 //
 // -AJA- 2004/11/25 HUD.ddf

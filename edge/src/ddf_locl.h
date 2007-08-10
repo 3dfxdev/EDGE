@@ -19,11 +19,9 @@
 #ifndef __DDF_LOCAL__
 #define __DDF_LOCAL__
 
-#include "dm_defs.h"
+#include "epi/strings.h"
 
 #include "ddf_stat.h"
-
-#include "epi/strings.h"
 
 // defines for parser stuff.
 #define BACKSLASH   '\\'

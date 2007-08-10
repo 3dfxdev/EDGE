@@ -40,7 +40,6 @@
 
 #include "ddf_main.h"
 #include "ddf_locl.h"
-#include "lu_math.h"
 
 #include "p_action.h"
 #include "z_zone.h"
