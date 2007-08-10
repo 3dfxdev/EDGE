@@ -26,14 +26,10 @@
 #ifndef __DEFINITIONS__
 #define __DEFINITIONS__
 
-#include "dm_type.h"
 
 //
 // Global parameters/defines.
 //
-
-// State updates, number of tics / second.
-#define TICRATE         35
 
 // The current state of the game: whether we are
 // playing, gazing at the intermission screen,
