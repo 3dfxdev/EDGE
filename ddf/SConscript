@@ -17,8 +17,8 @@ sources = [
     'anim.cc', 'attack.cc', 'boom.cc', 'colormap.cc',
     'font.cc', 'game.cc', 'image.cc', 'language.cc',
     'level.cc', 'line.cc', 'main.cc', 'playlist.cc',
-    'SConscript', 'sector.cc', 'sfx.cc', 'states.cc',
-    'style.cc', 'switch.cc', 'thing.cc', 'weapon.cc',
+    'sector.cc', 'sfx.cc', 'states.cc', 'style.cc',
+    'switch.cc', 'thing.cc', 'weapon.cc',
     ] 
 
 env.StaticLibrary('ddf', sources)
