@@ -24,7 +24,6 @@
 
 #include "ddf_main.h"
 #include "ddf_locl.h"
-#include "e_search.h"
 #include "p_action.h"
 
 #undef  DF

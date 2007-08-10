@@ -24,13 +24,10 @@
 #include "ddf_locl.h"
 #include "ddf_colm.h"
 
-#include "e_search.h"
 #include "dm_state.h"
-#include "m_argv.h"
 #include "m_math.h"
-#include "m_misc.h"
+#include "lu_math.h"
 #include "p_action.h"
-#include "r_things.h"
 #include "z_zone.h"
 #include "version.h"
 
