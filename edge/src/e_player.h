@@ -50,6 +50,17 @@
 
 #define EFFECT_MAX_TIME  (5 * TICRATE)
 
+// The maximum number of players, multiplayer/networking.
+#define MAXPLAYERS  30
+
+// Pointer to each player in the game.
+extern struct player_s *players[MAXPLAYERS];
+extern int numplayers;
+
+// Player taking events, and displaying.
+extern int consoleplayer;
+extern int displayplayer;
+
 //
 // Player states.
 //

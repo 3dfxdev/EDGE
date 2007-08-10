@@ -28,17 +28,17 @@
 // -ACB- 1999/10/07 Removed Sound Parameters - New Sound API
 //
 
-#ifndef __D_STATE__
-#define __D_STATE__
+#ifndef __D_STATE_H__
+#define __D_STATE_H__
+
+
+#include "ddf/types.h"
+
+#include "epi/utility.h"
 
 // We need globally shared data structures,
 //  for defining the global state variables.
 #include "dm_data.h"
-
-///---// We need the playr data structure as well.
-///---#include "e_player.h"
-
-#include "epi/utility.h"
 
 class image_c;
 
@@ -121,17 +121,6 @@ extern gamestate_e gamestate;
 //  WAD, partly set at startup time.
 
 extern int gametic;
-
-// The maximum number of players, multiplayer/networking.
-#define MAXPLAYERS  30
-
-// Pointer to each player in the game.
-extern struct player_s *players[MAXPLAYERS];
-extern int numplayers;
-
-// Player taking events, and displaying.
-extern int consoleplayer;
-extern int displayplayer;
 
 #define DEATHMATCH()  (deathmatch > 0)
 #define COOP_MATCH()  (deathmatch == 0 && numplayers > 1)
@@ -252,7 +241,7 @@ extern int forwardmovespeed;
 extern int angleturnspeed;
 extern int sidemovespeed;
 
-#endif // __D_STATE__
+#endif /*__D_STATE_H__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
