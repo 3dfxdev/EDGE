@@ -22,7 +22,8 @@
 #include "epi/math_crc.h"
 #include "epi/utility.h"
 
-#include "dm_defs.h"
+///---#include "dm_defs.h"
+
 #include "ddf_type.h"
 
 #define DEBUG_DDF  0
@@ -39,101 +40,6 @@ class mobjtype_c;
 class pl_entry_c;
 class weapondef_c;
 
-
-class ddf_base_c
-{
-public:
-	ddf_base_c();	
-	ddf_base_c(const ddf_base_c &rhs);
-	~ddf_base_c();	
-
-private:
-	void Copy(const ddf_base_c &src);
-
-public:
-	void Default(void);
-	void SetUniqueName(const char *prefix, int num);
-	
-	ddf_base_c& operator= (const ddf_base_c &rhs);
-
-	epi::strent_c name;
-	int number;	
-	epi::crc32_c crc;
-};
-
-// Our lumpname class
-#define LUMPNAME_SIZE 10
-
-class lumpname_c
-{
-public:
-	lumpname_c() { Clear(); }
-	lumpname_c(lumpname_c &rhs) { Set(rhs.data); }
-	~lumpname_c() {};
-
-private:
-	char data[LUMPNAME_SIZE];
-
-public:
-	void Clear() { data[0] = '\0'; }
-
-	const char* GetString() const { return data; }
-
-	inline bool IsEmpty() const { return data[0] == '\0'; }
-
-	void Set(const char *s) 
-	{
-		int i;
-
-		for (i=0; i<(LUMPNAME_SIZE-1) && *s; i++, s++)
-			data[i] = *s;
-
-		data[i] = '\0';
-	}
-
-	lumpname_c& operator=(lumpname_c &rhs) 
-	{
-		if (&rhs != this) 
-			Set(rhs.data);
-			 
-		return *this; 
-	}
-	
-	char operator[](int idx) const { return data[idx]; }
-	operator const char* () const { return data; }
-};
-
-class mobj_strref_c
-{
-public:
-	mobj_strref_c() : name(), def(NULL) { }
-	mobj_strref_c(const char *s) : name(s), def(NULL) { }
-	mobj_strref_c(const mobj_strref_c &rhs) : name(rhs.name), def(NULL) { }
-	~mobj_strref_c() {};
-
-private:
-	epi::strent_c name;
-
-	const mobjtype_c *def;
-
-public:
-	const char *GetName() const { return name.GetString(); }
-
-	const mobjtype_c *GetRef();
-	// Note: this returns NULL if not found, in which case you should
-	// produce an error, since future calls will do the search again.
-
-	mobj_strref_c& operator= (mobj_strref_c &rhs) 
-	{
-		if (&rhs != this) 
-		{
-			name = rhs.name;
-			def = NULL;
-		}
-			 
-		return *this; 
-	}
-};
 
 
 #include "ddf_mobj.h"

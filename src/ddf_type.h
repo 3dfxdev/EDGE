@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __EDGETYPES__
-#define __EDGETYPES__
+#ifndef __DDF_TYPE_H__
+#define __DDF_TYPE_H__
 
 // RGB 8:8:8
 // (FIXME: use epi::colour_c)
@@ -73,7 +73,83 @@ typedef u32_t angle_t;
 #define FLOAT_2_ANG(n)  ((angle_t) (F2AX(n) / 360.0f * 4294967296.0f))
 
 
-#endif // __EDGETYPES__
+// Our lumpname class
+#define LUMPNAME_SIZE 10
+
+class lumpname_c
+{
+public:
+	lumpname_c() { Clear(); }
+	lumpname_c(lumpname_c &rhs) { Set(rhs.data); }
+	~lumpname_c() {};
+
+private:
+	char data[LUMPNAME_SIZE];
+
+public:
+	void Clear() { data[0] = '\0'; }
+
+	const char* GetString() const { return data; }
+
+	inline bool IsEmpty() const { return data[0] == '\0'; }
+
+	void Set(const char *s) 
+	{
+		int i;
+
+		for (i=0; i<(LUMPNAME_SIZE-1) && *s; i++, s++)
+			data[i] = *s;
+
+		data[i] = '\0';
+	}
+
+	lumpname_c& operator=(lumpname_c &rhs) 
+	{
+		if (&rhs != this) 
+			Set(rhs.data);
+			 
+		return *this; 
+	}
+	
+	char operator[](int idx) const { return data[idx]; }
+	operator const char* () const { return data; }
+};
+
+
+class mobj_strref_c
+{
+public:
+	mobj_strref_c() : name(), def(NULL) { }
+	mobj_strref_c(const char *s) : name(s), def(NULL) { }
+	mobj_strref_c(const mobj_strref_c &rhs) : name(rhs.name), def(NULL) { }
+	~mobj_strref_c() {};
+
+private:
+	epi::strent_c name;
+
+	const mobjtype_c *def;
+
+public:
+	const char *GetName() const { return name.GetString(); }
+
+	const mobjtype_c *GetRef();
+	// Note: this returns NULL if not found, in which case you should
+	// produce an error, since future calls will do the search again.
+
+	mobj_strref_c& operator= (mobj_strref_c &rhs) 
+	{
+		if (&rhs != this) 
+		{
+			name = rhs.name;
+			def = NULL;
+		}
+			 
+		return *this; 
+	}
+};
+
+
+#endif /*__DDF_TYPE_H__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
