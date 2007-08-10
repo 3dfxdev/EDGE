@@ -67,8 +67,6 @@ typedef struct light_s
 
 	// countdown value for FADE type
 	int fade_count;
-
-	struct light_s *prev, *next;
 }
 light_t;
 
@@ -211,7 +209,6 @@ extern int levelTimeCount;
 
 extern buttonlist_c buttonlist;
 
-extern light_t *lights;
 extern gen_move_t *active_movparts;
 
 extern linetype_c donut[2];
