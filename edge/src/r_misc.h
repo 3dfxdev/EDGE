@@ -59,8 +59,6 @@ extern bool viewiszoomed;
 
 extern bool setsizeneeded;
 
-///--- extern int newres_idx;
-
 extern int framecount;
 
 //

@@ -29,9 +29,10 @@
 //                 savegames, check here!
 //
 
-#ifndef __P_MOBJ__
-#define __P_MOBJ__
+#ifndef __P_MOBJ_H__
+#define __P_MOBJ_H__
 
+#include "ddf/types.h"
 #include "m_math.h"
 
 // forward decl.
@@ -379,7 +380,7 @@ iteminque_t;
 // useful macro for the vertical center of an object
 #define MO_MIDZ(mo)  ((mo)->z + (mo)->height / 2)
 
-#endif  // __P_MOBJ__
+#endif  /*__P_MOBJ_H__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

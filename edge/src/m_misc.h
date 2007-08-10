@@ -29,7 +29,6 @@
 #ifndef __M_MISC__
 #define __M_MISC__
 
-#include "dm_type.h"
 
 #include "epi/files.h"
 #include "epi/strings.h"

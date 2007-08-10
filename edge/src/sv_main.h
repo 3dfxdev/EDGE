@@ -32,10 +32,13 @@
 //     loaded from the savegame file.
 //
 
-#ifndef __SV_MAIN_
-#define __SV_MAIN_
+#ifndef __SV_MAIN_H__
+#define __SV_MAIN_H__
 
 #include "i_defs.h"
+
+#include "dm_defs.h"
+#include "e_player.h"
 #include "p_local.h"
 
 class image_c;
@@ -372,7 +375,7 @@ bool SR_TriggerGetScript(void *storage, int index, void *extra);
 void SR_TriggerPutScript(void *storage, int index, void *extra);
 
 
-#endif  // __SV_MAIN_
+#endif  /*__SV_MAIN_H__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

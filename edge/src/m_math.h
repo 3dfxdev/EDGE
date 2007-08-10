@@ -26,6 +26,7 @@
 #ifndef __M_MATH_H__
 #define __M_MATH_H__
 
+#include "ddf/types.h"
 
 #define I_ROUND(n)  ((int) (((n) < 0.0f) ? ((n) - 0.5f) : ((n) + 0.5f)))
 #define I_FLOOR(n)  ((int) (floor(n) + 0.25f))

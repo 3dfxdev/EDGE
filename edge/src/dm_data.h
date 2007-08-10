@@ -32,9 +32,6 @@
 #ifndef __DOOMDATA__
 #define __DOOMDATA__
 
-// The most basic types we use, portability.
-#include "dm_type.h"
-
 // Some global defines, that configure the game.
 #include "dm_defs.h"
 

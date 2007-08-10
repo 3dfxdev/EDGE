@@ -26,7 +26,6 @@
 #ifndef __F_FINALE__
 #define __F_FINALE__
 
-#include "dm_type.h"
 #include "e_event.h"
 #include "g_game.h"
 #include "p_mobj.h"

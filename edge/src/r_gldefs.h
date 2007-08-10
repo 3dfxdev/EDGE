@@ -141,8 +141,6 @@ public:
 	float top;
 	float bottom;
 
-///----	float y_offset;
-
 	int y_clipping;
 
 	// sprite image to use

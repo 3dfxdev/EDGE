@@ -26,9 +26,9 @@
 #ifndef __R_COLORS_H__
 #define __R_COLORS_H__
 
-#include "dm_type.h"
 #include "dm_defs.h"
 
+#include "ddf/types.h"
 #include "ddf/main.h"
 #include "ddf/colormap.h"
 

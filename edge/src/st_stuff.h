@@ -26,7 +26,6 @@
 #ifndef __STSTUFF_H__
 #define __STSTUFF_H__
 
-#include "dm_type.h"
 #include "e_event.h"
 
 // Size of statusbar.

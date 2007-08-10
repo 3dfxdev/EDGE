@@ -26,6 +26,8 @@
 #ifndef __P_BOT_H__
 #define __P_BOT_H__
 
+#include "ddf/types.h"
+
 // This describes what action the bot wants to do.
 // It will be translated to a ticcmd_t by P_BotPlayerBuilder.
 

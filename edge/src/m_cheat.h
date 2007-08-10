@@ -29,7 +29,6 @@
 // -MH- 1998/06/17 for cheat to give jetpack
 // -KM- 1998-07-21 Added some extra headers in here
 #include "dm_defs.h"
-#include "dm_type.h"
 #include "dm_state.h"
 #include "e_event.h"
 
