@@ -39,36 +39,6 @@
 #ifndef __TABLES__
 #define __TABLES__
 
-#include "dm_type.h"
-
-// Binary Angle Measument, BAM.
-#define ANG1   0x00B60B61
-#define ANG45  0x20000000
-#define ANG90  0x40000000
-#define ANG135 0x60000000
-#define ANG180 0x80000000
-#define ANG225 0xa0000000
-#define ANG270 0xc0000000
-#define ANG315 0xe0000000
-// Only use this one with float.
-#define ANG360  (4294967296.0)
-#define ANGLEBITS  32
-
-#define ANG5   (ANG45/9)
-
-#define SLOPERANGE 2048
-#define SLOPEBITS  11
-
-
-// Conversion macros:
-
-#define F2AX(n)  (((n) < 0) ? (360.0f + (n)) : (n))
-#define ANG_2_FLOAT(a)  ((float) (a) * 360.0f / 4294967296.0f)
-#define FLOAT_2_ANG(n)  ((angle_t) (F2AX(n) / 360.0f * 4294967296.0f))
-
-#define I_ROUND(n)  ((int) (((n) < 0.0f) ? ((n) - 0.5f) : ((n) + 0.5f)))
-#define I_FLOOR(n)  ((int) (floor(n) + 0.25f))
-
 #endif // __TABLES__
 
 //--- editor settings ---

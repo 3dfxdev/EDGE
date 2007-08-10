@@ -27,6 +27,10 @@
 #define __M_MATH_H__
 
 
+#define I_ROUND(n)  ((int) (((n) < 0.0f) ? ((n) - 0.5f) : ((n) + 0.5f)))
+#define I_FLOOR(n)  ((int) (floor(n) + 0.25f))
+
+
 typedef struct vec2_s
 {
 	float x, y;
