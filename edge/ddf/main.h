@@ -54,6 +54,9 @@ class weapondef_c;
 #include "language.h"
 
 
+// State updates, number of tics / second.
+#define TICRATE   35
+
 // Misc playsim constants
 #define CEILSPEED   		1.0f
 #define FLOORSPEED  		1.0f

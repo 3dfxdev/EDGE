@@ -24,6 +24,8 @@
 #include "base.h"
 #include "types.h"
 
+class image_c;
+
 //
 // SWITCHES
 //
