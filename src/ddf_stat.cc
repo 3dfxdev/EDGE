@@ -18,16 +18,16 @@
 
 #include "i_defs.h"
 
-#include "ddf_main.h"
-#include "ddf_locl.h"
-
-#include "p_action.h"
-#include "r_things.h"  // sprites[] and R_AddSpriteName
-#include "z_zone.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "ddf_main.h"
+#include "ddf_locl.h"
+
+#include "src/p_action.h"
+#include "src/w_sprite.h"
+#include "src/z_zone.h"
 
 static const state_t template_state =
 {
