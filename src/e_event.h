@@ -26,7 +26,6 @@
 #ifndef __E_EVENT_H__
 #define __E_EVENT_H__
 
-#include "dm_type.h"
 
 //
 // Event handling.

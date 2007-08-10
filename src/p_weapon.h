@@ -26,10 +26,6 @@
 #ifndef __P_PSPR__
 #define __P_PSPR__
 
-// Basic data types.
-// Needs BAM angles.
-#include "lu_math.h"
-
 #include "ddf/main.h"
 
 // maximum weapons player can hold at once

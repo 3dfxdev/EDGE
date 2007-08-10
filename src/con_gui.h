@@ -19,7 +19,6 @@
 #ifndef __CON_MAIN_GUI_H
 #define __CON_MAIN_GUI_H
 
-#include "dm_type.h"
 
 // The console 'application' functions.
 // Adds the console to the gui.

@@ -26,8 +26,6 @@
 #ifndef __Z_ZONE__
 #define __Z_ZONE__
 
-#include "dm_type.h"
-
 #define ZONEID  0x1d4a11f1
 
 typedef enum

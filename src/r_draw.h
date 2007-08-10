@@ -26,7 +26,6 @@
 #ifndef __R_DRAW_H__
 #define __R_DRAW_H__
 
-#include "dm_type.h"
 #include "ddf/main.h"
 #include "r_image.h"
 

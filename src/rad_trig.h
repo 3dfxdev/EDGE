@@ -19,7 +19,6 @@
 #ifndef __RAD_TRIG__
 #define __RAD_TRIG__
 
-#include "dm_type.h"
 #include "e_event.h"
 #include "rad_defs.h"
 

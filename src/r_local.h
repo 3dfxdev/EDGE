@@ -32,7 +32,7 @@
 #define __R_LOCAL__
 
 // Binary Angles, sine/cosine/atan lookups.
-#include "lu_math.h"
+#include "m_math.h"
 
 // Screen size related parameters.
 #include "dm_defs.h"

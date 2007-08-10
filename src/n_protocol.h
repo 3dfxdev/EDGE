@@ -24,6 +24,8 @@
 #ifndef __PROTOCOL_H__
 #define __PROTOCOL_H__
 
+#include "e_ticcmd.h"
+
 #define MP_PROTOCOL_VER  0x080  /* 0.80 */
 
 #define MP_SAVETICS  6  // past and future
@@ -219,7 +221,7 @@ player_list_proto_t;
 //
 // Holds a group of ticcmds, both CL->SV and SV->CL.
 //
-typedef struct ticcmd_s
+typedef struct ticcmd_proto_s
 {
 	u32_t gametic;
 	byte  offset;  // start_tic = gametic + offset

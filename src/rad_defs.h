@@ -16,11 +16,11 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __RAD_MAIN__
-#define __RAD_MAIN__
+#ifndef __RAD_MAIN_H__
+#define __RAD_MAIN_H__
 
-#include "dm_type.h"
 #include "ddf/main.h"
+
 #include "r_defs.h"
 #include "hu_stuff.h"
 
@@ -648,7 +648,7 @@ drawtip_t;
 
 extern drawtip_t tip_slots[MAXTIPSLOT];
 
-#endif // __RAD_MAIN__
+#endif /*__RAD_MAIN_H__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

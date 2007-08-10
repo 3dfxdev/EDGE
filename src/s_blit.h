@@ -28,6 +28,8 @@
 
 #include "epi/sound_data.h"
 
+#include "ddf/types.h"
+
 // Forward declarations
 class sfxdef_c;
 class position_c;

@@ -26,7 +26,6 @@
 #ifndef __E_TICCMD_H__
 #define __E_TICCMD_H__
 
-#include "dm_type.h"
 
 // The data sampled per tick (single player)
 // and transmitted to other peers (multiplayer).
