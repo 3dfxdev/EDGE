@@ -26,21 +26,24 @@
 #ifndef __SYSTEM_SPECIFIC_DEFS_OPENGL__
 #define __SYSTEM_SPECIFIC_DEFS_OPENGL__
 
-#define USING_GL_TYPES 1
-
 #ifdef MACOSX
 #include <OpenGL/gl.h>
+#include <OpenGL/glext.h>
 #endif
 
 #ifdef LINUX
 #include <GL/gl.h>
+#include <GL/glext.h>
 #endif
 
 #ifdef WIN32
 #include <GL/gl.h>
+#include <GL/glext.h>
 #endif
 
-#endif // __SYSTEM_SPECIFIC_DEFS_OPENGL__
+#define USING_GL_TYPES 1
+
+#endif /* __SYSTEM_SPECIFIC_DEFS_OPENGL__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
