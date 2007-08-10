@@ -26,6 +26,26 @@
 #ifndef __EDGETYPES__
 #define __EDGETYPES__
 
+// RGB 8:8:8
+// (FIXME: use epi::colour_c)
+typedef unsigned int rgbcol_t;
+
+#define RGB_NO_VALUE  0x00FFFF  /* bright CYAN */
+
+#define RGB_MAKE(r,g,b)  (((r) << 16) | ((g) << 8) | (b))
+
+#define RGB_RED(rgbcol)  ((float)(((rgbcol) >> 16) & 0xFF) / 255.0f)
+#define RGB_GRN(rgbcol)  ((float)(((rgbcol) >>  8) & 0xFF) / 255.0f)
+#define RGB_BLU(rgbcol)  ((float)(((rgbcol)      ) & 0xFF) / 255.0f)
+
+
+// percentage type.  Ranges from 0.0f - 1.0f
+typedef float percent_t;
+
+#define PERCENT_MAKE(val)  ((val) / 100.0f)
+#define PERCENT_2_FLOAT(perc)  (perc)
+
+
 typedef u32_t angle_t;
 
 #define ANGLEBITS  32

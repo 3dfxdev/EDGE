@@ -19,14 +19,18 @@
 #ifndef __DDF_MAIN_H__
 #define __DDF_MAIN_H__
 
-#include "dm_defs.h"
-
 #include "epi/math_crc.h"
 #include "epi/utility.h"
 
+#include "dm_defs.h"
+#include "ddf_type.h"
+
 #define DEBUG_DDF  0
 
-// Forward declaration
+// Forward declarations
+struct mobj_s;
+struct sfx_s;
+
 class atkdef_c;
 class colourmap_c;
 class gamedef_c;
@@ -35,20 +39,6 @@ class mobjtype_c;
 class pl_entry_c;
 class weapondef_c;
 
-struct mobj_s;
-struct sfx_s;
-
-// RGB 8:8:8
-// (FIXME: use epi::colour_c)
-typedef unsigned int rgbcol_t;
-
-#define RGB_NO_VALUE  0x00FFFF  /* bright CYAN */
-
-#define RGB_MAKE(r,g,b)  (((r) << 16) | ((g) << 8) | (b))
-
-#define RGB_RED(rgbcol)  ((float)(((rgbcol) >> 16) & 0xFF) / 255.0f)
-#define RGB_GRN(rgbcol)  ((float)(((rgbcol) >>  8) & 0xFF) / 255.0f)
-#define RGB_BLU(rgbcol)  ((float)(((rgbcol)      ) & 0xFF) / 255.0f)
 
 class ddf_base_c
 {
@@ -70,12 +60,6 @@ public:
 	int number;	
 	epi::crc32_c crc;
 };
-
-// percentage type.  Ranges from 0.0f - 1.0f
-typedef float percent_t;
-
-#define PERCENT_MAKE(val)  ((val) / 100.0f)
-#define PERCENT_2_FLOAT(perc)  (perc)
 
 // Our lumpname class
 #define LUMPNAME_SIZE 10
