@@ -29,6 +29,7 @@
 // Need data structure definitions.
 #include "w_flat.h"
 #include "m_math.h"
+#include "r_defs.h"
 
 //
 // Lookup tables for map data.

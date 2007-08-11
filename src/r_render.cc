@@ -470,7 +470,7 @@ static void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor)
 
 
 #if 0  // DISABLED FOR TIME BEING
-static void ClipPlaneHorizontalEye(GLdouble *p, const vertex_t *v, bool flip)
+static void ClipPlaneHorizontalEye(GLdouble *p, const vec2_t *v, bool flip)
 {
 	vec2_t s, e;
 
@@ -879,19 +879,19 @@ static void ComputeDLParameters(float dist, mobj_t *mo,
 #endif // DLIGHT_PROTOTYPE
 
 
-#define MAX_EDGE_VERT  8
+#define MAX_EDGE_VERT  12
 
-static inline void GreetNeighbourSector(float *hts, int& num, sector_t *sec)
+static inline void GreetNeighbourSector(float *hts, int& num,
+		vertex_seclist_t *seclist)
 {
-	if (! sec)
+	if (! seclist)
 		return;
 
-	for (int i=0; i < 2; i++)
+	for (int k=0; k < (seclist->num * 2); k++)
 	{
-		if (num >= MAX_EDGE_VERT)
-			break;
+		sector_t *sec = sectors + seclist->sec[k/2];
 
-		float h = i ? sec->c_h : sec->f_h;
+		float h = (k & 1) ? sec->c_h : sec->f_h;
 
 		// does not intersect current height range?
 		if (h <= hts[0]+0.1 || h >= hts[num-1]-0.1)
@@ -900,9 +900,9 @@ static inline void GreetNeighbourSector(float *hts, int& num, sector_t *sec)
 		// check if new height already present, and at same time
 		// find place to insert new height.
 		
-		int pos = 1;
+		int pos;
 
-		for (; pos < num; pos++)
+		for (pos = 1; pos < num; pos++)
 		{
 			if (h < hts[pos] - 0.1)
 				break;
@@ -916,12 +916,15 @@ static inline void GreetNeighbourSector(float *hts, int& num, sector_t *sec)
 
 		if (pos > 0 && pos < num)
 		{
-			for (int k = num; k >= pos+1; k--)
-				hts[k] = hts[k-1];
+			for (int i = num; i > pos; i--)
+				hts[i] = hts[i-1];
 
 			hts[pos] = h;
 
 			num++;
+
+			if (num >= MAX_EDGE_VERT)
+				return;
 		}
 	}
 }
@@ -1173,25 +1176,28 @@ if (num_active_mirrors % 2)
 	left_h[0]  = bottom; left_h[1]  = top;
 	right_h[0] = bottom; right_h[1] = top;
 
-	if (solid_mode && mid_masked == 0 && ! (wt->flags & WTILF_IsExtra))
+	if (solid_mode) /// && ! (wt->flags & WTILF_IsExtra)
 	{
-		for (int vert=0; vert < 2; vert++)
-		{
-			bool at_left = (cur_seg->side == vert);
+		GreetNeighbourSector(left_h,  left_num,  cur_seg->nb_sec[0]);
+		GreetNeighbourSector(right_h, right_num, cur_seg->nb_sec[1]);
 
-			// does this seg touch V1/V2 of the linedef?
-			if (( at_left && cur_seg->offset < 0.1) ||
-				(!at_left && cur_seg->offset+cur_seg->length+0.1 > cur_seg->linedef->length))
-			{
-				for (int s = 0; s < NBSEC_MAX; s++)
-				{
-					GreetNeighbourSector(
-						at_left ? left_h   : right_h,
-						at_left ? left_num : right_num,
-						cur_seg->linedef->nb_sec[vert][s]);
-				}
-			}
-		}
+///---		for (int vert=0; vert < 2; vert++)
+///---		
+///---			bool at_left = (cur_seg->side == vert);
+///---
+///---			// does this seg touch V1/V2 of the linedef?
+///---			if (( at_left && cur_seg->offset < 0.1) ||
+///---				(!at_left && cur_seg->offset+cur_seg->length+0.1 > cur_seg->linedef->length))
+///---			{
+///---				for (int s = 0; s < NBSEC_MAX; s++)
+///---				{
+///---					GreetNeighbourSector(
+///---						at_left ? left_h   : right_h,
+///---						at_left ? left_num : right_num,
+///---						cur_seg->linedef->nb_sec[vert][s]);
+///---				}
+///---			}
+///---		}
 
 #if DEBUG_GREET_NEIGHBOUR
 		SYS_ASSERT(left_num  <= MAX_EDGE_VERT);

@@ -166,12 +166,6 @@ const byte *rejectmatrix;
 static bool hexen_level;
 static bool v5_nodes;
 
-// When "GL Nodes v2.0" vertices are found, then our segs are "exact"
-// (have fixed-point granularity) and we don't need to fudge the
-// vertex positions.
-// 
-static bool remove_slime_trails;
-
 // a place to store sidedef numbers of the loaded linedefs.
 // There is two values for every line: side0 and side1.
 static int *temp_line_sides;
@@ -276,9 +270,6 @@ static void LoadV2Vertexes(const byte *data, int length)
 		vert->x = (float)EPI_LE_S32(ml2->x) / 65536.0f;
 		vert->y = (float)EPI_LE_S32(ml2->y) / 65536.0f;
 	}
-
-	// these vertices are good -- don't muck with 'em...
-	remove_slime_trails = false;
 }
 
 //
@@ -2237,176 +2228,240 @@ void GroupLines(void)
 }
 
 
-static inline void AddSectorToVertex(line_t *ld, sector_t *sec)
+static inline void AddSectorToVertices(int *branches, line_t *ld, sector_t *sec)
 {
-	SYS_ASSERT(sec);
+	if (! sec)
+		return;
 
 	unsigned short sec_idx = sec - sectors;
 
 	for (int vert = 0; vert < 2; vert++)
 	{
-		vertex_seclist_t *L = ld->nb_sec[vert];
+		int v_idx = (vert ? ld->v2 : ld->v1) - vertexes;
 
-		int pos;
+		SYS_ASSERT(0 <= v_idx && v_idx < numvertexes);
+
+		if (branches[v_idx] < 0)
+			continue;
+
+		vertex_seclist_t *L = v_seclists + branches[v_idx];
 
 		if (L->num >= SECLIST_MAX)
 			continue;
+
+		int pos;
 
 		for (pos = 0; pos < L->num; pos++)
 			if (L->sec[pos] == sec_idx)
 				break;
 
-		if (pos >= L->num)
-			L->sec[L->num++] = sec_idx;
+		if (pos < L->num)
+			continue;  // already in there
+
+		L->sec[L->num++] = sec_idx;
 	}
 }
 
+
 static void CreateVertexSeclists(void)
 {
-	v_seclists = new vertex_seclist_t[numvertices];
+	// step 1: determine number of linedef branches at each vertex
+	int *branches = new int[numvertexes];
 
-	Z_Clear(v_seclists, vertex_seclist_t, numvertices);
+	Z_Clear(branches, int, numvertexes);
 
-	// create pointers into v_seclists
-	for (int i=0; i < numlines; i++)
+	int i;
+
+	for (i=0; i < numlines; i++)
 	{
-		line_t *ld = lines + i;
-
-		int v1_idx = ld->v1 - vertexes;
-		int v2_idx = ld->v2 - vertexes;
+		int v1_idx = lines[i].v1 - vertexes;
+		int v2_idx = lines[i].v2 - vertexes;
 
 		SYS_ASSERT(0 <= v1_idx && v1_idx < numvertexes);
 		SYS_ASSERT(0 <= v2_idx && v2_idx < numvertexes);
 
-		ld->nb_sec[0] = v_seclists + v1_idx;
-		ld->nb_sec[1] = v_seclists + v2_idx;
+		branches[v1_idx] += 1;
+		branches[v2_idx] += 1;
 	}
+
+	// step 2: count how many vertices have 3 or more branches,
+	//         and simultaneously give them index numbers.
+	int num_triples = 0;
+
+	for (i=0; i < numvertexes; i++)
+	{
+		if (branches[i] < 3)
+			branches[i] = -1;
+		else
+			branches[i] = num_triples++;
+	}
+
+	if (num_triples == 0)
+	{
+		delete[] branches;
+
+		v_seclists = NULL;
+		return;
+	}
+
+	// step 3: create a vertex_seclist for those multi-branches
+	v_seclists = new vertex_seclist_t[num_triples];
+
+	Z_Clear(v_seclists, vertex_seclist_t, num_triples);
+
+	L_WriteDebug("Created %d seclists from %d vertices (%1.1f%%)\n",
+			num_triples, numvertexes,
+			num_triples * 100 / (float)numvertexes);
 
 	// multiple passes for each linedef:
-	//   pass 0 takes care of normal sectors
-	//   pass 1 and 2 handles extrafloors
+	//   pass #1 takes care of normal sectors
+	//   pass #2 handles any extrafloors
 	//
-	// Rationale: normal sectors are more important, hence
-	//            should eat up the limited slots first.
+	// Rationale: normal sectors are more important, hence they
+	//            should be allocated to the limited slots first.
 
-	for (int pass=0; pass < 2; pass++)
+	for (i=0; i < numlines; i++)
 	{
-		for (int i=0; i < numlines; i++)
+		line_t *ld = lines + i;
+
+		for (int side = 0; side < 2; side++)
 		{
-			line_t *ld = lines + i;
+			sector_t *sec = side ? ld->backsector : ld->frontsector;
 
-			for (int side = 0; side < 2; side++)
-			{
-				sector_t *sec = side ? ld->backsector : ld->frontsector;
-
-				if (! sec)
-					continue;
-				
-				if (pass == 0)
-				{
-					AddSectorToVertex(ld, sec);
-				}
-				else if (pass == 1)
-				{
-					extrafloor_t *ef;
-
-					for (ef = sec->bottom_ef; ef; ef = ef->higher)
-						AddSectorToVertex(ld, ef->ef_line->frontsector);
-
-					for (ef = sec->bottom_liq; ef; ef = ef->higher)
-						AddSectorToVertex(ld, ef->ef_line->frontsector);
-				}
-			}
+			AddSectorToVertices(branches, ld, sec);
 		}
 	}
-}
 
-static void HandleNeighbours(int i, int vert, int pass, int k)
-{
-	for (int side = 0; side < 2; side++)
+	for (i=0; i < numlines; i++)
 	{
-		sector_t *sec = side ? lines[k].backsector : lines[k].frontsector;
+		line_t *ld = lines + i;
 
-		if (! sec)
-			continue;
-
-		if (pass == 1)
+		for (int side = 0; side < 2; side++)
 		{
-			if (sec->bottom_ef)
-				sec = sec->bottom_ef->ef_line->frontsector;
-			else if (sec->bottom_liq)
-				sec = sec->bottom_liq->ef_line->frontsector;
-			else
+			sector_t *sec = side ? ld->backsector : ld->frontsector;
+
+			if (! sec)
+				continue;
+			
+			extrafloor_t *ef;
+
+			for (ef = sec->bottom_ef; ef; ef = ef->higher)
+				AddSectorToVertices(branches, ld, ef->ef_line->frontsector);
+
+			for (ef = sec->bottom_liq; ef; ef = ef->higher)
+				AddSectorToVertices(branches, ld, ef->ef_line->frontsector);
+		}
+	}
+
+	// step 4: finally, update the segs that touch those vertices
+	for (i=0; i < numsegs; i++)
+	{
+		seg_t *sg = segs + i;
+
+		for (int vert=0; vert < 2; vert++)
+		{
+			int v_idx = (vert ? sg->v2 : sg->v1) - vertexes;
+
+			// skip GL vertices
+			if (v_idx < 0 || v_idx >= numvertexes)
 				continue;
 
-			SYS_ASSERT(sec);
-		}
-		else if (pass == 2)
-		{
-			if (sec->top_ef && sec->top_ef != sec->bottom_ef)
-				sec = sec->top_ef->ef_line->frontsector;
-			else if (sec->top_liq && sec->top_liq != sec->bottom_liq)
-				sec = sec->top_liq->ef_line->frontsector;
-			else
+			if (branches[v_idx] < 0)
 				continue;
 
-			SYS_ASSERT(sec);
-		}
-		
-		if (sec == lines[i].frontsector || sec == lines[i].backsector)
-			continue;
-
-		bool already_got = false;
-		int s;
-
-		for (s=0; s < NBSEC_MAX; s++)
-			if (lines[s].nb_sec[vert][s] == sec)
-				already_got = true;
-
-		if (already_got)
-			continue;
-
-		// try to add in the new sector
-		for (s=0; s < NBSEC_MAX; s++)
-		{
-			if (! lines[i].nb_sec[vert][s])
-			{
-				lines[i].nb_sec[vert][s] = sec;
-				break;
-			}
+			sg->nb_sec[vert] = v_seclists + branches[v_idx];
 		}
 	}
+
+	delete[] branches;
 }
 
-static void FindLinedefNeighbours(void)
-{
-	// FIXME OPTIMISE !!!
-
-
-	for (int i=0; i < numlines; i++)
-	for (int pass=0; pass < 2; pass++)
-	for (int k=0; k < numlines; k++)
-	{
-		if (i == k)
-			continue;
-
-		if (lines[i].v1 == lines[k].v1 || lines[i].v1 == lines[k].v2)
-		{
-			HandleNeighbours(i, 0, pass, k);
-
-			if (pass == 1)
-				HandleNeighbours(i, 0, pass+1, k);
-		}
-
-		if (lines[i].v2 == lines[k].v1 || lines[i].v2 == lines[k].v2)
-		{
-			HandleNeighbours(i, 1, pass, k);
-
-			if (pass == 1)
-				HandleNeighbours(i, 1, pass+1, k);
-		}
-	}
-}
+///---static void HandleNeighbours(int i, int vert, int pass, int k)
+///---{
+///---	for (int side = 0; side < 2; side++)
+///---	{
+///---		sector_t *sec = side ? lines[k].backsector : lines[k].frontsector;
+///---
+///---		if (! sec)
+///---			continue;
+///---
+///---		if (pass == 1)
+///---		{
+///---			if (sec->bottom_ef)
+///---				sec = sec->bottom_ef->ef_line->frontsector;
+///---			else if (sec->bottom_liq)
+///---				sec = sec->bottom_liq->ef_line->frontsector;
+///---			else
+///---				continue;
+///---
+///---			SYS_ASSERT(sec);
+///---		}
+///---		else if (pass == 2)
+///---		{
+///---			if (sec->top_ef && sec->top_ef != sec->bottom_ef)
+///---				sec = sec->top_ef->ef_line->frontsector;
+///---			else if (sec->top_liq && sec->top_liq != sec->bottom_liq)
+///---				sec = sec->top_liq->ef_line->frontsector;
+///---			else
+///---				continue;
+///---
+///---			SYS_ASSERT(sec);
+///---		}
+///---		
+///---		if (sec == lines[i].frontsector || sec == lines[i].backsector)
+///---			continue;
+///---
+///---		bool already_got = false;
+///---		int s;
+///---
+///---		for (s=0; s < NBSEC_MAX; s++)
+///---			if (lines[s].nb_sec[vert][s] == sec)
+///---				already_got = true;
+///---
+///---		if (already_got)
+///---			continue;
+///---
+///---		// try to add in the new sector
+///---		for (s=0; s < NBSEC_MAX; s++)
+///---		{
+///---			if (! lines[i].nb_sec[vert][s])
+///---			{
+///---				lines[i].nb_sec[vert][s] = sec;
+///---				break;
+///---			}
+///---		}
+///---	}
+///---}
+///---
+///---static void FindLinedefNeighbours(void)
+///---{
+///---	// FIXME OPTIMISE !!!
+///---
+///---
+///---	for (int i=0; i < numlines; i++)
+///---	for (int pass=0; pass < 2; pass++)
+///---	for (int k=0; k < numlines; k++)
+///---	{
+///---		if (i == k)
+///---			continue;
+///---
+///---		if (lines[i].v1 == lines[k].v1 || lines[i].v1 == lines[k].v2)
+///---		{
+///---			HandleNeighbours(i, 0, pass, k);
+///---
+///---			if (pass == 1)
+///---				HandleNeighbours(i, 0, pass+1, k);
+///---		}
+///---
+///---		if (lines[i].v2 == lines[k].v1 || lines[i].v2 == lines[k].v2)
+///---		{
+///---			HandleNeighbours(i, 1, pass, k);
+///---
+///---			if (pass == 1)
+///---				HandleNeighbours(i, 1, pass+1, k);
+///---		}
+///---	}
+///---}
 
 
 //
@@ -2604,7 +2659,6 @@ void P_SetupLevel(skill_t skill, int autotag)
 #endif
 
 	v5_nodes = false;
-	remove_slime_trails = true;
 
 	// check if the level is for Hexen
 	hexen_level = false;
@@ -2688,7 +2742,7 @@ void P_SetupLevel(skill_t skill, int autotag)
 	// set up world state
 	P_SpawnSpecials(autotag);
 
-	FindLinedefNeighbours();
+	CreateVertexSeclists();
 
 	RGL_UpdateSkyBoxTextures();
 
