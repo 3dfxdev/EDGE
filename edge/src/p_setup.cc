@@ -78,10 +78,10 @@ static bool level_active = false;
 // Store VERTEXES, LINEDEFS, SIDEDEFS, etc.
 //
 int numvertexes;
-vertex_t *vertexes;
+vec2_t *vertexes;
 
 int num_gl_vertexes;
-vertex_t *gl_vertexes;
+vec2_t *gl_vertexes;
 
 int numsegs;
 seg_t *segs;
@@ -109,6 +109,8 @@ wall_tile_t *walltiles;
 
 int numvertgaps;
 vgap_t *vertgaps;
+
+vertex_seclist_t *v_seclists;
 
 // BLOCKMAP
 //
@@ -218,7 +220,7 @@ static void LoadVertexes(int lump)
 	const void *data;
 	int i;
 	const raw_vertex_t *ml;
-	vertex_t *li;
+	vec2_t *li;
 
 	if (! W_VerifyLumpName(lump, "VERTEXES"))
 		I_Error("Bad WAD: level %s missing VERTEXES.\n", 
@@ -232,7 +234,7 @@ static void LoadVertexes(int lump)
 		I_Error("Bad WAD: level %s contains 0 vertexes.\n", 
 				currmap->lump.GetString());
 
-	vertexes = new vertex_t[numvertexes];
+	vertexes = new vec2_t[numvertexes];
 
 	// Load data into cache.
 	data = W_CacheLumpNum(lump);
@@ -259,11 +261,11 @@ static void LoadV2Vertexes(const byte *data, int length)
 {
 	int i;
 	const raw_v2_vertex_t *ml2;
-	vertex_t *vert;
+	vec2_t *vert;
 
 	num_gl_vertexes = length / sizeof(raw_v2_vertex_t);
 
-	gl_vertexes = new vertex_t[num_gl_vertexes];
+	gl_vertexes = new vec2_t[num_gl_vertexes];
 
 	ml2 = (const raw_v2_vertex_t *) data;
 	vert = gl_vertexes;
@@ -287,7 +289,7 @@ static void LoadGLVertexes(int lump)
 	const byte *data;
 	int i, length;
 	const raw_vertex_t *ml;
-	vertex_t *vert;
+	vec2_t *vert;
 
 	if (!W_VerifyLumpName(lump, "GL_VERT"))
 		I_Error("Bad WAD: level %s missing GL_VERT.\n", currmap->lump.GetString());
@@ -322,7 +324,7 @@ static void LoadGLVertexes(int lump)
 	//  total lump length / vertex record length.
 	num_gl_vertexes = length / sizeof(raw_vertex_t);
 
-	gl_vertexes = new vertex_t[num_gl_vertexes];
+	gl_vertexes = new vec2_t[num_gl_vertexes];
 
 	ml = (const raw_vertex_t *) data;
 	vert = gl_vertexes;
@@ -1225,8 +1227,8 @@ static void LoadHexenThings(int lump)
 
 static INLINE void ComputeLinedefData(line_t *ld, int side0, int side1)
 {
-	vertex_t *v1 = ld->v1;
-	vertex_t *v2 = ld->v2;
+	vec2_t *v1 = ld->v1;
+	vec2_t *v2 = ld->v2;
 
 	ld->dx = v2->x - v1->x;
 	ld->dy = v2->y - v1->y;
@@ -2111,7 +2113,7 @@ static void DoBlockMap(int lump)
 
 	for (i=1; i < numvertexes; i++)
 	{
-		vertex_t *v = vertexes + i;
+		vec2_t *v = vertexes + i;
 
 		min_x = MIN((int)v->x, min_x);
 		min_y = MIN((int)v->y, min_y);
@@ -2234,6 +2236,91 @@ void GroupLines(void)
 	}
 }
 
+
+static inline void AddSectorToVertex(line_t *ld, sector_t *sec)
+{
+	SYS_ASSERT(sec);
+
+	unsigned short sec_idx = sec - sectors;
+
+	for (int vert = 0; vert < 2; vert++)
+	{
+		vertex_seclist_t *L = ld->nb_sec[vert];
+
+		int pos;
+
+		if (L->num >= SECLIST_MAX)
+			continue;
+
+		for (pos = 0; pos < L->num; pos++)
+			if (L->sec[pos] == sec_idx)
+				break;
+
+		if (pos >= L->num)
+			L->sec[L->num++] = sec_idx;
+	}
+}
+
+static void CreateVertexSeclists(void)
+{
+	v_seclists = new vertex_seclist_t[numvertices];
+
+	Z_Clear(v_seclists, vertex_seclist_t, numvertices);
+
+	// create pointers into v_seclists
+	for (int i=0; i < numlines; i++)
+	{
+		line_t *ld = lines + i;
+
+		int v1_idx = ld->v1 - vertexes;
+		int v2_idx = ld->v2 - vertexes;
+
+		SYS_ASSERT(0 <= v1_idx && v1_idx < numvertexes);
+		SYS_ASSERT(0 <= v2_idx && v2_idx < numvertexes);
+
+		ld->nb_sec[0] = v_seclists + v1_idx;
+		ld->nb_sec[1] = v_seclists + v2_idx;
+	}
+
+	// multiple passes for each linedef:
+	//   pass 0 takes care of normal sectors
+	//   pass 1 and 2 handles extrafloors
+	//
+	// Rationale: normal sectors are more important, hence
+	//            should eat up the limited slots first.
+
+	for (int pass=0; pass < 2; pass++)
+	{
+		for (int i=0; i < numlines; i++)
+		{
+			line_t *ld = lines + i;
+
+			for (int side = 0; side < 2; side++)
+			{
+				sector_t *sec = side ? ld->backsector : ld->frontsector;
+
+				if (! sec)
+					continue;
+				
+				if (pass == 0)
+				{
+					AddSectorToVertex(ld, sec);
+				}
+				else if (pass == 1)
+				{
+					extrafloor_t *ef;
+
+					for (ef = sec->bottom_ef; ef; ef = ef->higher)
+						AddSectorToVertex(ld, ef->ef_line->frontsector);
+
+					for (ef = sec->bottom_liq; ef; ef = ef->higher)
+						AddSectorToVertex(ld, ef->ef_line->frontsector);
+				}
+			}
+		}
+	}
+}
+
 static void HandleNeighbours(int i, int vert, int pass, int k)
 {
 	for (int side = 0; side < 2; side++)
@@ -2295,12 +2382,6 @@ static void FindLinedefNeighbours(void)
 {
 	// FIXME OPTIMISE !!!
 
-	// multiple passes for each linedef:
-	//   pass 0 takes care of normal sectors
-	//   pass 1 and 2 handles extrafloors
-	//
-	// Rationale: normal sectors are more important, hence
-	//            should eat up the limited slots first.
 
 	for (int i=0; i < numlines; i++)
 	for (int pass=0; pass < 2; pass++)
@@ -2418,6 +2499,7 @@ void ShutdownLevel(void)
 	delete[] extrafloors;  extrafloors = NULL;
 	delete[] vertgaps;     vertgaps = NULL;
 	delete[] linebuffer;   linebuffer = NULL;
+	delete[] v_seclists;   v_seclists = NULL;
 
 	delete[] blocklinks;    blocklinks = NULL;
 	delete[] blocklights;   blocklights = NULL;
