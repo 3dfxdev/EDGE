@@ -23,7 +23,6 @@
 #include "m_argv.h"
 #include "m_misc.h"
 #include "m_random.h"
-#include "m_swap.h"
 #include "w_wad.h"
 
 #include "s_sound.h"
