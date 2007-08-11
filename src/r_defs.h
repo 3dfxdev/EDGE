@@ -370,16 +370,24 @@ typedef enum
 }
 slopetype_t;
 
+#define SECLIST_MAX  7
+
+typedef struct
+{
+	unsigned short num;
+	unsigned short sec[SECLIST_MAX];
+}
+vertex_seclist_t;
+
 //
 // LINEDEF
 //
-#define NBSEC_MAX  3
 
 typedef struct line_s
 {
 	// Vertices, from v1 to v2.
-	vertex_t *v1;
-	vertex_t *v2;
+	vec2_t *v1;
+	vec2_t *v2;
 
 	// Precalculated v2 - v1 for side checking.
 	float dx;
@@ -436,8 +444,8 @@ typedef struct line_s
 	// Keep animating lines in a linked list.
 	struct line_s *animate_next;
 
-	// neighbouring sectors on vertices, two each
-	sector_t *nb_sec[2][NBSEC_MAX];
+	// compact list of sectors touching each vertex
+	vertex_seclist_t *nb_sec[2];
 }
 line_t;
 
@@ -474,8 +482,8 @@ subsector_t;
 //
 typedef struct seg_s
 {
-	vertex_t *v1;
-	vertex_t *v2;
+	vec2_t *v1;
+	vec2_t *v2;
 
 	angle_t angle;
 	float length;
