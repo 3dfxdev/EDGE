@@ -879,7 +879,7 @@ static void ComputeDLParameters(float dist, mobj_t *mo,
 #endif // DLIGHT_PROTOTYPE
 
 
-#define MAX_EDGE_VERT  12
+#define MAX_EDGE_VERT  20
 
 static inline void GreetNeighbourSector(float *hts, int& num,
 		vertex_seclist_t *seclist)

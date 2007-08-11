@@ -370,7 +370,7 @@ typedef enum
 }
 slopetype_t;
 
-#define SECLIST_MAX  7
+#define SECLIST_MAX  11
 
 typedef struct
 {
