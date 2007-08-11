@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __R_DEFS__
-#define __R_DEFS__
+#ifndef __R_DEFS_H__
+#define __R_DEFS_H__
 
 // Screenwidth.
 #include "dm_defs.h"
@@ -444,8 +444,7 @@ typedef struct line_s
 	// Keep animating lines in a linked list.
 	struct line_s *animate_next;
 
-	// compact list of sectors touching each vertex
-	vertex_seclist_t *nb_sec[2];
+///---	vertex_seclist_t *nb_sec[2];
 }
 line_t;
 
@@ -486,6 +485,7 @@ typedef struct seg_s
 	vec2_t *v2;
 
 	angle_t angle;
+
 	float length;
 
 	// link in subsector list.
@@ -522,6 +522,9 @@ typedef struct seg_s
 
 	sector_t *frontsector;
 	sector_t *backsector;
+
+	// compact list of sectors touching each vertex (can be NULL)
+	vertex_seclist_t *nb_sec[2];
 }
 seg_t;
 
@@ -552,7 +555,7 @@ typedef struct node_s
 node_t;
 
 
-#endif  // __R_DEFS__
+#endif /*__R_DEFS__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
