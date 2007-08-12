@@ -655,9 +655,12 @@ void WallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 		float vy = (y - viewy) * viewvec.y;
 		float vz = (z - viewz) * viewvec.z;
 
-		tx2 = (vx + vy + vz) / 2048.0;
+		tx2 = (vx + vy + vz) / 1600.0;
 
-		ty2 = data->light / 256.0 / 2.0 + (data->cmx==1 ? 0.5 : 0);
+		int lt_ay = MIN(255,data->light) / 4;
+		if (data->cmx==1) lt_ay += 64;
+
+		ty2 = (lt_ay + 0.5) / 128.0;
 		if (ty2 < 0.01) ty2 = 0.01;
 		if (ty2 > 0.99) ty2 = 0.99;
 	}
@@ -707,9 +710,13 @@ void PlaneCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 		float vy = (y - viewy) * viewvec.y;
 		float vz = (z - viewz) * viewvec.z;
 
-		tx2 = (vx + vy + vz) / 2048.0;
+		tx2 = (vx + vy + vz) / 1600.0;
 
-		ty2 = data->light / 256.0 / 2.0 + (data->cmx==1 ? 0.5 : 0);
+		int lt_ay = MIN(255,data->light) / 4;
+		if (data->cmx==1) lt_ay += 64;
+
+		ty2 = (lt_ay + 0.5) / 128.0;
+
 		if (ty2 < 0.01) ty2 = 0.01;
 		if (ty2 > 0.99) ty2 = 0.99;
 	}
@@ -988,9 +995,9 @@ if (num_active_mirrors % 2)
 	if (currmap->lighting == LMODEL_Doom && lit_Nom > 0)
 	{
 		if (cur_seg->v1->y == cur_seg->v2->y)
-			lit_Nom -= 8;
+			lit_Nom -=  8;
 		else if (cur_seg->v1->x == cur_seg->v2->x)
-			lit_Nom += 8;
+			lit_Nom += 16;
 
 		// limit to 0..255 range
 		lit_Nom = MAX(0, MIN(255, lit_Nom));
@@ -2695,7 +2702,7 @@ void RGL_RenderTrueBSP(void)
 
 	if (true) //!!!!! hom_detect)
 	{
-		glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
