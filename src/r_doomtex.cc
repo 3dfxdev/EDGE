@@ -961,18 +961,25 @@ static void CreateUserBuiltinCOLMAP(epi::image_data_c *img, imagedef_c *def)
 	{
 		byte *dest = img->pixels + (y * img->width + x) * 4;
 
-		float dist = 2048.0f * x / img->width;
+		float dist = 1600.0f * x / img->width;
 
-		dist = MIN(2000.0f, dist);
+///		dist = MIN(1599.0f, dist);
 
 		if (y < img->height/2)
 		{
-			float sec = 256.0f * y / img->height * 2.0;
+			int sec_L = 256.0f * y / img->height * 2.0;
 
 			// DOOM lighting formula
-			float light = EMU_LIGHT(sec, dist);
 
-			dest[0] = (int) MAX(0, MIN(255.9f, light));
+			int cutoff = MAX(0, 36 - sec_L/4);
+
+			int index = (59 - sec_L/4) - int(1280 / dist);
+
+			index = MAX(cutoff, index);
+			index = MIN(31, index);
+
+			// FIXME: lookup value in COLORMAP[]
+			dest[0] = 255 - index * 8;
 
 			dest[1] = dest[0];
 			dest[2] = dest[0];
