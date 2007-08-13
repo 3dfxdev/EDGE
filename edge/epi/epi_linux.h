@@ -26,31 +26,7 @@
 #define __EPI_HEADER_SYSTEM_SPECIFIC__
 #endif
 
-#ifndef NULL
-#define NULL 0
-#endif
 
-#define FLOAT_IEEE_754
-
-typedef long long i64_t;
-
-/*
-#include <ctype.h>
-#include <dirent.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <math.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <values.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fnmatch.h>
-*/
 
 #include <GL/gl.h>
 
@@ -61,7 +37,6 @@ typedef long long i64_t;
 #endif
 
 #define GCCATTR(xyz) __attribute__ (xyz)
-#define EDGE_INLINE(decl, body) extern inline decl body
 
 #endif /* __LINUX_EPI_HEADER__ */
 

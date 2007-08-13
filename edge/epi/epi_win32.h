@@ -26,9 +26,6 @@
 #define __EPI_HEADER_SYSTEM_SPECIFIC__
 #endif
 
-#ifndef NULL
-#define NULL 0
-#endif
 
 // GNU C
 #ifdef __GNUC__
@@ -40,37 +37,13 @@
 #define _WINDOWS
 #define WIN32_LEAN_AND_MEAN
 
-#define FLOAT_IEEE_754
-
-typedef long long i64_t;
 
 /*
-#include <windows.h>
-
-#include <ctype.h>
-#include <direct.h>
-#include <fcntl.h>
-#include <float.h>
-#include <io.h>
-#include <limits.h>
-#include <math.h>
-#include <malloc.h>
-#include <mem.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys\stat.h>
-#include <time.h>
-
-#include <gl/gl.h>
-
 #define DIRSEPARATOR '\\'
 */
 
 #define GCCATTR(xyz) __attribute__ (xyz)
 #define INLINE inline
-#define EDGE_INLINE(decl, body) extern decl;
 
 #define strcasecmp stricmp
 
@@ -81,8 +54,6 @@ typedef long long i64_t;
 
 #define WIN32_LEAN_AND_MEAN
 
-typedef __int64 i64_t;
-#define FLOAT_IEEE_754
 
 #include <windows.h>
 

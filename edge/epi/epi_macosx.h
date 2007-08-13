@@ -26,15 +26,11 @@
 #define __EPI_HEADER_SYSTEM_SPECIFIC__
 #endif
 
-#define FLOAT_IEEE_754
-
-typedef long long i64_t;
 
 #define DIRSEPARATOR '/'
 
 #define GCCATTR(xyz) __attribute__ (xyz)
 #define INLINE inline
-#define EDGE_INLINE(decl, body) extern inline decl body
 
 #endif /* __MACOSX_EPI_HEADER__ */
 

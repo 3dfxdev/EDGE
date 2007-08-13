@@ -30,7 +30,13 @@ typedef unsigned int   u32_t;
 
 typedef u8_t byte;
 
-#endif  /* __EPI_TYPE_H__ */
+#ifdef __GNUC__
+typedef long long i64_t;
+#else
+typedef __int64 i64_t;
+#endif
+
+#endif  /*__EPI_TYPE_H__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
