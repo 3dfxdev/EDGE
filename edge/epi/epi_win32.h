@@ -38,16 +38,12 @@
 #define WIN32_LEAN_AND_MEAN
 
 
-/*
 #define DIRSEPARATOR '\\'
-*/
 
 #define GCCATTR(xyz) __attribute__ (xyz)
-#define inline inline
-
-#define strcasecmp stricmp
 
 #endif /* __GNUC__ */
+
 
 // Microsoft Visual C++ for Win32
 #ifdef _GATESY_ 
@@ -57,23 +53,23 @@
 
 #include <windows.h>
 
-#include <ctype.h>
-#include <direct.h>
-#include <fcntl.h>
-#include <float.h>
-#include <io.h>
-#include <limits.h>
-#include <math.h>
-#include <malloc.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <sys\stat.h>
-#include <time.h>
-
-#include <gl/gl.h>
+///---#include <ctype.h>
+///---#include <direct.h>
+///---#include <fcntl.h>
+///---#include <float.h>
+///---#include <io.h>
+///---#include <limits.h>
+///---#include <math.h>
+///---#include <malloc.h>
+///---#include <stdarg.h>
+///---#include <stdio.h>
+///---#include <stdlib.h>
+///---#include <string.h>
+///---#include <time.h>
+///---#include <sys\stat.h>
+///---#include <time.h>
+///---
+///---#include <gl/gl.h>
 
 #define DIRSEPARATOR '\\'
 
@@ -81,7 +77,6 @@
 
 #define MAXPATH _MAX_PATH
 
-#define strcasecmp stricmp
 
 #define M_PI 3.14159265358979323846
 

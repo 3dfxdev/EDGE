@@ -88,7 +88,7 @@ static bool ColmapStartEntry(const char *name)
 	buffer_colmap.Default();
 
 	// make sure fonts get whitened properly (as the default)
-	if (strncasecmp(dynamic_colmap->ddf.name.GetString(), "TEXT", 4) == 0)
+	if (strnicmp(dynamic_colmap->ddf.name.GetString(), "TEXT", 4) == 0)
 	{
 		buffer_colmap.special = COLSP_Whiten;
 	}

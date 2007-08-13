@@ -26,11 +26,12 @@
 #define __EPI_HEADER_SYSTEM_SPECIFIC__
 #endif
 
-#include <GL/gl.h>
-
-//#define DIRSEPARATOR '/'
+#define DIRSEPARATOR '/'
 
 #define GCCATTR(xyz) __attribute__ (xyz)
+
+#define stricmp   strcasecmp
+#define strnicmp  strncasecmp
 
 #endif /* __LINUX_EPI_HEADER__ */
 

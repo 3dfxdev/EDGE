@@ -425,7 +425,7 @@ static bool ThingTryParseState(const char *field,
 
 	epi::string_c labname;
 
-	if (strncasecmp(field, "STATES(", 7) != 0)
+	if (strnicmp(field, "STATES(", 7) != 0)
 		return false;
 
 	// extract label name

@@ -1487,15 +1487,15 @@ static void RAD_ParseTipAlign(int pnum, const char ** pars)
 
 static void HandleSpawnKeyword(const char *par, s_thing_t *t)
 {
-	if (strncasecmp(par, "X=", 2) == 0)
+	if (strnicmp(par, "X=", 2) == 0)
 		RAD_CheckForFloat(par+2, &t->x);
-	else if (strncasecmp(par, "Y=", 2) == 0)
+	else if (strnicmp(par, "Y=", 2) == 0)
 		RAD_CheckForFloat(par+2, &t->y);
-	else if (strncasecmp(par, "Z=", 2) == 0)
+	else if (strnicmp(par, "Z=", 2) == 0)
 		RAD_CheckForFloat(par+2, &t->z);
-	else if (strncasecmp(par, "TAG=", 4) == 0)
+	else if (strnicmp(par, "TAG=", 4) == 0)
 		RAD_CheckForInt(par+4, &t->tag);
-	else if (strncasecmp(par, "ANGLE=", 6) == 0)
+	else if (strnicmp(par, "ANGLE=", 6) == 0)
 	{
 		int val;
 		RAD_CheckForInt(par+6, &val);
@@ -1505,7 +1505,7 @@ static void HandleSpawnKeyword(const char *par, s_thing_t *t)
 		else
 			t->angle = val << 16;
 	}
-	else if (strncasecmp(par, "SLOPE=", 6) == 0)
+	else if (strnicmp(par, "SLOPE=", 6) == 0)
 	{
 		RAD_CheckForFloat(par+6, &t->slope);
 		t->slope /= 45.0f;
@@ -1786,7 +1786,7 @@ static void RAD_ParseDamageMonsters(int pnum, const char **pars)
 	// parse the tag value
 	if (pnum >= 4)
 	{
-		if (strncasecmp(pars[3], "TAG=", 4) != 0)
+		if (strnicmp(pars[3], "TAG=", 4) != 0)
 			RAD_Error("%s: Bad keyword parameter: %s\n", pars[0], pars[3]);
 
 		RAD_CheckForInt(pars[3]+4, &mon->thing_tag);
@@ -1833,7 +1833,7 @@ static void RAD_ParseThingEvent(int pnum, const char **pars)
 	// parse the tag value
 	if (pnum >= 4)
 	{
-		if (strncasecmp(pars[3], "TAG=", 4) != 0)
+		if (strnicmp(pars[3], "TAG=", 4) != 0)
 			RAD_Error("%s: Bad keyword parameter: %s\n", pars[0], pars[3]);
 
 		RAD_CheckForInt(pars[3]+4, &tev->thing_tag);
