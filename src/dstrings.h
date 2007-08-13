@@ -26,20 +26,28 @@
 #ifndef __DOOM_STRINGS__
 #define __DOOM_STRINGS__
 
-
 // Misc. other strings.
-#define CACHEDIR "cache"
+#define REQUIREDWAD    "edge"
+#define EDGECONFIGFILE "edge.cfg"
+#define EDGELOGFILE    "edge.log"
 
 #define EDGEGWAEXT     "gwa"
 #define EDGEHWAEXT     "hwa"
 #define EDGEWADEXT     "wad"
 
-#define SAVEGAMEBASE	"save"
-#define SAVEGAMEDIR	"savegame"
+#define SAVEGAMEBASE   "save"
 #define SAVEGAMEEXT    "esg"
 #define SAVEGAMEMODE   0755
 
-#define SCRNSHOTDIR	"screenshot"
+#define CACHEDIR       "cache"
+#define SAVEGAMEDIR    "savegame"
+#define SCRNSHOTDIR    "screenshot"
+
+#ifdef WIN32
+#define EDGEHOMESUBDIR  "Application Data\\Edge"
+#else // Linux
+#define EDGEHOMESUBDIR  ".edge"
+#endif
 
 #endif // __DOOM_STRINGS__
 

@@ -22,6 +22,7 @@
 #ifndef __SYSTEM_SPECIFIC_DEFS__
 #define __SYSTEM_SPECIFIC_DEFS__
 
+
 // MinGW 
 #ifdef WIN32
 #ifdef __GNUC__
@@ -30,17 +31,8 @@
 
 #include "epi/epi.h"
 
-#define EDGECONFIGFILE "EDGE.CFG"
-#define EDGELOGFILE    "EDGE.LOG"
-#define EDGEHOMESUBDIR "Application Data\\Edge"
-#define REQUIREDWAD    "EDGE"
 
-#define DIRSEPARATOR '\\'
 
-#define NAME        "The EDGE Engine"
-#define OUTPUTNAME  "EDGECONSOLE"
-#define TITLE       "EDGE Engine"
-#define OUTPUTTITLE "EDGE System Console"
 
 #define MAXPATH _MAX_PATH
 
@@ -57,28 +49,11 @@
 
 #include "epi/epi.h"
 
-#define EDGECONFIGFILE "EDGE.CFG"
-#define EDGELOGFILE    "EDGE.LOG"
-#define EDGEHOMESUBDIR "Application Data\\Edge"
-#define REQUIREDWAD    "EDGE"
 
-#define DIRSEPARATOR '\\'
 
-#define NAME        "The EDGE Engine"
-#define OUTPUTNAME  "EDGECONSOLE"
-#define TITLE       "EDGE Engine"
-#define OUTPUTTITLE "EDGE System Console"
-
-// Access() define values. Nicked from DJGPP's <unistd.h>
-#define R_OK    0x02
-#define W_OK    0x04
-
-// PI define. Nicked from DJGPP's <math.h>
-#define M_PI 3.14159265358979323846
 
 #define MAXPATH _MAX_PATH
 
-#define DIRSEPARATOR '\\'
 
 #include "i_system.h"
 
@@ -91,26 +66,12 @@
 
 #include "epi/epi.h"
 
-#define EDGECONFIGFILE "EDGE.CFG"
-#define EDGELOGFILE    "EDGE.LOG"
-#define EDGEHOMESUBDIR "Application Data\\Edge"
-#define REQUIREDWAD    "EDGE"
 
-#define DIRSEPARATOR '\\'
 
-#define NAME        "EDGE"
-#define OUTPUTNAME  "EDGECONSOLE"
-#define TITLE       "EDGE Engine"
-#define OUTPUTTITLE "EDGE System Console"
 
 // Access() define values. Nicked from DJGPP's <unistd.h>
-#define R_OK    0x02
-#define W_OK    0x04
 
-// PI define. Nicked from DJGPP's <math.h>
-#define M_PI 3.14159265358979323846
 
-#define DIRSEPARATOR '\\'
 
 #include "i_system.h"
 
@@ -122,17 +83,8 @@
 
 #include "epi/epi.h"
 
-#define EDGECONFIGFILE "edge.cfg"
-#define EDGELOGFILE    "edge.log"
-#define EDGEHOMESUBDIR ".edge"
-#define REQUIREDWAD    "edge"
 
-#define NAME        "EDGE"
-#define OUTPUTNAME  "EDGECONSOLE"
-#define TITLE       "EDGE Engine"
-#define OUTPUTTITLE "EDGE Engine console"
 
-#define DIRSEPARATOR '/'
 
 #include "i_system.h"
 
@@ -142,20 +94,6 @@
 #ifdef MACOSX
 
 #include "epi/epi.h"
-
-#define EDGECONFIGFILE "edge.cfg"
-#define EDGELOGFILE    "edge.log"
-#define EDGEHOMESUBDIR ".edge"
-#define REQUIREDWAD    "edge"
-
-#define DIRSEPARATOR '/'
-
-#define NAME        "EDGE"
-#define OUTPUTNAME  "EDGECONSOLE"
-#define TITLE       "EDGE Engine"
-#define OUTPUTTITLE "EDGE Engine console"
-
-#define DIRSEPARATOR '/'
 
 
 #include "i_system.h"
