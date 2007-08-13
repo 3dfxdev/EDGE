@@ -810,7 +810,7 @@ void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust)
 	angle_t angle = R_PointToAngle(0, 0, dx, dy);
 
 	// -ACB- 2000/03/11 Div-by-zero check...
-	CHECKVAL(target->info->mass);
+	SYS_ASSERT(0 != target->info->mass);
 
 	float push = 12.0f * thrust / target->info->mass;
 

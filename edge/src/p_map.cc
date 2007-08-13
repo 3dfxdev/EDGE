@@ -1870,7 +1870,7 @@ static bool PIT_RadiusAttack(mobj_t * thing)
 		return true;  // out of range
 
 	// recompute dist to be in range 0.0 (far away) to 1.0 (close)
-	CHECKVAL(bomb_I.range);
+	SYS_ASSERT(bomb_I.range > 0);
 	dist = (bomb_I.range - dist) / bomb_I.range;
 
 	if (P_CheckSight(bomb_I.spot, thing))

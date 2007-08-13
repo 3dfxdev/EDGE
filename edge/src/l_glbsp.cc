@@ -158,7 +158,7 @@ static void GB_DisplaySetBarText(int barnum, const char *str)
 //
 static void GB_DisplaySetBarLimit(int barnum, int limit)
 {
-	DEV_ASSERT2(1 <= barnum && barnum <= 2);
+	SYS_ASSERT(1 <= barnum && barnum <= 2);
 
 	if (display_mode == DIS_BUILDPROGRESS && barnum == 2)
 	{
@@ -173,7 +173,7 @@ static void GB_DisplaySetBarLimit(int barnum, int limit)
 //
 static void GB_DisplaySetBar(int barnum, int count)
 {
-	DEV_ASSERT2(1 <= barnum && barnum <= 2);
+	SYS_ASSERT(1 <= barnum && barnum <= 2);
 
 	if (display_mode == DIS_BUILDPROGRESS && barnum == 2)
 	{
@@ -268,7 +268,7 @@ bool GB_BuildNodes(const char *filename, const char *outname)
 		return false;
 	}
 
-	DEV_ASSERT2(nb_info.gwa_mode);
+	SYS_ASSERT(nb_info.gwa_mode);
 
 	L_WriteDebug("GB_BuildNodes: SUCCESS\n");
 
