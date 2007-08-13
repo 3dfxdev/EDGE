@@ -58,12 +58,12 @@ if 0:
 
 # operating system specifics
 if build_info['platform'] == "win32":
-    sources_3 = ['w32_cd.cc', 'w32_compen.cc',
+    sources_3 = ['w32_cd.cc',
         'w32_music.cc', 'w32_mus.cc',
         'w32_net.cc', 'w32_system.cc']
 
 else: # linux
-    sources_3 = ['i_cd.cc', 'unx_compen.cc', 'unx_music.cc', 
+    sources_3 = ['i_cd.cc', 'unx_music.cc', 
         'unx_net.cc', 'unx_system.cc']
 
 # another HACK (stupid linker!)
