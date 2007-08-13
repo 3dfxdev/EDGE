@@ -472,7 +472,9 @@ static image_c *AddImageUser(imagedef_c *def)
 			break;
 
 		case IMGDT_Builtin:
-			w = h = 256; //!!!!! (detail_level == 2) ? 512 : 256;
+			//!!!!! (detail_level == 2) ? 512 : 256;
+			w = 256;
+			h = (def->builtin==BLTIM_Shadow ? 128 : w);
 			solid = false;
 			break;
 
