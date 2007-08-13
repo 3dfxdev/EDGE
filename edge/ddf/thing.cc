@@ -2075,9 +2075,8 @@ const mobjtype_c* mobjtype_container_c::Lookup(const char *refname)
 	if (lax_errors)
 		return (*this)[0];
 
-	// FIXME!!! Throw an epi::error_c obj
 	DDF_Error("Unknown thing type: %s\n", refname);
-	return NULL;
+	return NULL; /* NOT REACHED */
 }
 
 //

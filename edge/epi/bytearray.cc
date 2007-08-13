@@ -43,8 +43,7 @@ bytearray_c::~bytearray_c()
 
 void bytearray_c::Resize(int new_len)
 {
-	if (new_len < 0)
-		throw error_c(EPI_ERRGEN_BADARGUMENTS, "bytearray_c::Resize", true);
+	SYS_ASSERT(new_len >= 0);
 
 	Resize(new_len, 0);
 }
@@ -101,8 +100,8 @@ void bytearray_c::Read(int pos, void *data, int count) const
 {
 	if (count != 0)
 	{
-		if (count < 0 || !data || pos < 0 || pos + count > length)
-			throw error_c(EPI_ERRGEN_BADARGUMENTS, "bytearray_c::Read", true);
+		SYS_ASSERT(data);
+		SYS_ASSERT(count >= 0 && pos >= 0 && pos + count <= length);
 		
 		memcpy(data, array + pos, count);
 	}
@@ -112,8 +111,8 @@ void bytearray_c::Write(int pos, const void *data, int count)
 {
 	if (count != 0)
 	{
-		if (count < 0 || !data || pos < 0 || pos + count > length)
-			throw error_c(EPI_ERRGEN_BADARGUMENTS, "bytearray_c::Write", true);
+		SYS_ASSERT(data);
+		SYS_ASSERT(count >= 0 && pos >= 0 && pos + count <= length);
 
 		memcpy(array + pos, data, count);
 	}
@@ -123,7 +122,8 @@ byte& bytearray_c::operator[](int pos) const
 {
 #ifndef NDEBUG
 	if (pos < 0 || pos >= length)
-		throw error_c(EPI_ERRGEN_BADARGUMENTS, "bytearray_c::operator[]", true);
+		I_Error("bytearray_c::operator[] out of bounds (%d >= %d)\n",
+				pos, length);
 #endif
 
 	return array[pos];

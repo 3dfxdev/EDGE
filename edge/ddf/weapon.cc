@@ -770,8 +770,7 @@ weapondef_c* weapondef_container_c::Lookup(const char* refname)
 	if (idx >= 0)
 		return (*this)[idx];
 
-	// FIXME!!! Throw an epi::error_c obj
-	//DDF_Error("Unknown weapon type: %s\n", refname);
+	// DDF_Error("Unknown weapon type: %s\n", refname);
 	return NULL;
 }
 

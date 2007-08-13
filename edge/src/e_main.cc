@@ -1722,13 +1722,9 @@ void E_Main(int argc, const char **argv)
 				E_Tick();
 		}
 	}
-	catch(epi::error_c err)
-	{
-		I_Error("%s\n", err.GetInfo());
-	}
 	catch(...)
 	{
-		I_Error("Unexpected internal failure occurred !\n");
+		I_Error("Unexpected internal failure occurred!\n");
 	}
 
 	E_Shutdown();    // Shutdown whatever at this point

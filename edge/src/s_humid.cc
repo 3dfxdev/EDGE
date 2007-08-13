@@ -118,7 +118,8 @@ bool humdinger_c::StreamIntoBuffer(int buffer)
 		s = "[humdinger_c::StreamIntoBuffer] Failed: ";
 		s += hum_dev->GetError();
 
-		throw epi::error_c(ERR_MUSIC, s.GetString());
+		// FIXME: this is too harsh
+		I_Error("%s", s.GetString());
 		/* NOT REACHED */
     }
 
