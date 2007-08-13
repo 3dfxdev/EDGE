@@ -27,6 +27,12 @@
 #endif
 
 
+#if 0 // needed??
+#define R_OK    0x02
+#define W_OK    0x04
+#endif
+
+
 // GNU C
 #ifdef __GNUC__
 
@@ -78,7 +84,6 @@
 #define MAXPATH _MAX_PATH
 
 
-#define M_PI 3.14159265358979323846
 
 #pragma warning( disable : 4290 )
 
