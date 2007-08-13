@@ -95,7 +95,7 @@ void Z_Free(void *ptr);
 // moves data from src to dest.
 //
 #define Z_MoveData(dest, src, type, num)  \
-	I_MoveData((void *)(dest), (void *)(src), (num) * sizeof(type) + ((src) - (type *)(src)) + ((dest) - (type *)(dest)))
+	memmove((void *)(dest), (void *)(src), (num) * sizeof(type) + ((src) - (type *)(src)) + ((dest) - (type *)(dest)))
 
 //
 // StrNCpy
