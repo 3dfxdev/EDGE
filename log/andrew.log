@@ -1,5 +1,21 @@
 Andrew Apted's Log
 
+2007/08/11:
+
+Worked on new implementation for keeping track of the sectors
+which touch each vertex, so called 'vertex_seclist_t' class.
+Using short ints keeps the memory requirements down.  We don't
+need them for seg-split vertices because there's no difference
+of the sectors at that point.  I've limited it to 7 sectors at
+each vertex, easily enough for most situations (and much better
+than the previous method).
+
+But now I think that when only 2 linedefs connect at a vertex,
+there is no need for the special edge-matching code, since the
+sectors on the front and back cannot change.  And as maps get
+more complex/detailed, the relative quantity of these "simple"
+branches increases, hence ignoring them would be a real boon.
+
 2007/08/10:
 
 Decided to split off the DDF parsing code (all ddf_* files)
@@ -13,7 +29,7 @@ Such a split was something Andrew Baker considered earlier
 lot of sense, seeing how the linkage with the main engine is
 almost 100% one-way (the engine uses the DDF structures, but
 the DDF code doesn't care about the engine stuff).  The big
-challenge will be namespacing it all under ddf::.
+challenge will be namespacing it all under ddf:: :-).
 
 2007/08/09:
 
