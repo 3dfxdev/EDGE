@@ -29,17 +29,6 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-void strupr(char *str)
-{
-	if (str == NULL)
-		return;
-
-	while (*str)
-	{
-		*str = toupper(*str);
-		str++;
-	}
-}
 
 
 //--- editor settings ---

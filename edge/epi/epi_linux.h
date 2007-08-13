@@ -33,6 +33,16 @@
 #define stricmp   strcasecmp
 #define strnicmp  strncasecmp
 
+#ifndef O_BINARY
+#define O_BINARY  0
+#endif
+
+#ifndef D_OK
+#define D_OK  X_OK
+#endif
+
+void strupr(char *str);
+
 #endif /* __LINUX_EPI_HEADER__ */
 
 //--- editor settings ---

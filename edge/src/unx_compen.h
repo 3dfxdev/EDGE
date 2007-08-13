@@ -23,15 +23,5 @@
 // -ACB- 1999/10/10
 //
 
-#ifndef O_BINARY
-#define O_BINARY  0
-#endif
-
-#ifndef D_OK
-#define D_OK  X_OK
-#endif
-
-void strupr(char *str);
-
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
