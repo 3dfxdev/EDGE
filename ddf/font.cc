@@ -368,7 +368,6 @@ void DDF_MainLookupFont(const char *info, void *storage)
 
 	*dest = fontdefs.Lookup(info);
 
-	// FIXME: throw epi::error_c
 	if (*dest == NULL)
 		DDF_Error("Unknown font: %s\n", info);
 }

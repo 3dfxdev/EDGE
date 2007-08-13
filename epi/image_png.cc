@@ -286,12 +286,10 @@ failed:
 
 bool PNG_Save(FILE *fp, const image_data_c *img, int compress)
 {
-	/// FIXME: asserts
-	/// ASSERT(compress >= Z_NO_COMPRESSION);
-	/// ASSERT(compress <= Z_BEST_COMPRESSION);
+	SYS_ASSERT(compress >= Z_NO_COMPRESSION);
+	SYS_ASSERT(compress <= Z_BEST_COMPRESSION);
 
-	if (img->bpp < 3)
-		throw error_c(EPI_ERRGEN_ASSERTION, "[epi::PNG_Save] image.bpp < 3", true);
+	SYS_ASSERT(img->bpp >= 3);
 
 	png_bytep * volatile row_pointers = 0;
 

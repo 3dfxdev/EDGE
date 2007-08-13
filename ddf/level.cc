@@ -565,7 +565,6 @@ mapdef_c* mapdef_container_c::Lookup(const char *refname)
 			return m;
 	}
 
-	// FIXME!!! Throw an epi:error_c here
 	return NULL;
 }
 

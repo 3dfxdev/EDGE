@@ -76,11 +76,9 @@ mem_file_c::~mem_file_c()
 //
 unsigned int mem_file_c::Read(void *dest, unsigned int size)
 {
-	// ASSERT(dest);
-
-	if (size < 0)
-		return 0;  // FIXME: throw error_c(INVALID_ARG)
-
+	SYS_ASSERT(dest);
+	SYS_ASSERT(size >= 0);
+		
 	unsigned int avail = length - pos;
 
 	if (size > avail)

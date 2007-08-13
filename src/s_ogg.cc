@@ -227,7 +227,9 @@ bool oggplayer_c::StreamIntoBuffer(epi::sound_data_c *buf)
 			s = "[oggplayer_c::StreamIntoBuffer] Failed: ";
 			s += GetError(got_size);
 			
-			throw epi::error_c(ERR_MUSIC, s.GetString());
+			// FIXME: using I_Error is too harsh
+			I_Error("%s", s.GetString());
+
 			/* NOT REACHED */
 		}
 
@@ -292,7 +294,7 @@ void oggplayer_c::Open(const void *data, size_t size)
 		s = "[oggplayer_c::Open](DataLump) Failed: ";
 		s += GetError(result);
 
-		throw epi::error_c(ERR_MUSIC, s.GetString());
+		I_Error("%s", s.GetString());
     }
 
 	PostOpenInit();
@@ -311,7 +313,7 @@ void oggplayer_c::Open(const char *filename)
 	ogg_file = fopen(filename, "rb");
     if (!ogg_file)
     {
-		throw epi::error_c(ERR_MUSIC, 
+		I_Error("%s",
 			"[oggplayer_c::Open](File) Could not open file.");
     }
 
@@ -333,7 +335,7 @@ void oggplayer_c::Open(const char *filename)
 		s = "[oggplayer_c::Open](File) Failed: ";
 		s += GetError(result);
 		
-		throw epi::error_c(ERR_MUSIC, s.GetString());
+		I_Error("%s", s.GetString());
     }
 
 	PostOpenInit();

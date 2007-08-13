@@ -237,8 +237,7 @@ bool JPEG_GetInfo(file_c *f, int *width, int *height, bool *solid)
 
 bool JPEG_Save(FILE *fp, const image_data_c *img, int quality)
 {
-	if (img->bpp != 3)
-		throw error_c(EPI_ERRGEN_ASSERTION, "[epi::JPEG_Save] image.bpp < 3", true);
+	SYS_ASSERT(img->bpp == 3);
 
 	struct jpeg_compress_struct cinfo;
 	struct jpeg_error_mgr jerr;

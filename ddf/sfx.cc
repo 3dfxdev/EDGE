@@ -338,7 +338,7 @@ static int strncasecmpwild(const char *s1, const char *s2, int n)
 //
 // sfxdef_container_c::GetEffect()
 //
-// FIXME!! Remove error param hack and throw an epi::error
+// FIXME!! Remove error param hack
 // FIXME!! Cache results for those we create
 //
 sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)

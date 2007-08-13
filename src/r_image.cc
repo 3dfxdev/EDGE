@@ -548,7 +548,8 @@ static image_c *AddImageUser(imagedef_c *def)
 		case INS_Flat:    real_flats.   Insert(rim); break;
 		case INS_Sprite:  real_sprites. Insert(rim); break;
 
-		default: I_Error("Bad belong value.\n");  // FIXME; throw error_c
+		default:
+			I_Error("INTERNAL ERROR: Bad belong value: %d\n", def->belong);
 	}
 
 	return rim;
