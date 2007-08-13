@@ -20,12 +20,8 @@
 
 // basic macros
 
-#define CHECK_SELF_ASSIGN(param)  \
-    if (this == &param) return *this;
-
-
 #ifndef NULL
-#define NULL    ((void*) 0)
+#define NULL  ((void*) 0)
 #endif
 
 #ifndef MAX
@@ -48,6 +44,9 @@
 #define CLAMP(x,low,high)  \
     ((x) < (low) ? (low) : (x) > (high) ? (high) : (x))
 #endif
+
+#define CHECK_SELF_ASSIGN(param)  \
+    if (this == &param) return *this;
 
 #endif  /* __EPI_MACRO_H__ */
 
