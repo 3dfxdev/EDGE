@@ -126,7 +126,7 @@ static shoot_trav_info_t shoot_I;
 static shoot_trav_info_t aim_I;
 
 // convenience function
-static INLINE int PointOnLineSide(float x, float y, line_t *ld)
+static inline int PointOnLineSide(float x, float y, line_t *ld)
 {
 	divline_t div;
 
@@ -1287,7 +1287,7 @@ static bool PTR_AimTraverse(intercept_t * in)
 //
 // Returns true if successfully passed gap.
 //
-static INLINE bool ShootCheckGap(float z,
+static inline bool ShootCheckGap(float z,
 	float f_h, surface_t *floor, float c_h, surface_t *ceil)
 {
 	// perfectly horizontal shots cannot hit planes

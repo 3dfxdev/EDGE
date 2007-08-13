@@ -977,7 +977,7 @@ void P_FloodExtraFloors(sector_t *sector)
 }
 
 
-static INLINE void AddWallTile(side_t *sd, float z1, float z2,
+static inline void AddWallTile(side_t *sd, float z1, float z2,
 							   float tex_z, surface_t *surface, int flags)
 {
 	wall_tile_t *wt;
@@ -1200,7 +1200,7 @@ void P_RecomputeTilesInSector(sector_t *sec)
 //  THING POSITION SETTING
 //
 
-static INLINE touch_node_t *TouchNodeAlloc(void)
+static inline touch_node_t *TouchNodeAlloc(void)
 {
 	touch_node_t *tn;
 
@@ -1221,7 +1221,7 @@ static INLINE touch_node_t *TouchNodeAlloc(void)
 	return tn;
 }
 
-static INLINE void TouchNodeFree(touch_node_t *tn)
+static inline void TouchNodeFree(touch_node_t *tn)
 {
 #ifdef DEVELOPERS
 	touchstat_free++;
@@ -1232,7 +1232,7 @@ static INLINE void TouchNodeFree(touch_node_t *tn)
 	free_touch_nodes = tn;
 }
 
-static INLINE void TouchNodeLinkIntoSector(touch_node_t *tn, sector_t *sec)
+static inline void TouchNodeLinkIntoSector(touch_node_t *tn, sector_t *sec)
 {
 	tn->sec = sec;
 
@@ -1245,7 +1245,7 @@ static INLINE void TouchNodeLinkIntoSector(touch_node_t *tn, sector_t *sec)
 	sec->touch_things = tn;
 }
 
-static INLINE void TouchNodeLinkIntoThing(touch_node_t *tn, mobj_t *mo)
+static inline void TouchNodeLinkIntoThing(touch_node_t *tn, mobj_t *mo)
 {
 	tn->mo = mo;
 
@@ -1258,7 +1258,7 @@ static INLINE void TouchNodeLinkIntoThing(touch_node_t *tn, mobj_t *mo)
 	mo->touch_sectors = tn;
 }
 
-static INLINE void TouchNodeUnlinkFromSector(touch_node_t *tn)
+static inline void TouchNodeUnlinkFromSector(touch_node_t *tn)
 {
 	if (tn->sec_next)
 		tn->sec_next->sec_prev = tn->sec_prev;
@@ -1269,7 +1269,7 @@ static INLINE void TouchNodeUnlinkFromSector(touch_node_t *tn)
 		tn->sec->touch_things = tn->sec_next;
 }
 
-static INLINE void TouchNodeUnlinkFromThing(touch_node_t *tn)
+static inline void TouchNodeUnlinkFromThing(touch_node_t *tn)
 {
 	if (tn->mo_next)
 		tn->mo_next->mo_prev = tn->mo_prev;
@@ -2194,7 +2194,7 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 	return TraverseIntercepts(trav, 1.0f);
 }
 
-static INLINE bool PST_CheckBBox(float *bspcoord, float *test)
+static inline bool PST_CheckBBox(float *bspcoord, float *test)
 {
 	return (test[BOXRIGHT]  < bspcoord[BOXLEFT] ||
 		test[BOXLEFT]   > bspcoord[BOXRIGHT] ||

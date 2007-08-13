@@ -77,7 +77,7 @@ static GLuint SendWipeTexture(byte *rgb_src, int total_w, int total_h,
 	return id;
 }
 
-static INLINE byte SpookyAlpha(int x, int y)
+static inline byte SpookyAlpha(int x, int y)
 {
 	y += (x & 32) / 2;
 

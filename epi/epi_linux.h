@@ -26,15 +26,9 @@
 #define __EPI_HEADER_SYSTEM_SPECIFIC__
 #endif
 
-
-
 #include <GL/gl.h>
 
 //#define DIRSEPARATOR '/'
-
-#ifndef INLINE
-#define INLINE inline
-#endif
 
 #define GCCATTR(xyz) __attribute__ (xyz)
 

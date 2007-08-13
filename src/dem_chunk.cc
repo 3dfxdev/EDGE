@@ -102,7 +102,7 @@ static void PutPadding(void)
 	DEM_PutByte(0x00);
 }
 
-static INLINE bool VerifyMarker(const char *id)
+static inline bool VerifyMarker(const char *id)
 {
 	return isalnum(id[0]) && isalnum(id[1]) &&
 		isalnum(id[2]) && isalnum(id[3]);

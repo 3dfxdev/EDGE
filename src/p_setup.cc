@@ -1216,7 +1216,7 @@ static void LoadHexenThings(int lump)
 	W_DoneWithLump(data);
 }
 
-static INLINE void ComputeLinedefData(line_t *ld, int side0, int side1)
+static inline void ComputeLinedefData(line_t *ld, int side0, int side1)
 {
 	vec2_t *v1 = ld->v1;
 	vec2_t *v2 = ld->v2;

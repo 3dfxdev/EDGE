@@ -43,7 +43,7 @@
 */
 
 #define GCCATTR(xyz) __attribute__ (xyz)
-#define INLINE inline
+#define inline inline
 
 #define strcasecmp stricmp
 
@@ -78,8 +78,6 @@
 #define DIRSEPARATOR '\\'
 
 #define GCCATTR(xyz)  /* nothing */
-#define INLINE _inline 
-#define EDGE_INLINE(decl, body) extern decl;
 
 #define MAXPATH _MAX_PATH
 
