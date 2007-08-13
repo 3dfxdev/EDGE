@@ -55,7 +55,10 @@ void I_SystemStartup(void);
 void I_Printf(const char *message,...) GCCATTR((format(printf, 1, 2)));
 // The generic print function.  If in text mode, the message should be
 // displayed on the text mode screen.  This function should also call
-// L_WriteDebug() and CON_Printf().
+// I_Debugf() and CON_Printf().
+
+void I_Debugf(const char *message,...) GCCATTR((format(printf, 1, 2)));
+// The generic debugging function.
 
 void I_PutTitle(const char *title);
 // This function should clear the text mode screen (or window), and
@@ -384,47 +387,10 @@ void I_GrabCursor(bool enable);
 void I_SetGamma(float gamma);
 
 
-//--------------------------------------------------------
-//  ASSERTION macros.
-//--------------------------------------------------------
-
-// -ES- 2000/02/07 SYS_ASSERT_MSG fails if the condition is false.
-// The second parameter is the entire I_Error argument list, surrounded
-// by parentheses (which makes it possible to use an arbitrary number of
-// parameters even without GCC)
-#ifdef DEVELOPERS
-#define SYS_ASSERT_MSG(cond, arglist)  \
-	((cond)?(void) 0 : I_Error arglist)
-#else
-#define SYS_ASSERT_MSG(cond, arglist)  ((void) 0)
-#endif
-
-// -AJA- 2000/02/13: variation on a theme...
-#ifdef DEVELOPERS
-#define DEV_ASSERT2(cond)  \
-	((cond)? (void)0:I_Error("Assertion `%s' failed at line %d of %s.\n",  \
-#cond , __LINE__, __FILE__))
-#else
-#define DEV_ASSERT2(cond)  ((void) 0)
-#endif
-
-#ifdef DEVELOPERS
-#define SYS_ASSERT(cond)  \
-	((cond)? (void)0:I_Error("Assertion `%s' failed at line %d of %s.\n",  \
-#cond , __LINE__, __FILE__))
-#else
-#define SYS_ASSERT(cond)  ((void) 0)
-#endif
-
-#ifdef DEVELOPERS
-#define CHECKVAL(x) \
-	(((x)!=0)?(void)0:I_Error("'" #x "' Value Zero in %s, Line: %d",__FILE__,__LINE__))
-#else
-#define CHECKVAL(x)  do {} while(0)
-#endif
-
 void L_WriteLog(const char *message,...) GCCATTR((format(printf, 1, 2)));
-void L_WriteDebug(const char *message,...) GCCATTR((format(printf, 1, 2)));
+
+#define L_WriteDebug  I_Debugf
+
 
 // TEMP: another temporary "common lib" thing.
 int L_ConvertToDB(int volume, int min, int max);
