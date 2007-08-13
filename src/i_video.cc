@@ -100,7 +100,7 @@ void I_StartupGraphics(void)
 #endif
 	}
 
-	if (strcasecmp(driver, "default") != 0)
+	if (stricmp(driver, "default") != 0)
 	{
 		char buffer[200];
 		snprintf(buffer, sizeof(buffer), "SDL_VIDEODRIVER=%s", driver);

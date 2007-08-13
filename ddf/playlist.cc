@@ -70,7 +70,7 @@ static void DDF_MusicParseInfo(const char *info, void *storage)
 	charbuff[i] = 0;
 
 	i=MUS_UNKNOWN;
-	while (i!=ENDOFMUSTYPES && strcasecmp(charbuff, musstrtype[i]))
+	while (i!=ENDOFMUSTYPES && stricmp(charbuff, musstrtype[i]) != 0)
 		i++;
 
 	if (i==ENDOFMUSTYPES)
@@ -99,7 +99,7 @@ static void DDF_MusicParseInfo(const char *info, void *storage)
 	charbuff[i] = 0;
 
 	i=MUSINF_UNKNOWN;
-	while (musinftype[i] != NULL && strcasecmp(charbuff, musinftype[i]))
+	while (musinftype[i] != NULL && stricmp(charbuff, musinftype[i]) != 0)
 		i++;
 
 	if (i==ENDOFMUSINFTYPES)

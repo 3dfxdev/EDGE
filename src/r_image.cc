@@ -768,7 +768,7 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	}
 
    	// the "SKY" check here is a hack...
-   	if (strncasecmp(rim->name, "SKY", 3) == 0)
+   	if (strnicmp(rim->name, "SKY", 3) == 0)
 	{
 		if (sky_stretch != STRETCH_ORIGINAL)
 			smooth = true;
@@ -942,7 +942,7 @@ static const image_c *BackupTexture(const char *tex_name, int flags)
 
 	M_WarnError("Unknown texture found in level: '%s'\n", tex_name);
 
-   	if (strncasecmp(tex_name, "SKY", 3) == 0)
+   	if (strnicmp(tex_name, "SKY", 3) == 0)
 	{
 		rim = dummies.Lookup("DUMMY_SKY");
 		if (rim)
@@ -1503,8 +1503,8 @@ void W_ImagePreCache(const image_c *image)
 
 	// pre-cache alternative images for switches too
 	if (strlen(rim->name) >= 4 &&
-		(strncasecmp(rim->name, "SW1", 3) == 0 ||
-		 strncasecmp(rim->name, "SW2", 3) == 0 ))
+		(strnicmp(rim->name, "SW1", 3) == 0 ||
+		 strnicmp(rim->name, "SW2", 3) == 0 ))
 	{
 		char alt_name[16];
 

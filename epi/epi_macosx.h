@@ -30,6 +30,9 @@
 
 #define GCCATTR(xyz) __attribute__ (xyz)
 
+#define stricmp   strcasecmp
+#define strnicmp  strncasecmp
+
 #endif /* __MACOSX_EPI_HEADER__ */
 
 //--- editor settings ---

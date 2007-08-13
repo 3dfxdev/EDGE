@@ -865,7 +865,7 @@ int string_c::Compare(const char* match) const
 
 int string_c::CompareNoCase(const char* match) const
 {
-	int i = strcasecmp (data->text, match);
+	int i = stricmp (data->text, match);
 
 	if (i == 0)
 		return 0;
