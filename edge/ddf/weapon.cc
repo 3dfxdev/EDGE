@@ -20,16 +20,9 @@
 //
 // -KM- 1998/11/25 File Written
 //
-#include "src/i_defs.h"
-
-#include <string.h>
-
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-
-#include "main.h"
 #include "local.h"
+
+#include "weapon.h"
 
 #include "src/p_action.h"
 
@@ -282,7 +275,7 @@ static void WeaponParseField(const char *field, const char *contents,
     int index, bool is_last)
 {
 #if (DEBUG_DDF)  
-	L_WriteDebug("WEAPON_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("WEAPON_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	if (DDF_MainParseField(weapon_commands, field, contents))

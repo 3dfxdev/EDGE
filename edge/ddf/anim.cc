@@ -19,12 +19,8 @@
 // Animated Texture/Flat Setup and Parser Code
 //
 
-#include "src/i_defs.h"
-
-#include <string.h>
-
-#include "main.h"
 #include "local.h"
+
 #include "anim.h"
 
 
@@ -110,7 +106,7 @@ static bool AnimStartEntry(const char *name)
 static void AnimParseField(const char *field, const char *contents, int index, bool is_last)
 {
 #if (DEBUG_DDF)  
-	L_WriteDebug("ANIM_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("ANIM_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	if (! DDF_MainParseField(anim_commands, field, contents))
@@ -244,7 +240,7 @@ void DDF_ParseANIMATED(const byte *data, int size)
 		memcpy(first, data+10, 9);  last[8] = 0;
 		memcpy( last, data+ 1, 9); first[8] = 0;
 
-		L_WriteDebug("- ANIMATED LUMP: start '%s' : end '%s'\n", first, last);
+		I_Debugf("- ANIMATED LUMP: start '%s' : end '%s'\n", first, last);
 
 		// ignore zero-length names
 		if (!first[0] || !last[0])

@@ -19,14 +19,10 @@
 // Sector Setup and Parser Code
 //
 // -KM- 1998/09/27 Written.
-//
-#include "src/i_defs.h"
 
-#include "main.h"
 #include "local.h"
 
-#include <stdlib.h>
-#include <string.h>
+#include "line.h"
 
 #undef  DF
 #define DF  DDF_CMD
@@ -126,7 +122,7 @@ static void SectorParseField(const char *field, const char *contents,
 							 int index, bool is_last)
 {
 #if (DEBUG_DDF)  
-	L_WriteDebug("SECTOR_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("SECTOR_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	if (DDF_MainParseField(sect_commands, field, contents))

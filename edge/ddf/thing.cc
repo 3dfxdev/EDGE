@@ -25,25 +25,12 @@
 // -KM- 1998/12/16 No limit on number of ammo types.
 //
 
-#include "src/i_defs.h"
-
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-
-#include "epi/strings.h"
-
-#include "main.h"
 #include "local.h"
+
+#include "thing.h"
 
 #include "src/p_action.h"
 #include "src/z_zone.h"
-
 
 
 #undef  DF
@@ -533,7 +520,7 @@ void ThingParseField(const char *field, const char *contents,
 					 int index, bool is_last)
 {
 #if (DEBUG_DDF)  
-	L_WriteDebug("THING_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("THING_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	if (DDF_MainParseField(thing_commands, field, contents))

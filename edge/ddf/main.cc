@@ -16,22 +16,14 @@
 //
 //----------------------------------------------------------------------------
 
-#include "src/i_defs.h"
+#include "local.h"
 
-#include <ctype.h>
 #include <limits.h>
-
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include <vector>
 
 #include "epi/path.h"
 
-#include "main.h"
-#include "local.h"
 #include "colormap.h"
 
 #include "src/p_action.h"
@@ -420,7 +412,7 @@ static void *DDF_MainCacheFile(readinfo_t * readinfo)
 	}
 
 #if (DEBUG_DDFREAD)
-	L_WriteDebug("\nDDF Parser Output:\n");
+	I_Debugf("\nDDF Parser Output:\n");
 #endif
 
 	// get to the end of the file
@@ -881,11 +873,11 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 			case ok_char:
 #if (DEBUG_DDFREAD)
 				charcount++;
-				L_WriteDebug("%c", character);
+				I_Debugf("%c", character);
 				if (charcount == 75)
 				{
 					charcount = 0;
-					L_WriteDebug("\n");
+					I_Debugf("\n");
 				}
 #endif
 				break;

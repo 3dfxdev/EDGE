@@ -28,14 +28,11 @@
 // -ACB- 2001/02/04 DDF_GetSecHeightReference moved to p_plane.c
 //
 
-#include "src/i_defs.h"
-
-#include "main.h"
 #include "local.h"
 
 #include <limits.h>
-#include <stdlib.h>
-#include <string.h>
+
+#include "line.h"
 
 #undef  DF
 #define DF  DDF_CMD
@@ -329,7 +326,7 @@ static void LinedefParseField(const char *field, const char *contents,
 							  int index, bool is_last)
 {
 #if (DEBUG_DDF)  
-	L_WriteDebug("LINEDEF_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("LINEDEF_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	if (DDF_MainParseField(linedef_commands, field, contents))
@@ -560,11 +557,13 @@ void DDF_LineGetTrigType(const char *info, void *storage)
 	{
 		if (DDF_CompareName(info, s_trigger[i].s) == 0)
 		{
+#if 0  // DISABLED FOR NOW
 			if (global_flags.edge_compat && (trigger_e)s_trigger[i].n == line_manual)
 			{
 				buffer_line.type = line_pushable;
 				return;
 			}
+#endif
 					
 			buffer_line.type = (trigger_e)s_trigger[i].n;
 			return;

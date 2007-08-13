@@ -19,16 +19,8 @@
 // Colourmap handling.
 //
 
-#include "src/i_defs.h"
-
-#include <string.h>
-
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-
-#include "main.h"
 #include "local.h"
+
 #include "colormap.h"
 
 #undef  DF
@@ -108,7 +100,7 @@ static void ColmapParseField(const char *field, const char *contents,
     int index, bool is_last)
 {
 #if (DEBUG_DDF)  
-	L_WriteDebug("COLMAP_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("COLMAP_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	if (DDF_MainParseField(colmap_commands, field, contents))
@@ -261,7 +253,7 @@ void DDF_ColourmapAddRaw(const char *lump_name, int size)
 	def->start  = 0;
 	def->length = MIN(32, size / 256);
 
-	L_WriteDebug("- Added RAW colourmap '%s' start=%d length=%d\n",
+	I_Debugf("- Added RAW colourmap '%s' start=%d length=%d\n",
 		lump_name, def->start, def->length);
 }
 

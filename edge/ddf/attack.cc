@@ -21,13 +21,8 @@
 // 1998/10/29 -KM- Finalisation of sound code.  SmartProjectile.
 //
 
-#include "src/i_defs.h"
-
-#include <stdlib.h>
-#include <string.h>
-
-#include "main.h"
 #include "local.h"
+
 
 #undef  DF
 #define DF  DDF_CMD
@@ -157,7 +152,7 @@ static void AttackParseField(const char *field, const char *contents,
 							 int index, bool is_last)
 {
 #if (DEBUG_DDF)  
-	L_WriteDebug("ATTACK_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("ATTACK_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	// first, check attack commands

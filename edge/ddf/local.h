@@ -16,11 +16,14 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __DDF_LOCAL__
-#define __DDF_LOCAL__
+#ifndef __DDF_LOCAL_H__
+#define __DDF_LOCAL_H__
 
+#include "epi/epi.h"
 #include "epi/strings.h"
 
+#include "types.h"
+#include "main.h"
 #include "states.h"
 
 // defines for parser stuff.
@@ -415,7 +418,8 @@ extern damage_c buffer_damage;
 extern const commandlist_t floor_commands[];
 extern const commandlist_t damage_commands[];
 
-#endif // __DDF_LOCAL__
+
+#endif //__DDF_LOCAL_H__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
