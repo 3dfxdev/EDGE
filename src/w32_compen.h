@@ -24,8 +24,6 @@
 #ifndef __I_COMPEN__
 #define __I_COMPEN__
 
-int strncasecmp(const char *s1, const char *s2, int max);
-
 #endif // __I_COMPEN__
 
 //--- editor settings ---

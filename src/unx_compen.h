@@ -31,9 +31,6 @@
 #define D_OK  X_OK
 #endif
 
-#define stricmp   strcasecmp
-#define strnicmp  strncasecmp
-
 void strupr(char *str);
 
 //--- editor settings ---
