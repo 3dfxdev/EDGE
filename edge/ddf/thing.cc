@@ -2057,7 +2057,7 @@ bool mobjtype_container_c::MoveToEnd(int idx)
 	// Get a copy of the pointer 
 	m = (*this)[idx];
 
-	I_MoveData(&array[idx*array_block_objsize], 
+	memmove(&array[idx*array_block_objsize], 
 		&array[(idx+1)*array_block_objsize], 
 		(array_entries-(idx+1))*array_objsize);
 

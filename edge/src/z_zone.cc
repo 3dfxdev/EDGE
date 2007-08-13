@@ -122,7 +122,7 @@ void *Z_ReMalloc2(void *ptr, int size)
 	newp = Z_Malloc(size);
 	h = (mallocheader_t *)ptr - 1;
 	CHECK_PTR(h);
-	I_MoveData(newp, ptr, MIN(size, h->size));
+	memmove(newp, ptr, MIN(size, h->size));
 	Z_Free(ptr);
 
 	return newp;

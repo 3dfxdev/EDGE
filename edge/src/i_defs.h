@@ -44,9 +44,6 @@
 
 #define MAXPATH _MAX_PATH
 
-#define alloca _alloca
-#define I_MoveData memmove
-
 #include "w32_compen.h"
 #include "i_system.h"
 
@@ -82,8 +79,6 @@
 
 #define MAXPATH _MAX_PATH
 
-#define I_MoveData memmove
-
 #define DIRSEPARATOR '\\'
 
 #include "w32_compen.h"
@@ -117,8 +112,6 @@
 // PI define. Nicked from DJGPP's <math.h>
 #define M_PI 3.14159265358979323846
 
-#define I_MoveData memmove
-
 #define DIRSEPARATOR '\\'
 
 #include "w32_compen.h"
@@ -141,8 +134,6 @@
 #define OUTPUTNAME  "EDGECONSOLE"
 #define TITLE       "EDGE Engine"
 #define OUTPUTTITLE "EDGE Engine console"
-
-#define I_MoveData memmove
 
 #define DIRSEPARATOR '/'
 
@@ -167,8 +158,6 @@
 #define OUTPUTNAME  "EDGECONSOLE"
 #define TITLE       "EDGE Engine"
 #define OUTPUTTITLE "EDGE Engine console"
-
-#define I_MoveData memmove
 
 #define DIRSEPARATOR '/'
 
