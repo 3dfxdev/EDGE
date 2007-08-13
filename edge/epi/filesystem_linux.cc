@@ -257,63 +257,42 @@ bool linux_filesystem_c::Close(file_c *file)
 //
 bool linux_filesystem_c::Copy(const char *dest, const char *src)
 {
-	file_c *dest_file;
-	file_c *src_file;
-	bool ok;
-	
-	unsigned char *buf;
-	int cpsize, size;
-	
-	dest_file = NULL;
-	src_file = NULL;
-	buf = NULL;
-	ok = true;
-	
-	try
-	{
-		src_file = Open(src, file_c::ACCESS_READ);
-		if (!src_file)
-		{
-			throw error_c(EPI_ERRGEN_FOOBAR);
-		}	
-	
-		dest_file = Open(dest, file_c::ACCESS_WRITE);
-		if (!dest_file)
-		{
-			throw error_c (EPI_ERRGEN_FOOBAR);
-		}
-		
-		buf = new unsigned char[COPY_BUF_SIZE];
-		if (!buf)
-		{
-        	throw error_c(EPI_ERRGEN_FOOBAR);
-		}
+	bool ok = false;
 
-		size = src_file->GetLength();
-		while (size > 0)
-		{
-			if (size > COPY_BUF_SIZE)
-				cpsize = COPY_BUF_SIZE;
-			else
-				cpsize = size;
-			
-			if (src_file->Read(buf, cpsize) != (unsigned int)cpsize)
-			{
-				throw error_c(EPI_ERRGEN_FOOBAR);
-			}
-	
-			if (dest_file->Write(buf, cpsize) != (unsigned int)cpsize)
-			{
-				throw error_c(EPI_ERRGEN_FOOBAR);
-			}
-	
-			size -= cpsize;
-		}
-	}
-	catch(epi::error_c err)
+	file_c *dest_file = NULL;
+	file_c *src_file  = NULL;
+
+	unsigned char *buf = NULL;
+
+	src_file = Open(src, file_c::ACCESS_READ);
+	if (! src_file)
+		goto error_occurred;
+
+	dest_file = Open(dest, file_c::ACCESS_WRITE);
+	if (! dest_file)
+		goto error_occurred;
+
+	buf = new unsigned char[COPY_BUF_SIZE];
+	SYS_ASSERT(buf);
+
+	int size = src_file->GetLength();
+
+	while (size > 0)
 	{
-		ok = false;
+		int pkt_len = MIN(size, COPY_BUF_SIZE);
+
+		if (src_file->Read(buf, pkt_len) != (unsigned int)pkt_len)
+			goto error_occurred;
+
+		if (dest_file->Write(buf, pkt_len) != (unsigned int)pkt_len)
+			goto error_occurred;
+
+		size -= pkt_len;
 	}
+
+	ok = true;
+
+error_occurred:
 
 	if (src_file)
 		Close(src_file);
@@ -322,7 +301,7 @@ bool linux_filesystem_c::Copy(const char *dest, const char *src)
 		Close(dest_file);
 
 	if (buf)
-		delete [] buf;
+		delete[] buf;
 
 	return ok;
 }
@@ -335,7 +314,7 @@ bool linux_filesystem_c::Delete(const char *name)
     if (!name)
         return false;
 
-    return !(unlink(name))?true:false;
+    return (unlink(name) == 0);
 }
 
 //
@@ -380,7 +359,7 @@ bool linux_filesystem_c::Rename(const char *oldname,
 		return false;
 	}
 
-	return (bool)(rename(oldname, newname) != -1);
+	return (rename(oldname, newname) != -1);
 }
 
 } // namespace epi
