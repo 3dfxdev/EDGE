@@ -16,12 +16,8 @@
 //
 //------------------------------------------------------------------------
 
+#include "epi.h"
 #include "image_png.h"
-#include "errors.h"
-#include "macros.h"
-
-#include <math.h>
-#include <stdlib.h>
 
 #undef _SETJMP_H  // workaround for some weirdness in pngconf.h
 #include <png.h>

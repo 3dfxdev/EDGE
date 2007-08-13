@@ -38,7 +38,6 @@
 #include <sys/types.h>
 #include <time.h>
 
-#include "epi/errors.h"
 #include "epi/files.h"
 #include "epi/filesystem.h"
 #include "epi/path.h"

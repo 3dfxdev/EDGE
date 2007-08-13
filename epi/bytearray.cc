@@ -18,9 +18,7 @@
 
 #include "epi.h"
 #include "bytearray.h"
-#include "errors.h"
 
-#include <string.h>
 
 namespace epi
 {

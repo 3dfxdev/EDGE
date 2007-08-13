@@ -32,12 +32,8 @@
 //        was copied from the Doomsday engine by Jaakko Keränen.
 //
 
+#include "epi.h"
 #include "image_hq2x.h"
-#include "errors.h"
-#include "macros.h"
-
-#include <math.h>
-#include <stdlib.h>
 
 namespace epi
 {
