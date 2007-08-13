@@ -1178,7 +1178,7 @@ void P_RemoteActivation(mobj_t * thing, int typenum, int tag,
 }
 
 
-static INLINE void PlayerInProperties(player_t *player,
+static inline void PlayerInProperties(player_t *player,
 		float bz, float tz, float f_h, float c_h,
 		region_properties_t *props)
 {
@@ -1359,7 +1359,7 @@ void P_PlayerInSpecialSector(player_t * player, sector_t * sec)
 	} 
 }
 
-static INLINE void ApplyScroll(vec2_t& offset, const vec2_t& delta)
+static inline void ApplyScroll(vec2_t& offset, const vec2_t& delta)
 {
 	// prevent loss of precision (eventually stops the scrolling)
 

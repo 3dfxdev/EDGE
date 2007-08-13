@@ -1211,7 +1211,7 @@ bool EV_DoDonut(sector_t * s1, sfx_t *sfx[4])
 //
 // SliderCanClose
 //
-static INLINE bool SliderCanClose(line_t *line)
+static inline bool SliderCanClose(line_t *line)
 {
     return ! P_ThingsOnLine(line);
 }

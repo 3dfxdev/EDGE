@@ -241,7 +241,7 @@ static real_cached_image_t imagecachehead;
 
 
 // tiny ring helpers
-static INLINE void InsertAtTail(real_cached_image_t *rc)
+static inline void InsertAtTail(real_cached_image_t *rc)
 {
 	SYS_ASSERT(rc != &imagecachehead);
 
@@ -251,7 +251,7 @@ static INLINE void InsertAtTail(real_cached_image_t *rc)
 	rc->prev->next = rc;
 	rc->next->prev = rc;
 }
-static INLINE void Unlink(real_cached_image_t *rc)
+static inline void Unlink(real_cached_image_t *rc)
 {
 	SYS_ASSERT(rc != &imagecachehead);
 

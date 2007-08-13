@@ -439,7 +439,7 @@ static bool IsSkin(const char *name)
 	return (strncmp(name, "S_SKIN", 6) == 0);
 }
 
-static INLINE bool IsGL_Prefix(const char *name)
+static inline bool IsGL_Prefix(const char *name)
 {
 	return name[0] == 'G' && name[1] == 'L' && name[2] == '_';
 }

@@ -34,7 +34,7 @@ float ren_red_mul;
 float ren_grn_mul;
 float ren_blu_mul;
 
-static INLINE float EffectStrength(player_t *player)
+static inline float EffectStrength(player_t *player)
 {
 	if (player->effect_left >= EFFECT_MAX_TIME)
 		return 1.0f;

@@ -110,7 +110,7 @@ int sight_rej_miss;
 #endif
 
 
-static INLINE void AddSightIntercept(float frac, sector_t *sec)
+static inline void AddSightIntercept(float frac, sector_t *sec)
 {
 	wall_intercept_t WI;
 
@@ -434,7 +434,7 @@ static bool CheckSightSameSubsector(mobj_t *src, mobj_t *dest)
 // Returns true if a straight line between t1 and t2 is unobstructed.
 // Uses the REJECT info.
 //
-static INLINE bool DoCheckReject(sector_t *sec1, sector_t *sec2)
+static inline bool DoCheckReject(sector_t *sec1, sector_t *sec2)
 {
 #if 0  // PROFILING
 	{

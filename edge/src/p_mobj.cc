@@ -134,7 +134,7 @@ iteminque_t *itemquehead;
 
 // convenience function
 // -AJA- FIXME: duplicate code from p_map.c
-static INLINE int PointOnLineSide(float x, float y, line_t *ld)
+static inline int PointOnLineSide(float x, float y, line_t *ld)
 {
 	divline_t div;
 
@@ -614,7 +614,7 @@ void P_MobjExplodeMissile(mobj_t * mo)
 }
 
 
-static INLINE void AddRegionProperties(const mobj_t *mo,
+static inline void AddRegionProperties(const mobj_t *mo,
 									   float bz, float tz, region_properties_t *new_p, 
 									   float f_h, float c_h, const region_properties_t *p)
 {

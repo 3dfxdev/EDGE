@@ -768,7 +768,7 @@ void AM_Ticker(void)
 // Rotation in 2D.
 // Used to rotate player arrow line character.
 //
-static INLINE void Rotate(float * x, float * y, angle_t a)
+static inline void Rotate(float * x, float * y, angle_t a)
 {
 	float tmpx;
 
@@ -779,7 +779,7 @@ static INLINE void Rotate(float * x, float * y, angle_t a)
 	*x = tmpx;
 }
 
-static INLINE void GetRotatedCoords(player_t *p, float sx, float sy,
+static inline void GetRotatedCoords(player_t *p, float sx, float sy,
 									float *dx, float *dy)
 {
 	*dx = sx;
@@ -798,7 +798,7 @@ static INLINE void GetRotatedCoords(player_t *p, float sx, float sy,
 	}
 }
 
-static INLINE angle_t GetRotatedAngle(player_t *p, angle_t src)
+static inline angle_t GetRotatedAngle(player_t *p, angle_t src)
 {
 	if (rotatemap)
 		return src + ANG90 - p->mo->angle;
