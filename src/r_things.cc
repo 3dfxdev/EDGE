@@ -1011,7 +1011,7 @@ return;
 
 	float yscale = dthing->mo->info->yscale;
 
-	CHECKVAL(h);
+	SYS_ASSERT(h > 0);
 	tex_y1 = top * tex_y1 / (h * yscale);
 	tex_y2 = top * tex_y2 / (h * yscale);
 

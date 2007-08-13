@@ -625,12 +625,12 @@ void WallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 	// compute texture coord
 	if (fabs(data->div.dx) > fabs(data->div.dy))
 	{
-		CHECKVAL(data->div.dx);
+		SYS_ASSERT(0 != data->div.dx);
 		along = (x - data->div.x) / data->div.dx;
 	}
 	else
 	{
-		CHECKVAL(data->div.dy);
+		SYS_ASSERT(0 != data->div.dy);
 		along = (y - data->div.y) / data->div.dy;
 	}
 
@@ -774,12 +774,12 @@ void DLightWallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 	// compute texture coord
 	if (fabs(data->div.dx) > fabs(data->div.dy))
 	{
-		CHECKVAL(data->div.dx);
+		SYS_ASSERT(0 != data->div.dx);
 		along = (x - data->div.x) / data->div.dx;
 	}
 	else
 	{
-		CHECKVAL(data->div.dy);
+		SYS_ASSERT(0 != data->div.dy);
 		along = (y - data->div.y) / data->div.dy;
 	}
 
@@ -789,12 +789,12 @@ void DLightWallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 	// compute texture coord
 	if (fabs(dl_WP->div.dx) > fabs(dl_WP->div.dy))
 	{
-		CHECKVAL(dl_WP->div.dx);
+		SYS_ASSERT(0 != dl_WP->div.dx);
 		along = (x - dl_WP->div.x) / dl_WP->div.dx;
 	}
 	else
 	{
-		CHECKVAL(dl_WP->div.dy);
+		SYS_ASSERT(0 != dl_WP->div.dy);
 		along = (y - dl_WP->div.y) / dl_WP->div.dy;
 	}
 	float tx0 = dl_WP->tx + along * dl_WP->tdx;
@@ -1088,7 +1088,7 @@ if (num_active_mirrors % 2)
 			return;
 
 		L = cur_seg->linedef;
-		CHECKVAL(smov->line_len);
+		SYS_ASSERT(smov->line_len > 0);
 
 		x1 = L->v1->x + L->dx * start / smov->line_len;
 		y1 = L->v1->y + L->dy * start / smov->line_len;

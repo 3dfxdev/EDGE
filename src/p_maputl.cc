@@ -2104,7 +2104,7 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 		partial = 1.0f - modf(x1 / MAPBLOCKUNITS, &tmp);
 
 		// -ACB- 2000/03/11 Div-by-zero check...
-		CHECKVAL(x2-x1);
+		SYS_ASSERT(0 != x2-x1);
 
 		ystep = (y2 - y1) / fabs(x2 - x1);
 	}
@@ -2114,7 +2114,7 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 		partial = modf(x1 / MAPBLOCKUNITS, &tmp);
 
 		// -ACB- 2000/03/11 Div-by-zero check...
-		CHECKVAL(x2-x1);
+		SYS_ASSERT(0 != x2-x1);
 
 		ystep = (y2 - y1) / fabs(x2 - x1);
 	}
@@ -2133,7 +2133,7 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 		partial = 1.0f - modf(y1 / MAPBLOCKUNITS, &tmp);
 
 		// -ACB- 2000/03/11 Div-by-zero check...
-		CHECKVAL(y2-y1);
+		SYS_ASSERT(0 != y2-y1);
 
 		xstep = (x2 - x1) / fabs(y2 - y1);
 	}
@@ -2143,7 +2143,7 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 		partial = modf(y1 / MAPBLOCKUNITS, &tmp);
 
 		// -ACB- 2000/03/11 Div-by-zero check...
-		CHECKVAL(y2-y1);
+		SYS_ASSERT(0 != y2-y1);
 
 		xstep = (x2 - x1) / fabs(y2 - y1);
 	}
