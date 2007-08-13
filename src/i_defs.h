@@ -134,7 +134,6 @@
 
 #define DIRSEPARATOR '/'
 
-#include "unx_compen.h"
 #include "i_system.h"
 
 #endif // LINUX GCC
@@ -158,10 +157,9 @@
 
 #define DIRSEPARATOR '/'
 
-// moved; compile failure if ASSEM=Y
-#include "unx_compen.h"
+
 #include "i_system.h"
-//#include "linux/i_compen.h"
+
 
 #endif // MACOSX GCC
 
