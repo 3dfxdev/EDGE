@@ -16,6 +16,7 @@
 //
 //------------------------------------------------------------------------
 
+#include "epi.h"
 #include "image_jpeg.h"
 
 #include "errors.h"
@@ -26,6 +27,12 @@
 
 extern "C"
 {
+#ifdef WIN32
+// horrible workaround for INT32 typedef incompatibility between
+// jmorecfg.h and standard MinGW headers (basetds.h).
+#define INT32  INT32_jpeg
+#endif
+
 #include <jpeglib.h>
 #include <jerror.h>
 }
