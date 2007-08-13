@@ -71,13 +71,12 @@ and libvorbisfile.  Also FLTK for Linux binaries.
 Resource File
 -------------
 
-The file src/edge32.rc is a Win32 resource file containing
-various strings that the Win32 run-time system can use, as
-well as the EDGE Icon.  This must be built manually before
-running the scons build, like this:
+The file edge32.rc is a Win32 resource file containing
+various strings that the Win32 run-time system can use,
+as well as the EDGE Icon.  This must be built manually
+before running the scons build, like this:
 
-   > cd src
-   > i586-mingw32msvc-windres edge32.rc -o ../edge32_res.o
+   > i586-mingw32msvc-windres edge32.rc -o edge32_res.o
 
 (The resource file is not essential, so if this step gives
  you big problems then simply remove the edge32_res.o line
