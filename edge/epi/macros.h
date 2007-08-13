@@ -24,6 +24,10 @@
 #define NULL  ((void*) 0)
 #endif
 
+#ifndef M_PI
+#define M_PI  3.14159265358979323846
+#endif
+
 #ifndef MAX
 #define MAX(a,b)  ((a) > (b) ? (a) : (b))
 #endif
