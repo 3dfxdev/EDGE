@@ -25,13 +25,9 @@
 
 #include "i_defs.h"
 
-#include <stdlib.h>
-#include <string.h>
-
 #include <vector>
 
 #include "epi/sound_data.h"
-#include "epi/errors.h"
 #include "epi/strings.h"
 
 #include "ddf/main.h"

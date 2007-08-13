@@ -24,7 +24,6 @@
 
 #include "i_defs.h"
 
-#include "epi/errors.h"
 #include "epi/endianess.h"
 
 #include "s_cache.h"

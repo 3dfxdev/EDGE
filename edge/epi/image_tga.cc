@@ -21,13 +21,10 @@
 //
 //------------------------------------------------------------------------
 
+#include "epi.h"
 #include "image_tga.h"
 
-#include "errors.h"
 #include "files.h"
-
-#include <math.h>
-#include <stdlib.h>
 
 namespace epi
 {

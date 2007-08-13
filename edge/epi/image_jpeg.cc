@@ -17,13 +17,9 @@
 //------------------------------------------------------------------------
 
 #include "epi.h"
-#include "image_jpeg.h"
 
-#include "errors.h"
 #include "files.h"
-
-#include <math.h>
-#include <stdlib.h>
+#include "image_jpeg.h"
 
 extern "C"
 {

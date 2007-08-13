@@ -31,8 +31,6 @@
 #include "humdinger.h"
 #include "mus_2_midi.h"
 
-#include "epi/epi.h"
-#include "epi/errors.h"
 #include "epi/endianess.h"
 #include "epi/strings.h"
 #include "humidity/hum_buffer.h"
