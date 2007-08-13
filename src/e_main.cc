@@ -34,6 +34,17 @@
 #include "i_defs.h"
 #include "e_main.h"
 
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <time.h>
+
+#include "epi/errors.h"
+#include "epi/files.h"
+#include "epi/filesystem.h"
+#include "epi/path.h"
+#include "epi/strings.h"
+#include "epi/utility.h"
+
 #include "r_automap.h"
 #include "con_defs.h"
 #include "con_gui.h"
@@ -44,6 +55,7 @@
 #include "e_demo.h"
 #include "e_input.h"
 #include "f_finale.h"
+#include "f_stats.h"
 #include "g_game.h"
 #include "hu_stuff.h"
 #include "l_glbsp.h"
@@ -70,27 +82,8 @@
 #include "r_image.h"
 #include "w_texture.h"
 #include "w_wad.h"
-#include "f_stats.h"
-#include "z_zone.h"
-
-#include "errorcodes.h"
 #include "version.h"
-
-#include "epi/asserts.h"
-#include "epi/errors.h"
-#include "epi/files.h"
-#include "epi/filesystem.h"
-#include "epi/path.h"
-#include "epi/strings.h"
-#include "epi/utility.h"
-
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <time.h>
+#include "z_zone.h"
 
 #define DEFAULT_LANGUAGE  "ENGLISH"
 
