@@ -28,6 +28,9 @@
 #include "s_ogg.h"
 #endif
 
+#include "ddf/main.h"
+#include "ddf/playlist.h"
+
 #include "s_sound.h"
 
 // #defines for handle information

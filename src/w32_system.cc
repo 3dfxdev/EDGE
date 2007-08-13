@@ -19,6 +19,14 @@
 #include "i_defs.h"
 #include "i_sdlinc.h"
 
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <time.h>
+
+#include "epi/strings.h"
+#include "epi/timestamp.h"
+
 #include "con_main.h"
 #include "dm_defs.h"
 #include "e_main.h"
@@ -28,18 +36,10 @@
 #include "m_misc.h"
 #include "s_sound.h"
 #include "w_wad.h"
+#include "version.h"
 #include "z_zone.h"
 
 #include "w32_sysinc.h"
-
-#include "epi/strings.h"
-#include "epi/timestamp.h"
-
-#include <ctype.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <time.h>
 
 #define INTOLERANT_MATH 1  // -AJA- FIXME: temp fix to get to compile
 
