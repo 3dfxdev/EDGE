@@ -22,6 +22,7 @@
 #include "headers.h"
 #include "types.h"
 #include "macros.h"
+#include "asserts.h"
 
 #ifdef LINUX
 #include "epi_linux.h"
@@ -49,6 +50,13 @@ namespace epi
 	extern filesystem_c* the_filesystem;
 	extern mem_manager_c* the_mem_manager;
 };
+
+/* Important functions provided by Engine code */
+
+void I_Error(const char *error,...) GCCATTR((format(printf, 1, 2)));
+void I_Warning(const char *warning,...) GCCATTR((format(printf, 1, 2)));
+void I_Printf(const char *message,...) GCCATTR((format(printf, 1, 2)));
+void I_Debugf(const char *message,...) GCCATTR((format(printf, 1, 2)));
 
 #endif /* __EDGE_PLATFORM_INTERFACE__ */
 
