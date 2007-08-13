@@ -57,12 +57,12 @@ hsv_col_c::hsv_col_c(const color_c& col)
 	else
 		h = 300 - r1;
 
-	EPI_ASSERT(0 <= h && h <= 360);
+	SYS_ASSERT(0 <= h && h <= 360);
 }
  
 color_c hsv_col_c::GetRGBA() const
 {
-	EPI_ASSERT(0 <= h && h <= 360);
+	SYS_ASSERT(0 <= h && h <= 360);
 
 	int sextant = (h % 360) / 60;
 	int frac = h % 60;
@@ -77,7 +77,7 @@ color_c hsv_col_c::GetRGBA() const
 
 	int r, g, b;
 
-	EPI_ASSERT(0 <= sextant && sextant <= 5);
+	SYS_ASSERT(0 <= sextant && sextant <= 5);
 
 	switch (sextant)
 	{
@@ -89,9 +89,9 @@ color_c hsv_col_c::GetRGBA() const
 		default: r = v,  g = p1, b = p2; break;
 	}
 
-	EPI_ASSERT(0 <= r && r <= 255);
-	EPI_ASSERT(0 <= g && g <= 255);
-	EPI_ASSERT(0 <= b && b <= 255);
+	SYS_ASSERT(0 <= r && r <= 255);
+	SYS_ASSERT(0 <= g && g <= 255);
+	SYS_ASSERT(0 <= b && b <= 255);
 
 	return color_c(r, g, b);
 }

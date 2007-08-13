@@ -48,7 +48,7 @@ void image_data_c::Clear(u8_t val)
 
 void image_data_c::Whiten()
 {
-	EPI_ASSERT(bpp >= 3);
+	SYS_ASSERT(bpp >= 3);
 
 	// TODO: OPTIMISE this
 
@@ -67,8 +67,8 @@ void image_data_c::Whiten()
 
 void image_data_c::Shrink(int new_w, int new_h)
 {
-	EPI_ASSERT(bpp >= 3);
-	EPI_ASSERT(new_w <= width && new_h <= height);
+	SYS_ASSERT(bpp >= 3);
+	SYS_ASSERT(new_w <= width && new_h <= height);
 
 	int step_x = width  / new_w;
 	int step_y = height / new_h;
@@ -141,7 +141,7 @@ void image_data_c::Shrink(int new_w, int new_h)
 
 void image_data_c::Grow(int new_w, int new_h)
 {
-	EPI_ASSERT(new_w >= width && new_h >= height);
+	SYS_ASSERT(new_w >= width && new_h >= height);
 
 	u8_t *new_pixels = new u8_t[new_w * new_h * bpp];
 
@@ -168,7 +168,7 @@ void image_data_c::Grow(int new_w, int new_h)
 
 void image_data_c::RemoveAlpha()
 {
-  EPI_ASSERT(bpp == 4);
+  SYS_ASSERT(bpp == 4);
 
   u8_t *src   = pixels;
 	u8_t *s_end = src + (width * height * bpp);
