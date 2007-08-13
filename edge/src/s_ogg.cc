@@ -23,17 +23,13 @@
 //
 
 #include "i_defs.h"
-#include "errorcodes.h"
-#include "s_ogg.h"
 
-#include "epi/epi.h"
 #include "epi/errors.h"
 #include "epi/endianess.h"
 
-#include <string.h>
-
 #include "s_cache.h"
 #include "s_blit.h"
+#include "s_ogg.h"
 
 #define OGGV_NUM_SAMPLES  8192
 

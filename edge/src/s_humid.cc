@@ -26,11 +26,7 @@
 //
 
 #include "i_defs.h"
-
-#include "errorcodes.h"
-
 #include "i_defs_al.h"
-#include "i_system.h"
 
 #include "humdinger.h"
 #include "mus_2_midi.h"
