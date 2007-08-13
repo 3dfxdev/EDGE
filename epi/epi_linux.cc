@@ -71,5 +71,13 @@ namespace epi
 
 } // namespace epi
 
+
+void strupr(char *str)
+{
+	if (str)
+		for (; *str; str++)
+			*str = toupper(*str);
+}
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
