@@ -23,16 +23,13 @@
 #include "w32_sysinc.h"  // for <windows.h>
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "epi/strings.h"
+#include "epi/exe_path.h"
 
 #include "dm_defs.h"
 #include "m_argv.h"
 #include "e_main.h"
-
-#include "epi/strings.h"
-#include "epi/exe_path.h"
+#include "version.h"
 
 const char *exe_path;
 
