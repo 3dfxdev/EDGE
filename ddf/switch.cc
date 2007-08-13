@@ -19,12 +19,8 @@
 // Switch Texture Setup and Parser Code
 //
 
-#include "src/i_defs.h"
-
-#include <string.h>
-
-#include "main.h"
 #include "local.h"
+
 #include "switch.h"
 
 #undef  DF
@@ -92,7 +88,7 @@ static void SwitchParseField(const char *field, const char *contents,
 		int index, bool is_last)
 {
 #if (DEBUG_DDF)  
-	L_WriteDebug("SWITCH_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("SWITCH_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	if (! DDF_MainParseField(switch_commands, field, contents))
@@ -161,13 +157,13 @@ bool DDF_ReadSwitch(void *data, int size)
 		return false;
 
 #if (DEBUG_DDF)
-	L_WriteDebug("DDF_ReadSW: Switch List:\n");
+	I_Debugf("DDF_ReadSW: Switch List:\n");
 
 	for (it = switchdefs.GetBaseIterator(); it.IsValid(); it++)
 	{
 		sw = ITERATOR_TO_TYPE(it, switchdef_c*);
 		
-		L_WriteDebug("  Num: %d  ON: '%s'  OFF: '%s'\n", 
+		I_Debugf("  Num: %d  ON: '%s'  OFF: '%s'\n", 
 						i, sw->name1, sw->name2);
 	}
 #endif
@@ -205,7 +201,7 @@ void DDF_ParseSWITCHES(const byte *data, int size)
 		memcpy( on_name, data+9, 9);  on_name[8] = 0;
 		memcpy(off_name, data+0, 9); off_name[8] = 0;
 
-		L_WriteDebug("- SWITCHES LUMP: off '%s' : on '%s'\n", off_name, on_name);
+		I_Debugf("- SWITCHES LUMP: off '%s' : on '%s'\n", off_name, on_name);
 				
 		// ignore zero-length names
 		if (!off_name[0] || !on_name[0])

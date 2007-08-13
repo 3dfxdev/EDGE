@@ -19,10 +19,9 @@
 // -KM- 1998/09/27 Finished :-)
 //
 
-#include "src/i_defs.h"
-
-#include "main.h"
 #include "local.h"
+
+#include "sfx.h"
 
 
 #undef  DF
@@ -118,7 +117,7 @@ static void SoundParseField(const char *field, const char *contents,
     int index, bool is_last)
 {
 #if (DEBUG_DDF)  
-	L_WriteDebug("SOUND_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("SOUND_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	if (! DDF_MainParseField(sfx_commands, field, contents))
@@ -315,6 +314,26 @@ void sfxdef_container_c::CleanupObject(void *obj)
 
 	return;
 }
+
+static int strncasecmpwild(const char *s1, const char *s2, int n)
+{
+	int i = 0;
+
+	for (i = 0; s1[i] && s2[i] && i < n; i++)
+	{
+		if ((toupper(s1[i]) != toupper(s2[i])) && (s1[i] != '?') && (s2[i] != '?'))
+			break;
+	}
+	// -KM- 1999/01/29 If strings are equal return equal.
+	if (i == n)
+		return 0;
+
+	if (s1[i] == '?' || s2[i] == '?')
+		return 0;
+
+	return s1[i] - s2[i];
+}
+
 
 //
 // sfxdef_container_c::GetEffect()

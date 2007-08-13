@@ -19,12 +19,10 @@
 // Style Setup and Parser Code
 //
 
-#include "src/i_defs.h"
+#include "local.h"
 
 #include "epi/utility.h"
 
-#include "main.h"
-#include "local.h"
 #include "font.h"
 #include "style.h"
 
@@ -152,7 +150,7 @@ static void StyleParseField(const char *field, const char *contents,
 							int index, bool is_last)
 {
 #if (DEBUG_DDF)  
-	L_WriteDebug("STYLE_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("STYLE_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	if (! DDF_MainParseField(style_commands, field, contents))

@@ -16,13 +16,10 @@
 //
 //----------------------------------------------------------------------------
 
-#include "src/i_defs.h"
-
-#include "main.h"
 #include "local.h"
 
-#include <stdlib.h>
-#include <string.h>
+#include "playlist.h"
+
 
 static pl_entry_c buffer_plentry;
 static pl_entry_c *dynamic_plentry;
@@ -151,7 +148,7 @@ static void PlaylistParseField(const char *field, const char *contents,
 		int index, bool is_last)
 {
 #if (DEBUG_DDF)  
-	L_WriteDebug("PLAYLIST_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("PLAYLIST_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	if (! DDF_MainParseField(musplaylistcmds, field, contents))

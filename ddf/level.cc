@@ -19,12 +19,11 @@
 // Level Setup and Parser Code
 //
 
-#include "src/i_defs.h"
-
-#include "main.h"
 #include "local.h"
 
 #include "epi/utility.h"
+
+#include "level.h"
 
 #undef  DF
 #define DF  DDF_CMD
@@ -168,7 +167,7 @@ static void LevelParseField(const char *field, const char *contents,
 							int index, bool is_last)
 {
 #if (DEBUG_DDF)  
-	L_WriteDebug("LEVEL_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("LEVEL_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	if (! DDF_MainParseField(level_commands, field, contents))

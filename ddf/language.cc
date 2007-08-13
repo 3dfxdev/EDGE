@@ -35,12 +35,9 @@
 // using -lang <NameOfLangFile>.
 //
 
-#include "src/i_defs.h"
-
-#include "main.h"
 #include "local.h"
 
-#include "epi/strings.h"
+#include "language.h"
 
 // ---> ddf buildinfo for language class
 class ddf_bi_lang_c
@@ -400,7 +397,7 @@ static void LanguageParseField(const char *field, const char *contents,
     int index, bool is_last)
 {
 #if (DEBUG_DDF)  
-	L_WriteDebug("LANGUAGE_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("LANGUAGE_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	if (! is_last)

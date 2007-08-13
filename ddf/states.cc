@@ -16,14 +16,9 @@
 //
 //----------------------------------------------------------------------------
 
-#include "src/i_defs.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "main.h"
 #include "local.h"
+
+#include "states.h"
 
 #include "src/p_action.h"
 #include "src/w_sprite.h"

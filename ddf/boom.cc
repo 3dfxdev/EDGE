@@ -16,10 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "src/i_defs.h"
-
-#include "main.h"
 #include "local.h"
+
 
 static linetype_container_c   genlinetypes;    // <-- Generalised
 static sectortype_container_c gensectortypes;  // <-- Generalised
@@ -64,7 +62,7 @@ void DDF_BoomClearGenTypes(void)
 // 
 void DDF_BoomMakeGenSector(sectortype_c *sec, int number)
 {
-//  L_WriteDebug("- Making Generalized Sector 0x%03x\n", number);
+//  I_Debugf("- Making Generalized Sector 0x%03x\n", number);
 
 	// handle lower 5 bits: Lighting
 	switch (number & 0x1F)
@@ -585,7 +583,7 @@ static void MakeBoomCrusher(linetype_c *line, int number)
 // 
 void DDF_BoomMakeGenLine(linetype_c *line, int number)
 {
-//	L_WriteDebug("- Making Generalized Linedef 0x%04x\n", number);
+//	I_Debugf("- Making Generalized Linedef 0x%04x\n", number);
 
 	// trigger values are the same for all ranges
 	HandleLineTrigger(line, number & 0x7);

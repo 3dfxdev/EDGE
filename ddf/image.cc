@@ -19,15 +19,10 @@
 // Image Setup and Parser Code
 //
 
-#include "src/i_defs.h"
-
-#include <string.h>
+#include "local.h"
 
 #include "epi/path.h"
-#include "epi/strings.h"
 
-#include "main.h"
-#include "local.h"
 #include "image.h"
 
 #undef  DF
@@ -81,7 +76,7 @@ static image_namespace_e GetImageNamespace(const char *prefix)
 //
 static bool ImageStartEntry(const char *name)
 {
-	L_WriteDebug("ImageStartEntry [%s]\n", name);
+	I_Debugf("ImageStartEntry [%s]\n", name);
 
 	bool replaces = false;
 
@@ -156,7 +151,7 @@ static bool ImageStartEntry(const char *name)
 static void ImageParseField(const char *field, const char *contents, int index, bool is_last)
 {
 #if (DEBUG_DDF)  
-	L_WriteDebug("IMAGE_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("IMAGE_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	if (! DDF_MainParseField(image_commands, field, contents))

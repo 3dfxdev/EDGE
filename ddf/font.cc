@@ -19,14 +19,8 @@
 // Font Setup and Parser Code
 //
 
-#include "src/i_defs.h"
-
-#include <ctype.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "main.h"
 #include "local.h"
+
 #include "font.h"
 
 #undef  DF
@@ -99,7 +93,7 @@ static bool FontStartEntry(const char *name)
 static void FontParseField(const char *field, const char *contents, int index, bool is_last)
 {
 #if (DEBUG_DDF)  
-	L_WriteDebug("FONT_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("FONT_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	if (! DDF_MainParseField(font_commands, field, contents))
