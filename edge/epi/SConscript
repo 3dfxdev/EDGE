@@ -13,8 +13,7 @@ env.Append(CCFLAGS = ['-ffast-math'])
 # FIXME: jpeg, png & zlib include directory
 
 epi_sources = [
-    'arrays.cc',
-    'bytearray.cc', 'errors.cc',
+    'arrays.cc', 'bytearray.cc',
     'exe_path.cc', 'filesystem.cc',
     'image_data.cc', 'image_hq2x.cc',
     'image_jpeg.cc', 'image_png.cc', 'image_tga.cc',
