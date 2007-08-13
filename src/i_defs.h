@@ -44,7 +44,6 @@
 
 #define MAXPATH _MAX_PATH
 
-#include "w32_compen.h"
 #include "i_system.h"
 
 #endif
@@ -81,7 +80,6 @@
 
 #define DIRSEPARATOR '\\'
 
-#include "w32_compen.h"
 #include "i_system.h"
 
 #endif
@@ -114,7 +112,6 @@
 
 #define DIRSEPARATOR '\\'
 
-#include "w32_compen.h"
 #include "i_system.h"
 
 #endif
