@@ -25,7 +25,6 @@
 #define __I_COMPEN__
 
 int strncasecmp(const char *s1, const char *s2, int max);
-int strncasecmpwild(const char *s1, const char *s2, int n);
 
 #endif // __I_COMPEN__
 
