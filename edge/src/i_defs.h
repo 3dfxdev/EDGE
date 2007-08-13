@@ -15,91 +15,13 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-//
-// -ACB- 1999/09/19 Written
-//
 
 #ifndef __SYSTEM_SPECIFIC_DEFS__
 #define __SYSTEM_SPECIFIC_DEFS__
 
-
-// MinGW 
-#ifdef WIN32
-#ifdef __GNUC__
-
-#define WIN32_LEAN_AND_MEAN
-
 #include "epi/epi.h"
 
-
-
-
-#define MAXPATH _MAX_PATH
-
 #include "i_system.h"
-
-#endif
-#endif  // MinGW
-
-// Microsoft Visual C++ V6.0 for Win32
-#ifdef WIN32 
-#ifdef _GATESY_
-
-#define WIN32_LEAN_AND_MEAN
-
-#include "epi/epi.h"
-
-
-
-
-#define MAXPATH _MAX_PATH
-
-
-#include "i_system.h"
-
-#endif
-#endif  // Visual C++
-
-// Borland C++ V5.5 for Win32
-#ifdef WIN32 
-#ifdef __BORLANDC__
-
-#include "epi/epi.h"
-
-
-
-
-// Access() define values. Nicked from DJGPP's <unistd.h>
-
-
-
-#include "i_system.h"
-
-#endif
-#endif  // Borland C++
-
-// LINUX GCC
-#ifdef LINUX
-
-#include "epi/epi.h"
-
-
-
-
-#include "i_system.h"
-
-#endif // LINUX GCC
-
-// MacOSX GCC
-#ifdef MACOSX
-
-#include "epi/epi.h"
-
-
-#include "i_system.h"
-
-
-#endif // MACOSX GCC
 
 #endif /*__SYSTEM_SPECIFIC_DEFS__*/
 
