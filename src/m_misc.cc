@@ -745,7 +745,7 @@ extern FILE* debugfile; // FIXME
 // -ACB- 1999/09/22: From #define to Procedure
 // -AJA- 2001/02/07: Moved here from platform codes.
 //
-void L_WriteDebug(const char *message,...)
+void I_Debugf(const char *message,...)
 {
 	if (!debugfile)
 		return;
