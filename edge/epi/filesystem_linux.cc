@@ -262,6 +262,9 @@ bool linux_filesystem_c::Copy(const char *dest, const char *src)
 
 	unsigned char *buf = NULL;
 
+	int size;
+	int pkt_len;
+
 	src_file = Open(src, file_c::ACCESS_READ);
 	if (! src_file)
 		goto error_occurred;
@@ -273,11 +276,11 @@ bool linux_filesystem_c::Copy(const char *dest, const char *src)
 	buf = new unsigned char[COPY_BUF_SIZE];
 	SYS_ASSERT(buf);
 
-	int size = src_file->GetLength();
+	size = src_file->GetLength();
 
 	while (size > 0)
 	{
-		int pkt_len = MIN(size, COPY_BUF_SIZE);
+		pkt_len = MIN(size, COPY_BUF_SIZE);
 
 		if (src_file->Read(buf, pkt_len) != (unsigned int)pkt_len)
 			goto error_occurred;
