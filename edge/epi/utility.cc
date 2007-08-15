@@ -16,7 +16,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "epi"
+#include "epi.h"
 #include "utility.h"
 
 #define STRBOX_ALIGN(x) x = ((x + 4) & ~3)
