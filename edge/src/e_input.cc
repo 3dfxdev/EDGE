@@ -67,6 +67,7 @@ int key_jump;
 int key_map;
 int key_180;
 int key_talk;
+int key_console;
 int key_mlook;
 int key_secondatk;
 int key_reload;

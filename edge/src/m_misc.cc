@@ -59,6 +59,7 @@
 #include "r_modes.h"
 #include "r_image.h"
 #include "r_wipe.h"
+#include "version.h"
 
 #include "defaults.h"
 
@@ -95,8 +96,12 @@ int var_sound_stereo = 0;
 int var_mix_channels = 0;
 int var_quiet_factor = 0;
 
+static int edge_version;
+
+
 static default_t defaults[] =
 {
+    {CFGT_Int,		"edge_version",		 &edge_version,	  0},
     {CFGT_Int,		"screenwidth",		 &SCREENWIDTH,	  CFGDEF_SCREENWIDTH},
     {CFGT_Int,		"screenheight",		 &SCREENHEIGHT,	  CFGDEF_SCREENHEIGHT},
     {CFGT_Int,		"screendepth",		 &SCREENBITS,	  CFGDEF_SCREENBITS},
@@ -220,6 +225,7 @@ static default_t defaults[] =
     {CFGT_Key,      "key_180",           &key_180,        0},
     {CFGT_Key,      "key_map",           &key_map,        0},
     {CFGT_Key,      "key_talk",          &key_talk,       0},
+    {CFGT_Key,      "key_console",       &key_console,    0},  // -AJA- 2007/08/15.
     {CFGT_Key,      "key_mlook",         &key_mlook,      0},  // -AJA- 1999/07/27.
     {CFGT_Key,      "key_secondatk",     &key_secondatk,  0},  // -AJA- 2000/02/08.
     {CFGT_Key,      "key_reload",        &key_reload,     0},  // -AJA- 2004/11/11.
@@ -234,12 +240,12 @@ epi::strent_c cfgfile;
 //
 void M_SaveDefaults(void)
 {
-	int i;
+	edge_version = EDGEVER;
 
-	// Don't want to save settings in a network game: might not
-	// be ours.
-	if (netgame)
-		return;
+///---	// Don't want to save settings in a network game: might not
+///---	// be ours.
+///---	if (netgame)
+///---		return;
 
     // Set the number of defaults
 	int numdefaults = sizeof(defaults) / sizeof(defaults[0]);
@@ -257,7 +263,7 @@ void M_SaveDefaults(void)
 	// -AJA- 2004/01/10: this doesn't fit in yet...
 	fprintf(f, "language\t\t\"%s\"\n", language.GetName());
 
-	for (i = 0; i < numdefaults; i++)
+	for (int i = 0; i < numdefaults; i++)
 	{
 		int v;
 
@@ -380,7 +386,15 @@ void M_LoadDefaults(void)
 
 	fclose(f);
 
-	return ;
+	if (edge_version == 0)
+	{
+		// config file is from an older version (< 1.31)
+		// Hence fix some things up here...
+
+		key_console = KEYD_TILDE;
+	}
+
+	return;
 }
 
 //

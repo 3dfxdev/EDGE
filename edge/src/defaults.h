@@ -53,6 +53,7 @@
 #define CFGDEF_KEY_NEXTWEAPON   (KEYD_MWHEEL_UP)
 #define CFGDEF_KEY_PREVWEAPON   (KEYD_MWHEEL_DN)
 #define CFGDEF_KEY_TALK         ('t')
+#define CFGDEF_KEY_CONSOLE      (KEYD_TILDE)
 
 // Controls (Analogue)
 #define CFGDEF_INVERTMOUSE      (0)

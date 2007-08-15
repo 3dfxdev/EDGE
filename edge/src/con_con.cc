@@ -26,6 +26,7 @@
 #include "i_defs.h"
 
 #include "con_defs.h"
+#include "e_input.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"
 #include "hu_style.h"
@@ -830,7 +831,6 @@ bool CON_HandleKey(int key)
 		TabbedLast = false;
 		break;
 	
-	case KEYD_TILDE:
 	case KEYD_ESCAPE:
 		// Close console, clear command line, but if we're in the
 		// fullscreen console mode, there's nothing to fall back on
@@ -887,7 +887,7 @@ bool CON_HandleKey(int key)
 
 bool CON_Responder(event_t * ev)
 {
-	if (ev->type == ev_keydown && ev->value.key == KEYD_TILDE)
+	if (ev->type == ev_keydown && ev->value.key == key_console)
 	{
 		CON_SetVisible(vs_toggle);
 		return true;
