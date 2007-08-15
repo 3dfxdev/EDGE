@@ -21,10 +21,11 @@
 #include "epi.h"
 #include "strings.h"
 
-#include "files_win32.h"
-#include "filesystem_win32.h"
+#include "filesystem.h"
+#include "files_win32.h"  // WTF??
 
 #define MAX_MODE_CHARS 4
+
 
 namespace epi
 {
@@ -36,24 +37,8 @@ struct createfile_s
 	DWORD dwCreationDisposition;                // how to create
 };
 
-//
-// win32_filesystem_c Constructor
-//
-win32_filesystem_c::win32_filesystem_c()
-{
-}
 
-//
-// win32_filesystem_c Deconstructor
-//
-win32_filesystem_c::~win32_filesystem_c()
-{
-}
-
-//
-// win32_filesystem_c::BuildFileStruct()
-//
-bool win32_filesystem_c::BuildFileStruct(int epiflags, createfile_s* finfo)
+static bool BuildFileStruct(int epiflags, createfile_s* finfo)
 {
     // Must have some value in epiflags
     if (epiflags == 0)
@@ -113,73 +98,50 @@ bool win32_filesystem_c::BuildFileStruct(int epiflags, createfile_s* finfo)
 }
 
 
-//
-// bool win32_filesystem_c::GetCurrDir()
-//
-bool win32_filesystem_c::GetCurrDir(const char *dir, unsigned int bufsize)
+bool FS_GetCurrDir(char *dir, unsigned int bufsize)
 {
-	if (!dir)
-		return false;
+	SYS_ASSERT(dir);
 
 	return (::GetCurrentDirectory(bufsize, (LPSTR)dir) != FALSE);
 }
 
-//
-// bool win32_filesystem_c::SetCurrDir()
-//
-bool win32_filesystem_c::SetCurrDir(const char *dir)
+bool FS_SetCurrDir(const char *dir)
 {
-	if (!dir)
-		return false;
+	SYS_ASSERT(dir);
 
 	return (::SetCurrentDirectory(dir) != FALSE);
 }
 
-//
-// bool win32_filesystem_c::IsDir()
-// 
-bool win32_filesystem_c::IsDir(const char *dir)
+bool FS_IsDir(const char *dir)
 {
-	if (!dir)
-		return false;
+	SYS_ASSERT(dir);
 
 	bool result;
 	char curpath[MAX_PATH];
 
-	GetCurrDir(curpath, MAX_PATH);
+	FS_GetCurrDir(curpath, MAX_PATH);
 
-	result = SetCurrDir(dir);
+	result = FS_SetCurrDir(dir);
 
-	SetCurrDir(curpath);
+	FS_SetCurrDir(curpath);
 	return result;
 }
 
-//
-// bool win32_filesystem_c::MakeDir()
-//
-bool win32_filesystem_c::MakeDir(const char *dir)
+bool FS_MakeDir(const char *dir)
 {
-	if (!dir)
-		return false;
+	SYS_ASSERT(dir);
 
 	return (::CreateDirectory(dir, NULL) != FALSE);
 }
 
-//
-// bool win32_filesystem_c::RemoveDir()
-//
-bool win32_filesystem_c::RemoveDir(const char *dir)
+bool FS_RemoveDir(const char *dir)
 {
-	if (!dir)
-		return false;
+	SYS_ASSERT(dir);
 
 	return (::RemoveDirectory(dir) != FALSE);
 }
 
-//
-// bool win32_filesystem_c::ReadDir()
-//
-bool win32_filesystem_c::ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
+bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 {
 	if (!dir || !fsd || !mask)
 		return false;
@@ -194,13 +156,13 @@ bool win32_filesystem_c::ReadDir(filesystem_dir_c *fsd, const char *dir, const c
 	{
 		char tmp[MAX_PATH+1];
 		
-		if (!GetCurrDir(tmp, MAX_PATH))
+		if (! FS_GetCurrDir(tmp, MAX_PATH))
 			return false;
 
 		curr_dir = tmp;
 	}
 
-	if (!SetCurrDir(dir))
+	if (! FS_SetCurrDir(dir))
 		return false;
 
 	handle = FindFirstFile(mask, &fdata);
@@ -229,14 +191,11 @@ bool win32_filesystem_c::ReadDir(filesystem_dir_c *fsd, const char *dir, const c
 
 	FindClose(handle);
 
-	SetCurrDir(curr_dir.GetString());
+	FS_SetCurrDir(curr_dir.GetString());
 	return true;
 }
 
-//
-// bool win32_filesystem_c::Access()
-//
-bool win32_filesystem_c::Access(const char *name, unsigned int flags)
+bool FS_Access(const char *name, unsigned int flags)
 {
 	createfile_s fs;
 	HANDLE handle;
@@ -254,10 +213,7 @@ bool win32_filesystem_c::Access(const char *name, unsigned int flags)
 	return true;
 }
 
-//
-// bool win32_filesystem_c::Close()
-//
-bool win32_filesystem_c::Close(file_c *file)
+bool FS_Close(file_c *file)
 {
     if (!file)
         return false;
@@ -279,42 +235,29 @@ bool win32_filesystem_c::Close(file_c *file)
 	return true;
 }
 
-//
-// bool win32_filesystem_c::Copy()
-//
-bool win32_filesystem_c::Copy(const char *dest, const char *src)
+bool FS_Copy(const char *dest, const char *src)
 {
-	if (!dest || !src)
-	{
-		return false;
-	}
+	SYS_ASSERT(src);
+	SYS_ASSERT(dest);
 
 	// Copy src to dest overwriting dest if it exists
 	return (::CopyFile(src, dest, FALSE) != FALSE);
 }
 
-//
-// bool win32_filesystem_c::Delete()
-//
-bool win32_filesystem_c::Delete(const char *name)
+bool FS_Delete(const char *name)
 {
-	if (!name)
-        return false;
+	SYS_ASSERT(name);
 
 	return (::DeleteFile(name) != FALSE);
 }
 
-//
-// file_c* win32_filesystem_c::Open()
-//
-file_c* win32_filesystem_c::Open(const char *name, unsigned int flags)
+file_c* FS_Open(const char *name, unsigned int flags)
 {
+	SYS_ASSERT(name);
+
 	createfile_s fs;
 	win32_file_c *file;
 	HANDLE handle;
-
-    if (!name)
-        return NULL;
 
 	if (!BuildFileStruct(flags, &fs))
 		return false;
@@ -337,14 +280,12 @@ file_c* win32_filesystem_c::Open(const char *name, unsigned int flags)
 }
 
 //
-// bool win32_filesystem_c::Rename()
+// bool FS_Rename()
 //
-bool win32_filesystem_c::Rename(const char *oldname, const char *newname)
+bool FS_Rename(const char *oldname, const char *newname)
 {
-	if (!oldname || !newname)
-	{
-		return false;
-	}
+	SYS_ASSERT(oldname);
+	SYS_ASSERT(newname);
 
 	return (::MoveFile(oldname, newname) != FALSE);
 }

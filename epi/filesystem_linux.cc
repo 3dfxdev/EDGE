@@ -19,8 +19,8 @@
 #include "epi.h"
 #include "strings.h"
 
+#include "filesystem.h"
 #include "files_linux.h"
-#include "filesystem_linux.h"
 
 #include <dirent.h>
 #include <fnmatch.h>
@@ -30,27 +30,13 @@
 
 #define MAX_MODE_CHARS 3
 
+#define COPY_BUF_SIZE  1024
+
+
 namespace epi
 {
 
-//
-// epi_linux_filesystem_c Constructor
-//
-linux_filesystem_c::linux_filesystem_c()
-{
-}
-
-//
-// linux_filesystem_c Destructor
-//
-linux_filesystem_c::~linux_filesystem_c()
-{
-}
-
-//
-// linux_filesystem_c::ConvertFlagsToMode()
-//
-bool linux_filesystem_c::ConvertFlagsToMode(int flags, char *mode)
+static bool ConvertFlagsToMode(int flags, char *mode)
 {
     // Must have some value in epiflags
     if (flags == 0)
@@ -82,35 +68,24 @@ bool linux_filesystem_c::ConvertFlagsToMode(int flags, char *mode)
     return true;
 }
 
-//
-// bool linux_filesystem_c::GetCurrDir()
-//
-bool linux_filesystem_c::GetCurrDir(const char *dir, unsigned int bufsize)
+
+bool FS_GetCurrDir(const char *dir, unsigned int bufsize)
 {
-	if (!dir)
-		return false;
+	SYS_ASSERT(dir);
 
 	return (getcwd((char *)dir, bufsize) != NULL);
 }
 
-//
-// bool linux_filesystem_c::SetCurrDir()
-//
-bool linux_filesystem_c::SetCurrDir(const char *dir)
+bool FS_SetCurrDir(const char *dir)
 {
-	if (!dir)
-		return false;
+	SYS_ASSERT(dir);
 
 	return (chdir(dir) == 0);
 }
 
-//
-// bool linux_filesystem_c::IsDir()
-// 
-bool linux_filesystem_c::IsDir(const char *dir)
+bool FS_IsDir(const char *dir)
 {
-	if (!dir)
-		return false;
+	SYS_ASSERT(dir);
 
 	DIR *result = opendir(dir);
 
@@ -121,35 +96,25 @@ bool linux_filesystem_c::IsDir(const char *dir)
 	return true;
 }
 
-//
-// bool linux_filesystem_c::MakeDir()
-//
-bool linux_filesystem_c::MakeDir(const char *dir)
+bool FS_MakeDir(const char *dir)
 {
-	if (!dir)
-		return false;
+	SYS_ASSERT(dir);
 
 	return (mkdir(dir, 0775) == 0);
 }
 
-//
-// bool linux_filesystem_c::RemoveDir()
-//
-bool linux_filesystem_c::RemoveDir(const char *dir)
+bool FS_RemoveDir(const char *dir)
 {
-	if (!dir)
-		return false;
+	SYS_ASSERT(dir);
 
 	return (rmdir(dir) == 0);
 }
 
-//
-// bool linux_filesystem_c::ReadDir()
-//
-bool linux_filesystem_c::ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
+bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 {
-	if (!dir || !fsd || !mask)
-		return false;
+	SYS_ASSERT(fsd);
+	SYS_ASSERT(dir);
+	SYS_ASSERT(mask);
 
 	DIR *handle;
 	char olddir[PATH_MAX];
@@ -160,8 +125,8 @@ bool linux_filesystem_c::ReadDir(filesystem_dir_c *fsd, const char *dir, const c
 	if (handle == NULL)
 		return false;
 
-	GetCurrDir(olddir, PATH_MAX);
-	SetCurrDir(dir);
+	FS_GetCurrDir(olddir, PATH_MAX);
+	FS_SetCurrDir(dir);
 
 	// Ensure the container is empty
 	fsd->Clear();
@@ -188,22 +153,21 @@ bool linux_filesystem_c::ReadDir(filesystem_dir_c *fsd, const char *dir, const c
 		{
 			closedir(handle);
 			delete tmp_entry.name;
-			SetCurrDir(olddir);
+			FS_SetCurrDir(olddir);
 			return false;
 		}
 	}
 
-	SetCurrDir(olddir);
+	FS_SetCurrDir(olddir);
 	closedir(handle);
 
 	return true;
 }
 
-//
-// bool linux_filesystem_c::Access()
-//
-bool linux_filesystem_c::Access(const char *name, unsigned int flags)
+bool FS_Access(const char *name, unsigned int flags)
 {
+	SYS_ASSERT(name);
+
     char mode[MAX_MODE_CHARS];
     FILE *fp;
 
@@ -218,15 +182,11 @@ bool linux_filesystem_c::Access(const char *name, unsigned int flags)
     return true;
 }
 
-//
-// bool linux_filesystem_c::Close()
-//
-bool linux_filesystem_c::Close(file_c *file)
+bool FS_Close(file_c *file)
 {
-    FILE *fp;
+	SYS_ASSERT(file);
 
-    if (!file)
-        return false;
+    FILE *fp;
 
     if (file->GetType() == file_c::TYPE_DISK)
     {
@@ -250,11 +210,11 @@ bool linux_filesystem_c::Close(file_c *file)
 	return true;
 }
 
-//
-// bool linux_filesystem_c::Copy()
-//
-bool linux_filesystem_c::Copy(const char *dest, const char *src)
+bool FS_Copy(const char *dest, const char *src)
 {
+	SYS_ASSERT(dest);
+	SYS_ASSERT(src);
+
 	bool ok = false;
 
 	file_c *dest_file = NULL;
@@ -265,11 +225,11 @@ bool linux_filesystem_c::Copy(const char *dest, const char *src)
 	int size;
 	int pkt_len;
 
-	src_file = Open(src, file_c::ACCESS_READ);
+	src_file = FS_Open(src, file_c::ACCESS_READ);
 	if (! src_file)
 		goto error_occurred;
 
-	dest_file = Open(dest, file_c::ACCESS_WRITE);
+	dest_file = FS_Open(dest, file_c::ACCESS_WRITE);
 	if (! dest_file)
 		goto error_occurred;
 
@@ -296,10 +256,10 @@ bool linux_filesystem_c::Copy(const char *dest, const char *src)
 error_occurred:
 
 	if (src_file)
-		Close(src_file);
+		FS_Close(src_file);
 
 	if (dest_file)
-		Close(dest_file);
+		FS_Close(dest_file);
 
 	if (buf)
 		delete[] buf;
@@ -307,29 +267,21 @@ error_occurred:
 	return ok;
 }
 
-//
-// bool linux_filesystem_c::Delete()
-//
-bool linux_filesystem_c::Delete(const char *name)
+bool FS_Delete(const char *name)
 {
-    if (!name)
-        return false;
+	SYS_ASSERT(name);
 
     return (unlink(name) == 0);
 }
 
-//
-// file_c* linux_filesystem_c::Open()
-//
-file_c* linux_filesystem_c::Open(const char *name, 
+file_c* FS_Open(const char *name, 
                                  unsigned int flags)
 {
+	SYS_ASSERT(name);
+
     char mode[MAX_MODE_CHARS];
     linux_file_c *file;
     FILE *fp;
-
-    if (!name)
-        return NULL;
 
     if (!ConvertFlagsToMode(flags, mode))
         return NULL;
@@ -346,19 +298,15 @@ file_c* linux_filesystem_c::Open(const char *name,
     }
 
     file->Setup(this, fp);
+
     return file;
 }
 
-//
-// bool linux_filesystem_c::Rename()
-//
-bool linux_filesystem_c::Rename(const char *oldname, 
+bool FS_Rename(const char *oldname, 
                                         const char *newname)
 {
-	if (!oldname || !newname)
-	{
-		return false;
-	}
+	SYS_ASSERT(oldname);
+	SYS_ASSERT(newname);
 
 	return (rename(oldname, newname) != -1);
 }

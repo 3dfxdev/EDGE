@@ -67,22 +67,6 @@ filesystem_direntry_s* filesystem_dir_c::operator[](int idx)
 }
 
 
-// The Filesystem
-
-//
-// filesystem_c Constructor
-//
-filesystem_c::filesystem_c()
-{
-}
-
-//
-// filesystem_c Deconstructor
-//
-filesystem_c::~filesystem_c()
-{
-}
-
 } // namespace epi
 
 //--- editor settings ---
