@@ -995,7 +995,7 @@ if (num_active_mirrors % 2)
 	if (currmap->lighting == LMODEL_Doom && lit_Nom > 0)
 	{
 		if (cur_seg->v1->y == cur_seg->v2->y)
-			lit_Nom -=  8;
+			lit_Nom -= 16;
 		else if (cur_seg->v1->x == cur_seg->v2->x)
 			lit_Nom += 16;
 
