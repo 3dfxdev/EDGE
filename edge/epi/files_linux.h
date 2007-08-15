@@ -22,8 +22,6 @@
 #include "epi.h"
 #include "files.h"
 
-#include <stdio.h>
-
 namespace epi
 {
 

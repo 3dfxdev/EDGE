@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE Filesystem Class
+//  EDGE Filesystem API
 //----------------------------------------------------------------------------
 //
 //  Copyright (c) 2003-2007  The EDGE Team.
@@ -15,8 +15,9 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-#ifndef __EPI_FILESYSTEM_CLASS__
-#define __EPI_FILESYSTEM_CLASS__
+
+#ifndef __EPI_FILESYSTEM_H__
+#define __EPI_FILESYSTEM_H__
 
 #include "epi.h"
 
@@ -62,38 +63,30 @@ public:
 	filesystem_direntry_s* operator[](int idx); 	
 };
 
-// The Filesystem
-class filesystem_c
-{
-public:
-	filesystem_c();
-	virtual ~filesystem_c();
+// ---- The Filesystem ----
 
-protected:
-	
-public:
-	// Directory Functions
-	virtual bool GetCurrDir(const char *dir, unsigned int bufsize) = 0; 
-	virtual bool SetCurrDir(const char *dir) = 0;
-	
-	virtual bool IsDir(const char *dir) = 0;
+// Directory Functions
+bool FS_GetCurrDir(char *dir, unsigned int bufsize); 
+bool FS_SetCurrDir(const char *dir);
 
-	virtual bool MakeDir(const char *dir) = 0;
-	virtual bool RemoveDir(const char *dir) = 0;
-	
-	virtual bool ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask) = 0;
+bool FS_IsDir(const char *dir);
+bool FS_MakeDir(const char *dir);
+bool FS_RemoveDir(const char *dir);
 
-	// File Functions
-	virtual bool Access(const char *name, unsigned int flags) = 0;
-	virtual bool Close(file_c *file) = 0;
-	virtual bool Copy(const char *dest, const char *src) = 0;
-	virtual bool Delete(const char *name) = 0;
-	virtual file_c *Open(const char *name, unsigned int flags) = 0;
-	virtual bool Rename(const char *oldname, const char *newname) = 0;
-};
+bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask);
 
-};
-#endif /* __EPI_FILESYSTEM_CLASS__ */
+// File Functions
+bool FS_Access(const char *name, unsigned int flags);
+file_c *FS_Open(const char *name, unsigned int flags);
+bool FS_Close(file_c *file);
+
+bool FS_Copy(const char *dest, const char *src);
+bool FS_Delete(const char *name);
+bool FS_Rename(const char *oldname, const char *newname);
+
+} // namespace epi
+
+#endif /*__EPI_FILESYSTEM_H__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

@@ -19,7 +19,7 @@
 #include <windows.h>
 
 #include "files_win32.h"
-#include "filesystem_win32.h"
+#include "filesystem.h"
 
 #include "types.h"
 

@@ -15,9 +15,11 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-//
+
+#include "epi.h"
+
 #include "files_linux.h"
-#include "filesystem_linux.h"
+#include "filesystem.h"
 
 namespace epi
 {
