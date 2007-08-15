@@ -78,7 +78,8 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask);
 // File Functions
 bool FS_Access(const char *name, unsigned int flags);
 file_c *FS_Open(const char *name, unsigned int flags);
-bool FS_Close(file_c *file);
+
+// NOTE: there's no FS_Close() function, just delete the object.
 
 bool FS_Copy(const char *dest, const char *src);
 bool FS_Delete(const char *name);
