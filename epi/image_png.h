@@ -19,11 +19,8 @@
 #ifndef __EPI_IMAGE_PNG_H__
 #define __EPI_IMAGE_PNG_H__
 
-#include "epi.h"
+#include "file.h"
 #include "image_data.h"
-#include "files.h"
-
-#include <stdio.h>
 
 namespace epi
 {

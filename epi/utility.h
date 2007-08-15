@@ -18,9 +18,7 @@
 #ifndef __EPI_UTIL__
 #define __EPI_UTIL__
 
-#include "epi.h"
 #include "arrays.h"
-#include "types.h"
 
 namespace epi
 {

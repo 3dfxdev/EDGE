@@ -19,8 +19,6 @@
 #ifndef __EPI_SOUNDDATA_H__
 #define __EPI_SOUNDDATA_H__
 
-#include "types.h"
-
 namespace epi
 {
 

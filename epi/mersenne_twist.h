@@ -11,9 +11,6 @@
 #ifndef __EPI_MERSENNETWISTER_H
 #define __EPI_MERSENNETWISTER_H
 
-#include "types.h"
-#include "macros.h"
-
 // The Mersenne Twister is an algorithm for generating random numbers.  It
 // was designed with consideration of the flaws in various other generators.
 // The period, 2^19937-1, and the order of equidistribution, 623 dimensions,

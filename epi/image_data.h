@@ -19,9 +19,6 @@
 #ifndef __EPI_IMAGEDATA_H__
 #define __EPI_IMAGEDATA_H__
 
-#include "epi.h"
-#include "types.h"
-
 namespace epi
 {
 

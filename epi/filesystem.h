@@ -19,8 +19,6 @@
 #ifndef __EPI_FILESYSTEM_H__
 #define __EPI_FILESYSTEM_H__
 
-#include "epi.h"
-
 #include "arrays.h"
 #include "strings.h"
 

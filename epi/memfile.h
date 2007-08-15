@@ -15,12 +15,11 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-//
+
 #ifndef __EPI_MEMFILE_H__
 #define __EPI_MEMFILE_H__
 
-#include "epi.h"
-#include "files.h"
+#include "file.h"
 
 namespace epi
 {

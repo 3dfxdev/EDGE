@@ -19,9 +19,6 @@
 #ifndef __EPI_EXE_PATH_H__
 #define __EPI_EXE_PATH_H__
 
-#include "epi.h"
-#include "types.h"
-
 namespace epi
 {
 

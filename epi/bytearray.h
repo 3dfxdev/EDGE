@@ -19,9 +19,6 @@
 #ifndef __EPI_BYTEARRAY_CLASS__
 #define __EPI_BYTEARRAY_CLASS__
 
-#include "types.h"
-#include "macros.h"
-
 namespace epi
 {
 	// a simple growable array of bytes, useful for reading files into

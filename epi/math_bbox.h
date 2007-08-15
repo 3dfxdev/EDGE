@@ -19,7 +19,6 @@
 #ifndef __EPI_MATH_BBOX_H__
 #define __EPI_MATH_BBOX_H__
 
-#include "types.h"
 #include "math_vector.h"
 
 namespace epi

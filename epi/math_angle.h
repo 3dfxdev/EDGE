@@ -19,12 +19,6 @@
 #ifndef __EPI_ANGLE_CLASS__
 #define __EPI_ANGLE_CLASS__
 
-#include "epi.h"
-#include "types.h"
-#include "macros.h"
-
-#include <math.h>
-
 namespace epi
 {
 
