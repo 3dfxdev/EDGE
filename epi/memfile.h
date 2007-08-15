@@ -38,15 +38,13 @@ protected:
 
 public:
     // Overrides
-    int GetLength(void) { return length; }
-    int GetPosition(void) { return pos; }
-    int GetType(void) { return TYPE_MEMORY; }  
+    int GetLength()   { return length; }
+    int GetPosition() { return pos; }
 
     unsigned int Read(void *dest, unsigned int size);
+    unsigned int Write(const void *src, unsigned int size);
 
     bool Seek(int offset, int seekpoint);
-
-    unsigned int Write(const void *src, unsigned int size);
 
 public:
 	// HACK ALERT !!!
