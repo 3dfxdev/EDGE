@@ -29,9 +29,6 @@
 #include "r_units.h"
 #include "z_zone.h"
 
-#include <math.h>
-#include <string.h>
-
 bool use_lighting = true;
 bool use_color_material = true;
 
@@ -339,9 +336,9 @@ void RGL_DrawUnits(void)
 #ifdef USE_GLXTNS
 				glActiveTexture(GL_TEXTURE1);
 				glEnable(GL_TEXTURE_2D);
-				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+///---			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+///---			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
 
 				if (cur_tex2 != unit->tex_id[1])
 				{
