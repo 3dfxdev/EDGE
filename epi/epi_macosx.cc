@@ -26,9 +26,7 @@
 namespace epi
 {
 	filesystem_c *the_filesystem = NULL;
-	mem_manager_c *the_mem_manager = NULL;
 
-	const unsigned int max_mem_size = 33554432; // 32Mb 
 	static bool inited = false;
 
     //
@@ -37,22 +35,12 @@ namespace epi
     bool Init(void)
     {
 		bool ok;
-		mem_manager_c* mm;
 		linux_filesystem_c* fs;
 
 		if (inited)
 			Shutdown();
 
 		ok = true;
-
-		if (ok)
-		{
-			mm = new mem_manager_c(max_mem_size);
-			if (mm)
-				the_mem_manager = mm;
-			else
-				ok = false;
-		}
 
 		if (ok)
 		{
@@ -76,12 +64,6 @@ namespace epi
 		{
 			delete the_filesystem;
 			the_filesystem = NULL;
-		}
-
-		if (the_mem_manager)
-		{
-			delete the_mem_manager;
-			the_mem_manager = NULL;
 		}
 
 		inited = false;

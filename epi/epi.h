@@ -40,7 +40,6 @@ namespace epi
 {
 	// Forward Declarations
 	class filesystem_c;
-	class mem_manager_c;
 
 	// Base Functions
 	bool Init(void);
@@ -48,7 +47,6 @@ namespace epi
 
 	// External declarations
 	extern filesystem_c* the_filesystem;
-	extern mem_manager_c* the_mem_manager;
 };
 
 /* Important functions provided by Engine code */
