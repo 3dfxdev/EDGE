@@ -15,9 +15,9 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-#include "utility.h"
 
-#include <string.h>
+#include "epi"
+#include "utility.h"
 
 #define STRBOX_ALIGN(x) x = ((x + 4) & ~3)
 

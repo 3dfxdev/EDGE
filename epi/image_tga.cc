@@ -22,9 +22,9 @@
 //------------------------------------------------------------------------
 
 #include "epi.h"
+
 #include "image_tga.h"
 
-#include "files.h"
 
 namespace epi
 {

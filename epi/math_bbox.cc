@@ -16,9 +16,8 @@
 //
 //------------------------------------------------------------------------
 
+#include "epi.h"
 #include "math_bbox.h"
-
-#include <math.h>
 
 namespace epi
 {

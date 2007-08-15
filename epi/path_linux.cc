@@ -19,8 +19,6 @@
 #include "epi.h"
 #include "path.h"
 
-#include <string.h>
-
 namespace epi
 {
 

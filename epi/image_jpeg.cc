@@ -18,7 +18,6 @@
 
 #include "epi.h"
 
-#include "files.h"
 #include "image_jpeg.h"
 
 extern "C"

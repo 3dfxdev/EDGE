@@ -16,10 +16,9 @@
 //
 //----------------------------------------------------------------------------
 
-#include "types.h"
-#include "memfile.h"
+#include "epi.h"
 
-#include <string.h>
+#include "memfile.h"
 
 namespace epi
 {
