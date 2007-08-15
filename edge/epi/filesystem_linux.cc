@@ -35,7 +35,7 @@
 namespace epi
 {
 
-bool FS_GetCurrDir(const char *dir, unsigned int bufsize)
+bool FS_GetCurrDir(char *dir, unsigned int bufsize)
 {
 	SYS_ASSERT(dir);
 
