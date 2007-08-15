@@ -22,7 +22,6 @@
 #include "strings.h"
 
 #include "filesystem.h"
-#include "files_win32.h"  // WTF??
 
 #define MAX_MODE_CHARS 4
 
@@ -213,27 +212,6 @@ bool FS_Access(const char *name, unsigned int flags)
 	return true;
 }
 
-bool FS_Close(file_c *file)
-{
-    if (!file)
-        return false;
-
-    if (file->GetType() == file_c::TYPE_DISK)
-    {
-		HANDLE handle;
-
-        win32_file_c *diskfile = (win32_file_c*)file;
-
-        handle = diskfile->GetDescriptor();
-        if (handle != INVALID_HANDLE_VALUE)
-            CloseHandle(handle);
-
-        diskfile->Setup(NULL, INVALID_HANDLE_VALUE);
-    }
-
-    delete file;
-	return true;
-}
 
 bool FS_Copy(const char *dest, const char *src)
 {

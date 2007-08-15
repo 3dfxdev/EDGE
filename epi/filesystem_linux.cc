@@ -20,7 +20,6 @@
 #include "strings.h"
 
 #include "filesystem.h"
-#include "files_linux.h"
 
 #include <dirent.h>
 #include <fnmatch.h>
@@ -182,33 +181,6 @@ bool FS_Access(const char *name, unsigned int flags)
     return true;
 }
 
-bool FS_Close(file_c *file)
-{
-	SYS_ASSERT(file);
-
-    FILE *fp;
-
-    if (file->GetType() == file_c::TYPE_DISK)
-    {
-        linux_file_c *diskfile = (linux_file_c*)file;
-
-        fp = diskfile->GetDescriptor();
-        if (fp)
-            fclose(fp);
-
-		//
-		// We nullify the filesystem and filehandle to 
-		// NULL: the prevents recursive Close() calls
-		// since the diskfile deconstructor will
-		// attempt to close the file if the filesystem
-		// exists.
-		// 
-		diskfile->Setup(NULL, NULL);
-    }
-
-    delete file;
-	return true;
-}
 
 bool FS_Copy(const char *dest, const char *src)
 {
