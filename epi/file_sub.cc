@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  Block of memory with File interface
+//  Subset of an existing File
 //----------------------------------------------------------------------------
 //
 //  Copyright (c) 2007  The EDGE Team.
@@ -18,7 +18,7 @@
 
 #include "epi.h"
 
-#include "file_memory.h"
+#include "file_sub.h"
 
 namespace epi
 {
@@ -26,77 +26,63 @@ namespace epi
 //
 // Constructor
 //
-mem_file_c::mem_file_c(const byte *_block, int _len, bool copy_it)
+sub_file_c::sub_file_c(file_c *_par, int _start, int _len) :
+	parent(_par), start(_start), length(_len), remain(_len)
 {
-	SYS_ASSERT(_block);
-	SYS_ASSERT(_len >= 0);
-
-	pos = 0;
-	copied = false;
-
-	if (_len == 0)
-	{
-		data = NULL;
-		length = 0;
-		return;
-	}
-
-	if (copy_it)
-	{
-		data = new byte[_len];
-		length = _len;
-
-		memcpy(data, _block, _len);
-		copied = true;
-	}
-	else
-	{
-		data = (byte *)_block;
-		length = _len;
-	}
+	SYS_ASSERT(parent);
+	SYS_ASSERT(start >= 0);
+	SYS_ASSERT(length >= 0);
 }
 
 //
 // Destructor
 //
-mem_file_c::~mem_file_c()
+sub_file_c::~sub_file_c()
 {
-	if (data && copied)
-	{
-		delete[] data;
-		data = NULL;
-	}
-
-	length = 0;
+	start = length = -1;
 }
 
-unsigned int mem_file_c::Read(void *dest, unsigned int size)
+int sub_file_c::GetPosition()
 {
-	SYS_ASSERT(dest);
-	SYS_ASSERT(size >= 0);
-		
-	unsigned int avail = length - pos;
+	return length - remain;
+#if 0
+	int par_pos = parent->GetPosition();
 
-	if (size > avail)
-		size = avail;
+	int result = par_pos - start;
 
-	if (size == 0)
+	if (result < 0) // oopsie
+		return 0;
+
+	if (result > length)
+		return length;
+	
+	return result;
+#endif
+}
+
+unsigned int sub_file_c::Read(void *dest, unsigned int size)
+{
+	if ((int)size > remain)
+		size = remain;
+
+	if (size <= 0)
 		return 0;  // EOF
 
-	memcpy(dest, data + pos, size);
-	pos += size;
+	int read_len = parent->Read(dest, size);
 
-	return size;
+	remain -= read_len;
+
+	return read_len;
 }
 
-bool mem_file_c::Seek(int offset, int seekpoint)
+bool sub_file_c::Seek(int offset, int seekpoint)
 {
 	int new_pos = 0;
 
     switch (seekpoint)
     {
         case SEEKPOINT_START:   { new_pos = 0; break; }
-        case SEEKPOINT_CURRENT: { new_pos = pos; break; }
+        case SEEKPOINT_CURRENT: { new_pos = GetPosition(); break; }
         case SEEKPOINT_END:     { new_pos = length; break; }
 
         default:
@@ -109,15 +95,14 @@ bool mem_file_c::Seek(int offset, int seekpoint)
 	if (new_pos < 0 || new_pos > length)
 		return false;
 
-	pos = new_pos;
-	return true;
+	remain = length - new_pos;
+		
+	return parent->Seek(start + new_pos, SEEKPOINT_START);
 }
 
-unsigned int mem_file_c::Write(const void *src, unsigned int size)
+unsigned int sub_file_c::Write(const void *src, unsigned int size)
 {
-	// FIXME
-
-	I_Error("mem_file_c::Write called.\n");
+	I_Error("sub_file_c::Write called.\n");
 
 	return 0;  /* read only, cobber */
 }
