@@ -18,7 +18,7 @@
 
 #include "epi.h"
 
-#include "memfile.h"
+#include "file_memory.h"
 
 namespace epi
 {
@@ -70,9 +70,6 @@ mem_file_c::~mem_file_c()
 	length = 0;
 }
 
-//
-// Read
-//
 unsigned int mem_file_c::Read(void *dest, unsigned int size)
 {
 	SYS_ASSERT(dest);
@@ -92,10 +89,6 @@ unsigned int mem_file_c::Read(void *dest, unsigned int size)
 	return size;
 }
 
-
-//
-// Seek
-//
 bool mem_file_c::Seek(int offset, int seekpoint)
 {
 	int new_pos = 0;
@@ -120,13 +113,11 @@ bool mem_file_c::Seek(int offset, int seekpoint)
 	return true;
 }
 
-//
-// Write
-//
 unsigned int mem_file_c::Write(const void *src, unsigned int size)
 {
-	// ASSERT(src);
-	// ASSERT(size > 0);
+	// FIXME
+
+	I_Error("mem_file_c::Write called.\n");
 
 	return 0;  /* read only, cobber */
 }
