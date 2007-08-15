@@ -35,8 +35,6 @@
 #include "i_defs_gl.h"
 
 #include <limits.h>
-#include <math.h>
-#include <string.h>
 
 #include "epi/endianess.h"
 #include "epi/files.h"
@@ -979,11 +977,17 @@ static void CreateUserBuiltinCOLMAP(epi::image_data_c *img, imagedef_c *def)
 			index = MIN(31, index);
 
 			// FIXME: lookup value in COLORMAP[]
+#if 0
+			dest[0] = 0;
+			dest[1] = 0;
+			dest[2] = 0;
+			dest[3] = 0 + index * 8;
+#else
 			dest[0] = 255 - index * 8;
-
 			dest[1] = dest[0];
 			dest[2] = dest[0];
 			dest[3] = 255;
+#endif
 		}
 		else
 		{
@@ -1027,7 +1031,7 @@ void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f)
 {
 	if (def->type == IMGDT_File)
 	{
-		epi::the_filesystem->Close(f);
+		delete f;
 	}
 	else  /* LUMP */
 	{
