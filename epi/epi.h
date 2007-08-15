@@ -38,15 +38,9 @@
 
 namespace epi
 {
-	// Forward Declarations
-	class filesystem_c;
-
 	// Base Functions
 	bool Init(void);
 	void Shutdown(void);
-
-	// External declarations
-	extern filesystem_c* the_filesystem;
 };
 
 /* Important functions provided by Engine code */

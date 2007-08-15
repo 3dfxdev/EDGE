@@ -15,15 +15,12 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-//
-#include "epi.h"
-#include "filesystem.h"
 
-#include "filesystem_win32.h"
+#include "epi.h"
+
 
 namespace epi
 {
-	filesystem_c *the_filesystem;
 
 	static bool inited = false;
 
@@ -33,21 +30,11 @@ namespace epi
     bool Init(void)
     {
 		bool ok;
-		win32_filesystem_c* fs = NULL;
 
 		if (inited)
 			Shutdown();
 
 		ok = true;
-
-		if (ok)
-		{
-			fs = new win32_filesystem_c;
-			if (fs) 
-				the_filesystem = fs;
-			else
-				ok = false;
-		}
 
 		inited = ok;
         return ok;
@@ -58,12 +45,6 @@ namespace epi
     //
     void Shutdown(void)
     {
-		if (the_filesystem)
-		{
-			delete the_filesystem;
-			the_filesystem = NULL;
-		}
-
 		inited = false;
     }
 
