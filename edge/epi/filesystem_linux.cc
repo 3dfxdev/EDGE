@@ -19,6 +19,7 @@
 #include "epi.h"
 #include "strings.h"
 
+#include "file.h"
 #include "filesystem.h"
 
 #include <dirent.h>
@@ -27,46 +28,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define MAX_MODE_CHARS 3
 
 #define COPY_BUF_SIZE  1024
 
 
 namespace epi
 {
-
-static bool ConvertFlagsToMode(int flags, char *mode)
-{
-    // Must have some value in epiflags
-    if (flags == 0)
-        return false;
-
-    // Check for any invalid combinations
-    if ((flags & file_c::ACCESS_WRITE) && (flags & file_c::ACCESS_APPEND))
-        return false;
-
-    if (flags & file_c::ACCESS_READ)
-    {
-        if (flags & file_c::ACCESS_WRITE) 
-            strcpy(mode, "w+");                        // Read/Write
-        else if (flags & file_c::ACCESS_APPEND)
-            strcpy(mode, "a+");                        // Read/Append
-        else
-            strcpy(mode, "r");                         // Read
-    }
-    else
-    {
-        if (flags & file_c::ACCESS_WRITE)       
-            strcpy(mode, "w");                         // Write
-        else if (flags & file_c::ACCESS_APPEND) 
-            strcpy(mode, "a");                         // Append
-        else                                         
-            return false;                              // Invalid
-    }
-    
-    return true;
-}
-
 
 bool FS_GetCurrDir(const char *dir, unsigned int bufsize)
 {
@@ -115,14 +82,11 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 	SYS_ASSERT(dir);
 	SYS_ASSERT(mask);
 
-	DIR *handle;
-	char olddir[PATH_MAX];
-	filesystem_direntry_s tmp_entry;
-	struct dirent *fdata;
-
-	handle = opendir(dir);
+	DIR *handle = opendir(dir);
 	if (handle == NULL)
 		return false;
+
+	char olddir[PATH_MAX];
 
 	FS_GetCurrDir(olddir, PATH_MAX);
 	FS_SetCurrDir(dir);
@@ -132,7 +96,7 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 
 	for (;;)
 	{
-		fdata = readdir(handle);
+		struct dirent *fdata = readdir(handle);
 		if (fdata == NULL)
 			break;
 
@@ -144,6 +108,8 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 		if (stat(fdata->d_name, &finfo) != 0)
 			continue;
 		
+		filesystem_direntry_s tmp_entry;
+
 		tmp_entry.name = new string_c(fdata->d_name);
 		tmp_entry.size = finfo.st_size;
 		tmp_entry.dir = S_ISDIR(finfo.st_mode) ?true:false;
@@ -158,27 +124,9 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 	}
 
 	FS_SetCurrDir(olddir);
+
 	closedir(handle);
-
 	return true;
-}
-
-bool FS_Access(const char *name, unsigned int flags)
-{
-	SYS_ASSERT(name);
-
-    char mode[MAX_MODE_CHARS];
-    FILE *fp;
-
-    if (!ConvertFlagsToMode(flags, mode))
-        return false;
-
-    fp = fopen(name, mode);
-    if (!fp)
-        return false;
-
-    fclose(fp);
-    return true;
 }
 
 
@@ -228,10 +176,10 @@ bool FS_Copy(const char *dest, const char *src)
 error_occurred:
 
 	if (src_file)
-		FS_Close(src_file);
+		delete src_file;
 
 	if (dest_file)
-		FS_Close(dest_file);
+		delete dest_file;
 
 	if (buf)
 		delete[] buf;
@@ -246,36 +194,7 @@ bool FS_Delete(const char *name)
     return (unlink(name) == 0);
 }
 
-file_c* FS_Open(const char *name, 
-                                 unsigned int flags)
-{
-	SYS_ASSERT(name);
-
-    char mode[MAX_MODE_CHARS];
-    linux_file_c *file;
-    FILE *fp;
-
-    if (!ConvertFlagsToMode(flags, mode))
-        return NULL;
-
-    fp = fopen(name, mode);
-    if (!fp)
-        return NULL;
-
-    file = new linux_file_c;
-    if (!file)
-    {
-        fclose(fp);
-        return NULL;
-    }
-
-    file->Setup(this, fp);
-
-    return file;
-}
-
-bool FS_Rename(const char *oldname, 
-                                        const char *newname)
+bool FS_Rename(const char *oldname, const char *newname)
 {
 	SYS_ASSERT(oldname);
 	SYS_ASSERT(newname);

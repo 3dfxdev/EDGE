@@ -15,9 +15,14 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-//
-#include "filesystem.h"
+
+#include "epi.h"
 #include "strings.h"
+
+#include "file.h"
+#include "filesystem.h"
+
+#define MAX_MODE_CHARS  32
 
 namespace epi
 {
@@ -64,6 +69,42 @@ void filesystem_dir_c::CleanupObject(void *obj)
 filesystem_direntry_s* filesystem_dir_c::operator[](int idx)
 {
 	return (filesystem_direntry_s*)FetchObject(idx);
+}
+
+
+// common functions
+
+bool FS_Access(const char *name, unsigned int flags)
+{
+	SYS_ASSERT(name);
+
+    char mode[MAX_MODE_CHARS];
+
+    if (! FS_FlagsToAnsiMode(flags, mode))
+        return false;
+
+    FILE *fp = fopen(name, mode);
+    if (!fp)
+        return false;
+
+    fclose(fp);
+    return true;
+}
+
+file_c* FS_Open(const char *name, unsigned int flags)
+{
+	SYS_ASSERT(name);
+
+    char mode[MAX_MODE_CHARS];
+
+    if (! FS_FlagsToAnsiMode(flags, mode))
+        return NULL;
+
+    FILE *fp = fopen(name, mode);
+    if (!fp)
+        return NULL;
+
+	return new ansi_file_c(fp);
 }
 
 

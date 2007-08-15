@@ -80,6 +80,9 @@ public:
     bool Seek(int offset, int seekpoint);
 };
 
+// utility function:
+bool FS_FlagsToAnsiMode(int flags, char *mode);
+	
 } // namespace epi
 
 #endif /* __EPI_FILE_CLASS__ */

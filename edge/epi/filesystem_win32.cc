@@ -15,15 +15,12 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-//
-#include <windows.h>
 
 #include "epi.h"
 #include "strings.h"
 
+#include "file.h"
 #include "filesystem.h"
-
-#define MAX_MODE_CHARS 4
 
 
 namespace epi
@@ -37,20 +34,18 @@ struct createfile_s
 };
 
 
-static bool BuildFileStruct(int epiflags, createfile_s* finfo)
+bool FS_BuildWin32FileStruct(int epiflags, createfile_s* finfo)
 {
     // Must have some value in epiflags
     if (epiflags == 0)
         return false;
 
 	// Sanity checking...
-	if (!finfo)
-		return false;			// Clearly mad
+	SYS_ASSERT(finfo);
 
     // Check for any invalid combinations
     if ((epiflags & file_c::ACCESS_WRITE) && (epiflags & file_c::ACCESS_APPEND))
         return false;
-
 
     if (epiflags & file_c::ACCESS_READ)
     {
@@ -145,10 +140,7 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 	if (!dir || !fsd || !mask)
 		return false;
 
-	filesystem_direntry_s tmp_entry;
 	string_c curr_dir;
-	HANDLE handle;
-	WIN32_FIND_DATA fdata;
 
 	// Bit of scope for the dir buffer to be held on stack 
 	// for the minimum amount of time
@@ -164,7 +156,9 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 	if (! FS_SetCurrDir(dir))
 		return false;
 
-	handle = FindFirstFile(mask, &fdata);
+	WIN32_FIND_DATA fdata;
+
+	HANDLE handle = FindFirstFile(mask, &fdata);
 	if (handle == INVALID_HANDLE_VALUE)
 		return false;
 
@@ -173,6 +167,8 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 
 	do
 	{
+		filesystem_direntry_s tmp_entry;
+
 		tmp_entry.name = new string_c(fdata.cFileName);
 		if (!tmp_entry.name)
 			return false;
@@ -194,12 +190,14 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 	return true;
 }
 
+
+#if 0 // using common code
 bool FS_Access(const char *name, unsigned int flags)
 {
 	createfile_s fs;
 	HANDLE handle;
 
-	if (!BuildFileStruct(flags, &fs))
+	if (! FS_BuildWin32FileStruct(flags, &fs))
 		return false;
 
 	handle = CreateFile(name, fs.dwDesiredAccess, fs.dwShareMode, 
@@ -211,6 +209,7 @@ bool FS_Access(const char *name, unsigned int flags)
 	CloseHandle(handle);
 	return true;
 }
+#endif
 
 
 bool FS_Copy(const char *dest, const char *src)
@@ -229,6 +228,7 @@ bool FS_Delete(const char *name)
 	return (::DeleteFile(name) != FALSE);
 }
 
+#if 0 // using common code
 file_c* FS_Open(const char *name, unsigned int flags)
 {
 	SYS_ASSERT(name);
@@ -237,7 +237,7 @@ file_c* FS_Open(const char *name, unsigned int flags)
 	win32_file_c *file;
 	HANDLE handle;
 
-	if (!BuildFileStruct(flags, &fs))
+	if (!FS_BuildWin32FileStruct(flags, &fs))
 		return false;
 
 	handle = CreateFile(name, fs.dwDesiredAccess, fs.dwShareMode, 
@@ -256,6 +256,7 @@ file_c* FS_Open(const char *name, unsigned int flags)
     file->Setup(this, handle);
     return file;
 }
+#endif
 
 //
 // bool FS_Rename()

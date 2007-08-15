@@ -89,6 +89,41 @@ bool ansi_file_c::Seek(int offset, int seekpoint)
     return (fseek(fp, offset, whence) == 0);
 }
 
+
+// utility functions...
+
+bool FS_FlagsToAnsiMode(int flags, char *mode)
+{
+    // Must have some value in epiflags
+    if (flags == 0)
+        return false;
+
+    // Check for any invalid combinations
+    if ((flags & file_c::ACCESS_WRITE) && (flags & file_c::ACCESS_APPEND))
+        return false;
+
+    if (flags & file_c::ACCESS_READ)
+    {
+        if (flags & file_c::ACCESS_WRITE) 
+            strcpy(mode, "w+");                        // Read/Write
+        else if (flags & file_c::ACCESS_APPEND)
+            strcpy(mode, "a+");                        // Read/Append
+        else
+            strcpy(mode, "r");                         // Read
+    }
+    else
+    {
+        if (flags & file_c::ACCESS_WRITE)       
+            strcpy(mode, "w");                         // Write
+        else if (flags & file_c::ACCESS_APPEND) 
+            strcpy(mode, "a");                         // Append
+        else                                         
+            return false;                              // Invalid
+    }
+    
+    return true;
+}
+
 } // namespace epi
 
 //--- editor settings ---
