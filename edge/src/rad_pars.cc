@@ -36,7 +36,8 @@
 #include "version.h"
 #include "z_zone.h"
 
-int rts_version;  // global
+static int rts_version;  // decimal e.g. 129
+
 
 typedef struct define_s
 {
@@ -804,15 +805,11 @@ static void RAD_ParseVersion(int pnum, const char **pars)
 	if (vers < 0.99f || vers > 9.99f)
 		RAD_Error("Illegal #VERSION number.\n");
 
-	vers *= 100.0f;
-	int decimal = I_ROUND(vers);
-
-	rts_version = ((decimal / 100) << 8) |
-				  (((decimal / 10) % 10) << 4) | (decimal % 10);
+	rts_version = I_ROUND(vers * 100);
 
 	// backwards compat (old scripts have #VERSION 1.1 in them)
-	if (rts_version < 0x123)
-		rts_version = 0x127;
+	if (rts_version < 123)
+		rts_version = 127;
 
 	if (rts_version > EDGEVER)
 		RAD_Error("This version of EDGE cannot handle this RTS script\n");
@@ -910,9 +907,9 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 		RAD_CheckForFloat(pars[4], &y2);
 
 		if (x1 > x2)
-			RAD_WarnError2(0x128, "%s: bad X range %1.1f to %1.1f\n", pars[0], x1, x2);
+			RAD_WarnError2(128, "%s: bad X range %1.1f to %1.1f\n", pars[0], x1, x2);
 		if (y1 > y2)
-			RAD_WarnError2(0x128, "%s: bad Y range %1.1f to %1.1f\n", pars[0], y1, y2);
+			RAD_WarnError2(128, "%s: bad Y range %1.1f to %1.1f\n", pars[0], y1, y2);
 
 		this_rad->x = (float)(x1 + x2) / 2.0f;
 		this_rad->y = (float)(y1 + y2) / 2.0f;
@@ -925,7 +922,7 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 			RAD_CheckForFloat(pars[6], &z2);
 
 			if (z1 > z2 + 1)
-				RAD_WarnError2(0x128, "%s: bad height range %1.1f to %1.1f\n",
+				RAD_WarnError2(128, "%s: bad height range %1.1f to %1.1f\n",
 				pars[0], z1, z2);
 
 			this_rad->z = (z1 + z2) / 2.0f;
@@ -951,8 +948,7 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 			RAD_CheckForFloat(pars[5], &z2);
 
 			if (z1 > z2)
-				RAD_WarnError2(0x128, "%s: bad height range %1.1f to %1.1f\n",
-          pars[0], z1, z2);
+				RAD_WarnError2(128, "%s: bad height range %1.1f to %1.1f\n", pars[0], z1, z2);
 
 			this_rad->z = (z1 + z2) / 2.0f;
 			this_rad->rad_z = fabs(z1 - z2) / 2.0f;
@@ -1473,7 +1469,7 @@ static void RAD_ParseTipAlign(int pnum, const char ** pars)
 	}
 	else
 	{
-		RAD_WarnError2(0x128, "TIP_POS: unknown justify method `%s'\n", pars[1]);
+		RAD_WarnError2(128, "TIP_POS: unknown justify method `%s'\n", pars[1]);
 	}
 
 	AddStateToScript(this_rad, 0, RAD_ActTipProps, tp);
@@ -1872,7 +1868,7 @@ static void RAD_ParseGotoMap(int pnum, const char **pars)
 			go->skip_all = true;
 		}
 		else
-			RAD_WarnError2(0x128, "%s: expected `SKIP_ALL' but got `%s'.\n",
+			RAD_WarnError2(128, "%s: expected `SKIP_ALL' but got `%s'.\n",
 				pars[0], pars[2]);
 	}
 
@@ -1917,7 +1913,7 @@ static void RAD_ParseMoveSector(int pnum, const char **pars)
 			if (DDF_CompareName(pars[4], "ABSOLUTE") == 0)
 				secv->relative = false;
 			else
-				RAD_WarnError2(0x128, "%s: expected `ABSOLUTE' but got `%s'.\n",
+				RAD_WarnError2(128, "%s: expected `ABSOLUTE' but got `%s'.\n",
 				pars[0], pars[4]);
 		}
 	}
@@ -1956,7 +1952,7 @@ static void RAD_ParseLightSector(int pnum, const char **pars)
 			if (DDF_CompareName(pars[3], "ABSOLUTE") == 0)
 				secl->relative = false;
 			else
-				RAD_WarnError2(0x128, "%s: expected `ABSOLUTE' but got `%s'.\n",
+				RAD_WarnError2(128, "%s: expected `ABSOLUTE' but got `%s'.\n",
 				pars[0], pars[3]);
 		}
 	}
@@ -2312,7 +2308,7 @@ void RAD_ParseLine(char *s)
 		return;
 	}
 
-	RAD_WarnError2(0x128, "Unknown primitive: %s\n", pars[0]);
+	RAD_WarnError2(128, "Unknown primitive: %s\n", pars[0]);
 
 	RAD_FreeParameters(pnum, pars);
 	rad_cur_linedata.Clear();
@@ -2323,7 +2319,7 @@ void RAD_ParserBegin(void)
 	rad_cur_level = 0;
 	rad_has_start_map = false;
 
-	rts_version = 0x127;
+	rts_version = 127;
 }
 
 void RAD_ParserDone(void)
