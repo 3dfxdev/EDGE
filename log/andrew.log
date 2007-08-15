@@ -1,5 +1,18 @@
 Andrew Apted's Log
 
+2007/08/15:
+
+Made the console key configurable, default is '~'.
+
+Last few days I've been cleaning up a lot of stuff.  One thing
+I'm pleased about is the way headers have improved.  All the
+platform-specific bits in i_defs.h were moved to appropriate
+places (such as epi/epi_xxx.h), and i_defs.h includes epi/epi.h
+for everything to use.  All the DDF code #includes 'local.h'
+which includes epi/epi.h, and the EPI code .cc files #include
+"epi.h".  Plus I've removed all the redundant includes,
+especially things like <stdio.h> and <strings.h>.
+
 2007/08/11:
 
 Worked on new implementation for keeping track of the sectors
