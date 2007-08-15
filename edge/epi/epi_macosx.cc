@@ -15,18 +15,12 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-//
+
 #include "epi.h"
 
-// -AJA- NOTE: currently using Linux code for file/filesystem stuff,
-//       as MacOS X and Linux are both flavours of Unix.
-
-#include "filesystem_linux.h"
 
 namespace epi
 {
-	filesystem_c *the_filesystem = NULL;
-
 	static bool inited = false;
 
     //
@@ -35,21 +29,11 @@ namespace epi
     bool Init(void)
     {
 		bool ok;
-		linux_filesystem_c* fs;
 
 		if (inited)
 			Shutdown();
 
 		ok = true;
-
-		if (ok)
-		{
-			fs = new linux_filesystem_c;
-			if (fs) 
-				the_filesystem = fs;
-			else
-				ok = false;
-		}
 
 		inited = ok;
         return ok;
@@ -60,11 +44,6 @@ namespace epi
     //
     void Shutdown(void)
     {
-		if (the_filesystem)
-		{
-			delete the_filesystem;
-			the_filesystem = NULL;
-		}
 
 		inited = false;
     }

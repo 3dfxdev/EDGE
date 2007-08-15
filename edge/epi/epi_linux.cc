@@ -15,16 +15,11 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-//
-#include "epi.h"
-#include "filesystem.h"
 
-#include "filesystem_linux.h"
+#include "epi.h"
 
 namespace epi
 {
-	filesystem_c *the_filesystem = NULL;
-
 	static bool inited = false;
 
     //
@@ -34,22 +29,10 @@ namespace epi
     {
 		bool ok;
 
-		linux_filesystem_c* fs;
-
 		if (inited)
 			Shutdown();
 
 		ok = true;
-
-
-		if (ok)
-		{
-			fs = new linux_filesystem_c;
-			if (fs) 
-				the_filesystem = fs;
-			else
-				ok = false;
-		}
 
 		inited = ok;
         return ok;
@@ -60,12 +43,6 @@ namespace epi
     //
     void Shutdown(void)
     {
-		if (the_filesystem)
-		{
-			delete the_filesystem;
-			the_filesystem = NULL;
-		}
-
 		inited = false;
     }
 
