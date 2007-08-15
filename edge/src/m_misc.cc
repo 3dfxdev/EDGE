@@ -515,7 +515,7 @@ void M_ScreenShot(bool show_msg)
 
 		fn = epi::path::Join(shot_dir.GetString(), base.GetString());
   
-		if (!epi::the_filesystem->Access(fn.GetString(), epi::file_c::ACCESS_READ))
+		if (!epi::FS_Access(fn.GetString(), epi::file_c::ACCESS_READ))
         {
 			break; // file doesn't exist
         }
@@ -660,7 +660,7 @@ epi::file_c *M_OpenComposedEPIFile(const char *dir, const char *file)
 
 	M_ComposeFileName(fullname, dir, file);
 
-	return epi::the_filesystem->Open(fullname.GetString(),
+	return epi::FS_Open(fullname.GetString(),
 		epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
 }
 

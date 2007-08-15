@@ -223,7 +223,7 @@ void M_InitArguments(int argc, const char **argv)
 	// argv[0] should always be placed before the response file.
 	AddArgument(argv[0], 0);
 
-	if (epi::the_filesystem->Access("edge.cmd", epi::file_c::ACCESS_READ))
+	if (epi::FS_Access("edge.cmd", epi::file_c::ACCESS_READ))
 		M_ApplyResponseFile("edge.cmd", 1);
 
 	// scan through the arguments

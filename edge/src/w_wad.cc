@@ -926,8 +926,8 @@ static bool FindCacheFilename (epi::string_c& out_name,
 	L_WriteDebug("FindCacheFilename: cache_name = '%s'\n", cache_name.GetString());
 	
 	// Check for the existance of the local and cached dir files
-	bool has_local = epi::the_filesystem->Access(local_name.GetString(), epi::file_c::ACCESS_READ);
-	bool has_cache = epi::the_filesystem->Access(cache_name.GetString(), epi::file_c::ACCESS_READ);
+	bool has_local = epi::FS_Access(local_name.GetString(), epi::file_c::ACCESS_READ);
+	bool has_cache = epi::FS_Access(cache_name.GetString(), epi::file_c::ACCESS_READ);
 
 	// If both exist, use the local one.
 	// If neither exist, create one in the cache directory.
@@ -985,7 +985,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	within_patch_list  = within_colmap_list = false;
 
 	// open the file and add to directory
-    epi::file_c *file = epi::the_filesystem->Open(filename, epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
+    epi::file_c *file = epi::FS_Open(filename, epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
 	if (file == NULL)
 	{
 		I_Error("Couldn't open file %s\n", filename);
