@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __EPI_MEMFILE_H__
-#define __EPI_MEMFILE_H__
+#ifndef __EPI_FILE_MEMORY_H__
+#define __EPI_FILE_MEMORY_H__
 
 #include "file.h"
 
@@ -26,18 +26,18 @@ namespace epi
 
 class mem_file_c : public file_c
 {
-public:
-    mem_file_c(const byte *_block, int _len, bool copy_it = true);
-    ~mem_file_c();
-
-protected:
+public: //!!!! TEMP HACK
 	byte *data;
+
+private:
 	int length;
 	int pos;
 	bool copied;
 
 public:
-    // Overrides
+    mem_file_c(const byte *_block, int _len, bool copy_it = true);
+    ~mem_file_c();
+
     int GetLength()   { return length; }
     int GetPosition() { return pos; }
 
@@ -45,19 +45,11 @@ public:
     unsigned int Write(const void *src, unsigned int size);
 
     bool Seek(int offset, int seekpoint);
-
-public:
-	// HACK ALERT !!!
-	byte *GetNonCopiedDataPointer() const
-	{
-		// ASSERT(! copied);
-		return data;
-	}
 };
 
 } // namespace epi
 
-#endif /* __EPI_MEMFILE_H__ */
+#endif /*__EPI_FILE_MEMORY_H__*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
