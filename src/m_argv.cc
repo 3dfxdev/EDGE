@@ -25,7 +25,7 @@
 
 #include "i_defs.h"
 
-#include "epi/files.h"
+#include "epi/file.h"
 #include "epi/filesystem.h"
 
 #include "m_argv.h"

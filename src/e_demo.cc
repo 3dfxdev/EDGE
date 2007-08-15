@@ -33,7 +33,7 @@
 #include <time.h>
 
 #include "epi/endianess.h"
-#include "epi/files.h"
+#include "epi/file.h"
 #include "epi/filesystem.h"
 #include "epi/path.h"
 

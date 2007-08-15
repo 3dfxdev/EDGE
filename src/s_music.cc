@@ -23,7 +23,7 @@
 
 #include <stdlib.h>
 
-#include "epi/files.h"
+#include "epi/file.h"
 #include "epi/filesystem.h"
 
 #include "ddf/main.h"
