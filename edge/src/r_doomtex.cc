@@ -977,7 +977,7 @@ static void CreateUserBuiltinCOLMAP(epi::image_data_c *img, imagedef_c *def)
 			index = MIN(31, index);
 
 			// FIXME: lookup value in COLORMAP[]
-#if 0
+#if 1
 			dest[0] = 0;
 			dest[1] = 0;
 			dest[2] = 0;
