@@ -431,7 +431,7 @@ static void N_NewGame(game_info_t *gminfo /* out */)
 
 	new_game_proto_t& ng = pk.ng_p();
 
-	sprintf(ng.info.engine_name, "EDGE%3x", EDGEVER);
+	sprintf(ng.info.engine_name, "EDGE%3d", EDGEVER);
 	sprintf(ng.info.game_name,   "DOOM2");
 	sprintf(ng.info.level_name,  startmap);
 
