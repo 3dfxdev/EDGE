@@ -23,8 +23,6 @@
 #ifndef __EPI_CRC_H__
 #define __EPI_CRC_H__
 
-#include "types.h"
-
 namespace epi
 {
 	class crc32_c

@@ -26,7 +26,6 @@
 #ifndef __EPI_IMAGE_HQ2X_H__
 #define __EPI_IMAGE_HQ2X_H__
 
-#include "epi.h"
 #include "image_data.h"
 
 namespace epi

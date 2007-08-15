@@ -24,8 +24,6 @@
 #ifndef __EPI_RAWDEF_PCX_H__
 #define __EPI_RAWDEF_PCX_H__
 
-#include "types.h"
-
 namespace epi
 {
 

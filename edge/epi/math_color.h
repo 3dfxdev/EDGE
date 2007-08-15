@@ -19,11 +19,6 @@
 #ifndef __EPI_MATH_COLOR_H__
 #define __EPI_MATH_COLOR_H__
 
-#include "types.h"
-#include "macros.h"
-
-#include <math.h>
-
 namespace epi
 {
 

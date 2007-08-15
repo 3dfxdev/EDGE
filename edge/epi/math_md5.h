@@ -28,9 +28,6 @@
 #ifndef __EPI_MD5_H__
 #define __EPI_MD5_H__
 
-#include "epi.h"
-#include "types.h"
-
 namespace epi
 {
 
