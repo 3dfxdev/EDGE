@@ -15,6 +15,7 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
+
 #ifndef __EPI_FILE_CLASS__
 #define __EPI_FILE_CLASS__ 
 
@@ -62,17 +63,13 @@ public:
     virtual int GetType(void) = 0;
 
 	virtual unsigned int Read(void *dest, unsigned int size) = 0;
-	virtual bool Read16BitInt(void *dest) = 0;
-	virtual bool Read32BitInt(void *dest) = 0;
 
 	virtual bool Seek(int offset, int seekpoint) = 0;
 
 	virtual unsigned int Write(const void *src, unsigned int size) = 0;
-	virtual bool Write16BitInt(void *src) = 0;
-	virtual bool Write32BitInt(void *src) = 0;
 };
 
-};
+} // namespace epi
 
 #endif /* __EPI_FILE_CLASS__ */
 

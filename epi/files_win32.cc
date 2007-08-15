@@ -112,31 +112,6 @@ unsigned int win32_file_c::Read(void *dest, unsigned int size)
 	return read_len;
 }
 
-//
-// bool win32_file_c::Read16BitInt()
-//
-bool win32_file_c::Read16BitInt(void *dest)
-{
-	DWORD read_len;
-
-    if (!dest || filehandle == INVALID_HANDLE_VALUE)
-        return false;
-
-    return (ReadFile(filehandle, dest, sizeof(u16_t), &read_len, NULL) != 0);
-}
-
-//
-// bool win32_file_c::Read32BitInt()
-//
-bool win32_file_c::Read32BitInt(void *dest)
-{
-	DWORD read_len;
-
-    if (!dest || filehandle == INVALID_HANDLE_VALUE)
-        return false;
-
-    return (ReadFile(filehandle, dest, sizeof(u32_t), &read_len, NULL) != 0);
-}
 
 //
 // bool win32_file_c::Seek()
@@ -177,31 +152,6 @@ unsigned int win32_file_c::Write(const void *src, unsigned int size)
 	return write_len;
 }
 
-//
-// bool win32_file_c::Write16BitInt()
-//
-bool win32_file_c::Write16BitInt(void *src)
-{
-	DWORD write_len;
-
-    if (!src || filehandle == INVALID_HANDLE_VALUE)
-        return false;
-
-    return (WriteFile(filehandle, src, sizeof(u16_t), &write_len, NULL) != 0);
-}
-
-//
-// bool win32_file_c::Write32BitInt()
-//
-bool win32_file_c::Write32BitInt(void *src)
-{
-	DWORD write_len;
-
-    if (!src || filehandle == INVALID_HANDLE_VALUE)
-        return false;
-
-    return (WriteFile(filehandle, src, sizeof(u32_t), &write_len, NULL) != 0);
-}
 
 } // namespace epi
 

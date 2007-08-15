@@ -48,14 +48,10 @@ public:
     int GetType(void) { return TYPE_DISK; }  
 
     unsigned int Read(void *dest, unsigned int size);
-    bool Read16BitInt(void *dest);
-    bool Read32BitInt(void *dest);
 
     bool Seek(int offset, int seekpoint);
 
     unsigned int Write(const void *src, unsigned int size);
-    bool Write16BitInt(void *src);
-    bool Write32BitInt(void *src);
 };
 
 };

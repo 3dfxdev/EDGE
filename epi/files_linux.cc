@@ -101,27 +101,6 @@ unsigned int linux_file_c::Read(void *dest, unsigned int size)
     return fread(dest, 1, size, file);
 }
 
-//
-// unsigned int linux_file_c::Read16BitInt()
-//
-bool linux_file_c::Read16BitInt(void *dest)
-{
-    if (!dest || !file)
-        return false;
-
-    return (fread(dest, sizeof(short), 1, file) == 1);
-}
-
-//
-// unsigned int linux_file_c::Read32BitInt()
-//
-bool linux_file_c::Read32BitInt(void *dest)
-{
-    if (!dest || !file)
-        return 0;
-
-    return (fread(dest, sizeof(int), 1, file) == 1);
-}
 
 //
 // bool linux_file_c::Seek()
@@ -157,27 +136,6 @@ unsigned int linux_file_c::Write(const void *src, unsigned int size)
     return fwrite(src, 1, size, file);
 }
 
-//
-// unsigned int linux_file_c::Write16BitInt()
-//
-bool linux_file_c::Write16BitInt(void *src)
-{
-    if (!src || !file)
-        return false;
-
-    return (fwrite(src, sizeof(short), 1, file) == 1);
-}
-
-//
-// unsigned int linux_file_c::Write32BitInt()
-//
-bool linux_file_c::Write32BitInt(void *src)
-{
-    if (!src || !file)
-        return false;
-
-    return (fwrite(src, sizeof(int), 1, file) == 1);
-}
 
 } // namespace epi
 

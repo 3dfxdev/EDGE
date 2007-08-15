@@ -93,23 +93,6 @@ unsigned int mem_file_c::Read(void *dest, unsigned int size)
 	return size;
 }
 
-//
-// Read16BitInt
-//
-bool mem_file_c::Read16BitInt(void *dest)
-{
-	// FIXME: byte swap ???
-	return (Read(dest, sizeof(u16_t)) == sizeof(u16_t));
-}
-
-//
-// Read32BitInt
-//
-bool mem_file_c::Read32BitInt(void *dest)
-{
-	// FIXME: byte swap ???
-	return (Read(dest, sizeof(u32_t)) == sizeof(u32_t));
-}
 
 //
 // Seek
@@ -149,21 +132,6 @@ unsigned int mem_file_c::Write(const void *src, unsigned int size)
 	return 0;  /* read only, cobber */
 }
 
-//
-// Write16BitInt
-//
-bool mem_file_c::Write16BitInt(void *src)
-{
-	return false;  /* read only, cobber */
-}
-
-//
-// Write32BitInt
-//
-bool mem_file_c::Write32BitInt(void *src)
-{
-	return false;  /* read only, cobber */
-}
 
 } // namespace epi
 
