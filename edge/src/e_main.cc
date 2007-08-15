@@ -38,7 +38,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#include "epi/files.h"
+#include "epi/file.h"
 #include "epi/filesystem.h"
 #include "epi/path.h"
 #include "epi/strings.h"

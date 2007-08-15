@@ -38,7 +38,7 @@
 #include <limits.h>
 
 #include "epi/endianess.h"
-#include "epi/files.h"
+#include "epi/file.h"
 #include "epi/filesystem.h"
 #include "epi/math_md5.h"
 #include "epi/path.h"

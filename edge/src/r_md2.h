@@ -19,7 +19,7 @@
 #ifndef __R_MD2_H__
 #define __R_MD2_H__
 
-#include "epi/files.h"
+#include "epi/file.h"
 
 #include "r_defs.h"
 #include "p_mobj.h"
