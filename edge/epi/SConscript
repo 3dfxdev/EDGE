@@ -14,7 +14,7 @@ env.Append(CCFLAGS = ['-ffast-math'])
 
 epi_sources = [
     'arrays.cc', 'bytearray.cc',
-    'exe_path.cc', 'filesystem.cc',
+    'exe_path.cc', 'files.cc', 'filesystem.cc',
     'image_data.cc', 'image_hq2x.cc',
     'image_jpeg.cc', 'image_png.cc', 'image_tga.cc',
     'math_angle.cc', 'math_bbox.cc', 'math_color.cc',
@@ -25,11 +25,11 @@ epi_sources = [
 
 # operating system specifics
 if build_info['platform'] == "win32":
-    epi_sources += ['epi_win32.cc', 'files_win32.cc', 'filesystem_win32.cc', 'path_win32.cc']
+    epi_sources += ['epi_win32.cc', 'filesystem_win32.cc', 'path_win32.cc']
     ###--- env.Append(CCFLAGS = '-DWIN32')
 
 else: # linux
-    epi_sources += ['epi_linux.cc', 'files_linux.cc', 'filesystem_linux.cc', 'path_linux.cc']
+    epi_sources += ['epi_linux.cc', 'filesystem_linux.cc', 'path_linux.cc']
     ###--- env.Append(CCFLAGS = '-DLINUX')
 
 env.StaticLibrary('epi', epi_sources)
