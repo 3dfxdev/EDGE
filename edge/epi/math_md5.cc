@@ -25,9 +25,8 @@
 //
 //------------------------------------------------------------------------
 
+#include "epi.h"
 #include "math_md5.h"
-
-#include <string.h>  // for memcpy & memset
 
 /* The four core functions - F1 is optimized somewhat */
 

@@ -16,11 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
+#include "epi.h"
 #include "sound_data.h"
-
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include <vector>
 

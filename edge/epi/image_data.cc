@@ -16,12 +16,10 @@
 //
 //------------------------------------------------------------------------
 
+#include "epi.h"
+
 #include "image_data.h"
 
-#include <math.h>
-#include <string.h>
-
-#include "asserts.h"
 
 namespace epi
 {

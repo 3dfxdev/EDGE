@@ -15,6 +15,8 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
+
+#include "epi.h"
 #include "timestamp.h"
 
 namespace epi

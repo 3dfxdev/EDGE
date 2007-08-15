@@ -20,9 +20,8 @@
 //
 //------------------------------------------------------------------------
 
+#include "epi.h"
 #include "math_crc.h"
-
-#include <math.h>
 
 namespace epi
 {

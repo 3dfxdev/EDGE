@@ -17,6 +17,7 @@
 //------------------------------------------------------------------------
 
 #include "epi.h"
+
 #include "image_png.h"
 
 #undef _SETJMP_H  // workaround for some weirdness in pngconf.h
