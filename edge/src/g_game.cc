@@ -813,7 +813,7 @@ static void G_DoSaveGame(void)
 
  	G_FileNameFromSlot(fn, savegame_slot);
 	
-	if (! SV_OpenWriteFile(fn.GetString(), (EDGEVER << 8) | EDGEPATCH))
+	if (! SV_OpenWriteFile(fn.GetString(), (EDGEVERHEX << 8) | EDGEPATCH))
 	{
 		I_Error("Unable to create savegame file: %s\n", fn.GetString());
 		return; /* NOT REACHED */

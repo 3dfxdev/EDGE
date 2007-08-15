@@ -218,7 +218,7 @@ void G_RecordDemo(const char *filename)
 
 	// Write directly to file. Possibly a bit slower without disk cache, but
 	// uses less memory, and the demo can record EDGE crashes.
-	if (! DEM_OpenWriteFile(demoname.GetString(), (EDGEVER << 8) | EDGEPATCH))
+	if (! DEM_OpenWriteFile(demoname.GetString(), (EDGEVERHEX << 8) | EDGEPATCH))
 		I_Error("Unable to create demo file: %s\n", demoname.GetString());
 
 	demorecording = true;

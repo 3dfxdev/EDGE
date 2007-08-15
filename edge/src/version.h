@@ -18,7 +18,8 @@
 
 #define TITLE  "EDGE Engine"
 
-#define EDGEVER     0x131
+#define EDGEVER       131
+#define EDGEVERHEX  0x131
 #define EDGEVERSTR  "1.31"
 
 // patch level
