@@ -14,14 +14,16 @@ env.Append(CCFLAGS = ['-ffast-math'])
 
 epi_sources = [
     'arrays.cc', 'bytearray.cc',
-    'exe_path.cc', 'file.cc', 'filesystem.cc',
+    'exe_path.cc',
+    'file.cc', 'filesystem.cc', 'file_memory.cc',
     'image_data.cc', 'image_hq2x.cc',
     'image_jpeg.cc', 'image_png.cc', 'image_tga.cc',
     'math_angle.cc', 'math_bbox.cc', 'math_color.cc',
-    'math_crc.cc', 'math_md5.cc', 'math_point.cc', 'math_vector.cc',
-    'memfile.cc', 'mersenne_twist.cc',
-    'sound_data.cc',
-    'strings.cc', 'timestamp.cc', 'utility.cc']
+    'math_crc.cc', 'math_md5.cc', 'math_point.cc',
+    'math_vector.cc',
+    'mersenne_twist.cc',
+    'sound_data.cc', 'strings.cc',
+    'timestamp.cc', 'utility.cc']
 
 # operating system specifics
 if build_info['platform'] == "win32":
