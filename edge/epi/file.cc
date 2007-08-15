@@ -18,124 +18,76 @@
 
 #include "epi.h"
 
-#include "files_linux.h"
-#include "filesystem.h"
+#include "file.h"
 
 namespace epi
 {
 
-//
-// files_linux_c Constructor
-//
-linux_file_c::linux_file_c() : filesystem(NULL), file(NULL)
+ansi_file_c::ansi_file_c(FILE *_filep) : fp(_filep)
+{ }
+
+ansi_file_c::~ansi_file_c()
 {
+    if (fp)
+	{
+		fclose(fp);
+		fp = NULL;
+    }
 }
 
-//
-// files_linux_c Destructor
-//
-linux_file_c::~linux_file_c()
+int ansi_file_c::GetLength()
 {
-    if (filesystem)
-        filesystem->Close(this);
-}
+	SYS_ASSERT(fp);
 
-//
-// FILE* linux_file_c::GetDescriptor()
-//    
-FILE* linux_file_c::GetDescriptor(void)
-{
-    // Probably could be inlined. Will change if no addition checking is
-    // needed.
-    return file;
-}
+    long currpos = ftell(fp);      // Get existing position
 
-//
-// linux_file_c::Setup()
-//
-void linux_file_c::Setup(filesystem_c* _filesystem, FILE *_file)
-{
-    filesystem = _filesystem;
-    file = _file;
-}
+    fseek(fp, 0, SEEK_END);        // Seek to the end of file
+    long len = ftell(fp);          // Get the position - it our length
 
-//
-// linux_file_c::GetLength()
-//
-int linux_file_c::GetLength(void)
-{
-    long currpos;
-    long len;
-
-    if (!file)
-        return -1;
-
-    currpos = ftell(file);           // Get existing position
-
-    fseek(file, 0, SEEK_END);        // Seek to the end of file
-    len = ftell(file);               // Get the position - it our length
-
-    fseek(file, currpos, SEEK_SET);  // Reset existing position
+    fseek(fp, currpos, SEEK_SET);  // Reset existing position
     return (int)len;
 }
 
-//
-// linux_file_c::GetPosition()
-//
-int linux_file_c::GetPosition(void)
+int ansi_file_c::GetPosition()
 {
-    if (!file)
-        return -1;
+	SYS_ASSERT(fp);
 
-    return (int)ftell(file);
+    return (int)ftell(fp);
 }
 
-//
-// unsigned int linux_file_c::Read()
-//
-unsigned int linux_file_c::Read(void *dest, unsigned int size)
+unsigned int ansi_file_c::Read(void *dest, unsigned int size)
 {
-    if (!dest || !file)
-        return false;
+	SYS_ASSERT(fp);
+	SYS_ASSERT(dest);
 
-    return fread(dest, 1, size, file);
+    return fread(dest, 1, size, fp);
 }
 
+unsigned int ansi_file_c::Write(const void *src, unsigned int size)
+{
+	SYS_ASSERT(fp);
+	SYS_ASSERT(src);
 
-//
-// bool linux_file_c::Seek()
-//
-bool linux_file_c::Seek(int offset, int seekpoint)
+    return fwrite(src, 1, size, fp);
+}
+
+bool ansi_file_c::Seek(int offset, int seekpoint)
 {
     int whence;
 
     switch (seekpoint)
     {
         case SEEKPOINT_START:   { whence = SEEK_SET; break; }
-        case SEEKPOINT_CURRENT: { whence = SEEK_CUR; break;  }
-        case SEEKPOINT_END:     { whence = SEEK_END; break;  }
+        case SEEKPOINT_CURRENT: { whence = SEEK_CUR; break; }
+        case SEEKPOINT_END:     { whence = SEEK_END; break; }
 
         default:
-        {
-            return false;
-            break;
-        }
+			I_Error("ansi_file_c::Seek : illegal seekpoint value.\n");
+            return false; /* NOT REACHED */
     }
 
-    return (fseek(file, offset, whence) == 0);
+    return (fseek(fp, offset, whence) == 0);
 }
-
-//
-// unsigned int linux_file_c::Write()
-//
-unsigned int linux_file_c::Write(const void *src, unsigned int size)
-{
-    if (!src || !file)
-        return false;
-
-    return fwrite(src, 1, size, file);
-}
-
 
 } // namespace epi
 

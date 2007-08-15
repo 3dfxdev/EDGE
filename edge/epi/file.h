@@ -22,13 +22,10 @@
 namespace epi
 {
 
-// Base class of the EDGE Platform Inferface File
+// base class of the EDGE Platform Inferface File
 class file_c
 {
 public:
-	file_c() {};
-	virtual ~file_c() {};
-
     // Access Types
     enum access_e
     {
@@ -47,26 +44,40 @@ public:
 		SEEKPOINT_NUMTYPES
 	};
 
-    // Type
-    enum type_e
-    {
-        TYPE_DISK,
-        TYPE_MEMORY,
-        TYPE_NUMTYPES
-    };
-
 protected:
 
 public:
-	virtual int GetLength(void) = 0;
-	virtual int GetPosition(void) = 0;
-    virtual int GetType(void) = 0;
+	file_c() {}
+	virtual ~file_c() {}
+
+	virtual int GetLength() = 0;
+	virtual int GetPosition() = 0;
 
 	virtual unsigned int Read(void *dest, unsigned int size) = 0;
+	virtual unsigned int Write(const void *src, unsigned int size) = 0;
 
 	virtual bool Seek(int offset, int seekpoint) = 0;
+};
 
-	virtual unsigned int Write(const void *src, unsigned int size) = 0;
+
+// standard File class using ANSI C functions
+class ansi_file_c: public file_c
+{
+private:
+    FILE *fp;
+
+public:
+    ansi_file_c(FILE *_filep);
+    ~ansi_file_c();
+
+public:
+    int GetLength();
+    int GetPosition();
+
+    unsigned int Read(void *dest, unsigned int size);
+    unsigned int Write(const void *src, unsigned int size);
+
+    bool Seek(int offset, int seekpoint);
 };
 
 } // namespace epi
