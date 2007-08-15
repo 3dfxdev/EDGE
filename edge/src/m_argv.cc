@@ -24,15 +24,11 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "m_argv.h"
 
 #include "epi/files.h"
 #include "epi/filesystem.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "m_argv.h"
 
 static int myargc;
 static const char **myargv = NULL;

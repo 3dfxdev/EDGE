@@ -39,7 +39,6 @@
 #include "i_defs.h"
 
 #include <float.h>
-#include <string.h>
 
 #include "dm_defs.h"
 #include "dm_state.h"

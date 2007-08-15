@@ -24,19 +24,12 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "m_netgame.h"
-#include "n_protocol.h"
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
-#include <ctype.h>
-
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "ddf/main.h"
 
 #include "con_main.h"
-#include "ddf/main.h"
+#include "dm_defs.h"
+#include "dm_state.h"
 #include "dstrings.h"
 #include "e_main.h"
 #include "g_game.h"
@@ -47,7 +40,9 @@
 #include "m_misc.h"
 #include "m_option.h"
 #include "m_random.h"
+#include "m_netgame.h"
 #include "n_network.h"
+#include "n_protocol.h"
 #include "p_setup.h"
 #include "r_local.h"
 #include "s_sound.h"

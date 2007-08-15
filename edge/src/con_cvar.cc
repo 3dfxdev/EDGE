@@ -17,14 +17,11 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "con_cvar.h"
 
+#include "con_cvar.h"
 #include "con_defs.h"
 #include "z_zone.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 cvar_t **cvars = NULL;
 int num_cvars = 0;

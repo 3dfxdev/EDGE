@@ -30,11 +30,8 @@
 
 #include "i_defs.h"
 
-#include <ctype.h>
-#include <string.h>
 #include <time.h>
 
-#include "epi/epi.h"
 #include "epi/endianess.h"
 #include "epi/files.h"
 #include "epi/filesystem.h"

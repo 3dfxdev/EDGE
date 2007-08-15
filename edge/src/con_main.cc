@@ -17,8 +17,10 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "con_main.h"
 
+#include "epi/math_crc.h"
+
+#include "con_main.h"
 #include "con_defs.h"
 #include "g_game.h"
 #include "m_menu.h"
@@ -26,13 +28,6 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include "epi/math_crc.h"
-
-#include <ctype.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #define SCREENROWS 100
 #define SCREENCOLS 80

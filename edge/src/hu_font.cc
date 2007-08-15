@@ -17,21 +17,18 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "hu_font.h"
 
 #include "ddf/main.h"
 #include "ddf/font.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"
+#include "hu_font.h"
 #include "r_local.h"
 #include "r_colors.h"
 #include "r_draw.h"
 #include "r_modes.h"
 #include "r_image.h"
-
-#include <ctype.h>
-#include <string.h>
 
 #define DUMMY_WIDTH  4
 

@@ -26,8 +26,6 @@
 #include "i_defs.h"
 
 #include <float.h>
-#include <stdio.h>
-#include <string.h>
 
 #include "ddf/colormap.h"
 

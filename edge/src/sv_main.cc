@@ -21,11 +21,11 @@
 //
 
 #include "i_defs.h"
-#include "sv_chunk.h"
 
 #include "dm_state.h"
 #include "e_main.h"
 #include "g_game.h"
+#include "f_stats.h"
 #include "m_math.h"
 #include "m_random.h"
 #include "p_local.h"
@@ -34,10 +34,8 @@
 #include "sv_chunk.h"
 #include "sv_main.h"
 #include "w_wad.h"
-#include "f_stats.h"
 #include "z_zone.h"
 
-#include <string.h>
 
 savestruct_t *sv_known_structs;
 savearray_t  *sv_known_arrays;

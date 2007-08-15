@@ -19,10 +19,7 @@
 #include "i_defs.h"
 #include "unx_sysinc.h"
 
-#include <stdio.h>
 #include <unistd.h>
-#include <string.h>
-#include <ctype.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>

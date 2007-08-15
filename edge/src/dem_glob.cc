@@ -28,9 +28,6 @@
 #include "dem_chunk.h"
 #include "z_zone.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 // forward decls:
 static void DG_GetInt(const char *info, void *storage);

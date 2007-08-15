@@ -24,15 +24,20 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "g_game.h"
 
-#include "r_automap.h"
+#include <time.h>
+#include <limits.h>
+
+#include "epi/endianess.h"
+#include "epi/path.h"
+
 #include "con_main.h"
 #include "dstrings.h"
 #include "e_demo.h"
 #include "e_input.h"
 #include "e_main.h"
 #include "f_finale.h"
+#include "g_game.h"
 #include "m_cheat.h"
 #include "m_menu.h"
 #include "m_random.h"
@@ -41,6 +46,7 @@
 #include "p_setup.h"
 #include "p_tick.h"
 #include "rad_trig.h"
+#include "r_automap.h"
 #include "r_sky.h"
 #include "r_view.h"
 #include "r_modes.h"
@@ -54,16 +60,6 @@
 #include "w_wad.h"
 #include "f_stats.h"
 #include "z_zone.h"
-
-#include "epi/endianess.h"
-#include "epi/path.h"
-
-#include <ctype.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-#include <limits.h>
 
 #define SAVEGAMESIZE    0x50000
 #define SAVESTRINGSIZE  24

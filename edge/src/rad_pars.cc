@@ -18,13 +18,7 @@
 
 #include "i_defs.h"
 
-#include <ctype.h>
-
 #include <limits.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -39,8 +33,8 @@
 #include "s_sound.h"
 #include "r_modes.h"
 #include "w_wad.h"
-#include "z_zone.h"
 #include "version.h"
+#include "z_zone.h"
 
 int rts_version;  // global
 

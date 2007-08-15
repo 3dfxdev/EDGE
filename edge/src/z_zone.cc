@@ -24,10 +24,8 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "z_zone.h"
 
-#include <stdlib.h>
-#include <string.h>
+#include "z_zone.h"
 
 
 //

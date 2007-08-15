@@ -28,16 +28,13 @@
 
 #include "i_defs.h"
 
+#include "epi/strings.h"
+
 #include "p_bot.h"
 #include "sv_chunk.h"
 #include "sv_main.h"
 #include "z_zone.h"
 
-#include "epi/strings.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #undef SF
 #define SF  SVFIELD

@@ -28,7 +28,6 @@
 // -ES- 2000/02/12 Moved most of this module to w_texture.c.
 
 #include "i_defs.h"
-#include "w_flat.h"
 
 #include "e_search.h"
 #include "dm_state.h"
@@ -38,11 +37,10 @@
 #include "p_local.h"
 #include "r_image.h"
 #include "r_sky.h"
+#include "w_flat.h"
 #include "w_wad.h"
 #include "w_texture.h"
 #include "z_zone.h"
-
-#include <string.h>
 
 //
 // R_AddFlatAnim

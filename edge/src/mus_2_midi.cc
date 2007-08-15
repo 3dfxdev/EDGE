@@ -37,10 +37,6 @@
 #include "epi/bytearray.h"
 #include "epi/endianess.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
 
 namespace Mus2Midi
 {

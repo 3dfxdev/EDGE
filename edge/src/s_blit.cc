@@ -26,18 +26,16 @@
 #include "i_defs.h"
 #include "i_sdlinc.h"
 
+#include <list>
+
+#include "m_misc.h"
+#include "r_misc.h"   // R_PointToAngle
+#include "p_local.h"  // P_ApproxDistance
+
 #include "s_sound.h"
 #include "s_cache.h"
 #include "s_blit.h"
 #include "s_music.h"
-
-#include "m_misc.h"
-#include "r_misc.h"  // R_PointToAngle
-#include "p_local.h"  // P_ApproxDistance
-
-#include <string.h>
-
-#include <list>
 
 
 // Sound must be clipped to prevent distortion (clipping is

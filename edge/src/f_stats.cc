@@ -31,12 +31,14 @@
 
 #include "i_defs.h"
 
+#include "epi/strings.h"
+
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_main.h"
+#include "f_finale.h"
 #include "f_stats.h"
 #include "g_game.h"
-#include "f_finale.h"
 #include "hu_lib.h"
 #include "p_local.h"
 #include "s_sound.h"
@@ -46,10 +48,6 @@
 #include "r_draw.h"
 #include "r_modes.h"
 
-#include "epi/strings.h"
-
-#include <stdio.h>
-#include <string.h>
 
 //
 // Data needed to add patches to full screen intermission pics.

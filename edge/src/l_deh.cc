@@ -24,15 +24,11 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "l_deh.h"
 
-#include "version.h"
-
-#include "epi/epi.h"
 #include "deh_edge/dh_plugin.h"
 
-#include <stdio.h>
-#include <stdarg.h>
+#include "l_deh.h"
+#include "version.h"
 
 static char dh_message[1024];
 

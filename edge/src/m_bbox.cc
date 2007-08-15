@@ -24,10 +24,10 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "m_bbox.h"
 
 #include <float.h>
-#include <string.h>
+
+#include "m_bbox.h"
 
 void M_ClearBox(float * box)
 {

@@ -26,23 +26,21 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
-#include "epi/strings.h"
-
 #include <limits.h>
-#include <string.h>
 
 #include <vector>
 #include <algorithm>
 
+#include "epi/strings.h"
+
 #include "r_modes.h"
 #include "r_gldefs.h"
-#include "st_stuff.h"
 #include "r_colors.h"
-
 #include "r_automap.h"
 #include "r_image.h"
 #include "r_units.h"
 #include "r_draw.h"
+#include "st_stuff.h"
 
 // Globals
 int SCREENWIDTH;

@@ -18,7 +18,10 @@
 
 #include "i_defs.h"
 #include "i_defs_gl.h"
-#include "r_image.h"
+
+#include <limits.h>
+
+#include "epi/image_data.h"
 
 #include "e_search.h"
 #include "e_main.h"
@@ -26,16 +29,11 @@
 #include "m_misc.h"
 #include "p_local.h"
 #include "r_gldefs.h"
+#include "r_image.h"
 #include "r_sky.h"
 #include "r_colors.h"
 #include "w_texture.h"
 #include "w_wad.h"
-
-#include "epi/image_data.h"
-
-#include <limits.h>
-#include <math.h>
-#include <string.h>
 
 
 // -AJA- FIXME !!! temporary hack, awaiting good GL extension handling

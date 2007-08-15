@@ -23,15 +23,12 @@
 //
 
 #include "i_defs.h"
-#include "dem_chunk.h"
-#include "z_zone.h"
 
 #include "epi/math_crc.h"
 
-#include <ctype.h>
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
+#include "dem_chunk.h"
+#include "z_zone.h"
+
 
 #define DEBUG_GETBYTE  0
 #define DEBUG_PUTBYTE  0

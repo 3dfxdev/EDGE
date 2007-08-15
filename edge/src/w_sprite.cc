@@ -29,15 +29,14 @@
 //
 
 #include "i_defs.h"
-#include "r_things.h"
 
 #include "e_main.h"
 #include "e_search.h"
 #include "r_image.h"
+#include "r_things.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include <string.h>
 
 // The minimum distance between player and a visible sprite.
 // FIXME: Decrease value, lower values are valid when float is used.

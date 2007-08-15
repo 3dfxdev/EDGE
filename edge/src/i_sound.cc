@@ -19,10 +19,6 @@
 #include "i_defs.h"
 #include "i_sdlinc.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
 #include <fcntl.h>
 #include <signal.h>
 
@@ -32,11 +28,10 @@
 #include "m_argv.h"
 #include "m_misc.h"
 #include "m_random.h"
-#include "w_wad.h"
-
 #include "s_sound.h"
 #include "s_cache.h"
 #include "s_blit.h"
+#include "w_wad.h"
 
 
 // If true, sound system is off/not working. Changed to false if sound init ok.
