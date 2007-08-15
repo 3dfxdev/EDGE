@@ -1037,7 +1037,8 @@ void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f)
 	{
 		// FIXME: create sub-class of mem_file_c in WAD code
 		epi::mem_file_c *mf = (epi::mem_file_c *) f;
-		W_DoneWithLump(mf->GetNonCopiedDataPointer());
+
+		W_DoneWithLump(mf->data);
 
 		delete f;
 	}
