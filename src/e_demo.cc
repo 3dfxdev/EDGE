@@ -326,7 +326,7 @@ void G_DeferredTimeDemo(const char *filename)
 //
 void G_DoPlayDemo(void)
 {
-	epi::file_c *fp = epi::the_filesystem->Open(defdemoname.GetString(),
+	epi::file_c *fp = epi::FS_Open(defdemoname.GetString(),
         epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
 
 	if (! fp || ! DEM_OpenReadFile(fp))
@@ -432,7 +432,7 @@ bool G_FinishDemo(void)
 
 	if (demoplayback)
 	{
-		epi::the_filesystem->Close(demo_in);
+		epi::FS_Close(demo_in);
 		demo_in = NULL;
 
 		if (singledemo)

@@ -113,7 +113,7 @@ void S_ChangeMusic(int entrynum, bool looping)
 			// -AJA- 2005/01/15: filenames in DDF relative to GAMEDIR
 			M_ComposeFileName(fn, game_dir.GetString(), play->info.GetString());
 
-			if (!epi::the_filesystem->Access(fn.GetString(), epi::file_c::ACCESS_READ))
+			if (!epi::FS_Access(fn.GetString(), epi::file_c::ACCESS_READ))
 			{
 				I_Warning("S_ChangeMusic: Can't Load OGG '%s'\n", fn.GetString());
 				return;

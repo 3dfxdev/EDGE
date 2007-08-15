@@ -945,12 +945,12 @@ void InitDirectories(void)
             path = epi::path::Join(s, EDGEHOMESUBDIR); 
 
             const char *test_dir = path.GetString();
-			if (!epi::the_filesystem->IsDir(test_dir))
+			if (!epi::FS_IsDir(test_dir))
 			{
-                epi::the_filesystem->MakeDir(test_dir);
+                epi::FS_MakeDir(test_dir);
 
                 // Check whether the directory was created
-                if (!epi::the_filesystem->IsDir(test_dir))
+                if (!epi::FS_IsDir(test_dir))
                     test_dir = NULL; // Make invalid since it clearly isn't
 			}
 
@@ -976,7 +976,7 @@ void InitDirectories(void)
 	// add parameter file "gamedir/parms" if it exists.
     path = epi::path::Join(game_dir.GetString(), "parms");
 
-	if (epi::the_filesystem->Access(path.GetString(), epi::file_c::ACCESS_READ))
+	if (epi::FS_Access(path.GetString(), epi::file_c::ACCESS_READ))
 	{
 		// Insert it right after the game parameter
 		M_ApplyResponseFile(path.GetString(), M_CheckParm("-game") + 2);
@@ -1011,24 +1011,24 @@ void InitDirectories(void)
 	// cache directory
     path = epi::path::Join(home_dir.GetString(), CACHEDIR);
 
-    if (!epi::the_filesystem->IsDir(path.GetString()))
-        epi::the_filesystem->MakeDir(path.GetString());
+    if (!epi::FS_IsDir(path.GetString()))
+        epi::FS_MakeDir(path.GetString());
 
     cache_dir.Set(path.GetString());
 
 	// savegame directory
     path = epi::path::Join(home_dir.GetString(), SAVEGAMEDIR);
 	
-    if (!epi::the_filesystem->IsDir(path.GetString()))
-        epi::the_filesystem->MakeDir(path.GetString());
+    if (!epi::FS_IsDir(path.GetString()))
+        epi::FS_MakeDir(path.GetString());
 
     save_dir.Set(path.GetString());
 
 	// screenshot directory
     path = epi::path::Join(home_dir.GetString(), SCRNSHOTDIR);
 
-    if (!epi::the_filesystem->IsDir(path.GetString()))
-        epi::the_filesystem->MakeDir(path.GetString());
+    if (!epi::FS_IsDir(path.GetString()))
+        epi::FS_MakeDir(path.GetString());
 
     shot_dir.Set(path.GetString());
 }
@@ -1052,7 +1052,7 @@ void CheckExternal(void)
 
 	test_filename = epi::path::Join(game_dir.GetString(), EXTERN_FILE);
 
-	if (epi::the_filesystem->Access(test_filename.GetString(), epi::file_c::ACCESS_READ))
+	if (epi::FS_Access(test_filename.GetString(), epi::file_c::ACCESS_READ))
 		external_ddf = true;
 }
 
@@ -1074,7 +1074,7 @@ static void IdentifyVersion(void)
 
     if (!iwad_par.IsEmpty())
     {
-        if (epi::the_filesystem->IsDir(iwad_par.GetString()))
+        if (epi::FS_IsDir(iwad_par.GetString()))
         {
             iwad_dir.Set(iwad_par.GetString());
             iwad_par.Empty(); // Discard 
@@ -1087,7 +1087,7 @@ static void IdentifyVersion(void)
     {
         const char *s = getenv("DOOMWADDIR");
 
-        if (s && epi::the_filesystem->IsDir(s))
+        if (s && epi::FS_IsDir(s))
             iwad_dir.Set(s);
     }
 
@@ -1120,7 +1120,7 @@ static void IdentifyVersion(void)
         else
             iwad_file = fn;
 
-        if (!epi::the_filesystem->Access(iwad_file.GetString(), epi::file_c::ACCESS_READ))
+        if (!epi::FS_Access(iwad_file.GetString(), epi::file_c::ACCESS_READ))
         {
 			I_Error("IdentifyVersion: Unable to add specified '%s'", fn.GetString());
         }
@@ -1156,7 +1156,7 @@ static void IdentifyVersion(void)
 				fn = epi::path::Join(location, wadname[w_idx]);
                 fn.AddString("." EDGEWADEXT);
 
-				if (epi::the_filesystem->Access(fn.GetString(), epi::file_c::ACCESS_READ))
+				if (epi::FS_Access(fn.GetString(), epi::file_c::ACCESS_READ))
 				{
                     iwad_file = fn;
 					done = true;
@@ -1184,10 +1184,10 @@ static void IdentifyVersion(void)
     epi::string_c reqwad_filename;
 
     reqwad_filename = epi::path::Join(iwad_dir.GetString(), REQUIREDWAD "." EDGEWADEXT);
-    if (!epi::the_filesystem->Access(reqwad_filename.GetString(), epi::file_c::ACCESS_READ))
+    if (!epi::FS_Access(reqwad_filename.GetString(), epi::file_c::ACCESS_READ))
     {
         reqwad_filename = epi::path::Join(game_dir.GetString(), REQUIREDWAD "." EDGEWADEXT);
-        if (!epi::the_filesystem->Access(reqwad_filename.GetString(), epi::file_c::ACCESS_READ))
+        if (!epi::FS_Access(reqwad_filename.GetString(), epi::file_c::ACCESS_READ))
         {
             I_Error("IdentifyVersion: Could not find required %s.%s!\n", 
                     REQUIREDWAD, EDGEWADEXT);
