@@ -661,14 +661,15 @@ static optmenuitem_t extkeyconfig[] =
 	{OPT_KeyConfig, "Center View",     NULL, 0, CFGDEF_KEY_LOOKCENTER, &key_lookcenter, NULL, NULL},
 	{OPT_KeyConfig, "Mouse Look",      NULL, 0, CFGDEF_KEY_MLOOK,      &key_mlook, NULL, NULL},
 	{OPT_KeyConfig, "Zoom in/out",     NULL, 0, CFGDEF_KEY_ZOOM,       &key_zoom, NULL, NULL},
+	{OPT_KeyConfig, "180 degree turn", NULL, 0, CFGDEF_KEY_180,        &key_180, NULL, NULL},
 	{OPT_Plain,     "",                NULL, 0, 0,                      NULL, NULL, NULL},
 	{OPT_KeyConfig, "Jump",            NULL, 0, CFGDEF_KEY_JUMP,       &key_jump, NULL, NULL},
-	{OPT_KeyConfig, "Map Toggle",      NULL, 0, CFGDEF_KEY_MAP,        &key_map, NULL, NULL},
-	{OPT_KeyConfig, "180 degree turn", NULL, 0, CFGDEF_KEY_180,        &key_180, NULL, NULL},
     {OPT_KeyConfig, "Weapon Reload",   NULL, 0, CFGDEF_KEY_RELOAD,     &key_reload, NULL, NULL},
     {OPT_KeyConfig, "Next Weapon",     NULL, 0, CFGDEF_KEY_NEXTWEAPON, &key_nextweapon, NULL, NULL},
     {OPT_KeyConfig, "Previous Weapon", NULL, 0, CFGDEF_KEY_PREVWEAPON, &key_prevweapon, NULL, NULL},
-	{OPT_KeyConfig, "Multiplay Talk",  NULL, 0, CFGDEF_KEY_TALK,       &key_talk, NULL, NULL}
+	{OPT_KeyConfig, "Multiplay Talk",  NULL, 0, CFGDEF_KEY_TALK,       &key_talk, NULL, NULL},
+	{OPT_KeyConfig, "Map Toggle",      NULL, 0, CFGDEF_KEY_MAP,        &key_map, NULL, NULL},
+	{OPT_KeyConfig, "Console",         NULL, 0, CFGDEF_KEY_CONSOLE,    &key_console, NULL, NULL}
 };
 
 static menuinfo_t extkeyconfiginfo = 

@@ -69,6 +69,7 @@ extern int key_jump;
 extern int key_map;
 extern int key_180;
 extern int key_talk;
+extern int key_console;
 extern int key_mlook;  // -AJA- 1999/07/27.
 extern int key_secondatk;
 extern int key_reload;  // -AJA- 2004/11/10.
