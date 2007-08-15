@@ -432,7 +432,7 @@ bool G_FinishDemo(void)
 
 	if (demoplayback)
 	{
-		epi::FS_Close(demo_in);
+		delete demo_in;
 		demo_in = NULL;
 
 		if (singledemo)
