@@ -19,6 +19,8 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
+#include "epi/strings.h"
+
 #include "g_game.h"
 #include "r_misc.h"
 #include "r_gldefs.h"
@@ -27,10 +29,6 @@
 #include "r_draw.h"
 #include "r_modes.h"
 #include "r_image.h"
-
-#include "epi/strings.h"
-
-#include <string.h>
 
 
 static int glbsp_last_prog_time = 0;

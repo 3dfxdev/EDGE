@@ -29,10 +29,6 @@
 
 #include "i_defs.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-
 #include "epi/endianess.h"
 
 #include "con_cvar.h"

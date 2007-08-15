@@ -35,8 +35,6 @@
 #include "i_defs_gl.h"
 
 #include <limits.h>
-#include <math.h>
-#include <string.h>
 
 #include "epi/endianess.h"
 #include "epi/files.h"

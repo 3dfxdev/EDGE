@@ -29,19 +29,20 @@
 //
 
 #include "i_defs.h"
-#include "m_menu.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
+#include "ddf/main.h"
 
 #include "con_main.h"
-#include "ddf/main.h"
+#include "dm_defs.h"
+#include "dm_state.h"
 #include "dstrings.h"
 #include "e_main.h"
 #include "g_game.h"
+#include "f_stats.h"
 #include "hu_stuff.h"
 #include "hu_style.h"
 #include "m_argv.h"
+#include "m_menu.h"
 #include "m_misc.h"
 #include "m_netgame.h"
 #include "m_option.h"
@@ -58,12 +59,8 @@
 #include "r_modes.h"
 #include "r_colors.h"
 #include "w_wad.h"
-#include "f_stats.h"
 #include "z_zone.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
 
 //
 // defaulted values

@@ -29,7 +29,6 @@
 //
 
 #include "i_defs.h"
-#include "f_finale.h"
 
 #include "ddf/main.h"
 
@@ -38,6 +37,8 @@
 #include "g_game.h"
 #include "dstrings.h"
 #include "e_main.h"
+#include "f_finale.h"
+#include "f_stats.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"
 #include "hu_style.h"
@@ -50,12 +51,8 @@
 #include "r_colors.h"
 #include "r_draw.h"
 #include "r_modes.h"
-
 #include "w_wad.h"
-#include "f_stats.h"
 
-#include <stdio.h>
-#include <string.h>
 
 typedef enum
 {

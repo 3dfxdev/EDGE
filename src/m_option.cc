@@ -74,11 +74,12 @@
 //
 
 #include "i_defs.h"
-#include "m_option.h"
 
-#include "dm_state.h"
+#include "epi/strings.h"
 
 #include "ddf/main.h"
+
+#include "dm_state.h"
 #include "e_input.h"
 #include "g_game.h"
 #include "hu_stuff.h"
@@ -86,6 +87,7 @@
 #include "m_menu.h"
 #include "m_misc.h"
 #include "m_netgame.h"
+#include "m_option.h"
 #include "n_network.h"
 #include "p_local.h"
 #include "r_misc.h"
@@ -102,11 +104,6 @@
 
 #include "defaults.h"
 
-#include "epi/strings.h"
-
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
 
 int option_menuon = 0;
 

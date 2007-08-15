@@ -32,9 +32,6 @@
 #include "sv_main.h"
 #include "z_zone.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #undef SF
 #define SF  SVFIELD

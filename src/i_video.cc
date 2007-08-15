@@ -20,13 +20,11 @@
 #include "i_sdlinc.h"
 #include "i_defs_gl.h"
 
+#include <signal.h>
+
 #include "m_argv.h"
 #include "m_misc.h"
 #include "r_modes.h"
-
-#include <signal.h>
-
-#include <string.h>
 
 
 SDL_Surface *my_vis;

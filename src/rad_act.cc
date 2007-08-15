@@ -20,8 +20,8 @@
 //
 
 #include "i_defs.h"
-#include "rad_trig.h"
-#include "rad_act.h"
+
+#include <limits.h>
 
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -34,6 +34,8 @@
 #include "m_random.h"
 #include "p_local.h"
 #include "p_spec.h"
+#include "rad_trig.h"
+#include "rad_act.h"
 #include "r_defs.h"
 #include "r_sky.h"
 #include "s_sound.h"
@@ -46,9 +48,6 @@
 #include "w_wad.h"
 #include "w_texture.h"
 #include "z_zone.h"
-
-#include <limits.h>
-#include <string.h>
 
 // current tip slots
 drawtip_t tip_slots[MAXTIPSLOT];

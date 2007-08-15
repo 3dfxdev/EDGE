@@ -22,22 +22,17 @@
 
 #include "i_defs.h"
 
+#include <unistd.h>
+
 #ifdef MACOSX
 #include <SDL.h>  // needed for proper SDL main linkage
 #endif
 
+#include "epi/strings.h"
+
 #include "dm_defs.h"
 #include "m_argv.h"
 #include "e_main.h"
-
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <string.h>
-#include <unistd.h>
-
-#include "epi/strings.h"
 
 // cleanup handling -- killough:
 

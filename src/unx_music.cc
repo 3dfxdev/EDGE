@@ -21,7 +21,9 @@
 //
 
 #include "i_defs.h"
-#include "unx_sysinc.h"
+
+#include "ddf/main.h"
+#include "ddf/playlist.h"
 
 #ifdef USE_OGG
 #include "s_ogg.h"
@@ -31,12 +33,8 @@
 #include "s_humid.h"
 #endif
 
-#include "ddf/main.h"
-#include "ddf/playlist.h"
-
 #include "s_sound.h"
-
-#include <string.h>
+#include "unx_sysinc.h"
 
 
 // #defines for handle information

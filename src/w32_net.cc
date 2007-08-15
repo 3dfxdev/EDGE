@@ -19,10 +19,6 @@
 #include "i_defs.h"
 #include "w32_sysinc.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-
 #ifdef USE_HAWKNL
 #include "nl.h"
 #endif

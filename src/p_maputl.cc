@@ -38,8 +38,6 @@
 #include "i_defs.h"
 
 #include <float.h>
-#include <math.h>
-#include <string.h>
 
 #include "dm_data.h"
 #include "dm_defs.h"

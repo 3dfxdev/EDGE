@@ -24,7 +24,11 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "p_setup.h"
+
+#include <vector>
+
+#include "epi/endianess.h"
+#include "epi/math_crc.h"
 
 #include "ddf/main.h"
 #include "ddf/colormap.h"
@@ -42,6 +46,7 @@
 #include "m_random.h"
 #include "p_local.h"
 #include "p_bot.h"
+#include "p_setup.h"
 #include "r_gldefs.h"
 #include "r_sky.h"
 #include "s_sound.h"
@@ -50,14 +55,6 @@
 #include "w_texture.h"
 #include "w_wad.h"
 #include "z_zone.h"
-
-#include "epi/endianess.h"
-#include "epi/math_crc.h"
-
-#include <stdio.h>
-#include <string.h>
-
-#include <vector>
 
 // debugging aide:
 #define FORCE_LOCATION  0

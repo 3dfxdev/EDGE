@@ -22,20 +22,19 @@
 // -ES- 2000/02/12 Written.
 
 #include "i_defs.h"
-#include "w_texture.h"
-#include "dm_structs.h"
-
-#include "e_search.h"
-#include "e_main.h"
-#include "r_image.h"
-#include "w_wad.h"
-#include "z_zone.h"
 
 #include "epi/arrays.h"
 #include "epi/endianess.h"
 #include "epi/utility.h"
 
-#include <string.h>
+#include "dm_structs.h"
+#include "e_search.h"
+#include "e_main.h"
+#include "r_image.h"
+#include "w_texture.h"
+#include "w_wad.h"
+#include "z_zone.h"
+
 
 class texture_set_c
 {

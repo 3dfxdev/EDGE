@@ -30,8 +30,6 @@
 #include "i_defs.h"
 
 #include <limits.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "con_main.h"
 #include "dm_data.h"

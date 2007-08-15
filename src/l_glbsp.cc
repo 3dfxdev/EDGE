@@ -24,17 +24,12 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "l_glbsp.h"
 
-#include "e_main.h"
-#include "version.h"
-
-#include "epi/epi.h"
 #include "glbsp/src/glbsp.h"
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
+#include "e_main.h"
+#include "l_glbsp.h"
+#include "version.h"
 
 
 #define PROGRESS_STEP  2  // percent

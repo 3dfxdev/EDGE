@@ -24,25 +24,23 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "p_bot.h"
+
+#include <limits.h>
 
 #include "con_main.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "g_game.h"
 #include "m_random.h"
+#include "p_bot.h"
 #include "p_local.h"
 #include "p_weapon.h"
+#include "p_action.h"
+#include "rad_trig.h"
 #include "r_state.h"
 #include "s_sound.h"
 #include "w_wad.h"
 #include "z_zone.h"
-#include "p_action.h"
-#include "rad_trig.h"
-
-#include <limits.h>
-#include <stdio.h>
-#include <string.h>
 
 #define DEBUG  0
 

@@ -25,14 +25,11 @@
 
 #include "i_defs.h"
 
+#include <limits.h>
+
 #include "sv_chunk.h"
 #include "sv_main.h"
 #include "z_zone.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
 
 // forward decls:
 static void GV_GetInt(const char *info, void *storage);

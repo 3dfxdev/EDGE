@@ -18,7 +18,15 @@
 
 #include "i_defs.h"
 #include "i_sdlinc.h"
-#include "unx_sysinc.h"
+
+#include <unistd.h>
+#include <signal.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <time.h>
+
+#include "epi/timestamp.h"
 
 #include "version.h"
 #include "con_main.h"
@@ -30,22 +38,9 @@
 #include "m_random.h"
 #include "r_modes.h"
 #include "w_wad.h"
-
 #include "z_zone.h"
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <unistd.h>
-#include <signal.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <sys/time.h>
-#include <time.h>
-
-#include "epi/timestamp.h"
+#include "unx_sysinc.h"
 
 // FIXME: Use file_c handles
 extern FILE *logfile;

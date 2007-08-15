@@ -25,16 +25,14 @@
 //
 
 #include "i_defs.h"
-#include "sv_chunk.h"
-
-#include "g_game.h"
-#include "sv_main.h"
-#include "z_zone.h"
 
 #include "epi/strings.h"
 
-#include <stdio.h>
-#include <string.h>
+#include "g_game.h"
+#include "sv_chunk.h"
+#include "sv_main.h"
+#include "z_zone.h"
+
 
 //----------------------------------------------------------------------------
 //

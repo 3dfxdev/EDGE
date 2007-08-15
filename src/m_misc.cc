@@ -30,11 +30,6 @@
 
 #include "i_defs.h"
 
-#include <ctype.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
 #include "epi/utility.h"
 #include "epi/endianess.h"
 #include "epi/files.h"

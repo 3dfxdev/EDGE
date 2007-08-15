@@ -24,8 +24,8 @@
 //
 
 #include "i_defs.h"
-#include "con_defs.h"
 
+#include "con_defs.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"
 #include "hu_style.h"
@@ -34,9 +34,6 @@
 #include "r_wipe.h"
 #include "z_zone.h"
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
 
 #define CON_WIPE_TICS  12
 
