@@ -39,12 +39,12 @@ int ansi_file_c::GetLength()
 {
 	SYS_ASSERT(fp);
 
-    long currpos = ftell(fp);      // Get existing position
+    long cur_pos = ftell(fp);      // Get existing position
 
     fseek(fp, 0, SEEK_END);        // Seek to the end of file
     long len = ftell(fp);          // Get the position - it our length
 
-    fseek(fp, currpos, SEEK_SET);  // Reset existing position
+    fseek(fp, cur_pos, SEEK_SET);  // Reset existing position
     return (int)len;
 }
 
@@ -87,6 +87,36 @@ bool ansi_file_c::Seek(int offset, int seekpoint)
     }
 
     return (fseek(fp, offset, whence) == 0);
+}
+
+byte *file_c::LoadIntoMemory(int max_size)
+{
+	SYS_ASSERT(max_size >= 0);
+
+	int cur_pos     = GetPosition();
+	int actual_size = GetLength();
+
+	actual_size -= cur_pos;
+
+	if (actual_size < 0)
+	{
+		I_Warning("file_c::LoadIntoMemory : position > length.\n");
+		actual_size = 0;
+	}
+
+	if (actual_size > max_size)
+		actual_size = max_size;
+
+	byte *buffer = new byte[actual_size + 1];
+	buffer[actual_size] = 0;
+
+	if ((int)Read(buffer, actual_size) != actual_size)
+	{
+		delete[] buffer;
+		return NULL;
+	}
+
+	return buffer;  // success!
 }
 
 

@@ -19,6 +19,8 @@
 #ifndef __EPI_FILE_CLASS__
 #define __EPI_FILE_CLASS__ 
 
+#include <limits.h>
+
 namespace epi
 {
 
@@ -57,6 +59,14 @@ public:
 	virtual unsigned int Write(const void *src, unsigned int size) = 0;
 
 	virtual bool Seek(int offset, int seekpoint) = 0;
+
+public:
+	byte *LoadIntoMemory(int max_size = INT_MAX);
+	// load the file into memory, reading from the current
+	// position, and reading no more than the 'max_size'
+	// parameter (in bytes).  An extra NUL byte is appended
+	// to the result buffer.  Returns NULL on failure.
+	// The returned buffer must be freed with delete[].
 };
 
 
