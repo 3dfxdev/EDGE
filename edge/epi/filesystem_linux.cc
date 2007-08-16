@@ -24,9 +24,12 @@
 
 #include <dirent.h>
 #include <fnmatch.h>
+#include <time.h>
+#include <unistd.h>
+
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
+#include <sys/time.h>
 
 
 #define COPY_BUF_SIZE  1024
@@ -201,6 +204,32 @@ bool FS_Rename(const char *oldname, const char *newname)
 
 	return (rename(oldname, newname) != -1);
 }
+
+//
+// -ACB- 2001/06/14
+//
+bool FS_GetModifiedTime(const char *filename, timestamp_c& t)
+{
+	struct stat buf;
+	struct tm timeinf;
+
+	// Check the sanity of the coders...
+	SYS_ASSERT(filename);
+
+	// Check the file is invalid
+	if (stat(filename, &buf))			
+		return false;
+
+	// Convert the 'time_t' of the modified time into something more human
+	if(! localtime_r(&buf.st_mtime, &timeinf))
+		return false;
+
+	t.Set(timeinf.tm_mday, timeinf.tm_mon+1, timeinf.tm_year+1900,
+		  timeinf.tm_hour, timeinf.tm_min,   timeinf.tm_sec);
+
+	return true;
+}
+
 
 } // namespace epi
 

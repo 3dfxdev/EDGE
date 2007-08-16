@@ -19,10 +19,6 @@
 #include "i_defs.h"
 #include "i_sdlinc.h"  // needed for proper SDL main linkage
 
-#ifdef WIN32
-#include "w32_sysinc.h"  // for <windows.h>
-#endif
-
 #include "epi/strings.h"
 #include "epi/exe_path.h"
 

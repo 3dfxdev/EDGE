@@ -277,42 +277,6 @@ void I_Sleep(int millisecs)
 	::Sleep(millisecs);
 }
 
-//
-// I_GetModifiedTime
-//
-// Fills in 'timestamp_c' to match the modified time of 'filename'. Returns
-// true on success.
-//
-// -ACB- 2001/06/14
-// -ACB- 2004/02/15 Use native win32 functions: they should work!
-//
-bool I_GetModifiedTime(const char *filename, epi::timestamp_c *t)
-{
-	SYSTEMTIME timeinf;
-	HANDLE handle;
-	WIN32_FIND_DATA fdata;
-
-	// Check the sanity of the coders...
-	if (!filename || !t)
-		return false;
-
-	// Get the file info...
-	handle = FindFirstFile(filename, &fdata);
-	if (handle == INVALID_HANDLE_VALUE)
-		return false;
-
-	// Convert to a time we can actually use...
-	if (!FileTimeToSystemTime(&fdata.ftLastWriteTime, &timeinf))
-		return false;
-
-	FindClose(handle);
-
-	t->Set( (byte)timeinf.wDay,    (byte)timeinf.wMonth,
-			(short)timeinf.wYear,  (byte)timeinf.wHour,
-			(byte)timeinf.wMinute, (byte)timeinf.wSecond );
-
-	return true;
-}
 
 //
 // I_SystemShutdown

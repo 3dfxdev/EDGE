@@ -835,10 +835,10 @@ int L_CompareFileTimes(const char *A, const char *B)
 
 	// FIXME: probably better to throw exceptions rather than I_Error
 
-	if (!I_GetModifiedTime(A, &A_time))
+	if (! FS_GetModifiedTime(A, A_time))
 		I_Error("AddFile: I_GetModifiedTime failed on %s\n", A);
 
-	if (!I_GetModifiedTime(B, &B_time))
+	if (! FS_GetModifiedTime(B, B_time))
 		I_Error("AddFile: I_GetModifiedTime failed on %s\n", B);
 
 	return A_time.Cmp(B_time);

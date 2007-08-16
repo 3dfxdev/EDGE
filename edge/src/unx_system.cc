@@ -517,34 +517,6 @@ void I_Sleep(int millisecs)
 }
 
 //
-// I_GetModifiedTime
-//
-// -ACB- 2001/06/14
-//
-bool I_GetModifiedTime(const char *filename, epi::timestamp_c *t)
-{
-	struct stat buf;
-	struct tm timeinf;
-
-	// Check the sanity of the coders...
-	if (!filename || !t)
-		return false;
-
-	// Check the file is invalid
-	if (stat(filename, &buf))			
-		return false;
-
-	// Convert the 'time_t' of the modified time into something more human
-	if(!localtime_r(&buf.st_mtime, &timeinf))
-		return false;
-
-	t->Set(timeinf.tm_mday, timeinf.tm_mon+1, timeinf.tm_year+1900,
-		   timeinf.tm_hour, timeinf.tm_min, timeinf.tm_sec);
-
-	return true;
-}
-
-//
 // I_MessageBox
 //
 void I_MessageBox(const char *message, const char *title)

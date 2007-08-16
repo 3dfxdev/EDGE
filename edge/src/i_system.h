@@ -95,10 +95,6 @@ void I_Warning(const char *warning,...) GCCATTR((format(printf, 1, 2)));
 // Writes a warning to the console and the debug file (if any).  This
 // function should call CON_Printf().
 
-bool I_GetModifiedTime(const char *filename, epi::timestamp_c *time);
-// -ACB- 2000/06/05 The returns the time of when the filename passed
-// was modified.
-
 void I_Sleep(int millisecs);
 // -AJA- 2005/01/21: sleep for the given number of milliseconds.
 
