@@ -257,53 +257,6 @@ static void MIR_SetClippers()
 
 		glClipPlane(GL_CLIP_PLANE2 + i, front_p);
 	}
-
-///---	seg_t *seg = active_mirrors[0].def->seg;
-///---
-///---	vec2_t left_v;
-///---	vec2_t right_v;
-///---	vec2_t eye_v;
-///---
-///---	 left_v.Set(seg->v1->x, seg->v1->y);
-///---	right_v.Set(seg->v2->x, seg->v2->y);
-///---	  eye_v.Set(viewx, viewy);
-///---
-///---	ClipPlaneHorizontalLine( left_p, eye_v,   left_v);
-///---  	ClipPlaneHorizontalLine(right_p, right_v, eye_v);
-///---	ClipPlaneHorizontalLine(front_p, right_v, left_v);
-///---
-///---	glClipPlane(GL_CLIP_PLANE2, front_p);
-///---
-///---
-///---	if (num_active_mirrors == 2)
-///---	{
-///---		glEnable(GL_CLIP_PLANE3);  // left
-///---		glEnable(GL_CLIP_PLANE4);  // right
-///---		glEnable(GL_CLIP_PLANE5);  // front
-///---
-///---		seg_t *seg = active_mirrors[1].def->seg;
-///---
-///---		vec2_t left_v;
-///---		vec2_t right_v;
-///---		vec2_t eye_v;
-///---
-///---		 left_v.Set(seg->v2->x, seg->v2->y);
-///---		right_v.Set(seg->v1->x, seg->v1->y);
-///---		  eye_v.Set(viewx, viewy);
-///---
-///---		num_active_mirrors--;
-///---		MIR_Coordinate(left_v.x,  left_v.y);
-///---		MIR_Coordinate(right_v.x, right_v.y);
-///---		num_active_mirrors++;
-///---
-///---		ClipPlaneHorizontalLine( left_p, eye_v,   left_v);
-///---		ClipPlaneHorizontalLine(right_p, right_v, eye_v);
-///---		ClipPlaneHorizontalLine(front_p, right_v, left_v);
-///---
-///---		glClipPlane(GL_CLIP_PLANE3, left_p);
-///---		glClipPlane(GL_CLIP_PLANE4, right_p);
-///---		glClipPlane(GL_CLIP_PLANE5, front_p);
-///---	}
 }
 
 static bool MIR_Push(drawmirror_c *mir)
@@ -999,9 +952,12 @@ if (num_active_mirrors % 2)
 		else if (cur_seg->v1->x == cur_seg->v2->x)
 			lit_Nom += 16;
 
-		// limit to 0..255 range
-		lit_Nom = MAX(0, MIN(255, lit_Nom));
 	}
+
+	lit_Nom += ren_extralight;
+
+	// limit to 0..255 range
+	lit_Nom = MAX(0, MIN(255, lit_Nom));
 
 	data.light = lit_Nom;
 	data.flood_emu = false;
@@ -2045,9 +2001,14 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	if (num_vert > MAX_PLVERT)
 		num_vert = MAX_PLVERT;
 
-//!!!!!!	int lit_Nom = RGL_Light(props->lightlevel);
+	int lit_Nom = props->lightlevel;
 
-	data.light = props->lightlevel;
+	lit_Nom += ren_extralight;
+
+	// limit to 0..255 range
+	lit_Nom = MAX(0, MIN(255, lit_Nom));
+
+	data.light = lit_Nom;
 	data.flood_emu = false;
 
 	V_GetColmapRGB(colmap, &c_r, &c_g, &c_b, false);
