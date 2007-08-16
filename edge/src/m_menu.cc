@@ -1089,7 +1089,9 @@ static void CreateEpisodeMenu(void)
 	if (gamedefs.GetSize() == 0)
 		I_Error("No defined episodes !\n");
 
-	EpisodeMenu = Z_ClearNew(menuitem_t, gamedefs.GetSize());
+	EpisodeMenu = Z_New(menuitem_t, gamedefs.GetSize());
+
+	Z_Clear(EpisodeMenu, menuitem_t, gamedefs.GetSize());
 
 	int e = 0;
 	epi::array_iterator_c it;

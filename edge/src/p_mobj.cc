@@ -1771,7 +1771,9 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 	state_t *st;
 	sector_t *sec;
 
-	mobj = Z_ClearNew(mobj_t, 1);
+	mobj = Z_New(mobj_t, 1);
+
+	Z_Clear(mobj, mobj_t, 1);
 
 #if (DEBUG_MOBJ > 0)
 	L_WriteDebug("tics=%05d  CREATE %p [%s]  AT %1.0f,%1.0f,%1.0f\n", 

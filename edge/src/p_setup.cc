@@ -2043,7 +2043,9 @@ void GenerateBlockMap(int min_x, int min_y, int max_x, int max_y)
 	// setup blk_cur_lines array.  Initially all pointers are NULL, when
 	// any lines get added then the dynamic array is created.
 
-	blk_cur_lines = Z_ClearNew(unsigned short *, btotal);
+	blk_cur_lines = Z_New(unsigned short *, btotal);
+
+	Z_Clear(blk_cur_lines, unsigned short *, btotal);
 
 	// initial # of line values ("0, -1" for each block)
 	blk_total_lines = 2 * btotal;

@@ -206,7 +206,7 @@ static const char *DG_PutString(void *storage)
 	SYS_ASSERT(storage);
 
 	if (*src == NULL)
-		return (const char *) Z_ClearNew(char, 1);
+		return Z_StrDup("");
 
 	return Z_StrDup(*src);
 }
@@ -277,7 +277,9 @@ saveglobals_t *DEM_NewGLOB(void)
 {
 	saveglobals_t *globs;
 
-	globs = Z_ClearNew(saveglobals_t, 1);
+	globs = Z_New(saveglobals_t, 1);
+
+	Z_Clear(globs, saveglobals_t, 1);
 
 	return globs;
 }

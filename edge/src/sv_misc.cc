@@ -581,7 +581,9 @@ void SV_TriggerCreateElems(int num_elems)
 
 	for (; num_elems > 0; num_elems--)
 	{
-		rad_trigger_t *cur = Z_ClearNew(rad_trigger_t, 1);
+		rad_trigger_t *cur = Z_New(rad_trigger_t, 1);
+
+		Z_Clear(cur, rad_trigger_t, 1);
 
 		// link it in
 		cur->next = r_triggers;
@@ -756,7 +758,9 @@ void SV_PlaneMoveCreateElems(int num_elems)
 
 	for (; num_elems > 0; num_elems--)
 	{
-		plane_move_t *cur = Z_ClearNew(plane_move_t, 1);
+		plane_move_t *cur = Z_New(plane_move_t, 1);
+
+		Z_Clear(cur, plane_move_t, 1);
 
 		// initialise defaults
 		cur->whatiam = MDT_PLANE;

@@ -706,7 +706,9 @@ void RAD_SpawnTriggers(const char *map_name)
 			continue;
 
 		// OK, spawn new dynamic trigger
-		trig = Z_ClearNew(rad_trigger_t, 1);
+		trig = Z_New(rad_trigger_t, 1);
+
+		Z_Clear(trig, rad_trigger_t, 1);
 
 		trig->info = scr;
 		trig->disabled = scr->tagged_disabled;
