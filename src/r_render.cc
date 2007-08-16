@@ -637,9 +637,9 @@ static inline void Vertex_Std(local_gl_vert_t *v, const vec3_t *src, GLboolean e
 
 static inline void Normal_Std(local_gl_vert_t *v, float nx, float ny, float nz)
 {
-	v->n_x = nx;
-	v->n_y = ny;
-	v->n_z = nz;
+	v->nx = nx;
+	v->ny = ny;
+	v->nz = nz;
 }
 
 static inline void TexCoord_Wall(local_gl_vert_t *v, int t,

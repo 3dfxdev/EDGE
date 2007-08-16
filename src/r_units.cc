@@ -374,7 +374,7 @@ void RGL_DrawUnits(void)
 			}
 		}
 
-		GLuint old_clamp;
+		GLint old_clamp;
 
 		if (active_blending & BL_ClampY)
 		{
