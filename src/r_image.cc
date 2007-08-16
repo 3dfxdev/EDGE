@@ -39,7 +39,7 @@
 #include "epi/endianess.h"
 #include "epi/file.h"
 #include "epi/filesystem.h"
-#include "epi/memfile.h"
+#include "epi/file_memory.h"
 
 #include "epi/image_data.h"
 #include "epi/image_hq2x.h"
