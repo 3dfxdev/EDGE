@@ -557,156 +557,281 @@ typedef struct wall_plane_data_s
 wall_plane_data_t;
 
 
-// TODO: merge Wall and Plane coordinate functions into one.
-//       (After removing vertex lighting).
-
-void WallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
+static inline void Color_Std(local_gl_vert_t *v, int R, int G, int B, float alpha)
 {
-	wall_plane_data_t *data = (wall_plane_data_t *)d;
+	v->col[0] = R / 255.0;
+	v->col[1] = G / 255.0;
+	v->col[2] = B / 255.0;
+	v->col[3] = alpha;
+}
 
-	int R = data->col[0];
-	int G = data->col[1];
-	int B = data->col[2];
+static inline void Color_Rainbow(local_gl_vert_t *v, int R, int G, int B, float alpha)
+{
+	v->col[0] = MIN(1.0, R * ren_red_mul / 255.0);
+	v->col[1] = MIN(1.0, G * ren_grn_mul / 255.0);
+	v->col[2] = MIN(1.0, B * ren_blu_mul / 255.0);
+	v->col[3] = alpha;
+}
 
-	float x = src->x;
-	float y = src->y;
-	float z = src->z;
+static inline void Color_Dimmed(local_gl_vert_t *v, int R, int G, int B, float mul)
+{
+	v->col[0] = mul * R / 255.0;
+	v->col[1] = mul * G / 255.0;
+	v->col[2] = mul * B / 255.0;
+	v->col[3] = 1.0;
+}
 
-	float tx, ty;
+static inline void Color_White(local_gl_vert_t *v)
+{
+	v->col[0] = 1.0;
+	v->col[1] = 1.0;
+	v->col[2] = 1.0;
+	v->col[3] = 1.0;
+}
+
+static inline void Color_Black(local_gl_vert_t *v)
+{
+	v->col[0] = 0.0;
+	v->col[1] = 0.0;
+	v->col[2] = 0.0;
+	v->col[3] = 1.0;
+}
+
+static inline void Vertex_Std(local_gl_vert_t *v, const vec3_t *src, GLboolean edge)
+{
+	v->x = src->x;
+	v->y = src->y;
+	v->z = src->z;
+
+	v->edge = edge;
+}
+
+static inline void Normal_Std(local_gl_vert_t *v, float nx, float ny, float nz)
+{
+	v->n_x = nx;
+	v->n_y = ny;
+	v->n_z = nz;
+}
+
+static inline void TexCoord_Wall(local_gl_vert_t *v, int t,
+		const divline_t *div, float tx0, float ty0,
+		float tx_mul, float ty_mul)
+{
 	float along;
 
-	// compute texture coord
-	if (fabs(data->div.dx) > fabs(data->div.dy))
+	if (fabs(div->dx) > fabs(div->dy))
 	{
-		SYS_ASSERT(0 != data->div.dx);
-		along = (x - data->div.x) / data->div.dx;
+		SYS_ASSERT(0 != div->dx);
+		along = (v->x - div->x) / div->dx;
 	}
 	else
 	{
-		SYS_ASSERT(0 != data->div.dy);
-		along = (y - data->div.y) / data->div.dy;
+		SYS_ASSERT(0 != div->dy);
+		along = (v->y - div->y) / div->dy;
 	}
 
-	tx = data->tx + along * data->tdx;
-	ty = data->ty + z * data->ty_mul + along * data->ty_skew;
-
-	// FADING CALC
-	float tx2, ty2;
-	{
-		// distance from viewplane: (point - camera) . viewvec
-
-		float lk_sin = M_Sin(viewvertangle);
-		float lk_cos = M_Cos(viewvertangle);
-
-		vec3_t viewvec;
-
-		viewvec.x = lk_cos * viewcos;
-		viewvec.y = lk_cos * viewsin;
-		viewvec.z = lk_sin;
-
-		float vx = (x - viewx) * viewvec.x;
-		float vy = (y - viewy) * viewvec.y;
-		float vz = (z - viewz) * viewvec.z;
-
-		tx2 = (vx + vy + vz) / 1600.0;
-
-		int lt_ay = MIN(255,data->light) / 4;
-		if (data->cmx==1) lt_ay += 64;
-
-		ty2 = (lt_ay + 0.5) / 128.0;
-		if (ty2 < 0.01) ty2 = 0.01;
-		if (ty2 > 0.99) ty2 = 0.99;
-	}
-
-	SET_COLOR(LT_RED(R), LT_GRN(G), LT_BLU(B), data->trans);
-	SET_TEXCOORD(tx, ty);
-	SET_TEX2COORD(tx2, ty2);
-	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
-	SET_EDGE_FLAG(GL_TRUE);
-	SET_VERTEX(x, y, z);
+	v->tx[t] = tx0 + along * tx_mul;
+	v->ty[t] = ty0 + v->z  * ty_mul;
 }
 
-
-void PlaneCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
+static inline void TexCoord_Plane(local_gl_vert_t *v, int t,
+		float tx0, float ty0, float image_w, float image_h,
+		const vec2_t *x_mat, const vec2_t *y_mat)
 {
-	wall_plane_data_t *data = (wall_plane_data_t *)d;
+	float rx = (tx0 + v->x) / image_w;
+	float ry = (ty0 + v->y) / image_h;
 
-	float x = src->x;
-	float y = src->y;
-	float z = src->z;
-
-	float rx = (x + data->tx) / IM_WIDTH(data->image);
-	float ry = (y + data->ty) / IM_HEIGHT(data->image);
-
-	float tx = rx * data->x_mat.x + ry * data->x_mat.y;
-	float ty = rx * data->y_mat.x + ry * data->y_mat.y;
-
-	int R = data->col[0];
-	int G = data->col[1];
-	int B = data->col[2];
-
-	// FADING CALC
-	float tx2, ty2;
-	{
-		// distance from viewplane: (point - camera) . viewvec
-
-		float lk_sin = M_Sin(viewvertangle);
-		float lk_cos = M_Cos(viewvertangle);
-
-		vec3_t viewvec;
-
-		viewvec.x = lk_cos * viewcos;
-		viewvec.y = lk_cos * viewsin;
-		viewvec.z = lk_sin;
-
-		float vx = (x - viewx) * viewvec.x;
-		float vy = (y - viewy) * viewvec.y;
-		float vz = (z - viewz) * viewvec.z;
-
-		tx2 = (vx + vy + vz) / 1600.0;
-
-		int lt_ay = MIN(255,data->light) / 4;
-		if (data->cmx==1) lt_ay += 64;
-
-		ty2 = (lt_ay + 0.5) / 128.0;
-
-		if (ty2 < 0.01) ty2 = 0.01;
-		if (ty2 > 0.99) ty2 = 0.99;
-	}
-
-	SET_COLOR(LT_RED(R), LT_GRN(G), LT_BLU(B), data->trans);
-	SET_TEXCOORD(tx, ty);
-	SET_TEX2COORD(tx2, ty2);
-	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
-	SET_EDGE_FLAG(GL_TRUE);
-	SET_VERTEX(x, y, z);
+	v->tx[t] = rx * x_mat->x + ry * x_mat->y;
+	v->ty[t] = rx * y_mat->x + ry * y_mat->y;
 }
 
-
-void ShadowCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
+static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
+		int lit_Nom, bool bottom)
 {
-	wall_plane_data_t *data = (wall_plane_data_t *)d;
+	// distance from viewplane: (point - camera) . viewvec
 
-	float x = src->x;
-	float y = src->y;
-	float z = src->z;
+	float lk_sin = M_Sin(viewvertangle);
+	float lk_cos = M_Cos(viewvertangle);
 
-	float rx = (x + data->tx);
-	float ry = (y + data->ty);
+	vec3_t viewvec;
 
-	float tx = rx * data->x_mat.x + ry * data->x_mat.y;
-	float ty = rx * data->y_mat.x + ry * data->y_mat.y;
+	viewvec.x = lk_cos * viewcos;
+	viewvec.y = lk_cos * viewsin;
+	viewvec.z = lk_sin;
 
-	int R = 0;
-	int G = 0;
-	int B = 0;
+	float dx = (v->x - viewx) * viewvec.x;
+	float dy = (v->y - viewy) * viewvec.y;
+	float dz = (v->z - viewz) * viewvec.z;
 
-	SET_COLOR(LT_RED(R), LT_GRN(G), LT_BLU(B), data->trans);
-	SET_TEXCOORD(tx, ty);
-	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
-	SET_EDGE_FLAG(GL_TRUE);
-	SET_VERTEX(x, y, z);
+	v->tx[t] = (dx + dy + dz) / 1600.0;
+
+	int lt_ay = lit_Nom / 4;
+	if (bottom) lt_ay += 64;
+
+	v->ty[t] = (lt_ay + 0.5) / 128.0;
+	v->ty[t] = CLAMP(v->ty[t], 0.01, 0.99);
 }
+
+static inline void TexCoord_PlaneShadow(local_gl_vert_t *v, int t)
+{
+#if 0
+	float rx = (v->x + data->tx);
+	float ry = (v->y + data->ty);
+
+	v->tx[t] = rx * data->x_mat.x + ry * data->x_mat.y;
+	v->ty[t] = rx * data->y_mat.x + ry * data->y_mat.y;
+#endif
+}
+
+static inline void TexCoord_WallLight(local_gl_vert_t *v, int t)
+{
+}
+
+static inline void TexCoord_PlaneLight(local_gl_vert_t *v, int t)
+{
+}
+
+
+///---void WallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
+///---{
+///---	wall_plane_data_t *data = (wall_plane_data_t *)d;
+///---
+///---	int R = data->col[0];
+///---	int G = data->col[1];
+///---	int B = data->col[2];
+///---
+///---	float x = src->x;
+///---	float y = src->y;
+///---	float z = src->z;
+///---
+///---	float tx, ty;
+///---	float along;
+///---
+///---	// compute texture coord
+///---	if (fabs(data->div.dx) > fabs(data->div.dy))
+///---	{
+///---		SYS_ASSERT(0 != data->div.dx);
+///---		along = (x - data->div.x) / data->div.dx;
+///---	}
+///---	else
+///---	{
+///---		SYS_ASSERT(0 != data->div.dy);
+///---		along = (y - data->div.y) / data->div.dy;
+///---	}
+///---
+///---	tx = data->tx + along * data->tdx;
+///---	ty = data->ty + z * data->ty_mul + along * data->ty_skew;
+///---
+///---	// FADING CALC
+///---	float tx2, ty2;
+///---	{
+///---		// distance from viewplane: (point - camera) . viewvec
+///---
+///---		float lk_sin = M_Sin(viewvertangle);
+///---		float lk_cos = M_Cos(viewvertangle);
+///---
+///---		vec3_t viewvec;
+///---
+///---		viewvec.x = lk_cos * viewcos;
+///---		viewvec.y = lk_cos * viewsin;
+///---		viewvec.z = lk_sin;
+///---
+///---		float vx = (x - viewx) * viewvec.x;
+///---		float vy = (y - viewy) * viewvec.y;
+///---		float vz = (z - viewz) * viewvec.z;
+///---
+///---		tx2 = (vx + vy + vz) / 1600.0;
+///---
+///---		int lt_ay = MIN(255,data->light) / 4;
+///---		if (data->cmx==1) lt_ay += 64;
+///---
+///---		ty2 = (lt_ay + 0.5) / 128.0;
+///---		if (ty2 < 0.01) ty2 = 0.01;
+///---		if (ty2 > 0.99) ty2 = 0.99;
+///---	}
+///---
+///---	SET_COLOR(LT_RED(R), LT_GRN(G), LT_BLU(B), data->trans);
+///---	SET_TEXCOORD(tx, ty);
+///---	SET_TEX2COORD(tx2, ty2);
+///---	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
+///---	SET_EDGE_FLAG(GL_TRUE);
+///---	SET_VERTEX(x, y, z);
+///---}
+///---
+///---
+///---void PlaneCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
+///---{
+///---	wall_plane_data_t *data = (wall_plane_data_t *)d;
+///---
+///---	float x = src->x;
+///---	float y = src->y;
+///---	float z = src->z;
+///---
+///---
+///---	int R = data->col[0];
+///---	int G = data->col[1];
+///---	int B = data->col[2];
+///---
+///---	// FADING CALC
+///---	float tx2, ty2;
+///---	{
+///---		// distance from viewplane: (point - camera) . viewvec
+///---
+///---		float lk_sin = M_Sin(viewvertangle);
+///---		float lk_cos = M_Cos(viewvertangle);
+///---
+///---		vec3_t viewvec;
+///---
+///---		viewvec.x = lk_cos * viewcos;
+///---		viewvec.y = lk_cos * viewsin;
+///---		viewvec.z = lk_sin;
+///---
+///---		float vx = (x - viewx) * viewvec.x;
+///---		float vy = (y - viewy) * viewvec.y;
+///---		float vz = (z - viewz) * viewvec.z;
+///---
+///---		tx2 = (vx + vy + vz) / 1600.0;
+///---
+///---		int lt_ay = MIN(255,data->light) / 4;
+///---		if (data->cmx==1) lt_ay += 64;
+///---
+///---		ty2 = (lt_ay + 0.5) / 128.0;
+///---
+///---		if (ty2 < 0.01) ty2 = 0.01;
+///---		if (ty2 > 0.99) ty2 = 0.99;
+///---	}
+///---
+///---	SET_COLOR(LT_RED(R), LT_GRN(G), LT_BLU(B), data->trans);
+///---	SET_TEXCOORD(tx, ty);
+///---	SET_TEX2COORD(tx2, ty2);
+///---	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
+///---	SET_EDGE_FLAG(GL_TRUE);
+///---	SET_VERTEX(x, y, z);
+///---}
+
+
+///---void ShadowCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
+///---{
+///---	wall_plane_data_t *data = (wall_plane_data_t *)d;
+///---
+///---	float x = src->x;
+///---	float y = src->y;
+///---	float z = src->z;
+///---
+///---
+///---	float tx = rx * data->x_mat.x + ry * data->x_mat.y;
+///---	float ty = rx * data->y_mat.x + ry * data->y_mat.y;
+///---
+///---	int R = 0;
+///---	int G = 0;
+///---	int B = 0;
+///---
+///---	SET_COLOR(LT_RED(R), LT_GRN(G), LT_BLU(B), data->trans);
+///---	SET_TEXCOORD(tx, ty);
+///---	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
+///---	SET_EDGE_FLAG(GL_TRUE);
+///---	SET_VERTEX(x, y, z);
+///---}
 
 #ifdef DLIGHT_PROTOTYPE
 
@@ -714,6 +839,7 @@ void ShadowCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 static int dl_R, dl_G, dl_B;
 static wall_plane_data_t *dl_WP;
 
+#if 0
 void DLightWallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 {
 	wall_plane_data_t *data = (wall_plane_data_t *)d;
@@ -794,6 +920,7 @@ void DLightPlaneCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 	SET_EDGE_FLAG(GL_TRUE);
 	SET_VERTEX(x, y, z);
 }
+#endif
 
 static void ComputeDLParameters(float dist, mobj_t *mo,
 	float *radius, float *intensity)
@@ -908,14 +1035,14 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	float x2 = cur_seg->v2->x;
 	float y2 = cur_seg->v2->y;
 
-MIR_Coordinate(x1, y1);
-MIR_Coordinate(x2, y2);
+	MIR_Coordinate(x1, y1);
+	MIR_Coordinate(x2, y2);
 
-if (num_active_mirrors % 2)
-{
-	float tx = x1; x1 = x2; x2 = tx;
-	float ty = y1; y1 = y2; y2 = ty;
-}
+	if (num_active_mirrors % 2)
+	{
+		float tx = x1; x1 = x2; x2 = tx;
+		float ty = y1; y1 = y2; y2 = ty;
+	}
 
 	float xy_ofs = cur_seg->offset;
 	float xy_len = cur_seg->length;
@@ -927,8 +1054,6 @@ if (num_active_mirrors % 2)
 	bool blended;
 
 	GLuint tex_id=0, tex2_id=0;
-
-	wall_plane_data_t data;
 
 	region_properties_t *props = masked_props ? masked_props :
 		part->override_p ? part->override_p : dfloor->props;
@@ -959,21 +1084,9 @@ if (num_active_mirrors % 2)
 	// limit to 0..255 range
 	lit_Nom = MAX(0, MIN(255, lit_Nom));
 
-	data.light = lit_Nom;
-	data.flood_emu = false;
-
-	lit_Nom = RGL_Light(lit_Nom);
+///---	lit_Nom = RGL_Light(lit_Nom);
 
 	V_GetColmapRGB(colmap, &c_r, &c_g, &c_b, false);
-
-	data.col[0] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_r);
-	data.col[1] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_g);
-	data.col[2] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_b);
-
-	data.trans = trans;
-
-	data.dlights = dfloor->dlights;
-	data.image   = part->image;
 
 	SYS_ASSERT(part->image);
 	tex_id = W_ImageCache(part->image);
@@ -1106,28 +1219,27 @@ if (num_active_mirrors % 2)
 //??		float t = tex_x1; tex_x1 = tex_x2; tex_x2 = t;
 //??	}
 
-	data.tx  = tex_x1;
-	data.tdx = tex_x2 - tex_x1;
+	float tx0    = tex_x1;
+	float tx_mul = tex_x2 - tex_x1;
 
-	data.ty_mul = 1.0f / total_h;
-	data.ty = IM_TOP(part->image) - tex_top_h * data.ty_mul;
-	data.ty_skew = 0;
+	float ty_mul = 1.0f / total_h;
+	float ty0    = IM_TOP(part->image) - tex_top_h * ty_mul;
 
 #if (DEBUG >= 3) 
 	L_WriteDebug( "WALL (%d,%d,%d) -> (%d,%d,%d)\n", 
 		(int) x1, (int) y1, (int) top, (int) x2, (int) y2, (int) bottom);
 #endif
 
-	data.normal.x = (y2 - y1);
-	data.normal.y = (x1 - x2);
-	data.normal.z = 0;
+	float nx = (y2 - y1);
+	float ny = (x1 - x2);
+	float nz = 0;
 
-	data.div.x  = x1; ///--- cur_seg->v1->x;
-	data.div.y  = y1; ///--- cur_seg->v1->y;
-	data.div.dx = x2 - x1; ///--- cur_seg->v2->x - data.div.x;
-	data.div.dy = y2 - y1; ///--- cur_seg->v2->y - data.div.y;
+	divline_t div;
 
-	data.cmx = 0;
+	div.x  = x1;
+	div.y  = y1;
+	div.dx = x2 - x1;
+	div.dy = y2 - y1;
 
 	// -AJA- 2007/08/07: ugly code here ensures polygon edges
 	//       match up with adjacent linedefs (otherwise small
@@ -1212,11 +1324,18 @@ if (num_active_mirrors % 2)
 	int pass = 0;
 
 	local_gl_vert_t *glvert = RGL_BeginUnit(GL_POLYGON, v_count,
-			tex_id, tex2_id, pass, blending);
+			GL_MODULATE, tex_id, GL_MODULATE, tex2_id,
+			pass, blending);
+	pass++;
 
 	for (int kk=0; kk < v_count; kk++)
 	{
-		WallCoordFunc(vertices + kk, glvert + kk, &data);
+		Color_Rainbow(glvert+kk, 255, 255, 255, trans);
+		Vertex_Std   (glvert+kk, vertices+kk, GL_TRUE);
+		Normal_Std   (glvert+kk, nx, ny, nz);
+
+		TexCoord_Wall (glvert+kk, 0, &div, tx0, ty0, tx_mul, ty_mul);
+		TexCoord_Fader(glvert+kk, 1, lit_Nom, false);
 	}
 
 	RGL_EndUnit(v_count);
@@ -1313,6 +1432,7 @@ static void EmulateFlooding(const drawfloor_t *dfloor,
 {
 	return; //!!!!!! FIXME: EmulateFlooding disabled for now (causes glitches)
 
+#if 0
 	if (num_active_mirrors > 0) return;
 
 	const surface_t *info = (face_dir > 0) ? &flood_ref->floor :
@@ -1452,6 +1572,7 @@ static void EmulateFlooding(const drawfloor_t *dfloor,
 	glDisable(GL_TEXTURE_2D);
 
 	FloodResetClipPlanes();
+#endif
 }
 
 //
@@ -1938,8 +2059,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	bool mid_masked = ! surf->image->img_solid;
 	bool blended;
 
-	wall_plane_data_t data;
-
 	GLuint tex_id=0, tex2_id=0;
 
 	int num_vert, i;
@@ -2008,39 +2127,28 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	// limit to 0..255 range
 	lit_Nom = MAX(0, MIN(255, lit_Nom));
 
-	data.light = lit_Nom;
-	data.flood_emu = false;
 
 	V_GetColmapRGB(colmap, &c_r, &c_g, &c_b, false);
 
-	data.col[0] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_r);
-	data.col[1] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_g);
-	data.col[2] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_b);
 
-	data.trans = trans;
-
-	data.dlights = dfloor->dlights;
-	data.image   = surf->image;
-
-	data.normal.x = 0;
-	data.normal.y = 0;
-	data.normal.z = (viewz > h) ? 1.0f : -1.0f;
+	float nx = 0;
+	float ny = 0;
+	float nz = (viewz > h) ? 1.0f : -1.0f;
 
 	SYS_ASSERT(surf->image);
 	tex_id = W_ImageCache(surf->image);
+
+	float image_w = IM_WIDTH(surf->image);
+	float image_h = IM_HEIGHT(surf->image);
 
 	// FADING MAP
 	{
 		tex2_id = W_ImageCache(fading_image);
 	}
 
-	data.tx = surf->offset.x;
-	data.ty = surf->offset.y;
+	float tx0 = surf->offset.x;
+	float ty0 = surf->offset.y;
 
-	data.x_mat = surf->x_mat;
-	data.y_mat = surf->y_mat;
-
-	data.cmx = 0;
 
 
 	vec3_t vertices[MAX_PLVERT];
@@ -2072,11 +2180,19 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	int pass = 0;
 
 	local_gl_vert_t *glvert = RGL_BeginUnit(GL_POLYGON, v_count,
-			tex_id, tex2_id, pass, blending);
+			GL_MODULATE, tex_id, GL_MODULATE, tex2_id,
+			pass, blending);
+	pass++;
 
 	for (int kk=0; kk < v_count; kk++)
 	{
-		PlaneCoordFunc(vertices + kk, glvert + kk, &data);
+		Color_Rainbow(glvert+kk, 255, 255, 255, trans);
+		Vertex_Std   (glvert+kk, vertices+kk, GL_TRUE);
+		Normal_Std   (glvert+kk, nx, ny, nz);
+
+		TexCoord_Plane(glvert+kk, 0, tx0, ty0, image_w, image_h,
+				&surf->x_mat, &surf->y_mat);
+		TexCoord_Fader(glvert+kk, 1, lit_Nom, false);
 	}
 
 	RGL_EndUnit(v_count);
