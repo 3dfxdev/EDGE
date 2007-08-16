@@ -32,6 +32,8 @@ sub_file_c::sub_file_c(file_c *_par, int _start, int _len) :
 	SYS_ASSERT(parent);
 	SYS_ASSERT(start >= 0);
 	SYS_ASSERT(length >= 0);
+
+	parent->Seek(start, SEEKPOINT_START);
 }
 
 //
