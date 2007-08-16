@@ -39,6 +39,9 @@
 
 #include <float.h>
 
+#include <vector>
+#include <algorithm>
+
 #include "dm_data.h"
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -1824,23 +1827,23 @@ bool P_RadiusThingsIterator(float x, float y, float r, bool(*func) (mobj_t *))
 // INTERCEPT ROUTINES
 //
 
-// --> Intercept list class
-class interceptarray_c : public epi::array_c
-{
-public:
-	interceptarray_c() : epi::array_c(sizeof(intercept_t)) {}
-	~interceptarray_c() { Clear(); }
+///---// --> Intercept list class
+///---class interceptarray_c : public epi::array_c
+///---{
+///---public:
+///---	interceptarray_c() : epi::array_c(sizeof(intercept_t)) {}
+///---	~interceptarray_c() { Clear(); }
+///---
+///---private:
+///---	void CleanupObject(void *obj) { /* ... */ }
+///---
+///---public:
+///---	int GetSize() { return array_entries; } 
+///---	int Insert(intercept_t *in) { return InsertObject((void*)in); }
+///---	intercept_t* operator[](int idx) { return (intercept_t*)FetchObject(idx); } 
+///---};
 
-private:
-	void CleanupObject(void *obj) { /* ... */ }
-
-public:
-	int GetSize() { return array_entries; } 
-	int Insert(intercept_t *in) { return InsertObject((void*)in); }
-	intercept_t* operator[](int idx) { return (intercept_t*)FetchObject(idx); } 
-};
-
-interceptarray_c intercepts;
+static std::vector<intercept_t> intercepts;
 
 divline_t trace;
 bool earlyout;
@@ -1898,12 +1901,12 @@ static bool PIT_AddLineIntercepts(line_t * ld)
 	// Intercept is a simple struct that can be memcpy()'d: Load
 	// up a structure and get into the array
 	intercept_t in;
-	
-	in.frac = frac;
-	in.type = INCPT_Line;
-	in.d.line = ld;
-	
-	intercepts.Insert(&in);
+
+	in.frac  = frac;
+	in.thing = NULL;
+	in.line  = ld;
+
+	intercepts.push_back(in);
 	return true;  // continue
 
 }
@@ -1969,13 +1972,21 @@ static bool PIT_AddThingIntercepts(mobj_t * thing)
 	// up a structure and get into the array
 	intercept_t in;
 	
-	in.frac = frac;
-	in.type = INCPT_Thing;
-	in.d.thing = thing;
-	
-	intercepts.Insert(&in);
+	in.frac  = frac;
+	in.thing = thing;
+	in.line  = NULL;
+
+	intercepts.push_back(in);
 	return true;
 }
+
+struct Compare_Intercept_pred
+{
+	inline bool operator() (const intercept_t& A, const intercept_t& B) const
+	{
+		return A.frac < B.frac;
+	}
+};
 
 //
 // TraverseIntercepts
@@ -1985,44 +1996,53 @@ static bool PIT_AddThingIntercepts(mobj_t * thing)
 //
 static bool TraverseIntercepts(traverser_t func, float maxfrac)
 {
-	epi::array_iterator_c it;
-	int count;
-	float dist;
-	intercept_t *in = NULL;
-	intercept_t *scan_in = NULL;
+	if (intercepts.size() == 0)
+		return true;
 
-	count = intercepts.GetSize();
-	while (count--)
+	std::sort(intercepts.begin(), intercepts.end(),
+			  Compare_Intercept_pred());
+
+	std::vector<intercept_t>::iterator I;
+
+	for (I = intercepts.begin(); I != intercepts.end(); I++)
 	{
-		dist = FLT_MAX;
-
-		for (it = intercepts.GetBaseIterator(); it.IsValid(); it++)
-		{
-			scan_in = ITERATOR_TO_PTR(it, intercept_t);
-			if (scan_in->frac < dist)
-			{
-				dist = scan_in->frac;
-				in = scan_in;
-			}
-		}
-
-		if (dist > maxfrac)
-		{
-			// checked everything in range  
-			return true;
-		}
-
-		if (!func(in))
+		if (! func(& *I))
 		{
 			// don't bother going farther
 			return false;
 		}
-
-		in->frac = FLT_MAX;
 	}
 
 	// everything was traversed
 	return true;
+
+///---	intercept_t *in = NULL;
+///---
+///---	int count = (int)intercepts.size();
+///---
+///---	//!!!! FIXME: just sort the fucking list
+///---
+///---	while (count--)
+///---	{
+///---		float dist = FLT_MAX;
+///---
+///---		{
+///---			if (I->frac < dist)
+///---			{
+///---				dist = I->frac;
+///---				in = & *I;
+///---			}
+///---		}
+///---
+///---		if (dist > maxfrac)
+///---		{
+///---			// checked everything in range  
+///---			return true;
+///---		}
+///---
+///---
+///---		in->frac = FLT_MAX;
+///---	}
 }
 
 //
@@ -2063,11 +2083,7 @@ bool P_PathTraverse(float x1, float y1, float x2, float y2,
 
 	validcount++;
 
-	//
-	// -ACB- 2004/08/02 We don't clear the array since there is no need
-	// to free the memory
-	//
-	intercepts.ZeroiseCount();
+	intercepts.clear();
 
 	if (fmod(x1 - bmaporgx, MAPBLOCKUNITS) == 0)
 	{

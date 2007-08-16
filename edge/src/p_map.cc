@@ -1053,31 +1053,31 @@ static void HitSlideLine(line_t * ld)
 //
 static bool PTR_SlideTraverse(intercept_t * in)
 {
-	SYS_ASSERT(in->type == INCPT_Line);
+	line_t *ld = in->line;
 
-	line_t *li = in->d.line;
+	SYS_ASSERT(ld);
 
-	if (! (li->flags & MLF_TwoSided))
+	if (! (ld->flags & MLF_TwoSided))
 	{
 		// hit the back side ?
-		if (PointOnLineSide(slidemo->x, slidemo->y, li))
+		if (PointOnLineSide(slidemo->x, slidemo->y, ld))
 			return true;
 	}
 
 	// -AJA- 1999/07/19: Gaps are now stored in line_t.
 
-	for (int i = 0; i < li->gap_num; i++)
+	for (int i = 0; i < ld->gap_num; i++)
 	{
 		// check if it can fit in the space
-		if (slidemo->height > li->gaps[i].c - li->gaps[i].f)
+		if (slidemo->height > ld->gaps[i].c - ld->gaps[i].f)
 			continue;
 
 		// check slide mobj is not too high
-		if (slidemo->z + slidemo->height > li->gaps[i].c)
+		if (slidemo->z + slidemo->height > ld->gaps[i].c)
 			continue;
 
 		// check slide mobj can step over
-		if (slidemo->z + slidemo->info->step_size < li->gaps[i].f)
+		if (slidemo->z + slidemo->info->step_size < ld->gaps[i].f)
 			continue;
 
 		return true;
@@ -1088,7 +1088,7 @@ static bool PTR_SlideTraverse(intercept_t * in)
 	if (in->frac < bestslidefrac)
 	{
 		bestslidefrac = in->frac;
-		bestslideline = li;
+		bestslideline = ld;
 	}
 
 	// stop
@@ -1205,11 +1205,11 @@ static bool PTR_AimTraverse(intercept_t * in)
 	if (dist < 0.01f)
 		return true;
 
-	if (in->type == INCPT_Line)
+	if (in->line)
 	{
-		line_t *li = in->d.line;
+		line_t *ld = in->line;
 
-		if (!(li->flags & MLF_TwoSided) || li->gap_num == 0)
+		if (!(ld->flags & MLF_TwoSided) || ld->gap_num == 0)
 			return false;  // stop
 
 		// Crosses a two sided line.
@@ -1218,18 +1218,18 @@ static bool PTR_AimTraverse(intercept_t * in)
 		//
 		// -AJA- 1999/07/19: Gaps are now kept in line_t.
 
-		if (li->frontsector->f_h != li->backsector->f_h)
+		if (ld->frontsector->f_h != ld->backsector->f_h)
 		{
-			float maxfloor = MAX(li->frontsector->f_h, li->backsector->f_h);
+			float maxfloor = MAX(ld->frontsector->f_h, ld->backsector->f_h);
 			float slope = (maxfloor - aim_I.start_z) / dist;
 
 			if (slope > aim_I.bottomslope)
 				aim_I.bottomslope = slope;
 		}
 
-		if (li->frontsector->c_h != li->backsector->c_h)
+		if (ld->frontsector->c_h != ld->backsector->c_h)
 		{
-			float minceil = MIN(li->frontsector->c_h, li->backsector->c_h);
+			float minceil = MIN(ld->frontsector->c_h, ld->backsector->c_h);
 			float slope = (minceil - aim_I.start_z) / dist;
 
 			if (slope < aim_I.topslope)
@@ -1243,27 +1243,27 @@ static bool PTR_AimTraverse(intercept_t * in)
 		return true;
 	}
 
-	SYS_ASSERT(in->type == INCPT_Thing);
-
 	// shoot a thing
-	mobj_t *th = in->d.thing;
+	mobj_t *mo = in->thing;
 
-	if (th == aim_I.source)
+	SYS_ASSERT(mo);
+
+	if (mo == aim_I.source)
 		return true;  // can't shoot self
 
-	if (! (th->flags & MF_SHOOTABLE))
+	if (! (mo->flags & MF_SHOOTABLE))
 		return true;  // has to be able to be shot
 	
-	if (aim_I.source && !aim_I.forced && (aim_I.source->side & th->side) != 0)
+	if (aim_I.source && !aim_I.forced && (aim_I.source->side & mo->side) != 0)
 		return true;  // don't aim at our good friend
 
 	// check angles to see if the thing can be aimed at
-	float thingtopslope = (th->z + th->height - aim_I.start_z) / dist;
+	float thingtopslope = (mo->z + mo->height - aim_I.start_z) / dist;
 
 	if (thingtopslope < aim_I.bottomslope)
 		return true;  // shot over the thing
 
-	float thingbottomslope = (th->z - aim_I.start_z) / dist;
+	float thingbottomslope = (mo->z - aim_I.start_z) / dist;
 
 	if (thingbottomslope > aim_I.topslope)
 		return true;  // shot under the thing
@@ -1276,7 +1276,7 @@ static bool PTR_AimTraverse(intercept_t * in)
 		thingbottomslope = aim_I.bottomslope;
 
 	aim_I.slope = (thingtopslope + thingbottomslope) / 2;
-	aim_I.target = th;
+	aim_I.target = mo;
 
 	return false;  // don't go any farther
 }
@@ -1339,9 +1339,9 @@ static bool PTR_ShootTraverse(intercept_t * in)
 		dist = 0.1f;
 
 	// Intercept is a line?
-	if (in->type == INCPT_Line)
+	if (in->line)
 	{
-		line_t *li = in->d.line;
+		line_t *ld = in->line;
 
 		// determine coordinates of intersect
 		float frac = in->frac;
@@ -1349,16 +1349,16 @@ static bool PTR_ShootTraverse(intercept_t * in)
 		float y = trace.y + trace.dy * frac;
 		float z = shoot_I.start_z + frac * shoot_I.slope * shoot_I.range;
 
-		int sidenum = PointOnLineSide(trace.x, trace.y, li);
-		side_t *side = li->side[sidenum];
+		int sidenum = PointOnLineSide(trace.x, trace.y, ld);
+		side_t *side = ld->side[sidenum];
 
 		// Line is a special, Cause action....
 		// -AJA- honour the NO_TRIGGER_LINES attack special too
-		if (li->special &&
+		if (ld->special &&
 			(! shoot_I.source || ! shoot_I.source->currentattack ||
 			! (shoot_I.source->currentattack->flags & AF_NoTriggerLines)))
 		{
-			P_ShootSpecialLine(li, sidenum, shoot_I.source);
+			P_ShootSpecialLine(ld, sidenum, shoot_I.source);
 		}
 
 		// check if shot has hit a floor or ceiling...
@@ -1388,15 +1388,15 @@ static bool PTR_ShootTraverse(intercept_t * in)
 		// shot doesn't go through a one-sided line, since one sided lines
 		// do not have a sector on the other side.
 
-		if ((li->flags & MLF_TwoSided) && li->gap_num > 0 &&
-			!(li->flags & MLF_ShootBlock))
+		if ((ld->flags & MLF_TwoSided) && ld->gap_num > 0 &&
+			!(ld->flags & MLF_ShootBlock))
 		{
-			SYS_ASSERT(li->backsector);
+			SYS_ASSERT(ld->backsector);
 
 			// check all line gaps
-			for (int i = 0; i < li->gap_num; i++)
+			for (int i = 0; i < ld->gap_num; i++)
 			{
-				if (li->gaps[i].f <= z && z <= li->gaps[i].c)
+				if (ld->gaps[i].f <= z && z <= ld->gaps[i].c)
 				{
 					shoot_I.prev_z = z;
 					return true;
@@ -1405,21 +1405,21 @@ static bool PTR_ShootTraverse(intercept_t * in)
 		}
 
 		// check if bullet hit a sky hack line...
-		if (li->frontsector && li->backsector)
+		if (ld->frontsector && ld->backsector)
 		{
-			if (IS_SKY(li->frontsector->ceil) && IS_SKY(li->backsector->ceil))
+			if (IS_SKY(ld->frontsector->ceil) && IS_SKY(ld->backsector->ceil))
 			{
-				float c1 = li->frontsector->c_h;
-				float c2 = li->backsector->c_h;
+				float c1 = ld->frontsector->c_h;
+				float c2 = ld->backsector->c_h;
 
 				if (MIN(c1,c2) <= z && z <= MAX(c1,c2))
 					return false;
 			}
 
-			if (IS_SKY(li->frontsector->floor) && IS_SKY(li->backsector->floor))
+			if (IS_SKY(ld->frontsector->floor) && IS_SKY(ld->backsector->floor))
 			{
-				float f1 = li->frontsector->f_h;
-				float f2 = li->backsector->f_h;
+				float f1 = ld->frontsector->f_h;
+				float f2 = ld->backsector->f_h;
 
 				if (MIN(f1,f2) <= z && z <= MAX(f1,f2))
 					return false;
@@ -1438,27 +1438,27 @@ static bool PTR_ShootTraverse(intercept_t * in)
 		return false;
 	}
 
-	SYS_ASSERT(in->type == INCPT_Thing);
-
 	// shoot a thing
-	mobj_t *th = in->d.thing;
+	mobj_t *mo = in->thing;
+
+	SYS_ASSERT(mo);
 
 	// don't shoot self
-	if (th == shoot_I.source)
+	if (mo == shoot_I.source)
 		return true;
 
 	// got to able to shoot it
-	if (!(th->flags & MF_SHOOTABLE) && !(th->extendedflags & EF_BLOCKSHOTS))
+	if (!(mo->flags & MF_SHOOTABLE) && !(mo->extendedflags & EF_BLOCKSHOTS))
 		return true;
 
 	// check angles to see if the thing can be aimed at
-	float thingtopslope = (th->z + th->height - shoot_I.start_z) / dist;
+	float thingtopslope = (mo->z + mo->height - shoot_I.start_z) / dist;
 
 	// shot over the thing ?
 	if (thingtopslope < shoot_I.slope)
 		return true;
 
-	float thingbottomslope = (th->z - shoot_I.start_z) / dist;
+	float thingbottomslope = (mo->z - shoot_I.start_z) / dist;
 
 	// shot under the thing ?
 	if (thingbottomslope > shoot_I.slope)
@@ -1475,11 +1475,11 @@ static bool PTR_ShootTraverse(intercept_t * in)
 	// Spawn bullet puffs or blood spots,
 	// depending on target type.
 
-	bool use_puff = !(th->flags & MF_SHOOTABLE) || (th->flags & MF_NOBLOOD);
+	bool use_puff = !(mo->flags & MF_SHOOTABLE) || (mo->flags & MF_NOBLOOD);
 
-	if (th->flags & MF_SHOOTABLE)
+	if (mo->flags & MF_SHOOTABLE)
 	{
-		int what = P_BulletContact(shoot_I.source, th, shoot_I.damage, shoot_I.damtype);
+		int what = P_BulletContact(shoot_I.source, mo, shoot_I.damage, shoot_I.damtype);
 
 		if (what < 0) // bullets pass through
 			return true;
@@ -1490,7 +1490,7 @@ static bool PTR_ShootTraverse(intercept_t * in)
 	if (use_puff && shoot_I.puff)
 		P_SpawnPuff(x, y, z, shoot_I.puff);
 	else
-		P_SpawnBlood(x, y, z, shoot_I.damage, shoot_I.angle, th->info->blood);
+		P_SpawnBlood(x, y, z, shoot_I.damage, shoot_I.angle, mo->info->blood);
 
 	// don't go any farther
 	return false;
@@ -1709,35 +1709,30 @@ static float use_lower, use_upper;
 
 static bool PTR_UseTraverse(intercept_t * in)
 {
-	int sidenum;
-	line_t *line;
-	side_t *side;
-	mobj_t *th;
-
 	// intercept is a thing ?
-	if (in->type == INCPT_Thing)
+	if (in->thing)
 	{
-		th = in->d.thing;
+		mobj_t *mo = in->thing;
 
 		// not a usable thing ?
-		if (!(th->extendedflags & EF_USABLE) || ! th->info->touch_state)
+		if (!(mo->extendedflags & EF_USABLE) || ! mo->info->touch_state)
 			return true;
 
-		if (!P_UseThing(usething, th, use_lower, use_upper))
+		if (!P_UseThing(usething, mo, use_lower, use_upper))
 			return true;
 
 		// don't go any farther (thing was usable)
 		return false;
 	}
 
-	SYS_ASSERT(in->type == INCPT_Line);
+	line_t *ld = in->line;
 
-	line = in->d.line;
+	SYS_ASSERT(ld);
 
-	sidenum = PointOnLineSide(usething->x, usething->y, line);
+	int sidenum = PointOnLineSide(usething->x, usething->y, ld);
 	sidenum = (sidenum == 1) ? 1 : 0;
 
-	side = line->side[sidenum];
+	side_t *side = ld->side[sidenum];
 
 	// update open vertical range (extrafloors are NOT checked)
 	if (side)
@@ -1746,11 +1741,11 @@ static bool PTR_UseTraverse(intercept_t * in)
 		use_upper = MIN(use_upper, side->sector->c_h);
 	}
 
-	if (! line->special ||
-		line->special->type == line_shootable ||
-		line->special->type == line_walkable)
+	if (! ld->special ||
+		ld->special->type == line_shootable ||
+		ld->special->type == line_walkable)
 	{
-		if (line->gap_num == 0 || use_upper <= use_lower)
+		if (ld->gap_num == 0 || use_upper <= use_lower)
 		{
 			// can't use through a wall
             S_StartFX(usething->info->noway_sound, P_MobjGetSfxCategory(usething), usething);
@@ -1761,13 +1756,13 @@ static bool PTR_UseTraverse(intercept_t * in)
 		return true;
 	}
 
-	P_UseSpecialLine(usething, line, sidenum, use_lower, use_upper);
+	P_UseSpecialLine(usething, ld, sidenum, use_lower, use_upper);
 
 	// can't use more than one special line in a row
 	// -AJA- 1999/09/25: ...unless the line has the PASSTHRU flag
 	//       (Boom compatibility).
 
-	return (line->flags & MLF_PassThru) ? true : false;
+	return (ld->flags & MLF_PassThru) ? true : false;
 }
 
 //

@@ -250,11 +250,11 @@ static int BOT_EvaluateItem(bot_t *bot, mobj_t *mo)
 
 static bool PTR_BotLook(intercept_t * in)
 {
-	if (in->type == INCPT_Line)
+	if (in->line)
 	{
-		line_t *li = in->d.line;
+		line_t *ld = in->line;
 
-		if (! (li->flags & MLF_TwoSided))
+		if (! (ld->flags & MLF_TwoSided))
 			return false;  // stop
 
 		// Crosses a two sided line.
@@ -262,33 +262,33 @@ static bool PTR_BotLook(intercept_t * in)
 		// the possible target ranges.
 		// -AJA- 1999/07/19: Gaps are now stored in line_t.
 
-		if (li->gap_num == 0)
+		if (ld->gap_num == 0)
 			return false;  // stop
 
-		if (fabs(li->frontsector->f_h - li->backsector->f_h) > 24.0f)
+		if (fabs(ld->frontsector->f_h - ld->backsector->f_h) > 24.0f)
 			return false;
 
 		return true;  // sight continues
 	}
 
-	SYS_ASSERT(in->type == INCPT_Thing);
+	mobj_t *mo = in->thing;
 
-	mobj_t *th = in->d.thing;
+	SYS_ASSERT(mo);
 
-	if (! (th->flags & MF_SPECIAL))
+	if (! (mo->flags & MF_SPECIAL))
 		return true;  // has to be able to be got
 
-	if (th->health <= 0)
+	if (mo->health <= 0)
 		return true;  // already been picked up
 
-	int score = BOT_EvaluateItem(looking_bot, th);
+	int score = BOT_EvaluateItem(looking_bot, mo);
 
 	if (score <= 0)
 		return true;
 
 	if (!lkbot_target || score > lkbot_score)
 	{
-		lkbot_target = th;
+		lkbot_target = mo;
 		lkbot_score  = score;
 	}
 

@@ -204,25 +204,13 @@ void P_FreeShootSpots(void);
 #define PT_ADDTHINGS 2
 #define PT_EARLYOUT  4
 
-typedef enum
-{
-	INCPT_Line  = 0,
-	INCPT_Thing = 1
-}
-intercept_type_e;
-
 typedef struct intercept_s
 {
 	float frac;  // along trace line
 
-	intercept_type_e type;
-
-	union
-	{
-		mobj_t *thing;
-		line_t *line;
-	}
-	d;
+	// one of these will be NULL
+	mobj_t *thing;
+	line_t *line;
 }
 intercept_t;
 
