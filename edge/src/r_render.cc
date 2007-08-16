@@ -55,6 +55,9 @@
 
 #include "n_network.h"  // N_NetUpdate
 
+#include "r_texgl.h" ///!!!!
+#include "epi/image_data.h"
+
 #define DEBUG  0
 
 #define FLOOD_DIST    1024.0f
@@ -123,6 +126,32 @@ static const image_c *fading_image = NULL;
 #ifdef SHADOW_PROTOTYPE
 static const image_c *shadow_image = NULL;
 #endif
+
+
+static GLuint glow_tex = 0;
+
+static void MakeGlowTexture(void)
+{
+	epi::image_data_c *img = new epi::image_data_c(16, 64, 3);
+
+	for (int x=0; x < img->width;  x++)
+	for (int y=0; y < img->height; y++)
+	{
+		u8_t *pix = img->PixelAt(x, y);
+
+		float ity = pow(1.0 - y/63.0, 2.5);
+
+		pix[0] = int(255 * ity);
+		pix[1] = pix[0];
+		pix[2] = pix[1];
+	}
+
+	glow_tex = R_UploadTexture(img, NULL, UPL_Clamp | UPL_Smooth);
+
+	delete img;
+}
+
+
 
 
 // ========= MIRROR STUFF ===========
@@ -672,7 +701,7 @@ static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
 	v->ty[t] = CLAMP(v->ty[t], 0.01, 0.99);
 }
 
-static inline void TexCoord_PlaneShadow(local_gl_vert_t *v, int t)
+static inline void TexCoord_Shadow(local_gl_vert_t *v, int t)
 {
 #if 0
 	float rx = (v->x + data->tx);
@@ -681,6 +710,27 @@ static inline void TexCoord_PlaneShadow(local_gl_vert_t *v, int t)
 	v->tx[t] = rx * data->x_mat.x + ry * data->x_mat.y;
 	v->ty[t] = rx * data->y_mat.x + ry * data->y_mat.y;
 #endif
+}
+
+static inline void TexCoord_FloorGlow(local_gl_vert_t *v, int t, float f_h)
+{
+	v->tx[t] = 0.5;
+	v->ty[t] = (v->z - f_h) / 64.0;
+}
+
+static inline void TexCoord_CeilGlow(local_gl_vert_t *v, int t, float c_h)
+{
+	v->tx[t] = 0.5;
+	v->ty[t] = (c_h - v->z) / 64.0;
+}
+
+static inline void TexCoord_WallGlow(local_gl_vert_t *v, int t,
+		float x1, float y1, float nx, float ny)
+{
+	float dist = (v->x - x1) * nx + (v->y - y1) * ny;
+
+	v->tx[t] = 0.5;
+	v->ty[t] = dist / 192.0;
 }
 
 static inline void TexCoord_WallLight(local_gl_vert_t *v, int t)
@@ -1318,12 +1368,12 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	if (mid_masked == 1)
 		blending |= BL_ClampY;
 
-	blending |= BL_Multi;
-
 
 	int pass = 0;
 
-	local_gl_vert_t *glvert = RGL_BeginUnit(GL_POLYGON, v_count,
+	local_gl_vert_t *glvert;
+	
+	glvert = RGL_BeginUnit(GL_POLYGON, v_count,
 			GL_MODULATE, tex_id, GL_MODULATE, tex2_id,
 			pass, blending);
 	pass++;
@@ -1345,9 +1395,31 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	data.cmx = 1;
 
 	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, 0,tex2_id,
-		/* pass */ 1, blending | BL_Multi | BL_Add);
+		/* pass */ 1, blending | BL_Add);
 
 	RGL_FreePolyQuad(poly);
+#endif
+
+#if 0  // GLOW TEST !!!!
+	if (! glow_tex)
+		MakeGlowTexture();
+
+	glvert = RGL_BeginUnit(GL_POLYGON, v_count,
+			GL_MODULATE, tex_id, GL_MODULATE, glow_tex,
+			pass, BL_Add);
+	pass++;
+
+	for (int kk=0; kk < v_count; kk++)
+	{
+		Color_Rainbow(glvert+kk, 127, 255, 63, 0.9*trans);
+		Vertex_Std   (glvert+kk, vertices+kk, GL_TRUE);
+		Normal_Std   (glvert+kk, nx, ny, nz);
+
+		TexCoord_Wall (glvert+kk, 0, &div, tx0, ty0, tx_mul, ty_mul);
+		TexCoord_FloorGlow(glvert+kk, 1, cur_seg->frontsector->f_h);
+	}
+
+	RGL_EndUnit(v_count);
 #endif
 
 #if 0 ///!!!! def DLIGHT_PROTOTYPE
@@ -1417,7 +1489,7 @@ RGL_DrawUnits(); //!!!!
 
 				RGL_RenderPolyQuad(poly, &dat2, DLightWallCoordFunc,
 (info->type == DLITE_Add ? 0 : tex_id),tex2_id,
-					/* pass */ 2+DL, BL_Multi|BL_Add);
+					/* pass */ 2+DL, BL_Add);
 
 				RGL_FreePolyQuad(poly);
 RGL_DrawUnits();
@@ -2174,8 +2246,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	int blending = (blended ? BL_Alpha : 0) | (mid_masked ? BL_Masked : 0);
 
-	blending |= BL_Multi;
-
 
 	int pass = 0;
 
@@ -2197,15 +2267,63 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	RGL_EndUnit(v_count);
 
-
 #if 0  // COLORMAP ADD SHIT
 
 	data.cmx = 1;
 
 	RGL_RenderPolyQuad(poly, &data, WallCoordFunc, 0,tex2_id,
-		/* pass */ 1, blending | BL_Multi | BL_Add);
+		/* pass */ 1, blending | BL_Add);
 
 	RGL_FreePolyQuad(poly);
+#endif
+
+#if 0  // FLOOR GLOW TEST !!!!
+	if (! glow_tex)
+		MakeGlowTexture();
+
+if (nz > 0)
+{
+	glvert = RGL_BeginUnit(GL_POLYGON, v_count,
+			GL_MODULATE, tex_id, GL_MODULATE, glow_tex,
+			pass, BL_Add);
+	pass++;
+
+	for (int kk=0; kk < v_count; kk++)
+	{
+		Color_Rainbow(glvert+kk, 127, 255, 63, 0.9*trans);
+		Vertex_Std   (glvert+kk, vertices+kk, GL_TRUE);
+		Normal_Std   (glvert+kk, nx, ny, nz);
+
+		TexCoord_Plane(glvert+kk, 0, tx0, ty0, image_w, image_h,
+				&surf->x_mat, &surf->y_mat);
+		TexCoord_FloorGlow(glvert+kk, 1, h);
+	}
+
+	RGL_EndUnit(v_count);
+}
+#endif
+
+#if 1  // WALL GLOW TEST !!!!
+	if (! glow_tex)
+		MakeGlowTexture();
+
+	glvert = RGL_BeginUnit(GL_POLYGON, v_count,
+			GL_MODULATE, tex_id, GL_MODULATE, glow_tex,
+			pass, BL_Add);
+	pass++;
+
+	for (int kk=0; kk < v_count; kk++)
+	{
+		Color_Rainbow(glvert+kk, 255, 255, 255, 0.9*trans);
+		Vertex_Std   (glvert+kk, vertices+kk, GL_TRUE);
+		Normal_Std   (glvert+kk, nx, ny, nz);
+
+		TexCoord_Plane(glvert+kk, 0, tx0, ty0, image_w, image_h,
+				&surf->x_mat, &surf->y_mat);
+		TexCoord_WallGlow(glvert+kk, 1, 2560,2880, 0,1);
+	}
+
+	RGL_EndUnit(v_count);
 #endif
 
 #ifdef SHADOW_PROTOTYPE
@@ -2314,7 +2432,7 @@ RGL_DrawUnits();
 
 				RGL_RenderPolyQuad(poly, &dat2, DLightPlaneCoordFunc,
 (info->type == DLITE_Add ? 0 : tex_id),tex2_id,
-					/* pass */ 2+DL, BL_Multi|BL_Add);
+					/* pass */ 2+DL, BL_Add);
 
 				RGL_FreePolyQuad(poly);
 RGL_DrawUnits();
