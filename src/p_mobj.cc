@@ -97,31 +97,6 @@ void P_DumpMobjs(void)
 #endif
 
 
-// The Object Removal Que
-class mobjlist_c : public epi::array_c
-{
-public:
-	mobjlist_c() : epi::array_c(sizeof(mobj_t*)) {}
-	~mobjlist_c() { Clear(); } 
-
-private:
-	void CleanupObject(void *obj) { /* Do Nothing */ }
-
-public:
-	int Insert(mobj_t *mo) 
-	{ 
-		epi::array_iterator_c it;
-		
-		for (it=GetBaseIterator(); it.IsValid(); it++)
-		{
-			if (mo == ITERATOR_TO_TYPE(it, mobj_t*))
-				return -1;
-		}
-	
-		return InsertObject((void*)&mo); 
-	} 
-};
-
 // List of all objects in map.
 mobj_t *mobjlisthead;
 
