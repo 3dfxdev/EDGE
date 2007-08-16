@@ -50,10 +50,12 @@ bool dumb_sky = false;
 typedef struct local_gl_unit_s
 {
 	// unit mode (e.g. GL_POLYGON)
-	GLuint mode;
+	GLuint shape;
 
 	// range of local vertices
 	int first, count;
+
+	GLuint env[2];
 
 	// texture(s) used
 	GLuint tex_id[2];
@@ -165,8 +167,9 @@ void RGL_FinishUnits(void)
 // contains "holes" (like sprites).  `blended' should be true if the
 // texture should be blended (like for translucent water or sprites).
 //
-local_gl_vert_t *RGL_BeginUnit(GLuint mode, int max_vert,
-							   GLuint tex_id, GLuint tex2_id,
+local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert, 
+		                       GLuint env1, GLuint tex1,
+							   GLuint env2, GLuint tex2,
 							   int pass, int blending)
 {
 	local_gl_unit_t *unit;
@@ -183,9 +186,11 @@ local_gl_vert_t *RGL_BeginUnit(GLuint mode, int max_vert,
 
 	unit = local_units + cur_unit;
 
-	unit->mode      = mode;
-	unit->tex_id[0] = tex_id;
-	unit->tex_id[1] = tex2_id;
+	unit->shape     = shape;
+	unit->env[0]    = env1;
+	unit->tex_id[0] = tex1;
+	unit->env[1]    = env2;
+	unit->tex_id[1] = tex2;
 	unit->pass      = pass;
 	unit->first     = cur_vert;  // count set later
 	unit->blending  = blending;
@@ -223,11 +228,8 @@ void RGL_SendRawVector(const local_gl_vert_t *V)
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, V->col);
 	}
 
-	glTexCoord2f(V->t_x, V->t_y);
-
-#ifdef USE_GLXTNS
-	glMultiTexCoord2f(GL_TEXTURE1, V->t2_x, V->t2_y);
-#endif
+	glMultiTexCoord2f(GL_TEXTURE0, V->tx[0], V->ty[0]);
+	glMultiTexCoord2f(GL_TEXTURE1, V->tx[1], V->ty[1]);
 
 	glNormal3f(V->n_x, V->n_y, V->n_z);
 	glEdgeFlag(V->edge);
@@ -373,7 +375,7 @@ void RGL_DrawUnits(void)
 		}
 
 
-		glBegin(unit->mode);
+		glBegin(unit->shape);
 
 		for (j=0; j < unit->count; j++)
 			RGL_SendRawVector(local_verts + unit->first + j);

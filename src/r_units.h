@@ -38,8 +38,7 @@ typedef struct local_gl_vert_s
 {
 	GLfloat x, y, z;
 	GLfloat col[4];
-	GLfloat t_x, t_y;
-	GLfloat t2_x, t2_y;
+	GLfloat tx[2], ty[2];
 	GLfloat n_x, n_y, n_z;
 	GLboolean edge;
 }
@@ -62,8 +61,9 @@ typedef enum
 }
 blending_mode_e;
 
-local_gl_vert_t *RGL_BeginUnit(GLuint mode, int max_vert, 
-							   GLuint tex_id, GLuint tex2_id,
+local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert, 
+		                       GLuint env1, GLuint tex1,
+							   GLuint env2, GLuint tex2,
 							   int pass, int blending);
 void RGL_EndUnit(int actual_vert);
 void RGL_DrawUnits(void);
@@ -76,10 +76,10 @@ void RGL_SendRawVector(const local_gl_vert_t *V);
 	vert->col[3] = (A); } while(0)
 
 #define SET_TEXCOORD(X,Y)  \
-	do { vert->t_x = (X); vert->t_y = (Y); } while(0)
+	do { vert->tx[0] = (X); vert->ty[0] = (Y); } while(0)
 
 #define SET_TEX2COORD(X,Y)  \
-	do { vert->t2_x = (X); vert->t2_y = (Y); } while(0)
+	do { vert->tx[1] = (X); vert->ty[1] = (Y); } while(0)
 
 #define SET_NORMAL(X,Y,Z)  \
 	do { vert->n_x = (X); vert->n_y = (Y); vert->n_z = (Z); } while(0)
