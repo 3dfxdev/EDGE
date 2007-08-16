@@ -1,5 +1,23 @@
 Andrew Apted's Log
 
+2007/08/16:
+
+For the renderer I ditched the WallCoordFunc and PlaneCoordFunc
+functions, instead using small functions that only handle one
+aspect at a time: Color_XXX, Vertex_XXX, TexCoord_XXX.  This
+will make it a lot easier to add in new effects.
+
+Reworked the units code, using std::sort for sorting the units
+(instead of our custom QSORT), and making it multitexture aware
+all the time, using a "0" texture ID to disable that texture
+unit (getting rid of BL_Multi too).  Also added support for
+different environment modes (GL_REPLACE/MODULATE/ADD etc).
+
+Experimented with a "sector glow" effect, it looks quite nice
+so I think I will keep it.  One hitch: there is no good place
+where we can say "make FWATER# texture have such'n'such glow",
+to allow the effect on plain pwads.  Perhaps NTEXTURE ??
+
 2007/08/15:
 
 Made the console key configurable, default is '~'.
