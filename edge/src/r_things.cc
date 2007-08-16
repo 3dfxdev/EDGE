@@ -1086,7 +1086,12 @@ return;
 	
 	local_gl_vert_t *vert, *orig;
 
-	vert = orig = RGL_BeginUnit(GL_POLYGON, 4, tex_id,0, /* pass */ 0, blending);
+	int pass = 0;
+
+	vert = orig = RGL_BeginUnit(GL_POLYGON, 4,
+			GL_MODULATE, tex_id, 0,0,
+			pass, blending);
+	pass++;
 
 	SET_COLOR(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
 	SET_TEXCOORD(tex_x1, tex_y1);
