@@ -15,13 +15,6 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-//
-//  Based on the DOOM source code, released by Id Software under the
-//  following copyright:
-//
-//    Copyright (C) 1993-1996 by id Software, Inc.
-//
-//----------------------------------------------------------------------------
 
 #ifndef __RGL_OCCLUDE_H__
 #define __RGL_OCCLUDE_H__

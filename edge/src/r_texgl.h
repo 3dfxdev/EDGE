@@ -19,6 +19,23 @@
 #ifndef __RGL_TEXGL_H__
 #define __RGL_TEXGL_H__
 
+#include "epi/image_data.h"
+
+typedef enum
+{
+	UPL_NONE = 0,
+
+	UPL_Smooth   = (1 << 0),
+	UPL_Clamp    = (1 << 1),
+	UPL_MipMap   = (1 << 2),
+}
+upload_texture_flag_e;
+
+GLuint R_UploadTexture(epi::image_data_c *img, const byte *palette,
+		 int flags, int max_pix = (1<<30));
+
+void R_PaletteRemapRGBA(epi::image_data_c *img,
+		const byte *new_pal, const byte *old_pal);
 
 #endif /* __RGL_TEXGL_H__ */
 

@@ -31,7 +31,9 @@
 #include "r_gldefs.h"
 #include "r_image.h"
 #include "r_sky.h"
+#include "r_texgl.h"
 #include "r_colors.h"
+
 #include "w_texture.h"
 #include "w_wad.h"
 
@@ -332,15 +334,6 @@ static byte *ShrinkNormalRGBA(byte *rgba, int total_w, int total_h,
 	return dest;
 }
 
-
-
-//
-// W_SendGLTexture
-//
-// Send the texture data to the GL, and returns the texture ID
-// assigned to it.  The format of the data must be a normal block if
-// palette-indexed pixels.
-//
 static GLuint minif_modes[2*3] =
 {
 	GL_NEAREST,
@@ -352,10 +345,22 @@ static GLuint minif_modes[2*3] =
 	GL_LINEAR_MIPMAP_LINEAR
 };
 
-GLuint W_SendGLTexture(epi::image_data_c *img,
-					   bool clamp, bool nomip, bool smooth,
-					   int max_pix, const byte *what_palette)
+
+
+//
+// R_UploadTexture
+//
+// Send the texture data to the GL, and returns the texture ID
+// assigned to it.  The format of the data must be a normal block if
+// palette-indexed pixels.
+//
+GLuint R_UploadTexture(epi::image_data_c *img, const byte *palette,
+		               int flags, int max_pix)
 {
+	bool clamp  = (flags & UPL_Clamp)  ? true : false;
+	bool nomip  = (flags & UPL_MipMap) ? false : true;
+	bool smooth = (flags & UPL_Smooth) ? true : false;
+	
   	int total_w = img->width;
 	int total_h = img->height;
 
@@ -410,7 +415,7 @@ GLuint W_SendGLTexture(epi::image_data_c *img,
 		{
 			case 1:
 				rgba_src = ShrinkBlockRGBA(img->pixels, total_w, total_h,
-					new_w, new_h, what_palette);
+					new_w, new_h, palette);
 				break;
 
 			case 3:
@@ -541,102 +546,105 @@ static rgbcol_t ExtractImageHue(byte *src, int w, int h, int bpp)
 }
 #endif
 
-void PaletteRemapRGBA(epi::image_data_c *img,
+void R_PaletteRemapRGBA(epi::image_data_c *img,
 	const byte *new_pal, const byte *old_pal)
 {
-	const int max_prev = 32;
+	const int max_prev = 16;
 
 	// cache of previously looked-up colours (in pairs)
 	u8_t previous[max_prev * 6];
 	int num_prev = 0;
 
 	for (int y = 0; y < img->height; y++)
-		for (int x = 0; x < img->width; x++)
+	for (int x = 0; x < img->width;  x++)
+	{
+		u8_t *cur = img->PixelAt(x, y);
+
+		// skip completely transparent pixels
+		if (img->bpp == 4 && cur[3] == 0)
+			continue;
+
+		// optimisation: if colour matches previous one, don't need
+		// to compute the remapping again.
+		int i;
+		for (i = 0; i < num_prev; i++)
 		{
-			u8_t *cur = img->PixelAt(x, y);
-
-			// skip completely transparent pixels
-			if (img->bpp == 4 && cur[3] == 0)
-				continue;
-
-			// optimisation: if colour matches previous one, don't need
-			// to compute the remapping again.
-			int i;
-			for (i = 0; i < num_prev; i++)
-				if (previous[i*6+0] == cur[0] &&
-				    previous[i*6+1] == cur[1] &&
-				    previous[i*6+2] == cur[2])
-				{
-					break;
-				}
-
-			if (i < num_prev)
+			if (previous[i*6+0] == cur[0] &&
+				previous[i*6+1] == cur[1] &&
+				previous[i*6+2] == cur[2])
 			{
-				// move to front (Most Recently Used)
-				if (i != 0)
-				{
-					u8_t tmp[6];
-
-					memcpy(tmp, previous, 6);
-					memcpy(previous, previous + i*6, 6);
-					memcpy(previous + i*6, tmp, 6);
-				}
-
-				cur[0] = previous[3];
-				cur[1] = previous[4];
-				cur[2] = previous[5];
-
-				continue;
+				break;
 			}
-
-			if (num_prev < max_prev)
-			{
-				memmove(previous+6, previous, num_prev*6);
-				num_prev++;
-			}
-
-			// most recent lookup is at the head
-			previous[0] = cur[0];
-			previous[1] = cur[1];
-			previous[2] = cur[2];
-
-			int best = 0;
-			int best_dist = (1 << 30);
-
-			int R = int(cur[0]);
-			int G = int(cur[1]);
-			int B = int(cur[2]);
-
-			for (int p = 0; p < 256; p++)
-			{
-				int dR = int(old_pal[p*3+0]) - R;
-				int dG = int(old_pal[p*3+1]) - G;
-				int dB = int(old_pal[p*3+2]) - B;
-
-				int dist = dR * dR + dG * dG + dB * dB;
-
-				if (dist < best_dist)
-				{
-					best_dist = dist;
-					best = p;
-				}
-			}
-
-			// if this colour is not affected by the colourmap, then
-			// keep the original colour (which has more precision).
-			if (old_pal[best*3+0] != new_pal[best*3+0] ||
-			    old_pal[best*3+1] != new_pal[best*3+1] ||
-			    old_pal[best*3+2] != new_pal[best*3+2])
-			{
-				cur[0] = new_pal[best*3+0];
-				cur[1] = new_pal[best*3+1];
-				cur[2] = new_pal[best*3+2];
-			}
-
-			previous[3] = cur[0];
-			previous[4] = cur[1];
-			previous[5] = cur[2];
 		}
+
+		if (i < num_prev)
+		{
+			// move to front (Most Recently Used)
+#if 1
+			if (i != 0)
+			{
+				u8_t tmp[6];
+
+				memcpy(tmp, previous, 6);
+				memcpy(previous, previous + i*6, 6);
+				memcpy(previous + i*6, tmp, 6);
+			}
+#endif
+			cur[0] = previous[3];
+			cur[1] = previous[4];
+			cur[2] = previous[5];
+
+			continue;
+		}
+
+		if (num_prev < max_prev)
+		{
+			memmove(previous+6, previous, num_prev*6);
+			num_prev++;
+		}
+
+		// most recent lookup is at the head
+		previous[0] = cur[0];
+		previous[1] = cur[1];
+		previous[2] = cur[2];
+
+		int best = 0;
+		int best_dist = (1 << 30);
+
+		int R = int(cur[0]);
+		int G = int(cur[1]);
+		int B = int(cur[2]);
+
+		for (int p = 0; p < 256; p++)
+		{
+			int dR = int(old_pal[p*3+0]) - R;
+			int dG = int(old_pal[p*3+1]) - G;
+			int dB = int(old_pal[p*3+2]) - B;
+
+			int dist = dR * dR + dG * dG + dB * dB;
+
+			if (dist < best_dist)
+			{
+				best_dist = dist;
+				best = p;
+			}
+		}
+
+		// if this colour is not affected by the colourmap, then
+		// keep the original colour (which has more precision).
+		if (old_pal[best*3+0] != new_pal[best*3+0] ||
+			old_pal[best*3+1] != new_pal[best*3+1] ||
+			old_pal[best*3+2] != new_pal[best*3+2])
+		{
+			cur[0] = new_pal[best*3+0];
+			cur[1] = new_pal[best*3+1];
+			cur[2] = new_pal[best*3+2];
+		}
+
+		previous[3] = cur[0];
+		previous[4] = cur[1];
+		previous[5] = cur[2];
+	}
 }
 
 static void DumpImage(epi::image_data_c *img)

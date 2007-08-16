@@ -59,6 +59,7 @@
 #include "r_gldefs.h"
 #include "r_image.h"
 #include "r_sky.h"
+#include "r_texgl.h"
 #include "r_colors.h"
 #include "w_texture.h"
 #include "w_wad.h"
@@ -78,13 +79,6 @@ extern void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f);
 #define DUMMY_X  16
 #define DUMMY_Y  16
 
-
-extern GLuint W_SendGLTexture(epi::image_data_c *img,
-					   bool clamp, bool nomip, bool smooth,
-					   int max_pix, const byte *what_palette);
-
-extern void PaletteRemapRGBA(epi::image_data_c *img,
-	const byte *new_pal, const byte *old_pal);
 
 //
 // This structure is for "cached" images (i.e. ready to be used for
@@ -849,11 +843,13 @@ real_cached_image_t *LoadImageOGL(image_c *rim, const colourmap_c *trans)
 		if (trans == font_whiten_map)
 			tmp_img->Whiten();
 		else
-			PaletteRemapRGBA(tmp_img, what_palette, (const byte *) &playpal_data[0]);
+			R_PaletteRemapRGBA(tmp_img, what_palette, (const byte *) &playpal_data[0]);
 	}
 
-	rc->tex_id = W_SendGLTexture(tmp_img, clamp, nomip,
-		smooth, max_pix, what_palette);
+	rc->tex_id = R_UploadTexture(tmp_img, what_palette,
+		(clamp  ? UPL_Clamp : 0)  |
+		(nomip  ? 0 : UPL_MipMap) |
+		(smooth ? UPL_Smooth : 0), max_pix);
 
 	delete tmp_img;
 
