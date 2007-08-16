@@ -26,7 +26,6 @@
 #ifndef __R_UNITS_H__
 #define __R_UNITS_H__
 
-
 #define MAX_PLVERT  64
 
 extern bool use_lighting;
@@ -39,7 +38,7 @@ typedef struct local_gl_vert_s
 	GLfloat x, y, z;
 	GLfloat col[4];
 	GLfloat tx[2], ty[2];
-	GLfloat n_x, n_y, n_z;
+	GLfloat nx, ny, nz;
 	GLboolean edge;
 }
 local_gl_vert_t;
@@ -49,26 +48,26 @@ void RGL_SoftInitUnits(void);
 
 void RGL_StartUnits(bool solid);
 void RGL_FinishUnits(void);
+void RGL_DrawUnits(void);
 
 typedef enum
 {
-	BL_Masked  = 0x0001,  // drop fragments when (alpha <= 8)
+	BL_Masked  = 0x0001,  // drop fragments when alpha == 0
 	BL_Alpha   = 0x0002,  // alpha-blend with the framebuffer
 	BL_Add     = 0x0004,  // additive-blend with the framebuffer
-	BL_Multi   = 0x0010,  // use multi-texturing (second unit MODULATEs)
 	BL_NoZBuf  = 0x0020,  // don't update the Z buffer
 	BL_ClampY  = 0x0040,
 }
 blending_mode_e;
+
 
 local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert, 
 		                       GLuint env1, GLuint tex1,
 							   GLuint env2, GLuint tex2,
 							   int pass, int blending);
 void RGL_EndUnit(int actual_vert);
-void RGL_DrawUnits(void);
 
-void RGL_SendRawVector(const local_gl_vert_t *V);
+///--- void RGL_SendRawVector(const local_gl_vert_t *V);
 
 // utility macros
 #define SET_COLOR(R,G,B,A)  \
@@ -82,7 +81,7 @@ void RGL_SendRawVector(const local_gl_vert_t *V);
 	do { vert->tx[1] = (X); vert->ty[1] = (Y); } while(0)
 
 #define SET_NORMAL(X,Y,Z)  \
-	do { vert->n_x = (X); vert->n_y = (Y); vert->n_z = (Z); } while(0)
+	do { vert->nx = (X); vert->ny = (Y); vert->nz = (Z); } while(0)
 
 #define SET_EDGE_FLAG(E)  \
 	do { vert->edge = (E); } while(0)
