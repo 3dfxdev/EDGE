@@ -82,18 +82,6 @@ void Z_Free(void *ptr)
 
 
 //
-// Z_Calloc
-//
-// Just allocates memory and clears it.
-//
-void *Z_Calloc2(int size)
-{
-	byte *data = (byte *) Z_Malloc(size);
-	Z_Clear(data, byte, size);
-	return (void *) data;
-}
-
-//
 // Z_ReMalloc
 //
 // Zone reallocation.

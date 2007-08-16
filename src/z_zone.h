@@ -47,13 +47,11 @@ char *Z_StrDup(const char *s);
 // Memory handling functions.
 void Z_RegisterCacheFlusher(cache_flusher_f *f);
 void Z_Init(void);
-void *Z_Calloc2(int size);
 void *Z_Malloc2(int size);
 void *Z_ReMalloc2(void *ptr, int size);
 void Z_Free(void *ptr);
 
 #define Z_Malloc Z_Malloc2
-#define Z_Calloc Z_Calloc2
 #define Z_ReMalloc Z_ReMalloc2
 
 //
@@ -73,13 +71,6 @@ void Z_Free(void *ptr);
 //
 #define Z_Resize(ptr,type,n)  \
 	(void)((ptr) = (type *) Z_ReMalloc((void *)(ptr), (n) * sizeof(type)))
-
-//
-// Z_ClearNew
-//
-// The Z_Calloc version of Z_New. Allocates mem and clears it to zero.
-//
-#define Z_ClearNew(type, num) ((type *) Z_Calloc((num) * sizeof(type)))
 
 //
 // Z_Clear

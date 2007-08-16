@@ -323,7 +323,9 @@ void SV_MobjCreateElems(int num_elems)
 
 	for (; num_elems > 0; num_elems--)
 	{
-		mobj_t *cur = Z_ClearNew(mobj_t, 1);
+		mobj_t *cur = Z_New(mobj_t, 1);
+
+		Z_Clear(cur, mobj_t, 1);
 
 		cur->next = mobjlisthead;
 		cur->prev = NULL;
@@ -450,7 +452,9 @@ void SV_ItemqCreateElems(int num_elems)
 
 	for (; num_elems > 0; num_elems--)
 	{
-		iteminque_t *cur = Z_ClearNew(iteminque_t, 1);
+		iteminque_t *cur = Z_New(iteminque_t, 1);
+
+		Z_Clear(cur, iteminque_t, 1);
 
 		cur->next = itemquehead;
 		cur->prev = NULL;

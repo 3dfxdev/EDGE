@@ -497,9 +497,9 @@ static void AddStateToScript(rad_script_t *R, int tics,
 							 void (* action)(struct rad_trigger_s *R, mobj_t *actor, void *param), 
 							 void *param)
 {
-	rts_state_t *state;
+	rts_state_t *state = Z_New(rts_state_t, 1);
 
-	state = Z_ClearNew(rts_state_t, 1);
+	Z_Clear(state, rts_state_t, 1);
 
 	state->tics = tics;
 	state->action = action;
@@ -828,7 +828,9 @@ static void RAD_ParseDefine(int pnum, const char **pars)
 
 	define_t *newdef;
 
-	newdef = Z_ClearNew(define_t, 1);
+	newdef = Z_New(define_t, 1);
+
+	Z_Clear(newdef, define_t, 1);
 
 	newdef->name  = Z_StrDup(pars[1]);
 	newdef->value = Z_StrDup(pars[2]);
@@ -874,7 +876,9 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 
 	// Set the node up,..
 
-	this_rad = Z_ClearNew(rad_script_t, 1);
+	this_rad = Z_New(rad_script_t, 1);
+
+	Z_Clear(this_rad, rad_script_t, 1);
 
 	// set defaults
 	this_rad->x = 0;
@@ -1149,7 +1153,9 @@ static void RAD_ParseTaggedPath(int pnum, const char **pars)
 {
 	// Tagged_Path  <next node>
 
-	rts_path_t *path = Z_ClearNew(rts_path_t, 1);
+	rts_path_t *path = Z_New(rts_path_t, 1);
+
+	Z_Clear(path, rts_path_t, 1);
 
 	path->next = this_rad->next_in_path;
 	path->name = Z_StrDup(pars[1]);
@@ -1187,10 +1193,9 @@ static void RAD_ParseOnDeath(int pnum, const char **pars)
 	// OnDeath <thing type>
 	// OnDeath <thing type> <threshhold>
 
-	s_ondeath_t *cond;
+	s_ondeath_t *cond = Z_New(s_ondeath_t, 1);
 
-	cond = Z_ClearNew(s_ondeath_t, 1);
-	cond->threshhold = 0;
+	Z_Clear(cond, s_ondeath_t, 1);
 
 	// get map thing
 	if (pars[1][0] == '-' || pars[1][0] == '+' || isdigit(pars[1][0]))
@@ -1215,9 +1220,9 @@ static void RAD_ParseOnHeight(int pnum, const char **pars)
 	// OnHeight <low Z> <high Z>
 	// OnHeight <low Z> <high Z> <sector num>
 
-	s_onheight_t *cond;
+	s_onheight_t *cond = Z_New(s_onheight_t, 1);
 
-	cond = Z_ClearNew(s_onheight_t, 1);
+	Z_Clear(cond, s_onheight_t, 1);
 
 	cond->sec_num = -1;
 
@@ -1243,9 +1248,9 @@ static void RAD_ParseOnCondition(int pnum, const char **pars)
 {
 	// OnCondition  <condition>
 
-	condition_check_t *cond;
+	condition_check_t *cond = Z_New(condition_check_t, 1);
 
-	cond = Z_ClearNew(condition_check_t, 1);
+	Z_Clear(cond, condition_check_t, 1);
 
 	if (! DDF_MainParseCondition(pars[1], cond))
 	{
@@ -1277,9 +1282,9 @@ static void RAD_ParseEnableScript(int pnum, const char **pars)
 	// Enable_Script  <script name>
 	// Disable_Script <script name>
 
-	s_enabler_t *t;
+	s_enabler_t *t = Z_New(s_enabler_t, 1);
 
-	t = Z_ClearNew(s_enabler_t, 1);
+	Z_Clear(t, s_enabler_t, 1);
 
 	t->script_name = Z_StrDup(pars[1]);
 	t->new_disabled = DDF_CompareName("DISABLE_SCRIPT", pars[0]) == 0;
@@ -1292,9 +1297,9 @@ static void RAD_ParseEnableTagged(int pnum, const char **pars)
 	// Enable_Tagged  <tag num>
 	// Disable_Tagged <tag num>
 
-	s_enabler_t *t;
+	s_enabler_t * t = Z_New(s_enabler_t, 1);
 
-	t = Z_ClearNew(s_enabler_t, 1);
+	Z_Clear(t, s_enabler_t, 1);
 
 	RAD_CheckForInt(pars[1], &t->tag);
 
@@ -1311,9 +1316,10 @@ static void RAD_ParseExitLevel(int pnum, const char **pars)
 	// ExitLevel
 	// ExitLevel <wait time>
 
-	s_exit_t *exit;
+	s_exit_t *exit = Z_New(s_exit_t, 1);
 
-	exit = Z_ClearNew(s_exit_t, 1);
+	Z_Clear(exit, s_exit_t, 1);
+	
 	exit->exittime = 10;
 
 	if (pnum >= 2)
@@ -1334,9 +1340,9 @@ static void RAD_ParseTip(int pnum, const char **pars)
 	// (likewise for Tip_LDF)
 	// (likewise for Tip_Graphic)
 
-	s_tip_t *tip;
+	s_tip_t *tip = Z_New(s_tip_t, 1);
 
-	tip = Z_ClearNew(s_tip_t, 1);
+	Z_Clear(tip, s_tip_t, 1);
 
 	tip->display_time = 3 * TICRATE;
 	tip->playsound = false;
@@ -1531,11 +1537,9 @@ static void RAD_ParseSpawnThing(int pnum, const char **pars)
 
 	// -AJA- 1999/09/11: Reworked for spawning things at Z.
 
-	s_thing_t *t;
-	const char *angle_str;
-	int val;
+	s_thing_t *t = Z_New(s_thing_t, 1);
 
-	t = Z_ClearNew(s_thing_t, 1);
+	Z_Clear(t, s_thing_t, 1);
 
 	// set defaults
 	t->x = this_rad->x;
@@ -1565,10 +1569,12 @@ static void RAD_ParseSpawnThing(int pnum, const char **pars)
 	}
 
 	// get angle
-	angle_str = (pnum == 3) ? pars[2] : (pnum >= 5) ? pars[4] : NULL;
+	const char *angle_str = (pnum == 3) ? pars[2] : (pnum >= 5) ? pars[4] : NULL;
 
 	if (angle_str) 
 	{
+		int val;
+
 		RAD_CheckForInt(angle_str, &val);
 
 		if (ABS(val) <= 360)
@@ -1609,12 +1615,12 @@ static void RAD_ParsePlaySound(int pnum, const char **pars)
 	//
 	// -AJA- 1999/09/12: Reworked for playing sound at specific Z.
 
-	s_sound_t *t;
-
 	if (pnum == 3)
 		RAD_Error("%s: Wrong number of parameters.\n", pars[0]);
 
-	t = Z_ClearNew(s_sound_t, 1);
+	s_sound_t *t = Z_New(s_sound_t, 1);
+
+	Z_Clear(t, s_sound_t, 1);
 
 	if (DDF_CompareName(pars[0], "PLAYSOUND_BOSSMAN") == 0)
 		t->kind = PSOUND_BossMan;
@@ -1652,9 +1658,9 @@ static void RAD_ParseChangeMusic(int pnum, const char **pars)
 {
 	// ChangeMusic <playlist num>
 
-	s_music_t *music;
+	s_music_t *music = Z_New(s_music_t, 1);
 
-	music = Z_ClearNew(s_music_t, 1);
+	Z_Clear(music, s_music_t, 1);
 
 	RAD_CheckForInt(pars[1], &music->playnum);
 
@@ -1667,9 +1673,9 @@ static void RAD_ParseDamagePlayer(int pnum, const char **pars)
 {
 	// DamagePlayer <amount>
 
-	s_damagep_t *t;
+	s_damagep_t *t = Z_New(s_damagep_t, 1);
 
-	t = Z_ClearNew(s_damagep_t, 1);
+	Z_Clear(t, s_damagep_t, 1);
 
 	RAD_CheckForFloat(pars[1], &t->damage_amount);
 
@@ -1682,9 +1688,9 @@ static void RAD_ParseHealPlayer(int pnum, const char **pars)
 	// HealPlayer <amount>
 	// HealPlayer <amount> <limit>
 
-	s_healp_t *heal;
+	s_healp_t *heal = Z_New(s_healp_t, 1);
 
-	heal = Z_ClearNew(s_healp_t, 1);
+	Z_Clear(heal, s_healp_t, 1);
 
 	RAD_CheckForFloat(pars[1], &heal->heal_amount);
 
@@ -1708,9 +1714,9 @@ static void RAD_ParseGiveArmour(int pnum, const char **pars)
 	// GiveArmour <type> <amount>
 	// GiveArmour <type> <amount> <limit>
 
-	s_armour_t *armour;
+	s_armour_t *armour = Z_New(s_armour_t, 1);
 
-	armour = Z_ClearNew(s_armour_t, 1);
+	Z_Clear(armour, s_armour_t, 1);
 
 	armour->type = RAD_CheckForArmourType(pars[1]);
 
@@ -1736,9 +1742,9 @@ static void RAD_ParseGiveLoseBenefit(int pnum, const char **pars)
 	//   or
 	// Lose_Benefit  <benefit>
 
-	s_benefit_t *sb;
+	s_benefit_t *sb = Z_New(s_benefit_t, 1);
 
-	sb = Z_ClearNew(s_benefit_t, 1);
+	Z_Clear(sb, s_benefit_t, 1);
 
 	if (DDF_CompareName(pars[0], "LOSE_BENEFIT") == 0)
 		sb->lose_it = true;
@@ -1757,9 +1763,9 @@ static void RAD_ParseDamageMonsters(int pnum, const char **pars)
 	//
 	// The monster can be 'ANY' to match all monsters.
 
-	s_damage_monsters_t *mon;
+	s_damage_monsters_t *mon = Z_New(s_damage_monsters_t, 1);
 
-	mon = Z_ClearNew(s_damage_monsters_t, 1);
+	Z_Clear(mon, s_damage_monsters_t, 1);
 
 	// get monster type
 	if (pars[1][0] == '-' || pars[1][0] == '+' || isdigit(pars[1][0]))
@@ -1798,7 +1804,9 @@ static void RAD_ParseThingEvent(int pnum, const char **pars)
 	const char *div;
 	int i;
 
-	tev = Z_ClearNew(s_thing_event_t, 1);
+	tev = Z_New(s_thing_event_t, 1);
+
+	Z_Clear(tev, s_thing_event_t, 1);
 
 	if (pars[1][0] == '-' || pars[1][0] == '+' || isdigit(pars[1][0]))
 		RAD_CheckForInt(pars[1], &tev->thing_type);
@@ -1839,7 +1847,9 @@ static void RAD_ParseSkill(int pnum, const char **pars)
 	s_skill_t *skill;
 	int val;
 
-	skill = Z_ClearNew(s_skill_t, 1);
+	skill = Z_New(s_skill_t, 1);
+
+	Z_Clear(skill, s_skill_t, 1);
 
 	RAD_CheckForInt(pars[1], &val);
 
@@ -1857,7 +1867,9 @@ static void RAD_ParseGotoMap(int pnum, const char **pars)
 
 	s_gotomap_t *go;
 
-	go = Z_ClearNew(s_gotomap_t, 1);
+	go = Z_New(s_gotomap_t, 1);
+
+	Z_Clear(go, s_gotomap_t, 1);
 
 	go->map_name = Z_StrDup(pars[1]);
 
@@ -1885,7 +1897,10 @@ static void RAD_ParseMoveSector(int pnum, const char **pars)
 
 	s_movesector_t *secv;
 
-	secv = Z_ClearNew(s_movesector_t, 1);
+	secv = Z_New(s_movesector_t, 1);
+
+	Z_Clear(secv, s_movesector_t, 1);
+	
 	secv->relative = true;
 
 	RAD_CheckForInt(pars[1], &secv->tag);
@@ -1931,7 +1946,10 @@ static void RAD_ParseLightSector(int pnum, const char **pars)
 
 	s_lightsector_t *secl;
 
-	secl = Z_ClearNew(s_lightsector_t, 1);
+	secl = Z_New(s_lightsector_t, 1);
+
+	Z_Clear(secl, s_lightsector_t, 1);
+
 	secl->relative = true;
 
 	RAD_CheckForInt(pars[1], &secl->tag);
@@ -1966,7 +1984,9 @@ static void RAD_ParseActivateLinetype(int pnum, const char **pars)
 
 	s_lineactivator_t *lineact;
 
-	lineact = Z_ClearNew(s_lineactivator_t, 1);
+	lineact = Z_New(s_lineactivator_t, 1);
+
+	Z_Clear(lineact, s_lineactivator_t, 1);
 
 	RAD_CheckForInt(pars[1], &lineact->typenum);
 	RAD_CheckForInt(pars[2], &lineact->tag);
@@ -1980,7 +2000,9 @@ static void RAD_ParseUnblockLines(int pnum, const char **pars)
 
 	s_lineunblocker_t *lineact;
 
-	lineact = Z_ClearNew(s_lineunblocker_t, 1);
+	lineact = Z_New(s_lineunblocker_t, 1);
+
+	Z_Clear(lineact, s_lineunblocker_t, 1);
 
 	RAD_CheckForInt(pars[1], &lineact->tag);
 
@@ -1993,7 +2015,9 @@ static void RAD_ParseBlockLines(int pnum, const char **pars)
 
 	s_lineunblocker_t *lineact;
 
-	lineact = Z_ClearNew(s_lineunblocker_t, 1);
+	lineact = Z_New(s_lineunblocker_t, 1);
+
+	Z_Clear(lineact, s_lineunblocker_t, 1);
 
 	RAD_CheckForInt(pars[1], &lineact->tag);
 
@@ -2019,7 +2043,9 @@ static void RAD_ParseJump(int pnum, const char **pars)
 	// Jump <label>
 	// Jump <label> <random chance>
 
-	s_jump_t *jump = Z_ClearNew(s_jump_t, 1);
+	s_jump_t *jump = Z_New(s_jump_t, 1);
+
+	Z_Clear(jump, s_jump_t, 1);
 
 	jump->label = Z_StrDup(pars[1]);
 	jump->random_chance = PERCENT_MAKE(100);
@@ -2058,10 +2084,11 @@ static void RAD_ParseChangeTex(int pnum, const char **pars)
 	if (strlen(pars[2]) > 8)
 		RAD_Error("%s: Texture name too long: %s\n", pars[0], pars[2]);
 
-	ctex = Z_ClearNew(s_changetex_t, 1);
+	ctex = Z_New(s_changetex_t, 1);
+
+	Z_Clear(ctex, s_changetex_t, 1);
 
 	ctex->what = RAD_CheckForChangetexType(pars[1]);
-	ctex->tag = ctex->subtag = 0;
 
 	strcpy(ctex->texname, pars[2]);
 
@@ -2079,7 +2106,9 @@ static void RAD_ParseShowMenu(int pnum, const char **pars)
 	// Show_Menu     <title> <option1> ...
 	// Show_Menu_LDF <title> <option1> ...
 
-	s_show_menu_t *menu = Z_ClearNew(s_show_menu_t, 1);
+	s_show_menu_t *menu = Z_New(s_show_menu_t, 1);
+
+	Z_Clear(menu, s_show_menu_t, 1);
 
 	if (pnum > 11)
 		RAD_Error("%s: too many option strings (limit is 9)\n", pars[0]);
@@ -2109,7 +2138,9 @@ static void RAD_ParseMenuStyle(int pnum, const char **pars)
 {
 	// Menu_Style  <style>
 
-	s_menu_style_t *mm = Z_ClearNew(s_menu_style_t, 1);
+	s_menu_style_t *mm = Z_New(s_menu_style_t, 1);
+
+	Z_Clear(mm, s_menu_style_t, 1);
 
 	if (pars[1][0] == '"')
 		mm->style = RAD_UnquoteString(pars[1]);
@@ -2125,7 +2156,9 @@ static void RAD_ParseJumpOn(int pnum, const char **pars)
 	//
 	// "MENU" is the only variable supported so far.
 
-	s_jump_on_t *jump = Z_ClearNew(s_jump_on_t, 1);
+	s_jump_on_t *jump = Z_New(s_jump_on_t, 1);
+
+	Z_Clear(jump, s_jump_on_t, 1);
 
 	if (pnum > 11)
 		RAD_Error("%s: too many labels (limit is 9)\n", pars[0]);

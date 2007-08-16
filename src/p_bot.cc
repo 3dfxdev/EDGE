@@ -711,7 +711,9 @@ void P_BotPlayerBuilder(const player_t *p, void *data, ticcmd_t *cmd)
 //
 void P_BotCreate(player_t *p, bool recreate)
 {
-	bot_t *bot = Z_ClearNew(bot_t, 1);
+	bot_t *bot = new bot_t;
+
+	Z_Clear(bot, bot_t, 1);
 
 	p->builder = P_BotPlayerBuilder;
 	p->build_data = (void *)bot;

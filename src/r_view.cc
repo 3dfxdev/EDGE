@@ -128,9 +128,9 @@ void R_DestroyCamera(camera_t * c)
 // Just creates an empty camera. You must add a start_frame routine manually.
 camera_t *R_CreateCamera(void)
 {
-	camera_t *c;
+	camera_t *c = Z_New(camera_t, 1);
 
-	c = Z_ClearNew(camera_t, 1);
+	Z_Clear(c, camera_t, 1);
 
 	return c;
 }
