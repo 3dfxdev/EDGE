@@ -22,8 +22,10 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
+#include <vector>
+#include <algorithm>
+
 #include "con_cvar.h"
-#include "e_search.h"
 #include "m_argv.h"
 #include "r_gldefs.h"
 #include "r_units.h"
@@ -34,16 +36,16 @@ bool use_color_material = true;
 
 bool dumb_sky = false;
 
-#define USE_GLXTNS  1
-
-
-#define MAX_L_VERT  4096
-#define MAX_L_UNIT  (MAX_L_VERT / 4)
+#define USE_GLXTNS  1  // REMOVE !!!
 
 // -AJA- FIXME
 #ifndef GL_CLAMP_TO_EDGE
 #define GL_CLAMP_TO_EDGE  0x812F
 #endif
+
+
+#define MAX_L_VERT  4096
+#define MAX_L_UNIT  (MAX_L_VERT / 4)
 
 
 // a single unit (polygon, quad, etc) to pass to the GL
@@ -52,33 +54,33 @@ typedef struct local_gl_unit_s
 	// unit mode (e.g. GL_POLYGON)
 	GLuint shape;
 
-	// range of local vertices
-	int first, count;
-
+	// environment modes (GL_REPLACE, GL_MODULATE, GL_DECAL, GL_ADD)
 	GLuint env[2];
 
 	// texture(s) used
-	GLuint tex_id[2];
+	GLuint tex[2];
 
-	// pass number (when multiple passes_
+	// pass number (multiple pass rendering)
 	int pass;
 
-	// blending modes
+	// blending flags
 	int blending;
+
+	// range of local vertices
+	int first, count;
 }
 local_gl_unit_t;
+
 
 static local_gl_vert_t local_verts[MAX_L_VERT];
 static local_gl_unit_t local_units[MAX_L_UNIT];
 
-static GLuint local_unit_map[MAX_L_UNIT];
+static std::vector<local_gl_unit_t *> local_unit_map;
 
 static int cur_vert;
 static int cur_unit;
 
 static bool solid_mode;
-
-bool rgl_1d_debug = false;
 
 
 //
@@ -109,7 +111,7 @@ void RGL_SoftInitUnits()
 {
 }
 
-void ComputeMiddle(vec3_t *mid, vec3_t *verts, int count)
+static void ComputeMiddle(vec3_t *mid, vec3_t *verts, int count)
 {
 	mid->x = verts[0].x;
 	mid->y = verts[0].y;
@@ -144,7 +146,10 @@ void ComputeMiddle(vec3_t *mid, vec3_t *verts, int count)
 void RGL_StartUnits(bool solid)
 {
 	cur_vert = cur_unit = 0;
+
 	solid_mode = solid;
+
+	local_unit_map.resize(MAX_L_UNIT);
 }
 
 //
@@ -175,10 +180,9 @@ local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert,
 	local_gl_unit_t *unit;
 
 	SYS_ASSERT(max_vert > 0);
-//!!!!!	SYS_ASSERT(tex_id != 0);
 	SYS_ASSERT(pass >= 0);
 
-	// check for out-of-space
+	// check we have enough space left
 	if (cur_vert + max_vert > MAX_L_VERT || cur_unit >= MAX_L_UNIT)
 	{
 		RGL_DrawUnits();
@@ -186,14 +190,15 @@ local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert,
 
 	unit = local_units + cur_unit;
 
-	unit->shape     = shape;
-	unit->env[0]    = env1;
-	unit->tex_id[0] = tex1;
-	unit->env[1]    = env2;
-	unit->tex_id[1] = tex2;
-	unit->pass      = pass;
-	unit->first     = cur_vert;  // count set later
-	unit->blending  = blending;
+	unit->shape  = shape;
+	unit->env[0] = env1;
+	unit->env[1] = env2;
+	unit->tex[0] = tex1;
+	unit->tex[1] = tex2;
+
+	unit->pass     = pass;
+	unit->blending = blending;
+	unit->first    = cur_vert;  // count set later
 
 	return local_verts + cur_vert;
 }
@@ -218,7 +223,31 @@ void RGL_EndUnit(int actual_vert)
 	SYS_ASSERT(cur_unit <= MAX_L_UNIT);
 }
 
-void RGL_SendRawVector(const local_gl_vert_t *V)
+
+struct Compare_Unit_pred
+{
+	inline bool operator() (const local_gl_unit_t *A, const local_gl_unit_t *B) const
+	{
+		if (A->pass != B->pass)
+			return A->pass < B->pass;
+
+		if (A->tex[0] != B->tex[0])
+			return A->tex[0] < B->tex[0];
+
+		if (A->tex[1] != B->tex[1])
+			return A->tex[1] < B->tex[1];
+
+		if (A->env[0] != B->env[0])
+			return A->env[0] < B->env[0];
+
+		if (A->env[1] != B->env[1])
+			return A->env[1] < B->env[1];
+
+		return A->blending < B->blending;
+	}
+};
+
+static inline void RGL_SendRawVector(const local_gl_vert_t *V)
 {
 	if (use_color_material || ! use_lighting)
 		glColor4fv(V->col);
@@ -231,7 +260,7 @@ void RGL_SendRawVector(const local_gl_vert_t *V)
 	glMultiTexCoord2f(GL_TEXTURE0, V->tx[0], V->ty[0]);
 	glMultiTexCoord2f(GL_TEXTURE1, V->tx[1], V->ty[1]);
 
-	glNormal3f(V->n_x, V->n_y, V->n_z);
+	glNormal3f(V->nx, V->ny, V->nz);
 	glEdgeFlag(V->edge);
 
 	// vertex must be last
@@ -246,161 +275,142 @@ void RGL_SendRawVector(const local_gl_vert_t *V)
 //
 void RGL_DrawUnits(void)
 {
-	int i, j;
-	GLuint cur_tex  = 0x76543210;
-#ifdef USE_GLXTNS
-	GLuint cur_tex2 = 0x76543210;
-#endif
-
-	GLint old_tmode = 0;
-
-	int cur_pass = -1;
-	int cur_blending = -1;
-
 	if (cur_unit == 0)
 		return;
 
-	for (i=0; i < cur_unit; i++)
-		local_unit_map[i] = i;
+	GLuint active_tex[2] = { 0, 0 };
+	GLuint active_env[2] = { 0, 0 };
+
+	int active_pass = 0;
+	int active_blending = 0;
+
+	for (int i=0; i < cur_unit; i++)
+		local_unit_map[i] = & local_units[i];
 
 	// need to sort ?
 	if (solid_mode)
 	{
-#define CMP(a,b)  \
-	(local_units[a].pass < local_units[b].pass ||   \
-	(local_units[a].pass == local_units[b].pass &&   \
-	(local_units[a].tex_id[0] < local_units[b].tex_id[0] ||   \
-	(local_units[a].tex_id[0] == local_units[b].tex_id[0] &&   \
-	(local_units[a].blending < local_units[b].blending)))))
-		QSORT(GLuint, local_unit_map, cur_unit, CUTOFF);
-#undef CMP
+		std::sort(local_unit_map.begin(),
+				  local_unit_map.begin() + cur_unit,
+				  Compare_Unit_pred());
 	}
 
-	glEnable(GL_TEXTURE_2D);
+	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 
-//	glEnable(GL_LIGHT_0);
+	glPolygonOffset(0, 0);
 
 
-#if 0
-	float fog_col[4] = { 1, 1, 0.3, 0};
-	glDisable(GL_FOG);
-	glFogi(GL_FOG_MODE, GL_EXP);
-	glFogf(GL_FOG_DENSITY, 0.002f);
-	glFogfv(GL_FOG_COLOR, fog_col);
-#endif
-
-	for (i=0; i < cur_unit; i++)
+	for (int j=0; j < cur_unit; j++)
 	{
-		local_gl_unit_t *unit = local_units + local_unit_map[i];
+		local_gl_unit_t *unit = local_unit_map[j];
 
 		SYS_ASSERT(unit->count > 0);
-//!!!!!		SYS_ASSERT(unit->tex_id != 0);
 
-		// detect changes in texture/alpha/blending and change state
+		// detect changes in texture/alpha/blending state
 
-		if (cur_pass != unit->pass)
+		if (active_pass != unit->pass)
 		{
-			cur_pass = unit->pass;
+			active_pass = unit->pass;
 
-#ifdef USE_GLXTNS
-			glPolygonOffset(0, -cur_pass);
-#endif
+			glPolygonOffset(0, -active_pass);
 		}
 
-		if (cur_blending != unit->blending)
+		if ((active_blending ^ unit->blending) & BL_Masked)
 		{
-			cur_blending = unit->blending;
-
-			if (cur_blending & BL_Masked)
+			if (unit->blending & BL_Masked)
 				glEnable(GL_ALPHA_TEST);
 			else
 				glDisable(GL_ALPHA_TEST);
+		}
 
-			if (cur_blending & BL_Alpha)
+		if ((active_blending ^ unit->blending) & (BL_Alpha | BL_Add))
+		{
+			if (unit->blending & BL_Alpha)
 			{
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			}
-			else if (cur_blending & BL_Add)
+			else if (unit->blending & BL_Add)
 			{
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 			}
 			else
 				glDisable(GL_BLEND);
+		}
 
-			glDepthMask((cur_blending & BL_NoZBuf) ? GL_FALSE : GL_TRUE);
+		if ((active_blending ^ unit->blending) & BL_NoZBuf)
+		{
+			glDepthMask((unit->blending & BL_NoZBuf) ? GL_FALSE : GL_TRUE);
+		}
 
-			if (cur_blending & BL_Multi)
+		active_blending = unit->blending;
+
+		for (int t=1; t >= 0; t--)
+		{
+			glActiveTexture(GL_TEXTURE0 + t);
+
+			if (active_tex[t] != unit->tex[t])
 			{
-#ifdef USE_GLXTNS
-				glActiveTexture(GL_TEXTURE1);
-				glEnable(GL_TEXTURE_2D);
-				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-///---			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-///---			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+				if (unit->tex[t] == 0)
+					glDisable(GL_TEXTURE_2D);
+				else if (active_tex[t] == 0)
+					glEnable(GL_TEXTURE_2D);
 
-				if (cur_tex2 != unit->tex_id[1])
-				{
-					cur_tex2 = unit->tex_id[1];
-					glBindTexture(GL_TEXTURE_2D, cur_tex2);
-				}
+				if (unit->tex[t] != 0)
+					glBindTexture(GL_TEXTURE_2D, unit->tex[t]);
 
-				glActiveTexture(GL_TEXTURE0);
-#endif
+				active_tex[t] = unit->tex[t];
 			}
-			else
+
+			if (active_env[t] != unit->env[t])
 			{
-#ifdef USE_GLXTNS
-				glActiveTexture(GL_TEXTURE1);
-				glDisable(GL_TEXTURE_2D);
-				glActiveTexture(GL_TEXTURE0);
-#endif
+				if (unit->env[t] != 0)
+					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, unit->env[t]);
+
+				active_env[t] = unit->env[t];
 			}
 		}
 
-		if (cur_tex != unit->tex_id[0])
-		{
-			cur_tex = unit->tex_id[0];
-			glBindTexture(GL_TEXTURE_2D, cur_tex);
-		}
+		GLuint old_clamp;
 
-		if (cur_blending & BL_ClampY)
+		if (active_blending & BL_ClampY)
 		{
-			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &old_tmode);
+			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &old_clamp);
+
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
 				glcap_edgeclamp ? GL_CLAMP_TO_EDGE : GL_CLAMP);
 		}
 
-
 		glBegin(unit->shape);
 
-		for (j=0; j < unit->count; j++)
-			RGL_SendRawVector(local_verts + unit->first + j);
+		for (int kk=0; kk < unit->count; kk++)
+		{
+			RGL_SendRawVector(local_verts + unit->first + kk);
+		}
 
 		glEnd();
 
 		// restore the clamping mode
-		if (cur_blending & BL_ClampY)
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, old_tmode);
+		if (active_blending & BL_ClampY)
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, old_clamp);
 	}
 
 	// all done
 	cur_vert = cur_unit = 0;
 
-#ifdef USE_GLXTNS
 	glPolygonOffset(0, 0);
 
 	glActiveTexture(GL_TEXTURE1);
 	glDisable(GL_TEXTURE_2D);
+
 	glActiveTexture(GL_TEXTURE0);
-#endif
+	glDisable(GL_TEXTURE_2D);
 
 	glDepthMask(GL_TRUE);
 
-	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 }
