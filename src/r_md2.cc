@@ -34,16 +34,14 @@
 
 #include "r_md2.h"
 
+#include "r_texgl.h"
+
 #include "dm_state.h"  //!!!! game_dir
 
 #include "m_misc.h"  //!!!! M_OpenComposedEPIFile
 
 extern int leveltime; //!!!!
 
-//!!!!!
-extern GLuint W_SendGLTexture(epi::image_data_c *img,
-					   bool clamp, bool nomip, bool smooth,
-					   int max_pix, const byte *what_palette);
 
 static GLuint skin_tex = 0;
 
@@ -383,8 +381,8 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 		epi::image_data_c *img = epi::JPEG_Load(skf, epi::IRF_Round_POW2);
 		if (! img) I_Error("Cannot load skin.");
-		
-		skin_tex = W_SendGLTexture(img, true, true, false, 1024*1024, NULL);
+
+		skin_tex = R_UploadTexture(img, NULL, UPL_Clamp | UPL_Smooth | UPL_MipMap);
 	}
 
 	int i;
