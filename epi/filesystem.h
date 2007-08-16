@@ -21,6 +21,7 @@
 
 #include "arrays.h"
 #include "strings.h"
+#include "timestamp.h"
 
 namespace epi
 {
@@ -82,6 +83,8 @@ file_c *FS_Open(const char *name, unsigned int flags);
 bool FS_Copy(const char *dest, const char *src);
 bool FS_Delete(const char *name);
 bool FS_Rename(const char *oldname, const char *newname);
+
+bool FS_GetModifiedTime(const char *filename, timestamp_c& t);
 
 } // namespace epi
 
