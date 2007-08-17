@@ -82,27 +82,30 @@ void RGL_UpdateTheFuzz(void)
 
 typedef struct
 {
-	const float *s;
-	const float *t;
+	float R, G, B;
 
+	vec3_t vert[4];
+	vec2_t texc[4];
 	vec3_t lit_pos;
 }
 psprite_coord_data_t;
 
 
-static void PSpriteCoordFunc(void *d, const vec3_t *v_in, int v_idx,
-		float *s, float *t, vec3_t *normal, vec3_t *lit_pos)
+static void PSpriteCoordFunc(void *d, int v_idx,
+		vec3_t *pos, float *rgb, vec2_t *texc,
+		vec3_t *normal, vec3_t *lit_pos)
 {
 	const psprite_coord_data_t *data = (psprite_coord_data_t *)d;
 
-	*s = data->s[v_idx];
-	*t = data->t[v_idx];
-
-	normal->x  = 0;
-	normal->y  = 0;
-	normal->z  = 1;
-
+	*pos     = data->vert[v_idx];
+	*texc    = data->texc[v_idx];
 	*lit_pos = data->lit_pos;
+
+	rgb[0] = data->R;
+	rgb[1] = data->G;
+	rgb[2] = data->B;
+
+	normal->Set(0, 0, 1);
 }
 
 
@@ -247,37 +250,33 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	int blending = BL_Masked; //!!!!!
 
 
-	vec3_t vertices[4];
-
-	vertices[0].Set(x1b, y1b, 0);
-	vertices[1].Set(x1t, y1t, 0);
-	vertices[2].Set(x2t, y1t, 0);
-	vertices[3].Set(x2b, y2b, 0);
-
-	float s[4];
-	float t[4];
-
-	s[0] = tex_x1;  t[0] = tex_bot_h;
-	s[1] = tex_x1;  t[1] = tex_top_h;
-	s[2] = tex_x2;  t[2] = tex_top_h;
-	s[3] = tex_x2;  t[3] = tex_bot_h;
-
-
 	psprite_coord_data_t data;
 
-	data.s = s;
-	data.t = t;
+	data.vert[0].Set(x1b, y1b, 0);
+	data.vert[1].Set(x1t, y1t, 0);
+	data.vert[2].Set(x2t, y1t, 0);
+	data.vert[3].Set(x2b, y2b, 0);
+		
+	data.R = L_r;
+	data.G = L_g;
+	data.B = L_b;
 
-	data.lit_pos.x = player->mo->x + viewcos * 120.0;
-	data.lit_pos.y = player->mo->y + viewsin * 120.0;
+	data.texc[0].Set(tex_x1, tex_bot_h);
+	data.texc[1].Set(tex_x1, tex_top_h);
+	data.texc[2].Set(tex_x2, tex_top_h);
+	data.texc[3].Set(tex_x2, tex_bot_h);
+
+	float away = 120.0;  // TODO: calibrate (linear eq from light level)
+
+	data.lit_pos.x = player->mo->x + viewcos * away;
+	data.lit_pos.y = player->mo->y + viewsin * away;
 	data.lit_pos.z = player->mo->z + player->mo->height *
 		PERCENT_2_FLOAT(player->mo->info->shotheight);
 
-	// FIXME: L_r, L_g, L_b : are not used
 
 	RGL_StartUnits(false);
 
-	R_RunPipeline(GL_POLYGON, vertices, 4, tex_id,
+	R_RunPipeline(GL_POLYGON, 4, tex_id,
 			      trans, blending, PIPEF_NONE,
 				  &data, PSpriteCoordFunc);
 
@@ -964,29 +963,30 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 
 typedef struct
 {
-	const float *s;
-	const float *t;
+	float R, G, B;
 
-	float nx, ny, nz;
+	vec3_t vert[4];
+	vec2_t texc[4];
+	vec3_t normal;
 }
 thing_coord_data_t;
 
 
-static void ThingCoordFunc(void *d, const vec3_t *v_in, int v_idx,
-		float *s, float *t, vec3_t *normal, vec3_t *lit_pos)
+static void ThingCoordFunc(void *d, int v_idx,
+		vec3_t *pos, float *rgb, vec2_t *texc,
+		vec3_t *normal, vec3_t *lit_pos)
 {
 	const thing_coord_data_t *data = (thing_coord_data_t *)d;
 
-	*s = data->s[v_idx];
-	*t = data->t[v_idx];
+	*pos    = data->vert[v_idx];
+	*texc   = data->texc[v_idx];
+	*normal = data->normal;
 
-	normal->x  = data->nx;
-	normal->y  = data->ny;
-	normal->z  = data->nz;
+	rgb[0] = data->R;
+	rgb[1] = data->G;
+	rgb[2] = data->B;
 
-	lit_pos->x = v_in->x;
-	lit_pos->y = v_in->y;
-	lit_pos->z = v_in->z;
+	*lit_pos = *pos;
 }
 
 
@@ -1185,34 +1185,23 @@ return;
 		blending |= BL_NoZBuf;
 
 	
-	vec3_t vertices[4];
-
-	vertices[0].Set(x1b+dx, y1b+dy, z1b);
-	vertices[1].Set(x1t+dx, y1t+dy, z1t);
-	vertices[2].Set(x2t+dx, y2t+dy, z2t);
-	vertices[3].Set(x2b+dx, y2b+dy, z2b);
-
-	float s[4];
-	float t[4];
-
-	s[0] = tex_x1;  t[0] = tex_y1;
-	s[1] = tex_x1;  t[1] = tex_y2;
-	s[2] = tex_x2;  t[2] = tex_y2;
-	s[3] = tex_x2;  t[3] = tex_y1;
-
-
 	thing_coord_data_t data;
 
-	data.s = s;
-	data.t = t;
+	data.vert[0].Set(x1b+dx, y1b+dy, z1b);
+	data.vert[1].Set(x1t+dx, y1t+dy, z1t);
+	data.vert[2].Set(x2t+dx, y2t+dy, z2t);
+	data.vert[3].Set(x2b+dx, y2b+dy, z2b);
 
-	data.nx = -viewcos;
-	data.ny = -viewsin;
-	data.nz = 0;
+	data.texc[0].Set(tex_x1, tex_y1);
+	data.texc[1].Set(tex_x1, tex_y2);
+	data.texc[2].Set(tex_x2, tex_y2);
+	data.texc[3].Set(tex_x2, tex_y1);
+
+	data.normal.Set(-viewcos, -viewsin, 0);
 
 	// FIXME: L_r, L_g, L_b : are not used
 
-	R_RunPipeline(GL_POLYGON, vertices, 4, tex_id,
+	R_RunPipeline(GL_POLYGON, 4, tex_id,
 			      trans, blending, PIPEF_NONE,
 				  &data, ThingCoordFunc);
 
