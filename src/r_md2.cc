@@ -33,6 +33,8 @@
 #include "epi/image_jpeg.h"
 
 #include "r_md2.h"
+#include "r_units.h"
+#include "m_math.h"
 
 #include "r_texgl.h"
 
@@ -133,7 +135,7 @@ raw_md2_skin_t;
 
 #define MD2_NUM_NORMALS  162
 
-static float md2_normals[MD2_NUM_NORMALS][3] =
+static vec3_t md2_normals[MD2_NUM_NORMALS] =
 {
 	{ -0.525731f,  0.000000f,  0.850651f },
 	{ -0.442863f,  0.238856f,  0.864188f },
@@ -550,6 +552,57 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 /*============== MODEL RENDERING ====================*/
 
+
+typedef struct
+{
+	md2_model_c *model;
+
+	int frame;
+	int strip;
+
+	float R, G, B;
+	float x, y, z;
+
+	vec2_t x_mat;
+	vec2_t y_mat;
+	float  z_scale;
+}
+model_coord_data_t;
+
+
+static void ModelCoordFunc(void *d, int v_idx,
+		vec3_t *pos, float *rgb, vec2_t *texc,
+		vec3_t *normal, vec3_t *lit_pos)
+{
+	const model_coord_data_t *data = (model_coord_data_t *)d;
+
+	const md2_model_c *md = data->model;
+
+	const md2_frame_c *frame = & md->frames[data->frame];
+	const md2_strip_c *strip = & md->strips[data->strip];
+
+	SYS_ASSERT(strip->first + v_idx >= 0);
+	SYS_ASSERT(strip->first + v_idx < md->num_points);
+
+	const md2_point_c *point = &md->points[strip->first + v_idx];
+	const md2_vertex_c *vert = &frame->vertices[point->vert_idx];
+
+	pos->x = data->x + vert->x * data->x_mat.x + vert->y * data->x_mat.y;
+	pos->y = data->y + vert->x * data->y_mat.x + vert->y * data->y_mat.y;
+	pos->z = data->z + vert->z * data->z_scale;
+
+	rgb[0] = data->R;
+	rgb[1] = data->G;
+	rgb[2] = data->B;
+		
+	texc->Set(point->skin_s, point->skin_t);
+
+	*normal = md2_normals[vert->normal_idx];
+
+	*lit_pos = *pos;
+}
+
+
 void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 {
 	int n = (leveltime / 8) % md->num_frames;
@@ -558,11 +611,11 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 	if (n < 0 || n >= md->num_frames)
 		return;
 
-	/* enable model's texture */
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, skin_tex);
-
-	glColor3f(1, 1, 1);
+///---	/* enable model's texture */
+///---	glEnable(GL_TEXTURE_2D);
+///---	glBindTexture(GL_TEXTURE_2D, skin_tex);
+///---
+///---	glColor3f(1, 1, 1);
 
 #if 0 //TEST
 {
@@ -584,11 +637,41 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 	return;
 }
 #endif
+	float trans = 1.0; // 0.5;
+
+	int blending = BL_NONE; // BL_Alpha;
+
+	model_coord_data_t data;
+
+	data.model = md;
+	data.frame = n;
+
+	data.R = data.G = data.B = 1.0;
+
+	data.x = mo->x;
+	data.y = mo->y;
+	data.z = mo->z + 24.0;
+
+	M_Angle2Matrix(mo->angle, &data.x_mat, &data.y_mat);
+
+	// TODO: Scaling
+	// data.x_mat.x *= scale;
+	// data.x_mat.y *= scale;
+	// data.y_mat.x *= scale;
+	// data.y_mat.y *= scale;
+
+	data.z_scale = 1.0f;
 
 	/* draw the model */
 	for (int i = 0; i < md->num_strips; i++)
 	{
-///		glColor3f((i&2)?1:0, (i&1)?1:0, (i&4)?1:0);
+		data.strip = i;
+
+		R_RunPipeline(md->strips[i].mode, md->strips[i].count,
+				      skin_tex, trans, blending, PIPEF_NONE,
+					  &data, ModelCoordFunc);
+
+#if 0  // OLD WAY
 
 		glBegin(md->strips[i].mode);
 
@@ -618,6 +701,7 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 		}
 
 		glEnd();
+#endif
 	}
 }
 
