@@ -891,6 +891,36 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	R2_ClipSpriteVertically(dsub, dthing);
 }
 
+
+typedef struct
+{
+	const float *s;
+	const float *t;
+
+	float nx, ny, nz;
+}
+thing_coord_data_t;
+
+
+static void ThingCoordFunc(void *d, const vec3_t *v_in, int v_idx,
+		float *s, float *t, vec3_t *normal, vec3_t *lit_pos)
+{
+	const thing_coord_data_t *data = (thing_coord_data_t *)d;
+
+	*s = data->s[v_idx];
+	*t = data->t[v_idx];
+
+	normal->x  = data->nx;
+	normal->y  = data->ny;
+	normal->z  = data->nz;
+
+	lit_pos->x = v_in->x;
+	lit_pos->y = v_in->y;
+	lit_pos->z = v_in->z;
+}
+
+
+
 //
 // RGL_DrawThing
 //
@@ -1083,7 +1113,40 @@ return;
 
 	if (dthing->mo->hyperflags & HF_NOZBUFFER)
 		blending |= BL_NoZBuf;
+
 	
+	vec3_t vertices[4];
+
+	vertices[0].Set(x1b+dx, y1b+dy, z1b);
+	vertices[1].Set(x1t+dx, y1t+dy, z1t);
+	vertices[2].Set(x2t+dx, y2t+dy, z2t);
+	vertices[3].Set(x2b+dx, y2b+dy, z2b);
+
+	float s[4];
+	float t[4];
+
+	s[0] = tex_x1;  t[0] = tex_y1;
+	s[1] = tex_x1;  t[1] = tex_y2;
+	s[2] = tex_x2;  t[2] = tex_y2;
+	s[3] = tex_x2;  t[3] = tex_y1;
+
+
+	thing_coord_data_t data;
+
+	data.s = s;
+	data.t = t;
+
+	data.nx = -viewcos;
+	data.ny = -viewsin;
+	data.nz = 0;
+
+	// FIXME: L_r, L_g, L_b : are not used
+
+	R_RunPipeline(GL_POLYGON, vertices, 4, tex_id,
+			      trans, blending, PIPEF_NONE,
+				  &data, ThingCoordFunc);
+
+#if 0  // OLD WAY
 	local_gl_vert_t *vert, *orig;
 
 	int pass = 0;
@@ -1122,6 +1185,7 @@ return;
 	vert++;
 
 	RGL_EndUnit(vert - orig);
+#endif
 }
 
 //

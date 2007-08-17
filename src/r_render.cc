@@ -753,9 +753,9 @@ typedef struct
 }
 wall_coord_data_t;
 
-static void WallCoordFunc(void *d, 
-	const vec3_t *v_in, float *s, float *t,
-	vec3_t *normal, vec3_t *lit_pos)
+
+static void WallCoordFunc(void *d, const vec3_t *v_in, int v_idx,
+	float *s, float *t, vec3_t *normal, vec3_t *lit_pos)
 {
 	const wall_coord_data_t *data = (wall_coord_data_t *)d;
 
@@ -772,6 +772,41 @@ static void WallCoordFunc(void *d,
 
 	*s = data->tx0 + along   * data->tx_mul;
 	*t = data->ty0 + v_in->z * data->ty_mul;
+
+	normal->x  = data->nx;
+	normal->y  = data->ny;
+	normal->z  = data->nz;
+
+	lit_pos->x = v_in->x;
+	lit_pos->y = v_in->y;
+	lit_pos->z = v_in->z;
+}
+
+
+typedef struct
+{
+	float tx0, ty0;
+
+	float image_w, image_h;
+
+	vec2_t x_mat;
+	vec2_t y_mat;
+
+	float nx, ny, nz;
+}
+plane_coord_data_t;
+
+
+static void PlaneCoordFunc(void *d, const vec3_t *v_in, int v_idx,
+		float *s, float *t, vec3_t *normal, vec3_t *lit_pos)
+{
+	const plane_coord_data_t *data = (plane_coord_data_t *)d;
+
+	float rx = (data->tx0 + v_in->x) / data->image_w;
+	float ry = (data->ty0 + v_in->y) / data->image_h;
+
+	*s = rx * data->x_mat.x + ry * data->x_mat.y;
+	*t = rx * data->y_mat.x + ry * data->y_mat.y;
 
 	normal->x  = data->nx;
 	normal->y  = data->ny;
@@ -2292,6 +2327,25 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	int blending = (blended ? BL_Alpha : 0) | (mid_masked ? BL_Masked : 0);
 
 
+	plane_coord_data_t data;
+
+	data.tx0 = tx0;
+	data.ty0 = ty0;
+	data.image_w = image_w;
+	data.image_h = image_h;
+
+	data.x_mat = surf->x_mat;
+	data.y_mat = surf->y_mat;
+
+	data.nx = 0;
+	data.ny = 0;
+	data.nz = (viewz > h) ? 1.0f : -1.0f;
+
+	R_RunPipeline(GL_POLYGON, vertices, v_count, tex_id,
+			      trans, blending, PIPEF_NONE,
+				  &data, PlaneCoordFunc);
+
+#if 0  // OLD WAY
 	int pass = 0;
 
 	local_gl_vert_t *glvert = RGL_BeginUnit(GL_POLYGON, v_count,
@@ -2312,6 +2366,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	}
 
 	RGL_EndUnit(v_count);
+#endif
 
 #if 0  // COLORMAP ADD SHIT
 
@@ -2349,7 +2404,7 @@ if (nz > 0)
 }
 #endif
 
-#if 1  // WALL GLOW TEST !!!!
+#if 0  // WALL GLOW TEST !!!!
 	if (! glow_tex)
 		MakeGlowTexture();
 
