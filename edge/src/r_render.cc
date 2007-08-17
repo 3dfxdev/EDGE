@@ -78,7 +78,6 @@ unsigned int root_node;
 
 extern camera_t *camera;
 
-///--- angle_t oned_side_angle;
 
 // -ES- 1999/03/20 Different right & left side clip angles, for asymmetric FOVs.
 angle_t clip_left, clip_right;
@@ -121,7 +120,7 @@ static bool solid_mode;
 
 static std::list<drawsub_c *> drawsubs;
 
-static const image_c *fading_image = NULL;
+const image_c *fading_image = NULL;
 
 #ifdef SHADOW_PROTOTYPE
 static const image_c *shadow_image = NULL;
@@ -659,8 +658,8 @@ static inline void TexCoord_Wall(local_gl_vert_t *v, int t,
 		along = (v->y - div->y) / div->dy;
 	}
 
-	v->tx[t] = tx0 + along * tx_mul;
-	v->ty[t] = ty0 + v->z  * ty_mul;
+	v->s[t] = tx0 + along * tx_mul;
+	v->t[t] = ty0 + v->z  * ty_mul;
 }
 
 static inline void TexCoord_Plane(local_gl_vert_t *v, int t,
@@ -670,8 +669,8 @@ static inline void TexCoord_Plane(local_gl_vert_t *v, int t,
 	float rx = (tx0 + v->x) / image_w;
 	float ry = (ty0 + v->y) / image_h;
 
-	v->tx[t] = rx * x_mat->x + ry * x_mat->y;
-	v->ty[t] = rx * y_mat->x + ry * y_mat->y;
+	v->s[t] = rx * x_mat->x + ry * x_mat->y;
+	v->t[t] = rx * y_mat->x + ry * y_mat->y;
 }
 
 static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
@@ -692,13 +691,13 @@ static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
 	float dy = (v->y - viewy) * viewvec.y;
 	float dz = (v->z - viewz) * viewvec.z;
 
-	v->tx[t] = (dx + dy + dz) / 1600.0;
+	v->s[t] = (dx + dy + dz) / 1600.0;
 
 	int lt_ay = lit_Nom / 4;
 	if (bottom) lt_ay += 64;
 
-	v->ty[t] = (lt_ay + 0.5) / 128.0;
-	v->ty[t] = CLAMP(v->ty[t], 0.01, 0.99);
+	v->t[t] = (lt_ay + 0.5) / 128.0;
+	v->t[t] = CLAMP(v->t[t], 0.01, 0.99);
 }
 
 static inline void TexCoord_Shadow(local_gl_vert_t *v, int t)
@@ -707,21 +706,21 @@ static inline void TexCoord_Shadow(local_gl_vert_t *v, int t)
 	float rx = (v->x + data->tx);
 	float ry = (v->y + data->ty);
 
-	v->tx[t] = rx * data->x_mat.x + ry * data->x_mat.y;
-	v->ty[t] = rx * data->y_mat.x + ry * data->y_mat.y;
+	v->s[t] = rx * data->x_mat.x + ry * data->x_mat.y;
+	v->t[t] = rx * data->y_mat.x + ry * data->y_mat.y;
 #endif
 }
 
 static inline void TexCoord_FloorGlow(local_gl_vert_t *v, int t, float f_h)
 {
-	v->tx[t] = 0.5;
-	v->ty[t] = (v->z - f_h) / 64.0;
+	v->s[t] = 0.5;
+	v->t[t] = (v->z - f_h) / 64.0;
 }
 
 static inline void TexCoord_CeilGlow(local_gl_vert_t *v, int t, float c_h)
 {
-	v->tx[t] = 0.5;
-	v->ty[t] = (c_h - v->z) / 64.0;
+	v->s[t] = 0.5;
+	v->t[t] = (c_h - v->z) / 64.0;
 }
 
 static inline void TexCoord_WallGlow(local_gl_vert_t *v, int t,
@@ -729,8 +728,8 @@ static inline void TexCoord_WallGlow(local_gl_vert_t *v, int t,
 {
 	float dist = (v->x - x1) * nx + (v->y - y1) * ny;
 
-	v->tx[t] = 0.5;
-	v->ty[t] = dist / 192.0;
+	v->s[t] = 0.5;
+	v->t[t] = dist / 192.0;
 }
 
 static inline void TexCoord_WallLight(local_gl_vert_t *v, int t)
@@ -741,6 +740,47 @@ static inline void TexCoord_PlaneLight(local_gl_vert_t *v, int t)
 {
 }
 
+
+
+typedef struct
+{
+	divline_t div;
+
+	float tx0, ty0;
+	float tx_mul, ty_mul;
+
+	float nx, ny, nz;
+}
+wall_coord_data_t;
+
+static void WallCoordFunc(void *d, 
+	const vec3_t *v_in, float *s, float *t,
+	vec3_t *normal, vec3_t *lit_pos)
+{
+	const wall_coord_data_t *data = (wall_coord_data_t *)d;
+
+	float along;
+
+	if (fabs(data->div.dx) > fabs(data->div.dy))
+	{
+		along = (v_in->x - data->div.x) / data->div.dx;
+	}
+	else
+	{
+		along = (v_in->y - data->div.y) / data->div.dy;
+	}
+
+	*s = data->tx0 + along   * data->tx_mul;
+	*t = data->ty0 + v_in->z * data->ty_mul;
+
+	normal->x  = data->nx;
+	normal->y  = data->ny;
+	normal->z  = data->nz;
+
+	lit_pos->x = v_in->x;
+	lit_pos->y = v_in->y;
+	lit_pos->z = v_in->z;
+}
 
 ///---void WallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 ///---{
@@ -1306,24 +1346,6 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 		GreetNeighbourSector(left_h,  left_num,  cur_seg->nb_sec[0]);
 		GreetNeighbourSector(right_h, right_num, cur_seg->nb_sec[1]);
 
-///---		for (int vert=0; vert < 2; vert++)
-///---		
-///---			bool at_left = (cur_seg->side == vert);
-///---
-///---			// does this seg touch V1/V2 of the linedef?
-///---			if (( at_left && cur_seg->offset < 0.1) ||
-///---				(!at_left && cur_seg->offset+cur_seg->length+0.1 > cur_seg->linedef->length))
-///---			{
-///---				for (int s = 0; s < NBSEC_MAX; s++)
-///---				{
-///---					GreetNeighbourSector(
-///---						at_left ? left_h   : right_h,
-///---						at_left ? left_num : right_num,
-///---						cur_seg->linedef->nb_sec[vert][s]);
-///---				}
-///---			}
-///---		}
-
 #if DEBUG_GREET_NEIGHBOUR
 		SYS_ASSERT(left_num  <= MAX_EDGE_VERT);
 		SYS_ASSERT(right_num <= MAX_EDGE_VERT);
@@ -1369,6 +1391,27 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 		blending |= BL_ClampY;
 
 
+	wall_coord_data_t data;
+
+	data.div.x  = x1;
+	data.div.y  = y1;
+	data.div.dx = x2 - x1;
+	data.div.dy = y2 - y1;
+
+	data.tx0 = tx0;
+	data.ty0 = ty0;
+	data.tx_mul = tx_mul;
+	data.ty_mul = ty_mul;
+
+	data.nx = (y2 - y1); // TODO: make a unit vector
+	data.ny = (x1 - x2);
+	data.nz = 0;
+	
+	R_RunPipeline(GL_POLYGON, vertices, v_count, tex_id,
+			      trans, blending, PIPEF_NONE,
+				  &data, WallCoordFunc);
+
+#if 0
 	int pass = 0;
 
 	local_gl_vert_t *glvert;
@@ -1389,6 +1432,7 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	}
 
 	RGL_EndUnit(v_count);
+#endif
 
 #if 0  // COLORMAP ADD SHIT
 
@@ -2240,6 +2284,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 			vertices[v_count].x = x;
 			vertices[v_count].y = y;
 			vertices[v_count].z = h;
+
 			v_count++;
 		}
 	}
@@ -2258,6 +2303,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	{
 		Color_Rainbow(glvert+kk, 255, 255, 255, trans);
 		Vertex_Std   (glvert+kk, vertices+kk, GL_TRUE);
+
 		Normal_Std   (glvert+kk, nx, ny, nz);
 
 		TexCoord_Plane(glvert+kk, 0, tx0, ty0, image_w, image_h,
