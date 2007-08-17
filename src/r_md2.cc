@@ -652,7 +652,7 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 	data.y = mo->y;
 	data.z = mo->z + 24.0;
 
-	M_Angle2Matrix(mo->angle, &data.x_mat, &data.y_mat);
+	M_Angle2Matrix(~ mo->angle, &data.x_mat, &data.y_mat);
 
 	// TODO: Scaling
 	// data.x_mat.x *= scale;
