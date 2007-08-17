@@ -1589,12 +1589,115 @@ RGL_DrawUnits();
 #endif // DLIGHT_PROTOTYPE
 }
 
-static void EmulateFlooding(const drawfloor_t *dfloor,
+
+#define MAX_FLOOD_ROWS  9
+
+typedef struct
+{
+	vec3_t vert[MAX_FLOOD_ROWS * 2];
+
+	float R, G, B;
+
+	float tx0, ty0;
+	float image_w, image_h;
+
+	vec2_t x_mat;
+	vec2_t y_mat;
+
+	vec3_t normal;
+}
+flood_emu_data_t;
+
+
+static void FloodCoordFunc(void *d, int v_idx,
+		vec3_t *pos, float *rgb, vec2_t *texc,
+		vec3_t *normal, vec3_t *lit_pos)
+{
+	const flood_emu_data_t *data = (flood_emu_data_t *)d;
+
+	*pos    = data->vert[v_idx];
+	*normal = data->normal;
+
+	rgb[0] = data->R;
+	rgb[1] = data->G;
+	rgb[2] = data->B;
+
+	float rx = (data->tx0 + pos->x) / data->image_w;
+	float ry = (data->ty0 + pos->y) / data->image_h;
+
+	texc->x = rx * data->x_mat.x + ry * data->x_mat.y;
+	texc->y = rx * data->y_mat.x + ry * data->y_mat.y;
+
+	*lit_pos = *pos;
+}
+
+
+static void EmulateFloodPlane(const drawfloor_t *dfloor,
 	const sector_t *flood_ref, int face_dir, float h1, float h2)
 {
-	return; //!!!!!! FIXME: EmulateFlooding disabled for now (causes glitches)
+	if (num_active_mirrors > 0)
+		return;
 
-#if 0
+	const surface_t *surf = (face_dir > 0) ? &flood_ref->floor :
+		&flood_ref->ceil;
+
+	// ignore sky and invisible planes
+	if (IS_SKY(*surf) || surf->translucency < 0.04f)
+		return;
+
+	// ignore transparent doors (TNT MAP02)
+	if (flood_ref->f_h >= flood_ref->c_h)
+		return;
+
+	// ignore fake 3D bridges (Batman MAP03)
+	if (cur_seg->linedef &&
+	    cur_seg->linedef->frontsector == cur_seg->linedef->backsector)
+		return;
+
+	const region_properties_t *props = surf->override_p ?
+		surf->override_p : &flood_ref->props;
+
+
+	SYS_ASSERT(surf->image);
+	GLuint tex_id = W_ImageCache(surf->image);
+
+
+	flood_emu_data_t data;
+
+	int rows = int(1.5 + (h2 - h1) / 32.0);
+	rows = CLAMP(rows, 2, MAX_FLOOD_ROWS);
+
+	float sx = cur_seg->v1->x;
+	float sy = cur_seg->v1->y;
+	float ex = cur_seg->v2->x;
+	float ey = cur_seg->v2->y;
+
+	for (int r = 0; r < rows; r++)
+	{
+		float h = h1 + (h2-h1) * r / (float)(rows-1);
+
+		data.vert[r*2 + 0].Set(sx, sy, h);
+		data.vert[r*2 + 1].Set(ex, ey, h);
+	}
+
+	data.R = 1.0;
+	data.G = data.B = 0.4f;
+
+	data.tx0 = surf->offset.x;
+	data.ty0 = surf->offset.y;
+	data.image_w = IM_WIDTH(surf->image);
+	data.image_h = IM_HEIGHT(surf->image);
+
+	data.x_mat = surf->x_mat;
+	data.y_mat = surf->y_mat;
+
+	data.normal.Set(0, 0, face_dir);
+
+	R_RunPipeline(GL_POLYGON, rows * 2, tex_id,
+			      1.0, BL_NONE, PIPEF_NONE,
+				  &data, FloodCoordFunc);
+
+#if 0  // OLD WAY
 	if (num_active_mirrors > 0) return;
 
 	const surface_t *info = (face_dir > 0) ? &flood_ref->floor :
@@ -1686,7 +1789,7 @@ static void EmulateFlooding(const drawfloor_t *dfloor,
 	data.y_mat = info->y_mat;
 
 	SYS_ASSERT(info->image);
-	tex_id = W_ImageCache(info->image);
+	GLuint tex_id = W_ImageCache(info->image);
 
 	vec3_t vbox[4];
 
@@ -1837,7 +1940,7 @@ static bool RGL_BuildWalls(drawfloor_t *dfloor, seg_t *seg)
 		cur_seg->back_sub->sector->f_h > cur_seg->front_sub->sector->f_h &&
 		cur_seg->back_sub->sector->f_h < viewz)
 	{
-		EmulateFlooding(dfloor, cur_seg->back_sub->sector, +1,
+		EmulateFloodPlane(dfloor, cur_seg->back_sub->sector, +1,
 			cur_seg->front_sub->sector->f_h,
 			cur_seg->back_sub->sector->f_h);
 	}
@@ -1847,7 +1950,7 @@ static bool RGL_BuildWalls(drawfloor_t *dfloor, seg_t *seg)
 		cur_seg->back_sub->sector->c_h < cur_seg->front_sub->sector->c_h &&
 		cur_seg->back_sub->sector->c_h > viewz)
 	{
-		EmulateFlooding(dfloor, cur_seg->back_sub->sector, -1,
+		EmulateFloodPlane(dfloor, cur_seg->back_sub->sector, -1,
 			cur_seg->back_sub->sector->c_h,
 			cur_seg->front_sub->sector->c_h);
 	}
@@ -2296,16 +2399,12 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	SYS_ASSERT(surf->image);
 	tex_id = W_ImageCache(surf->image);
 
-	float image_w = IM_WIDTH(surf->image);
-	float image_h = IM_HEIGHT(surf->image);
 
 	// FADING MAP
 	{
 		tex2_id = W_ImageCache(fading_image);
 	}
 
-	float tx0 = surf->offset.x;
-	float ty0 = surf->offset.y;
 
 
 
@@ -2340,10 +2439,10 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	data.R = data.G = data.B = 1.0f;
 
-	data.tx0 = tx0;
-	data.ty0 = ty0;
-	data.image_w = image_w;
-	data.image_h = image_h;
+	data.tx0 = surf->offset.x;
+	data.ty0 = surf->offset.y;
+	data.image_w = IM_WIDTH(surf->image);
+	data.image_h = IM_HEIGHT(surf->image);
 
 	data.x_mat = surf->x_mat;
 	data.y_mat = surf->y_mat;
