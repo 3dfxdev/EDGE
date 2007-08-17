@@ -252,15 +252,15 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	psprite_coord_data_t data;
 
+	data.R = L_r;
+	data.G = L_g;
+	data.B = L_b;
+
 	data.vert[0].Set(x1b, y1b, 0);
 	data.vert[1].Set(x1t, y1t, 0);
 	data.vert[2].Set(x2t, y1t, 0);
 	data.vert[3].Set(x2b, y2b, 0);
 		
-	data.R = L_r;
-	data.G = L_g;
-	data.B = L_b;
-
 	data.texc[0].Set(tex_x1, tex_bot_h);
 	data.texc[1].Set(tex_x1, tex_top_h);
 	data.texc[2].Set(tex_x2, tex_top_h);
@@ -1186,6 +1186,10 @@ return;
 
 	
 	thing_coord_data_t data;
+
+	data.R = L_r;
+	data.G = L_g;
+	data.B = L_b;
 
 	data.vert[0].Set(x1b+dx, y1b+dy, z1b);
 	data.vert[1].Set(x1t+dx, y1t+dy, z1t);
