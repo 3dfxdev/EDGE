@@ -31,6 +31,9 @@
 #include "r_units.h"
 #include "z_zone.h"
 
+#include "r_misc.h"
+#include "r_image.h" //!!!
+
 bool use_lighting = true;
 bool use_color_material = true;
 
@@ -257,8 +260,8 @@ static inline void RGL_SendRawVector(const local_gl_vert_t *V)
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, V->col);
 	}
 
-	glMultiTexCoord2f(GL_TEXTURE0, V->tx[0], V->ty[0]);
-	glMultiTexCoord2f(GL_TEXTURE1, V->tx[1], V->ty[1]);
+	glMultiTexCoord2f(GL_TEXTURE0, V->s[0], V->t[0]);
+	glMultiTexCoord2f(GL_TEXTURE1, V->s[1], V->t[1]);
 
 	glNormal3f(V->nx, V->ny, V->nz);
 	glEdgeFlag(V->edge);
@@ -413,6 +416,153 @@ void RGL_DrawUnits(void)
 
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
+}
+
+
+//============================================================================
+
+extern image_c *fading_image;
+
+static inline void Color_Rainbow(local_gl_vert_t *v, int R, int G, int B, float alpha)
+{
+	v->col[0] = MIN(1.0, R * ren_red_mul / 255.0);
+	v->col[1] = MIN(1.0, G * ren_grn_mul / 255.0);
+	v->col[2] = MIN(1.0, B * ren_blu_mul / 255.0);
+	v->col[3] = alpha;
+}
+
+static inline void Vertex_Std(local_gl_vert_t *v, const vec3_t *src, GLboolean edge)
+{
+	v->x = src->x;
+	v->y = src->y;
+	v->z = src->z;
+
+	v->edge = edge;
+}
+
+static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
+		const vec3_t *lit_pos, int lit_Nom, bool bottom)
+{
+	// distance from viewplane: (point - camera) . viewvec
+
+	float lk_sin = M_Sin(viewvertangle);
+	float lk_cos = M_Cos(viewvertangle);
+
+	vec3_t viewvec;
+
+	viewvec.x = lk_cos * viewcos;
+	viewvec.y = lk_cos * viewsin;
+	viewvec.z = lk_sin;
+
+	float dx = (lit_pos->x - viewx) * viewvec.x;
+	float dy = (lit_pos->y - viewy) * viewvec.y;
+	float dz = (lit_pos->z - viewz) * viewvec.z;
+
+	v->s[t] = (dx + dy + dz) / 1600.0;
+
+	int lt_ay = lit_Nom / 4;
+	if (bottom) lt_ay += 64;
+
+	v->t[t] = (lt_ay + 0.5) / 128.0;
+	v->t[t] = CLAMP(v->t[t], 0.01, 0.99);
+}
+
+
+static inline void Pipeline_Colormap(int& group,
+	GLuint shape, const vec3_t *verts, int num_vert,
+	GLuint tex, float alpha, int blending, int flags,
+	void *func_data, pipeline_coord_func_t func)
+{
+	/* FIRST PASS : draw the colormapped primitive */
+
+	local_gl_vert_t *glvert;
+
+	GLuint fade_tex = W_ImageCache(fading_image);
+
+	/* FIXME: GL_DECAL single-pass mode */
+
+	int lit_Nom = 144; //!!!!! FIXME
+
+	if (true)
+	{
+		glvert = RGL_BeginUnit(shape, num_vert,
+				GL_MODULATE, tex, GL_MODULATE, fade_tex,
+				group, blending);
+		group++;
+
+		for (int kk=0; kk < num_vert; kk++)
+		{
+			vec3_t normal;
+			vec3_t lit_pos;
+
+			Color_Rainbow(glvert+kk, 255, 255, 255, alpha);
+			Vertex_Std   (glvert+kk, verts+kk, GL_TRUE);
+
+			(*func)(func_data, verts+kk, &glvert[kk].s[0], &glvert[kk].t[0],
+					&normal, &lit_pos);
+
+			glvert[kk].nx = normal.x;
+			glvert[kk].ny = normal.y;
+			glvert[kk].nz = normal.z;
+
+			TexCoord_Fader(glvert+kk, 1, &lit_pos, lit_Nom, false);
+		}
+
+		RGL_EndUnit(num_vert);
+
+		/* FIXME: second pass */
+	}
+
+	/* TODO: flat-shaded maps */
+}
+
+static inline void Pipeline_Glows(int& group)
+{
+	/* SECOND PASS : sector glows */
+
+	if (true)
+	{
+		/* TODO: floor */
+	}
+
+	if (true)
+	{
+		/* TODO: ceiling */
+	}
+
+	if (true)
+	{
+		/* TODO: wall */
+	}
+}
+
+static inline void Pipeline_Shadow(int& group)
+{
+	/* THIRD PASS : shadows */
+}
+
+static inline void Pipeline_DLights(int& group)
+{
+	/* FOURTH PASS : dynamic lighting */
+}
+
+
+void R_RunPipeline(GLuint shape, const vec3_t *verts, int num_vert,
+		           GLuint tex, float alpha, int blending, int flags,
+				   void *func_data, pipeline_coord_func_t func)
+{
+	int group = 0;
+
+	Pipeline_Colormap(group,
+		shape, verts, num_vert,
+		tex, alpha, blending, flags,
+		func_data, func);
+
+	Pipeline_Glows(group  );
+
+	Pipeline_Shadow(group  );
+
+	Pipeline_DLights(group  );
 }
 
 

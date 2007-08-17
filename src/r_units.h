@@ -37,7 +37,7 @@ typedef struct local_gl_vert_s
 {
 	GLfloat x, y, z;
 	GLfloat col[4];
-	GLfloat tx[2], ty[2];
+	GLfloat s[2], t[2];
 	GLfloat nx, ny, nz;
 	GLboolean edge;
 }
@@ -52,11 +52,13 @@ void RGL_DrawUnits(void);
 
 typedef enum
 {
-	BL_Masked  = 0x0001,  // drop fragments when alpha == 0
-	BL_Alpha   = 0x0002,  // alpha-blend with the framebuffer
-	BL_Add     = 0x0004,  // additive-blend with the framebuffer
-	BL_NoZBuf  = 0x0020,  // don't update the Z buffer
-	BL_ClampY  = 0x0040,
+	BL_NONE = 0,
+
+	BL_Masked  = (1<<0),  // drop fragments when alpha == 0
+	BL_Alpha   = (1<<1),  // alpha-blend with the framebuffer
+	BL_Add     = (1<<2),  // additive-blend with the framebuffer
+	BL_NoZBuf  = (1<<3),  // don't update the Z buffer
+	BL_ClampY  = (1<<4),
 }
 blending_mode_e;
 
@@ -75,10 +77,10 @@ void RGL_EndUnit(int actual_vert);
 	vert->col[3] = (A); } while(0)
 
 #define SET_TEXCOORD(X,Y)  \
-	do { vert->tx[0] = (X); vert->ty[0] = (Y); } while(0)
+	do { vert->s[0] = (X); vert->t[0] = (Y); } while(0)
 
 #define SET_TEX2COORD(X,Y)  \
-	do { vert->tx[1] = (X); vert->ty[1] = (Y); } while(0)
+	do { vert->s[1] = (X); vert->t[1] = (Y); } while(0)
 
 #define SET_NORMAL(X,Y,Z)  \
 	do { vert->nx = (X); vert->ny = (Y); vert->nz = (Z); } while(0)
@@ -89,6 +91,33 @@ void RGL_EndUnit(int actual_vert);
 #define SET_VERTEX(X,Y,Z)  \
 	do { vert->x = (X); vert->y = (Y); vert->z = (Z); } while(0)
 
+
+//----------------------------------------------------------------------------
+
+typedef enum
+{
+	PIPEF_NONE = 0,
+
+}
+pipeline_flags_e;
+
+typedef void (* pipeline_coord_func_t)(void *data,
+	const vec3_t *v_in, float *s, float *t,
+	vec3_t *lit_pos, vec3_t *normal);
+
+void R_InitPipeline(void);
+
+// FIXME Colormap setup stuff
+
+// FIXME Shadow setup stuff
+
+// FIXME Glow setup stuff
+
+// FIXME Dlight setup stuff
+
+void R_RunPipeline(GLuint shape, const vec3_t *verts, int num_vert,
+		           GLuint tex, float alpha, int blending, int flags,
+				   void *func_data, pipeline_coord_func_t func);
 
 #endif /* __R_UNITS_H__ */
 
