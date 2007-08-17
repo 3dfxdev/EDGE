@@ -328,61 +328,7 @@ void R_InitPicAnims(void)
 	}
 }
 
-//
-// R_PrecacheSprites
-//
-static void R_PrecacheSprites(void)
-{
-	int i;
-	mobj_t *mo;
 
-	SYS_ASSERT(numsprites > 1);
-
-	byte *sprite_present = new byte[numsprites];
-	memset(sprite_present, 0, numsprites);
-
-	for (mo = mobjlisthead; mo; mo = mo->next)
-	{
-		if (mo->sprite < 1 || mo->sprite >= numsprites)
-			continue;
-
-		sprite_present[mo->sprite] = 1;
-	}
-
-	for (i=1; i < numsprites; i++)  // ignore SPR_NULL
-	{
-		spritedef_c *def = sprites[i];
-		int fr, rot;
-
-		const image_c *cur_image;
-		const image_c *last_image = NULL;  // an optimisation
-
-		if (! sprite_present[i] || def->numframes == 0)
-			continue;
-
-		SYS_ASSERT(def->frames);
-
-		for (fr=0; fr < def->numframes; fr++)
-		{
-			if (! def->frames[fr].finished)
-				continue;
-
-			for (rot=0; rot < 16; rot++)
-			{
-				cur_image = def->frames[fr].images[rot];
-
-				if (cur_image == NULL || cur_image == last_image)
-					continue;
-
-				W_ImagePreCache(cur_image);
-
-				last_image = cur_image;
-			}
-		}
-	}
-
-	delete[] sprite_present;
-}
 
 //
 // R_PrecacheLevel
