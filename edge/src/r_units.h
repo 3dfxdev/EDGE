@@ -98,11 +98,13 @@ typedef enum
 {
 	PIPEF_NONE = 0,
 
+	PIPEF_NoLight = (1 << 0),
+	PIPEF_Shadows = (1 << 1),
 }
 pipeline_flags_e;
 
 typedef void (* pipeline_coord_func_t)(void *data,
-	const vec3_t *v_in, float *s, float *t,
+	const vec3_t *v_in, int v_idx, float *s, float *t,
 	vec3_t *lit_pos, vec3_t *normal);
 
 void R_InitPipeline(void);

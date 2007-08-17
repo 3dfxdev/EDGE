@@ -389,9 +389,9 @@ void RGL_DrawUnits(void)
 
 		glBegin(unit->shape);
 
-		for (int kk=0; kk < unit->count; kk++)
+		for (int v_idx=0; v_idx < unit->count; v_idx++)
 		{
-			RGL_SendRawVector(local_verts + unit->first + kk);
+			RGL_SendRawVector(local_verts + unit->first + v_idx);
 		}
 
 		glEnd();
@@ -490,22 +490,24 @@ static inline void Pipeline_Colormap(int& group,
 				group, blending);
 		group++;
 
-		for (int kk=0; kk < num_vert; kk++)
+		for (int v_idx=0; v_idx < num_vert; v_idx++)
 		{
+			local_gl_vert_t *dest = glvert + v_idx;
+
 			vec3_t normal;
 			vec3_t lit_pos;
 
-			Color_Rainbow(glvert+kk, 255, 255, 255, alpha);
-			Vertex_Std   (glvert+kk, verts+kk, GL_TRUE);
+			Color_Rainbow(dest, 255, 255, 255, alpha);
+			Vertex_Std   (dest, verts+v_idx, GL_TRUE);
 
-			(*func)(func_data, verts+kk, &glvert[kk].s[0], &glvert[kk].t[0],
-					&normal, &lit_pos);
+			(*func)(func_data, verts + v_idx, v_idx,
+					&dest->s[0], &dest->t[0], &normal, &lit_pos);
 
-			glvert[kk].nx = normal.x;
-			glvert[kk].ny = normal.y;
-			glvert[kk].nz = normal.z;
+			glvert[v_idx].nx = normal.x;
+			glvert[v_idx].ny = normal.y;
+			glvert[v_idx].nz = normal.z;
 
-			TexCoord_Fader(glvert+kk, 1, &lit_pos, lit_Nom, false);
+			TexCoord_Fader(dest, 1, &lit_pos, lit_Nom, false);
 		}
 
 		RGL_EndUnit(num_vert);
@@ -519,6 +521,9 @@ static inline void Pipeline_Colormap(int& group,
 static inline void Pipeline_Glows(int& group)
 {
 	/* SECOND PASS : sector glows */
+
+//	if (flags & PIPEF_NoLight)
+//		return;
 
 	if (true)
 	{
@@ -539,11 +544,17 @@ static inline void Pipeline_Glows(int& group)
 static inline void Pipeline_Shadow(int& group)
 {
 	/* THIRD PASS : shadows */
+
+//	if (! (flags & PIPEF_Shadows))
+//		return;
 }
 
 static inline void Pipeline_DLights(int& group)
 {
 	/* FOURTH PASS : dynamic lighting */
+
+//	if (flags & PIPEF_NoLight)
+//		return;
 }
 
 
