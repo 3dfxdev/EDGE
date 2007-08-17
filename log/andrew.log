@@ -1,5 +1,13 @@
 Andrew Apted's Log
 
+2007/08/17:
+
+Started work on new rendering method: R_RunPipeline() is the
+central function which all primitives (from walls, floors,
+sprites, models, even the player's weapon) goes through, and
+which applies all the different lighting effects consistently
+to every primitive.
+
 2007/08/16:
 
 For the renderer I ditched the WallCoordFunc and PlaneCoordFunc
@@ -16,7 +24,11 @@ different environment modes (GL_REPLACE/MODULATE/ADD etc).
 Experimented with a "sector glow" effect, it looks quite nice
 so I think I will keep it.  One hitch: there is no good place
 where we can say "make FWATER# texture have such'n'such glow",
-to allow the effect on plain pwads.  Perhaps NTEXTURE ??
+to allow the effect in plain pwads.  Perhaps NTEXTURE ??
+
+I'd also like a way to dynamically alter the glow effect, e.g.
+make it oscillate or able to be turned off/on.  Using a thing
+(and its frames) may be the way to go....
 
 2007/08/15:
 
