@@ -79,6 +79,33 @@ void RGL_UpdateTheFuzz(void)
 	fuzz_ang_br += FLOAT_2_ANG(90.0f / 21.0f);
 }
 
+
+typedef struct
+{
+	const float *s;
+	const float *t;
+
+	vec3_t lit_pos;
+}
+psprite_coord_data_t;
+
+
+static void PSpriteCoordFunc(void *d, const vec3_t *v_in, int v_idx,
+		float *s, float *t, vec3_t *normal, vec3_t *lit_pos)
+{
+	const psprite_coord_data_t *data = (psprite_coord_data_t *)d;
+
+	*s = data->s[v_idx];
+	*t = data->t[v_idx];
+
+	normal->x  = 0;
+	normal->y  = 0;
+	normal->z  = 1;
+
+	*lit_pos = data->lit_pos;
+}
+
+
 //
 // RGL_DrawPSprite
 //
@@ -116,12 +143,14 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 		return;
 
 	// psprites are never totally solid and opaque
+#if 0
 	glEnable(GL_ALPHA_TEST);
 	if (trans <= 0.99 || use_smoothing)
 		glEnable(GL_BLEND);
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex_id);
+#endif
 
 	float tex_top_h = top;  ///## 1.00f; // 0.98;
 	float tex_bot_h = 0.0f; ///## 1.00f - top;  // 1.02 - bottom;
@@ -214,7 +243,47 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	y1t = (float)(SCREENHEIGHT - viewwindowy - viewwindowheight) + y1t - 1;
 	y2t = (float)(SCREENHEIGHT - viewwindowy - viewwindowheight) + y2t - 1;
 	y2b = (float)(SCREENHEIGHT - viewwindowy - viewwindowheight) + y2b - 1;
- 
+
+	int blending = BL_Masked; //!!!!!
+
+
+	vec3_t vertices[4];
+
+	vertices[0].Set(x1b, y1b, 0);
+	vertices[1].Set(x1t, y1t, 0);
+	vertices[2].Set(x2t, y1t, 0);
+	vertices[3].Set(x2b, y2b, 0);
+
+	float s[4];
+	float t[4];
+
+	s[0] = tex_x1;  t[0] = tex_bot_h;
+	s[1] = tex_x1;  t[1] = tex_top_h;
+	s[2] = tex_x2;  t[2] = tex_top_h;
+	s[3] = tex_x2;  t[3] = tex_bot_h;
+
+
+	psprite_coord_data_t data;
+
+	data.s = s;
+	data.t = t;
+
+	data.lit_pos.x = player->mo->x + viewcos * 120.0;
+	data.lit_pos.y = player->mo->y + viewsin * 120.0;
+	data.lit_pos.z = player->mo->z + player->mo->height *
+		PERCENT_2_FLOAT(player->mo->info->shotheight);
+
+	// FIXME: L_r, L_g, L_b : are not used
+
+	RGL_StartUnits(false);
+
+	R_RunPipeline(GL_POLYGON, vertices, 4, tex_id,
+			      trans, blending, PIPEF_NONE,
+				  &data, PSpriteCoordFunc);
+
+	RGL_FinishUnits();
+
+#if 0  // OLD WAY
 	glColor4f(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
 
 	glBegin(GL_QUADS);
@@ -236,6 +305,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
+#endif
 	glDisable(GL_SCISSOR_TEST);
 }
 
