@@ -585,6 +585,7 @@ typedef struct wall_plane_data_s
 wall_plane_data_t;
 
 
+#if 0
 static inline void Color_Std(local_gl_vert_t *v, int R, int G, int B, float alpha)
 {
 	v->col[0] = R / 255.0;
@@ -739,82 +740,93 @@ static inline void TexCoord_WallLight(local_gl_vert_t *v, int t)
 static inline void TexCoord_PlaneLight(local_gl_vert_t *v, int t)
 {
 }
-
+#endif
 
 
 typedef struct
 {
+	const vec3_t *vert;
+
+	float R, G, B;
+
 	divline_t div;
 
 	float tx0, ty0;
 	float tx_mul, ty_mul;
 
-	float nx, ny, nz;
+	vec3_t normal;
 }
 wall_coord_data_t;
 
 
-static void WallCoordFunc(void *d, const vec3_t *v_in, int v_idx,
-	float *s, float *t, vec3_t *normal, vec3_t *lit_pos)
+static void WallCoordFunc(void *d, int v_idx,
+		vec3_t *pos, float *rgb, vec2_t *texc,
+		vec3_t *normal, vec3_t *lit_pos)
 {
 	const wall_coord_data_t *data = (wall_coord_data_t *)d;
+
+	*pos    = data->vert[v_idx];
+	*normal = data->normal;
+
+	rgb[0] = data->R;
+	rgb[1] = data->G;
+	rgb[2] = data->B;
 
 	float along;
 
 	if (fabs(data->div.dx) > fabs(data->div.dy))
 	{
-		along = (v_in->x - data->div.x) / data->div.dx;
+		along = (pos->x - data->div.x) / data->div.dx;
 	}
 	else
 	{
-		along = (v_in->y - data->div.y) / data->div.dy;
+		along = (pos->y - data->div.y) / data->div.dy;
 	}
 
-	*s = data->tx0 + along   * data->tx_mul;
-	*t = data->ty0 + v_in->z * data->ty_mul;
+	texc->x = data->tx0 + along  * data->tx_mul;
+	texc->y = data->ty0 + pos->z * data->ty_mul;
 
-	normal->x  = data->nx;
-	normal->y  = data->ny;
-	normal->z  = data->nz;
-
-	lit_pos->x = v_in->x;
-	lit_pos->y = v_in->y;
-	lit_pos->z = v_in->z;
+	*lit_pos = *pos;
 }
 
 
 typedef struct
 {
-	float tx0, ty0;
+	const vec3_t *vert;
 
+	float R, G, B;
+
+	float tx0, ty0;
 	float image_w, image_h;
 
 	vec2_t x_mat;
 	vec2_t y_mat;
 
-	float nx, ny, nz;
+	vec3_t normal;
 }
 plane_coord_data_t;
 
 
-static void PlaneCoordFunc(void *d, const vec3_t *v_in, int v_idx,
-		float *s, float *t, vec3_t *normal, vec3_t *lit_pos)
+static void PlaneCoordFunc(void *d, int v_idx,
+		vec3_t *pos, float *rgb, vec2_t *texc,
+		vec3_t *normal, vec3_t *lit_pos)
 {
 	const plane_coord_data_t *data = (plane_coord_data_t *)d;
 
-	float rx = (data->tx0 + v_in->x) / data->image_w;
-	float ry = (data->ty0 + v_in->y) / data->image_h;
+	*pos    = data->vert[v_idx];
+	*normal = data->normal;
 
-	*s = rx * data->x_mat.x + ry * data->x_mat.y;
-	*t = rx * data->y_mat.x + ry * data->y_mat.y;
+	rgb[0] = data->R;
+	rgb[1] = data->G;
+	rgb[2] = data->B;
 
-	normal->x  = data->nx;
-	normal->y  = data->ny;
-	normal->z  = data->nz;
+	float rx = (data->tx0 + pos->x) / data->image_w;
+	float ry = (data->ty0 + pos->y) / data->image_h;
 
-	lit_pos->x = v_in->x;
-	lit_pos->y = v_in->y;
-	lit_pos->z = v_in->z;
+	texc->x = rx * data->x_mat.x + ry * data->x_mat.y;
+	texc->y = rx * data->y_mat.x + ry * data->y_mat.y;
+
+	*lit_pos = *pos;
 }
 
 ///---void WallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
@@ -1355,16 +1367,12 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 		(int) x1, (int) y1, (int) top, (int) x2, (int) y2, (int) bottom);
 #endif
 
-	float nx = (y2 - y1);
-	float ny = (x1 - x2);
-	float nz = 0;
-
-	divline_t div;
-
-	div.x  = x1;
-	div.y  = y1;
-	div.dx = x2 - x1;
-	div.dy = y2 - y1;
+///---	divline_t div;
+///---
+///---	div.x  = x1;
+///---	div.y  = y1;
+///---	div.dx = x2 - x1;
+///---	div.dy = y2 - y1;
 
 	// -AJA- 2007/08/07: ugly code here ensures polygon edges
 	//       match up with adjacent linedefs (otherwise small
@@ -1428,6 +1436,10 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 
 	wall_coord_data_t data;
 
+	data.vert = vertices;
+
+	data.R = data.G = data.B = 1.0f;
+
 	data.div.x  = x1;
 	data.div.y  = y1;
 	data.div.dx = x2 - x1;
@@ -1438,11 +1450,10 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	data.tx_mul = tx_mul;
 	data.ty_mul = ty_mul;
 
-	data.nx = (y2 - y1); // TODO: make a unit vector
-	data.ny = (x1 - x2);
-	data.nz = 0;
-	
-	R_RunPipeline(GL_POLYGON, vertices, v_count, tex_id,
+	// TODO: make a unit vector
+	data.normal.Set( (y2-y1), (x1-x2), 0 );
+
+	R_RunPipeline(GL_POLYGON, v_count, tex_id,
 			      trans, blending, PIPEF_NONE,
 				  &data, WallCoordFunc);
 
@@ -2282,10 +2293,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	V_GetColmapRGB(colmap, &c_r, &c_g, &c_b, false);
 
 
-	float nx = 0;
-	float ny = 0;
-	float nz = (viewz > h) ? 1.0f : -1.0f;
-
 	SYS_ASSERT(surf->image);
 	tex_id = W_ImageCache(surf->image);
 
@@ -2329,6 +2336,10 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	plane_coord_data_t data;
 
+	data.vert = vertices;
+
+	data.R = data.G = data.B = 1.0f;
+
 	data.tx0 = tx0;
 	data.ty0 = ty0;
 	data.image_w = image_w;
@@ -2337,11 +2348,9 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	data.x_mat = surf->x_mat;
 	data.y_mat = surf->y_mat;
 
-	data.nx = 0;
-	data.ny = 0;
-	data.nz = (viewz > h) ? 1.0f : -1.0f;
+	data.normal.Set(0, 0, (viewz > h) ? +1 : -1);
 
-	R_RunPipeline(GL_POLYGON, vertices, v_count, tex_id,
+	R_RunPipeline(GL_POLYGON, v_count, tex_id,
 			      trans, blending, PIPEF_NONE,
 				  &data, PlaneCoordFunc);
 
