@@ -1598,6 +1598,8 @@ typedef struct
 
 	float R, G, B;
 
+	float plane_h;
+
 	float tx0, ty0;
 	float image_w, image_h;
 
@@ -1622,13 +1624,17 @@ static void FloodCoordFunc(void *d, int v_idx,
 	rgb[1] = data->G;
 	rgb[2] = data->B;
 
-	float rx = (data->tx0 + pos->x) / data->image_w;
-	float ry = (data->ty0 + pos->y) / data->image_h;
+	float along = (viewz - data->plane_h) / (viewz - pos->z);
+
+	lit_pos->x = viewx + along * (pos->x - viewx);
+	lit_pos->y = viewy + along * (pos->y - viewy);
+	lit_pos->z = data->plane_h;
+
+	float rx = (data->tx0 + lit_pos->x) / data->image_w;
+	float ry = (data->ty0 + lit_pos->y) / data->image_h;
 
 	texc->x = rx * data->x_mat.x + ry * data->x_mat.y;
 	texc->y = rx * data->y_mat.x + ry * data->y_mat.y;
-
-	*lit_pos = *pos;
 }
 
 
@@ -1664,7 +1670,38 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 
 	flood_emu_data_t data;
 
-	int rows = int(1.5 + (h2 - h1) / 32.0);
+	/* determine number of pieces to subdivide the area into.
+	 * The more the better, upto a limit of 64 pieces, and
+	 * also limiting the size of the pieces.
+	 */
+
+	float tot_w = cur_seg->length;
+	float tot_h = h2 - h1;
+
+	int pieces_x = 1;
+	int pieces_y = 1;
+
+	{
+		float w = tot_w;
+		float h = tot_h;
+
+		while (pieces_x * pieces_y < 64 && ! (w <= 16 && h <= 16))
+		{
+			// give some preference for vertical divisions
+			if (h*1.5 >= w)
+			{
+				pieces_y *= 2; h /= 2.0;
+			}
+			else
+			{
+				pieces_x *= 2; w /= 2.0;
+			}
+		}
+L_WriteDebug("Subdivide: %1.0fx%1.0f --> %d,%d (each: %1.2f x %1.2f)\n",
+tot_w, tot_h, pieces_x, pieces_y, w, h);
+	}
+
+	int rows = int(1.5 + (h2 - h1) / 8.0);
 	rows = CLAMP(rows, 2, MAX_FLOOD_ROWS);
 
 	float sx = cur_seg->v1->x;
@@ -1674,14 +1711,15 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 
 	for (int r = 0; r < rows; r++)
 	{
-		float h = h1 + (h2-h1) * r / (float)(rows-1);
+		float z = h1 + (h2-h1) * r / (float)(rows-1);
 
-		data.vert[r*2 + 0].Set(sx, sy, h);
-		data.vert[r*2 + 1].Set(ex, ey, h);
+		data.vert[r*2 + 0].Set(sx, sy, z);
+		data.vert[r*2 + 1].Set(ex, ey, z);
 	}
 
-	data.R = 1.0;
-	data.G = data.B = 0.4f;
+	data.R = data.G = data.B = 1.0f;
+
+	data.plane_h = (face_dir > 0) ? h2 : h1;
 
 	data.tx0 = surf->offset.x;
 	data.ty0 = surf->offset.y;
@@ -1693,7 +1731,7 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 
 	data.normal.Set(0, 0, face_dir);
 
-	R_RunPipeline(GL_POLYGON, rows * 2, tex_id,
+	R_RunPipeline(GL_QUAD_STRIP, rows * 2, tex_id,
 			      1.0, BL_NONE, PIPEF_NONE,
 				  &data, FloodCoordFunc);
 
