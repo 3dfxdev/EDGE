@@ -35,10 +35,10 @@ extern bool dumb_sky;
 // a single vertex to pass to the GL 
 typedef struct local_gl_vert_s
 {
-	GLfloat x, y, z;
-	GLfloat col[4];
-	GLfloat s[2], t[2];
-	GLfloat nx, ny, nz;
+	GLfloat rgba[4];
+	vec3_t pos;
+	vec2_t texc[2];
+	vec3_t normal;
 	GLboolean edge;
 }
 local_gl_vert_t;
@@ -69,30 +69,9 @@ local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert,
 							   int pass, int blending);
 void RGL_EndUnit(int actual_vert);
 
-///--- void RGL_SendRawVector(const local_gl_vert_t *V);
-
-// utility macros
-#define SET_COLOR(R,G,B,A)  \
-	do { vert->col[0] = (R); vert->col[1] = (G); vert->col[2] = (B);  \
-	vert->col[3] = (A); } while(0)
-
-#define SET_TEXCOORD(X,Y)  \
-	do { vert->s[0] = (X); vert->t[0] = (Y); } while(0)
-
-#define SET_TEX2COORD(X,Y)  \
-	do { vert->s[1] = (X); vert->t[1] = (Y); } while(0)
-
-#define SET_NORMAL(X,Y,Z)  \
-	do { vert->nx = (X); vert->ny = (Y); vert->nz = (Z); } while(0)
-
-#define SET_EDGE_FLAG(E)  \
-	do { vert->edge = (E); } while(0)
-
-#define SET_VERTEX(X,Y,Z)  \
-	do { vert->x = (X); vert->y = (Y); vert->z = (Z); } while(0)
-
 
 //----------------------------------------------------------------------------
+
 
 typedef enum
 {
@@ -103,9 +82,9 @@ typedef enum
 }
 pipeline_flags_e;
 
-typedef void (* pipeline_coord_func_t)(void *data,
-	const vec3_t *v_in, int v_idx, float *s, float *t,
-	vec3_t *lit_pos, vec3_t *normal);
+typedef void (* pipeline_coord_func_t)(void *data, int v_idx,
+	vec3_t *pos, float *rgb, vec2_t *texc,
+	vec3_t *normal, vec3_t *lit_pos);
 
 void R_InitPipeline(void);
 
@@ -117,7 +96,7 @@ void R_InitPipeline(void);
 
 // FIXME Dlight setup stuff
 
-void R_RunPipeline(GLuint shape, const vec3_t *verts, int num_vert,
+void R_RunPipeline(GLuint shape, int num_vert,
 		           GLuint tex, float alpha, int blending, int flags,
 				   void *func_data, pipeline_coord_func_t func);
 

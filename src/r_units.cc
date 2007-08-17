@@ -253,21 +253,21 @@ struct Compare_Unit_pred
 static inline void RGL_SendRawVector(const local_gl_vert_t *V)
 {
 	if (use_color_material || ! use_lighting)
-		glColor4fv(V->col);
+		glColor4fv(V->rgba);
 	else
 	{
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, V->col);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, V->col);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, V->rgba);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, V->rgba);
 	}
 
-	glMultiTexCoord2f(GL_TEXTURE0, V->s[0], V->t[0]);
-	glMultiTexCoord2f(GL_TEXTURE1, V->s[1], V->t[1]);
+	glMultiTexCoord2f(GL_TEXTURE0, V->texc[0].x, V->texc[0].y);
+	glMultiTexCoord2f(GL_TEXTURE1, V->texc[1].x, V->texc[1].y);
 
-	glNormal3f(V->nx, V->ny, V->nz);
+	glNormal3f(V->normal.x, V->normal.y, V->normal.z);
 	glEdgeFlag(V->edge);
 
 	// vertex must be last
-	glVertex3f(V->x, V->y, V->z);
+	glVertex3f(V->pos.x, V->pos.y, V->pos.z);
 }
 
 //
@@ -423,22 +423,22 @@ void RGL_DrawUnits(void)
 
 extern image_c *fading_image;
 
-static inline void Color_Rainbow(local_gl_vert_t *v, int R, int G, int B, float alpha)
-{
-	v->col[0] = MIN(1.0, R * ren_red_mul / 255.0);
-	v->col[1] = MIN(1.0, G * ren_grn_mul / 255.0);
-	v->col[2] = MIN(1.0, B * ren_blu_mul / 255.0);
-	v->col[3] = alpha;
-}
-
-static inline void Vertex_Std(local_gl_vert_t *v, const vec3_t *src, GLboolean edge)
-{
-	v->x = src->x;
-	v->y = src->y;
-	v->z = src->z;
-
-	v->edge = edge;
-}
+///---static inline void Color_Rainbow(local_gl_vert_t *v, int R, int G, int B, float alpha)
+///---{
+///---	v->rgba[0] = MIN(1.0, R * ren_red_mul / 255.0);
+///---	v->rgba[1] = MIN(1.0, G * ren_grn_mul / 255.0);
+///---	v->rgba[2] = MIN(1.0, B * ren_blu_mul / 255.0);
+///---	v->rgba[3] = alpha;
+///---}
+///---
+///---static inline void Vertex_Std(local_gl_vert_t *v, const vec3_t *src, GLboolean edge)
+///---{
+///---	v->x = src->x;
+///---	v->y = src->y;
+///---	v->z = src->z;
+///---
+///---	v->edge = edge;
+///---}
 
 static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
 		const vec3_t *lit_pos, int lit_Nom, bool bottom)
@@ -458,18 +458,18 @@ static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
 	float dy = (lit_pos->y - viewy) * viewvec.y;
 	float dz = (lit_pos->z - viewz) * viewvec.z;
 
-	v->s[t] = (dx + dy + dz) / 1600.0;
+	v->texc[t].x = (dx + dy + dz) / 1600.0;
 
 	int lt_ay = lit_Nom / 4;
 	if (bottom) lt_ay += 64;
 
-	v->t[t] = (lt_ay + 0.5) / 128.0;
-	v->t[t] = CLAMP(v->t[t], 0.01, 0.99);
+	v->texc[t].y = (lt_ay + 0.5) / 128.0;
+	v->texc[t].y = CLAMP(v->texc[t].y, 0.01, 0.99);
 }
 
 
 static inline void Pipeline_Colormap(int& group,
-	GLuint shape, const vec3_t *verts, int num_vert,
+	GLuint shape, int num_vert,
 	GLuint tex, float alpha, int blending, int flags,
 	void *func_data, pipeline_coord_func_t func)
 {
@@ -481,7 +481,7 @@ static inline void Pipeline_Colormap(int& group,
 
 	/* FIXME: GL_DECAL single-pass mode */
 
-	int lit_Nom = 144; //!!!!! FIXME
+	int lit_Nom = 112; //!!!!! FIXME
 
 	if (true)
 	{
@@ -494,18 +494,14 @@ static inline void Pipeline_Colormap(int& group,
 		{
 			local_gl_vert_t *dest = glvert + v_idx;
 
-			vec3_t normal;
+			dest->rgba[3] = alpha;
+
 			vec3_t lit_pos;
 
-			Color_Rainbow(dest, 255, 255, 255, alpha);
-			Vertex_Std   (dest, verts+v_idx, GL_TRUE);
+///---		Color_Rainbow(dest, 255, 255, 255, alpha);
 
-			(*func)(func_data, verts + v_idx, v_idx,
-					&dest->s[0], &dest->t[0], &normal, &lit_pos);
-
-			glvert[v_idx].nx = normal.x;
-			glvert[v_idx].ny = normal.y;
-			glvert[v_idx].nz = normal.z;
+			(*func)(func_data, v_idx, &dest->pos, dest->rgba,
+					&dest->texc[0], &dest->normal, &lit_pos);
 
 			TexCoord_Fader(dest, 1, &lit_pos, lit_Nom, false);
 		}
@@ -558,14 +554,14 @@ static inline void Pipeline_DLights(int& group)
 }
 
 
-void R_RunPipeline(GLuint shape, const vec3_t *verts, int num_vert,
+void R_RunPipeline(GLuint shape, int num_vert,
 		           GLuint tex, float alpha, int blending, int flags,
 				   void *func_data, pipeline_coord_func_t func)
 {
 	int group = 0;
 
 	Pipeline_Colormap(group,
-		shape, verts, num_vert,
+		shape, num_vert,
 		tex, alpha, blending, flags,
 		func_data, func);
 
