@@ -89,6 +89,23 @@ int pal_yellow, pal_green1, pal_brown1;
 
 static int V_FindPureColour(int which);
 
+
+class colmap_analysis_c
+{
+public:
+	// the DDF entry that this analysis is based on.
+	colourmap_c *def;
+
+public:
+	colmap_analysis_c()
+	{ }
+
+	~colmap_analysis_c()
+	{ }
+
+};
+
+
 //
 // V_InitPalette
 //
@@ -564,15 +581,8 @@ void TransformColourmap(colourmap_c *colmap)
 		colmap->gl_colour = RGB_MAKE(r, g, b);
 	}
 
-	// FIXME !!!! wash_colour and alt_colour
-	colmap->wash_colour = 0x000000;
-	colmap->wash_trans  = PERCENT_MAKE(0);
-
 	L_WriteDebug("TransformColourmap [%s]\n", colmap->ddf.name.GetString());
 	L_WriteDebug("- gl_colour   = #%06x\n", colmap->gl_colour);
-	L_WriteDebug("- alt_colour  = #%06x\n", colmap->alt_colour);
-	L_WriteDebug("- font_colour = #%06x\n", colmap->font_colour);
-	L_WriteDebug("- wash_colour = #%06x\n", colmap->wash_colour);
 }
 
 
@@ -581,15 +591,13 @@ void V_GetColmapRGB(const colourmap_c *colmap,
 					bool font)
 {
 	if (colmap->gl_colour   == RGB_NO_VALUE ||
-		colmap->font_colour == RGB_NO_VALUE ||
-		colmap->wash_colour == RGB_NO_VALUE)
+		colmap->font_colour == RGB_NO_VALUE)
 	{
 		// Intention Const Override
 		TransformColourmap((colourmap_c *)colmap);
 	}
 
-	rgbcol_t col = /* alt  ? colmap->alt_colour : */
-	               font ? colmap->font_colour : colmap->gl_colour;
+	rgbcol_t col = font ? colmap->font_colour : colmap->gl_colour;
 
 	SYS_ASSERT(col != RGB_NO_VALUE);
 
