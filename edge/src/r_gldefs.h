@@ -153,7 +153,6 @@ public:
 
 	// colourmap/lighting
 	region_properties_t *props;
-	bool bright;
 
 	// world offsets for GL
 	float left_dx,  left_dy;

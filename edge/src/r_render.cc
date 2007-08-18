@@ -672,32 +672,6 @@ static inline void TexCoord_Plane(local_gl_vert_t *v, int t,
 	v->t[t] = rx * y_mat->x + ry * y_mat->y;
 }
 
-static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
-		int lit_Nom, bool bottom)
-{
-	// distance from viewplane: (point - camera) . viewvec
-
-	float lk_sin = M_Sin(viewvertangle);
-	float lk_cos = M_Cos(viewvertangle);
-
-	vec3_t viewvec;
-
-	viewvec.x = lk_cos * viewcos;
-	viewvec.y = lk_cos * viewsin;
-	viewvec.z = lk_sin;
-
-	float dx = (v->x - viewx) * viewvec.x;
-	float dy = (v->y - viewy) * viewvec.y;
-	float dz = (v->z - viewz) * viewvec.z;
-
-	v->s[t] = (dx + dy + dz) / 1600.0;
-
-	int lt_ay = lit_Nom / 4;
-	if (bottom) lt_ay += 64;
-
-	v->t[t] = (lt_ay + 0.5) / 128.0;
-	v->t[t] = CLAMP(v->t[t], 0.01, 0.99);
-}
 
 static inline void TexCoord_Shadow(local_gl_vert_t *v, int t)
 {
@@ -1046,7 +1020,7 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 						 region_properties_t *masked_props)
 
 {
-	surface_t *part = wt->surface;
+	surface_t *surf = wt->surface;
 
 	float x1 = cur_seg->v1->x;
 	float y1 = cur_seg->v1->y;
@@ -1068,46 +1042,40 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	float tex_x1 = 0;
 	float tex_x2 = 0;
 
-	float trans = part->translucency;
+	float trans = surf->translucency;
 	bool blended;
 
 	GLuint tex_id=0, tex2_id=0;
 
-	region_properties_t *props = masked_props ? masked_props :
-		part->override_p ? part->override_p : dfloor->props;
 
-	int lit_Nom = props->lightlevel;
-	const colourmap_c *colmap = props->colourmap;
-	float c_r, c_g, c_b;
+	region_properties_t *props = masked_props ? masked_props :
+		surf->override_p ? surf->override_p : dfloor->props;
+
+	R_ColmapPipe_SetProps(props);
+
 
 	// ignore non-solid walls in solid mode (& vice versa)
-	blended = (part->translucency <= 0.99f) ? true : false;
+	blended = (surf->translucency <= 0.99f) ? true : false;
 	if ((blended || mid_masked) == solid_mode)
 		return;
 
 	SYS_ASSERT(currmap);
 
+	int lit_adjust = 0;
+
 	// do the N/S/W/E bizzo...
-	if (currmap->lighting == LMODEL_Doom && lit_Nom > 0)
+	if (currmap->lighting == LMODEL_Doom && props->lightlevel > 0)
 	{
 		if (cur_seg->v1->y == cur_seg->v2->y)
-			lit_Nom -= 16;
+			lit_adjust -= 16;
 		else if (cur_seg->v1->x == cur_seg->v2->x)
-			lit_Nom += 16;
-
+			lit_adjust += 16;
 	}
 
-	lit_Nom += ren_extralight;
 
-	// limit to 0..255 range
-	lit_Nom = MAX(0, MIN(255, lit_Nom));
+	SYS_ASSERT(surf->image);
 
-///---	lit_Nom = RGL_Light(lit_Nom);
-
-	V_GetColmapRGB(colmap, &c_r, &c_g, &c_b, false);
-
-	SYS_ASSERT(part->image);
-	tex_id = W_ImageCache(part->image);
+	tex_id = W_ImageCache(surf->image);
 
 
 	x_offset += xy_ofs;
@@ -1214,16 +1182,16 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	{
 		if (cur_seg->side == 1)
 		{
-			tex_x1 = IM_WIDTH(part->image) - tex_x1;
-			tex_x2 = IM_WIDTH(part->image) - tex_x2;
+			tex_x1 = IM_WIDTH(surf->image) - tex_x1;
+			tex_x2 = IM_WIDTH(surf->image) - tex_x2;
 		}
 	}
 
-	float total_w = IM_TOTAL_WIDTH( part->image);
-	float total_h = IM_TOTAL_HEIGHT(part->image);
+	float total_w = IM_TOTAL_WIDTH( surf->image);
+	float total_h = IM_TOTAL_HEIGHT(surf->image);
 
-	total_w *= part->x_mat.x;
-	total_h *= part->y_mat.y;
+	total_w *= surf->x_mat.x;
+	total_h *= surf->y_mat.y;
 
 	tex_x1 = tex_x1 / total_w;
 	tex_x2 = tex_x2 / total_w;
@@ -1237,19 +1205,13 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	float tx_mul = tex_x2 - tex_x1;
 
 	float ty_mul = 1.0f / total_h;
-	float ty0    = IM_TOP(part->image) - tex_top_h * ty_mul;
+	float ty0    = IM_TOP(surf->image) - tex_top_h * ty_mul;
 
 #if (DEBUG >= 3) 
 	L_WriteDebug( "WALL (%d,%d,%d) -> (%d,%d,%d)\n", 
 		(int) x1, (int) y1, (int) top, (int) x2, (int) y2, (int) bottom);
 #endif
 
-///---	divline_t div;
-///---
-///---	div.x  = x1;
-///---	div.y  = y1;
-///---	div.dx = x2 - x1;
-///---	div.dy = y2 - y1;
 
 	// -AJA- 2007/08/07: ugly code here ensures polygon edges
 	//       match up with adjacent linedefs (otherwise small
@@ -1330,9 +1292,13 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	// TODO: make a unit vector
 	data.normal.Set( (y2-y1), (x1-x2), 0 );
 
+	R_ColmapPipe_AdjustLight(lit_adjust);
+
 	R_RunPipeline(GL_POLYGON, v_count, tex_id,
 			      trans, blending, PIPEF_NONE,
 				  &data, WallCoordFunc);
+
+	R_ColmapPipe_AdjustLight(0);
 
 #if 0
 	int pass = 0;
@@ -1540,8 +1506,11 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 	const region_properties_t *props = surf->override_p ?
 		surf->override_p : &flood_ref->props;
 
+	R_ColmapPipe_SetProps(props);
+
 
 	SYS_ASSERT(surf->image);
+
 	GLuint tex_id = W_ImageCache(surf->image);
 
 
@@ -1616,152 +1585,11 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 		data.R = (64 + 190 * (row & 1)) / 255.0;
 		data.B = (64 + 90 * (row & 2))  / 255.0;
 #endif
+
 		R_RunPipeline(GL_QUAD_STRIP, (piece_col+1) * 2,
 				      tex_id, 1.0, BL_NONE, PIPEF_NONE,
 					  &data, FloodCoordFunc);
 	}
-
-#if 0  // OLD WAY
-	if (num_active_mirrors > 0) return;
-
-	const surface_t *info = (face_dir > 0) ? &flood_ref->floor :
-		&flood_ref->ceil;
-
-	const region_properties_t *props = info->override_p ?
-		info->override_p : &flood_ref->props;
-
-	float h;
-	float bbox[4];
-
-	// ignore sky and invisible planes
-	if (IS_SKY(*info) || info->translucency < 0.04f)
-		return;
-
-	// ignore transparent doors (TNT MAP02)
-	if (flood_ref->f_h >= flood_ref->c_h)
-		return;
-
-	// ignore fake 3D bridges (Batman MAP03)
-	if (cur_seg->linedef &&
-	    cur_seg->linedef->frontsector == cur_seg->linedef->backsector)
-		return;
-
-	FloodSetClipPlanes(cur_seg, h1, h2);
-
-	h = (face_dir > 0) ? h2 : h1;
-
-	// --- compute required area ---
-
-	M_ClearBox(bbox);
-	M_AddToBox(bbox, cur_seg->v1->x, cur_seg->v1->y);
-	M_AddToBox(bbox, cur_seg->v2->x, cur_seg->v2->y);
-
-	// include viewpoint in BBOX, but limited to FLOOD_DIST
-	float seg_mx = (cur_seg->v1->x + cur_seg->v2->x) / 2.0f;
-	float seg_my = (cur_seg->v1->y + cur_seg->v2->y) / 2.0f;
-	float seg_vdx = viewx - seg_mx;
-	float seg_vdy = viewy - seg_my;
-
-	if (seg_vdx < -FLOOD_DIST) seg_vdx = -FLOOD_DIST;
-	if (seg_vdx > +FLOOD_DIST) seg_vdx = +FLOOD_DIST;
-
-	if (seg_vdy < -FLOOD_DIST) seg_vdy = -FLOOD_DIST;
-	if (seg_vdy > +FLOOD_DIST) seg_vdy = +FLOOD_DIST;
-	
-	M_AddToBox(bbox, seg_mx + seg_vdx, seg_my + seg_vdy);
-
-	bbox[BOXLEFT]   -= FLOOD_EXPAND;
-	bbox[BOXRIGHT]  += FLOOD_EXPAND;
-	bbox[BOXBOTTOM] -= FLOOD_EXPAND;
-	bbox[BOXTOP]    += FLOOD_EXPAND;
-
-	// stuff from DrawPlane (FIXME: factor out common stuff ?)
-
-	wall_plane_data_t data;
-
-	GLuint tex_id;
-
-//!!!!!!	int lit_Nom = RGL_Light(props->lightlevel);
-	const colourmap_c *colmap = props->colourmap;
-	float c_r, c_g, c_b;
-
-	data.light = props->lightlevel;
-
-	data.flood_emu = true;
-	data.emu_mx = seg_mx;
-	data.emu_my = seg_my;
-
-	V_GetColmapRGB(colmap, &c_r, &c_g, &c_b, false);
-
-	data.col[0] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_r);
-	data.col[1] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_g);
-	data.col[2] = 255; //!!!!! (int)((doom_fading ? 255 : lit_Nom) * c_b);
-
-	data.trans = 1.0f;
-
-	data.dlights = dfloor->dlights;
-	data.image   = info->image;
-
-	data.normal.x = 0;
-	data.normal.y = 0;
-	data.normal.z = face_dir;
-
-	data.tx = info->offset.x;
-	data.ty = info->offset.y;
-
-	data.x_mat = info->x_mat;
-	data.y_mat = info->y_mat;
-
-	SYS_ASSERT(info->image);
-	GLuint tex_id = W_ImageCache(info->image);
-
-	vec3_t vbox[4];
-
-	vbox[0].Set(bbox[BOXLEFT ], bbox[BOXBOTTOM], h);
-	vbox[1].Set(bbox[BOXLEFT ], bbox[BOXTOP   ], h);
-	vbox[2].Set(bbox[BOXRIGHT], bbox[BOXTOP   ], h);
-	vbox[3].Set(bbox[BOXRIGHT], bbox[BOXBOTTOM], h);
-
-	// update the depth buffer (prevent overdraw from behind)
-	if (! dumb_sky)
-	{
-		glColor3f(0.0f, 0.0f, 0.0f);
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-
-		glBegin(GL_QUAD_STRIP);
-		glVertex3f(cur_seg->v1->x, cur_seg->v1->y, h1);
-		glVertex3f(cur_seg->v1->x, cur_seg->v1->y, h2);
-		glVertex3f(cur_seg->v2->x, cur_seg->v2->y, h1);
-		glVertex3f(cur_seg->v2->x, cur_seg->v2->y, h2);
-		glEnd();
-
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	}
-
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, tex_id);
-
-	glDepthMask(GL_FALSE);
-
-	glColor3f(1.0f, 1.0f, 1.0f);
-	glBegin(GL_POLYGON);
-
-	for (int j = 0; j < 4; j++)
-	{
-		local_gl_vert_t V;
-
-  		PlaneCoordFunc(vbox + j, &V, &data);
-
-		RGL_SendRawVector(&V);		
-	}
-
-	glEnd();
-
-	glDepthMask(GL_TRUE);
-	glDisable(GL_TEXTURE_2D);
-
-	FloodResetClipPlanes();
-#endif
 }
 
 //
@@ -2252,6 +2080,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	int num_vert, i;
 
+
 	region_properties_t *props = dfloor->props;
 
 	// more deep water hackitude
@@ -2265,8 +2094,8 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	if (surf->override_p)
 		props = surf->override_p;
 
-	const colourmap_c *colmap = props->colourmap;
-	float c_r, c_g, c_b;
+	R_ColmapPipe_SetProps(props);
+
 
 	float trans = surf->translucency;
 
@@ -2309,15 +2138,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	if (num_vert > MAX_PLVERT)
 		num_vert = MAX_PLVERT;
 
-	int lit_Nom = props->lightlevel;
-
-	lit_Nom += ren_extralight;
-
-	// limit to 0..255 range
-	lit_Nom = MAX(0, MIN(255, lit_Nom));
-
-
-	V_GetColmapRGB(colmap, &c_r, &c_g, &c_b, false);
 
 
 	SYS_ASSERT(surf->image);
@@ -2893,6 +2713,8 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 
 		if (! solid_mode)
 		{
+			R_ColmapPipe_SetProps(dfloor->props);
+
 			RGL_DrawSortThings(dfloor);
   		}
 	}

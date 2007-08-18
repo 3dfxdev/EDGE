@@ -252,9 +252,9 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	psprite_coord_data_t data;
 
-	data.R = L_r;
-	data.G = L_g;
-	data.B = L_b;
+	data.R = fuzzy ? 0.2 : 1;
+	data.G = fuzzy ? 0.2 : 1;
+	data.B = fuzzy ? 0.2 : 1;
 
 	data.vert[0].Set(x1b, y1b, 0);
 	data.vert[1].Set(x1t, y1t, 0);
@@ -276,13 +276,18 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	RGL_StartUnits(false);
 
+	R_ColmapPipe_SetProps(props);
+	R_ColmapPipe_AdjustLight(state->bright ? 255 : 0);
+
 	R_RunPipeline(GL_POLYGON, 4, tex_id,
 			      trans, blending, PIPEF_NONE,
 				  &data, PSpriteCoordFunc);
 
+	R_ColmapPipe_AdjustLight(0);
+
 	RGL_FinishUnits();
 
-#if 0  // OLD WAY
+#if 0  // OLD WAY (KEEP FOR CROSSHAIRS !!!)
 	glColor4f(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
 
 	glBegin(GL_QUADS);
@@ -913,7 +918,6 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 
 	dthing->image  = image;
 	dthing->flip   = spr_flip;
-	dthing->bright = mo->bright ? true : false;
 	dthing->is_shadow = false;
 
 	dthing->tx = tx;
@@ -1012,7 +1016,7 @@ if (dthing->mo->extendedflags & EF_MONSTER)
 
 //RGL_DrawUnits();
 
-MD2_RenderModel(md, dthing->mo);
+MD2_RenderModel(md, dthing->mo, dfloor->props);
 return;
 }
 	
@@ -1037,7 +1041,7 @@ return;
 	}
 	else
 	{
-		int L = dthing->bright ? 255 : dthing->props->lightlevel;
+		int L = dthing->mo->bright ? 255 : dthing->props->lightlevel;
 
 		float c_r, c_g, c_b;
 		V_GetColmapRGB(colmap, &c_r, &c_g, &c_b, false);
@@ -1187,9 +1191,9 @@ return;
 	
 	thing_coord_data_t data;
 
-	data.R = L_r;
-	data.G = L_g;
-	data.B = L_b;
+	data.R = fuzzy ? 0 : 1;
+	data.G = fuzzy ? 0 : 1;
+	data.B = fuzzy ? 0 : 1;
 
 	data.vert[0].Set(x1b+dx, y1b+dy, z1b);
 	data.vert[1].Set(x1t+dx, y1t+dy, z1t);
@@ -1203,11 +1207,13 @@ return;
 
 	data.normal.Set(-viewcos, -viewsin, 0);
 
-	// FIXME: L_r, L_g, L_b : are not used
+	R_ColmapPipe_AdjustLight(dthing->mo->bright ? 255 : 0);
 
 	R_RunPipeline(GL_POLYGON, 4, tex_id,
 			      trans, blending, PIPEF_NONE,
 				  &data, ThingCoordFunc);
+
+	R_ColmapPipe_AdjustLight(0);
 
 #if 0  // OLD WAY
 	local_gl_vert_t *vert, *orig;

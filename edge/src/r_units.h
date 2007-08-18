@@ -90,7 +90,8 @@ typedef void (* pipeline_coord_func_t)(void *data, int v_idx,
 
 void R_InitPipeline(void);
 
-// FIXME Colormap setup stuff
+void R_ColmapPipe_SetProps(const struct region_properties_s *props);
+void R_ColmapPipe_AdjustLight(int adjust);
 
 // FIXME Shadow setup stuff
 
