@@ -639,7 +639,7 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 #endif
 	float trans = 1.0; // 0.5;
 
-	int blending = BL_NONE; // BL_Alpha;
+	int blending = BL_CullBack; // BL_Alpha;
 
 	model_coord_data_t data;
 

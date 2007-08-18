@@ -31,6 +31,7 @@
 extern bool use_lighting;
 extern bool use_color_material;
 extern bool dumb_sky;
+extern bool dumb_multi;
 
 // a single vertex to pass to the GL 
 typedef struct local_gl_vert_s
@@ -54,11 +55,12 @@ typedef enum
 {
 	BL_NONE = 0,
 
-	BL_Masked  = (1<<0),  // drop fragments when alpha == 0
-	BL_Alpha   = (1<<1),  // alpha-blend with the framebuffer
-	BL_Add     = (1<<2),  // additive-blend with the framebuffer
-	BL_NoZBuf  = (1<<3),  // don't update the Z buffer
-	BL_ClampY  = (1<<4),
+	BL_Masked   = (1<<0),  // drop fragments when alpha == 0
+	BL_Alpha    = (1<<1),  // alpha-blend with the framebuffer
+	BL_Add      = (1<<2),  // additive-blend with the framebuffer
+	BL_CullBack = (1<<3),  // enable back-face culling
+	BL_NoZBuf   = (1<<4),  // don't update the Z buffer
+	BL_ClampY   = (1<<5),  // force texture to be Y clamped
 }
 blending_mode_e;
 
