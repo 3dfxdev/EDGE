@@ -173,32 +173,6 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	float ty1 = WEAPONTOP - psp->sy + IM_OFFSETY(image);
 	float ty2 = ty1 + h;
 
-	// compute lighting
-	int L_r, L_g, L_b;
-
-	if (which == ps_weapon || which == ps_flash)
-	{
-		int L = state->bright ? 255 : props->lightlevel;
-
-		float c_r, c_g, c_b;
-		V_GetColmapRGB(props->colourmap, &c_r, &c_g, &c_b, false);
-
-		if (doom_fading)
-		{
-			L = (int)EMU_LIGHT(L, 160.0f);
-			L = RGL_LightEmu((L < 0) ? 0 : (L > 255) ? 255 : L);
-		}
-		else
-			L = RGL_Light(L);
-
-		L_r = (int)(rgl_weapon_r + L * c_r);
-		L_g = (int)(rgl_weapon_g + L * c_g);
-		L_b = (int)(rgl_weapon_b + L * c_b);
-	}
-	else
-	{
-		L_r = L_g = L_b = 255;
-	}
 
 	float x1b, y1b, x1t, y1t, x2b, y2b, x2t, y2t;  // screen coords
 
@@ -228,7 +202,6 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 		x2t += tr_x * range_x; y2t += tr_y * range_y;
 		x2b += br_x * range_x;
 
-		L_r = L_g = L_b = 50;
 	}
 
 	// clip psprite to view window
@@ -288,6 +261,8 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	RGL_FinishUnits();
 
 #if 0  // OLD WAY (KEEP FOR CROSSHAIRS !!!)
+	if (fuzzy)
+		L_r = L_g = L_b = 50;
 	glColor4f(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
 
 	glBegin(GL_QUADS);
@@ -403,24 +378,6 @@ void RGL_DrawPlayerSprites(player_t * p)
 
 	if (!got_cross && !automapactive && p->health > 0)
 		DrawStdCrossHair((screen_hud != HUD_Full) ? 0 : FROM_200(ST_HEIGHT));
-}
-
-void RGL_LightUpPlayerWeapon(player_t *p, drawfloor_t *dfloor)
-{
-	drawthing_t *dl;
-
-	float x, y, z;
-
-	x = p->mo->x;
-	y = p->mo->y;
-	z = p->mo->z + p->mo->height *
-		PERCENT_2_FLOAT(p->mo->info->shotheight);
-
-	for (dl=dfloor->dlights; dl; dl=dl->next)
-	{
-		R2_AddColourDLights(1, &rgl_weapon_r, &rgl_weapon_g, &rgl_weapon_b, 
-			&x, &y, &z, dl->mo);
-	}
 }
 
 
@@ -574,10 +531,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 	// find the thing's nominal region.  This section is equivalent to
 	// the R_PointInVertRegion() code (but using drawfloors).
 
-	if (dthing->is_shadow)
-		z = dthing->bottom + 0.5f;
-	else
-		z = (dthing->top + dthing->bottom) / 2.0f;
+	z = (dthing->top + dthing->bottom) / 2.0f;
 
 	std::vector<drawfloor_t *>::iterator DFI;
 
@@ -918,7 +872,6 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 
 	dthing->image  = image;
 	dthing->flip   = spr_flip;
-	dthing->is_shadow = false;
 
 	dthing->tx = tx;
 	dthing->tz = tz;
@@ -1021,49 +974,10 @@ return;
 }
 	
 	int fuzzy = (dthing->mo->flags & MF_FUZZY);
+
 	float trans = fuzzy ? FUZZY_TRANS : dthing->mo->visibility;
 
-	const colourmap_c *colmap = dthing->props->colourmap;
-
-	int L_r, L_g, L_b;
-
 	float dx = 0, dy = 0;
-
-	if (dthing->is_shadow)
-	{
-		L_r = L_g = L_b = 0;
-
-		trans = dthing->mo->visibility * 
-			PERCENT_2_FLOAT(dthing->mo->info->shadow_trans);
-
-		dx = viewcos * 2;
-		dy = viewsin * 2;
-	}
-	else
-	{
-		int L = dthing->mo->bright ? 255 : dthing->props->lightlevel;
-
-		float c_r, c_g, c_b;
-		V_GetColmapRGB(colmap, &c_r, &c_g, &c_b, false);
-
-		if (doom_fading)
-		{
-			float dx = fabs(dthing->mo->x - viewx);
-			float dy = fabs(dthing->mo->y - viewy);
-			float dz = fabs(MO_MIDZ(dthing->mo) - viewz);
-
-			float dist = APPROX_DIST3(dx, dy, dz);
-
-			L = (int)EMU_LIGHT(L, dist);
-			L = RGL_LightEmu((L < 0) ? 0 : (L > 255) ? 255 : L);
-		}
-		else
-			L = RGL_Light(L);
-
-		L_r = (int)(L * c_r);
-		L_g = (int)(L * c_g);
-		L_b = (int)(L * c_b);
-	}
 
 	if (trans < 0.04f)
 		return;
@@ -1130,29 +1044,15 @@ return;
 	//  Dynamic Lighting Stuff
 	//
 
-	if (use_dlights && !dthing->is_shadow && !fuzzy)
+	if (use_dlights && !fuzzy)
 	{
-		drawthing_t *dl;
-		float wx[4], wy[4], wz[4];
-
-		wx[0] = x1b;  wy[0] = y1b;  wz[0] = z1b;
-		wx[1] = x1t;  wy[1] = y1t;  wz[1] = z1t;
-		wx[2] = x2t;  wy[2] = y2t;  wz[2] = z2t;
-		wx[3] = x2b;  wy[3] = y2b;  wz[3] = z2b;
-
-		for (dl=dfloor->dlights; dl; dl=dl->next)
-		{
-			if (dl->mo == dthing->mo)
-				continue;
-
-			R2_AddColourDLights(1, &L_r, &L_g, &L_b, wx, wy, wz, dl->mo);
-		}
+		// FIXME
 	}
 
 	//
 	// Special FUZZY effect
 	//
-	if (fuzzy && !dthing->is_shadow)
+	if (fuzzy)
 	{
 		float range_x = fabs(dthing->right_dx - dthing->left_dx) / 12.0f;
 		float range_y = fabs(dthing->right_dy - dthing->left_dy) / 12.0f;
@@ -1174,8 +1074,6 @@ return;
 		x1t += tl * range_x; y1t += tl * range_y; z1t += ztl * range_z;
 		x2t += tr * range_x; y2t += tr * range_y; z2t += ztr * range_z;
 		x2b += br * range_x; y2b += br * range_y; z2b += zbr * range_z;
-
-		L_r = L_g = L_b = 0;
 	}
 
 	GLuint tex_id = W_ImageCache(image, false, dthing->mo->info->palremap);
@@ -1214,47 +1112,6 @@ return;
 				  &data, ThingCoordFunc);
 
 	R_ColmapPipe_AdjustLight(0);
-
-#if 0  // OLD WAY
-	local_gl_vert_t *vert, *orig;
-
-	int pass = 0;
-
-	vert = orig = RGL_BeginUnit(GL_POLYGON, 4,
-			GL_MODULATE, tex_id, 0,0,
-			pass, blending);
-	pass++;
-
-	SET_COLOR(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
-	SET_TEXCOORD(tex_x1, tex_y1);
-	SET_NORMAL(-viewcos, -viewsin, 0.0f);
-	SET_EDGE_FLAG(GL_TRUE);
-	SET_VERTEX(x1b+dx, y1b+dy, z1b);
-	vert++;
-
-	SET_COLOR(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
-	SET_TEXCOORD(tex_x1, tex_y2);
-	SET_NORMAL(-viewcos, -viewsin, 0.0f);
-	SET_EDGE_FLAG(GL_TRUE);
-	SET_VERTEX(x1t+dx, y1t+dy, z1t);
-	vert++;
-
-	SET_COLOR(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
-	SET_TEXCOORD(tex_x2, tex_y2);
-	SET_NORMAL(-viewcos, -viewsin, 0.0f);
-	SET_EDGE_FLAG(GL_TRUE);
-	SET_VERTEX(x2t+dx, y2t+dy, z2t);
-	vert++;
-
-	SET_COLOR(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
-	SET_TEXCOORD(tex_x2, tex_y1);
-	SET_NORMAL(-viewcos, -viewsin, 0.0f);
-	SET_EDGE_FLAG(GL_TRUE);
-	SET_VERTEX(x2b+dx, y2b+dy, z2b);
-	vert++;
-
-	RGL_EndUnit(vert - orig);
-#endif
 }
 
 //

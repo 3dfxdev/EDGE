@@ -75,15 +75,9 @@ const byte *RGL_BetaImage(int *w, int *h);
 
 #define M_ROOT2  1.414213562f  // FIXME: move into m_math.h ?
 
-#define EMU_LIGHT(level,dist)  ((level) * 2 - 256 + 80*256.0f / MAX(128.0f, (dist)))
-
-// extra lighting on the player weapon
-extern int rgl_weapon_r;
-extern int rgl_weapon_g;
-extern int rgl_weapon_b;
 
 int RGL_Light(int nominal);
-int RGL_LightEmu(int nominal);
+
 void RGL_LoadLights(void);
 void RGL_RenderTrueBSP(void);
 
@@ -158,9 +152,6 @@ public:
 	float left_dx,  left_dy;
 	float right_dx, right_dy;
 	float orig_top, orig_bottom;
-
-	// EXPERIMENTAL
-	bool is_shadow;
 
 	// Rendering order
 	struct drawthing_s *rd_l, *rd_r, *rd_prev, *rd_next; 
@@ -295,16 +286,11 @@ public:
 
 
 extern int detail_level;
-extern int use_dlights;  // 2 means compat_mode (FIXME: remove for EDGE 1.30)
+extern int use_dlights;
 extern int sprite_kludge;
 
 const image_c * R2_GetThingSprite(mobj_t *mo, bool *flip);
 const image_c * R2_GetOtherSprite(int sprite, int frame, bool *flip);
-
-void R2_AddDLights(int num, int *level, 
-    float *x, float *y, float *z, mobj_t *mo);
-void R2_AddColourDLights(int num, int *r, int *g, int *b, 
-    float *x, float *y, float *z, mobj_t *mo);
 
 
 //
