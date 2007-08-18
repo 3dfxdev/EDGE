@@ -1,5 +1,14 @@
 Andrew Apted's Log
 
+2007/08/18:
+
+New method for emulating flat flooding: Now we draw the wall
+section (where the side texture should be) as a normal wall,
+however we compute the texture and lighting coordinates as if
+it were a plane.  The wall is subdivided into small pieces
+(upto a maximum of 64, and 16 on each dimension) in order to
+mitigate the "fluidy" effect inherit in this method.
+
 2007/08/17:
 
 Started work on new rendering method: R_RunPipeline() is the
