@@ -33,6 +33,7 @@
 #include "epi/image_jpeg.h"
 
 #include "r_md2.h"
+#include "r_gldefs.h"
 #include "r_units.h"
 #include "m_math.h"
 
@@ -603,7 +604,7 @@ static void ModelCoordFunc(void *d, int v_idx,
 }
 
 
-void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
+void MD2_RenderModel(md2_model_c *md, mobj_t *mo, region_properties_t *props)
 {
 	int n = (leveltime / 8) % md->num_frames;
 
@@ -611,42 +612,21 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 	if (n < 0 || n >= md->num_frames)
 		return;
 
-///---	/* enable model's texture */
-///---	glEnable(GL_TEXTURE_2D);
-///---	glBindTexture(GL_TEXTURE_2D, skin_tex);
-///---
-///---	glColor3f(1, 1, 1);
+	int fuzzy = (mo->flags & MF_FUZZY);
 
-#if 0 //TEST
-{
-	glBegin(GL_TRIANGLE_STRIP);
+	float trans = fuzzy ? FUZZY_TRANS : mo->visibility;
 
-	float x = mo->x;
-	float y = mo->y;
-	float z = mo->z;
+	int blending = BL_CullBack | (trans < 0.99 ? BL_Alpha : 0);
 
-	glVertex3f(x, y, z);
-	glVertex3f(x, y, z+60);
-	glVertex3f(x+40, y, z);
-	glVertex3f(x+40, y, z+60);
-	glVertex3f(x+60, y+50, z);
-	glVertex3f(x+60, y+50, z+60);
-
-	glEnd();
-
-	return;
-}
-#endif
-	float trans = 1.0; // 0.5;
-
-	int blending = BL_CullBack; // BL_Alpha;
 
 	model_coord_data_t data;
 
 	data.model = md;
 	data.frame = n;
 
-	data.R = data.G = data.B = 1.0;
+	data.R = fuzzy ? 0 : 1;
+	data.G = fuzzy ? 0 : 1;
+	data.B = fuzzy ? 0 : 1;
 
 	data.x = mo->x;
 	data.y = mo->y;
@@ -662,6 +642,8 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 
 	data.z_scale = 1.0f;
 
+	R_ColmapPipe_AdjustLight(mo->bright ? 255 : 0);
+
 	/* draw the model */
 	for (int i = 0; i < md->num_strips; i++)
 	{
@@ -670,39 +652,9 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo)
 		R_RunPipeline(md->strips[i].mode, md->strips[i].count,
 				      skin_tex, trans, blending, PIPEF_NONE,
 					  &data, ModelCoordFunc);
-
-#if 0  // OLD WAY
-
-		glBegin(md->strips[i].mode);
-
-		/* draw each vertex of this strip */
-
-		for (int k = 0; k < md->strips[i].count; k++)
-		{
-			SYS_ASSERT(md->strips[i].first + k >= 0);
-			SYS_ASSERT(md->strips[i].first + k < md->num_points);
-
-			md2_point_c *point = &md->points[md->strips[i].first + k];
-
-			SYS_ASSERT(point->vert_idx >= 0);
-			SYS_ASSERT(point->vert_idx < md->verts_per_frame);
-
-			md2_vertex_c *vert = &md->frames[n].vertices[point->vert_idx];
-				
-      		glTexCoord2f(point->skin_s, point->skin_t);
-
-			glNormal3fv(md2_normals[vert->normal_idx]);
-
-			float x = mo->x + vert->x;
-			float y = mo->y + vert->y;
-			float z = mo->z + vert->z + 24;
-
-			glVertex3f(x, y, z);
-		}
-
-		glEnd();
-#endif
 	}
+
+	R_ColmapPipe_AdjustLight(0);
 }
 
 //--- editor settings ---

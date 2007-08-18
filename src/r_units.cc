@@ -434,8 +434,15 @@ void RGL_DrawUnits(void)
 //============================================================================
 
 
+static GLuint fade_tex = 0;
+
+static const region_properties_t *cmap_props;
+
+static int cmap_lit_Nom;
+
+
 static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
-		const vec3_t *lit_pos, int lit_Nom)
+		const vec3_t *lit_pos)
 {
 	// distance from viewplane: (point - camera) . viewvec
 
@@ -454,7 +461,7 @@ static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
 
 	v->texc[t].x = (dx + dy + dz) / 1600.0;
 
-	int lt_ay = MIN(63, lit_Nom / 4);
+	int lt_ay = cmap_lit_Nom / 4;
 
 	v->texc[t].y = (lt_ay + 0.5) / 64.0;
 }
@@ -462,8 +469,21 @@ static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
 
 extern GLuint MakeColormapTexture( bool decal_mode );
 
-static GLuint fade_tex = 0;
+void R_ColmapPipe_SetProps(const struct region_properties_s *props)
+{
+	cmap_props = props;
 
+	cmap_lit_Nom = cmap_props->lightlevel + ren_extralight;
+	cmap_lit_Nom = CLAMP(cmap_lit_Nom, 0, 255);
+
+	// FIXME !!!!! fade_tex from props->colourmap
+}
+
+void R_ColmapPipe_AdjustLight(int adjust)
+{
+	cmap_lit_Nom = cmap_props->lightlevel + adjust + ren_extralight;
+	cmap_lit_Nom = CLAMP(cmap_lit_Nom, 0, 255);
+}
 
 static inline void Pipeline_Colormap(int& group,
 	GLuint shape, int num_vert,
@@ -480,8 +500,6 @@ static inline void Pipeline_Colormap(int& group,
 		fade_tex = MakeColormapTexture(!simple_cmap);
 
 	/* FIXME: GL_DECAL single-pass mode */
-
-	int lit_Nom = 112; //!!!!! FIXME
 
 	if (true)
 	{
@@ -501,7 +519,7 @@ static inline void Pipeline_Colormap(int& group,
 			(*func)(func_data, v_idx, &dest->pos, dest->rgba,
 					&dest->texc[0], &dest->normal, &lit_pos);
 
-			TexCoord_Fader(dest, 1, &lit_pos, lit_Nom);
+			TexCoord_Fader(dest, 1, &lit_pos);
 		}
 
 		RGL_EndUnit(num_vert);
