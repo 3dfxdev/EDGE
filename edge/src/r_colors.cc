@@ -24,6 +24,7 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
+#include "i_defs_gl.h"
 
 #include <stdlib.h>  // atoi()
 
@@ -37,6 +38,7 @@
 #include "st_stuff.h"
 #include "r_modes.h"
 #include "r_image.h"
+#include "r_texgl.h"
 #include "w_wad.h"
 #include "z_zone.h"
 
@@ -465,6 +467,47 @@ static int AnalyseColourmap(const byte *table, int alpha,
 	}
 
 	return total / 256;
+}
+
+
+GLuint MakeColormapTexture( bool decal_mode )
+{
+	epi::image_data_c *img = new epi::image_data_c(256, 64, 4);
+
+	for (int L = 0; L < 64; L++)
+	{
+		byte *dest = img->PixelAt(0, L);
+
+		for (int x = 0; x < 256; x++, dest += 4)
+		{
+			float dist = 1600.0f * x / 255.0;
+
+			// DOOM lighting formula
+
+			int index = (59 - L) - int(1280 / MAX(1, dist));
+			int min_L = MAX(0, 36 - L);
+
+			index = CLAMP(index, min_L, 31);
+
+			// FIXME: lookup value in COLORMAP[]
+			if (decal_mode)
+			{
+				dest[0] = 0;
+				dest[1] = 0;
+				dest[2] = 0;
+				dest[3] = 0 + index * 8;
+			}
+			else
+			{
+				dest[0] = 255 - index * 8;
+				dest[1] = dest[0];
+				dest[2] = dest[0];
+				dest[3] = 255;
+			}
+		}
+	}
+
+	return R_UploadTexture(img, NULL, UPL_Smooth|UPL_Clamp);
 }
 
 
