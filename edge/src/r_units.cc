@@ -37,7 +37,8 @@
 bool use_lighting = true;
 bool use_color_material = true;
 
-bool dumb_sky = false;
+bool dumb_sky   = false;
+bool dumb_multi = false;
 
 #define USE_GLXTNS  1  // REMOVE !!!
 
@@ -344,6 +345,14 @@ void RGL_DrawUnits(void)
 				glDisable(GL_BLEND);
 		}
 
+		if ((active_blending ^ unit->blending) & BL_CullBack)
+		{
+			if (unit->blending & BL_CullBack)
+				glEnable(GL_CULL_FACE);
+			else
+				glDisable(GL_CULL_FACE);
+		}
+
 		if ((active_blending ^ unit->blending) & BL_NoZBuf)
 		{
 			glDepthMask((unit->blending & BL_NoZBuf) ? GL_FALSE : GL_TRUE);
@@ -406,16 +415,19 @@ void RGL_DrawUnits(void)
 
 	glPolygonOffset(0, 0);
 
-	glActiveTexture(GL_TEXTURE1);
-	glDisable(GL_TEXTURE_2D);
-
-	glActiveTexture(GL_TEXTURE0);
-	glDisable(GL_TEXTURE_2D);
+	for (int t=1; t >=0; t--)
+	{
+		glActiveTexture(GL_TEXTURE0 + t);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		glDisable(GL_TEXTURE_2D);
+	}
 
 	glDepthMask(GL_TRUE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
+	glDisable(GL_CULL_FACE);
 }
 
 
@@ -481,12 +493,13 @@ static inline void Pipeline_Colormap(int& group,
 
 	/* FIXME: GL_DECAL single-pass mode */
 
-	int lit_Nom = 112; //!!!!! FIXME
+	int lit_Nom = 160; //!!!!! FIXME
+	bool simple_cmap = false;
 
 	if (true)
 	{
-		glvert = RGL_BeginUnit(shape, num_vert,
-				GL_MODULATE, tex, GL_MODULATE, fade_tex,
+		glvert = RGL_BeginUnit(shape, num_vert, GL_MODULATE, tex,
+				(simple_cmap || dumb_multi) ? GL_MODULATE : GL_DECAL, fade_tex,
 				group, blending);
 		group++;
 
@@ -498,8 +511,6 @@ static inline void Pipeline_Colormap(int& group,
 
 			vec3_t lit_pos;
 
-///---		Color_Rainbow(dest, 255, 255, 255, alpha);
-
 			(*func)(func_data, v_idx, &dest->pos, dest->rgba,
 					&dest->texc[0], &dest->normal, &lit_pos);
 
@@ -507,9 +518,37 @@ static inline void Pipeline_Colormap(int& group,
 		}
 
 		RGL_EndUnit(num_vert);
-
-		/* FIXME: second pass */
 	}
+
+///	if (false)  // additive pass (test for old cards)
+///	{
+///		blending &= ~BL_Alpha;
+///		blending |=  BL_Add;
+///
+///		glvert = RGL_BeginUnit(shape, num_vert,
+///				GL_MODULATE, tex, GL_ADD, fade_tex,
+///				group, blending);
+///		group++;
+///
+///		for (int v_idx=0; v_idx < num_vert; v_idx++)
+///		{
+///			local_gl_vert_t *dest = glvert + v_idx;
+///
+///			vec3_t lit_pos;
+///
+///			(*func)(func_data, v_idx, &dest->pos, dest->rgba,
+///					&dest->texc[0], &dest->normal, &lit_pos);
+///
+///			dest->rgba[0] = 0.0;
+///			dest->rgba[1] = 0.0;
+///			dest->rgba[2] = 0.0;
+///			dest->rgba[3] = alpha;
+///
+///			TexCoord_Fader(dest, 1, &lit_pos, lit_Nom, true);
+///		}
+///
+///		RGL_EndUnit(num_vert);
+///	}
 
 	/* TODO: flat-shaded maps */
 }

@@ -59,9 +59,10 @@ int var_farclip  = 64000;
 
 typedef enum
 {
-	PFT_LIGHTING       = (1 << 0),
-	PFT_COLOR_MATERIAL = (1 << 1),
-	PFT_SKY            = (1 << 3),
+	PFT_LIGHTING   = (1 << 0),
+	PFT_COLOR_MAT  = (1 << 1),
+	PFT_SKY        = (1 << 2),
+	PFT_MULTI_TEX  = (1 << 3),
 }
 problematic_feature_e;
 
@@ -80,17 +81,17 @@ driver_bug_t;
 
 static const driver_bug_t driver_bugs[] =
 {
-	{ "Radeon",   NULL, NULL, PFT_LIGHTING | PFT_COLOR_MATERIAL, 0 },
-	{ "RADEON",   NULL, NULL, PFT_LIGHTING | PFT_COLOR_MATERIAL, 0 },
+	{ "Radeon",   NULL, NULL, PFT_LIGHTING | PFT_COLOR_MAT, 0 },
+	{ "RADEON",   NULL, NULL, PFT_LIGHTING | PFT_COLOR_MAT, 0 },
 
 //	{ "R200",     NULL, "Mesa 6.4", PFT_VERTEX_ARRAY, 0 },
 //	{ "R200",     NULL, "Mesa 6.5", PFT_VERTEX_ARRAY, 0 },
 //	{ "Intel",    NULL, "Mesa 6.5", PFT_VERTEX_ARRAY, 0 },
 
-	{ "TNT2",     NULL, NULL, PFT_COLOR_MATERIAL, 0 },
+	{ "TNT2",     NULL, NULL, PFT_COLOR_MAT, 0 },
 
-	{ "Velocity", NULL, NULL, PFT_COLOR_MATERIAL | PFT_SKY, 0 },
-	{ "Voodoo3",  NULL, NULL, PFT_SKY, 0 },
+	{ "Velocity", NULL, NULL, PFT_COLOR_MAT | PFT_SKY, 0 },
+	{ "Voodoo3",  NULL, NULL, PFT_SKY | PFT_MULTI_TEX, 0 },
 };
 
 #define NUM_DRIVER_BUGS  (sizeof(driver_bugs) / sizeof(driver_bug_t))
@@ -292,13 +293,15 @@ void RGL_CheckExtensions(void)
 				bug->renderer ? bug->renderer :
 				bug->vendor   ? bug->vendor : "the Axis of Evil");
 
-		if (bug->disable & PFT_LIGHTING)       use_lighting = false;
-		if (bug->disable & PFT_COLOR_MATERIAL) use_color_material = false;
-		if (bug->disable & PFT_SKY)            dumb_sky = true;
+		if (bug->disable & PFT_LIGHTING)  use_lighting = false;
+		if (bug->disable & PFT_COLOR_MAT) use_color_material = false;
+		if (bug->disable & PFT_SKY)       dumb_sky = true;
+		if (bug->disable & PFT_MULTI_TEX) dumb_multi = true;
 
-		if (bug->enable & PFT_LIGHTING)       use_lighting = true;
-		if (bug->enable & PFT_COLOR_MATERIAL) use_color_material = true;
-		if (bug->enable & PFT_SKY)            dumb_sky = false;
+		if (bug->enable & PFT_LIGHTING)   use_lighting = true;
+		if (bug->enable & PFT_COLOR_MAT)  use_color_material = true;
+		if (bug->enable & PFT_SKY)        dumb_sky = false;
+		if (bug->enable & PFT_MULTI_TEX)  dumb_multi = false;
 	}
 }
 
@@ -330,6 +333,10 @@ void RGL_SoftInit(void)
 	glShadeModel(GL_SMOOTH);
 	glDepthFunc(GL_LEQUAL);
 	glAlphaFunc(GL_GREATER, 1.0f / 32.0f);
+
+	glFrontFace(GL_CW);
+	glCullFace(GL_BACK);
+	glDisable(GL_CULL_FACE);
 
 	glHint(GL_FOG_HINT, GL_NICEST);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
