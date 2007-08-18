@@ -433,27 +433,9 @@ void RGL_DrawUnits(void)
 
 //============================================================================
 
-extern image_c *fading_image;
-
-///---static inline void Color_Rainbow(local_gl_vert_t *v, int R, int G, int B, float alpha)
-///---{
-///---	v->rgba[0] = MIN(1.0, R * ren_red_mul / 255.0);
-///---	v->rgba[1] = MIN(1.0, G * ren_grn_mul / 255.0);
-///---	v->rgba[2] = MIN(1.0, B * ren_blu_mul / 255.0);
-///---	v->rgba[3] = alpha;
-///---}
-///---
-///---static inline void Vertex_Std(local_gl_vert_t *v, const vec3_t *src, GLboolean edge)
-///---{
-///---	v->x = src->x;
-///---	v->y = src->y;
-///---	v->z = src->z;
-///---
-///---	v->edge = edge;
-///---}
 
 static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
-		const vec3_t *lit_pos, int lit_Nom, bool bottom)
+		const vec3_t *lit_pos, int lit_Nom)
 {
 	// distance from viewplane: (point - camera) . viewvec
 
@@ -472,12 +454,15 @@ static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
 
 	v->texc[t].x = (dx + dy + dz) / 1600.0;
 
-	int lt_ay = lit_Nom / 4;
-	if (bottom) lt_ay += 64;
+	int lt_ay = MIN(63, lit_Nom / 4);
 
-	v->texc[t].y = (lt_ay + 0.5) / 128.0;
-	v->texc[t].y = CLAMP(v->texc[t].y, 0.01, 0.99);
+	v->texc[t].y = (lt_ay + 0.5) / 64.0;
 }
+
+
+extern GLuint MakeColormapTexture( bool decal_mode );
+
+static GLuint fade_tex = 0;
 
 
 static inline void Pipeline_Colormap(int& group,
@@ -489,12 +474,14 @@ static inline void Pipeline_Colormap(int& group,
 
 	local_gl_vert_t *glvert;
 
-	GLuint fade_tex = W_ImageCache(fading_image);
+	bool simple_cmap = true;
+
+	if (fade_tex == 0)
+		fade_tex = MakeColormapTexture(!simple_cmap);
 
 	/* FIXME: GL_DECAL single-pass mode */
 
-	int lit_Nom = 160; //!!!!! FIXME
-	bool simple_cmap = false;
+	int lit_Nom = 112; //!!!!! FIXME
 
 	if (true)
 	{
@@ -514,7 +501,7 @@ static inline void Pipeline_Colormap(int& group,
 			(*func)(func_data, v_idx, &dest->pos, dest->rgba,
 					&dest->texc[0], &dest->normal, &lit_pos);
 
-			TexCoord_Fader(dest, 1, &lit_pos, lit_Nom, false);
+			TexCoord_Fader(dest, 1, &lit_pos, lit_Nom);
 		}
 
 		RGL_EndUnit(num_vert);

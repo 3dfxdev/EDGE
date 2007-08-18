@@ -120,8 +120,6 @@ static bool solid_mode;
 
 static std::list<drawsub_c *> drawsubs;
 
-const image_c *fading_image = NULL;
-
 #ifdef SHADOW_PROTOTYPE
 static const image_c *shadow_image = NULL;
 #endif
@@ -1111,10 +1109,6 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	SYS_ASSERT(part->image);
 	tex_id = W_ImageCache(part->image);
 
-	// FADING MAP
-	{
-		tex2_id = W_ImageCache(fading_image);
-	}
 
 	x_offset += xy_ofs;
 
@@ -2330,14 +2324,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	tex_id = W_ImageCache(surf->image);
 
 
-	// FADING MAP
-	{
-		tex2_id = W_ImageCache(fading_image);
-	}
-
-
-
-
 	vec3_t vertices[MAX_PLVERT];
 
 	int v_count = 0;
@@ -2969,8 +2955,6 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 //
 void RGL_LoadLights(void)
 {
-	fading_image = W_ImageLookup("SHADOW_STD");
-
 #ifdef SHADOW_PROTOTYPE
 	shadow_image = W_ImageLookup("SHADOW_STD");
 #endif

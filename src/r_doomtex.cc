@@ -950,62 +950,6 @@ static void CreateUserBuiltinShadow(epi::image_data_c *img, imagedef_c *def)
 	EightWaySymmetry(img);
 }
 
-static void CreateUserBuiltinCOLMAP(epi::image_data_c *img, imagedef_c *def)
-{
-	SYS_ASSERT(img->bpp == 4);
-
-	for (int y = 0; y < img->height; y++)
-	for (int x = 0; x < img->width;  x++)
-	{
-		byte *dest = img->pixels + (y * img->width + x) * 4;
-
-		float dist = 1600.0f * x / img->width;
-
-///		dist = MIN(1599.0f, dist);
-
-		if (y < img->height/2)
-		{
-			int sec_L = 256.0f * y / img->height * 2.0;
-
-			// DOOM lighting formula
-
-			int cutoff = MAX(0, 36 - sec_L/4);
-
-			int index = (59 - sec_L/4) - int(1280 / dist);
-
-			index = MAX(cutoff, index);
-			index = MIN(31, index);
-
-			// FIXME: lookup value in COLORMAP[]
-#if 0
-			dest[0] = 0;
-			dest[1] = 0;
-			dest[2] = 0;
-			dest[3] = 0 + index * 8;
-#else
-			dest[0] = 255 - index * 8;
-			dest[1] = dest[0];
-			dest[2] = dest[0];
-			dest[3] = 255;
-#endif
-		}
-		else
-		{
-			float sec = 256.0f * (y - img->height/2) / img->height * 2.0;
-
-			// DOOM lighting formula
-			float light = EMU_LIGHT(sec, dist);
-
-			dest[2] = 0; // (int) MAX(0, MIN(255.9f, 200 - light));
-			dest[0] = 0;
-			dest[1] = 0;
-			dest[3] = 255;
-		}
-
-		dest += 4;
-	}
-}
-
 epi::file_c *OpenUserFileOrLump(imagedef_c *def)
 {
 	if (def->type == IMGDT_File)
@@ -1127,11 +1071,7 @@ static epi::image_data_c *ReadUserAsEpiBlock(image_c *rim)
 					break;
 
 				case BLTIM_Shadow:
-					CreateUserBuiltinCOLMAP(img, def);
-					break;
-
-				case 123: //!!!!! BLTIM_ColMapTest:
-					CreateUserBuiltinCOLMAP(img, def);
+					CreateUserBuiltinShadow(img, def);
 					break;
 
 				default:
