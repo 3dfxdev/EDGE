@@ -829,123 +829,6 @@ static void PlaneCoordFunc(void *d, int v_idx,
 	*lit_pos = *pos;
 }
 
-///---void WallCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
-///---{
-///---	wall_plane_data_t *data = (wall_plane_data_t *)d;
-///---
-///---	int R = data->col[0];
-///---	int G = data->col[1];
-///---	int B = data->col[2];
-///---
-///---	float x = src->x;
-///---	float y = src->y;
-///---	float z = src->z;
-///---
-///---	float tx, ty;
-///---	float along;
-///---
-///---	// compute texture coord
-///---	if (fabs(data->div.dx) > fabs(data->div.dy))
-///---	{
-///---		SYS_ASSERT(0 != data->div.dx);
-///---		along = (x - data->div.x) / data->div.dx;
-///---	}
-///---	else
-///---	{
-///---		SYS_ASSERT(0 != data->div.dy);
-///---		along = (y - data->div.y) / data->div.dy;
-///---	}
-///---
-///---	tx = data->tx + along * data->tdx;
-///---	ty = data->ty + z * data->ty_mul + along * data->ty_skew;
-///---
-///---	// FADING CALC
-///---	float tx2, ty2;
-///---	{
-///---		// distance from viewplane: (point - camera) . viewvec
-///---
-///---		float lk_sin = M_Sin(viewvertangle);
-///---		float lk_cos = M_Cos(viewvertangle);
-///---
-///---		vec3_t viewvec;
-///---
-///---		viewvec.x = lk_cos * viewcos;
-///---		viewvec.y = lk_cos * viewsin;
-///---		viewvec.z = lk_sin;
-///---
-///---		float vx = (x - viewx) * viewvec.x;
-///---		float vy = (y - viewy) * viewvec.y;
-///---		float vz = (z - viewz) * viewvec.z;
-///---
-///---		tx2 = (vx + vy + vz) / 1600.0;
-///---
-///---		int lt_ay = MIN(255,data->light) / 4;
-///---		if (data->cmx==1) lt_ay += 64;
-///---
-///---		ty2 = (lt_ay + 0.5) / 128.0;
-///---		if (ty2 < 0.01) ty2 = 0.01;
-///---		if (ty2 > 0.99) ty2 = 0.99;
-///---	}
-///---
-///---	SET_COLOR(LT_RED(R), LT_GRN(G), LT_BLU(B), data->trans);
-///---	SET_TEXCOORD(tx, ty);
-///---	SET_TEX2COORD(tx2, ty2);
-///---	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
-///---	SET_EDGE_FLAG(GL_TRUE);
-///---	SET_VERTEX(x, y, z);
-///---}
-///---
-///---
-///---void PlaneCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
-///---{
-///---	wall_plane_data_t *data = (wall_plane_data_t *)d;
-///---
-///---	float x = src->x;
-///---	float y = src->y;
-///---	float z = src->z;
-///---
-///---
-///---	int R = data->col[0];
-///---	int G = data->col[1];
-///---	int B = data->col[2];
-///---
-///---	// FADING CALC
-///---	float tx2, ty2;
-///---	{
-///---		// distance from viewplane: (point - camera) . viewvec
-///---
-///---		float lk_sin = M_Sin(viewvertangle);
-///---		float lk_cos = M_Cos(viewvertangle);
-///---
-///---		vec3_t viewvec;
-///---
-///---		viewvec.x = lk_cos * viewcos;
-///---		viewvec.y = lk_cos * viewsin;
-///---		viewvec.z = lk_sin;
-///---
-///---		float vx = (x - viewx) * viewvec.x;
-///---		float vy = (y - viewy) * viewvec.y;
-///---		float vz = (z - viewz) * viewvec.z;
-///---
-///---		tx2 = (vx + vy + vz) / 1600.0;
-///---
-///---		int lt_ay = MIN(255,data->light) / 4;
-///---		if (data->cmx==1) lt_ay += 64;
-///---
-///---		ty2 = (lt_ay + 0.5) / 128.0;
-///---
-///---		if (ty2 < 0.01) ty2 = 0.01;
-///---		if (ty2 > 0.99) ty2 = 0.99;
-///---	}
-///---
-///---	SET_COLOR(LT_RED(R), LT_GRN(G), LT_BLU(B), data->trans);
-///---	SET_TEXCOORD(tx, ty);
-///---	SET_TEX2COORD(tx2, ty2);
-///---	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
-///---	SET_EDGE_FLAG(GL_TRUE);
-///---	SET_VERTEX(x, y, z);
-///---}
-
 
 ///---void ShadowCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
 ///---{
@@ -1590,11 +1473,11 @@ RGL_DrawUnits();
 }
 
 
-#define MAX_FLOOD_ROWS  9
+#define MAX_FLOOD_VERT  16
 
 typedef struct
 {
-	vec3_t vert[MAX_FLOOD_ROWS * 2];
+	vec3_t vert[2 * (MAX_FLOOD_VERT + 1)];
 
 	float R, G, B;
 
@@ -1670,53 +1553,6 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 
 	flood_emu_data_t data;
 
-	/* determine number of pieces to subdivide the area into.
-	 * The more the better, upto a limit of 64 pieces, and
-	 * also limiting the size of the pieces.
-	 */
-
-	float tot_w = cur_seg->length;
-	float tot_h = h2 - h1;
-
-	int pieces_x = 1;
-	int pieces_y = 1;
-
-	{
-		float w = tot_w;
-		float h = tot_h;
-
-		while (pieces_x * pieces_y < 64 && ! (w <= 16 && h <= 16))
-		{
-			// give some preference for vertical divisions
-			if (h*1.5 >= w)
-			{
-				pieces_y *= 2; h /= 2.0;
-			}
-			else
-			{
-				pieces_x *= 2; w /= 2.0;
-			}
-		}
-L_WriteDebug("Subdivide: %1.0fx%1.0f --> %d,%d (each: %1.2f x %1.2f)\n",
-tot_w, tot_h, pieces_x, pieces_y, w, h);
-	}
-
-	int rows = int(1.5 + (h2 - h1) / 8.0);
-	rows = CLAMP(rows, 2, MAX_FLOOD_ROWS);
-
-	float sx = cur_seg->v1->x;
-	float sy = cur_seg->v1->y;
-	float ex = cur_seg->v2->x;
-	float ey = cur_seg->v2->y;
-
-	for (int r = 0; r < rows; r++)
-	{
-		float z = h1 + (h2-h1) * r / (float)(rows-1);
-
-		data.vert[r*2 + 0].Set(sx, sy, z);
-		data.vert[r*2 + 1].Set(ex, ey, z);
-	}
-
 	data.R = data.G = data.B = 1.0f;
 
 	data.plane_h = (face_dir > 0) ? h2 : h1;
@@ -1731,9 +1567,65 @@ tot_w, tot_h, pieces_x, pieces_y, w, h);
 
 	data.normal.Set(0, 0, face_dir);
 
-	R_RunPipeline(GL_QUAD_STRIP, rows * 2, tex_id,
-			      1.0, BL_NONE, PIPEF_NONE,
-				  &data, FloodCoordFunc);
+
+	// determine number of pieces to subdivide the area into.
+	// The more the better, upto a limit of 64 pieces, and
+	// also limiting the size of the pieces.
+
+	float piece_w = cur_seg->length;
+	float piece_h = h2 - h1;
+
+	int piece_col = 1;
+	int piece_row = 1;
+
+	while (piece_w > 16 || piece_h > 16)
+	{
+		if (piece_col * piece_row >= 64)
+			break;
+
+		if (piece_col >= MAX_FLOOD_VERT && piece_row >= MAX_FLOOD_VERT)
+			break;
+
+		if (piece_h >= piece_w && piece_row < MAX_FLOOD_VERT)
+		{
+			piece_h /= 2.0;
+			piece_row *= 2;
+		}
+		else
+		{
+			piece_w /= 2.0;
+			piece_col *= 2;
+		}
+	}
+
+	float sx = cur_seg->v1->x;
+	float sy = cur_seg->v1->y;
+
+	float dx = cur_seg->v2->x - sx;
+	float dy = cur_seg->v2->y - sy;
+	float dh = h2 - h1;
+
+	for (int row=0; row < piece_row; row++)
+	{
+		float z = h1 + dh * row / (float)piece_row;
+
+		for (int col=0; col <= piece_col; col++)
+		{
+			float x = sx + dx * col / (float)piece_col;
+			float y = sy + dy * col / (float)piece_col;
+
+			data.vert[col*2 + 0].Set(x, y, z);
+			data.vert[col*2 + 1].Set(x, y, z + dh / piece_row);
+		}
+
+#if 0  // DEBUGGING AIDE
+		data.R = (64 + 190 * (row & 1)) / 255.0;
+		data.B = (64 + 90 * (row & 2))  / 255.0;
+#endif
+		R_RunPipeline(GL_QUAD_STRIP, (piece_col+1) * 2,
+				      tex_id, 1.0, BL_NONE, PIPEF_NONE,
+					  &data, FloodCoordFunc);
+	}
 
 #if 0  // OLD WAY
 	if (num_active_mirrors > 0) return;
