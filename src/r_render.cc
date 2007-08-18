@@ -324,77 +324,6 @@ int doom_fading = 1;
 
 
 //
-// R2_AddColourDLights
-//
-// Increases the arrays of colour levels at the points (x,y,z).
-//
-void R2_AddColourDLights(int num, int *r, int *g, int *b, 
-						 float *x, float *y, float *z, mobj_t *mo)
-{
-#if 0
-	float base_qty = mo->dlight[0].r;
-	float mo_z = mo->z + mo->height * PERCENT_2_FLOAT(mo->info->dlight0.height);
-
-	rgbcol_t col = mo->info->dlight0.colour;
-
-#if 0  // TEST CODE
-	if (col == RGB_NO_VALUE)
-	{
-		bool flip;
-		const image_c *img = R2_GetThingSprite(mo, &flip);
-		col = W_ImageGetHue(img);
-	}
-#endif
-	if (col == RGB_NO_VALUE)
-		col = RGB_MAKE(255,255,255);
-
-	int R = (col >> 16) & 0xFF;
-	int G = (col >>  8) & 0xFF;
-	int B = (col      ) & 0xFF;
-
-	SYS_ASSERT(num > 0);
-	SYS_ASSERT(base_qty >= 0);
-
-	switch (mo->info->dlight0.type)
-	{
-		case DLITE_None:
-			I_Error("R2_AddColourDLights: bad dynamic light\n");
-
-		default:  //!!!!! FIXME
-			break;
-
-		case DLITE_Linear:
-			for (; num > 0; num--, r++, g++, b++, x++, y++, z++)
-			{
-				float dist = APPROX_DIST3(fabs((*x) - mo->x),
-					fabs((*y) - mo->y), fabs((*z) - mo_z));
-
-				int qty = (int)(base_qty * 32.0f / MAX(1.0f, dist));
-
-				(*r) += qty * R / 255;
-				(*g) += qty * G / 255;
-				(*b) += qty * B / 255;
-			}
-			break;
-
-		case DLITE_Quadratic:
-			for (; num > 0; num--, r++, g++, b++, x++, y++, z++)
-			{
-				float dist = APPROX_DIST3(fabs((*x) - mo->x),
-					fabs((*y) - mo->y), fabs((*z) - mo_z));
-
-				int qty = (int)(base_qty * 1024.0f / MAX(1.0f, dist * dist));
-
-				(*r) += qty * R / 255;
-				(*g) += qty * G / 255;
-				(*b) += qty * B / 255;
-			}
-			break;
-	}
-#endif
-}
-
-//
 // R2_FindDLights
 //
 static void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor)
@@ -545,13 +474,6 @@ int RGL_Light(int nominal)
 		nominal = rgl_light_map[MIN(255, nominal)];
 	}
 
-	nominal += ren_extralight;
-
-	return GAMMA_CONV(MIN(255, nominal));
-}
-
-int RGL_LightEmu(int nominal)
-{
 	nominal += ren_extralight;
 
 	return GAMMA_CONV(MIN(255, nominal));
@@ -1045,7 +967,6 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 	float trans = surf->translucency;
 	bool blended;
 
-	GLuint tex_id=0, tex2_id=0;
 
 
 	region_properties_t *props = masked_props ? masked_props :
@@ -1075,7 +996,7 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 
 	SYS_ASSERT(surf->image);
 
-	tex_id = W_ImageCache(surf->image);
+	GLuint tex_id = W_ImageCache(surf->image);
 
 
 	x_offset += xy_ofs;
@@ -2076,8 +1997,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	bool mid_masked = ! surf->image->img_solid;
 	bool blended;
 
-	GLuint tex_id=0, tex2_id=0;
-
 	int num_vert, i;
 
 
@@ -2141,7 +2060,8 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 
 	SYS_ASSERT(surf->image);
-	tex_id = W_ImageCache(surf->image);
+
+	GLuint tex_id = W_ImageCache(surf->image);
 
 
 	vec3_t vertices[MAX_PLVERT];
@@ -2441,8 +2361,10 @@ static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 	{
 		R2_FindDLights(cur_sub, dfloor);
 
+#if 0  // FIXME:
 		if (cur_sub == viewsubsector && f_h <= viewz && viewz <= c_h)
-			RGL_LightUpPlayerWeapon(players[displayplayer], dfloor);
+		    RememberDlightsForPSprites()
+#endif
 	}
 }
 
