@@ -41,14 +41,13 @@ static const commandlist_t colmap_commands[] =
 	DF("START",   start,     DDF_MainGetNumeric),
 	DF("LENGTH",  length,    DDF_MainGetNumeric),
 	DF("SPECIAL", special,   DDF_ColmapGetSpecial),
-
-	DF("GL COLOUR",   gl_colour,   DDF_MainGetRGB),
-	DF("ALT COLOUR",  alt_colour,  DDF_MainGetRGB),
-	DF("WASH COLOUR", wash_colour, DDF_MainGetRGB),
-	DF("WASH TRANSLUCENCY", wash_trans, DDF_MainGetPercent),
+	DF("GL COLOUR", gl_colour, DDF_MainGetRGB),
 
 	// -AJA- backwards compatibility cruft...
 	DF("!PRIORITY", ddf, DDF_DummyFunction),
+	DF("!ALT COLOUR",  ddf, DDF_DummyFunction),
+	DF("!WASH COLOUR", ddf, DDF_DummyFunction),
+	DF("!WASH TRANSLUCENCY", ddf, DDF_DummyFunction),
 
 	DDF_CMD_END
 };
@@ -303,11 +302,8 @@ void colourmap_c::CopyDetail(colourmap_c &src)
 	special = src.special;
 
 	gl_colour   = src.gl_colour;
-	alt_colour  = src.alt_colour;
 	font_colour = src.font_colour;
-	wash_colour = src.wash_colour;
-	wash_trans  = src.wash_trans;
-	
+
 	// FIXME!!! Cache struct to class
 	cache.data = src.cache.data;
 }
@@ -326,10 +322,7 @@ void colourmap_c::Default()
 	special = COLSP_None;
 	
 	gl_colour   = RGB_NO_VALUE;
-	alt_colour  = RGB_NO_VALUE;
 	font_colour = RGB_NO_VALUE;
-	wash_colour = RGB_NO_VALUE;
-	wash_trans  = PERCENT_MAKE(20);
 
 	// FIXME!!! Cache struct to class
 	cache.data = NULL;

@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __DDF_COLM__
-#define __DDF_COLM__
+#ifndef __DDF_COLORMAP_H__
+#define __DDF_COLORMAP_H__
 
 #include "epi/utility.h"
 
@@ -72,11 +72,9 @@ public:
 
 	// colours for GL renderer
 	rgbcol_t gl_colour;
-	rgbcol_t alt_colour;
-	rgbcol_t font_colour;  // (computed only, not in DDF)
 
-	rgbcol_t wash_colour;  // solid_box over the top (UNUSED RIGHT NOW)
-	percent_t wash_trans;  //
+
+	rgbcol_t font_colour;  // (computed only, not in DDF)
 
 	colmapcache_t cache;
 };
@@ -113,7 +111,7 @@ bool DDF_ReadColourMaps(void *data, int size);
 
 void DDF_ColourmapAddRaw(const char *lump_name, int size);
 
-#endif  /* __DDF_COLM__ */
+#endif /* __DDF_COLORMAP_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
