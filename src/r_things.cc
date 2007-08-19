@@ -954,7 +954,7 @@ static void ThingCoordFunc(void *d, int v_idx,
 void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 {
 
-//!!!!!!
+#if 0 //!!!!!!
 if (dthing->mo->extendedflags & EF_MONSTER)
 {
 	static md2_model_c *md = NULL;
@@ -972,6 +972,7 @@ if (dthing->mo->extendedflags & EF_MONSTER)
 MD2_RenderModel(md, dthing->mo, dfloor->props);
 return;
 }
+#endif
 	
 	int fuzzy = (dthing->mo->flags & MF_FUZZY);
 

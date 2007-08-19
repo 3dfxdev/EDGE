@@ -93,9 +93,13 @@ void R_InitPipeline(void);
 void R_ColmapPipe_SetProps(const struct region_properties_s *props);
 void R_ColmapPipe_AdjustLight(int adjust);
 
-// FIXME Shadow setup stuff
-
 // FIXME Glow setup stuff
+
+void R_GlowPipe_SetFloor(const struct mobj_s *glow);
+void R_GlowPipe_SetCeiling(const struct mobj_s *glow);
+void R_GlowPipe_SetWall(const struct mobj_s *glow);
+
+// FIXME Shadow setup stuff
 
 // FIXME Dlight setup stuff
 

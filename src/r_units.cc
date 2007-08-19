@@ -25,6 +25,8 @@
 #include <vector>
 #include <algorithm>
 
+#include "epi/image_data.h"
+
 #include "con_cvar.h"
 #include "m_argv.h"
 #include "r_gldefs.h"
@@ -33,6 +35,7 @@
 
 #include "r_misc.h"
 #include "r_image.h" //!!!
+#include "r_texgl.h" //!!!
 
 bool use_lighting = true;
 bool use_color_material = true;
@@ -451,7 +454,7 @@ void RGL_DrawUnits(void)
 //============================================================================
 
 
-static GLuint fade_tex = 0;
+static GLuint fade_tex[2];
 
 static const region_properties_t *cmap_props;
 
@@ -484,7 +487,7 @@ static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
 }
 
 
-extern GLuint MakeColormapTexture( bool decal_mode );
+extern GLuint MakeColormapTexture( int mode );
 
 void R_ColmapPipe_SetProps(const struct region_properties_s *props)
 {
@@ -513,16 +516,14 @@ static inline void Pipeline_Colormap(int& group,
 
 	bool simple_cmap = true;
 
-	if (fade_tex == 0)
-		fade_tex = MakeColormapTexture(!simple_cmap);
-
-	/* FIXME: GL_DECAL single-pass mode */
-
 	if (true)
 	{
+		if (fade_tex[0] == 0)
+			fade_tex[0] = MakeColormapTexture(0); // simple_cmap ? 0 : 1);
+	
 		glvert = RGL_BeginUnit(shape, num_vert, GL_MODULATE, tex,
-				(simple_cmap || dumb_multi) ? GL_MODULATE : GL_DECAL, fade_tex,
-				group, blending);
+				(simple_cmap || dumb_multi) ? GL_MODULATE : GL_DECAL,
+				fade_tex[0], group, blending);
 		group++;
 
 		for (int v_idx=0; v_idx < num_vert; v_idx++)
@@ -542,49 +543,151 @@ static inline void Pipeline_Colormap(int& group,
 		RGL_EndUnit(num_vert);
 	}
 
-///	if (false)  // additive pass (test for old cards)
-///	{
-///		blending &= ~BL_Alpha;
-///		blending |=  BL_Add;
-///
-///		glvert = RGL_BeginUnit(shape, num_vert,
-///				GL_MODULATE, tex, GL_ADD, fade_tex,
-///				group, blending);
-///		group++;
-///
-///		for (int v_idx=0; v_idx < num_vert; v_idx++)
-///		{
-///			local_gl_vert_t *dest = glvert + v_idx;
-///
-///			vec3_t lit_pos;
-///
-///			(*func)(func_data, v_idx, &dest->pos, dest->rgba,
-///					&dest->texc[0], &dest->normal, &lit_pos);
-///
-///			dest->rgba[0] = 0.0;
-///			dest->rgba[1] = 0.0;
-///			dest->rgba[2] = 0.0;
-///			dest->rgba[3] = alpha;
-///
-///			TexCoord_Fader(dest, 1, &lit_pos, lit_Nom, true);
-///		}
-///
-///		RGL_EndUnit(num_vert);
-///	}
+	// FOR OLD CARDS: additive pass (yuck!)
 
-	/* TODO: flat-shaded maps */
+	if (dumb_multi && ! simple_cmap)
+	{
+		// Ouch : for old (dumb) cards, anything with holes or 
+		//        translucent parts is going to be fucked.
+
+		if (blending & (BL_Masked | BL_Alpha | BL_Add))
+		{
+			return;
+		}
+
+		if (fade_tex[1] == 0)
+			fade_tex[1] = MakeColormapTexture(2);
+
+		blending |= BL_Add;
+
+		glvert = RGL_BeginUnit(shape, num_vert, GL_MODULATE, fade_tex[1],
+					0, 0, group, blending);
+		group++;
+
+		for (int v_idx=0; v_idx < num_vert; v_idx++)
+		{
+			local_gl_vert_t *dest = glvert + v_idx;
+
+			vec3_t lit_pos;
+
+			(*func)(func_data, v_idx, &dest->pos, dest->rgba,
+					&dest->texc[1], &dest->normal, &lit_pos);
+
+			dest->rgba[0] = 1.0;
+			dest->rgba[1] = 1.0;
+			dest->rgba[2] = 1.0;
+			dest->rgba[3] = alpha;
+
+			TexCoord_Fader(dest, 0, &lit_pos);
+		}
+
+		RGL_EndUnit(num_vert);
+	}
 }
 
-static inline void Pipeline_Glows(int& group)
+
+//------------------------------------------------------------------------
+
+static const mobj_t *glow_floor;
+
+static GLuint glow_tex[3];
+
+static float glow_h[2] = { 0, 128 };
+
+
+void R_GlowPipe_SetFloor(const struct mobj_s *glow, float h)
+{
+	glow_floor = glow;
+}
+
+void R_GlowPipe_SetCeiling(const struct mobj_s *glow)
+{
+}
+
+void R_GlowPipe_SetWall(const struct mobj_s *glow)
+{
+}
+
+static GLuint MakeGlowTexture(void) // test
+{
+	epi::image_data_c img(16, 64, 3);
+
+	for (int x=0; x < img.width;  x++)
+	for (int y=0; y < img.height; y++)
+	{
+		u8_t *pix = img.PixelAt(x, y);
+
+		float ity = pow(1.0 - y/63.0, 2.5);
+
+		pix[0] = int(255 * ity);
+		pix[1] = pix[0];
+		pix[2] = pix[1];
+	}
+
+	return R_UploadTexture(&img, NULL, UPL_Clamp | UPL_Smooth);
+}
+
+#if 0
+static inline void TexCoord_WallGlow(local_gl_vert_t *v, int t,
+		float x1, float y1, float nx, float ny)
+{
+	float dist = (v->x - x1) * nx + (v->y - y1) * ny;
+
+	v->s[t] = 0.5;
+	v->t[t] = dist / 192.0;
+}
+#endif
+
+
+static inline void Pipeline_Glows(int& group,
+	GLuint shape, int num_vert,
+	GLuint tex, float alpha, int blending, int flags,
+	void *func_data, pipeline_coord_func_t func)
 {
 	/* SECOND PASS : sector glows */
 
-//	if (flags & PIPEF_NoLight)
-//		return;
+  	if (flags & PIPEF_NoLight)
+  		return;
 
-	if (true)
+	local_gl_vert_t *glvert;
+
+	blending &= ~BL_Alpha;
+	blending |=  BL_Add;
+
+	if (true) //!!!!! FIXME glow_floor)
+	for (int p=0; p < 2; p++)
 	{
-		/* TODO: floor */
+		if (glow_tex[p] == 0)
+			glow_tex[p] = MakeGlowTexture();
+
+		glvert = RGL_BeginUnit(shape, num_vert, GL_MODULATE, tex,
+					GL_MODULATE, glow_tex[p], group, blending);
+		group++;
+
+		for (int v_idx=0; v_idx < num_vert; v_idx++)
+		{
+			local_gl_vert_t *dest = glvert + v_idx;
+
+			dest->rgba[3] = alpha;
+
+			vec3_t lit_pos;
+
+			(*func)(func_data, v_idx, &dest->pos, dest->rgba,
+					&dest->texc[0], &dest->normal, &lit_pos);
+
+			dest->rgba[0] = 1.00;
+			dest->rgba[1] = 0.66;
+			dest->rgba[2] = 0.33;
+
+			dest->texc[1].x = 0.5;
+
+			if (p == 0)
+				dest->texc[1].y = (lit_pos.z - glow_h[0]) / 64.0;
+			else
+				dest->texc[1].y = (glow_h[1] - lit_pos.z) / 64.0;
+		}
+
+		RGL_EndUnit(num_vert);
 	}
 
 	if (true)
@@ -621,12 +724,13 @@ void R_RunPipeline(GLuint shape, int num_vert,
 {
 	int group = 0;
 
-	Pipeline_Colormap(group,
-		shape, num_vert,
-		tex, alpha, blending, flags,
-		func_data, func);
+	/* TODO: flat-shaded maps : Pipeline_FlatShade */
 
-	Pipeline_Glows(group  );
+	Pipeline_Colormap(group, shape, num_vert,
+		tex, alpha, blending, flags, func_data, func);
+
+	Pipeline_Glows(group, shape, num_vert,
+		tex, alpha, blending, flags, func_data, func);
 
 	Pipeline_Shadow(group  );
 

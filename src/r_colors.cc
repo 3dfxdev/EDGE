@@ -93,7 +93,7 @@ static int V_FindPureColour(int which);
 class colmap_analysis_c
 {
 public:
-	// the DDF entry that this analysis is based on.
+	// the DDF entry which we have analysed
 	colourmap_c *def;
 
 public:
@@ -487,7 +487,7 @@ static int AnalyseColourmap(const byte *table, int alpha,
 }
 
 
-GLuint MakeColormapTexture( bool decal_mode )
+GLuint MakeColormapTexture( int mode )
 {
 	epi::image_data_c *img = new epi::image_data_c(256, 64, 4);
 
@@ -507,16 +507,26 @@ GLuint MakeColormapTexture( bool decal_mode )
 			index = CLAMP(index, min_L, 31);
 
 			// FIXME: lookup value in COLORMAP[]
-			if (decal_mode)
+			if (false) //!!!! (mode == 1)
 			{
+				// GL_DECAL mode
 				dest[0] = 0;
 				dest[1] = 0;
 				dest[2] = 0;
 				dest[3] = 0 + index * 8;
 			}
-			else
+			else if (mode == 0)
 			{
+				// GL_MODULATE mode
 				dest[0] = 255 - index * 8;
+				dest[1] = dest[0];
+				dest[2] = dest[0];
+				dest[3] = 255;
+			}
+			else if (mode == 2)
+			{
+				// additive pass (OLD CARDS)
+				dest[0] = index * 8 * 128/256;
 				dest[1] = dest[0];
 				dest[2] = dest[0];
 				dest[3] = 255;
