@@ -6,6 +6,29 @@ For OpenGL extension handling I will use the GLEW library.
 
 Added new DLIGHT_COLOUR() action for THINGS.DDF.
 
+Implemented LIT(###) field for STATES in DDF.  This can be
+placed where NORMAL and BRIGHT keywords are in state frames,
+and the number ranges from 0 to 255.  "NORMAL" is equivalent
+to LIT(0) whereas "BRIGHT" is equivalent to LIT(255).  This
+is mainly useful for the following feature...
+
+Added new GLOW_TYPE command for THINGS.DDF.  This can take
+three keywords: FLOOR, CEILING and WALL.  When this thing is
+in a sector, it adds light to the nearest floor, ceiling or
+wall in that sector.  When the thing is a dynamic light, it
+creates a "glow" effect on that surface from the dynamic light
+(differently to normal).  For non-dlight things, it just makes
+the surface brighter (as if sector's level was higher).
+
+Both effects can be controlled using either DLIGHT_SET/FADE
+actions and/or the LIT(##) field.  The difference is that
+DLIGHT_SET controls how big an area the light covers, but the
+centre will remain 100% bright, whereas LIT(##) can make the
+whole area (including the centre) dimmer.
+
+NB: only the parsing for GLOW_TYPE is done.  Work now begins
+on implementing it....
+
 2007/08/18:
 
 New method for emulating flat flooding: Now we draw the wall
