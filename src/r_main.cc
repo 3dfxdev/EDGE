@@ -349,8 +349,16 @@ void RGL_Init(void)
 {
 	I_Printf("OpenGL: Initialising...\n");
 
+	GLenum err = glewInit();
+
+	if (err != GLEW_OK)
+		I_Error("Unable to initialise GLEW: %s\n",
+			glewGetErrorString(err));
+
 	RGL_SoftInit();
 	RGL_CheckExtensions();
+
+	I_Printf("OpenGL: GLEW version: %s\n", glewGetString(GLEW_VERSION));
 
 	// read implementation limits
         {
