@@ -642,7 +642,7 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo, region_properties_t *props)
 
 	data.z_scale = 1.0f;
 
-	R_ColmapPipe_AdjustLight(mo->bright ? 255 : 0);
+	R_ColmapPipe_AdjustLight(mo->bright);
 
 	/* draw the model */
 	for (int i = 0; i < md->num_strips; i++)
