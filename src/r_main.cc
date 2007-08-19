@@ -358,6 +358,11 @@ void RGL_Init(void)
 	RGL_SoftInit();
 	RGL_CheckExtensions();
 
+	if (GLEW_VERSION_1_3 || GLEW_ARB_multitexture)
+	{ /* OK */ }
+	else
+		I_Error("OpenGL driver does not support Multitexturing.");
+
 	I_Printf("OpenGL: GLEW version: %s\n", glewGetString(GLEW_VERSION));
 
 	// read implementation limits

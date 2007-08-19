@@ -166,6 +166,23 @@ void RGL_FinishUnits(void)
 	RGL_DrawUnits();
 }
 
+
+static inline void myActiveTexture(GLuint id)
+{
+	if (GLEW_VERSION_1_3)
+		glActiveTexture(id);
+	else /* GLEW_ARB_multitexture */
+		glActiveTextureARB(id);
+}
+
+static inline void myMultiTexCoord2f(GLuint id, GLfloat s, GLfloat t)
+{
+	if (GLEW_VERSION_1_3)
+		glMultiTexCoord2f(id, s, t);
+	else /* GLEW_ARB_multitexture */
+		glMultiTexCoord2fARB(id, s, t);
+}
+
 //
 // RGL_BeginUnit
 //
@@ -261,8 +278,8 @@ static inline void RGL_SendRawVector(const local_gl_vert_t *V)
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, V->rgba);
 	}
 
-	glMultiTexCoord2f(GL_TEXTURE0, V->texc[0].x, V->texc[0].y);
-	glMultiTexCoord2f(GL_TEXTURE1, V->texc[1].x, V->texc[1].y);
+	myMultiTexCoord2f(GL_TEXTURE0, V->texc[0].x, V->texc[0].y);
+	myMultiTexCoord2f(GL_TEXTURE1, V->texc[1].x, V->texc[1].y);
 
 	glNormal3f(V->normal.x, V->normal.y, V->normal.z);
 	glEdgeFlag(V->edge);
@@ -362,7 +379,7 @@ void RGL_DrawUnits(void)
 
 		for (int t=1; t >= 0; t--)
 		{
-			glActiveTexture(GL_TEXTURE0 + t);
+			myActiveTexture(GL_TEXTURE0 + t);
 
 			if (active_tex[t] != unit->tex[t])
 			{
@@ -417,7 +434,7 @@ void RGL_DrawUnits(void)
 
 	for (int t=1; t >=0; t--)
 	{
-		glActiveTexture(GL_TEXTURE0 + t);
+		myActiveTexture(GL_TEXTURE0 + t);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		glDisable(GL_TEXTURE_2D);
 	}
