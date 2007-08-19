@@ -241,7 +241,7 @@ static void DDF_MainAddDefine(char *name, char *value)
 {
 	for (int i = 0; i < (int)defines.size(); i++)
 	{
-		if (strcmp(defines[i].name, name) == 0)
+		if (stricmp(defines[i].name, name) == 0)
 		{
 			DDF_Error("Redefinition of '%s'\n", name);
 			return;
@@ -255,10 +255,9 @@ static const char *DDF_MainGetDefine(const char *name)
 {
 	for (int i = 0; i < (int)defines.size(); i++)
 	{
-		if (strcmp(defines[i].name, name) == 0)
+		if (stricmp(defines[i].name, name) == 0)
 			return defines[i].value;
 	}
-
 	return name; // un-defined.
 }
 
@@ -829,7 +828,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 					DDF_WarnError2(0x128, "Command %s used outside of any entry\n",
 									current_cmd.GetString());
 				else
-				{  
+				{ 
 					(* readinfo->parse_field)(current_cmd.GetString(), 
 											  DDF_MainGetDefine(buffer), current_index, false);
 					current_index++;
