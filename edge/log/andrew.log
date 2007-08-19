@@ -4,6 +4,8 @@ Andrew Apted's Log
 
 For OpenGL extension handling I will use the GLEW library.
 
+Added new DLIGHT_COLOUR() action for THINGS.DDF.
+
 2007/08/18:
 
 New method for emulating flat flooding: Now we draw the wall
@@ -170,7 +172,7 @@ everything this way, however, too much stuff would break.
 
 Began reworking dynamic lights.  The "TYPE" field will have
 two main values: "MODULATE" or "ADD".  There is a new field
-called "SHAPE" which is the IMAGES.DDF reference, with the
+called "GRAPHIC" which is the IMAGES.DDF reference, with the
 standard pattern built-in.  Perhaps the best feature of all
 will be: support for TWO dynamic lights per thing!
 
