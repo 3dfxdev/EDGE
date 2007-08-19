@@ -29,18 +29,26 @@ typedef int statenum_t;
 #define S_NULL    0   // state
 #define SPR_NULL  0   // sprite
 
+typedef enum
+{
+	SFF_Model = (1 << 0),
+}
+state_frame_flag_e;
+
 // State Struct
 typedef struct state_s
 {
 	// sprite ref
-	int sprite;
+	short sprite;
 
-    // frame ref
+    // frame ref (begins at 0)
 	short frame;
  
-	// brightness
+	// brightness (0 to 255)
 	short bright;
  
+	short flags;
+
 	// duration in tics
 	int tics;
 
