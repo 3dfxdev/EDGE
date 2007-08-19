@@ -2249,7 +2249,7 @@ void dlight_info_c::Default()
 {
 	type   = DLITE_None;
 	radius = 32;
-	colour = RGB_NO_VALUE;
+	colour = RGB_MAKE(255, 255, 255);
 	height = PERCENT_MAKE(50);
 
 	shape.Set("DLIGHTNORMAL");
@@ -2259,63 +2259,6 @@ void dlight_info_c::Default()
 // dlight_info_c assignment operator
 //
 dlight_info_c& dlight_info_c::operator=(dlight_info_c &rhs)
-{
-	if (&rhs != this)
-		Copy(rhs);
-
-	return *this;
-}
-
-// ---> haloinfo class
-
-//
-// haloinfo_c() constructor
-//
-haloinfo_c::haloinfo_c()
-{
-	Default();
-}
-
-//
-// haloinfo_c Copy constructor
-//
-haloinfo_c::haloinfo_c(haloinfo_c &rhs)
-{
-	Copy(rhs);
-}
-
-//
-// haloinfo_c::Copy()
-//
-void haloinfo_c::Copy(haloinfo_c &src)
-{
-	height = src.height;
-	size = src.size;
-	minsize = src.minsize;
-	maxsize = src.maxsize;
-	translucency = src.translucency;
-	colour = src.colour;					// (RGB 8:8:8)
-	graphic = src.graphic;
-}
-
-//
-// haloinfo_c::Default()
-// 
-void haloinfo_c::Default(void)
-{
-	height = -1.0f;
-	size = 32.0f;
-	minsize = -1.0f;
-	maxsize = -1.0f;
-	translucency = PERCENT_MAKE(50);
-	colour = 0xFFFFFF;					// (RGB 8:8:8)
-	graphic.Clear();
-}
-
-//
-// haloinfo_c& assignment operator
-//
-haloinfo_c& haloinfo_c::operator=(haloinfo_c &rhs)
 {
 	if (&rhs != this)
 		Copy(rhs);
