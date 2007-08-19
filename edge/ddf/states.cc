@@ -28,8 +28,10 @@ static const state_t template_state =
 {
 	0,          // sprite ref
 	0,          // frame ref
-	0,          // brightness
+	0,          // bright
+	0,          // flags
 	-1,         // tics
+
 	NULL,       // label
 	NULL,       // routine
 	NULL,       // parameter
@@ -360,17 +362,22 @@ void DDF_StateReadState(const char *info, const char *label,
 	//--------------SPRITE INDEX HANDLING---------------
 	//--------------------------------------------------
 
+	cur->flags = 0;
+
 	// look at the first character
 	j = stateinfo[1][0];
 
-	if (isdigit(j))
+	if ('A' <= j && j <= ']')
 	{
-		cur->frame = atol(stateinfo[1]) - 1;
-		if (cur->frame < 0)
-			DDF_Error("DDF_MainLoadStates: Illegal frame number: %s\n", stateinfo[1]);
-	}
-	else if ('A' <= j && j <= ']')
 		cur->frame = j - (int)'A';
+	}
+	else if (j == '@')
+	{
+		cur->flags = SFF_Model;
+		cur->frame = atol(stateinfo[1]+1) - 1;
+		if (cur->frame < 0)
+			DDF_Error("DDF_MainLoadStates: Illegal model frame: %s\n", stateinfo[1]);
+	}
 	else
 		DDF_Error("DDF_MainLoadStates: Illegal sprite frame: %s\n", stateinfo[1]);
 
@@ -386,9 +393,16 @@ void DDF_StateReadState(const char *info, const char *label,
 	//------------STATE BRIGHTNESS LEVEL----------------
 	//--------------------------------------------------
 
-	if (!strcmp("BRIGHT", stateinfo[3]))
-		cur->bright = 1;
-	else if (strcmp("NORMAL", stateinfo[3]))
+	if (strcmp("NORMAL", stateinfo[3]) == 0)
+		cur->bright = 0;
+	else if (strcmp("BRIGHT", stateinfo[3]) == 0)
+		cur->bright = 255;
+	else if (strncmp("LIT(", stateinfo[3],4) == 0 &&
+			 stateinfo[3][strlen(stateinfo[3])-1] == ')')
+	{
+		cur->bright = atol(stateinfo[3]+1);
+	}
+	else
 		DDF_WarnError2(0x128, "DDF_MainLoadStates: Lighting is not BRIGHT or NORMAL\n");
 
 	//--------------------------------------------------
@@ -538,17 +552,15 @@ void DDF_StateGetSound(const char *arg, state_t * cur_state)
 //
 void DDF_StateGetInteger(const char *arg, state_t * cur_state)
 {
-	int *value;
-
 	if (!arg || !arg[0])
 		return;
 
-	value = new int;
+	int *val_ptr = new int;
 
-	if (sscanf(arg, " %i ", value) != 1)
+	if (sscanf(arg, " %i ", val_ptr) != 1)
 		DDF_Error("DDF_StateGetInteger: bad value: %s\n", arg);
 
-	cur_state->action_par = value;
+	cur_state->action_par = val_ptr;
 }
 
 //
@@ -576,17 +588,15 @@ void DDF_StateGetIntPair(const char *arg, state_t * cur_state)
 //
 void DDF_StateGetFloat(const char *arg, state_t * cur_state)
 {
-	float *value;
-
 	if (!arg || !arg[0])
 		return;
 
-	value = new float;
+	float *val_ptr = new float;
 
-	if (sscanf(arg, " %f ", value) != 1)
+	if (sscanf(arg, " %f ", val_ptr) != 1)
 		DDF_Error("DDF_StateGetFloat: bad value: %s\n", arg);
 
-	cur_state->action_par = value;
+	cur_state->action_par = val_ptr;
 }
 
 //
@@ -594,19 +604,17 @@ void DDF_StateGetFloat(const char *arg, state_t * cur_state)
 //
 void DDF_StateGetPercent(const char *arg, state_t * cur_state)
 {
-	percent_t *value;
-
 	if (!arg || !arg[0])
 		return;
 
-	value = new percent_t;
+	percent_t *val_ptr = new percent_t;
 
-	if (sscanf(arg, " %f%% ", value) != 1 || (*value) < 0)
+	if (sscanf(arg, " %f%% ", val_ptr) != 1 || (*val_ptr) < 0)
 		DDF_Error("DDF_StateGetPercent: Bad percentage: %s\n", arg);
 
-	(* value) /= 100.0f;
+	(* val_ptr) /= 100.0f;
 
-	cur_state->action_par = value;
+	cur_state->action_par = val_ptr;
 }
 
 //
