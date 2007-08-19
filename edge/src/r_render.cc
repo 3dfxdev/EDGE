@@ -127,26 +127,6 @@ static const image_c *shadow_image = NULL;
 
 static GLuint glow_tex = 0;
 
-static void MakeGlowTexture(void)
-{
-	epi::image_data_c *img = new epi::image_data_c(16, 64, 3);
-
-	for (int x=0; x < img->width;  x++)
-	for (int y=0; y < img->height; y++)
-	{
-		u8_t *pix = img->PixelAt(x, y);
-
-		float ity = pow(1.0 - y/63.0, 2.5);
-
-		pix[0] = int(255 * ity);
-		pix[1] = pix[0];
-		pix[2] = pix[1];
-	}
-
-	glow_tex = R_UploadTexture(img, NULL, UPL_Clamp | UPL_Smooth);
-
-	delete img;
-}
 
 
 
