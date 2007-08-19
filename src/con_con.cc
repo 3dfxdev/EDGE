@@ -580,10 +580,10 @@ void CON_Drawer(void)
 	
 	if (conwipeactive)
 	{
-		wiping_y = (CON_GFX_HT-4) * (CON_WIPE_TICS - conwipepos) / CON_WIPE_TICS;
+		wiping_y = SCREENHEIGHT - (CON_GFX_HT-4) * (conwipepos) / CON_WIPE_TICS;
 	}
 
-	console_style->DrawBackground(0, 0, SCREENWIDTH, CON_GFX_HT - wiping_y, 1);
+	console_style->DrawBackground(0, wiping_y, SCREENWIDTH, SCREENHEIGHT - wiping_y, 1);
 
 	if (bottomrow == -1)
 		bottom = numvislines;
