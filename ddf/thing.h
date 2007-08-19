@@ -630,6 +630,7 @@ typedef enum
 	GLOW_Floor   = 1,
 	GLOW_Ceiling = 2,
 	GLOW_Wall    = 3,
+///---	GLOW_Sector  = 4,
 }
 glow_sector_type_e;
 

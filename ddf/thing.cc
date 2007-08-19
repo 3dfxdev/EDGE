@@ -577,6 +577,13 @@ static void ThingFinishEntry(void)
 			buffer_mobj.choke_damage.nominal);
 	}
 
+///---	if (buffer_mobj.dlight0.type != DLITE_None &&
+///---		buffer_mobj.glow_type == GLOW_Sector)
+///---	{
+///---		DDF_Warning("Cannot use 'SECTOR' GLOW_TYPE with Dynamic lights.\n");
+///---		buffer_mobj.glow_type = GLOW_None;
+///---	}
+
 	// FIXME: check more stuff
 
 	if (!buffer_mobj.idle_state && buffer_mobj.spawn_state)
@@ -1404,11 +1411,12 @@ void DDF_MobjGetPlayer(const char *info, void *storage)
 }
 
 
-static const specflags_t glow_sector_names[] =
+static const specflags_t glow_type_names[] =
 {
 	{"FLOOR",   GLOW_Floor,   1},
 	{"CEILING", GLOW_Ceiling, 2},
 	{"WALL",    GLOW_Wall,    3},
+///---	{"SECTOR",  GLOW_Sector,  3},
 
 	{NULL, 0, 0}
 };
@@ -1416,7 +1424,7 @@ static const specflags_t glow_sector_names[] =
 static void DDF_MobjGetGlowType(const char *info, void *storage)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info,
-		glow_sector_names, (int *) storage, false, false))
+		glow_type_names, (int *) storage, false, false))
 	{
 		DDF_WarnError("DDF_MobjGetGlowType: Unknown glow type: %s\n", info);
 	}
