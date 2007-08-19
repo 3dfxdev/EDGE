@@ -138,6 +138,7 @@ void P_ActDLightSet(struct mobj_s *mo);
 void P_ActDLightSet2(struct mobj_s *mo);
 void P_ActDLightFade(struct mobj_s *mo);
 void P_ActDLightRandom(struct mobj_s *mo);
+void P_ActDLightColour(struct mobj_s *mo);
 void P_ActDie(struct mobj_s *mo);
 void P_ActKeenDie(struct mobj_s *mo);
 

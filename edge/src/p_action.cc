@@ -642,6 +642,19 @@ void P_ActDLightRandom(mobj_t * mo)
 	}
 }
 
+void P_ActDLightColour(struct mobj_s *mo)
+{
+	const state_t *st = mo->state;
+
+	if (st && st->action_par)
+	{
+		mo->dlight[0].color = ((rgbcol_t*) st->action_par)[0];
+
+		if (mo->info->dlight0.colour == mo->info->dlight1.colour)
+			mo->dlight[1].color = mo->dlight[0].color;
+	}
+}
+
 
 //-------------------------------------------------------------------
 //------------------- MOVEMENT ROUTINES -----------------------------

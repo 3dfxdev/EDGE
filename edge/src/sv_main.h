@@ -86,6 +86,7 @@ savefieldtype_t;
 #define SVT_ANGLE          SVT_INT
 #define SVT_BOOLEAN        SVT_INT
 #define SVT_ENUM           SVT_INT
+#define SVT_RGBCOL         SVT_INT
 #define SVT_PERCENT        SVT_FLOAT
 
 
@@ -211,6 +212,7 @@ bool SR_GetFloatFromInt(void *storage, int index, void *extra);
 bool SR_GetAngleFromSlope(void *storage, int index, void *extra);
 
 #define SR_GetEnum     SR_GetInt
+#define SR_GetRGB      SR_GetInt
 #define SR_GetPercent  SR_GetFloat
 
 
@@ -232,6 +234,7 @@ void SR_PutVec3(void *storage, int index, void *extra);
 void SR_PutAngleToSlope(void *storage, int index, void *extra);
 
 #define SR_PutEnum     SR_PutInt
+#define SR_PutRGB      SR_PutInt
 #define SR_PutPercent  SR_PutFloat
 
 
