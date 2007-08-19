@@ -739,6 +739,16 @@ void DDF_StateGetSlope(const char *arg, state_t * cur_state)
 	cur_state->action_par = value;
 }
 
+void DDF_StateGetRGB(const char *arg, state_t * cur_state)
+{
+	if (!arg || !arg[0])
+		return;
+
+	cur_state->action_par = new rgbcol_t;
+
+	DDF_MainGetRGB(arg, cur_state->action_par);
+}
+
 bool DDF_CheckSprites(int st_low, int st_high)
 {
 	if (st_low == S_NULL)
