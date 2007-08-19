@@ -250,7 +250,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	RGL_StartUnits(false);
 
 	R_ColmapPipe_SetProps(props);
-	R_ColmapPipe_AdjustLight(state->bright ? 255 : 0);
+	R_ColmapPipe_AdjustLight(state->bright);
 
 	R_RunPipeline(GL_POLYGON, 4, tex_id,
 			      trans, blending, PIPEF_NONE,
@@ -1105,7 +1105,7 @@ return;
 
 	data.normal.Set(-viewcos, -viewsin, 0);
 
-	R_ColmapPipe_AdjustLight(dthing->mo->bright ? 255 : 0);
+	R_ColmapPipe_AdjustLight(dthing->mo->bright);
 
 	R_RunPipeline(GL_POLYGON, 4, tex_id,
 			      trans, blending, PIPEF_NONE,
