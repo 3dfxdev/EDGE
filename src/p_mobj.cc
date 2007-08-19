@@ -1819,6 +1819,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 		if (info->type != DLITE_None)
 		{
 			mobj->dlight[DL].r = mobj->dlight[DL].target = info->radius;
+			mobj->dlight[DL].color = info->colour;
 			mobj->dlight[DL].image = W_ImageLookup(info->shape, INS_Graphic, ILF_Null);
 		}
 	}

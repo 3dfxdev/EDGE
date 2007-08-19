@@ -185,6 +185,7 @@ typedef struct dlight_state_s
 {
 	float r;  // radius
 	float target;  // target radius
+	rgbcol_t color;
 	const image_c *image;
 }
 dlight_state_t;

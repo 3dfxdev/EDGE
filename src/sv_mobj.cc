@@ -126,6 +126,7 @@ static savefield_t sv_fields_mobj[] =
 	SF(dlight[1].r, "dlight_qty2", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(dlight[0].target, "dlight_target", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(dlight[1].target, "dlight_target2", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
+	SF(dlight[0].color, "dlight_color", 1, SVT_RGBCOL, SR_GetRGB, SR_PutRGB),
 	SF(shot_count, "shot_count", 1, SVT_INT, SR_GetInt, SR_PutInt),
 
 	// NOT HERE:
@@ -381,6 +382,11 @@ void SV_MobjFinaliseElems(void)
 			if (info->type != DLITE_None)
 				mo->dlight[DL].image = W_ImageLookup(info->shape, INS_Graphic, ILF_Null);
 		}
+
+		if (mo->info->dlight0.colour == mo->info->dlight1.colour)
+			mo->dlight[1].color = mo->dlight[0].color;
+		else
+			mo->dlight[1].color = mo->info->dlight1.colour;
 
 		// sanity checks
 	}
