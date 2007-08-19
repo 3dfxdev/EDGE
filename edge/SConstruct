@@ -128,6 +128,16 @@ if build_info['platform'] == 'win32':
 else:
     env.Append(LIBS = ['GL'])
 
+# GLEW (GL Extension Wrangler) library
+if build_info['platform'] == 'win32':
+    env.Append(CPPPATH = ['#win32_lib/glew-1.4/include'])
+    env.Append(LIBPATH = ['#win32_lib/glew-1.4/lib'])
+    env.Append(LIBS = ['GLEW'])
+else:
+    env.Append(CPPPATH = ['#linux_lib/glew-1.4/include'])
+    env.Append(LIBPATH = ['#linux_lib/glew-1.4/lib'])
+    env.Append(LIBS = ['GLEW'])
+
 # Ogg/Vorbis
 env.Append(CCFLAGS = ['-DUSE_OGG'])
 env.Append(LIBS = ['vorbisfile', 'vorbis', 'ogg'])

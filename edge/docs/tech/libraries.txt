@@ -27,6 +27,7 @@ OpenAL  : 3D Sound library
 
 OGG + Vorbis + VorbisFile : Compressed sound and music
 
+GLEW    : OpenGL Extension Wrangler library
 FLTK    : Fast Light ToolKit, for error dialogs  [Linux only]
 
 LibPNG  : PNG image handling (Portable Network Graphics)
@@ -48,6 +49,7 @@ http://www.opengl.org/
 http://www.openal.org/
 http://www.vorbis.com/
 
+http://glew.sourceforge.net/
 http://www.fltk.org/
 http://www.oberhumer.com/opensource/lzo
 

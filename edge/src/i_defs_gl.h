@@ -27,16 +27,19 @@
 #define __SYSTEM_SPECIFIC_DEFS_OPENGL__
 
 #ifdef LINUX
+#include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glext.h>
 #endif
 
 #ifdef WIN32
+#include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glext.h>
 #endif
 
 #ifdef MACOSX
+#include <GL/glew.h>
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>
 #endif
