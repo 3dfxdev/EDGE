@@ -91,10 +91,9 @@ const commandlist_t thing_commands[] =
 	// sub-commands
 	DDF_SUB_LIST("HALO",   halo,   halo_commands,   buffer_halo),
 	DDF_SUB_LIST("DLIGHT",  dlight0, dlight_commands, buffer_dlight),
+	DDF_SUB_LIST("DLIGHT2", dlight1, dlight_commands, buffer_dlight),
 	DDF_SUB_LIST("EXPLODE DAMAGE", explode_damage, damage_commands, buffer_damage),
 	DDF_SUB_LIST("CHOKE DAMAGE", choke_damage, damage_commands, buffer_damage),
-
-//????	DDF_SUB_LIST("DLIGHT2", dlight1, dlight_commands, buffer_dlight),
 
 	DF("SPAWNHEALTH", spawnhealth, DDF_MainGetFloat),
 	DF("RADIUS", radius, DDF_MainGetFloat),
@@ -269,7 +268,6 @@ static const actioncode_t thing_actions[] =
 	{"TRANS LESS",        P_ActTransLess, DDF_StateGetPercent},
 	{"TRANS ALTERNATE",   P_ActTransAlternate, DDF_StateGetPercent},
 	{"DLIGHT SET",        P_ActDLightSet,  DDF_StateGetInteger},
-//????	{"DLIGHT SET2",       P_ActDLightSet2, DDF_StateGetIntPair},
 	{"DLIGHT FADE",       P_ActDLightFade, DDF_StateGetInteger},
 	{"DLIGHT RANDOM",     P_ActDLightRandom, DDF_StateGetIntPair},
 	{"DLIGHT COLOUR",     P_ActDLightColour, DDF_StateGetRGB},
