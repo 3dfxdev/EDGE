@@ -46,28 +46,13 @@ mobjtype_container_c mobjtypes;
 void DDF_MobjGetBenefit(const char *info, void *storage);
 void DDF_MobjGetPickupEffect(const char *info, void *storage);
 void DDF_MobjGetDLight(const char *info, void *storage);
+static void DDF_MobjGetGlowType(const char *info, void *storage);
 static void DDF_MobjGetYAlign(const char *info, void *storage);
 
 static void AddPickupEffect(pickup_effect_c **list, pickup_effect_c *cur);
 
 static dlight_info_c buffer_dlight;
-static haloinfo_c buffer_halo;
 
-#undef  DDF_CMD_BASE
-#define DDF_CMD_BASE  buffer_halo
-
-const commandlist_t halo_commands[] =
-{
-	DF("HEIGHT", height, DDF_MainGetFloat),
-	DF("SIZE", size,     DDF_MainGetFloat),
-	DF("MINSIZE", minsize, DDF_MainGetFloat),
-	DF("MAXSIZE", maxsize, DDF_MainGetFloat),
-	DF("TRANSLUCENCY", translucency, DDF_MainGetPercent),
-	DF("COLOUR",  colour,  DDF_MainGetRGB),
-	DF("GRAPHIC", graphic, DDF_MainGetInlineStr10),
-
-	DDF_CMD_END
-};
 
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  buffer_dlight
@@ -89,7 +74,6 @@ const commandlist_t dlight_commands[] =
 const commandlist_t thing_commands[] =
 {
 	// sub-commands
-	DDF_SUB_LIST("HALO",   halo,   halo_commands,   buffer_halo),
 	DDF_SUB_LIST("DLIGHT",  dlight0, dlight_commands, buffer_dlight),
 	DDF_SUB_LIST("DLIGHT2", dlight1, dlight_commands, buffer_dlight),
 	DDF_SUB_LIST("EXPLODE DAMAGE", explode_damage, damage_commands, buffer_damage),
@@ -171,6 +155,7 @@ const commandlist_t thing_commands[] =
 	DF("GASP START", gasp_start, DDF_MainGetTime),
 	DF("EXPLODE RADIUS", explode_radius, DDF_MainGetFloat),
 	DF("RELOAD SHOTS", reload_shots, DDF_MainGetNumeric),  // -AJA- 2004/11/15
+	DF("GLOW TYPE", glow_type, DDF_MobjGetGlowType), // -AJA- 2007/08/19
 
 	// -AJA- backwards compatibility cruft...
 	DF("!EXPLOD DAMAGE", explode_damage.nominal, DDF_MainGetFloat),
@@ -555,15 +540,6 @@ static void ThingFinishEntry(void)
 	{
 		DDF_WarnError2(0x128, "Bad MASS value %f in DDF.\n", buffer_mobj.mass);
 		buffer_mobj.mass = 1;
-	}
-
-	if (buffer_mobj.halo.height >= 0)
-	{
-		if (buffer_mobj.halo.minsize < 0)
-			buffer_mobj.halo.minsize = buffer_mobj.halo.size / 2;
-
-		if (buffer_mobj.halo.maxsize < 0)
-			buffer_mobj.halo.maxsize = buffer_mobj.halo.size * 2;
 	}
 
 	// check CAST stuff
@@ -1428,6 +1404,25 @@ void DDF_MobjGetPlayer(const char *info, void *storage)
 }
 
 
+static const specflags_t glow_sector_names[] =
+{
+	{"FLOOR",   GLOW_Floor,   1},
+	{"CEILING", GLOW_Ceiling, 2},
+	{"WALL",    GLOW_Wall,    3},
+
+	{NULL, 0, 0}
+};
+
+static void DDF_MobjGetGlowType(const char *info, void *storage)
+{
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info,
+		glow_sector_names, (int *) storage, false, false))
+	{
+		DDF_WarnError("DDF_MobjGetGlowType: Unknown glow type: %s\n", info);
+	}
+}
+
+
 static const specflags_t sprite_yalign_names[] =
 {
 	{"BOTTOM", SPYA_BottomUp, 0},
@@ -1759,6 +1754,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	sight_angle = src.sight_angle; 
 	ride_friction = src.ride_friction; 
 	shadow_trans = src.shadow_trans; 
+	glow_type = src.glow_type; 
 
 	seesound = src.seesound; 
 	attacksound = src.attacksound; 
@@ -1790,9 +1786,6 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	closecombat = src.closecombat; 
 	rangeattack = src.rangeattack; 
 	spareattack = src.spareattack; 
-
-	// halo info (Handled in constructor)
-	halo = src.halo;
 
 	// dynamic light info
 	dlight0 = src.dlight0;
@@ -1881,6 +1874,7 @@ void mobjtype_c::Default()
 	sight_angle = ANG90;
 	ride_friction = RIDE_FRICTION;
 	shadow_trans = PERCENT_MAKE(50);
+	glow_type = GLOW_None;
 
 	seesound = sfx_None;
 	attacksound = sfx_None;
@@ -1911,9 +1905,6 @@ void mobjtype_c::Default()
 	closecombat = NULL;
 	rangeattack = NULL;
 	spareattack = NULL;
-
-	// halo info 
-	halo.Default();
 
 	// dynamic light info
 	dlight0.Default();
