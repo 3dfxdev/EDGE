@@ -75,7 +75,7 @@ const commandlist_t halo_commands[] =
 const commandlist_t dlight_commands[] =
 {
 	DF("TYPE", type, DDF_MobjGetDLight),
-	DF("SHAPE", shape, DDF_MainGetString),
+	DF("GRAPHIC", shape, DDF_MainGetString),
 	DF("INTENSITY", radius, DDF_MainGetFloat),
 	DF("COLOUR", colour, DDF_MainGetRGB),
 	DF("HEIGHT", height, DDF_MainGetPercent),
