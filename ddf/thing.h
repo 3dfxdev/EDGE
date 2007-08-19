@@ -626,6 +626,15 @@ public:
 
 typedef enum
 {
+	GLOW_None    = 0,
+	GLOW_Floor   = 1,
+	GLOW_Ceiling = 2,
+	GLOW_Wall    = 3,
+}
+glow_sector_type_e;
+
+typedef enum
+{
 	SPYA_BottomUp = 0,
 	SPYA_Middle   = 1,
 	SPYA_TopDown  = 2,
@@ -675,27 +684,6 @@ public:
 	percent_t height;
 };
 
-// halo information (height < 0 disables halo)
-class haloinfo_c
-{
-public:
-	haloinfo_c();
-	haloinfo_c(haloinfo_c &rhs);
-	~haloinfo_c() {};
-
-private:
-	void Copy(haloinfo_c &src);
-
-public:
-	void Default(void);
-	haloinfo_c& operator=(haloinfo_c &rhs);
-
-	float height;
-	float size, minsize, maxsize;
-	percent_t translucency;
-	rgbcol_t colour;
-	lumpname_c graphic;
-};
 
 // mobjdef class
 class mobjtype_c
@@ -831,12 +819,9 @@ public:
 	const atkdef_c *rangeattack;
 	const atkdef_c *spareattack;
 
-	// -ACB- 2003/05/15 Made haloinfo structure external to mobjtype_c
-	haloinfo_c halo;
-
-	// -ACB- 2003/05/15 Made dlight_info structure external to mobjtype_c
 	dlight_info_c dlight0;
 	dlight_info_c dlight1;
+	int glow_type;
 
 	// item to drop (or NULL).  The mobjdef pointer is only valid after
 	// DDF_MobjCleanUp() has been called.
