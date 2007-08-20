@@ -271,6 +271,30 @@ struct Compare_Unit_pred
 	}
 };
 
+static void EnableCustomEnv(GLuint env, bool enable)
+{
+	switch (env)
+	{
+		case ENV_SKIP_RGB:
+			if (enable)
+			{
+				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
+				glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
+			}
+			else
+			{
+				/* no need to modify TEXTURE_ENV_MODE */
+				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+				glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE);
+			}
+			break;
+
+		default:
+			I_Error("INTERNAL ERROR: no such custom env: %08x\n", env);
+	}
+}
+
 static inline void RGL_SendRawVector(const local_gl_vert_t *V)
 {
 	if (use_color_material || ! use_lighting)
@@ -399,7 +423,18 @@ void RGL_DrawUnits(void)
 
 			if (active_env[t] != unit->env[t])
 			{
-				if (unit->env[t] != 0)
+				if (active_env[t] >= CUSTOM_ENV_BEGIN &&
+					active_env[t] <= CUSTOM_ENV_END)
+				{
+					EnableCustomEnv(active_env[t], false);
+				}
+
+				if (unit->env[t] >= CUSTOM_ENV_BEGIN &&
+					unit->env[t] <= CUSTOM_ENV_END)
+				{
+					EnableCustomEnv(unit->env[t], true);
+				}
+				else if (unit->env[t] != 0)
 					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, unit->env[t]);
 
 				active_env[t] = unit->env[t];
@@ -438,6 +473,12 @@ void RGL_DrawUnits(void)
 	for (int t=1; t >=0; t--)
 	{
 		myActiveTexture(GL_TEXTURE0 + t);
+
+		if (active_env[t] >= CUSTOM_ENV_BEGIN &&
+			active_env[t] <= CUSTOM_ENV_END)
+		{
+			EnableCustomEnv(active_env[t], false);
+		}
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		glDisable(GL_TEXTURE_2D);
 	}

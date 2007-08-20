@@ -64,6 +64,18 @@ typedef enum
 }
 blending_mode_e;
 
+#define CUSTOM_ENV_BEGIN  0xED9E0000
+#define CUSTOM_ENV_END    0xED9E00FF
+
+typedef enum
+{
+	ENV_SKIP_RGB = CUSTOM_ENV_BEGIN+1,
+	// causes the RGB of the texture to be skipped, i.e. the
+	// output of the texture unit is the same as the input.
+	// However the alpha component is treated normally, i.e.
+	// modulation of input color and texture's alpha channel.
+}
+edge_environment_e;
 
 local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert, 
 		                       GLuint env1, GLuint tex1,
