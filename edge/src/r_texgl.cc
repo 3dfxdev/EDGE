@@ -38,10 +38,10 @@
 #include "w_wad.h"
 
 
-// -AJA- FIXME !!! temporary hack, awaiting good GL extension handling
-#ifndef GL_CLAMP_TO_EDGE
-#define GL_CLAMP_TO_EDGE  0x812F
-#endif
+///--- // -AJA- FIXME !!! temporary hack, awaiting good GL extension handling
+///--- #ifndef GL_CLAMP_TO_EDGE
+///--- #define GL_CLAMP_TO_EDGE  0x812F
+///--- #endif
 
 
 #define PIXEL_RED(pix)  (what_palette[pix*3 + 0])
@@ -391,7 +391,7 @@ GLuint R_UploadTexture(epi::image_data_c *img, const byte *palette,
 	int tmode = GL_REPEAT;
 
 	if (clamp)
-		tmode = glcap_edgeclamp ? GL_CLAMP_TO_EDGE : GL_CLAMP;
+		tmode = dumb_clamp ? GL_CLAMP : GL_CLAMP_TO_EDGE;
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, tmode);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tmode);

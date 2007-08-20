@@ -32,6 +32,15 @@
 #include <vector>
 
 
+extern bool use_lighting;
+extern bool use_color_material;
+
+extern bool dumb_sky;
+extern bool dumb_multi;
+extern bool dumb_combine;
+extern bool dumb_clamp;
+
+
 //
 //  RGL_MAIN
 //
@@ -42,9 +51,6 @@ extern int glmax_lights;
 extern int glmax_clip_planes;
 extern int glmax_tex_size;
 extern int glmax_tex_units;
-
-extern bool glcap_multitex;
-extern bool glcap_edgeclamp;
 
 extern int rgl_light_map[256];
 
