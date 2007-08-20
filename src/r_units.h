@@ -28,11 +28,6 @@
 
 #define MAX_PLVERT  64
 
-extern bool use_lighting;
-extern bool use_color_material;
-extern bool dumb_sky;
-extern bool dumb_multi;
-
 // a single vertex to pass to the GL 
 typedef struct local_gl_vert_s
 {
@@ -107,13 +102,15 @@ void R_ColmapPipe_AdjustLight(int adjust);
 
 // FIXME Glow setup stuff
 
-void R_GlowPipe_SetFloor(const struct mobj_s *glow);
-void R_GlowPipe_SetCeiling(const struct mobj_s *glow);
-void R_GlowPipe_SetWall(const struct mobj_s *glow);
+void R_GlowPipe_SetFloor  (const struct mobj_s *glow, float h);
+void R_GlowPipe_SetCeiling(const struct mobj_s *glow, float h);
+void R_GlowPipe_SetWall   (const struct mobj_s *glow);
 
 // FIXME Shadow setup stuff
 
 // FIXME Dlight setup stuff
+
+void R_LightPipe_SetList(const struct drawthing_s *list);
 
 void R_RunPipeline(GLuint shape, int num_vert,
 		           GLuint tex, float alpha, int blending, int flags,

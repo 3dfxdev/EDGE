@@ -40,15 +40,16 @@
 bool use_lighting = true;
 bool use_color_material = true;
 
-bool dumb_sky   = false;
-bool dumb_multi = false;
+bool dumb_sky     = false;
+bool dumb_multi   = false;
+bool dumb_combine = false;
+bool dumb_clamp   = false;
 
-#define USE_GLXTNS  1  // REMOVE !!!
 
-// -AJA- FIXME
-#ifndef GL_CLAMP_TO_EDGE
-#define GL_CLAMP_TO_EDGE  0x812F
-#endif
+///---// -AJA- FIXME
+///---#ifndef GL_CLAMP_TO_EDGE
+///---#define GL_CLAMP_TO_EDGE  0x812F
+///---#endif
 
 
 #define MAX_L_VERT  4096
@@ -448,7 +449,7 @@ void RGL_DrawUnits(void)
 			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &old_clamp);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-				glcap_edgeclamp ? GL_CLAMP_TO_EDGE : GL_CLAMP);
+				dumb_clamp ? GL_CLAMP_TO_EDGE : GL_CLAMP);
 		}
 
 		glBegin(unit->shape);
@@ -588,11 +589,10 @@ static inline void Pipeline_Colormap(int& group,
 
 	if (dumb_multi && ! simple_cmap)
 	{
-		// Ouch : for old (dumb) cards, anything with holes or 
-		//        translucent parts is going to be fucked.
-
-		if (blending & (BL_Masked | BL_Alpha | BL_Add))
+		if (dumb_combine && (blending & (BL_Masked | BL_Alpha | BL_Add)))
 		{
+			// Ouch : for very old (dumb) cards, anything with holes or 
+			//        translucent parts is going to be fucked.
 			return;
 		}
 
@@ -695,9 +695,12 @@ static inline void Pipeline_Glows(int& group,
 	blending &= ~BL_Alpha;
 	blending |=  BL_Add;
 
-	if (true) //!!!!! FIXME glow_floor)
 	for (int p=0; p < 2; p++)
 	{
+		/// if (! glow_obj[p]) continue;
+
+		//!!!!! FIXME: check if light too far away
+
 		if (glow_tex[p] == 0)
 			glow_tex[p] = MakeGlowTexture();
 
@@ -733,16 +736,17 @@ static inline void Pipeline_Glows(int& group,
 
 	if (true)
 	{
-		/* TODO: ceiling */
-	}
-
-	if (true)
-	{
-		/* TODO: wall */
+		/* TODO: wall mode */
 	}
 }
 
-static inline void Pipeline_Shadow(int& group)
+
+//------------------------------------------------------------------------
+
+static inline void Pipeline_Shadow(int& group,
+	GLuint shape, int num_vert,
+	GLuint tex, float alpha, int blending, int flags,
+	void *func_data, pipeline_coord_func_t func)
 {
 	/* THIRD PASS : shadows */
 
@@ -750,12 +754,84 @@ static inline void Pipeline_Shadow(int& group)
 //		return;
 }
 
-static inline void Pipeline_DLights(int& group)
+
+//------------------------------------------------------------------------
+
+static const drawthing_t *dlight_list = NULL;
+
+static GLuint dlight_tex = 0;  // temp hack shit
+
+
+void R_LightPipe_SetList(const struct drawthing_s *list)
+{
+	dlight_list = list;
+}
+
+static inline void TexCoord_DLight(const mobj_t *mo,
+		const vec3_t *lit_pos,
+		GLfloat *rgb, vec2_t *texc)
+{
+	texc->x = 0.5;
+
+	float dx = mo->x - lit_pos->x;
+	float dy = mo->y - lit_pos->y;
+	float dz = mo->z - lit_pos->z;
+
+	float dist = sqrt(dx*dx + dy*dy + dz*dz);
+
+	texc->y = dist / 128.0;
+}
+
+static inline void Pipeline_DLights(int& group,
+	GLuint shape, int num_vert,
+	GLuint tex, float alpha, int blending, int flags,
+	void *func_data, pipeline_coord_func_t func)
 {
 	/* FOURTH PASS : dynamic lighting */
 
-//	if (flags & PIPEF_NoLight)
-//		return;
+	if (flags & PIPEF_NoLight)
+		return;
+
+	local_gl_vert_t *glvert;
+
+	blending &= ~BL_Alpha;
+	blending |=  BL_Add;
+
+	for (const drawthing_t *DT = dlight_list; DT; DT = DT->next)
+	{
+		const mobj_t *mo = DT->mo;
+	
+		//!!!!! FIXME: if (dist_to_light > DL->info->radius) continue;
+
+//!!!!		GLuint DL_tex = W_ImageCache(mo->dlight[0].image);
+
+		if (dlight_tex == 0)
+			dlight_tex = MakeGlowTexture();
+
+		glvert = RGL_BeginUnit(shape, num_vert, GL_MODULATE, tex,
+					GL_MODULATE, dlight_tex, group, blending);
+		group++;
+
+		for (int v_idx=0; v_idx < num_vert; v_idx++)
+		{
+			local_gl_vert_t *dest = glvert + v_idx;
+
+			dest->rgba[3] = alpha;
+
+			vec3_t lit_pos;
+
+			(*func)(func_data, v_idx, &dest->pos, dest->rgba,
+					&dest->texc[0], &dest->normal, &lit_pos);
+
+			dest->rgba[2] = 1.00;
+			dest->rgba[0] = 0.66;
+			dest->rgba[1] = 0.33;
+
+			TexCoord_DLight(mo, &lit_pos, dest->rgba, &dest->texc[1]);
+		}
+
+		RGL_EndUnit(num_vert);
+	}
 }
 
 
@@ -765,7 +841,7 @@ void R_RunPipeline(GLuint shape, int num_vert,
 {
 	int group = 0;
 
-	/* TODO: flat-shaded maps : Pipeline_FlatShade */
+	/* TODO: flat-shaded lighting : Pipeline_FlatShade */
 
 	Pipeline_Colormap(group, shape, num_vert,
 		tex, alpha, blending, flags, func_data, func);
@@ -773,9 +849,11 @@ void R_RunPipeline(GLuint shape, int num_vert,
 	Pipeline_Glows(group, shape, num_vert,
 		tex, alpha, blending, flags, func_data, func);
 
-	Pipeline_Shadow(group  );
+	Pipeline_Shadow(group, shape, num_vert,
+		tex, alpha, blending, flags, func_data, func);
 
-	Pipeline_DLights(group  );
+	Pipeline_DLights(group, shape, num_vert,
+		tex, alpha, blending, flags, func_data, func);
 }
 
 

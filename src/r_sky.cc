@@ -316,7 +316,7 @@ void RGL_DrawSkyBox(void)
 	float v0 = 0.0f;
 	float v1 = 1.0f;
 
-	if (! glcap_edgeclamp)
+	if (dumb_clamp)
 	{
 		float size = IM_WIDTH(box_info.north);
 

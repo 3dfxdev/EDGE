@@ -42,19 +42,14 @@ int glmax_tex_units;
 int rgl_light_map[256];
 static lighting_model_e rgl_light_model = LMODEL_Invalid;
 
-bool glcap_hardware = true;
-bool glcap_multitex = false;
-bool glcap_paletted = false;
-bool glcap_edgeclamp = false;
-
 int var_nearclip = 4;
 int var_farclip  = 64000;
 
 
-// -AJA- FIXME: temp hack
-#ifndef GL_MAX_TEXTURE_UNITS
-#define GL_MAX_TEXTURE_UNITS  0x84E2
-#endif
+///--- // -AJA- FIXME: temp hack
+///--- #ifndef GL_MAX_TEXTURE_UNITS
+///--- #define GL_MAX_TEXTURE_UNITS  0x84E2
+///--- #endif
 
 
 typedef enum
@@ -216,11 +211,16 @@ void RGL_SetupMatrices3D(void)
 //
 void RGL_CheckExtensions(void)
 {
+	GLenum err = glewInit();
+
+	if (err != GLEW_OK)
+		I_Error("Unable to initialise GLEW: %s\n",
+			glewGetErrorString(err));
+
 	// -ACB- 2004/08/11 Made local: these are not yet used elsewhere
 	epi::strent_c glstr_vendor;
 	epi::strent_c glstr_renderer;
 	epi::strent_c glstr_version;
-	epi::strent_c glstr_extensions;
 
 	epi::string_c s;
 	
@@ -233,6 +233,11 @@ void RGL_CheckExtensions(void)
 	glstr_renderer.Set((const char*)glGetString(GL_RENDERER));
 	I_Printf("OpenGL: Renderer: %s\n", glstr_renderer.GetString());
 
+	I_Printf("OpenGL: GLEW version: %s\n", glewGetString(GLEW_VERSION));
+
+	L_WriteDebug("OpenGL: EXTENSION LIST:\n", glGetString(GL_EXTENSIONS));
+
+
 	// Check for a windows software renderer
 	s = glstr_vendor.GetString();
 	if (s.CompareNoCase("Microsoft Corporation") == 0)
@@ -241,38 +246,50 @@ void RGL_CheckExtensions(void)
 		if (s.CompareNoCase("GDI Generic") == 0)
 		{
 			I_Error("OpenGL: SOFTWARE Renderer!\n");
-			//glcap_hardware = false;
 		}		
 	}
-	
-	glstr_extensions.Set((const char*)glGetString(GL_EXTENSIONS));
-	
-	if ((strstr(glstr_extensions, "ARB_multitexture") != NULL) ||
-		(strstr(glstr_extensions, "EXT_multitexture") != NULL))
+
+	// Check for various extensions
+
+	if (GLEW_VERSION_1_3 || GLEW_ARB_multitexture)
+	{ /* OK */ }
+	else
+		I_Error("OpenGL driver does not support Multitexturing.\n");
+
+	if (GLEW_VERSION_1_3 ||
+		GLEW_ARB_texture_env_combine ||
+		GLEW_EXT_texture_env_combine)
+	{ /* OK */ }
+	else
 	{
-		I_Printf("OpenGL: Multitexture extension found.\n");
-		glcap_multitex = true;
+		I_Warning("OpenGL driver does not support COMBINE.\n");
+		dumb_combine = true;
 	}
 
-	if (strstr(glstr_extensions, "EXT_paletted_texture") != NULL)
+	if (GLEW_VERSION_1_2 ||
+		GLEW_EXT_texture_edge_clamp ||
+		GLEW_SGIS_texture_edge_clamp)
+	{ /* OK */ }
+	else
 	{
-		I_Printf("OpenGL: Paletted texture extension found.\n");
-		glcap_paletted = true;
+		I_Warning("OpenGL driver does not support Edge-Clamp.\n");
+		dumb_clamp = true;
 	}
 
-	// -AJA- FIXME: temp hack, improve extension handling after 1.29
-	if (glstr_version[0] >= '2' ||
-	    glstr_version[0] == '1' && glstr_version[1] == '.' &&
-		glstr_version[2] >= '2')
-	{
-		glcap_edgeclamp = true;
-	}
-	else if (strstr(glstr_extensions, "GL_EXT_texture_edge_clamp") != NULL ||
-	         strstr(glstr_extensions, "GL_SGIS_texture_edge_clamp") != NULL)
-	{
-		I_Printf("OpenGL: EdgeClamp extension found.\n");
-		glcap_edgeclamp = true;
-	}
+
+///---	// -AJA- FIXME: temp hack, improve extension handling after 1.29
+///---	if (glstr_version[0] >= '2' ||
+///---	    glstr_version[0] == '1' && glstr_version[1] == '.' &&
+///---		glstr_version[2] >= '2')
+///---	{
+///---		glcap_edgeclamp = true;
+///---	}
+///---	else if (strstr(glstr_extensions, "GL_EXT_texture_edge_clamp") != NULL ||
+///---	         strstr(glstr_extensions, "GL_SGIS_texture_edge_clamp") != NULL)
+///---	{
+///---		I_Printf("OpenGL: EdgeClamp extension found.\n");
+///---		glcap_edgeclamp = true;
+///---	}
 
 	// --- Detect buggy drivers, enable workarounds ---
 	
@@ -349,43 +366,32 @@ void RGL_Init(void)
 {
 	I_Printf("OpenGL: Initialising...\n");
 
-	GLenum err = glewInit();
-
-	if (err != GLEW_OK)
-		I_Error("Unable to initialise GLEW: %s\n",
-			glewGetErrorString(err));
-
-	RGL_SoftInit();
 	RGL_CheckExtensions();
 
-	if (GLEW_VERSION_1_3 || GLEW_ARB_multitexture)
-	{ /* OK */ }
-	else
-		I_Error("OpenGL driver does not support Multitexturing.");
-
-	I_Printf("OpenGL: GLEW version: %s\n", glewGetString(GLEW_VERSION));
 
 	// read implementation limits
-        {
-          GLint max_lights;
-          GLint max_clip_planes;
-          GLint max_tex_size;
-          GLint max_tex_units;
+	{
+		GLint max_lights;
+		GLint max_clip_planes;
+		GLint max_tex_size;
+		GLint max_tex_units;
 
-          glGetIntegerv(GL_MAX_LIGHTS,        &max_lights);
-          glGetIntegerv(GL_MAX_CLIP_PLANES,   &max_clip_planes);
-          glGetIntegerv(GL_MAX_TEXTURE_SIZE,  &max_tex_size);
-          glGetIntegerv(GL_MAX_TEXTURE_UNITS, &max_tex_units);
+		glGetIntegerv(GL_MAX_LIGHTS,        &max_lights);
+		glGetIntegerv(GL_MAX_CLIP_PLANES,   &max_clip_planes);
+		glGetIntegerv(GL_MAX_TEXTURE_SIZE,  &max_tex_size);
+		glGetIntegerv(GL_MAX_TEXTURE_UNITS, &max_tex_units);
 
-          glmax_lights = max_lights;
-          glmax_clip_planes = max_clip_planes;
-          glmax_tex_size = max_tex_size;
-          glmax_tex_units = max_tex_units;
-        }
+		glmax_lights = max_lights;
+		glmax_clip_planes = max_clip_planes;
+		glmax_tex_size = max_tex_size;
+		glmax_tex_units = max_tex_units;
+	}
 
 	I_Printf("OpenGL: Lights: %d  Clips: %d  Tex: %d  Units: %d\n",
 			 glmax_lights, glmax_clip_planes, glmax_tex_size, glmax_tex_units);
   
+	RGL_SoftInit();
+
 	R2_InitUtil();
 
 	// initialise unit system

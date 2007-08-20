@@ -2603,6 +2603,8 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 	{
 		drawfloor_t *dfloor = *DFI;
 
+		R_LightPipe_SetList(dfloor->dlights);
+
 		std::list<drawseg_c *>::iterator SEGI;
 
 		for (SEGI = dsub->segs.begin(); SEGI != dsub->segs.end(); SEGI++)
@@ -2619,6 +2621,8 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 
 			RGL_DrawSortThings(dfloor);
   		}
+
+		R_LightPipe_SetList(NULL);
 	}
 }
 
