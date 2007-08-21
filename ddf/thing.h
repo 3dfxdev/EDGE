@@ -630,7 +630,6 @@ typedef enum
 	GLOW_Floor   = 1,
 	GLOW_Ceiling = 2,
 	GLOW_Wall    = 3,
-///---	GLOW_Sector  = 4,
 }
 glow_sector_type_e;
 
@@ -683,6 +682,26 @@ public:
 	float radius;
 	rgbcol_t colour;
 	percent_t height;
+};
+
+class weakness_info_c
+{
+public:
+	weakness_info_c();
+	weakness_info_c(weakness_info_c &rhs);
+	~weakness_info_c() {};
+
+private:
+	void Copy(weakness_info_c &src);
+
+public:
+	void Default(void);
+	weakness_info_c& operator=(weakness_info_c &rhs);
+
+	percent_t height[2];
+	angle_t angle[2];
+	bitset_t classes;
+	float damage_mul;
 };
 
 
@@ -816,6 +835,8 @@ public:
 	bitset_t resistance;
 	bitset_t ghost;  // pass through us
 
+	float resist_multiply;
+
 	const atkdef_c *closecombat;
 	const atkdef_c *rangeattack;
 	const atkdef_c *spareattack;
@@ -823,6 +844,9 @@ public:
 	dlight_info_c dlight0;
 	dlight_info_c dlight1;
 	int glow_type;
+
+	// -AJA- 2007/08/21: weakness support (head-shots etc)
+	weakness_info_c weak;
 
 	// item to drop (or NULL).  The mobjdef pointer is only valid after
 	// DDF_MobjCleanUp() has been called.
