@@ -23,8 +23,6 @@
 #include "r_occlude.h"
 
 
-#define ANGLE_MAX  ((angle_t) -1)
-
 // #define DEBUG_OCC  1
 
 
@@ -223,7 +221,7 @@ void RGL_1DOcclusionSet(angle_t low, angle_t high)
 	if (low <= high)
 		DoSet(low, high);
 	else
-		{ DoSet(low, ANGLE_MAX); DoSet(0, high); }
+		{ DoSet(low, ANG_MAX); DoSet(0, high); }
 
 #ifdef DEBUG_OCC
 	ValidateBuffer();
@@ -255,7 +253,7 @@ bool RGL_1DOcclusionTest(angle_t low, angle_t high)
 	if (low <= high)
 		return DoTest(low, high);
 	else
-		return DoTest(low, ANGLE_MAX) && DoTest(0, high);
+		return DoTest(low, ANG_MAX) && DoTest(0, high);
 }
 
 
