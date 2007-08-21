@@ -66,6 +66,8 @@ typedef u32_t angle_t;
 #define ANG270 0xc0000000
 #define ANG315 0xe0000000
 
+#define ANG_MAX 0xffffffff
+
 // Only use this one with float.
 #define ANG360  (4294967296.0)
 
