@@ -46,13 +46,15 @@ mobjtype_container_c mobjtypes;
 void DDF_MobjGetBenefit(const char *info, void *storage);
 void DDF_MobjGetPickupEffect(const char *info, void *storage);
 void DDF_MobjGetDLight(const char *info, void *storage);
+
 static void DDF_MobjGetGlowType(const char *info, void *storage);
 static void DDF_MobjGetYAlign(const char *info, void *storage);
+static void DDF_MobjGetPercentRange(const char *info, void *storage);
+static void DDF_MobjGetAngleRange(const char *info, void *storage);
 
 static void AddPickupEffect(pickup_effect_c **list, pickup_effect_c *cur);
 
 static dlight_info_c buffer_dlight;
-
 
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  buffer_dlight
@@ -61,9 +63,27 @@ const commandlist_t dlight_commands[] =
 {
 	DF("TYPE", type, DDF_MobjGetDLight),
 	DF("GRAPHIC", shape, DDF_MainGetString),
-	DF("INTENSITY", radius, DDF_MainGetFloat),
+	DF("RADIUS", radius, DDF_MainGetFloat),
 	DF("COLOUR", colour, DDF_MainGetRGB),
 	DF("HEIGHT", height, DDF_MainGetPercent),
+
+	// backwards compatibility
+	DF("INTENSITY", radius, DDF_MainGetFloat),
+
+	DDF_CMD_END
+};
+
+static weakness_info_c buffer_weakness;
+
+#undef  DDF_CMD_BASE
+#define DDF_CMD_BASE  buffer_weakness
+
+const commandlist_t weakness_commands[] =
+{
+	DF("HEIGHTS", height,  DDF_MobjGetPercentRange),
+	DF("ANGLES",  angle,   DDF_MobjGetAngleRange),
+	DF("CLASS",   classes, DDF_MainGetBitSet),
+	DF("MULTIPLY", damage_mul, DDF_MainGetFloat),
 
 	DDF_CMD_END
 };
@@ -76,6 +96,7 @@ const commandlist_t thing_commands[] =
 	// sub-commands
 	DDF_SUB_LIST("DLIGHT",  dlight0, dlight_commands, buffer_dlight),
 	DDF_SUB_LIST("DLIGHT2", dlight1, dlight_commands, buffer_dlight),
+	DDF_SUB_LIST("WEAKNESS", weak, weakness_commands, buffer_weakness),
 	DDF_SUB_LIST("EXPLODE DAMAGE", explode_damage, damage_commands, buffer_damage),
 	DDF_SUB_LIST("CHOKE DAMAGE", choke_damage, damage_commands, buffer_damage),
 
@@ -149,6 +170,7 @@ const commandlist_t thing_commands[] =
 	DF("BOBBING", bobbing, DDF_MainGetPercent),
 	DF("IMMUNITY CLASS", immunity, DDF_MainGetBitSet),
 	DF("RESISTANCE CLASS", resistance, DDF_MainGetBitSet),
+	DF("RESISTANCE MULTIPLY", resist_multiply, DDF_MainGetFloat),
 	DF("GHOST CLASS", ghost, DDF_MainGetBitSet),   // -AJA- 2005/05/15
 	DF("SHADOW TRANSLUCENCY", shadow_trans, DDF_MainGetPercent),
 	DF("LUNG CAPACITY", lung_capacity, DDF_MainGetTime),
@@ -1449,6 +1471,47 @@ static void DDF_MobjGetYAlign(const char *info, void *storage)
 	}
 }
 
+static void DDF_MobjGetPercentRange(const char *info, void *storage)
+{
+	SYS_ASSERT(info && storage);
+
+	float *dest = (float *)storage;
+
+	if (sscanf(info, "%f%%:%f%%", dest+0, dest+1) != 2)
+		DDF_Error("Bad percentage range: %s\n", info);
+
+	dest[0] /= 100.0f;
+	dest[1] /= 100.0f;
+
+	if (dest[0] > dest[1])
+		DDF_Error("Bad percent range (low > high) : %s\n", info);
+}
+
+static void DDF_MobjGetAngleRange(const char *info, void *storage)
+{
+	SYS_ASSERT(info && storage);
+
+	angle_t *dest = (angle_t *)storage;
+
+	float val1, val2;
+
+	if (sscanf(info, "%f:%f", &val1, &val2) != 2)
+		DDF_Error("Bad angle range: %s\n", info);
+
+	if ((int) val1 == 360)
+		val1 = 359.5;
+	else if (val1 > 360.0f)
+		DDF_Error("Angle '%1.1f' too large (must be less than 360)\n", val1);
+
+	if ((int) val2 == 360)
+		val2 = 359.5;
+	else if (val2 > 360.0f)
+		DDF_Error("Angle '%1.1f' too large (must be less than 360)\n", val2);
+
+	dest[0] = FLOAT_2_ANG(val1);
+	dest[1] = FLOAT_2_ANG(val2);
+}
+
 //
 // DDF_MobjMakeAttackObj
 //
@@ -1789,6 +1852,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	bobbing = src.bobbing; 
 	immunity = src.immunity; 
 	resistance = src.resistance; 
+	resist_multiply = src.resist_multiply; 
 	ghost = src.ghost; 
 
 	closecombat = src.closecombat; 
@@ -1908,6 +1972,7 @@ void mobjtype_c::Default()
 	bobbing = PERCENT_MAKE(100);
 	immunity = BITSET_EMPTY;
 	resistance = BITSET_EMPTY;
+	resist_multiply = 0.4;
 	ghost = BITSET_EMPTY;
 
 	closecombat = NULL;

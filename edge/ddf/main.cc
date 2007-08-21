@@ -1411,10 +1411,11 @@ void DDF_MainGetFloat(const char *info, void *storage)
 
 void DDF_MainGetAngle(const char *info, void *storage)
 {
-	float val;
+	SYS_ASSERT(info && storage);
+
 	angle_t *dest = (angle_t *)storage;
 
-	SYS_ASSERT(info && storage);
+	float val;
 
 	if (sscanf(info, "%f", &val) != 1)
 		DDF_Error("Bad angle value: %s\n", info);
@@ -2214,25 +2215,16 @@ label_offset_c& label_offset_c::operator=(label_offset_c& rhs)
 
 // ---> dlight_info class
 
-//
-// dlight_info_c() constructor
-//
 dlight_info_c::dlight_info_c()
 {
 	Default();
 }
 
-//
-// dlight_info_c() Copy constructor
-//
 dlight_info_c::dlight_info_c(dlight_info_c &rhs)
 {
 	Copy(rhs);
 }
 
-//
-// dlight_info_c::Copy()
-//
 void dlight_info_c::Copy(dlight_info_c &src)
 {
 	type   = src.type;
@@ -2242,9 +2234,6 @@ void dlight_info_c::Copy(dlight_info_c &src)
 	height = src.height;
 }
 
-//
-// dlight_info_c::Default()
-//
 void dlight_info_c::Default()
 {
 	type   = DLITE_None;
@@ -2255,10 +2244,50 @@ void dlight_info_c::Default()
 	shape.Set("DLIGHTNORMAL");
 }
 
-//
-// dlight_info_c assignment operator
-//
 dlight_info_c& dlight_info_c::operator=(dlight_info_c &rhs)
+{
+	if (&rhs != this)
+		Copy(rhs);
+
+	return *this;
+}
+
+// ---> weakness_info class
+
+weakness_info_c::weakness_info_c()
+{
+	Default();
+}
+
+weakness_info_c::weakness_info_c(weakness_info_c &rhs)
+{
+	Copy(rhs);
+}
+
+void weakness_info_c::Copy(weakness_info_c &src)
+{
+	height[0] = src.height[0];
+	height[1] = src.height[1];
+	angle[0]  = src.angle[0];
+	angle[1]  = src.angle[1];
+
+	classes    = src.classes;
+	damage_mul = src.damage_mul;
+}
+
+void weakness_info_c::Default()
+{
+	height[0] = PERCENT_MAKE(  0);
+	height[1] = PERCENT_MAKE(100);
+
+	angle[0] = ANG0;
+	angle[1] = ANG_MAX;
+
+	classes    = BITSET_FULL;
+	damage_mul = 2.5;
+}
+
+weakness_info_c& weakness_info_c::operator=(weakness_info_c &rhs)
 {
 	if (&rhs != this)
 		Copy(rhs);
