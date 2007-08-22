@@ -30,6 +30,8 @@
 
 #include "epi/strings.h"
 
+#include "ddf/main.h"
+
 #include "p_bot.h"
 #include "sv_chunk.h"
 #include "sv_main.h"
@@ -61,6 +63,9 @@ void SR_PlayerPutName(void *storage, int index, void *extra);
 void SR_PlayerPutState(void *storage, int index, void *extra);
 void SR_WeaponPutInfo(void *storage, int index, void *extra);
 
+extern bool SR_MobjGetType(void *storage, int index, void *extra);
+extern void SR_MobjPutType(void *storage, int index, void *extra);
+
 
 //----------------------------------------------------------------------------
 //
@@ -80,12 +85,11 @@ static savefield_t sv_fields_player[] =
 	SF(mo, "mo", 1, SVT_INDEX("mobjs"), SR_MobjGetMobj, SR_MobjPutMobj),
 	SF(viewz, "viewz", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(viewheight, "viewheight", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
-	SF(deltaviewheight, "deltaviewheight", 1, SVT_FLOAT, 
-		SR_GetFloat, SR_PutFloat),
-	SF(std_viewheight, "std_viewheight", 1, SVT_FLOAT, 
-		SR_GetFloat, SR_PutFloat),
+	SF(deltaviewheight, "deltaviewheight", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
+	SF(std_viewheight, "std_viewheight", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(health, "health", 1, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(armours[0], "armours", NUMARMOUR, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
+	SF(armour_types[0], "armour_types", NUMARMOUR, SVT_STRING, SR_MobjGetType, SR_MobjPutType),
 	SF(powers[0],  "powers",  NUMPOWERS, SVT_FLOAT, SR_GetFloat, SR_PutFloat),
 	SF(keep_powers,  "keep_powers", 1, SVT_INT, SR_GetInt, SR_PutInt),
 	SF(cards, "cards_ke", 1, SVT_ENUM, SR_GetEnum, SR_PutEnum),
@@ -251,17 +255,12 @@ savestruct_t sv_struct_psprite =
 
 //----------------------------------------------------------------------------
 
-//
-// SV_PlayerCountElems
-//
 int SV_PlayerCountElems(void)
 {
 	return numplayers;
 }
 
-//
-// SV_PlayerGetElem
-//
+
 void *SV_PlayerGetElem(int index)
 {
 	if (index >= numplayers)
@@ -282,9 +281,7 @@ void *SV_PlayerGetElem(int index)
 	return NULL;
 }
 
-//
-// SV_PlayerFindElem
-//
+
 int SV_PlayerFindElem(player_t *elem)
 {
 	int index = 0;
@@ -304,9 +301,7 @@ int SV_PlayerFindElem(player_t *elem)
 	return 0;
 }
 
-//
-// SV_PlayerCreateElems
-//
+
 void SV_PlayerCreateElems(int num_elems)
 {
 	// free existing players (sets all pointers to NULL)
@@ -346,9 +341,7 @@ void SV_PlayerCreateElems(int num_elems)
 	}
 }
 
-//
-// SV_PlayerFinaliseElems
-//
+
 void SV_PlayerFinaliseElems(void)
 {
 	int first = -1;
@@ -396,6 +389,14 @@ void SV_PlayerFinaliseElems(void)
 			P_BotCreate(p, true);
 		else
 			p->builder = P_ConsolePlayerBuilder;
+
+		// -AJA- 2007/08/22: new PURPLE armor was squeezed into middle
+		if (savegame_version < 0x13100)
+		{
+			p->armours[ARMOUR_Red]    = p->armours[3];
+			p->armours[ARMOUR_Yellow] = p->armours[2];
+			p->armours[ARMOUR_Purple] = 0;
+		}
 
 		P_UpdateAvailWeapons(p);
 		P_UpdateTotalArmour(p);
