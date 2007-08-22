@@ -178,6 +178,8 @@ const commandlist_t thing_commands[] =
 	DF("EXPLODE RADIUS", explode_radius, DDF_MainGetFloat),
 	DF("RELOAD SHOTS", reload_shots, DDF_MainGetNumeric),  // -AJA- 2004/11/15
 	DF("GLOW TYPE", glow_type, DDF_MobjGetGlowType), // -AJA- 2007/08/19
+	DF("ARMOUR PROTECTION", armour_protect, DDF_MainGetPercent),  // -AJA- 2007/08/22
+	DF("ARMOUR DEPLETION",  armour_deplete, DDF_MainGetPercent),  // -AJA- 2007/08/22
 
 	// -AJA- backwards compatibility cruft...
 	DF("!EXPLOD DAMAGE", explode_damage.nominal, DDF_MainGetFloat),
@@ -351,6 +353,7 @@ const specflags_t armourtype_names[] =
 {
 	{"GREEN ARMOUR",  ARMOUR_Green,  0},
 	{"BLUE ARMOUR",   ARMOUR_Blue,   0},
+	{"PURPLE ARMOUR", ARMOUR_Purple, 0},
 	{"YELLOW ARMOUR", ARMOUR_Yellow, 0},
 	{"RED ARMOUR",    ARMOUR_Red,    0},
 	{NULL, 0, 0}
@@ -931,6 +934,7 @@ static bool BenefitTryArmour(const char *name, benefit_t *be,
 		{
 			case ARMOUR_Green:  be->limit = 100; break;
 			case ARMOUR_Blue:   be->limit = 200; break;
+			case ARMOUR_Purple: be->limit = 200; break;
 			case ARMOUR_Yellow: be->limit = 200; break;
 			case ARMOUR_Red:    be->limit = 200; break;
 			default: ;
@@ -1271,6 +1275,7 @@ static specflags_t extended_specials[] =
 	{"USABLE", EF_USABLE, 0},
 	{"BLOCK SHOTS", EF_BLOCKSHOTS, 0},
 	{"TUNNEL", EF_TUNNEL, 0},
+	{"SIMPLE ARMOUR", EF_SIMPLEARMOUR, 0},
 	{NULL, 0, 0}
 };
 
@@ -1841,6 +1846,9 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 
     fuse = src.fuse; 
 	reload_shots = src.reload_shots;
+	armour_protect = src.armour_protect;
+	armour_deplete = src.armour_deplete;
+
 	side = src.side; 
     playernum = src.playernum; 
 	lung_capacity = src.lung_capacity; 
@@ -1962,6 +1970,9 @@ void mobjtype_c::Default()
 
     fuse = 0;
 	reload_shots = 5;
+	armour_protect = PERCENT_MAKE(0);  // disable association
+	armour_deplete = PERCENT_MAKE(100);
+
 	side = BITSET_EMPTY;
     playernum = 0;
 	lung_capacity = 20 * TICRATE;
