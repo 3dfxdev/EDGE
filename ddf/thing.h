@@ -827,6 +827,7 @@ public:
 	// armour held: 100% is normal, at 0% you never lose it.
 	percent_t armour_protect;
 	percent_t armour_deplete;
+	bitset_t armour_class;
 
 	bitset_t side;
 	int playernum;

@@ -180,6 +180,7 @@ const commandlist_t thing_commands[] =
 	DF("GLOW TYPE", glow_type, DDF_MobjGetGlowType), // -AJA- 2007/08/19
 	DF("ARMOUR PROTECTION", armour_protect, DDF_MainGetPercent),  // -AJA- 2007/08/22
 	DF("ARMOUR DEPLETION",  armour_deplete, DDF_MainGetPercent),  // -AJA- 2007/08/22
+	DF("ARMOUR CLASS",  armour_class, DDF_MainGetBitSet),  // -AJA- 2007/08/22
 
 	// -AJA- backwards compatibility cruft...
 	DF("!EXPLOD DAMAGE", explode_damage.nominal, DDF_MainGetFloat),
@@ -601,13 +602,6 @@ static void ThingFinishEntry(void)
 		DDF_WarnError2(0x128, "Bad CHOKE_DAMAGE.VAL value %f in DDF.\n",
 			buffer_mobj.choke_damage.nominal);
 	}
-
-///---	if (buffer_mobj.dlight0.type != DLITE_None &&
-///---		buffer_mobj.glow_type == GLOW_Sector)
-///---	{
-///---		DDF_Warning("Cannot use 'SECTOR' GLOW_TYPE with Dynamic lights.\n");
-///---		buffer_mobj.glow_type = GLOW_None;
-///---	}
 
 	// FIXME: check more stuff
 
@@ -1848,6 +1842,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	reload_shots = src.reload_shots;
 	armour_protect = src.armour_protect;
 	armour_deplete = src.armour_deplete;
+	armour_class = src.armour_class;
 
 	side = src.side; 
     playernum = src.playernum; 
@@ -1970,8 +1965,9 @@ void mobjtype_c::Default()
 
     fuse = 0;
 	reload_shots = 5;
-	armour_protect = PERCENT_MAKE(0);  // disable association
+	armour_protect = PERCENT_MAKE(50);
 	armour_deplete = PERCENT_MAKE(100);
+	armour_class = BITSET_EMPTY;
 
 	side = BITSET_EMPTY;
     playernum = 0;
