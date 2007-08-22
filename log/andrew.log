@@ -1,5 +1,28 @@
 Andrew Apted's Log
 
+2007/08/22:
+
+Implemented RESISTANCE_MULTIPLY to go with RESISTANCE_CLASS,
+and it specifies how much to multiply the damage by.  The
+default value is 0.40 (backwards compatible).
+
+Made it so when players pick up an armor object, the DDF
+information remains associated with the armor's color.
+What the fuck does that mean?  You can use RESISTANCE_CLASS
+and IMMUNITY_CLASS to make armor giving extra protection
+against those classes of attacks.  I also plan two new DDF
+fields: ARMOUR_PROTECTION lets you control how much damage
+the armour saves (100% = all), and ARMOUR_DEPLETION is how
+much of the saved damage eats up the armour.
+
+Added new armor type: PURPLE_ARMOUR.  It is placed between
+BLUE and YELLOW armor and saves 66% of damage by default.
+
+Added another command ARMOUR_CLASS, used to specify what
+attacks the armor protects you from.  For any other attack,
+it's as though the armor wasn't there.  This command is now
+the one required to enable armor association.
+
 2007/08/19:
 
 For OpenGL extension handling I will use the GLEW library.
