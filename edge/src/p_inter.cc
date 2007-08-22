@@ -333,7 +333,7 @@ static void GiveArmour(pickup_info_t *pu, benefit_t *be)
 	pu->player->armours[a_class] += amount;
 
 	// -AJA- 2007/08/22: armor associations
-	if (pu->special && pu->special->info->armour_protect > 0)
+	if (pu->special && (BITSET_EMPTY != pu->special->info->armour_class))
 	{
 		pu->player->armour_types[a_class] = pu->special->info;
 	}
@@ -860,7 +860,6 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 {
 	player_t *player;
 	statenum_t state;
-	float saved = 0;
 	int i;
 
 	if (!(target->flags & MF_SHOOTABLE))
@@ -925,8 +924,8 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 		if ((player->cheats & CF_GODMODE) || player->powers[PW_Invulnerable])
 			return;
 
-		// check which armour can take some damage
-		for (i=ARMOUR_Red; i >= ARMOUR_Green; i--)
+		// preliminary check: immunity and resistance
+		for (i=NUMARMOUR-1; i >= ARMOUR_Green; i--)
 		{
 			if (damtype && damtype->no_armour)
 				continue;
@@ -936,15 +935,57 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 
 			const mobjtype_c *arm_info = player->armour_types[i];
 
-			switch (i)
+			if (!arm_info || !inflictor || !inflictor->currentattack)
+				continue;
+
+			// this armor does not provide any protection for this attack
+			if (BITSET_EMPTY != (inflictor->currentattack->attack_class & ~arm_info->armour_class))
+				continue;
+
+			if (BITSET_EMPTY == (inflictor->currentattack->attack_class & ~arm_info->immunity))
+				return; /* immune : we can go home early! */
+
+			if (damage > 0.1f && BITSET_EMPTY == (inflictor->currentattack->attack_class & ~arm_info->resistance))
 			{
-				case ARMOUR_Green:  saved = damage * 0.33; break;
-				case ARMOUR_Blue:   saved = damage * 0.50; break;
-				case ARMOUR_Purple: saved = damage * 0.66; break;
-				case ARMOUR_Yellow: saved = damage * 0.75; break;
-				case ARMOUR_Red:    saved = damage * 0.90; break;
-				default: 
-					I_Error("INTERNAL ERROR in P_DamageMobj: bad armour %d\n", i);
+				damage = MIN(0.1f, damage * arm_info->resist_multiply);
+			}
+		}
+
+		// check which armour can take some damage
+		for (i=NUMARMOUR-1; i >= ARMOUR_Green; i--)
+		{
+			if (damtype && damtype->no_armour)
+				continue;
+
+			if (player->armours[i] <= 0)
+				continue;
+
+			const mobjtype_c *arm_info = player->armour_types[i];
+
+			// this armor does not provide any protection for this attack
+			if (arm_info && inflictor && inflictor->currentattack &&
+				BITSET_EMPTY != (inflictor->currentattack->attack_class & ~arm_info->armour_class))
+			{
+				continue;
+			}
+
+			float saved = 0;
+
+			if (arm_info)
+				saved = damage * PERCENT_2_FLOAT(arm_info->armour_protect);
+			else
+			{
+				switch (i)
+				{
+					case ARMOUR_Green:  saved = damage * 0.33; break;
+					case ARMOUR_Blue:   saved = damage * 0.50; break;
+					case ARMOUR_Purple: saved = damage * 0.66; break;
+					case ARMOUR_Yellow: saved = damage * 0.75; break;
+					case ARMOUR_Red:    saved = damage * 0.90; break;
+
+					default: 
+						I_Error("INTERNAL ERROR in P_DamageMobj: bad armour %d\n", i);
+				}
 			}
 
 			if (player->armours[i] <= saved)
@@ -953,21 +994,21 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 				saved = player->armours[i];
 			}
 
-			player->armours[i] -= saved;
 			damage -= saved;
+
+			if (arm_info)
+				saved *= PERCENT_2_FLOAT(arm_info->armour_deplete);
+
+			player->armours[i] -= saved;
 
 			// don't apply inner armour unless outer is finished
 			if (player->armours[i] > 0)
 				break;
+
+			player->armours[i] = 0;
 		}
 
 		P_UpdateTotalArmour(player);
-
-		// mirror mobj health here for Dave
-		player->health -= damage;
-
-		if (player->health < 0)
-			player->health = 0;
 
 		player->attacker = source;
 
@@ -982,6 +1023,12 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 
 	// do the damage
 	target->health -= damage;
+
+	if (player)
+	{
+		// mirror mobj health here for Dave
+		player->health = MAX(0, target->health);
+	}
 
 	if (target->health <= 0)
 	{
