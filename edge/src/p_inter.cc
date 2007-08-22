@@ -874,7 +874,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 	if (damage >= 0.1f && inflictor && inflictor->currentattack &&
 		BITSET_EMPTY == (inflictor->currentattack->attack_class & ~target->info->resistance))
 	{
-		damage = (damage + 0.1f) * 0.4f;
+		damage = MIN(0.1f, damage * target->info->resist_multiply);
 	}
 
 	// -ACB- 1998/07/12 Use Visibility Enum
@@ -930,10 +930,11 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 
 			switch (i)
 			{
-				case ARMOUR_Green:  saved = damage * 0.33f; break;
-				case ARMOUR_Blue:   saved = damage * 0.50f; break;
-				case ARMOUR_Yellow: saved = damage * 0.75f; break;
-				case ARMOUR_Red:    saved = damage * 0.90f; break;
+				case ARMOUR_Green:  saved = damage * 0.33; break;
+				case ARMOUR_Blue:   saved = damage * 0.50; break;
+				case ARMOUR_Purple: saved = damage * 0.66; break;
+				case ARMOUR_Yellow: saved = damage * 0.75; break;
+				case ARMOUR_Red:    saved = damage * 0.90; break;
 				default: 
 					I_Error("INTERNAL ERROR in P_DamageMobj: bad armour %d\n", i);
 			}
