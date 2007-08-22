@@ -2283,7 +2283,7 @@ void weakness_info_c::Default()
 	angle[0] = ANG0;
 	angle[1] = ANG_MAX;
 
-	classes    = BITSET_FULL;
+	classes    = BITSET_EMPTY;
 	damage_mul = 2.5;
 }
 
