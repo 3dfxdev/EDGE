@@ -776,6 +776,10 @@ void P_UpdateTotalArmour(player_t *p)
 	for (i=0; i < NUMARMOUR; i++)
 	{
 		p->totalarmour += p->armours[i];
+
+		// forget the association once fully depleted
+		if (p->armours[i] <= 0)
+			p->armour_types[i] = NULL;
 	}
 
 	if (p->totalarmour > 999.0f)
@@ -965,7 +969,10 @@ void P_GiveInitialBenefits(player_t *p, const mobjtype_c *info)
 	p->underwater = false;
 
 	for (i = 0; i < NUMARMOUR; i++)
+	{
 		p->armours[i] = 0;
+		p->armour_types[i] = NULL;
+	}
 
 	p->totalarmour = 0;
 	p->cards = KF_NONE;

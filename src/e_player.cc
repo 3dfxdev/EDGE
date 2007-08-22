@@ -118,7 +118,8 @@ void player_s::Reborn()
 	health = 0;
 
 	memset(armours, 0, sizeof(armours));
-	memset(powers,  0, sizeof(powers));
+	memset(armour_types, 0, sizeof(armour_types));
+	memset(powers, 0, sizeof(powers));
 
 	keep_powers = 0;
 	totalarmour = 0;

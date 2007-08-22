@@ -332,6 +332,12 @@ static void GiveArmour(pickup_info_t *pu, benefit_t *be)
 
 	pu->player->armours[a_class] += amount;
 
+	// -AJA- 2007/08/22: armor associations
+	if (pu->special && pu->special->info->armour_protect > 0)
+	{
+		pu->player->armour_types[a_class] = pu->special->info;
+	}
+
 	if (upgrade > 0)
 	{
 		for (int cl = a_class - 1; (cl >= 0) && (upgrade > 0); cl--)
@@ -927,6 +933,8 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 
 			if (player->armours[i] <= 0)
 				continue;
+
+			const mobjtype_c *arm_info = player->armour_types[i];
 
 			switch (i)
 			{
