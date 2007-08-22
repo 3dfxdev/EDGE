@@ -372,6 +372,8 @@ static armour_type_e RAD_CheckForArmourType(const char *info)
 		return ARMOUR_Green;
 	else if (DDF_CompareName(info, "BLUE") == 0)
 		return ARMOUR_Blue;
+	else if (DDF_CompareName(info, "PURPLE") == 0)
+		return ARMOUR_Purple;
 	else if (DDF_CompareName(info, "YELLOW") == 0)
 		return ARMOUR_Yellow;
 	else if (DDF_CompareName(info, "RED") == 0)

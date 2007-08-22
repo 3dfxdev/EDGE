@@ -64,7 +64,6 @@ void SR_MobjPutState(void *storage, int index, void *extra);
 void SR_MobjPutSpawnPoint(void *storage, int index, void *extra);
 void SR_MobjPutAttack(void *storage, int index, void *extra);
 
-
 //----------------------------------------------------------------------------
 //
 //  MOBJ STRUCTURE AND ARRAY
@@ -506,9 +505,6 @@ void SV_ItemqFinaliseElems(void)
 
 //----------------------------------------------------------------------------
 
-//
-// SR_MobjGetPlayer
-//
 bool SR_MobjGetPlayer(void *storage, int index, void *extra)
 {
 	player_t ** dest = (player_t **)storage + index;
@@ -519,9 +515,6 @@ bool SR_MobjGetPlayer(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_MobjPutPlayer
-//
 void SR_MobjPutPlayer(void *storage, int index, void *extra)
 {
 	player_t *elem = ((player_t **)storage)[index];
@@ -531,9 +524,6 @@ void SR_MobjPutPlayer(void *storage, int index, void *extra)
 	SV_PutInt(swizzle);
 }
 
-//
-// SR_MobjGetMobj
-//
 bool SR_MobjGetMobj(void *storage, int index, void *extra)
 {
 	mobj_t ** dest = (mobj_t **)storage + index;
@@ -544,9 +534,6 @@ bool SR_MobjGetMobj(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_MobjPutMobj
-//
 void SR_MobjPutMobj(void *storage, int index, void *extra)
 {
 	mobj_t *elem = ((mobj_t **)storage)[index];
@@ -557,9 +544,6 @@ void SR_MobjPutMobj(void *storage, int index, void *extra)
 	SV_PutInt(swizzle);
 }
 
-//
-// SR_MobjGetType
-//
 bool SR_MobjGetType(void *storage, int index, void *extra)
 {
 	mobjtype_c ** dest = (mobjtype_c **)storage + index;
@@ -573,9 +557,6 @@ bool SR_MobjGetType(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_MobjPutType
-//
 void SR_MobjPutType(void *storage, int index, void *extra)
 {
 	mobjtype_c *info = ((mobjtype_c **)storage)[index];
@@ -583,9 +564,6 @@ void SR_MobjPutType(void *storage, int index, void *extra)
 	SV_PutString((info == NULL) ? NULL : info->ddf.name.GetString());
 }
 
-//
-// SR_MobjGetSpawnPoint
-//
 bool SR_MobjGetSpawnPoint(void *storage, int index, void *extra)
 {
 	spawnpoint_t *dest = (spawnpoint_t *)storage + index;
@@ -596,9 +574,6 @@ bool SR_MobjGetSpawnPoint(void *storage, int index, void *extra)
 	return true;  // presumably
 }
 
-//
-// SR_MobjPutSpawnPoint
-//
 void SR_MobjPutSpawnPoint(void *storage, int index, void *extra)
 {
 	spawnpoint_t *src = (spawnpoint_t *)storage + index;
@@ -606,9 +581,6 @@ void SR_MobjPutSpawnPoint(void *storage, int index, void *extra)
 	SV_SaveStruct(src, &sv_struct_spawnpoint);
 }
 
-//
-// SR_MobjGetAttack
-//
 bool SR_MobjGetAttack(void *storage, int index, void *extra)
 {
 	atkdef_c ** dest = (atkdef_c **)storage + index;
@@ -622,9 +594,6 @@ bool SR_MobjGetAttack(void *storage, int index, void *extra)
 	return true;
 }
 
-//
-// SR_MobjPutAttack
-//
 void SR_MobjPutAttack(void *storage, int index, void *extra)
 {
 	atkdef_c *info = ((atkdef_c **)storage)[index];
