@@ -291,7 +291,7 @@ static void GiveArmour(pickup_info_t *pu, benefit_t *be)
 	float amount  = be->amount;
 	float upgrade = 0;
 
-	if (false)  // if (curgame->armour_mode == ARM_SIMPLE)
+	if (! pu->special || (pu->special->extendedflags & EF_SIMPLEARMOUR))
 	{
 		float slack = be->limit - pu->player->armours[a_class];
 
@@ -301,7 +301,7 @@ static void GiveArmour(pickup_info_t *pu, benefit_t *be)
 		if (amount <= 0)
 			return;
 	}
-	else  // armour_mode == ARM_DOOM
+	else /* Doom emulation */
 	{
 		float slack = be->limit - pu->player->totalarmour;
 
