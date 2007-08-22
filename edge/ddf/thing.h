@@ -29,19 +29,19 @@
 typedef enum
 {
 	// Call P_TouchSpecialThing when touched.
-	MF_SPECIAL = 1,
+	MF_SPECIAL = (1 << 0),
 
 	// Blocks.
-	MF_SOLID = 2,
+	MF_SOLID = (1 << 1),
 
 	// Can be hit.
-	MF_SHOOTABLE = 4,
+	MF_SHOOTABLE = (1 << 2),
 
 	// Don't use the sector links (invisible but touchable).
-	MF_NOSECTOR = 8,
+	MF_NOSECTOR = (1 << 3),
 
 	// Don't use the blocklinks (inert but displayable)
-	MF_NOBLOCKMAP = 16,
+	MF_NOBLOCKMAP = (1 << 4),
 
 	// Not to be activated by sound, deaf monster.
 	MF_AMBUSH = 32,
@@ -136,19 +136,19 @@ typedef enum
 {
 	// -AJA- 2004/07/22: ignore certain types of damage
 	// (previously was the EF_BOSSMAN flag).
-	EF_EXPLODEIMMUNE = 1,
+	EF_EXPLODEIMMUNE = (1 << 0),
 
 	// Used when varying visibility levels
-	EF_LESSVIS = 2,
+	EF_LESSVIS = (1 << 1),
 
 	// This thing does not respawn
-	EF_NORESPAWN = 4,
+	EF_NORESPAWN = (1 << 2),
 
 	// double the chance of object using range attack
-	EF_NOGRAVKILL = 8,
+	EF_NOGRAVKILL = (1 << 3),
 
 	// This thing is not loyal to its own type, fights its own
-	EF_DISLOYALTYPE = 16,
+	EF_DISLOYALTYPE = (1 << 4),
 
 	// This thing can be hurt by another thing with same attack
 	EF_OWNATTACKHURTS = 32,
@@ -231,22 +231,24 @@ typedef enum
 }
 mobjextendedflag_t;
 
+#define EF_SIMPLEARMOUR  EF_TRIGGERHAPPY
+
 typedef enum
 {
 	// -AJA- 2004/08/25: always pick up this item
-	HF_FORCEPICKUP = 1,
+	HF_FORCEPICKUP = (1 << 0),
 
 	// -AJA- 2004/09/02: immune from friendly fire
-	HF_SIDEIMMUNE = 2,
+	HF_SIDEIMMUNE = (1 << 1),
 
 	// -AJA- 2005/05/15: friendly fire passes through you
-	HF_SIDEGHOST = 4,
+	HF_SIDEGHOST = (1 << 2),
 
 	// -AJA- 2004/09/02: don't retaliate if hurt by friendly fire
-	HF_ULTRALOYAL = 8,
+	HF_ULTRALOYAL = (1 << 3),
 
 	// -AJA- 2005/05/14: don't update the Z buffer (particles).
-	HF_NOZBUFFER = 16,
+	HF_NOZBUFFER = (1 << 4),
 
 	// -AJA- 2005/05/15: the sprite hovers up and down
 	HF_HOVER = 32,
@@ -348,19 +350,21 @@ ammotype_e;
 
 typedef enum
 {
-	// weakest armour, saves 33% of damage
+	// weak armour, saves 33% of damage
 	ARMOUR_Green = 0,
 
     // better armour, saves 50% of damage
 	ARMOUR_Blue,
 
-	// good armour, saves 75% of damage.  (not in Doom)
+	// -AJA- 2007/08/22: another one, saves 66% of damage  (not in Doom)
+	ARMOUR_Purple,
+
+	// good armour, saves 75% of damage  (not in Doom)
 	ARMOUR_Yellow,
 
-	// the best armour, saves 90% of damage.  (not in Doom)
+	// the best armour, saves 90% of damage  (not in Doom)
 	ARMOUR_Red,
-  
-	// -AJA- Note: Savegame code relies on NUMARMOUR == 4.
+
 	NUMARMOUR
 }
 armour_type_e;
@@ -815,6 +819,14 @@ public:
 
 	int fuse;
 	int reload_shots;
+
+	// armour control: armour_protect is how much damage the armour
+	// saves when the bullet/fireball hits you (1% to 100%).  Zero
+	// disables the association (between color and mobjtype_c).
+	// The 'erosion' is how much of the saved damage eats up the
+	// armour held: 100% is normal, at 0% you never lose it.
+	percent_t armour_protect;
+	percent_t armour_deplete;
 
 	bitset_t side;
 	int playernum;
