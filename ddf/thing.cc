@@ -84,6 +84,7 @@ const commandlist_t weakness_commands[] =
 	DF("ANGLES",  angle,   DDF_MobjGetAngleRange),
 	DF("CLASS",   classes, DDF_MainGetBitSet),
 	DF("MULTIPLY", damage_mul, DDF_MainGetFloat),
+	DF("PAINCHANCE", painchance, DDF_MainGetPercent),
 
 	DDF_CMD_END
 };
@@ -171,6 +172,7 @@ const commandlist_t thing_commands[] =
 	DF("IMMUNITY CLASS", immunity, DDF_MainGetBitSet),
 	DF("RESISTANCE CLASS", resistance, DDF_MainGetBitSet),
 	DF("RESISTANCE MULTIPLY", resist_multiply, DDF_MainGetFloat),
+	DF("RESISTANCE PAINCHANCE", resist_painchance, DDF_MainGetPercent),
 	DF("GHOST CLASS", ghost, DDF_MainGetBitSet),   // -AJA- 2005/05/15
 	DF("SHADOW TRANSLUCENCY", shadow_trans, DDF_MainGetPercent),
 	DF("LUNG CAPACITY", lung_capacity, DDF_MainGetTime),
@@ -179,7 +181,7 @@ const commandlist_t thing_commands[] =
 	DF("RELOAD SHOTS", reload_shots, DDF_MainGetNumeric),  // -AJA- 2004/11/15
 	DF("GLOW TYPE", glow_type, DDF_MobjGetGlowType), // -AJA- 2007/08/19
 	DF("ARMOUR PROTECTION", armour_protect, DDF_MainGetPercent),  // -AJA- 2007/08/22
-	DF("ARMOUR DEPLETION",  armour_deplete, DDF_MainGetPercent),  // -AJA- 2007/08/22
+	DF("ARMOUR DEPLETION",  armour_deplete, DDF_MainGetPercentAny),  // -AJA- 2007/08/22
 	DF("ARMOUR CLASS",  armour_class, DDF_MainGetBitSet),  // -AJA- 2007/08/22
 
 	// -AJA- backwards compatibility cruft...
@@ -1856,6 +1858,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	immunity = src.immunity; 
 	resistance = src.resistance; 
 	resist_multiply = src.resist_multiply; 
+	resist_painchance = src.resist_painchance; 
 	ghost = src.ghost; 
 
 	closecombat = src.closecombat; 
@@ -1980,6 +1983,7 @@ void mobjtype_c::Default()
 	immunity = BITSET_EMPTY;
 	resistance = BITSET_EMPTY;
 	resist_multiply = 0.4;
+	resist_painchance = -1; // disabled
 	ghost = BITSET_EMPTY;
 
 	closecombat = NULL;
