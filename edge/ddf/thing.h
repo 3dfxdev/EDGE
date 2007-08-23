@@ -705,7 +705,7 @@ public:
 	percent_t height[2];
 	angle_t angle[2];
 	bitset_t classes;
-	float damage_mul;
+	float multiply;
 	percent_t painchance;
 };
 

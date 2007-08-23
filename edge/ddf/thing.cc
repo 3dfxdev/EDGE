@@ -83,7 +83,7 @@ const commandlist_t weakness_commands[] =
 	DF("HEIGHTS", height,  DDF_MobjGetPercentRange),
 	DF("ANGLES",  angle,   DDF_MobjGetAngleRange),
 	DF("CLASS",   classes, DDF_MainGetBitSet),
-	DF("MULTIPLY", damage_mul, DDF_MainGetFloat),
+	DF("MULTIPLY", multiply, DDF_MainGetFloat),
 	DF("PAINCHANCE", painchance, DDF_MainGetPercent),
 
 	DDF_CMD_END
