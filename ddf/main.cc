@@ -2272,7 +2272,8 @@ void weakness_info_c::Copy(weakness_info_c &src)
 	angle[1]  = src.angle[1];
 
 	classes    = src.classes;
-	damage_mul = src.damage_mul;
+	multiply   = src.multiply;
+	painchance = src.painchance;
 }
 
 void weakness_info_c::Default()
