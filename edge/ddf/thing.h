@@ -706,6 +706,7 @@ public:
 	angle_t angle[2];
 	bitset_t classes;
 	float damage_mul;
+	percent_t painchance;
 };
 
 
@@ -848,7 +849,8 @@ public:
 	bitset_t resistance;
 	bitset_t ghost;  // pass through us
 
-	float resist_multiply;
+	float     resist_multiply;
+	percent_t resist_painchance;
 
 	const atkdef_c *closecombat;
 	const atkdef_c *rangeattack;

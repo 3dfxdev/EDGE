@@ -2283,8 +2283,9 @@ void weakness_info_c::Default()
 	angle[0] = ANG0;
 	angle[1] = ANG_MAX;
 
-	classes    = BITSET_EMPTY;
-	damage_mul = 2.5;
+	classes   = BITSET_EMPTY;
+	multiply  = 2.5;
+	painchance = -1; // disabled
 }
 
 weakness_info_c& weakness_info_c::operator=(weakness_info_c &rhs)
