@@ -34,6 +34,7 @@
 
 #include "r_md2.h"
 #include "r_gldefs.h"
+#include "r_state.h"
 #include "r_units.h"
 #include "m_math.h"
 
@@ -567,6 +568,8 @@ typedef struct
 	vec2_t x_mat;
 	vec2_t y_mat;
 	float  z_scale;
+
+	mobj_t *mo;
 }
 model_coord_data_t;
 
@@ -595,10 +598,46 @@ static void ModelCoordFunc(void *d, int v_idx,
 	rgb[0] = data->R;
 	rgb[1] = data->G;
 	rgb[2] = data->B;
-		
+
 	texc->Set(point->skin_s, point->skin_t);
 
-	*normal = md2_normals[vert->normal_idx];
+	float nx = md2_normals[vert->normal_idx].x;
+	float ny = md2_normals[vert->normal_idx].y;
+	float nz = md2_normals[vert->normal_idx].z;
+
+	normal->x = nx * data->x_mat.x + ny * data->x_mat.y;
+	normal->y = nx * data->y_mat.x + ny * data->y_mat.y;
+	normal->z = nz;
+
+	if (true) /// NORMAL LIGHTING
+	{
+//		float vx = data->mo->x - viewx;
+//		float vy = data->mo->y - viewy;
+//		float vz = data->mo->z - viewz;
+//
+//		float v_dist = sqrt(vx*vx + vy*vy + vz*vz);
+//
+//		vx /= v_dist;
+//		vy /= v_dist;
+//		vz /= v_dist;
+
+		float vx = 0;
+		float vy = -1;
+		float vz = 0;
+
+		vx *= normal->x;
+		vy *= normal->y;
+		vz *= normal->z;
+
+		float n_dist = vx + vy + vz;
+
+		n_dist = 0.4 - n_dist * 0.6;
+		n_dist = CLAMP(n_dist, 0, 1);
+
+		rgb[0] = n_dist;
+		rgb[1] = n_dist;
+		rgb[2] = n_dist;
+	}
 
 	*lit_pos = *pos;
 }
@@ -621,6 +660,7 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo, region_properties_t *props)
 
 	model_coord_data_t data;
 
+	data.mo = mo;
 	data.model = md;
 	data.frame = n;
 
@@ -650,7 +690,7 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo, region_properties_t *props)
 		data.strip = i;
 
 		R_RunPipeline(md->strips[i].mode, md->strips[i].count,
-				      skin_tex, trans, blending, PIPEF_NONE,
+				      0*skin_tex, trans, blending, PIPEF_NONE, //!!!!!
 					  &data, ModelCoordFunc);
 	}
 
