@@ -91,7 +91,8 @@ void P_PlayerAttack(mobj_t * playerobj, const atkdef_c * attack);
 void P_SlammedIntoObject(mobj_t * object, mobj_t * objecthit);
 int P_MissileContact(mobj_t * object, mobj_t * objecthit);
 int P_BulletContact(mobj_t * object, mobj_t * objecthit, 
-					 float damage, const damage_c * damtype);
+					 float damage, const damage_c * damtype,
+					 float x, float y, float z);
 void P_TouchyContact(mobj_t * touchy, mobj_t * victim);
 bool P_UseThing(mobj_t * user, mobj_t * thing, float open_bottom,
 						float open_top);
@@ -362,9 +363,11 @@ extern mobj_t **blocklights;  // for dynamic lights
 void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher);
 void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust);
 void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
-				  float amount, const damage_c * damtype);
-void P_TelefragMobj(mobj_t * target, mobj_t * inflictor, const damage_c * damtype);
-void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c * damtype);
+		float amount, const damage_c * damtype = NULL, bool weak_spot = false);
+void P_TelefragMobj(mobj_t * target, mobj_t * inflictor,
+		const damage_c * damtype = NULL);
+void P_KillMobj(mobj_t * source, mobj_t * target,
+		const damage_c * damtype = NULL, bool weak_spot = false);
 bool P_GiveBenefitList(player_t *player, mobj_t *special, benefit_t *list, bool lose_em);
 
 //

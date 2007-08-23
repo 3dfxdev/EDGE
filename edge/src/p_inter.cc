@@ -672,18 +672,15 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 // -AJA- 1999/09/12: Now uses P_SetMobjStateDeferred, since this
 //       routine can be called by TryMove/PIT_CheckRelThing/etc.
 //
-void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype)
+void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype,
+				bool weak_spot)
 {
 	// -AJA- 2006/09/10: Voodoo doll handling for coop
 	if (target->player && target->player->mo != target)
 	{
-		P_KillMobj(source, target->player->mo, damtype);
+		P_KillMobj(source, target->player->mo, damtype, weak_spot);
 		target->player = NULL;
 	}
-
-	const mobjtype_c *item;
-	statenum_t state;
-	bool overkill;
 
 	target->flags &= ~(MF_SPECIAL | MF_SHOOTABLE | MF_FLOAT | 
 		MF_SKULLFLY | MF_TOUCHY);
@@ -744,10 +741,17 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype)
 			AM_Stop();
 	}
 
-	state = S_NULL;
-	overkill = (target->health < -target->info->spawnhealth);
+	statenum_t state = S_NULL;
+	bool overkill = (target->health < -target->info->spawnhealth);
 
-	if (overkill && damtype && damtype->overkill.label)
+	if (weak_spot)
+	{
+		state = P_MobjFindLabel(target, "WEAKDEATH");
+		if (state == S_NULL)
+			overkill = true;
+	}
+
+	if (state == S_NULL && overkill && damtype && damtype->overkill.label)
 	{
 		state = P_MobjFindLabel(target, damtype->overkill.label);
 		if (state != S_NULL)
@@ -771,8 +775,7 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype)
 
 	// Drop stuff. This determines the kind of object spawned
 	// during the death frame of a thing.
-	item = target->info->dropitem;
-
+	const mobjtype_c *item = target->info->dropitem;
 	if (item)
 	{
 		mobj_t *mo = P_MobjCreateObject(target->x, target->y,
@@ -855,8 +858,8 @@ void P_ThrustMobj(mobj_t * target, mobj_t * inflictor, float thrust)
 // -AJA- 1999/09/12: Now uses P_SetMobjStateDeferred, since this
 //       routine can be called by TryMove/PIT_CheckRelThing/etc.
 //
-void P_DamageMobj(mobj_t * target, mobj_t * inflictor, 
-				  mobj_t * source, float damage, const damage_c * damtype)
+void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
+				  float damage, const damage_c * damtype, bool weak_spot)
 {
 	player_t *player;
 	statenum_t state;
@@ -1037,14 +1040,30 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor,
 	}
 
 	// enter pain states
-	if (!(target->flags & MF_SKULLFLY) && P_RandomTest(target->info->painchance))
+	float pain_chance;
+
+	if (target->flags & MF_SKULLFLY)
+		pain_chance = 0;
+	else if (weak_spot && target->info->weak.painchance >= 0)
+		pain_chance = target->info->weak.painchance;
+	else if (target->info->resist_painchance >= 0 &&
+			 inflictor && inflictor->currentattack && BITSET_EMPTY ==
+			 (inflictor->currentattack->attack_class & ~target->info->resistance))
+		pain_chance = target->info->resist_painchance;
+	else
+		pain_chance = target->info->painchance;
+
+	if (pain_chance > 0 && P_RandomTest(pain_chance))
 	{
 		// setup to hit back
 		target->flags |= MF_JUSTHIT;
 
 		state = S_NULL;
 
-		if (damtype && damtype->pain.label)
+		if (weak_spot)
+			state = P_MobjFindLabel(target, "WEAKPAIN");
+
+		if (state == S_NULL && damtype && damtype->pain.label)
 		{
 			state = P_MobjFindLabel(target, damtype->pain.label);
 			if (state != S_NULL)

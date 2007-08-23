@@ -1479,7 +1479,8 @@ static bool PTR_ShootTraverse(intercept_t * in)
 
 	if (mo->flags & MF_SHOOTABLE)
 	{
-		int what = P_BulletContact(shoot_I.source, mo, shoot_I.damage, shoot_I.damtype);
+		int what = P_BulletContact(shoot_I.source, mo, shoot_I.damage,
+						shoot_I.damtype, x, y, z);
 
 		if (what < 0) // bullets pass through
 			return true;
