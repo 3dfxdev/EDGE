@@ -235,8 +235,9 @@ void RGL_CheckExtensions(void)
 
 	I_Printf("OpenGL: GLEW version: %s\n", glewGetString(GLEW_VERSION));
 
-	L_WriteDebug("OpenGL: EXTENSION LIST:\n", glGetString(GL_EXTENSIONS));
-
+#if 0  // FIXME: this crashes (buffer overflow?)
+	I_Printf("OpenGL: EXTENSIONS: %s\n", glGetString(GL_EXTENSIONS));
+#endif
 
 	// Check for a windows software renderer
 	s = glstr_vendor.GetString();
