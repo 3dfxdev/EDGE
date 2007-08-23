@@ -1309,6 +1309,48 @@ static void LaunchSmartProjectile(mobj_t * source, mobj_t * target,
 	}
 }
 
+static inline bool Weakness_CheckHit(mobj_t *target,
+		const atkdef_c *attack, float x, float y, float z)
+{
+	const weakness_info_c *weak = &target->info->weak;
+
+	if (weak->classes == BITSET_EMPTY)
+		return false;
+	
+	if (BITSET_EMPTY != (attack->attack_class & ~weak->classes))
+		return false;
+
+	if (target->height < 1)
+		return false;
+
+	// compute vertical position.  Clamping it means that a missile
+	// which hits the target on the head (coming sharply down) will
+	// still register as a head-shot.
+	z = (z - target->z) / target->height;
+	z = CLAMP(z, 0, 1);
+
+	if (z < weak->height[0] || z > weak->height[1])
+		return false;
+
+	angle_t ang = R_PointToAngle(target->x, target->y, x, y);
+
+	ang -= target->angle;
+
+	if (weak->angle[0] <= weak->angle[1])
+	{
+		if (ang < weak->angle[0] || ang > weak->angle[1])
+			return false;
+	}
+	else
+	{
+		if (ang < weak->angle[0] && ang > weak->angle[1])
+			return false;
+	}
+
+	return true;
+}
+
+
 //
 // P_MissileContact
 //
@@ -1378,7 +1420,6 @@ int P_MissileContact(mobj_t * object, mobj_t * objecthit)
 	}
 
 	const damage_c *damtype;
-	float damage;
 
 	// transitional hack
 	if (object->currentattack)
@@ -1386,10 +1427,21 @@ int P_MissileContact(mobj_t * object, mobj_t * objecthit)
 	else
 		damtype = &object->info->explode_damage;
 
+	float damage;
 	DAMAGE_COMPUTE(damage, damtype);
 
+	bool weak_spot = false;
+
+	// check for Weakness against the attack
+	if (Weakness_CheckHit(objecthit, object->currentattack,
+				object->x, object->y, MO_MIDZ(object)))
+	{
+		damage *= objecthit->info->weak.multiply;
+		weak_spot = true;
+	}
+
 	// Berserk handling
-	if (object->currentattack && object->player &&
+	if (object->player && object->currentattack &&
 		object->player->powers[PW_Berserk] != 0.0f)
 	{
 		damage *= object->currentattack->berserk_mul;
@@ -1404,7 +1456,7 @@ int P_MissileContact(mobj_t * object, mobj_t * objecthit)
 		return 0;
 	}
 
-	P_DamageMobj(objecthit, object, object->source, damage, damtype);
+	P_DamageMobj(objecthit, object, object->source, damage, damtype, weak_spot);
 	return 1;
 }
 
@@ -1421,7 +1473,8 @@ int P_MissileContact(mobj_t * object, mobj_t * objecthit)
 //          +1 if hit and damage was done.
 //
 int P_BulletContact(mobj_t * source, mobj_t * objecthit, 
-							 float damage, const damage_c *damtype)
+					float damage, const damage_c *damtype,
+					float x, float y, float z)
 {
 	// check for ghosts (attack passes through)
 	if (source->currentattack && BITSET_EMPTY ==
@@ -1459,6 +1512,15 @@ int P_BulletContact(mobj_t * source, mobj_t * objecthit,
 		return 0;
 	}
 
+	bool weak_spot = false;
+
+	// check for Weakness against the attack
+	if (Weakness_CheckHit(objecthit, source->currentattack, x, y, z))
+	{
+		damage *= objecthit->info->weak.multiply;
+		weak_spot = true;
+	}
+
 	if (!damage)
 	{
 #ifdef DEVELOPERS
@@ -1468,7 +1530,7 @@ int P_BulletContact(mobj_t * source, mobj_t * objecthit,
 		return 0;
 	}
 
-	P_DamageMobj(objecthit, source, source, damage, damtype);
+	P_DamageMobj(objecthit, source, source, damage, damtype, weak_spot);
 	return 1;
 }
 
