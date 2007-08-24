@@ -330,7 +330,9 @@ static void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor)
 
 		for (mo=blocklights[by * bmapwidth + bx]; mo; mo = mo->dlnext)
 		{
-			if (mo->bright <= 0 || mo->dlight[0].r <= 0)
+			SYS_ASSERT(mo->state);
+
+			if (mo->state->bright <= 0 || mo->dlight[0].r <= 0)
 				continue;
 
 			if (mo->ceilingz <= dfloor->f_h || mo->floorz >= dfloor->top_h)

@@ -196,17 +196,17 @@ typedef struct mobj_s mobj_t;
 
 struct mobj_s : public position_c
 {
-	// Info for drawing: position.
+	const mobjtype_c *info;
 
-	// More drawing info: to determine current sprite.
-	angle_t angle;  // orientation
+	angle_t angle;      // orientation
 	angle_t vertangle;  // looking up or down
 
-	// used to find patch_t and flip value
-	int sprite;
+	// For movement checking.
+	float radius;
+	float height;
 
-	// frame and brightness
-	short frame, bright;
+	// Momentum, used to update position.
+	vec3_t mom;
 
 	// current subsector
 	struct subsector_s *subsector;
@@ -219,25 +219,13 @@ struct mobj_s : public position_c
 	float ceilingz;
 	float dropoffz;
 
-	// For movement checking.
-	float radius;
-	float height;
-
-	// Momentum, used to update position.
-	vec3_t mom;
-
-	// Thing's health level
-	float health;
-
 	// This is the current speed of the object.
 	// if fastparm, it is already calculated.
 	float speed;
 	int fuse;
 
-	// If == validcount, already checked.
-	int validcount;
-
-	const mobjtype_c *info;
+	// Thing's health level
+	float health;
 
 	// state tic counter
 	int tics;
@@ -288,6 +276,9 @@ struct mobj_s : public position_c
 
 	// spread count for Ordered spreaders
 	int spreadcount;
+
+	// If == validcount, already checked.
+	int validcount;
 
 	// -ES- 1999/10/25 Reference Count. DO NOT TOUCH.
 	// All the following mobj references should be set only

@@ -694,7 +694,7 @@ void MD2_RenderModel(md2_model_c *md, GLuint skin_tex, bool is_weapon,
 
 	M_Angle2Matrix(~ mo->angle, &data.rx_mat, &data.ry_mat);
 
-	R_ColmapPipe_AdjustLight(mo->bright);
+	R_ColmapPipe_AdjustLight(mo->state->bright);
 
 	/* draw the model */
 	for (int i = 0; i < md->num_strips; i++)

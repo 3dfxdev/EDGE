@@ -415,20 +415,21 @@ static inline void LinkDrawthingIntoDrawfloor(
 static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *flip)
 {
 	// decide which patch to use for sprite relative to player
+	SYS_ASSERT(mo->state);
 
-	if (mo->sprite == SPR_NULL)
+	if (mo->state->sprite == SPR_NULL)
 		return NULL;
 
 #ifdef DEVELOPERS
 	// this shouldn't happen
-	if ((unsigned int)mo->sprite >= (unsigned int)numsprites)
-		I_Error("R2_GetThingSprite: invalid sprite number %i.\n", mo->sprite);
+	if ((unsigned int)mo->state->sprite >= (unsigned int)numsprites)
+		I_Error("R2_GetThingSprite: invalid sprite number %i.\n", mo->state->sprite);
 #endif
 
-	spritedef_c *sprite = sprites[mo->sprite];
+	spritedef_c *sprite = sprites[mo->state->sprite];
 
-	if (mo->frame >= sprite->numframes ||
-		!sprite->frames[mo->frame].finished)
+	if (mo->state->frame >= sprite->numframes ||
+		!sprite->frames[mo->state->frame].finished)
 	{
 #if 1
 		// -AJA- 2001/08/04: allow the patch to be missing
@@ -437,11 +438,11 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 #else
 		// -ACB- 1998/06/29 More Informative Error Message
 		I_Error("R2_GetThingSprite: Invalid sprite frame %s:%c",
-			sprite->name, 'A' + mo->frame);
+			sprite->name, 'A' + mo->state->frame);
 #endif
 	}
 
-	spriteframe_c *frame = sprite->frames + mo->frame;
+	spriteframe_c *frame = sprite->frames + mo->state->frame;
 
 	int rot = 0;
 
@@ -1123,7 +1124,7 @@ return;
 
 	data.normal.Set(-viewcos, -viewsin, 0);
 
-	R_ColmapPipe_AdjustLight(dthing->mo->bright);
+	R_ColmapPipe_AdjustLight(dthing->mo->state->bright);
 
 	R_RunPipeline(GL_POLYGON, 4, tex_id,
 			      trans, blending, PIPEF_NONE,
