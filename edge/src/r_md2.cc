@@ -29,16 +29,12 @@
 #include "epi/types.h"
 #include "epi/endianess.h"
 
-#include "epi/image_data.h"
-#include "epi/image_jpeg.h"
-
 #include "r_md2.h"
 #include "r_gldefs.h"
+#include "r_misc.h"
 #include "r_state.h"
 #include "r_units.h"
 #include "m_math.h"
-
-#include "r_texgl.h"
 
 #include "dm_state.h"  //!!!! game_dir
 
@@ -46,8 +42,6 @@
 
 extern int leveltime; //!!!!
 
-
-static GLuint skin_tex = 0;
 
 // #define DEBUG_MD2_LOAD  1
 
@@ -378,17 +372,6 @@ public:
 
 md2_model_c *MD2_LoadModel(epi::file_c *f)
 {
-	if (! skin_tex)
-	{
-		epi::file_c *skf = M_OpenComposedEPIFile(game_dir.GetString(), "md2/knight/skin.jpg");
-		if (! f) I_Error("Cannot open skin.");
-
-		epi::image_data_c *img = epi::JPEG_Load(skf, epi::IRF_Round_POW2);
-		if (! img) I_Error("Cannot load skin.");
-
-		skin_tex = R_UploadTexture(img, NULL, UPL_Clamp | UPL_Smooth | UPL_MipMap);
-	}
-
 	int i;
 
 	raw_md2_header_t header;
@@ -565,9 +548,19 @@ typedef struct
 	float R, G, B;
 	float x, y, z;
 
-	vec2_t x_mat;
-	vec2_t y_mat;
+	bool is_weapon;
+
+	// scaling
+	float xy_scale;
 	float  z_scale;
+
+	// mlook vectors
+	vec2_t kx_mat;
+	vec2_t kz_mat;
+
+	// rotation vectors
+	vec2_t rx_mat;
+	vec2_t ry_mat;
 
 	mobj_t *mo;
 }
@@ -591,9 +584,17 @@ static void ModelCoordFunc(void *d, int v_idx,
 	const md2_point_c *point = &md->points[strip->first + v_idx];
 	const md2_vertex_c *vert = &frame->vertices[point->vert_idx];
 
-	pos->x = data->x + vert->x * data->x_mat.x + vert->y * data->x_mat.y;
-	pos->y = data->y + vert->x * data->y_mat.x + vert->y * data->y_mat.y;
-	pos->z = data->z + vert->z * data->z_scale;
+	float x1 = vert->x * data->xy_scale;
+	float y1 = vert->y * data->xy_scale;
+	float z1 = vert->z * data-> z_scale;
+
+	float x2 = x1 * data->kx_mat.x + z1 * data->kx_mat.y;
+	float z2 = x1 * data->kz_mat.x + z1 * data->kz_mat.y;
+    float y2 = y1;
+
+	pos->x = data->x + x2 * data->rx_mat.x + y2 * data->rx_mat.y;
+	pos->y = data->y + x2 * data->ry_mat.x + y2 * data->ry_mat.y;
+	pos->z = data->z + z2;
 
 	rgb[0] = data->R;
 	rgb[1] = data->G;
@@ -605,9 +606,13 @@ static void ModelCoordFunc(void *d, int v_idx,
 	float ny = md2_normals[vert->normal_idx].y;
 	float nz = md2_normals[vert->normal_idx].z;
 
-	normal->x = nx * data->x_mat.x + ny * data->x_mat.y;
-	normal->y = nx * data->y_mat.x + ny * data->y_mat.y;
-	normal->z = nz;
+	float nx2 = nx * data->kx_mat.x + nz * data->kx_mat.y;
+	float nz2 = nx * data->kz_mat.x + nz * data->kz_mat.y;
+	float ny2 = ny;
+
+	normal->x = nx2 * data->rx_mat.x + ny2 * data->rx_mat.y;
+	normal->y = nx2 * data->ry_mat.x + ny2 * data->ry_mat.y;
+	normal->z = nz2;
 
 	if (true) /// NORMAL LIGHTING
 	{
@@ -622,7 +627,7 @@ static void ModelCoordFunc(void *d, int v_idx,
 //		vz /= v_dist;
 
 		float vx = 0;
-		float vy = -1;
+		float vy = 1;
 		float vz = 0;
 
 		vx *= normal->x;
@@ -631,7 +636,7 @@ static void ModelCoordFunc(void *d, int v_idx,
 
 		float n_dist = vx + vy + vz;
 
-		n_dist = 0.4 - n_dist * 0.6;
+		n_dist = 0.5 - n_dist * 0.5;
 		n_dist = CLAMP(n_dist, 0, 1);
 
 		rgb[0] = n_dist;
@@ -643,7 +648,8 @@ static void ModelCoordFunc(void *d, int v_idx,
 }
 
 
-void MD2_RenderModel(md2_model_c *md, mobj_t *mo, region_properties_t *props)
+void MD2_RenderModel(md2_model_c *md, GLuint skin_tex, bool is_weapon,
+		             mobj_t *mo, region_properties_t *props)
 {
 	int n = (leveltime / 8) % md->num_frames;
 
@@ -670,17 +676,23 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo, region_properties_t *props)
 
 	data.x = mo->x;
 	data.y = mo->y;
-	data.z = mo->z + 24.0;
+	data.z = mo->z + 24;
 
-	M_Angle2Matrix(~ mo->angle, &data.x_mat, &data.y_mat);
+	if (is_weapon)
+	{
+		data.x = viewx + viewcos * 1;
+		data.y = viewy + viewsin * 1;
+		data.z = viewz + 1;
+	}
 
-	// TODO: Scaling
-	// data.x_mat.x *= scale;
-	// data.x_mat.y *= scale;
-	// data.y_mat.x *= scale;
-	// data.y_mat.y *= scale;
+	data.is_weapon = is_weapon;
 
-	data.z_scale = 1.0f;
+	data.xy_scale = 1.0;
+	data. z_scale = 1.0;
+
+	M_Angle2Matrix(is_weapon ? ~mo->vertangle : 0, &data.kx_mat, &data.kz_mat);
+
+	M_Angle2Matrix(~ mo->angle, &data.rx_mat, &data.ry_mat);
 
 	R_ColmapPipe_AdjustLight(mo->bright);
 
@@ -690,7 +702,7 @@ void MD2_RenderModel(md2_model_c *md, mobj_t *mo, region_properties_t *props)
 		data.strip = i;
 
 		R_RunPipeline(md->strips[i].mode, md->strips[i].count,
-				      0*skin_tex, trans, blending, PIPEF_NONE, //!!!!!
+				      skin_tex, trans, blending, PIPEF_NONE, //!!!!!
 					  &data, ModelCoordFunc);
 	}
 

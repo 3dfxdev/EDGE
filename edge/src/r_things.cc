@@ -28,6 +28,9 @@
 
 #include <math.h>
 
+#include "epi/image_data.h"
+#include "epi/image_jpeg.h"
+
 #include "dm_data.h"
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -44,6 +47,8 @@
 
 #include "r_md2.h"
 #include "m_misc.h"  // !!!! model test
+#include "r_texgl.h"
+
 
 #define DEBUG  0
 
@@ -116,6 +121,8 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 							player_t * player, region_properties_t *props,
 							const state_t *state)
 {
+return; //!!!!!!
+
 	// determine sprite patch
 	bool flip;
 	const image_c *image = R2_GetOtherSprite(state->sprite, state->frame, &flip);
@@ -954,25 +961,35 @@ static void ThingCoordFunc(void *d, int v_idx,
 void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 {
 
-#if 1 //!!!!!!
 if (dthing->mo->extendedflags & EF_MONSTER)
 {
+#if 1 //!!!!!!
 	static md2_model_c *md = NULL;
+	static GLuint skin_tex = 0;
+
 	if (! md)
 	{
-		epi::file_c *f = M_OpenComposedEPIFile(game_dir.GetString(), "md2/knight/tris.md2");
+		epi::file_c *f = M_OpenComposedEPIFile(game_dir.GetString(), "md2/rocket/tris.md2");
 		if (! f) I_Error("Cannot open MD2 file.");
 
 		md = MD2_LoadModel(f);
 		if (! f) I_Error("Error loading MD2 file.");
+
+		epi::file_c *skf = M_OpenComposedEPIFile(game_dir.GetString(), "md2/rocket/skin.jpg");
+		if (! f) I_Error("Cannot open skin.");
+
+		epi::image_data_c *img = epi::JPEG_Load(skf, epi::IRF_Round_POW2);
+		if (! img) I_Error("Cannot load skin.");
+
+		skin_tex = R_UploadTexture(img, NULL, UPL_Clamp | UPL_Smooth | UPL_MipMap);
 	}
 
-//RGL_DrawUnits();
-
-MD2_RenderModel(md, dthing->mo, dfloor->props);
+player_t *pl = players[displayplayer];
+	
+MD2_RenderModel(md, skin_tex, true, pl->mo, dfloor->props);
 return;
-}
 #endif
+}
 	
 	int fuzzy = (dthing->mo->flags & MF_FUZZY);
 
