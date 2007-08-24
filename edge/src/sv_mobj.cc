@@ -131,7 +131,6 @@ static savefield_t sv_fields_mobj[] =
 	// NOT HERE:
 	//   subsector & region: these are regenerated.
 	//   next,prev,snext,sprev,bnext,bprev: links are regenerated.
-	//   sprite,frame,bright: regenerated from current state.
 	//   tunnel_hash: would be meaningless, and not important.
 	//   lastlookup: being reset to zero won't hurt.
 	//   ...
@@ -350,13 +349,6 @@ void SV_MobjFinaliseElems(void)
 
 	for (mo=mobjlisthead; mo; mo=mo->next)
 	{
-		if (mo->state)
-		{
-			mo->sprite = mo->state->sprite;
-			mo->frame  = mo->state->frame;
-			mo->bright = mo->state->bright;
-		}
-
 		P_SetThingPosition(mo);
 
 		// handle reference counts

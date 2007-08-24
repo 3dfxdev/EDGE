@@ -587,10 +587,12 @@ void R_PrecacheSprites(void)
 
 	for (mo = mobjlisthead; mo; mo = mo->next)
 	{
-		if (mo->sprite < 1 || mo->sprite >= numsprites)
+		SYS_ASSERT(mo->state);
+
+		if (mo->state->sprite < 1 || mo->state->sprite >= numsprites)
 			continue;
 
-		sprite_present[mo->sprite] = 1;
+		sprite_present[mo->state->sprite] = 1;
 	}
 
 	for (i=1; i < numsprites; i++)  // ignore SPR_NULL

@@ -487,9 +487,6 @@ bool P_SetMobjState(mobj_t * mobj, statenum_t state)
 
 	mobj->state  = st;
 	mobj->tics   = st->tics;
-	mobj->sprite = st->sprite;
-	mobj->frame  = st->frame;
-	mobj->bright = st->bright;
 	mobj->next_state = (st->nextstate == S_NULL) ? NULL :
 		(states + st->nextstate);
 
@@ -1800,9 +1797,6 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 
 	mobj->state  = st;
 	mobj->tics   = 0;
-	mobj->sprite = st->sprite;
-	mobj->frame  = st->frame;
-	mobj->bright = st->bright;
 	mobj->next_state = st;
 
 	SYS_ASSERT(! mobj->isRemoved());
