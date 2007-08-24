@@ -1,5 +1,31 @@
 Andrew Apted's Log
 
+2007/08/24:
+
+Messed around with rendering MD2 weapon models.
+
+2007/08/23:
+
+Implemented RESISTANCE_PAINCHANCE for things.ddf.
+
+Implemented new WEAKNESS structure for things.ddf.  The
+following example shows the new fields:
+
+   WEAKNESS.CLASS=A-Z;         // attack classes
+   WEAKNESS.HEIGHTS=85%:100%;  // height range
+   WEAKNESS.ANGLES=315:45;     // angle range
+   WEAKNESS.MULTIPLY=3.0;      // damage multiplier
+   WEAKNESS.PAINCHANCE=95%;
+
+The CLASS field is _required_ to enable this feature.
+All the other fields are optional.  The height and angle
+ranges default to the whole object.  When the PAINCHANCE
+field is not used, the object's normal PAINCHANCE is used.
+
+This feature also includes two new states: WEAKPAIN and
+WEAKDEATH.  These will be entered when the weak spot is
+hit and the target is hurt/killed.  They are optional too.
+
 2007/08/22:
 
 Implemented RESISTANCE_MULTIPLY to go with RESISTANCE_CLASS,
