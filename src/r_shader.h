@@ -96,7 +96,7 @@ public:
 
 	virtual void WorldMix(GLuint shape, int num_vert,
 		GLuint tex, float alpha, int pass, int blending,
-		void *data, shader_coord_func_t func);
+		void *data, shader_coord_func_t func) = 0;
 };
 
 
