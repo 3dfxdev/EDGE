@@ -5,6 +5,12 @@ Andrew Apted's Log
 Fixed bug saving the 'mipmapping' setting, it was incorrectly
 marked as Boolean instead of Int.  Reported by Dartmerc. 
 
+Worked on new "Glow" system for different types of lighting,
+where the state for a particular type (e.g. dynamic lights)
+is encapsulated in a class and the abstract base provides
+common methods to get the light information out, e.g. for
+sprites the common method is Sample(point) --> color.
+
 2007/08/24:
 
 Messed around with rendering MD2 weapon models.
