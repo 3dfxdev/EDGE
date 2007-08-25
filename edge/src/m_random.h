@@ -38,9 +38,6 @@ bool P_RandomTest(percent_t chance);
 int P_ReadRandomState(void);
 void P_WriteRandomState(int value);
 
-// This is used in various places:
-extern unsigned char rndtable[256];
-
 #endif // __M_RANDOM__
 
 //--- editor settings ---
