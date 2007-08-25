@@ -964,7 +964,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 if (dthing->mo->extendedflags & EF_MONSTER)
 {
-#if 1 //!!!!!!
+#if 0 //!!!!!!
 	static md2_model_c *md = NULL;
 	static GLuint skin_tex = 0;
 

@@ -614,7 +614,7 @@ static void ModelCoordFunc(void *d, int v_idx,
 	normal->y = nx2 * data->ry_mat.x + ny2 * data->ry_mat.y;
 	normal->z = nz2;
 
-	if (true) /// NORMAL LIGHTING
+	if (false) /// NORMAL LIGHTING
 	{
 //		float vx = data->mo->x - viewx;
 //		float vy = data->mo->y - viewy;
