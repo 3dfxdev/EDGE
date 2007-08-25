@@ -215,5 +215,95 @@ public:
 	}
 };
 
+
+
+//----------------------------------------------------------------------------
+//  LASER GLOWS
+//----------------------------------------------------------------------------
+
+class laser_glow_c : public glow_source_c
+{
+public:
+	vec3_t s, e;
+
+	float length;
+	vec3_t normal;
+
+	float r;
+	rgbcol_t color;
+	float bright;
+
+public:
+	laser_glow_c(const vec3_t& _v1, const vec3_t& _v2,
+			     float _radius, rgbcol_t _col, float _intensity) :
+		s(_v1), e(_v2), r(_radius), color(_col), bright(_intensity)
+	{
+		normal.x = e.x - s.x;
+		normal.y = e.y - s.y;
+		normal.z = e.z - s.z;
+
+		length = sqrt(normal.x * normal.x + normal.y * normal.y +
+				           normal.z * normal.z);
+
+		if (length < 0.1)
+			length = 0.1;
+
+		normal.x /= length;
+		normal.y /= length;
+		normal.z /= length;
+	}
+
+	virtual ~laser_glow_c()
+	{ /* nothing to do */ }
+
+	virtual void Sample(glow_color_c *col, float x, float y, float z)
+	{
+		x -= s.x;
+		y -= s.y;
+		z -= s.z;
+
+		// step 1: length-wise checks
+		
+		// dot product
+		float along = x*normal.x + y*normal.y + z*normal.z;
+
+		if (along < -r || along > length+r)
+			return;
+
+		if (along < 0)
+			along = -along;
+		else if (along > length)
+			along = along - length;
+		else
+			along = 0;
+
+		// step 2: perpendicular distance
+
+		// cross product
+		float cx = y * normal.z - normal.y * z;
+		float cy = z * normal.x - normal.z * x;
+		float cz = x * normal.y - normal.x * y;
+
+		float dist = sqrt(cx*cx + cy*cy + cz*cz);
+
+		dist += along;
+
+		// FIXME: assumes standard DLIGHT image
+
+		float L = exp(-5.44 * dist * dist);
+
+		L = L * bright / 255.0;
+
+		if (L > 1/256.0)
+		{
+			if (false) // FIXME
+				col->add_Give(color, L); 
+			else
+				col->mod_Give(color, L); 
+		}
+	}
+};
+
+
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
