@@ -58,7 +58,8 @@ private:
 	bool simple_cmap;
 
 public:
-	colormap_shader_c(int light) : light_lev(light)
+	colormap_shader_c(int _light, GLuint _tex) :
+		light_lev(_light), fade_tex(_tex), simple_cmap(true)
 	{
 	}
 
@@ -136,6 +137,15 @@ public:
 	}
 
 };
+
+extern GLuint MakeColormapTexture( int mode );
+
+extern abstract_shader_c *MakeColormapShader(void)
+{
+	GLuint tex = MakeColormapTexture(0);
+
+	return new colormap_shader_c(144, tex);
+}
 
 
 //----------------------------------------------------------------------------

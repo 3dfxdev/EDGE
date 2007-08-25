@@ -36,6 +36,7 @@
 #include "r_misc.h"
 #include "r_image.h" //!!!
 #include "r_texgl.h" //!!!
+#include "r_shader.h" //!!!
 
 bool use_lighting = true;
 bool use_color_material = true;
@@ -530,8 +531,6 @@ static inline void TexCoord_Fader(local_gl_vert_t *v, int t,
 }
 
 
-extern GLuint MakeColormapTexture( int mode );
-
 void R_ColmapPipe_SetProps(const struct region_properties_s *props)
 {
 	cmap_props = props;
@@ -548,11 +547,29 @@ void R_ColmapPipe_AdjustLight(int adjust)
 	cmap_lit_Nom = CLAMP(cmap_lit_Nom, 0, 255);
 }
 
+
+static abstract_shader_c *cmap_shader;
+
+extern abstract_shader_c *MakeColormapShader(void);
+
+extern GLuint MakeColormapTexture( int mode );
+
+
 static inline void Pipeline_Colormap(int& group,
 	GLuint shape, int num_vert,
 	GLuint tex, float alpha, int blending, int flags,
 	void *func_data, pipeline_coord_func_t func)
 {
+	if (! cmap_shader)
+		cmap_shader = MakeColormapShader();
+
+	cmap_shader->WorldMix(shape, num_vert, tex,
+			alpha, 0, blending, func_data,
+			(shader_coord_func_t) func);
+
+	return;
+
+
 	/* FIRST PASS : draw the colormapped primitive */
 
 	local_gl_vert_t *glvert;
@@ -561,8 +578,8 @@ static inline void Pipeline_Colormap(int& group,
 
 	if (true)
 	{
-		if (fade_tex[0] == 0)
-			fade_tex[0] = MakeColormapTexture(0); // simple_cmap ? 0 : 1);
+	if (fade_tex[0] == 0)
+		fade_tex[0] = MakeColormapTexture(0); // simple_cmap ? 0 : 1);
 	
 		glvert = RGL_BeginUnit(shape, num_vert, GL_MODULATE, tex,
 				(simple_cmap || dumb_multi) ? GL_MODULATE : GL_DECAL,
@@ -867,14 +884,14 @@ void R_RunPipeline(GLuint shape, int num_vert,
 	Pipeline_Colormap(group, shape, num_vert,
 		tex, alpha, blending, flags, func_data, func);
 
-	Pipeline_Glows(group, shape, num_vert,
-		tex, alpha, blending, flags, func_data, func);
+//	Pipeline_Glows(group, shape, num_vert,
+//		tex, alpha, blending, flags, func_data, func);
+//
+//	Pipeline_Shadow(group, shape, num_vert,
+//		tex, alpha, blending, flags, func_data, func);
 
-	Pipeline_Shadow(group, shape, num_vert,
-		tex, alpha, blending, flags, func_data, func);
-
-	Pipeline_DLights(group, shape, num_vert,
-		tex, alpha, blending, flags, func_data, func);
+//	Pipeline_DLights(group, shape, num_vert,
+//		tex, alpha, blending, flags, func_data, func);
 }
 
 

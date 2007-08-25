@@ -84,6 +84,7 @@ void RGL_EndUnit(int actual_vert);
 
 //----------------------------------------------------------------------------
 
+#include "r_shader.h"  // UGH
 
 typedef enum
 {
@@ -94,9 +95,8 @@ typedef enum
 }
 pipeline_flags_e;
 
-typedef void (* pipeline_coord_func_t)(void *data, int v_idx,
-	vec3_t *pos, float *rgb, vec2_t *texc,
-	vec3_t *normal, vec3_t *lit_pos);
+// TEMP CRUD:
+typedef void (* pipeline_coord_func_t)(...);
 
 void R_InitPipeline(void);
 
