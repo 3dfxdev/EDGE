@@ -229,14 +229,13 @@ public:
 	float length;
 	vec3_t normal;
 
-	float r;
-	rgbcol_t color;
+	const mobjtype_c *info;
 	float bright;
 
 public:
 	laser_glow_c(const vec3_t& _v1, const vec3_t& _v2,
-			     float _radius, rgbcol_t _col, float _intensity) :
-		s(_v1), e(_v2), r(_radius), color(_col), bright(_intensity)
+				 const mobjtype_c *_info, float _intensity) :
+		s(_v1), e(_v2), info(_info), bright(_intensity)
 	{
 		normal.x = e.x - s.x;
 		normal.y = e.y - s.y;
@@ -264,6 +263,8 @@ public:
 
 		// step 1: length-wise checks
 		
+		float r = info->dlight0.radius;
+
 		// dot product
 		float along = x*normal.x + y*normal.y + z*normal.z;
 
@@ -271,9 +272,9 @@ public:
 			return;
 
 		if (along < 0)
-			along = -along;
+			along = -along / r;
 		else if (along > length)
-			along = along - length;
+			along = (along - length) / r;
 		else
 			along = 0;
 
@@ -284,7 +285,7 @@ public:
 		float cy = z * normal.x - normal.z * x;
 		float cz = x * normal.y - normal.x * y;
 
-		float dist = sqrt(cx*cx + cy*cy + cz*cz);
+		float dist = (cx*cx + cy*cy + cz*cz) / r;
 
 		dist += along;
 
@@ -296,10 +297,10 @@ public:
 
 		if (L > 1/256.0)
 		{
-			if (false) // FIXME
-				col->add_Give(color, L); 
+			if (info->dlight0.type == DLITE_Add)
+				col->add_Give(info->dlight0.colour, L); 
 			else
-				col->mod_Give(color, L); 
+				col->mod_Give(info->dlight0.colour, L); 
 		}
 	}
 };
