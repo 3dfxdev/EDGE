@@ -1,8 +1,17 @@
 Andrew Apted's Log
 
+2007/08/25:
+
+Fixed bug saving the 'mipmapping' setting, it was incorrectly
+marked as Boolean instead of Int.  Reported by Dartmerc. 
+
 2007/08/24:
 
 Messed around with rendering MD2 weapon models.
+
+Removed 'sprite', 'frame' and 'bright' fields out of mobj_t
+structure, as they were never different from their mo->state
+counterparts (i.e. they were redundant).
 
 2007/08/23:
 
