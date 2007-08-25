@@ -701,9 +701,9 @@ void MD2_RenderModel(md2_model_c *md, GLuint skin_tex, bool is_weapon,
 	{
 		data.strip = i;
 
-		R_RunPipeline(md->strips[i].mode, md->strips[i].count,
-				      skin_tex, trans, blending, PIPEF_NONE, //!!!!!
-					  &data, ModelCoordFunc);
+//		R_RunPipeline(md->strips[i].mode, md->strips[i].count,
+//				      skin_tex, trans, blending, PIPEF_NONE, //!!!!!
+//					  &data, ModelCoordFunc);
 	}
 
 	R_ColmapPipe_AdjustLight(0);

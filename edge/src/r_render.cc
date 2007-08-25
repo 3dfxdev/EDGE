@@ -1199,7 +1199,7 @@ static void RGL_DrawWall(drawfloor_t *dfloor, float top,
 
 	R_RunPipeline(GL_POLYGON, v_count, tex_id,
 			      trans, blending, PIPEF_NONE,
-				  &data, WallCoordFunc);
+				  &data, (pipeline_coord_func_t) WallCoordFunc);
 
 	R_ColmapPipe_AdjustLight(0);
 
@@ -1491,7 +1491,7 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 
 		R_RunPipeline(GL_QUAD_STRIP, (piece_col+1) * 2,
 				      tex_id, 1.0, BL_NONE, PIPEF_NONE,
-					  &data, FloodCoordFunc);
+					  &data, (pipeline_coord_func_t) FloodCoordFunc);
 	}
 }
 
@@ -2089,7 +2089,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	R_RunPipeline(GL_POLYGON, v_count, tex_id,
 			      trans, blending, PIPEF_NONE,
-				  &data, PlaneCoordFunc);
+				  &data, (pipeline_coord_func_t) PlaneCoordFunc);
 
 #if 0  // OLD WAY
 	int pass = 0;

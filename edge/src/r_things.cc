@@ -121,7 +121,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 							player_t * player, region_properties_t *props,
 							const state_t *state)
 {
-return; //!!!!!!
+if (false) return; //!!!!!!
 
 	// determine sprite patch
 	bool flip;
@@ -261,7 +261,7 @@ return; //!!!!!!
 
 	R_RunPipeline(GL_POLYGON, 4, tex_id,
 			      trans, blending, PIPEF_NONE,
-				  &data, PSpriteCoordFunc);
+				  &data, (pipeline_coord_func_t) PSpriteCoordFunc);
 
 	R_ColmapPipe_AdjustLight(0);
 
@@ -1128,7 +1128,7 @@ return;
 
 	R_RunPipeline(GL_POLYGON, 4, tex_id,
 			      trans, blending, PIPEF_NONE,
-				  &data, ThingCoordFunc);
+				  &data, (pipeline_coord_func_t) ThingCoordFunc);
 
 	R_ColmapPipe_AdjustLight(0);
 }
