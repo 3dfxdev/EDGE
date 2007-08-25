@@ -24,6 +24,7 @@
 #include "p_mobj.h"
 #include "r_defs.h"
 #include "r_gldefs.h"
+#include "r_image.h"   // W_ImageCache
 #include "r_misc.h"
 #include "r_shader.h"
 #include "r_state.h"
@@ -47,7 +48,7 @@ int R_DoomLightingEquation(int L, float dist)
 
 class colormap_shader_c : public abstract_shader_c
 {
-public:
+private:
 	// FIXME colormap_c 
 
 	int light_lev;
@@ -64,6 +65,33 @@ public:
 	virtual ~colormap_shader_c()
 	{ /* nothing to do */ }
 
+private:
+	inline float DistFromViewplane(float x, float y, float z)
+	{
+		float lk_cos = M_Cos(viewvertangle);
+		float lk_sin = M_Sin(viewvertangle);
+
+		// view vector
+		float vx = lk_cos * viewcos;
+		float vy = lk_cos * viewsin;
+		float vz = lk_sin;
+
+		float dx = (x - viewx) * vx;
+		float dy = (y - viewy) * vy;
+		float dz = (z - viewz) * vz;
+
+		return dx + dy + dz;
+	}
+
+	inline void TexCoord(local_gl_vert_t *v, int t, const vec3_t *lit_pos)
+	{
+		float dist = DistFromViewplane(lit_pos->x, lit_pos->y, lit_pos->z);
+				
+		v->texc[t].x = dist / 1600.0;
+		v->texc[t].y = ((light_lev / 4) + 0.5) / 64.0;
+	}
+
+public:
 	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
 		// FIXME: assumes standard COLORMAP
@@ -81,17 +109,14 @@ public:
 		// FIXME: for foggy maps, need to adjust add_R/G/B too
 	}
 
-	/*virtual*/ void WorldMix(
-		int& group, GLuint shape, int num_vert,
-		GLuint tex, float alpha, int blending,
-		void *func_data, pipeline_coord_func_t func)
+	virtual void WorldMix(GLuint shape, int num_vert,
+		GLuint tex, float alpha, int pass, int blending,
+		void *data, shader_coord_func_t func)
 	{
-
 		local_gl_vert_t * glvert = RGL_BeginUnit(shape, num_vert,
 				GL_MODULATE, tex,
 				(simple_cmap || dumb_multi) ? GL_MODULATE : GL_DECAL,
-				fade_tex, group, blending);
-		group++;
+				fade_tex, pass, blending);
 
 		for (int v_idx=0; v_idx < num_vert; v_idx++)
 		{
@@ -101,38 +126,15 @@ public:
 
 			vec3_t lit_pos;
 
-			(*func)(func_data, v_idx, &dest->pos, dest->rgba,
+			(*func)(data, v_idx, &dest->pos, dest->rgba,
 					&dest->texc[0], &dest->normal, &lit_pos);
 
-			FadeTexCoord(dest, 1, &lit_pos);
+			TexCoord(dest, 1, &lit_pos);
 		}
+
+		RGL_EndUnit(num_vert);
 	}
 
-	float DistFromViewplane(float x, float y, float z)
-	{
-		float lk_cos = M_Cos(viewvertangle);
-		float lk_sin = M_Sin(viewvertangle);
-
-		// view vector
-		float vx = lk_cos * viewcos;
-		float vy = lk_cos * viewsin;
-		float vz = lk_sin;
-
-		float dx = (x - viewx) * vx;
-		float dy = (y - viewy) * vy;
-		float dz = (z - viewz) * vz;
-
-		return dx + dy + dz;
-	}
-
-	void FadeTexCoord(local_gl_vert_t *v, int t,
-			const vec3_t *lit_pos)
-	{
-		float dist = DistFromViewplane(lit_pos->x, lit_pos->y, lit_pos->z);
-				
-		v->texc[t].x = dist / 1600.0;
-		v->texc[t].y = ((light_lev / 4) + 0.5) / 64.0;
-	}
 };
 
 
@@ -142,16 +144,40 @@ public:
 
 class dynlight_shader_c : public abstract_shader_c
 {
-public:
+private:
 	mobj_t *mo;
+
+	GLuint DL_tex;
 
 public:
 	dynlight_shader_c(mobj_t *object) : mo(object)
-	{ }
+	{
+		SYS_ASSERT(mo->dlight[0].image);
+
+		DL_tex = W_ImageCache(mo->dlight[0].image);
+	}
 	
 	virtual ~dynlight_shader_c()
 	{ /* nothing to do */ }
 
+private:
+	inline void TexCoord(const mobj_t *mo,
+		const vec3_t *lit_pos, const vec3_t *normal,
+		GLfloat *rgb, vec2_t *texc)
+	{
+		float dx = lit_pos->x - mo->x;
+		float dy = lit_pos->y - mo->y;
+		float dz = lit_pos->z - mo->z;
+
+		float d_len = sqrt(dx*dx + dy*dy + dz*dz);
+
+		// !!!!! FIXME
+
+		texc->x = 0.5 + dx / 400.0;
+		texc->y = 0.5 + dy / 400.0;
+	}
+
+public:
 	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
 		// FIXME: assumes standard DLIGHT image
@@ -176,6 +202,42 @@ public:
 				col->mod_Give(mo->dlight[0].color, L); 
 		}
 	}
+
+	virtual void WorldMix(GLuint shape, int num_vert,
+		GLuint tex, float alpha, int pass, int blending,
+		void *data, shader_coord_func_t func)
+	{
+		//!!!!! FIXME: if (dist_to_light > DL->info->radius) continue;
+
+		float R = RGB_RED(mo->dlight[0].color) / 255.0;
+		float G = RGB_RED(mo->dlight[0].color) / 255.0;
+		float B = RGB_RED(mo->dlight[0].color) / 255.0;
+
+		local_gl_vert_t *glvert = RGL_BeginUnit(shape, num_vert,
+				    ENV_NONE,0, //!!!! GL_MODULATE, tex,
+					GL_MODULATE, DL_tex, pass, blending);
+
+		for (int v_idx=0; v_idx < num_vert; v_idx++)
+		{
+			local_gl_vert_t *dest = glvert + v_idx;
+
+			vec3_t lit_pos;
+
+			(*func)(data, v_idx, &dest->pos, dest->rgba,
+					&dest->texc[0], &dest->normal, &lit_pos);
+
+			dest->rgba[0] = R;
+			dest->rgba[1] = G;
+			dest->rgba[2] = B;
+			dest->rgba[3] = alpha;
+
+			TexCoord(mo, &lit_pos, &dest->normal,
+					 dest->rgba, &dest->texc[1]);
+		}
+
+		RGL_EndUnit(num_vert);
+	}
+
 };
 
 
@@ -185,7 +247,7 @@ public:
 
 class plane_glow_c : public abstract_shader_c
 {
-public:
+private:
 	float h;
 
 	mobj_t *mo;
@@ -216,12 +278,19 @@ public:
 				col->mod_Give(mo->dlight[0].color, L); 
 		}
 	}
+
+	virtual void WorldMix(GLuint shape, int num_vert,
+		GLuint tex, float alpha, int pass, int blending,
+		void *data, shader_coord_func_t func)
+	{
+		/* TODO */
+	}
 };
 
 
 class wall_glow_c : public abstract_shader_c
 {
-public:
+private:
 	line_t *ld;
 	mobj_t *mo;
 
@@ -256,6 +325,13 @@ public:
 				col->mod_Give(mo->dlight[0].color, L); 
 		}
 	}
+
+	virtual void WorldMix(GLuint shape, int num_vert,
+		GLuint tex, float alpha, int pass, int blending,
+		void *data, shader_coord_func_t func)
+	{
+		/* TODO */
+	}
 };
 
 
@@ -266,7 +342,7 @@ public:
 
 class laser_glow_c : public abstract_shader_c
 {
-public:
+private:
 	vec3_t s, e;
 
 	float length;
@@ -345,6 +421,13 @@ public:
 			else
 				col->mod_Give(info->dlight0.colour, L); 
 		}
+	}
+
+	virtual void WorldMix(GLuint shape, int num_vert,
+		GLuint tex, float alpha, int pass, int blending,
+		void *data, shader_coord_func_t func)
+	{
+		/* TODO */
 	}
 };
 

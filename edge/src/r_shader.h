@@ -80,14 +80,23 @@ public:
 };
 
 
+typedef void (* shader_coord_func_t)(void *data, int v_idx,
+	vec3_t *pos, float *rgb, vec2_t *texc,
+	vec3_t *normal, vec3_t *lit_pos);
+
+
 /* abstract base class */
 class abstract_shader_c
 {
 public:
-	abstract_shader_c
-	virtual ~abstract_shader_c
+	abstract_shader_c() { }
+	virtual ~abstract_shader_c() { }
 
 	virtual void Sample(multi_color_c *col, float x, float y, float z) = 0;
+
+	virtual void WorldMix(GLuint shape, int num_vert,
+		GLuint tex, float alpha, int pass, int blending,
+		void *data, shader_coord_func_t func);
 };
 
 
