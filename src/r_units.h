@@ -64,11 +64,14 @@ blending_mode_e;
 
 typedef enum
 {
+	ENV_NONE = 0,
+	// the texture unit is disabled (complete pass-through).
+
 	ENV_SKIP_RGB = CUSTOM_ENV_BEGIN+1,
 	// causes the RGB of the texture to be skipped, i.e. the
-	// output of the texture unit is the same as the input.
-	// However the alpha component is treated normally, i.e.
-	// modulation of input color and texture's alpha channel.
+	// output of the texture unit is the same as the input
+	// for the RGB components.  The alpha component is treated
+	// normally, i.e. passed on to next texture unit.
 }
 edge_environment_e;
 
