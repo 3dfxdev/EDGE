@@ -188,8 +188,6 @@ static int grid = 0;
 static int leveljuststarted = 1;  // kludge until LevelInit() is called
 
 int automapactive = 0;
-static int finit_width;
-static int finit_height;
 
 // location and size of window on screen
 static int f_x, f_y;
@@ -428,9 +426,10 @@ static void LevelInit(void)
 
 	leveljuststarted = 0;
 
-	f_x = f_y = 0;
-	f_w = finit_width;
-	f_h = finit_height;
+	f_x = 0;
+	f_y = FROM_200(ST_HEIGHT);
+	f_w = SCREENWIDTH;
+	f_h = SCREENHEIGHT - f_y;
 
 	ClearMarks();
 
@@ -473,9 +472,6 @@ static void StartAM(void)
 
 void AM_InitResolution(void)
 {
-	finit_width  = SCREENWIDTH;
-	finit_height = SCREENHEIGHT - FROM_200(ST_HEIGHT);
-
 	LevelInit();  // -ES- 1998/08/20
 
 	CON_CreateCVarBool("newhud", cf_normal, &map_overlay);
