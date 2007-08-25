@@ -120,8 +120,9 @@ static GLuint CaptureScreenAsTexture(bool use_alpha, bool spooky)
 		glReadPixels(0, py, SCREENWIDTH, 1, GL_RGB, GL_UNSIGNED_BYTE, line_buf);
 
 		int bp = use_alpha ? 4 : 3;
-		byte i = rndtable[y & 0xff];
 
+		int rnd_val = y;
+	
 		for (x=0; x < total_w; x++)
 		{
 			byte *dest_p = pixels + ((y * total_w + x) * bp);
@@ -137,7 +138,11 @@ static GLuint CaptureScreenAsTexture(bool use_alpha, bool spooky)
 				if (spooky)
 					dest_p[3] = SpookyAlpha(x, y);
 				else
-					dest_p[3] = rndtable[i++];
+				{
+					rnd_val = rnd_val * 1103515245 + 12345;
+
+					dest_p[3] = (rnd_val >> 16);
+				}
 			}
 		}
 	}
