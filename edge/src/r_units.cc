@@ -214,6 +214,9 @@ local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert,
 
 	unit = local_units + cur_unit;
 
+	if (env1 == ENV_NONE) tex1 = 0;
+	if (env2 == ENV_NONE) tex2 = 0;
+
 	unit->shape  = shape;
 	unit->env[0] = env1;
 	unit->env[1] = env2;
@@ -433,7 +436,7 @@ void RGL_DrawUnits(void)
 				{
 					EnableCustomEnv(unit->env[t], true);
 				}
-				else if (unit->env[t] != 0)
+				else if (unit->env[t] != ENV_NONE)
 					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, unit->env[t]);
 
 				active_env[t] = unit->env[t];
