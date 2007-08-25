@@ -22,6 +22,8 @@
 #include "ddf/main.h"
 
 #include "p_mobj.h"
+#include "r_defs.h"
+#include "r_gldefs.h"
 #include "r_glow.h"
 #include "r_misc.h"
 #include "r_state.h"
@@ -50,10 +52,15 @@ public:
 
 	int light_lev;
 
+	GLuint fade_tex;
+
+	bool simple_cmap;
+
 public:
 	colormap_glow_c(int light) : light_lev(light)
-	{ }
-	
+	{
+	}
+
 	virtual ~colormap_glow_c()
 	{ /* nothing to do */ }
 
@@ -74,6 +81,33 @@ public:
 		// FIXME: for foggy maps, need to adjust add_R/G/B too
 	}
 
+	/*virtual*/ void WorldMix(
+		int& group, GLuint shape, int num_vert,
+		GLuint tex, float alpha, int blending,
+		void *func_data, pipeline_coord_func_t func)
+	{
+
+		local_gl_vert_t * glvert = RGL_BeginUnit(shape, num_vert,
+				GL_MODULATE, tex,
+				(simple_cmap || dumb_multi) ? GL_MODULATE : GL_DECAL,
+				fade_tex, group, blending);
+		group++;
+
+		for (int v_idx=0; v_idx < num_vert; v_idx++)
+		{
+			local_gl_vert_t *dest = glvert + v_idx;
+
+			dest->rgba[3] = alpha;
+
+			vec3_t lit_pos;
+
+			(*func)(func_data, v_idx, &dest->pos, dest->rgba,
+					&dest->texc[0], &dest->normal, &lit_pos);
+
+			FadeTexCoord(dest, 1, &lit_pos);
+		}
+	}
+
 	float DistFromViewplane(float x, float y, float z)
 	{
 		float lk_cos = M_Cos(viewvertangle);
@@ -89,6 +123,15 @@ public:
 		float dz = (z - viewz) * vz;
 
 		return dx + dy + dz;
+	}
+
+	void FadeTexCoord(local_gl_vert_t *v, int t,
+			const vec3_t *lit_pos)
+	{
+		float dist = DistFromViewplane(lit_pos->x, lit_pos->y, lit_pos->z);
+				
+		v->texc[t].x = dist / 1600.0;
+		v->texc[t].y = ((light_lev / 4) + 0.5) / 64.0;
 	}
 };
 
