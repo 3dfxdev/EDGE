@@ -23,12 +23,74 @@
 
 #include "p_mobj.h"
 #include "r_glow.h"
+#include "r_misc.h"
+#include "r_state.h"
 
 
 //----------------------------------------------------------------------------
 //  COLORMAP
 //----------------------------------------------------------------------------
 
+int R_DoomLightingEquation(int L, float dist)
+{
+	/* L in the range 0 to 63 */
+
+	int index = (59 - L) - int(1280 / MAX(1, dist));
+	int min_L = MAX(0, 36 - L);
+
+	/* result is colormap index (0 bright .. 31 dark) */
+
+	return CLAMP(index, min_L, 31);
+}
+
+class colormap_glow_c : public glow_source_c
+{
+public:
+	// FIXME colormap_c *
+
+	int light_lev;
+
+public:
+	colormap_glow_c()
+	{ }
+	
+	virtual ~colormap_glow_c()
+	{ /* nothing to do */ }
+
+	virtual void Sample(glow_color_c *col, float x, float y, float z)
+	{
+		// FIXME: assumes standard COLORMAP
+
+		float dist = DistFromViewplane(x, y, z);
+
+		int cmap_idx = R_DoomLightingEquation(light_lev/4, dist);
+
+		int X = 255 - cmap_idx * 8 - cmap_idx / 5;
+
+		col->mod_R += X;
+		col->mod_G += X;
+		col->mod_B += X;
+
+		// FIXME: for foggy maps, need to adjust add_R/G/B too
+	}
+
+	void DistFromViewplane(float x, float y, float z)
+	{
+		float lk_cos = M_Cos(viewvertangle);
+		float lk_sin = M_Sin(viewvertangle);
+
+		// view vector
+		float vx = lk_cos * viewcos;
+		float vy = lk_cos * viewsin;
+		float vz = lk_sin;
+
+		float dx = (x - viewx) * vx;
+		float dy = (y - viewy) * vy;
+		float dz = (z - viewz) * vz;
+
+		return dx + dy + dz;
+	}
+};
 
 
 //----------------------------------------------------------------------------
