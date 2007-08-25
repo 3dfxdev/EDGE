@@ -39,9 +39,9 @@ typedef unsigned int rgbcol_t;
 
 #define RGB_MAKE(r,g,b)  (((r) << 16) | ((g) << 8) | (b))
 
-#define RGB_RED(rgbcol)  ((float)(((rgbcol) >> 16) & 0xFF) / 255.0f)
-#define RGB_GRN(rgbcol)  ((float)(((rgbcol) >>  8) & 0xFF) / 255.0f)
-#define RGB_BLU(rgbcol)  ((float)(((rgbcol)      ) & 0xFF) / 255.0f)
+#define RGB_RED(rgbcol)  (((rgbcol) >> 16) & 0xFF)
+#define RGB_GRN(rgbcol)  (((rgbcol) >>  8) & 0xFF)
+#define RGB_BLU(rgbcol)  (((rgbcol)      ) & 0xFF)
 
 
 // percentage type.  Ranges from 0.0f - 1.0f
