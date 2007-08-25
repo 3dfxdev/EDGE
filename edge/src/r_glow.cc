@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE Glow Lighting
+//  EDGE Lighting Shaders
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2007  The EDGE Team.
@@ -24,8 +24,8 @@
 #include "p_mobj.h"
 #include "r_defs.h"
 #include "r_gldefs.h"
-#include "r_glow.h"
 #include "r_misc.h"
+#include "r_shader.h"
 #include "r_state.h"
 
 
@@ -45,7 +45,7 @@ int R_DoomLightingEquation(int L, float dist)
 	return CLAMP(index, min_L, 31);
 }
 
-class colormap_glow_c : public glow_source_c
+class colormap_shader_c : public abstract_shader_c
 {
 public:
 	// FIXME colormap_c 
@@ -57,14 +57,14 @@ public:
 	bool simple_cmap;
 
 public:
-	colormap_glow_c(int light) : light_lev(light)
+	colormap_shader_c(int light) : light_lev(light)
 	{
 	}
 
-	virtual ~colormap_glow_c()
+	virtual ~colormap_shader_c()
 	{ /* nothing to do */ }
 
-	virtual void Sample(glow_color_c *col, float x, float y, float z)
+	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
 		// FIXME: assumes standard COLORMAP
 
@@ -140,19 +140,19 @@ public:
 //  DYNAMIC LIGHTS
 //----------------------------------------------------------------------------
 
-class dynlight_glow_c : public glow_source_c
+class dynlight_shader_c : public abstract_shader_c
 {
 public:
 	mobj_t *mo;
 
 public:
-	dynlight_glow_c(mobj_t *object) : mo(object)
+	dynlight_shader_c(mobj_t *object) : mo(object)
 	{ }
 	
-	virtual ~dynlight_glow_c()
+	virtual ~dynlight_shader_c()
 	{ /* nothing to do */ }
 
-	virtual void Sample(glow_color_c *col, float x, float y, float z)
+	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
 		// FIXME: assumes standard DLIGHT image
 
@@ -183,7 +183,7 @@ public:
 //  SECTOR GLOWS
 //----------------------------------------------------------------------------
 
-class plane_glow_c : public glow_source_c
+class plane_glow_c : public abstract_shader_c
 {
 public:
 	float h;
@@ -198,7 +198,7 @@ public:
 	virtual ~plane_glow_c()
 	{ /* nothing to do */ }
 
-	virtual void Sample(glow_color_c *col, float x, float y, float z)
+	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
 		// FIXME: assumes standard DLIGHT image
 
@@ -219,7 +219,7 @@ public:
 };
 
 
-class wall_glow_c : public glow_source_c
+class wall_glow_c : public abstract_shader_c
 {
 public:
 	line_t *ld;
@@ -238,7 +238,7 @@ public:
 	virtual ~wall_glow_c()
 	{ /* nothing to do */ }
 
-	virtual void Sample(glow_color_c *col, float x, float y, float z)
+	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
 		// FIXME: assumes standard DLIGHT image
 
@@ -264,7 +264,7 @@ public:
 //  LASER GLOWS
 //----------------------------------------------------------------------------
 
-class laser_glow_c : public glow_source_c
+class laser_glow_c : public abstract_shader_c
 {
 public:
 	vec3_t s, e;
@@ -298,7 +298,7 @@ public:
 	virtual ~laser_glow_c()
 	{ /* nothing to do */ }
 
-	virtual void Sample(glow_color_c *col, float x, float y, float z)
+	virtual void Sample(multi_color_c *col, float x, float y, float z)
 	{
 		x -= s.x;
 		y -= s.y;
