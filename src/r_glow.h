@@ -60,6 +60,8 @@ public:
 
 	void mod_Give(rgbcol_t rgb, float qty)
 	{
+		if (qty > 100) qty = 100;
+
 		mod_R += (int)(RGB_RED(rgb) * qty);
 		mod_G += (int)(RGB_GRN(rgb) * qty);
 		mod_B += (int)(RGB_BLU(rgb) * qty);
@@ -67,6 +69,8 @@ public:
 
 	void add_Give(rgbcol_t rgb, float qty)
 	{
+		if (qty > 100) qty = 100;
+
 		add_R += (int)(RGB_RED(rgb) * qty);
 		add_G += (int)(RGB_GRN(rgb) * qty);
 		add_B += (int)(RGB_BLU(rgb) * qty);

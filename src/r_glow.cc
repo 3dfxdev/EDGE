@@ -46,12 +46,12 @@ int R_DoomLightingEquation(int L, float dist)
 class colormap_glow_c : public glow_source_c
 {
 public:
-	// FIXME colormap_c *
+	// FIXME colormap_c 
 
 	int light_lev;
 
 public:
-	colormap_glow_c()
+	colormap_glow_c(int light) : light_lev(light)
 	{ }
 	
 	virtual ~colormap_glow_c()
@@ -74,7 +74,7 @@ public:
 		// FIXME: for foggy maps, need to adjust add_R/G/B too
 	}
 
-	void DistFromViewplane(float x, float y, float z)
+	float DistFromViewplane(float x, float y, float z)
 	{
 		float lk_cos = M_Cos(viewvertangle);
 		float lk_sin = M_Sin(viewvertangle);
@@ -125,19 +125,95 @@ public:
 
 		L = L * mo->state->bright / 255.0;
 
-		if (L < 1/256.0)
-			return;
-
-		if (L > 4.0)
-			L = 4.0;
-
-		if (mo->info->dlight0.type == DLITE_Modulate)
-			col->mod_Give(mo->dlight[0].color, L); 
-		else
-			col->add_Give(mo->dlight[0].color, L); 
+		if (L > 1/256.0)
+		{
+			if (mo->info->dlight0.type == DLITE_Add)
+				col->add_Give(mo->dlight[0].color, L); 
+			else
+				col->mod_Give(mo->dlight[0].color, L); 
+		}
 	}
 };
 
+
+//----------------------------------------------------------------------------
+//  SECTOR GLOWS
+//----------------------------------------------------------------------------
+
+class plane_glow_c : public glow_source_c
+{
+public:
+	float h;
+
+	mobj_t *mo;
+
+public:
+	plane_glow_c(float _height, mobj_t *_glower) :
+		h(_height), mo(_glower)
+	{ }
+	
+	virtual ~plane_glow_c()
+	{ /* nothing to do */ }
+
+	virtual void Sample(glow_color_c *col, float x, float y, float z)
+	{
+		// FIXME: assumes standard DLIGHT image
+
+		float dz = (z - h) / mo->dlight[0].r;
+
+		float L = exp(-5.44 * dz * dz);
+
+		L = L * mo->state->bright / 255.0;
+
+		if (L > 1/256.0)
+		{
+			if (mo->info->dlight0.type == DLITE_Add)
+				col->add_Give(mo->dlight[0].color, L); 
+			else
+				col->mod_Give(mo->dlight[0].color, L); 
+		}
+	}
+};
+
+
+class wall_glow_c : public glow_source_c
+{
+public:
+	line_t *ld;
+	mobj_t *mo;
+
+	float nx, ny; // normal
+
+public:
+	wall_glow_c(line_t *_wall, mobj_t *_glower) :
+		ld(_wall), mo(_glower)
+	{
+		nx = (ld->v1->y - ld->v2->y) / ld->length;
+		ny = (ld->v2->x - ld->v1->x) / ld->length;
+	}
+
+	virtual ~wall_glow_c()
+	{ /* nothing to do */ }
+
+	virtual void Sample(glow_color_c *col, float x, float y, float z)
+	{
+		// FIXME: assumes standard DLIGHT image
+
+		float dist = (ld->v1->x - x) * nx + (ld->v1->y - y) * ny;
+
+		float L = exp(-5.44 * dist * dist);
+
+		L = L * mo->state->bright / 255.0;
+
+		if (L > 1/256.0)
+		{
+			if (mo->info->dlight0.type == DLITE_Add)
+				col->add_Give(mo->dlight[0].color, L); 
+			else
+				col->mod_Give(mo->dlight[0].color, L); 
+		}
+	}
+};
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
