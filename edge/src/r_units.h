@@ -42,7 +42,7 @@ local_gl_vert_t;
 void RGL_InitUnits(void);
 void RGL_SoftInitUnits(void);
 
-void RGL_StartUnits(bool solid);
+void RGL_StartUnits(bool sort_em);
 void RGL_FinishUnits(void);
 void RGL_DrawUnits(void);
 

@@ -88,7 +88,7 @@ static std::vector<local_gl_unit_t *> local_unit_map;
 static int cur_vert;
 static int cur_unit;
 
-static bool solid_mode;
+static bool batch_sort;
 
 
 //
@@ -119,6 +119,7 @@ void RGL_SoftInitUnits()
 {
 }
 
+#if 0  // NOT CURRENTLY USED
 static void ComputeMiddle(vec3_t *mid, vec3_t *verts, int count)
 {
 	mid->x = verts[0].x;
@@ -136,26 +137,24 @@ static void ComputeMiddle(vec3_t *mid, vec3_t *verts, int count)
 	mid->y /= float(count);
 	mid->z /= float(count);
 }
+#endif
 
 
 
 //
 // RGL_StartUnits
 //
-// Starts a fresh batch of units.  There should be two batches of
-// units, the first with solid == true (handling all solid
-// walls/floors), and the second with solid == false (handling
-// everything else: sprites, masked textures, translucent planes).
+// Starts a fresh batch of units.
 //
-// The solid batch will be sorted to keep texture changes to a
-// minimum.  The non-solid batch is drawn in-order (and should be
-// processed from furthest to closest).
+// When 'sort_em' is true, the units will be sorted to keep
+// texture changes to a minimum.  Otherwise, the batch is
+// drawn in the same order as given.
 //
-void RGL_StartUnits(bool solid)
+void RGL_StartUnits(bool sort_em)
 {
 	cur_vert = cur_unit = 0;
 
-	solid_mode = solid;
+	batch_sort = sort_em;
 
 	local_unit_map.resize(MAX_L_UNIT);
 }
@@ -336,8 +335,7 @@ void RGL_DrawUnits(void)
 	for (int i=0; i < cur_unit; i++)
 		local_unit_map[i] = & local_units[i];
 
-	// need to sort ?
-	if (solid_mode)
+	if (batch_sort)
 	{
 		std::sort(local_unit_map.begin(),
 				  local_unit_map.begin() + cur_unit,
@@ -690,6 +688,7 @@ static inline void Pipeline_Glows(int& group,
   	if (flags & PIPEF_NoLight)
   		return;
 
+return; //!!!!!!
 	local_gl_vert_t *glvert;
 
 	blending &= ~BL_Alpha;
@@ -768,18 +767,37 @@ void R_LightPipe_SetList(const struct drawthing_s *list)
 }
 
 static inline void TexCoord_DLight(const mobj_t *mo,
-		const vec3_t *lit_pos,
+		const vec3_t *lit_pos, const vec3_t *normal,
 		GLfloat *rgb, vec2_t *texc)
 {
-	texc->x = 0.5;
+	float dx = lit_pos->x - mo->x;
+	float dy = lit_pos->y - mo->y;
+	float dz = lit_pos->z - mo->z;
 
-	float dx = mo->x - lit_pos->x;
-	float dy = mo->y - lit_pos->y;
-	float dz = mo->z - lit_pos->z;
+	float d_len = sqrt(dx*dx + dy*dy + dz*dz);
 
-	float dist = sqrt(dx*dx + dy*dy + dz*dz);
+///---	dx /= d_len; dy /= d_len; dz /= d_len;
 
-	texc->y = dist / 128.0;
+	texc->x = 0.5 + dx / 400.0;
+	texc->y = 0.5 + dy / 400.0;
+
+#if 0
+	float nx = normal->x;
+	float ny = normal->y;
+	float nz = normal->z;
+
+	float n_len = sqrt(dx*dx + dy*dy + dz*dz);
+
+	nx /= n_len; ny /= n_len; nz /= n_len;
+
+	// cross product
+	float cx = dy * nz - ny * dz;
+	float cy = dz * nx - nz * dx;
+	float cz = dx * ny - nx * dy;
+
+	texc->x = 0.5 + cx / 2.0;
+	texc->y = 0.5 + cy / 2.0;
+#endif
 }
 
 static inline void Pipeline_DLights(int& group,
@@ -803,13 +821,12 @@ static inline void Pipeline_DLights(int& group,
 	
 		//!!!!! FIXME: if (dist_to_light > DL->info->radius) continue;
 
-//!!!!		GLuint DL_tex = W_ImageCache(mo->dlight[0].image);
+		SYS_ASSERT(mo->dlight[0].image);
 
-		if (dlight_tex == 0)
-			dlight_tex = MakeGlowTexture();
+		GLuint DL_tex = W_ImageCache(mo->dlight[0].image);
 
-		glvert = RGL_BeginUnit(shape, num_vert, GL_MODULATE, tex,
-					GL_MODULATE, dlight_tex, group, blending);
+		glvert = RGL_BeginUnit(shape, num_vert, 0,0, //!!! GL_MODULATE, tex,
+					GL_MODULATE, DL_tex, group, blending);
 		group++;
 
 		for (int v_idx=0; v_idx < num_vert; v_idx++)
@@ -827,7 +844,8 @@ static inline void Pipeline_DLights(int& group,
 			dest->rgba[0] = 0.66;
 			dest->rgba[1] = 0.33;
 
-			TexCoord_DLight(mo, &lit_pos, dest->rgba, &dest->texc[1]);
+			TexCoord_DLight(mo, &lit_pos, &dest->normal,
+					        dest->rgba, &dest->texc[1]);
 		}
 
 		RGL_EndUnit(num_vert);
