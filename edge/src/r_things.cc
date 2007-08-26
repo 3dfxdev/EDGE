@@ -340,10 +340,7 @@ static void DrawStdCrossHair(int sbarheight)
 }
 
 
-//
-// RGL_DrawPlayerSprites
-//
-void RGL_DrawPlayerSprites(player_t * p)
+void RGL_DrawWeaponSprites(player_t * p)
 {
 	bool got_cross = false;
 
@@ -385,6 +382,16 @@ void RGL_DrawPlayerSprites(player_t * p)
 
 	if (!got_cross && !automapactive && p->health > 0)
 		DrawStdCrossHair((screen_hud != HUD_Full) ? 0 : FROM_200(ST_HEIGHT));
+}
+
+void RGL_DrawWeaponModel(player_t * p)
+{
+	// !!!!! FIXME
+}
+
+void RGL_DrawCrosshair(player_t * p)
+{
+	// !!!!! FIXME
 }
 
 

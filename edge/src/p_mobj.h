@@ -39,6 +39,7 @@
 class atkdef_c;
 class mobjtype_c;
 class image_c;
+class abstract_shader_c;
 
 struct mobj_s;
 struct player_s;
@@ -187,6 +188,7 @@ typedef struct dlight_state_s
 	float target;  // target radius
 	rgbcol_t color;
 	const image_c *image;
+	abstract_shader_c *shader;
 }
 dlight_state_t;
 

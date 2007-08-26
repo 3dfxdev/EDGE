@@ -564,8 +564,9 @@ static inline void Pipeline_Colormap(int& group,
 		cmap_shader = MakeColormapShader();
 
 	cmap_shader->WorldMix(shape, num_vert, tex,
-			alpha, 0, blending, func_data,
+			alpha, group, blending, func_data,
 			(shader_coord_func_t) func);
+	group++;
 
 	return;
 
@@ -841,34 +842,39 @@ static inline void Pipeline_DLights(int& group,
 	
 		//!!!!! FIXME: if (dist_to_light > DL->info->radius) continue;
 
-		SYS_ASSERT(mo->dlight[0].image);
+		SYS_ASSERT(mo->dlight[0].shader);
 
-		GLuint DL_tex = W_ImageCache(mo->dlight[0].image);
-
-		glvert = RGL_BeginUnit(shape, num_vert, 0,0, //!!! GL_MODULATE, tex,
-					GL_MODULATE, DL_tex, group, blending);
+		mo->dlight[0].shader->WorldMix(shape, num_vert, tex,
+				alpha, group, blending, func_data,
+				(shader_coord_func_t) func);
 		group++;
-
-		for (int v_idx=0; v_idx < num_vert; v_idx++)
-		{
-			local_gl_vert_t *dest = glvert + v_idx;
-
-			dest->rgba[3] = alpha;
-
-			vec3_t lit_pos;
-
-			(*func)(func_data, v_idx, &dest->pos, dest->rgba,
-					&dest->texc[0], &dest->normal, &lit_pos);
-
-			dest->rgba[2] = 1.00;
-			dest->rgba[0] = 0.66;
-			dest->rgba[1] = 0.33;
-
-			TexCoord_DLight(mo, &lit_pos, &dest->normal,
-					        dest->rgba, &dest->texc[1]);
-		}
-
-		RGL_EndUnit(num_vert);
+		
+///---		GLuint DL_tex = W_ImageCache(mo->dlight[0].image);
+///---
+///---		glvert = RGL_BeginUnit(shape, num_vert, 0,0, //!!! GL_MODULATE, tex,
+///---					GL_MODULATE, DL_tex, group, blending);
+///---		group++;
+///---
+///---		for (int v_idx=0; v_idx < num_vert; v_idx++)
+///---		{
+///---			local_gl_vert_t *dest = glvert + v_idx;
+///---
+///---			dest->rgba[3] = alpha;
+///---
+///---			vec3_t lit_pos;
+///---
+///---			(*func)(func_data, v_idx, &dest->pos, dest->rgba,
+///---					&dest->texc[0], &dest->normal, &lit_pos);
+///---
+///---			dest->rgba[2] = 1.00;
+///---			dest->rgba[0] = 0.66;
+///---			dest->rgba[1] = 0.33;
+///---
+///---			TexCoord_DLight(mo, &lit_pos, &dest->normal,
+///---					        dest->rgba, &dest->texc[1]);
+///---		}
+///---
+///---		RGL_EndUnit(num_vert);
 	}
 }
 
@@ -890,8 +896,8 @@ void R_RunPipeline(GLuint shape, int num_vert,
 //	Pipeline_Shadow(group, shape, num_vert,
 //		tex, alpha, blending, flags, func_data, func);
 
-//	Pipeline_DLights(group, shape, num_vert,
-//		tex, alpha, blending, flags, func_data, func);
+	Pipeline_DLights(group, shape, num_vert,
+		tex, alpha, blending, flags, func_data, func);
 }
 
 
