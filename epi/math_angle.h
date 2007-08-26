@@ -49,6 +49,8 @@ public:
 	float Degrees()  const;
 	double Radians() const;
 
+	std::string ToStr(int precision = 1) const;
+
 	/* ---- read-only operations ---- */
 
 	inline float Sin() const { return sin(Radians()); }
@@ -97,6 +99,7 @@ public:
 
 	/* ---- useful constants ---- */
 
+	static inline angle_c Ang0()   { return angle_c(0x00000000, false); }
 	static inline angle_c Ang15()  { return angle_c(0x0AAAAAAA, false); }
 	static inline angle_c Ang30()  { return angle_c(0x15555555, false); }
 	static inline angle_c Ang45()  { return angle_c(0x20000000, false); }
