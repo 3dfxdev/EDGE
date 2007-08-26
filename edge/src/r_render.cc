@@ -466,6 +466,111 @@ int RGL_Light(int nominal)
 }
 
 
+#if 0
+static void DrawLaser(player_t *p)
+{
+	static int countdown = -1;
+	static int last_time = -1;
+
+	static const vec2_t octagon[7] =
+	{
+		{  0.0  , +1.0   },
+		{  0.866, +0.5   },
+		{  0.866, -0.5   },
+		{  0.0  , -1.0   },
+		{ -0.866, -0.5   },
+		{ -0.866, +0.5   },
+		{  0.0  , +1.0   }
+	};
+
+	if (countdown < 0)
+	{
+		if (! p->attackdown[0])
+			return;
+
+		countdown = 13;
+	}
+
+	if (countdown == 0)
+	{
+		if (p->attackdown[0])
+			return;
+
+		countdown = -1;
+		return;
+	}
+
+	vec3_t s, e;
+
+	s.Set(p->mo->x, p->mo->y, p->mo->z + 30.0);
+	e.Set(p->mo->x, p->mo->y, p->mo->z + 30.0);
+
+	float dist = 2000;
+
+	float lk_cos = M_Cos(viewvertangle);
+	float lk_sin = M_Sin(viewvertangle);
+
+	s.x += viewsin * 6;
+	s.y -= viewcos * 6;
+
+	// view vector
+	float vx = lk_cos * viewcos;
+	float vy = lk_cos * viewsin;
+	float vz = lk_sin;
+
+	s.x += vx * 1;
+	s.y += vy * 1;
+	s.z += vz * 1;
+
+	e.x += vx * dist;
+	e.y += vy * dist;
+	e.z += vz * dist;
+
+	RGL_StartUnits(false);
+
+	for (int pass=0; pass < 2; pass++)
+	{
+	local_gl_vert_t *glvert = RGL_BeginUnit(GL_TRIANGLE_STRIP, 14,
+			ENV_NONE, 0, ENV_NONE, 0, pass,
+			BL_CullBack | (pass?BL_Alpha:0));
+
+	for (int kk=0; kk < 14; kk++)
+	{
+		memset(glvert+kk, 0, sizeof(local_gl_vert_t));
+
+		float ity = 1.0 - fabs(countdown-7)/7.0;
+		ity = sqrt(ity);
+
+		glvert[kk].rgba[0] = 1.0 * ity;
+		glvert[kk].rgba[1] = 0.1 * ity;
+		glvert[kk].rgba[2] = 0.1 * ity;
+		glvert[kk].rgba[3] = pass ? 0.3 : 0;
+
+		glvert[kk].pos = ((kk & 1) == 0) ? s : e;
+
+		float size = 4;
+		if (pass==1) size += ((kk & 1) == 0) ? 1 : sqrt(dist);
+
+		glvert[kk].pos.x += octagon[kk/2].x * size;
+		glvert[kk].pos.z += octagon[kk/2].y * size;
+
+		glvert[kk].edge = true;
+	}
+
+	RGL_EndUnit(14);
+	}
+
+	RGL_FinishUnits();
+
+	if (leveltime != last_time)
+	{
+		last_time = leveltime;
+		countdown--;
+	}
+}
+#endif
+
+
 typedef struct wall_plane_data_s
 {
 	vec3_t normal;
@@ -2751,8 +2856,11 @@ void RGL_RenderTrueBSP(void)
 
 	drawsubs.clear();
 
+	player_t *v_player = players[displayplayer];
+	SYS_ASSERT(v_player);
+	
 	// handle powerup effects
-	RGL_RainbowEffect(players[displayplayer]);
+	RGL_RainbowEffect(v_player);
 
 	if (true) //!!!!! hom_detect)
 	{
@@ -2775,19 +2883,19 @@ void RGL_RenderTrueBSP(void)
 
 	RGL_DrawSubList(drawsubs);
 
-	RGL_DrawWeaponModel(players[displayplayer]);
-
+	RGL_DrawWeaponModel(v_player);
+	
 	glDisable(GL_DEPTH_TEST);
 
 	// now draw 2D stuff like psprites, and add effects
 	RGL_SetupMatrices2D();
 
-	RGL_DrawWeaponSprites(players[displayplayer]);
+	RGL_DrawWeaponSprites(v_player);
 
-	RGL_ColourmapEffect(players[displayplayer]);
-	RGL_PaletteEffect(players[displayplayer]);
+	RGL_ColourmapEffect(v_player);
+	RGL_PaletteEffect(v_player);
 
-	RGL_DrawCrosshair(players[displayplayer]);
+	RGL_DrawCrosshair(v_player);
 
 #if (DEBUG >= 3) 
 	L_WriteDebug( "\n\n");
