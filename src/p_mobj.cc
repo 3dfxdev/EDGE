@@ -49,6 +49,7 @@
 //
 
 #include "i_defs.h"
+#include "i_defs_gl.h"  // we need r_shader.h
 #include "p_mobj.h"
 
 #include "con_main.h"
@@ -61,6 +62,7 @@
 #include "m_random.h"
 #include "p_local.h"
 #include "r_misc.h"
+#include "r_shader.h"
 #include "s_sound.h"
 #include "st_stuff.h"
 #include "z_zone.h"
@@ -423,6 +425,8 @@ static void DeleteMobj(mobj_t * mo)
 		I_Error("INTERNAL ERROR: Reference count %d", mo->refcount);
 		return;
 	}
+
+	delete mo->dlight[0].shader;
 
 	Z_Free(mo);
 }
@@ -1815,6 +1819,8 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *type)
 			mobj->dlight[DL].r = mobj->dlight[DL].target = info->radius;
 			mobj->dlight[DL].color = info->colour;
 			mobj->dlight[DL].image = W_ImageLookup(info->shape, INS_Graphic, ILF_Null);
+			
+			// leave 'shader' field as NULL : renderer will create it
 		}
 	}
 

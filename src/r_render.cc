@@ -128,6 +128,7 @@ static const image_c *shadow_image = NULL;
 static GLuint glow_tex = 0;
 
 
+extern abstract_shader_c *MakeDLightShader(mobj_t *mo);
 
 
 
@@ -350,6 +351,9 @@ static void R2_FindDLights(subsector_t *sub, drawfloor_t *dfloor)
 			dl->prev = NULL;  // NOTE: not used (singly linked)
 
 			dfloor->dlights = dl;
+
+			if (! mo->dlight[0].shader)
+				  mo->dlight[0].shader = MakeDLightShader(mo);
 		}
 	}
 }
@@ -2497,6 +2501,7 @@ static void RGL_DrawSubList(std::list<drawsub_c *> &dsubs)
 		RGL_DrawSubsector(*RI);
 
 	RGL_FinishUnits();
+
 }
 
 
@@ -2622,6 +2627,7 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 			R_ColmapPipe_SetProps(dfloor->props);
 
 			RGL_DrawSortThings(dfloor);
+
   		}
 
 		R_LightPipe_SetList(NULL);
@@ -2769,15 +2775,19 @@ void RGL_RenderTrueBSP(void)
 
 	RGL_DrawSubList(drawsubs);
 
+	RGL_DrawWeaponModel(players[displayplayer]);
+
 	glDisable(GL_DEPTH_TEST);
 
 	// now draw 2D stuff like psprites, and add effects
 	RGL_SetupMatrices2D();
 
-	RGL_DrawPlayerSprites(players[displayplayer]);
+	RGL_DrawWeaponSprites(players[displayplayer]);
 
 	RGL_ColourmapEffect(players[displayplayer]);
 	RGL_PaletteEffect(players[displayplayer]);
+
+	RGL_DrawCrosshair(players[displayplayer]);
 
 #if (DEBUG >= 3) 
 	L_WriteDebug( "\n\n");

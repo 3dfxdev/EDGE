@@ -220,8 +220,8 @@ public:
 		//!!!!! FIXME: if (dist_to_light > DL->info->radius) continue;
 
 		float R = RGB_RED(mo->dlight[0].color) / 255.0;
-		float G = RGB_RED(mo->dlight[0].color) / 255.0;
-		float B = RGB_RED(mo->dlight[0].color) / 255.0;
+		float G = RGB_GRN(mo->dlight[0].color) / 255.0;
+		float B = RGB_BLU(mo->dlight[0].color) / 255.0;
 
 		local_gl_vert_t *glvert = RGL_BeginUnit(shape, num_vert,
 				    ENV_NONE,0, //!!!! GL_MODULATE, tex,
@@ -249,6 +249,11 @@ public:
 	}
 
 };
+
+abstract_shader_c *MakeDLightShader(mobj_t *mo)
+{
+	return new dynlight_shader_c(mo);
+}
 
 
 //----------------------------------------------------------------------------
