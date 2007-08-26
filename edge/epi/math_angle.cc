@@ -17,10 +17,18 @@
 //------------------------------------------------------------------------
 
 #include "epi.h"
+
 #include "math_angle.h"
+#include "str_format.h"
 
 namespace epi
 {
+
+std::string angle_c::ToStr(int precision) const
+{
+	return STR_Format("%1.*f", precision, Degrees());
+}
+
 
 //------------------------------------------------------------------------
 //  TEST ROUTINES
