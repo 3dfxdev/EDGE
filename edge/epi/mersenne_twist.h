@@ -8,8 +8,8 @@
 // Simplified for use in the EDGE engine : Andrew Apted, April 2005.
 //------------------------------------------------------------------------
 
-#ifndef __EPI_MERSENNETWISTER_H
-#define __EPI_MERSENNETWISTER_H
+#ifndef __EPI_MERSENNE_TWISTER_H__
+#define __EPI_MERSENNE_TWISTER_H__
 
 // The Mersenne Twister is an algorithm for generating random numbers.  It
 // was designed with consideration of the flaws in various other generators.
@@ -142,7 +142,7 @@ inline u32_t MTRand::rand()
 
 }  // namespace epi
 
-#endif  /* __EPI_MERSENNETWISTER_H */
+#endif  /* __EPI_MERSENNE_TWISTER_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
