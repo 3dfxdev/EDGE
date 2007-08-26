@@ -26,6 +26,8 @@
 #include <ctype.h>
 #include <math.h>
 
+#include <string>
+
 #endif  /* __EPI_HEADERS_H__ */
 
 //--- editor settings ---
