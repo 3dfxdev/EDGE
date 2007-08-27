@@ -1,0 +1,85 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: Editing: Line types">
+
+<block name="content">
+
+<h2 class="page_title">EDGE 1.29 Line Types</h2>
+
+<PRE>
+
+=== Translucent Linedefs ===
+
+[409] // EDGE Translucent Linedef (80%)
+[410] // EDGE Translucent Linedef (60%)
+[411] // EDGE Translucent Linedef (40%)
+[412] // EDGE Translucent Linedef (20%)
+
+
+=== Scrolling Linedefs ===
+
+[422] // EDGE SCROLL RIGHT
+[423] // EDGE SCROLL UP
+[424] // EDGE SCROLL DOWN
+[425] // EDGE SCROLL LEFT AND UP
+[426] // EDGE SCROLL LEFT AND DOWN
+[427] // EDGE SCROLL RIGHT AND UP
+[428] // EDGE SCROLL RIGHT AND DOWN
+[429] // EDGE SCROLL FAST LOWER AND MIDDLE TEXTURE (WATERFALLS)
+
+
+=== THIN SLIDING DOORS ===
+
+[442]  // EDGE Sliding door (LEFT), SR + MONSTERS
+[443]  // EDGE Sliding door (LEFT), SR
+[444]  // EDGE Sliding door (LEFT), SR + FAST
+[445]  // EDGE Sliding door (LEFT), S1
+
+[446]  // EDGE Sliding door (RIGHT), SR + MONSTERS
+[447]  // EDGE Sliding door (RIGHT), SR
+[448]  // EDGE Sliding door (RIGHT), SR + FAST
+[449]  // EDGE Sliding door (RIGHT), S1
+
+[450]  // EDGE Sliding door (CENTER), SR + MONSTERS
+[451]  // EDGE Sliding door (CENTER), SR
+[452]  // EDGE Sliding door (CENTER), SR + FAST
+[453]  // EDGE Sliding door (CENTER), S1
+
+
+=== RADIUS TRIGGER SCRIPTING ===
+
+[418] // EDGE Enable Tagged RTS - S1
+[419] // EDGE Enable Tagged RTS - SR
+[420] // EDGE Enable Tagged RTS - W1
+[421] // EDGE Enable Tagged RTS - WR
+[440] // EDGE Enable Tagged RTS - G1
+[441] // EDGE Enable Tagged RTS - GR
+[454] // EDGE Enable Tagged RTS - W1 MONSTER
+[455] // EDGE Enable Tagged RTS - WR MONSTER
+[456] // EDGE Enable Tagged RTS - GR MONSTER
+
+[457] // EDGE Disable Tagged RTS - SR
+[458] // EDGE Disable Tagged RTS - WR
+[459] // EDGE Disable Tagged RTS - GR
+[460] // EDGE Disable Tagged RTS - WR MONSTER
+[461] // EDGE Disable Tagged RTS - GR MONSTER
+
+
+[434] // EDGE S1, RAISE FLOOR 2 UNITS (USE FOR RTS ONHEIGHT EVENTS)
+[435] // EDGE SR, RAISE FLOOR 2 UNITS (USE FOR RTS ONHEIGHT EVENTS)
+[436] // EDGE W1, RAISE FLOOR 2 UNITS (USE FOR RTS ONHEIGHT EVENTS)
+[437] // EDGE WR, RAISE FLOOR 2 UNITS (USE FOR RTS ONHEIGHT EVENTS)
+[438] // EDGE G1, RAISE FLOOR 2 UNITS (USE FOR RTS ONHEIGHT EVENTS)
+[439] // EDGE GR, RAISE FLOOR 2 UNITS (USE FOR RTS ONHEIGHT EVENTS)
+
+
+=== EXTRAFLOOR ===
+
+TODO...
+
+</pre>
+
+</block>
+
+<!--- template --->
+<file include="edit_page.tpl">
