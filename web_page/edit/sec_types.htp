@@ -6,10 +6,13 @@
 
 <h2 class="page_title">EDGE 1.29 Sector Types</h2>
 
+<h3 class="roadmap">Deep Water</h3>
+
+These types are for water sectors (using liquid extrafloors).
+The area will be blue tinted.
+The player can swim. No air. Not damaging.
+
 <PRE>
-
-=== DEEP WATER: blue tinted, can swim, airless, no damage ===
-
 [4466] // EDGE Blue Hue (SWIMABLE WATER, airless)
 
 [4418] // EDGE Water Extrafloor Scroll/Push NORTH
@@ -20,9 +23,14 @@
 [4423] // EDGE Water Extrafloor Scroll/Push SOUTH WEST
 [4424] // EDGE Water Extrafloor Scroll/Push WEST
 [4425] // EDGE Water Extrafloor Scroll/Push NORTH WEST
+</PRE>
+
+
+<h3 class="roadmap">Deep Slime</h3>
 
 === DEEP SLIME: green tinted, no swim, 10% damage ===
 
+<PRE>
 [4467] // EDGE Green Hue, no damage
 [4468] // EDGE Green Hue + Damage
 
@@ -34,9 +42,14 @@
 [4431] // EDGE Slime Extrafloor Scroll/Push SOUTH WEST
 [4432] // EDGE Slime Extrafloor Scroll/Push WEST
 [4433] // EDGE Slime Extrafloor Scroll/Push NORTH WEST
+</PRE>
+
+
+<h3 class="roadmap">Deep Lava</h3>
 
 === DEEP LAVA: red tinted, no swim, 10% damage ===
 
+<PRE>
 [4469] // EDGE Red Hue, no damage
 [4470] // EDGE Red Hue + Damage
 
@@ -48,10 +61,12 @@
 [4439] // EDGE Lava Extrafloor Scroll/Push SOUTH WEST
 [4440] // EDGE Lava Extrafloor Scroll/Push WEST
 [4441] // EDGE Lava Extrafloor Scroll/Push NORTH WEST
+</PRE>
 
 
-=== PLAIN PUSHING FLOOR ===
+<h3 class="roadmap">Pushing Floor (no scroll)</h3>
 
+<PRE>
 [4442] // EDGE Push NORTH
 [4443] // EDGE Push NORTH EAST
 [4444] // EDGE Push EAST
@@ -60,10 +75,12 @@
 [4447] // EDGE Push SOUTH WEST
 [4448] // EDGE Push WEST
 [4449] // EDGE Push NORTH WEST
+</PRE>
 
 
-=== PLAIN SCROLLING FLOOR ===
+<h3 class="roadmap">Scrolling Floor (no push)</h3>
 
+<PRE>
 [4450] // EDGE Scroll Floor Texture NORTH
 [4451] // EDGE Scroll Floor Texture NORTH EAST
 [4452] // EDGE Scroll Floor Texture EAST
@@ -72,10 +89,12 @@
 [4455] // EDGE Scroll Floor Texture SOUTH WEST
 [4456] // EDGE Scroll Floor Texture WEST
 [4457] // EDGE Scroll Floor Texture NORTH WEST
+</PRE>
 
 
-=== PUSHING + SCROLLING FLOOR ===
+<h3 class="roadmap">Pusing Scrolling Floor</h3>
 
+<PRE>
 [4458] // EDGE Scroll Floor Texture/Push NORTH
 [4459] // EDGE Scroll Floor Texture/Push NORTH EAST
 [4460] // EDGE Scroll Floor Texture/Push EAST
@@ -84,7 +103,6 @@
 [4463] // EDGE Scroll Floor Texture/Push SOUTH WEST
 [4464] // EDGE Scroll Floor Texture/Push WEST
 [4465] // EDGE Scroll Floor Texture/Push NORTH WEST
-
 </PRE>
 
 </block>

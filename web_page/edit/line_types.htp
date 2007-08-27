@@ -6,18 +6,20 @@
 
 <h2 class="page_title">EDGE 1.29 Line Types</h2>
 
+
+<h3 class="roadmap">Translucent Lines</h3>
+
 <PRE>
-
-=== Translucent Linedefs ===
-
 [409] // EDGE Translucent Linedef (80%)
 [410] // EDGE Translucent Linedef (60%)
 [411] // EDGE Translucent Linedef (40%)
 [412] // EDGE Translucent Linedef (20%)
+</PRE>
 
 
-=== Scrolling Linedefs ===
+<h3 class="roadmap">Scrolling Lines</h3>
 
+<PRE>
 [422] // EDGE SCROLL RIGHT
 [423] // EDGE SCROLL UP
 [424] // EDGE SCROLL DOWN
@@ -26,10 +28,12 @@
 [427] // EDGE SCROLL RIGHT AND UP
 [428] // EDGE SCROLL RIGHT AND DOWN
 [429] // EDGE SCROLL FAST LOWER AND MIDDLE TEXTURE (WATERFALLS)
+</PRE>
 
 
-=== THIN SLIDING DOORS ===
+<h3 class="roadmap">Thin Sliding Doors</h3>
 
+<PRE>
 [442]  // EDGE Sliding door (LEFT), SR + MONSTERS
 [443]  // EDGE Sliding door (LEFT), SR
 [444]  // EDGE Sliding door (LEFT), SR + FAST
@@ -44,10 +48,12 @@
 [451]  // EDGE Sliding door (CENTER), SR
 [452]  // EDGE Sliding door (CENTER), SR + FAST
 [453]  // EDGE Sliding door (CENTER), S1
+</PRE>
 
 
-=== RADIUS TRIGGER SCRIPTING ===
+<h3 class="roadmap">Radius Trigger Scripting</h3>
 
+<PRE>
 [418] // EDGE Enable Tagged RTS - S1
 [419] // EDGE Enable Tagged RTS - SR
 [420] // EDGE Enable Tagged RTS - W1
@@ -64,20 +70,19 @@
 [460] // EDGE Disable Tagged RTS - WR MONSTER
 [461] // EDGE Disable Tagged RTS - GR MONSTER
 
-
 [434] // EDGE S1, RAISE FLOOR 2 UNITS (USE FOR RTS ONHEIGHT EVENTS)
 [435] // EDGE SR, RAISE FLOOR 2 UNITS (USE FOR RTS ONHEIGHT EVENTS)
 [436] // EDGE W1, RAISE FLOOR 2 UNITS (USE FOR RTS ONHEIGHT EVENTS)
 [437] // EDGE WR, RAISE FLOOR 2 UNITS (USE FOR RTS ONHEIGHT EVENTS)
 [438] // EDGE G1, RAISE FLOOR 2 UNITS (USE FOR RTS ONHEIGHT EVENTS)
 [439] // EDGE GR, RAISE FLOOR 2 UNITS (USE FOR RTS ONHEIGHT EVENTS)
+</PRE>
 
 
-=== EXTRAFLOOR ===
+<h3 class="roadmap">Extrafloors</h3>
 
 TODO...
 
-</pre>
 
 </block>
 
