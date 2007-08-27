@@ -1,0 +1,14 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: Editing Overview">
+
+<block name="content">
+
+<h2 class="page_title">Overview of EDGE Editing</h2>
+
+TODO....
+
+</block>
+
+<!--- template --->
+<file include="edit_page.tpl">

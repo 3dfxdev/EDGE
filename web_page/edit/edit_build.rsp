@@ -1,2 +1,12 @@
-line_types.htp ../out/edit/line_types.htm
-sec_types.htp ../out/edit/sec_types.htm
+;
+; Edge stuff
+;
+overview.htp ../out/edit_guide/overview.htm
+line_types.htp ../out/edit_guide/line_types.htm
+sec_types.htp ../out/edit_guide/sec_types.htm
+;
+; Specifications
+;
+doom_specs.htp ../out/edit_guide/doom_specs.htm
+boom_ref.htp ../out/edit_guide/boom_ref.htm
+JointTextureSpec.htp ../out/edit_guide/JointTextureSpec.htm
