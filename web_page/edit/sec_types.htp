@@ -1,0 +1,93 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: Editing: Sector types">
+
+<block name="content">
+
+<h2 class="page_title">EDGE 1.29 Sector Types</h2>
+
+<PRE>
+
+=== DEEP WATER: blue tinted, can swim, airless, no damage ===
+
+[4466] // EDGE Blue Hue (SWIMABLE WATER, airless)
+
+[4418] // EDGE Water Extrafloor Scroll/Push NORTH
+[4419] // EDGE Water Extrafloor Scroll/Push NORTH EAST
+[4420] // EDGE Water Extrafloor Scroll/Push EAST
+[4421] // EDGE Water Extrafloor Scroll/Push SOUTH EAST
+[4422] // EDGE Water Extrafloor Scroll/Push SOUTH
+[4423] // EDGE Water Extrafloor Scroll/Push SOUTH WEST
+[4424] // EDGE Water Extrafloor Scroll/Push WEST
+[4425] // EDGE Water Extrafloor Scroll/Push NORTH WEST
+
+=== DEEP SLIME: green tinted, no swim, 10% damage ===
+
+[4467] // EDGE Green Hue, no damage
+[4468] // EDGE Green Hue + Damage
+
+[4426] // EDGE Slime Extrafloor Scroll/Push NORTH
+[4427] // EDGE Slime LIQUID Extrafloor Scroll/Push NORTH EAST
+[4428] // EDGE Slime Extrafloor Scroll/Push EAST
+[4429] // EDGE Slime Extrafloor Scroll/Push SOUTH EAST
+[4430] // EDGE Slime Extrafloor Scroll/Push SOUTH
+[4431] // EDGE Slime Extrafloor Scroll/Push SOUTH WEST
+[4432] // EDGE Slime Extrafloor Scroll/Push WEST
+[4433] // EDGE Slime Extrafloor Scroll/Push NORTH WEST
+
+=== DEEP LAVA: red tinted, no swim, 10% damage ===
+
+[4469] // EDGE Red Hue, no damage
+[4470] // EDGE Red Hue + Damage
+
+[4434] // EDGE Lava Extrafloor Scroll/Push NORTH
+[4435] // EDGE Lava Extrafloor Scroll/Push NORTH EAST
+[4436] // EDGE Lava Extrafloor Scroll/Push EAST
+[4437] // EDGE Lava Extrafloor Scroll/Push SOUTH EAST
+[4438] // EDGE Lava Extrafloor Scroll/Push SOUTH
+[4439] // EDGE Lava Extrafloor Scroll/Push SOUTH WEST
+[4440] // EDGE Lava Extrafloor Scroll/Push WEST
+[4441] // EDGE Lava Extrafloor Scroll/Push NORTH WEST
+
+
+=== PLAIN PUSHING FLOOR ===
+
+[4442] // EDGE Push NORTH
+[4443] // EDGE Push NORTH EAST
+[4444] // EDGE Push EAST
+[4445] // EDGE Push SOUTH EAST
+[4446] // EDGE Push SOUTH
+[4447] // EDGE Push SOUTH WEST
+[4448] // EDGE Push WEST
+[4449] // EDGE Push NORTH WEST
+
+
+=== PLAIN SCROLLING FLOOR ===
+
+[4450] // EDGE Scroll Floor Texture NORTH
+[4451] // EDGE Scroll Floor Texture NORTH EAST
+[4452] // EDGE Scroll Floor Texture EAST
+[4453] // EDGE Scroll Floor Texture SOUTH EAST
+[4454] // EDGE Scroll Floor Texture SOUTH
+[4455] // EDGE Scroll Floor Texture SOUTH WEST
+[4456] // EDGE Scroll Floor Texture WEST
+[4457] // EDGE Scroll Floor Texture NORTH WEST
+
+
+=== PUSHING + SCROLLING FLOOR ===
+
+[4458] // EDGE Scroll Floor Texture/Push NORTH
+[4459] // EDGE Scroll Floor Texture/Push NORTH EAST
+[4460] // EDGE Scroll Floor Texture/Push EAST
+[4461] // EDGE Scroll Floor Texture/Push SOUTH EAST
+[4462] // EDGE Scroll Floor Texture/Push SOUTH
+[4463] // EDGE Scroll Floor Texture/Push SOUTH WEST
+[4464] // EDGE Scroll Floor Texture/Push WEST
+[4465] // EDGE Scroll Floor Texture/Push NORTH WEST
+
+</PRE>
+
+</block>
+
+<!--- template --->
+<file include="edit_page.tpl">
