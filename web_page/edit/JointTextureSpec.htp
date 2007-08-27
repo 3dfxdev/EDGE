@@ -1,0 +1,232 @@
+<file include="../common/common.inc">
+
+<set title="Joint Texture Spec">
+
+<block name="content">
+
+<h2 class="page_title">Joint Texture Standard (draft #7)</h2>
+
+<PRE>
+Both PNG and JPEG image formats must be supported, but a port is free
+to support more formats.
+
+In general, the patch_t, PNG and JPEG formats can be used anywhere.
+Flat format (block of raw pixels) is only allowed in F_START.
+
+By default, all images are unscaled (one pixel covers one world unit).
+Images have the same scaling regardless of the surface (wall or floor).
+
+
+WAD Resources
+-------------
+
+- PLAYPAL:  palette used for patch_t and raw formats (not PNG or JPEG).  
+            There is one global palette, which comes from the last added
+            PWAD containing a PLAYPAL lump (or the IWAD if none).
+
+- TEXTUREx: composes textures out of patches.  Patches are found as a
+            Raw_Lump resource (see below).  Some scaling ability via
+            previously unused, zero fields (see the ZDoom Wiki entry
+            about TEXTUREx for more information).
+
+- PNAMES:   list of patch names for TEXTUREx.  The PNAMES lump should
+            exist in the same wad as the TEXTUREx lump(s).  If the PNAMES
+            lump is missing, the one in the IWAD can be used, but this
+            is prone to error and should be deprecated.
+
+- Raw_Lump: used for graphics (title screen, menus, fonts, etc) and also
+            TEXTUREx patches.  The lump can occur anywhere in the wad,
+            including the P_START and S_START areas (hence sprites can
+            be used for texture patches).
+            
+            A special format is allowed: 320x200 block of raw pixels
+            (needed for Heretic and Hexen).
+
+- F_START: flat lumps.  Normally 64x64 raw pixels, but any power-of-two
+           size between 32 and 2048 is allowed.  Raw pixels blocks must
+           be square.  Flats larger than 64x64 should be scaled so that
+           MAX(width,height) occupies 64 world units.
+
+           Heretic and Hexen have some odd sized flats (e.g. 64x128) which
+           are used for scrolling.  For GL ports, simply truncating them
+           to 64x64 is acceptable.
+ 
+- S_START: sprite lumps.  Scaling can only be set by the thing definition
+           (DeHackEd, DDF, DECORATE, DED, etc).  For PNG format, offsets
+           are inside the PNG itself (using a special tool to modify), but
+           have a reasonable default: centered horizontally and standing
+           on the ground.
+
+- TX_START: another place to put textures.  No scaling is possible.
+
+- H_START: high resolution versions for existing textures and flats.
+           Scaled to match the texture of the same name (in the TEXTUREx or
+           F_START area).  Requires an existing texture, if none, then the
+           hi-res version must be ignored.  Therefore _new_ hi-res images
+           require a lo-res version to be added to the PWAD.
+
+- NTEXTURE: new text definition for textures, flats and graphics.
+
+- NSPRITES: new text definition for sprite images.  Scaling and offset
+            values can be specified for each sprite image.  Uses the same
+            syntax as NTEXTURE (can share the same parser code).
+
+
+Namespaces
+----------
+
+These are the containers used by the game engine to hold images:
+
++ TEXTURES: all textures from the TEXTUREx resource, plus any patches from
+            PNAMES which don't already exist in the list.  Hi-res textures
+            (from the H_START area) simply replace an existing texture object
+            here (i.e. no separate H_START namespace).
+
++ FLATS:    all the flats from the F_START resource.  Hi-res flats (from
+            H_START area) simply replace an existing flat object here.
+
++ NEW_TEX:  all the images from the TX_START area, plus all the images
+            defined in NTEXTURE (which take priority).
+
++ SPRITES:  all the sprite images from the S_START area, plus the ones
+            defined in NSPRITES (which take priority).
+
++ GRAPHICS: this container works a bit differently.  It should start out
+            as empty.  When a graphic (title screen, menu image, etc) is
+            needed, but doesn't already exist in GRAPHICS, then find the
+            Raw_Lump (see above) of the same name, and add the new image.
+
+            Hi-res graphics in H_START can also be used, and (like flats
+            and textures) are scaled to match the original (the one found
+            in the Raw_Lump resource).
+
+
+Lookup Order
+------------
+
+Wall Textures: NEW_TEX -&gt; TEXTURES -&gt; FLATS.
+
+Flats: NEW_TEX -&gt; FLATS -&gt; TEXTURES.
+
+Sprites: SPRITES.
+
+Graphics: NEW_TEX -&gt; GRAPHICS.
+
+
+
+<HR>
+
+
+Format of NTEXTURE / NSPRITES
+=============================
+
+The syntax is token-based.  Tokens are delimited by whitespace
+(apart from symbols like ';' which don't need whitespace).
+Words are matched case-insensitively (e.g. Scale == SCALE).
+
+The lump contains a series of definitions, each one has the
+following general format:
+ 
+Texture TEXNAME
+{
+    Source type args ... ;
+
+    keyword_A arg1 arg2 ... ;
+    keyword_B arg1 arg2 ... ;
+    ...
+}
+
+In NSPRITES the the word 'Sprite' is used instead of 'Texture'.
+Other definition types may be added in the future, any types
+that are not recognised must be ignored (perhaps with a warning
+message).
+
+Each keyword can have multiple arguments (including none), but
+keywords always end with a semicolon (';').  Arguments which
+contain whitespace or a ';' can be quoted with double quotes
+("...").
+
+The first keyword must be "Source", and defines where the image
+data comes from (e.g. from a lump).  When the source type is not
+recognised, the whole definition must be ignored (perhaps with a
+warning message).
+
+Unknown keywords must be ignored.
+
+
+Source Types
+------------
+
+lump NAME     -  A WAD lump.  Same logic as the Raw_Lump resource
+                 described above, in particular: the lump is found
+                 anywhere in the WAD, and the format can be patch_t,
+                 PNG, JPEG or 320x200 raw block.
+
+file NAME     -  An external file.  patch_t or raw blocks are not
+                 supported.  The filename should be relative and must
+                 not have ".." or drive letter ("C:") at the start.
+                 Both '/' and '\' directory separators are allowed.
+
+                 The search directories are implementation specific.
+                 A port may even find the image inside a package.
+
+compose W H   -  Composes the image from scratch.  The arguments set
+                 the width and height.  The base (on top of which all
+                 patches are drawn) is a completely transparent image.
+
+
+Keywords
+--------
+
+patch NAME DX DY  -  A patch for the 'compose' source type.  Not allowed
+                     in other types.  The NAME is first looked up in the
+                     NEW_TEX namespace, and then as a Raw_Lump resource
+                     (if not found).
+
+                     The DX and DY arguments are the offset into the new
+                     image.  The patch will be clipped to the texture size.
+                     Transparent parts of a patch_t or PNG will leave the
+                     pixels underneath unchanged.
+
+worldsize W H     -  Gives the size of the image in world units.
+                     Floating point is allowed.
+
+scale SCALE ASPECT
+                  -  An alternative to worldsize, giving the scale and
+                     aspect of the image directly.  Larger values make
+                     the image bigger.  The ASPECT argument is optional.
+
+                     These equations show the mapping to worldsize:
+
+                     world_w = image_w * scale * aspect
+                     world_h = image_h * scale
+
+texeloffsets FLAG -  The flag is either 1 to enable or 0 to disable.
+                     When enabled, it means that offsets from sidedefs
+                     are in _pixels_ instead of world units.
+                     Also affects scrolling walls and floors.
+
+                     The default is 0 (disabled).
+
+offset DX DY      -  For sprites, gives the offset values (in PIXELS).
+                     With weapon sprites, it is the number of pixels
+                     to move from the base position: center the image
+                     horizontally on-screen and the bottom of the image
+                     touches the bottom of the view window.
+
+                     Floating point is allowed.
+
+palettemap SRC1 SRC2 DEST1 DEST2
+                  -  palette-based translation.  Pixels in the range
+                     (SRC1 -&gt; SRC2) should be mapped to be in the range
+                     (DEST1 -&gt; DEST2).  Require SRC1 &lt;= SRC2, although
+                     the destination range can be backwards.
+
+                     This keyword can be used multiple times.
+
+</PRE>
+
+</block>
+
+<!--- template --->
+<file include="edit_page.tpl">
