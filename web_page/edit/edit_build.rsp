@@ -8,5 +8,6 @@ sec_types.htp ../out/edit_guide/sec_types.htm
 ; Specifications
 ;
 doom_specs.htp ../out/edit_guide/doom_specs.htm
+uds_errata.htp ../out/edit_guide/uds_errata.htm
 boom_ref.htp ../out/edit_guide/boom_ref.htm
 JointTextureSpec.htp ../out/edit_guide/JointTextureSpec.htm

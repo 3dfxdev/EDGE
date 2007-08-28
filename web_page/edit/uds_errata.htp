@@ -1,0 +1,306 @@
+<file include="../common/common.inc">
+
+<set title="UDS Errata">
+
+<block name="content">
+
+<h2 class="page_title">Errata for Unofficial Doom Specs</h2>
+
+<PRE class="specs">
+Preliminary Draft of UDS 1.666 Errors.                    r0.02, 20.08.1995
+
+===========================================================================
+UDS errors:
+
+---------------------------------------------------------------------------
+From Robert Fenske, Jr. (rfenske@swri.edu), 1995: 
+
+- line types 105 and 111 descriptions are switched
+
+- only the cycling crushing line types lock out further sector actions
+	(just mentioned by Steve Benner)
+
+- creatures will not attack through 2-sided lines that do not have
+	the 2S bit set; they did in v1.2 but do not in v1.666 or higher
+
+
+----------------------------------------------------------------------------
+From S.Benner@lancaster.ac.uk (Steve Benner), 1995:
+
+- Linetype 4 (W1: Door open &amp; close) can be activated by monsters
+  as well as players;
+
+- Linetype 46 (GR: Door open) DOES require tagging: it can be used
+  on any line, as remote from the door sector as you like. Only
+  fist, chainsaw, bullets and shotgun shells activate this trigger;
+  plasma and rockets have no effect. Bullets and shot from monsters
+  will activate it, so this is a kinda monster-activated trigger;
+
+- The CLUNK sound attributed to certain linetypes in the UDS is not
+  a function of the linetype in use. It only occurs if a SW_ texture is
+  in use on an Sx active linetype and sounds in addition to the
+  sound of the linetype action;
+
+- Linetype 141 is termed a silent crusher in the UDS. This crusher travels
+  silently but makes a CLUNK at each end of its travel;
+
+- All self-building stairs have the crush characteristic,
+  not just 8-unit ones;
+
+- Linetypes 56, 94, 55 &amp; 65 (Floor up to LIC-8, CRUSH) do not lock out
+  further actions, unless something gets caught in them *and* does not get
+  killed. Only lesser monsters are killed by this crusher, so if anything
+  above a Demon gets caught in them, it will be held forever. I suspect
+  this is a bug: if you activate a release trigger, you can hear DOOM moving
+  the floor forever!
+
+- Linetypes that move floors up by Short textures seem to move the floors
+  by 96 (or is it 78?) units if there is no short texture in use. Can anyone
+  confirm the way these work?
+
+----------------------------------------------------------------------------
+NEW  From S.Benner@lancaster.ac.uk (Steve Benner), Aug 15 1995:
+
+- LINETYPE 49 in v1.2 this line was S1: lower ceiling to floor+8, no crush;
+  its function changed in v1.666 (and above) to S1: start/resume slow crusher
+
+- LINETYPE 78 &amp; 85 : No operation.
+  I can't get these to do anything under any circumstances. Which is odd,
+  'cos I'm sure I once did. If anyone has any *different* info on these
+  (from EXPERIENCE, that is, not just from reading it somewhere) can they
+  let me (S.Benner@lancaster.ac.uk)  know urgently please.  Thanks.
+
+
+
+============================================================================
+UDS lacks: 
+
+
+
+
+----------------------------------------------------------------------------
+From S.Benner@lancaster.ac.uk (Steve Benner), 1995:
+
+Different linetype actions behave differently in multi-sector groupings.
+Mostly multi-sector groupings behave independently of any grouping. Grouped
+floor movements, for example, will all calculate their movement end points
+irrespective of any other movements that will occur at the same time. There
+are two exceptions to this rule of independance:-
+
+1. Lighting level changes.
+  The linetypes that switch lights to "brightest adjacent" or "dimmest
+adjacent" are sensitive to sector groupings. If you tag more than one
+sector to such a trigger, DOOM will look to find the *lowest numbered
+sector* of the group. It is this sector's neighbours that will be examined
+to determine the light level to switch *all* of the tagged sectors to. This
+explainns why sometimes this action appears to have no effect.
+
+2. Slow crushers
+  Slow crushers calculate their travel independantly if any other crusher
+in a crusher chain, but their downward speed of movement can be affected by
+anything which gets caught in them. Any slowing of one crusher in a chain
+(where by "chain" I mean any crushers moving together operating from one
+trigger) can be passed to any other crusher engaged in downward travel at
+that time. This effect seems to occur at random (unpredicatably, anyway: I
+suspect that nothing is random in DOOM, otherwise LMPs wouldn't work).
+NOTE: I have not checked to see whether this effect only happens amongst
+crushers which are truly linked through their tag numbers, or whether it
+applies to all crushers in motion at any instance: any takers to check that
+out?
+
+
+-------------------------------------------------------------------------
+From a13231@mindlink.bc.ca (drake o'brien), 1995:
+
+Well, I don't know anything that doesn't come straight out of the UDS by 
+Matt Fell.  The procedure in the UDS is a bit hard to follow if you go at 
+it linedef by linedef, sector by sector, finding the lowest-numbered 
+2-sided linedef whose right side faces each succeeding sector. 
+AAAUUUGGGHH.  But you should be able to make rising steps of any shape if 
+you follow these rules:
+
+1.  Make sure all stair sectors have same floor texture.
+2.  Flip all perimeter linedefs so the 1st sidedef (right sidedef) faces 
+OUT (except when perimeter linedef is 1-sided, of course).
+3.  The remaining linedefs separate the rising stairs.  Flip all these so 
+the 2nd sidedefs face in the direction you want the stairs to rise.
+
+Simple as that.
+If you follow these rules then you follow the rules of the UDS.  Well, I 
+don't pretend to be exhaustive, I might have missed an item meantioned in 
+the UDS.  But rules 2 &amp; 3 cover the UDS on the 'lowest right-sided 
+linedef' issue by a simple process of eliminating other possibilities.  
+
+
+
+-------------------------------------------------------------------------
+From a13231@mindlink.bc.ca (drake o'brien), 1995:
+
+My tests have shown that necessary &amp; sufficient conditions for medusa &amp; 
+doom-error free textures on a visible normal sidedef of a 2-sided linedef 
+are:
+1.  no void columns 
+2.  no 2 patches can share a line segment on the x-axis.
+
+I threw in condition 1 because it has to hold for any texture to be 
+doom-error free, because otherwise we get "generate lookup, column 
+without a patch" ugliness at startup.  So I would call any texture for 
+which these conditions hold 'transparent'.  Condition 2 must necessarily 
+hold, even when one of the patches in question is nothing but 100% pure 
+cyan. 
+
+I have found that in defining a transparent texture, whatever y-offset we 
+might set the pointer to a patch at in deutex's texture1.txt file, doom 
+will ignore  that value and play the patch as if we had defined the 
+y-offset to be 0.  (note:  here I'm talking about the co-ordinates of the 
+patch in the texture definition, *not* about the y-offset given the 
+texture itself when applied using a level editor)
+
+I have found that when playing a transparent texture on a 2-sided linedef 
+doom will tile the texture once and once only.  When no flag is set doom 
+will tile each patch in the texture down once from the ceiling.  When the 
+below unpegged flag is set doom will tile each *patch* in the texture 
+down once from the height given the texture in texture1.txt.  For 
+example, 
+
+TRANSP    256     128
+*      PATCH1    0      0
+*      PATCH2    64     32
+*      PATCH3    196    64
+
+where patch1.bmp is 64x42, patch2.bmp is 128x32, patch3.bmp is 64x8, 
+satisfies the conditions for a transparent texture.  If applied with 
+y-offset for the texture set at default 0 and with the lower unpegged 
+flag set then all three patches will tile down once and once only from 
+128 pixels above the floor.
+
+Now suppose there's no cyan in the bitmaps.  Applied to the normal wall 
+of a 1-sided linedef something quite different occurs.  I expected a lot 
+of tutti-frutti since there are huge void spaces in the texture 
+definition.  But in fact I found that in this case doom tiled each patch 
+down from the top of the texture and kept tiling until it hit bottom, and 
+of course on a 1-sided linedef doom tiles from ceiling to floor however 
+large the space to be filled is.  The tiling over the voids wasn't 
+perfect.  There was a 1 pixel line of tutti-frutti between the tiles.  
+
+-------------------------------------------------------------------------
+NEW From: Raphael Quinet, 14 Jun 95 
+(a couple of news postings from Rapahel Quinet, Frans P. de Vries,
+and Deagol (smclean2@warp10.smartlink.net), which I merged w/o keeping
+track of who said what).
+
+Found an interesting 'cheat' code for heretic.. its really a sound
+debugger, but Its interesting nonetheless.. type 'noise' and a 
+sound debugger will come on the screen.
+ 
+The table header is:  NAME   MO.T   MO.X   MO.Y   ID   PRI   DIST
+ 
+*NAME = the name of the sound effect, one from 'gldhit' through 'amb11'
+        contained near the end of the .exe, 141 effects in all (anyone care
+        to make an annotated list? :)
+*ID   = identifying number &lt;duh&gt;
+
+Each sound has a number associated to it, like in Doom.  These
+numbers are also used by the sndserver in UNIX ports of Doom.  Doing a
+"strings" or "od -s6" on the sndserver shows the list of sounds.
+
+*PRI  = priority.  Given that only a limited number of sound effects can
+be played simultaneously (usually 3 or 4), there has to be a priority
+associated to them so that only the important ones are played when the
+a sound channels are full.
+
+The ambient sounds (wind, laughter, steps,...) have a low priority (1 to 80)
+and the "attack" sounds have a high priority (320).  Thinking of it, I
+suspect that the sound priority was the last unknown field in the sndserver
+commands (see the articles that I posted here two weeks ago).
+
+*DIST = distance (obviously), 0 is at the players position
+
+You will notice that the ambient sounds are always played at the
+player's position (distance = 0, coordinates = player's coordinates).
+This is interesting, because the sounds are actually activated by
+special "sound things" that can be far away from the player.
+
+*MO.T, MO.X, MO.Y = MO.X and MO.Y show the coordinates of the source of the sound.
+These are the coordinates of the Thing which created the sound, with two exceptions:
+
+- the ambient sounds, as explained above (always at the player's position)
+- the doors and lifts.  In that case, the coordinates are the ones of the
+  center of the sector which was activated.  It's interesting to see how
+  the center is computed: create a WAD with doors of various shapes and
+  sizes (even with more than two sides) and see what you get.
+
+MO.T represents the type of the Thing which created the sound (0 for doors).
+But I'm not sure about the mapping to the Thing numbers in the WAD file.
+Here are a few examples:
+
+Name                   Thing Type  (WAD file)    MO.T (sound debug)
+Player 1                     1                        97
+Player main arrow            ?                        91
+Player secondary arrows      ?                        93
+Phoenix rod shot             ?                        86
+Morph ovum (pick up)       (30)                       10
+Time bomb (pick up)        (34)                       14
+Time bomb explosion          ?                        15
+Golem                       68                       102
+Golem ghost                 69                       104
+Golem leader                45                       103
+Golem leader projectile      ?                       107
+Flying gargoyle             66                       124
+Flying gargoyle leader       5                       125
+Sabreclaw                   90                       121
+Ophidian                    92                       113
+Maulotor                     9                       140
+Maulotor shots               ?                       141
+Maulotor fire trail          ?                       142
+Doors                        -                         0
+
+Note: the numbers in the table are related to the thing which produces them,
+not to the sound effect itself.  For example, look at what happens when you
+shoot with the ethereal crossbow:
+- shooting sound: bowsht (id = 18), mo.t = 91 (main arrow)
+- main arrow hitting a wall: hrnhit (id = 14), mo.t = 91 (main arrow)
+- other arrows hitting a wall: hrnhit (id = 14), mo.t = 93 (secondary arrows)
+
+There are some "?" in the table above because these things cannot be
+put in a WAD file, and thus their number is unknown.  For example, you
+cannot put a flying projectile in a WAD.
+
+When you get an artifact, usually MO.T is 97 (player).  But some of them
+have a different value (10 for the Morph Ovum, 15 for the Time Bomb).  I
+think this is because there is a special light effect when you pick up
+these objects.
+
+Maybe I should take a look at the exe with HHE or another tool.  The MO.T
+numbers can certainly be found somewhere...
+
+I discovered a few other interesting things:
+
+- Doors opening and closing have a high priority (400).  This ensures that
+  you hear the doors even if lots of monsters are shooting at you (pri = 320).
+  The teleport sound has a high priority too (pri = 500).
+
+- When you press a switch, the sound is associated with the player (mo.t = 97)
+  but the moving floor or doors have their own sound, coming from the center
+  of the sector (and mo.t = 0).
+
+- When the Maulotor sees the player for the first time, the "wake up" sound
+  is associated with the player (mo.t = 97, dist = 0) and not the Maulotor
+  (mo.t = 140).  The same happens for D'Sparil: the first sound (sbtsit)
+  and the sounds played when he resurrects (sorrise and sorsit) are coming
+  from the player.  This explains why you hear them so well.
+
+- The sounds with the highest priority (2000) are the sound of D'Sparil
+  summoning his disciples (soract) and D'Sparil dying.  They are also
+  associated with the player.
+
+- Most ambiant sounds are played from the player's position (mo.t = 97 and
+  dist = 0).  However, this is not the case for wind (mo.t = 197, id = 130)
+  and waterfalls (mo.t = 160, id = 129).
+
+</PRE>
+
+</block>
+
+<!--- template --->
+<file include="edit_page.tpl">
