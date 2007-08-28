@@ -1,4 +1,8 @@
 
+.banner {
+    background: #008 url(../images/blue_plasm_4.jpg);
+  }
+
 body { min-width: 880px; }
 
 pre.specs {
