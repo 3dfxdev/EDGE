@@ -6,12 +6,15 @@
 
 <h2 class="page_title">EDGE 1.29 Sector Types</h2>
 
+<!--- These types are mainly useful for Liquid Extrafloors --->
+
 <h3 class="roadmap">Deep Water</h3>
 
-These types are for water sectors (using liquid extrafloors).
-The area will be blue tinted.
-The player can swim. No air. Not damaging.
+<p>
+Colour tint: BLUE &nbsp;&nbsp;&nbsp; Damage: NONE<br>
+Swimmable: YES &nbsp;&nbsp;&nbsp; Breathable: NO
 
+<p>
 <PRE>
 [4466] // EDGE Blue Hue (SWIMABLE WATER, airless)
 
@@ -28,14 +31,17 @@ The player can swim. No air. Not damaging.
 
 <h3 class="roadmap">Deep Slime</h3>
 
-=== DEEP SLIME: green tinted, no swim, 10% damage ===
+<p>
+Colour tint: GREEN &nbsp;&nbsp;&nbsp; Damage: 10%<br>
+Swimmable: NO &nbsp;&nbsp;&nbsp; Breathable: NO
 
+<p>
 <PRE>
 [4467] // EDGE Green Hue, no damage
 [4468] // EDGE Green Hue + Damage
 
 [4426] // EDGE Slime Extrafloor Scroll/Push NORTH
-[4427] // EDGE Slime LIQUID Extrafloor Scroll/Push NORTH EAST
+[4427] // EDGE Slime Extrafloor Scroll/Push NORTH EAST
 [4428] // EDGE Slime Extrafloor Scroll/Push EAST
 [4429] // EDGE Slime Extrafloor Scroll/Push SOUTH EAST
 [4430] // EDGE Slime Extrafloor Scroll/Push SOUTH
@@ -47,8 +53,11 @@ The player can swim. No air. Not damaging.
 
 <h3 class="roadmap">Deep Lava</h3>
 
-=== DEEP LAVA: red tinted, no swim, 10% damage ===
+<p>
+Colour tint: RED &nbsp;&nbsp;&nbsp; Damage: 10%<br>
+Swimmable: NO &nbsp;&nbsp;&nbsp; Breathable: NO
 
+<p>
 <PRE>
 [4469] // EDGE Red Hue, no damage
 [4470] // EDGE Red Hue + Damage
@@ -64,7 +73,7 @@ The player can swim. No air. Not damaging.
 </PRE>
 
 
-<h3 class="roadmap">Pushing Floor (no scroll)</h3>
+<h3 class="roadmap">Pushing Floor</h3>
 
 <PRE>
 [4442] // EDGE Push NORTH
@@ -78,7 +87,7 @@ The player can swim. No air. Not damaging.
 </PRE>
 
 
-<h3 class="roadmap">Scrolling Floor (no push)</h3>
+<h3 class="roadmap">Scrolling Floor</h3>
 
 <PRE>
 [4450] // EDGE Scroll Floor Texture NORTH
@@ -92,7 +101,7 @@ The player can swim. No air. Not damaging.
 </PRE>
 
 
-<h3 class="roadmap">Pusing Scrolling Floor</h3>
+<h3 class="roadmap">Pushing + Scrolling Floor</h3>
 
 <PRE>
 [4458] // EDGE Scroll Floor Texture/Push NORTH
