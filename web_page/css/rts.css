@@ -1,60 +1,60 @@
 
 .banner {
-	background: #600 url(../images/red_plasm_4.jpg);
-	}
+    background: #600 url(../images/red_plasm_4.jpg);
+  }
 
 .menus { width: 280px; }
 
 .content {
-  margin: 15px 10px 10px 310px;  /* 310 = menu width + 30 */
-	}
+    margin: 15px 10px 10px 310px;  /* 310 = menu width + 30 */
+  }
 
 a { color: #862; }
 
 a:hover { color: #eb2; }
 
 a.rts {
-  font-weight: bold;
-  /* text-decoration: none; */
+    font-weight: bold;
+    /* text-decoration: none; */
   }
 
 pre.rts {
-  background-color: #fec;
-  color: black;
-  padding: 10px;
-	border: 1px solid black;
-  font-size: smaller;
+    background-color: #fec;
+    color: black;
+    padding: 10px;
+    border: 1px solid black;
+    font-size: smaller;
   }
 
 ul.params li {
-  margin-bottom: 1.0em;
+    margin-bottom: 1.0em;
   }
 
 ul.params li li {
-  margin-bottom: 0;
+    margin-bottom: 0;
   }
 
 ol.format li {
-  margin-bottom: 1.2em;
+    margin-bottom: 1.2em;
   }
 
 span.changelog {
-  color: #484;
+    color: #484;
   }
 
 ul.changelog {
-  margin-bottom: 1.2em;
+    margin-bottom: 1.2em;
   }
 
 table.rts {
-  border: 1px solid black;
-  background-color: #ffc;
-  color: black;
-  text-align: center;
-  /* font-size: smaller; */
+    border: 1px solid black;
+    background-color: #ffc;
+    color: black;
+    text-align: center;
+    /* font-size: smaller; */
   }
 
 table.rts tbody td {
-  padding: 2px;
+    padding: 2px;
   }
  
