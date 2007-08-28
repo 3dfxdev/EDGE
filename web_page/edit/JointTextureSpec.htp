@@ -6,7 +6,7 @@
 
 <h2 class="page_title">Joint Texture Standard (draft #7)</h2>
 
-<PRE>
+<PRE class="specs">
 Both PNG and JPEG image formats must be supported, but a port is free
 to support more formats.
 
