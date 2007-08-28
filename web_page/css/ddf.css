@@ -1,14 +1,12 @@
 
 .banner {
-  background: #008 url(../images/blue_plasm_4.jpg);
+    background: #008 url(../images/blue_plasm_4.jpg);
   }
 
-.menus {
-  width: 240px;
-  }
+.menus { width: 240px; }
 
 .content {
-  margin: 15px 10px 10px 270px;  /* 270 = menu width + 30 */
+    margin: 15px 10px 10px 270px;  /* 270 = menu width + 30 */
   }
 
 /*
@@ -17,36 +15,36 @@ a:hover { color: #28e; }
 */
  
 pre.synopsis {
-  border: 1px solid #888;
-  background-color: #def;
-  color: black;
-  font-family: monospace;
-  padding: 4px;
+    border: 1px solid #888;
+    background-color: #def;
+    color: black;
+    font-family: monospace;
+    padding: 4px;
   }
 
 pre.ddf {
-  background-color: #243;
-  color: white;
-  font-size: smaller;
-  border: 1px solid black;
-  padding: 10px;
+    background-color: #243;
+    color: white;
+    font-size: smaller;
+    border: 1px solid black;
+    padding: 10px;
   }
 
 table.cmds {
-  background-color: #fed;
-  color: black;
-  border: 1px solid black;
+    background-color: #fed;
+    color: black;
+    border: 1px solid black;
   }
 
 table.specials {
-  background-color: #dfd;
-  color: black;
-  border: 1px solid black;
+    background-color: #dfd;
+    color: black;
+    border: 1px solid black;
   }
 
 table.blah {
-  background-color: #fdf;
-  color: black;
-  border: 1px solid black;
+    background-color: #fdf;
+    color: black;
+    border: 1px solid black;
   }
 

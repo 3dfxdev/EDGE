@@ -4,23 +4,23 @@ body { min-width: 768px; }
 .content { margin: 10px; }
 
 .shots_menu {
-	width: 80%;
-	}
+    width: 80%;
+  }
 
 .shots_menu td {
-	background-color: #ddd;
-	border: 1px solid black;
-	width: 33%;
-	text-align: center;
-	}
+    background-color: #ddd;
+    border: 1px solid black;
+    width: 33%;
+    text-align: center;
+  }
 
 .shots_menu a {
-	color: black;
-	text-decoration: none;
-	}
+    color: black;
+    text-decoration: none;
+  }
 
 .shots_menu a:hover {
-	color: red;
-	text-decoration: none;
-	}
+    color: red;
+    text-decoration: none;
+  }
 
