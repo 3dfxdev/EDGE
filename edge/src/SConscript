@@ -10,11 +10,17 @@ env = main_env.Copy()
 
 env.Append(CCFLAGS = ['-ffast-math'])
 
+# check for globally installed glBSP header
+conf = Configure(env)
+if conf.CheckCXXHeader('glbsp.h'):
+	env.Append(CCFLAGS = ['-DHAVE_GLBSP_H'])
+env = conf.Finish()
+
 # allow #include "epi/xxxx.h" to find the correct file
 env.Append(CPPPATH = ['#.'])
 
 if 1: # not build_info['release']:
-  env.Append(CCFLAGS = ['-DDEVELOPERS'])
+	env.Append(CCFLAGS = ['-DDEVELOPERS'])
 
 #------- OBJECTS -----------------------------------
 
