@@ -81,8 +81,26 @@
 
 <h3 class="roadmap">Extrafloors</h3>
 
-TODO...
+<PRE>
+[400] // EDGE Thick Extrafloor (control texture)
+[401] // EDGE Thick Extrafloor (master upper texture)
+[402] // EDGE Thick Extrafloor (master lower texture)
 
+[403] // EDGE Liquid Extrafloor (Opaque)
+[404] // EDGE Liquid Extrafloor (80% Translucent)
+[405] // EDGE Liquid Extrafloor (60% Translucent)
+[406] // EDGE Liquid Extrafloor (40% Translucent)
+[407] // EDGE Liquid Extrafloor (20% Translucent)
+[408] // EDGE Liquid Extrafloor (Invisible)
+
+[413] // EDGE Thin Extrafloor (Opaque)
+[414] // EDGE Thin Extrafloor (80% Translucent)
+[415] // EDGE Thin Extrafloor (60% Translucent)
+[416] // EDGE Thin Extrafloor (40% Translucent)
+[417] // EDGE Thin Extrafloor (20% Translucent)
+</PRE>
+
+<p>
 
 </block>
 
