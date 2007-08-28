@@ -31,19 +31,19 @@ pre.ddf {
   }
 
 table.cmds {
-    background-color: #fed;
-    color: black;
-    border: 1px solid black;
-  }
-
-table.specials {
     background-color: #dfd;
     color: black;
     border: 1px solid black;
   }
 
-table.blah {
-    background-color: #fdf;
+table.ddf {
+    background-color: #ffc;
+    color: black;
+    border: 1px solid black;
+  }
+
+table.misc {
+    background-color: #def;
     color: black;
     border: 1px solid black;
   }
