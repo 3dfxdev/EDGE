@@ -25,7 +25,11 @@
 
 #include "i_defs.h"
 
+#ifdef HAVE_GLBSP_H
+#include "glbsp.h"
+#else
 #include "glbsp/src/glbsp.h"
+#endif
 
 #include "e_main.h"
 #include "l_glbsp.h"
