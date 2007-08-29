@@ -22,7 +22,7 @@ The commands used for animation entries are as follows:
 <p>
 
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2 BGCOLOR="#00AEEA">
+<TABLE class="cmds" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <TR><TH><B>COMMAND</B></TH><TH><B>TYPE</B></TH><TH><B>EXPLANATION</B></TH></TR>
 
 <TR><TD>TYPE</TD><TD>[special] </TD><TD>

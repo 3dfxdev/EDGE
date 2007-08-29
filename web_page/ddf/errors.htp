@@ -22,7 +22,7 @@ To create a debug file, you will need to include the <font size=+1><tt>-debug fi
 The contents of a healthy looking debug file will be as follows.
 
 <p>
-<table BORDER=1 width=95% CELLSPACING=0 CELLPADDING=2 FRAME="box">
+<TABLE BORDER=1 width=95% CELLSPACING=0 CELLPADDING=2 FRAME="box">
 <TR><TD>
 <font size=2>
 <br>

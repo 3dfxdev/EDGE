@@ -18,7 +18,7 @@ These files are used to create and modify map effects, such as doors, elevators,
 In both lines.ddf and sectors.ddf each entry consists of a unique mapnumber, enclosed in square brackets, followed by a series of commands to define the properties of the line or sector. These numbers are the ones used in your map editor, and for ease they are often grouped together according to their type.
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="cmds" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>WHAT</th><th>COMMAND</th>
 <th>TYPE</th><th>DESCRIPTION</th></tr>
 
@@ -353,7 +353,7 @@ Used to enable or disable a particlar property of a lindef or sector depending o
 <A NAME="floor_type"><FONT SIZE=+1><b>FLOOR.TYPE and CEILING.TYPEs</b></FONT></A>
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>TYPE</th><th>DESCRIPTION</th></tr>
 
 
@@ -383,7 +383,7 @@ Stops a continuous floor/ceiling from moving.</td></tr>
 <A NAME="ref"><FONT SIZE=+1><b>DEST_REFs</b></FONT></A>
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=1>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=1>
 <tr><th>DEST REF</th><th>DESCRIPTION</th></tr>
 
 <tr><td>ABSOLUTE</td><td>
@@ -428,7 +428,7 @@ The ceiling surrounding that is next highest.</td></tr>
 <A NAME="light_types"><FONT SIZE=+1><b>LIGHT_TYPEs</b></FONT></A>
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>LIGHT TYPE</th><th>DESCRIPTION</th></tr>
 
 <tr><td>FLASH</td><td>
@@ -454,7 +454,7 @@ and LIGHT_DARK_TIME.</td></tr>
 <A NAME="teleport_special"><FONT SIZE=+1><b>TELEPORT_SPECIAL</b></FONT></A>
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>SPECIAL</th><th>DESCRIPTION</th></tr>
 
 <tr><td>SAME_HEIGHT</td><td>
@@ -492,7 +492,7 @@ between the source linedef and the target linedef.</td></tr>
 <p>
 The following can be used with the SPECIAL commmand in lines.ddf
 <p>
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>SPECIAL</th>
 <th>DESCRIPTION</th></tr>
 
@@ -512,7 +512,7 @@ all the other linedefs with the same tag.</td></tr>
 <p>
 The following can be used with the SPECIAL commmand in sectors.ddf
 <p>
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>SPECIAL</th>
 <th>DESCRIPTION</th></tr>
 
@@ -534,7 +534,8 @@ Activates swimming mode when a player is in a sector assigned this special. This
 
 <tr><td>WHOLE_REGION</td><td>
 Makes damage apply to the whole sector (and not just when you're
-standing on the floor). Also affects pushing sectors: without this flag the push only happens when the object is touching the floor</td></tr>
+standing on the floor). Also affects pushing sectors:
+without this flag the push only happens when the object is touching the floor</td></tr>
 
 </table>
 &nbsp
@@ -544,7 +545,7 @@ standing on the floor). Also affects pushing sectors: without this flag the push
 <p>
 The following are the different types of extrafloor that can be used.
 <p>
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>SPECIAL</th><th>DESCRIPTION</th></tr>
 
 <tr><td>BOOMTEX</td><td>
@@ -602,7 +603,7 @@ water).</td></tr>
 
 The following key types can be used in EDGE.
 <p>
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="misc" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>TYPE</th><th>DESCRIPTION</th></tr>
 
 <tr><td>RED_CARD</td><td>

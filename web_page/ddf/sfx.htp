@@ -20,7 +20,7 @@ Names should be descriptive of what the sound is and/or when it is used, and wil
 The commands used for sound entries are as follows:
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="cmds" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <TR><TH>COMMAND</TH><TH>TYPE</TH><TH>DESCRIPTION</TH></TR>
 
 <TR><TD>LOOP</TD><TD>[boolean]</TD><TD>

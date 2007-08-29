@@ -20,7 +20,7 @@ The level name should refer to the episode and where in the order it appears e.g
 The commands used for level entries are as follows:
 <p>
 
-<table BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="cmds" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>COMMAND</th><th>TYPE</th><th>DESCRIPTION</th></tr>
 
 <tr><td>AUTOTAG</td><td>[integer]</td><td>
@@ -146,7 +146,7 @@ level.  Most of the time you will use the same flags in all of your
 levels (e.g NO_JUMPING).
 <p>
 
-<table BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>SPECIAL</th><th>DESCRIPTION</th></tr>
 
 <tr><td>AA_MLOOK</td><td>

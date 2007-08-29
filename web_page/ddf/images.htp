@@ -20,23 +20,18 @@ NOTE: When using filenames, directories must be separated by / instead of the \ 
 <font size=+1><b>Format</b></font></a>
 <p>
 IMAGE_DATA entries have the following format:
-<p>
-<table BORDER=1 CELLSPACING=0 CELLPADDING=2>
-<tr><td>
-<blockquote>
-<br>
-<b> [ENTRY_TYPE:ENTRY_NAME] 
-<br>IMAGE_DATA=[IMAGE TYPE]:[FORMAT]:[IMAGE NAME];</b>
-<p>
-</blockquote>
-</td></tr>
-</table>
 
-&nbsp
+<blockquote><code>
+
+[ENTRY_TYPE:ENTRY_NAME]<br>
+IMAGE_DATA=[TYPE]:[FORMAT]:[IMAGE_NAME];<br>
+
+</code></blockquote>
+
 <p>
 Where each command is as follows:
 <p>
-<table BORDER=1  CELLSPACING=0 CELLPADDING=1>
+<TABLE class="cmds" BORDER=1  CELLSPACING=0 CELLPADDING=1>
 <tr><th>COMMAND</th><th>DESCRIPTION</th></tr>
 
 <tr><td>[ENTRY_TYPE]</td><td>
@@ -86,7 +81,7 @@ In the case of:
 The following is a list of additional commands that are accepted by each image entry:
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="cmds" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <TR><TH>COMMAND</TH><TH>TYPE</TH><TH>EXPLANATION</TH></TR>
 
 <TR><TD>X_OFFSET</TD><TD>[integer]</TD><TD>
@@ -113,7 +108,7 @@ A comma separated list of special flags. See below.</td></tr>
 <P>
 These allow some control over the ways the image is used.
 <P>
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <TR><TH>SPECIAL</TH><TH>EXPLANATION</TH></TR>
 
 <TR><TD>CROSSHAIR </TD><TD>

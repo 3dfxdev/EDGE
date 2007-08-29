@@ -30,7 +30,7 @@ The commands used for attack entries are as follows:
 <p>
 
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="cmds" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>COMMAND</th><th>TYPE</th><th>DESCRIPTION</th></tr>
 
 <tr><td>ACCURACY_ANGLE</td><td>[float]</td><td>
@@ -264,7 +264,7 @@ Each named STATES entry defines an animation sequence to play when an attack is 
 <br>
 as follows:
 <p>
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="misc" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 
 <tr><td>Sprite</td><td>
 The four letter name of the sprite to use.</td></tr>
@@ -304,7 +304,7 @@ In addition, any line may include a <tt>#Command</tt> at the end. This will eith
 <p>
 The following are predefined state names that have specifc purposes:
 <p>
-<TABLE BORDER=1  CELLSPACING=0 CELLPADDING=1>
+<TABLE class="ddf" BORDER=1  CELLSPACING=0 CELLPADDING=1>
 <tr><th>STATE NAME</th><th>SPECIAL USE</th></tr>
 
 <tr><td>SPAWN</td><td>
@@ -333,7 +333,7 @@ stream of plasma, and give yourself a homing rocket launcher to fight
 back with. However, you cannot create new attack types, you can only
 pick from the list of attack types below. 
 <p>
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>TYPE</th><th>DESCRIPTION</th></tr>
 
 <tr><td>CLOSECOMBAT</td><td>
@@ -388,7 +388,7 @@ These are flags that are used to modify an attack in some way. <br>
 ATTACK_SPECIAL=NEED_SIGHT,FACE_TARGET;
 
 <p>
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>SPECIAL</th><th>DESCRIPTION</th></tr>
 
 <tr><td>ANGLED_SPAWN</td><td>
@@ -443,7 +443,7 @@ Homing missile with a line of smoke behind it.</td></tr>
 Used in a very similar way to ATTACK_SPECIAL. <br>
 For example PROJECTILE_SPECIAL=MISSILE, DROPOFF, NOBLOCKMAP;
 <p>
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>SPECIAL</th><th>DESCRIPTION</th></tr>
 
 <tr><td>BARE_MISSILE</td><td>
@@ -506,7 +506,7 @@ The following actions can be used in the attacks.ddf STATES:
 
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="misc" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>ACTION</th><th>DESCRIPTION</th></tr>
 
 <tr><td>BOUNCE_REARM</td><td>

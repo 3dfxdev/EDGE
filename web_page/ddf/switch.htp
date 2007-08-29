@@ -21,7 +21,7 @@ Names should be descriptive of the background and switch textures, but are used 
 The commands used for switch entries are as follows:
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="cmds" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <TR><TH>COMMAND</TH><TH>TYPE</TH><TH>EXPLANATION</TH></TR>
 
 <TR><TD>ON_TEXTURE</TD><TD>[string]</TD><TD>

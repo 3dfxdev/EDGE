@@ -22,7 +22,9 @@ Names should be descriptive of what the weapon does, and are referred to from th
 </p><p>
 The commands used for weapon entries are as follows:
 </p><p>
-<table border="1" cellpadding="1" cellspacing="0">
+
+<TABLE class="cmds" border="1" cellpadding="1" cellspacing="0">
+
 <tbody><tr><th>COMMAND</th><th>TYPE</th><th>DESCRIPTION</th></tr>
 
 <tr><td>AMMOPERSHOT</td><td>[integer]</td><td>
@@ -183,7 +185,7 @@ frames of the animation. A state is defined like this:<br>
 <br>
 as follows:
 </a></p><p>
-<table border="1" cellpadding="2" cellspacing="0">
+<TABLE class="misc" border="1" cellpadding="2" cellspacing="0">
 
 <tbody><tr><td>Sprite</td><td>
 The four letter name of the sprite to use.</td></tr>
@@ -224,7 +226,7 @@ Action to be carried out. Actions are listed below.</td></tr>
 The following are predefined state names that have specifc purposes:
 </p><p>
 
-<table border="1" cellpadding="1" cellspacing="0">
+<TABLE class="ddf" border="1" cellpadding="1" cellspacing="0">
 <tbody><tr><th>STATE NAME</th><th>SPECIAL USE</th></tr>
 
 <tr><td>ATTACK</td><td>
@@ -290,9 +292,8 @@ States used for this weapon in zoomed field of view mode.</td></tr>
 </p><p>
 The following actions can be used in weapon states:</p><p>
 
-<table border="1" cellpadding="1" cellspacing="0">
+<TABLE class="misc" border="1" cellpadding="1" cellspacing="0">
 <tbody><tr><th>ACTION</th><th>DESCRIPTION</th></tr>
-
 
 <tr><td>CHECKRELOAD</td><td>
 Checks whether the player has used up the clip quantity of ammo.  If
@@ -456,7 +457,7 @@ regular Doom and Doom2 ammo types, as well as 12 new ones specially for
 use in EDGE:
 </p><p>
 
-<table border="1" cellpadding="2" cellspacing="0">
+<TABLE class="ddf" border="1" cellpadding="2" cellspacing="0">
 <tbody><tr><th>AMMO Type</th><th>DESCRIPTION</th></tr>
 <tr><td>NOAMMO</td><td>For weapons like the chainsaw and fist -- Used in Doom and Doom 2</td></tr>
 <tr><td>BULLETS or AMMO1</td><td>Normally used for the pistol and chaingun -- Used in Doom and Doom 2</td></tr>
@@ -482,7 +483,7 @@ use in EDGE:
 <a name="special"> <font size="+1"><b>SPECIAL Flags</b></font></a>
 </p><p>
 
-<table border="1" cellpadding="2" cellspacing="0">
+<TABLE class="ddf" border="1" cellpadding="2" cellspacing="0">
 <tbody><tr><th>SPECIAL</th><th>DESCRIPTION</th></tr>
 <tr><td>SILENT_TO_MONSTERS</td><td>Monsters cannot hear this attack.
 Used for punch or other weapon you'd like to silence.</td></tr>
@@ -506,7 +507,7 @@ commands must occur once, in the very last frame</td></tr>
 </p><p>
 The following are examples of complete weapon entries:
 </p><p>
-<table border="1" cellpadding="2" cellspacing="0" frame="box" width="95%">
+<TABLE border="1" cellpadding="2" cellspacing="0" frame="box" width="95%">
 <tbody><tr><td>
 <font size="2">
 [FIST]<br>

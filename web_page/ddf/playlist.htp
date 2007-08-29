@@ -21,20 +21,18 @@ Playlist.ddf is used to define music entries in EDGE. Each entry begins with a u
 <p>
 Entries in playlist.ddf have the following format:
 <p>
-<table BORDER=1 CELLSPACING=0 CELLPADDING=2>
-<tr><td>
-<blockquote>
-<br>
-<b>[ENTRY NUMBER] MUSICINFO=[TYPE]:[FORMAT]:[SONG NAME];</b>
-<p>
-</blockquote>
-</td></tr>
-</table>
-&nbsp
+
+<blockquote><code>
+
+[ENTRY NUMBER]<br>
+MUSICINFO=[TYPE]:[FORMAT]:[SONG_NAME];<br>
+
+</code></blockquote>
+
 <p>
 Where each command is as follows:
 <p>
-<table BORDER=1  CELLSPACING=0 CELLPADDING=1>
+<TABLE class="cmds" BORDER=1  CELLSPACING=0 CELLPADDING=1>
 <tr><th>COMMAND</th><th>DESCRIPTION</th></tr>
 
 <tr><td>[ENTRY_NUMBER]</td><td>
@@ -57,7 +55,7 @@ Name of the actual file in the wadfile or on the hard drive, or the CD track num
 <p>
 The following are examples of different playlist entries: 
 <p>
-<table BORDER=1 width=95% CELLSPACING=0 CELLPADDING=2 FRAME="box">
+<TABLE BORDER=1 width=95% CELLSPACING=0 CELLPADDING=2 FRAME="box">
 <TR><TD>
 <FONT SIZE=2>
 <br>
