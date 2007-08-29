@@ -1,5 +1,18 @@
 Andrew Apted's Log
 
+2007/08/29:
+
+Removed SECSPECIAL command from Lines.ddf, it did absolutely
+nothing.  Well it still does :-) (backwards compatibility).
+
+Been doing some work on the documentation for the website,
+got the beginnings of an "EDGE Editing Guide" written.
+
+2007/08/26:
+
+Worked on the EPI, adding new code (like fixed point and
+matrix classes) from some stuff I had lying around.
+
 2007/08/25:
 
 Fixed bug saving the 'mipmapping' setting, it was incorrectly
