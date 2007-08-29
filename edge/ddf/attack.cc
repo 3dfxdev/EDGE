@@ -53,9 +53,9 @@ const commandlist_t damage_commands[] =
 	DF("ERROR", error, DDF_MainGetFloat),
 	DF("DELAY", delay, DDF_MainGetTime),
 
-	DF("PAIN STATE", pain, DDF_AtkGetLabel),
-	DF("DEATH STATE", death, DDF_AtkGetLabel),
-	DF("OVERKILL STATE", overkill, DDF_AtkGetLabel),
+	DF("PAIN_STATE", pain, DDF_AtkGetLabel),
+	DF("DEATH_STATE", death, DDF_AtkGetLabel),
+	DF("OVERKILL_STATE", overkill, DDF_AtkGetLabel),
 
 	DDF_CMD_END
 };
@@ -74,34 +74,34 @@ static const commandlist_t attack_commands[] =
 	DDF_SUB_LIST("DAMAGE", damage, damage_commands, buffer_damage),
 
 	DF("ATTACKTYPE", ddf, DDF_AtkGetType),
-	DF("ATTACK SPECIAL", ddf, DDF_AtkGetSpecial),
-	DF("ACCURACY SLOPE", accuracy_slope, DDF_MainGetSlope),
-	DF("ACCURACY ANGLE", accuracy_angle, DDF_MainGetAngle),
-	DF("ATTACK HEIGHT", height, DDF_MainGetFloat),
+	DF("ATTACK_SPECIAL", ddf, DDF_AtkGetSpecial),
+	DF("ACCURACY_SLOPE", accuracy_slope, DDF_MainGetSlope),
+	DF("ACCURACY_ANGLE", accuracy_angle, DDF_MainGetAngle),
+	DF("ATTACK_HEIGHT", height, DDF_MainGetFloat),
 	DF("SHOTCOUNT", count, DDF_MainGetNumeric),
-	DF("X OFFSET", xoffset, DDF_MainGetFloat),
-	DF("Y OFFSET", yoffset, DDF_MainGetFloat),
-	DF("ANGLE OFFSET", angle_offset, DDF_MainGetAngle),
-	DF("SLOPE OFFSET", slope_offset, DDF_MainGetSlope),
+	DF("X_OFFSET", xoffset, DDF_MainGetFloat),
+	DF("Y_OFFSET", yoffset, DDF_MainGetFloat),
+	DF("ANGLE_OFFSET", angle_offset, DDF_MainGetAngle),
+	DF("SLOPE_OFFSET", slope_offset, DDF_MainGetSlope),
 	DF("ATTACKRANGE", range, DDF_MainGetFloat),
-	DF("TOO CLOSE RANGE", tooclose, DDF_MainGetNumeric),
-	DF("BERSERK MULTIPLY", berserk_mul, DDF_MainGetFloat),
-	DF("NO TRACE CHANCE", notracechance, DDF_MainGetPercent),
-	DF("KEEP FIRING CHANCE", keepfirechance, DDF_MainGetPercent),
-	DF("TRACE ANGLE", trace_angle, DDF_MainGetAngle),
-	DF("ASSAULT SPEED", assault_speed, DDF_MainGetFloat),
-	DF("ATTEMPT SOUND", initsound, DDF_MainLookupSound),
-	DF("ENGAGED SOUND", sound, DDF_MainLookupSound),
-	DF("SPAWNED OBJECT", spawnedobj_ref, DDF_MainGetString),
-	DF("SPAWN OBJECT STATE", objinitstate_ref, DDF_MainGetString),
-	DF("SPAWN LIMIT", spawn_limit, DDF_MainGetNumeric),
+	DF("TOO_CLOSE_RANGE", tooclose, DDF_MainGetNumeric),
+	DF("BERSERK_MULTIPLY", berserk_mul, DDF_MainGetFloat),
+	DF("NO_TRACE_CHANCE", notracechance, DDF_MainGetPercent),
+	DF("KEEP_FIRING_CHANCE", keepfirechance, DDF_MainGetPercent),
+	DF("TRACE_ANGLE", trace_angle, DDF_MainGetAngle),
+	DF("ASSAULT_SPEED", assault_speed, DDF_MainGetFloat),
+	DF("ATTEMPT_SOUND", initsound, DDF_MainLookupSound),
+	DF("ENGAGED_SOUND", sound, DDF_MainLookupSound),
+	DF("SPAWNED_OBJECT", spawnedobj_ref, DDF_MainGetString),
+	DF("SPAWN_OBJECT_STATE", objinitstate_ref, DDF_MainGetString),
+	DF("SPAWN_LIMIT", spawn_limit, DDF_MainGetNumeric),
 	DF("PUFF", puff_ref, DDF_MainGetString),
-	DF("ATTACK CLASS", attack_class, DDF_MainGetBitSet),
+	DF("ATTACK_CLASS", attack_class, DDF_MainGetBitSet),
 
 	// -AJA- backward compatibility cruft...
 	DF("!DAMAGE", damage.nominal, DDF_MainGetFloat),
-	{"!DAMAGE RANGE", DDF_MainGetFloat, &a_damage_range, NULL},
-	{"!DAMAGE MULTI", DDF_MainGetFloat, &a_damage_multi, NULL},
+	{"!DAMAGE_RANGE", DDF_MainGetFloat, &a_damage_range, NULL},
+	{"!DAMAGE_MULTI", DDF_MainGetFloat, &a_damage_multi, NULL},
 
 	DDF_CMD_END
 };
@@ -208,7 +208,7 @@ static void AttackFinishEntry(void)
 	}
 
 	// -AJA- 2005/08/06: Berserk backwards compatibility
-	if (DDF_CompareName(dynamic_atk->ddf.name.GetString(), "PLAYER PUNCH") == 0
+	if (DDF_CompareName(dynamic_atk->ddf.name.GetString(), "PLAYER_PUNCH") == 0
 		&& buffer_atk.berserk_mul == 1.0f)
 	{
 		buffer_atk.berserk_mul = 10.0f;
@@ -299,19 +299,19 @@ void DDF_AttackCleanUp(void)
 
 static const specflags_t attack_specials[] =
 {
-    {"SMOKING TRACER", AF_TraceSmoke, 0},
-    {"KILL FAILED SPAWN", AF_KillFailedSpawn, 0},
-    {"REMOVE FAILED SPAWN", AF_KillFailedSpawn, 1},
-    {"PRESTEP SPAWN", AF_PrestepSpawn, 0},
-    {"SPAWN TELEFRAGS", AF_SpawnTelefrags, 0},
-    {"NEED SIGHT", AF_NeedSight, 0},
-    {"FACE TARGET", AF_FaceTarget, 0},
+    {"SMOKING_TRACER", AF_TraceSmoke, 0},
+    {"KILL_FAILED_SPAWN", AF_KillFailedSpawn, 0},
+    {"REMOVE_FAILED_SPAWN", AF_KillFailedSpawn, 1},
+    {"PRESTEP_SPAWN", AF_PrestepSpawn, 0},
+    {"SPAWN_TELEFRAGS", AF_SpawnTelefrags, 0},
+    {"NEED_SIGHT", AF_NeedSight, 0},
+    {"FACE_TARGET", AF_FaceTarget, 0},
 
-    {"FORCE AIM", AF_ForceAim, 0},
-    {"ANGLED SPAWN", AF_AngledSpawn, 0},
-    {"PLAYER ATTACK", AF_Player, 0},
-    {"TRIGGER LINES", AF_NoTriggerLines, 1},
-    {"SILENT TO MONSTERS", AF_SilentToMon, 0},
+    {"FORCE_AIM", AF_ForceAim, 0},
+    {"ANGLED_SPAWN", AF_AngledSpawn, 0},
+    {"PLAYER_ATTACK", AF_Player, 0},
+    {"TRIGGER_LINES", AF_NoTriggerLines, 1},
+    {"SILENT_TO_MONSTERS", AF_SilentToMon, 0},
     {"TARGET", AF_NoTarget, 1},
 
     // -AJA- backwards compatibility cruft...
@@ -346,9 +346,9 @@ static const char *attack_class[NUMATKCLASS] =
     "NONE",
     "PROJECTILE",
     "SPAWNER",
-    "TRIPLE SPAWNER",
-    "FIXED SPREADER",
-    "RANDOM SPREADER",
+    "TRIPLE_SPAWNER",
+    "FIXED_SPREADER",
+    "RANDOM_SPREADER",
     "SHOT",
     "TRACKER",
     "CLOSECOMBAT",
