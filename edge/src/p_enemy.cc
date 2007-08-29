@@ -558,7 +558,7 @@ static void SpawnDeathMissile(mobj_t *source, float x, float y, float z)
 	const mobjtype_c *info;
 	mobj_t *th;
 
-	info = mobjtypes.Lookup("BRAIN DEATH MISSILE");
+	info = mobjtypes.Lookup("BRAIN_DEATH_MISSILE");
 
 	th = P_MobjCreateObject(x, y, z, info);
 	if (th->info->seesound)
@@ -660,7 +660,7 @@ void P_ActCubeSpawn(mobj_t * cube)
 	else if (r < 120)
 		type = mobjtypes.Lookup("SPECTRE");
 	else if (r < 130)
-		type = mobjtypes.Lookup("PAIN ELEMENTAL");
+		type = mobjtypes.Lookup("PAIN_ELEMENTAL");
 	else if (r < 160)
 		type = mobjtypes.Lookup("CACODEMON");
 	else if (r < 162)
@@ -672,9 +672,9 @@ void P_ActCubeSpawn(mobj_t * cube)
 	else if (r < 222)
 		type = mobjtypes.Lookup("MANCUBUS");
 	else if (r < 246)
-		type = mobjtypes.Lookup("HELL KNIGHT");
+		type = mobjtypes.Lookup("HELL_KNIGHT");
 	else
-		type = mobjtypes.Lookup("BARON OF HELL");
+		type = mobjtypes.Lookup("BARON_OF_HELL");
 
 	newmobj = P_MobjCreateObject(targ->x, targ->y, targ->z, type);
 
