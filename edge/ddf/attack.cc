@@ -385,7 +385,7 @@ static void DDF_AtkGetLabel(const char *info, void *storage)
 	label_offset_c *lab = (label_offset_c *)storage;
 
 	// check for `:' in string
-	const char *div = strchr(info, DIVIDE);
+	const char *div = strchr(info, ':');
 
 	int i = div ? (div - info) : (int)strlen(info);
 

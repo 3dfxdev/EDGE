@@ -817,7 +817,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 			case separator:
 				if (bracket_level > 0)
 				{
-					buffer.AddChar(SEPARATOR);
+					buffer.AddChar(',');
 					break;
 				}
 
@@ -932,15 +932,11 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
 	// -ACB- 1998/08/11 Used for detecting formatting in a string
 	static bool formatchar = false;
 
-	// With the exception of reading_string, whitespace is ignored and
-	// a SUBSPACE is replaced by a space.
+	// With the exception of reading_string, whitespace is ignored.
 	if (status != reading_string)
 	{
 		if (isspace(character))
 			return nothing;
-
-		if (character == SUBSPACE)
-			character = SPACE;
 	}
 	else  // check for formatting char in a string
 	{
@@ -952,13 +948,13 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
 	}
 
 	// -AJA- 1999/09/26: Handle unmatched '}' better.
-	if (status != reading_string && character == REMARKSTART)
+	if (status != reading_string && character == '{')
 		return remark_start;
   
-	if (status == reading_remark && character == REMARKSTOP)
+	if (status == reading_remark && character == '}')
 		return remark_stop;
 
-	if (status != reading_string && character == REMARKSTOP)
+	if (status != reading_string && character == '}')
 		DDF_Error("DDF: Encountered '}' without previous '{'.\n");
 
 	switch (status)
@@ -968,14 +964,14 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
 
 			// -ES- 2000/02/29 Added tag check.
 		case waiting_tag:
-			if (character == TAGSTART)
+			if (character == '<')
 				return tag_start;
 			else
 				DDF_Error("DDF: File must start with a tag!\n");
 			break;
 
 		case reading_tag:
-			if (character == TAGSTOP)
+			if (character == '>')
 				return tag_stop;
 			else
 			{
@@ -984,18 +980,18 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
 			}
 
 		case waiting_newdef:
-			if (character == DEFSTART)
+			if (character == '[')
 				return def_start;
 			else
 				return nothing;
 
 		case reading_newdef:
-			if (character == DEFSTOP)
+			if (character == ']')
 			{
 				return def_stop;
 			}
-			else if ((isalnum(character)) || (character == SPACE) ||
-					 (character == DIVIDE))
+			else if ((isalnum(character)) || (character == '_') ||
+					 (character == ':'))
 			{
 				buffer.AddChar(character);
 				return ok_char;
@@ -1003,19 +999,19 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
 			return nothing;
 
 		case reading_command:
-			if (character == COMMANDREAD)
+			if (character == '=')
 			{
 				return command_read;
 			}
-			else if (character == TERMINATOR)
+			else if (character == ';')
 			{
 				return property_read;
 			}
-			else if (character == DEFSTART)
+			else if (character == '[')
 			{
 				return def_start;
 			}
-			else if (isalnum(character) || character == SPACE ||
+			else if (isalnum(character) || character == '_' ||
 					 character == '(' || character == ')' ||
 					 character == '.')
 			{
@@ -1026,29 +1022,29 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
 
 			// -ACB- 1998/08/10 Check for string start
 		case reading_data:
-			if (character == STRINGSTART)
+			if (character == '\"')
 				return string_start;
       
-			if (character == TERMINATOR)
+			if (character == ';')
 				return terminator;
       
-			if (character == SEPARATOR)
+			if (character == ',')
 				return separator;
       
-			if (character == GROUPSTART)
+			if (character == '(')
 			{
 				buffer.AddChar(character);
 				return group_start;
 			}
       
-			if (character == GROUPSTOP)
+			if (character == ')')
 			{
 				buffer.AddChar(character);
 				return group_stop;
 			}
       
 			// Sprite Data - more than a few exceptions....
-			if (isalnum(character) || character == SPACE || character == '-' ||
+			if (isalnum(character) || character == '_' || character == '-' ||
 				character == ':' || character == '.'  || character == '[' ||
 				character == ']' || character == '\\' || character == '!' ||
 				character == '#' || character == '%'  || character == '+' ||
@@ -1094,7 +1090,7 @@ readchar_t DDF_MainProcessChar(char character, epi::string_c& buffer, int status
 				}
 
 			}
-			else if (character == STRINGSTOP)
+			else if (character == '\"')
 			{
 				return string_stop;
 			}
@@ -1378,8 +1374,7 @@ int DDF_MainLookupDirector(const mobjtype_c *info, const char *ref)
 	epi::string_c director;
 	const char *div;
 
-	// find `:'
-	div = strchr(ref, DIVIDE);
+	div = strchr(ref, ':');
 
 	i = div ? (div - ref) : strlen(ref);
 
