@@ -199,10 +199,11 @@ static const commandlist_t linedef_commands[] =
 	DF("COLOUR", fx_color, DDF_MainGetRGB),
 
 	// -AJA- backwards compatibility cruft...
+	DF("SECSPECIAL", ddf, DDF_DummyFunction),
+
 	DF("!EXTRAFLOOR TRANSLUCENCY", translucency, DDF_MainGetPercent),
 	DF("!SOUND", ddf, DDF_DummyFunction),
 	DF("!LIGHT PROBABILITY", ddf, DDF_DummyFunction),
-	DF("!SECSPECIAL", ddf, DDF_DummyFunction),
 
 	DDF_CMD_END
 };
