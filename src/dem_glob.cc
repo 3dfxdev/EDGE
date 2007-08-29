@@ -473,7 +473,7 @@ static void GlobWritePLYR(saveglobals_t *globs)
 	DEM_PutInt(0);  // player flags
 
 	DEM_PutString("Johnny");    // player name
-	DEM_PutString("OUR HERO");  // DDF mobj type
+	DEM_PutString("OUR_HERO");  // DDF mobj type
 
 	DEM_PopWriteChunk();
 }
