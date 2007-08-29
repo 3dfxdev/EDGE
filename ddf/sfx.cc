@@ -39,13 +39,13 @@ sfxdef_container_c sfxdefs;
 
 static const commandlist_t sfx_commands[] =
 {
-	DF("LUMP NAME", lump_name, DDF_MainGetInlineStr10),
+	DF("LUMP_NAME", lump_name, DDF_MainGetInlineStr10),
 	DF("SINGULAR", singularity, DDF_MainGetNumeric),
 	DF("PRIORITY", priority, DDF_MainGetNumeric),
 	DF("VOLUME", volume, DDF_MainGetPercent),
 	DF("LOOP", looping, DDF_MainGetBoolean),
 	DF("PRECIOUS", precious, DDF_MainGetBoolean),
-	DF("MAX DISTANCE", max_distance, DDF_MainGetFloat),
+	DF("MAX_DISTANCE", max_distance, DDF_MainGetFloat),
 
 	// -AJA- backwards compatibility cruft...
 	DF("!BITS",   ddf, DDF_DummyFunction),

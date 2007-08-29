@@ -41,10 +41,10 @@ static void DDF_ImageGetSpecial(const char *info, void *storage);
 
 static const commandlist_t image_commands[] =
 {
-	DF("IMAGE DATA", type,     DDF_ImageGetType),
+	DF("IMAGE_DATA", type,     DDF_ImageGetType),
 	DF("SPECIAL",    special,  DDF_ImageGetSpecial),
-	DF("X OFFSET",   x_offset, DDF_MainGetNumeric),
-	DF("Y OFFSET",   y_offset, DDF_MainGetNumeric),
+	DF("X_OFFSET",   x_offset, DDF_MainGetNumeric),
+	DF("Y_OFFSET",   y_offset, DDF_MainGetNumeric),
 	DF("SCALE",      scale,    DDF_MainGetFloat),
 	DF("ASPECT",     aspect,   DDF_MainGetFloat),
 
@@ -340,9 +340,9 @@ static specflags_t image_specials[] =
 {
     {"CROSSHAIR",    IMGSP_Crosshair, 0},
     {"ALPHA",        IMGSP_NoAlpha,   1},
-    {"FORCE NOMIP",  IMGSP_NoMip,     0},
-    {"FORCE CLAMP",  IMGSP_Clamp,     0},
-    {"FORCE SMOOTH", IMGSP_Smooth,    0},
+    {"FORCE_NOMIP",  IMGSP_NoMip,     0},
+    {"FORCE_CLAMP",  IMGSP_Clamp,     0},
+    {"FORCE_SMOOTH", IMGSP_Smooth,    0},
     {NULL, 0, 0}
 };
 

@@ -84,22 +84,22 @@ static void DDF_LineGetSectorEffect(const char *info, void *storage);
 const commandlist_t floor_commands[] =
 {
 	DF("TYPE", type, DDF_SectGetMType),
-	DF("SPEED UP",   speed_up,   DDF_MainGetFloat),
-	DF("SPEED DOWN", speed_down, DDF_MainGetFloat),
-	DF("DEST REF",   destref,    DDF_SectGetDestRef),
-	DF("DEST OFFSET", dest, DDF_MainGetFloat),
-	DF("OTHER REF",   otherref,  DDF_SectGetDestRef),
-	DF("OTHER OFFSET", other, DDF_MainGetFloat),
+	DF("SPEED_UP",   speed_up,   DDF_MainGetFloat),
+	DF("SPEED_DOWN", speed_down, DDF_MainGetFloat),
+	DF("DEST_REF",   destref,    DDF_SectGetDestRef),
+	DF("DEST_OFFSET", dest, DDF_MainGetFloat),
+	DF("OTHER_REF",   otherref,  DDF_SectGetDestRef),
+	DF("OTHER_OFFSET", other, DDF_MainGetFloat),
 	DF("TEXTURE", tex, DDF_MainGetInlineStr10),
-	DF("PAUSE TIME", wait,  DDF_MainGetTime),
-	DF("WAIT TIME", prewait,  DDF_MainGetTime),
-	DF("SFX START", sfxstart, DDF_MainLookupSound),
-	DF("SFX UP",    sfxup,    DDF_MainLookupSound),
-	DF("SFX DOWN",  sfxdown,  DDF_MainLookupSound),
-	DF("SFX STOP",  sfxstop,  DDF_MainLookupSound),
-	DF("SCROLL ANGLE", scroll_angle,DDF_MainGetAngle),
-	DF("SCROLL SPEED", scroll_speed,DDF_MainGetFloat),
-	DF("IGNORE TEXTURE", ignore_texture, DDF_MainGetBoolean),
+	DF("PAUSE_TIME", wait,  DDF_MainGetTime),
+	DF("WAIT_TIME", prewait,  DDF_MainGetTime),
+	DF("SFX_START", sfxstart, DDF_MainLookupSound),
+	DF("SFX_UP",    sfxup,    DDF_MainLookupSound),
+	DF("SFX_DOWN",  sfxdown,  DDF_MainLookupSound),
+	DF("SFX_STOP",  sfxstop,  DDF_MainLookupSound),
+	DF("SCROLL_ANGLE", scroll_angle,DDF_MainGetAngle),
+	DF("SCROLL_SPEED", scroll_speed,DDF_MainGetFloat),
+	DF("IGNORE_TEXTURE", ignore_texture, DDF_MainGetBoolean),
 
 	DDF_CMD_END
 };
@@ -120,13 +120,13 @@ const commandlist_t slider_commands[] =
 {
 	DF("TYPE",  type, DDF_LineGetSlideType),
 	DF("SPEED", speed, DDF_MainGetFloat),
-	DF("PAUSE TIME", wait, DDF_MainGetTime),
-	DF("SEE THROUGH", see_through, DDF_MainGetBoolean),
+	DF("PAUSE_TIME", wait, DDF_MainGetTime),
+	DF("SEE_THROUGH", see_through, DDF_MainGetBoolean),
 	DF("DISTANCE",  distance,  DDF_MainGetPercent),
-	DF("SFX START", sfx_start, DDF_MainLookupSound),
-	DF("SFX OPEN",  sfx_open,  DDF_MainLookupSound),
-	DF("SFX CLOSE", sfx_close, DDF_MainLookupSound),
-	DF("SFX STOP",  sfx_stop,  DDF_MainLookupSound),
+	DF("SFX_START", sfx_start, DDF_MainLookupSound),
+	DF("SFX_OPEN",  sfx_open,  DDF_MainLookupSound),
+	DF("SFX_CLOSE", sfx_close, DDF_MainLookupSound),
+	DF("SFX_STOP",  sfx_stop,  DDF_MainLookupSound),
 
 	DDF_CMD_END
 };
@@ -146,64 +146,64 @@ static const commandlist_t linedef_commands[] =
 	DF("ACTIVATORS", obj, DDF_LineGetActivators),
 	DF("TYPE", type, DDF_LineGetTrigType),
 	DF("KEYS", keys, DDF_LineGetSecurity),
-	DF("FAILED MESSAGE", failedmessage, DDF_MainGetString),
+	DF("FAILED_MESSAGE", failedmessage, DDF_MainGetString),
 	DF("COUNT", count, DDF_MainGetNumeric),
 	DF("CRUSH", crush, DDF_MainGetBoolean),
 
 	DF("DONUT", d.dodonut, DDF_MainGetBoolean),
-	DF("DONUT IN SFX", d.d_sfxin, DDF_MainLookupSound),
-	DF("DONUT IN SFXSTOP", d.d_sfxinstop, DDF_MainLookupSound),
-	DF("DONUT OUT SFX", d.d_sfxout, DDF_MainLookupSound),
-	DF("DONUT OUT SFXSTOP", d.d_sfxoutstop, DDF_MainLookupSound),
+	DF("DONUT_IN_SFX", d.d_sfxin, DDF_MainLookupSound),
+	DF("DONUT_IN_SFXSTOP", d.d_sfxinstop, DDF_MainLookupSound),
+	DF("DONUT_OUT_SFX", d.d_sfxout, DDF_MainLookupSound),
+	DF("DONUT_OUT_SFXSTOP", d.d_sfxoutstop, DDF_MainLookupSound),
 
 	DF("TELEPORT", t.teleport, DDF_MainGetBoolean),
-	DF("TELEPORT DELAY", t.delay, DDF_MainGetTime),
-	DF("TELEIN EFFECTOBJ", t.inspawnobj_ref, DDF_MainGetString),
-	DF("TELEOUT EFFECTOBJ", t.outspawnobj_ref, DDF_MainGetString),
-	DF("TELEPORT SPECIAL", t.special, DDF_LineGetTeleportSpecial),
+	DF("TELEPORT_DELAY", t.delay, DDF_MainGetTime),
+	DF("TELEIN_EFFECTOBJ", t.inspawnobj_ref, DDF_MainGetString),
+	DF("TELEOUT_EFFECTOBJ", t.outspawnobj_ref, DDF_MainGetString),
+	DF("TELEPORT_SPECIAL", t.special, DDF_LineGetTeleportSpecial),
 
-	DF("LIGHT TYPE", l.type, DDF_SectGetLighttype),
-	DF("LIGHT LEVEL", l.level, DDF_MainGetNumeric),
-	DF("LIGHT DARK TIME", l.darktime, DDF_MainGetTime),
-	DF("LIGHT BRIGHT TIME", l.brighttime, DDF_MainGetTime),
-	DF("LIGHT CHANCE", l.chance, DDF_MainGetPercent),
-	DF("LIGHT SYNC", l.sync, DDF_MainGetTime),
-	DF("LIGHT STEP", l.step, DDF_MainGetNumeric),
+	DF("LIGHT_TYPE", l.type, DDF_SectGetLighttype),
+	DF("LIGHT_LEVEL", l.level, DDF_MainGetNumeric),
+	DF("LIGHT_DARK_TIME", l.darktime, DDF_MainGetTime),
+	DF("LIGHT_BRIGHT_TIME", l.brighttime, DDF_MainGetTime),
+	DF("LIGHT_CHANCE", l.chance, DDF_MainGetPercent),
+	DF("LIGHT_SYNC", l.sync, DDF_MainGetTime),
+	DF("LIGHT_STEP", l.step, DDF_MainGetNumeric),
 	DF("EXIT", e_exit, DDF_SectGetExit),
 
 	{"SCROLL", DDF_LineGetScroller, &s_dir, NULL},
-	{"SCROLLING SPEED", DDF_MainGetFloat, &s_speed, NULL},
+	{"SCROLLING_SPEED", DDF_MainGetFloat, &s_speed, NULL},
 
-	DF("SCROLL XSPEED", s_xspeed, DDF_MainGetFloat),
-	DF("SCROLL YSPEED", s_yspeed, DDF_MainGetFloat),
-	DF("SCROLL PARTS", scroll_parts, DDF_LineGetScrollPart),
-	DF("USE COLOURMAP", use_colourmap, DDF_MainGetColourmap),
+	DF("SCROLL_XSPEED", s_xspeed, DDF_MainGetFloat),
+	DF("SCROLL_YSPEED", s_yspeed, DDF_MainGetFloat),
+	DF("SCROLL_PARTS", scroll_parts, DDF_LineGetScrollPart),
+	DF("USE_COLOURMAP", use_colourmap, DDF_MainGetColourmap),
 	DF("GRAVITY", gravity, DDF_MainGetFloat),
 	DF("FRICTION", friction, DDF_MainGetFloat),
 	DF("VISCOSITY", viscosity, DDF_MainGetFloat),
 	DF("DRAG", drag, DDF_MainGetFloat),
-	DF("AMBIENT SOUND", ambient_sfx, DDF_MainLookupSound),
-	DF("ACTIVATE SOUND", activate_sfx, DDF_MainLookupSound),
+	DF("AMBIENT_SOUND", ambient_sfx, DDF_MainLookupSound),
+	DF("ACTIVATE_SOUND", activate_sfx, DDF_MainLookupSound),
 	DF("MUSIC", music, DDF_MainGetNumeric),
 	DF("AUTO", autoline, DDF_MainGetBoolean),
 	DF("SINGLESIDED", singlesided, DDF_MainGetBoolean),
-	DF("EXTRAFLOOR TYPE", ddf, DDF_LineGetExtraFloor),
-	DF("EXTRAFLOOR CONTROL", ddf, DDF_LineGetEFControl),
+	DF("EXTRAFLOOR_TYPE", ddf, DDF_LineGetExtraFloor),
+	DF("EXTRAFLOOR_CONTROL", ddf, DDF_LineGetEFControl),
 	DF("TRANSLUCENCY", translucency, DDF_MainGetPercent),
-	DF("WHEN APPEAR", appear, DDF_MainGetWhenAppear),
+	DF("WHEN_APPEAR", appear, DDF_MainGetWhenAppear),
 	DF("SPECIAL", special_flags, DDF_LineGetSpecialFlags),
-	DF("RADIUS TRIGGER", ddf, DDF_LineGetRadTrig),
-	DF("LINE EFFECT", line_effect, DDF_LineGetLineEffect),
-	DF("LINE PARTS",  line_parts,  DDF_LineGetScrollPart),
-	DF("SECTOR EFFECT", sector_effect, DDF_LineGetSectorEffect),
+	DF("RADIUS_TRIGGER", ddf, DDF_LineGetRadTrig),
+	DF("LINE_EFFECT", line_effect, DDF_LineGetLineEffect),
+	DF("LINE_PARTS",  line_parts,  DDF_LineGetScrollPart),
+	DF("SECTOR_EFFECT", sector_effect, DDF_LineGetSectorEffect),
 	DF("COLOUR", fx_color, DDF_MainGetRGB),
 
 	// -AJA- backwards compatibility cruft...
 	DF("SECSPECIAL", ddf, DDF_DummyFunction),
 
-	DF("!EXTRAFLOOR TRANSLUCENCY", translucency, DDF_MainGetPercent),
+	DF("!EXTRAFLOOR_TRANSLUCENCY", translucency, DDF_MainGetPercent),
 	DF("!SOUND", ddf, DDF_DummyFunction),
-	DF("!LIGHT PROBABILITY", ddf, DDF_DummyFunction),
+	DF("!LIGHT_PROBABILITY", ddf, DDF_DummyFunction),
 
 	DDF_CMD_END
 };
@@ -238,26 +238,26 @@ s_keys[] =
 {
 	{ "NONE",           KF_NONE },
 
-	{ "BLUE CARD",      KF_BlueCard },
-	{ "YELLOW CARD",    KF_YellowCard },
-	{ "RED CARD",       KF_RedCard },
-	{ "BLUE SKULL",     KF_BlueSkull },
-	{ "YELLOW SKULL",   KF_YellowSkull },
-	{ "RED SKULL",      KF_RedSkull },
-	{ "GREEN CARD",     KF_GreenCard },
-	{ "GREEN SKULL",    KF_GreenSkull },
+	{ "BLUE_CARD",      KF_BlueCard },
+	{ "YELLOW_CARD",    KF_YellowCard },
+	{ "RED_CARD",       KF_RedCard },
+	{ "BLUE_SKULL",     KF_BlueSkull },
+	{ "YELLOW_SKULL",   KF_YellowSkull },
+	{ "RED_SKULL",      KF_RedSkull },
+	{ "GREEN_CARD",     KF_GreenCard },
+	{ "GREEN_SKULL",    KF_GreenSkull },
 
-	{ "GOLD KEY",       KF_GoldKey },
-	{ "SILVER KEY",     KF_SilverKey },
-	{ "BRASS KEY",      KF_BrassKey },
-	{ "COPPER KEY",     KF_CopperKey },
-	{ "STEEL KEY",      KF_SteelKey },
-	{ "WOODEN KEY",     KF_WoodenKey },
-	{ "FIRE KEY",       KF_FireKey },
-	{ "WATER KEY",      KF_WaterKey },
+	{ "GOLD_KEY",       KF_GoldKey },
+	{ "SILVER_KEY",     KF_SilverKey },
+	{ "BRASS_KEY",      KF_BrassKey },
+	{ "COPPER_KEY",     KF_CopperKey },
+	{ "STEEL_KEY",      KF_SteelKey },
+	{ "WOODEN_KEY",     KF_WoodenKey },
+	{ "FIRE_KEY",       KF_FireKey },
+	{ "WATER_KEY",      KF_WaterKey },
 
 	// backwards compatibility
-	{ "REQUIRES ALL", KF_STRICTLY_ALL |
+	{ "REQUIRES_ALL", KF_STRICTLY_ALL |
 	KF_BlueCard | KF_YellowCard | KF_RedCard |
 	KF_BlueSkull | KF_YellowSkull | KF_RedSkull }
 }
@@ -603,18 +603,18 @@ static specflags_t extrafloor_types[] =
 	{"LIQUID",        EF_DEF_LIQUID,     0},
 
 	// modifiers:
-	{"SEE THROUGH",   EXFL_SeeThrough,   0},
+	{"SEE_THROUGH",   EXFL_SeeThrough,   0},
 	{"WATER",         EXFL_Water,        0},
 	{"SHADE",         EXFL_NoShade,      1},
 	{"FLOODER",       EXFL_Flooder,      0},
-	{"SIDE UPPER",    EXFL_SideUpper,    0},
-	{"SIDE LOWER",    EXFL_SideLower,    0},
-	{"SIDE MIDY",     EXFL_SideMidY,     0},
+	{"SIDE_UPPER",    EXFL_SideUpper,    0},
+	{"SIDE_LOWER",    EXFL_SideLower,    0},
+	{"SIDE_MIDY",     EXFL_SideMidY,     0},
 	{"BOOMTEX",       EXFL_BoomTex,      0},
 
 	// backwards compatibility...
-	{"FALL THROUGH",  EXFL_Liquid, 0},
-	{"SHOOT THROUGH", 0, 0},
+	{"FALL_THROUGH",  EXFL_Liquid, 0},
+	{"SHOOT_THROUGH", 0, 0},
 	{NULL, 0, 0}
 };
 
@@ -692,10 +692,10 @@ void DDF_LineGetEFControl(const char *info, void *storage)
 static specflags_t teleport_specials[] =
 {
 	{"RELATIVE",   TELSP_Relative, 0},
-	{"SAME HEIGHT",TELSP_SameHeight, 0},
-	{"SAME SPEED", TELSP_SameSpeed, 0},
-	{"SAME OFFSET",TELSP_SameOffset, 0},
-	{"ALL SAME",   TELSP_AllSame, 0},
+	{"SAME_HEIGHT",TELSP_SameHeight, 0},
+	{"SAME_SPEED", TELSP_SameSpeed, 0},
+	{"SAME_OFFSET",TELSP_SameOffset, 0},
+	{"ALL_SAME",   TELSP_AllSame, 0},
 
 	{"LINE",       TELSP_Line, 0},
 	{"FLIPPED",    TELSP_Flipped, 0},
@@ -703,7 +703,7 @@ static specflags_t teleport_specials[] =
 
 	// these modes are deprecated (kept for B.C.)
 	// FIXME: show a warning if used (cannot use "!" prefix)
-	{"SAME DIR",   TELSP_SameAbsDir, 0},
+	{"SAME_DIR",   TELSP_SameAbsDir, 0},
 	{"ROTATE",     TELSP_Rotate, 0},
 	{"PRESERVE",   TELSP_Preserve, 0},
 
@@ -741,16 +741,16 @@ void DDF_LineGetTeleportSpecial(const char *info, void *storage)
 
 static specflags_t scrollpart_specials[] =
 {
-	{"RIGHT UPPER", SCPT_RightUpper, 0},
-	{"RIGHT MIDDLE", SCPT_RightMiddle, 0},
-	{"RIGHT LOWER", SCPT_RightLower, 0},
+	{"RIGHT_UPPER", SCPT_RightUpper, 0},
+	{"RIGHT_MIDDLE", SCPT_RightMiddle, 0},
+	{"RIGHT_LOWER", SCPT_RightLower, 0},
 	{"RIGHT", SCPT_RIGHT, 0},
-	{"LEFT UPPER", SCPT_LeftUpper, 0},
-	{"LEFT MIDDLE", SCPT_LeftMiddle, 0},
-	{"LEFT LOWER", SCPT_LeftLower, 0},
+	{"LEFT_UPPER", SCPT_LeftUpper, 0},
+	{"LEFT_MIDDLE", SCPT_LeftMiddle, 0},
+	{"LEFT_LOWER", SCPT_LeftLower, 0},
 	{"LEFT", SCPT_LEFT, 0},
-	{"LEFT REVERSE X", SCPT_LeftRevX, 0},
-	{"LEFT REVERSE Y", SCPT_LeftRevY, 0},
+	{"LEFT_REVERSE_X", SCPT_LeftRevX, 0},
+	{"LEFT_REVERSE_Y", SCPT_LeftRevY, 0},
 	{NULL, 0, 0}
 };
 
@@ -794,8 +794,8 @@ void DDF_LineGetScrollPart(const char *info, void *storage)
 
 static specflags_t line_specials[] =
 {
-	{"MUST REACH", LINSP_MustReach, 0},
-	{"SWITCH SEPARATE", LINSP_SwitchSeparate, 0},
+	{"MUST_REACH", LINSP_MustReach, 0},
+	{"SWITCH_SEPARATE", LINSP_SwitchSeparate, 0},
 	{NULL, 0, 0}
 };
 
@@ -872,17 +872,17 @@ static void DDF_LineGetSlideType(const char *info, void *storage)
 static specflags_t line_effect_names[] =
 {
 	{"TRANSLUCENT",    LINEFX_Translucency, 0},
-	{"VECTOR SCROLL",  LINEFX_VectorScroll, 0},
-	{"OFFSET SCROLL",  LINEFX_OffsetScroll, 0},
+	{"VECTOR_SCROLL",  LINEFX_VectorScroll, 0},
+	{"OFFSET_SCROLL",  LINEFX_OffsetScroll, 0},
 
-	{"SCALE TEX",      LINEFX_Scale,         0},
-	{"SKEW TEX",       LINEFX_Skew,          0},
-	{"LIGHT WALL",     LINEFX_LightWall,     0},
+	{"SCALE_TEX",      LINEFX_Scale,         0},
+	{"SKEW_TEX",       LINEFX_Skew,          0},
+	{"LIGHT_WALL",     LINEFX_LightWall,     0},
 	{"MIRROR",         LINEFX_Mirror,        0},
 
-	{"UNBLOCK THINGS", LINEFX_UnblockThings, 0},
-	{"BLOCK SHOTS",    LINEFX_BlockShots,    0},
-	{"BLOCK SIGHT",    LINEFX_BlockSight,    0},
+	{"UNBLOCK_THINGS", LINEFX_UnblockThings, 0},
+	{"BLOCK_SHOTS",    LINEFX_BlockShots,    0},
+	{"BLOCK_SIGHT",    LINEFX_BlockSight,    0},
 	{NULL, 0, 0}
 };
 
@@ -921,23 +921,23 @@ static void DDF_LineGetLineEffect(const char *info, void *storage)
 
 static specflags_t sector_effect_names[] =
 {
-	{"LIGHT FLOOR",     SECTFX_LightFloor,     0},
-	{"LIGHT CEILING",   SECTFX_LightCeiling,   0},
-	{"SCROLL FLOOR",    SECTFX_ScrollFloor,    0},
-	{"SCROLL CEILING",  SECTFX_ScrollCeiling,  0},
-	{"PUSH THINGS",     SECTFX_PushThings,     0},
+	{"LIGHT_FLOOR",     SECTFX_LightFloor,     0},
+	{"LIGHT_CEILING",   SECTFX_LightCeiling,   0},
+	{"SCROLL_FLOOR",    SECTFX_ScrollFloor,    0},
+	{"SCROLL_CEILING",  SECTFX_ScrollCeiling,  0},
+	{"PUSH_THINGS",     SECTFX_PushThings,     0},
 
-	{"SET FRICTION",    SECTFX_SetFriction,    0},
-	{"WIND FORCE",      SECTFX_WindForce,      0},
-	{"CURRENT FORCE",   SECTFX_CurrentForce,   0},
-	{"POINT FORCE",     SECTFX_PointForce,     0},
+	{"SET_FRICTION",    SECTFX_SetFriction,    0},
+	{"WIND_FORCE",      SECTFX_WindForce,      0},
+	{"CURRENT_FORCE",   SECTFX_CurrentForce,   0},
+	{"POINT_FORCE",     SECTFX_PointForce,     0},
 
-	{"RESET FLOOR",     SECTFX_ResetFloor,     0},
-	{"RESET CEILING",   SECTFX_ResetCeiling,   0},
-	{"ALIGN FLOOR",     SECTFX_AlignFloor,     0},
-	{"ALIGN CEILING",   SECTFX_AlignCeiling,   0},
-	{"SCALE FLOOR",     SECTFX_ScaleFloor,     0},
-	{"SCALE CEILING",   SECTFX_ScaleCeiling,   0},
+	{"RESET_FLOOR",     SECTFX_ResetFloor,     0},
+	{"RESET_CEILING",   SECTFX_ResetCeiling,   0},
+	{"ALIGN_FLOOR",     SECTFX_AlignFloor,     0},
+	{"ALIGN_CEILING",   SECTFX_AlignCeiling,   0},
+	{"SCALE_FLOOR",     SECTFX_ScaleFloor,     0},
+	{"SCALE_CEILING",   SECTFX_ScaleCeiling,   0},
 	{NULL, 0, 0}
 };
 

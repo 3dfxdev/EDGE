@@ -49,33 +49,33 @@ static const commandlist_t sect_commands[] =
 	DF("SPECIAL", special_flags, DDF_SectGetSpecialFlags),
 	DF("CRUSH", crush, DDF_MainGetBoolean),
 
-	DF("LIGHT TYPE", l.type, DDF_SectGetLighttype),
-	DF("LIGHT LEVEL", l.level, DDF_MainGetNumeric),
-	DF("LIGHT DARKTIME", l.darktime, DDF_MainGetTime),
-	DF("LIGHT BRIGHTTIME", l.brighttime, DDF_MainGetTime),
-	DF("LIGHT CHANCE", l.chance, DDF_MainGetPercent),
-	DF("LIGHT SYNC", l.sync, DDF_MainGetTime),
-	DF("LIGHT STEP", l.step, DDF_MainGetNumeric),
+	DF("LIGHT_TYPE", l.type, DDF_SectGetLighttype),
+	DF("LIGHT_LEVEL", l.level, DDF_MainGetNumeric),
+	DF("LIGHT_DARKTIME", l.darktime, DDF_MainGetTime),
+	DF("LIGHT_BRIGHTTIME", l.brighttime, DDF_MainGetTime),
+	DF("LIGHT_CHANCE", l.chance, DDF_MainGetPercent),
+	DF("LIGHT_SYNC", l.sync, DDF_MainGetTime),
+	DF("LIGHT_STEP", l.step, DDF_MainGetNumeric),
 	DF("EXIT", e_exit, DDF_SectGetExit),
-	DF("USE COLOURMAP", use_colourmap, DDF_MainGetColourmap),
+	DF("USE_COLOURMAP", use_colourmap, DDF_MainGetColourmap),
 	DF("GRAVITY", gravity, DDF_MainGetFloat),
 	DF("FRICTION", friction, DDF_MainGetFloat),
 	DF("VISCOSITY", viscosity, DDF_MainGetFloat),
 	DF("DRAG", drag, DDF_MainGetFloat),
-	DF("AMBIENT SOUND", ambient_sfx, DDF_MainLookupSound),
-	DF("WHEN APPEAR", appear, DDF_MainGetWhenAppear),
-	DF("PUSH ANGLE", push_angle, DDF_MainGetAngle),
-	DF("PUSH SPEED", push_speed, DDF_MainGetFloat),
-	DF("PUSH ZSPEED", push_zspeed, DDF_MainGetFloat),
+	DF("AMBIENT_SOUND", ambient_sfx, DDF_MainLookupSound),
+	DF("WHEN_APPEAR", appear, DDF_MainGetWhenAppear),
+	DF("PUSH_ANGLE", push_angle, DDF_MainGetAngle),
+	DF("PUSH_SPEED", push_speed, DDF_MainGetFloat),
+	DF("PUSH_ZSPEED", push_zspeed, DDF_MainGetFloat),
 
 	// -AJA- backwards compatibility cruft...
 	DF("!DAMAGE", damage.nominal, DDF_MainGetFloat),
 	DF("!DAMAGETIME", damage.delay, DDF_MainGetTime),
 	DF("!SOUND", ddf, DDF_DummyFunction),
-	DF("!LIGHT PROBABILITY", ddf, DDF_DummyFunction),
+	DF("!LIGHT_PROBABILITY", ddf, DDF_DummyFunction),
 
-	DF("CRUSH TIME", crush_time, DDF_MainGetTime),
-	DF("CRUSH DAMAGE", crush_damage, DDF_MainGetFloat),
+	DF("CRUSH_TIME", crush_time, DDF_MainGetTime),
+	DF("CRUSH_DAMAGE", crush_damage, DDF_MainGetFloat),
 
 	DDF_CMD_END
 };
@@ -213,10 +213,10 @@ void DDF_SectorCleanUp(void)
 
 static specflags_t sector_specials[] =
 {
-	{"WHOLE REGION", SECSP_WholeRegion, 0},
+	{"WHOLE_REGION", SECSP_WholeRegion, 0},
 	{"PROPORTIONAL", SECSP_Proportional, 0},
-	{"PUSH ALL", SECSP_PushAll, 0},
-	{"PUSH CONSTANT", SECSP_PushConstant, 0},
+	{"PUSH_ALL", SECSP_PushAll, 0},
+	{"PUSH_CONSTANT", SECSP_PushConstant, 0},
 	{"AIRLESS", SECSP_AirLess, 0},
 	{"SWIM", SECSP_Swimming, 0},
 	{NULL, 0, 0}

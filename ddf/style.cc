@@ -227,7 +227,7 @@ void DDF_StyleCleanUp(void)
 static specflags_t style_specials[] =
 {
     {"TILED", SYLSP_Tiled, 0},
-    {"TILED NOSCALE", SYLSP_TiledNoScale, 0},
+    {"TILED_NOSCALE", SYLSP_TiledNoScale, 0},
     {NULL, 0, 0}
 };
 

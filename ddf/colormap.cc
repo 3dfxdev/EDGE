@@ -41,13 +41,13 @@ static const commandlist_t colmap_commands[] =
 	DF("START",   start,     DDF_MainGetNumeric),
 	DF("LENGTH",  length,    DDF_MainGetNumeric),
 	DF("SPECIAL", special,   DDF_ColmapGetSpecial),
-	DF("GL COLOUR", gl_colour, DDF_MainGetRGB),
+	DF("GL_COLOUR", gl_colour, DDF_MainGetRGB),
 
 	// -AJA- backwards compatibility cruft...
 	DF("!PRIORITY", ddf, DDF_DummyFunction),
-	DF("!ALT COLOUR",  ddf, DDF_DummyFunction),
-	DF("!WASH COLOUR", ddf, DDF_DummyFunction),
-	DF("!WASH TRANSLUCENCY", ddf, DDF_DummyFunction),
+	DF("!ALT_COLOUR",  ddf, DDF_DummyFunction),
+	DF("!WASH_COLOUR", ddf, DDF_DummyFunction),
+	DF("!WASH_TRANSLUCENCY", ddf, DDF_DummyFunction),
 
 	DDF_CMD_END
 };
