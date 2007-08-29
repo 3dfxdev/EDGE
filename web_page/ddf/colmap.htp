@@ -30,7 +30,7 @@ TeamTNT web site.
 The following is a list of the commands that are accepted by each colourmap entry:
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="cmds" border=1 CELLSPACING=0 CELLPADDING=2>
 <TR><TH>COMMAND</TH><TH>TYPE</TH><TH>EXPLANATION</TH></TR>
 
 <TR><TD>LUMP</TD><TD>[string]</TD><TD>
@@ -58,7 +58,7 @@ A comma separated list of special flags. See below.</td></tr>
 <P>
 These allow some control over the ways the colourmap is used.
 <P>
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" border=1 CELLSPACING=0 CELLPADDING=2>
 <TR><TH>SPECIAL</TH><TH>EXPLANATION</TH></TR>
 
 <TR><TD>NO_FLASH</TD><TD>

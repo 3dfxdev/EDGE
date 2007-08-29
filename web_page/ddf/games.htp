@@ -24,7 +24,7 @@ The episode name should be descriptive and is referred to in the levels.ddf file
 The commands used for game entries are as follows:
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="cmds" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 
 <TR><TH>COMMAND</TH><TH>TYPE</TH><TH>DESCRIPTION</TH></TR>
 

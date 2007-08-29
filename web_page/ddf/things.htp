@@ -22,7 +22,7 @@ The commands that can be used to specify properties of a thing are as follows:
 <p>
 
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="cmds" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 
 <tr><th>COMMAND</th><th>TYPE</th><th>DESCRIPTION</th></tr>
 
@@ -340,7 +340,7 @@ Sound made by the action pointer WALKSOUND_CHASE.</td></tr>
 (most can also apply to projectiles in attacks ddf.)
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>FLAG</th><th>DESCRIPTION</th></tr>
 
 <tr><td>AMBUSH</td><td>
@@ -528,7 +528,8 @@ Doubles the chance the monster will attack over moving.</td></tr>
 Friendly monsters don't turn into enemies when hurt by your weapon fire</td></tr>
 
 <tr><td>USABLE</td><td>
-Object reacts when you press the USE key against it. Must be used in conjunction with TOUCHY. The objects TOUCH states will be used. The action pointer TOUCHY_REARM is needed to re-enable
+Object reacts when you press the USE key against it. Must be used in conjunction with TOUCHY. The objects TOUCH states will be used.
+The action pointer TOUCHY_REARM is needed to re-enable
 the object.</td></tr>
 
 <tr><td>WATERWALKER</td><td>
@@ -552,7 +553,7 @@ Each named STATES entry defines an animation sequence to play when an attack is 
 <br>
 as follows:
 <p>
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="misc" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 
 <tr><td>Sprite</td><td>
 The four letter name of the sprite to use.</td></tr>
@@ -592,7 +593,7 @@ In addition, any line may include a <tt>#Command</tt> at the end. This will eith
 <p>
 The following are predefined state names that have specifc purposes:
 <p>
-<TABLE BORDER=1  CELLSPACING=0 CELLPADDING=1>
+<TABLE class="ddf" BORDER=1  CELLSPACING=0 CELLPADDING=1>
 <tr><th>STATE NAME</th><th>SPECIAL USE</th></tr>
 
 
@@ -656,7 +657,7 @@ rotations (e.g rocket in flight).
 <FONT SIZE=+1><b><A NAME="actions">Actions:</A></b></FONT>
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="misc" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>ACTION</th><th>DESCRIPTION</th></tr>
 
 <tr><td>BOT_THINK</td><td>
@@ -876,7 +877,7 @@ two values in brackets.  Examples: KEY_REDCARD, BULLETS(10),
 HEALTH(15:100). There are 7 different types of benefits:
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>BENEFIT TYPE</th><th>DESCRIPTION</th></tr>
 
 <tr><td>Ammo</td><td>
@@ -920,7 +921,7 @@ Ammo and AmmoLimit:
 <p>
 
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>AMMO TYPE</th><th>AMMO LIMIT TYPE</th></tr>
 <tr><td>BULLETS</td> <td>BULLETS.LIMIT</td></tr>
 <tr><td>SHELLS</td>  <td>SHELLS.LIMIT</td></tr>
@@ -944,7 +945,7 @@ Ammo and AmmoLimit:
 Health and Armour:
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>TYPE</th><th>DESCRIPTION</th></tr>
 
 <tr><td>HEALTH</td><td>
@@ -971,7 +972,7 @@ Red armour is the strongest (Saves 90% of damage).
 Keys:
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>TYPE</th><th>DESCRIPTION</th></tr>
 
 <tr><td>REDCARD</td><td>
@@ -1027,7 +1028,7 @@ Water key.</td></tr>
 Powerups:
 <p>
 
-<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<TABLE class="ddf" BORDER=1 CELLSPACING=0 CELLPADDING=2>
 <tr><th>TYPE</th><th>DESCRIPTION</th></tr>
 
 <tr><td>POWERUP_ACIDSUIT</td><td>
