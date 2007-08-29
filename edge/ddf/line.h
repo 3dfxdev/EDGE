@@ -692,9 +692,6 @@ public:
 	// Number of times this line can be triggered. -1 = Any amount
 	int count;
 
-	// Special sector type to change to.  Used to turn off acid
-	int specialtype;
-
 	// Crush.  If true, players will be crushed.  If false, obj will stop(/return)
 	bool crush;
 
