@@ -1152,7 +1152,6 @@ bool EV_DoDonut(sector_t * s1, sfx_t *sfx[4])
     {
         donut[0].Default();
         donut[0].count = 1;
-        donut[0].specialtype = 0;
         donut[0].f.Default(movplanedef_c::DEFAULT_DonutFloor);
         donut[0].f.tex.Set("-");
 

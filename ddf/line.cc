@@ -148,7 +148,6 @@ static const commandlist_t linedef_commands[] =
 	DF("KEYS", keys, DDF_LineGetSecurity),
 	DF("FAILED MESSAGE", failedmessage, DDF_MainGetString),
 	DF("COUNT", count, DDF_MainGetNumeric),
-	DF("SECSPECIAL", specialtype, DDF_MainGetNumeric),
 	DF("CRUSH", crush, DDF_MainGetBoolean),
 
 	DF("DONUT", d.dodonut, DDF_MainGetBoolean),
@@ -203,6 +202,7 @@ static const commandlist_t linedef_commands[] =
 	DF("!EXTRAFLOOR TRANSLUCENCY", translucency, DDF_MainGetPercent),
 	DF("!SOUND", ddf, DDF_DummyFunction),
 	DF("!LIGHT PROBABILITY", ddf, DDF_DummyFunction),
+	DF("!SECSPECIAL", ddf, DDF_DummyFunction),
 
 	DDF_CMD_END
 };
@@ -1528,7 +1528,6 @@ void linetype_c::CopyDetail(linetype_c &src)
 	obj = src.obj;
 	keys = src.keys;
 	count = src.count;
-	specialtype = src.specialtype;
 	crush = src.crush;
 	f = src.f;
 	c = src.c;
@@ -1578,7 +1577,6 @@ void linetype_c::Default(void)
 	obj = trig_none;
 	keys = KF_NONE;
 	count = -1;
-	specialtype = -1;
 	crush = false;
 
 	f.Default(movplanedef_c::DEFAULT_FloorLine);		
