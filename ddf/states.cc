@@ -132,7 +132,7 @@ static int DDF_MainSplitIntoState(const char *info)
 
 		*temp = 0;
 
-		if (first[0] == REDIRECTOR)
+		if (first[0] == '#')
 		{
 			// signify that we have found redirector
 			stateinfo[0] = Z_StrDup(first + 1);

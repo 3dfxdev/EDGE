@@ -52,7 +52,7 @@ static void DDF_MusicParseInfo(const char *info, void *storage)
 	// Get the music type
 	i=0;
 	pos=0;
-	while (info[pos] != DIVIDE && i<255)
+	while (info[pos] != ':' && i<255)
 	{
 		if (info[i] == '\0')
 			DDF_Error("DDF_MusicParseInfo: Premature end of music info\n");
@@ -81,7 +81,7 @@ static void DDF_MusicParseInfo(const char *info, void *storage)
 	// Data Type
 	i=0;
 	pos++;
-	while (info[pos] != DIVIDE && i<255)
+	while (info[pos] != ':' && i<255)
 	{
 		if (info[pos] == '\0')
 			DDF_Error("DDF_MusicParseInfo: Premature end of music info\n");

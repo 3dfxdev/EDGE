@@ -98,8 +98,8 @@ const commandlist_t thing_commands[] =
 	DDF_SUB_LIST("DLIGHT",  dlight0, dlight_commands, buffer_dlight),
 	DDF_SUB_LIST("DLIGHT2", dlight1, dlight_commands, buffer_dlight),
 	DDF_SUB_LIST("WEAKNESS", weak, weakness_commands, buffer_weakness),
-	DDF_SUB_LIST("EXPLODE DAMAGE", explode_damage, damage_commands, buffer_damage),
-	DDF_SUB_LIST("CHOKE DAMAGE", choke_damage, damage_commands, buffer_damage),
+	DDF_SUB_LIST("EXPLODE_DAMAGE", explode_damage, damage_commands, buffer_damage),
+	DDF_SUB_LIST("CHOKE_DAMAGE", choke_damage, damage_commands, buffer_damage),
 
 	DF("SPAWNHEALTH", spawnhealth, DDF_MainGetFloat),
 	DF("RADIUS", radius, DDF_MainGetFloat),
@@ -393,7 +393,7 @@ const specflags_t simplecond_names[] =
 // DDF_CompareName
 //
 // Compare two names. This is like stricmp(), except that spaces
-// and `_' characters are ignored for comparison purposes.
+// and underscors are ignored for comparison purposes.
 //
 // -AJA- 1999/09/11: written.
 //
@@ -404,11 +404,8 @@ int DDF_CompareName(const char *A, const char *B)
 		if (*A == 0 && *B == 0)
 			return 0;
 
-		if (*A == 0)
-			return -1;
-
-		if (*B == 0)
-			return +1;
+		if (*A == 0) return -1;
+		if (*B == 0) return +1;
 
 		if (*A == ' ' || *A == '_')
 		{
@@ -420,13 +417,13 @@ int DDF_CompareName(const char *A, const char *B)
 			B++; continue;
 		}
 
-		if (toupper(*A) != toupper(*B))
-			break;
+		if (toupper(*A) == toupper(*B))
+		{
+			A++; B++; continue;
+		}
 
-		A++; B++;
+		return toupper(*A) - toupper(*B);
 	}
-
-	return toupper(*A) - toupper(*B);
 }
 
 static bool ThingTryParseState(const char *field, 

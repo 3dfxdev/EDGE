@@ -27,25 +27,6 @@
 #include "states.h"
 
 // defines for parser stuff.
-#define BACKSLASH   '\\'
-#define COMMANDREAD '='
-#define DEFSTART    '['
-#define DEFSTOP     ']'
-#define TAGSTART    '<'
-#define TAGSTOP     '>'
-#define DIVIDE      ':'
-#define REDIRECTOR  '#'
-#define REMARKSTART '{'
-#define REMARKSTOP  '}'
-#define GROUPSTART  '('
-#define GROUPSTOP   ')'
-#define SEPARATOR   ','
-#define SPACE       ' '
-#define STRINGSTART '\"'
-#define STRINGSTOP  '\"'
-#define SUBSPACE    '_'
-#define TERMINATOR  ';'
-
 #define BUFFERSIZE 1024
 
 // enum thats gives the parser's current status
