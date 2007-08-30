@@ -60,7 +60,7 @@ public:
 
 } // namespace epi
 
-#endif // __EPI_SOUNDDATA_H__
+#endif /* __EPI_SOUNDDATA_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
