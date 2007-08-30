@@ -43,21 +43,21 @@ public:
 	// 4 = format is RGBA
 	short bpp;
 
-  short flags;
+	short flags;
 
-  // for image loading, these will be the actual image size
-  short used_w;
-  short used_h;
+	// for image loading, these will be the actual image size
+	short used_w;
+	short used_h;
 
 	u8_t *pixels;
 
-  // TODO: color_c *palette;
+	// TODO: color_c *palette;
 
 public:
 	image_data_c(int _w, int _h, int _bpp = 3);
 	~image_data_c();
 
-  void Clear(u8_t val = 0);
+	void Clear(u8_t val = 0);
 
 	inline u8_t *PixelAt(int x, int y) const
 	{
@@ -89,9 +89,9 @@ public:
 	// scale the image up to a larger size.
 	// The old size and the new size must be powers of two.
 
-  void RemoveAlpha();
-  // convert an RGBA image to RGB.  Partially transparent colors
-  // (alpha < 255) are blended with black.
+	void RemoveAlpha();
+	// convert an RGBA image to RGB.  Partially transparent colors
+	// (alpha < 255) are blended with black.
 };
 
 

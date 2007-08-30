@@ -149,7 +149,7 @@ image_data_c *JPEG_Load(file_c *f, int read_flags)
 	cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_decompress(&cinfo);
 
-  JPEG::setup_epifile_src(&cinfo, f);
+	JPEG::setup_epifile_src(&cinfo, f);
 
 	jpeg_read_header(&cinfo, 1);
 
@@ -174,8 +174,8 @@ image_data_c *JPEG_Load(file_c *f, int read_flags)
 
 	image_data_c *img = new image_data_c(tot_W, tot_H, 3);
 
-  img->used_w = width;
-  img->used_h = height;
+	img->used_w = width;
+	img->used_h = height;
 
 	/* read image pixels */
 
