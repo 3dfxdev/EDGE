@@ -65,7 +65,6 @@ class weapondef_c;
 #define VISCOSITY   		0.0f
 #define DRAG        		0.99f
 #define RIDE_FRICTION    	0.7f
-#define LADDER_FRICTION  	0.8f
 
 #define STOPSPEED   		0.07f
 #define OOF_SPEED   		20.0f

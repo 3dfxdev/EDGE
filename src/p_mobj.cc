@@ -71,6 +71,8 @@
 
 #include <list>
 
+#define LADDER_FRICTION  0.6f
+
 #define DEBUG_MOBJ  0
 
 #if 1  // DEBUGGING
@@ -1176,15 +1178,15 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	// update the object's vertical region
 	P_TryMove(mo, mo->x, mo->y);
 
-	// ladders have friction
-	if (mo->on_ladder >= 0)
-		mo->mom.z *= LADDER_FRICTION;
-
 	// apply drag -- but not to frictionless things
 	if ((mo->extendedflags & EF_NOFRICTION) || (mo->flags & MF_SKULLFLY))
 		return;
 
-	mo->mom.z *= props->drag;
+	// ladders have friction
+	if (mo->on_ladder >= 0)
+		mo->mom.z *= LADDER_FRICTION;
+	else
+		mo->mom.z *= props->drag;
 
 	if (mo->player)
 	{
