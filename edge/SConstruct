@@ -56,6 +56,17 @@ Export('base_env')
 
 env = base_env.Copy()
 
+# check for globally installed glBSP header
+have_glbsp_h = 0
+
+if 1:
+    conf = Configure(env)
+    if conf.CheckCXXHeader('glbsp.h'):
+        have_glbsp_h = 1
+        env.Append(CCFLAGS = ['-DHAVE_GLBSP_H'])
+    env = conf.Finish()
+
+
 env.Append(LINKFLAGS = ['-Wl,--warn-common'])
 
 ## if build_info['platform'] == 'linux' and build_info['release']:
@@ -176,8 +187,11 @@ SConscript('src/SConscript')
 SConscript('ddf/SConscript')
 SConscript('epi/SConscript')
 SConscript('deh_edge/SConscript.edge')
-SConscript('glbsp/SConscript.edge')
 SConscript('lzo/SConscript')
+
+if not have_glbsp_h:
+    SConscript('glbsp/SConscript.edge')
+
 # SConscript('humidity/SConscript.edge')
 
 env.Program('gledge32', ['main.cc'])
