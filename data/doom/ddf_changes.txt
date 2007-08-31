@@ -6,6 +6,8 @@ EDGE DDF 5.4: (????-??-??)
 
 2) LINES.DDF: removed SECSPECIAL commands (they did nothing).
 
+3) LINES.DDF: added LADDER linetypes (470 to 479).
+
 
 EDGE DDF 5.3: (2007-07-14)
 ==========================
