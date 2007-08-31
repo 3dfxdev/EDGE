@@ -1,6 +1,6 @@
-// ===============================
-// DHTP : (DOOM Hires Texture Pack
-// ===============================
+// ================================
+//  DHTP : DOOM Hires Texture Pack
+// ================================
 //
 // http://doomtextures.freelanzer.com/
 //
@@ -1239,7 +1239,7 @@ SCALE=0.25; // new 256x512
 IMAGE_DATA=FILE:"textures/doom/sw2tek.png";
 SCALE=0.25; // new 256x512
 
-// !!! FIXME: these are missing there SW1 counterparts !!!
+// !!! FIXME: these are missing their SW1 counterparts !!!
 //
 // [tex:sw2gston]
 // IMAGE_DATA=FILE:"textures/doom/sw2gston.png";
