@@ -24,6 +24,7 @@
     <li> <a href="uds_errata.htm">UDS Errata</a>
     <li> <a href="boom_ref.htm">Boom Editing</a>
     <li> <a href="JointTextureSpec.htm">Joint Texture</a>
+    <li> <a href="compliance.htm">EDGE Compliance</a>
 </ul>
 
 </ul>
