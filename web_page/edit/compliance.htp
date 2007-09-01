@@ -46,7 +46,8 @@ As well as fixing many bugs and removing many limitations,
 Boom added many new editing features.
 
 <p>
-EDGE 1.29 was greatly improved as a Boom-compatible port.
+EDGE 1.29 greatly improved in Boom-compatibility.
+
 @@@@
 
 <p>
@@ -69,15 +70,15 @@ These changes could be distributed between users in the
 form of "patch" files (which have the ".DEH" extension).
 
 <p>
-BEX is the <b>B</b>oom <b>EX</b>tension of DeHackEd patches.
+BEX is the <b>B</b>oom <b>EX</b>tensions to DeHackEd patches.
 
 <p>
 EDGE 1.29 implements DeHackEd and BEX patches using a library
 called DEH_EDGE (which also exists as a stand-alone program).
 DEH_EDGE converts the patch file into DDF, which EDGE then loads.
-EDGE supports the standard <b>-deh</b> option for specifying
+EDGE supports the standard <i>-deh</i> option for specifying
 patch files, as well as recognising the ".DEH" and ".BEX" extensions
-when using the <b>-file</b> option or when you drag'n'drop files
+when using the <i>-file</i> option or when you drag'n'drop files
 onto the EXE.  The "DEHACKED" wad lump is also supported.
 
 <p>
@@ -89,22 +90,18 @@ the only port which can load these old binary patches.
 List of things not supported by EDGE 1.29:
 <ul>
 
-<li>the BEX "INCLUDE" directive.
-
-<li>raw action offsets and sprite/sound name pointers.
-
-<li>certain cheat statistics, like 'God Mode Health'.
-
-<li>the BOOM/MBF actions: A_Scratch, A_Spawn and A_Mushroom.
-
-<li>the BEX [PARS] and [HELPER] sections.
+<li>the BEX "INCLUDE" directive
+<li>raw action offsets and sprite/sound name pointers
+<li>certain cheat statistics, like 'God Mode Health'
+<li>three BOOM/MBF actions: A_Scratch, A_Spawn and A_Mushroom
+<li>the BEX [PARS] and [HELPER] sections
 
 </ul>
 
 <p>
 Some ports, notably ZDoom, have also added their own features
 into DeHackEd patches.  For example: obituary messages.
-EDGE does not support these additions.
+EDGE does not support any of these additions.
 
 <p>
 Link:
@@ -114,7 +111,7 @@ DeHackEd homepage</a>
 <br>
 Reference:
 <a href="http://www.doomworld.com/eternity/engine/dehref.html">
-Eternity's DeHackEd/BEX Reference</a>
+Eternity Engine DeHackEd/BEX Reference</a>
 
 
 <p><br>
@@ -165,8 +162,10 @@ Reference: <a href="JointTextureSpec.htm">Joint Texture Standard</a>
 <p><br>
 <h3 class="sub_title">File Formats</h2>
 
-This list of formats does not include any of the DOOM formats
-which EDGE has (of course) always supported.
+Here is a list of formats that EDGE supports (or are planned).
+Not included here are the standard DOOM formats
+(such as DOOM images or sounds), as naturally EDGE can
+already handle those.
 
 <p>
 <B>Images:</B> <br>
@@ -175,23 +174,22 @@ We plan to support TGA format soon.
 
 <p>
 <B>Sounds:</B> <br>
-EDGE does not support any other sound formats.
-We plan to support WAV and Ogg/Vorbis formats in the next release.
+EDGE does not support any new sound formats yet.
+We plan to support WAV and Ogg/Vorbis in the next release.
 
 <p>
 <B>Music:</B> <br>
 EDGE 1.29 supports Ogg/Vorbis for music.  We plan
-to implement software-synthesised MUS and MIDI music
-in a future release.
+to implement software-synthesized MUS and MIDI music
+playback in a future release.
 
 <p>
 <B>Packages:</B> <br>
-EDGE does not support any package formats (like PK3),
-and we don't plan on adding any.
+EDGE does not support any package formats (like ZIP files).
 
 <p>
 <B>Others:</B> <br>
-We plan to support MD2 models in the next release.
+We will support MD2 models in the next release.
 
 </block>
 
