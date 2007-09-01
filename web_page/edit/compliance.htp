@@ -4,7 +4,7 @@
 
 <block name="content">
 
-<h2 class="page_title">Compliance with Specs</h2>
+<h2 class="page_title">Compliance with Standards</h2>
 
 <h3 class="sub_title">Doom</h2>
 
@@ -38,12 +38,6 @@ Reference: <a href="doom_specs.htm">Unofficial Doom Specs</a>
 
 
 <p><br>
-<h3 class="sub_title">DeHackEd</h2>
-
-TODO....
-
-
-<p><br>
 <h3 class="sub_title">Boom</h2>
 
 Boom was a modification/improvement to the DOOM code
@@ -55,18 +49,45 @@ Boom added many new editing features.
 EDGE 1.29 is designed to be a Boom-compatible port @@@...
 
 <p>
+Link:
+<a href="http://www.teamtnt.com/boompubl/boom2.htm">
+BOOM homepage</a>
+
+<br>
 Reference: <a href="boom_ref.htm">Boom Reference</a>
 
 
 
 <p><br>
-<h3 class="sub_title">BEX</h2>
+<h3 class="sub_title">DeHackEd / BEX</h2>
 
-Boom also extended DeHackEd with new features, and
-the final system was called BEX.
+DeHackEd was a program written by Greg Lewis which
+modified the DOOM executable, allowing changes to the
+behaviour of monsters, weapons, sounds, and text strings.
+These changes could be distributed between users in the
+form of "patch" files (which have the ".deh" extension).
 
 <p>
-BLAH....
+BEX is the Boom EXtension of the DeHackEd patches,
+adding some new features.
+
+<p>
+TODO....
+
+<p>
+Some ports, notably ZDoom, have also added their own features
+into DeHackEd patches.  For example: obituary messages.
+EDGE does not support any of those features.
+
+<p>
+Link:
+<a href="http://www.yossman.net/~tree/_doom.html">
+DeHackEd homepage</a>
+
+<br>
+Reference:
+<a href="http://www.doomworld.com/eternity/engine/dehref.html">
+Eternity's DeHackEd/BEX Reference</a>
 
 
 <p><br>
