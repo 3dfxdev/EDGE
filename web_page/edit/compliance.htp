@@ -10,29 +10,89 @@
 
 EDGE is based on the DOOM engine, and everything in the games
 DOOM, DOOM II, TNT Evilution and Plutonia is known to behave
-correctly, in particular: monsters, weapons, line-types,
+correctly, including: monsters, weapons, line-types,
 sector-types, intermission and finale screens.
 
 <p>
-GL stuff...
+However some differences should be noted:
+<ul>
+
+<li>
+EDGE used OpenGL for rendering, and hence requires
+a hardware-accelerated 3D card.
+Also some things don't look exactly the same,
+for example:
+Some sprites are designed to look sunk into the floor, typically
+corpses, and can look like they are "floating" in EDGE.
+
+<li>
+The type of networking that DOOM used back in 1993/4
+is obsolete today, and EDGE doesn't have a suitable
+replacement, so multiplayer games are not possible yet.
+We plan to add support for LAN-based games in the next release.
+</ul>
 
 <p>
 Reference: <a href="doom_specs.htm">Unofficial Doom Specs</a>
 
+
+
+<p><br>
+<h3 class="sub_title">DeHackEd</h2>
+
+TODO....
+
+
+<p><br>
 <h3 class="sub_title">Boom</h2>
 
-TODO...
+Boom was a modification/improvement to the DOOM code
+made by TeamTNT.
+As well as fixing many bugs and removing many limitations,
+Boom added many new editing features.
+
+<p>
+EDGE 1.29 is designed to be a Boom-compatible port @@@...
 
 <p>
 Reference: <a href="boom_ref.htm">Boom Reference</a>
 
+
+
+<p><br>
+<h3 class="sub_title">BEX</h2>
+
+Boom also extended DeHackEd with new features, and
+the final system was called BEX.
+
+<p>
+BLAH....
+
+
+<p><br>
 <h3 class="sub_title">GL Nodes</h2>
+
+GL Nodes provide more information which OpenGL ports need,
+in particular the exact boundaries of subsectors, which was
+missing in the original DOOM nodes.
+
+<p>
+EDGE 1.29 supports V1,V2,V3 and V5 format GL Nodes, both inside
+the same WAD as the level(s) or externally as GWA files.
+
+<p>
+EDGE 1.29 lacks one feature to make it fully compliant with
+the GL Nodes spec: support for map names longer than 5 letters
+(using the special "GL_LEVEL" map marker).
 
 <p>
 Reference:
 <a href="http://glbsp.sourceforge.net/specs.php">
 GL Node Specifications</a>
 
+
+
+<p><br>
 <h3 class="sub_title">Joint Texture Standard</h2>
 
 This specification resulted from a discussion of several port
@@ -42,9 +102,9 @@ which can define texture sources and attributes (like scaling)
 in a standard but extensible way.
 
 <p>
-EDGE 1.29 has almost no support for this spec yet, apart from the
+EDGE 1.29 has no support for this spec yet, apart from the
 ability to load the 320x200 Heretic/Hexen title graphics and
-support for larger flats (from 128x128 up to 1024x1024).
+support for larger flats (from 128x128 upto 1024x1024).
 
 <p>
 Work is underway to implement more of this spec.
