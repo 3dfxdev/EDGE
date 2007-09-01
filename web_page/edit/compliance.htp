@@ -46,7 +46,8 @@ As well as fixing many bugs and removing many limitations,
 Boom added many new editing features.
 
 <p>
-EDGE 1.29 was updated to be a Boom-compatible port @@@@...
+EDGE 1.29 was greatly improved as a Boom-compatible port.
+@@@@
 
 <p>
 Link:
@@ -59,25 +60,51 @@ Reference: <a href="boom_ref.htm">Boom Reference</a>
 
 
 <p><br>
-<h3 class="sub_title">DeHackEd / BEX</h2>
+<h3 class="sub_title">DeHackEd &amp; BEX</h2>
 
 DeHackEd was a program written by Greg Lewis which
 modified the DOOM executable, allowing changes to the
-behaviour of monsters, weapons, sounds, and text strings.
+behaviour of monsters, weapons, sounds, text strings, etc...
 These changes could be distributed between users in the
-form of "patch" files (which have the ".deh" extension).
+form of "patch" files (which have the ".DEH" extension).
 
 <p>
-BEX is the Boom EXtension of the DeHackEd patches,
-adding some new features.
+BEX is the <b>B</b>oom <b>EX</b>tension of DeHackEd patches.
 
 <p>
-@@@ TODO....
+EDGE 1.29 implements DeHackEd and BEX patches using a library
+called DEH_EDGE (which also exists as a stand-alone program).
+DEH_EDGE converts the patch file into DDF, which EDGE then loads.
+EDGE supports the standard <b>-deh</b> option for specifying
+patch files, as well as recognising the ".DEH" and ".BEX" extensions
+when using the <b>-file</b> option or when you drag'n'drop files
+onto the EXE.  The "DEHACKED" wad lump is also supported.
+
+<p>
+Some really old DeHackEd patches are not in a text format,
+instead they are a binary format.  EDGE 1.29 is possibly
+the only port which can load these old binary patches.
+
+<p>
+List of things not supported by EDGE 1.29:
+<ul>
+
+<li>the BEX "INCLUDE" directive.
+
+<li>raw action offsets and sprite/sound name pointers.
+
+<li>certain cheat statistics, like 'God Mode Health'.
+
+<li>the BOOM/MBF actions: A_Scratch, A_Spawn and A_Mushroom.
+
+<li>the BEX [PARS] and [HELPER] sections.
+
+</ul>
 
 <p>
 Some ports, notably ZDoom, have also added their own features
 into DeHackEd patches.  For example: obituary messages.
-EDGE does not support any of those features.
+EDGE does not support these additions.
 
 <p>
 Link:
