@@ -1,0 +1,48 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: Compliance">
+
+<block name="content">
+
+<h2 class="page_title">Compliance with Specs</h2>
+
+<h3 class="sub_title">Doom</h2>
+
+EDGE is based on the DOOM engine, and everything in the games
+DOOM, DOOM II, TNT Evilution and Plutonia is known to behave
+correctly, in particular: monsters, weapons, line-types,
+sector-types, intermission and finale screens.
+
+<p>
+GL stuff...
+
+<p>
+Reference:
+<a http://edge.sourceforge.net/edit_guide/doom_specs.htm>
+Unofficial Doom Specs</a>
+
+<h3 class="sub_title">Boom</h2>
+
+TODO...
+
+<p>
+Reference:
+<a http://edge.sourceforge.net/edit_guide/boom_ref.htm>
+Boom Reference</a>
+
+<h3 class="sub_title">GL Nodes</h2>
+
+<p>
+Reference: http://glbsp.sourceforge.net/specs.php
+
+<h3 class="sub_title">Joint Texture Standard</h2>
+
+BLAH....
+
+<p>
+Reference: http://edge.sourceforge.net/edit_guide/JointTextureSpec.htm
+
+</block>
+
+<!--- template --->
+<file include="edit_page.tpl">
