@@ -8,7 +8,7 @@
 
 <!--- These types are mainly useful for Liquid Extrafloors --->
 
-<h3 class="roadmap">Deep Water</h3>
+<h3 class="sub_title">Deep Water</h3>
 
 <p>
 Colour tint: BLUE &nbsp;&nbsp;&nbsp; Damage: NONE<br>
@@ -29,7 +29,7 @@ Swimmable: YES &nbsp;&nbsp;&nbsp; Breathable: NO
 </PRE>
 
 
-<h3 class="roadmap">Deep Slime</h3>
+<h3 class="sub_title">Deep Slime</h3>
 
 <p>
 Colour tint: GREEN &nbsp;&nbsp;&nbsp; Damage: 10%<br>
@@ -51,7 +51,7 @@ Swimmable: NO &nbsp;&nbsp;&nbsp; Breathable: NO
 </PRE>
 
 
-<h3 class="roadmap">Deep Lava</h3>
+<h3 class="sub_title">Deep Lava</h3>
 
 <p>
 Colour tint: RED &nbsp;&nbsp;&nbsp; Damage: 10%<br>
@@ -73,7 +73,7 @@ Swimmable: NO &nbsp;&nbsp;&nbsp; Breathable: NO
 </PRE>
 
 
-<h3 class="roadmap">Pushing Floor</h3>
+<h3 class="sub_title">Pushing Floor</h3>
 
 <PRE>
 [4442] // EDGE Push NORTH
@@ -87,7 +87,7 @@ Swimmable: NO &nbsp;&nbsp;&nbsp; Breathable: NO
 </PRE>
 
 
-<h3 class="roadmap">Scrolling Floor</h3>
+<h3 class="sub_title">Scrolling Floor</h3>
 
 <PRE>
 [4450] // EDGE Scroll Floor Texture NORTH
@@ -101,7 +101,7 @@ Swimmable: NO &nbsp;&nbsp;&nbsp; Breathable: NO
 </PRE>
 
 
-<h3 class="roadmap">Pushing + Scrolling Floor</h3>
+<h3 class="sub_title">Pushing + Scrolling Floor</h3>
 
 <PRE>
 [4458] // EDGE Scroll Floor Texture/Push NORTH
