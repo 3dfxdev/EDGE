@@ -46,7 +46,7 @@ As well as fixing many bugs and removing many limitations,
 Boom added many new editing features.
 
 <p>
-EDGE 1.29 is designed to be a Boom-compatible port @@@...
+EDGE 1.29 was updated to be a Boom-compatible port @@@@...
 
 <p>
 Link:
@@ -72,7 +72,7 @@ BEX is the Boom EXtension of the DeHackEd patches,
 adding some new features.
 
 <p>
-TODO....
+@@@ TODO....
 
 <p>
 Some ports, notably ZDoom, have also added their own features
@@ -99,7 +99,7 @@ missing in the original DOOM nodes.
 
 <p>
 EDGE 1.29 supports V1,V2,V3 and V5 format GL Nodes, both inside
-the same WAD as the level(s) or externally as GWA files.
+the same WAD as the levels or externally as GWA files.
 
 <p>
 EDGE 1.29 lacks one feature to make it fully compliant with
@@ -132,6 +132,39 @@ Work is underway to implement more of this spec.
 
 <p>
 Reference: <a href="JointTextureSpec.htm">Joint Texture Standard</a>
+
+
+
+<p><br>
+<h3 class="sub_title">File Formats</h2>
+
+This list of formats does not include any of the DOOM formats
+which EDGE has (of course) always supported.
+
+<p>
+<B>Images:</B> <br>
+Using IMAGES.DDF, EDGE 1.29 can load PNG and JPEG format images.
+We plan to support TGA format soon.
+
+<p>
+<B>Sounds:</B> <br>
+EDGE does not support any other sound formats.
+We plan to support WAV and Ogg/Vorbis formats in the next release.
+
+<p>
+<B>Music:</B> <br>
+EDGE 1.29 supports Ogg/Vorbis for music.  We plan
+to implement software-synthesised MUS and MIDI music
+in a future release.
+
+<p>
+<B>Packages:</B> <br>
+EDGE does not support any package formats (like PK3),
+and we don't plan on adding any.
+
+<p>
+<B>Others:</B> <br>
+We plan to support MD2 models in the next release.
 
 </block>
 
