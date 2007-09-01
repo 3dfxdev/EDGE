@@ -9,3 +9,9 @@ pre.specs {
     font-size: smaller;
   }
 
+table.edit {
+    background-color: #ffc;
+    color: black;
+    border: 1px solid black;
+  }
+

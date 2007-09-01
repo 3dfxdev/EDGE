@@ -32,6 +32,12 @@ page_title {
     font-size: xx-large;
   }
 
+h3.sub_title {
+    color: #c70;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
 .justify { 
     text-align: justify;
   }

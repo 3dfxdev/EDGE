@@ -7,7 +7,7 @@
 <h2 class="page_title">EDGE 1.29 Line Types</h2>
 
 
-<h3 class="roadmap">Translucent Lines</h3>
+<h3 class="sub_title">Translucent Lines</h3>
 
 <PRE>
 [409] // EDGE Translucent Linedef (80%)
@@ -17,7 +17,7 @@
 </PRE>
 
 
-<h3 class="roadmap">Scrolling Lines</h3>
+<h3 class="sub_title">Scrolling Lines</h3>
 
 <PRE>
 [422] // EDGE SCROLL RIGHT
@@ -31,7 +31,7 @@
 </PRE>
 
 
-<h3 class="roadmap">Thin Sliding Doors</h3>
+<h3 class="sub_title">Thin Sliding Doors</h3>
 
 <PRE>
 [442]  // EDGE Sliding door (LEFT), SR + MONSTERS
@@ -51,7 +51,7 @@
 </PRE>
 
 
-<h3 class="roadmap">Radius Trigger Scripting</h3>
+<h3 class="sub_title">Radius Trigger Scripting</h3>
 
 <PRE>
 [418] // EDGE Enable Tagged RTS - S1
@@ -79,7 +79,7 @@
 </PRE>
 
 
-<h3 class="roadmap">Extrafloors</h3>
+<h3 class="sub_title">Extrafloors</h3>
 
 <PRE>
 [400] // EDGE Thick Extrafloor (control texture)
@@ -100,7 +100,23 @@
 [417] // EDGE Thin Extrafloor (20% Translucent)
 </PRE>
 
-<p>
+<p><br>
+
+<hr>
+
+<h3 class="sub_title">Key:</h3>
+
+<TABLE class="edit" BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><th>TRIGGER</th><th>MEANING</th></tr>
+
+<tr><td>S1</td><td>Switched, once only</td></tr>
+<tr><td>SR</td><td>Switched, repeatable</td></tr>
+<tr><td>W1</td><td>Walk over, once only</td></tr>
+<tr><td>WR</td><td>Walk over, repeatable</td></tr>
+<tr><td>G1</td><td>Gun-shot, once only</td></tr>
+<tr><td>GR</td><td>Gun-shot, repeatable</td></tr>
+
+</TABLE>
 
 </block>
 
