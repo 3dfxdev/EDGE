@@ -17,30 +17,40 @@ sector-types, intermission and finale screens.
 GL stuff...
 
 <p>
-Reference:
-<a http://edge.sourceforge.net/edit_guide/doom_specs.htm>
-Unofficial Doom Specs</a>
+Reference: <a href="doom_specs.htm">Unofficial Doom Specs</a>
 
 <h3 class="sub_title">Boom</h2>
 
 TODO...
 
 <p>
-Reference:
-<a http://edge.sourceforge.net/edit_guide/boom_ref.htm>
-Boom Reference</a>
+Reference: <a href="boom_ref.htm">Boom Reference</a>
 
 <h3 class="sub_title">GL Nodes</h2>
 
 <p>
-Reference: http://glbsp.sourceforge.net/specs.php
+Reference:
+<a href="http://glbsp.sourceforge.net/specs.php">
+GL Node Specifications</a>
 
 <h3 class="sub_title">Joint Texture Standard</h2>
 
-BLAH....
+This specification resulted from a discussion of several port
+authors about a unified way to handle textures (etc) in new
+formats like PNG and JPEG, as well as a new system (NTEXTURE)
+which can define texture sources and attributes (like scaling)
+in a standard but extensible way.
 
 <p>
-Reference: http://edge.sourceforge.net/edit_guide/JointTextureSpec.htm
+EDGE 1.29 has almost no support for this spec yet, apart from the
+ability to load the 320x200 Heretic/Hexen title graphics and
+support for larger flats (from 128x128 up to 1024x1024).
+
+<p>
+Work is underway to implement more of this spec.
+
+<p>
+Reference: <a href="JointTextureSpec.htm">Joint Texture Standard</a>
 
 </block>
 
