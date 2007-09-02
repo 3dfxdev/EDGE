@@ -36,6 +36,7 @@ OBJS=	main.o       \
 	sys_assert.o \
 	sys_debug.o  \
 	ui_dialog.o  \
+	ui_grid.o    \
 	ui_menu.o    \
 	ui_panel.o   \
 	ui_window.o

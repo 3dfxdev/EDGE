@@ -20,8 +20,9 @@
 #include "hdr_fltk.h"
 
 #include "ui_menu.h"
-#include "ui_panel.h"
 #include "ui_window.h"
+#include "ui_grid.h"
+#include "ui_panel.h"
 
 #ifndef WIN32
 #include <unistd.h>
@@ -78,18 +79,13 @@ UI_MainWin::UI_MainWin(const char *title) :
 #endif
   }
 
-//  grid = new UI_Grid(0, cy, w(), 154);
-//  add(grid);
-//
+  grid = new UI_Grid(0, cy, w()-200, h()-cy);
+  add(grid);
 
   panel = new UI_Panel(w()-200, 0, 200, h());
   add(panel);
 
-//  cy += grid->h();
-
-  DebugPrintf("Final main_win.cy = %d\n", cy);
-
-//  resizable(grid);
+  resizable(grid);
 
   // show window (pass some dummy arguments)
   int argc = 1;
