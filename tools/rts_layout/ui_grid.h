@@ -54,16 +54,9 @@ private:
   // FLTK virtual method for drawing.
 
   void draw_grid(double spacing, int ity);
-  void draw_partition(const node_c *nd, int ity);
-  void draw_bbox(const bbox_t *bbox, int ity);
-  void draw_all_partitions();
 
-  void draw_node(const node_c *nd, int pos, bool on_route);
-  void draw_child(const child_t *ch, int pos, bool on_route);
-  void draw_subsector(const subsec_c *sub, int pos, bool on_route);
-  void draw_path();
+//  void draw_script(const script_t *scr, int ity);
 
-  bool set_seg_color(seg_c *seg, bool on);
   void draw_line(double x1, double y1, double x2, double y2);
 
   void scroll(int dx, int dy);
@@ -95,20 +88,6 @@ private:
   int miniseg_MODE;
   int shade_MODE;
 
-  path_c *path;
-
-  static const int MAX_ROUTE = 2000;
-
-  static const char RT_RIGHT = 0;
-  static const char RT_LEFT  = 1;
-
-  char *visit_route;
-  int route_len;
-
-  bool descend_by_mouse(int wx, int wy);  // true if OK
-  bool descend_tree(char side);  // true if OK
-
-  void lowest_node(node_c **nd, subsec_c **sub, bbox_t **bbox);
 
   static inline int GRID_FIND(double x, double y)
   {

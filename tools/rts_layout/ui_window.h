@@ -23,6 +23,7 @@
 
 #define MAIN_BG_COLOR  fl_gray_ramp(FL_NUM_GRAY * 7 / 24)
 
+class UI_Grid;
 class UI_Panel;
 
 class UI_MainWin : public Fl_Double_Window
@@ -40,8 +41,7 @@ public:
   Fl_Menu_Bar *menu_bar;
 #endif
 
-//  UI_Grid *grid;
-
+  UI_Grid  *grid;
   UI_Panel *panel;
 
   enum  // actions
