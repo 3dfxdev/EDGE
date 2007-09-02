@@ -1,5 +1,12 @@
 Andrew Apted's Log
 
+2007/09/02:
+
+Preliminary work on a new program: 'RTS Layout Tool'.  This
+will allow RTS scripts to be positioned, added and removed
+on top of the level map.  I also plan a thing spawning
+feature, especially for placing things onto extrafloors.
+
 2007/08/29:
 
 Removed SECSPECIAL command from Lines.ddf, it did absolutely
