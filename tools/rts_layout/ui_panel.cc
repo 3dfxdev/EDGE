@@ -46,27 +46,25 @@ UI_Panel::UI_Panel(int X, int Y, int W, int H, const char *label) :
   H -= 12;
 
   // ---- top section ----
-  
-  map_name = new Fl_Output(X+88, Y, W-88, 22, "Map Name:");
+ 
+  map_name = new Fl_Output(X+84, Y, W-84, 22, "Map Name:");
   map_name->align(FL_ALIGN_LEFT);
+
   add(map_name);
 
   Y += map_name->h() + 8;
 
 
-  script_mode = new Fl_Round_Button(X+8, Y, 102, 22, "Script Mode");
-  script_mode->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
-  script_mode->type(FL_RADIO_BUTTON);
-  add(script_mode);
+  mode = new Fl_Choice(X+52, Y, W-64, 22, "Mode:");
+  mode->align(FL_ALIGN_LEFT);
+  mode->add("Scripts|Things");
+  mode->value(0);
+  mode->color(FL_RED);
+  mode->callback(mode_callback, this);
 
-  Y += script_mode->h();
+  add(mode);
 
-  thing_mode = new Fl_Round_Button(X+8, Y, 102, 22, "Thing Mode");
-  thing_mode->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
-  thing_mode->type(FL_RADIO_BUTTON);
-  add(thing_mode);
-
-  Y += thing_mode->h();
+  Y += mode->h();
 
   
   // ---- middle section ----
@@ -125,6 +123,14 @@ int UI_Panel::handle(int event)
   return Fl_Group::handle(event);
 }
 
+void UI_Panel::mode_callback(Fl_Widget *w, void *data)
+{
+  UI_Panel *me = (UI_Panel *)data;
+
+  SYS_ASSERT(me);
+
+  me->mode->color(me->mode->value() ? FL_CYAN : FL_RED);
+}
 
 //------------------------------------------------------------------------
 

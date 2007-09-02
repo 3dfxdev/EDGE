@@ -32,8 +32,7 @@ public:
 private:
   Fl_Output *map_name;
 
-  Fl_Round_Button *script_mode;
-  Fl_Round_Button *thing_mode;
+  Fl_Choice *mode;
 
   /*-----------------------*/
 
@@ -59,6 +58,9 @@ public:
   void SetNodeIndex(int index);
 
   void SetMouse(double mx, double my);
+
+private:
+  static void mode_callback(Fl_Widget *, void *);
 };
 
 #endif // __UI_PANEL_H__
