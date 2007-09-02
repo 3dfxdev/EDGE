@@ -1,0 +1,62 @@
+#----------------------------------------------------------------
+# Oblige
+#----------------------------------------------------------------
+#
+# GNU Makefile for Unix/Linux "fun in the sun" version
+#
+
+PROGRAM=RTS_Layout
+
+CXX=g++
+
+LIB_LOC=/home/aapted/other
+
+FLTK_DIR=$(LIB_LOC)/fltk-1.1.x-r5479
+
+OPTIMISE=-O
+
+# operating system choices: UNIX WIN32
+OS=UNIX
+
+
+#--- Internal stuff from here -----------------------------------
+
+FLTK_FLAGS=-I$(FLTK_DIR)
+FLTK_LIBS=$(FLTK_DIR)/lib/libfltk_images.a \
+          $(FLTK_DIR)/lib/libfltk.a \
+          -lX11 -lXext -lpng -ljpeg
+
+CXXFLAGS=$(OPTIMISE) -Wall -D$(OS) $(FLTK_FLAGS)
+LDFLAGS=-L/usr/X11R6/lib 
+LIBS=-lm -lz $(FLTK_LIBS)
+
+OBJS=	main.o      \
+	lib_argv.o  \
+	lib_util.o  \
+	sys_assert.o \
+	sys_debug.o \
+	ui_dialog.o \
+	ui_menu.o   \
+	ui_window.o
+
+
+#--- Targets and Rules ------------------------------------------
+
+all: $(PROGRAM)
+
+clean:
+	rm -f $(PROGRAM) *.o core core.*
+	rm -f ERRS LOGS.txt
+
+$(PROGRAM): $(OBJS)
+	$(CXX) $(CFLAGS) $(OBJS) -o $@ $(LDFLAGS) $(LIBS)
+
+g_image.o: img_data.h
+
+bin: all
+	strip --strip-unneeded $(PROGRAM)
+
+.PHONY: all clean bin
+
+#--- editor settings ------------
+# vi:ts=8:sw=8:noexpandtab
