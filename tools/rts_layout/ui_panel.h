@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------
-//  INFO : Information Panel
+//  Information Panel
 //------------------------------------------------------------------------
 //
 //  RTS Layout Tool (C) 2007 Andrew Apted
@@ -19,43 +19,33 @@
 #ifndef __UI_PANEL_H__
 #define __UI_PANEL_H__
 
-#define SEG_LIST_MAX  16
+class UI_ScriptInfo;
+class UI_ThingInfo;
 
-class W_Info : public Fl_Group
+
+class UI_Panel : public Fl_Group
 {
 public:
-  W_Info(int X, int Y, int W, int H, const char *label = 0);
-  ~W_Info();
+  UI_Panel(int X, int Y, int W, int H, const char *label = NULL);
+  virtual ~UI_Panel();
 
 private:
   Fl_Output *map_name;
-  Fl_Output *node_type;
-  Fl_Output *grid_size;
 
-  Fl_Output *ns_index;
+  Fl_Round_Button *script_mode;
+  Fl_Round_Button *thing_mode;
 
-  Fl_Box    *pt_label;
-  Fl_Output *pt_x;
-  Fl_Output *pt_y;
-  Fl_Output *pt_dx;
-  Fl_Output *pt_dy;
+  /*-----------------------*/
 
-  Fl_Box    *seg_label;
-  Fl_Multiline_Output *seg_list;
-
-  Fl_Box    *bb_label;
-  Fl_Output *bb_x1;
-  Fl_Output *bb_y1;
-  Fl_Output *bb_x2;
-  Fl_Output *bb_y2;
+  UI_ScriptInfo *script_box;
+  UI_ThingInfo  *thing_box;
+  
+  /*-----------------------*/
 
   Fl_Box    *m_label;
   Fl_Output *mouse_x;
   Fl_Output *mouse_y;
-
-private:
-  int seg_indices[SEG_LIST_MAX];
-  int num_segs;
+  Fl_Output *grid_size;
 
 public:
   int handle(int event);
@@ -63,19 +53,12 @@ public:
 
 public:
   void SetMap(const char *name);
-  void SetNodes(const char *type);
+
   void SetZoom(float zoom_mul);
 
   void SetNodeIndex(int index);
-  void SetSubsectorIndex(int index);
-  void SetCurBBox(const bbox_t *bbox);
-  void SetPartition(const node_c *part);
 
   void SetMouse(double mx, double my);
-
-  void BeginSegList();
-  void EndSegList();
-  void AddSeg(const seg_c *seg);
 };
 
 #endif // __UI_PANEL_H__
