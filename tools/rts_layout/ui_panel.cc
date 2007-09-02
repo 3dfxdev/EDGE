@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------
-//  INFO : Information Panel
+//  Information Panel
 //------------------------------------------------------------------------
 //
 //  RTS Layout Tool (C) 2007 Andrew Apted
@@ -17,6 +17,9 @@
 //------------------------------------------------------------------------
 
 #include "headers.h"
+#include "hdr_fltk.h"
+
+#include "lib_util.h"
 
 #include "ui_panel.h"
 
@@ -25,18 +28,16 @@
 
 
 //
-// W_Info Constructor
+// UI_Panel Constructor
 //
-W_Info::W_Info(int X, int Y, int W, int H, const char *label) : 
-    Fl_Group(X, Y, W, H, label),
-    num_segs(0)
+UI_Panel::UI_Panel(int X, int Y, int W, int H, const char *label) : 
+    Fl_Group(X, Y, W, H, label)
 {
   end();  // cancel begin() in Fl_Group constructor
 
   box(FL_FLAT_BOX);
 
 //  color(INFO_BG_COLOR, INFO_BG_COLOR);
-
 
   X += 6;
   Y += 6;
@@ -50,109 +51,30 @@ W_Info::W_Info(int X, int Y, int W, int H, const char *label) :
   map_name->align(FL_ALIGN_LEFT);
   add(map_name);
 
-  Y += map_name->h() + 4;
+  Y += map_name->h() + 8;
 
-  node_type = new Fl_Output(X+88, Y, W-88, 22, "Node Type:");
-  node_type->align(FL_ALIGN_LEFT);
-  add(node_type);
 
-  Y += node_type->h() + 4;
+  script_mode = new Fl_Round_Button(X+8, Y, 102, 22, "Script Mode");
+  script_mode->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
+  script_mode->type(FL_RADIO_BUTTON);
+  add(script_mode);
+
+  Y += script_mode->h();
+
+  thing_mode = new Fl_Round_Button(X+8, Y, 102, 22, "Thing Mode");
+  thing_mode->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
+  thing_mode->type(FL_RADIO_BUTTON);
+  add(thing_mode);
+
+  Y += thing_mode->h();
 
   
   // ---- middle section ----
  
-  Y += 16;
+  // FIXME: script_box
 
-  ns_index = new Fl_Output(X+74, Y, 80, 22, "Node #    ");
-  ns_index->align(FL_ALIGN_LEFT);
-  add(ns_index);
-
-  Y += ns_index->h() + 4;
-
-
-  // bounding box
+  // FIXME: thing_box
   
-  bb_label = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "Bounding Box:");
-  bb_label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
-  add(bb_label);
-  
-  Y += bb_label->h() + 4;
-
-  bb_x1 = new Fl_Output(X+32,   Y, 64, 22, "x1");
-  bb_x2 = new Fl_Output(X+W-64, Y, 64, 22, "x2");
-
-  bb_x1->align(FL_ALIGN_LEFT);
-  bb_x2->align(FL_ALIGN_LEFT);
-
-  add(bb_x1);
-  add(bb_x2);
-
-  Y += bb_x1->h() + 4;
-
-  bb_y1 = new Fl_Output(X+32,   Y, 64, 22, "y1");
-  bb_y2 = new Fl_Output(X+W-64, Y, 64, 22, "y2");
-
-  bb_y1->align(FL_ALIGN_LEFT);
-  bb_y2->align(FL_ALIGN_LEFT);
-
-  add(bb_y1);
-  add(bb_y2);
-
-  Y += bb_y2->h() + 4;
-
-
-  // partition line
-
-  int save_Y = Y;
-
-  pt_label = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "Partition:");
-  pt_label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
-  add(pt_label);
-  
-  Y += pt_label->h() + 4;
-
-  pt_x  = new Fl_Output(X+32,   Y, 64, 22, "x");
-  pt_dx = new Fl_Output(X+W-64, Y, 64, 22, "dx");
-
-  pt_x ->align(FL_ALIGN_LEFT);
-  pt_dx->align(FL_ALIGN_LEFT);
-
-  add(pt_x);
-  add(pt_dx);
-
-  Y += pt_x->h() + 4;
-
-  pt_y  = new Fl_Output(X+32,   Y, 64, 22, "y");
-  pt_dy = new Fl_Output(X+W-64, Y, 64, 22, "dy");
-
-  pt_y ->align(FL_ALIGN_LEFT);
-  pt_dy->align(FL_ALIGN_LEFT);
-
-  add(pt_y);
-  add(pt_dy);
-
-  Y += pt_dy->h() + 4;
-
-
-  // seg list
-
-  Y = save_Y;
-  
-  seg_label = new Fl_Box(FL_NO_BOX, X, Y, W, 22, "Seg List:");
-  seg_label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
-  add(seg_label);
-
-  Y += seg_label->h() + 4;
-
-  seg_list = new Fl_Multiline_Output(X+10, Y, W-10, 96);
-  add(seg_list);
-
-  // keep 'em hidden
-  seg_label->hide();
-  seg_list->hide();
-
-  Y += seg_list->h() + 4;
-
 
 #if 1
   // resize control:
@@ -192,13 +114,13 @@ W_Info::W_Info(int X, int Y, int W, int H, const char *label) :
 }
 
 //
-// W_Info Destructor
+// UI_Panel Destructor
 //
-W_Info::~W_Info()
+UI_Panel::~UI_Panel()
 {
 }
 
-int W_Info::handle(int event)
+int UI_Panel::handle(int event)
 {
   return Fl_Group::handle(event);
 }
@@ -206,21 +128,16 @@ int W_Info::handle(int event)
 
 //------------------------------------------------------------------------
 
-void W_Info::SetMap(const char *name)
+void UI_Panel::SetMap(const char *name)
 {
-  char *upper = UtilStrUpper(name);
+  char *upper = StrUpper(name);
 
   map_name->value(upper);
 
-  UtilFree(upper);
+  StringFree(upper);
 }
 
-void W_Info::SetNodes(const char *type)
-{
-  node_type->value(type);
-}
-
-void W_Info::SetZoom(float zoom_mul)
+void UI_Panel::SetZoom(float zoom_mul)
 {
   char buffer[60];
 
@@ -243,89 +160,22 @@ void W_Info::SetZoom(float zoom_mul)
 }
 
 
-void W_Info::SetNodeIndex(int index)
+void UI_Panel::SetNodeIndex(int index)
 {
+#if 0
   char buffer[60];
 
   sprintf(buffer, "%d", index);
   
-  ns_index->label("Node #    ");
+  ns_index->label("Node #");
   ns_index->value(buffer);
 
-  seg_label->hide();
-  seg_list->hide();
-
-  pt_label->show();
-  pt_x ->show();
-  pt_y ->show();
-  pt_dx->show();
-  pt_dy->show();
-
   redraw();
+#endif
 }
 
-void W_Info::SetSubsectorIndex(int index)
-{
-  char buffer[60];
 
-  sprintf(buffer, "%d", index);
-  
-  ns_index->label("Subsec #");
-  ns_index->value(buffer);
-
-  pt_label->hide();
-  pt_x ->hide();
-  pt_y ->hide();
-  pt_dx->hide();
-  pt_dy->hide();
-
-  seg_label->show();
-  seg_list->show();
-
-  redraw();
-}
-
-void W_Info::SetCurBBox(const bbox_t *bbox)
-{
-  if (! bbox)
-  {
-    bb_x1->value("");
-    bb_y1->value("");
-    bb_x2->value("");
-    bb_y2->value("");
-
-    return;
-  }
-
-  char buffer[60]; 
-
-  sprintf(buffer, "%d", bbox->minx);  bb_x1->value(buffer);
-  sprintf(buffer, "%d", bbox->miny);  bb_y1->value(buffer);
-  sprintf(buffer, "%d", bbox->maxx);  bb_x2->value(buffer);
-  sprintf(buffer, "%d", bbox->maxy);  bb_y2->value(buffer);
-}
-
-void W_Info::SetPartition(const node_c *part)
-{
-  if (! part)
-  {
-    pt_x ->value("");
-    pt_y ->value("");
-    pt_dx->value("");
-    pt_dy->value("");
-
-    return;
-  }
-
-  char buffer[60]; 
-
-  sprintf(buffer, "%d", part->x );  pt_x ->value(buffer);
-  sprintf(buffer, "%d", part->y );  pt_y ->value(buffer);
-  sprintf(buffer, "%d", part->dx);  pt_dx->value(buffer);
-  sprintf(buffer, "%d", part->dy);  pt_dy->value(buffer);
-}
-
-void W_Info::SetMouse(double mx, double my)
+void UI_Panel::SetMouse(double mx, double my)
 {
   if (mx < -32767.0 || mx > 32767.0 ||
       my < -32767.0 || my > 32767.0)
@@ -344,54 +194,6 @@ void W_Info::SetMouse(double mx, double my)
 
   mouse_x->value(x_buffer);
   mouse_y->value(y_buffer);
-}
-
-void W_Info::BeginSegList()
-{
-  num_segs = 0;
-}
-
-void W_Info::AddSeg(const seg_c *seg)
-{
-  if (num_segs < SEG_LIST_MAX)
-  {
-    seg_indices[num_segs++] = seg->index;
-  }
-}
-
-void W_Info::EndSegList()
-{
-  char buffer[SEG_LIST_MAX * 32];
-  char *line = buffer;
-
-  buffer[0] = 0;
-
-  for (int n = 0; n < num_segs; n++)
-  {
-    char num_buf[60];
-
-    sprintf(num_buf, "%d", seg_indices[n]);
-
-    int line_len = strlen(line);
-    int num_len  = strlen(num_buf);
-    
-    // fits on the line?
-    if (line_len + 1 + num_len <= 19)
-    {
-      if (*line != 0)
-        strcat(buffer, " ");
-    }
-    else
-    {
-      strcat(buffer, "\n");
-
-      line = buffer + strlen(buffer);
-    }
-
-    strcat(buffer, num_buf);
-  }
-
-  seg_list->value(buffer);
 }
 
 

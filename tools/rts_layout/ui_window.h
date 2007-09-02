@@ -23,8 +23,14 @@
 
 #define MAIN_BG_COLOR  fl_gray_ramp(FL_NUM_GRAY * 7 / 24)
 
+class UI_Panel;
+
 class UI_MainWin : public Fl_Double_Window
 {
+public:
+  UI_MainWin(const char *title);
+  virtual ~UI_MainWin();
+
 public:
   // main child widgets
 
@@ -36,7 +42,7 @@ public:
 
 //  UI_Grid *grid;
 
-//  UI_Panel *panel;
+  UI_Panel *panel;
 
   enum  // actions
   {
@@ -49,9 +55,6 @@ public:
   int action;
 
 public:
-  UI_MainWin(const char *title);
-  virtual ~UI_MainWin();
-
   void Locked(bool value);
 };
 

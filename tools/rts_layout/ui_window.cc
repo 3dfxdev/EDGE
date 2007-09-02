@@ -20,6 +20,7 @@
 #include "hdr_fltk.h"
 
 #include "ui_menu.h"
+#include "ui_panel.h"
 #include "ui_window.h"
 
 #ifndef WIN32
@@ -35,8 +36,8 @@
 
 UI_MainWin *main_win;
 
-#define MAIN_WINDOW_W   470
-#define MAIN_WINDOW_H  (406-28+32)
+#define MAIN_WINDOW_W  (600)
+#define MAIN_WINDOW_H  (440)
 
 
 static void main_win_close_CB(Fl_Widget *w, void *data)
@@ -69,7 +70,7 @@ UI_MainWin::UI_MainWin(const char *title) :
 
   /* ---- Menu bar ---- */
   {
-    menu_bar = MenuCreate(0, 0, w(), 28);
+    menu_bar = MenuCreate(0, 0, w()-202, 28);
     add(menu_bar);
 
 #ifndef MACOSX
@@ -80,8 +81,11 @@ UI_MainWin::UI_MainWin(const char *title) :
 //  grid = new UI_Grid(0, cy, w(), 154);
 //  add(grid);
 //
-//  cy += grid->h();
 
+  panel = new UI_Panel(w()-200, 0, 200, h());
+  add(panel);
+
+//  cy += grid->h();
 
   DebugPrintf("Final main_win.cy = %d\n", cy);
 
