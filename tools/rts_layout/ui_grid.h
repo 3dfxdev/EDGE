@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------
-//  GRID : Draws the map (lines, nodes, etc)
+//  GRID : Draws everything on the map
 //------------------------------------------------------------------------
 //
 //  RTS Layout Tool (C) 2007 Andrew Apted
@@ -19,22 +19,17 @@
 #ifndef __UI_GRID_H__
 #define __UI_GRID_H__
 
-class W_Grid : public Fl_Widget
+class UI_Grid : public Fl_Widget
 {
 public:
-  W_Grid(int X, int Y, int W, int H, const char *label = 0);
-  ~W_Grid();
+  UI_Grid(int X, int Y, int W, int H, const char *label = NULL);
+  virtual ~UI_Grid();
 
   void SetZoom(int new_zoom);
   // changes the current zoom factor.
 
   void SetPos(double new_x, double new_y);
   // changes the current position.
-
-  void SetPath(path_c *p) { path = p; }
-  //  give a path for the grid to draw
-
-  void ClearPath() { SetPath(NULL); }
 
   void FitBBox(double lx, double ly, double hx, double hy);
   // set zoom and position so that the bounding area fits.

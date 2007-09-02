@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------
-//  GRID : Draws the map (lines, nodes, etc)
+//  GRID : Draws everything on the map
 //------------------------------------------------------------------------
 //
 //  RTS Layout Tool (C) 2007 Andrew Apted
@@ -17,22 +17,15 @@
 //------------------------------------------------------------------------
 
 #include "headers.h"
+#include "hdr_fltk.h"
 
 #include "ui_grid.h"
 
 
-
-#if 0
-static void foo_win_close_CB(Fl_Widget *w, void *data)
-{
-}
-#endif
-
-
 //
-// W_Grid Constructor
+// UI_Grid Constructor
 //
-W_Grid::W_Grid(int X, int Y, int W, int H, const char *label) : 
+UI_Grid::UI_Grid(int X, int Y, int W, int H, const char *label) : 
     Fl_Widget(X, Y, W, H, label),
     zoom(DEF_GRID_ZOOM), zoom_mul(1.0),
     mid_x(0), mid_y(0),
@@ -44,15 +37,15 @@ W_Grid::W_Grid(int X, int Y, int W, int H, const char *label) :
 }
 
 //
-// W_Grid Destructor
+// UI_Grid Destructor
 //
-W_Grid::~W_Grid()
+UI_Grid::~UI_Grid()
 {
   delete[] visit_route;
 }
 
 
-void W_Grid::SetZoom(int new_zoom)
+void UI_Grid::SetZoom(int new_zoom)
 {
   if (new_zoom < MIN_GRID_ZOOM)
     new_zoom = MIN_GRID_ZOOM;
@@ -75,7 +68,7 @@ void W_Grid::SetZoom(int new_zoom)
 }
 
 
-void W_Grid::SetPos(double new_x, double new_y)
+void UI_Grid::SetPos(double new_x, double new_y)
 {
   mid_x = new_x;
   mid_y = new_y;
@@ -83,7 +76,7 @@ void W_Grid::SetPos(double new_x, double new_y)
   redraw();
 }
 
-void W_Grid::FitBBox(double lx, double ly, double hx, double hy)
+void UI_Grid::FitBBox(double lx, double ly, double hx, double hy)
 {
   double dx = hx - lx;
   double dy = hy - ly;
@@ -107,7 +100,7 @@ void W_Grid::FitBBox(double lx, double ly, double hx, double hy)
   new_node_or_sub();  // bit hackish (calling it here)
 }
 
-void W_Grid::MapToWin(double mx, double my, int *X, int *Y) const
+void UI_Grid::MapToWin(double mx, double my, int *X, int *Y) const
 {
   double hx = x() + w() / 2.0;
   double hy = y() + h() / 2.0;
@@ -116,7 +109,7 @@ void W_Grid::MapToWin(double mx, double my, int *X, int *Y) const
   (*Y) = I_ROUND(hy - (my - mid_y) * zoom_mul);
 }
 
-void W_Grid::WinToMap(int X, int Y, double *mx, double *my) const
+void UI_Grid::WinToMap(int X, int Y, double *mx, double *my) const
 {
   double hx = x() + w() / 2.0;
   double hy = y() + h() / 2.0;
@@ -127,12 +120,12 @@ void W_Grid::WinToMap(int X, int Y, double *mx, double *my) const
 
 //------------------------------------------------------------------------
 
-void W_Grid::resize(int X, int Y, int W, int H)
+void UI_Grid::resize(int X, int Y, int W, int H)
 {
   Fl_Widget::resize(X, Y, W, H);
 }
 
-void W_Grid::draw()
+void UI_Grid::draw()
 {
   /// FIXME
 
@@ -174,7 +167,7 @@ void W_Grid::draw()
   fl_pop_clip();
 }
 
-void W_Grid::draw_grid(double spacing, int ity)
+void UI_Grid::draw_grid(double spacing, int ity)
 {
   if (grid_MODE == 0)
     return;
@@ -247,7 +240,7 @@ void W_Grid::draw_grid(double spacing, int ity)
   }
 }
 
-void W_Grid::draw_partition(const node_c *nd, int ity)
+void UI_Grid::draw_partition(const node_c *nd, int ity)
 {
   double mlx = mid_x - w() * 0.5 / zoom_mul;
   double mly = mid_y - h() * 0.5 / zoom_mul;
@@ -317,7 +310,7 @@ void W_Grid::draw_partition(const node_c *nd, int ity)
   }
 }
 
-void W_Grid::draw_bbox(const bbox_t *bbox, int ity)
+void UI_Grid::draw_bbox(const bbox_t *bbox, int ity)
 {
   double mlx = mid_x - w() * 0.5 / zoom_mul;
   double mly = mid_y - h() * 0.5 / zoom_mul;
@@ -352,7 +345,7 @@ void W_Grid::draw_bbox(const bbox_t *bbox, int ity)
   fl_line(ex, sy, ex, ey);
 }
 
-void W_Grid::draw_all_partitions()
+void UI_Grid::draw_all_partitions()
 {
   node_c * nodes[4];
   bbox_t * bboxs[4];
@@ -392,7 +385,7 @@ void W_Grid::draw_all_partitions()
   }
 }
 
-void W_Grid::draw_node(const node_c *nd, int pos, bool on_route)
+void UI_Grid::draw_node(const node_c *nd, int pos, bool on_route)
 {
   if (! on_route)
   {
@@ -417,7 +410,7 @@ void W_Grid::draw_node(const node_c *nd, int pos, bool on_route)
   }
 }
 
-void W_Grid::draw_child(const child_t *ch, int pos, bool on_route)
+void UI_Grid::draw_child(const child_t *ch, int pos, bool on_route)
 {
   // OPTIMISATION: check the bounding box
 
@@ -431,7 +424,7 @@ void W_Grid::draw_child(const child_t *ch, int pos, bool on_route)
   }
 }
 
-void W_Grid::draw_subsector(const subsec_c *sub, int pos, bool on_route)
+void UI_Grid::draw_subsector(const subsec_c *sub, int pos, bool on_route)
 {
   for (seg_c *seg = sub->seg_list; seg; seg = seg->next)
   {
@@ -453,7 +446,7 @@ dy = (((foo >> 8) & 255) - 128) / 60.0;
   }
 }
 
-bool W_Grid::set_seg_color(seg_c *seg, bool on)
+bool UI_Grid::set_seg_color(seg_c *seg, bool on)
 {
   if (shade_MODE == 0 && !on)
     return false;
@@ -515,7 +508,7 @@ bool W_Grid::set_seg_color(seg_c *seg, bool on)
   return true;
 }
 
-void W_Grid::draw_line(double x1, double y1, double x2, double y2)
+void UI_Grid::draw_line(double x1, double y1, double x2, double y2)
 {
   double mlx = mid_x - w() * 0.5 / zoom_mul;
   double mly = mid_y - h() * 0.5 / zoom_mul;
@@ -606,7 +599,7 @@ void W_Grid::draw_line(double x1, double y1, double x2, double y2)
   fl_line(sx, sy, ex, ey);
 }
 
-void W_Grid::draw_path()
+void UI_Grid::draw_path()
 {
   int p;
 
@@ -639,7 +632,7 @@ void W_Grid::draw_path()
   }
 }
 
-void W_Grid::scroll(int dx, int dy)
+void UI_Grid::scroll(int dx, int dy)
 {
   dx = dx * w() / 10;
   dy = dy * h() / 10;
@@ -657,7 +650,7 @@ void W_Grid::scroll(int dx, int dy)
 
 //------------------------------------------------------------------------
 
-int W_Grid::handle(int event)
+int UI_Grid::handle(int event)
 {
   switch (event)
   {
@@ -723,7 +716,7 @@ int W_Grid::handle(int event)
   return 0;  // unused
 }
 
-int W_Grid::handle_key(int key)
+int UI_Grid::handle_key(int key)
 {
   if (key == 0)
     return 0;
@@ -805,7 +798,7 @@ int W_Grid::handle_key(int key)
   return 0;  // unused
 }
 
-bool W_Grid::descend_by_mouse(int wx, int wy)
+bool UI_Grid::descend_by_mouse(int wx, int wy)
 {
   node_c *cur_nd;
   subsec_c *cur_sub;
@@ -829,7 +822,7 @@ bool W_Grid::descend_by_mouse(int wx, int wy)
     return descend_tree(RT_LEFT);
 }
 
-bool W_Grid::descend_tree(char side)
+bool UI_Grid::descend_tree(char side)
 {
   // safety check (should never happen under normal circumstances)
   if (route_len >= MAX_ROUTE)
@@ -851,7 +844,7 @@ bool W_Grid::descend_tree(char side)
   return true;
 }
 
-void W_Grid::lowest_node(node_c **nd, subsec_c **sub, bbox_t **bbox)
+void UI_Grid::lowest_node(node_c **nd, subsec_c **sub, bbox_t **bbox)
 {
   *bbox = NULL;
 
@@ -882,7 +875,7 @@ void W_Grid::lowest_node(node_c **nd, subsec_c **sub, bbox_t **bbox)
   *sub = NULL;
 }
 
-void W_Grid::handle_mouse(int wx, int wy)
+void UI_Grid::handle_mouse(int wx, int wy)
 {
   if (! guix_win)
     return;
@@ -894,7 +887,7 @@ void W_Grid::handle_mouse(int wx, int wy)
   guix_win->info->SetMouse(mx, my);
 }
 
-void W_Grid::new_node_or_sub(void)
+void UI_Grid::new_node_or_sub(void)
 {
   node_c *cur_nd;
   subsec_c *cur_sub;
