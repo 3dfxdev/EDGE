@@ -71,7 +71,7 @@
 
 #include <list>
 
-#define LADDER_FRICTION  0.6f
+#define LADDER_FRICTION  0.5f
 
 #define DEBUG_MOBJ  0
 
