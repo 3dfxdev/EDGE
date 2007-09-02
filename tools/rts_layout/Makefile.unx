@@ -13,7 +13,7 @@ LIB_LOC=/home/aapted/other
 
 FLTK_DIR=$(LIB_LOC)/fltk-1.1.x-r5479
 
-OPTIMISE=-O
+OPTIMISE=-g3
 
 # operating system choices: UNIX WIN32
 OS=UNIX
@@ -30,13 +30,14 @@ CXXFLAGS=$(OPTIMISE) -Wall -D$(OS) $(FLTK_FLAGS)
 LDFLAGS=-L/usr/X11R6/lib 
 LIBS=-lm -lz $(FLTK_LIBS)
 
-OBJS=	main.o      \
-	lib_argv.o  \
-	lib_util.o  \
+OBJS=	main.o       \
+	lib_argv.o   \
+	lib_util.o   \
 	sys_assert.o \
-	sys_debug.o \
-	ui_dialog.o \
-	ui_menu.o   \
+	sys_debug.o  \
+	ui_dialog.o  \
+	ui_menu.o    \
+	ui_panel.o   \
 	ui_window.o
 
 
@@ -49,9 +50,10 @@ clean:
 	rm -f ERRS LOGS.txt
 
 $(PROGRAM): $(OBJS)
-	$(CXX) $(CFLAGS) $(OBJS) -o $@ $(LDFLAGS) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $@ $(LDFLAGS) $(LIBS)
 
-g_image.o: img_data.h
+%.o: %.cc
+	$(CXX) $(CXXFLAGS) -c $^ -o $@
 
 bin: all
 	strip --strip-unneeded $(PROGRAM)
