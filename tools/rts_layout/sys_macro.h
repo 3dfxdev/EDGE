@@ -41,9 +41,12 @@
 #define SGN(a)  ((a) < 0 ? -1 : (a) > 0 ? +1 : 0)
 #endif
 
+#ifndef I_ROUND
+#define I_ROUND(x)  ((int) (((x) < 0) ? ((x) - 0.5f) : ((x) + 0.5f)))
+#endif
+
 #ifndef CLAMP
-#define CLAMP(x,low,high)  \
-    ((x) < (low) ? (low) : (x) > (high) ? (high) : (x))
+#define CLAMP(x,low,high)  ((x) < (low) ? (low) : (x) > (high) ? (high) : (x))
 #endif
 
 #endif // __SYS_MACRO_H__
