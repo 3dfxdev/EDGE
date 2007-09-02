@@ -144,16 +144,36 @@ static void menu_do_save_log(Fl_Widget *w, void * data)
 static Fl_Menu_Item menu_items[] = 
 {
   { "&File", 0, 0, 0, FL_SUBMENU },
-#ifdef MACOSX
-    { "&Save Log",         0, FCAL menu_do_save_log },
-#else
-    { "&Save Log",         0, FCAL menu_do_save_log, 0, FL_MENU_DIVIDER },
-    { "&Quit",  0 /* FL_ALT + 'q' */, FCAL menu_do_exit },
-#endif
+    { "&New Script",   0,             FCAL menu_do_save_log },
+    { "&Open Script",  FL_CTRL + 'o', FCAL menu_do_save_log },
+//  { "&Open WAD",     0,             FCAL menu_do_save_log },
+    { "&Save",         FL_CTRL + 's', FCAL menu_do_save_log },
+    { "Save &As",      0,             FCAL menu_do_save_log, 0, FL_MENU_DIVIDER },
+    { "&Quit",   FL_CTRL + 'q', FCAL menu_do_exit },
+    { 0 },
+
+  { "&Edit", 0, 0, 0, FL_SUBMENU },
+    { "&Undo",   FL_CTRL + 'z',  FCAL menu_do_about, 0, FL_MENU_DIVIDER },
+    { "Cu&t",    FL_CTRL + 'x',  FCAL menu_do_about },
+    { "&Copy",   FL_CTRL + 'c',  FCAL menu_do_about },
+    { "&Paste",  FL_CTRL + 'v',  FCAL menu_do_about, 0, FL_MENU_DIVIDER },
+    { "Unselect All",  0,        FCAL menu_do_about },
+    { 0 },
+
+  { "&Script", 0, 0, 0, FL_SUBMENU },
+    { "&Change Map...",  0,  FCAL menu_do_about, 0, FL_MENU_DIVIDER },
+    { "&New Trigger...", 0,  FCAL menu_do_about },
+    { "&Delete",         0,  FCAL menu_do_about },
+    { 0 },
+
+  { "&Thing", 0, 0, 0, FL_SUBMENU },
+    { "&Load DDF...",  0,  FCAL menu_do_about, 0, FL_MENU_DIVIDER },
+    { "&New Thing...", 0,  FCAL menu_do_about },
+    { "&Delete",       0,  FCAL menu_do_about },
     { 0 },
 
   { "&Help", 0, 0, 0, FL_SUBMENU },
-    { "&About...",         0,  FCAL menu_do_about },
+    { "&About...",   0,  FCAL menu_do_about },
     { 0 },
 
   { 0 }
