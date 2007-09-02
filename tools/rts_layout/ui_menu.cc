@@ -146,10 +146,9 @@ static Fl_Menu_Item menu_items[] =
   { "&File", 0, 0, 0, FL_SUBMENU },
     { "&New Script",   0,             FCAL menu_do_save_log },
     { "&Open Script",  FL_CTRL + 'o', FCAL menu_do_save_log },
-//  { "&Open WAD",     0,             FCAL menu_do_save_log },
-    { "&Save",         FL_CTRL + 's', FCAL menu_do_save_log },
+    { "&Save Script",  FL_CTRL + 's', FCAL menu_do_save_log },
     { "Save &As",      0,             FCAL menu_do_save_log, 0, FL_MENU_DIVIDER },
-    { "&Quit",   FL_CTRL + 'q', FCAL menu_do_exit },
+    { "&Quit",         FL_CTRL + 'q', FCAL menu_do_exit },
     { 0 },
 
   { "&Edit", 0, 0, 0, FL_SUBMENU },
@@ -161,19 +160,20 @@ static Fl_Menu_Item menu_items[] =
     { 0 },
 
   { "&Script", 0, 0, 0, FL_SUBMENU },
-    { "&Change Map...",  0,  FCAL menu_do_about, 0, FL_MENU_DIVIDER },
-    { "&New Trigger...", 0,  FCAL menu_do_about },
-    { "&Delete",         0,  FCAL menu_do_about },
+    { "&Load Map",       0,  FCAL menu_do_save_log },
+    { "&Change Map",     0,  FCAL menu_do_save_log, 0, FL_MENU_DIVIDER },
+    { "&New Trigger",    0,  FCAL menu_do_about },
+    { "&Delete Trigger", 0,  FCAL menu_do_about },
     { 0 },
 
   { "&Thing", 0, 0, 0, FL_SUBMENU },
-    { "&Load DDF...",  0,  FCAL menu_do_about, 0, FL_MENU_DIVIDER },
-    { "&New Thing...", 0,  FCAL menu_do_about },
-    { "&Delete",       0,  FCAL menu_do_about },
+    { "&Load DDF",     0,  FCAL menu_do_about, 0, FL_MENU_DIVIDER },
+    { "&New Thing",    0,  FCAL menu_do_about },
+    { "&Delete Thing", 0,  FCAL menu_do_about },
     { 0 },
 
   { "&Help", 0, 0, 0, FL_SUBMENU },
-    { "&About...",   0,  FCAL menu_do_about },
+    { "&About",   0,  FCAL menu_do_about },
     { 0 },
 
   { 0 }
