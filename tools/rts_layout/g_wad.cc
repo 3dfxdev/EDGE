@@ -22,6 +22,7 @@
 #include "lib_util.h"
 
 #include "g_wad.h"
+#include "main.h"
 
 
 #define DEBUG_DIR   1
@@ -126,18 +127,13 @@ static bool CheckMagic(const char type[4])
 
 bool wad_c::CheckLevelName(const char *name)
 {
-  for (int i = 0; i < num_level_names; i++)
+  for (int i = 0; i < (int)levels.size(); i++)
   {
-    if (strcmp(level_names[i], name) == 0)
+    if (StrCaseCmp(levels[i]->name, name) == 0)
       return true;
   }
 
   return false;
-}
-
-static bool HasGLPrefix(const char *name)
-{
-  return (name[0] == 'G' && name[1] == 'L' && name[2] == '_');
 }
 
 
@@ -158,6 +154,7 @@ static bool CheckLevelLumpName(const char *name)
 }
 
 
+#if 0
 //
 // CheckGLLumpName
 //
@@ -173,6 +170,7 @@ static bool CheckGLLumpName(const char *name)
 
   return false;
 }
+#endif
 
 
 //
@@ -215,13 +213,14 @@ void wad_c::ReadDirEntry()
   size_t len = fread(&entry, sizeof(entry), 1, fp);
 
   if (len != 1)
-    FatalError("Trouble reading wad directory");
+    Main_FatalError("Trouble reading wad directory.\n");
 
   char name_buf[16];
   strncpy(name_buf, entry.name, 8);
   name_buf[8] = 0;
 
-  lump_c *lump = new lump(name_buf, LE_U32(entry.start), LE_U32(entry.length));
+  lump_c *lump = new lump_c(name_buf,
+      LE_U32(entry.start), LE_U32(entry.length));
 
 #if DEBUG_DIR
   DebugPrintf("Read dir... %s\n", lump->name);
@@ -300,7 +299,7 @@ void wad_c::DetermineLevels()
 
     for (int j = 0; j < NUM_LEVEL_LUMPS; j++)
     {
-      NI = LI + (i+1);
+      NI = LI + (j+1);
 
       if (NI == dir.end())
         break;
@@ -308,7 +307,7 @@ void wad_c::DetermineLevels()
       lump_c *N = *NI;
 
       if (CheckLevelLumpName(N->name))
-        LEV->children->push_back(N);
+        LEV->children.push_back(N);
     }
   }
 }
@@ -351,14 +350,14 @@ bool wad_c::FindLevel(const char *map_name)
 
   std::vector<level_c *>::iterator MI;
 
-  for (MI = dir.begin(); MI != dir.end(); MI++)
+  for (MI = levels.begin(); MI != levels.end(); MI++)
   {
-    level_c *L = *MI;
-    SYS_ASSERT(L);
+    level_c *LEV = *MI;
+    SYS_ASSERT(LEV);
 
-    if (StrCaseCmp(L->name, map_name) == 0)
+    if (StrCaseCmp(LEV->name, map_name) == 0)
     {
-      cur_level = L;
+      cur_level = LEV;
       return true;
     }
   }
