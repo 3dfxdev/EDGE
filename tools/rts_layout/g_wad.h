@@ -20,20 +20,55 @@
 #define __G_WAD_H__
 
 
-class lump_c;
+// ---- Directory entry ----------
+
+class lump_c
+{
+public:
+   lump_c(const char *_name, int _pos, int _len);
+  ~lump_c();
+
+public:
+  // name of lump
+  const char *name;
+
+  // offset/length of lump in wad
+  int start;
+  int length;
+
+  // cached data of lump
+  void *data;
+};
 
 
-typedef enum { IWAD, PWAD } wad_kind_e;
+// ---- Level information ---------
 
-// wad header
+class level_c
+{
+public:
+   level_c(const char *_name);
+  ~level_c();
+
+public:
+  const char *name;
+
+  // the child lump list (includes marker)
+  std::vector<lump_c *> children;
+};
+
+
+// ---- WAD header -----------
 
 class wad_c
 {
 public:
-  wad_c();
+   wad_c();
   ~wad_c();
 
-  FILE *in_file;
+  enum wad_kind_e { IWAD, PWAD };
+
+public:
+  FILE *fp;
 
   // kind of wad file (-1 if not opened yet)
   int kind;
@@ -44,37 +79,36 @@ public:
   // offset to start of directory
   int dir_start;
 
-  // current directory entries
-  list_c dir;
+  // directory
+  std::vector<lump_c *> dir;
+
+  // levels
+  std::vector<level_c *> levels;
 
   // current level
-  lump_c *current_level;
-
-  // array of level names found
-  const char ** level_names;
-  int num_level_names;
+  level_c *cur_level;
 
 public:
-  // open the input wad file and read the contents into memory.
   static wad_c *Load(const char *filename);
+  // open the input wad file and read the contents into memory.
 
   bool CheckLevelName(const char *name);
-  bool CheckLevelNameGL(const char *name);
+  // returns true if the given level exists.
 
+  bool FindLevel(const char *map_name);
   // find a particular level in the wad directory, and store the
   // reference in 'wad.current_level'.  Returns false if not
   // found.
-  bool FindLevel(const char *map_name);
 
+  const char *FirstLevelName();
   // name of first level in the wad.  Returns NULL if there
   // are no levels at all.
-  const char *FirstLevelName();
 
+  lump_c *FindLumpInLevel(const char *name);
   // find the level lump with the given name in the current level, and
   // return a reference to it.  Returns NULL if no such lump exists.
   // Level lumps are always present in memory (i.e. never marked
   // copyable).
-  lump_c *FindLumpInLevel(const char *name);
 
   void CacheLump(lump_c *lump);
 
@@ -85,69 +119,10 @@ private:
 
   void ProcessDirEntry(lump_c *lump);
 
-  void AddLevelName(const char *name);
+  void AddLevel(lump_c *lump);
+
   void DetermineLevelNames();
 };
-
-
-// level information
-
-class level_c
-{
-public:
-  level_c();
-  ~level_c();
-
-  // various flags
-  int flags;
-
-  // the child lump list
-  list_c children;
-
-  // information on overflow
-  int soft_limit;
-  int hard_limit;
-  int v3_switch;
-};
-
-/* this level information holds GL lumps */
-#define LEVEL_IS_GL   0x0002
-
-
-// directory entry
-
-class lump_c : public listnode_c
-{
-public:
-  lump_c();
-  ~lump_c();
-
-  // name of lump
-  const char *name;
-
-  // offset/length of lump in wad
-  int start;
-  int length;
-
-  // various flags
-  int flags;
-
-  // data of lump
-  void *data;
-
-  // level information, usually NULL
-  level_c *lev_info;
-
-public:
-  inline lump_c *LumpNext() { return (lump_c*) NodeNext(); }
-  inline lump_c *LumpPrev() { return (lump_c*) NodePrev(); }
-};
-
-
-/* ------ Global variables ------ */
-
-extern wad_c *the_wad;
-extern wad_c *the_gwa;
 
 
 #endif // __G_WAD_H__

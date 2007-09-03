@@ -18,22 +18,49 @@
 
 #include "headers.h"
 
+#include "raw_wad.h"
+#include "lib_util.h"
+
 #include "g_wad.h"
 
 
 #define DEBUG_DIR   1
-#define DEBUG_LUMP  0
-
-#define APPEND_BLKSIZE  256
-#define LEVNAME_BUNCH   20
+#define DEBUG_LUMP  1
 
 #define ALIGN_LEN(len)  ((((len) + 3) / 4) * 4)
 
 
-// Global variables
-wad_c *the_wad;
-wad_c *the_gwa;
+lump_c::lump_c(const char *_name, int _pos, int _len) :
+  start(_pos), length(_len), data(NULL)
+{
+  name = StringDup(_name);
+}
 
+lump_c::~lump_c()
+{
+  StringFree(name);
+
+  if (data)
+    delete[] data;
+}
+
+level_c::level_c(const char *_name) : children()
+{
+  name = StringDup(_name);
+}
+
+level_c::~level_c()
+{
+  StringFree(name);
+
+  // pointers in children vector are not allocated, merely
+  // refer to lumps in the wad directory.
+  //
+  // HENCE: no need to free anything in 'children' here.
+}
+
+
+//------------------------------------------------------------------------
 
 wad_c::wad_c() :
   in_file(NULL), kind(-1),
@@ -63,38 +90,6 @@ wad_c::~wad_c()
 
     UtilFree(level_names);
   }
-}
-
-level_c::level_c() :
-  flags(0), children(),
-  soft_limit(0), hard_limit(0), v3_switch(0)
-{
-}
-
-level_c::~level_c()
-{
-  for (lump_c *cur = (lump_c *)children.pop_front(); cur != NULL;
-               cur = (lump_c *)children.pop_front())
-  {
-    delete cur;
-  }
-}
-
-lump_c::lump_c() :
-  name(NULL), start(-1), length(0), flags(0),
-  data(NULL), lev_info(NULL)
-{
-}
-
-lump_c::~lump_c()
-{
-  delete lev_info;
-
-  if (data)
-    UtilFree((void*)data);
-
-  if (name)
-    UtilFree((void*)name);
 }
 
 /* ---------------------------------------------------------------- */
@@ -276,7 +271,7 @@ void wad_c::ReadDirEntry()
   lump->length = UINT32(entry.length);
 
 #if DEBUG_DIR
-  PrintDebug("Read dir... %s\n", lump->name);
+  DebugPrintf("Read dir... %s\n", lump->name);
 #endif
 
   dir.push_back(lump);
@@ -327,7 +322,7 @@ void wad_c::DetermineLevelNames()
       continue;
 
 #if DEBUG_DIR
-    PrintDebug("Found level name: %s\n", L->name);
+    DebugPrintf("Found level name: %s\n", L->name);
 #endif
 
     // check for invalid name and duplicate levels
@@ -354,7 +349,7 @@ void wad_c::ProcessDirEntry(lump_c *lump)
     current_level = lump;
 
 #if DEBUG_DIR
-    PrintDebug("Process level... %s\n", lump->name);
+    DebugPrintf("Process level... %s\n", lump->name);
 #endif
 
     dir.push_back(lump);
@@ -379,7 +374,7 @@ void wad_c::ProcessDirEntry(lump_c *lump)
       }
 
 #if DEBUG_DIR
-      PrintDebug("        |--- %s\n", lump->name);
+      DebugPrintf("        |--- %s\n", lump->name);
 #endif
       // link it in
       current_level->lev_info->children.push_back(lump);
@@ -393,7 +388,7 @@ void wad_c::ProcessDirEntry(lump_c *lump)
   // --- ORDINARY LUMPS ---
 
 #if DEBUG_DIR
-  PrintDebug("Process dir... %s\n", lump->name);
+  DebugPrintf("Process dir... %s\n", lump->name);
 #endif
 
   if (CheckLevelLumpName(lump->name))
@@ -444,7 +439,7 @@ void wad_c::CacheLump(lump_c *lump)
   size_t len;
 
 #if DEBUG_LUMP
-  PrintDebug("Reading... %s (%d)\n", lump->name, lump->length);
+  DebugPrintf("Reading... %s (%d)\n", lump->name, lump->length);
 #endif
 
   if (lump->length == 0)
@@ -544,9 +539,9 @@ wad_c *wad_c::Load(const char *filename)
   if (! wad->ReadHeader())
     return NULL;
 
-  PrintDebug("Opened %cWAD file : %s\n", (wad->kind == IWAD) ? 'I' : 'P', 
+  DebugPrintf("Opened %cWAD file : %s\n", (wad->kind == IWAD) ? 'I' : 'P', 
       filename); 
-  PrintDebug("Reading %d dir entries at 0x%X\n", wad->num_entries, 
+  DebugPrintf("Reading %d dir entries at 0x%X\n", wad->num_entries, 
       wad->dir_start);
 
   // read directory
