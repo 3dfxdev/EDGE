@@ -31,6 +31,7 @@
 //
 UI_Grid::UI_Grid(int X, int Y, int W, int H, const char *label) : 
     Fl_Widget(X, Y, W, H, label),
+    map(NULL),
     zoom(DEF_GRID_ZOOM), zoom_mul(1.0),
     mid_x(0), mid_y(0),
     grid_MODE(1), partition_MODE(1), bbox_MODE(1),
@@ -374,7 +375,9 @@ void UI_Grid::draw_map()
 
 void UI_Grid::draw_linedef(const linedef_c *ld)
 {
-  int bright = 224;
+  int bright = 220;
+  int middle = 180;
+  int dark   = 140;
  
   if (! ld->left  || ! ld->left->sector ||
       ! ld->right || ! ld->right->sector)
@@ -395,22 +398,22 @@ void UI_Grid::draw_linedef(const linedef_c *ld)
     if (c_min <= f_max)
     {
       // closed door
-      fl_color(fl_rgb_color(bright * 6/8));
+      fl_color(fl_rgb_color(bright));
     }
     else if (c_min - f_max < 56)
     {
       // narrow vertical gap
-      fl_color(fl_rgb_color(bright * 4/8));
+      fl_color(fl_rgb_color(bright));
     }
     else if (f_max - f_min > 24)
     {
       // unclimable drop-off
-      fl_color(fl_rgb_color(bright * 4/8));
+      fl_color(fl_rgb_color(middle));
     }
     else
     {
       // everything else
-      fl_color(fl_rgb_color(bright * 2/8));
+      fl_color(fl_rgb_color(dark));
     }
   }
 
