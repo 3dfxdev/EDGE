@@ -19,11 +19,22 @@
 #ifndef __UI_GRID_H__
 #define __UI_GRID_H__
 
+
+class linedef_c;
+class level_c;
+
+
 class UI_Grid : public Fl_Widget
 {
 public:
   UI_Grid(int X, int Y, int W, int H, const char *label = NULL);
   virtual ~UI_Grid();
+
+  void SetMap(level_c *new_map);
+  // set or change the current map we are viewing.  The 'new_map'
+  // parameter can be NULL to disable map view (which is the
+  // default state).  Calling this will cause the grid to zoom
+  // so that it fits the whole map (i.e. FitBBox is invoked).
 
   void SetZoom(int new_zoom);
   // changes the current zoom factor.
@@ -55,9 +66,12 @@ private:
 
   void draw_grid(double spacing, int ity);
 
+  void draw_map();
+  void draw_linedef(const linedef_c *ld);
+
 //  void draw_script(const script_t *scr, int ity);
 
-  void draw_line(double x1, double y1, double x2, double y2);
+  void blast_line(double x1, double y1, double x2, double y2);
 
   void scroll(int dx, int dy);
 
@@ -69,6 +83,8 @@ public:
   void handle_mouse(int wx, int wy);
 
 private:
+  level_c *map;
+ 
   int zoom;
   // zoom factor: (2 ^ (zoom/2)) pixels per 512 units on the map
 

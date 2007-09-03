@@ -19,6 +19,8 @@
 #include "headers.h"
 #include "hdr_fltk.h"
 
+#include "g_level.h"
+
 #include "ui_window.h"
 #include "ui_grid.h"
 #include "ui_panel.h"
@@ -41,6 +43,22 @@ UI_Grid::UI_Grid(int X, int Y, int W, int H, const char *label) :
 UI_Grid::~UI_Grid()
 { }
 
+
+void UI_Grid::SetMap(level_c *new_map)
+{
+  map = new_map;
+
+  if (map)
+  {
+    double lx,ly, hx,hy;
+
+    map->ComputeBounds(&lx,&ly, &hx,&hy);
+
+    FitBBox(lx,ly, hx,hy);
+  }
+
+  redraw();
+}
 
 void UI_Grid::SetZoom(int new_zoom)
 {
@@ -124,8 +142,6 @@ void UI_Grid::resize(int X, int Y, int W, int H)
 
 void UI_Grid::draw()
 {
-  /// FIXME
-
   fl_push_clip(x(), y(), w(), h());
 
   fl_color(FL_BLACK);
@@ -149,7 +165,8 @@ void UI_Grid::draw()
   draw_grid(32768.0, ity_2_to_15[zoom - 3]);
 
 
-  // TODO:  draw_map
+  if (map)
+    draw_map();
 
   // TODO:  draw_things
   // TODO:  draw_scripts
@@ -342,71 +359,66 @@ void UI_Grid::draw_script(const script_t *scr, int ity)
 #endif
 
 
-#if 0
-bool UI_Grid::set_seg_color(seg_c *seg, bool on)
+void UI_Grid::draw_map()
 {
-  if (shade_MODE == 0 && !on)
-    return false;
-  
-  if (shade_MODE == 2)
-    on = true;
+  std::vector<linedef_c *>::iterator LI;
 
-  int ity = on ? 255 : 144;
-
-  if (! seg->linedef)  // miniseg
+  for (LI = map->lines.begin(); LI != map->lines.end(); LI++)
   {
-    if (miniseg_MODE < 2)
-      return false;
+    linedef_c *L = *LI;
+    SYS_ASSERT(L);
 
-     fl_color(0, ity*144/255, ity*192/255);
-     return true;
+    draw_linedef(L);
   }
-
-  if (! seg->linedef->left || ! seg->linedef->right)  // 1-sided line
-  {
-    fl_color(on ? FL_WHITE : fl_rgb_color(128));
-    return true;
-  }
-
-  sector_c *front = seg->linedef->right->sector;
-  sector_c *back  = seg->linedef->left->sector;
-
-  int floor_min = MIN(front->floor_h, back->floor_h);
-  int floor_max = MAX(front->floor_h, back->floor_h);
-
-  int ceil_min = MIN(front->ceil_h, back->ceil_h);
-//  int ceil_max = MAX(front->ceil_h, back->ceil_h);
-
-  if (ceil_min <= floor_max)  // closed door ?
-  {
-    fl_color(fl_rgb_color(ity, ity/2, 0));
-    return true;
-  }
-  if (ceil_min - floor_max < 56)  // narrow vertical gap ?
-  {
-    fl_color(fl_rgb_color(0, ity, ity));
-    return true;
-  }
-  if (seg->linedef->flags & 1)  // marked impassable ?
-  {
-    fl_color(fl_rgb_color(ity, ity, 0));
-    return true;
-  }
-  if (floor_max - floor_min > 24)  // unclimbable dropoff ?
-  {
-    fl_color(fl_rgb_color(0, ity, 0));
-    return true;
-  }
-
-  if (miniseg_MODE < 1)
-    return false;
-
-  fl_color(fl_rgb_color(on ? 176 : 96));  // everything else
-  return true;
 }
-#endif
 
-void UI_Grid::draw_line(double x1, double y1, double x2, double y2)
+void UI_Grid::draw_linedef(const linedef_c *ld)
+{
+  int bright = 224;
+ 
+  if (! ld->left  || ! ld->left->sector ||
+      ! ld->right || ! ld->right->sector)
+  {
+    // one-sided line
+    fl_color(fl_rgb_color(bright));
+  }
+  else
+  {
+    sector_c *front = ld->right->sector;
+    sector_c *back  = ld->left->sector;
+
+    int f_min = MIN(front->floor_h, back->floor_h);
+    int f_max = MAX(front->floor_h, back->floor_h);
+
+    int c_min = MIN(front->ceil_h, back->ceil_h);
+
+    if (c_min <= f_max)
+    {
+      // closed door
+      fl_color(fl_rgb_color(bright * 6/8));
+    }
+    else if (c_min - f_max < 56)
+    {
+      // narrow vertical gap
+      fl_color(fl_rgb_color(bright * 4/8));
+    }
+    else if (f_max - f_min > 24)
+    {
+      // unclimable drop-off
+      fl_color(fl_rgb_color(bright * 4/8));
+    }
+    else
+    {
+      // everything else
+      fl_color(fl_rgb_color(bright * 2/8));
+    }
+  }
+
+  blast_line(ld->start->x, ld->start->y, ld->end->x, ld->end->y);
+}
+
+
+void UI_Grid::blast_line(double x1, double y1, double x2, double y2)
 {
   double mlx = mid_x - w() * 0.5 / zoom_mul;
   double mly = mid_y - h() * 0.5 / zoom_mul;
