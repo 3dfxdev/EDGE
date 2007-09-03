@@ -20,6 +20,7 @@
 #define __G_LEVEL_H__
 
 #include "raw_wad.h"
+#include "g_wad.h"
 
 
 class vertex_c
@@ -138,12 +139,16 @@ public:
 class level_c
 {
 private:
-   level_c();
+  level_c(wad_c *wad);
 
 public:
   ~level_c();
  
 public:
+  wad_c *base;
+
+  bool is_hexen;
+
   std::vector<vertex_c *>  verts;
   std::vector<sector_c *>  sectors;
   std::vector<sidedef_c *> sides;
@@ -156,6 +161,16 @@ public:
   // (so you need to successfully call wad->FindLevel() before).
 
   void GetBounds(double *lx, double *ly, double *hx, double *hy);
+
+private:
+  void GetVertexes();
+  void GetSectors();
+  void GetThings();
+  void GetSidedefs();
+  void GetLinedefs();
+
+  void GetThingsHexen();
+  void GetLinedefsHexen();
 };
 
 
