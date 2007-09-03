@@ -121,10 +121,6 @@ private:
   void ReadDirectory();
 
   void DetermineLevels();
-
-  void ProcessDirEntry(lump_c *lump);
-
-  void AddLevel(lump_c *lump);
 };
 
 
