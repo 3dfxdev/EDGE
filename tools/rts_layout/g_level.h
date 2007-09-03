@@ -53,8 +53,8 @@ public:
   int floor_h, ceil_h;
 
   // textures
-  char floor_tex[8];
-  char ceil_tex[8];
+  char floor_tex[10];
+  char ceil_tex[10];
 
   // attributes
   int light;
@@ -77,9 +77,9 @@ public:
   int x_offset, y_offset;
 
   // texture names
-  char upper_tex[8];
-  char lower_tex[8];
-  char mid_tex[8];
+  char upper_tex[10];
+  char lower_tex[10];
+  char mid_tex[10];
 
   // sidedef index.  Always valid after loading & pruning.
   int index;
@@ -163,7 +163,7 @@ public:
   // load the level from the WAD, using the current level
   // (so you need to successfully call wad->FindLevel() before).
 
-  void GetBounds(double *lx, double *ly, double *hx, double *hy);
+  void ComputeBounds(double *lx, double *ly, double *hx, double *hy);
 
   vertex_c  * LookupVertex(u16_t idx);
   sidedef_c * LookupSidedef(u16_t idx);
