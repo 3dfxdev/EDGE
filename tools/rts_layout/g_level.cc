@@ -47,6 +47,7 @@ vertex_c::vertex_c(int _idx, const raw_v2_vertex_t *raw)
 
 vertex_c::~vertex_c()
 {
+  /* nothing to free */
 }
 
 
@@ -99,8 +100,12 @@ sector_c::sector_c(int _idx, const raw_sector_t *raw)
   floor_h = LE_S16(raw->floor_h);
   ceil_h  = LE_S16(raw->ceil_h);
 
-  memcpy(floor_tex, raw->floor_tex, sizeof(floor_tex));
-  memcpy(ceil_tex,  raw->ceil_tex,  sizeof(ceil_tex));
+  memcpy(floor_tex, raw->floor_tex, 8);
+  memcpy(ceil_tex,  raw->ceil_tex,  8);
+
+  // make sure these strings are NUL terminated
+  floor_tex[8] = 0;
+  ceil_tex[8]  = 0;
 
   light   = LE_U16(raw->light);
   special = LE_U16(raw->special);
@@ -269,9 +274,14 @@ sidedef_c::sidedef_c(level_c *lev, int _idx, const raw_sidedef_t *raw)
   x_offset = LE_S16(raw->x_offset);
   y_offset = LE_S16(raw->y_offset);
 
-  memcpy(upper_tex, raw->upper_tex, sizeof(upper_tex));
-  memcpy(lower_tex, raw->lower_tex, sizeof(lower_tex));
-  memcpy(mid_tex,   raw->mid_tex,   sizeof(mid_tex));
+  memcpy(upper_tex, raw->upper_tex, 8);
+  memcpy(lower_tex, raw->lower_tex, 8);
+  memcpy(mid_tex,   raw->mid_tex,   8);
+
+  // make sure these strings are NUL terminated
+  upper_tex[8] = 0;
+  lower_tex[8] = 0;
+  mid_tex[8]   = 0;
 }
 
 sidedef_c::~sidedef_c()
@@ -499,9 +509,23 @@ level_c * level_c::LoadLevel(wad_c *wad)
 }
 
 
-void level_c::GetBounds(double *lx, double *ly, double *hx, double *hy)
+void level_c::ComputeBounds(double *lx, double *ly, double *hx, double *hy)
 {
-  // !!!! FIXME
+  *lx = +99999.0; *ly = +99999.0;
+  *hx = -99999.0; *hy = -99999.0;
+  
+  for (int i = 0; i < (int)lines.size(); i++)
+  {
+    for (int vert = 0; vert < 2; vert++)
+    {
+      vertex_c *v = vert ? lines[i]->end : lines[i]->start;
+
+      if (v->x < *lx) *lx = v->x;
+      if (v->y < *ly) *ly = v->y;
+      if (v->x > *hx) *hx = v->x;
+      if (v->y > *hy) *hy = v->y;
+    }
+  }
 }
 
 //--- editor settings ---
