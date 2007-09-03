@@ -37,8 +37,11 @@
 
 UI_MainWin *main_win;
 
-#define MAIN_WINDOW_W  (600)
-#define MAIN_WINDOW_H  (440)
+#define WINDOW_WIDTH   (600)
+#define WINDOW_HEIGHT  (440)
+
+#define MIN_WINDOW_W   (480)
+#define MIN_WINDOW_H   WINDOW_HEIGHT
 
 
 static void main_win_close_CB(Fl_Widget *w, void *data)
@@ -52,14 +55,12 @@ static void main_win_close_CB(Fl_Widget *w, void *data)
 // MainWin Constructor
 //
 UI_MainWin::UI_MainWin(const char *title) :
-    Fl_Double_Window(MAIN_WINDOW_W, MAIN_WINDOW_H, title),
+    Fl_Double_Window(WINDOW_WIDTH, WINDOW_HEIGHT, title),
     action(UI_MainWin::NONE)
 {
   end(); // cancel begin() in Fl_Group constructor
 
-  // no need for window to be resizable
-  size_range(MAIN_WINDOW_W, MAIN_WINDOW_H,
-             MAIN_WINDOW_W, MAIN_WINDOW_H);
+  size_range(MIN_WINDOW_W, MIN_WINDOW_H);
 
   callback((Fl_Callback *) main_win_close_CB);
 
