@@ -362,6 +362,8 @@ const byte * wad_c::CacheLump(wad_lump_c *lump)
     }
   }
 
+  SYS_ASSERT(lump->data);
+
   return lump->data;
 }
 
