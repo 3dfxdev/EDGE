@@ -23,11 +23,12 @@
 #include "lib_util.h"
 
 #include "main.h"
-// #include "g_level.h"
-// #include "g_wad.h"
+#include "g_level.h"
+#include "g_wad.h"
 
-// #include "ui_chooser.h"
+#include "ui_chooser.h"
 #include "ui_dialog.h"
+#include "ui_grid.h"
 #include "ui_menu.h"
 #include "ui_window.h"
 
@@ -223,13 +224,24 @@ int main(int argc, char **argv)
   // load icons for file chooser
   Fl_File_Icon::load_system_icons();
 
-//!!!  Default_Location();
+  Default_Location();
 
   main_win = new UI_MainWin(RTS_LAYOUT_TITLE);
 
   // load config after creating window (set widget values)
 //  Cookie_Load(CONFIG_FILENAME);
 
+#if 1  // TEST CODE for MAP DRAWING
+  wad_c *wad = wad_c::Load("PAR.wad");
+  SYS_ASSERT(wad);
+
+  SYS_ASSERT(wad->FindLevel("E1M7"));
+
+  level_c *lev = level_c::LoadLevel(wad);
+  SYS_ASSERT(lev);
+  
+  main_win->grid->SetMap(lev);
+#endif 
 
   try
   {
