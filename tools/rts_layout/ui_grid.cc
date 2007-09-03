@@ -185,7 +185,7 @@ void UI_Grid::draw_grid(double spacing, int ity)
 
   ity = MIN(ity - '0', 9);
 
-  fl_color(fl_rgb_color(0, 0, 255 * ity / 9));
+  fl_color(fl_rgb_color(0, 0, 224 * ity / 9));
 
   double mlx = mid_x - w() * 0.5 / zoom_mul;
   double mly = mid_y - h() * 0.5 / zoom_mul;
