@@ -32,14 +32,114 @@ static void menu_quit_CB(Fl_Widget *w, void *data)
   menu_want_to_quit = true;
 }
 
-#ifndef MACOSX
-static void menu_do_exit(Fl_Widget *w, void * data)
+
+//------------------------------------------------------------------------
+//  FILE MENU
+//------------------------------------------------------------------------
+
+static void file_do_quit(Fl_Widget *w, void * data)
 {
   main_win->action = UI_MainWin::QUIT;
 }
-#endif
+
+static void file_do_new(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+static void file_do_open(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+static void file_do_save(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+static void file_do_save_as(Fl_Widget *w, void * data)
+{
+  // TODO
+}
 
 
+//------------------------------------------------------------------------
+//  EDIT MENU
+//------------------------------------------------------------------------
+
+static void edit_do_undo(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+static void edit_do_cut(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+static void edit_do_copy(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+static void edit_do_paste(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+static void edit_do_unselect(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+
+//------------------------------------------------------------------------
+//  SCRIPT MENU
+//------------------------------------------------------------------------
+
+static void script_do_load_maps(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+static void script_do_change_map(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+static void script_do_new(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+static void script_do_delete(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+
+//------------------------------------------------------------------------
+//  THING MENU
+//------------------------------------------------------------------------
+
+static void thing_do_load_ddf(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+static void thing_do_new(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+static void thing_do_delete(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+
+//------------------------------------------------------------------------
+//  HELP MENU
 //------------------------------------------------------------------------
 
 static const char *about_Text =
@@ -63,7 +163,7 @@ static const char *about_Web =
 #define INFO_COLOR  fl_color_cube(4,2,0)
   
 
-void menu_do_about(Fl_Widget *w, void * data)
+void help_do_about(Fl_Widget *w, void * data)
 {
   menu_want_to_quit = false;
 
@@ -131,11 +231,6 @@ void menu_do_about(Fl_Widget *w, void * data)
   delete about;
 }
 
-static void menu_do_save_log(Fl_Widget *w, void * data)
-{
-  // TODO
-}
-
 //------------------------------------------------------------------------
 
 #undef FCAL
@@ -144,36 +239,37 @@ static void menu_do_save_log(Fl_Widget *w, void * data)
 static Fl_Menu_Item menu_items[] = 
 {
   { "&File", 0, 0, 0, FL_SUBMENU },
-    { "&New Script",   0,             FCAL menu_do_save_log },
-    { "&Open Script",  FL_CTRL + 'o', FCAL menu_do_save_log },
-    { "&Save Script",  FL_CTRL + 's', FCAL menu_do_save_log },
-    { "Save &As",      0,             FCAL menu_do_save_log, 0, FL_MENU_DIVIDER },
-    { "&Quit",         FL_CTRL + 'q', FCAL menu_do_exit },
+    { "&New Script",   0,             FCAL file_do_new },
+    { "&Open Script",  FL_CTRL + 'o', FCAL file_do_open },
+    { "&Save Script",  FL_CTRL + 's', FCAL file_do_save },
+    { "Save &As",      0,             FCAL file_do_save_as, 0, FL_MENU_DIVIDER },
+    { "&Quit",         FL_CTRL + 'q', FCAL file_do_quit },
     { 0 },
 
   { "&Edit", 0, 0, 0, FL_SUBMENU },
-    { "&Undo",   FL_CTRL + 'z',  FCAL menu_do_about, 0, FL_MENU_DIVIDER },
-    { "Cu&t",    FL_CTRL + 'x',  FCAL menu_do_about },
-    { "&Copy",   FL_CTRL + 'c',  FCAL menu_do_about },
-    { "&Paste",  FL_CTRL + 'v',  FCAL menu_do_about, 0, FL_MENU_DIVIDER },
-    { "Unselect All",  0,        FCAL menu_do_about },
+    { "&Undo",   FL_CTRL + 'z',  FCAL edit_do_undo, 0, FL_MENU_DIVIDER },
+    { "Cu&t",    FL_CTRL + 'x',  FCAL edit_do_cut },
+    { "&Copy",   FL_CTRL + 'c',  FCAL edit_do_copy },
+    { "&Paste",  FL_CTRL + 'v',  FCAL edit_do_paste, 0, FL_MENU_DIVIDER },
+
+    { "Unselect &All", FL_CTRL + 'a', FCAL edit_do_unselect },
     { 0 },
 
   { "&Script", 0, 0, 0, FL_SUBMENU },
-    { "&Load Map",       0,  FCAL menu_do_save_log },
-    { "&Change Map",     0,  FCAL menu_do_save_log, 0, FL_MENU_DIVIDER },
-    { "&New Trigger",    0,  FCAL menu_do_about },
-    { "&Delete Trigger", 0,  FCAL menu_do_about },
+    { "&Load Maps",      0, FCAL script_do_load_maps },
+    { "&Change Map",     0, FCAL script_do_change_map, 0, FL_MENU_DIVIDER },
+    { "&New Trigger",    0, FCAL script_do_new },
+    { "&Delete Trigger", 0, FCAL script_do_delete },
     { 0 },
 
   { "&Thing", 0, 0, 0, FL_SUBMENU },
-    { "&Load DDF",     0,  FCAL menu_do_about, 0, FL_MENU_DIVIDER },
-    { "&New Thing",    0,  FCAL menu_do_about },
-    { "&Delete Thing", 0,  FCAL menu_do_about },
+    { "&Load DDF",     0, FCAL thing_do_load_ddf, 0, FL_MENU_DIVIDER },
+    { "&New Thing",    0, FCAL thing_do_new },
+    { "&Delete Thing", 0, FCAL thing_do_delete },
     { 0 },
 
   { "&Help", 0, 0, 0, FL_SUBMENU },
-    { "&About",   0,  FCAL menu_do_about },
+    { "&About",   0,  FCAL help_do_about },
     { 0 },
 
   { 0 }
