@@ -20,13 +20,17 @@
 #define __G_WAD_H__
 
 
+// private class
+class wad_level_c;
+
+
 // ---- Directory entry ----------
 
-class lump_c
+class wad_lump_c
 {
 public:
-   lump_c(const char *_name, int _pos, int _len);
-  ~lump_c();
+   wad_lump_c(const char *_name, int _pos, int _len);
+  ~wad_lump_c();
 
 public:
   // name of lump
@@ -38,22 +42,6 @@ public:
 
   // cached data of lump
   byte *data;
-};
-
-
-// ---- Level information ---------
-
-class level_c
-{
-public:
-   level_c(const char *_name);
-  ~level_c();
-
-public:
-  const char *name;
-
-  // the child lump list (includes marker)
-  std::vector<lump_c *> children;
 };
 
 
@@ -82,13 +70,13 @@ public:
   int dir_start;
 
   // directory
-  std::vector<lump_c *> dir;
+  std::vector<wad_lump_c *> dir;
 
   // levels
-  std::vector<level_c *> levels;
+  std::vector<wad_level_c *> levels;
 
   // current level
-  level_c *cur_level;
+  wad_level_c *cur_level;
 
 public:
   static wad_c *Load(const char *filename);
@@ -102,15 +90,15 @@ public:
   // reference in 'wad.current_level'.  Returns false if not
   // found.
 
-  lump_c *FindLump(const char *name);
+  wad_lump_c *FindLump(const char *name);
   // find the lump with the given name in the wad directory, and
   // return a reference to it.  Returns NULL if no such lump exists.
 
-  lump_c *FindLumpInLevel(const char *name);
+  wad_lump_c *FindLumpInLevel(const char *name);
   // find the level lump with the given name in the current level, and
   // return a reference to it.  Returns NULL if no such lump exists.
 
-  const byte * CacheLump(lump_c *lump);
+  const byte * CacheLump(wad_lump_c *lump);
   // loads the lump data into memory (caching it for future usage).
   // A pointer to the data is returned.  The data will have an
   // extra NUL (\0) byte on the end, for convenience when parsing.
