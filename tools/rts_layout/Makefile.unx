@@ -37,6 +37,7 @@ OBJS=	main.o       \
 	sys_debug.o  \
 	g_level.o    \
 	g_wad.o      \
+	ui_chooser.o \
 	ui_dialog.o  \
 	ui_grid.o    \
 	ui_menu.o    \
