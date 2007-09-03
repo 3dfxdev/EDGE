@@ -37,7 +37,7 @@ public:
   int length;
 
   // cached data of lump
-  void *data;
+  byte *data;
 };
 
 
@@ -61,8 +61,10 @@ public:
 
 class wad_c
 {
-public:
+private:
    wad_c();
+
+public:
   ~wad_c();
 
   enum wad_kind_e { IWAD, PWAD };
@@ -100,28 +102,29 @@ public:
   // reference in 'wad.current_level'.  Returns false if not
   // found.
 
-  const char *FirstLevelName();
-  // name of first level in the wad.  Returns NULL if there
-  // are no levels at all.
+  lump_c *FindLump(const char *name);
+  // find the lump with the given name in the wad directory, and
+  // return a reference to it.  Returns NULL if no such lump exists.
 
   lump_c *FindLumpInLevel(const char *name);
   // find the level lump with the given name in the current level, and
   // return a reference to it.  Returns NULL if no such lump exists.
-  // Level lumps are always present in memory (i.e. never marked
-  // copyable).
 
-  void CacheLump(lump_c *lump);
+  const byte * CacheLump(lump_c *lump);
+  // loads the lump data into memory (caching it for future usage).
+  // A pointer to the data is returned.  The data will have an
+  // extra NUL (\0) byte on the end, for convenience when parsing.
 
 private:
   bool ReadHeader();
   void ReadDirEntry();
   void ReadDirectory();
 
+  void DetermineLevels();
+
   void ProcessDirEntry(lump_c *lump);
 
   void AddLevel(lump_c *lump);
-
-  void DetermineLevelNames();
 };
 
 

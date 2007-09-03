@@ -31,7 +31,7 @@
 
 
 lump_c::lump_c(const char *_name, int _pos, int _len) :
-  start(_pos), length(_len), data(NULL)
+    start(_pos), length(_len), data(NULL)
 {
   name = StringDup(_name);
 }
@@ -63,32 +63,31 @@ level_c::~level_c()
 //------------------------------------------------------------------------
 
 wad_c::wad_c() :
-  in_file(NULL), kind(-1),
-  num_entries(0), dir_start(-1),
-  dir(), current_level(NULL),
-  level_names(NULL), num_level_names(0)
-{
-}
+    fp(NULL), kind(-1), num_entries(0), dir_start(-1),
+    dir(), levels(), cur_level(NULL)
+{ }
 
 wad_c::~wad_c()
 {
-  if (in_file)
-    fclose(in_file);
+  if (fp)
+    fclose(fp);
 
   /* free directory entries */
-  for (lump_c *cur = (lump_c *)dir.pop_front(); cur != NULL;
-               cur = (lump_c *)dir.pop_front())
+  while (dir.size() > 0)
   {
-    delete cur;
+    lump_c *L = dir.back();
+    dir.pop_back();
+
+    delete L;
   }
 
-  /* free the level names */
-  if (level_names)
+  /* free the levels */
+  while (levels.size() > 0)
   {
-    for (int i = 0; i < num_level_names; i++)
-      UtilFree((void *) level_names[i]);
+    level_c *L = levels.back();
+    levels.pop_back();
 
-    UtilFree(level_names);
+    delete L;
   }
 }
 
@@ -113,9 +112,6 @@ static const char *gl_lumps[NUM_GL_LUMPS]=
 };
 
 
-//
-// CheckMagic
-//
 static bool CheckMagic(const char type[4])
 {
   if ((type[0] == 'I' || type[0] == 'P') && 
@@ -128,9 +124,6 @@ static bool CheckMagic(const char type[4])
 }
 
 
-//
-// CheckLevelName
-//
 bool wad_c::CheckLevelName(const char *name)
 {
   for (int i = 0; i < num_level_names; i++)
@@ -146,14 +139,6 @@ static bool HasGLPrefix(const char *name)
 {
   return (name[0] == 'G' && name[1] == 'L' && name[2] == '_');
 }
-
-///---bool wad_c::CheckLevelNameGL(const char *name)
-///---{
-///---  if (name[0] != 'G' || name[1] != 'L' || name[2] != '_')
-///---    return false;
-///---
-///---  return CheckLevelName(name+3);
-///---}
 
 
 //
@@ -191,36 +176,6 @@ static bool CheckGLLumpName(const char *name)
 
 
 //
-// NewLevel
-//
-// Create new level information
-//
-static level_c *NewLevel(int flags)  // FIXME @@@@
-{
-  level_c *cur = new level_c();
-
-  cur->flags = flags;
-
-  return cur;
-}
-
-
-//
-// NewLump
-//
-// Create new lump.  'name' must be allocated storage.
-//
-static lump_c *NewLump(const char *name)  // FIXME @@@@
-{
-  lump_c *cur = new lump_c();
-
-  cur->name = name;
-
-  return cur;
-}
-
-
-//
 // ReadHeader
 //
 // Returns true if successful, or FALSE if there was a problem (in
@@ -230,45 +185,43 @@ bool wad_c::ReadHeader()
 {
   raw_wad_header_t header;
 
-  size_t len = fread(&header, sizeof(header), 1, in_file);
+  size_t len = fread(&header, sizeof(header), 1, fp);
 
   if (len != 1)
   {
-    PrintWarn("Trouble reading wad header: %s\n", strerror(errno));
+    LogPrintf("Trouble reading wad header: %s\n", strerror(errno));
     return false;
   }
 
   if (! CheckMagic(header.type))
   {
-    PrintWarn("This file is not a WAD file : bad magic\n");
+    LogPrintf("This file is not a WAD file : bad magic\n");
     return false;
   }
 
   kind = (header.type[0] == 'I') ? IWAD : PWAD;
 
-  num_entries = UINT32(header.num_entries);
-  dir_start   = UINT32(header.dir_start);
+  num_entries = LE_U32(header.num_entries);
+  dir_start   = LE_U32(header.dir_start);
 
   return true;
 }
 
 
-//
-// ReadDirEntry
-//
 void wad_c::ReadDirEntry()
 {
   raw_wad_entry_t entry;
 
-  size_t len = fread(&entry, sizeof(entry), 1, in_file);
+  size_t len = fread(&entry, sizeof(entry), 1, fp);
 
   if (len != 1)
     FatalError("Trouble reading wad directory");
 
-  lump_c *lump = NewLump(UtilStrNDup(entry.name, 8));
+  char name_buf[16];
+  strncpy(name_buf, entry.name, 8);
+  name_buf[8] = 0;
 
-  lump->start  = UINT32(entry.start);
-  lump->length = UINT32(entry.length);
+  lump_c *lump = new lump(name_buf, LE_U32(entry.start), LE_U32(entry.length));
 
 #if DEBUG_DIR
   DebugPrintf("Read dir... %s\n", lump->name);
@@ -277,153 +230,86 @@ void wad_c::ReadDirEntry()
   dir.push_back(lump);
 }
 
-//
-// Level name helper
-//
-void wad_c::AddLevelName(const char *name)
-{
-  if ((num_level_names % LEVNAME_BUNCH) == 0)
-  {
-    level_names = (const char **) UtilRealloc((void *)level_names,
-        (num_level_names + LEVNAME_BUNCH) * sizeof(const char *));
-  }
 
-  level_names[num_level_names++] = UtilStrDup(name);
-}
-
-//
-// DetermineLevelNames
-//
-void wad_c::DetermineLevelNames()
-{
-  for (lump_c *L = (lump_c*)dir.begin(); L != NULL; L = L->LumpNext())
-  {
-    // check if the next four lumps after the current lump match the
-    // level-lump or GL-lump names.
-
-    int i;
-    lump_c *N;
-
-    int normal_count = 0;
-    int gl_count = 0;
-
-    for (i = 0, N = L->LumpNext();
-         (i < 4) && (N != NULL);
-       i++, N = N->LumpNext())
-    {
-      if (strcmp(N->name, level_lumps[i]) == 0)
-        normal_count++;
-
-      if (strcmp(N->name, gl_lumps[i]) == 0)
-        gl_count++;
-    }
-
-    if (normal_count != 4 && gl_count != 4)
-      continue;
-
-#if DEBUG_DIR
-    DebugPrintf("Found level name: %s\n", L->name);
-#endif
-
-    // check for invalid name and duplicate levels
-    if (normal_count == 4 && strlen(L->name) > 5)
-      PrintWarn("Bad level '%s' in wad (name too long)\n", L->name);
-    else if (CheckLevelName(L->name))
-      PrintWarn("Level name '%s' found twice in wad\n", L->name);
-    else
-      AddLevelName(L->name);
-  }
-}
-
-//
-// ProcessDirEntry
-//
-void wad_c::ProcessDirEntry(lump_c *lump)
-{
-  // --- LEVEL MARKERS ---
-
-  if (CheckLevelName(lump->name))
-  {
-    lump->lev_info = NewLevel(0);
-
-    current_level = lump;
-
-#if DEBUG_DIR
-    DebugPrintf("Process level... %s\n", lump->name);
-#endif
-
-    dir.push_back(lump);
-    return;
-  }
-
-  // --- LEVEL LUMPS ---
-
-  if (current_level)
-  {
-    if (HasGLPrefix(current_level->name) ?
-        CheckGLLumpName(lump->name) : CheckLevelLumpName(lump->name))
-    {
-      // check for duplicates
-      if (FindLumpInLevel(lump->name))
-      {
-        PrintWarn("Duplicate entry '%s' ignored in %s\n",
-            lump->name, current_level->name);
-
-        delete lump;
-        return;
-      }
-
-#if DEBUG_DIR
-      DebugPrintf("        |--- %s\n", lump->name);
-#endif
-      // link it in
-      current_level->lev_info->children.push_back(lump);
-      return;
-    }
-
-    // non-level lump -- end previous level and fall through.
-    current_level = NULL;
-  }
-
-  // --- ORDINARY LUMPS ---
-
-#if DEBUG_DIR
-  DebugPrintf("Process dir... %s\n", lump->name);
-#endif
-
-  if (CheckLevelLumpName(lump->name))
-    PrintWarn("Level lump '%s' found outside any level\n", lump->name);
-  else if (CheckGLLumpName(lump->name))
-    PrintWarn("GL lump '%s' found outside any level\n", lump->name);
-
-  // link it in
-  dir.push_back(lump);
-}
-
-//
-// ReadDirectory
-//
 void wad_c::ReadDirectory()
 {
-  fseek(in_file, dir_start, SEEK_SET);
+  fseek(fp, dir_start, SEEK_SET);
 
   for (int i = 0; i < num_entries; i++)
   {
     ReadDirEntry();
   }
 
-  DetermineLevelNames();
+  DetermineLevels();
+}
 
-  // finally, unlink all lumps and process each one in turn
 
-  list_c temp(dir);
+void wad_c::DetermineLevels()
+{
+  std::vector<lump_c *>::iterator LI;
+  std::vector<lump_c *>::iterator NI;
 
-  dir.clear();
-
-  for (lump_c *cur = (lump_c *) temp.pop_front(); cur;
-               cur = (lump_c *) temp.pop_front())
+  for (LI = dir.begin(); LI != dir.end(); LI++)
   {
-    ProcessDirEntry(cur);
+    lump_c *L = *LI;
+
+    // check if the next four lumps after the current lump match the
+    // level-lump or GL-lump names.
+
+    int count = 0;
+
+    for (int i = 0; i < 4; i++)
+    {
+      NI = LI + (i+1);
+
+      if (NI == dir.end())
+        break;
+
+      lump_c *N = *NI;
+
+      if (strcmp(N->name, level_lumps[i]) == 0)
+        count++;
+    }
+
+    if (count != 4)
+      continue;
+
+#if DEBUG_DIR
+    DebugPrintf("Found level name: %s\n", L->name);
+#endif
+
+    if (strlen(L->name) > 5)
+    {
+      LogPrintf("Bad level '%s' in wad (name too long)\n", L->name);
+      continue;
+    }
+
+    if (CheckLevelName(L->name))
+    {
+      LogPrintf("Level name '%s' found twice in wad!\n", L->name);
+      continue;
+    }
+
+    level_c *LEV = new level_c(L->name);
+
+    levels.push_back(LEV);
+
+    // get the children lumps....
+
+    LEV->children.push_back(L);
+
+    for (int j = 0; j < NUM_LEVEL_LUMPS; j++)
+    {
+      NI = LI + (i+1);
+
+      if (NI == dir.end())
+        break;
+
+      lump_c *N = *NI;
+
+      if (CheckLevelLumpName(N->name))
+        LEV->children->push_back(N);
+    }
   }
 }
 
@@ -431,123 +317,118 @@ void wad_c::ReadDirectory()
 /* ---------------------------------------------------------------- */
 
 
-//
-// CacheLump
-//
-void wad_c::CacheLump(lump_c *lump)
+const byte * wad_c::CacheLump(lump_c *lump)
 {
-  size_t len;
-
+  if (! lump->data)
+  {
 #if DEBUG_LUMP
   DebugPrintf("Reading... %s (%d)\n", lump->name, lump->length);
 #endif
 
-  if (lump->length == 0)
-    return;
+    lump->data = new byte [lump->length + 1];
+    lump->data[lump->length] = 0;
 
-  lump->data = UtilCalloc(lump->length);
+    fseek(fp, lump->start, SEEK_SET);
 
-  fseek(in_file, lump->start, SEEK_SET);
+    size_t len = fread(lump->data, lump->length, 1, fp);
 
-  len = fread(lump->data, lump->length, 1, in_file);
-
-  if (len != 1)
-  {
-    if (current_level)
-      PrintWarn("Trouble reading lump '%s' in %s\n",
-          lump->name, current_level->name);
-    else
-      PrintWarn("Trouble reading lump '%s'\n", lump->name);
+    if (len != 1)
+    {
+      if (cur_level)
+        LogPrintf("Trouble reading lump '%s' in %s\n", lump->name, cur_level->name);
+      else
+        LogPrintf("Trouble reading lump '%s'\n", lump->name);
+    }
   }
+
+  return lump->data;
 }
 
 
-//
-// FindLevel
-//
 bool wad_c::FindLevel(const char *map_name)
 {
-  lump_c *L;
+  cur_level = NULL;
 
-  for (L = (lump_c*)dir.begin(); L != NULL; L = L->LumpNext())
+  std::vector<level_c *>::iterator MI;
+
+  for (MI = dir.begin(); MI != dir.end(); MI++)
   {
-    if (! L->lev_info)
-      continue;
+    level_c *L = *MI;
+    SYS_ASSERT(L);
 
-    if (L->lev_info->flags & LEVEL_IS_GL)  // @@@@
-      continue;
-
-    if (UtilStrCaseCmp(L->name, map_name) == 0)
-      break;
+    if (StrCaseCmp(L->name, map_name) == 0)
+    {
+      cur_level = L;
+      return true;
+    }
   }
-
-  current_level = L;
-
-  return (L != NULL);
+ 
+  return false;  // not found
 }
 
-//
-// FirstLevelName
-//
-const char *wad_c::FirstLevelName()
+
+lump_c * wad_c::FindLump(const char *name)
 {
-  lump_c *L;
+  std::vector<lump_c *>::iterator LI;
 
-  for (L = (lump_c*)dir.begin(); L != NULL; L = L->LumpNext())
+  for (LI = dir.begin(); LI != dir.end(); LI++)
   {
-    if (L->lev_info)
-      return L->name;
-  }
+    lump_c *L = *LI;
+    SYS_ASSERT(L);
 
-  return NULL;
-}
-
-//
-// FindLumpInLevel
-//
-lump_c *wad_c::FindLumpInLevel(const char *name)
-{
-  SYS_ASSERT(current_level);
-
-  for (lump_c *L = (lump_c*)current_level->lev_info->children.begin();
-       L != NULL;
-     L = L->LumpNext())
-  {
-    if (strcmp(L->name, name) == 0)
+    if (StrCaseCmp(L->name, name) == 0)
       return L;
   }
 
   return NULL;  // not found
 }
 
-//
-// wad_c::Load
-//
+
+lump_c * wad_c::FindLumpInLevel(const char *name)
+{
+  SYS_ASSERT(cur_level);
+
+  std::vector<lump_c *>::iterator LI;
+
+  for (LI  = cur_level->children.begin();
+       LI != cur_level->children.end(); LI++)
+  {
+    lump_c *L = *LI;
+    SYS_ASSERT(L);
+
+    if (StrCaseCmp(L->name, name) == 0)
+      return L;
+  }
+
+  return NULL;  // not found
+}
+
+
 wad_c *wad_c::Load(const char *filename)
 {
   wad_c *wad = new wad_c();
 
   // open input wad file & read header
-  wad->in_file = fopen(filename, "rb");
+  wad->fp = fopen(filename, "rb");
 
-  if (! wad->in_file)
+  if (! wad->fp)
   {
-    PrintWarn("Cannot open WAD file %s : %s", filename, strerror(errno));
+    LogPrintf("Cannot open WAD file %s : %s", filename, strerror(errno));
+
+    delete wad;
     return NULL;
   }
 
   if (! wad->ReadHeader())
+  {
+    delete wad;
     return NULL;
+  }
 
-  DebugPrintf("Opened %cWAD file : %s\n", (wad->kind == IWAD) ? 'I' : 'P', 
-      filename); 
-  DebugPrintf("Reading %d dir entries at 0x%X\n", wad->num_entries, 
-      wad->dir_start);
+  DebugPrintf("Opened %cWAD file : %s\n", (wad->kind == IWAD) ? 'I' : 'P', filename); 
+  DebugPrintf("Reading %d dir entries at 0x%X\n", wad->num_entries, wad->dir_start);
 
-  // read directory
   wad->ReadDirectory();
-
-  wad->current_level = NULL;
 
   return wad;
 }
