@@ -21,8 +21,7 @@
 
 #define RTS_LAYOUT_TITLE  "RTS Layout Tool"
 
-#define RTS_LAYOUT_VERSION  "0.1"
-#define RTS_LAYOUT_VER_HEX  0x010
+#define RTS_LAYOUT_VERSION  "0.30"
 
 extern const char *install_path;
 
