@@ -122,7 +122,12 @@ static void script_do_delete(Fl_Widget *w, void * data)
 //  THING MENU
 //------------------------------------------------------------------------
 
-static void thing_do_load_ddf(Fl_Widget *w, void * data)
+static void thing_do_load_ddf_file(Fl_Widget *w, void * data)
+{
+  // TODO
+}
+
+static void thing_do_load_ddf_wad(Fl_Widget *w, void * data)
 {
   // TODO
 }
@@ -256,20 +261,21 @@ static Fl_Menu_Item menu_items[] =
     { 0 },
 
   { "&Script", 0, 0, 0, FL_SUBMENU },
-    { "&Load Maps",      0, FCAL script_do_load_maps },
+    { "&Load Map Wad",   0, FCAL script_do_load_maps },
     { "&Change Map",     0, FCAL script_do_change_map, 0, FL_MENU_DIVIDER },
     { "&New Trigger",    0, FCAL script_do_new },
     { "&Delete Trigger", 0, FCAL script_do_delete },
     { 0 },
 
   { "&Thing", 0, 0, 0, FL_SUBMENU },
-    { "&Load DDF",     0, FCAL thing_do_load_ddf, 0, FL_MENU_DIVIDER },
-    { "&New Thing",    0, FCAL thing_do_new },
-    { "&Delete Thing", 0, FCAL thing_do_delete },
+    { "&Load DDF File", 0, FCAL thing_do_load_ddf_file },
+    { "&Load DDF Wad",  0, FCAL thing_do_load_ddf_wad, 0, FL_MENU_DIVIDER },
+    { "&New Thing",     0, FCAL thing_do_new },
+    { "&Delete Thing",  0, FCAL thing_do_delete },
     { 0 },
 
   { "&Help", 0, 0, 0, FL_SUBMENU },
-    { "&About",   0,  FCAL help_do_about },
+    { "&About RTS Layout",   0,  FCAL help_do_about },
     { 0 },
 
   { 0 }
