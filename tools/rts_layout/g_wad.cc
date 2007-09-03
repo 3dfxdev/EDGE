@@ -31,13 +31,13 @@
 #define ALIGN_LEN(len)  ((((len) + 3) / 4) * 4)
 
 
-lump_c::lump_c(const char *_name, int _pos, int _len) :
+wad_lump_c::wad_lump_c(const char *_name, int _pos, int _len) :
     start(_pos), length(_len), data(NULL)
 {
   name = StringDup(_name);
 }
 
-lump_c::~lump_c()
+wad_lump_c::~wad_lump_c()
 {
   StringFree(name);
 
@@ -45,12 +45,32 @@ lump_c::~lump_c()
     delete[] data;
 }
 
-level_c::level_c(const char *_name) : children()
+
+//------------------------------------------------------------------------
+
+
+// ---- Level information ---------
+
+class wad_level_c
+{
+public:
+   wad_level_c(const char *_name);
+  ~wad_level_c();
+
+public:
+  const char *name;
+
+  // the child lump list (includes marker)
+  std::vector<wad_lump_c *> children;
+};
+
+
+wad_level_c::wad_level_c(const char *_name) : children()
 {
   name = StringDup(_name);
 }
 
-level_c::~level_c()
+wad_level_c::~wad_level_c()
 {
   StringFree(name);
 
@@ -76,7 +96,7 @@ wad_c::~wad_c()
   /* free directory entries */
   while (dir.size() > 0)
   {
-    lump_c *L = dir.back();
+    wad_lump_c *L = dir.back();
     dir.pop_back();
 
     delete L;
@@ -85,7 +105,7 @@ wad_c::~wad_c()
   /* free the levels */
   while (levels.size() > 0)
   {
-    level_c *L = levels.back();
+    wad_level_c *L = levels.back();
     levels.pop_back();
 
     delete L;
@@ -219,7 +239,7 @@ void wad_c::ReadDirEntry()
   strncpy(name_buf, entry.name, 8);
   name_buf[8] = 0;
 
-  lump_c *lump = new lump_c(name_buf,
+  wad_lump_c *lump = new wad_lump_c(name_buf,
       LE_U32(entry.start), LE_U32(entry.length));
 
 #if DEBUG_DIR
@@ -245,12 +265,12 @@ void wad_c::ReadDirectory()
 
 void wad_c::DetermineLevels()
 {
-  std::vector<lump_c *>::iterator LI;
-  std::vector<lump_c *>::iterator NI;
+  std::vector<wad_lump_c *>::iterator LI;
+  std::vector<wad_lump_c *>::iterator NI;
 
   for (LI = dir.begin(); LI != dir.end(); LI++)
   {
-    lump_c *L = *LI;
+    wad_lump_c *L = *LI;
 
     // check if the next four lumps after the current lump match the
     // level-lump or GL-lump names.
@@ -264,7 +284,7 @@ void wad_c::DetermineLevels()
       if (NI == dir.end())
         break;
 
-      lump_c *N = *NI;
+      wad_lump_c *N = *NI;
 
       if (strcmp(N->name, level_lumps[i]) == 0)
         count++;
@@ -289,7 +309,7 @@ void wad_c::DetermineLevels()
       continue;
     }
 
-    level_c *LEV = new level_c(L->name);
+    wad_level_c *LEV = new wad_level_c(L->name);
 
     levels.push_back(LEV);
 
@@ -304,10 +324,12 @@ void wad_c::DetermineLevels()
       if (NI == dir.end())
         break;
 
-      lump_c *N = *NI;
+      wad_lump_c *N = *NI;
 
-      if (CheckLevelLumpName(N->name))
-        LEV->children.push_back(N);
+      if (! CheckLevelLumpName(N->name))
+        break;
+
+      LEV->children.push_back(N);
     }
   }
 }
@@ -316,7 +338,7 @@ void wad_c::DetermineLevels()
 /* ---------------------------------------------------------------- */
 
 
-const byte * wad_c::CacheLump(lump_c *lump)
+const byte * wad_c::CacheLump(wad_lump_c *lump)
 {
   if (! lump->data)
   {
@@ -348,11 +370,11 @@ bool wad_c::FindLevel(const char *map_name)
 {
   cur_level = NULL;
 
-  std::vector<level_c *>::iterator MI;
+  std::vector<wad_level_c *>::iterator MI;
 
   for (MI = levels.begin(); MI != levels.end(); MI++)
   {
-    level_c *LEV = *MI;
+    wad_level_c *LEV = *MI;
     SYS_ASSERT(LEV);
 
     if (StrCaseCmp(LEV->name, map_name) == 0)
@@ -366,13 +388,13 @@ bool wad_c::FindLevel(const char *map_name)
 }
 
 
-lump_c * wad_c::FindLump(const char *name)
+wad_lump_c * wad_c::FindLump(const char *name)
 {
-  std::vector<lump_c *>::iterator LI;
+  std::vector<wad_lump_c *>::iterator LI;
 
   for (LI = dir.begin(); LI != dir.end(); LI++)
   {
-    lump_c *L = *LI;
+    wad_lump_c *L = *LI;
     SYS_ASSERT(L);
 
     if (StrCaseCmp(L->name, name) == 0)
@@ -383,16 +405,16 @@ lump_c * wad_c::FindLump(const char *name)
 }
 
 
-lump_c * wad_c::FindLumpInLevel(const char *name)
+wad_lump_c * wad_c::FindLumpInLevel(const char *name)
 {
   SYS_ASSERT(cur_level);
 
-  std::vector<lump_c *>::iterator LI;
+  std::vector<wad_lump_c *>::iterator LI;
 
   for (LI  = cur_level->children.begin();
        LI != cur_level->children.end(); LI++)
   {
-    lump_c *L = *LI;
+    wad_lump_c *L = *LI;
     SYS_ASSERT(L);
 
     if (StrCaseCmp(L->name, name) == 0)
