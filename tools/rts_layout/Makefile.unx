@@ -35,6 +35,7 @@ OBJS=	main.o       \
 	lib_util.o   \
 	sys_assert.o \
 	sys_debug.o  \
+	g_level.o    \
 	g_wad.o      \
 	ui_dialog.o  \
 	ui_grid.o    \
