@@ -51,10 +51,11 @@ void Default_Location(void)
   }
 #endif
 
-  strcat(last_file, "TEST.wad");
+//  strcat(last_file, "TEST.wad");
 
   DebugPrintf("Default_Location: [%s]\n", last_file);
 }
+
 
 bool UI_SetLastFile(const char *filename)
 {
@@ -84,6 +85,7 @@ bool UI_SetLastFile(const char *filename)
   return true;
 }
 
+
 const char *UI_GetLastFile(void)
 {
   if (! last_file)
@@ -91,6 +93,7 @@ const char *UI_GetLastFile(void)
 
   return StringPrintf("\"%s\"", last_file);
 }
+
 
 char *Select_Output_File(void)
 {
