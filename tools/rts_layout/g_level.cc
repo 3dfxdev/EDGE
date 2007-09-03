@@ -66,16 +66,25 @@ void level_c::GetVertexes()
 #endif
 
   if (!lump || count == 0)
-    Main_FatalError("Couldn't find any Vertexes.\n");
+    Main_FatalError("Couldn't find any Vertexes!\n");
 
-  lev_vertices.Allocate(count);
+  verts.resize(count);
 
   raw_vertex_t *raw = (raw_vertex_t *) lump->data;
 
   for (int i = 0; i < count; i++, raw++)
   {
-    lev_vertices.Set(i, new vertex_c(i, raw));
+    verts[i] = new vertex_c(i, raw);
   }
+}
+
+vertex_c * level_c::LookupVertex(u16_t idx)
+{
+  if (idx < verts.size())
+    return verts[idx];
+ 
+  Main_FatalError("Bad vertex index '%d' in map!\n", (int)idx);
+  return NULL; /* NOT REACHED */
 }
 
 
@@ -100,6 +109,7 @@ sector_c::sector_c(int _idx, const raw_sector_t *raw)
 
 sector_c::~sector_c()
 {
+  /* nothing to free */
 }
 
 
@@ -115,21 +125,35 @@ void level_c::GetSectors()
   }
 
   if (!lump || count == 0)
-    Main_FatalError("Couldn't find any Sectors.\n");
+    Main_FatalError("Couldn't find any Sectors!\n");
 
 #ifdef DEBUG_LOAD
   PrintDebug("GetSectors: num = %d\n", count);
 #endif
 
-  lev_sectors.Allocate(count);
+  sectors.resize(count);
 
   raw_sector_t *raw = (raw_sector_t *) lump->data;
 
   for (int i = 0; i < count; i++, raw++)
   {
-    lev_sectors.Set(i, new sector_c(i, raw));
+    sectors[i] = new sector_c(i, raw);
   }
 }
+
+sector_c * level_c::LookupSector(u16_t idx)
+{
+  // -AJA- I'm not convinced this is correct, but glBSP does it too
+  if (idx == 0xFFFF)
+    return NULL;
+
+  if (idx < sectors.size())
+    return sectors[idx];
+ 
+  Main_FatalError("Bad sector index '%d' in map!\n", (int)idx);
+  return NULL; /* NOT REACHED */
+}
+
 
 
 //------------------------------------------------------------
@@ -145,6 +169,7 @@ thing_c::thing_c(int _idx, const raw_thing_t *raw)
 
   type    = LE_U16(raw->type);
   options = LE_U16(raw->options);
+  angle   = LE_S16(raw->angle);
 }
 
 thing_c::thing_c(int _idx, const raw_hexen_thing_t *raw)
@@ -156,10 +181,12 @@ thing_c::thing_c(int _idx, const raw_hexen_thing_t *raw)
 
   type    = LE_U16(raw->type);
   options = LE_U16(raw->options);
+  angle   = LE_S16(raw->angle);
 }
 
 thing_c::~thing_c()
 {
+  /* nothing to free */
 }
 
 
@@ -185,13 +212,13 @@ void level_c::GetThings()
   PrintDebug("GetThings: num = %d\n", count);
 #endif
 
-  lev_things.Allocate(count);
+  things.resize(count);
 
   raw_thing_t *raw = (raw_thing_t *) lump->data;
 
   for (int i = 0; i < count; i++, raw++)
   {
-    lev_things.Set(i, new thing_c(i, raw));
+    things[i] = new thing_c(i, raw);
   }
 }
 
@@ -218,13 +245,13 @@ void level_c::GetThingsHexen()
   PrintDebug("GetThingsHexen: num = %d\n", count);
 #endif
 
-  lev_things.Allocate(count);
+  things.resize(count);
 
   raw_hexen_thing_t *raw = (raw_hexen_thing_t *) lump->data;
 
   for (int i = 0; i < count; i++, raw++)
   {
-    lev_things.Set(i, new thing_c(i, raw));
+    things[i] = new thing_c(i, raw);
   }
 }
 
@@ -233,12 +260,11 @@ void level_c::GetThingsHexen()
 //  SIDEDEFS
 //------------------------------------------------------------
 
-sidedef_c::sidedef_c(int _idx, const raw_sidedef_t *raw)
+sidedef_c::sidedef_c(level_c *lev, int _idx, const raw_sidedef_t *raw)
 {
   index = _idx;
 
-  sector = (LE_S16(raw->sector) == -1) ? NULL :
-    lev_sectors.Get(LE_U16(raw->sector));
+  sector = lev->LookupSector(LE_U16(raw->sector));
 
   x_offset = LE_S16(raw->x_offset);
   y_offset = LE_S16(raw->y_offset);
@@ -250,6 +276,7 @@ sidedef_c::sidedef_c(int _idx, const raw_sidedef_t *raw)
 
 sidedef_c::~sidedef_c()
 {
+  /* nothing to free */
 }
 
 
@@ -265,31 +292,37 @@ void level_c::GetSidedefs()
   }
 
   if (!lump || count == 0)
-    Main_FatalError("Couldn't find any Sidedefs.\n");
+    Main_FatalError("Couldn't find any Sidedefs!\n");
 
 #ifdef DEBUG_LOAD
   PrintDebug("GetSidedefs: num = %d\n", count);
 #endif
 
-  lev_sidedefs.Allocate(count);
+  sides.resize(count);
 
   raw_sidedef_t *raw = (raw_sidedef_t *) lump->data;
 
   for (int i = 0; i < count; i++, raw++)
   {
-    lev_sidedefs.Set(i, new sidedef_c(i, raw));
+    sides[i] = new sidedef_c(this, i, raw);
   }
 }
 
-static sidedef_c *SafeLookupSidedef(u16_t num)
+sidedef_c * level_c::LookupSidedef(u16_t idx)
 {
-  if (num == 0xFFFF)
+  // an index of -1 ALWAYS means NULL
+  if (idx == 0xFFFF)
     return NULL;
 
-  if ((int)num >= lev_sidedefs.num && (s16_t)(num) < 0)
+  if (idx < sides.size())
+    return sides[idx];
+ 
+  // allow other negative numbers to also mean NULL
+  if ((s16_t)idx < 0)
     return NULL;
 
-  return lev_sidedefs.Get(num);
+  Main_FatalError("Bad sidedef index '%d' in map!\n", (int)idx);
+  return NULL; /* NOT REACHED */
 }
 
 
@@ -297,12 +330,12 @@ static sidedef_c *SafeLookupSidedef(u16_t num)
 //  LINEDEFS
 //------------------------------------------------------------
 
-linedef_c::linedef_c(int _idx, const raw_linedef_t *raw)
+linedef_c::linedef_c(level_c *lev, int _idx, const raw_linedef_t *raw)
 {
   index = _idx;
 
-  start = lev_vertices.Get(LE_U16(raw->start));
-  end   = lev_vertices.Get(LE_U16(raw->end));
+  start = lev->LookupVertex(LE_U16(raw->start));
+  end   = lev->LookupVertex(LE_U16(raw->end));
 
   /* check for zero-length line */
   zero_len = (fabs(start->x - end->x) < 0.1) && 
@@ -314,16 +347,16 @@ linedef_c::linedef_c(int _idx, const raw_linedef_t *raw)
 
   two_sided = (flags & LINEFLAG_TWO_SIDED) ? true : false;
 
-  right = SafeLookupSidedef(LE_U16(raw->sidedef1));
-  left  = SafeLookupSidedef(LE_U16(raw->sidedef2));
+  right = lev->LookupSidedef(LE_U16(raw->sidedef1));
+  left  = lev->LookupSidedef(LE_U16(raw->sidedef2));
 }
 
-linedef_c::linedef_c(int _idx, const raw_hexen_linedef_t *raw)
+linedef_c::linedef_c(level_c *lev, int _idx, const raw_hexen_linedef_t *raw)
 {
   index = _idx;
 
-  start = lev_vertices.Get(LE_U16(raw->start));
-  end   = lev_vertices.Get(LE_U16(raw->end));
+  start = lev->LookupVertex(LE_U16(raw->start));
+  end   = lev->LookupVertex(LE_U16(raw->end));
 
   // check for zero-length line
   zero_len = (fabs(start->x - end->x) < 0.1) && 
@@ -340,12 +373,14 @@ linedef_c::linedef_c(int _idx, const raw_hexen_linedef_t *raw)
   // -JL- Added missing twosided flag handling that caused a broken reject
   two_sided = (flags & LINEFLAG_TWO_SIDED) ? true : false;
 
-  right = SafeLookupSidedef(LE_U16(raw->sidedef1));
-  left  = SafeLookupSidedef(LE_U16(raw->sidedef2));
+  right = lev->LookupSidedef(LE_U16(raw->sidedef1));
+  left  = lev->LookupSidedef(LE_U16(raw->sidedef2));
 }
 
 linedef_c::~linedef_c()
-{ }
+{
+  /* nothing to free */
+}
 
 
 void level_c::GetLinedefs()
@@ -360,19 +395,19 @@ void level_c::GetLinedefs()
   }
 
   if (!lump || count == 0)
-    Main_FatalError("Couldn't find any Linedefs.\n");
+    Main_FatalError("Couldn't find any Linedefs!\n");
 
 #ifdef DEBUG_LOAD
   PrintDebug("GetLinedefs: num = %d\n", count);
 #endif
 
-  lev_linedefs.Allocate(count);
+  lines.resize(count);
 
   raw_linedef_t *raw = (raw_linedef_t *) lump->data;
 
   for (int i = 0; i < count; i++, raw++)
   {
-    lev_linedefs.Set(i, new linedef_c(i, raw));
+    lines[i] = new linedef_c(this, i, raw);
   }
 }
 
@@ -389,19 +424,19 @@ void level_c::GetLinedefsHexen()
   }
 
   if (!lump || count == 0)
-    Main_FatalError("Couldn't find any Linedefs.\n");
+    Main_FatalError("Couldn't find any Linedefs!\n");
 
 #ifdef DEBUG_LOAD
   PrintDebug("GetLinedefsHexen: num = %d\n", count);
 #endif
 
-  lev_linedefs.Allocate(count);
+  lines.resize(count);
 
   raw_hexen_linedef_t *raw = (raw_hexen_linedef_t *) lump->data;
 
   for (int i = 0; i < count; i++, raw++)
   {
-    lev_linedefs.Set(i, new linedef_c(i, raw));
+    lines[i] = new linedef_c(this, i, raw);
   }
 }
 

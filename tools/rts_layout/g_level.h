@@ -23,6 +23,9 @@
 #include "g_wad.h"
 
 
+class level_c;
+
+
 class vertex_c
 {
 public:
@@ -63,7 +66,7 @@ public:
 class sidedef_c
 {
 public:
-   sidedef_c(int _idx, const raw_sidedef_t *raw);
+   sidedef_c(level_c *lev, int _idx, const raw_sidedef_t *raw);
   ~sidedef_c();
 
 public:
@@ -86,8 +89,8 @@ public:
 class linedef_c
 {
 public:
-   linedef_c(int _idx, const raw_linedef_t *raw);
-   linedef_c(int _idx, const raw_hexen_linedef_t *raw);
+   linedef_c(level_c *lev, int _idx, const raw_linedef_t *raw);
+   linedef_c(level_c *lev, int _idx, const raw_hexen_linedef_t *raw);
   ~linedef_c();
 
 public:
@@ -161,6 +164,10 @@ public:
   // (so you need to successfully call wad->FindLevel() before).
 
   void GetBounds(double *lx, double *ly, double *hx, double *hy);
+
+  vertex_c  * LookupVertex(u16_t idx);
+  sidedef_c * LookupSidedef(u16_t idx);
+  sector_c  * LookupSector(u16_t idx);
 
 private:
   void GetVertexes();
