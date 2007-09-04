@@ -31,6 +31,12 @@ rts_result_e;
 
 class thing_spawn_c
 {
+private:
+  thing_spawn_c();
+
+public:
+  ~thing_spawn_c();
+
   bool ambush;
   bool has_z;
 
@@ -101,7 +107,7 @@ public:
 class section_c
 {
 public:
-   section_c();
+   section_c(int _kind);
   ~section_c();
 
 public:
