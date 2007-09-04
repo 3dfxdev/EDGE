@@ -1508,6 +1508,10 @@ static void HandleSpawnKeyword(const char *par, s_thing_t *t)
 		RAD_CheckForFloat(par+6, &t->slope);
 		t->slope /= 45.0f;
 	}
+	else if (strnicmp(par, "WHEN=", 5) == 0)
+	{
+		DDF_MainGetWhenAppear(par+5, &t->appear);
+	}
 	else
 	{
 		RAD_Error("SPAWN_THING: unknown keyword parameter: %s\n", par);
@@ -1533,6 +1537,7 @@ static void RAD_ParseSpawnThing(int pnum, const char **pars)
 	//   ANGLE=<num>
 	//   SLOPE=<num>
 	//   TAG=<num>
+	//   WHEN=<when-appear>
 	//
 	// -ACB- 1998/08/06 Use mobjtype_c linked list
 	// -AJA- 1999/09/11: Extra fields for Z and slope.
@@ -1551,6 +1556,8 @@ static void RAD_ParseSpawnThing(int pnum, const char **pars)
 		t->z = ONFLOORZ;
 	else
 		t->z = this_rad->z - this_rad->rad_z;
+
+	t->appear = DEFAULT_APPEAR;
 
 	t->ambush = DDF_CompareName("SPAWNTHING_AMBUSH", pars[0]) == 0;
 	t->spawn_effect = DDF_CompareName("SPAWNTHING_FLASH", pars[0]) == 0;
@@ -2213,7 +2220,6 @@ static rts_parser_t radtrig_parsers[] =
 	{2, "ONDEATH",  2,3, RAD_ParseOnDeath},
 	{2, "ONHEIGHT", 3,4, RAD_ParseOnHeight},
 	{2, "ONCONDITION",  2,2, RAD_ParseOnCondition},
-	{2, "LABEL", 2,2, RAD_ParseLabel},
 
 	// actions...
 	{2, "TIP",     2,5, RAD_ParseTip},
@@ -2251,6 +2257,7 @@ static rts_parser_t radtrig_parsers[] =
 	{2, "BLOCK_LINES", 2,2, RAD_ParseBlockLines},
 	{2, "WAIT",  2,2, RAD_ParseWait},
 	{2, "JUMP",  2,3, RAD_ParseJump},
+	{2, "LABEL", 2,2, RAD_ParseLabel},
 	{2, "SLEEP", 1,1, RAD_ParseSleep},
 	{2, "RETRIGGER", 1,1, RAD_ParseRetrigger},
 	{2, "CHANGE_TEX", 3,5, RAD_ParseChangeTex},

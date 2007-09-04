@@ -462,6 +462,10 @@ void RAD_ActSpawnThing(rad_trigger_t *R, mobj_t *actor, void *param)
 		return;
 	}
 
+	// -AJA- 2007/09/04: allow individual when_appear flags
+	if (! G_CheckWhenAppear(t->appear))
+		return;
+
 	// -AJA- 1999/10/02: -nomonsters check.
 	if (level_flags.nomonsters && (minfo->extendedflags & EF_MONSTER))
 		return;
