@@ -1,5 +1,14 @@
 Andrew Apted's Log
 
+2007/09/04:
+
+RTS: for SPAWN_THING command, allow a "WHEN=" keyword which
+specifies a when-appear value, for more fine-grained control
+over spawning things for different skill levels.  Like the
+"TAG=" keyword, it must not contain any spaces.  Example:
+
+  SPAWN_THING Zombieman 3200 1600 WHEN=1-3:sp:coop
+
 2007/09/02:
 
 Preliminary work on a new program: 'RTS Layout Tool'.  This

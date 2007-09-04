@@ -98,8 +98,7 @@ s_jump_on_t;
 // SpawnThing Function
 typedef struct s_thing_s
 {
-	// If the object is spawned somewhere
-	// else on the map.  z can be ONFLOORZ or ONCEILINGZ.
+	// spawn coordinates.  z can be ONFLOORZ or ONCEILINGZ.
 	float x;
 	float y;
 	float z;
@@ -107,6 +106,8 @@ typedef struct s_thing_s
 	angle_t angle;
 	float slope;
 	int tag;
+
+	when_appear_e appear;
 
 	// -AJA- 1999/09/11: since the RSCRIPT lump can be loaded before
 	//       DDF* lumps, we can't store a pointer to a mobjtype_c here
