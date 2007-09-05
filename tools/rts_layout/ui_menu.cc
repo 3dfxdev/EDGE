@@ -24,22 +24,13 @@
 #include "main.h"
 
 
-static bool menu_want_to_quit;
-
-
-static void menu_quit_CB(Fl_Widget *w, void *data)
-{
-  menu_want_to_quit = true;
-}
-
-
 //------------------------------------------------------------------------
 //  FILE MENU
 //------------------------------------------------------------------------
 
 static void file_do_quit(Fl_Widget *w, void * data)
 {
-  main_win->action = UI_MainWin::QUIT;
+  application_quit = true;
 }
 
 static void file_do_new(Fl_Widget *w, void * data)
@@ -147,6 +138,13 @@ static void thing_do_delete(Fl_Widget *w, void * data)
 //  HELP MENU
 //------------------------------------------------------------------------
 
+static bool about_box_quit;
+
+static void about_quit_CB(Fl_Widget *w, void *data)
+{
+  about_box_quit = true;
+}
+
 static const char *about_Text =
   "RTS Layout Tool allows you to position your\n"
   "EDGE RTS scripts over a map of your level.\n"
@@ -170,14 +168,14 @@ static const char *about_Web =
 
 void help_do_about(Fl_Widget *w, void * data)
 {
-  menu_want_to_quit = false;
+  about_box_quit = false;
 
   Fl_Window *about = new Fl_Window(326, 340, "About RTS_Layout");
   about->end();
 
   // non-resizable
   about->size_range(about->w(), about->h(), about->w(), about->h());
-  about->callback((Fl_Callback *) menu_quit_CB);
+  about->callback((Fl_Callback *) about_quit_CB);
 
   int cy = 0;
 
@@ -221,7 +219,7 @@ void help_do_about(Fl_Widget *w, void * data)
   // finally add an "OK" button
   Fl_Button *button = new Fl_Button(about->w()-10-60, about->h()-10-30, 
       60, 30, "OK");
-  button->callback((Fl_Callback *) menu_quit_CB);
+  button->callback((Fl_Callback *) about_quit_CB);
   darkish->add(button);
 
 /// about->set_modal();
@@ -229,12 +227,13 @@ void help_do_about(Fl_Widget *w, void * data)
   about->show();
 
   // run the GUI until the user closes
-  while (! menu_want_to_quit)
+  while (! about_box_quit)
     Fl::wait();
 
   // this deletes all the child widgets too...
   delete about;
 }
+
 
 //------------------------------------------------------------------------
 
